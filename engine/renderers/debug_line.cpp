@@ -146,30 +146,30 @@ namespace debug_line
 } // namespace debug_line
 
 DebugLine::DebugLine(bool depth_test)
-	: m_depth_test(depth_test)
-	, m_num_lines(0)
+	: _depth_test(depth_test)
+	, _num(0)
 {
 }
 
-void DebugLine::add_line(const Color4& color, const Vector3& start, const Vector3& end)
+void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4& color)
 {
-	if (m_num_lines >= CE_MAX_DEBUG_LINES)
+	if (_num >= CE_MAX_DEBUG_LINES)
 		 return;
 
-	m_lines[m_num_lines].p0[0] = start.x;
-	m_lines[m_num_lines].p0[1] = start.y;
-	m_lines[m_num_lines].p0[2] = start.z;
-	m_lines[m_num_lines].c0    = color4::to_abgr(color);
+	_lines[_num].p0[0] = start.x;
+	_lines[_num].p0[1] = start.y;
+	_lines[_num].p0[2] = start.z;
+	_lines[_num].c0    = color4::to_abgr(color);
 
-	m_lines[m_num_lines].p1[0] = end.x;
-	m_lines[m_num_lines].p1[1] = end.y;
-	m_lines[m_num_lines].p1[2] = end.z;
-	m_lines[m_num_lines].c1    = color4::to_abgr(color);
+	_lines[_num].p1[0] = end.x;
+	_lines[_num].p1[1] = end.y;
+	_lines[_num].p1[2] = end.z;
+	_lines[_num].c1    = color4::to_abgr(color);
 
-	m_num_lines++;
+	_num++;
 }
 
-void DebugLine::add_sphere(const Color4& color, const Vector3& center, const float radius)
+void DebugLine::add_sphere(const Vector3& center, const float radius, const Color4& color)
 {
 	const uint32_t deg_step = 15;
 
@@ -181,21 +181,21 @@ void DebugLine::add_sphere(const Color4& color, const Vector3& center, const flo
 		// XZ plane
 		const Vector3 start0(math::cos(rad0) * radius, 0, -math::sin(rad0) * radius);
 		const Vector3 end0  (math::cos(rad1) * radius, 0, -math::sin(rad1) * radius);
-		add_line(color, center + start0, center + end0);
+		add_line(center + start0, center + end0, color);
 
 		// XY plane
 		const Vector3 start1(math::cos(rad0) * radius, math::sin(rad0) * radius, 0);
 		const Vector3 end1  (math::cos(rad1) * radius, math::sin(rad1) * radius, 0);
-		add_line(color, center + start1, center + end1);
+		add_line(center + start1, center + end1, color);
 
 		// YZ plane
 		const Vector3 start2(0, math::sin(rad0) * radius, -math::cos(rad0) * radius);
 		const Vector3 end2  (0, math::sin(rad1) * radius, -math::cos(rad1) * radius);
-		add_line(color, center + start2, center + end2);
+		add_line(center + start2, center + end2, color);
 	}
 }
 
-void DebugLine::add_obb(const Color4& color, const Matrix4x4& tm, const Vector3& extents)
+void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& extents, const Color4& color)
 {
 	const Vector3 o = Vector3(tm.t.x, tm.t.y, tm.t.z);
 	const Vector3 x = Vector3(tm.x.x, tm.x.y, tm.x.z) * (extents.x * 0.5);
@@ -203,46 +203,46 @@ void DebugLine::add_obb(const Color4& color, const Matrix4x4& tm, const Vector3&
 	const Vector3 z = Vector3(tm.z.x, tm.z.y, tm.z.z) * (extents.z * 0.5);
 
 	// Back face
-	add_line(color, o - x - y - z, o + x - y - z);
-	add_line(color, o + x - y - z, o + x + y - z);
-	add_line(color, o + x + y - z, o - x + y - z);
-	add_line(color, o - x + y - z, o - x - y - z);
+	add_line(o - x - y - z, o + x - y - z, color);
+	add_line(o + x - y - z, o + x + y - z, color);
+	add_line(o + x + y - z, o - x + y - z, color);
+	add_line(o - x + y - z, o - x - y - z, color);
 
-	add_line(color, o - x - y + z, o + x - y + z);
-	add_line(color, o + x - y + z, o + x + y + z);
-	add_line(color, o + x + y + z, o - x + y + z);
-	add_line(color, o - x + y + z, o - x - y + z);
+	add_line(o - x - y + z, o + x - y + z, color);
+	add_line(o + x - y + z, o + x + y + z, color);
+	add_line(o + x + y + z, o - x + y + z, color);
+	add_line(o - x + y + z, o - x - y + z, color);
 
-	add_line(color, o - x - y - z, o - x - y + z);
-	add_line(color, o + x - y - z, o + x - y + z);
-	add_line(color, o + x + y - z, o + x + y + z);
-	add_line(color, o - x + y - z, o - x + y + z);
+	add_line(o - x - y - z, o - x - y + z, color);
+	add_line(o + x - y - z, o + x - y + z, color);
+	add_line(o + x + y - z, o + x + y + z, color);
+	add_line(o - x + y - z, o - x + y + z, color);
 }
 
 void DebugLine::clear()
 {
-	m_num_lines = 0;
+	_num = 0;
 }
 
 void DebugLine::commit()
 {
-	if (!m_num_lines)
+	if (!_num)
 		return;
 
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::allocTransientVertexBuffer(&tvb, CE_MAX_DEBUG_LINES * 2, debug_line::s_decl);
 
-	memcpy(tvb.data, m_lines, sizeof(Line) * m_num_lines);
+	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
 	bgfx::setState(BGFX_STATE_PT_LINES
 		| BGFX_STATE_RGB_WRITE
 		| BGFX_STATE_DEPTH_WRITE
-		| (m_depth_test ? BGFX_STATE_DEPTH_TEST_LESS
+		| (_depth_test ? BGFX_STATE_DEPTH_TEST_LESS
 			: BGFX_STATE_DEPTH_TEST_ALWAYS)
 		| BGFX_STATE_CULL_CW);
 
 	bgfx::setProgram(debug_line::s_prog);
-	bgfx::setVertexBuffer(&tvb, 0, m_num_lines * 2);
+	bgfx::setVertexBuffer(&tvb, 0, _num * 2);
 	bgfx::submit(0);
 }
 

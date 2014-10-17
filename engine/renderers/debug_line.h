@@ -47,14 +47,14 @@ struct DebugLine
 	DebugLine(bool depth_test);
 
 	/// Adds a line from @a start to @a end with the given @a color.
-	void add_line(const Color4& color, const Vector3& start, const Vector3& end);
+	void add_line(const Vector3& start, const Vector3& end, const Color4& color);
 
 	/// Adds a sphere at @a center with the given @a radius and @a color.
-	void add_sphere(const Color4& color, const Vector3& center, const float radius);
+	void add_sphere(const Vector3& center, const float radius, const Color4& color);
 
 	/// Adds an orientd bounding box. @a tm describes the position and orientation of
 	/// the box. @a extents describes the size of the box along the axis.
-	void add_obb(const Color4& color, const Matrix4x4& tm, const Vector3& extents);
+	void add_obb(const Matrix4x4& tm, const Vector3& extents, const Color4& color);
 
 	/// Clears all the lines.
 	void clear();
@@ -72,9 +72,9 @@ private:
 		uint32_t c1;
 	};
 
-	bool m_depth_test;
-	uint32_t m_num_lines;
-	Line m_lines[CE_MAX_DEBUG_LINES];
+	bool _depth_test;
+	uint32_t _num;
+	Line _lines[CE_MAX_DEBUG_LINES];
 };
 
 } // namespace crown

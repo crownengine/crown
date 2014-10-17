@@ -223,8 +223,9 @@ namespace physics_globals
 			for(PxU32 i = 0; i < rb.getNbLines(); i++)
 			{
 				const PxDebugLine& pxline = rb.getLines()[i];
-				line.add_line(Color4(pxline.color0), Vector3(pxline.pos0.x, pxline.pos0.y, pxline.pos0.z),
-								Vector3(pxline.pos1.x, pxline.pos1.y, pxline.pos1.z));
+				line.add_line(Vector3(pxline.pos0.x, pxline.pos0.y, pxline.pos0.z),
+								Vector3(pxline.pos1.x, pxline.pos1.y, pxline.pos1.z),
+								Color4(pxline.color0));
 			}
 
 			line.commit();

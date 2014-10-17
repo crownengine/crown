@@ -36,21 +36,21 @@ namespace crown
 static int debug_line_add_line(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_debug_line(1)->add_line(Color4::RED, stack.get_vector3(2), stack.get_vector3(3));
+	stack.get_debug_line(1)->add_line(stack.get_vector3(2), stack.get_vector3(3), stack.get_color4(4));
 	return 0;
 }
 
 static int debug_line_add_sphere(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_debug_line(1)->add_sphere(Color4::RED, stack.get_vector3(2), stack.get_float(3));
+	stack.get_debug_line(1)->add_sphere(stack.get_vector3(2), stack.get_float(3), stack.get_color4(4));
 	return 0;
 }
 
 static int debug_line_add_obb(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_debug_line(1)->add_obb(Color4::RED, stack.get_matrix4x4(2), stack.get_vector3(3));
+	stack.get_debug_line(1)->add_obb(stack.get_matrix4x4(2), stack.get_vector3(3), stack.get_color4(4));
 	return 0;
 }
 
