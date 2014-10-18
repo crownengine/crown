@@ -40,14 +40,14 @@ NetworkFilesystem::NetworkFilesystem()
 }
 
 NetworkFilesystem::NetworkFilesystem(const NetAddress& addr, uint16_t port)
-	: m_address(addr)
-	, m_port(port)
+	: _address(addr)
+	, _port(port)
 {
 }
 
 File* NetworkFilesystem::open(const char* path, FileOpenMode mode)
 {
-	return CE_NEW(default_allocator(), NetworkFile)(m_address, m_port, path);
+	return CE_NEW(default_allocator(), NetworkFile)(_address, _port, path);
 }
 
 void NetworkFilesystem::close(File* file)
@@ -99,7 +99,7 @@ void NetworkFilesystem::get_absolute_path(const char* path, DynamicString& os_pa
 TCPSocket NetworkFilesystem::new_connection()
 {
 	TCPSocket socket;
-	socket.connect(m_address, m_port);
+	socket.connect(_address, _port);
 	return socket;
 }
 

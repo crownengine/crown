@@ -53,7 +53,7 @@ class File
 public:
 
 	/// Opens the file with the given @a mode
-	File(FileOpenMode mode) : m_open_mode(mode) {}
+	File(FileOpenMode mode) : _open_mode(mode) {}
 	virtual ~File() {};
 
 	/// Sets the position indicator of the file to position.
@@ -110,7 +110,7 @@ public:
 
 protected:
 
-	FileOpenMode m_open_mode;
+	FileOpenMode _open_mode;
 };
 
 } // namespace crown

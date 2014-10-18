@@ -88,14 +88,14 @@ public:
 
 protected:
 
-	OsFile m_file;
-	bool m_last_was_read;
+	OsFile _file;
+	bool _last_was_read;
 
 protected:
 
 	inline void check_valid() const
 	{
-		CE_ASSERT(m_file.is_open(), "File is not open");
+		CE_ASSERT(_file.is_open(), "File is not open");
 	}
 };
 

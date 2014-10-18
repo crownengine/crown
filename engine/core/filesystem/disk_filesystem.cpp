@@ -35,13 +35,13 @@ namespace crown
 
 DiskFilesystem::DiskFilesystem()
 {
-	os::getcwd(m_root_path, MAX_PATH_LENGTH);
+	os::getcwd(_root_path, MAX_PATH_LENGTH);
 }
 
 DiskFilesystem::DiskFilesystem(const char* root_path)
 {
 	CE_ASSERT_NOT_NULL(root_path);
-	string::strncpy(m_root_path, root_path, MAX_PATH_LENGTH);
+	string::strncpy(_root_path, root_path, MAX_PATH_LENGTH);
 }
 
 File* DiskFilesystem::open(const char* path, FileOpenMode mode)
@@ -159,7 +159,7 @@ void DiskFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
 		return;
 	}
 
-	os_path += m_root_path;
+	os_path += _root_path;
 	os_path += PATH_SEPARATOR;
 	os_path += path;
 }

@@ -119,8 +119,8 @@ private:
 
 private:
 
-	NetAddress m_address;
-	uint16_t m_port;
+	NetAddress _address;
+	uint16_t _port;
 };
 
 } // namespace crown

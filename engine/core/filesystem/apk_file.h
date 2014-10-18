@@ -85,7 +85,7 @@ public:
 
 private:
 
-	AAsset* m_asset;
+	AAsset* _asset;
 };
 
 } // namespace crown

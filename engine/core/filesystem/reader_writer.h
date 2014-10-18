@@ -39,7 +39,7 @@ class TextReader
 {
 public:
 
-	TextReader(File& file) : m_file(file) {}
+	TextReader(File& file) : _file(file) {}
 
 	/// Reads characters from file and stores them as a C string
 	/// into string until (size-1) characters have been read or
@@ -54,9 +54,9 @@ public:
 		char current_char;
 		size_t bytes_read = 0;
 
-		while(!m_file.end_of_file() && bytes_read < size - 1)
+		while(!_file.end_of_file() && bytes_read < size - 1)
 		{
-			m_file.read(&current_char, 1);
+			_file.read(&current_char, 1);
 			string[bytes_read] = current_char;
 
 			bytes_read++;
@@ -74,7 +74,7 @@ public:
 
 private:
 
-	File& m_file;
+	File& _file;
 };
 
 /// A reader that offers a convenient way to write text to a File
@@ -84,7 +84,7 @@ class TextWriter
 {
 public:
 
-	TextWriter(File& file) : m_file(file) {}
+	TextWriter(File& file) : _file(file) {}
 
 	/// Writes the string pointed by string to the file.
 	/// The function begins copying from the address specified (string)
@@ -92,12 +92,12 @@ public:
 	/// The final null character is not copied to the file.
 	void write_string(const char* string)
 	{
-		m_file.write(string, string::strlen(string));
+		_file.write(string, string::strlen(string));
 	}
 
 private:
 
-	File& m_file;
+	File& _file;
 };
 
 /// A writer that offers a convenient way to write to a File
@@ -107,27 +107,27 @@ class BinaryWriter
 {
 public:
 
-	BinaryWriter(File& file) : m_file(file) {}
+	BinaryWriter(File& file) : _file(file) {}
 
 	void write(const void* data, size_t size)
 	{
-		m_file.write(data, size);
+		_file.write(data, size);
 	}
 
 	template <typename T>
 	void write(const T& data)
 	{
-		m_file.write(&data, sizeof(T));
+		_file.write(&data, sizeof(T));
 	}
 
 	void skip(size_t bytes)
 	{
-		m_file.skip(bytes);
+		_file.skip(bytes);
 	}
 
 private:
 
-	File& m_file;
+	File& _file;
 };
 
 /// A reader that offers a convenient way to read from a File
@@ -137,27 +137,27 @@ class BinaryReader
 {
 public:
 
-	BinaryReader(File& file) : m_file(file) {}
+	BinaryReader(File& file) : _file(file) {}
 
 	void read(void* data, size_t size)
 	{
-		m_file.read(data, size);
+		_file.read(data, size);
 	}
 
 	template <typename T>
 	void read(T& data)
 	{
-		m_file.read(&data, sizeof(T));
+		_file.read(&data, sizeof(T));
 	}
 
 	void skip(size_t bytes)
 	{
-		m_file.skip(bytes);
+		_file.skip(bytes);
 	}
 
 private:
 
-	File& m_file;
+	File& _file;
 };
 
 } // namespace crown

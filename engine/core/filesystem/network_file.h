@@ -89,11 +89,11 @@ public:
 
 private:
 
-	char m_filename[MAX_PATH_LENGTH];
-	NetAddress m_address;
-	uint16_t m_port;
-	TCPSocket m_socket;
-	size_t m_position;
+	char _filename[MAX_PATH_LENGTH];
+	NetAddress _address;
+	uint16_t _port;
+	TCPSocket _socket;
+	size_t _position;
 };
 
 } // namespace crown

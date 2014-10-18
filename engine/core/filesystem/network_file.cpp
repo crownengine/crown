@@ -41,32 +41,32 @@ namespace crown
 
 NetworkFile::NetworkFile(const NetAddress& addr, uint16_t port, const char* filename)
 	: File(FOM_READ)
-	, m_address(addr)
-	, m_port(port)
-	, m_position(0)
+	, _address(addr)
+	, _port(port)
+	, _position(0)
 {
-	string::strncpy(m_filename, filename, MAX_PATH_LENGTH);
-	m_socket.connect(addr, port);
+	string::strncpy(_filename, filename, MAX_PATH_LENGTH);
+	_socket.connect(addr, port);
 }
 
 NetworkFile::~NetworkFile()
 {
-	m_socket.close();
+	_socket.close();
 }
 
 void NetworkFile::seek(size_t position)
 {
-	m_position = position;
+	_position = position;
 }
 
 void NetworkFile::seek_to_end()
 {
-	m_position = size();
+	_position = size();
 }
 
 void NetworkFile::skip(size_t bytes)
 {
-	m_position += bytes;
+	_position += bytes;
 }
 
 void NetworkFile::read(void* buffer, size_t size)
@@ -78,15 +78,15 @@ void NetworkFile::read(void* buffer, size_t size)
 
 	// Request the file
 	command << "{\"type\":\"filesystem\",\"filesystem\":\"read\",";
-	command << "\"file\":\"" << m_filename << "\",";
-	command << "\"position\":" << m_position << ",";
+	command << "\"file\":\"" << _filename << "\",";
+	command << "\"position\":" << _position << ",";
 	command << "\"size\":" << size << "}";
 
-	network_filesystem::send(m_socket, c_str(command));
+	network_filesystem::send(_socket, c_str(command));
 
 	// Wait for response
 	Array<char> response(default_allocator());
-	network_filesystem::read_response(m_socket, response);
+	network_filesystem::read_response(_socket, response);
 
 	// Parse the response
 	JSONParser json(array::begin(response));
@@ -128,7 +128,7 @@ void NetworkFile::flush()
 
 size_t NetworkFile::position()
 {
-	return m_position;
+	return _position;
 }
 
 size_t NetworkFile::size()
@@ -140,13 +140,13 @@ size_t NetworkFile::size()
 
 	// Request the file
 	command << "{\"type\":\"filesystem\",\"filesystem\":\"size\",";
-	command << "\"file\":\"" << m_filename << "\"}";
+	command << "\"file\":\"" << _filename << "\"}";
 
-	network_filesystem::send(m_socket, c_str(command));
+	network_filesystem::send(_socket, c_str(command));
 
 	// Wait for response
 	Array<char> response(default_allocator());
-	network_filesystem::read_response(m_socket, response);
+	network_filesystem::read_response(_socket, response);
 
 	JSONParser parser(array::begin(response));
 	JSONElement root = parser.root();

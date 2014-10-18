@@ -90,7 +90,7 @@ public:
 
 private:
 
-	char m_root_path[MAX_PATH_LENGTH];
+	char _root_path[MAX_PATH_LENGTH];
 };
 
 } // namespace crown

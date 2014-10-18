@@ -38,38 +38,38 @@ namespace crown
 
 ApkFile::ApkFile(AAssetManager* asset_manager, const char* path)
 	: File(FOM_READ)
-	, m_asset(NULL)
+	, _asset(NULL)
 {
-	m_asset = AAssetManager_open(asset_manager, path, AASSET_MODE_RANDOM);
-	CE_ASSERT(m_asset != NULL, "AAssetManager_open: failed to open %s", path);
+	_asset = AAssetManager_open(asset_manager, path, AASSET_MODE_RANDOM);
+	CE_ASSERT(_asset != NULL, "AAssetManager_open: failed to open %s", path);
 }
 
 ApkFile::~ApkFile()
 {
-	if (m_asset != NULL)
+	if (_asset != NULL)
 	{
-		AAsset_close(m_asset);
-		m_asset = NULL;
+		AAsset_close(_asset);
+		_asset = NULL;
 	}
 }
 
 void ApkFile::seek(size_t position)
 {
-	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
+	off_t seek_result = AAsset_seek(_asset, (off_t)position, SEEK_SET);
 	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
 void ApkFile::seek_to_end()
 {
-	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
+	off_t seek_result = AAsset_seek(_asset, 0, SEEK_END);
 	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
 void ApkFile::skip(size_t bytes)
 {
-	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
+	off_t seek_result = AAsset_seek(_asset, (off_t) bytes, SEEK_CUR);
 	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
@@ -77,7 +77,7 @@ void ApkFile::skip(size_t bytes)
 void ApkFile::read(void* buffer, size_t size)
 {
 	CE_ASSERT_NOT_NULL(buffer);
-	size_t bytes_read = (size_t) AAsset_read(m_asset, buffer, size);
+	size_t bytes_read = (size_t) AAsset_read(_asset, buffer, size);
 	CE_ASSERT(bytes_read == size, "AAsset_read: requested: %lu, read: %lu", size, bytes_read);
 	CE_UNUSED(bytes_read);
 }
@@ -100,22 +100,22 @@ void ApkFile::flush()
 
 bool ApkFile::is_valid()
 {
-	return m_asset != NULL;
+	return _asset != NULL;
 }
 
 bool ApkFile::end_of_file()
 {
-	return AAsset_getRemainingLength(m_asset) == 0;
+	return AAsset_getRemainingLength(_asset) == 0;
 }
 
 size_t ApkFile::size()
 {
-	return AAsset_getLength(m_asset);
+	return AAsset_getLength(_asset);
 }
 
 size_t ApkFile::position()
 {
-	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
+	return (size_t) (AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
 }
 
 bool ApkFile::can_read() const
