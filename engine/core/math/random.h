@@ -34,34 +34,32 @@ namespace crown
 ///	Uses LCG algorithm: fast and compatible with the standard C rand().
 struct Random
 {
-public:
-
 	/// Initializes the generator with the given @a seed.
-				Random(int32_t seed);
+	Random(int32_t seed);
 
 	/// Returns a pseudo-random integer in the range [0, 32767].
-	int32_t		integer();
+	int32_t integer();
 
 	/// Returns a pseudo-random integer in the range [0, max).
-	int32_t		integer(int32_t max);
+	int32_t integer(int32_t max);
 
 	/// Returns a pseudo-random float in the range [0.0, 1.0].
-	float		unit_float();
+	float unit_float();
 
 private:
 
-	int32_t		m_seed;
+	int32_t _seed;
 };
 
-inline Random::Random(int32_t seed) : m_seed(seed)
+inline Random::Random(int32_t seed) : _seed(seed)
 {
 }
 
 inline int32_t Random::integer()
 {
-	m_seed = 214013 * m_seed + 13737667;
+	_seed = 214013 * _seed + 13737667;
 
-	return (m_seed >> 16) & 0x7FFF;
+	return (_seed >> 16) & 0x7FFF;
 }
 
 inline int32_t Random::integer(int32_t max)
@@ -75,4 +73,3 @@ inline float Random::unit_float()
 }
 
 } // namespace crown
-
