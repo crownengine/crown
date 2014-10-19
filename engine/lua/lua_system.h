@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-struct Vector2;
 struct Vector3;
 struct Matrix4x4;
 struct Quaternion;
@@ -51,13 +50,11 @@ namespace lua_globals
 	void clear_temporaries();
 
 	/// Returns a new temporary Vector2, Vector3, Matrix4x4 or Quaternion
-	Vector2* next_vector2(const Vector2& v);
 	Vector3* next_vector3(const Vector3& v);
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m);
 	Quaternion* next_quaternion(const Quaternion& q);
 
-	/// Returns whether the object at stack @a index is a Vector2, Vector3, Matrix4x4 or Quaternion
-	bool is_vector2(int32_t index);
+	/// Returns whether the object at stack @a index is a Vector3, Matrix4x4 or Quaternion
 	bool is_vector3(int32_t index);
 	bool is_matrix4x4(int32_t index);
 	bool is_quaternion(int32_t index);

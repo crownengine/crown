@@ -417,10 +417,11 @@ struct LuaStack
 		return l;
 	}
 
-	Vector2& get_vector2(int32_t index)
+	Vector2 get_vector2(int32_t index)
 	{
-		void* v = CHECKLIGHTDATA(_L, index, lua_globals::is_vector2, "Vector2");
-		return *(Vector2*)v;
+		void* v = CHECKLIGHTDATA(_L, index, lua_globals::is_vector3, "Vector2");
+		Vector3& vv = *(Vector3*)v;
+		return Vector2(vv.x, vv.y);
 	}
 
 	Vector3& get_vector3(int32_t index)
@@ -451,9 +452,7 @@ struct LuaStack
 
 	void push_vector2(const Vector2& v)
 	{
-		lua_pushlightuserdata(_L, lua_globals::next_vector2(v));
-		luaL_getmetatable(_L, "Lightuserdata_mt");
-		lua_setmetatable(_L, -2);
+		push_vector3(Vector3(v.x, v.y, 0.0f));
 	}
 
 	void push_vector3(const Vector3& v)

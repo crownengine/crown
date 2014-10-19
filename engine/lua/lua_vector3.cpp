@@ -188,6 +188,20 @@ static int vector3_angle(lua_State* L)
 	return 1;
 }
 
+static int vector2_new(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector2(Vector2(stack.get_float(1), stack.get_float(2)));
+	return 1;
+}
+
+static int vector2_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return vector2_new(L);
+}
+
 void load_vector3(LuaEnvironment& env)
 {
 	env.load_module_function("Vector3", "new",            vector3_new);
@@ -213,6 +227,9 @@ void load_vector3(LuaEnvironment& env)
 	env.load_module_function("Vector3", "angle",          vector3_angle);
 
 	env.load_module_constructor("Vector3", vector3_ctor);
+
+	env.load_module_function("Vector2", "new",            vector2_new);
+	env.load_module_constructor("Vector2", vector2_ctor);
 }
 
 } // namespace crown

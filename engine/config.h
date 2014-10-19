@@ -126,10 +126,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define CE_MAX_DEBUG_LINES 2 * 1024 // Per DebugLine
 #endif // CE_MAX
 
-#ifndef CE_MAX_LUA_VECTOR2
-	#define CE_MAX_LUA_VECTOR2 4096
-#endif // CE_MAX
-
 #ifndef CE_MAX_LUA_VECTOR3
 	#define CE_MAX_LUA_VECTOR3 4096
 #endif // CE_MAX

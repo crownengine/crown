@@ -68,8 +68,6 @@ extern void load_sprite(LuaEnvironment& env);
 extern void load_string_setting(LuaEnvironment& env);
 extern void load_touch(LuaEnvironment& env);
 extern void load_unit(LuaEnvironment& env);
-extern void load_vector2(LuaEnvironment& env);
-extern void load_vector2box(LuaEnvironment& env);
 extern void load_vector3(LuaEnvironment& env);
 extern void load_vector3box(LuaEnvironment& env);
 extern void load_window(LuaEnvironment& env);
@@ -81,8 +79,6 @@ namespace lua_globals
 {
 	static lua_State* s_L;
 
-	static uint32_t 		s_vec2_used = 0;
-	static Vector2 			s_vec2_buffer[CE_MAX_LUA_VECTOR2];
 	static uint32_t 		s_vec3_used = 0;
 	static Vector3 			s_vec3_buffer[CE_MAX_LUA_VECTOR3];
 	static uint32_t 		s_mat4_used = 0;
@@ -132,128 +128,66 @@ namespace lua_globals
 	static int lightuserdata_add(lua_State* L)
 	{
 		LuaStack stack(L);
-
-		if (lua_globals::is_vector3(1))
-		{
-			const Vector3& a = stack.get_vector3(1);
-			const Vector3& b = stack.get_vector3(2);
-			stack.push_vector3(a + b);
-			return 1;
-		}
-
-		const Vector2& a = stack.get_vector2(1);
-		const Vector2& b = stack.get_vector2(2);
-		stack.push_vector2(a + b);
+		const Vector3& a = stack.get_vector3(1);
+		const Vector3& b = stack.get_vector3(2);
+		stack.push_vector3(a + b);
 		return 1;
 	}
 
 	static int lightuserdata_sub(lua_State* L)
 	{
 		LuaStack stack(L);
-
-		if (lua_globals::is_vector3(1))
-		{
-			const Vector3& a = stack.get_vector3(1);
-			const Vector3& b = stack.get_vector3(2);
-			stack.push_vector3(a - b);
-			return 1;
-		}
-
-		const Vector2& a = stack.get_vector2(1);
-		const Vector2& b = stack.get_vector2(2);
-		stack.push_vector2(a - b);
+		const Vector3& a = stack.get_vector3(1);
+		const Vector3& b = stack.get_vector3(2);
+		stack.push_vector3(a - b);
 		return 1;
 	}
 
 	static int lightuserdata_mul(lua_State* L)
 	{
 		LuaStack stack(L);
-
-		if (lua_globals::is_vector3(1))
-		{
-			const Vector3& a = stack.get_vector3(1);
-			const float b = stack.get_float(2);
-			stack.push_vector3(a * b);
-			return 1;
-		}
-
-		const Vector2& a = stack.get_vector2(1);
+		const Vector3& a = stack.get_vector3(1);
 		const float b = stack.get_float(2);
-		stack.push_vector2(a * b);
+		stack.push_vector3(a * b);
 		return 1;
 	}
 
 	static int lightuserdata_div(lua_State* L)
 	{
 		LuaStack stack(L);
-
-		if (lua_globals::is_vector3(1))
-		{
-			const Vector3& a = stack.get_vector3(1);
-			const float b = stack.get_float(2);
-			stack.push_vector3(a / b);
-			return 1;
-		}
-
-		const Vector2& a = stack.get_vector2(1);
+		const Vector3& a = stack.get_vector3(1);
 		const float b = stack.get_float(2);
-		stack.push_vector2(a / b);
+		stack.push_vector3(a / b);
 		return 1;
 	}
 
 	static int lightuserdata_unm(lua_State* L)
 	{
 		LuaStack stack(L);
-
-		if (lua_globals::is_vector3(1))
-		{
-			stack.push_vector3(-stack.get_vector3(1));
-			return 1;
-		}
-		stack.push_vector2(-stack.get_vector2(1));
+		stack.push_vector3(-stack.get_vector3(1));
 		return 1;
 	}
 
 	static int lightuserdata_index(lua_State* L)
 	{
 		LuaStack stack(L);
+		Vector3& v = stack.get_vector3(1);
+		const char* s = stack.get_string(2);
 
-		if (lua_globals::is_vector3(1))
+		if (string::strcmp(s, "x") == 0)
 		{
-			Vector3& v = stack.get_vector3(1);
-			const char* s = stack.get_string(2);
-
-			if (string::strcmp(s, "x") == 0)
-			{
-				stack.push_float(v.x);
-				return 1;
-			}
-			else if (string::strcmp(s, "y") == 0)
-			{
-				stack.push_float(v.y);
-				return 1;
-			}
-			else if (string::strcmp(s, "z") == 0)
-			{
-				stack.push_float(v.z);
-				return 1;
-			}
+			stack.push_float(v.x);
+			return 1;
 		}
-		else if (lua_globals::is_vector2(1))
+		else if (string::strcmp(s, "y") == 0)
 		{
-			Vector2& v = stack.get_vector2(1);
-			const char* s = stack.get_string(2);
-
-			if (string::strcmp(s, "x") == 0)
-			{
-				stack.push_float(v.x);
-				return 1;
-			}
-			else if (string::strcmp(s, "y") == 0)
-			{
-				stack.push_float(v.y);
-				return 1;
-			}
+			stack.push_float(v.y);
+			return 1;
+		}
+		else if (string::strcmp(s, "z") == 0)
+		{
+			stack.push_float(v.z);
+			return 1;
 		}
 
 		return 0;
@@ -262,26 +196,13 @@ namespace lua_globals
 	static int lightuserdata_newindex(lua_State* L)
 	{
 		LuaStack stack(L);
+		Vector3& v = stack.get_vector3(1);
+		const char* s = stack.get_string(2);
+		const float value = stack.get_float(3);
 
-		if (lua_globals::is_vector3(1))
-		{
-			Vector3& v = stack.get_vector3(1);
-			const char* s = stack.get_string(2);
-			const float value = stack.get_float(3);
-
-			if (string::strcmp(s, "x") == 0) v.x = value;
-			else if (string::strcmp(s, "y") == 0) v.y = value;
-			else if (string::strcmp(s, "z") == 0) v.z = value;
-		}
-		else if (lua_globals::is_vector2(1))
-		{
-			Vector2& v = stack.get_vector2(1);
-			const char* s = stack.get_string(2);
-			const float value = stack.get_float(3);
-
-			if (string::strcmp(s, "x") == 0) v.x = value;
-			else if (string::strcmp(s, "y") == 0) v.y = value;
-		}
+		if (string::strcmp(s, "x") == 0) v.x = value;
+		else if (string::strcmp(s, "y") == 0) v.y = value;
+		else if (string::strcmp(s, "z") == 0) v.z = value;
 
 		return 0;
 	}
@@ -320,8 +241,6 @@ namespace lua_globals
 		load_string_setting(env);
 		load_touch(env);
 		load_unit(env);
-		load_vector2(env);
-		load_vector2box(env);
 		load_vector3(env);
 		load_vector3box(env);
 		load_window(env);
@@ -392,13 +311,6 @@ namespace lua_globals
 		return s_L;
 	}
 
-	Vector2* next_vector2(const Vector2& v)
-	{
-		CE_ASSERT(s_vec2_used < CE_MAX_LUA_VECTOR2, "Maximum number of Vector2 reached");
-
-		return &(s_vec2_buffer[s_vec2_used++] = v);
-	}
-
 	Vector3* next_vector3(const Vector3& v)
 	{
 		CE_ASSERT(s_vec3_used < CE_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
@@ -417,12 +329,6 @@ namespace lua_globals
 	{
 		CE_ASSERT(s_quat_used < CE_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
 		return &(s_quat_buffer[s_quat_used++] = q);
-	}
-
-	bool is_vector2(int32_t index)
-	{
-		void* type = lua_touserdata(s_L, index);
-		return (type >= &s_vec2_buffer[0] && type <= &s_vec2_buffer[CE_MAX_LUA_VECTOR2 - 1]);
 	}
 
 	bool is_vector3(int32_t index)
@@ -445,7 +351,6 @@ namespace lua_globals
 
 	void clear_temporaries()
 	{
-		s_vec2_used = 0;
 		s_vec3_used = 0;
 		s_mat4_used = 0;
 		s_quat_used = 0;
