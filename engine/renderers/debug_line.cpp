@@ -198,9 +198,9 @@ void DebugLine::add_sphere(const Vector3& center, const float radius, const Colo
 void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& extents, const Color4& color)
 {
 	const Vector3 o = Vector3(tm.t.x, tm.t.y, tm.t.z);
-	const Vector3 x = Vector3(tm.x.x, tm.x.y, tm.x.z) * (extents.x * 0.5);
-	const Vector3 y = Vector3(tm.y.x, tm.y.y, tm.y.z) * (extents.y * 0.5);
-	const Vector3 z = Vector3(tm.z.x, tm.z.y, tm.z.z) * (extents.z * 0.5);
+	const Vector3 x = Vector3(tm.x.x, tm.x.y, tm.x.z) * (extents.x * 0.5f);
+	const Vector3 y = Vector3(tm.y.x, tm.y.y, tm.y.z) * (extents.y * 0.5f);
+	const Vector3 z = Vector3(tm.z.x, tm.z.y, tm.z.z) * (extents.z * 0.5f);
 
 	// Back face
 	add_line(o - x - y - z, o + x - y - z, color);
