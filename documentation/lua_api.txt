@@ -704,6 +704,9 @@ Device
 	**can_get** (type, name) : bool
 		Returns whether the resource (type, name) is loaded.
 
+	**enable_resource_autoload** (enable)
+		Sets whether resources should be automatically loaded when accessed.
+
 DebugLine
 =========
 
