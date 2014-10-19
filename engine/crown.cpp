@@ -210,6 +210,7 @@ void update()
 		console_server_globals::console().update();
 #endif
 		device()->update();
+		bgfx::frame();
 		input_globals::keyboard().update();
 		input_globals::mouse().update();
 		input_globals::touch().update();

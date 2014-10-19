@@ -110,9 +110,6 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 {
 	bgfx::reset(width, height, BGFX_RESET_VSYNC);
 
-	// Enable debug text.
-	// bgfx::setDebug(BGFX_DEBUG_TEXT);
-
 	// Set view 0 clear state.
 	bgfx::setViewClear(0
 		, BGFX_CLEAR_COLOR_BIT|BGFX_CLEAR_DEPTH_BIT
@@ -138,10 +135,6 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	{
 		m_sprite[s]->render();
 	}
-
-	// Advance to next frame. Rendering thread will be kicked to 
-	// process submitted rendering primitives.
-	bgfx::frame();
 }
 
 } // namespace crown
