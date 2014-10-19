@@ -77,7 +77,7 @@ extern void load_world(LuaEnvironment& env);
 extern void load_color4(LuaEnvironment& env);
 extern void load_material(LuaEnvironment& env);
 
-namespace lua_system
+namespace lua_globals
 {
 	static lua_State* s_L;
 
@@ -133,7 +133,7 @@ namespace lua_system
 	{
 		LuaStack stack(L);
 
-		if (lua_system::is_vector3(1))
+		if (lua_globals::is_vector3(1))
 		{
 			const Vector3& a = stack.get_vector3(1);
 			const Vector3& b = stack.get_vector3(2);
@@ -151,7 +151,7 @@ namespace lua_system
 	{
 		LuaStack stack(L);
 
-		if (lua_system::is_vector3(1))
+		if (lua_globals::is_vector3(1))
 		{
 			const Vector3& a = stack.get_vector3(1);
 			const Vector3& b = stack.get_vector3(2);
@@ -169,7 +169,7 @@ namespace lua_system
 	{
 		LuaStack stack(L);
 
-		if (lua_system::is_vector3(1))
+		if (lua_globals::is_vector3(1))
 		{
 			const Vector3& a = stack.get_vector3(1);
 			const float b = stack.get_float(2);
@@ -187,7 +187,7 @@ namespace lua_system
 	{
 		LuaStack stack(L);
 
-		if (lua_system::is_vector3(1))
+		if (lua_globals::is_vector3(1))
 		{
 			const Vector3& a = stack.get_vector3(1);
 			const float b = stack.get_float(2);
@@ -205,7 +205,7 @@ namespace lua_system
 	{
 		LuaStack stack(L);
 
-		if (lua_system::is_vector3(1))
+		if (lua_globals::is_vector3(1))
 		{
 			stack.push_vector3(-stack.get_vector3(1));
 			return 1;
@@ -218,7 +218,7 @@ namespace lua_system
 	{
 		LuaStack stack(L);
 
-		if (lua_system::is_vector3(1))
+		if (lua_globals::is_vector3(1))
 		{
 			Vector3& v = stack.get_vector3(1);
 			const char* s = stack.get_string(2);
@@ -239,7 +239,7 @@ namespace lua_system
 				return 1;
 			}
 		}
-		else if (lua_system::is_vector2(1))
+		else if (lua_globals::is_vector2(1))
 		{
 			Vector2& v = stack.get_vector2(1);
 			const char* s = stack.get_string(2);
@@ -263,7 +263,7 @@ namespace lua_system
 	{
 		LuaStack stack(L);
 
-		if (lua_system::is_vector3(1))
+		if (lua_globals::is_vector3(1))
 		{
 			Vector3& v = stack.get_vector3(1);
 			const char* s = stack.get_string(2);
@@ -273,7 +273,7 @@ namespace lua_system
 			else if (string::strcmp(s, "y") == 0) v.y = value;
 			else if (string::strcmp(s, "z") == 0) v.z = value;
 		}
-		else if (lua_system::is_vector2(1))
+		else if (lua_globals::is_vector2(1))
 		{
 			Vector2& v = stack.get_vector2(1);
 			const char* s = stack.get_string(2);
@@ -451,5 +451,5 @@ namespace lua_system
 		s_quat_used = 0;
 	}
 
-} // namespace lua_system
+} // namespace lua_globals
 } // namespace crown

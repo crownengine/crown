@@ -198,7 +198,7 @@ bool init(Filesystem& fs, const ConfigSettings& cs)
 	audio_globals::init();
 	physics_globals::init();
 	bgfx::init();
-	lua_system::init();
+	lua_globals::init();
 	device_globals::init(fs, cs.boot_package, cs.boot_script);
 	device()->init();
 	return true;
@@ -213,7 +213,7 @@ void update()
 #endif
 		device()->update();
 		bgfx::frame();
-		lua_system::clear_temporaries();
+		lua_globals::clear_temporaries();
 		input_globals::keyboard().update();
 		input_globals::mouse().update();
 		input_globals::touch().update();
@@ -224,7 +224,7 @@ void shutdown()
 {
 	device()->shutdown();
 	device_globals::shutdown();
-	lua_system::shutdown();
+	lua_globals::shutdown();
 	bgfx::shutdown();
 	physics_globals::shutdown();
 	audio_globals::shutdown();

@@ -87,7 +87,7 @@ void Device::init()
 	material_manager::init();
 	debug_line::init();
 
-	_lua_environment = CE_NEW(_allocator, LuaEnvironment)(lua_system::state());
+	_lua_environment = CE_NEW(_allocator, LuaEnvironment)(lua_globals::state());
 
 	CE_LOGD("Crown Engine initialized.");
 	CE_LOGD("Initializing Game...");

@@ -35,7 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-namespace lua_system { extern int error_handler(lua_State*); }
+namespace lua_globals { extern int error_handler(lua_State*); }
 
 LuaEnvironment::LuaEnvironment(lua_State* L)
 	: _L(L)
@@ -45,7 +45,7 @@ LuaEnvironment::LuaEnvironment(lua_State* L)
 void LuaEnvironment::execute(const LuaResource* lr)
 {
 	using namespace lua_resource;
-	lua_pushcfunction(_L, lua_system::error_handler);
+	lua_pushcfunction(_L, lua_globals::error_handler);
 	luaL_loadbuffer(_L, program(lr), size(lr), "<unknown>");
 	lua_pcall(_L, 0, 0, -2);
 	lua_pop(_L, 1);
@@ -53,7 +53,7 @@ void LuaEnvironment::execute(const LuaResource* lr)
 
 void LuaEnvironment::execute_string(const char* s)
 {
-	lua_pushcfunction(_L, lua_system::error_handler);
+	lua_pushcfunction(_L, lua_globals::error_handler);
 	luaL_loadstring(_L, s);
 	lua_pcall(_L, 0, 0, -2);
 	lua_pop(_L, 1);
@@ -123,7 +123,7 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 	va_list vl;
 	va_start(vl, argc);
 
-	lua_pushcfunction(_L, lua_system::error_handler);
+	lua_pushcfunction(_L, lua_globals::error_handler);
 	lua_getglobal(_L, func);
 
 	for (uint8_t i = 0; i < argc; i++)
@@ -153,7 +153,7 @@ void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit*
 {
 	LuaStack stack(_L);
 
-	lua_pushcfunction(_L, lua_system::error_handler);
+	lua_pushcfunction(_L, lua_globals::error_handler);
 	lua_getglobal(_L, "g_physics_callback");
 
 	stack.push_table();
@@ -173,7 +173,7 @@ void LuaEnvironment::call_trigger_callback(Actor* trigger, Actor* other, const c
 {
 	LuaStack stack(_L);
 
-	lua_pushcfunction(_L, lua_system::error_handler);
+	lua_pushcfunction(_L, lua_globals::error_handler);
 	lua_getglobal(_L, "g_trigger_callback");
 
 	stack.push_table();

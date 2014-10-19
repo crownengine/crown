@@ -419,60 +419,60 @@ struct LuaStack
 
 	Vector2& get_vector2(int32_t index)
 	{
-		void* v = CHECKLIGHTDATA(_L, index, lua_system::is_vector2, "Vector2");
+		void* v = CHECKLIGHTDATA(_L, index, lua_globals::is_vector2, "Vector2");
 		return *(Vector2*)v;
 	}
 
 	Vector3& get_vector3(int32_t index)
 	{
-		void* v = CHECKLIGHTDATA(_L, index, lua_system::is_vector3, "Vector3");
+		void* v = CHECKLIGHTDATA(_L, index, lua_globals::is_vector3, "Vector3");
 		return *(Vector3*)v;
 	}
 
 	Matrix4x4& get_matrix4x4(int32_t index)
 	{
-		void* m = CHECKLIGHTDATA(_L, index, lua_system::is_matrix4x4, "Matrix4x4");
+		void* m = CHECKLIGHTDATA(_L, index, lua_globals::is_matrix4x4, "Matrix4x4");
 		return *(Matrix4x4*)m;
 	}
 
 	Quaternion& get_quaternion(int32_t index)
 	{
-		void* q = CHECKLIGHTDATA(_L, index, lua_system::is_quaternion, "Quaternion");
+		void* q = CHECKLIGHTDATA(_L, index, lua_globals::is_quaternion, "Quaternion");
 		return *(Quaternion*)q;
 	}
 
 	Color4 get_color4(int32_t index)
 	{
 		// Color4 represented as Quaternion
-		void* c = CHECKLIGHTDATA(_L, index, lua_system::is_quaternion, "Color4");
+		void* c = CHECKLIGHTDATA(_L, index, lua_globals::is_quaternion, "Color4");
 		Quaternion& q = *(Quaternion*)c;
 		return Color4(q.x, q.y, q.z, q.w);
 	}
 
 	void push_vector2(const Vector2& v)
 	{
-		lua_pushlightuserdata(_L, lua_system::next_vector2(v));
+		lua_pushlightuserdata(_L, lua_globals::next_vector2(v));
 		luaL_getmetatable(_L, "Lightuserdata_mt");
 		lua_setmetatable(_L, -2);
 	}
 
 	void push_vector3(const Vector3& v)
 	{
-		lua_pushlightuserdata(_L, lua_system::next_vector3(v));
+		lua_pushlightuserdata(_L, lua_globals::next_vector3(v));
 		luaL_getmetatable(_L, "Lightuserdata_mt");
 		lua_setmetatable(_L, -2);
 	}
 
 	void push_matrix4x4(const Matrix4x4& m)
 	{
-		lua_pushlightuserdata(_L, lua_system::next_matrix4x4(m));
+		lua_pushlightuserdata(_L, lua_globals::next_matrix4x4(m));
 		luaL_getmetatable(_L, "Lightuserdata_mt");
 		lua_setmetatable(_L, -2);
 	}
 
 	void push_quaternion(const Quaternion& q)
 	{
-		lua_pushlightuserdata(_L, lua_system::next_quaternion(q));
+		lua_pushlightuserdata(_L, lua_globals::next_quaternion(q));
 		luaL_getmetatable(_L, "Lightuserdata_mt");
 		lua_setmetatable(_L, -2);
 	}

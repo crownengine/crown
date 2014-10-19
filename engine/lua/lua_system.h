@@ -36,13 +36,13 @@ struct Matrix4x4;
 struct Quaternion;
 
 /// Global lua-related functions
-namespace lua_system
+namespace lua_globals
 {
 	/// Initializes the lua system.
 	/// This is the place where to create and initialize per-application objects.
 	void init();
 
-	/// It should reverse the actions performed by lua_system::init().
+	/// It should reverse the actions performed by lua_globals::init().
 	void shutdown();
 
 	lua_State* state();
@@ -61,5 +61,5 @@ namespace lua_system
 	bool is_vector3(int32_t index);
 	bool is_matrix4x4(int32_t index);
 	bool is_quaternion(int32_t index);
-} // namespace lua_system
+} // namespace lua_globals
 } // namespace crown
