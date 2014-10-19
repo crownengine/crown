@@ -152,18 +152,20 @@ namespace bundle_compiler
 
 namespace bundle_compiler_globals
 {
+	char _buffer[sizeof(BundleCompiler)];
 	BundleCompiler* _compiler = NULL;
 
 	void init(const char* source_dir, const char* bundle_dir)
 	{
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
-		_compiler = CE_NEW(default_allocator(), BundleCompiler)(source_dir, bundle_dir);
+		_compiler = new (_buffer) BundleCompiler(source_dir, bundle_dir);
 #endif
 	}
 
 	void shutdown()
 	{
-		CE_DELETE(default_allocator(), _compiler);
+		_compiler->~BundleCompiler();
+		_compiler = NULL;
 	}
 
 	BundleCompiler* compiler()

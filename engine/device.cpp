@@ -239,17 +239,19 @@ void Device::reload(const char* , const char* )
 
 namespace device_globals
 {
+	char _buffer[sizeof(Device)];
 	Device* _device = NULL;
 
 	void init(Filesystem& fs, StringId64 boot_package, StringId64 boot_script)
 	{
 		CE_ASSERT(_device == NULL, "Crown already initialized");
-		_device = CE_NEW(default_allocator(), Device)(fs, boot_package, boot_script);
+		_device = new (_buffer) Device(fs, boot_package, boot_script);
 	}
 
 	void shutdown()
 	{
-		CE_DELETE(default_allocator(), _device);
+		_device->~Device();
+		_device = NULL;
 	}
 } // namespace device_globals
 

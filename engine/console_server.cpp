@@ -353,16 +353,18 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 
 namespace console_server_globals
 {
+	char _buffer[sizeof(ConsoleServer)];
 	ConsoleServer* _console = NULL;
 
 	void init()
 	{
-		_console = CE_NEW(default_allocator(), ConsoleServer);
+		_console = new (_buffer) ConsoleServer();
 	}
 
 	void shutdown()
 	{
-		CE_DELETE(default_allocator(), _console);
+		_console->~ConsoleServer();
+		_console = NULL;
 	}
 
 	ConsoleServer& console()

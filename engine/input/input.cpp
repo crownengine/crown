@@ -34,22 +34,28 @@ namespace crown
 {
 namespace input_globals
 {
+	const size_t BUFFER_SIZE = sizeof(Keyboard) +
+								sizeof(Mouse) + sizeof(Touch);
+	char _buffer[BUFFER_SIZE];
 	Keyboard* _keyboard = NULL;
 	Mouse* _mouse = NULL;
 	Touch* _touch = NULL;
 
 	void init()
 	{
-		_keyboard = CE_NEW(default_allocator(), Keyboard);
-		_mouse = CE_NEW(default_allocator(), Mouse);
-		_touch = CE_NEW(default_allocator(), Touch);
+		_keyboard = new (_buffer) Keyboard();
+		_mouse = new (_buffer + sizeof(Keyboard)) Mouse();
+		_touch = new (_buffer + sizeof(Keyboard) + sizeof(Mouse)) Touch();
 	}
 
 	void shutdown()
 	{
-		CE_DELETE(default_allocator(), _keyboard);
-		CE_DELETE(default_allocator(), _mouse);
-		CE_DELETE(default_allocator(), _touch);
+		_keyboard->~Keyboard();
+		_keyboard = NULL;
+		_mouse->~Mouse();
+		_mouse = NULL;
+		_touch->~Touch();
+		_touch = NULL;
 	}
 
 	Keyboard& keyboard()
