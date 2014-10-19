@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "array.h"
 #include "string_stream.h"
 #include "console_server.h"
+#include "resource_manager.h"
 
 namespace crown
 {
@@ -151,6 +152,13 @@ static int device_can_get(lua_State* L)
 	return 1;
 }
 
+static int device_enable_resource_autoload(lua_State* L)
+{
+	LuaStack stack(L);
+	device()->resource_manager()->enable_autoload(stack.get_bool(1));
+	return 0;
+}
+
 void load_device(LuaEnvironment& env)
 {
 	env.load_module_function("Device", "platform",                 device_platform);
@@ -166,6 +174,7 @@ void load_device(LuaEnvironment& env)
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
 	env.load_module_function("Device", "console_send",             device_console_send);
 	env.load_module_function("Device", "can_get",                  device_can_get);
+	env.load_module_function("Device", "enable_resource_autoload", device_enable_resource_autoload);
 }
 
 } // namespace crown

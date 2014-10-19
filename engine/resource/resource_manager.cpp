@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "temp_allocator.h"
 #include "dynamic_string.h"
 #include "queue.h"
-#include "log.h"
+#include "sort_map.h"
 
 namespace crown
 {
@@ -46,126 +46,105 @@ ResourceId::ResourceId(const char* type, const char* name)
 }
 
 ResourceManager::ResourceManager(Bundle& bundle)
-	: m_resource_heap("resource", default_allocator())
-	, m_loader(bundle, m_resource_heap)
-	, m_resources(default_allocator())
+	: _resource_heap("resource", default_allocator())
+	, _loader(bundle, _resource_heap)
+	, _rm(default_allocator())
+	, _autoload(false)
 {
+}
+
+const ResourceManager::ResourceEntry ResourceManager::NOT_FOUND = { 0xffffffffu, NULL };
+
+ResourceManager::~ResourceManager()
+{
+	const ResourceMap::Entry* begin = sort_map::begin(_rm);
+	const ResourceMap::Entry* end = sort_map::end(_rm);
+
+	for (; begin != end; begin++)
+	{
+		resource_on_offline(begin->key.type, begin->key.name, *this);
+		resource_on_unload(begin->key.type, _resource_heap, begin->value.data);
+	}
 }
 
 void ResourceManager::load(StringId64 type, StringId64 name)
 {
-	ResourceId id;
-	id.type = type;
-	id.name = name;
-	load(id);
-}
+	ResourceId id(type, name);
+	ResourceEntry& entry = sort_map::get(_rm, id, NOT_FOUND);
 
-void ResourceManager::load(ResourceId id)
-{
-	// Search for an already existent resource
-	ResourceEntry* entry = find(id);
-
-	// If resource not found, post load request
-	if (entry == NULL)
+	if (entry == NOT_FOUND)
 	{
-		m_loader.load(id);
+		_loader.load(id);
 		return;
 	}
 
-	// Else, increment its reference count
-	entry->references++;
-}
-
-bool ResourceManager::can_get(StringId64 type, StringId64 name)
-{
-	ResourceId id;
-	id.type = type;
-	id.name = name;
-	return can_get(id);
+	entry.references++;
 }
 
 void ResourceManager::unload(StringId64 type, StringId64 name)
 {
-	ResourceId id;
-	id.type = type;
-	id.name = name;
-	unload(id);
-}
-
-void ResourceManager::unload(ResourceId id)
-{
-	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
-
 	flush();
-	ResourceEntry* entry = find(id);
-	entry->references--;
 
-	if (entry->references == 0)
+	ResourceId id(type, name);
+	ResourceEntry& entry = sort_map::get(_rm, id, NOT_FOUND);
+
+	if (--entry.references == 0)
 	{
-		resource_on_offline(id.type, id.name, *this);
-		resource_on_unload(id.type, m_resource_heap, entry->resource);
+		resource_on_offline(type, name, *this);
+		resource_on_unload(type, _resource_heap, entry.data);
 
-		// Swap with last
-		ResourceEntry temp = m_resources[array::size(m_resources) - 1];
-		(*entry) = temp;
-		array::pop_back(m_resources);
+		sort_map::remove(_rm, id);
+		sort_map::sort(_rm);
 	}
 }
 
 bool ResourceManager::can_get(const char* type, const char* name)
 {
-	return can_get(ResourceId(type, name));
+	ResourceId id(type, name);
+	return can_get(id.type, id.name);
 }
 
-bool ResourceManager::can_get(ResourceId id) const
+bool ResourceManager::can_get(StringId64 type, StringId64 name)
 {
-	return find(id) != NULL;
+	return _autoload ? true : sort_map::has(_rm, ResourceId(type, name));
 }
 
-const void* ResourceManager::get(const char* type, const char* name) const
+const void* ResourceManager::get(const char* type, const char* name)
 {
-	ResourceEntry* entry = find(ResourceId(type, name));
-	CE_ASSERT(entry != NULL, "Resource not loaded: %s.%s", name, type);
-	return entry->resource;
+	ResourceId id(type, name);
+	return get(id.type, id.name);
 }
 
 const void* ResourceManager::get(StringId64 type, StringId64 name)
 {
-	ResourceId id;
-	id.type = type;
-	id.name = name;
-	return get(id);
+	ResourceId id(type, name);
+
+	if (_autoload && !sort_map::has(_rm, id))
+	{
+		load(type, name);
+		flush();
+	}
+
+	const ResourceEntry& entry = sort_map::get(_rm, id, NOT_FOUND);
+	return entry.data;
 }
 
-const void* ResourceManager::get(ResourceId id) const
+void ResourceManager::enable_autoload(bool enable)
 {
-	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
-	return find(id)->resource;
-}
-
-uint32_t ResourceManager::references(ResourceId id) const
-{
-	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
-	return find(id)->references;
+	_autoload = enable;
 }
 
 void ResourceManager::flush()
 {
-	m_loader.flush();
+	_loader.flush();
 	complete_requests();
-}
-
-ResourceEntry* ResourceManager::find(ResourceId id) const
-{
-	const ResourceEntry* entry = std::find(array::begin(m_resources), array::end(m_resources), id);
-	return entry != array::end(m_resources) ? const_cast<ResourceEntry*>(entry) : NULL;
 }
 
 void ResourceManager::complete_requests()
 {
 	TempAllocator1024 ta;
 	Array<ResourceData> loaded(ta);
-	m_loader.get_loaded(loaded);
+	_loader.get_loaded(loaded);
 
 	for (uint32_t i = 0; i < array::size(loaded); i++)
 		complete_request(loaded[i].id, loaded[i].data);
@@ -174,10 +153,11 @@ void ResourceManager::complete_requests()
 void ResourceManager::complete_request(ResourceId id, void* data)
 {
 	ResourceEntry entry;
-	entry.id = id;
 	entry.references = 1;
-	entry.resource = data;
-	array::push_back(m_resources, entry);
+	entry.data = data;
+
+	sort_map::set(_rm, id, entry);
+	sort_map::sort(_rm);
 
 	resource_on_online(id.type, id.name, *this);
 }

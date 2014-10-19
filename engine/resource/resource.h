@@ -86,9 +86,11 @@ namespace crown
 struct ResourceId
 {
 	ResourceId() : type(0), name(0) {}
+	ResourceId(uint64_t type, uint64_t name) : type(type), name(name) {}
 	ResourceId(const char* type, const char* name);
 
 	bool operator==(const ResourceId& a) const { return type == a.type && name == a.name; }
+	bool operator<(const ResourceId& a) const { return type < a.type || (type == a.type && name < a.name); }
 
 	uint64_t type;
 	uint64_t name;
