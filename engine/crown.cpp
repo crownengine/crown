@@ -41,6 +41,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "disk_filesystem.h"
 #include "config.h"
 #include "math_utils.h"
+#include "lua_system.h"
 #include <bgfx.h>
 
 namespace crown
@@ -197,6 +198,7 @@ bool init(Filesystem& fs, const ConfigSettings& cs)
 	audio_globals::init();
 	physics_globals::init();
 	bgfx::init();
+	lua_system::init();
 	device_globals::init(fs, cs.boot_package, cs.boot_script);
 	device()->init();
 	return true;
@@ -211,6 +213,7 @@ void update()
 #endif
 		device()->update();
 		bgfx::frame();
+		lua_system::clear_temporaries();
 		input_globals::keyboard().update();
 		input_globals::mouse().update();
 		input_globals::touch().update();
@@ -221,6 +224,7 @@ void shutdown()
 {
 	device()->shutdown();
 	device_globals::shutdown();
+	lua_system::shutdown();
 	bgfx::shutdown();
 	physics_globals::shutdown();
 	audio_globals::shutdown();

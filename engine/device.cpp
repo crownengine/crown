@@ -87,8 +87,6 @@ void Device::init()
 	material_manager::init();
 	debug_line::init();
 
-	CE_LOGD("Creating lua system...");
-	lua_system::init();
 	_lua_environment = CE_NEW(_allocator, LuaEnvironment)(lua_system::state());
 
 	CE_LOGD("Crown Engine initialized.");
@@ -116,8 +114,6 @@ void Device::shutdown()
 	_boot_package->unload();
 	destroy_resource_package(_boot_package);
 
-	CE_LOGD("Releasing lua system...");
-	lua_system::shutdown();
 	CE_DELETE(_allocator, _lua_environment);
 
 	CE_LOGD("Releasing material manager...");
@@ -198,7 +194,6 @@ void Device::update()
 		_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
 	}
 
-	lua_system::clear_temporaries();
 	_frame_count++;
 }
 
