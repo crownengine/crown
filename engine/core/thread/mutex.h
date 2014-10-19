@@ -45,28 +45,28 @@ struct Mutex
 	Mutex()
 	{
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_mutexattr_init(&m_attr);
+		int result = pthread_mutexattr_init(&_attr);
 		CE_ASSERT(result == 0, "pthread_mutexattr_init: errno = %d", result);
-		result = pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_ERRORCHECK);
+		result = pthread_mutexattr_settype(&_attr, PTHREAD_MUTEX_ERRORCHECK);
 		CE_ASSERT(result == 0, "pthread_mutexattr_settype: errno = %d", result);
-		result = pthread_mutex_init(&m_mutex, &m_attr);
+		result = pthread_mutex_init(&_mutex, &_attr);
 		CE_ASSERT(result == 0, "pthread_mutex_init: errno = %d", result);
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
-		InitializeCriticalSection(&m_cs);
+		InitializeCriticalSection(&_cs);
 #endif
 	}
 
 	~Mutex()
 	{
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_mutex_destroy(&m_mutex);
+		int result = pthread_mutex_destroy(&_mutex);
 		CE_ASSERT(result == 0, "pthread_mutex_destroy: errno = %d", result);
-		result = pthread_mutexattr_destroy(&m_attr);
+		result = pthread_mutexattr_destroy(&_attr);
 		CE_ASSERT(result == 0, "pthread_mutexattr_destroy: errno = %d", result);
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
-		DeleteCriticalSection(&m_cs);
+		DeleteCriticalSection(&_cs);
 #endif
 
 	}
@@ -74,32 +74,32 @@ struct Mutex
 	void lock()
 	{
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_mutex_lock(&m_mutex);
+		int result = pthread_mutex_lock(&_mutex);
 		CE_ASSERT(result == 0, "pthread_mutex_lock: errno = %d", result);
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
-		EnterCriticalSection(&m_cs);
+		EnterCriticalSection(&_cs);
 #endif
 	}
 
 	void unlock()
 	{
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_mutex_unlock(&m_mutex);
+		int result = pthread_mutex_unlock(&_mutex);
 		CE_ASSERT(result == 0, "pthread_mutex_unlock: errno = %d", result);
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
-		LeaveCriticalSection(&m_cs);
+		LeaveCriticalSection(&_cs);
 #endif
 	}
 
 public:
 
 #if CROWN_PLATFORM_POSIX
-	pthread_mutex_t m_mutex;
-	pthread_mutexattr_t m_attr;
+	pthread_mutex_t _mutex;
+	pthread_mutexattr_t _attr;
 #elif CROWN_PLATFORM_WINDOWS
-	CRITICAL_SECTION m_cs;
+	CRITICAL_SECTION _cs;
 #endif
 
 private:
@@ -110,26 +110,24 @@ private:
 };
 
 /// Automatically locks a mutex when created and unlocks when destroyed.
-class ScopedMutex
+struct ScopedMutex
 {
-public:
-
 	/// Locks the given @a m mutex.
 	ScopedMutex(Mutex& m)
-		: m_mutex(m)
+		: _mutex(m)
 	{
-		m_mutex.lock();
+		_mutex.lock();
 	}
 
 	/// Unlocks the mutex passed to ScopedMutex::ScopedMutex()
 	~ScopedMutex()
 	{
-		m_mutex.unlock();
+		_mutex.unlock();
 	}
 
 private:
 
-	Mutex& m_mutex;
+	Mutex& _mutex;
 
 private:
 

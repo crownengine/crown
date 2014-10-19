@@ -44,9 +44,9 @@ struct Semaphore
 {
 	Semaphore()
 #if CROWN_PLATFORM_POSIX
-		: m_count(0)
+		: _count(0)
 #elif CROWN_PLATFORM_WINDOWS
-		: m_handle(INVALID_HANDLE_VALUE)
+		: _handle(INVALID_HANDLE_VALUE)
 #endif
 	{
 #if CROWN_PLATFORM_POSIX
@@ -54,9 +54,9 @@ struct Semaphore
 		CE_ASSERT(result == 0, "pthread_cond_init: errno = %d", result);
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
-		m_handle = CreateSemaphore(NULL, 0, LONG_MAX, NULL);
-		CE_ASSERT(m_handle != NULL, "Unable to create semaphore!");
-		CE_UNUSED(m_handle);
+		_handle = CreateSemaphore(NULL, 0, LONG_MAX, NULL);
+		CE_ASSERT(_handle != NULL, "Unable to create semaphore!");
+		CE_UNUSED(_handle);
 #endif
 	}
 
@@ -67,14 +67,14 @@ struct Semaphore
 		CE_ASSERT(result == 0, "pthread_cond_destroy: errno = %d", result);
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
-		CloseHandle(m_handle);
+		CloseHandle(_handle);
 #endif
 	}
 
 	void post(uint32_t count = 1)
 	{
 #if CROWN_PLATFORM_POSIX
-		m_mutex.lock();
+		_mutex.lock();
 		for (uint32_t i = 0; i < count; i++)
 		{
 			int result = pthread_cond_signal(&m_cond);
@@ -82,28 +82,28 @@ struct Semaphore
 			CE_UNUSED(result);
 		}
 
-		m_count += count;
-		m_mutex.unlock();
+		_count += count;
+		_mutex.unlock();
 #elif CROWN_PLATFORM_WINDOWS
-		ReleaseSemaphore(m_handle, count, NULL);
+		ReleaseSemaphore(_handle, count, NULL);
 #endif
 	}
 
 	void wait()
 	{
 #if CROWN_PLATFORM_POSIX
-		m_mutex.lock();
-		while (m_count <= 0)
+		_mutex.lock();
+		while (_count <= 0)
 		{
-			int result = pthread_cond_wait(&m_cond, &(m_mutex.m_mutex));
+			int result = pthread_cond_wait(&m_cond, &(_mutex._mutex));
 			CE_ASSERT(result == 0, "pthread_cond_wait: errno = %d", result);
 			CE_UNUSED(result);
 		}
 
-		m_count--;
-		m_mutex.unlock();
+		_count--;
+		_mutex.unlock();
 #elif CROWN_PLATFORM_WINDOWS
-		DWORD result = WaitForSingleObject(m_handle, INFINITE);
+		DWORD result = WaitForSingleObject(_handle, INFINITE);
 		CE_ASSERT(result == WAIT_OBJECT_0, "WaitForSingleObject: GetLastError = %d", GetLastError());
 		CE_UNUSED(result);
 #endif
@@ -112,11 +112,11 @@ struct Semaphore
 private:
 
 #if CROWN_PLATFORM_POSIX
-	Mutex m_mutex;
+	Mutex _mutex;
 	pthread_cond_t m_cond;
-	int32_t m_count;
+	int32_t _count;
 #elif CROWN_PLATFORM_WINDOWS
-	HANDLE m_handle;
+	HANDLE _handle;
 #endif
 
 private:

@@ -47,30 +47,30 @@ struct Thread
 {
 	Thread()
 #if CROWN_PLATFORM_POSIX
-		: m_handle(0)
+		: _handle(0)
 #elif CROWN_PLATFORM_WINDOWS
-		: m_handle(INVALID_HANDLE_VALUE)
+		: _handle(INVALID_HANDLE_VALUE)
 #endif
-		, m_function(NULL)
-		, m_data(NULL)
-		, m_stack_size(0)
-		, m_is_running(false)
+		, _function(NULL)
+		, _data(NULL)
+		, _stack_size(0)
+		, _is_running(false)
 	{
 	}
 
 	~Thread()
 	{
-		if (m_is_running)
+		if (_is_running)
 			stop();
 	}
 
 	void start(ThreadFunction func, void* data = NULL, size_t stack_size = 0)
 	{
-		CE_ASSERT(!m_is_running, "Thread is already running");
+		CE_ASSERT(!_is_running, "Thread is already running");
 		CE_ASSERT(func != NULL, "Function must be != NULL");
-		m_function = func;
-		m_data = data;
-		m_stack_size = stack_size;
+		_function = func;
+		_data = data;
+		_stack_size = stack_size;
 
 #if CROWN_PLATFORM_POSIX
 		pthread_attr_t attr;
@@ -78,13 +78,13 @@ struct Thread
 		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 		CE_ASSERT(result == 0, "pthread_attr_init: errno = %d", result);
 
-		if (m_stack_size != 0)
+		if (_stack_size != 0)
 		{
-			result = pthread_attr_setstacksize(&attr, m_stack_size);
+			result = pthread_attr_setstacksize(&attr, _stack_size);
 			CE_ASSERT(result == 0, "pthread_attr_setstacksize: errno = %d", result);
 		}
 
-		result = pthread_create(&m_handle, &attr, thread_proc, this);
+		result = pthread_create(&_handle, &attr, thread_proc, this);
 		CE_ASSERT(result == 0, "pthread_create: errno = %d", result);
 
 		// Free attr memory
@@ -92,44 +92,44 @@ struct Thread
 		CE_ASSERT(result == 0, "pthread_attr_destroy: errno = %d", result);
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
-		m_handle = CreateThread(NULL, stack_size, Thread::thread_proc, this, 0, NULL);
-		CE_ASSERT(m_handle != NULL, "CreateThread: GetLastError = %d", GetLastError());
+		_handle = CreateThread(NULL, stack_size, Thread::thread_proc, this, 0, NULL);
+		CE_ASSERT(_handle != NULL, "CreateThread: GetLastError = %d", GetLastError());
 #endif
 
-		m_is_running = true;
-		m_sem.wait();
+		_is_running = true;
+		_sem.wait();
 	}
 
 	void stop()
 	{
-		CE_ASSERT(m_is_running, "Thread is not running");
+		CE_ASSERT(_is_running, "Thread is not running");
 
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_join(m_handle, NULL);
+		int result = pthread_join(_handle, NULL);
 		CE_ASSERT(result == 0, "pthread_join: errno = %d", result);
 		CE_UNUSED(result);
-		m_handle = 0;
+		_handle = 0;
 #elif CROWN_PLATFORM_WINDOWS
-		WaitForSingleObject(m_handle, INFINITE);
-		// GetExitCodeThread(m_handle, &m_exit_code);
-		CloseHandle(m_handle);
-		m_handle = INVALID_HANDLE_VALUE;
+		WaitForSingleObject(_handle, INFINITE);
+		// GetExitCodeThread(_handle, &m_exit_code);
+		CloseHandle(_handle);
+		_handle = INVALID_HANDLE_VALUE;
 #endif
 
-		m_is_running = false;
+		_is_running = false;
 	}
 
 	bool is_running()
 	{
-		return m_is_running;
+		return _is_running;
 	}
 
 private:
 
 	int32_t run()
 	{
-		m_sem.post();
-		return m_function(m_data);
+		_sem.post();
+		return _function(_data);
 	}
 
 #if CROWN_PLATFORM_POSIX
@@ -151,16 +151,16 @@ private:
 private:
 
 #if CROWN_PLATFORM_POSIX
-	pthread_t m_handle;
+	pthread_t _handle;
 #elif CROWN_PLATFORM_WINDOWS
-	HANDLE m_handle;
+	HANDLE _handle;
 #endif
 
-	ThreadFunction m_function;
-	void* m_data;
-	Semaphore m_sem;
-	size_t m_stack_size;
-	bool m_is_running;
+	ThreadFunction _function;
+	void* _data;
+	Semaphore _sem;
+	size_t _stack_size;
+	bool _is_running;
 
 private:
 
