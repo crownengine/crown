@@ -480,7 +480,7 @@ Gui
 	draw_text
 		TODO
 
-Physics World
+PhysicsWorld
 =============
 
 	**gravity** (physics_world) : Vector3
@@ -627,7 +627,7 @@ Actor
 	**unit** (actor) : Unit
 		Returns the unit that owns the actor or nil;
 
-Sound World
+SoundWorld
 ===========
 
 	**stop_all** (sound_world)
@@ -642,7 +642,7 @@ Sound World
 	**is_playing** (sound_world, id) : bool
 		Returns wheter the sound *id* is playing.
 
-Resource Package
+ResourcePackage
 ================
 
 	**load** (package)
