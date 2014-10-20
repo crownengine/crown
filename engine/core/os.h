@@ -407,15 +407,16 @@ namespace os
 	/// @a args[0] is the path to the program executable,
 	/// @a args[1, 2, ..., n-1] is a list of arguments to pass to the executable,
 	/// @a args[n] is NULL.
-	inline void execute_process(const char* args[])
+	inline int execute_process(const char* args[])
 	{
 #if CROWN_PLATFORM_POSIX
 		pid_t pid = fork();
 		CE_ASSERT(pid != -1, "fork: errno = %d", errno);
 		if (pid)
 		{
-			int32_t dummy;
-			wait(&dummy);
+			int statval;
+			wait(&statval);
+			return (WIFEXITED(statval)) ? WEXITSTATUS(statval) : 1;
 		}
 		else
 		{
@@ -448,9 +449,12 @@ namespace os
 		CE_ASSERT(err != 0, "CreateProcess: GetLastError = %d", GetLastError());
 		CE_UNUSED(err);
 
+		DWORD exitcode = 1;
 		::WaitForSingleObject(process.hProcess, INFINITE);
+  		GetExitCodeProcess(process.hProcess, &exitcode);
 		CloseHandle(process.hProcess);
 		CloseHandle(process.hThread);
+		return (int)exitcode;
 #endif
 	}
 } // namespace os
