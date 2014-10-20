@@ -210,6 +210,7 @@ void update()
 {
 	while (!process_events() && device()->is_running())
 	{
+		profiler_globals::clear();
 #if defined(CROWN_DEBUG)
 		console_server_globals::console().update();
 #endif
