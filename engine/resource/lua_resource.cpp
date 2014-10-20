@@ -70,7 +70,9 @@ namespace lua_resource
 			NULL
 		};
 
-		os::execute_process(luajit);
+		int exitcode = os::execute_process(luajit);
+		CE_ASSERT(exitcode == 0, "Failed to compile lua");
+		
 		Buffer blob = opts.read(bc_abs_path.c_str());
 		opts.delete_file(bc_abs_path.c_str());
 

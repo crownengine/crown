@@ -81,7 +81,8 @@ namespace shader_resource
 #endif
 			NULL
 		};
-		os::execute_process(compile_vs);
+		int exitcode = os::execute_process(compile_vs);
+		CE_ASSERT(exitcode == 0, "Failed to compile vertex shader");
 
 		const char* compile_fs[] =
 		{
@@ -96,7 +97,12 @@ namespace shader_resource
 #endif
 			NULL
 		};
-		os::execute_process(compile_fs);
+		exitcode = os::execute_process(compile_fs);
+		if (exitcode)
+		{
+			opts.delete_file(tmpvs_path.c_str());
+			CE_ASSERT(exitcode == 0, "Failed to compile fragment shader");
+		}
 
 		Buffer tmpvs = opts.read(tmpvs_path.c_str());
 		Buffer tmpfs = opts.read(tmpfs_path.c_str());
