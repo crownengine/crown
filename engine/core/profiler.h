@@ -26,18 +26,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "os.h"
-#include "memory.h"
-#include "mutex.h"
-#include "scoped_mutex.h"
-#include "macros.h"
+#include "math_types.h"
+#include "container_types.h"
 
 namespace crown
 {
 namespace profiler
 {
-	const char* const GLOBAL_FLOAT = "global.float";
-
 	struct EventType
 	{
 		enum Enum
@@ -64,97 +59,40 @@ namespace profiler
 	struct EnterProfileScope
 	{
 		const char* name;
-		double time;
+		int64_t time;
 	};
 
 	struct LeaveProfileScope
 	{
-		double time;
+		int64_t time;
 	};
 
-	static Array<char> g_buffer(default_allocator());
-	static Mutex g_buffer_mutex;
+	void enter_profile_scope(const char* name);
+	void leave_profile_scope();
+	void record_float(const char* name, float value);
+	void record_vector3(const char* name, const Vector3& value);
 
-	#define THREAD_BUFFER_SIZE 1024
-	CE_THREAD char t_buffer[THREAD_BUFFER_SIZE];
-	CE_THREAD uint32_t t_buffer_size = 0;
+#ifdef CROWN_DEBUG
+	#define ENTER_PROFILE_SCOPE(name) enter_profile_scope(name);
+	#define LEAVE_PROFILE_SCOPE() leave_profile_scope(name);
+	#define RECORD_FLOAT(name, value) record_float(name, value);
+	#define RECORD_VECTOR3(name, value) record_vector3(name, value);
+#else
+	#define ENTER_PROFILE_SCOPE(name) ((void)0)
+	#define LEAVE_PROFILE_SCOPE() ((void)0)
+	#define RECORD_FLOAT(name, value) ((void)0)
+	#define RECORD_VECTOR3(name, value) ((void)0)
+#endif
+} // namespace profiler
 
-	inline void flush_local_buffer()
-	{
-		ScopedMutex sm(g_buffer_mutex);
-		//cg_buffer.push(t_buffer, t_buffer_size);
+namespace profiler_globals
+{
+	void init();
+	void shutdown();
 
-		uint32_t size = t_buffer_size;
-		t_buffer_size = 0;
-
-		uint32_t cur = 0;
-
-		// TODO TODO TODO TODO TODO TODO
-
-		// while (cur < size)
-		// {
-		// 	char* p = t_buffer + cur;
-		// 	uint32_t event_type = *(uint32_t*) p;
-		// 	RecordFloat event = *(RecordFloat*)(p + sizeof(uint32_t));
-		// 	CE_LOGD("ev type = %d, name = %s, value = %f\n", event_type, event.name, 1.0 / event.value);
-		// 	cur += sizeof(uint32_t) + sizeof(RecordFloat);
-		// }
-	}
-
-	inline void enter_profile_scope(const char* name)
-	{
-		if (t_buffer_size + sizeof(uint32_t) + sizeof(EnterProfileScope) >= THREAD_BUFFER_SIZE)
-		{
-			flush_local_buffer();
-		}
-
-		char* p = t_buffer + t_buffer_size;
-		*(uint32_t*) p = EventType::ENTER_PROFILE_SCOPE;
-		(*(EnterProfileScope*)(p + sizeof(uint32_t))).name = name;
-		(*(EnterProfileScope*)(p + sizeof(uint32_t))).time = os::milliseconds();
-		t_buffer_size += sizeof(uint32_t) + sizeof(EnterProfileScope);
-	}
-
-	inline void leave_profile_scope()
-	{
-		if (t_buffer_size + sizeof(uint32_t) + sizeof(LeaveProfileScope) >= THREAD_BUFFER_SIZE)
-		{
-			flush_local_buffer();
-		}
-
-		char* p = t_buffer + t_buffer_size;
-		*(uint32_t*) p = EventType::LEAVE_PROFILE_SCOPE;
-		(*(LeaveProfileScope*)(p + sizeof(uint32_t))).time = os::milliseconds();
-		t_buffer_size += sizeof(uint32_t) + sizeof(LeaveProfileScope);
-	}
-
-	inline void record_float(const char* name, float value)
-	{
-		if (t_buffer_size + sizeof(uint32_t) + sizeof(RecordFloat) >= THREAD_BUFFER_SIZE)
-		{
-			flush_local_buffer();
-		}
-
-		char* p = t_buffer + t_buffer_size;
-		*(uint32_t*) p = EventType::RECORD_FLOAT;
-		(*(RecordFloat*)(p + sizeof(uint32_t))).name = name;
-		(*(RecordFloat*)(p + sizeof(uint32_t))).value = value;
-		t_buffer_size += sizeof(uint32_t) + sizeof(RecordFloat);
-	}
-
-	inline void record_vector3(const char* name, const Vector3& value)
-	{
-		if (t_buffer_size + sizeof(uint32_t) + sizeof(RecordVector3) >= THREAD_BUFFER_SIZE)
-		{
-			flush_local_buffer();
-		}
-
-		char* p = t_buffer + t_buffer_size;
-		*(uint32_t*) p = EventType::RECORD_VECTOR3;
-		(*(RecordVector3*)(p + sizeof(uint32_t))).name = name;
-		(*(RecordVector3*)(p + sizeof(uint32_t))).value = value;
-		t_buffer_size += sizeof(uint32_t) + sizeof(RecordVector3);
-	}
-}
-
+	typedef Array<char> Buffer;
+	const Buffer& buffer();
+	void flush();
+	void clear();
+} // namespace profiler_globals
 } // namespace crown

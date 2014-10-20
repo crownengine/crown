@@ -42,6 +42,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "config.h"
 #include "math_utils.h"
 #include "lua_system.h"
+#include "profiler.h"
 #include <bgfx.h>
 
 namespace crown
@@ -194,6 +195,7 @@ ConfigSettings parse_config_file(Filesystem& fs)
 
 bool init(Filesystem& fs, const ConfigSettings& cs)
 {
+	profiler_globals::init();
 	input_globals::init();
 	audio_globals::init();
 	physics_globals::init();
@@ -217,6 +219,7 @@ void update()
 		input_globals::keyboard().update();
 		input_globals::mouse().update();
 		input_globals::touch().update();
+		profiler_globals::flush();
 	}
 }
 
@@ -229,5 +232,6 @@ void shutdown()
 	physics_globals::shutdown();
 	audio_globals::shutdown();
 	input_globals::shutdown();
+	profiler_globals::shutdown();
 }
 } // namespace crown
