@@ -108,8 +108,6 @@ Gui* RenderWorld::get_gui(GuiId id)
 
 void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt)
 {
-	bgfx::reset(width, height, BGFX_RESET_VSYNC);
-
 	// Set view 0 clear state.
 	bgfx::setViewClear(0
 		, BGFX_CLEAR_COLOR_BIT|BGFX_CLEAR_DEPTH_BIT
@@ -125,10 +123,6 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	// This dummy draw call is here to make sure that view 0 is cleared
 	// if no other draw calls are submitted to view 0.
 	bgfx::submit(0);
-
-	// Use debug font to print information about this example.
-	bgfx::dbgTextClear();
-	bgfx::dbgTextPrintf(0, 2, 0x6f, "dt = %4.7f", dt);
 
 	// Draw all sprites
 	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)

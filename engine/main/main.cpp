@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "device.h"
 #include "os_event_queue.h"
 #include "input.h"
+#include <bgfx.h>
 
 namespace crown
 {
@@ -81,6 +82,7 @@ bool process_events()
 				const OsMetricsEvent& ev = event.metrics;
 				mouse().set_metrics(ev.width, ev.height);
 				device()->update_resolution(ev.width, ev.height);
+				bgfx::reset(ev.width, ev.height, BGFX_RESET_VSYNC);
 				break;
 			}
 			case OsEvent::EXIT:
