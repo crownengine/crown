@@ -179,7 +179,7 @@ public:
 
 private:
 
-	const char* m_at;
+	const char* _at;
 
 	friend class JSONParser;
 };
@@ -207,8 +207,8 @@ public:
 
 private:
 
-	bool m_file;
-	const char* m_document;
+	bool _file;
+	const char* _document;
 
 private:
 

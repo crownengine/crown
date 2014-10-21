@@ -41,24 +41,24 @@ namespace crown
 {
 
 JSONElement::JSONElement()
-	: m_at(NULL)
+	: _at(NULL)
 {
 }
 
 JSONElement::JSONElement(const char* at)
-	: m_at(at)
+	: _at(at)
 {
 }
 
 JSONElement::JSONElement(const JSONElement& other)
-	: m_at(other.m_at)
+	: _at(other._at)
 {
 }
 
 JSONElement& JSONElement::operator=(const JSONElement& other)
 {
 	// Our begin is the other's at
-	m_at = other.m_at;
+	_at = other._at;
 	return *this;
 }
 
@@ -66,7 +66,7 @@ JSONElement JSONElement::operator[](uint32_t i)
 {
 	Array<const char*> array(default_allocator());
 
-	json::parse_array(m_at, array);
+	json::parse_array(_at, array);
 
 	CE_ASSERT(i < array::size(array), "Index out of bounds");
 
@@ -80,11 +80,11 @@ JSONElement JSONElement::index(uint32_t i)
 
 JSONElement JSONElement::index_or_nil(uint32_t i)
 {
-	if (m_at != NULL)
+	if (_at != NULL)
 	{
 		Array<const char*> array(default_allocator());
 
-		json::parse_array(m_at, array);
+		json::parse_array(_at, array);
 
 		if (i >= array::size(array))
 		{
@@ -100,7 +100,7 @@ JSONElement JSONElement::index_or_nil(uint32_t i)
 JSONElement JSONElement::key(const char* k)
 {
 	Map<DynamicString, const char*> object(default_allocator());
-	json::parse_object(m_at, object);
+	json::parse_object(_at, object);
 
 	const char* value = map::get(object, DynamicString(k), (const char*) NULL);
 	CE_ASSERT(value != NULL, "Key not found: '%s'", k);
@@ -110,10 +110,10 @@ JSONElement JSONElement::key(const char* k)
 
 JSONElement JSONElement::key_or_nil(const char* k)
 {
-	if (m_at != NULL)
+	if (_at != NULL)
 	{
 		Map<DynamicString, const char*> object(default_allocator());
-		json::parse_object(m_at, object);
+		json::parse_object(_at, object);
 
 		const char* value = map::get(object, DynamicString(k), (const char*) NULL);
 
@@ -127,24 +127,24 @@ JSONElement JSONElement::key_or_nil(const char* k)
 bool JSONElement::has_key(const char* k) const
 {
 	Map<DynamicString, const char*> object(default_allocator());
-	json::parse_object(m_at, object);
+	json::parse_object(_at, object);
 
 	return map::has(object, DynamicString(k));
 }
 
 bool JSONElement::to_bool(bool def) const
 {
-	return is_nil() ? def : json::parse_bool(m_at);
+	return is_nil() ? def : json::parse_bool(_at);
 }
 
 int32_t JSONElement::to_int(int32_t def) const
 {
-	return is_nil() ? def : json::parse_int(m_at);
+	return is_nil() ? def : json::parse_int(_at);
 }
 
 float JSONElement::to_float(float def) const
 {
-	return is_nil() ? def : json::parse_float(m_at);
+	return is_nil() ? def : json::parse_float(_at);
 }
 
 void JSONElement::to_string(DynamicString& str, const char* def) const
@@ -152,7 +152,7 @@ void JSONElement::to_string(DynamicString& str, const char* def) const
 	if (is_nil())
 		str = def;
 	else
-		json::parse_string(m_at, str);
+		json::parse_string(_at, str);
 }
 
 Vector2 JSONElement::to_vector2(const Vector2& def) const
@@ -162,7 +162,7 @@ Vector2 JSONElement::to_vector2(const Vector2& def) const
 
 	TempAllocator64 alloc;
 	Array<const char*> array(alloc);
-	json::parse_array(m_at, array);
+	json::parse_array(_at, array);
 
 	return Vector2(json::parse_float(array[0]),
 					json::parse_float(array[1]));
@@ -175,7 +175,7 @@ Vector3 JSONElement::to_vector3(const Vector3& def) const
 
 	TempAllocator64 alloc;
 	Array<const char*> array(alloc);
-	json::parse_array(m_at, array);
+	json::parse_array(_at, array);
 
 	return Vector3(json::parse_float(array[0]),
 					json::parse_float(array[1]),
@@ -189,7 +189,7 @@ Vector4 JSONElement::to_vector4(const Vector4& def) const
 
 	TempAllocator64 alloc;
 	Array<const char*> array(alloc);
-	json::parse_array(m_at, array);
+	json::parse_array(_at, array);
 
 	return Vector4(json::parse_float(array[0]),
 					json::parse_float(array[1]),
@@ -204,7 +204,7 @@ Quaternion JSONElement::to_quaternion(const Quaternion& def) const
 
 	TempAllocator64 alloc;
 	Array<const char*> array(alloc);
-	json::parse_array(m_at, array);
+	json::parse_array(_at, array);
 
 	return Quaternion(json::parse_float(array[0]),
 					json::parse_float(array[1]),
@@ -231,7 +231,7 @@ StringId32 JSONElement::to_string_id(const StringId32 def) const
 
 	TempAllocator1024 alloc;
 	DynamicString str(alloc);
-	json::parse_string(m_at, str);
+	json::parse_string(_at, str);
 	return str.to_string_id();
 }
 
@@ -240,7 +240,7 @@ ResourceId JSONElement::to_resource_id(const char* type) const
 	CE_ASSERT_NOT_NULL(type);
 	// TempAllocator1024 alloc;
 	DynamicString str(default_allocator());
-	json::parse_string(m_at, str);
+	json::parse_string(_at, str);
 	return ResourceId(type, str.c_str());
 }
 
@@ -248,7 +248,7 @@ void JSONElement::to_array(Array<bool>& array) const
 {
 	Array<const char*> temp(default_allocator());
 
-	json::parse_array(m_at, temp);
+	json::parse_array(_at, temp);
 
 	for (uint32_t i = 0; i < array::size(temp); i++)
 	{
@@ -260,7 +260,7 @@ void JSONElement::to_array(Array<int16_t>& array) const
 {
 	Array<const char*> temp(default_allocator());
 
-	json::parse_array(m_at, temp);
+	json::parse_array(_at, temp);
 
 	for (uint32_t i = 0; i < array::size(temp); i++)
 	{
@@ -272,7 +272,7 @@ void JSONElement::to_array(Array<uint16_t>& array) const
 {
 	Array<const char*> temp(default_allocator());
 
-	json::parse_array(m_at, temp);
+	json::parse_array(_at, temp);
 
 	for (uint32_t i = 0; i < array::size(temp); i++)
 	{
@@ -284,7 +284,7 @@ void JSONElement::to_array(Array<int32_t>& array) const
 {
 	Array<const char*> temp(default_allocator());
 
-	json::parse_array(m_at, temp);
+	json::parse_array(_at, temp);
 
 	for (uint32_t i = 0; i < array::size(temp); i++)
 	{
@@ -296,7 +296,7 @@ void JSONElement::to_array(Array<uint32_t>& array) const
 {
 	Array<const char*> temp(default_allocator());
 
-	json::parse_array(m_at, temp);
+	json::parse_array(_at, temp);
 
 	for (uint32_t i = 0; i < array::size(temp); i++)
 	{
@@ -308,7 +308,7 @@ void JSONElement::to_array(Array<float>& array) const
 {
 	Array<const char*> temp(default_allocator());
 
-	json::parse_array(m_at, temp);
+	json::parse_array(_at, temp);
 
 	for (uint32_t i = 0; i < array::size(temp); i++)
 	{
@@ -320,7 +320,7 @@ void JSONElement::to_array(Vector<DynamicString>& array) const
 {
 	Array<const char*> temp(default_allocator());
 
-	json::parse_array(m_at, temp);
+	json::parse_array(_at, temp);
 
 	for (uint32_t i = 0; i < array::size(temp); i++)
 	{
@@ -333,7 +333,7 @@ void JSONElement::to_array(Vector<DynamicString>& array) const
 void JSONElement::to_keys(Vector<DynamicString>& keys) const
 {
 	Map<DynamicString, const char*> object(default_allocator());
-	json::parse_object(m_at, object);
+	json::parse_object(_at, object);
 
 	const Map<DynamicString, const char*>::Node* it = map::begin(object);
 	while (it != map::end(object))
@@ -345,9 +345,9 @@ void JSONElement::to_keys(Vector<DynamicString>& keys) const
 
 bool JSONElement::is_nil() const
 {
-	if (m_at != NULL)
+	if (_at != NULL)
 	{
-		return json::type(m_at) == JSONType::NIL;
+		return json::type(_at) == JSONType::NIL;
 	}
 
 	return true;
@@ -355,9 +355,9 @@ bool JSONElement::is_nil() const
 
 bool JSONElement::is_bool() const
 {
-	if (m_at != NULL)
+	if (_at != NULL)
 	{
-		return json::type(m_at) == JSONType::BOOL;
+		return json::type(_at) == JSONType::BOOL;
 	}
 
 	return false;
@@ -365,9 +365,9 @@ bool JSONElement::is_bool() const
 
 bool JSONElement::is_number() const
 {
-	if (m_at != NULL)
+	if (_at != NULL)
 	{
-		return json::type(m_at) == JSONType::NUMBER;
+		return json::type(_at) == JSONType::NUMBER;
 	}
 
 	return false;
@@ -375,9 +375,9 @@ bool JSONElement::is_number() const
 
 bool JSONElement::is_string() const
 {
-	if (m_at != NULL)
+	if (_at != NULL)
 	{
-		return json::type(m_at) == JSONType::STRING;
+		return json::type(_at) == JSONType::STRING;
 	}
 
 	return false;
@@ -385,9 +385,9 @@ bool JSONElement::is_string() const
 
 bool JSONElement::is_array() const
 {
-	if (m_at != NULL)
+	if (_at != NULL)
 	{
-		return json::type(m_at) == JSONType::ARRAY;
+		return json::type(_at) == JSONType::ARRAY;
 	}
 
 	return false;
@@ -395,9 +395,9 @@ bool JSONElement::is_array() const
 
 bool JSONElement::is_object() const
 {
-	if (m_at != NULL)
+	if (_at != NULL)
 	{
-		return json::type(m_at) == JSONType::OBJECT;
+		return json::type(_at) == JSONType::OBJECT;
 	}
 
 	return false;
@@ -405,12 +405,12 @@ bool JSONElement::is_object() const
 
 uint32_t JSONElement::size() const
 {
-	if (m_at == NULL)
+	if (_at == NULL)
 	{
 		return 0;
 	}
 
-	switch(json::type(m_at))
+	switch(json::type(_at))
 	{
 		case JSONType::NIL:
 		{
@@ -419,19 +419,19 @@ uint32_t JSONElement::size() const
 		case JSONType::OBJECT:
 		{
 			Map<DynamicString, const char*> object(default_allocator());
-			json::parse_object(m_at, object);
+			json::parse_object(_at, object);
 			return map::size(object);
 		}
 		case JSONType::ARRAY:
 		{
 			Array<const char*> array(default_allocator());
-			json::parse_array(m_at, array);
+			json::parse_array(_at, array);
 			return array::size(array);
 		}
 		case JSONType::STRING:
 		{
 			DynamicString string;
-			json::parse_string(m_at, string);
+			json::parse_string(_at, string);
 			return string.length();
 		}
 		case JSONType::NUMBER:
@@ -451,33 +451,33 @@ uint32_t JSONElement::size() const
 }
 
 JSONParser::JSONParser(const char* s)
-	: m_file(false)
-	, m_document(s)
+	: _file(false)
+	, _document(s)
 {
 	CE_ASSERT_NOT_NULL(s);
 }
 
 JSONParser::JSONParser(File& f)
-	: m_file(true)
-	, m_document(NULL)
+	: _file(true)
+	, _document(NULL)
 {
 	const size_t size = f.size();
 	char* doc = (char*) default_allocator().allocate(size);
 	f.read(doc, size);
-	m_document = doc;
+	_document = doc;
 }
 
 JSONParser::~JSONParser()
 {
-	if (m_file)
+	if (_file)
 	{
-		default_allocator().deallocate((void*) m_document);
+		default_allocator().deallocate((void*) _document);
 	}
 }
 
 JSONElement JSONParser::root()
 {
-	const char* ch = m_document;
+	const char* ch = _document;
 	while ((*ch) && (*ch) <= ' ') ch++;
 
 	return JSONElement(ch);
