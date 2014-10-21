@@ -209,7 +209,7 @@ namespace matrix4x4
 		m.x.z = rot.x.z;
 		m.y.x = rot.y.x;
 		m.y.y = rot.y.y;
-		m.y.y = rot.y.z;
+		m.y.z = rot.y.z;
 		m.z.x = rot.z.x;
 		m.z.y = rot.z.y;
 		m.z.z = rot.z.z;
