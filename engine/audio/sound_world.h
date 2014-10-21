@@ -27,14 +27,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "types.h"
+#include "resource_types.h"
+#include "memory_types.h"
+#include "math_types.h"
 
 namespace crown
 {
 
-class Allocator;
-struct Vector3;
-struct Matrix4x4;
-struct SoundResource;
 typedef Id SoundInstanceId;
 
 /// Manages sound objects in a World.
