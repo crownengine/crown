@@ -148,9 +148,9 @@ struct SoundInstance
 	{
 		using namespace sound_resource;
 		
-		m_resource = sr;
-		m_finished = false;
-		m_id = id;
+		_resource = sr;
+		_finished = false;
+		_id = id;
 
 		// Configures buffer queue
 		SLDataLocator_AndroidSimpleBufferQueue buffer_queue = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
@@ -222,12 +222,12 @@ struct SoundInstance
 		const SLInterfaceID ids[] = {SL_IID_PLAY, SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
 		const SLboolean reqs[] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
-		SL_CHECK((*engine)->CreateAudioPlayer(engine, &m_player, &audio_source, &audio_sink, 3, ids, reqs));
-		SL_CHECK((*m_player)->Realize(m_player, SL_BOOLEAN_FALSE));
+		SL_CHECK((*engine)->CreateAudioPlayer(engine, &_player, &audio_source, &audio_sink, 3, ids, reqs));
+		SL_CHECK((*_player)->Realize(_player, SL_BOOLEAN_FALSE));
 
-		SL_CHECK((*m_player)->GetInterface(m_player, SL_IID_BUFFERQUEUE, &m_player_bufferqueue));
+		SL_CHECK((*_player)->GetInterface(_player, SL_IID_BUFFERQUEUE, &_player_bufferqueue));
 
-		//(*m_player_bufferqueue)->RegisterCallback(m_player_bufferqueue, SoundInstance::buffer_callback, this);
+		//(*_player_bufferqueue)->RegisterCallback(_player_bufferqueue, SoundInstance::buffer_callback, this);
 		(*play_itf())->SetCallbackEventsMask(play_itf(), SL_PLAYEVENT_HEADATEND);
 		(*play_itf())->RegisterCallback(play_itf(), sles_sound_world::player_callback, (void*) id.encode());
 
@@ -239,11 +239,11 @@ struct SoundInstance
 		// 	m_decoder.init((char*)data(sr), size(sr));
 
 		// 	m_decoder.stream();
-		// 	(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
+		// 	(*_player_bufferqueue)->Enqueue(_player_bufferqueue, m_decoder.data(), m_decoder.size());
 		// }
 		// else
 		{
-			(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, data(sr), size(sr));
+			(*_player_bufferqueue)->Enqueue(_player_bufferqueue, data(sr), size(sr));
 		}
 	}
 
@@ -254,9 +254,9 @@ struct SoundInstance
 		// 	m_decoder.shutdown();
 		// }
 		stop();
-		(*m_player_bufferqueue)->Clear(m_player_bufferqueue);
-		(*m_player)->AbortAsyncOperation(m_player);
-		(*m_player)->Destroy(m_player);
+		(*_player_bufferqueue)->Clear(_player_bufferqueue);
+		(*_player)->AbortAsyncOperation(_player);
+		(*_player)->Destroy(_player);
 	}
 
 	void reload(SoundResource* new_sr)
@@ -293,13 +293,13 @@ struct SoundInstance
 
 	bool finished()
 	{
-		return m_finished;
+		return _finished;
 	}
 
 	void set_volume(float volume)
 	{
 		SLVolumeItf vol;
-		SL_CHECK((*m_player)->GetInterface(m_player, SL_IID_VOLUME, &vol));
+		SL_CHECK((*_player)->GetInterface(_player, SL_IID_VOLUME, &vol));
 		SL_CHECK((*vol)->SetVolumeLevel(vol, sles_sound_world::gain_to_attenuation(vol, volume)));
 	}
 
@@ -317,17 +317,17 @@ struct SoundInstance
 
 		// if (s->is_playing())
 		// {
-		// 	s->m_processed_buffers++;
+		// 	s->_processed_buffers++;
 
 		// 	if (s->m_decoder.stream())
 		// 	{
-		// 		(*s->m_player_bufferqueue)->Enqueue(s->m_player_bufferqueue, s->m_decoder.data(), s->m_decoder.size());
+		// 		(*s->_player_bufferqueue)->Enqueue(s->_player_bufferqueue, s->m_decoder.data(), s->m_decoder.size());
 		// 	}
 		// 	else if (s->m_looping)
 		// 	{
 		// 		s->m_decoder.rewind();
 		// 		s->m_decoder.stream();
-		// 		(*s->m_player_bufferqueue)->Enqueue(s->m_player_bufferqueue, s->m_decoder.data(), s->m_decoder.size());
+		// 		(*s->_player_bufferqueue)->Enqueue(s->_player_bufferqueue, s->m_decoder.data(), s->m_decoder.size());
 		// 	}
 		// 	else
 		// 	{
@@ -338,27 +338,26 @@ struct SoundInstance
 
 	SoundResource* resource()
 	{
-		return m_resource;
+		return _resource;
 	}
 
 	SLPlayItf play_itf()
 	{
 		SLPlayItf play;
-		SL_CHECK((*m_player)->GetInterface(m_player, SL_IID_PLAY, &play));
+		SL_CHECK((*_player)->GetInterface(_player, SL_IID_PLAY, &play));
 		return play;
 	}
 
 public:
 
-	SoundInstanceId m_id;
-	SoundResource* m_resource;
+	SoundInstanceId _id;
+	SoundResource* _resource;
 
-	SLObjectItf m_player;
-	SLAndroidSimpleBufferQueueItf m_player_bufferqueue;
+	SLObjectItf _player;
+	SLAndroidSimpleBufferQueueItf _player_bufferqueue;
 
-	uint32_t m_processed_buffers;
-	bool m_finished;
-	// OggDecoder m_decoder;
+	uint32_t _processed_buffers;
+	bool _finished;
 };
 
 class SLESSoundWorld : public SoundWorld
@@ -378,9 +377,9 @@ public:
 	virtual SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& /*pos*/)
 	{
 		SoundInstance dummy;
-		SoundInstanceId id = id_array::create(m_playing_sounds, dummy);
+		SoundInstanceId id = id_array::create(_playing_sounds, dummy);
 
-		SoundInstance& instance = id_array::get(m_playing_sounds, id);
+		SoundInstance& instance = id_array::get(_playing_sounds, id);
 		instance.create(audio_globals::s_sl_engine_itf, audio_globals::s_sl_output_mix, id, sr);
 		instance.play(loop, volume);
 
@@ -389,36 +388,36 @@ public:
 
 	virtual void stop(SoundInstanceId id)
 	{
-		id_array::get(m_playing_sounds, id).destroy();
-		id_array::destroy(m_playing_sounds, id);
+		id_array::get(_playing_sounds, id).destroy();
+		id_array::destroy(_playing_sounds, id);
 	}
 
 	virtual bool is_playing(SoundInstanceId id)
 	{
-		return id_array::has(m_playing_sounds, id) && id_array::get(m_playing_sounds, id).is_playing();
+		return id_array::has(_playing_sounds, id) && id_array::get(_playing_sounds, id).is_playing();
 	}
 
 	virtual void stop_all()
 	{
-		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
+		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
 		{
-			m_playing_sounds[i].stop();
+			_playing_sounds[i].stop();
 		}
 	}
 
 	virtual void pause_all()
 	{
-		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
+		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
 		{
-			m_playing_sounds[i].pause();
+			_playing_sounds[i].pause();
 		}
 	}
 
 	virtual void resume_all()
 	{
-		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
+		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
 		{
-			m_playing_sounds[i].resume();
+			_playing_sounds[i].resume();
 		}
 	}
 
@@ -426,7 +425,7 @@ public:
 	{
 		for (uint32_t i = 0; i < num; i++)
 		{
-			id_array::get(m_playing_sounds, ids[i]).set_position(positions[i]);
+			id_array::get(_playing_sounds, ids[i]).set_position(positions[i]);
 		}
 	}
 
@@ -434,7 +433,7 @@ public:
 	{
 		for (uint32_t i = 0; i < num; i++)
 		{
-			id_array::get(m_playing_sounds, ids[i]).set_range(ranges[i]);
+			id_array::get(_playing_sounds, ids[i]).set_range(ranges[i]);
 		}
 	}
 
@@ -442,24 +441,24 @@ public:
 	{
 		for (uint32_t i = 0; i < num; i++)
 		{
-			id_array::get(m_playing_sounds, ids[i]).set_volume(volumes[i]);
+			id_array::get(_playing_sounds, ids[i]).set_volume(volumes[i]);
 		}
 	}
 
 	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr)
 	{
-		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
+		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
 		{
-			if (m_playing_sounds[i].resource() == old_sr)
+			if (_playing_sounds[i].resource() == old_sr)
 			{
-				m_playing_sounds[i].reload(new_sr);
+				_playing_sounds[i].reload(new_sr);
 			}
 		}
 	}
 
 	virtual void set_listener_pose(const Matrix4x4& pose)
 	{
-		m_listener_pose = pose;
+		_listener_pose = pose;
 	}
 
 	virtual void update()
@@ -470,15 +469,15 @@ public:
 			const SoundInstanceId id = queue::front(*sles_sound_world::s_stop_queue);
 			queue::pop_front(*sles_sound_world::s_stop_queue);
 
-			if (!id_array::has(m_playing_sounds, id)) continue;
+			if (!id_array::has(_playing_sounds, id)) continue;
 			stop(id);
 		}
 	}
 
 private:
 
-	IdArray<CE_MAX_SOUND_INSTANCES, SoundInstance> m_playing_sounds;
-	Matrix4x4 m_listener_pose;
+	IdArray<CE_MAX_SOUND_INSTANCES, SoundInstance> _playing_sounds;
+	Matrix4x4 _listener_pose;
 };
 
 SoundWorld* SoundWorld::create(Allocator& a)
