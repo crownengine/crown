@@ -87,23 +87,23 @@ public:
 
 private:
 
-	Array<char> m_string;
+	Array<char> _data;
 };
 
 inline DynamicString::DynamicString(Allocator& allocator)
-	: m_string(allocator)
+	: _data(allocator)
 {
-	array::push_back(m_string, '\0');
+	array::push_back(_data, '\0');
 }
 
 inline DynamicString::DynamicString(const char* s, Allocator& allocator)
-	: m_string(allocator)
+	: _data(allocator)
 {
 	if (s != NULL)
 	{
-		array::push(m_string, s, string::strlen(s));
+		array::push(_data, s, string::strlen(s));
 	}
-	array::push_back(m_string, '\0');
+	array::push_back(_data, '\0');
 }
 
 inline DynamicString::~DynamicString()
@@ -118,39 +118,39 @@ inline DynamicString& DynamicString::operator+=(const DynamicString& s)
 inline DynamicString& DynamicString::operator+=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
-	array::pop_back(m_string);
-	array::push(m_string, s, string::strlen(s));
-	array::push_back(m_string, '\0');
+	array::pop_back(_data);
+	array::push(_data, s, string::strlen(s));
+	array::push_back(_data, '\0');
 	return *this;
 }
 
 inline DynamicString& DynamicString::operator+=(const char c)
 {
-	array::pop_back(m_string);
-	array::push_back(m_string, c);
-	array::push_back(m_string, '\0');
+	array::pop_back(_data);
+	array::push_back(_data, c);
+	array::push_back(_data, '\0');
 	return *this;
 }
 
 inline DynamicString& DynamicString::operator=(const DynamicString& s)
 {
-	m_string = s.m_string;
+	_data = s._data;
 	return *this;
 }
 
 inline DynamicString& DynamicString::operator=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
-	array::clear(m_string);
-	array::push(m_string, s, string::strlen(s));
-	array::push_back(m_string, '\0');
+	array::clear(_data);
+	array::push(_data, s, string::strlen(s));
+	array::push_back(_data, '\0');
 	return *this;
 }
 
 inline DynamicString& DynamicString::operator=(const char c)
 {
-	array::clear(m_string);
-	array::push_back(m_string, c);
+	array::clear(_data);
+	array::push_back(_data, c);
 
 	return *this;
 }
@@ -185,9 +185,9 @@ inline void DynamicString::strip_leading(const char* s)
 	const size_t my_len = string::strlen(c_str());
 	const size_t s_len = string::strlen(s);
 
-	memmove(array::begin(m_string), array::begin(m_string) + s_len, (my_len - s_len));
-	array::resize(m_string, my_len - s_len);
-	array::push_back(m_string, '\0');
+	memmove(array::begin(_data), array::begin(_data) + s_len, (my_len - s_len));
+	array::resize(_data, my_len - s_len);
+	array::push_back(_data, '\0');
 }
 
 inline void DynamicString::strip_trailing(const char* s)
@@ -197,8 +197,8 @@ inline void DynamicString::strip_trailing(const char* s)
 
 	const size_t my_len = string::strlen(c_str());
 	const size_t s_len = string::strlen(s);
-	array::resize(m_string, my_len - s_len);
-	array::push_back(m_string, '\0');
+	array::resize(_data, my_len - s_len);
+	array::push_back(_data, '\0');
 }
 
 inline bool DynamicString::starts_with(const char* s) const
@@ -216,7 +216,7 @@ inline bool DynamicString::ends_with(const char* s) const
 
 	if (my_len >= s_len)
 	{
-		return string::strncmp(array::begin(m_string) + (my_len - s_len), s, s_len) == 0;
+		return string::strncmp(array::begin(_data) + (my_len - s_len), s, s_len) == 0;
 	}
 
 	return false;
@@ -229,7 +229,7 @@ inline StringId32 DynamicString::to_string_id() const
 
 inline const char* DynamicString::c_str() const
 {
-	return array::begin(m_string);
+	return array::begin(_data);
 }
 
 } // namespace crown
