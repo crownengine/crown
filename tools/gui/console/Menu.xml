@@ -1,0 +1,13 @@
+﻿<ui>
+	<menubar name="MenuBar">
+		<menu action="EngineMenu">
+			<menuitem action="Unpause"></menuitem>
+		</menu>
+		<menu action="ScriptMenu">
+			<menuitem action="RebuildAndReload"></menuitem>
+		</menu>
+		<menu action="ConnectMenu">
+			<menuitem action="Reconnect"></menuitem>
+		</menu>
+	</menubar>
+</ui>
