@@ -55,7 +55,7 @@ private:
 
 namespace bundle_compiler
 {
-	bool main(const ConfigSettings& cls);
+	bool main(bool do_compile, bool do_continue, Platform::Enum platform);
 } // namespace bundle_compiler
 
 namespace bundle_compiler_globals

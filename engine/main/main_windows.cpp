@@ -362,7 +362,7 @@ int main(int argc, char** argv)
 	bool do_continue = true;
 	int exitcode = EXIT_SUCCESS;
 
-	do_continue = bundle_compiler::main(cls);
+	do_continue = bundle_compiler::main(cs.do_compile, cs.do_continue, cs.platform);
 
 	if (do_continue)
 	{
