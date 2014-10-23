@@ -41,7 +41,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-void ConsoleServer::init(uint16_t port, bool wait)
+ConsoleServer::ConsoleServer(uint16_t port, bool wait)
 {
 	m_server.bind(port);
 	m_server.listen(5);
@@ -57,7 +57,7 @@ void ConsoleServer::init(uint16_t port, bool wait)
 		while (result.error != AcceptResult::NO_ERROR);
 
 		add_client(client);
-	}
+	}	
 }
 
 void ConsoleServer::shutdown()
@@ -356,9 +356,9 @@ namespace console_server_globals
 	char _buffer[sizeof(ConsoleServer)];
 	ConsoleServer* _console = NULL;
 
-	void init()
+	void init(uint16_t port, bool wait)
 	{
-		_console = new (_buffer) ConsoleServer();
+		_console = new (_buffer) ConsoleServer(port, wait);
 	}
 
 	void shutdown()

@@ -255,8 +255,7 @@ void android_main(struct android_app* app)
 	ApkFilesystem src_fs(app->activity->assetManager);
 	ConfigSettings cs = parse_config_file(src_fs);
 
-	console_server_globals::init();
-	console_server_globals::console().init(cs.console_port, false);
+	console_server_globals::init(cs.console_port, false);
 
 	crown::s_advc.run(app, src_fs, cs);
 

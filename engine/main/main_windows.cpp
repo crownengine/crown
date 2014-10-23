@@ -354,8 +354,7 @@ int main(int argc, char** argv)
 	DiskFilesystem src_fs(cls.source_dir);
 	ConfigSettings cs = parse_config_file(src_fs);
 
-	console_server_globals::init();
-	console_server_globals::console().init(cs.console_port, cls.wait_console);
+	console_server_globals::init(cs.console_port, cls.wait_console);
 
 	bundle_compiler_globals::init(cls.source_dir, cls.bundle_dir);
 

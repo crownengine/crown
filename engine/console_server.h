@@ -66,7 +66,7 @@ public:
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
-	void init(uint16_t port, bool wait);
+	ConsoleServer(uint16_t port, bool wait);
 	void shutdown();
 
 	void log_to_all(LogSeverity::Enum severity, const char* message, ...);
@@ -102,7 +102,7 @@ private:
 namespace console_server_globals
 {
 	// Creates the global console server.
-	void init();
+	void init(uint16_t port, bool wait);
 
 	/// Destroys the global console server.
 	void shutdown();
