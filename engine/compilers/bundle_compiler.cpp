@@ -135,12 +135,12 @@ void BundleCompiler::scan(const char* cur_dir, Vector<DynamicString>& files)
 
 namespace bundle_compiler
 {
-	bool main(const CommandLineSettings& cls)
+	bool main(const ConfigSettings& cs)
 	{
-		if (cls.do_compile)
+		if (cs.do_compile)
 		{
-			bool ok = bundle_compiler_globals::compiler()->compile_all(cls.platform);
-			if (!ok || !cls.do_continue)
+			bool ok = bundle_compiler_globals::compiler()->compile_all(cs.platform);
+			if (!ok || !cs.do_continue)
 			{
 				return false;
 			}

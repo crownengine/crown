@@ -55,7 +55,7 @@ private:
 
 namespace bundle_compiler
 {
-	bool main(const CommandLineSettings& cls);
+	bool main(const ConfigSettings& cls);
 } // namespace bundle_compiler
 
 namespace bundle_compiler_globals

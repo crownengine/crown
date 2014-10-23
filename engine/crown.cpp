@@ -84,6 +84,7 @@ static void help(const char* msg = NULL)
 
 		"  -h --help                  Show this help.\n"
 		"  --bundle-dir <path>        Use <path> as the source directory for compiled resources.\n"
+		"  --console-port <port>      Set port of the console.\n"
 		"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
 		"                             Used only by tools.\n"
 
@@ -102,17 +103,8 @@ static void help(const char* msg = NULL)
 	);
 }
 
-CommandLineSettings parse_command_line(int argc, char** argv)
+void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 {
-	CommandLineSettings cls;
-	cls.source_dir = NULL;
-	cls.bundle_dir = NULL;
-	cls.platform = Platform::COUNT;
-	cls.wait_console = false;
-	cls.do_compile = false;
-	cls.do_continue = false;
-	cls.parent_window = 0;
-
 	CommandLine cmd(argc, argv);
 
 	if (cmd.has_argument("help", 'h'))
@@ -121,26 +113,26 @@ CommandLineSettings parse_command_line(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	cls.source_dir = cmd.get_parameter("source-dir");
-	if (!cls.source_dir)
+	cs.source_dir = cmd.get_parameter("source-dir");
+	if (!cs.source_dir)
 	{
 		help("Source directory must be specified.");
 		exit(EXIT_FAILURE);
 	}
 	
-	cls.bundle_dir = cmd.get_parameter("bundle-dir");
-	if (!cls.bundle_dir)
+	cs.bundle_dir = cmd.get_parameter("bundle-dir");
+	if (!cs.bundle_dir)
 	{
 		help("Bundle directory must be specified.");
 		exit(EXIT_FAILURE);
 	}
 
-	cls.wait_console = cmd.has_argument("wait-console");
-	cls.do_compile = cmd.has_argument("compile");
-	cls.do_continue = cmd.has_argument("continue");
+	cs.wait_console = cmd.has_argument("wait-console");
+	cs.do_compile = cmd.has_argument("compile");
+	cs.do_continue = cmd.has_argument("continue");
 
-	cls.platform = string_to_platform(cmd.get_parameter("platform"));
-	if (cls.do_compile && cls.platform == Platform::COUNT)
+	cs.platform = string_to_platform(cmd.get_parameter("platform"));
+	if (cs.do_compile && cs.platform == Platform::COUNT)
 	{
 		help("Platform must be specified.");
 		exit(EXIT_FAILURE);
@@ -149,21 +141,12 @@ CommandLineSettings parse_command_line(int argc, char** argv)
 	const char* parent = cmd.get_parameter("parent-window");
 	if (parent)
 	{
-		cls.parent_window = string::parse_uint(parent);
+		cs.parent_window = string::parse_uint(parent);
 	}
-
-	return cls;
 }
 
-ConfigSettings parse_config_file(Filesystem& fs)
+void parse_config_file(Filesystem& fs, ConfigSettings& cs)
 {
-	ConfigSettings cs;
-	cs.console_port = 10001;
-	cs.boot_package = 0;
-	cs.boot_script = 0;
-	cs.window_width = CROWN_DEFAULT_WINDOW_WIDTH;
-	cs.window_height = CROWN_DEFAULT_WINDOW_HEIGHT;
-
 	File* tmpfile = fs.open("crown.config", FOM_READ);
 	JSONParser config(*tmpfile);
 	fs.close(tmpfile);
@@ -189,8 +172,6 @@ ConfigSettings parse_config_file(Filesystem& fs)
 
 	cs.boot_script = root.key("boot_script").to_resource_id("lua").name;
 	cs.boot_package = root.key("boot_package").to_resource_id("package").name;
-
-	return cs;
 }
 
 bool init(Filesystem& fs, const ConfigSettings& cs)

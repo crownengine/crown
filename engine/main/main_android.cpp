@@ -250,10 +250,12 @@ void android_main(struct android_app* app)
 	// Make sure glue isn't stripped.
 	app_dummy();
 
+	ConfigSettings cs;
+
 	memory_globals::init();
 	// DiskFilesystem src_fs(cls.source_dir);
 	ApkFilesystem src_fs(app->activity->assetManager);
-	ConfigSettings cs = parse_config_file(src_fs);
+	parse_config_file(src_fs, cs);
 
 	console_server_globals::init(cs.console_port, false);
 

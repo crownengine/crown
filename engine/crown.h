@@ -44,15 +44,22 @@ namespace crown
 
 	struct ConfigSettings
 	{
-		uint16_t console_port;
-		StringId64 boot_package;
-		StringId64 boot_script;
-		uint16_t window_width;
-		uint16_t window_height;
-	};
+		ConfigSettings()
+			: source_dir(NULL)
+			, bundle_dir(NULL)
+			, platform(Platform::COUNT)
+			, wait_console(false)
+			, do_compile(false)
+			, do_continue(false)
+			, parent_window(0)
+			, console_port(10001)
+			, boot_package(0)
+			, boot_script(0)
+			, window_width(CROWN_DEFAULT_WINDOW_WIDTH)
+			, window_height(CROWN_DEFAULT_WINDOW_HEIGHT)
+		{
+		}
 
-	struct CommandLineSettings
-	{
 		const char* source_dir;
 		const char* bundle_dir;
 		Platform::Enum platform;
@@ -60,12 +67,17 @@ namespace crown
 		bool do_compile;
 		bool do_continue;
 		uint32_t parent_window;
+		uint16_t console_port;
+		StringId64 boot_package;
+		StringId64 boot_script;
+		uint16_t window_width;
+		uint16_t window_height;
 	};
 
-	CommandLineSettings parse_command_line(int argc, char** argv);
+	void parse_command_line(int argc, char** argv, ConfigSettings& cs);
 
 	/// Read configuration file from @a fs.
-	ConfigSettings parse_config_file(Filesystem& fs);
+	void parse_config_file(Filesystem& fs, ConfigSettings& cs);
 
 	/// Initializes the engine.
 	bool init(Filesystem& fs, const ConfigSettings& cs);

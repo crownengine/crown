@@ -216,7 +216,7 @@ struct LinuxDevice
 	{
 	}
 
-	int32_t run(Filesystem* fs, ConfigSettings* cs, CommandLineSettings* cls)
+	int32_t run(Filesystem* fs, ConfigSettings* cs)
 	{
 		// Create main window
 		XInitThreads();
@@ -229,8 +229,8 @@ struct LinuxDevice
 		int depth = DefaultDepth(_x11_display, screen);
 		Visual* visual = DefaultVisual(_x11_display, screen);
 
-		_x11_parent_window = (cls->parent_window == 0) ? RootWindow(_x11_display, screen) :
-			(Window) cls->parent_window;
+		_x11_parent_window = (cs->parent_window == 0) ? RootWindow(_x11_display, screen) :
+			(Window) cs->parent_window;
 
 		// Create main window
 		XSetWindowAttributes win_attribs;
@@ -431,25 +431,26 @@ int main(int argc, char** argv)
 {
 	using namespace crown;
 
-	CommandLineSettings cls = parse_command_line(argc, argv);
+	ConfigSettings cs;
+	parse_command_line(argc, argv, cs);
 
 	memory_globals::init();
-	DiskFilesystem src_fs(cls.source_dir);
-	ConfigSettings cs = parse_config_file(src_fs);
+	DiskFilesystem src_fs(cs.source_dir);
+	parse_config_file(src_fs, cs);
 
-	console_server_globals::init(cs.console_port, cls.wait_console);
+	console_server_globals::init(cs.console_port, cs.wait_console);
 
-	bundle_compiler_globals::init(cls.source_dir, cls.bundle_dir);
+	bundle_compiler_globals::init(cs.source_dir, cs.bundle_dir);
 
 	bool do_continue = true;
 	int exitcode = EXIT_SUCCESS;
 
-	do_continue = bundle_compiler::main(cls);
+	do_continue = bundle_compiler::main(cs);
 
 	if (do_continue)
 	{
-		DiskFilesystem dst_fs(cls.bundle_dir);
-		exitcode = crown::s_ldvc.run(&dst_fs, &cs, &cls);
+		DiskFilesystem dst_fs(cs.bundle_dir);
+		exitcode = crown::s_ldvc.run(&dst_fs, &cs);
 	}
 
 	bundle_compiler_globals::shutdown();

@@ -348,15 +348,16 @@ int main(int argc, char** argv)
 	CE_UNUSED(WsaData);
 	CE_UNUSED(res);
 
-	CommandLineSettings cls = parse_command_line(argc, argv);
+	ConfigSettings cs;
+	parse_command_line(argc, argv, cs);
 
 	memory_globals::init();
-	DiskFilesystem src_fs(cls.source_dir);
-	ConfigSettings cs = parse_config_file(src_fs);
+	DiskFilesystem src_fs(cs.source_dir);
+	parse_config_file(src_fs, cs);
 
-	console_server_globals::init(cs.console_port, cls.wait_console);
+	console_server_globals::init(cs.console_port, cs.wait_console);
 
-	bundle_compiler_globals::init(cls.source_dir, cls.bundle_dir);
+	bundle_compiler_globals::init(cs.source_dir, cs.bundle_dir);
 
 	bool do_continue = true;
 	int exitcode = EXIT_SUCCESS;
@@ -365,7 +366,7 @@ int main(int argc, char** argv)
 
 	if (do_continue)
 	{
-		DiskFilesystem dst_fs(cls.bundle_dir);
+		DiskFilesystem dst_fs(cs.bundle_dir);
 		exitcode = crown::s_wdvc.run(&dst_fs, &cs);
 	}
 
