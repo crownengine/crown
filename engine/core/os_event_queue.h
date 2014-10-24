@@ -134,8 +134,8 @@ struct OsEvent
 struct OsEventQueue
 {
 	OsEventQueue()
-		: m_tail(0)
-		, m_head(0)
+		: _tail(0)
+		, _head(0)
 	{
 	}
 
@@ -244,12 +244,12 @@ struct OsEventQueue
 
 	bool push_event(const OsEvent& ev)
 	{
-		int cur_tail = m_tail.load();
+		int cur_tail = _tail.load();
 		int next_tail = increment(cur_tail);
-		if(next_tail != m_head.load())
+		if(next_tail != _head.load())
 		{
-			m_queue[cur_tail] = ev;
-			m_tail.store(next_tail);
+			_queue[cur_tail] = ev;
+			_tail.store(next_tail);
 			return true;
 		}
 
@@ -258,11 +258,11 @@ struct OsEventQueue
 
 	bool pop_event(OsEvent& ev)
 	{
-		const int cur_head = m_head.load();
-		if(cur_head == m_tail.load()) return false;
+		const int cur_head = _head.load();
+		if(cur_head == _tail.load()) return false;
 
-		ev = m_queue[cur_head];
-		m_head.store(increment(cur_head));
+		ev = _queue[cur_head];
+		_head.store(increment(cur_head));
 		return true;
 	}
 
@@ -273,9 +273,9 @@ struct OsEventQueue
 
 private:
 
-	OsEvent m_queue[MAX_OS_EVENTS];
-	AtomicInt m_tail;
-	AtomicInt m_head;
+	OsEvent _queue[MAX_OS_EVENTS];
+	AtomicInt _tail;
+	AtomicInt _head;
 };
 
 } // namespace crown
