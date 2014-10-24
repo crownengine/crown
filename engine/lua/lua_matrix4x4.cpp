@@ -190,6 +190,20 @@ static int matrix4x4_set_translation(lua_State* L)
 	return 0;
 }
 
+static int matrix4x4_rotation(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_quaternion(rotation(stack.get_matrix4x4(1)));
+	return 1;
+}
+
+static int matrix4x4_set_rotation(lua_State* L)
+{
+	LuaStack stack(L);
+	set_rotation(stack.get_matrix4x4(1), stack.get_quaternion(2));
+	return 0;
+}
+
 static int matrix4x4_identity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -227,6 +241,8 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "set_z",                       matrix4x4_set_z);
 	env.load_module_function("Matrix4x4", "translation",                 matrix4x4_translation);
 	env.load_module_function("Matrix4x4", "set_translation",             matrix4x4_set_translation);
+	env.load_module_function("Matrix4x4", "rotation",                    matrix4x4_rotation);
+	env.load_module_function("Matrix4x4", "set_rotation",                matrix4x4_set_rotation);
 	env.load_module_function("Matrix4x4", "identity",                    matrix4x4_identity);
 	env.load_module_function("Matrix4x4", "to_string",                   matrix4x4_to_string);
 	
