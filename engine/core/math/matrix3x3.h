@@ -79,6 +79,9 @@ namespace matrix3x3
 	/// Sets the matrix @a m to identity.
 	void set_identity(Matrix3x3& m);
 
+	/// Returns the rotation portion of the matrix @a m as a Quaternion.
+	Quaternion rotation(const Matrix3x3& m);
+
 	/// Returns the pointer to the matrix's data
 	float* to_float_ptr(Matrix3x3& m);
 
@@ -87,9 +90,6 @@ namespace matrix3x3
 
 	/// Returns a 4x4 matrix according to the matrix's rotation portion
 	Matrix4x4 to_matrix4x4(const Matrix3x3& m);
-
-	/// Returns a quaternion according to the matrix's rotation portion
-	Quaternion to_quaternion(const Matrix3x3& m);
 } // namespace matrix3x3
 
 inline Matrix3x3 operator+(Matrix3x3 a, const Matrix3x3& b)
@@ -221,7 +221,7 @@ namespace matrix3x3
 		return Matrix4x4(m);
 	}
 
-	inline Quaternion to_quaternion(const Matrix3x3& m)
+	inline Quaternion rotation(const Matrix3x3& m)
 	{
 		const float fourWSquaredMinusOne = m.x.x + m.y.y + m.z.z;
 		const float fourXSquaredMinusOne = m.x.x - m.y.y - m.z.z;

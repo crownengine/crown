@@ -195,7 +195,7 @@ Quaternion SceneGraph::local_rotation(int32_t node) const
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
-	return to_quaternion(m_local_poses[node]);
+	return rotation(m_local_poses[node]);
 }
 
 Matrix4x4 SceneGraph::local_pose(int32_t node) const
@@ -240,7 +240,7 @@ Quaternion SceneGraph::world_rotation(int32_t node) const
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
-	return to_quaternion(m_world_poses[node]);
+	return rotation(m_world_poses[node]);
 }
 
 Matrix4x4 SceneGraph::world_pose(int32_t node) const

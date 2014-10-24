@@ -66,12 +66,6 @@ namespace matrix4x4
 {
 	const Matrix4x4 IDENTITY = Matrix4x4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 
-	/// Sets the rotation portion of the matrix @a m.
-	void set_rotation(Matrix4x4& m, const Quaternion& rot);
-
-	/// Sets the rotation portion of the matrix @a m.
-	void set_rotation(Matrix4x4& m, const Matrix3x3& rot);
-
 	/// Sets the matrix @a m to perspective. (Right-Handed coordinate systems)
 	void set_perspective_rh(Matrix4x4& m, float fovy, float aspect, float near, float far);
 
@@ -123,6 +117,15 @@ namespace matrix4x4
 	/// Sets the translation portion of the matrix @a m.
 	void set_translation(Matrix4x4& m, const Vector3& trans);
 
+	/// Returns the rotation portion of the matrix @a m as a Quaternion.
+	Quaternion rotation(const Matrix4x4& m);
+
+	/// Sets the rotation portion of the matrix @a m.
+	void set_rotation(Matrix4x4& m, const Quaternion& rot);
+
+	/// Sets the rotation portion of the matrix @a m.
+	void set_rotation(Matrix4x4& m, const Matrix3x3& rot);
+
 	/// Returns the pointer to the matrix's data
 	float* to_float_ptr(Matrix4x4& m);
 
@@ -131,9 +134,6 @@ namespace matrix4x4
 
 	/// Returns the rotation portion of the matrix @a m as a Matrix3x3.
 	Matrix3x3 to_matrix3x3(const Matrix4x4& m);
-
-	/// Returns the rotation portion of the matrix @a m as a Quaternion.
-	Quaternion to_quaternion(const Matrix4x4& m);
 } // namespace matrix4x4
 
 inline Matrix4x4 operator+(Matrix4x4 a, const Matrix4x4& b)
@@ -197,24 +197,6 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 
 namespace matrix4x4
 {
-	inline void set_rotation(Matrix4x4& m, const Quaternion& rot)
-	{
-		set_rotation(m, quaternion::to_matrix3x3(rot));
-	}
-
-	inline void set_rotation(Matrix4x4& m, const Matrix3x3& rot)
-	{
-		m.x.x = rot.x.x;
-		m.x.y = rot.x.y;
-		m.x.z = rot.x.z;
-		m.y.x = rot.y.x;
-		m.y.y = rot.y.y;
-		m.y.z = rot.y.z;
-		m.z.x = rot.z.x;
-		m.z.y = rot.z.y;
-		m.z.z = rot.z.z;
-	}
-
 	inline void set_perspective_rh(Matrix4x4& m, float fovy, float aspect, float near, float far)
 	{
 		const float height = 1.0f / math::tan(fovy * ((float) math::PI / 180.0f) * 0.5f);
@@ -441,6 +423,29 @@ namespace matrix4x4
 		m.t.z = trans.z;
 	}
 
+	inline Quaternion rotation(const Matrix4x4& m)
+	{
+		return matrix3x3::rotation(to_matrix3x3(m));
+	}
+
+	inline void set_rotation(Matrix4x4& m, const Quaternion& rot)
+	{
+		set_rotation(m, quaternion::to_matrix3x3(rot));
+	}
+
+	inline void set_rotation(Matrix4x4& m, const Matrix3x3& rot)
+	{
+		m.x.x = rot.x.x;
+		m.x.y = rot.x.y;
+		m.x.z = rot.x.z;
+		m.y.x = rot.y.x;
+		m.y.y = rot.y.y;
+		m.y.z = rot.y.z;
+		m.z.x = rot.z.x;
+		m.z.y = rot.z.y;
+		m.z.z = rot.z.z;
+	}
+
 	inline float* to_float_ptr(Matrix4x4& m)
 	{
 		return vector4::to_float_ptr(m.x);
@@ -454,11 +459,6 @@ namespace matrix4x4
 	inline Matrix3x3 to_matrix3x3(const Matrix4x4& m)
 	{
 		return Matrix3x3(x(m), y(m), z(m));
-	}
-
-	inline Quaternion to_quaternion(const Matrix4x4& m)
-	{
-		return matrix3x3::to_quaternion(to_matrix3x3(m));
 	}
 } // namespace matrix4x4
 
