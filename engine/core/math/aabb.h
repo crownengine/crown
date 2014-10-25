@@ -158,14 +158,14 @@ namespace aabb
 		Vector3 vertices[8];
 		to_vertices(b, vertices);
 
-		vertices[0] = m * vertices[0];
-		vertices[1] = m * vertices[1];
-		vertices[2] = m * vertices[2];
-		vertices[3] = m * vertices[3];
-		vertices[4] = m * vertices[4];
-		vertices[5] = m * vertices[5];
-		vertices[6] = m * vertices[6];
-		vertices[7] = m * vertices[7];
+		vertices[0] = vertices[0] * m;
+		vertices[1] = vertices[1] * m;
+		vertices[2] = vertices[2] * m;
+		vertices[3] = vertices[3] * m;
+		vertices[4] = vertices[4] * m;
+		vertices[5] = vertices[5] * m;
+		vertices[6] = vertices[6] * m;
+		vertices[7] = vertices[7] * m;
 
 		AABB res;
 		reset(res);

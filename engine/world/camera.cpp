@@ -176,14 +176,14 @@ Vector3 Camera::screen_to_world(const Vector3& pos)
 
 	Matrix4x4 world_inv = world_pose();
 	invert(world_inv);
-	Matrix4x4 mvp = m_projection * world_inv;
+	Matrix4x4 mvp = world_inv * m_projection;
 	invert(mvp);
 
 	Vector4 ndc( (2 * (pos.x - 0)) / m_view_width - 1,
 				 (2 * (m_view_height - pos.y)) / m_view_height - 1,
 				 (2 * pos.z) - 1, 1);
 
-	Vector4 tmp = mvp * ndc;
+	Vector4 tmp = ndc * mvp;
 	tmp *= 1.0f / tmp.w;
 
 	return Vector3(tmp.x, tmp.y, tmp.z);
@@ -196,7 +196,7 @@ Vector3 Camera::world_to_screen(const Vector3& pos)
 	Matrix4x4 world_inv = world_pose();
 	invert(world_inv);
 
-	Vector3 ndc = (m_projection * world_inv) * pos;
+	Vector3 ndc = pos * (world_inv * m_projection);
 
 	return Vector3( (m_view_x + m_view_width * (ndc.x + 1.0f)) / 2.0f,
 					(m_view_y + m_view_height * (ndc.y + 1.0f)) / 2.0f,
