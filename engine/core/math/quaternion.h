@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "types.h"
 #include "vector3.h"
 #include "math_types.h"
-#include "matrix3x3.h"
 
 namespace crown
 {
@@ -56,6 +55,9 @@ namespace quaternion
 	/// Returns the length of @a q.
 	float length(const Quaternion& q);
 
+	/// Normalizes the quaternion @a q and returns the result.
+	Quaternion& normalize(Quaternion& q);
+
 	/// Returns the conjugate of quaternion @a q.
 	Quaternion conjugate(const Quaternion& q);
 
@@ -64,13 +66,6 @@ namespace quaternion
 
 	/// Returns the quaternion @a q raised to the power of @a exp.
 	Quaternion power(const Quaternion& q, float exp);
-
-	/// Returns the Matrix3x3 representation of the quaternion @a q.
-	Matrix3x3 to_matrix3x3(const Quaternion& q);
-
-	/// Returns the Matrix4x4 representation of the quaternion @a q.
-	Matrix4x4 to_matrix4x4(const Quaternion& q);
-
 } // namespace quaternion
 
 inline Quaternion operator-(const Quaternion& q)
@@ -101,6 +96,16 @@ namespace quaternion
 		return math::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
 	}
 
+	inline Quaternion& normalize(Quaternion& q)
+	{
+		const float inv_len = 1.0f / length(q);
+		q.x *= inv_len;
+		q.y *= inv_len;
+		q.z *= inv_len;
+		q.w *= inv_len;
+		return q;
+	}
+
 	inline Quaternion conjugate(const Quaternion& q)
 	{
 		return Quaternion(-q.x, -q.y, -q.z, q.w);
@@ -127,16 +132,6 @@ namespace quaternion
 		}
 
 		return q;
-	}
-
-	inline Matrix3x3 to_matrix3x3(const Quaternion& q)
-	{
-		return Matrix3x3(q);
-	}
-
-	inline Matrix4x4 to_matrix4x4(const Quaternion& q)
-	{
-		return Matrix4x4(q, Vector3(0, 0, 0));
 	}
 } // namespace quaternion
 
@@ -175,10 +170,10 @@ inline const float& Quaternion::operator[](uint32_t i) const
 
 inline Quaternion& Quaternion::operator*=(const Quaternion& a)
 {
-	const float t_x = w * a.x + x * a.w + z * a.y - y * a.z;
-	const float t_y = w * a.y + y * a.w + x * a.z - z * a.x;
-	const float t_z = w * a.z + z * a.w + y * a.x - x * a.y;
-	const float t_w = w * a.w - x * a.x - y * a.y - z * a.z;
+	const float t_w = w*a.w - x*a.x - y*a.y - z*a.z;
+	const float t_x = w*a.x + x*a.w + y*a.z - z*a.y;
+	const float t_y = w*a.y + y*a.w + z*a.x - x*a.z;
+	const float t_z = w*a.z + z*a.w + x*a.y - y*a.x;
 
 	x = t_x;
 	y = t_y;
@@ -189,4 +184,3 @@ inline Quaternion& Quaternion::operator*=(const Quaternion& a)
 }
 
 } // namespace crown
-

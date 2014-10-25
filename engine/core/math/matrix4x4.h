@@ -426,7 +426,7 @@ namespace matrix4x4
 
 	inline void set_rotation(Matrix4x4& m, const Quaternion& rot)
 	{
-		set_rotation(m, quaternion::to_matrix3x3(rot));
+		set_rotation(m, Matrix3x3(rot));
 	}
 
 	inline void set_rotation(Matrix4x4& m, const Matrix3x3& rot)

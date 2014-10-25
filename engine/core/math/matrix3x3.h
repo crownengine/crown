@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "math_types.h"
 #include "vector3.h"
 #include "assert.h"
+#include "quaternion.h"
 
 namespace crown
 {
@@ -254,7 +255,6 @@ namespace matrix3x3
 		{
 			case 0:
 			{
-				printf("case=0\n");
 				tmp.w = biggest;
 				tmp.x = (m.y.z - m.z.y) * mult;
 				tmp.y = (m.z.x - m.x.z) * mult;
@@ -263,7 +263,6 @@ namespace matrix3x3
 			}
 			case 1:
 			{
-				printf("case=1\n");
 				tmp.x = biggest;
 				tmp.w = (m.y.z - m.z.y) * mult;
 				tmp.y = (m.x.y + m.y.x) * mult;
@@ -272,7 +271,6 @@ namespace matrix3x3
 			}
 			case 2:
 			{
-				printf("case=2\n");
 				tmp.y = biggest;
 				tmp.w = (m.z.x - m.x.z) * mult;
 				tmp.x = (m.x.y + m.y.x) * mult;
@@ -281,7 +279,6 @@ namespace matrix3x3
 			}
 			case 3:
 			{
-				printf("case=3\n");
 				tmp.z = biggest;
 				tmp.w = (m.x.y - m.y.x) * mult;
 				tmp.x = (m.z.x + m.x.z) * mult;
@@ -295,6 +292,7 @@ namespace matrix3x3
 			}
 		}
 
+		quaternion::normalize(tmp);
 		return tmp;
 	}
 } // namespace matrix3x3
