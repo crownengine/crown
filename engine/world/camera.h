@@ -44,10 +44,6 @@ struct ProjectionType
 	};
 };
 
-struct Quaternion;
-struct Unit;
-struct SceneGraph;
-
 /// Represents the point of view into the game world.
 ///
 /// @ingroup World
@@ -134,28 +130,28 @@ public:
 
 public:
 
-	SceneGraph& m_scene_graph;
-	int32_t m_node;
+	SceneGraph& _scene_graph;
+	int32_t _node;
 
-	ProjectionType::Enum m_projection_type;
-	Matrix4x4 m_projection;
+	ProjectionType::Enum _projection_type;
+	Matrix4x4 _projection;
 
-	Frustum m_frustum;
-	float m_FOV;
-	float m_aspect;
-	float m_near;
-	float m_far;
+	Frustum _frustum;
+	float _FOV;
+	float _aspect;
+	float _near;
+	float _far;
 
 	// Orthographic projection only
-	float m_left;
-	float m_right;
-	float m_bottom;
-	float m_top;
+	float _left;
+	float _right;
+	float _bottom;
+	float _top;
 
-	uint16_t m_view_x;
-	uint16_t m_view_y;
-	uint16_t m_view_width;
-	uint16_t m_view_height;
+	uint16_t _view_x;
+	uint16_t _view_y;
+	uint16_t _view_width;
+	uint16_t _view_height;
 };
 
 } // namespace crown

@@ -35,6 +35,9 @@ typedef Id UnitId;
 typedef Id WorldId;
 typedef Id CameraId;
 
+struct Unit;
+struct SceneGraph;
+
 struct EventType
 {
 	enum Enum
