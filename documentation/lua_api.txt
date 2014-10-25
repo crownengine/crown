@@ -99,6 +99,9 @@ Quaternion
 	**length** (q) : float
 		Returns the length of *q*.
 
+	**normalize** (q) : Quaternion
+		Normalizes the quaternion *q* and returns the result.
+
 	**conjugate** (q) : Quaternion
 		Returns the conjugate of quaternion *q*.
 
