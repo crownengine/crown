@@ -49,9 +49,9 @@ Matrix3x3 operator*(float k, Matrix3x3 a);
 Matrix3x3 operator/(Matrix3x3 a, float k);
 
 /// Multiplies the matrix @a a by the vector @a v and returns the result.
-Vector3 operator*(const Matrix3x3& a, const Vector3& v);
+Vector3 operator*(const Vector3& v, const Matrix3x3& a);
 
-/// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a b then by @a a)
+/// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
 Matrix3x3 operator*(Matrix3x3 a, const Matrix3x3& b);
 
 /// Functions to manipulate Matrix3x3
@@ -122,15 +122,13 @@ inline Matrix3x3 operator/(Matrix3x3 a, float k)
 	return a;
 }
 
-inline Vector3 operator*(const Matrix3x3& a, const Vector3& v)
+inline Vector3 operator*(const Vector3& v, const Matrix3x3& a)
 {
-	Vector3 tmp;
-
-	tmp.x = a.x.x * v.x + a.y.x * v.y + a.z.x * v.z;
-	tmp.y = a.x.y * v.x + a.y.y * v.y + a.z.y * v.z;
-	tmp.z = a.x.z * v.x + a.y.z * v.y + a.z.z * v.z;
-
-	return tmp;
+	return Vector3(
+		v.x*a.x.x + v.y*a.y.x + v.z*a.z.x,
+		v.x*a.x.y + v.y*a.y.y + v.z*a.z.y,
+		v.x*a.x.z + v.y*a.y.z + v.z*a.z.z
+	);
 }
 
 inline Matrix3x3 operator*(Matrix3x3 a, const Matrix3x3& b)
@@ -223,67 +221,71 @@ namespace matrix3x3
 
 	inline Quaternion rotation(const Matrix3x3& m)
 	{
-		const float fourWSquaredMinusOne = m.x.x + m.y.y + m.z.z;
-		const float fourXSquaredMinusOne = m.x.x - m.y.y - m.z.z;
-		const float fourYSquaredMinusOne = -m.x.x + m.y.y - m.z.z;
-		const float fourZSquaredMinusOne = -m.x.x - m.y.y + m.z.z;
-		float fourMaxSquaredMinusOne = fourWSquaredMinusOne;
+		const float ww = m.x.x + m.y.y + m.z.z;
+		const float xx = m.x.x - m.y.y - m.z.z;
+		const float yy = m.y.y - m.x.x - m.z.z;
+		const float zz = m.z.z - m.x.x - m.y.y;
+		float max = ww;
 		uint32_t index = 0;
 
-		if (fourXSquaredMinusOne > fourMaxSquaredMinusOne)
+		if (xx > max)
 		{
-			fourMaxSquaredMinusOne = fourXSquaredMinusOne;
+			max = xx;
 			index = 1;
 		}
 
-		if (fourYSquaredMinusOne > fourMaxSquaredMinusOne)
+		if (yy > max)
 		{
-			fourMaxSquaredMinusOne = fourYSquaredMinusOne;
+			max = yy;
 			index = 2;
 		}
 
-		if (fourZSquaredMinusOne > fourMaxSquaredMinusOne)
+		if (zz > max)
 		{
-			fourMaxSquaredMinusOne = fourZSquaredMinusOne;
+			max = zz;
 			index = 3;
 		}
 
-		const float biggest = math::sqrt(fourMaxSquaredMinusOne + (float)1.0) * (float)0.5;
-		const float mult = (float)0.25 / biggest;
+		const float biggest = math::sqrt(max + 1.0f) * 0.5f;
+		const float mult = 0.25f / biggest;
 
 		Quaternion tmp;
 		switch (index)
 		{
 			case 0:
 			{
+				printf("case=0\n");
 				tmp.w = biggest;
-				tmp.x = (-m.z.y + m.y.z) * mult;
-				tmp.y = (-m.x.z + m.z.x) * mult;
-				tmp.z = (-m.y.x + m.x.y) * mult;
+				tmp.x = (m.y.z - m.z.y) * mult;
+				tmp.y = (m.z.x - m.x.z) * mult;
+				tmp.z = (m.x.y - m.y.x) * mult;
 				break;
 			}
 			case 1:
 			{
+				printf("case=1\n");
 				tmp.x = biggest;
-				tmp.w = (-m.z.y + m.y.z) * mult;
-				tmp.y = (-m.y.x - m.x.y) * mult;
-				tmp.z = (-m.x.z - m.z.x) * mult;
+				tmp.w = (m.y.z - m.z.y) * mult;
+				tmp.y = (m.x.y + m.y.x) * mult;
+				tmp.z = (m.z.x + m.x.z) * mult;
 				break;
 			}
 			case 2:
 			{
+				printf("case=2\n");
 				tmp.y = biggest;
-				tmp.w = (-m.x.z + m.z.x) * mult;
-				tmp.x = (-m.y.x - m.x.y) * mult;
-				tmp.z = (-m.z.y - m.y.z) * mult;
+				tmp.w = (m.z.x - m.x.z) * mult;
+				tmp.x = (m.x.y + m.y.x) * mult;
+				tmp.z = (m.y.z + m.z.y) * mult;
 				break;
 			}
 			case 3:
 			{
+				printf("case=3\n");
 				tmp.z = biggest;
-				tmp.w = (-m.y.x + m.x.y) * mult;
-				tmp.x = (-m.x.z - m.z.x) * mult;
-				tmp.y = (-m.z.y - m.y.z) * mult;
+				tmp.w = (m.x.y - m.y.x) * mult;
+				tmp.x = (m.z.x + m.x.z) * mult;
+				tmp.y = (m.y.z + m.z.y) * mult;
 				break;
 			}
 			default:
@@ -385,22 +387,21 @@ inline Matrix3x3& Matrix3x3::operator/=(float k)
 
 inline Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& a)
 {
-	Matrix3x3 tmp;
+	Matrix3x3 tmp(
+		x.x*a.x.x + x.y*a.y.x + x.z*a.z.x,
+		x.x*a.x.y + x.y*a.y.y + x.z*a.z.y,
+		x.x*a.x.z + x.y*a.y.z + x.z*a.z.z,
 
-	tmp.x.x = x.x * a.x.x + y.x * a.x.y + z.x * a.x.z;
-	tmp.x.y = x.y * a.x.x + y.y * a.x.y + z.y * a.x.z;
-	tmp.x.z = x.z * a.x.x + y.z * a.x.y + z.z * a.x.z;
+		y.x*a.x.x + y.y*a.y.x + y.z*a.z.x,
+		y.x*a.x.y + y.y*a.y.y + y.z*a.z.y,
+		y.x*a.x.z + y.y*a.y.z + y.z*a.z.z,
 
-	tmp.y.x = x.x * a.y.x + y.x * a.y.y + z.x * a.y.z;
-	tmp.y.y = x.y * a.y.x + y.y * a.y.y + z.y * a.y.z;
-	tmp.y.z = x.z * a.y.x + y.z * a.y.y + z.z * a.y.z;
-
-	tmp.z.x = x.x * a.z.x + y.x * a.z.y + z.x * a.z.z;
-	tmp.z.y = x.y * a.z.x + y.y * a.z.y + z.y * a.z.z;
-	tmp.z.z = x.z * a.z.x + y.z * a.z.y + z.z * a.z.z;
+		z.x*a.x.x + z.y*a.y.x + z.z*a.z.x,
+		z.x*a.x.y + z.y*a.y.y + z.z*a.z.y,
+		z.x*a.x.z + z.y*a.y.z + z.z*a.z.z
+	);
 
 	*this = tmp;
-
 	return *this;
 }
 

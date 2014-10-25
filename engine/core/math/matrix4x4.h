@@ -51,12 +51,12 @@ Matrix4x4 operator*(float k, Matrix4x4 a);
 Matrix4x4 operator/(Matrix4x4 a, float k);
 
 /// Multiplies the matrix @a a by the vector @a v and returns the result.
-Vector3 operator*(const Matrix4x4& a, const Vector3& v);
+Vector3 operator*(const Vector3& v, const Matrix4x4& a);
 
 /// Multiplies the matrix @a by the vector @a v and returns the result.
-Vector4 operator*(const Matrix4x4& a, const Vector4& v);
+Vector4 operator*(const Vector4& v, const Matrix4x4& a);
 
-/// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a b then by @a a)
+/// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
 Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b);
 
 /// Functions to manipulate Matrix4x4.
@@ -166,27 +166,23 @@ inline Matrix4x4 operator/(Matrix4x4 a, float k)
 	return a;
 }
 
-inline Vector3 operator*(const Matrix4x4& a, const Vector3& v)
+inline Vector3 operator*(const Vector3& v, const Matrix4x4& a)
 {
-	Vector3 tmp;
-
-	tmp.x = a.x.x * v.x + a.y.x * v.y + a.z.x * v.z + a.t.x;
-	tmp.y = a.x.y * v.x + a.y.y * v.y + a.z.y * v.z + a.t.y;
-	tmp.z = a.x.z * v.x + a.y.z * v.y + a.z.z * v.z + a.t.z;
-
-	return tmp;
+	return Vector3(
+		v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + a.t.x,
+		v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + a.t.y,
+		v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + a.t.z
+	);
 }
 
-inline Vector4 operator*(const Matrix4x4& a, const Vector4& v)
+inline Vector4 operator*(const Vector4& v, const Matrix4x4& a)
 {
-	Vector4 tmp;
-
-	tmp.x = a.x.x * v.x + a.y.x * v.y + a.z.x * v.z + a.t.x * v.w;
-	tmp.y = a.x.y * v.x + a.y.y * v.y + a.z.y * v.z + a.t.y * v.w;
-	tmp.z = a.x.z * v.x + a.y.z * v.y + a.z.z * v.z + a.t.z * v.w;
-	tmp.w = a.x.w * v.x + a.y.w * v.y + a.z.w * v.z + a.t.w * v.w;
-
-	return tmp;
+	return Vector4(
+		v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + v.w*a.t.x,
+		v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + v.w*a.t.y,
+		v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + v.w*a.t.z,
+		v.x*a.x.w + v.y*a.y.w + v.z*a.z.w + v.w*a.t.w
+	);
 }
 
 inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
@@ -565,30 +561,29 @@ inline Matrix4x4& Matrix4x4::operator/=(float k)
 
 inline Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& a)
 {
-	Matrix4x4 tmp;
+	Matrix4x4 tmp(
+		x.x*a.x.x + x.y*a.y.x + x.z*a.z.x + x.w*a.t.x,
+		x.x*a.x.y + x.y*a.y.y + x.z*a.z.y + x.w*a.t.y,
+		x.x*a.x.z + x.y*a.y.z + x.z*a.z.z + x.w*a.t.z,
+		x.x*a.x.w + x.y*a.y.w + x.z*a.z.w + x.w*a.t.w,
 
-	tmp.x.x = x.x * a.x.x + y.x * a.x.y + z.x * a.x.z + t.x * a.x.w;
-	tmp.x.y = x.y * a.x.x + y.y * a.x.y + z.y * a.x.z + t.y * a.x.w;
-	tmp.x.z = x.z * a.x.x + y.z * a.x.y + z.z * a.x.z + t.z * a.x.w;
-	tmp.x.w = x.w * a.x.x + y.w * a.x.y + z.w * a.x.z + t.w * a.x.w;
+		y.x*a.x.x + y.y*a.y.x + y.z*a.z.x + y.w*a.t.x,
+		y.x*a.x.y + y.y*a.y.y + y.z*a.z.y + y.w*a.t.y,
+		y.x*a.x.z + y.y*a.y.z + y.z*a.z.z + y.w*a.t.z,
+		y.x*a.x.w + y.y*a.y.w + y.z*a.z.w + y.w*a.t.w,
 
-	tmp.y.x = x.x * a.y.x + y.x * a.y.y + z.x * a.y.z + t.x * a.y.w;
-	tmp.y.y = x.y * a.y.x + y.y * a.y.y + z.y * a.y.z + t.y * a.y.w;
-	tmp.y.z = x.z * a.y.x + y.z * a.y.y + z.z * a.y.z + t.z * a.y.w;
-	tmp.y.w = x.w * a.y.x + y.w * a.y.y + z.w * a.y.z + t.w * a.y.w;
+		z.x*a.x.x + z.y*a.y.x + z.z*a.z.x + z.w*a.t.x,
+		z.x*a.x.y + z.y*a.y.y + z.z*a.z.y + z.w*a.t.y,
+		z.x*a.x.z + z.y*a.y.z + z.z*a.z.z + z.w*a.t.z,
+		z.x*a.x.w + z.y*a.y.w + z.z*a.z.w + z.w*a.t.w,
 
-	tmp.z.x = x.x * a.z.x + y.x * a.z.y + z.x * a.z.z + t.x * a.z.w;
-	tmp.z.y = x.y * a.z.x + y.y * a.z.y + z.y * a.z.z + t.y * a.z.w;
-	tmp.z.z = x.z * a.z.x + y.z * a.z.y + z.z * a.z.z + t.z * a.z.w;
-	tmp.z.w = x.w * a.z.x + y.w * a.z.y + z.w * a.z.z + t.w * a.z.w;
-
-	tmp.t.x = x.x * a.t.x + y.x * a.t.y + z.x * a.t.z + t.x * a.t.w;
-	tmp.t.y = x.y * a.t.x + y.y * a.t.y + z.y * a.t.z + t.y * a.t.w;
-	tmp.t.z = x.z * a.t.x + y.z * a.t.y + z.z * a.t.z + t.z * a.t.w;
-	tmp.t.w = x.w * a.t.x + y.w * a.t.y + z.w * a.t.z + t.w * a.t.w;
+		t.x*a.x.x + t.y*a.y.x + t.z*a.z.x + t.w*a.t.x,
+		t.x*a.x.y + t.y*a.y.y + t.z*a.z.y + t.w*a.t.y,
+		t.x*a.x.z + t.y*a.y.z + t.z*a.z.z + t.w*a.t.z,
+		t.x*a.x.w + t.y*a.y.w + t.z*a.z.w + t.w*a.t.w
+	);
 
 	*this = tmp;
-
 	return *this;
 }
 
