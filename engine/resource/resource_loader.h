@@ -31,12 +31,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "thread.h"
 #include "container_types.h"
 #include "mutex.h"
+#include "memory_types.h"
 
 namespace crown
 {
 
 class Bundle;
-class Allocator;
 
 struct ResourceData
 {
@@ -81,15 +81,15 @@ private:
 
 private:
 
-	Thread m_thread;
-	Bundle& m_bundle;
-	Allocator& m_resource_heap;
+	Thread _thread;
+	Bundle& _bundle;
+	Allocator& _resource_heap;
 
-	Queue<ResourceId> m_requests;
-	Queue<ResourceData> m_loaded;
-	Mutex m_mutex;
-	Mutex m_loaded_mutex;
-	bool m_exit;
+	Queue<ResourceId> _requests;
+	Queue<ResourceData> _loaded;
+	Mutex _mutex;
+	Mutex _loaded_mutex;
+	bool _exit;
 };
 
 } // namespace crown

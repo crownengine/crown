@@ -35,20 +35,19 @@ namespace crown
 {
 
 ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap)
-	: m_thread()
-	, m_bundle(bundle)
-	, m_resource_heap(resource_heap)
-	, m_requests(default_allocator())
-	, m_loaded(default_allocator())
-	, m_exit(false)
+	: _bundle(bundle)
+	, _resource_heap(resource_heap)
+	, _requests(default_allocator())
+	, _loaded(default_allocator())
+	, _exit(false)
 {
-	m_thread.start(ResourceLoader::thread_proc, this);
+	_thread.start(ResourceLoader::thread_proc, this);
 }
 
 ResourceLoader::~ResourceLoader()
 {
-	m_exit = true;
-	m_thread.stop();
+	_exit = true;
+	_thread.stop();
 }
 
 void ResourceLoader::load(ResourceId id)
@@ -63,55 +62,55 @@ void ResourceLoader::flush()
 
 void ResourceLoader::add_request(ResourceId id)
 {
-	ScopedMutex sm(m_mutex);
-	queue::push_back(m_requests, id);
+	ScopedMutex sm(_mutex);
+	queue::push_back(_requests, id);
 }
 
 uint32_t ResourceLoader::num_requests()
 {
-	ScopedMutex sm(m_mutex);
-	return queue::size(m_requests);
+	ScopedMutex sm(_mutex);
+	return queue::size(_requests);
 }
 
 void ResourceLoader::add_loaded(ResourceData data)
 {
-	ScopedMutex sm(m_loaded_mutex);
-	queue::push_back(m_loaded, data);
+	ScopedMutex sm(_loaded_mutex);
+	queue::push_back(_loaded, data);
 }
 
 void ResourceLoader::get_loaded(Array<ResourceData>& loaded)
 {
-	ScopedMutex sm(m_loaded_mutex);
-	uint32_t num = queue::size(m_loaded);
+	ScopedMutex sm(_loaded_mutex);
+	uint32_t num = queue::size(_loaded);
 	for (uint32_t i = 0; i < num; i++)
 	{
-		array::push_back(loaded, queue::front(m_loaded));
-		queue::pop_front(m_loaded);
+		array::push_back(loaded, queue::front(_loaded));
+		queue::pop_front(_loaded);
 	}
 }
 
 int32_t ResourceLoader::run()
 {
-	while (!m_exit)
+	while (!_exit)
 	{
-		m_mutex.lock();
-		if (queue::empty(m_requests))
+		_mutex.lock();
+		if (queue::empty(_requests))
 		{
-			m_mutex.unlock();
+			_mutex.unlock();
 			continue;
 		}
-		ResourceId id = queue::front(m_requests);
-		m_mutex.unlock();
+		ResourceId id = queue::front(_requests);
+		_mutex.unlock();
 
 		ResourceData rd;
 		rd.id = id;
-		File* file = m_bundle.open(id);
-		rd.data = resource_on_load(id.type, *file, m_resource_heap);
-		m_bundle.close(file);
+		File* file = _bundle.open(id);
+		rd.data = resource_on_load(id.type, *file, _resource_heap);
+		_bundle.close(file);
 		add_loaded(rd);
-		m_mutex.lock();
-		queue::pop_front(m_requests);
-		m_mutex.unlock();
+		_mutex.lock();
+		queue::pop_front(_requests);
+		_mutex.unlock();
 	}
 
 	return 0;
