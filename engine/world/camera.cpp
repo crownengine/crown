@@ -110,7 +110,7 @@ const Matrix4x4& Camera::projection_matrix() const
 
 Matrix4x4 Camera::view_matrix() const
 {
-	Matrix4x4 view = camera->world_pose();
+	Matrix4x4 view = world_pose();
 	matrix4x4::invert(view);
 	return view;
 }
