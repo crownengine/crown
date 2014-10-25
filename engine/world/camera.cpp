@@ -209,12 +209,12 @@ void Camera::update_projection_matrix()
 	{
 		case ProjectionType::ORTHOGRAPHIC:
 		{
-			matrix4x4::set_orthographic_rh(m_projection, m_left, m_right, m_bottom, m_top, m_near, m_far);
+			matrix4x4::set_orthographic(m_projection, m_left, m_right, m_bottom, m_top, m_near, m_far);
 			break;
 		}
 		case ProjectionType::PERSPECTIVE:
 		{
-			matrix4x4::set_perspective_rh(m_projection, m_FOV, m_aspect, m_near, m_far);
+			matrix4x4::set_perspective(m_projection, m_FOV, m_aspect, m_near, m_far);
 			break;
 		}
 		default:

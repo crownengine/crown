@@ -66,14 +66,14 @@ namespace matrix4x4
 {
 	const Matrix4x4 IDENTITY = Matrix4x4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 
-	/// Sets the matrix @a m to perspective. (Right-Handed coordinate systems)
-	void set_perspective_rh(Matrix4x4& m, float fovy, float aspect, float near, float far);
+	/// Sets the matrix @a m to perspective.
+	void set_perspective(Matrix4x4& m, float fovy, float aspect, float near, float far);
 
-	/// Sets the matrix @a m to orthographic. (Right-Handed coordinate systems)
-	void set_orthographic_rh(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far);
+	/// Sets the matrix @a m to orthographic.
+	void set_orthographic(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far);
 
-	/// Sets the matrix @a m to look. (Right-Handed coordinate systems)
-	void set_look_rh(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up);
+	/// Sets the matrix @a m to look.
+	void set_look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up);
 
 	/// Transposes the matrix @a m and returns the result.
 	Matrix4x4& transpose(Matrix4x4& m);
@@ -193,7 +193,7 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 
 namespace matrix4x4
 {
-	inline void set_perspective_rh(Matrix4x4& m, float fovy, float aspect, float near, float far)
+	inline void set_perspective(Matrix4x4& m, float fovy, float aspect, float near, float far)
 	{
 		const float height = 1.0f / math::tan(fovy * ((float) math::PI / 180.0f) * 0.5f);
 		const float width = height * 1.0f / aspect;
@@ -206,7 +206,7 @@ namespace matrix4x4
 		m.t = Vector4(0, 0, bb, 0);
 	}
 
-	inline void set_orthographic_rh(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far)
+	inline void set_orthographic(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far)
 	{
 		m.x = Vector4(2.0f / (right - left), 0, 0, 0);
 		m.y = Vector4(0, 2.0f / (top - bottom), 0, 0);
@@ -251,7 +251,7 @@ namespace matrix4x4
 		return m;
 	}
 
-	inline void set_look_rh(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
+	inline void set_look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
 	{
 		Vector3 zAxis = pos - target;
 		vector3::normalize(zAxis);

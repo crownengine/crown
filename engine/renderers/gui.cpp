@@ -112,7 +112,7 @@ Gui::Gui(uint16_t width, uint16_t height, const char* material)
 	, m_height(height)
 	, m_pose(matrix4x4::IDENTITY)
 {
-	set_orthographic_rh(m_projection, 0, width, 0, height, -0.01f, 100.0f);
+	set_orthographic(m_projection, 0, width, 0, height, -0.01f, 100.0f);
 
 	ResourceId id("material", material);
 	m_material = material_manager::get()->create_material(id.name);
