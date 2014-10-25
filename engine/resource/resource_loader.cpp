@@ -48,6 +48,7 @@ ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap)
 ResourceLoader::~ResourceLoader()
 {
 	m_exit = true;
+	m_thread.stop();
 }
 
 void ResourceLoader::load(ResourceId id)
