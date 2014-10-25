@@ -136,7 +136,7 @@ Matrix4x4
 		Subtracts the matrix *b* from *a* and returns the result.
 
 	**multiply** (a, b) : Matrix4x4
-		Multiplies the matrix *a* by *b* and returns the result. (i.e. transforms first by *b* then by *a*)
+		Multiplies the matrix *a* by *b* and returns the result. (i.e. transforms first by *a* then by *b*)
 
 	**transpose** (m) : Matrix4x4
 		Transposes the matrix *m* and returns the result.
