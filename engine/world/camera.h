@@ -87,6 +87,9 @@ struct Camera
 	/// Returns the projection matrix of the camera.
 	const Matrix4x4& projection_matrix() const;
 
+	/// Returns the view matrix of the camera.
+	Matrix4x4 view_matrix() const;
+
 	/// Returns the field-of-view of the camera in degrees.
 	float fov() const;
 

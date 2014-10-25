@@ -166,8 +166,8 @@ void World::update(float dt)
 
 void World::render(Camera* camera)
 {
-	m_render_world.update(camera->world_pose(), camera->m_projection, camera->m_view_x, camera->m_view_y,
-							camera->m_view_width, camera->m_view_height, device()->last_delta_time());
+	m_render_world.update(camera->view_matrix(), camera->projection_matrix(), camera->_view_x, camera->_view_y,
+							camera->_view_width, camera->_view_height, device()->last_delta_time());
 
 	m_physics_world.draw_debug();
 }

@@ -108,6 +108,13 @@ const Matrix4x4& Camera::projection_matrix() const
 	return _projection;
 }
 
+Matrix4x4 Camera::view_matrix() const
+{
+	Matrix4x4 view = camera->world_pose();
+	matrix4x4::invert(view);
+	return view;
+}
+
 float Camera::fov() const
 {
 	return _FOV;
