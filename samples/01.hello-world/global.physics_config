@@ -1,6 +1,4 @@
 {
-	"scale" : 64,
-
 	"materials" : {
 		"default" : { "static_friction" : 0.5, "dynamic_friction" : 0.5, "restitution" : 0.1 },
 		"test" : { "static_friction" : 0.2, "dynamic_friction" : 0.7, "restitution" : 0.5 },
