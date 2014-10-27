@@ -54,6 +54,7 @@ struct OsMouseEvent
 	enum Enum
 	{
 		BUTTON,
+		WHEEL,
 		MOVE
 	};
 
@@ -62,6 +63,7 @@ struct OsMouseEvent
 	uint16_t x;
 	uint16_t y;
 	bool pressed;
+	float wheel;
 };
 
 /// Represents an event fired by keyboard.
@@ -159,6 +161,18 @@ struct OsEventQueue
 		ev.mouse.y = y;
 		ev.mouse.button = b;
 		ev.mouse.pressed = pressed;
+
+		push_event(ev);
+	}
+
+	void push_mouse_event(uint16_t x, uint16_t y, float wheel)
+	{
+		OsEvent ev;
+		ev.type = OsEvent::MOUSE;
+		ev.mouse.type = OsMouseEvent::WHEEL;
+		ev.mouse.x = x;
+		ev.mouse.y = y;
+		ev.mouse.wheel = wheel;
 
 		push_event(ev);
 	}

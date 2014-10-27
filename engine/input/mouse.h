@@ -55,6 +55,7 @@ struct Mouse
 {
 	Mouse()
 		: _last_button(MouseButton::NONE)
+		, _wheel(0.0f)
 	{
 		memset(_last_state, 0, MouseButton::COUNT);
 		memset(_current_state, 0, MouseButton::COUNT);
@@ -133,6 +134,14 @@ struct Mouse
 		set_cursor_xy(Vector2(position.x * (float) _width, position.y * (float) _height));
 	}
 
+	/// Returns the mouse wheel state in the current frame.
+	/// A positive or negative value is returned when the wheel is up or down
+	/// respectively, 0.0 otherwise.
+	float wheel()
+	{
+		return _wheel;
+	}
+
 	void set_position(uint16_t x, uint16_t y)
 	{
 		_x = x;
@@ -153,14 +162,21 @@ struct Mouse
 		_current_state[b] = state;
 	}
 
+	void set_wheel(uint16_t x, uint16_t y, float wheel)
+	{
+		_wheel = wheel;
+	}
+
 	void update()
 	{
+		_wheel = 0.0f;
 		memcpy(_last_state, _current_state, MouseButton::COUNT);
 	}
 
 public:
 
 	MouseButton::Enum _last_button;
+	float _wheel;
 	uint8_t _last_state[MouseButton::COUNT];
 	uint8_t _current_state[MouseButton::COUNT];
 

@@ -89,6 +89,13 @@ static int mouse_set_cursor_relative_xy(lua_State* L)
 	return 0;
 }
 
+static int mouse_wheel(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_float(mouse().wheel());
+	return 1;
+}
+
 void load_mouse(LuaEnvironment& env)
 {
 	env.load_module_function("Mouse", "button_pressed",         mouse_button_pressed);
@@ -99,6 +106,7 @@ void load_mouse(LuaEnvironment& env)
 	env.load_module_function("Mouse", "set_cursor_xy",          mouse_set_cursor_xy);
 	env.load_module_function("Mouse", "cursor_relative_xy",     mouse_cursor_relative_xy);
 	env.load_module_function("Mouse", "set_cursor_relative_xy", mouse_set_cursor_relative_xy);
+	env.load_module_function("Mouse", "wheel",                  mouse_wheel);
 	
 	env.load_module_enum("Mouse", "LEFT",   MouseButton::LEFT);
 	env.load_module_enum("Mouse", "MIDDLE", MouseButton::MIDDLE);

@@ -347,6 +347,13 @@ struct LinuxDevice
 				case ButtonPress:
 				case ButtonRelease:
 				{
+					if (event.xbutton.button == Button4 || event.xbutton.button == Button5)
+					{
+						_queue.push_mouse_event(event.xbutton.x, event.xbutton.y,
+							event.xbutton.button == Button4 ? 1.0f : -1.0f);
+						break;
+					}
+
 					MouseButton::Enum mb;
 					switch (event.xbutton.button)
 					{

@@ -66,6 +66,7 @@ bool process_events()
 				switch (ev.type)
 				{
 					case OsMouseEvent::BUTTON: mouse().set_button_state(ev.x, ev.y, ev.button, ev.pressed); break;
+					case OsMouseEvent::WHEEL: mouse().set_wheel(ev.x, ev.y, ev.wheel); break;
 					case OsMouseEvent::MOVE: mouse().set_position(ev.x, ev.y); break;
 					default: CE_FATAL("Oops, unknown mouse event type"); break;
 				}
