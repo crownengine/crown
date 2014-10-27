@@ -57,6 +57,22 @@ namespace json
 		return ch;
 	}
 
+	static const char* skip_comments(const char* s)
+	{
+		CE_ASSERT_NOT_NULL(s);
+		const char* ch = s;
+
+		while ((*ch) == '/')
+		{
+			ch = next(ch, '/');
+			ch = next(ch, '/');
+			while ((*ch) && (*ch) != '\n') ch = next(ch);
+			ch = skip_whites(ch);
+		}
+
+		return ch;
+	}
+
 	static const char* skip_string(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -433,6 +449,7 @@ namespace json
 			ch = next(ch, '{');
 
 			ch = skip_whites(ch);
+			ch = skip_comments(ch);
 
 			if ((*ch) == '}')
 			{
@@ -463,6 +480,7 @@ namespace json
 
 				ch = next(ch, ',');
 				ch = skip_whites(ch);
+				ch = skip_comments(ch);
 			}
 		}
 
