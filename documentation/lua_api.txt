@@ -777,6 +777,11 @@ Mouse
 	**set_cursor_relative_xy** (position)
 		Sets the relative position of the cursor in window space.
 
+	**wheel** () : float
+		Returns the mouse wheel state in the current frame.
+		A positive or negative value is returned when the wheel is up or down
+		respectively, 0.0 otherwise.
+
 Touch
 -----
 
