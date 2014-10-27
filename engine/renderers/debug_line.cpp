@@ -236,9 +236,7 @@ void DebugLine::commit()
 
 	bgfx::setState(BGFX_STATE_PT_LINES
 		| BGFX_STATE_RGB_WRITE
-		| BGFX_STATE_DEPTH_WRITE
-		| (_depth_test ? BGFX_STATE_DEPTH_TEST_LESS
-			: BGFX_STATE_DEPTH_TEST_ALWAYS)
+		| (_depth_test ? (BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_DEPTH_WRITE) : 0)
 		| BGFX_STATE_CULL_CW);
 
 	bgfx::setProgram(debug_line::s_prog);
