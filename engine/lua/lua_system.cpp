@@ -77,14 +77,14 @@ extern void load_material(LuaEnvironment& env);
 
 namespace lua_globals
 {
-	static lua_State* s_L;
+	static lua_State* _L;
 
-	static uint32_t 		s_vec3_used = 0;
-	static Vector3 			s_vec3_buffer[CE_MAX_LUA_VECTOR3];
-	static uint32_t 		s_mat4_used = 0;
-	static Matrix4x4 		s_mat4_buffer[CE_MAX_LUA_MATRIX4X4];
-	static uint32_t 		s_quat_used = 0;
-	static Quaternion 		s_quat_buffer[CE_MAX_LUA_QUATERNION];
+	static uint32_t _vec3_used = 0;
+	static Vector3 _vec3_buffer[CE_MAX_LUA_VECTOR3];
+	static uint32_t _mat4_used = 0;
+	static Matrix4x4 s_mat4_buffer[CE_MAX_LUA_MATRIX4X4];
+	static uint32_t _quat_used = 0;
+	static Quaternion _quat_buffer[CE_MAX_LUA_QUATERNION];
 
 	// When an error occurs, logs the error message and pauses the engine.
 	int error_handler(lua_State* L)
@@ -210,14 +210,14 @@ namespace lua_globals
 	// Initializes lua subsystem
 	void init()
 	{
-		s_L = luaL_newstate();
-		CE_ASSERT(s_L, "Unable to create lua state");
+		_L = luaL_newstate();
+		CE_ASSERT(_L, "Unable to create lua state");
 
 		// Open default libraries
-		luaL_openlibs(s_L);
+		luaL_openlibs(_L);
 
 		// Register crown libraries
-		LuaEnvironment env(s_L);
+		LuaEnvironment env(_L);
 		load_actor(env);
 		load_camera(env);
 		load_controller(env);
@@ -249,111 +249,111 @@ namespace lua_globals
 		load_material(env);
 
 		// Register custom loader
-		lua_getfield(s_L, LUA_GLOBALSINDEX, "package");
-		lua_getfield(s_L, -1, "loaders");
-		lua_remove(s_L, -2);
+		lua_getfield(_L, LUA_GLOBALSINDEX, "package");
+		lua_getfield(_L, -1, "loaders");
+		lua_remove(_L, -2);
 
 		int num_loaders = 0;
-		lua_pushnil(s_L);
-		while (lua_next(s_L, -2) != 0)
+		lua_pushnil(_L);
+		while (lua_next(_L, -2) != 0)
 		{
-			lua_pop(s_L, 1);
+			lua_pop(_L, 1);
 			num_loaders++;
 		}
-		lua_pushinteger(s_L, num_loaders + 1);
-		lua_pushcfunction(s_L, require);
-		lua_rawset(s_L, -3);
-		lua_pop(s_L, 1);
+		lua_pushinteger(_L, num_loaders + 1);
+		lua_pushcfunction(_L, require);
+		lua_rawset(_L, -3);
+		lua_pop(_L, 1);
 
 		// Create metatable for lightuserdata
-		luaL_newmetatable(s_L, "Lightuserdata_mt");
-		lua_pushstring(s_L, "__add");
-		lua_pushcfunction(s_L, lightuserdata_add);
-		lua_settable(s_L, 1);
+		luaL_newmetatable(_L, "Lightuserdata_mt");
+		lua_pushstring(_L, "__add");
+		lua_pushcfunction(_L, lightuserdata_add);
+		lua_settable(_L, 1);
 
-		lua_pushstring(s_L, "__sub");
-		lua_pushcfunction(s_L, lightuserdata_sub);
-		lua_settable(s_L, 1);
+		lua_pushstring(_L, "__sub");
+		lua_pushcfunction(_L, lightuserdata_sub);
+		lua_settable(_L, 1);
 
-		lua_pushstring(s_L, "__mul");
-		lua_pushcfunction(s_L, lightuserdata_mul);
-		lua_settable(s_L, 1);
+		lua_pushstring(_L, "__mul");
+		lua_pushcfunction(_L, lightuserdata_mul);
+		lua_settable(_L, 1);
 
-		lua_pushstring(s_L, "__div");
-		lua_pushcfunction(s_L, lightuserdata_div);
-		lua_settable(s_L, 1);
+		lua_pushstring(_L, "__div");
+		lua_pushcfunction(_L, lightuserdata_div);
+		lua_settable(_L, 1);
 
-		lua_pushstring(s_L, "__unm");
-		lua_pushcfunction(s_L, lightuserdata_unm);
-		lua_settable(s_L, 1);
+		lua_pushstring(_L, "__unm");
+		lua_pushcfunction(_L, lightuserdata_unm);
+		lua_settable(_L, 1);
 
-		lua_pushstring(s_L, "__index");
-		lua_pushcfunction(s_L, lightuserdata_index);
-		lua_settable(s_L, 1);
+		lua_pushstring(_L, "__index");
+		lua_pushcfunction(_L, lightuserdata_index);
+		lua_settable(_L, 1);
 
-		lua_pushstring(s_L, "__newindex");
-		lua_pushcfunction(s_L, lightuserdata_newindex);
-		lua_settable(s_L, 1);
+		lua_pushstring(_L, "__newindex");
+		lua_pushcfunction(_L, lightuserdata_newindex);
+		lua_settable(_L, 1);
 
-		lua_pop(s_L, 1); // Pop Lightuserdata_mt
+		lua_pop(_L, 1); // Pop Lightuserdata_mt
 
 		// Ensure stack is clean
-		CE_ASSERT(lua_gettop(s_L) == 0, "Stack not clean");
+		CE_ASSERT(lua_gettop(_L) == 0, "Stack not clean");
 	}
 
 	void shutdown()
 	{
-		lua_close(s_L);
+		lua_close(_L);
 	}
 
 	lua_State* state()
 	{
-		return s_L;
+		return _L;
 	}
 
 	Vector3* next_vector3(const Vector3& v)
 	{
-		CE_ASSERT(s_vec3_used < CE_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
+		CE_ASSERT(_vec3_used < CE_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
 
-		return &(s_vec3_buffer[s_vec3_used++] = v);
+		return &(_vec3_buffer[_vec3_used++] = v);
 	}
 
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m)
 	{
-		CE_ASSERT(s_mat4_used < CE_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
+		CE_ASSERT(_mat4_used < CE_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
 
-		return &(s_mat4_buffer[s_mat4_used++] = m);
+		return &(s_mat4_buffer[_mat4_used++] = m);
 	}
 
 	Quaternion* next_quaternion(const Quaternion& q)
 	{
-		CE_ASSERT(s_quat_used < CE_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
-		return &(s_quat_buffer[s_quat_used++] = q);
+		CE_ASSERT(_quat_used < CE_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
+		return &(_quat_buffer[_quat_used++] = q);
 	}
 
 	bool is_vector3(int32_t index)
 	{
-		void* type = lua_touserdata(s_L, index);
-		return (type >= &s_vec3_buffer[0] && type <= &s_vec3_buffer[CE_MAX_LUA_VECTOR3 - 1]);
+		void* type = lua_touserdata(_L, index);
+		return (type >= &_vec3_buffer[0] && type <= &_vec3_buffer[CE_MAX_LUA_VECTOR3 - 1]);
 	}
 
 	bool is_matrix4x4(int32_t index)
 	{
-		void* type = lua_touserdata(s_L, index);
+		void* type = lua_touserdata(_L, index);
 		return (type >= &s_mat4_buffer[0] && type <= &s_mat4_buffer[CE_MAX_LUA_MATRIX4X4 - 1]);
 	}
 
 	bool is_quaternion(int32_t index)
 	{
-		void* type = lua_touserdata(s_L, index);
-		return (type >= &s_quat_buffer[0] && type <= &s_quat_buffer[CE_MAX_LUA_QUATERNION - 1]);
+		void* type = lua_touserdata(_L, index);
+		return (type >= &_quat_buffer[0] && type <= &_quat_buffer[CE_MAX_LUA_QUATERNION - 1]);
 	}
 
 	void clear_temporaries()
 	{
-		s_vec3_used = 0;
-		s_mat4_used = 0;
-		s_quat_used = 0;
+		_vec3_used = 0;
+		_mat4_used = 0;
+		_quat_used = 0;
 	}
 
 } // namespace lua_globals
