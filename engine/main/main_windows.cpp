@@ -252,6 +252,14 @@ struct WindowsDevice
 				}
 				break;
 			}
+			case WM_MOUSEWHEEL:
+			{
+				int32_t mx = GET_X_LPARAM(lparam);
+				int32_t my = GET_Y_LPARAM(lparam);
+				short delta = GET_WHEEL_DELTA_WPARAM(wparam);
+				_queue.push_mouse_event(mx, my, (float)(delta/WHEEL_DELTA));
+				break;
+			}
 			case WM_MOUSEMOVE:
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
