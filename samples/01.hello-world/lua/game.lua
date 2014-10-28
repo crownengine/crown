@@ -10,5 +10,9 @@ function update(dt)
 	end
 end
 
+function render(dt)
+	-- Render nothing
+end
+
 function shutdown()
 end
