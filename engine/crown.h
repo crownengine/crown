@@ -47,6 +47,7 @@ namespace crown
 		ConfigSettings()
 			: source_dir(NULL)
 			, bundle_dir(NULL)
+			, project(NULL)
 			, platform(Platform::COUNT)
 			, wait_console(false)
 			, do_compile(false)
@@ -62,6 +63,7 @@ namespace crown
 
 		const char* source_dir;
 		const char* bundle_dir;
+		const char* project;
 		Platform::Enum platform;
 		bool wait_console;
 		bool do_compile;

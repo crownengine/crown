@@ -43,6 +43,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "math_utils.h"
 #include "lua_system.h"
 #include "profiler.h"
+#include "temp_allocator.h"
 #include <bgfx.h>
 
 namespace crown
@@ -91,6 +92,7 @@ static void help(const char* msg = NULL)
 		"\nAvailable only in debug and development builds:\n\n"
 
 		"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
+		"  --project <name>           Start the project <name>.\n"
 		"  --compile                  Do a full compile of the resources.\n"
 		"  --platform <platform>      Compile resources for the given <platform>.\n"
 		"      Possible values for <platform> are:\n"
@@ -127,6 +129,8 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 		exit(EXIT_FAILURE);
 	}
 
+	cs.project = cmd.get_parameter("project");
+
 	cs.wait_console = cmd.has_argument("wait-console");
 	cs.do_compile = cmd.has_argument("compile");
 	cs.do_continue = cmd.has_argument("continue");
@@ -147,7 +151,17 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 
 void parse_config_file(Filesystem& fs, ConfigSettings& cs)
 {
-	File* tmpfile = fs.open("crown.config", FOM_READ);
+	TempAllocator512 alloc;
+	DynamicString project_path(alloc);
+
+	if (cs.project != NULL)
+	{
+		project_path += cs.project;
+		project_path += "/";
+	}
+	project_path += "crown.config";
+
+	File* tmpfile = fs.open(project_path.c_str(), FOM_READ);
 	JSONParser config(*tmpfile);
 	fs.close(tmpfile);
 	JSONElement root = config.root();
