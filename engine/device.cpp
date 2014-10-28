@@ -192,6 +192,7 @@ void Device::update()
 	{
 		_resource_manager->complete_requests();
 		_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
+		_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
 	}
 
 	_frame_count++;
