@@ -90,7 +90,9 @@ bool BundleCompiler::compile_all(Platform::Enum platform)
 			|| files[i].ends_with(".sh")
 			|| files[i].ends_with(".sc")
 			|| files[i].starts_with(".")
-			|| files[i].ends_with(".config"))
+			|| files[i].ends_with(".config")
+			|| files[i].ends_with(".tmp")
+			|| files[i].ends_with(".wav"))
 		continue;
 
 		const char* filename = files[i].c_str();
