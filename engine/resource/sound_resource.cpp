@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "os.h"
 #include "sound_resource.h"
 #include "string_utils.h"
+#include "json_parser.h"
 
 namespace crown
 {
@@ -106,7 +107,14 @@ namespace sound_resource
 	{
 		const uint32_t VERSION = 1;
 
-		Buffer sound = opts.read(path);
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
+		JSONElement root = json.root();
+
+		DynamicString name;
+		root.key("source").to_string(name);
+
+		Buffer sound = opts.read(name.c_str());
 		const WAVHeader* wav = (const WAVHeader*)array::begin(sound);
 		const char* wavdata = (const char*) (wav + 1);
 
