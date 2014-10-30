@@ -78,6 +78,8 @@ using physx::PxTransform;
 using physx::PxU16;
 using physx::PxU32;
 using physx::PxVec3;
+using physx::PxTransformFromPlaneEquation;
+using physx::PxPlane;
 
 namespace crown
 {
@@ -118,10 +120,10 @@ void Actor::create_objects()
 			static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 		}
 
-		PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
-		joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
-		joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
-		joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+		// PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
+		// joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+		// joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
+		// joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
 	}
 	else
 	{
@@ -163,25 +165,25 @@ void Actor::create_objects()
 			}
 			case PhysicsShapeType::CONVEX_MESH:
 			{
-				MeshResource* resource = (MeshResource*) device()->resource_manager()->get(MESH_TYPE, shape->resource.name);
+				// MeshResource* resource = (MeshResource*) device()->resource_manager()->get(MESH_TYPE, shape->resource.name);
 
-				PxConvexMeshDesc convex_mesh_desc;
-				convex_mesh_desc.points.count		= resource->num_vertices();
-				convex_mesh_desc.points.stride		= sizeof(PxVec3);
-				convex_mesh_desc.points.data		= (PxVec3*) resource->vertices();
-				convex_mesh_desc.triangles.count	= resource->num_indices();
-				convex_mesh_desc.triangles.stride	= 3 * sizeof(PxU16);
-				convex_mesh_desc.triangles.data 	= (PxU16*) resource->indices();
-				convex_mesh_desc.flags				= PxConvexFlag::eCOMPUTE_CONVEX;
-				convex_mesh_desc.vertexLimit		= MAX_PHYSX_VERTICES;
+				// PxConvexMeshDesc convex_mesh_desc;
+				// convex_mesh_desc.points.count		= resource->num_vertices();
+				// convex_mesh_desc.points.stride		= sizeof(PxVec3);
+				// convex_mesh_desc.points.data		= (PxVec3*) resource->vertices();
+				// convex_mesh_desc.triangles.count	= resource->num_indices();
+				// convex_mesh_desc.triangles.stride	= 3 * sizeof(PxU16);
+				// convex_mesh_desc.triangles.data 	= (PxU16*) resource->indices();
+				// convex_mesh_desc.flags				= PxConvexFlag::eCOMPUTE_CONVEX;
+				// convex_mesh_desc.vertexLimit		= MAX_PHYSX_VERTICES;
 
-				PxDefaultMemoryOutputStream buf;
-				if(!m_world.physx_cooking()->cookConvexMesh(convex_mesh_desc, buf))
-					CE_FATAL("");
-				PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-				PxConvexMesh* convex_mesh = physics->createConvexMesh(input);
+				// PxDefaultMemoryOutputStream buf;
+				// if(!m_world.physx_cooking()->cookConvexMesh(convex_mesh_desc, buf))
+				// 	CE_FATAL("");
+				// PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+				// PxConvexMesh* convex_mesh = physics->createConvexMesh(input);
 
-				px_shape = m_actor->createShape(PxConvexMeshGeometry(convex_mesh), *mat);
+				// px_shape = m_actor->createShape(PxConvexMeshGeometry(convex_mesh), *mat);
 				break;
 			}
 			default:
@@ -191,9 +193,17 @@ void Actor::create_objects()
 		}
 
 		// Setup shape pose
-		px_shape->setLocalPose(PxTransform(
-								PxVec3(shape->position.x, shape->position.y, shape->position.z),
-								PxQuat(shape->rotation.x, shape->rotation.y, shape->rotation.z, shape->rotation.w)));
+		if (shape->type == PhysicsShapeType::PLANE)
+		{
+			px_shape->setLocalPose(PxTransformFromPlaneEquation(
+				PxPlane(shape->data_0, shape->data_1, shape->data_2, shape->data_3)));
+		}
+		else
+		{
+			px_shape->setLocalPose(PxTransform(
+				PxVec3(shape->position.x, shape->position.y, shape->position.z),
+				PxQuat(shape->rotation.x, shape->rotation.y, shape->rotation.z, shape->rotation.w).getNormalized()));
+		}
 
 		// Setup collision filters
 		PxFilterData filter_data;
