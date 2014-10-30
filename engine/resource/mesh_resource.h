@@ -31,72 +31,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "allocator.h"
 #include "bundle.h"
 #include "file.h"
+#include <bgfx.h>
 
 namespace crown
 {
 
-// Bump the version whenever a change in the format is made.
-const uint32_t MESH_VERSION = 1;
-
-struct MeshHeader
-{
-	uint32_t			vbuffer;
-	uint32_t			ibuffer;
-	uint32_t			version;
-	uint32_t			num_meshes;
-	uint32_t			num_joints;
-	uint32_t			padding[16];
-};
-
-struct VertexData
-{
-	uint32_t	    	num_vertices;
-	// VertexFormat::Enum	format;
-	uint32_t			offset;
-};
-
-struct IndexData
-{
-	uint32_t			num_indices;
-	uint32_t			offset;
-};
-
-struct MeshData
-{
-	VertexData			vertices;
-	IndexData			indices;
-};
-
 struct MeshResource
 {
-	uint32_t num_vertices() const
-	{
-		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
-		return data->vertices.num_vertices;
-	}
-
-	float* vertices() const
-	{
-		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
-		return (float*) (((char*)this) + data->vertices.offset);
-	}
-
-	uint32_t num_indices() const
-	{
-		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
-		return data->indices.num_indices;
-	}
-
-	uint16_t* indices() const
-	{
-		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
-		return (uint16_t*) (((char*)this) + data->indices.offset);
-	}
-
-private:
-
-	// Disable construction
-	MeshResource();
+	bgfx::VertexDecl decl;
+	const bgfx::Memory* vbmem;
+	const bgfx::Memory* ibmem;
+	bgfx::VertexBufferHandle vb;
+	bgfx::IndexBufferHandle ib;
 };
 
 namespace mesh_resource

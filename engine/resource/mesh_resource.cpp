@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "mesh_resource.h"
 #include "temp_allocator.h"
 #include "vector3.h"
+#include "resource_manager.h"
 
 namespace crown
 {
@@ -50,170 +51,190 @@ namespace mesh_resource
 		}
 	};
 
-	MeshHeader			m_mesh_header;
-	bool				m_has_normal;
-	bool				m_has_texcoord;
-
-	Array<MeshVertex>	m_vertices(default_allocator());
-	Array<uint16_t>		m_indices(default_allocator());
-
 	void compile(const char* path, CompileOptions& opts)
 	{
-		// File* file = fs.open(resource_path, FOM_READ);
-		// JSONParser json(*file);
-		// fs.close(file);
+		static const uint32_t VERSION = 1;
 
-		// JSONElement root = json.root();
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
+		JSONElement root = json.root();
 
-		// // Read data arrays
-		// JSONElement position = root.key_or_nil("position");
-		// JSONElement normal = root.key_or_nil("normal");
-		// JSONElement texcoord = root.key_or_nil("texcoord");
+		// Read data arrays
+		JSONElement position = root.key_or_nil("position");
+		CE_ASSERT(!position.is_nil(), "Bad mesh: array 'position' not found.");
+		JSONElement normal = root.key_or_nil("normal");
+		JSONElement texcoord = root.key_or_nil("texcoord");
 
-		// m_has_normal = false;
-		// m_has_texcoord = false;
+		Array<float> positions(default_allocator());
+		Array<float> normals(default_allocator());
+		Array<float> texcoords(default_allocator());
 
-		// if (position.is_nil())
-		// {
-		// 	CE_LOGE("Bad mesh: array 'position' not found.");
-		// 	return;
-		// }
-		// Array<float> position_array(default_allocator());
-		// position.to_array(position_array);
+		position.to_array(positions);
 
+		bool has_normal = false;
+		bool has_texcoord = false;
 
-		// Array<float> normal_array(default_allocator());
-		// if (!normal.is_nil())
-		// {
-		// 	m_has_normal = true;
-		// 	normal.to_array(normal_array);
-		// }
+		if (!normal.is_nil())
+		{
+			has_normal = true;
+			normal.to_array(normals);
+		}
 
-		// Array<float> texcoord_array(default_allocator());
-		// if (!texcoord.is_nil())
-		// {
-		// 	m_has_texcoord = true;
-		// 	texcoord.to_array(texcoord_array);
-		// }
+		if (!texcoord.is_nil())
+		{
+			has_texcoord = true;
+			texcoord.to_array(texcoords);
+		}
 
-		// // Read index arrays
-		// JSONElement index = root.key_or_nil("index");
-		// if (index.is_nil())
-		// {
-		// 	CE_LOGE("Bad mesh: array 'index' not found.");
-		// 	return;
-		// }
+		// Read index arrays
+		JSONElement index = root.key("index");
 
-		// Array<uint16_t> position_index(default_allocator());
-		// Array<uint16_t> normal_index(default_allocator());
-		// Array<uint16_t> texcoord_index(default_allocator());
+		Array<uint16_t> position_index(default_allocator());
+		Array<uint16_t> normal_index(default_allocator());
+		Array<uint16_t> texcoord_index(default_allocator());
 
-		// index[0].to_array(position_index);
+		int ii = 0;
+		index[ii].to_array(position_index);
+		++ii;
 
-		// if (m_has_normal)
-		// {
-		// 	index[1].to_array(normal_index);
-		// }
+		if (has_normal)
+		{
+			index[ii].to_array(normal_index);
+			++ii;
+		}
 
-		// if (m_has_texcoord)
-		// {
-		// 	index[2].to_array(texcoord_index);
-		// }
+		if (has_texcoord)
+		{
+			index[ii].to_array(texcoord_index);
+			++ii;
+		}
 
-		// // Generate vb/ib
-		// uint32_t idx = 0;
-		// for (uint32_t i = 0; i < array::size(position_index); i++)
-		// {
-		// 	MeshVertex v;
+		Array<MeshVertex> vertices(default_allocator());
+		Array<uint16_t> indices(default_allocator());
 
-		// 	uint16_t p_idx = position_index[i] * 3;
-		// 	v.position = Vector3(position_array[p_idx], position_array[p_idx + 1], position_array[p_idx + 2]);
+		// Generate vb/ib
+		uint32_t idx = 0;
+		for (uint32_t i = 0; i < array::size(position_index); i++)
+		{
+			MeshVertex v;
 
-		// 	if (m_has_normal)
-		// 	{
-		// 		uint16_t n_idx = normal_index[i] * 3;
-		// 		v.normal = Vector3(normal_array[n_idx], normal_array[n_idx + 1], normal_array[n_idx + 2]);
-		// 	}
+			uint16_t p_idx = position_index[i] * 3;
+			v.position = Vector3(positions[p_idx], positions[p_idx + 1], positions[p_idx + 2]);
 
-		// 	if (m_has_texcoord)
-		// 	{
-		// 		uint16_t t_idx = texcoord_index[i] * 2;
-		// 		v.texcoord = Vector2(texcoord_array[t_idx], texcoord_array[t_idx + 1]);
-		// 	}
+			if (has_normal)
+			{
+				uint16_t n_idx = normal_index[i] * 3;
+				v.normal = Vector3(normals[n_idx], normals[n_idx + 1], normals[n_idx + 2]);
+			}
+			if (has_texcoord)
+			{
+				uint16_t t_idx = texcoord_index[i] * 2;
+				v.texcoord = Vector2(texcoords[t_idx], texcoords[t_idx + 1]);
+			}
 
+			uint32_t f_idx = 0;
+			bool found = false;
+			for (; f_idx < array::size(vertices); f_idx++)
+			{
+				if (vertices[f_idx] == v)
+				{
+					found = true;
+					break;
+				}
+			}
 
-		// 	uint32_t f_idx = 0;
-		// 	bool found = false;
-		// 	for (; f_idx < array::size(m_vertices); f_idx++)
-		// 	{
-		// 		if (m_vertices[f_idx] == v)
-		// 		{
-		// 			found = true;
-		// 			break;
-		// 		}
-		// 	}
+			if (found)
+			{
+				array::push_back(indices, (uint16_t) f_idx);
+			}
+			else
+			{
+				array::push_back(vertices, v);
+				array::push_back(indices, (uint16_t) idx);
+				idx++;
+			}
+		}
 
-		// 	if (found)
-		// 	{
-		// 		array::push_back(m_indices, (uint16_t) f_idx);
-		// 	}
-		// 	else
-		// 	{
-		// 		array::push_back(m_vertices, v);
-		// 		array::push_back(m_indices, (uint16_t) idx);
-		// 		idx++;
-		// 	}
-		// }
+		bgfx::VertexDecl decl;
+		decl.begin();
+		decl.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
 
-		// m_mesh_header.version = MESH_VERSION;
-		// m_mesh_header.num_meshes = 1;
-		// m_mesh_header.num_joints = 0;
-		// //m_mesh_header.padding[0] = 0xCECECECE;
+		if (has_normal)
+			decl.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, false);
 
-		// MeshData data;
-		// data.vertices.num_vertices = array::size(m_vertices);
-		// // data.vertices.format = VertexFormat::P3_N3_T2;
-		// data.vertices.offset = sizeof(MeshHeader) + sizeof(MeshData);
+		if (has_texcoord)
+			decl.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
 
-		// data.indices.num_indices = array::size(m_indices);
-		// data.indices.offset = sizeof(MeshHeader) + sizeof(MeshData) + array::size(m_vertices) * sizeof(MeshVertex);
+		decl.end();
 
-		// // Write header
-		// out_file->write((char*)&m_mesh_header, sizeof(MeshHeader));
+		// Write
+		opts.write(VERSION);
+		opts.write(decl);
+		opts.write(array::size(vertices));
+		for (uint32_t i = 0; i < array::size(vertices); ++i)
+		{
+			opts.write(vertices[i].position);
 
-		// // Write mesh metadata
-		// out_file->write((char*)&data, sizeof(MeshData));
+			if (has_normal)
+				opts.write(vertices[i].normal);
 
-		// // Write vertices
-		// out_file->write((char*) array::begin(m_vertices), array::size(m_vertices) * sizeof(MeshVertex));
+			if (has_texcoord)
+				opts.write(vertices[i].texcoord);
+		}
 
-		// // Write indices
-		// out_file->write((char*) array::begin(m_indices), array::size(m_indices) * sizeof(uint16_t));
-
-		// // Cleanup
-		// array::clear(m_vertices);
-		// array::clear(m_indices);
+		opts.write(array::size(indices));
+		for (uint32_t i = 0; i < array::size(indices); ++i)
+		{
+			opts.write(indices[i]);
+		}
 	}
 
 	void* load(File& file, Allocator& a)
 	{
-		const size_t file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
-		return res;
+		BinaryReader br(file);
+
+		uint32_t version;
+		br.read(version);
+
+		bgfx::VertexDecl decl;
+		br.read(decl);
+
+		uint32_t num_verts;
+		br.read(num_verts);
+		const bgfx::Memory* vbmem = bgfx::alloc(num_verts * decl.getStride());
+		br.read(vbmem->data, num_verts * decl.getStride());
+
+		uint32_t num_inds;
+		br.read(num_inds);
+		const bgfx::Memory* ibmem = bgfx::alloc(num_inds * sizeof(uint16_t));
+		br.read(ibmem->data, num_inds * sizeof(uint16_t));
+
+		MeshResource* mr = (MeshResource*)a.allocate(sizeof(MeshResource));
+		mr->decl = decl;
+		mr->vbmem = vbmem;
+		mr->ibmem = ibmem;
+
+		return mr;
 	}
 
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
+	void online(StringId64 id, ResourceManager& rm)
 	{
+		MeshResource* mr = (MeshResource*)rm.get(MESH_TYPE, id);
+
+		mr->vb = bgfx::createVertexBuffer(mr->vbmem, mr->decl);
+		mr->ib = bgfx::createIndexBuffer(mr->ibmem);
 	}
 
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
+	void offline(StringId64 id, ResourceManager& rm)
 	{
+		MeshResource* mr = (MeshResource*)rm.get(MESH_TYPE, id);
+
+		bgfx::destroyVertexBuffer(mr->vb);
+		bgfx::destroyIndexBuffer(mr->ib);
 	}
 
 	void unload(Allocator& a, void* res)
 	{
-		CE_ASSERT_NOT_NULL(res);
 		a.deallocate(res);
 	}
 } // namespace mesh_resource
