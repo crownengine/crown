@@ -58,6 +58,13 @@ namespace input_globals
 		_touch = NULL;
 	}
 
+	void update()
+	{
+		_keyboard->update();
+		_mouse->update();
+		_touch->update();
+	}
+
 	Keyboard& keyboard()
 	{
 		return *_keyboard;

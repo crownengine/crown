@@ -212,9 +212,7 @@ void update()
 		device()->update();
 		bgfx::frame();
 		lua_globals::clear_temporaries();
-		input_globals::keyboard().update();
-		input_globals::mouse().update();
-		input_globals::touch().update();
+		input_globals::update();
 		profiler_globals::flush();
 	}
 }

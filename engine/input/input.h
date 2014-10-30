@@ -43,6 +43,9 @@ namespace input_globals
 	/// Shutdowns the input system.
 	void shutdown();
 
+	/// Updates input devices.
+	void update();
+
 	/// Returns the default keyboard.
 	Keyboard& keyboard();
 
