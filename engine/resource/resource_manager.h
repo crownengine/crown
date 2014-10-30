@@ -57,6 +57,10 @@ public:
 	/// Unloads the resource @a type @a name.
 	void unload(StringId64 type, StringId64 name);
 
+	/// Reloads the resource (@a type, @a name).
+	/// @note The user has to manually update all the references to the old resource.
+	void reload(StringId64 type, StringId64 name);
+
 	/// Returns whether the manager has the resource (@a type, @a name).
 	bool can_get(const char* type, const char* name);
 

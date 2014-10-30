@@ -98,6 +98,20 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 	}
 }
 
+void ResourceManager::reload(StringId64 type, StringId64 name)
+{
+	const ResourceId id(type, name);
+	const ResourceEntry& entry = sort_map::get(_rm, id, NOT_FOUND);
+	const uint32_t old_refs = entry.references;
+
+	unload(type, name);
+	load(type, name);
+	flush();
+
+	ResourceEntry& new_entry = sort_map::get(_rm, id, NOT_FOUND);
+	new_entry.references = old_refs;
+}
+
 bool ResourceManager::can_get(const char* type, const char* name)
 {
 	ResourceId id(type, name);
