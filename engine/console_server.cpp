@@ -367,6 +367,13 @@ namespace console_server_globals
 		_console = NULL;
 	}
 
+	void update()
+	{
+#if defined(CROWN_DEBUG)
+		_console->update();
+#endif // defined(CROWN_DEBUG)
+	}
+
 	ConsoleServer& console()
 	{
 		return *_console;

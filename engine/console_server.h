@@ -107,6 +107,9 @@ namespace console_server_globals
 	/// Destroys the global console server.
 	void shutdown();
 
+	/// Updates the global console server.
+	void update();
+
 	/// Returns the global console server object.
 	ConsoleServer& console();
 } // namespace console_server_globals
