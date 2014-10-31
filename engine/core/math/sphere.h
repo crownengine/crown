@@ -28,121 +28,72 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "types.h"
 #include "math_utils.h"
+#include "math_types.h"
 #include "vector3.h"
 
 namespace crown
 {
-
-/// Sphere.
-///
-/// Used mainly for collision detection and intersection tests.
-class Sphere
+namespace sphere
 {
-public:
+	float volume(const Sphere& s);
 
-	/// Does nothing for efficiency.
-	Sphere();
+	/// Adds @a num @a points to the sphere expanding if necessary.
+	void add_points(Sphere& s, uint32_t num, const Vector3* points);
 
-	/// Constructs from @a center and @a radius.
-	Sphere(const Vector3& center, float radius);
-	Sphere(const Sphere& a);
-
-	const Vector3& center() const;
-	float radius() const;
-	float volume() const;
-
-	void set_c(const Vector3& center);
-	void set_radius(float radius);
-
-	/// Adds @a count @a points to the sphere expanding if necessary.
-	void add_points(const Vector3* points, uint32_t count);
-
-	/// Adds @a count @a spheres expanding if necessary.
-	void add_spheres(const Sphere* spheres, uint32_t count);
+	/// Adds @a num @a spheres expanding if necessary.
+	void add_spheres(Sphere& s, uint32_t num, const Sphere* spheres);
 
 	/// Returns whether point @a p is contained into the sphere.
-	bool contains_point(const Vector3& p) const;
+	bool contains_point(const Sphere& s, const Vector3& p);
+} // namespace sphere
 
-private:
-
-	Vector3 _c;
-	float _r;
-};
-
-inline Sphere::Sphere()
+namespace sphere
 {
-}
-
-inline Sphere::Sphere(const Vector3& center, float radius) : _c(center), _r(radius)
-{
-}
-
-inline Sphere::Sphere(const Sphere& a) : _c(a._c), _r(a._r)
-{
-}
-
-inline const Vector3& Sphere::center() const
-{
-	return _c;
-}
-
-inline float Sphere::radius() const
-{
-	return _r;
-}
-
-inline float Sphere::volume() const
-{
-	return float(4.0 / 3.0 * math::PI) * _r * _r * _r;
-}
-
-inline void Sphere::set_c(const Vector3& center)
-{
-	_c = center;
-}
-
-inline void Sphere::set_radius(float radius)
-{
-	_r = radius;
-}
-
-inline void Sphere::add_points(const Vector3* points, uint32_t count)
-{
-	for (uint32_t i = 0; i < count; i++)
+	inline float volume(const Sphere& s)
 	{
-		const Vector3& p = points[i];
+		return float(4.0 / 3.0 * math::PI) * s.r*s.r*s.r;
+	}
 
-		float dist = vector3::squared_length(p - _c);
-
-		if (dist >= _r * _r)
+	inline void add_points(Sphere& s, uint32_t num, const Vector3* points)
+	{
+		for (uint32_t i = 0; i < num; ++i)
 		{
-			_r = math::sqrt(dist);
+			const float dist = vector3::squared_length(points[i] - s.c);
+			if (dist >= s.r*s.r)
+				s.r = math::sqrt(dist);
 		}
 	}
-}
 
-inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
-{
-	for (uint32_t i = 0; i < count; i++)
+	inline void add_spheres(Sphere& s, uint32_t num, const Sphere* spheres)
 	{
-		const Sphere& s = spheres[i];
-
-		float dist = vector3::squared_length(s._c - _c);
-
-		if (dist < (s._r + _r) * (s._r + _r))
+		for (uint32_t i = 0; i < num; ++i)
 		{
-			if (s._r * s._r > _r * _r)
+			const float dist = vector3::squared_length(spheres[i].c - s.c);
+
+			if (dist < (spheres[i].r + s.r) * (spheres[i].r + s.r))
 			{
-				_r = math::sqrt(dist + s._r * s._r);
+				if (spheres[i].r * spheres[i].r > s.r * s.r)
+					s.r = math::sqrt(dist + spheres[i].r * spheres[i].r);
 			}
 		}
 	}
+
+	inline bool contains_point(const Sphere& s, const Vector3& p)
+	{
+		float dist = vector3::squared_length(p - s.c);
+		return dist < s.r*s.r;
+	}
+} // namespace sphere
+
+inline Sphere::Sphere()
+{
+	// Do nothing
 }
 
-inline bool Sphere::contains_point(const Vector3& p) const
+inline Sphere::Sphere(const Vector3& nc, float nr)
+	: c(nc)
+	, r(nr)
 {
-	float dist = vector3::squared_length(p - _c);
-	return (dist < _r * _r);
 }
 
 } // namespace crown

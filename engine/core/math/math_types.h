@@ -204,4 +204,14 @@ struct Frustum
 	Plane far;
 };
 
+/// @ingroup Math
+struct Sphere
+{
+	Sphere();
+	Sphere(const Vector3& nc, float nr);
+
+	Vector3 c;
+	float r;
+};
+
 } // namespace crown

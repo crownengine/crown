@@ -52,11 +52,11 @@ namespace math
 	/// -1.0f if no collision.
 	float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s)
 	{
-		Vector3 v = s.center() - from;
+		Vector3 v = s.c - from;
 		float b = vector3::dot(v, dir);
-		float det = (s.radius() * s.radius()) - vector3::dot(v, v) + (b * b);
+		float det = (s.r * s.r) - vector3::dot(v, v) + (b * b);
 
-		if (det < 0.0 || b < s.radius())
+		if (det < 0.0 || b < s.r)
 		{
 			return -1.0f;
 		}
@@ -184,20 +184,20 @@ namespace math
 
 	bool frustum_sphere_intersection(const Frustum& f, const Sphere& s)
 	{
-		if (plane::distance_to_point(f.left, s.center()) < -s.radius() ||
-			plane::distance_to_point(f.right, s.center()) < -s.radius())
+		if (plane::distance_to_point(f.left, s.c) < -s.r ||
+			plane::distance_to_point(f.right, s.c) < -s.r)
 		{
 			return false;
 		}
 
-		if (plane::distance_to_point(f.bottom, s.center()) < -s.radius() ||
-			plane::distance_to_point(f.top, s.center()) < -s.radius())
+		if (plane::distance_to_point(f.bottom, s.c) < -s.r ||
+			plane::distance_to_point(f.top, s.c) < -s.r)
 		{
 			return false;
 		}
 
-		if (plane::distance_to_point(f.near, s.center()) < -s.radius() ||
-			plane::distance_to_point(f.far, s.center()) < -s.radius())
+		if (plane::distance_to_point(f.near, s.c) < -s.r ||
+			plane::distance_to_point(f.far, s.c) < -s.r)
 		{
 			return false;
 		}
