@@ -27,8 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "types.h"
-#include "string_utils.h"
-#include "string_utils.h"
 #include "compile_options.h"
 
 namespace crown
