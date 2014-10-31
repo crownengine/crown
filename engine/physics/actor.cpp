@@ -120,10 +120,10 @@ void Actor::create_objects()
 			static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 		}
 
-		// PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
-		// joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
-		// joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
-		// joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+		PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
+		joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+		joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
+		joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
 	}
 	else
 	{
