@@ -26,11 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "types.h"
 #include "resource.h"
-#include "allocator.h"
-#include "bundle.h"
-#include "file.h"
+#include "memory_types.h"
+#include "resource_types.h"
+#include "filesystem_types.h"
 #include <bgfx.h>
 
 namespace crown

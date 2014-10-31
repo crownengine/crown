@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "reader_writer.h"
 #include "vector2.h"
 #include "vector4.h"
+#include "resource_manager.h"
 #include <cfloat>
 #include <cstring>
 #include <inttypes.h>

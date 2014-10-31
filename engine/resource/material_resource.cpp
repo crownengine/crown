@@ -31,7 +31,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "json_parser.h"
 #include "filesystem.h"
 #include "reader_writer.h"
-#include "os.h"
+#include "resource_manager.h"
+#include "vector.h"
+#include <bgfx.h>
 
 namespace crown
 {

@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "resource_manager.h"
 #include "package_resource.h"
 #include "resource.h"
-#include "log.h"
 
 namespace crown
 {

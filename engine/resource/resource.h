@@ -96,10 +96,4 @@ struct ResourceId
 	uint64_t name;
 };
 
-class Allocator;
-class Bundle;
-class ResourceManager;
-class Filesystem;
-class File;
-
 } // namespace crown

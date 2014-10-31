@@ -26,17 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "types.h"
 #include "resource.h"
-#include "vector3.h"
-#include "color4.h"
-#include "bundle.h"
-#include "allocator.h"
-#include "blob.h"
-#include "device.h"
-#include "file.h"
-#include "resource_manager.h"
-#include "material_manager.h"
+#include "memory_types.h"
+#include "resource_types.h"
+#include "filesystem_types.h"
+#include "math_types.h"
 
 namespace crown
 {

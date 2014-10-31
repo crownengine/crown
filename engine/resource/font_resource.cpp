@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "bundle.h"
 #include "types.h"
 
-
 namespace crown
 {
 namespace font_resource

@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+	class ResourceManager;
+
 	struct LevelResource;
 	struct UnitResource;
 	struct SoundResource;

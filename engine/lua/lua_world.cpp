@@ -26,11 +26,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "lua_stack.h"
 #include "lua_environment.h"
-#include "world.h"
-#include "gui.h"
-#include "temp_allocator.h"
 #include "array.h"
+#include "gui.h"
 #include "lua_assert.h"
+#include "temp_allocator.h"
+#include "world.h"
+#include "device.h"
+#include "resource_manager.h"
 
 namespace crown
 {

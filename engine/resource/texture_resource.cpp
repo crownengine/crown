@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "reader_writer.h"
 #include "json_parser.h"
 #include "math_utils.h"
+#include "resource_manager.h"
 #include "log.h"
 
 namespace crown

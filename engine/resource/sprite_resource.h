@@ -26,16 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "allocator.h"
-#include "bundle.h"
-#include "container_types.h"
-#include "device.h"
-#include "file.h"
-#include "os.h"
-#include "reader_writer.h"
-#include "resource_manager.h"
-#include "string_utils.h"
-#include "types.h"
+#include "resource.h"
+#include "memory_types.h"
+#include "resource_types.h"
+#include "filesystem_types.h"
 #include <cstring>
 #include <inttypes.h>
 #include <bgfx.h>
