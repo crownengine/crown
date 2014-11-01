@@ -107,9 +107,3 @@ clean: deps-clean
 	@echo Cleaning...
 	@rm -rf .build
 	@rm -rf .installation
-
-starter:
-	xbuild /p:OutputPath=$(CROWN_INSTALL_DIR)/tools tools/gui/starter/starter.sln
-console:
-	xbuild /p:OutputPath=$(CROWN_INSTALL_DIR)/tools tools/gui/console/console.sln
-tools: starter console

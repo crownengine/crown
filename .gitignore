@@ -5,23 +5,7 @@
 # Ignore Python stuff
 __pycache__
 
-# Ignore C# stuff
-/tools/**/bin
-/tools/**/obj
-/tools/**/Obj
-/tools/**/TestResults
-/tools/**/test-results
-/tools/**/*.csproj.user
-/tools/**/*.suo
-/tools/**/*.cache
-/tools/**/*~
-/tools/**/*.swp
-/tools/**/*.userprefs
-/tools/**/*.pidb
-
 # Ignore some third party dirs
-/third/physx/*/include
-/third/physx/*/lib
 /third/luajit/**/*.o
 /third/luajit/src/host/buildvm
 /third/luajit/src/host/buildvm_arch.h
