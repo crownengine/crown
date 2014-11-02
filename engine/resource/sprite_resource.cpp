@@ -93,8 +93,8 @@ namespace sprite_resource
 			const float v1 = (fd.region.y + fd.region.w) / height;
 
 			// Compute positions
-			const float w = fd.region.z / CE_PIXELS_PER_METER;
-			const float h = fd.region.w / CE_PIXELS_PER_METER;
+			const float w = fd.region.z / CROWN_DEFAULT_PIXELS_PER_METER;
+			const float h = fd.region.w / CROWN_DEFAULT_PIXELS_PER_METER;
 
 			const float x0 = fd.scale.x * (-w * 0.5f) + fd.offset.x;
 			const float y0 = fd.scale.y * (-h * 0.5f) + fd.offset.y;
