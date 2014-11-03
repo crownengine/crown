@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "render_world_types.h"
 #include "config.h"
 #include "sprite_animation.h"
+#include "resource_types.h"
 
 namespace crown
 {
@@ -70,7 +71,6 @@ struct Controller;
 struct Mesh;
 struct Sprite;
 struct Material;
-struct UnitResource;
 
 /// Represents a game entity.
 ///
@@ -138,7 +138,6 @@ struct Unit
 	Id find_component_by_name(StringId32 name, uint32_t size, Component* array);
 
 	void add_camera(StringId32 name, CameraId camera);
-	void add_mesh(StringId32 name, MeshId mesh);
 	void add_sprite(StringId32 name, SpriteId sprite);
 	void add_actor(StringId32 name, ActorId actor);
 	void set_controller(StringId32 name, ControllerId controller);
@@ -146,9 +145,6 @@ struct Unit
 
 	Camera* camera(const char* name);
 	Camera* camera(uint32_t i);
-
-	Mesh* mesh(const char* name);
-	Mesh* mesh(uint32_t i);
 
 	Sprite* sprite(const char* name);
 	Sprite* sprite(uint32_t i);
@@ -198,9 +194,6 @@ public:
 
 	uint32_t m_num_cameras;
 	Component m_cameras[CE_MAX_CAMERA_COMPONENTS];
-
-	uint32_t m_num_meshes;
-	Component m_meshes[CE_MAX_MESH_COMPONENTS];
 
 	uint32_t m_num_sprites;
 	Component m_sprites[CE_MAX_SPRITE_COMPONENTS];

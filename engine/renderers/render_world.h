@@ -33,10 +33,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "pool_allocator.h"
 #include "render_world_types.h"
 #include "material_manager.h"
+#include "resource_types.h"
 
-#define MAX_MESHES 100
 #define MAX_SPRITES 512
 #define MAX_GUIS 8
+
+#include "mesh_component_manager.h"
 
 namespace crown
 {
@@ -59,14 +61,6 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	MeshId create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node);
-
-	/// Destroys the mesh @a id.
-	void destroy_mesh(MeshId id);
-
-	/// Returns the mesh @a id.
-	Mesh* get_mesh(MeshId mesh);
-
 	SpriteId create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node);
 
 	/// Destroys the sprite @a id.
@@ -83,11 +77,9 @@ public:
 
 private:
 
-	PoolAllocator m_mesh_pool;
 	PoolAllocator m_sprite_pool;
 	PoolAllocator m_gui_pool;
 
-	IdArray<MAX_MESHES, Mesh*> m_mesh;
 	IdArray<MAX_SPRITES, Sprite*> m_sprite;
 	IdArray<MAX_GUIS, Gui*> m_guis;
 };

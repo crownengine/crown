@@ -31,43 +31,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "resource.h"
 #include "log.h"
 #include "sprite_resource.h"
-#include "mesh.h"
 #include "sprite.h"
 #include "material.h"
 #include "config.h"
 #include "gui.h"
+#include "mesh_resource.h"
+#include "scene_graph.h"
 #include <bgfx.h>
 
 namespace crown
 {
 
 RenderWorld::RenderWorld()
-	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh), CE_ALIGNOF(Mesh))
-	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite), CE_ALIGNOF(Sprite))
+	: m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite), CE_ALIGNOF(Sprite))
 	, m_gui_pool(default_allocator(), MAX_GUIS, sizeof(Gui), CE_ALIGNOF(Gui))
 {
 }
 
 RenderWorld::~RenderWorld()
 {
-}
-
-MeshId RenderWorld::create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node)
-{
-	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh)(sg, node, mr);
-	return id_array::create(m_mesh, mesh);
-}
-
-void RenderWorld::destroy_mesh(MeshId id)
-{
-	Mesh* mesh = id_array::get(m_mesh, id);
-	CE_DELETE(m_mesh_pool, mesh);
-	id_array::destroy(m_mesh, id);
-}
-
-Mesh* RenderWorld::get_mesh(MeshId mesh)
-{
-	return id_array::get(m_mesh, mesh);
 }
 
 SpriteId RenderWorld::create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node)
@@ -113,8 +95,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		, BGFX_CLEAR_COLOR_BIT|BGFX_CLEAR_DEPTH_BIT
 		, 0x353839FF
 		, 1.0f
-		, 0
-		);
+		, 0);
 
 	// Set view and projection matrix for view 0.
 	bgfx::setViewTransform(0, matrix4x4::to_float_ptr(view), matrix4x4::to_float_ptr(projection));

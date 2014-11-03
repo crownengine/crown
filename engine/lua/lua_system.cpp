@@ -56,7 +56,6 @@ extern void load_keyboard(LuaEnvironment& env);
 extern void load_math(LuaEnvironment& env);
 extern void load_matrix4x4(LuaEnvironment& env);
 extern void load_matrix4x4box(LuaEnvironment& env);
-extern void load_mesh(LuaEnvironment& env);
 extern void load_mouse(LuaEnvironment& env);
 extern void load_physics_world(LuaEnvironment& env);
 extern void load_quaternion(LuaEnvironment& env);
@@ -229,7 +228,6 @@ namespace lua_globals
 		load_keyboard(env);
 		load_math(env);
 		load_matrix4x4(env);
-		load_mesh(env);
 		load_mouse(env);
 		load_physics_world(env);
 		load_quaternion(env);

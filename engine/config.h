@@ -90,10 +90,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define CE_MAX_CAMERA_COMPONENTS 16 // Per unit
 #endif // CE_MAX
 
-#ifndef CE_MAX_MESH_COMPONENTS
-	#define CE_MAX_MESH_COMPONENTS 16 // Per unit
-#endif // CE_MAX
-
 #ifndef CE_MAX_SPRITE_COMPONENTS
 	#define CE_MAX_SPRITE_COMPONENTS 16 // Per unit
 #endif // CE_MAX

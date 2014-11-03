@@ -161,22 +161,6 @@ static int unit_material(lua_State* L)
 	return 1;
 }
 
-static int unit_mesh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-
-	if (stack.is_number(2))
-	{
-		stack.push_mesh(unit->mesh((uint32_t) stack.get_int(2)));
-		return 1;
-	}
-
-	stack.push_mesh(unit->mesh(stack.get_string(2)));
-	return 1;
-}
-
 static int unit_sprite(lua_State* L)
 {
 	LuaStack stack(L);
@@ -325,7 +309,6 @@ void load_unit(LuaEnvironment& env)
 	env.load_module_function("Unit", "unlink_node",           unit_unlink_node);
 	env.load_module_function("Unit", "camera",                unit_camera);
 	env.load_module_function("Unit", "material",              unit_material);
-	env.load_module_function("Unit", "mesh",                  unit_mesh);
 	env.load_module_function("Unit", "sprite",                unit_sprite);
 	env.load_module_function("Unit", "actor",                 unit_actor);
 	env.load_module_function("Unit", "controller",            unit_controller);

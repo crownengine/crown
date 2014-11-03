@@ -51,7 +51,6 @@ Unit::Unit(World& w, UnitId unit_id, StringId64 resid, const UnitResource* ur, c
 	, m_resource(ur)
 	, m_id(unit_id)
 	, m_num_cameras(0)
-	, m_num_meshes(0)
 	, m_num_sprites(0)
 	, m_num_actors(0)
 	, m_num_materials(0)
@@ -119,13 +118,6 @@ void Unit::destroy_objects()
 	}
 	m_num_cameras = 0;
 
-	// Destroy meshes
-	for (uint32_t i = 0; i < m_num_meshes; i++)
-	{
-		m_world.render_world()->destroy_mesh(m_meshes[i].component);
-	}
-	m_num_meshes = 0;
-
 	// Destroy sprites
 	for (uint32_t i = 0; i < m_num_sprites; i++)
 	{
@@ -170,6 +162,12 @@ void Unit::create_camera_objects()
 
 void Unit::create_renderable_objects()
 {
+	for (uint32_t i = 0; i < num_materials(m_resource); i++)
+	{
+		const UnitMaterial* mat = get_material(m_resource, i);
+		add_material(string::murmur2_32("default", string::strlen("default"), 0), material_manager::get()->create_material(mat->id));
+	}
+
 	// Create renderables
 	for (uint32_t i = 0; i < num_renderables(m_resource); i++)
 	{
@@ -177,9 +175,8 @@ void Unit::create_renderable_objects()
 
 		if (ur->type == UnitRenderable::MESH)
 		{
-			MeshResource* mr = (MeshResource*) device()->resource_manager()->get(MESH_TYPE, ur->resource);
-			MeshId mesh = m_world.render_world()->create_mesh(mr, m_scene_graph, ur->node);
-			add_mesh(ur->name, mesh);
+			// MeshResource* mr = (MeshResource*) device()->resource_manager()->get(MESH_TYPE, ur->resource);
+			// m_world.render_world()->create_mesh(mr, m_materials[0].component, m_scene_graph, ur->node);
 		}
 		else if (ur->type == UnitRenderable::SPRITE)
 		{
@@ -191,12 +188,6 @@ void Unit::create_renderable_objects()
 		{
 			CE_FATAL("Oops, bad renderable type");
 		}
-	}
-
-	for (uint32_t i = 0; i < num_materials(m_resource); i++)
-	{
-		const UnitMaterial* mat = get_material(m_resource, i);
-		add_material(string::murmur2_32("default", string::strlen("default"), 0), material_manager::get()->create_material(mat->id));
 	}
 }
 
@@ -385,13 +376,6 @@ void Unit::add_camera(StringId32 name, CameraId camera)
 	add_component(name, camera, m_num_cameras, m_cameras);
 }
 
-void Unit::add_mesh(StringId32 name, MeshId mesh)
-{
-	CE_ASSERT(m_num_meshes < CE_MAX_MESH_COMPONENTS, "Max mesh number reached");
-
-	add_component(name, mesh, m_num_meshes, m_meshes);
-}
-
 void Unit::add_sprite(StringId32 name, SpriteId sprite)
 {
 	CE_ASSERT(m_num_sprites < CE_MAX_SPRITE_COMPONENTS, "Max sprite number reached");
@@ -435,24 +419,6 @@ Camera* Unit::camera(uint32_t i)
 	CE_ASSERT(cam.id != INVALID_ID, "Unit does not have camera with index '%d'", i);
 
 	return m_world.get_camera(cam);
-}
-
-Mesh* Unit::mesh(const char* name)
-{
-	MeshId mesh = find_component(name, m_num_meshes, m_meshes);
-
-	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with name '%s'", name);
-
-	return m_world.render_world()->get_mesh(mesh);
-}
-
-Mesh* Unit::mesh(uint32_t i)
-{
-	MeshId mesh = find_component_by_index(i, m_num_meshes, m_meshes);
-
-	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with index '%d'", i);
-
-	return m_world.render_world()->get_mesh(mesh);
 }
 
 Sprite*	Unit::sprite(const char* name)
