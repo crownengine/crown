@@ -106,36 +106,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define CE_MAX_CONSOLE_CLIENTS 32
 #endif // CE_MAX
 
-#ifndef CE_MAX_GUI_RECTS
-	#define CE_MAX_GUI_RECTS 64 // Per Gui
-#endif // CE_MAX
-
-#ifndef CE_MAX_GUI_TRIANGLES
-	#define CE_MAX_GUI_TRIANGLES 64 // Per Gui
-#endif // CE_MAX
-
-#ifndef CE_MAX_GUI_IMAGES
-	#define CE_MAX_GUI_IMAGES 64 // Per Gui
-#endif // CE_MAX
-
-#ifndef CE_MAX_GUI_TEXTS
-	#define CE_MAX_GUI_TEXTS 64 // Per Gui
-#endif // CE_MAX
-
 #ifndef CE_MAX_DEBUG_LINES
 	#define CE_MAX_DEBUG_LINES 2 * 1024 // Per DebugLine
 #endif // CE_MAX
 
-#ifndef CE_MAX_LUA_VECTOR3
-	#define CE_MAX_LUA_VECTOR3 4096
+#ifndef CROWN_MAX_LUA_VECTOR3
+	#define CROWN_MAX_LUA_VECTOR3 4096
 #endif // CE_MAX
 
-#ifndef CE_MAX_LUA_MATRIX4X4
-	#define CE_MAX_LUA_MATRIX4X4 4096
+#ifndef CROWN_MAX_LUA_MATRIX4X4
+	#define CROWN_MAX_LUA_MATRIX4X4 4096
 #endif // CE_MAX
 
-#ifndef CE_MAX_LUA_QUATERNION
-	#define CE_MAX_LUA_QUATERNION 4096
+#ifndef CROWN_MAX_LUA_QUATERNION
+	#define CROWN_MAX_LUA_QUATERNION 4096
 #endif // CE_MAX
 
 #ifndef CROWN_SOUND_OPENAL

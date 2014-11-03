@@ -79,11 +79,11 @@ namespace lua_globals
 	static lua_State* _L;
 
 	static uint32_t _vec3_used = 0;
-	static Vector3 _vec3_buffer[CE_MAX_LUA_VECTOR3];
+	static Vector3 _vec3_buffer[CROWN_MAX_LUA_VECTOR3];
 	static uint32_t _mat4_used = 0;
-	static Matrix4x4 s_mat4_buffer[CE_MAX_LUA_MATRIX4X4];
+	static Matrix4x4 s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4];
 	static uint32_t _quat_used = 0;
-	static Quaternion _quat_buffer[CE_MAX_LUA_QUATERNION];
+	static Quaternion _quat_buffer[CROWN_MAX_LUA_QUATERNION];
 
 	// When an error occurs, logs the error message and pauses the engine.
 	int error_handler(lua_State* L)
@@ -311,40 +311,40 @@ namespace lua_globals
 
 	Vector3* next_vector3(const Vector3& v)
 	{
-		CE_ASSERT(_vec3_used < CE_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
+		CE_ASSERT(_vec3_used < CROWN_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
 
 		return &(_vec3_buffer[_vec3_used++] = v);
 	}
 
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m)
 	{
-		CE_ASSERT(_mat4_used < CE_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
+		CE_ASSERT(_mat4_used < CROWN_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
 
 		return &(s_mat4_buffer[_mat4_used++] = m);
 	}
 
 	Quaternion* next_quaternion(const Quaternion& q)
 	{
-		CE_ASSERT(_quat_used < CE_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
+		CE_ASSERT(_quat_used < CROWN_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
 		return &(_quat_buffer[_quat_used++] = q);
 	}
 
 	bool is_vector3(int32_t index)
 	{
 		void* type = lua_touserdata(_L, index);
-		return (type >= &_vec3_buffer[0] && type <= &_vec3_buffer[CE_MAX_LUA_VECTOR3 - 1]);
+		return (type >= &_vec3_buffer[0] && type <= &_vec3_buffer[CROWN_MAX_LUA_VECTOR3 - 1]);
 	}
 
 	bool is_matrix4x4(int32_t index)
 	{
 		void* type = lua_touserdata(_L, index);
-		return (type >= &s_mat4_buffer[0] && type <= &s_mat4_buffer[CE_MAX_LUA_MATRIX4X4 - 1]);
+		return (type >= &s_mat4_buffer[0] && type <= &s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1]);
 	}
 
 	bool is_quaternion(int32_t index)
 	{
 		void* type = lua_touserdata(_L, index);
-		return (type >= &_quat_buffer[0] && type <= &_quat_buffer[CE_MAX_LUA_QUATERNION - 1]);
+		return (type >= &_quat_buffer[0] && type <= &_quat_buffer[CROWN_MAX_LUA_QUATERNION - 1]);
 	}
 
 	void clear_temporaries()
