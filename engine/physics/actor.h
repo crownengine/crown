@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "physics_types.h"
 #include "id_array.h"
 #include "world_types.h"
+#include "resource_types.h"
 
 #include "PxPhysics.h"
 #include "PxScene.h"
@@ -44,8 +45,6 @@ namespace crown
 
 #define MAX_PHYSX_VERTICES 256
 
-struct PhysicsResource;
-struct PhysicsConfigResource;
 struct Unit;
 struct SceneGraph;
 

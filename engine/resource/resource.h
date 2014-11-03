@@ -33,7 +33,6 @@ namespace crown
 {
 
 /// Hashed values for supported resource types
-#define CONFIG_EXTENSION			"config"
 #define FONT_EXTENSION				"font"
 #define LEVEL_EXTENSION				"level"
 #define LUA_EXTENSION				"lua"
@@ -49,7 +48,6 @@ namespace crown
 #define TEXTURE_EXTENSION			"texture"
 #define UNIT_EXTENSION				"unit"
 
-#define CONFIG_TYPE					uint64_t(0x82645835e6b73232)
 #define FONT_TYPE					uint64_t(0x9efe0a916aae7880)
 #define LEVEL_TYPE					uint64_t(0x2a690fd348fe9ac5)
 #define LUA_TYPE					uint64_t(0xa14e8dfa2cd117e2)

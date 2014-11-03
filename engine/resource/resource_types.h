@@ -27,8 +27,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 	class ResourceManager;
+	struct ResourcePackage;
 
+	struct FontResource;
 	struct LevelResource;
-	struct UnitResource;
+	struct LuaResource;
+	struct MaterialResource;
+	struct MeshResource;
+	struct PackageResource;
+	struct PhysicsConfigResource;
+	struct PhysicsResource;
 	struct SoundResource;
+	struct SpriteAnimationResource;
+	struct SpriteResource;
+	struct TextureResource;
+	struct UnitResource;
 } // namespace crown

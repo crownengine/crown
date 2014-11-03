@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "config.h"
 #include "types.h"
 #include "macros.h"
+#include "resource_types.h"
 #include "math_types.h" // HACK
 #include "lua.hpp"
 
@@ -40,7 +41,6 @@ enum LuaArgumentType
 	ARGUMENT_FLOAT
 };
 
-struct LuaResource;
 // HACK
 struct Actor;
 struct Unit;

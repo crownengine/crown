@@ -27,13 +27,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "math_types.h"
+#include "resource_types.h"
 #include <bgfx.h>
 
 namespace crown
 {
 
 struct MaterialManager;
-struct MaterialResource;
 
 struct Material
 {

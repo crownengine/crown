@@ -26,9 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "physics_callback.h"
+#include "resource_types.h"
 #include "PxController.h"
 #include "PxControllerManager.h"
-#include "physics_callback.h"
 
 using physx::PxController;
 using physx::PxControllerManager;
@@ -39,7 +40,6 @@ using physx::PxU32;
 namespace crown
 {
 
-struct PhysicsResource;
 struct Vector3;
 struct SceneGraph;
 class PhysicsControllerCallback;

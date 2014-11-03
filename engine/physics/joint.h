@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "types.h"
+#include "resource_types.h"
 
 #include "PxPhysics.h"
 #include "PxScene.h"
@@ -41,7 +42,6 @@ using physx::PxMaterial;
 namespace crown
 {
 
-struct PhysicsResource;
 struct Actor;
 
 ///

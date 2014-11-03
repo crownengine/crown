@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "container_types.h"
 #include "material.h"
 #include "resource_manager.h"
+#include "resource_types.h"
 #include "id_table.h"
 #include <bgfx.h>
 
@@ -37,7 +38,6 @@ namespace crown
 {
 
 typedef Id MaterialId;
-struct MaterialResource;
 
 struct MaterialManager
 {

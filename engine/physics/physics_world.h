@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "physics_types.h"
 #include "math_types.h"
 #include "world_types.h"
+#include "resource_types.h"
 #include "PxScene.h"
 #include "PxCooking.h"
 #include "PxDefaultCpuDispatcher.h"
@@ -57,8 +58,6 @@ namespace crown
 
 struct SceneGraph;
 class World;
-struct PhysicsResource;
-struct PhysicsConfigResource;
 struct Unit;
 struct DebugLine;
 
