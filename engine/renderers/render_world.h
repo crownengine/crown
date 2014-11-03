@@ -38,8 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define MAX_SPRITES 512
 #define MAX_GUIS 8
 
-#include "mesh_component_manager.h"
-
 namespace crown
 {
 
