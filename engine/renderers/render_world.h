@@ -28,9 +28,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "id_array.h"
 #include "container_types.h"
+#include "math_types.h"
+#include "resource_types.h"
 #include "pool_allocator.h"
-#include "resource.h"
-#include "matrix4x4.h"
 #include "render_world_types.h"
 #include "material_manager.h"
 
@@ -42,16 +42,10 @@ namespace crown
 {
 
 struct Material;
-struct MaterialResource;
-struct Mesh;
-struct MeshResource;
 struct SceneGraph;
 struct Sprite;
-struct SpriteResource;
+struct Mesh;
 struct Gui;
-struct Vector2;
-struct Vector3;
-struct GuiResource;
 
 /// @defgroup Graphics Graphics
 

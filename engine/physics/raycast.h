@@ -24,12 +24,12 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "log.h"
+#include "math_types.h"
+#include "container_types.h"
 #include "physics_types.h"
 #include "PxQueryFiltering.h"
 #include "PxScene.h"
 #include "PxVec3.h"
-#include "event_stream.h"
 
 using physx::PxQueryFilterData;
 using physx::PxQueryFlag;
@@ -43,17 +43,16 @@ using physx::PxVec3;
 namespace crown
 {
 
-struct Vector3;
 struct Actor;
 
 ///
 /// @ingroup Physics
 struct RaycastHit
 {
-	Vector3					position;
-	float					distance;
-	Vector3					normal;
-	Actor*					actor;
+	Vector3 position;
+	float distance;
+	Vector3 normal;
+	Actor* actor;
 };
 
 

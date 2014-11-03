@@ -25,14 +25,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "types.h"
+#include "math_types.h"
 #include "lua.hpp"
 
 namespace crown
 {
-
-struct Vector3;
-struct Matrix4x4;
-struct Quaternion;
 
 /// Global lua-related functions
 namespace lua_globals

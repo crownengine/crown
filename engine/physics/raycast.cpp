@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "raycast.h"
 #include "actor.h"
+#include "array.h"
 #include "string_utils.h"
 #include "PxRigidActor.h"
 

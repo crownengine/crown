@@ -43,6 +43,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "event_stream.h"
 #include "sprite_animation_player.h"
 #include "resource_types.h"
+#include "quaternion.h"
 
 namespace crown
 {
