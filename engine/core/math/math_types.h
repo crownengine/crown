@@ -78,7 +78,7 @@ struct Vector4
 	Vector4(const Vector3& a, float w);
 	Vector4(float val);
 	Vector4(float nx, float ny, float nz, float nw);
-	Vector4(const float v[3]);
+	Vector4(const float v[4]);
 
 	float& operator[](uint32_t i);
 	const float& operator[](uint32_t i) const;
