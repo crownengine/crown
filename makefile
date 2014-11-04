@@ -106,4 +106,3 @@ docs:
 clean: deps-clean
 	@echo Cleaning...
 	@rm -rf .build
-	@rm -rf .installation
