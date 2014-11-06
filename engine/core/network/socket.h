@@ -446,6 +446,7 @@ struct TCPSocket
 		int err = setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, (const char*) &optval, sizeof(optval));
 		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError = %d", WSAGetLastError());
 #endif
+		CE_UNUSED(err);
 	}
 
 	void set_timeout(uint32_t seconds)
@@ -469,6 +470,7 @@ struct TCPSocket
 		err = setsockopt (m_socket, SOL_SOCKET, SO_SNDTIMEO, (char*) &timeout, sizeof(timeout));
 		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError: %d", WSAGetLastError());
 #endif
+		CE_UNUSED(err);
 	}
 
 private:
