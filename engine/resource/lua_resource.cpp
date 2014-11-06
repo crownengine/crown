@@ -58,9 +58,9 @@ namespace lua_resource
 		const char* luajit[] =
 		{
 #if CROWN_PLATFORM_LINUX
-			"./luajit"
+			"./luajit",
 #else
-			"luajit.exe"
+			"luajit.exe",
 #endif // CROWN_PLATFORM_LINUX
 			LUAJIT_FLAGS,
 			res_abs_path.c_str(),
