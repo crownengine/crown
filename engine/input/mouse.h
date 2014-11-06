@@ -157,13 +157,13 @@ struct Mouse
 	void set_button_state(uint16_t x, uint16_t y, MouseButton::Enum b, bool state)
 	{
 		set_position(x, y);
-
 		_last_button = b;
 		_current_state[b] = state;
 	}
 
 	void set_wheel(uint16_t x, uint16_t y, float wheel)
 	{
+		set_position(x, y);
 		_wheel = wheel;
 	}
 
