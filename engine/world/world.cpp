@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "actor.h"
 #include "lua_environment.h"
 #include "level_resource.h"
+#include "matrix4x4.h"
 
 namespace crown
 {

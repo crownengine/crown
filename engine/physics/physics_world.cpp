@@ -46,6 +46,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "color4.h"
 #include "int_setting.h"
 #include "physics.h"
+#include "matrix4x4.h"
 
 #include "PxPhysicsAPI.h"
 

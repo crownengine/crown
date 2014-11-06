@@ -34,12 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "array.h"
 #include "compile_options.h"
 
-#if CROWN_PLATFORM_WINDOWS
-	#define LUAJIT_EXECUTABLE "luajit.exe"
-#else
-	#define LUAJIT_EXECUTABLE "./luajit"
-#endif
-
 #if defined(CROWN_DEBUG)
 	#define LUAJIT_FLAGS "-bg" // Keep debug info
 #else
@@ -63,7 +57,11 @@ namespace lua_resource
 
 		const char* luajit[] =
 		{
-			LUAJIT_EXECUTABLE,
+#if CROWN_PLATFORM_LINUX
+			"./luajit"
+#else
+			"luajit.exe"
+#endif // CROWN_PLATFORM_LINUX
 			LUAJIT_FLAGS,
 			res_abs_path.c_str(),
 			bc_abs_path.c_str(),
