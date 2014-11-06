@@ -99,9 +99,10 @@ windows-development64: deps-windows-debug64 windows-build
 windows-release64: deps-windows-release64 windows-build
 	devenv .build/windows/crown.sln /Build "release|x64"
 
+.PHONY: docs
 docs:
-	doxygen documentation/Doxyfile.doxygen
-	rst2html2 --stylesheet=html4css1.css,documentation/style.css documentation/lua_api.txt .build/documentation/lua_api.html
+	doxygen docs/Doxyfile.doxygen
+	rst2html2 --stylesheet=html4css1.css,docs/style.css docs/lua_api.txt .build/docs/lua_api.html
 
 clean: deps-clean
 	@echo Cleaning...
