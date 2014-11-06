@@ -96,14 +96,14 @@ namespace frustum
 
 		switch (index)
 		{
-			case 0: return math::plane_3_intersection(side[4], side[0], side[2], ip);
-			case 1: return math::plane_3_intersection(side[4], side[1], side[2], ip);
-			case 2: return math::plane_3_intersection(side[4], side[1], side[3], ip);
-			case 3: return math::plane_3_intersection(side[4], side[0], side[3], ip);
-			case 4: return math::plane_3_intersection(side[5], side[0], side[2], ip);
-			case 5: return math::plane_3_intersection(side[5], side[1], side[2], ip);
-			case 6: return math::plane_3_intersection(side[5], side[1], side[3], ip);
-			case 7: return math::plane_3_intersection(side[5], side[0], side[3], ip);
+			case 0: return plane_3_intersection(side[4], side[0], side[2], ip);
+			case 1: return plane_3_intersection(side[4], side[1], side[2], ip);
+			case 2: return plane_3_intersection(side[4], side[1], side[3], ip);
+			case 3: return plane_3_intersection(side[4], side[0], side[3], ip);
+			case 4: return plane_3_intersection(side[5], side[0], side[2], ip);
+			case 5: return plane_3_intersection(side[5], side[1], side[2], ip);
+			case 6: return plane_3_intersection(side[5], side[1], side[3], ip);
+			case 7: return plane_3_intersection(side[5], side[0], side[3], ip);
 			default: break;
 		}
 

@@ -37,112 +37,112 @@ namespace crown
 static int math_to_rad(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::to_rad(stack.get_float(1)));
+	stack.push_float(to_rad(stack.get_float(1)));
 	return 1;
 }
 
 static int math_to_deg(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::to_deg(stack.get_float(1)));
+	stack.push_float(to_deg(stack.get_float(1)));
 	return 1;
 }
 
 static int math_next_pow_2(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_uint32(math::next_pow_2(stack.get_int(1)));
+	stack.push_uint32(next_pow_2(stack.get_int(1)));
 	return 1;
 }
 
 static int math_is_pow_2(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(math::is_pow_2(stack.get_int(1)));
+	stack.push_bool(is_pow_2(stack.get_int(1)));
 	return 1;
 }
 
 static int math_ceil(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::ceil(stack.get_float(1)));
+	stack.push_float(ceil(stack.get_float(1)));
 	return 1;
 }
 
 static int math_floor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::floor(stack.get_float(1)));
+	stack.push_float(floor(stack.get_float(1)));
 	return 1;
 }
 
 static int math_sqrt(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::sqrt(stack.get_float(1)));
+	stack.push_float(sqrt(stack.get_float(1)));
 	return 1;
 }
 
 static int math_inv_sqrt(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::inv_sqrt(stack.get_float(1)));
+	stack.push_float(inv_sqrt(stack.get_float(1)));
 	return 1;
 }
 
 static int math_sin(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::sin(stack.get_float(1)));
+	stack.push_float(sin(stack.get_float(1)));
 	return 1;
 }
 
 static int math_cos(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::cos(stack.get_float(1)));
+	stack.push_float(cos(stack.get_float(1)));
 	return 1;
 }
 
 static int math_asin(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::asin(stack.get_float(1)));
+	stack.push_float(asin(stack.get_float(1)));
 	return 1;
 }
 
 static int math_acos(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::acos(stack.get_float(1)));
+	stack.push_float(acos(stack.get_float(1)));
 	return 1;
 }
 
 static int math_tan(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::tan(stack.get_float(1)));
+	stack.push_float(tan(stack.get_float(1)));
 	return 1;
 }
 
 static int math_atan2(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::atan2(stack.get_float(1), stack.get_float(2)));
+	stack.push_float(atan2(stack.get_float(1), stack.get_float(2)));
 	return 1;
 }
 
 static int math_abs(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::abs(stack.get_float(1)));
+	stack.push_float(abs(stack.get_float(1)));
 	return 1;
 }
 
 static int math_fmod(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::fmod(stack.get_float(1), stack.get_float(2)));
+	stack.push_float(fmod(stack.get_float(1), stack.get_float(2)));
 	return 1;
 }
 
@@ -153,7 +153,7 @@ static int math_ray_oobb_intersection(lua_State* L)
 	oobb.tm = stack.get_matrix4x4(3);
 	oobb.aabb.min = stack.get_vector3(4) * -0.5;
 	oobb.aabb.max = stack.get_vector3(4) * 0.5;
-	stack.push_float(math::ray_oobb_intersection(stack.get_vector3(1), stack.get_vector3(2), oobb));
+	stack.push_float(ray_oobb_intersection(stack.get_vector3(1), stack.get_vector3(2), oobb));
 	return 1;
 }
 

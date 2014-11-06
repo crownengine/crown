@@ -58,7 +58,7 @@ namespace plane
 	{
 		float len = vector3::length(p.n);
 
-		if (math::equals(len, (float) 0.0))
+		if (equals(len, (float) 0.0))
 		{
 			return p;
 		}

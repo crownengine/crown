@@ -127,7 +127,7 @@ inline Vector2 operator/(Vector2 a, float k)
 
 inline bool operator==(const Vector2& a, const Vector2& b)
 {
-	return math::equals(a.x, b.x) && math::equals(a.y, b.y);
+	return equals(a.x, b.x) && equals(a.y, b.y);
 }
 
 namespace vector2
@@ -140,7 +140,7 @@ namespace vector2
 
 	inline float length(const Vector2& a)
 	{
-		return math::sqrt(a.x * a.x + a.y * a.y);
+		return sqrt(a.x * a.x + a.y * a.y);
 	}
 
 	inline float squared_length(const Vector2& a)
@@ -173,7 +173,7 @@ namespace vector2
 
 	inline float angle(const Vector2& a, const Vector2& b)
 	{
-		return math::acos(dot(a, b) / (length(a) * length(b)));
+		return acos(dot(a, b) / (length(a) * length(b)));
 	}
 
 	inline float* to_float_ptr(Vector2& a)

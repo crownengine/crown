@@ -51,7 +51,7 @@ namespace sphere
 {
 	inline float volume(const Sphere& s)
 	{
-		return float(4.0 / 3.0 * math::PI) * s.r*s.r*s.r;
+		return float(4.0 / 3.0 * PI) * s.r*s.r*s.r;
 	}
 
 	inline void add_points(Sphere& s, uint32_t num, const Vector3* points)
@@ -60,7 +60,7 @@ namespace sphere
 		{
 			const float dist = vector3::squared_length(points[i] - s.c);
 			if (dist >= s.r*s.r)
-				s.r = math::sqrt(dist);
+				s.r = sqrt(dist);
 		}
 	}
 
@@ -73,7 +73,7 @@ namespace sphere
 			if (dist < (spheres[i].r + s.r) * (spheres[i].r + s.r))
 			{
 				if (spheres[i].r * spheres[i].r > s.r * s.r)
-					s.r = math::sqrt(dist + spheres[i].r * spheres[i].r);
+					s.r = sqrt(dist + spheres[i].r * spheres[i].r);
 			}
 		}
 	}

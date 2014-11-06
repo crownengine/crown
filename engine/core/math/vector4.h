@@ -134,7 +134,7 @@ inline Vector4 operator/(Vector4 a, float k)
 
 inline bool operator==(const Vector4& a, const Vector4& b)
 {
-	return math::equals(a.x, b.x) && math::equals(a.y, b.y) && math::equals(a.z, b.z) && math::equals(a.w, b.w);
+	return equals(a.x, b.x) && equals(a.y, b.y) && equals(a.z, b.z) && equals(a.w, b.w);
 }
 
 namespace vector4
@@ -146,7 +146,7 @@ namespace vector4
 
 	inline float length(const Vector4& a)
 	{
-		return math::sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+		return sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
 	}
 
 	inline float squared_length(const Vector4& a)
@@ -183,7 +183,7 @@ namespace vector4
 
 	inline float angle(const Vector4& a, const Vector4& b)
 	{
-		return math::acos(dot(a, b) / (length(a) * length(b)));
+		return acos(dot(a, b) / (length(a) * length(b)));
 	}
 
 	inline float* to_float_ptr(Vector4& a)

@@ -247,7 +247,7 @@ namespace matrix3x3
 			index = 3;
 		}
 
-		const float biggest = math::sqrt(max + 1.0f) * 0.5f;
+		const float biggest = sqrt(max + 1.0f) * 0.5f;
 		const float mult = 0.25f / biggest;
 
 		Quaternion tmp;

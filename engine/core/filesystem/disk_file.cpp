@@ -107,7 +107,7 @@ bool DiskFile::copy_to(File& file, size_t size)
 	while (tot_read_bytes < size)
 	{
 		size_t read_bytes;
-		size_t expected_read_bytes = math::min(size - tot_read_bytes, chunksize);
+		size_t expected_read_bytes = min(size - tot_read_bytes, chunksize);
 
 		read_bytes = _file.read(buff, expected_read_bytes);
 

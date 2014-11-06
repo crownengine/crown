@@ -225,8 +225,8 @@ namespace texture_resource
 				return;
 			}
 
-			width = math::max(1u, width >> 1);
-			height = math::max(1u, height >> 1);
+			width = max(1u, width >> 1);
+			height = max(1u, height >> 1);
 			cur_mip++;
 			src += size;
 		}

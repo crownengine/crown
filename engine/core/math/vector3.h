@@ -137,7 +137,7 @@ inline Vector3 operator/(Vector3 a, float k)
 
 inline bool operator==(const Vector3& a, const Vector3& b)
 {
-	return math::equals(a.x, b.x) && math::equals(a.y, b.y) && math::equals(a.z, b.z);
+	return equals(a.x, b.x) && equals(a.y, b.y) && equals(a.z, b.z);
 }
 
 namespace vector3
@@ -154,7 +154,7 @@ namespace vector3
 
 	inline float length(const Vector3& a)
 	{
-		return math::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+		return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 	}
 
 	inline float squared_length(const Vector3& a)
@@ -189,7 +189,7 @@ namespace vector3
 
 	inline float angle(const Vector3& a, const Vector3& b)
 	{
-		return math::acos(dot(a, b) / (length(a) * length(b)));
+		return acos(dot(a, b) / (length(a) * length(b)));
 	}
 
 	inline float* to_float_ptr(Vector3& a)

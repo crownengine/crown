@@ -93,7 +93,7 @@ namespace quaternion
 
 	inline float length(const Quaternion& q)
 	{
-		return math::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+		return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
 	}
 
 	inline Quaternion& normalize(Quaternion& q)
@@ -118,13 +118,13 @@ namespace quaternion
 
 	inline Quaternion power(const Quaternion& q, float exp)
 	{
-		if (math::abs(q.w) < 0.9999)
+		if (abs(q.w) < 0.9999)
 		{
 			Quaternion tmp;
-			float alpha = math::acos(q.w); // alpha = theta/2
+			float alpha = acos(q.w); // alpha = theta/2
 			float new_alpha = alpha * exp;
-			tmp.w = math::cos(new_alpha);
-			float mult = math::sin(new_alpha) / math::sin(alpha);
+			tmp.w = cos(new_alpha);
+			float mult = sin(new_alpha) / sin(alpha);
 			tmp.x = q.x * mult;
 			tmp.y = q.y * mult;
 			tmp.z = q.z * mult;
@@ -149,10 +149,10 @@ inline Quaternion::Quaternion(float nx, float ny, float nz, float nw)
 }
 
 inline Quaternion::Quaternion(const Vector3& axis, float angle)
-	: x(axis.x * math::sin(angle * 0.5f))
-	, y(axis.y * math::sin(angle * 0.5f))
-	, z(axis.z * math::sin(angle * 0.5f))
-	, w(math::cos(angle * 0.5f))
+	: x(axis.x * sin(angle * 0.5f))
+	, y(axis.y * sin(angle * 0.5f))
+	, z(axis.z * sin(angle * 0.5f))
+	, w(cos(angle * 0.5f))
 {
 }
 

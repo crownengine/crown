@@ -96,7 +96,7 @@ void NetworkFile::read(void* buffer, size_t size)
 	// root.key("data").to_string(data_base64);
 
 	// size_t out_len = 0;
-	// unsigned char* data = math::base64_decode(data_base64.c_str(), data_base64.length(), &out_len);
+	// unsigned char* data = base64_decode(data_base64.c_str(), data_base64.length(), &out_len);
 	// memcpy(buffer, data, sizeof(unsigned char) * out_len);
 	// default_allocator().deallocate(data);
 }

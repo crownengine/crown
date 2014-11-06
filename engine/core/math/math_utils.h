@@ -33,13 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Math utilities.
-///
-/// @ingroup Math
-namespace math
-{
-
-// Constants
 const float PI = 3.1415926535897932f;
 const float TWO_PI = PI * 2.0f;
 const float HALF_PI = PI * 0.5f;
@@ -182,8 +175,8 @@ inline T linear(const T& p0, const T& p1, float t)
 template <typename T>
 inline T cosine(const T& p0, const T& p1, float t)
 {
-	float f = t * math::PI;
-	float g = (1.0 - math::cos(f)) * 0.5;
+	float f = t * PI;
+	float g = (1.0 - cos(f)) * 0.5;
 
 	return p0 + (g * (p1 - p0));
 }
@@ -231,5 +224,4 @@ inline T catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, float t
 	return tmp * 0.5;
 }
 
-} // namespace math
 } // namespace crown

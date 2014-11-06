@@ -61,7 +61,7 @@ namespace math
 			return -1.0f;
 		}
 
-		return b - math::sqrt(det);
+		return b - sqrt(det);
 	}
 
 	// http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
@@ -171,7 +171,7 @@ namespace math
 
 		float den = -vector3::dot(vector3::cross(n1, n2), n3);
 
-		if (math::equals(den, (float)0.0))
+		if (equals(den, (float)0.0))
 		{
 			return false;
 		}

@@ -175,22 +175,22 @@ void DebugLine::add_sphere(const Vector3& center, const float radius, const Colo
 
 	for (uint32_t deg = 0; deg < 360; deg += deg_step)
 	{
-		const float rad0 = math::to_rad((float) deg);
-		const float rad1 = math::to_rad((float) deg + deg_step);
+		const float rad0 = to_rad((float) deg);
+		const float rad1 = to_rad((float) deg + deg_step);
 
 		// XZ plane
-		const Vector3 start0(math::cos(rad0) * radius, 0, -math::sin(rad0) * radius);
-		const Vector3 end0  (math::cos(rad1) * radius, 0, -math::sin(rad1) * radius);
+		const Vector3 start0(cos(rad0) * radius, 0, -sin(rad0) * radius);
+		const Vector3 end0  (cos(rad1) * radius, 0, -sin(rad1) * radius);
 		add_line(center + start0, center + end0, color);
 
 		// XY plane
-		const Vector3 start1(math::cos(rad0) * radius, math::sin(rad0) * radius, 0);
-		const Vector3 end1  (math::cos(rad1) * radius, math::sin(rad1) * radius, 0);
+		const Vector3 start1(cos(rad0) * radius, sin(rad0) * radius, 0);
+		const Vector3 end1  (cos(rad1) * radius, sin(rad1) * radius, 0);
 		add_line(center + start1, center + end1, color);
 
 		// YZ plane
-		const Vector3 start2(0, math::sin(rad0) * radius, -math::cos(rad0) * radius);
-		const Vector3 end2  (0, math::sin(rad1) * radius, -math::cos(rad1) * radius);
+		const Vector3 start2(0, sin(rad0) * radius, -cos(rad0) * radius);
+		const Vector3 end2  (0, sin(rad1) * radius, -cos(rad1) * radius);
 		add_line(center + start2, center + end2, color);
 	}
 }

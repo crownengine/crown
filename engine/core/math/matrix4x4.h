@@ -195,7 +195,7 @@ namespace matrix4x4
 {
 	inline void set_perspective(Matrix4x4& m, float fovy, float aspect, float near, float far)
 	{
-		const float height = 1.0f / math::tan(fovy * ((float) math::PI / 180.0f) * 0.5f);
+		const float height = 1.0f / tan(fovy * ((float) PI / 180.0f) * 0.5f);
 		const float width = height * 1.0f / aspect;
 		const float aa = far / (far - near);
 		const float bb = -near * aa;

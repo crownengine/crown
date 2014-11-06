@@ -333,7 +333,7 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 
 		// Encode data to base64
 		size_t dummy;
-		char* bytes_encoded = math::base64_encode((unsigned char*) bytes, (size_t) file_size.to_int(), &dummy);
+		char* bytes_encoded = base64_encode((unsigned char*) bytes, (size_t) file_size.to_int(), &dummy);
 
 		// Send data
 		TempAllocator4096 alloc;

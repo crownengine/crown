@@ -218,8 +218,8 @@ namespace physics_resource
 				}
 				case PhysicsJointType::SPHERICAL:
 				{
-					pj.y_limit_angle = joint.key_or_nil("y_limit_angle").to_float(math::HALF_PI);
-					pj.z_limit_angle = joint.key_or_nil("z_limit_angle").to_float(math::HALF_PI);
+					pj.y_limit_angle = joint.key_or_nil("y_limit_angle").to_float(HALF_PI);
+					pj.z_limit_angle = joint.key_or_nil("z_limit_angle").to_float(HALF_PI);
 					pj.contact_dist =  joint.key_or_nil("contact_dist").to_float(0.0f);
 					break;
 				}
