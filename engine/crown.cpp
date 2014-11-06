@@ -136,6 +136,12 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 		exit(EXIT_FAILURE);
 	}
 
+	if (string::strcmp(cs.source_dir, cs.bundle_dir) == 0)
+	{
+		help("Source and Bundle directories must differ.");
+		exit(EXIT_FAILURE);
+	}
+
 	cs.project = cmd.get_parameter("project");
 
 	cs.wait_console = cmd.has_argument("wait-console");
