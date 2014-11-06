@@ -84,6 +84,7 @@ static void help(const char* msg = NULL)
 		"Options:\n\n"
 
 		"  -h --help                  Show this help.\n"
+		"  -v --version               Show version informations.\n"
 		"  --bundle-dir <path>        Use <path> as the source directory for compiled resources.\n"
 		"  --console-port <port>      Set port of the console.\n"
 		"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
@@ -112,7 +113,13 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 	if (cmd.has_argument("help", 'h'))
 	{
 		help();
-		exit(EXIT_FAILURE);
+		exit(EXIT_SUCCESS);
+	}
+
+	if (cmd.has_argument("version", 'v'))
+	{
+		printf(CROWN_PLATFORM_NAME "-" CROWN_CPU_NAME " " "("CROWN_ARCH_NAME")" " " "("CROWN_COMPILER_NAME")\n");
+		exit(EXIT_SUCCESS);
 	}
 
 	cs.source_dir = cmd.get_parameter("source-dir");
