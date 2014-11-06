@@ -31,6 +31,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "reader_writer.h"
 #include "config.h"
 
+#if CROWN_DEBUG
+		#define SHADERC_NAME "shadercDebug"
+#else
+		#define SHADERC_NAME "shadercRelease"
+#endif // CROWN_DEBUG
+		#define SHADERC_PATH SHADERC_NAME
+#if CROWN_PLATFORM_WINDOWS
+		#define SHADERC_PATH SHADERC_NAME".exe"
+#endif // CROWN_PLATFORM_WINDOWS
+
 namespace crown
 {
 namespace shader_resource
@@ -97,7 +107,7 @@ namespace shader_resource
 
 		const char* compile_vs[] =
 		{
-			"shaderc",
+			SHADERC_PATH,
 			"-f", vs_code_path.c_str(),
 			"-o", tmpvs_path.c_str(),
 			"--varyingdef", varying_def_path.c_str(),
@@ -113,7 +123,7 @@ namespace shader_resource
 
 		const char* compile_fs[] =
 		{
-			"shaderc",
+			SHADERC_PATH,
 			"-f", fs_code_path.c_str(),
 			"-o", tmpfs_path.c_str(),
 			"--varyingdef", varying_def_path.c_str(),

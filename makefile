@@ -61,28 +61,28 @@ deps-clean: luajit-clean bgfx-clean
 linux-build:
 	$(PREMAKE) --file=premake/premake4.lua --compiler=linux-gcc gmake
 linux-debug32: deps-linux-debug32 linux-build
-	make -R -C .build/linux config=debug32
+	make -R -C .build/projects/linux config=debug32
 linux-development32: deps-linux-debug32 linux-build
-	make -R -C .build/linux config=development32
+	make -R -C .build/projects/linux config=development32
 linux-release32: deps-linux-release32 linux-build
-	make -R -C .build/linux config=release32
+	make -R -C .build/projects/linux config=release32
 linux-debug64: deps-linux-debug64 linux-build
-	make -R -C .build/linux config=debug64
+	make -R -C .build/projects/linux config=debug64
 linux-development64: deps-linux-debug64 linux-build	
-	make -R -C .build/linux config=development64
+	make -R -C .build/projects/linux config=development64
 linux-release64: deps-linux-release64 linux-build
-	make -R -C .build/linux config=release64
+	make -R -C .build/projects/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
 android-build:
-	$(PREMAKE) --file=premake/premake4.lua --compiler=android gmake
-android-debug: deps-android-arm-debug android-build
-	make -R -C .build/android config=debug
-android-development: deps-android-arm-debug android-build
-	make -R -C .build/android config=development
-android-release: deps-android-arm-release android-build
-	make -R -C .build/android config=release
-android: android-debug android-development android-release
+	$(PREMAKE) --file=premake/premake4.lua --compiler=android-arm gmake
+android-arm-debug: deps-android-arm-debug android-build
+	make -R -C .build/projects/android config=debug
+android-arm-development: deps-android-arm-debug android-build
+	make -R -C .build/projects/android config=development
+android-arm-release: deps-android-arm-release android-build
+	make -R -C .build/projects/android config=release
+android-arm: android-arm-debug android-arm-development android-arm-release
 
 windows-build:
 	$(PREMAKE) --file=premake\premake4.lua vs2012
