@@ -34,7 +34,7 @@ namespace path
 	{
 		CE_ASSERT(segment != NULL, "Segment must be != NULL");
 
-		size_t segment_len = string::strlen(segment);
+		size_t segment_len = strlen(segment);
 
 		// Empty segment is not valid
 		if (segment_len == 0)
@@ -77,7 +77,7 @@ namespace path
 	bool is_valid_path(const char* path)
 	{
 		(void)path;
-	//	size_t path_len = string::strlen(path);
+	//	size_t path_len = strlen(path);
 
 	//	if (pathLen == 0)
 	//	{
@@ -125,15 +125,15 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_separator = string::find_last(path, '/');
+		const char* last_separator = find_last(path, '/');
 
-		if (last_separator == string::end(path))
+		if (last_separator == end(path))
 		{
-			string::strncpy(str, "", len);
+			strncpy(str, "", len);
 		}
 		else
 		{
-			string::substring(string::begin(path), last_separator, str, len);
+			substring(begin(path), last_separator, str, len);
 		}
 	}
 
@@ -150,15 +150,15 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_separator = string::find_last(path, '/');
+		const char* last_separator = find_last(path, '/');
 
-		if (last_separator == string::end(path))
+		if (last_separator == end(path))
 		{
-			string::strncpy(str, "", len);
+			strncpy(str, "", len);
 		}
 		else
 		{
-			string::substring(last_separator + 1, string::end(path), str, len);
+			substring(last_separator + 1, end(path), str, len);
 		}
 	}
 
@@ -174,24 +174,24 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_separator = string::find_last(path, '/');
-		const char* last_dot = string::find_last(path, '.');
+		const char* last_separator = find_last(path, '/');
+		const char* last_dot = find_last(path, '.');
 
-		if (last_separator == string::end(path) && last_dot != string::end(path))
+		if (last_separator == end(path) && last_dot != end(path))
 		{
-			string::substring(string::begin(path), last_dot, str, len);
+			substring(begin(path), last_dot, str, len);
 		}
-		else if (last_separator != string::end(path) && last_dot == string::end(path))
+		else if (last_separator != end(path) && last_dot == end(path))
 		{
-			string::substring(last_separator + 1, string::end(path), str, len);
+			substring(last_separator + 1, end(path), str, len);
 		}
-		else if (last_separator == string::end(path) && last_dot == string::end(path))
+		else if (last_separator == end(path) && last_dot == end(path))
 		{
-			string::strncpy(str, path, len);
+			strncpy(str, path, len);
 		}
 		else
 		{
-			string::substring(last_separator + 1, last_dot, str, len);
+			substring(last_separator + 1, last_dot, str, len);
 		}
 	}
 
@@ -206,15 +206,15 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_dot = string::find_last(path, '.');
+		const char* last_dot = find_last(path, '.');
 
-		if (last_dot == string::end(path))
+		if (last_dot == end(path))
 		{
-			string::strncpy(str, "", len);
+			strncpy(str, "", len);
 		}
 		else
 		{
-			string::substring(last_dot + 1, string::end(path), str, len);
+			substring(last_dot + 1, end(path), str, len);
 		}
 	}
 
@@ -229,9 +229,9 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_dot = string::find_last(path, '.');
+		const char* last_dot = find_last(path, '.');
 
-		string::substring(string::begin(path), last_dot, str, len);
+		substring(begin(path), last_dot, str, len);
 	}
 
 	/// Returns the segments contained in path.
@@ -258,15 +258,15 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		size_t path_len = string::strlen(path);
+		size_t path_len = strlen(path);
 
 		if (path[path_len - 1] == '/')
 		{
-			string::substring(string::begin(path), string::end(path) - 2, str, len);
+			substring(begin(path), end(path) - 2, str, len);
 		}
 		else
 		{
-			string::substring(string::begin(path), string::end(path), str, len);
+			substring(begin(path), end(path), str, len);
 		}
 	}
 } // namespace path

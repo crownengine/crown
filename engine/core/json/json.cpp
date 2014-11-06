@@ -341,7 +341,7 @@ namespace json
 		// Ensure null terminated
 		array::push_back(str, '\0');
 
-		return string::parse_double(array::begin(str));
+		return parse_double(array::begin(str));
 	}
 
 	bool parse_bool(const char* s)

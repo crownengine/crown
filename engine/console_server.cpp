@@ -92,7 +92,7 @@ void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, 
 	buf[len] = '\n';
 	buf[len + 1] = '\0';
 
-	for (uint32_t i = 0; i < string::strlen(message); i++)
+	for (uint32_t i = 0; i < strlen(message); i++)
 	{
 		if (buf[i] == '"')
 			buf[i] = '\'';
@@ -122,7 +122,7 @@ void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, 
 
 void ConsoleServer::send(TCPSocket client, const char* json)
 {
-	uint32_t len = string::strlen(json);
+	uint32_t len = strlen(json);
 	client.write((const char*)&len, 4);
 	client.write(json, len);
 }
@@ -275,8 +275,8 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
 
 		char t[256];
 		char n[256];
-		string::strncpy(t, resource_type.c_str(), 256);
-		string::strncpy(n, resource_name.c_str(), 256);
+		strncpy(t, resource_type.c_str(), 256);
+		strncpy(n, resource_name.c_str(), 256);
 		device()->reload(t, n);
 	}
 	else if (cmd == "pause")

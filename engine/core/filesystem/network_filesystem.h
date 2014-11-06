@@ -50,7 +50,7 @@ namespace network_filesystem
 
 	inline void send(TCPSocket socket, const char* msg)
 	{
-		uint32_t msg_len = string::strlen(msg);
+		uint32_t msg_len = strlen(msg);
 		socket.write(&msg_len, 4);
 		socket.write(msg, msg_len);
 	}

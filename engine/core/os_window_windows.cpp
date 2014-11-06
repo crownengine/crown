@@ -97,7 +97,7 @@ char* OsWindow::title()
 
 void OsWindow::set_title(const char* title)
 {
-	string::strncpy(m_title, title, 32);
+	strncpy(m_title, title, 32);
 	SetWindowText(m_windows_window, m_title);
 }
 

@@ -41,7 +41,7 @@ DiskFilesystem::DiskFilesystem()
 DiskFilesystem::DiskFilesystem(const char* root_path)
 {
 	CE_ASSERT_NOT_NULL(root_path);
-	string::strncpy(_root_path, root_path, MAX_PATH_LENGTH);
+	strncpy(_root_path, root_path, MAX_PATH_LENGTH);
 }
 
 File* DiskFilesystem::open(const char* path, FileOpenMode mode)

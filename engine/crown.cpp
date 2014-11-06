@@ -66,7 +66,7 @@ static Platform::Enum string_to_platform(const char* platform)
 {
 	for (uint32_t i = 0; platform != NULL && i < Platform::COUNT; i++)
 	{
-		if (string::strcmp(platform, s_platform[i].name) == 0)
+		if (strcmp(platform, s_platform[i].name) == 0)
 			return s_platform[i].target;
 	}
 	return Platform::COUNT;
@@ -136,7 +136,7 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 		exit(EXIT_FAILURE);
 	}
 
-	if (string::strcmp(cs.source_dir, cs.bundle_dir) == 0)
+	if (strcmp(cs.source_dir, cs.bundle_dir) == 0)
 	{
 		help("Source and Bundle directories must differ.");
 		exit(EXIT_FAILURE);
@@ -158,7 +158,7 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 	const char* parent = cmd.get_parameter("parent-window");
 	if (parent)
 	{
-		cs.parent_window = string::parse_uint(parent);
+		cs.parent_window = parse_uint(parent);
 	}
 }
 

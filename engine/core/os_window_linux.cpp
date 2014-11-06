@@ -125,7 +125,7 @@ char* OsWindow::title()
 	char* tmp_title;
 	XFetchName(m_x11_display, m_x11_window, &tmp_title);
 
-	string::strncpy(title, tmp_title, 1024);
+	strncpy(title, tmp_title, 1024);
 	XFree(tmp_title);
 
 	return title;

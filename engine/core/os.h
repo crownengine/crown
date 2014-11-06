@@ -114,9 +114,9 @@ namespace os
 	inline bool is_root_path(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
-		return (path != NULL && string::strlen(path) == 1 && path[0] == PATH_SEPARATOR);
+		return (path != NULL && strlen(path) == 1 && path[0] == PATH_SEPARATOR);
 #elif CROWN_PLATFORM_WINDOWS
-		return (path != NULL && string::strlen(path) == 3 && string::is_alpha(path[0]) &&
+		return (path != NULL && strlen(path) == 3 && is_alpha(path[0]) &&
 			path[1] == ':' && path[2] == PATH_SEPARATOR);
 #endif
 	}
@@ -124,9 +124,9 @@ namespace os
 	inline bool is_absolute_path(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
-		return (path != NULL && string::strlen(path) >= 1 && path[0] == PATH_SEPARATOR);
+		return (path != NULL && strlen(path) >= 1 && path[0] == PATH_SEPARATOR);
 #elif CROWN_PLATFORM_WINDOWS
-		return (path != NULL && string::strlen(path) >= 3 && string::is_alpha(path[0]) &&
+		return (path != NULL && strlen(path) >= 3 && is_alpha(path[0]) &&
 			path[1] == ':' && path[2] == PATH_SEPARATOR);
 #endif
 	}
@@ -265,8 +265,8 @@ namespace os
 
 		char cur_path[MAX_PATH_LENGTH];
 
-		string::strncpy(cur_path, path, string::strlen(path) + 1);
-		string::strncat(cur_path, "\\*", 2);
+		strncpy(cur_path, path, strlen(path) + 1);
+		strncat(cur_path, "\\*", 2);
 
 		file = FindFirstFile(cur_path, &ffd);
 
@@ -274,7 +274,7 @@ namespace os
 		{
 			CE_ASSERT(file != INVALID_HANDLE_VALUE, "Unable to list files. errono %d", GetLastError());
 
-			if ((string::strcmp(ffd.cFileName, ".") == 0) || (string::strcmp(ffd.cFileName, "..") == 0))
+			if ((strcmp(ffd.cFileName, ".") == 0) || (strcmp(ffd.cFileName, "..") == 0))
 			{
 				continue;
 			}
@@ -316,7 +316,7 @@ namespace os
 #elif CROWN_PLATFORM_WINDOWS
 		static char norm[MAX_PATH_LENGTH];
 
-		for (uint32_t i = 0; i < string::strlen(path)+1; i++)
+		for (uint32_t i = 0; i < strlen(path)+1; i++)
 		{
 			if (path[i] == '/')
 			{
@@ -443,7 +443,7 @@ namespace os
 
 		// Necessary because CreateProcess second argument must be non-const
 		char tmp[1024];
-		string::strncpy(tmp, normalize_path(cmds.c_str()), string::strlen(cmds.c_str()));
+		strncpy(tmp, normalize_path(cmds.c_str()), strlen(cmds.c_str()));
 
 		int err = CreateProcess(args[0], tmp, NULL, NULL, TRUE, 0, NULL, NULL, &info, &process);
 		CE_ASSERT(err != 0, "CreateProcess: GetLastError = %d", GetLastError());

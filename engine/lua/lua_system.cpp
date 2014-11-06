@@ -173,17 +173,17 @@ namespace lua_globals
 		Vector3& v = stack.get_vector3(1);
 		const char* s = stack.get_string(2);
 
-		if (string::strcmp(s, "x") == 0)
+		if (strcmp(s, "x") == 0)
 		{
 			stack.push_float(v.x);
 			return 1;
 		}
-		else if (string::strcmp(s, "y") == 0)
+		else if (strcmp(s, "y") == 0)
 		{
 			stack.push_float(v.y);
 			return 1;
 		}
-		else if (string::strcmp(s, "z") == 0)
+		else if (strcmp(s, "z") == 0)
 		{
 			stack.push_float(v.z);
 			return 1;
@@ -199,9 +199,9 @@ namespace lua_globals
 		const char* s = stack.get_string(2);
 		const float value = stack.get_float(3);
 
-		if (string::strcmp(s, "x") == 0) v.x = value;
-		else if (string::strcmp(s, "y") == 0) v.y = value;
-		else if (string::strcmp(s, "z") == 0) v.z = value;
+		if (strcmp(s, "x") == 0) v.x = value;
+		else if (strcmp(s, "y") == 0) v.y = value;
+		else if (strcmp(s, "z") == 0) v.z = value;
 
 		return 0;
 	}

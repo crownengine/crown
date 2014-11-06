@@ -40,8 +40,8 @@ namespace crown
 {
 
 ResourceId::ResourceId(const char* type, const char* name)
-	: type(string::murmur2_64(type, string::strlen(type), 0))
-	, name(string::murmur2_64(name, string::strlen(name), 0))
+	: type(murmur2_64(type, strlen(type), 0))
+	, name(murmur2_64(name, strlen(name), 0))
 {
 }
 

@@ -99,7 +99,7 @@ ProxyAllocator* ProxyAllocator::find(const char* name)
 
 	while (head != NULL)
 	{
-		if (string::strcmp(name, head->name()) == 0)
+		if (strcmp(name, head->name()) == 0)
 		{
 			return head;
 		}

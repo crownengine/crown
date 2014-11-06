@@ -45,7 +45,7 @@ NetworkFile::NetworkFile(const NetAddress& addr, uint16_t port, const char* file
 	, _port(port)
 	, _position(0)
 {
-	string::strncpy(_filename, filename, MAX_PATH_LENGTH);
+	strncpy(_filename, filename, MAX_PATH_LENGTH);
 	_socket.connect(addr, port);
 }
 

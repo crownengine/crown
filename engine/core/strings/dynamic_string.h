@@ -79,7 +79,7 @@ public:
 	/// Returns wheterh the string ends with the given @a s string.
 	bool ends_with(const char* s) const;
 
-	/// Returns the string hashed to string::murmur2_32.
+	/// Returns the string hashed to murmur2_32.
 	StringId32 to_string_id() const;
 
 	///
@@ -101,7 +101,7 @@ inline DynamicString::DynamicString(const char* s, Allocator& allocator)
 {
 	if (s != NULL)
 	{
-		array::push(_data, s, string::strlen(s));
+		array::push(_data, s, strlen(s));
 	}
 	array::push_back(_data, '\0');
 }
@@ -119,7 +119,7 @@ inline DynamicString& DynamicString::operator+=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
 	array::pop_back(_data);
-	array::push(_data, s, string::strlen(s));
+	array::push(_data, s, strlen(s));
 	array::push_back(_data, '\0');
 	return *this;
 }
@@ -142,7 +142,7 @@ inline DynamicString& DynamicString::operator=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
 	array::clear(_data);
-	array::push(_data, s, string::strlen(s));
+	array::push(_data, s, strlen(s));
 	array::push_back(_data, '\0');
 	return *this;
 }
@@ -157,24 +157,24 @@ inline DynamicString& DynamicString::operator=(const char c)
 
 inline bool DynamicString::operator<(const DynamicString& s) const
 {
-	return string::strcmp(c_str(), s.c_str()) < 0;
+	return strcmp(c_str(), s.c_str()) < 0;
 }
 
 inline bool DynamicString::operator==(const DynamicString& s) const
 {
-	return string::strcmp(c_str(), s.c_str()) == 0;
+	return strcmp(c_str(), s.c_str()) == 0;
 }
 
 inline bool DynamicString::operator==(const char* s) const
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	return string::strcmp(c_str(), s) == 0;
+	return strcmp(c_str(), s) == 0;
 }
 
 inline uint32_t DynamicString::length() const
 {
-	return string::strlen(this->c_str());
+	return strlen(this->c_str());
 }
 
 inline void DynamicString::strip_leading(const char* s)
@@ -182,8 +182,8 @@ inline void DynamicString::strip_leading(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 	CE_ASSERT(starts_with(s), "String does not start with %s", s);
 
-	const size_t my_len = string::strlen(c_str());
-	const size_t s_len = string::strlen(s);
+	const size_t my_len = strlen(c_str());
+	const size_t s_len = strlen(s);
 
 	memmove(array::begin(_data), array::begin(_data) + s_len, (my_len - s_len));
 	array::resize(_data, my_len - s_len);
@@ -195,8 +195,8 @@ inline void DynamicString::strip_trailing(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 	CE_ASSERT(ends_with(s), "String does not end with %s", s);
 
-	const size_t my_len = string::strlen(c_str());
-	const size_t s_len = string::strlen(s);
+	const size_t my_len = strlen(c_str());
+	const size_t s_len = strlen(s);
 	array::resize(_data, my_len - s_len);
 	array::push_back(_data, '\0');
 }
@@ -204,19 +204,19 @@ inline void DynamicString::strip_trailing(const char* s)
 inline bool DynamicString::starts_with(const char* s) const
 {
 	CE_ASSERT_NOT_NULL(s);
-	return string::strncmp(c_str(), s, string::strlen(s)) == 0;
+	return strncmp(c_str(), s, strlen(s)) == 0;
 }
 
 inline bool DynamicString::ends_with(const char* s) const
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	const size_t my_len = string::strlen(c_str());
-	const size_t s_len = string::strlen(s);
+	const size_t my_len = strlen(c_str());
+	const size_t s_len = strlen(s);
 
 	if (my_len >= s_len)
 	{
-		return string::strncmp(array::begin(_data) + (my_len - s_len), s, s_len) == 0;
+		return strncmp(array::begin(_data) + (my_len - s_len), s, s_len) == 0;
 	}
 
 	return false;
@@ -224,7 +224,7 @@ inline bool DynamicString::ends_with(const char* s) const
 
 inline StringId32 DynamicString::to_string_id() const
 {
-	return string::murmur2_32(c_str(), length());
+	return murmur2_32(c_str(), length());
 }
 
 inline const char* DynamicString::c_str() const

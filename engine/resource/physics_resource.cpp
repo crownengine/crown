@@ -73,7 +73,7 @@ namespace physics_resource
 	{
 		for (uint32_t i = 0; i < PhysicsShapeType::COUNT; i++)
 		{
-			if (string::strcmp(type, s_shape[i].name) == 0)
+			if (strcmp(type, s_shape[i].name) == 0)
 				return s_shape[i].type;
 		}
 
@@ -85,7 +85,7 @@ namespace physics_resource
 	{
 		for (uint32_t i = 0; i < PhysicsJointType::COUNT; i++)
 		{
-			if (string::strcmp(type, s_joint[i].name) == 0)
+			if (strcmp(type, s_joint[i].name) == 0)
 				return s_joint[i].type;
 		}
 

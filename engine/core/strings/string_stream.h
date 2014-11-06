@@ -104,7 +104,7 @@ namespace string_stream
 
 	inline StringStream& operator<<(StringStream& s, const char* string)
 	{
-		array::push(s, string, string::strlen(string));
+		array::push(s, string, strlen(string));
 		return s;
 	}
 

@@ -117,7 +117,7 @@ void BundleCompiler::scan(const char* cur_dir, Vector<DynamicString>& files)
 	{
 		DynamicString file_i(default_allocator());
 
-		if (string::strcmp(cur_dir, "") != 0)
+		if (strcmp(cur_dir, "") != 0)
 		{
 			file_i += cur_dir;
 			file_i += '/';

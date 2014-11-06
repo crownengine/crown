@@ -104,7 +104,7 @@ namespace material_resource
 	{
 		for (uint32_t i = 0; i < UniformType::COUNT; i++)
 		{
-			if (string::strcmp(str, s_uniform_type_info[i].name) == 0)
+			if (strcmp(str, s_uniform_type_info[i].name) == 0)
 				return s_uniform_type_info[i].type;
 		}
 
@@ -319,7 +319,7 @@ namespace material_resource
 		for (uint32_t i = 0; i < num; i++)
 		{
 			const char* name = get_uniform_name(mr, (const UniformData*)base->name_offset);
-			if (string::strcmp(name, str) == 0)
+			if (strcmp(name, str) == 0)
 				return base;
 
 			base++;

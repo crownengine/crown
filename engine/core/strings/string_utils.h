@@ -36,8 +36,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace string
-{
 
 inline bool is_alpha(char c)
 {
@@ -113,16 +111,16 @@ inline const char* end(const char* str)
 {
 	CE_ASSERT(str != NULL, "Str must be != NULL");
 
-	return str + string::strlen(str) + 1;
+	return str + strlen(str) + 1;
 }
 
 inline const char* find_first(const char* str, char c)
 {
 	CE_ASSERT(str != NULL, "Str must be != NULL");
 
-	const char* str_begin = string::begin(str);
+	const char* str_begin = begin(str);
 
-	while (str_begin != string::end(str))
+	while (str_begin != end(str))
 	{
 		if ((*str_begin) == c)
 		{
@@ -132,16 +130,16 @@ inline const char* find_first(const char* str, char c)
 		str_begin++;
 	}
 
-	return string::end(str);
+	return end(str);
 }
 
 inline const char* find_last(const char* str, char c)
 {
 	CE_ASSERT(str != NULL, "Str must be != NULL");
 
-	const char* str_end = string::end(str) - 1;
+	const char* str_end = end(str) - 1;
 
-	while (str_end != string::begin(str) - 1)
+	while (str_end != begin(str) - 1)
 	{
 		if ((*str_end) == c)
 		{
@@ -151,7 +149,7 @@ inline const char* find_last(const char* str, char c)
 		str_end--;
 	}
 
-	return string::end(str);
+	return end(str);
 }
 
 inline void substring(const char* begin, const char* end, char* out, size_t len)
@@ -327,13 +325,13 @@ inline uint64_t murmur2_64(const void* key, int len, uint64_t seed = 0)
 #ifdef CROWN_DEBUG
 	inline uint32_t HASH32(const char *s, uint32_t value)
 	{
-		CE_ASSERT(murmur2_32(s, string::strlen(s), 0) == value, "Hash mismatch");
+		CE_ASSERT(murmur2_32(s, strlen(s), 0) == value, "Hash mismatch");
 		return value;
 	}
 
 	inline uint64_t HASH64(const char* s, uint64_t value)
 	{
-		CE_ASSERT(murmur2_64(s, string::strlen(s), 0) == value, "Hash mismatch");
+		CE_ASSERT(murmur2_64(s, strlen(s), 0) == value, "Hash mismatch");
 		return value;
 	}
 #else
@@ -341,6 +339,4 @@ inline uint64_t murmur2_64(const void* key, int len, uint64_t seed = 0)
 	#define HASH64(s, v) (v)
 #endif
 
-} // namespace string
 } // namespace crown
-

@@ -67,17 +67,17 @@ static int vector3box_get_value(lua_State* L)
 	Vector3& v = stack.get_vector3box(1);
 	const char* s = stack.get_string(2);
 
-	if (string::strcmp(s, "x") == 0)
+	if (strcmp(s, "x") == 0)
 	{
 		stack.push_float(v.x);
 		return 1;
 	}
-	else if (string::strcmp(s, "y") == 0)
+	else if (strcmp(s, "y") == 0)
 	{
 		stack.push_float(v.y);
 		return 1;
 	}
-	else if (string::strcmp(s, "z") == 0)
+	else if (strcmp(s, "z") == 0)
 	{
 		stack.push_float(v.z);
 		return 1;
@@ -95,15 +95,15 @@ static int vector3box_set_value(lua_State* L)
 	const char* s = stack.get_string(2);
 	float value = stack.get_float(3);
 
-	if (string::strcmp(s, "x") == 0)
+	if (strcmp(s, "x") == 0)
 	{
 		v.x = value;
 	}
-	else if (string::strcmp(s, "y") == 0)
+	else if (strcmp(s, "y") == 0)
 	{
 		v.y = value;
 	}
-	else if (string::strcmp(s, "z") == 0)
+	else if (strcmp(s, "z") == 0)
 	{
 		v.z = value;
 	}
