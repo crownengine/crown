@@ -1,7 +1,8 @@
 /*
- * Copyright (c) 2012-2014 Daniele Bartolini and individual contributors.
- * License: https://github.com/taylor001/crown/blob/master/LICENSE
+ * Copyright (C) 2012 Bitsquid AB
+ * License: https://bitbucket.org/bitsquid/foundation/src/default/LICENCSE
  */
+
 #pragma once
 
 #include "array.h"
