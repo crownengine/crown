@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "memory.h"
 #include "bundle.h"
 #include "filesystem.h"
-#include "resource.h"
+
 #include "string_utils.h"
 #include "types.h"
 #include "os.h"

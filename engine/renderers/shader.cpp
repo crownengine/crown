@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "os.h"
 #include "reader_writer.h"
 #include "config.h"
+#include "resource_types.h"
 
 #if CROWN_DEBUG
 		#define SHADERC_NAME "shadercDebug"

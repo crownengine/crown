@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "types.h"
 #include "container_types.h"
-#include "resource.h"
 #include "proxy_allocator.h"
 #include "resource_loader.h"
 

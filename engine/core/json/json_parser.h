@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "matrix4x4.h"
 #include "quaternion.h"
 #include "macros.h"
-#include "resource.h"
+#include "resource_id.h"
 
 namespace crown
 {

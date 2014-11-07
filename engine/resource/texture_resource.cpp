@@ -24,7 +24,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "allocator.h"
 #include "filesystem.h"
 #include "texture_resource.h"
 #include "reader_writer.h"
@@ -32,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "math_utils.h"
 #include "resource_manager.h"
 #include "log.h"
+#include "compile_options.h"
 
 namespace crown
 {

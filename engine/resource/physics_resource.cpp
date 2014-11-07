@@ -24,8 +24,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <algorithm>
-#include "allocator.h"
 #include "filesystem.h"
 #include "string_utils.h"
 #include "json_parser.h"
@@ -34,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "dynamic_string.h"
 #include "map.h"
 #include "quaternion.h"
+#include "compile_options.h"
+#include <algorithm>
 
 namespace crown
 {

@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "matrix4x4.h"
 #include "physics_types.h"
 #include "quaternion.h"
-#include "resource.h"
+#include "compile_options.h"
 #include "temp_allocator.h"
 #include "types.h"
 #include "vector3.h"

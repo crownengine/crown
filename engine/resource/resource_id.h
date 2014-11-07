@@ -26,19 +26,45 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "types.h"
-#include "memory_types.h"
-#include "resource_types.h"
-#include "compiler_types.h"
-#include "filesystem_types.h"
+#include "string_utils.h"
 
 namespace crown
 {
 
-void resource_on_compile(uint64_t type, const char* path, CompileOptions& opts);
-void* resource_on_load(uint64_t type, File& file, Allocator& a);
-void resource_on_online(uint64_t type, StringId64 id, ResourceManager& rm);
-void resource_on_offline(uint64_t type, StringId64 id, ResourceManager& rm);
-void resource_on_unload(uint64_t type, Allocator& allocator, void* resource);
+struct ResourceId
+{
+	ResourceId()
+		: type(0)
+		, name(0)
+	{
+	}
+
+	ResourceId(const char* type, const char* name)
+		: type(murmur2_64(type, strlen(type), SEED))
+		, name(murmur2_64(name, strlen(name), SEED))
+	{
+	}
+
+	ResourceId(uint64_t type, uint64_t name)
+		: type(type)
+		, name(name)
+	{
+	}
+
+	bool operator==(const ResourceId& a) const
+	{
+		return type == a.type && name == a.name;
+	}
+
+	bool operator<(const ResourceId& a) const
+	{
+		return type < a.type || (type == a.type && name < a.name);
+	}
+
+	static const uint64_t SEED = 0;
+
+	uint64_t type;
+	uint64_t name;
+};
 
 } // namespace crown

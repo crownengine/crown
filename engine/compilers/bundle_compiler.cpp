@@ -31,11 +31,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "allocator.h"
 #include "os.h"
 #include "log.h"
-#include "resource.h"
 #include "path.h"
 #include "disk_filesystem.h"
 #include "compile_options.h"
 #include "resource_registry.h"
+#include "resource_id.h"
 #include <inttypes.h>
 
 namespace crown

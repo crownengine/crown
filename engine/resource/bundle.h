@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "resource.h"
+#include "resource_id.h"
 
 namespace crown
 {

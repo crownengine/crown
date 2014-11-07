@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "config.h"
 #include "os.h"
 #include "linear_allocator.h"
-#include "resource.h"
 #include "world_types.h"
 
 namespace crown

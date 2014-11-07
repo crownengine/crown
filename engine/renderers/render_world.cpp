@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "device.h"
 #include "allocator.h"
 #include "camera.h"
-#include "resource.h"
 #include "log.h"
 #include "sprite_resource.h"
 #include "sprite.h"

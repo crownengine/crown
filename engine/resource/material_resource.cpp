@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "reader_writer.h"
 #include "resource_manager.h"
 #include "vector.h"
+#include "compile_options.h"
 #include <bgfx.h>
 
 namespace crown

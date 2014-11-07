@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "world_manager.h"
 #include "world.h"
+#include "memory.h"
 
 namespace crown
 {

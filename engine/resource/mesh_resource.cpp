@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "temp_allocator.h"
 #include "vector3.h"
 #include "resource_manager.h"
+#include "compile_options.h"
 
 namespace crown
 {

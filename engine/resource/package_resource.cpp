@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "package_resource.h"
 #include "temp_allocator.h"
 #include "reader_writer.h"
+#include "compile_options.h"
 
 namespace crown
 {

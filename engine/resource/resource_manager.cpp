@@ -39,12 +39,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-ResourceId::ResourceId(const char* type, const char* name)
-	: type(murmur2_64(type, strlen(type), 0))
-	, name(murmur2_64(name, strlen(name), 0))
-{
-}
-
 ResourceManager::ResourceManager(Bundle& bundle)
 	: _resource_heap("resource", default_allocator())
 	, _loader(bundle, _resource_heap)

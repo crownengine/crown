@@ -24,18 +24,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <stdio.h>
-#include <limits.h>
-#include <errno.h>
-
-#include "allocator.h"
-#include "config.h"
+#include "sound_resource.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
-#include "os.h"
-#include "sound_resource.h"
-#include "string_utils.h"
 #include "json_parser.h"
+#include "compile_options.h"
 
 namespace crown
 {
@@ -43,65 +36,20 @@ namespace sound_resource
 {
 	struct WAVHeader
 	{
-		char 			riff[4];				// Should contain 'RIFF'
-		int32_t			chunk_size;				// Not Needed
-		char 			wave[4];				// Should contain 'WAVE'
-		char 			fmt[4];					// Should contain 'fmt '
-		int32_t			fmt_size;				// Size of format chunk
-		int16_t			fmt_tag;				// Identifies way data is stored, 1 means no compression
-		int16_t			fmt_channels;			// Channel, 1 means mono, 2 means stereo
-		int32_t			fmt_sample_rate;		// Samples per second
-		int32_t			fmt_avarage;			// Avarage bytes per sample
-		int16_t			fmt_block_align;		// Block alignment
-		int16_t			fmt_bits_ps;			// Number of bits per sample
-		char 			data[4];				// Should contain 'data'
-		int32_t			data_size;				// Data dimension
+		char    riff[4];			// Should contain 'RIFF'
+		int32_t chunk_size;			// Not Needed
+		char    wave[4];			// Should contain 'WAVE'
+		char    fmt[4];				// Should contain 'fmt '
+		int32_t fmt_size;			// Size of format chunk
+		int16_t fmt_tag;			// Identifies way data is stored, 1 means no compression
+		int16_t fmt_channels;		// Channel, 1 means mono, 2 means stereo
+		int32_t fmt_sample_rate;	// Samples per second
+		int32_t fmt_avarage;		// Avarage bytes per sample
+		int16_t fmt_block_align;	// Block alignment
+		int16_t fmt_bits_ps;		// Number of bits per sample
+		char    data[4];			// Should contain 'data'
+		int32_t data_size;			// Data dimension
 	};
-
-	// size_t compile_if_ogg(Filesystem& fs, const char* resource_path)
-	// {
-	// 	// Retrieves resource absolute path
-	// 	DynamicString s(default_allocator());
-	// 	fs.get_absolute_path(resource_path, s);
-	// 	const char* abs_path = s.c_str();
-
-	// 	OggVorbis_File ogg_stream;
-
-	// 	bool result = ov_fopen(os::normalize_path(abs_path), &ogg_stream) == 0;
-
-	// 	if (result == false)
-	// 	{
-	// 		return 0;
-	// 	}
-
-	// 	vorbis_info* info = ov_info(&ogg_stream, -1);
-
-	// 	int64_t size = ov_raw_total(&ogg_stream, -1);
-	// 	int32_t rate = info->rate;
-	// 	int32_t channels = info->channels;
-
-	// 	ov_clear(&ogg_stream);
-
-	// 	File* in_file = fs.open(resource_path, FOM_READ);
-
-	// 	m_sound_header.version = SOUND_VERSION;
-	// 	m_sound_header.size = size;
-	// 	m_sound_header.sample_rate = rate;
-	// 	m_sound_header.block_size = (channels * 16) / 8;
-	// 	m_sound_header.avg_bytes_ps = rate * ((channels * 16) / 8);
-	// 	m_sound_header.channels = channels;
-	// 	m_sound_header.bits_ps = 16;
-	// 	m_sound_header.sound_type = SoundType::OGG;
-
-	// 	m_sound_data_size = size;
-	// 	m_sound_data = (uint8_t*)default_allocator().allocate(m_sound_data_size);
-
-	// 	in_file->read((char*)m_sound_data, m_sound_data_size);
-
-	// 	fs.close(in_file);
-
-	// 	return sizeof(SoundHeader) + m_sound_data_size;
-	// }
 
 	void compile(const char* path, CompileOptions& opts)
 	{

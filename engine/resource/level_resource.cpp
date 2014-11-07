@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "memory.h"
 #include "json_parser.h"
 #include "filesystem.h"
+#include "compile_options.h"
 
 namespace crown
 {

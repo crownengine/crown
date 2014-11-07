@@ -29,8 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "allocator.h"
 #include "filesystem.h"
 #include "string_utils.h"
-#include "bundle.h"
-#include "types.h"
+#include "compile_options.h"
 
 namespace crown
 {
