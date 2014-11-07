@@ -87,3 +87,11 @@ Engine initialization and shutdown.
 
 A number of tools can be found at https://github.com/taylor001/crown-tools
 
+Contributors
+------------
+
+In alphabetical order.
+
+Michele Rossi ([@mikymod](https://github.com/mikymod))  
+Simone Boscaratto ([@Xed89](https://github.com/Xed89))
+
