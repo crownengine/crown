@@ -4,7 +4,6 @@
  */
 
 #include "os_event_queue.h"
-#include "filesystem.h"
 
 #pragma once
 
