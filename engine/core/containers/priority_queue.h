@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include <algorithm>
 #include "container_types.h"
 #include "array.h"
+#include <algorithm>
 
 namespace crown
 {

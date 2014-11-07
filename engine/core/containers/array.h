@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include <cstring>
 #include "assert.h"
 #include "macros.h"
 #include "container_types.h"
 #include "allocator.h"
+#include <cstring> // memcpy
 
 namespace crown
 {

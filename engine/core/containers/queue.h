@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include <cstring>
 #include "container_types.h"
 #include "array.h"
 #include "assert.h"
+#include <cstring> // memcpy
 
 namespace crown
 {
