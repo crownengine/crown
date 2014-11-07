@@ -224,7 +224,7 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "set_rotation",                matrix4x4_set_rotation);
 	env.load_module_function("Matrix4x4", "identity",                    matrix4x4_identity);
 	env.load_module_function("Matrix4x4", "to_string",                   matrix4x4_to_string);
-	
+
 	env.load_module_constructor("Matrix4x4", matrix4x4_ctor);
 }
 

@@ -113,7 +113,7 @@ void load_quaternion(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "inverse",            quaternion_inverse);
 	env.load_module_function("Quaternion", "power",              quaternion_power);
 	env.load_module_function("Quaternion", "elements",           quaternion_elements);
-	
+
 	env.load_module_constructor("Quaternion", quaternion_ctor);
 }
 

@@ -451,7 +451,7 @@ namespace json
 				ch = skip_value(ch);
 				ch = skip_whites(ch);
 				ch = skip_comments(ch);
-				
+
 				if ((*ch) == '}')
 				{
 					next(ch, '}');

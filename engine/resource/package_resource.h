@@ -51,7 +51,7 @@ namespace package_resource
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
-	
+
 	uint32_t num_textures(const PackageResource* pr);
 	uint32_t num_scripts(const PackageResource* pr);
 	uint32_t num_sounds(const PackageResource* pr);

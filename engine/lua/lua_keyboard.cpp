@@ -55,7 +55,7 @@ void load_keyboard(LuaEnvironment& env)
 	env.load_module_function("Keyboard", "button_released",  keyboard_button_released);
 	env.load_module_function("Keyboard", "any_pressed",      keyboard_any_pressed);
 	env.load_module_function("Keyboard", "any_released",     keyboard_any_released);
-	
+
 	env.load_module_enum("Keyboard", "TAB",       KeyboardButton::TAB);
 	env.load_module_enum("Keyboard", "ENTER",     KeyboardButton::ENTER);
 	env.load_module_enum("Keyboard", "ESCAPE",    KeyboardButton::ESCAPE);

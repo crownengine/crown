@@ -54,7 +54,7 @@ void load_matrix4x4box(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4Box", "store",      matrix4x4box_store);
 	env.load_module_function("Matrix4x4Box", "unbox",      matrix4x4box_unbox);
 	env.load_module_function("Matrix4x4Box", "__tostring", matrix4x4box_tostring);
-	
+
 	env.load_module_constructor("Matrix4x4Box", matrix4x4box_ctor);
 }
 

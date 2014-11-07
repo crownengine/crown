@@ -29,7 +29,7 @@ struct Sprite
 	/// Returns the local position of the sprite.
 	Vector3 local_position() const;
 
-	/// Returns the local rotation of the sprite.	
+	/// Returns the local rotation of the sprite.
 	Quaternion local_rotation() const;
 
 	/// Returns the local pose of the sprite.

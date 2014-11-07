@@ -86,7 +86,7 @@ void load_mouse(LuaEnvironment& env)
 	env.load_module_function("Mouse", "cursor_relative_xy",     mouse_cursor_relative_xy);
 	env.load_module_function("Mouse", "set_cursor_relative_xy", mouse_set_cursor_relative_xy);
 	env.load_module_function("Mouse", "wheel",                  mouse_wheel);
-	
+
 	env.load_module_enum("Mouse", "LEFT",   MouseButton::LEFT);
 	env.load_module_enum("Mouse", "MIDDLE", MouseButton::MIDDLE);
 	env.load_module_enum("Mouse", "RIGHT",  MouseButton::RIGHT);

@@ -272,7 +272,7 @@ namespace material_resource
 
 	StringId64 shader(const MaterialResource* mr)
 	{
-		return mr->shader;		
+		return mr->shader;
 	}
 
 	uint32_t num_textures(const MaterialResource* mr)
@@ -282,7 +282,7 @@ namespace material_resource
 
 	uint32_t num_uniforms(const MaterialResource* mr)
 	{
-		return mr->num_uniforms;		
+		return mr->num_uniforms;
 	}
 
 	UniformData* get_uniform_data(const MaterialResource* mr, uint32_t i)
@@ -335,7 +335,7 @@ namespace material_resource
 	{
 		UniformData* ud = get_uniform_data_by_string(mr, str);
 		return (UniformHandle*) (dynamic + ud->data_offset);
-	}	
+	}
 
 	TextureHandle* get_texture_handle(const MaterialResource* mr, uint32_t i, char* dynamic)
 	{

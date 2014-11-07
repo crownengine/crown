@@ -79,7 +79,7 @@ struct SoundInstance
 	void create(SoundResource* sr, const Vector3& pos)
 	{
 		using namespace sound_resource;
-		
+
 		AL_CHECK(alGenSources(1, &_source));
 		CE_ASSERT(alIsSource(_source), "Bad OpenAL source");
 

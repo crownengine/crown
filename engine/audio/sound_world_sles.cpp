@@ -126,7 +126,7 @@ struct SoundInstance
 	void create(SLEngineItf engine, SLObjectItf output_mix, SoundInstanceId id, SoundResource* sr)
 	{
 		using namespace sound_resource;
-		
+
 		_resource = sr;
 		_finished = false;
 		_id = id;

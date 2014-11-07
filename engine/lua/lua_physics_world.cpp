@@ -84,7 +84,7 @@ void load_physics_world(LuaEnvironment& env)
 	env.load_module_function("PhysicsWorld", "overlap_test", physics_world_overlap_test);
 	env.load_module_function("PhysicsWorld", "__index",      "PhysicsWorld");
 	env.load_module_function("PhysicsWorld", "__tostring",   physics_world_tostring);
-	
+
 	env.load_module_enum("ActorType", "STATIC",            ActorType::STATIC);
 	env.load_module_enum("ActorType", "DYNAMIC_PHYSICAL",  ActorType::DYNAMIC_PHYSICAL);
 	env.load_module_enum("ActorType", "DYNAMIC_KINEMATIC", ActorType::DYNAMIC_KINEMATIC);
@@ -94,11 +94,11 @@ void load_physics_world(LuaEnvironment& env)
 	env.load_module_enum("ShapeType", "BOX",         ShapeType::BOX);
 	env.load_module_enum("ShapeType", "PLANE",       ShapeType::PLANE);
 	env.load_module_enum("ShapeType", "CONVEX_MESH", ShapeType::CONVEX_MESH);
-	
+
 	env.load_module_enum("CollisionMode", "CLOSEST", CollisionMode::CLOSEST);
 	env.load_module_enum("CollisionMode", "ANY",     CollisionMode::ANY);
 	env.load_module_enum("CollisionMode", "ALL",     CollisionMode::ALL);
-	
+
 	env.load_module_enum("CollisionType", "STATIC",  CollisionType::STATIC);
 	env.load_module_enum("CollisionType", "DYNAMIC", CollisionType::DYNAMIC);
 	env.load_module_enum("CollisionType", "BOTH",    CollisionType::BOTH);

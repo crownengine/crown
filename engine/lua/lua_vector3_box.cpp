@@ -137,7 +137,7 @@ void load_vector3box(LuaEnvironment& env)
 	env.load_module_function("Vector3Box", "__index",    vector3box_get_value);
 	env.load_module_function("Vector3Box", "__newindex", vector3box_set_value);
 	env.load_module_function("Vector3Box", "__tostring", vector3box_tostring);
-	
+
 	env.load_module_constructor("Vector3Box", vector3box_ctor);
 }
 

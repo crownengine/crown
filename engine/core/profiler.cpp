@@ -99,7 +99,7 @@ namespace profiler_globals
 {
 	void flush()
 	{
-		profiler::flush_local_buffer();	
+		profiler::flush_local_buffer();
 	}
 
 	void clear()

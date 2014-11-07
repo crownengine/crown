@@ -506,7 +506,7 @@ namespace unit_resource
 
 		UnitMaterial* begin = (UnitMaterial*) ((char*)ur + ur->materials_offset);
 		return &begin[i];
-	}	
+	}
 
 	uint32_t num_cameras(const UnitResource* ur)
 	{

@@ -133,7 +133,7 @@ function crown_project(_name, _kind, _defines)
 		configuration {}
 
 		files {
-			CROWN_DIR .. "engine/**.h", 
+			CROWN_DIR .. "engine/**.h",
 			CROWN_DIR .. "engine/**.cpp"
 		}
 

@@ -107,7 +107,7 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 		help("Source directory must be specified.");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	cs.bundle_dir = cmd.get_parameter("bundle-dir");
 	if (!cs.bundle_dir)
 	{

@@ -248,7 +248,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 	// 			continue;
 	// 		}
 	// 	}
-		
+
 	// 	if (utf8_decode(&state, &code_point, str[i]) == UTF8_ACCEPT)
 	// 	{
 	// 		FontGlyphData g = resource->get_glyph(code_point);
@@ -324,7 +324,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 	// r->set_layer_viewport(1, 0, 0, 1000, 625);
 	// r->set_state(STATE_COLOR_WRITE
 	// 				| STATE_CULL_CW
-	// 				| STATE_BLEND_EQUATION_ADD 
+	// 				| STATE_BLEND_EQUATION_ADD
 	// 				| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 	// r->set_pose(m_pose);
 	// r->set_program(render_world_globals::default_font_program());

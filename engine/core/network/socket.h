@@ -206,7 +206,7 @@ struct TCPSocket
 			ar.error = AcceptResult::UNKNOWN;
 
 		return ar;
-#endif		
+#endif
 	}
 
 	AcceptResult accept_nonblock(TCPSocket& c)

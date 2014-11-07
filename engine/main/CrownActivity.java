@@ -10,7 +10,7 @@ import android.os.Bundle;
 
 public class CrownActivity extends NativeActivity
 {
-	static 
+	static
 	{
 		System.loadLibrary("crown");
 	}

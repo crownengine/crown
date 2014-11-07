@@ -24,7 +24,7 @@ local CROWN_BUILD_DIR = (CROWN_DIR .. ".build/")
 dofile (CROWN_DIR .. "premake/toolchain.lua")
 toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 
-	configuration { "linux-*" }	
+	configuration { "linux-*" }
 		links {
 			"X11",
 			"Xrandr",
@@ -147,7 +147,7 @@ toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 		links {
 			":libbgfxDebug.a",
 		}
-		linkoptions { 
+		linkoptions {
 			"-Wl,--start-group $(addprefix -l," ..
 			"	LowLevelCloth" ..
 			"	PhysX3 " ..
@@ -246,7 +246,7 @@ toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 			"PhysX3Extensions",
 			"bgfxRelease"
 		}
-		
+
 	configuration { "release", "x64", "vs*" }
 		links {
 			"PhysX3CharacterKinematic_x64",

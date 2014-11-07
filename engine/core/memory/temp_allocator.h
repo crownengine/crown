@@ -40,7 +40,7 @@ public:
 private:
 
 	Allocator&	_backing;
-	
+
 	char* _begin;
 	char* _end;
 	char* _cur;

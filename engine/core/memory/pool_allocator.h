@@ -42,7 +42,7 @@ private:
 	void* _freelist;
 	size_t _block_size;
 	size_t _block_align;
-	
+
 	uint32_t _num_allocations;
 	size_t _allocated_size;
 };

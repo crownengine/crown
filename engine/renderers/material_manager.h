@@ -37,7 +37,7 @@ namespace material_manager
 	void init();
 	void shutdown();
 	MaterialManager* get();
-	
+
 } // namespace material_manager
 
 } // namespace crown

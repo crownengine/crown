@@ -109,7 +109,7 @@ struct ResourcePackage
 	void unload()
 	{
 		using namespace package_resource;
-		
+
 		for (uint32_t i = 0; i < num_sprite_animations(_package); i++)
 		{
 			_resman->unload(SPRITE_ANIMATION_TYPE, get_sprite_animation_id(_package, i));

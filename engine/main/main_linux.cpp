@@ -216,10 +216,10 @@ struct LinuxDevice
 		win_attribs.background_pixmap = 0;
 		win_attribs.border_pixel = 0;
 		win_attribs.event_mask = FocusChangeMask
-			| StructureNotifyMask 
+			| StructureNotifyMask
 			| KeyPressMask
-			| KeyReleaseMask 
-			| ButtonPressMask 
+			| KeyReleaseMask
+			| ButtonPressMask
 			| ButtonReleaseMask
 			| PointerMotionMask;
 

@@ -627,7 +627,7 @@ namespace texture_resource
 		TextureResource* teximg = (TextureResource*) rm.get(TEXTURE_TYPE, id);
 		bgfx::destroyTexture(teximg->handle);
 	}
-	
+
 	void unload(Allocator& a, void* resource)
 	{
 		a.deallocate(resource);

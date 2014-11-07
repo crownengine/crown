@@ -93,7 +93,7 @@ public:
 		return size;
 #elif CROWN_PLATFORM_WINDOWS
 		return GetFileSize(_file, NULL);
-#endif		
+#endif
 	}
 
 	/// Reads @a size bytes from the file and stores it into @a data.
@@ -143,7 +143,7 @@ public:
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, position, NULL, FILE_BEGIN);
 		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "Failed to seek");
-#endif		
+#endif
 		CE_UNUSED(err);
 	}
 
@@ -179,7 +179,7 @@ public:
 	/// start of the file in bytes.
 	size_t position() const
 	{
-#if CROWN_PLATFORM_POSIX		
+#if CROWN_PLATFORM_POSIX
 		return (size_t) ftell(_file);
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD position = SetFilePointer(_file, 0, NULL, FILE_CURRENT);
@@ -197,7 +197,7 @@ public:
 		return feof(_file) != 0;
 #elif CROWN_PLATFORM_WINDOWS
 		return _eof;
-#endif		
+#endif
 	}
 
 private:

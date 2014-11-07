@@ -46,7 +46,7 @@ float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sph
 float ray_oobb_intersection(const Vector3& from, const Vector3& dir, const OBB& obb)
 {
 	using namespace vector3;
-	
+
 	float tmin = 0.0f;
 	float tmax = 100000.0f;
 

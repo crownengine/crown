@@ -201,7 +201,7 @@ void load_camera(LuaEnvironment& env)
 	env.load_module_function("Camera", "set_viewport_metrics",     camera_set_viewport_metrics);
 	env.load_module_function("Camera", "screen_to_world",          camera_screen_to_world);
 	env.load_module_function("Camera", "world_to_screen",          camera_world_to_screen);
-	
+
 	env.load_module_enum("Camera", "ORTHOGRAPHIC", ProjectionType::ORTHOGRAPHIC);
 	env.load_module_enum("Camera", "PERSPECTIVE",  ProjectionType::PERSPECTIVE);
 }

@@ -36,7 +36,7 @@ ConsoleServer::ConsoleServer(uint16_t port, bool wait)
 		while (result.error != AcceptResult::NO_ERROR);
 
 		add_client(client);
-	}	
+	}
 }
 
 void ConsoleServer::shutdown()
