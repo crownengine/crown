@@ -80,8 +80,6 @@ void ConsoleServer::log_to_all(const char* msg, LogSeverity::Enum severity)
 	json << "\"severity\":\"" << stt[severity] << "\",";
 	json << "\"message\":\""; sanitize(json, msg) << "\"}";
 
-	printf("This is sparta = %s\n", c_str(json));
-
 	send_to_all(c_str(json));
 }
 
