@@ -1,3 +1,8 @@
+--
+-- Copyright (c) 2012-2014 Daniele Bartolini and individual contributors.
+-- License: https://github.com/taylor001/crown/blob/master/LICENSE
+--
+
 function crown_project(_name, _kind, _defines)
 
 	project ("crown" .. _name)
