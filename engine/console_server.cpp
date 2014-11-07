@@ -185,7 +185,6 @@ void ConsoleServer::process(TCPSocket client, const char* request)
 	// Determine request type
 	if (type == "ping") process_ping(client, request);
 	else if (type == "script") process_script(client, request);
-	else if (type == "stats") process_stats(client, request);
 	else if (type == "command") process_command(client, request);
 	else if (type == "filesystem") processs_filesystem(client, request);
 	else CE_FATAL("Request unknown.");
@@ -204,33 +203,6 @@ void ConsoleServer::process_script(TCPSocket /*client*/, const char* msg)
 	DynamicString script;
 	root.key("script").to_string(script);
 	device()->lua_environment()->execute_string(script.c_str());
-}
-
-void ConsoleServer::process_stats(TCPSocket client, const char* /*msg*/)
-{
-	using namespace string_stream;
-
-	TempAllocator2048 alloc;
-	StringStream response(alloc);
-
-	response << "{\"type\":\"response\",";
-	response << "{\"allocators\":[";
-
-	// Walk all proxy allocators
-	ProxyAllocator* proxy = ProxyAllocator::begin();
-	while (proxy != NULL)
-	{
-		response << "{";
-		response << "\"name\":\"" << proxy->name() << "\",";
-		response << "\"allocated_size\":\"" << proxy->allocated_size() << "\"";
-		response << "},";
-
-		proxy = ProxyAllocator::next(proxy);
-	}
-
-	response << "]" << "}";
-
-	send(client, c_str(response));
 }
 
 void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
