@@ -7,10 +7,35 @@
 
 #if defined(CROWN_DEBUG)
 	#include "console_server.h"
-	#define CE_LOGI(msg, ...) crown::console_server_globals::console().log_to_all(crown::LogSeverity::INFO, msg, ##__VA_ARGS__)
-	#define CE_LOGD(msg, ...) crown::console_server_globals::console().log_to_all(crown::LogSeverity::DEBUG, msg, ##__VA_ARGS__)
-	#define CE_LOGE(msg, ...) crown::console_server_globals::console().log_to_all(crown::LogSeverity::ERROR, msg, ##__VA_ARGS__)
-	#define CE_LOGW(msg, ...) crown::console_server_globals::console().log_to_all(crown::LogSeverity::WARN, msg, ##__VA_ARGS__)
+	#include "os.h"
+	namespace log_internal
+	{
+		using namespace crown;
+		inline void logx(LogSeverity::Enum sev, const char* msg, va_list args)
+		{
+			char buf[2048];
+			int len = vsnprintf(buf, sizeof(buf), msg, args);
+			if (len > (int)sizeof(buf))
+				len = sizeof(buf) - 1;
+
+			buf[len] = '\0';
+			console_server_globals::console().log_to_all(buf, sev);
+			os::log(buf);
+		}
+
+		inline void logx(LogSeverity::Enum sev, const char* msg, ...)
+		{
+			va_list args;
+			va_start(args, msg);
+			logx(sev, msg, args);
+			va_end(args);
+		}
+	}
+
+	#define CE_LOGI(msg, ...) log_internal::logx(crown::LogSeverity::INFO, msg, ##__VA_ARGS__)
+	#define CE_LOGD(msg, ...) log_internal::logx(crown::LogSeverity::DEBUG, msg, ##__VA_ARGS__)
+	#define CE_LOGE(msg, ...) log_internal::logx(crown::LogSeverity::ERROR, msg, ##__VA_ARGS__)
+	#define CE_LOGW(msg, ...) log_internal::logx(crown::LogSeverity::WARN, msg, ##__VA_ARGS__)
 #else
 	#define CE_LOGI(msg, ...) ((void)0)
 	#define CE_LOGD(msg, ...) ((void)0)

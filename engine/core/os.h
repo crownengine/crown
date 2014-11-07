@@ -50,43 +50,13 @@ namespace crown
 
 namespace os
 {
-	inline void log_debug(const char* string, va_list arg)
+	inline void log(const char* msg)
 	{
 #if CROWN_PLATFORM_ANDROID
-		__android_log_vprint(ANDROID_LOG_DEBUG, "crown", string, arg);
+		__android_log_write(ANDROID_LOG_DEBUG, "crown", msg);
 #else
-		vprintf(string, arg);
-		printf("\n");
-#endif
-	}
-
-	inline void log_error(const char* string, va_list arg)
-	{
-#if CROWN_PLATFORM_ANDROID
-		__android_log_vprint(ANDROID_LOG_ERROR, "crown", string, arg);
-#else
-		vprintf(string, arg);
-		printf("\n");
-#endif
-	}
-
-	inline void log_warning(const char* string, va_list arg)
-	{
-#if CROWN_PLATFORM_ANDROID
-		__android_log_vprint(ANDROID_LOG_WARN, "crown", string, arg);
-#else
-		vprintf(string, arg);
-		printf("\n");
-#endif
-	}
-
-	inline void log_info(const char* string, va_list arg)
-	{
-#if CROWN_PLATFORM_ANDROID
-		__android_log_vprint(ANDROID_LOG_INFO, "crown", string, arg);
-#else
-		vprintf(string, arg);
-		printf("\n");
+		puts(msg);
+		fflush(stdout);
 #endif
 	}
 

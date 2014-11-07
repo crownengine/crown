@@ -49,44 +49,28 @@ void ConsoleServer::shutdown()
 	m_server.close();
 }
 
-void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, ...)
+namespace console_server_internal
 {
-	va_list args;
-	va_start(args, message);
-	log_to_all(severity, message, args);
-	va_end(args);
+	StringStream& sanitize(StringStream& ss, const char* msg)
+	{
+		using namespace string_stream;
+		const char* ch = msg;
+		for (; *ch; ch++)
+		{
+			if (*ch == '"')
+				ss << "\\";
+			ss << *ch;
+		}
+
+		return ss;
+	}
 }
 
-void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, ::va_list arg)
+void ConsoleServer::log_to_all(const char* msg, LogSeverity::Enum severity)
 {
 	using namespace string_stream;
+	using namespace console_server_internal;
 	static const char* stt[] = { "info", "warning", "error", "debug" };
-
-	// Log to stdout
-	va_list arg_copy;
-	__va_copy(arg_copy, arg);
-
-	char buf[1024];
-	int len = vsnprintf(buf, 1024 - 2, message, arg);
-	buf[len] = '\n';
-	buf[len + 1] = '\0';
-
-	for (uint32_t i = 0; i < strlen(message); i++)
-	{
-		if (buf[i] == '"')
-			buf[i] = '\'';
-	}
-
-	// Log on local device
-	switch (severity)
-	{
-		case LogSeverity::DEBUG: os::log_debug(message, arg_copy); break;
-		case LogSeverity::WARN: os::log_warning(message, arg_copy); break;
-		case LogSeverity::ERROR: os::log_error(message, arg_copy); break;
-		case LogSeverity::INFO: os::log_info(message, arg_copy); break;
-		default: break;
-	}
-	va_end(arg_copy);
 
 	// Build json message
 	TempAllocator2048 alloc;
@@ -94,7 +78,9 @@ void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, 
 
 	json << "{\"type\":\"message\",";
 	json << "\"severity\":\"" << stt[severity] << "\",";
-	json << "\"message\":\"" << buf << "\"}";
+	json << "\"message\":\""; sanitize(json, msg) << "\"}";
+
+	printf("This is sparta = %s\n", c_str(json));
 
 	send_to_all(c_str(json));
 }

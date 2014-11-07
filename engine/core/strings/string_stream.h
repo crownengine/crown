@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include <stdio.h>
-#include "container_types.h"
+#include "array.h"
 #include "string_utils.h"
-#include "os.h"
+#include <stdio.h>
 
 namespace crown
 {
@@ -20,6 +19,7 @@ typedef Array<char> StringStream;
 namespace string_stream
 {
 	/// Appends @a val to the stream @a s using appropriate formatting.
+	StringStream& operator<<(StringStream& s, char ch);
 	StringStream& operator<<(StringStream& s, int16_t val);
 	StringStream& operator<<(StringStream& s, uint16_t val);
 	StringStream& operator<<(StringStream& s, int32_t val);
@@ -41,6 +41,12 @@ namespace string_stream
 
 namespace string_stream
 {
+	inline StringStream& operator<<(StringStream& s, char ch)
+	{
+		array::push_back(s, ch);
+		return s;
+	}
+
 	inline StringStream& operator<<(StringStream& s, int16_t val)
 	{
 		return stream_printf(s, "%hd", val);

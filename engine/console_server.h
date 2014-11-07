@@ -48,8 +48,7 @@ public:
 	ConsoleServer(uint16_t port, bool wait);
 	void shutdown();
 
-	void log_to_all(LogSeverity::Enum severity, const char* message, ...);
-	void log_to_all(LogSeverity::Enum severity, const char* message, ::va_list arg);
+	void log_to_all(const char* msg, LogSeverity::Enum severity = LogSeverity::INFO);
 
 	/// Collects requests from clients and processes them all.
 	void update();
