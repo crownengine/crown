@@ -88,7 +88,6 @@ function toolchain(build_dir, lib_dir)
 		"NoPCH",
 		"NoRTTI",
 		"NoExceptions",
-		"NoMinimalRebuild",
 		"NoEditAndContinue",
 		"Symbols",
 	}

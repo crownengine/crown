@@ -10,7 +10,7 @@ else
 	OS=windows
 endif
 
-PREMAKE=bin/$(OS)/premake4
+GENIE=third/bx/tools/bin/$(OS)/genie
 
 luajit-linux32:
 	make -R -C third/luajit CC="gcc -m32" BUILDMODE="static"
@@ -64,7 +64,7 @@ deps-android-arm-release: luajit-arm bgfx-android-arm-release
 deps-clean: luajit-clean bgfx-clean
 
 linux-build:
-	$(PREMAKE) --file=premake/premake4.lua --compiler=linux-gcc gmake
+	$(GENIE) --file=genie/genie.lua --compiler=linux-gcc gmake
 linux-debug32: deps-linux-debug32 linux-build
 	make -R -C .build/projects/linux config=debug32
 linux-development32: deps-linux-debug32 linux-build
@@ -73,14 +73,14 @@ linux-release32: deps-linux-release32 linux-build
 	make -R -C .build/projects/linux config=release32
 linux-debug64: deps-linux-debug64 linux-build
 	make -R -C .build/projects/linux config=debug64
-linux-development64: deps-linux-debug64 linux-build	
+linux-development64: deps-linux-debug64 linux-build
 	make -R -C .build/projects/linux config=development64
 linux-release64: deps-linux-release64 linux-build
 	make -R -C .build/projects/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
 android-build:
-	$(PREMAKE) --file=premake/premake4.lua --compiler=android-arm gmake
+	$(GENIE) --file=genie/genie.lua --compiler=android-arm gmake
 android-arm-debug: deps-android-arm-debug android-build
 	make -R -C .build/projects/android config=debug
 android-arm-development: deps-android-arm-debug android-build
@@ -90,7 +90,7 @@ android-arm-release: deps-android-arm-release android-build
 android-arm: android-arm-debug android-arm-development android-arm-release
 
 windows-build:
-	$(PREMAKE) --file=premake\premake4.lua vs2012
+	$(GENIE) --file=genie\genie.lua vs2012
 windows-debug32: deps-windows-debug32 windows-build
 	devenv .build/windows/crown.sln /Build "debug|x32"
 windows-development32: deps-windows-debug32 windows-build

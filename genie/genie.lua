@@ -21,7 +21,7 @@ solution "crown"
 CROWN_DIR = (path.getabsolute("..") .. "/")
 local CROWN_THIRD_DIR = (CROWN_DIR .. "third/")
 local CROWN_BUILD_DIR = (CROWN_DIR .. ".build/")
-dofile (CROWN_DIR .. "premake/toolchain.lua")
+dofile ("toolchain.lua")
 toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 
 	configuration { "linux-*" }
