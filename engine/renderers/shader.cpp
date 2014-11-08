@@ -4,12 +4,13 @@
  */
 
 #include "shader.h"
+#include "config.h"
 #include "filesystem.h"
 #include "json_parser.h"
 #include "os.h"
 #include "reader_writer.h"
-#include "config.h"
-#include "resource_types.h"
+#include "resource_manager.h"
+#include "compile_options.h"
 
 #if CROWN_DEBUG
 		#define SHADERC_NAME "shadercDebug"

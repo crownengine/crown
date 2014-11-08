@@ -13,8 +13,6 @@
 namespace crown
 {
 
-class Bundle;
-
 /// @defgroup Resource Resource
 
 /// Keeps track and manages resources loaded by ResourceLoader.
@@ -24,8 +22,8 @@ class ResourceManager
 {
 public:
 
-	/// The resources will be loaded from @a bundle.
-	ResourceManager(Bundle& bundle);
+	/// The resources will be loaded from @a fs.
+	ResourceManager(Filesystem& fs);
 	~ResourceManager();
 
 	/// Loads the resource (@a type, @a name).

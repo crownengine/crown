@@ -8,13 +8,13 @@
 #include "resource_registry.h"
 #include "log.h"
 #include "queue.h"
-#include "bundle.h"
+#include "filesystem.h"
 
 namespace crown
 {
 
-ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap)
-	: _bundle(bundle)
+ResourceLoader::ResourceLoader(Filesystem& fs, Allocator& resource_heap)
+	: _fs(fs)
 	, _resource_heap(resource_heap)
 	, _requests(default_allocator())
 	, _loaded(default_allocator())
@@ -83,9 +83,14 @@ int32_t ResourceLoader::run()
 
 		ResourceData rd;
 		rd.id = id;
-		File* file = _bundle.open(id);
+
+		char path[64];
+		id.to_string(path);
+
+		File* file = _fs.open(path, FOM_READ);
 		rd.data = resource_on_load(id.type, *file, _resource_heap);
-		_bundle.close(file);
+		_fs.close(file);
+
 		add_loaded(rd);
 		_mutex.lock();
 		queue::pop_front(_requests);

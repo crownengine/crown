@@ -6,6 +6,7 @@
 #pragma once
 
 #include "types.h"
+#include "filesystem_types.h"
 #include "thread.h"
 #include "container_types.h"
 #include "mutex.h"
@@ -14,8 +15,6 @@
 
 namespace crown
 {
-
-class Bundle;
 
 struct ResourceData
 {
@@ -30,9 +29,9 @@ class ResourceLoader
 {
 public:
 
-	/// Reads the resources data from the given @a bundle using
+	/// Reads the resources data from the given @a fs using
 	/// @a resource_heap to allocate memory for them.
-	ResourceLoader(Bundle& bundle, Allocator& resource_heap);
+	ResourceLoader(Filesystem& fs, Allocator& resource_heap);
 	~ResourceLoader();
 
 	/// Loads the @a resource in a background thread.
@@ -61,7 +60,7 @@ private:
 private:
 
 	Thread _thread;
-	Bundle& _bundle;
+	Filesystem& _fs;
 	Allocator& _resource_heap;
 
 	Queue<ResourceId> _requests;

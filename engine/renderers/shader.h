@@ -5,12 +5,11 @@
 
 #pragma once
 
-#include "resource_manager.h"
-#include "bundle.h"
-#include "file.h"
-#include "reader_writer.h"
-#include "memory.h"
-#include "compile_options.h"
+#include "types.h"
+#include "resource_types.h"
+#include "filesystem_types.h"
+#include "memory_types.h"
+#include "compiler_types.h"
 #include <bgfx.h>
 
 namespace crown

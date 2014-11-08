@@ -18,9 +18,9 @@
 namespace crown
 {
 
-ResourceManager::ResourceManager(Bundle& bundle)
+ResourceManager::ResourceManager(Filesystem& fs)
 	: _resource_heap("resource", default_allocator())
-	, _loader(bundle, _resource_heap)
+	, _loader(fs, _resource_heap)
 	, _rm(default_allocator())
 	, _autoload(false)
 {

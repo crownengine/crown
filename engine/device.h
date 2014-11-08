@@ -7,14 +7,12 @@
 
 #include "types.h"
 #include "config.h"
-#include "os.h"
 #include "linear_allocator.h"
 #include "world_types.h"
 
 namespace crown
 {
 
-class Bundle;
 class Filesystem;
 struct LuaEnvironment;
 class ResourceManager;
@@ -146,7 +144,6 @@ private:
 
 	LuaEnvironment* _lua_environment;
 	ResourceManager* _resource_manager;
-	Bundle* _resource_bundle;
 	WorldManager* _world_manager;
 
 private:

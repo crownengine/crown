@@ -4,20 +4,18 @@
  */
 
 #include "config.h"
+#include "debug_line.h"
 #include "device.h"
 #include "log.h"
 #include "lua_environment.h"
-#include "resource_manager.h"
-#include "types.h"
-#include "bundle.h"
-#include "resource_package.h"
-#include "world.h"
 #include "lua_stack.h"
-#include "world_manager.h"
-#include "network_filesystem.h"
 #include "lua_system.h"
-#include "debug_line.h"
 #include "material_manager.h"
+#include "resource_manager.h"
+#include "resource_package.h"
+#include "types.h"
+#include "world.h"
+#include "world_manager.h"
 #include <cstdlib>
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
@@ -42,7 +40,6 @@ Device::Device(Filesystem& fs, StringId64 boot_package, StringId64 boot_script)
 	, _boot_package(NULL)
 	, _lua_environment(NULL)
 	, _resource_manager(NULL)
-	, _resource_bundle(NULL)
 	, _world_manager(NULL)
 {
 }
@@ -51,11 +48,10 @@ void Device::init()
 {
 	// Initialize
 	CE_LOGI("Initializing Crown Engine %s...", version());
-	_resource_bundle = Bundle::create(_allocator, _fs);
 
 	// Create resource manager
 	CE_LOGD("Creating resource manager...");
-	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_bundle);
+	_resource_manager = CE_NEW(_allocator, ResourceManager)(_fs);
 
 	// Create world manager
 	CE_LOGD("Creating world manager...");
@@ -103,8 +99,6 @@ void Device::shutdown()
 
 	CE_LOGD("Releasing resource manager...");
 	CE_DELETE(_allocator, _resource_manager);
-
-	Bundle::destroy(_allocator, _resource_bundle);
 
 	_allocator.clear();
 	_is_init = false;

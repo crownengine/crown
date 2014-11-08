@@ -6,6 +6,7 @@
 #pragma once
 
 #include "string_utils.h"
+#include <inttypes.h>
 
 namespace crown
 {
@@ -28,6 +29,11 @@ struct ResourceId
 		: type(type)
 		, name(name)
 	{
+	}
+
+	void to_string(char out[64])
+	{
+		snprintf(out, 64, "%.16"PRIx64"-%.16"PRIx64, type, name);
 	}
 
 	bool operator==(const ResourceId& a) const
