@@ -130,6 +130,246 @@ function crown_project(_name, _kind, _defines)
 				"$(DXSDK_DIR)/Include",
 			}
 
+		configuration { "linux-*" }
+			links {
+				"X11",
+				"Xrandr",
+				"pthread",
+				"GL",
+				"luajit",
+				"dl",
+			}
+
+		-- Fix this in GENie
+		configuration { "debug", "x32", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-32", }
+		configuration { "development", "x32", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-development-32", }
+		configuration { "release", "x32", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-release-32", }
+		configuration { "debug", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-64", }
+		configuration { "development", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-development-64", }
+		configuration { "release", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-release-64", }
+
+		configuration { "debug", "linux-*" }
+			links {
+				"bgfxDebug"
+			}
+			linkoptions {
+				"-rdynamic",
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelClothCHECKED" ..
+				"	PhysX3CHECKED " ..
+				"	PhysX3CommonCHECKED" ..
+				"	PxTaskCHECKED" ..
+				"	LowLevelCHECKED" ..
+				"	PhysX3CharacterKinematicCHECKED" ..
+				"	PhysX3CookingCHECKED" ..
+				"	PhysX3ExtensionsCHECKED" ..
+				"	PhysX3VehicleCHECKED" ..
+				"	PhysXProfileSDKCHECKED" ..
+				"	PhysXVisualDebuggerSDKCHECKED" ..
+				"	PvdRuntimeCHECKED" ..
+				"	SceneQueryCHECKED" ..
+				"	SimulationControllerCHECKED" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "development", "linux-*" }
+			links {
+				"bgfxDebug"
+			}
+			linkoptions
+			{
+				"-rdynamic",
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelClothPROFILE" ..
+				"	PhysX3PROFILE " ..
+				"	PhysX3CommonPROFILE" ..
+				"	PxTaskPROFILE" ..
+				"	LowLevelPROFILE" ..
+				"	PhysX3CharacterKinematicPROFILE" ..
+				"	PhysX3CookingPROFILE" ..
+				"	PhysX3ExtensionsPROFILE" ..
+				"	PhysX3VehiclePROFILE" ..
+				"	PhysXProfileSDKPROFILE" ..
+				"	PhysXVisualDebuggerSDKPROFILE" ..
+				"	PvdRuntimePROFILE" ..
+				"	SceneQueryPROFILE" ..
+				"	SimulationControllerPROFILE" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "release", "linux-*" }
+			links {
+				"bgfxRelease"
+			}
+			linkoptions {
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "android*" }
+			kind "ConsoleApp"
+			targetextension ".so"
+			linkoptions {
+				"-shared"
+			}
+			links {
+				"EGL",
+				"GLESv2",
+				":libluajit.a",
+				"OpenSLES",
+			}
+
+		configuration { "debug", "android-arm" }
+			links {
+				":libbgfxDebug.a",
+			}
+			linkoptions {
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "development", "android-arm" }
+			links {
+				":libbgfxDebug.a",
+			}
+			linkoptions {
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "release", "android-arm" }
+			links {
+				":libbgfxRelease.a",
+			}
+			linkoptions {
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "vs*" }
+			links {
+				"OpenGL32",
+				"lua51",
+				"OpenAL32",
+				"dbghelp"
+			}
+
+		configuration { "debug", "x32", "vs*"}
+			links {
+				"PhysX3CharacterKinematicCHECKED_x86",
+				"PhysX3CHECKED_x86",
+				"PhysX3CommonCHECKED_x86",
+				"PhysX3CookingCHECKED_x86",
+				"PhysX3ExtensionsCHECKED",
+				"bgfxDebug"
+			}
+
+		configuration { "debug", "x64", "vs*" }
+			links {
+				"PhysX3CharacterKinematicCHECKED_x64",
+				"PhysX3CHECKED_x64",
+				"PhysX3CommonCHECKED_x64",
+				"PhysX3CookingCHECKED_x64",
+				"PhysX3ExtensionsCHECKED",
+				"bgfxDebug"
+			}
+
+		configuration { "development", "x32", "vs*" }
+			links {
+				"PhysX3CharacterKinematicPROFILE_x86",
+				"PhysX3PROFILE_x86",
+				"PhysX3CommonPROFILE_x86",
+				"PhysX3CookingPROFILE_x86",
+				"PhysX3ExtensionsPROFILE",
+				"bgfxDebug"
+			}
+
+		configuration { "development", "x64", "vs*" }
+			links {
+				"PhysX3CharacterKinematicPROFILE_x64",
+				"PhysX3PROFILE_x64",
+				"PhysX3CommonPROFILE_x64",
+				"PhysX3CookingPROFILE_x64",
+				"PhysX3ExtensionsPROFILE",
+				"bgfxDebug"
+			}
+
+		configuration { "release", "x32", "vs*" }
+			links {
+				"PhysX3CharacterKinematic_x86",
+				"PhysX3_x86",
+				"PhysX3Common_x86",
+				"PhysX3Cooking_x86",
+				"PhysX3Extensions",
+				"bgfxRelease"
+			}
+
+		configuration { "release", "x64", "vs*" }
+			links {
+				"PhysX3CharacterKinematic_x64",
+				"PhysX3_x64",
+				"PhysX3Common_x64",
+				"PhysX3Cooking_x64",
+				"PhysX3Extensions",
+				"bgfxRelease"
+			}
+
 		configuration {}
 
 		files {

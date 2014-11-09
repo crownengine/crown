@@ -64,7 +64,7 @@ deps-android-arm-release: luajit-arm bgfx-android-arm-release
 deps-clean: luajit-clean bgfx-clean
 
 linux-build:
-	$(GENIE) --file=genie/genie.lua --compiler=linux-gcc gmake
+	$(GENIE) --file=genie/genie.lua --with-openal --compiler=linux-gcc gmake
 linux-debug32: deps-linux-debug32 linux-build
 	make -R -C .build/projects/linux config=debug32
 linux-development32: deps-linux-debug32 linux-build
@@ -90,7 +90,7 @@ android-arm-release: deps-android-arm-release android-build
 android-arm: android-arm-debug android-arm-development android-arm-release
 
 windows-build:
-	$(GENIE) --file=genie\genie.lua vs2012
+	$(GENIE) --file=genie\genie.lua --with-openal vs2012
 windows-debug32: deps-windows-debug32 windows-build
 	devenv .build/windows/crown.sln /Build "debug|x32"
 windows-development32: deps-windows-debug32 windows-build

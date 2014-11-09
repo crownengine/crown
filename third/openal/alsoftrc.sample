@@ -1,0 +1,382 @@
+# OpenAL config file.
+#
+# Option blocks may appear multiple times, and duplicated options will take the
+# last value specified. Environment variables may be specified within option
+# values, and are automatically substituted when the config file is loaded.
+# Environment variable names may only contain alpha-numeric characters (a-z,
+# A-Z, 0-9) and underscores (_), and are prefixed with $. For example,
+# specifying "$HOME/file.ext" would typically result in something like
+# "/home/user/file.ext". To specify an actual "$" character, use "$$".
+#
+# The system-wide settings can be put in /etc/openal/alsoft.conf and user-
+# specific override settings in $HOME/.alsoftrc.
+# For Windows, these settings should go into $AppData\alsoft.ini
+#
+# Option and block names are case-insenstive. The supplied values are only
+# hints and may not be honored (though generally it'll try to get as close as
+# possible). Note: options that are left unset may default to app- or system-
+# specified values. These are the current available settings:
+
+##
+## General stuff
+##
+[general]
+
+## disable-cpu-exts:
+#  Disables use of specialized methods that use specific CPU intrinsics.
+#  Certain methods may utilize CPU extensions for improved performance, and
+#  this option is useful for preventing some or all of those methods from being
+#  used. The available extensions are: sse, sse2, sse4.1, and neon. Specifying
+#  'all' disables use of all such specialized methods.
+#disable-cpu-exts =
+
+## channels:
+#  Sets the output channel configuration. If left unspecified, one will try to
+#  be detected from the system, and defaulting to stereo. The available values
+#  are: mono, stereo, quad, surround51, surround61, surround71
+#channels =
+
+## sample-type:
+#  Sets the output sample type. Currently, all mixing is done with 32-bit float
+#  and converted to the output sample type as needed. Available values are:
+#  int8    - signed 8-bit int
+#  uint8   - unsigned 8-bit int
+#  int16   - signed 16-bit int
+#  uint16  - unsigned 16-bit int
+#  int32   - signed 32-bit int
+#  uint32  - unsigned 32-bit int
+#  float32 - 32-bit float
+#sample-type = float32
+
+## hrtf:
+#  Enables HRTF filters. These filters provide for better sound spatialization
+#  while using headphones. The default filter will only work when output is
+#  44100hz stereo. While HRTF is active, the cf_level option is disabled.
+#  Default is disabled since stereo speaker output quality may suffer.
+#hrtf = false
+
+## hrtf_tables
+#  Specifies a comma-separated list of files containing HRTF data sets. The
+#  format of the files are described in hrtf.txt. The filenames may contain
+#  these markers, which will be replaced as needed:
+#  %r - Device sampling rate
+#  %% - Percent sign (%)
+#  The listed files are relative to system-dependant data directories. On
+#  Windows this is:
+#  $AppData\openal\hrtf
+#  And on other systems, it's (in order):
+#  $XDG_DATA_HOME/openal/hrtf  (defaults to $HOME/.local/share/openal/hrtf)
+#  $XDG_DATA_DIRS/openal/hrtf  (defaults to /usr/local/share/openal/hrtf and
+#                               /usr/share/openal/hrtf)
+#  An absolute path may also be specified, if the given file is elsewhere.
+#hrtf_tables = default-%r.mhr
+
+## cf_level:
+#  Sets the crossfeed level for stereo output. Valid values are:
+#  0 - No crossfeed
+#  1 - Low crossfeed
+#  2 - Middle crossfeed
+#  3 - High crossfeed (virtual speakers are closer to itself)
+#  4 - Low easy crossfeed
+#  5 - Middle easy crossfeed
+#  6 - High easy crossfeed
+#  Users of headphones may want to try various settings. Has no effect on non-
+#  stereo modes.
+#cf_level = 0
+
+## wide-stereo:
+#  Specifies that stereo sources are given a width of about 120 degrees on each
+#  channel, centering on -90 (left) and +90 (right), as opposed to being points
+#  placed at -30 (left) and +30 (right). This can be useful for surround-sound
+#  to give stereo sources a more encompassing sound. Note that the sound's
+#  overall volume will be slightly reduced to account for the extra output.
+#wide-stereo = false
+
+## frequency:
+#  Sets the output frequency. If left unspecified it will try to detect a
+#  default from the system, otherwise it will default to 44100.
+#frequency =
+
+## resampler:
+#  Selects the resampler used when mixing sources. Valid values are:
+#  point - nearest sample, no interpolation
+#  linear - extrapolates samples using a linear slope between samples
+#  cubic - extrapolates samples using a Catmull-Rom spline
+#  Specifying other values will result in using the default (linear).
+#resampler = linear
+
+## rt-prio:
+#  Sets real-time priority for the mixing thread. Not all drivers may use this
+#  (eg. PortAudio) as they already control the priority of the mixing thread.
+#  0 and negative values will disable it. Note that this may constitute a
+#  security risk since a real-time priority thread can indefinitely block
+#  normal-priority threads if it fails to wait. As such, the default is
+#  disabled.
+#rt-prio = 0
+
+## period_size:
+#  Sets the update period size, in frames. This is the number of frames needed
+#  for each mixing update. Acceptable values range between 64 and 8192.
+#period_size = 1024
+
+## periods:
+#  Sets the number of update periods. Higher values create a larger mix ahead,
+#  which helps protect against skips when the CPU is under load, but increases
+#  the delay between a sound getting mixed and being heard. Acceptable values
+#  range between 2 and 16.
+#periods = 4
+
+## sources:
+#  Sets the maximum number of allocatable sources. Lower values may help for
+#  systems with apps that try to play more sounds than the CPU can handle.
+#sources = 256
+
+## drivers:
+#  Sets the backend driver list order, comma-seperated. Unknown backends and
+#  duplicated names are ignored. Unlisted backends won't be considered for use
+#  unless the list is ended with a comma (e.g. 'oss,' will try OSS first before
+#  other backends, while 'oss' will try OSS only). Backends prepended with -
+#  won't be considered for use (e.g. '-oss,' will try all available backends
+#  except OSS). An empty list means to try all backends.
+#drivers =
+
+## excludefx:
+#  Sets which effects to exclude, preventing apps from using them. This can
+#  help for apps that try to use effects which are too CPU intensive for the
+#  system to handle. Available effects are: eaxreverb,reverb,autowah,chorus,
+#  compressor,distortion,echo,equalizer,flanger,modulator,dedicated
+#excludefx =
+
+## slots:
+#  Sets the maximum number of Auxiliary Effect Slots an app can create. A slot
+#  can use a non-negligible amount of CPU time if an effect is set on it even
+#  if no sources are feeding it, so this may help when apps use more than the
+#  system can handle.
+#slots = 4
+
+## sends:
+#  Sets the number of auxiliary sends per source. When not specified (default),
+#  it allows the app to request how many it wants. The maximum value currently
+#  possible is 4.
+#sends =
+
+## layout:
+#  Sets the virtual speaker layout. Values are specified in degrees, where 0 is
+#  straight in front, negative goes left, and positive goes right. Unspecified
+#  speakers will remain at their default positions (which are dependant on the
+#  output format). Available speakers are back-left(bl), side-left(sl), front-
+#  left(fl), front-center(fc), front-right(fr), side-right(sr), back-right(br),
+#  and back-center(bc).
+#layout =
+
+## layout_*:
+#  Channel-specific layouts may be specified to override the layout option. The
+#  same speakers as the layout option are available, and the default settings
+#  are shown below.
+#layout_stereo     = fl=-90, fr=90
+#layout_quad       = fl=-45, fr=45, bl=-135, br=135
+#layout_surround51 = fl=-30, fr=30, fc=0, bl=-110, br=110
+#layout_surround61 = fl=-30, fr=30, fc=0, sl=-90, sr=90, bc=180
+#layout_surround71 = fl=-30, fr=30, fc=0, sl=-90, sr=90, bl=-150, br=150
+
+## default-reverb:
+#  A reverb preset that applies by default to all sources on send 0
+#  (applications that set their own slots on send 0 will override this).
+#  Available presets are: None, Generic, PaddedCell, Room, Bathroom,
+#  Livingroom, Stoneroom, Auditorium, ConcertHall, Cave, Arena, Hangar,
+#  CarpetedHallway, Hallway, StoneCorridor, Alley, Forest, City, Moutains,
+#  Quarry, Plain, ParkingLot, SewerPipe, Underwater, Drugged, Dizzy, Psychotic.
+#default-reverb =
+
+## trap-alc-error:
+#  Generates a SIGTRAP signal when an ALC device error is generated, on systems
+#  that support it. This helps when debugging, while trying to find the cause
+#  of a device error. On Windows, a breakpoint exception is generated.
+#trap-alc-error = false
+
+## trap-al-error:
+#  Generates a SIGTRAP signal when an AL context error is generated, on systems
+#  that support it. This helps when debugging, while trying to find the cause
+#  of a context error. On Windows, a breakpoint exception is generated.
+#trap-al-error = false
+
+##
+## MIDI stuff (EXPERIMENTAL)
+##
+[midi]
+
+## soundfont:
+#  A default soundfont (sf2 format). Used when an app requests the system
+#  default. The listed file is relative to system-dependant data directories.
+#  On Windows this is:
+#  $AppData\openal\soundfonts
+#  And on other systems, it's (in order):
+#  $XDG_DATA_HOME/openal/soundfonts
+#  $XDG_DATA_DIRS/openal/soundfonts
+#  An absolute path may also be specified, if the given file is elsewhere.
+#soundfont =
+
+## volume:
+#  Additional attenuation applied to MIDI output, expressed in decibels. This
+#  is used to help keep the mix from clipping, and so must be 0 or less. The
+#  value is logarithmic, so -6 will be about half amplitude, and -12 about
+#  1/4th. The default is roughly -13.9794 (0.2, or 1/5th).
+#volume =
+
+##
+## Reverb effect stuff (includes EAX reverb)
+##
+[reverb]
+
+## boost:
+#  A global amplification for reverb output, expressed in decibels. The value
+#  is logarithmic, so +6 will be a scale of (approximately) 2x, +12 will be a
+#  scale of 4x, etc. Similarly, -6 will be about half, and -12 about 1/4th. A
+#  value of 0 means no change.
+#boost = 0
+
+## emulate-eax:
+#  Allows the standard reverb effect to be used in place of EAX reverb. EAX
+#  reverb processing is a bit more CPU intensive than standard, so this option
+#  allows a simpler effect to be used at the loss of some quality.
+#emulate-eax = false
+
+##
+## PulseAudio backend stuff
+##
+[pulse]
+
+## spawn-server:
+#  Attempts to autospawn a PulseAudio server whenever needed (initializing the
+#  backend, enumerating devices, etc). Setting autospawn to false in Pulse's
+#  client.conf will still prevent autospawning even if this is set to true.
+#spawn-server = true
+
+## allow-moves:
+#  Allows PulseAudio to move active streams to different devices. Note that the
+#  device specifier (seen by applications) will not be updated when this
+#  occurs, and neither will the AL device configuration (sample rate, format,
+#  etc).
+#allow-moves = false
+
+##
+## ALSA backend stuff
+##
+[alsa]
+
+## device:
+#  Sets the device name for the default playback device.
+#device = default
+
+## device-prefix:
+#  Sets the prefix used by the discovered (non-default) playback devices. This
+#  will be appended with "CARD=c,DEV=d", where c is the card id and d is the
+#  device index for the requested device name.
+#device-prefix = plughw:
+
+## device-prefix-*:
+#  Card- and device-specific prefixes may be used to override the device-prefix
+#  option. The option may specify the card id (eg, device-prefix-NVidia), or
+#  the card id and device index (eg, device-prefix-NVidia-0). The card id is
+#  case-sensitive.
+#device-prefix- =
+
+## capture:
+#  Sets the device name for the default capture device.
+#capture = default
+
+## capture-prefix:
+#  Sets the prefix used by the discovered (non-default) capture devices. This
+#  will be appended with "CARD=c,DEV=d", where c is the card id and d is the
+#  device number for the requested device name.
+#capture-prefix = plughw:
+
+## capture-prefix-*:
+#  Card- and device-specific prefixes may be used to override the
+#  capture-prefix option. The option may specify the card id (eg,
+#  capture-prefix-NVidia), or the card id and device index (eg,
+#  capture-prefix-NVidia-0). The card id is case-sensitive.
+#capture-prefix- =
+
+## mmap:
+#  Sets whether to try using mmap mode (helps reduce latencies and CPU
+#  consumption). If mmap isn't available, it will automatically fall back to
+#  non-mmap mode. True, yes, on, and non-0 values will attempt to use mmap. 0
+#  and anything else will force mmap off.
+#mmap = true
+
+##
+## OSS backend stuff
+##
+[oss]
+
+## device:
+#  Sets the device name for OSS output.
+#device = /dev/dsp
+
+## capture:
+#  Sets the device name for OSS capture.
+#capture = /dev/dsp
+
+##
+## Solaris backend stuff
+##
+[solaris]
+
+## device:
+#  Sets the device name for Solaris output.
+#device = /dev/audio
+
+##
+## QSA backend stuff
+##
+[qsa]
+
+## device:
+#  Sets the device name for the default playback device.
+#device = default
+
+## capture:
+#  Sets the device name for the default capture device.
+#capture = default
+
+##
+## MMDevApi backend stuff
+##
+[mmdevapi]
+
+##
+## DirectSound backend stuff
+##
+[dsound]
+
+##
+## Windows Multimedia backend stuff
+##
+[winmm]
+
+##
+## PortAudio backend stuff
+##
+[port]
+
+## device:
+#  Sets the device index for output. Negative values will use the default as
+#  given by PortAudio itself.
+#device = -1
+
+## capture:
+#  Sets the device index for capture. Negative values will use the default as
+#  given by PortAudio itself.
+#capture = -1
+
+##
+## Wave File Writer stuff
+##
+[wave]
+
+## file:
+#  Sets the filename of the wave file to write to. An empty name prevents the
+#  backend from opening, even when explicitly requested.
+#  THIS WILL OVERWRITE EXISTING FILES WITHOUT QUESTION!
+#file =
