@@ -55,7 +55,7 @@ extern void load_material(LuaEnvironment& env);
 
 namespace lua_globals
 {
-	static lua_State* _L;
+	static lua_State* L;
 
 	static uint32_t _vec3_used = 0;
 	static Vector3 _vec3_buffer[CROWN_MAX_LUA_VECTOR3];
@@ -188,14 +188,14 @@ namespace lua_globals
 	// Initializes lua subsystem
 	void init()
 	{
-		_L = luaL_newstate();
-		CE_ASSERT(_L, "Unable to create lua state");
+		L = luaL_newstate();
+		CE_ASSERT(L, "Unable to create lua state");
 
 		// Open default libraries
-		luaL_openlibs(_L);
+		luaL_openlibs(L);
 
 		// Register crown libraries
-		LuaEnvironment env(_L);
+		LuaEnvironment env(L);
 		load_actor(env);
 		load_camera(env);
 		load_controller(env);
@@ -226,66 +226,66 @@ namespace lua_globals
 		load_material(env);
 
 		// Register custom loader
-		lua_getfield(_L, LUA_GLOBALSINDEX, "package");
-		lua_getfield(_L, -1, "loaders");
-		lua_remove(_L, -2);
+		lua_getfield(L, LUA_GLOBALSINDEX, "package");
+		lua_getfield(L, -1, "loaders");
+		lua_remove(L, -2);
 
 		int num_loaders = 0;
-		lua_pushnil(_L);
-		while (lua_next(_L, -2) != 0)
+		lua_pushnil(L);
+		while (lua_next(L, -2) != 0)
 		{
-			lua_pop(_L, 1);
+			lua_pop(L, 1);
 			num_loaders++;
 		}
-		lua_pushinteger(_L, num_loaders + 1);
-		lua_pushcfunction(_L, require);
-		lua_rawset(_L, -3);
-		lua_pop(_L, 1);
+		lua_pushinteger(L, num_loaders + 1);
+		lua_pushcfunction(L, require);
+		lua_rawset(L, -3);
+		lua_pop(L, 1);
 
 		// Create metatable for lightuserdata
-		luaL_newmetatable(_L, "Lightuserdata_mt");
-		lua_pushstring(_L, "__add");
-		lua_pushcfunction(_L, lightuserdata_add);
-		lua_settable(_L, 1);
+		luaL_newmetatable(L, "Lightuserdata_mt");
+		lua_pushstring(L, "__add");
+		lua_pushcfunction(L, lightuserdata_add);
+		lua_settable(L, 1);
 
-		lua_pushstring(_L, "__sub");
-		lua_pushcfunction(_L, lightuserdata_sub);
-		lua_settable(_L, 1);
+		lua_pushstring(L, "__sub");
+		lua_pushcfunction(L, lightuserdata_sub);
+		lua_settable(L, 1);
 
-		lua_pushstring(_L, "__mul");
-		lua_pushcfunction(_L, lightuserdata_mul);
-		lua_settable(_L, 1);
+		lua_pushstring(L, "__mul");
+		lua_pushcfunction(L, lightuserdata_mul);
+		lua_settable(L, 1);
 
-		lua_pushstring(_L, "__div");
-		lua_pushcfunction(_L, lightuserdata_div);
-		lua_settable(_L, 1);
+		lua_pushstring(L, "__div");
+		lua_pushcfunction(L, lightuserdata_div);
+		lua_settable(L, 1);
 
-		lua_pushstring(_L, "__unm");
-		lua_pushcfunction(_L, lightuserdata_unm);
-		lua_settable(_L, 1);
+		lua_pushstring(L, "__unm");
+		lua_pushcfunction(L, lightuserdata_unm);
+		lua_settable(L, 1);
 
-		lua_pushstring(_L, "__index");
-		lua_pushcfunction(_L, lightuserdata_index);
-		lua_settable(_L, 1);
+		lua_pushstring(L, "__index");
+		lua_pushcfunction(L, lightuserdata_index);
+		lua_settable(L, 1);
 
-		lua_pushstring(_L, "__newindex");
-		lua_pushcfunction(_L, lightuserdata_newindex);
-		lua_settable(_L, 1);
+		lua_pushstring(L, "__newindex");
+		lua_pushcfunction(L, lightuserdata_newindex);
+		lua_settable(L, 1);
 
-		lua_pop(_L, 1); // Pop Lightuserdata_mt
+		lua_pop(L, 1); // Pop Lightuserdata_mt
 
 		// Ensure stack is clean
-		CE_ASSERT(lua_gettop(_L) == 0, "Stack not clean");
+		CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
 	}
 
 	void shutdown()
 	{
-		lua_close(_L);
+		lua_close(L);
 	}
 
 	lua_State* state()
 	{
-		return _L;
+		return L;
 	}
 
 	Vector3* next_vector3(const Vector3& v)
@@ -310,19 +310,19 @@ namespace lua_globals
 
 	bool is_vector3(int32_t index)
 	{
-		void* type = lua_touserdata(_L, index);
+		void* type = lua_touserdata(L, index);
 		return (type >= &_vec3_buffer[0] && type <= &_vec3_buffer[CROWN_MAX_LUA_VECTOR3 - 1]);
 	}
 
 	bool is_matrix4x4(int32_t index)
 	{
-		void* type = lua_touserdata(_L, index);
+		void* type = lua_touserdata(L, index);
 		return (type >= &s_mat4_buffer[0] && type <= &s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1]);
 	}
 
 	bool is_quaternion(int32_t index)
 	{
-		void* type = lua_touserdata(_L, index);
+		void* type = lua_touserdata(L, index);
 		return (type >= &_quat_buffer[0] && type <= &_quat_buffer[CROWN_MAX_LUA_QUATERNION - 1]);
 	}
 
