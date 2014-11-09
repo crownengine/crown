@@ -13,7 +13,7 @@
 #include "joint.h"
 #include "physics_callback.h"
 #include "proxy_allocator.h"
-#include "string_utils.h"
+#include "memory.h"
 #include "string_utils.h"
 #include "actor.h"
 #include "resource_manager.h"

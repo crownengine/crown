@@ -16,6 +16,8 @@
 #include "types.h"
 #include "world.h"
 #include "world_manager.h"
+#include "memory.h"
+#include "os.h"
 #include <cstdlib>
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024

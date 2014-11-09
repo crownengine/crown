@@ -6,13 +6,13 @@
 #include <new>
 #include "assert.h"
 #include "world.h"
-#include "allocator.h"
 #include "device.h"
 #include "resource_manager.h"
 #include "debug_line.h"
 #include "actor.h"
 #include "lua_environment.h"
 #include "level_resource.h"
+#include "memory.h"
 #include "matrix4x4.h"
 
 namespace crown

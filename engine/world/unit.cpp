@@ -5,7 +5,7 @@
 
 #include "unit.h"
 #include "world.h"
-#include "allocator.h"
+#include "memory.h"
 #include "log.h"
 #include "unit_resource.h"
 #include "scene_graph_manager.h"

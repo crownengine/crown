@@ -5,7 +5,7 @@
 
 #include "render_world.h"
 #include "device.h"
-#include "allocator.h"
+#include "memory.h"
 #include "camera.h"
 #include "log.h"
 #include "sprite_resource.h"

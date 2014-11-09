@@ -9,6 +9,7 @@
 
 #include "sound_world.h"
 #include "id_array.h"
+#include "array.h"
 #include "vector3.h"
 #include "matrix4x4.h"
 #include "sound_resource.h"
