@@ -4,94 +4,13 @@
  */
 
 #include "path.h"
+#include "platform.h"
 #include <ctype.h> // isalpha
 
 namespace crown
 {
 namespace path
 {
-	bool is_valid_segment(const char* segment)
-	{
-		CE_ASSERT(segment != NULL, "Segment must be != NULL");
-
-		size_t segment_len = strlen(segment);
-
-		// Empty segment is not valid
-		if (segment_len == 0)
-		{
-			return false;
-		}
-
-		// Segments containing only '.' are non valid
-		if (segment_len == 1 && segment[0] == '.')
-		{
-			return false;
-		}
-
-		// Segments containing only ".." are not valid
-		if (segment_len == 2 && segment[0] == '.' && segment[1] == '.')
-		{
-			return false;
-		}
-
-		// The segment does not have to contain any forward slashes ('/')
-		// nor back slashes ('\'), nor colon signs (':')
-		for (size_t i = 0; i < segment_len; i++)
-		{
-			if (segment[i] == '/' ||
-				segment[i] == '\\' ||
-				segment[i] == ':')
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/// Returns whether the path is valid.
-	/// @note
-	/// The rules for valid paths are as follows:
-	/// a) The empty string is not valid.
-	/// b) If the path is absolute, it mustn't contain any leading character.
-	bool is_valid_path(const char* path)
-	{
-		(void)path;
-	//	size_t path_len = strlen(path);
-
-	//	if (pathLen == 0)
-	//	{
-	//		return false;
-	//	}
-
-	//	if (is_root_path(path))
-	//	{
-	//		return true;
-	//	}
-
-	//	Array<Str> segmentList;
-	//	if (!get_segments(Str(path), segmentList))
-	//	{
-	//		return false;
-	//	}
-
-	//	size_t i = 0;
-	//	if (IsAbsolutePath(path) && path[0] != '/')
-	//	{
-	//		i = 1;
-	//	}
-
-	//	for (; i < segmentList.GetSize(); i++)
-	//	{
-	//		if (!IsValidSegment(segmentList[i].c_str()))
-	//		{
-	//			return false;
-	//		}
-	//	}
-
-		return true;
-	}
-
 	bool is_absolute_path(const char* path)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
@@ -233,19 +152,6 @@ namespace path
 
 		substring(begin(path), last_dot, str, len);
 	}
-
-	/// Returns the segments contained in path.
-	//bool segments(const char* path, Array<Str>& ret)
-	//{
-	//	path.Split(os::PATH_SEPARATOR, ret);
-
-	//	if (ret.GetSize() > 0)
-	//	{
-	//		return true;
-	//	}
-
-	//	return false;
-	//}
 
 	/// Fills 'ret' with the same path but without the trailing directory separator.
 	/// @note

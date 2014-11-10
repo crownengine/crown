@@ -17,20 +17,6 @@ namespace crown
 /// @ingroup Path
 namespace path
 {
-	/// Returns whether the path segment @a segment is valid.
-	/// @note
-	/// The rules for valid segments are as follows:
-	/// a) The empty string is not valid.
-	/// b) Any string containing the slash character ('/') is not valid.
-	/// c) Common notations for current ('.') and parent ('..') directory are forbidden.
-	/// d) Any string containing segment or device separator characters on the local file system,
-	/// such as the backslash ('\') and colon (':') on some file systems are not valid.
-	/// (Thanks org.eclipse.core.runtime for the documentation ;D).
-	bool is_valid_segment(const char* segment);
-
-	/// Returns whether @a path is valid.
-	bool is_valid_path(const char* path);
-
 	/// Returns whether the @a path is absolute.
 	bool is_absolute_path(const char* path);
 
