@@ -32,7 +32,7 @@ public:
 
 	/// Does nothing, the memory is automatically freed when the
 	/// allocator is destroyed.
-	void deallocate(void* data) {}
+	void deallocate(void* /*data*/) {}
 
 	/// @copydoc Allocator::allocated_size()
 	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
