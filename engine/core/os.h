@@ -42,7 +42,6 @@ namespace crown
 #elif CROWN_PLATFORM_WINDOWS
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '\\';
-	#define snprintf _snprintf
 #elif CROWN_PLATFORM_ANDROID
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '/';
@@ -65,7 +64,7 @@ namespace os
 #if CROWN_PLATFORM_POSIX
 		return (path != NULL && strlen(path) == 1 && path[0] == PATH_SEPARATOR);
 #elif CROWN_PLATFORM_WINDOWS
-		return (path != NULL && strlen(path) == 3 && is_alpha(path[0]) &&
+		return (path != NULL && strlen(path) == 3 && isalpha(path[0]) &&
 			path[1] == ':' && path[2] == PATH_SEPARATOR);
 #endif
 	}
@@ -75,7 +74,7 @@ namespace os
 #if CROWN_PLATFORM_POSIX
 		return (path != NULL && strlen(path) >= 1 && path[0] == PATH_SEPARATOR);
 #elif CROWN_PLATFORM_WINDOWS
-		return (path != NULL && strlen(path) >= 3 && is_alpha(path[0]) &&
+		return (path != NULL && strlen(path) >= 3 && isalpha(path[0]) &&
 			path[1] == ':' && path[2] == PATH_SEPARATOR);
 #endif
 	}

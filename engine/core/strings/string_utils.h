@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include <cstdio>
-#include <cstring>
-
 #include "assert.h"
 #include "types.h"
 #include "config.h"
 #include "macros.h"
+#include <cstdio>
+#include <cstring>
+#include <cstdarg>
 
 namespace crown
 {
@@ -52,6 +52,25 @@ inline char* strcat(char* dest, const char* src)
 inline char* strncat(char* dest, const char* src, size_t len)
 {
 	return ::strncat(dest, src, len);
+}
+
+inline int32_t vsnprintf(char* str, size_t num, const char* format, va_list args)
+{
+#if CROWN_COMPILER_MSVC
+	int32_t len = _vsnprintf_s(str, num, _TRUNCATE, format, args);
+	return (len == 1) ? _vscprintf(format, args) : len;
+#else
+	return ::vsnprintf(str, num, format, args);
+#endif // CROWN_COMPILER_MSVC
+}
+
+inline int32_t snprintf(char* str, size_t n, const char* format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	int32_t len = vsnprintf(str, n, format, args);
+	va_end(args);
+	return len;
 }
 
 inline const char* begin(const char* str)

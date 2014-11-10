@@ -42,6 +42,7 @@ bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum 
 	CompileOptions opts(_source_fs, outf, platform);
 	resource_on_compile(id.type, path, opts);
 	_bundle_fs.close(outf);
+	return true;
 }
 
 bool BundleCompiler::compile_all(Platform::Enum platform)
