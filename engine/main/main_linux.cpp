@@ -161,11 +161,6 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 	}
 }
 
-static int x11_error_handler(Display* dpy, XErrorEvent* ev)
-{
-	return 0;
-}
-
 static bool s_exit = false;
 
 struct MainThreadArgs
@@ -199,7 +194,6 @@ struct LinuxDevice
 	{
 		// Create main window
 		XInitThreads();
-		XSetErrorHandler(x11_error_handler);
 		_x11_display = XOpenDisplay(NULL);
 
 		CE_ASSERT(_x11_display != NULL, "Unable to open X11 display");
