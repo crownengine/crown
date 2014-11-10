@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cstring>
-
 #include "assert.h"
 #include "memory.h"
 #include "string_utils.h"
 #include "array.h"
 #include "string_utils.h"
+#include "murmur.h"
+#include <algorithm>
+#include <cstring>
 
 namespace crown
 {

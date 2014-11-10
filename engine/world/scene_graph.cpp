@@ -9,7 +9,7 @@
 #include "matrix4x4.h"
 #include "allocator.h"
 #include "string_utils.h"
-
+#include "murmur.h"
 #include <string.h>
 
 #define CLEAN		0

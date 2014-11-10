@@ -6,6 +6,7 @@
 #pragma once
 
 #include "string_utils.h"
+#include "murmur.h"
 #include <inttypes.h>
 
 namespace crown
