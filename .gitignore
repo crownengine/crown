@@ -19,4 +19,5 @@ __pycache__
 /third/luajit/src/lj_libdef.h
 /third/luajit/src/lj_recdef.h
 /third/luajit/src/lj_vm.s
-/third/luajit/src/luajit
+/third/luajit/src/luajit*
+/third/luajit/src/lua51.*
