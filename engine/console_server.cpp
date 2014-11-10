@@ -170,7 +170,6 @@ void ConsoleServer::process(TCPSocket client, const char* request)
 	if (type == "ping") process_ping(client, request);
 	else if (type == "script") process_script(client, request);
 	else if (type == "command") process_command(client, request);
-	else if (type == "filesystem") processs_filesystem(client, request);
 	else CE_FATAL("Request unknown.");
 }
 
@@ -222,68 +221,6 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
 	{
 		device()->unpause();
 	}
-}
-
-void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
-{
-/*
-	using namespace string_stream;
-
-	JSONParser parser(msg);
-	JSONElement root = parser.root();
-	JSONElement filesystem = root.key("filesystem");
-
-	DynamicString cmd;
-	filesystem.to_string(cmd);
-
-	if (cmd == "size")
-	{
-		DynamicString file_name;
-		root.key("file").to_string(file_name);
-
-		File* file = crown::filesystem()->open(file_name.c_str(), FOM_READ);
-		size_t file_size = file->size();
-		crown::filesystem()->close(file);
-
-		TempAllocator64 alloc;
-		StringStream response(alloc);
-		response << "{\"type\":\"file\",\"size\":" << file_size << "}";
-
-		send(client, c_str(response));
-	}
-	else if (cmd == "read")
-	{
-		JSONElement file_position = root.key("position");
-		JSONElement file_size = root.key("size");
-
-		DynamicString file_name;
-		root.key("file").to_string(file_name);
-
-		// Read the file data
-		File* file = crown::filesystem()->open(file_name.c_str(), FOM_READ);
-		char* bytes = (char*) default_allocator().allocate((size_t) file_size.to_int());
-		file->seek((size_t) file_position.to_int());
-		file->read(bytes, (size_t) file_size.to_int());
-		crown::filesystem()->close(file);
-
-		// Encode data to base64
-		size_t dummy;
-		char* bytes_encoded = base64_encode((unsigned char*) bytes, (size_t) file_size.to_int(), &dummy);
-
-		// Send data
-		TempAllocator4096 alloc;
-		StringStream response(alloc);
-
-		response << "{\"type\":\"file\",";
-		response << "\"data\":\"" << bytes_encoded << "\"}";
-
-		send(client, c_str(response));
-
-		// Cleanup
-		default_allocator().deallocate(bytes_encoded);
-		default_allocator().deallocate(bytes);
-	}
-*/
 }
 
 namespace console_server_globals

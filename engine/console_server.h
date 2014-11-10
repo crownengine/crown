@@ -67,7 +67,6 @@ private:
 	void process_ping(TCPSocket client, const char* msg);
 	void process_script(TCPSocket client, const char* msg);
 	void process_command(TCPSocket client, const char* msg);
-	void processs_filesystem(TCPSocket client, const char* msg);
 
 private:
 
