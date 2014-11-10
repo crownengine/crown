@@ -8,6 +8,7 @@
 #include "temp_allocator.h"
 #include "disk_file.h"
 #include "vector.h"
+#include "path.h"
 
 namespace crown
 {
@@ -132,7 +133,7 @@ void DiskFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 
 void DiskFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
 {
-	if (os::is_absolute_path(path))
+	if (path::is_absolute_path(path))
 	{
 		os_path = path;
 		return;

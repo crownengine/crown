@@ -59,26 +59,6 @@ namespace os
 #endif
 	}
 
-	inline bool is_root_path(const char* path)
-	{
-#if CROWN_PLATFORM_POSIX
-		return (path != NULL && strlen(path) == 1 && path[0] == PATH_SEPARATOR);
-#elif CROWN_PLATFORM_WINDOWS
-		return (path != NULL && strlen(path) == 3 && isalpha(path[0]) &&
-			path[1] == ':' && path[2] == PATH_SEPARATOR);
-#endif
-	}
-
-	inline bool is_absolute_path(const char* path)
-	{
-#if CROWN_PLATFORM_POSIX
-		return (path != NULL && strlen(path) >= 1 && path[0] == PATH_SEPARATOR);
-#elif CROWN_PLATFORM_WINDOWS
-		return (path != NULL && strlen(path) >= 3 && isalpha(path[0]) &&
-			path[1] == ':' && path[2] == PATH_SEPARATOR);
-#endif
-	}
-
 	inline bool exists(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX

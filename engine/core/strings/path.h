@@ -31,8 +31,11 @@ namespace path
 	/// Returns whether @a path is valid.
 	bool is_valid_path(const char* path);
 
-	/// Returns whether the path @a path is absolute.
+	/// Returns whether the @a path is absolute.
 	bool is_absolute_path(const char* path);
+
+	/// Returns whether the @a path is the root path.
+	bool is_root_path(const char* path);
 
 	void pathname(const char* path, char* str, size_t len);
 	void filename(const char* path, char* str, size_t len);

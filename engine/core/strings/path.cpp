@@ -4,6 +4,7 @@
  */
 
 #include "path.h"
+#include <ctype.h> // isalpha
 
 namespace crown
 {
@@ -89,6 +90,26 @@ namespace path
 	//	}
 
 		return true;
+	}
+
+	bool is_absolute_path(const char* path)
+	{
+		CE_ASSERT(path != NULL, "Path must be != NULL");
+#if CROWN_PLATFORM_POSIX
+		return strlen(path) > 0 && path[0] == '/';
+#elif CROWN_PLATFORM_WINDOWS
+		return strlen(path) > 2 && isalpha(path[0]) && path[1] == ':' && path[2] == '\\';
+#endif
+	}
+
+	bool is_root_path(const char* path)
+	{
+		CE_ASSERT(path != NULL, "Path must be != NULL");
+#if CROWN_PLATFORM_POSIX
+		return is_absolute_path(path) && strlen(path) == 1;
+#elif CROWN_PLATFORM_WINDOWS
+		return is_absolute_path(path) && strlen(path) == 3;
+#endif
 	}
 
 	/// Returns the pathname of the path.
