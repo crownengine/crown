@@ -266,6 +266,7 @@ function toolchain(build_dir, lib_dir)
 		linkoptions {
 			"/ignore:4199", -- LNK4199: /DELAYLOAD:*.dll ignored; no imports found from *.dll
 			"/ignore:4221", -- LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+			"/ignore:4099", -- LNK4099: The linker was unable to find your .pdb file.
 		}
 
 	configuration { "x32", "vs*" }
@@ -274,7 +275,7 @@ function toolchain(build_dir, lib_dir)
 		libdirs {
 			lib_dir .. "luajit/src",
 			lib_dir .. "openal/lib",
-			lib_dir .. "bgfx/.build/win32_vs2012/bin",
+			lib_dir .. "bgfx/.build/win32_vs2013/bin",
 			"$(PHYSX_SDK_WINDOWS)/Lib/win32",
 			"$(DXSDK_DIR)/Lib/x86",
 		}
@@ -285,7 +286,7 @@ function toolchain(build_dir, lib_dir)
 		libdirs {
 			lib_dir .. "luajit/src",
 			lib_dir .. "openal/lib",
-			lib_dir .. "bgfx/.build/win64_vs2012/bin",
+			lib_dir .. "bgfx/.build/win64_vs2013/bin",
 			"$(PHYSX_SDK_WINDOWS)/Lib/win64",
 			"$(DXSDK_DIR)/Lib/x64",
 		}

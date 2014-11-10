@@ -108,7 +108,7 @@ function crown_project(_name, _kind, _defines)
 				"$(PHYSX_SDK_ANDROID)/Include/vehicle",
 			}
 
-		configuration { "vs2012" }
+		configuration { "vs*" }
 			includedirs {
 				"$(PHYSX_SDK_WINDOWS)/Include",
 				"$(PHYSX_SDK_WINDOWS)/Include/common",
@@ -306,68 +306,68 @@ function crown_project(_name, _kind, _defines)
 			links {
 				"OpenGL32",
 				"lua51",
-				"OpenAL32",
+				"openal",
 				"dbghelp"
 			}
 
 		configuration { "debug", "x32", "vs*"}
 			links {
+				"bgfxDebug",
 				"PhysX3CharacterKinematicCHECKED_x86",
 				"PhysX3CHECKED_x86",
 				"PhysX3CommonCHECKED_x86",
 				"PhysX3CookingCHECKED_x86",
 				"PhysX3ExtensionsCHECKED",
-				"bgfxDebug"
 			}
 
 		configuration { "debug", "x64", "vs*" }
 			links {
+				"bgfxDebug",
 				"PhysX3CharacterKinematicCHECKED_x64",
 				"PhysX3CHECKED_x64",
 				"PhysX3CommonCHECKED_x64",
 				"PhysX3CookingCHECKED_x64",
 				"PhysX3ExtensionsCHECKED",
-				"bgfxDebug"
 			}
 
 		configuration { "development", "x32", "vs*" }
 			links {
+				"bgfxDebug",
 				"PhysX3CharacterKinematicPROFILE_x86",
 				"PhysX3PROFILE_x86",
 				"PhysX3CommonPROFILE_x86",
 				"PhysX3CookingPROFILE_x86",
 				"PhysX3ExtensionsPROFILE",
-				"bgfxDebug"
 			}
 
 		configuration { "development", "x64", "vs*" }
 			links {
+				"bgfxDebug",
 				"PhysX3CharacterKinematicPROFILE_x64",
 				"PhysX3PROFILE_x64",
 				"PhysX3CommonPROFILE_x64",
 				"PhysX3CookingPROFILE_x64",
 				"PhysX3ExtensionsPROFILE",
-				"bgfxDebug"
 			}
 
 		configuration { "release", "x32", "vs*" }
 			links {
+				"bgfxRelease",
 				"PhysX3CharacterKinematic_x86",
 				"PhysX3_x86",
 				"PhysX3Common_x86",
 				"PhysX3Cooking_x86",
 				"PhysX3Extensions",
-				"bgfxRelease"
 			}
 
 		configuration { "release", "x64", "vs*" }
 			links {
+				"bgfxRelease",
 				"PhysX3CharacterKinematic_x64",
 				"PhysX3_x64",
 				"PhysX3Common_x64",
 				"PhysX3Cooking_x64",
 				"PhysX3Extensions",
-				"bgfxRelease"
 			}
 
 		configuration {}

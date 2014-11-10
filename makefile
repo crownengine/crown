@@ -36,14 +36,14 @@ bgfx-linux-release32:
 	make -R -C third/bgfx linux-release32
 bgfx-linux-release64:
 	make -R -C third/bgfx linux-release64
-bgfx-vs2012-debug32:
-	make -R -C third/bgfx && make -R -C third/bgfx .build/projects/vs2012
-bgfx-vs2012-release32:
-	make -R -C third/bgfx && make -R -C third/bgfx .build/projects/vs2012
-bgfx-vs2012-debug64:
-	make -R -C third/bgfx && make -R -C third/bgfx .build/projects/vs2012
-bgfx-vs2012-release64:
-	make -R -C third/bgfx && make -R -C third/bgfx .build/projects/vs2012
+bgfx-vs2013-debug32:
+	make -R -C third/bgfx .build/projects/vs2013
+bgfx-vs2013-release32:
+	make -R -C third/bgfx .build/projects/vs2013
+bgfx-vs2013-debug64:
+	make -R -C third/bgfx .build/projects/vs2013
+bgfx-vs2013-release64:
+	make -R -C third/bgfx .build/projects/vs2013
 bgfx-android-arm-debug:
 	make -R -C third/bgfx android-arm-debug
 bgfx-android-arm-release:
@@ -55,10 +55,10 @@ deps-linux-debug32: luajit-linux32 bgfx-linux-debug32
 deps-linux-debug64: luajit-linux64 bgfx-linux-debug64
 deps-linux-release32: luajit-linux32 bgfx-linux-release32
 deps-linux-release64: luajit-linux64 bgfx-linux-release64
-deps-windows-debug32: luajit-windows32 bgfx-vs2012-debug32
-deps-windows-debug64: luajit-windows64 bgfx-vs2012-debug64
-deps-windows-release32: luajit-windows32 bgfx-vs2012-release32
-deps-windows-release64: luajit-windows64 bgfx-vs2012-release64
+deps-windows-debug32: luajit-windows32 bgfx-vs2013-debug32
+deps-windows-debug64: luajit-windows64 bgfx-vs2013-debug64
+deps-windows-release32: luajit-windows32 bgfx-vs2013-release32
+deps-windows-release64: luajit-windows64 bgfx-vs2013-release64
 deps-android-arm-debug: luajit-arm bgfx-android-arm-debug
 deps-android-arm-release: luajit-arm bgfx-android-arm-release
 deps-clean: luajit-clean bgfx-clean
@@ -90,19 +90,19 @@ android-arm-release: deps-android-arm-release android-build
 android-arm: android-arm-debug android-arm-development android-arm-release
 
 windows-build:
-	$(GENIE) --file=genie\genie.lua --with-openal vs2012
+	$(GENIE) --file=genie\genie.lua --with-openal vs2013
 windows-debug32: deps-windows-debug32 windows-build
-	devenv .build/windows/crown.sln /Build "debug|x32"
+	devenv .build/projects/vs2013/crown.sln /Build "debug|Win32"
 windows-development32: deps-windows-debug32 windows-build
-	devenv .build/windows/crown.sln /Build "development|x32"
+	devenv .build/projects/vs2013/crown.sln /Build "development|Win32"
 windows-release32: deps-windows-release32 windows-build
-	devenv .build/windows/crown.sln /Build "release|x32"
+	devenv .build/projects/vs2013/crown.sln /Build "release|Win32"
 windows-debug64: deps-windows-debug64 windows-build
-	devenv .build/windows/crown.sln /Build "debug|x64"
+	devenv .build/projects/vs2013/crown.sln /Build "debug|x64"
 windows-development64: deps-windows-debug64 windows-build
-	devenv .build/windows/crown.sln /Build "development|x64"
+	devenv .build/projects/vs2013/crown.sln /Build "development|x64"
 windows-release64: deps-windows-release64 windows-build
-	devenv .build/windows/crown.sln /Build "release|x64"
+	devenv .build/projects/vs2013/crown.sln /Build "release|x64"
 
 .PHONY: docs
 docs:

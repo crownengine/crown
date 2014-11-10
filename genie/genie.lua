@@ -34,7 +34,7 @@ if _OPTIONS["with-openal"] then
 end
 
 dofile "crown.lua"
-crown_project("", "WindowedApp", {})
+crown_project("", "ConsoleApp", {})
 
 -- Install
 configuration { "android-arm" }
@@ -61,6 +61,11 @@ configuration { "x32", "vs*" }
 		"cp -r " .. CROWN_DIR .. ".build/win32/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32/",
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/luajit.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32/",
 		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32/",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/lua51.lib " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/lua51.exp " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/lua51.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/PhysX3* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/nvToolsExt32_1.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
 	}
 
 configuration { "x64", "vs*" }
@@ -68,6 +73,11 @@ configuration { "x64", "vs*" }
 		"cp -r " .. CROWN_DIR .. ".build/win64/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64/",
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/luajit.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64/",
 		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64/",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/lua51.lib " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/lua51.exp " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/lua51.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/PhysX3* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/nvToolsExt64_1.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
 	}
 
 configuration { "debug or development", "x32", "linux-*" }
@@ -89,3 +99,25 @@ configuration { "release", "x64", "linux-*" }
 	postbuildcommands {
 		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin/shadercRelease " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux64"
 	}
+
+
+configuration { "debug or development", "x32", "vs*" }
+	postbuildcommands {
+		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/win32_vs2013/bin/shadercDebug.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32"
+	}
+
+configuration { "release", "x32", "vs*" }
+	postbuildcommands {
+		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/win32_vs2013/bin/shadercRelease.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32"
+	}
+
+configuration { "debug or development", "x64", "vs*" }
+	postbuildcommands {
+		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/win64_vs2013/bin/shadercDebug.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64"
+	}
+
+configuration { "release", "x64", "vs*" }
+	postbuildcommands {
+		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/win64_vs2013/bin/shadercRelease.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64"
+	}
+

@@ -15,24 +15,51 @@ project "openal"
 		"AL_BUILD_LIBRARY",
 		"_LARGEFILE_SOURCE",
 		"_LARGE_FILES",
-		"openal_EXPORTS",
 	}
 
-	configuration { "debug", "linux-*" }
+	configuration { "debug" }
 		defines {
 			"_DEBUG",
 		}
-		buildoptions {
-			"-g3",
-		}
 
-	configuration { "development or release", "linux-*" }
+	configuration { "development or release" }
 		defines {
 			"NDEBUG",
 		}
+
+	configuration { "development or release", "linux-*" }
 		buildoptions {
 			"-O2",
 			"-fomit-frame-pointer",
+		}
+
+	configuration { "vs*" }
+		defines {
+			"WIN32",
+			"_WINDOWS",
+			"_WIN32",
+			"_WIN32_WINNT=0x0502",
+			"restrict=",
+			"inline=__inline",
+			"_CRT_SECURE_NO_WARNINGS",
+			"_CRT_NONSTDC_NO_DEPRECATE",
+			"strcasecmp=_stricmp",
+			"strncasecmp=_strnicmp",
+			"snprintf=_snprintf",
+		}
+		buildoptions {
+			"/wd4098",
+		}
+		includedirs {
+			AL_DIR .. "OpenAL32/config_vs2013",
+		}
+		files {
+			AL_DIR .. "Alc/backends/mmdevapi.c",
+			AL_DIR .. "Alc/backends/dsound.c",
+			AL_DIR .. "Alc/backends/winmm.c",
+		}
+		links {
+			"winmm",
 		}
 
 	configuration { "linux-*" }
@@ -90,16 +117,20 @@ project "openal"
 			"-fvisibility=hidden",
 			"-pthread",
 		}
+		includedirs {
+			AL_DIR .. "OpenAL32/config_linux",
+		}
 		files {
 			AL_DIR .. "Alc/backends/alsa.c",
 			AL_DIR .. "Alc/backends/pulseaudio.c",
 		}
 
+	configuration {}
+
 	includedirs {
 		AL_DIR .. "include",
 		AL_DIR .. "Alc",
 		AL_DIR .. "OpenAL32/Include",
-		AL_DIR .. "OpenAL32", -- for config.h
 	}
 
 	files {
