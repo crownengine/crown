@@ -5,9 +5,6 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <cstdio>
-#include "config.h"
 #include "error.h"
 
 #if defined(CROWN_DEBUG)

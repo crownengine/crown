@@ -6,6 +6,7 @@
 #include "memory.h"
 #include "allocator.h"
 #include "mutex.h"
+#include <stdlib.h> // malloc, free
 
 // void* operator new(size_t) throw (std::bad_alloc)
 // {
