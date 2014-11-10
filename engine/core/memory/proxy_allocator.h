@@ -29,17 +29,18 @@ public:
 	void deallocate(void* data);
 
 	/// @copydoc Allocator::allocated_size()
-	size_t allocated_size();
+	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+
+	/// @copydoc Allocator::total_allocated()
+	uint32_t total_allocated() { return SIZE_NOT_TRACKED; }
 
 	/// Returns the name of the proxy allocator
 	const char* name() const;
 
 private:
 
-	Allocator& _allocator;
-
 	const char* _name;
-	size_t _total_allocated;
+	Allocator& _allocator;
 };
 
 } // namespace crown

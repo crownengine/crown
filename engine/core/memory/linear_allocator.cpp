@@ -63,9 +63,4 @@ void LinearAllocator::clear()
 	_offset = 0;
 }
 
-size_t LinearAllocator::allocated_size()
-{
-	return _offset;
-}
-
 } // namespace crown

@@ -32,7 +32,10 @@ public:
 	void deallocate(void* data);
 
 	/// @copydoc Allocator::allocated_size()
-	size_t allocated_size();
+	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+
+	/// @copydoc Allocator::total_allocated()
+	uint32_t total_allocated();
 
 private:
 

@@ -48,8 +48,8 @@ namespace memory
 
 		~HeapAllocator()
 		{
-			CE_ASSERT(_allocation_count == 0 && allocated_size() == 0,
-				"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, allocated_size());
+			CE_ASSERT(_allocation_count == 0 && total_allocated() == 0,
+				"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, total_allocated());
 		}
 
 		/// @copydoc Allocator::allocate()
@@ -89,14 +89,20 @@ namespace memory
 		}
 
 		/// @copydoc Allocator::allocated_size()
-		size_t allocated_size()
+		uint32_t allocated_size(const void* ptr)
+		{
+			return get_size(ptr);
+		}
+
+		/// @copydoc Allocator::total_allocated()
+		uint32_t total_allocated()
 		{
 			ScopedMutex sm(_mutex);
 			return _allocated_size;
 		}
 
 		/// Returns the size in bytes of the block of memory pointed by @a data
-		size_t get_size(void* data)
+		size_t get_size(const void* data)
 		{
 			ScopedMutex sm(_mutex);
 			Header* h = header(data);
@@ -116,9 +122,9 @@ namespace memory
 			return size + align + sizeof(Header);
 		}
 
-		Header* header(void* data)
+		Header* header(const void* data)
 		{
-			uint32_t* ptr = (uint32_t*)data;
+			const uint32_t* ptr = (uint32_t*)data;
 			ptr--;
 
 			while (*ptr == memory::PADDING_VALUE)

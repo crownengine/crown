@@ -32,10 +32,13 @@ public:
 
 	/// Does nothing, the memory is automatically freed when the
 	/// allocator is destroyed.
-	void deallocate(void* data);
+	void deallocate(void* data) {}
 
 	/// @copydoc Allocator::allocated_size()
-	size_t allocated_size();
+	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+
+	/// @copydoc Allocator::total_allocated()
+	uint32_t total_allocated() { return SIZE_NOT_TRACKED; }
 
 private:
 
@@ -111,17 +114,6 @@ inline void* TempAllocator<SIZE>::allocate(size_t size, size_t align)
 	void *result = _cur;
 	_cur += size;
 	return result;
-}
-
-template <size_t SIZE>
-inline void TempAllocator<SIZE>::deallocate(void* /*data*/)
-{
-}
-
-template <size_t SIZE>
-inline size_t TempAllocator<SIZE>::allocated_size()
-{
-	return 0;
 }
 
 } // namespace crown

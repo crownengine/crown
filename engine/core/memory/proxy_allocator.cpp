@@ -5,32 +5,29 @@
 
 #include "proxy_allocator.h"
 #include "assert.h"
+#include "profiler.h"
 
 namespace crown
 {
 
 ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator)
-	: _allocator(allocator)
-	, _name(name)
-	, _total_allocated(0)
+	: _name(name)
+	, _allocator(allocator)
 {
 	CE_ASSERT(name != NULL, "Name must be != NULL");
 }
 
 void* ProxyAllocator::allocate(size_t size, size_t align)
 {
-	_total_allocated += size;
-	return _allocator.allocate(size, align);
+	void* p = _allocator.allocate(size, align);
+	ALLOCATE_MEMORY(_name, _allocator.allocated_size(p));
+	return p;
 }
 
 void ProxyAllocator::deallocate(void* data)
 {
+	DEALLOCATE_MEMORY(_name, (data == NULL) ? 0 :_allocator.allocated_size((const void*)data));
 	_allocator.deallocate(data);
-}
-
-size_t ProxyAllocator::allocated_size()
-{
-	return _total_allocated;
 }
 
 const char* ProxyAllocator::name() const

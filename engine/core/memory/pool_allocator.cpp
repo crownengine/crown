@@ -80,7 +80,7 @@ void PoolAllocator::deallocate(void* data)
 	_allocated_size -= _block_size;
 }
 
-size_t PoolAllocator::allocated_size()
+uint32_t PoolAllocator::total_allocated()
 {
 	return _allocated_size;
 }

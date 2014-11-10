@@ -19,8 +19,8 @@ StackAllocator::StackAllocator(void* start, size_t size)
 
 StackAllocator::~StackAllocator()
 {
-	CE_ASSERT(_allocation_count == 0 && allocated_size() == 0,
-		"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, allocated_size());
+	CE_ASSERT(_allocation_count == 0 && total_allocated() == 0,
+		"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, total_allocated());
 }
 
 void* StackAllocator::allocate(size_t size, size_t align)
@@ -66,7 +66,7 @@ void StackAllocator::deallocate(void* data)
 	_allocation_count--;
 }
 
-size_t StackAllocator::allocated_size()
+uint32_t StackAllocator::total_allocated()
 {
 	return (char*) _top - (char*) _physical_start;
 }
