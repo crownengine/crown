@@ -9,19 +9,21 @@
 #include "disk_file.h"
 #include "vector.h"
 #include "path.h"
+#include "os.h"
 
 namespace crown
 {
 
 DiskFilesystem::DiskFilesystem()
 {
-	os::getcwd(_root_path, MAX_PATH_LENGTH);
+	char buf[512];
+	os::getcwd(buf, sizeof(buf));
+	_prefix = buf;
 }
 
-DiskFilesystem::DiskFilesystem(const char* root_path)
+DiskFilesystem::DiskFilesystem(const char* prefix)
+	: _prefix(prefix)
 {
-	CE_ASSERT_NOT_NULL(root_path);
-	strncpy(_root_path, root_path, MAX_PATH_LENGTH);
 }
 
 File* DiskFilesystem::open(const char* path, FileOpenMode mode)
@@ -139,9 +141,7 @@ void DiskFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
 		return;
 	}
 
-	os_path += _root_path;
-	os_path += PATH_SEPARATOR;
-	os_path += path;
+	path::join(_prefix.c_str(), path, os_path);
 }
 
 } // namespace crown

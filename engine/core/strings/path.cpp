@@ -5,19 +5,26 @@
 
 #include "path.h"
 #include "platform.h"
+#include "string_utils.h"
 #include <ctype.h> // isalpha
 
 namespace crown
 {
 namespace path
 {
+#if CROWN_PLATFORM_POSIX
+	const char SEPARATOR = '/';
+#elif CROWN_PLATFORM_WINDOWS
+	const char SEPARATOR = '\\';
+#endif // CROWN_PLATFORM_POSIX
+
 	bool is_absolute_path(const char* path)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 #if CROWN_PLATFORM_POSIX
-		return strlen(path) > 0 && path[0] == '/';
+		return strlen(path) > 0 && path[0] == SEPARATOR;
 #elif CROWN_PLATFORM_WINDOWS
-		return strlen(path) > 2 && isalpha(path[0]) && path[1] == ':' && path[2] == '\\';
+		return strlen(path) > 2 && isalpha(path[0]) && path[1] == ':' && path[2] == SEPARATOR;
 #endif
 	}
 
@@ -28,6 +35,54 @@ namespace path
 		return is_absolute_path(path) && strlen(path) == 1;
 #elif CROWN_PLATFORM_WINDOWS
 		return is_absolute_path(path) && strlen(path) == 3;
+#endif
+	}
+
+	void join(const char* p1, const char* p2, DynamicString& path)
+	{
+		path += p1;
+		path += SEPARATOR;
+		path += p2;
+	}
+
+	const char* normalize_path(const char* path)
+	{
+#if CROWN_PLATFORM_POSIX
+		static char norm[1024];
+		char* cur = norm;
+
+		while ((*path) != '\0')
+		{
+			if ((*path) == '\\')
+			{
+				(*cur) = SEPARATOR;
+			}
+			else
+			{
+				(*cur) = (*path);
+			}
+
+			path++;
+			cur++;
+		}
+
+		return norm;
+#elif CROWN_PLATFORM_WINDOWS
+		static char norm[1024];
+
+		for (uint32_t i = 0; i < strlen(path)+1; i++)
+		{
+			if (path[i] == '/')
+			{
+				norm[i] = SEPARATOR;
+			}
+			else
+			{
+				norm[i] = path[i];
+			}
+		}
+
+		return norm;
 #endif
 	}
 

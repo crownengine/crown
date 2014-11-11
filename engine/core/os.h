@@ -35,18 +35,6 @@
 
 namespace crown
 {
-
-#if CROWN_PLATFORM_LINUX
-	const size_t	MAX_PATH_LENGTH = 1024;
-	const char		PATH_SEPARATOR = '/';
-#elif CROWN_PLATFORM_WINDOWS
-	const size_t	MAX_PATH_LENGTH = 1024;
-	const char		PATH_SEPARATOR = '\\';
-#elif CROWN_PLATFORM_ANDROID
-	const size_t	MAX_PATH_LENGTH = 1024;
-	const char		PATH_SEPARATOR = '/';
-#endif
-
 namespace os
 {
 	inline void log(const char* msg)
@@ -191,7 +179,7 @@ namespace os
 		HANDLE file = INVALID_HANDLE_VALUE;
 		WIN32_FIND_DATA ffd;
 
-		char cur_path[MAX_PATH_LENGTH];
+		char cur_path[1024];
 
 		strncpy(cur_path, path, strlen(path) + 1);
 		strncat(cur_path, "\\*", 2);
@@ -215,48 +203,6 @@ namespace os
 		while (FindNextFile(file, &ffd) != 0);
 
 		FindClose(file);
-#endif
-	}
-
-	/// Returns os-dependent path from os-indipendent @a path
-	inline const char* normalize_path(const char* path)
-	{
-#if CROWN_PLATFORM_POSIX
-		static char norm[MAX_PATH_LENGTH];
-		char* cur = norm;
-
-		while ((*path) != '\0')
-		{
-			if ((*path) == '\\')
-			{
-				(*cur) = PATH_SEPARATOR;
-			}
-			else
-			{
-				(*cur) = (*path);
-			}
-
-			path++;
-			cur++;
-		}
-
-		return norm;
-#elif CROWN_PLATFORM_WINDOWS
-		static char norm[MAX_PATH_LENGTH];
-
-		for (uint32_t i = 0; i < strlen(path)+1; i++)
-		{
-			if (path[i] == '/')
-			{
-				norm[i] = '\\';
-			}
-			else
-			{
-				norm[i] = path[i];
-			}
-		}
-
-		return norm;
 #endif
 	}
 

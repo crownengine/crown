@@ -232,9 +232,11 @@ void android_main(struct android_app* app)
 	ConfigSettings cs;
 
 	memory_globals::init();
-	// DiskFilesystem src_fs(cls.source_dir);
-	ApkFilesystem src_fs(app->activity->assetManager);
-	parse_config_file(src_fs, cs);
+	{
+		// DiskFilesystem src_fs(cls.source_dir);
+		ApkFilesystem src_fs(app->activity->assetManager);
+		parse_config_file(src_fs, cs);
+	}
 
 	console_server_globals::init(cs.console_port, false);
 

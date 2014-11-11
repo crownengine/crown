@@ -339,8 +339,10 @@ int main(int argc, char** argv)
 	parse_command_line(argc, argv, cs);
 
 	memory_globals::init();
-	DiskFilesystem src_fs(cs.source_dir);
-	parse_config_file(src_fs, cs);
+	{
+		DiskFilesystem fs(cs.source_dir);
+		parse_config_file(fs, cs);
+	}
 
 	console_server_globals::init(cs.console_port, cs.wait_console);
 

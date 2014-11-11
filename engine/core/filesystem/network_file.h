@@ -68,7 +68,7 @@ public:
 
 private:
 
-	char _filename[MAX_PATH_LENGTH];
+	char _filename[1024];
 	NetAddress _address;
 	uint16_t _port;
 	TCPSocket _socket;

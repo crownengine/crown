@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "string_utils.h"
+#include "platform.h"
+#include "dynamic_string.h"
 
 namespace crown
 {
-
 /// @defgroup Path Path
 
 /// Functions for operating on strings as file paths.
@@ -22,6 +22,12 @@ namespace path
 
 	/// Returns whether the @a path is the root path.
 	bool is_root_path(const char* path);
+
+	/// Appends path @a p2 to @a p1 and fills @a path with the result.
+	void join(const char* p1, const char* p2, DynamicString& path);
+
+	/// Returns os-dependent path from os-indipendent @a path
+	const char* normalize(const char* path);
 
 	void pathname(const char* path, char* str, size_t len);
 	void filename(const char* path, char* str, size_t len);

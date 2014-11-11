@@ -6,7 +6,6 @@
 #pragma once
 
 #include "filesystem.h"
-#include "os.h" // for max_path_length
 
 namespace crown
 {
@@ -27,10 +26,10 @@ public:
 	/// the engine executable.
 	DiskFilesystem();
 
-	/// Sets the root path to the given @a root_path.
+	/// Sets the root path to the given @a prefix.
 	/// @note
-	/// The @a root_path must be absolute.
-	DiskFilesystem(const char* root_path);
+	/// The @a prefix must be absolute.
+	DiskFilesystem(const char* prefix);
 
 	/// Opens the file at the given @a path with the given @a mode.
 	File* open(const char* path, FileOpenMode mode);
@@ -69,7 +68,7 @@ public:
 
 private:
 
-	char _root_path[MAX_PATH_LENGTH];
+	DynamicString _prefix;
 };
 
 } // namespace crown
