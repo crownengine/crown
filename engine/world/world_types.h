@@ -16,6 +16,9 @@ typedef Id CameraId;
 
 struct Unit;
 struct SceneGraph;
+struct Camera;
+class WorldManager;
+class World;
 
 struct EventType
 {

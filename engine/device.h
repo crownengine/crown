@@ -9,29 +9,14 @@
 #include "config.h"
 #include "linear_allocator.h"
 #include "world_types.h"
+#include "resource_types.h"
+#include "lua_types.h"
+#include "filesystem_types.h"
 
 namespace crown
 {
 
-class Filesystem;
-struct LuaEnvironment;
-class ResourceManager;
-struct ResourcePackage;
-class World;
-class WorldManager;
-struct Camera;
-
 /// @defgroup Device Device
-
-/// Holds data for a display mode.
-///
-/// @ingroup Device
-struct DisplayMode
-{
-	uint32_t id;
-	uint16_t width;
-	uint16_t height;
-};
 
 /// This is the place where to look for accessing all of
 /// the engine subsystems and related stuff.
