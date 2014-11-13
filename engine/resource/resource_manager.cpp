@@ -3,8 +3,6 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include <algorithm>
-#include <inttypes.h>
 #include "types.h"
 #include "resource_manager.h"
 #include "resource_registry.h"
