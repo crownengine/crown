@@ -13,8 +13,11 @@ namespace crown
 {
 namespace input_globals
 {
-	const size_t BUFFER_SIZE = sizeof(Keyboard) +
-								sizeof(Mouse) + sizeof(Touch);
+	const size_t BUFFER_SIZE = 0 +
+		+ sizeof(Keyboard)
+		+ sizeof(Mouse)
+		+ sizeof(Touch);
+
 	char _buffer[BUFFER_SIZE];
 	Keyboard* _keyboard = NULL;
 	Mouse* _mouse = NULL;
@@ -23,8 +26,8 @@ namespace input_globals
 	void init()
 	{
 		_keyboard = new (_buffer) Keyboard();
-		_mouse = new (_buffer + sizeof(Keyboard)) Mouse();
-		_touch = new (_buffer + sizeof(Keyboard) + sizeof(Mouse)) Touch();
+		_mouse = new (_keyboard + 1) Mouse();
+		_touch = new (_mouse + 1) Touch();
 	}
 
 	void shutdown()
