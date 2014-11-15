@@ -9,7 +9,6 @@
 #include "container_types.h"
 #include "queue.h"
 #include "id_array.h"
-#include <cstdarg>
 
 namespace crown
 {
