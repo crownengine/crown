@@ -5,6 +5,5 @@ end_of_line = lf
 indent_style = tab
 indent_size = 4
 insert_final_newline = true
-
-[{*.c, *.cpp, *.h, *.lua, *.java, *.py, makefile}]
 trim_trailing_whitespace = true
+
