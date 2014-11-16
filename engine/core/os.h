@@ -11,6 +11,7 @@
 #include "dynamic_string.h"
 #include "string_utils.h"
 #include "assert.h"
+#include "temp_allocator.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <cstdarg>
@@ -307,7 +308,8 @@ namespace os
 		PROCESS_INFORMATION process;
 		memset(&process, 0, sizeof(process));
 
-		DynamicString cmds(default_allocator());
+		TempAllocator1024 alloc;
+		DynamicString cmds(alloc);
 
 		for (uint32_t i = 0; args[i] != NULL; i++)
 		{
@@ -315,11 +317,7 @@ namespace os
 			cmds += ' ';
 		}
 
-		// Necessary because CreateProcess second argument must be non-const
-		char tmp[1024];
-		strncpy(tmp, normalize_path(cmds.c_str()), strlen(cmds.c_str()));
-
-		int err = CreateProcess(args[0], tmp, NULL, NULL, TRUE, 0, NULL, NULL, &info, &process);
+		int err = CreateProcess(args[0], (char*)cmds.c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &info, &process);
 		CE_ASSERT(err != 0, "CreateProcess: GetLastError = %d", GetLastError());
 		CE_UNUSED(err);
 
