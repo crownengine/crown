@@ -17,9 +17,9 @@ namespace json
 	{
 		CE_ASSERT_NOT_NULL(str);
 
-		if (c && c != (*str))
+		if (c && c != *str)
 		{
-			CE_ASSERT(false, "Expected '%c' got '%c'", c, (*str));
+			CE_ASSERT(false, "Expected '%c' got '%c'", c, *str);
 		}
 
 		return str + 1;
@@ -31,7 +31,7 @@ namespace json
 
 		const char* ch = s;
 
-		while ((*ch) && (*ch) <= ' ') ch = next(ch);
+		while (*ch && *ch <= ' ') ch = next(ch);
 
 		return ch;
 	}
@@ -41,11 +41,11 @@ namespace json
 		CE_ASSERT_NOT_NULL(s);
 		const char* ch = s;
 
-		while ((*ch) == '/')
+		while (*ch == '/')
 		{
 			ch = next(ch, '/');
 			ch = next(ch, '/');
-			while ((*ch) && (*ch) != '\n') ch = next(ch);
+			while (*ch && *ch != '\n') ch = next(ch);
 			ch = skip_whites(ch);
 		}
 
@@ -60,16 +60,16 @@ namespace json
 
 		bool escaped = false;
 
-		if ((*ch) == '"')
+		if (*ch == '"')
 		{
 			while ((*(ch = next(ch))) != 0)
 			{
-				if ((*ch) == '"' && !escaped)
+				if (*ch == '"' && !escaped)
 				{
 					ch = next(ch);
 					return ch;
 				}
-				else if ((*ch) == '\\') escaped = true;
+				else if (*ch == '\\') escaped = true;
 				else escaped = false;
 			}
 		}
@@ -83,9 +83,9 @@ namespace json
 
 		const char* ch = s;
 
-		while ((*ch) && (((*ch) >= '0' && (*ch) <= '9') ||
-				(*ch) == '-' || (*ch) == '.' || (*ch) == '+' ||
-				(*ch) == 'e' || (*ch) == 'E'))
+		while (*ch && ((*ch >= '0' && *ch <= '9') ||
+				*ch == '-' || *ch == '.' || *ch == '+' ||
+				*ch == 'e' || *ch == 'E'))
 		{
 			ch = next(ch);
 		}
@@ -101,15 +101,15 @@ namespace json
 
 		uint32_t brackets = 1;
 
-		if ((*ch) == '{')
+		if (*ch == '{')
 		{
 			brackets++;
 			ch = next(ch, '{');
 
-			while ((*ch) && brackets != 1)
+			while (*ch && brackets != 1)
 			{
-				if ((*ch) == '}') brackets--;
-				else if ((*ch) == '{') brackets++;
+				if (*ch == '}') brackets--;
+				else if (*ch == '{') brackets++;
 				ch = next(ch);
 			}
 		}
@@ -125,15 +125,15 @@ namespace json
 
 		uint32_t brackets = 1;
 
-		if ((*ch) == '[')
+		if (*ch == '[')
 		{
 			brackets++;
 			ch = next(ch, '[');
 
-			while ((*ch) && brackets != 1)
+			while (*ch && brackets != 1)
 			{
-				if ((*ch) == ']') brackets--;
-				else if ((*ch) == '[') brackets++;
+				if (*ch == ']') brackets--;
+				else if (*ch == '[') brackets++;
 				ch = next(ch);
 			}
 		}
@@ -147,7 +147,7 @@ namespace json
 
 		const char* ch = s;
 
-		switch ((*ch))
+		switch (*ch)
 		{
 			case 't':
 			{
@@ -180,7 +180,7 @@ namespace json
 		CE_ASSERT_NOT_NULL(s);
 
 		const char* ch = s;
-		if ((*ch) == 'n')
+		if (*ch == 'n')
 		{
 			ch = next(ch, 'n');
 			ch = next(ch, 'u');
@@ -234,27 +234,27 @@ namespace json
 
 		const char* ch = s;
 
-		if ((*ch) == '"')
+		if (*ch == '"')
 		{
-			while ((*(ch = next(ch))))
+			while (*(ch = next(ch)))
 			{
 				// Empty string
-				if ((*ch) == '"')
+				if (*ch == '"')
 				{
 					ch = next(ch);
 					return;
 				}
-				else if ((*ch) == '\\')
+				else if (*ch == '\\')
 				{
 					ch = next(ch);
 
-					if ((*ch) == 'u')
+					if (*ch == 'u')
 					{
 						CE_FATAL("Not supported at the moment");
 					}
 					else if (is_escapee(*ch))
 					{
-						str += (*ch);
+						str += *ch;
 					}
 					else
 					{
@@ -264,7 +264,7 @@ namespace json
 				}
 				else
 				{
-					str += (*ch);
+					str += *ch;
 				}
 			}
 		}
@@ -280,37 +280,37 @@ namespace json
 
 	 	Array<char> str(default_allocator());
 
-		if ((*ch) == '-')
+		if (*ch == '-')
 		{
 			array::push_back(str, '-');
 			ch = next(ch, '-');
 		}
-		while ((*ch) >= '0' && (*ch) <= '9')
+		while (*ch >= '0' && *ch <= '9')
 		{
-			array::push_back(str, (*ch));
+			array::push_back(str, *ch);
 			ch = next(ch);
 		}
 
-		if ((*ch) == '.')
+		if (*ch == '.')
 		{
 			array::push_back(str, '.');
-			while ((*(ch = next(ch))) && (*ch) >= '0' && (*ch) <= '9')
+			while ((*(ch = next(ch))) && *ch >= '0' && *ch <= '9')
 			{
 				array::push_back(str, *ch);
 			}
 		}
 
-		if ((*ch) == 'e' || (*ch) == 'E')
+		if (*ch == 'e' || *ch == 'E')
 		{
 			array::push_back(str, *ch);
 			ch = next(ch);
 
-			if ((*ch) == '-' || (*ch) == '+')
+			if (*ch == '-' || *ch == '+')
 			{
 				array::push_back(str, *ch);
 				ch = next(ch);
 			}
-			while ((*ch) >= '0' && (*ch) <= '9')
+			while (*ch >= '0' && *ch <= '9')
 			{
 				array::push_back(str, *ch);
 				ch = next(ch);
@@ -329,7 +329,7 @@ namespace json
 
 		const char* ch = s;
 
-		switch(*ch)
+		switch (*ch)
 		{
 			case 't':
 			{
@@ -376,17 +376,17 @@ namespace json
 
 		const char* ch = s;
 
-		if ((*ch) == '[')
+		if (*ch == '[')
 		{
 			ch = next(ch, '[');
 
 			// Skip whitespaces
-			while ((*ch) && (*ch) <= ' ')
+			while (*ch && *ch <= ' ')
 			{
 				ch = next(ch);
 			}
 
-			if ((*ch) == ']')
+			if (*ch == ']')
 			{
 				ch = next(ch, ']');
 				return;
@@ -400,7 +400,7 @@ namespace json
 				ch = skip_whites(ch);
 
 				// Closing bracket (top-most array)
-				if ((*ch) == ']')
+				if (*ch == ']')
 				{
 					ch = next(ch, ']');
 					return;
@@ -423,14 +423,14 @@ namespace json
 
 		const char* ch = s;
 
-		if ((*ch) == '{')
+		if (*ch == '{')
 		{
 			ch = next(ch, '{');
 
 			ch = skip_whites(ch);
 			ch = skip_comments(ch);
 
-			if ((*ch) == '}')
+			if (*ch == '}')
 			{
 				next(ch, '}');
 				return;
@@ -452,7 +452,7 @@ namespace json
 				ch = skip_whites(ch);
 				ch = skip_comments(ch);
 
-				if ((*ch) == '}')
+				if (*ch == '}')
 				{
 					next(ch, '}');
 					return;
