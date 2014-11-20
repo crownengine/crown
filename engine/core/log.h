@@ -23,7 +23,7 @@ namespace log_internal
 			len = sizeof(buf) - 1;
 
 		buf[len] = '\0';
-		console_server_globals::console().log_to_all(buf, sev);
+		console_server_globals::console().log(buf, sev);
 		os::log(buf);
 	}
 

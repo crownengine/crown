@@ -66,7 +66,7 @@ namespace console_server_internal
 	}
 }
 
-void ConsoleServer::log_to_all(const char* msg, LogSeverity::Enum severity)
+void ConsoleServer::log(const char* msg, LogSeverity::Enum severity)
 {
 	using namespace string_stream;
 	using namespace console_server_internal;
@@ -80,7 +80,7 @@ void ConsoleServer::log_to_all(const char* msg, LogSeverity::Enum severity)
 	json << "\"severity\":\"" << stt[severity] << "\",";
 	json << "\"message\":\""; sanitize(json, msg) << "\"}";
 
-	send_to_all(c_str(json));
+	send(c_str(json));
 }
 
 void ConsoleServer::send(TCPSocket client, const char* json)
@@ -90,7 +90,7 @@ void ConsoleServer::send(TCPSocket client, const char* json)
 	client.write(json, len);
 }
 
-void ConsoleServer::send_to_all(const char* json)
+void ConsoleServer::send(const char* json)
 {
 	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
 	{
