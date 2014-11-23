@@ -48,81 +48,73 @@ namespace profiler
 		_thread_buffer_size = 0;
 	}
 
-	void enter_profile_scope(const char* name)
+	template <typename T>
+	void push(EventType::Enum type, const T& ev)
 	{
-		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(EnterProfileScope) >= THREAD_BUFFER_SIZE)
+		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(ev) >= THREAD_BUFFER_SIZE)
 			flush_local_buffer();
 
 		char* p = _thread_buffer + _thread_buffer_size;
-		*(uint32_t*) p = EventType::ENTER_PROFILE_SCOPE;
-		(*(uint32_t*)(p + sizeof(uint32_t))) = sizeof(EnterProfileScope);
-		(*(EnterProfileScope*)(p + 2*sizeof(uint32_t))).name = name;
-		(*(EnterProfileScope*)(p + 2*sizeof(uint32_t))).time = os::clocktime();
-		_thread_buffer_size += sizeof(uint32_t) + sizeof(EnterProfileScope);
+		*(uint32_t*)p = type;
+		p += sizeof(uint32_t);
+		*(uint32_t*)p = sizeof(ev);
+		p += sizeof(uint32_t);
+		*(T*)p = ev;
+
+		_thread_buffer_size += 2*sizeof(uint32_t) + sizeof(ev);
+	}
+
+	void enter_profile_scope(const char* name)
+	{
+		EnterProfileScope ev;
+		ev.name = name;
+		ev.time = os::clocktime();
+
+		push(EventType::ENTER_PROFILE_SCOPE, ev);
 	}
 
 	void leave_profile_scope()
 	{
-		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(LeaveProfileScope) >= THREAD_BUFFER_SIZE)
-			flush_local_buffer();
+		LeaveProfileScope ev;
+		ev.time = os::clocktime();
 
-		char* p = _thread_buffer + _thread_buffer_size;
-		*(uint32_t*) p = EventType::LEAVE_PROFILE_SCOPE;
-		(*(uint32_t*)(p + sizeof(uint32_t))) = sizeof(LeaveProfileScope);
-		(*(LeaveProfileScope*)(p + 2*sizeof(uint32_t))).time = os::clocktime();
-		_thread_buffer_size += sizeof(uint32_t) + sizeof(LeaveProfileScope);
+		push(EventType::LEAVE_PROFILE_SCOPE, ev);
 	}
 
 	void record_float(const char* name, float value)
 	{
-		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(RecordFloat) >= THREAD_BUFFER_SIZE)
-			flush_local_buffer();
+		RecordFloat ev;
+		ev.name = name;
+		ev.value = value;
 
-		char* p = _thread_buffer + _thread_buffer_size;
-		*(uint32_t*) p = EventType::RECORD_FLOAT;
-		(*(uint32_t*)(p + sizeof(uint32_t))) = sizeof(RecordFloat);
-		(*(RecordFloat*)(p + 2*sizeof(uint32_t))).name = name;
-		(*(RecordFloat*)(p + 2*sizeof(uint32_t))).value = value;
-		_thread_buffer_size += sizeof(uint32_t) + sizeof(RecordFloat);
+		push(EventType::RECORD_FLOAT, ev);
 	}
 
 	void record_vector3(const char* name, const Vector3& value)
 	{
-		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(RecordVector3) >= THREAD_BUFFER_SIZE)
-			flush_local_buffer();
+		RecordVector3 ev;
+		ev.name = name;
+		ev.value = value;
 
-		char* p = _thread_buffer + _thread_buffer_size;
-		*(uint32_t*) p = EventType::RECORD_VECTOR3;
-		(*(uint32_t*)(p + sizeof(uint32_t))) = sizeof(RecordVector3);
-		(*(RecordVector3*)(p + 2*sizeof(uint32_t))).name = name;
-		(*(RecordVector3*)(p + 2*sizeof(uint32_t))).value = value;
-		_thread_buffer_size += sizeof(uint32_t) + sizeof(RecordVector3);
+		push(EventType::RECORD_VECTOR3, ev);
 	}
 
 	void allocate_memory(const char* name, uint32_t size)
 	{
-		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(AllocateMemory) >= THREAD_BUFFER_SIZE)
-			flush_local_buffer();
+		AllocateMemory ev;
+		ev.name = name;
+		ev.size = size;
 
-		char* p = _thread_buffer + _thread_buffer_size;
-		*(uint32_t*) p = EventType::ALLOCATE_MEMORY;
-		(*(uint32_t*)(p + sizeof(uint32_t))) = sizeof(AllocateMemory);
-		(*(AllocateMemory*)(p + 2*sizeof(uint32_t))).name = name;
-		(*(AllocateMemory*)(p + 2*sizeof(uint32_t))).size = size;
-		_thread_buffer_size += sizeof(uint32_t) + sizeof(AllocateMemory);
+		push(EventType::ALLOCATE_MEMORY, ev);
 	}
 
 	void deallocate_memory(const char* name, uint32_t size)
 	{
-		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(DeallocateMemory) >= THREAD_BUFFER_SIZE)
-			flush_local_buffer();
+		DeallocateMemory ev;
+		ev.name = name;
+		ev.size = size;
 
-		char* p = _thread_buffer + _thread_buffer_size;
-		*(uint32_t*) p = EventType::DEALLOCATE_MEMORY;
-		(*(uint32_t*)(p + sizeof(uint32_t))) = sizeof(DeallocateMemory);
-		(*(DeallocateMemory*)(p + 2*sizeof(uint32_t))).name = name;
-		(*(DeallocateMemory*)(p + 2*sizeof(uint32_t))).size = size;
-		_thread_buffer_size += sizeof(uint32_t) + sizeof(DeallocateMemory);
+		push(EventType::DEALLOCATE_MEMORY, ev);
 	}
 } // namespace profiler
 
