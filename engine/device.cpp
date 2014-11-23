@@ -8,7 +8,6 @@
 #include "device.h"
 #include "log.h"
 #include "lua_environment.h"
-#include "lua_stack.h"
 #include "lua_system.h"
 #include "material_manager.h"
 #include "resource_manager.h"
@@ -18,7 +17,6 @@
 #include "world_manager.h"
 #include "memory.h"
 #include "os.h"
-#include <cstdlib>
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 

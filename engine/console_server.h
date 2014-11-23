@@ -6,8 +6,6 @@
 #pragma once
 
 #include "socket.h"
-#include "container_types.h"
-#include "queue.h"
 #include "id_array.h"
 
 namespace crown
@@ -36,8 +34,6 @@ struct Client
 	}
 };
 
-typedef IdArray<CE_MAX_CONSOLE_CLIENTS, Client> ClientArray;
-
 class ConsoleServer
 {
 public:
@@ -47,13 +43,13 @@ public:
 	ConsoleServer(uint16_t port, bool wait);
 	void shutdown();
 
-	void log_to_all(const char* msg, LogSeverity::Enum severity = LogSeverity::INFO);
+	void log(const char* msg, LogSeverity::Enum severity = LogSeverity::INFO);
 
 	/// Collects requests from clients and processes them all.
 	void update();
 
 	/// Sends the given JSON-encoded string to all clients.
-	void send_to_all(const char* json);
+	void send(const char* json);
 
 private:
 
@@ -70,6 +66,8 @@ private:
 private:
 
 	TCPSocket m_server;
+
+	typedef IdArray<CE_MAX_CONSOLE_CLIENTS, Client> ClientArray;
 	ClientArray m_clients;
 };
 
