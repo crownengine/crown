@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdarg>
+#include <cctype>
 
 namespace crown
 {
@@ -71,6 +72,31 @@ inline int32_t snprintf(char* str, size_t n, const char* format, ...)
 	int32_t len = vsnprintf(str, n, format, args);
 	va_end(args);
 	return len;
+}
+
+inline const char* skip_spaces(const char* str)
+{
+	while (isspace(*str)) ++str;
+	return str;
+}
+
+inline const char* skip_block(const char* str, char a, char b)
+{
+	uint32_t num = 0;
+
+	for (char ch = *str++; *str != '\0'; ch = *str++)
+	{
+		if (ch == a) ++num;
+		else if (ch == b)
+		{
+			if (--num == 0)
+			{
+				return str;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 inline const char* begin(const char* str)

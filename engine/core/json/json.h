@@ -34,30 +34,30 @@ struct JSONType
 /// @ingroup JSON
 namespace json
 {
-	/// Returns the data type of the JSON string @a s.
-	JSONType::Enum type(const char* s);
+	/// Returns the data type of the JSON string @a str.
+	JSONType::Enum type(const char* str);
 
-	/// Parses the JSON string @a s ad puts it into @a str.
-	void parse_string(const char* s, DynamicString& str);
+	/// Parses the JSON string @a str ad puts it into @a string.
+	void parse_string(const char* str, DynamicString& string);
 
-	/// Returns the JSON number @a s as double.
-	double parse_number(const char* s);
+	/// Returns the JSON number @a str as double.
+	double parse_number(const char* str);
 
-	/// Returns the JSON number @a s as int.
-	int32_t parse_int(const char* s);
+	/// Returns the JSON number @a str as int.
+	int32_t parse_int(const char* str);
 
-	/// Returns the JSON number @a s as float.
-	float parse_float(const char* s);
+	/// Returns the JSON number @a str as float.
+	float parse_float(const char* str);
 
-	/// Returns the JSON boolean @a s as bool.
-	bool parse_bool(const char* s);
+	/// Returns the JSON boolean @a str as bool.
+	bool parse_bool(const char* str);
 
-	/// Parses the JSON array @a s and puts it into @a array as pointers to
-	/// the corresponding items into the original @a s string.
-	void parse_array(const char* s, Array<const char*>& array);
+	/// Parses the JSON array @a str and puts it into @a array as pointers to
+	/// the corresponding items into the original @a str string.
+	void parse_array(const char* str, Array<const char*>& array);
 
-	/// Parses the JSON object @a s and puts it into @a object as map from
-	/// key to pointer to the corresponding value into the original string @a s.
-	void parse_object(const char* s, Map<DynamicString, const char*>& object);
+	/// Parses the JSON object @a str and puts it into @a object as map from
+	/// key to pointer to the corresponding value into the original string @a str.
+	void parse_object(const char* str, Map<DynamicString, const char*>& object);
 } // namespace json
 } // namespace crown

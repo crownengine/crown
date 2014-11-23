@@ -4,9 +4,8 @@
  */
 
 #include "json.h"
-#include "container_types.h"
 #include "string_utils.h"
-#include "dynamic_string.h"
+#include "temp_allocator.h"
 #include "map.h"
 
 namespace crown
@@ -22,249 +21,111 @@ namespace json
 			CE_ASSERT(false, "Expected '%c' got '%c'", c, *str);
 		}
 
-		return str + 1;
+		return ++str;
 	}
 
-	static const char* skip_whites(const char* s)
+	static const char* skip_string(const char* str)
 	{
-		CE_ASSERT_NOT_NULL(s);
-
-		const char* ch = s;
-
-		while (*ch && *ch <= ' ') ch = next(ch);
-
-		return ch;
-	}
-
-	static const char* skip_comments(const char* s)
-	{
-		CE_ASSERT_NOT_NULL(s);
-		const char* ch = s;
-
-		while (*ch == '/')
-		{
-			ch = next(ch, '/');
-			ch = next(ch, '/');
-			while (*ch && *ch != '\n') ch = next(ch);
-			ch = skip_whites(ch);
-		}
-
-		return ch;
-	}
-
-	static const char* skip_string(const char* s)
-	{
-		CE_ASSERT_NOT_NULL(s);
-
-		const char* ch = s;
+		CE_ASSERT_NOT_NULL(str);
 
 		bool escaped = false;
 
-		if (*ch == '"')
+		while ((*(str = next(str))) != 0)
 		{
-			while ((*(ch = next(ch))) != 0)
+			if (*str == '"' && !escaped)
 			{
-				if (*ch == '"' && !escaped)
-				{
-					ch = next(ch);
-					return ch;
-				}
-				else if (*ch == '\\') escaped = true;
-				else escaped = false;
+				str = next(str);
+				return str;
 			}
+			else if (*str == '\\') escaped = true;
+			else escaped = false;
 		}
 
-		return ch;
+		return str;
 	}
 
-	static const char* skip_number(const char* s)
+	static const char* skip_value(const char* str)
 	{
-		CE_ASSERT_NOT_NULL(s);
+		CE_ASSERT_NOT_NULL(str);
 
-		const char* ch = s;
-
-		while (*ch && ((*ch >= '0' && *ch <= '9') ||
-				*ch == '-' || *ch == '.' || *ch == '+' ||
-				*ch == 'e' || *ch == 'E'))
+		switch (*str)
 		{
-			ch = next(ch);
+			case '"': str = skip_string(str); break;
+			case '[': str = skip_block(str, '[', ']'); break;
+			case '{': str = skip_block(str, '{', '}'); break;
+			default: for (; *str != ',' && *str != '}' && *str != ']'; ++str) ; break;
 		}
 
-		return ch;
+		return str;
 	}
 
-	static const char* skip_object(const char* s)
+	static const char* skip_comments(const char* str)
 	{
-		CE_ASSERT_NOT_NULL(s);
+		CE_ASSERT_NOT_NULL(str);
 
-		const char* ch = s;
-
-		uint32_t brackets = 1;
-
-		if (*ch == '{')
+		while (*str == '/')
 		{
-			brackets++;
-			ch = next(ch, '{');
-
-			while (*ch && brackets != 1)
-			{
-				if (*ch == '}') brackets--;
-				else if (*ch == '{') brackets++;
-				ch = next(ch);
-			}
+			str = next(str, '/');
+			str = next(str, '/');
+			while (*str && *str != '\n') str = next(str);
+			str = skip_spaces(str);
 		}
 
-		return ch;
+		return str;
 	}
 
-	static const char* skip_array(const char* s)
+	JSONType::Enum type(const char* str)
 	{
-		CE_ASSERT_NOT_NULL(s);
+		CE_ASSERT_NOT_NULL(str);
 
-		const char* ch = s;
-
-		uint32_t brackets = 1;
-
-		if (*ch == '[')
+		switch (*str)
 		{
-			brackets++;
-			ch = next(ch, '[');
-
-			while (*ch && brackets != 1)
-			{
-				if (*ch == ']') brackets--;
-				else if (*ch == '[') brackets++;
-				ch = next(ch);
-			}
-		}
-
-		return ch;
-	}
-
-	static const char* skip_bool(const char* s)
-	{
-		CE_ASSERT_NOT_NULL(s);
-
-		const char* ch = s;
-
-		switch (*ch)
-		{
-			case 't':
-			{
-				ch = next(ch, 't');
-				ch = next(ch, 'r');
-				ch = next(ch, 'u');
-				ch = next(ch, 'e');
-				break;
-			}
-			case 'f':
-			{
-				ch = next(ch, 'f');
-				ch = next(ch, 'a');
-				ch = next(ch, 'l');
-				ch = next(ch, 's');
-				ch = next(ch, 'e');
-				break;
-			}
-			default:
-			{
-				break;
-			}
-		}
-
-		return ch;
-	}
-
-	static const char* skip_null(const char* s)
-	{
-		CE_ASSERT_NOT_NULL(s);
-
-		const char* ch = s;
-		if (*ch == 'n')
-		{
-			ch = next(ch, 'n');
-			ch = next(ch, 'u');
-			ch = next(ch, 'l');
-			ch = next(ch, 'l');
-		}
-
-		return ch;
-	}
-
-	static const char* skip_value(const char* s)
-	{
-		CE_ASSERT_NOT_NULL(s);
-
-		const char* ch = s;
-		ch = skip_array(ch);
-		ch = skip_object(ch);
-		ch = skip_number(ch);
-		ch = skip_string(ch);
-		ch = skip_bool(ch);
-		ch = skip_null(ch);
-
-		return ch;
-	}
-
-	static bool is_escapee(char c)
-	{
-		return c == '"' || c == '\\' || c == '/' || c == '\b' || c == '\f' || c == '\n' ||
-				c == '\r' || c == '\t';
-	}
-
-	JSONType::Enum type(const char* s)
-	{
-		CE_ASSERT_NOT_NULL(s);
-
-		const char c = s[0];
-
-		switch (c)
-		{
+			case '"': return JSONType::STRING;
 			case '{': return JSONType::OBJECT;
 			case '[': return JSONType::ARRAY;
-			case '"': return JSONType::STRING;
 			case '-': return JSONType::NUMBER;
-			default: return (c >= '0' && c <= '9') ? JSONType::NUMBER : (c == 'n' ? JSONType::NIL : JSONType::BOOL);
+			default: return (isdigit(*str)) ? JSONType::NUMBER : (*str == 'n' ? JSONType::NIL : JSONType::BOOL);
 		}
 	}
 
-	void parse_string(const char* s, DynamicString& str)
+	void parse_string(const char* str, DynamicString& string)
 	{
-		CE_ASSERT_NOT_NULL(s);
+		CE_ASSERT_NOT_NULL(str);
 
-		const char* ch = s;
-
-		if (*ch == '"')
+		if (*str == '"')
 		{
-			while (*(ch = next(ch)))
+			while (*(str = next(str)))
 			{
 				// Empty string
-				if (*ch == '"')
+				if (*str == '"')
 				{
-					ch = next(ch);
+					str = next(str);
 					return;
 				}
-				else if (*ch == '\\')
+				else if (*str == '\\')
 				{
-					ch = next(ch);
+					str = next(str);
 
-					if (*ch == 'u')
+					switch (*str)
 					{
-						CE_FATAL("Not supported at the moment");
-					}
-					else if (is_escapee(*ch))
-					{
-						str += *ch;
-					}
-					else
-					{
-						// Go to invalid string
-						break;
+						case '"': string += '"'; break;
+						case '\\': string += '\\'; break;
+						case '/': string += '/'; break;
+						case 'b': string += '\b'; break;
+						case 'f': string += '\f'; break;
+						case 'n': string += '\n'; break;
+						case 'r': string += '\r'; break;
+						case 't': string += '\t'; break;
+						default:
+						{
+							CE_FATAL("Bad escape character");
+							break;
+						}
 					}
 				}
 				else
 				{
-					str += *ch;
+					string += *str;
 				}
 			}
 		}
@@ -272,80 +133,76 @@ namespace json
 		CE_FATAL("Bad string");
 	}
 
-	double parse_number(const char* s)
+	double parse_number(const char* str)
 	{
-		CE_ASSERT_NOT_NULL(s);
+		CE_ASSERT_NOT_NULL(str);
 
-		const char* ch = s;
+		TempAllocator512 alloc;
+	 	Array<char> number(alloc);
 
-	 	Array<char> str(default_allocator());
-
-		if (*ch == '-')
+		if (*str == '-')
 		{
-			array::push_back(str, '-');
-			ch = next(ch, '-');
+			array::push_back(number, '-');
+			str = next(str, '-');
 		}
-		while (*ch >= '0' && *ch <= '9')
+		while (isdigit(*str))
 		{
-			array::push_back(str, *ch);
-			ch = next(ch);
+			array::push_back(number, *str);
+			str = next(str);
 		}
 
-		if (*ch == '.')
+		if (*str == '.')
 		{
-			array::push_back(str, '.');
-			while ((*(ch = next(ch))) && *ch >= '0' && *ch <= '9')
+			array::push_back(number, '.');
+			while ((*(str = next(str))) && isdigit(*str))
 			{
-				array::push_back(str, *ch);
+				array::push_back(number, *str);
 			}
 		}
 
-		if (*ch == 'e' || *ch == 'E')
+		if (*str == 'e' || *str == 'E')
 		{
-			array::push_back(str, *ch);
-			ch = next(ch);
+			array::push_back(number, *str);
+			str = next(str);
 
-			if (*ch == '-' || *ch == '+')
+			if (*str == '-' || *str == '+')
 			{
-				array::push_back(str, *ch);
-				ch = next(ch);
+				array::push_back(number, *str);
+				str = next(str);
 			}
-			while (*ch >= '0' && *ch <= '9')
+			while (isdigit(*str))
 			{
-				array::push_back(str, *ch);
-				ch = next(ch);
+				array::push_back(number, *str);
+				str = next(str);
 			}
 		}
 
 		// Ensure null terminated
-		array::push_back(str, '\0');
-
-		return parse_double(array::begin(str));
+		array::push_back(number, '\0');
+		return parse_double(array::begin(number));
 	}
 
-	bool parse_bool(const char* s)
+	bool parse_bool(const char* str)
 	{
-		CE_ASSERT_NOT_NULL(s);
+		CE_ASSERT_NOT_NULL(str);
 
-		const char* ch = s;
-
-		switch (*ch)
+		switch (*str)
 		{
 			case 't':
 			{
-				ch = next(ch, 't');
-				ch = next(ch, 'r');
-				ch = next(ch, 'u');
-				ch = next(ch, 'e');
+				str = next(str, 't');
+				str = next(str, 'r');
+				str = next(str, 'u');
+				str = next(str, 'e');
 				return true;
 			}
 			case 'f':
 			{
-				ch = next(ch, 'f');
-				ch = next(ch, 'a');
-				ch = next(ch, 'l');
-				ch = next(ch, 's');
-				ch = next(ch, 'e');
+				str = next(str, 'f');
+				str = next(str, 'a');
+				str = next(str, 'l');
+				str = next(str, 's');
+				str = next(str, 'e');
 				return false;
 			}
 			default:
@@ -356,111 +213,94 @@ namespace json
 		}
 	}
 
-	int32_t parse_int(const char* s)
+	int32_t parse_int(const char* str)
 	{
-		CE_ASSERT_NOT_NULL(s);
-
-		return (int32_t) parse_number(s);
+		return (int32_t) parse_number(str);
 	}
 
-	float parse_float(const char* s)
+	float parse_float(const char* str)
 	{
-		CE_ASSERT_NOT_NULL(s);
-
-		return (float) parse_number(s);
+		return (float) parse_number(str);
 	}
 
-	void parse_array(const char* s, Array<const char*>& array)
+	void parse_array(const char* str, Array<const char*>& array)
 	{
-		CE_ASSERT_NOT_NULL(s);
+		CE_ASSERT_NOT_NULL(str);
 
-		const char* ch = s;
-
-		if (*ch == '[')
+		if (*str == '[')
 		{
-			ch = next(ch, '[');
+			str = next(str, '[');
+			str = skip_spaces(str);
 
-			// Skip whitespaces
-			while (*ch && *ch <= ' ')
+			if (*str == ']')
 			{
-				ch = next(ch);
-			}
-
-			if (*ch == ']')
-			{
-				ch = next(ch, ']');
+				str = next(str, ']');
 				return;
 			}
 
-			while (*ch)
+			while (*str)
 			{
-				array::push_back(array, ch);
+				array::push_back(array, str);
 
-				ch = skip_value(ch);
-				ch = skip_whites(ch);
+				str = skip_value(str);
+				str = skip_spaces(str);
 
-				// Closing bracket (top-most array)
-				if (*ch == ']')
+				if (*str == ']')
 				{
-					ch = next(ch, ']');
+					str = next(str, ']');
 					return;
 				}
 
-				// Skip until next ','
-				ch = next(ch, ',');
-
-				// Skip whites, eventually
-				ch = skip_whites(ch);
+				str = next(str, ',');
+				str = skip_spaces(str);
 			}
 		}
 
 		CE_FATAL("Bad array");
 	}
 
-	void parse_object(const char* s, Map<DynamicString, const char*>& object)
+	void parse_object(const char* str, Map<DynamicString, const char*>& object)
 	{
-		CE_ASSERT_NOT_NULL(s);
+		CE_ASSERT_NOT_NULL(str);
 
-		const char* ch = s;
-
-		if (*ch == '{')
+		if (*str == '{')
 		{
-			ch = next(ch, '{');
+			str = next(str, '{');
 
-			ch = skip_whites(ch);
-			ch = skip_comments(ch);
+			str = skip_spaces(str);
+			str = skip_comments(str);
 
-			if (*ch == '}')
+			if (*str == '}')
 			{
-				next(ch, '}');
+				next(str, '}');
 				return;
 			}
 
-			while (*ch)
+			while (*str)
 			{
 				DynamicString key;
-				parse_string(ch, key);
+				parse_string(str, key);
 
-				ch = skip_string(ch);
-				ch = skip_whites(ch);
-				ch = next(ch, ':');
-				ch = skip_whites(ch);
+				str = skip_string(str);
+				str = skip_spaces(str);
+				str = next(str, ':');
+				str = skip_spaces(str);
 
-				map::set(object, key, ch);
+				map::set(object, key, str);
 
-				ch = skip_value(ch);
-				ch = skip_whites(ch);
-				ch = skip_comments(ch);
+				str = skip_value(str);
+				str = skip_spaces(str);
+				str = skip_comments(str);
 
-				if (*ch == '}')
+				if (*str == '}')
 				{
-					next(ch, '}');
+					next(str, '}');
 					return;
 				}
 
-				ch = next(ch, ',');
-				ch = skip_whites(ch);
-				ch = skip_comments(ch);
+				str = next(str, ',');
+				str = skip_spaces(str);
+				str = skip_comments(str);
 			}
 		}
 
