@@ -20,7 +20,7 @@ namespace crown
 /// 1. It will not work incrementally.
 /// 2. It will not produce the same results on little-endian and big-endian
 ///    machines.
-uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
+uint32_t murmur32(const void* key, size_t len, uint32_t seed)
 {
 	// 'm' and 'r' are mixing constants generated offline.
 	// They're not really 'magic', they just happen to work well.
@@ -66,7 +66,7 @@ uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
 	return h;
 }
 
-uint64_t murmur2_64(const void* key, int len, uint64_t seed)
+uint64_t murmur64(const void* key, int len, uint64_t seed)
 {
 	const uint64_t m = 0xc6a4a7935bd1e995ull;
 	const int r = 47;

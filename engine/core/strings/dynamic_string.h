@@ -58,7 +58,7 @@ public:
 	/// Returns wheterh the string ends with the given @a s string.
 	bool ends_with(const char* s) const;
 
-	/// Returns the string hashed to murmur2_32.
+	/// Returns the string hashed to murmur32.
 	StringId32 to_string_id() const;
 
 	///
@@ -203,7 +203,7 @@ inline bool DynamicString::ends_with(const char* s) const
 
 inline StringId32 DynamicString::to_string_id() const
 {
-	return murmur2_32(c_str(), length());
+	return murmur32(c_str(), length());
 }
 
 inline const char* DynamicString::c_str() const

@@ -74,7 +74,7 @@ void SceneGraph::destroy()
 
 int32_t SceneGraph::node(const char* name) const
 {
-	return node(murmur2_32(name, strlen(name)));
+	return node(murmur32(name, strlen(name)));
 }
 
 int32_t SceneGraph::node(StringId32 name) const
@@ -93,7 +93,7 @@ int32_t SceneGraph::node(StringId32 name) const
 
 bool SceneGraph::has_node(const char* name) const
 {
-	StringId32 name_hash = murmur2_32(name, strlen(name), 0);
+	StringId32 name_hash = murmur32(name, strlen(name), 0);
 
 	for (uint32_t i = 0; i < m_num_nodes; i++)
 	{

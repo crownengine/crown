@@ -130,14 +130,14 @@ namespace unit_resource
 			JSONElement node = e.key(node_name);
 
 			GraphNode gn;
-			gn.name = murmur2_32(node_name, strlen(node_name));
+			gn.name = murmur32(node_name, strlen(node_name));
 			gn.parent = NO_PARENT;
 
 			if (!node.key("parent").is_nil())
 			{
 				DynamicString parent_name;
 				node.key("parent").to_string(parent_name);
-				gn.parent = murmur2_32(parent_name.c_str(), parent_name.length(), 0);
+				gn.parent = murmur32(parent_name.c_str(), parent_name.length(), 0);
 			}
 
 			JSONElement pos = node.key("position");
@@ -172,10 +172,10 @@ namespace unit_resource
 			DynamicString camera_type;
 			type.to_string(camera_type);
 
-			StringId32 node_name_hash = murmur2_32(node_name.c_str(), node_name.length());
+			StringId32 node_name_hash = murmur32(node_name.c_str(), node_name.length());
 
 			UnitCamera cn;
-			cn.name = murmur2_32(camera_name, strlen(camera_name));
+			cn.name = murmur32(camera_name, strlen(camera_name));
 			cn.node = find_node_index(node_name_hash, node_depths);
 			cn.type = projection_name_to_enum(camera_type.c_str());
 			cn.fov =  camera.key_or_nil("fov").to_float(16.0f / 9.0f);
@@ -197,10 +197,10 @@ namespace unit_resource
 			JSONElement renderable = e.key(renderable_name);
 
 			DynamicString node_name; renderable.key("node").to_string(node_name);
-			StringId32 node_name_hash = murmur2_32(node_name.c_str(), node_name.length(), 0);
+			StringId32 node_name_hash = murmur32(node_name.c_str(), node_name.length(), 0);
 
 			UnitRenderable rn;
-			rn.name = murmur2_32(renderable_name, strlen(renderable_name), 0);
+			rn.name = murmur32(renderable_name, strlen(renderable_name), 0);
 			rn.node = find_node_index(node_name_hash, node_depths);
 			rn.visible = renderable.key("visible").to_bool();
 
@@ -237,7 +237,7 @@ namespace unit_resource
 			JSONElement value = e.key(key);
 
 			Key out_key;
-			out_key.name = murmur2_32(key, strlen(key));
+			out_key.name = murmur32(key, strlen(key));
 			out_key.offset = array::size(values);
 
 			if (value.is_bool()) out_key.type = ValueType::BOOL;
@@ -266,7 +266,7 @@ namespace unit_resource
 				{
 					DynamicString val;
 					value.to_string(val);
-					StringId32 val_hash = murmur2_32(val.c_str(), val.length());
+					StringId32 val_hash = murmur32(val.c_str(), val.length());
 					array::push(values, (char*) &val_hash, sizeof(StringId32));
 					break;
 				}
@@ -543,7 +543,7 @@ namespace unit_resource
 
 		for (uint32_t i = 0; i < nk; i++)
 		{
-			if (begin[i].name == murmur2_32(k, strlen(k)))
+			if (begin[i].name == murmur32(k, strlen(k)))
 			{
 				return true;
 			}
@@ -559,7 +559,7 @@ namespace unit_resource
 
 		for (uint32_t i = 0; i < nk; i++)
 		{
-			if (begin[i].name == murmur2_32(k, strlen(k)))
+			if (begin[i].name == murmur32(k, strlen(k)))
 			{
 				out_k = begin[i];
 				return true;

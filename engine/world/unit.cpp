@@ -144,7 +144,7 @@ void Unit::create_renderable_objects()
 	for (uint32_t i = 0; i < num_materials(m_resource); i++)
 	{
 		const UnitMaterial* mat = get_material(m_resource, i);
-		add_material(murmur2_32("default", strlen("default"), 0), material_manager::get()->create_material(mat->id));
+		add_material(murmur32("default", strlen("default"), 0), material_manager::get()->create_material(mat->id));
 	}
 
 	// Create renderables
@@ -315,7 +315,7 @@ void Unit::add_component(StringId32 name, Id component, uint32_t& size, Componen
 
 Id Unit::find_component(const char* name, uint32_t size, Component* array)
 {
-	const uint32_t name_hash = murmur2_32(name, strlen(name), 0);
+	const uint32_t name_hash = murmur32(name, strlen(name), 0);
 	return find_component_by_name(name_hash, size, array);
 }
 
@@ -477,7 +477,7 @@ bool Unit::is_a(const char* name)
 void Unit::play_sprite_animation(const char* name, bool loop)
 {
 	if (m_sprite_animation)
-		m_sprite_animation->play(murmur2_32(name, strlen(name), 0), loop);
+		m_sprite_animation->play(murmur32(name, strlen(name), 0), loop);
 }
 
 void Unit::stop_sprite_animation()
@@ -557,7 +557,7 @@ void Unit::set_key(const char* k, const char* v)
 	using namespace unit_resource;
 	Key key;
 	unit_resource::get_key(m_resource, k, key);
-	*(StringId32*)(m_values + key.offset) = murmur2_32(v, strlen(v));
+	*(StringId32*)(m_values + key.offset) = murmur32(v, strlen(v));
 }
 
 void Unit::set_key(const char* k, const Vector3& v)

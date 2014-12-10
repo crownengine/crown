@@ -21,8 +21,8 @@ struct ResourceId
 	}
 
 	ResourceId(const char* type, const char* name)
-		: type(murmur2_64(type, strlen(type), SEED))
-		, name(murmur2_64(name, strlen(name), SEED))
+		: type(murmur64(type, strlen(type), SEED))
+		, name(murmur64(name, strlen(name), SEED))
 	{
 	}
 
