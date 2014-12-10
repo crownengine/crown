@@ -9,6 +9,8 @@
 #include "log.h"
 #include "queue.h"
 #include "filesystem.h"
+#include "temp_allocator.h"
+#include "path.h"
 
 namespace crown
 {
@@ -84,10 +86,14 @@ int32_t ResourceLoader::run()
 		ResourceData rd;
 		rd.id = id;
 
-		char path[64];
-		id.to_string(path);
+		char name[64];
+		id.to_string(name);
 
-		File* file = _fs.open(path, FOM_READ);
+		TempAllocator256 alloc;
+		DynamicString path(alloc);
+		path::join("data", name, path);
+
+		File* file = _fs.open(path.c_str(), FOM_READ);
 		rd.data = resource_on_load(id.type, *file, _resource_heap);
 		_fs.close(file);
 

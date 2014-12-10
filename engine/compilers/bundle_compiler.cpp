@@ -15,7 +15,7 @@
 #include "compile_options.h"
 #include "resource_registry.h"
 #include "resource_id.h"
-#include <inttypes.h>
+#include "temp_allocator.h"
 
 namespace crown
 {
@@ -30,17 +30,27 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 
 bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum platform)
 {
-	const ResourceId id(type, name);
-	char out_name[512];
-	snprintf(out_name, 512, "%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
-	char path[512];
-	snprintf(path, 512, "%s.%s", name, type);
+	ResourceId id(type, name);
 
-	CE_LOGI("%s <= %s.%s", out_name, name, type);
+	TempAllocator512 alloc;
+	DynamicString path(alloc);
+	TempAllocator512 alloc2;
+	DynamicString src_path(alloc2);
 
-	File* outf = _bundle_fs.open(out_name, FOM_WRITE);
+	src_path += name;
+	src_path += ".";
+	src_path += type;
+
+	char res_name[64];
+	id.to_string(res_name);
+
+	path::join("data", res_name, path);
+
+	CE_LOGI("%s <= %s.%s", res_name, name, type);
+
+	File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
 	CompileOptions opts(_source_fs, outf, platform);
-	resource_on_compile(id.type, path, opts);
+	resource_on_compile(id.type, src_path.c_str(), opts);
 	_bundle_fs.close(outf);
 	return true;
 }
@@ -61,6 +71,9 @@ bool BundleCompiler::compile_all(Platform::Enum platform)
 	src->copy_to(*dst, src->size());
 	_source_fs.close(src);
 	_bundle_fs.close(dst);
+
+	if (!_bundle_fs.exists("data"))
+		_bundle_fs.create_directory("data");
 
 	// Compile all resources
 	for (uint32_t i = 0; i < vector::size(files); i++)
