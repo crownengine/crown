@@ -14,22 +14,30 @@
 #include "level_resource.h"
 #include "memory.h"
 #include "matrix4x4.h"
+#include "int_setting.h"
 
 namespace crown
 {
+
+static IntSetting g_physics_debug("physics.debug", "Enable physics debug rendering.", 0, 0, 1);
 
 World::World()
 	: m_unit_pool(default_allocator(), CE_MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), CE_MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
 	, m_physics_world(*this)
 	, m_events(default_allocator())
+	, _lines(NULL)
 {
 	m_id.id = INVALID_ID;
 	m_sound_world = SoundWorld::create(default_allocator());
+
+	_lines = create_debug_line(false);
 }
 
 World::~World()
 {
+	destroy_debug_line(_lines);
+
 	// Destroy all units
 	for (uint32_t i = 0; i < id_array::size(m_units); i++)
 	{
@@ -149,7 +157,8 @@ void World::render(Camera* camera)
 	m_render_world.update(camera->view_matrix(), camera->projection_matrix(), camera->_view_x, camera->_view_y,
 							camera->_view_width, camera->_view_height, device()->last_delta_time());
 
-	m_physics_world.draw_debug();
+	if (g_physics_debug == 1)
+		m_physics_world.draw_debug(*_lines);
 }
 
 CameraId World::create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)

@@ -168,6 +168,7 @@ private:
 	WorldId m_id;
 
 	EventStream m_events;
+	DebugLine* _lines;
 };
 
 } // namespace crown

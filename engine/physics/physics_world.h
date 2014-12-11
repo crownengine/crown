@@ -19,8 +19,6 @@
 #include "PxDefaultCpuDispatcher.h"
 #include "PxControllerManager.h"
 
-#include "log.h"
-
 using physx::PxControllerManager;
 using physx::PxScene;
 using physx::PxDefaultCpuDispatcher;
@@ -76,7 +74,7 @@ public:
 	void update(float dt);
 
 	/// Draws debug lines.
-	void draw_debug();
+	void draw_debug(DebugLine& lines);
 
 	Actor* get_actor(ActorId id);
 	Controller* get_controller(ControllerId id);
@@ -117,10 +115,6 @@ private:
 	PhysicsSimulationCallback m_callback;
 
 	const PhysicsConfigResource* m_resource;
-
-	#if defined(CROWN_DEBUG)
-		DebugLine* m_debug_line;
-	#endif
 };
 
 } // namespace crown
