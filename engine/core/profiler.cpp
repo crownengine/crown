@@ -8,6 +8,7 @@
 #include "array.h"
 #include "mutex.h"
 #include "memory.h"
+#include "vector3.h"
 
 namespace crown
 {
