@@ -1,6 +1,6 @@
-[submodule "third/crown-bgfx"]
-	path = third/bgfx
-	url = https://github.com/taylor001/bgfx.git
 [submodule "third/crown-bx"]
 	path = third/bx
 	url = https://github.com/taylor001/bx.git
+[submodule "third/bgfx"]
+	path = third/bgfx
+	url = https://github.com/taylor001/bgfx.git
