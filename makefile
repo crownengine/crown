@@ -38,12 +38,16 @@ bgfx-linux-release64:
 	make -R -C third/bgfx linux-release64
 bgfx-vs2013-debug32:
 	make -R -C third/bgfx .build/projects/vs2013
+	devenv third/bgfx/.build/projects/vs2013/bgfx.sln /Build "debug|Win32"
 bgfx-vs2013-release32:
 	make -R -C third/bgfx .build/projects/vs2013
+	devenv third/bgfx/.build/projects/vs2013/bgfx.sln /Build "release|Win32"
 bgfx-vs2013-debug64:
 	make -R -C third/bgfx .build/projects/vs2013
+	devenv third/bgfx/.build/projects/vs2013/bgfx.sln /Build "debug|x64"
 bgfx-vs2013-release64:
 	make -R -C third/bgfx .build/projects/vs2013
+	devenv third/bgfx/.build/projects/vs2013/bgfx.sln /Build "release|x64"
 bgfx-android-arm-debug:
 	make -R -C third/bgfx android-arm-debug
 bgfx-android-arm-release:
