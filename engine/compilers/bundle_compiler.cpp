@@ -44,7 +44,7 @@ bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum 
 	char res_name[64];
 	id.to_string(res_name);
 
-	path::join("data", res_name, path);
+	path::join(CROWN_DATA_DIRECTORY, res_name, path);
 
 	CE_LOGI("%s <= %s.%s", res_name, name, type);
 

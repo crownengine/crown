@@ -6,7 +6,6 @@
 #include "resource_loader.h"
 #include "memory.h"
 #include "resource_registry.h"
-#include "log.h"
 #include "queue.h"
 #include "filesystem.h"
 #include "temp_allocator.h"
@@ -91,7 +90,7 @@ int32_t ResourceLoader::run()
 
 		TempAllocator256 alloc;
 		DynamicString path(alloc);
-		path::join("data", name, path);
+		path::join(CROWN_DATA_DIRECTORY, name, path);
 
 		File* file = _fs.open(path.c_str(), FOM_READ);
 		rd.data = resource_on_load(id.type, *file, _resource_heap);
