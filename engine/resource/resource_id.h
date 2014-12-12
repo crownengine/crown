@@ -32,9 +32,10 @@ struct ResourceId
 	{
 	}
 
-	void to_string(char out[64])
+	const char* to_string(char out[64])
 	{
 		snprintf(out, 64, "%.16"PRIx64"-%.16"PRIx64, type, name);
+		return out;
 	}
 
 	bool operator==(const ResourceId& a) const

@@ -104,6 +104,10 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 {
 	ResourceId id(type, name);
 
+	char buf[64];
+	CE_ASSERT(can_get(type, name), "Resource not loaded #ID(%s)", id.to_string(buf));
+	CE_UNUSED(buf);
+
 	if (_autoload && !sort_map::has(_rm, id))
 	{
 		load(type, name);
