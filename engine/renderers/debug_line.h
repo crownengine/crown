@@ -53,7 +53,7 @@ private:
 
 	bool _depth_test;
 	uint32_t _num;
-	Line _lines[CE_MAX_DEBUG_LINES];
+	Line _lines[CROWN_MAX_DEBUG_LINES];
 };
 
 } // namespace crown

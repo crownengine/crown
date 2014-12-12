@@ -132,7 +132,7 @@ DebugLine::DebugLine(bool depth_test)
 
 void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4& color)
 {
-	if (_num >= CE_MAX_DEBUG_LINES)
+	if (_num >= CROWN_MAX_DEBUG_LINES)
 		 return;
 
 	_lines[_num].p0[0] = start.x;
@@ -208,8 +208,11 @@ void DebugLine::commit()
 	if (!_num)
 		return;
 
+	if (!checkAvailTransientVertexBuffer(_num * 2, debug_line::s_decl))
+		return;
+
 	bgfx::TransientVertexBuffer tvb;
-	bgfx::allocTransientVertexBuffer(&tvb, CE_MAX_DEBUG_LINES * 2, debug_line::s_decl);
+	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, debug_line::s_decl);
 
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 

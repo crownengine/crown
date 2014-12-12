@@ -85,9 +85,9 @@
 	#define CE_MAX_CONSOLE_CLIENTS 32
 #endif // CE_MAX
 
-#ifndef CE_MAX_DEBUG_LINES
-	#define CE_MAX_DEBUG_LINES 2 * 1024 // Per DebugLine
-#endif // CE_MAX
+#ifndef CROWN_MAX_DEBUG_LINES
+	#define CROWN_MAX_DEBUG_LINES 32768 // Per DebugLine
+#endif // CROWN_MAX_DEBUG_LINES
 
 #ifndef CROWN_MAX_LUA_VECTOR3
 	#define CROWN_MAX_LUA_VECTOR3 4096
