@@ -25,8 +25,6 @@ luajit-arm:
 	CROSS=$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi- \
 	TARGET_FLAGS="--sysroot $(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm \
 		-march=armv7-a -mfloat-abi=softfp -Wl,--fix-cortex-a8"
-luajit-clean:
-	make -R -C third/luajit clean
 
 bgfx-linux-debug32:
 	make -R -C third/bgfx linux-debug32
@@ -52,8 +50,6 @@ bgfx-android-arm-debug:
 	make -R -C third/bgfx android-arm-debug
 bgfx-android-arm-release:
 	make -R -C third/bgfx android-arm-release
-bgfx-clean:
-	make -R -C third/bgfx clean
 
 deps-linux-debug32: luajit-linux32 bgfx-linux-debug32
 deps-linux-debug64: luajit-linux64 bgfx-linux-debug64
@@ -65,7 +61,6 @@ deps-windows-release32: luajit-windows32 bgfx-vs2013-release32
 deps-windows-release64: luajit-windows64 bgfx-vs2013-release64
 deps-android-arm-debug: luajit-arm bgfx-android-arm-debug
 deps-android-arm-release: luajit-arm bgfx-android-arm-release
-deps-clean: luajit-clean bgfx-clean
 
 linux-build:
 	$(GENIE) --file=genie/genie.lua --with-openal --compiler=linux-gcc gmake
@@ -113,6 +108,8 @@ docs:
 	doxygen docs/Doxyfile.doxygen
 	rst2html2 --stylesheet=html4css1.css,docs/style.css docs/lua_api.txt .build/docs/lua_api.html
 
-clean: deps-clean
+clean:
 	@echo Cleaning...
-	@rm -rf .build
+	-@rm -rf .build
+	-@rm -rf third/bgfx/.build
+	make -R -C third/luajit clean

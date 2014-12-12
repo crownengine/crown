@@ -26,24 +26,6 @@
 namespace crown
 {
 
-static bool s_exit = false;
-
-struct MainThreadArgs
-{
-	Filesystem* fs;
-	ConfigSettings* cs;
-};
-
-int32_t func(void* data)
-{
-	MainThreadArgs* args = (MainThreadArgs*)data;
-	crown::init(*args->fs, *args->cs);
-	crown::update();
-	crown::shutdown();
-	s_exit = true;
-	return EXIT_SUCCESS;
-}
-
 static KeyboardButton::Enum win_translate_key(int32_t winkey)
 {
 	switch (winkey)
@@ -131,6 +113,24 @@ static KeyboardButton::Enum win_translate_key(int32_t winkey)
 	}
 }
 
+static bool s_exit = false;
+
+struct MainThreadArgs
+{
+	Filesystem* fs;
+	ConfigSettings* cs;
+};
+
+int32_t func(void* data)
+{
+	MainThreadArgs* args = (MainThreadArgs*)data;
+	crown::init(*args->fs, *args->cs);
+	crown::update();
+	crown::shutdown();
+	s_exit = true;
+	return EXIT_SUCCESS;
+}
+
 struct WindowsDevice
 {
 	WindowsDevice()
@@ -154,22 +154,21 @@ struct WindowsDevice
 		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
 		RegisterClassExA(&wnd);
 
-		_hwnd = CreateWindowA(
-					"crown",
-					"Crown",
-					WS_OVERLAPPEDWINDOW|WS_VISIBLE,
-					0,
-					0,
-					cs->window_width,
-					cs->window_height,
-					0,
-					NULL,
-					instance,
-					0);
+		_hwnd = CreateWindowA("crown"
+			, "Crown"
+			, WS_OVERLAPPEDWINDOW | WS_VISIBLE
+			, 0
+			, 0
+			, cs->window_width
+			, cs->window_height
+			, 0
+			, NULL
+			, instance
+			, 0);
+		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
 
 		bgfx::winSetHwnd(_hwnd);
 
-		// Start main thread
 		MainThreadArgs mta;
 		mta.fs = fs;
 		mta.cs = cs;
@@ -205,8 +204,9 @@ struct WindowsDevice
 			case WM_QUIT:
 			case WM_CLOSE:
 			{
+				s_exit = true;
 				_queue.push_exit_event(0);
-				break;
+				return 0;
 			}
 			case WM_SIZE:
 			{
@@ -298,6 +298,7 @@ struct WindowsDevice
 			default:
 				break;
 		}
+
 		return DefWindowProc(hwnd, id, wparam, lparam);
 	}
 
@@ -329,11 +330,11 @@ int main(int argc, char** argv)
 {
 	using namespace crown;
 
-	WSADATA WsaData;
-	int res = WSAStartup(MAKEWORD(2, 2), &WsaData);
-	CE_ASSERT(res == 0, "Unable to initialize socket");
-	CE_UNUSED(WsaData);
-	CE_UNUSED(res);
+	WSADATA dummy;
+	int err = WSAStartup(MAKEWORD(2, 2), &dummy);
+	CE_ASSERT(err == 0, "WSAStartup: error = %d", err);
+	CE_UNUSED(dummy);
+	CE_UNUSED(err);
 
 	ConfigSettings cs;
 	parse_command_line(argc, argv, cs);
