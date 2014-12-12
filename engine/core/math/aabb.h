@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "assert.h"
+#include "ceassert.h"
 #include "math_types.h"
 #include "matrix4x4.h"
 #include "sphere.h"

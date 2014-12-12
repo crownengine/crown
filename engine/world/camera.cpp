@@ -9,7 +9,7 @@
 #include "quaternion.h"
 #include "unit.h"
 #include "scene_graph.h"
-#include "assert.h"
+#include "ceassert.h"
 #include "vector4.h"
 #include "frustum.h"
 

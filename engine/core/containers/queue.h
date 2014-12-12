@@ -7,7 +7,7 @@
 
 #include "container_types.h"
 #include "array.h"
-#include "assert.h"
+#include "ceassert.h"
 #include <cstring> // memcpy
 
 namespace crown

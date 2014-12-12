@@ -7,7 +7,7 @@
 #include "lua.hpp"
 #include "config.h"
 #include "lua_stack.h"
-#include "assert.h"
+#include "ceassert.h"
 #include "vector2.h"
 #include "vector3.h"
 #include "matrix4x4.h"

@@ -86,6 +86,30 @@ project "openal"
 			AL_DIR .. "Alc/backends/pulseaudio.c",
 		}
 
+	configuration { "osx-*" }
+		defines {
+			-- These are needed on non-Windows systems for extra features
+			"_GNU_SOURCE=1",
+			"_POSIX_C_SOURCE=200809L",
+			"_XOPEN_SOURCE=700",
+		}
+		buildoptions {
+			"-std=c99",
+			"-Winline",
+			"-Wall",
+			"-Wextra",
+			"-fPIC",
+			"-fvisibility=hidden",
+			"-pthread",
+		}
+		includedirs {
+			AL_DIR .. "OpenAL32/config_linux",
+		}
+		files {
+			AL_DIR .. "Alc/backends/alsa.c",
+			AL_DIR .. "Alc/backends/pulseaudio.c",
+		}		
+
 	configuration {}
 
 	includedirs {

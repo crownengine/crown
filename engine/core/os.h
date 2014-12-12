@@ -10,7 +10,7 @@
 #include "vector.h"
 #include "dynamic_string.h"
 #include "string_utils.h"
-#include "assert.h"
+#include "ceassert.h"
 #include "temp_allocator.h"
 
 #if CROWN_PLATFORM_POSIX
@@ -228,10 +228,21 @@ namespace os
 
 	inline int64_t clocktime()
 	{
-#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_ANDROID || CROWN_PLATFORM_IOS || CROWN_PLATFORM_LINUX
 		timespec ttime;
 		clock_gettime(CLOCK_MONOTONIC, &ttime);
 		return ttime.tv_sec * int64_t(1000000000) + ttime.tv_nsec;
+#elif CROWN_PLATFORM_OSX // I don't think osx has CLOCK_MONOTONIC defined anywhere
+		struct timespec t; // timespec.tv_usec * 1000 gets us there I believe
+		struct timeval now;
+
+    	int rv = gettimeofday(&now, NULL);
+    	if (rv) return rv;
+
+    	t.tv_sec  = now.tv_sec;
+   		t.tv_nsec = now.tv_usec * 1000;
+
+		return t.tv_sec * int64_t(1000000000) + t.tv_nsec;
 #elif CROWN_PLATFORM_WINDOWS
 		LARGE_INTEGER ttime;
 		QueryPerformanceCounter(&ttime);

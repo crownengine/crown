@@ -42,6 +42,13 @@ configuration { "android-arm" }
 		"cp -r " .. CROWN_DIR .. ".build/android-arm/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/android-arm/",
 	}
 
+configuration { "x32", "osx-*" }
+	postbuildcommands {
+		"cp -r " .. CROWN_DIR .. ".build/osx32/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/osx32/",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/osx32/",
+		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/osx32/",
+	}	
+
 configuration { "x32", "linux-*" }
 	postbuildcommands {
 		"cp -r " .. CROWN_DIR .. ".build/linux32/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux32/",
@@ -80,6 +87,11 @@ configuration { "x64", "vs*" }
 		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/nvToolsExt64_1.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
 	}
 
+configuration { "debug or development", "x32", "osx-*" }
+	postbuildcommands {
+		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/osx32_clang/bin/shadercDebug " .. "$(CROWN_INSTALL_DIR)/" .. "bin/osx32"
+	}	
+
 configuration { "debug or development", "x32", "linux-*" }
 	postbuildcommands {
 		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin/shadercDebug " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux32"
@@ -90,10 +102,25 @@ configuration { "release", "x32", "linux-*" }
 		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin/shadercRelease " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux32"
 	}
 
+configuration { "release", "x32", "osx-*" }
+	postbuildcommands {
+		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/osx32_clang/bin/shadercRelease " .. "$(CROWN_INSTALL_DIR)/" .. "bin/osx32"
+	}		
+
+configuration { "debug or development", "x64", "osx-*" }
+	postbuildcommands {
+		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/osx64_clang/bin/shadercDebug " .. "$(CROWN_INSTALL_DIR)/" .. "bin/osx64"
+	}	
+
 configuration { "debug or development", "x64", "linux-*" }
 	postbuildcommands {
 		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin/shadercDebug " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux64"
 	}
+
+configuration { "release", "x64", "osx-*" }
+	postbuildcommands {
+		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/osx64_clang/bin/shadercRelease " .. "$(CROWN_INSTALL_DIR)/" .. "bin/osx64"
+	}	
 
 configuration { "release", "x64", "linux-*" }
 	postbuildcommands {

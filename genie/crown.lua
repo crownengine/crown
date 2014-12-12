@@ -66,6 +66,27 @@ function crown_project(_name, _kind, _defines)
 				"NDEBUG"
 			}
 
+		configuration { "osx*" }
+			includedirs {
+				"$(PHYSX_SDK_OSX)/Include",
+				"$(PHYSX_SDK_OSX)/Include/common",
+				"$(PHYSX_SDK_OSX)/Include/characterkinematic",
+				"$(PHYSX_SDK_OSX)/Include/cloth",
+				"$(PHYSX_SDK_OSX)/Include/common",
+				"$(PHYSX_SDK_OSX)/Include/cooking",
+				"$(PHYSX_SDK_OSX)/Include/extensions",
+				"$(PHYSX_SDK_OSX)/Include/foundation",
+				"$(PHYSX_SDK_OSX)/Include/geometry",
+				"$(PHYSX_SDK_OSX)/Include/particles",
+				"$(PHYSX_SDK_OSX)/Include/physxprofilesdk",
+				"$(PHYSX_SDK_OSX)/Include/physxvisualdebuggersdk",
+				"$(PHYSX_SDK_OSX)/Include/pvd",
+				"$(PHYSX_SDK_OSX)/Include/pxtask",
+				"$(PHYSX_SDK_OSX)/Include/RepX",
+				"$(PHYSX_SDK_OSX)/Include/RepXUpgrader",
+				"$(PHYSX_SDK_OSX)/Include/vehicle",
+			}			
+
 		configuration { "linux*" }
 			includedirs {
 				"$(PHYSX_SDK_LINUX)/Include",
@@ -130,6 +151,11 @@ function crown_project(_name, _kind, _defines)
 				"$(DXSDK_DIR)/Include",
 			}
 
+		configuration { "osx-*" }
+			files {
+				CROWN_DIR .. "engine/**.mm"
+			}		
+
 		configuration { "linux-*" }
 			links {
 				"X11",
@@ -147,6 +173,81 @@ function crown_project(_name, _kind, _defines)
 		configuration { "debug", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-64", }
 		configuration { "development", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-development-64", }
 		configuration { "release", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-release-64", }
+
+		-- Fix this in GENie
+		--configuration { "debug", "x32", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-32", }
+		--configuration { "development", "x32", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-development-32", }
+		--configuration { "release", "x32", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-release-32", }
+		--configuration { "debug", "x64", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-64", }
+		--configuration { "development", "x64", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-development-64", }
+		--configuration { "release", "x64", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-release-64", }
+
+		configuration { "debug", "osx-*" }
+			links {
+				"bgfxDebug",
+				"luajit-5.1",
+				"CoreVideo.framework",
+				"IOKit.framework",
+				"Cocoa.framework",
+				"OpenAL.framework",
+				"OpenGL.framework",
+			}
+			linkoptions {
+				"$(addprefix -l," ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
+				")"
+			}
+
+		configuration { "development", "osx-*" }
+			links {
+				"bgfxDebug",
+				"CoreVideo.framework",
+				"IOKit.framework",
+				"Cocoa.framework",
+				"OpenAL.framework",
+				"OpenGL.framework",
+			}
+
+		configuration { "release", "osx-*" }
+			links {
+				"bgfxRelease",
+				"CoreVideo.framework",
+				"IOKit.framework",
+				"Cocoa.framework",
+				"OpenAL.framework",
+				"OpenGL.framework",
+			}
+			linkoptions {
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
+				") -Wl,--end-group"
+			}
 
 		configuration { "debug", "linux-*" }
 			links {

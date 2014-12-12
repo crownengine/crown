@@ -17,7 +17,7 @@ namespace crown
 
 namespace debug_line
 {
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID || CROWN_PLATFORM_OSX
 	static const uint8_t vs_h[335] =
 	{
 		0x56, 0x53, 0x48, 0x03, 0x1c, 0xf0, 0xa8, 0xc9, 0x01, 0x00, 0x0f, 0x75, 0x5f, 0x6d, 0x6f, 0x64, // VSH........u_mod

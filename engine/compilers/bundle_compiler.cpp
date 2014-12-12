@@ -139,7 +139,7 @@ namespace bundle_compiler_globals
 
 	void init(const char* source_dir, const char* bundle_dir)
 	{
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS || CROWN_PLATFORM_OSX
 		_compiler = new (_buffer) BundleCompiler(source_dir, bundle_dir);
 #endif
 	}

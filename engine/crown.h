@@ -17,6 +17,7 @@ namespace crown
 			LINUX = 0,
 			WINDOWS = 1,
 			ANDROID = 2,
+			OSX = 3,
 
 			COUNT
 		};

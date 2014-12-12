@@ -38,7 +38,8 @@ static const PlatformInfo s_platform[Platform::COUNT] =
 {
 	{ "linux",   Platform::LINUX   },
 	{ "windows", Platform::WINDOWS },
-	{ "android", Platform::ANDROID }
+	{ "android", Platform::ANDROID },
+	{ "osx", 	 Platform::OSX 	   }
 };
 
 static Platform::Enum string_to_platform(const char* platform)
@@ -79,6 +80,7 @@ static void help(const char* msg = NULL)
 		"          linux\n"
 		"          windows\n"
 		"          android\n"
+		"          osx\n"
 		"  --continue                 Continue the execution after the resource compilation step.\n"
 		"  --host                     Read resources from a remote engine instance.\n"
 		"  --wait-console             Wait for a console connection before starting up.\n"

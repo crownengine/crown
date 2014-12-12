@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "assert.h"
+#include "ceassert.h"
 #include "macros.h"
 #include "container_types.h"
 #include "allocator.h"

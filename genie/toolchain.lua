@@ -20,7 +20,8 @@ function toolchain(build_dir, lib_dir)
 		allowed =
 		{
 			{ "android-arm", "Android - ARM"          },
-			{ "linux-gcc",   "Linux (GCC compiler)"   }
+			{ "linux-gcc",   "Linux (GCC compiler)"   },
+			{ "osx-clang", "OSX (clang compiler)"	  }
 		}
 	}
 
@@ -37,6 +38,15 @@ function toolchain(build_dir, lib_dir)
 		if nil == _OPTIONS["compiler"] then
 			print("Choose a compiler!")
 			os.exit(1)
+		end
+
+		if "osx-clang" == _OPTIONS["compiler"] then
+
+			if not os.getenv("PHYSX_SDK_OSX") then
+				print("Set PHYSX_SDK_OSX environment variable.")
+			end
+
+			location(build_dir .. "projects/" .. "osx")
 		end
 
 		if "linux-gcc" == _OPTIONS["compiler"] then
@@ -86,6 +96,7 @@ function toolchain(build_dir, lib_dir)
 	flags {
 		"StaticRuntime",
 		"NoPCH",
+		"NativeWChar",
 		"NoRTTI",
 		"NoExceptions",
 		"NoEditAndContinue",
@@ -132,6 +143,32 @@ function toolchain(build_dir, lib_dir)
 	configuration { "release", "native" }
 		targetsuffix "-release"
 
+	configuration { "x32", "osx-*" }
+		targetdir (build_dir .. "osx32" .. "/bin")
+		objdir (build_dir .. "osx32" .. "/obj")
+		libdirs {
+			"/usr/local/lib",
+			lib_dir .. "../.build/osx32/bin",
+			lib_dir .. "bgfx/.build/osx32_clang/bin",
+			"$(PHYSX_SDK_OSX)/Lib/osx32",
+		}
+		buildoptions {
+			"-m32",
+		}
+
+	configuration { "x64", "osx-*" }
+		targetdir (build_dir .. "osx64" .. "/bin")
+		objdir (build_dir .. "osx64" .. "/obj")
+		libdirs {
+			lib_dir .. "luajit/src",
+			lib_dir .. "../.build/osx64/bin",
+			lib_dir .. "bgfx/.build/osx64_clang/bin",
+			"$(PHYSX_SDK_LINUX)/Lib/linux64",
+		}
+		buildoptions {
+			"-m64",
+		}
+
 	configuration { "x32", "linux-*" }
 		targetdir (build_dir .. "linux32" .. "/bin")
 		objdir (build_dir .. "linux32" .. "/obj")
@@ -139,7 +176,7 @@ function toolchain(build_dir, lib_dir)
 			lib_dir .. "luajit/src",
 			lib_dir .. "../.build/linux32/bin",
 			lib_dir .. "bgfx/.build/linux32_gcc/bin",
-			"$(PHYSX_SDK_LINUX)/Lib/linux32"
+			"$(PHYSX_SDK_LINUX)/Lib/linux32",
 		}
 		buildoptions {
 			"-m32",
@@ -158,6 +195,18 @@ function toolchain(build_dir, lib_dir)
 		buildoptions {
 			"-m64",
 		}
+
+	configuration { "i386" }
+
+	configuration { "osx-*" }
+		buildoptions {
+			"-g",
+			"-Wfatal-errors",
+			"-msse2",
+			"-Wunused-value",
+			"-Wundef",
+		}
+		includedirs { lib_dir .. "bx/include/compat/osx" }
 
 	configuration { "linux-*" }
 		buildoptions {

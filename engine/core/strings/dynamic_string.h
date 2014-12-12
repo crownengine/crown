@@ -5,12 +5,13 @@
 
 #pragma once
 
-#include "assert.h"
+#include "ceassert.h"
 #include "memory.h"
 #include "string_utils.h"
 #include "array.h"
 #include "string_utils.h"
 #include "murmur.h"
+#include <cassert>
 #include <algorithm>
 #include <cstring>
 

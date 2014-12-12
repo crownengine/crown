@@ -8,7 +8,7 @@
 #if CROWN_PLATFORM_ANDROID
 
 #include "os_window_android.h"
-#include "assert.h"
+#include "ceassert.h"
 #include "log.h"
 
 namespace crown
