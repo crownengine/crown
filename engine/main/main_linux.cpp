@@ -192,11 +192,13 @@ struct LinuxDevice
 
 	int32_t run(Filesystem* fs, ConfigSettings* cs)
 	{
-		// Create main window
-		XInitThreads();
-		_x11_display = XOpenDisplay(NULL);
+		// http://tronche.com/gui/x/xlib/display/XInitThreads.html
+		Status xs = XInitThreads();
+		CE_ASSERT(xs != 0, "XInitThreads: error");
+		CE_UNUSED(xs);
 
-		CE_ASSERT(_x11_display != NULL, "Unable to open X11 display");
+		_x11_display = XOpenDisplay(NULL);
+		CE_ASSERT(_x11_display != NULL, "XOpenDisplay: error");
 
 		int screen = DefaultScreen(_x11_display);
 		int depth = DefaultDepth(_x11_display, screen);
@@ -217,19 +219,19 @@ struct LinuxDevice
 			| ButtonReleaseMask
 			| PointerMotionMask;
 
-		_x11_window = XCreateWindow(_x11_display,
-			_x11_parent_window,
-			0, 0,
-			cs->window_width,
-			cs->window_height,
-			0,
-			depth,
-			InputOutput,
-			visual,
-			CWBorderPixel | CWEventMask,
-			&win_attribs
-		);
-		CE_ASSERT(_x11_window != None, "Unable to create X window");
+		_x11_window = XCreateWindow(_x11_display
+			, _x11_parent_window
+			, 0
+			, 0
+			, cs->window_width
+			, cs->window_height
+			, 0
+			, depth
+			, InputOutput
+			, visual
+			, CWBorderPixel | CWEventMask
+			, &win_attribs);
+		CE_ASSERT(_x11_window != None, "XCreateWindow: error");
 
 		// Do we have detectable autorepeat?
 		Bool detectable;
@@ -253,7 +255,7 @@ struct LinuxDevice
 		bgfx::x11SetDisplayWindow(_x11_display, _x11_window);
 		XMapRaised(_x11_display, _x11_window);
 
-		// Get screen configuration
+		// Save screen configuration
 		_screen_config = XRRGetScreenInfo(_x11_display, RootWindow(_x11_display, screen));
 
 		Rotation rr_old_rot;
@@ -274,18 +276,18 @@ struct LinuxDevice
 
 		main_thread.stop();
 
-		// Restore previous screen configuration if changed
-		Rotation rr_cur_rot;
-		const SizeID rr_cur_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_cur_rot);
+		// Restore previous screen configuration
+		Rotation rr_rot;
+		const SizeID rr_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_rot);
 
-		if (rr_cur_rot != rr_old_rot || rr_cur_sizeid != rr_old_sizeid)
+		if (rr_rot != rr_old_rot || rr_sizeid != rr_old_sizeid)
 		{
-			XRRSetScreenConfig(_x11_display,
-				_screen_config,
-				RootWindow(_x11_display, screen),
-				rr_old_sizeid,
-				rr_old_rot,
-				CurrentTime);
+			XRRSetScreenConfig(_x11_display
+				, _screen_config
+				, RootWindow(_x11_display, screen)
+				, rr_old_sizeid
+				, rr_old_rot
+				, CurrentTime);
 		}
 		XRRFreeScreenConfigInfo(_screen_config);
 
