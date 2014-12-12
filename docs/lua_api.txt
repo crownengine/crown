@@ -492,13 +492,13 @@ PhysicsWorld
 	**set_gravity** (physics_world, gravity)
 		Sets the gravity.
 
-	**make_raycast** 
+	**make_raycast**
 		TODO
 
-	**overlap_test** 
+	**overlap_test**
 		TODO
 
-Controller 
+Controller
 ----------
 
 	**move** (controller, position)
@@ -706,6 +706,7 @@ Device
 
 	**can_get** (type, name) : bool
 		Returns whether the resource (type, name) is loaded.
+		When resource autoload is enabled it always returns true.
 
 	**enable_resource_autoload** (enable)
 		Sets whether resources should be automatically loaded when accessed.
