@@ -3,14 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "types.h"
 #include "resource_manager.h"
 #include "resource_registry.h"
-#include "string_utils.h"
-#include "string_utils.h"
 #include "temp_allocator.h"
-#include "dynamic_string.h"
-#include "queue.h"
 #include "sort_map.h"
 
 namespace crown
