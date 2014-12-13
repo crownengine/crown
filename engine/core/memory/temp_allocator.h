@@ -3,6 +3,13 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+/*
+ * Based on:
+ *
+ * Copyright (C) 2012 Bitsquid AB
+ * License: https://bitbucket.org/bitsquid/foundation/src/default/LICENCSE
+ */
+
 #pragma once
 
 #include "allocator.h"
