@@ -3,14 +3,14 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "json.h"
+#include "njson.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
 #include "map.h"
 
 namespace crown
 {
-namespace json
+namespace njson
 {
 	static const char* next(const char* str, const char c = 0)
 	{
@@ -53,23 +53,51 @@ namespace json
 			case '"': str = skip_string(str); break;
 			case '[': str = skip_block(str, '[', ']'); break;
 			case '{': str = skip_block(str, '{', '}'); break;
-			default: for (; *str != ',' && *str != '}' && *str != ']'; ++str) ; break;
+			default: for (; *str != ',' && *str != '\n' && *str != ' ' && *str != '}' && *str != ']'; ++str) ; break;
 		}
 
 		return str;
 	}
 
-	JSONType::Enum type(const char* str)
+	static const char* skip_comments(const char* str)
+	{
+		CE_ASSERT_NOT_NULL(str);
+
+		if (*str == '/')
+		{
+			str = next(str, '/');
+			str = next(str, '/');
+			while (*str && *str != '\n') str = next(str);
+		}
+
+		return str;
+	}
+
+	static const char* skip_spaces(const char* str)
+	{
+		CE_ASSERT_NOT_NULL(str);
+
+		while (*str)
+		{
+			if (*str == '/') str = skip_comments(str);
+			else if (isspace(*str) || *str == ',') ++str;
+			else break;
+		}
+
+		return str;
+	}
+
+	NJSONType::Enum type(const char* str)
 	{
 		CE_ASSERT_NOT_NULL(str);
 
 		switch (*str)
 		{
-			case '"': return JSONType::STRING;
-			case '{': return JSONType::OBJECT;
-			case '[': return JSONType::ARRAY;
-			case '-': return JSONType::NUMBER;
-			default: return (isdigit(*str)) ? JSONType::NUMBER : (*str == 'n' ? JSONType::NIL : JSONType::BOOL);
+			case '"': return NJSONType::STRING;
+			case '{': return NJSONType::OBJECT;
+			case '[': return NJSONType::ARRAY;
+			case '-': return NJSONType::NUMBER;
+			default: return (isdigit(*str)) ? NJSONType::NUMBER : (*str == 'n' ? NJSONType::NIL : NJSONType::BOOL);
 		}
 	}
 
@@ -116,6 +144,29 @@ namespace json
 		}
 
 		CE_FATAL("Bad string");
+	}
+
+	static const char* parse_key(const char* str, DynamicString& key)
+	{
+		CE_ASSERT_NOT_NULL(str);
+
+		if (*str == '"')
+		{
+			parse_string(str, key);
+			return skip_string(str);
+		}
+		else if (isalpha(*str))
+		{
+			while (true)
+			{
+				if (isspace(*str) || *str == '=') return str;
+
+				key += *str;
+				++str;
+			}
+		}
+
+		CE_FATAL("Bad key");
 	}
 
 	double parse_number(const char* str)
@@ -236,7 +287,6 @@ namespace json
 					return;
 				}
 
-				str = next(str, ',');
 				str = skip_spaces(str);
 			}
 		}
@@ -263,11 +313,10 @@ namespace json
 			while (*str)
 			{
 				DynamicString key;
-				parse_string(str, key);
+				str = parse_key(str, key);
 
-				str = skip_string(str);
 				str = skip_spaces(str);
-				str = next(str, ':');
+				str = next(str, '=');
 				str = skip_spaces(str);
 
 				map::set(object, key, str);
@@ -281,12 +330,11 @@ namespace json
 					return;
 				}
 
-				str = next(str, ',');
 				str = skip_spaces(str);
 			}
 		}
 
 		CE_FATAL("Bad object");
 	}
-} // namespace json
+} // namespace njson
 } // namespace crown
