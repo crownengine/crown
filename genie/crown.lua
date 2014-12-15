@@ -215,7 +215,7 @@ function crown_project(_name, _kind, _defines)
 				"bgfxRelease",
 			}
 			linkoptions {
-				"-Wl,--start-group $(addprefix -l," ..
+				"$(addprefix -l," ..
 				"	LowLevelCloth" ..
 				"	PhysX3 " ..
 				"	PhysX3Common" ..
@@ -230,7 +230,7 @@ function crown_project(_name, _kind, _defines)
 				"	PvdRuntime" ..
 				"	SceneQuery" ..
 				"	SimulationController" ..
-				") -Wl,--end-group"
+				")"
 			}
 
 		configuration { "debug", "linux-*" }
