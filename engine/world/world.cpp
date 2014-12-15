@@ -4,7 +4,7 @@
  */
 
 #include <new>
-#include "assert.h"
+#include "ceassert.h"
 #include "world.h"
 #include "device.h"
 #include "resource_manager.h"

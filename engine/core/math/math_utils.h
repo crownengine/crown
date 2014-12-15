@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "assert.h"
+#include "ceassert.h"
 #include "types.h"
 #include <math.h>
 

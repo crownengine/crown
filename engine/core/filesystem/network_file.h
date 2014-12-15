@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "assert.h"
+#include "ceassert.h"
 #include "socket.h"
 #include "os.h"
 #include "file.h"

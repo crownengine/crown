@@ -17,7 +17,7 @@
 #else
 		#define SHADERC_NAME "shadercRelease"
 #endif // CROWN_DEBUG
-#if CROWN_PLATFORM_LINUX
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_OSX
 		#define SHADERC_PATH SHADERC_NAME
 #elif CROWN_PLATFORM_WINDOWS
 		#define SHADERC_PATH SHADERC_NAME".exe"
@@ -31,7 +31,8 @@ namespace shader_resource
 	{
 		"linux",
 		"windows",
-		"android"
+		"android",
+		"osx"
 	};
 
 	void compile(const char* path, CompileOptions& opts)

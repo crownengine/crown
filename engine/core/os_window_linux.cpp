@@ -7,7 +7,7 @@
 #if CROWN_PLATFORM_LINUX
 
 #include "os_window_linux.h"
-#include "assert.h"
+#include "ceassert.h"
 #include "string_utils.h"
 #include "log.h"
 

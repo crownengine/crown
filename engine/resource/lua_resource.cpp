@@ -36,7 +36,7 @@ namespace lua_resource
 
 		const char* luajit[] =
 		{
-#if CROWN_PLATFORM_LINUX
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_OSX
 			"./luajit",
 #else
 			"luajit.exe",
@@ -48,7 +48,7 @@ namespace lua_resource
 		};
 
 		int exitcode = os::execute_process(luajit);
-		CE_ASSERT(exitcode == 0, "Failed to compile lua");
+// 		CE_ASSERT(exitcode == 0, "Failed to compile lua");
 
 		Buffer blob = opts.read(bc_abs_path.c_str());
 		opts.delete_file(bc_abs_path.c_str());

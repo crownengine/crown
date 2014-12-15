@@ -58,8 +58,8 @@ void NetworkFile::read(void* buffer, size_t size)
 	// Request the file
 	command << "{\"type\":\"filesystem\",\"filesystem\":\"read\",";
 	command << "\"file\":\"" << _filename << "\",";
-	command << "\"position\":" << _position << ",";
-	command << "\"size\":" << size << "}";
+	command << "\"position\":" << uint64_t(_position) << ","; // Ambiguous overload of <<
+	command << "\"size\":" << uint64_t(size) << "}"; // Here too from string_stream.h
 
 	network_filesystem::send(_socket, c_str(command));
 
@@ -149,4 +149,3 @@ bool NetworkFile::can_seek() const
 }
 
 } // namespace crown
-

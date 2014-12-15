@@ -6,7 +6,7 @@
 #pragma once
 
 #include "types.h"
-#include "assert.h"
+#include "ceassert.h"
 #include "array.h"
 
 namespace crown
