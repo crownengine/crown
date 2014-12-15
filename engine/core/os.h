@@ -228,10 +228,14 @@ namespace os
 
 	inline int64_t clocktime()
 	{
-#if CROWN_PLATFORM_POSIX
-		timespec ttime;
-		clock_gettime(CLOCK_MONOTONIC, &ttime);
-		return ttime.tv_sec * int64_t(1000000000) + ttime.tv_nsec;
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
+		timespec now;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		return now.tv_sec * int64_t(1000000000) + now.tv_nsec;
+#elif CROWN_PLATFORM_OSX
+		struct timeval now;
+		gettimeofday(&now, NULL);
+		return now.tv_sec * int64_t(1000000) + now.tv_usec;
 #elif CROWN_PLATFORM_WINDOWS
 		LARGE_INTEGER ttime;
 		QueryPerformanceCounter(&ttime);
@@ -241,8 +245,10 @@ namespace os
 
 	inline int64_t clockfrequency()
 	{
-#if CROWN_PLATFORM_POSIX
-		return int32_t(1000000000);
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
+		return int64_t(1000000000);
+#elif CROWN_PLATFORM_OSX
+		return int64_t(1000000);
 #elif CROWN_PLATFORM_WINDOWS
 		LARGE_INTEGER freq;
 		QueryPerformanceFrequency(&freq);
