@@ -450,14 +450,14 @@ Mesh
 Material
 --------
 
-	set_float
-		TODO
+	**set_float** (material, variable, value)
+		Sets the material variable to the given value.
 
-	set_vector2
-		TODO
+	**set_vector2** (material, variable, value)
+		Sets the material variable to the given value.
 
-	set_vector3
-		TODO
+	**set_vector3** (material, variable, value)
+		Sets the material variable to the given value.
 
 Gui
 ---
