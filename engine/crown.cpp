@@ -39,7 +39,7 @@ static const PlatformInfo s_platform[Platform::COUNT] =
 	{ "linux",   Platform::LINUX   },
 	{ "windows", Platform::WINDOWS },
 	{ "android", Platform::ANDROID },
-	{ "osx", 	 Platform::OSX 	   }
+	{ "osx",     Platform::OSX     }
 };
 
 static Platform::Enum string_to_platform(const char* platform)
