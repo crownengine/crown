@@ -154,7 +154,15 @@ function crown_project(_name, _kind, _defines)
 		configuration { "osx-*" }
 			files {
 				CROWN_DIR .. "engine/**.mm"
-			}		
+			}
+			links {
+				"luajit",
+				"CoreVideo.framework",
+				"IOKit.framework",
+				"Cocoa.framework",
+				"OpenAL.framework",
+			}
+		}
 
 		configuration { "linux-*" }
 			links {
@@ -174,23 +182,9 @@ function crown_project(_name, _kind, _defines)
 		configuration { "development", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-development-64", }
 		configuration { "release", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-release-64", }
 
-		-- Fix this in GENie
-		--configuration { "debug", "x32", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-32", }
-		--configuration { "development", "x32", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-development-32", }
-		--configuration { "release", "x32", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-release-32", }
-		--configuration { "debug", "x64", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-64", }
-		--configuration { "development", "x64", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-development-64", }
-		--configuration { "release", "x64", "osx-*" } linkoptions { "-Lbin/debug", "-lopenal-release-64", }
-
 		configuration { "debug", "osx-*" }
 			links {
 				"bgfxDebug",
-				"luajit-5.1",
-				"CoreVideo.framework",
-				"IOKit.framework",
-				"Cocoa.framework",
-				"OpenAL.framework",
-				"OpenGL.framework",
 			}
 			linkoptions {
 				"$(addprefix -l," ..
@@ -214,21 +208,11 @@ function crown_project(_name, _kind, _defines)
 		configuration { "development", "osx-*" }
 			links {
 				"bgfxDebug",
-				"CoreVideo.framework",
-				"IOKit.framework",
-				"Cocoa.framework",
-				"OpenAL.framework",
-				"OpenGL.framework",
 			}
 
 		configuration { "release", "osx-*" }
 			links {
 				"bgfxRelease",
-				"CoreVideo.framework",
-				"IOKit.framework",
-				"Cocoa.framework",
-				"OpenAL.framework",
-				"OpenGL.framework",
 			}
 			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..

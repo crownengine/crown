@@ -42,6 +42,8 @@ function toolchain(build_dir, lib_dir)
 
 		if "osx-clang" == _OPTIONS["compiler"] then
 
+			if not os.is("macosx") then print("Action not valid in current OS.") end
+
 			if not os.getenv("PHYSX_SDK_OSX") then
 				print("Set PHYSX_SDK_OSX environment variable.")
 			end
@@ -147,7 +149,7 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "osx32" .. "/bin")
 		objdir (build_dir .. "osx32" .. "/obj")
 		libdirs {
-			"/usr/local/lib",
+			lib_dir .. "luajit/src",
 			lib_dir .. "../.build/osx32/bin",
 			lib_dir .. "bgfx/.build/osx32_clang/bin",
 			"$(PHYSX_SDK_OSX)/Lib/osx32",
