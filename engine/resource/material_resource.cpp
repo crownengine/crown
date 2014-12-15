@@ -293,19 +293,16 @@ namespace material_resource
 
 	UniformData* get_uniform_data_by_string(const MaterialResource* mr, const char* str)
 	{
-		UniformData* base = (UniformData*) ((char*)mr + mr->uniform_data_offset);
-
-		uint32_t num = num_uniforms(mr);
-		for (uint32_t i = 0; i < num; i++)
+		for (uint32_t i = 0, n = num_uniforms(mr); i < n; ++i)
 		{
-			const char* name = get_uniform_name(mr, (const UniformData*)base->name_offset);
-			if (strcmp(name, str) == 0)
-				return base;
+			UniformData* base = get_uniform_data(mr, i);
+			const char* name = get_uniform_name(mr, base);
 
-			base++;
+			if (strcmp(str, name) == 0)
+				return base;
 		}
 
-		CE_FATAL("Oops, bad uniform name");
+		CE_ASSERT(false, "Bad uniform name: '%s'", str);
 		return NULL;
 	}
 
