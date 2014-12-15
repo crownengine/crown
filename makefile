@@ -46,7 +46,7 @@ bgfx-osx-debug64:
 	make -R -C third/bgfx osx-debug64
 bgfx-osx-release32:
 	make -R -C third/bgfx osx-release32
-bgfx-osx-release3264:
+bgfx-osx-release64:
 	make -R -C third/bgfx osx-release64
 bgfx-vs2013-debug32:
 	make -R -C third/bgfx .build/projects/vs2013
