@@ -4,18 +4,14 @@
  */
 
 #include "console_server.h"
-#include "json_parser.h"
 #include "temp_allocator.h"
 #include "string_stream.h"
-#include "log.h"
 #include "device.h"
-#include "proxy_allocator.h"
 #include "lua_environment.h"
-#include "file.h"
-#include "filesystem.h"
-#include "math_utils.h"
 #include "memory.h"
-#include "main.h"
+#include "dynamic_string.h"
+#include "json.h"
+#include "map.h"
 
 namespace crown
 {
@@ -160,58 +156,51 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 	return msg_result;
 }
 
-void ConsoleServer::process(TCPSocket client, const char* request)
+void ConsoleServer::process(TCPSocket client, const char* json)
 {
-	JSONParser parser(request);
-	DynamicString type;
-	parser.root().key("type").to_string(type);
+	Map<DynamicString, const char*> root(default_allocator());
+	json::parse_object(json, root);
 
-	// Determine request type
-	if (type == "ping") process_ping(client, request);
-	else if (type == "script") process_script(client, request);
-	else if (type == "command") process_command(client, request);
+	DynamicString type;
+	json::parse_string(root["type"], type);
+
+	if (type == "ping") process_ping(client, json);
+	else if (type == "script") process_script(client, json);
+	else if (type == "command") process_command(client, json);
 	else CE_FATAL("Request unknown.");
 }
 
-void ConsoleServer::process_ping(TCPSocket client, const char* /*msg*/)
+void ConsoleServer::process_ping(TCPSocket client, const char* /*json*/)
 {
 	send(client, "{\"type\":\"pong\"}");
 }
 
-void ConsoleServer::process_script(TCPSocket /*client*/, const char* msg)
+void ConsoleServer::process_script(TCPSocket /*client*/, const char* json)
 {
-	JSONParser parser(msg);
-	JSONElement root = parser.root();
+	Map<DynamicString, const char*> root(default_allocator());
+	json::parse_object(json, root);
 
 	DynamicString script;
-	root.key("script").to_string(script);
+	json::parse_string(root["script"], script);
 	device()->lua_environment()->execute_string(script.c_str());
 }
 
-void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
+void ConsoleServer::process_command(TCPSocket /*client*/, const char* json)
 {
-	JSONParser parser(msg);
-	JSONElement root = parser.root();
-	JSONElement command = root.key("command");
+	Map<DynamicString, const char*> root(default_allocator());
+	json::parse_object(json, root);
 
 	DynamicString cmd;
-	command.to_string(cmd);
+	json::parse_string(root["command"], cmd);
 
 	if (cmd == "reload")
 	{
-		JSONElement type = root.key_or_nil("resource_type");
-		JSONElement name = root.key_or_nil("resource_name");
+		DynamicString type;
+		DynamicString name;
+		json::parse_string(root["resource_type"], type);
+		json::parse_string(root["resource_name"], name);
 
-		DynamicString resource_type;
-		DynamicString resource_name;
-		type.to_string(resource_type);
-		name.to_string(resource_name);
-
-		char t[256];
-		char n[256];
-		strncpy(t, resource_type.c_str(), 256);
-		strncpy(n, resource_name.c_str(), 256);
-		device()->reload(t, n);
+		device()->reload(type.c_str(), name.c_str());
 	}
 	else if (cmd == "pause")
 	{

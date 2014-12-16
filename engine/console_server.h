@@ -57,11 +57,11 @@ private:
 
 	void add_client(TCPSocket socket);
 	ReadResult update_client(TCPSocket client);
-	void process(TCPSocket client, const char* request);
+	void process(TCPSocket client, const char* json);
 
-	void process_ping(TCPSocket client, const char* msg);
-	void process_script(TCPSocket client, const char* msg);
-	void process_command(TCPSocket client, const char* msg);
+	void process_ping(TCPSocket client, const char* json);
+	void process_script(TCPSocket client, const char* json);
+	void process_command(TCPSocket client, const char* json);
 
 private:
 
