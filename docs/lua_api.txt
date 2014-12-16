@@ -426,6 +426,11 @@ Sprite
 	**set_frame** (sprite, num)
 		Sets the frame of the sprite.
 
+	**set_depth** (sprite, depth)
+		Sets the depth of the sprite.
+		Sprites with higher depth values are drawn in front of sprites
+		whith lower depth values.
+
 Mesh
 ----
 
