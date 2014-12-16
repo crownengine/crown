@@ -24,6 +24,7 @@ Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const Sp
 	, m_node(node)
 	, m_resource(sr)
 	, m_frame(0)
+	, _depth(0)
 {
 }
 
@@ -82,6 +83,11 @@ void Sprite::set_frame(uint32_t i)
 	m_frame = i;
 }
 
+void Sprite::set_depth(int32_t z)
+{
+	_depth = z;
+}
+
 void Sprite::render()
 {
 	if (m_material.id != INVALID_ID)
@@ -97,7 +103,7 @@ void Sprite::render()
 	bgfx::setVertexBuffer(m_resource->vb);
 	bgfx::setIndexBuffer(m_resource->ib, m_frame * 6, 6);
 	bgfx::setTransform(matrix4x4::to_float_ptr(world_pose()));
-	bgfx::submit(0);
+	bgfx::submit(0, _depth);
 }
 
 } // namespace crown

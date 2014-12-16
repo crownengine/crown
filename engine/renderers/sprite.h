@@ -57,6 +57,8 @@ struct Sprite
 
 	void set_frame(uint32_t i);
 
+	void set_depth(int32_t z);
+
 	void render();
 
 public:
@@ -67,6 +69,7 @@ public:
 	const SpriteResource* m_resource;
 	MaterialId m_material;
 	uint32_t m_frame;
+	int32_t _depth;
 };
 
 } // namespace crown

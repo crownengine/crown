@@ -60,6 +60,13 @@ static int sprite_set_frame(lua_State* L)
 	return 0;
 }
 
+static int sprite_set_depth(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_sprite(1)->set_depth(stack.get_int(2));
+	return 0;
+}
+
 void load_sprite(LuaEnvironment& env)
 {
 	env.load_module_function("Sprite", "local_position",     sprite_local_position);
@@ -69,6 +76,7 @@ void load_sprite(LuaEnvironment& env)
 	env.load_module_function("Sprite", "set_local_rotation", sprite_set_local_rotation);
 	env.load_module_function("Sprite", "set_local_pose",     sprite_set_local_pose);
 	env.load_module_function("Sprite", "set_frame",          sprite_set_frame);
+	env.load_module_function("Sprite", "set_depth",          sprite_set_depth);
 }
 
 } // namespace crown
