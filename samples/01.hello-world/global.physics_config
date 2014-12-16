@@ -18,7 +18,7 @@
 	}
 
 	collision_filters = {
-		"default" = { collides_with = ["default"] }
-		"foo" = { collides_with = ["default" "foo"] }
+		default = { collides_with = ["default"] }
+		foo = { collides_with = ["default" "foo"] }
 	}
 }
