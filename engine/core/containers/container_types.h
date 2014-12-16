@@ -76,8 +76,6 @@ struct Queue
 
 	/// Random access by index
 	T& operator[](uint32_t index);
-
-	/// Random access by index
 	const T& operator[](uint32_t index) const;
 
 	uint32_t _read;
@@ -124,6 +122,8 @@ template <typename TKey, typename TValue>
 struct Map
 {
 	Map(Allocator& a);
+
+	const TValue& operator[](const TKey& key) const;
 
 	struct Node
 	{

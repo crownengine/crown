@@ -22,11 +22,11 @@ namespace map
 	template <typename TKey, typename TValue> uint32_t size(const Map<TKey, TValue>& m);
 
 	/// Returns whether the given @a key exists in the map @a m.
-	template <typename TKey, typename TValue> bool has(const Map<TKey, TValue>& m, const TKey key);
+	template <typename TKey, typename TValue> bool has(const Map<TKey, TValue>& m, const TKey& key);
 
 	/// Returns the value for the given @a key or @a deffault if
 	/// the key does not exist in the map.
-	template <typename TKey, typename TValue> const TValue& get(const Map<TKey, TValue>& m, const TKey key, const TValue& deffault);
+	template <typename TKey, typename TValue> const TValue& get(const Map<TKey, TValue>& m, const TKey& key, const TValue& deffault);
 
 	/// Sets the @a value for the @a key in the map.
 	template <typename TKey, typename TValue> void set(Map<TKey, TValue>& m, const TKey& key, const TValue& value);
@@ -391,7 +391,7 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t inner_find(const Map<TKey, TValue>& m, const TKey key)
+	inline uint32_t inner_find(const Map<TKey, TValue>& m, const TKey& key)
 	{
 		uint32_t x = m._root;
 
@@ -425,7 +425,7 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t find_or_fail(const Map<TKey, TValue>& m, const TKey key)
+	inline uint32_t find_or_fail(const Map<TKey, TValue>& m, const TKey& key)
 	{
 		uint32_t p = inner_find(m, key);
 
@@ -436,7 +436,7 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t find_or_add(Map<TKey, TValue>& m, const TKey key)
+	inline uint32_t find_or_add(Map<TKey, TValue>& m, const TKey& key)
 	{
 		uint32_t p = inner_find(m, key);
 
@@ -490,13 +490,13 @@ namespace map
 	}
 
 	template <typename TKey, typename TValue>
-	inline bool has(const Map<TKey, TValue>& m, const TKey key)
+	inline bool has(const Map<TKey, TValue>& m, const TKey& key)
 	{
 		return map_internal::find_or_fail(m, key) != map_internal::NIL;
 	}
 
 	template <typename TKey, typename TValue>
-	inline const TValue& get(const Map<TKey, TValue>& m, const TKey key, const TValue& deffault)
+	inline const TValue& get(const Map<TKey, TValue>& m, const TKey& key, const TValue& deffault)
 	{
 		uint32_t p = map_internal::inner_find(m, key);
 
@@ -730,6 +730,12 @@ inline Map<TKey, TValue>::Map(Allocator& a)
 	: _data(a)
 {
 	map::clear(*this);
+}
+
+template <typename TKey, typename TValue>
+inline const TValue& Map<TKey, TValue>::operator[](const TKey& key) const
+{
+	return map::get(*this, key, TValue());
 }
 
 } // namespace crown
