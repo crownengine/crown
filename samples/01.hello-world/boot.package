@@ -2,4 +2,10 @@
 	lua = [
 		"lua/game"
 	]
+	unit = [
+		"camera"
+	]
+	physics_config = [
+		"global"
+	]
 }
