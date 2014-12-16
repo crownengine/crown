@@ -268,32 +268,32 @@ Unit
 	**num_nodes** (unit) : int
 		Returns the number of nodes of the unit.
 
-	**local_position** (unit) : Vector3
-		Returns the local position of the unit.
+	**local_position** (unit, n) : Vector3
+		Returns the local position of the node with index n inside the unit.
 
-	**local_rotation** (unit) : Quaternion
-		Returns the local rotation of the unit.
+	**local_rotation** (unit, n) : Quaternion
+		Returns the local rotation of the node with index n inside the unit.
 
-	**local_pose** (unit) : Matrix4x4
-		Returns the local pose of the unit.
+	**local_pose** (unit, n) : Matrix4x4
+		Returns the local pose of the node with index n inside the unit.
 
-	**world_position** (unit) : Vector3
-		Returns the world position of the unit.
+	**world_position** (unit, n) : Vector3
+		Returns the world position of the node with index n inside the unit.
 
-	**world_rotation** (unit) : Quaternion
-		Returns the world rotation of the unit.
+	**world_rotation** (unit, n) : Quaternion
+		Returns the world rotation of the node with index n inside the unit.
 
-	**world_pose** (unit) : Matrix4x4
-		Returns the world pose of the unit.
+	**world_pose** (unit, n) : Matrix4x4
+		Returns the world pose of the node with index n inside the unit.
 
-	**set_local_position** (unit, position)
-		Sets the local position of the unit.
+	**set_local_position** (unit, n, position)
+		Sets the local position of the node with index n inside the unit.
 
-	**set_local_rotation** (unit, rotation)
-		Sets the local rotation of the unit.
+	**set_local_rotation** (unit, n, rotation)
+		Sets the local rotation of the node with index n inside the unit.
 
-	**set_local_pose** (unit, pose)
-		Sets the local pose of the unit.
+	**set_local_pose** (unit, n, pose)
+		Sets the local pose of the node with index n inside the unit.
 
 	**link_node** (unit)
 		Links the *child* node to the *parent* node.
