@@ -184,15 +184,14 @@ def write_file(filepath, objects, scene,
 
 			fw("{\n")
 			# Positions
-			fw("    \"position\" : [")
+			fw("    position = [\n")
 			for v in me_verts:
-				fw('\n        %.6f, %.6f, %.6f,' % v.co[:])
-			file.seek(-1, 1)
-			fw("]")
+				fw('        %.6f %.6f %.6f\n' % v.co[:])
+			fw("    ]\n")
 
 			# NORMAL, Smooth/Non smoothed.
 			if EXPORT_NORMALS:
-				fw(",\n    \"normal\" : [")
+				fw("    normal = [\n")
 				for f, f_index in face_index_pairs:
 					if f.use_smooth:
 						for v_idx in f.vertices:
@@ -201,16 +200,15 @@ def write_file(filepath, objects, scene,
 							if noKey not in globalNormals:
 								globalNormals[noKey] = totno
 								totno += 1
-								fw('\n        %.6f, %.6f, %.6f,' % noKey)
+								fw('        %.6f %.6f %.6f\n' % noKey)
 					else:
 						# Hard, 1 normal from the face.
 						noKey = veckey3d(f.normal)
 						if noKey not in globalNormals:
 							globalNormals[noKey] = totno
 							totno += 1
-							fw('\n        %.6f, %.6f, %.6f,' % noKey)
-				file.seek(-1, 1)
-				fw("]")
+							fw('        %.6f %.6f %.6f\n' % noKey)
+				fw("    ]\n")
 
 			# UV
 			if faceuv:
@@ -221,7 +219,7 @@ def write_file(filepath, objects, scene,
 
 				uv_dict = {}  # could use a set() here
 
-				fw(",\n    \"texcoord\" : [")
+				fw("    texcoord = [\n")
 				for f, f_index in face_index_pairs:
 					uv_ls = uv_face_mapping[f_index] = []
 					for uv_index, l_index in enumerate(f.loop_indices):
@@ -232,10 +230,9 @@ def write_file(filepath, objects, scene,
 							uv_k = uv_dict[uvkey]
 						except:
 							uv_k = uv_dict[uvkey] = len(uv_dict)
-							fw('\n        %.6f, %.6f,' % uv[:])
+							fw('        %.6f %.6f\n' % uv[:])
 						uv_ls.append(uv_k)
-				file.seek(-1, 1)
-				fw("]")
+				fw("    ]\n")
 
 				uv_unique_count = len(uv_dict)
 
@@ -243,22 +240,21 @@ def write_file(filepath, objects, scene,
 				# Only need uv_unique_count and uv_face_mapping
 
 			# Index array
-			fw(',\n    \"index\" : [')
+			fw('    index = [\n')
 
 			# Position indices
-			fw('\n        [ ')
+			fw('        [ ')
 			for f, f_index in face_index_pairs:
 				f_smooth = f.use_smooth
 				f_v = [(vi, me_verts[v_idx]) for vi, v_idx in enumerate(f.vertices)]
 
 				for vi, v in f_v:
-					fw('%d,' % (v.index + totverts))
-			file.seek(-1, 1)
-			fw(' ]')
+					fw('%d ' % (v.index + totverts))
+			fw(']\n')
 
 			# Normal indices
 			if EXPORT_NORMALS:
-				fw(',\n        [ ')
+				fw('        [ ')
 				for f, f_index in face_index_pairs:
 					f_smooth = f.use_smooth
 					f_v = [(vi, me_verts[v_idx]) for vi, v_idx in enumerate(f.vertices)]
@@ -269,21 +265,19 @@ def write_file(filepath, objects, scene,
 					else: # No smoothing, face normals
 						no = globalNormals[veckey3d(f.normal)]
 						for vi, v in f_v:
-							fw('%d,' % no)
-				file.seek(-1, 1)
-				fw(' ]')
+							fw('%d ' % no)
+				fw(']\n')
 
 			# Texcoords
 			if faceuv:
-				fw(',\n        [ ')
+				fw('        [ ')
 				for f, f_index in face_index_pairs:
 					f_smooth = f.use_smooth
 					f_v = [(vi, me_verts[v_idx]) for vi, v_idx in enumerate(f.vertices)]
 
 					for vi, v in f_v:
-						fw('%d,' % (totuvco + uv_face_mapping[f_index][vi]))
-				file.seek(-1, 1)
-				fw(' ]')
+						fw('%d ' % (totuvco + uv_face_mapping[f_index][vi]))
+				fw(']')
 			fw(']\n')
 
 			# Make the indices global rather then per mesh
@@ -297,7 +291,7 @@ def write_file(filepath, objects, scene,
 		if ob_main.dupli_type != 'NONE':
 			ob_main.dupli_list_clear()
 
-	fw('}\n')		
+	fw('}\n')
 	file.close()
 
 	# copy all collected files.
