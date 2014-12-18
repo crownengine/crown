@@ -97,7 +97,7 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 
 	if (cmd.has_argument("version", 'v'))
 	{
-		printf(CROWN_PLATFORM_NAME "-" CROWN_CPU_NAME " " "("CROWN_ARCH_NAME")" " " "("CROWN_COMPILER_NAME")\n");
+		printf(CROWN_PLATFORM_NAME "-" CROWN_CPU_NAME " (" CROWN_ARCH_NAME ")" " (" CROWN_COMPILER_NAME ")\n");
 		exit(EXIT_SUCCESS);
 	}
 
