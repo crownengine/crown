@@ -20,3 +20,5 @@
 #endif
 
 #define CE_UNUSED(x) do { (void)(x); } while (0)
+
+#define CE_COUNTOF(arr) (sizeof(arr)/sizeof(arr[0]))
