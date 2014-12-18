@@ -34,7 +34,7 @@ struct ResourceId
 
 	const char* to_string(char out[64])
 	{
-		snprintf(out, 64, "%.16"PRIx64"-%.16"PRIx64, type, name);
+		snprintf(out, 64, "%.16" PRIx64 "-%.16" PRIx64, type, name);
 		return out;
 	}
 
