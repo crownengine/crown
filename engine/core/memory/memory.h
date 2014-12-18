@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include <new>
 #include "types.h"
 #include "assert.h"
 #include "allocator.h"
 #include "macros.h"
+#include <new>
 
 namespace crown
 {
