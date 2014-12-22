@@ -48,13 +48,13 @@ public:
 	PhysicsWorld(World& world);
 	~PhysicsWorld();
 
-	ActorId create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id);
+	ActorId create_actor(const ActorResource* ar, SceneGraph& sg, int32_t node, UnitId unit_id);
 	void destroy_actor(ActorId id);
 
-	ControllerId create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node);
+	ControllerId create_controller(const ControllerResource* cr, SceneGraph& sg, int32_t node);
 	void destroy_controller(ControllerId id);
 
-	JointId create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
+	JointId create_joint(const JointResource* jr, const Actor& actor_0, const Actor& actor_1);
 	void destroy_joint(JointId id);
 
 	RaycastId create_raycast(CollisionMode::Enum mode, CollisionType::Enum filter);

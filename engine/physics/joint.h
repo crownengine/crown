@@ -9,13 +9,11 @@
 #include "resource_types.h"
 
 #include "PxPhysics.h"
-#include "PxScene.h"
 #include "PxJoint.h"
 #include "PxMaterial.h"
 
 using physx::PxPhysics;
 using physx::PxJoint;
-using physx::PxScene;
 using physx::PxMaterial;
 
 namespace crown
@@ -27,13 +25,11 @@ struct Actor;
 /// @ingroup Physics
 struct Joint
 {
-	Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
-	~Joint();
+	Joint(PxPhysics* physics, const JointResource* jr, const Actor& actor_0, const Actor& actor_1);
 
 public:
 
-	const PhysicsResource* 	m_resource;
-	const uint32_t 			m_index;
+	const JointResource* 	m_resource;
 
 	PxJoint* 			m_joint;
 	PxMaterial* 		m_mat;

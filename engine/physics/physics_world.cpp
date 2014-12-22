@@ -251,9 +251,9 @@ PhysicsWorld::~PhysicsWorld()
 	m_scene->release();
 }
 
-ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id)
+ActorId	PhysicsWorld::create_actor(const ActorResource* ar, SceneGraph& sg, int32_t node, UnitId unit_id)
 {
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, res, index, sg, node, unit_id);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, ar, sg, node, unit_id);
 	return id_array::create(m_actors, actor);
 }
 
@@ -263,9 +263,9 @@ void PhysicsWorld::destroy_actor(ActorId id)
 	id_array::destroy(m_actors, id);
 }
 
-ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node)
+ControllerId PhysicsWorld::create_controller(const ControllerResource* cr, SceneGraph& sg, int32_t node)
 {
-	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_globals::s_physics, m_controller_manager);
+	Controller* controller = CE_NEW(m_controllers_pool, Controller)(cr, sg, node, physics_globals::s_physics, m_controller_manager);
 	return id_array::create(m_controllers, controller);
 }
 
@@ -275,9 +275,9 @@ void PhysicsWorld::destroy_controller(ControllerId id)
 	id_array::destroy(m_controllers, id);
 }
 
-JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
+JointId	PhysicsWorld::create_joint(const JointResource* jr, const Actor& actor_0, const Actor& actor_1)
 {
-	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_globals::s_physics, pr, index, actor_0, actor_1);
+	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_globals::s_physics, jr, actor_0, actor_1);
 	return id_array::create(m_joints, joint);
 }
 

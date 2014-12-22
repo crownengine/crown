@@ -26,7 +26,7 @@ struct SceneGraph;
 /// @ingroup Physics
 struct Controller
 {
-	Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager);
+	Controller(const ControllerResource* cr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager);
 	~Controller();
 
 	/// Moves the controller to @a pos.
@@ -51,7 +51,7 @@ struct Controller
 
 private:
 
-	const PhysicsResource* m_resource;
+	const ControllerResource* m_resource;
 
 	SceneGraph& m_scene_graph;
 	int32_t m_node;

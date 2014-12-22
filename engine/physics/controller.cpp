@@ -24,24 +24,23 @@ using physx::PxVec3;
 namespace crown
 {
 
-Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager)
-	: m_resource(pr)
+Controller::Controller(const ControllerResource* cr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager)
+	: m_resource(cr)
 	, m_scene_graph(sg)
 	, m_node(node)
 	, m_manager(manager)
 	, m_controller(NULL)
 {
-	const PhysicsController* contr = physics_resource::controller(pr);
 	const Vector3 pos = sg.world_position(m_node);
 
 	PxCapsuleControllerDesc desc;
 	desc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
 	desc.nonWalkableMode = PxCCTNonWalkableMode::eFORCE_SLIDING;
-	desc.radius = contr->radius;
-	desc.height = contr->height;
-	desc.slopeLimit = cos(contr->slope_limit);
-	desc.stepOffset = contr->step_offset;
-	desc.contactOffset = contr->contact_offset;
+	desc.radius = cr->radius;
+	desc.height = cr->height;
+	desc.slopeLimit = cos(cr->slope_limit);
+	desc.stepOffset = cr->step_offset;
+	desc.contactOffset = cr->contact_offset;
 	desc.upDirection = PxVec3(0.0, 1.0, 0.0);
 	desc.material = physics->createMaterial(0.5f, 0.5f, 0.5f);
 	desc.position = PxExtendedVec3(pos.x, pos.y, pos.z);

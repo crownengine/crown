@@ -39,7 +39,9 @@ struct ShapeType
 		CAPSULE,
 		BOX,
 		PLANE,
-		CONVEX_MESH
+		CONVEX_MESH,
+
+		COUNT
 	};
 };
 
@@ -52,7 +54,9 @@ struct JointType
 		REVOLUTE,
 		PRISMATIC,
 		DISTANCE,
-		D6
+		D6,
+
+		COUNT
 	};
 };
 

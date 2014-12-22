@@ -65,16 +65,13 @@ using physx::PxJointAngularLimitPair;
 namespace crown
 {
 
-Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
-	: m_resource(pr)
-	, m_index(index)
+Joint::Joint(PxPhysics* physics, const JointResource* jr, const Actor& actor_0, const Actor& actor_1)
+	: m_resource(jr)
 {
-	const PhysicsJoint* joint = physics_resource::joint(m_resource, m_index);
+	PxVec3 anchor_0(jr->anchor_0.x, jr->anchor_0.y, jr->anchor_0.z);
+	PxVec3 anchor_1(jr->anchor_1.x, jr->anchor_1.y, jr->anchor_1.z);
 
-	PxVec3 anchor_0(joint->anchor_0.x, joint->anchor_0.y, joint->anchor_0.z);
-	PxVec3 anchor_1(joint->anchor_1.x, joint->anchor_1.y, joint->anchor_1.z);
-
-	switch(joint->type)
+	switch(jr->type)
 	{
 		case JointType::FIXED:
 		{
@@ -84,10 +81,10 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		}
 		case JointType::SPHERICAL:
 		{
-			PxJointLimitCone limit_cone(joint->y_limit_angle, joint->z_limit_angle, joint->contact_dist);
-			limit_cone.restitution = joint->restitution;
-			limit_cone.damping = joint->damping;
-			limit_cone.contactDistance = joint->distance;
+			PxJointLimitCone limit_cone(jr->y_limit_angle, jr->z_limit_angle, jr->contact_dist);
+			limit_cone.restitution = jr->restitution;
+			limit_cone.damping = jr->damping;
+			limit_cone.contactDistance = jr->distance;
 
 			m_joint = PxSphericalJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
 			static_cast<PxSphericalJoint*>(m_joint)->setLimitCone(limit_cone);
@@ -97,8 +94,8 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		}
 		case JointType::REVOLUTE:
 		{
-			PxJointAngularLimitPair limit_pair(joint->lower_limit, joint->upper_limit, joint->contact_dist);
-			limit_pair.damping = joint->damping;
+			PxJointAngularLimitPair limit_pair(jr->lower_limit, jr->upper_limit, jr->contact_dist);
+			limit_pair.damping = jr->damping;
 
 			m_joint = PxRevoluteJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
 			static_cast<PxRevoluteJoint*>(m_joint)->setLimit(limit_pair);
@@ -111,8 +108,8 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		}
 		case JointType::PRISMATIC:
 		{
-			PxJointLinearLimitPair limit_pair(PxTolerancesScale(), joint->lower_limit, joint->upper_limit, joint->contact_dist);
-			limit_pair.damping = joint->damping;
+			PxJointLinearLimitPair limit_pair(PxTolerancesScale(), jr->lower_limit, jr->upper_limit, jr->contact_dist);
+			limit_pair.damping = jr->damping;
 
 			m_joint = PxPrismaticJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
 			static_cast<PxPrismaticJoint*>(m_joint)->setLimit(limit_pair);
@@ -123,7 +120,7 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		case JointType::DISTANCE:
 		{
 			m_joint = PxDistanceJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
-			static_cast<PxDistanceJoint*>(m_joint)->setMaxDistance(joint->max_distance);
+			static_cast<PxDistanceJoint*>(m_joint)->setMaxDistance(jr->max_distance);
 			static_cast<PxDistanceJoint*>(m_joint)->setDistanceJointFlag(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
 
 			break;
@@ -136,12 +133,7 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		}
 	}
 
-	if (joint->breakable) m_joint->setBreakForce(joint->break_force, joint->break_torque);
-}
-
-Joint::~Joint()
-{
-
+	if (jr->breakable) m_joint->setBreakForce(jr->break_force, jr->break_torque);
 }
 
 } // namespace crown

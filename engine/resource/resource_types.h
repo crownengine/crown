@@ -68,4 +68,8 @@ namespace crown
 	struct SpriteResource;
 	struct TextureResource;
 	struct UnitResource;
+	struct ActorResource;
+	struct ShapeResource;
+	struct JointResource;
+	struct ControllerResource;
 } // namespace crown

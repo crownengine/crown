@@ -181,27 +181,29 @@ void Unit::create_physics_objects()
 		// Create controller if any
 		if (has_controller(pr))
 		{
-			set_controller(physics_resource::controller(pr)->name, m_world.physics_world()->create_controller(pr, m_scene_graph, 0));
+			const ControllerResource* cr = physics_resource::controller(pr);
+
+			set_controller(cr->name, m_world.physics_world()->create_controller(cr, m_scene_graph, 0));
 		}
 
 		// Create actors if any
 		for (uint32_t i = 0; i < num_actors(pr); i++)
 		{
-			const PhysicsActor* actor = physics_resource::actor(pr, i);
+			const ActorResource* ar = physics_resource::actor(pr, i);
 
-			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor->node), m_id);
-			add_actor(actor->name, id);
+			ActorId id = m_world.physics_world()->create_actor(ar, m_scene_graph, m_scene_graph.node(ar->node), m_id);
+			add_actor(ar->name, id);
 		}
 
 		// Create joints if any
 		for (uint32_t i = 0; i < num_joints(pr); i++)
 		{
-			const PhysicsJoint* joint = physics_resource::joint(pr, i);
+			const JointResource* jr = physics_resource::joint(pr, i);
 
-			Actor* a1 = actor_by_index(joint->actor_0);
-			Actor* a2 = actor_by_index(joint->actor_1);
+			Actor* a1 = actor_by_index(jr->actor_0);
+			Actor* a2 = actor_by_index(jr->actor_1);
 
-			m_world.physics_world()->create_joint(pr, i, *a1, *a2);
+			m_world.physics_world()->create_joint(jr, *a1, *a2);
 		}
 	}
 }

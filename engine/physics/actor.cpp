@@ -63,10 +63,9 @@ using physx::PxPlane;
 namespace crown
 {
 
-Actor::Actor(PhysicsWorld& pw, const PhysicsResource* res, uint32_t actor_idx, SceneGraph& sg, int32_t node, UnitId unit_id)
+Actor::Actor(PhysicsWorld& pw, const ActorResource* ar, SceneGraph& sg, int32_t node, UnitId unit_id)
 	: m_world(pw)
-	, m_resource(res)
-	, m_index(actor_idx)
+	, m_resource(ar)
 	, m_scene_graph(sg)
 	, m_node(node)
 	, m_unit(unit_id)
@@ -81,7 +80,7 @@ Actor::~Actor()
 
 void Actor::create_objects()
 {
-	const PhysicsActor* actor = physics_resource::actor(m_resource, m_index);
+	const ActorResource* actor = m_resource;
 
 	PxScene* scene = m_world.physx_scene();
 	PxPhysics* physics = m_world.physx_physics();
@@ -110,10 +109,9 @@ void Actor::create_objects()
 	}
 
 	// Create shapes
-	uint32_t shape_index = physics_resource::shape_index(m_resource, m_index);
-	for (uint32_t i = 0; i < actor->num_shapes; i++)
+	for (uint32_t i = 0; i < actor->num_shapes; ++i)
 	{
-		const PhysicsShape* shape = physics_resource::shape(m_resource, shape_index);
+		const ShapeResource* shape = actor_resource::shape(m_resource, i);
 		const PhysicsShape2* shape_class = physics_config_resource::shape(config, shape->shape_class);
 		const PhysicsMaterial* material = physics_config_resource::material(config, shape->material);
 
@@ -122,27 +120,27 @@ void Actor::create_objects()
 		PxShape* px_shape = NULL;
 		switch(shape->type)
 		{
-			case PhysicsShapeType::SPHERE:
+			case ShapeType::SPHERE:
 			{
 				px_shape = m_actor->createShape(PxSphereGeometry(shape->data_0), *mat);
 				break;
 			}
-			case PhysicsShapeType::CAPSULE:
+			case ShapeType::CAPSULE:
 			{
 				px_shape = m_actor->createShape(PxCapsuleGeometry(shape->data_0, shape->data_1), *mat);
 				break;
 			}
-			case PhysicsShapeType::BOX:
+			case ShapeType::BOX:
 			{
 				px_shape = m_actor->createShape(PxBoxGeometry(shape->data_0, shape->data_1, shape->data_2), *mat);
 				break;
 			}
-			case PhysicsShapeType::PLANE:
+			case ShapeType::PLANE:
 			{
 				px_shape = m_actor->createShape(PxPlaneGeometry(), *mat);
 				break;
 			}
-			case PhysicsShapeType::CONVEX_MESH:
+			case ShapeType::CONVEX_MESH:
 			{
 				// MeshResource* resource = (MeshResource*) device()->resource_manager()->get(MESH_TYPE, shape->resource.name);
 
@@ -172,7 +170,7 @@ void Actor::create_objects()
 		}
 
 		// Setup shape pose
-		if (shape->type == PhysicsShapeType::PLANE)
+		if (shape->type == ShapeType::PLANE)
 		{
 			px_shape->setLocalPose(PxTransformFromPlaneEquation(
 				PxPlane(shape->data_0, shape->data_1, shape->data_2, shape->data_3)));
@@ -195,8 +193,6 @@ void Actor::create_objects()
 			px_shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
 			px_shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
 		}
-
-		shape_index++;
 	}
 
 	if (is_dynamic())

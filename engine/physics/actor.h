@@ -32,7 +32,7 @@ struct SceneGraph;
 /// @ingroup Physics
 struct Actor
 {
-	Actor(PhysicsWorld& pw, const PhysicsResource* res, uint32_t actor_idx, SceneGraph& sg, int32_t node, UnitId unit_id);
+	Actor(PhysicsWorld& pw, const ActorResource* ar, SceneGraph& sg, int32_t node, UnitId unit_id);
 	~Actor();
 
 	/// Returns the world position of the actor.
@@ -150,7 +150,7 @@ struct Actor
 	/// Returns the unit that owns the actor.
 	Unit* unit();
 
-	const PhysicsResource* resource() const { return m_resource; }
+	const ActorResource* resource() const { return m_resource; }
 
 private:
 
@@ -162,8 +162,7 @@ private:
 public:
 
 	PhysicsWorld& m_world;
-	const PhysicsResource* m_resource;
-	uint32_t m_index;
+	const ActorResource* m_resource;
 	PxRigidActor* m_actor;
 
 	SceneGraph& m_scene_graph;

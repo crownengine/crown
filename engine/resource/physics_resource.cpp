@@ -3,10 +3,10 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "filesystem.h"
-#include "string_utils.h"
-#include "json_parser.h"
 #include "physics_resource.h"
+#include "physics_types.h"
+#include "filesystem.h"
+#include "json_parser.h"
 #include "string_utils.h"
 #include "dynamic_string.h"
 #include "map.h"
@@ -21,36 +21,36 @@ namespace physics_resource
 	struct Shape
 	{
 		const char* name;
-		PhysicsShapeType::Enum type;
+		ShapeType::Enum type;
 	};
 
-	static const Shape s_shape[PhysicsShapeType::COUNT] =
+	static const Shape s_shape[ShapeType::COUNT] =
 	{
-		{ "sphere",  PhysicsShapeType::SPHERE  },
-		{ "capsule", PhysicsShapeType::CAPSULE },
-		{ "box",     PhysicsShapeType::BOX     },
-		{ "plane",   PhysicsShapeType::PLANE   }
+		{ "sphere",  ShapeType::SPHERE  },
+		{ "capsule", ShapeType::CAPSULE },
+		{ "box",     ShapeType::BOX     },
+		{ "plane",   ShapeType::PLANE   }
 	};
 
 	struct Joint
 	{
 		const char* name;
-		PhysicsJointType::Enum type;
+		JointType::Enum type;
 	};
 
-	static const Joint s_joint[PhysicsJointType::COUNT] =
+	static const Joint s_joint[JointType::COUNT] =
 	{
-		{ "fixed",     PhysicsJointType::FIXED     },
-		{ "spherical", PhysicsJointType::SPHERICAL },
-		{ "revolute",  PhysicsJointType::REVOLUTE  },
-		{ "prismatic", PhysicsJointType::PRISMATIC },
-		{ "distance",  PhysicsJointType::DISTANCE  },
-		{ "d6",        PhysicsJointType::D6        }
+		{ "fixed",     JointType::FIXED     },
+		{ "spherical", JointType::SPHERICAL },
+		{ "revolute",  JointType::REVOLUTE  },
+		{ "prismatic", JointType::PRISMATIC },
+		{ "distance",  JointType::DISTANCE  },
+		{ "d6",        JointType::D6        }
 	};
 
 	static uint32_t shape_type_to_enum(const char* type)
 	{
-		for (uint32_t i = 0; i < PhysicsShapeType::COUNT; i++)
+		for (uint32_t i = 0; i < ShapeType::COUNT; i++)
 		{
 			if (strcmp(type, s_shape[i].name) == 0)
 				return s_shape[i].type;
@@ -62,7 +62,7 @@ namespace physics_resource
 
 	static uint32_t joint_type_to_enum(const char* type)
 	{
-		for (uint32_t i = 0; i < PhysicsJointType::COUNT; i++)
+		for (uint32_t i = 0; i < JointType::COUNT; i++)
 		{
 			if (strcmp(type, s_joint[i].name) == 0)
 				return s_joint[i].type;
@@ -72,7 +72,7 @@ namespace physics_resource
 		return 0;
 	}
 
-	void parse_controller(JSONElement e, PhysicsController& controller)
+	void parse_controller(JSONElement e, ControllerResource& controller)
 	{
 		controller.name =             e.key("name").to_string_id();
 		controller.height =           e.key("height").to_float();
@@ -83,7 +83,7 @@ namespace physics_resource
 		controller.collision_filter = e.key("collision_filter").to_string_id();
 	}
 
-	void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
+	void parse_shapes(JSONElement e, Array<ShapeResource>& shapes)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -92,55 +92,55 @@ namespace physics_resource
 		{
 			JSONElement shape 		= e.key(keys[k].c_str());
 
-			PhysicsShape ps;
-			ps.name =        keys[k].to_string_id();
-			ps.shape_class = shape.key("class").to_string_id();
-			ps.material =    shape.key("material").to_string_id();
-			ps.position =    shape.key("position").to_vector3();
-			ps.rotation =    shape.key("rotation").to_quaternion();
+			ShapeResource sr;
+			sr.name =        keys[k].to_string_id();
+			sr.shape_class = shape.key("class").to_string_id();
+			sr.material =    shape.key("material").to_string_id();
+			sr.position =    shape.key("position").to_vector3();
+			sr.rotation =    shape.key("rotation").to_quaternion();
 
 			DynamicString stype; shape.key("type").to_string(stype);
-			ps.type = shape_type_to_enum(stype.c_str());
+			sr.type = shape_type_to_enum(stype.c_str());
 
-			switch (ps.type)
+			switch (sr.type)
 			{
-				case PhysicsShapeType::SPHERE:
+				case ShapeType::SPHERE:
 				{
-					ps.data_0 = shape.key("radius").to_float();
+					sr.data_0 = shape.key("radius").to_float();
 					break;
 				}
-				case PhysicsShapeType::CAPSULE:
+				case ShapeType::CAPSULE:
 				{
-					ps.data_0 = shape.key("radius").to_float();
-					ps.data_1 = shape.key("half_height").to_float();
+					sr.data_0 = shape.key("radius").to_float();
+					sr.data_1 = shape.key("half_height").to_float();
 					break;
 				}
-				case PhysicsShapeType::BOX:
+				case ShapeType::BOX:
 				{
-					ps.data_0 = shape.key("half_x").to_float();
-					ps.data_1 = shape.key("half_y").to_float();
-					ps.data_2 = shape.key("half_z").to_float();
+					sr.data_0 = shape.key("half_x").to_float();
+					sr.data_1 = shape.key("half_y").to_float();
+					sr.data_2 = shape.key("half_z").to_float();
 					break;
 				}
-				case PhysicsShapeType::PLANE:
+				case ShapeType::PLANE:
 				{
-					ps.data_0 = shape.key("n_x").to_float();
-					ps.data_1 = shape.key("n_y").to_float();
-					ps.data_2 = shape.key("n_z").to_float();
-					ps.data_3 = shape.key("distance").to_float();
+					sr.data_0 = shape.key("n_x").to_float();
+					sr.data_1 = shape.key("n_y").to_float();
+					sr.data_2 = shape.key("n_z").to_float();
+					sr.data_3 = shape.key("distance").to_float();
 					break;
 				}
-				case PhysicsShapeType::CONVEX_MESH:
+				case ShapeType::CONVEX_MESH:
 				{
-					ps.resource = shape.key("mesh").to_resource_id("mesh");
+					sr.resource = shape.key("mesh").to_resource_id("mesh");
 					break;
 				}
 			}
-			array::push_back(shapes, ps);
+			array::push_back(shapes, sr);
 		}
 	}
 
-	void parse_actors(JSONElement e, Array<PhysicsActor>& actors, Array<PhysicsShape>& actor_shapes, Array<uint32_t>& shape_indices)
+	void parse_actors(JSONElement e, Array<ActorResource>& actors, Array<ShapeResource>& actor_shapes, Array<uint32_t>& shape_indices)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -149,7 +149,7 @@ namespace physics_resource
 		{
 			JSONElement actor 	= e.key(keys[k].c_str());
 
-			PhysicsActor pa;
+			ActorResource pa;
 			pa.name =        keys[k].to_string_id();
 			pa.node =        actor.key("node").to_string_id();
 			pa.actor_class = actor.key("class").to_string_id();
@@ -163,7 +163,7 @@ namespace physics_resource
 		}
 	}
 
-	void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
+	void parse_joints(JSONElement e, Array<JointResource>& joints)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -173,7 +173,7 @@ namespace physics_resource
 			JSONElement joint			= e.key(keys[k].c_str());
 			JSONElement type 			= joint.key("type");
 
-			PhysicsJoint pj;
+			JointResource pj;
 			pj.name = keys[k].to_string_id();
 			DynamicString jtype; type.to_string(jtype);
 			pj.type         = joint_type_to_enum(jtype.c_str());
@@ -191,31 +191,31 @@ namespace physics_resource
 
 			switch (pj.type)
 			{
-				case PhysicsJointType::FIXED:
+				case JointType::FIXED:
 				{
 					return;
 				}
-				case PhysicsJointType::SPHERICAL:
+				case JointType::SPHERICAL:
 				{
 					pj.y_limit_angle = joint.key_or_nil("y_limit_angle").to_float(HALF_PI);
 					pj.z_limit_angle = joint.key_or_nil("z_limit_angle").to_float(HALF_PI);
 					pj.contact_dist =  joint.key_or_nil("contact_dist").to_float(0.0f);
 					break;
 				}
-				case PhysicsJointType::REVOLUTE:
-				case PhysicsJointType::PRISMATIC:
+				case JointType::REVOLUTE:
+				case JointType::PRISMATIC:
 				{
 					pj.lower_limit =  joint.key_or_nil("lower_limit").to_float(0.0f);
 					pj.upper_limit =  joint.key_or_nil("upper_limit").to_float(0.0f);
 					pj.contact_dist = joint.key_or_nil("contact_dist").to_float(0.0f);
 					break;
 				}
-				case PhysicsJointType::DISTANCE:
+				case JointType::DISTANCE:
 				{
 					pj.max_distance = joint.key_or_nil("max_distance").to_float(0.0f);
 					break;
 				}
-				case PhysicsJointType::D6:
+				case JointType::D6:
 				{
 					CE_FATAL("Not implemented");
 					break;
@@ -235,7 +235,7 @@ namespace physics_resource
 		JSONElement root = json.root();
 
 		bool m_has_controller = false;
-		PhysicsController m_controller;
+		ControllerResource m_controller;
 
 		// Read controller
 		JSONElement controller = root.key_or_nil("controller");
@@ -249,10 +249,10 @@ namespace physics_resource
 			m_has_controller = true;
 		}
 
-		Array<PhysicsActor> m_actors(default_allocator());
+		Array<ActorResource> m_actors(default_allocator());
 		Array<uint32_t> m_shapes_indices(default_allocator());
-		Array<PhysicsShape> m_shapes(default_allocator());
-		Array<PhysicsJoint> m_joints(default_allocator());
+		Array<ShapeResource> m_shapes(default_allocator());
+		Array<JointResource> m_joints(default_allocator());
 
 		if (root.has_key("actors")) parse_actors(root.key("actors"), m_actors, m_shapes, m_shapes_indices);
 		if (root.has_key("joints")) parse_joints(root.key("joints"), m_joints);
@@ -261,15 +261,11 @@ namespace physics_resource
 		pr.version = VERSION;
 		pr.num_controllers = m_has_controller ? 1 : 0;
 		pr.num_actors = array::size(m_actors);
-		pr.num_shapes_indices = array::size(m_shapes_indices);
-		pr.num_shapes = array::size(m_shapes);
 		pr.num_joints = array::size(m_joints);
 
 		uint32_t offt = sizeof(PhysicsResource);
-		pr.controller_offset = offt; offt += sizeof(PhysicsController) * pr.num_controllers;
-		pr.actors_offset = offt; offt += sizeof(PhysicsActor) * pr.num_actors;
-		pr.shapes_indices_offset = offt; offt += sizeof(uint32_t) * pr.num_shapes_indices;
-		pr.shapes_offset = offt; offt += sizeof(PhysicsShape) * pr.num_shapes;
+		pr.controller_offset = offt; offt += sizeof(ControllerResource) * pr.num_controllers;
+		pr.actors_offset = offt; offt += sizeof(ActorResource) * pr.num_actors;
 		pr.joints_offset = offt;
 
 		// Write all
@@ -278,10 +274,6 @@ namespace physics_resource
 		opts.write(pr.controller_offset);
 		opts.write(pr.num_actors);
 		opts.write(pr.actors_offset);
-		opts.write(pr.num_shapes_indices);
-		opts.write(pr.shapes_indices_offset);
-		opts.write(pr.num_shapes);
-		opts.write(pr.shapes_offset);
 		opts.write(pr.num_joints);
 		opts.write(pr.joints_offset);
 
@@ -303,26 +295,23 @@ namespace physics_resource
 			opts.write(m_actors[i].actor_class);
 			opts.write(m_actors[i].mass);
 			opts.write(m_actors[i].num_shapes);
-		}
 
-		for (uint32_t i = 0; i < array::size(m_shapes_indices); i++)
-		{
-			opts.write(m_shapes_indices[i]);
-		}
+			for (uint32_t ss = 0; ss < m_actors[i].num_shapes; ++ss)
+			{
+				const uint32_t base = m_shapes_indices[i];
 
-		for (uint32_t i = 0; i < array::size(m_shapes); i++)
-		{
-			opts.write(m_shapes[i].name);
-			opts.write(m_shapes[i].shape_class);
-			opts.write(m_shapes[i].type);
-			opts.write(m_shapes[i].material);
-			opts.write(m_shapes[i].resource);
-			opts.write(m_shapes[i].position);
-			opts.write(m_shapes[i].rotation);
-			opts.write(m_shapes[i].data_0);
-			opts.write(m_shapes[i].data_1);
-			opts.write(m_shapes[i].data_2);
-			opts.write(m_shapes[i].data_3);
+				opts.write(m_shapes[base + ss].name);
+				opts.write(m_shapes[base + ss].shape_class);
+				opts.write(m_shapes[base + ss].type);
+				opts.write(m_shapes[base + ss].material);
+				opts.write(m_shapes[base + ss].resource);
+				opts.write(m_shapes[base + ss].position);
+				opts.write(m_shapes[base + ss].rotation);
+				opts.write(m_shapes[base + ss].data_0);
+				opts.write(m_shapes[base + ss].data_1);
+				opts.write(m_shapes[base + ss].data_2);
+				opts.write(m_shapes[base + ss].data_3);
+			}
 		}
 
 		for (uint32_t i = 0; i < array::size(m_joints); i++)
@@ -378,10 +367,10 @@ namespace physics_resource
 		return pr->num_controllers == 1;
 	}
 
-	const PhysicsController* controller(const PhysicsResource* pr)
+	const ControllerResource* controller(const PhysicsResource* pr)
 	{
 		CE_ASSERT(has_controller(pr), "Controller does not exist");
-		PhysicsController* controller = (PhysicsController*) ((char*)pr + pr->controller_offset);
+		ControllerResource* controller = (ControllerResource*) ((char*)pr + pr->controller_offset);
 		return controller;
 	}
 
@@ -390,35 +379,11 @@ namespace physics_resource
 		return pr->num_actors;
 	}
 
-	const PhysicsActor* actor(const PhysicsResource* pr, uint32_t i)
+	const ActorResource* actor(const PhysicsResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_actors(pr), "Index out of bounds");
-		PhysicsActor* actor = (PhysicsActor*) ((char*)pr + pr->actors_offset);
+		ActorResource* actor = (ActorResource*) ((char*)pr + pr->actors_offset);
 		return &actor[i];
-	}
-
-	uint32_t num_shapes_indices(const PhysicsResource* pr)
-	{
-		return pr->num_shapes_indices;
-	}
-
-	uint32_t shape_index(const PhysicsResource* pr, uint32_t i)
-	{
-		CE_ASSERT(i < num_shapes_indices(pr), "Index out of bounds");
-		uint32_t* index = (uint32_t*) ((char*)pr + pr->shapes_indices_offset);
-		return index[i];
-	}
-
-	uint32_t num_shapes(const PhysicsResource* pr)
-	{
-		return pr->num_shapes;
-	}
-
-	const PhysicsShape* shape(const PhysicsResource* pr, uint32_t i)
-	{
-		CE_ASSERT(i < num_shapes(pr), "Index out of bounds");
-		PhysicsShape* shape = (PhysicsShape*) ((char*)pr + pr->shapes_offset);
-		return &shape[i];
 	}
 
 	uint32_t num_joints(const PhysicsResource* pr)
@@ -426,13 +391,28 @@ namespace physics_resource
 		return pr->num_joints;
 	}
 
-	const PhysicsJoint* joint(const PhysicsResource* pr, uint32_t i)
+	const JointResource* joint(const PhysicsResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_joints(pr), "Index out of bounds");
-		PhysicsJoint* joint = (PhysicsJoint*) ((char*)pr + pr->joints_offset);
+		JointResource* joint = (JointResource*) ((char*)pr + pr->joints_offset);
 		return &joint[i];
 	}
 } // namespace physics_resource
+
+namespace actor_resource
+{
+	uint32_t num_shapes(const ActorResource* ar)
+	{
+		return ar->num_shapes;
+	}
+
+	const ShapeResource* shape(const ActorResource* ar, uint32_t i)
+	{
+		CE_ASSERT(i < num_shapes(ar), "Index out of bounds");
+		ShapeResource* shape = (ShapeResource*) (ar + 1);
+		return &shape[i];
+	}
+} // namespace actor_resource
 
 namespace physics_config_resource
 {

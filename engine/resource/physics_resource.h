@@ -22,15 +22,11 @@ struct PhysicsResource
 	uint32_t controller_offset;
 	uint32_t num_actors;
 	uint32_t actors_offset;
-	uint32_t num_shapes_indices;
-	uint32_t shapes_indices_offset;
-	uint32_t num_shapes;
-	uint32_t shapes_offset;
 	uint32_t num_joints;
 	uint32_t joints_offset;
 };
 
-struct PhysicsController
+struct ControllerResource
 {
 	StringId32 name;
 	float height;				// Height of the capsule
@@ -41,7 +37,7 @@ struct PhysicsController
 	StringId32 collision_filter;// Collision filter from global.physics_config
 };
 
-struct PhysicsActor
+struct ActorResource
 {
 	StringId32 name;			// Name of the actor
 	StringId32 node;			// Node from .unit file
@@ -50,21 +46,7 @@ struct PhysicsActor
 	uint32_t num_shapes;		// Number of shapes
 };
 
-struct PhysicsShapeType
-{
-	enum Enum
-	{
-		SPHERE,
-		CAPSULE,
-		BOX,
-		PLANE,
-		CONVEX_MESH,
-
-		COUNT
-	};
-};
-
-struct PhysicsShape
+struct ShapeResource
 {
 	StringId32 name;			// Name of the shape
 	StringId32 shape_class;		// Shape class from global.physics_config
@@ -79,22 +61,7 @@ struct PhysicsShape
 	float data_3;
 };
 
-struct PhysicsJointType
-{
-	enum Enum
-	{
-		FIXED,
-		SPHERICAL,
-		REVOLUTE,
-		PRISMATIC,
-		DISTANCE,
-		D6,
-
-		COUNT
-	};
-};
-
-struct PhysicsJoint
+struct JointResource
 {
 	StringId32 name;
 	uint32_t type;
@@ -137,16 +104,18 @@ namespace physics_resource
 	void unload(Allocator& allocator, void* resource);
 
 	bool has_controller(const PhysicsResource* pr);
-	const PhysicsController* controller(const PhysicsResource* pr);
+	const ControllerResource* controller(const PhysicsResource* pr);
 	uint32_t num_actors(const PhysicsResource* pr);
-	const PhysicsActor* actor(const PhysicsResource* pr, uint32_t i);
-	uint32_t num_shapes_indices(const PhysicsResource* pr);
-	uint32_t shape_index(const PhysicsResource* pr, uint32_t i);
-	uint32_t num_shapes(const PhysicsResource* pr);
-	const PhysicsShape* shape(const PhysicsResource* pr, uint32_t i);
+	const ActorResource* actor(const PhysicsResource* pr, uint32_t i);
 	uint32_t num_joints(const PhysicsResource* pr);
-	const PhysicsJoint* joint(const PhysicsResource* pr, uint32_t i);
+	const JointResource* joint(const PhysicsResource* pr, uint32_t i);
 } // namespace physics_resource
+
+namespace actor_resource
+{
+	uint32_t num_shapes(const ActorResource* ar);
+	const ShapeResource* shape(const ActorResource* ar, uint32_t i);
+}
 
 struct PhysicsConfigResource
 {
