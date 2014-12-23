@@ -99,9 +99,7 @@ namespace array
 	inline void resize(Array<T>& a, uint32_t size)
 	{
 		if (size > a._capacity)
-		{
 			set_capacity(a, size);
-		}
 
 		a._size = size;
 	}
@@ -110,37 +108,28 @@ namespace array
 	inline void reserve(Array<T>& a, uint32_t capacity)
 	{
 		if (capacity > a._capacity)
-		{
 			grow(a, capacity);
-		}
 	}
 
 	template <typename T>
 	inline void set_capacity(Array<T>& a, uint32_t capacity)
 	{
 		if (capacity == a._capacity)
-		{
 			return;
-		}
 
 		if (capacity < a._size)
-		{
 			resize(a, capacity);
-		}
 
 		if (capacity > 0)
 		{
 			T* tmp = a._array;
 			a._capacity = capacity;
-
 			a._array = (T*)a._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
 
 			memcpy(a._array, tmp, a._size * sizeof(T));
 
 			if (tmp)
-			{
 				a._allocator->deallocate(tmp);
-			}
 		}
 	}
 
@@ -150,9 +139,7 @@ namespace array
 		uint32_t new_capacity = a._capacity * 2 + 1;
 
 		if (new_capacity < min_capacity)
-		{
 			new_capacity = min_capacity;
-		}
 
 		set_capacity(a, new_capacity);
 	}
@@ -167,13 +154,11 @@ namespace array
 	inline uint32_t push_back(Array<T>& a, const T& item)
 	{
 		if (a._capacity == a._size)
-		{
 			grow(a, 0);
-		}
 
 		a._array[a._size] = item;
 
-		return 	a._size++;
+		return a._size++;
 	}
 
 	template <typename T>
@@ -181,16 +166,14 @@ namespace array
 	{
 		CE_ASSERT(a._size > 0, "The array is empty");
 
-		a._size--;
+		--a._size;
 	}
 
 	template <typename T>
 	inline uint32_t push(Array<T>& a, const T* items, uint32_t count)
 	{
 		if (a._capacity <= a._size + count)
-		{
 			grow(a, a._size + count);
-		}
 
 		memcpy(&a._array[a._size], items, sizeof(T) * count);
 		a._size += count;
@@ -262,21 +245,30 @@ namespace array
 } // namespace array
 
 template <typename T>
-inline Array<T>::Array(Allocator& allocator)
-	: _allocator(&allocator), _capacity(0), _size(0), _array(NULL)
+inline Array<T>::Array(Allocator& a)
+	: _allocator(&a)
+	, _capacity(0)
+	, _size(0)
+	, _array(NULL)
 {
 }
 
 template <typename T>
-inline Array<T>::Array(Allocator& allocator, uint32_t capacity)
-	: _allocator(&allocator), _capacity(0), _size(0), _array(NULL)
+inline Array<T>::Array(Allocator& a, uint32_t capacity)
+	: _allocator(&a)
+	, _capacity(0)
+	, _size(0)
+	, _array(NULL)
 {
 	array::resize(*this, capacity);
 }
 
 template <typename T>
 inline Array<T>::Array(const Array<T>& other)
-	: _allocator(other._allocator), _capacity(0), _size(0), _array(NULL)
+	: _allocator(other._allocator)
+	, _capacity(0)
+	, _size(0)
+	, _array(NULL)
 {
 	*this = other;
 }
@@ -285,9 +277,7 @@ template <typename T>
 inline Array<T>::~Array()
 {
 	if (_array)
-	{
 		_allocator->deallocate(_array);
-	}
 }
 
 template <typename T>
