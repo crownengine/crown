@@ -44,6 +44,12 @@ namespace vector3
 	const Vector3 XAXIS = Vector3(1, 0, 0);
 	const Vector3 YAXIS = Vector3(0, 1, 0);
 	const Vector3 ZAXIS = Vector3(0, 0, 1);
+	const Vector3 FORWARD = Vector3(0, 0, 1);
+	const Vector3 BACKWARD = Vector3(0, 0, -1);
+	const Vector3 LEFT = Vector3(-1, 0, 0);
+	const Vector3 RIGHT = Vector3(1, 0, 0);
+	const Vector3 UP = Vector3(0, 1, 0);
+	const Vector3 DOWN = Vector3(0, -1, 0);
 
 	/// Returns the dot product between the vectors @a a and @a b.
 	float dot(const Vector3& a, const Vector3& b);

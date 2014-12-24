@@ -167,6 +167,48 @@ static int vector3_angle(lua_State* L)
 	return 1;
 }
 
+static int vector3_forward(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(vector3::FORWARD);
+	return 1;
+}
+
+static int vector3_backward(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(vector3::BACKWARD);
+	return 1;
+}
+
+static int vector3_left(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(vector3::LEFT);
+	return 1;
+}
+
+static int vector3_right(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(vector3::RIGHT);
+	return 1;
+}
+
+static int vector3_up(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(vector3::UP);
+	return 1;
+}
+
+static int vector3_down(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(vector3::DOWN);
+	return 1;
+}
+
 static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -204,6 +246,12 @@ void load_vector3(LuaEnvironment& env)
 	env.load_module_function("Vector3", "normalize",      vector3_normalize);
 	env.load_module_function("Vector3", "distance",       vector3_distance);
 	env.load_module_function("Vector3", "angle",          vector3_angle);
+	env.load_module_function("Vector3", "forward",        vector3_forward);
+	env.load_module_function("Vector3", "backward",       vector3_backward);
+	env.load_module_function("Vector3", "left",           vector3_left);
+	env.load_module_function("Vector3", "right",          vector3_right);
+	env.load_module_function("Vector3", "up",             vector3_up);
+	env.load_module_function("Vector3", "down",           vector3_down);
 
 	env.load_module_constructor("Vector3", vector3_ctor);
 

@@ -78,6 +78,20 @@ Vector3
 	**angle** (a, b) : float
 		Returns the angle between the vectors *a* and *b*.
 
+	**forward** () : Vector3
+
+	**backward** () : Vector3
+
+	**left** () : Vector3
+
+	**right** () : Vector3
+
+	**up** () : Vector3
+
+	**down** () : Vector3
+
+		Returns the corresponding semantic axis.
+
 Quaternion
 ----------
 
