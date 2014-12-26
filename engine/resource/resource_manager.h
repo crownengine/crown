@@ -73,6 +73,8 @@ private:
 
 		uint32_t references;
 		void* data;
+
+		static const ResourceEntry NOT_FOUND;
 	};
 
 	typedef SortMap<ResourceId, ResourceEntry> ResourceMap;
@@ -82,7 +84,6 @@ private:
 	ResourceMap _rm;
 	bool _autoload;
 
-	static const ResourceEntry NOT_FOUND;
 };
 
 } // namespace crown

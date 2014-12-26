@@ -11,6 +11,8 @@
 namespace crown
 {
 
+const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL };
+
 ResourceManager::ResourceManager(Filesystem& fs)
 	: _resource_heap("resource", default_allocator())
 	, _loader(fs, _resource_heap)
@@ -18,8 +20,6 @@ ResourceManager::ResourceManager(Filesystem& fs)
 	, _autoload(false)
 {
 }
-
-const ResourceManager::ResourceEntry ResourceManager::NOT_FOUND = { 0xffffffffu, NULL };
 
 ResourceManager::~ResourceManager()
 {
@@ -36,9 +36,9 @@ ResourceManager::~ResourceManager()
 void ResourceManager::load(StringId64 type, StringId64 name)
 {
 	ResourceId id(type, name);
-	ResourceEntry& entry = sort_map::get(_rm, id, NOT_FOUND);
+	ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
-	if (entry == NOT_FOUND)
+	if (entry == ResourceEntry::NOT_FOUND)
 	{
 		_loader.load(id);
 		return;
@@ -52,7 +52,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 	flush();
 
 	ResourceId id(type, name);
-	ResourceEntry& entry = sort_map::get(_rm, id, NOT_FOUND);
+	ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (--entry.references == 0)
 	{
@@ -67,14 +67,14 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 void ResourceManager::reload(StringId64 type, StringId64 name)
 {
 	const ResourceId id(type, name);
-	const ResourceEntry& entry = sort_map::get(_rm, id, NOT_FOUND);
+	const ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	const uint32_t old_refs = entry.references;
 
 	unload(type, name);
 	load(type, name);
 	flush();
 
-	ResourceEntry& new_entry = sort_map::get(_rm, id, NOT_FOUND);
+	ResourceEntry& new_entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	new_entry.references = old_refs;
 }
 
@@ -109,7 +109,7 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 		flush();
 	}
 
-	const ResourceEntry& entry = sort_map::get(_rm, id, NOT_FOUND);
+	const ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	return entry.data;
 }
 
