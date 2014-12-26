@@ -5,8 +5,8 @@
 
 #include "lua_environment.h"
 #include "lua_stack.h"
+#include "lua_assert.h"
 #include "vector3.h"
-#include "string_utils.h"
 
 namespace crown
 {
@@ -46,23 +46,14 @@ static int vector3box_get_value(lua_State* L)
 	Vector3& v = stack.get_vector3box(1);
 	const char* s = stack.get_string(2);
 
-	if (strcmp(s, "x") == 0)
+	switch (s[0])
 	{
-		stack.push_float(v.x);
-		return 1;
-	}
-	else if (strcmp(s, "y") == 0)
-	{
-		stack.push_float(v.y);
-		return 1;
-	}
-	else if (strcmp(s, "z") == 0)
-	{
-		stack.push_float(v.z);
-		return 1;
+		case 'x': stack.push_float(v.x); return 1;
+		case 'y': stack.push_float(v.y); return 1;
+		case 'z': stack.push_float(v.z); return 1;
+		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
 	}
 
-	// Never happens
 	return 0;
 }
 
@@ -72,19 +63,14 @@ static int vector3box_set_value(lua_State* L)
 
 	Vector3& v = stack.get_vector3box(1);
 	const char* s = stack.get_string(2);
-	float value = stack.get_float(3);
+	const float value = stack.get_float(3);
 
-	if (strcmp(s, "x") == 0)
+	switch (s[0])
 	{
-		v.x = value;
-	}
-	else if (strcmp(s, "y") == 0)
-	{
-		v.y = value;
-	}
-	else if (strcmp(s, "z") == 0)
-	{
-		v.z = value;
+		case 'x': v.x = value; break;
+		case 'y': v.y = value; break;
+		case 'z': v.z = value; break;
+		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
 	}
 
 	return 0;
