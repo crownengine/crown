@@ -1,5 +1,5 @@
 <!--
-  -- Copyright (c) 2012-2014 Daniele Bartolini and individual contributors.
+  -- Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
   -- License: https://github.com/taylor001/crown/blob/master/LICENSE
   -->
 
@@ -12,12 +12,12 @@
 
 		<uses-permission android:name="android.permission.INTERNET"/>
 		<uses-permission android:name="android.permission.SET_DEBUG_APP"/>
-		
+
 		<application android:label="Crown" android:hasCode="true">
 				<activity android:name=".CrownActivity"
 									android:label="Crown"
 									android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-									android:screenOrientation="landscape" 
+									android:screenOrientation="landscape"
 									android:configChanges="orientation|keyboardHidden">
 						<!-- Tell NativeActivity the name of our .so -->
 						<meta-data android:name="android.app.lib_name"
@@ -28,4 +28,4 @@
 						</intent-filter>
 				</activity>
 		</application>
-</manifest> 
+</manifest>
