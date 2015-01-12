@@ -100,6 +100,65 @@ static int quaternion_elements(lua_State* L)
 	return 4;
 }
 
+static int quaternionbox_new(lua_State* L)
+{
+	LuaStack stack(L);
+
+	if (stack.num_args() == 0)
+		stack.push_quaternionbox(Quaternion());
+	else if (stack.num_args() == 1)
+		stack.push_quaternionbox(stack.get_quaternion(1));
+	else
+		stack.push_quaternionbox(Quaternion(stack.get_float(1)
+			, stack.get_float(2)
+			, stack.get_float(3)
+			, stack.get_float(4)));
+
+	return 1;
+}
+
+static int quaternionbox_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return quaternionbox_new(L);
+}
+
+static int quaternionbox_store(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Quaternion& q = stack.get_quaternionbox(1);
+
+	if (stack.num_args() == 2)
+		q = stack.get_quaternion(2);
+	else
+		q = Quaternion(stack.get_float(2)
+			, stack.get_float(3)
+			, stack.get_float(4)
+			, stack.get_float(5));
+
+	return 0;
+}
+
+static int quaternionbox_unbox(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Quaternion& q = stack.get_quaternionbox(1);
+
+	stack.push_quaternion(q);
+	return 1;
+}
+
+static int quaternionbox_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	Quaternion& q = stack.get_quaternionbox(1);
+	stack.push_fstring("QuaternionBox (%p)", &q);
+	return 1;
+}
+
 void load_quaternion(LuaEnvironment& env)
 {
 	env.load_module_function("Quaternion", "new",                quaternion_new);
@@ -115,6 +174,13 @@ void load_quaternion(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "elements",           quaternion_elements);
 
 	env.load_module_constructor("Quaternion", quaternion_ctor);
+
+	env.load_module_function("QuaternionBox", "new",        quaternionbox_new);
+	env.load_module_function("QuaternionBox", "store",      quaternionbox_store);
+	env.load_module_function("QuaternionBox", "unbox",      quaternionbox_unbox);
+	env.load_module_function("QuaternionBox", "__tostring", quaternionbox_tostring);
+
+	env.load_module_constructor("QuaternionBox", quaternionbox_ctor);
 }
 
 } //namespace crown

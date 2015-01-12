@@ -6,6 +6,7 @@
 #include "vector3.h"
 #include "lua_stack.h"
 #include "lua_environment.h"
+#include "lua_assert.h"
 
 namespace crown
 {
@@ -223,6 +224,97 @@ static int vector2_ctor(lua_State* L)
 	return vector2_new(L);
 }
 
+static int vector3box_new(lua_State* L)
+{
+	LuaStack stack(L);
+
+	if (stack.num_args() == 0)
+		stack.push_vector3box(Vector3());
+	else if (stack.num_args() == 1)
+		stack.push_vector3box(stack.get_vector3(1));
+	else
+		stack.push_vector3box(Vector3(stack.get_float(1)
+			, stack.get_float(2)
+			, stack.get_float(3)));
+
+	return 1;
+}
+
+static int vector3box_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return vector3box_new(L);
+}
+
+static int vector3box_store(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector3& v = stack.get_vector3box(1);
+
+	if (stack.num_args() == 2)
+		v = stack.get_vector3(2);
+	else
+		v = Vector3(stack.get_float(2)
+			, stack.get_float(3)
+			, stack.get_float(4));
+
+	return 0;
+}
+
+static int vector3box_unbox(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(stack.get_vector3box(1));
+	return 1;
+}
+
+static int vector3box_get_value(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector3& v = stack.get_vector3box(1);
+	const char* s = stack.get_string(2);
+
+	switch (s[0])
+	{
+		case 'x': stack.push_float(v.x); return 1;
+		case 'y': stack.push_float(v.y); return 1;
+		case 'z': stack.push_float(v.z); return 1;
+		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
+	}
+
+	return 0;
+}
+
+static int vector3box_set_value(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector3& v = stack.get_vector3box(1);
+	const char* s = stack.get_string(2);
+	const float value = stack.get_float(3);
+
+	switch (s[0])
+	{
+		case 'x': v.x = value; break;
+		case 'y': v.y = value; break;
+		case 'z': v.z = value; break;
+		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
+	}
+
+	return 0;
+}
+
+static int vector3box_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	Vector3& v = stack.get_vector3box(1);
+	stack.push_fstring("Vector3Box (%p)", &v);
+	return 1;
+}
+
 void load_vector3(LuaEnvironment& env)
 {
 	env.load_module_function("Vector3", "new",            vector3_new);
@@ -257,6 +349,15 @@ void load_vector3(LuaEnvironment& env)
 
 	env.load_module_function("Vector2", "new",            vector2_new);
 	env.load_module_constructor("Vector2", vector2_ctor);
+
+	env.load_module_function("Vector3Box", "new",        vector3box_new);
+	env.load_module_function("Vector3Box", "store",      vector3box_store);
+	env.load_module_function("Vector3Box", "unbox",      vector3box_unbox);
+	env.load_module_function("Vector3Box", "__index",    vector3box_get_value);
+	env.load_module_function("Vector3Box", "__newindex", vector3box_set_value);
+	env.load_module_function("Vector3Box", "__tostring", vector3box_tostring);
+
+	env.load_module_constructor("Vector3Box", vector3box_ctor);
 }
 
 } // namespace crown

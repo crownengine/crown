@@ -199,6 +199,42 @@ static int matrix4x4_to_string(lua_State* L)
 	return 1;
 }
 
+static int matrix4x4box_new(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_matrix4x4box(stack.get_matrix4x4(1));
+	return 1;
+}
+
+static int matrix4x4box_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return matrix4x4box_new(L);
+}
+
+static int matrix4x4box_store(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_matrix4x4box(1) = stack.get_matrix4x4(2);
+	return 0;
+}
+
+static int matrix4x4box_unbox(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_matrix4x4(stack.get_matrix4x4box(1));
+	return 1;
+}
+
+static int matrix4x4box_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	Matrix4x4& m = stack.get_matrix4x4box(1);
+	stack.push_fstring("Matrix4x4Box (%p)", &m);
+	return 1;
+}
+
 void load_matrix4x4(LuaEnvironment& env)
 {
 	env.load_module_function("Matrix4x4", "new",                         matrix4x4_new);
@@ -226,6 +262,13 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "to_string",                   matrix4x4_to_string);
 
 	env.load_module_constructor("Matrix4x4", matrix4x4_ctor);
+
+	env.load_module_function("Matrix4x4Box", "new",        matrix4x4box_new);
+	env.load_module_function("Matrix4x4Box", "store",      matrix4x4box_store);
+	env.load_module_function("Matrix4x4Box", "unbox",      matrix4x4box_unbox);
+	env.load_module_function("Matrix4x4Box", "__tostring", matrix4x4box_tostring);
+
+	env.load_module_constructor("Matrix4x4Box", matrix4x4box_ctor);
 }
 
 } //namespace crown
