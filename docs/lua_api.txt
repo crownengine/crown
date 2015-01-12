@@ -92,6 +92,27 @@ Vector3
 
 		Returns the corresponding semantic axis.
 
+Vector3Box
+----------
+
+	**Vector3Box** ()
+		Creates a new Vector3Box.
+
+	**Vector3Box** (v)
+		Creates a new Vector3Box from the Vector3 *v*.
+
+	**Vector3Box** (x, y, z)
+		Creates a new Vector3Box from components.
+
+	**store** (v)
+		Stores the Vector3 *v* in the box.
+
+	**store** (x, y, z)
+		Stores Vector3(x, y, z) in the box.
+
+	**unbox** () : Vector3
+		Returns the stored vector from the box.
+
 Quaternion
 ----------
 
@@ -127,6 +148,27 @@ Quaternion
 
 	**elements** (q) : x, y, z, w
 		Returns the elements of the quaternion.
+
+QuaternionBox
+-------------
+
+	**QuaternionBox** ()
+		Creates a new QuaternionBox.
+
+	**QuaternionBox** (q)
+		Creates a new QuaternionBox from the Quaternion *q*.
+
+	**QuaternionBox** (x, y, z, w)
+		Creates a new QuaternionBox from elements.
+
+	**store(q)** ()
+		Stores the Quaternion *q* in the box.
+
+	**store** (x, y, z, w)
+		Stores Quaternion(x, y, z, w) in the box.
+
+	**unbox** () : Quaternion
+		Returns the stored quaternion from the box.
 
 Matrix4x4
 ---------
@@ -193,6 +235,18 @@ Matrix4x4
 
 	**to_string** (a)
 		Returns a string representing the matrix.
+
+Matrix4x4Box
+------------
+
+	**Matrix4x4Box** (m)
+		Creates a new Matrix4x4Box from the Matrix4x4 *m*.
+
+	**store** (m)
+		Stores the Matrix4x4 *m* in the box.
+
+	**unbox** () : Matrix4x4
+		Returns the stored matrix from the box.
 
 Math
 ----
