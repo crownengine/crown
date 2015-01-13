@@ -326,7 +326,7 @@ bool JSONElement::is_nil() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONType::NIL;
+		return njson::type(_at) == NJSONValueType::NIL;
 	}
 
 	return true;
@@ -336,7 +336,7 @@ bool JSONElement::is_bool() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONType::BOOL;
+		return njson::type(_at) == NJSONValueType::BOOL;
 	}
 
 	return false;
@@ -346,7 +346,7 @@ bool JSONElement::is_number() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONType::NUMBER;
+		return njson::type(_at) == NJSONValueType::NUMBER;
 	}
 
 	return false;
@@ -356,7 +356,7 @@ bool JSONElement::is_string() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONType::STRING;
+		return njson::type(_at) == NJSONValueType::STRING;
 	}
 
 	return false;
@@ -366,7 +366,7 @@ bool JSONElement::is_array() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONType::ARRAY;
+		return njson::type(_at) == NJSONValueType::ARRAY;
 	}
 
 	return false;
@@ -376,7 +376,7 @@ bool JSONElement::is_object() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONType::OBJECT;
+		return njson::type(_at) == NJSONValueType::OBJECT;
 	}
 
 	return false;
@@ -391,33 +391,33 @@ uint32_t JSONElement::size() const
 
 	switch(njson::type(_at))
 	{
-		case NJSONType::NIL:
+		case NJSONValueType::NIL:
 		{
 			return 1;
 		}
-		case NJSONType::OBJECT:
+		case NJSONValueType::OBJECT:
 		{
 			Map<DynamicString, const char*> object(default_allocator());
 			njson::parse_object(_at, object);
 			return map::size(object);
 		}
-		case NJSONType::ARRAY:
+		case NJSONValueType::ARRAY:
 		{
 			Array<const char*> array(default_allocator());
 			njson::parse_array(_at, array);
 			return array::size(array);
 		}
-		case NJSONType::STRING:
+		case NJSONValueType::STRING:
 		{
 			DynamicString string;
 			njson::parse_string(_at, string);
 			return string.length();
 		}
-		case NJSONType::NUMBER:
+		case NJSONValueType::NUMBER:
 		{
 			return 1;
 		}
-		case NJSONType::BOOL:
+		case NJSONValueType::BOOL:
 		{
 			return 1;
 		}

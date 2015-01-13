@@ -16,7 +16,7 @@ namespace crown
 /// Enumerates JSON value types.
 ///
 /// @ingroup JSON
-struct NJSONType
+struct NJSONValueType
 {
 	enum Enum
 	{
@@ -34,30 +34,30 @@ struct NJSONType
 /// @ingroup JSON
 namespace njson
 {
-	/// Returns the data type of the NJSON string @a str.
-	NJSONType::Enum type(const char* str);
+	/// Returns the data type of the NJSON string @a json.
+	NJSONValueType::Enum type(const char* json);
 
-	/// Parses the NJSON string @a str ad puts it into @a string.
-	void parse_string(const char* str, DynamicString& string);
+	/// Parses the NJSON string @a json ad puts it into @a string.
+	void parse_string(const char* json, DynamicString& string);
 
-	/// Returns the NJSON number @a str as double.
-	double parse_number(const char* str);
+	/// Returns the NJSON number @a json as double.
+	double parse_number(const char* json);
 
-	/// Returns the NJSON number @a str as int.
-	int32_t parse_int(const char* str);
+	/// Returns the NJSON number @a json as int.
+	int32_t parse_int(const char* json);
 
-	/// Returns the NJSON number @a str as float.
-	float parse_float(const char* str);
+	/// Returns the NJSON number @a json as float.
+	float parse_float(const char* json);
 
-	/// Returns the NJSON boolean @a str as bool.
-	bool parse_bool(const char* str);
+	/// Returns the NJSON boolean @a json as bool.
+	bool parse_bool(const char* json);
 
-	/// Parses the NJSON array @a str and puts it into @a array as pointers to
-	/// the corresponding items into the original @a str string.
-	void parse_array(const char* str, Array<const char*>& array);
+	/// Parses the NJSON array @a json and puts it into @a array as pointers to
+	/// the corresponding items into the original @a json string.
+	void parse_array(const char* json, Array<const char*>& array);
 
-	/// Parses the NJSON object @a str and puts it into @a object as map from
-	/// key to pointer to the corresponding value into the original string @a str.
-	void parse_object(const char* str, Map<DynamicString, const char*>& object);
+	/// Parses the NJSON object @a json and puts it into @a object as map from
+	/// key to pointer to the corresponding value into the original string @a json.
+	void parse_object(const char* json, Map<DynamicString, const char*>& object);
 } // namespace njson
 } // namespace crown
