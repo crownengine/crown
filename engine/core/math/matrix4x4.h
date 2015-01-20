@@ -179,18 +179,48 @@ namespace matrix4x4
 		const float aa = far / (far - near);
 		const float bb = -near * aa;
 
-		m.x = Vector4(width, 0, 0, 0);
-		m.y = Vector4(0, height, 0, 0);
-		m.z = Vector4(0, 0, aa, 1.0f);
-		m.t = Vector4(0, 0, bb, 0);
+		m.x.x = width;
+		m.x.y = 0.0f;
+		m.x.z = 0.0f;
+		m.x.w = 0.0f;
+
+		m.y.x = 0.0f;
+		m.y.y = height;
+		m.y.z = 0.0f;
+		m.y.w = 0.0f;
+
+		m.z.x = 0.0f;
+		m.z.y = 0.0f;
+		m.z.z = aa;
+		m.z.w = 1.0f;
+
+		m.t.x = 0.0f;
+		m.t.y = 0.0f;
+		m.t.z = bb;
+		m.t.w = 0.0f;
 	}
 
 	inline void set_orthographic(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far)
 	{
-		m.x = Vector4(2.0f / (right - left), 0, 0, 0);
-		m.y = Vector4(0, 2.0f / (top - bottom), 0, 0);
-		m.z = Vector4(0, 0, 1.0f / (far - near), 0);
-		m.t = Vector4((left + right) / (left - right), (top + bottom) / (bottom - top), near / (near - far), 1.0f);
+		m.x.x = 2.0f / (right - left);
+		m.x.y = 0.0f;
+		m.x.z = 0.0f;
+		m.x.w = 0.0f;
+
+		m.y.x = 0.0f;
+		m.y.y = 2.0f / (top - bottom);
+		m.y.z = 0.0f;
+		m.y.w = 0.0f;
+
+		m.z.x = 0.0f;
+		m.z.y = 0.0f;
+		m.z.z = 1.0f / (far - near);
+		m.z.w = 0.0f;
+
+		m.t.x = (left + right) / (left - right);
+		m.t.y = (top + bottom) / (bottom - top);
+		m.t.z = near / (near - far);
+		m.t.w = 1.0f;
 	}
 
 	inline Matrix4x4& transpose(Matrix4x4& m)
