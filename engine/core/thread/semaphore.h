@@ -34,7 +34,7 @@ struct Semaphore
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
 		_handle = CreateSemaphore(NULL, 0, LONG_MAX, NULL);
-		CE_ASSERT(_handle != NULL, "Unable to create semaphore!");
+		CE_ASSERT(_handle != NULL, "CreateSemaphore: GetLastError = %d", GetLastError());
 		CE_UNUSED(_handle);
 #endif
 	}
@@ -46,15 +46,18 @@ struct Semaphore
 		CE_ASSERT(result == 0, "pthread_cond_destroy: errno = %d", result);
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
-		CloseHandle(_handle);
+		BOOL err = CloseHandle(_handle);
+		CE_ASSERT(err != 0, "CloseHandle: GetLastError = %d", GetLastError());
+		CE_UNUSED(err);
 #endif
 	}
 
 	void post(uint32_t count = 1)
 	{
 #if CROWN_PLATFORM_POSIX
-		_mutex.lock();
-		for (uint32_t i = 0; i < count; i++)
+		ScopedMutex sm(_mutex);
+
+		for (uint32_t i = 0; i < count; ++i)
 		{
 			int result = pthread_cond_signal(&m_cond);
 			CE_ASSERT(result == 0, "pthread_cond_signal: errno = %d", result);
@@ -62,16 +65,18 @@ struct Semaphore
 		}
 
 		_count += count;
-		_mutex.unlock();
 #elif CROWN_PLATFORM_WINDOWS
-		ReleaseSemaphore(_handle, count, NULL);
+		BOOL err = ReleaseSemaphore(_handle, count, NULL);
+		CE_ASSERT(err != 0, "ReleaseSemaphore: GetLastError = %d", GetLastError());
+		CE_UNUSED(err);
 #endif
 	}
 
 	void wait()
 	{
 #if CROWN_PLATFORM_POSIX
-		_mutex.lock();
+		ScopedMutex sm(_mutex);
+
 		while (_count <= 0)
 		{
 			int result = pthread_cond_wait(&m_cond, &(_mutex._mutex));
@@ -80,7 +85,6 @@ struct Semaphore
 		}
 
 		_count--;
-		_mutex.unlock();
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD result = WaitForSingleObject(_handle, INFINITE);
 		CE_ASSERT(result == WAIT_OBJECT_0, "WaitForSingleObject: GetLastError = %d", GetLastError());
