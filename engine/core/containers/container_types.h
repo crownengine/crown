@@ -61,7 +61,10 @@ struct Vector
 
 	const Vector<T>& operator=(const Vector<T>& other);
 
-	Array<T> _array;
+	Allocator* _allocator;
+	uint32_t _capacity;
+	uint32_t _size;
+	T* _array;
 };
 
 /// Circular buffer double-ended queue of POD items.
