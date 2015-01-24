@@ -47,16 +47,6 @@ World::~World()
 	SoundWorld::destroy(default_allocator(), m_sound_world);
 }
 
-WorldId World::id() const
-{
-	return m_id;
-}
-
-void World::set_id(WorldId id)
-{
-	m_id = id;
-}
-
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
 	const ResourceId id(UNIT_EXTENSION, name);

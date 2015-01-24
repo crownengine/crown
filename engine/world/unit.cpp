@@ -200,10 +200,10 @@ void Unit::create_physics_objects()
 		{
 			const JointResource* jr = physics_resource::joint(pr, i);
 
-			Actor* a1 = actor_by_index(jr->actor_0);
-			Actor* a2 = actor_by_index(jr->actor_1);
+			Actor* a1 = jr->actor_0 ? actor_by_index(jr->actor_0) : NULL;
+			Actor* a2 = jr->actor_1 ? actor_by_index(jr->actor_1) : NULL;
 
-			m_world.physics_world()->create_joint(jr, *a1, *a2);
+			m_world.physics_world()->create_joint(jr, a1, a2);
 		}
 	}
 }
@@ -442,7 +442,7 @@ Actor* Unit::actor_by_index(StringId32 name)
 {
 	ActorId actor = find_component_by_name(name, m_num_actors, m_actors);
 
-	// CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", name);
+	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", name);
 
 	return m_world.physics_world()->get_actor(actor);
 }

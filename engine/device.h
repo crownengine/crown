@@ -12,6 +12,7 @@
 #include "resource_types.h"
 #include "lua_types.h"
 #include "filesystem_types.h"
+#include "array.h"
 
 namespace crown
 {
@@ -83,10 +84,10 @@ struct Device
 	void render_world(World* world, Camera* camera);
 
 	/// Creates a new world.
-	WorldId create_world();
+	World* create_world();
 
 	/// Destroys the given @a world.
-	void destroy_world(WorldId world);
+	void destroy_world(World& w);
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage* create_resource_package(const char* name);
@@ -102,7 +103,6 @@ struct Device
 
 	ResourceManager* resource_manager();
 	LuaEnvironment* lua_environment();
-	WorldManager* world_manager() { return _world_manager; }
 
 private:
 
@@ -129,7 +129,8 @@ private:
 
 	LuaEnvironment* _lua_environment;
 	ResourceManager* _resource_manager;
-	WorldManager* _world_manager;
+
+	Array<World*> _worlds;
 
 private:
 

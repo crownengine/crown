@@ -6,7 +6,6 @@
 #include "device.h"
 #include "resource_package.h"
 #include "world.h"
-#include "world_manager.h"
 #include "lua_environment.h"
 #include "lua_stack.h"
 #include "temp_allocator.h"
@@ -65,15 +64,14 @@ static int device_resolution(lua_State* L)
 static int device_create_world(lua_State* L)
 {
 	LuaStack stack(L);
-	const WorldId world_id = device()->create_world();
-	stack.push_world(device()->world_manager()->lookup_world(world_id));
+	stack.push_world(device()->create_world());
 	return 1;
 }
 
 static int device_destroy_world(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->destroy_world(stack.get_world(1)->id());
+	device()->destroy_world(*stack.get_world(1));
 	return 0;
 }
 

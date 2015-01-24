@@ -14,7 +14,6 @@
 #include "resource_package.h"
 #include "types.h"
 #include "world.h"
-#include "world_manager.h"
 #include "memory.h"
 #include "os.h"
 
@@ -40,7 +39,7 @@ Device::Device(Filesystem& fs, StringId64 boot_package, StringId64 boot_script)
 	, _boot_package(NULL)
 	, _lua_environment(NULL)
 	, _resource_manager(NULL)
-	, _world_manager(NULL)
+	, _worlds(default_allocator())
 {
 }
 
@@ -52,10 +51,6 @@ void Device::init()
 	// Create resource manager
 	CE_LOGD("Creating resource manager...");
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(_fs);
-
-	// Create world manager
-	CE_LOGD("Creating world manager...");
-	_world_manager = CE_NEW(_allocator, WorldManager)();
 
 	CE_LOGD("Creating material manager...");
 	material_manager::init();
@@ -93,9 +88,6 @@ void Device::shutdown()
 	CE_LOGD("Releasing material manager...");
 	debug_line::shutdown();
 	material_manager::shutdown();
-
-	CE_LOGD("Releasing world manager...");
-	CE_DELETE(_allocator, _world_manager);
 
 	CE_LOGD("Releasing resource manager...");
 	CE_DELETE(_allocator, _resource_manager);
@@ -175,14 +167,27 @@ void Device::render_world(World* world, Camera* camera)
 	world->render(camera);
 }
 
-WorldId Device::create_world()
+World* Device::create_world()
 {
-	return _world_manager->create_world();
+	World* w = CE_NEW(default_allocator(), World)();
+	array::push_back(_worlds, w);
+	return w;
 }
 
-void Device::destroy_world(WorldId world)
+void Device::destroy_world(World& w)
 {
-	_world_manager->destroy_world(world);
+	for (uint32_t i = 0, n = array::size(_worlds); i < n; ++i)
+	{
+		if (&w == _worlds[i])
+		{
+			CE_DELETE(default_allocator(), &w);
+			_worlds[i] = _worlds[n - 1];
+			array::pop_back(_worlds);
+			return;
+		}
+	}
+
+	CE_ASSERT(false, "Bad world");
 }
 
 ResourcePackage* Device::create_resource_package(const char* name)

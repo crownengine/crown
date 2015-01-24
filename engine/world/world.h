@@ -39,9 +39,6 @@ public:
 	World();
 	~World();
 
-	WorldId id() const;
-	void set_id(WorldId id);
-
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
 	UnitId spawn_unit(const char* name, const Vector3& position = vector3::ZERO, const Quaternion& rotation = quaternion::IDENTITY);
 	UnitId spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot);
