@@ -19,7 +19,6 @@ struct ResourcePackage
 		: _resman(&resman)
 		, _id(id)
 		, _package(NULL)
-		, _has_loaded(false)
 	{
 		resman.load(PACKAGE_TYPE, _id);
 		resman.flush();
@@ -180,13 +179,92 @@ struct ResourcePackage
 	void flush()
 	{
 		_resman->flush();
-		_has_loaded = true;
 	}
 
 	/// Returns whether the package has been loaded.
 	bool has_loaded() const
 	{
-		return _has_loaded;
+		using namespace package_resource;
+
+		for (uint32_t i = 0; i < num_textures(_package); i++)
+		{
+			if (!_resman->can_get(TEXTURE_TYPE, get_texture_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_scripts(_package); i++)
+		{
+			if (!_resman->can_get(LUA_TYPE, get_script_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_sounds(_package); i++)
+		{
+			if (!_resman->can_get(SOUND_TYPE, get_sound_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_meshes(_package); i++)
+		{
+			if (!_resman->can_get(MESH_TYPE, get_mesh_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_units(_package); i++)
+		{
+			if (!_resman->can_get(UNIT_TYPE, get_unit_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_sprites(_package); i++)
+		{
+			if (!_resman->can_get(SPRITE_TYPE, get_sprite_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_physics(_package); i++)
+		{
+			if (!_resman->can_get(PHYSICS_TYPE, get_physics_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_materials(_package); i++)
+		{
+			if (!_resman->can_get(MATERIAL_TYPE, get_material_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_fonts(_package); i++)
+		{
+			if (!_resman->can_get(FONT_TYPE, get_font_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_levels(_package); i++)
+		{
+			if (!_resman->can_get(LEVEL_TYPE, get_level_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_physics_configs(_package); i++)
+		{
+			if (!_resman->can_get(PHYSICS_CONFIG_TYPE, get_physics_config_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_shaders(_package); i++)
+		{
+			if (!_resman->can_get(SHADER_TYPE, get_shader_id(_package, i)))
+				return false;
+		}
+
+		for (uint32_t i = 0; i < num_sprite_animations(_package); i++)
+		{
+			if (!_resman->can_get(SPRITE_ANIMATION_TYPE, get_sprite_animation_id(_package, i)))
+				return false;
+		}
+
+		return true;
 	}
 
 private:
@@ -194,7 +272,6 @@ private:
 	ResourceManager* _resman;
 	StringId64 _id;
 	const PackageResource* _package;
-	bool _has_loaded;
 };
 
 } // namespace crown
