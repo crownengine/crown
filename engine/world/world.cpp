@@ -3,10 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include <new>
-#include "assert.h"
 #include "world.h"
-#include "device.h"
+#include "assert.h"
 #include "resource_manager.h"
 #include "debug_line.h"
 #include "actor.h"
@@ -15,14 +13,17 @@
 #include "memory.h"
 #include "matrix4x4.h"
 #include "int_setting.h"
+#include <new>
 
 namespace crown
 {
 
 static IntSetting g_physics_debug("physics.debug", "Enable physics debug rendering.", 0, 0, 1);
 
-World::World()
-	: m_unit_pool(default_allocator(), CE_MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
+World::World(ResourceManager& rm, LuaEnvironment& env)
+	: _resource_manager(&rm)
+	, _lua_environment(&env)
+	, m_unit_pool(default_allocator(), CE_MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), CE_MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
 	, m_physics_world(*this)
 	, m_events(default_allocator())
@@ -55,7 +56,7 @@ UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion&
 
 UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot)
 {
-	UnitResource* ur = (UnitResource*)device()->resource_manager()->get(UNIT_TYPE, name);
+	UnitResource* ur = (UnitResource*)_resource_manager->get(UNIT_TYPE, name);
 
 	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
 	const UnitId unit_id = id_array::create(m_units, u);
@@ -145,7 +146,7 @@ void World::update(float dt)
 void World::render(Camera* camera)
 {
 	m_render_world.update(camera->view_matrix(), camera->projection_matrix(), camera->_view_x, camera->_view_y,
-							camera->_view_width, camera->_view_height, device()->last_delta_time());
+		camera->_view_width, camera->_view_height);
 
 	if (g_physics_debug == 1)
 		m_physics_world.draw_debug(*_lines);
@@ -172,7 +173,7 @@ SoundInstanceId World::play_sound(const char* name, const bool loop, const float
 
 SoundInstanceId World::play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	SoundResource* sr = (SoundResource*)device()->resource_manager()->get(SOUND_TYPE, name);
+	SoundResource* sr = (SoundResource*)_resource_manager->get(SOUND_TYPE, name);
 	return m_sound_world->play(sr, loop, volume, pos);
 }
 
@@ -232,7 +233,7 @@ void World::destroy_debug_line(DebugLine* line)
 
 void World::load_level(const char* name)
 {
-	const LevelResource* lr = (LevelResource*) device()->resource_manager()->get(LEVEL_EXTENSION, name);
+	const LevelResource* lr = (LevelResource*) _resource_manager->get(LEVEL_EXTENSION, name);
 	load_level(lr);
 }
 
@@ -332,7 +333,7 @@ void World::process_physics_events()
 				// CE_LOGD("where   = (%f %f %f)", coll_ev.where.x, coll_ev.where.y, coll_ev.where.z);
 				// CE_LOGD("normal  = (%f %f %f)", coll_ev.normal.x, coll_ev.normal.y, coll_ev.normal.z);
 
-				device()->lua_environment()->call_physics_callback(
+				_lua_environment->call_physics_callback(
 					coll_ev.actors[0],
 					coll_ev.actors[1],
 					(id_array::has(m_units, coll_ev.actors[0]->unit_id())) ? coll_ev.actors[0]->unit() : NULL,
@@ -350,7 +351,7 @@ void World::process_physics_events()
 				// CE_LOGD("trigger = (%p)", trigg_ev.trigger);
 				// CE_LOGD("other   = (%p)", trigg_ev.other);
 
-				device()->lua_environment()->call_trigger_callback(
+				_lua_environment->call_trigger_callback(
 					trigg_ev.trigger,
 					trigg_ev.other,
 					(trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end"));

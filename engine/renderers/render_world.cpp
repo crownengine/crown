@@ -66,7 +66,7 @@ Gui* RenderWorld::get_gui(GuiId id)
 	return id_array::get(m_guis, id);
 }
 
-void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt)
+void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
 	// Set view 0 clear state.
 	bgfx::setViewClear(0

@@ -23,6 +23,7 @@
 #include "sprite_animation_player.h"
 #include "resource_types.h"
 #include "quaternion.h"
+#include "lua_types.h"
 
 namespace crown
 {
@@ -36,7 +37,7 @@ class World
 {
 public:
 
-	World();
+	World(ResourceManager& rm, LuaEnvironment& env);
 	~World();
 
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
@@ -149,6 +150,9 @@ private:
 	void process_physics_events();
 
 private:
+
+	ResourceManager* _resource_manager;
+	LuaEnvironment* _lua_environment;
 
 	PoolAllocator m_unit_pool;
 	PoolAllocator m_camera_pool;

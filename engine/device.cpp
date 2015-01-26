@@ -169,7 +169,7 @@ void Device::render_world(World* world, Camera* camera)
 
 World* Device::create_world()
 {
-	World* w = CE_NEW(default_allocator(), World)();
+	World* w = CE_NEW(default_allocator(), World)(*_resource_manager, *_lua_environment);
 	array::push_back(_worlds, w);
 	return w;
 }

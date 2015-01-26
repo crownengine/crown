@@ -50,7 +50,7 @@ public:
 	void destroy_gui(GuiId id);
 	Gui* get_gui(GuiId id);
 
-	void update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt);
+	void update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
 private:
 
