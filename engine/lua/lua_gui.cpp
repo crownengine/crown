@@ -9,7 +9,6 @@
 #include "vector3.h"
 #include "quaternion.h"
 #include "color4.h"
-#include "device.h"
 #include "resource_manager.h"
 #include "font_resource.h"
 
