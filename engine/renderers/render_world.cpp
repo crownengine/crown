@@ -4,7 +4,6 @@
  */
 
 #include "render_world.h"
-#include "device.h"
 #include "memory.h"
 #include "camera.h"
 #include "log.h"
