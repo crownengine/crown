@@ -26,10 +26,11 @@ namespace physics_resource
 
 	static const Shape s_shape[ShapeType::COUNT] =
 	{
-		{ "sphere",  ShapeType::SPHERE  },
-		{ "capsule", ShapeType::CAPSULE },
-		{ "box",     ShapeType::BOX     },
-		{ "plane",   ShapeType::PLANE   }
+		{ "sphere",      ShapeType::SPHERE      },
+		{ "capsule",     ShapeType::CAPSULE     },
+		{ "box",         ShapeType::BOX         },
+		{ "plane",       ShapeType::PLANE       },
+		{ "convex_mesh", ShapeType::CONVEX_MESH }
 	};
 
 	struct Joint
@@ -44,8 +45,7 @@ namespace physics_resource
 		{ "spherical", JointType::SPHERICAL },
 		{ "revolute",  JointType::REVOLUTE  },
 		{ "prismatic", JointType::PRISMATIC },
-		{ "distance",  JointType::DISTANCE  },
-		{ "d6",        JointType::D6        }
+		{ "distance",  JointType::DISTANCE  }
 	};
 
 	static uint32_t shape_type_to_enum(const char* type)
@@ -130,11 +130,6 @@ namespace physics_resource
 					sr.data_3 = shape.key("distance").to_float();
 					break;
 				}
-				case ShapeType::CONVEX_MESH:
-				{
-					sr.resource = shape.key("mesh").to_resource_id("mesh");
-					break;
-				}
 			}
 			array::push_back(shapes, sr);
 		}
@@ -155,6 +150,13 @@ namespace physics_resource
 			pa.actor_class = actor.key("class").to_string_id();
 			pa.mass =        actor.key("mass").to_float();
 			pa.num_shapes =  actor.key("shapes").size();
+			pa.flags = 0;
+			pa.flags |= actor.key_or_nil("lock_translation_x").to_bool(false) ? ActorFlags::LOCK_TRANSLATION_X : 0;
+			pa.flags |= actor.key_or_nil("lock_translation_y").to_bool(false) ? ActorFlags::LOCK_TRANSLATION_Y : 0;
+			pa.flags |= actor.key_or_nil("lock_translation_z").to_bool(false) ? ActorFlags::LOCK_TRANSLATION_Z : 0;
+			pa.flags |= actor.key_or_nil("lock_rotation_x").to_bool(false) ? ActorFlags::LOCK_ROTATION_X : 0;
+			pa.flags |= actor.key_or_nil("lock_rotation_y").to_bool(false) ? ActorFlags::LOCK_ROTATION_Y : 0;
+			pa.flags |= actor.key_or_nil("lock_rotation_z").to_bool(false) ? ActorFlags::LOCK_ROTATION_Z : 0;
 
 			array::push_back(actors, pa);
 			array::push_back(shape_indices, array::size(shape_indices));
@@ -179,8 +181,8 @@ namespace physics_resource
 			pj.type         = joint_type_to_enum(jtype.c_str());
 			pj.actor_0      = joint.key("actor_0").to_string_id();
 			pj.actor_1      = joint.key("actor_1").to_string_id();
-			pj.anchor_0     = joint.key("anchor_0").to_vector3();
-			pj.anchor_1     = joint.key("anchor_1").to_vector3();
+			pj.anchor_0     = joint.key_or_nil("anchor_0").to_vector3(vector3::ZERO);
+			pj.anchor_1     = joint.key_or_nil("anchor_1").to_vector3(vector3::ZERO);
 			pj.restitution  = joint.key_or_nil("restitution").to_float(0.5f);
 			pj.spring       = joint.key_or_nil("spring").to_float(100.0f);
 			pj.damping      = joint.key_or_nil("damping").to_float(0.0f);
@@ -213,11 +215,6 @@ namespace physics_resource
 				case JointType::DISTANCE:
 				{
 					pj.max_distance = joint.key_or_nil("max_distance").to_float(0.0f);
-					break;
-				}
-				case JointType::D6:
-				{
-					CE_FATAL("Not implemented");
 					break;
 				}
 			}
@@ -265,7 +262,7 @@ namespace physics_resource
 
 		uint32_t offt = sizeof(PhysicsResource);
 		pr.controller_offset = offt; offt += sizeof(ControllerResource) * pr.num_controllers;
-		pr.actors_offset = offt; offt += sizeof(ActorResource) * pr.num_actors;
+		pr.actors_offset = offt; offt += sizeof(ActorResource) * pr.num_actors + sizeof(ShapeResource) * array::size(m_shapes);
 		pr.joints_offset = offt;
 
 		// Write all
@@ -294,6 +291,7 @@ namespace physics_resource
 			opts.write(m_actors[i].node);
 			opts.write(m_actors[i].actor_class);
 			opts.write(m_actors[i].mass);
+			opts.write(m_actors[i].flags);
 			opts.write(m_actors[i].num_shapes);
 
 			for (uint32_t ss = 0; ss < m_actors[i].num_shapes; ++ss)
@@ -304,7 +302,6 @@ namespace physics_resource
 				opts.write(m_shapes[base + ss].shape_class);
 				opts.write(m_shapes[base + ss].type);
 				opts.write(m_shapes[base + ss].material);
-				opts.write(m_shapes[base + ss].resource);
 				opts.write(m_shapes[base + ss].position);
 				opts.write(m_shapes[base + ss].rotation);
 				opts.write(m_shapes[base + ss].data_0);

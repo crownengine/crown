@@ -199,11 +199,7 @@ void Unit::create_physics_objects()
 		for (uint32_t i = 0; i < num_joints(pr); i++)
 		{
 			const JointResource* jr = physics_resource::joint(pr, i);
-
-			Actor* a1 = jr->actor_0 ? actor_by_index(jr->actor_0) : NULL;
-			Actor* a2 = jr->actor_1 ? actor_by_index(jr->actor_1) : NULL;
-
-			m_world.physics_world()->create_joint(jr, a1, a2);
+			m_world.physics_world()->create_joint(jr, *actor_by_index(jr->actor_0), *actor_by_index(jr->actor_1));
 		}
 	}
 }

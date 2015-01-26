@@ -54,7 +54,6 @@ struct JointType
 		REVOLUTE,
 		PRISMATIC,
 		DISTANCE,
-		D6,
 
 		COUNT
 	};

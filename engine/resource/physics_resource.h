@@ -37,12 +37,26 @@ struct ControllerResource
 	StringId32 collision_filter;// Collision filter from global.physics_config
 };
 
+struct ActorFlags
+{
+	enum Enum
+	{
+		LOCK_TRANSLATION_X = (1 << 0),
+		LOCK_TRANSLATION_Y = (1 << 1),
+		LOCK_TRANSLATION_Z = (1 << 2),
+		LOCK_ROTATION_X = (1 << 3),
+		LOCK_ROTATION_Y = (1 << 4),
+		LOCK_ROTATION_Z = (1 << 5)
+	};
+};
+
 struct ActorResource
 {
 	StringId32 name;			// Name of the actor
 	StringId32 node;			// Node from .unit file
 	StringId32 actor_class;		// Actor from global.physics
 	float mass;					// Mass of the actor
+	uint32_t flags;
 	uint32_t num_shapes;		// Number of shapes
 };
 
@@ -52,7 +66,6 @@ struct ShapeResource
 	StringId32 shape_class;		// Shape class from global.physics_config
 	StringId32 type;			// Type of the shape
 	StringId32 material;		// Material from global.physics_config
-	ResourceId resource;		// Resource such as .mesh or .heightmap
 	Vector3 position;			// In actor space
 	Quaternion rotation;		// In actor space
 	float data_0;

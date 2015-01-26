@@ -125,10 +125,9 @@ Joint::Joint(PxPhysics* physics, const JointResource* jr, const Actor& actor_0, 
 
 			break;
 		}
-		case JointType::D6:
+		default:
 		{
-			// Must be implemented
-
+			CE_FATAL("Bad joint type");
 			break;
 		}
 	}

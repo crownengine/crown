@@ -4,13 +4,9 @@
  */
 
 #include "actor.h"
-#include "device.h"
-#include "log.h"
 #include "matrix4x4.h"
-#include "mesh_resource.h"
 #include "physics_resource.h"
 #include "quaternion.h"
-#include "resource_manager.h"
 #include "scene_graph.h"
 #include "unit.h"
 #include "vector3.h"
@@ -18,47 +14,11 @@
 #include "physics_world.h"
 #include "quaternion.h"
 #include "string_utils.h"
-
 #include "PxPhysicsAPI.h"
 #include "PxCooking.h"
 #include "PxDefaultStreams.h"
 
-using physx::PxActorFlag;
-using physx::PxActorType;
-using physx::PxBoxGeometry;
-using physx::PxCapsuleGeometry;
-using physx::PxConvexFlag;
-using physx::PxConvexMesh;
-using physx::PxConvexMeshDesc;
-using physx::PxConvexMeshGeometry;
-using physx::PxD6Axis;
-using physx::PxD6Joint;
-using physx::PxD6JointCreate;
-using physx::PxD6Motion;
-using physx::PxDefaultMemoryInputData;
-using physx::PxDefaultMemoryOutputStream;
-using physx::PxFilterData;
-using physx::PxForceMode;
-using physx::PxMat44;
-using physx::PxPlaneGeometry;
-using physx::PxQuat;
-using physx::PxReal;
-using physx::PxRigidActor;
-using physx::PxRigidBody;
-using physx::PxRigidBodyExt;
-using physx::PxRigidBodyFlag;
-using physx::PxRigidDynamic;
-using physx::PxRigidDynamicFlag;
-using physx::PxRigidStatic;
-using physx::PxShape;
-using physx::PxShapeFlag;
-using physx::PxSphereGeometry;
-using physx::PxTransform;
-using physx::PxU16;
-using physx::PxU32;
-using physx::PxVec3;
-using physx::PxTransformFromPlaneEquation;
-using physx::PxPlane;
+using namespace physx;
 
 namespace crown
 {
@@ -98,10 +58,16 @@ void Actor::create_objects()
 			static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 		}
 
-		// PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
-		// joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
-		// joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
-		// joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+		if (actor->flags != 0)
+		{
+			PxD6Joint* d6 = PxD6JointCreate(*physics, m_actor, PxTransform::createIdentity(), NULL, PxTransform(pose));
+			d6->setMotion(PxD6Axis::eX, !(actor->flags & ActorFlags::LOCK_TRANSLATION_X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+			d6->setMotion(PxD6Axis::eY, !(actor->flags & ActorFlags::LOCK_TRANSLATION_Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+			d6->setMotion(PxD6Axis::eZ, !(actor->flags & ActorFlags::LOCK_TRANSLATION_Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+			d6->setMotion(PxD6Axis::eTWIST, !(actor->flags & ActorFlags::LOCK_ROTATION_X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+			d6->setMotion(PxD6Axis::eSWING1, !(actor->flags & ActorFlags::LOCK_ROTATION_Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+			d6->setMotion(PxD6Axis::eSWING2, !(actor->flags & ActorFlags::LOCK_ROTATION_Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+		}
 	}
 	else
 	{
@@ -456,9 +422,9 @@ void Actor::add_impulse_at(const Vector3& impulse, const Vector3& pos)
 		return;
 
 	PxRigidBodyExt::addForceAtPos(*static_cast<PxRigidDynamic*>(m_actor),
-									   PxVec3(impulse.x, impulse.y, impulse.z),
-									   PxVec3(pos.x, pos.y, pos.z),
-									   PxForceMode::eIMPULSE);
+		PxVec3(impulse.x, impulse.y, impulse.z),
+		PxVec3(pos.x, pos.y, pos.z),
+		PxForceMode::eIMPULSE);
 }
 
 void Actor::add_torque_impulse(const Vector3& i)
