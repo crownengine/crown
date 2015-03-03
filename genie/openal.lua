@@ -31,7 +31,6 @@ project "openal"
 		buildoptions {
 			"-O2",
 			"-fomit-frame-pointer",
-			"-msse2"
 		}
 
 	configuration { "vs*" }
