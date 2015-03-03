@@ -31,6 +31,7 @@ project "openal"
 		buildoptions {
 			"-O2",
 			"-fomit-frame-pointer",
+			"-msse2"
 		}
 
 	configuration { "vs*" }
@@ -77,6 +78,7 @@ project "openal"
 			"-fPIC",
 			"-fvisibility=hidden",
 			"-pthread",
+			"-msse2"
 		}
 		includedirs {
 			AL_DIR .. "OpenAL32/config_linux",
