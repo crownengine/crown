@@ -10,6 +10,7 @@
 #include "apk_file.h"
 #include "assert.h"
 #include "macros.h"
+#include <stdio.h> // SEEK_SET, ...
 #include <android/asset_manager.h>
 
 namespace crown
