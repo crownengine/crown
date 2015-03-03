@@ -229,20 +229,17 @@ void android_main(struct android_app* app)
 	// Make sure glue isn't stripped.
 	app_dummy();
 
-	ConfigSettings cs;
-
 	memory_globals::init();
+
 	{
-		// DiskFilesystem src_fs(cls.source_dir);
-		ApkFilesystem src_fs(app->activity->assetManager);
-		parse_config_file(src_fs, cs);
+		ConfigSettings cs;
+		ApkFilesystem dst_fs(app->activity->assetManager);
+		parse_config_file(dst_fs, cs);
+		console_server_globals::init(cs.console_port, false);
+		crown::s_advc.run(app, dst_fs, cs);
+		console_server_globals::shutdown();
 	}
 
-	console_server_globals::init(cs.console_port, false);
-
-	crown::s_advc.run(app, src_fs, cs);
-
-	console_server_globals::shutdown();
 	memory_globals::shutdown();
 }
 
