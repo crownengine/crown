@@ -77,6 +77,7 @@ project "openal"
 			"-fPIC",
 			"-fvisibility=hidden",
 			"-pthread",
+			"-msse2"
 		}
 		includedirs {
 			AL_DIR .. "OpenAL32/config_linux",
