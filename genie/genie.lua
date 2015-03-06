@@ -77,7 +77,7 @@ configuration { "x64", "vs*" }
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/lua51.exp " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/src/lua51.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
 		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/PhysX3* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
-		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/nvToolsExt64_1.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/nvToolsExt64_1.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
 	}
 
 configuration { "debug or development", "x32", "linux-*" }
