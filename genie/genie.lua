@@ -29,10 +29,12 @@ local CROWN_BUILD_DIR = (CROWN_DIR .. ".build/")
 dofile ("toolchain.lua")
 toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 
+group "libs"
 if _OPTIONS["with-openal"] then
 	dofile ("openal.lua")
 end
 
+group "engine"
 dofile "crown.lua"
 crown_project("", "ConsoleApp", {})
 

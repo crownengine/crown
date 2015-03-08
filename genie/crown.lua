@@ -30,7 +30,6 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "engine/physics",
 			CROWN_DIR .. "engine/world",
 			CROWN_DIR .. "third/luajit/src",
-			CROWN_DIR .. "third/openal/include",
 			CROWN_DIR .. "third/freetype",
 			CROWN_DIR .. "third/stb_image",
 			CROWN_DIR .. "third/stb_vorbis",
@@ -38,6 +37,29 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "third/bgfx/include",
 			CROWN_DIR .. "third/bx/include",
 		}
+
+		if _OPTIONS["with-openal"] then
+			includedirs {
+				CROWN_DIR .. "third/openal/include"
+			}
+
+			-- Fix this in GENie
+			configuration { "debug", "x32", "linux-*" }
+				linkoptions { "-Lbin/debug", "-lopenal-debug-32", }
+			configuration { "development", "x32", "linux-*" }
+				linkoptions { "-Lbin/debug", "-lopenal-development-32", }
+			configuration { "release", "x32", "linux-*" }
+				linkoptions { "-Lbin/debug", "-lopenal-release-32", }
+			configuration { "debug", "x64", "linux-*" }
+				linkoptions { "-Lbin/debug", "-lopenal-debug-64", }
+			configuration { "development", "x64", "linux-*" }
+				linkoptions { "-Lbin/debug", "-lopenal-development-64", }
+			configuration { "release", "x64", "linux-*" }
+				linkoptions { "-Lbin/debug", "-lopenal-release-64", }
+
+			configuration { "vs*" }
+				links { "openal", }
+		end
 
 		defines {
 			_defines,
@@ -139,14 +161,6 @@ function crown_project(_name, _kind, _defines)
 				"luajit",
 				"dl",
 			}
-
-		-- Fix this in GENie
-		configuration { "debug", "x32", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-32", }
-		configuration { "development", "x32", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-development-32", }
-		configuration { "release", "x32", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-release-32", }
-		configuration { "debug", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-debug-64", }
-		configuration { "development", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-development-64", }
-		configuration { "release", "x64", "linux-*" } linkoptions { "-Lbin/debug", "-lopenal-release-64", }
 
 		configuration { "debug", "linux-*" }
 			links {
@@ -306,7 +320,6 @@ function crown_project(_name, _kind, _defines)
 			links {
 				"OpenGL32",
 				"lua51",
-				"openal",
 				"dbghelp"
 			}
 
