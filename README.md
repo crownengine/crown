@@ -7,6 +7,12 @@ It is a general purpose data-driven game engine, written from scratch with a min
 
 It is loosely inspired by Bitsquid engine and its design principles; the current Lua API is similar to that of Bitsquid but this engine is *not* meant to be its clone *nor* to be API compatible with it.
 
+##Supported platforms
+
+ * Android (14+, ARM)
+ * Linux
+ * Windows
+
 ##Screenshots
 
 TCP/IP console with autocomplete and color-coded output highlighting.
