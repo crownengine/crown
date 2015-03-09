@@ -108,6 +108,7 @@ docs:
 	doxygen docs/Doxyfile.doxygen
 	rst2html2 --stylesheet=html4css1.css,docs/style.css docs/lua_api.txt .build/docs/lua_api.html
 
+.PHONY: clean
 clean:
 	@echo Cleaning...
 	-@rm -rf .build
