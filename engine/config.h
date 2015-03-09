@@ -9,10 +9,6 @@
 
 #include "platform.h"
 
-#ifndef CROWN_SOUND_NULL
-#	define CROWN_SOUND_NULL 1
-#endif
-
 #if !defined(CROWN_SOUND_OPENAL) \
 	&& !defined(CROWN_SOUND_OPENSLES)\
 	&& !defined(CROWN_SOUND_NULL)
