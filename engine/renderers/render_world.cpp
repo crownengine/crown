@@ -69,7 +69,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 {
 	// Set view 0 clear state.
 	bgfx::setViewClear(0
-		, BGFX_CLEAR_COLOR_BIT|BGFX_CLEAR_DEPTH_BIT
+		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
 		, 0x353839FF
 		, 1.0f
 		, 0);
