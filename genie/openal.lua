@@ -72,12 +72,9 @@ project "openal"
 		buildoptions {
 			"-std=c99",
 			"-Winline",
-			"-Wall",
-			"-Wextra",
 			"-fPIC",
 			"-fvisibility=hidden",
 			"-pthread",
-			"-msse2"
 		}
 		includedirs {
 			AL_DIR .. "OpenAL32/config_linux",

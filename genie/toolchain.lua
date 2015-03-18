@@ -157,6 +157,7 @@ function toolchain(build_dir, lib_dir)
 			"-std=c++03",
 			"-Wall",
 			"-Wextra",
+			"-msse2",
 			-- "-Werror",
 			-- "-pedantic",
 			"-Wno-unknown-pragmas",
