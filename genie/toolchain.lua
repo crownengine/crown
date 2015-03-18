@@ -98,12 +98,7 @@ function toolchain(build_dir, lib_dir)
 		"__STDC_LIMIT_MACROS",
 	}
 
-	configuration { "development" }
-		flags {
-			"OptimizeSpeed"
-		}
-
-	configuration { "release" }
+	configuration { "development or release" }
 		flags {
 			"OptimizeSpeed"
 		}
@@ -269,7 +264,6 @@ function toolchain(build_dir, lib_dir)
 		objdir (build_dir .. "win32" .. "/obj")
 		libdirs {
 			lib_dir .. "luajit/src",
-			lib_dir .. "openal/lib",
 			"$(PHYSX_SDK_WINDOWS)/Lib/win32",
 			"$(DXSDK_DIR)/Lib/x86",
 		}
@@ -279,7 +273,6 @@ function toolchain(build_dir, lib_dir)
 		objdir (build_dir .. "win64" .. "/obj")
 		libdirs {
 			lib_dir .. "luajit/src",
-			lib_dir .. "openal/lib",
 			"$(PHYSX_SDK_WINDOWS)/Lib/win64",
 			"$(DXSDK_DIR)/Lib/x64",
 		}
