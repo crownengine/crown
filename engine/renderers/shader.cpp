@@ -13,14 +13,19 @@
 #include "compile_options.h"
 
 #if CROWN_DEBUG
-		#define SHADERC_NAME "shadercDebug"
+#	define SHADERC_NAME "shaderc-debug-"
 #else
-		#define SHADERC_NAME "shadercRelease"
+#	define SHADERC_NAME "shaderc-development-"
 #endif // CROWN_DEBUG
+#if CROWN_ARCH_32BIT
+#	define SHADERC_BITS "32"
+#elif CROWN_ARCH_64BIT
+#	define SHADERC_BITS "64"
+#endif // CROWN_ARCH_32BIT
 #if CROWN_PLATFORM_LINUX
-		#define SHADERC_PATH SHADERC_NAME
+#	define SHADERC_PATH SHADERC_NAME""SHADERC_BITS
 #elif CROWN_PLATFORM_WINDOWS
-		#define SHADERC_PATH SHADERC_NAME".exe"
+#	define SHADERC_PATH SHADERC_NAME""SHADERC_BITS".exe"
 #endif // CROWN_PLATFORM_WINDOWS
 
 namespace crown
