@@ -38,6 +38,14 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "third/bx/include",
 		}
 
+		defines {
+			_defines,
+		}
+
+		links {
+			"bgfx"
+		}
+
 		if _OPTIONS["with-openal"] then
 			includedirs {
 				CROWN_DIR .. "third/openal/include"
@@ -61,20 +69,7 @@ function crown_project(_name, _kind, _defines)
 				links { "openal", }
 		end
 
-		defines {
-			_defines,
-		}
-
-		configuration { "debug" }
-			flags {
-				"Symbols"
-			}
-			defines {
-				"_DEBUG",
-				"CROWN_DEBUG"
-			}
-
-		configuration { "development" }
+		configuration { "debug or development" }
 			flags {
 				"Symbols"
 			}
@@ -163,9 +158,6 @@ function crown_project(_name, _kind, _defines)
 			}
 
 		configuration { "debug", "linux-*" }
-			links {
-				"bgfxDebug"
-			}
 			linkoptions {
 				"-rdynamic",
 				"-Wl,--start-group $(addprefix -l," ..
@@ -187,9 +179,6 @@ function crown_project(_name, _kind, _defines)
 			}
 
 		configuration { "development", "linux-*" }
-			links {
-				"bgfxDebug"
-			}
 			linkoptions
 			{
 				"-rdynamic",
@@ -212,9 +201,6 @@ function crown_project(_name, _kind, _defines)
 			}
 
 		configuration { "release", "linux-*" }
-			links {
-				"bgfxRelease"
-			}
 			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
@@ -248,9 +234,6 @@ function crown_project(_name, _kind, _defines)
 			}
 
 		configuration { "debug", "android-arm" }
-			links {
-				":libbgfxDebug.a",
-			}
 			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
@@ -271,9 +254,6 @@ function crown_project(_name, _kind, _defines)
 			}
 
 		configuration { "development", "android-arm" }
-			links {
-				":libbgfxDebug.a",
-			}
 			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
@@ -294,9 +274,6 @@ function crown_project(_name, _kind, _defines)
 			}
 
 		configuration { "release", "android-arm" }
-			links {
-				":libbgfxRelease.a",
-			}
 			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
@@ -320,12 +297,11 @@ function crown_project(_name, _kind, _defines)
 			links {
 				"OpenGL32",
 				"lua51",
-				"dbghelp"
+				"dbghelp",
 			}
 
 		configuration { "debug", "x32", "vs*"}
 			links {
-				"bgfxDebug",
 				"PhysX3CharacterKinematicCHECKED_x86",
 				"PhysX3CHECKED_x86",
 				"PhysX3CommonCHECKED_x86",
@@ -335,7 +311,6 @@ function crown_project(_name, _kind, _defines)
 
 		configuration { "debug", "x64", "vs*" }
 			links {
-				"bgfxDebug",
 				"PhysX3CharacterKinematicCHECKED_x64",
 				"PhysX3CHECKED_x64",
 				"PhysX3CommonCHECKED_x64",
@@ -345,7 +320,6 @@ function crown_project(_name, _kind, _defines)
 
 		configuration { "development", "x32", "vs*" }
 			links {
-				"bgfxDebug",
 				"PhysX3CharacterKinematicPROFILE_x86",
 				"PhysX3PROFILE_x86",
 				"PhysX3CommonPROFILE_x86",
@@ -355,7 +329,6 @@ function crown_project(_name, _kind, _defines)
 
 		configuration { "development", "x64", "vs*" }
 			links {
-				"bgfxDebug",
 				"PhysX3CharacterKinematicPROFILE_x64",
 				"PhysX3PROFILE_x64",
 				"PhysX3CommonPROFILE_x64",
@@ -365,7 +338,6 @@ function crown_project(_name, _kind, _defines)
 
 		configuration { "release", "x32", "vs*" }
 			links {
-				"bgfxRelease",
 				"PhysX3CharacterKinematic_x86",
 				"PhysX3_x86",
 				"PhysX3Common_x86",
@@ -375,7 +347,6 @@ function crown_project(_name, _kind, _defines)
 
 		configuration { "release", "x64", "vs*" }
 			links {
-				"bgfxRelease",
 				"PhysX3CharacterKinematic_x64",
 				"PhysX3_x64",
 				"PhysX3Common_x64",

@@ -3,6 +3,15 @@
 -- License: https://github.com/taylor001/crown/blob/master/LICENSE
 --
 
+CROWN_DIR = (path.getabsolute("..") .. "/")
+local CROWN_THIRD_DIR = (CROWN_DIR .. "third/")
+local CROWN_BUILD_DIR = (CROWN_DIR .. ".build/")
+BGFX_DIR = (CROWN_DIR .. "third/bgfx/")
+BX_DIR = (CROWN_DIR .. "third/bx/")
+
+function copyLib()
+end
+
 newoption {
 	trigger = "with-openal",
 	description = "Build with OpenAL support."
@@ -23,20 +32,25 @@ solution "crown"
 
 	language "C++"
 
-CROWN_DIR = (path.getabsolute("..") .. "/")
-local CROWN_THIRD_DIR = (CROWN_DIR .. "third/")
-local CROWN_BUILD_DIR = (CROWN_DIR .. ".build/")
+	configuration {}
+
 dofile ("toolchain.lua")
+dofile (BGFX_DIR .. "scripts/bgfx.lua")
+dofile ("crown.lua")
+
 toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 
 group "libs"
+bgfxProject("", "StaticLib", os.is("windows") and { "BGFX_CONFIG_RENDERER_DIRECT3D9=1" } or {})
+
 if _OPTIONS["with-openal"] then
 	dofile ("openal.lua")
 end
 
 group "engine"
-dofile "crown.lua"
 crown_project("", "ConsoleApp", {})
+
+dofile ("shaderc.lua")
 
 -- Install
 configuration { "android-arm" }
@@ -81,45 +95,3 @@ configuration { "x64", "vs*" }
 		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/PhysX3* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
 		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/nvToolsExt64_1.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
 	}
-
-configuration { "debug or development", "x32", "linux-*" }
-	postbuildcommands {
-		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin/shadercDebug " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux32"
-	}
-
-configuration { "release", "x32", "linux-*" }
-	postbuildcommands {
-		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin/shadercRelease " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux32"
-	}
-
-configuration { "debug or development", "x64", "linux-*" }
-	postbuildcommands {
-		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin/shadercDebug " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux64"
-	}
-
-configuration { "release", "x64", "linux-*" }
-	postbuildcommands {
-		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin/shadercRelease " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux64"
-	}
-
-
-configuration { "debug or development", "x32", "vs*" }
-	postbuildcommands {
-		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/win32_vs2013/bin/shadercDebug.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32"
-	}
-
-configuration { "release", "x32", "vs*" }
-	postbuildcommands {
-		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/win32_vs2013/bin/shadercRelease.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32"
-	}
-
-configuration { "debug or development", "x64", "vs*" }
-	postbuildcommands {
-		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/win64_vs2013/bin/shadercDebug.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64"
-	}
-
-configuration { "release", "x64", "vs*" }
-	postbuildcommands {
-		"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/win64_vs2013/bin/shadercRelease.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64"
-	}
-
