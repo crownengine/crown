@@ -42,6 +42,7 @@ toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 
 group "libs"
 bgfxProject("", "StaticLib", os.is("windows") and { "BGFX_CONFIG_RENDERER_DIRECT3D9=1" } or {})
+dofile ("shaderc.lua")
 
 if _OPTIONS["with-openal"] then
 	dofile ("openal.lua")
@@ -50,7 +51,6 @@ end
 group "engine"
 crown_project("", "ConsoleApp", {})
 
-dofile ("shaderc.lua")
 
 -- Install
 configuration { "android-arm" }
