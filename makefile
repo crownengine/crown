@@ -26,6 +26,16 @@ luajit-arm:
 	TARGET_FLAGS="--sysroot $(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm \
 		-march=armv7-a -mfloat-abi=softfp -Wl,--fix-cortex-a8"
 
+android-build:
+	$(GENIE) --file=genie/genie.lua --compiler=android-arm gmake
+android-arm-debug: luajit-arm android-build
+	make -R -C .build/projects/android config=debug
+android-arm-development: luajit-arm android-build
+	make -R -C .build/projects/android config=development
+android-arm-release: luajit-arm android-build
+	make -R -C .build/projects/android config=release
+android-arm: android-arm-debug android-arm-development android-arm-release
+
 linux-build:
 	$(GENIE) --file=genie/genie.lua --with-openal --compiler=linux-gcc gmake
 linux-debug32: luajit-linux32 linux-build
@@ -41,16 +51,6 @@ linux-development64: luajit-linux64 linux-build
 linux-release64: luajit-linux64 linux-build
 	make -R -C .build/projects/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
-
-android-build:
-	$(GENIE) --file=genie/genie.lua --compiler=android-arm gmake
-android-arm-debug: luajit-arm android-build
-	make -R -C .build/projects/android config=debug
-android-arm-development: luajit-arm android-build
-	make -R -C .build/projects/android config=development
-android-arm-release: luajit-arm android-build
-	make -R -C .build/projects/android config=release
-android-arm: android-arm-debug android-arm-development android-arm-release
 
 windows-build:
 	$(GENIE) --file=genie\genie.lua --with-openal vs2013
