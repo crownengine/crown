@@ -185,8 +185,6 @@ function toolchain(build_dir, lib_dir)
 			"-static-libgcc",
 		}
 		links {
-			":libluajit.a",
-			"bgfxDebug",
 			"c",
 			"dl",
 			"m",
