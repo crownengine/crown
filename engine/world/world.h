@@ -160,15 +160,13 @@ private:
 	IdArray<CE_MAX_UNITS, Unit*> m_units;
 	IdArray<CE_MAX_CAMERAS, Camera*> m_cameras;
 
-	SceneGraphManager m_scenegraph_manager;
-	SpriteAnimationPlayer m_sprite_animation_player;
-	RenderWorld m_render_world;
-	PhysicsWorld m_physics_world;
-	SoundWorld* m_sound_world;
+	SceneGraphManager* _scenegraph_manager;
+	SpriteAnimationPlayer* _sprite_animation_player;
+	RenderWorld* _render_world;
+	PhysicsWorld* _physics_world;
+	SoundWorld* _sound_world;
 
-	WorldId m_id;
-
-	EventStream m_events;
+	EventStream _events;
 	DebugLine* _lines;
 };
 
