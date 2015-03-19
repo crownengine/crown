@@ -17,31 +17,17 @@ project "openal"
 		"_LARGE_FILES",
 	}
 
-	configuration { "debug" }
-		defines {
-			"_DEBUG",
-		}
-
-	configuration { "development or release" }
-		defines {
-			"NDEBUG",
-		}
-
 	configuration { "development or release", "linux-*" }
 		buildoptions {
-			"-O2",
 			"-fomit-frame-pointer",
 		}
 
 	configuration { "vs*" }
 		defines {
-			"WIN32",
 			"_WINDOWS",
-			"_WIN32",
 			"_WIN32_WINNT=0x0502",
 			"restrict=",
 			"inline=__inline",
-			"_CRT_SECURE_NO_WARNINGS",
 			"_CRT_NONSTDC_NO_DEPRECATE",
 			"strcasecmp=_stricmp",
 			"strncasecmp=_strnicmp",
