@@ -7,13 +7,6 @@ function toolchain(build_dir, lib_dir)
 
 	newoption
 	{
-		trigger = "install-dir",
-		value = "DIR",
-		description = "Output directory"
-	}
-
-	newoption
-	{
 		trigger = "compiler",
 		value = "COMPILER",
 		description = "Choose compiler",
