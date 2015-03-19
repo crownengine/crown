@@ -100,8 +100,11 @@ namespace shader_resource
 			"--varyingdef", varying_def_path.c_str(),
 			"--type", "vertex",
 			"--platform", _scplatform[opts.platform()],
-#if CROWN_PLATFORM_WINDOWS
-			"--profile", "vs_3_0",
+			"--profile",
+#if CROWN_PLATFORM_LINUX
+			"120",
+#elif CROWN_PLATFORM_WINDOWS
+			"vs_3_0",
 #endif
 			NULL
 		};
@@ -116,8 +119,11 @@ namespace shader_resource
 			"--varyingdef", varying_def_path.c_str(),
 			"--type", "fragment",
 			"--platform", _scplatform[opts.platform()],
-#if CROWN_PLATFORM_WINDOWS
-			"--profile", "ps_3_0",
+			"--profile",
+#if CROWN_PLATFORM_LINUX
+			"120",
+#elif CROWN_PLATFORM_WINDOWS
+			"ps_3_0",
 #endif
 			NULL
 		};
