@@ -379,8 +379,16 @@ namespace physics_resource
 	const ActorResource* actor(const PhysicsResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_actors(pr), "Index out of bounds");
-		ActorResource* actor = (ActorResource*) ((char*)pr + pr->actors_offset);
-		return &actor[i];
+
+		const ActorResource* curr = (ActorResource*) ((char*)pr + pr->actors_offset);
+
+		for (uint32_t aa = 0; aa < i; ++aa)
+		{
+			const uint32_t sz = sizeof(ShapeResource)*curr->num_shapes + sizeof(ActorResource);
+			curr = (ActorResource*)((char*)curr + sz);
+		}
+
+		return curr;
 	}
 
 	uint32_t num_joints(const PhysicsResource* pr)
