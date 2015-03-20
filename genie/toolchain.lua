@@ -147,7 +147,6 @@ function toolchain(build_dir, lib_dir)
 
 	configuration { "linux-*" }
 		buildoptions {
-			"-std=c++03",
 			"-Wall",
 			"-Wextra",
 			"-msse2",
@@ -155,6 +154,9 @@ function toolchain(build_dir, lib_dir)
 			-- "-pedantic",
 			"-Wno-unknown-pragmas",
 			"-Wno-unused-local-typedefs",
+		}
+		buildoptions_cpp {
+			"-std=c++03",
 		}
 		linkoptions {
 			"-Wl,-rpath=\\$$ORIGIN",

@@ -37,7 +37,7 @@ project "shaderc"
 		}
 
 	configuration { "mingw* or linux or osx" }
-		removebuildoptions {
+		removebuildoptions_cpp {
 			"-std=c++03"
 		}
 
