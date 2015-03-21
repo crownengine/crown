@@ -62,7 +62,7 @@ function toolchain(build_dir, lib_dir)
 		end
 	end
 
-	if _ACTION == "vs2012" then
+	if _ACTION == "vs2012" or _ACTION == "vs2013" then
 
 		if not os.is("windows") then print("Action not valid in current OS.") end
 
