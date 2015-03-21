@@ -104,7 +104,7 @@
 #define HAVE_C11_ALIGNAS
 
 /* Define if we have C11 _Atomic support */
-#define HAVE_C11_ATOMIC
+/* #undef HAVE_C11_ATOMIC */
 
 /* Define if we have GCC's destructor attribute */
 #define HAVE_GCC_DESTRUCTOR
