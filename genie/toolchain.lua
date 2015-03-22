@@ -124,7 +124,6 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "linux32" .. "/bin")
 		objdir (build_dir .. "linux32" .. "/obj")
 		libdirs {
-			lib_dir .. "luajit/src",
 			lib_dir .. "../.build/linux32/bin",
 			"$(PHYSX_SDK_LINUX)/Lib/linux32"
 		}
@@ -137,7 +136,6 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "linux64" .. "/bin")
 		objdir (build_dir .. "linux64" .. "/obj")
 		libdirs {
-			lib_dir .. "luajit/src",
 			lib_dir .. "../.build/linux64/bin",
 			"$(PHYSX_SDK_LINUX)/Lib/linux64"
 		}
@@ -209,7 +207,6 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "android-arm" .. "/bin")
 		objdir (build_dir .. "android-arm" .. "/obj")
 		libdirs {
-			lib_dir .. "luajit/src",
 			lib_dir .. "../.build/android-arm/bin",
 			"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
 			"$(PHYSX_SDK_ANDROID)/Lib/android9_neon",
@@ -261,7 +258,6 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "win32" .. "/bin")
 		objdir (build_dir .. "win32" .. "/obj")
 		libdirs {
-			lib_dir .. "luajit/src",
 			"$(PHYSX_SDK_WINDOWS)/Lib/win32",
 			"$(DXSDK_DIR)/Lib/x86",
 		}
@@ -270,7 +266,6 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "win64" .. "/bin")
 		objdir (build_dir .. "win64" .. "/obj")
 		libdirs {
-			lib_dir .. "luajit/src",
 			"$(PHYSX_SDK_WINDOWS)/Lib/win64",
 			"$(DXSDK_DIR)/Lib/x64",
 		}

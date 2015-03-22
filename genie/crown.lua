@@ -29,7 +29,6 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "engine/compilers",
 			CROWN_DIR .. "engine/physics",
 			CROWN_DIR .. "engine/world",
-			CROWN_DIR .. "third/luajit/src",
 			CROWN_DIR .. "third/freetype",
 			CROWN_DIR .. "third/stb_image",
 			CROWN_DIR .. "third/stb_vorbis",
@@ -45,6 +44,44 @@ function crown_project(_name, _kind, _defines)
 		links {
 			"bgfx"
 		}
+
+		if _OPTIONS["with-luajit"] then
+			includedirs {
+				CROWN_DIR .. "third/luajit/src",
+			}
+			configuration { "android-arm" }
+				libdirs {
+					CROWN_DIR .. "third/luajit/pre/android_arm"
+				}
+			configuration { "linux-* or android-arm" }
+				links {
+					"luajit"
+				}
+			configuration { "x32", "linux-*" }
+				libdirs {
+					CROWN_DIR .. "third/luajit/pre/linux_x86"
+				}
+			configuration { "x64", "linux-*" }
+				libdirs {
+					CROWN_DIR .. "third/luajit/pre/linux_x64"
+				}
+			configuration { "x32", "vs*" }
+				libdirs {
+					CROWN_DIR .. "third/luajit/pre/win_x86"
+				}
+				links {
+					"lua51"
+				}
+			configuration { "x64", "vs*" }
+				libdirs {
+					CROWN_DIR .. "third/luajit/pre/win_x64"
+				}
+				links {
+					"lua51"
+				}
+
+				configuration {}
+		end
 
 		if _OPTIONS["with-openal"] then
 			includedirs {
@@ -67,6 +104,8 @@ function crown_project(_name, _kind, _defines)
 
 			configuration { "vs*" }
 				links { "openal", }
+
+			configuration {}
 		end
 
 		configuration { "debug or development" }
@@ -153,7 +192,6 @@ function crown_project(_name, _kind, _defines)
 				"Xrandr",
 				"pthread",
 				"GL",
-				"luajit",
 				"dl",
 			}
 
@@ -229,7 +267,6 @@ function crown_project(_name, _kind, _defines)
 			links {
 				"EGL",
 				"GLESv2",
-				":libluajit.a",
 				"OpenSLES",
 			}
 
@@ -296,7 +333,6 @@ function crown_project(_name, _kind, _defines)
 		configuration { "vs*" }
 			links {
 				"OpenGL32",
-				"lua51",
 				"dbghelp",
 			}
 
