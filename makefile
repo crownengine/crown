@@ -23,7 +23,7 @@ android-arm-release: android-build
 android-arm: android-arm-debug android-arm-development android-arm-release
 
 linux-build:
-	$(GENIE) --file=genie/genie.lua --with-luajit --with-openal --compiler=linux-gcc gmake
+	$(GENIE) --file=genie/genie.lua --with-luajit --with-openal --with-tools --compiler=linux-gcc gmake
 linux-debug32: linux-build
 	make -R -C .build/projects/linux config=debug32
 linux-development32: linux-build
@@ -39,7 +39,7 @@ linux-release64: linux-build
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
 windows-build:
-	$(GENIE) --file=genie\genie.lua --with-luajit --with-openal vs2013
+	$(GENIE) --file=genie\genie.lua --with-luajit --with-openal --with-tools vs2013
 windows-debug32: windows-build
 	devenv .build/projects/vs2013/crown.sln /Build "debug|Win32"
 windows-development32: windows-build

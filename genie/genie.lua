@@ -22,6 +22,11 @@ newoption {
 	description = "Build with luajit support."
 }
 
+newoption {
+	trigger = "with-tools",
+	description = "Build with tools."
+}
+
 solution "crown"
 	configurations {
 		"debug",
@@ -47,7 +52,10 @@ toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 
 group "libs"
 bgfxProject("", "StaticLib", os.is("windows") and { "BGFX_CONFIG_RENDERER_DIRECT3D9=1" } or {})
-dofile ("shaderc.lua")
+
+if _OPTIONS["with-tools"] then
+	dofile ("shaderc.lua")
+end
 
 if _OPTIONS["with-openal"] then
 	dofile ("openal.lua")
