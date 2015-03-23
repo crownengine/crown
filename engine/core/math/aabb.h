@@ -117,8 +117,6 @@ namespace aabb
 
 	inline Vector3 vertex(const AABB& b, uint32_t index)
 	{
-		CE_ASSERT(index < 8, "Index must be < 8");
-
 		switch (index)
 		{
 			case 0: return Vector3(b.min.x, b.min.y, b.min.z);
@@ -129,6 +127,7 @@ namespace aabb
 			case 5: return Vector3(b.max.x, b.max.y, b.min.z);
 			case 6: return Vector3(b.max.x, b.max.y, b.max.z);
 			case 7: return Vector3(b.min.x, b.max.y, b.max.z);
+			default: CE_FATAL("Bad index"); return Vector3(0.0f, 0.0f, 0.0f);
 		}
 	}
 
