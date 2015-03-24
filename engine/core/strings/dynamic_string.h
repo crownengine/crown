@@ -10,7 +10,6 @@
 #include "string_utils.h"
 #include "array.h"
 #include "string_utils.h"
-#include "murmur.h"
 #include <algorithm>
 #include <cstring>
 
@@ -58,7 +57,7 @@ public:
 	/// Returns wheterh the string ends with the given @a s string.
 	bool ends_with(const char* s) const;
 
-	/// Returns the string hashed to murmur32.
+	/// Returns the StringId32 of the string.
 	StringId32 to_string_id() const;
 
 	///
@@ -203,7 +202,7 @@ inline bool DynamicString::ends_with(const char* s) const
 
 inline StringId32 DynamicString::to_string_id() const
 {
-	return murmur32(c_str(), length());
+	return StringId32(c_str());
 }
 
 inline const char* DynamicString::c_str() const

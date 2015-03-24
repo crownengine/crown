@@ -235,7 +235,7 @@ static int unit_get_key(lua_State* L)
 		{
 			StringId32 val;
 			unit->get_key(key, val);
-			stack.push_uint32(val);
+			stack.push_string_id(val);
 			return 1;
 		}
 		case ValueType::VECTOR3:

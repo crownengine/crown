@@ -7,6 +7,7 @@
 
 #include "string_utils.h"
 #include "murmur.h"
+#include "path.h"
 #include <inttypes.h>
 
 namespace crown
@@ -15,26 +16,26 @@ namespace crown
 struct ResourceId
 {
 	ResourceId()
-		: type(0)
-		, name(0)
+		: type(uint64_t(0))
+		, name(uint64_t(0))
 	{
 	}
 
-	ResourceId(const char* type, const char* name)
-		: type(murmur64(type, strlen(type), SEED))
-		, name(murmur64(name, strlen(name), SEED))
-	{
-	}
-
-	ResourceId(uint64_t type, uint64_t name)
+	ResourceId(StringId64 type, StringId64 name)
 		: type(type)
 		, name(name)
 	{
 	}
 
+	ResourceId(const char* type, const char* name)
+		: type(murmur64(type, strlen(type), 0))
+		, name(murmur64(name, strlen(name), SEED))
+	{
+	}
+
 	const char* to_string(char out[64])
 	{
-		snprintf(out, 64, "%.16" PRIx64 "-%.16" PRIx64, type, name);
+		snprintf(out, 64, "%.16" PRIx64 "-%.16" PRIx64, type.id(), name.id());
 		return out;
 	}
 
@@ -50,8 +51,8 @@ struct ResourceId
 
 	static const uint64_t SEED = 0;
 
-	uint64_t type;
-	uint64_t name;
+	StringId64 type;
+	StringId64 name;
 };
 
 } // namespace crown

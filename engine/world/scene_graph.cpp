@@ -9,7 +9,6 @@
 #include "matrix4x4.h"
 #include "allocator.h"
 #include "string_utils.h"
-#include "murmur.h"
 #include <string.h>
 
 #define CLEAN		0
@@ -74,7 +73,7 @@ void SceneGraph::destroy()
 
 int32_t SceneGraph::node(const char* name) const
 {
-	return node(murmur32(name, strlen(name)));
+	return node(StringId32(name));
 }
 
 int32_t SceneGraph::node(StringId32 name) const
@@ -93,7 +92,7 @@ int32_t SceneGraph::node(StringId32 name) const
 
 bool SceneGraph::has_node(const char* name) const
 {
-	StringId32 name_hash = murmur32(name, strlen(name), 0);
+	const StringId32 name_hash(name);
 
 	for (uint32_t i = 0; i < m_num_nodes; i++)
 	{

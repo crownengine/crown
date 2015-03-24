@@ -34,8 +34,8 @@ namespace crown
 			, do_continue(false)
 			, parent_window(0)
 			, console_port(10001)
-			, boot_package(0)
-			, boot_script(0)
+			, boot_package(uint64_t(0))
+			, boot_script(uint64_t(0))
 			, window_width(CROWN_DEFAULT_WINDOW_WIDTH)
 			, window_height(CROWN_DEFAULT_WINDOW_HEIGHT)
 		{

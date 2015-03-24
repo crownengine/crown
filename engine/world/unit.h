@@ -37,7 +37,7 @@ typedef Id MaterialId;
 
 struct Component
 {
-	uint32_t name;
+	StringId32 name;
 	ComponentId component;
 };
 

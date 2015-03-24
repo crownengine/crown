@@ -43,13 +43,15 @@ typedef void  (*ResourceUnloadCallback)(Allocator& a, void* resource);
 
 struct ResourceCallback
 {
-	uint64_t type;
+	StringId64 type;
 	ResourceCompileCallback on_compile;
 	ResourceLoadCallback on_load;
 	ResourceUnloadCallback on_unload;
 	ResourceOnlineCallback on_online;
 	ResourceOfflineCallback on_offline;
 };
+
+#define NULL_RESOURCE_TYPE StringId64(uint64_t(0))
 
 static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 {
@@ -67,43 +69,43 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 	{ LEVEL_TYPE,            lvr::compile, lvr::load, lvr::unload, lvr::online, lvr::offline },
 	{ SHADER_TYPE,           shr::compile, shr::load, shr::unload, shr::online, shr::offline },
 	{ SPRITE_ANIMATION_TYPE, sar::compile, sar::load, sar::unload, sar::online, sar::offline },
-	{ 0,                     NULL,         NULL,      NULL,        NULL,        NULL         }
+	{ NULL_RESOURCE_TYPE,    NULL,         NULL,      NULL,        NULL,        NULL         }
 };
 
-static const ResourceCallback* find_callback(uint64_t type)
+static const ResourceCallback* find_callback(StringId64 type)
 {
 	const ResourceCallback* c = RESOURCE_CALLBACK_REGISTRY;
 
-	while (c->type != 0 && c->type != type)
+	while (c->type != NULL_RESOURCE_TYPE && c->type != type)
 	{
 		c++;
 	}
 
-	CE_ASSERT(c->type != 0, "Compiler not found");
+	CE_ASSERT(c->type != NULL_RESOURCE_TYPE, "Compiler not found");
 	return c;
 }
 
-void resource_on_compile(uint64_t type, const char* path, CompileOptions& opts)
+void resource_on_compile(StringId64 type, const char* path, CompileOptions& opts)
 {
 	return find_callback(type)->on_compile(path, opts);
 }
 
-void* resource_on_load(uint64_t type, File& file, Allocator& a)
+void* resource_on_load(StringId64 type, File& file, Allocator& a)
 {
 	return find_callback(type)->on_load(file, a);
 }
 
-void resource_on_unload(uint64_t type, Allocator& allocator, void* resource)
+void resource_on_unload(StringId64 type, Allocator& allocator, void* resource)
 {
 	return find_callback(type)->on_unload(allocator, resource);
 }
 
-void resource_on_online(uint64_t type, StringId64 id, ResourceManager& rm)
+void resource_on_online(StringId64 type, StringId64 id, ResourceManager& rm)
 {
 	return find_callback(type)->on_online(id, rm);
 }
 
-void resource_on_offline(uint64_t type, StringId64 id, ResourceManager& rm)
+void resource_on_offline(StringId64 type, StringId64 id, ResourceManager& rm)
 {
 	return find_callback(type)->on_offline(id, rm);
 }

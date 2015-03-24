@@ -64,7 +64,7 @@ struct ShapeResource
 {
 	StringId32 name;			// Name of the shape
 	StringId32 shape_class;		// Shape class from global.physics_config
-	StringId32 type;			// Type of the shape
+	uint32_t type;				// Type of the shape
 	StringId32 material;		// Material from global.physics_config
 	Vector3 position;			// In actor space
 	Quaternion rotation;		// In actor space

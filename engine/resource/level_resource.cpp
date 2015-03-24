@@ -102,6 +102,16 @@ template <> inline BinaryReader& operator&(BinaryReader& br, uint64_t& v)
 	return br;
 }
 
+template <> inline BinaryWriter& operator&(BinaryWriter& br, StringId64& id)
+{
+	return br & id._id;
+}
+
+template <> inline BinaryReader& operator&(BinaryReader& br, StringId64& id)
+{
+	return br & id._id;
+}
+
 template <> inline BinaryReader& operator&(BinaryReader& br, ResourceId& id)
 {
 	return br & id.type & id.name;

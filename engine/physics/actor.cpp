@@ -273,7 +273,7 @@ void Actor::disable_collision()
 
 void Actor::set_collision_filter(const char* name)
 {
-	set_collision_filter(murmur32(name, strlen(name)));
+	set_collision_filter(StringId32(name));
 }
 
 void Actor::set_collision_filter(StringId32 filter)

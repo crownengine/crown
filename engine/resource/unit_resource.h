@@ -55,7 +55,7 @@ struct UnitMaterial
 
 struct UnitCamera
 {
-	uint32_t name;
+	StringId32 name;
 	int32_t node;
 	uint32_t type; // ProjectionType::Enum
 	float fov;

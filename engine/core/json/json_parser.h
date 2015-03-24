@@ -121,7 +121,7 @@ public:
 	Matrix4x4 to_matrix4x4(const Matrix4x4& def = matrix4x4::IDENTITY) const;
 
 	/// Returns the string id value hashed to murmur32() of the element.
-	StringId32 to_string_id(const StringId32 def = 0) const;
+	StringId32 to_string_id(const StringId32 def = StringId32(uint32_t(0))) const;
 
 	/// Returns the resource id value of the element.
 	/// If @a type is NULL then the string element is assumed to already contain extension.

@@ -48,7 +48,7 @@ namespace unit_resource
 		return (ProjectionType::Enum)0;
 	}
 
-	const StringId32 NO_PARENT = 0xFFFFFFFF;
+	const StringId32 NO_PARENT(0xFFFFFFFF);
 
 	struct GraphNode
 	{
@@ -130,14 +130,14 @@ namespace unit_resource
 			JSONElement node = e.key(node_name);
 
 			GraphNode gn;
-			gn.name = murmur32(node_name, strlen(node_name));
+			gn.name = StringId32(node_name);
 			gn.parent = NO_PARENT;
 
 			if (!node.key("parent").is_nil())
 			{
 				DynamicString parent_name;
 				node.key("parent").to_string(parent_name);
-				gn.parent = murmur32(parent_name.c_str(), parent_name.length(), 0);
+				gn.parent = parent_name.to_string_id();
 			}
 
 			JSONElement pos = node.key("position");
@@ -172,10 +172,10 @@ namespace unit_resource
 			DynamicString camera_type;
 			type.to_string(camera_type);
 
-			StringId32 node_name_hash = murmur32(node_name.c_str(), node_name.length());
+			StringId32 node_name_hash = node_name.to_string_id();
 
 			UnitCamera cn;
-			cn.name = murmur32(camera_name, strlen(camera_name));
+			cn.name = StringId32(camera_name);
 			cn.node = find_node_index(node_name_hash, node_depths);
 			cn.type = projection_name_to_enum(camera_type.c_str());
 			cn.fov =  camera.key_or_nil("fov").to_float(16.0f / 9.0f);
@@ -197,10 +197,10 @@ namespace unit_resource
 			JSONElement renderable = e.key(renderable_name);
 
 			DynamicString node_name; renderable.key("node").to_string(node_name);
-			StringId32 node_name_hash = murmur32(node_name.c_str(), node_name.length(), 0);
+			StringId32 node_name_hash = node_name.to_string_id();
 
 			UnitRenderable rn;
-			rn.name = murmur32(renderable_name, strlen(renderable_name), 0);
+			rn.name = StringId32(renderable_name);
 			rn.node = find_node_index(node_name_hash, node_depths);
 			rn.visible = renderable.key("visible").to_bool();
 
@@ -237,7 +237,7 @@ namespace unit_resource
 			JSONElement value = e.key(key);
 
 			Key out_key;
-			out_key.name = murmur32(key, strlen(key));
+			out_key.name = StringId32(key);
 			out_key.offset = array::size(values);
 
 			if (value.is_bool()) out_key.type = ValueType::BOOL;
@@ -266,7 +266,7 @@ namespace unit_resource
 				{
 					DynamicString val;
 					value.to_string(val);
-					StringId32 val_hash = murmur32(val.c_str(), val.length());
+					StringId32 val_hash = val.to_string_id();
 					array::push(values, (char*) &val_hash, sizeof(StringId32));
 					break;
 				}
@@ -346,8 +346,6 @@ namespace unit_resource
 		}
 
 		ResourceId sprite_anim;
-		sprite_anim.type = 0;
-		sprite_anim.name = 0;
 		if (root.has_key("sprite_animation"))
 			sprite_anim = root.key("sprite_animation").to_resource_id("sprite_animation");
 
@@ -539,11 +537,12 @@ namespace unit_resource
 	bool has_key(const UnitResource* ur, const char* k)
 	{
 		const uint32_t nk = num_keys(ur);
+		const StringId32 key_hash(k);
 		Key* begin = (Key*) ((char*)ur + ur->keys_offset);
 
 		for (uint32_t i = 0; i < nk; i++)
 		{
-			if (begin[i].name == murmur32(k, strlen(k)))
+			if (begin[i].name == key_hash)
 			{
 				return true;
 			}
@@ -555,11 +554,12 @@ namespace unit_resource
 	bool get_key(const UnitResource* ur, const char* k, Key& out_k)
 	{
 		const uint32_t nk = num_keys(ur);
+		const StringId32 key_hash(k);
 		Key* begin = (Key*) ((char*)ur + ur->keys_offset);
 
 		for (uint32_t i = 0; i < nk; i++)
 		{
-			if (begin[i].name == murmur32(k, strlen(k)))
+			if (begin[i].name == key_hash)
 			{
 				out_k = begin[i];
 				return true;

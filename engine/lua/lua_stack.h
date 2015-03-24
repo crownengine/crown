@@ -142,6 +142,11 @@ struct LuaStack
 		lua_pushinteger(L, value);
 	}
 
+	void push_string_id(StringId32 value)
+	{
+		lua_pushinteger(L, value.id());
+	}
+
 	void push_float(float value)
 	{
 		lua_pushnumber(L, value);
@@ -173,6 +178,11 @@ struct LuaStack
 	int32_t get_int(int32_t index)
 	{
 		return CHECKINTEGER(L, index);
+	}
+
+	StringId32 get_string_id(int32_t index)
+	{
+		return StringId32(uint32_t(CHECKINTEGER(L, index)));
 	}
 
 	float get_float(int32_t index)
