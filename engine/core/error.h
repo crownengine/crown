@@ -15,12 +15,12 @@ namespace error
 } // namespace error
 } // namespace crown
 
-#if defined(CROWN_DEBUG)
+#if CROWN_DEBUG
 	#define CE_ASSERT(condition, msg, ...) do { if (!(condition)) {\
 		crown::error::abort(__FILE__, __LINE__, "\nAssertion failed: %s\n\t" msg "\n", #condition, ##__VA_ARGS__); }} while (0)
 #else
 	#define CE_ASSERT(...) ((void)0)
-#endif
+#endif // CROWN_DEBUG
 
 #define CE_ASSERT_NOT_NULL(x) CE_ASSERT(x != NULL, #x " must be not null")
 #define CE_FATAL(msg) CE_ASSERT(false, msg)

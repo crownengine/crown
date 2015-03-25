@@ -158,7 +158,7 @@ struct SortMap
 	};
 
 	Array<Entry> _data;
-#ifdef CROWN_DEBUG
+#if CROWN_DEBUG
 	bool _is_sorted;
 #endif
 };

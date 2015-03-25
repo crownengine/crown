@@ -5,7 +5,7 @@
 
 #pragma once
 
-#if defined(CROWN_DEBUG)
+#if CROWN_DEBUG
 
 #include "console_server.h"
 #include "string_utils.h"
@@ -45,4 +45,4 @@ namespace log_internal
 	#define CE_LOGD(msg, ...) ((void)0)
 	#define CE_LOGE(msg, ...) ((void)0)
 	#define CE_LOGW(msg, ...) ((void)0)
-#endif // defined(CROWN_DEBUG)
+#endif // CROWN_DEBUG

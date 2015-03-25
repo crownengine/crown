@@ -80,7 +80,7 @@ namespace profiler_globals
 } // namespace profiler_globals
 } // namespace crown
 
-#ifdef CROWN_DEBUG
+#if CROWN_DEBUG
 	#define ENTER_PROFILE_SCOPE(name) profiler::enter_profile_scope(name)
 	#define LEAVE_PROFILE_SCOPE() profiler::leave_profile_scope(name)
 	#define RECORD_FLOAT(name, value) profiler::record_float(name, value)
@@ -94,4 +94,4 @@ namespace profiler_globals
 	#define RECORD_VECTOR3(name, value) ((void)0)
 	#define ALLOCATE_MEMORY(name, size) ((void)0)
 	#define DEALLOCATE_MEMORY(name, size) ((void)0)
-#endif
+#endif // CROWN_DEBUG

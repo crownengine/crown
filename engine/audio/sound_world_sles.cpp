@@ -21,7 +21,7 @@
 namespace crown
 {
 
-#if defined(CROWN_DEBUG)
+#if CROWN_DEBUG
 	static const char* sles_error_to_string(SLresult result)
 	{
 		switch (result)
@@ -47,7 +47,7 @@ namespace crown
 				CE_ASSERT(result == SL_RESULT_SUCCESS, "OpenSL|ES error: %s", sles_error_to_string(result)); } while (0)
 #else
 	#define SL_CHECK(function) function;
-#endif
+#endif // CROWN_DEBUG
 
 namespace audio_globals
 {

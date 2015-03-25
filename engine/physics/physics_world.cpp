@@ -237,7 +237,7 @@ PhysicsWorld::PhysicsWorld(World& world)
 
 	m_resource = (PhysicsConfigResource*) device()->resource_manager()->get("physics_config", "global");
 
-#if defined(CROWN_DEBUG)
+#if CROWN_DEBUG
 	m_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1);
 	m_scene->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES, 1);
 	m_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);

@@ -13,11 +13,11 @@
 #include "array.h"
 #include "compile_options.h"
 
-#if defined(CROWN_DEBUG)
+#if CROWN_DEBUG
 	#define LUAJIT_FLAGS "-bg" // Keep debug info
 #else
 	#define LUAJIT_FLAGS "-b"
-#endif
+#endif // CROWN_DEBUG
 
 namespace crown
 {

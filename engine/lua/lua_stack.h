@@ -15,7 +15,7 @@
 #include "color4.h"
 #include "lua.hpp"
 
-#if defined(CROWN_DEBUG)
+#if CROWN_DEBUG
 	static void* checkudata(lua_State* L, int index, const char* expected)
 	{
 		luaL_checktype(L, index, LUA_TUSERDATA);
@@ -48,7 +48,7 @@
 	#define CHECKINTEGER(stack, index) lua_tointeger(stack, index)
 	#define CHECKNUMBER(stack, index) lua_tonumber(stack, index)
 	#define CHECKSTRING(stack, index) lua_tostring(stack, index)
-#endif
+#endif // CROWN_DEBUG
 
 namespace crown
 {

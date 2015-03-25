@@ -9,6 +9,10 @@
 
 #include "platform.h"
 
+#ifndef CROWN_DEBUG
+#	define CROWN_DEBUG 0
+#endif // CROWN_DEBUG
+
 #if !defined(CROWN_SOUND_OPENAL) \
 	&& !defined(CROWN_SOUND_OPENSLES)\
 	&& !defined(CROWN_SOUND_NULL)

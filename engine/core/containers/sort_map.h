@@ -121,7 +121,7 @@ namespace sort_map
 	{
 		std::sort(array::begin(m._data), array::end(m._data),
 			sort_map_internal::CompareEntry<TKey, TValue, Compare>());
-#ifdef CROWN_DEBUG
+#if CROWN_DEBUG
 		m._is_sorted = true;
 #endif // CROWN_DEBUG
 	}
@@ -142,7 +142,7 @@ namespace sort_map
 		{
 			m._data[result.item_i].value = val;
 		}
-#ifdef CROWN_DEBUG
+#if CROWN_DEBUG
 		m._is_sorted = false;
 #endif // CROWN_DEBUG
 	}
@@ -160,7 +160,7 @@ namespace sort_map
 			m._data[result.item_i] = m._data[array::size(m._data) - 1];
 			array::pop_back(m._data);
 		}
-#ifdef CROWN_DEBUG
+#if CROWN_DEBUG
 		m._is_sorted = false;
 #endif // CROWN_DEBUG
 	}
@@ -169,7 +169,7 @@ namespace sort_map
 	inline void clear(SortMap<TKey, TValue, Compare>& m)
 	{
 		array::clear(m._data);
-#ifdef CROWN_DEBUG
+#if CROWN_DEBUG
 		m._is_sorted = true;
 #endif // CROWN_DEBUG
 	}
@@ -190,7 +190,7 @@ namespace sort_map
 template <typename TKey, typename TValue, typename Compare>
 inline SortMap<TKey, TValue, Compare>::SortMap(Allocator& a)
 	: _data(a)
-#ifdef CROWN_DEBUG
+#if CROWN_DEBUG
 	, _is_sorted(true)
 #endif // CROWN_DEBUG
 {

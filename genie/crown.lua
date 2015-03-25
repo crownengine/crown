@@ -114,7 +114,7 @@ function crown_project(_name, _kind, _defines)
 			}
 			defines {
 				"_DEBUG",
-				"CROWN_DEBUG"
+				"CROWN_DEBUG=1"
 			}
 
 		configuration { "release" }

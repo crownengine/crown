@@ -230,9 +230,9 @@ namespace console_server_globals
 
 	void update()
 	{
-#if defined(CROWN_DEBUG)
+#if CROWN_DEBUG
 		_console->update();
-#endif // defined(CROWN_DEBUG)
+#endif // CROWN_DEBUG
 	}
 
 	ConsoleServer& console()

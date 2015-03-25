@@ -22,7 +22,7 @@
 namespace crown
 {
 
-#if defined(CROWN_DEBUG)
+#if CROWN_DEBUG
 	static const char* al_error_to_string(ALenum error)
 	{
 		switch (error)
@@ -35,13 +35,13 @@ namespace crown
 		}
 	}
 
-	#define AL_CHECK(function)\
+#	define AL_CHECK(function)\
 		function;\
 		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\
 				"OpenAL error: %s", al_error_to_string(error)); } while (0)
 #else
-	#define AL_CHECK(function) function;
-#endif
+#	define AL_CHECK(function) function;
+#endif // CROWN_DEBUG
 
 /// Global audio-related functions
 namespace audio_globals
