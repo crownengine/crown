@@ -6,7 +6,7 @@
 #pragma once
 
 #include "config.h"
-#include "assert.h"
+#include "error.h"
 #include "types.h"
 #include "semaphore.h"
 

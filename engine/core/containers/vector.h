@@ -7,7 +7,7 @@
 
 #include "container_types.h"
 #include "allocator.h"
-#include "assert.h"
+#include "error.h"
 #include "macros.h"
 
 namespace crown

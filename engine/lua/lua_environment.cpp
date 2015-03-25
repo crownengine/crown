@@ -5,7 +5,7 @@
 
 
 #include "config.h"
-#include "assert.h"
+#include "error.h"
 #include "lua_environment.h"
 #include "lua_stack.h"
 #include "lua_resource.h"

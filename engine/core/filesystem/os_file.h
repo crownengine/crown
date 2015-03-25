@@ -7,7 +7,7 @@
 
 #include "file.h" // FileOpenMode
 #include "types.h"
-#include "assert.h"
+#include "error.h"
 #include "macros.h"
 #include "config.h"
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "assert.h"
+#include "error.h"
 #include "memory.h"
 #include "string_utils.h"
 #include "array.h"

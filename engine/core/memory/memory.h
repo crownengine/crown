@@ -6,7 +6,7 @@
 #pragma once
 
 #include "types.h"
-#include "assert.h"
+#include "error.h"
 #include "allocator.h"
 #include "macros.h"
 #include <new>

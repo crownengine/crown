@@ -4,7 +4,7 @@
  */
 
 #include "world.h"
-#include "assert.h"
+#include "error.h"
 #include "resource_manager.h"
 #include "debug_line.h"
 #include "actor.h"

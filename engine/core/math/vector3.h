@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "assert.h"
+#include "error.h"
 #include "types.h"
 #include "math_utils.h"
 #include "vector2.h"

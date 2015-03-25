@@ -7,7 +7,7 @@
 
 #include "config.h"
 #include "types.h"
-#include "assert.h"
+#include "error.h"
 #include "macros.h"
 
 #if CROWN_PLATFORM_POSIX

@@ -8,7 +8,7 @@
 #if CROWN_PLATFORM_ANDROID
 
 #include "apk_file.h"
-#include "assert.h"
+#include "error.h"
 #include "macros.h"
 #include <stdio.h> // SEEK_SET, ...
 #include <android/asset_manager.h>

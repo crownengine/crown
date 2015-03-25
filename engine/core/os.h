@@ -10,7 +10,7 @@
 #include "vector.h"
 #include "dynamic_string.h"
 #include "string_utils.h"
-#include "assert.h"
+#include "error.h"
 #include "temp_allocator.h"
 
 #if CROWN_PLATFORM_POSIX

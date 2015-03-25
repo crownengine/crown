@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "assert.h"
+#include "error.h"
 #include "array.h"
 
 namespace crown

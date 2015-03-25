@@ -4,7 +4,7 @@
  */
 
 #include "proxy_allocator.h"
-#include "assert.h"
+#include "error.h"
 #include "profiler.h"
 
 namespace crown

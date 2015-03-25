@@ -7,7 +7,7 @@
 
 #include "math_types.h"
 #include "vector3.h"
-#include "assert.h"
+#include "error.h"
 #include "quaternion.h"
 
 namespace crown

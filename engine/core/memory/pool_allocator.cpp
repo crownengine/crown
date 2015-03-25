@@ -4,7 +4,7 @@
  */
 
 #include "pool_allocator.h"
-#include "assert.h"
+#include "error.h"
 
 namespace crown
 {

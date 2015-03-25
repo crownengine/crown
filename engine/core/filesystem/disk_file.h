@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "assert.h"
+#include "error.h"
 #include "os_file.h"
 #include "file.h"
 
