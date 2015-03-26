@@ -62,10 +62,6 @@
 	#define CROWN_DATA_DIRECTORY "data"
 #endif // CROWN_DATA_DIRECTORY
 
-#ifndef CE_MAX_WORLDS
-	#define CE_MAX_WORLDS 1024
-#endif // CE_MAX_WORLDS
-
 #ifndef CE_MAX_UNITS
 	#define CE_MAX_UNITS 65000 // Per world
 #endif // CE_MAX_UNITS
