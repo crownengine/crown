@@ -5,7 +5,6 @@
 
 #pragma once
 
-#define NOMINMAX
 #include "config.h"
 #include <cstddef>
 #include <stdint.h>

@@ -243,6 +243,7 @@ function toolchain(build_dir, lib_dir)
 			"_SCL_SECURE_NO_WARNINGS",
 			"_CRT_SECURE_NO_WARNINGS",
 			"_CRT_SECURE_NO_DEPRECATE",
+			"NOMINMAX",
 		}
 		buildoptions {
 			"/Oy-", -- Suppresses creation of frame pointers on the call stack.
