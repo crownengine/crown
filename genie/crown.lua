@@ -65,19 +65,18 @@ function crown_project(_name, _kind, _defines)
 				libdirs {
 					CROWN_DIR .. "third/luajit/pre/linux_x64"
 				}
+
+			configuration { "vs*"}
+				links {
+					"lua51"
+				}
 			configuration { "x32", "vs*" }
 				libdirs {
 					CROWN_DIR .. "third/luajit/pre/win_x86"
 				}
-				links {
-					"lua51"
-				}
 			configuration { "x64", "vs*" }
 				libdirs {
 					CROWN_DIR .. "third/luajit/pre/win_x64"
-				}
-				links {
-					"lua51"
 				}
 
 				configuration {}
