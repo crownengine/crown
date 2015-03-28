@@ -7,21 +7,10 @@
 
 #include "socket.h"
 #include "id_array.h"
+#include "log.h"
 
 namespace crown
 {
-
-/// Enumerates log levels.
-struct LogSeverity
-{
-	enum Enum
-	{
-		INFO	= 0,
-		WARN	= 1,
-		ERROR	= 2,
-		DEBUG	= 3
-	};
-};
 
 struct Client
 {
