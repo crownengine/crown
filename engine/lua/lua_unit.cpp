@@ -183,7 +183,7 @@ static int unit_controller(lua_State* L)
 static int unit_is_a(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(stack.get_unit(1)->is_a(stack.get_string(2)));
+	stack.push_bool(stack.get_unit(1)->is_a(stack.get_resource_id(2)));
 	return 1;
 }
 

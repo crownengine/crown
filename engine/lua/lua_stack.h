@@ -232,6 +232,11 @@ struct LuaStack
 		return lua_next(L, i);
 	}
 
+	StringId64 get_resource_id(int index)
+	{
+		return StringId64(CHECKSTRING(L, index));
+	}
+
 	void push_resource_package(ResourcePackage* package)
 	{
 		ResourcePackage** p = (ResourcePackage**) lua_newuserdata(L, sizeof(ResourcePackage*));

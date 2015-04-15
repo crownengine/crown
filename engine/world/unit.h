@@ -41,7 +41,6 @@ struct Component
 	ComponentId component;
 };
 
-
 class SceneGraphManager;
 class World;
 struct Actor;
@@ -56,7 +55,7 @@ struct Material;
 /// @ingroup World
 struct Unit
 {
-	Unit(World& w, UnitId unit_id, StringId64 resid, const UnitResource* ur, const Matrix4x4& pose);
+	Unit(World& w, UnitId unit_id, const UnitResource* ur, const Matrix4x4& pose);
 	~Unit();
 
 	void set_id(const UnitId id);
@@ -137,7 +136,7 @@ struct Unit
 
 	Controller* controller();
 
-	bool is_a(const char* name);
+	bool is_a(StringId64 name);
 
 	void play_sprite_animation(const char* name, bool loop);
 	void stop_sprite_animation();
@@ -167,7 +166,6 @@ public:
 	World& m_world;
 	SceneGraph& m_scene_graph;
 	SpriteAnimation* m_sprite_animation;
-	const StringId64 m_resource_id;
 	const UnitResource*	m_resource;
 	UnitId m_id;
 

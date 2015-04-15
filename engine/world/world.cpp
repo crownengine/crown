@@ -57,22 +57,20 @@ World::~World()
 	CE_DELETE(default_allocator(), _scenegraph_manager);
 }
 
-UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
+UnitId World::spawn_unit(const UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
-	const ResourceId id(UNIT_EXTENSION, name);
-	return spawn_unit(id.name, pos, rot);
+	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
+	const UnitId unit_id = id_array::create(m_units, u);
+	new (u) Unit(*this, unit_id, ur, Matrix4x4(rot, pos));
+
+	post_unit_spawned_event(unit_id);
+	return unit_id;
 }
 
 UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot)
 {
 	UnitResource* ur = (UnitResource*)_resource_manager->get(UNIT_TYPE, name);
-
-	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
-	const UnitId unit_id = id_array::create(m_units, u);
-	new (u) Unit(*this, unit_id, name, ur, Matrix4x4(rot, pos));
-
-	post_unit_spawned_event(unit_id);
-	return unit_id;
+	return spawn_unit(ur, pos, rot);
 }
 
 void World::destroy_unit(UnitId id)
@@ -174,16 +172,15 @@ void World::destroy_camera(CameraId id)
 	id_array::destroy(m_cameras, id);
 }
 
-SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
+SoundInstanceId World::play_sound(const SoundResource* sr, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	ResourceId id(SOUND_EXTENSION, name);
-	return play_sound(id.name, loop, volume, pos, range);
+	return _sound_world->play(sr, loop, volume, pos);
 }
 
 SoundInstanceId World::play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	SoundResource* sr = (SoundResource*)_resource_manager->get(SOUND_TYPE, name);
-	return _sound_world->play(sr, loop, volume, pos);
+	const SoundResource* sr = (const SoundResource*)_resource_manager->get(SOUND_TYPE, name);
+	play_sound(sr, loop, volume, pos, range);
 }
 
 void World::stop_sound(SoundInstanceId id)
@@ -240,12 +237,6 @@ void World::destroy_debug_line(DebugLine* line)
 	CE_DELETE(default_allocator(), line);
 }
 
-void World::load_level(const char* name)
-{
-	const LevelResource* lr = (LevelResource*) _resource_manager->get(LEVEL_EXTENSION, name);
-	load_level(lr);
-}
-
 void World::load_level(const LevelResource* lr)
 {
 	using namespace level_resource;
@@ -265,6 +256,12 @@ void World::load_level(const LevelResource* lr)
 	}
 
 	post_level_loaded_event();
+}
+
+void World::load_level(StringId64 name)
+{
+	const LevelResource* lr = (LevelResource*) _resource_manager->get(LEVEL_TYPE, name);
+	load_level(lr);
 }
 
 SceneGraphManager* World::scene_graph_manager()

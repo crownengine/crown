@@ -19,6 +19,7 @@ struct UnitResource
 {
 	uint32_t version;
 	uint32_t _pad;
+	StringId64 name;
 	StringId64 physics_resource;
 	StringId64 sprite_animation;
 	uint32_t num_renderables;

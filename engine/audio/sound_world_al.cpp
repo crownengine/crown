@@ -77,7 +77,7 @@ namespace audio_globals
 
 struct SoundInstance
 {
-	void create(SoundResource* sr, const Vector3& pos)
+	void create(const SoundResource* sr, const Vector3& pos)
 	{
 		using namespace sound_resource;
 
@@ -113,7 +113,7 @@ struct SoundInstance
 		AL_CHECK(alDeleteSources(1, &_source));
 	}
 
-	void reload(SoundResource* new_sr)
+	void reload(const SoundResource* new_sr)
 	{
 		destroy();
 		create(new_sr, position());
@@ -187,7 +187,7 @@ struct SoundInstance
 		AL_CHECK(alSourcef(_source, AL_GAIN, volume));
 	}
 
-	SoundResource* resource()
+	const SoundResource* resource()
 	{
 		return _resource;
 	}
@@ -195,7 +195,7 @@ struct SoundInstance
 public:
 
 	SoundInstanceId _id;
-	SoundResource* _resource;
+	const SoundResource* _resource;
 	ALuint _buffer;
 	ALuint _source;
 };
@@ -213,7 +213,7 @@ public:
 	{
 	}
 
-	virtual SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& pos)
+	virtual SoundInstanceId play(const SoundResource* sr, bool loop, float volume, const Vector3& pos)
 	{
 		SoundInstance instance;
 		instance.create(sr, pos);
@@ -283,7 +283,7 @@ public:
 		}
 	}
 
-	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr)
+	virtual void reload_sounds(const SoundResource* old_sr, const SoundResource* new_sr)
 	{
 		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
 		{

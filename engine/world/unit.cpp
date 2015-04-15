@@ -22,11 +22,10 @@ namespace crown
 
 using namespace unit_resource;
 
-Unit::Unit(World& w, UnitId unit_id, StringId64 resid, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, UnitId unit_id, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
 	, m_scene_graph(*w.scene_graph_manager()->create_scene_graph())
 	, m_sprite_animation(NULL)
-	, m_resource_id(resid)
 	, m_resource(ur)
 	, m_id(unit_id)
 	, m_num_cameras(0)
@@ -466,9 +465,9 @@ Material* Unit::material(uint32_t i)
 	return material_manager::get()->lookup_material(material);
 }
 
-bool Unit::is_a(const char* name)
+bool Unit::is_a(StringId64 name)
 {
-	return m_resource_id == ResourceId("unit", name).name;
+	return m_resource->name == name;
 }
 
 void Unit::play_sprite_animation(const char* name, bool loop)

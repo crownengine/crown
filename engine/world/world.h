@@ -41,7 +41,7 @@ public:
 	~World();
 
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
-	UnitId spawn_unit(const char* name, const Vector3& position = vector3::ZERO, const Quaternion& rotation = quaternion::IDENTITY);
+	UnitId spawn_unit(const UnitResource* ur, const Vector3& position = vector3::ZERO, const Quaternion& rotation = quaternion::IDENTITY);
 	UnitId spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot);
 
 	/// Destroys the unit with the given @a id.
@@ -88,7 +88,7 @@ public:
 
 	/// Plays the sound with the given @a name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
-	SoundInstanceId play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& position = vector3::ZERO, float range = 50.0f);
+	SoundInstanceId play_sound(const SoundResource* sr, bool loop = false, float volume = 1.0f, const Vector3& position = vector3::ZERO, float range = 50.0f);
 	SoundInstanceId play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range);
 
 	/// Stops the sound with the given @a id.
@@ -127,8 +127,8 @@ public:
 	void destroy_debug_line(DebugLine* line);
 
 	/// Loads the level @a name into the world.
-	void load_level(const char* name);
 	void load_level(const LevelResource* lr);
+	void load_level(StringId64 name);
 
 	SceneGraphManager* scene_graph_manager();
 	SpriteAnimationPlayer* sprite_animation_player();

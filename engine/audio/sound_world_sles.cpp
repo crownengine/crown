@@ -123,7 +123,7 @@ namespace sles_sound_world
 
 struct SoundInstance
 {
-	void create(SLEngineItf engine, SLObjectItf output_mix, SoundInstanceId id, SoundResource* sr)
+	void create(SLEngineItf engine, SLObjectItf output_mix, SoundInstanceId id, const SoundResource* sr)
 	{
 		using namespace sound_resource;
 
@@ -238,7 +238,7 @@ struct SoundInstance
 		(*_player)->Destroy(_player);
 	}
 
-	void reload(SoundResource* new_sr)
+	void reload(const SoundResource* new_sr)
 	{
 	}
 
@@ -315,7 +315,7 @@ struct SoundInstance
 		// }
 	}
 
-	SoundResource* resource()
+	const SoundResource* resource()
 	{
 		return _resource;
 	}
@@ -330,7 +330,7 @@ struct SoundInstance
 public:
 
 	SoundInstanceId _id;
-	SoundResource* _resource;
+	const SoundResource* _resource;
 
 	SLObjectItf _player;
 	SLAndroidSimpleBufferQueueItf _player_bufferqueue;
@@ -353,7 +353,7 @@ public:
 		sles_sound_world::shutdown();
 	}
 
-	virtual SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& /*pos*/)
+	virtual SoundInstanceId play(const SoundResource* sr, bool loop, float volume, const Vector3& /*pos*/)
 	{
 		SoundInstance dummy;
 		SoundInstanceId id = id_array::create(_playing_sounds, dummy);
@@ -424,7 +424,7 @@ public:
 		}
 	}
 
-	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr)
+	virtual void reload_sounds(const SoundResource* old_sr, const SoundResource* new_sr)
 	{
 		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
 		{

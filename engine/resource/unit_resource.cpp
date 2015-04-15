@@ -351,6 +351,7 @@ namespace unit_resource
 
 		UnitResource ur;
 		ur.version = VERSION;
+		ur.name = StringId64(unit_name.c_str());
 		ur.physics_resource = m_physics_resource.name;
 		ur.sprite_animation = sprite_anim.name;
 		ur.num_renderables = array::size(m_renderables);
@@ -370,6 +371,7 @@ namespace unit_resource
 
 		opts.write(ur.version);
 		opts.write(ur._pad);
+		opts.write(ur.name);
 		opts.write(ur.physics_resource);
 		opts.write(ur.sprite_animation);
 		opts.write(ur.num_renderables);
