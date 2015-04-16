@@ -235,7 +235,7 @@ PhysicsWorld::PhysicsWorld(World& world)
 	m_controller_manager = PxCreateControllerManager(*m_scene);
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
 
-	m_resource = (PhysicsConfigResource*) device()->resource_manager()->get("physics_config", "global");
+	m_resource = (PhysicsConfigResource*) device()->resource_manager()->get(PHYSICS_CONFIG_TYPE, StringId64("global"));
 
 #if CROWN_DEBUG
 	m_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1);

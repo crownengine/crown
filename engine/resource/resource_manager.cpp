@@ -78,21 +78,9 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 	new_entry.references = old_refs;
 }
 
-bool ResourceManager::can_get(const char* type, const char* name)
-{
-	ResourceId id(type, name);
-	return can_get(id.type, id.name);
-}
-
 bool ResourceManager::can_get(StringId64 type, StringId64 name)
 {
 	return _autoload ? true : sort_map::has(_rm, ResourceId(type, name));
-}
-
-const void* ResourceManager::get(const char* type, const char* name)
-{
-	ResourceId id(type, name);
-	return get(id.type, id.name);
 }
 
 const void* ResourceManager::get(StringId64 type, StringId64 name)

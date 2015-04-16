@@ -38,13 +38,7 @@ public:
 	void reload(StringId64 type, StringId64 name);
 
 	/// Returns whether the manager has the resource (@a type, @a name).
-	bool can_get(const char* type, const char* name);
-
-	/// Returns whether the manager has the resource (@a type, @a name).
 	bool can_get(StringId64 type, StringId64 name);
-
-	/// Returns the data of the resource (@a type, @a name).
-	const void* get(const char* type, const char* name);
 
 	/// Returns the data of the resource (@a type, @a name).
 	const void* get(StringId64 type, StringId64 name);

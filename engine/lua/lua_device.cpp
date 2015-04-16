@@ -125,7 +125,8 @@ static int device_console_send(lua_State* L)
 static int device_can_get(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(device()->resource_manager()->can_get(stack.get_string(1), stack.get_string(2)));
+	const StringId64 type(stack.get_string(1));
+	stack.push_bool(device()->resource_manager()->can_get(type, stack.get_resource_id(2)));
 	return 1;
 }
 

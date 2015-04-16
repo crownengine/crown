@@ -96,7 +96,7 @@ namespace lua_globals
 	{
 		using namespace lua_resource;
 		LuaStack stack(L);
-		const LuaResource* lr = (LuaResource*)device()->resource_manager()->get("lua", stack.get_string(1));
+		const LuaResource* lr = (LuaResource*)device()->resource_manager()->get(LUA_TYPE, stack.get_resource_id(1));
 		luaL_loadbuffer(L, program(lr), size(lr), "");
 		return 1;
 	}
