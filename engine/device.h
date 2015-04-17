@@ -13,6 +13,7 @@
 #include "lua_types.h"
 #include "filesystem_types.h"
 #include "array.h"
+#include "crown.h"
 
 namespace crown
 {
@@ -25,7 +26,7 @@ namespace crown
 /// @ingroup Device
 struct Device
 {
-	Device(Filesystem& fs, StringId64 boot_package, StringId64 boot_script);
+	Device(const ConfigSettings& cs, Filesystem& fs);
 
 	void init();
 
@@ -122,6 +123,7 @@ private:
 	float _last_delta_time;
 	double _time_since_start;
 
+	const ConfigSettings& _cs;
 	Filesystem& _fs;
 	StringId64 _boot_package_id;
 	StringId64 _boot_script_id;
@@ -141,7 +143,7 @@ private:
 
 namespace device_globals
 {
-	void init(Filesystem& fs, StringId64 boot_package, StringId64 boot_script);
+	void init(const ConfigSettings& cs, Filesystem& fs);
 	void shutdown();
 } // namespace device_globals
 

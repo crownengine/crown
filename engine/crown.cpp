@@ -188,7 +188,7 @@ bool init(Filesystem& fs, const ConfigSettings& cs)
 	physics_globals::init();
 	bgfx::init();
 	lua_globals::init();
-	device_globals::init(fs, cs.boot_package, cs.boot_script);
+	device_globals::init(cs, fs);
 	device()->init();
 	return true;
 }

@@ -21,7 +21,7 @@
 
 namespace crown
 {
-Device::Device(Filesystem& fs, StringId64 boot_package, StringId64 boot_script)
+Device::Device(const ConfigSettings& cs, Filesystem& fs)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _width(0)
 	, _height(0)
@@ -33,9 +33,10 @@ Device::Device(Filesystem& fs, StringId64 boot_package, StringId64 boot_script)
 	, _current_time(0)
 	, _last_delta_time(0.0f)
 	, _time_since_start(0.0)
+	, _cs(cs)
 	, _fs(fs)
-	, _boot_package_id(boot_package)
-	, _boot_script_id(boot_script)
+	, _boot_package_id(cs.boot_package)
+	, _boot_script_id(cs.boot_script)
 	, _boot_package(NULL)
 	, _lua_environment(NULL)
 	, _resource_manager(NULL)
@@ -215,10 +216,10 @@ namespace device_globals
 	char _buffer[sizeof(Device)];
 	Device* _device = NULL;
 
-	void init(Filesystem& fs, StringId64 boot_package, StringId64 boot_script)
+	void init(const ConfigSettings& cs, Filesystem& fs)
 	{
 		CE_ASSERT(_device == NULL, "Crown already initialized");
-		_device = new (_buffer) Device(fs, boot_package, boot_script);
+		_device = new (_buffer) Device(cs, fs);
 	}
 
 	void shutdown()
