@@ -157,7 +157,7 @@ struct SortMap
 		TValue value;
 	};
 
-	Array<Entry> _data;
+	Vector<Entry> _data;
 #if CROWN_DEBUG
 	bool _is_sorted;
 #endif
