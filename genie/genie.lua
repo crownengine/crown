@@ -64,47 +64,37 @@ end
 group "engine"
 crown_project("", "ConsoleApp", {})
 
-
 -- Install
-configuration { "android-arm" }
-	postbuildcommands {
-		"cp -r " .. CROWN_DIR .. ".build/android-arm/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/android-arm/",
-	}
-
 configuration { "x32", "linux-*" }
 	postbuildcommands {
-		"cp -r " .. CROWN_DIR .. ".build/linux32/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux32/",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x86/luajit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux32/",
-		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux32/",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x86/luajit " .. CROWN_DIR .. ".build/linux32/bin",
+		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " ..              CROWN_DIR .. ".build/linux32/bin",
 	}
 
 configuration { "x64", "linux-*" }
 	postbuildcommands {
-		"cp -r " .. CROWN_DIR .. ".build/linux64/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux64/",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x64/luajit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux64/",
-		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/linux64/",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x64/luajit " .. CROWN_DIR .. ".build/linux64/bin",
+		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " ..              CROWN_DIR .. ".build/linux64/bin",
 	}
 
 configuration { "x32", "vs*" }
 	postbuildcommands {
-		"cp -r " .. CROWN_DIR .. ".build/win32/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32/",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/luajit.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32/",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.lib " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.exp " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
-		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32/",
-		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/PhysX3* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
-		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/nvToolsExt32_1.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win32",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/luajit.exe " ..  CROWN_DIR .. ".build/win32/bin",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.lib " ..   CROWN_DIR .. ".build/win32/bin",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.exp " ..   CROWN_DIR .. ".build/win32/bin",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.dll " ..   CROWN_DIR .. ".build/win32/bin",
+		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " ..                 CROWN_DIR .. ".build/win32/bin",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/PhysX3* " ..            CROWN_DIR .. ".build/win32/bin",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/nvToolsExt32_1.dll " .. CROWN_DIR .. ".build/win32/bin",
 	}
 
 configuration { "x64", "vs*" }
 	postbuildcommands {
-		"cp -r " .. CROWN_DIR .. ".build/win64/bin/* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64/",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/luajit.exe " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64/",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.lib " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.exp " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
-		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64/",
-		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/PhysX3* " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
-		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/nvToolsExt64_1.dll " .. "$(CROWN_INSTALL_DIR)/" .. "bin/win64",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/luajit.exe " ..  CROWN_DIR .. ".build/win64/bin",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.lib " ..   CROWN_DIR .. ".build/win64/bin",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.exp " ..   CROWN_DIR .. ".build/win64/bin",
+		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.dll " ..   CROWN_DIR .. ".build/win64/bin",
+		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " ..                 CROWN_DIR .. ".build/win64/bin",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/PhysX3* " ..            CROWN_DIR .. ".build/win64/bin",
+		"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/nvToolsExt64_1.dll " .. CROWN_DIR .. ".build/win64/bin",
 	}
