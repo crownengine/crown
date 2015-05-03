@@ -62,7 +62,7 @@ function toolchain(build_dir, lib_dir)
 		end
 	end
 
-	if _ACTION == "vs2012" or _ACTION == "vs2013" then
+	if _ACTION == "vs2013" then
 
 		if not os.is("windows") then print("Action not valid in current OS.") end
 
@@ -73,7 +73,7 @@ function toolchain(build_dir, lib_dir)
 			print("Set DXSDK_DIR environment variable.")
 		end
 
-		location(build_dir .. "projects/" .. "windows")
+		location(build_dir .. "projects/" .. _ACTION)
 	end
 
 	flags {
