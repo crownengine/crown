@@ -180,7 +180,7 @@ SoundInstanceId World::play_sound(const SoundResource* sr, const bool loop, cons
 SoundInstanceId World::play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	const SoundResource* sr = (const SoundResource*)_resource_manager->get(SOUND_TYPE, name);
-	play_sound(sr, loop, volume, pos, range);
+	return play_sound(sr, loop, volume, pos, range);
 }
 
 void World::stop_sound(SoundInstanceId id)
