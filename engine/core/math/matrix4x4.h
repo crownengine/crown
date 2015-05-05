@@ -105,6 +105,12 @@ namespace matrix4x4
 	/// Sets the rotation portion of the matrix @a m.
 	void set_rotation(Matrix4x4& m, const Matrix3x3& rot);
 
+	/// Returns the scale of the matrix @a m.
+	Vector3 scale(const Matrix4x4& m);
+
+	/// Sets the scale of the matrix @æ m.
+	void set_scale(Matrix4x4& m, const Vector3& s);
+
 	/// Returns the pointer to the matrix's data
 	float* to_float_ptr(Matrix4x4& m);
 
@@ -449,6 +455,23 @@ namespace matrix4x4
 		m.z.x = rot.z.x;
 		m.z.y = rot.z.y;
 		m.z.z = rot.z.z;
+	}
+
+	inline Vector3 scale(const Matrix4x4& m)
+	{
+		using namespace vector4;
+		using namespace vector3;
+		const float sx = length(to_vector3(m.x));
+		const float sy = length(to_vector3(m.y));
+		const float sz = length(to_vector3(m.z));
+		return Vector3(sx, sy, sz);
+	}
+
+	inline void set_scale(Matrix4x4& m, const Vector3& s)
+	{
+		Matrix3x3 rot = to_matrix3x3(m);
+		matrix3x3::set_scale(rot, s);
+		set_rotation(m, rot);
 	}
 
 	inline float* to_float_ptr(Matrix4x4& m)

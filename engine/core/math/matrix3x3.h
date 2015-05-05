@@ -62,6 +62,12 @@ namespace matrix3x3
 	/// Returns the rotation portion of the matrix @a m as a Quaternion.
 	Quaternion rotation(const Matrix3x3& m);
 
+	/// Returns the scale of the matrix @a m.
+	Vector3 scale(const Matrix3x3& m);
+
+	/// Sets the scale of the matrix @a m.
+	void set_scale(Matrix3x3& m, const Vector3& s);
+
 	/// Returns the pointer to the matrix's data
 	float* to_float_ptr(Matrix3x3& m);
 
@@ -273,6 +279,23 @@ namespace matrix3x3
 
 		quaternion::normalize(tmp);
 		return tmp;
+	}
+
+	inline Vector3 scale(const Matrix3x3& m)
+	{
+		using namespace vector3;
+		const float sx = length(m.x);
+		const float sy = length(m.y);
+		const float sz = length(m.z);
+		return Vector3(sx, sy, sz);
+	}
+
+	inline void set_scale(Matrix3x3& m, const Vector3& s)
+	{
+		using namespace vector3;
+		set_length(m.x, s.x);
+		set_length(m.y, s.y);
+		set_length(m.z, s.z);
 	}
 } // namespace matrix3x3
 
