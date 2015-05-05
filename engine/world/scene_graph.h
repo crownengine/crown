@@ -7,104 +7,149 @@
 
 #include "types.h"
 #include "math_types.h"
+#include "matrix4x4.h"
 #include "memory_types.h"
-#include "unit_resource.h"
+#include "world_types.h"
+#include "container_types.h"
+#include "matrix3x3.h"
+#include "matrix4x4.h"
+#include "vector3.h"
 
 namespace crown
 {
+
+struct TransformInstance
+{
+	uint32_t i;
+};
 
 /// Represents a collection of nodes, possibly linked together to form a tree.
 ///
 /// @ingroup World
 struct SceneGraph
 {
-	SceneGraph(Allocator& a, uint32_t index);
+	SceneGraph(Allocator& a);
+	~SceneGraph();
 
-	/// Creates the graph with @a count items.
-	/// @a name, @a local and @parent are the array containing the name of the nodes,
-	/// the local poses of the nodes and the links between the nodes respectively.
-	/// A parent of -1 means "no parent".
-	void create(const Matrix4x4& root, uint32_t count, const UnitNode* nodes);
+	/// Creates a new transform instance for unit @a id.
+	void create(const Matrix4x4& m, UnitId id);
+	void destroy(TransformInstance i);
 
-	/// Destroys the graph deallocating memory if necessary.
-	void destroy();
+	/// Returns the transform instance of unit @a id.
+	TransformInstance get(UnitId id);
 
-	/// Returns the index of the node with the given @a name
-	int32_t node(const char* name) const;
+	/// Sets the local position, rotation, scale or pose of the given @a node.
+	void set_local_position(TransformInstance i, const Vector3& pos);
 
-	/// @copydoc SceneGraph::node()
-	int32_t node(StringId32 name) const;
+	/// @copydoc SceneGraph::set_local_position()
+	void set_local_rotation(TransformInstance i, const Quaternion& rot);
 
-	/// Returns whether the graph has the node with the given @a name.
-	bool has_node(const char* name) const;
+	/// @copydoc SceneGraph::set_local_position()
+	void set_local_scale(TransformInstance i, const Vector3& scale);
+
+	/// @copydoc SceneGraph::set_local_position()
+	void set_local_pose(TransformInstance i, const Matrix4x4& pose);
+
+	/// Returns the local position, rotation or pose of the given @a node.
+	Vector3 local_position(TransformInstance i) const;
+
+	/// @copydoc SceneGraph::local_position()
+	Quaternion local_rotation(TransformInstance i) const;
+
+	/// @copydoc SceneGraph::local_position()
+	Vector3 local_scale(TransformInstance i) const;
+
+	/// @copydoc SceneGraph::local_position()
+	Matrix4x4 local_pose(TransformInstance i) const;
+
+	/// Returns the world position, rotation or pose of the given @a node.
+	Vector3 world_position(TransformInstance i) const;
+
+	/// @copydoc SceneGraph::world_position()
+	Quaternion world_rotation(TransformInstance i) const;
+
+	/// @copydoc SceneGraph::world_position()
+	Matrix4x4 world_pose(TransformInstance i) const;
 
 	/// Returns the number of nodes in the graph.
 	uint32_t num_nodes() const;
 
-	/// Returns whether the node @a child can be linked to @a parent.
-	bool can_link(int32_t child, int32_t parent) const;
-
 	/// Links the @a child node to the @a parent node.
-	/// After the linking the @a child pose is reset to identity.
-	/// @note The @a parent node must be either -1 (meaning no parent), or an index lesser than child.
-	void link(int32_t child, int32_t parent);
+	void link(TransformInstance child, TransformInstance paren);
 
 	/// Unlinks the @a child node from its parent if it has any.
 	/// After unlinking, the @child local pose is set to its previous world pose.
-	void unlink(int32_t child);
+	void unlink(TransformInstance child);
 
-	/// Sets the local position, rotation or pose of the given @a node.
-	void set_local_position(int32_t node, const Vector3& pos);
+	bool is_valid(TransformInstance i);
 
-	/// @copydoc SceneGraph::set_local_position()
-	void set_local_rotation(int32_t node, const Quaternion& rot);
+	void set_local(TransformInstance i);
 
-	/// @copydoc SceneGraph::set_local_position()
-	void set_local_pose(int32_t node, const Matrix4x4& pose);
+	void transform(const Matrix4x4& parent, TransformInstance i);
 
-	/// Returns the local position, rotation or pose of the given @a node.
-	Vector3 local_position(int32_t node) const;
+	void grow();
 
-	/// @copydoc SceneGraph::local_position()
-	Quaternion local_rotation(int32_t node) const;
+	void allocate(uint32_t num);
 
-	/// @copydoc SceneGraph::local_position()
-	Matrix4x4 local_pose(int32_t node) const;
-
-	/// Sets the world position, rotation or pose of the given @a node.
-	/// @note This should never be called by user code.
-	void set_world_position(int32_t node, const Vector3& pos);
-
-	/// @copydoc SceneGraph::set_world_position()
-	void set_world_rotation(int32_t node, const Quaternion& rot);
-
-	/// @copydoc SceneGraph::set_world_position()
-	void set_world_pose(int32_t node, const Matrix4x4& pose);
-
-	/// Returns the world position, rotation or pose of the given @a node.
-	Vector3 world_position(int32_t node) const;
-
-	/// @copydoc SceneGraph::world_position()
-	Quaternion world_rotation(int32_t node) const;
-
-	/// @copydoc SceneGraph::world_position()
-	Matrix4x4 world_pose(int32_t node) const;
-
-	/// Transforms local poses to world poses.
-	void update();
+	TransformInstance make_instance(uint32_t i);
 
 public:
 
-	/// Index into SceneGraphManager
-	Allocator* m_allocator;
-	uint32_t m_index;
+	struct Pose
+	{
+		Pose& operator=(const Matrix4x4& m)
+		{
+			using namespace matrix3x3;
+			using namespace matrix4x4;
+			using namespace vector3;
+			Matrix3x3 rotm = to_matrix3x3(m);
+			normalize(rotm.x);
+			normalize(rotm.y);
+			normalize(rotm.z);
 
-	uint32_t m_num_nodes;
-	uint8_t* m_flags;
-	Matrix4x4* m_world_poses;
-	Matrix4x4* m_local_poses;
-	int32_t* m_parents;
-	StringId32* m_names;
+			position = translation(m);
+			rotation = rotm;
+			scale = matrix4x4::scale(m);
+			return *this;
+		}
+
+		Vector3 position;
+		Matrix3x3 rotation;
+		Vector3 scale;
+	};
+
+	struct InstanceData
+	{
+		InstanceData()
+			: size(0)
+			, capacity(0)
+			, buffer(NULL)
+			, unit(NULL)
+			, world(NULL)
+			, local(NULL)
+			, parent(NULL)
+			, first_child(NULL)
+			, next_sibling(NULL)
+			, prev_sibling(NULL)
+		{
+		}
+
+		uint32_t size;
+		uint32_t capacity;
+		void* buffer;
+
+		UnitId* unit;
+		Matrix4x4* world;
+		Pose* local;
+		TransformInstance* parent;
+		TransformInstance* first_child;
+		TransformInstance* next_sibling;
+		TransformInstance* prev_sibling;
+	};
+
+	Allocator& _allocator;
+	InstanceData _data;
+	Array<uint32_t> _map;
 };
 
 } // namespace crown

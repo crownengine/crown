@@ -29,9 +29,9 @@ RenderWorld::~RenderWorld()
 {
 }
 
-SpriteId RenderWorld::create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node)
+SpriteId RenderWorld::create_sprite(SpriteResource* sr, SceneGraph& sg, UnitId id)
 {
-	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite)(*this, sg, node, sr);
+	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite)(*this, sg, id, sr);
 	return id_array::create(m_sprite, sprite);
 }
 

@@ -25,6 +25,7 @@ struct SceneGraph;
 struct Sprite;
 struct Mesh;
 struct Gui;
+typedef Id UnitId;
 
 /// @defgroup Graphics Graphics
 
@@ -38,7 +39,7 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	SpriteId create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node);
+	SpriteId create_sprite(SpriteResource* sr, SceneGraph& sg, UnitId id);
 
 	/// Destroys the sprite @a id.
 	void destroy_sprite(SpriteId id);

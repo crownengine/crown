@@ -32,7 +32,7 @@ struct SceneGraph;
 /// @ingroup Physics
 struct Actor
 {
-	Actor(PhysicsWorld& pw, const ActorResource* ar, SceneGraph& sg, int32_t node, UnitId unit_id);
+	Actor(PhysicsWorld& pw, const ActorResource* ar, SceneGraph& sg, UnitId unit_id);
 	~Actor();
 
 	/// Returns the world position of the actor.
@@ -166,8 +166,6 @@ public:
 	PxRigidActor* m_actor;
 
 	SceneGraph& m_scene_graph;
-	int32_t m_node;
-
 	UnitId m_unit;
 
 private:

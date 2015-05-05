@@ -10,101 +10,80 @@
 namespace crown
 {
 
-static int unit_node(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_int32(stack.get_unit(1)->node(stack.get_string(2)));
-	return 1;
-}
-
-static int unit_has_node(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_bool(stack.get_unit(1)->has_node(stack.get_string(2)));
-	return 1;
-}
-
-static int unit_num_nodes(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_int32(stack.get_unit(1)->num_nodes());
-	return 1;
-}
-
 static int unit_local_position(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(stack.get_unit(1)->local_position(stack.get_int(2)));
+	stack.push_vector3(stack.get_unit(1)->local_position());
 	return 1;
 }
 
 static int unit_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(stack.get_unit(1)->local_rotation(stack.get_int(2)));
+	stack.push_quaternion(stack.get_unit(1)->local_rotation());
+	return 1;
+}
+
+static int unit_local_scale(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(stack.get_unit(1)->local_scale());
 	return 1;
 }
 
 static int unit_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(stack.get_unit(1)->local_pose(stack.get_int(2)));
+	stack.push_matrix4x4(stack.get_unit(1)->local_pose());
 	return 1;
 }
 
 static int unit_world_position(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(stack.get_unit(1)->world_position(stack.get_int(2)));
+	stack.push_vector3(stack.get_unit(1)->world_position());
 	return 1;
 }
 
 static int unit_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(stack.get_unit(1)->world_rotation(stack.get_int(2)));
+	stack.push_quaternion(stack.get_unit(1)->world_rotation());
 	return 1;
 }
 
 static int unit_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(stack.get_unit(1)->world_pose(stack.get_int(2)));
+	stack.push_matrix4x4(stack.get_unit(1)->world_pose());
 	return 1;
 }
 
 static int unit_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_unit(1)->set_local_position(stack.get_int(2), stack.get_vector3(3));
+	stack.get_unit(1)->set_local_position(stack.get_vector3(2));
 	return 0;
 }
 
 static int unit_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_unit(1)->set_local_rotation(stack.get_int(2), stack.get_quaternion(3));
+	stack.get_unit(1)->set_local_rotation(stack.get_quaternion(2));
+	return 0;
+}
+
+static int unit_set_local_scale(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_unit(1)->set_local_scale(stack.get_vector3(2));
 	return 0;
 }
 
 static int unit_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_unit(1)->set_local_pose(stack.get_int(2), stack.get_matrix4x4(3));
-	return 0;
-}
-
-static int unit_link_node(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_unit(1)->link_node(stack.get_int(2), stack.get_int(3));
-	return 0;
-}
-
-static int unit_unlink_node(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_unit(1)->unlink_node(stack.get_int(2));
+	stack.get_unit(1)->set_local_pose(stack.get_matrix4x4(2));
 	return 0;
 }
 
@@ -272,20 +251,17 @@ static int unit_set_key(lua_State* L)
 
 void load_unit(LuaEnvironment& env)
 {
-	env.load_module_function("Unit", "node",                  unit_node);
-	env.load_module_function("Unit", "has_node",              unit_has_node);
-	env.load_module_function("Unit", "num_nodes",             unit_num_nodes);
 	env.load_module_function("Unit", "local_position",        unit_local_position);
 	env.load_module_function("Unit", "local_rotation",        unit_local_rotation);
+	env.load_module_function("Unit", "local_scale",           unit_local_scale);
 	env.load_module_function("Unit", "local_pose",            unit_local_pose);
 	env.load_module_function("Unit", "world_position",        unit_world_position);
 	env.load_module_function("Unit", "world_rotation",        unit_world_rotation);
 	env.load_module_function("Unit", "world_pose",            unit_world_pose);
 	env.load_module_function("Unit", "set_local_position",    unit_set_local_position);
 	env.load_module_function("Unit", "set_local_rotation",    unit_set_local_rotation);
+	env.load_module_function("Unit", "set_local_scale",       unit_set_local_scale);
 	env.load_module_function("Unit", "set_local_pose",        unit_set_local_pose);
-	env.load_module_function("Unit", "link_node",             unit_link_node);
-	env.load_module_function("Unit", "unlink_node",           unit_unlink_node);
 	env.load_module_function("Unit", "camera",                unit_camera);
 	env.load_module_function("Unit", "material",              unit_material);
 	env.load_module_function("Unit", "sprite",                unit_sprite);

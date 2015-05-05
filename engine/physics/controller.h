@@ -6,6 +6,7 @@
 #pragma once
 
 #include "physics_callback.h"
+#include "world_types.h"
 #include "resource_types.h"
 #include "math_types.h"
 #include "PxController.h"
@@ -26,7 +27,7 @@ struct SceneGraph;
 /// @ingroup Physics
 struct Controller
 {
-	Controller(const ControllerResource* cr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager);
+	Controller(const ControllerResource* cr, SceneGraph& sg, UnitId id, PxPhysics* physics, PxControllerManager* manager);
 	~Controller();
 
 	/// Moves the controller to @a pos.
@@ -54,7 +55,7 @@ private:
 	const ControllerResource* m_resource;
 
 	SceneGraph& m_scene_graph;
-	int32_t m_node;
+	UnitId _unit_id;
 	PxControllerManager* m_manager;
 	PxController* m_controller;
 	PxU32 m_flags;

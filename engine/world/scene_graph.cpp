@@ -6,249 +6,286 @@
 #include "scene_graph.h"
 #include "quaternion.h"
 #include "vector3.h"
+#include "matrix3x3.h"
 #include "matrix4x4.h"
 #include "allocator.h"
-#include "string_utils.h"
-#include <string.h>
-
-#define CLEAN		0
-#define LOCAL_DIRTY	1
-#define WORLD_DIRTY	1 << 2
+#include "array.h"
+#include <string.h> // memcpy
+#include <stdint.h> // UINT_MAX
 
 namespace crown
 {
 
+using namespace vector3;
+using namespace matrix3x3;
 using namespace matrix4x4;
 
-SceneGraph::SceneGraph(Allocator& a, uint32_t index)
-	: m_allocator(&a)
-	, m_index(index)
-	, m_num_nodes(0)
-	, m_flags(NULL)
-	, m_world_poses(NULL)
-	, m_local_poses(NULL)
-	, m_parents(NULL)
-	, m_names(NULL)
+SceneGraph::SceneGraph(Allocator& a)
+	: _allocator(a)
+	, _map(a)
 {
 }
 
-void SceneGraph::create(const Matrix4x4& root, uint32_t count, const UnitNode* nodes)
+SceneGraph::~SceneGraph()
 {
-	m_num_nodes = count;
-
-	m_flags = (uint8_t*) m_allocator->allocate(sizeof(uint8_t) * count);
-	m_world_poses = (Matrix4x4*) m_allocator->allocate(sizeof(Matrix4x4) * count);
-	m_local_poses = (Matrix4x4*) m_allocator->allocate(sizeof(Matrix4x4) * count);
-	m_parents = (int32_t*) m_allocator->allocate(sizeof(int32_t) * count);
-	m_names = (StringId32*) m_allocator->allocate(sizeof(StringId32) * count);
-
-	for (uint32_t i = 0; i < count; i++)
-	{
-		m_flags[i] = (int) CLEAN;
-		m_local_poses[i] = nodes[i].pose;
-		m_parents[i] = -1;
-		m_names[i] = nodes[i].name;
-	}
-
-	// Compute initial world poses
-	for (uint32_t i = 1; i < m_num_nodes; i++)
-	{
-		m_world_poses[i] = root * m_local_poses[i];
-	}
-
-	m_world_poses[0] = root;
-	m_flags[0] = WORLD_DIRTY;
-
-	update();
+	_allocator.deallocate(_data.buffer);
 }
 
-void SceneGraph::destroy()
+TransformInstance SceneGraph::make_instance(uint32_t i)
 {
-	m_allocator->deallocate(m_flags);
-	m_allocator->deallocate(m_world_poses);
-	m_allocator->deallocate(m_local_poses);
-	m_allocator->deallocate(m_parents);
-	m_allocator->deallocate(m_names);
+	TransformInstance inst = { i };
+	return inst;
 }
 
-int32_t SceneGraph::node(const char* name) const
+void SceneGraph::allocate(uint32_t num)
 {
-	return node(StringId32(name));
+	CE_ASSERT(num > _data.size, "num > _data.size");
+
+	const uint32_t bytes = num * (0
+		+ sizeof(UnitId)
+		+ sizeof(Matrix4x4)
+		+ sizeof(Pose)
+		+ sizeof(TransformInstance) * 4);
+
+	InstanceData new_data;
+	new_data.size = _data.size;
+	new_data.capacity = num;
+	new_data.buffer = _allocator.allocate(bytes);
+
+	new_data.unit = (UnitId*)(new_data.buffer);
+	new_data.world = (Matrix4x4*)(new_data.unit + num);
+	new_data.local = (Pose*)(new_data.world + num);
+	new_data.parent = (TransformInstance*)(new_data.local + num);
+	new_data.first_child = (TransformInstance*)(new_data.parent + num);
+	new_data.next_sibling = (TransformInstance*)(new_data.first_child + num);
+	new_data.prev_sibling = (TransformInstance*)(new_data.next_sibling + num);
+
+	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
+	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
+	memcpy(new_data.local, _data.local, _data.size * sizeof(Pose));
+	memcpy(new_data.parent, _data.parent, _data.size * sizeof(TransformInstance));
+	memcpy(new_data.first_child, _data.first_child, _data.size * sizeof(TransformInstance));
+	memcpy(new_data.next_sibling, _data.next_sibling, _data.size * sizeof(TransformInstance));
+	memcpy(new_data.prev_sibling, _data.prev_sibling, _data.size * sizeof(TransformInstance));
+
+	_allocator.deallocate(_data.buffer);
+	_data = new_data;
 }
 
-int32_t SceneGraph::node(StringId32 name) const
+void SceneGraph::create(const Matrix4x4& m, UnitId id)
 {
-	for (uint32_t i = 0; i < m_num_nodes; i++)
-	{
-		if (m_names[i] == name)
-		{
-			return i;
-		}
-	}
+	if (_data.capacity == _data.size)
+		grow();
 
-	CE_FATAL("Node not found");
-	return 0;
+	const uint32_t last = _data.size;
+
+	_data.unit[last] = id;
+	_data.world[last] = m;
+	_data.local[last] = m;
+	_data.parent[last].i = UINT32_MAX;
+	_data.first_child[last].i = UINT32_MAX;
+	_data.next_sibling[last].i = UINT32_MAX;
+	_data.prev_sibling[last].i = UINT32_MAX;
+
+	// FIXME
+	if (array::size(_map) <= id.index)
+		array::resize(_map, array::size(_map) + id.index + 1);
+
+	_map[id.index] = last;
+
+	++_data.size;
 }
 
-bool SceneGraph::has_node(const char* name) const
+void SceneGraph::destroy(TransformInstance i)
 {
-	const StringId32 name_hash(name);
+	const uint32_t last = _data.size - 1;
+	const UnitId u = _data.unit[i.i];
+	const UnitId last_u = _data.unit[last];
 
-	for (uint32_t i = 0; i < m_num_nodes; i++)
-	{
-		if (m_names[i] == name_hash)
-		{
-			return true;
-		}
-	}
+	_data.unit[i.i] = _data.unit[last];
+	_data.world[i.i] = _data.world[last];
+	_data.local[i.i] = _data.local[last];
+	_data.parent[i.i] = _data.parent[last];
+	_data.first_child[i.i] = _data.first_child[last];
+	_data.next_sibling[i.i] = _data.next_sibling[last];
+	_data.prev_sibling[i.i] = _data.prev_sibling[last];
 
-	return false;
+	_map[last_u.index] = i.i;
+	_map[u.index] = UINT32_MAX;
+
+	--_data.size;
+}
+
+TransformInstance SceneGraph::get(UnitId id)
+{
+	return make_instance(_map[id.index]);
+}
+
+void SceneGraph::set_local_position(TransformInstance i, const Vector3& pos)
+{
+	_data.local[i.i].position = pos;
+	set_local(i);
+}
+
+void SceneGraph::set_local_rotation(TransformInstance i, const Quaternion& rot)
+{
+	_data.local[i.i].rotation = Matrix3x3(rot);
+	set_local(i);
+}
+
+void SceneGraph::set_local_scale(TransformInstance i, const Vector3& scale)
+{
+	_data.local[i.i].scale = scale;
+	set_local(i);
+}
+
+void SceneGraph::set_local_pose(TransformInstance i, const Matrix4x4& pose)
+{
+	_data.local[i.i] = pose;
+	set_local(i);
+}
+
+Vector3 SceneGraph::local_position(TransformInstance i) const
+{
+	return _data.local[i.i].position;
+}
+
+Quaternion SceneGraph::local_rotation(TransformInstance i) const
+{
+	return rotation(_data.local[i.i].rotation);
+}
+
+Vector3 SceneGraph::local_scale(TransformInstance i) const
+{
+	return _data.local[i.i].scale;
+}
+
+Matrix4x4 SceneGraph::local_pose(TransformInstance i) const
+{
+	Matrix4x4 tr(rotation(_data.local[i.i].rotation), _data.local[i.i].position);
+	set_scale(tr, _data.local[i.i].scale);
+	return tr;
+}
+
+Vector3 SceneGraph::world_position(TransformInstance i) const
+{
+	return translation(_data.world[i.i]);
+}
+
+Quaternion SceneGraph::world_rotation(TransformInstance i) const
+{
+	return rotation(_data.world[i.i]);
+}
+
+Matrix4x4 SceneGraph::world_pose(TransformInstance i) const
+{
+	return _data.world[i.i];
 }
 
 uint32_t SceneGraph::num_nodes() const
 {
-	return m_num_nodes;
+	return _data.size;
 }
 
-bool SceneGraph::can_link(int32_t child, int32_t parent) const
+void SceneGraph::link(TransformInstance child, TransformInstance parent)
 {
-	return parent < child;
-}
+	unlink(child);
 
-void SceneGraph::link(int32_t child, int32_t parent)
-{
-	CE_ASSERT(child < (int32_t) m_num_nodes, "Child node does not exist");
-	CE_ASSERT(parent < (int32_t) m_num_nodes, "Parent node does not exist");
-	CE_ASSERT(can_link(child, parent), "Parent must be < child");
-
-	m_world_poses[child] = matrix4x4::IDENTITY;
-	m_local_poses[child] = matrix4x4::IDENTITY;
-	m_parents[child] = parent;
-}
-
-void SceneGraph::unlink(int32_t child)
-{
-	CE_ASSERT(child < (int32_t) m_num_nodes, "Child node does not exist");
-
-	if (m_parents[child] != -1)
+	if (!is_valid(_data.first_child[parent.i]))
 	{
-		// Copy world pose before unlinking from parent
-		m_local_poses[child] = m_world_poses[child];
-		m_parents[child] = -1;
+		_data.first_child[parent.i] = child;
+		_data.parent[child.i] = parent;
 	}
-}
-
-void SceneGraph::set_local_position(int32_t node, const Vector3& pos)
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	m_flags[node] |= LOCAL_DIRTY;
-	set_translation(m_local_poses[node], pos);
-}
-
-void SceneGraph::set_local_rotation(int32_t node, const Quaternion& rot)
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	m_flags[node] |= LOCAL_DIRTY;
-	set_rotation(m_local_poses[node], rot);
-}
-
-void SceneGraph::set_local_pose(int32_t node, const Matrix4x4& pose)
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	m_flags[node] |= LOCAL_DIRTY;
-	m_local_poses[node] = pose;
-}
-
-Vector3 SceneGraph::local_position(int32_t node) const
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	return translation(m_local_poses[node]);
-}
-
-Quaternion SceneGraph::local_rotation(int32_t node) const
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	return rotation(m_local_poses[node]);
-}
-
-Matrix4x4 SceneGraph::local_pose(int32_t node) const
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	return m_local_poses[node];
-}
-
-void SceneGraph::set_world_position(int32_t node, const Vector3& pos)
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	m_flags[node] |= WORLD_DIRTY;
-	set_translation(m_world_poses[node], pos);
-}
-
-void SceneGraph::set_world_rotation(int32_t node, const Quaternion& rot)
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	m_flags[node] |= WORLD_DIRTY;
-	set_rotation(m_world_poses[node], rot);
-}
-
-void SceneGraph::set_world_pose(int32_t node, const Matrix4x4& pose)
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	m_flags[node] |= WORLD_DIRTY;
-	m_world_poses[node] = pose;
-}
-
-Vector3 SceneGraph::world_position(int32_t node) const
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	return translation(m_world_poses[node]);
-}
-
-Quaternion SceneGraph::world_rotation(int32_t node) const
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	return rotation(m_world_poses[node]);
-}
-
-Matrix4x4 SceneGraph::world_pose(int32_t node) const
-{
-	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
-
-	return m_world_poses[node];
-}
-
-void SceneGraph::update()
-{
-	for (uint32_t i = 0; i < m_num_nodes; i++)
+	else
 	{
-		const uint8_t my_flags = m_flags[i];
-		const uint8_t parent_flags = m_flags[m_parents[i]];
-
-		if (my_flags & LOCAL_DIRTY || parent_flags & WORLD_DIRTY)
+		TransformInstance prev = { UINT32_MAX };
+		TransformInstance node = _data.first_child[parent.i];
+		while (is_valid(node))
 		{
-			if (m_parents[i] == -1)
-			{
-				m_world_poses[i] = m_local_poses[i];
-			}
-			else
-			{
-				m_world_poses[i] = m_world_poses[m_parents[i]] * m_local_poses[i];
-			}
-
-			m_flags[i] = CLEAN;
+			prev = node;
+			node = _data.next_sibling[node.i];
 		}
+
+		_data.next_sibling[prev.i] = child;
+
+		_data.first_child[child.i].i = UINT32_MAX;
+		_data.next_sibling[child.i].i = UINT32_MAX;
+		_data.prev_sibling[child.i] = prev;
 	}
+
+	Matrix4x4 parent_tr = _data.world[parent.i];
+	Matrix4x4 child_tr = _data.world[child.i];
+	const Vector3 cs = scale(child_tr);
+
+	Vector3 px = x(parent_tr);
+	Vector3 py = y(parent_tr);
+	Vector3 pz = z(parent_tr);
+	Vector3 cx = x(child_tr);
+	Vector3 cy = y(child_tr);
+	Vector3 cz = z(child_tr);
+
+	set_x(parent_tr, normalize(px));
+	set_y(parent_tr, normalize(py));
+	set_z(parent_tr, normalize(pz));
+	set_x(child_tr, normalize(cx));
+	set_y(child_tr, normalize(cy));
+	set_z(child_tr, normalize(cz));
+
+	const Matrix4x4 rel_tr = child_tr * get_inverted(parent_tr);
+
+	_data.local[child.i].position = translation(rel_tr);
+	_data.local[child.i].rotation = rotation(rel_tr);
+	_data.local[child.i].scale = cs;
+	_data.parent[child.i] = parent;
+
+	transform(parent_tr, child);
+}
+
+void SceneGraph::unlink(TransformInstance child)
+{
+	if (!is_valid(_data.parent[child.i]))
+		return;
+
+	if (!is_valid(_data.prev_sibling[child.i]))
+		_data.first_child[_data.parent[child.i].i] = _data.next_sibling[child.i];
+	else
+		_data.next_sibling[_data.prev_sibling[child.i].i] = _data.next_sibling[child.i];
+
+	if (is_valid(_data.next_sibling[child.i]))
+		_data.prev_sibling[_data.next_sibling[child.i].i] = _data.prev_sibling[child.i];
+
+	_data.parent[child.i].i = UINT32_MAX;
+	_data.next_sibling[child.i].i = UINT32_MAX;
+	_data.prev_sibling[child.i].i = UINT32_MAX;
+}
+
+bool SceneGraph::is_valid(TransformInstance i)
+{
+	return i.i != UINT32_MAX;
+}
+
+void SceneGraph::set_local(TransformInstance i)
+{
+	TransformInstance parent = _data.parent[i.i];
+	Matrix4x4 parent_tm = is_valid(parent) ? _data.world[parent.i] : matrix4x4::IDENTITY;
+	transform(parent_tm, i);
+}
+
+void SceneGraph::transform(const Matrix4x4& parent, TransformInstance i)
+{
+	_data.world[i.i] = local_pose(i) * parent;
+
+	TransformInstance child = _data.first_child[i.i];
+	while (is_valid(child))
+	{
+		transform(_data.world[i.i], child);
+		child = _data.next_sibling[child.i];
+	}
+}
+
+void SceneGraph::grow()
+{
+	allocate(_data.capacity * 2 + 1);
 }
 
 } // namespace crown

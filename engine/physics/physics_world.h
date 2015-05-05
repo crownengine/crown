@@ -48,10 +48,10 @@ public:
 	PhysicsWorld(World& world);
 	~PhysicsWorld();
 
-	ActorId create_actor(const ActorResource* ar, SceneGraph& sg, int32_t node, UnitId unit_id);
+	ActorId create_actor(const ActorResource* ar, SceneGraph& sg, UnitId unit_id);
 	void destroy_actor(ActorId id);
 
-	ControllerId create_controller(const ControllerResource* cr, SceneGraph& sg, int32_t node);
+	ControllerId create_controller(const ControllerResource* cr, SceneGraph& sg, UnitId id);
 	void destroy_controller(ControllerId id);
 
 	JointId create_joint(const JointResource* jr, const Actor& actor_0, const Actor& actor_1);

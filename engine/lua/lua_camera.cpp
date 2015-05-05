@@ -13,69 +13,6 @@
 namespace crown
 {
 
-static int camera_local_position(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_vector3(stack.get_camera(1)->local_position());
-	return 1;
-}
-
-static int camera_local_rotation(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_quaternion(stack.get_camera(1)->local_rotation());
-	return 1;
-}
-
-static int camera_local_pose(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_matrix4x4(stack.get_camera(1)->local_pose());
-	return 1;
-}
-
-static int camera_world_position(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_vector3(stack.get_camera(1)->world_position());
-	return 1;
-}
-
-static int camera_world_rotation(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_quaternion(stack.get_camera(1)->world_rotation());
-	return 1;
-}
-
-static int camera_world_pose(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_matrix4x4(stack.get_camera(1)->world_pose());
-	return 1;
-}
-
-static int camera_set_local_position(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_camera(1)->set_local_position(stack.get_unit(2), stack.get_vector3(3));
-	return 0;
-}
-
-static int camera_set_local_rotation(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_camera(1)->set_local_rotation(stack.get_unit(2), stack.get_quaternion(3));
-	return 0;
-}
-
-static int camera_set_local_pose(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_camera(1)->set_local_pose(stack.get_unit(2), stack.get_matrix4x4(3));
-	return 0;
-}
-
 static int camera_set_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
@@ -178,15 +115,6 @@ static int camera_world_to_screen(lua_State* L)
 
 void load_camera(LuaEnvironment& env)
 {
-	env.load_module_function("Camera", "local_position",           camera_local_position);
-	env.load_module_function("Camera", "local_rotation",           camera_local_rotation);
-	env.load_module_function("Camera", "local_pose",               camera_local_pose);
-	env.load_module_function("Camera", "world_position",           camera_world_position);
-	env.load_module_function("Camera", "world_rotation",           camera_world_rotation);
-	env.load_module_function("Camera", "world_pose",               camera_world_pose);
-	env.load_module_function("Camera", "set_local_position",       camera_set_local_position);
-	env.load_module_function("Camera", "set_local_rotation",       camera_set_local_rotation);
-	env.load_module_function("Camera", "set_local_pose",           camera_set_local_pose);
 	env.load_module_function("Camera", "set_projection_type",      camera_set_projection_type);
 	env.load_module_function("Camera", "projection_type",          camera_projection_type);
 	env.load_module_function("Camera", "fov",                      camera_fov);

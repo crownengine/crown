@@ -28,34 +28,7 @@ struct ProjectionType
 /// @ingroup World
 struct Camera
 {
-	Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far);
-
-	/// Returns the local position of the camera.
-	Vector3 local_position() const;
-
-	/// Returns the local rotation of the camera.
-	Quaternion local_rotation() const;
-
-	/// Returns the local pose of the camera.
-	Matrix4x4 local_pose() const;
-
-	/// Returns the world position of the camera.
-	Vector3 world_position() const;
-
-	/// Returns the world rotation of the camera.
-	Quaternion world_rotation() const;
-
-	/// Returns the world pose of the camera.
-	Matrix4x4 world_pose() const;
-
-	/// Sets the local position of the camera.
-	void set_local_position(Unit* unit, const Vector3& pos);
-
-	/// Sets the local rotation of the camera.
-	void set_local_rotation(Unit* unit, const Quaternion& rot);
-
-	/// Sets the local pose of the camera.
-	void set_local_pose(Unit* unit, const Matrix4x4& pose);
+	Camera(SceneGraph& sg, UnitId id, ProjectionType::Enum type, float near, float far);
 
 	/// Sets the projection type of the camera.
 	void set_projection_type(ProjectionType::Enum type);
@@ -113,7 +86,7 @@ public:
 public:
 
 	SceneGraph& _scene_graph;
-	int32_t _node;
+	UnitId _unit_id;
 
 	ProjectionType::Enum _projection_type;
 	Matrix4x4 _projection;

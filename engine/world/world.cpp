@@ -25,7 +25,7 @@ World::World(ResourceManager& rm, LuaEnvironment& env)
 	, _lua_environment(&env)
 	, m_unit_pool(default_allocator(), CE_MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), CE_MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
-	, _scenegraph_manager(NULL)
+	, _scene_graph(NULL)
 	, _sprite_animation_player(NULL)
 	, _render_world(NULL)
 	, _physics_world(NULL)
@@ -33,7 +33,7 @@ World::World(ResourceManager& rm, LuaEnvironment& env)
 	, _events(default_allocator())
 	, _lines(NULL)
 {
-	_scenegraph_manager = CE_NEW(default_allocator(), SceneGraphManager);
+	_scene_graph = CE_NEW(default_allocator(), SceneGraph)(default_allocator());
 	_sprite_animation_player = CE_NEW(default_allocator(), SpriteAnimationPlayer);
 	_render_world = CE_NEW(default_allocator(), RenderWorld);
 	_physics_world = CE_NEW(default_allocator(), PhysicsWorld)(*this);
@@ -54,14 +54,14 @@ World::~World()
 	CE_DELETE(default_allocator(), _physics_world);
 	CE_DELETE(default_allocator(), _render_world);
 	CE_DELETE(default_allocator(), _sprite_animation_player);
-	CE_DELETE(default_allocator(), _scenegraph_manager);
+	CE_DELETE(default_allocator(), _scene_graph);
 }
 
 UnitId World::spawn_unit(const UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
 	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
 	const UnitId unit_id = id_array::create(m_units, u);
-	new (u) Unit(*this, unit_id, ur, Matrix4x4(rot, pos));
+	new (u) Unit(*this, unit_id, ur, *_scene_graph, Matrix4x4(rot, pos));
 
 	post_unit_spawned_event(unit_id);
 	return unit_id;
@@ -104,14 +104,16 @@ void World::units(Array<UnitId>& units) const
 	}
 }
 
-void World::link_unit(UnitId child, UnitId parent, int32_t node)
+void World::link_unit(UnitId child, UnitId parent)
 {
-	Unit* parent_unit = get_unit(parent);
-	parent_unit->link_node(0, node);
+	TransformInstance child_ti = _scene_graph->get(child);
+	TransformInstance parent_ti = _scene_graph->get(parent);
+	_scene_graph->link(child_ti, parent_ti);
 }
 
-void World::unlink_unit(UnitId /*child*/)
+void World::unlink_unit(UnitId child)
 {
+	_scene_graph->unlink(_scene_graph->get(child));
 }
 
 Unit* World::get_unit(UnitId id)
@@ -132,7 +134,6 @@ void World::update_animations(float dt)
 void World::update_scene(float dt)
 {
 	_physics_world->update(dt);
-	_scenegraph_manager->update();
 
 	for (uint32_t i = 0; i < id_array::size(m_units); i++)
 	{
@@ -159,9 +160,9 @@ void World::render(Camera* camera)
 		_physics_world->draw_debug(*_lines);
 }
 
-CameraId World::create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
+CameraId World::create_camera(SceneGraph& sg, UnitId id, ProjectionType::Enum type, float near, float far)
 {
-	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node, type, near, far);
+	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, id, type, near, far);
 
 	return id_array::create(m_cameras, camera);
 }
@@ -262,11 +263,6 @@ void World::load_level(StringId64 name)
 {
 	const LevelResource* lr = (LevelResource*) _resource_manager->get(LEVEL_TYPE, name);
 	load_level(lr);
-}
-
-SceneGraphManager* World::scene_graph_manager()
-{
-	return _scenegraph_manager;
 }
 
 SpriteAnimationPlayer* World::sprite_animation_player()

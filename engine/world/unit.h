@@ -16,6 +16,7 @@
 #include "config.h"
 #include "sprite_animation.h"
 #include "resource_types.h"
+#include "unit_resource.h"
 
 namespace crown
 {
@@ -55,7 +56,7 @@ struct Material;
 /// @ingroup World
 struct Unit
 {
-	Unit(World& w, UnitId unit_id, const UnitResource* ur, const Matrix4x4& pose);
+	Unit(World& w, UnitId unit_id, const UnitResource* ur, SceneGraph& sg, const Matrix4x4& pose);
 	~Unit();
 
 	void set_id(const UnitId id);
@@ -63,49 +64,38 @@ struct Unit
 
 	const UnitResource*	resource() const;
 
-	/// Returns the node @a name.
-	int32_t node(const char* name) const;
-
-	/// Returns whether the unit has the node @a name.
-	bool has_node(const char* name) const;
-
-	/// Returns the number of nodes of the unit.
-	uint32_t num_nodes() const;
-
 	/// Returns the local position of the unit.
-	Vector3 local_position(int32_t node) const;
+	Vector3 local_position() const;
 
 	/// Returns the local rotation of the unit.
-	Quaternion local_rotation(int32_t node) const;
+	Quaternion local_rotation() const;
+
+	/// Returns the local scale of the unit.
+	Vector3 local_scale() const;
 
 	/// Returns the local pose of the unit.
-	Matrix4x4 local_pose(int32_t node) const;
+	Matrix4x4 local_pose() const;
 
 	/// Returns the world position of the unit.
-	Vector3 world_position(int32_t node) const;
+	Vector3 world_position() const;
 
 	/// Returns the world rotation of the unit.
-	Quaternion world_rotation(int32_t node) const;
+	Quaternion world_rotation() const;
 
 	/// Returns the world pose of the unit.
-	Matrix4x4 world_pose(int32_t node) const;
+	Matrix4x4 world_pose() const;
 
 	/// Sets the local position of the unit.
-	void set_local_position(int32_t node, const Vector3& pos);
+	void set_local_position(const Vector3& pos);
 
 	/// Sets the local rotation of the unit.
-	void set_local_rotation(int32_t node, const Quaternion& rot);
+	void set_local_rotation(const Quaternion& rot);
+
+	/// Sets the local scale of the unit.
+	void set_local_scale(const Vector3& scale);
 
 	/// Sets the local pose of the unit.
-	void set_local_pose(int32_t node, const Matrix4x4& pose);
-
-	/// Links the @a child node to the @a parent node.
-	/// After the linking the @a child pose is reset to identity.
-	/// @note The @a parent node must be either -1 (meaning no parent), or an index lesser than child.
-	void link_node(int32_t child, int32_t parent);
-
-	/// Unlinks @a child from its parent, if any.
-	void unlink_node(int32_t child);
+	void set_local_pose(const Matrix4x4& pose);
 
 	void update();
 	void reload(UnitResource* new_ur);

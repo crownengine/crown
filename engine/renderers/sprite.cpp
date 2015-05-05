@@ -18,59 +18,14 @@
 namespace crown
 {
 
-Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr)
+Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, UnitId id, const SpriteResource* sr)
 	: m_render_world(render_world)
 	, m_scene_graph(sg)
-	, m_node(node)
 	, m_resource(sr)
 	, m_frame(0)
 	, _depth(0)
+	, _unit_id(id)
 {
-}
-
-Vector3 Sprite::local_position() const
-{
-	return m_scene_graph.local_position(m_node);
-}
-
-Quaternion Sprite::local_rotation() const
-{
-	return m_scene_graph.local_rotation(m_node);
-}
-
-Matrix4x4 Sprite::local_pose() const
-{
-	return m_scene_graph.local_pose(m_node);
-}
-
-Vector3 Sprite::world_position() const
-{
-	return m_scene_graph.world_position(m_node);
-}
-
-Quaternion Sprite::world_rotation() const
-{
-	return m_scene_graph.world_rotation(m_node);
-}
-
-Matrix4x4 Sprite::world_pose() const
-{
-	return m_scene_graph.world_pose(m_node);
-}
-
-void Sprite::set_local_position(Unit* unit, const Vector3& pos)
-{
-	unit->set_local_position(m_node, pos);
-}
-
-void Sprite::set_local_rotation(Unit* unit, const Quaternion& rot)
-{
-	unit->set_local_rotation(m_node, rot);
-}
-
-void Sprite::set_local_pose(Unit* unit, const Matrix4x4& pose)
-{
-	unit->set_local_pose(m_node, pose);
 }
 
 void Sprite::set_material(MaterialId id)
@@ -102,7 +57,8 @@ void Sprite::render()
 		| BGFX_STATE_BLEND_ALPHA);
 	bgfx::setVertexBuffer(m_resource->vb);
 	bgfx::setIndexBuffer(m_resource->ib, m_frame * 6, 6);
-	bgfx::setTransform(matrix4x4::to_float_ptr(world_pose()));
+	TransformInstance ti = m_scene_graph.get(_unit_id);
+	bgfx::setTransform(matrix4x4::to_float_ptr(m_scene_graph.world_pose(ti)));
 	bgfx::submit(0, _depth);
 }
 

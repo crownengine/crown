@@ -24,14 +24,15 @@ using physx::PxVec3;
 namespace crown
 {
 
-Controller::Controller(const ControllerResource* cr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager)
+Controller::Controller(const ControllerResource* cr, SceneGraph& sg, UnitId id, PxPhysics* physics, PxControllerManager* manager)
 	: m_resource(cr)
 	, m_scene_graph(sg)
-	, m_node(node)
+	, _unit_id(id)
 	, m_manager(manager)
 	, m_controller(NULL)
 {
-	const Vector3 pos = sg.world_position(m_node);
+	TransformInstance ti = sg.get(id);
+	const Vector3 pos = sg.world_position(ti);
 
 	PxCapsuleControllerDesc desc;
 	desc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
@@ -90,7 +91,8 @@ bool Controller::collides_sides() const
 
 void Controller::update()
 {
-	m_scene_graph.set_world_position(m_node, position());
+	TransformInstance ti = m_scene_graph.get(_unit_id);
+	m_scene_graph.set_local_position(ti, position());
 }
 
 } // namespace crown

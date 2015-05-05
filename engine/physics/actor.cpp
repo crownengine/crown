@@ -23,11 +23,10 @@ using namespace physx;
 namespace crown
 {
 
-Actor::Actor(PhysicsWorld& pw, const ActorResource* ar, SceneGraph& sg, int32_t node, UnitId unit_id)
+Actor::Actor(PhysicsWorld& pw, const ActorResource* ar, SceneGraph& sg, UnitId unit_id)
 	: m_world(pw)
 	, m_resource(ar)
 	, m_scene_graph(sg)
-	, m_node(node)
 	, m_unit(unit_id)
 {
 	create_objects();
@@ -48,7 +47,9 @@ void Actor::create_objects()
 	const PhysicsActor2* actor_class = physics_config_resource::actor(config, actor->actor_class);
 
 	// Create rigid body
-	const PxMat44 pose((PxReal*) matrix4x4::to_float_ptr(m_scene_graph.world_pose(m_node)));
+	TransformInstance ti = m_scene_graph.get(m_unit);
+	const Matrix4x4 tr = m_scene_graph.world_pose(ti);
+	const PxMat44 pose((PxReal*) matrix4x4::to_float_ptr(tr));
 
 	if (actor_class->flags & PhysicsActor2::DYNAMIC)
 	{
@@ -473,7 +474,8 @@ Unit* Actor::unit()
 
 void Actor::update(const Matrix4x4& pose)
 {
-	m_scene_graph.set_world_pose(m_node, pose);
+	TransformInstance ti = m_scene_graph.get(m_unit);
+	m_scene_graph.set_local_pose(ti, pose);
 }
 
 } // namespace crown

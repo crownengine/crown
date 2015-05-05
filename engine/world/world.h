@@ -13,7 +13,6 @@
 #include "pool_allocator.h"
 #include "render_world.h"
 #include "render_world_types.h"
-#include "scene_graph_manager.h"
 #include "types.h"
 #include "unit.h"
 #include "vector.h"
@@ -58,7 +57,7 @@ public:
 
 	/// Links the unit @a child to the @a node of the unit @a parent.
 	/// After this call, @a child will follow the @a parent unit.
-	void link_unit(UnitId child, UnitId parent, int32_t node);
+	void link_unit(UnitId child, UnitId parent);
 
 	/// Unlinks the unit @a id from its parent if it has any.
 	void unlink_unit(UnitId id);
@@ -81,7 +80,7 @@ public:
 	/// Renders the world form the point of view of the given @a camera.
 	void render(Camera* camera);
 
-	CameraId create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far);
+	CameraId create_camera(SceneGraph& sg, UnitId id, ProjectionType::Enum type, float near, float far);
 
 	/// Destroys the camera @a id.
 	void destroy_camera(CameraId id);
@@ -130,7 +129,6 @@ public:
 	void load_level(const LevelResource* lr);
 	void load_level(StringId64 name);
 
-	SceneGraphManager* scene_graph_manager();
 	SpriteAnimationPlayer* sprite_animation_player();
 
 	/// Returns the rendering sub-world.
@@ -160,7 +158,7 @@ private:
 	IdArray<CE_MAX_UNITS, Unit*> m_units;
 	IdArray<CE_MAX_CAMERAS, Camera*> m_cameras;
 
-	SceneGraphManager* _scenegraph_manager;
+	SceneGraph* _scene_graph;
 	SpriteAnimationPlayer* _sprite_animation_player;
 	RenderWorld* _render_world;
 	PhysicsWorld* _physics_world;

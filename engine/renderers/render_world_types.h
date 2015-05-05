@@ -13,5 +13,8 @@ namespace crown
 typedef Id MeshId;
 typedef Id SpriteId;
 typedef Id GuiId;
+typedef Id MaterialId;
+
+class RenderWorld;
 
 } // namespace crown

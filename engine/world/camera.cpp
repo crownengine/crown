@@ -16,59 +16,14 @@
 namespace crown
 {
 
-Camera::Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
+Camera::Camera(SceneGraph& sg, UnitId id, ProjectionType::Enum type, float near, float far)
 	: _scene_graph(sg)
-	, _node(node)
+	, _unit_id(id)
 	, _projection_type(type)
 	, _near(near)
 	, _far(far)
 {
 	update_projection_matrix();
-}
-
-Vector3 Camera::local_position() const
-{
-	return _scene_graph.local_position(_node);
-}
-
-Quaternion Camera::local_rotation() const
-{
-	return _scene_graph.local_rotation(_node);
-}
-
-Matrix4x4 Camera::local_pose() const
-{
-	return _scene_graph.local_pose(_node);
-}
-
-Vector3 Camera::world_position() const
-{
-	return _scene_graph.world_position(_node);
-}
-
-Quaternion Camera::world_rotation() const
-{
-	return _scene_graph.world_rotation(_node);
-}
-
-Matrix4x4 Camera::world_pose() const
-{
-	return _scene_graph.world_pose(_node);
-}
-
-void Camera::set_local_position(Unit* unit, const Vector3& pos)
-{
-	unit->set_local_position(_node, pos);
-}
-
-void Camera::set_local_rotation(Unit* unit, const Quaternion& rot)
-{
-	unit->set_local_rotation(_node, rot);
-}
-
-void Camera::set_local_pose(Unit* unit, const Matrix4x4& pose)
-{
-	unit->set_local_pose(_node, pose);
 }
 
 void Camera::set_projection_type(ProjectionType::Enum type)
@@ -89,7 +44,7 @@ const Matrix4x4& Camera::projection_matrix() const
 
 Matrix4x4 Camera::view_matrix() const
 {
-	Matrix4x4 view = world_pose();
+	Matrix4x4 view = _scene_graph.world_pose(_scene_graph.get(_unit_id));
 	matrix4x4::invert(view);
 	return view;
 }
@@ -160,9 +115,7 @@ Vector3 Camera::screen_to_world(const Vector3& pos)
 {
 	using namespace matrix4x4;
 
-	Matrix4x4 world_inv = world_pose();
-	invert(world_inv);
-	Matrix4x4 mvp = world_inv * _projection;
+	Matrix4x4 mvp = view_matrix() * _projection;
 	invert(mvp);
 
 	Vector4 ndc( (2 * (pos.x - 0)) / _view_width - 1,
@@ -179,10 +132,7 @@ Vector3 Camera::world_to_screen(const Vector3& pos)
 {
 	using namespace matrix4x4;
 
-	Matrix4x4 world_inv = world_pose();
-	invert(world_inv);
-
-	Vector3 ndc = pos * (world_inv * _projection);
+	Vector3 ndc = pos * (view_matrix() * _projection);
 
 	return Vector3( (_view_x + _view_width * (ndc.x + 1.0f)) / 2.0f,
 					(_view_y + _view_height * (ndc.y + 1.0f)) / 2.0f,

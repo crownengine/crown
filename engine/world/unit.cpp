@@ -8,7 +8,6 @@
 #include "memory.h"
 #include "log.h"
 #include "unit_resource.h"
-#include "scene_graph_manager.h"
 #include "actor.h"
 #include "controller.h"
 #include "physics_resource.h"
@@ -22,9 +21,9 @@ namespace crown
 
 using namespace unit_resource;
 
-Unit::Unit(World& w, UnitId unit_id, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, UnitId unit_id, const UnitResource* ur, SceneGraph& sg, const Matrix4x4& pose)
 	: m_world(w)
-	, m_scene_graph(*w.scene_graph_manager()->create_scene_graph())
+	, m_scene_graph(sg)
 	, m_sprite_animation(NULL)
 	, m_resource(ur)
 	, m_id(unit_id)
@@ -41,7 +40,6 @@ Unit::Unit(World& w, UnitId unit_id, const UnitResource* ur, const Matrix4x4& po
 Unit::~Unit()
 {
 	destroy_objects();
-	m_world.scene_graph_manager()->destroy_scene_graph(&m_scene_graph);
 }
 
 void Unit::set_id(const UnitId id)
@@ -62,7 +60,7 @@ const UnitResource*	Unit::resource() const
 void Unit::create_objects(const Matrix4x4& pose)
 {
 	using namespace unit_resource;
-	m_scene_graph.create(pose, num_scene_graph_nodes(m_resource), scene_graph_nodes(m_resource));
+	m_scene_graph.create(pose, m_id);
 
 	create_camera_objects();
 	create_renderable_objects();
@@ -125,7 +123,7 @@ void Unit::destroy_objects()
 	m_num_materials = 0;
 
 	// Destroy scene graph
-	m_scene_graph.destroy();
+	m_scene_graph.destroy(m_scene_graph.get(m_id));
 }
 
 void Unit::create_camera_objects()
@@ -133,7 +131,7 @@ void Unit::create_camera_objects()
 	for (uint32_t i = 0; i < num_cameras(m_resource); i++)
 	{
 		const UnitCamera* cam = get_camera(m_resource, i);
-		const CameraId id = m_world.create_camera(m_scene_graph, cam->node, (ProjectionType::Enum)cam->type, cam->near, cam->far);
+		const CameraId id = m_world.create_camera(m_scene_graph, m_id, (ProjectionType::Enum)cam->type, cam->near, cam->far);
 		add_camera(cam->name, id);
 	}
 }
@@ -159,7 +157,7 @@ void Unit::create_renderable_objects()
 		else if (ur->type == UnitRenderable::SPRITE)
 		{
 			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->get(SPRITE_TYPE, ur->resource);
-			SpriteId sprite = m_world.render_world()->create_sprite(sr, m_scene_graph, ur->node);
+			SpriteId sprite = m_world.render_world()->create_sprite(sr, m_scene_graph, m_id);
 			add_sprite(ur->name, sprite);
 		}
 		else
@@ -181,8 +179,7 @@ void Unit::create_physics_objects()
 		if (has_controller(pr))
 		{
 			const ControllerResource* cr = physics_resource::controller(pr);
-
-			set_controller(cr->name, m_world.physics_world()->create_controller(cr, m_scene_graph, 0));
+			set_controller(cr->name, m_world.physics_world()->create_controller(cr, m_scene_graph, m_id));
 		}
 
 		// Create actors if any
@@ -190,7 +187,7 @@ void Unit::create_physics_objects()
 		{
 			const ActorResource* ar = physics_resource::actor(pr, i);
 
-			ActorId id = m_world.physics_world()->create_actor(ar, m_scene_graph, m_scene_graph.node(ar->node), m_id);
+			ActorId id = m_world.physics_world()->create_actor(ar, m_scene_graph, m_id);
 			add_actor(ar->name, id);
 		}
 
@@ -214,74 +211,70 @@ void Unit::set_default_material()
 	}
 }
 
-int32_t Unit::node(const char* name) const
+Vector3 Unit::local_position() const
 {
-	return m_scene_graph.node(name);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	return m_scene_graph.local_position(ti);
 }
 
-bool Unit::has_node(const char* name) const
+Quaternion Unit::local_rotation() const
 {
-	return m_scene_graph.has_node(name);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	return m_scene_graph.local_rotation(ti);
 }
 
-uint32_t Unit::num_nodes() const
+Vector3 Unit::local_scale() const
 {
-	return m_scene_graph.num_nodes();
+	TransformInstance ti = m_scene_graph.get(m_id);
+	return m_scene_graph.local_scale(ti);
 }
 
-Vector3 Unit::local_position(int32_t node) const
+Matrix4x4 Unit::local_pose() const
 {
-	return m_scene_graph.local_position(node);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	return m_scene_graph.local_pose(ti);
 }
 
-Quaternion Unit::local_rotation(int32_t node) const
+Vector3 Unit::world_position() const
 {
-	return m_scene_graph.local_rotation(node);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	return m_scene_graph.world_position(ti);
 }
 
-Matrix4x4 Unit::local_pose(int32_t node) const
+Quaternion Unit::world_rotation() const
 {
-	return m_scene_graph.local_pose(node);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	return m_scene_graph.world_rotation(ti);
 }
 
-Vector3 Unit::world_position(int32_t node) const
+Matrix4x4 Unit::world_pose() const
 {
-	return m_scene_graph.world_position(node);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	return m_scene_graph.world_pose(ti);
 }
 
-Quaternion Unit::world_rotation(int32_t node) const
+void Unit::set_local_position(const Vector3& pos)
 {
-	return m_scene_graph.world_rotation(node);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	m_scene_graph.set_local_position(ti, pos);
 }
 
-Matrix4x4 Unit::world_pose(int32_t node) const
+void Unit::set_local_rotation(const Quaternion& rot)
 {
-	return m_scene_graph.world_pose(node);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	m_scene_graph.set_local_rotation(ti, rot);
 }
 
-void Unit::set_local_position(int32_t node, const Vector3& pos)
+void Unit::set_local_scale(const Vector3& scale)
 {
-	m_scene_graph.set_local_position(node, pos);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	m_scene_graph.set_local_scale(ti, scale);
 }
 
-void Unit::set_local_rotation(int32_t node, const Quaternion& rot)
+void Unit::set_local_pose(const Matrix4x4& pose)
 {
-	m_scene_graph.set_local_rotation(node, rot);
-}
-
-void Unit::set_local_pose(int32_t node, const Matrix4x4& pose)
-{
-	m_scene_graph.set_local_pose(node, pose);
-}
-
-void Unit::link_node(int32_t child, int32_t parent)
-{
-	m_scene_graph.link(child, parent);
-}
-
-void Unit::unlink_node(int32_t child)
-{
-	m_scene_graph.unlink(child);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	m_scene_graph.set_local_pose(ti, pose);
 }
 
 void Unit::update()
@@ -294,7 +287,8 @@ void Unit::update()
 
 void Unit::reload(UnitResource* new_ur)
 {
-	Matrix4x4 m = m_scene_graph.world_pose(0);
+	TransformInstance ti = m_scene_graph.get(m_id);
+	Matrix4x4 m = m_scene_graph.world_pose(ti);
 	destroy_objects();
 	m_resource = new_ur;
 	create_objects(m);

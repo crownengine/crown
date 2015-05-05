@@ -251,9 +251,9 @@ PhysicsWorld::~PhysicsWorld()
 	m_scene->release();
 }
 
-ActorId	PhysicsWorld::create_actor(const ActorResource* ar, SceneGraph& sg, int32_t node, UnitId unit_id)
+ActorId	PhysicsWorld::create_actor(const ActorResource* ar, SceneGraph& sg, UnitId unit_id)
 {
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, ar, sg, node, unit_id);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, ar, sg, unit_id);
 	return id_array::create(m_actors, actor);
 }
 
@@ -263,9 +263,9 @@ void PhysicsWorld::destroy_actor(ActorId id)
 	id_array::destroy(m_actors, id);
 }
 
-ControllerId PhysicsWorld::create_controller(const ControllerResource* cr, SceneGraph& sg, int32_t node)
+ControllerId PhysicsWorld::create_controller(const ControllerResource* cr, SceneGraph& sg, UnitId id)
 {
-	Controller* controller = CE_NEW(m_controllers_pool, Controller)(cr, sg, node, physics_globals::s_physics, m_controller_manager);
+	Controller* controller = CE_NEW(m_controllers_pool, Controller)(cr, sg, id, physics_globals::s_physics, m_controller_manager);
 	return id_array::create(m_controllers, controller);
 }
 

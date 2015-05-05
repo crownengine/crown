@@ -11,47 +11,15 @@
 #include "quaternion.h"
 #include "sprite_resource.h"
 #include "material.h"
+#include "world_types.h"
 #include <bgfx.h>
 
 namespace crown
 {
 
-class Renderer;
-class RenderWorld;
-struct SceneGraph;
-struct Unit;
-typedef Id MaterialId;
-
 struct Sprite
 {
-	Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr);
-
-	/// Returns the local position of the sprite.
-	Vector3 local_position() const;
-
-	/// Returns the local rotation of the sprite.
-	Quaternion local_rotation() const;
-
-	/// Returns the local pose of the sprite.
-	Matrix4x4 local_pose() const;
-
-	/// Returns the world position of the sprite.
-	Vector3 world_position() const;
-
-	/// Returns the world rotation of the sprite.
-	Quaternion world_rotation() const;
-
-	/// Returns the world pose of the sprite.
-	Matrix4x4 world_pose() const;
-
-	/// Sets the local position of the sprite.
-	void set_local_position(Unit* unit, const Vector3& pos);
-
-	/// Sets the local rotation of the sprite.
-	void set_local_rotation(Unit* unit, const Quaternion& rot);
-
-	/// Sets the local pose of the sprite.
-	void set_local_pose(Unit* unit, const Matrix4x4& pose);
+	Sprite(RenderWorld& render_world, SceneGraph& sg, UnitId id, const SpriteResource* sr);
 
 	void set_material(MaterialId id);
 
@@ -65,11 +33,11 @@ public:
 
 	RenderWorld& m_render_world;
 	SceneGraph& m_scene_graph;
-	int32_t m_node;
 	const SpriteResource* m_resource;
 	MaterialId m_material;
 	uint32_t m_frame;
 	int32_t _depth;
+	UnitId _unit_id;
 };
 
 } // namespace crown

@@ -65,6 +65,20 @@ static int world_units(lua_State* L)
 	return 1;
 }
 
+static int world_link_unit(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_world(1)->link_unit(stack.get_unit(2)->id(), stack.get_unit(3)->id());
+	return 0;
+}
+
+static int world_unlink_unit(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_world(1)->unlink_unit(stack.get_unit(2)->id());
+	return 0;
+}
+
 static int world_update_animations(lua_State* L)
 {
 	LuaStack stack(L);
@@ -217,6 +231,8 @@ void load_world(LuaEnvironment& env)
 	env.load_module_function("World", "destroy_unit",       world_destroy_unit);
 	env.load_module_function("World", "num_units",          world_num_units);
 	env.load_module_function("World", "units",              world_units);
+	env.load_module_function("World", "link_unit",          world_link_unit);
+	env.load_module_function("World", "unlink_unit",        world_unlink_unit);
 	env.load_module_function("World", "update_animations",  world_update_animations);
 	env.load_module_function("World", "update_scene",       world_update_scene);
 	env.load_module_function("World", "update",             world_update);
