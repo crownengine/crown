@@ -92,8 +92,9 @@ struct Matrix3x3
 	Matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z);
 	Matrix3x3(const Quaternion& r);
 
-	Matrix3x3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2,
-				float r1c3, float r2c3, float r3c3);
+	Matrix3x3(float r1c1, float r2c1, float r3c1,
+		float r1c2, float r2c2, float r3c2,
+		float r1c3, float r2c3, float r3c3);
 
 	Matrix3x3(const float v[9]);
 
