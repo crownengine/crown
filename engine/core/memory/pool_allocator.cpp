@@ -9,7 +9,7 @@
 namespace crown
 {
 
-PoolAllocator::PoolAllocator(Allocator& backing, size_t num_blocks, size_t block_size, size_t block_align)
+PoolAllocator::PoolAllocator(Allocator& backing, uint32_t num_blocks, uint32_t block_size, uint32_t block_align)
 	: _backing(backing)
 	, _start(NULL)
 	, _freelist(NULL)
@@ -22,14 +22,14 @@ PoolAllocator::PoolAllocator(Allocator& backing, size_t num_blocks, size_t block
 	CE_ASSERT(block_size > 0, "Unsupported block size");
 	CE_ASSERT(block_align > 0, "Unsupported block alignment");
 
-	size_t actual_block_size = block_size + block_align;
-	size_t pool_size = num_blocks * actual_block_size;
+	uint32_t actual_block_size = block_size + block_align;
+	uint32_t pool_size = num_blocks * actual_block_size;
 
 	char* mem = (char*) backing.allocate(pool_size, block_align);
 
 	// Initialize intrusive freelist
 	char* cur = mem;
-	for (size_t bb = 0; bb < num_blocks - 1; bb++)
+	for (uint32_t bb = 0; bb < num_blocks - 1; bb++)
 	{
 		uintptr_t* next = (uintptr_t*) cur;
 		*next = (uintptr_t) cur + actual_block_size;
@@ -48,7 +48,7 @@ PoolAllocator::~PoolAllocator()
 	_backing.deallocate(_start);
 }
 
-void* PoolAllocator::allocate(size_t size, size_t align)
+void* PoolAllocator::allocate(uint32_t size, uint32_t align)
 {
 	CE_ASSERT(size == _block_size, "Size must match block size");
 	CE_ASSERT(align == _block_align, "Align must match block align");

@@ -22,7 +22,7 @@ public:
 
 	/// Allocates @a size bytes of memory aligned to the specified
 	/// @a align byte and returns a pointer to the first allocated byte.
-	virtual void* allocate(size_t size, size_t align = DEFAULT_ALIGN) = 0;
+	virtual void* allocate(uint32_t size, uint32_t align = DEFAULT_ALIGN) = 0;
 
 	/// Deallocates a previously allocated block of memory pointed by @a data.
 	virtual void deallocate(void* data) = 0;
@@ -36,7 +36,7 @@ public:
 	virtual uint32_t total_allocated() = 0;
 
 	/// Default memory alignment in bytes.
-	static const size_t DEFAULT_ALIGN = 4;
+	static const uint32_t DEFAULT_ALIGN = 4;
 	static const uint32_t SIZE_NOT_TRACKED = 0xffffffffu;
 
 private:

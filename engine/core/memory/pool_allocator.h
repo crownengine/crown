@@ -20,13 +20,13 @@ public:
 
 	/// Uses @a backing to allocate the memory pool for containing exactly
 	/// @a num_blocks blocks of @a block_size size each aligned to @a block_align.
-	PoolAllocator(Allocator& backing, size_t num_blocks, size_t block_size, size_t block_align = Allocator::DEFAULT_ALIGN);
+	PoolAllocator(Allocator& backing, uint32_t num_blocks, uint32_t block_size, uint32_t block_align = Allocator::DEFAULT_ALIGN);
 	~PoolAllocator();
 
 	/// Allocates a block of memory from the memory pool.
 	/// @note
 	/// The @a size and @a align must match those passed to PoolAllocator::PoolAllocator()
-	void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
 	void deallocate(void* data);
@@ -43,11 +43,11 @@ private:
 
 	void* _start;
 	void* _freelist;
-	size_t _block_size;
-	size_t _block_align;
+	uint32_t _block_size;
+	uint32_t _block_align;
 
 	uint32_t _num_allocations;
-	size_t _allocated_size;
+	uint32_t _allocated_size;
 };
 
 } // namespace crown

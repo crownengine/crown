@@ -18,12 +18,12 @@ class LinearAllocator : public Allocator
 {
 public:
 
-	LinearAllocator(Allocator& backing, size_t size);
-	LinearAllocator(void* start, size_t size);
+	LinearAllocator(Allocator& backing, uint32_t size);
+	LinearAllocator(void* start, uint32_t size);
 	~LinearAllocator();
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
 	/// @note
@@ -46,8 +46,8 @@ private:
 	Allocator* _backing;
 
 	void* _physical_start;
-	size_t _total_size;
-	size_t _offset;
+	uint32_t _total_size;
+	uint32_t _offset;
 };
 
 } // namespace crown

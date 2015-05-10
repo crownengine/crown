@@ -24,7 +24,7 @@ namespace crown
 /// The memory is automatically freed when the allocator is destroyed.
 ///
 /// @ingroup Memory
-template <size_t SIZE>
+template <uint32_t SIZE>
 class TempAllocator : public Allocator
 {
 public:
@@ -35,7 +35,7 @@ public:
 	~TempAllocator();
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
 
 	/// Does nothing, the memory is automatically freed when the
 	/// allocator is destroyed.
@@ -54,7 +54,7 @@ private:
 	char* _begin;
 	char* _end;
 	char* _cur;
-	size_t _chunk_size;
+	uint32_t _chunk_size;
 	char _buffer[SIZE];
 };
 
@@ -66,7 +66,7 @@ typedef TempAllocator<1024> TempAllocator1024;
 typedef TempAllocator<2048> TempAllocator2048;
 typedef TempAllocator<4096> TempAllocator4096;
 
-template <size_t SIZE>
+template <uint32_t SIZE>
 inline TempAllocator<SIZE>::TempAllocator(Allocator& backing)
 	: _backing(backing)
 	, _begin(&_buffer[0])
@@ -78,7 +78,7 @@ inline TempAllocator<SIZE>::TempAllocator(Allocator& backing)
 	_cur += sizeof(void*);
 }
 
-template <size_t SIZE>
+template <uint32_t SIZE>
 inline TempAllocator<SIZE>::~TempAllocator()
 {
 	union { char* as_char; void** as_dvoid; };
@@ -93,12 +93,12 @@ inline TempAllocator<SIZE>::~TempAllocator()
 	}
 }
 
-template <size_t SIZE>
-inline void* TempAllocator<SIZE>::allocate(size_t size, size_t align)
+template <uint32_t SIZE>
+inline void* TempAllocator<SIZE>::allocate(uint32_t size, uint32_t align)
 {
 	_cur = (char*) memory::align_top(_cur, align);
 
-	if (size > size_t(_end - _cur))
+	if (size > uint32_t(_end - _cur))
 	{
 		uint32_t to_allocate = sizeof(void*) + size + align;
 

@@ -6,7 +6,7 @@
 #include "memory.h"
 #include "allocator.h"
 #include "mutex.h"
-#include <stdlib.h> // malloc, free
+#include <stdlib.h> // malloc
 
 // void* operator new(size_t) throw (std::bad_alloc)
 // {
@@ -54,11 +54,11 @@ namespace memory
 		}
 
 		/// @copydoc Allocator::allocate()
-		void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN)
+		void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN)
 		{
 			ScopedMutex sm(_mutex);
 
-			size_t actual_size = actual_allocation_size(size, align);
+			uint32_t actual_size = actual_allocation_size(size, align);
 
 			Header* h = (Header*)malloc(actual_size);
 			h->size = actual_size;
@@ -103,7 +103,7 @@ namespace memory
 		}
 
 		/// Returns the size in bytes of the block of memory pointed by @a data
-		size_t get_size(const void* data)
+		uint32_t get_size(const void* data)
 		{
 			ScopedMutex sm(_mutex);
 			Header* h = header(data);
@@ -118,7 +118,7 @@ namespace memory
 			uint32_t size;
 		};
 
-		size_t actual_allocation_size(size_t size, size_t align)
+		uint32_t actual_allocation_size(uint32_t size, uint32_t align)
 		{
 			return size + align + sizeof(Header);
 		}
@@ -129,14 +129,12 @@ namespace memory
 			ptr--;
 
 			while (*ptr == memory::PADDING_VALUE)
-			{
 				ptr--;
-			}
 
 			return (Header*)ptr;
 		}
 
-		void* data(Header* header, size_t align)
+		void* data(Header* header, uint32_t align)
 		{
 			return memory::align_top(header + 1, align);
 		}
@@ -155,7 +153,7 @@ namespace memory
 	private:
 
 		Mutex _mutex;
-		size_t _allocated_size;
+		uint32_t _allocated_size;
 		uint32_t _allocation_count;
 	};
 } // namespace memory

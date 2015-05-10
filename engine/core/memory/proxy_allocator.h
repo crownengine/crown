@@ -23,7 +23,7 @@ public:
 	ProxyAllocator(const char* name, Allocator& allocator);
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
 	void deallocate(void* data);

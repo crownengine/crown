@@ -19,11 +19,11 @@ class StackAllocator : public Allocator
 {
 public:
 
-	StackAllocator(void* start, size_t size);
+	StackAllocator(void* start, uint32_t size);
 	~StackAllocator();
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
 	/// @note
@@ -46,8 +46,8 @@ private:
 	};
 
 	void* _physical_start;
-	size_t _total_size;
 	void* _top;
+	uint32_t _total_size;
 	uint32_t _allocation_count;
 };
 

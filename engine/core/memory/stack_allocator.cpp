@@ -9,10 +9,10 @@
 namespace crown
 {
 
-StackAllocator::StackAllocator(void* start, size_t size)
+StackAllocator::StackAllocator(void* start, uint32_t size)
 	: _physical_start(start)
-	, _total_size(size)
 	, _top(start)
+	, _total_size(size)
 	, _allocation_count(0)
 {
 }
@@ -23,9 +23,9 @@ StackAllocator::~StackAllocator()
 		"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, total_allocated());
 }
 
-void* StackAllocator::allocate(size_t size, size_t align)
+void* StackAllocator::allocate(uint32_t size, uint32_t align)
 {
-	const size_t actual_size = sizeof(Header) + size + align;
+	const uint32_t actual_size = sizeof(Header) + size + align;
 
 	// Memory exhausted
 	if ((char*) _top + actual_size > (char*) _physical_start + _total_size)
