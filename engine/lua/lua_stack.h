@@ -12,7 +12,7 @@
 #include "matrix4x4.h"
 #include "string_utils.h"
 #include "color4.h"
-#include "lua.hpp"
+#include <lua.hpp>
 
 #if CROWN_DEBUG
 	static void* checkudata(lua_State* L, int index, const char* expected)

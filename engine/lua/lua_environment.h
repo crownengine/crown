@@ -7,10 +7,9 @@
 
 #include "config.h"
 #include "types.h"
-#include "macros.h"
 #include "resource_types.h"
-#include "math_types.h" // HACK
-#include "lua.hpp"
+#include "math_types.h"
+#include <lua.hpp>
 
 namespace crown
 {
