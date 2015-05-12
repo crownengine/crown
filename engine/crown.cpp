@@ -20,7 +20,6 @@
 #include "disk_filesystem.h"
 #include "config.h"
 #include "math_utils.h"
-#include "lua_system.h"
 #include "profiler.h"
 #include "temp_allocator.h"
 #include <bgfx.h>
@@ -187,7 +186,6 @@ bool init(Filesystem& fs, const ConfigSettings& cs)
 	audio_globals::init();
 	physics_globals::init();
 	bgfx::init();
-	lua_globals::init();
 	device_globals::init(cs, fs);
 	device()->init();
 	return true;
@@ -201,7 +199,6 @@ void update()
 		console_server_globals::update();
 		device()->update();
 		bgfx::frame();
-		lua_globals::clear_temporaries();
 		input_globals::update();
 		profiler_globals::flush();
 	}
@@ -211,7 +208,6 @@ void shutdown()
 {
 	device()->shutdown();
 	device_globals::shutdown();
-	lua_globals::shutdown();
 	bgfx::shutdown();
 	physics_globals::shutdown();
 	audio_globals::shutdown();

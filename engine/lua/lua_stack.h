@@ -6,7 +6,6 @@
 #pragma once
 
 #include "types.h"
-#include "lua_system.h"
 #include "vector3.h"
 #include "vector2.h"
 #include "quaternion.h"
@@ -411,64 +410,15 @@ struct LuaStack
 		return l;
 	}
 
-	Vector2 get_vector2(int32_t index)
-	{
-		void* v = CHECKLIGHTDATA(L, index, lua_globals::is_vector3, "Vector2");
-		Vector3& vv = *(Vector3*)v;
-		return Vector2(vv.x, vv.y);
-	}
-
-	Vector3& get_vector3(int32_t index)
-	{
-		void* v = CHECKLIGHTDATA(L, index, lua_globals::is_vector3, "Vector3");
-		return *(Vector3*)v;
-	}
-
-	Matrix4x4& get_matrix4x4(int32_t index)
-	{
-		void* m = CHECKLIGHTDATA(L, index, lua_globals::is_matrix4x4, "Matrix4x4");
-		return *(Matrix4x4*)m;
-	}
-
-	Quaternion& get_quaternion(int32_t index)
-	{
-		void* q = CHECKLIGHTDATA(L, index, lua_globals::is_quaternion, "Quaternion");
-		return *(Quaternion*)q;
-	}
-
-	Color4 get_color4(int32_t index)
-	{
-		// Color4 represented as Quaternion
-		void* c = CHECKLIGHTDATA(L, index, lua_globals::is_quaternion, "Color4");
-		Quaternion& q = *(Quaternion*)c;
-		return Color4(q.x, q.y, q.z, q.w);
-	}
-
-	void push_vector2(const Vector2& v)
-	{
-		push_vector3(Vector3(v.x, v.y, 0.0f));
-	}
-
-	void push_vector3(const Vector3& v)
-	{
-		lua_pushlightuserdata(L, lua_globals::next_vector3(v));
-		luaL_getmetatable(L, "Lightuserdata_mt");
-		lua_setmetatable(L, -2);
-	}
-
-	void push_matrix4x4(const Matrix4x4& m)
-	{
-		lua_pushlightuserdata(L, lua_globals::next_matrix4x4(m));
-		luaL_getmetatable(L, "Lightuserdata_mt");
-		lua_setmetatable(L, -2);
-	}
-
-	void push_quaternion(const Quaternion& q)
-	{
-		lua_pushlightuserdata(L, lua_globals::next_quaternion(q));
-		luaL_getmetatable(L, "Lightuserdata_mt");
-		lua_setmetatable(L, -2);
-	}
+	Vector2 get_vector2(int32_t index);
+	Vector3& get_vector3(int32_t index);
+	Matrix4x4& get_matrix4x4(int32_t index);
+	Quaternion& get_quaternion(int32_t index);
+	Color4 get_color4(int32_t index);
+	void push_vector2(const Vector2& v);
+	void push_vector3(const Vector3& v);
+	void push_matrix4x4(const Matrix4x4& m);
+	void push_quaternion(const Quaternion& q);
 
 	void push_vector2box(const Vector2& v)
 	{

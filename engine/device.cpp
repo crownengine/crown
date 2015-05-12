@@ -8,7 +8,6 @@
 #include "device.h"
 #include "log.h"
 #include "lua_environment.h"
-#include "lua_system.h"
 #include "material_manager.h"
 #include "resource_manager.h"
 #include "resource_package.h"
@@ -57,7 +56,8 @@ void Device::init()
 	material_manager::init();
 	debug_line::init();
 
-	_lua_environment = CE_NEW(_allocator, LuaEnvironment)(lua_globals::state());
+	_lua_environment = CE_NEW(_allocator, LuaEnvironment)();
+	_lua_environment->load_libs();
 
 	CE_LOGD("Crown Engine initialized.");
 	CE_LOGD("Initializing Game...");
@@ -161,6 +161,8 @@ void Device::update()
 	}
 
 	_frame_count++;
+
+	_lua_environment->clear_temporaries();
 }
 
 void Device::render_world(World* world, Camera* camera)
