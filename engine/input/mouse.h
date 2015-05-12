@@ -160,8 +160,8 @@ public:
 	uint8_t _current_state[MouseButton::COUNT];
 
 	// Position within the window
-	uint16_t _x;
-	uint16_t _y;
+	int16_t _x;
+	int16_t _y;
 
 	// Window size
 	uint16_t _width;

@@ -39,8 +39,8 @@ struct OsMouseEvent
 
 	OsMouseEvent::Enum type;
 	MouseButton::Enum button;
-	uint16_t x;
-	uint16_t y;
+	int16_t x;
+	int16_t y;
 	bool pressed;
 	float wheel;
 };
@@ -131,7 +131,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_mouse_event(uint16_t x, uint16_t y, MouseButton::Enum b, bool pressed)
+	void push_mouse_event(int16_t x, int16_t y, MouseButton::Enum b, bool pressed)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::MOUSE;
@@ -144,7 +144,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_mouse_event(uint16_t x, uint16_t y, float wheel)
+	void push_mouse_event(int16_t x, int16_t y, float wheel)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::MOUSE;
