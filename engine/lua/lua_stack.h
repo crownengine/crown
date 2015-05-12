@@ -15,38 +15,38 @@
 #include <lua.hpp>
 
 #if CROWN_DEBUG
-	static void* checkudata(lua_State* L, int index, const char* expected)
+	static void* checkudata(lua_State* L, int i, const char* expected)
 	{
-		luaL_checktype(L, index, LUA_TUSERDATA);
-		return luaL_checkudata(L, index, expected);
+		luaL_checktype(L, i, LUA_TUSERDATA);
+		return luaL_checkudata(L, i, expected);
 	}
 
 	typedef bool (*checkfn)(int);
-	static void* checklightdata(lua_State* L, int index, checkfn cf, const char* expected)
+	static void* checklightdata(lua_State* L, int i, checkfn cf, const char* expected)
 	{
-		luaL_checktype(L, index, LUA_TLIGHTUSERDATA);
-		if (!cf(index)) luaL_typerror(L, index, expected);
-		return lua_touserdata(L, index);
+		luaL_checktype(L, i, LUA_TLIGHTUSERDATA);
+		if (!cf(i)) luaL_typerror(L, i, expected);
+		return lua_touserdata(L, i);
 	}
 
-	static bool always_true(int index)
+	static bool always_true(int i)
 	{
-		return index == index;
+		return i == i;
 	}
 
-	#define CHECKUDATA(stack, index, expected) checkudata(stack, index, expected)
-	#define CHECKLIGHTDATA(stack, index, cf, expected) checklightdata(stack, index, cf, expected)
-	#define CHECKBOOLEAN(stack, index) lua_toboolean(stack, index)
-	#define CHECKINTEGER(stack, index) luaL_checkinteger(stack, index)
-	#define CHECKNUMBER(stack, index) luaL_checknumber(stack, index)
-	#define CHECKSTRING(stack, index) luaL_checkstring(stack, index)
+	#define CHECKUDATA(stack, i, expected) checkudata(stack, i, expected)
+	#define CHECKLIGHTDATA(stack, i, cf, expected) checklightdata(stack, i, cf, expected)
+	#define CHECKBOOLEAN(stack, i) lua_toboolean(stack, i)
+	#define CHECKINTEGER(stack, i) luaL_checkinteger(stack, i)
+	#define CHECKNUMBER(stack, i) luaL_checknumber(stack, i)
+	#define CHECKSTRING(stack, i) luaL_checkstring(stack, i)
 #else
-	#define CHECKUDATA(stack, index, expected) lua_touserdata(stack, index)
-	#define CHECKLIGHTDATA(stack, index, cf, expected) lua_touserdata(stack, index)
-	#define CHECKBOOLEAN(stack, index) lua_toboolean(stack, index)
-	#define CHECKINTEGER(stack, index) lua_tointeger(stack, index)
-	#define CHECKNUMBER(stack, index) lua_tonumber(stack, index)
-	#define CHECKSTRING(stack, index) lua_tostring(stack, index)
+	#define CHECKUDATA(stack, i, expected) lua_touserdata(stack, i)
+	#define CHECKLIGHTDATA(stack, i, cf, expected) lua_touserdata(stack, i)
+	#define CHECKBOOLEAN(stack, i) lua_toboolean(stack, i)
+	#define CHECKINTEGER(stack, i) lua_tointeger(stack, i)
+	#define CHECKNUMBER(stack, i) lua_tonumber(stack, i)
+	#define CHECKSTRING(stack, i) lua_tostring(stack, i)
 #endif // CROWN_DEBUG
 
 namespace crown
@@ -87,7 +87,7 @@ struct LuaStack
 	/// Returns the number of elements in the stack.
 	/// When called inside a function, it can be used to count
 	/// the number of arguments passed to the function itself.
-	int32_t num_args()
+	int num_args()
 	{
 		return lua_gettop(L);
 	}
@@ -95,30 +95,30 @@ struct LuaStack
 	/// Removes the element at the given valid index, shifting down the elements
 	/// above this index to fill the gap. Cannot be called with a pseudo-index,
 	/// because a pseudo-index is not an actual stack position.
-	void remove(int32_t index)
+	void remove(int i)
 	{
-		lua_remove(L, index);
+		lua_remove(L, i);
 	}
 
 	/// Pops @a n elements from the stack.
-	void pop(int32_t n)
+	void pop(int n)
 	{
 		lua_pop(L, n);
 	}
-	bool is_nil(int32_t index)
+	bool is_nil(int i)
 	{
-		return lua_isnil(L, index) == 1;
+		return lua_isnil(L, i) == 1;
 	}
 
-	bool is_number(int32_t index)
+	bool is_number(int i)
 	{
-		return lua_isnumber(L, index) == 1;
+		return lua_isnumber(L, i) == 1;
 	}
 
 	/// Wraps lua_type.
-	int value_type(uint32_t index)
+	int value_type(int i)
 	{
-		return lua_type(L, index);
+		return lua_type(L, i);
 	}
 
 	void push_nil()
@@ -169,29 +169,29 @@ struct LuaStack
 		lua_pushlstring(L, s, len);
 	}
 
-	bool get_bool(int32_t index)
+	bool get_bool(int i)
 	{
-		return CHECKBOOLEAN(L, index) == 1;
+		return CHECKBOOLEAN(L, i) == 1;
 	}
 
-	int32_t get_int(int32_t index)
+	int get_int(int i)
 	{
-		return CHECKINTEGER(L, index);
+		return CHECKINTEGER(L, i);
 	}
 
-	StringId32 get_string_id(int32_t index)
+	StringId32 get_string_id(int i)
 	{
-		return StringId32(uint32_t(CHECKINTEGER(L, index)));
+		return StringId32(uint32_t(CHECKINTEGER(L, i)));
 	}
 
-	float get_float(int32_t index)
+	float get_float(int i)
 	{
-		return (float) CHECKNUMBER(L, index);
+		return (float) CHECKNUMBER(L, i);
 	}
 
-	const char* get_string(int32_t index)
+	const char* get_string(int i)
 	{
-		return CHECKSTRING(L, index);
+		return CHECKSTRING(L, i);
 	}
 
 	/// Pushes an empty table onto the stack.
@@ -215,7 +215,7 @@ struct LuaStack
 	}
 
 	/// See Stack::push_table()
-	void push_key_begin(int32_t i)
+	void push_key_begin(int i)
 	{
 		lua_pushnumber(L, i);
 	}
@@ -226,14 +226,14 @@ struct LuaStack
 		lua_settable(L, -3);
 	}
 
-	int next(int32_t i)
+	int next(int i)
 	{
 		return lua_next(L, i);
 	}
 
-	StringId64 get_resource_id(int index)
+	StringId64 get_resource_id(int i)
 	{
-		return StringId64(CHECKSTRING(L, index));
+		return StringId64(CHECKSTRING(L, i));
 	}
 
 	void push_resource_package(ResourcePackage* package)
@@ -244,9 +244,9 @@ struct LuaStack
 		lua_setmetatable(L, -2);
 	}
 
-	ResourcePackage* get_resource_package(int32_t index)
+	ResourcePackage* get_resource_package(int i)
 	{
-		ResourcePackage* pkg = *(ResourcePackage**) CHECKUDATA(L, index, "ResourcePackage");
+		ResourcePackage* pkg = *(ResourcePackage**) CHECKUDATA(L, i, "ResourcePackage");
 		return pkg;
 	}
 
@@ -258,9 +258,9 @@ struct LuaStack
 		lua_setmetatable(L, -2);
 	};
 
-	World* get_world(int32_t index)
+	World* get_world(int i)
 	{
-		World* w = *(World**) CHECKUDATA(L, index, "World");
+		World* w = *(World**) CHECKUDATA(L, i, "World");
 		return w;
 	};
 
@@ -272,9 +272,9 @@ struct LuaStack
 		*w = world;
 	}
 
-	PhysicsWorld* get_physics_world(int32_t index)
+	PhysicsWorld* get_physics_world(int i)
 	{
-		PhysicsWorld* w = *(PhysicsWorld**) CHECKUDATA(L, index, "PhysicsWorld");
+		PhysicsWorld* w = *(PhysicsWorld**) CHECKUDATA(L, i, "PhysicsWorld");
 		return w;
 	}
 
@@ -286,9 +286,9 @@ struct LuaStack
 		lua_setmetatable(L, -2);
 	}
 
-	SoundWorld* get_sound_world(int32_t index)
+	SoundWorld* get_sound_world(int i)
 	{
-		SoundWorld* w = *(SoundWorld**) CHECKUDATA(L, index, "SoundWorld");
+		SoundWorld* w = *(SoundWorld**) CHECKUDATA(L, i, "SoundWorld");
 		return w;
 	}
 
@@ -297,9 +297,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, unit);
 	}
 
-	Unit* get_unit(int32_t index)
+	Unit* get_unit(int i)
 	{
-		return (Unit*) CHECKLIGHTDATA(L, index, always_true, "Unit");
+		return (Unit*) CHECKLIGHTDATA(L, i, always_true, "Unit");
 	}
 
 	void push_camera(Camera* camera)
@@ -307,9 +307,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, camera);
 	}
 
-	Camera* get_camera(int32_t index)
+	Camera* get_camera(int i)
 	{
-		return (Camera*) CHECKLIGHTDATA(L, index, always_true, "Camera");
+		return (Camera*) CHECKLIGHTDATA(L, i, always_true, "Camera");
 	}
 
 	void push_mesh(Mesh* mesh)
@@ -317,9 +317,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, mesh);
 	}
 
-	Mesh* get_mesh(int32_t index)
+	Mesh* get_mesh(int i)
 	{
-		return (Mesh*) CHECKLIGHTDATA(L, index, always_true, "Mesh");
+		return (Mesh*) CHECKLIGHTDATA(L, i, always_true, "Mesh");
 	}
 
 	void push_sprite(Sprite* sprite)
@@ -327,9 +327,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, sprite);
 	}
 
-	Sprite* get_sprite(int32_t index)
+	Sprite* get_sprite(int i)
 	{
-		return (Sprite*) CHECKLIGHTDATA(L, index, always_true, "Sprite");
+		return (Sprite*) CHECKLIGHTDATA(L, i, always_true, "Sprite");
 	}
 
 	void push_material(Material* material)
@@ -337,9 +337,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, material);
 	}
 
-	Material* get_material(int32_t index)
+	Material* get_material(int i)
 	{
-		return (Material*) CHECKLIGHTDATA(L, index, always_true, "Material");
+		return (Material*) CHECKLIGHTDATA(L, i, always_true, "Material");
 	}
 
 	void push_actor(Actor* actor)
@@ -347,9 +347,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, actor);
 	}
 
-	Actor* get_actor(int32_t index)
+	Actor* get_actor(int i)
 	{
-		return (Actor*) CHECKLIGHTDATA(L, index, always_true, "Actor");
+		return (Actor*) CHECKLIGHTDATA(L, i, always_true, "Actor");
 	}
 
 	void push_controller(Controller* controller)
@@ -357,9 +357,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, controller);
 	}
 
-	Controller* get_controller(int32_t index)
+	Controller* get_controller(int i)
 	{
-		return (Controller*) CHECKLIGHTDATA(L, index, always_true, "Controller");
+		return (Controller*) CHECKLIGHTDATA(L, i, always_true, "Controller");
 	}
 
 	void push_raycast(Raycast* raycast)
@@ -367,9 +367,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, raycast);
 	}
 
-	Raycast* get_raycast(int32_t index)
+	Raycast* get_raycast(int i)
 	{
-		return (Raycast*) CHECKLIGHTDATA(L, index, always_true, "Raycast");
+		return (Raycast*) CHECKLIGHTDATA(L, i, always_true, "Raycast");
 	}
 
 	void push_sound_instance_id(const SoundInstanceId id)
@@ -378,9 +378,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, (void*)enc);
 	}
 
-	SoundInstanceId get_sound_instance_id(int32_t index)
+	SoundInstanceId get_sound_instance_id(int i)
 	{
-		uint32_t enc = (uintptr_t) CHECKLIGHTDATA(L, index, always_true, "SoundInstanceId");
+		uint32_t enc = (uintptr_t) CHECKLIGHTDATA(L, i, always_true, "SoundInstanceId");
 		SoundInstanceId id;
 		id.decode(enc);
 		return id;
@@ -391,9 +391,9 @@ struct LuaStack
 		lua_pushlightuserdata(L, gui);
 	}
 
-	Gui* get_gui(int32_t index)
+	Gui* get_gui(int i)
 	{
-		return (Gui*) CHECKLIGHTDATA(L, index, always_true, "Gui");
+		return (Gui*) CHECKLIGHTDATA(L, i, always_true, "Gui");
 	}
 
 	void push_debug_line(DebugLine* line)
@@ -404,17 +404,17 @@ struct LuaStack
 		lua_setmetatable(L, -2);
 	}
 
-	DebugLine* get_debug_line(int32_t index)
+	DebugLine* get_debug_line(int i)
 	{
-		DebugLine* l = *(DebugLine**) CHECKUDATA(L, index, "DebugLine");
+		DebugLine* l = *(DebugLine**) CHECKUDATA(L, i, "DebugLine");
 		return l;
 	}
 
-	Vector2 get_vector2(int32_t index);
-	Vector3& get_vector3(int32_t index);
-	Matrix4x4& get_matrix4x4(int32_t index);
-	Quaternion& get_quaternion(int32_t index);
-	Color4 get_color4(int32_t index);
+	Vector2 get_vector2(int i);
+	Vector3& get_vector3(int i);
+	Matrix4x4& get_matrix4x4(int i);
+	Quaternion& get_quaternion(int i);
+	Color4 get_color4(int i);
 	void push_vector2(const Vector2& v);
 	void push_vector3(const Vector3& v);
 	void push_matrix4x4(const Matrix4x4& m);
@@ -428,9 +428,9 @@ struct LuaStack
 		*vec = v;
 	}
 
-	Vector2& get_vector2box(uint32_t index)
+	Vector2& get_vector2box(int i)
 	{
-		Vector2* v = (Vector2*) CHECKUDATA(L, index, "Vector2Box");
+		Vector2* v = (Vector2*) CHECKUDATA(L, i, "Vector2Box");
 		return *v;
 	}
 
@@ -442,9 +442,9 @@ struct LuaStack
 		*vec = v;
 	}
 
-	Vector3& get_vector3box(uint32_t index)
+	Vector3& get_vector3box(int i)
 	{
-		Vector3* v = (Vector3*) CHECKUDATA(L, index, "Vector3Box");
+		Vector3* v = (Vector3*) CHECKUDATA(L, i, "Vector3Box");
 		return *v;
 	}
 
@@ -456,9 +456,9 @@ struct LuaStack
 		*quat = q;
 	}
 
-	Quaternion& get_quaternionbox(uint32_t index)
+	Quaternion& get_quaternionbox(int i)
 	{
-		Quaternion* q = (Quaternion*) CHECKUDATA(L, index, "QuaternionBox");
+		Quaternion* q = (Quaternion*) CHECKUDATA(L, i, "QuaternionBox");
 		return *q;
 	}
 
@@ -470,9 +470,9 @@ struct LuaStack
 		*mat = m;
 	}
 
-	Matrix4x4& get_matrix4x4box(uint32_t index)
+	Matrix4x4& get_matrix4x4box(int i)
 	{
-		Matrix4x4* m = (Matrix4x4*) CHECKUDATA(L, index, "Matrix4x4Box");
+		Matrix4x4* m = (Matrix4x4*) CHECKUDATA(L, i, "Matrix4x4Box");
 		return *m;
 	}
 
