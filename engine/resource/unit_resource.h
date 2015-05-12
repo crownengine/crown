@@ -67,24 +67,6 @@ struct UnitNode
 	int32_t parent;
 };
 
-struct ValueType
-{
-	enum Enum
-	{
-		BOOL,
-		FLOAT,
-		STRING,
-		VECTOR3
-	};
-};
-
-struct Key
-{
-	StringId32 name;
-	uint32_t type;
-	uint32_t offset;
-};
-
 namespace unit_resource
 {
 	void compile(const char* path, CompileOptions& opts);

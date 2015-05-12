@@ -226,68 +226,6 @@ namespace unit_resource
 		}
 	}
 
-	void parse_keys(JSONElement e, Array<Key>& generic_keys, Array<char>& values)
-	{
-		Vector<DynamicString> keys(default_allocator());
-		e.to_keys(keys);
-
-		for (uint32_t k = 0; k < vector::size(keys); k++)
-		{
-			const char* key = keys[k].c_str();
-			JSONElement value = e.key(key);
-
-			Key out_key;
-			out_key.name = StringId32(key);
-			out_key.offset = array::size(values);
-
-			if (value.is_bool()) out_key.type = ValueType::BOOL;
-			else if (value.is_number()) out_key.type = ValueType::FLOAT;
-			else if (value.is_string()) out_key.type = ValueType::STRING;
-			else if (value.is_array() && value.size() == 3) out_key.type = ValueType::VECTOR3;
-			else CE_FATAL("Value type not supported");
-
-			array::push_back(generic_keys, out_key);
-
-			switch (out_key.type)
-			{
-				case ValueType::BOOL:
-				{
-					uint32_t val = value.to_bool();
-					array::push(values, (char*) &val, sizeof(uint32_t));
-					break;
-				}
-				case ValueType::FLOAT:
-				{
-					float val = value.to_float();
-					array::push(values, (char*) &val, sizeof(float));
-					break;
-				}
-				case ValueType::STRING:
-				{
-					DynamicString val;
-					value.to_string(val);
-					StringId32 val_hash = val.to_string_id();
-					array::push(values, (char*) &val_hash, sizeof(StringId32));
-					break;
-				}
-				case ValueType::VECTOR3:
-				{
-					float val[3];
-					val[0] = value[0].to_float();
-					val[1] = value[1].to_float();
-					val[2] = value[2].to_float();
-					array::push(values, (char*) val, sizeof(float) * 3);
-					break;
-				}
-				default:
-				{
-					CE_FATAL("Oops, you should not be here");
-					return;
-				}
-			}
-		}
-	}
-
 	void parse_materials(JSONElement e, Array<UnitMaterial>& materials)
 	{
 		for (uint32_t i = 0; i < e.size(); i++)
@@ -312,7 +250,6 @@ namespace unit_resource
 		Array<GraphNodeDepth>	m_node_depths(default_allocator());
 		Array<UnitCamera>		m_cameras(default_allocator());
 		Array<UnitRenderable>	m_renderables(default_allocator());
-		Array<Key>				m_keys(default_allocator());
 		Array<UnitMaterial>		m_materials(default_allocator());
 
 		// Check for nodes
@@ -425,14 +362,6 @@ namespace unit_resource
 			opts.write(un.name);
 			opts.write(un.pose);
 			opts.write(un.parent);
-		}
-
-		// Key/values
-		for (uint32_t i = 0; i < array::size(m_keys); i++)
-		{
-			opts.write(m_keys[i].name);
-			opts.write(m_keys[i].type);
-			opts.write(m_keys[i].offset);
 		}
 	}
 
