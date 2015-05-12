@@ -20,6 +20,8 @@ struct PhysicsResource
 	uint32_t version;
 	uint32_t num_controllers;		// 0 or 1, ATM
 	uint32_t controller_offset;
+	uint32_t num_colliders;
+	uint32_t colliders_offset;
 	uint32_t num_actors;
 	uint32_t actors_offset;
 	uint32_t num_joints;
@@ -57,7 +59,6 @@ struct ActorResource
 	StringId32 actor_class;		// Actor from global.physics
 	float mass;					// Mass of the actor
 	uint32_t flags;
-	uint32_t num_shapes;		// Number of shapes
 };
 
 struct ShapeResource
@@ -118,17 +119,13 @@ namespace physics_resource
 
 	bool has_controller(const PhysicsResource* pr);
 	const ControllerResource* controller(const PhysicsResource* pr);
+	uint32_t num_colliders(const PhysicsResource* ar);
+	const ShapeResource* collider(const PhysicsResource* ar, uint32_t i);
 	uint32_t num_actors(const PhysicsResource* pr);
 	const ActorResource* actor(const PhysicsResource* pr, uint32_t i);
 	uint32_t num_joints(const PhysicsResource* pr);
 	const JointResource* joint(const PhysicsResource* pr, uint32_t i);
 } // namespace physics_resource
-
-namespace actor_resource
-{
-	uint32_t num_shapes(const ActorResource* ar);
-	const ShapeResource* shape(const ActorResource* ar, uint32_t i);
-}
 
 struct PhysicsConfigResource
 {
@@ -143,7 +140,7 @@ struct PhysicsConfigResource
 	uint32_t filters_offset;
 };
 
-struct PhysicsMaterial
+struct PhysicsConfigMaterial
 {
 	float static_friction;
 	float dynamic_friction;
@@ -158,14 +155,14 @@ struct PhysicsCollisionFilter
 	uint32_t mask;
 };
 
-struct PhysicsShape2
+struct PhysicsConfigShape
 {
 	StringId32 collision_filter;
 	bool trigger;
 	char _pad[3];
 };
 
-struct PhysicsActor2
+struct PhysicsConfigActor
 {
 	enum
 	{
@@ -188,14 +185,14 @@ namespace physics_config_resource
 	void unload(Allocator& allocator, void* resource);
 
 	uint32_t num_materials(const PhysicsConfigResource* pcr);
-	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name);
-	const PhysicsMaterial* material_by_index(const PhysicsConfigResource* pcr, uint32_t i);
+	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsConfigMaterial* material_by_index(const PhysicsConfigResource* pcr, uint32_t i);
 	uint32_t num_shapes(const PhysicsConfigResource* pcr);
-	const PhysicsShape2* shape(const PhysicsConfigResource* pcr, StringId32 name);
-	const PhysicsShape2* shape_by_index(const PhysicsConfigResource* pcr, uint32_t i);
+	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsConfigShape* shape_by_index(const PhysicsConfigResource* pcr, uint32_t i);
 	uint32_t num_actors(const PhysicsConfigResource* pcr);
-	const PhysicsActor2* actor(const PhysicsConfigResource* pcr, StringId32 name);
-	const PhysicsActor2* actor_by_index(const PhysicsConfigResource* pcr, uint32_t i);
+	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsConfigActor* actor_by_index(const PhysicsConfigResource* pcr, uint32_t i);
 	uint32_t num_filters(const PhysicsConfigResource* pcr);
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name);
 	const PhysicsCollisionFilter* filter_by_index(const PhysicsConfigResource* pcr, uint32_t i);

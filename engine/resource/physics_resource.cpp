@@ -135,7 +135,7 @@ namespace physics_resource
 		}
 	}
 
-	void parse_actors(JSONElement e, Array<ActorResource>& actors, Array<ShapeResource>& actor_shapes, Array<uint32_t>& shape_indices)
+	void parse_actors(JSONElement e, Array<ActorResource>& actors)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -149,7 +149,6 @@ namespace physics_resource
 			pa.node =        actor.key("node").to_string_id();
 			pa.actor_class = actor.key("class").to_string_id();
 			pa.mass =        actor.key("mass").to_float();
-			pa.num_shapes =  actor.key("shapes").size();
 			pa.flags = 0;
 			pa.flags |= actor.key_or_nil("lock_translation_x").to_bool(false) ? ActorFlags::LOCK_TRANSLATION_X : 0;
 			pa.flags |= actor.key_or_nil("lock_translation_y").to_bool(false) ? ActorFlags::LOCK_TRANSLATION_Y : 0;
@@ -159,9 +158,6 @@ namespace physics_resource
 			pa.flags |= actor.key_or_nil("lock_rotation_z").to_bool(false) ? ActorFlags::LOCK_ROTATION_Z : 0;
 
 			array::push_back(actors, pa);
-			array::push_back(shape_indices, array::size(shape_indices));
-
-			parse_shapes(actor.key("shapes"), actor_shapes);
 		}
 	}
 
@@ -247,28 +243,31 @@ namespace physics_resource
 		}
 
 		Array<ActorResource> m_actors(default_allocator());
-		Array<uint32_t> m_shapes_indices(default_allocator());
 		Array<ShapeResource> m_shapes(default_allocator());
 		Array<JointResource> m_joints(default_allocator());
 
-		if (root.has_key("actors")) parse_actors(root.key("actors"), m_actors, m_shapes, m_shapes_indices);
+		if (root.has_key("colliders")) parse_shapes(root.key("colliders"), m_shapes);
+		if (root.has_key("actors")) parse_actors(root.key("actors"), m_actors);
 		if (root.has_key("joints")) parse_joints(root.key("joints"), m_joints);
-
 		PhysicsResource pr;
 		pr.version = VERSION;
 		pr.num_controllers = m_has_controller ? 1 : 0;
+		pr.num_colliders = array::size(m_shapes);
 		pr.num_actors = array::size(m_actors);
 		pr.num_joints = array::size(m_joints);
 
 		uint32_t offt = sizeof(PhysicsResource);
 		pr.controller_offset = offt; offt += sizeof(ControllerResource) * pr.num_controllers;
-		pr.actors_offset = offt; offt += sizeof(ActorResource) * pr.num_actors + sizeof(ShapeResource) * array::size(m_shapes);
+		pr.colliders_offset = offt; offt += sizeof(ShapeResource) * pr.num_colliders;
+		pr.actors_offset = offt; offt += sizeof(ActorResource) * pr.num_actors;
 		pr.joints_offset = offt;
 
 		// Write all
 		opts.write(pr.version);
 		opts.write(pr.num_controllers);
 		opts.write(pr.controller_offset);
+		opts.write(pr.num_colliders);
+		opts.write(pr.colliders_offset);
 		opts.write(pr.num_actors);
 		opts.write(pr.actors_offset);
 		opts.write(pr.num_joints);
@@ -285,6 +284,20 @@ namespace physics_resource
 			opts.write(m_controller.collision_filter);
 		}
 
+		for (uint32_t i = 0; i < array::size(m_shapes); ++i)
+		{
+			opts.write(m_shapes[i].name);
+			opts.write(m_shapes[i].shape_class);
+			opts.write(m_shapes[i].type);
+			opts.write(m_shapes[i].material);
+			opts.write(m_shapes[i].position);
+			opts.write(m_shapes[i].rotation);
+			opts.write(m_shapes[i].data_0);
+			opts.write(m_shapes[i].data_1);
+			opts.write(m_shapes[i].data_2);
+			opts.write(m_shapes[i].data_3);
+		}
+
 		for (uint32_t i = 0; i < array::size(m_actors); i++)
 		{
 			opts.write(m_actors[i].name);
@@ -292,23 +305,6 @@ namespace physics_resource
 			opts.write(m_actors[i].actor_class);
 			opts.write(m_actors[i].mass);
 			opts.write(m_actors[i].flags);
-			opts.write(m_actors[i].num_shapes);
-
-			for (uint32_t ss = 0; ss < m_actors[i].num_shapes; ++ss)
-			{
-				const uint32_t base = m_shapes_indices[i];
-
-				opts.write(m_shapes[base + ss].name);
-				opts.write(m_shapes[base + ss].shape_class);
-				opts.write(m_shapes[base + ss].type);
-				opts.write(m_shapes[base + ss].material);
-				opts.write(m_shapes[base + ss].position);
-				opts.write(m_shapes[base + ss].rotation);
-				opts.write(m_shapes[base + ss].data_0);
-				opts.write(m_shapes[base + ss].data_1);
-				opts.write(m_shapes[base + ss].data_2);
-				opts.write(m_shapes[base + ss].data_3);
-			}
 		}
 
 		for (uint32_t i = 0; i < array::size(m_joints); i++)
@@ -371,6 +367,18 @@ namespace physics_resource
 		return controller;
 	}
 
+	uint32_t num_colliders(const PhysicsResource* pr)
+	{
+		return pr->num_colliders;
+	}
+
+	const ShapeResource* collider(const PhysicsResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_colliders(pr), "Index out of bounds");
+		ShapeResource* collider = (ShapeResource*) ((char*)pr + pr->colliders_offset);
+		return &collider[i];
+	}
+
 	uint32_t num_actors(const PhysicsResource* pr)
 	{
 		return pr->num_actors;
@@ -379,16 +387,8 @@ namespace physics_resource
 	const ActorResource* actor(const PhysicsResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_actors(pr), "Index out of bounds");
-
-		const ActorResource* curr = (ActorResource*) ((char*)pr + pr->actors_offset);
-
-		for (uint32_t aa = 0; aa < i; ++aa)
-		{
-			const uint32_t sz = sizeof(ShapeResource)*curr->num_shapes + sizeof(ActorResource);
-			curr = (ActorResource*)((char*)curr + sz);
-		}
-
-		return curr;
+		ActorResource* actor = (ActorResource*) ((char*)pr + pr->actors_offset);
+		return &actor[i];
 	}
 
 	uint32_t num_joints(const PhysicsResource* pr)
@@ -403,21 +403,6 @@ namespace physics_resource
 		return &joint[i];
 	}
 } // namespace physics_resource
-
-namespace actor_resource
-{
-	uint32_t num_shapes(const ActorResource* ar)
-	{
-		return ar->num_shapes;
-	}
-
-	const ShapeResource* shape(const ActorResource* ar, uint32_t i)
-	{
-		CE_ASSERT(i < num_shapes(ar), "Index out of bounds");
-		ShapeResource* shape = (ShapeResource*) (ar + 1);
-		return &shape[i];
-	}
-} // namespace actor_resource
 
 namespace physics_config_resource
 {
@@ -434,7 +419,7 @@ namespace physics_config_resource
 		}
 	};
 
-	void parse_materials(JSONElement e, Array<ObjectName>& names, Array<PhysicsMaterial>& objects)
+	void parse_materials(JSONElement e, Array<ObjectName>& names, Array<PhysicsConfigMaterial>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -449,7 +434,7 @@ namespace physics_config_resource
 			mat_name.index = i;
 
 			// Read material object
-			PhysicsMaterial mat;
+			PhysicsConfigMaterial mat;
 			mat.static_friction =  material.key("static_friction").to_float();
 			mat.dynamic_friction = material.key("dynamic_friction").to_float();
 			mat.restitution =      material.key("restitution").to_float();
@@ -459,7 +444,7 @@ namespace physics_config_resource
 		}
 	}
 
-	void parse_shapes(JSONElement e, Array<ObjectName>& names, Array<PhysicsShape2>& objects)
+	void parse_shapes(JSONElement e, Array<ObjectName>& names, Array<PhysicsConfigShape>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -474,7 +459,7 @@ namespace physics_config_resource
 			shape_name.index = i;
 
 			// Read shape object
-			PhysicsShape2 ps2;
+			PhysicsConfigShape ps2;
 			ps2.trigger =          shape.key("trigger").to_bool();
 			ps2.collision_filter = shape.key("collision_filter").to_string_id();
 
@@ -483,7 +468,7 @@ namespace physics_config_resource
 		}
 	}
 
-	void parse_actors(JSONElement e, Array<ObjectName>& names, Array<PhysicsActor2>& objects)
+	void parse_actors(JSONElement e, Array<ObjectName>& names, Array<PhysicsConfigActor>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -498,7 +483,7 @@ namespace physics_config_resource
 			actor_name.index = i;
 
 			// Read actor object
-			PhysicsActor2 pa2;
+			PhysicsConfigActor pa2;
 			pa2.linear_damping =  actor.key_or_nil("linear_damping").to_float(0.0f);
 			pa2.angular_damping = actor.key_or_nil("angular_damping").to_float(0.05f);
 
@@ -513,11 +498,11 @@ namespace physics_config_resource
 			}
 			if (!kinematic.is_nil())
 			{
-				pa2.flags |= kinematic.to_bool() ? PhysicsActor2::KINEMATIC : 0;
+				pa2.flags |= kinematic.to_bool() ? PhysicsConfigActor::KINEMATIC : 0;
 			}
 			if (!disable_gravity.is_nil())
 			{
-				pa2.flags |= disable_gravity.to_bool() ? PhysicsActor2::DISABLE_GRAVITY : 0;
+				pa2.flags |= disable_gravity.to_bool() ? PhysicsConfigActor::DISABLE_GRAVITY : 0;
 			}
 
 			array::push_back(names, actor_name);
@@ -598,11 +583,11 @@ namespace physics_config_resource
 		s_ftm = CE_NEW(default_allocator(), FilterMap)(default_allocator());
 
 		Array<ObjectName> material_names(default_allocator());
-		Array<PhysicsMaterial> material_objects(default_allocator());
+		Array<PhysicsConfigMaterial> material_objects(default_allocator());
 		Array<ObjectName> shape_names(default_allocator());
-		Array<PhysicsShape2> shape_objects(default_allocator());
+		Array<PhysicsConfigShape> shape_objects(default_allocator());
 		Array<ObjectName> actor_names(default_allocator());
-		Array<PhysicsActor2> actor_objects(default_allocator());
+		Array<PhysicsConfigActor> actor_objects(default_allocator());
 		Array<ObjectName> filter_names(default_allocator());
 		Array<PhysicsCollisionFilter> filter_objects(default_allocator());
 
@@ -629,15 +614,15 @@ namespace physics_config_resource
 		uint32_t offt = sizeof(PhysicsConfigResource);
 		pcr.materials_offset = offt;
 		offt += sizeof(StringId32) * pcr.num_materials;
-		offt += sizeof(PhysicsMaterial) * pcr.num_materials;
+		offt += sizeof(PhysicsConfigMaterial) * pcr.num_materials;
 
 		pcr.shapes_offset = offt;
 		offt += sizeof(StringId32) * pcr.num_shapes;
-		offt += sizeof(PhysicsShape2) * pcr.num_shapes;
+		offt += sizeof(PhysicsConfigShape) * pcr.num_shapes;
 
 		pcr.actors_offset = offt;
 		offt += sizeof(StringId32) * pcr.num_actors;
-		offt += sizeof(PhysicsActor2) * pcr.num_actors;
+		offt += sizeof(PhysicsConfigActor) * pcr.num_actors;
 
 		pcr.filters_offset = offt;
 		offt += sizeof(StringId32) * pcr.num_filters;
@@ -741,7 +726,7 @@ namespace physics_config_resource
 	}
 
 	/// Returns the material with the given @a name
-	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		StringId32* begin = (StringId32*) ((char*)pcr + pcr->materials_offset);
 		StringId32* end = begin + num_materials(pcr);
@@ -750,10 +735,10 @@ namespace physics_config_resource
 		return material_by_index(pcr, id - begin);
 	}
 
-	const PhysicsMaterial* material_by_index(const PhysicsConfigResource* pcr, uint32_t i)
+	const PhysicsConfigMaterial* material_by_index(const PhysicsConfigResource* pcr, uint32_t i)
 	{
 		CE_ASSERT(i < num_materials(pcr), "Index out of bounds");
-		const PhysicsMaterial* base = (PhysicsMaterial*) ((char*)pcr + pcr->materials_offset + sizeof(StringId32) * num_materials(pcr));
+		const PhysicsConfigMaterial* base = (PhysicsConfigMaterial*) ((char*)pcr + pcr->materials_offset + sizeof(StringId32) * num_materials(pcr));
 		return &base[i];
 	}
 
@@ -762,7 +747,7 @@ namespace physics_config_resource
 		return pcr->num_shapes;
 	}
 
-	const PhysicsShape2* shape(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		StringId32* begin = (StringId32*) ((char*)pcr + pcr->shapes_offset);
 		StringId32* end = begin + num_shapes(pcr);
@@ -771,10 +756,10 @@ namespace physics_config_resource
 		return shape_by_index(pcr, id - begin);
 	}
 
-	const PhysicsShape2* shape_by_index(const PhysicsConfigResource* pcr, uint32_t i)
+	const PhysicsConfigShape* shape_by_index(const PhysicsConfigResource* pcr, uint32_t i)
 	{
 		CE_ASSERT(i < num_shapes(pcr), "Index out of bounds");
-		const PhysicsShape2* base = (PhysicsShape2*) ((char*)pcr + pcr->shapes_offset + sizeof(StringId32) * num_shapes(pcr));
+		const PhysicsConfigShape* base = (PhysicsConfigShape*) ((char*)pcr + pcr->shapes_offset + sizeof(StringId32) * num_shapes(pcr));
 		return &base[i];
 	}
 
@@ -784,7 +769,7 @@ namespace physics_config_resource
 	}
 
 	/// Returns the actor with the given @a name
-	const PhysicsActor2* actor(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		StringId32* begin = (StringId32*) ((char*)pcr + pcr->actors_offset);
 		StringId32* end = begin + num_actors(pcr);
@@ -793,10 +778,10 @@ namespace physics_config_resource
 		return actor_by_index(pcr, id - begin);
 	}
 
-	const PhysicsActor2* actor_by_index(const PhysicsConfigResource* pcr, uint32_t i)
+	const PhysicsConfigActor* actor_by_index(const PhysicsConfigResource* pcr, uint32_t i)
 	{
 		CE_ASSERT(i < num_actors(pcr), "Index out of bounds");
-		const PhysicsActor2* base = (PhysicsActor2*) ((char*)pcr + pcr->actors_offset + sizeof(StringId32) * num_actors(pcr));
+		const PhysicsConfigActor* base = (PhysicsConfigActor*) ((char*)pcr + pcr->actors_offset + sizeof(StringId32) * num_actors(pcr));
 		return &base[i];
 	}
 
