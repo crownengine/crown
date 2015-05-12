@@ -19,10 +19,6 @@ enum LuaArgumentType
 	ARGUMENT_FLOAT
 };
 
-// HACK
-struct Actor;
-struct Unit;
-
 /// LuaEnvironment is a wrapper of a subset of Lua functions and
 /// provides utilities for extending Lua
 struct LuaEnvironment
@@ -60,10 +56,6 @@ struct LuaEnvironment
 	bool is_vector3(int i);
 	bool is_quaternion(int i);
 	bool is_matrix4x4(int i);
-
-	// FIXME
-	void call_physics_callback(Actor* actor_0, Actor* actor_1, Unit* unit_0, Unit* unit_1, const Vector3& where, const Vector3& normal, const char* type);
-	void call_trigger_callback(Actor* trigger, Actor* other, const char* type);
 
 private:
 

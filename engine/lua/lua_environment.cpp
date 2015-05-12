@@ -19,9 +19,6 @@ namespace crown
 {
 
 // Lua modules
-extern void load_actor(LuaEnvironment& env);
-extern void load_camera(LuaEnvironment& env);
-extern void load_controller(LuaEnvironment& env);
 extern void load_debug_line(LuaEnvironment& env);
 extern void load_device(LuaEnvironment& env);
 extern void load_float_setting(LuaEnvironment& env);
@@ -33,13 +30,10 @@ extern void load_matrix4x4(LuaEnvironment& env);
 extern void load_mouse(LuaEnvironment& env);
 extern void load_physics_world(LuaEnvironment& env);
 extern void load_quaternion(LuaEnvironment& env);
-extern void load_raycast(LuaEnvironment& env);
 extern void load_resource_package(LuaEnvironment& env);
 extern void load_sound_world(LuaEnvironment& env);
-extern void load_sprite(LuaEnvironment& env);
 extern void load_string_setting(LuaEnvironment& env);
 extern void load_touch(LuaEnvironment& env);
-extern void load_unit(LuaEnvironment& env);
 extern void load_vector3(LuaEnvironment& env);
 extern void load_window(LuaEnvironment& env);
 extern void load_world(LuaEnvironment& env);
@@ -184,9 +178,6 @@ void LuaEnvironment::load_libs()
 	luaL_openlibs(L);
 
 	// Register crown libraries
-	load_actor(*this);
-	load_camera(*this);
-	load_controller(*this);
 	load_debug_line(*this);
 	load_device(*this);
 	load_float_setting(*this);
@@ -198,13 +189,10 @@ void LuaEnvironment::load_libs()
 	load_mouse(*this);
 	load_physics_world(*this);
 	load_quaternion(*this);
-	load_raycast(*this);
 	load_resource_package(*this);
 	load_sound_world(*this);
-	load_sprite(*this);
 	load_string_setting(*this);
 	load_touch(*this);
-	load_unit(*this);
 	load_vector3(*this);
 	load_window(*this);
 	load_world(*this);
@@ -368,42 +356,6 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 
 	va_end(vl);
 	lua_pcall(L, argc, 0, -argc - 2);
-	lua_pop(L, -1);
-}
-
-void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit* unit_0, Unit* unit_1, const Vector3& where, const Vector3& normal, const char* type)
-{
-	LuaStack stack(L);
-
-	lua_pushcfunction(L, error_handler);
-	lua_getglobal(L, "g_physics_callback");
-
-	stack.push_table();
-	stack.push_key_begin("actor_0"); (actor_0 ? stack.push_actor(actor_0) : stack.push_nil()); stack.push_key_end();
-	stack.push_key_begin("actor_1"); (actor_1 ? stack.push_actor(actor_1) : stack.push_nil()); stack.push_key_end();
-	stack.push_key_begin("unit_0"); (unit_0 ? stack.push_unit(unit_0) : stack.push_nil()); stack.push_key_end();
-	stack.push_key_begin("unit_1"); (unit_1 ? stack.push_unit(unit_1) : stack.push_nil()); stack.push_key_end();
-	stack.push_key_begin("where"); stack.push_vector3(where); stack.push_key_end();
-	stack.push_key_begin("normal"); stack.push_vector3(normal); stack.push_key_end();
-	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
-
-	lua_pcall(L, 1, 0, -3);
-	lua_pop(L, -1);
-}
-
-void LuaEnvironment::call_trigger_callback(Actor* trigger, Actor* other, const char* type)
-{
-	LuaStack stack(L);
-
-	lua_pushcfunction(L, error_handler);
-	lua_getglobal(L, "g_trigger_callback");
-
-	stack.push_table();
-	stack.push_key_begin("trigger"); (trigger ? stack.push_actor(trigger) : stack.push_nil()); stack.push_key_end();
-	stack.push_key_begin("other"); (other ? stack.push_actor(other) : stack.push_nil()); stack.push_key_end();
-	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
-
-	lua_pcall(L, 1, 0, -3);
 	lua_pop(L, -1);
 }
 
