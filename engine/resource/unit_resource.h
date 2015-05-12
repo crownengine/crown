@@ -30,10 +30,6 @@ struct UnitResource
 	uint32_t cameras_offset;
 	uint32_t num_scene_graph_nodes;
 	uint32_t scene_graph_nodes_offset;
-	uint32_t num_keys;
-	uint32_t keys_offset;
-	uint32_t values_size;
-	uint32_t values_offset;
 };
 
 struct UnitRenderable
@@ -107,10 +103,5 @@ namespace unit_resource
 	const UnitCamera* get_camera(const UnitResource* ur, uint32_t i);
 	uint32_t num_scene_graph_nodes(const UnitResource* ur);
 	const UnitNode* scene_graph_nodes(const UnitResource* ur);
-	uint32_t num_keys(const UnitResource* ur);
-	bool has_key(const UnitResource* ur, const char* k);
-	bool get_key(const UnitResource* ur, const char* k, Key& out_k);
-	uint32_t values_size(const UnitResource* ur);
-	const char* values(const UnitResource* ur);
 } // namespace unit_resource
 } // namespace crown

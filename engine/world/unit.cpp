@@ -31,7 +31,6 @@ Unit::Unit(World& w, UnitId unit_id, const UnitResource* ur, SceneGraph& sg, con
 	, m_num_sprites(0)
 	, m_num_actors(0)
 	, m_num_materials(0)
-	, m_values(NULL)
 {
 	m_controller.component.id = INVALID_ID;
 	create_objects(pose);
@@ -68,9 +67,6 @@ void Unit::create_objects(const Matrix4x4& pose)
 
 	set_default_material();
 
-	m_values = (char*) default_allocator().allocate(values_size(m_resource));
-	memcpy(m_values, values(m_resource), values_size(m_resource));
-
 	StringId64 anim_id = sprite_animation(m_resource);
 	if (anim_id.id() != 0)
 	{
@@ -84,8 +80,6 @@ void Unit::destroy_objects()
 	{
 		m_world.sprite_animation_player()->destroy_sprite_animation(m_sprite_animation);
 	}
-
-	default_allocator().deallocate(m_values);
 
 	// Destroy cameras
 	for (uint32_t i = 0; i < m_num_cameras; i++)
@@ -474,88 +468,6 @@ void Unit::stop_sprite_animation()
 {
 	if (m_sprite_animation)
 		m_sprite_animation->stop();
-}
-
-bool Unit::has_key(const char* k) const
-{
-	using namespace unit_resource;
-	return unit_resource::has_key(m_resource, k);
-}
-
-ValueType::Enum Unit::value_type(const char* k)
-{
-	using namespace unit_resource;
-	Key key;
-	unit_resource::get_key(m_resource, k, key);
-	return (ValueType::Enum) key.type;
-}
-
-bool Unit::get_key(const char* k, bool& v) const
-{
-	using namespace unit_resource;
-	Key key;
-	bool has = unit_resource::get_key(m_resource, k, key);
-	v = *(uint32_t*)(m_values + key.offset);
-	return has;
-}
-
-bool Unit::get_key(const char* k, float& v) const
-{
-	using namespace unit_resource;
-	Key key;
-	bool has = unit_resource::get_key(m_resource, k, key);
-	v = *(float*)(m_values + key.offset);
-	return has;
-}
-
-bool Unit::get_key(const char* k, StringId32& v) const
-{
-	using namespace unit_resource;
-	Key key;
-	bool has = unit_resource::get_key(m_resource, k, key);
-	v = *(StringId32*)(m_values + key.offset);
-	return has;
-}
-
-bool Unit::get_key(const char* k, Vector3& v) const
-{
-	using namespace unit_resource;
-	Key key;
-	bool has = unit_resource::get_key(m_resource, k, key);
-	v = *(Vector3*)(m_values + key.offset);
-	return has;
-}
-
-void Unit::set_key(const char* k, bool v)
-{
-	using namespace unit_resource;
-	Key key;
-	unit_resource::get_key(m_resource, k, key);
-	*(uint32_t*)(m_values + key.offset) = v;
-}
-
-void Unit::set_key(const char* k, float v)
-{
-	using namespace unit_resource;
-	Key key;
-	unit_resource::get_key(m_resource, k, key);
-	*(float*)(m_values + key.offset) = v;
-}
-
-void Unit::set_key(const char* k, const char* v)
-{
-	using namespace unit_resource;
-	Key key;
-	unit_resource::get_key(m_resource, k, key);
-	*(StringId32*)(m_values + key.offset) = StringId32(v);
-}
-
-void Unit::set_key(const char* k, const Vector3& v)
-{
-	using namespace unit_resource;
-	Key key;
-	unit_resource::get_key(m_resource, k, key);
-	*(Vector3*)(m_values + key.offset) = v;
 }
 
 } // namespace crown

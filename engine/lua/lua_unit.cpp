@@ -180,75 +180,6 @@ static int unit_stop_sprite_animation(lua_State* L)
 	return 0;
 }
 
-static int unit_has_key(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_bool(stack.get_unit(1)->has_key(stack.get_string(2)));
-	return 1;
-}
-
-static int unit_get_key(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const char* key = stack.get_string(2);
-
-	switch (unit->value_type(key))
-	{
-		case ValueType::BOOL:
-		{
-			bool val;
-			unit->get_key(key, val);
-			stack.push_bool(val);
-			return 1;
-		}
-		case ValueType::FLOAT:
-		{
-			float val;
-			unit->get_key(key, val);
-			stack.push_float(val);
-			return 1;
-		}
-		case ValueType::STRING:
-		{
-			StringId32 val;
-			unit->get_key(key, val);
-			stack.push_string_id(val);
-			return 1;
-		}
-		case ValueType::VECTOR3:
-		{
-			Vector3 val;
-			unit->get_key(key, val);
-			stack.push_vector3(val);
-			return 1;
-		}
-		default: CE_FATAL("Unknown value type"); break;
-	}
-
-	return 0;
-}
-
-static int unit_set_key(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const char* key = stack.get_string(2);
-
-	switch (stack.value_type(3))
-	{
-		case LUA_TBOOLEAN: unit->set_key(key, stack.get_bool(3)); break;
-		case LUA_TNUMBER: unit->set_key(key, stack.get_float(3)); break;
-		case LUA_TSTRING: unit->set_key(key, stack.get_string(3)); break;
-		case LUA_TLIGHTUSERDATA: unit->set_key(key, stack.get_vector3(3)); break;
-		default: CE_FATAL("Unsupported value type"); break; // FIXME use LUA_ASSERT
-	}
-
-	return 0;
-}
-
 void load_unit(LuaEnvironment& env)
 {
 	env.load_module_function("Unit", "local_position",        unit_local_position);
@@ -270,9 +201,6 @@ void load_unit(LuaEnvironment& env)
 	env.load_module_function("Unit", "is_a",                  unit_is_a);
 	env.load_module_function("Unit", "play_sprite_animation", unit_play_sprite_animation);
 	env.load_module_function("Unit", "stop_sprite_animation", unit_stop_sprite_animation);
-	env.load_module_function("Unit", "has_key",               unit_has_key);
-	env.load_module_function("Unit", "get_key",               unit_get_key);
-	env.load_module_function("Unit", "set_key",               unit_set_key);
 }
 
 } // namespace crown

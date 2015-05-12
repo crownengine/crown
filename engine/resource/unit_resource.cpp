@@ -313,7 +313,6 @@ namespace unit_resource
 		Array<UnitCamera>		m_cameras(default_allocator());
 		Array<UnitRenderable>	m_renderables(default_allocator());
 		Array<Key>				m_keys(default_allocator());
-		Array<char>				m_values(default_allocator());
 		Array<UnitMaterial>		m_materials(default_allocator());
 
 		// Check for nodes
@@ -328,7 +327,6 @@ namespace unit_resource
 
 		if (root.has_key("renderables")) parse_renderables(root.key("renderables"), m_renderables, m_node_depths);
 		if (root.has_key("cameras")) parse_cameras(root.key("cameras"), m_cameras, m_node_depths);
-		if (root.has_key("keys")) parse_keys(root.key("keys"), m_keys, m_values);
 		if (root.has_key("materials")) parse_materials(root.key("materials"), m_materials);
 
 		// Check if the unit has a .physics resource
@@ -358,16 +356,12 @@ namespace unit_resource
 		ur.num_materials = array::size(m_materials);
 		ur.num_cameras = array::size(m_cameras);
 		ur.num_scene_graph_nodes = array::size(m_nodes);
-		ur.num_keys = array::size(m_keys);
-		ur.values_size = array::size(m_values);
 
 		uint32_t offt = sizeof(UnitResource);
 		ur.renderables_offset         = offt; offt += sizeof(UnitRenderable) * ur.num_renderables;
 		ur.materials_offset           = offt; offt += sizeof(UnitMaterial) * ur.num_materials;
 		ur.cameras_offset             = offt; offt += sizeof(UnitCamera) * ur.num_cameras;
-		ur.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * ur.num_scene_graph_nodes;
-		ur.keys_offset                = offt; offt += sizeof(Key) * ur.num_keys;
-		ur.values_offset              = offt;
+		ur.scene_graph_nodes_offset   = offt;
 
 		opts.write(ur.version);
 		opts.write(ur._pad);
@@ -382,10 +376,6 @@ namespace unit_resource
 		opts.write(ur.cameras_offset);
 		opts.write(ur.num_scene_graph_nodes);
 		opts.write(ur.scene_graph_nodes_offset);
-		opts.write(ur.num_keys);
-		opts.write(ur.keys_offset);
-		opts.write(ur.values_size);
-		opts.write(ur.values_offset);
 
 		// Renderables
 		for (uint32_t i = 0; i < array::size(m_renderables); i++)
@@ -443,11 +433,6 @@ namespace unit_resource
 			opts.write(m_keys[i].name);
 			opts.write(m_keys[i].type);
 			opts.write(m_keys[i].offset);
-		}
-
-		for (uint32_t i = 0; i < array::size(m_values); i++)
-		{
-			opts.write(m_values[i]);
 		}
 	}
 
@@ -529,56 +514,6 @@ namespace unit_resource
 	const UnitNode* scene_graph_nodes(const UnitResource* ur)
 	{
 		return (UnitNode*) ((char*)ur + ur->scene_graph_nodes_offset);
-	}
-
-	uint32_t num_keys(const UnitResource* ur)
-	{
-		return ur->num_keys;
-	}
-
-	bool has_key(const UnitResource* ur, const char* k)
-	{
-		const uint32_t nk = num_keys(ur);
-		const StringId32 key_hash(k);
-		Key* begin = (Key*) ((char*)ur + ur->keys_offset);
-
-		for (uint32_t i = 0; i < nk; i++)
-		{
-			if (begin[i].name == key_hash)
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	bool get_key(const UnitResource* ur, const char* k, Key& out_k)
-	{
-		const uint32_t nk = num_keys(ur);
-		const StringId32 key_hash(k);
-		Key* begin = (Key*) ((char*)ur + ur->keys_offset);
-
-		for (uint32_t i = 0; i < nk; i++)
-		{
-			if (begin[i].name == key_hash)
-			{
-				out_k = begin[i];
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	uint32_t values_size(const UnitResource* ur)
-	{
-		return ur->values_size;
-	}
-
-	const char* values(const UnitResource* ur)
-	{
-		return ((char*)ur + ur->values_offset);
 	}
 } // namespace unit_resource
 } // namespace crown
