@@ -114,10 +114,6 @@
 	#define CE_MAX_MATERIAL_COMPONENTS 16 // Per unit
 #endif // CE_MAX
 
-#ifndef CE_MAX_CONSOLE_CLIENTS
-	#define CE_MAX_CONSOLE_CLIENTS 32
-#endif // CE_MAX
-
 #ifndef CROWN_MAX_DEBUG_LINES
 	#define CROWN_MAX_DEBUG_LINES 32768 // Per DebugLine
 #endif // CROWN_MAX_DEBUG_LINES
