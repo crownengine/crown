@@ -79,7 +79,6 @@ static void help(const char* msg = NULL)
 		"          windows\n"
 		"          android\n"
 		"  --continue                 Continue the execution after the resource compilation step.\n"
-		"  --host                     Read resources from a remote engine instance.\n"
 		"  --wait-console             Wait for a console connection before starting up.\n"
 	);
 }
@@ -137,6 +136,12 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 	if (parent)
 	{
 		cs.parent_window = parse_uint(parent);
+	}
+
+	const char* port = cmd.get_parameter("console-port");
+	if (port)
+	{
+		cs.console_port = parse_uint(port);
 	}
 }
 
