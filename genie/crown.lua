@@ -9,26 +9,26 @@ function crown_project(_name, _kind, _defines)
 		kind (_kind)
 
 		includedirs {
-			CROWN_DIR .. "engine",
-			CROWN_DIR .. "engine/core",
-			CROWN_DIR .. "engine/core/containers",
-			CROWN_DIR .. "engine/core/filesystem",
-			CROWN_DIR .. "engine/core/json",
-			CROWN_DIR .. "engine/core/math",
-			CROWN_DIR .. "engine/core/memory",
-			CROWN_DIR .. "engine/core/network",
-			CROWN_DIR .. "engine/core/settings",
-			CROWN_DIR .. "engine/core/strings",
-			CROWN_DIR .. "engine/core/thread",
-			CROWN_DIR .. "engine/main",
-			CROWN_DIR .. "engine/input",
-			CROWN_DIR .. "engine/renderers",
-			CROWN_DIR .. "engine/resource",
-			CROWN_DIR .. "engine/lua",
-			CROWN_DIR .. "engine/audio",
-			CROWN_DIR .. "engine/compilers",
-			CROWN_DIR .. "engine/physics",
-			CROWN_DIR .. "engine/world",
+			CROWN_DIR .. "src",
+			CROWN_DIR .. "src/core",
+			CROWN_DIR .. "src/core/containers",
+			CROWN_DIR .. "src/core/filesystem",
+			CROWN_DIR .. "src/core/json",
+			CROWN_DIR .. "src/core/math",
+			CROWN_DIR .. "src/core/memory",
+			CROWN_DIR .. "src/core/network",
+			CROWN_DIR .. "src/core/settings",
+			CROWN_DIR .. "src/core/strings",
+			CROWN_DIR .. "src/core/thread",
+			CROWN_DIR .. "src/main",
+			CROWN_DIR .. "src/input",
+			CROWN_DIR .. "src/renderers",
+			CROWN_DIR .. "src/resource",
+			CROWN_DIR .. "src/lua",
+			CROWN_DIR .. "src/audio",
+			CROWN_DIR .. "src/compilers",
+			CROWN_DIR .. "src/physics",
+			CROWN_DIR .. "src/world",
 			CROWN_DIR .. "third/freetype",
 			CROWN_DIR .. "third/stb_image",
 			CROWN_DIR .. "third/stb_vorbis",
@@ -392,8 +392,8 @@ function crown_project(_name, _kind, _defines)
 		configuration {}
 
 		files {
-			CROWN_DIR .. "engine/**.h",
-			CROWN_DIR .. "engine/**.cpp"
+			CROWN_DIR .. "src/**.h",
+			CROWN_DIR .. "src/**.cpp"
 		}
 
 		strip()
