@@ -12,17 +12,6 @@
 namespace crown
 {
 
-struct Client
-{
-	Id id;
-	TCPSocket socket;
-
-	void close()
-	{
-		socket.close();
-	}
-};
-
 class ConsoleServer
 {
 public:
@@ -55,6 +44,17 @@ private:
 private:
 
 	TCPSocket m_server;
+
+	struct Client
+	{
+		Id id;
+		TCPSocket socket;
+
+		void close()
+		{
+			socket.close();
+		}
+	};
 
 	typedef IdArray<CE_MAX_CONSOLE_CLIENTS, Client> ClientArray;
 	ClientArray m_clients;
