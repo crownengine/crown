@@ -159,7 +159,8 @@ namespace njson
 		{
 			while (true)
 			{
-				if (isspace(*json) || *json == '=') return json;
+				if (isspace(*json) || *json == '=')
+					return json;
 
 				key += *json;
 				++json;
@@ -167,6 +168,7 @@ namespace njson
 		}
 
 		CE_FATAL("Bad key");
+		return NULL;
 	}
 
 	double parse_number(const char* json)
