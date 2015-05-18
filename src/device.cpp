@@ -82,7 +82,7 @@ void Device::shutdown()
 	_lua_environment->call_global("shutdown", 0);
 
 	_boot_package->unload();
-	destroy_resource_package(_boot_package);
+	destroy_resource_package(*_boot_package);
 
 	CE_DELETE(_allocator, _lua_environment);
 
@@ -193,23 +193,17 @@ void Device::destroy_world(World& w)
 	CE_ASSERT(false, "Bad world");
 }
 
-ResourcePackage* Device::create_resource_package(const char* name)
-{
-	ResourceId resid("package", name);
-	return create_resource_package((StringId64) resid.name);
-}
-
 ResourcePackage* Device::create_resource_package(StringId64 id)
 {
 	return CE_NEW(default_allocator(), ResourcePackage)(id, *_resource_manager);
 }
 
-void Device::destroy_resource_package(ResourcePackage* package)
+void Device::destroy_resource_package(ResourcePackage& package)
 {
-	CE_DELETE(default_allocator(), package);
+	CE_DELETE(default_allocator(), &package);
 }
 
-void Device::reload(const char* , const char* )
+void Device::reload(StringId64 type, StringId64 name)
 {
 }
 

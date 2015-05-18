@@ -90,17 +90,16 @@ struct Device
 	/// Destroys the given @a world.
 	void destroy_world(World& w);
 
-	/// Returns the resource package with the given @a package_name name.
-	ResourcePackage* create_resource_package(const char* name);
+	/// Returns the resource package @a id.
 	ResourcePackage* create_resource_package(StringId64 id);
 
 	/// Destroy a previously created resource @a package.
 	/// @note
 	/// To unload the resources loaded by the package, you have to call
 	/// ResourcePackage::unload() first.
-	void destroy_resource_package(ResourcePackage* package);
+	void destroy_resource_package(ResourcePackage& package);
 
-	void reload(const char* type, const char* name);
+	void reload(StringId64 type, StringId64 name);
 
 	ResourceManager* resource_manager();
 	LuaEnvironment* lua_environment();

@@ -195,7 +195,7 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* json)
 		json::parse_string(root["resource_type"], type);
 		json::parse_string(root["resource_name"], name);
 
-		device()->reload(type.c_str(), name.c_str());
+		device()->reload(StringId64(type.c_str()), StringId64(name.c_str()));
 	}
 	else if (cmd == "pause")
 	{
