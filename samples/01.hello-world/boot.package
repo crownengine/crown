@@ -1,11 +1,9 @@
-{
-	lua = [
-		"lua/game"
-	]
-	unit = [
-		"camera"
-	]
-	physics_config = [
-		"global"
-	]
-}
+lua = [
+	"lua/game"
+]
+unit = [
+	"camera"
+]
+physics_config = [
+	"global"
+]
