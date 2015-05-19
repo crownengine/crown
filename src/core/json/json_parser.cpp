@@ -79,7 +79,7 @@ JSONElement JSONElement::index_or_nil(uint32_t i)
 JSONElement JSONElement::key(const char* k)
 {
 	Map<DynamicString, const char*> object(default_allocator());
-	njson::parse_object(_at, object);
+	njson::parse(_at, object);
 
 	const char* value = map::get(object, DynamicString(k), (const char*) NULL);
 	CE_ASSERT(value != NULL, "Key not found: '%s'", k);
@@ -92,7 +92,7 @@ JSONElement JSONElement::key_or_nil(const char* k)
 	if (_at != NULL)
 	{
 		Map<DynamicString, const char*> object(default_allocator());
-		njson::parse_object(_at, object);
+		njson::parse(_at, object);
 
 		const char* value = map::get(object, DynamicString(k), (const char*) NULL);
 
@@ -106,7 +106,7 @@ JSONElement JSONElement::key_or_nil(const char* k)
 bool JSONElement::has_key(const char* k) const
 {
 	Map<DynamicString, const char*> object(default_allocator());
-	njson::parse_object(_at, object);
+	njson::parse(_at, object);
 
 	return map::has(object, DynamicString(k));
 }
@@ -312,7 +312,7 @@ void JSONElement::to_array(Vector<DynamicString>& array) const
 void JSONElement::to_keys(Vector<DynamicString>& keys) const
 {
 	Map<DynamicString, const char*> object(default_allocator());
-	njson::parse_object(_at, object);
+	njson::parse(_at, object);
 
 	const Map<DynamicString, const char*>::Node* it = map::begin(object);
 	while (it != map::end(object))
@@ -398,7 +398,7 @@ uint32_t JSONElement::size() const
 		case NJSONValueType::OBJECT:
 		{
 			Map<DynamicString, const char*> object(default_allocator());
-			njson::parse_object(_at, object);
+			njson::parse(_at, object);
 			return map::size(object);
 		}
 		case NJSONValueType::ARRAY:
@@ -441,9 +441,18 @@ JSONParser::JSONParser(File& f)
 	, _document(NULL)
 {
 	const size_t size = f.size();
-	char* doc = (char*) default_allocator().allocate(size);
+	char* doc = (char*) default_allocator().allocate(size + 1);
 	f.read(doc, size);
+	doc[size] = '\0';
 	_document = doc;
+}
+
+JSONParser::JSONParser(Buffer& b)
+	: _file(false)
+	, _document(NULL)
+{
+	array::push_back(b, '\0');
+	_document = array::begin(b);
 }
 
 JSONParser::~JSONParser()
