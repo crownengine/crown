@@ -23,3 +23,5 @@
 *.dll binary
 *.exe binary
 *.tga binary
+*.dds binary
+*.wav binary
