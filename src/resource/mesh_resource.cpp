@@ -36,7 +36,7 @@ namespace mesh_resource
 		static const uint32_t VERSION = 1;
 
 		Buffer buf = opts.read(path);
-		JSONParser json(array::begin(buf));
+		JSONParser json(buf);
 		JSONElement root = json.root();
 
 		// Read data arrays

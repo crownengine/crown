@@ -228,7 +228,7 @@ namespace physics_resource
 		static const uint32_t VERSION = 1;
 
 		Buffer buf = opts.read(path);
-		JSONParser json(array::begin(buf));
+		JSONParser json(buf);
 		JSONElement root = json.root();
 
 		bool m_has_controller = false;
@@ -591,7 +591,7 @@ namespace physics_config_resource
 		static const uint32_t VERSION = 1;
 
 		Buffer buf = opts.read(path);
-		JSONParser json(array::begin(buf));
+		JSONParser json(buf);
 		JSONElement root = json.root();
 
 		typedef Map<DynamicString, uint32_t> FilterMap;
