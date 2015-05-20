@@ -11,7 +11,6 @@
 #include "matrix4x4.h"
 #include "quaternion.h"
 #include "macros.h"
-#include "resource_id.h"
 
 namespace crown
 {
@@ -125,7 +124,7 @@ public:
 
 	/// Returns the resource id value of the element.
 	/// If @a type is NULL then the string element is assumed to already contain extension.
-	ResourceId to_resource_id(const char* type) const;
+	ResourceId to_resource_id() const;
 
 	/// Returns the array value of the element.
 	/// @note

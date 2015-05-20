@@ -214,13 +214,11 @@ StringId32 JSONElement::to_string_id(const StringId32 def) const
 	return str.to_string_id();
 }
 
-ResourceId JSONElement::to_resource_id(const char* type) const
+ResourceId JSONElement::to_resource_id() const
 {
-	CE_ASSERT_NOT_NULL(type);
-	// TempAllocator1024 alloc;
 	DynamicString str(default_allocator());
 	njson::parse_string(_at, str);
-	return ResourceId(type, str.c_str());
+	return ResourceId(str.c_str());
 }
 
 void JSONElement::to_array(Array<bool>& array) const

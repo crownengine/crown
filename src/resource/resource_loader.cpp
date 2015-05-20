@@ -30,9 +30,9 @@ ResourceLoader::~ResourceLoader()
 	_thread.stop();
 }
 
-void ResourceLoader::load(ResourceId id)
+void ResourceLoader::load(StringId64 type, StringId64 name)
 {
-	add_request(id);
+	add_request(type, name);
 }
 
 void ResourceLoader::flush()
@@ -40,10 +40,10 @@ void ResourceLoader::flush()
 	while (num_requests()) {}
 }
 
-void ResourceLoader::add_request(ResourceId id)
+void ResourceLoader::add_request(StringId64 type, StringId64 name)
 {
 	ScopedMutex sm(_mutex);
-	queue::push_back(_requests, id);
+	queue::push_back(_requests, make_request(type, name));
 }
 
 uint32_t ResourceLoader::num_requests()
@@ -79,14 +79,17 @@ int32_t ResourceLoader::run()
 			_mutex.unlock();
 			continue;
 		}
-		ResourceId id = queue::front(_requests);
+		ResourceRequest id = queue::front(_requests);
 		_mutex.unlock();
 
 		ResourceData rd;
-		rd.id = id;
+		rd.type = id.type;
+		rd.name = id.name;
 
-		char name[64];
-		id.to_string(name);
+		char name[1 + 2*StringId64::STRING_LENGTH];
+		id.type.to_string(name);
+		name[16] = '-';
+		id.name.to_string(name + 17);
 
 		TempAllocator256 alloc;
 		DynamicString path(alloc);

@@ -26,6 +26,9 @@ struct StringId32
 	bool operator!=(StringId32 a) const { return _id != a._id; }
 	bool operator<(StringId32 a) const { return _id < a._id; }
 	uint32_t id() const { return _id; }
+	const char* to_string(char* buf);
+
+	static const uint32_t STRING_LENGTH = 32;
 };
 
 struct StringId64
@@ -41,7 +44,12 @@ struct StringId64
 	bool operator!=(StringId64 a) const { return _id != a._id; }
 	bool operator<(StringId64 a) const { return _id < a._id; }
 	uint64_t id() const { return _id; }
+	const char* to_string(char* buf);
+
+	static const uint32_t STRING_LENGTH = 32;
 };
+
+typedef StringId64 ResourceId;
 
 #define INVALID_ID 65535
 

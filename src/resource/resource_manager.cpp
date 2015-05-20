@@ -7,6 +7,7 @@
 #include "resource_registry.h"
 #include "temp_allocator.h"
 #include "sort_map.h"
+#include "array.h"
 
 namespace crown
 {
@@ -35,12 +36,12 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::load(StringId64 type, StringId64 name)
 {
-	ResourceId id(type, name);
+	ResourcePair id = make_pair(type, name);
 	ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (entry == ResourceEntry::NOT_FOUND)
 	{
-		_loader.load(id);
+		_loader.load(type, name);
 		return;
 	}
 
@@ -51,7 +52,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 {
 	flush();
 
-	ResourceId id(type, name);
+	ResourcePair id = make_pair(type, name);
 	ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (--entry.references == 0)
@@ -66,7 +67,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 
 void ResourceManager::reload(StringId64 type, StringId64 name)
 {
-	const ResourceId id(type, name);
+	const ResourcePair id = make_pair(type, name);
 	const ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	const uint32_t old_refs = entry.references;
 
@@ -80,16 +81,18 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 
 bool ResourceManager::can_get(StringId64 type, StringId64 name)
 {
-	return _autoload ? true : sort_map::has(_rm, ResourceId(type, name));
+	return _autoload ? true : sort_map::has(_rm, make_pair(type, name));
 }
 
 const void* ResourceManager::get(StringId64 type, StringId64 name)
 {
-	ResourceId id(type, name);
+	const ResourcePair id = make_pair(type, name);
+	char type_buf[StringId64::STRING_LENGTH];
+	char name_buf[StringId64::STRING_LENGTH];
 
-	char buf[64];
-	CE_ASSERT(can_get(type, name), "Resource not loaded #ID(%s)", id.to_string(buf));
-	CE_UNUSED(buf);
+	CE_ASSERT(can_get(type, name), "Resource not loaded #ID(%s-%s)", type.to_string(type_buf), name.to_string(name_buf));
+	CE_UNUSED(type_buf);
+	CE_UNUSED(name_buf);
 
 	if (_autoload && !sort_map::has(_rm, id))
 	{
@@ -119,19 +122,19 @@ void ResourceManager::complete_requests()
 	_loader.get_loaded(loaded);
 
 	for (uint32_t i = 0; i < array::size(loaded); i++)
-		complete_request(loaded[i].id, loaded[i].data);
+		complete_request(loaded[i].type, loaded[i].name, loaded[i].data);
 }
 
-void ResourceManager::complete_request(ResourceId id, void* data)
+void ResourceManager::complete_request(StringId64 type, StringId64 name, void* data)
 {
 	ResourceEntry entry;
 	entry.references = 1;
 	entry.data = data;
 
-	sort_map::set(_rm, id, entry);
+	sort_map::set(_rm, make_pair(type, name), entry);
 	sort_map::sort(_rm);
 
-	resource_on_online(id.type, id.name, *this);
+	resource_on_online(type, name, *this);
 }
 
 } // namespace crown

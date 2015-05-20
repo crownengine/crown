@@ -4,6 +4,7 @@
  */
 
 #include "resource_registry.h"
+#include "error.h"
 #include "lua_resource.h"
 #include "texture_resource.h"
 #include "mesh_resource.h"
@@ -100,14 +101,14 @@ void resource_on_unload(StringId64 type, Allocator& allocator, void* resource)
 	return find_callback(type)->on_unload(allocator, resource);
 }
 
-void resource_on_online(StringId64 type, StringId64 id, ResourceManager& rm)
+void resource_on_online(StringId64 type, StringId64 name, ResourceManager& rm)
 {
-	return find_callback(type)->on_online(id, rm);
+	return find_callback(type)->on_online(name, rm);
 }
 
-void resource_on_offline(StringId64 type, StringId64 id, ResourceManager& rm)
+void resource_on_offline(StringId64 type, StringId64 name, ResourceManager& rm)
 {
-	return find_callback(type)->on_offline(id, rm);
+	return find_callback(type)->on_offline(name, rm);
 }
 
 } // namespace crown

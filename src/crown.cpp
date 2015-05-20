@@ -180,8 +180,8 @@ void parse_config_file(Filesystem& fs, ConfigSettings& cs)
 		cs.window_height = max((uint16_t)1, (uint16_t)window_height.to_int());
 	}
 
-	cs.boot_script = root.key("boot_script").to_resource_id("lua").name;
-	cs.boot_package = root.key("boot_package").to_resource_id("package").name;
+	cs.boot_script = root.key("boot_script").to_resource_id();
+	cs.boot_package = root.key("boot_package").to_resource_id();
 }
 
 bool init(Filesystem& fs, const ConfigSettings& cs)

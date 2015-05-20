@@ -93,8 +93,7 @@ Gui::Gui(uint16_t width, uint16_t height, const char* material)
 {
 	set_orthographic(m_projection, 0, width, 0, height, -0.01f, 100.0f);
 
-	ResourceId id("material", material);
-	m_material = material_manager::get()->create_material(id.name);
+	m_material = material_manager::get()->create_material(ResourceId(material));
 }
 
 const GuiId Gui::id() const

@@ -210,12 +210,12 @@ namespace unit_resource
 			if (res_type == "mesh")
 			{
 				rn.type = UnitRenderable::MESH;
-				rn.resource = renderable.key("resource").to_resource_id("mesh").name;
+				rn.resource = renderable.key("resource").to_resource_id();
 			}
 			else if (res_type == "sprite")
 			{
 				rn.type = UnitRenderable::SPRITE;
-				rn.resource = renderable.key("resource").to_resource_id("sprite").name;
+				rn.resource = renderable.key("resource").to_resource_id();
 			}
 			else
 			{
@@ -230,9 +230,9 @@ namespace unit_resource
 	{
 		for (uint32_t i = 0; i < e.size(); i++)
 		{
-			ResourceId mat_id = e[i].to_resource_id("material");
+			ResourceId mat_id = e[i].to_resource_id();
 			UnitMaterial um;
-			um.id = mat_id.name;
+			um.id = mat_id;
 			array::push_back(materials, um);
 		}
 	}
@@ -273,7 +273,7 @@ namespace unit_resource
 		physics_name += ".physics";
 		if (opts._fs.exists(physics_name.c_str()))
 		{
-			m_physics_resource = ResourceId("physics", unit_name.c_str());
+			m_physics_resource = ResourceId(unit_name.c_str());
 		}
 		else
 		{
@@ -282,13 +282,13 @@ namespace unit_resource
 
 		ResourceId sprite_anim;
 		if (root.has_key("sprite_animation"))
-			sprite_anim = root.key("sprite_animation").to_resource_id("sprite_animation");
+			sprite_anim = root.key("sprite_animation").to_resource_id();
 
 		UnitResource ur;
 		ur.version = VERSION;
 		ur.name = StringId64(unit_name.c_str());
-		ur.physics_resource = m_physics_resource.name;
-		ur.sprite_animation = sprite_anim.name;
+		ur.physics_resource = m_physics_resource;
+		ur.sprite_animation = sprite_anim;
 		ur.num_renderables = array::size(m_renderables);
 		ur.num_materials = array::size(m_materials);
 		ur.num_cameras = array::size(m_cameras);

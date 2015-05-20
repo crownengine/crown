@@ -54,9 +54,26 @@ public:
 
 private:
 
-	void complete_request(ResourceId id, void* data);
+	void complete_request(StringId64 type, StringId64 name, void* data);
 
 private:
+
+	struct ResourcePair
+	{
+		StringId64 type;
+		StringId64 name;
+
+		bool operator<(const ResourcePair& a) const
+		{
+			return type < a.type || (type == a.type && name < a.name);
+		}
+	};
+
+	ResourcePair make_pair(StringId64 type, StringId64 name)
+	{
+		ResourcePair pair = { type, name };
+		return pair;
+	}
 
 	struct ResourceEntry
 	{
@@ -71,13 +88,12 @@ private:
 		static const ResourceEntry NOT_FOUND;
 	};
 
-	typedef SortMap<ResourceId, ResourceEntry> ResourceMap;
+	typedef SortMap<ResourcePair, ResourceEntry> ResourceMap;
 
 	ProxyAllocator _resource_heap;
 	ResourceLoader _loader;
 	ResourceMap _rm;
 	bool _autoload;
-
 };
 
 } // namespace crown
