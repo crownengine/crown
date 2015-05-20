@@ -10,7 +10,6 @@
 #include "filesystem_types.h"
 #include "math_types.h"
 #include "compiler_types.h"
-#include "resource_id.h"
 
 namespace crown
 {

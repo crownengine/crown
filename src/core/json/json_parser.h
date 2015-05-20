@@ -11,7 +11,6 @@
 #include "matrix4x4.h"
 #include "quaternion.h"
 #include "macros.h"
-#include "resource_id.h"
 
 namespace crown
 {
@@ -124,8 +123,7 @@ public:
 	StringId32 to_string_id(const StringId32 def = StringId32(uint32_t(0))) const;
 
 	/// Returns the resource id value of the element.
-	/// If @a type is NULL then the string element is assumed to already contain extension.
-	ResourceId to_resource_id(const char* type) const;
+	ResourceId to_resource_id() const;
 
 	/// Returns the array value of the element.
 	/// @note
@@ -178,6 +176,9 @@ public:
 
 	/// Reads the JSON document from file @a f.
 	JSONParser(File& f);
+
+	typedef Array<char> Buffer;
+	JSONParser(Buffer& b);
 
 	~JSONParser();
 

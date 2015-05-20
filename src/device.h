@@ -30,7 +30,7 @@ struct Device
 
 	void init();
 
-	/// Shutdowns the engine freeing all the allocated resources
+	/// Shutdowns the engine freeing all the allocated resources.
 	void shutdown();
 
 	/// Returns a string identifying what platform the engine is running on.
@@ -46,23 +46,22 @@ struct Device
 	/// the simulation).
 	bool is_running() const;
 
-	/// Return the number of frames rendered from the first
-	/// call to Device::start()
+	/// Return the number of frames rendered.
 	uint64_t frame_count() const;
 
-	/// Returns the time in seconds needed to render the last frame
+	/// Returns the time in seconds needed to render the last frame.
 	float last_delta_time() const;
 
-	/// Returns the time in seconds since the first call to start().
+	/// Returns the time in seconds since the the application started.
 	double time_since_start() const;
 
 	/// Quits the application.
 	void quit();
 
-	/// Pauses the engine
+	/// Pauses the engine.
 	void pause();
 
-	/// Unpauses the engine
+	/// Unpauses the engine.
 	void unpause();
 
 	void update_resolution(uint16_t width, uint16_t height)
@@ -78,31 +77,34 @@ struct Device
 		height = _height;
 	}
 
-	/// Updates all the subsystems
+	/// Updates all the subsystems.
 	void update();
 
-	/// Renders the given @a world from the point of view of the given @a camera.
+	/// Renders the given @a world from the point of view of @a camera.
 	void render_world(World* world, Camera* camera);
 
 	/// Creates a new world.
 	World* create_world();
 
-	/// Destroys the given @a world.
+	/// Destroys the world @a w.
 	void destroy_world(World& w);
 
-	/// Returns the resource package with the given @a package_name name.
-	ResourcePackage* create_resource_package(const char* name);
+	/// Returns the resource package @a id.
 	ResourcePackage* create_resource_package(StringId64 id);
 
 	/// Destroy a previously created resource @a package.
 	/// @note
 	/// To unload the resources loaded by the package, you have to call
 	/// ResourcePackage::unload() first.
-	void destroy_resource_package(ResourcePackage* package);
+	void destroy_resource_package(ResourcePackage& package);
 
-	void reload(const char* type, const char* name);
+	/// Reloads the resource @a type @a name.
+	void reload(StringId64 type, StringId64 name);
 
+	/// Returns the resource manager.
 	ResourceManager* resource_manager();
+
+	/// Returns the lua environment.
 	LuaEnvironment* lua_environment();
 
 private:

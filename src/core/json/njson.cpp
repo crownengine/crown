@@ -53,7 +53,7 @@ namespace njson
 			case '"': json = skip_string(json); break;
 			case '[': json = skip_block(json, '[', ']'); break;
 			case '{': json = skip_block(json, '{', '}'); break;
-			default: for (; *json != ',' && *json != '\n' && *json != ' ' && *json != '}' && *json != ']'; ++json) ; break;
+			default: for (; *json != '\0' && *json != ',' && *json != '\n' && *json != ' ' && *json != '}' && *json != ']'; ++json) ; break;
 		}
 
 		return json;
@@ -149,7 +149,6 @@ namespace njson
 	static const char* parse_key(const char* json, DynamicString& key)
 	{
 		CE_ASSERT_NOT_NULL(json);
-
 		if (*json == '"')
 		{
 			parse_string(json, key);
@@ -159,7 +158,8 @@ namespace njson
 		{
 			while (true)
 			{
-				if (isspace(*json) || *json == '=') return json;
+				if (isspace(*json) || *json == '=')
+					return json;
 
 				key += *json;
 				++json;
@@ -167,6 +167,7 @@ namespace njson
 		}
 
 		CE_FATAL("Bad key");
+		return NULL;
 	}
 
 	double parse_number(const char* json)
@@ -294,6 +295,29 @@ namespace njson
 		CE_FATAL("Bad array");
 	}
 
+	void parse_root_object(const char* json, Map<DynamicString, const char*>& object)
+	{
+		CE_ASSERT_NOT_NULL(json);
+
+		json = skip_spaces(json);
+
+		while (*json)
+		{
+			DynamicString key;
+			json = parse_key(json, key);
+
+			json = skip_spaces(json);
+			json = next(json, '=');
+			json = skip_spaces(json);
+
+			map::set(object, key, json);
+
+			const char* tmp = json;
+			json = skip_value(json);
+			json = skip_spaces(json);
+		}
+	}
+
 	void parse_object(const char* json, Map<DynamicString, const char*>& object)
 	{
 		CE_ASSERT_NOT_NULL(json);
@@ -335,6 +359,16 @@ namespace njson
 		}
 
 		CE_FATAL("Bad object");
+	}
+
+	void parse(const char* json, Map<DynamicString, const char*>& object)
+	{
+		CE_ASSERT_NOT_NULL(json);
+
+		if (*json == '{')
+			parse_object(json, object);
+		else
+			parse_root_object(json, object);
 	}
 } // namespace njson
 } // namespace crown

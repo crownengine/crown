@@ -54,11 +54,11 @@ namespace material_resource
 			th.sampler_handle = 0;
 			th.texture_handle = 0;
 
-			ResourceId texid = root.key("textures").key(keys[i].c_str()).to_resource_id("texture");
+			ResourceId texid = root.key("textures").key(keys[i].c_str()).to_resource_id();
 
 			TextureData td;
 			td.sampler_name_offset = array::size(names); array::push(names, keys[i].c_str(), keys[i].length()); array::push_back(names, '\0');
-			td.id = texid.name;
+			td.id = texid;
 			td.data_offset = reserve_dynamic_data(th, dynamic);
 
 			array::push_back(textures, td);
@@ -150,7 +150,7 @@ namespace material_resource
 		static const uint32_t VERSION = 1;
 
 		Buffer buf = opts.read(path);
-		JSONParser json(array::begin(buf));
+		JSONParser json(buf);
 		JSONElement root = json.root();
 
 		Array<TextureData> texdata(default_allocator());
@@ -158,13 +158,13 @@ namespace material_resource
 		Array<char> names(default_allocator());
 		Array<char> dynblob(default_allocator());
 
-		ResourceId shader = root.key("shader").to_resource_id("shader");
+		ResourceId shader = root.key("shader").to_resource_id();
 		parse_textures(root, texdata, names, dynblob);
 		parse_uniforms(root, unidata, names, dynblob);
 
 		MaterialResource mr;
 		mr.version = VERSION;
-		mr.shader = shader.name;
+		mr.shader = shader;
 		mr.num_textures = array::size(texdata);
 		mr.texture_data_offset = sizeof(mr);
 		mr.num_uniforms = array::size(unidata);

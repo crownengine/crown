@@ -112,11 +112,6 @@ template <> inline BinaryReader& operator&(BinaryReader& br, StringId64& id)
 	return br & id._id;
 }
 
-template <> inline BinaryReader& operator&(BinaryReader& br, ResourceId& id)
-{
-	return br & id.type & id.name;
-}
-
 template <> inline BinaryWriter& operator&(BinaryWriter& bw, Vector3& v)
 {
 	return bw & v.x & v.y & v.z;
@@ -183,7 +178,7 @@ namespace level_resource
 		static const uint32_t VERSION = 1;
 
 		Buffer buf = opts.read(path);
-		JSONParser json(array::begin(buf));
+		JSONParser json(buf);
 		JSONElement root = json.root();
 
 		Array<LevelUnit> units(default_allocator());
@@ -196,7 +191,7 @@ namespace level_resource
 			{
 				JSONElement e = sounds_arr[i];
 				LevelSound ls;
-				ls.name = e.key("name").to_resource_id("sound").name;
+				ls.name = e.key("name").to_resource_id();
 				ls.position = e.key("position").to_vector3();
 				ls.volume = e.key("volume").to_float();
 				ls.range = e.key("range").to_float();
@@ -212,7 +207,7 @@ namespace level_resource
 			{
 				JSONElement e = units_arr[i];
 				LevelUnit lu;
-				lu.name = e.key("name").to_resource_id("unit").name;
+				lu.name = e.key("name").to_resource_id();
 				lu.position = e.key("position").to_vector3();
 				lu.rotation = e.key("rotation").to_quaternion();
 				array::push_back(units, lu);

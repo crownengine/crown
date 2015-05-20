@@ -84,7 +84,7 @@ inline const char* skip_block(const char* str, char a, char b)
 {
 	uint32_t num = 0;
 
-	for (char ch = *str++; *str != '\0'; ch = *str++)
+	for (char ch = *str++; ch != '\0'; ch = *str++)
 	{
 		if (ch == a) ++num;
 		else if (ch == b)

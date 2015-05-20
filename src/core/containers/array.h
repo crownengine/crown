@@ -5,9 +5,9 @@
 
 #pragma once
 
+#include "container_types.h"
 #include "error.h"
 #include "macros.h"
-#include "container_types.h"
 #include "allocator.h"
 #include <cstring> // memcpy
 

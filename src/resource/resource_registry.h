@@ -16,8 +16,8 @@ namespace crown
 
 void resource_on_compile(StringId64 type, const char* path, CompileOptions& opts);
 void* resource_on_load(StringId64 type, File& file, Allocator& a);
-void resource_on_online(StringId64 type, StringId64 id, ResourceManager& rm);
-void resource_on_offline(StringId64 type, StringId64 id, ResourceManager& rm);
+void resource_on_online(StringId64 type, StringId64 name, ResourceManager& rm);
+void resource_on_offline(StringId64 type, StringId64 name, ResourceManager& rm);
 void resource_on_unload(StringId64 type, Allocator& allocator, void* resource);
 
 } // namespace crown

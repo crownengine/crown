@@ -11,14 +11,14 @@
 #include "container_types.h"
 #include "mutex.h"
 #include "memory_types.h"
-#include "resource_id.h"
 
 namespace crown
 {
 
 struct ResourceData
 {
-	ResourceId id;
+	StringId64 type;
+	StringId64 name;
 	void* data;
 };
 
@@ -35,7 +35,7 @@ public:
 	~ResourceLoader();
 
 	/// Loads the @a resource in a background thread.
-	void load(ResourceId id);
+	void load(StringId64 type, StringId64 name);
 
 	/// Blocks until all pending requests have been processed.
 	void flush();
@@ -44,7 +44,7 @@ public:
 
 private:
 
-	void add_request(ResourceId id);
+	void add_request(StringId64 type, StringId64 name);
 	uint32_t num_requests();
 	void add_loaded(ResourceData data);
 
@@ -59,11 +59,23 @@ private:
 
 private:
 
+	struct ResourceRequest
+	{
+		StringId64 type;
+		StringId64 name;
+	};
+
+	ResourceRequest make_request(StringId64 type, StringId64 name)
+	{
+		ResourceRequest request = { type, name };
+		return request;
+	}
+
 	Thread _thread;
 	Filesystem& _fs;
 	Allocator& _resource_heap;
 
-	Queue<ResourceId> _requests;
+	Queue<ResourceRequest> _requests;
 	Queue<ResourceData> _loaded;
 	Mutex _mutex;
 	Mutex _loaded_mutex;

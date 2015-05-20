@@ -79,7 +79,6 @@ static void help(const char* msg = NULL)
 		"          windows\n"
 		"          android\n"
 		"  --continue                 Continue the execution after the resource compilation step.\n"
-		"  --host                     Read resources from a remote engine instance.\n"
 		"  --wait-console             Wait for a console connection before starting up.\n"
 	);
 }
@@ -138,6 +137,12 @@ void parse_command_line(int argc, char** argv, ConfigSettings& cs)
 	{
 		cs.parent_window = parse_uint(parent);
 	}
+
+	const char* port = cmd.get_parameter("console-port");
+	if (port)
+	{
+		cs.console_port = parse_uint(port);
+	}
 }
 
 void parse_config_file(Filesystem& fs, ConfigSettings& cs)
@@ -175,8 +180,8 @@ void parse_config_file(Filesystem& fs, ConfigSettings& cs)
 		cs.window_height = max((uint16_t)1, (uint16_t)window_height.to_int());
 	}
 
-	cs.boot_script = root.key("boot_script").to_resource_id("lua").name;
-	cs.boot_package = root.key("boot_package").to_resource_id("package").name;
+	cs.boot_script = root.key("boot_script").to_resource_id();
+	cs.boot_package = root.key("boot_package").to_resource_id();
 }
 
 bool init(Filesystem& fs, const ConfigSettings& cs)

@@ -14,7 +14,6 @@
 #include "disk_filesystem.h"
 #include "compile_options.h"
 #include "resource_registry.h"
-#include "resource_id.h"
 #include "temp_allocator.h"
 
 namespace crown
@@ -30,7 +29,8 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 
 bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum platform)
 {
-	ResourceId id(type, name);
+	StringId64 _type(type);
+	StringId64 _name(name);
 
 	TempAllocator512 alloc;
 	DynamicString path(alloc);
@@ -41,8 +41,10 @@ bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum 
 	src_path += ".";
 	src_path += type;
 
-	char res_name[64];
-	id.to_string(res_name);
+	char res_name[1 + 2*StringId64::STRING_LENGTH];
+	_type.to_string(res_name);
+	res_name[16] = '-';
+	_name.to_string(res_name + 17);
 
 	path::join(CROWN_DATA_DIRECTORY, res_name, path);
 
@@ -50,7 +52,7 @@ bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum 
 
 	File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
 	CompileOptions opts(_source_fs, outf, platform);
-	resource_on_compile(id.type, src_path.c_str(), opts);
+	resource_on_compile(_type, src_path.c_str(), opts);
 	_bundle_fs.close(outf);
 	return true;
 }

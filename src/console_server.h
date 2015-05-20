@@ -5,8 +5,8 @@
 
 #pragma once
 
+#include "container_types.h"
 #include "socket.h"
-#include "id_array.h"
 #include "log.h"
 
 namespace crown
@@ -43,11 +43,8 @@ private:
 
 private:
 
-	TCPSocket m_server;
-
 	struct Client
 	{
-		Id id;
 		TCPSocket socket;
 
 		void close()
@@ -56,8 +53,8 @@ private:
 		}
 	};
 
-	typedef IdArray<CE_MAX_CONSOLE_CLIENTS, Client> ClientArray;
-	ClientArray m_clients;
+	TCPSocket _server;
+	Vector<Client> _clients;
 };
 
 /// Functions for accessing global console.

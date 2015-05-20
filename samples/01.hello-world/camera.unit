@@ -1,13 +1,12 @@
-{
-	cameras = {
-		camera = {
-			node = "root"
-			type = "perspective"
-			near_clip_distance = 0.01
-			far_clip_distance = 1000.0
-		}
+cameras = {
+	camera = {
+		node = "root"
+		type = "perspective"
+		near_clip_distance = 0.01
+		far_clip_distance = 1000.0
 	}
-	nodes = {
-		root = { parent = null position = [0 0 0] rotation = [0 0 1 0] }
-	}
+}
+
+nodes = {
+	root = { parent = null position = [0 0 0] rotation = [0 0 1 0] }
 }

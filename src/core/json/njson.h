@@ -59,5 +59,8 @@ namespace njson
 	/// Parses the NJSON object @a json and puts it into @a object as map from
 	/// key to pointer to the corresponding value into the original string @a json.
 	void parse_object(const char* json, Map<DynamicString, const char*>& object);
+
+	/// Parses the NJSON-encoded @a json.
+	void parse(const char* json, Map<DynamicString, const char*>& object);
 } // namespace njson
 } // namespace crown

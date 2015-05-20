@@ -33,7 +33,7 @@ namespace crown
 			, do_compile(false)
 			, do_continue(false)
 			, parent_window(0)
-			, console_port(10001)
+			, console_port(CROWN_DEFAULT_CONSOLE_PORT)
 			, boot_package(uint64_t(0))
 			, boot_script(uint64_t(0))
 			, window_width(CROWN_DEFAULT_WINDOW_WIDTH)

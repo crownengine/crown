@@ -17,9 +17,10 @@ namespace crown
 {
 
 ConsoleServer::ConsoleServer(uint16_t port, bool wait)
+	: _clients(default_allocator())
 {
-	m_server.bind(port);
-	m_server.listen(5);
+	_server.bind(port);
+	_server.listen(5);
 
 	if (wait)
 	{
@@ -27,7 +28,7 @@ ConsoleServer::ConsoleServer(uint16_t port, bool wait)
 		TCPSocket client;
 		do
 		{
-			result = m_server.accept(client);
+			result = _server.accept(client);
 		}
 		while (result.error != AcceptResult::NO_ERROR);
 
@@ -37,12 +38,10 @@ ConsoleServer::ConsoleServer(uint16_t port, bool wait)
 
 void ConsoleServer::shutdown()
 {
-	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
-	{
-		m_clients[i].close();
-	}
+	for (uint32_t i = 0; i < vector::size(_clients); ++i)
+		_clients[i].close();
 
-	m_server.close();
+	_server.close();
 }
 
 namespace console_server_internal
@@ -88,49 +87,45 @@ void ConsoleServer::send(TCPSocket client, const char* json)
 
 void ConsoleServer::send(const char* json)
 {
-	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
-	{
-		send(m_clients[i].socket, json);
-	}
+	for (uint32_t i = 0; i < vector::size(_clients); ++i)
+		send(_clients[i].socket, json);
 }
 
 void ConsoleServer::update()
 {
-	// Check for new clients only if we have room for them
-	if (id_array::size(m_clients) < CE_MAX_CONSOLE_CLIENTS - 1)
-	{
-		TCPSocket client;
-		AcceptResult result = m_server.accept_nonblock(client);
-		if (result.error == AcceptResult::NO_ERROR)
-		{
-			add_client(client);
-		}
-	}
+	TCPSocket client;
+	AcceptResult result = _server.accept_nonblock(client);
+	if (result.error == AcceptResult::NO_ERROR)
+		add_client(client);
 
 	TempAllocator256 alloc;
-	Array<Id> to_remove(alloc);
+	Array<uint32_t> to_remove(alloc);
 
 	// Update all clients
-	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
+	for (uint32_t i = 0; i < vector::size(_clients); ++i)
 	{
-		ReadResult rr = update_client(m_clients[i].socket);
-		if (rr.error != ReadResult::NO_ERROR) array::push_back(to_remove, m_clients[i].id);
+		ReadResult rr = update_client(_clients[i].socket);
+		if (rr.error != ReadResult::NO_ERROR)
+			array::push_back(to_remove, i);
 	}
 
 	// Remove clients
-	for (uint32_t i = 0; i < array::size(to_remove); i++)
+	for (uint32_t i = 0; i < array::size(to_remove); ++i)
 	{
-		id_array::get(m_clients, to_remove[i]).socket.close();
-		id_array::destroy(m_clients, to_remove[i]);
+		const uint32_t last = vector::size(_clients) - 1;
+		const uint32_t c = to_remove[i];
+
+		_clients[c].close();
+		_clients[c] = _clients[last];
+		vector::pop_back(_clients);
 	}
 }
 
 void ConsoleServer::add_client(TCPSocket socket)
 {
-	Client client;
-	client.socket = socket;
-	Id id = id_array::create(m_clients, client);
-	id_array::get(m_clients, id).id = id;
+	Client cl;
+	cl.socket = socket;
+	vector::push_back(_clients, cl);
 }
 
 ReadResult ConsoleServer::update_client(TCPSocket client)
@@ -200,7 +195,7 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* json)
 		json::parse_string(root["resource_type"], type);
 		json::parse_string(root["resource_name"], name);
 
-		device()->reload(type.c_str(), name.c_str());
+		device()->reload(StringId64(type.c_str()), StringId64(name.c_str()));
 	}
 	else if (cmd == "pause")
 	{

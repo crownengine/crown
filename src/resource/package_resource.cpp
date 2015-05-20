@@ -20,7 +20,7 @@ namespace package_resource
 		static const uint32_t VERSION = 1;
 
 		Buffer buf = opts.read(path);
-		JSONParser json(array::begin(buf));
+		JSONParser json(buf);
 		JSONElement root = json.root();
 
 		JSONElement texture  = root.key_or_nil("texture");
@@ -107,43 +107,43 @@ namespace package_resource
 
 		// Write resource ids
 		for (uint32_t i = 0; i < num_textures; i++)
-			opts.write(texture[i].to_resource_id("texture").name);
+			opts.write(texture[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_scripts; i++)
-			opts.write(script[i].to_resource_id("lua").name);
+			opts.write(script[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_sounds; i++)
-			opts.write(sound[i].to_resource_id("sound").name);
+			opts.write(sound[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_meshes; i++)
-			opts.write(mesh[i].to_resource_id("mesh").name);
+			opts.write(mesh[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_units; i++)
-			opts.write(unit[i].to_resource_id("unit").name);
+			opts.write(unit[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_sprites; i++)
-			opts.write(sprite[i].to_resource_id("sprite").name);
+			opts.write(sprite[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_physics; i++)
-			opts.write(physics[i].to_resource_id("physics").name);
+			opts.write(physics[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_materials; i++)
-			opts.write(material[i].to_resource_id("material").name);
+			opts.write(material[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_fonts; i++)
-			opts.write(font[i].to_resource_id("font").name);
+			opts.write(font[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_levels; i++)
-			opts.write(level[i].to_resource_id("level").name);
+			opts.write(level[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_phyconfs; i++)
-			opts.write(phyconf[i].to_resource_id("physics_config").name);
+			opts.write(phyconf[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_shaders; i++)
-			opts.write(shader[i].to_resource_id("shader").name);
+			opts.write(shader[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_sprite_animations; i++)
-			opts.write(sprite_animation[i].to_resource_id("sprite_animation").name);
+			opts.write(sprite_animation[i].to_resource_id());
 	}
 
 	void* load(File& file, Allocator& a)

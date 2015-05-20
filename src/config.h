@@ -10,7 +10,7 @@
 #include "platform.h"
 
 #ifndef CROWN_DEBUG
-#	define CROWN_DEBUG 0
+	#define CROWN_DEBUG 0
 #endif // CROWN_DEBUG
 
 #if !defined(CROWN_PHYSICS_PHYSX)\
@@ -84,10 +84,6 @@
 
 #ifndef CE_MAX_SOUND_INSTANCES
 	#define CE_MAX_SOUND_INSTANCES 64 // Per world
-#endif // CE_MAX
-
-#ifndef CE_MAX_CONSOLE_CLIENTS
-	#define CE_MAX_CONSOLE_CLIENTS 32
 #endif // CE_MAX
 
 #ifndef CROWN_MAX_DEBUG_LINES

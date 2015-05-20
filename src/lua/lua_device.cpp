@@ -85,14 +85,14 @@ static int device_render_world(lua_State* L)
 static int device_create_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_resource_package(device()->create_resource_package(stack.get_string(1)));
+	stack.push_resource_package(device()->create_resource_package(stack.get_resource_id(1)));
 	return 1;
 }
 
 static int device_destroy_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->destroy_resource_package(stack.get_resource_package(1));
+	device()->destroy_resource_package(*stack.get_resource_package(1));
 	return 0;
 }
 
