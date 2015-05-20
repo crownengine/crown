@@ -190,7 +190,7 @@ static int world_create_debug_line(lua_State* L)
 static int world_destroy_debug_line(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->destroy_debug_line(stack.get_debug_line(2));
+	stack.get_world(1)->destroy_debug_line(*stack.get_debug_line(2));
 	return 0;
 }
 

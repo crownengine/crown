@@ -49,7 +49,7 @@ World::~World()
 		CE_DELETE(m_unit_pool, m_units[i]);
 	}
 
-	destroy_debug_line(_lines);
+	destroy_debug_line(*_lines);
 	SoundWorld::destroy(default_allocator(), _sound_world);
 	CE_DELETE(default_allocator(), _physics_world);
 	CE_DELETE(default_allocator(), _render_world);
@@ -233,9 +233,9 @@ DebugLine* World::create_debug_line(bool depth_test)
 	return CE_NEW(default_allocator(), DebugLine)(depth_test);
 }
 
-void World::destroy_debug_line(DebugLine* line)
+void World::destroy_debug_line(DebugLine& line)
 {
-	CE_DELETE(default_allocator(), line);
+	CE_DELETE(default_allocator(), &line);
 }
 
 void World::load_level(const LevelResource* lr)

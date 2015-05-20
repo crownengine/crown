@@ -123,7 +123,7 @@ public:
 	DebugLine* create_debug_line(bool depth_test);
 
 	/// Destroys the debug @a line.
-	void destroy_debug_line(DebugLine* line);
+	void destroy_debug_line(DebugLine& line);
 
 	/// Loads the level @a name into the world.
 	void load_level(const LevelResource* lr);
