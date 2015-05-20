@@ -123,7 +123,6 @@ public:
 	StringId32 to_string_id(const StringId32 def = StringId32(uint32_t(0))) const;
 
 	/// Returns the resource id value of the element.
-	/// If @a type is NULL then the string element is assumed to already contain extension.
 	ResourceId to_resource_id() const;
 
 	/// Returns the array value of the element.
