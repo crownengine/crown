@@ -65,9 +65,23 @@ namespace njson
 
 		if (*json == '/')
 		{
-			json = next(json, '/');
-			json = next(json, '/');
-			while (*json && *json != '\n') json = next(json);
+			json = next(json);
+			if (*json == '/')
+			{
+				json = next(json, '/');
+				while (*json && *json != '\n')
+					json = next(json);
+			}
+			else if (*json == '*')
+			{
+				json = next(json);
+				while (*json && *json != '*')
+					json = next(json);
+				json = next(json, '*');
+				json = next(json, '/');
+			}
+			else
+				CE_FATAL("Bad comment");
 		}
 
 		return json;
