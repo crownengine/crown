@@ -180,6 +180,8 @@ LuaEnvironment::~LuaEnvironment()
 
 void LuaEnvironment::load_libs()
 {
+	lua_gc(L, LUA_GCSTOP, 0);
+
 	// Open default libraries
 	luaL_openlibs(L);
 
@@ -262,6 +264,8 @@ void LuaEnvironment::load_libs()
 
 	// Ensure stack is clean
 	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
+
+	lua_gc(L, LUA_GCRESTART, 0);
 }
 
 void LuaEnvironment::execute(const LuaResource* lr)
