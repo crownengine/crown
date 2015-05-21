@@ -147,8 +147,6 @@ namespace material_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -163,7 +161,7 @@ namespace material_resource
 		parse_uniforms(root, unidata, names, dynblob);
 
 		MaterialResource mr;
-		mr.version = VERSION;
+		mr.version = MATERIAL_VERSION;
 		mr.shader = shader;
 		mr.num_textures = array::size(texdata);
 		mr.texture_data_offset = sizeof(mr);

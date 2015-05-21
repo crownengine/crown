@@ -28,8 +28,6 @@ namespace font_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -50,7 +48,7 @@ namespace font_resource
 		}
 
 		FontResource fr;
-		fr.version = VERSION;
+		fr.version = FONT_VERSION;
 		fr.num_glyphs = array::size(m_glyphs);
 		fr.texture_size = size.to_int();
 		fr.font_size = font_size.to_int();

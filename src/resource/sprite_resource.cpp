@@ -43,8 +43,6 @@ namespace sprite_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -102,7 +100,7 @@ namespace sprite_resource
 		const uint32_t num_indices = array::size(indices);
 
 		// Write header
-		opts.write(VERSION);
+		opts.write(SPRITE_VERSION);
 
 		opts.write(num_vertices);
 		for (uint32_t i = 0; i < array::size(vertices); i++)
@@ -198,8 +196,6 @@ namespace sprite_animation_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -211,7 +207,7 @@ namespace sprite_animation_resource
 		parse_animations(root, anim_names, anim_data, anim_frames);
 
 		SpriteAnimationResource sar;
-		sar.version = VERSION;
+		sar.version = SPRITE_ANIMATION_VERSION;
 		sar.num_animations = array::size(anim_names);
 		sar.num_frames = array::size(anim_frames);
 		sar.frames_offset = uint32_t(sizeof(SpriteAnimationResource) +

@@ -17,8 +17,6 @@ namespace package_resource
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -52,7 +50,7 @@ namespace package_resource
 		const uint32_t num_sprite_animations = sprite_animation.is_nil() ? 0 : sprite_animation.size();
 
 		// Write header
-		opts.write(VERSION);
+		opts.write(PACKAGE_VERSION);
 		opts.write(num_textures);
 		uint32_t offt = sizeof(PackageResource);
 		opts.write(offt);

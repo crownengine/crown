@@ -175,8 +175,6 @@ namespace level_resource
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -215,7 +213,7 @@ namespace level_resource
 		}
 
 		LevelResource lr;
-		lr.version = VERSION;
+		lr.version = LEVEL_VERSION;
 		lr.num_units = array::size(units);
 		lr.num_sounds = array::size(sounds);
 

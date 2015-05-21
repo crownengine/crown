@@ -23,8 +23,6 @@ namespace lua_resource
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		TempAllocator1024 alloc;
 		DynamicString res_abs_path(alloc);
 		TempAllocator1024 alloc2;
@@ -52,7 +50,7 @@ namespace lua_resource
 		opts.delete_file(bc_abs_path.c_str());
 
 		LuaResource lr;
-		lr.version = VERSION;
+		lr.version = SCRIPT_VERSION;
 		lr.size = array::size(blob);
 
 		opts.write(lr.version);

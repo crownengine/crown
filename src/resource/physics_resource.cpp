@@ -225,8 +225,6 @@ namespace physics_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -255,7 +253,7 @@ namespace physics_resource
 		if (root.has_key("joints")) parse_joints(root.key("joints"), m_joints);
 
 		PhysicsResource pr;
-		pr.version = VERSION;
+		pr.version = PHYSICS_VERSION;
 		pr.num_controllers = m_has_controller ? 1 : 0;
 		pr.num_actors = array::size(m_actors);
 		pr.num_joints = array::size(m_joints);
@@ -588,8 +586,6 @@ namespace physics_config_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -620,7 +616,7 @@ namespace physics_config_resource
 
 		// Setup struct for writing
 		PhysicsConfigResource pcr;
-		pcr.version = VERSION;
+		pcr.version = PHYSICS_CONFIG_VERSION;
 		pcr.num_materials = array::size(material_names);
 		pcr.num_shapes = array::size(shape_names);
 		pcr.num_actors = array::size(actor_names);
