@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include <cstring>
 #include "types.h"
 #include "mouse.h"
 #include "keyboard.h"
 #include "atomic_int.h"
+#include <cstring>
 
 namespace crown
 {
