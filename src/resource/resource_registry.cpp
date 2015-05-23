@@ -56,7 +56,7 @@ struct ResourceCallback
 
 static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 {
-	{ LUA_TYPE,              lur::compile, lur::load, lur::unload, lur::online, lur::offline },
+	{ SCRIPT_TYPE,           lur::compile, lur::load, lur::unload, lur::online, lur::offline },
 	{ TEXTURE_TYPE,          txr::compile, txr::load, txr::unload, txr::online, txr::offline },
 	{ MESH_TYPE,             mhr::compile, mhr::load, mhr::unload, mhr::online, mhr::offline },
 	{ SOUND_TYPE,            sdr::compile, sdr::load, sdr::unload, sdr::online, sdr::offline },

@@ -7,7 +7,7 @@
 
 #define FONT_EXTENSION             "font"
 #define LEVEL_EXTENSION            "level"
-#define LUA_EXTENSION              "lua"
+#define SCRIPT_EXTENSION           "lua"
 #define MATERIAL_EXTENSION         "material"
 #define MESH_EXTENSION             "mesh"
 #define PACKAGE_EXTENSION          "package"
@@ -22,7 +22,7 @@
 
 #define FONT_TYPE                  StringId64(0x9efe0a916aae7880)
 #define LEVEL_TYPE                 StringId64(0x2a690fd348fe9ac5)
-#define LUA_TYPE                   StringId64(0xa14e8dfa2cd117e2)
+#define SCRIPT_TYPE                StringId64(0xa14e8dfa2cd117e2)
 #define MATERIAL_TYPE              StringId64(0xeac0b497876adedf)
 #define MESH_TYPE                  StringId64(0x48ff313713a997a1)
 #define PACKAGE_TYPE               StringId64(0xad9c6d9ed1e5e77a)

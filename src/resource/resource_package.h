@@ -45,7 +45,7 @@ struct ResourcePackage
 
 		for (uint32_t i = 0; i < num_scripts(_package); i++)
 		{
-			_resman->load(LUA_TYPE, get_script_id(_package, i));
+			_resman->load(SCRIPT_TYPE, get_script_id(_package, i));
 		}
 
 		for (uint32_t i = 0; i < num_sounds(_package); i++)
@@ -166,7 +166,7 @@ struct ResourcePackage
 
 		for (uint32_t i = 0; i < num_scripts(_package); i++)
 		{
-			_resman->unload(LUA_TYPE, get_script_id(_package, i));
+			_resman->unload(SCRIPT_TYPE, get_script_id(_package, i));
 		}
 
 		for (uint32_t i = 0; i < num_textures(_package); i++)
@@ -194,7 +194,7 @@ struct ResourcePackage
 
 		for (uint32_t i = 0; i < num_scripts(_package); i++)
 		{
-			if (!_resman->can_get(LUA_TYPE, get_script_id(_package, i)))
+			if (!_resman->can_get(SCRIPT_TYPE, get_script_id(_package, i)))
 				return false;
 		}
 

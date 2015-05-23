@@ -80,7 +80,7 @@ static int require(lua_State* L)
 {
 	using namespace lua_resource;
 	LuaStack stack(L);
-	const LuaResource* lr = (LuaResource*)device()->resource_manager()->get(LUA_TYPE, stack.get_resource_id(1));
+	const LuaResource* lr = (LuaResource*)device()->resource_manager()->get(SCRIPT_TYPE, stack.get_resource_id(1));
 	luaL_loadbuffer(L, program(lr), size(lr), "");
 	return 1;
 }

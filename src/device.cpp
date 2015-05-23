@@ -70,7 +70,7 @@ void Device::init()
 	_boot_package->load();
 	_boot_package->flush();
 
-	_lua_environment->execute((LuaResource*)_resource_manager->get(LUA_TYPE, _boot_script_id));
+	_lua_environment->execute((LuaResource*)_resource_manager->get(SCRIPT_TYPE, _boot_script_id));
 	_lua_environment->call_global("init", 0);
 }
 
