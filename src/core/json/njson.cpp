@@ -326,7 +326,6 @@ namespace njson
 
 			map::set(object, key, json);
 
-			const char* tmp = json;
 			json = skip_value(json);
 			json = skip_spaces(json);
 		}
