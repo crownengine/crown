@@ -122,11 +122,11 @@ namespace array
 
 		if (capacity > 0)
 		{
-			T* tmp = a._array;
+			T* tmp = a._data;
 			a._capacity = capacity;
-			a._array = (T*)a._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
+			a._data = (T*)a._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
 
-			memcpy(a._array, tmp, a._size * sizeof(T));
+			memcpy(a._data, tmp, a._size * sizeof(T));
 
 			if (tmp)
 				a._allocator->deallocate(tmp);
@@ -156,7 +156,7 @@ namespace array
 		if (a._capacity == a._size)
 			grow(a, 0);
 
-		a._array[a._size] = item;
+		a._data[a._size] = item;
 
 		return a._size++;
 	}
@@ -175,7 +175,7 @@ namespace array
 		if (a._capacity <= a._size + count)
 			grow(a, a._size + count);
 
-		memcpy(&a._array[a._size], items, sizeof(T) * count);
+		memcpy(&a._data[a._size], items, sizeof(T) * count);
 		a._size += count;
 
 		return a._size;
@@ -190,57 +190,53 @@ namespace array
 	template <typename T>
 	inline const T* begin(const Array<T>& a)
 	{
-		return a._array;
+		return a._data;
 	}
 
 	template <typename T>
 	inline T* begin(Array<T>& a)
 	{
-		return a._array;
+		return a._data;
 	}
 
 	template <typename T>
 	inline const T* end(const Array<T>& a)
 	{
-		return a._array + a._size;
+		return a._data + a._size;
 	}
 
 	template <typename T>
 	inline T* end(Array<T>& a)
 	{
-		return a._array + a._size;
+		return a._data + a._size;
 	}
 
 	template <typename T>
 	inline T& front(Array<T>& a)
 	{
 		CE_ASSERT(a._size > 0, "The array is empty");
-
-		return a._array[0];
+		return a._data[0];
 	}
 
 	template <typename T>
 	inline const T& front(const Array<T>& a)
 	{
 		CE_ASSERT(a._size > 0, "The array is empty");
-
-		return a._array[0];
+		return a._data[0];
 	}
 
 	template <typename T>
 	inline T& back(Array<T>& a)
 	{
 		CE_ASSERT(a._size > 0, "The array is empty");
-
-		return a._array[a._size - 1];
+		return a._data[a._size - 1];
 	}
 
 	template <typename T>
 	inline const T& back(const Array<T>& a)
 	{
 		CE_ASSERT(a._size > 0, "The array is empty");
-
-		return a._array[a._size - 1];
+		return a._data[a._size - 1];
 	}
 } // namespace array
 
@@ -249,7 +245,7 @@ inline Array<T>::Array(Allocator& a)
 	: _allocator(&a)
 	, _capacity(0)
 	, _size(0)
-	, _array(NULL)
+	, _data(NULL)
 {
 }
 
@@ -258,7 +254,7 @@ inline Array<T>::Array(Allocator& a, uint32_t capacity)
 	: _allocator(&a)
 	, _capacity(0)
 	, _size(0)
-	, _array(NULL)
+	, _data(NULL)
 {
 	array::resize(*this, capacity);
 }
@@ -268,7 +264,7 @@ inline Array<T>::Array(const Array<T>& other)
 	: _allocator(other._allocator)
 	, _capacity(0)
 	, _size(0)
-	, _array(NULL)
+	, _data(NULL)
 {
 	*this = other;
 }
@@ -276,8 +272,8 @@ inline Array<T>::Array(const Array<T>& other)
 template <typename T>
 inline Array<T>::~Array()
 {
-	if (_array)
-		_allocator->deallocate(_array);
+	if (_data)
+		_allocator->deallocate(_data);
 }
 
 template <typename T>
@@ -285,7 +281,7 @@ inline T& Array<T>::operator[](uint32_t index)
 {
 	CE_ASSERT(index < _size, "Index out of bounds");
 
-	return _array[index];
+	return _data[index];
 }
 
 template <typename T>
@@ -293,7 +289,7 @@ inline const T& Array<T>::operator[](uint32_t index) const
 {
 	CE_ASSERT(index < _size, "Index out of bounds");
 
-	return _array[index];
+	return _data[index];
 }
 
 template <typename T>
@@ -301,7 +297,7 @@ inline Array<T>& Array<T>::operator=(const Array<T>& other)
 {
 	const uint32_t size = other._size;
 	array::resize(*this, size);
-	memcpy(_array, other._array, sizeof(T) * size);
+	memcpy(_data, other._data, sizeof(T) * size);
 	return *this;
 }
 

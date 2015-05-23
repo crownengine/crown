@@ -32,8 +32,6 @@ namespace sound_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -47,7 +45,7 @@ namespace sound_resource
 
 		// Write
 		SoundResource sr;
-		sr.version = VERSION;
+		sr.version = SOUND_VERSION;
 		sr.size = wav->data_size;
 		sr.sample_rate = wav->fmt_sample_rate;
 		sr.avg_bytes_ps = wav->fmt_avarage;

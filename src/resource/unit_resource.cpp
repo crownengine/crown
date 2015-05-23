@@ -239,8 +239,6 @@ namespace unit_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -285,7 +283,7 @@ namespace unit_resource
 			sprite_anim = root.key("sprite_animation").to_resource_id();
 
 		UnitResource ur;
-		ur.version = VERSION;
+		ur.version = UNIT_VERSION;
 		ur.name = StringId64(unit_name.c_str());
 		ur.physics_resource = m_physics_resource;
 		ur.sprite_animation = sprite_anim;

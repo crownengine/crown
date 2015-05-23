@@ -106,7 +106,6 @@ namespace queue
 		if (q._read + q._size > old_size)
 		{
 			memmove(array::begin(q._queue) + capacity - (old_size - q._read), array::begin(q._queue) + q._read, (old_size - q._read) * sizeof(T));
-
 			q._read += (capacity - old_size);
 		}
 	}
@@ -117,9 +116,7 @@ namespace queue
 		uint32_t new_capacity = array::size(q._queue) * 2 + 1;
 
 		if (new_capacity < min_capacity)
-		{
 			new_capacity = min_capacity;
-		}
 
 		increase_capacity(q, new_capacity);
 	}
@@ -128,9 +125,7 @@ namespace queue
 	inline void push_back(Queue<T>& q, const T& item)
 	{
 		if (space(q) == 0)
-		{
 			grow(q, 0);
-		}
 
 		q[q._size] = item;
 
@@ -149,9 +144,7 @@ namespace queue
 	inline void push_front(Queue<T>& q, const T& item)
 	{
 		if (space(q) == 0)
-		{
 			grow(q, 0);
-		}
 
 		q._read = (q._read - 1 + array::size(q._queue)) % array::size(q._queue);
 
@@ -173,18 +166,14 @@ namespace queue
 	inline void push(Queue<T>& q, const T *items, uint32_t n)
 	{
 		if (q.space() < n)
-		{
 			q.grow(q.size() + n);
-		}
 
 		const uint32_t size = array::size(q._queue);
 		const uint32_t insert = (q._read + q._size) % size;
 
 		uint32_t to_insert = n;
 		if (insert + to_insert > size)
-		{
 			to_insert = size - insert;
-		}
 
 		memcpy(array::begin(q._queue) + insert, items, to_insert * sizeof(T));
 
@@ -227,16 +216,14 @@ namespace queue
 	template <typename T>
 	inline T* end(Queue<T>& q)
 	{
-		uint32_t end = q._read + q._size;
-
+		const uint32_t end = q._read + q._size;
 		return end >= array::size(q._queue) ? array::end(q._queue) : array::begin(q._queue) + end;
 	}
 
 	template <typename T>
 	inline const T* end(const Queue<T>& q)
 	{
-		uint32_t end = q._read + q._size;
-
+		const uint32_t end = q._read + q._size;
 		return end >= array::size(q._queue) ? array::end(q._queue) : array::begin(q._queue) + end;
 	}
 
@@ -244,7 +231,6 @@ namespace queue
 	inline T& front(Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
-
 		return q._queue[q._read];
 	}
 
@@ -252,7 +238,6 @@ namespace queue
 	inline const T& front(const Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
-
 		return q._queue[q._read];
 	}
 
@@ -260,7 +245,6 @@ namespace queue
 	inline T& back(Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
-
 		return q[q._size - 1];
 	}
 
@@ -268,17 +252,16 @@ namespace queue
 	inline const T& back(const Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
-
 		return q[q._size - 1];
 	}
 
 } // namespace queue
 
 template <typename T>
-inline Queue<T>::Queue(Allocator& allocator)
+inline Queue<T>::Queue(Allocator& a)
 	: _read(0)
 	, _size(0)
-	, _queue(allocator)
+	, _queue(a)
 {
 }
 

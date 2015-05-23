@@ -33,8 +33,6 @@ namespace mesh_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -148,7 +146,7 @@ namespace mesh_resource
 		decl.end();
 
 		// Write
-		opts.write(VERSION);
+		opts.write(MESH_VERSION);
 		opts.write(decl);
 		opts.write(array::size(vertices));
 		for (uint32_t i = 0; i < array::size(vertices); ++i)

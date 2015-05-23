@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <cstring>
 #include "types.h"
 #include "mouse.h"
 #include "keyboard.h"

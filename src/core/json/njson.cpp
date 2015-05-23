@@ -65,9 +65,23 @@ namespace njson
 
 		if (*json == '/')
 		{
-			json = next(json, '/');
-			json = next(json, '/');
-			while (*json && *json != '\n') json = next(json);
+			json = next(json);
+			if (*json == '/')
+			{
+				json = next(json, '/');
+				while (*json && *json != '\n')
+					json = next(json);
+			}
+			else if (*json == '*')
+			{
+				json = next(json);
+				while (*json && *json != '*')
+					json = next(json);
+				json = next(json, '*');
+				json = next(json, '/');
+			}
+			else
+				CE_FATAL("Bad comment");
 		}
 
 		return json;
@@ -299,8 +313,6 @@ namespace njson
 	{
 		CE_ASSERT_NOT_NULL(json);
 
-		json = skip_spaces(json);
-
 		while (*json)
 		{
 			DynamicString key;
@@ -312,7 +324,6 @@ namespace njson
 
 			map::set(object, key, json);
 
-			const char* tmp = json;
 			json = skip_value(json);
 			json = skip_spaces(json);
 		}
@@ -364,6 +375,8 @@ namespace njson
 	void parse(const char* json, Map<DynamicString, const char*>& object)
 	{
 		CE_ASSERT_NOT_NULL(json);
+
+		json = skip_spaces(json);
 
 		if (*json == '{')
 			parse_object(json, object);

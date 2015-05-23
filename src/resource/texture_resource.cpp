@@ -558,8 +558,6 @@ namespace texture_resource
 
 	void compile(const char* path, CompileOptions& opts)
 	{
-		static const uint32_t VERSION = 1;
-
 		Buffer buf = opts.read(path);
 		JSONParser json(buf);
 		JSONElement root = json.root();
@@ -595,7 +593,7 @@ namespace texture_resource
 		opts._fs.close(source);
 
 		// Write DDS
-		opts.write(VERSION); // Version
+		opts.write(TEXTURE_VERSION); // Version
 		opts.write(uint32_t(0)); // Size
 		write_dds(opts._bw, image);
 

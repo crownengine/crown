@@ -74,7 +74,7 @@ static int require(lua_State* L)
 {
 	using namespace lua_resource;
 	LuaStack stack(L);
-	const LuaResource* lr = (LuaResource*)device()->resource_manager()->get(LUA_TYPE, stack.get_resource_id(1));
+	const LuaResource* lr = (LuaResource*)device()->resource_manager()->get(SCRIPT_TYPE, stack.get_resource_id(1));
 	luaL_loadbuffer(L, program(lr), size(lr), "");
 	return 1;
 }
@@ -174,6 +174,8 @@ LuaEnvironment::~LuaEnvironment()
 
 void LuaEnvironment::load_libs()
 {
+	lua_gc(L, LUA_GCSTOP, 0);
+
 	// Open default libraries
 	luaL_openlibs(L);
 
@@ -250,6 +252,8 @@ void LuaEnvironment::load_libs()
 
 	// Ensure stack is clean
 	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
+
+	lua_gc(L, LUA_GCRESTART, 0);
 }
 
 void LuaEnvironment::execute(const LuaResource* lr)

@@ -14,14 +14,10 @@
 #include "temp_allocator.h"
 
 #if CROWN_PLATFORM_POSIX
-	#include <cstdarg>
-	#include <cstdio>
-	#include <cstdlib>
 	#include <dirent.h>
 	#include <dlfcn.h>
 	#include <sys/stat.h>
 	#include <sys/time.h>
-	#include <sys/types.h>
 	#include <sys/wait.h>
 	#include <errno.h>
 	#include <time.h>
