@@ -22,10 +22,10 @@ namespace crown
 template <typename T>
 struct Array
 {
-	Array(Allocator& allocator);
+	Array(Allocator& a);
 
 	/// Allocates capacity * sizeof(T) bytes.
-	Array(Allocator& allocator, uint32_t capacity);
+	Array(Allocator& a, uint32_t capacity);
 	Array(const Array<T>& other);
 	~Array();
 
@@ -38,7 +38,7 @@ struct Array
 	Allocator* _allocator;
 	uint32_t _capacity;
 	uint32_t _size;
-	T* _array;
+	T* _data;
 };
 
 /// Dynamic array of objects.
@@ -50,8 +50,8 @@ struct Array
 template <typename T>
 struct Vector
 {
-	Vector(Allocator& allocator);
-	Vector(Allocator& allocator, uint32_t capacity);
+	Vector(Allocator& a);
+	Vector(Allocator& a, uint32_t capacity);
 	Vector(const Vector<T>& other);
 	~Vector();
 
@@ -64,7 +64,7 @@ struct Vector
 	Allocator* _allocator;
 	uint32_t _capacity;
 	uint32_t _size;
-	T* _array;
+	T* _data;
 };
 
 /// Circular buffer double-ended queue of POD items.
@@ -75,7 +75,7 @@ struct Vector
 template <typename T>
 struct Queue
 {
-	Queue(Allocator& allocator);
+	Queue(Allocator& a);
 
 	/// Random access by index
 	T& operator[](uint32_t index);
