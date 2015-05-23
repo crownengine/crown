@@ -313,8 +313,6 @@ namespace njson
 	{
 		CE_ASSERT_NOT_NULL(json);
 
-		json = skip_spaces(json);
-
 		while (*json)
 		{
 			DynamicString key;
@@ -377,6 +375,8 @@ namespace njson
 	void parse(const char* json, Map<DynamicString, const char*>& object)
 	{
 		CE_ASSERT_NOT_NULL(json);
+
+		json = skip_spaces(json);
 
 		if (*json == '{')
 			parse_object(json, object);
