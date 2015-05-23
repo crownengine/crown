@@ -9,7 +9,6 @@
 #include "mouse.h"
 #include "keyboard.h"
 #include "atomic_int.h"
-#include <cstring>
 
 namespace crown
 {
