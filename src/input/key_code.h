@@ -8,19 +8,6 @@
 namespace crown
 {
 
-/// Enumerates keyboard modifier buttons.
-///
-/// @ingroup Input
-struct ModifierButton
-{
-	enum Enum
-	{
-		SHIFT = 1,
-		CTRL  = 2,
-		ALT   = 4
-	};
-};
-
 /// Enumerates keyboard buttons.
 ///
 /// @ingroup Input

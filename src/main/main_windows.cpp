@@ -277,22 +277,7 @@ struct WindowsDevice
 			{
 				KeyboardButton::Enum kb = win_translate_key(wparam & 0xff);
 
-				int32_t modifier_mask = 0;
-
-				if (kb == KeyboardButton::LSHIFT || kb == KeyboardButton::RSHIFT)
-				{
-					(id == WM_KEYDOWN || id == WM_SYSKEYDOWN) ? modifier_mask |= ModifierButton::SHIFT : modifier_mask &= ~ModifierButton::SHIFT;
-				}
-				else if (kb == KeyboardButton::LCONTROL || kb == KeyboardButton::RCONTROL)
-				{
-					(id == WM_KEYDOWN || id == WM_SYSKEYDOWN) ? modifier_mask |= ModifierButton::CTRL : modifier_mask &= ~ModifierButton::CTRL;
-				}
-				else if (kb == KeyboardButton::LALT || kb == KeyboardButton::RALT)
-				{
-					(id == WM_KEYDOWN || id == WM_SYSKEYDOWN) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
-				}
-
-				_queue.push_keyboard_event(modifier_mask, kb, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN));
+				_queue.push_keyboard_event(kb, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN));
 				break;
 			}
 			default:

@@ -18,21 +18,10 @@ namespace crown
 struct Keyboard
 {
 	Keyboard()
-		: _modifier(0), _last_button(KeyboardButton::NONE)
+		: _last_button(KeyboardButton::NONE)
 	{
 		memset(_last_state, 0, KeyboardButton::COUNT);
 		memset(_current_state, 0, KeyboardButton::COUNT);
-	}
-
-	/// Returns whether the specified @a modifier is pressed.
-	/// @note
-	/// A modifier is a special key that modifies the normal action
-	/// of another key when the two are pressed in combination.
-	/// @note
-	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
-	bool modifier_pressed(ModifierButton::Enum modifier) const
-	{
-		return (_modifier & (uint8_t) modifier) == modifier;
 	}
 
 	/// Returns whether the specified @a b button is pressed in the current frame.
@@ -71,8 +60,6 @@ struct Keyboard
 	}
 
 public:
-
-	uint8_t _modifier;
 
 	KeyboardButton::Enum _last_button;
 	uint8_t _last_state[KeyboardButton::COUNT];

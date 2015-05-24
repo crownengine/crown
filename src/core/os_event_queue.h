@@ -48,7 +48,6 @@ struct OsMouseEvent
 struct OsKeyboardEvent
 {
 	KeyboardButton::Enum button;
-	uint32_t modifier;
 	bool pressed;
 };
 
@@ -155,12 +154,11 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_keyboard_event(uint32_t modifier, KeyboardButton::Enum b, bool pressed)
+	void push_keyboard_event(KeyboardButton::Enum b, bool pressed)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::KEYBOARD;
 		ev.keyboard.button = b;
-		ev.keyboard.modifier = modifier;
 		ev.keyboard.pressed = pressed;
 
 		push_event(ev);
