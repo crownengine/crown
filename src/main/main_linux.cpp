@@ -356,23 +356,7 @@ struct LinuxDevice
 					KeySym keysym = XLookupKeysym(&event.xkey, 0);
 					KeyboardButton::Enum kb = x11_translate_key(keysym);
 
-					// Check if any modifier key is pressed or released
-					int32_t modifier_mask = 0;
-
-					if (kb == KeyboardButton::LSHIFT || kb == KeyboardButton::RSHIFT)
-					{
-						(event.type == KeyPress) ? modifier_mask |= ModifierButton::SHIFT : modifier_mask &= ~ModifierButton::SHIFT;
-					}
-					else if (kb == KeyboardButton::LCONTROL || kb == KeyboardButton::RCONTROL)
-					{
-						(event.type == KeyPress) ? modifier_mask |= ModifierButton::CTRL : modifier_mask &= ~ModifierButton::CTRL;
-					}
-					else if (kb == KeyboardButton::LALT || kb == KeyboardButton::RALT)
-					{
-						(event.type == KeyPress) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
-					}
-
-					_queue.push_keyboard_event(modifier_mask, kb, event.type == KeyPress);
+					_queue.push_keyboard_event(kb, event.type == KeyPress);
 					break;
 				}
 				case KeymapNotify:

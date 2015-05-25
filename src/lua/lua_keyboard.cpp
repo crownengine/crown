@@ -8,17 +8,9 @@
 #include "input.h"
 #include "keyboard.h"
 
-
 namespace crown
 {
 using namespace input_globals;
-
-static int keyboard_modifier_pressed(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_bool(keyboard().modifier_pressed((ModifierButton::Enum) stack.get_int(1)));
-	return 1;
-}
 
 static int keyboard_button_pressed(lua_State* L)
 {
@@ -50,7 +42,6 @@ static int keyboard_any_released(lua_State* L)
 
 void load_keyboard(LuaEnvironment& env)
 {
-	env.load_module_function("Keyboard", "modifier_pressed", keyboard_modifier_pressed);
 	env.load_module_function("Keyboard", "button_pressed",   keyboard_button_pressed);
 	env.load_module_function("Keyboard", "button_released",  keyboard_button_released);
 	env.load_module_function("Keyboard", "any_pressed",      keyboard_any_pressed);

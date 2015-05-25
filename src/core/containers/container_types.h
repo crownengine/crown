@@ -139,7 +139,6 @@ struct Map
 	};
 
 	uint32_t _root;
-	uint32_t _sentinel;
 	Vector<Node> _data;
 };
 
