@@ -139,7 +139,8 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 	if (rr.error != ReadResult::NO_ERROR) return rr;
 
 	// Else read the message
-	Array<char> msg_buf(default_allocator());
+	TempAllocator4096 ta;
+	Array<char> msg_buf(ta);
 	array::resize(msg_buf, msg_len);
 	ReadResult msg_result = client.read(array::begin(msg_buf), msg_len);
 	array::push_back(msg_buf, '\0');
@@ -153,10 +154,11 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 
 void ConsoleServer::process(TCPSocket client, const char* json)
 {
-	Map<DynamicString, const char*> root(default_allocator());
+	TempAllocator4096 ta;
+	Map<DynamicString, const char*> root(ta);
 	json::parse_object(json, root);
 
-	DynamicString type;
+	DynamicString type(ta);
 	json::parse_string(root["type"], type);
 
 	if (type == "ping") process_ping(client, json);
@@ -172,26 +174,28 @@ void ConsoleServer::process_ping(TCPSocket client, const char* /*json*/)
 
 void ConsoleServer::process_script(TCPSocket /*client*/, const char* json)
 {
-	Map<DynamicString, const char*> root(default_allocator());
+	TempAllocator4096 ta;
+	Map<DynamicString, const char*> root(ta);
 	json::parse_object(json, root);
 
-	DynamicString script;
+	DynamicString script(ta);
 	json::parse_string(root["script"], script);
 	device()->lua_environment()->execute_string(script.c_str());
 }
 
 void ConsoleServer::process_command(TCPSocket /*client*/, const char* json)
 {
-	Map<DynamicString, const char*> root(default_allocator());
+	TempAllocator4096 ta;
+	Map<DynamicString, const char*> root(ta);
 	json::parse_object(json, root);
 
-	DynamicString cmd;
+	DynamicString cmd(ta);
 	json::parse_string(root["command"], cmd);
 
 	if (cmd == "reload")
 	{
-		DynamicString type;
-		DynamicString name;
+		DynamicString type(ta);
+		DynamicString name(ta);
 		json::parse_string(root["resource_type"], type);
 		json::parse_string(root["resource_name"], name);
 
