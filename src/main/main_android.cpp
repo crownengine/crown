@@ -150,19 +150,19 @@ struct AndroidDevice
 				case AMOTION_EVENT_ACTION_DOWN:
 				case AMOTION_EVENT_ACTION_POINTER_DOWN:
 				{
-					_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, true);
+					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointerId, true);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_UP:
 				case AMOTION_EVENT_ACTION_POINTER_UP:
 				{
-					_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, false);
+					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointerId, false);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_OUTSIDE:
 				case AMOTION_EVENT_ACTION_CANCEL:
 				{
-					_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, false);
+					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointerId, false);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_MOVE:
@@ -172,7 +172,7 @@ struct AndroidDevice
 						const float xx = AMotionEvent_getX(event, index);
 						const float yy = AMotionEvent_getY(event, index);
 						const int32_t id = AMotionEvent_getPointerId(event, index);
-						_queue.push_touch_event((uint16_t) xx, (uint16_t) yy, (uint8_t) id);
+						_queue.push_touch_event((int16_t)xx, (int16_t)yy, (uint8_t)id);
 					}
 					break;
 				}
