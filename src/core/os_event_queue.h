@@ -80,12 +80,12 @@ struct OsEvent
 	/// Represents an event fired by the OS
 	enum Enum
 	{
-		NONE			= 0,
+		NONE,
 
-		KEYBOARD		= 1,
-		MOUSE			= 2,
-		TOUCH			= 3,
-		ACCELEROMETER	= 4,
+		KEYBOARD,
+		MOUSE,
+		TOUCH,
+		ACCELEROMETER,
 
 		METRICS,
 		PAUSE,

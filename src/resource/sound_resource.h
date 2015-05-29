@@ -18,8 +18,8 @@ struct SoundType
 {
 	enum Enum
 	{
-		WAV = 0,
-		OGG = 1
+		WAV,
+		OGG
 	};
 };
 
