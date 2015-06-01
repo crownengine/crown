@@ -5,10 +5,8 @@
 
 #pragma once
 
-#include "types.h"
-#include "sphere.h"
-#include "vector3.h"
 #include "math_types.h"
+#include "vector3.h"
 
 namespace crown
 {
@@ -28,21 +26,19 @@ namespace plane
 
 namespace plane
 {
-	const Plane ZERO = Plane(vector3::ZERO, 0.0);
-	const Plane	XAXIS = Plane(vector3::XAXIS, 0.0);
-	const Plane	YAXIS = Plane(vector3::YAXIS, 0.0);
-	const Plane	ZAXIS = Plane(vector3::ZAXIS, 0.0);
+	const Plane ZERO = Plane(vector3::ZERO, 0.0f);
+	const Plane XAXIS = Plane(vector3::XAXIS, 0.0f);
+	const Plane YAXIS = Plane(vector3::YAXIS, 0.0f);
+	const Plane ZAXIS = Plane(vector3::ZAXIS, 0.0f);
 
 	inline Plane& normalize(Plane& p)
 	{
-		float len = vector3::length(p.n);
+		const float len = vector3::length(p.n);
 
-		if (equals(len, (float) 0.0))
-		{
+		if (equals(len, 0.0f))
 			return p;
-		}
 
-		const float inv_len = (float) 1.0 / len;
+		const float inv_len = 1.0f / len;
 
 		p.n *= inv_len;
 		p.d *= inv_len;

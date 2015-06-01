@@ -62,8 +62,8 @@ struct OsTouchEvent
 
 	OsTouchEvent::Enum type;
 	uint8_t pointer_id;
-	uint16_t x;
-	uint16_t y;
+	int16_t x;
+	int16_t y;
 	bool pressed;
 };
 
@@ -80,12 +80,12 @@ struct OsEvent
 	/// Represents an event fired by the OS
 	enum Enum
 	{
-		NONE			= 0,
+		NONE,
 
-		KEYBOARD		= 1,
-		MOUSE			= 2,
-		TOUCH			= 3,
-		ACCELEROMETER	= 4,
+		KEYBOARD,
+		MOUSE,
+		TOUCH,
+		ACCELEROMETER,
 
 		METRICS,
 		PAUSE,
@@ -164,7 +164,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id)
+	void push_touch_event(int16_t x, int16_t y, uint8_t pointer_id)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::TOUCH;
@@ -176,7 +176,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id, bool pressed)
+	void push_touch_event(int16_t x, int16_t y, uint8_t pointer_id, bool pressed)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::TOUCH;

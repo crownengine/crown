@@ -14,9 +14,9 @@ namespace crown
 	{
 		enum Enum
 		{
-			LINUX = 0,
-			WINDOWS = 1,
-			ANDROID = 2,
+			LINUX,
+			WINDOWS,
+			ANDROID,
 
 			COUNT
 		};
