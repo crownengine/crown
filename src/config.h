@@ -17,11 +17,11 @@
 	&& !defined(CROWN_PHYSICS_BULLET)
 
 	#ifndef CROWN_PHYSICS_PHYSX
-		#define CROWN_PHYSICS_PHYSX 1
+		#define CROWN_PHYSICS_PHYSX 0
 	#endif
 
 	#ifndef CROWN_PHYSICS_BULLET
-		#define CROWN_PHYSICS_BULLET 0
+		#define CROWN_PHYSICS_BULLET 1
 	#endif
 #else
 	#ifndef CROWN_PHYSICS_PHYSX
