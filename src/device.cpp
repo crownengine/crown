@@ -165,9 +165,9 @@ void Device::update()
 	_lua_environment->clear_temporaries();
 }
 
-void Device::render_world(World* world, Camera* camera)
+void Device::render_world(World& world, Camera* camera)
 {
-	world->render(camera);
+	world.render(camera);
 }
 
 World* Device::create_world()

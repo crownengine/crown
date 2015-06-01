@@ -78,7 +78,7 @@ static int device_destroy_world(lua_State* L)
 static int device_render_world(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->render_world(stack.get_world(1), stack.get_camera(2));
+	device()->render_world(*stack.get_world(1), stack.get_camera(2));
 	return 0;
 }
 
