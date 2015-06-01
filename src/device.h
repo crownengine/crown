@@ -81,7 +81,7 @@ struct Device
 	void update();
 
 	/// Renders the given @a world from the point of view of @a camera.
-	void render_world(World* world, Camera* camera);
+	void render_world(World& world, Camera* camera);
 
 	/// Creates a new world.
 	World* create_world();
