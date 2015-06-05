@@ -33,19 +33,19 @@ struct Gui
 
 	/// Draws a rectangle of size @a size at @a pos.
 	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color = Color4::WHITE);
+	void draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color = color4::WHITE);
 
 	/// Draws an image with the given @a material.
 	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color = Color4::WHITE);
+	void draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color = color4::WHITE);
 
 	/// Draws an image with the given @a material and @a uv0 and @a uv1 coordinates.
 	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color = Color4::WHITE);
+	void draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color = color4::WHITE);
 
 	/// Draws the text @a str with the given @a font and @a font_size.
 	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color = Color4::WHITE);
+	void draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color = color4::WHITE);
 
 public:
 
