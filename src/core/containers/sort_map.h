@@ -46,7 +46,7 @@ namespace sort_map
 
 namespace sort_map_internal
 {
-	const uint32_t END_OF_LIST = 0xFFFFFFFFu;
+	const uint32_t END_OF_LIST = 0xffffffffu;
 
 	struct FindResult
 	{

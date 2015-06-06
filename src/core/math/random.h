@@ -30,15 +30,15 @@ private:
 	int32_t _seed;
 };
 
-inline Random::Random(int32_t seed) : _seed(seed)
+inline Random::Random(int32_t seed)
+	: _seed(seed)
 {
 }
 
 inline int32_t Random::integer()
 {
 	_seed = 214013 * _seed + 13737667;
-
-	return (_seed >> 16) & 0x7FFF;
+	return (_seed >> 16) & 0x7fff;
 }
 
 inline int32_t Random::integer(int32_t max)
@@ -48,7 +48,7 @@ inline int32_t Random::integer(int32_t max)
 
 inline float Random::unit_float()
 {
-	return integer() / (float) 0x7FFF;
+	return integer() / (float)0x7fff;
 }
 
 } // namespace crown
