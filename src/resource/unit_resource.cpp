@@ -48,7 +48,7 @@ namespace unit_resource
 		return (ProjectionType::Enum)0;
 	}
 
-	const StringId32 NO_PARENT(0xFFFFFFFF);
+	const StringId32 NO_PARENT(0xffffffff);
 
 	struct GraphNode
 	{

@@ -18,10 +18,10 @@ struct KeyboardButton
 		NONE      = 0x00,
 
 		TAB       = 0x09,
-		ENTER     = 0x0D,
-		ESCAPE    = 0x1B,
+		ENTER     = 0x0d,
+		ESCAPE    = 0x1b,
 		SPACE     = 0x20,
-		BACKSPACE = 0x7F,
+		BACKSPACE = 0x7f,
 
 		/* KeyPad */
 		KP_0      = 0x80,
@@ -46,28 +46,28 @@ struct KeyboardButton
 		F8        = 0x97,
 		F9        = 0x98,
 		F10       = 0x99,
-		F11       = 0x9A,
-		F12       = 0x9B,
+		F11       = 0x9a,
+		F12       = 0x9b,
 
 		/* Other keys */
-		HOME      = 0xA0,
-		LEFT      = 0xA1,
-		UP        = 0xA2,
-		RIGHT     = 0xA3,
-		DOWN      = 0xA4,
-		PAGE_UP   = 0xA5,
-		PAGE_DOWN = 0xA6,
+		HOME      = 0xa0,
+		LEFT      = 0xa1,
+		UP        = 0xa2,
+		RIGHT     = 0xa3,
+		DOWN      = 0xa4,
+		PAGE_UP   = 0xa5,
+		PAGE_DOWN = 0xa6,
 
 		/* Modifier keys */
-		LCONTROL  = 0xB0,
-		RCONTROL  = 0xB1,
-		LSHIFT    = 0xB2,
-		RSHIFT    = 0xB3,
-		CAPS_LOCK = 0xB4,
-		LALT      = 0xB5,
-		RALT      = 0xB6,
-		LSUPER    = 0xB7,
-		RSUPER    = 0xB8,
+		LCONTROL  = 0xb0,
+		RCONTROL  = 0xb1,
+		LSHIFT    = 0xb2,
+		RSHIFT    = 0xb3,
+		CAPS_LOCK = 0xb4,
+		LALT      = 0xb5,
+		RALT      = 0xb6,
+		LSUPER    = 0xb7,
+		RSUPER    = 0xb8,
 
 		/* [0x30, 0x39] reserved for ASCII digits */
 		NUM_0     = 0x30,
@@ -81,7 +81,7 @@ struct KeyboardButton
 		NUM_8     = 0x38,
 		NUM_9     = 0x39,
 
-		/* [0x41, 0x5A] reserved for ASCII alphabet */
+		/* [0x41, 0x5a] reserved for ASCII alphabet */
 		A         = 0x41,
 		B         = 0x42,
 		C         = 0x43,
@@ -91,12 +91,12 @@ struct KeyboardButton
 		G         = 0x47,
 		H         = 0x48,
 		I         = 0x49,
-		J         = 0x4A,
-		K         = 0x4B,
-		L         = 0x4C,
-		M         = 0x4D,
-		N         = 0x4E,
-		O         = 0x4F,
+		J         = 0x4a,
+		K         = 0x4b,
+		L         = 0x4c,
+		M         = 0x4d,
+		N         = 0x4e,
+		O         = 0x4f,
 		P         = 0x50,
 		Q         = 0x51,
 		R         = 0x52,
@@ -107,14 +107,13 @@ struct KeyboardButton
 		W         = 0x57,
 		X         = 0x58,
 		Y         = 0x59,
-		Z         = 0x5A,
+		Z         = 0x5a,
 
-		/* [0x61, 0x7A] reserved for ASCII alphabet */
+		/* [0x61, 0x7a] reserved for ASCII alphabet */
 
-		// The last key _must_ be <= 0xFF
-		COUNT     = 0xFF
+		// The last key _must_ be <= 0xff
+		COUNT     = 0xff
 	};
 };
 
 } // namespace crown
-

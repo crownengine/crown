@@ -60,8 +60,8 @@ struct Id
 
 	void decode(uint32_t id_and_index)
 	{
-		id = (id_and_index & 0xFFFF0000) >> 16;
-		index = id_and_index & 0xFFFF;
+		id = (id_and_index & 0xffff0000) >> 16;
+		index = id_and_index & 0xffff;
 	}
 
 	uint32_t encode() const

@@ -532,10 +532,10 @@ namespace texture_resource
 		bw.write(pixel_format::is_compressed(image.format) ? DDPF_FOURCC : pf); // dwFlags;
 		bw.write(pixel_format::is_compressed(image.format) ? pf : DDSD_UNUSED); // dwFourCC;
 		bw.write(uint32_t(pixel_format::size(image.format) * 8)); // dwRGBBitCount;
-		bw.write(uint32_t(0x00FF0000)); // dwRBitMask;
-		bw.write(uint32_t(0x0000FF00)); // dwGBitMask;
-		bw.write(uint32_t(0x000000FF)); // dwBBitMask;
-		bw.write(uint32_t(0xFF000000)); // dwABitMask;
+		bw.write(uint32_t(0x00ff0000)); // dwRBitMask;
+		bw.write(uint32_t(0x0000ff00)); // dwGBitMask;
+		bw.write(uint32_t(0x000000ff)); // dwBBitMask;
+		bw.write(uint32_t(0xff000000)); // dwABitMask;
 
 		bw.write(DDSCAPS_TEXTURE
 			| (image.num_mips > 1 ? DDSCAPS_COMPLEX : DDSD_UNUSED) // also for cubemap, depth mipmap

@@ -23,7 +23,7 @@ const uint32_t MAX_POINTER_IDS = 4;
 struct Touch
 {
 	Touch()
-		: _last_pointer(0xFF)
+		: _last_pointer(0xff)
 	{
 		memset(_last_state, 0, MAX_POINTER_IDS);
 		memset(_current_state, 0, MAX_POINTER_IDS);

@@ -20,7 +20,7 @@ Allocator& default_allocator();
 namespace memory
 {
 	/// Value used to fill unused memory
-	const uint32_t PADDING_VALUE = 0xFFFFFFFFu;
+	const uint32_t PADDING_VALUE = 0xffffffffu;
 
 	/// Returns the pointer @a p aligned to the desired @a align byte
 	inline void* align_top(void* p, uint32_t align)
