@@ -63,12 +63,12 @@ namespace aabb
 
 	inline Vector3 center(const AABB& b)
 	{
-		return (b.min + b.max) * 0.5;
+		return (b.min + b.max) * 0.5f;
 	}
 
 	inline float radius(const AABB& b)
 	{
-		return vector3::length(b.max - (b.min + b.max) * 0.5);
+		return vector3::length(b.max - (b.min + b.max) * 0.5f);
 	}
 	inline float volume(const AABB& b)
 	{
@@ -77,7 +77,7 @@ namespace aabb
 
 	inline void add_points(AABB& b, uint32_t num, const Vector3* points)
 	{
-		for (uint32_t i = 0; i < num; i++)
+		for (uint32_t i = 0; i < num; ++i)
 		{
 			const Vector3& p = points[i];
 
@@ -92,7 +92,7 @@ namespace aabb
 
 	inline void add_boxes(AABB& b, uint32_t num, const AABB* boxes)
 	{
-		for (uint32_t i = 0; i < num; i++)
+		for (uint32_t i = 0; i < num; ++i)
 		{
 			const AABB& box = boxes[i];
 
@@ -107,12 +107,13 @@ namespace aabb
 
 	inline bool contains_point(const AABB& b, const Vector3& p)
 	{
-		return (p.x > b.min.x &&
-				p.y > b.min.y &&
-				p.z > b.min.z &&
-				p.x < b.max.x &&
-				p.y < b.max.y &&
-				p.z < b.max.z);
+		return (p.x > b.min.x
+			&& p.y > b.min.y
+			&& p.z > b.min.z
+			&& p.x < b.max.x
+			&& p.y < b.max.y
+			&& p.z < b.max.z
+		);
 	}
 
 	inline Vector3 vertex(const AABB& b, uint32_t index)
