@@ -5,9 +5,8 @@
 
 #pragma once
 
-#include "types.h"
-#include "math_utils.h"
 #include "math_types.h"
+#include "math_utils.h"
 #include "vector3.h"
 
 namespace crown

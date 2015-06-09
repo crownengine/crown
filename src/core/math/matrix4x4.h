@@ -6,10 +6,9 @@
 #pragma once
 
 #include "math_types.h"
-#include "matrix3x3.h"
-#include "quaternion.h"
 #include "vector4.h"
-#include "types.h"
+#include "quaternion.h"
+#include "matrix3x3.h"
 
 namespace crown
 {
@@ -17,7 +16,7 @@ namespace crown
 /// Functions to manipulate Matrix4x4.
 ///
 /// @ingroup Math
-const Matrix4x4 MATRIX4X4_IDENTITY = { {1.0, 0.0, 0.0, 0.0 }, {0.0, 1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 } };
+const Matrix4x4 MATRIX4X4_IDENTITY = { {1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, { 0.0f, 0.0f, 1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f, 1.0f} };
 
 inline Matrix4x4 matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
 	float r1c2, float r2c2, float r3c2, float r4c2,

@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include "error.h"
-#include "types.h"
-#include "math_utils.h"
 #include "math_types.h"
+#include "math_utils.h"
+#include "error.h"
 
 namespace crown
 {
@@ -49,7 +48,7 @@ inline Vector2& operator*=(Vector2& a, float k)
 
 inline Vector2& operator/=(Vector2& a, float k)
 {
-	CE_ASSERT(k != (float)0.0, "Division by zero");
+	CE_ASSERT(k != 0.0f, "Division by zero");
 	float inv = 1.0f / k;
 	a.x *= inv;
 	a.y *= inv;

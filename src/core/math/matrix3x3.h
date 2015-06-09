@@ -7,7 +7,6 @@
 
 #include "math_types.h"
 #include "vector3.h"
-#include "error.h"
 #include "quaternion.h"
 
 namespace crown
@@ -16,7 +15,7 @@ namespace crown
 /// Functions to manipulate Matrix3x3
 ///
 /// @ingroup Math
-const Matrix3x3 IDENTITY = { {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0} };
+const Matrix3x3 IDENTITY = { {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
 
 inline Matrix3x3 matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z)
 {

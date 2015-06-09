@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "error.h"
-#include "types.h"
+#include "math_types.h"
 #include "math_utils.h"
 #include "vector3.h"
+#include "error.h"
 
 namespace crown
 {
@@ -16,11 +16,11 @@ namespace crown
 /// Functions to manipulate Vector4.
 ///
 /// @ingroup Math
-const Vector4 VECTOR4_ZERO  = { 0, 0, 0, 0 };
-const Vector4 VECTOR4_XAXIS = { 1, 0, 0, 0 };
-const Vector4 VECTOR4_YAXIS = { 0, 1, 0, 0 };
-const Vector4 VECTOR4_ZAXIS = { 0, 0, 1, 0 };
-const Vector4 VECTOR4_WAXIS = { 0, 0, 0, 1 };
+const Vector4 VECTOR4_ZERO  = { 0.0f, 0.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_XAXIS = { 1.0f, 0.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_YAXIS = { 0.0f, 1.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_ZAXIS = { 0.0f, 0.0f, 1.0f, 0.0f };
+const Vector4 VECTOR4_WAXIS = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /// Returns the Vector3 portion of @a a. (i.e. truncates w)
 Vector3 to_vector3(const Vector4& a);
@@ -74,7 +74,7 @@ inline Vector4& operator*=(Vector4& a, float k)
 
 inline Vector4& operator/=(Vector4& a, float k)
 {
-	CE_ASSERT(k != (float)0.0, "Division by zero");
+	CE_ASSERT(k != 0.0f, "Division by zero");
 	float inv = 1.0f / k;
 	a.x *= inv;
 	a.y *= inv;
