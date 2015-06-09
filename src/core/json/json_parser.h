@@ -101,15 +101,15 @@ public:
 
 	/// Returns the Vector2 value of the element.
 	/// @note Vector2 = [x, y]
-	Vector2 to_vector2(const Vector2& def = vector2(0, 0)) const;
+	Vector2 to_vector2(const Vector2& def = VECTOR2_ZERO) const;
 
 	/// Returns the Vector3 value of the element.
 	/// @note Vector3 = [x, y, z]
-	Vector3 to_vector3(const Vector3& def = vector3(0, 0, 0)) const;
+	Vector3 to_vector3(const Vector3& def = VECTOR3_ZERO) const;
 
 	/// Returns the Vector4 value of the element.
 	/// @note Vector4 = [x, y, z, w]
-	Vector4 to_vector4(const Vector4& def = vector4(0, 0, 0, 0)) const;
+	Vector4 to_vector4(const Vector4& def = VECTOR4_ZERO) const;
 
 	/// Returns the Quaternion value of the element.
 	/// @note Quaternion = [x, y, z, w]
