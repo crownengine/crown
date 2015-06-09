@@ -75,7 +75,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		, 0);
 
 	// Set view and projection matrix for view 0.
-	bgfx::setViewTransform(0, matrix4x4::to_float_ptr(view), matrix4x4::to_float_ptr(projection));
+	bgfx::setViewTransform(0, to_float_ptr(view), to_float_ptr(projection));
 	bgfx::setViewRect(0, 0, 0, width, height);
 
 	// This dummy draw call is here to make sure that view 0 is cleared

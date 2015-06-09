@@ -45,7 +45,7 @@ const Matrix4x4& Camera::projection_matrix() const
 Matrix4x4 Camera::view_matrix() const
 {
 	Matrix4x4 view = _scene_graph.world_pose(_scene_graph.get(_unit_id));
-	matrix4x4::invert(view);
+	invert(view);
 	return view;
 }
 
@@ -113,28 +113,24 @@ void Camera::set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16
 
 Vector3 Camera::screen_to_world(const Vector3& pos)
 {
-	using namespace matrix4x4;
-
 	Matrix4x4 mvp = view_matrix() * _projection;
 	invert(mvp);
 
-	Vector4 ndc( (2 * (pos.x - 0)) / _view_width - 1,
+	Vector4 ndc = vector4( (2 * (pos.x - 0)) / _view_width - 1,
 				 (2 * (_view_height - pos.y)) / _view_height - 1,
 				 (2 * pos.z) - 1, 1);
 
 	Vector4 tmp = ndc * mvp;
 	tmp *= 1.0f / tmp.w;
 
-	return Vector3(tmp.x, tmp.y, tmp.z);
+	return vector3(tmp.x, tmp.y, tmp.z);
 }
 
 Vector3 Camera::world_to_screen(const Vector3& pos)
 {
-	using namespace matrix4x4;
-
 	Vector3 ndc = pos * (view_matrix() * _projection);
 
-	return Vector3( (_view_x + _view_width * (ndc.x + 1.0f)) / 2.0f,
+	return vector3( (_view_x + _view_width * (ndc.x + 1.0f)) / 2.0f,
 					(_view_y + _view_height * (ndc.y + 1.0f)) / 2.0f,
 					(ndc.z + 1.0f) / 2.0f);
 }
@@ -145,12 +141,12 @@ void Camera::update_projection_matrix()
 	{
 		case ProjectionType::ORTHOGRAPHIC:
 		{
-			matrix4x4::set_orthographic(_projection, _left, _right, _bottom, _top, _near, _far);
+			set_orthographic(_projection, _left, _right, _bottom, _top, _near, _far);
 			break;
 		}
 		case ProjectionType::PERSPECTIVE:
 		{
-			matrix4x4::set_perspective(_projection, _FOV, _aspect, _near, _far);
+			set_perspective(_projection, _FOV, _aspect, _near, _far);
 			break;
 		}
 		default:

@@ -62,8 +62,8 @@ struct Touch
 	/// to right and +Y extends from top to bottom.
 	Vector2 pointer_xy(uint8_t p)
 	{
-		if (p >= MAX_POINTER_IDS) return vector2::ZERO;
-		return Vector2(_x[p], _y[p]);
+		if (p >= MAX_POINTER_IDS) return VECTOR2_ZERO;
+		return vector2(_x[p], _y[p]);
 	}
 
 	void set_position(uint8_t p, uint16_t x, uint16_t y)

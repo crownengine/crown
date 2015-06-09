@@ -49,7 +49,7 @@ void Actor::create_objects()
 	// Create rigid body
 	TransformInstance ti = m_scene_graph.get(m_unit);
 	const Matrix4x4 tr = m_scene_graph.world_pose(ti);
-	const PxMat44 pose((PxReal*) matrix4x4::to_float_ptr(tr));
+	const PxMat44 pose((PxReal*) to_float_ptr(tr));
 
 	if (actor_class->flags & PhysicsActor2::DYNAMIC)
 	{
@@ -182,19 +182,19 @@ void Actor::destroy_objects()
 Vector3 Actor::world_position() const
 {
 	const PxTransform tr = m_actor->getGlobalPose();
-	return Vector3(tr.p.x, tr.p.y, tr.p.z);
+	return vector3(tr.p.x, tr.p.y, tr.p.z);
 }
 
 Quaternion Actor::world_rotation() const
 {
 	const PxTransform tr = m_actor->getGlobalPose();
-	return Quaternion(tr.q.x, tr.q.y, tr.q.z, tr.q.w);
+	return quaternion(tr.q.x, tr.q.y, tr.q.z, tr.q.w);
 }
 
 Matrix4x4 Actor::world_pose() const
 {
 	const PxTransform tr = m_actor->getGlobalPose();
-	return Matrix4x4(Quaternion(tr.q.x, tr.q.y, tr.q.z, tr.q.w), Vector3(tr.p.x, tr.p.y, tr.p.z));
+	return matrix4x4(quaternion(tr.q.x, tr.q.y, tr.q.z, tr.q.w), vector3(tr.p.x, tr.p.y, tr.p.z));
 }
 
 void Actor::teleport_world_position(const Vector3& p)
@@ -218,8 +218,6 @@ void Actor::teleport_world_rotation(const Quaternion& r)
 
 void Actor::teleport_world_pose(const Matrix4x4& m)
 {
-	using namespace matrix4x4;
-
 	const PxVec3 x(m.x.x, m.x.y, m.x.z);
 	const PxVec3 y(m.y.x, m.y.y, m.y.z);
 	const PxVec3 z(m.z.x, m.z.y, m.z.z);
@@ -230,10 +228,10 @@ void Actor::teleport_world_pose(const Matrix4x4& m)
 Vector3 Actor::center_of_mass() const
 {
 	if (is_static())
-		return Vector3(0, 0, 0);
+		return vector3(0, 0, 0);
 
 	const PxTransform tr = static_cast<PxRigidBody*>(m_actor)->getCMassLocalPose();
-	return Vector3(tr.p.x, tr.p.y, tr.p.z);
+	return vector3(tr.p.x, tr.p.y, tr.p.z);
 }
 
 void Actor::enable_gravity()
@@ -376,10 +374,10 @@ void Actor::set_angular_damping(float rate)
 Vector3 Actor::linear_velocity() const
 {
 	if (is_static())
-		return Vector3(0, 0, 0);
+		return vector3(0, 0, 0);
 
 	const PxVec3 vel = static_cast<PxRigidBody*>(m_actor)->getLinearVelocity();
-	return Vector3(vel.x, vel.y, vel.z);
+	return vector3(vel.x, vel.y, vel.z);
 }
 
 void Actor::set_linear_velocity(const Vector3& vel)
@@ -394,10 +392,10 @@ void Actor::set_linear_velocity(const Vector3& vel)
 Vector3 Actor::angular_velocity() const
 {
 	if (is_static())
-		return Vector3(0, 0, 0);
+		return vector3(0, 0, 0);
 
 	const PxVec3 vel = static_cast<PxRigidBody*>(m_actor)->getAngularVelocity();
-	return Vector3(vel.x, vel.y, vel.z);
+	return vector3(vel.x, vel.y, vel.z);
 }
 
 void Actor::set_angular_velocity(const Vector3& vel)

@@ -99,9 +99,6 @@ public:
 	{
 		Pose& operator=(const Matrix4x4& m)
 		{
-			using namespace matrix3x3;
-			using namespace matrix4x4;
-			using namespace vector3;
 			Matrix3x3 rotm = to_matrix3x3(m);
 			normalize(rotm.x);
 			normalize(rotm.y);
@@ -109,7 +106,7 @@ public:
 
 			position = translation(m);
 			rotation = rotm;
-			scale = matrix4x4::scale(m);
+			scale = crown::scale(m);
 			return *this;
 		}
 

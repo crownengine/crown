@@ -97,17 +97,17 @@ namespace mesh_resource
 			MeshVertex v;
 
 			uint16_t p_idx = position_index[i] * 3;
-			v.position = Vector3(positions[p_idx], positions[p_idx + 1], positions[p_idx + 2]);
+			v.position = vector3(positions[p_idx], positions[p_idx + 1], positions[p_idx + 2]);
 
 			if (has_normal)
 			{
 				uint16_t n_idx = normal_index[i] * 3;
-				v.normal = Vector3(normals[n_idx], normals[n_idx + 1], normals[n_idx + 2]);
+				v.normal = vector3(normals[n_idx], normals[n_idx + 1], normals[n_idx + 2]);
 			}
 			if (has_texcoord)
 			{
 				uint16_t t_idx = texcoord_index[i] * 2;
-				v.texcoord = Vector2(texcoords[t_idx], texcoords[t_idx + 1]);
+				v.texcoord = vector2(texcoords[t_idx], texcoords[t_idx + 1]);
 			}
 
 			uint32_t f_idx = 0;

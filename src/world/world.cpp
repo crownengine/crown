@@ -61,7 +61,7 @@ UnitId World::spawn_unit(const UnitResource* ur, const Vector3& pos, const Quate
 {
 	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
 	const UnitId unit_id = id_array::create(m_units, u);
-	new (u) Unit(*this, unit_id, ur, *_scene_graph, Matrix4x4(rot, pos));
+	new (u) Unit(*this, unit_id, ur, *_scene_graph, matrix4x4(rot, pos));
 
 	post_unit_spawned_event(unit_id);
 	return unit_id;

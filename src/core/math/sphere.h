@@ -37,7 +37,7 @@ namespace sphere
 	{
 		for (uint32_t i = 0; i < num; ++i)
 		{
-			const float dist = vector3::squared_length(points[i] - s.c);
+			const float dist = squared_length(points[i] - s.c);
 			if (dist >= s.r*s.r)
 				s.r = sqrt(dist);
 		}
@@ -47,7 +47,7 @@ namespace sphere
 	{
 		for (uint32_t i = 0; i < num; ++i)
 		{
-			const float dist = vector3::squared_length(spheres[i].c - s.c);
+			const float dist = squared_length(spheres[i].c - s.c);
 
 			if (dist < (spheres[i].r + s.r) * (spheres[i].r + s.r))
 			{
@@ -59,20 +59,9 @@ namespace sphere
 
 	inline bool contains_point(const Sphere& s, const Vector3& p)
 	{
-		float dist = vector3::squared_length(p - s.c);
+		float dist = squared_length(p - s.c);
 		return dist < s.r*s.r;
 	}
 } // namespace sphere
-
-inline Sphere::Sphere()
-{
-	// Do nothing
-}
-
-inline Sphere::Sphere(const Vector3& nc, float nr)
-	: c(nc)
-	, r(nr)
-{
-}
 
 } // namespace crown

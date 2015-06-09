@@ -317,7 +317,7 @@ Raycast* PhysicsWorld::get_raycast(RaycastId id)
 Vector3 PhysicsWorld::gravity() const
 {
 	PxVec3 g = m_scene->getGravity();
-	return Vector3(g.x, g.y, g.z);
+	return vector3(g.x, g.y, g.z);
 }
 
 void PhysicsWorld::set_gravity(const Vector3& g)
@@ -379,10 +379,10 @@ void PhysicsWorld::update(float dt)
 		if (active_transforms[i].userData == NULL) continue;
 
 		const PxTransform tr = active_transforms[i].actor2World;
-		const Vector3 pos(tr.p.x, tr.p.y, tr.p.z);
-		const Quaternion rot(tr.q.x, tr.q.y, tr.q.z, tr.q.w);
+		const Vector3 pos = vector3(tr.p.x, tr.p.y, tr.p.z);
+		const Quaternion rot = quaternion(tr.q.x, tr.q.y, tr.q.z, tr.q.w);
 
-		static_cast<Actor*>(active_transforms[i].userData)->update(Matrix4x4(rot, pos));
+		static_cast<Actor*>(active_transforms[i].userData)->update(matrix4x4(rot, pos));
 	}
 
 	// Update controllers
@@ -400,9 +400,9 @@ void PhysicsWorld::draw_debug(DebugLine& lines)
 	for(PxU32 i = 0; i < rb.getNbLines(); i++)
 	{
 		const PxDebugLine& pxline = rb.getLines()[i];
-		lines.add_line(Vector3(pxline.pos0.x, pxline.pos0.y, pxline.pos0.z),
-						Vector3(pxline.pos1.x, pxline.pos1.y, pxline.pos1.z),
-						Color4(pxline.color0));
+		lines.add_line(vector3(pxline.pos0.x, pxline.pos0.y, pxline.pos0.z),
+			vector3(pxline.pos1.x, pxline.pos1.y, pxline.pos1.z),
+			color4(pxline.color0, pxline.color0, pxline.color0, 1.0f));
 	}
 
 	lines.commit();

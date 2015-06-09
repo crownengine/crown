@@ -15,7 +15,7 @@ namespace crown
 static int quaternion_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(Quaternion(stack.get_vector3(1), stack.get_float(2)));
+	stack.push_quaternion(quaternion(stack.get_vector3(1), stack.get_float(2)));
 	return 1;
 }
 
@@ -36,35 +36,35 @@ static int quaternion_negate(lua_State* L)
 static int quaternion_identity(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(quaternion::IDENTITY);
+	stack.push_quaternion(QUATERNION_IDENTITY);
 	return 1;
 }
 
 static int quaternion_length(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(quaternion::length(stack.get_quaternion(1)));
+	stack.push_float(length(stack.get_quaternion(1)));
 	return 1;
 }
 
 static int quaternion_normalize(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(quaternion::normalize(stack.get_quaternion(1)));
+	stack.push_quaternion(normalize(stack.get_quaternion(1)));
 	return 1;
 }
 
 static int quaternion_conjugate(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(quaternion::conjugate(stack.get_quaternion(1)));
+	stack.push_quaternion(conjugate(stack.get_quaternion(1)));
 	return 1;
 }
 
 static int quaternion_inverse(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(quaternion::inverse(stack.get_quaternion(1)));
+	stack.push_quaternion(inverse(stack.get_quaternion(1)));
 	return 1;
 }
 
@@ -85,7 +85,7 @@ static int quaternion_multiply_by_scalar(lua_State* L)
 static int quaternion_power(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(quaternion::power(stack.get_quaternion(1), stack.get_float(2)));
+	stack.push_quaternion(power(stack.get_quaternion(1), stack.get_float(2)));
 	return 1;
 }
 
@@ -104,12 +104,10 @@ static int quaternionbox_new(lua_State* L)
 {
 	LuaStack stack(L);
 
-	if (stack.num_args() == 0)
-		stack.push_quaternionbox(Quaternion());
-	else if (stack.num_args() == 1)
+	if (stack.num_args() == 1)
 		stack.push_quaternionbox(stack.get_quaternion(1));
 	else
-		stack.push_quaternionbox(Quaternion(stack.get_float(1)
+		stack.push_quaternionbox(quaternion(stack.get_float(1)
 			, stack.get_float(2)
 			, stack.get_float(3)
 			, stack.get_float(4)));
@@ -133,7 +131,7 @@ static int quaternionbox_store(lua_State* L)
 	if (stack.num_args() == 2)
 		q = stack.get_quaternion(2);
 	else
-		q = Quaternion(stack.get_float(2)
+		q = quaternion(stack.get_float(2)
 			, stack.get_float(3)
 			, stack.get_float(4)
 			, stack.get_float(5));

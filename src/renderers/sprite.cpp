@@ -58,7 +58,7 @@ void Sprite::render()
 	bgfx::setVertexBuffer(m_resource->vb);
 	bgfx::setIndexBuffer(m_resource->ib, m_frame * 6, 6);
 	TransformInstance ti = m_scene_graph.get(_unit_id);
-	bgfx::setTransform(matrix4x4::to_float_ptr(m_scene_graph.world_pose(ti)));
+	bgfx::setTransform(to_float_ptr(m_scene_graph.world_pose(ti)));
 	bgfx::submit(0, _depth);
 }
 

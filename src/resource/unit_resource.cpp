@@ -140,10 +140,8 @@ namespace unit_resource
 				gn.parent = parent_name.to_string_id();
 			}
 
-			JSONElement pos = node.key("position");
-			JSONElement rot = node.key("rotation");
-			gn.position = Vector3(pos[0].to_float(), pos[1].to_float(), pos[2].to_float());
-			gn.rotation = Quaternion(Vector3(rot[0].to_float(), rot[1].to_float(), rot[2].to_float()), rot[3].to_float());
+			gn.position = node.key("position").to_vector3();
+			gn.rotation = node.key("rotation").to_quaternion();
 
 			GraphNodeDepth gnd;
 			gnd.name = gn.name;
@@ -355,7 +353,7 @@ namespace unit_resource
 			UnitNode un;
 			un.name = node.name;
 			un.parent = find_node_parent_index(i, m_nodes, m_node_depths);
-			un.pose = Matrix4x4(node.rotation, node.position);
+			un.pose = matrix4x4(node.rotation, node.position);
 
 			opts.write(un.name);
 			opts.write(un.pose);

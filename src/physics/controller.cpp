@@ -71,7 +71,7 @@ void Controller::set_height(float height)
 Vector3 Controller::position() const
 {
 	PxExtendedVec3 pos = m_controller->getPosition();
-	return Vector3(pos.x, pos.y, pos.z);
+	return vector3(pos.x, pos.y, pos.z);
 }
 
 bool Controller::collides_up() const

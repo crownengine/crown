@@ -87,8 +87,8 @@ public:
 
 			post_collision_event((Actor*) pair_header.actors[0]->userData,
 				(Actor*) pair_header.actors[1]->userData,
-				Vector3(where.x, where.y, where.z),
-				Vector3(normal.x, normal.y, normal.z),
+				vector3(where.x, where.y, where.z),
+				vector3(normal.x, normal.y, normal.z),
 				(cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND) ?
 					physics_world::CollisionEvent::BEGIN_TOUCH :
 					physics_world::CollisionEvent::END_TOUCH);

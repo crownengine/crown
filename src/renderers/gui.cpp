@@ -16,8 +16,6 @@
 namespace crown
 {
 
-using namespace matrix4x4;
-
 struct VertexData
 {
 	float x;
@@ -89,7 +87,7 @@ void Gui::init()
 Gui::Gui(uint16_t width, uint16_t height, const char* material)
 	: m_width(width)
 	, m_height(height)
-	, m_pose(matrix4x4::IDENTITY)
+	, m_pose(MATRIX4X4_IDENTITY)
 {
 	set_orthographic(m_projection, 0, width, 0, height, -0.01f, 100.0f);
 
@@ -108,18 +106,18 @@ void Gui::set_id(const GuiId id)
 
 Vector2 Gui::resolution() const
 {
-	return Vector2(m_width, m_height);
+	return vector2(m_width, m_height);
 }
 
 void Gui::move(const Vector2& pos)
 {
 	set_identity(m_pose);
-	set_translation(m_pose, Vector3(pos.x, pos.y, 0));
+	set_translation(m_pose, vector3(pos.x, pos.y, 0));
 }
 
 Vector2 Gui::screen_to_gui(const Vector2& pos)
 {
-	return Vector2(pos.x, m_height - pos.y);
+	return vector2(pos.x, m_height - pos.y);
 }
 
 void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color)
@@ -148,7 +146,7 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	inds[5] = 3;
 
 	material_manager::get()->lookup_material(m_material)->bind();
-	bgfx::setViewTransform(1, matrix4x4::to_float_ptr(matrix4x4::IDENTITY), matrix4x4::to_float_ptr(m_projection));
+	bgfx::setViewTransform(1, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(m_projection));
 	bgfx::setViewRect(1, 0, 0, m_width, m_height);
 	bgfx::setState(BGFX_STATE_DEFAULT);
 	bgfx::setVertexBuffer(&tvb);
@@ -158,7 +156,7 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 
 void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color)
 {
-	draw_image_uv(material, pos, size, Vector2(0, 0), Vector2(1, 1), color);
+	draw_image_uv(material, pos, size, vector2(0, 0), vector2(1, 1), color);
 }
 
 void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color)
@@ -201,7 +199,7 @@ void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2&
 	Material* mat = material_manager::get()->lookup_material(res_id.name);
 	mat->bind();*/
 
-	bgfx::setViewTransform(1, matrix4x4::to_float_ptr(matrix4x4::IDENTITY), matrix4x4::to_float_ptr(m_projection));
+	bgfx::setViewTransform(1, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(m_projection));
 	bgfx::setViewRect(1, 0, 0, m_width, m_height);
 	bgfx::setState(BGFX_STATE_DEFAULT);
 	bgfx::setVertexBuffer(&tvb);
