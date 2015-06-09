@@ -26,14 +26,19 @@ namespace plane
 
 namespace plane
 {
-	const Plane ZERO = Plane(vector3::ZERO, 0.0f);
-	const Plane XAXIS = Plane(vector3::XAXIS, 0.0f);
-	const Plane YAXIS = Plane(vector3::YAXIS, 0.0f);
-	const Plane ZAXIS = Plane(vector3::ZAXIS, 0.0f);
+	// const Plane ZERO = Plane(vector3::ZERO, 0.0f);
+	// const Plane XAXIS = Plane(vector3::XAXIS, 0.0f);
+	// const Plane YAXIS = Plane(vector3::YAXIS, 0.0f);
+	// const Plane ZAXIS = Plane(vector3::ZAXIS, 0.0f);
+
+	const Plane ZERO  = { VECTOR3_ZERO, 0.0f };
+	const Plane XAXIS = { VECTOR3_XAXIS, 0.0f };
+	const Plane YAXIS = { VECTOR3_YAXIS, 0.0f };
+	const Plane ZAXIS = { VECTOR3_ZAXIS, 0.0f };
 
 	inline Plane& normalize(Plane& p)
 	{
-		const float len = vector3::length(p.n);
+		const float len = length(p.n);
 
 		if (equals(len, 0.0f))
 			return p;
@@ -48,18 +53,8 @@ namespace plane
 
 	inline float distance_to_point(const Plane& p, const Vector3& point)
 	{
-		return vector3::dot(p.n, point) + p.d;
+		return dot(p.n, point) + p.d;
 	}
 } // namespace plane
-
-inline Plane::Plane()
-{
-	// Do not initialize
-}
-
-inline Plane::Plane(const Vector3& normal, float dist)
-	: n(normal), d(dist)
-{
-}
 
 } // namespace crown

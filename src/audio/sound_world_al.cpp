@@ -169,12 +169,12 @@ struct SoundInstance
 	{
 		ALfloat pos[3];
 		AL_CHECK(alGetSourcefv(_source, AL_POSITION, pos));
-		return Vector3(pos[0], pos[1], pos[2]);
+		return vector3(pos[0], pos[1], pos[2]);
 	}
 
 	void set_position(const Vector3& pos)
 	{
-		AL_CHECK(alSourcefv(_source, AL_POSITION, vector3::to_float_ptr(pos)));
+		AL_CHECK(alSourcefv(_source, AL_POSITION, to_float_ptr(pos)));
 	}
 
 	void set_range(float range)
@@ -206,7 +206,7 @@ public:
 
 	ALSoundWorld()
 	{
-		set_listener_pose(matrix4x4::IDENTITY);
+		set_listener_pose(MATRIX4X4_IDENTITY);
 	}
 
 	virtual ~ALSoundWorld()
@@ -296,9 +296,9 @@ public:
 
 	virtual void set_listener_pose(const Matrix4x4& pose)
 	{
-		const Vector3 pos = matrix4x4::translation(pose);
-		const Vector3 up = matrix4x4::y(pose);
-		const Vector3 at = matrix4x4::z(pose);
+		const Vector3 pos = translation(pose);
+		const Vector3 up = y(pose);
+		const Vector3 at = z(pose);
 
 		AL_CHECK(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 		//AL_CHECK(alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z));

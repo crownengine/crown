@@ -11,8 +11,6 @@
 namespace crown
 {
 
-using namespace matrix4x4;
-
 static int matrix4x4_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -32,7 +30,7 @@ static int matrix4x4_new(lua_State* L)
 	float m13 = stack.get_float(14);
 	float m14 = stack.get_float(15);
 	float m15 = stack.get_float(16);
-	stack.push_matrix4x4(Matrix4x4(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15));
+	stack.push_matrix4x4(matrix4x4(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15));
 	return 1;
 }
 
@@ -46,28 +44,28 @@ static int matrix4x4_ctor(lua_State* L)
 static int matrix4x4_from_quaternion(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(Matrix4x4(stack.get_quaternion(1), Vector3(0, 0, 0)));
+	stack.push_matrix4x4(matrix4x4(stack.get_quaternion(1), vector3(0, 0, 0)));
 	return 1;
 }
 
 static int matrix4x4_from_translation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(Matrix4x4(quaternion::IDENTITY, stack.get_vector3(1)));
+	stack.push_matrix4x4(matrix4x4(QUATERNION_IDENTITY, stack.get_vector3(1)));
 	return 1;
 }
 
 static int matrix4x4_from_quaternion_translation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(Matrix4x4(stack.get_quaternion(1), stack.get_vector3(2)));
+	stack.push_matrix4x4(matrix4x4(stack.get_quaternion(1), stack.get_vector3(2)));
 	return 1;
 }
 
 static int matrix4x4_from_axes(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(Matrix4x4(stack.get_vector3(1), stack.get_vector3(2), stack.get_vector3(3), stack.get_vector3(4)));
+	stack.push_matrix4x4(matrix4x4(stack.get_vector3(1), stack.get_vector3(2), stack.get_vector3(3), stack.get_vector3(4)));
 	return 1;
 }
 
@@ -186,7 +184,7 @@ static int matrix4x4_set_rotation(lua_State* L)
 static int matrix4x4_identity(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(matrix4x4::IDENTITY);
+	stack.push_matrix4x4(MATRIX4X4_IDENTITY);
 	return 1;
 }
 
@@ -195,7 +193,7 @@ static int matrix4x4_to_string(lua_State* L)
 	LuaStack stack(L);
 	Matrix4x4& a = stack.get_matrix4x4(1);
 	stack.push_fstring("%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n",
-						a[0], a[4], a[8], a[12], a[1], a[5], a[9], a[13], a[2], a[6], a[10], a[14], a[3], a[7], a[11], a[15]);
+						a.x.x, a.x.y, a.x.z, a.y.w, a.y.x, a.y.y, a.y.z, a.y.w, a.z.x, a.z.y, a.z.z, a.z.w, a.t.x, a.t.y, a.t.z, a.t.w);
 	return 1;
 }
 

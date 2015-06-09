@@ -13,10 +13,10 @@ namespace crown
 static int color4_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(Quaternion(stack.get_float(1),
-							stack.get_float(2),
-							stack.get_float(3),
-							stack.get_float(4)));
+	stack.push_quaternion(quaternion(stack.get_float(1),
+		stack.get_float(2),
+		stack.get_float(3),
+		stack.get_float(4)));
 	return 1;
 }
 

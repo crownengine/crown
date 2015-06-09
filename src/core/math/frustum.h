@@ -75,14 +75,14 @@ namespace frustum
 
 		switch (index)
 		{
-			case 0: return plane_3_intersection(side[4], side[0], side[2], ip);
-			case 1: return plane_3_intersection(side[4], side[1], side[2], ip);
-			case 2: return plane_3_intersection(side[4], side[1], side[3], ip);
-			case 3: return plane_3_intersection(side[4], side[0], side[3], ip);
-			case 4: return plane_3_intersection(side[5], side[0], side[2], ip);
-			case 5: return plane_3_intersection(side[5], side[1], side[2], ip);
-			case 6: return plane_3_intersection(side[5], side[1], side[3], ip);
-			case 7: return plane_3_intersection(side[5], side[0], side[3], ip);
+			case 0: plane_3_intersection(side[4], side[0], side[2], ip); break;
+			case 1: plane_3_intersection(side[4], side[1], side[2], ip); break;
+			case 2: plane_3_intersection(side[4], side[1], side[3], ip); break;
+			case 3: plane_3_intersection(side[4], side[0], side[3], ip); break;
+			case 4: plane_3_intersection(side[5], side[0], side[2], ip); break;
+			case 5: plane_3_intersection(side[5], side[1], side[2], ip); break;
+			case 6: plane_3_intersection(side[5], side[1], side[3], ip); break;
+			case 7: plane_3_intersection(side[5], side[0], side[3], ip); break;
 			default: break;
 		}
 
@@ -91,35 +91,35 @@ namespace frustum
 
 	inline void from_matrix(Frustum& f, const Matrix4x4& m)
 	{
-		f.left.n.x		= m[3] + m[0];
-		f.left.n.y		= m[7] + m[4];
-		f.left.n.z		= m[11] + m[8];
-		f.left.d		= m[15] + m[12];
+		f.left.n.x   = m.x.w + m.x.x;
+		f.left.n.y   = m.y.w + m.y.x;
+		f.left.n.z   = m.z.w + m.z.x;
+		f.left.d     = m.t.w + m.t.x;
 
-		f.right.n.x		= m[3] - m[0];
-		f.right.n.y		= m[7] - m[4];
-		f.right.n.z		= m[11] - m[8];
-		f.right.d		= m[15] - m[12];
+		f.right.n.x  = m.x.w - m.x.x;
+		f.right.n.y  = m.y.w - m.y.x;
+		f.right.n.z  = m.z.w - m.z.x;
+		f.right.d    = m.t.w - m.t.x;
 
-		f.bottom.n.x	= m[3] + m[1];
-		f.bottom.n.y	= m[7] + m[5];
-		f.bottom.n.z	= m[11] + m[9];
-		f.bottom.d		= m[15] + m[13];
+		f.bottom.n.x = m.x.w + m.x.y;
+		f.bottom.n.y = m.y.w + m.y.y;
+		f.bottom.n.z = m.z.w + m.z.y;
+		f.bottom.d   = m.t.w + m.t.y;
 
-		f.top.n.x		= m[3] - m[1];
-		f.top.n.y		= m[7] - m[5];
-		f.top.n.z		= m[11] - m[9];
-		f.top.d			= m[15] - m[13];
+		f.top.n.x    = m.x.w - m.x.y;
+		f.top.n.y    = m.y.w - m.y.y;
+		f.top.n.z    = m.z.w - m.z.y;
+		f.top.d      = m.t.w - m.t.y;
 
-		f.near.n.x		= m[3] + m[2];
-		f.near.n.y		= m[7] + m[6];
-		f.near.n.z		= m[11] + m[10];
-		f.near.d		= m[15] + m[14];
+		f.near.n.x   = m.x.w + m.x.z;
+		f.near.n.y   = m.y.w + m.y.z;
+		f.near.n.z   = m.z.w + m.z.z;
+		f.near.d     = m.t.w + m.t.z;
 
-		f.far.n.x		= m[3] - m[2];
-		f.far.n.y		= m[7] - m[6];
-		f.far.n.z		= m[11] - m[10];
-		f.far.d			= m[15] - m[14];
+		f.far.n.x    = m.x.w - m.x.z;
+		f.far.n.y    = m.y.w - m.y.z;
+		f.far.n.z    = m.z.w - m.z.z;
+		f.far.d      = m.t.w - m.t.z;
 
 		plane::normalize(f.left);
 		plane::normalize(f.right);
@@ -149,10 +149,5 @@ namespace frustum
 		return tmp;
 	}
 } // namespace frustum
-
-inline Frustum::Frustum()
-{
-	// Do not initialize
-}
 
 } // namespace crown

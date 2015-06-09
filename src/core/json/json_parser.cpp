@@ -143,8 +143,8 @@ Vector2 JSONElement::to_vector2(const Vector2& def) const
 	Array<const char*> array(alloc);
 	njson::parse_array(_at, array);
 
-	return Vector2(njson::parse_float(array[0]),
-					njson::parse_float(array[1]));
+	return vector2(njson::parse_float(array[0]),
+		njson::parse_float(array[1]));
 }
 
 Vector3 JSONElement::to_vector3(const Vector3& def) const
@@ -156,9 +156,9 @@ Vector3 JSONElement::to_vector3(const Vector3& def) const
 	Array<const char*> array(alloc);
 	njson::parse_array(_at, array);
 
-	return Vector3(njson::parse_float(array[0]),
-					njson::parse_float(array[1]),
-					njson::parse_float(array[2]));
+	return vector3(njson::parse_float(array[0]),
+		njson::parse_float(array[1]),
+		njson::parse_float(array[2]));
 }
 
 Vector4 JSONElement::to_vector4(const Vector4& def) const
@@ -170,10 +170,10 @@ Vector4 JSONElement::to_vector4(const Vector4& def) const
 	Array<const char*> array(alloc);
 	njson::parse_array(_at, array);
 
-	return Vector4(njson::parse_float(array[0]),
-					njson::parse_float(array[1]),
-					njson::parse_float(array[2]),
-					njson::parse_float(array[3]));
+	return vector4(njson::parse_float(array[0]),
+		njson::parse_float(array[1]),
+		njson::parse_float(array[2]),
+		njson::parse_float(array[3]));
 }
 
 Quaternion JSONElement::to_quaternion(const Quaternion& def) const
@@ -185,10 +185,10 @@ Quaternion JSONElement::to_quaternion(const Quaternion& def) const
 	Array<const char*> array(alloc);
 	njson::parse_array(_at, array);
 
-	return Quaternion(njson::parse_float(array[0]),
-					njson::parse_float(array[1]),
-					njson::parse_float(array[2]),
-					njson::parse_float(array[3]));
+	return quaternion(njson::parse_float(array[0]),
+		njson::parse_float(array[1]),
+		njson::parse_float(array[2]),
+		njson::parse_float(array[3]));
 }
 
 Matrix4x4 JSONElement::to_matrix4x4(const Matrix4x4& def) const
@@ -200,7 +200,7 @@ Matrix4x4 JSONElement::to_matrix4x4(const Matrix4x4& def) const
 	Array<float> array(alloc);
 	to_array(array);
 
-	return Matrix4x4(array::begin(array));
+	return matrix4x4(array::begin(array));
 }
 
 StringId32 JSONElement::to_string_id(const StringId32 def) const

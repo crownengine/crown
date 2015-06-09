@@ -14,7 +14,7 @@ namespace crown
 static int vector3_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(Vector3(stack.get_float(1), stack.get_float(2), stack.get_float(3)));
+	stack.push_vector3(vector3(stack.get_float(1), stack.get_float(2), stack.get_float(3)));
 	return 1;
 }
 
@@ -108,14 +108,14 @@ static int vector3_divide(lua_State* L)
 static int vector3_dot(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(vector3::dot(stack.get_vector3(1), stack.get_vector3(2)));
+	stack.push_float(dot(stack.get_vector3(1), stack.get_vector3(2)));
 	return 1;
 }
 
 static int vector3_cross(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3::cross(stack.get_vector3(1), stack.get_vector3(2)));
+	stack.push_vector3(cross(stack.get_vector3(1), stack.get_vector3(2)));
 	return 1;
 }
 
@@ -129,91 +129,91 @@ static int vector3_equal(lua_State* L)
 static int vector3_length(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(vector3::length(stack.get_vector3(1)));
+	stack.push_float(length(stack.get_vector3(1)));
 	return 1;
 }
 
 static int vector3_squared_length(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(vector3::squared_length(stack.get_vector3(1)));
+	stack.push_float(squared_length(stack.get_vector3(1)));
 	return 1;
 }
 
 static int vector3_set_length(lua_State* L)
 {
 	LuaStack stack(L);
-	vector3::set_length(stack.get_vector3(1), stack.get_float(2));
+	set_length(stack.get_vector3(1), stack.get_float(2));
 	return 0;
 }
 
 static int vector3_normalize(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3::normalize(stack.get_vector3(1)));
+	stack.push_vector3(normalize(stack.get_vector3(1)));
 	return 1;
 }
 
 static int vector3_distance(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(vector3::distance(stack.get_vector3(1), stack.get_vector3(2)));
+	stack.push_float(distance(stack.get_vector3(1), stack.get_vector3(2)));
 	return 1;
 }
 
 static int vector3_angle(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(vector3::angle(stack.get_vector3(1), stack.get_vector3(2)));
+	stack.push_float(angle(stack.get_vector3(1), stack.get_vector3(2)));
 	return 1;
 }
 
 static int vector3_forward(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3::FORWARD);
+	stack.push_vector3(VECTOR3_FORWARD);
 	return 1;
 }
 
 static int vector3_backward(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3::BACKWARD);
+	stack.push_vector3(VECTOR3_BACKWARD);
 	return 1;
 }
 
 static int vector3_left(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3::LEFT);
+	stack.push_vector3(VECTOR3_LEFT);
 	return 1;
 }
 
 static int vector3_right(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3::RIGHT);
+	stack.push_vector3(VECTOR3_RIGHT);
 	return 1;
 }
 
 static int vector3_up(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3::UP);
+	stack.push_vector3(VECTOR3_UP);
 	return 1;
 }
 
 static int vector3_down(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3::DOWN);
+	stack.push_vector3(VECTOR3_DOWN);
 	return 1;
 }
 
 static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector2(Vector2(stack.get_float(1), stack.get_float(2)));
+	stack.push_vector2(vector2(stack.get_float(1), stack.get_float(2)));
 	return 1;
 }
 
@@ -233,7 +233,7 @@ static int vector3box_new(lua_State* L)
 	else if (stack.num_args() == 1)
 		stack.push_vector3box(stack.get_vector3(1));
 	else
-		stack.push_vector3box(Vector3(stack.get_float(1)
+		stack.push_vector3box(vector3(stack.get_float(1)
 			, stack.get_float(2)
 			, stack.get_float(3)));
 
@@ -256,7 +256,7 @@ static int vector3box_store(lua_State* L)
 	if (stack.num_args() == 2)
 		v = stack.get_vector3(2);
 	else
-		v = Vector3(stack.get_float(2)
+		v = vector3(stack.get_float(2)
 			, stack.get_float(3)
 			, stack.get_float(4));
 

@@ -12,154 +12,115 @@
 namespace crown
 {
 
-/// Negates the quaternion @a q and returns the result.
-Quaternion operator-(const Quaternion& q);
-
-/// Multiplies the quaternions @a a and @a b. (i.e. rotates first by @a a then by @a b).
-Quaternion operator*(Quaternion a, const Quaternion& b);
-
-/// Multiplies the quaternion @a a by the scalar @a k.
-Quaternion operator*(const Quaternion& a, float k);
-
 /// Functions to manipulate Quaternion.
 ///
 /// @ingroup Math
-namespace quaternion
+const Quaternion QUATERNION_IDENTITY = { 0.0, 0.0, 0.0, 1.0 };
+
+inline Quaternion quaternion(float x, float y, float z, float w)
 {
-	const Quaternion IDENTITY = Quaternion(0.0, 0.0, 0.0, 1.0);
-
-	/// Returns the dot product between quaternions @a a and @a b.
-	float dot(const Quaternion& a, const Quaternion& b);
-
-	/// Returns the length of @a q.
-	float length(const Quaternion& q);
-
-	/// Normalizes the quaternion @a q and returns the result.
-	Quaternion& normalize(Quaternion& q);
-
-	/// Returns the conjugate of quaternion @a q.
-	Quaternion conjugate(const Quaternion& q);
-
-	/// Returns the inverse of quaternion @a q.
-	Quaternion inverse(const Quaternion& q);
-
-	/// Returns the quaternion @a q raised to the power of @a exp.
-	Quaternion power(const Quaternion& q, float exp);
-} // namespace quaternion
-
-inline Quaternion operator-(const Quaternion& q)
-{
-	return Quaternion(-q.x, -q.y, -q.z, -q.w);
+	Quaternion q;
+	q.x = x;
+	q.y = y;
+	q.z = z;
+	q.w = w;
+	return q;
 }
 
+inline Quaternion quaternion(const Vector3& axis, float angle)
+{
+	Quaternion q;
+	q.x = axis.x * sin(angle * 0.5f);
+	q.y = axis.y * sin(angle * 0.5f);
+	q.z = axis.z * sin(angle * 0.5f);
+	q.w = cos(angle * 0.5f);
+	return q;
+}
+
+inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)
+{
+	const float t_w = a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z;
+	const float t_x = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y;
+	const float t_y = a.w*b.y + a.y*b.w + a.z*b.x - a.x*b.z;
+	const float t_z = a.w*b.z + a.z*b.w + a.x*b.y - a.y*b.x;
+	a.x = t_x;
+	a.y = t_y;
+	a.z = t_z;
+	a.w = t_w;
+	return a;
+}
+
+/// Negates the quaternion @a q and returns the result.
+inline Quaternion operator-(const Quaternion& q)
+{
+	return quaternion(-q.x, -q.y, -q.z, -q.w);
+}
+
+/// Multiplies the quaternions @a a and @a b. (i.e. rotates first by @a a then by @a b).
 inline Quaternion operator*(Quaternion a, const Quaternion& b)
 {
 	a *= b;
 	return a;
 }
 
+/// Multiplies the quaternion @a a by the scalar @a k.
 inline Quaternion operator*(const Quaternion& a, float k)
 {
-	return Quaternion(a.x * k, a.y * k, a.z * k, a.w * k);
+	return quaternion(a.x * k, a.y * k, a.z * k, a.w * k);
 }
 
-namespace quaternion
+/// Returns the dot product between quaternions @a a and @a b.
+inline float dot(const Quaternion& a, const Quaternion& b)
 {
-	inline float dot(const Quaternion& a, const Quaternion& b)
-	{
-		return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
-	}
-
-	inline float length(const Quaternion& q)
-	{
-		return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
-	}
-
-	inline Quaternion& normalize(Quaternion& q)
-	{
-		const float inv_len = 1.0f / length(q);
-		q.x *= inv_len;
-		q.y *= inv_len;
-		q.z *= inv_len;
-		q.w *= inv_len;
-		return q;
-	}
-
-	inline Quaternion conjugate(const Quaternion& q)
-	{
-		return Quaternion(-q.x, -q.y, -q.z, q.w);
-	}
-
-	inline Quaternion inverse(const Quaternion& q)
-	{
-		return conjugate(q) * (1.0f / length(q));
-	}
-
-	inline Quaternion power(const Quaternion& q, float exp)
-	{
-		if (abs(q.w) < 0.9999)
-		{
-			Quaternion tmp;
-			float alpha = acos(q.w); // alpha = theta/2
-			float new_alpha = alpha * exp;
-			tmp.w = cos(new_alpha);
-			float mult = sin(new_alpha) / sin(alpha);
-			tmp.x = q.x * mult;
-			tmp.y = q.y * mult;
-			tmp.z = q.z * mult;
-			return tmp;
-		}
-
-		return q;
-	}
-} // namespace quaternion
-
-inline Quaternion::Quaternion()
-{
-	// Do not initialize
+	return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-inline Quaternion::Quaternion(float nx, float ny, float nz, float nw)
-	: x(nx)
-	, y(ny)
-	, z(nz)
-	, w(nw)
+/// Returns the length of @a q.
+inline float length(const Quaternion& q)
 {
+	return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
 }
 
-inline Quaternion::Quaternion(const Vector3& axis, float angle)
-	: x(axis.x * sin(angle * 0.5f))
-	, y(axis.y * sin(angle * 0.5f))
-	, z(axis.z * sin(angle * 0.5f))
-	, w(cos(angle * 0.5f))
+/// Normalizes the quaternion @a q and returns the result.
+inline Quaternion& normalize(Quaternion& q)
 {
+	const float inv_len = 1.0f / length(q);
+	q.x *= inv_len;
+	q.y *= inv_len;
+	q.z *= inv_len;
+	q.w *= inv_len;
+	return q;
 }
 
-inline float& Quaternion::operator[](uint32_t i)
+/// Returns the conjugate of quaternion @a q.
+inline Quaternion conjugate(const Quaternion& q)
 {
-	CE_ASSERT(i < 4, "Index out of bounds");
-	return (&x)[i];
+	return quaternion(-q.x, -q.y, -q.z, q.w);
 }
 
-inline const float& Quaternion::operator[](uint32_t i) const
+/// Returns the inverse of quaternion @a q.
+inline Quaternion inverse(const Quaternion& q)
 {
-	CE_ASSERT(i < 4, "Index out of bounds");
-	return (&x)[i];
+	return conjugate(q) * (1.0f / length(q));
 }
 
-inline Quaternion& Quaternion::operator*=(const Quaternion& a)
+/// Returns the quaternion @a q raised to the power of @a exp.
+inline Quaternion power(const Quaternion& q, float exp)
 {
-	const float t_w = w*a.w - x*a.x - y*a.y - z*a.z;
-	const float t_x = w*a.x + x*a.w + y*a.z - z*a.y;
-	const float t_y = w*a.y + y*a.w + z*a.x - x*a.z;
-	const float t_z = w*a.z + z*a.w + x*a.y - y*a.x;
+	if (abs(q.w) < 0.9999)
+	{
+		Quaternion tmp;
+		float alpha = acos(q.w); // alpha = theta/2
+		float new_alpha = alpha * exp;
+		tmp.w = cos(new_alpha);
+		float mult = sin(new_alpha) / sin(alpha);
+		tmp.x = q.x * mult;
+		tmp.y = q.y * mult;
+		tmp.z = q.z * mult;
+		return tmp;
+	}
 
-	x = t_x;
-	y = t_y;
-	z = t_z;
-	w = t_w;
-
-	return *this;
+	return q;
 }
 
 } // namespace crown

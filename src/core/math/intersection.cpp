@@ -16,8 +16,8 @@ namespace crown
 /// -1.0f if no collision.
 float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p)
 {
-	float nd = vector3::dot(dir, p.n);
-	float orpn = vector3::dot(from, p.n);
+	float nd = dot(dir, p.n);
+	float orpn = dot(from, p.n);
 	float dist = -1.0f;
 
 	if (nd < 0.0f)
@@ -31,8 +31,8 @@ float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plan
 float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s)
 {
 	Vector3 v = s.c - from;
-	float b = vector3::dot(v, dir);
-	float det = (s.r * s.r) - vector3::dot(v, v) + (b * b);
+	float b = dot(v, dir);
+	float det = (s.r * s.r) - dot(v, v) + (b * b);
 
 	if (det < 0.0 || b < s.r)
 	{
@@ -45,16 +45,14 @@ float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sph
 // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
 float ray_oobb_intersection(const Vector3& from, const Vector3& dir, const OBB& obb)
 {
-	using namespace vector3;
-
 	float tmin = 0.0f;
 	float tmax = 100000.0f;
 
-	Vector3 obb_pos(obb.tm.t.x, obb.tm.t.y, obb.tm.t.z);
+	Vector3 obb_pos = vector3(obb.tm.t.x, obb.tm.t.y, obb.tm.t.z);
 	Vector3 delta = obb_pos - from;
 
 	{
-		const Vector3 xaxis(obb.tm.x.x, obb.tm.x.y, obb.tm.x.z);
+		const Vector3 xaxis = vector3(obb.tm.x.x, obb.tm.x.y, obb.tm.x.z);
 		float e = dot(xaxis, delta);
 		float f = dot(dir, xaxis);
 
@@ -84,7 +82,7 @@ float ray_oobb_intersection(const Vector3& from, const Vector3& dir, const OBB& 
 	}
 
 	{
-		const Vector3 yaxis(obb.tm.y.x, obb.tm.y.y, obb.tm.y.z);
+		const Vector3 yaxis = vector3(obb.tm.y.x, obb.tm.y.y, obb.tm.y.z);
 		float e = dot(yaxis, delta);
 		float f = dot(dir, yaxis);
 
@@ -111,7 +109,7 @@ float ray_oobb_intersection(const Vector3& from, const Vector3& dir, const OBB& 
 	}
 
 	{
-		const Vector3 zaxis(obb.tm.z.x, obb.tm.z.y, obb.tm.z.z);
+		const Vector3 zaxis = vector3(obb.tm.z.x, obb.tm.z.y, obb.tm.z.z);
 		float e = dot(zaxis, delta);
 		float f = dot(dir, zaxis);
 
@@ -147,14 +145,14 @@ bool plane_3_intersection(const Plane& p1, const Plane& p2, const Plane& p3, Vec
 	const Vector3& n2 = p2.n;
 	const Vector3& n3 = p3.n;
 
-	float den = -vector3::dot(vector3::cross(n1, n2), n3);
+	float den = -dot(cross(n1, n2), n3);
 
 	if (equals(den, (float)0.0))
 	{
 		return false;
 	}
 
-	Vector3 res = p1.d * vector3::cross(n2, n3) + p2.d * vector3::cross(n3, n1) + p3.d * vector3::cross(n1, n2);
+	Vector3 res = p1.d * cross(n2, n3) + p2.d * cross(n3, n1) + p3.d * cross(n1, n2);
 	ip = res / den;
 
 	return true;

@@ -16,10 +16,6 @@
 namespace crown
 {
 
-using namespace vector3;
-using namespace matrix3x3;
-using namespace matrix4x4;
-
 SceneGraph::SceneGraph(Allocator& a)
 	: _allocator(a)
 	, _map(a)
@@ -129,7 +125,7 @@ void SceneGraph::set_local_position(TransformInstance i, const Vector3& pos)
 
 void SceneGraph::set_local_rotation(TransformInstance i, const Quaternion& rot)
 {
-	_data.local[i.i].rotation = Matrix3x3(rot);
+	_data.local[i.i].rotation = matrix3x3(rot);
 	set_local(i);
 }
 
@@ -162,7 +158,7 @@ Vector3 SceneGraph::local_scale(TransformInstance i) const
 
 Matrix4x4 SceneGraph::local_pose(TransformInstance i) const
 {
-	Matrix4x4 tr(rotation(_data.local[i.i].rotation), _data.local[i.i].position);
+	Matrix4x4 tr = matrix4x4(rotation(_data.local[i.i].rotation), _data.local[i.i].position);
 	set_scale(tr, _data.local[i.i].scale);
 	return tr;
 }
@@ -234,7 +230,7 @@ void SceneGraph::link(TransformInstance child, TransformInstance parent)
 	const Matrix4x4 rel_tr = child_tr * get_inverted(parent_tr);
 
 	_data.local[child.i].position = translation(rel_tr);
-	_data.local[child.i].rotation = rotation(rel_tr);
+	_data.local[child.i].rotation = to_matrix3x3(rel_tr);
 	_data.local[child.i].scale = cs;
 	_data.parent[child.i] = parent;
 
@@ -267,7 +263,7 @@ bool SceneGraph::is_valid(TransformInstance i)
 void SceneGraph::set_local(TransformInstance i)
 {
 	TransformInstance parent = _data.parent[i.i];
-	Matrix4x4 parent_tm = is_valid(parent) ? _data.world[parent.i] : matrix4x4::IDENTITY;
+	Matrix4x4 parent_tm = is_valid(parent) ? _data.world[parent.i] : MATRIX4X4_IDENTITY;
 	transform(parent_tm, i);
 }
 

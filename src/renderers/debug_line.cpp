@@ -138,12 +138,12 @@ void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4&
 	_lines[_num].p0[0] = start.x;
 	_lines[_num].p0[1] = start.y;
 	_lines[_num].p0[2] = start.z;
-	_lines[_num].c0    = color4::to_abgr(color);
+	_lines[_num].c0    = to_abgr(color);
 
 	_lines[_num].p1[0] = end.x;
 	_lines[_num].p1[1] = end.y;
 	_lines[_num].p1[2] = end.z;
-	_lines[_num].c1    = color4::to_abgr(color);
+	_lines[_num].c1    = to_abgr(color);
 
 	_num++;
 }
@@ -158,28 +158,28 @@ void DebugLine::add_sphere(const Vector3& center, const float radius, const Colo
 		const float rad1 = to_rad((float) deg + deg_step);
 
 		// XZ plane
-		const Vector3 start0(cos(rad0) * radius, 0, -sin(rad0) * radius);
-		const Vector3 end0  (cos(rad1) * radius, 0, -sin(rad1) * radius);
+		const Vector3 start0 = vector3(cos(rad0) * radius, 0, -sin(rad0) * radius);
+		const Vector3 end0   = vector3(cos(rad1) * radius, 0, -sin(rad1) * radius);
 		add_line(center + start0, center + end0, color);
 
 		// XY plane
-		const Vector3 start1(cos(rad0) * radius, sin(rad0) * radius, 0);
-		const Vector3 end1  (cos(rad1) * radius, sin(rad1) * radius, 0);
+		const Vector3 start1 = vector3(cos(rad0) * radius, sin(rad0) * radius, 0);
+		const Vector3 end1   = vector3(cos(rad1) * radius, sin(rad1) * radius, 0);
 		add_line(center + start1, center + end1, color);
 
 		// YZ plane
-		const Vector3 start2(0, sin(rad0) * radius, -cos(rad0) * radius);
-		const Vector3 end2  (0, sin(rad1) * radius, -cos(rad1) * radius);
+		const Vector3 start2 = vector3(0, sin(rad0) * radius, -cos(rad0) * radius);
+		const Vector3 end2   = vector3(0, sin(rad1) * radius, -cos(rad1) * radius);
 		add_line(center + start2, center + end2, color);
 	}
 }
 
 void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& extents, const Color4& color)
 {
-	const Vector3 o = Vector3(tm.t.x, tm.t.y, tm.t.z);
-	const Vector3 x = Vector3(tm.x.x, tm.x.y, tm.x.z) * (extents.x * 0.5f);
-	const Vector3 y = Vector3(tm.y.x, tm.y.y, tm.y.z) * (extents.y * 0.5f);
-	const Vector3 z = Vector3(tm.z.x, tm.z.y, tm.z.z) * (extents.z * 0.5f);
+	const Vector3 o = vector3(tm.t.x, tm.t.y, tm.t.z);
+	const Vector3 x = vector3(tm.x.x, tm.x.y, tm.x.z) * (extents.x * 0.5f);
+	const Vector3 y = vector3(tm.y.x, tm.y.y, tm.y.z) * (extents.y * 0.5f);
+	const Vector3 z = vector3(tm.z.x, tm.z.y, tm.z.z) * (extents.z * 0.5f);
 
 	// Back face
 	add_line(o - x - y - z, o + x - y - z, color);

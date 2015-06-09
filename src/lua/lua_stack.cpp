@@ -18,7 +18,7 @@ Vector2 LuaStack::get_vector2(int i)
 {
 	void* v = CHECKLIGHTDATA(L, i, is_vector3, "Vector2");
 	Vector3& vv = *(Vector3*)v;
-	return Vector2(vv.x, vv.y);
+	return vector2(vv.x, vv.y);
 }
 
 Vector3& LuaStack::get_vector3(int i)
@@ -44,12 +44,12 @@ Color4 LuaStack::get_color4(int i)
 	// Color4 represented as Quaternion
 	void* c = CHECKLIGHTDATA(L, i, is_quaternion, "Color4");
 	Quaternion& q = *(Quaternion*)c;
-	return Color4(q.x, q.y, q.z, q.w);
+	return color4(q.x, q.y, q.z, q.w);
 }
 
 void LuaStack::push_vector2(const Vector2& v)
 {
-	push_vector3(Vector3(v.x, v.y, 0.0f));
+	push_vector3(vector3(v.x, v.y, 0.0f));
 }
 
 void LuaStack::push_vector3(const Vector3& v)

@@ -57,8 +57,8 @@ namespace aabb
 {
 	inline void reset(AABB& b)
 	{
-		b.min = vector3::ZERO;
-		b.max = vector3::ZERO;
+		b.min = VECTOR3_ZERO;
+		b.max = VECTOR3_ZERO;
 	}
 
 	inline Vector3 center(const AABB& b)
@@ -68,7 +68,7 @@ namespace aabb
 
 	inline float radius(const AABB& b)
 	{
-		return vector3::length(b.max - (b.min + b.max) * 0.5f);
+		return length(b.max - (b.min + b.max) * 0.5f);
 	}
 	inline float volume(const AABB& b)
 	{
@@ -120,15 +120,15 @@ namespace aabb
 	{
 		switch (index)
 		{
-			case 0: return Vector3(b.min.x, b.min.y, b.min.z);
-			case 1: return Vector3(b.max.x, b.min.y, b.min.z);
-			case 2: return Vector3(b.max.x, b.min.y, b.max.z);
-			case 3: return Vector3(b.min.x, b.min.y, b.max.z);
-			case 4: return Vector3(b.min.x, b.max.y, b.min.z);
-			case 5: return Vector3(b.max.x, b.max.y, b.min.z);
-			case 6: return Vector3(b.max.x, b.max.y, b.max.z);
-			case 7: return Vector3(b.min.x, b.max.y, b.max.z);
-			default: CE_FATAL("Bad index"); return Vector3(0.0f, 0.0f, 0.0f);
+			case 0: return vector3(b.min.x, b.min.y, b.min.z);
+			case 1: return vector3(b.max.x, b.min.y, b.min.z);
+			case 2: return vector3(b.max.x, b.min.y, b.max.z);
+			case 3: return vector3(b.min.x, b.min.y, b.max.z);
+			case 4: return vector3(b.min.x, b.max.y, b.min.z);
+			case 5: return vector3(b.max.x, b.max.y, b.min.z);
+			case 6: return vector3(b.max.x, b.max.y, b.max.z);
+			case 7: return vector3(b.min.x, b.max.y, b.max.z);
+			default: CE_FATAL("Bad index"); return vector3(0.0f, 0.0f, 0.0f);
 		}
 	}
 
@@ -198,18 +198,11 @@ namespace aabb
 
 	inline Sphere to_sphere(const AABB& b)
 	{
-		return Sphere(center(b), radius(b));
+		Sphere s;
+		s.c = center(b);
+		s.r = radius(b);
+		return s;
 	}
 } // namespace aabb
-
-inline AABB::AABB()
-{
-	// Do not initialize
-}
-
-inline AABB::AABB(const Vector3& min, const Vector3& max)
-	: min(min), max(max)
-{
-}
 
 } // namespace crown

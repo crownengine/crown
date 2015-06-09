@@ -71,7 +71,7 @@ struct Mouse
 	/// to right and +Y extends from top to bottom.
 	Vector2 cursor_xy()
 	{
-		return Vector2(_x, _y);
+		return vector2(_x, _y);
 	}
 
 	/// Sets the position of the cursor in window space.
@@ -96,7 +96,7 @@ struct Mouse
 	/// maximum extent of the cosidered axis.
 	Vector2 cursor_relative_xy()
 	{
-		return Vector2((float) _x / _width, (float) _y / _height);
+		return vector2((float) _x / _width, (float) _y / _height);
 	}
 
 	/// Sets the relative position of the cursor in window space.
@@ -110,7 +110,7 @@ struct Mouse
 	/// maximum extent of the cosidered axis.
 	void set_cursor_relative_xy(const Vector2& position)
 	{
-		set_cursor_xy(Vector2(position.x * (float) _width, position.y * (float) _height));
+		set_cursor_xy(vector2(position.x * (float) _width, position.y * (float) _height));
 	}
 
 	/// Returns the mouse wheel state in the current frame.

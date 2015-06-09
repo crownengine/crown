@@ -177,8 +177,8 @@ namespace physics_resource
 			pj.type         = joint_type_to_enum(jtype.c_str());
 			pj.actor_0      = joint.key("actor_0").to_string_id();
 			pj.actor_1      = joint.key("actor_1").to_string_id();
-			pj.anchor_0     = joint.key_or_nil("anchor_0").to_vector3(vector3::ZERO);
-			pj.anchor_1     = joint.key_or_nil("anchor_1").to_vector3(vector3::ZERO);
+			pj.anchor_0     = joint.key_or_nil("anchor_0").to_vector3(VECTOR3_ZERO);
+			pj.anchor_1     = joint.key_or_nil("anchor_1").to_vector3(VECTOR3_ZERO);
 			pj.restitution  = joint.key_or_nil("restitution").to_float(0.5f);
 			pj.spring       = joint.key_or_nil("spring").to_float(100.0f);
 			pj.damping      = joint.key_or_nil("damping").to_float(0.0f);
