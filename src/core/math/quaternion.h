@@ -11,10 +11,9 @@
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
-/// Functions to manipulate Quaternion.
-///
-/// @ingroup Math
 const Quaternion QUATERNION_IDENTITY = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 inline Quaternion quaternion(float x, float y, float z, float w)
@@ -123,4 +122,5 @@ inline Quaternion power(const Quaternion& q, float exp)
 	return q;
 }
 
+// @}
 } // namespace crown

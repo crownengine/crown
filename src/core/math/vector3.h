@@ -12,10 +12,9 @@
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
-/// Functions to manipulate Vector3.
-///
-/// @ingroup Math
 const Vector3 VECTOR3_ZERO     = { 0.0f, 0.0f, 0.0f };
 const Vector3 VECTOR3_XAXIS    = { 1.0f, 0.0f, 0.0f };
 const Vector3 VECTOR3_YAXIS    = { 0.0f, 1.0f, 0.0f };
@@ -97,7 +96,7 @@ inline Vector3 operator*(Vector3 a, float k)
 	return a;
 }
 
-/// @copydoc operator*(Vector3, float)
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
 inline Vector3 operator*(float k, Vector3 a)
 {
 	a *= k;
@@ -179,7 +178,7 @@ inline float* to_float_ptr(Vector3& a)
 	return &a.x;
 }
 
-/// @copydoc to_float_ptr(Vector3&)
+/// Returns the pointer to the data of @a a.
 inline const float* to_float_ptr(const Vector3& a)
 {
 	return &a.x;
@@ -191,4 +190,5 @@ inline Vector2 to_vector2(const Vector3& a)
 	return vector2(a.x, a.y);
 }
 
+/// @}
 } // namespace crown

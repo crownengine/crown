@@ -12,10 +12,9 @@
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
-/// Functions to manipulate Matrix4x4.
-///
-/// @ingroup Math
 const Matrix4x4 MATRIX4X4_IDENTITY = { {1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, { 0.0f, 0.0f, 1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f, 1.0f} };
 
 inline Matrix4x4 matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
@@ -187,7 +186,7 @@ inline Matrix4x4 operator*(Matrix4x4 a, float k)
 	return a;
 }
 
-/// @copydoc operator*(Matrix4x4, float)
+/// Multiplies the matrix @a a by the scalar @a k and returns the result.
 inline Matrix4x4 operator*(float k, Matrix4x4 a)
 {
 	a *= k;
@@ -564,4 +563,5 @@ inline const float* to_float_ptr(const Matrix4x4& m)
 	return to_float_ptr(m.x);
 }
 
+/// @}
 } // namespace crown

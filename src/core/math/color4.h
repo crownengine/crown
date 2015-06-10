@@ -9,15 +9,12 @@
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
 /// Holds RGBA color as four floats.
-///
-/// @ingroup Math
 typedef Vector4 Color4;
 
-/// Functions to mamipulate Color4
-///
-/// @ingroup Math
 Color4 from_rgb(int r, int g, int b);
 Color4 from_rgba(int r, int g, int b, int a);
 Color4 from_rgba(uint32_t rgba);
@@ -263,4 +260,5 @@ inline uint32_t to_abgr(const Color4& c)
 	return abgr;
 }
 
+/// @}
 } // namespace crown

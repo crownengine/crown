@@ -12,6 +12,8 @@
 namespace crown
 {
 
+/// @addtogroup Math
+/// @{
 const float PI = 3.1415926535897932f;
 const float TWO_PI = PI * 2.0f;
 const float HALF_PI = PI * 0.5f;
@@ -202,5 +204,7 @@ inline T catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, float t
 
 	return tmp * 0.5;
 }
+
+/// @}
 
 } // namespace crown

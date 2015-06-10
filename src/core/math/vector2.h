@@ -11,10 +11,9 @@
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
-/// Functions to manipulate Vector2.
-///
-/// @ingroup Math
 const Vector2 VECTOR2_ZERO = { 0.0f, 0.0f };
 
 inline Vector2 vector2(float x, float y)
@@ -82,7 +81,7 @@ inline Vector2 operator*(Vector2 a, float k)
 	return a;
 }
 
-/// @copydoc operator*(Vector2, float)
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
 inline Vector2 operator*(float k, Vector2 a)
 {
 	a *= k;
@@ -156,10 +155,11 @@ inline float* to_float_ptr(Vector2& a)
 	return &a.x;
 }
 
-/// @copydoc to_float_ptr(Vector2&)
+/// Returns the pointer to the data of @a a.
 inline const float* to_float_ptr(const Vector2& a)
 {
 	return &a.x;
 }
 
+/// @}
 } // namespace crown

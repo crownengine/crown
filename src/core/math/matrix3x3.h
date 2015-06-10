@@ -11,11 +11,10 @@
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
-/// Functions to manipulate Matrix3x3
-///
-/// @ingroup Math
-const Matrix3x3 IDENTITY = { {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
+const Matrix3x3 MATRIX3X3_IDENTITY = { {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
 
 inline Matrix3x3 matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z)
 {
@@ -108,7 +107,7 @@ inline Matrix3x3 operator*(Matrix3x3 a, float k)
 	return a;
 }
 
-/// @copydoc operator*(Matrix3x3, float)
+/// Multiplies the matrix @a a by the scalar @a k and returns the result.
 inline Matrix3x3 operator*(float k, Matrix3x3 a)
 {
 	a *= k;
@@ -326,4 +325,5 @@ inline const float* to_float_ptr(const Matrix3x3& m)
 	return &m.x.x;
 }
 
+/// @}
 } // namespace crown
