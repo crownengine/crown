@@ -52,7 +52,12 @@ inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)
 /// Negates the quaternion @a q and returns the result.
 inline Quaternion operator-(const Quaternion& q)
 {
-	return quaternion(-q.x, -q.y, -q.z, -q.w);
+	Quaternion res;
+	res.x = -q.x;
+	res.y = -q.y;
+	res.z = -q.z;
+	res.w = -q.w;
+	return res;
 }
 
 /// Multiplies the quaternions @a a and @a b. (i.e. rotates first by @a a then by @a b).
@@ -63,9 +68,14 @@ inline Quaternion operator*(Quaternion a, const Quaternion& b)
 }
 
 /// Multiplies the quaternion @a a by the scalar @a k.
-inline Quaternion operator*(const Quaternion& a, float k)
+inline Quaternion operator*(const Quaternion& q, float k)
 {
-	return quaternion(a.x * k, a.y * k, a.z * k, a.w * k);
+	Quaternion res;
+	res.x = q.x * k;
+	res.y = q.y * k;
+	res.z = q.z * k;
+	res.w = q.w * k;
+	return res;
 }
 
 /// Returns the dot product between quaternions @a a and @a b.
@@ -94,7 +104,12 @@ inline Quaternion& normalize(Quaternion& q)
 /// Returns the conjugate of quaternion @a q.
 inline Quaternion conjugate(const Quaternion& q)
 {
-	return quaternion(-q.x, -q.y, -q.z, q.w);
+	Quaternion res;
+	res.x = -q.x;
+	res.y = -q.y;
+	res.z = -q.z;
+	res.w = q.w;
+	return res;
 }
 
 /// Returns the inverse of quaternion @a q.

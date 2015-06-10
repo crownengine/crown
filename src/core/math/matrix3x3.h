@@ -28,9 +28,17 @@ inline Matrix3x3 matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z)
 inline Matrix3x3 matrix3x3(const Quaternion& r)
 {
 	Matrix3x3 m;
-	m.x = vector3(1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z, 2.0f * r.x * r.y + 2.0f * r.w * r.z, 2.0f * r.x * r.z - 2.0f * r.w * r.y);
-	m.y = vector3(2.0f * r.x * r.y - 2.0f * r.w * r.z, 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z, 2.0f * r.y * r.z + 2.0f * r.w * r.x);
-	m.z = vector3(2.0f * r.x * r.z + 2.0f * r.w * r.y, 2.0f * r.y * r.z - 2.0f * r.w * r.x, 1.0f - 2.0f * r.x * r.x - 2.0f * r.y * r.y);
+	m.x.x = 1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z;
+	m.x.y = 2.0f * r.x * r.y + 2.0f * r.w * r.z;
+	m.x.z = 2.0f * r.x * r.z - 2.0f * r.w * r.y;
+
+	m.y.x = 2.0f * r.x * r.y - 2.0f * r.w * r.z;
+	m.y.y = 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z;
+	m.y.z = 2.0f * r.y * r.z + 2.0f * r.w * r.x;
+
+	m.z.x = 2.0f * r.x * r.z + 2.0f * r.w * r.y;
+	m.z.y = 2.0f * r.y * r.z - 2.0f * r.w * r.x;
+	m.z.z = 1.0f - 2.0f * r.x * r.x - 2.0f * r.y * r.y;
 	return m;
 }
 
@@ -124,11 +132,11 @@ inline Matrix3x3 operator/(Matrix3x3 a, float k)
 /// Multiplies the matrix @a a by the vector @a v and returns the result.
 inline Vector3 operator*(const Vector3& v, const Matrix3x3& a)
 {
-	return vector3(
-		v.x*a.x.x + v.y*a.y.x + v.z*a.z.x,
-		v.x*a.x.y + v.y*a.y.y + v.z*a.z.y,
-		v.x*a.x.z + v.y*a.y.z + v.z*a.z.z
-	);
+	Vector3 res;
+	res.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x;
+	res.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y;
+	res.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z;
+	return res;
 }
 
 /// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
@@ -214,9 +222,17 @@ inline Matrix3x3 get_inverted(Matrix3x3 m)
 /// Sets the matrix @a m to identity.
 inline void set_identity(Matrix3x3& m)
 {
-	m.x = vector3(1, 0, 0);
-	m.y = vector3(0, 1, 0);
-	m.z = vector3(0, 0, 1);
+	m.x.x = 1.0f;
+	m.x.y = 0.0f;
+	m.x.z = 0.0f;
+
+	m.y.x = 0.0f;
+	m.y.y = 1.0f;
+	m.y.z = 0.0f;
+
+	m.z.x = 0.0f;
+	m.z.y = 0.0f;
+	m.z.z = 1.0f;
 }
 
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
@@ -302,7 +318,11 @@ inline Vector3 scale(const Matrix3x3& m)
 	const float sx = length(m.x);
 	const float sy = length(m.y);
 	const float sz = length(m.z);
-	return vector3(sx, sy, sz);
+	Vector3 res;
+	res.x = sx;
+	res.y = sy;
+	res.z = sz;
+	return res;
 }
 
 /// Sets the scale of the matrix @a m.

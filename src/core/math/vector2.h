@@ -57,7 +57,10 @@ inline Vector2& operator/=(Vector2& a, float k)
 /// Negates @a a and returns the result.
 inline Vector2 operator-(const Vector2& a)
 {
-	return vector2(-a.x, -a.y);
+	Vector2 res;
+	res.x = -a.x;
+	res.y = -a.y;
+	return res;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
@@ -132,7 +135,6 @@ inline Vector2 normalize(Vector2& a)
 inline void set_length(Vector2& a, float len)
 {
 	normalize(a);
-
 	a.x *= len;
 	a.y *= len;
 }

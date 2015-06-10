@@ -73,30 +73,75 @@ inline Matrix4x4 matrix4x4(const float a[16])
 inline Matrix4x4 matrix4x4(const Vector3& x, const Vector3& y, const Vector3& z, const Vector3& t)
 {
 	Matrix4x4 m;
-	m.x = vector4(x, 0.0f);
-	m.y = vector4(y, 0.0f);
-	m.z = vector4(z, 0.0f);
-	m.t = vector4(t, 1.0f);
+	m.x.x = x.x;
+	m.x.y = x.y;
+	m.x.z = x.z;
+	m.x.w = 0.0f;
+
+	m.y.x = y.x;
+	m.y.y = y.y;
+	m.y.z = y.z;
+	m.y.w = 0.0f;
+
+	m.z.x = z.x;
+	m.z.y = z.y;
+	m.z.z = z.z;
+	m.z.w = 0.0f;
+
+	m.t.x = t.x;
+	m.t.y = t.y;
+	m.t.z = t.z;
+	m.t.w = 1.0f;
 	return m;
 }
 
 inline Matrix4x4 matrix4x4(const Quaternion& r, const Vector3& p)
 {
 	Matrix4x4 m;
-	m.x = vector4(1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z, 2.0f * r.x * r.y + 2.0f * r.w * r.z, 2.0f * r.x * r.z - 2.0f * r.w * r.y, 0);
-	m.y = vector4(2.0f * r.x * r.y - 2.0f * r.w * r.z, 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z, 2.0f * r.y * r.z + 2.0f * r.w * r.x, 0);
-	m.z = vector4(2.0f * r.x * r.z + 2.0f * r.w * r.y, 2.0f * r.y * r.z - 2.0f * r.w * r.x, 1.0f - 2.0f * r.x * r.x - 2.0f * r.y * r.y, 0);
-	m.t = vector4(p, 1.0f);
+	m.x.x = 1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z;
+	m.x.y = 2.0f * r.x * r.y + 2.0f * r.w * r.z;
+	m.x.z = 2.0f * r.x * r.z - 2.0f * r.w * r.y;
+	m.x.w = 0.0f;
+
+	m.y.x = 2.0f * r.x * r.y - 2.0f * r.w * r.z;
+	m.y.y = 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z;
+	m.y.z = 2.0f * r.y * r.z + 2.0f * r.w * r.x;
+	m.y.w = 0.0f;
+
+	m.z.x = 2.0f * r.x * r.z + 2.0f * r.w * r.y;
+	m.z.y = 2.0f * r.y * r.z - 2.0f * r.w * r.x;
+	m.z.z = 1.0f - 2.0f * r.x * r.x - 2.0f * r.y * r.y;
+	m.z.w = 0.0f;
+
+	m.t.x = p.x;
+	m.t.y = p.y;
+	m.t.z = p.z;
+	m.t.w = 1.0f;
 	return m;
 }
 
 inline Matrix4x4 matrix4x4(const Matrix3x3& rot)
 {
 	Matrix4x4 m;
-	m.x = vector4(rot.x, 0.0f);
-	m.y = vector4(rot.y, 0.0f);
-	m.z = vector4(rot.z, 0.0f);
-	m.t = vector4(0.0f, 0.0f, 0.0f, 1.0f);
+	m.x.x = rot.x.x;
+	m.x.y = rot.x.y;
+	m.x.z = rot.x.z;
+	m.x.w = 0.0f;
+
+	m.y.x = rot.y.x;
+	m.y.y = rot.y.y;
+	m.y.z = rot.y.z;
+	m.y.w = 0.0f;
+
+	m.z.x = rot.z.x;
+	m.z.y = rot.z.y;
+	m.z.z = rot.z.z;
+	m.z.w = 0.0f;
+
+	m.t.x = 0.0f;
+	m.t.y = 0.0f;
+	m.t.z = 0.0f;
+	m.t.w = 1.0f;
 	return m;
 }
 
@@ -203,22 +248,22 @@ inline Matrix4x4 operator/(Matrix4x4 a, float k)
 /// Multiplies the matrix @a a by the vector @a v and returns the result.
 inline Vector3 operator*(const Vector3& v, const Matrix4x4& a)
 {
-	return vector3(
-		v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + a.t.x,
-		v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + a.t.y,
-		v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + a.t.z
-	);
+	Vector3 res;
+	res.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + a.t.x;
+	res.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + a.t.y;
+	res.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + a.t.z;
+	return res;
 }
 
 /// Multiplies the matrix @a by the vector @a v and returns the result.
 inline Vector4 operator*(const Vector4& v, const Matrix4x4& a)
 {
-	return vector4(
-		v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + v.w*a.t.x,
-		v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + v.w*a.t.y,
-		v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + v.w*a.t.z,
-		v.x*a.x.w + v.y*a.y.w + v.z*a.z.w + v.w*a.t.w
-	);
+	Vector4 res;
+	res.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + v.w*a.t.x;
+	res.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + v.w*a.t.y;
+	res.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + v.w*a.t.z;
+	res.w = v.x*a.x.w + v.y*a.y.w + v.z*a.z.w + v.w*a.t.w;
+	return res;
 }
 
 /// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
@@ -323,30 +368,30 @@ inline Matrix4x4 get_transposed(Matrix4x4 m)
 /// Sets the matrix @a m to look.
 inline void set_look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
 {
-	Vector3 zAxis = pos - target;
-	normalize(zAxis);
-	const Vector3 xAxis = cross(up, zAxis);
-	const Vector3 yAxis = cross(zAxis, xAxis);
+	Vector3 zaxis = pos - target;
+	normalize(zaxis);
+	const Vector3 xaxis = cross(up, zaxis);
+	const Vector3 yaxis = cross(zaxis, xaxis);
 
-	m.x.x= xAxis.x;
-	m.x.y= yAxis.x;
-	m.x.z= zAxis.x;
-	m.x.w= 0;
+	m.x.x = xaxis.x;
+	m.x.y = yaxis.x;
+	m.x.z = zaxis.x;
+	m.x.w = 0.0f;
 
-	m.y.x= xAxis.y;
-	m.y.y= yAxis.y;
-	m.y.z= zAxis.y;
-	m.y.w= 0;
+	m.y.x = xaxis.y;
+	m.y.y = yaxis.y;
+	m.y.z = zaxis.y;
+	m.y.w = 0.0f;
 
-	m.z.x= xAxis.z;
-	m.z.y= yAxis.z;
-	m.z.z= zAxis.z;
-	m.z.w= 0;
+	m.z.x = xaxis.z;
+	m.z.y = yaxis.z;
+	m.z.z = zaxis.z;
+	m.z.w = 0.0f;
 
-	m.t.x= -dot(pos, xAxis);
-	m.t.y= -dot(pos, yAxis);
-	m.t.z= -dot(pos, zAxis);
-	m.t.w= 1;
+	m.t.x = -dot(pos, xaxis);
+	m.t.y = -dot(pos, yaxis);
+	m.t.z = -dot(pos, zaxis);
+	m.t.w = 1.0f;
 }
 
 /// Returns the determinant of the matrix @a m.
@@ -439,10 +484,25 @@ inline Matrix4x4 get_inverted(Matrix4x4 m)
 /// Sets the matrix @a m to identity.
 inline void set_identity(Matrix4x4& m)
 {
-	m.x = vector4(1, 0, 0, 0);
-	m.y = vector4(0, 1, 0, 0);
-	m.z = vector4(0, 0, 1, 0);
-	m.t = vector4(0, 0, 0, 1);
+	m.x.x = 1.0f;
+	m.x.y = 0.0f;
+	m.x.z = 0.0f;
+	m.x.w = 0.0f;
+
+	m.y.x = 0.0f;
+	m.y.y = 1.0f;
+	m.y.z = 0.0f;
+	m.y.w = 0.0f;
+
+	m.z.x = 0.0f;
+	m.z.y = 0.0f;
+	m.z.z = 1.0f;
+	m.z.w = 0.0f;
+
+	m.t.x = 0.0f;
+	m.t.y = 0.0f;
+	m.t.z = 0.0f;
+	m.t.w = 1.0f;
 }
 
 /// Returns the x asis of the matrix @a m.
@@ -501,11 +561,22 @@ inline void set_translation(Matrix4x4& m, const Vector3& trans)
 	m.t.z = trans.z;
 }
 
-
 /// Returns the rotation portion of the matrix @a m as a Matrix3x3.
 inline Matrix3x3 to_matrix3x3(const Matrix4x4& m)
 {
-	return matrix3x3(x(m), y(m), z(m));
+	Matrix3x3 res;
+	res.x.x = m.x.x;
+	res.x.y = m.x.y;
+	res.x.z = m.x.z;
+
+	res.y.x = m.y.x;
+	res.y.y = m.y.y;
+	res.y.z = m.y.z;
+
+	res.z.x = m.z.x;
+	res.z.y = m.z.y;
+	res.z.z = m.z.z;
+	return res;
 }
 
 /// Returns the rotation portion of the matrix @a m as a Quaternion.

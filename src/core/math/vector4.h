@@ -85,7 +85,12 @@ inline Vector4& operator/=(Vector4& a, float k)
 /// Negates @a a and returns the result.
 inline Vector4 operator-(const Vector4& a)
 {
-	return vector4(-a.x, -a.y, -a.z, -a.w);
+	Vector4 res;
+	res.x = -a.x;
+	res.y = -a.y;
+	res.z = -a.z;
+	res.w = -a.w;
+	return res;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
@@ -162,7 +167,6 @@ inline Vector4 normalize(Vector4& a)
 inline void set_length(Vector4& a, float len)
 {
 	normalize(a);
-
 	a.x *= len;
 	a.y *= len;
 	a.z *= len;

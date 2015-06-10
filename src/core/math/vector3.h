@@ -72,7 +72,11 @@ inline Vector3& operator/=(Vector3& a, float k)
 /// Negates @a a and returns the result.
 inline Vector3 operator-(const Vector3& a)
 {
-	return vector3(-a.x, -a.y, -a.z);
+	Vector3 res;
+	res.x = -a.x;
+	res.y = -a.y;
+	res.z = -a.z;
+	return res;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
@@ -154,7 +158,6 @@ inline Vector3 normalize(Vector3& a)
 inline void set_length(Vector3& a, float len)
 {
 	normalize(a);
-
 	a.x *= len;
 	a.y *= len;
 	a.z *= len;
