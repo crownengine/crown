@@ -15,7 +15,7 @@ namespace crown
 /// Functions to manipulate Quaternion.
 ///
 /// @ingroup Math
-const Quaternion QUATERNION_IDENTITY = { 0.0, 0.0, 0.0, 1.0 };
+const Quaternion QUATERNION_IDENTITY = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 inline Quaternion quaternion(float x, float y, float z, float w)
 {
@@ -109,11 +109,11 @@ inline Quaternion power(const Quaternion& q, float exp)
 {
 	if (abs(q.w) < 0.9999)
 	{
-		Quaternion tmp;
 		float alpha = acos(q.w); // alpha = theta/2
 		float new_alpha = alpha * exp;
-		tmp.w = cos(new_alpha);
 		float mult = sin(new_alpha) / sin(alpha);
+		Quaternion tmp;
+		tmp.w = cos(new_alpha);
 		tmp.x = q.x * mult;
 		tmp.y = q.y * mult;
 		tmp.z = q.z * mult;
