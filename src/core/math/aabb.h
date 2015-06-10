@@ -5,12 +5,10 @@
 
 #pragma once
 
-#include "error.h"
 #include "math_types.h"
+#include "vector3.h"
 #include "matrix4x4.h"
 #include "sphere.h"
-#include "types.h"
-#include "vector3.h"
 
 namespace crown
 {

@@ -9,30 +9,95 @@
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
 /// Holds RGBA color as four floats.
-///
-/// @ingroup Math
 typedef Vector4 Color4;
 
-/// Functions to mamipulate Color4
-///
-/// @ingroup Math
-Color4 from_rgb(int r, int g, int b);
-Color4 from_rgba(int r, int g, int b, int a);
-Color4 from_rgba(uint32_t rgba);
+inline Color4 color4(float r, float g, float b, float a)
+{
+	Color4 c;
+	c.x = r;
+	c.y = g;
+	c.z = b;
+	c.w = a;
+	return c;
+}
+
+inline Color4 from_rgb(int r, int g, int b)
+{
+	Color4 c;
+	c.x = 1.0f/255.0f * r;
+	c.y = 1.0f/255.0f * g;
+	c.z = 1.0f/255.0f * b;
+	c.w = 1.0f;
+	return c;
+}
+
+inline Color4 from_rgba(int r, int g, int b, int a)
+{
+	Color4 c;
+	c.x = 1.0f/255.0f * r;
+	c.y = 1.0f/255.0f * g;
+	c.z = 1.0f/255.0f * b;
+	c.w = 1.0f/255.0f * a;
+	return c;
+}
+
+inline Color4 from_rgba(uint32_t rgba)
+{
+	Color4 c;
+	c.x = 1.0f/255.0f * ((rgba & 0xff000000) >> 24);
+	c.y = 1.0f/255.0f * ((rgba & 0x00ff0000) >> 16);
+	c.z = 1.0f/255.0f * ((rgba & 0x0000ff00) >> 8);
+	c.w = 1.0f/255.0f * ((rgba & 0x000000ff) >> 0);
+	return c;
+}
 
 /// Returns the color as a packed 32-bit integer. (RGBA order, alpha assumed = 255)
-uint32_t to_rgb(const Color4& c);
+inline uint32_t to_rgb(const Color4& c)
+{
+	uint32_t rgba;
+	rgba =	(uint32_t)(255.0f * c.x) << 24;
+	rgba |= (uint32_t)(255.0f * c.y) << 16;
+	rgba |= (uint32_t)(255.0f * c.z) << 8;
+	rgba |= 255;
+	return rgba;
+}
 
 /// Returns the color as a packed 32-bit integer. (ABGR order, alpha assumed = 255)
-uint32_t to_bgr(const Color4& c);
+inline uint32_t to_bgr(const Color4& c)
+{
+	uint32_t abgr;
+	abgr =	255 << 24;
+	abgr |= (uint32_t)(255.0f * c.z) << 16;
+	abgr |= (uint32_t)(255.0f * c.y) << 8;
+	abgr |= (uint32_t)(255.0f * c.x);
+	return abgr;
+}
 
 /// Returns the color as a packed 32-bit integer. (RGBA order)
-uint32_t to_rgba(const Color4& c);
+inline uint32_t to_rgba(const Color4& c)
+{
+	uint32_t rgba;
+	rgba =	(uint32_t)(255.0f * c.x) << 24;
+	rgba |= (uint32_t)(255.0f * c.y) << 16;
+	rgba |= (uint32_t)(255.0f * c.z) << 8;
+	rgba |= (uint32_t)(255.0f * c.w);
+	return rgba;
+}
 
 /// Returns the color as a packed 32-bit integer. (ABGR order)
-uint32_t to_abgr(const Color4& c);
+inline uint32_t to_abgr(const Color4& c)
+{
+	uint32_t abgr;
+	abgr =	(uint32_t)(255.0f * c.w) << 24;
+	abgr |= (uint32_t)(255.0f * c.z) << 16;
+	abgr |= (uint32_t)(255.0f * c.y) << 8;
+	abgr |= (uint32_t)(255.0f * c.x);
+	return abgr;
+}
 
 // SVG 1.0 color names
 const Color4 COLOR4_ALICEBLUE            = from_rgba(0xf0f8ffff);
@@ -183,84 +248,5 @@ const Color4 COLOR4_WHITESMOKE           = from_rgba(0xf5f5f5ff);
 const Color4 COLOR4_YELLOW               = from_rgba(0xffff00ff);
 const Color4 COLOR4_YELLOWGREEN          = from_rgba(0x9acd32ff);
 
-inline Color4 color4(float r, float g, float b, float a)
-{
-	Color4 c;
-	c.x = r;
-	c.y = g;
-	c.z = b;
-	c.w = a;
-	return c;
-}
-
-inline Color4 from_rgb(int r, int g, int b)
-{
-	Color4 c;
-	c.x = 1.0f/255.0f * r;
-	c.y = 1.0f/255.0f * g;
-	c.z = 1.0f/255.0f * b;
-	c.w = 1.0f;
-	return c;
-}
-
-inline Color4 from_rgba(int r, int g, int b, int a)
-{
-	Color4 c;
-	c.x = 1.0f/255.0f * r;
-	c.y = 1.0f/255.0f * g;
-	c.z = 1.0f/255.0f * b;
-	c.w = 1.0f/255.0f * a;
-	return c;
-}
-
-inline Color4 from_rgba(uint32_t rgba)
-{
-	Color4 c;
-	c.x = 1.0f/255.0f * ((rgba & 0xff000000) >> 24);
-	c.y = 1.0f/255.0f * ((rgba & 0x00ff0000) >> 16);
-	c.z = 1.0f/255.0f * ((rgba & 0x0000ff00) >> 8);
-	c.w = 1.0f/255.0f * ((rgba & 0x000000ff) >> 0);
-	return c;
-}
-
-inline uint32_t to_rgb(const Color4& c)
-{
-	uint32_t rgba;
-	rgba =	(uint32_t)(255.0f * c.x) << 24;
-	rgba |= (uint32_t)(255.0f * c.y) << 16;
-	rgba |= (uint32_t)(255.0f * c.z) << 8;
-	rgba |= 255;
-	return rgba;
-}
-
-inline uint32_t to_bgr(const Color4& c)
-{
-	uint32_t abgr;
-	abgr =	255 << 24;
-	abgr |= (uint32_t)(255.0f * c.z) << 16;
-	abgr |= (uint32_t)(255.0f * c.y) << 8;
-	abgr |= (uint32_t)(255.0f * c.x);
-	return abgr;
-}
-
-inline uint32_t to_rgba(const Color4& c)
-{
-	uint32_t rgba;
-	rgba =	(uint32_t)(255.0f * c.x) << 24;
-	rgba |= (uint32_t)(255.0f * c.y) << 16;
-	rgba |= (uint32_t)(255.0f * c.z) << 8;
-	rgba |= (uint32_t)(255.0f * c.w);
-	return rgba;
-}
-
-inline uint32_t to_abgr(const Color4& c)
-{
-	uint32_t abgr;
-	abgr =	(uint32_t)(255.0f * c.w) << 24;
-	abgr |= (uint32_t)(255.0f * c.z) << 16;
-	abgr |= (uint32_t)(255.0f * c.y) << 8;
-	abgr |= (uint32_t)(255.0f * c.x);
-	return abgr;
-}
-
+/// @}
 } // namespace crown

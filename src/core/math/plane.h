@@ -11,6 +11,11 @@
 namespace crown
 {
 
+const Plane PLANE_ZERO  = { VECTOR3_ZERO, 0.0f };
+const Plane PLANE_XAXIS = { VECTOR3_XAXIS, 0.0f };
+const Plane PLANE_YAXIS = { VECTOR3_YAXIS, 0.0f };
+const Plane PLANE_ZAXIS = { VECTOR3_ZAXIS, 0.0f };
+
 /// Functions to manipulate Plane.
 ///
 /// @ingroup Math
@@ -26,16 +31,6 @@ namespace plane
 
 namespace plane
 {
-	// const Plane ZERO = Plane(vector3::ZERO, 0.0f);
-	// const Plane XAXIS = Plane(vector3::XAXIS, 0.0f);
-	// const Plane YAXIS = Plane(vector3::YAXIS, 0.0f);
-	// const Plane ZAXIS = Plane(vector3::ZAXIS, 0.0f);
-
-	const Plane ZERO  = { VECTOR3_ZERO, 0.0f };
-	const Plane XAXIS = { VECTOR3_XAXIS, 0.0f };
-	const Plane YAXIS = { VECTOR3_YAXIS, 0.0f };
-	const Plane ZAXIS = { VECTOR3_ZAXIS, 0.0f };
-
 	inline Plane& normalize(Plane& p)
 	{
 		const float len = length(p.n);

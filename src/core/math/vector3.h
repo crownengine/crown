@@ -5,31 +5,26 @@
 
 #pragma once
 
-#include "error.h"
-#include "types.h"
+#include "math_types.h"
 #include "math_utils.h"
 #include "vector2.h"
-#include "math_types.h"
+#include "error.h"
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
-/// Functions to manipulate Vector3.
-///
-/// @ingroup Math
-const Vector3 VECTOR3_ZERO     = { 0, 0, 0 };
-const Vector3 VECTOR3_XAXIS    = { 1, 0, 0 };
-const Vector3 VECTOR3_YAXIS    = { 0, 1, 0 };
-const Vector3 VECTOR3_ZAXIS    = { 0, 0, 1 };
-const Vector3 VECTOR3_FORWARD  = { 0, 0, 1 };
-const Vector3 VECTOR3_BACKWARD = { 0, 0, -1 };
-const Vector3 VECTOR3_LEFT     = { -1, 0, 0 };
-const Vector3 VECTOR3_RIGHT    = { 1, 0, 0 };
-const Vector3 VECTOR3_UP       = { 0, 1, 0 };
-const Vector3 VECTOR3_DOWN     = { 0, -1, 0 };
-
-/// Returns the Vector2 portion of @a a. (i.e. truncates z)
-Vector2 to_vector2(const Vector3& a);
+const Vector3 VECTOR3_ZERO     = { 0.0f, 0.0f, 0.0f };
+const Vector3 VECTOR3_XAXIS    = { 1.0f, 0.0f, 0.0f };
+const Vector3 VECTOR3_YAXIS    = { 0.0f, 1.0f, 0.0f };
+const Vector3 VECTOR3_ZAXIS    = { 0.0f, 0.0f, 1.0f };
+const Vector3 VECTOR3_FORWARD  = { 0.0f, 0.0f, 1.0f };
+const Vector3 VECTOR3_BACKWARD = { 0.0f, 0.0f, -1.0f };
+const Vector3 VECTOR3_LEFT     = { -1.0f, 0.0f, 0.0f };
+const Vector3 VECTOR3_RIGHT    = { 1.0f, 0.0f, 0.0f };
+const Vector3 VECTOR3_UP       = { 0.0f, 1.0f, 0.0f };
+const Vector3 VECTOR3_DOWN     = { 0.0f, -1.0f, 0.0f };
 
 inline Vector3 vector3(float x, float y, float z)
 {
@@ -66,7 +61,7 @@ inline Vector3& operator*=(Vector3& a, float k)
 
 inline Vector3& operator/=(Vector3& a, float k)
 {
-	CE_ASSERT(k != (float)0.0, "Division by zero");
+	CE_ASSERT(k != 0.0f, "Division by zero");
 	float inv = 1.0f / k;
 	a.x *= inv;
 	a.y *= inv;
@@ -77,7 +72,11 @@ inline Vector3& operator/=(Vector3& a, float k)
 /// Negates @a a and returns the result.
 inline Vector3 operator-(const Vector3& a)
 {
-	return vector3(-a.x, -a.y, -a.z);
+	Vector3 res;
+	res.x = -a.x;
+	res.y = -a.y;
+	res.z = -a.z;
+	return res;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
@@ -101,7 +100,7 @@ inline Vector3 operator*(Vector3 a, float k)
 	return a;
 }
 
-/// @copydoc operator*(Vector3, float)
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
 inline Vector3 operator*(float k, Vector3 a)
 {
 	a *= k;
@@ -159,7 +158,6 @@ inline Vector3 normalize(Vector3& a)
 inline void set_length(Vector3& a, float len)
 {
 	normalize(a);
-
 	a.x *= len;
 	a.y *= len;
 	a.z *= len;
@@ -183,15 +181,17 @@ inline float* to_float_ptr(Vector3& a)
 	return &a.x;
 }
 
-/// @copydoc to_float_ptr(Vector3&)
+/// Returns the pointer to the data of @a a.
 inline const float* to_float_ptr(const Vector3& a)
 {
 	return &a.x;
 }
 
+/// Returns the Vector2 portion of @a a. (i.e. truncates z)
 inline Vector2 to_vector2(const Vector3& a)
 {
 	return vector2(a.x, a.y);
 }
 
+/// @}
 } // namespace crown

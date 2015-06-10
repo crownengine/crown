@@ -5,17 +5,15 @@
 
 #pragma once
 
-#include "error.h"
-#include "types.h"
-#include "math_utils.h"
 #include "math_types.h"
+#include "math_utils.h"
+#include "error.h"
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
-/// Functions to manipulate Vector2.
-///
-/// @ingroup Math
 const Vector2 VECTOR2_ZERO = { 0.0f, 0.0f };
 
 inline Vector2 vector2(float x, float y)
@@ -49,7 +47,7 @@ inline Vector2& operator*=(Vector2& a, float k)
 
 inline Vector2& operator/=(Vector2& a, float k)
 {
-	CE_ASSERT(k != (float)0.0, "Division by zero");
+	CE_ASSERT(k != 0.0f, "Division by zero");
 	float inv = 1.0f / k;
 	a.x *= inv;
 	a.y *= inv;
@@ -59,7 +57,10 @@ inline Vector2& operator/=(Vector2& a, float k)
 /// Negates @a a and returns the result.
 inline Vector2 operator-(const Vector2& a)
 {
-	return vector2(-a.x, -a.y);
+	Vector2 res;
+	res.x = -a.x;
+	res.y = -a.y;
+	return res;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
@@ -83,7 +84,7 @@ inline Vector2 operator*(Vector2 a, float k)
 	return a;
 }
 
-/// @copydoc operator*(Vector2, float)
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
 inline Vector2 operator*(float k, Vector2 a)
 {
 	a *= k;
@@ -134,7 +135,6 @@ inline Vector2 normalize(Vector2& a)
 inline void set_length(Vector2& a, float len)
 {
 	normalize(a);
-
 	a.x *= len;
 	a.y *= len;
 }
@@ -157,10 +157,11 @@ inline float* to_float_ptr(Vector2& a)
 	return &a.x;
 }
 
-/// @copydoc to_float_ptr(Vector2&)
+/// Returns the pointer to the data of @a a.
 inline const float* to_float_ptr(const Vector2& a)
 {
 	return &a.x;
 }
 
+/// @}
 } // namespace crown

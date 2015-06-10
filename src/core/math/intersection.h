@@ -6,7 +6,6 @@
 #pragma once
 
 #include "math_types.h"
-#include "sphere.h"
 
 namespace crown
 {

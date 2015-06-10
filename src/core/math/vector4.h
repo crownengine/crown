@@ -5,22 +5,21 @@
 
 #pragma once
 
-#include "error.h"
-#include "types.h"
+#include "math_types.h"
 #include "math_utils.h"
 #include "vector3.h"
+#include "error.h"
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
-/// Functions to manipulate Vector4.
-///
-/// @ingroup Math
-const Vector4 VECTOR4_ZERO  = { 0, 0, 0, 0 };
-const Vector4 VECTOR4_XAXIS = { 1, 0, 0, 0 };
-const Vector4 VECTOR4_YAXIS = { 0, 1, 0, 0 };
-const Vector4 VECTOR4_ZAXIS = { 0, 0, 1, 0 };
-const Vector4 VECTOR4_WAXIS = { 0, 0, 0, 1 };
+const Vector4 VECTOR4_ZERO  = { 0.0f, 0.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_XAXIS = { 1.0f, 0.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_YAXIS = { 0.0f, 1.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_ZAXIS = { 0.0f, 0.0f, 1.0f, 0.0f };
+const Vector4 VECTOR4_WAXIS = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /// Returns the Vector3 portion of @a a. (i.e. truncates w)
 Vector3 to_vector3(const Vector4& a);
@@ -74,7 +73,7 @@ inline Vector4& operator*=(Vector4& a, float k)
 
 inline Vector4& operator/=(Vector4& a, float k)
 {
-	CE_ASSERT(k != (float)0.0, "Division by zero");
+	CE_ASSERT(k != 0.0f, "Division by zero");
 	float inv = 1.0f / k;
 	a.x *= inv;
 	a.y *= inv;
@@ -86,7 +85,12 @@ inline Vector4& operator/=(Vector4& a, float k)
 /// Negates @a a and returns the result.
 inline Vector4 operator-(const Vector4& a)
 {
-	return vector4(-a.x, -a.y, -a.z, -a.w);
+	Vector4 res;
+	res.x = -a.x;
+	res.y = -a.y;
+	res.z = -a.z;
+	res.w = -a.w;
+	return res;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
@@ -110,7 +114,7 @@ inline Vector4 operator*(Vector4 a, float k)
 	return a;
 }
 
-/// @copydoc operator*(Vector4, float)
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
 inline Vector4 operator*(float k, Vector4 a)
 {
 	a *= k;
@@ -163,7 +167,6 @@ inline Vector4 normalize(Vector4& a)
 inline void set_length(Vector4& a, float len)
 {
 	normalize(a);
-
 	a.x *= len;
 	a.y *= len;
 	a.z *= len;
@@ -188,7 +191,7 @@ inline float* to_float_ptr(Vector4& a)
 	return &a.x;
 }
 
-/// @copydoc to_float_ptr(Vector4&)
+/// Returns the pointer to the data of @a a.
 inline const float* to_float_ptr(const Vector4& a)
 {
 	return &a.x;
@@ -199,4 +202,5 @@ inline Vector3 to_vector3(const Vector4& a)
 	return vector3(a.x, a.y, a.z);
 }
 
+/// @}
 } // namespace crown
