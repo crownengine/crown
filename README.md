@@ -25,7 +25,7 @@ TCP/IP console with autocomplete and color-coded output highlighting.
 
 ##Dependencies
 
-PhysX 3.3.x (https://developer.nvidia.com/physx-sdk)
+PhysX 3.3.2+ (https://developer.nvidia.com/physx-sdk)
 
 ##Building
 
