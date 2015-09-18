@@ -69,12 +69,14 @@ configuration { "x32", "linux-*" }
 	postbuildcommands {
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x86/luajit " .. CROWN_DIR .. ".build/linux32/bin",
 		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " ..              CROWN_DIR .. ".build/linux32/bin",
+		"cp -r " .. "$(PHYSX_SDK_LINUX)/Bin/linux32/libPhysX3* " ..      CROWN_DIR .. ".build/linux32/bin",
 	}
 
 configuration { "x64", "linux-*" }
 	postbuildcommands {
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x64/luajit " .. CROWN_DIR .. ".build/linux64/bin",
 		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit " ..              CROWN_DIR .. ".build/linux64/bin",
+		"cp -r " .. "$(PHYSX_SDK_LINUX)/Bin/linux64/libPhysX3* " ..      CROWN_DIR .. ".build/linux64/bin",
 	}
 
 configuration { "x32", "vs*" }

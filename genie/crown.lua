@@ -198,20 +198,15 @@ function crown_project(_name, _kind, _defines)
 			linkoptions {
 				"-rdynamic",
 				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelClothCHECKED" ..
-				"	PhysX3CHECKED " ..
-				"	PhysX3CommonCHECKED" ..
-				"	PxTaskCHECKED" ..
-				"	LowLevelCHECKED" ..
-				"	PhysX3CharacterKinematicCHECKED" ..
-				"	PhysX3CookingCHECKED" ..
+				"	PhysX3CHECKED_x64" ..
+				"	PhysX3CommonCHECKED_x64" ..
+				"	PhysX3CookingCHECKED_x64" ..
+				"	PhysX3CharacterKinematicCHECKED_x64" ..
 				"	PhysX3ExtensionsCHECKED" ..
 				"	PhysX3VehicleCHECKED" ..
 				"	PhysXProfileSDKCHECKED" ..
 				"	PhysXVisualDebuggerSDKCHECKED" ..
-				"	PvdRuntimeCHECKED" ..
-				"	SceneQueryCHECKED" ..
-				"	SimulationControllerCHECKED" ..
+				"	PxTaskCHECKED" ..
 				") -Wl,--end-group"
 			}
 
@@ -220,40 +215,30 @@ function crown_project(_name, _kind, _defines)
 			{
 				"-rdynamic",
 				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelClothPROFILE" ..
-				"	PhysX3PROFILE " ..
-				"	PhysX3CommonPROFILE" ..
-				"	PxTaskPROFILE" ..
-				"	LowLevelPROFILE" ..
-				"	PhysX3CharacterKinematicPROFILE" ..
-				"	PhysX3CookingPROFILE" ..
+				"	PhysX3PROFILE_x64" ..
+				"	PhysX3CommonPROFILE_x64" ..
+				"	PhysX3CookingPROFILE_x64" ..
+				"	PhysX3CharacterKinematicPROFILE_x64" ..
 				"	PhysX3ExtensionsPROFILE" ..
 				"	PhysX3VehiclePROFILE" ..
 				"	PhysXProfileSDKPROFILE" ..
 				"	PhysXVisualDebuggerSDKPROFILE" ..
-				"	PvdRuntimePROFILE" ..
-				"	SceneQueryPROFILE" ..
-				"	SimulationControllerPROFILE" ..
+				"	PxTaskPROFILE" ..
 				") -Wl,--end-group"
 			}
 
 		configuration { "release", "linux-*" }
 			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelCloth" ..
-				"	PhysX3 " ..
-				"	PhysX3Common" ..
-				"	PxTask" ..
-				"	LowLevel" ..
-				"	PhysX3CharacterKinematic" ..
-				"	PhysX3Cooking" ..
+				"	PhysX3_x64" ..
+				"	PhysX3Common_x64" ..
+				"	PhysX3Cooking_x64" ..
+				"	PhysX3CharacterKinematic_x64" ..
 				"	PhysX3Extensions" ..
 				"	PhysX3Vehicle" ..
 				"	PhysXProfileSDK" ..
 				"	PhysXVisualDebuggerSDK" ..
-				"	PvdRuntime" ..
-				"	SceneQuery" ..
-				"	SimulationController" ..
+				"	PxTask" ..
 				") -Wl,--end-group"
 			}
 

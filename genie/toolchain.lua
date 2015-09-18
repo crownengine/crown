@@ -125,7 +125,8 @@ function toolchain(build_dir, lib_dir)
 		objdir (build_dir .. "linux32" .. "/obj")
 		libdirs {
 			lib_dir .. "../.build/linux32/bin",
-			"$(PHYSX_SDK_LINUX)/Lib/linux32"
+			"$(PHYSX_SDK_LINUX)/Lib/linux32",
+			"$(PHYSX_SDK_LINUX)/Bin/linux32",
 		}
 		buildoptions {
 			"-m32",
@@ -137,7 +138,8 @@ function toolchain(build_dir, lib_dir)
 		objdir (build_dir .. "linux64" .. "/obj")
 		libdirs {
 			lib_dir .. "../.build/linux64/bin",
-			"$(PHYSX_SDK_LINUX)/Lib/linux64"
+			"$(PHYSX_SDK_LINUX)/Lib/linux64",
+			"$(PHYSX_SDK_LINUX)/Bin/linux64",
 		}
 		buildoptions {
 			"-m64",
