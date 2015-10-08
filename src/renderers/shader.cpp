@@ -45,12 +45,12 @@ namespace shader_resource
 		JSONParser json(buf);
 		JSONElement root = json.root();
 
-		DynamicString vs_code2;
-		DynamicString fs_code2;
-		DynamicString varying_def;
-		DynamicString common_code;
-		DynamicString vs_in_out;
-		DynamicString fs_in_out;
+		DynamicString vs_code2(default_allocator());
+		DynamicString fs_code2(default_allocator());
+		DynamicString varying_def(default_allocator());
+		DynamicString common_code(default_allocator());
+		DynamicString vs_in_out(default_allocator());
+		DynamicString fs_in_out(default_allocator());
 
 		root.key("vs_code").to_string(vs_code2);
 		root.key("fs_code").to_string(fs_code2);
@@ -59,8 +59,8 @@ namespace shader_resource
 		root.key("vs_in_out").to_string(vs_in_out);
 		root.key("fs_in_out").to_string(fs_in_out);
 
-		DynamicString vs_code;
-		DynamicString fs_code;
+		DynamicString vs_code(default_allocator());
+		DynamicString fs_code(default_allocator());
 		vs_code += vs_in_out;
 		vs_code += common_code;
 		vs_code += vs_code2;
@@ -68,11 +68,11 @@ namespace shader_resource
 		fs_code += common_code;
 		fs_code += fs_code2;
 
-		DynamicString vs_code_path;
-		DynamicString fs_code_path;
-		DynamicString varying_def_path;
-		DynamicString tmpvs_path;
-		DynamicString tmpfs_path;
+		DynamicString vs_code_path(default_allocator());
+		DynamicString fs_code_path(default_allocator());
+		DynamicString varying_def_path(default_allocator());
+		DynamicString tmpvs_path(default_allocator());
+		DynamicString tmpfs_path(default_allocator());
 
 		opts.get_absolute_path("vs_code.tmp", vs_code_path);
 		opts.get_absolute_path("fs_code.tmp", fs_code_path);

@@ -135,9 +135,7 @@ namespace unit_resource
 
 			if (!node.key("parent").is_nil())
 			{
-				DynamicString parent_name;
-				node.key("parent").to_string(parent_name);
-				gn.parent = parent_name.to_string_id();
+				gn.parent = node.key("parent").to_string_id();
 			}
 
 			gn.position = node.key("position").to_vector3();
@@ -165,9 +163,9 @@ namespace unit_resource
 			JSONElement node = camera.key("node");
 			JSONElement type = camera.key("type");
 
-			DynamicString node_name;
+			DynamicString node_name(default_allocator());
 			node.to_string(node_name);
-			DynamicString camera_type;
+			DynamicString camera_type(default_allocator());
 			type.to_string(camera_type);
 
 			StringId32 node_name_hash = node_name.to_string_id();
@@ -194,15 +192,14 @@ namespace unit_resource
 			const char* renderable_name = keys[k].c_str();
 			JSONElement renderable = e.key(renderable_name);
 
-			DynamicString node_name; renderable.key("node").to_string(node_name);
-			StringId32 node_name_hash = node_name.to_string_id();
+			StringId32 node_name_hash = renderable.key("node").to_string_id();
 
 			UnitRenderable rn;
 			rn.name = StringId32(renderable_name);
 			rn.node = find_node_index(node_name_hash, node_depths);
 			rn.visible = renderable.key("visible").to_bool();
 
-			DynamicString res_type;
+			DynamicString res_type(default_allocator());
 			renderable.key("type").to_string(res_type);
 
 			if (res_type == "mesh")

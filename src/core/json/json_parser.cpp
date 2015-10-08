@@ -301,7 +301,8 @@ void JSONElement::to_array(Vector<DynamicString>& array) const
 
 	for (uint32_t i = 0; i < array::size(temp); i++)
 	{
-		DynamicString str;
+		TempAllocator256 ta;
+		DynamicString str(ta);
 		njson::parse_string(temp[i], str);
 		vector::push_back(array, str);
 	}
@@ -407,7 +408,8 @@ uint32_t JSONElement::size() const
 		}
 		case NJSONValueType::STRING:
 		{
-			DynamicString string;
+			TempAllocator256 ta;
+			DynamicString string(ta);
 			njson::parse_string(_at, string);
 			return string.length();
 		}

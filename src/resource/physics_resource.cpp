@@ -99,7 +99,7 @@ namespace physics_resource
 			sr.position =    shape.key("position").to_vector3();
 			sr.rotation =    shape.key("rotation").to_quaternion();
 
-			DynamicString stype; shape.key("type").to_string(stype);
+			DynamicString stype(default_allocator()); shape.key("type").to_string(stype);
 			sr.type = shape_type_to_enum(stype.c_str());
 
 			switch (sr.type)
@@ -177,7 +177,7 @@ namespace physics_resource
 
 			JointResource pj;
 			pj.name = keys[k].to_string_id();
-			DynamicString jtype; type.to_string(jtype);
+			DynamicString jtype(default_allocator()); type.to_string(jtype);
 			pj.type         = joint_type_to_enum(jtype.c_str());
 			pj.actor_0      = joint.key("actor_0").to_string_id();
 			pj.actor_1      = joint.key("actor_1").to_string_id();

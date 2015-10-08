@@ -104,7 +104,7 @@ namespace material_resource
 			UniformHandle uh;
 			uh.uniform_handle = 0;
 
-			DynamicString type;
+			DynamicString type(default_allocator());
 			root.key("uniforms").key(keys[i].c_str()).key("type").to_string(type);
 
 			UniformData ud;

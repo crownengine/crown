@@ -21,7 +21,7 @@ class DynamicString
 {
 public:
 
-	DynamicString(Allocator& a = default_allocator());
+	DynamicString(Allocator& a);
 	DynamicString(const char* s, Allocator& a = default_allocator());
 
 	DynamicString& operator+=(const DynamicString& s);
@@ -60,6 +60,8 @@ public:
 
 	///
 	const char* c_str() const;
+
+	ALLOCATOR_AWARE;
 
 private:
 

@@ -36,7 +36,7 @@ namespace sound_resource
 		JSONParser json(buf);
 		JSONElement root = json.root();
 
-		DynamicString name;
+		DynamicString name(default_allocator());
 		root.key("source").to_string(name);
 
 		Buffer sound = opts.read(name.c_str());
