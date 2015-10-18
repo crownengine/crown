@@ -4,8 +4,6 @@
  */
 
 /*
- * Based on:
- *
  * Copyright (C) 2012 Bitsquid AB
  * License: https://bitbucket.org/bitsquid/foundation/src/default/LICENCSE
  */
