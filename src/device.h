@@ -115,9 +115,9 @@ private:
 	uint16_t _width;
 	uint16_t _height;
 
-	bool _is_init		: 1;
-	bool _is_running	: 1;
-	bool _is_paused		: 1;
+	bool _is_init;
+	bool _is_running;
+	bool _is_paused;
 
 	uint64_t _frame_count;
 	int64_t _last_time;
