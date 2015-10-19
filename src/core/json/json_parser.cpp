@@ -126,12 +126,16 @@ float JSONElement::to_float(float def) const
 	return is_nil() ? def : njson::parse_float(_at);
 }
 
-void JSONElement::to_string(DynamicString& str, const char* def) const
+DynamicString JSONElement::to_string(const char* def) const
 {
+	DynamicString str(default_allocator());
+
 	if (is_nil())
 		str = def;
 	else
 		njson::parse_string(_at, str);
+
+	return str;
 }
 
 Vector2 JSONElement::to_vector2(const Vector2& def) const

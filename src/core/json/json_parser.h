@@ -97,7 +97,7 @@ public:
 	float to_float(float def = 0) const;
 
 	/// Returns the string value of the element.
-	void to_string(DynamicString& str, const char* def = "") const;
+	DynamicString to_string(const char* def = "") const;
 
 	/// Returns the Vector2 value of the element.
 	/// @note Vector2 = [x, y]

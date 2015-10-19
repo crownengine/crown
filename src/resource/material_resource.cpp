@@ -104,8 +104,7 @@ namespace material_resource
 			UniformHandle uh;
 			uh.uniform_handle = 0;
 
-			DynamicString type(default_allocator());
-			root.key("uniforms").key(keys[i].c_str()).key("type").to_string(type);
+			DynamicString type = root.key("uniforms").key(keys[i].c_str()).key("type").to_string();
 
 			UniformData ud;
 			ud.name_offset = array::size(names); array::push(names, keys[i].c_str(), keys[i].length()); array::push_back(names, '\0');

@@ -45,19 +45,12 @@ namespace shader_resource
 		JSONParser json(buf);
 		JSONElement root = json.root();
 
-		DynamicString vs_code2(default_allocator());
-		DynamicString fs_code2(default_allocator());
-		DynamicString varying_def(default_allocator());
-		DynamicString common_code(default_allocator());
-		DynamicString vs_in_out(default_allocator());
-		DynamicString fs_in_out(default_allocator());
-
-		root.key("vs_code").to_string(vs_code2);
-		root.key("fs_code").to_string(fs_code2);
-		root.key("varying_def").to_string(varying_def);
-		root.key("common").to_string(common_code);
-		root.key("vs_in_out").to_string(vs_in_out);
-		root.key("fs_in_out").to_string(fs_in_out);
+		DynamicString vs_code2 = root.key("vs_code").to_string();
+		DynamicString fs_code2 = root.key("fs_code").to_string();
+		DynamicString varying_def = root.key("varying_def").to_string();
+		DynamicString common_code = root.key("common").to_string();
+		DynamicString vs_in_out = root.key("vs_in_out").to_string();
+		DynamicString fs_in_out = root.key("fs_in_out").to_string();
 
 		DynamicString vs_code(default_allocator());
 		DynamicString fs_code(default_allocator());

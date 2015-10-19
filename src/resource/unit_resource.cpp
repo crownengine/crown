@@ -163,11 +163,8 @@ namespace unit_resource
 			JSONElement node = camera.key("node");
 			JSONElement type = camera.key("type");
 
-			DynamicString node_name(default_allocator());
-			node.to_string(node_name);
-			DynamicString camera_type(default_allocator());
-			type.to_string(camera_type);
-
+			DynamicString node_name = node.to_string();
+			DynamicString camera_type = type.to_string();
 			StringId32 node_name_hash = node_name.to_string_id();
 
 			UnitCamera cn;
@@ -199,8 +196,7 @@ namespace unit_resource
 			rn.node = find_node_index(node_name_hash, node_depths);
 			rn.visible = renderable.key("visible").to_bool();
 
-			DynamicString res_type(default_allocator());
-			renderable.key("type").to_string(res_type);
+			DynamicString res_type = renderable.key("type").to_string();
 
 			if (res_type == "mesh")
 			{
