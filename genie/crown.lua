@@ -194,66 +194,99 @@ function crown_project(_name, _kind, _defines)
 				"dl",
 			}
 
-		configuration { "debug", "linux-*" }
+		configuration { "x32", "debug", "linux-*" }
 			linkoptions {
 				"-rdynamic",
 				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelClothCHECKED" ..
-				"	PhysX3CHECKED " ..
-				"	PhysX3CommonCHECKED" ..
-				"	PxTaskCHECKED" ..
-				"	LowLevelCHECKED" ..
-				"	PhysX3CharacterKinematicCHECKED" ..
-				"	PhysX3CookingCHECKED" ..
+				"	PhysX3CHECKED_x86" ..
+				"	PhysX3CommonCHECKED_x86" ..
+				"	PhysX3CookingCHECKED_x86" ..
+				"	PhysX3CharacterKinematicCHECKED_x86" ..
 				"	PhysX3ExtensionsCHECKED" ..
 				"	PhysX3VehicleCHECKED" ..
 				"	PhysXProfileSDKCHECKED" ..
 				"	PhysXVisualDebuggerSDKCHECKED" ..
-				"	PvdRuntimeCHECKED" ..
-				"	SceneQueryCHECKED" ..
-				"	SimulationControllerCHECKED" ..
+				"	PxTaskCHECKED" ..
 				") -Wl,--end-group"
 			}
 
-		configuration { "development", "linux-*" }
+		configuration { "x64", "debug", "linux-*" }
+			linkoptions {
+				"-rdynamic",
+				"-Wl,--start-group $(addprefix -l," ..
+				"	PhysX3CHECKED_x64" ..
+				"	PhysX3CommonCHECKED_x64" ..
+				"	PhysX3CookingCHECKED_x64" ..
+				"	PhysX3CharacterKinematicCHECKED_x64" ..
+				"	PhysX3ExtensionsCHECKED" ..
+				"	PhysX3VehicleCHECKED" ..
+				"	PhysXProfileSDKCHECKED" ..
+				"	PhysXVisualDebuggerSDKCHECKED" ..
+				"	PxTaskCHECKED" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "x32", "development", "linux-*" }
 			linkoptions
 			{
 				"-rdynamic",
 				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelClothPROFILE" ..
-				"	PhysX3PROFILE " ..
-				"	PhysX3CommonPROFILE" ..
-				"	PxTaskPROFILE" ..
-				"	LowLevelPROFILE" ..
-				"	PhysX3CharacterKinematicPROFILE" ..
-				"	PhysX3CookingPROFILE" ..
+				"	PhysX3PROFILE_x86" ..
+				"	PhysX3CommonPROFILE_x86" ..
+				"	PhysX3CookingPROFILE_x86" ..
+				"	PhysX3CharacterKinematicPROFILE_x86" ..
 				"	PhysX3ExtensionsPROFILE" ..
 				"	PhysX3VehiclePROFILE" ..
 				"	PhysXProfileSDKPROFILE" ..
 				"	PhysXVisualDebuggerSDKPROFILE" ..
-				"	PvdRuntimePROFILE" ..
-				"	SceneQueryPROFILE" ..
-				"	SimulationControllerPROFILE" ..
+				"	PxTaskPROFILE" ..
 				") -Wl,--end-group"
 			}
 
-		configuration { "release", "linux-*" }
+		configuration { "x64", "development", "linux-*" }
+			linkoptions
+			{
+				"-rdynamic",
+				"-Wl,--start-group $(addprefix -l," ..
+				"	PhysX3PROFILE_x64" ..
+				"	PhysX3CommonPROFILE_x64" ..
+				"	PhysX3CookingPROFILE_x64" ..
+				"	PhysX3CharacterKinematicPROFILE_x64" ..
+				"	PhysX3ExtensionsPROFILE" ..
+				"	PhysX3VehiclePROFILE" ..
+				"	PhysXProfileSDKPROFILE" ..
+				"	PhysXVisualDebuggerSDKPROFILE" ..
+				"	PxTaskPROFILE" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "x32", "release", "linux-*" }
 			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelCloth" ..
-				"	PhysX3 " ..
-				"	PhysX3Common" ..
-				"	PxTask" ..
-				"	LowLevel" ..
-				"	PhysX3CharacterKinematic" ..
-				"	PhysX3Cooking" ..
+				"	PhysX3_x86" ..
+				"	PhysX3Common_x86" ..
+				"	PhysX3Cooking_x86" ..
+				"	PhysX3CharacterKinematic_x86" ..
 				"	PhysX3Extensions" ..
 				"	PhysX3Vehicle" ..
 				"	PhysXProfileSDK" ..
 				"	PhysXVisualDebuggerSDK" ..
-				"	PvdRuntime" ..
-				"	SceneQuery" ..
-				"	SimulationController" ..
+				"	PxTask" ..
+				") -Wl,--end-group"
+			}
+
+		configuration { "x64", "release", "linux-*" }
+			linkoptions {
+				"-Wl,--start-group $(addprefix -l," ..
+				"	PhysX3_x64" ..
+				"	PhysX3Common_x64" ..
+				"	PhysX3Cooking_x64" ..
+				"	PhysX3CharacterKinematic_x64" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PxTask" ..
 				") -Wl,--end-group"
 			}
 

@@ -205,6 +205,14 @@ void Device::destroy_resource_package(ResourcePackage& package)
 
 void Device::reload(StringId64 type, StringId64 name)
 {
+	const void* old_resource = _resource_manager->get(type, name);
+	_resource_manager->reload(type, name);
+	const void* new_resource = _resource_manager->get(type, name);
+
+	if (type == SCRIPT_TYPE)
+	{
+		_lua_environment->execute((const LuaResource*)new_resource);
+	}
 }
 
 namespace device_globals
