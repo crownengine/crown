@@ -26,7 +26,7 @@ public:
 
 	/// Plays the sound @a sr at the given @a volume [0 .. 1].
 	/// If loop is true the sound will be played looping.
-	virtual SoundInstanceId play(const SoundResource* sr, bool loop, float volume, const Vector3& pos) = 0;
+	virtual SoundInstanceId play(const SoundResource& sr, bool loop, float volume, const Vector3& pos) = 0;
 
 	/// Stops the sound with the given @a id.
 	/// After this call, the instance will be destroyed.
@@ -53,7 +53,7 @@ public:
 	/// Sets the @a volumes of @a num sound instances @a ids.
 	virtual void set_sound_volumes(uint32_t num, const SoundInstanceId* ids, const float* volumes) = 0;
 
-	virtual void reload_sounds(const SoundResource* old_sr, const SoundResource* new_sr) = 0;
+	virtual void reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr) = 0;
 
 	/// Sets the @a pose of the listener in world space.
 	virtual void set_listener_pose(const Matrix4x4& pose) = 0;

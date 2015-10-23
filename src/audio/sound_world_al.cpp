@@ -77,7 +77,7 @@ namespace audio_globals
 
 struct SoundInstance
 {
-	void create(const SoundResource* sr, const Vector3& pos)
+	void create(const SoundResource& sr, const Vector3& pos)
 	{
 		using namespace sound_resource;
 
@@ -93,15 +93,15 @@ struct SoundInstance
 		CE_ASSERT(alIsBuffer(_buffer), "Bad OpenAL buffer");
 
 		ALenum format;
-		switch (bits_ps(sr))
+		switch (bits_ps(&sr))
 		{
-			case 8: format = channels(sr) > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8; break;
-			case 16: format = channels(sr) > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
+			case 8: format = channels(&sr) > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8; break;
+			case 16: format = channels(&sr) > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
 			default: CE_FATAL("Number of bits per sample not supported."); break;
 		}
-		AL_CHECK(alBufferData(_buffer, format, data(sr), size(sr), sample_rate(sr)));
+		AL_CHECK(alBufferData(_buffer, format, data(&sr), size(&sr), sample_rate(&sr)));
 
-		_resource = sr;
+		_resource = &sr;
 		set_position(pos);
 	}
 
@@ -113,7 +113,7 @@ struct SoundInstance
 		AL_CHECK(alDeleteSources(1, &_source));
 	}
 
-	void reload(const SoundResource* new_sr)
+	void reload(const SoundResource& new_sr)
 	{
 		destroy();
 		create(new_sr, position());
@@ -213,7 +213,7 @@ public:
 	{
 	}
 
-	virtual SoundInstanceId play(const SoundResource* sr, bool loop, float volume, const Vector3& pos)
+	virtual SoundInstanceId play(const SoundResource& sr, bool loop, float volume, const Vector3& pos)
 	{
 		SoundInstance instance;
 		instance.create(sr, pos);
@@ -283,11 +283,11 @@ public:
 		}
 	}
 
-	virtual void reload_sounds(const SoundResource* old_sr, const SoundResource* new_sr)
+	virtual void reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
 	{
 		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
 		{
-			if (_playing_sounds[i].resource() == old_sr)
+			if (_playing_sounds[i].resource() == &old_sr)
 			{
 				_playing_sounds[i].reload(new_sr);
 			}
