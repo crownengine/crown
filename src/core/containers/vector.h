@@ -163,7 +163,8 @@ namespace vector
 		if (v._capacity == v._size)
 			grow(v, 0);
 
-		new (v._data + v._size) T(item);
+		construct<T>(v._data + v._size, *v._allocator, IS_ALLOCATOR_AWARE_TYPE(T)());
+		v._data[v._size] = item;
 
 		return v._size++;
 	}

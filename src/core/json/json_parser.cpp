@@ -320,7 +320,7 @@ void JSONElement::to_keys(Vector<DynamicString>& keys) const
 	const Map<DynamicString, const char*>::Node* it = map::begin(object);
 	while (it != map::end(object))
 	{
-		vector::push_back(keys, (*it).key);
+		vector::push_back(keys, (*it).pair.first);
 		it++;
 	}
 }
