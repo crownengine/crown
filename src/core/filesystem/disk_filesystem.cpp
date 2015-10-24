@@ -15,6 +15,7 @@ namespace crown
 {
 
 DiskFilesystem::DiskFilesystem()
+	: _prefix(default_allocator())
 {
 	char buf[512];
 	os::getcwd(buf, sizeof(buf));

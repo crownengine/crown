@@ -6,6 +6,7 @@
 #pragma once
 
 #include "config.h"
+#include "memory_types.h"
 #include <cstddef>
 #include <stdint.h>
 #include <stdio.h>
@@ -52,6 +53,35 @@ struct StringId64
 typedef StringId64 ResourceId;
 
 #define INVALID_ID 65535
+#define ALLOCATOR_AWARE typedef int allocator_aware
+
+/// Convert integer to type.
+template <int v>
+struct Int2Type { enum {value=v}; };
+
+/// Determines if a class is allocator aware.
+template <class T>
+struct is_allocator_aware {
+
+        template <typename C>
+        static char test_fun(typename C::allocator_aware *);
+
+        template <typename C>
+        static int test_fun(...);
+
+public:
+        enum {
+                value = (sizeof(test_fun<T>(0)) == sizeof(char))
+        };
+};
+
+#define IS_ALLOCATOR_AWARE(T) is_allocator_aware<T>::value
+#define IS_ALLOCATOR_AWARE_TYPE(T) Int2Type< IS_ALLOCATOR_AWARE(T) >
+
+/// Allocator aware constuction
+template <class T> inline T &construct(void *p, Allocator& a, Int2Type<true>) {new (p) T(a); return *(T *)p;}
+template <class T> inline T &construct(void *p, Allocator& /*a*/, Int2Type<false>) {new (p) T; return *(T *)p;}
+template <class T> inline T &construct(void *p, Allocator& a) {return construct<T>(p, a, IS_ALLOCATOR_AWARE_TYPE(T)());}
 
 struct Id
 {

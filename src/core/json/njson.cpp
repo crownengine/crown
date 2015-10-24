@@ -315,7 +315,8 @@ namespace njson
 
 		while (*json)
 		{
-			DynamicString key;
+			TempAllocator256 ta;
+			DynamicString key(ta);
 			json = parse_key(json, key);
 
 			json = skip_spaces(json);
@@ -347,7 +348,8 @@ namespace njson
 
 			while (*json)
 			{
-				DynamicString key;
+				TempAllocator256 ta;
+				DynamicString key(ta);
 				json = parse_key(json, key);
 
 				json = skip_spaces(json);

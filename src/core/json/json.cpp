@@ -262,7 +262,8 @@ namespace json
 
 			while (*json)
 			{
-				DynamicString key;
+				TempAllocator256 ta;
+				DynamicString key(ta);
 				parse_string(json, key);
 
 				json = skip_string(json);

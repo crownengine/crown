@@ -36,8 +36,7 @@ namespace sound_resource
 		JSONParser json(buf);
 		JSONElement root = json.root();
 
-		DynamicString name;
-		root.key("source").to_string(name);
+		DynamicString name = root.key("source").to_string();
 
 		Buffer sound = opts.read(name.c_str());
 		const WAVHeader* wav = (const WAVHeader*)array::begin(sound);

@@ -8,6 +8,7 @@
 #include "types.h"
 #include "memory_types.h"
 #include "functional.h"
+#include "pair.h"
 
 namespace crown
 {
@@ -39,6 +40,8 @@ struct Array
 	uint32_t _capacity;
 	uint32_t _size;
 	T* _data;
+
+	ALLOCATOR_AWARE;
 };
 
 /// Dynamic array of objects.
@@ -65,6 +68,8 @@ struct Vector
 	uint32_t _capacity;
 	uint32_t _size;
 	T* _data;
+
+	ALLOCATOR_AWARE;
 };
 
 /// Circular buffer double-ended queue of POD items.
@@ -84,6 +89,8 @@ struct Queue
 	uint32_t _read;
 	uint32_t _size;
 	Array<T> _queue;
+
+	ALLOCATOR_AWARE;
 };
 
 /// Priority queue of POD items.
@@ -95,6 +102,8 @@ struct PriorityQueue
 	PriorityQueue(Allocator& a);
 
 	Array<T> _queue;
+
+	ALLOCATOR_AWARE;
 };
 
 /// Hash from an uint64_t to POD items. If you want to use a generic key
@@ -115,6 +124,8 @@ struct Hash
 
 	Array<uint32_t> _hash;
 	Array<Entry> _data;
+
+	ALLOCATOR_AWARE;
 };
 
 /// Map from key to value. Uses a Vector internally, so, definitely
@@ -130,20 +141,29 @@ struct Map
 
 	struct Node
 	{
-		TKey key;
-		TValue value;
+		Node(Allocator& a)
+			: pair(a)
+		{
+		}
+
+		PAIR(TKey, TValue) pair;
 		uint32_t left;
 		uint32_t right;
 		uint32_t parent;
 		uint32_t color;
+
+		ALLOCATOR_AWARE;
 	};
 
 	uint32_t _root;
+	uint32_t _sentinel;
 	Vector<Node> _data;
+
+	ALLOCATOR_AWARE;
 };
 
 /// Sorted map from key to POD items.
-/// Items are not automatically sorted, you need to call sort_map::sort().
+/// Items are not automatically sorted, you have to call sort_map::sort().
 /// @ingroup Containers.
 template <typename TKey, typename TValue, class Compare = less<TKey> >
 struct SortMap
@@ -160,6 +180,8 @@ struct SortMap
 #if CROWN_DEBUG
 	bool _is_sorted;
 #endif
+
+	ALLOCATOR_AWARE;
 };
 
 } // namespace crown

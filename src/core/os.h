@@ -235,7 +235,7 @@ namespace os
 #elif CROWN_PLATFORM_WINDOWS
 		LARGE_INTEGER ttime;
 		QueryPerformanceCounter(&ttime);
-		return (int64_t) ttime.QuadPart;
+		return (int64_t)ttime.QuadPart;
 #endif
 	}
 
@@ -248,7 +248,7 @@ namespace os
 #elif CROWN_PLATFORM_WINDOWS
 		LARGE_INTEGER freq;
 		QueryPerformanceFrequency(&freq);
-		return (int64_t) freq.QuadPart;
+		return (int64_t)freq.QuadPart;
 #endif
 	}
 
@@ -257,7 +257,7 @@ namespace os
 #if CROWN_PLATFORM_POSIX
 		return ::dlopen(path, RTLD_LAZY);
 #elif CROWN_PLATFORM_WINDOWS
-		return (void*) LoadLibraryA(path);
+		return (void*)LoadLibraryA(path);
 #endif
 	}
 
@@ -266,7 +266,7 @@ namespace os
 #if CROWN_PLATFORM_POSIX
 		dlclose(library);
 #elif CROWN_PLATFORM_WINDOWS
-		FreeLibrary((HMODULE) library);
+		FreeLibrary((HMODULE)library);
 #endif
 	}
 
@@ -275,7 +275,7 @@ namespace os
 #if CROWN_PLATFORM_POSIX
 		return ::dlsym(library, name);
 #elif CROWN_PLATFORM_WINDOWS
-		return (void*) GetProcAddress((HMODULE) library, name);
+		return (void*)GetProcAddress((HMODULE)library, name);
 #endif
 	}
 

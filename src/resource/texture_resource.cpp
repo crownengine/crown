@@ -562,8 +562,7 @@ namespace texture_resource
 		JSONParser json(buf);
 		JSONElement root = json.root();
 
-		DynamicString name;
-		root.key("source").to_string(name);
+		DynamicString name = root.key("source").to_string();
 
 		File* source = opts._fs.open(name.c_str(), FOM_READ);
 		BinaryReader br(*source);
