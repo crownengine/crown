@@ -23,9 +23,6 @@ struct Gui
 {
 	Gui(uint16_t width, uint16_t height, const char* material);
 
-	const GuiId id() const;
-	void set_id(const GuiId id);
-
 	Vector2 resolution() const;
 	void move(const Vector2& pos);
 
@@ -49,7 +46,6 @@ struct Gui
 
 public:
 
-	GuiId m_id;
 	uint16_t m_width;
 	uint16_t m_height;
 	typedef Id MaterialId;

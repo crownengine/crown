@@ -94,16 +94,6 @@ Gui::Gui(uint16_t width, uint16_t height, const char* material)
 	m_material = material_manager::get()->create_material(ResourceId(material));
 }
 
-const GuiId Gui::id() const
-{
-	return m_id;
-}
-
-void Gui::set_id(const GuiId id)
-{
-	m_id = id;
-}
-
 Vector2 Gui::resolution() const
 {
 	return vector2(m_width, m_height);
