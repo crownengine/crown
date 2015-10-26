@@ -28,8 +28,6 @@ struct PackageResource
 	uint32_t units_offset;
 	uint32_t num_sprites;
 	uint32_t sprites_offset;
-	uint32_t num_physics;
-	uint32_t physics_offset;
 	uint32_t num_materials;
 	uint32_t materials_offset;
 	uint32_t num_fonts;
@@ -58,7 +56,6 @@ namespace package_resource
 	uint32_t num_meshes(const PackageResource* pr);
 	uint32_t num_units(const PackageResource* pr);
 	uint32_t num_sprites(const PackageResource* pr);
-	uint32_t num_physics(const PackageResource* pr);
 	uint32_t num_materials(const PackageResource* pr);
 	uint32_t num_fonts(const PackageResource* pr);
 	uint32_t num_levels(const PackageResource* pr);
@@ -71,7 +68,6 @@ namespace package_resource
 	StringId64 get_mesh_id(const PackageResource* pr, uint32_t i);
 	StringId64 get_unit_id(const PackageResource* pr, uint32_t i);
 	StringId64 get_sprite_id(const PackageResource* pr, uint32_t i);
-	StringId64 get_physics_id(const PackageResource* pr, uint32_t i);
 	StringId64 get_material_id(const PackageResource* pr, uint32_t i);
 	StringId64 get_font_id(const PackageResource* pr, uint32_t i);
 	StringId64 get_level_id(const PackageResource* pr, uint32_t i);

@@ -63,7 +63,6 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 	{ UNIT_TYPE,             utr::compile, utr::load, utr::unload, utr::online, utr::offline },
 	{ SPRITE_TYPE,           spr::compile, spr::load, spr::unload, spr::online, spr::offline },
 	{ PACKAGE_TYPE,          pkr::compile, pkr::load, pkr::unload, pkr::online, pkr::offline },
-	{ PHYSICS_TYPE,          phr::compile, phr::load, phr::unload, phr::online, phr::offline },
 	{ MATERIAL_TYPE,         mtr::compile, mtr::load, mtr::unload, mtr::online, mtr::offline },
 	{ PHYSICS_CONFIG_TYPE,   pcr::compile, pcr::load, pcr::unload, pcr::online, pcr::offline },
 	{ FONT_TYPE,             ftr::compile, ftr::load, ftr::unload, ftr::online, ftr::offline },

@@ -68,11 +68,6 @@ struct ResourcePackage
 			_resman->load(SPRITE_TYPE, get_sprite_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_physics(_package); i++)
-		{
-			_resman->load(PHYSICS_TYPE, get_physics_id(_package, i));
-		}
-
 		for (uint32_t i = 0; i < num_materials(_package); i++)
 		{
 			_resman->load(MATERIAL_TYPE, get_material_id(_package, i));
@@ -137,11 +132,6 @@ struct ResourcePackage
 		for (uint32_t i = 0; i < num_materials(_package); i++)
 		{
 			_resman->unload(MATERIAL_TYPE, get_material_id(_package, i));
-		}
-
-		for (uint32_t i = 0; i < num_physics(_package); i++)
-		{
-			_resman->unload(PHYSICS_TYPE, get_physics_id(_package, i));
 		}
 
 		for (uint32_t i = 0; i < num_sprites(_package); i++)
@@ -219,12 +209,6 @@ struct ResourcePackage
 		for (uint32_t i = 0; i < num_sprites(_package); i++)
 		{
 			if (!_resman->can_get(SPRITE_TYPE, get_sprite_id(_package, i)))
-				return false;
-		}
-
-		for (uint32_t i = 0; i < num_physics(_package); i++)
-		{
-			if (!_resman->can_get(PHYSICS_TYPE, get_physics_id(_package, i)))
 				return false;
 		}
 

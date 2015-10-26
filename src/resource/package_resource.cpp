@@ -27,7 +27,6 @@ namespace package_resource
 		JSONElement mesh     = root.key_or_nil("mesh");
 		JSONElement unit     = root.key_or_nil("unit");
 		JSONElement sprite   = root.key_or_nil("sprite");
-		JSONElement physics  = root.key_or_nil("physics");
 		JSONElement material = root.key_or_nil("material");
 		JSONElement font     = root.key_or_nil("font");
 		JSONElement level    = root.key_or_nil("level");
@@ -41,7 +40,6 @@ namespace package_resource
 		const uint32_t num_meshes    = mesh.is_nil() ? 0 : mesh.size();
 		const uint32_t num_units     = unit.is_nil() ? 0 : unit.size();
 		const uint32_t num_sprites   = sprite.is_nil() ? 0 : sprite.size();
-		const uint32_t num_physics   = physics.is_nil() ? 0 : physics.size();
 		const uint32_t num_materials = material.is_nil() ? 0 : material.size();
 		const uint32_t num_fonts     = font.is_nil() ? 0 : font.size();
 		const uint32_t num_levels    = level.is_nil() ? 0 : level.size();
@@ -75,12 +73,8 @@ namespace package_resource
 		offt += sizeof(StringId64) * num_units;
 		opts.write(offt);
 
-		opts.write(num_physics);
-		offt += sizeof(StringId64) * num_sprites;
-		opts.write(offt);
-
 		opts.write(num_materials);
-		offt += sizeof(StringId64) * num_physics;
+		offt += sizeof(StringId64) * num_sprites;
 		opts.write(offt);
 
 		opts.write(num_fonts);
@@ -121,9 +115,6 @@ namespace package_resource
 
 		for (uint32_t i = 0; i < num_sprites; i++)
 			opts.write(sprite[i].to_resource_id());
-
-		for (uint32_t i = 0; i < num_physics; i++)
-			opts.write(physics[i].to_resource_id());
 
 		for (uint32_t i = 0; i < num_materials; i++)
 			opts.write(material[i].to_resource_id());
@@ -195,11 +186,6 @@ namespace package_resource
 		return pr->num_sprites;
 	}
 
-	uint32_t num_physics(const PackageResource* pr)
-	{
-		return pr->num_physics;
-	}
-
 	uint32_t num_materials(const PackageResource* pr)
 	{
 		return pr->num_materials;
@@ -269,13 +255,6 @@ namespace package_resource
 	{
 		CE_ASSERT(i < num_sprites(pr), "Index out of bounds");
 		StringId64* begin = (StringId64*) ((char*)pr + pr->sprites_offset);
-		return begin[i];
-	}
-
-	StringId64 get_physics_id(const PackageResource* pr, uint32_t i)
-	{
-		CE_ASSERT(i < num_physics(pr), "Index out of bounds");
-		StringId64* begin = (StringId64*) ((char*)pr + pr->physics_offset);
 		return begin[i];
 	}
 
