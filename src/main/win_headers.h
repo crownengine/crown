@@ -17,8 +17,6 @@
 #undef far
 #undef NO_ERROR
 #undef ERROR
-#undef MK_SHIFT
-#undef MK_ALT
 #undef min
 #undef max
 #undef rad1
