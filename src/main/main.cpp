@@ -4,12 +4,12 @@
  */
 
 #include "main.h"
-#include "mouse.h"
-#include "keyboard.h"
-#include "touch.h"
 #include "device.h"
 #include "os_event_queue.h"
-#include "input.h"
+#include "input_manager.h"
+#include "input_device.h"
+#include "error.h"
+#include "vector3.h"
 #include <bgfx.h>
 
 namespace crown
@@ -17,10 +17,9 @@ namespace crown
 
 bool process_events()
 {
-	using namespace input_globals;
-
 	OsEvent event;
 	bool exit = false;
+	InputManager* im = device()->input_manager();
 
 	while(next_event(event))
 	{
@@ -33,9 +32,15 @@ bool process_events()
 				const OsTouchEvent& ev = event.touch;
 				switch (ev.type)
 				{
-					case OsTouchEvent::POINTER: touch().set_pointer_state(ev.x, ev.y, ev.pointer_id, ev.pressed); break;
-					case OsTouchEvent::MOVE: touch().set_position(ev.pointer_id, ev.x, ev.y); break;
-					default: CE_FATAL("Oops, unknown touch event type"); break;
+					case OsTouchEvent::POINTER:
+						im->touch()->set_button_state(ev.pointer_id, ev.pressed);
+						break;
+					case OsTouchEvent::MOVE:
+						im->touch()->set_axis(ev.pointer_id, vector3(ev.x, ev.y, 0.0f));
+						break;
+					default:
+						CE_FATAL("Oops, unknown touch event type");
+						break;
 				}
 				break;
 			}
@@ -44,23 +49,30 @@ bool process_events()
 				const OsMouseEvent& ev = event.mouse;
 				switch (ev.type)
 				{
-					case OsMouseEvent::BUTTON: mouse().set_button_state(ev.x, ev.y, ev.button, ev.pressed); break;
-					case OsMouseEvent::WHEEL: mouse().set_wheel(ev.x, ev.y, ev.wheel); break;
-					case OsMouseEvent::MOVE: mouse().set_position(ev.x, ev.y); break;
-					default: CE_FATAL("Oops, unknown mouse event type"); break;
+					case OsMouseEvent::BUTTON:
+						im->mouse()->set_button_state(ev.button, ev.pressed);
+						break;
+					case OsMouseEvent::MOVE:
+						im->mouse()->set_axis(0, vector3(ev.x, ev.y, 0.0f));
+						break;
+					case OsMouseEvent::WHEEL:
+						im->mouse()->set_axis(1, vector3(ev.wheel, 0.0f, 0.0f));
+						break;
+					default:
+						CE_FATAL("Oops, unknown mouse event type");
+						break;
 				}
 				break;
 			}
 			case OsEvent::KEYBOARD:
 			{
 				const OsKeyboardEvent& ev = event.keyboard;
-				keyboard().set_button_state(ev.button, ev.pressed);
+				im->keyboard()->set_button_state(ev.button, ev.pressed);
 				break;
 			}
 			case OsEvent::METRICS:
 			{
 				const OsMetricsEvent& ev = event.metrics;
-				mouse().set_metrics(ev.width, ev.height);
 				device()->update_resolution(ev.width, ev.height);
 				bgfx::reset(ev.width, ev.height, BGFX_RESET_VSYNC);
 				break;

@@ -11,6 +11,7 @@
 #include "texture_resource.h"
 #include "material_manager.h"
 #include "shader.h"
+#include <string.h> // memcpy
 #include <bgfx.h>
 
 namespace crown

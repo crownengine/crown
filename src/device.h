@@ -12,7 +12,8 @@
 #include "resource_types.h"
 #include "lua_types.h"
 #include "filesystem_types.h"
-#include "array.h"
+#include "container_types.h"
+#include "input_types.h"
 #include "crown.h"
 
 namespace crown
@@ -107,6 +108,9 @@ struct Device
 	/// Returns the lua environment.
 	LuaEnvironment* lua_environment();
 
+	/// Returns the input manager.
+	InputManager* input_manager();
+
 private:
 
 	// Used to allocate all subsystems
@@ -133,6 +137,7 @@ private:
 
 	LuaEnvironment* _lua_environment;
 	ResourceManager* _resource_manager;
+	InputManager* _input_manager;
 
 	Array<World*> _worlds;
 
