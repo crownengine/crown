@@ -5,47 +5,71 @@
 
 #include "lua_stack.h"
 #include "lua_environment.h"
-#include "input.h"
-#include "keyboard.h"
+#include "device.h"
+#include "input_manager.h"
+#include "input_device.h"
 
 namespace crown
 {
-using namespace input_globals;
 
-static int keyboard_button_pressed(lua_State* L)
+static int keyboard_name(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(keyboard().button_pressed((KeyboardButton::Enum) stack.get_int(1)));
+	stack.push_string(device()->input_manager()->keyboard()->name());
 	return 1;
 }
 
-static int keyboard_button_released(lua_State* L)
+static int keyboard_num_buttons(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(keyboard().button_released((KeyboardButton::Enum) stack.get_int(1)));
+	stack.push_uint32(device()->input_manager()->keyboard()->num_buttons());
+	return 1;
+}
+
+static int keyboard_num_axes(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(device()->input_manager()->keyboard()->num_axes());
+	return 1;
+}
+
+static int keyboard_pressed(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->keyboard()->pressed((KeyboardButton::Enum) stack.get_int(1)));
+	return 1;
+}
+
+static int keyboard_released(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->keyboard()->released((KeyboardButton::Enum) stack.get_int(1)));
 	return 1;
 }
 
 static int keyboard_any_pressed(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(keyboard().any_pressed());
+	stack.push_bool(device()->input_manager()->keyboard()->any_pressed());
 	return 1;
 }
 
 static int keyboard_any_released(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(keyboard().any_released());
+	stack.push_bool(device()->input_manager()->keyboard()->any_released());
 	return 1;
 }
 
 void load_keyboard(LuaEnvironment& env)
 {
-	env.load_module_function("Keyboard", "button_pressed",   keyboard_button_pressed);
-	env.load_module_function("Keyboard", "button_released",  keyboard_button_released);
-	env.load_module_function("Keyboard", "any_pressed",      keyboard_any_pressed);
-	env.load_module_function("Keyboard", "any_released",     keyboard_any_released);
+	env.load_module_function("Keyboard", "name",         keyboard_name);
+	env.load_module_function("Keyboard", "num_buttons",  keyboard_num_buttons);
+	env.load_module_function("Keyboard", "num_axes",     keyboard_num_axes);
+	env.load_module_function("Keyboard", "pressed",      keyboard_pressed);
+	env.load_module_function("Keyboard", "released",     keyboard_released);
+	env.load_module_function("Keyboard", "any_pressed",  keyboard_any_pressed);
+	env.load_module_function("Keyboard", "any_released", keyboard_any_released);
 
 	env.load_module_enum("Keyboard", "TAB",       KeyboardButton::TAB);
 	env.load_module_enum("Keyboard", "ENTER",     KeyboardButton::ENTER);

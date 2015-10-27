@@ -308,15 +308,17 @@ struct LinuxDevice
 				case ClientMessage:
 				{
 					if ((Atom)event.xclient.data.l[0] == _wm_delete_message)
-					{
 						_queue.push_exit_event(0);
-					}
+
 					break;
 				}
 				case ConfigureNotify:
 				{
-					_queue.push_metrics_event(event.xconfigure.x, event.xconfigure.y,
-						event.xconfigure.width, event.xconfigure.height);
+					_queue.push_metrics_event(event.xconfigure.x
+						, event.xconfigure.y
+						, event.xconfigure.width
+						, event.xconfigure.height);
+
 					break;
 				}
 				case ButtonPress:
@@ -324,8 +326,10 @@ struct LinuxDevice
 				{
 					if (event.xbutton.button == Button4 || event.xbutton.button == Button5)
 					{
-						_queue.push_mouse_event(event.xbutton.x, event.xbutton.y,
-							event.xbutton.button == Button4 ? 1.0f : -1.0f);
+						_queue.push_mouse_event(event.xbutton.x
+							, event.xbutton.y
+							, event.xbutton.button == Button4 ? 1.0f : -1.0f);
+
 						break;
 					}
 
@@ -335,13 +339,14 @@ struct LinuxDevice
 						case Button1: mb = MouseButton::LEFT; break;
 						case Button2: mb = MouseButton::MIDDLE; break;
 						case Button3: mb = MouseButton::RIGHT; break;
-						default: mb = MouseButton::NONE; break;
+						default: mb = MouseButton::COUNT; break;
 					}
 
-					if (mb != MouseButton::NONE)
-					{
-						_queue.push_mouse_event(event.xbutton.x, event.xbutton.y, mb, event.type == ButtonPress);
-					}
+					if (mb != MouseButton::COUNT)
+						_queue.push_mouse_event(event.xbutton.x
+							, event.xbutton.y
+							, mb
+							, event.type == ButtonPress);
 
 					break;
 				}

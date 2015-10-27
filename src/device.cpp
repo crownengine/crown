@@ -3,18 +3,20 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "device.h"
+#include "array.h"
 #include "config.h"
 #include "debug_line.h"
-#include "device.h"
+#include "input_manager.h"
 #include "log.h"
 #include "lua_environment.h"
 #include "material_manager.h"
+#include "memory.h"
+#include "os.h"
 #include "resource_manager.h"
 #include "resource_package.h"
 #include "types.h"
 #include "world.h"
-#include "memory.h"
-#include "os.h"
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
@@ -39,6 +41,7 @@ Device::Device(const ConfigSettings& cs, Filesystem& fs)
 	, _boot_package(NULL)
 	, _lua_environment(NULL)
 	, _resource_manager(NULL)
+	, _input_manager(NULL)
 	, _worlds(default_allocator())
 {
 }
@@ -59,6 +62,8 @@ void Device::init()
 	_lua_environment = CE_NEW(_allocator, LuaEnvironment)();
 	_lua_environment->load_libs();
 
+	_input_manager = CE_NEW(_allocator, InputManager)();
+
 	CE_LOGD("Crown Engine initialized.");
 	CE_LOGD("Initializing Game...");
 
@@ -77,6 +82,8 @@ void Device::init()
 void Device::shutdown()
 {
 	CE_ASSERT(_is_init, "Engine is not initialized");
+
+	CE_DELETE(_allocator, _input_manager);
 
 	// Shutdowns the game
 	_lua_environment->call_global("shutdown", 0);
@@ -105,6 +112,11 @@ ResourceManager* Device::resource_manager()
 LuaEnvironment* Device::lua_environment()
 {
 	return _lua_environment;
+}
+
+InputManager* Device::input_manager()
+{
+	return _input_manager;
 }
 
 void Device::quit()
@@ -160,8 +172,9 @@ void Device::update()
 		_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
 	}
 
-	_frame_count++;
+	_input_manager->update();
 
+	_frame_count++;
 	_lua_environment->clear_temporaries();
 }
 

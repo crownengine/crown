@@ -5,15 +5,11 @@
 
 #include "crown.h"
 #include "memory.h"
-#include "input.h"
 #include "console_server.h"
 #include "bundle_compiler.h"
 #include "device.h"
 #include "command_line.h"
 #include "json_parser.h"
-#include "keyboard.h"
-#include "mouse.h"
-#include "touch.h"
 #include "main.h"
 #include "audio.h"
 #include "physics.h"
@@ -187,7 +183,6 @@ void parse_config_file(Filesystem& fs, ConfigSettings& cs)
 bool init(Filesystem& fs, const ConfigSettings& cs)
 {
 	profiler_globals::init();
-	input_globals::init();
 	audio_globals::init();
 	physics_globals::init();
 	bgfx::init();
@@ -204,7 +199,6 @@ void update()
 		console_server_globals::update();
 		device()->update();
 		bgfx::frame();
-		input_globals::update();
 		profiler_globals::flush();
 	}
 }
@@ -216,7 +210,6 @@ void shutdown()
 	bgfx::shutdown();
 	physics_globals::shutdown();
 	audio_globals::shutdown();
-	input_globals::shutdown();
 	profiler_globals::shutdown();
 }
 } // namespace crown

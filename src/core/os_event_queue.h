@@ -6,8 +6,8 @@
 #pragma once
 
 #include "types.h"
-#include "mouse.h"
-#include "keyboard.h"
+#include "input_types.h"
+#include "math_types.h"
 #include "atomic_int.h"
 
 namespace crown
