@@ -753,14 +753,20 @@ Input
 Keyboard
 --------
 
-	**modifier_pressed** (modifier) : bool
-		Returns whether the specified *modifier* is pressed.
+	**name** () : string
+		Returns the name of the input device.
 
-	**button_pressed** (button) : bool
-		Returns whether the specified *b* button is pressed in the current frame.
+	**num_buttons** () : int
+		Returns the number of buttons of the input device.
 
-	**button_released** (button) : bool
-		Returns whether the specified *b* button is released in the current frame.
+	**num_axes** () : int
+		Returns the number of axes of the input device.
+
+	**pressed** (i) : bool
+		Returns whether the button *i* is pressed in the current frame.
+
+	**released** (i) : bool
+		Returns whether the button *i* is released in the current frame.
 
 	**any_pressed** () : bool
 		Returns wheter any button is pressed in the current frame.
@@ -771,52 +777,56 @@ Keyboard
 Mouse
 -----
 
-	**button_pressed** (button) : bool
-		Returns whether the *b* button is pressed in the current frame.
+	**name** () : string
+		Returns the name of the input device.
 
-	**button_released** (button) : bool
-		Returns whether the *b* button is released in the current frame.
+	**num_buttons** () : int
+		Returns the number of buttons of the input device.
+
+	**num_axes** () : int
+		Returns the number of axes of the input device.
+
+	**pressed** (i) : bool
+		Returns whether the button *i* is pressed in the current frame.
+
+	**released** (i) : bool
+		Returns whether the button *i* is released in the current frame.
 
 	**any_pressed** () : bool
 		Returns wheter any button is pressed in the current frame.
 
 	**any_released** () : bool
-		DReturns whether any button is released in the current frame.ef
+		Returns whether any button is released in the current frame.
 
-	**cursor_xy** () : Vector2
-		Returns the position of the cursor in window space.
-
-	**set_cursor_xy** (position)
-		Sets the position of the cursor in window space.
-
-	**cursor_relative_xy** () : Vector2
-		Returns the relative position of the cursor in window space.
-
-	**set_cursor_relative_xy** (position)
-		Sets the relative position of the cursor in window space.
-
-	**wheel** () : float
-		Returns the mouse wheel state in the current frame.
-		A positive or negative value is returned when the wheel is up or down
-		respectively, 0.0 otherwise.
+	**axis** (i) : Vector3
+		Returns the value of the axis *i*.
 
 Touch
 -----
 
-	**pointer_down** (pointer) : bool
-		Returns whether the *p* pointer is pressed in the current frame.
+	**name** () : string
+		Returns the name of the input device.
 
-	**pointer_up** (pointer) : bool
-		Returns whether the *p* pointer is released in the current frame.
+	**num_buttons** () : int
+		Returns the number of buttons of the input device.
 
-	**any_down** () : bool
-		Returns wheter any pointer is pressed in the current frame.
+	**num_axes** () : int
+		Returns the number of axes of the input device.
 
-	**any_up** () : bool
-		Returns whether any pointer is released in the current frame.
+	**pressed** (i) : bool
+		Returns whether the button *i* is pressed in the current frame.
 
-	**pointer_xy** () : Vector2
-		Returns the position of the pointer *p* in window space.
+	**released** (i) : bool
+		Returns whether the button *i* is released in the current frame.
+
+	**any_pressed** () : bool
+		Returns wheter any button is pressed in the current frame.
+
+	**any_released** () : bool
+		Returns whether any button is released in the current frame.
+
+	**axis** (i) : Vector3
+		Returns the value of the axis *i*.
 
 Window
 ======
