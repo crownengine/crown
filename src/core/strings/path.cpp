@@ -94,7 +94,7 @@ namespace path
 	/// e.g. "home" -> ""
 	///
 	/// The @a path must be valid.
-	void pathname(const char* path, char* str, size_t len)
+	void pathname(const char* path, char* str, uint32_t len)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -119,7 +119,7 @@ namespace path
 	/// e.g. "/" -> ""
 	///
 	/// The @a path must be valid.
-	void filename(const char* path, char* str, size_t len)
+	void filename(const char* path, char* str, uint32_t len)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -143,7 +143,7 @@ namespace path
 	/// e.g. "/" -> ""
 	///
 	/// The @a path must be valid.
-	void basename(const char* path, char* str, size_t len)
+	void basename(const char* path, char* str, uint32_t len)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -175,7 +175,7 @@ namespace path
 	/// e.g. "/home/project.x/texture" -> ""
 	///
 	/// The @a path must be valid.
-	void extension(const char* path, char* str, size_t len)
+	void extension(const char* path, char* str, uint32_t len)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -198,7 +198,7 @@ namespace path
 	/// e.g. "/home/project/texture" -> "/home/project/texture"
 	///
 	/// The @a path must be valid.
-	void filename_without_extension(const char* path, char* str, size_t len)
+	void filename_without_extension(const char* path, char* str, uint32_t len)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -214,7 +214,7 @@ namespace path
 	/// e.g. "/home/project/texture.tga" -> "/home/project/texture.tga"
 	///
 	/// The @a path must be valid.
-	void strip_trailing_separator(const char* path, char* str, size_t len)
+	void strip_trailing_separator(const char* path, char* str, uint32_t len)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");

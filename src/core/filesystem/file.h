@@ -36,22 +36,22 @@ public:
 	virtual ~File() {};
 
 	/// Sets the position indicator of the file to position.
-	virtual void seek(size_t position) = 0;
+	virtual void seek(uint32_t position) = 0;
 
 	/// Sets the position indicator to the end of the file
 	virtual void seek_to_end() = 0;
 
 	/// Sets the position indicator to bytes after current position
-	virtual void skip(size_t bytes) = 0;
+	virtual void skip(uint32_t bytes) = 0;
 
 	/// Reads a block of data from the file.
-	virtual void read(void* buffer, size_t size) = 0;
+	virtual void read(void* buffer, uint32_t size) = 0;
 
 	/// Writes a block of data to the file.
-	virtual void write(const void* buffer, size_t size) = 0;
+	virtual void write(const void* buffer, uint32_t size) = 0;
 
 	/// Copies a chunk of 'size' bytes of data from this to another file.
-	virtual bool copy_to(File& file, size_t size = 0) = 0;
+	virtual bool copy_to(File& file, uint32_t size = 0) = 0;
 
 	/// Forces the previouses write operations to complete.
 	/// Generally, when a File is attached to a file,
@@ -71,12 +71,12 @@ public:
 	virtual bool end_of_file() = 0;
 
 	/// Returns the size of file in bytes.
-	virtual size_t size() = 0;
+	virtual uint32_t size() = 0;
 
 	/// Returns the current position in file.
 	/// Generally, for binary data, it means the number of bytes
 	/// from the beginning of the file.
-	virtual size_t position() = 0;
+	virtual uint32_t position() = 0;
 
 	/// Returns whether the file can be read.
 	virtual bool can_read() const = 0;

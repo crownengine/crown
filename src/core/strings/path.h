@@ -29,13 +29,13 @@ namespace path
 	/// Returns os-dependent path from os-indipendent @a path
 	const char* normalize(const char* path);
 
-	void pathname(const char* path, char* str, size_t len);
-	void filename(const char* path, char* str, size_t len);
-	void basename(const char* path, char* str, size_t len);
-	void extension(const char* path, char* str, size_t len);
-	void filename_without_extension(const char* path, char* str, size_t len);
+	void pathname(const char* path, char* str, uint32_t len);
+	void filename(const char* path, char* str, uint32_t len);
+	void basename(const char* path, char* str, uint32_t len);
+	void extension(const char* path, char* str, uint32_t len);
+	void filename_without_extension(const char* path, char* str, uint32_t len);
 
 	//bool segments(const char* path, Array<Str>& ret);
-	void strip_trailing_separator(const char* path, char* ret, size_t len);
+	void strip_trailing_separator(const char* path, char* ret, uint32_t len);
 } // namespace path
 } // namespace crown

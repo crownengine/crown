@@ -9,6 +9,6 @@
 
 namespace crown
 {
-uint32_t murmur32(const void* key, size_t len, uint32_t seed = 0);
-uint64_t murmur64(const void* key, int len, uint64_t seed = 0);
+uint32_t murmur32(const void* key, uint32_t len, uint32_t seed = 0);
+uint64_t murmur64(const void* key, uint32_t len, uint64_t seed = 0);
 } // namespace crown

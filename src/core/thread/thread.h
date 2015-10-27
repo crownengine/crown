@@ -43,7 +43,7 @@ struct Thread
 			stop();
 	}
 
-	void start(ThreadFunction func, void* data = NULL, size_t stack_size = 0)
+	void start(ThreadFunction func, void* data = NULL, uint32_t stack_size = 0)
 	{
 		CE_ASSERT(!_is_running, "Thread is already running");
 		CE_ASSERT(func != NULL, "Function must be != NULL");
@@ -138,7 +138,7 @@ private:
 	ThreadFunction _function;
 	void* _data;
 	Semaphore _sem;
-	size_t _stack_size;
+	uint32_t _stack_size;
 	bool _is_running;
 
 private:

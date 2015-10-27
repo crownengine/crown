@@ -28,10 +28,10 @@ public:
 	/// a valid character and therefore it is included in the string copied to string.
 	/// A null character is automatically appended in str after the characters read to
 	/// signal the end of the C string.
-	size_t read_string(char* string, size_t size)
+	uint32_t read_string(char* string, uint32_t size)
 	{
 		char current_char;
-		size_t bytes_read = 0;
+		uint32_t bytes_read = 0;
 
 		while(!_file.end_of_file() && bytes_read < size - 1)
 		{
@@ -88,7 +88,7 @@ public:
 
 	BinaryWriter(File& file) : _file(file) {}
 
-	void write(const void* data, size_t size)
+	void write(const void* data, uint32_t size)
 	{
 		_file.write(data, size);
 	}
@@ -99,7 +99,7 @@ public:
 		_file.write(&data, sizeof(T));
 	}
 
-	void skip(size_t bytes)
+	void skip(uint32_t bytes)
 	{
 		_file.skip(bytes);
 	}
@@ -118,7 +118,7 @@ public:
 
 	BinaryReader(File& file) : _file(file) {}
 
-	void read(void* data, size_t size)
+	void read(void* data, uint32_t size)
 	{
 		_file.read(data, size);
 	}
@@ -129,7 +129,7 @@ public:
 		_file.read(&data, sizeof(T));
 	}
 
-	void skip(size_t bytes)
+	void skip(uint32_t bytes)
 	{
 		_file.skip(bytes);
 	}

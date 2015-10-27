@@ -33,7 +33,7 @@ NetworkFile::~NetworkFile()
 	_socket.close();
 }
 
-void NetworkFile::seek(size_t position)
+void NetworkFile::seek(uint32_t position)
 {
 	_position = position;
 }
@@ -43,12 +43,12 @@ void NetworkFile::seek_to_end()
 	_position = size();
 }
 
-void NetworkFile::skip(size_t bytes)
+void NetworkFile::skip(uint32_t bytes)
 {
 	_position += bytes;
 }
 
-void NetworkFile::read(void* buffer, size_t size)
+void NetworkFile::read(void* buffer, uint32_t size)
 {
 	using namespace string_stream;
 
@@ -74,18 +74,18 @@ void NetworkFile::read(void* buffer, size_t size)
 	// DynamicString data_base64;
 	// root.key("data").to_string(data_base64);
 
-	// size_t out_len = 0;
+	// uint32_t out_len = 0;
 	// unsigned char* data = base64_decode(data_base64.c_str(), data_base64.length(), &out_len);
 	// memcpy(buffer, data, sizeof(unsigned char) * out_len);
 	// default_allocator().deallocate(data);
 }
 
-void NetworkFile::write(const void* /*buffer*/, size_t /*size*/)
+void NetworkFile::write(const void* /*buffer*/, uint32_t /*size*/)
 {
 	CE_FATAL("Cannot write to a network file");
 }
 
-bool NetworkFile::copy_to(File& file, size_t size)
+bool NetworkFile::copy_to(File& file, uint32_t size)
 {
 	return true;
 }
@@ -105,12 +105,12 @@ void NetworkFile::flush()
 	// Do nothing
 }
 
-size_t NetworkFile::position()
+uint32_t NetworkFile::position()
 {
 	return _position;
 }
 
-size_t NetworkFile::size()
+uint32_t NetworkFile::size()
 {
 	using namespace string_stream;
 
@@ -130,7 +130,7 @@ size_t NetworkFile::size()
 	JSONParser parser(array::begin(response));
 	JSONElement root = parser.root();
 
-	return (size_t) root.key("size").to_int();
+	return (uint32_t) root.key("size").to_int();
 }
 
 bool NetworkFile::can_read() const

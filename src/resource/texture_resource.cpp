@@ -575,7 +575,7 @@ namespace texture_resource
 		else if (name.ends_with(".dds"))
 		{
 			// parse_dds(br, image);
-			// size_t size = source->size();
+			// uint32_t size = source->size();
 			// image.data = (char*) default_allocator().allocate(size);
 			// source->seek(0);
 			// source->read(image.data, size);
@@ -601,7 +601,7 @@ namespace texture_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const size_t file_size = file.size();
+		const uint32_t file_size = file.size();
 		file.skip(sizeof(TextureHeader));
 		const bgfx::Memory* mem = bgfx::alloc(file_size);
 		file.read(mem->data, file_size - sizeof(TextureHeader));
