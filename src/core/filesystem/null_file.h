@@ -26,32 +26,32 @@ public:
 	virtual ~NullFile() {}
 
 	/// @copydoc File::seek()
-	void seek(size_t position) { (void)position; }
+	void seek(uint32_t position) { (void)position; }
 
 	/// @copydoc File::seek_to_end()
 	void seek_to_end() {}
 
 	/// @copydoc File::skip()
-	void skip(size_t bytes) { (void)bytes; }
+	void skip(uint32_t bytes) { (void)bytes; }
 
 	/// @copydoc File::read()
 	/// @note
 	///	Fills buffer with zeroes
-	void read(void* buffer, size_t size)
+	void read(void* buffer, uint32_t size)
 	{
-		for (size_t i = 0; i < size; i++)
+		for (uint32_t i = 0; i < size; i++)
 		{
 			((uint8_t*)buffer)[i] = 0;
 		}
 	}
 
 	/// @copydoc File::write()
-	void write(const void* buffer, size_t size) { (void)buffer; (void)size; }
+	void write(const void* buffer, uint32_t size) { (void)buffer; (void)size; }
 
 	/// @copydoc File::copy_to()
 	/// @note
 	///	Returns always true
-	bool copy_to(File& file, size_t size = 0)
+	bool copy_to(File& file, uint32_t size = 0)
 	{
 		char zero = 0;
 		file.write(&zero, size);
@@ -74,12 +74,12 @@ public:
 	/// @copydoc File::size()
 	/// @note
 	///	Returns always 0xFFFFFFFF
-	size_t size() { return ~0; }
+	uint32_t size() { return ~0; }
 
 	/// @copydoc File::position()
 	/// @note
 	///	Returns always zero
-	size_t position() { return 0; }
+	uint32_t position() { return 0; }
 
 	/// @copydoc File::can_read()
 	/// @note

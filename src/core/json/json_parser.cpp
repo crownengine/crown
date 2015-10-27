@@ -444,7 +444,7 @@ JSONParser::JSONParser(File& f)
 	: _file(true)
 	, _document(NULL)
 {
-	const size_t size = f.size();
+	const uint32_t size = f.size();
 	char* doc = (char*) default_allocator().allocate(size + 1);
 	f.read(doc, size);
 	doc[size] = '\0';

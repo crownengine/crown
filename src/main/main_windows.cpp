@@ -12,7 +12,6 @@
 #include "thread.h"
 #include "crown.h"
 #include "command_line.h"
-#include "keyboard.h"
 #include "console_server.h"
 #include "bundle_compiler.h"
 #include "disk_filesystem.h"

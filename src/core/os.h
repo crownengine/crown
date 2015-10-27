@@ -203,7 +203,7 @@ namespace os
 #endif
 	}
 
-	inline const char* getcwd(char* buf, size_t size)
+	inline const char* getcwd(char* buf, uint32_t size)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::getcwd(buf, size);

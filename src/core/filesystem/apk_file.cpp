@@ -33,41 +33,41 @@ ApkFile::~ApkFile()
 	}
 }
 
-void ApkFile::seek(size_t position)
+void ApkFile::seek(uint32_t position)
 {
 	off_t seek_result = AAsset_seek(_asset, (off_t)position, SEEK_SET);
-	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
+	CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
 void ApkFile::seek_to_end()
 {
 	off_t seek_result = AAsset_seek(_asset, 0, SEEK_END);
-	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
+	CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
-void ApkFile::skip(size_t bytes)
+void ApkFile::skip(uint32_t bytes)
 {
-	off_t seek_result = AAsset_seek(_asset, (off_t) bytes, SEEK_CUR);
-	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
+	off_t seek_result = AAsset_seek(_asset, (off_t)bytes, SEEK_CUR);
+	CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
-void ApkFile::read(void* buffer, size_t size)
+void ApkFile::read(void* buffer, uint32_t size)
 {
 	CE_ASSERT_NOT_NULL(buffer);
-	size_t bytes_read = (size_t) AAsset_read(_asset, buffer, size);
+	uint32_t bytes_read = (uint32_t)AAsset_read(_asset, buffer, size);
 	CE_ASSERT(bytes_read == size, "AAsset_read: requested: %lu, read: %lu", size, bytes_read);
 	CE_UNUSED(bytes_read);
 }
 
-void ApkFile::write(const void* /*buffer*/, size_t /*size*/)
+void ApkFile::write(const void* /*buffer*/, uint32_t /*size*/)
 {
 	CE_ASSERT(false, "Apk files are read only!");
 }
 
-bool ApkFile::copy_to(File& /*file*/, size_t /*size = 0*/)
+bool ApkFile::copy_to(File& /*file*/, uint32_t /*size = 0*/)
 {
 	CE_ASSERT(false, "Not implemented");
 	return false;
@@ -88,14 +88,14 @@ bool ApkFile::end_of_file()
 	return AAsset_getRemainingLength(_asset) == 0;
 }
 
-size_t ApkFile::size()
+uint32_t ApkFile::size()
 {
 	return AAsset_getLength(_asset);
 }
 
-size_t ApkFile::position()
+uint32_t ApkFile::position()
 {
-	return (size_t) (AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
+	return (uint32_t)(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
 }
 
 bool ApkFile::can_read() const

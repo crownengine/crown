@@ -164,7 +164,7 @@ struct LuaStack
 		va_end(vl);
 	}
 
-	void push_literal(const char* s, size_t len)
+	void push_literal(const char* s, uint32_t len)
 	{
 		lua_pushlstring(L, s, len);
 	}
@@ -176,7 +176,7 @@ struct LuaStack
 
 	int get_int(int i)
 	{
-		return CHECKINTEGER(L, i);
+		return (int)CHECKINTEGER(L, i);
 	}
 
 	StringId32 get_string_id(int i)

@@ -26,7 +26,7 @@ struct CompileOptions
 	Buffer read(const char* path)
 	{
 		File* file = _fs.open(path, FOM_READ);
-		size_t size = file->size();
+		uint32_t size = file->size();
 		Buffer buf(default_allocator());
 		array::resize(buf, size);
 		file->read(array::begin(buf), size);
@@ -44,7 +44,7 @@ struct CompileOptions
 		_fs.delete_file(path);
 	}
 
-	BinaryWriter& write(const void* data, size_t size)
+	BinaryWriter& write(const void* data, uint32_t size)
 	{
 		_bw.write(data, size);
 		return _bw;

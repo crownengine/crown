@@ -24,7 +24,7 @@ DiskFile::~DiskFile()
 	_file.close();
 }
 
-void DiskFile::seek(size_t position)
+void DiskFile::seek(uint32_t position)
 {
 	check_valid();
 
@@ -38,14 +38,14 @@ void DiskFile::seek_to_end()
 	_file.seek_to_end();
 }
 
-void DiskFile::skip(size_t bytes)
+void DiskFile::skip(uint32_t bytes)
 {
 	check_valid();
 
 	_file.skip(bytes);
 }
 
-void DiskFile::read(void* buffer, size_t size)
+void DiskFile::read(void* buffer, uint32_t size)
 {
 	check_valid();
 
@@ -55,11 +55,11 @@ void DiskFile::read(void* buffer, size_t size)
 		_file.seek(0);
 	}
 
-	/*size_t bytes_read =*/ _file.read(buffer, size);
+	/*uint32_t bytes_read =*/ _file.read(buffer, size);
 	//CE_ASSERT(bytes_read == size, "Failed to read from file: requested: %llu, read: %llu", size, bytes_read);
 }
 
-void DiskFile::write(const void* buffer, size_t size)
+void DiskFile::write(const void* buffer, uint32_t size)
 {
 	check_valid();
 
@@ -69,24 +69,24 @@ void DiskFile::write(const void* buffer, size_t size)
 		_file.seek(0);
 	}
 
-	/*size_t bytes_written =*/ _file.write(buffer, size);
+	/*uint32_t bytes_written =*/ _file.write(buffer, size);
 	//CE_ASSERT(bytes_written == size, "Failed to write to file: requested: %llu, written: %llu", size, bytes_written);
 }
 
-bool DiskFile::copy_to(File& file, size_t size)
+bool DiskFile::copy_to(File& file, uint32_t size)
 {
 	check_valid();
 
-	const size_t chunksize = 1024*1024;
+	const uint32_t chunksize = 1024*1024;
 
 	char* buff = (char*) default_allocator().allocate(chunksize * sizeof(char));
 
-	size_t tot_read_bytes = 0;
+	uint32_t tot_read_bytes = 0;
 
 	while (tot_read_bytes < size)
 	{
-		size_t read_bytes;
-		size_t expected_read_bytes = min(size - tot_read_bytes, chunksize);
+		uint32_t read_bytes;
+		uint32_t expected_read_bytes = min(size - tot_read_bytes, chunksize);
 
 		read_bytes = _file.read(buff, expected_read_bytes);
 
@@ -130,14 +130,14 @@ void DiskFile::flush()
 	// FIXME implement flush in File
 }
 
-size_t DiskFile::position()
+uint32_t DiskFile::position()
 {
 	check_valid();
 
 	return _file.position();
 }
 
-size_t DiskFile::size()
+uint32_t DiskFile::size()
 {
 	check_valid();
 

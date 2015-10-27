@@ -42,13 +42,13 @@ struct ConnectResult
 struct ReadResult
 {
 	enum { NO_ERROR, BAD_SOCKET, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
-	size_t bytes_read;
+	uint32_t bytes_read;
 };
 
 struct WriteResult
 {
 	enum { NO_ERROR, BAD_SOCKET, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
-	size_t bytes_wrote;
+	uint32_t bytes_wrote;
 };
 
 struct AcceptResult
@@ -63,9 +63,9 @@ struct TCPSocket
 {
 	TCPSocket()
 #if CROWN_PLATFORM_POSIX
-		: m_socket(0)
+		: _socket(0)
 #elif CROWN_PLATFORM_WINDOWS
-		: m_socket(INVALID_SOCKET)
+		: _socket(INVALID_SOCKET)
 #endif
 	{
 	}
@@ -73,11 +73,11 @@ struct TCPSocket
 	void open()
 	{
 #if CROWN_PLATFORM_POSIX
-		m_socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		CE_ASSERT(m_socket >= 0, "socket: errno = %d", errno);
+		_socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		CE_ASSERT(_socket >= 0, "socket: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
-		m_socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		CE_ASSERT(m_socket >= 0, "socket: WSAGetLastError = %d", WSAGetLastError());
+		_socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		CE_ASSERT(_socket >= 0, "socket: WSAGetLastError = %d", WSAGetLastError());
 #endif
 	}
 
@@ -95,7 +95,7 @@ struct TCPSocket
 		addr_in.sin_addr.s_addr = htonl(ip.address());
 		addr_in.sin_port = htons(port);
 
-		int err = ::connect(m_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
+		int err = ::connect(_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
 
 		if (err == 0)
 			return cr;
@@ -114,7 +114,7 @@ struct TCPSocket
 		addr_in.sin_addr.s_addr = ::htonl(ip.address());
 		addr_in.sin_port = ::htons(port);
 
-		int err = ::connect(m_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
+		int err = ::connect(_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
 
 		if (err == 0)
 			return cr;
@@ -142,7 +142,7 @@ struct TCPSocket
 		address.sin_addr.s_addr = htonl(INADDR_ANY);
 		address.sin_port = htons(port);
 
-		int err = ::bind(m_socket, (const sockaddr*) &address, sizeof(sockaddr_in));
+		int err = ::bind(_socket, (const sockaddr*)&address, sizeof(sockaddr_in));
 		CE_ASSERT(err == 0, "bind: errno = %d", errno);
 		CE_UNUSED(err);
 		return true;
@@ -152,7 +152,7 @@ struct TCPSocket
 		address.sin_addr.s_addr = htonl(INADDR_ANY);
 		address.sin_port = htons(port);
 
-		int err = ::bind(m_socket, (const sockaddr*) &address, sizeof(sockaddr_in));
+		int err = ::bind(_socket, (const sockaddr*)&address, sizeof(sockaddr_in));
 		CE_ASSERT(err == 0, "bind: WSAGetLastError = %d", WSAGetLastError());
 		CE_UNUSED(err);
 		return true;
@@ -162,11 +162,11 @@ struct TCPSocket
 	void listen(uint32_t max)
 	{
 #if CROWN_PLATFORM_POSIX
-		int err = ::listen(m_socket, max);
+		int err = ::listen(_socket, max);
 		CE_ASSERT(err == 0, "listen: errno = %d", errno);
 		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-		int err = ::listen(m_socket, max);
+		int err = ::listen(_socket, max);
 		CE_ASSERT(err == 0, "listen: WSAGetLastError = %d", WSAGetLastError());
 		CE_UNUSED(err);
 #endif
@@ -178,10 +178,10 @@ struct TCPSocket
 		ar.error = AcceptResult::NO_ERROR;
 
 #if CROWN_PLATFORM_POSIX
-		int err = ::accept(m_socket, NULL, NULL);
+		int err = ::accept(_socket, NULL, NULL);
 
 		if (err >= 0)
-			c.m_socket = err;
+			c._socket = err;
 		else if (err == -1 && errno == EBADF)
 			ar.error = AcceptResult::BAD_SOCKET;
 		else if (err == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
@@ -191,11 +191,11 @@ struct TCPSocket
 
 		return ar;
 #elif CROWN_PLATFORM_WINDOWS
-		int err = ::accept(m_socket, NULL, NULL);
+		SOCKET err = ::accept(_socket, NULL, NULL);
 
 		if (err != INVALID_SOCKET)
 		{
-			c.m_socket = err;
+			c._socket = err;
 			return ar;
 		}
 
@@ -224,33 +224,33 @@ struct TCPSocket
 	void close()
 	{
 #if CROWN_PLATFORM_POSIX
-		if (m_socket != 0)
+		if (_socket != 0)
 		{
-			::close(m_socket);
-			m_socket = 0;
+			::close(_socket);
+			_socket = 0;
 		}
 #elif CROWN_PLATFORM_WINDOWS
-		if (m_socket != INVALID_SOCKET)
+		if (_socket != INVALID_SOCKET)
 		{
-			::closesocket(m_socket);
-			m_socket = INVALID_SOCKET;
+			::closesocket(_socket);
+			_socket = INVALID_SOCKET;
 		}
 #endif
 	}
 
-	ReadResult read_internal(void* data, size_t size)
+	ReadResult read_internal(void* data, uint32_t size)
 	{
 		ReadResult rr;
 		rr.error = ReadResult::NO_ERROR;
 		rr.bytes_read = 0;
 
 #if CROWN_PLATFORM_POSIX
-		char* buf = (char*) data;
-		size_t to_read = size;
+		char* buf = (char*)data;
+		uint32_t to_read = size;
 
 		while (to_read > 0)
 		{
-			ssize_t read_bytes = ::recv(m_socket, buf, to_read, 0);
+			ssize_t read_bytes = ::recv(_socket, buf, to_read, 0);
 
 			if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 			{
@@ -274,12 +274,12 @@ struct TCPSocket
 
 		return rr;
 #elif CROWN_PLATFORM_WINDOWS
-		char* buf = (char*) data;
-		size_t to_read = size;
+		char* buf = (char*)data;
+		uint32_t to_read = size;
 
 		while (to_read > 0)
 		{
-			int read_bytes = ::recv(m_socket, buf, to_read, 0);
+			int read_bytes = ::recv(_socket, buf, (int)to_read, 0);
 
 			if (read_bytes == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
 				return rr;
@@ -303,31 +303,31 @@ struct TCPSocket
 #endif
 	}
 
-	ReadResult read_nonblock(void* data, size_t size)
+	ReadResult read_nonblock(void* data, uint32_t size)
 	{
 		set_blocking(false);
 		return read_internal(data, size);
 	}
 
-	ReadResult read(void* data, size_t size)
+	ReadResult read(void* data, uint32_t size)
 	{
 		set_blocking(true);
 		return read_internal(data, size);
 	}
 
-	WriteResult write_internal(const void* data, size_t size)
+	WriteResult write_internal(const void* data, uint32_t size)
 	{
 		WriteResult wr;
 		wr.error = WriteResult::NO_ERROR;
 		wr.bytes_wrote = 0;
 
 #if CROWN_PLATFORM_POSIX
-		const char* buf = (const char*) data;
-		size_t to_send = size;
+		const char* buf = (const char*)data;
+		uint32_t to_send = size;
 
 		while (to_send > 0)
 		{
-			ssize_t bytes_wrote = ::send(m_socket, (const char*) buf, to_send, 0);
+			ssize_t bytes_wrote = ::send(_socket, (const char*)buf, to_send, 0);
 
 			if (bytes_wrote == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 				return wr;
@@ -354,12 +354,12 @@ struct TCPSocket
 
 		return wr;
 #elif CROWN_PLATFORM_WINDOWS
-		const char* buf = (const char*) data;
-		size_t to_send = size;
+		const char* buf = (const char*)data;
+		uint32_t to_send = size;
 
 		while (to_send > 0)
 		{
-			int bytes_wrote = ::send(m_socket, (const char*) buf, to_send, 0);
+			int bytes_wrote = ::send(_socket, (const char*)buf, (int)to_send, 0);
 
 			if (bytes_wrote == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
 			{
@@ -390,13 +390,13 @@ struct TCPSocket
 #endif
 	}
 
-	WriteResult write_nonblock(const void* data, size_t size)
+	WriteResult write_nonblock(const void* data, uint32_t size)
 	{
 		set_blocking(false);
 		return write_internal(data, size);
 	}
 
-	WriteResult write(const void* data, size_t size)
+	WriteResult write(const void* data, uint32_t size)
 	{
 		set_blocking(true);
 		return write_internal(data, size);
@@ -405,24 +405,24 @@ struct TCPSocket
 	void set_blocking(bool blocking)
 	{
 #if CROWN_PLATFORM_POSIX
-		int flags = fcntl(m_socket, F_GETFL, 0);
-		fcntl(m_socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
+		int flags = fcntl(_socket, F_GETFL, 0);
+		fcntl(_socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
 #elif CROWN_PLATFORM_WINDOWS
 		//Warning! http://www.sockets.com/winsock.htm#IoctlSocket
 		u_long non_blocking = blocking ? 0 : 1;
-		ioctlsocket(m_socket, FIONBIO, &non_blocking);
+		ioctlsocket(_socket, FIONBIO, &non_blocking);
 #endif
 	}
 
 	void set_reuse_address(bool reuse)
 	{
 #if CROWN_PLATFORM_POSIX
-		int optval = (int) reuse;
-		int err = setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+		int optval = (int)reuse;
+		int err = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 		CE_ASSERT(err == 0, "setsockopt: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
-		int optval = (int) reuse;
-		int err = setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, (const char*) &optval, sizeof(optval));
+		int optval = (int)reuse;
+		int err = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
 		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError = %d", WSAGetLastError());
 #endif
 		CE_UNUSED(err);
@@ -434,19 +434,17 @@ struct TCPSocket
 		struct timeval timeout;
 		timeout.tv_sec = seconds;
 		timeout.tv_usec = 0;
-		int err;
-		err = setsockopt (m_socket, SOL_SOCKET, SO_RCVTIMEO, (char*) &timeout, sizeof(timeout));
+		int err = setsockopt (_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 		CE_ASSERT(err == 0, "setsockopt: errno: %d", errno);
-		err = setsockopt (m_socket, SOL_SOCKET, SO_SNDTIMEO, (char*) &timeout, sizeof(timeout));
+		err = setsockopt (_socket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
 		CE_ASSERT(err == 0, "setsockopt: errno: %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		struct timeval timeout;
 		timeout.tv_sec = seconds;
 		timeout.tv_usec = 0;
-		int err;
-		err = setsockopt (m_socket, SOL_SOCKET, SO_RCVTIMEO, (char*) &timeout, sizeof(timeout));
+		int err = setsockopt (_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError: %d", WSAGetLastError());
-		err = setsockopt (m_socket, SOL_SOCKET, SO_SNDTIMEO, (char*) &timeout, sizeof(timeout));
+		err = setsockopt (_socket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
 		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError: %d", WSAGetLastError());
 #endif
 		CE_UNUSED(err);
@@ -455,9 +453,9 @@ struct TCPSocket
 private:
 
 #if CROWN_PLATFORM_POSIX
-	int m_socket;
+	int _socket;
 #elif CROWN_PLATFORM_WINDOWS
-	SOCKET m_socket;
+	SOCKET _socket;
 #endif
 };
 

@@ -37,8 +37,8 @@ namespace event_stream
 		header.type = type;
 		header.size = size;
 
-		array::push(s, (char*) &header, sizeof(Header));
-		array::push(s, (char*) event, (size_t) size);
+		array::push(s, (char*)&header, sizeof(Header));
+		array::push(s, (char*)event, size);
 	}
 
 	/// Appends the @a event of the given @a type to the stream @a s
