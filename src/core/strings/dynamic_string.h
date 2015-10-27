@@ -77,7 +77,7 @@ inline DynamicString::DynamicString(const char* s, Allocator& a)
 	: _data(a)
 {
 	CE_ASSERT_NOT_NULL(s);
-	array::push(_data, s, strlen(s));
+	array::push(_data, s, (uint32_t)strlen(s));
 }
 
 inline DynamicString& DynamicString::operator+=(const DynamicString& s)
@@ -88,7 +88,7 @@ inline DynamicString& DynamicString::operator+=(const DynamicString& s)
 inline DynamicString& DynamicString::operator+=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
-	array::push(_data, s, strlen(s));
+	array::push(_data, s, (uint32_t)strlen(s));
 	return *this;
 }
 
@@ -108,7 +108,7 @@ inline DynamicString& DynamicString::operator=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
 	array::clear(_data);
-	array::push(_data, s, strlen(s));
+	array::push(_data, s, (uint32_t)strlen(s));
 	return *this;
 }
 
@@ -137,7 +137,7 @@ inline bool DynamicString::operator==(const char* s) const
 
 inline uint32_t DynamicString::length() const
 {
-	return strlen(this->c_str());
+	return (uint32_t)strlen(this->c_str());
 }
 
 inline void DynamicString::strip_leading(const char* s)
@@ -149,7 +149,7 @@ inline void DynamicString::strip_leading(const char* s)
 	const size_t s_len = strlen(s);
 
 	memmove(array::begin(_data), array::begin(_data) + s_len, (my_len - s_len));
-	array::resize(_data, my_len - s_len);
+	array::resize(_data, uint32_t(my_len - s_len));
 }
 
 inline void DynamicString::strip_trailing(const char* s)
@@ -159,7 +159,7 @@ inline void DynamicString::strip_trailing(const char* s)
 
 	const size_t my_len = strlen(c_str());
 	const size_t s_len = strlen(s);
-	array::resize(_data, my_len - s_len);
+	array::resize(_data, uint32_t(my_len - s_len));
 }
 
 inline bool DynamicString::starts_with(const char* s) const

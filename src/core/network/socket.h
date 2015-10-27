@@ -191,7 +191,7 @@ struct TCPSocket
 
 		return ar;
 #elif CROWN_PLATFORM_WINDOWS
-		int err = ::accept(m_socket, NULL, NULL);
+		SOCKET err = ::accept(m_socket, NULL, NULL);
 
 		if (err != INVALID_SOCKET)
 		{
@@ -279,7 +279,7 @@ struct TCPSocket
 
 		while (to_read > 0)
 		{
-			int read_bytes = ::recv(m_socket, buf, to_read, 0);
+			int read_bytes = ::recv(m_socket, buf, (int)to_read, 0);
 
 			if (read_bytes == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
 				return rr;
@@ -359,7 +359,7 @@ struct TCPSocket
 
 		while (to_send > 0)
 		{
-			int bytes_wrote = ::send(m_socket, (const char*) buf, to_send, 0);
+			int bytes_wrote = ::send(m_socket, (const char*) buf, (int)to_send, 0);
 
 			if (bytes_wrote == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
 			{
