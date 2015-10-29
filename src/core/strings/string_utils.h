@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "error.h"
 #include "types.h"
+#include "error.h"
 #include "config.h"
 #include "macros.h"
-#include <cstdio>
-#include <cstring>
-#include <cstdarg>
-#include <cctype>
+#include <stdio.h> // sscanf
+#include <string.h>
+#include <stdarg.h>
+#include <ctype.h> // isspace
 
 namespace crown
 {
@@ -23,16 +23,6 @@ inline char* strncpy(char* dest, const char* src, size_t len)
 	dest[len - 1] = '\0';
 
 	return ret;
-}
-
-inline char* strcat(char* dest, const char* src)
-{
-	return ::strcat(dest, src);
-}
-
-inline char* strncat(char* dest, const char* src, size_t len)
-{
-	return ::strncat(dest, src, len);
 }
 
 inline int32_t vsnprintf(char* str, size_t num, const char* format, va_list args)
@@ -153,47 +143,39 @@ inline void substring(const char* begin, const char* end, char* out, size_t len)
 	out[i] = '\0';
 }
 
-inline int32_t parse_int(const char* string)
+inline int32_t parse_int(const char* str)
 {
 	int val;
-	int ok = sscanf(string, "%d", &val);
-
-	CE_ASSERT(ok == 1, "Failed to parse int: %s", string);
+	int ok = sscanf(str, "%d", &val);
+	CE_ASSERT(ok == 1, "Failed to parse int: %s", str);
 	CE_UNUSED(ok);
-
 	return val;
 }
 
-inline uint32_t parse_uint(const char* string)
+inline uint32_t parse_uint(const char* str)
 {
 	unsigned int val;
-	int ok = sscanf(string, "%u", &val);
-
-	CE_ASSERT(ok == 1, "Failed to parse uint: %s", string);
+	int ok = sscanf(str, "%u", &val);
+	CE_ASSERT(ok == 1, "Failed to parse uint: %s", str);
 	CE_UNUSED(ok);
-
 	return val;
 }
 
-inline float parse_float(const char* string)
+inline float parse_float(const char* str)
 {
 	float val;
-	int ok = sscanf(string, "%f", &val);
-
-	CE_ASSERT(ok == 1, "Failed to parse float: %s", string);
+	int ok = sscanf(str, "%f", &val);
+	CE_ASSERT(ok == 1, "Failed to parse float: %s", str);
 	CE_UNUSED(ok);
-
 	return val;
 }
 
-inline double parse_double(const char* string)
+inline double parse_double(const char* str)
 {
 	double val;
-	int ok = sscanf(string, "%lf", &val);
-
-	CE_ASSERT(ok == 1, "Failed to parse float: %s", string);
+	int ok = sscanf(str, "%lf", &val);
+	CE_ASSERT(ok == 1, "Failed to parse float: %s", str);
 	CE_UNUSED(ok);
-
 	return val;
 }
 
