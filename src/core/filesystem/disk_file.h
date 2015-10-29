@@ -19,8 +19,8 @@ class DiskFile: public File
 {
 public:
 
-	/// Opens @a filename with specified @a mode
-	DiskFile(FileOpenMode mode, const char* filename);
+	/// Opens @a path with specified @a mode
+	DiskFile(FileOpenMode mode, const char* path);
 	virtual ~DiskFile();
 
 	/// @copydoc File::seek()
