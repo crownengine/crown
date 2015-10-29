@@ -176,18 +176,18 @@ namespace os
 		HANDLE file = INVALID_HANDLE_VALUE;
 		WIN32_FIND_DATA ffd;
 
-		char cur_path[1024];
+		TempAllocator1024 ta;
+		DynamicString cur_path(path, ta);
+		cur_path += "\\*";
 
-		strncpy(cur_path, path, strlen(path) + 1);
-		strncat(cur_path, "\\*", 2);
-
-		file = FindFirstFile(cur_path, &ffd);
+		file = FindFirstFile(cur_path.c_str(), &ffd);
 
 		do
 		{
 			CE_ASSERT(file != INVALID_HANDLE_VALUE, "Unable to list files. errono %d", GetLastError());
 
-			if ((strcmp(ffd.cFileName, ".") == 0) || (strcmp(ffd.cFileName, "..") == 0))
+			if (strcmp(ffd.cFileName, ".") == 0
+				|| strcmp(ffd.cFileName, "..") == 0)
 			{
 				continue;
 			}
