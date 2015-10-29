@@ -17,14 +17,6 @@
 namespace crown
 {
 
-inline char* strncpy(char* dest, const char* src, size_t len)
-{
-	char* ret = ::strncpy(dest, src, len);
-	dest[len - 1] = '\0';
-
-	return ret;
-}
-
 inline int32_t vsnprintf(char* str, size_t num, const char* format, va_list args)
 {
 #if CROWN_COMPILER_MSVC
