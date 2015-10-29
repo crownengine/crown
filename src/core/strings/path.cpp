@@ -99,15 +99,16 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_separator = find_last(path, '/');
+		const char* last_separator = strrchr(path, '/');
+		const char* end = path + strlen(path) + 1;
 
-		if (last_separator == end(path))
+		if (last_separator == end)
 		{
 			strncpy(str, "", len);
 		}
 		else
 		{
-			substring(begin(path), last_separator, str, len);
+			substring(path, last_separator, str, len);
 		}
 	}
 
@@ -124,15 +125,16 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_separator = find_last(path, '/');
+		const char* last_separator = strrchr(path, '/');
+		const char* end = str + strlen(path) + 1;
 
-		if (last_separator == end(path))
+		if (last_separator == end)
 		{
 			strncpy(str, "", len);
 		}
 		else
 		{
-			substring(last_separator + 1, end(path), str, len);
+			substring(last_separator + 1, end, str, len);
 		}
 	}
 
@@ -148,18 +150,19 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_separator = find_last(path, '/');
-		const char* last_dot = find_last(path, '.');
+		const char* last_separator = strrchr(path, '/');
+		const char* last_dot = strrchr(path, '.');
+		const char* end = path + strlen(path) + 1;
 
-		if (last_separator == end(path) && last_dot != end(path))
+		if (last_separator == end && last_dot != end)
 		{
-			substring(begin(path), last_dot, str, len);
+			substring(path, last_dot, str, len);
 		}
-		else if (last_separator != end(path) && last_dot == end(path))
+		else if (last_separator != end && last_dot == end)
 		{
-			substring(last_separator + 1, end(path), str, len);
+			substring(last_separator + 1, end, str, len);
 		}
-		else if (last_separator == end(path) && last_dot == end(path))
+		else if (last_separator == end && last_dot == end)
 		{
 			strncpy(str, path, len);
 		}
@@ -180,15 +183,16 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_dot = find_last(path, '.');
+		const char* last_dot = strrchr(path, '.');
+		const char* end = path + strlen(path) + 1;
 
-		if (last_dot == end(path))
+		if (last_dot == end)
 		{
 			strncpy(str, "", len);
 		}
 		else
 		{
-			substring(last_dot + 1, end(path), str, len);
+			substring(last_dot + 1, end, str, len);
 		}
 	}
 
@@ -203,9 +207,9 @@ namespace path
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
-		const char* last_dot = find_last(path, '.');
+		const char* last_dot = strrchr(path, '.');
 
-		substring(begin(path), last_dot, str, len);
+		substring(path, last_dot, str, len);
 	}
 
 	/// Fills 'ret' with the same path but without the trailing directory separator.
@@ -220,14 +224,15 @@ namespace path
 		CE_ASSERT(str != NULL, "Str must be != NULL");
 
 		size_t path_len = strlen(path);
+		const char* end = path + strlen(path) + 1;
 
 		if (path[path_len - 1] == '/')
 		{
-			substring(begin(path), end(path) - 2, str, len);
+			substring(path, end - 2, str, len);
 		}
 		else
 		{
-			substring(begin(path), end(path), str, len);
+			substring(path, end, str, len);
 		}
 	}
 } // namespace path

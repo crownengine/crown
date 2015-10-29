@@ -61,58 +61,6 @@ inline const char* skip_block(const char* str, char a, char b)
 	return NULL;
 }
 
-inline const char* begin(const char* str)
-{
-	CE_ASSERT(str != NULL, "Str must be != NULL");
-
-	return str;
-}
-
-inline const char* end(const char* str)
-{
-	CE_ASSERT(str != NULL, "Str must be != NULL");
-
-	return str + strlen(str) + 1;
-}
-
-inline const char* find_first(const char* str, char c)
-{
-	CE_ASSERT(str != NULL, "Str must be != NULL");
-
-	const char* str_begin = begin(str);
-
-	while (str_begin != end(str))
-	{
-		if ((*str_begin) == c)
-		{
-			return str_begin;
-		}
-
-		str_begin++;
-	}
-
-	return end(str);
-}
-
-inline const char* find_last(const char* str, char c)
-{
-	CE_ASSERT(str != NULL, "Str must be != NULL");
-
-	const char* str_end = end(str) - 1;
-
-	while (str_end != begin(str) - 1)
-	{
-		if ((*str_end) == c)
-		{
-			return str_end;
-		}
-
-		str_end--;
-	}
-
-	return end(str);
-}
-
 inline void substring(const char* begin, const char* end, char* out, size_t len)
 {
 	CE_ASSERT(begin != NULL, "Begin must be != NULL");
