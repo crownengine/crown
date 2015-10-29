@@ -17,6 +17,12 @@ namespace crown
 /// @ingroup Path
 namespace path
 {
+#if CROWN_PLATFORM_POSIX
+	const char SEPARATOR = '/';
+#elif CROWN_PLATFORM_WINDOWS
+	const char SEPARATOR = '\\';
+#endif // CROWN_PLATFORM_POSIX
+
 	/// Returns whether the @a path is absolute.
 	bool is_absolute_path(const char* path);
 

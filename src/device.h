@@ -14,7 +14,7 @@
 #include "filesystem_types.h"
 #include "container_types.h"
 #include "input_types.h"
-#include "crown.h"
+#include "device_options.h"
 
 namespace crown
 {
@@ -27,7 +27,7 @@ namespace crown
 /// @ingroup Device
 struct Device
 {
-	Device(const ConfigSettings& cs, Filesystem& fs);
+	Device(const DeviceOptions& opts, Filesystem& fs);
 
 	void init();
 
@@ -65,18 +65,10 @@ struct Device
 	/// Unpauses the engine.
 	void unpause();
 
-	void update_resolution(uint16_t width, uint16_t height)
-	{
-		_width = width;
-		_height = height;
-	}
+	void update_resolution(uint16_t width, uint16_t height);
 
 	/// Returns the main window resolution.
-	void resolution(uint16_t& width, uint16_t& height)
-	{
-		width = _width;
-		height = _height;
-	}
+	void resolution(uint16_t& width, uint16_t& height);
 
 	/// Updates all the subsystems.
 	void update();
@@ -113,6 +105,10 @@ struct Device
 
 private:
 
+	void read_config();
+
+private:
+
 	// Used to allocate all subsystems
 	LinearAllocator _allocator;
 
@@ -129,7 +125,7 @@ private:
 	float _last_delta_time;
 	double _time_since_start;
 
-	const ConfigSettings& _cs;
+	const DeviceOptions& _device_options;
 	Filesystem& _fs;
 	StringId64 _boot_package_id;
 	StringId64 _boot_script_id;
@@ -150,7 +146,7 @@ private:
 
 namespace device_globals
 {
-	void init(const ConfigSettings& cs, Filesystem& fs);
+	void init(const DeviceOptions& opts, Filesystem& fs);
 	void shutdown();
 } // namespace device_globals
 

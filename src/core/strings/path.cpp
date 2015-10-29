@@ -12,12 +12,6 @@ namespace crown
 {
 namespace path
 {
-#if CROWN_PLATFORM_POSIX
-	const char SEPARATOR = '/';
-#elif CROWN_PLATFORM_WINDOWS
-	const char SEPARATOR = '\\';
-#endif // CROWN_PLATFORM_POSIX
-
 	bool is_absolute_path(const char* path)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");

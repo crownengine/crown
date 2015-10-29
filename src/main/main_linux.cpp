@@ -166,13 +166,13 @@ static bool s_exit = false;
 struct MainThreadArgs
 {
 	Filesystem* fs;
-	ConfigSettings* cs;
+	DeviceOptions* ds;
 };
 
 int32_t func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*) data;
-	crown::init(*args->fs, *args->cs);
+	crown::init(*args->ds, *args->fs);
 	crown::update();
 	crown::shutdown();
 	s_exit = true;
@@ -190,7 +190,7 @@ struct LinuxDevice
 	{
 	}
 
-	int32_t run(Filesystem* fs, ConfigSettings* cs)
+	int32_t run(Filesystem* fs, DeviceOptions* ds)
 	{
 		// http://tronche.com/gui/x/xlib/display/XInitThreads.html
 		Status xs = XInitThreads();
@@ -204,8 +204,8 @@ struct LinuxDevice
 		int depth = DefaultDepth(_x11_display, screen);
 		Visual* visual = DefaultVisual(_x11_display, screen);
 
-		_x11_parent_window = (cs->parent_window == 0) ? RootWindow(_x11_display, screen) :
-			(Window) cs->parent_window;
+		_x11_parent_window = (ds->parent_window() == 0) ? RootWindow(_x11_display, screen) :
+			(Window)ds->parent_window();
 
 		// Create main window
 		XSetWindowAttributes win_attribs;
@@ -221,10 +221,10 @@ struct LinuxDevice
 
 		_x11_window = XCreateWindow(_x11_display
 			, _x11_parent_window
-			, 0
-			, 0
-			, cs->window_width
-			, cs->window_height
+			, ds->window_x()
+			, ds->window_y()
+			, ds->window_width()
+			, ds->window_height()
 			, 0
 			, depth
 			, InputOutput
@@ -264,7 +264,7 @@ struct LinuxDevice
 		// Start main thread
 		MainThreadArgs mta;
 		mta.fs = fs;
-		mta.cs = cs;
+		mta.ds = ds;
 
 		Thread main_thread;
 		main_thread.start(func, &mta);
@@ -401,29 +401,22 @@ bool next_event(OsEvent& ev)
 int main(int argc, char** argv)
 {
 	using namespace crown;
-
-	ConfigSettings cs;
-	parse_command_line(argc, argv, cs);
-
 	memory_globals::init();
-	{
-		DiskFilesystem fs(cs.source_dir);
-		parse_config_file(fs, cs);
-	}
 
-	console_server_globals::init(cs.console_port, cs.wait_console);
+	DeviceOptions opts(argc, argv);
 
-	bundle_compiler_globals::init(cs.source_dir, cs.bundle_dir);
+	console_server_globals::init(opts.console_port(), opts.wait_console());
+	bundle_compiler_globals::init(opts.source_dir(), opts.bundle_dir());
 
 	bool do_continue = true;
 	int exitcode = EXIT_SUCCESS;
 
-	do_continue = bundle_compiler::main(cs.do_compile, cs.do_continue, cs.platform);
+	do_continue = bundle_compiler::main(opts.do_compile(), opts.do_continue(), opts.platform());
 
 	if (do_continue)
 	{
-		DiskFilesystem dst_fs(cs.bundle_dir);
-		exitcode = crown::s_ldvc.run(&dst_fs, &cs);
+		DiskFilesystem dst_fs(opts.bundle_dir());
+		exitcode = crown::s_ldvc.run(&dst_fs, &opts);
 	}
 
 	bundle_compiler_globals::shutdown();
