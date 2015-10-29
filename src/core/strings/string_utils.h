@@ -17,26 +17,6 @@
 namespace crown
 {
 
-inline size_t strlen(const char* str)
-{
-	return ::strlen(str);
-}
-
-inline const char* strstr(const char* str1, const char* str2)
-{
-	return ::strstr(str1, str2);
-}
-
-inline int32_t strcmp(const char* str1, const char* str2)
-{
-	return ::strcmp(str1, str2);
-}
-
-inline int32_t strncmp(const char* s1, const char* s2, size_t len)
-{
-	return ::strncmp(s1, s2, len);
-}
-
 inline char* strncpy(char* dest, const char* src, size_t len)
 {
 	char* ret = ::strncpy(dest, src, len);
