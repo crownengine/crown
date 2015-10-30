@@ -30,6 +30,9 @@ namespace aabb
 	float volume(const AABB& b);
 
 	/// Adds @a num @a points to the box @a b, expanding its bounds if necessary.
+	void add_points(AABB& a, uint32_t num, uint32_t stride, const void* points);
+
+	/// Adds @a num @a points to the box @a b, expanding its bounds if necessary.
 	void add_points(AABB& b, uint32_t num, const Vector3* points);
 
 	/// Adds @a num @a boxes to the box @a b, expanding its bounds if necessary.
@@ -73,19 +76,26 @@ namespace aabb
 		return (b.max.x - b.min.x) * (b.max.y - b.min.y) * (b.max.z - b.min.z);
 	}
 
-	inline void add_points(AABB& b, uint32_t num, const Vector3* points)
+	inline void add_points(AABB& b, uint32_t num, uint32_t stride, const void* points)
 	{
 		for (uint32_t i = 0; i < num; ++i)
 		{
-			const Vector3& p = points[i];
+			const Vector3* p = (const Vector3*)points;
 
-			if (p.x < b.min.x) b.min.x = p.x;
-			if (p.y < b.min.y) b.min.y = p.y;
-			if (p.z < b.min.z) b.min.z = p.z;
-			if (p.x > b.max.x) b.max.x = p.x;
-			if (p.y > b.max.y) b.max.y = p.y;
-			if (p.z > b.max.z) b.max.z = p.z;
+			if (p->x < b.min.x) b.min.x = p->x;
+			if (p->y < b.min.y) b.min.y = p->y;
+			if (p->z < b.min.z) b.min.z = p->z;
+			if (p->x > b.max.x) b.max.x = p->x;
+			if (p->y > b.max.y) b.max.y = p->y;
+			if (p->z > b.max.z) b.max.z = p->z;
+
+			points = (const void*)((const char*)points + stride);
 		}
+	}
+
+	inline void add_points(AABB& b, uint32_t num, const Vector3* points)
+	{
+		add_points(b, num, sizeof(Vector3), points);
 	}
 
 	inline void add_boxes(AABB& b, uint32_t num, const AABB* boxes)
