@@ -55,23 +55,26 @@ void stacktrace()
 	sym->MaxNameLen = MAX_SYM_NAME;
 
 	UINT num = 0;
-	while (StackWalk64(mtype,
-			GetCurrentProcess(),
-			GetCurrentThread(),
-			&stack,
-			&ctx,
-			NULL,
-			SymFunctionTableAccess64,
-			SymGetModuleBase64,
-			NULL))
+	while (StackWalk64(mtype
+			, GetCurrentProcess()
+			, GetCurrentThread()
+			, &stack
+			, &ctx
+			, NULL
+			, SymFunctionTableAccess64
+			, SymGetModuleBase64
+			, NULL))
 	{
-
 		if (stack.AddrPC.Offset == 0)
 			break;
 
 		++num;
-		BOOL res = SymGetLineFromAddr64(GetCurrentProcess(), stack.AddrPC.Offset, &ldsp, &line) &&
-			SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
+
+		BOOL res = SymGetLineFromAddr64(GetCurrentProcess()
+					, stack.AddrPC.Offset
+					, &ldsp
+					, &line);
+		res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
 		if (res == TRUE)
 			printf("\t[%i] %s (%s:%d)\n", num, sym->Name, line.FileName, line.LineNumber);
