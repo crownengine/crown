@@ -3,11 +3,17 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#pragma once
+#include "config.h"
+
+#if CROWN_PLATFORM_ANDROID
 
 namespace crown
 {
 
-void stacktrace();
+void print_callstack()
+{
+}
 
 } // namespace crown
+
+#endif // CROWN_PLATFORM_ANDROID

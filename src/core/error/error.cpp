@@ -21,7 +21,7 @@ namespace error
 		va_end(ap);
 		printf("\tIn: %s:%d\n", file, line);
 		printf("Stacktrace:\n");
-		stacktrace();
+		print_callstack();
 		exit(EXIT_FAILURE);
 	}
 } // namespace error

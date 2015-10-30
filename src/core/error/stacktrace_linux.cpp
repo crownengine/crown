@@ -15,7 +15,7 @@
 namespace crown
 {
 
-void stacktrace()
+void print_callstack()
 {
 	void* array[50];
 	int size = backtrace(array, 50);
