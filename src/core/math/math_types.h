@@ -59,7 +59,7 @@ struct AABB
 struct OBB
 {
 	Matrix4x4 tm;
-	AABB aabb;
+	Vector3 half_extents;
 };
 
 /// 3D Plane.
