@@ -19,8 +19,7 @@ float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plan
 float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s);
 
 /// Returns the distance along ray (from, dir) to intersection point with the oriented
-/// bounding-box represented by @a tm and @a half_extents.
-/// If no intersection is found, it returns -1.0.
+/// bounding box (tm, half_extents) or -1.0 if no intersection.
 float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const Vector3& half_extents);
 
 bool plane_3_intersection(const Plane& p1, const Plane& p2, const Plane& p3, Vector3& ip);
