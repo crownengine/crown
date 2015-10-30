@@ -17,12 +17,16 @@
 #include "resource_package.h"
 #include "types.h"
 #include "world.h"
+#include "json_parser.h"
+#include "filesystem.h"
+#include "path.h"
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
 namespace crown
 {
-Device::Device(const ConfigSettings& cs, Filesystem& fs)
+
+Device::Device(const DeviceOptions& opts, Filesystem& fs)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _width(0)
 	, _height(0)
@@ -34,10 +38,10 @@ Device::Device(const ConfigSettings& cs, Filesystem& fs)
 	, _current_time(0)
 	, _last_delta_time(0.0f)
 	, _time_since_start(0.0)
-	, _cs(cs)
+	, _device_options(opts)
 	, _fs(fs)
-	, _boot_package_id(cs.boot_package)
-	, _boot_script_id(cs.boot_script)
+	, _boot_package_id(uint64_t(0))
+	, _boot_script_id(uint64_t(0))
 	, _boot_package(NULL)
 	, _lua_environment(NULL)
 	, _resource_manager(NULL)
@@ -50,6 +54,8 @@ void Device::init()
 {
 	// Initialize
 	CE_LOGI("Initializing Crown Engine %s...", version());
+
+	read_config();
 
 	// Create resource manager
 	CE_LOGD("Creating resource manager...");
@@ -104,21 +110,6 @@ void Device::shutdown()
 	_is_init = false;
 }
 
-ResourceManager* Device::resource_manager()
-{
-	return _resource_manager;
-}
-
-LuaEnvironment* Device::lua_environment()
-{
-	return _lua_environment;
-}
-
-InputManager* Device::input_manager()
-{
-	return _input_manager;
-}
-
 void Device::quit()
 {
 	_is_running = false;
@@ -134,6 +125,18 @@ void Device::unpause()
 {
 	_is_paused = false;
 	CE_LOGI("Engine unpaused.");
+}
+
+void Device::update_resolution(uint16_t width, uint16_t height)
+{
+	_width = width;
+	_height = height;
+}
+
+void Device::resolution(uint16_t& width, uint16_t& height)
+{
+	width = _width;
+	height = _height;
 }
 
 bool Device::is_running() const
@@ -228,15 +231,52 @@ void Device::reload(StringId64 type, StringId64 name)
 	}
 }
 
+ResourceManager* Device::resource_manager()
+{
+	return _resource_manager;
+}
+
+LuaEnvironment* Device::lua_environment()
+{
+	return _lua_environment;
+}
+
+InputManager* Device::input_manager()
+{
+	return _input_manager;
+}
+
+void Device::read_config()
+{
+	TempAllocator1024 ta;
+	DynamicString project_path(ta);
+
+	if (_device_options.project() != NULL)
+	{
+		project_path += _device_options.project();
+		project_path += path::SEPARATOR;
+	}
+
+	project_path += "crown.config";
+
+	File* tmpfile = _fs.open(project_path.c_str(), FOM_READ);
+	JSONParser config(*tmpfile);
+	_fs.close(tmpfile);
+	JSONElement root = config.root();
+
+	_boot_script_id = root.key("boot_script").to_resource_id();
+	_boot_package_id = root.key("boot_package").to_resource_id();
+}
+
 namespace device_globals
 {
 	char _buffer[sizeof(Device)];
 	Device* _device = NULL;
 
-	void init(const ConfigSettings& cs, Filesystem& fs)
+	void init(const DeviceOptions& opts, Filesystem& fs)
 	{
 		CE_ASSERT(_device == NULL, "Crown already initialized");
-		_device = new (_buffer) Device(cs, fs);
+		_device = new (_buffer) Device(opts, fs);
 	}
 
 	void shutdown()

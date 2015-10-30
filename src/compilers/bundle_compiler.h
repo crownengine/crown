@@ -18,11 +18,11 @@ public:
 
 	BundleCompiler(const char* source_dir, const char* bundle_dir);
 
-	bool compile(const char* type, const char* name, Platform::Enum platform);
+	bool compile(const char* type, const char* name, const char* platform);
 
 	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.
 	/// Returns true on success, false otherwise.
-	bool compile_all(Platform::Enum platform);
+	bool compile_all(const char* platform);
 
 	void scan(const char* cur_dir, Vector<DynamicString>& files);
 
@@ -34,7 +34,7 @@ private:
 
 namespace bundle_compiler
 {
-	bool main(bool do_compile, bool do_continue, Platform::Enum platform);
+	bool main(bool do_compile, bool do_continue, const char* platform);
 } // namespace bundle_compiler
 
 namespace bundle_compiler_globals

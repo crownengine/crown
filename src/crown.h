@@ -7,62 +7,12 @@
 
 #include "types.h"
 #include "filesystem_types.h"
+#include "device_options.h"
 
 namespace crown
 {
-	struct Platform
-	{
-		enum Enum
-		{
-			LINUX,
-			WINDOWS,
-			ANDROID,
-
-			COUNT
-		};
-	};
-
-	struct ConfigSettings
-	{
-		ConfigSettings()
-			: source_dir(NULL)
-			, bundle_dir(NULL)
-			, project(NULL)
-			, platform(Platform::COUNT)
-			, wait_console(false)
-			, do_compile(false)
-			, do_continue(false)
-			, parent_window(0)
-			, console_port(CROWN_DEFAULT_CONSOLE_PORT)
-			, boot_package(uint64_t(0))
-			, boot_script(uint64_t(0))
-			, window_width(CROWN_DEFAULT_WINDOW_WIDTH)
-			, window_height(CROWN_DEFAULT_WINDOW_HEIGHT)
-		{
-		}
-
-		const char* source_dir;
-		const char* bundle_dir;
-		const char* project;
-		Platform::Enum platform;
-		bool wait_console;
-		bool do_compile;
-		bool do_continue;
-		uint32_t parent_window;
-		uint16_t console_port;
-		StringId64 boot_package;
-		StringId64 boot_script;
-		uint16_t window_width;
-		uint16_t window_height;
-	};
-
-	void parse_command_line(int argc, char** argv, ConfigSettings& cs);
-
-	/// Read configuration file from @a fs.
-	void parse_config_file(Filesystem& fs, ConfigSettings& cs);
-
 	/// Initializes the engine.
-	bool init(Filesystem& fs, const ConfigSettings& cs);
+	bool init(const DeviceOptions& opts, Filesystem& fs);
 
 	/// Updates all the subsystems.
 	void update();

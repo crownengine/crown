@@ -23,29 +23,6 @@
 namespace crown
 {
 
-struct PlatformInfo
-{
-	const char* name;
-	Platform::Enum target;
-};
-
-static const PlatformInfo s_platform[Platform::COUNT] =
-{
-	{ "linux",   Platform::LINUX   },
-	{ "windows", Platform::WINDOWS },
-	{ "android", Platform::ANDROID }
-};
-
-static Platform::Enum string_to_platform(const char* platform)
-{
-	for (uint32_t i = 0; platform != NULL && i < Platform::COUNT; i++)
-	{
-		if (strcmp(platform, s_platform[i].name) == 0)
-			return s_platform[i].target;
-	}
-	return Platform::COUNT;
-}
-
 static void help(const char* msg = NULL)
 {
 	if (msg)
@@ -79,114 +56,13 @@ static void help(const char* msg = NULL)
 	);
 }
 
-void parse_command_line(int argc, char** argv, ConfigSettings& cs)
-{
-	CommandLine cmd(argc, argv);
-
-	if (cmd.has_argument("help", 'h'))
-	{
-		help();
-		exit(EXIT_SUCCESS);
-	}
-
-	if (cmd.has_argument("version", 'v'))
-	{
-		printf(CROWN_PLATFORM_NAME "-" CROWN_CPU_NAME " (" CROWN_ARCH_NAME ")" " (" CROWN_COMPILER_NAME ")\n");
-		exit(EXIT_SUCCESS);
-	}
-
-	cs.source_dir = cmd.get_parameter("source-dir");
-	if (!cs.source_dir)
-	{
-		help("Source directory must be specified.");
-		exit(EXIT_FAILURE);
-	}
-
-	cs.bundle_dir = cmd.get_parameter("bundle-dir");
-	if (!cs.bundle_dir)
-	{
-		help("Bundle directory must be specified.");
-		exit(EXIT_FAILURE);
-	}
-
-	if (strcmp(cs.source_dir, cs.bundle_dir) == 0)
-	{
-		help("Source and Bundle directories must differ.");
-		exit(EXIT_FAILURE);
-	}
-
-	cs.project = cmd.get_parameter("project");
-
-	cs.wait_console = cmd.has_argument("wait-console");
-	cs.do_compile = cmd.has_argument("compile");
-	cs.do_continue = cmd.has_argument("continue");
-
-	cs.platform = string_to_platform(cmd.get_parameter("platform"));
-	if (cs.do_compile && cs.platform == Platform::COUNT)
-	{
-		help("Platform must be specified.");
-		exit(EXIT_FAILURE);
-	}
-
-	const char* parent = cmd.get_parameter("parent-window");
-	if (parent)
-	{
-		cs.parent_window = parse_uint(parent);
-	}
-
-	const char* port = cmd.get_parameter("console-port");
-	if (port)
-	{
-		cs.console_port = parse_uint(port);
-	}
-}
-
-void parse_config_file(Filesystem& fs, ConfigSettings& cs)
-{
-	TempAllocator512 alloc;
-	DynamicString project_path(alloc);
-
-	if (cs.project != NULL)
-	{
-		project_path += cs.project;
-		project_path += "/";
-	}
-	project_path += "crown.config";
-
-	File* tmpfile = fs.open(project_path.c_str(), FOM_READ);
-	JSONParser config(*tmpfile);
-	fs.close(tmpfile);
-	JSONElement root = config.root();
-
-	JSONElement cport = root.key_or_nil("console_port");
-	if (!cport.is_nil())
-	{
-		cs.console_port = (int16_t) cport.to_int();
-	}
-
-	JSONElement window_width = root.key_or_nil("window_width");
-	if (!window_width.is_nil())
-	{
-		cs.window_width = max((uint16_t)1, (uint16_t)window_width.to_int());
-	}
-
-	JSONElement window_height = root.key_or_nil("window_height");
-	if (!window_height.is_nil())
-	{
-		cs.window_height = max((uint16_t)1, (uint16_t)window_height.to_int());
-	}
-
-	cs.boot_script = root.key("boot_script").to_resource_id();
-	cs.boot_package = root.key("boot_package").to_resource_id();
-}
-
-bool init(Filesystem& fs, const ConfigSettings& cs)
+bool init(const DeviceOptions& opts, Filesystem& fs)
 {
 	profiler_globals::init();
 	audio_globals::init();
 	physics_globals::init();
 	bgfx::init();
-	device_globals::init(cs, fs);
+	device_globals::init(opts, fs);
 	device()->init();
 	return true;
 }

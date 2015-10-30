@@ -27,7 +27,7 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	temp.create_directory(bundle_dir);
 }
 
-bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum platform)
+bool BundleCompiler::compile(const char* type, const char* name, const char* platform)
 {
 	StringId64 _type(type);
 	StringId64 _name(name);
@@ -57,7 +57,7 @@ bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum 
 	return true;
 }
 
-bool BundleCompiler::compile_all(Platform::Enum platform)
+bool BundleCompiler::compile_all(const char* platform)
 {
 	Vector<DynamicString> files(default_allocator());
 	BundleCompiler::scan("", files);
@@ -132,7 +132,7 @@ void BundleCompiler::scan(const char* cur_dir, Vector<DynamicString>& files)
 
 namespace bundle_compiler
 {
-	bool main(bool do_compile, bool do_continue, Platform::Enum platform)
+	bool main(bool do_compile, bool do_continue, const char* platform)
 	{
 		if (do_compile)
 		{

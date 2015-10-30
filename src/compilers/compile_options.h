@@ -16,7 +16,7 @@ typedef Array<char> Buffer;
 
 struct CompileOptions
 {
-	CompileOptions(Filesystem& fs, File* out, Platform::Enum platform)
+	CompileOptions(Filesystem& fs, File* out, const char* platform)
 		: _fs(fs)
 		, _bw(*out)
 		, _platform(platform)
@@ -65,14 +65,14 @@ struct CompileOptions
 		return _bw;
 	}
 
-	Platform::Enum platform() const
+	const char* platform() const
 	{
 		return _platform;
 	}
 
 	Filesystem& _fs;
 	BinaryWriter _bw;
-	Platform::Enum _platform;
+	const char* _platform;
 };
 
 } // namespace crown

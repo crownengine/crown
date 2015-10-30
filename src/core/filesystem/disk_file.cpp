@@ -12,11 +12,11 @@
 namespace crown
 {
 
-DiskFile::DiskFile(FileOpenMode mode, const char* filename)
+DiskFile::DiskFile(FileOpenMode mode, const char* path)
 	: File(mode)
-	, _file(filename, mode)
 	, _last_was_read(true)
 {
+	_file.open(path, mode);
 }
 
 DiskFile::~DiskFile()
