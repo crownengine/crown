@@ -10,7 +10,7 @@
 namespace crown
 {
 
-void stacktrace()
+void print_callstack()
 {
 }
 

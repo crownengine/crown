@@ -14,7 +14,7 @@
 namespace crown
 {
 
-void stacktrace()
+void print_callstack()
 {
 	SymInitialize(GetCurrentProcess(), NULL, TRUE);
 	SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);

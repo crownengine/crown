@@ -8,6 +8,7 @@
 namespace crown
 {
 
-void stacktrace();
+/// Prints the current call stack.
+void print_callstack();
 
 } // namespace crown
