@@ -59,13 +59,13 @@ namespace sort_map_internal
 		bool operator()(const typename SortMap<TKey, TValue, Compare>::Entry& a,
 			const typename SortMap<TKey, TValue, Compare>::Entry& b) const
 		{
-			return comp(a.key, b.key);
+			return comp(a.pair.first, b.pair.first);
 		}
 
 		bool operator()(const typename SortMap<TKey, TValue, Compare>::Entry& a,
 			const TKey& key) const
 		{
-			return comp(a.key, key);
+			return comp(a.pair.first, key);
 		}
 
 		Compare comp;
@@ -83,7 +83,7 @@ namespace sort_map_internal
 			std::lower_bound(vector::begin(m._data), vector::end(m._data), key,
 			sort_map_internal::CompareEntry<TKey, TValue, Compare>());
 
-		if (first != vector::end(m._data) && !(key < first->key))
+		if (first != vector::end(m._data) && !(key < first->pair.first))
 		 	result.item_i = first - vector::begin(m._data);
 
 		return result;
@@ -106,7 +106,7 @@ namespace sort_map
 		if (result.item_i == sort_map_internal::END_OF_LIST)
 			return deffault;
 
-		return m._data[result.item_i].value;
+		return m._data[result.item_i].pair.second;
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
@@ -132,14 +132,14 @@ namespace sort_map
 
 		if (result.item_i == sort_map_internal::END_OF_LIST)
 		{
-			typename SortMap<TKey, TValue, Compare>::Entry e;
-			e.key = key;
-			e.value = val;
+			typename SortMap<TKey, TValue, Compare>::Entry e(*m._data._allocator);
+			e.pair.first = key;
+			e.pair.second = val;
 			vector::push_back(m._data, e);
 		}
 		else
 		{
-			m._data[result.item_i].value = val;
+			m._data[result.item_i].pair.second = val;
 		}
 #if CROWN_DEBUG
 		m._is_sorted = false;

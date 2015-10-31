@@ -162,8 +162,9 @@ struct Map
 	ALLOCATOR_AWARE;
 };
 
-/// Sorted map from key to POD items.
-/// Items are not automatically sorted, you have to call sort_map::sort().
+/// Vector of sorted items.
+/// Items are not automatically sorted, you have to call sort_map::sort()
+/// whenever you are done inserting items.
 /// @ingroup Containers.
 template <typename TKey, typename TValue, class Compare = less<TKey> >
 struct SortMap
@@ -172,8 +173,14 @@ struct SortMap
 
 	struct Entry
 	{
-		TKey key;
-		TValue value;
+		Entry(Allocator& a)
+			: pair(a)
+		{
+		}
+
+		PAIR(TKey, TValue) pair;
+
+		ALLOCATOR_AWARE;
 	};
 
 	Vector<Entry> _data;

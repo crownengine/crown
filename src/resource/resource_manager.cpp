@@ -29,8 +29,8 @@ ResourceManager::~ResourceManager()
 
 	for (; begin != end; begin++)
 	{
-		resource_on_offline(begin->key.type, begin->key.name, *this);
-		resource_on_unload(begin->key.type, _resource_heap, begin->value.data);
+		resource_on_offline(begin->pair.first.type, begin->pair.first.name, *this);
+		resource_on_unload(begin->pair.first.type, _resource_heap, begin->pair.second.data);
 	}
 }
 
