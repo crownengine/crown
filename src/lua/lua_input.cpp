@@ -61,7 +61,119 @@ static int keyboard_any_released(lua_State* L)
 	return 1;
 }
 
-void load_keyboard(LuaEnvironment& env)
+static int mouse_name(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_string(device()->input_manager()->mouse()->name());
+	return 1;
+}
+
+static int mouse_num_buttons(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(device()->input_manager()->mouse()->num_buttons());
+	return 1;
+}
+
+static int mouse_num_axes(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(device()->input_manager()->mouse()->num_axes());
+	return 1;
+}
+
+static int mouse_pressed(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->mouse()->pressed((MouseButton::Enum) stack.get_int(1)));
+	return 1;
+}
+
+static int mouse_released(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->mouse()->released((MouseButton::Enum) stack.get_int(1)));
+	return 1;
+}
+
+static int mouse_any_pressed(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->mouse()->any_pressed());
+	return 1;
+}
+
+static int mouse_any_released(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->mouse()->any_released());
+	return 1;
+}
+
+static int mouse_axis(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(device()->input_manager()->mouse()->axis(stack.get_int(1)));
+	return 1;
+}
+
+static int touch_name(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_string(device()->input_manager()->touch()->name());
+	return 1;
+}
+
+static int touch_num_buttons(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(device()->input_manager()->touch()->num_buttons());
+	return 1;
+}
+
+static int touch_num_axes(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(device()->input_manager()->touch()->num_axes());
+	return 1;
+}
+
+static int touch_pressed(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->touch()->pressed(stack.get_int(1)));
+	return 1;
+}
+
+static int touch_released(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->touch()->released(stack.get_int(1)));
+	return 1;
+}
+
+static int touch_any_pressed(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->touch()->any_pressed());
+	return 1;
+}
+
+static int touch_any_released(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->touch()->any_released());
+	return 1;
+}
+
+static int touch_axis(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(device()->input_manager()->touch()->axis(stack.get_int(1)));
+	return 1;
+}
+
+void load_input(LuaEnvironment& env)
 {
 	env.load_module_function("Keyboard", "name",         keyboard_name);
 	env.load_module_function("Keyboard", "num_buttons",  keyboard_num_buttons);
@@ -150,6 +262,28 @@ void load_keyboard(LuaEnvironment& env)
 	env.load_module_enum("Keyboard", "X",         KeyboardButton::X);
 	env.load_module_enum("Keyboard", "Y",         KeyboardButton::Y);
 	env.load_module_enum("Keyboard", "Z",         KeyboardButton::Z);
+
+	env.load_module_function("Mouse", "name",         mouse_name);
+	env.load_module_function("Mouse", "num_buttons",  mouse_num_buttons);
+	env.load_module_function("Mouse", "num_axes",     mouse_num_axes);
+	env.load_module_function("Mouse", "pressed",      mouse_pressed);
+	env.load_module_function("Mouse", "released",     mouse_released);
+	env.load_module_function("Mouse", "any_pressed",  mouse_any_pressed);
+	env.load_module_function("Mouse", "any_released", mouse_any_released);
+	env.load_module_function("Mouse", "axis",         mouse_axis);
+
+	env.load_module_enum("Mouse", "LEFT",   MouseButton::LEFT);
+	env.load_module_enum("Mouse", "MIDDLE", MouseButton::MIDDLE);
+	env.load_module_enum("Mouse", "RIGHT",  MouseButton::RIGHT);
+
+	env.load_module_function("Touch", "name",         touch_name);
+	env.load_module_function("Touch", "num_buttons",  touch_num_buttons);
+	env.load_module_function("Touch", "num_axes",     touch_num_axes);
+	env.load_module_function("Touch", "pressed",      touch_pressed);
+	env.load_module_function("Touch", "released",     touch_released);
+	env.load_module_function("Touch", "any_pressed",  touch_any_pressed);
+	env.load_module_function("Touch", "any_released", touch_any_released);
+	env.load_module_function("Touch", "axis",         touch_axis);
 }
 
 } // namespace crown
