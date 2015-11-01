@@ -446,23 +446,22 @@ static int vector3box_tostring(lua_State* L)
 static int matrix4x4_new(lua_State* L)
 {
 	LuaStack stack(L);
-	float m0 = stack.get_float(1);
-	float m1 = stack.get_float(2);
-	float m2 = stack.get_float(3);
-	float m3 = stack.get_float(4);
-	float m4 = stack.get_float(5);
-	float m5 = stack.get_float(6);
-	float m6 = stack.get_float(7);
-	float m7 = stack.get_float(8);
-	float m8 = stack.get_float(9);
-	float m9 = stack.get_float(10);
-	float m10 = stack.get_float(11);
-	float m11 = stack.get_float(12);
-	float m12 = stack.get_float(13);
-	float m13 = stack.get_float(14);
-	float m14 = stack.get_float(15);
-	float m15 = stack.get_float(16);
-	stack.push_matrix4x4(matrix4x4(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15));
+	stack.push_matrix4x4(matrix4x4(stack.get_float(1)
+		, stack.get_float(2)
+		, stack.get_float(3)
+		, stack.get_float(4)
+		, stack.get_float(5)
+		, stack.get_float(6)
+		, stack.get_float(7)
+		, stack.get_float(8)
+		, stack.get_float(9)
+		, stack.get_float(10)
+		, stack.get_float(11)
+		, stack.get_float(12)
+		, stack.get_float(13)
+		, stack.get_float(14)
+		, stack.get_float(15)
+		, stack.get_float(16)));
 	return 1;
 }
 
@@ -813,10 +812,10 @@ static int quaternionbox_tostring(lua_State* L)
 static int color4_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(quaternion(stack.get_float(1),
-		stack.get_float(2),
-		stack.get_float(3),
-		stack.get_float(4)));
+	stack.push_quaternion(quaternion(stack.get_float(1)
+		, stack.get_float(2)
+		, stack.get_float(3)
+		, stack.get_float(4)));
 	return 1;
 }
 
