@@ -10,7 +10,6 @@
 #include "lua_stack.h"
 #include "lua_resource.h"
 #include "device.h"
-#include "lua_assert.h"
 #include "resource_manager.h"
 #include "log.h"
 #include <stdarg.h>

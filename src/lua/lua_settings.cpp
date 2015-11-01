@@ -15,251 +15,133 @@ namespace crown
 static int int_setting_query_value(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	IntSetting* setting = IntSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_int32(setting->value());
-	}
-	else
-	{
-		stack.push_int32(0);
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_int32(setting->value());
 	return 1;
 }
 
 static int int_setting_query_synopsis(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	IntSetting* setting = IntSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_string(setting->synopsis());
-	}
-	else
-	{
-		stack.push_string("");
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_string(setting->synopsis());
 	return 1;
 }
 
 static int int_setting_query_min(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	IntSetting* setting = IntSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_int32(setting->min());
-	}
-	else
-	{
-		stack.push_int32(0);
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_int32(setting->min());
 	return 1;
 }
 
 static int int_setting_query_max(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	IntSetting* setting = IntSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_int32(setting->max());
-	}
-	else
-	{
-		stack.push_int32(0);
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_int32(setting->max());
 	return 1;
 }
 
 static int int_setting_update(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
 	const int32_t setting_value = stack.get_int(2);
-
 	IntSetting* setting = IntSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		(*setting) = setting_value;
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	*setting = setting_value;
 	return 0;
 }
 
 static int float_setting_value(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	FloatSetting* setting = FloatSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_float(setting->value());
-	}
-	else
-	{
-		stack.push_float(0.0f);
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_float(setting->value());
 	return 1;
 }
 
 static int float_setting_synopsis(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	FloatSetting* setting = FloatSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_string(setting->synopsis());
-	}
-	else
-	{
-		stack.push_string("");
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_string(setting->synopsis());
 	return 1;
 }
 
 static int float_setting_min(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	FloatSetting* setting = FloatSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_float(setting->min());
-	}
-	else
-	{
-		stack.push_float(0);
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_float(setting->min());
 	return 1;
 }
 
 static int float_setting_max(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	FloatSetting* setting = FloatSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_float(setting->max());
-	}
-	else
-	{
-		stack.push_float(0);
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_float(setting->max());
 	return 1;
 }
 
 static int float_setting_update(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
 	const float setting_value = stack.get_float(2);
-
 	FloatSetting* setting = FloatSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		(*setting) = setting_value;
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	*setting = setting_value;
 	return 0;
 }
 
 static int string_setting_value(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	StringSetting* setting = StringSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_string(setting->value());
-	}
-	else
-	{
-		stack.push_string("");
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_string(setting->value());
 	return 1;
 }
 
 static int string_setting_synopsis(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
-
 	StringSetting* setting = StringSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		stack.push_string(setting->synopsis());
-	}
-	else
-	{
-		stack.push_string("");
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	stack.push_string(setting->synopsis());
 	return 1;
 }
 
 static int string_setting_update(lua_State* L)
 {
 	LuaStack stack(L);
-
 	const char* setting_name = stack.get_string(1);
 	const char* setting_value = stack.get_string(2);
-
 	StringSetting* setting = StringSetting::find_setting(setting_name);
-
-	if (setting != NULL)
-	{
-		(*setting) = setting_value;
-	}
-
+	LUA_ASSERT(setting != NULL, stack, "Setting not found");
+	*setting = setting_value;
 	return 0;
 }
 

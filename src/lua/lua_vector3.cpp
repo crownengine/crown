@@ -6,7 +6,6 @@
 #include "vector3.h"
 #include "lua_stack.h"
 #include "lua_environment.h"
-#include "lua_assert.h"
 
 namespace crown
 {
