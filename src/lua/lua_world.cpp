@@ -7,7 +7,6 @@
 #include "lua_environment.h"
 #include "array.h"
 #include "gui.h"
-#include "lua_assert.h"
 #include "temp_allocator.h"
 #include "world.h"
 #include "device.h"

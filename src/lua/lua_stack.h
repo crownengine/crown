@@ -40,6 +40,9 @@
 	#define CHECKINTEGER(stack, i) luaL_checkinteger(stack, i)
 	#define CHECKNUMBER(stack, i) luaL_checknumber(stack, i)
 	#define CHECKSTRING(stack, i) luaL_checkstring(stack, i)
+
+	#define LUA_ASSERT(condition, stack, msg, ...) do { if (!(condition)) {\
+		stack.push_fstring("\nLua assertion failed: %s\n\t" msg "\n", #condition, ##__VA_ARGS__); lua_error(stack.state()); }} while (0);
 #else
 	#define CHECKUDATA(stack, i, expected) lua_touserdata(stack, i)
 	#define CHECKLIGHTDATA(stack, i, cf, expected) lua_touserdata(stack, i)
@@ -47,6 +50,8 @@
 	#define CHECKINTEGER(stack, i) lua_tointeger(stack, i)
 	#define CHECKNUMBER(stack, i) lua_tonumber(stack, i)
 	#define CHECKSTRING(stack, i) lua_tostring(stack, i)
+
+	#define LUA_ASSERT(...) ((void)0)
 #endif // CROWN_DEBUG
 
 namespace crown

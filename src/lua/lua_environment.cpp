@@ -10,7 +10,6 @@
 #include "lua_stack.h"
 #include "lua_resource.h"
 #include "device.h"
-#include "lua_assert.h"
 #include "resource_manager.h"
 #include "log.h"
 #include <stdarg.h>
@@ -21,24 +20,20 @@ namespace crown
 // Lua modules
 extern void load_debug_line(LuaEnvironment& env);
 extern void load_device(LuaEnvironment& env);
-extern void load_float_setting(LuaEnvironment& env);
 extern void load_gui(LuaEnvironment& env);
-extern void load_int_setting(LuaEnvironment& env);
-extern void load_keyboard(LuaEnvironment& env);
 extern void load_math(LuaEnvironment& env);
-extern void load_matrix4x4(LuaEnvironment& env);
-extern void load_mouse(LuaEnvironment& env);
 extern void load_physics_world(LuaEnvironment& env);
-extern void load_quaternion(LuaEnvironment& env);
 extern void load_resource_package(LuaEnvironment& env);
 extern void load_sound_world(LuaEnvironment& env);
-extern void load_string_setting(LuaEnvironment& env);
-extern void load_touch(LuaEnvironment& env);
-extern void load_vector3(LuaEnvironment& env);
+extern void load_raycast(LuaEnvironment& env);
+extern void load_resource_package(LuaEnvironment& env);
+extern void load_sound_world(LuaEnvironment& env);
+extern void load_sprite(LuaEnvironment& env);
+extern void load_settings(LuaEnvironment& env);
 extern void load_window(LuaEnvironment& env);
 extern void load_world(LuaEnvironment& env);
-extern void load_color4(LuaEnvironment& env);
 extern void load_material(LuaEnvironment& env);
+extern void load_input(LuaEnvironment& env);
 
 // When an error occurs, logs the error message and pauses the engine.
 static int error_handler(lua_State* L)
@@ -182,24 +177,20 @@ void LuaEnvironment::load_libs()
 	// Register crown libraries
 	load_debug_line(*this);
 	load_device(*this);
-	load_float_setting(*this);
 	load_gui(*this);
-	load_int_setting(*this);
-	load_keyboard(*this);
 	load_math(*this);
-	load_matrix4x4(*this);
-	load_mouse(*this);
 	load_physics_world(*this);
-	load_quaternion(*this);
 	load_resource_package(*this);
 	load_sound_world(*this);
-	load_string_setting(*this);
-	load_touch(*this);
-	load_vector3(*this);
+	load_raycast(*this);
+	load_resource_package(*this);
+	load_sound_world(*this);
+	load_sprite(*this);
+	load_settings(*this);
 	load_window(*this);
 	load_world(*this);
-	load_color4(*this);
 	load_material(*this);
+	load_input(*this);
 
 	// Register custom loader
 	lua_getfield(L, LUA_GLOBALSINDEX, "package");

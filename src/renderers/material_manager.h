@@ -10,7 +10,6 @@
 #include "material.h"
 #include "resource_manager.h"
 #include "resource_types.h"
-#include "id_table.h"
 #include <bgfx.h>
 
 namespace crown
