@@ -173,6 +173,62 @@ static int touch_axis(lua_State* L)
 	return 1;
 }
 
+static int joypad_name(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_string(device()->input_manager()->joypad()->name());
+	return 1;
+}
+
+static int joypad_num_buttons(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(device()->input_manager()->joypad()->num_buttons());
+	return 1;
+}
+
+static int joypad_num_axes(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(device()->input_manager()->joypad()->num_axes());
+	return 1;
+}
+
+static int joypad_pressed(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->joypad()->pressed((MouseButton::Enum) stack.get_int(1)));
+	return 1;
+}
+
+static int joypad_released(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->joypad()->released((MouseButton::Enum) stack.get_int(1)));
+	return 1;
+}
+
+static int joypad_any_pressed(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->joypad()->any_pressed());
+	return 1;
+}
+
+static int joypad_any_released(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->input_manager()->joypad()->any_released());
+	return 1;
+}
+
+static int joypad_axis(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(device()->input_manager()->joypad()->axis(stack.get_int(1)));
+	return 1;
+}
+
 void load_input(LuaEnvironment& env)
 {
 	env.load_module_function("Keyboard", "name",         keyboard_name);
@@ -284,6 +340,33 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Touch", "any_pressed",  touch_any_pressed);
 	env.load_module_function("Touch", "any_released", touch_any_released);
 	env.load_module_function("Touch", "axis",         touch_axis);
+
+	env.load_module_function("Joypad", "name",         joypad_name);
+	env.load_module_function("Joypad", "num_buttons",  joypad_num_buttons);
+	env.load_module_function("Joypad", "num_axes",     joypad_num_axes);
+	env.load_module_function("Joypad", "pressed",      joypad_pressed);
+	env.load_module_function("Joypad", "released",     joypad_released);
+	env.load_module_function("Joypad", "any_pressed",  joypad_any_pressed);
+	env.load_module_function("Joypad", "any_released", joypad_any_released);
+	env.load_module_function("Joypad", "axis",         joypad_axis);
+
+	env.load_module_enum("JoypadButton", "UP",             JoypadButton::UP);
+	env.load_module_enum("JoypadButton", "DOWN",           JoypadButton::DOWN);
+	env.load_module_enum("JoypadButton", "LEFT",           JoypadButton::LEFT);
+	env.load_module_enum("JoypadButton", "RIGHT",          JoypadButton::RIGHT);
+	env.load_module_enum("JoypadButton", "START",          JoypadButton::START);
+	env.load_module_enum("JoypadButton", "BACK",           JoypadButton::BACK);
+	env.load_module_enum("JoypadButton", "LEFT_THUMB",     JoypadButton::LEFT_THUMB);
+	env.load_module_enum("JoypadButton", "RIGHT_THUMB",    JoypadButton::RIGHT_THUMB);
+	env.load_module_enum("JoypadButton", "LEFT_SHOULDER",  JoypadButton::LEFT_SHOULDER);
+	env.load_module_enum("JoypadButton", "RIGHT_SHOULDER", JoypadButton::RIGHT_SHOULDER);
+	env.load_module_enum("JoypadButton", "A",              JoypadButton::A);
+	env.load_module_enum("JoypadButton", "B",              JoypadButton::B);
+	env.load_module_enum("JoypadButton", "X",              JoypadButton::X);
+	env.load_module_enum("JoypadButton", "Y",              JoypadButton::Y);
+
+	env.load_module_enum("JoypadAxis", "LEFT",    JoypadAxis::LEFT);
+	env.load_module_enum("JoypadAxis", "RIGHT",   JoypadAxis::RIGHT);
 }
 
 } // namespace crown

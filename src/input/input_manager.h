@@ -30,6 +30,9 @@ public:
 	/// Returns the default touch input device.
 	InputDevice* touch();
 
+	/// Returns the default joypad input device.
+	InputDevice* joypad();
+
 	/// Updates the input devices
 	void update();
 
@@ -38,6 +41,7 @@ private:
 	InputDevice* _keyboard;
 	InputDevice* _mouse;
 	InputDevice* _touch;
+	InputDevice* _joypad;
 };
 
 } // namespace crown

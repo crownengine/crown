@@ -67,6 +67,23 @@ struct OsTouchEvent
 	bool pressed;
 };
 
+/// Represents an event fired by joystick
+struct OsJoypadEvent
+{
+	enum Enum
+	{
+		BUTTON,
+		AXIS
+	};
+
+	OsJoypadEvent::Enum type;
+	uint8_t button;
+	bool pressed;
+	float x;
+	float y;
+	float z;
+};
+
 /// Represents an event fired by accelerometer.
 struct OsAccelerometerEvent
 {
@@ -85,6 +102,7 @@ struct OsEvent
 		KEYBOARD,
 		MOUSE,
 		TOUCH,
+		JOYPAD,
 		ACCELEROMETER,
 
 		METRICS,
@@ -102,11 +120,12 @@ struct OsEvent
 		OsMouseEvent mouse;
 		OsKeyboardEvent keyboard;
 		OsTouchEvent touch;
+		OsJoypadEvent joypad;
 		OsAccelerometerEvent accelerometer;
 	};
 };
 
-#define MAX_OS_EVENTS 64
+#define MAX_OS_EVENTS 4096
 
 /// Single Producer Single Consumer event queue.
 /// Used only to pass events from os thread to main thread.
@@ -172,6 +191,30 @@ struct OsEventQueue
 		ev.touch.x = x;
 		ev.touch.y = y;
 		ev.touch.pointer_id = pointer_id;
+
+		push_event(ev);
+	}
+
+	void push_joypad_event(uint8_t button, bool pressed)
+	{
+		OsEvent ev;
+		ev.type = OsEvent::JOYPAD;
+		ev.joypad.type = OsJoypadEvent::BUTTON;
+		ev.joypad.button = button;
+		ev.joypad.pressed = pressed;
+
+		push_event(ev);
+	}
+
+	void push_joypad_event(uint8_t axis, float x, float y, float z)
+	{
+		OsEvent ev;
+		ev.type = OsEvent::JOYPAD;
+		ev.joypad.type = OsJoypadEvent::AXIS;
+		ev.joypad.button = axis;
+		ev.joypad.x = x;
+		ev.joypad.y = y;
+		ev.joypad.z = z;
 
 		push_event(ev);
 	}

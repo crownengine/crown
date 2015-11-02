@@ -8,6 +8,8 @@
 namespace crown
 {
 
+/// @defgroup Input Input
+
 class InputManager;
 struct InputDevice;
 
@@ -136,6 +138,8 @@ struct MouseButton
 };
 
 /// Enumerates touch panel buttons
+///
+/// @ingroup Input
 struct TouchButton
 {
 	enum Enum
@@ -144,6 +148,45 @@ struct TouchButton
 		POINTER_1,
 		POINTER_2,
 		POINTER_3,
+		COUNT
+	};
+};
+
+/// Enumerates joypad buttons.
+///
+/// @ingroup Input
+struct JoypadButton
+{
+	enum Enum
+	{
+		UP,
+		DOWN,
+		LEFT,
+		RIGHT,
+		START,
+		BACK,
+		GUIDE,
+		LEFT_THUMB,
+		RIGHT_THUMB,
+		LEFT_SHOULDER,
+		RIGHT_SHOULDER,
+		A,
+		B,
+		X,
+		Y,
+		COUNT
+	};
+};
+
+/// Enumerates joypad axes.
+///
+/// @ingroup Input
+struct JoypadAxis
+{
+	enum Enum
+	{
+		LEFT,
+		RIGHT,
 		COUNT
 	};
 };

@@ -16,14 +16,17 @@ InputManager::InputManager()
 	: _keyboard(NULL)
 	, _mouse(NULL)
 	, _touch(NULL)
+	, _joypad(NULL)
 {
 	_keyboard = create_input_device("Keyboard", KeyboardButton::COUNT, 0);
 	_mouse = create_input_device("Mouse", MouseButton::COUNT, 2);
 	_touch = create_input_device("Touch", TouchButton::COUNT, TouchButton::COUNT);
+	_joypad = create_input_device("Joypad", JoypadButton::COUNT, JoypadAxis::COUNT);
 }
 
 InputManager::~InputManager()
 {
+	default_allocator().deallocate(_joypad);
 	default_allocator().deallocate(_touch);
 	default_allocator().deallocate(_mouse);
 	default_allocator().deallocate(_keyboard);
@@ -71,11 +74,17 @@ InputDevice* InputManager::touch()
 	return _touch;
 }
 
+InputDevice* InputManager::joypad()
+{
+	return _joypad;
+}
+
 void InputManager::update()
 {
 	_keyboard->update();
 	_mouse->update();
 	_touch->update();
+	_joypad->update();
 }
 
 } // namespace crown
