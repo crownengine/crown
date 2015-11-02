@@ -117,13 +117,13 @@ static bool s_exit = false;
 struct MainThreadArgs
 {
 	Filesystem* fs;
-	ConfigSettings* cs;
+	DeviceOptions* opts;
 };
 
 int32_t func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*)data;
-	crown::init(*args->fs, *args->cs);
+	crown::init(*args->opts, *args->fs);
 	crown::update();
 	crown::shutdown();
 	s_exit = true;
@@ -138,7 +138,7 @@ struct WindowsDevice
 	{
 	}
 
-	int32_t	run(Filesystem* fs, ConfigSettings* cs)
+	int32_t	run(Filesystem* fs, DeviceOptions* opts)
 	{
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 		WNDCLASSEX wnd;
@@ -156,10 +156,10 @@ struct WindowsDevice
 		_hwnd = CreateWindowA("crown"
 			, "Crown"
 			, WS_OVERLAPPEDWINDOW | WS_VISIBLE
-			, 0
-			, 0
-			, cs->window_width
-			, cs->window_height
+			, opts->window_x()
+			, opts->window_y()
+			, opts->window_width()
+			, opts->window_height()
 			, 0
 			, NULL
 			, instance
@@ -170,7 +170,7 @@ struct WindowsDevice
 
 		MainThreadArgs mta;
 		mta.fs = fs;
-		mta.cs = cs;
+		mta.opts = opts;
 
 		Thread main_thread;
 		main_thread.start(func, &mta);
@@ -313,6 +313,7 @@ bool next_event(OsEvent& ev)
 int main(int argc, char** argv)
 {
 	using namespace crown;
+	memory_globals::init();
 
 	WSADATA dummy;
 	int err = WSAStartup(MAKEWORD(2, 2), &dummy);
@@ -320,34 +321,28 @@ int main(int argc, char** argv)
 	CE_UNUSED(dummy);
 	CE_UNUSED(err);
 
-	ConfigSettings cs;
-	parse_command_line(argc, argv, cs);
+	DeviceOptions opts(argc, argv);
 
-	memory_globals::init();
-	{
-		DiskFilesystem fs(cs.source_dir);
-		parse_config_file(fs, cs);
-	}
-
-	console_server_globals::init(cs.console_port, cs.wait_console);
-
-	bundle_compiler_globals::init(cs.source_dir, cs.bundle_dir);
+	console_server_globals::init(opts.console_port(), opts.wait_console());
+	bundle_compiler_globals::init(opts.source_dir(), opts.bundle_dir());
 
 	bool do_continue = true;
 	int exitcode = EXIT_SUCCESS;
 
-	do_continue = bundle_compiler::main(cs.do_compile, cs.do_continue, cs.platform);
+	do_continue = bundle_compiler::main(opts.do_compile(), opts.do_continue(), opts.platform());
 
 	if (do_continue)
 	{
-		DiskFilesystem dst_fs(cs.bundle_dir);
-		exitcode = crown::s_wdvc.run(&dst_fs, &cs);
+		DiskFilesystem dst_fs(opts.bundle_dir());
+		exitcode = crown::s_wdvc.run(&dst_fs, &opts);
 	}
 
 	bundle_compiler_globals::shutdown();
 	console_server_globals::shutdown();
-	memory_globals::shutdown();
+
 	WSACleanup();
+
+	memory_globals::shutdown();
 	return exitcode;
 }
 
