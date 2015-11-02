@@ -16,17 +16,20 @@ InputManager::InputManager()
 	: _keyboard(NULL)
 	, _mouse(NULL)
 	, _touch(NULL)
-	, _joypad(NULL)
 {
 	_keyboard = create_input_device("Keyboard", KeyboardButton::COUNT, 0);
 	_mouse = create_input_device("Mouse", MouseButton::COUNT, 2);
 	_touch = create_input_device("Touch", TouchButton::COUNT, TouchButton::COUNT);
-	_joypad = create_input_device("Joypad", JoypadButton::COUNT, JoypadAxis::COUNT);
+
+	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		_joypad[i] = create_input_device("Joypad", JoypadButton::COUNT, JoypadAxis::COUNT);
 }
 
 InputManager::~InputManager()
 {
-	default_allocator().deallocate(_joypad);
+	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		default_allocator().deallocate(_joypad[i]);
+
 	default_allocator().deallocate(_touch);
 	default_allocator().deallocate(_mouse);
 	default_allocator().deallocate(_keyboard);
@@ -74,9 +77,10 @@ InputDevice* InputManager::touch()
 	return _touch;
 }
 
-InputDevice* InputManager::joypad()
+InputDevice* InputManager::joypad(uint8_t i)
 {
-	return _joypad;
+	CE_ASSERT(i < CROWN_MAX_JOYPADS, "Index out of bounds");
+	return _joypad[i];
 }
 
 void InputManager::update()
@@ -84,7 +88,9 @@ void InputManager::update()
 	_keyboard->update();
 	_mouse->update();
 	_touch->update();
-	_joypad->update();
+
+	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		_joypad[i]->update();
 }
 
 } // namespace crown

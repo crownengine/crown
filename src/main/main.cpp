@@ -76,10 +76,10 @@ bool process_events()
 				switch (ev.type)
 				{
 					case OsJoypadEvent::BUTTON:
-						im->joypad()->set_button_state(ev.button, ev.pressed);
+						im->joypad(ev.index)->set_button_state(ev.button, ev.pressed);
 						break;
 					case OsJoypadEvent::AXIS:
-						im->joypad()->set_axis(ev.button, vector3(ev.x, ev.y, ev.z));
+						im->joypad(ev.index)->set_axis(ev.button, vector3(ev.x, ev.y, ev.z));
 						break;
 					default:
 						CE_FATAL("Unknown joypad event");

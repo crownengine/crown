@@ -77,6 +77,7 @@ struct OsJoypadEvent
 	};
 
 	OsJoypadEvent::Enum type;
+	uint8_t index;
 	uint8_t button;
 	bool pressed;
 	float x;
@@ -195,22 +196,24 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_joypad_event(uint8_t button, bool pressed)
+	void push_joypad_event(uint8_t i, uint8_t button, bool pressed)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::JOYPAD;
 		ev.joypad.type = OsJoypadEvent::BUTTON;
+		ev.joypad.index = i;
 		ev.joypad.button = button;
 		ev.joypad.pressed = pressed;
 
 		push_event(ev);
 	}
 
-	void push_joypad_event(uint8_t axis, float x, float y, float z)
+	void push_joypad_event(uint8_t i, uint8_t axis, float x, float y, float z)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::JOYPAD;
 		ev.joypad.type = OsJoypadEvent::AXIS;
+		ev.joypad.index = i;
 		ev.joypad.button = axis;
 		ev.joypad.x = x;
 		ev.joypad.y = y;

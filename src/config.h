@@ -62,6 +62,10 @@
 	#define CROWN_DATA_DIRECTORY "data"
 #endif // CROWN_DATA_DIRECTORY
 
+#ifndef CROWN_MAX_JOYPADS
+	#define CROWN_MAX_JOYPADS 4
+#endif // CROWN_MAX_JOYPADS
+
 #ifndef CE_MAX_UNITS
 	#define CE_MAX_UNITS 65000 // Per world
 #endif // CE_MAX_UNITS
