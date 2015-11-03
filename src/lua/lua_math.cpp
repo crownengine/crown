@@ -843,7 +843,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Math", "atan2",                math_atan2);
 	env.load_module_function("Math", "abs",                  math_abs);
 	env.load_module_function("Math", "fmod",                 math_fmod);
-	env.load_module_function("Math", "ray_obb_intersection", math_ray_oobb_intersection);
+	env.load_module_function("Math", "ray_obb_intersection", math_ray_obb_intersection);
 
 	env.load_module_function("Vector3", "new",            vector3_new);
 	env.load_module_function("Vector3", "x",              vector3_x);
