@@ -5,25 +5,26 @@
 
 #include "float_setting.h"
 #include "string_utils.h"
+#include "math_utils.h"
 
 namespace crown
 {
 
 static FloatSetting* g_float_settings_head = NULL;
 
-FloatSetting::FloatSetting(const char* name, const char* synopsis, float value, float min, float max) :
-	m_name(name),
-	m_synopsis(synopsis),
-	m_value(0),
-	m_min(min),
-	m_max(max),
-	m_next(NULL)
+FloatSetting::FloatSetting(const char* name, const char* synopsis, float value, float min, float max)
+	: _name(name)
+	, _synopsis(synopsis)
+	, _value(0)
+	, _min(min)
+	, _max(max)
+	, _next(NULL)
 {
 	*this = value;
 
 	if (g_float_settings_head != NULL)
 	{
-		m_next = g_float_settings_head;
+		_next = g_float_settings_head;
 	}
 
 	g_float_settings_head = this;
@@ -31,49 +32,37 @@ FloatSetting::FloatSetting(const char* name, const char* synopsis, float value, 
 
 const char* FloatSetting::name() const
 {
-	return m_name;
+	return _name;
 }
 
 const char* FloatSetting::synopsis() const
 {
-	return m_synopsis;
+	return _synopsis;
 }
 
 float FloatSetting::value() const
 {
-	return m_value;
+	return _value;
 }
 
 float FloatSetting::min() const
 {
-	return m_min;
+	return _min;
 }
 
 float FloatSetting::max() const
 {
-	return m_max;
+	return _max;
 }
 
 FloatSetting::operator float()
 {
-	return m_value;
+	return _value;
 }
 
 FloatSetting& FloatSetting::operator=(const float value)
 {
-	if (value > m_max)
-	{
-		m_value = m_max;
-	}
-	else if (value < m_min)
-	{
-		m_value = m_min;
-	}
-	else
-	{
-		m_value = value;
-	}
-
+	_value = clamp(_min, _max, value);
 	return *this;
 }
 
@@ -88,7 +77,7 @@ FloatSetting* FloatSetting::find_setting(const char* name)
 			return head;
 		}
 
-		head = head->m_next;
+		head = head->_next;
 	}
 
 	return NULL;

@@ -15,34 +15,34 @@ class IntSetting
 {
 public:
 
-						IntSetting(const char* name, const char* synopsis, int32_t value, int32_t min, int32_t max);
+	IntSetting(const char* name, const char* synopsis, int32_t value, int32_t min, int32_t max);
 
-	const char*			name() const;
-	const char*			synopsis() const;
+	const char* name() const;
+	const char* synopsis() const;
 
-	int32_t				value() const;
-	int32_t				min() const;
-	int32_t				max() const;
+	int32_t value() const;
+	int32_t min() const;
+	int32_t max() const;
 
-						operator int();
+	operator int();
 
-	IntSetting&			operator=(const int32_t value);
+	IntSetting& operator=(const int32_t value);
 
 public:
 
 	/// Returns the setting @name or NULL if not found.
-	static IntSetting*	find_setting(const char* name);
+	static IntSetting* find_setting(const char* name);
 
 private:
 
-	const char*			m_name;
-	const char*			m_synopsis;
+	const char* _name;
+	const char* _synopsis;
 
-	int32_t				m_value;
-	int32_t				m_min;
-	int32_t				m_max;
+	int32_t _value;
+	int32_t _min;
+	int32_t _max;
 
-	IntSetting*			m_next;
+	IntSetting* _next;
 };
 
 } // namespace crown

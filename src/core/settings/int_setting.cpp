@@ -5,25 +5,26 @@
 
 #include "int_setting.h"
 #include "string_utils.h"
+#include "math_utils.h"
 
 namespace crown
 {
 
 static IntSetting* g_int_settings_head = NULL;
 
-IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, int32_t min, int32_t max) :
-	m_name(name),
-	m_synopsis(synopsis),
-	m_value(0),
-	m_min(min),
-	m_max(max),
-	m_next(NULL)
+IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, int32_t min, int32_t max)
+	: _name(name)
+	, _synopsis(synopsis)
+	, _value(0)
+	, _min(min)
+	, _max(max)
+	, _next(NULL)
 {
 	*this = value;
 
 	if (g_int_settings_head != NULL)
 	{
-		m_next = g_int_settings_head;
+		_next = g_int_settings_head;
 	}
 
 	g_int_settings_head = this;
@@ -31,49 +32,37 @@ IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, in
 
 const char* IntSetting::name() const
 {
-	return m_name;
+	return _name;
 }
 
 const char* IntSetting::synopsis() const
 {
-	return m_synopsis;
+	return _synopsis;
 }
 
 int32_t IntSetting::value() const
 {
-	return m_value;
+	return _value;
 }
 
 int32_t IntSetting::min() const
 {
-	return m_min;
+	return _min;
 }
 
 int32_t IntSetting::max() const
 {
-	return m_max;
+	return _max;
 }
 
 IntSetting::operator int()
 {
-	return m_value;
+	return _value;
 }
 
 IntSetting& IntSetting::operator=(const int32_t value)
 {
-	if (value > m_max)
-	{
-		m_value = m_max;
-	}
-	else if (value < m_min)
-	{
-		m_value = m_min;
-	}
-	else
-	{
-		m_value = value;
-	}
-
+	_value = clamp(_min, _max, value);
 	return *this;
 }
 
@@ -88,7 +77,7 @@ IntSetting*	IntSetting::find_setting(const char* name)
 			return head;
 		}
 
-		head = head->m_next;
+		head = head->_next;
 	}
 
 	return NULL;

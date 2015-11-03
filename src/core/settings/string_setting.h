@@ -15,14 +15,14 @@ class StringSetting
 {
 public:
 
-							StringSetting(const char* name, const char* synopsis, const char* value);
+	StringSetting(const char* name, const char* synopsis, const char* value);
 
-	const char*				name() const;
-	const char*				synopsis() const;
+	const char* name() const;
+	const char* synopsis() const;
 
-	const char*				value() const;
+	const char* value() const;
 
-	StringSetting&			operator=(const char* value);
+	StringSetting& operator=(const char* value);
 
 public:
 
@@ -31,11 +31,11 @@ public:
 
 private:
 
-	const char*				m_name;
-	const char*				m_synopsis;
-	const char*				m_value;
+	const char* _name;
+	const char* _synopsis;
+	const char* _value;
 
-	StringSetting*			m_next;
+	StringSetting* _next;
 };
 
 } // namespace crown
