@@ -42,7 +42,8 @@
 	#define CHECKSTRING(stack, i) luaL_checkstring(stack, i)
 
 	#define LUA_ASSERT(condition, stack, msg, ...) do { if (!(condition)) {\
-		stack.push_fstring("\nLua assertion failed: %s\n\t" msg "\n", #condition, ##__VA_ARGS__); lua_error(stack.state()); }} while (0);
+		stack.push_fstring("\nLua assertion failed: %s\n\t" msg "\n", #condition, ##__VA_ARGS__);\
+		lua_error(stack.state()); }} while (0);
 #else
 	#define CHECKUDATA(stack, i, expected) lua_touserdata(stack, i)
 	#define CHECKLIGHTDATA(stack, i, cf, expected) lua_touserdata(stack, i)
