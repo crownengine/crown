@@ -15,6 +15,11 @@ const char* InputDevice::name() const
 	return _name;
 }
 
+bool InputDevice::connected() const
+{
+	return _connected;
+}
+
 uint8_t InputDevice::num_buttons() const
 {
 	return _num_buttons;
@@ -51,6 +56,11 @@ Vector3 InputDevice::axis(uint8_t i) const
 {
 	CE_ASSERT(i < _num_axes, "Index out of bounds");
 	return _axis[i];
+}
+
+void InputDevice::set_connected(bool connected)
+{
+	_connected = connected;
 }
 
 void InputDevice::set_button_state(uint8_t i, bool state)

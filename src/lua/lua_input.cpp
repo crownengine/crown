@@ -19,6 +19,13 @@ static int input_device_name(lua_State* L, InputDevice& id)
 	return 1;
 }
 
+static int input_device_connected(lua_State* L, InputDevice& id)
+{
+	LuaStack stack(L);
+	stack.push_bool(id.connected());
+	return 1;
+}
+
 static int input_device_num_buttons(lua_State* L, InputDevice& id)
 {
 	LuaStack stack(L);
@@ -83,6 +90,7 @@ static int input_device_axis(lua_State* L, InputDevice& id)
 	{ return input_device_##name(L, *device()->input_manager()->joypad(index)); }
 
 KEYBOARD(name)
+KEYBOARD(connected)
 KEYBOARD(num_buttons)
 KEYBOARD(num_axes)
 KEYBOARD(pressed)
@@ -92,6 +100,7 @@ KEYBOARD(any_released)
 // KEYBOARD(axis) // Keyboard has no axis
 
 MOUSE(name)
+MOUSE(connected)
 MOUSE(num_buttons)
 MOUSE(num_axes)
 MOUSE(pressed)
@@ -101,6 +110,7 @@ MOUSE(any_released)
 MOUSE(axis)
 
 TOUCH(name)
+TOUCH(connected)
 TOUCH(num_buttons)
 TOUCH(num_axes)
 TOUCH(pressed)
@@ -110,6 +120,7 @@ TOUCH(any_released)
 TOUCH(axis)
 
 JOYPAD(0, name)
+JOYPAD(0, connected)
 JOYPAD(0, num_buttons)
 JOYPAD(0, num_axes)
 JOYPAD(0, pressed)
@@ -119,6 +130,7 @@ JOYPAD(0, any_released)
 JOYPAD(0, axis)
 
 JOYPAD(1, name)
+JOYPAD(1, connected)
 JOYPAD(1, num_buttons)
 JOYPAD(1, num_axes)
 JOYPAD(1, pressed)
@@ -128,6 +140,7 @@ JOYPAD(1, any_released)
 JOYPAD(1, axis)
 
 JOYPAD(2, name)
+JOYPAD(2, connected)
 JOYPAD(2, num_buttons)
 JOYPAD(2, num_axes)
 JOYPAD(2, pressed)
@@ -137,6 +150,7 @@ JOYPAD(2, any_released)
 JOYPAD(2, axis)
 
 JOYPAD(3, name)
+JOYPAD(3, connected)
 JOYPAD(3, num_buttons)
 JOYPAD(3, num_axes)
 JOYPAD(3, pressed)
@@ -148,6 +162,7 @@ JOYPAD(3, axis)
 void load_input(LuaEnvironment& env)
 {
 	env.load_module_function("Keyboard", "name",         KEYBOARD_FN(name));
+	env.load_module_function("Keyboard", "connected",    KEYBOARD_FN(connected));
 	env.load_module_function("Keyboard", "num_buttons",  KEYBOARD_FN(num_buttons));
 	env.load_module_function("Keyboard", "num_axes",     KEYBOARD_FN(num_axes));
 	env.load_module_function("Keyboard", "pressed",      KEYBOARD_FN(pressed));
@@ -236,6 +251,7 @@ void load_input(LuaEnvironment& env)
 	env.load_module_enum("Keyboard", "Z",         KeyboardButton::Z);
 
 	env.load_module_function("Mouse", "name",         MOUSE_FN(name));
+	env.load_module_function("Mouse", "connected",    MOUSE_FN(connected));
 	env.load_module_function("Mouse", "num_buttons",  MOUSE_FN(num_buttons));
 	env.load_module_function("Mouse", "num_axes",     MOUSE_FN(num_axes));
 	env.load_module_function("Mouse", "pressed",      MOUSE_FN(pressed));
@@ -249,6 +265,7 @@ void load_input(LuaEnvironment& env)
 	env.load_module_enum("Mouse", "RIGHT",  MouseButton::RIGHT);
 
 	env.load_module_function("Touch", "name",         TOUCH_FN(name));
+	env.load_module_function("Touch", "connected",    TOUCH_FN(connected));
 	env.load_module_function("Touch", "num_buttons",  TOUCH_FN(num_buttons));
 	env.load_module_function("Touch", "num_axes",     TOUCH_FN(num_axes));
 	env.load_module_function("Touch", "pressed",      TOUCH_FN(pressed));
@@ -258,6 +275,7 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Touch", "axis",         TOUCH_FN(axis));
 
 	env.load_module_function("Pad1", "name",         JOYPAD_FN(0, name));
+	env.load_module_function("Pad1", "connected",    JOYPAD_FN(0, connected));
 	env.load_module_function("Pad1", "num_buttons",  JOYPAD_FN(0, num_buttons));
 	env.load_module_function("Pad1", "num_axes",     JOYPAD_FN(0, num_axes));
 	env.load_module_function("Pad1", "pressed",      JOYPAD_FN(0, pressed));
@@ -267,6 +285,7 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Pad1", "axis",         JOYPAD_FN(0, axis));
 
 	env.load_module_function("Pad2", "name",         JOYPAD_FN(1, name));
+	env.load_module_function("Pad2", "connected",    JOYPAD_FN(1, connected));
 	env.load_module_function("Pad2", "num_buttons",  JOYPAD_FN(1, num_buttons));
 	env.load_module_function("Pad2", "num_axes",     JOYPAD_FN(1, num_axes));
 	env.load_module_function("Pad2", "pressed",      JOYPAD_FN(1, pressed));
@@ -276,6 +295,7 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Pad2", "axis",         JOYPAD_FN(1, axis));
 
 	env.load_module_function("Pad3", "name",         JOYPAD_FN(2, name));
+	env.load_module_function("Pad3", "connected",    JOYPAD_FN(2, connected));
 	env.load_module_function("Pad3", "num_buttons",  JOYPAD_FN(2, num_buttons));
 	env.load_module_function("Pad3", "num_axes",     JOYPAD_FN(2, num_axes));
 	env.load_module_function("Pad3", "pressed",      JOYPAD_FN(2, pressed));
@@ -285,6 +305,7 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Pad3", "axis",         JOYPAD_FN(2, axis));
 
 	env.load_module_function("Pad4", "name",         JOYPAD_FN(3, name));
+	env.load_module_function("Pad4", "connected",    JOYPAD_FN(3, connected));
 	env.load_module_function("Pad4", "num_buttons",  JOYPAD_FN(3, num_buttons));
 	env.load_module_function("Pad4", "num_axes",     JOYPAD_FN(3, num_axes));
 	env.load_module_function("Pad4", "pressed",      JOYPAD_FN(3, pressed));

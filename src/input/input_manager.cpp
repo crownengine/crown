@@ -23,6 +23,10 @@ InputManager::InputManager()
 
 	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		_joypad[i] = create_input_device("Joypad", JoypadButton::COUNT, JoypadAxis::COUNT);
+
+	_keyboard->set_connected(true);
+	_mouse->set_connected(true);
+	_touch->set_connected(true);
 }
 
 InputManager::~InputManager()
@@ -45,6 +49,7 @@ InputDevice* InputManager::create_input_device(const char* name, uint8_t num_but
 
 	InputDevice* id = (InputDevice*)default_allocator().allocate(size);
 
+	id->_connected = false;
 	id->_num_buttons = num_buttons;
 	id->_num_axes = num_axes;
 	id->_last_button = 0;

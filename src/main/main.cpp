@@ -75,6 +75,9 @@ bool process_events()
 				const OsJoypadEvent& ev = event.joypad;
 				switch (ev.type)
 				{
+					case OsJoypadEvent::CONNECTED:
+						im->joypad(ev.index)->set_connected(ev.connected);
+						break;
 					case OsJoypadEvent::BUTTON:
 						im->joypad(ev.index)->set_button_state(ev.button, ev.pressed);
 						break;

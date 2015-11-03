@@ -73,11 +73,13 @@ struct OsJoypadEvent
 	enum Enum
 	{
 		BUTTON,
-		AXIS
+		AXIS,
+		CONNECTED
 	};
 
 	OsJoypadEvent::Enum type;
 	uint8_t index;
+	bool connected;
 	uint8_t button;
 	bool pressed;
 	float x;
@@ -192,6 +194,17 @@ struct OsEventQueue
 		ev.touch.x = x;
 		ev.touch.y = y;
 		ev.touch.pointer_id = pointer_id;
+
+		push_event(ev);
+	}
+
+	void push_joypad_event(uint8_t i, bool connected)
+	{
+		OsEvent ev;
+		ev.type = OsEvent::JOYPAD;
+		ev.joypad.type = OsJoypadEvent::CONNECTED;
+		ev.joypad.index = i;
+		ev.joypad.connected = connected;
 
 		push_event(ev);
 	}
