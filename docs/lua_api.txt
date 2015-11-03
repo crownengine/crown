@@ -251,9 +251,9 @@ Matrix4x4Box
 Math
 ----
 
-	**ray_obb_intersection** (from, dir, tm, extents) : float
+	**ray_obb_intersection** (from, dir, tm, half_extents) : float
 		Returns the distance along ray (from, dir) to intersection point with the oriented
-		bounding box (tm, extents) or -1.0 if no intersection.
+		bounding box (tm, half_extents) or -1.0 if no intersection.
 
 World
 =====
@@ -737,9 +737,9 @@ DebugLine
 	**add_sphere** (debug_line, center, radius, color)
 		Adds a sphere at *center* with the given *radius* and *color*.
 
-	**add_obb** (debug_line, tm, extents, color)
+	**add_obb** (debug_line, tm, half_extents, color)
 		Adds an orientd bounding box. *tm* describes the position and orientation of
-		the box. *extents* describes the size of the box along the axis.
+		the box. *half_extents* describes the size of the box along the axis.
 
 	**clear** (debug_line)
 		Clears all the lines.
