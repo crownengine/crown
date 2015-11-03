@@ -17,49 +17,6 @@ namespace crown
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
 ///
-/// Accessing files:
-/// Every file and every directory must be accessed through the Filesystem.
-/// Not a single C/C++ std file io call or other similar facilities
-/// should be used in any other part of the engine in order to maintain
-/// absolute platform independence.
-///
-/// Filesystem maintains a root path which acts as base directory for every
-/// file operation; access to files outside the root path is not allowed. If
-/// you really need it, instantiate another filesystem whith the appropriate
-/// root path (e.g.)
-///
-/// Filesystem fs("/home/foo"); // fs will use "/home/foo" as root path
-///
-/// fs.is_file("bar.txt");      // file "bar.txt" is relative to the root path,
-///                             // so it refers to "/home/foo/bar.txt"
-///
-/// The filesystem will take care of the necessary path conversions.
-/// The root path must be an absolute path for the underlying operating system.
-/// Examples of valid root paths:
-///
-/// 1) "/home/foo"
-/// 2) "C:\Users\Phil"
-///
-/// The relative paths, used to access files, must follow some strict rules:
-///
-/// a) Only unix-like pathnames (i.e. case sensitive and using '/' as separator)
-///    are allowed.
-/// b) Only relative paths are allowed: the filesystem is responsible for
-///    the creation of its absolute platform-specific counterpart.
-/// c) Filesystem forbids pathnames containing '.' and '..' to prevent access to
-///    files outside the filesystem's root path.
-/// d) Platform specific characters like '/', '\\' and ':' are forbidden as well.
-/// e) Symlinks, on platforms which support them, are _not_ resolved for the same
-///    reason of c)
-/// f) Although mixed-case pathnames are allowed, it is generally safer to use
-///    only lower-case ones for maximum compatibility.
-///
-/// Examples of valid relative paths.
-///
-/// 1) data/textures/grass.texture
-/// 2) grass.texture
-/// 3) foo/bar
-///
 /// @ingroup Filesystem
 class Filesystem
 {

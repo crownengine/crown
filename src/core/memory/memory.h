@@ -29,13 +29,12 @@ namespace memory
 		CE_ASSERT(align % 2 == 0 || align == 1, "Alignment must be a power of two");
 
 		uintptr_t ptr = (uintptr_t)p;
-
 		const uint32_t mod = ptr % align;
 
 		if (mod)
 			ptr += align - mod;
 
-		return (void*) ptr;
+		return (void*)ptr;
 	}
 
 	/// Respects standard behaviour when calling on NULL @a ptr

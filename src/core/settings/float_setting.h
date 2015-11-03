@@ -15,34 +15,33 @@ class FloatSetting
 {
 public:
 
-							FloatSetting(const char* name, const char* synopsis, float value, float min, float max);
+	FloatSetting(const char* name, const char* synopsis, float value, float min, float max);
 
-	const char*				name() const;
-	const char*				synopsis() const;
+	const char* name() const;
+	const char* synopsis() const;
 
-	float					value() const;
-	float					min() const;
-	float					max() const;
+	float value() const;
+	float min() const;
+	float max() const;
 
-							operator float();
-
-	FloatSetting&			operator=(const float value);
+	operator float();
+	FloatSetting& operator=(const float value);
 
 public:
 
 	/// Returns the setting @name or NULL if not found.
-	static FloatSetting*	find_setting(const char* name);
+	static FloatSetting* find_setting(const char* name);
 
 private:
 
-	const char*				m_name;
-	const char*				m_synopsis;
+	const char* _name;
+	const char* _synopsis;
 
-	float					m_value;
-	float					m_min;
-	float					m_max;
+	float _value;
+	float _min;
+	float _max;
 
-	FloatSetting*			m_next;
+	FloatSetting* _next;
 };
 
 } // namespace crown

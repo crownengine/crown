@@ -63,7 +63,6 @@ bool init(const DeviceOptions& opts, Filesystem& fs)
 	physics_globals::init();
 	bgfx::init();
 	device_globals::init(opts, fs);
-	device()->init();
 	return true;
 }
 
@@ -81,7 +80,6 @@ void update()
 
 void shutdown()
 {
-	device()->shutdown();
 	device_globals::shutdown();
 	bgfx::shutdown();
 	physics_globals::shutdown();

@@ -49,7 +49,7 @@ public:
 		CE_ASSERT(_file != NULL, "Unable to open file: %s", path);
 #elif CROWN_PLATFORM_WINDOWS
 		_file = CreateFile(path
-			, mode == FOM_READ ? GENERIC_READ : GENERIC_WRITE,
+			, mode == FOM_READ ? GENERIC_READ : GENERIC_WRITE
 			, 0
 			, NULL
 			, OPEN_ALWAYS

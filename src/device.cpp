@@ -277,10 +277,12 @@ namespace device_globals
 	{
 		CE_ASSERT(_device == NULL, "Crown already initialized");
 		_device = new (_buffer) Device(opts, fs);
+		_device->init();
 	}
 
 	void shutdown()
 	{
+		_device->shutdown();
 		_device->~Device();
 		_device = NULL;
 	}

@@ -39,7 +39,7 @@ bool process_events()
 						im->touch()->set_axis(ev.pointer_id, vector3(ev.x, ev.y, 0.0f));
 						break;
 					default:
-						CE_FATAL("Oops, unknown touch event type");
+						CE_FATAL("Unknown touch event type");
 						break;
 				}
 				break;
@@ -59,7 +59,7 @@ bool process_events()
 						im->mouse()->set_axis(1, vector3(ev.wheel, 0.0f, 0.0f));
 						break;
 					default:
-						CE_FATAL("Oops, unknown mouse event type");
+						CE_FATAL("Unknown mouse event type");
 						break;
 				}
 				break;
@@ -68,6 +68,26 @@ bool process_events()
 			{
 				const OsKeyboardEvent& ev = event.keyboard;
 				im->keyboard()->set_button_state(ev.button, ev.pressed);
+				break;
+			}
+			case OsEvent::JOYPAD:
+			{
+				const OsJoypadEvent& ev = event.joypad;
+				switch (ev.type)
+				{
+					case OsJoypadEvent::CONNECTED:
+						im->joypad(ev.index)->set_connected(ev.connected);
+						break;
+					case OsJoypadEvent::BUTTON:
+						im->joypad(ev.index)->set_button_state(ev.button, ev.pressed);
+						break;
+					case OsJoypadEvent::AXIS:
+						im->joypad(ev.index)->set_axis(ev.button, vector3(ev.x, ev.y, ev.z));
+						break;
+					default:
+						CE_FATAL("Unknown joypad event");
+						break;
+				}
 				break;
 			}
 			case OsEvent::METRICS:

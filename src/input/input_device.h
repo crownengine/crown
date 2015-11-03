@@ -16,6 +16,9 @@ struct InputDevice
 	/// Returns the name of the input device.
 	const char* name() const;
 
+	/// Returns whether the input device is connected and functioning.
+	bool connected() const;
+
 	/// Returns the number of buttons of the input device.
 	uint8_t num_buttons() const;
 
@@ -37,12 +40,15 @@ struct InputDevice
 	/// Returns the value of the axis @a i.
 	Vector3 axis(uint8_t i) const;
 
+	void set_connected(bool connected);
+
 	void set_button_state(uint8_t i, bool state);
 
 	void set_axis(uint8_t i, const Vector3& value);
 
 	void update();
 
+	bool _connected;
 	uint8_t _num_buttons;
 	uint8_t _num_axes;
 	uint8_t _last_button;
