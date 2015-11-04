@@ -16,6 +16,9 @@ namespace crown
 /// @ingroup Containers
 namespace sort_map
 {
+	/// Returns the number of items in the map @m.
+	template <typename TKey, typename TValue, typename Compare> uint32_t size(const SortMap<TKey, TValue, Compare>& m);
+
 	/// Returns whether the @a key exists in the map.
 	template <typename TKey, typename TValue, typename Compare> bool has(const SortMap<TKey, TValue, Compare>& m, const TKey& key);
 
@@ -92,6 +95,12 @@ namespace sort_map_internal
 
 namespace sort_map
 {
+	template <typename TKey, typename TValue, typename Compare>
+	inline uint32_t size(const SortMap<TKey, TValue, Compare>& m)
+	{
+		return vector::size(m._data);
+	}
+
 	template <typename TKey, typename TValue, typename Compare>
 	inline bool has(const SortMap<TKey, TValue, Compare>& m, const TKey& key)
 	{
