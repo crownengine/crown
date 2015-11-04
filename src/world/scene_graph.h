@@ -32,7 +32,7 @@ struct SceneGraph
 	~SceneGraph();
 
 	/// Creates a new transform instance for unit @a id.
-	void create(const Matrix4x4& m, UnitId id);
+	TransformInstance create(UnitId id, const Matrix4x4& m);
 	void destroy(TransformInstance i);
 
 	/// Returns the transform instance of unit @a id.
@@ -87,13 +87,11 @@ struct SceneGraph
 
 	void transform(const Matrix4x4& parent, TransformInstance i);
 
+private:
+
 	void grow();
-
 	void allocate(uint32_t num);
-
 	TransformInstance make_instance(uint32_t i);
-
-public:
 
 	struct Pose
 	{
@@ -146,7 +144,7 @@ public:
 
 	Allocator& _allocator;
 	InstanceData _data;
-	Array<uint32_t> _map;
+	Hash<uint32_t> _map;
 };
 
 } // namespace crown

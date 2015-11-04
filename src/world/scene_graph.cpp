@@ -10,6 +10,7 @@
 #include "matrix4x4.h"
 #include "allocator.h"
 #include "array.h"
+#include "hash.h"
 #include <string.h> // memcpy
 #include <stdint.h> // UINT_MAX
 
@@ -68,7 +69,7 @@ void SceneGraph::allocate(uint32_t num)
 	_data = new_data;
 }
 
-void SceneGraph::create(const Matrix4x4& m, UnitId id)
+TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& m)
 {
 	if (_data.capacity == _data.size)
 		grow();
@@ -83,13 +84,11 @@ void SceneGraph::create(const Matrix4x4& m, UnitId id)
 	_data.next_sibling[last].i = UINT32_MAX;
 	_data.prev_sibling[last].i = UINT32_MAX;
 
-	// FIXME
-	if (array::size(_map) <= id.index)
-		array::resize(_map, array::size(_map) + id.index + 1);
-
-	_map[id.index] = last;
-
 	++_data.size;
+
+	hash::set(_map, id.encode(), last);
+
+	return make_instance(last);
 }
 
 void SceneGraph::destroy(TransformInstance i)
@@ -106,15 +105,15 @@ void SceneGraph::destroy(TransformInstance i)
 	_data.next_sibling[i.i] = _data.next_sibling[last];
 	_data.prev_sibling[i.i] = _data.prev_sibling[last];
 
-	_map[last_u.index] = i.i;
-	_map[u.index] = UINT32_MAX;
+	hash::set(_map, last_u.encode(), i.i);
+	hash::remove(_map, u.encode());
 
 	--_data.size;
 }
 
 TransformInstance SceneGraph::get(UnitId id)
 {
-	return make_instance(_map[id.index]);
+	return make_instance(hash::get(_map, id.encode(), UINT32_MAX));
 }
 
 void SceneGraph::set_local_position(TransformInstance i, const Vector3& pos)
