@@ -125,9 +125,15 @@ namespace debug_line
 } // namespace debug_line
 
 DebugLine::DebugLine(bool depth_test)
-	: _depth_test(depth_test)
+	: _marker(MARKER)
+	, _depth_test(depth_test)
 	, _num(0)
 {
+}
+
+DebugLine::~DebugLine()
+{
+	_marker = 0;
 }
 
 void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4& color)

@@ -24,6 +24,7 @@ struct DebugLine
 {
 	/// Whether to enable @a depth_test
 	DebugLine(bool depth_test);
+	~DebugLine();
 
 	/// Adds a line from @a start to @a end with the given @a color.
 	void add_line(const Vector3& start, const Vector3& end, const Color4& color);
@@ -41,6 +42,10 @@ struct DebugLine
 	/// Sends the lines to renderer for drawing.
 	void commit();
 
+public:
+
+	enum { MARKER = 0xd7c17715 };
+
 private:
 
 	struct Line
@@ -50,6 +55,8 @@ private:
 		float p1[3];
 		uint32_t c1;
 	};
+
+	uint32_t _marker;
 
 	bool _depth_test;
 	uint32_t _num;
