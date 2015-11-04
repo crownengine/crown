@@ -16,7 +16,8 @@ namespace crown
 struct ResourcePackage
 {
 	ResourcePackage(StringId64 id, ResourceManager& resman)
-		: _resman(&resman)
+		: _marker(MARKER)
+		, _resman(&resman)
 		, _id(id)
 		, _package(NULL)
 	{
@@ -28,6 +29,8 @@ struct ResourcePackage
 	~ResourcePackage()
 	{
 		_resman->unload(PACKAGE_TYPE, _id);
+
+		_marker = 0;
 	}
 
 	/// Loads all the resources in the package.
@@ -251,7 +254,13 @@ struct ResourcePackage
 		return true;
 	}
 
+public:
+
+	enum { MARKER = 0x9a1ac68c };
+
 private:
+
+	uint32_t _marker;
 
 	ResourceManager* _resman;
 	StringId64 _id;
