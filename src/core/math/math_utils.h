@@ -49,14 +49,6 @@ inline T clamp(const T& min, const T& max, const T& val)
 	return val > max ? max : val < min ? min : val;
 }
 
-template <typename T>
-inline void swap(T& a, T& b)
-{
-	T tmp = a;
-	a = b;
-	b = tmp;
-}
-
 inline float to_rad(float deg)
 {
 	return deg * float(PI / 180.0);
