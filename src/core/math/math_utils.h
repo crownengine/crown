@@ -51,12 +51,12 @@ inline T clamp(const T& min, const T& max, const T& val)
 
 inline float to_rad(float deg)
 {
-	return deg * float(PI / 180.0);
+	return deg * PI / 180.0f;
 }
 
 inline float to_deg(float rad)
 {
-	return rad * float(180.0 / PI);
+	return rad * 180.0f / PI;
 }
 
 inline uint32_t next_pow_2(uint32_t x)
@@ -148,8 +148,8 @@ inline T linear(const T& p0, const T& p1, float t)
 template <typename T>
 inline T cosine(const T& p0, const T& p1, float t)
 {
-	float f = t * PI;
-	float g = (1.0 - cos(f)) * 0.5;
+	const float f = t * PI;
+	const float g = (1.0f - cos(f)) * 0.5f;
 
 	return p0 + (g * (p1 - p0));
 }
@@ -158,25 +158,25 @@ inline T cosine(const T& p0, const T& p1, float t)
 template <typename T>
 inline T cubic(const T& p0, const T& p1, float t)
 {
-	float tt = t * t;
-	float ttt = tt * t;
+	const float tt = t * t;
+	const float ttt = tt * t;
 
-	return p0 * (2.0 * ttt - 3.0 * tt + 1.0) + p1 * (3.0 * tt  - 2.0 * ttt);
+	return p0 * (2.0f * ttt - 3.0f * tt + 1.0f) + p1 * (3.0f * tt  - 2.0f * ttt);
 }
 
 /// Bezier interpolation
 template <typename T>
 inline T bezier(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 {
-	float u = 1.0 - t;
-	float tt = t * t ;
-	float uu = u * u;
-	float uuu = uu * u;
-	float ttt = tt * t;
+	const float u = 1.0f - t;
+	const float tt = t * t ;
+	const float uu = u * u;
+	const float uuu = uu * u;
+	const float ttt = tt * t;
 
 	T tmp = (uuu * p0) +
-			(3 * uu * t * p1) +
-			(3 * u * tt * p2) +
+			(3.0f * uu * t * p1) +
+			(3.0f * u * tt * p2) +
 			(ttt * p3);
 
 	return tmp;
@@ -186,15 +186,15 @@ inline T bezier(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 template <typename T>
 inline T catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 {
-	float tt = t * t;
-	float ttt = tt * t;
+	const float tt = t * t;
+	const float ttt = tt * t;
 
-	T tmp = (2.0 * p1) +
+	T tmp = (2.0f * p1) +
 			((-p0 + p2) * t) +
-			(((2.0 * p0) - (5.0 * p1) + (4.0 * p2) - p3) * tt) +
-			((-p0 + (3.0 * p1) + (-3.0 * p2) + p3) * ttt);
+			(((2.0f * p0) - (5.0f * p1) + (4.0f * p2) - p3) * tt) +
+			((-p0 + (3.0f * p1) + (-3.0f * p2) + p3) * ttt);
 
-	return tmp * 0.5;
+	return tmp * 0.5f;
 }
 
 /// @}
