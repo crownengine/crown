@@ -57,7 +57,7 @@ public:
 
 #if CROWN_PLATFORM_ANDROID
 	AAssetManager* _asset_manager;
-#endif
+#endif // CROWN_PLATFORM_ANDROID
 };
 
 } // namespace crown
