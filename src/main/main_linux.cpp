@@ -183,7 +183,6 @@ struct LinuxDevice
 	LinuxDevice()
 		: _x11_display(NULL)
 		, _x11_window(None)
-		, _x11_parent_window(None)
 		, _x11_hidden_cursor(None)
 		, _screen_config(NULL)
 	{
@@ -203,8 +202,9 @@ struct LinuxDevice
 		int depth = DefaultDepth(_x11_display, screen);
 		Visual* visual = DefaultVisual(_x11_display, screen);
 
-		_x11_parent_window = (opts->parent_window() == 0) ? RootWindow(_x11_display, screen) :
-			(Window)opts->parent_window();
+		Window root_window = RootWindow(_x11_display, screen);
+		uint32_t pw = opts->parent_window();
+		Window parent_window = (pw == 0) ? root_window : (Window)pw;
 
 		// Create main window
 		XSetWindowAttributes win_attribs;
@@ -219,7 +219,7 @@ struct LinuxDevice
 			| PointerMotionMask;
 
 		_x11_window = XCreateWindow(_x11_display
-			, _x11_parent_window
+			, parent_window
 			, opts->window_x()
 			, opts->window_y()
 			, opts->window_width()
@@ -254,7 +254,7 @@ struct LinuxDevice
 		XMapRaised(_x11_display, _x11_window);
 
 		// Save screen configuration
-		_screen_config = XRRGetScreenInfo(_x11_display, RootWindow(_x11_display, screen));
+		_screen_config = XRRGetScreenInfo(_x11_display, parent_window);
 
 		Rotation rr_old_rot;
 		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_old_rot);
@@ -281,7 +281,7 @@ struct LinuxDevice
 		{
 			XRRSetScreenConfig(_x11_display
 				, _screen_config
-				, RootWindow(_x11_display, screen)
+				, root_window
 				, rr_old_sizeid
 				, rr_old_rot
 				, CurrentTime);
@@ -378,7 +378,6 @@ public:
 
 	Display* _x11_display;
 	Window _x11_window;
-	Window _x11_parent_window;
 	Cursor _x11_hidden_cursor;
 	Atom _wm_delete_message;
 	XRRScreenConfiguration* _screen_config;
