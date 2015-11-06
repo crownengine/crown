@@ -280,7 +280,6 @@ template <typename T>
 inline T& Array<T>::operator[](uint32_t index)
 {
 	CE_ASSERT(index < _size, "Index out of bounds");
-
 	return _data[index];
 }
 
@@ -288,7 +287,6 @@ template <typename T>
 inline const T& Array<T>::operator[](uint32_t index) const
 {
 	CE_ASSERT(index < _size, "Index out of bounds");
-
 	return _data[index];
 }
 

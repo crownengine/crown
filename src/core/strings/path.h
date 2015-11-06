@@ -32,16 +32,17 @@ namespace path
 	/// Appends path @a p2 to @a p1 and fills @a path with the result.
 	void join(const char* p1, const char* p2, DynamicString& path);
 
-	/// Returns os-dependent path from os-indipendent @a path
-	const char* normalize(const char* path);
+	/// Returns the basename of the @a path.
+	/// @note
+	/// "/home/project/texture.tga" -> "texture.tga"
+	/// "/home/project" -> "project"
+	/// "/" -> ""
+	const char* basename(const char* path);
 
-	void pathname(const char* path, char* str, uint32_t len);
-	void filename(const char* path, char* str, uint32_t len);
-	void basename(const char* path, char* str, uint32_t len);
-	void extension(const char* path, char* str, uint32_t len);
-	void filename_without_extension(const char* path, char* str, uint32_t len);
-
-	//bool segments(const char* path, Array<Str>& ret);
-	void strip_trailing_separator(const char* path, char* ret, uint32_t len);
+	/// Returns the extension of the @a path or NULL.
+	/// @note
+	/// "/home/texture.tga" -> "tga"
+	/// "/home/texture" -> NULL
+	const char* extension(const char* path);
 } // namespace path
 } // namespace crown
