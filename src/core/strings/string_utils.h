@@ -61,28 +61,6 @@ inline const char* skip_block(const char* str, char a, char b)
 	return NULL;
 }
 
-inline void substring(const char* begin, const char* end, char* out, size_t len)
-{
-	CE_ASSERT(begin != NULL, "Begin must be != NULL");
-	CE_ASSERT(end != NULL, "End must be != NULL");
-	CE_ASSERT(out != NULL, "Out must be != NULL");
-
-	size_t i = 0;
-
-	char* out_iterator = out;
-
-	while (begin != end && i < len)
-	{
-		(*out_iterator) = (*begin);
-
-		begin++;
-		out_iterator++;
-		i++;
-	}
-
-	out[i] = '\0';
-}
-
 inline int32_t parse_int(const char* str)
 {
 	int val;

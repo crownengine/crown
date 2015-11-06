@@ -91,10 +91,12 @@ bool BundleCompiler::compile_all(const char* platform)
 		continue;
 
 		const char* filename = files[i].c_str();
-		char type[256];
+		const char* type = path::extension(filename);
+
 		char name[256];
-		path::extension(filename, type, 256);
-		path::filename_without_extension(filename, name, 256);
+		const uint32_t size = type - filename - 1;
+		strncpy(name, filename, size);
+		name[size] = '\0';
 
 		compile(type, name, platform);
 	}
