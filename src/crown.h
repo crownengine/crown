@@ -12,7 +12,7 @@
 namespace crown
 {
 	/// Initializes the engine.
-	bool init(const DeviceOptions& opts);
+	bool init(DeviceOptions& opts);
 
 	/// Updates all the subsystems.
 	void update();

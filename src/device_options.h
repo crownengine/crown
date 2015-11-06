@@ -6,6 +6,11 @@
 #pragma once
 
 #include "types.h"
+#include "config.h"
+
+#if CROWN_PLATFORM_ANDROID
+	#include <android/asset_manager.h>
+#endif // CROWN_PLATFORM_ANDROID
 
 namespace crown
 {
@@ -28,6 +33,10 @@ struct DeviceOptions
 	uint16_t window_width() const { return _window_width; }
 	uint16_t window_height() const { return _window_height; }
 
+#if CROWN_PLATFORM_ANDROID
+	AAssetManager* asset_manager();
+#endif // CROWN_PLATFORM_ANDROID
+
 private:
 
 	const char* _source_dir;
@@ -43,6 +52,12 @@ private:
 	uint16_t _window_y;
 	uint16_t _window_width;
 	uint16_t _window_height;
+
+public:
+
+#if CROWN_PLATFORM_ANDROID
+	AAssetManager* _asset_manager;
+#endif
 };
 
 } // namespace crown

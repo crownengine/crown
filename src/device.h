@@ -27,7 +27,7 @@ namespace crown
 /// @ingroup Device
 struct Device
 {
-	Device(const DeviceOptions& opts);
+	Device(DeviceOptions& opts);
 
 	void init();
 
@@ -125,7 +125,7 @@ private:
 	float _last_delta_time;
 	double _time_since_start;
 
-	const DeviceOptions& _device_options;
+	DeviceOptions& _device_options;
 	Filesystem* _bundle_filesystem;
 	StringId64 _boot_package_id;
 	StringId64 _boot_script_id;
@@ -146,7 +146,7 @@ private:
 
 namespace device_globals
 {
-	void init(const DeviceOptions& opts);
+	void init(DeviceOptions& opts);
 	void shutdown();
 } // namespace device_globals
 

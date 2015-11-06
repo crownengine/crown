@@ -22,12 +22,16 @@
 #include "path.h"
 #include "disk_filesystem.h"
 
+#if CROWN_PLATFORM_ANDROID
+	#include "apk_filesystem.h"
+#endif // CROWN_PLATFORM_ANDROID
+
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
 namespace crown
 {
 
-Device::Device(const DeviceOptions& opts)
+Device::Device(DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _width(0)
 	, _height(0)
@@ -56,7 +60,11 @@ void Device::init()
 	// Initialize
 	CE_LOGI("Initializing Crown Engine %s...", version());
 
+#if CROWN_PLATFORM_ANDROID
+	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(_device_options.asset_manager());
+#else
 	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(_device_options.bundle_dir());
+#endif // CROWN_PLATFORM_ANDROID
 
 	read_config();
 
@@ -278,7 +286,7 @@ namespace device_globals
 	char _buffer[sizeof(Device)];
 	Device* _device = NULL;
 
-	void init(const DeviceOptions& opts)
+	void init(DeviceOptions& opts)
 	{
 		CE_ASSERT(_device == NULL, "Crown already initialized");
 		_device = new (_buffer) Device(opts);

@@ -56,7 +56,7 @@ static void help(const char* msg = NULL)
 	);
 }
 
-bool init(const DeviceOptions& opts)
+bool init(DeviceOptions& opts)
 {
 	profiler_globals::init();
 	audio_globals::init();
