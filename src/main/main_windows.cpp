@@ -8,13 +8,11 @@
 #if CROWN_PLATFORM_WINDOWS
 
 #include "os_event_queue.h"
-#include "os_window_windows.h"
 #include "thread.h"
 #include "crown.h"
 #include "command_line.h"
 #include "console_server.h"
 #include "bundle_compiler.h"
-#include "disk_filesystem.h"
 #include <bgfxplatform.h>
 #include <winsock2.h>
 #ifndef WIN32_LEAN_AND_MEAN
@@ -116,14 +114,13 @@ static bool s_exit = false;
 
 struct MainThreadArgs
 {
-	Filesystem* fs;
 	DeviceOptions* opts;
 };
 
 int32_t func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*)data;
-	crown::init(*args->opts, *args->fs);
+	crown::init(*args->opts);
 	crown::update();
 	crown::shutdown();
 	s_exit = true;
@@ -138,7 +135,7 @@ struct WindowsDevice
 	{
 	}
 
-	int32_t	run(Filesystem* fs, DeviceOptions* opts)
+	int32_t	run(DeviceOptions* opts)
 	{
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 		WNDCLASSEX wnd;
@@ -169,7 +166,6 @@ struct WindowsDevice
 		bgfx::winSetHwnd(_hwnd);
 
 		MainThreadArgs mta;
-		mta.fs = fs;
 		mta.opts = opts;
 
 		Thread main_thread;
@@ -332,10 +328,7 @@ int main(int argc, char** argv)
 	do_continue = bundle_compiler::main(opts.do_compile(), opts.do_continue(), opts.platform());
 
 	if (do_continue)
-	{
-		DiskFilesystem dst_fs(opts.bundle_dir());
-		exitcode = crown::s_wdvc.run(&dst_fs, &opts);
-	}
+		exitcode = crown::s_wdvc.run(&opts);
 
 	bundle_compiler_globals::shutdown();
 	console_server_globals::shutdown();

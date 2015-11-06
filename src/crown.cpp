@@ -56,13 +56,13 @@ static void help(const char* msg = NULL)
 	);
 }
 
-bool init(const DeviceOptions& opts, Filesystem& fs)
+bool init(DeviceOptions& opts)
 {
 	profiler_globals::init();
 	audio_globals::init();
 	physics_globals::init();
 	bgfx::init();
-	device_globals::init(opts, fs);
+	device_globals::init(opts);
 	return true;
 }
 

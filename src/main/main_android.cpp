@@ -8,12 +8,13 @@
 #if CROWN_PLATFORM_ANDROID
 
 #include "os_event_queue.h"
-#include "os_window_android.h"
 #include "thread.h"
 #include "main.h"
-#include "apk_filesystem.h"
+#include "device_options.h"
 #include "console_server.h"
 #include "crown.h"
+#include "memory.h"
+#include <stdlib.h>
 #include <jni.h>
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
@@ -46,14 +47,13 @@ static bool s_exit = false;
 
 struct MainThreadArgs
 {
-	Filesystem* fs;
-	ConfigSettings* cs;
+	DeviceOptions* opts;
 };
 
 int32_t func(void* data)
 {
-	MainThreadArgs* args = (MainThreadArgs*) data;
-	crown::init(*args->fs, *args->cs);
+	MainThreadArgs* args = (MainThreadArgs*)data;
+	crown::init(*args->opts);
 	crown::update();
 	crown::shutdown();
 	s_exit = true;
@@ -62,10 +62,9 @@ int32_t func(void* data)
 
 struct AndroidDevice
 {
-	void run(struct android_app* app, Filesystem& fs, ConfigSettings& cs)
+	void run(struct android_app* app, DeviceOptions& opts)
 	{
-		_margs.fs = &fs;
-		_margs.cs = &cs;
+		_margs.opts = &opts;
 
 		app->userData = this;
 		app->onAppCmd = crown::AndroidDevice::on_app_cmd;
@@ -136,12 +135,12 @@ struct AndroidDevice
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
 		{
 			const int32_t action = AMotionEvent_getAction(event);
-			const int32_t pointerIndex = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-			const int32_t pointerCount = AMotionEvent_getPointerCount(event);
+			const int32_t pointer_index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+			const int32_t pointer_count = AMotionEvent_getPointerCount(event);
 
-			const int32_t pointerId = AMotionEvent_getPointerId(event, pointerIndex);
-			const float x = AMotionEvent_getX(event, pointerIndex);
-			const float y = AMotionEvent_getY(event, pointerIndex);
+			const int32_t pointer_id = AMotionEvent_getPointerId(event, pointer_index);
+			const float x = AMotionEvent_getX(event, pointer_index);
+			const float y = AMotionEvent_getY(event, pointer_index);
 
 			const int32_t actionMasked = (action & AMOTION_EVENT_ACTION_MASK);
 
@@ -150,24 +149,24 @@ struct AndroidDevice
 				case AMOTION_EVENT_ACTION_DOWN:
 				case AMOTION_EVENT_ACTION_POINTER_DOWN:
 				{
-					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointerId, true);
+					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointer_id, true);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_UP:
 				case AMOTION_EVENT_ACTION_POINTER_UP:
 				{
-					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointerId, false);
+					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointer_id, false);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_OUTSIDE:
 				case AMOTION_EVENT_ACTION_CANCEL:
 				{
-					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointerId, false);
+					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointer_id, false);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_MOVE:
 				{
-					for (int index = 0; index < pointerCount; index++)
+					for (int index = 0; index < pointer_count; index++)
 					{
 						const float xx = AMotionEvent_getX(event, index);
 						const float yy = AMotionEvent_getY(event, index);
@@ -187,7 +186,8 @@ struct AndroidDevice
 
 			if (keycode == AKEYCODE_BACK)
 			{
-				_queue.push_keyboard_event(0, KeyboardButton::ESCAPE, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false);
+				_queue.push_keyboard_event(KeyboardButton::ESCAPE
+					, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false);
 			}
 
 			return 1;
@@ -231,15 +231,12 @@ void android_main(struct android_app* app)
 
 	memory_globals::init();
 
-	{
-		ConfigSettings cs;
-		ApkFilesystem dst_fs(app->activity->assetManager);
-		parse_config_file(dst_fs, cs);
-		console_server_globals::init(cs.console_port, false);
-		crown::s_advc.run(app, dst_fs, cs);
-		console_server_globals::shutdown();
-	}
+	DeviceOptions opts(0, NULL);
+	opts._asset_manager = app->activity->assetManager;
 
+	console_server_globals::init(opts.console_port(), false);
+	crown::s_advc.run(app, opts);
+	console_server_globals::shutdown();
 	memory_globals::shutdown();
 }
 

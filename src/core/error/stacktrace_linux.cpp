@@ -7,43 +7,30 @@
 
 #if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
 
+#include "macros.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <cxxabi.h>
 #include <execinfo.h>
+#include <string.h> // strchr
 
 namespace crown
 {
 
 void print_callstack()
 {
-	void* array[50];
-	int size = backtrace(array, 50);
+	void* array[64];
+	int size = backtrace(array, CE_COUNTOF(array));
 
 	char** messages = backtrace_symbols(array, size);
 
 	// skip first stack frame (points here)
 	for (int i = 1; i < size && messages != NULL; ++i)
 	{
-		char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
-
-		// find parantheses and +address offset surrounding mangled name
-		for (char *p = messages[i]; *p; ++p)
-		{
-			if (*p == '(')
-			{
-				mangled_name = p;
-			}
-			else if (*p == '+')
-			{
-				offset_begin = p;
-			}
-			else if (*p == ')')
-			{
-				offset_end = p;
-				break;
-			}
-		}
+		char* msg = messages[i];
+		char* mangled_name = strchr(msg, '(');
+		char* offset_begin = strchr(msg, '+');
+		char* offset_end = strchr(msg, ')');
 
 		// if the line could be processed, attempt to demangle the symbol
 		if (mangled_name && offset_begin && offset_end && mangled_name < offset_begin)

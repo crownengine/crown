@@ -10,11 +10,9 @@
 #include "device.h"
 #include "memory.h"
 #include "os_event_queue.h"
-#include "os_window_linux.h"
 #include "thread.h"
 #include "main.h"
 #include "command_line.h"
-#include "disk_filesystem.h"
 #include "crown.h"
 #include "bundle_compiler.h"
 #include "console_server.h"
@@ -165,14 +163,13 @@ static bool s_exit = false;
 
 struct MainThreadArgs
 {
-	Filesystem* fs;
-	DeviceOptions* ds;
+	DeviceOptions* opts;
 };
 
 int32_t func(void* data)
 {
-	MainThreadArgs* args = (MainThreadArgs*) data;
-	crown::init(*args->ds, *args->fs);
+	MainThreadArgs* args = (MainThreadArgs*)data;
+	crown::init(*args->opts);
 	crown::update();
 	crown::shutdown();
 	s_exit = true;
@@ -184,13 +181,12 @@ struct LinuxDevice
 	LinuxDevice()
 		: _x11_display(NULL)
 		, _x11_window(None)
-		, _x11_parent_window(None)
 		, _x11_hidden_cursor(None)
 		, _screen_config(NULL)
 	{
 	}
 
-	int32_t run(Filesystem* fs, DeviceOptions* ds)
+	int32_t run(DeviceOptions* opts)
 	{
 		// http://tronche.com/gui/x/xlib/display/XInitThreads.html
 		Status xs = XInitThreads();
@@ -204,8 +200,9 @@ struct LinuxDevice
 		int depth = DefaultDepth(_x11_display, screen);
 		Visual* visual = DefaultVisual(_x11_display, screen);
 
-		_x11_parent_window = (ds->parent_window() == 0) ? RootWindow(_x11_display, screen) :
-			(Window)ds->parent_window();
+		Window root_window = RootWindow(_x11_display, screen);
+		uint32_t pw = opts->parent_window();
+		Window parent_window = (pw == 0) ? root_window : (Window)pw;
 
 		// Create main window
 		XSetWindowAttributes win_attribs;
@@ -220,11 +217,11 @@ struct LinuxDevice
 			| PointerMotionMask;
 
 		_x11_window = XCreateWindow(_x11_display
-			, _x11_parent_window
-			, ds->window_x()
-			, ds->window_y()
-			, ds->window_width()
-			, ds->window_height()
+			, parent_window
+			, opts->window_x()
+			, opts->window_y()
+			, opts->window_width()
+			, opts->window_height()
 			, 0
 			, depth
 			, InputOutput
@@ -232,6 +229,9 @@ struct LinuxDevice
 			, CWBorderPixel | CWEventMask
 			, &win_attribs);
 		CE_ASSERT(_x11_window != None, "XCreateWindow: error");
+
+		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(_x11_display, _x11_window, &_wm_delete_message, 1);
 
 		// Do we have detectable autorepeat?
 		Bool detectable;
@@ -248,23 +248,18 @@ struct LinuxDevice
 		bm_no = XCreateBitmapFromData(_x11_display, _x11_window, no_data, 8, 8);
 		_x11_hidden_cursor = XCreatePixmapCursor(_x11_display, bm_no, bm_no, &black, &black, 0, 0);
 
-		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
-		XSetWMProtocols(_x11_display, _x11_window, &_wm_delete_message, 1);
-
-		oswindow_set_window(_x11_display, _x11_window);
 		bgfx::x11SetDisplayWindow(_x11_display, _x11_window);
 		XMapRaised(_x11_display, _x11_window);
 
 		// Save screen configuration
-		_screen_config = XRRGetScreenInfo(_x11_display, RootWindow(_x11_display, screen));
+		_screen_config = XRRGetScreenInfo(_x11_display, parent_window);
 
 		Rotation rr_old_rot;
 		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_old_rot);
 
 		// Start main thread
 		MainThreadArgs mta;
-		mta.fs = fs;
-		mta.ds = ds;
+		mta.opts = opts;
 
 		Thread main_thread;
 		main_thread.start(func, &mta);
@@ -284,7 +279,7 @@ struct LinuxDevice
 		{
 			XRRSetScreenConfig(_x11_display
 				, _screen_config
-				, RootWindow(_x11_display, screen)
+				, root_window
 				, rr_old_sizeid
 				, rr_old_rot
 				, CurrentTime);
@@ -381,7 +376,6 @@ public:
 
 	Display* _x11_display;
 	Window _x11_window;
-	Window _x11_parent_window;
 	Cursor _x11_hidden_cursor;
 	Atom _wm_delete_message;
 	XRRScreenConfiguration* _screen_config;
@@ -414,10 +408,7 @@ int main(int argc, char** argv)
 	do_continue = bundle_compiler::main(opts.do_compile(), opts.do_continue(), opts.platform());
 
 	if (do_continue)
-	{
-		DiskFilesystem dst_fs(opts.bundle_dir());
-		exitcode = crown::s_ldvc.run(&dst_fs, &opts);
-	}
+		exitcode = crown::s_ldvc.run(&opts);
 
 	bundle_compiler_globals::shutdown();
 	console_server_globals::shutdown();
