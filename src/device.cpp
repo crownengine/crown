@@ -109,6 +109,8 @@ void Device::shutdown()
 	CE_LOGD("Releasing resource manager...");
 	CE_DELETE(_allocator, _resource_manager);
 
+	CE_DELETE(_allocator, _bundle_filesystem);
+
 	_allocator.clear();
 	_is_init = false;
 }
