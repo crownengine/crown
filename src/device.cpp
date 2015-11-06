@@ -20,13 +20,14 @@
 #include "json_parser.h"
 #include "filesystem.h"
 #include "path.h"
+#include "disk_filesystem.h"
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
 namespace crown
 {
 
-Device::Device(const DeviceOptions& opts, Filesystem& fs)
+Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _width(0)
 	, _height(0)
@@ -39,7 +40,7 @@ Device::Device(const DeviceOptions& opts, Filesystem& fs)
 	, _last_delta_time(0.0f)
 	, _time_since_start(0.0)
 	, _device_options(opts)
-	, _fs(fs)
+	, _bundle_filesystem(NULL)
 	, _boot_package_id(uint64_t(0))
 	, _boot_script_id(uint64_t(0))
 	, _boot_package(NULL)
@@ -55,11 +56,13 @@ void Device::init()
 	// Initialize
 	CE_LOGI("Initializing Crown Engine %s...", version());
 
+	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(_device_options.bundle_dir());
+
 	read_config();
 
 	// Create resource manager
 	CE_LOGD("Creating resource manager...");
-	_resource_manager = CE_NEW(_allocator, ResourceManager)(_fs);
+	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_bundle_filesystem);
 
 	CE_LOGD("Creating material manager...");
 	material_manager::init();
@@ -259,9 +262,9 @@ void Device::read_config()
 
 	project_path += "crown.config";
 
-	File* tmpfile = _fs.open(project_path.c_str(), FOM_READ);
+	File* tmpfile = _bundle_filesystem->open(project_path.c_str(), FOM_READ);
 	JSONParser config(*tmpfile);
-	_fs.close(tmpfile);
+	_bundle_filesystem->close(tmpfile);
 	JSONElement root = config.root();
 
 	_boot_script_id = root.key("boot_script").to_resource_id();
@@ -273,10 +276,10 @@ namespace device_globals
 	char _buffer[sizeof(Device)];
 	Device* _device = NULL;
 
-	void init(const DeviceOptions& opts, Filesystem& fs)
+	void init(const DeviceOptions& opts)
 	{
 		CE_ASSERT(_device == NULL, "Crown already initialized");
-		_device = new (_buffer) Device(opts, fs);
+		_device = new (_buffer) Device(opts);
 		_device->init();
 	}
 
