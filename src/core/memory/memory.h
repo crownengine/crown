@@ -49,6 +49,36 @@ namespace memory
 	}
 } // namespace memory
 
+#define ALLOCATOR_AWARE typedef int allocator_aware
+
+/// Convert integer to type.
+template <int v>
+struct Int2Type { enum {value=v}; };
+
+/// Determines if a class is allocator aware.
+template <class T>
+struct is_allocator_aware {
+
+        template <typename C>
+        static char test_fun(typename C::allocator_aware *);
+
+        template <typename C>
+        static int test_fun(...);
+
+public:
+        enum {
+                value = (sizeof(test_fun<T>(0)) == sizeof(char))
+        };
+};
+
+#define IS_ALLOCATOR_AWARE(T) is_allocator_aware<T>::value
+#define IS_ALLOCATOR_AWARE_TYPE(T) Int2Type< IS_ALLOCATOR_AWARE(T) >
+
+/// Allocator aware constuction
+template <class T> inline T &construct(void *p, Allocator& a, Int2Type<true>) {new (p) T(a); return *(T *)p;}
+template <class T> inline T &construct(void *p, Allocator& /*a*/, Int2Type<false>) {new (p) T; return *(T *)p;}
+template <class T> inline T &construct(void *p, Allocator& a) {return construct<T>(p, a, IS_ALLOCATOR_AWARE_TYPE(T)());}
+
 namespace memory_globals
 {
 	/// Constructs the initial default allocators.
@@ -74,3 +104,4 @@ namespace memory_globals
 /// @note
 /// @a allocator must be a reference to an existing allocator.
 #define CE_DELETE(allocator, ptr) crown::memory::call_destructor_and_deallocate(allocator, ptr)
+
