@@ -756,6 +756,9 @@ Keyboard
 	**name** () : string
 		Returns the name of the input device.
 
+	**connected** () : bool
+		Returns whether the input device is connected and functioning.
+
 	**num_buttons** () : int
 		Returns the number of buttons of the input device.
 
@@ -780,6 +783,9 @@ Mouse
 	**name** () : string
 		Returns the name of the input device.
 
+	**connected** () : bool
+		Returns whether the input device is connected and functioning.
+
 	**num_buttons** () : int
 		Returns the number of buttons of the input device.
 
@@ -800,6 +806,8 @@ Mouse
 
 	**axis** (i) : Vector3
 		Returns the value of the axis *i*.
+		The returned vector holds x and y coordinates of the pointer
+		in window-space.
 
 Touch
 -----
@@ -807,6 +815,9 @@ Touch
 	**name** () : string
 		Returns the name of the input device.
 
+	**connected** () : bool
+		Returns whether the input device is connected and functioning.
+
 	**num_buttons** () : int
 		Returns the number of buttons of the input device.
 
@@ -827,6 +838,39 @@ Touch
 
 	**axis** (i) : Vector3
 		Returns the value of the axis *i*.
+		The returned vector holds x and y coordinates of the pointer
+		in window-space.
+
+Pad1, Pad2, Pad3, Pad4
+----------------------
+
+	**name** () : string
+		Returns the name of the input device.
+
+	**connected** () : bool
+		Returns whether the input device is connected and functioning.
+
+	**num_buttons** () : int
+		Returns the number of buttons of the input device.
+
+	**num_axes** () : int
+		Returns the number of axes of the input device.
+
+	**pressed** (i) : bool
+		Returns whether the button *i* is pressed in the current frame.
+
+	**released** (i) : bool
+		Returns whether the button *i* is released in the current frame.
+
+	**any_pressed** () : bool
+		Returns wheter any button is pressed in the current frame.
+
+	**any_released** () : bool
+		Returns whether any button is released in the current frame.
+
+	**axis** (i) : Vector3
+		Returns the value of the axis *i*.
+		The returned vector holds values in the range [-1;+1]
 
 Window
 ======

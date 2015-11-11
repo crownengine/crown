@@ -13,7 +13,12 @@ namespace crown
 {
 namespace sphere
 {
+	void reset(Sphere& s);
+
 	float volume(const Sphere& s);
+
+	/// Adds @a num @a points to the sphere @a s, expanding its bounds if necessary.
+	void add_points(Sphere& s, uint32_t num, uint32_t stride, const void* points);
 
 	/// Adds @a num @a points to the sphere expanding if necessary.
 	void add_points(Sphere& s, uint32_t num, const Vector3* points);
@@ -27,19 +32,34 @@ namespace sphere
 
 namespace sphere
 {
+	inline void reset(Sphere& s)
+	{
+		s.c = VECTOR3_ZERO;
+		s.r = 0.0f;
+	}
+
 	inline float volume(const Sphere& s)
 	{
-		return float(4.0 / 3.0 * PI) * s.r*s.r*s.r;
+		return (4.0f/3.0f*PI) * (s.r*s.r*s.r);
+	}
+
+	inline void add_points(Sphere& s, uint32_t num, uint32_t stride, const void* points)
+	{
+		for (uint32_t i = 0; i < num; ++i)
+		{
+			const Vector3* p = (const Vector3*)points;
+
+			const float dist = squared_length(*p - s.c);
+			if (dist > s.r*s.r)
+				s.r = sqrt(dist);
+
+			points = (const void*)((const char*)points + stride);
+		}
 	}
 
 	inline void add_points(Sphere& s, uint32_t num, const Vector3* points)
 	{
-		for (uint32_t i = 0; i < num; ++i)
-		{
-			const float dist = squared_length(points[i] - s.c);
-			if (dist >= s.r*s.r)
-				s.r = sqrt(dist);
-		}
+		add_points(s, num, sizeof(Vector3), points);
 	}
 
 	inline void add_spheres(Sphere& s, uint32_t num, const Sphere* spheres)
