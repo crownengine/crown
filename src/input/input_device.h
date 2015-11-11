@@ -11,6 +11,9 @@
 namespace crown
 {
 
+/// Represents a generic input device.
+///
+/// @ingroup Input
 struct InputDevice
 {
 	/// Returns the name of the input device.
