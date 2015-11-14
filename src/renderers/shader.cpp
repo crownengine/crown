@@ -125,7 +125,7 @@ namespace shader_resource
 		Buffer tmpvs = opts.read(tmpvs_path.c_str());
 		Buffer tmpfs = opts.read(tmpfs_path.c_str());
 
-		opts.write(uint32_t(1)); // version
+		opts.write(uint32_t(SHADER_VERSION));
 		opts.write(uint32_t(array::size(tmpvs)));
 		opts.write(array::begin(tmpvs), array::size(tmpvs));
 		opts.write(uint32_t(array::size(tmpfs)));
@@ -143,6 +143,7 @@ namespace shader_resource
 		BinaryReader br(file);
 		uint32_t version;
 		br.read(version);
+		CE_ASSERT(version == SHADER_VERSION, "Wrong version");
 
 		uint32_t vs_code_size;
 		br.read(vs_code_size);
