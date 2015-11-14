@@ -338,6 +338,7 @@ namespace physics_resource
 		const uint32_t file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
+		CE_ASSERT(*(uint32_t*)res == PHYSICS_VERSION, "Wrong version");
 		return res;
 	}
 
@@ -701,6 +702,7 @@ namespace physics_config_resource
 		const uint32_t file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
+		CE_ASSERT(*(uint32_t*)res == PHYSICS_CONFIG_VERSION, "Wrong version");
 		return res;
 	}
 

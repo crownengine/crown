@@ -63,6 +63,7 @@ namespace lua_resource
 		const uint32_t file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
+		CE_ASSERT(*(uint32_t*)res == SCRIPT_VERSION, "Wrong version");
 		return res;
 	}
 

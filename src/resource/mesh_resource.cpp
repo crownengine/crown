@@ -173,6 +173,7 @@ namespace mesh_resource
 
 		uint32_t version;
 		br.read(version);
+		CE_ASSERT(version == MESH_VERSION, "Wrong version");
 
 		bgfx::VertexDecl decl;
 		br.read(decl);
