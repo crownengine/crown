@@ -23,7 +23,6 @@
 #include "world.h"
 #include "debug_line.h"
 #include "color4.h"
-#include "int_setting.h"
 #include "physics.h"
 #include "matrix4x4.h"
 #include "log.h"

@@ -12,13 +12,10 @@
 #include "level_resource.h"
 #include "memory.h"
 #include "matrix4x4.h"
-#include "int_setting.h"
 #include <new>
 
 namespace crown
 {
-
-static IntSetting g_physics_debug("physics.debug", "Enable physics debug rendering.", 0, 0, 1);
 
 World::World(ResourceManager& rm, LuaEnvironment& env)
 	: _resource_manager(&rm)
@@ -156,8 +153,7 @@ void World::render(Camera* camera)
 	_render_world->update(camera->view_matrix(), camera->projection_matrix(), camera->_view_x, camera->_view_y,
 		camera->_view_width, camera->_view_height);
 
-	if (g_physics_debug == 1)
-		_physics_world->draw_debug(*_lines);
+	// _physics_world->draw_debug(*_lines);
 }
 
 CameraId World::create_camera(SceneGraph& sg, UnitId id, ProjectionType::Enum type, float near, float far)

@@ -30,7 +30,6 @@ extern void load_raycast(LuaEnvironment& env);
 extern void load_resource_package(LuaEnvironment& env);
 extern void load_sound_world(LuaEnvironment& env);
 extern void load_sprite(LuaEnvironment& env);
-extern void load_settings(LuaEnvironment& env);
 extern void load_unit(LuaEnvironment& env);
 extern void load_window(LuaEnvironment& env);
 extern void load_world(LuaEnvironment& env);
@@ -189,7 +188,6 @@ void LuaEnvironment::load_libs()
 	load_resource_package(*this);
 	load_sound_world(*this);
 	load_sprite(*this);
-	load_settings(*this);
 	load_unit(*this);
 	load_window(*this);
 	load_world(*this);
