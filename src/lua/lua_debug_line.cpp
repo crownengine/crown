@@ -19,6 +19,21 @@ static int debug_line_add_line(lua_State* L)
 	return 0;
 }
 
+static int debug_line_add_axes(lua_State* L)
+{
+	LuaStack stack(L);
+	const float length = stack.num_args() == 3 ? stack.get_float(3) : 1.0f;
+	stack.get_debug_line(1)->add_axes(stack.get_matrix4x4(2), length);
+	return 0;
+}
+
+static int debug_line_add_cone(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_debug_line(1)->add_cone(stack.get_vector3(2), stack.get_vector3(3), stack.get_float(4), stack.get_color4(5));
+	return 0;
+}
+
 static int debug_line_add_sphere(lua_State* L)
 {
 	LuaStack stack(L);
@@ -57,6 +72,8 @@ static int debug_line_tostring(lua_State* L)
 void load_debug_line(LuaEnvironment& env)
 {
 	env.load_module_function("DebugLine", "add_line",   debug_line_add_line);
+	env.load_module_function("DebugLine", "add_axes",   debug_line_add_axes);
+	env.load_module_function("DebugLine", "add_cone",   debug_line_add_cone);
 	env.load_module_function("DebugLine", "add_sphere", debug_line_add_sphere);
 	env.load_module_function("DebugLine", "add_obb",    debug_line_add_obb);
 	env.load_module_function("DebugLine", "clear",      debug_line_clear);
