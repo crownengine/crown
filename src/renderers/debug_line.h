@@ -28,6 +28,12 @@ struct DebugLine
 	/// Adds a line from @a start to @a end with the given @a color.
 	void add_line(const Vector3& start, const Vector3& end, const Color4& color);
 
+	/// Adds lines for each axis with the given @a length.
+	void add_axes(const Matrix4x4& m, float length = 1.0f);
+
+	/// Adds a cone with the base centered at @a from and the tip at @a to.
+	void add_cone(const Vector3& from, const Vector3& to, float radius, const Color4& color);
+
 	/// Adds a sphere at @a center with the given @a radius and @a color.
 	void add_sphere(const Vector3& center, const float radius, const Color4& color);
 
