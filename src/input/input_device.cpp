@@ -5,7 +5,8 @@
 
 #include "input_device.h"
 #include "error.h"
-#include <string.h> // memcpy
+#include "allocator.h"
+#include <string.h> // strlen, strcpy, memset
 
 namespace crown
 {
@@ -79,6 +80,39 @@ void InputDevice::set_axis(uint8_t i, const Vector3& value)
 void InputDevice::update()
 {
 	memcpy(_last_state, _current_state, sizeof(uint8_t)*_num_buttons);
+}
+
+InputDevice* InputDevice::create_input_device(Allocator& a, const char* name, uint8_t num_buttons, uint8_t num_axes)
+{
+	const uint32_t size = 0
+		+ sizeof(InputDevice)
+		+ sizeof(uint8_t)*num_buttons*2
+		+ sizeof(Vector3)*num_axes
+		+ strlen(name) + 1;
+
+	InputDevice* id = (InputDevice*)a.allocate(size);
+
+	id->_connected = false;
+	id->_num_buttons = num_buttons;
+	id->_num_axes = num_axes;
+	id->_last_button = 0;
+
+	id->_last_state = (uint8_t*)&id[1];
+	id->_current_state = (uint8_t*)(id->_last_state + num_buttons);
+	id->_axis = (Vector3*)(id->_current_state + num_buttons);
+	id->_name = (char*)(id->_axis + num_axes);
+
+	memset(id->_last_state, 0, sizeof(uint8_t)*num_buttons);
+	memset(id->_current_state, 0, sizeof(uint8_t)*num_buttons);
+	memset(id->_axis, 0, sizeof(Vector3)*num_axes);
+	strcpy(id->_name, name);
+
+	return id;
+}
+
+void InputDevice::destroy_input_device(Allocator& a, InputDevice* id)
+{
+	a.deallocate(id);
 }
 
 } // namespace crown

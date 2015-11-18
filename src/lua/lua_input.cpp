@@ -12,6 +12,223 @@
 namespace crown
 {
 
+struct KeyboardButtonInfo
+{
+	const char* name;
+	KeyboardButton::Enum button;
+};
+
+static KeyboardButtonInfo s_keyboard_button[] =
+{
+	{ "tab",       KeyboardButton::TAB       },
+	{ "enter",     KeyboardButton::ENTER     },
+	{ "escape",    KeyboardButton::ESCAPE    },
+	{ "space",     KeyboardButton::SPACE     },
+	{ "backspace", KeyboardButton::BACKSPACE },
+	{ "kp_0",      KeyboardButton::KP_0      },
+	{ "kp_1",      KeyboardButton::KP_1      },
+	{ "kp_2",      KeyboardButton::KP_2      },
+	{ "kp_3",      KeyboardButton::KP_3      },
+	{ "kp_4",      KeyboardButton::KP_4      },
+	{ "kp_5",      KeyboardButton::KP_5      },
+	{ "kp_6",      KeyboardButton::KP_6      },
+	{ "kp_7",      KeyboardButton::KP_7      },
+	{ "kp_8",      KeyboardButton::KP_8      },
+	{ "kp_9",      KeyboardButton::KP_9      },
+	{ "f1",        KeyboardButton::F1        },
+	{ "f2",        KeyboardButton::F2        },
+	{ "f3",        KeyboardButton::F3        },
+	{ "f4",        KeyboardButton::F4        },
+	{ "f5",        KeyboardButton::F5        },
+	{ "f6",        KeyboardButton::F6        },
+	{ "f7",        KeyboardButton::F7        },
+	{ "f8",        KeyboardButton::F8        },
+	{ "f9",        KeyboardButton::F9        },
+	{ "f10",       KeyboardButton::F10       },
+	{ "f11",       KeyboardButton::F11       },
+	{ "f12",       KeyboardButton::F12       },
+	{ "home",      KeyboardButton::HOME      },
+	{ "left",      KeyboardButton::LEFT      },
+	{ "up",        KeyboardButton::UP        },
+	{ "right",     KeyboardButton::RIGHT     },
+	{ "down",      KeyboardButton::DOWN      },
+	{ "page_up",   KeyboardButton::PAGE_UP   },
+	{ "page_down", KeyboardButton::PAGE_DOWN },
+	{ "lcontrol",  KeyboardButton::LCONTROL  },
+	{ "rcontrol",  KeyboardButton::RCONTROL  },
+	{ "lshift",    KeyboardButton::LSHIFT    },
+	{ "rshift",    KeyboardButton::RSHIFT    },
+	{ "caps_lock", KeyboardButton::CAPS_LOCK },
+	{ "lalt",      KeyboardButton::LALT      },
+	{ "ralt",      KeyboardButton::RALT      },
+	{ "lsuper",    KeyboardButton::LSUPER    },
+	{ "rsuper",    KeyboardButton::RSUPER    },
+	{ "num_0",     KeyboardButton::NUM_0     },
+	{ "num_1",     KeyboardButton::NUM_1     },
+	{ "num_2",     KeyboardButton::NUM_2     },
+	{ "num_3",     KeyboardButton::NUM_3     },
+	{ "num_4",     KeyboardButton::NUM_4     },
+	{ "num_5",     KeyboardButton::NUM_5     },
+	{ "num_6",     KeyboardButton::NUM_6     },
+	{ "num_7",     KeyboardButton::NUM_7     },
+	{ "num_8",     KeyboardButton::NUM_8     },
+	{ "num_9",     KeyboardButton::NUM_9     },
+	{ "a",         KeyboardButton::A         },
+	{ "b",         KeyboardButton::B         },
+	{ "c",         KeyboardButton::C         },
+	{ "d",         KeyboardButton::D         },
+	{ "e",         KeyboardButton::E         },
+	{ "f",         KeyboardButton::F         },
+	{ "g",         KeyboardButton::G         },
+	{ "h",         KeyboardButton::H         },
+	{ "i",         KeyboardButton::I         },
+	{ "j",         KeyboardButton::J         },
+	{ "k",         KeyboardButton::K         },
+	{ "l",         KeyboardButton::L         },
+	{ "m",         KeyboardButton::M         },
+	{ "n",         KeyboardButton::N         },
+	{ "o",         KeyboardButton::O         },
+	{ "p",         KeyboardButton::P         },
+	{ "q",         KeyboardButton::Q         },
+	{ "r",         KeyboardButton::R         },
+	{ "s",         KeyboardButton::S         },
+	{ "t",         KeyboardButton::T         },
+	{ "u",         KeyboardButton::U         },
+	{ "v",         KeyboardButton::V         },
+	{ "w",         KeyboardButton::W         },
+	{ "x",         KeyboardButton::X         },
+	{ "y",         KeyboardButton::Y         },
+	{ "z",         KeyboardButton::Z         }
+};
+
+struct MouseButtonInfo
+{
+	const char* name;
+	MouseButton::Enum button;
+};
+
+static MouseButtonInfo s_mouse_button[] =
+{
+	{ "left",    MouseButton::LEFT    },
+	{ "middle",  MouseButton::MIDDLE  },
+	{ "right",   MouseButton::RIGHT   },
+	{ "extra_1", MouseButton::EXTRA_1 },
+	{ "extra_2", MouseButton::EXTRA_2 }
+};
+CE_STATIC_ASSERT(CE_COUNTOF(s_mouse_button) == MouseButton::COUNT);
+
+struct MouseAxisInfo
+{
+	const char* name;
+	MouseAxis::Enum button;
+};
+
+static MouseAxisInfo s_mouse_axis[] =
+{
+	{ "cursor", MouseAxis::CURSOR },
+	{ "wheel",  MouseAxis::WHEEL  }
+};
+CE_STATIC_ASSERT(CE_COUNTOF(s_mouse_axis) == MouseAxis::COUNT);
+
+struct PadButtonInfo
+{
+	const char* name;
+	JoypadButton::Enum button;
+};
+
+static PadButtonInfo s_pad_button[] =
+{
+	{ "up",             JoypadButton::UP             },
+	{ "down",           JoypadButton::DOWN           },
+	{ "left",           JoypadButton::LEFT           },
+	{ "right",          JoypadButton::RIGHT          },
+	{ "start",          JoypadButton::START          },
+	{ "back",           JoypadButton::BACK           },
+	{ "guide",          JoypadButton::GUIDE          },
+	{ "left_thumb",     JoypadButton::LEFT_THUMB     },
+	{ "right_thumb",    JoypadButton::RIGHT_THUMB    },
+	{ "left_shoulder",  JoypadButton::LEFT_SHOULDER  },
+	{ "right_shoulder", JoypadButton::RIGHT_SHOULDER },
+	{ "a",              JoypadButton::A              },
+	{ "b",              JoypadButton::B              },
+	{ "x",              JoypadButton::X              },
+	{ "y",              JoypadButton::Y              }
+};
+CE_STATIC_ASSERT(CE_COUNTOF(s_pad_button) == JoypadButton::COUNT);
+
+struct PadAxisInfo
+{
+	const char* name;
+	JoypadAxis::Enum button;
+};
+
+static PadAxisInfo s_pad_axis[] =
+{
+	{ "left",  JoypadAxis::LEFT  },
+	{ "right", JoypadAxis::RIGHT }
+};
+CE_STATIC_ASSERT(CE_COUNTOF(s_pad_axis) == JoypadAxis::COUNT);
+
+static KeyboardButton::Enum name_to_keyboard_button(LuaStack& stack, const char* name)
+{
+	for (uint32_t i = 0; i < CE_COUNTOF(s_keyboard_button); ++i)
+	{
+		if (strcmp(s_keyboard_button[i].name, name) == 0)
+			return s_keyboard_button[i].button;
+	}
+
+	LUA_ASSERT(false, stack, "Unknown button: %s", name);
+	return KeyboardButton::COUNT;
+}
+
+static MouseButton::Enum name_to_mouse_button(LuaStack& stack, const char* name)
+{
+	for (uint32_t i = 0; i < CE_COUNTOF(s_mouse_button); ++i)
+	{
+		if (strcmp(s_mouse_button[i].name, name) == 0)
+			return s_mouse_button[i].button;
+	}
+
+	LUA_ASSERT(false, stack, "Unknown button: %s", name);
+	return MouseButton::COUNT;
+}
+
+static MouseAxis::Enum name_to_mouse_axis(LuaStack& stack, const char* name)
+{
+	for (uint32_t i = 0; i < CE_COUNTOF(s_mouse_axis); ++i)
+	{
+		if (strcmp(s_mouse_axis[i].name, name) == 0)
+			return s_mouse_axis[i].button;
+	}
+
+	LUA_ASSERT(false, stack, "Unknown axis: %s", name);
+	return MouseAxis::COUNT;
+}
+
+static JoypadButton::Enum name_to_pad_button(LuaStack& stack, const char* name)
+{
+	for (uint32_t i = 0; i < CE_COUNTOF(s_pad_button); ++i)
+	{
+		if (strcmp(s_pad_button[i].name, name) == 0)
+			return s_pad_button[i].button;
+	}
+
+	LUA_ASSERT(false, stack, "Unknown button: %s", name);
+	return JoypadButton::COUNT;
+}
+
+static JoypadAxis::Enum name_to_pad_axis(LuaStack& stack, const char* name)
+{
+	for (uint32_t i = 0; i < CE_COUNTOF(s_pad_axis); ++i)
+	{
+		if (strcmp(s_pad_axis[i].name, name) == 0)
+			return s_pad_axis[i].button;
+	}
+
+	LUA_ASSERT(false, stack, "Unknown button: %s", name);
+	return JoypadAxis::COUNT;
+}
+
 static int input_device_name(lua_State* L, InputDevice& id)
 {
 	LuaStack stack(L);
@@ -72,6 +289,41 @@ static int input_device_axis(lua_State* L, InputDevice& id)
 {
 	LuaStack stack(L);
 	stack.push_vector3(id.axis(stack.get_int(1)));
+	return 1;
+}
+
+static int keyboard_button_id(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(name_to_keyboard_button(stack, stack.get_string(1)));
+	return 1;
+}
+
+static int mouse_button_id(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(name_to_mouse_button(stack, stack.get_string(1)));
+	return 1;
+}
+
+static int mouse_axis_id(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(name_to_mouse_axis(stack, stack.get_string(1)));
+	return 1;
+}
+
+static int pad_button_id(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(name_to_pad_button(stack, stack.get_string(1)));
+	return 1;
+}
+
+static int pad_axis_id(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_uint32(name_to_pad_axis(stack, stack.get_string(1)));
 	return 1;
 }
 
@@ -169,86 +421,7 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Keyboard", "released",     KEYBOARD_FN(released));
 	env.load_module_function("Keyboard", "any_pressed",  KEYBOARD_FN(any_pressed));
 	env.load_module_function("Keyboard", "any_released", KEYBOARD_FN(any_released));
-
-	env.load_module_enum("Keyboard", "TAB",       KeyboardButton::TAB);
-	env.load_module_enum("Keyboard", "ENTER",     KeyboardButton::ENTER);
-	env.load_module_enum("Keyboard", "ESCAPE",    KeyboardButton::ESCAPE);
-	env.load_module_enum("Keyboard", "SPACE",     KeyboardButton::SPACE);
-	env.load_module_enum("Keyboard", "BACKSPACE", KeyboardButton::BACKSPACE);
-	env.load_module_enum("Keyboard", "KP_0",      KeyboardButton::KP_0);
-	env.load_module_enum("Keyboard", "KP_1",      KeyboardButton::KP_1);
-	env.load_module_enum("Keyboard", "KP_2",      KeyboardButton::KP_2);
-	env.load_module_enum("Keyboard", "KP_3",      KeyboardButton::KP_3);
-	env.load_module_enum("Keyboard", "KP_4",      KeyboardButton::KP_4);
-	env.load_module_enum("Keyboard", "KP_5",      KeyboardButton::KP_5);
-	env.load_module_enum("Keyboard", "KP_6",      KeyboardButton::KP_6);
-	env.load_module_enum("Keyboard", "KP_7",      KeyboardButton::KP_7);
-	env.load_module_enum("Keyboard", "KP_8",      KeyboardButton::KP_8);
-	env.load_module_enum("Keyboard", "KP_9",      KeyboardButton::KP_9);
-	env.load_module_enum("Keyboard", "F1",        KeyboardButton::F1);
-	env.load_module_enum("Keyboard", "F2",        KeyboardButton::F2);
-	env.load_module_enum("Keyboard", "F3",        KeyboardButton::F3);
-	env.load_module_enum("Keyboard", "F4",        KeyboardButton::F4);
-	env.load_module_enum("Keyboard", "F5",        KeyboardButton::F5);
-	env.load_module_enum("Keyboard", "F6",        KeyboardButton::F6);
-	env.load_module_enum("Keyboard", "F7",        KeyboardButton::F7);
-	env.load_module_enum("Keyboard", "F8",        KeyboardButton::F8);
-	env.load_module_enum("Keyboard", "F9",        KeyboardButton::F9);
-	env.load_module_enum("Keyboard", "F10",       KeyboardButton::F10);
-	env.load_module_enum("Keyboard", "F11",       KeyboardButton::F11);
-	env.load_module_enum("Keyboard", "F12",       KeyboardButton::F12);
-	env.load_module_enum("Keyboard", "HOME",      KeyboardButton::HOME);
-	env.load_module_enum("Keyboard", "LEFT",      KeyboardButton::LEFT);
-	env.load_module_enum("Keyboard", "UP",        KeyboardButton::UP);
-	env.load_module_enum("Keyboard", "RIGHT",     KeyboardButton::RIGHT);
-	env.load_module_enum("Keyboard", "DOWN",      KeyboardButton::DOWN);
-	env.load_module_enum("Keyboard", "PAGE_UP",   KeyboardButton::PAGE_UP);
-	env.load_module_enum("Keyboard", "PAGE_DOWN", KeyboardButton::PAGE_DOWN);
-	env.load_module_enum("Keyboard", "LCONTROL",  KeyboardButton::LCONTROL);
-	env.load_module_enum("Keyboard", "RCONTROL",  KeyboardButton::RCONTROL);
-	env.load_module_enum("Keyboard", "LSHIFT",    KeyboardButton::LSHIFT);
-	env.load_module_enum("Keyboard", "RSHIFT",    KeyboardButton::RSHIFT);
-	env.load_module_enum("Keyboard", "CAPS_LOCK", KeyboardButton::CAPS_LOCK);
-	env.load_module_enum("Keyboard", "LALT",      KeyboardButton::LALT);
-	env.load_module_enum("Keyboard", "RALT",      KeyboardButton::RALT);
-	env.load_module_enum("Keyboard", "LSUPER",    KeyboardButton::LSUPER);
-	env.load_module_enum("Keyboard", "RSUPER",    KeyboardButton::RSUPER);
-	env.load_module_enum("Keyboard", "NUM_0",     KeyboardButton::NUM_0);
-	env.load_module_enum("Keyboard", "NUM_1",     KeyboardButton::NUM_1);
-	env.load_module_enum("Keyboard", "NUM_2",     KeyboardButton::NUM_2);
-	env.load_module_enum("Keyboard", "NUM_3",     KeyboardButton::NUM_3);
-	env.load_module_enum("Keyboard", "NUM_4",     KeyboardButton::NUM_4);
-	env.load_module_enum("Keyboard", "NUM_5",     KeyboardButton::NUM_5);
-	env.load_module_enum("Keyboard", "NUM_6",     KeyboardButton::NUM_6);
-	env.load_module_enum("Keyboard", "NUM_7",     KeyboardButton::NUM_7);
-	env.load_module_enum("Keyboard", "NUM_8",     KeyboardButton::NUM_8);
-	env.load_module_enum("Keyboard", "NUM_9",     KeyboardButton::NUM_9);
-	env.load_module_enum("Keyboard", "A",         KeyboardButton::A);
-	env.load_module_enum("Keyboard", "B",         KeyboardButton::B);
-	env.load_module_enum("Keyboard", "C",         KeyboardButton::C);
-	env.load_module_enum("Keyboard", "D",         KeyboardButton::D);
-	env.load_module_enum("Keyboard", "E",         KeyboardButton::E);
-	env.load_module_enum("Keyboard", "F",         KeyboardButton::F);
-	env.load_module_enum("Keyboard", "G",         KeyboardButton::G);
-	env.load_module_enum("Keyboard", "H",         KeyboardButton::H);
-	env.load_module_enum("Keyboard", "I",         KeyboardButton::I);
-	env.load_module_enum("Keyboard", "J",         KeyboardButton::J);
-	env.load_module_enum("Keyboard", "K",         KeyboardButton::K);
-	env.load_module_enum("Keyboard", "L",         KeyboardButton::L);
-	env.load_module_enum("Keyboard", "M",         KeyboardButton::M);
-	env.load_module_enum("Keyboard", "N",         KeyboardButton::N);
-	env.load_module_enum("Keyboard", "O",         KeyboardButton::O);
-	env.load_module_enum("Keyboard", "P",         KeyboardButton::P);
-	env.load_module_enum("Keyboard", "Q",         KeyboardButton::Q);
-	env.load_module_enum("Keyboard", "R",         KeyboardButton::R);
-	env.load_module_enum("Keyboard", "S",         KeyboardButton::S);
-	env.load_module_enum("Keyboard", "T",         KeyboardButton::T);
-	env.load_module_enum("Keyboard", "U",         KeyboardButton::U);
-	env.load_module_enum("Keyboard", "V",         KeyboardButton::V);
-	env.load_module_enum("Keyboard", "W",         KeyboardButton::W);
-	env.load_module_enum("Keyboard", "X",         KeyboardButton::X);
-	env.load_module_enum("Keyboard", "Y",         KeyboardButton::Y);
-	env.load_module_enum("Keyboard", "Z",         KeyboardButton::Z);
+	env.load_module_function("Keyboard", "button_id",    keyboard_button_id);
 
 	env.load_module_function("Mouse", "name",         MOUSE_FN(name));
 	env.load_module_function("Mouse", "connected",    MOUSE_FN(connected));
@@ -259,10 +432,8 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Mouse", "any_pressed",  MOUSE_FN(any_pressed));
 	env.load_module_function("Mouse", "any_released", MOUSE_FN(any_released));
 	env.load_module_function("Mouse", "axis",         MOUSE_FN(axis));
-
-	env.load_module_enum("Mouse", "LEFT",   MouseButton::LEFT);
-	env.load_module_enum("Mouse", "MIDDLE", MouseButton::MIDDLE);
-	env.load_module_enum("Mouse", "RIGHT",  MouseButton::RIGHT);
+	env.load_module_function("Mouse", "button_id",    mouse_button_id);
+	env.load_module_function("Mouse", "axis_id",      mouse_axis_id);
 
 	env.load_module_function("Touch", "name",         TOUCH_FN(name));
 	env.load_module_function("Touch", "connected",    TOUCH_FN(connected));
@@ -283,6 +454,8 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Pad1", "any_pressed",  JOYPAD_FN(0, any_pressed));
 	env.load_module_function("Pad1", "any_released", JOYPAD_FN(0, any_released));
 	env.load_module_function("Pad1", "axis",         JOYPAD_FN(0, axis));
+	env.load_module_function("Pad1", "button_id",    pad_button_id);
+	env.load_module_function("Pad1", "axis_id",      pad_axis_id);
 
 	env.load_module_function("Pad2", "name",         JOYPAD_FN(1, name));
 	env.load_module_function("Pad2", "connected",    JOYPAD_FN(1, connected));
@@ -293,6 +466,8 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Pad2", "any_pressed",  JOYPAD_FN(1, any_pressed));
 	env.load_module_function("Pad2", "any_released", JOYPAD_FN(1, any_released));
 	env.load_module_function("Pad2", "axis",         JOYPAD_FN(1, axis));
+	env.load_module_function("Pad2", "button_id",    pad_button_id);
+	env.load_module_function("Pad2", "axis_id",      pad_axis_id);
 
 	env.load_module_function("Pad3", "name",         JOYPAD_FN(2, name));
 	env.load_module_function("Pad3", "connected",    JOYPAD_FN(2, connected));
@@ -303,6 +478,8 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Pad3", "any_pressed",  JOYPAD_FN(2, any_pressed));
 	env.load_module_function("Pad3", "any_released", JOYPAD_FN(2, any_released));
 	env.load_module_function("Pad3", "axis",         JOYPAD_FN(2, axis));
+	env.load_module_function("Pad3", "button_id",    pad_button_id);
+	env.load_module_function("Pad3", "axis_id",      pad_axis_id);
 
 	env.load_module_function("Pad4", "name",         JOYPAD_FN(3, name));
 	env.load_module_function("Pad4", "connected",    JOYPAD_FN(3, connected));
@@ -313,24 +490,8 @@ void load_input(LuaEnvironment& env)
 	env.load_module_function("Pad4", "any_pressed",  JOYPAD_FN(3, any_pressed));
 	env.load_module_function("Pad4", "any_released", JOYPAD_FN(3, any_released));
 	env.load_module_function("Pad4", "axis",         JOYPAD_FN(3, axis));
-
-	env.load_module_enum("JoypadButton", "UP",             JoypadButton::UP);
-	env.load_module_enum("JoypadButton", "DOWN",           JoypadButton::DOWN);
-	env.load_module_enum("JoypadButton", "LEFT",           JoypadButton::LEFT);
-	env.load_module_enum("JoypadButton", "RIGHT",          JoypadButton::RIGHT);
-	env.load_module_enum("JoypadButton", "START",          JoypadButton::START);
-	env.load_module_enum("JoypadButton", "BACK",           JoypadButton::BACK);
-	env.load_module_enum("JoypadButton", "LEFT_THUMB",     JoypadButton::LEFT_THUMB);
-	env.load_module_enum("JoypadButton", "RIGHT_THUMB",    JoypadButton::RIGHT_THUMB);
-	env.load_module_enum("JoypadButton", "LEFT_SHOULDER",  JoypadButton::LEFT_SHOULDER);
-	env.load_module_enum("JoypadButton", "RIGHT_SHOULDER", JoypadButton::RIGHT_SHOULDER);
-	env.load_module_enum("JoypadButton", "A",              JoypadButton::A);
-	env.load_module_enum("JoypadButton", "B",              JoypadButton::B);
-	env.load_module_enum("JoypadButton", "X",              JoypadButton::X);
-	env.load_module_enum("JoypadButton", "Y",              JoypadButton::Y);
-
-	env.load_module_enum("JoypadAxis", "LEFT",  JoypadAxis::LEFT);
-	env.load_module_enum("JoypadAxis", "RIGHT", JoypadAxis::RIGHT);
+	env.load_module_function("Pad4", "button_id",    pad_button_id);
+	env.load_module_function("Pad4", "axis_id",      pad_axis_id);
 }
 
 } // namespace crown

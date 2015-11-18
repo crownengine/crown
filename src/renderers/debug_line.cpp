@@ -192,18 +192,18 @@ void DebugLine::add_sphere(const Vector3& center, const float radius, const Colo
 		const float rad1 = to_rad(float(deg + deg_step));
 
 		// XZ plane
-		const Vector3 start0 = vector3(cos(rad0)*radius, 0, -sin(rad0)*radius);
-		const Vector3 end0   = vector3(cos(rad1)*radius, 0, -sin(rad1)*radius);
+		const Vector3 start0 = vector3(cos(rad0)*radius, 0.0f, -sin(rad0)*radius);
+		const Vector3 end0   = vector3(cos(rad1)*radius, 0.0f, -sin(rad1)*radius);
 		add_line(center + start0, center + end0, color);
 
 		// XY plane
-		const Vector3 start1 = vector3(cos(rad0)*radius, sin(rad0)*radius, 0);
-		const Vector3 end1   = vector3(cos(rad1)*radius, sin(rad1)*radius, 0);
+		const Vector3 start1 = vector3(cos(rad0)*radius, sin(rad0)*radius, 0.0f);
+		const Vector3 end1   = vector3(cos(rad1)*radius, sin(rad1)*radius, 0.0f);
 		add_line(center + start1, center + end1, color);
 
 		// YZ plane
-		const Vector3 start2 = vector3(0, sin(rad0)*radius, -cos(rad0)*radius);
-		const Vector3 end2   = vector3(0, sin(rad1)*radius, -cos(rad1)*radius);
+		const Vector3 start2 = vector3(0.0f, sin(rad0)*radius, -cos(rad0)*radius);
+		const Vector3 end2   = vector3(0.0f, sin(rad1)*radius, -cos(rad1)*radius);
 		add_line(center + start2, center + end2, color);
 	}
 }

@@ -106,7 +106,7 @@ static KeyboardButton::Enum win_translate_key(int32_t winkey)
 		case 'X':         return KeyboardButton::X;
 		case 'Y':         return KeyboardButton::Y;
 		case 'Z':         return KeyboardButton::Z;
-		default:          return KeyboardButton::NONE;
+		default:          return KeyboardButton::COUNT;
 	}
 }
 

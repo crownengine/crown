@@ -155,7 +155,7 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 		case 'x':          return KeyboardButton::X;
 		case 'y':          return KeyboardButton::Y;
 		case 'z':          return KeyboardButton::Z;
-		default:           return KeyboardButton::NONE;
+		default:           return KeyboardButton::COUNT;
 	}
 }
 

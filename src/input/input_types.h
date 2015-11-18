@@ -20,8 +20,6 @@ struct KeyboardButton
 {
 	enum Enum
 	{
-		NONE      = 0x00,
-
 		TAB       = 0x09,
 		ENTER     = 0x0d,
 		ESCAPE    = 0x1b,
@@ -137,7 +135,20 @@ struct MouseButton
 	};
 };
 
-/// Enumerates touch panel buttons
+/// Enumerates mouse axes.
+///
+/// @ingroup Input
+struct MouseAxis
+{
+	enum Enum
+	{
+		CURSOR,
+		WHEEL,
+		COUNT
+	};
+};
+
+/// Enumerates touch panel buttons.
 ///
 /// @ingroup Input
 struct TouchButton

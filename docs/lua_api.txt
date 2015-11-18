@@ -734,6 +734,12 @@ DebugLine
 	**add_line** (debug_line, start, end, color)
 		Adds a line from *start* to *end* with the given *color*.
 
+	**add_axes** (debug_line, tm, length)
+		Adds lines for each axis with the given *length*.
+
+	**add_cone** (debug_line, from, to, radius, color)
+		Adds a cone with the base centered at *from* and the tip at *to*.
+
 	**add_sphere** (debug_line, center, radius, color)
 		Adds a sphere at *center* with the given *radius* and *color*.
 
@@ -765,17 +771,25 @@ Keyboard
 	**num_axes** () : int
 		Returns the number of axes of the input device.
 
-	**pressed** (i) : bool
-		Returns whether the button *i* is pressed in the current frame.
+	**pressed** (id) : bool
+		Returns whether the button *id* is pressed in the current frame.
 
-	**released** (i) : bool
-		Returns whether the button *i* is released in the current frame.
+	**released** (id) : bool
+		Returns whether the button *id* is released in the current frame.
 
 	**any_pressed** () : bool
 		Returns wheter any button is pressed in the current frame.
 
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
+
+	**button_id** (name) : int
+		Returns the *id* of the button *name*.
+
+Keyboard Button Names
+~~~~~~~~~~~~~~~~~~~~~
+
+	tab, enter, escape, space, backspace, kp_0, kp_1, kp_2, kp_3, kp_4, kp_5, kp_6, kp_7, kp_8, kp_9, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, home, left, up, right, down, page_up, page_down, lcontrol, rcontrol, lshift, rshift, caps_lock, lalt, ralt, lsuper, rsuper, num_0, num_1, num_2, num_3, num_4, num_5, num_6, num_7, num_8, num_9, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
 
 Mouse
 -----
@@ -792,11 +806,11 @@ Mouse
 	**num_axes** () : int
 		Returns the number of axes of the input device.
 
-	**pressed** (i) : bool
-		Returns whether the button *i* is pressed in the current frame.
+	**pressed** (id) : bool
+		Returns whether the button *id* is pressed in the current frame.
 
-	**released** (i) : bool
-		Returns whether the button *i* is released in the current frame.
+	**released** (id) : bool
+		Returns whether the button *id* is released in the current frame.
 
 	**any_pressed** () : bool
 		Returns wheter any button is pressed in the current frame.
@@ -804,10 +818,26 @@ Mouse
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
 
-	**axis** (i) : Vector3
-		Returns the value of the axis *i*.
+	**axis** (id) : Vector3
+		Returns the value of the axis *id*.
 		The returned vector holds x and y coordinates of the pointer
 		in window-space.
+
+	**button_id** (name) : int
+		Returns the *id* of the button *name*.
+
+	**axis_id** (name) : int
+		Returns the *id* of the axis *name*.
+
+Mouse Button Names
+~~~~~~~~~~~~~~~~~~
+
+	left, middle, right, extra_1, extra_2
+
+Mouse Axis Names
+~~~~~~~~~~~~~~~~
+
+	cursor, wheel
 
 Touch
 -----
@@ -824,11 +854,11 @@ Touch
 	**num_axes** () : int
 		Returns the number of axes of the input device.
 
-	**pressed** (i) : bool
-		Returns whether the button *i* is pressed in the current frame.
+	**pressed** (id) : bool
+		Returns whether the button *id* is pressed in the current frame.
 
-	**released** (i) : bool
-		Returns whether the button *i* is released in the current frame.
+	**released** (id) : bool
+		Returns whether the button *id* is released in the current frame.
 
 	**any_pressed** () : bool
 		Returns wheter any button is pressed in the current frame.
@@ -836,8 +866,8 @@ Touch
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
 
-	**axis** (i) : Vector3
-		Returns the value of the axis *i*.
+	**axis** (id) : Vector3
+		Returns the value of the axis *id*.
 		The returned vector holds x and y coordinates of the pointer
 		in window-space.
 
@@ -856,11 +886,11 @@ Pad1, Pad2, Pad3, Pad4
 	**num_axes** () : int
 		Returns the number of axes of the input device.
 
-	**pressed** (i) : bool
-		Returns whether the button *i* is pressed in the current frame.
+	**pressed** (id) : bool
+		Returns whether the button *id* is pressed in the current frame.
 
-	**released** (i) : bool
-		Returns whether the button *i* is released in the current frame.
+	**released** (id) : bool
+		Returns whether the button *id* is released in the current frame.
 
 	**any_pressed** () : bool
 		Returns wheter any button is pressed in the current frame.
@@ -868,9 +898,25 @@ Pad1, Pad2, Pad3, Pad4
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
 
-	**axis** (i) : Vector3
-		Returns the value of the axis *i*.
+	**axis** (id) : Vector3
+		Returns the value of the axis *id*.
 		The returned vector holds values in the range [-1;+1]
+
+	**button_id** (name) : int
+		Returns the *id* of the button *name*.
+
+	**axis_id** (name) : int
+		Returns the *id* of the axis *name*.
+
+Pad Button Names
+~~~~~~~~~~~~~~~~
+
+	up, down, left, right, start, back, guide, left_thumb, right_thumb, left_shoulder, right_shoulder, a, b, x, y
+
+Pad Axis Names
+~~~~~~~~~~~~~~
+
+	left, right
 
 Window
 ======
