@@ -7,6 +7,7 @@
 
 #include "types.h"
 #include "math_types.h"
+#include "memory_types.h"
 
 namespace crown
 {
@@ -51,6 +52,8 @@ struct InputDevice
 
 	void update();
 
+public:
+
 	bool _connected;
 	uint8_t _num_buttons;
 	uint8_t _num_axes;
@@ -60,6 +63,11 @@ struct InputDevice
 	uint8_t* _current_state; // num_buttons
 	Vector3* _axis;          // num_axes
 	char* _name;             // strlen(name) + 1
+
+public:
+
+	static InputDevice* create_input_device(Allocator& a, const char* name, uint8_t num_buttons, uint8_t num_axes);
+	static void destroy_input_device(Allocator& a, InputDevice* id);
 };
 
 } // namespace crown
