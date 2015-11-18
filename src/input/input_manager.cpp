@@ -18,7 +18,7 @@ InputManager::InputManager()
 	, _touch(NULL)
 {
 	_keyboard = create_input_device("Keyboard", KeyboardButton::COUNT, 0);
-	_mouse = create_input_device("Mouse", MouseButton::COUNT, 2);
+	_mouse = create_input_device("Mouse", MouseButton::COUNT, MouseAxis::COUNT);
 	_touch = create_input_device("Touch", TouchButton::COUNT, TouchButton::COUNT);
 
 	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
