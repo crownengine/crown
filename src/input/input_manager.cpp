@@ -15,17 +15,17 @@ InputManager::InputManager()
 	, _mouse(NULL)
 	, _touch(NULL)
 {
-	_keyboard = InputDevice::create_input_device(default_allocator()
+	_keyboard = InputDevice::create(default_allocator()
 		, "Keyboard"
 		, KeyboardButton::COUNT
 		, 0
 		);
-	_mouse = InputDevice::create_input_device(default_allocator()
+	_mouse = InputDevice::create(default_allocator()
 		, "Mouse"
 		, MouseButton::COUNT
 		, MouseAxis::COUNT
 		);
-	_touch = InputDevice::create_input_device(default_allocator()
+	_touch = InputDevice::create(default_allocator()
 		, "Touch"
 		, TouchButton::COUNT
 		, TouchButton::COUNT
@@ -33,7 +33,7 @@ InputManager::InputManager()
 
 	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
 	{
-		_joypad[i] = InputDevice::create_input_device(default_allocator()
+		_joypad[i] = InputDevice::create(default_allocator()
 			, "Joypad"
 			, JoypadButton::COUNT
 			, JoypadAxis::COUNT
@@ -48,11 +48,11 @@ InputManager::InputManager()
 InputManager::~InputManager()
 {
 	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
-		InputDevice::destroy_input_device(default_allocator(), _joypad[i]);
+		InputDevice::destroy(default_allocator(), _joypad[i]);
 
-	InputDevice::destroy_input_device(default_allocator(), _touch);
-	InputDevice::destroy_input_device(default_allocator(), _mouse);
-	InputDevice::destroy_input_device(default_allocator(), _keyboard);
+	InputDevice::destroy(default_allocator(), _touch);
+	InputDevice::destroy(default_allocator(), _mouse);
+	InputDevice::destroy(default_allocator(), _keyboard);
 }
 
 InputDevice* InputManager::keyboard()

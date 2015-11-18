@@ -82,7 +82,7 @@ void InputDevice::update()
 	memcpy(_last_state, _current_state, sizeof(uint8_t)*_num_buttons);
 }
 
-InputDevice* InputDevice::create_input_device(Allocator& a, const char* name, uint8_t num_buttons, uint8_t num_axes)
+InputDevice* InputDevice::create(Allocator& a, const char* name, uint8_t num_buttons, uint8_t num_axes)
 {
 	const uint32_t size = 0
 		+ sizeof(InputDevice)
@@ -110,7 +110,7 @@ InputDevice* InputDevice::create_input_device(Allocator& a, const char* name, ui
 	return id;
 }
 
-void InputDevice::destroy_input_device(Allocator& a, InputDevice* id)
+void InputDevice::destroy(Allocator& a, InputDevice* id)
 {
 	a.deallocate(id);
 }
