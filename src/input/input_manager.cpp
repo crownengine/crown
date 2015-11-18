@@ -6,7 +6,6 @@
 #include "input_manager.h"
 #include "input_device.h"
 #include "memory.h"
-#include "vector3.h"
 
 namespace crown
 {
