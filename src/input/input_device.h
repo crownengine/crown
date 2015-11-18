@@ -66,8 +66,8 @@ public:
 
 public:
 
-	static InputDevice* create_input_device(Allocator& a, const char* name, uint8_t num_buttons, uint8_t num_axes);
-	static void destroy_input_device(Allocator& a, InputDevice* id);
+	static InputDevice* create(Allocator& a, const char* name, uint8_t num_buttons, uint8_t num_axes);
+	static void destroy(Allocator& a, InputDevice* id);
 };
 
 } // namespace crown
