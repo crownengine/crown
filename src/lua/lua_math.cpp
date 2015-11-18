@@ -826,6 +826,84 @@ static int color4_ctor(lua_State* L)
 	return color4_new(L);
 }
 
+static int lightuserdata_add(lua_State* L)
+{
+	LuaStack stack(L);
+	const Vector3& a = stack.get_vector3(1);
+	const Vector3& b = stack.get_vector3(2);
+	stack.push_vector3(a + b);
+	return 1;
+}
+
+static int lightuserdata_sub(lua_State* L)
+{
+	LuaStack stack(L);
+	const Vector3& a = stack.get_vector3(1);
+	const Vector3& b = stack.get_vector3(2);
+	stack.push_vector3(a - b);
+	return 1;
+}
+
+static int lightuserdata_mul(lua_State* L)
+{
+	LuaStack stack(L);
+	const Vector3& a = stack.get_vector3(1);
+	const float b = stack.get_float(2);
+	stack.push_vector3(a * b);
+	return 1;
+}
+
+static int lightuserdata_div(lua_State* L)
+{
+	LuaStack stack(L);
+	const Vector3& a = stack.get_vector3(1);
+	const float b = stack.get_float(2);
+	stack.push_vector3(a / b);
+	return 1;
+}
+
+static int lightuserdata_unm(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(-stack.get_vector3(1));
+	return 1;
+}
+
+static int lightuserdata_index(lua_State* L)
+{
+	LuaStack stack(L);
+	Vector3& v = stack.get_vector3(1);
+	const char* s = stack.get_string(2);
+
+	switch (s[0])
+	{
+		case 'x': stack.push_float(v.x); return 1;
+		case 'y': stack.push_float(v.y); return 1;
+		case 'z': stack.push_float(v.z); return 1;
+		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
+	}
+
+	return 0;
+}
+
+static int lightuserdata_newindex(lua_State* L)
+{
+	LuaStack stack(L);
+	Vector3& v = stack.get_vector3(1);
+	const char* s = stack.get_string(2);
+	const float value = stack.get_float(3);
+
+	switch (s[0])
+	{
+		case 'x': v.x = value; break;
+		case 'y': v.y = value; break;
+		case 'z': v.z = value; break;
+		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
+	}
+
+	return 0;
+}
+
 void load_math(LuaEnvironment& env)
 {
 	env.load_module_function("Math", "to_rad",                math_to_rad);
@@ -944,6 +1022,14 @@ void load_math(LuaEnvironment& env)
 
 	env.load_module_function("Color4", "new", color4_new);
 	env.load_module_constructor("Color4",     color4_ctor);
+
+	env.load_module_function("Lightuserdata_mt", "__add", lightuserdata_add);
+	env.load_module_function("Lightuserdata_mt", "__sub", lightuserdata_sub);
+	env.load_module_function("Lightuserdata_mt", "__mul", lightuserdata_mul);
+	env.load_module_function("Lightuserdata_mt", "__div", lightuserdata_div);
+	env.load_module_function("Lightuserdata_mt", "__unm", lightuserdata_unm);
+	env.load_module_function("Lightuserdata_mt", "__index", lightuserdata_index);
+	env.load_module_function("Lightuserdata_mt", "__newindex", lightuserdata_newindex);
 }
 
 } // namespace crown

@@ -75,84 +75,6 @@ static int require(lua_State* L)
 	return 1;
 }
 
-static int lightuserdata_add(lua_State* L)
-{
-	LuaStack stack(L);
-	const Vector3& a = stack.get_vector3(1);
-	const Vector3& b = stack.get_vector3(2);
-	stack.push_vector3(a + b);
-	return 1;
-}
-
-static int lightuserdata_sub(lua_State* L)
-{
-	LuaStack stack(L);
-	const Vector3& a = stack.get_vector3(1);
-	const Vector3& b = stack.get_vector3(2);
-	stack.push_vector3(a - b);
-	return 1;
-}
-
-static int lightuserdata_mul(lua_State* L)
-{
-	LuaStack stack(L);
-	const Vector3& a = stack.get_vector3(1);
-	const float b = stack.get_float(2);
-	stack.push_vector3(a * b);
-	return 1;
-}
-
-static int lightuserdata_div(lua_State* L)
-{
-	LuaStack stack(L);
-	const Vector3& a = stack.get_vector3(1);
-	const float b = stack.get_float(2);
-	stack.push_vector3(a / b);
-	return 1;
-}
-
-static int lightuserdata_unm(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_vector3(-stack.get_vector3(1));
-	return 1;
-}
-
-static int lightuserdata_index(lua_State* L)
-{
-	LuaStack stack(L);
-	Vector3& v = stack.get_vector3(1);
-	const char* s = stack.get_string(2);
-
-	switch (s[0])
-	{
-		case 'x': stack.push_float(v.x); return 1;
-		case 'y': stack.push_float(v.y); return 1;
-		case 'z': stack.push_float(v.z); return 1;
-		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
-	}
-
-	return 0;
-}
-
-static int lightuserdata_newindex(lua_State* L)
-{
-	LuaStack stack(L);
-	Vector3& v = stack.get_vector3(1);
-	const char* s = stack.get_string(2);
-	const float value = stack.get_float(3);
-
-	switch (s[0])
-	{
-		case 'x': v.x = value; break;
-		case 'y': v.y = value; break;
-		case 'z': v.z = value; break;
-		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
-	}
-
-	return 0;
-}
-
 LuaEnvironment::LuaEnvironment()
 	: L(NULL)
 	, _vec3_used(0)
@@ -212,36 +134,10 @@ void LuaEnvironment::load_libs()
 	lua_pop(L, 1);
 
 	// Create metatable for lightuserdata
-	luaL_newmetatable(L, "Lightuserdata_mt");
-	lua_pushstring(L, "__add");
-	lua_pushcfunction(L, lightuserdata_add);
-	lua_settable(L, 1);
-
-	lua_pushstring(L, "__sub");
-	lua_pushcfunction(L, lightuserdata_sub);
-	lua_settable(L, 1);
-
-	lua_pushstring(L, "__mul");
-	lua_pushcfunction(L, lightuserdata_mul);
-	lua_settable(L, 1);
-
-	lua_pushstring(L, "__div");
-	lua_pushcfunction(L, lightuserdata_div);
-	lua_settable(L, 1);
-
-	lua_pushstring(L, "__unm");
-	lua_pushcfunction(L, lightuserdata_unm);
-	lua_settable(L, 1);
-
-	lua_pushstring(L, "__index");
-	lua_pushcfunction(L, lightuserdata_index);
-	lua_settable(L, 1);
-
-	lua_pushstring(L, "__newindex");
-	lua_pushcfunction(L, lightuserdata_newindex);
-	lua_settable(L, 1);
-
-	lua_pop(L, 1); // Pop Lightuserdata_mt
+	lua_pushlightuserdata(L, 0);
+	lua_getfield(L, LUA_REGISTRYINDEX, "Lightuserdata_mt");
+	lua_setmetatable(L, -2);
+	lua_pop(L, 1);
 
 	// Ensure stack is clean
 	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
