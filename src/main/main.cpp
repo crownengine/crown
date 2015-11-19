@@ -21,6 +21,17 @@ bool process_events()
 	bool exit = false;
 	InputManager* im = device()->input_manager();
 
+	static int16_t mouse_curr_x = 0;
+	static int16_t mouse_curr_y = 0;
+	static int16_t mouse_last_x = 0;
+	static int16_t mouse_last_y = 0;
+
+	const int16_t dt_x = mouse_curr_x - mouse_last_x;
+	const int16_t dt_y = mouse_curr_y - mouse_last_y;
+	im->mouse()->set_axis(MouseAxis::CURSOR_DELTA, vector3(dt_x, dt_y, 0.0f));
+	mouse_last_x = mouse_curr_x;
+	mouse_last_y = mouse_curr_y;
+
 	while(next_event(event))
 	{
 		if (event.type == OsEvent::NONE) continue;
@@ -53,10 +64,12 @@ bool process_events()
 						im->mouse()->set_button_state(ev.button, ev.pressed);
 						break;
 					case OsMouseEvent::MOVE:
-						im->mouse()->set_axis(0, vector3(ev.x, ev.y, 0.0f));
+						mouse_curr_x = ev.x;
+						mouse_curr_y = ev.y;
+						im->mouse()->set_axis(MouseAxis::CURSOR, vector3(ev.x, ev.y, 0.0f));
 						break;
 					case OsMouseEvent::WHEEL:
-						im->mouse()->set_axis(1, vector3(ev.wheel, 0.0f, 0.0f));
+						im->mouse()->set_axis(MouseAxis::WHEEL, vector3(ev.wheel, 0.0f, 0.0f));
 						break;
 					default:
 						CE_FATAL("Unknown mouse event type");

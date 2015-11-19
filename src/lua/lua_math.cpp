@@ -1022,12 +1022,12 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Color4", "new", color4_new);
 	env.load_module_constructor("Color4",     color4_ctor);
 
-	env.load_module_function("Lightuserdata_mt", "__add", lightuserdata_add);
-	env.load_module_function("Lightuserdata_mt", "__sub", lightuserdata_sub);
-	env.load_module_function("Lightuserdata_mt", "__mul", lightuserdata_mul);
-	env.load_module_function("Lightuserdata_mt", "__div", lightuserdata_div);
-	env.load_module_function("Lightuserdata_mt", "__unm", lightuserdata_unm);
-	env.load_module_function("Lightuserdata_mt", "__index", lightuserdata_index);
+	env.load_module_function("Lightuserdata_mt", "__add",      lightuserdata_add);
+	env.load_module_function("Lightuserdata_mt", "__sub",      lightuserdata_sub);
+	env.load_module_function("Lightuserdata_mt", "__mul",      lightuserdata_mul);
+	env.load_module_function("Lightuserdata_mt", "__div",      lightuserdata_div);
+	env.load_module_function("Lightuserdata_mt", "__unm",      lightuserdata_unm);
+	env.load_module_function("Lightuserdata_mt", "__index",    lightuserdata_index);
 	env.load_module_function("Lightuserdata_mt", "__newindex", lightuserdata_newindex);
 }
 

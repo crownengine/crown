@@ -143,6 +143,7 @@ struct MouseAxis
 	enum Enum
 	{
 		CURSOR,
+		CURSOR_DELTA,
 		WHEEL,
 		COUNT
 	};
