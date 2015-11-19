@@ -92,6 +92,10 @@ Vector3
 
 		Returns the corresponding semantic axis.
 
+	**zero** () : Vector3
+
+		Returns a vector with all values set to zero.
+
 Vector3Box
 ----------
 
@@ -837,7 +841,9 @@ Mouse Button Names
 Mouse Axis Names
 ~~~~~~~~~~~~~~~~
 
-	cursor, wheel
+	* cursor: Returns the cursor position (x, y) in screen coordinates.
+	* cursor_delta: Returns the delta of the cursor position (x, y) since last frame.
+	* wheel: Returns the movement of the mouse wheel in the y axis. Positive values of y mean upward scrolling, negative values mean downward scrolling.
 
 Touch
 -----
@@ -911,12 +917,16 @@ Pad1, Pad2, Pad3, Pad4
 Pad Button Names
 ~~~~~~~~~~~~~~~~
 
-	up, down, left, right, start, back, guide, left_thumb, right_thumb, left_shoulder, right_shoulder, a, b, x, y
+	* up, down, left, right
+	* start, back, guide
+	* left_thumb, right_thumb
+	* left_shoulder, right_shoulder
+	* a, b, x, y
 
 Pad Axis Names
 ~~~~~~~~~~~~~~
 
-	left, right
+	* left, right: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z component represents the left or right trigger [0; +1].
 
 Window
 ======
