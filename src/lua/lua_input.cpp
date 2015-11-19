@@ -125,8 +125,9 @@ struct MouseAxisInfo
 
 static MouseAxisInfo s_mouse_axis[] =
 {
-	{ "cursor", MouseAxis::CURSOR },
-	{ "wheel",  MouseAxis::WHEEL  }
+	{ "cursor",       MouseAxis::CURSOR       },
+	{ "cursor_delta", MouseAxis::CURSOR_DELTA },
+	{ "wheel",        MouseAxis::WHEEL        }
 };
 CE_STATIC_ASSERT(CE_COUNTOF(s_mouse_axis) == MouseAxis::COUNT);
 
