@@ -69,7 +69,7 @@ bool process_events()
 						im->mouse()->set_axis(MouseAxis::CURSOR, vector3(ev.x, ev.y, 0.0f));
 						break;
 					case OsMouseEvent::WHEEL:
-						im->mouse()->set_axis(MouseAxis::WHEEL, vector3(ev.wheel, 0.0f, 0.0f));
+						im->mouse()->set_axis(MouseAxis::WHEEL, vector3(0.0f, ev.wheel, 0.0f));
 						break;
 					default:
 						CE_FATAL("Unknown mouse event type");
