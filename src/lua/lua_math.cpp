@@ -338,6 +338,13 @@ static int vector3_down(lua_State* L)
 	return 1;
 }
 
+static int vector3_zero(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(VECTOR3_ZERO);
+	return 1;
+}
+
 static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -951,6 +958,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3", "right",          vector3_right);
 	env.load_module_function("Vector3", "up",             vector3_up);
 	env.load_module_function("Vector3", "down",           vector3_down);
+	env.load_module_function("Vector3", "zero",           vector3_zero);
 
 	env.load_module_constructor("Vector3", vector3_ctor);
 
