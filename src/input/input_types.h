@@ -81,7 +81,6 @@ struct KeyboardButton
 		LEFT_SUPER,
 		RIGHT_SUPER,
 
-		/* [0x30, 0x39] reserved for ASCII digits */
 		NUMBER_0,
 		NUMBER_1,
 		NUMBER_2,
@@ -93,7 +92,6 @@ struct KeyboardButton
 		NUMBER_8,
 		NUMBER_9,
 
-		/* [0x41, 0x5a] reserved for ASCII alphabet */
 		A,
 		B,
 		C,
@@ -121,9 +119,6 @@ struct KeyboardButton
 		Y,
 		Z,
 
-		/* [0x61, 0x7a] reserved for ASCII alphabet */
-
-		// The last key _must_ be <= 0xff
 		COUNT
 	};
 };
