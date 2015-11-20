@@ -38,9 +38,6 @@ struct LuaEnvironment
 	void load_module_function(const char* module, const char* name, const char* value);
 	void load_module_constructor(const char* module, const lua_CFunction func);
 
-	/// Loads the enum with the given @a name and @a value into the table @a module.
-	void load_module_enum(const char* module, const char* name, uint32_t value);
-
 	/// Calls the global function @a func with @a argc argument number.
 	/// Each argument is a pair (type, value).
 	/// Example call:

@@ -194,25 +194,6 @@ void LuaEnvironment::load_module_constructor(const char* module, const lua_CFunc
 	lua_pop(L, -1);
 }
 
-void LuaEnvironment::load_module_enum(const char* module, const char* name, uint32_t value)
-{
-	// Checks table existance
-	lua_pushstring(L, module);
-	lua_rawget(L, LUA_GLOBALSINDEX);
-	if (!lua_istable(L, -1)) // If not exixts
-	{
-		// Creates table
-		lua_newtable(L);
-		lua_setglobal(L, module);
-	}
-
-	// Adds field to table
-	lua_getglobal(L, module);
-	lua_pushinteger(L, value);
-	lua_setfield(L, -2, name);
-	lua_pop(L, 2);
-}
-
 void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 {
 	CE_ASSERT_NOT_NULL(func);
