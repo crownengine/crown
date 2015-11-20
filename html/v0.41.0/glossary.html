@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Glossary &mdash; Crown Manual 0.41.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'0.41.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: ''
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="License" href="copyright.html" />
+    <link rel="prev" title="Command line reference" href="command_line.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Crown Manual
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.41.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Crown Manual</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Glossary</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/glossary.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="glossary">
+<h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+<p>This page lists definitions for terms used in Crown and this manual.</p>
+<dl class="glossary docutils">
+<dt id="term-camera">Camera</dt>
+<dd>An object that describes a position and orientation in space, along with other
+geometric parameters, used to render a <a class="reference internal" href="#term-world"><span class="xref std std-term">World</span></a> on screen from a specific
+perspective.</dd>
+<dt id="term-component">Component</dt>
+<dd>A collection of data that is necessary for a given simulation to be computed.</dd>
+<dt id="term-data-compiler">Data Compiler</dt>
+<dd>The incremental compiler that transforms generic, human-readable <a class="reference internal" href="#term-source-data"><span class="xref std std-term">Source
+Data</span></a> into specialized, high-performance binary blobs ready to be loaded in
+memory and consumed by the <a class="reference internal" href="#term-runtime"><span class="xref std std-term">Runtime</span></a>.</dd>
+<dt id="term-data-directory">Data Directory</dt>
+<dd>The directory where the <a class="reference internal" href="#term-data-compiler"><span class="xref std std-term">Data Compiler</span></a> output is stored on disk.</dd>
+<dt id="term-level">Level</dt>
+<dd>A collection of <a class="reference internal" href="#term-unit"><span class="xref std std-term">units</span></a>, <a class="reference internal" href="#term-sound"><span class="xref std std-term">sounds</span></a> and other objects
+to be used together in a <a class="reference internal" href="#term-world"><span class="xref std std-term">World</span></a>.</dd>
+<dt id="term-lua">Lua</dt>
+<dd>The scripting language used in Crown.</dd>
+<dt id="term-mesh">Mesh</dt>
+<dd>An object used to represent animated 3D graphics on the screen.</dd>
+<dt id="term-resource">Resource</dt>
+<dd>The file that describes a particular piece of data to be used by the
+<a class="reference internal" href="#term-runtime"><span class="xref std std-term">Runtime</span></a>. Resource files typically contain definitions for <a class="reference internal" href="#term-unit"><span class="xref std std-term">units</span></a>, <a class="reference internal" href="#term-level"><span class="xref std std-term">levels</span></a>, <a class="reference internal" href="#term-lua"><span class="xref std std-term">Lua</span></a> scripts etc.</dd>
+<dt id="term-runtime">Runtime</dt>
+<dd>The executable that reads data from the <a class="reference internal" href="#term-data-directory"><span class="xref std std-term">Data Directory</span></a> and transforms
+it to produce a particular output based on the logic defined by the programmer
+and the input given by the user.
+This is the executable that will be distributed to the end user of your game.</dd>
+<dt id="term-shader">Shader</dt>
+<dd>A program that runs on dedicated hardware to produce graphical output on the
+screen or other off-screen buffers.</dd>
+<dt id="term-sound">Sound</dt>
+<dd>A 3D object used to play sounds in a <a class="reference internal" href="#term-world"><span class="xref std std-term">World</span></a>.</dd>
+<dt id="term-source-data">Source Data</dt>
+<dd>The collection of <a class="reference internal" href="#term-resource"><span class="xref std std-term">Resource</span></a> files stored inside the <a class="reference internal" href="#term-source-directory"><span class="xref std std-term">Source
+Directory</span></a>.</dd>
+<dt id="term-source-directory">Source Directory</dt>
+<dd>The directory where the <a class="reference internal" href="#term-source-data"><span class="xref std std-term">Source Data</span></a> is stored on disk.</dd>
+<dt id="term-sprite">Sprite</dt>
+<dd>An object used to represent animated 2D graphics on the screen.</dd>
+<dt id="term-texture">Texture</dt>
+<dd>An object used to describes visual features for <a class="reference internal" href="#term-sprite"><span class="xref std std-term">sprites</span></a>,
+<a class="reference internal" href="#term-mesh"><span class="xref std std-term">meshes</span></a> etc.</dd>
+<dt id="term-unit">Unit</dt>
+<dd>A collection of distinct <a class="reference internal" href="#term-component"><span class="xref std std-term">components</span></a>.
+This is the basic building block used to represent all kinds of different
+objects in a <a class="reference internal" href="#term-world"><span class="xref std std-term">World</span></a> simulation.</dd>
+<dt id="term-world">World</dt>
+<dd>The object where the simulation of a number of <a class="reference internal" href="#term-unit"><span class="xref std std-term">units</span></a> occur. This
+simulation can be advanced in time and its results can be renderd on screen
+from arbitrary view points defined by a <a class="reference internal" href="#term-camera"><span class="xref std std-term">Camera</span></a>.</dd>
+</dl>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="copyright.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="command_line.html" class="btn btn-neutral float-left" title="Command line reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

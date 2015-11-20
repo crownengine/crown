@@ -1,0 +1,1463 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Lua API reference &mdash; Crown Manual 0.40.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'0.40.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: ''
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="boot.config reference" href="boot_config.html" />
+    <link rel="prev" title="Basic concepts" href="basics.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Crown Manual
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.40.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Lua API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#animationstatemachine">AnimationStateMachine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugline">DebugLine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#device">Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#display">Display</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#displaymode">DisplayMode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gui">Gui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#input">Input</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#keyboard">Keyboard</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#keyboard-button-names">Keyboard Button Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#keyboard-axis-names">Keyboard Axis Names</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mouse">Mouse</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mouse-button-names">Mouse Button Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mouse-axis-names">Mouse Axis Names</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#touch">Touch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pad1-pad2-pad3-pad4">Pad1, Pad2, Pad3, Pad4</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pad-button-names">Pad Button Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pad-axis-names">Pad Axis Names</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#material">Material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#math">Math</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vector3">Vector3</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#constructors">Constructors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#vector3box">Vector3Box</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Constructors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#quaternion">Quaternion</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Constructors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#quaternionbox">QuaternionBox</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Constructors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#matrix4x4">Matrix4x4</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id7">Constructors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#matrix4x4box">Matrix4x4Box</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id9">Constructors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#color4">Color4</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id11">Constructors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Math</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#physicsworld">PhysicsWorld</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#raycasthit">RaycastHit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actor">Actor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#profiler">Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#renderworld">RenderWorld</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mesh">Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sprite">Sprite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#light">Light</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#resourcepackage">ResourcePackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scenegraph">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#soundworld">SoundWorld</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unitmanager">UnitManager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#window">Window</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#world">World</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#camera">Camera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sound">Sound</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#level">Level</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Crown Manual</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Lua API reference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/lua_api.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="lua-api-reference">
+<h1>Lua API reference<a class="headerlink" href="#lua-api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="animationstatemachine">
+<h2>AnimationStateMachine<a class="headerlink" href="#animationstatemachine" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>instance</strong> (asm, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the state machine owned by the <em>unit</em>, or <code class="docutils literal"><span class="pre">nil</span></code>.</dd>
+<dt><strong>variable_id</strong> (asm, state_machine, name) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the variable <em>name</em> in the <em>state_machine</em>.</dd>
+<dt><strong>variable</strong> (asm, state_machine, variable_id) <span class="classifier-delimiter">:</span> <span class="classifier">number</span></dt>
+<dd>Returns the value of the <em>variable_id</em> in the <em>state_machine</em>.</dd>
+<dt><strong>set_variable</strong> (asm, state_machine, variable_id, value)</dt>
+<dd>Sets the <em>value</em> of the <em>variable_id</em> in the <em>state_machine</em>.</dd>
+<dt><strong>trigger</strong> (asm, state_machine, event)</dt>
+<dd>Triggers the <em>event</em> in the <em>state_machine</em>.</dd>
+</dl>
+</div>
+<div class="section" id="debugline">
+<h2>DebugLine<a class="headerlink" href="#debugline" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>add_line</strong> (debug_line, start, end, color)</dt>
+<dd>Adds a line from <em>start</em> to <em>end</em> with the given <em>color</em>.</dd>
+<dt><strong>add_axes</strong> (debug_line, tm, length)</dt>
+<dd>Adds lines for each axis with the given <em>length</em>.</dd>
+<dt><strong>add_arc</strong> (debug_line, center, radius, plane_normal, midpoint_normal, color, [circle_segments = 36]);</dt>
+<dd>Adds an arc at <em>center</em> with the given <em>radius</em> and <em>plane_normal</em> and <em>midpoint_normal</em> vectors.</dd>
+<dt><strong>add_circle</strong> (debug_line, center, radius, normal, color, [segments = 36])</dt>
+<dd>Adds a circle at <em>center</em> with the given <em>radius</em> and <em>normal</em> vector.</dd>
+<dt><strong>add_cone</strong> (debug_line, from, to, radius, color, [segments = 36])</dt>
+<dd>Adds a cone with the base centered at <em>from</em> and the tip at <em>to</em>.</dd>
+<dt><strong>add_sphere</strong> (debug_line, center, radius, color, [segments = 36])</dt>
+<dd>Adds a sphere at <em>center</em> with the given <em>radius</em>.</dd>
+<dt><strong>add_obb</strong> (debug_line, tm, half_extents, color)</dt>
+<dd>Adds an orientd bounding box. <em>tm</em> describes the position and orientation of
+the box. <em>half_extents</em> describes the size of the box along the axis.</dd>
+<dt><strong>add_frustum</strong> (debug_line, mvp, color)</dt>
+<dd>Adds a frustum defined by <em>mvp</em>.</dd>
+<dt><strong>add_unit</strong> (debug_line, tm, name, color)</dt>
+<dd>Adds the meshes from the unit <em>name</em>.</dd>
+<dt><strong>reset</strong> (debug_line)</dt>
+<dd>Resets all the lines.</dd>
+<dt><strong>submit</strong> (debug_line)</dt>
+<dd>Submits the lines to renderer for drawing.</dd>
+</dl>
+</div>
+<div class="section" id="device">
+<h2>Device<a class="headerlink" href="#device" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>argv</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">table</span></dt>
+<dd>Returns a table containing the command line parameters the engine was started with.</dd>
+<dt><strong>platform</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a string identifying what platform the engine is running on.
+It can be either <code class="docutils literal"><span class="pre">android</span></code>, <code class="docutils literal"><span class="pre">linux</span></code> or <code class="docutils literal"><span class="pre">windows</span></code></dd>
+<dt><strong>architecture</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a string identifying what architecture the engine is running on.
+It can be either <code class="docutils literal"><span class="pre">32-bit</span></code> or <code class="docutils literal"><span class="pre">64-bit</span></code>.</dd>
+<dt><strong>version</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a string identifying the engine version.
+The form is &#8220;major.minor.micro&#8221;.</dd>
+<dt><strong>quit</strong> ()</dt>
+<dd>Quits the application.</dd>
+<dt><strong>resolution</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">float, float</span></dt>
+<dd>Returns the main window resolution (width, height).</dd>
+<dt><strong>create_world</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">World</span></dt>
+<dd>Creates a new world.</dd>
+<dt><strong>destroy_world</strong> (world)</dt>
+<dd>Destroys the given <em>world</em>.</dd>
+<dt><strong>render</strong> (world, camera)</dt>
+<dd>Renders <em>world</em> using <em>camera</em>.</dd>
+<dt><strong>create_resource_package</strong> (name) <span class="classifier-delimiter">:</span> <span class="classifier">ResourcePackage</span></dt>
+<dd>Returns the resource package with the given <em>package_name</em> name.</dd>
+<dt><strong>destroy_resource_package</strong> (package)</dt>
+<dd><p class="first">Destroy a previously created resource <em>package</em>.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To unload the resources loaded by the package, you have to call
+ResourcePackage.unload() first.</p>
+</div>
+</dd>
+<dt><strong>console_send</strong> (table)</dt>
+<dd>Sends the given lua <em>table</em> to clients connected to the engine.
+Values can be either <code class="docutils literal"><span class="pre">nil</span></code>, bool, number, string, table, array, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.</dd>
+<dt><strong>can_get</strong> (type, name) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the resource (type, name) is loaded.
+When resource autoload is enabled it always returns true.</dd>
+<dt><strong>enable_resource_autoload</strong> (enable)</dt>
+<dd>Sets whether resources should be automatically loaded when accessed.</dd>
+<dt><strong>temp_count</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int, int, int</span></dt>
+<dd>Returns the number of temporary objects used by Lua.</dd>
+<dt><strong>set_temp_count</strong> (nv, nq, nm)</dt>
+<dd>Sets the number of temporary objects used by Lua.</dd>
+<dt><strong>guid</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a new GUID.</dd>
+</dl>
+</div>
+<div class="section" id="display">
+<h2>Display<a class="headerlink" href="#display" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>modes</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">table</span></dt>
+<dd>Returns an array of <a class="reference internal" href="#displaymode">DisplayMode</a> tables.</dd>
+<dt><strong>set_mode</strong> (id)</dt>
+<dd>Sets the display mode <em>id</em>.
+The initial display mode is automatically reset when the program terminates.</dd>
+</dl>
+<div class="section" id="displaymode">
+<h3>DisplayMode<a class="headerlink" href="#displaymode" title="Permalink to this headline">¶</a></h3>
+<p>DisplayMode is a lua table with 3 fields:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">id</span></code>: The id of the display mode.</li>
+<li><code class="docutils literal"><span class="pre">width</span></code>: The width of the display mode.</li>
+<li><code class="docutils literal"><span class="pre">height</span></code>: The height of the display mode.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="gui">
+<h2>Gui<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>move</strong> (gui, pos)</dt>
+<dd>Moves the Gui to <em>pos</em>.</dd>
+<dt><strong>triangle</strong> (gui, a, b, c, color)</dt>
+<dd>Draws a triangle defined by vertices <em>a</em>, <em>b</em> and <em>c</em>.</dd>
+<dt><strong>rect</strong> (gui, pos, size, color)</dt>
+<dd>Draws a rectangle.</dd>
+<dt><strong>image</strong> (gui, pos, size, material_resource, color)</dt>
+<dd>Draws an image.</dd>
+<dt><strong>image_uv</strong> (gui, pos, size, uv0, uv1, material_resource, color)</dt>
+<dd>Draws an image with explicit UV coordinates.</dd>
+<dt><strong>text</strong> (gui, pos, font_size, str, font_resource, material_resource, color)</dt>
+<dd>Draws text.</dd>
+</dl>
+</div>
+<div class="section" id="input">
+<h2>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="keyboard">
+<h3>Keyboard<a class="headerlink" href="#keyboard" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>name</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of keyboard.</dd>
+<dt><strong>connected</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the keyboard is connected and functioning.</dd>
+<dt><strong>num_buttons</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of buttons of the keyboard.</dd>
+<dt><strong>num_axes</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of axes of the keyboard.</dd>
+<dt><strong>pressed</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the button <em>id</em> is pressed in the current frame.</dd>
+<dt><strong>released</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the button <em>id</em> is released in the current frame.</dd>
+<dt><strong>any_pressed</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns the <em>id</em> of the first button that was pressed in the current frame
+or <code class="docutils literal"><span class="pre">nil</span></code> if no buttons were pressed at all.</dd>
+<dt><strong>any_released</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns the <em>id</em> of the first button that was released in the current frame
+or <code class="docutils literal"><span class="pre">nil</span></code> if no buttons were released at all.</dd>
+<dt><strong>button</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the value of the button <em>id</em> in the range [0..1].</dd>
+<dt><strong>button_name</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the button <em>id</em>.</dd>
+<dt><strong>button_id</strong> (name) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the <em>id</em> of the button <em>name</em> or <code class="docutils literal"><span class="pre">nil</span></code> if no matching button is found.</dd>
+</dl>
+<div class="section" id="keyboard-button-names">
+<h4>Keyboard Button Names<a class="headerlink" href="#keyboard-button-names" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">tab</span></code>, <code class="docutils literal"><span class="pre">enter</span></code>, <code class="docutils literal"><span class="pre">escape</span></code>, <code class="docutils literal"><span class="pre">space</span></code>, <code class="docutils literal"><span class="pre">backspace</span></code></li>
+<li><code class="docutils literal"><span class="pre">num_lock</span></code>, <code class="docutils literal"><span class="pre">numpad_enter</span></code>, <code class="docutils literal"><span class="pre">numpad_.</span></code>, <code class="docutils literal"><span class="pre">numpad_*</span></code>, <code class="docutils literal"><span class="pre">numpad_+</span></code>, <code class="docutils literal"><span class="pre">numpad_-</span></code>, <code class="docutils literal"><span class="pre">numpad_/</span></code>, <code class="docutils literal"><span class="pre">numpad_0</span></code>, <code class="docutils literal"><span class="pre">numpad_1</span></code>, <code class="docutils literal"><span class="pre">numpad_2</span></code>, <code class="docutils literal"><span class="pre">numpad_3</span></code>, <code class="docutils literal"><span class="pre">numpad_4</span></code>, <code class="docutils literal"><span class="pre">numpad_5</span></code>, <code class="docutils literal"><span class="pre">numpad_6</span></code>, <code class="docutils literal"><span class="pre">numpad_7</span></code>, <code class="docutils literal"><span class="pre">numpad_8</span></code>, <code class="docutils literal"><span class="pre">numpad_9</span></code></li>
+<li><code class="docutils literal"><span class="pre">f1</span></code>, <code class="docutils literal"><span class="pre">f2</span></code>, <code class="docutils literal"><span class="pre">f3</span></code>, <code class="docutils literal"><span class="pre">f4</span></code>, <code class="docutils literal"><span class="pre">f5</span></code>, <code class="docutils literal"><span class="pre">f6</span></code>, <code class="docutils literal"><span class="pre">f7</span></code>, <code class="docutils literal"><span class="pre">f8</span></code>, <code class="docutils literal"><span class="pre">f9</span></code>, <code class="docutils literal"><span class="pre">f10</span></code>, <code class="docutils literal"><span class="pre">f11</span></code>, <code class="docutils literal"><span class="pre">f12</span></code></li>
+<li><code class="docutils literal"><span class="pre">home</span></code>, <code class="docutils literal"><span class="pre">left</span></code>, <code class="docutils literal"><span class="pre">up</span></code>, <code class="docutils literal"><span class="pre">right</span></code>, <code class="docutils literal"><span class="pre">down</span></code>, <code class="docutils literal"><span class="pre">page_up</span></code>, <code class="docutils literal"><span class="pre">page_down</span></code>, <code class="docutils literal"><span class="pre">ins</span></code>, <code class="docutils literal"><span class="pre">del</span></code>, <code class="docutils literal"><span class="pre">end</span></code></li>
+<li><code class="docutils literal"><span class="pre">ctrl_left</span></code>, <code class="docutils literal"><span class="pre">ctrl_right</span></code>, <code class="docutils literal"><span class="pre">shift_left</span></code>, <code class="docutils literal"><span class="pre">shift_right</span></code>, <code class="docutils literal"><span class="pre">caps_lock</span></code>, <code class="docutils literal"><span class="pre">alt_left</span></code>, <code class="docutils literal"><span class="pre">alt_right</span></code>, <code class="docutils literal"><span class="pre">super_left</span></code>, <code class="docutils literal"><span class="pre">super_right</span></code></li>
+<li><code class="docutils literal"><span class="pre">0</span></code>, <code class="docutils literal"><span class="pre">1</span></code>, <code class="docutils literal"><span class="pre">2</span></code>, <code class="docutils literal"><span class="pre">3</span></code>, <code class="docutils literal"><span class="pre">4</span></code>, <code class="docutils literal"><span class="pre">5</span></code>, <code class="docutils literal"><span class="pre">6</span></code>, <code class="docutils literal"><span class="pre">7</span></code>, <code class="docutils literal"><span class="pre">8</span></code>, <code class="docutils literal"><span class="pre">9</span></code></li>
+<li><code class="docutils literal"><span class="pre">a</span></code>, <code class="docutils literal"><span class="pre">b</span></code>, <code class="docutils literal"><span class="pre">c</span></code>, <code class="docutils literal"><span class="pre">d</span></code>, <code class="docutils literal"><span class="pre">e</span></code>, <code class="docutils literal"><span class="pre">f</span></code>, <code class="docutils literal"><span class="pre">g</span></code>, <code class="docutils literal"><span class="pre">h</span></code>, <code class="docutils literal"><span class="pre">i</span></code>, <code class="docutils literal"><span class="pre">j</span></code>, <code class="docutils literal"><span class="pre">k</span></code>, <code class="docutils literal"><span class="pre">l</span></code>, <code class="docutils literal"><span class="pre">m</span></code>, <code class="docutils literal"><span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">o</span></code>, <code class="docutils literal"><span class="pre">p</span></code>, <code class="docutils literal"><span class="pre">q</span></code>, <code class="docutils literal"><span class="pre">r</span></code>, <code class="docutils literal"><span class="pre">s</span></code>, <code class="docutils literal"><span class="pre">t</span></code>, <code class="docutils literal"><span class="pre">u</span></code>, <code class="docutils literal"><span class="pre">v</span></code>, <code class="docutils literal"><span class="pre">w</span></code>, <code class="docutils literal"><span class="pre">x</span></code>, <code class="docutils literal"><span class="pre">y</span></code>, <code class="docutils literal"><span class="pre">z</span></code></li>
+</ul>
+</div>
+<div class="section" id="keyboard-axis-names">
+<h4>Keyboard Axis Names<a class="headerlink" href="#keyboard-axis-names" title="Permalink to this headline">¶</a></h4>
+<p>None.</p>
+</div>
+</div>
+<div class="section" id="mouse">
+<h3>Mouse<a class="headerlink" href="#mouse" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>name</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the mouse.</dd>
+<dt><strong>connected</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the mouse is connected and functioning.</dd>
+<dt><strong>num_buttons</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of buttons of the mouse.</dd>
+<dt><strong>num_axes</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of axes of the mouse.</dd>
+<dt><strong>pressed</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the button <em>id</em> is pressed in the current frame.</dd>
+<dt><strong>released</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the button <em>id</em> is released in the current frame.</dd>
+<dt><strong>any_pressed</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns the <em>id</em> of the first button that was pressed in the current frame
+or <code class="docutils literal"><span class="pre">nil</span></code> if no buttons were pressed at all.</dd>
+<dt><strong>any_released</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns the <em>id</em> of the first button that was released in the current frame
+or <code class="docutils literal"><span class="pre">nil</span></code> if no buttons were released at all.</dd>
+<dt><strong>button</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the value of the button <em>id</em> in the range [0..1].</dd>
+<dt><strong>axis</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the value of the axis <em>id</em>.</dd>
+<dt><strong>button_name</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the button <em>id</em>.</dd>
+<dt><strong>axis_name</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the axis <em>id</em>.</dd>
+<dt><strong>button_id</strong> (name) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the <em>id</em> of the button <em>name</em> or <code class="docutils literal"><span class="pre">nil</span></code> if no matching button is found.</dd>
+<dt><strong>axis_id</strong> (name) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the <em>id</em> of the axis <em>name</em> or <code class="docutils literal"><span class="pre">nil</span></code> if no matching axis is found.</dd>
+</dl>
+<div class="section" id="mouse-button-names">
+<h4>Mouse Button Names<a class="headerlink" href="#mouse-button-names" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">left</span></code>, <code class="docutils literal"><span class="pre">middle</span></code>, <code class="docutils literal"><span class="pre">right</span></code>, <code class="docutils literal"><span class="pre">extra_1</span></code>, <code class="docutils literal"><span class="pre">extra_2</span></code></p>
+</div>
+<div class="section" id="mouse-axis-names">
+<h4>Mouse Axis Names<a class="headerlink" href="#mouse-axis-names" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">cursor</span></code>: Returns the cursor position (x, y) in screen coordinates.</li>
+<li><code class="docutils literal"><span class="pre">cursor_delta</span></code>: Returns the delta of the cursor position (x, y) since last frame.</li>
+<li><code class="docutils literal"><span class="pre">wheel</span></code>: Returns the movement of the mouse wheel in the y axis. Positive values of y mean upward scrolling, negative values mean downward scrolling.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="touch">
+<h3>Touch<a class="headerlink" href="#touch" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>name</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the touch.</dd>
+<dt><strong>connected</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the touch is connected and functioning.</dd>
+<dt><strong>num_buttons</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of buttons of the touch.</dd>
+<dt><strong>num_axes</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of axes of the touch.</dd>
+<dt><strong>pressed</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the button <em>id</em> is pressed in the current frame.</dd>
+<dt><strong>released</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the button <em>id</em> is released in the current frame.</dd>
+<dt><strong>any_pressed</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns the <em>id</em> of the first button that was pressed in the current frame
+or <code class="docutils literal"><span class="pre">nil</span></code> if no buttons were pressed at all.</dd>
+<dt><strong>any_released</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns the <em>id</em> of the first button that was released in the current frame
+or <code class="docutils literal"><span class="pre">nil</span></code> if no buttons were released at all.</dd>
+<dt><strong>button</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the value of the button <em>id</em> in the range [0..1].</dd>
+<dt><strong>axis</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the value of the axis <em>id</em>.</dd>
+<dt><strong>button_name</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the button <em>id</em>.</dd>
+<dt><strong>axis_name</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the axis <em>id</em>.</dd>
+<dt><strong>button_id</strong> (name) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the <em>id</em> of the button <em>name</em> or <code class="docutils literal"><span class="pre">nil</span></code> if no matching button is found.</dd>
+<dt><strong>axis_id</strong> (name) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the <em>id</em> of the axis <em>name</em> or <code class="docutils literal"><span class="pre">nil</span></code> if no matching axis is found.</dd>
+</dl>
+</div>
+<div class="section" id="pad1-pad2-pad3-pad4">
+<h3>Pad1, Pad2, Pad3, Pad4<a class="headerlink" href="#pad1-pad2-pad3-pad4" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>name</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the pad.</dd>
+<dt><strong>connected</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the pad is connected and functioning.</dd>
+<dt><strong>num_buttons</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of buttons of the pad.</dd>
+<dt><strong>num_axes</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of axes of the pad.</dd>
+<dt><strong>pressed</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the button <em>id</em> is pressed in the current frame.</dd>
+<dt><strong>released</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the button <em>id</em> is released in the current frame.</dd>
+<dt><strong>any_pressed</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns the <em>id</em> of the first button that was pressed in the current frame
+or <code class="docutils literal"><span class="pre">nil</span></code> if no buttons were pressed at all.</dd>
+<dt><strong>any_released</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns the <em>id</em> of the first button that was released in the current frame
+or <code class="docutils literal"><span class="pre">nil</span></code> if no buttons were released at all.</dd>
+<dt><strong>button</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the value of the button <em>id</em> in the range [0..1].</dd>
+<dt><strong>axis</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the value of the axis <em>id</em>.</dd>
+<dt><strong>button_name</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the button <em>id</em>.</dd>
+<dt><strong>axis_name</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the name of the axis <em>id</em>.</dd>
+<dt><strong>button_id</strong> (name) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the <em>id</em> of the button <em>name</em> or <code class="docutils literal"><span class="pre">nil</span></code> if no matching button is found.</dd>
+<dt><strong>axis_id</strong> (name) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the <em>id</em> of the axis <em>name</em> or <code class="docutils literal"><span class="pre">nil</span></code> if no matching axis is found.</dd>
+<dt><strong>deadzone</strong> (id) <span class="classifier-delimiter">:</span> <span class="classifier">deadzone_mode, deadzone_size</span></dt>
+<dd>Returns the deadzone mode and size for the axis <em>id</em>.</dd>
+<dt><strong>set_deadzone</strong> (id, deadzone_mode, deadzone_size)</dt>
+<dd>Sets the <em>deadzone_mode</em> and <em>deadzone_size</em> for the axis <em>id</em>.</dd>
+</dl>
+<div class="section" id="pad-button-names">
+<h4>Pad Button Names<a class="headerlink" href="#pad-button-names" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">up</span></code>, <code class="docutils literal"><span class="pre">down</span></code>, <code class="docutils literal"><span class="pre">left</span></code>, <code class="docutils literal"><span class="pre">right</span></code></li>
+<li><code class="docutils literal"><span class="pre">start</span></code>, <code class="docutils literal"><span class="pre">back</span></code>, <code class="docutils literal"><span class="pre">guide</span></code></li>
+<li><code class="docutils literal"><span class="pre">thumb_left</span></code>, <code class="docutils literal"><span class="pre">thumb_right</span></code></li>
+<li><code class="docutils literal"><span class="pre">shoulder_left</span></code>, <code class="docutils literal"><span class="pre">shoulder_right</span></code></li>
+<li><code class="docutils literal"><span class="pre">a</span></code>, <code class="docutils literal"><span class="pre">b</span></code>, <code class="docutils literal"><span class="pre">x</span></code>, <code class="docutils literal"><span class="pre">y</span></code></li>
+</ul>
+</div>
+<div class="section" id="pad-axis-names">
+<h4>Pad Axis Names<a class="headerlink" href="#pad-axis-names" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">left</span></code>, <code class="docutils literal"><span class="pre">right</span></code>: Returns the direction (x, y) of the left or right thumbstick [-1; +1].</li>
+<li><code class="docutils literal"><span class="pre">trigger_left</span></code>, <code class="docutils literal"><span class="pre">trigger_right</span></code>: The z element represents the left or right trigger [0; +1].</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="material">
+<h2>Material<a class="headerlink" href="#material" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>set_float</strong> (material, name, value)</dt>
+<dd>Sets the <em>value</em> of the variable <em>name</em>.</dd>
+<dt><strong>set_vector2</strong> (material, name, value)</dt>
+<dd>Sets the <em>value</em> of the variable <em>name</em>.</dd>
+<dt><strong>set_vector3</strong> (material, name, value)</dt>
+<dd>Sets the <em>value</em> of the variable <em>name</em>.</dd>
+<dt><strong>set_vector4</strong> (material, name, value)</dt>
+<dd>Sets the <em>value</em> of the variable <em>name</em>.</dd>
+<dt><strong>set_matrix4x4</strong> (material, name, value)</dt>
+<dd>Sets the <em>value</em> of the variable <em>name</em>.</dd>
+</dl>
+</div>
+<div class="section" id="math">
+<h2>Math<a class="headerlink" href="#math" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="vector3">
+<h3>Vector3<a class="headerlink" href="#vector3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="constructors">
+<h4>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>Vector3</strong> (x, y, z) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns a new vector from individual elements.</dd>
+</dl>
+</div>
+<div class="section" id="functions">
+<h4>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>x</strong> (v) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the x value of the vector.</dd>
+<dt><strong>y</strong> (v) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the y value of the vector.</dd>
+<dt><strong>z</strong> (v) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the z value of the vector.</dd>
+<dt><strong>.x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns/assigns the x value of the vector.</dd>
+<dt><strong>.y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns/assigns the y value of the vector.</dd>
+<dt><strong>.z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns/assigns the z value of the vector.</dd>
+<dt><strong>set_x</strong> (v, x)</dt>
+<dd>Sets the value of the x value of the vector.</dd>
+<dt><strong>set_y</strong> (v, y)</dt>
+<dd>Sets the value of the y value of the vector.</dd>
+<dt><strong>set_z</strong> (v, z)</dt>
+<dd>Sets the value of the z value of the vector.</dd>
+<dt><strong>elements</strong> (v) <span class="classifier-delimiter">:</span> <span class="classifier">float, float, float</span></dt>
+<dd>Returns the x, y and z elements of the vector.</dd>
+<dt><strong>add</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Adds the vector <em>a</em> to <em>b</em> and returns the result.</dd>
+<dt><strong>subtract</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Subtracts the vector <em>b</em> from <em>a</em> and returns the result.</dd>
+<dt><strong>multiply</strong> (a, k) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Multiplies the vector <em>a</em> by the scalar <em>k</em> and returns the result.</dd>
+<dt><strong>dot</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the dot product between the vectors <em>a</em> and <em>b</em>.</dd>
+<dt><strong>cross</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the cross product between the vectors <em>a</em> and <em>b</em>.</dd>
+<dt><strong>equal</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns true whether the vectors <em>a</em> and <em>b</em> are equal.</dd>
+<dt><strong>length</strong> (a) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the length of <em>a</em>.</dd>
+<dt><strong>length_squared</strong> (a) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the squared length of <em>a</em>.</dd>
+<dt><strong>set_length</strong> (a, len)</dt>
+<dd>Sets the length of <em>a</em> to <em>len</em>.</dd>
+<dt><strong>normalize</strong> (a) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Normalizes <em>a</em> and returns the result.</dd>
+<dt><strong>distance</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the distance between the points <em>a</em> and <em>b</em>.</dd>
+<dt><strong>distance_squared</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the squared distance between the points <em>a</em> and <em>b</em>.</dd>
+<dt><strong>angle</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the angle between the vectors <em>a</em> and <em>b</em>.</dd>
+<dt><strong>max</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns a vector that contains the largest value for each element from <em>a</em> and <em>b</em>.</dd>
+<dt><strong>min</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns a vector that contains the smallest value for each element from <em>a</em> and <em>b</em>.</dd>
+<dt><strong>lerp</strong> (a, b, t) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the linearly interpolated vector between <em>a</em> and <em>b</em> at time <em>t</em> in [0, 1].</dd>
+</dl>
+<div class="line-block">
+<div class="line"><strong>forward</strong> () : Vector3</div>
+<div class="line"><strong>backward</strong> () : Vector3</div>
+<div class="line"><strong>left</strong> () : Vector3</div>
+<div class="line"><strong>right</strong> () : Vector3</div>
+<div class="line"><strong>up</strong> () : Vector3</div>
+<div class="line"><strong>down</strong> () : Vector3</div>
+<div class="line-block">
+<div class="line">Returns the corresponding semantic axis.</div>
+</div>
+</div>
+<dl class="docutils">
+<dt><strong>zero</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns a vector with all values set to zero.</dd>
+<dt><strong>to_string</strong> (v) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a string representing the vector <em>v</em>.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="vector3box">
+<h3>Vector3Box<a class="headerlink" href="#vector3box" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4>Constructors<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>Vector3Box</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">Vector3Box</span></dt>
+<dd>Returns a new Vector3Box initialized with the zero vector.</dd>
+<dt><strong>Vector3Box</strong> (v) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3Box</span></dt>
+<dd>Returns a new Vector3Box from the Vector3 <em>v</em>.</dd>
+<dt><strong>Vector3Box</strong> (x, y, z) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3Box</span></dt>
+<dd>Returns a new Vector3Box from individual elements.</dd>
+</dl>
+</div>
+<div class="section" id="id2">
+<h4>Functions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>store</strong> (v)</dt>
+<dd>Stores the Vector3 <em>v</em> in the box.</dd>
+<dt><strong>store</strong> (x, y, z)</dt>
+<dd>Stores Vector3(x, y, z) in the box.</dd>
+<dt><strong>unbox</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the stored vector from the box.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="quaternion">
+<h3>Quaternion<a class="headerlink" href="#quaternion" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h4>Constructors<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>Quaternion</strong> (axis, angle) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns a new quaternion from <em>axis</em> and <em>angle</em>.</dd>
+<dt><strong>from_elements</strong> (x, y, z, w) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns a new quaternion from individual elements.</dd>
+<dt><strong>from_axis_angle</strong> (axis, angle) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns a new quaternion from <em>axis</em> and <em>angle</em>.</dd>
+</dl>
+</div>
+<div class="section" id="id4">
+<h4>Functions<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>negate</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Negates the quaternion <em>q</em> and returns the result.</dd>
+<dt><strong>identity</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the identity quaternion.</dd>
+<dt><strong>multiply</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Multiplies the quaternions <em>a</em> and <em>b</em>. (i.e. rotates first by <em>a</em> then by <em>b</em>).</dd>
+<dt><strong>multiply_by_scalar</strong> (a, k) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Multiplies the quaternion <em>a</em> by the scalar <em>k</em>.</dd>
+<dt><strong>dot</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the dot product between quaternions <em>a</em> and <em>b</em>.</dd>
+<dt><strong>length</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the length of <em>q</em>.</dd>
+<dt><strong>normalize</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Normalizes the quaternion <em>q</em> and returns the result.</dd>
+<dt><strong>conjugate</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the conjugate of quaternion <em>q</em>.</dd>
+<dt><strong>inverse</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the inverse of quaternion <em>q</em>.</dd>
+<dt><strong>power</strong> (q, exp) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the quaternion <em>q</em> raised to the power of <em>exp</em>.</dd>
+<dt><strong>elements</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">float, float, float, float</span></dt>
+<dd>Returns the x, y, z and w elements of the quaternion.</dd>
+<dt><strong>look</strong> (dir, [up]) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the quaternion describing the rotation needed to face towards <em>dir</em>.
+If <em>up</em> is not specified, Vector3.up() is used.</dd>
+<dt><strong>right</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the right axis of the rotation described by <em>q</em>.</dd>
+<dt><strong>up</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the up axis of the rotation described by <em>q</em>.</dd>
+<dt><strong>forward</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the forward axis of the rotation described by <em>q</em>.</dd>
+<dt><strong>lerp</strong> (a, b, t) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the linearly interpolated quaternion between <em>a</em> and <em>b</em> at time <em>t</em> in [0, 1].
+It uses NLerp.</dd>
+<dt><strong>to_string</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a string representing the quaternion <em>q</em>.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="quaternionbox">
+<h3>QuaternionBox<a class="headerlink" href="#quaternionbox" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h4>Constructors<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>QuaternionBox</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">QuaternionBox</span></dt>
+<dd>Returns a new QuaternionBox initialized with the identity quaternion.</dd>
+<dt><strong>QuaternionBox</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">QuaternionBox</span></dt>
+<dd>Returns a new QuaternionBox from the Quaternion <em>q</em>.</dd>
+<dt><strong>QuaternionBox</strong> (x, y, z, w) <span class="classifier-delimiter">:</span> <span class="classifier">QuaternionBox</span></dt>
+<dd>Returns a new QuaternionBox from individual elements.</dd>
+</dl>
+</div>
+<div class="section" id="id6">
+<h4>Functions<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>store</strong> (q)</dt>
+<dd>Stores the Quaternion <em>q</em> in the box.</dd>
+<dt><strong>store</strong> (x, y, z, w)</dt>
+<dd>Stores Quaternion(x, y, z, w) in the box.</dd>
+<dt><strong>unbox</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the stored quaternion from the box.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="matrix4x4">
+<h3>Matrix4x4<a class="headerlink" href="#matrix4x4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h4>Constructors<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>Matrix4x4</strong> (xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns a new matrix from individual elements.</dd>
+<dt><strong>from_quaternion</strong> (q) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns a new matrix from <em>q</em>.</dd>
+<dt><strong>from_translation</strong> (t) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns a new matrix from <em>t</em>.</dd>
+<dt><strong>from_quaternion_translation</strong> (q, t) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns a new matrix from <em>q</em> and <em>t</em>.</dd>
+<dt><strong>from_axes</strong> (x, y, z, t) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns a new matrix from <em>x</em>, <em>y</em>, <em>z</em> and <em>t</em>.</dd>
+</dl>
+</div>
+<div class="section" id="id8">
+<h4>Functions<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>copy</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns a copy of the matrix <em>m</em>.</dd>
+<dt><strong>add</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Adds the matrix <em>a</em> to <em>b</em> and returns the result.</dd>
+<dt><strong>subtract</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Subtracts the matrix <em>b</em> from <em>a</em> and returns the result.</dd>
+<dt><strong>multiply</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Multiplies the matrix <em>a</em> by <em>b</em> and returns the result. (i.e. transforms first by <em>a</em> then by <em>b</em>)</dd>
+<dt><strong>equal</strong> (a, b) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns true whether the matrices <em>a</em> and <em>b</em> are equal.</dd>
+<dt><strong>transpose</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Transposes the matrix <em>m</em> and returns the result.</dd>
+<dt><strong>invert</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Inverts the matrix <em>m</em> and returns the result.</dd>
+<dt><strong>x</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the x axis of the matrix <em>m</em>.</dd>
+<dt><strong>y</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the y axis of the matrix <em>m</em>.</dd>
+<dt><strong>z</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the z axis of the matrix <em>m</em>.</dd>
+<dt><strong>set_x</strong> (m, x)</dt>
+<dd>Sets the x axis of the matrix <em>m</em>.</dd>
+<dt><strong>set_y</strong> (m, y)</dt>
+<dd>Sets the y axis of the matrix <em>m</em>.</dd>
+<dt><strong>set_z</strong> (m, z)</dt>
+<dd>Sets the z axis of the matrix <em>m</em>.</dd>
+<dt><strong>rotation</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the rotation portion of the matrix <em>m</em>.</dd>
+<dt><strong>set_rotation</strong> (m, r)</dt>
+<dd>Sets the rotation portion of the matrix <em>m</em>.</dd>
+<dt><strong>translation</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the translation portion of the matrix <em>m</em>.</dd>
+<dt><strong>set_translation</strong> (m, t)</dt>
+<dd>Sets the translation portion of the matrix <em>m</em>.</dd>
+<dt><strong>identity</strong> ()</dt>
+<dd>Returns the identity matrix.</dd>
+<dt><strong>transform</strong> (m, v) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Transforms the vector <em>v</em> by the matrix <em>m</em> and returns the result.</dd>
+<dt><strong>to_string</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a string representing the matrix <em>m</em>.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="matrix4x4box">
+<h3>Matrix4x4Box<a class="headerlink" href="#matrix4x4box" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id9">
+<h4>Constructors<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>Matrix4x4Box</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4Box</span></dt>
+<dd>Returns a new Matrix4x4Box initialized with the identity matrix.</dd>
+<dt><strong>Matrix4x4Box</strong> (m) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4Box</span></dt>
+<dd>Returns a new Matrix4x4Box from the Matrix4x4 <em>m</em>.</dd>
+</dl>
+</div>
+<div class="section" id="id10">
+<h4>Functions<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>store</strong> (m)</dt>
+<dd>Stores the Matrix4x4 <em>m</em> in the box.</dd>
+<dt><strong>unbox</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns the stored matrix from the box.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="color4">
+<h3>Color4<a class="headerlink" href="#color4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id11">
+<h4>Constructors<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>Color4</strong> (r, g, b, a) <span class="classifier-delimiter">:</span> <span class="classifier">Color4</span></dt>
+<dd>Returns a new Color4 from individual elements.</dd>
+</dl>
+</div>
+<div class="section" id="id12">
+<h4>Functions<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt><strong>lerp</strong> (a, b, t) <span class="classifier-delimiter">:</span> <span class="classifier">Color4</span></dt>
+<dd>Returns the linearly interpolated color between <em>a</em> and <em>b</em> at time <em>t</em> in [0, 1].</dd>
+</dl>
+<div class="line-block">
+<div class="line"><strong>black</strong> () : Color4</div>
+<div class="line"><strong>white</strong> () : Color4</div>
+<div class="line"><strong>red</strong> () : Color4</div>
+<div class="line"><strong>green</strong> () : Color4</div>
+<div class="line"><strong>blue</strong> () : Color4</div>
+<div class="line"><strong>yellow</strong> () : Color4</div>
+<div class="line"><strong>orange</strong> () : Color4</div>
+<div class="line-block">
+<div class="line">Returns the corresponding mnemonic color.</div>
+</div>
+</div>
+<dl class="docutils">
+<dt><strong>to_string</strong> (c) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns a string representing the color <em>c</em>.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="id13">
+<h3>Math<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>ray_plane_intersection</strong> (from, dir, point, normal) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the distance along ray (from, dir) to intersection point with plane defined by
+<em>point</em> and <em>normal</em> or -1.0 if no intersection.</dd>
+<dt><strong>ray_disc_intersection</strong> (from, dir, center, radius, normal) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the distance along ray (from, dir) to intersection point with disc defined by
+<em>center</em>, <em>radius</em> and <em>normal</em> or -1.0 if no intersection.</dd>
+<dt><strong>ray_sphere_intersection</strong> (from, dir, center, radius) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the distance along ray (from, dir) to intersection point with sphere defined by
+<em>center</em> and <em>radius</em> or -1.0 if no intersection.</dd>
+<dt><strong>ray_obb_intersection</strong> (from, dir, tm, half_extents) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the distance along ray (from, dir) to intersection point with the oriented
+bounding box (tm, half_extents) or -1.0 if no intersection.</dd>
+<dt><strong>ray_triangle_intersection</strong> (from, dir, v0, v1, v2) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the distance along ray (from, dir) to intersection point with the triangle
+(v0, v1, v2) or -1.0 if no intersection.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="physicsworld">
+<h2>PhysicsWorld<a class="headerlink" href="#physicsworld" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>gravity</strong> (pw) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the gravity.</dd>
+<dt><strong>set_gravity</strong> (pw, gravity)</dt>
+<dd>Sets the gravity.</dd>
+<dt><strong>cast_ray</strong> (pw, from, dir, length) <span class="classifier-delimiter">:</span> <span class="classifier">hit, collision_pos, normal, time, UnitId, Actor</span></dt>
+<dd>Casts a ray into the physics world and returns the closest actor it intersects with.
+If <em>hit</em> is true the following return values contain the <em>collision_pos</em> in
+world space, the <em>normal</em> of the surface that was hit, the time of impact
+in [0..1] and the <em>unit</em> and the <em>actor</em> that was hit.</dd>
+<dt><strong>cast_ray_all</strong> (pw, from, dir, length) <span class="classifier-delimiter">:</span> <span class="classifier">table</span></dt>
+<dd>Casts a ray into the physics world and returns all the
+actors it intersects with as an array of <a class="reference internal" href="#raycasthit">RaycastHit</a> tables.</dd>
+<dt><strong>cast_sphere</strong> (pw, from, radius, dir, length) <span class="classifier-delimiter">:</span> <span class="classifier">hit, collision_pos, normal, time, UnitId, Actor</span></dt>
+<dd>Casts a sphere into the physics world and returns the closest actor it intersects with.
+If <em>hit</em> is true the following return values contain the <em>collision_pos</em> in
+world space, the <em>normal</em> of the surface that was hit, the time of impact
+in [0..1] and the <em>unit</em> and the <em>actor</em> that was hit.</dd>
+<dt><strong>cast_box</strong> (pw, from, half_extents, dir, length) <span class="classifier-delimiter">:</span> <span class="classifier">hit, collision_pos, normal, time, UnitId, Actor</span></dt>
+<dd>Casts a box into the physics world and returns the closest actor it intersects with.
+If <em>hit</em> is true the following return values contain the <em>collision_pos</em> in
+world space, the <em>normal</em> of the surface that was hit, the time of impact
+in [0..1] and the <em>unit</em> and the <em>actor</em> that was hit.</dd>
+<dt><strong>enable_debug_drawing</strong> (pw, enable)</dt>
+<dd>Sets whether to <em>enable</em> debug drawing.</dd>
+</dl>
+<div class="section" id="raycasthit">
+<h3>RaycastHit<a class="headerlink" href="#raycasthit" title="Permalink to this headline">¶</a></h3>
+<p>RaycastHit is a lua table with 5 fields:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">[1]</span></code>: The collision position in world space.</li>
+<li><code class="docutils literal"><span class="pre">[2]</span></code>: The normal of the surface that was hit.</li>
+<li><code class="docutils literal"><span class="pre">[3]</span></code>: The time of impact in [0..1].</li>
+<li><code class="docutils literal"><span class="pre">[4]</span></code>: The unit that was hit.</li>
+<li><code class="docutils literal"><span class="pre">[5]</span></code>: The actor that was hit.</li>
+</ul>
+</div>
+<div class="section" id="actor">
+<h3>Actor<a class="headerlink" href="#actor" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>actor_destroy</strong> (pw, actor)</dt>
+<dd>Destroys the <em>actor</em> instance.</dd>
+<dt><strong>actor_instance</strong> (pw, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the actor owned by the <em>unit</em>, or <code class="docutils literal"><span class="pre">nil</span></code>.</dd>
+<dt><strong>actor_world_position</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the world position of the <em>actor</em>.</dd>
+<dt><strong>actor_world_rotation</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the world rotation of the <em>actor</em>.</dd>
+<dt><strong>actor_world_pose</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns the world pose of the <em>actor</em>.</dd>
+<dt><strong>actor_teleport_world_position</strong> (pw, actor, position)</dt>
+<dd>Teleports the <em>actor</em> to the given world <em>position</em>.</dd>
+<dt><strong>actor_teleport_world_rotation</strong> (pw, actor, rotation)</dt>
+<dd>Teleports the <em>actor</em> to the given world <em>rotation</em>.</dd>
+<dt><strong>actor_teleport_world_pose</strong> (pw, actor, pose)</dt>
+<dd>Teleports the <em>actor</em> to the given world <em>pose</em>.</dd>
+<dt><strong>actor_center_of_mass</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the center of mass of the <em>actor</em>.</dd>
+<dt><strong>actor_enable_gravity</strong> (pw, actor)</dt>
+<dd>Enables gravity for the <em>actor</em>.</dd>
+<dt><strong>actor_disable_gravity</strong> (pw, actor)</dt>
+<dd>Disables gravity for the <em>actor</em>.</dd>
+<dt><strong>actor_enable_collision</strong> (pw, actor)</dt>
+<dd>Enables collision detection for the <em>actor</em>.</dd>
+<dt><strong>actor_disable_collision</strong> (pw, actor)</dt>
+<dd>Disables collision detection for the <em>actor</em>.</dd>
+<dt><strong>actor_set_collision_filter</strong> (pw, actor, name)</dt>
+<dd>Sets the collision filter of the <em>actor</em>.</dd>
+<dt><strong>actor_set_kinematic</strong> (pw, actor, kinematic)</dt>
+<dd><p class="first">Sets whether the <em>actor</em> is <em>kinematic</em> or not.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This call has no effect on static actors.</p>
+</div>
+</dd>
+<dt><strong>actor_is_static</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the <em>actor</em> is static.</dd>
+<dt><strong>actor_is_dynamic</strong> (pw, actor) bool</dt>
+<dd>Returns whether the <em>actor</em> is dynamic.</dd>
+<dt><strong>actor_is_kinematic</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the <em>actor</em> is kinematic (keyframed).</dd>
+<dt><strong>actor_is_nonkinematic</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the <em>actor</em> is nonkinematic (i.e. dynamic and not kinematic).</dd>
+<dt><strong>actor_linear_damping</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the linear damping of the <em>actor</em>.</dd>
+<dt><strong>actor_set_linear_damping</strong> (pw, actor, damping)</dt>
+<dd>Sets the linear <em>damping</em> of the <em>actor</em>.</dd>
+<dt><strong>actor_angular_damping</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the angular damping rate of the <em>actor</em>.</dd>
+<dt><strong>actor_set_angular_damping</strong> (pw, actor, rate)</dt>
+<dd>Sets the angular damping <em>rate</em> of the <em>actor</em>.</dd>
+<dt><strong>actor_linear_velocity</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the linear velocity of the <em>actor</em>.</dd>
+<dt><strong>actor_set_linear_velocity</strong> (pw, actor, velocity)</dt>
+<dd><p class="first">Sets the linear <em>velocity</em> of the <em>actor</em>.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This call only affects nonkinematic actors.</p>
+</div>
+</dd>
+<dt><strong>actor_angular_velocity</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the angular velocity of the <em>actor</em>.</dd>
+<dt><strong>actor_set_angular_velocity</strong> (pw, actor, velocity)</dt>
+<dd><p class="first">Sets the angular <em>velocity</em> of the <em>actor</em>.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This call only affects nonkinematic actors.</p>
+</div>
+</dd>
+<dt><strong>actor_add_impulse</strong> (pw, actor, impulse)</dt>
+<dd><p class="first">Adds a linear <em>impulse</em> (acting along the center of mass) to the <em>actor</em>.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This call only affects nonkinematic actors.</p>
+</div>
+</dd>
+<dt><strong>actor_add_impulse_at</strong> (pw, actor, impulse, position)</dt>
+<dd><p class="first">Adds a linear <em>impulse</em> (acting along the world position <em>pos</em>) to the <em>actor</em>.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This call only affects nonkinematic actors.</p>
+</div>
+</dd>
+<dt><strong>actor_add_torque_impulse</strong> (pw, actor, impulse)</dt>
+<dd>Adds a torque <em>impulse</em> to the <em>actor</em>.</dd>
+<dt><strong>actor_push</strong> (pw, actor, velocity, mass)</dt>
+<dd><p class="first">Pushes the <em>actor</em> as if it was hit by a point object with the given <em>mass</em>
+travelling at the given <em>velocity</em>.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This call only affects nonkinematic actors.</p>
+</div>
+</dd>
+<dt><strong>actor_push_at</strong> (pw, actor, velocity, mass, position)</dt>
+<dd><p class="first">Like push() but applies the force at the world <em>position</em>.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This call only affects nonkinematic actors.</p>
+</div>
+</dd>
+<dt><strong>actor_is_sleeping</strong> (pw, actor) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the <em>actor</em> is sleeping.</dd>
+<dt><strong>actor_wake_up</strong> (pw, actor)</dt>
+<dd>Wakes the <em>actor</em> up.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="profiler">
+<h2>Profiler<a class="headerlink" href="#profiler" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>enter_scope</strong> (name)</dt>
+<dd>Starts a new profile scope with the given <em>name</em>.</dd>
+<dt><strong>leave_scope</strong> ()</dt>
+<dd>Ends the last profile scope.</dd>
+<dt><strong>record</strong> (name, value)</dt>
+<dd>Records <em>value</em> with the given <em>name</em>. Value can be either number or Vector3.</dd>
+</dl>
+</div>
+<div class="section" id="renderworld">
+<h2>RenderWorld<a class="headerlink" href="#renderworld" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>enable_debug_drawing</strong> (rw, enable)</dt>
+<dd>Sets whether to <em>enable</em> debug drawing.</dd>
+</dl>
+<div class="section" id="mesh">
+<h3>Mesh<a class="headerlink" href="#mesh" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>mesh_create</strong> (rw, unit, mesh_resource, geometry_name, material_resource, visible, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Creates a new mesh instance for <em>unit</em> and returns its id.</dd>
+<dt><strong>mesh_destroy</strong> (rw, mesh)</dt>
+<dd>Destroys the <em>mesh</em> instance.</dd>
+<dt><strong>mesh_instance</strong> (rw, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the mesh owned by the <em>unit</em>, or <code class="docutils literal"><span class="pre">nil</span></code>.</dd>
+<dt><strong>mesh_material</strong> (rw, mesh) <span class="classifier-delimiter">:</span> <span class="classifier">Material</span></dt>
+<dd>Returns the material of the <em>mesh</em>.</dd>
+<dt><strong>mesh_set_material</strong> (rw, mesh, material)</dt>
+<dd>Sets the <em>material</em> of the <em>mesh</em>.</dd>
+<dt><strong>mesh_set_visible</strong> (rw, mesh, visible)</dt>
+<dd>Sets whether the <em>mesh</em> is <em>visible</em>.</dd>
+<dt><strong>mesh_obb</strong> (rw, mesh) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4, Vector3</span></dt>
+<dd>Returns the Oriented-Bounding-Box of the <em>mesh</em> as (pose, half_extents).</dd>
+<dt><strong>mesh_cast_ray</strong> (rw, mesh, from, dir) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the distance along ray (from, dir) to intersection point with the <em>mesh</em> or -1.0 if no intersection.</dd>
+</dl>
+</div>
+<div class="section" id="sprite">
+<h3>Sprite<a class="headerlink" href="#sprite" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>sprite_create</strong> (rw, unit, sprite_resource, material_resource, visible, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Creates a new sprite instance for the <em>unit</em> and returns its id.</dd>
+<dt><strong>sprite_destroy</strong> (rw, sprite)</dt>
+<dd>Destroys the <em>sprite</em> instance.</dd>
+<dt><strong>sprite_instance</strong> (rw, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the sprite owned by the <em>unit</em>, or <code class="docutils literal"><span class="pre">nil</span></code>.</dd>
+<dt><strong>sprite_material</strong> (rw, sprite) <span class="classifier-delimiter">:</span> <span class="classifier">Material</span></dt>
+<dd>Returns the material of the <em>sprite</em>.</dd>
+<dt><strong>sprite_set_material</strong> (rw, sprite, material)</dt>
+<dd>Sets the <em>material</em> of the <em>sprite</em>.</dd>
+<dt><strong>sprite_set_frame</strong> (rw, sprite, index)</dt>
+<dd>Sets the frame <em>index</em> of the <em>sprite</em>.
+The <em>index</em> automatically wraps if it greater than the total number of
+frames in the sprite.</dd>
+<dt><strong>sprite_set_visible</strong> (rw, sprite, visible)</dt>
+<dd>Sets whether the <em>sprite</em> is <em>visible</em>.</dd>
+<dt><strong>sprite_flip_x</strong> (rw, sprite, flip)</dt>
+<dd>Sets whether to flip the <em>sprite</em> on the x-axis.</dd>
+<dt><strong>sprite_flip_y</strong> (rw, sprite, flip)</dt>
+<dd>Sets whether to flip the <em>sprite</em> on the y-axis.</dd>
+<dt><strong>sprite_set_layer</strong> (rw, sprite, layer)</dt>
+<dd>Sets the rendering <em>layer</em> of the <em>sprite</em>.</dd>
+<dt><strong>sprite_set_depth</strong> (rw, sprite, depth)</dt>
+<dd>Sets the rendering <em>depth</em> of the <em>sprite</em>.</dd>
+<dt><strong>sprite_obb</strong> (rw, sprite) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4, Vector3</span></dt>
+<dd>Returns the Oriented-Bounding-Box of the <em>sprite</em> as (pose, half_extents).</dd>
+<dt><strong>sprite_cast_ray</strong> (rw, sprite, from, dir) <span class="classifier-delimiter">:</span> <span class="classifier">float, int, int</span></dt>
+<dd>Returns (t, layer, depth), where <em>t</em> is the distance along ray (from, dir) to
+intersection point with the <em>sprite</em> or -1.0 if no intersection.</dd>
+</dl>
+</div>
+<div class="section" id="light">
+<h3>Light<a class="headerlink" href="#light" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>light_create</strong> (rw, unit, type, range, intensity, spot_angle, color, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Creates a new light for the <em>unit</em> and returns its id.
+Type can be either <code class="docutils literal"><span class="pre">directional</span></code>, <code class="docutils literal"><span class="pre">omni</span></code> or <code class="docutils literal"><span class="pre">spot</span></code>.</dd>
+<dt><strong>light_destroy</strong> (rw, light)</dt>
+<dd>Destroys the <em>light</em> instance.</dd>
+<dt><strong>light_instance</strong> (rw, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the light owned by the <em>unit</em>, or <code class="docutils literal"><span class="pre">nil</span></code>.</dd>
+<dt><strong>light_type</strong> (rw, light) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the type of the <em>light</em>.
+It can be either <code class="docutils literal"><span class="pre">directional</span></code>, <code class="docutils literal"><span class="pre">omni</span></code> or <code class="docutils literal"><span class="pre">spot</span></code>.</dd>
+<dt><strong>light_color</strong> (rw, light) <span class="classifier-delimiter">:</span> <span class="classifier">Color4</span></dt>
+<dd>Returns the color of the <em>light</em>.</dd>
+<dt><strong>light_range</strong> (rw, light) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the range of the <em>light</em>.</dd>
+<dt><strong>light_intensity</strong> (rw, light) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the intensity of the <em>light</em>.</dd>
+<dt><strong>light_spot_angle</strong> (rw, light) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the spot angle of the <em>light</em>.</dd>
+<dt><strong>light_set_type</strong> (rw, light, type)</dt>
+<dd>Sets the <em>type</em> of the <em>light</em>.</dd>
+<dt><strong>light_set_color</strong> (rw, light, color)</dt>
+<dd>Sets the <em>color</em> of the <em>light</em>.</dd>
+<dt><strong>light_set_range</strong> (rw, light, range)</dt>
+<dd>Sets the <em>range</em> of the <em>light</em>.</dd>
+<dt><strong>light_set_intensity</strong> (rw, light, intensity)</dt>
+<dd>Sets the <em>intensity</em> of the <em>light</em>.</dd>
+<dt><strong>light_set_spot_angle</strong> (rw, light, angle)</dt>
+<dd>Sets the spot <em>angle</em> of the <em>light</em>.</dd>
+<dt><strong>light_debug_draw</strong> (rw, light, debug_line)</dt>
+<dd>Fills <em>debug_line</em> with debug lines from the <em>light</em>.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="resourcepackage">
+<h2>ResourcePackage<a class="headerlink" href="#resourcepackage" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>load</strong> (package)</dt>
+<dd><p class="first">Loads all the resources in the <em>package</em>.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The resources are not immediately available after the call is made,
+instead, you have to poll for completion with has_loaded().</p>
+</div>
+</dd>
+<dt><strong>unload</strong> (package)</dt>
+<dd>Unloads all the resources in the <em>package</em>.</dd>
+<dt><strong>flush</strong> (package)</dt>
+<dd>Waits until the <em>package</em> has been loaded.</dd>
+<dt><strong>has_loaded</strong> (package) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the <em>package</em> has been loaded.</dd>
+</dl>
+</div>
+<div class="section" id="scenegraph">
+<h2>SceneGraph<a class="headerlink" href="#scenegraph" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>create</strong> (sg, unit, position, rotation, scale) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Creates the transform for the <em>unit</em> and returns its ID.</dd>
+<dt><strong>destroy</strong> (sg, transform)</dt>
+<dd>Destroys the <em>transform</em> instance.</dd>
+<dt><strong>instance</strong> (sg, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the transform owned by the <em>unit</em>, or <code class="docutils literal"><span class="pre">nil</span></code>.</dd>
+<dt><strong>local_position</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the local position of the <em>transform</em>.</dd>
+<dt><strong>local_rotation</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the local rotation of the <em>transform</em>.</dd>
+<dt><strong>local_scale</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the local scale of the <em>transform</em>.</dd>
+<dt><strong>local_pose</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns the local pose of the <em>transform</em>.</dd>
+<dt><strong>world_position</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns the world position of the <em>transform</em>.</dd>
+<dt><strong>world_rotation</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Quaternion</span></dt>
+<dd>Returns the world rotation of the <em>transform</em>.</dd>
+<dt><strong>world_pose</strong> (sg, transform) <span class="classifier-delimiter">:</span> <span class="classifier">Matrix4x4</span></dt>
+<dd>Returns the world pose of the <em>transform</em>.</dd>
+<dt><strong>set_local_position</strong> (sg, transform, position)</dt>
+<dd>Sets the local <em>position</em> of the <em>transform</em>.</dd>
+<dt><strong>set_local_rotation</strong> (sg, transform, rotation)</dt>
+<dd>Sets the local <em>rotation</em> of the <em>transform</em>.</dd>
+<dt><strong>set_local_scale</strong> (sg, transform, scale)</dt>
+<dd>Sets the local <em>scale</em> of the <em>transform</em>.</dd>
+<dt><strong>set_local_pose</strong> (sg, transform, pose)</dt>
+<dd>Sets the local <em>pose</em> of the <em>transform</em>.</dd>
+<dt><strong>link</strong> (sg, parent, child, child_local_position, child_local_rotation, child_local_scale)</dt>
+<dd>Links <cite>child</cite> to <cite>parent</cite>. After linking the child will follow its
+parent. Set child_local_* to modify the child position after it has been
+linked to the parent, otherwise che child will be positioned at the
+location of its parent.</dd>
+<dt><strong>unlink</strong> (sg, child)</dt>
+<dd>Unlinks <cite>child</cite> from its parent if it has any. After unlinking, the local
+pose of the &#64;a child is set to its previous world pose.</dd>
+</dl>
+</div>
+<div class="section" id="soundworld">
+<h2>SoundWorld<a class="headerlink" href="#soundworld" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>stop_all</strong> (sound_world)</dt>
+<dd>Stops all the sounds in the world.</dd>
+<dt><strong>pause_all</strong> (sound_world)</dt>
+<dd>Pauses all the sounds in the world</dd>
+<dt><strong>resume_all</strong> (sound_world)</dt>
+<dd>Resumes all previously paused sounds in the world.</dd>
+<dt><strong>is_playing</strong> (sound_world, id) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the sound <em>id</em> is playing.</dd>
+</dl>
+</div>
+<div class="section" id="unitmanager">
+<h2>UnitManager<a class="headerlink" href="#unitmanager" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>create</strong> ([world]) <span class="classifier-delimiter">:</span> <span class="classifier">UnitId</span></dt>
+<dd>Creates a new empty unit. If <em>world</em> is specified, the unit will be owned by
+that world.</dd>
+<dt><strong>destroy</strong> (unit)</dt>
+<dd>Destroys the given <em>unit</em>.</dd>
+<dt><strong>alive</strong> (unit) <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Returns whether the unit is alive.</dd>
+</dl>
+</div>
+<div class="section" id="window">
+<h2>Window<a class="headerlink" href="#window" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>show</strong> ()</dt>
+<dd>Shows the window.</dd>
+<dt><strong>hide</strong> ()</dt>
+<dd>Hides the window.</dd>
+<dt><strong>resize</strong> (width, height)</dt>
+<dd>Resizes the window to <em>width</em> and <em>height</em>.</dd>
+<dt><strong>move</strong> (x, y)</dt>
+<dd>Moves the window to <em>x</em> and <em>y</em>.</dd>
+<dt><strong>minimize</strong> ()</dt>
+<dd>Minimizes the window.</dd>
+<dt><strong>maximize</strong> ()</dt>
+<dd>Maximizes the window.</dd>
+<dt><strong>restore</strong> ()</dt>
+<dd>Restores the window.</dd>
+<dt><strong>title</strong> () <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the title of the window.</dd>
+<dt><strong>set_title</strong> (title)</dt>
+<dd>Sets the title of the window.</dd>
+<dt><strong>show_cursor</strong> (show)</dt>
+<dd>Sets whether to <em>show</em> the cursor.</dd>
+<dt><strong>set_fullscreen</strong> (fullscreen)</dt>
+<dd>Sets whether the window is <em>fullscreen</em>.</dd>
+<dt><strong>set_cursor</strong> (cursor)</dt>
+<dd>Sets the mouse <em>cursor</em> on this window.</dd>
+<dt><strong>set_cursor_mode</strong> (cursor, mode)</dt>
+<dd>Sets the mouse cursor <em>mode</em> on this window.
+Mode can be either <code class="docutils literal"><span class="pre">normal</span></code> or <code class="docutils literal"><span class="pre">disabled</span></code>.</dd>
+</dl>
+</div>
+<div class="section" id="world">
+<h2>World<a class="headerlink" href="#world" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>spawn_unit</strong> (world, name, [position, rotation, scale]) <span class="classifier-delimiter">:</span> <span class="classifier">UnitId</span></dt>
+<dd>Spawns a new instance of the unit <em>name</em> at the given <em>position</em>, <em>rotation</em> and <em>scale</em>.</dd>
+<dt><strong>spawn_empty_unit</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">UnitId</span></dt>
+<dd>Spawns a new empty unit and returns its id.</dd>
+<dt><strong>destroy_unit</strong> (world, unit)</dt>
+<dd>Destroys the given <em>unit</em>.</dd>
+<dt><strong>num_units</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of units in the <em>world</em>.</dd>
+<dt><strong>units</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">table</span></dt>
+<dd>Returns all the the units in the world in a table.</dd>
+<dt><strong>unit_by_name</strong> (world, name) <span class="classifier-delimiter">:</span> <span class="classifier">UnitId</span></dt>
+<dd>Returns the unit with the given Level Editor <em>name</em> or <code class="docutils literal"><span class="pre">nil</span></code> if no such unit is found.
+If there are multiple units with the same name, a random one will be returned.</dd>
+<dt><strong>update_animations</strong> (world, dt)</dt>
+<dd>Update all animations with <em>dt</em>.</dd>
+<dt><strong>update_scene</strong> (world, dt)</dt>
+<dd>Updates the scene with <em>dt</em>.</dd>
+<dt><strong>update</strong> (world, dt)</dt>
+<dd>Updates the world with <em>dt</em>.</dd>
+<dt><strong>create_debug_line</strong> (world, depth_test) <span class="classifier-delimiter">:</span> <span class="classifier">DebugLine</span></dt>
+<dd>Creates a new DebugLine. <em>depth_test</em> controls whether to
+enable depth test when rendering the lines.</dd>
+<dt><strong>destroy_debug_line</strong> (world, line)</dt>
+<dd>Destroys the debug <em>line</em>.</dd>
+<dt><strong>create_screen_gui</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">Gui</span></dt>
+<dd>Creates a new Gui.</dd>
+<dt><strong>scene_graph</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">SceneGraph</span></dt>
+<dd>Returns the scene graph.</dd>
+<dt><strong>render_world</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">RenderWorld</span></dt>
+<dd>Returns the render sub-world.</dd>
+<dt><strong>physics_world</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">PhysicsWorld</span></dt>
+<dd>Returns the physics sub-world.</dd>
+<dt><strong>sound_world</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">SoundWorld</span></dt>
+<dd>Returns the sound sub-world.</dd>
+<dt><strong>animation_state_machine</strong> (world) <span class="classifier-delimiter">:</span> <span class="classifier">AnimationStateMachine</span></dt>
+<dd>Returns the animation state machine.</dd>
+</dl>
+<div class="section" id="camera">
+<h3>Camera<a class="headerlink" href="#camera" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>camera_create</strong> (world, unit, projection, fov, far_range, near_range, pose) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Creates a new camera for <em>unit</em> and returns its id.
+Projection can be either <code class="docutils literal"><span class="pre">orthographic</span></code> or <code class="docutils literal"><span class="pre">perspective</span></code>.</dd>
+<dt><strong>camera_instance</strong> (world, unit) <span class="classifier-delimiter">:</span> <span class="classifier">Id</span></dt>
+<dd>Returns the ID of the camera owned by the <em>unit</em>, or <code class="docutils literal"><span class="pre">nil</span></code>.</dd>
+<dt><strong>camera_set_projection_type</strong> (world, camera, projection)</dt>
+<dd>Sets the projection type of the <em>camera</em>.
+Projection can be either <code class="docutils literal"><span class="pre">orthographic</span></code> or <code class="docutils literal"><span class="pre">perspective</span></code>.</dd>
+<dt><strong>camera_projection_type</strong> (world, camera) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the projection type of the <em>camera</em>.
+It can be either <code class="docutils literal"><span class="pre">orthographic</span></code> or <code class="docutils literal"><span class="pre">perspective</span></code>.</dd>
+<dt><strong>camera_fov</strong> (world, camera) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the field-of-view of the <em>camera</em> in degrees.</dd>
+<dt><strong>camera_set_fov</strong> (world, camera, fov)</dt>
+<dd>Sets the field-of-view of the <em>camera</em> in degrees.</dd>
+<dt><strong>camera_near_clip_distance</strong> (world, camera) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the near clip distance of the <em>camera</em>.</dd>
+<dt><strong>camera_set_near_clip_distance</strong> (world, camera, near)</dt>
+<dd>Sets the near clip distance of the <em>camera</em>.</dd>
+<dt><strong>camera_far_clip_distance</strong> (world, camera) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the far clip distance of the <em>camera</em>.</dd>
+<dt><strong>camera_set_far_clip_distance</strong> (world, camera, far)</dt>
+<dd>Sets the far clip distance of the <em>camera</em>.</dd>
+<dt><strong>camera_set_orthographic_size</strong> (world, camera, half_size)</dt>
+<dd>Sets the vertical <em>half_size</em> of the orthographic view volume.
+The horizontal size is proportional to the viewport&#8217;s aspect ratio.</dd>
+<dt><strong>camera_screen_to_world</strong> (world, camera, pos) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns <em>pos</em> from screen-space to world-space coordinates.</dd>
+<dt><strong>camera_world_to_screen</strong> (world, camera, pos) <span class="classifier-delimiter">:</span> <span class="classifier">Vector3</span></dt>
+<dd>Returns <em>pos</em> from world-space to screen-space coordinates.</dd>
+</dl>
+</div>
+<div class="section" id="sound">
+<h3>Sound<a class="headerlink" href="#sound" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>play_sound</strong> (world, name, [loop, volume, position, range]) <span class="classifier-delimiter">:</span> <span class="classifier">SoundInstanceId</span></dt>
+<dd>Plays the sound with the given <em>name</em> at the given <em>position</em>, with the given
+<em>volume</em> and <em>range</em>. <em>loop</em> controls whether the sound must loop or not.</dd>
+<dt><strong>stop_sound</strong> (world, id)</dt>
+<dd>Stops the sound with the given <em>id</em>.</dd>
+<dt><strong>link_sound</strong> (world, id, unit, node)</dt>
+<dd>Links the sound <em>id</em> to the <em>node</em> of the given <em>unit</em>.
+After this call, the sound <em>id</em> will follow the unit <em>unit</em>.</dd>
+<dt><strong>set_listener_pose</strong> (world, pose)</dt>
+<dd>Sets the <em>pose</em> of the listener.</dd>
+<dt><strong>set_sound_position</strong> (world, id, position)</dt>
+<dd>Sets the <em>position</em> of the sound <em>id</em>.</dd>
+<dt><strong>set_sound_range</strong> (world, id, range)</dt>
+<dd>Sets the <em>range</em> of the sound <em>id</em>.</dd>
+<dt><strong>set_sound_volume</strong> (world, id, volume)</dt>
+<dd>Sets the <em>volume</em> of the sound <em>id</em>.</dd>
+</dl>
+</div>
+<div class="section" id="level">
+<h3>Level<a class="headerlink" href="#level" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>load_level</strong> (world, name, [pos, rot]) <span class="classifier-delimiter">:</span> <span class="classifier">Level</span></dt>
+<dd>Loads the level <em>name</em> into the world at the given <em>position</em> and <em>rotation</em>.</dd>
+</dl>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="boot_config.html" class="btn btn-neutral float-right" title="boot.config reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="basics.html" class="btn btn-neutral float-left" title="Basic concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

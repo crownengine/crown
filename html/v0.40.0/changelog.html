@@ -1,0 +1,432 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Changelog &mdash; Crown Manual 0.40.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'0.40.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: ''
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="Introduction" href="introduction.html" />
+    <link rel="prev" title="The Flexible Game Engine" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Crown Manual
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.40.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.40.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.39.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">0.38.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">0.37.0</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Crown Manual</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Changelog</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/changelog.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>0.40.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><em>06 Jan 2021</em></p>
+<p><strong>Data Compiler</strong></p>
+<ul class="simple">
+<li>Fixed an issue that caused resources to not be compiled with the proper version in rare circumnstances</li>
+<li>Fixed an issue that caused the compiler to crash when reading empty source files</li>
+<li>Fixed an issue that prevented the output from external data compilers to not be read under Windows</li>
+</ul>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li>Fixed child nodes in the SceneGraph not being marked as changed when their parent was changed</li>
+<li>Removed support for multiple components per Unit.</li>
+<li>Added ability to express unit&#8217;s parent-child relationship from within .unit and .level files</li>
+</ul>
+<p><strong>Exporters</strong></p>
+<ul class="simple">
+<li>Added the ability to export full scene hierarchy to the Blender exporter</li>
+<li>Removed support for Blender &lt; 2.80</li>
+</ul>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>Added logs expiration option to Preferences dialog</li>
+<li>Added the ability to select from a number of templates (samples) when creating new projects</li>
+<li>Changed the default accelerator for deleting objects from Ctrl+K to Delete</li>
+<li>Fixed an issue that caused the Level Editor to ask multiple times whether save the level in some circumnstances</li>
+<li>Level Editor now restores the Console&#8217;s history from previous sessions</li>
+<li>Improved the title of the Level Editor window to include the name of the current opened level and an indication of whether it has been modified since the last save to disk</li>
+</ul>
+<p><strong>Lua API</strong></p>
+<ul>
+<li><dl class="first docutils">
+<dt>All component managers accessors have been uniformed to accept a component instance ID (instead of a UnitId or both):</dt>
+<dd><ul class="first last simple">
+<li>All <code class="docutils literal"><span class="pre">AnimationStateMachine.*</span></code>, except <code class="docutils literal"><span class="pre">AnimationStateMachine.create()</span></code></li>
+<li>All <code class="docutils literal"><span class="pre">RenderWorld.light_*</span></code>, except <code class="docutils literal"><span class="pre">RenderWorld.light_create()</span></code></li>
+<li>All <code class="docutils literal"><span class="pre">RenderWorld.sprite_*</span></code>, except <code class="docutils literal"><span class="pre">RenderWorld.sprite_create()</span></code></li>
+<li>All <code class="docutils literal"><span class="pre">SceneGraph.*</span></code>, except <code class="docutils literal"><span class="pre">SceneGraph.create()</span></code></li>
+<li>All <code class="docutils literal"><span class="pre">World.camera_*</span></code>, except <code class="docutils literal"><span class="pre">World.camera_create()</span></code></li>
+<li><code class="docutils literal"><span class="pre">PhysicsWorld.actor_instances()</span></code></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Added AnimationStateMachine.instance()</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">RenderWorld.set_mesh_visible()</span></code> will now work as expected</p>
+</li>
+<li><p class="first">Changed <code class="docutils literal"><span class="pre">SceneGraph.link()</span></code> behavior and added parameters to explicitly set the position, rotation and scale of the child transform after linking is done</p>
+</li>
+<li><p class="first">Fixed <code class="docutils literal"><span class="pre">Matrix4x4.rotation()</span></code> to return the correct Quaternion even when the matrix has scaling applied</p>
+</li>
+<li><p class="first">Fixed <code class="docutils literal"><span class="pre">SceneGraph.*_rotation()</span></code> to return the correct Quaternion even when the node has scaling applied</p>
+</li>
+<li><p class="first">Fixed <code class="docutils literal"><span class="pre">SceneGraph.unlink()</span></code> to correctly set the local pose of the unlinked transform to its previous world pose</p>
+</li>
+<li><p class="first">Fixed <code class="docutils literal"><span class="pre">SceneGraph.destroy()</span></code> to correctly update any linked transform before deleting the node</p>
+</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>0.39.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><em>24 Oct 2020</em></p>
+<p><strong>Data Compiler</strong></p>
+<ul class="simple">
+<li>Fixed detection on new sub-directories and sub-directory renames</li>
+<li>Fixed handling of paths without type extension</li>
+<li>Improved file deletion detection and data directory coherence</li>
+<li>Improved file modification detection and source index caching</li>
+<li>Improved the unit compiler by fixing a number of bugs and adding support to &#8220;deleted_components&#8221;</li>
+</ul>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li>Removed support for 32-bit x86 architectures</li>
+</ul>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>Added ability to crate new scripts from Project Browser</li>
+<li>Added ability to crate new units from Project Browser</li>
+<li>Added Debug &gt; Build Data</li>
+<li>Added QWER accelerators to place, move, rotate and scale object actions</li>
+<li>Added support for Windows</li>
+<li>Added the ability to duplicate objects from Level Tree</li>
+<li>Added Welcome panel with a list of recent projects and the ability to create new projects or import existing ones</li>
+<li>Bumped minimum GTK+ version to 3.16 (Ubuntu 16.04.2+)</li>
+<li>Fix an issue that caused the Editor View camera not returning to idle in some circumnstances</li>
+<li>Fixed a number of dialog boxes that were not centered to the Level Editor&#8217;s main window</li>
+<li>Fixed an issue that allowed the user to enter blank names when creating new folders in the Project Browser</li>
+<li>Fixed an issue that caused Project Browser to show inconsistent folder structured in some circumnstances</li>
+<li>Fixed an issue that caused the camera view accelerators to interfere with text input</li>
+<li>Fixed an issue that prevented some components from being removed when reimporting sprites</li>
+<li>Fixed and issue that caused generation of spurious &#8220;set-actions&#8221; when editing properties in the Properties panel</li>
+<li>Fixed modifier keys getting stuck in the wrong state in some circumnstances</li>
+<li>Fixed multiple selection in Level Tree</li>
+<li>Fixed undo/redo when setting properties of some unit components</li>
+<li>Improved Project Browser to not show irrelevant items</li>
+<li>Improved Test Level/Start Game button behavior when game failed to launch</li>
+<li>Level Editor connection to the Data Compiler, Editor View(s) and Game is now faster and more robust</li>
+<li>Level Editor now saves aggregate logs to disk. User can browse logs folder from Help &gt; Browse Logs...</li>
+<li>New Project dialog no longer allows selecting non-empty folders for new projects</li>
+<li>Objects inside .level files are now ordered by their ID before serialization</li>
+<li>Save Level dialog now warns before overwriting a file that already exists</li>
+<li>Unified Engine and Run menubar items into a single Debug menubar item</li>
+</ul>
+<p><strong>Lua API</strong></p>
+<ul class="simple">
+<li>Added Matrix4x4.equal()</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>0.38.0<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p><em>24 Aug 2020</em></p>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li>Added &#8220;help&#8221; command</li>
+<li>Core primitives now include UV, tangent and bitangent data</li>
+<li>Fixed a crash when multiple clients were connected to the Console Server</li>
+<li>Fixed a crash when reloading lua scripts that haden&#8217;t been loaded previously</li>
+<li>Fixed an issue that caused levels to be compiled successfully even when the units they depended on contained errors</li>
+<li>Fixed reloading of main.lua files from samples</li>
+<li>The Data Compiler now detects when files are deleted</li>
+</ul>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>Added Gizmo size and Autosave timer options to Preferences dialog</li>
+<li>Added the ability to toggle visibility of the Inspector inside the Level Editor</li>
+<li>Added the Project Browser</li>
+<li>Added the Statusbar</li>
+<li>Fixed an issue that allowed the Level Editor to load or save levels outside the source directory</li>
+<li>Fixed an issue that allowed the user to enter blank names when renaming objects in the Level Tree</li>
+<li>Fixed an issue that caused level auto-saving in Level Editor not triggering at the intended interval</li>
+<li>Fixed an issue that caused the Level Editor to not include &#8220;core/units/camera&#8221; in the boot.package of a newly created project</li>
+<li>Fixed an issue that caused the Level Editor to start the Editor View before data compilation was done in some circumstances</li>
+<li>Fixed main.lua files generated by Level Editor for new projects</li>
+<li>Improved look of EntryVector3 widget</li>
+<li>Lua reloading has been extended to the running game when pressing F5 from the Level Editor</li>
+<li>Nodes in the Level Tree can now be exanded by clicking on the corresponding row</li>
+<li>Preferences are now saved to the user&#8217;s config directory</li>
+<li>Renaming of objects in the Level Tree is now handled with a modal dialog</li>
+<li>The Editor View will now show a message explaining how to recover the session after a crash or unintended disconnection</li>
+<li>Unified the asset import dialogs</li>
+</ul>
+<p><strong>Samples</strong></p>
+<ul class="simple">
+<li>Unified projects directory structure</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h2>0.37.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p><em>26 Jun 2020</em></p>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li>Added Material.set_vector4() and Material.set_matrix4x4()</li>
+<li>Added PhysicsWorld.actor_destroy()</li>
+<li>Added RenderWorld.mesh_material(), RenderWorld.mesh_set_material() and RenderWorld.sprite_material()</li>
+<li>Added the ability to hot-reload Lua files</li>
+<li>Added the ability to scale the shape of colliders at Unit spawn time</li>
+<li>Added Window.set_cursor_mode()</li>
+<li>Added World.unit_by_name() to retrieve unit by its name in the Level Editor</li>
+<li>Bumped minimum Android version to 7.0+</li>
+<li>Bumped minimum OpenGL version to 3.2+ for Linux</li>
+<li>Fixed an issue that caused PhysicsWorld.set_gravity() to re-enable gravity to actors that previously disabled it with PhysicsWorld.actor_disable_gravity()</li>
+<li>Fixed an issue that prevented kinematic actors to be controlled via the SceneGraph</li>
+<li>Fixed an issue that prevented PhysicsWorld.actor_center_of_mass() to be called for static actors</li>
+<li>Fixed an issue that prevented PhysicsWorld.actor_world_{position,rotation,pose}() to be called for static actors</li>
+<li>Fixed an issue that reset the sprite animation to the beginning even when loop was set to false</li>
+<li>Fixed an issue where a regular Matrix4x4 was returned if Matrix4x4Box is called without arguments</li>
+<li>Removed &#8220;io&#8221; and &#8220;os&#8221; libraries from Lua API</li>
+<li>Small fixes and performance improvements</li>
+<li>Sprite&#8217;s frame number now wraps if it is greater than the total number of frames in the sprite</li>
+</ul>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>Added the ability to specify a circle collider in the Sprite Importer</li>
+<li>Added the ability to specify the actor class in the Sprite Importer</li>
+<li>Added the ability to specify the destination of the console commands between Game and Editor</li>
+<li>Fixed a crash when entering empty commands in the console</li>
+<li>Fixed an issue that caused the Level Editor to not correctly save a level specified from command line</li>
+<li>Fixed an issue that could cause the Level Editor to crash when large number of TCP/IP packets were sent to it</li>
+<li>Fixed an issue that could cause the Level Editor to crash when scrolling through the console history</li>
+<li>Fixed an issue that could cause the Level Editor to incorrectly parse identifiers in SJSON files</li>
+<li>Fixed an issue that generated wrong render states when blending is enabled while no blend function/equation is specified</li>
+<li>Fixed an issue that prevented some operations in the Level Editor from being (un/re)done</li>
+<li>Fixed an issue that prevented the data compiler from restoring and saving its state when launched by the Level Editor</li>
+<li>Improved the numeric entry widget which now takes less space and provides more convenient input workflows</li>
+<li>Resources autoload is disabled when testing levels from Level Editor</li>
+<li>The Data Compiler will now track data &#8220;requirements&#8221; and automatically include them in packages when it&#8217;s needed</li>
+<li>The game will now be started or stopped according to its running state when launched from the Level Editor</li>
+<li>The Properties Panel now accepts more sensible numeric ranges</li>
+<li>The Properties Panel now allows the user to modify most Unit&#8217;s component properties</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="The Flexible Game Engine" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

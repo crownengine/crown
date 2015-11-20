@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Changelog &mdash; Crown 0.37.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Crown 0.37.0 documentation" href="index.html"/>
+        <link rel="next" title="Introduction" href="introduction.html"/>
+        <link rel="prev" title="The Flexible Game Engine" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Crown
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.37.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.37.0</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Crown</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/changelog.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>0.37.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><em>26 Jun 2020</em></p>
+<p><strong>Runtime</strong></p>
+<ul class="simple">
+<li>Added Material.set_vector4() and Material.set_matrix4x4()</li>
+<li>Added PhysicsWorld.actor_destroy()</li>
+<li>Added RenderWorld.mesh_material(), RenderWorld.mesh_set_material() and RenderWorld.sprite_material()</li>
+<li>Added the ability to hot-reload Lua files</li>
+<li>Added the ability to scale the shape of colliders at Unit spawn time</li>
+<li>Added Window.set_cursor_mode()</li>
+<li>Added World.unit_by_name() to retrieve unit by its name in the Level Editor</li>
+<li>Bumped minimum Android version to 7.0+</li>
+<li>Bumped minimum OpenGL version to 3.2+ for Linux</li>
+<li>Fixed an issue that caused PhysicsWorld.set_gravity() to re-enable gravity to actors that previously disabled it with PhysicsWorld.actor_disable_gravity()</li>
+<li>Fixed an issue that prevented kinematic actors to be controlled via the SceneGraph</li>
+<li>Fixed an issue that prevented PhysicsWorld.actor_center_of_mass() to be called for static actors</li>
+<li>Fixed an issue that prevented PhysicsWorld.actor_world_{position,rotation,pose}() to be called for static actors</li>
+<li>Fixed an issue that reset the sprite animation to the beginning even when loop was set to false</li>
+<li>Fixed an issue where a regular Matrix4x4 was returned if Matrix4x4Box is called without arguments</li>
+<li>Removed &#8220;io&#8221; and &#8220;os&#8221; libraries from Lua API</li>
+<li>Small fixes and performance improvements</li>
+<li>Sprite&#8217;s frame number now wraps if it is greater than the total number of frames in the sprite</li>
+</ul>
+<p><strong>Tools</strong></p>
+<ul class="simple">
+<li>Added the ability to specify a circle collider in the Sprite Importer</li>
+<li>Added the ability to specify the actor class in the Sprite Importer</li>
+<li>Added the ability to specify the destination of the console commands between Game and Editor</li>
+<li>Fixed a crash when entering empty commands in the console</li>
+<li>Fixed an issue that caused the Level Editor to not correctly save a level specified from command line</li>
+<li>Fixed an issue that could cause the Level Editor to crash when large number of TCP/IP packets were sent to it</li>
+<li>Fixed an issue that could cause the Level Editor to crash when scrolling through the console history</li>
+<li>Fixed an issue that could cause the Level Editor to incorreclty parse identifiers in SJSON files</li>
+<li>Fixed an issue that generated wrong render states when blending is enabled while no blend funtion/equation is specified</li>
+<li>Fixed an issue that prevented some operations in the Level Editor from being (un/re)done</li>
+<li>Fixed an issue that prevented the data compiler from restoring and saving its state when launched by the Level Editor</li>
+<li>Improved the numeric entry widget which now takes less space and provides more convenient input workflows</li>
+<li>Resources autoload is disabled when testing levels from Level Editor</li>
+<li>The Data Compiler will now track data &#8220;requirements&#8221; and automatically include them in packages when it&#8217;s needed</li>
+<li>The game will now be started or stopped according to its running state when launched from the Level Editor</li>
+<li>The Properties Panel now accepts more sensible numeric ranges</li>
+<li>The Properties Panel now allows the user to modify most Unit&#8217;s component properties</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="The Flexible Game Engine" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2012-2020 Daniele Bartolini and individual contributors.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.37.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introduction &mdash; Crown Manual 0.41.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'0.41.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: ''
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="Basic concepts" href="basics.html" />
+    <link rel="prev" title="Changelog" href="changelog.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Crown Manual
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.41.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-it">What is it?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-platforms">Supported platforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command line reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hackers/index.html">Hackers</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Crown Manual</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/introduction.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-it">
+<h2>What is it?<a class="headerlink" href="#what-is-it" title="Permalink to this headline">¶</a></h2>
+<p>Crown is a general purpose and data-driven game engine, written in <a class="reference external" href="https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b">orthodox</a> C++ with a
+minimalistic and data-oriented design philosophy in mind.</p>
+<p>Crown isn&#8217;t tied to a particular game type or genre but instead it offers a set
+of generic primitives and facilities to help you create a wide gamut of
+interactive 2D and 3D products.</p>
+<p>Crown also offers a complete cross-platform editor to create and put together
+all the elements that make up your game.</p>
+<p>Crown is loosely inspired by the Bitsquid engine and many of its design
+principles.</p>
+</div>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<p>Note: Crown is in active development and new features are added and improved all
+the time; you can check out the development efforts in real-time on the Crown
+Trello <a class="reference external" href="https://trello.com/b/h88kbJNm/crown">board</a>. You can also join our
+Discord <a class="reference external" href="https://discord.com/invite/CeXVWCT">channel</a>!</p>
+<ul>
+<li><dl class="first docutils">
+<dt>Data-driven</dt>
+<dd><p class="first last">Every aspect of the game is controlled through text configuration files. Text
+files are human-readable for easy inspection and play nicely with traditional
+version control systems. Before shipping, configuration files are compiled to
+efficient platform-specific binary blobs.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Data-oriented</dt>
+<dd><p class="first last">Data in memory is organized to achieve the maximum performance possible on
+every platform.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Lightweight codebase and runtime</dt>
+<dd><p class="first last">Engine plus tools amounts to less than 50K LOC. Written in simple &#8216;C-style&#8217;
+C++. It is easy for anyone to understand and make modifications.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Editor</dt>
+<dd><ul class="first last simple">
+<li>Runs and looks equally well both on Linux and on Windows.</li>
+<li>Source data importers (meshes, sprites, sounds, textures etc.).</li>
+<li>All the editing data is held by the editor which runs in its own process, if the Runtime crashes you can restart it without losing your work.</li>
+<li>TCP/IP communication with Runtime allows editing to be mirrored to remote devices (phones, consoles etc.).</li>
+<li>Hot-reloading of every asset including code.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Graphics</dt>
+<dd><ul class="first last simple">
+<li>High-level 2D and 3D objects: sprites, meshes and lights (directional, omni and spot).</li>
+<li>Cross-plaform GLSL-like shader programming language with data-driven definitions of render states and permutations.</li>
+<li>D3D11, GL 3.2 and GLES 2.0 render backends.</li>
+<li>PNG, TGA, DDS, KTX and PVR texture formats.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Animation</dt>
+<dd><ul class="first last simple">
+<li>Animation state machine with events, variables and blending with simple expressions evaluator.</li>
+<li>Flipbook sprite animation.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Physics</dt>
+<dd><ul class="first last simple">
+<li>Static, dynamic and keyframed rigid bodies, triggers and joints (fixed, spring and hinge).</li>
+<li>Spatial queries: ray-, sphere- and box-casts.</li>
+<li>Multiple collision geometries per rigid body.</li>
+<li>Collision geometry can be generated from mesh data, authored by artists or manually specified.</li>
+<li>Uniform scaling of physics objects.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Audio</dt>
+<dd><ul class="first last simple">
+<li>3D audio sources with position and range-based attenuation.</li>
+<li>Volume control.</li>
+<li>WAV format supported.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Scripting</dt>
+<dd><ul class="first last simple">
+<li>Integrated Lua runtime can be used to control every aspect of the game.</li>
+<li>LuaJIT is used on supported platforms for maximum performance.</li>
+<li>Integrated REPL to quickly test and experiment while the game is running.</li>
+<li>Live reloading of gameplay code without needing to restart the game.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Debugging</dt>
+<dd><ul class="first last simple">
+<li>Integrated profiler.</li>
+<li>Callstack generation for C++ and Lua.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Gui</dt>
+<dd><ul class="first last simple">
+<li>Immediate-mode GUI with custom materials.</li>
+<li>TrueType text rendering via texture atlas.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input</dt>
+<dd><ul class="first last simple">
+<li>Unified interface for accessing mice, keyboards, touchpads and joypads.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Exporters</dt>
+<dd><ul class="first last simple">
+<li>Mesh exporter for Blender &gt;= 2.80.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="supported-platforms">
+<h2>Supported platforms<a class="headerlink" href="#supported-platforms" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><dl class="first docutils">
+<dt>Runtime</dt>
+<dd><ul class="first last simple">
+<li>Android 7.0+ (ARMv7+)</li>
+<li>Ubuntu 12.04+ (x86_64)</li>
+<li>Windows 7, 8, 10 (x86_64)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Editor</dt>
+<dd><ul class="first last simple">
+<li>Any 64-bit Linux distribution with GTK+ 3.16 or newer, 64-bit Ubuntu 16.04.2+ recommended</li>
+<li>64-bit dual-core CPU or higher</li>
+<li>OpenGL 3.2+ graphics card with 512 MB of RAM, 1 GB recommended</li>
+<li>4 GB of RAM minimum, 8 GB recommended</li>
+<li>1280x768 display resolution minimum, 1920x1080 recommended</li>
+<li>Three-button mouse</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="basics.html" class="btn btn-neutral float-right" title="Basic concepts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="changelog.html" class="btn btn-neutral float-left" title="Changelog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
