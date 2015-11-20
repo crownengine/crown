@@ -793,7 +793,13 @@ Keyboard
 Keyboard Button Names
 ~~~~~~~~~~~~~~~~~~~~~
 
-	tab, enter, escape, space, backspace, kp_0, kp_1, kp_2, kp_3, kp_4, kp_5, kp_6, kp_7, kp_8, kp_9, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, home, left, up, right, down, page_up, page_down, lcontrol, rcontrol, lshift, rshift, caps_lock, lalt, ralt, lsuper, rsuper, num_0, num_1, num_2, num_3, num_4, num_5, num_6, num_7, num_8, num_9, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
+	* ``tab``, ``enter``, ``escape``, ``space``, ``backspace``
+	* ``num_lock``, ``numpad_enter``, ``numpad_.``, ``numpad_*``, ``numpad_+``, ``numpad_-``, ``numpad_/``, ``numpad_0``, ``numpad_1``, ``numpad_2``, ``numpad_3``, ``numpad_4``, ``numpad_5``, ``numpad_6``, ``numpad_7``, ``numpad_8``, ``numpad_9``
+	* ``f1``, ``f2``, ``f3``, ``f4``, ``f5``, ``f6``, ``f7``, ``f8``, ``f9``, ``f10``, ``f11``, ``f12``
+	* ``home``, ``left``, ``up``, ``right``, ``down``, ``page_up``, ``page_down``, ``delete``, ``end``
+	* ``left_ctrl``, ``right_ctrl``, ``left_shift``, ``right_shift``, ``caps_lock``, ``left_alt``, ``right_alt``, ``left_super``, ``right_super``
+	* ``0``, ``1``, ``2``, ``3``, ``4``, ``5``, ``6``, ``7``, ``8``, ``9``
+	* ``a``, ``b``, ``c``, ``d``, ``e``, ``f``, ``g``, ``h``, ``i``, ``j``, ``k``, ``l``, ``m``, ``n``, ``o``, ``p``, ``q``, ``r``, ``s``, ``t``, ``u``, ``v``, ``w``, ``x``, ``y``, ``z``
 
 Mouse
 -----
@@ -836,14 +842,14 @@ Mouse
 Mouse Button Names
 ~~~~~~~~~~~~~~~~~~
 
-	left, middle, right, extra_1, extra_2
+	``left``, ``middle``, ``right``, ``extra_1``, ``extra_2``
 
 Mouse Axis Names
 ~~~~~~~~~~~~~~~~
 
-	* cursor: Returns the cursor position (x, y) in screen coordinates.
-	* cursor_delta: Returns the delta of the cursor position (x, y) since last frame.
-	* wheel: Returns the movement of the mouse wheel in the y axis. Positive values of y mean upward scrolling, negative values mean downward scrolling.
+	* ``cursor``: Returns the cursor position (x, y) in screen coordinates.
+	* ``cursor_delta``: Returns the delta of the cursor position (x, y) since last frame.
+	* ``wheel``: Returns the movement of the mouse wheel in the y axis. Positive values of y mean upward scrolling, negative values mean downward scrolling.
 
 Touch
 -----
@@ -917,16 +923,16 @@ Pad1, Pad2, Pad3, Pad4
 Pad Button Names
 ~~~~~~~~~~~~~~~~
 
-	* up, down, left, right
-	* start, back, guide
-	* left_thumb, right_thumb
-	* left_shoulder, right_shoulder
-	* a, b, x, y
+	* ``up``, ``down``, ``left``, ``right``
+	* ``start``, ``back``, ``guide``
+	* ``left_thumb``, ``right_thumb``
+	* ``left_shoulder``, ``right_shoulder``
+	* ``a``, ``b``, ``x``, ``y``
 
 Pad Axis Names
 ~~~~~~~~~~~~~~
 
-	* left, right: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z component represents the left or right trigger [0; +1].
+	* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z component represents the left or right trigger [0; +1].
 
 Window
 ======

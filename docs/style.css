@@ -5,11 +5,23 @@
 
 @import url(html4css1.css);
 
-* {
+.document {
 	font-family: sans-serif;
+	font-size: 11pt;
+	line-height: 145%;
+	color: #141414;
 }
 
 div.topic {
 	border: 1px solid #aaa;
 	background-color: #f9f9f9;
+}
+
+tt.literal {
+	background-color: #fafafa;
+	border-radius: 2px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #e7e7e7;
+	padding: 1px 7px 1px 7px;
 }
