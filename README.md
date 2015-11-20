@@ -71,6 +71,8 @@ Configuration is `<platform>-<debug/development/release>[32|64]`. E.g.
 
 There is pretty extensive documentation for both C++ and Lua API.
 
+Lua API: http://taylor001.github.io/crown/lua_api.html
+
 ### Prerequisites
 
 Doxygen (http://www.doxygen.org)  
