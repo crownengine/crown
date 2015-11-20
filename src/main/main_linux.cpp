@@ -76,95 +76,105 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 {
 	switch (x11_key)
 	{
-		case XK_BackSpace:   return KeyboardButton::BACKSPACE;
-		case XK_Tab:         return KeyboardButton::TAB;
-		case XK_space:       return KeyboardButton::SPACE;
-		case XK_Escape:      return KeyboardButton::ESCAPE;
-		case XK_Return:      return KeyboardButton::ENTER;
-		case XK_F1:          return KeyboardButton::F1;
-		case XK_F2:          return KeyboardButton::F2;
-		case XK_F3:          return KeyboardButton::F3;
-		case XK_F4:          return KeyboardButton::F4;
-		case XK_F5:          return KeyboardButton::F5;
-		case XK_F6:          return KeyboardButton::F6;
-		case XK_F7:          return KeyboardButton::F7;
-		case XK_F8:          return KeyboardButton::F8;
-		case XK_F9:          return KeyboardButton::F9;
-		case XK_F10:         return KeyboardButton::F10;
-		case XK_F11:         return KeyboardButton::F11;
-		case XK_F12:         return KeyboardButton::F12;
-		case XK_Home:        return KeyboardButton::HOME;
-		case XK_Left:        return KeyboardButton::LEFT;
-		case XK_Up:          return KeyboardButton::UP;
-		case XK_Right:       return KeyboardButton::RIGHT;
-		case XK_Down:        return KeyboardButton::DOWN;
-		case XK_Page_Up:     return KeyboardButton::PAGE_UP;
-		case XK_Page_Down:   return KeyboardButton::PAGE_DOWN;
-		case XK_Delete:      return KeyboardButton::DELETE;
-		case XK_End:         return KeyboardButton::END;
-		case XK_Shift_L:     return KeyboardButton::LEFT_SHIFT;
-		case XK_Shift_R:     return KeyboardButton::RIGHT_SHIFT;
-		case XK_Control_L:   return KeyboardButton::LEFT_CTRL;
-		case XK_Control_R:   return KeyboardButton::RIGHT_CTRL;
-		case XK_Caps_Lock:   return KeyboardButton::CAPS_LOCK;
-		case XK_Alt_L:       return KeyboardButton::LEFT_ALT;
-		case XK_Alt_R:       return KeyboardButton::RIGHT_ALT;
-		case XK_Super_L:     return KeyboardButton::LEFT_SUPER;
-		case XK_Super_R:     return KeyboardButton::RIGHT_SUPER;
-		case XK_Num_Lock:    return KeyboardButton::NUM_LOCK;
-		case XK_KP_Enter:    return KeyboardButton::NUMPAD_ENTER;
-		case XK_KP_Delete:   return KeyboardButton::NUMPAD_DELETE;
-		case XK_KP_Multiply: return KeyboardButton::NUMPAD_MULTIPLY;
-		case XK_KP_Add:      return KeyboardButton::NUMPAD_ADD;
-		case XK_KP_Subtract: return KeyboardButton::NUMPAD_SUBTRACT;
-		case XK_KP_Divide:   return KeyboardButton::NUMPAD_DIVIDE;
-		case XK_KP_0:        return KeyboardButton::NUMPAD_0;
-		case XK_KP_1:        return KeyboardButton::NUMPAD_1;
-		case XK_KP_2:        return KeyboardButton::NUMPAD_2;
-		case XK_KP_3:        return KeyboardButton::NUMPAD_3;
-		case XK_KP_4:        return KeyboardButton::NUMPAD_4;
-		case XK_KP_5:        return KeyboardButton::NUMPAD_5;
-		case XK_KP_6:        return KeyboardButton::NUMPAD_6;
-		case XK_KP_7:        return KeyboardButton::NUMPAD_7;
-		case XK_KP_8:        return KeyboardButton::NUMPAD_8;
-		case XK_KP_9:        return KeyboardButton::NUMPAD_9;
-		case '0':            return KeyboardButton::NUMBER_0;
-		case '1':            return KeyboardButton::NUMBER_1;
-		case '2':            return KeyboardButton::NUMBER_2;
-		case '3':            return KeyboardButton::NUMBER_3;
-		case '4':            return KeyboardButton::NUMBER_4;
-		case '5':            return KeyboardButton::NUMBER_5;
-		case '6':            return KeyboardButton::NUMBER_6;
-		case '7':            return KeyboardButton::NUMBER_7;
-		case '8':            return KeyboardButton::NUMBER_8;
-		case '9':            return KeyboardButton::NUMBER_9;
-		case 'a':            return KeyboardButton::A;
-		case 'b':            return KeyboardButton::B;
-		case 'c':            return KeyboardButton::C;
-		case 'd':            return KeyboardButton::D;
-		case 'e':            return KeyboardButton::E;
-		case 'f':            return KeyboardButton::F;
-		case 'g':            return KeyboardButton::G;
-		case 'h':            return KeyboardButton::H;
-		case 'i':            return KeyboardButton::I;
-		case 'j':            return KeyboardButton::J;
-		case 'k':            return KeyboardButton::K;
-		case 'l':            return KeyboardButton::L;
-		case 'm':            return KeyboardButton::M;
-		case 'n':            return KeyboardButton::N;
-		case 'o':            return KeyboardButton::O;
-		case 'p':            return KeyboardButton::P;
-		case 'q':            return KeyboardButton::Q;
-		case 'r':            return KeyboardButton::R;
-		case 's':            return KeyboardButton::S;
-		case 't':            return KeyboardButton::T;
-		case 'u':            return KeyboardButton::U;
-		case 'v':            return KeyboardButton::V;
-		case 'w':            return KeyboardButton::W;
-		case 'x':            return KeyboardButton::X;
-		case 'y':            return KeyboardButton::Y;
-		case 'z':            return KeyboardButton::Z;
-		default:             return KeyboardButton::COUNT;
+		case XK_BackSpace:    return KeyboardButton::BACKSPACE;
+		case XK_Tab:          return KeyboardButton::TAB;
+		case XK_space:        return KeyboardButton::SPACE;
+		case XK_Escape:       return KeyboardButton::ESCAPE;
+		case XK_Return:       return KeyboardButton::ENTER;
+		case XK_F1:           return KeyboardButton::F1;
+		case XK_F2:           return KeyboardButton::F2;
+		case XK_F3:           return KeyboardButton::F3;
+		case XK_F4:           return KeyboardButton::F4;
+		case XK_F5:           return KeyboardButton::F5;
+		case XK_F6:           return KeyboardButton::F6;
+		case XK_F7:           return KeyboardButton::F7;
+		case XK_F8:           return KeyboardButton::F8;
+		case XK_F9:           return KeyboardButton::F9;
+		case XK_F10:          return KeyboardButton::F10;
+		case XK_F11:          return KeyboardButton::F11;
+		case XK_F12:          return KeyboardButton::F12;
+		case XK_Home:         return KeyboardButton::HOME;
+		case XK_Left:         return KeyboardButton::LEFT;
+		case XK_Up:           return KeyboardButton::UP;
+		case XK_Right:        return KeyboardButton::RIGHT;
+		case XK_Down:         return KeyboardButton::DOWN;
+		case XK_Page_Up:      return KeyboardButton::PAGE_UP;
+		case XK_Page_Down:    return KeyboardButton::PAGE_DOWN;
+		case XK_Delete:       return KeyboardButton::DELETE;
+		case XK_End:          return KeyboardButton::END;
+		case XK_Shift_L:      return KeyboardButton::LEFT_SHIFT;
+		case XK_Shift_R:      return KeyboardButton::RIGHT_SHIFT;
+		case XK_Control_L:    return KeyboardButton::LEFT_CTRL;
+		case XK_Control_R:    return KeyboardButton::RIGHT_CTRL;
+		case XK_Caps_Lock:    return KeyboardButton::CAPS_LOCK;
+		case XK_Alt_L:        return KeyboardButton::LEFT_ALT;
+		case XK_Alt_R:        return KeyboardButton::RIGHT_ALT;
+		case XK_Super_L:      return KeyboardButton::LEFT_SUPER;
+		case XK_Super_R:      return KeyboardButton::RIGHT_SUPER;
+		case XK_Num_Lock:     return KeyboardButton::NUM_LOCK;
+		case XK_KP_Enter:     return KeyboardButton::NUMPAD_ENTER;
+		case XK_KP_Delete:    return KeyboardButton::NUMPAD_DELETE;
+		case XK_KP_Multiply:  return KeyboardButton::NUMPAD_MULTIPLY;
+		case XK_KP_Add:       return KeyboardButton::NUMPAD_ADD;
+		case XK_KP_Subtract:  return KeyboardButton::NUMPAD_SUBTRACT;
+		case XK_KP_Divide:    return KeyboardButton::NUMPAD_DIVIDE;
+		case XK_KP_Insert:
+		case XK_KP_0:         return KeyboardButton::NUMPAD_0;
+		case XK_KP_End:
+		case XK_KP_1:         return KeyboardButton::NUMPAD_1;
+		case XK_KP_Down:
+		case XK_KP_2:         return KeyboardButton::NUMPAD_2;
+		case XK_KP_Page_Down: // or XK_KP_Next
+		case XK_KP_3:         return KeyboardButton::NUMPAD_3;
+		case XK_KP_Left:
+		case XK_KP_4:         return KeyboardButton::NUMPAD_4;
+		case XK_KP_Begin:
+		case XK_KP_5:         return KeyboardButton::NUMPAD_5;
+		case XK_KP_Right:
+		case XK_KP_6:         return KeyboardButton::NUMPAD_6;
+		case XK_KP_Home:
+		case XK_KP_7:         return KeyboardButton::NUMPAD_7;
+		case XK_KP_Up:
+		case XK_KP_8:         return KeyboardButton::NUMPAD_8;
+		case XK_KP_Page_Up:   // or XK_KP_Prior
+		case XK_KP_9:         return KeyboardButton::NUMPAD_9;
+		case '0':             return KeyboardButton::NUMBER_0;
+		case '1':             return KeyboardButton::NUMBER_1;
+		case '2':             return KeyboardButton::NUMBER_2;
+		case '3':             return KeyboardButton::NUMBER_3;
+		case '4':             return KeyboardButton::NUMBER_4;
+		case '5':             return KeyboardButton::NUMBER_5;
+		case '6':             return KeyboardButton::NUMBER_6;
+		case '7':             return KeyboardButton::NUMBER_7;
+		case '8':             return KeyboardButton::NUMBER_8;
+		case '9':             return KeyboardButton::NUMBER_9;
+		case 'a':             return KeyboardButton::A;
+		case 'b':             return KeyboardButton::B;
+		case 'c':             return KeyboardButton::C;
+		case 'd':             return KeyboardButton::D;
+		case 'e':             return KeyboardButton::E;
+		case 'f':             return KeyboardButton::F;
+		case 'g':             return KeyboardButton::G;
+		case 'h':             return KeyboardButton::H;
+		case 'i':             return KeyboardButton::I;
+		case 'j':             return KeyboardButton::J;
+		case 'k':             return KeyboardButton::K;
+		case 'l':             return KeyboardButton::L;
+		case 'm':             return KeyboardButton::M;
+		case 'n':             return KeyboardButton::N;
+		case 'o':             return KeyboardButton::O;
+		case 'p':             return KeyboardButton::P;
+		case 'q':             return KeyboardButton::Q;
+		case 'r':             return KeyboardButton::R;
+		case 's':             return KeyboardButton::S;
+		case 't':             return KeyboardButton::T;
+		case 'u':             return KeyboardButton::U;
+		case 'v':             return KeyboardButton::V;
+		case 'w':             return KeyboardButton::W;
+		case 'x':             return KeyboardButton::X;
+		case 'y':             return KeyboardButton::Y;
+		case 'z':             return KeyboardButton::Z;
+		default:              return KeyboardButton::COUNT;
 	}
 }
 
@@ -236,7 +246,8 @@ struct LinuxDevice
 			, InputOutput
 			, visual
 			, CWBorderPixel | CWEventMask
-			, &win_attribs);
+			, &win_attribs
+			);
 		CE_ASSERT(_x11_window != None, "XCreateWindow: error");
 
 		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
@@ -244,7 +255,7 @@ struct LinuxDevice
 
 		// Do we have detectable autorepeat?
 		Bool detectable;
-		_x11_detectable_autorepeat = (bool) XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
+		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
 
 		// Build hidden cursor
 		Pixmap bm_no;
@@ -273,6 +284,22 @@ struct LinuxDevice
 		Thread main_thread;
 		main_thread.start(func, &mta);
 
+		// Push initial mouse position
+		Window dummy1;
+		int dummy2;
+		unsigned int dummy3;
+		int mx, my;
+		XQueryPointer(_x11_display
+			, _x11_window
+			, &dummy1
+			, &dummy1
+			, &dummy2
+			, &dummy2
+			, &mx, &my
+			, &dummy3
+			);
+		_queue.push_mouse_event(mx, my);
+
 		while (!s_exit)
 		{
 			pump_events();
@@ -291,7 +318,8 @@ struct LinuxDevice
 				, root_window
 				, rr_old_sizeid
 				, rr_old_rot
-				, CurrentTime);
+				, CurrentTime
+				);
 		}
 		XRRFreeScreenConfigInfo(_screen_config);
 
@@ -321,8 +349,8 @@ struct LinuxDevice
 					_queue.push_metrics_event(event.xconfigure.x
 						, event.xconfigure.y
 						, event.xconfigure.width
-						, event.xconfigure.height);
-
+						, event.xconfigure.height
+						);
 					break;
 				}
 				case ButtonPress:
@@ -332,8 +360,8 @@ struct LinuxDevice
 					{
 						_queue.push_mouse_event(event.xbutton.x
 							, event.xbutton.y
-							, event.xbutton.button == Button4 ? 1.0f : -1.0f);
-
+							, event.xbutton.button == Button4 ? 1.0f : -1.0f
+							);
 						break;
 					}
 
@@ -347,11 +375,13 @@ struct LinuxDevice
 					}
 
 					if (mb != MouseButton::COUNT)
+					{
 						_queue.push_mouse_event(event.xbutton.x
 							, event.xbutton.y
 							, mb
-							, event.type == ButtonPress);
-
+							, event.type == ButtonPress
+							);
+					}
 					break;
 				}
 				case MotionNotify:
@@ -365,7 +395,9 @@ struct LinuxDevice
 					KeySym keysym = XLookupKeysym(&event.xkey, 0);
 					KeyboardButton::Enum kb = x11_translate_key(keysym);
 
-					_queue.push_keyboard_event(kb, event.type == KeyPress);
+					if (kb != KeyboardButton::COUNT)
+						_queue.push_keyboard_event(kb, event.type == KeyPress);
+
 					break;
 				}
 				case KeymapNotify:
