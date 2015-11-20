@@ -236,7 +236,8 @@ struct LinuxDevice
 			, InputOutput
 			, visual
 			, CWBorderPixel | CWEventMask
-			, &win_attribs);
+			, &win_attribs
+			);
 		CE_ASSERT(_x11_window != None, "XCreateWindow: error");
 
 		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
@@ -244,7 +245,7 @@ struct LinuxDevice
 
 		// Do we have detectable autorepeat?
 		Bool detectable;
-		_x11_detectable_autorepeat = (bool) XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
+		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
 
 		// Build hidden cursor
 		Pixmap bm_no;
@@ -273,6 +274,22 @@ struct LinuxDevice
 		Thread main_thread;
 		main_thread.start(func, &mta);
 
+		// Push initial mouse position
+		Window dummy1;
+		int dummy2;
+		unsigned int dummy3;
+		int mx, my;
+		XQueryPointer(_x11_display
+			, _x11_window
+			, &dummy1
+			, &dummy1
+			, &dummy2
+			, &dummy2
+			, &mx, &my
+			, &dummy3
+			);
+		_queue.push_mouse_event(mx, my);
+
 		while (!s_exit)
 		{
 			pump_events();
@@ -291,7 +308,8 @@ struct LinuxDevice
 				, root_window
 				, rr_old_sizeid
 				, rr_old_rot
-				, CurrentTime);
+				, CurrentTime
+				);
 		}
 		XRRFreeScreenConfigInfo(_screen_config);
 
@@ -321,8 +339,8 @@ struct LinuxDevice
 					_queue.push_metrics_event(event.xconfigure.x
 						, event.xconfigure.y
 						, event.xconfigure.width
-						, event.xconfigure.height);
-
+						, event.xconfigure.height
+						);
 					break;
 				}
 				case ButtonPress:
