@@ -332,8 +332,8 @@ struct LinuxDevice
 					{
 						_queue.push_mouse_event(event.xbutton.x
 							, event.xbutton.y
-							, event.xbutton.button == Button4 ? 1.0f : -1.0f);
-
+							, event.xbutton.button == Button4 ? 1.0f : -1.0f
+							);
 						break;
 					}
 
@@ -347,11 +347,13 @@ struct LinuxDevice
 					}
 
 					if (mb != MouseButton::COUNT)
+					{
 						_queue.push_mouse_event(event.xbutton.x
 							, event.xbutton.y
 							, mb
-							, event.type == ButtonPress);
-
+							, event.type == ButtonPress
+							);
+					}
 					break;
 				}
 				case MotionNotify:
@@ -365,7 +367,9 @@ struct LinuxDevice
 					KeySym keysym = XLookupKeysym(&event.xkey, 0);
 					KeyboardButton::Enum kb = x11_translate_key(keysym);
 
-					_queue.push_keyboard_event(kb, event.type == KeyPress);
+					if (kb != KeyboardButton::COUNT)
+						_queue.push_keyboard_event(kb, event.type == KeyPress);
+
 					break;
 				}
 				case KeymapNotify:
