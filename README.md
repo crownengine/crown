@@ -20,6 +20,7 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 ##Documentation
 
 Lua API: http://taylor001.github.io/crown/lua_api.html
+C++ API: http://taylor001.github.io/crown/doxygen/
 
 ##Screenshots
 
