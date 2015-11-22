@@ -51,6 +51,8 @@ static KeyboardButton::Enum win_translate_key(int32_t winkey)
 		case VK_DOWN:     return KeyboardButton::DOWN;
 		case VK_PRIOR:    return KeyboardButton::PAGE_UP;
 		case VK_NEXT:     return KeyboardButton::PAGE_DOWN;
+		case VK_DELETE:   return KeyboardButton::DELETE;
+		case VK_END:      return KeyboardButton::END;
 		case VK_LSHIFT:   return KeyboardButton::LEFT_SHIFT;
 		case VK_RSHIFT:   return KeyboardButton::RIGHT_SHIFT;
 		case VK_LCONTROL: return KeyboardButton::LEFT_CTRL;
@@ -60,6 +62,13 @@ static KeyboardButton::Enum win_translate_key(int32_t winkey)
 		case VK_RMENU:    return KeyboardButton::RIGHT_ALT;
 		case VK_LWIN:     return KeyboardButton::LEFT_SUPER;
 		case VK_RWIN:     return KeyboardButton::RIGHT_SUPER;
+		case VK_NUMLOCK:  return KeyboardButton::NUM_LOCK;
+		// case VK_RETURN:   return KeyboardButton::NUMPAD_ENTER;
+		case VK_DECIMAL:  return KeyboardButton::NUMPAD_DELETE;
+		case VK_MULTIPLY: return KeyboardButton::NUMPAD_MULTIPLY;
+		case VK_ADD:      return KeyboardButton::NUMPAD_ADD;
+		case VK_SUBTRACT: return KeyboardButton::NUMPAD_SUBTRACT;
+		case VK_DIVIDE:   return KeyboardButton::NUMPAD_DIVIDE;
 		case VK_NUMPAD0:  return KeyboardButton::NUMPAD_0;
 		case VK_NUMPAD1:  return KeyboardButton::NUMPAD_1;
 		case VK_NUMPAD2:  return KeyboardButton::NUMPAD_2;
@@ -160,7 +169,8 @@ struct WindowsDevice
 			, 0
 			, NULL
 			, instance
-			, 0);
+			, 0
+			);
 		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
 
 		bgfx::winSetHwnd(_hwnd);
@@ -272,7 +282,9 @@ struct WindowsDevice
 			{
 				KeyboardButton::Enum kb = win_translate_key(wparam & 0xff);
 
-				_queue.push_keyboard_event(kb, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN));
+				if (kb != KeyboardButton::COUNT)
+					_queue.push_keyboard_event(kb, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN));
+
 				break;
 			}
 			default:
