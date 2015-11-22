@@ -87,6 +87,10 @@ struct SceneGraph
 
 	void transform(const Matrix4x4& parent, TransformInstance i);
 
+public:
+
+	enum { MARKER = 0x63a44dbf };
+
 private:
 
 	void grow();
@@ -141,6 +145,8 @@ private:
 		TransformInstance* next_sibling;
 		TransformInstance* prev_sibling;
 	};
+
+	uint32_t _marker;
 
 	Allocator& _allocator;
 	InstanceData _data;

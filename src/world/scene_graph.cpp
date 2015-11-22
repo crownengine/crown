@@ -18,7 +18,8 @@ namespace crown
 {
 
 SceneGraph::SceneGraph(Allocator& a)
-	: _allocator(a)
+	: _marker(MARKER)
+	, _allocator(a)
 	, _map(a)
 {
 }
@@ -26,6 +27,8 @@ SceneGraph::SceneGraph(Allocator& a)
 SceneGraph::~SceneGraph()
 {
 	_allocator.deallocate(_data.buffer);
+
+	_marker = 0;
 }
 
 TransformInstance SceneGraph::make_instance(uint32_t i)
