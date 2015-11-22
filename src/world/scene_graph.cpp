@@ -71,6 +71,8 @@ void SceneGraph::allocate(uint32_t num)
 
 TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& m)
 {
+	CE_ASSERT(!hash::has(_map, id.encode()), "Unit already has transform");
+
 	if (_data.capacity == _data.size)
 		grow();
 
