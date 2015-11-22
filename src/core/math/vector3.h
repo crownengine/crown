@@ -117,7 +117,7 @@ inline Vector3 operator/(Vector3 a, float k)
 /// Returns true whether the vectors @a a and @a b are equal.
 inline bool operator==(const Vector3& a, const Vector3& b)
 {
-	return equals(a.x, b.x) && equals(a.y, b.y) && equals(a.z, b.z);
+	return fequal(a.x, b.x) && fequal(a.y, b.y) && fequal(a.z, b.z);
 }
 
 /// Returns the dot product between the vectors @a a and @a b.

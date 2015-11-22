@@ -35,7 +35,7 @@ namespace plane
 	{
 		const float len = length(p.n);
 
-		if (equals(len, 0.0f))
+		if (fequal(len, 0.0f))
 			return p;
 
 		const float inv_len = 1.0f / len;

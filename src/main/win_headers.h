@@ -20,5 +20,6 @@
 #undef min
 #undef max
 #undef rad1
+#undef DELETE
 
 #define __va_copy(dest, src) (dest = src)

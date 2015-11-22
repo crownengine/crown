@@ -367,6 +367,7 @@ function crown_project(_name, _kind, _defines)
 			links {
 				"OpenGL32",
 				"dbghelp",
+				"xinput",
 			}
 
 		configuration { "debug", "x32", "vs*"}

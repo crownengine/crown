@@ -101,7 +101,7 @@ inline Vector2 operator/(Vector2 a, float k)
 /// Returns true whether the vectors @a a and @a b are equal.
 inline bool operator==(const Vector2& a, const Vector2& b)
 {
-	return equals(a.x, b.x) && equals(a.y, b.y);
+	return fequal(a.x, b.x) && fequal(a.y, b.y);
 }
 
 /// Returns the dot product between the vectors @a a and @a b.

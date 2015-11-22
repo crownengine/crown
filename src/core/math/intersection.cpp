@@ -147,10 +147,8 @@ bool plane_3_intersection(const Plane& p1, const Plane& p2, const Plane& p3, Vec
 
 	float den = -dot(cross(n1, n2), n3);
 
-	if (equals(den, (float)0.0))
-	{
+	if (fequal(den, 0.0f))
 		return false;
-	}
 
 	Vector3 res = p1.d * cross(n2, n3) + p2.d * cross(n3, n1) + p3.d * cross(n1, n2);
 	ip = res / den;
