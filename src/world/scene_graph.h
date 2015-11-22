@@ -75,7 +75,7 @@ struct SceneGraph
 	uint32_t num_nodes() const;
 
 	/// Links the @a child node to the @a parent node.
-	void link(TransformInstance child, TransformInstance paren);
+	void link(TransformInstance child, TransformInstance parent);
 
 	/// Unlinks the @a child node from its parent if it has any.
 	/// After unlinking, the @child local pose is set to its previous world pose.
