@@ -14,7 +14,7 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Matrix3x3 MATRIX3X3_IDENTITY = { {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
+const Matrix3x3 MATRIX3X3_IDENTITY = { VECTOR3_XAXIS, VECTOR3_YAXIS, VECTOR3_ZAXIS };
 
 inline Matrix3x3 matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z)
 {
