@@ -19,7 +19,7 @@ const float TWO_PI            = PI * 2.0f;
 const float HALF_PI           = PI * 0.5f;
 const float FLOAT_PRECISION   = 1.0e-7f;
 
-inline bool equals(float a, float b, float precision = FLOAT_PRECISION)
+inline bool fequal(float a, float b, float precision = FLOAT_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }

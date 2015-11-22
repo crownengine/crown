@@ -131,7 +131,10 @@ inline Vector4 operator/(Vector4 a, float k)
 /// Returns true whether the vectors @a a and @a b are equal.
 inline bool operator==(const Vector4& a, const Vector4& b)
 {
-	return equals(a.x, b.x) && equals(a.y, b.y) && equals(a.z, b.z) && equals(a.w, b.w);
+	return fequal(a.x, b.x)
+		&& fequal(a.y, b.y)
+		&& fequal(a.z, b.z)
+		&& fequal(a.w, b.w);
 }
 
 /// Returns the dot product between the vectors @a a and @a b.
