@@ -37,7 +37,7 @@ public:
 	{
 	}
 
-	virtual SoundInstanceId play(SoundResource* /*sr*/, bool /*loop*/, float /*volume*/, const Vector3& /*pos*/)
+	virtual SoundInstanceId play(const SoundResource* /*sr*/, bool /*loop*/, float /*volume*/, const Vector3& /*pos*/)
 	{
 		Id id;
 		id.id = INVALID_ID;
@@ -78,7 +78,7 @@ public:
 	{
 	}
 
-	virtual void reload_sounds(SoundResource* /*old_sr*/, SoundResource* /*new_sr*/)
+	virtual void reload_sounds(const SoundResource* /*old_sr*/, const SoundResource* /*new_sr*/)
 	{
 	}
 
