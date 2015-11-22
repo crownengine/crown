@@ -19,6 +19,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windowsx.h>
+#include <xinput.h>
 
 namespace crown
 {
@@ -119,6 +120,152 @@ static KeyboardButton::Enum win_translate_key(int32_t winkey)
 	}
 }
 
+struct XinputToJoypad
+{
+	WORD bit;
+	JoypadButton::Enum button;
+};
+
+static XinputToJoypad s_xinput_to_joypad[] =
+{
+	{ XINPUT_GAMEPAD_DPAD_UP,        JoypadButton::UP             },
+	{ XINPUT_GAMEPAD_DPAD_DOWN,      JoypadButton::DOWN           },
+	{ XINPUT_GAMEPAD_DPAD_LEFT,      JoypadButton::LEFT           },
+	{ XINPUT_GAMEPAD_DPAD_RIGHT,     JoypadButton::RIGHT          },
+	{ XINPUT_GAMEPAD_START,          JoypadButton::START          },
+	{ XINPUT_GAMEPAD_BACK,           JoypadButton::BACK           },
+	{ XINPUT_GAMEPAD_LEFT_THUMB,     JoypadButton::LEFT_THUMB     },
+	{ XINPUT_GAMEPAD_RIGHT_THUMB,    JoypadButton::RIGHT_THUMB    },
+	{ XINPUT_GAMEPAD_LEFT_SHOULDER,  JoypadButton::LEFT_SHOULDER  },
+	{ XINPUT_GAMEPAD_RIGHT_SHOULDER, JoypadButton::RIGHT_SHOULDER },
+	{ XINPUT_GAMEPAD_A,              JoypadButton::A              },
+	{ XINPUT_GAMEPAD_B,              JoypadButton::B              },
+	{ XINPUT_GAMEPAD_X,              JoypadButton::X              },
+	{ XINPUT_GAMEPAD_Y,              JoypadButton::Y              }
+};
+
+struct Joypad
+{
+	void init()
+	{
+		memset(&_state, 0, sizeof(_state));
+		memset(&_axis, 0, sizeof(_axis));
+		memset(&_connected, 0, sizeof(_connected));
+	}
+
+	void update(OsEventQueue& queue)
+	{
+		for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		{
+			XINPUT_STATE state;
+			memset(&state, 0, sizeof(state));
+
+			const DWORD result = XInputGetState(i, &state);
+			const bool connected = result == ERROR_SUCCESS;
+
+			if (connected != _connected[i])
+				queue.push_joypad_event(i, connected);
+
+			_connected[i] = connected;
+
+			if (!connected || state.dwPacketNumber == _state[i].dwPacketNumber)
+				continue;
+
+			XINPUT_GAMEPAD& gamepad = _state[i].Gamepad;
+
+			const WORD diff = state.Gamepad.wButtons ^ gamepad.wButtons;
+			const WORD curr = state.Gamepad.wButtons;
+			if (diff != 0)
+			{
+				for (uint8_t bb = 0; bb < CE_COUNTOF(s_xinput_to_joypad); ++bb)
+				{
+					WORD bit = s_xinput_to_joypad[bb].bit;
+					if (bit & diff)
+					{
+						queue.push_joypad_event(i, s_xinput_to_joypad[bb].button, (curr & bit) != 0);
+						gamepad.wButtons = curr;
+					}
+				}
+			}
+
+			if (state.Gamepad.sThumbLX != gamepad.sThumbLX)
+			{
+				int32_t value = state.Gamepad.sThumbLX;
+				value = value > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
+					? value : 0;
+
+				_axis[0].lx = (float)value / (float)INT16_MAX;
+				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
+
+				gamepad.sThumbLX = state.Gamepad.sThumbLX;
+			}
+			if (state.Gamepad.sThumbLY != gamepad.sThumbLY)
+			{
+				int32_t value = state.Gamepad.sThumbLY;
+				value = value > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
+					? value : 0;
+
+				_axis[0].ly = (float)value / (float)INT16_MAX;
+				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
+
+				gamepad.sThumbLY = state.Gamepad.sThumbLY;
+			}
+			if (state.Gamepad.bLeftTrigger != gamepad.bLeftTrigger)
+			{
+				int32_t value = state.Gamepad.bLeftTrigger;
+				value = value >XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
+
+				_axis[0].lz = (float)value / (float)UINT8_MAX;
+				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
+
+				gamepad.bLeftTrigger = state.Gamepad.bLeftTrigger;
+			}
+			if (state.Gamepad.sThumbRX != gamepad.sThumbRX)
+			{
+				int32_t value = state.Gamepad.sThumbRX;
+				value = value > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
+					? value : 0;
+
+				_axis[0].rx = (float)value / (float)INT16_MAX;
+				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
+
+				gamepad.sThumbRX = state.Gamepad.sThumbRX;
+			}
+			if (state.Gamepad.sThumbRY != gamepad.sThumbRY)
+			{
+				int32_t value = state.Gamepad.sThumbRY;
+				value = value > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
+					? value : 0;
+
+				_axis[0].ry = (float)value / (float)INT16_MAX;
+				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
+
+				gamepad.sThumbRY = state.Gamepad.sThumbRY;
+			}
+			if (state.Gamepad.bRightTrigger != gamepad.bRightTrigger)
+			{
+				int32_t value = state.Gamepad.bRightTrigger;
+				value = value > XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
+
+				_axis[0].rz = (float)value / (float)UINT8_MAX;
+				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
+
+				gamepad.bRightTrigger = state.Gamepad.bRightTrigger;
+			}
+		}
+	}
+
+	struct Axis
+	{
+		float lx, ly, lz;
+		float rx, ry, rz;
+	};
+
+	XINPUT_STATE _state[CROWN_MAX_JOYPADS];
+	Axis _axis[CROWN_MAX_JOYPADS];
+	bool _connected[CROWN_MAX_JOYPADS];
+};
+
 static bool s_exit = false;
 
 struct MainThreadArgs
@@ -186,6 +333,8 @@ struct WindowsDevice
 
 		while (!s_exit)
 		{
+			_joypad.update(_queue);
+
 			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) != 0)
 			{
 				TranslateMessage(&msg);
@@ -303,6 +452,7 @@ public:
 	HWND _hwnd;
 	HDC _hdc;
 	OsEventQueue _queue;
+	Joypad _joypad;
 };
 
 static WindowsDevice s_wdvc;
