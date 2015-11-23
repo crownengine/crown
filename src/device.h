@@ -116,6 +116,10 @@ private:
 
 	uint16_t _width;
 	uint16_t _height;
+	int16_t _mouse_curr_x;
+	int16_t _mouse_curr_y;
+	int16_t _mouse_last_x;
+	int16_t _mouse_last_y;
 
 	bool _is_init;
 	bool _is_running;

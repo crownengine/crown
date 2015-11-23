@@ -40,6 +40,10 @@ Device::Device(DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _width(0)
 	, _height(0)
+	, _mouse_curr_x(0)
+	, _mouse_curr_y(0)
+	, _mouse_last_x(0)
+	, _mouse_last_y(0)
 	, _is_init(false)
 	, _is_running(false)
 	, _is_paused(false)
@@ -290,16 +294,11 @@ bool Device::process_events()
 	bool exit = false;
 	InputManager* im = _input_manager;
 
-	static int16_t mouse_curr_x = 0;
-	static int16_t mouse_curr_y = 0;
-	static int16_t mouse_last_x = 0;
-	static int16_t mouse_last_y = 0;
-
-	const int16_t dt_x = mouse_curr_x - mouse_last_x;
-	const int16_t dt_y = mouse_curr_y - mouse_last_y;
+	const int16_t dt_x = _mouse_curr_x - _mouse_last_x;
+	const int16_t dt_y = _mouse_curr_y - _mouse_last_y;
 	im->mouse()->set_axis(MouseAxis::CURSOR_DELTA, vector3(dt_x, dt_y, 0.0f));
-	mouse_last_x = mouse_curr_x;
-	mouse_last_y = mouse_curr_y;
+	_mouse_last_x = _mouse_curr_x;
+	_mouse_last_y = _mouse_curr_y;
 
 	while(next_event(event))
 	{
@@ -333,8 +332,8 @@ bool Device::process_events()
 						im->mouse()->set_button_state(ev.button, ev.pressed);
 						break;
 					case OsMouseEvent::MOVE:
-						mouse_curr_x = ev.x;
-						mouse_curr_y = ev.y;
+						_mouse_curr_x = ev.x;
+						_mouse_curr_y = ev.y;
 						im->mouse()->set_axis(MouseAxis::CURSOR, vector3(ev.x, ev.y, 0.0f));
 						break;
 					case OsMouseEvent::WHEEL:
