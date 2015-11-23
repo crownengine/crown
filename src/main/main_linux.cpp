@@ -233,7 +233,8 @@ struct LinuxDevice
 			| KeyReleaseMask
 			| ButtonPressMask
 			| ButtonReleaseMask
-			| PointerMotionMask;
+			| PointerMotionMask
+			| EnterWindowMask;
 
 		_x11_window = XCreateWindow(_x11_display
 			, parent_window
@@ -284,22 +285,6 @@ struct LinuxDevice
 		Thread main_thread;
 		main_thread.start(func, &mta);
 
-		// Push initial mouse position
-		Window dummy1;
-		int dummy2;
-		unsigned int dummy3;
-		int mx, my;
-		XQueryPointer(_x11_display
-			, _x11_window
-			, &dummy1
-			, &dummy1
-			, &dummy2
-			, &dummy2
-			, &mx, &my
-			, &dummy3
-			);
-		_queue.push_mouse_event(mx, my);
-
 		while (!s_exit)
 		{
 			pump_events();
@@ -337,6 +322,11 @@ struct LinuxDevice
 
 			switch (event.type)
 			{
+				case EnterNotify:
+				{
+					_queue.push_mouse_event(event.xcrossing.x, event.xcrossing.y);
+					break;
+				}
 				case ClientMessage:
 				{
 					if ((Atom)event.xclient.data.l[0] == _wm_delete_message)
