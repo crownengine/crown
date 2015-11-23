@@ -16,7 +16,6 @@
 #include "device.h"
 #include "lua_stack.h"
 #include "lua_environment.h"
-#include "main.h"
 
 namespace crown
 {

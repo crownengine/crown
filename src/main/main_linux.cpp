@@ -11,11 +11,10 @@
 #include "memory.h"
 #include "os_event_queue.h"
 #include "thread.h"
-#include "main.h"
 #include "command_line.h"
-#include "crown.h"
 #include "bundle_compiler.h"
 #include "console_server.h"
+#include "device.h"
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>

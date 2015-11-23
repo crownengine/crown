@@ -7,7 +7,6 @@
 
 #include "disk_filesystem.h"
 #include "container_types.h"
-#include "crown.h"
 
 namespace crown
 {

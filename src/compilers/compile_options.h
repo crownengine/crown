@@ -7,7 +7,6 @@
 
 #include "filesystem.h"
 #include "reader_writer.h"
-#include "crown.h"
 
 namespace crown
 {
