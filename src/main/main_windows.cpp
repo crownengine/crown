@@ -9,10 +9,10 @@
 
 #include "os_event_queue.h"
 #include "thread.h"
-#include "crown.h"
 #include "command_line.h"
 #include "console_server.h"
 #include "bundle_compiler.h"
+#include "device.h"
 #include <bgfxplatform.h>
 #include <winsock2.h>
 #ifndef WIN32_LEAN_AND_MEAN

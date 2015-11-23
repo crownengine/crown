@@ -15,6 +15,7 @@
 #include "container_types.h"
 #include "input_types.h"
 #include "device_options.h"
+#include "os_event_queue.h"
 
 namespace crown
 {
@@ -105,6 +106,7 @@ struct Device
 
 private:
 
+	bool process_events();
 	void read_config();
 
 private:
@@ -144,12 +146,10 @@ private:
 	Device& operator=(const Device&);
 };
 
-namespace device_globals
-{
-	void init(DeviceOptions& opts);
-	void shutdown();
-} // namespace device_globals
-
+bool next_event(OsEvent& ev);
+void init(DeviceOptions& opts);
+void update();
+void shutdown();
 Device* device();
 
 } // namespace crown

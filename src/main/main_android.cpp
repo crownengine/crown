@@ -9,11 +9,10 @@
 
 #include "os_event_queue.h"
 #include "thread.h"
-#include "main.h"
 #include "device_options.h"
 #include "console_server.h"
-#include "crown.h"
 #include "memory.h"
+#include "device.h"
 #include <stdlib.h>
 #include <jni.h>
 #include <android/sensor.h>
