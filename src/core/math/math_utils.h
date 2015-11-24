@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "error.h"
 #include "types.h"
 #include <math.h>
 
@@ -14,33 +13,29 @@ namespace crown
 
 /// @addtogroup Math
 /// @{
-const float PI                = 3.1415926535897932f;
-const float TWO_PI            = PI * 2.0f;
-const float HALF_PI           = PI * 0.5f;
-const float FLOAT_PRECISION   = 1.0e-7f;
+const float PI              = 3.1415926535897932f;
+const float TWO_PI          = PI * 2.0f;
+const float HALF_PI         = PI * 0.5f;
+const float FLOAT_PRECISION = 1.0e-7f;
 
 inline bool fequal(float a, float b, float precision = FLOAT_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
 
-template <typename T>
-inline T min(const T& a, const T& b)
+inline float fmin(float a, float b)
 {
 	return a < b ? a : b;
 }
 
-template <typename T>
-inline T max(const T& a, const T& b)
+inline float fmax(float a, float b)
 {
 	return a < b ? b : a;
 }
 
-template <typename T>
-inline T clamp(const T& min, const T& max, const T& val)
+inline float fclamp(float min, float max, float val)
 {
-	CE_ASSERT(min < max, "Min must be < max");
-	return val > max ? max : val < min ? min : val;
+	return fmin(fmax(min, val), max);
 }
 
 inline float to_rad(float deg)
@@ -72,61 +67,56 @@ inline bool is_pow_2(uint32_t x)
 }
 
 /// Returns the linear interpolated value between @a p0 and @a p1 at time @a t
-template <typename T>
-inline T linear(const T& p0, const T& p1, float t)
+inline float linear(const float p0, const float p1, float t)
 {
-	return p0 + (t * (p1 - p0));
+	return p0 + t * (p1 - p0);
 }
 
 /// Returns the cosine interpolated value between @a p0 and @a p1 at time @a t
-template <typename T>
-inline T cosine(const T& p0, const T& p1, float t)
+inline float cosine(const float p0, const float p1, float t)
 {
 	const float f = t * PI;
 	const float g = (1.0f - cosf(f)) * 0.5f;
 
-	return p0 + (g * (p1 - p0));
+	return p0 + g * (p1 - p0);
 }
 
 /// Returns the cubic interpolated value between @a p0 and @a p1 at time @a t
-template <typename T>
-inline T cubic(const T& p0, const T& p1, float t)
+inline float cubic(const float p0, const float p1, float t)
 {
-	const float tt = t * t;
+	const float tt  = t * t;
 	const float ttt = tt * t;
 
 	return p0 * (2.0f * ttt - 3.0f * tt + 1.0f) + p1 * (3.0f * tt  - 2.0f * ttt);
 }
 
 /// Bezier interpolation
-template <typename T>
-inline T bezier(const T& p0, const T& p1, const T& p2, const T& p3, float t)
+inline float bezier(const float p0, const float p1, const float p2, const float p3, float t)
 {
-	const float u = 1.0f - t;
-	const float tt = t * t ;
-	const float uu = u * u;
+	const float u   = 1.0f - t;
+	const float tt  = t * t ;
+	const float uu  = u * u;
 	const float uuu = uu * u;
 	const float ttt = tt * t;
 
-	T tmp = (uuu * p0) +
-			(3.0f * uu * t * p1) +
-			(3.0f * u * tt * p2) +
-			(ttt * p3);
+	const float tmp = (uuu * p0)
+		+ (3.0f * uu * t * p1)
+		+ (3.0f * u * tt * p2)
+		+ (ttt * p3);
 
 	return tmp;
 }
 
 /// Catmull-Rom interpolation
-template <typename T>
-inline T catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, float t)
+inline float catmull_rom(const float p0, const float p1, const float p2, const float p3, float t)
 {
-	const float tt = t * t;
+	const float tt  = t * t;
 	const float ttt = tt * t;
 
-	T tmp = (2.0f * p1) +
-			((-p0 + p2) * t) +
-			(((2.0f * p0) - (5.0f * p1) + (4.0f * p2) - p3) * tt) +
-			((-p0 + (3.0f * p1) + (-3.0f * p2) + p3) * ttt);
+	const float tmp = (2.0f * p1)
+		+ (-p0 + p2) * t
+		+ ((2.0f * p0) - (5.0f * p1) + (4.0f * p2) - p3) * tt
+		+ (-p0 + (3.0f * p1) + (-3.0f * p2) + p3) * ttt;
 
 	return tmp * 0.5f;
 }

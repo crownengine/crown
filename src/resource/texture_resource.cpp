@@ -11,6 +11,7 @@
 #include "resource_manager.h"
 #include "log.h"
 #include "compile_options.h"
+#include <algorithm>
 
 namespace crown
 {
@@ -204,8 +205,8 @@ namespace texture_resource
 				return;
 			}
 
-			width = max(1u, width >> 1);
-			height = max(1u, height >> 1);
+			width = std::max(1u, width >> 1);
+			height = std::max(1u, height >> 1);
 			cur_mip++;
 			src += size;
 		}
