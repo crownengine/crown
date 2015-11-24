@@ -33,6 +33,8 @@ struct SceneGraph
 
 	/// Creates a new transform instance for unit @a id.
 	TransformInstance create(UnitId id, const Matrix4x4& m);
+
+	/// Destroys the transform @a i.
 	void destroy(TransformInstance i);
 
 	/// Returns the transform instance of unit @a id.
