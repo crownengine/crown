@@ -8,6 +8,7 @@
 #include "types.h"
 #include "math_types.h"
 #include "math_utils.h"
+#include "matrix3x3.h"
 
 namespace crown
 {
@@ -136,6 +137,36 @@ inline Quaternion power(const Quaternion& q, float exp)
 	}
 
 	return q;
+}
+
+inline Quaternion look(const Vector3& dir, const Vector3& up = VECTOR3_YAXIS)
+{
+	const Vector3 right = cross(dir, up);
+	const Vector3 nup = cross(right, dir);
+
+	Matrix3x3 m;
+	m.x = -right;
+	m.y = nup;
+	m.z = dir;
+	return quaternion(m);
+}
+
+inline Vector3 right(const Quaternion& q)
+{
+	const Matrix3x3 m = matrix3x3(q);
+	return m.x;
+}
+
+inline Vector3 up(const Quaternion& q)
+{
+	const Matrix3x3 m = matrix3x3(q);
+	return m.y;
+}
+
+inline Vector3 forward(const Quaternion& q)
+{
+	const Matrix3x3 m = matrix3x3(q);
+	return m.z;
 }
 
 // @}
