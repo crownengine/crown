@@ -29,10 +29,10 @@ inline Quaternion quaternion(float x, float y, float z, float w)
 inline Quaternion quaternion(const Vector3& axis, float angle)
 {
 	Quaternion q;
-	q.x = axis.x * sin(angle * 0.5f);
-	q.y = axis.y * sin(angle * 0.5f);
-	q.z = axis.z * sin(angle * 0.5f);
-	q.w = cos(angle * 0.5f);
+	q.x = axis.x * sinf(angle * 0.5f);
+	q.y = axis.y * sinf(angle * 0.5f);
+	q.z = axis.z * sinf(angle * 0.5f);
+	q.w = cosf(angle * 0.5f);
 	return q;
 }
 
@@ -87,7 +87,7 @@ inline float dot(const Quaternion& a, const Quaternion& b)
 /// Returns the length of @a q.
 inline float length(const Quaternion& q)
 {
-	return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+	return sqrtf(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
 }
 
 /// Normalizes the quaternion @a q and returns the result.
@@ -121,13 +121,13 @@ inline Quaternion inverse(const Quaternion& q)
 /// Returns the quaternion @a q raised to the power of @a exp.
 inline Quaternion power(const Quaternion& q, float exp)
 {
-	if (abs(q.w) < 0.9999)
+	if (fabs(q.w) < 0.9999)
 	{
 		float alpha = acos(q.w); // alpha = theta/2
 		float new_alpha = alpha * exp;
-		float mult = sin(new_alpha) / sin(alpha);
+		float mult = sinf(new_alpha) / sinf(alpha);
 		Quaternion tmp;
-		tmp.w = cos(new_alpha);
+		tmp.w = cosf(new_alpha);
 		tmp.x = q.x * mult;
 		tmp.y = q.y * mult;
 		tmp.z = q.z * mult;

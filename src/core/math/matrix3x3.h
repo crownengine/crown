@@ -263,7 +263,7 @@ inline Quaternion rotation(const Matrix3x3& m)
 		index = 3;
 	}
 
-	const float biggest = sqrt(max + 1.0f) * 0.5f;
+	const float biggest = sqrtf(max + 1.0f) * 0.5f;
 	const float mult = 0.25f / biggest;
 
 	Quaternion tmp;

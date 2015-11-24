@@ -39,7 +39,7 @@ Controller::Controller(const ControllerResource* cr, SceneGraph& sg, UnitId id, 
 	desc.nonWalkableMode = PxCCTNonWalkableMode::eFORCE_SLIDING;
 	desc.radius = cr->radius;
 	desc.height = cr->height;
-	desc.slopeLimit = cos(cr->slope_limit);
+	desc.slopeLimit = cosf(cr->slope_limit);
 	desc.stepOffset = cr->step_offset;
 	desc.contactOffset = cr->contact_offset;
 	desc.upDirection = PxVec3(0.0, 1.0, 0.0);

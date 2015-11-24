@@ -113,7 +113,7 @@ inline float dot(const Vector2& a, const Vector2& b)
 /// Returns the lenght of @a a.
 inline float length(const Vector2& a)
 {
-	return sqrt(a.x * a.x + a.y * a.y);
+	return sqrtf(a.x * a.x + a.y * a.y);
 }
 
 /// Returns the squared length of @a a.

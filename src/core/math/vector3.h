@@ -135,7 +135,7 @@ inline Vector3 cross(const Vector3& a, const Vector3& b)
 /// Returns the lenght of @a a.
 inline float length(const Vector3& a)
 {
-	return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+	return sqrtf(a.x * a.x + a.y * a.y + a.z * a.z);
 }
 
 /// Returns the squared length of @a a.

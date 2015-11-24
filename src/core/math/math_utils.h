@@ -71,66 +71,6 @@ inline bool is_pow_2(uint32_t x)
 	return !(x & (x - 1)) && x;
 }
 
-inline float ceil(float x)
-{
-	return ceilf(x);
-}
-
-inline float floor(float x)
-{
-	return floorf(x);
-}
-
-inline float sqrt(float x)
-{
-	return sqrtf(x);
-}
-
-inline float inv_sqrt(float x)
-{
-	return 1.0f / sqrt(x);
-}
-
-inline float sin(float x)
-{
-	return sinf(x);
-}
-
-inline float cos(float x)
-{
-	return cosf(x);
-}
-
-inline float asin(float x)
-{
-	return asinf(x);
-}
-
-inline float acos(float x)
-{
-	return acosf(x);
-}
-
-inline float tan(float x)
-{
-	return tanf(x);
-}
-
-inline float atan2(float y, float x)
-{
-	return atan2f(y, x);
-}
-
-inline float abs(float x)
-{
-	return fabs(x);
-}
-
-inline float fmod(float n, float d)
-{
-	return ::fmod(n, d);
-}
-
 /// Returns the linear interpolated value between @a p0 and @a p1 at time @a t
 template <typename T>
 inline T linear(const T& p0, const T& p1, float t)
@@ -143,7 +83,7 @@ template <typename T>
 inline T cosine(const T& p0, const T& p1, float t)
 {
 	const float f = t * PI;
-	const float g = (1.0f - cos(f)) * 0.5f;
+	const float g = (1.0f - cosf(f)) * 0.5f;
 
 	return p0 + (g * (p1 - p0));
 }

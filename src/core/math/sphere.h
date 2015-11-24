@@ -51,7 +51,7 @@ namespace sphere
 
 			const float dist = squared_length(*p - s.c);
 			if (dist > s.r*s.r)
-				s.r = sqrt(dist);
+				s.r = sqrtf(dist);
 
 			points = (const void*)((const char*)points + stride);
 		}
@@ -71,7 +71,7 @@ namespace sphere
 			if (dist < (spheres[i].r + s.r) * (spheres[i].r + s.r))
 			{
 				if (spheres[i].r * spheres[i].r > s.r * s.r)
-					s.r = sqrt(dist + spheres[i].r * spheres[i].r);
+					s.r = sqrtf(dist + spheres[i].r * spheres[i].r);
 			}
 		}
 	}

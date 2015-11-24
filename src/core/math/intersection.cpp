@@ -39,7 +39,7 @@ float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sph
 		return -1.0f;
 	}
 
-	return b - sqrt(det);
+	return b - sqrtf(det);
 }
 
 // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
