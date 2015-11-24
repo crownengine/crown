@@ -1,5 +1,5 @@
 # Ignore build directory
-/.build
+/build
 
 # Ignore Python stuff
 __pycache__

@@ -90,7 +90,7 @@ Docutils/reStructuredText (http://docutils.sourceforge.net)
 	
 ##Samples
 
-When running a sample your current directory has to be `.build/<platform[32|64]>/bin`.
+When running a sample your current directory has to be `build/<platform[32|64]>/bin`.
 To run a sample on 64-bit linux debug mode:
 
 	$ ./linux-debug-64 --source-dir <full/sample/path> --bundle-dir <full/destination/path> --compile --platform linux --continue

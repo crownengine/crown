@@ -152,6 +152,19 @@ Quaternion
 	**elements** (q) : x, y, z, w
 		Returns the elements of the quaternion.
 
+	**look** (dir, [up]) : Quaternion
+		Returns the quaternion describing the rotation needed to face towards *dir*.
+		If *up* is not specified, Vector3.up() is used.
+
+	**right** (q) : Vector3
+		Returns the right axis of the rotation described by *q*.
+
+	**up** (q) : Vector3
+		Returns the up axis of the rotation described by *q*.
+
+	**forward** (q) : Vector3
+		Returns the forward axis of the rotation described by *q*.
+
 QuaternionBox
 -------------
 
