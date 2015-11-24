@@ -591,9 +591,11 @@ inline void set_rotation(Matrix4x4& m, const Matrix3x3& rot)
 	m.x.x = rot.x.x;
 	m.x.y = rot.x.y;
 	m.x.z = rot.x.z;
+
 	m.y.x = rot.y.x;
 	m.y.y = rot.y.y;
 	m.y.z = rot.y.z;
+
 	m.z.x = rot.z.x;
 	m.z.y = rot.z.y;
 	m.z.z = rot.z.z;
