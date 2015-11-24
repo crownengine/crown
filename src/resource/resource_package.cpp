@@ -3,8 +3,6 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#pragma once
-
 #include "resource_package.h"
 #include "resource_manager.h"
 #include "package_resource.h"
