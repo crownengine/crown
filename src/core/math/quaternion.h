@@ -6,8 +6,8 @@
 #pragma once
 
 #include "types.h"
-#include "vector3.h"
 #include "math_types.h"
+#include "math_utils.h"
 
 namespace crown
 {
@@ -35,6 +35,8 @@ inline Quaternion quaternion(const Vector3& axis, float angle)
 	q.w = cosf(angle * 0.5f);
 	return q;
 }
+
+Quaternion quaternion(const Matrix3x3& m);
 
 inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)
 {

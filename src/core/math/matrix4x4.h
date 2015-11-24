@@ -582,7 +582,7 @@ inline Matrix3x3 to_matrix3x3(const Matrix4x4& m)
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
 inline Quaternion rotation(const Matrix4x4& m)
 {
-	return rotation(to_matrix3x3(m));
+	return quaternion(to_matrix3x3(m));
 }
 
 /// Sets the rotation portion of the matrix @a m.
