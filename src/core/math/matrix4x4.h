@@ -15,8 +15,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Matrix4x4 MATRIX4X4_IDENTITY = { VECTOR4_XAXIS, VECTOR4_YAXIS, VECTOR4_ZAXIS, VECTOR4_WAXIS };
-
 inline Matrix4x4 matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
 	float r1c2, float r2c2, float r3c2, float r4c2,
 	float r1c3, float r2c3, float r3c3, float r4c3,
@@ -276,7 +274,7 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 /// Sets the matrix @a m to perspective.
 inline void set_perspective(Matrix4x4& m, float fovy, float aspect, float near, float far)
 {
-	const float height = 1.0f / tan(fovy * ((float) PI / 180.0f) * 0.5f);
+	const float height = 1.0f / tanf(fovy * ((float) PI / 180.0f) * 0.5f);
 	const float width = height * 1.0f / aspect;
 	const float aa = far / (far - near);
 	const float bb = -near * aa;
@@ -582,7 +580,7 @@ inline Matrix3x3 to_matrix3x3(const Matrix4x4& m)
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
 inline Quaternion rotation(const Matrix4x4& m)
 {
-	return rotation(to_matrix3x3(m));
+	return quaternion(to_matrix3x3(m));
 }
 
 /// Sets the rotation portion of the matrix @a m.
@@ -591,9 +589,11 @@ inline void set_rotation(Matrix4x4& m, const Matrix3x3& rot)
 	m.x.x = rot.x.x;
 	m.x.y = rot.x.y;
 	m.x.z = rot.x.z;
+
 	m.y.x = rot.y.x;
 	m.y.y = rot.y.y;
 	m.y.z = rot.y.z;
+
 	m.z.x = rot.z.x;
 	m.z.y = rot.z.y;
 	m.z.z = rot.z.z;

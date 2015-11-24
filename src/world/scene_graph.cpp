@@ -152,7 +152,7 @@ Vector3 SceneGraph::local_position(TransformInstance i) const
 
 Quaternion SceneGraph::local_rotation(TransformInstance i) const
 {
-	return rotation(_data.local[i.i].rotation);
+	return quaternion(_data.local[i.i].rotation);
 }
 
 Vector3 SceneGraph::local_scale(TransformInstance i) const
@@ -162,7 +162,7 @@ Vector3 SceneGraph::local_scale(TransformInstance i) const
 
 Matrix4x4 SceneGraph::local_pose(TransformInstance i) const
 {
-	Matrix4x4 tr = matrix4x4(rotation(_data.local[i.i].rotation), _data.local[i.i].position);
+	Matrix4x4 tr = matrix4x4(quaternion(_data.local[i.i].rotation), _data.local[i.i].position);
 	set_scale(tr, _data.local[i.i].scale);
 	return tr;
 }

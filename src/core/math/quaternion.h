@@ -6,15 +6,14 @@
 #pragma once
 
 #include "types.h"
-#include "vector3.h"
 #include "math_types.h"
+#include "math_utils.h"
+#include "matrix3x3.h"
 
 namespace crown
 {
 /// @addtogroup Math
 /// @{
-
-const Quaternion QUATERNION_IDENTITY = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 inline Quaternion quaternion(float x, float y, float z, float w)
 {
@@ -29,12 +28,14 @@ inline Quaternion quaternion(float x, float y, float z, float w)
 inline Quaternion quaternion(const Vector3& axis, float angle)
 {
 	Quaternion q;
-	q.x = axis.x * sin(angle * 0.5f);
-	q.y = axis.y * sin(angle * 0.5f);
-	q.z = axis.z * sin(angle * 0.5f);
-	q.w = cos(angle * 0.5f);
+	q.x = axis.x * sinf(angle * 0.5f);
+	q.y = axis.y * sinf(angle * 0.5f);
+	q.z = axis.z * sinf(angle * 0.5f);
+	q.w = cosf(angle * 0.5f);
 	return q;
 }
+
+Quaternion quaternion(const Matrix3x3& m);
 
 inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)
 {
@@ -87,7 +88,7 @@ inline float dot(const Quaternion& a, const Quaternion& b)
 /// Returns the length of @a q.
 inline float length(const Quaternion& q)
 {
-	return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+	return sqrtf(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
 }
 
 /// Normalizes the quaternion @a q and returns the result.
@@ -121,13 +122,14 @@ inline Quaternion inverse(const Quaternion& q)
 /// Returns the quaternion @a q raised to the power of @a exp.
 inline Quaternion power(const Quaternion& q, float exp)
 {
-	if (abs(q.w) < 0.9999)
+	if (fabs(q.w) < 0.9999)
 	{
-		float alpha = acos(q.w); // alpha = theta/2
-		float new_alpha = alpha * exp;
-		float mult = sin(new_alpha) / sin(alpha);
+		const float alpha = acos(q.w); // alpha = theta/2
+		const float new_alpha = alpha * exp;
+		const float mult = sinf(new_alpha) / sinf(alpha);
+
 		Quaternion tmp;
-		tmp.w = cos(new_alpha);
+		tmp.w = cosf(new_alpha);
 		tmp.x = q.x * mult;
 		tmp.y = q.y * mult;
 		tmp.z = q.z * mult;
@@ -135,6 +137,36 @@ inline Quaternion power(const Quaternion& q, float exp)
 	}
 
 	return q;
+}
+
+inline Quaternion look(const Vector3& dir, const Vector3& up = VECTOR3_YAXIS)
+{
+	const Vector3 right = cross(dir, up);
+	const Vector3 nup = cross(right, dir);
+
+	Matrix3x3 m;
+	m.x = -right;
+	m.y = nup;
+	m.z = dir;
+	return quaternion(m);
+}
+
+inline Vector3 right(const Quaternion& q)
+{
+	const Matrix3x3 m = matrix3x3(q);
+	return m.x;
+}
+
+inline Vector3 up(const Quaternion& q)
+{
+	const Matrix3x3 m = matrix3x3(q);
+	return m.y;
+}
+
+inline Vector3 forward(const Quaternion& q)
+{
+	const Matrix3x3 m = matrix3x3(q);
+	return m.z;
 }
 
 // @}

@@ -15,17 +15,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Vector3 VECTOR3_ZERO     = { 0.0f, 0.0f, 0.0f };
-const Vector3 VECTOR3_XAXIS    = { 1.0f, 0.0f, 0.0f };
-const Vector3 VECTOR3_YAXIS    = { 0.0f, 1.0f, 0.0f };
-const Vector3 VECTOR3_ZAXIS    = { 0.0f, 0.0f, 1.0f };
-const Vector3 VECTOR3_FORWARD  = { 0.0f, 0.0f, 1.0f };
-const Vector3 VECTOR3_BACKWARD = { 0.0f, 0.0f, -1.0f };
-const Vector3 VECTOR3_LEFT     = { -1.0f, 0.0f, 0.0f };
-const Vector3 VECTOR3_RIGHT    = { 1.0f, 0.0f, 0.0f };
-const Vector3 VECTOR3_UP       = { 0.0f, 1.0f, 0.0f };
-const Vector3 VECTOR3_DOWN     = { 0.0f, -1.0f, 0.0f };
-
 inline Vector3 vector3(float x, float y, float z)
 {
 	Vector3 v;
@@ -135,7 +124,7 @@ inline Vector3 cross(const Vector3& a, const Vector3& b)
 /// Returns the lenght of @a a.
 inline float length(const Vector3& a)
 {
-	return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+	return sqrtf(a.x * a.x + a.y * a.y + a.z * a.z);
 }
 
 /// Returns the squared length of @a a.

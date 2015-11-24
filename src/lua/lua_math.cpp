@@ -646,6 +646,35 @@ static int quaternion_elements(lua_State* L)
 	return 4;
 }
 
+static int quaternion_look(lua_State* L)
+{
+	LuaStack stack(L);
+	const Vector3 up = stack.num_args() == 2 ? stack.get_vector3(2) : VECTOR3_YAXIS;
+	stack.push_quaternion(look(stack.get_vector3(1), up));
+	return 1;
+}
+
+static int quaternion_right(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(right(stack.get_quaternion(1)));
+	return 1;
+}
+
+static int quaternion_up(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(up(stack.get_quaternion(1)));
+	return 1;
+}
+
+static int quaternion_forward(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(forward(stack.get_quaternion(1)));
+	return 1;
+}
+
 static int quaternionbox_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -889,6 +918,10 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "inverse",            quaternion_inverse);
 	env.load_module_function("Quaternion", "power",              quaternion_power);
 	env.load_module_function("Quaternion", "elements",           quaternion_elements);
+	env.load_module_function("Quaternion", "look",               quaternion_look);
+	env.load_module_function("Quaternion", "right",              quaternion_right);
+	env.load_module_function("Quaternion", "up",                 quaternion_up);
+	env.load_module_function("Quaternion", "forward",            quaternion_forward);
 
 	env.load_module_constructor("Quaternion", quaternion_ctor);
 

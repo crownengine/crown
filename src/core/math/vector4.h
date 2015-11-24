@@ -15,12 +15,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Vector4 VECTOR4_ZERO  = { 0.0f, 0.0f, 0.0f, 0.0f };
-const Vector4 VECTOR4_XAXIS = { 1.0f, 0.0f, 0.0f, 0.0f };
-const Vector4 VECTOR4_YAXIS = { 0.0f, 1.0f, 0.0f, 0.0f };
-const Vector4 VECTOR4_ZAXIS = { 0.0f, 0.0f, 1.0f, 0.0f };
-const Vector4 VECTOR4_WAXIS = { 0.0f, 0.0f, 0.0f, 1.0f };
-
 /// Returns the Vector3 portion of @a a. (i.e. truncates w)
 Vector3 to_vector3(const Vector4& a);
 
@@ -146,7 +140,7 @@ inline float dot(const Vector4& a, const Vector4& b)
 /// Returns the lenght of @a a.
 inline float length(const Vector4& a)
 {
-	return sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+	return sqrtf(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
 }
 
 /// Returns the squared length of @a a.
