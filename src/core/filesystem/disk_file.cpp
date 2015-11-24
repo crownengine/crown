@@ -8,6 +8,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
+#include <algorithm>
 
 namespace crown
 {
@@ -85,10 +86,8 @@ bool DiskFile::copy_to(File& file, uint32_t size)
 
 	while (tot_read_bytes < size)
 	{
-		uint32_t read_bytes;
-		uint32_t expected_read_bytes = min(size - tot_read_bytes, chunksize);
-
-		read_bytes = _file.read(buff, expected_read_bytes);
+		uint32_t expected_read_bytes = std::min(size - tot_read_bytes, chunksize);
+		uint32_t read_bytes = _file.read(buff, expected_read_bytes);
 
 		if (read_bytes < expected_read_bytes)
 		{

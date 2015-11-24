@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "error.h"
 #include "types.h"
 #include <math.h>
 
@@ -24,23 +23,19 @@ inline bool fequal(float a, float b, float precision = FLOAT_PRECISION)
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
 
-template <typename T>
-inline T min(const T& a, const T& b)
+inline float fmin(float a, float b)
 {
 	return a < b ? a : b;
 }
 
-template <typename T>
-inline T max(const T& a, const T& b)
+inline float fmax(float a, float b)
 {
 	return a < b ? b : a;
 }
 
-template <typename T>
-inline T clamp(const T& min, const T& max, const T& val)
+inline float fclamp(float min, float max, float val)
 {
-	CE_ASSERT(min < max, "Min must be < max");
-	return val > max ? max : val < min ? min : val;
+	return fmin(fmax(min, val), max);
 }
 
 inline float to_rad(float deg)
