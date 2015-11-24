@@ -91,4 +91,29 @@ struct Sphere
 	float r;
 };
 
+const Vector2 VECTOR2_ZERO = { 0.0f, 0.0f };
+
+const Vector3 VECTOR3_ZERO     = {  0.0f,  0.0f,  0.0f };
+const Vector3 VECTOR3_XAXIS    = {  1.0f,  0.0f,  0.0f };
+const Vector3 VECTOR3_YAXIS    = {  0.0f,  1.0f,  0.0f };
+const Vector3 VECTOR3_ZAXIS    = {  0.0f,  0.0f,  1.0f };
+const Vector3 VECTOR3_FORWARD  = {  0.0f,  0.0f,  1.0f };
+const Vector3 VECTOR3_BACKWARD = {  0.0f,  0.0f, -1.0f };
+const Vector3 VECTOR3_LEFT     = { -1.0f,  0.0f,  0.0f };
+const Vector3 VECTOR3_RIGHT    = {  1.0f,  0.0f,  0.0f };
+const Vector3 VECTOR3_UP       = {  0.0f,  1.0f,  0.0f };
+const Vector3 VECTOR3_DOWN     = {  0.0f, -1.0f,  0.0f };
+
+const Vector4 VECTOR4_ZERO  = { 0.0f, 0.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_XAXIS = { 1.0f, 0.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_YAXIS = { 0.0f, 1.0f, 0.0f, 0.0f };
+const Vector4 VECTOR4_ZAXIS = { 0.0f, 0.0f, 1.0f, 0.0f };
+const Vector4 VECTOR4_WAXIS = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+const Quaternion QUATERNION_IDENTITY = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+const Matrix3x3 MATRIX3X3_IDENTITY = { VECTOR3_XAXIS, VECTOR3_YAXIS, VECTOR3_ZAXIS };
+
+const Matrix4x4 MATRIX4X4_IDENTITY = { VECTOR4_XAXIS, VECTOR4_YAXIS, VECTOR4_ZAXIS, VECTOR4_WAXIS };
+
 } // namespace crown

@@ -14,8 +14,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Vector2 VECTOR2_ZERO = { 0.0f, 0.0f };
-
 inline Vector2 vector2(float x, float y)
 {
 	Vector2 v;

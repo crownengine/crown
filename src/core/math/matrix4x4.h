@@ -15,8 +15,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Matrix4x4 MATRIX4X4_IDENTITY = { VECTOR4_XAXIS, VECTOR4_YAXIS, VECTOR4_ZAXIS, VECTOR4_WAXIS };
-
 inline Matrix4x4 matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
 	float r1c2, float r2c2, float r3c2, float r4c2,
 	float r1c3, float r2c3, float r3c3, float r4c3,

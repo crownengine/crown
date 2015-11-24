@@ -15,17 +15,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Vector3 VECTOR3_ZERO     = { 0.0f, 0.0f, 0.0f };
-const Vector3 VECTOR3_XAXIS    = { 1.0f, 0.0f, 0.0f };
-const Vector3 VECTOR3_YAXIS    = { 0.0f, 1.0f, 0.0f };
-const Vector3 VECTOR3_ZAXIS    = { 0.0f, 0.0f, 1.0f };
-const Vector3 VECTOR3_FORWARD  = { 0.0f, 0.0f, 1.0f };
-const Vector3 VECTOR3_BACKWARD = { 0.0f, 0.0f, -1.0f };
-const Vector3 VECTOR3_LEFT     = { -1.0f, 0.0f, 0.0f };
-const Vector3 VECTOR3_RIGHT    = { 1.0f, 0.0f, 0.0f };
-const Vector3 VECTOR3_UP       = { 0.0f, 1.0f, 0.0f };
-const Vector3 VECTOR3_DOWN     = { 0.0f, -1.0f, 0.0f };
-
 inline Vector3 vector3(float x, float y, float z)
 {
 	Vector3 v;

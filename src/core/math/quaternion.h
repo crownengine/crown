@@ -14,8 +14,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Quaternion QUATERNION_IDENTITY = { 0.0f, 0.0f, 0.0f, 1.0f };
-
 inline Quaternion quaternion(float x, float y, float z, float w)
 {
 	Quaternion q;
@@ -125,9 +123,10 @@ inline Quaternion power(const Quaternion& q, float exp)
 {
 	if (fabs(q.w) < 0.9999)
 	{
-		float alpha = acos(q.w); // alpha = theta/2
-		float new_alpha = alpha * exp;
-		float mult = sinf(new_alpha) / sinf(alpha);
+		const float alpha = acos(q.w); // alpha = theta/2
+		const float new_alpha = alpha * exp;
+		const float mult = sinf(new_alpha) / sinf(alpha);
+
 		Quaternion tmp;
 		tmp.w = cosf(new_alpha);
 		tmp.x = q.x * mult;

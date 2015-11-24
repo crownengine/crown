@@ -15,12 +15,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const Vector4 VECTOR4_ZERO  = { 0.0f, 0.0f, 0.0f, 0.0f };
-const Vector4 VECTOR4_XAXIS = { 1.0f, 0.0f, 0.0f, 0.0f };
-const Vector4 VECTOR4_YAXIS = { 0.0f, 1.0f, 0.0f, 0.0f };
-const Vector4 VECTOR4_ZAXIS = { 0.0f, 0.0f, 1.0f, 0.0f };
-const Vector4 VECTOR4_WAXIS = { 0.0f, 0.0f, 0.0f, 1.0f };
-
 /// Returns the Vector3 portion of @a a. (i.e. truncates w)
 Vector3 to_vector3(const Vector4& a);
 
