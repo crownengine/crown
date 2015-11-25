@@ -11,6 +11,7 @@
 #include "container_types.h"
 #include "mutex.h"
 #include "memory_types.h"
+#include "string_id.h"
 
 namespace crown
 {

@@ -23,6 +23,7 @@
 #include "resource_types.h"
 #include "quaternion.h"
 #include "lua_types.h"
+#include "string_id.h"
 
 namespace crown
 {

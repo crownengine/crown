@@ -7,6 +7,7 @@
 
 #include "types.h"
 #include "resource_types.h"
+#include "string_id.h"
 
 namespace crown
 {

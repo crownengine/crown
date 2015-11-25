@@ -8,9 +8,8 @@
 #include "types.h"
 #include "container_types.h"
 #include "math_types.h"
-#include "matrix4x4.h"
-#include "quaternion.h"
 #include "macros.h"
+#include "string_id.h"
 
 namespace crown
 {

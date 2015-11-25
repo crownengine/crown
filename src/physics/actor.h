@@ -11,6 +11,7 @@
 #include "id_array.h"
 #include "world_types.h"
 #include "resource_types.h"
+#include "string_id.h"
 
 #include "PxPhysics.h"
 #include "PxScene.h"
