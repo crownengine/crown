@@ -16,6 +16,7 @@
 #include "input_types.h"
 #include "device_options.h"
 #include "os_event_queue.h"
+#include "string_id.h"
 
 namespace crown
 {

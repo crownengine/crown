@@ -10,6 +10,7 @@
 #include "string_utils.h"
 #include "array.h"
 #include "string_utils.h"
+#include "string_id.h"
 #include <algorithm>
 #include <cstring>
 

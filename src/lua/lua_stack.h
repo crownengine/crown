@@ -12,6 +12,7 @@
 #include "matrix4x4.h"
 #include "string_utils.h"
 #include "color4.h"
+#include "string_id.h"
 #include <lua.hpp>
 
 #if CROWN_DEBUG

@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "config.h"
 #include "types.h"
 #include "input_types.h"
 

@@ -3,10 +3,10 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "types.h"
+#include "string_id.h"
 #include "murmur.h"
 #include "string_utils.h"
-#include <inttypes.h>
+#include <inttypes.h> // PRIx64
 
 namespace crown
 {
