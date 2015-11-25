@@ -7,7 +7,6 @@
 
 #include "math_types.h"
 #include "math_utils.h"
-#include "vector2.h"
 #include "error.h"
 
 namespace crown
@@ -179,7 +178,10 @@ inline const float* to_float_ptr(const Vector3& a)
 /// Returns the Vector2 portion of @a a. (i.e. truncates z)
 inline Vector2 to_vector2(const Vector3& a)
 {
-	return vector2(a.x, a.y);
+	Vector2 v;
+	v.x = a.x;
+	v.y = a.y;
+	return v;
 }
 
 /// @}

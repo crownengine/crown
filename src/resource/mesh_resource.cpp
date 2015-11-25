@@ -12,6 +12,7 @@
 #include "vector3.h"
 #include "resource_manager.h"
 #include "compile_options.h"
+#include "vector2.h"
 
 namespace crown
 {
@@ -25,9 +26,9 @@ namespace mesh_resource
 
 		bool operator==(const MeshVertex& other)
 		{
-			return position == other.position &&
-					normal == other.normal &&
-					texcoord == other.texcoord;
+			return position == other.position
+				&& normal == other.normal
+				&& texcoord == other.texcoord;
 		}
 	};
 

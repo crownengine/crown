@@ -7,7 +7,6 @@
 
 #include "math_types.h"
 #include "math_utils.h"
-#include "vector3.h"
 #include "error.h"
 
 namespace crown
@@ -196,7 +195,11 @@ inline const float* to_float_ptr(const Vector4& a)
 
 inline Vector3 to_vector3(const Vector4& a)
 {
-	return vector3(a.x, a.y, a.z);
+	Vector3 v;
+	v.x = a.x;
+	v.y = a.y;
+	v.z = a.z;
+	return v;
 }
 
 /// @}
