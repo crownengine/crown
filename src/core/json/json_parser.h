@@ -176,7 +176,6 @@ public:
 	/// Reads the JSON document from file @a f.
 	JSONParser(File& f);
 
-	typedef Array<char> Buffer;
 	JSONParser(Buffer& b);
 
 	~JSONParser();

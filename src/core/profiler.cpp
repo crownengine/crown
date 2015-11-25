@@ -14,7 +14,6 @@ namespace crown
 {
 namespace profiler_globals
 {
-	typedef Array<char> Buffer;
 	char _mem[sizeof(Buffer)];
 	Buffer* _buffer = NULL;
 
