@@ -49,8 +49,11 @@ namespace memory
 
 		~HeapAllocator()
 		{
-			CE_ASSERT(_allocation_count == 0 && total_allocated() == 0,
-				"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, total_allocated());
+			CE_ASSERT(_allocation_count == 0 && total_allocated() == 0
+				, "Missing %d deallocations causing a leak of %d bytes"
+				, _allocation_count
+				, total_allocated()
+				);
 		}
 
 		/// @copydoc Allocator::allocate()

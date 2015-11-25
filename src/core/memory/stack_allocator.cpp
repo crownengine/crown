@@ -20,7 +20,7 @@ StackAllocator::StackAllocator(void* start, uint32_t size)
 StackAllocator::~StackAllocator()
 {
 	CE_ASSERT(_allocation_count == 0 && total_allocated() == 0,
-		"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, total_allocated());
+		"Missing %d deallocations causing a leak of %d bytes", _allocation_count, total_allocated());
 }
 
 void* StackAllocator::allocate(uint32_t size, uint32_t align)
