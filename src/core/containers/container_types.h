@@ -44,6 +44,8 @@ struct Array
 	ALLOCATOR_AWARE;
 };
 
+typedef Array<char> Buffer;
+
 /// Dynamic array of objects.
 /// @note
 /// Calls constructors and destructors, not suitable for performance-critical stuff.

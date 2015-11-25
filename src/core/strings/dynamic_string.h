@@ -11,8 +11,8 @@
 #include "array.h"
 #include "string_utils.h"
 #include "string_id.h"
+#include <string.h> // memmove
 #include <algorithm>
-#include <cstring>
 
 namespace crown
 {

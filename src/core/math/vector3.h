@@ -7,7 +7,6 @@
 
 #include "math_types.h"
 #include "math_utils.h"
-#include "vector2.h"
 #include "error.h"
 
 namespace crown
@@ -164,6 +163,26 @@ inline float angle(const Vector3& a, const Vector3& b)
 	return acos(dot(a, b) / (length(a) * length(b)));
 }
 
+/// Returns a vector that contains the largest value for each component from @a a and @a b.
+inline Vector3 max(const Vector3& a, const Vector3& b)
+{
+	Vector3 v;
+	v.x = fmax(a.x, b.x);
+	v.y = fmax(a.y, b.y);
+	v.z = fmax(a.z, b.z);
+	return v;
+}
+
+/// Returns a vector that contains the smallest value for each component from @a a and @a b.
+inline Vector3 min(const Vector3& a, const Vector3& b)
+{
+	Vector3 v;
+	v.x = fmin(a.x, b.x);
+	v.y = fmin(a.y, b.y);
+	v.z = fmin(a.z, b.z);
+	return v;
+}
+
 /// Returns the pointer to the data of @a a.
 inline float* to_float_ptr(Vector3& a)
 {
@@ -179,7 +198,10 @@ inline const float* to_float_ptr(const Vector3& a)
 /// Returns the Vector2 portion of @a a. (i.e. truncates z)
 inline Vector2 to_vector2(const Vector3& a)
 {
-	return vector2(a.x, a.y);
+	Vector2 v;
+	v.x = a.x;
+	v.y = a.y;
+	return v;
 }
 
 /// @}

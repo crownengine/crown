@@ -149,6 +149,24 @@ inline float angle(const Vector2& a, const Vector2& b)
 	return acos(dot(a, b) / (length(a) * length(b)));
 }
 
+/// Returns a vector that contains the largest value for each component from @a a and @a b.
+inline Vector2 max(const Vector2& a, const Vector2& b)
+{
+	Vector2 v;
+	v.x = fmax(a.x, b.x);
+	v.y = fmax(a.y, b.y);
+	return v;
+}
+
+/// Returns a vector that contains the smallest value for each component from @a a and @a b.
+inline Vector2 min(const Vector2& a, const Vector2& b)
+{
+	Vector2 v;
+	v.x = fmin(a.x, b.x);
+	v.y = fmin(a.y, b.y);
+	return v;
+}
+
 /// Returns the pointer to the data of @a a.
 inline float* to_float_ptr(Vector2& a)
 {

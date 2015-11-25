@@ -11,8 +11,6 @@
 namespace crown
 {
 
-typedef Array<char> Buffer;
-
 struct CompileOptions
 {
 	CompileOptions(Filesystem& fs, File* out, const char* platform)

@@ -183,6 +183,20 @@ static int vector3_angle(lua_State* L)
 	return 1;
 }
 
+static int vector3_max(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(max(stack.get_vector3(1), stack.get_vector3(2)));
+	return 1;
+}
+
+static int vector3_min(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_vector3(min(stack.get_vector3(1), stack.get_vector3(2)));
+	return 1;
+}
+
 static int vector3_forward(lua_State* L)
 {
 	LuaStack stack(L);
@@ -852,6 +866,8 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3", "normalize",      vector3_normalize);
 	env.load_module_function("Vector3", "distance",       vector3_distance);
 	env.load_module_function("Vector3", "angle",          vector3_angle);
+	env.load_module_function("Vector3", "max",            vector3_max);
+	env.load_module_function("Vector3", "min",            vector3_min);
 	env.load_module_function("Vector3", "forward",        vector3_forward);
 	env.load_module_function("Vector3", "backward",       vector3_backward);
 	env.load_module_function("Vector3", "left",           vector3_left);
