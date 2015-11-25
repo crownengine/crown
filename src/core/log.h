@@ -6,7 +6,7 @@
 #pragma once
 
 #include "config.h"
-#include <cstdarg>
+#include <stdarg.h>
 
 namespace crown
 {

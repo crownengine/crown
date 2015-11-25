@@ -9,7 +9,7 @@
 #include "error.h"
 #include "macros.h"
 #include "allocator.h"
-#include <cstring> // memcpy
+#include <string.h> // memcpy
 
 namespace crown
 {

@@ -8,7 +8,7 @@
 #include "container_types.h"
 #include "array.h"
 #include "error.h"
-#include <cstring> // memcpy
+#include <string.h> // memcpy
 
 namespace crown
 {
@@ -136,7 +136,6 @@ namespace queue
 	inline void pop_back(Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
-
 		q._size--;
 	}
 
