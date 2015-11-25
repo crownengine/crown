@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "config.h"
 #include "id_array.h"
 #include "pool_allocator.h"
 #include "physics_types.h"

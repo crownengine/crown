@@ -5,10 +5,8 @@
 
 #pragma once
 
-#include "config.h"
-#include <cstddef>
+#include <stddef.h> // NULL
 #include <stdint.h>
-#include <stdio.h>
 
 namespace crown
 {

@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "math_types.h"
 #include "container_types.h"
 #include "physics_types.h"
