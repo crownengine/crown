@@ -129,14 +129,14 @@ namespace queue
 
 		q[q._size] = item;
 
-		q._size++;
+		++q._size;
 	}
 
 	template <typename T>
 	inline void pop_back(Queue<T>& q)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
-		q._size--;
+		--q._size;
 	}
 
 	template <typename T>
@@ -149,7 +149,7 @@ namespace queue
 
 		q[0] = item;
 
-		q._size++;
+		++q._size;
 	}
 
 	template <typename T>
@@ -158,7 +158,7 @@ namespace queue
 		CE_ASSERT(q._size > 0, "The queue is empty");
 
 		q._read = (q._read + 1) % array::size(q._queue);
-		q._size--;
+		--q._size;
 	}
 
 	template <typename T>
