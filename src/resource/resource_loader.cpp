@@ -4,6 +4,7 @@
  */
 
 #include "resource_loader.h"
+#include "config.h"
 #include "memory.h"
 #include "resource_registry.h"
 #include "queue.h"

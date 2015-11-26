@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "config.h"
+#include "platform.h"
 #include "error.h"
 #include "types.h"
 #include "semaphore.h"

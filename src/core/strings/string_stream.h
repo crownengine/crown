@@ -7,7 +7,6 @@
 
 #include "array.h"
 #include "string_utils.h"
-#include <stdio.h>
 
 namespace crown
 {
@@ -104,7 +103,7 @@ namespace string_stream
 	inline StringStream& stream_printf(StringStream& s, const char* format, T& val)
 	{
 		char buf[32];
-		snprintf(buf, 32, format, val);
+		snprintf(buf, sizeof(buf), format, val);
 		return s << buf;
 	}
 } // namespace string_stream

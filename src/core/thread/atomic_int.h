@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "config.h"
+#include "platform.h"
 
 #if CROWN_PLATFORM_WINDOWS
 	#include "types.h"

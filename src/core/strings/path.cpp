@@ -4,7 +4,6 @@
  */
 
 #include "path.h"
-#include "platform.h"
 #include <ctype.h> // isalpha
 #include <string.h> // strlen, strrchr
 

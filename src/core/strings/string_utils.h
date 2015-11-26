@@ -7,9 +7,9 @@
 
 #include "types.h"
 #include "error.h"
-#include "config.h"
+#include "platform.h"
 #include "macros.h"
-#include <stdio.h> // sscanf
+#include <stdio.h> // sscanf, vsnprintf
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h> // isspace
