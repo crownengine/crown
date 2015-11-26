@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "config.h"
 #include "types.h"
 
 namespace crown
@@ -18,13 +17,13 @@ struct NetAddress
 {
 	/// Initializes the address to 127.0.0.1
 	NetAddress()
-		: m_addr(0)
+		: _addr(0)
 	{
 		set(127, 0, 0, 1);
 	}
 
 	NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
-		: m_addr(0)
+		: _addr(0)
 	{
 		set(a, b, c, d);
 	}
@@ -32,18 +31,19 @@ struct NetAddress
 	/// Returns the IP address as packed 32-bit integer.
 	uint32_t address() const
 	{
-		return m_addr;
+		return _addr;
 	}
 
 	void set(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 	{
-		m_addr = uint32_t(a) << 24
-			| uint32_t(b) << 16
-			| uint32_t(c) << 8
-			| uint32_t(d);
+		_addr = 0;
+		_addr |= uint32_t(a) << 24;
+		_addr |= uint32_t(b) << 16;
+		_addr |= uint32_t(c) << 8;
+		_addr |= uint32_t(d) << 0;
 	}
 
-	uint32_t m_addr;
+	uint32_t _addr;
 };
 
 } // namespace crown

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "config.h"
+#include "platform.h"
 #include "types.h"
 #include "vector.h"
 #include "dynamic_string.h"
@@ -14,14 +14,14 @@
 #include "temp_allocator.h"
 
 #if CROWN_PLATFORM_POSIX
-	#include <dirent.h>
-	#include <dlfcn.h>
-	#include <sys/stat.h>
-	#include <sys/time.h>
-	#include <sys/wait.h>
+	#include <dirent.h> // opendir, readdir
+	#include <dlfcn.h> // dlopen, dlclose, dlsym
+	#include <sys/stat.h> // lstat, mknod, mkdir
+	#include <sys/wait.h> // wait
 	#include <errno.h>
-	#include <time.h>
-	#include <unistd.h>
+	#include <time.h> // clock_gettime
+	#include <unistd.h> // access, unlink, rmdir, getcwd, fork, execv
+ 	#include <stdlib.h> // exit
 #elif CROWN_PLATFORM_WINDOWS
 	#include <win_headers.h>
 	#include <io.h>

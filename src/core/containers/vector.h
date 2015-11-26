@@ -124,14 +124,14 @@ namespace vector
 			v._capacity = capacity;
 			v._data = (T*)v._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
 
-			for (uint32_t i = 0; i < v._size; i++)
+			for (uint32_t i = 0; i < v._size; ++i)
 			{
 				new (v._data + i) T(tmp[i]);
 			}
 
 			if (tmp)
 			{
-				for (uint32_t i = 0; i < v._size; i++)
+				for (uint32_t i = 0; i < v._size; ++i)
 				{
 					tmp[i].~T();
 				}
@@ -185,7 +185,7 @@ namespace vector
 			grow(v, v._size + count);
 
 		T* arr = &v._data[v._size];
-		for (uint32_t i = 0; i < count; i++)
+		for (uint32_t i = 0; i < count; ++i)
 			arr[i] = items[i];
 
 		v._size += count;
@@ -195,7 +195,7 @@ namespace vector
 	template <typename T>
 	inline void clear(Vector<T>& v)
 	{
-		for (uint32_t i = 0; i < v._size; i++)
+		for (uint32_t i = 0; i < v._size; ++i)
 			v._data[i].~T();
 
 		v._size = 0;
@@ -286,7 +286,7 @@ inline Vector<T>::Vector(const Vector<T>& other)
 template <typename T>
 inline Vector<T>::~Vector()
 {
-	for (uint32_t i = 0; i < _size; i++)
+	for (uint32_t i = 0; i < _size; ++i)
 		_data[i].~T();
 
 	if (_data)
@@ -313,7 +313,7 @@ inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 	const uint32_t size = vector::size(other);
 	vector::resize(*this, size);
 
-	for (uint32_t i = 0; i < size; i++)
+	for (uint32_t i = 0; i < size; ++i)
 		_data[i] = other._data[i];
 
 	return *this;

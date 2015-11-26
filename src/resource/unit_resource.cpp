@@ -19,6 +19,7 @@
 #include "vector3.h"
 #include "camera.h"
 #include "unit_resource.h"
+#include <algorithm> // std::sort
 
 namespace crown
 {
