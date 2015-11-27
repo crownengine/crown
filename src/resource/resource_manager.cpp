@@ -14,9 +14,9 @@ namespace crown
 
 const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL };
 
-ResourceManager::ResourceManager(Filesystem& fs)
+ResourceManager::ResourceManager(ResourceLoader& rl)
 	: _resource_heap("resource", default_allocator())
-	, _loader(fs, _resource_heap)
+	, _loader(&rl)
 	, _rm(default_allocator())
 	, _autoload(false)
 {
@@ -41,7 +41,7 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 
 	if (entry == ResourceEntry::NOT_FOUND)
 	{
-		_loader.load(type, name);
+		_loader->add_request(type, name, _resource_heap);
 		return;
 	}
 
@@ -111,7 +111,7 @@ void ResourceManager::enable_autoload(bool enable)
 
 void ResourceManager::flush()
 {
-	_loader.flush();
+	_loader->flush();
 	complete_requests();
 }
 
@@ -119,7 +119,7 @@ void ResourceManager::complete_requests()
 {
 	TempAllocator1024 ta;
 	Array<ResourceData> loaded(ta);
-	_loader.get_loaded(loaded);
+	_loader->get_loaded(loaded);
 
 	for (uint32_t i = 0; i < array::size(loaded); i++)
 		complete_request(loaded[i].type, loaded[i].name, loaded[i].data);

@@ -24,7 +24,7 @@ class ResourceManager
 public:
 
 	/// The resources will be loaded from @a fs.
-	ResourceManager(Filesystem& fs);
+	ResourceManager(ResourceLoader& rl);
 	~ResourceManager();
 
 	/// Loads the resource (@a type, @a name).
@@ -92,7 +92,7 @@ private:
 	typedef SortMap<ResourcePair, ResourceEntry> ResourceMap;
 
 	ProxyAllocator _resource_heap;
-	ResourceLoader _loader;
+	ResourceLoader* _loader;
 	ResourceMap _rm;
 	bool _autoload;
 };

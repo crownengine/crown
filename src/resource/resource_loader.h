@@ -10,7 +10,6 @@
 #include "thread.h"
 #include "container_types.h"
 #include "mutex.h"
-#include "memory_types.h"
 #include "string_id.h"
 
 namespace crown
@@ -30,22 +29,20 @@ class ResourceLoader
 {
 public:
 
-	/// Reads the resources data from the given @a fs using
-	/// @a resource_heap to allocate memory for them.
-	ResourceLoader(Filesystem& fs, Allocator& resource_heap);
+	ResourceLoader(Filesystem& fs);
 	~ResourceLoader();
 
-	/// Loads the @a resource in a background thread.
-	void load(StringId64 type, StringId64 name);
+	/// Adds a request for loading the resource @a type @a name.
+	void add_request(StringId64 type, StringId64 name, Allocator& a);
 
 	/// Blocks until all pending requests have been processed.
 	void flush();
 
+	/// Returns all the resources that have been loaded.
 	void get_loaded(Array<ResourceData>& loaded);
 
 private:
 
-	void add_request(StringId64 type, StringId64 name);
 	uint32_t num_requests();
 	void add_loaded(ResourceData data);
 
@@ -54,8 +51,7 @@ private:
 
 	static int32_t thread_proc(void* thiz)
 	{
-		ResourceLoader* rl = (ResourceLoader*)thiz;
-		return rl->run();
+		return ((ResourceLoader*)thiz)->run();
 	}
 
 private:
@@ -64,17 +60,20 @@ private:
 	{
 		StringId64 type;
 		StringId64 name;
+		Allocator* allocator;
 	};
 
-	ResourceRequest make_request(StringId64 type, StringId64 name)
+	ResourceRequest make_request(StringId64 type, StringId64 name, Allocator& a)
 	{
-		ResourceRequest request = { type, name };
-		return request;
+		ResourceRequest rr;
+		rr.type = type;
+		rr.name = name;
+		rr.allocator = &a;
+		return rr;
 	}
 
 	Thread _thread;
 	Filesystem& _fs;
-	Allocator& _resource_heap;
 
 	Queue<ResourceRequest> _requests;
 	Queue<ResourceData> _loaded;
