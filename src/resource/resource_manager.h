@@ -8,7 +8,6 @@
 #include "types.h"
 #include "container_types.h"
 #include "proxy_allocator.h"
-#include "resource_loader.h"
 #include "string_id.h"
 
 namespace crown

@@ -4,6 +4,7 @@
  */
 
 #include "resource_manager.h"
+#include "resource_loader.h"
 #include "resource_registry.h"
 #include "temp_allocator.h"
 #include "sort_map.h"
