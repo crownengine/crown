@@ -28,11 +28,11 @@ C++ API: http://taylor001.github.io/crown/doxygen/
 
 TCP/IP console with autocomplete and color-coded output highlighting.
 
-![console](https://raw.githubusercontent.com/taylor001/crown/master/shots/console.png)
+![console](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/console.png)
 
 [WIP] Node editor.
 
-![node-editor](https://raw.githubusercontent.com/taylor001/crown/master/shots/node-editor.png)
+![node-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/node-editor.png)
 
 ##Dependencies
 
