@@ -15,9 +15,8 @@
 namespace crown
 {
 
-ResourceLoader::ResourceLoader(Filesystem& fs, Allocator& resource_heap)
+ResourceLoader::ResourceLoader(Filesystem& fs)
 	: _fs(fs)
-	, _resource_heap(resource_heap)
 	, _requests(default_allocator())
 	, _loaded(default_allocator())
 	, _exit(false)
@@ -31,20 +30,15 @@ ResourceLoader::~ResourceLoader()
 	_thread.stop();
 }
 
-void ResourceLoader::load(StringId64 type, StringId64 name)
+void ResourceLoader::add_request(StringId64 type, StringId64 name, Allocator& a)
 {
-	add_request(type, name);
+	ScopedMutex sm(_mutex);
+	queue::push_back(_requests, make_request(type, name, a));
 }
 
 void ResourceLoader::flush()
 {
 	while (num_requests()) {}
-}
-
-void ResourceLoader::add_request(StringId64 type, StringId64 name)
-{
-	ScopedMutex sm(_mutex);
-	queue::push_back(_requests, make_request(type, name));
 }
 
 uint32_t ResourceLoader::num_requests()
@@ -97,7 +91,7 @@ int32_t ResourceLoader::run()
 		path::join(CROWN_DATA_DIRECTORY, name, path);
 
 		File* file = _fs.open(path.c_str(), FOM_READ);
-		rd.data = resource_on_load(id.type, *file, _resource_heap);
+		rd.data = resource_on_load(id.type, *file, *id.allocator);
 		_fs.close(file);
 
 		add_loaded(rd);

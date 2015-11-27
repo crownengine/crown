@@ -50,6 +50,7 @@
 namespace crown
 {
 	class ResourceManager;
+	class ResourceLoader;
 	struct ResourcePackage;
 
 	struct FontResource;

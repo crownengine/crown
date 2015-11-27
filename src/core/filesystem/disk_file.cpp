@@ -5,8 +5,6 @@
 
 #include "disk_file.h"
 #include "types.h"
-#include "log.h"
-#include "math_utils.h"
 #include "memory.h"
 #include <algorithm>
 
@@ -163,4 +161,3 @@ bool DiskFile::can_seek() const
 }
 
 } // namespace crown
-

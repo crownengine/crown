@@ -3,3 +3,17 @@
 
 # Ignore Python stuff
 __pycache__
+
+# Ignore C# stuff
+/tools/**/bin
+/tools/**/obj
+/tools/**/Obj
+/tools/**/TestResults
+/tools/**/test-results
+/tools/**/*.csproj.user
+/tools/**/*.suo
+/tools/**/*.cache
+/tools/**/*~
+/tools/**/*.swp
+/tools/**/*.userprefs
+/tools/**/*.pidb

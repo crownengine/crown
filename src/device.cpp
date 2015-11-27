@@ -13,6 +13,7 @@
 #include "material_manager.h"
 #include "memory.h"
 #include "os.h"
+#include "resource_loader.h"
 #include "resource_manager.h"
 #include "resource_package.h"
 #include "types.h"
@@ -58,6 +59,7 @@ Device::Device(DeviceOptions& opts)
 	, _boot_script_id(uint64_t(0))
 	, _boot_package(NULL)
 	, _lua_environment(NULL)
+	, _resource_loader(NULL)
 	, _resource_manager(NULL)
 	, _input_manager(NULL)
 	, _worlds(default_allocator())
@@ -82,9 +84,8 @@ void Device::init()
 	physics_globals::init();
 	bgfx::init();
 
-	// Create resource manager
-	CE_LOGD("Creating resource manager...");
-	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_bundle_filesystem);
+	_resource_loader = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
+	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 
 	CE_LOGD("Creating material manager...");
 	material_manager::init();
@@ -128,8 +129,8 @@ void Device::shutdown()
 	debug_line::shutdown();
 	material_manager::shutdown();
 
-	CE_LOGD("Releasing resource manager...");
 	CE_DELETE(_allocator, _resource_manager);
+	CE_DELETE(_allocator, _resource_loader);
 
 	bgfx::shutdown();
 	physics_globals::shutdown();

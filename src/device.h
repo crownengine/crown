@@ -139,6 +139,7 @@ private:
 	ResourcePackage* _boot_package;
 
 	LuaEnvironment* _lua_environment;
+	ResourceLoader* _resource_loader;
 	ResourceManager* _resource_manager;
 	InputManager* _input_manager;
 
