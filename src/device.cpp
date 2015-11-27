@@ -13,6 +13,7 @@
 #include "material_manager.h"
 #include "memory.h"
 #include "os.h"
+#include "resource_loader.h"
 #include "resource_manager.h"
 #include "resource_package.h"
 #include "types.h"
