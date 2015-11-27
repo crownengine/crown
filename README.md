@@ -99,10 +99,6 @@ To run a sample on 64-bit linux debug mode:
 
 Engine initialization and shutdown.
 
-##Tools
-
-A number of tools can be found at https://github.com/taylor001/crown-tools
-
 Contact
 -------
 
