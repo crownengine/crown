@@ -7,7 +7,6 @@
 
 #include "container_types.h"
 #include "socket.h"
-#include "log.h"
 
 namespace crown
 {
@@ -20,8 +19,6 @@ public:
 	/// blocks until a client is connected.
 	ConsoleServer(uint16_t port, bool wait);
 	void shutdown();
-
-	void log(const char* msg, LogSeverity::Enum severity = LogSeverity::INFO);
 
 	/// Collects requests from clients and processes them all.
 	void update();

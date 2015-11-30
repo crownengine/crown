@@ -44,40 +44,6 @@ void ConsoleServer::shutdown()
 	_server.close();
 }
 
-namespace console_server_internal
-{
-	StringStream& sanitize(StringStream& ss, const char* msg)
-	{
-		using namespace string_stream;
-		const char* ch = msg;
-		for (; *ch; ch++)
-		{
-			if (*ch == '"')
-				ss << "\\";
-			ss << *ch;
-		}
-
-		return ss;
-	}
-}
-
-void ConsoleServer::log(const char* msg, LogSeverity::Enum severity)
-{
-	using namespace string_stream;
-	using namespace console_server_internal;
-	static const char* stt[] = { "info", "warning", "error", "debug" };
-
-	// Build json message
-	TempAllocator2048 alloc;
-	StringStream json(alloc);
-
-	json << "{\"type\":\"message\",";
-	json << "\"severity\":\"" << stt[severity] << "\",";
-	json << "\"message\":\""; sanitize(json, msg) << "\"}";
-
-	send(c_str(json));
-}
-
 void ConsoleServer::send(TCPSocket client, const char* json)
 {
 	uint32_t len = strlen(json);

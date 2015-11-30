@@ -7,6 +7,7 @@
 #include "console_server.h"
 #include "string_utils.h"
 #include "os.h"
+#include "string_stream.h"
 
 #if CROWN_DEBUG
 
@@ -14,6 +15,36 @@ namespace crown
 {
 namespace log_internal
 {
+	static StringStream& sanitize(StringStream& ss, const char* msg)
+	{
+		using namespace string_stream;
+		const char* ch = msg;
+		for (; *ch; ch++)
+		{
+			if (*ch == '"')
+				ss << "\\";
+			ss << *ch;
+		}
+
+		return ss;
+	}
+
+	static void console_log(const char* msg, LogSeverity::Enum severity)
+	{
+		using namespace string_stream;
+		static const char* stt[] = { "info", "warning", "error", "debug" };
+
+		// Build json message
+		TempAllocator2048 alloc;
+		StringStream json(alloc);
+
+		json << "{\"type\":\"message\",";
+		json << "\"severity\":\"" << stt[severity] << "\",";
+		json << "\"message\":\""; sanitize(json, msg) << "\"}";
+
+		console_server_globals::console().send(c_str(json));
+	}
+
 	void logx(LogSeverity::Enum sev, const char* msg, va_list args)
 	{
 		char buf[2048];
@@ -22,7 +53,7 @@ namespace log_internal
 			len = sizeof(buf) - 1;
 
 		buf[len] = '\0';
-		console_server_globals::console().log(buf, sev);
+		console_log(buf, sev);
 		os::log(buf);
 	}
 
