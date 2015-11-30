@@ -759,11 +759,14 @@ DebugLine
 	**add_axes** (debug_line, tm, length)
 		Adds lines for each axis with the given *length*.
 
-	**add_cone** (debug_line, from, to, radius, color)
+	**add_circle** (debug_line, center, radius, normal, color, [segments = 36])
+		Adds a circle at *center* with the given *radius* and *normal* vector.
+
+	**add_cone** (debug_line, from, to, radius, color, [segments = 36])
 		Adds a cone with the base centered at *from* and the tip at *to*.
 
-	**add_sphere** (debug_line, center, radius, color)
-		Adds a sphere at *center* with the given *radius* and *color*.
+	**add_sphere** (debug_line, center, radius, color, [segments = 36])
+		Adds a sphere at *center* with the given *radius*.
 
 	**add_obb** (debug_line, tm, extents, color)
 		Adds an orientd bounding box. *tm* describes the position and orientation of
