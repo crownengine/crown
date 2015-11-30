@@ -15,7 +15,7 @@ namespace crown
 {
 namespace log_internal
 {
-	StringStream& sanitize(StringStream& ss, const char* msg)
+	static StringStream& sanitize(StringStream& ss, const char* msg)
 	{
 		using namespace string_stream;
 		const char* ch = msg;
@@ -29,7 +29,7 @@ namespace log_internal
 		return ss;
 	}
 
-	void console_log(const char* msg, LogSeverity::Enum severity)
+	static void console_log(const char* msg, LogSeverity::Enum severity)
 	{
 		using namespace string_stream;
 		static const char* stt[] = { "info", "warning", "error", "debug" };
