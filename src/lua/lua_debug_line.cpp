@@ -78,17 +78,17 @@ static int debug_line_add_obb(lua_State* L)
 	return 0;
 }
 
-static int debug_line_clear(lua_State* L)
+static int debug_line_reset(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_debug_line(1)->clear();
+	stack.get_debug_line(1)->reset();
 	return 0;
 }
 
-static int debug_line_commit(lua_State* L)
+static int debug_line_submit(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_debug_line(1)->commit();
+	stack.get_debug_line(1)->submit();
 	return 0;
 }
 
@@ -107,8 +107,8 @@ void load_debug_line(LuaEnvironment& env)
 	env.load_module_function("DebugLine", "add_cone",   debug_line_add_cone);
 	env.load_module_function("DebugLine", "add_sphere", debug_line_add_sphere);
 	env.load_module_function("DebugLine", "add_obb",    debug_line_add_obb);
-	env.load_module_function("DebugLine", "clear",      debug_line_clear);
-	env.load_module_function("DebugLine", "commit",     debug_line_commit);
+	env.load_module_function("DebugLine", "reset",      debug_line_reset);
+	env.load_module_function("DebugLine", "submit",     debug_line_submit);
 	env.load_module_function("DebugLine", "__index",    "DebugLine");
 	env.load_module_function("DebugLine", "__tostring", debug_line_tostring);
 }

@@ -241,12 +241,12 @@ void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const 
 	add_line(o - x + y - z, o - x + y + z, color);
 }
 
-void DebugLine::clear()
+void DebugLine::reset()
 {
 	_num = 0;
 }
 
-void DebugLine::commit()
+void DebugLine::submit()
 {
 	if (!_num)
 		return;

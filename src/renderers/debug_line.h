@@ -44,11 +44,11 @@ struct DebugLine
 	/// the box. @a extents describes the size of the box along the axis.
 	void add_obb(const Matrix4x4& tm, const Vector3& extents, const Color4& color);
 
-	/// Clears all the lines.
-	void clear();
+	/// Resets all the lines.
+	void reset();
 
-	/// Sends the lines to renderer for drawing.
-	void commit();
+	/// Submits the lines to renderer for drawing.
+	void submit();
 
 private:
 

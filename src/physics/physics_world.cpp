@@ -404,8 +404,8 @@ void PhysicsWorld::draw_debug(DebugLine& lines)
 			color4(pxline.color0, pxline.color0, pxline.color0, 1.0f));
 	}
 
-	lines.commit();
-	lines.clear();
+	lines.submit();
+	lines.reset();
 #endif // CROWN_DEBUG
 }
 
