@@ -31,11 +31,14 @@ struct DebugLine
 	/// Adds lines for each axis with the given @a length.
 	void add_axes(const Matrix4x4& m, float length = 1.0f);
 
+	/// Adds a circle at @a center with the given @a radius and @a normal vector.
+	void add_circle(const Vector3& center, float radius, const Vector3& normal, const Color4& color, uint32_t segments = 36);
+
 	/// Adds a cone with the base centered at @a from and the tip at @a to.
-	void add_cone(const Vector3& from, const Vector3& to, float radius, const Color4& color);
+	void add_cone(const Vector3& from, const Vector3& to, float radius, const Color4& color, uint32_t segments = 36);
 
 	/// Adds a sphere at @a center with the given @a radius and @a color.
-	void add_sphere(const Vector3& center, const float radius, const Color4& color);
+	void add_sphere(const Vector3& center, const float radius, const Color4& color, uint32_t segments = 36);
 
 	/// Adds an orientd bounding box. @a tm describes the position and orientation of
 	/// the box. @a extents describes the size of the box along the axis.
