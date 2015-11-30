@@ -772,11 +772,11 @@ DebugLine
 		Adds an orientd bounding box. *tm* describes the position and orientation of
 		the box. *extents* describes the size of the box along the axis.
 
-	**clear** (debug_line)
-		Clears all the lines.
+	**reset** (debug_line)
+		Resets all the lines.
 
-	**commit** (debug_line)
-		Sends the lines to renderer for drawing.
+	**submit** (debug_line)
+		Submits the lines to renderer for drawing.
 
 Input
 =====
