@@ -162,17 +162,51 @@ void DebugLine::add_axes(const Matrix4x4& m, float length)
 	add_line(pos, pos + z(m)*length, COLOR4_BLUE);
 }
 
-void DebugLine::add_cone(const Vector3& from, const Vector3& to, float radius, const Color4& color)
+void DebugLine::add_circle(const Vector3& center, float radius, const Vector3& normal, const Color4& color, uint32_t segments)
+{
+	const Vector3 dir = normal;
+	const Vector3 arr[] =
+	{
+		{ dir.z, dir.z, -dir.x -dir.y },
+		{ -dir.y -dir.z, dir.x, dir.x }
+	};
+	const int idx = ((dir.z != 0.0f) && (-dir.x != dir.y));
+	Vector3 right = arr[idx];
+	normalize(right);
+
+	const float incr = 360.0f / (float)(segments >= 3 ? segments : 3);
+	float deg0 = 0.0f;
+	for (uint32_t ss = 0; ss < segments; ++ss, deg0 += incr)
+	{
+		const float rad0 = to_rad(deg0);
+		const float rad1 = to_rad(deg0 + incr);
+
+		const Vector3 from0 = right*cos(-rad0) + cross(dir, right)*sin(-rad0) + dir*dot(dir, right)*(1.0f-cos(-rad0));
+		const Vector3 from1 = right*cos(-rad1) + cross(dir, right)*sin(-rad1) + dir*dot(dir, right)*(1.0f-cos(-rad1));
+
+		add_line(center + radius*from0, center + radius*from1, color);
+	}
+}
+
+void DebugLine::add_cone(const Vector3& from, const Vector3& to, float radius, const Color4& color, uint32_t segments)
 {
 	Vector3 dir = to - from;
 	normalize(dir);
-	const Vector3 right = cross(dir, VECTOR3_YAXIS);
-	const uint32_t deg_step = 15;
-
-	for (uint32_t deg = 0; deg < 360; deg += deg_step)
+	const Vector3 arr[] =
 	{
-		const float rad0 = to_rad(float(deg));
-		const float rad1 = to_rad(float(deg + deg_step));
+		{ dir.z, dir.z, -dir.x -dir.y },
+		{ -dir.y -dir.z, dir.x, dir.x }
+	};
+	const int idx = ((dir.z != 0.0f) && (-dir.x != dir.y));
+	Vector3 right = arr[idx];
+	normalize(right);
+
+	const float incr = 360.0f / (float)(segments >= 3 ? segments : 3);
+	float deg0 = 0.0f;
+	for (uint32_t ss = 0; ss < segments; ++ss, deg0 += incr)
+	{
+		const float rad0 = to_rad(deg0);
+		const float rad1 = to_rad(deg0 + incr);
 
 		const Vector3 from0 = right*cos(-rad0) + cross(dir, right)*sin(-rad0) + dir*dot(dir, right)*(1.0f-cos(-rad0));
 		const Vector3 from1 = right*cos(-rad1) + cross(dir, right)*sin(-rad1) + dir*dot(dir, right)*(1.0f-cos(-rad1));
@@ -182,30 +216,11 @@ void DebugLine::add_cone(const Vector3& from, const Vector3& to, float radius, c
 	}
 }
 
-void DebugLine::add_sphere(const Vector3& center, const float radius, const Color4& color)
+void DebugLine::add_sphere(const Vector3& center, const float radius, const Color4& color, uint32_t segments)
 {
-	const uint32_t deg_step = 15;
-
-	for (uint32_t deg = 0; deg < 360; deg += deg_step)
-	{
-		const float rad0 = to_rad(float(deg));
-		const float rad1 = to_rad(float(deg + deg_step));
-
-		// XZ plane
-		const Vector3 start0 = vector3(cosf(rad0)*radius, 0.0f, -sinf(rad0)*radius);
-		const Vector3 end0   = vector3(cosf(rad1)*radius, 0.0f, -sinf(rad1)*radius);
-		add_line(center + start0, center + end0, color);
-
-		// XY plane
-		const Vector3 start1 = vector3(cosf(rad0)*radius, sinf(rad0)*radius, 0.0f);
-		const Vector3 end1   = vector3(cosf(rad1)*radius, sinf(rad1)*radius, 0.0f);
-		add_line(center + start1, center + end1, color);
-
-		// YZ plane
-		const Vector3 start2 = vector3(0.0f, sinf(rad0)*radius, -cosf(rad0)*radius);
-		const Vector3 end2   = vector3(0.0f, sinf(rad1)*radius, -cosf(rad1)*radius);
-		add_line(center + start2, center + end2, color);
-	}
+	add_circle(center, radius, VECTOR3_XAXIS, color, segments);
+	add_circle(center, radius, VECTOR3_YAXIS, color, segments);
+	add_circle(center, radius, VECTOR3_ZAXIS, color, segments);
 }
 
 void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const Color4& color)
@@ -232,12 +247,12 @@ void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const 
 	add_line(o - x + y - z, o - x + y + z, color);
 }
 
-void DebugLine::clear()
+void DebugLine::reset()
 {
 	_num = 0;
 }
 
-void DebugLine::commit()
+void DebugLine::submit()
 {
 	if (!_num)
 		return;
