@@ -16,6 +16,26 @@
 namespace crown
 {
 
+static int math_ray_plane_intersection(lua_State* L)
+{
+	LuaStack stack(L);
+	Plane p;
+	p.n = stack.get_vector3(3);
+	p.d = stack.get_float(4);
+	stack.push_float(ray_plane_intersection(stack.get_vector3(1), stack.get_vector3(2), p));
+	return 1;
+}
+
+static int math_ray_sphere_intersection(lua_State* L)
+{
+	LuaStack stack(L);
+	Sphere s;
+	s.c = stack.get_vector3(3);
+	s.r = stack.get_float(4);
+	stack.push_float(ray_sphere_intersection(stack.get_vector3(1), stack.get_vector3(2), s));
+	return 1;
+}
+
 static int math_ray_obb_intersection(lua_State* L)
 {
 	LuaStack stack(L);
@@ -843,7 +863,9 @@ static int lightuserdata_newindex(lua_State* L)
 
 void load_math(LuaEnvironment& env)
 {
-	env.load_module_function("Math", "ray_obb_intersection", math_ray_obb_intersection);
+	env.load_module_function("Math", "ray_plane_intersection",  math_ray_plane_intersection);
+	env.load_module_function("Math", "ray_sphere_intersection", math_ray_sphere_intersection);
+	env.load_module_function("Math", "ray_obb_intersection",    math_ray_obb_intersection);
 
 	env.load_module_function("Vector3", "new",            vector3_new);
 	env.load_module_function("Vector3", "x",              vector3_x);
