@@ -8,7 +8,6 @@
 #include "plane.h"
 #include "sphere.h"
 #include "vector3.h"
- #include <stdio.h>
 
 namespace crown
 {
