@@ -21,6 +21,9 @@ const Plane PLANE_ZAXIS = { VECTOR3_ZAXIS, 0.0f };
 /// @ingroup Math
 namespace plane
 {
+	/// Returns the plane defined by @a point and @a normal.
+	Plane from_point_and_normal(const Vector3& point, const Vector3& normal);
+
 	/// Normalizes the plane @a p and returns its result.
 	Plane& normalize(Plane& p);
 
@@ -31,6 +34,14 @@ namespace plane
 
 namespace plane
 {
+	inline Plane from_point_and_normal(const Vector3& point, const Vector3& normal)
+	{
+		Plane p;
+		p.n = normal;
+		p.d = -dot(normal, point);
+		return p;
+	}
+
 	inline Plane& normalize(Plane& p)
 	{
 		const float len = length(p.n);
