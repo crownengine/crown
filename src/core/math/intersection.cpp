@@ -8,16 +8,15 @@
 #include "plane.h"
 #include "sphere.h"
 #include "vector3.h"
+ #include <stdio.h>
 
 namespace crown
 {
 
-/// Returns the distance along ray (from, dir) to intersection point with plane @a p.
-/// -1.0f if no collision.
 float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p)
 {
-	float nd = dot(dir, p.n);
-	float orpn = dot(from, p.n);
+	const float nd   = dot(dir, p.n);
+	const float orpn = dot(from, p.n);
 	float dist = -1.0f;
 
 	if (nd < 0.0f)
@@ -26,40 +25,51 @@ float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plan
 	return dist > 0.0f ? dist : -1.0f;
 }
 
-/// Returns the distance along ray (from, dir) to intersection point with sphere @a s.
-/// -1.0f if no collision.
+float ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, float radius, const Vector3& normal)
+{
+	Plane p = plane::from_point_and_normal(center, normal);
+	const float t = ray_plane_intersection(from, dir, p);
+
+	if (t == -1.0)
+		return -1.0;
+
+	const Vector3 intersection_point = from + dir * t;
+	if (distance(intersection_point, center) < radius)
+		return t;
+
+	return -1.0;
+}
+
 float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s)
 {
-	Vector3 v = s.c - from;
-	float b = dot(v, dir);
-	float det = (s.r * s.r) - dot(v, v) + (b * b);
+	const Vector3 v = s.c - from;
+	const float b   = dot(v, dir);
+	const float det = (s.r * s.r) - dot(v, v) + (b * b);
 
 	if (det < 0.0 || b < s.r)
-	{
 		return -1.0f;
-	}
 
 	return b - sqrtf(det);
 }
 
 // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
-float ray_oobb_intersection(const Vector3& from, const Vector3& dir, const OBB& obb)
+float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const Vector3& half_extents)
 {
 	float tmin = 0.0f;
 	float tmax = 100000.0f;
 
-	Vector3 obb_pos = vector3(obb.tm.t.x, obb.tm.t.y, obb.tm.t.z);
+	Vector3 obb_pos = vector3(tm.t.x, tm.t.y, tm.t.z);
 	Vector3 delta = obb_pos - from;
 
 	{
-		const Vector3 xaxis = vector3(obb.tm.x.x, obb.tm.x.y, obb.tm.x.z);
+		const Vector3 xaxis = vector3(tm.x.x, tm.x.y, tm.x.z);
 		float e = dot(xaxis, delta);
 		float f = dot(dir, xaxis);
 
 		if (fabs(f) > 0.001f)
 		{
-			float t1 = (e+obb.aabb.min.x)/f;
-			float t2 = (e+obb.aabb.max.x)/f;
+			float t1 = (e-half_extents.x)/f;
+			float t2 = (e+half_extents.x)/f;
 
 			if (t1>t2){
 				float w=t1;t1=t2;t2=w;
@@ -76,20 +86,20 @@ float ray_oobb_intersection(const Vector3& from, const Vector3& dir, const OBB& 
 		}
 		else
 		{
-			if(-e+obb.aabb.min.x > 0.0f || -e+obb.aabb.max.x < 0.0f)
+			if(-e-half_extents.x > 0.0f || -e+half_extents.x < 0.0f)
 				return -1.0f;
 		}
 	}
 
 	{
-		const Vector3 yaxis = vector3(obb.tm.y.x, obb.tm.y.y, obb.tm.y.z);
+		const Vector3 yaxis = vector3(tm.y.x, tm.y.y, tm.y.z);
 		float e = dot(yaxis, delta);
 		float f = dot(dir, yaxis);
 
 		if (fabs(f) > 0.001f){
 
-			float t1 = (e+obb.aabb.min.y)/f;
-			float t2 = (e+obb.aabb.max.y)/f;
+			float t1 = (e-half_extents.y)/f;
+			float t2 = (e+half_extents.y)/f;
 
 			if (t1>t2){float w=t1;t1=t2;t2=w;}
 
@@ -103,20 +113,20 @@ float ray_oobb_intersection(const Vector3& from, const Vector3& dir, const OBB& 
 		}
 		else
 		{
-			if(-e+obb.aabb.min.y > 0.0f || -e+obb.aabb.max.y < 0.0f)
+			if(-e-half_extents.y > 0.0f || -e+half_extents.y < 0.0f)
 				return -1.0f;
 		}
 	}
 
 	{
-		const Vector3 zaxis = vector3(obb.tm.z.x, obb.tm.z.y, obb.tm.z.z);
+		const Vector3 zaxis = vector3(tm.z.x, tm.z.y, tm.z.z);
 		float e = dot(zaxis, delta);
 		float f = dot(dir, zaxis);
 
 		if (fabs(f) > 0.001f){
 
-			float t1 = (e+obb.aabb.min.z)/f;
-			float t2 = (e+obb.aabb.max.z)/f;
+			float t1 = (e-half_extents.z)/f;
+			float t2 = (e+half_extents.z)/f;
 
 			if (t1>t2){float w=t1;t1=t2;t2=w;}
 
@@ -131,7 +141,7 @@ float ray_oobb_intersection(const Vector3& from, const Vector3& dir, const OBB& 
 		}
 		else
 		{
-			if(-e+obb.aabb.min.z > 0.0f || -e+obb.aabb.max.z < 0.0f)
+			if(-e-half_extents.z > 0.0f || -e+half_extents.z < 0.0f)
 				return -1.0f;
 		}
 	}
