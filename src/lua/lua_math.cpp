@@ -9,6 +9,7 @@
 #include "matrix4x4.h"
 #include "quaternion.h"
 #include "color4.h"
+#include "plane.h"
 #include "intersection.h"
 #include "lua_stack.h"
 #include "lua_environment.h"
@@ -19,10 +20,27 @@ namespace crown
 static int math_ray_plane_intersection(lua_State* L)
 {
 	LuaStack stack(L);
-	Plane p;
-	p.n = stack.get_vector3(3);
-	p.d = stack.get_float(4);
-	stack.push_float(ray_plane_intersection(stack.get_vector3(1), stack.get_vector3(2), p));
+	const Plane p = plane::from_point_and_normal(stack.get_vector3(3)
+		, stack.get_vector3(4)
+		);
+	const float t = ray_plane_intersection(stack.get_vector3(1)
+		, stack.get_vector3(2)
+		, p
+		);
+	stack.push_float(t);
+	return 1;
+}
+
+static int math_ray_disc_intersection(lua_State* L)
+{
+	LuaStack stack(L);
+	const float t = ray_disc_intersection(stack.get_vector3(1)
+		, stack.get_vector3(2)
+		, stack.get_vector3(3)
+		, stack.get_float(4)
+		, stack.get_vector3(5)
+		);
+	stack.push_float(t);
 	return 1;
 }
 
@@ -32,17 +50,23 @@ static int math_ray_sphere_intersection(lua_State* L)
 	Sphere s;
 	s.c = stack.get_vector3(3);
 	s.r = stack.get_float(4);
-	stack.push_float(ray_sphere_intersection(stack.get_vector3(1), stack.get_vector3(2), s));
+	const float t = ray_sphere_intersection(stack.get_vector3(1)
+		, stack.get_vector3(2)
+		, s
+		);
+	stack.push_float(t);
 	return 1;
 }
 
 static int math_ray_obb_intersection(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(ray_obb_intersection(stack.get_vector3(1)
+	const float t = ray_obb_intersection(stack.get_vector3(1)
 		, stack.get_vector3(2)
 		, stack.get_matrix4x4(3)
-		, stack.get_vector3(4)));
+		, stack.get_vector3(4)
+		);
+	stack.push_float(t);
 	return 1;
 }
 
@@ -551,8 +575,16 @@ static int matrix4x4_to_string(lua_State* L)
 {
 	LuaStack stack(L);
 	Matrix4x4& a = stack.get_matrix4x4(1);
-	stack.push_fstring("%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n",
-						a.x.x, a.x.y, a.x.z, a.y.w, a.y.x, a.y.y, a.y.z, a.y.w, a.z.x, a.z.y, a.z.z, a.z.w, a.t.x, a.t.y, a.t.z, a.t.w);
+	stack.push_fstring(
+		"%.1f, %.1f, %.1f, %.1f\n"
+		"%.1f, %.1f, %.1f, %.1f\n"
+		"%.1f, %.1f, %.1f, %.1f\n"
+		"%.1f, %.1f, %.1f, %.1f\n"
+		, a.x.x, a.x.y, a.x.z, a.y.w
+		, a.y.x, a.y.y, a.y.z, a.y.w
+		, a.z.x, a.z.y, a.z.z, a.z.w
+		, a.t.x, a.t.y, a.t.z, a.t.w
+		);
 	return 1;
 }
 
@@ -864,6 +896,7 @@ static int lightuserdata_newindex(lua_State* L)
 void load_math(LuaEnvironment& env)
 {
 	env.load_module_function("Math", "ray_plane_intersection",  math_ray_plane_intersection);
+	env.load_module_function("Math", "ray_disc_intersection",   math_ray_disc_intersection);
 	env.load_module_function("Math", "ray_sphere_intersection", math_ray_sphere_intersection);
 	env.load_module_function("Math", "ray_obb_intersection",    math_ray_obb_intersection);
 

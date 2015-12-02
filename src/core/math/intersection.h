@@ -14,6 +14,10 @@ namespace crown
 /// or -1.0 if no intersection.
 float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p);
 
+/// Returns the distance along ray (from, dir) to intersection point with disc defined by
+/// @a center, @a radius and @a normal or -1.0 if no intersection.
+float ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, float radius, const Vector3& normal);
+
 /// Returns the distance along ray (from, dir) to intersection point with sphere @a s
 /// or -1.0 if no intersection.
 float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s);
