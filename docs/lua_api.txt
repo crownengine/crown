@@ -273,6 +273,18 @@ Matrix4x4Box
 Math
 ----
 
+	**ray_plane_intersection** (from, dir, point, normal) : float
+		Returns the distance along ray (from, dir) to intersection point with plane defined by
+		*point* and *normal* or -1.0 if no intersection.
+
+	**ray_disc_intersection** (from, dir, center, radius, normal) : float
+		Returns the distance along ray (from, dir) to intersection point with disc defined by
+		*center*, *radius* and *normal* or -1.0 if no intersection.
+
+	**ray_sphere_intersection** (from, dir, center, radius) : float
+		Returns the distance along ray (from, dir) to intersection point with sphere defined by
+		*center* and *radius* or -1.0 if no intersection.
+
 	**ray_obb_intersection** (from, dir, tm, extents) : float
 		Returns the distance along ray (from, dir) to intersection point with the oriented
 		bounding box (tm, extents) or -1.0 if no intersection.
