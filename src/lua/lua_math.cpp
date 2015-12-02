@@ -9,6 +9,7 @@
 #include "matrix4x4.h"
 #include "quaternion.h"
 #include "color4.h"
+#include "plane.h"
 #include "intersection.h"
 #include "lua_stack.h"
 #include "lua_environment.h"
@@ -19,9 +20,9 @@ namespace crown
 static int math_ray_plane_intersection(lua_State* L)
 {
 	LuaStack stack(L);
-	Plane p;
-	p.n = stack.get_vector3(3);
-	p.d = stack.get_float(4);
+	const Plane p = plane::from_point_and_normal(stack.get_vector3(3)
+		, stack.get_vector3(4)
+		);
 	const float t = ray_plane_intersection(stack.get_vector3(1)
 		, stack.get_vector3(2)
 		, p
