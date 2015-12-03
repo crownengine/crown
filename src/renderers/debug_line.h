@@ -8,7 +8,6 @@
 #include "types.h"
 #include "config.h"
 #include "math_types.h"
-#include "color4.h"
 
 namespace crown
 {

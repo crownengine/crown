@@ -30,6 +30,9 @@ struct Vector4
 	float x, y, z, w;
 };
 
+/// Holds RGBA color as four floats.
+typedef Vector4 Color4;
+
 /// @ingroup Math
 struct Quaternion
 {

@@ -9,7 +9,6 @@
 #include "lua_environment.h"
 #include "lua_stack.h"
 #include "temp_allocator.h"
-#include "array.h"
 #include "string_stream.h"
 #include "console_server.h"
 #include "resource_manager.h"

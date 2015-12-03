@@ -8,8 +8,7 @@
 #include "color4.h"
 #include "vector3.h"
 #include "matrix4x4.h"
-#include "config.h"
-#include <string.h>
+#include <string.h> // memcpy
 #include <bgfx.h>
 
 namespace crown
