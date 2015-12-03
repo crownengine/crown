@@ -42,7 +42,13 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 
 	if (entry == ResourceEntry::NOT_FOUND)
 	{
-		_loader->add_request(type, name, _resource_heap);
+		ResourceRequest rr;
+		rr.type = type;
+		rr.name = name;
+		rr.allocator = &_resource_heap;
+		rr.data = NULL;
+
+		_loader->add_request(rr);
 		return;
 	}
 
@@ -119,10 +125,10 @@ void ResourceManager::flush()
 void ResourceManager::complete_requests()
 {
 	TempAllocator1024 ta;
-	Array<ResourceData> loaded(ta);
+	Array<ResourceRequest> loaded(ta);
 	_loader->get_loaded(loaded);
 
-	for (uint32_t i = 0; i < array::size(loaded); i++)
+	for (uint32_t i = 0; i < array::size(loaded); ++i)
 		complete_request(loaded[i].type, loaded[i].name, loaded[i].data);
 }
 
