@@ -19,8 +19,8 @@ static int gui_resolution(lua_State* L)
 {
 	LuaStack stack(L);
 	const Vector2 resolution = stack.get_gui(1)->resolution();
-	stack.push_int32((uint32_t)resolution.x);
-	stack.push_int32((uint32_t)resolution.y);
+	stack.push_int(resolution.x);
+	stack.push_int(resolution.y);
 	return 2;
 }
 

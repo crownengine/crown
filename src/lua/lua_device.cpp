@@ -56,8 +56,8 @@ static int device_resolution(lua_State* L)
 	LuaStack stack(L);
 	uint16_t w, h;
 	device()->resolution(w, h);
-	stack.push_int32(w);
-	stack.push_int32(h);
+	stack.push_int(w);
+	stack.push_int(h);
 	return 2;
 }
 

@@ -138,12 +138,12 @@ struct LuaStack
 		lua_pushboolean(L, value);
 	}
 
-	void push_int32(int32_t value)
+	void push_int(int value)
 	{
 		lua_pushinteger(L, value);
 	}
 
-	void push_uint32(uint32_t value)
+	void push_id(uint32_t value)
 	{
 		lua_pushinteger(L, value);
 	}
@@ -184,6 +184,11 @@ struct LuaStack
 	int get_int(int i)
 	{
 		return (int)CHECKINTEGER(L, i);
+	}
+
+	uint32_t get_id(int i)
+	{
+		return (uint32_t)CHECKINTEGER(L, i);
 	}
 
 	StringId32 get_string_id(int i)
@@ -381,13 +386,12 @@ struct LuaStack
 
 	void push_sound_instance_id(const SoundInstanceId id)
 	{
-		uintptr_t enc = id.encode();
-		lua_pushlightuserdata(L, (void*)enc);
+		push_id(id.encode());
 	}
 
 	SoundInstanceId get_sound_instance_id(int i)
 	{
-		uint32_t enc = (uintptr_t) CHECKLIGHTDATA(L, i, always_true, "SoundInstanceId");
+		uint32_t enc = get_id(i);
 		SoundInstanceId id;
 		id.decode(enc);
 		return id;
