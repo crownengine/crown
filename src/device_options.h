@@ -9,6 +9,7 @@
 #include "config.h"
 
 #if CROWN_PLATFORM_ANDROID
+ 	#include <sys/types.h> // off_t
 	#include <android/asset_manager.h>
 #endif // CROWN_PLATFORM_ANDROID
 
