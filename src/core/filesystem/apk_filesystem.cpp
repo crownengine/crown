@@ -11,8 +11,6 @@
 #include "temp_allocator.h"
 #include "apk_file.h"
 #include "os.h"
-#include <sys/types.h>
-#include <android/asset_manager.h>
 
 namespace crown
 {
