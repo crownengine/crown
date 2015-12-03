@@ -50,9 +50,9 @@ struct LuaEnvironment
 	Vector3* next_vector3(const Vector3& v);
 	Quaternion* next_quaternion(const Quaternion& q);
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m);
-	bool is_vector3(int i);
-	bool is_quaternion(int i);
-	bool is_matrix4x4(int i);
+	bool is_vector3(const Vector3* p);
+	bool is_quaternion(const Quaternion* p);
+	bool is_matrix4x4(const Matrix4x4* p);
 
 private:
 

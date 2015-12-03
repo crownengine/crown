@@ -112,15 +112,30 @@ struct LuaStack
 	{
 		lua_pop(L, n);
 	}
+
 	bool is_nil(int i)
 	{
 		return lua_isnil(L, i) == 1;
+	}
+
+	bool is_bool(int i)
+	{
+		return lua_isboolean(L, i) == 1;
 	}
 
 	bool is_number(int i)
 	{
 		return lua_isnumber(L, i) == 1;
 	}
+
+	bool is_pointer(int i)
+	{
+		return lua_islightuserdata(L, i) == 1 && ((uintptr_t)lua_touserdata(L, i) & 0x3) == 0;
+	}
+
+	bool is_vector3(int i);
+	bool is_quaternion(int i);
+	bool is_matrix4x4(int i);
 
 	/// Wraps lua_type.
 	int value_type(int i)
@@ -176,6 +191,11 @@ struct LuaStack
 		lua_pushlstring(L, s, len);
 	}
 
+	void push_pointer(void* p)
+	{
+		lua_pushlightuserdata(L, p);
+	}
+
 	bool get_bool(int i)
 	{
 		return CHECKBOOLEAN(L, i) == 1;
@@ -204,6 +224,11 @@ struct LuaStack
 	const char* get_string(int i)
 	{
 		return CHECKSTRING(L, i);
+	}
+
+	void* get_pointer(int i)
+	{
+		return lua_touserdata(L, i);
 	}
 
 	/// Pushes an empty table onto the stack.
@@ -486,6 +511,10 @@ struct LuaStack
 		Matrix4x4* m = (Matrix4x4*) CHECKUDATA(L, i, "Matrix4x4Box");
 		return *m;
 	}
+
+	void check_temporary(int i, Vector3* p);
+	void check_temporary(int i, Quaternion* p);
+	void check_temporary(int i, Matrix4x4* p);
 
 private:
 

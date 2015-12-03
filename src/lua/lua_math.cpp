@@ -836,9 +836,8 @@ static int lightuserdata_sub(lua_State* L)
 static int lightuserdata_mul(lua_State* L)
 {
 	LuaStack stack(L);
-	const Vector3& a = stack.get_vector3(1);
-	const float b = stack.get_float(2);
-	stack.push_vector3(a * b);
+	const int fidx = stack.is_number(1) ? 1 : 2;
+	stack.push_vector3(stack.get_float(fidx) * stack.get_vector3(3-fidx));
 	return 1;
 }
 

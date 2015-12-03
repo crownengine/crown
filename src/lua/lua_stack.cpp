@@ -10,40 +10,72 @@
 namespace crown
 {
 
-bool is_vector3(int i) { return device()->lua_environment()->is_vector3(i); }
-bool is_quaternion(int i) { return device()->lua_environment()->is_quaternion(i); }
-bool is_matrix4x4(int i) { return device()->lua_environment()->is_matrix4x4(i); }
+bool LuaStack::is_vector3(int i)
+{
+	return device()->lua_environment()->is_vector3((Vector3*)get_pointer(i));
+}
+
+bool LuaStack::is_quaternion(int i)
+{
+	return device()->lua_environment()->is_quaternion((Quaternion*)get_pointer(i));
+}
+
+bool LuaStack::is_matrix4x4(int i)
+{
+	return device()->lua_environment()->is_matrix4x4((Matrix4x4*)get_pointer(i));
+}
+
+void LuaStack::check_temporary(int i, Vector3* p)
+{
+	LuaEnvironment* env = device()->lua_environment();
+	if (!is_pointer(i) || !env->is_vector3(p))
+		luaL_typerror(L, i, "Vector3");
+}
+
+void LuaStack::check_temporary(int i, Quaternion* p)
+{
+	LuaEnvironment* env = device()->lua_environment();
+	if (!is_pointer(i) || !env->is_quaternion(p))
+		luaL_typerror(L, i, "Quaternion");
+}
+
+void LuaStack::check_temporary(int i, Matrix4x4* p)
+{
+	LuaEnvironment* env = device()->lua_environment();
+	if (!is_pointer(i) || !env->is_matrix4x4(p))
+		luaL_typerror(L, i, "Matrix4x4");
+}
 
 Vector2 LuaStack::get_vector2(int i)
 {
-	void* v = CHECKLIGHTDATA(L, i, is_vector3, "Vector2");
-	Vector3& vv = *(Vector3*)v;
-	return vector2(vv.x, vv.y);
+	Vector3 v = get_vector3(i);
+	return vector2(v.x, v.y);
 }
 
 Vector3& LuaStack::get_vector3(int i)
 {
-	void* v = CHECKLIGHTDATA(L, i, is_vector3, "Vector3");
-	return *(Vector3*)v;
+	Vector3* v = (Vector3*)get_pointer(i);
+	check_temporary(i, v);
+	return *v;
 }
 
 Quaternion& LuaStack::get_quaternion(int i)
 {
-	void* q = CHECKLIGHTDATA(L, i, is_quaternion, "Quaternion");
-	return *(Quaternion*)q;
+	Quaternion* q = (Quaternion*)get_pointer(i);
+	check_temporary(i, q);
+	return *q;
 }
 
 Matrix4x4& LuaStack::get_matrix4x4(int i)
 {
-	void* m = CHECKLIGHTDATA(L, i, is_matrix4x4, "Matrix4x4");
-	return *(Matrix4x4*)m;
+	Matrix4x4* m = (Matrix4x4*)get_pointer(i);
+	check_temporary(i, m);
+	return *m;
 }
 
 Color4 LuaStack::get_color4(int i)
 {
-	// Color4 represented as Quaternion
-	void* c = CHECKLIGHTDATA(L, i, is_quaternion, "Color4");
-	Quaternion& q = *(Quaternion*)c;
+	Quaternion q = get_quaternion(i);
 	return color4(q.x, q.y, q.z, q.w);
 }
 
@@ -55,22 +87,16 @@ void LuaStack::push_vector2(const Vector2& v)
 void LuaStack::push_vector3(const Vector3& v)
 {
 	lua_pushlightuserdata(L, device()->lua_environment()->next_vector3(v));
-	luaL_getmetatable(L, "Lightuserdata_mt");
-	lua_setmetatable(L, -2);
 }
 
 void LuaStack::push_quaternion(const Quaternion& q)
 {
 	lua_pushlightuserdata(L, device()->lua_environment()->next_quaternion(q));
-	luaL_getmetatable(L, "Lightuserdata_mt");
-	lua_setmetatable(L, -2);
 }
 
 void LuaStack::push_matrix4x4(const Matrix4x4& m)
 {
 	lua_pushlightuserdata(L, device()->lua_environment()->next_matrix4x4(m));
-	luaL_getmetatable(L, "Lightuserdata_mt");
-	lua_setmetatable(L, -2);
 }
 
 } // namespace crown
