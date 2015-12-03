@@ -6,8 +6,6 @@
 #include "lua_stack.h"
 #include "lua_environment.h"
 #include "debug_line.h"
-#include "vector3.h"
-#include "color4.h"
 
 namespace crown
 {

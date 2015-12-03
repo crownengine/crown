@@ -10,6 +10,7 @@
 #if CROWN_PLATFORM_ANDROID
 
 #include "filesystem.h"
+#include <sys/types.h> // off_t
 #include <android/asset_manager.h>
 
 namespace crown

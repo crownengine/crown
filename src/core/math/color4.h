@@ -12,9 +12,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Holds RGBA color as four floats.
-typedef Vector4 Color4;
-
 inline Color4 color4(float r, float g, float b, float a)
 {
 	Color4 c;
