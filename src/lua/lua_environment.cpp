@@ -295,6 +295,12 @@ Vector3* LuaEnvironment::next_vector3(const Vector3& v)
 	return &(_vec3_buffer[_vec3_used++] = v);
 }
 
+Quaternion* LuaEnvironment::next_quaternion(const Quaternion& q)
+{
+	CE_ASSERT(_quat_used < CROWN_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
+	return &(_quat_buffer[_quat_used++] = q);
+}
+
 Matrix4x4* LuaEnvironment::next_matrix4x4(const Matrix4x4& m)
 {
 	CE_ASSERT(_mat4_used < CROWN_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
@@ -302,35 +308,26 @@ Matrix4x4* LuaEnvironment::next_matrix4x4(const Matrix4x4& m)
 	return &(s_mat4_buffer[_mat4_used++] = m);
 }
 
-Quaternion* LuaEnvironment::next_quaternion(const Quaternion& q)
+bool LuaEnvironment::is_vector3(const Vector3* p)
 {
-	CE_ASSERT(_quat_used < CROWN_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
-	return &(_quat_buffer[_quat_used++] = q);
+	return (p >= &_vec3_buffer[0] && p <= &_vec3_buffer[CROWN_MAX_LUA_VECTOR3 - 1]);
 }
 
-bool LuaEnvironment::is_vector3(int index)
+bool LuaEnvironment::is_quaternion(const Quaternion* p)
 {
-	void* type = lua_touserdata(L, index);
-	return (type >= &_vec3_buffer[0] && type <= &_vec3_buffer[CROWN_MAX_LUA_VECTOR3 - 1]);
+	return (p >= &_quat_buffer[0] && p <= &_quat_buffer[CROWN_MAX_LUA_QUATERNION - 1]);
 }
 
-bool LuaEnvironment::is_matrix4x4(int index)
+bool LuaEnvironment::is_matrix4x4(const Matrix4x4* p)
 {
-	void* type = lua_touserdata(L, index);
-	return (type >= &s_mat4_buffer[0] && type <= &s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1]);
-}
-
-bool LuaEnvironment::is_quaternion(int index)
-{
-	void* type = lua_touserdata(L, index);
-	return (type >= &_quat_buffer[0] && type <= &_quat_buffer[CROWN_MAX_LUA_QUATERNION - 1]);
+	return (p >= &s_mat4_buffer[0] && p <= &s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1]);
 }
 
 void LuaEnvironment::clear_temporaries()
 {
 	_vec3_used = 0;
-	_mat4_used = 0;
 	_quat_used = 0;
+	_mat4_used = 0;
 }
 
 } // namespace crown
