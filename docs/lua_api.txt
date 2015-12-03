@@ -255,6 +255,9 @@ Matrix4x4
 	**identity** ()
 		Returns the identity matrix.
 
+	**transform** (m, v) : Vector3
+		Transforms the vector *v* by the matrix *m* and returns the result.
+
 	**to_string** (a)
 		Returns a string representing the matrix.
 
