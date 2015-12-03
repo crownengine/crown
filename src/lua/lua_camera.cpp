@@ -23,7 +23,7 @@ static int camera_set_projection_type(lua_State* L)
 static int camera_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_uint32(stack.get_camera(1)->projection_type());
+	stack.push_int(stack.get_camera(1)->projection_type());
 	return 1;
 }
 

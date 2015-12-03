@@ -257,14 +257,14 @@ static int input_device_connected(lua_State* L, InputDevice& id)
 static int input_device_num_buttons(lua_State* L, InputDevice& id)
 {
 	LuaStack stack(L);
-	stack.push_uint32(id.num_buttons());
+	stack.push_int(id.num_buttons());
 	return 1;
 }
 
 static int input_device_num_axes(lua_State* L, InputDevice& id)
 {
 	LuaStack stack(L);
-	stack.push_uint32(id.num_axes());
+	stack.push_int(id.num_axes());
 	return 1;
 }
 
@@ -306,35 +306,35 @@ static int input_device_axis(lua_State* L, InputDevice& id)
 static int keyboard_button_id(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_uint32(name_to_keyboard_button(stack, stack.get_string(1)));
+	stack.push_int(name_to_keyboard_button(stack, stack.get_string(1)));
 	return 1;
 }
 
 static int mouse_button_id(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_uint32(name_to_mouse_button(stack, stack.get_string(1)));
+	stack.push_int(name_to_mouse_button(stack, stack.get_string(1)));
 	return 1;
 }
 
 static int mouse_axis_id(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_uint32(name_to_mouse_axis(stack, stack.get_string(1)));
+	stack.push_int(name_to_mouse_axis(stack, stack.get_string(1)));
 	return 1;
 }
 
 static int pad_button_id(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_uint32(name_to_pad_button(stack, stack.get_string(1)));
+	stack.push_int(name_to_pad_button(stack, stack.get_string(1)));
 	return 1;
 }
 
 static int pad_axis_id(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_uint32(name_to_pad_axis(stack, stack.get_string(1)));
+	stack.push_int(name_to_pad_axis(stack, stack.get_string(1)));
 	return 1;
 }
 

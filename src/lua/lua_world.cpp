@@ -40,7 +40,7 @@ static int world_destroy_unit(lua_State* L)
 static int world_num_units(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_uint32(stack.get_world(1)->num_units());
+	stack.push_int(stack.get_world(1)->num_units());
 	return 1;
 }
 

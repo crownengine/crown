@@ -138,12 +138,7 @@ struct LuaStack
 		lua_pushboolean(L, value);
 	}
 
-	void push_int32(int32_t value)
-	{
-		lua_pushinteger(L, value);
-	}
-
-	void push_uint32(uint32_t value)
+	void push_int(int value)
 	{
 		lua_pushinteger(L, value);
 	}
