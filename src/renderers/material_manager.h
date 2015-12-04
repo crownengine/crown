@@ -7,36 +7,33 @@
 
 #include "types.h"
 #include "container_types.h"
-#include "material.h"
-#include "resource_manager.h"
 #include "resource_types.h"
-#include <bgfx.h>
+#include "material.h"
+#include "string_id.h"
 
 namespace crown
 {
 
-typedef Id MaterialId;
-
 struct MaterialManager
 {
-	MaterialManager();
+	MaterialManager(ResourceManager& rm);
+	~MaterialManager();
 
-	MaterialId create_material(StringId64 id);
-	void destroy_material(MaterialId id);
-	Material* lookup_material(MaterialId id);
+	void create_material(StringId64 id);
+	void destroy_material(StringId64 id);
+	Material* lookup_material(StringId64 id);
 
 private:
 
-	IdTable<512> _materials_ids;
-	Material _materials[512];
+	ResourceManager* _resource_manager;
+	SortMap<StringId64, Material*> _materials;
 };
 
 namespace material_manager
 {
-	void init();
+	void init(ResourceManager& rm);
 	void shutdown();
 	MaterialManager* get();
-
 } // namespace material_manager
 
 } // namespace crown
