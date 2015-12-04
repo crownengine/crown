@@ -13,7 +13,7 @@
 namespace crown
 {
 
-typedef Id SoundInstanceId;
+typedef uint32_t SoundInstanceId;
 
 /// Manages sound objects in a World.
 ///
