@@ -104,6 +104,8 @@ Contact
 
 Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
 
+Project page: https://github.com/taylor001/crown
+
 Contributors
 ------------
 
