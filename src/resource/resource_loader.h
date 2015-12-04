@@ -15,10 +15,11 @@
 namespace crown
 {
 
-struct ResourceData
+struct ResourceRequest
 {
 	StringId64 type;
 	StringId64 name;
+	Allocator* allocator;
 	void* data;
 };
 
@@ -29,22 +30,23 @@ class ResourceLoader
 {
 public:
 
+	/// Read resources from @a fs.
 	ResourceLoader(Filesystem& fs);
 	~ResourceLoader();
 
-	/// Adds a request for loading the resource @a type @a name.
-	void add_request(StringId64 type, StringId64 name, Allocator& a);
+	/// Adds a request for loading the resource described by @a rr.
+	void add_request(const ResourceRequest& rr);
 
 	/// Blocks until all pending requests have been processed.
 	void flush();
 
 	/// Returns all the resources that have been loaded.
-	void get_loaded(Array<ResourceData>& loaded);
+	void get_loaded(Array<ResourceRequest>& loaded);
 
 private:
 
 	uint32_t num_requests();
-	void add_loaded(ResourceData data);
+	void add_loaded(ResourceRequest rr);
 
 	// Loads resources in the loading queue.
 	int32_t run();
@@ -56,27 +58,11 @@ private:
 
 private:
 
-	struct ResourceRequest
-	{
-		StringId64 type;
-		StringId64 name;
-		Allocator* allocator;
-	};
-
-	ResourceRequest make_request(StringId64 type, StringId64 name, Allocator& a)
-	{
-		ResourceRequest rr;
-		rr.type = type;
-		rr.name = name;
-		rr.allocator = &a;
-		return rr;
-	}
-
 	Thread _thread;
 	Filesystem& _fs;
 
 	Queue<ResourceRequest> _requests;
-	Queue<ResourceData> _loaded;
+	Queue<ResourceRequest> _loaded;
 	Mutex _mutex;
 	Mutex _loaded_mutex;
 	bool _exit;

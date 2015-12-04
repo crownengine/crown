@@ -23,7 +23,7 @@ class ResourceManager
 {
 public:
 
-	/// The resources will be loaded from @a fs.
+	/// Uses @a rl to load resources.
 	ResourceManager(ResourceLoader& rl);
 	~ResourceManager();
 
