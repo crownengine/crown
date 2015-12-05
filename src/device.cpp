@@ -27,9 +27,7 @@
 #include "profiler.h"
 #include "console_server.h"
 #include "input_device.h"
-
 #include "profiler.h"
-#include <stdio.h>
 
 #if CROWN_PLATFORM_ANDROID
 	#include "apk_filesystem.h"
@@ -216,6 +214,9 @@ void Device::update()
 		profiler_globals::clear();
 		console_server_globals::update();
 
+		RECORD_FLOAT("device.dt", _last_delta_time);
+		RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
+
 		if (!_is_paused)
 		{
 			_resource_manager->complete_requests();
@@ -224,6 +225,10 @@ void Device::update()
 		}
 
 		_input_manager->update();
+
+		const bgfx::Stats* stats = bgfx::getStats();
+		RECORD_FLOAT("bgfx.gpu_time", double(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
+		RECORD_FLOAT("bgfx.cpu_time", double(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
 
 		bgfx::frame();
 		profiler_globals::flush();
