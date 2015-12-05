@@ -17,6 +17,11 @@
 #include "device_options.h"
 #include "os_event_queue.h"
 #include "string_id.h"
+#include "allocator.h"
+#include "log.h"
+#include "proxy_allocator.h"
+#include <bx/allocator.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {
@@ -144,6 +149,84 @@ private:
 	InputManager* _input_manager;
 
 	Array<World*> _worlds;
+
+	struct BgfxCallback : public bgfx::CallbackI
+	{
+		virtual void fatal(bgfx::Fatal::Enum _code, const char* _str)
+		{
+			CE_ASSERT(false, "Fatal error: 0x%08x: %s", _code, _str);
+		}
+
+		virtual void traceVargs(const char* /*_filePath*/, uint16_t /*_line*/, const char* _format, va_list _argList)
+		{
+			char buf[2048];
+			strncpy(buf, _format, sizeof(buf));
+			buf[strlen(buf)-1] = '\0'; // Remove trailing newline
+			CE_LOGDV(buf, _argList);
+		}
+
+		virtual uint32_t cacheReadSize(uint64_t /*_id*/)
+		{
+			return 0;
+		}
+
+		virtual bool cacheRead(uint64_t /*_id*/, void* /*_data*/, uint32_t /*_size*/)
+		{
+			return false;
+		}
+
+		virtual void cacheWrite(uint64_t /*_id*/, const void* /*_data*/, uint32_t /*_size*/)
+		{
+		}
+
+		virtual void screenShot(const char* /*_filePath*/, uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, const void* /*_data*/, uint32_t /*_size*/, bool /*_yflip*/)
+		{
+		}
+
+		virtual void captureBegin(uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, bgfx::TextureFormat::Enum /*_format*/, bool /*_yflip*/)
+		{
+		}
+
+		virtual void captureEnd()
+		{
+		}
+
+		virtual void captureFrame(const void* /*_data*/, uint32_t /*_size*/)
+		{
+		}
+	};
+
+	struct BgfxAllocator : public bx::AllocatorI
+	{
+		BgfxAllocator(Allocator& a)
+			: _allocator("bgfx", a)
+		{
+		}
+
+		virtual void* realloc(void* _ptr, size_t _size, size_t _align, const char* /*_file*/, uint32_t /*_line*/)
+		{
+			if (!_ptr)
+				return _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : _align);
+
+			if (_size == 0)
+			{
+				_allocator.deallocate(_ptr);
+				return NULL;
+			}
+
+			// Realloc
+			void* p = _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : _align);
+			_allocator.deallocate(_ptr);
+			return p;
+		}
+
+	private:
+
+		ProxyAllocator _allocator;
+	};
+
+	BgfxCallback _bgfx_callback;
+	BgfxAllocator _bgfx_allocator;
 
 private:
 

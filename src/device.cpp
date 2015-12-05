@@ -28,6 +28,9 @@
 #include "console_server.h"
 #include "input_device.h"
 
+#include "profiler.h"
+#include <stdio.h>
+
 #if CROWN_PLATFORM_ANDROID
 	#include "apk_filesystem.h"
 #endif // CROWN_PLATFORM_ANDROID
@@ -63,6 +66,7 @@ Device::Device(DeviceOptions& opts)
 	, _resource_manager(NULL)
 	, _input_manager(NULL)
 	, _worlds(default_allocator())
+	, _bgfx_allocator(default_allocator())
 {
 }
 
@@ -82,7 +86,13 @@ void Device::init()
 	profiler_globals::init();
 	audio_globals::init();
 	physics_globals::init();
-	bgfx::init();
+
+	bgfx::init(bgfx::RendererType::Count
+		, BGFX_PCI_ID_NONE
+		, 0
+		, &_bgfx_callback
+		, &_bgfx_allocator
+		);
 
 	_resource_loader = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
