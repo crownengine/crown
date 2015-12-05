@@ -452,6 +452,13 @@ static int matrix4x4_from_axes(lua_State* L)
 	return 1;
 }
 
+static int matrix4x4_copy(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_matrix4x4(stack.get_matrix4x4(1));
+	return 1;
+}
+
 static int matrix4x4_add(lua_State* L)
 {
 	LuaStack stack(L);
@@ -956,6 +963,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "from_translation",            matrix4x4_from_translation);
 	env.load_module_function("Matrix4x4", "from_quaternion_translation", matrix4x4_from_quaternion_translation);
 	env.load_module_function("Matrix4x4", "from_axes",                   matrix4x4_from_axes);
+	env.load_module_function("Matrix4x4", "copy",                        matrix4x4_copy);
 	env.load_module_function("Matrix4x4", "add",                         matrix4x4_add);
 	env.load_module_function("Matrix4x4", "subtract",                    matrix4x4_subtract);
 	env.load_module_function("Matrix4x4", "multiply",                    matrix4x4_multiply);
