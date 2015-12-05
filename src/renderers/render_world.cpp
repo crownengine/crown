@@ -14,7 +14,7 @@
 #include "gui.h"
 #include "mesh_resource.h"
 #include "scene_graph.h"
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {
@@ -80,7 +80,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 
 	// This dummy draw call is here to make sure that view 0 is cleared
 	// if no other draw calls are submitted to view 0.
-	bgfx::submit(0);
+	bgfx::touch(0);
 
 	// Draw all sprites
 	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)

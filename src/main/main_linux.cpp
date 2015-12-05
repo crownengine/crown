@@ -15,13 +15,13 @@
 #include "bundle_compiler.h"
 #include "console_server.h"
 #include "device.h"
+#include <stdlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/Xrandr.h>
-#include <bgfxplatform.h>
-#include <bgfx.h>
+#include <bgfx/bgfxplatform.h>
 
 namespace crown
 {

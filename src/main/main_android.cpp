@@ -17,7 +17,7 @@
 #include <jni.h>
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
-#include <bgfxplatform.h>
+#include <bgfx/bgfxplatform.h>
 
 extern "C"
 {
