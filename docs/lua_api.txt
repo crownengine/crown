@@ -210,6 +210,9 @@ Matrix4x4
 	**from_axes** (x, y, z, t) : Matrix4x4
 		Returns a new matrix from *x*, *y*, *z* and *t*.
 
+	**copy** (m) : Matrix4x4
+		Returns a copy of the matrix *m*.
+
 	**add** (a, b) : Matrix4x4
 		Adds the matrix *a* to *b* and returns the result.
 
