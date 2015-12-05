@@ -14,14 +14,13 @@ namespace crown
 
 float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p)
 {
-	const float nd   = dot(dir, p.n);
-	const float orpn = dot(from, p.n);
-	float dist = -1.0f;
+	const float num = dot(from, p.n);
+	const float den = dot(dir, p.n);
 
-	if (nd < 0.0f)
-		dist = (-p.d - orpn) / nd;
+	if (fequal(den, 0.0f))
+		return -1.0f;
 
-	return dist > 0.0f ? dist : -1.0f;
+	return (-p.d - num) / den;
 }
 
 float ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, float radius, const Vector3& normal)
