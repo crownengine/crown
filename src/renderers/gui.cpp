@@ -11,7 +11,7 @@
 #include "vector2.h"
 #include "vector3.h"
 #include "matrix4x4.h"
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {
@@ -145,13 +145,12 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	inds[4] = 2;
 	inds[5] = 3;
 
-	material_manager::get()->lookup_material(m_material)->bind();
 	bgfx::setViewTransform(1, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(m_projection));
 	bgfx::setViewRect(1, 0, 0, m_width, m_height);
 	bgfx::setState(BGFX_STATE_DEFAULT);
 	bgfx::setVertexBuffer(&tvb);
 	bgfx::setIndexBuffer(&tib);
-	bgfx::submit(1, (int32_t) pos.z);
+	material_manager::get()->lookup_material(m_material)->bind();
 }
 
 void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color)
@@ -195,16 +194,12 @@ void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2&
 	inds[4] = 2;
 	inds[5] = 3;
 
-/*	ResourceId res_id("material", material);
-	Material* mat = material_manager::get()->lookup_material(res_id.name);
-	mat->bind();*/
-
 	bgfx::setViewTransform(1, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(m_projection));
 	bgfx::setViewRect(1, 0, 0, m_width, m_height);
 	bgfx::setState(BGFX_STATE_DEFAULT);
 	bgfx::setVertexBuffer(&tvb);
 	bgfx::setIndexBuffer(&tib);
-	bgfx::submit(1, (int32_t) pos.z);
+	material_manager::get()->lookup_material(m_material)->bind();
 }
 
 void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color)

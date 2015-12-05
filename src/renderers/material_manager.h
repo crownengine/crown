@@ -11,7 +11,7 @@
 #include "resource_manager.h"
 #include "resource_types.h"
 #include "id_table.h"
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {

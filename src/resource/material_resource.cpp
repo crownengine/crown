@@ -13,7 +13,7 @@
 #include "resource_manager.h"
 #include "vector.h"
 #include "compile_options.h"
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {
@@ -219,14 +219,14 @@ namespace material_resource
 		{
 			TextureData* td = get_texture_data(mr, i);
 			TextureHandle* th = get_texture_handle(mr, i, base);
-			th->sampler_handle = bgfx::createUniform(get_texture_name(mr, td), bgfx::UniformType::Uniform1iv).idx;
+			th->sampler_handle = bgfx::createUniform(get_texture_name(mr, td), bgfx::UniformType::Int1).idx;
 		}
 
 		for (uint32_t i = 0; i < num_uniforms(mr); i++)
 		{
 			UniformData* ud = get_uniform_data(mr, i);
 			UniformHandle* uh = get_uniform_handle(mr, i, base);
-			uh->uniform_handle = bgfx::createUniform(get_uniform_name(mr, ud), bgfx::UniformType::Uniform4fv).idx;
+			uh->uniform_handle = bgfx::createUniform(get_uniform_name(mr, ud), bgfx::UniformType::Vec4).idx;
 		}
 	}
 

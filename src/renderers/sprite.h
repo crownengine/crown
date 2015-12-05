@@ -12,7 +12,7 @@
 #include "sprite_resource.h"
 #include "material.h"
 #include "world_types.h"
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {

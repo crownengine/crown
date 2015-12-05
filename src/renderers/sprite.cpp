@@ -45,9 +45,6 @@ void Sprite::set_depth(int32_t z)
 
 void Sprite::render()
 {
-	if (m_material.id != INVALID_ID)
-		material_manager::get()->lookup_material(m_material)->bind();
-
 	bgfx::setState(BGFX_STATE_RGB_WRITE
 		| BGFX_STATE_ALPHA_WRITE
 		| BGFX_STATE_DEPTH_TEST_LEQUAL
@@ -59,7 +56,9 @@ void Sprite::render()
 	bgfx::setIndexBuffer(m_resource->ib, m_frame * 6, 6);
 	TransformInstance ti = m_scene_graph.get(_unit_id);
 	bgfx::setTransform(to_float_ptr(m_scene_graph.world_pose(ti)));
-	bgfx::submit(0, _depth);
+
+	if (m_material.id != INVALID_ID)
+		material_manager::get()->lookup_material(m_material)->bind();
 }
 
 } // namespace crown

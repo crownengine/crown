@@ -11,7 +11,7 @@
 #include "memory_types.h"
 #include "compiler_types.h"
 #include "string_id.h"
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {

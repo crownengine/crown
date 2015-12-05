@@ -12,7 +12,7 @@
 #include "material_manager.h"
 #include "shader.h"
 #include <string.h> // memcpy
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {
@@ -36,9 +36,6 @@ void Material::destroy() const
 
 void Material::bind() const
 {
-	Shader* shader = (Shader*) device()->resource_manager()->get(SHADER_TYPE, material_resource::shader(resource));
-	bgfx::setProgram(shader->program);
-
 	// Set samplers
 	for (uint32_t i = 0; i < num_textures(resource); i++)
 	{
@@ -64,6 +61,9 @@ void Material::bind() const
 		buh.idx = uh->uniform_handle;
 		bgfx::setUniform(buh, (char*) uh + sizeof(uh->uniform_handle));
 	}
+
+	Shader* shader = (Shader*) device()->resource_manager()->get(SHADER_TYPE, material_resource::shader(resource));
+	bgfx::submit(0, shader->program);
 }
 
 void Material::set_float(const char* name, float val)

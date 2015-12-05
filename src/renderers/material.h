@@ -7,7 +7,7 @@
 
 #include "math_types.h"
 #include "resource_types.h"
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {

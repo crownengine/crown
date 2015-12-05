@@ -9,7 +9,7 @@
 #include "color4.h"
 #include "render_world_types.h"
 #include "material.h"
-#include <bgfx.h>
+#include <bgfx/bgfx.h>
 
 namespace crown
 {

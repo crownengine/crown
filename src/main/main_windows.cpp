@@ -13,7 +13,7 @@
 #include "console_server.h"
 #include "bundle_compiler.h"
 #include "device.h"
-#include <bgfxplatform.h>
+#include <bgfx/bgfxplatform.h>
 #include <winsock2.h>
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
