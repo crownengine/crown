@@ -72,8 +72,6 @@ struct Device
 	/// Unpauses the engine.
 	void unpause();
 
-	void update_resolution(uint16_t width, uint16_t height);
-
 	/// Returns the main window resolution.
 	void resolution(uint16_t& width, uint16_t& height);
 
