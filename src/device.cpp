@@ -168,12 +168,6 @@ void Device::unpause()
 	CE_LOGI("Engine unpaused.");
 }
 
-void Device::update_resolution(uint16_t width, uint16_t height)
-{
-	_width = width;
-	_height = height;
-}
-
 void Device::resolution(uint16_t& width, uint16_t& height)
 {
 	width = _width;
@@ -390,7 +384,8 @@ bool Device::process_events()
 			case OsEvent::METRICS:
 			{
 				const OsMetricsEvent& ev = event.metrics;
-				update_resolution(ev.width, ev.height);
+				_width = ev.width;
+				_height = ev.height;
 				bgfx::reset(ev.width, ev.height, BGFX_RESET_VSYNC);
 				break;
 			}
