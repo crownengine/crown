@@ -11,6 +11,16 @@
 #include "array.h"
 #include "compile_options.h"
 
+#define LUAJIT_NAME "luajit"
+
+#if CROWN_PLATFORM_WINDOWS
+	#define EXE ".exe"
+#else
+ 	#define EXE ""
+#endif // CROWN_PLATFORM_WINDOWS
+
+#define LUAJIT_EXE LUAJIT_NAME EXE
+
 #if CROWN_DEBUG
 	#define LUAJIT_FLAGS "-bg" // Keep debug info
 #else
@@ -32,11 +42,7 @@ namespace lua_resource
 
 		const char* luajit[] =
 		{
-#if CROWN_PLATFORM_LINUX
-			"./luajit",
-#else
-			"luajit.exe",
-#endif // CROWN_PLATFORM_LINUX
+			LUAJIT_EXE,
 			LUAJIT_FLAGS,
 			res_abs_path.c_str(),
 			bc_abs_path.c_str(),
