@@ -16,13 +16,13 @@ namespace font_resource
 {
 	void parse_glyph(JSONElement e, FontGlyphData& glyph)
 	{
-		glyph.id =        e.key("id").to_int();
-		glyph.x =         e.key("x").to_int();
-		glyph.y =         e.key("y").to_int();
-		glyph.width =     e.key("width").to_int();
-		glyph.height =    e.key("height").to_int();
-		glyph.x_offset =  e.key("x_offset").to_float();
-		glyph.y_offset =  e.key("y_offset").to_float();
+		glyph.id        = e.key("id").to_int();
+		glyph.x         = e.key("x").to_int();
+		glyph.y         = e.key("y").to_int();
+		glyph.width     = e.key("width").to_int();
+		glyph.height    = e.key("height").to_int();
+		glyph.x_offset  = e.key("x_offset").to_float();
+		glyph.y_offset  = e.key("y_offset").to_float();
 		glyph.x_advance = e.key("x_advance").to_float();
 	}
 
