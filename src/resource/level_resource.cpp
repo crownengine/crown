@@ -12,165 +12,6 @@
 
 namespace crown
 {
-
-template <typename STREAM, typename T> inline STREAM& operator&(STREAM& stream, T& t)
-{
-	return t.serialize(stream);
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, bool& v)
-{
-	bw.write(v);
-	return bw;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, bool& v)
-{
-	br.read(v);
-	return br;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, float& v)
-{
-	bw.write(v);
-	return bw;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, float& v)
-{
-	br.read(v);
-	return br;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, char& v)
-{
-	bw.write(v);
-	return bw;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, char& v)
-{
-	br.read(v);
-	return br;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, int8_t& v)
-{
-	bw.write(v);
-	return bw;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, int8_t& v)
-{
-	br.read(v);
-	return br;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, uint8_t& v)
-{
-	bw.write(v);
-	return bw;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, uint8_t& v)
-{
-	br.read(v);
-	return br;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, uint32_t& v)
-{
-	bw.write(v);
-	return bw;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, uint32_t& v)
-{
-	br.read(v);
-	return br;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& br, uint64_t& v)
-{
-	br.write(v);
-	return br;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, uint64_t& v)
-{
-	br.read(v);
-	return br;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& br, StringId64& id)
-{
-	return br & id._id;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, StringId64& id)
-{
-	return br & id._id;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, Vector3& v)
-{
-	return bw & v.x & v.y & v.z;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, Vector3& v)
-{
-	return br & v.x & v.y & v.z;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, Quaternion& q)
-{
-	return bw & q.x & q.y & q.z & q.w;
-}
-
-template <> inline BinaryReader& operator&(BinaryReader& br, Quaternion& q)
-{
-	return br & q.x & q.y & q.z & q.w;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, LevelResource& data)
-{
-	return bw
-		& data.version
-		& data.num_units
-		& data.units_offset
-		& data.num_sounds
-		& data.sounds_offset;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, LevelUnit& data)
-{
-	return bw
-		& data.name
-		& data.position
-		& data.rotation
-		& data._pad;
-}
-
-template <> inline BinaryWriter& operator&(BinaryWriter& bw, LevelSound& data)
-{
-	return bw
-		& data.name
-		& data.position
-		& data.volume
-		& data.range
-		& data.loop
-		& data._pad[0]
-		& data._pad[1]
-		& data._pad[2];
-}
-
-template <typename T> inline BinaryWriter& operator&(BinaryWriter& bw, Array<T> arr)
-{
-	for (uint32_t i = 0; i < array::size(arr); i++)
-		bw & arr[i];
-	return bw;
-}
-
 namespace level_resource
 {
 	void compile(const char* path, CompileOptions& opts)
@@ -221,9 +62,31 @@ namespace level_resource
 		lr.units_offset = offt; offt += sizeof(LevelUnit) * lr.num_units;
 		lr.sounds_offset = offt;
 
-		opts._bw & lr
-			& units
-			& sounds;
+		opts.write(lr.version);
+		opts.write(lr.num_units);
+		opts.write(lr.units_offset);
+		opts.write(lr.num_sounds);
+		opts.write(lr.sounds_offset);
+
+		for (uint32_t i = 0; i < array::size(units); ++i)
+		{
+			opts.write(units[i].name);
+			opts.write(units[i].position);
+			opts.write(units[i].rotation);
+			opts.write(units[i]._pad);
+		}
+
+		for (uint32_t i = 0; i < array::size(sounds); ++i)
+		{
+			opts.write(sounds[i].name);
+			opts.write(sounds[i].position);
+			opts.write(sounds[i].volume);
+			opts.write(sounds[i].range);
+			opts.write(sounds[i].loop);
+			opts.write(sounds[i]._pad[0]);
+			opts.write(sounds[i]._pad[1]);
+			opts.write(sounds[i]._pad[2]);
+		}
 	}
 
 	void* load(File& file, Allocator& a)

@@ -495,31 +495,31 @@ namespace texture_resource
 		CE_LOGD("PixelFormat = %u", image.format);
 	}
 
-	void write_dds(BinaryWriter& bw, const ImageData& image)
+	void write_dds(const ImageData& image, CompileOptions& opts)
 	{
-		bw.write(DDSD_MAGIC);
+		opts.write(DDSD_MAGIC);
 
 		// Header
-		bw.write(DDSD_HEADERSIZE); // dwSize
-		bw.write(DDS_HEADER_FLAGS_TEXTURE
+		opts.write(DDSD_HEADERSIZE); // dwSize
+		opts.write(DDS_HEADER_FLAGS_TEXTURE
 			| DDSD_MIPMAPCOUNT
 			| (pixel_format::is_compressed(image.format) ? DDSD_LINEARSIZE : DDSD_PITCH)
 			| (image.num_mips ? DDSD_MIPMAPCOUNT : 0)); // dwFlags
-		bw.write(image.height); // dwHeight
-		bw.write(image.width); // dwWidth
+		opts.write(image.height); // dwHeight
+		opts.write(image.width); // dwWidth
 
 		const uint32_t pitch = pixel_format::is_compressed(image.format) ? 0 // fixme
 								: (image.width * pixel_format::size(image.format) * 8 + 7) / 8;
 
-		bw.write(pitch); // dwPitchOrLinearSize
-		bw.write(DDSD_UNUSED); // dwDepth
-		bw.write(image.num_mips); // dwMipMapCount;
+		opts.write(pitch); // dwPitchOrLinearSize
+		opts.write(DDSD_UNUSED); // dwDepth
+		opts.write(image.num_mips); // dwMipMapCount;
 
 		for (uint32_t i = 0; i < 11; i++)
-			bw.write(DDSD_UNUSED); // dwReserved1[11];
+			opts.write(DDSD_UNUSED); // dwReserved1[11];
 
 		// Pixel format
-		bw.write(DDPF_HEADERSIZE); // dwSize;
+		opts.write(DDPF_HEADERSIZE); // dwSize;
 		uint32_t pf = 0;
 		switch (image.format)
 		{
@@ -530,21 +530,21 @@ namespace texture_resource
 			case PixelFormat::R8G8B8A8: pf = DDS_RGBA; break;
 			default: CE_FATAL("Pixel format unknown"); break;
 		}
-		bw.write(pixel_format::is_compressed(image.format) ? DDPF_FOURCC : pf); // dwFlags;
-		bw.write(pixel_format::is_compressed(image.format) ? pf : DDSD_UNUSED); // dwFourCC;
-		bw.write(uint32_t(pixel_format::size(image.format) * 8)); // dwRGBBitCount;
-		bw.write(uint32_t(0x00ff0000)); // dwRBitMask;
-		bw.write(uint32_t(0x0000ff00)); // dwGBitMask;
-		bw.write(uint32_t(0x000000ff)); // dwBBitMask;
-		bw.write(uint32_t(0xff000000)); // dwABitMask;
+		opts.write(pixel_format::is_compressed(image.format) ? DDPF_FOURCC : pf); // dwFlags;
+		opts.write(pixel_format::is_compressed(image.format) ? pf : DDSD_UNUSED); // dwFourCC;
+		opts.write(uint32_t(pixel_format::size(image.format) * 8)); // dwRGBBitCount;
+		opts.write(uint32_t(0x00ff0000)); // dwRBitMask;
+		opts.write(uint32_t(0x0000ff00)); // dwGBitMask;
+		opts.write(uint32_t(0x000000ff)); // dwBBitMask;
+		opts.write(uint32_t(0xff000000)); // dwABitMask;
 
-		bw.write(DDSCAPS_TEXTURE
+		opts.write(DDSCAPS_TEXTURE
 			| (image.num_mips > 1 ? DDSCAPS_COMPLEX : DDSD_UNUSED) // also for cubemap, depth mipmap
 			| (image.num_mips > 1 ? DDSCAPS_MIPMAP : DDSD_UNUSED)); // dwCaps;
-		bw.write(DDSD_UNUSED); // dwCaps2;
-		bw.write(DDSD_UNUSED); // dwCaps3;
-		bw.write(DDSD_UNUSED); // dwCaps4;
-		bw.write(DDSD_UNUSED); // dwReserved2;
+		opts.write(DDSD_UNUSED); // dwCaps2;
+		opts.write(DDSD_UNUSED); // dwCaps3;
+		opts.write(DDSD_UNUSED); // dwCaps4;
+		opts.write(DDSD_UNUSED); // dwReserved2;
 
 		// Image data
 		for (uint32_t i = 0; i < image.num_mips; i++)
@@ -553,7 +553,7 @@ namespace texture_resource
 			read_mip_image(image, i, mip);
 
 			// CE_LOGD("Writing mip: (%ux%u) byes = %u", mip.width, mip.height, mip.size);
-			bw.write(mip.data, mip.size);
+			opts.write(mip.data, mip.size);
 		}
 	}
 
@@ -595,7 +595,7 @@ namespace texture_resource
 		// Write DDS
 		opts.write(TEXTURE_VERSION); // Version
 		opts.write(uint32_t(0)); // Size
-		write_dds(opts._bw, image);
+		write_dds(image, opts);
 
 		default_allocator().deallocate(image.data);
 	}
