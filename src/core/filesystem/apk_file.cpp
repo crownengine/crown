@@ -54,17 +54,16 @@ void ApkFile::skip(uint32_t bytes)
 	CE_UNUSED(seek_result);
 }
 
-void ApkFile::read(void* buffer, uint32_t size)
+uint32_t ApkFile::read(void* buffer, uint32_t size)
 {
 	CE_ASSERT_NOT_NULL(buffer);
-	uint32_t bytes_read = (uint32_t)AAsset_read(_asset, buffer, size);
-	CE_ASSERT(bytes_read == size, "AAsset_read: requested: %lu, read: %lu", size, bytes_read);
-	CE_UNUSED(bytes_read);
+	return (uint32_t)AAsset_read(_asset, buffer, size);
 }
 
-void ApkFile::write(const void* /*buffer*/, uint32_t /*size*/)
+uint32_t ApkFile::write(const void* /*buffer*/, uint32_t /*size*/)
 {
 	CE_ASSERT(false, "Apk files are read only!");
+	return 0;
 }
 
 bool ApkFile::copy_to(File& /*file*/, uint32_t /*size = 0*/)

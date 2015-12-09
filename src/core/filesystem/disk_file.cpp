@@ -44,7 +44,7 @@ void DiskFile::skip(uint32_t bytes)
 	_file.skip(bytes);
 }
 
-void DiskFile::read(void* buffer, uint32_t size)
+uint32_t DiskFile::read(void* buffer, uint32_t size)
 {
 	check_valid();
 
@@ -54,11 +54,10 @@ void DiskFile::read(void* buffer, uint32_t size)
 		_file.seek(0);
 	}
 
-	/*uint32_t bytes_read =*/ _file.read(buffer, size);
-	//CE_ASSERT(bytes_read == size, "Failed to read from file: requested: %llu, read: %llu", size, bytes_read);
+	return _file.read(buffer, size);
 }
 
-void DiskFile::write(const void* buffer, uint32_t size)
+uint32_t DiskFile::write(const void* buffer, uint32_t size)
 {
 	check_valid();
 
@@ -68,8 +67,7 @@ void DiskFile::write(const void* buffer, uint32_t size)
 		_file.seek(0);
 	}
 
-	/*uint32_t bytes_written =*/ _file.write(buffer, size);
-	//CE_ASSERT(bytes_written == size, "Failed to write to file: requested: %llu, written: %llu", size, bytes_written);
+	return _file.write(buffer, size);
 }
 
 bool DiskFile::copy_to(File& file, uint32_t size)

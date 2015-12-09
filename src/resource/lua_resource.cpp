@@ -36,25 +36,27 @@ namespace lua_resource
 	{
 		using namespace string_stream;
 
-		TempAllocator1024 alloc;
-		DynamicString res_abs_path(alloc);
-		TempAllocator1024 alloc2;
-		DynamicString bc_abs_path(alloc2);
-		opts.get_absolute_path(path, res_abs_path);
-		opts.get_absolute_path("bc.tmp", bc_abs_path);
-
 		TempAllocator1024 ta;
+		DynamicString luasrc(ta);
+		DynamicString luabin(ta);
+		opts.get_absolute_path(path, luasrc);
+		opts.get_absolute_path("luabin.tmp", luabin);
+
 		StringStream args(ta);
 		args << " " << LUAJIT_FLAGS;
-		args << " " << res_abs_path.c_str();
-		args << " " << bc_abs_path.c_str();
+		args << " " << luasrc.c_str();
+		args << " " << luabin.c_str();
 
 		StringStream output(ta);
 		int exitcode = os::execute_process(LUAJIT_EXE, c_str(args), output);
-		CE_ASSERT(exitcode == 0, "Failed to compile lua:\n%s", c_str(output));
+		RESOURCE_COMPILER_ASSERT(exitcode == 0
+			, opts
+			, "Failed to compile lua:\n%s"
+			, c_str(output)
+			);
 
-		Buffer blob = opts.read(bc_abs_path.c_str());
-		opts.delete_file(bc_abs_path.c_str());
+		Buffer blob = opts.read(luabin.c_str());
+		opts.delete_file(luabin.c_str());
 
 		LuaResource lr;
 		lr.version = SCRIPT_VERSION;

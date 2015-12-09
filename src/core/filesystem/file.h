@@ -45,10 +45,10 @@ public:
 	virtual void skip(uint32_t bytes) = 0;
 
 	/// Reads a block of data from the file.
-	virtual void read(void* buffer, uint32_t size) = 0;
+	virtual uint32_t read(void* buffer, uint32_t size) = 0;
 
 	/// Writes a block of data to the file.
-	virtual void write(const void* buffer, uint32_t size) = 0;
+	virtual uint32_t write(const void* buffer, uint32_t size) = 0;
 
 	/// Copies a chunk of 'size' bytes of data from this to another file.
 	virtual bool copy_to(File& file, uint32_t size = 0) = 0;

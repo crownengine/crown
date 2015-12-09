@@ -27,6 +27,7 @@
 #include "font_resource.h"
 #include "level_resource.h"
 #include "shader.h"
+#include <setjmp.h>
 
 namespace crown
 {
@@ -93,13 +94,28 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 
 	CE_LOGI("%s <= %s.%s", res_name, name, type);
 
-	File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
+	bool success = true;
+	jmp_buf buf;
 
-	CompileOptions opts(_source_fs, outf, platform);
-	compile(_type, src_path.c_str(), opts);
+	Buffer output(default_allocator());
+	array::reserve(output, 4*1024*1024);
 
-	_bundle_fs.close(outf);
-	return true;
+	if (!setjmp(buf))
+	{
+		CompileOptions opts(_source_fs, output, platform, &buf);
+		compile(_type, src_path.c_str(), opts);
+		File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
+		uint32_t size = array::size(output);
+		uint32_t written = outf->write(array::begin(output), size);
+		_bundle_fs.close(outf);
+		success = size == written;
+	}
+	else
+	{
+		success = false;
+	}
+
+	return success;
 }
 
 bool BundleCompiler::compile_all(const char* platform)
@@ -119,8 +135,8 @@ bool BundleCompiler::compile_all(const char* platform)
 	_source_fs.close(src);
 	_bundle_fs.close(dst);
 
-	if (!_bundle_fs.exists("data"))
-		_bundle_fs.create_directory("data");
+	if (!_bundle_fs.exists(CROWN_DATA_DIRECTORY))
+		_bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
 
 	// Compile all resources
 	for (uint32_t i = 0; i < vector::size(files); i++)
@@ -143,7 +159,8 @@ bool BundleCompiler::compile_all(const char* platform)
 		strncpy(name, filename, size);
 		name[size] = '\0';
 
-		compile(type, name, platform);
+		if (!compile(type, name, platform))
+			return false;
 	}
 
 	return true;
@@ -194,16 +211,15 @@ namespace bundle_compiler
 {
 	bool main(bool do_compile, bool do_continue, const char* platform)
 	{
+		bool can_proceed = true;
+
 		if (do_compile)
 		{
-			bool ok = bundle_compiler_globals::compiler()->compile_all(platform);
-			if (!ok || !do_continue)
-			{
-				return false;
-			}
+			bool success = bundle_compiler_globals::compiler()->compile_all(platform);
+			can_proceed = !(!success || !do_continue);
 		}
 
-		return true;
+		return can_proceed;
 	}
 } // namespace bundle_compiler
 
