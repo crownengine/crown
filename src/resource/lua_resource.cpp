@@ -10,8 +10,9 @@
 #include "temp_allocator.h"
 #include "array.h"
 #include "compile_options.h"
+#include "string_stream.h"
 
-#define LUAJIT_NAME "luajit"
+#define LUAJIT_NAME "./luajit"
 
 #if CROWN_PLATFORM_WINDOWS
 	#define EXE ".exe"
@@ -33,6 +34,8 @@ namespace lua_resource
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
+		using namespace string_stream;
+
 		TempAllocator1024 alloc;
 		DynamicString res_abs_path(alloc);
 		TempAllocator1024 alloc2;
@@ -40,17 +43,15 @@ namespace lua_resource
 		opts.get_absolute_path(path, res_abs_path);
 		opts.get_absolute_path("bc.tmp", bc_abs_path);
 
-		const char* luajit[] =
-		{
-			LUAJIT_EXE,
-			LUAJIT_FLAGS,
-			res_abs_path.c_str(),
-			bc_abs_path.c_str(),
-			NULL
-		};
+		TempAllocator1024 ta;
+		StringStream args(ta);
+		args << " " << LUAJIT_FLAGS;
+		args << " " << res_abs_path.c_str();
+		args << " " << bc_abs_path.c_str();
 
-		int exitcode = os::execute_process(luajit);
-		CE_ASSERT(exitcode == 0, "Failed to compile lua");
+		StringStream output(ta);
+		int exitcode = os::execute_process(LUAJIT_EXE, c_str(args), output);
+		CE_ASSERT(exitcode == 0, "Failed to compile lua:\n%s", c_str(output));
 
 		Buffer blob = opts.read(bc_abs_path.c_str());
 		opts.delete_file(bc_abs_path.c_str());

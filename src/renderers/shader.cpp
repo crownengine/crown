@@ -11,9 +11,11 @@
 #include "reader_writer.h"
 #include "resource_manager.h"
 #include "compile_options.h"
+#include "temp_allocator.h"
+#include "string_stream.h"
 
 #if CROWN_DEBUG
-#	define SHADERC_NAME "shaderc-debug-"
+#	define SHADERC_NAME "./shaderc-debug-"
 #else
 #	define SHADERC_NAME "shaderc-development-"
 #endif // CROWN_DEBUG
@@ -34,6 +36,27 @@ namespace crown
 {
 namespace shader_resource
 {
+	int run_external_compiler(const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
+	{
+		using namespace string_stream;
+
+		TempAllocator256 ta;
+		StringStream args(ta);
+		args << " -f " << infile;
+		args << " -o " << outfile;
+		args << " --varyingdef " << varying;
+		args << " --type " << type;
+		args << " --platform " << platform;
+		args << " --profile ";
+#if CROWN_PLATFORM_LINUX
+		args <<	"120";
+#elif CROWN_PLATFORM_WINDOWS
+		args << (strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0";
+#endif
+
+		return os::execute_process(SHADERC_PATH, c_str(args), output);
+	}
+
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
@@ -80,42 +103,25 @@ namespace shader_resource
 		varying_file->write(varying_def.c_str(), varying_def.length());
 		opts._fs.close(varying_file);
 
-		const char* compile_vs[] =
-		{
-			SHADERC_PATH,
-			"-f", vs_code_path.c_str(),
-			"-o", tmpvs_path.c_str(),
-			"--varyingdef", varying_def_path.c_str(),
-			"--type", "vertex",
-			"--platform", opts.platform(),
-			"--profile",
-#if CROWN_PLATFORM_LINUX
-			"120",
-#elif CROWN_PLATFORM_WINDOWS
-			"vs_3_0",
-#endif
-			NULL
-		};
-		int exitcode = os::execute_process(compile_vs);
+		TempAllocator1024 ta;
+		StringStream output(ta);
+
+		int exitcode = run_external_compiler(vs_code_path.c_str()
+			, tmpvs_path.c_str()
+			, varying_def_path.c_str()
+			, "vertex"
+			, opts.platform()
+			, output
+			);
 		CE_ASSERT(exitcode == 0, "Failed to compile vertex shader");
 
-		const char* compile_fs[] =
-		{
-			SHADERC_PATH,
-			"-f", fs_code_path.c_str(),
-			"-o", tmpfs_path.c_str(),
-			"--varyingdef", varying_def_path.c_str(),
-			"--type", "fragment",
-			"--platform", opts.platform(),
-			"--profile",
-#if CROWN_PLATFORM_LINUX
-			"120",
-#elif CROWN_PLATFORM_WINDOWS
-			"ps_3_0",
-#endif
-			NULL
-		};
-		exitcode = os::execute_process(compile_fs);
+		exitcode = run_external_compiler(fs_code_path.c_str()
+			, tmpfs_path.c_str()
+			, varying_def_path.c_str()
+			, "fragment"
+			, opts.platform()
+			, output
+			);
 		if (exitcode)
 		{
 			opts.delete_file(tmpvs_path.c_str());
