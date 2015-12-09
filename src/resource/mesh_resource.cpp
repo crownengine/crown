@@ -13,6 +13,7 @@
 #include "resource_manager.h"
 #include "compile_options.h"
 #include "vector2.h"
+#include "reader_writer.h"
 
 namespace crown
 {

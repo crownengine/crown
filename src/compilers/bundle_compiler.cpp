@@ -97,19 +97,24 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 	bool success = true;
 	jmp_buf buf;
 
-	File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
-	CompileOptions opts(_source_fs, outf, platform, &buf);
+	Buffer output(default_allocator());
+	array::reserve(output, 4*1024*1024);
 
 	if (!setjmp(buf))
 	{
+		CompileOptions opts(_source_fs, output, platform, &buf);
 		compile(_type, src_path.c_str(), opts);
+		File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
+		uint32_t size = array::size(output);
+		uint32_t written = outf->write(array::begin(output), size);
+		_bundle_fs.close(outf);
+		success = size == written;
 	}
 	else
 	{
 		success = false;
 	}
 
-	_bundle_fs.close(outf);
 	return success;
 }
 
