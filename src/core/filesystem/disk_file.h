@@ -33,10 +33,10 @@ public:
 	void skip(uint32_t bytes);
 
 	/// @copydoc File::read()
-	void read(void* buffer, uint32_t size);
+	uint32_t read(void* buffer, uint32_t size);
 
 	/// @copydoc File::write()
-	void write(const void* buffer, uint32_t size);
+	uint32_t write(const void* buffer, uint32_t size);
 
 	/// @copydoc File::copy_to()
 	bool copy_to(File& file, uint32_t size = 0);

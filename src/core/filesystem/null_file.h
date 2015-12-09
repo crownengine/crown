@@ -37,16 +37,20 @@ public:
 	/// @copydoc File::read()
 	/// @note
 	///	Fills buffer with zeroes
-	void read(void* buffer, uint32_t size)
+	uint32_t read(void* buffer, uint32_t size)
 	{
 		for (uint32_t i = 0; i < size; i++)
 		{
 			((uint8_t*)buffer)[i] = 0;
 		}
+		return size;
 	}
 
 	/// @copydoc File::write()
-	void write(const void* buffer, uint32_t size) { (void)buffer; (void)size; }
+	uint32_t write(const void* /*buffer*/, uint32_t size)
+	{
+		return size;
+	}
 
 	/// @copydoc File::copy_to()
 	/// @note
