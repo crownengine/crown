@@ -7,6 +7,7 @@
 
 #include "disk_filesystem.h"
 #include "container_types.h"
+#include "compile_options.h"
 
 namespace crown
 {
@@ -27,8 +28,17 @@ public:
 
 private:
 
+	typedef void (*CompileFunction)(const char* path, CompileOptions& opts);
+
+	void register_resource_compiler(StringId64 type, CompileFunction compiler);
+	void compile(StringId64 type, const char* path, CompileOptions& opts);
+
+private:
+
 	DiskFilesystem _source_fs;
 	DiskFilesystem _bundle_fs;
+
+	SortMap<StringId64, CompileFunction> _compilers;
 };
 
 namespace bundle_compiler

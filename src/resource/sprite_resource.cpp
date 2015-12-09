@@ -242,14 +242,6 @@ namespace sprite_animation_resource
 		return res;
 	}
 
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
 	void unload(Allocator& a, void* resource)
 	{
 		a.deallocate(resource);

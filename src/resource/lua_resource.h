@@ -23,8 +23,6 @@ namespace lua_resource
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
 
 	/// Returns the size in bytes of the lua program.

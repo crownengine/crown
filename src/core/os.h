@@ -12,6 +12,7 @@
 #include "string_utils.h"
 #include "error.h"
 #include "temp_allocator.h"
+#include "string_stream.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <dirent.h> // opendir, readdir
@@ -280,28 +281,22 @@ namespace os
 	}
 
 	/// Executes a process.
-	/// @a args is an array of arguments where:
-	/// @a args[0] is the path to the program executable,
-	/// @a args[1, 2, ..., n-1] is a list of arguments to pass to the executable,
-	/// @a args[n] is NULL.
-	inline int execute_process(const char* args[])
+	inline int execute_process(const char* path, const char* args, StringStream& output)
 	{
 #if CROWN_PLATFORM_POSIX
-		pid_t pid = fork();
-		CE_ASSERT(pid != -1, "fork: errno = %d", errno);
-		if (pid)
-		{
-			int statval;
-			wait(&statval);
-			return (WIFEXITED(statval)) ? WEXITSTATUS(statval) : 1;
-		}
-		else
-		{
-			int err = execv(args[0], (char* const*)args);
-			CE_ASSERT(err != -1, "execv: errno = %d", errno);
-			CE_UNUSED(err);
-			exit(EXIT_SUCCESS);
-		}
+		using namespace string_stream;
+
+		TempAllocator512 ta;
+		DynamicString cmd(path, ta);
+		cmd += " 2>&1 ";
+		cmd += args;
+		FILE* file = popen(cmd.c_str(), "r");
+
+		char buf[1024];
+		while (fgets(buf, sizeof(buf), file) != NULL)
+			output << buf;
+
+		return pclose(file);
 #elif CROWN_PLATFORM_WINDOWS
 		STARTUPINFO info;
 		memset(&info, 0, sizeof(info));
@@ -310,16 +305,7 @@ namespace os
 		PROCESS_INFORMATION process;
 		memset(&process, 0, sizeof(process));
 
-		TempAllocator1024 alloc;
-		DynamicString cmds(alloc);
-
-		for (uint32_t i = 0; args[i] != NULL; i++)
-		{
-			cmds += args[i];
-			cmds += ' ';
-		}
-
-		int err = CreateProcess(args[0], (char*)cmds.c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &info, &process);
+		int err = CreateProcess(path, args, NULL, NULL, TRUE, 0, NULL, NULL, &info, &process);
 		CE_ASSERT(err != 0, "CreateProcess: GetLastError = %d", GetLastError());
 		CE_UNUSED(err);
 

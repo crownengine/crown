@@ -5,10 +5,21 @@
 
 #include "resource_manager.h"
 #include "resource_loader.h"
-#include "resource_registry.h"
 #include "temp_allocator.h"
 #include "sort_map.h"
 #include "array.h"
+#include "lua_resource.h"
+#include "texture_resource.h"
+#include "mesh_resource.h"
+#include "sound_resource.h"
+#include "sprite_resource.h"
+#include "package_resource.h"
+#include "unit_resource.h"
+#include "physics_resource.h"
+#include "material_resource.h"
+#include "font_resource.h"
+#include "level_resource.h"
+#include "shader.h"
 
 namespace crown
 {
@@ -18,9 +29,39 @@ const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND =
 ResourceManager::ResourceManager(ResourceLoader& rl)
 	: _resource_heap("resource", default_allocator())
 	, _loader(&rl)
+	, _type_data(default_allocator())
 	, _rm(default_allocator())
 	, _autoload(false)
 {
+	namespace pcr = physics_config_resource;
+	namespace phr = physics_resource;
+	namespace pkr = package_resource;
+	namespace sdr = sound_resource;
+	namespace mhr = mesh_resource;
+	namespace utr = unit_resource;
+	namespace txr = texture_resource;
+	namespace mtr = material_resource;
+	namespace lur = lua_resource;
+	namespace ftr = font_resource;
+	namespace lvr = level_resource;
+	namespace spr = sprite_resource;
+	namespace shr = shader_resource;
+	namespace sar = sprite_animation_resource;
+
+	register_resource_type(SCRIPT_TYPE,           lur::load, NULL,        NULL,         lur::unload);
+	register_resource_type(TEXTURE_TYPE,          txr::load, txr::online, txr::offline, txr::unload);
+	register_resource_type(MESH_TYPE,             mhr::load, mhr::online, mhr::offline, mhr::unload);
+	register_resource_type(SOUND_TYPE,            sdr::load, NULL,        NULL,         sdr::unload);
+	register_resource_type(UNIT_TYPE,             utr::load, NULL,        NULL,         utr::unload);
+	register_resource_type(SPRITE_TYPE,           spr::load, spr::online, spr::offline, spr::unload);
+	register_resource_type(PACKAGE_TYPE,          pkr::load, NULL,        NULL,         pkr::unload);
+	register_resource_type(PHYSICS_TYPE,          phr::load, NULL,        NULL,         phr::unload);
+	register_resource_type(MATERIAL_TYPE,         mtr::load, mtr::online, mtr::offline, mtr::unload);
+	register_resource_type(PHYSICS_CONFIG_TYPE,   pcr::load, NULL,        NULL,         pcr::unload);
+	register_resource_type(FONT_TYPE,             ftr::load, NULL,        NULL,         ftr::unload);
+	register_resource_type(LEVEL_TYPE,            lvr::load, NULL,        NULL,         lvr::unload);
+	register_resource_type(SHADER_TYPE,           shr::load, shr::online, shr::offline, shr::unload);
+	register_resource_type(SPRITE_ANIMATION_TYPE, sar::load, NULL,        NULL,         sar::unload);
 }
 
 ResourceManager::~ResourceManager()
@@ -30,8 +71,10 @@ ResourceManager::~ResourceManager()
 
 	for (; begin != end; begin++)
 	{
-		resource_on_offline(begin->pair.first.type, begin->pair.first.name, *this);
-		resource_on_unload(begin->pair.first.type, _resource_heap, begin->pair.second.data);
+		const StringId64 type = begin->pair.first.type;
+		const StringId64 name = begin->pair.first.name;
+		on_offline(type, name);
+		on_unload(type, begin->pair.second.data);
 	}
 }
 
@@ -45,6 +88,7 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 		ResourceRequest rr;
 		rr.type = type;
 		rr.name = name;
+		rr.load_function = sort_map::get(_type_data, type, ResourceTypeData()).load;
 		rr.allocator = &_resource_heap;
 		rr.data = NULL;
 
@@ -64,8 +108,8 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 
 	if (--entry.references == 0)
 	{
-		resource_on_offline(type, name, *this);
-		resource_on_unload(type, _resource_heap, entry.data);
+		on_offline(type, name);
+		on_unload(type, entry.data);
 
 		sort_map::remove(_rm, id);
 		sort_map::sort(_rm);
@@ -141,7 +185,43 @@ void ResourceManager::complete_request(StringId64 type, StringId64 name, void* d
 	sort_map::set(_rm, make_pair(type, name), entry);
 	sort_map::sort(_rm);
 
-	resource_on_online(type, name, *this);
+	on_online(type, name);
+}
+
+void ResourceManager::register_resource_type(StringId64 type, LoadFunction load, OnlineFunction online, OfflineFunction offline, UnloadFunction unload)
+{
+	CE_ASSERT_NOT_NULL(load);
+	CE_ASSERT_NOT_NULL(unload);
+
+	ResourceTypeData data;
+	data.load = load;
+	data.online = online;
+	data.offline = offline;
+	data.unload = unload;
+
+	sort_map::set(_type_data, type, data);
+	sort_map::sort(_type_data);
+}
+
+void ResourceManager::on_online(StringId64 type, StringId64 name)
+{
+	OnlineFunction func = sort_map::get(_type_data, type, ResourceTypeData()).online;
+
+	if (func)
+		func(name, *this);
+}
+
+void ResourceManager::on_offline(StringId64 type, StringId64 name)
+{
+	OfflineFunction func = sort_map::get(_type_data, type, ResourceTypeData()).offline;
+
+	if (func)
+		func(name, *this);
+}
+
+void ResourceManager::on_unload(StringId64 type, void* data)
+{
+	sort_map::get(_type_data, type, ResourceTypeData()).unload(_resource_heap, data);
 }
 
 } // namespace crown
