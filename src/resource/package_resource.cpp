@@ -160,14 +160,6 @@ namespace package_resource
 		return pr;
 	}
 
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
 	void unload(Allocator& a, void* resource)
 	{
 		CE_DELETE(a, (PackageResource*)resource);

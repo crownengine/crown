@@ -17,8 +17,11 @@ namespace crown
 
 struct ResourceRequest
 {
+	typedef void* (*LoadFunction)(File& file, Allocator& a);
+
 	StringId64 type;
 	StringId64 name;
+	LoadFunction load_function;
 	Allocator* allocator;
 	void* data;
 };

@@ -346,14 +346,6 @@ namespace physics_resource
 		return res;
 	}
 
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
@@ -719,14 +711,6 @@ namespace physics_config_resource
 		file.read(res, file_size);
 		CE_ASSERT(*(uint32_t*)res == PHYSICS_CONFIG_VERSION, "Wrong version");
 		return res;
-	}
-
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
 	}
 
 	void unload(Allocator& allocator, void* resource)

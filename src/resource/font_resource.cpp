@@ -80,14 +80,6 @@ namespace font_resource
 		return res;
 	}
 
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
