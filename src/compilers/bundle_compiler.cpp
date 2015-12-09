@@ -119,8 +119,8 @@ bool BundleCompiler::compile_all(const char* platform)
 	_source_fs.close(src);
 	_bundle_fs.close(dst);
 
-	if (!_bundle_fs.exists("data"))
-		_bundle_fs.create_directory("data");
+	if (!_bundle_fs.exists(CROWN_DATA_DIRECTORY))
+		_bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
 
 	// Compile all resources
 	for (uint32_t i = 0; i < vector::size(files); i++)
