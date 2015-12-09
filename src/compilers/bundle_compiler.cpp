@@ -27,6 +27,7 @@
 #include "font_resource.h"
 #include "level_resource.h"
 #include "shader.h"
+#include <setjmp.h>
 
 namespace crown
 {
@@ -93,13 +94,23 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 
 	CE_LOGI("%s <= %s.%s", res_name, name, type);
 
-	File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
+	bool success = true;
+	jmp_buf buf;
 
-	CompileOptions opts(_source_fs, outf, platform);
-	compile(_type, src_path.c_str(), opts);
+	File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
+	CompileOptions opts(_source_fs, outf, platform, &buf);
+
+	if (!setjmp(buf))
+	{
+		compile(_type, src_path.c_str(), opts);
+	}
+	else
+	{
+		success = false;
+	}
 
 	_bundle_fs.close(outf);
-	return true;
+	return success;
 }
 
 bool BundleCompiler::compile_all(const char* platform)
@@ -143,7 +154,8 @@ bool BundleCompiler::compile_all(const char* platform)
 		strncpy(name, filename, size);
 		name[size] = '\0';
 
-		compile(type, name, platform);
+		if (!compile(type, name, platform))
+			return false;
 	}
 
 	return true;
@@ -194,16 +206,15 @@ namespace bundle_compiler
 {
 	bool main(bool do_compile, bool do_continue, const char* platform)
 	{
+		bool can_proceed = true;
+
 		if (do_compile)
 		{
-			bool ok = bundle_compiler_globals::compiler()->compile_all(platform);
-			if (!ok || !do_continue)
-			{
-				return false;
-			}
+			bool success = bundle_compiler_globals::compiler()->compile_all(platform);
+			can_proceed = !(!success || !do_continue);
 		}
 
-		return true;
+		return can_proceed;
 	}
 } // namespace bundle_compiler
 
