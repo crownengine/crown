@@ -40,7 +40,7 @@ namespace shader_resource
 	{
 		using namespace string_stream;
 
-		TempAllocator256 ta;
+		TempAllocator512 ta;
 		StringStream args(ta);
 		args << " -f " << infile;
 		args << " -o " << outfile;
@@ -103,8 +103,9 @@ namespace shader_resource
 		varying_file->write(varying_def.c_str(), varying_def.length());
 		opts._fs.close(varying_file);
 
-		TempAllocator1024 ta;
+		TempAllocator4096 ta;
 		StringStream output(ta);
+		using namespace string_stream;
 
 		int exitcode = run_external_compiler(vs_code_path.c_str()
 			, tmpvs_path.c_str()
@@ -113,8 +114,13 @@ namespace shader_resource
 			, opts.platform()
 			, output
 			);
-		CE_ASSERT(exitcode == 0, "Failed to compile vertex shader");
+		RESOURCE_COMPILER_ASSERT(exitcode == 0
+			, opts
+			, "Failed to compile vertex shader:\n%s"
+			, c_str(output)
+			);
 
+		array::clear(output);
 		exitcode = run_external_compiler(fs_code_path.c_str()
 			, tmpfs_path.c_str()
 			, varying_def_path.c_str()
@@ -125,7 +131,11 @@ namespace shader_resource
 		if (exitcode)
 		{
 			opts.delete_file(tmpvs_path.c_str());
-			CE_ASSERT(exitcode == 0, "Failed to compile fragment shader");
+			RESOURCE_COMPILER_ASSERT(false
+				, opts
+				, "Failed to compile fragment shader:\n%s"
+				, c_str(output)
+				);
 		}
 
 		Buffer tmpvs = opts.read(tmpvs_path.c_str());
