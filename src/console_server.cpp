@@ -12,6 +12,7 @@
 #include "dynamic_string.h"
 #include "json.h"
 #include "map.h"
+#include "bundle_compiler.h"
 
 namespace crown
 {
@@ -158,7 +159,18 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* json)
 	DynamicString cmd(ta);
 	json::parse_string(root["command"], cmd);
 
-	if (cmd == "reload")
+	if (cmd == "compile")
+	{
+		DynamicString type(ta);
+		DynamicString name(ta);
+		DynamicString platform(ta);
+		json::parse_string(root["resource_type"], type);
+		json::parse_string(root["resource_name"], name);
+		json::parse_string(root["platform"], platform);
+
+		bundle_compiler_globals::compiler()->compile(type.c_str(), name.c_str(), platform.c_str());
+	}
+	else if (cmd == "reload")
 	{
 		DynamicString type(ta);
 		DynamicString name(ta);
