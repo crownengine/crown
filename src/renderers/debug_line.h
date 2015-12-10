@@ -19,6 +19,9 @@ namespace debug_line
 	void shutdown();
 } // namespace debug_line
 
+/// Draws lines.
+///
+/// @ingroup Graphics
 struct DebugLine
 {
 	/// Whether to enable @a depth_test
