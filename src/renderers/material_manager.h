@@ -8,6 +8,8 @@
 #include "types.h"
 #include "container_types.h"
 #include "resource_types.h"
+#include "material.h"
+#include "string_id.h"
 
 namespace crown
 {
