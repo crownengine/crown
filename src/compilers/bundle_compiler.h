@@ -24,7 +24,8 @@ public:
 	/// Returns true on success, false otherwise.
 	bool compile_all(const char* platform);
 
-	void scan(const char* cur_dir, Vector<DynamicString>& files);
+	/// Scans the source directory for resources.
+	void scan_source_dir(const char* path);
 
 private:
 
@@ -48,6 +49,7 @@ private:
 	};
 
 	SortMap<StringId64, ResourceTypeData> _compilers;
+	Vector<DynamicString> _files;
 };
 
 namespace bundle_compiler

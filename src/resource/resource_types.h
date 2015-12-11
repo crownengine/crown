@@ -19,6 +19,7 @@
 #define SPRITE_EXTENSION           "sprite"
 #define TEXTURE_EXTENSION          "texture"
 #define UNIT_EXTENSION             "unit"
+#define CONFIG_EXTENSION           "config"
 
 #define FONT_TYPE                  StringId64(0x9efe0a916aae7880)
 #define LEVEL_TYPE                 StringId64(0x2a690fd348fe9ac5)
@@ -34,6 +35,7 @@
 #define SPRITE_TYPE                StringId64(0x8d5871f9ebdb651c)
 #define TEXTURE_TYPE               StringId64(0xcd4238c6a0c69e32)
 #define UNIT_TYPE                  StringId64(0xe0a48d0be9a7453f)
+#define CONFIG_TYPE                StringId64(0x82645835e6b73232)
 
 #define FONT_VERSION               uint32_t(1)
 #define LEVEL_VERSION              uint32_t(1)
@@ -49,6 +51,7 @@
 #define SPRITE_VERSION             uint32_t(1)
 #define TEXTURE_VERSION            uint32_t(1)
 #define UNIT_VERSION               uint32_t(1)
+#define CONFIG_VERSION             uint32_t(1)
 
 namespace crown
 {
