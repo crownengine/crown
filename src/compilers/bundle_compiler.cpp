@@ -27,6 +27,7 @@
 #include "font_resource.h"
 #include "level_resource.h"
 #include "shader.h"
+#include "config_resource.h"
 #include <setjmp.h>
 
 namespace crown
@@ -36,6 +37,7 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	: _source_fs(source_dir)
 	, _bundle_fs(bundle_dir)
 	, _compilers(default_allocator())
+	, _files(default_allocator())
 {
 	namespace pcr = physics_config_resource;
 	namespace phr = physics_resource;
@@ -51,24 +53,31 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	namespace spr = sprite_resource;
 	namespace shr = shader_resource;
 	namespace sar = sprite_animation_resource;
+	namespace cor = config_resource;
 
-	register_resource_compiler(SCRIPT_TYPE,           lur::compile);
-	register_resource_compiler(TEXTURE_TYPE,          txr::compile);
-	register_resource_compiler(MESH_TYPE,             mhr::compile);
-	register_resource_compiler(SOUND_TYPE,            sdr::compile);
-	register_resource_compiler(UNIT_TYPE,             utr::compile);
-	register_resource_compiler(SPRITE_TYPE,           spr::compile);
-	register_resource_compiler(PACKAGE_TYPE,          pkr::compile);
-	register_resource_compiler(PHYSICS_TYPE,          phr::compile);
-	register_resource_compiler(MATERIAL_TYPE,         mtr::compile);
-	register_resource_compiler(PHYSICS_CONFIG_TYPE,   pcr::compile);
-	register_resource_compiler(FONT_TYPE,             ftr::compile);
-	register_resource_compiler(LEVEL_TYPE,            lvr::compile);
-	register_resource_compiler(SHADER_TYPE,           shr::compile);
-	register_resource_compiler(SPRITE_ANIMATION_TYPE, sar::compile);
+	register_resource_compiler(SCRIPT_TYPE,           SCRIPT_VERSION,           lur::compile);
+	register_resource_compiler(TEXTURE_TYPE,          TEXTURE_VERSION,          txr::compile);
+	register_resource_compiler(MESH_TYPE,             MESH_VERSION,             mhr::compile);
+	register_resource_compiler(SOUND_TYPE,            SOUND_VERSION,            sdr::compile);
+	register_resource_compiler(UNIT_TYPE,             UNIT_VERSION,             utr::compile);
+	register_resource_compiler(SPRITE_TYPE,           SPRITE_VERSION,           spr::compile);
+	register_resource_compiler(PACKAGE_TYPE,          PACKAGE_VERSION,          pkr::compile);
+	register_resource_compiler(PHYSICS_TYPE,          PHYSICS_VERSION,          phr::compile);
+	register_resource_compiler(MATERIAL_TYPE,         MATERIAL_VERSION,         mtr::compile);
+	register_resource_compiler(PHYSICS_CONFIG_TYPE,   PHYSICS_CONFIG_VERSION,   pcr::compile);
+	register_resource_compiler(FONT_TYPE,             FONT_VERSION,             ftr::compile);
+	register_resource_compiler(LEVEL_TYPE,            LEVEL_VERSION,            lvr::compile);
+	register_resource_compiler(SHADER_TYPE,           SHADER_VERSION,           shr::compile);
+	register_resource_compiler(SPRITE_ANIMATION_TYPE, SPRITE_ANIMATION_VERSION, sar::compile);
+	register_resource_compiler(CONFIG_TYPE,           CONFIG_VERSION,           cor::compile);
 
 	DiskFilesystem temp;
 	temp.create_directory(bundle_dir);
+
+	scan_source_dir("");
+
+	if (!_bundle_fs.exists(CROWN_DATA_DIRECTORY))
+		_bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
 }
 
 bool BundleCompiler::compile(const char* type, const char* name, const char* platform)
@@ -120,38 +129,18 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 
 bool BundleCompiler::compile_all(const char* platform)
 {
-	Vector<DynamicString> files(default_allocator());
-	BundleCompiler::scan("", files);
-
-	if (!_source_fs.is_file("crown.config"))
+	for (uint32_t i = 0; i < vector::size(_files); ++i)
 	{
-		CE_LOGD("'crown.config' does not exist.");
-		return false;
-	}
-
-	File* src = _source_fs.open("crown.config", FOM_READ);
-	File* dst = _bundle_fs.open("crown.config", FOM_WRITE);
-	src->copy_to(*dst, src->size());
-	_source_fs.close(src);
-	_bundle_fs.close(dst);
-
-	if (!_bundle_fs.exists(CROWN_DATA_DIRECTORY))
-		_bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
-
-	// Compile all resources
-	for (uint32_t i = 0; i < vector::size(files); i++)
-	{
-		if (files[i].ends_with(".tga")
-			|| files[i].ends_with(".dds")
-			|| files[i].ends_with(".sh")
-			|| files[i].ends_with(".sc")
-			|| files[i].starts_with(".")
-			|| files[i].ends_with(".config")
-			|| files[i].ends_with(".tmp")
-			|| files[i].ends_with(".wav"))
+		if (_files[i].ends_with(".tga")
+			|| _files[i].ends_with(".dds")
+			|| _files[i].ends_with(".sh")
+			|| _files[i].ends_with(".sc")
+			|| _files[i].starts_with(".")
+			|| _files[i].ends_with(".tmp")
+			|| _files[i].ends_with(".wav"))
 		continue;
 
-		const char* filename = files[i].c_str();
+		const char* filename = _files[i].c_str();
 		const char* type = path::extension(filename);
 
 		char name[256];
@@ -166,28 +155,42 @@ bool BundleCompiler::compile_all(const char* platform)
 	return true;
 }
 
-void BundleCompiler::register_resource_compiler(StringId64 type, CompileFunction compiler)
+void BundleCompiler::register_resource_compiler(StringId64 type, uint32_t version, CompileFunction compiler)
 {
+	CE_ASSERT(!sort_map::has(_compilers, type), "Type already registered");
 	CE_ASSERT_NOT_NULL(compiler);
-	sort_map::set(_compilers, type, compiler);
+
+	ResourceTypeData rtd;
+	rtd.version = version;
+	rtd.compiler = compiler;
+
+	sort_map::set(_compilers, type, rtd);
 	sort_map::sort(_compilers);
 }
 
 void BundleCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)
 {
 	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
-	sort_map::get(_compilers, type, (CompileFunction)NULL)(path, opts);
+
+	sort_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
 }
 
-void BundleCompiler::scan(const char* cur_dir, Vector<DynamicString>& files)
+uint32_t BundleCompiler::version(StringId64 type)
+{
+	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
+
+	return sort_map::get(_compilers, type, ResourceTypeData()).version;
+}
+
+void BundleCompiler::scan_source_dir(const char* cur_dir)
 {
 	Vector<DynamicString> my_files(default_allocator());
-
 	_source_fs.list_files(cur_dir, my_files);
 
-	for (uint32_t i = 0; i < vector::size(my_files); i++)
+	for (uint32_t i = 0; i < vector::size(my_files); ++i)
 	{
-		DynamicString file_i(default_allocator());
+		TempAllocator512 ta;
+		DynamicString file_i(ta);
 
 		if (strcmp(cur_dir, "") != 0)
 		{
@@ -198,11 +201,11 @@ void BundleCompiler::scan(const char* cur_dir, Vector<DynamicString>& files)
 
 		if (_source_fs.is_directory(file_i.c_str()))
 		{
-			BundleCompiler::scan(file_i.c_str(), files);
+			BundleCompiler::scan_source_dir(file_i.c_str());
 		}
 		else // Assume a regular file
 		{
-			vector::push_back(files, file_i);
+			vector::push_back(_files, file_i);
 		}
 	}
 }

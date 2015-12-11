@@ -20,6 +20,7 @@
 #include "font_resource.h"
 #include "level_resource.h"
 #include "shader.h"
+#include "config_resource.h"
 
 namespace crown
 {
@@ -47,6 +48,7 @@ ResourceManager::ResourceManager(ResourceLoader& rl)
 	namespace spr = sprite_resource;
 	namespace shr = shader_resource;
 	namespace sar = sprite_animation_resource;
+	namespace cor = config_resource;
 
 	register_resource_type(SCRIPT_TYPE,           lur::load, NULL,        NULL,         lur::unload);
 	register_resource_type(TEXTURE_TYPE,          txr::load, txr::online, txr::offline, txr::unload);
@@ -62,6 +64,7 @@ ResourceManager::ResourceManager(ResourceLoader& rl)
 	register_resource_type(LEVEL_TYPE,            lvr::load, NULL,        NULL,         lvr::unload);
 	register_resource_type(SHADER_TYPE,           shr::load, shr::online, shr::offline, shr::unload);
 	register_resource_type(SPRITE_ANIMATION_TYPE, sar::load, NULL,        NULL,         sar::unload);
+	register_resource_type(CONFIG_TYPE,           cor::load, NULL,        NULL,         cor::unload);
 }
 
 ResourceManager::~ResourceManager()

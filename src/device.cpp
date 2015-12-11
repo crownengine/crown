@@ -79,9 +79,13 @@ void Device::init()
 	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(_device_options.bundle_dir());
 #endif // CROWN_PLATFORM_ANDROID
 
+	profiler_globals::init();
+
+	_resource_loader = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
+	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
+
 	read_config();
 
-	profiler_globals::init();
 	audio_globals::init();
 	physics_globals::init();
 
@@ -91,9 +95,6 @@ void Device::init()
 		, &_bgfx_callback
 		, &_bgfx_allocator
 		);
-
-	_resource_loader = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
-	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 
 	CE_LOGD("Creating material manager...");
 	material_manager::init();
@@ -423,18 +424,23 @@ void Device::read_config()
 	if (_device_options.project() != NULL)
 	{
 		project_path += _device_options.project();
-		project_path += path::SEPARATOR;
+		project_path += '/';
 	}
 
-	project_path += "crown.config";
+	project_path += "crown";
 
-	File* tmpfile = _bundle_filesystem->open(project_path.c_str(), FOM_READ);
-	JSONParser config(*tmpfile);
-	_bundle_filesystem->close(tmpfile);
+	const StringId64 config_name(project_path.c_str());
+
+	_resource_manager->load(CONFIG_TYPE, config_name);
+	_resource_manager->flush();
+	const char* config_file = (const char*)_resource_manager->get(CONFIG_TYPE, config_name);
+
+	JSONParser config(config_file);
 	JSONElement root = config.root();
-
 	_boot_script_id = root.key("boot_script").to_resource_id();
 	_boot_package_id = root.key("boot_package").to_resource_id();
+
+	_resource_manager->unload(CONFIG_TYPE, config_name);
 }
 
 char _buffer[sizeof(Device)];
