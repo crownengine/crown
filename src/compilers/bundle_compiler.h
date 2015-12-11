@@ -30,15 +30,24 @@ private:
 
 	typedef void (*CompileFunction)(const char* path, CompileOptions& opts);
 
-	void register_resource_compiler(StringId64 type, CompileFunction compiler);
+	void register_resource_compiler(StringId64 type, uint32_t version, CompileFunction compiler);
 	void compile(StringId64 type, const char* path, CompileOptions& opts);
+
+	// Returns the version of the compiler for @a type.
+	uint32_t version(StringId64 type);
 
 private:
 
 	DiskFilesystem _source_fs;
 	DiskFilesystem _bundle_fs;
 
-	SortMap<StringId64, CompileFunction> _compilers;
+	struct ResourceTypeData
+	{
+		uint32_t version;
+		CompileFunction compiler;
+	};
+
+	SortMap<StringId64, ResourceTypeData> _compilers;
 };
 
 namespace bundle_compiler

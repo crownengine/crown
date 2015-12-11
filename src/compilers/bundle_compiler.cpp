@@ -52,20 +52,20 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	namespace shr = shader_resource;
 	namespace sar = sprite_animation_resource;
 
-	register_resource_compiler(SCRIPT_TYPE,           lur::compile);
-	register_resource_compiler(TEXTURE_TYPE,          txr::compile);
-	register_resource_compiler(MESH_TYPE,             mhr::compile);
-	register_resource_compiler(SOUND_TYPE,            sdr::compile);
-	register_resource_compiler(UNIT_TYPE,             utr::compile);
-	register_resource_compiler(SPRITE_TYPE,           spr::compile);
-	register_resource_compiler(PACKAGE_TYPE,          pkr::compile);
-	register_resource_compiler(PHYSICS_TYPE,          phr::compile);
-	register_resource_compiler(MATERIAL_TYPE,         mtr::compile);
-	register_resource_compiler(PHYSICS_CONFIG_TYPE,   pcr::compile);
-	register_resource_compiler(FONT_TYPE,             ftr::compile);
-	register_resource_compiler(LEVEL_TYPE,            lvr::compile);
-	register_resource_compiler(SHADER_TYPE,           shr::compile);
-	register_resource_compiler(SPRITE_ANIMATION_TYPE, sar::compile);
+	register_resource_compiler(SCRIPT_TYPE,           SCRIPT_VERSION,           lur::compile);
+	register_resource_compiler(TEXTURE_TYPE,          TEXTURE_VERSION,          txr::compile);
+	register_resource_compiler(MESH_TYPE,             MESH_VERSION,             mhr::compile);
+	register_resource_compiler(SOUND_TYPE,            SOUND_VERSION,            sdr::compile);
+	register_resource_compiler(UNIT_TYPE,             UNIT_VERSION,             utr::compile);
+	register_resource_compiler(SPRITE_TYPE,           SPRITE_VERSION,           spr::compile);
+	register_resource_compiler(PACKAGE_TYPE,          PACKAGE_VERSION,          pkr::compile);
+	register_resource_compiler(PHYSICS_TYPE,          PHYSICS_VERSION,          phr::compile);
+	register_resource_compiler(MATERIAL_TYPE,         MATERIAL_VERSION,         mtr::compile);
+	register_resource_compiler(PHYSICS_CONFIG_TYPE,   PHYSICS_CONFIG_VERSION,   pcr::compile);
+	register_resource_compiler(FONT_TYPE,             FONT_VERSION,             ftr::compile);
+	register_resource_compiler(LEVEL_TYPE,            LEVEL_VERSION,            lvr::compile);
+	register_resource_compiler(SHADER_TYPE,           SHADER_VERSION,           shr::compile);
+	register_resource_compiler(SPRITE_ANIMATION_TYPE, SPRITE_ANIMATION_VERSION, sar::compile);
 
 	DiskFilesystem temp;
 	temp.create_directory(bundle_dir);
@@ -166,17 +166,31 @@ bool BundleCompiler::compile_all(const char* platform)
 	return true;
 }
 
-void BundleCompiler::register_resource_compiler(StringId64 type, CompileFunction compiler)
+void BundleCompiler::register_resource_compiler(StringId64 type, uint32_t version, CompileFunction compiler)
 {
+	CE_ASSERT(!sort_map::has(_compilers, type), "Type already registered");
 	CE_ASSERT_NOT_NULL(compiler);
-	sort_map::set(_compilers, type, compiler);
+
+	ResourceTypeData rtd;
+	rtd.version = version;
+	rtd.compiler = compiler;
+
+	sort_map::set(_compilers, type, rtd);
 	sort_map::sort(_compilers);
 }
 
 void BundleCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)
 {
 	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
-	sort_map::get(_compilers, type, (CompileFunction)NULL)(path, opts);
+
+	sort_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
+}
+
+uint32_t BundleCompiler::version(StringId64 type)
+{
+	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
+
+	return sort_map::get(_compilers, type, ResourceTypeData()).version;
 }
 
 void BundleCompiler::scan(const char* cur_dir, Vector<DynamicString>& files)
