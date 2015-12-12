@@ -290,6 +290,16 @@ static int vector3_zero(lua_State* L)
 	return 1;
 }
 
+static int vector3_to_string(lua_State* L)
+{
+	LuaStack stack(L);
+	const Vector3 v = stack.get_vector3(1);
+	char buf[32];
+	snprintf(buf, sizeof(buf), "%.4f %.4f %.4f", v.x, v.y, v.z);
+	stack.push_string(buf);
+	return 1;
+}
+
 static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -589,16 +599,18 @@ static int matrix4x4_to_string(lua_State* L)
 {
 	LuaStack stack(L);
 	Matrix4x4& a = stack.get_matrix4x4(1);
-	stack.push_fstring(
-		"%.1f, %.1f, %.1f, %.1f\n"
-		"%.1f, %.1f, %.1f, %.1f\n"
-		"%.1f, %.1f, %.1f, %.1f\n"
-		"%.1f, %.1f, %.1f, %.1f\n"
+	char buf[256];
+	snprintf(buf, sizeof(buf),
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f"
 		, a.x.x, a.x.y, a.x.z, a.y.w
 		, a.y.x, a.y.y, a.y.z, a.y.w
 		, a.z.x, a.z.y, a.z.z, a.z.w
 		, a.t.x, a.t.y, a.t.z, a.t.w
 		);
+	stack.push_string(buf);
 	return 1;
 }
 
@@ -943,6 +955,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3", "up",             vector3_up);
 	env.load_module_function("Vector3", "down",           vector3_down);
 	env.load_module_function("Vector3", "zero",           vector3_zero);
+	env.load_module_function("Vector3", "to_string",      vector3_to_string);
 
 	env.load_module_constructor("Vector3", vector3_ctor);
 
