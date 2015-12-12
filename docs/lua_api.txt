@@ -101,6 +101,9 @@ Vector3
 	**zero** () : Vector3
 		Returns a vector with all values set to zero.
 
+	**to_string** (v) : string
+		Returns a string representing the vector *v*.
+
 Vector3Box
 ----------
 
@@ -267,8 +270,8 @@ Matrix4x4
 	**transform** (m, v) : Vector3
 		Transforms the vector *v* by the matrix *m* and returns the result.
 
-	**to_string** (a)
-		Returns a string representing the matrix.
+	**to_string** (m) : string
+		Returns a string representing the matrix *m*.
 
 Matrix4x4Box
 ------------
