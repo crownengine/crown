@@ -290,6 +290,16 @@ static int vector3_zero(lua_State* L)
 	return 1;
 }
 
+static int vector3_to_string(lua_State* L)
+{
+	LuaStack stack(L);
+	const Vector3 v = stack.get_vector3(1);
+	char buf[32];
+	snprintf(buf, sizeof(buf), "%.4f %.4f %.4f", v.x, v.y, v.z);
+	stack.push_string(buf);
+	return 1;
+}
+
 static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -348,43 +358,6 @@ static int vector3box_unbox(lua_State* L)
 	LuaStack stack(L);
 	stack.push_vector3(stack.get_vector3box(1));
 	return 1;
-}
-
-static int vector3box_get_value(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& v = stack.get_vector3box(1);
-	const char* s = stack.get_string(2);
-
-	switch (s[0])
-	{
-		case 'x': stack.push_float(v.x); return 1;
-		case 'y': stack.push_float(v.y); return 1;
-		case 'z': stack.push_float(v.z); return 1;
-		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
-	}
-
-	return 0;
-}
-
-static int vector3box_set_value(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& v = stack.get_vector3box(1);
-	const char* s = stack.get_string(2);
-	const float value = stack.get_float(3);
-
-	switch (s[0])
-	{
-		case 'x': v.x = value; break;
-		case 'y': v.y = value; break;
-		case 'z': v.z = value; break;
-		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
-	}
-
-	return 0;
 }
 
 static int vector3box_tostring(lua_State* L)
@@ -589,16 +562,18 @@ static int matrix4x4_to_string(lua_State* L)
 {
 	LuaStack stack(L);
 	Matrix4x4& a = stack.get_matrix4x4(1);
-	stack.push_fstring(
-		"%.1f, %.1f, %.1f, %.1f\n"
-		"%.1f, %.1f, %.1f, %.1f\n"
-		"%.1f, %.1f, %.1f, %.1f\n"
-		"%.1f, %.1f, %.1f, %.1f\n"
+	char buf[256];
+	snprintf(buf, sizeof(buf),
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f"
 		, a.x.x, a.x.y, a.x.z, a.y.w
 		, a.y.x, a.y.y, a.y.z, a.y.w
 		, a.z.x, a.z.y, a.z.z, a.z.w
 		, a.t.x, a.t.y, a.t.z, a.t.w
 		);
+	stack.push_string(buf);
 	return 1;
 }
 
@@ -943,6 +918,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3", "up",             vector3_up);
 	env.load_module_function("Vector3", "down",           vector3_down);
 	env.load_module_function("Vector3", "zero",           vector3_zero);
+	env.load_module_function("Vector3", "to_string",      vector3_to_string);
 
 	env.load_module_constructor("Vector3", vector3_ctor);
 
@@ -952,8 +928,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3Box", "new",        vector3box_new);
 	env.load_module_function("Vector3Box", "store",      vector3box_store);
 	env.load_module_function("Vector3Box", "unbox",      vector3box_unbox);
-	env.load_module_function("Vector3Box", "__index",    vector3box_get_value);
-	env.load_module_function("Vector3Box", "__newindex", vector3box_set_value);
+	env.load_module_function("Vector3Box", "__index",    "Vector3Box");
 	env.load_module_function("Vector3Box", "__tostring", vector3box_tostring);
 
 	env.load_module_constructor("Vector3Box", vector3box_ctor);
@@ -989,6 +964,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4Box", "new",        matrix4x4box_new);
 	env.load_module_function("Matrix4x4Box", "store",      matrix4x4box_store);
 	env.load_module_function("Matrix4x4Box", "unbox",      matrix4x4box_unbox);
+	env.load_module_function("Matrix4x4Box", "__index",    "Matrix4x4Box");
 	env.load_module_function("Matrix4x4Box", "__tostring", matrix4x4box_tostring);
 
 	env.load_module_constructor("Matrix4x4Box", matrix4x4box_ctor);
@@ -1014,6 +990,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("QuaternionBox", "new",        quaternionbox_new);
 	env.load_module_function("QuaternionBox", "store",      quaternionbox_store);
 	env.load_module_function("QuaternionBox", "unbox",      quaternionbox_unbox);
+	env.load_module_function("QuaternionBox", "__index",    "QuaternionBox");
 	env.load_module_function("QuaternionBox", "__tostring", quaternionbox_tostring);
 
 	env.load_module_constructor("QuaternionBox", quaternionbox_ctor);
