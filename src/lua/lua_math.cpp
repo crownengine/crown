@@ -360,43 +360,6 @@ static int vector3box_unbox(lua_State* L)
 	return 1;
 }
 
-static int vector3box_get_value(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& v = stack.get_vector3box(1);
-	const char* s = stack.get_string(2);
-
-	switch (s[0])
-	{
-		case 'x': stack.push_float(v.x); return 1;
-		case 'y': stack.push_float(v.y); return 1;
-		case 'z': stack.push_float(v.z); return 1;
-		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
-	}
-
-	return 0;
-}
-
-static int vector3box_set_value(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& v = stack.get_vector3box(1);
-	const char* s = stack.get_string(2);
-	const float value = stack.get_float(3);
-
-	switch (s[0])
-	{
-		case 'x': v.x = value; break;
-		case 'y': v.y = value; break;
-		case 'z': v.z = value; break;
-		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
-	}
-
-	return 0;
-}
-
 static int vector3box_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -965,8 +928,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3Box", "new",        vector3box_new);
 	env.load_module_function("Vector3Box", "store",      vector3box_store);
 	env.load_module_function("Vector3Box", "unbox",      vector3box_unbox);
-	env.load_module_function("Vector3Box", "__index",    vector3box_get_value);
-	env.load_module_function("Vector3Box", "__newindex", vector3box_set_value);
+	env.load_module_function("Vector3Box", "__index",    "Vector3Box");
 	env.load_module_function("Vector3Box", "__tostring", vector3box_tostring);
 
 	env.load_module_constructor("Vector3Box", vector3box_ctor);
@@ -1002,6 +964,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4Box", "new",        matrix4x4box_new);
 	env.load_module_function("Matrix4x4Box", "store",      matrix4x4box_store);
 	env.load_module_function("Matrix4x4Box", "unbox",      matrix4x4box_unbox);
+	env.load_module_function("Matrix4x4Box", "__index",    "Matrix4x4Box");
 	env.load_module_function("Matrix4x4Box", "__tostring", matrix4x4box_tostring);
 
 	env.load_module_constructor("Matrix4x4Box", matrix4x4box_ctor);
@@ -1027,6 +990,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("QuaternionBox", "new",        quaternionbox_new);
 	env.load_module_function("QuaternionBox", "store",      quaternionbox_store);
 	env.load_module_function("QuaternionBox", "unbox",      quaternionbox_unbox);
+	env.load_module_function("QuaternionBox", "__index",    "QuaternionBox");
 	env.load_module_function("QuaternionBox", "__tostring", quaternionbox_tostring);
 
 	env.load_module_constructor("QuaternionBox", quaternionbox_ctor);
