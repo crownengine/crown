@@ -6,7 +6,6 @@
 #pragma once
 
 #include "math_types.h"
-#include "vector3.h"
 #include "plane.h"
 #include "aabb.h"
 #include "intersection.h"
@@ -19,6 +18,9 @@ namespace crown
 /// @ingroup Math
 namespace frustum
 {
+	/// Builds the frustum @a f from the view matrix @a m.
+	void from_matrix(Frustum& f, const Matrix4x4& m);
+
 	/// Returns whether the frustum @a f contains the point @a p.
 	bool contains_point(const Frustum& f, const Vector3& p);
 
@@ -35,15 +37,52 @@ namespace frustum
 	/// 7 = Far top left
 	Vector3 vertex(const Frustum& f, uint32_t index);
 
-	/// Builds the frustum @a f from the view matrix @a m.
-	void from_matrix(Frustum& f, const Matrix4x4& m);
-
 	/// Returns the AABB enclosing the frustum @a f.
 	AABB to_aabb(const Frustum& f);
 } // namespace frustum
 
 namespace frustum
 {
+	inline void from_matrix(Frustum& f, const Matrix4x4& m)
+	{
+		f.left.n.x   = m.x.w + m.x.x;
+		f.left.n.y   = m.y.w + m.y.x;
+		f.left.n.z   = m.z.w + m.z.x;
+		f.left.d     = m.t.w + m.t.x;
+
+		f.right.n.x  = m.x.w - m.x.x;
+		f.right.n.y  = m.y.w - m.y.x;
+		f.right.n.z  = m.z.w - m.z.x;
+		f.right.d    = m.t.w - m.t.x;
+
+		f.bottom.n.x = m.x.w + m.x.y;
+		f.bottom.n.y = m.y.w + m.y.y;
+		f.bottom.n.z = m.z.w + m.z.y;
+		f.bottom.d   = m.t.w + m.t.y;
+
+		f.top.n.x    = m.x.w - m.x.y;
+		f.top.n.y    = m.y.w - m.y.y;
+		f.top.n.z    = m.z.w - m.z.y;
+		f.top.d      = m.t.w - m.t.y;
+
+		f.near.n.x   = m.x.w + m.x.z;
+		f.near.n.y   = m.y.w + m.y.z;
+		f.near.n.z   = m.z.w + m.z.z;
+		f.near.d     = m.t.w + m.t.z;
+
+		f.far.n.x    = m.x.w - m.x.z;
+		f.far.n.y    = m.y.w - m.y.z;
+		f.far.n.z    = m.z.w - m.z.z;
+		f.far.d      = m.t.w - m.t.z;
+
+		plane::normalize(f.left);
+		plane::normalize(f.right);
+		plane::normalize(f.bottom);
+		plane::normalize(f.top);
+		plane::normalize(f.near);
+		plane::normalize(f.far);
+	}
+
 	inline bool contains_point(const Frustum& f, const Vector3& p)
 	{
 		return !(plane::distance_to_point(f.left, p) < 0.0f
@@ -85,46 +124,6 @@ namespace frustum
 		}
 
 		return ip;
-	}
-
-	inline void from_matrix(Frustum& f, const Matrix4x4& m)
-	{
-		f.left.n.x   = m.x.w + m.x.x;
-		f.left.n.y   = m.y.w + m.y.x;
-		f.left.n.z   = m.z.w + m.z.x;
-		f.left.d     = m.t.w + m.t.x;
-
-		f.right.n.x  = m.x.w - m.x.x;
-		f.right.n.y  = m.y.w - m.y.x;
-		f.right.n.z  = m.z.w - m.z.x;
-		f.right.d    = m.t.w - m.t.x;
-
-		f.bottom.n.x = m.x.w + m.x.y;
-		f.bottom.n.y = m.y.w + m.y.y;
-		f.bottom.n.z = m.z.w + m.z.y;
-		f.bottom.d   = m.t.w + m.t.y;
-
-		f.top.n.x    = m.x.w - m.x.y;
-		f.top.n.y    = m.y.w - m.y.y;
-		f.top.n.z    = m.z.w - m.z.y;
-		f.top.d      = m.t.w - m.t.y;
-
-		f.near.n.x   = m.x.w + m.x.z;
-		f.near.n.y   = m.y.w + m.y.z;
-		f.near.n.z   = m.z.w + m.z.z;
-		f.near.d     = m.t.w + m.t.z;
-
-		f.far.n.x    = m.x.w - m.x.z;
-		f.far.n.y    = m.y.w - m.y.z;
-		f.far.n.z    = m.z.w - m.z.z;
-		f.far.d      = m.t.w - m.t.z;
-
-		plane::normalize(f.left);
-		plane::normalize(f.right);
-		plane::normalize(f.bottom);
-		plane::normalize(f.top);
-		plane::normalize(f.near);
-		plane::normalize(f.far);
 	}
 
 	inline AABB to_aabb(const Frustum& f)
