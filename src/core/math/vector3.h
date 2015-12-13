@@ -120,35 +120,42 @@ inline Vector3 cross(const Vector3& a, const Vector3& b)
 	return vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
-/// Returns the lenght of @a a.
-inline float length(const Vector3& a)
+/// Returns the squared length of @a a.
+inline float length_squared(const Vector3& a)
 {
-	return sqrtf(a.x * a.x + a.y * a.y + a.z * a.z);
+	return dot(a, a);
 }
 
-/// Returns the squared length of @a a.
-inline float squared_length(const Vector3& a)
+/// Returns the length of @a a.
+inline float length(const Vector3& a)
 {
-	return a.x * a.x + a.y * a.y + a.z * a.z;
+	return sqrtf(length_squared(a));
 }
 
 /// Normalizes @a a and returns the result.
 inline Vector3 normalize(Vector3& a)
 {
-	float inv_len = 1.0f / length(a);
+	const float len = length(a);
+	const float inv_len = 1.0f / len;
 	a.x *= inv_len;
 	a.y *= inv_len;
 	a.z *= inv_len;
 	return a;
 }
 
-/// Sets the lenght of @a a to @a len.
+/// Sets the length of @a a to @a len.
 inline void set_length(Vector3& a, float len)
 {
 	normalize(a);
 	a.x *= len;
 	a.y *= len;
 	a.z *= len;
+}
+
+/// Returns the squared distance between the points @a a and @a b.
+inline float distance_squared(const Vector3& a, const Vector3& b)
+{
+	return length_squared(b - a);
 }
 
 /// Returns the distance between the points @a a and @a b.

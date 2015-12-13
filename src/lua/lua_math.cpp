@@ -192,10 +192,10 @@ static int vector3_length(lua_State* L)
 	return 1;
 }
 
-static int vector3_squared_length(lua_State* L)
+static int vector3_length_squared(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(squared_length(stack.get_vector3(1)));
+	stack.push_float(length_squared(stack.get_vector3(1)));
 	return 1;
 }
 
@@ -217,6 +217,13 @@ static int vector3_distance(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.push_float(distance(stack.get_vector3(1), stack.get_vector3(2)));
+	return 1;
+}
+
+static int vector3_distance_squared(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_float(distance_squared(stack.get_vector3(1), stack.get_vector3(2)));
 	return 1;
 }
 
@@ -888,37 +895,38 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Math", "ray_sphere_intersection", math_ray_sphere_intersection);
 	env.load_module_function("Math", "ray_obb_intersection",    math_ray_obb_intersection);
 
-	env.load_module_function("Vector3", "new",            vector3_new);
-	env.load_module_function("Vector3", "x",              vector3_x);
-	env.load_module_function("Vector3", "y",              vector3_y);
-	env.load_module_function("Vector3", "z",              vector3_z);
-	env.load_module_function("Vector3", "set_x",          vector3_set_x);
-	env.load_module_function("Vector3", "set_y",          vector3_set_y);
-	env.load_module_function("Vector3", "set_z",          vector3_set_z);
-	env.load_module_function("Vector3", "values",         vector3_values);
-	env.load_module_function("Vector3", "add",            vector3_add);
-	env.load_module_function("Vector3", "subtract",       vector3_subtract);
-	env.load_module_function("Vector3", "multiply",       vector3_multiply);
-	env.load_module_function("Vector3", "divide",         vector3_divide);
-	env.load_module_function("Vector3", "dot",            vector3_dot);
-	env.load_module_function("Vector3", "cross",          vector3_cross);
-	env.load_module_function("Vector3", "equal",          vector3_equal);
-	env.load_module_function("Vector3", "length",         vector3_length);
-	env.load_module_function("Vector3", "squared_length", vector3_squared_length);
-	env.load_module_function("Vector3", "set_length",     vector3_set_length);
-	env.load_module_function("Vector3", "normalize",      vector3_normalize);
-	env.load_module_function("Vector3", "distance",       vector3_distance);
-	env.load_module_function("Vector3", "angle",          vector3_angle);
-	env.load_module_function("Vector3", "max",            vector3_max);
-	env.load_module_function("Vector3", "min",            vector3_min);
-	env.load_module_function("Vector3", "forward",        vector3_forward);
-	env.load_module_function("Vector3", "backward",       vector3_backward);
-	env.load_module_function("Vector3", "left",           vector3_left);
-	env.load_module_function("Vector3", "right",          vector3_right);
-	env.load_module_function("Vector3", "up",             vector3_up);
-	env.load_module_function("Vector3", "down",           vector3_down);
-	env.load_module_function("Vector3", "zero",           vector3_zero);
-	env.load_module_function("Vector3", "to_string",      vector3_to_string);
+	env.load_module_function("Vector3", "new",              vector3_new);
+	env.load_module_function("Vector3", "x",                vector3_x);
+	env.load_module_function("Vector3", "y",                vector3_y);
+	env.load_module_function("Vector3", "z",                vector3_z);
+	env.load_module_function("Vector3", "set_x",            vector3_set_x);
+	env.load_module_function("Vector3", "set_y",            vector3_set_y);
+	env.load_module_function("Vector3", "set_z",            vector3_set_z);
+	env.load_module_function("Vector3", "values",           vector3_values);
+	env.load_module_function("Vector3", "add",              vector3_add);
+	env.load_module_function("Vector3", "subtract",         vector3_subtract);
+	env.load_module_function("Vector3", "multiply",         vector3_multiply);
+	env.load_module_function("Vector3", "divide",           vector3_divide);
+	env.load_module_function("Vector3", "dot",              vector3_dot);
+	env.load_module_function("Vector3", "cross",            vector3_cross);
+	env.load_module_function("Vector3", "equal",            vector3_equal);
+	env.load_module_function("Vector3", "length",           vector3_length);
+	env.load_module_function("Vector3", "length_squared",   vector3_length_squared);
+	env.load_module_function("Vector3", "set_length",       vector3_set_length);
+	env.load_module_function("Vector3", "normalize",        vector3_normalize);
+	env.load_module_function("Vector3", "distance",         vector3_distance);
+	env.load_module_function("Vector3", "distance_squared", vector3_distance_squared);
+	env.load_module_function("Vector3", "angle",            vector3_angle);
+	env.load_module_function("Vector3", "max",              vector3_max);
+	env.load_module_function("Vector3", "min",              vector3_min);
+	env.load_module_function("Vector3", "forward",          vector3_forward);
+	env.load_module_function("Vector3", "backward",         vector3_backward);
+	env.load_module_function("Vector3", "left",             vector3_left);
+	env.load_module_function("Vector3", "right",            vector3_right);
+	env.load_module_function("Vector3", "up",               vector3_up);
+	env.load_module_function("Vector3", "down",             vector3_down);
+	env.load_module_function("Vector3", "zero",             vector3_zero);
+	env.load_module_function("Vector3", "to_string",        vector3_to_string);
 
 	env.load_module_constructor("Vector3", vector3_ctor);
 
