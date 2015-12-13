@@ -63,7 +63,7 @@ Vector3
 	**length** (a) : float
 		Returns the lenght of *a*.
 
-	**squared_length** (a) : float
+	**length_squared** (a) : float
 		Returns the squared length of *a*.
 
 	**set_length** (a, len)
@@ -75,6 +75,9 @@ Vector3
 	**distance** (a, b) : float
 		Returns the distance between the points *a* and *b*.
 
+	**distance_squared** (a, b) : float
+		Returns the squared distance between the points *a* and *b*.
+
 	**angle** (a, b) : float
 		Returns the angle between the vectors *a* and *b*.
 
@@ -83,6 +86,9 @@ Vector3
 
 	**min** (a, b) : Vector3
 		Returns a vector that contains the smallest value for each component from *a* and *b*.
+
+	**lerp** (a, b, t) : Vector3
+		Returns the linearly interpolated vector between *a* and *b* at time *t* in [0, 1].
 
 	**forward** () : Vector3
 
@@ -733,6 +739,7 @@ Device
 
 	**platform** () : string
 		Returns a string identifying what platform the engine is running on.
+		It can be either ``android``, ``linux`` or ``windows``
 
 	**architecture** () : string
 		Returns a string identifying what architecture the engine is running on.
