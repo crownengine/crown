@@ -48,9 +48,6 @@ Vector3
 	**multiply** (a, k) : Vector3
 		Multiplies the vector *a* by the scalar *k* and returns the result.
 
-	**divide** (a, k) : Vector3
-		Divides the vector *a* by the scalar *k* and returns the result.
-
 	**dot** (a, b) : float
 		Returns the dot product between the vectors *a* and *b*.
 
