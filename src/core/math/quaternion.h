@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "types.h"
 #include "math_types.h"
 #include "math_utils.h"
 #include "matrix3x3.h"
@@ -39,14 +38,14 @@ Quaternion quaternion(const Matrix3x3& m);
 
 inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)
 {
-	const float t_w = a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z;
-	const float t_x = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y;
-	const float t_y = a.w*b.y + a.y*b.w + a.z*b.x - a.x*b.z;
-	const float t_z = a.w*b.z + a.z*b.w + a.x*b.y - a.y*b.x;
-	a.x = t_x;
-	a.y = t_y;
-	a.z = t_z;
-	a.w = t_w;
+	const float tx = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y;
+	const float ty = a.w*b.y + a.y*b.w + a.z*b.x - a.x*b.z;
+	const float tz = a.w*b.z + a.z*b.w + a.x*b.y - a.y*b.x;
+	const float tw = a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z;
+	a.x = tx;
+	a.y = ty;
+	a.z = tz;
+	a.w = tw;
 	return a;
 }
 
@@ -88,13 +87,14 @@ inline float dot(const Quaternion& a, const Quaternion& b)
 /// Returns the length of @a q.
 inline float length(const Quaternion& q)
 {
-	return sqrtf(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+	return sqrtf(dot(q, q));
 }
 
 /// Normalizes the quaternion @a q and returns the result.
 inline Quaternion& normalize(Quaternion& q)
 {
-	const float inv_len = 1.0f / length(q);
+	const float len = length(q);
+	const float inv_len = 1.0f / len;
 	q.x *= inv_len;
 	q.y *= inv_len;
 	q.z *= inv_len;
@@ -116,7 +116,9 @@ inline Quaternion conjugate(const Quaternion& q)
 /// Returns the inverse of quaternion @a q.
 inline Quaternion inverse(const Quaternion& q)
 {
-	return conjugate(q) * (1.0f / length(q));
+	const float len = length(q);
+	const float inv_len = 1.0f / len;
+	return conjugate(q) * inv_len;
 }
 
 /// Returns the quaternion @a q raised to the power of @a exp.
