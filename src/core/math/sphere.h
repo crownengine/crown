@@ -49,7 +49,7 @@ namespace sphere
 		{
 			const Vector3* p = (const Vector3*)points;
 
-			const float dist = squared_length(*p - s.c);
+			const float dist = length_squared(*p - s.c);
 			if (dist > s.r*s.r)
 				s.r = sqrtf(dist);
 
@@ -66,7 +66,7 @@ namespace sphere
 	{
 		for (uint32_t i = 0; i < num; ++i)
 		{
-			const float dist = squared_length(spheres[i].c - s.c);
+			const float dist = length_squared(spheres[i].c - s.c);
 
 			if (dist < (spheres[i].r + s.r) * (spheres[i].r + s.r))
 			{
@@ -78,7 +78,7 @@ namespace sphere
 
 	inline bool contains_point(const Sphere& s, const Vector3& p)
 	{
-		float dist = squared_length(p - s.c);
+		float dist = length_squared(p - s.c);
 		return dist < s.r*s.r;
 	}
 } // namespace sphere

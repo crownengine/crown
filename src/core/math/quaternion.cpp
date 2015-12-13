@@ -4,6 +4,7 @@
  */
 
 #include "quaternion.h"
+#include "error.h"
 
 namespace crown
 {

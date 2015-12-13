@@ -67,9 +67,9 @@ inline bool is_pow_2(uint32_t x)
 }
 
 /// Returns the linear interpolated value between @a p0 and @a p1 at time @a t
-inline float linear(const float p0, const float p1, float t)
+inline float lerp(const float p0, const float p1, float t)
 {
-	return p0 + t * (p1 - p0);
+	return (1.0f - t) * p0 + t * p1;
 }
 
 /// Returns the cosine interpolated value between @a p0 and @a p1 at time @a t

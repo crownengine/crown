@@ -7,15 +7,11 @@
 
 #include "math_types.h"
 #include "math_utils.h"
-#include "error.h"
 
 namespace crown
 {
 /// @addtogroup Math
 /// @{
-
-/// Returns the Vector3 portion of @a a. (i.e. truncates w)
-Vector3 to_vector3(const Vector4& a);
 
 inline Vector4 vector4(float x, float y, float z, float w)
 {
@@ -64,17 +60,6 @@ inline Vector4& operator*=(Vector4& a, float k)
 	return a;
 }
 
-inline Vector4& operator/=(Vector4& a, float k)
-{
-	CE_ASSERT(k != 0.0f, "Division by zero");
-	float inv = 1.0f / k;
-	a.x *= inv;
-	a.y *= inv;
-	a.z *= inv;
-	a.w *= inv;
-	return a;
-}
-
 /// Negates @a a and returns the result.
 inline Vector4 operator-(const Vector4& a)
 {
@@ -114,13 +99,6 @@ inline Vector4 operator*(float k, Vector4 a)
 	return a;
 }
 
-/// Divides the vector @a a by the scalar @a k and returns the result.
-inline Vector4 operator/(Vector4 a, float k)
-{
-	a /= k;
-	return a;
-}
-
 /// Returns true whether the vectors @a a and @a b are equal.
 inline bool operator==(const Vector4& a, const Vector4& b)
 {
@@ -136,22 +114,23 @@ inline float dot(const Vector4& a, const Vector4& b)
 	return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
-/// Returns the lenght of @a a.
-inline float length(const Vector4& a)
+/// Returns the squared length of @a a.
+inline float length_squared(const Vector4& a)
 {
-	return sqrtf(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+	return dot(a, a);
 }
 
-/// Returns the squared length of @a a.
-inline float squared_length(const Vector4& a)
+/// Returns the length of @a a.
+inline float length(const Vector4& a)
 {
-	return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
+	return sqrtf(length_squared(a));
 }
 
 /// Normalizes @a a and returns the result.
 inline Vector4 normalize(Vector4& a)
 {
-	float inv_len = 1.0f / length(a);
+	const float len = length(a);
+	const float inv_len = 1.0f / len;
 	a.x *= inv_len;
 	a.y *= inv_len;
 	a.z *= inv_len;
@@ -159,7 +138,7 @@ inline Vector4 normalize(Vector4& a)
 	return a;
 }
 
-/// Sets the lenght of @a a to @a len.
+/// Sets the length of @a a to @a len.
 inline void set_length(Vector4& a, float len)
 {
 	normalize(a);
@@ -167,6 +146,12 @@ inline void set_length(Vector4& a, float len)
 	a.y *= len;
 	a.z *= len;
 	a.w *= len;
+}
+
+/// Returns the squared distance between the points @a a and @a b.
+inline float distance_squared(const Vector4& a, const Vector4& b)
+{
+	return length_squared(b - a);
 }
 
 /// Returns the distance between the points @a a and @a b.
@@ -203,6 +188,17 @@ inline Vector4 min(const Vector4& a, const Vector4& b)
 	return v;
 }
 
+/// Returns the linearly interpolated vector between @a and @b at time @a t in [0, 1].
+inline Vector4 lerp(const Vector4& a, const Vector4& b, float t)
+{
+	Vector4 v;
+	v.x = lerp(a.x, b.x, t);
+	v.y = lerp(a.y, b.y, t);
+	v.z = lerp(a.z, b.z, t);
+	v.w = lerp(a.w, b.w, t);
+	return v;
+}
+
 /// Returns the pointer to the data of @a a.
 inline float* to_float_ptr(Vector4& a)
 {
@@ -215,6 +211,7 @@ inline const float* to_float_ptr(const Vector4& a)
 	return &a.x;
 }
 
+/// Returns the Vector3 portion of @a a. (i.e. truncates w)
 inline Vector3 to_vector3(const Vector4& a)
 {
 	Vector3 v;

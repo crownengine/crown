@@ -8,7 +8,7 @@
 #include "math_types.h"
 #include "vector3.h"
 #include "matrix4x4.h"
-#include "sphere.h"
+#include "error.h"
 
 namespace crown
 {
@@ -115,13 +115,13 @@ namespace aabb
 
 	inline bool contains_point(const AABB& b, const Vector3& p)
 	{
-		return (p.x > b.min.x
+		return p.x > b.min.x
 			&& p.y > b.min.y
 			&& p.z > b.min.z
 			&& p.x < b.max.x
 			&& p.y < b.max.y
 			&& p.z < b.max.z
-		);
+			;
 	}
 
 	inline Vector3 vertex(const AABB& b, uint32_t index)

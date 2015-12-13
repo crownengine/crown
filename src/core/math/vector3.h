@@ -7,7 +7,6 @@
 
 #include "math_types.h"
 #include "math_utils.h"
-#include "error.h"
 
 namespace crown
 {
@@ -44,16 +43,6 @@ inline Vector3& operator*=(Vector3& a, float k)
 	a.x *= k;
 	a.y *= k;
 	a.z *= k;
-	return a;
-}
-
-inline Vector3& operator/=(Vector3& a, float k)
-{
-	CE_ASSERT(k != 0.0f, "Division by zero");
-	float inv = 1.0f / k;
-	a.x *= inv;
-	a.y *= inv;
-	a.z *= inv;
 	return a;
 }
 
@@ -95,13 +84,6 @@ inline Vector3 operator*(float k, Vector3 a)
 	return a;
 }
 
-/// Divides the vector @a a by the scalar @a k and returns the result.
-inline Vector3 operator/(Vector3 a, float k)
-{
-	a /= k;
-	return a;
-}
-
 /// Returns true whether the vectors @a a and @a b are equal.
 inline bool operator==(const Vector3& a, const Vector3& b)
 {
@@ -120,35 +102,42 @@ inline Vector3 cross(const Vector3& a, const Vector3& b)
 	return vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
-/// Returns the lenght of @a a.
-inline float length(const Vector3& a)
+/// Returns the squared length of @a a.
+inline float length_squared(const Vector3& a)
 {
-	return sqrtf(a.x * a.x + a.y * a.y + a.z * a.z);
+	return dot(a, a);
 }
 
-/// Returns the squared length of @a a.
-inline float squared_length(const Vector3& a)
+/// Returns the length of @a a.
+inline float length(const Vector3& a)
 {
-	return a.x * a.x + a.y * a.y + a.z * a.z;
+	return sqrtf(length_squared(a));
 }
 
 /// Normalizes @a a and returns the result.
 inline Vector3 normalize(Vector3& a)
 {
-	float inv_len = 1.0f / length(a);
+	const float len = length(a);
+	const float inv_len = 1.0f / len;
 	a.x *= inv_len;
 	a.y *= inv_len;
 	a.z *= inv_len;
 	return a;
 }
 
-/// Sets the lenght of @a a to @a len.
+/// Sets the length of @a a to @a len.
 inline void set_length(Vector3& a, float len)
 {
 	normalize(a);
 	a.x *= len;
 	a.y *= len;
 	a.z *= len;
+}
+
+/// Returns the squared distance between the points @a a and @a b.
+inline float distance_squared(const Vector3& a, const Vector3& b)
+{
+	return length_squared(b - a);
 }
 
 /// Returns the distance between the points @a a and @a b.
@@ -180,6 +169,16 @@ inline Vector3 min(const Vector3& a, const Vector3& b)
 	v.x = fmin(a.x, b.x);
 	v.y = fmin(a.y, b.y);
 	v.z = fmin(a.z, b.z);
+	return v;
+}
+
+/// Returns the linearly interpolated vector between @a and @b at time @a t in [0, 1].
+inline Vector3 lerp(const Vector3& a, const Vector3& b, float t)
+{
+	Vector3 v;
+	v.x = lerp(a.x, b.x, t);
+	v.y = lerp(a.y, b.y, t);
+	v.z = lerp(a.z, b.z, t);
 	return v;
 }
 

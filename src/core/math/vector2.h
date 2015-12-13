@@ -7,7 +7,6 @@
 
 #include "math_types.h"
 #include "math_utils.h"
-#include "error.h"
 
 namespace crown
 {
@@ -40,15 +39,6 @@ inline Vector2& operator*=(Vector2& a, float k)
 {
 	a.x *= k;
 	a.y *= k;
-	return a;
-}
-
-inline Vector2& operator/=(Vector2& a, float k)
-{
-	CE_ASSERT(k != 0.0f, "Division by zero");
-	float inv = 1.0f / k;
-	a.x *= inv;
-	a.y *= inv;
 	return a;
 }
 
@@ -89,13 +79,6 @@ inline Vector2 operator*(float k, Vector2 a)
 	return a;
 }
 
-/// Divides the vector @a a by the scalar @a k and returns the result.
-inline Vector2 operator/(Vector2 a, float k)
-{
-	a /= k;
-	return a;
-}
-
 /// Returns true whether the vectors @a a and @a b are equal.
 inline bool operator==(const Vector2& a, const Vector2& b)
 {
@@ -108,33 +91,40 @@ inline float dot(const Vector2& a, const Vector2& b)
 	return a.x * b.x + a.y * b.y;
 }
 
-/// Returns the lenght of @a a.
-inline float length(const Vector2& a)
+/// Returns the squared length of @a a.
+inline float length_squared(const Vector2& a)
 {
-	return sqrtf(a.x * a.x + a.y * a.y);
+	return dot(a, a);
 }
 
-/// Returns the squared length of @a a.
-inline float squared_length(const Vector2& a)
+/// Returns the length of @a a.
+inline float length(const Vector2& a)
 {
-	return a.x * a.x + a.y * a.y;
+	return sqrtf(length_squared(a));
 }
 
 /// Normalizes @a a and returns the result.
 inline Vector2 normalize(Vector2& a)
 {
-	float inv_len = 1.0f / length(a);
+	const float len = length(a);
+	const float inv_len = 1.0f / len;
 	a.x *= inv_len;
 	a.y *= inv_len;
 	return a;
 }
 
-/// Sets the lenght of @a a to @a len.
+/// Sets the length of @a a to @a len.
 inline void set_length(Vector2& a, float len)
 {
 	normalize(a);
 	a.x *= len;
 	a.y *= len;
+}
+
+/// Returns the squared distance between the points @a a and @a b.
+inline float distance_squared(const Vector2& a, const Vector2& b)
+{
+	return length_squared(b - a);
 }
 
 /// Returns the distance between the points @a a and @a b.
@@ -164,6 +154,15 @@ inline Vector2 min(const Vector2& a, const Vector2& b)
 	Vector2 v;
 	v.x = fmin(a.x, b.x);
 	v.y = fmin(a.y, b.y);
+	return v;
+}
+
+/// Returns the linearly interpolated vector between @a and @b at time @a t in [0, 1].
+inline Vector2 lerp(const Vector2& a, const Vector2& b, float t)
+{
+	Vector2 v;
+	v.x = lerp(a.x, b.x, t);
+	v.y = lerp(a.y, b.y, t);
 	return v;
 }
 

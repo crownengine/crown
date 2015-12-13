@@ -6,7 +6,6 @@
 #pragma once
 
 #include "math_types.h"
-#include "vector3.h"
 #include "plane.h"
 #include "aabb.h"
 #include "intersection.h"
@@ -19,6 +18,9 @@ namespace crown
 /// @ingroup Math
 namespace frustum
 {
+	/// Builds the frustum @a f from the view matrix @a m.
+	void from_matrix(Frustum& f, const Matrix4x4& m);
+
 	/// Returns whether the frustum @a f contains the point @a p.
 	bool contains_point(const Frustum& f, const Vector3& p);
 
@@ -35,59 +37,12 @@ namespace frustum
 	/// 7 = Far top left
 	Vector3 vertex(const Frustum& f, uint32_t index);
 
-	/// Builds the frustum @a f from the view matrix @a m.
-	void from_matrix(Frustum& f, const Matrix4x4& m);
-
 	/// Returns the AABB enclosing the frustum @a f.
 	AABB to_aabb(const Frustum& f);
 } // namespace frustum
 
 namespace frustum
 {
-	inline bool contains_point(const Frustum& f, const Vector3& p)
-	{
-		if (plane::distance_to_point(f.left, p) < 0.0) return false;
-		if (plane::distance_to_point(f.right, p) < 0.0) return false;
-		if (plane::distance_to_point(f.bottom, p) < 0.0) return false;
-		if (plane::distance_to_point(f.top, p) < 0.0) return false;
-		if (plane::distance_to_point(f.near, p) < 0.0) return false;
-		if (plane::distance_to_point(f.far, p) < 0.0) return false;
-
-		return true;
-	}
-
-	inline Vector3 vertex(const Frustum& f, uint32_t index)
-	{
-		CE_ASSERT(index < 8, "Index must be < 8");
-
-		// 0 = Near bottom left
-		// 1 = Near bottom right
-		// 2 = Near top right
-		// 3 = Near top left
-		// 4 = Far bottom left
-		// 5 = Far bottom right
-		// 6 = Far top right
-		// 7 = Far top left
-
-		const Plane* side = &f.left;
-		Vector3 ip;
-
-		switch (index)
-		{
-			case 0: plane_3_intersection(side[4], side[0], side[2], ip); break;
-			case 1: plane_3_intersection(side[4], side[1], side[2], ip); break;
-			case 2: plane_3_intersection(side[4], side[1], side[3], ip); break;
-			case 3: plane_3_intersection(side[4], side[0], side[3], ip); break;
-			case 4: plane_3_intersection(side[5], side[0], side[2], ip); break;
-			case 5: plane_3_intersection(side[5], side[1], side[2], ip); break;
-			case 6: plane_3_intersection(side[5], side[1], side[3], ip); break;
-			case 7: plane_3_intersection(side[5], side[0], side[3], ip); break;
-			default: break;
-		}
-
-		return ip;
-	}
-
 	inline void from_matrix(Frustum& f, const Matrix4x4& m)
 	{
 		f.left.n.x   = m.x.w + m.x.x;
@@ -128,11 +83,51 @@ namespace frustum
 		plane::normalize(f.far);
 	}
 
+	inline bool contains_point(const Frustum& f, const Vector3& p)
+	{
+		return !(plane::distance_to_point(f.left, p) < 0.0f
+			|| plane::distance_to_point(f.right, p) < 0.0f
+			|| plane::distance_to_point(f.bottom, p) < 0.0f
+			|| plane::distance_to_point(f.top, p) < 0.0f
+			|| plane::distance_to_point(f.near, p) < 0.0f
+			|| plane::distance_to_point(f.far, p) < 0.0f
+			);
+	}
+
+	inline Vector3 vertex(const Frustum& f, uint32_t index)
+	{
+		CE_ASSERT(index < 8, "Index out of bounds");
+
+		// 0 = Near bottom left
+		// 1 = Near bottom right
+		// 2 = Near top right
+		// 3 = Near top left
+		// 4 = Far bottom left
+		// 5 = Far bottom right
+		// 6 = Far top right
+		// 7 = Far top left
+
+		const Plane* side = &f.left;
+		Vector3 ip;
+
+		switch (index)
+		{
+			case 0: plane_3_intersection(side[4], side[0], side[2], ip); break;
+			case 1: plane_3_intersection(side[4], side[1], side[2], ip); break;
+			case 2: plane_3_intersection(side[4], side[1], side[3], ip); break;
+			case 3: plane_3_intersection(side[4], side[0], side[3], ip); break;
+			case 4: plane_3_intersection(side[5], side[0], side[2], ip); break;
+			case 5: plane_3_intersection(side[5], side[1], side[2], ip); break;
+			case 6: plane_3_intersection(side[5], side[1], side[3], ip); break;
+			case 7: plane_3_intersection(side[5], side[0], side[3], ip); break;
+			default: break;
+		}
+
+		return ip;
+	}
+
 	inline AABB to_aabb(const Frustum& f)
 	{
-		AABB tmp;
-		aabb::reset(tmp);
-
 		Vector3 vertices[8];
 		vertices[0] = vertex(f, 0);
 		vertices[1] = vertex(f, 1);
@@ -143,9 +138,10 @@ namespace frustum
 		vertices[6] = vertex(f, 6);
 		vertices[7] = vertex(f, 7);
 
-		aabb::add_points(tmp, 8, vertices);
-
-		return tmp;
+		AABB aabb;
+		aabb::reset(aabb);
+		aabb::add_points(aabb, 8, vertices);
+		return aabb;
 	}
 } // namespace frustum
 
