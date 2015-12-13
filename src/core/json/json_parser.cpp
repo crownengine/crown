@@ -189,10 +189,13 @@ Quaternion JSONElement::to_quaternion(const Quaternion& def) const
 	Array<const char*> array(alloc);
 	njson::parse_array(_at, array);
 
-	return quaternion(njson::parse_float(array[0]),
-		njson::parse_float(array[1]),
-		njson::parse_float(array[2]),
-		njson::parse_float(array[3]));
+	const Vector3 axis = vector3(njson::parse_float(array[0])
+		, njson::parse_float(array[1])
+		, njson::parse_float(array[2])
+		);
+	const float angle = njson::parse_float(array[3]);
+
+	return quaternion(axis, angle);
 }
 
 Matrix4x4 JSONElement::to_matrix4x4(const Matrix4x4& def) const
