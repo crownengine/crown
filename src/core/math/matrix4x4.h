@@ -274,7 +274,7 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 /// Sets the matrix @a m to perspective.
 inline void set_perspective(Matrix4x4& m, float fovy, float aspect, float near, float far)
 {
-	const float height = 1.0f / tanf(fovy * ((float) PI / 180.0f) * 0.5f);
+	const float height = 1.0f / tanf(to_rad(fovy) * 0.5f);
 	const float width = height * 1.0f / aspect;
 	const float aa = far / (far - near);
 	const float bb = -near * aa;
