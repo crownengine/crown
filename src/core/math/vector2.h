@@ -7,7 +7,6 @@
 
 #include "math_types.h"
 #include "math_utils.h"
-#include "error.h"
 
 namespace crown
 {
@@ -40,15 +39,6 @@ inline Vector2& operator*=(Vector2& a, float k)
 {
 	a.x *= k;
 	a.y *= k;
-	return a;
-}
-
-inline Vector2& operator/=(Vector2& a, float k)
-{
-	CE_ASSERT(k != 0.0f, "Division by zero");
-	float inv = 1.0f / k;
-	a.x *= inv;
-	a.y *= inv;
 	return a;
 }
 
@@ -86,13 +76,6 @@ inline Vector2 operator*(Vector2 a, float k)
 inline Vector2 operator*(float k, Vector2 a)
 {
 	a *= k;
-	return a;
-}
-
-/// Divides the vector @a a by the scalar @a k and returns the result.
-inline Vector2 operator/(Vector2 a, float k)
-{
-	a /= k;
 	return a;
 }
 

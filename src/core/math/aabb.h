@@ -8,6 +8,7 @@
 #include "math_types.h"
 #include "vector3.h"
 #include "matrix4x4.h"
+#include "error.h"
 
 namespace crown
 {

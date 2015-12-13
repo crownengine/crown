@@ -7,7 +7,6 @@
 
 #include "math_types.h"
 #include "math_utils.h"
-#include "error.h"
 
 namespace crown
 {
@@ -64,17 +63,6 @@ inline Vector4& operator*=(Vector4& a, float k)
 	return a;
 }
 
-inline Vector4& operator/=(Vector4& a, float k)
-{
-	CE_ASSERT(k != 0.0f, "Division by zero");
-	float inv = 1.0f / k;
-	a.x *= inv;
-	a.y *= inv;
-	a.z *= inv;
-	a.w *= inv;
-	return a;
-}
-
 /// Negates @a a and returns the result.
 inline Vector4 operator-(const Vector4& a)
 {
@@ -111,13 +99,6 @@ inline Vector4 operator*(Vector4 a, float k)
 inline Vector4 operator*(float k, Vector4 a)
 {
 	a *= k;
-	return a;
-}
-
-/// Divides the vector @a a by the scalar @a k and returns the result.
-inline Vector4 operator/(Vector4 a, float k)
-{
-	a /= k;
 	return a;
 }
 

@@ -157,13 +157,6 @@ static int vector3_multiply(lua_State* L)
 	return 1;
 }
 
-static int vector3_divide(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_vector3(stack.get_vector3(1) / stack.get_float(2));
-	return 1;
-}
-
 static int vector3_dot(lua_State* L)
 {
 	LuaStack stack(L);
@@ -844,15 +837,6 @@ static int lightuserdata_mul(lua_State* L)
 	return 1;
 }
 
-static int lightuserdata_div(lua_State* L)
-{
-	LuaStack stack(L);
-	const Vector3& a = stack.get_vector3(1);
-	const float b = stack.get_float(2);
-	stack.push_vector3(a / b);
-	return 1;
-}
-
 static int lightuserdata_unm(lua_State* L)
 {
 	LuaStack stack(L);
@@ -913,7 +897,6 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3", "add",              vector3_add);
 	env.load_module_function("Vector3", "subtract",         vector3_subtract);
 	env.load_module_function("Vector3", "multiply",         vector3_multiply);
-	env.load_module_function("Vector3", "divide",           vector3_divide);
 	env.load_module_function("Vector3", "dot",              vector3_dot);
 	env.load_module_function("Vector3", "cross",            vector3_cross);
 	env.load_module_function("Vector3", "equal",            vector3_equal);
@@ -1017,7 +1000,6 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Lightuserdata_mt", "__add",      lightuserdata_add);
 	env.load_module_function("Lightuserdata_mt", "__sub",      lightuserdata_sub);
 	env.load_module_function("Lightuserdata_mt", "__mul",      lightuserdata_mul);
-	env.load_module_function("Lightuserdata_mt", "__div",      lightuserdata_div);
 	env.load_module_function("Lightuserdata_mt", "__unm",      lightuserdata_unm);
 	env.load_module_function("Lightuserdata_mt", "__index",    lightuserdata_index);
 	env.load_module_function("Lightuserdata_mt", "__newindex", lightuserdata_newindex);
