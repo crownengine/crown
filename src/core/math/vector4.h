@@ -13,9 +13,6 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns the Vector3 portion of @a a. (i.e. truncates w)
-Vector3 to_vector3(const Vector4& a);
-
 inline Vector4 vector4(float x, float y, float z, float w)
 {
 	Vector4 v;
@@ -214,6 +211,7 @@ inline const float* to_float_ptr(const Vector4& a)
 	return &a.x;
 }
 
+/// Returns the Vector3 portion of @a a. (i.e. truncates w)
 inline Vector3 to_vector3(const Vector4& a)
 {
 	Vector3 v;
