@@ -46,19 +46,18 @@ namespace frustum
 {
 	inline bool contains_point(const Frustum& f, const Vector3& p)
 	{
-		if (plane::distance_to_point(f.left, p) < 0.0) return false;
-		if (plane::distance_to_point(f.right, p) < 0.0) return false;
-		if (plane::distance_to_point(f.bottom, p) < 0.0) return false;
-		if (plane::distance_to_point(f.top, p) < 0.0) return false;
-		if (plane::distance_to_point(f.near, p) < 0.0) return false;
-		if (plane::distance_to_point(f.far, p) < 0.0) return false;
-
-		return true;
+		return !(plane::distance_to_point(f.left, p) < 0.0f
+			|| plane::distance_to_point(f.right, p) < 0.0f
+			|| plane::distance_to_point(f.bottom, p) < 0.0f
+			|| plane::distance_to_point(f.top, p) < 0.0f
+			|| plane::distance_to_point(f.near, p) < 0.0f
+			|| plane::distance_to_point(f.far, p) < 0.0f
+			);
 	}
 
 	inline Vector3 vertex(const Frustum& f, uint32_t index)
 	{
-		CE_ASSERT(index < 8, "Index must be < 8");
+		CE_ASSERT(index < 8, "Index out of bounds");
 
 		// 0 = Near bottom left
 		// 1 = Near bottom right
@@ -130,9 +129,6 @@ namespace frustum
 
 	inline AABB to_aabb(const Frustum& f)
 	{
-		AABB tmp;
-		aabb::reset(tmp);
-
 		Vector3 vertices[8];
 		vertices[0] = vertex(f, 0);
 		vertices[1] = vertex(f, 1);
@@ -143,9 +139,10 @@ namespace frustum
 		vertices[6] = vertex(f, 6);
 		vertices[7] = vertex(f, 7);
 
-		aabb::add_points(tmp, 8, vertices);
-
-		return tmp;
+		AABB aabb;
+		aabb::reset(aabb);
+		aabb::add_points(aabb, 8, vertices);
+		return aabb;
 	}
 } // namespace frustum
 
