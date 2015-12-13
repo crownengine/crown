@@ -174,6 +174,15 @@ inline Vector2 min(const Vector2& a, const Vector2& b)
 	return v;
 }
 
+/// Returns the linearly interpolated vector between @a and @b at time @a t in [0, 1].
+inline Vector2 lerp(const Vector2& a, const Vector2& b, float t)
+{
+	Vector2 v;
+	v.x = lerp(a.x, b.x, t);
+	v.y = lerp(a.y, b.y, t);
+	return v;
+}
+
 /// Returns the pointer to the data of @a a.
 inline float* to_float_ptr(Vector2& a)
 {
