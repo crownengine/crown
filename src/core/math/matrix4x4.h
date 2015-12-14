@@ -15,10 +15,11 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-inline Matrix4x4 matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
-	float r1c2, float r2c2, float r3c2, float r4c2,
-	float r1c3, float r2c3, float r3c3, float r4c3,
-	float r1c4, float r2c4, float r3c4, float r4c4)
+inline Matrix4x4 matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1
+	, float r1c2, float r2c2, float r3c2, float r4c2
+	, float r1c3, float r2c3, float r3c3, float r4c3
+	, float r1c4, float r2c4, float r3c4, float r4c4
+	)
 {
 	Matrix4x4 m;
 	m.x.x = r1c1;
@@ -246,22 +247,22 @@ inline Matrix4x4 operator/(Matrix4x4 a, float k)
 /// Multiplies the matrix @a a by the vector @a v and returns the result.
 inline Vector3 operator*(const Vector3& v, const Matrix4x4& a)
 {
-	Vector3 res;
-	res.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + a.t.x;
-	res.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + a.t.y;
-	res.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + a.t.z;
-	return res;
+	Vector3 r;
+	r.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + a.t.x;
+	r.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + a.t.y;
+	r.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + a.t.z;
+	return r;
 }
 
 /// Multiplies the matrix @a by the vector @a v and returns the result.
 inline Vector4 operator*(const Vector4& v, const Matrix4x4& a)
 {
-	Vector4 res;
-	res.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + v.w*a.t.x;
-	res.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + v.w*a.t.y;
-	res.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + v.w*a.t.z;
-	res.w = v.x*a.x.w + v.y*a.y.w + v.z*a.z.w + v.w*a.t.w;
-	return res;
+	Vector4 r;
+	r.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x + v.w*a.t.x;
+	r.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y + v.w*a.t.y;
+	r.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z + v.w*a.t.z;
+	r.w = v.x*a.x.w + v.y*a.y.w + v.z*a.z.w + v.w*a.t.w;
+	return r;
 }
 
 /// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
@@ -506,19 +507,31 @@ inline void set_identity(Matrix4x4& m)
 /// Returns the x asis of the matrix @a m.
 inline Vector3 x(const Matrix4x4& m)
 {
-	return vector3(m.x.x, m.x.y, m.x.z);
+	Vector3 v;
+	v.x = m.x.x;
+	v.y = m.x.y;
+	v.z = m.x.z;
+	return v;
 }
 
 /// Returns the y asis of the matrix @a m.
 inline Vector3 y(const Matrix4x4& m)
 {
-	return vector3(m.y.x, m.y.y, m.y.z);
+	Vector3 v;
+	v.x = m.y.x;
+	v.y = m.y.y;
+	v.z = m.y.z;
+	return v;
 }
 
 /// Returns the z asis of the matrix @a m.
 inline Vector3 z(const Matrix4x4& m)
 {
-	return vector3(m.z.x, m.z.y, m.z.z);
+	Vector3 v;
+	v.x = m.z.x;
+	v.y = m.z.y;
+	v.z = m.z.z;
+	return v;
 }
 
 /// Sets the x axis of the matrix @a m.
@@ -548,7 +561,11 @@ inline void set_z(Matrix4x4& m, const Vector3& z)
 /// Returns the translation portion of the matrix @a m.
 inline Vector3 translation(const Matrix4x4& m)
 {
-	return vector3(m.t.x, m.t.y, m.t.z);
+	Vector3 v;
+	v.x = m.t.x;
+	v.y = m.t.y;
+	v.z = m.t.z;
+	return v;
 }
 
 /// Sets the translation portion of the matrix @a m.
@@ -611,7 +628,11 @@ inline Vector3 scale(const Matrix4x4& m)
 	const float sx = length(to_vector3(m.x));
 	const float sy = length(to_vector3(m.y));
 	const float sz = length(to_vector3(m.z));
-	return vector3(sx, sy, sz);
+	Vector3 v;
+	v.x = sx;
+	v.y = sy;
+	v.z = sz;
+	return v;
 }
 
 /// Sets the scale of the matrix @æ m.

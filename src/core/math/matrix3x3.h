@@ -129,11 +129,11 @@ inline Matrix3x3 operator/(Matrix3x3 a, float k)
 /// Multiplies the matrix @a a by the vector @a v and returns the result.
 inline Vector3 operator*(const Vector3& v, const Matrix3x3& a)
 {
-	Vector3 res;
-	res.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x;
-	res.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y;
-	res.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z;
-	return res;
+	Vector3 r;
+	r.x = v.x*a.x.x + v.y*a.y.x + v.z*a.z.x;
+	r.y = v.x*a.x.y + v.y*a.y.y + v.z*a.z.y;
+	r.z = v.x*a.x.z + v.y*a.y.z + v.z*a.z.z;
+	return r;
 }
 
 /// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
@@ -238,11 +238,11 @@ inline Vector3 scale(const Matrix3x3& m)
 	const float sx = length(m.x);
 	const float sy = length(m.y);
 	const float sz = length(m.z);
-	Vector3 res;
-	res.x = sx;
-	res.y = sy;
-	res.z = sz;
-	return res;
+	Vector3 v;
+	v.x = sx;
+	v.y = sy;
+	v.z = sz;
+	return v;
 }
 
 /// Sets the scale of the matrix @a m.
