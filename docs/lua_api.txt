@@ -147,7 +147,7 @@ Quaternion
 		Multiplies the quaternion *a* by the scalar *k*.
 
 	**dot** (a, b) : float
-		Returns the dot product between quaternions *a* a and *b*.
+		Returns the dot product between quaternions *a* and *b*.
 
 	**length** (q) : float
 		Returns the length of *q*.
