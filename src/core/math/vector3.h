@@ -49,11 +49,11 @@ inline Vector3& operator*=(Vector3& a, float k)
 /// Negates @a a and returns the result.
 inline Vector3 operator-(const Vector3& a)
 {
-	Vector3 res;
-	res.x = -a.x;
-	res.y = -a.y;
-	res.z = -a.z;
-	return res;
+	Vector3 v;
+	v.x = -a.x;
+	v.y = -a.y;
+	v.z = -a.z;
+	return v;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
@@ -99,7 +99,11 @@ inline float dot(const Vector3& a, const Vector3& b)
 /// Returns the cross product between the vectors @a a and @a b.
 inline Vector3 cross(const Vector3& a, const Vector3& b)
 {
-	return vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+	Vector3 v;
+	v.x = a.y * b.z - a.z * b.y;
+	v.y = a.z * b.x - a.x * b.z;
+	v.z = a.x * b.y - a.y * b.x;
+	return v;
 }
 
 /// Returns the squared length of @a a.

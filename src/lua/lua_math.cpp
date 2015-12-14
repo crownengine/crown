@@ -648,6 +648,13 @@ static int quaternion_identity(lua_State* L)
 	return 1;
 }
 
+static int quaternion_dot(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_float(dot(stack.get_quaternion(1), stack.get_quaternion(2)));
+	return 1;
+}
+
 static int quaternion_length(lua_State* L)
 {
 	LuaStack stack(L);
@@ -973,6 +980,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "identity",           quaternion_identity);
 	env.load_module_function("Quaternion", "multiply",           quaternion_multiply);
 	env.load_module_function("Quaternion", "multiply_by_scalar", quaternion_multiply_by_scalar);
+	env.load_module_function("Quaternion", "dot",                quaternion_dot);
 	env.load_module_function("Quaternion", "length",             quaternion_length);
 	env.load_module_function("Quaternion", "normalize",          quaternion_normalize);
 	env.load_module_function("Quaternion", "conjugate",          quaternion_conjugate);

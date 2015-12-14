@@ -63,12 +63,12 @@ inline Vector4& operator*=(Vector4& a, float k)
 /// Negates @a a and returns the result.
 inline Vector4 operator-(const Vector4& a)
 {
-	Vector4 res;
-	res.x = -a.x;
-	res.y = -a.y;
-	res.z = -a.z;
-	res.w = -a.w;
-	return res;
+	Vector4 v;
+	v.x = -a.x;
+	v.y = -a.y;
+	v.z = -a.z;
+	v.w = -a.w;
+	return v;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
@@ -105,7 +105,8 @@ inline bool operator==(const Vector4& a, const Vector4& b)
 	return fequal(a.x, b.x)
 		&& fequal(a.y, b.y)
 		&& fequal(a.z, b.z)
-		&& fequal(a.w, b.w);
+		&& fequal(a.w, b.w)
+		;
 }
 
 /// Returns the dot product between the vectors @a a and @a b.

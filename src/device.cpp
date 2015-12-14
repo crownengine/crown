@@ -27,7 +27,6 @@
 #include "profiler.h"
 #include "console_server.h"
 #include "input_device.h"
-#include "profiler.h"
 
 #if CROWN_PLATFORM_ANDROID
 	#include "apk_filesystem.h"

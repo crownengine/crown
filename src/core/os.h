@@ -86,6 +86,35 @@ namespace os
 #endif
 	}
 
+	/// Returns the last modification time of @a path.
+	inline uint64_t mtime(const char* path)
+	{
+#if CROWN_PLATFORM_POSIX
+		struct stat info;
+		memset(&info, 0, sizeof(struct stat));
+		int err = lstat(path, &info);
+		CE_ASSERT(err == 0, "lstat: errno = %d", errno);
+		CE_UNUSED(err);
+		return info.st_mtime;
+#elif CROWN_PLATFORM_WINDOWS
+		HANDLE hfile = CreateFile(path
+			, GENERIC_READ
+			, FILE_SHARE_READ
+			, NULL
+			, OPEN_EXISTING
+			, 0
+			, NULL
+			);
+		CE_ASSERT(hfile != INVALID_HANDLE_VALUE, "CreateFile: GetLastError = %d", GetLastError());
+		FILETIME ftwrite;
+		BOOL err = GetFileTime(hfile, NULL, NULL, &ftwrite);
+		CE_ASSERT(err != 0, "GetFileTime: GetLastError = %d", GetLastError());
+		CE_UNUSED(err);
+		CloseHandle(hfile);
+		return (uint64_t)((ftwrite.dwHighDateTime << 32) | ftwrite.dwLowDateTime);
+#endif
+	}
+
 	/// Creates a regular file.
 	inline void create_file(const char* path)
 	{
@@ -155,21 +184,18 @@ namespace os
 		struct dirent *entry;
 
 		if (!(dir = opendir(path)))
-		{
 			return;
-		}
 
 		while ((entry = readdir(dir)))
 		{
-			if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-			{
+			const char* dname = entry->d_name;
+
+			if (!strcmp(dname, ".") || !strcmp(dname, ".."))
 				continue;
-			}
 
-			DynamicString filename(default_allocator());
-
-			filename = entry->d_name;
-			vector::push_back(files, filename);
+			TempAllocator512 ta;
+			DynamicString fname(dname, ta);
+			vector::push_back(files, fname);
 		}
 
 		closedir(dir);
