@@ -155,21 +155,18 @@ namespace os
 		struct dirent *entry;
 
 		if (!(dir = opendir(path)))
-		{
 			return;
-		}
 
 		while ((entry = readdir(dir)))
 		{
-			if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-			{
+			const char* dname = entry->d_name;
+
+			if (!strcmp(dname, ".") || !strcmp(dname, ".."))
 				continue;
-			}
 
-			DynamicString filename(default_allocator());
-
-			filename = entry->d_name;
-			vector::push_back(files, filename);
+			TempAllocator512 ta;
+			DynamicString fname(dname, ta);
+			vector::push_back(files, fname);
 		}
 
 		closedir(dir);
