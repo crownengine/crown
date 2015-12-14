@@ -45,10 +45,10 @@ inline Vector2& operator*=(Vector2& a, float k)
 /// Negates @a a and returns the result.
 inline Vector2 operator-(const Vector2& a)
 {
-	Vector2 res;
-	res.x = -a.x;
-	res.y = -a.y;
-	return res;
+	Vector2 v;
+	v.x = -a.x;
+	v.y = -a.y;
+	return v;
 }
 
 /// Adds the vector @a a to @a b and returns the result.
