@@ -9,6 +9,8 @@
 
 namespace crown
 {
+/// @addtogroup Math
+/// @{
 
 /// Returns the distance along ray (from, dir) to intersection point with plane @a p
 /// or -1.0 if no intersection.
@@ -30,4 +32,5 @@ bool plane_3_intersection(const Plane& p1, const Plane& p2, const Plane& p3, Vec
 bool frustum_sphere_intersection(const Frustum& f, const Sphere& s);
 bool frustum_box_intersection(const Frustum& f, const AABB& b);
 
+/// @}
 } // namespace crown
