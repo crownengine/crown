@@ -426,7 +426,7 @@ void Device::read_config()
 		project_path += '/';
 	}
 
-	project_path += "crown";
+	project_path += CROWN_BOOT_CONFIG;
 
 	const StringId64 config_name(project_path.c_str());
 
