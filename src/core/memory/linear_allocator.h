@@ -10,15 +10,18 @@
 namespace crown
 {
 
-/// Allocates memory linearly from a predefined chunk
-/// and frees all the allocations with a single call to clear()
+/// Allocates memory linearly from a fixed chunk of memory
+/// and frees all the allocations with a single call to clear().
 ///
 /// @ingroup Memory
 class LinearAllocator : public Allocator
 {
 public:
 
+	/// Allocates @a size bytes from @a backing.
 	LinearAllocator(Allocator& backing, uint32_t size);
+
+	/// Uses @a size bytes of memory from @a start.
 	LinearAllocator(void* start, uint32_t size);
 	~LinearAllocator();
 
@@ -44,7 +47,6 @@ public:
 private:
 
 	Allocator* _backing;
-
 	void* _physical_start;
 	uint32_t _total_size;
 	uint32_t _offset;
