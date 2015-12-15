@@ -29,7 +29,7 @@ public:
 
 	/// Uses the @a backing allocator when internal memory is exahusted
 	/// or the allocation size exceeds the remaining storage.
-	TempAllocator(Allocator& backing = default_allocator());
+	TempAllocator(Allocator& backing = default_scratch_allocator());
 	~TempAllocator();
 
 	/// @copydoc Allocator::allocate()
