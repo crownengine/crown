@@ -173,38 +173,39 @@ inline Matrix3x3 get_transposed(Matrix3x3 m)
 /// Returns the determinant of the matrix @a m.
 inline float determinant(const Matrix3x3& m)
 {
-	return	m.x.x * (m.y.y * m.z.z - m.z.y * m.y.z) -
-			m.y.x * (m.x.y * m.z.z - m.z.y * m.x.z) +
-			m.z.x * (m.x.y * m.y.z - m.y.y * m.x.z);
+	return	+ m.x.x * (m.y.y * m.z.z - m.z.y * m.y.z)
+			- m.y.x * (m.x.y * m.z.z - m.z.y * m.x.z)
+			+ m.z.x * (m.x.y * m.y.z - m.y.y * m.x.z)
+			;
 }
 
 /// Inverts the matrix @a m and returns the result.
 inline Matrix3x3& invert(Matrix3x3& m)
 {
-	Matrix3x3 mat;
+	const float xx = m.x.x;
+	const float xy = m.x.y;
+	const float xz = m.x.z;
+	const float yx = m.y.x;
+	const float yy = m.y.y;
+	const float yz = m.y.z;
+	const float zx = m.z.x;
+	const float zy = m.z.y;
+	const float zz = m.z.z;
 
-	mat.x.x = (m.y.y * m.z.z - m.z.y * m.y.z);
-	mat.x.y = (m.x.y * m.z.z - m.z.y * m.x.z);
-	mat.x.z = (m.x.y * m.y.z - m.y.y * m.x.z);
+	const float det = determinant(m);
+	const float inv_det = 1.0f / det;
 
-	const float inv_det = 1.0f / (m.x.x * mat.x.x - m.y.x * mat.x.y + m.z.x * mat.x.z);
+	m.x.x = + (yy*zz - zy*yz) * inv_det;
+	m.x.y = - (xy*zz - zy*xz) * inv_det;
+	m.x.z = + (xy*yz - yy*xz) * inv_det;
 
-	mat.y.x = (m.y.x * m.z.z - m.z.x * m.y.z);
-	mat.y.y = (m.x.x * m.z.z - m.z.x * m.x.z);
-	mat.y.z = (m.x.x * m.y.z - m.y.x * m.x.z);
-	mat.z.x = (m.y.x * m.z.y - m.z.x * m.y.y);
-	mat.z.y = (m.x.x * m.z.y - m.z.x * m.x.y);
-	mat.z.z = (m.x.x * m.y.y - m.y.x * m.x.y);
+	m.y.x = - (yx*zz - zx*yz) * inv_det;
+	m.y.y = + (xx*zz - zx*xz) * inv_det;
+	m.y.z = - (xx*yz - yx*xz) * inv_det;
 
-	m.x.x = + mat.x.x * inv_det;
-	m.x.y = - mat.x.y * inv_det;
-	m.x.z = + mat.x.z * inv_det;
-	m.y.x = - mat.y.x * inv_det;
-	m.y.y = + mat.y.y * inv_det;
-	m.y.z = - mat.y.z * inv_det;
-	m.z.x = + mat.z.x * inv_det;
-	m.z.y = - mat.z.y * inv_det;
-	m.z.z = + mat.z.z * inv_det;
+	m.z.x = + (yx*zy - zx*yy) * inv_det;
+	m.z.y = - (xx*zy - zx*xy) * inv_det;
+	m.z.z = + (xx*yy - yx*xy) * inv_det;
 
 	return m;
 }
