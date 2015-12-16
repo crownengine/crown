@@ -396,79 +396,74 @@ inline void set_look(Matrix4x4& m, const Vector3& pos, const Vector3& target, co
 /// Returns the determinant of the matrix @a m.
 inline float determinant(const Matrix4x4& m)
 {
-	const float m02m07_m06m03 = m.x.z * m.y.w - m.y.z * m.x.w;
-	const float m02m11_m10m03 = m.x.z * m.z.w - m.z.z * m.x.w;
-	const float m02m15_m14m03 = m.x.z * m.t.w - m.t.z * m.x.w;
-	const float m06m11_m10m07 = m.y.z * m.z.w - m.z.z * m.y.w;
-	const float m06m15_m14m07 = m.y.z * m.t.w - m.t.z * m.y.w;
-	const float m10m15_m14m11 = m.z.z * m.t.w - m.t.z * m.z.w;
+	const float xx = m.x.x;
+	const float xy = m.x.y;
+	const float xz = m.x.z;
+	const float xw = m.x.w;
+	const float yx = m.y.x;
+	const float yy = m.y.y;
+	const float yz = m.y.z;
+	const float yw = m.y.w;
+	const float zx = m.z.x;
+	const float zy = m.z.y;
+	const float zz = m.z.z;
+	const float zw = m.z.w;
+	const float tx = m.t.x;
+	const float ty = m.t.y;
+	const float tz = m.t.z;
+	const float tw = m.t.w;
 
-	return 	+ m.x.x * (m.y.y * m10m15_m14m11 - m.z.y * m06m15_m14m07 + m.t.y * m06m11_m10m07)
-			- m.y.x * (m.x.y * m10m15_m14m11 - m.z.y * m02m15_m14m03 + m.t.y * m02m11_m10m03)
-			+ m.z.x * (m.x.y * m06m15_m14m07 - m.y.y * m02m15_m14m03 + m.t.y * m02m07_m06m03)
-			- m.t.x * (m.x.y * m06m11_m10m07 - m.y.y * m02m11_m10m03 + m.z.y * m02m07_m06m03);
+	float det = 0.0f;
+	det += + xx * (yy * (zz*tw - tz*zw) - zy * (yz*tw - tz*yw) + ty * (yz*zw - zz*yw));
+	det += - yx * (xy * (zz*tw - tz*zw) - zy * (xz*tw - tz*xw) + ty * (xz*zw - zz*xw));
+	det += + zx * (xy * (yz*tw - tz*yw) - yy * (xz*tw - tz*xw) + ty * (xz*yw - yz*xw));
+	det += - tx * (xy * (yz*zw - zz*yw) - yy * (xz*zw - zz*xw) + zy * (xz*yw - yz*xw));
+
+	return det;
 }
 
 /// Inverts the matrix @a m and returns the result.
 inline Matrix4x4& invert(Matrix4x4& m)
 {
-	Matrix4x4 mat;
+	const float xx = m.x.x;
+	const float xy = m.x.y;
+	const float xz = m.x.z;
+	const float xw = m.x.w;
+	const float yx = m.y.x;
+	const float yy = m.y.y;
+	const float yz = m.y.z;
+	const float yw = m.y.w;
+	const float zx = m.z.x;
+	const float zy = m.z.y;
+	const float zz = m.z.z;
+	const float zw = m.z.w;
+	const float tx = m.t.x;
+	const float ty = m.t.y;
+	const float tz = m.t.z;
+	const float tw = m.t.w;
 
-	const float m01m06_m05m02 = m.x.y * m.y.z - m.y.y * m.x.z;
-	const float m01m07_m05m03 = m.x.y * m.y.w - m.y.y * m.x.w;
-	const float m01m10_m09m02 = m.x.y * m.z.z - m.z.y * m.x.z;
-	const float m01m11_m09m03 = m.x.y * m.z.w - m.z.y * m.x.w;
-	const float m01m14_m13m02 = m.x.y * m.t.z - m.t.y * m.x.z;
-	const float m01m15_m13m03 = m.x.y * m.t.w - m.t.y * m.x.w;
-	const float m02m07_m06m03 = m.x.z * m.y.w - m.y.z * m.x.w;
-	const float m02m11_m10m03 = m.x.z * m.z.w - m.z.z * m.x.w;
-	const float m02m15_m14m03 = m.x.z * m.t.w - m.t.z * m.x.w;
-	const float m05m10_m09m06 = m.y.y * m.z.z - m.z.y * m.y.z;
-	const float m05m11_m09m07 = m.y.y * m.z.w - m.z.y * m.y.w;
-	const float m05m14_m13m06 = m.y.y * m.t.z - m.t.y * m.y.z;
-	const float m05m15_m13m07 = m.y.y * m.t.w - m.t.y * m.y.w;
-	const float m06m11_m10m07 = m.y.z * m.z.w - m.z.z * m.y.w;
-	const float m06m15_m14m07 = m.y.z * m.t.w - m.t.z * m.y.w;
-	const float m09m14_m13m10 = m.z.y * m.t.z - m.t.y * m.z.z;
-	const float m09m15_m13m11 = m.z.y * m.t.w - m.t.y * m.z.w;
-	const float m10m15_m14m11 = m.z.z * m.t.w - m.t.z * m.z.w;
+	const float det = determinant(m);
+	const float inv_det = 1.0f / det;
 
-	mat.x.x = (+ m.y.y * m10m15_m14m11 - m.z.y * m06m15_m14m07 + m.t.y * m06m11_m10m07);
-	mat.x.y = (+ m.x.y * m10m15_m14m11 - m.z.y * m02m15_m14m03 + m.t.y * m02m11_m10m03);
-	mat.x.z = (+ m.x.y * m06m15_m14m07 - m.y.y * m02m15_m14m03 + m.t.y * m02m07_m06m03);
-	mat.x.w = (+ m.x.y * m06m11_m10m07 - m.y.y * m02m11_m10m03 + m.z.y * m02m07_m06m03);
+	m.x.x = + (yy * (zz*tw - tz*zw) - zy * (yz*tw - tz*yw) + ty * (yz*zw - zz*yw)) * inv_det;
+	m.x.y = - (xy * (zz*tw - tz*zw) - zy * (xz*tw - tz*xw) + ty * (xz*zw - zz*xw)) * inv_det;
+	m.x.z = + (xy * (yz*tw - tz*yw) - yy * (xz*tw - tz*xw) + ty * (xz*yw - yz*xw)) * inv_det;
+	m.x.w = - (xy * (yz*zw - zz*yw) - yy * (xz*zw - zz*xw) + zy * (xz*yw - yz*xw)) * inv_det;
 
-	const float inv_det = 1.0f / (m.x.x * mat.x.x - m.y.x * mat.x.y + m.z.x * mat.x.z - m.t.x * mat.x.w);
+	m.y.x = - (yx * (zz*tw - tz*zw) - zx * (yz*tw - tz*yw) + tx * (yz*zw - zz*yw)) * inv_det;
+	m.y.y = + (xx * (zz*tw - tz*zw) - zx * (xz*tw - tz*xw) + tx * (xz*zw - zz*xw)) * inv_det;
+	m.y.z = - (xx * (yz*tw - tz*yw) - yx * (xz*tw - tz*xw) + tx * (xz*yw - yz*xw)) * inv_det;
+	m.y.w = + (xx * (yz*zw - zz*yw) - yx * (xz*zw - zz*xw) + zx * (xz*yw - yz*xw)) * inv_det;
 
-	mat.y.x = (+ m.y.x * m10m15_m14m11 - m.z.x * m06m15_m14m07 + m.t.x * m06m11_m10m07);
-	mat.y.y = (+ m.x.x * m10m15_m14m11 - m.z.x * m02m15_m14m03 + m.t.x * m02m11_m10m03);
-	mat.y.z = (+ m.x.x * m06m15_m14m07 - m.y.x * m02m15_m14m03 + m.t.x * m02m07_m06m03);
-	mat.y.w = (+ m.x.x * m06m11_m10m07 - m.y.x * m02m11_m10m03 + m.z.x * m02m07_m06m03);
-	mat.z.x = (+ m.y.x * m09m15_m13m11 - m.z.x * m05m15_m13m07 + m.t.x * m05m11_m09m07);
-	mat.z.y = (+ m.x.x * m09m15_m13m11 - m.z.x * m01m15_m13m03 + m.t.x * m01m11_m09m03);
-	mat.z.z = (+ m.x.x * m05m15_m13m07 - m.y.x * m01m15_m13m03 + m.t.x * m01m07_m05m03);
-	mat.z.w = (+ m.x.x * m05m11_m09m07 - m.y.x * m01m11_m09m03 + m.z.x * m01m07_m05m03);
-	mat.t.x = (+ m.y.x * m09m14_m13m10 - m.z.x * m05m14_m13m06 + m.t.x * m05m10_m09m06);
-	mat.t.y = (+ m.x.x * m09m14_m13m10 - m.z.x * m01m14_m13m02 + m.t.x * m01m10_m09m02);
-	mat.t.z = (+ m.x.x * m05m14_m13m06 - m.y.x * m01m14_m13m02 + m.t.x * m01m06_m05m02);
-	mat.t.w = (+ m.x.x * m05m10_m09m06 - m.y.x * m01m10_m09m02 + m.z.x * m01m06_m05m02);
+	m.z.x = + (yx * (zy*tw - ty*zw) - zx * (yy*tw - ty*yw) + tx * (yy*zw - zy*yw)) * inv_det;
+	m.z.y = - (xx * (zy*tw - ty*zw) - zx * (xy*tw - ty*xw) + tx * (xy*zw - zy*xw)) * inv_det;
+	m.z.z = + (xx * (yy*tw - ty*yw) - yx * (xy*tw - ty*xw) + tx * (xy*yw - yy*xw)) * inv_det;
+	m.z.w = - (xx * (yy*zw - zy*yw) - yx * (xy*zw - zy*xw) + zx * (xy*yw - yy*xw)) * inv_det;
 
-	m.x.x = + mat.x.x * inv_det;
-	m.x.y = - mat.x.y * inv_det;
-	m.x.z = + mat.x.z * inv_det;
-	m.x.w = - mat.x.w * inv_det;
-	m.y.x = - mat.y.x * inv_det;
-	m.y.y = + mat.y.y * inv_det;
-	m.y.z = - mat.y.z * inv_det;
-	m.y.w = + mat.y.w * inv_det;
-	m.z.x = + mat.z.x * inv_det;
-	m.z.y = - mat.z.y * inv_det;
-	m.z.z = + mat.z.z * inv_det;
-	m.z.w = - mat.z.w * inv_det;
-	m.t.x = - mat.t.x * inv_det;
-	m.t.y = + mat.t.y * inv_det;
-	m.t.z = - mat.t.z * inv_det;
-	m.t.w = + mat.t.w * inv_det;
+	m.t.x = - (yx * (zy*tz - ty*zz) - zx * (yy*tz - ty*yz) + tx * (yy*zz - zy*yz)) * inv_det;
+	m.t.y = + (xx * (zy*tz - ty*zz) - zx * (xy*tz - ty*xz) + tx * (xy*zz - zy*xz)) * inv_det;
+	m.t.z = - (xx * (yy*tz - ty*yz) - yx * (xy*tz - ty*xz) + tx * (xy*yz - yy*xz)) * inv_det;
+	m.t.w = + (xx * (yy*zz - zy*yz) - yx * (xy*zz - zy*xz) + zx * (xy*yz - yy*xz)) * inv_det;
 
 	return m;
 }
