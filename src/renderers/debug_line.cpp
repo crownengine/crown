@@ -135,17 +135,12 @@ void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4&
 	if (_num >= CROWN_MAX_DEBUG_LINES)
 		 return;
 
-	_lines[_num].p0[0] = start.x;
-	_lines[_num].p0[1] = start.y;
-	_lines[_num].p0[2] = start.z;
-	_lines[_num].c0    = to_abgr(color);
+	_lines[_num].p0 = start;
+	_lines[_num].c0 = to_abgr(color);
+	_lines[_num].p1 = end;
+	_lines[_num].c1 = to_abgr(color);
 
-	_lines[_num].p1[0] = end.x;
-	_lines[_num].p1[1] = end.y;
-	_lines[_num].p1[2] = end.z;
-	_lines[_num].c1    = to_abgr(color);
-
-	_num++;
+	++_num;
 }
 
 void DebugLine::add_axes(const Matrix4x4& m, float length)
