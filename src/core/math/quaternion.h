@@ -26,11 +26,14 @@ inline Quaternion quaternion(float x, float y, float z, float w)
 
 inline Quaternion quaternion(const Vector3& axis, float angle)
 {
+	const float ha = angle * 0.5f;
+	const float sa = sinf(ha);
+	const float ca = cosf(ha);
 	Quaternion q;
-	q.x = axis.x * sinf(angle * 0.5f);
-	q.y = axis.y * sinf(angle * 0.5f);
-	q.z = axis.z * sinf(angle * 0.5f);
-	q.w = cosf(angle * 0.5f);
+	q.x = axis.x * sa;
+	q.y = axis.y * sa;
+	q.z = axis.z * sa;
+	q.w = ca;
 	return q;
 }
 
@@ -52,12 +55,12 @@ inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)
 /// Negates the quaternion @a q and returns the result.
 inline Quaternion operator-(const Quaternion& q)
 {
-	Quaternion res;
-	res.x = -q.x;
-	res.y = -q.y;
-	res.z = -q.z;
-	res.w = -q.w;
-	return res;
+	Quaternion r;
+	r.x = -q.x;
+	r.y = -q.y;
+	r.z = -q.z;
+	r.w = -q.w;
+	return r;
 }
 
 /// Multiplies the quaternions @a a and @a b. (i.e. rotates first by @a a then by @a b).
@@ -70,12 +73,12 @@ inline Quaternion operator*(Quaternion a, const Quaternion& b)
 /// Multiplies the quaternion @a a by the scalar @a k.
 inline Quaternion operator*(const Quaternion& q, float k)
 {
-	Quaternion res;
-	res.x = q.x * k;
-	res.y = q.y * k;
-	res.z = q.z * k;
-	res.w = q.w * k;
-	return res;
+	Quaternion r;
+	r.x = q.x * k;
+	r.y = q.y * k;
+	r.z = q.z * k;
+	r.w = q.w * k;
+	return r;
 }
 
 /// Returns the dot product between quaternions @a a and @a b.
@@ -105,12 +108,12 @@ inline Quaternion& normalize(Quaternion& q)
 /// Returns the conjugate of quaternion @a q.
 inline Quaternion conjugate(const Quaternion& q)
 {
-	Quaternion res;
-	res.x = -q.x;
-	res.y = -q.y;
-	res.z = -q.z;
-	res.w = q.w;
-	return res;
+	Quaternion r;
+	r.x = -q.x;
+	r.y = -q.y;
+	r.z = -q.z;
+	r.w = q.w;
+	return r;
 }
 
 /// Returns the inverse of quaternion @a q.
@@ -130,12 +133,12 @@ inline Quaternion power(const Quaternion& q, float exp)
 		const float new_alpha = alpha * exp;
 		const float mult = sinf(new_alpha) / sinf(alpha);
 
-		Quaternion tmp;
-		tmp.w = cosf(new_alpha);
-		tmp.x = q.x * mult;
-		tmp.y = q.y * mult;
-		tmp.z = q.z * mult;
-		return tmp;
+		Quaternion r;
+		r.w = cosf(new_alpha);
+		r.x = q.x * mult;
+		r.y = q.y * mult;
+		r.z = q.z * mult;
+		return r;
 	}
 
 	return q;

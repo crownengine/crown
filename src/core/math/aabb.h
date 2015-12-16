@@ -18,6 +18,7 @@ namespace crown
 /// @ingroup Math
 namespace aabb
 {
+	/// Resets the AABB @a b.
 	void reset(AABB& b);
 
 	/// Returns the center of the box @a b.

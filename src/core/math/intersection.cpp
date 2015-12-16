@@ -25,26 +25,28 @@ float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plan
 
 float ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, float radius, const Vector3& normal)
 {
-	Plane p = plane::from_point_and_normal(center, normal);
+	const Plane p = plane::from_point_and_normal(center, normal);
 	const float t = ray_plane_intersection(from, dir, p);
 
-	if (t == -1.0)
-		return -1.0;
+	if (t == -1.0f)
+		return -1.0f;
 
 	const Vector3 intersection_point = from + dir * t;
-	if (distance(intersection_point, center) < radius)
+	if (distance_squared(intersection_point, center) < radius*radius)
 		return t;
 
-	return -1.0;
+	return -1.0f;
 }
 
 float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s)
 {
 	const Vector3 v = s.c - from;
 	const float b   = dot(v, dir);
-	const float det = (s.r * s.r) - dot(v, v) + (b * b);
+	const float rr  = s.r * s.r;
+	const float bb  = b * b;
+	const float det = rr - dot(v, v) + b;
 
-	if (det < 0.0 || b < s.r)
+	if (det < 0.0f || b < s.r)
 		return -1.0f;
 
 	return b - sqrtf(det);
@@ -56,13 +58,13 @@ float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix
 	float tmin = 0.0f;
 	float tmax = 100000.0f;
 
-	Vector3 obb_pos = vector3(tm.t.x, tm.t.y, tm.t.z);
-	Vector3 delta = obb_pos - from;
+	const Vector3 obb_pos = vector3(tm.t.x, tm.t.y, tm.t.z);
+	const Vector3 delta = obb_pos - from;
 
 	{
 		const Vector3 xaxis = vector3(tm.x.x, tm.x.y, tm.x.z);
-		float e = dot(xaxis, delta);
-		float f = dot(dir, xaxis);
+		const float e = dot(xaxis, delta);
+		const float f = dot(dir, xaxis);
 
 		if (fabs(f) > 0.001f)
 		{
@@ -91,8 +93,8 @@ float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix
 
 	{
 		const Vector3 yaxis = vector3(tm.y.x, tm.y.y, tm.y.z);
-		float e = dot(yaxis, delta);
-		float f = dot(dir, yaxis);
+		const float e = dot(yaxis, delta);
+		const float f = dot(dir, yaxis);
 
 		if (fabs(f) > 0.001f){
 
@@ -118,8 +120,8 @@ float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix
 
 	{
 		const Vector3 zaxis = vector3(tm.z.x, tm.z.y, tm.z.z);
-		float e = dot(zaxis, delta);
-		float f = dot(dir, zaxis);
+		const float e = dot(zaxis, delta);
+		const float f = dot(dir, zaxis);
 
 		if (fabs(f) > 0.001f){
 
@@ -149,10 +151,10 @@ float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix
 
 bool plane_3_intersection(const Plane& p1, const Plane& p2, const Plane& p3, Vector3& ip)
 {
-	const Vector3& n1 = p1.n;
-	const Vector3& n2 = p2.n;
-	const Vector3& n3 = p3.n;
-	const float den = -dot(cross(n1, n2), n3);
+	const Vector3 n1 = p1.n;
+	const Vector3 n2 = p2.n;
+	const Vector3 n3 = p3.n;
+	const float den  = -dot(cross(n1, n2), n3);
 
 	if (fequal(den, 0.0f))
 		return false;
@@ -190,74 +192,79 @@ bool frustum_sphere_intersection(const Frustum& f, const Sphere& s)
 
 bool frustum_box_intersection(const Frustum& f, const AABB& b)
 {
-	uint8_t out;
+	const Vector3 v0 = aabb::vertex(b, 0);
+	const Vector3 v1 = aabb::vertex(b, 1);
+	const Vector3 v2 = aabb::vertex(b, 2);
+	const Vector3 v3 = aabb::vertex(b, 3);
+	const Vector3 v4 = aabb::vertex(b, 4);
+	const Vector3 v5 = aabb::vertex(b, 5);
+	const Vector3 v6 = aabb::vertex(b, 6);
+	const Vector3 v7 = aabb::vertex(b, 7);
 
-	out = 0;
-	if (plane::distance_to_point(f.left, aabb::vertex(b, 0)) < 0.0) out++;
-	if (plane::distance_to_point(f.left, aabb::vertex(b, 1)) < 0.0) out++;
-	if (plane::distance_to_point(f.left, aabb::vertex(b, 2)) < 0.0) out++;
-	if (plane::distance_to_point(f.left, aabb::vertex(b, 3)) < 0.0) out++;
-	if (plane::distance_to_point(f.left, aabb::vertex(b, 4)) < 0.0) out++;
-	if (plane::distance_to_point(f.left, aabb::vertex(b, 5)) < 0.0) out++;
-	if (plane::distance_to_point(f.left, aabb::vertex(b, 6)) < 0.0) out++;
-	if (plane::distance_to_point(f.left, aabb::vertex(b, 7)) < 0.0) out++;
-
-	// If all vertices are outside one face, then the box doesn't intersect the frustum
+	uint8_t out = 0;
+	out += (plane::distance_to_point(f.left, v0) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.left, v1) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.left, v2) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.left, v3) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.left, v4) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.left, v5) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.left, v6) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.left, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	if (plane::distance_to_point(f.right, aabb::vertex(b, 0)) < 0.0) out++;
-	if (plane::distance_to_point(f.right, aabb::vertex(b, 1)) < 0.0) out++;
-	if (plane::distance_to_point(f.right, aabb::vertex(b, 2)) < 0.0) out++;
-	if (plane::distance_to_point(f.right, aabb::vertex(b, 3)) < 0.0) out++;
-	if (plane::distance_to_point(f.right, aabb::vertex(b, 4)) < 0.0) out++;
-	if (plane::distance_to_point(f.right, aabb::vertex(b, 5)) < 0.0) out++;
-	if (plane::distance_to_point(f.right, aabb::vertex(b, 6)) < 0.0) out++;
-	if (plane::distance_to_point(f.right, aabb::vertex(b, 7)) < 0.0) out++;
+	out += (plane::distance_to_point(f.right, v0) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.right, v1) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.right, v2) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.right, v3) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.right, v4) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.right, v5) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.right, v6) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.right, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 0)) < 0.0) out++;
-	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 1)) < 0.0) out++;
-	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 2)) < 0.0) out++;
-	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 3)) < 0.0) out++;
-	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 4)) < 0.0) out++;
-	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 5)) < 0.0) out++;
-	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 6)) < 0.0) out++;
-	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 7)) < 0.0) out++;
+	out += (plane::distance_to_point(f.bottom, v0) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.bottom, v1) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.bottom, v2) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.bottom, v3) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.bottom, v4) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.bottom, v5) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.bottom, v6) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.bottom, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	if (plane::distance_to_point(f.top, aabb::vertex(b, 0)) < 0.0) out++;
-	if (plane::distance_to_point(f.top, aabb::vertex(b, 1)) < 0.0) out++;
-	if (plane::distance_to_point(f.top, aabb::vertex(b, 2)) < 0.0) out++;
-	if (plane::distance_to_point(f.top, aabb::vertex(b, 3)) < 0.0) out++;
-	if (plane::distance_to_point(f.top, aabb::vertex(b, 4)) < 0.0) out++;
-	if (plane::distance_to_point(f.top, aabb::vertex(b, 5)) < 0.0) out++;
-	if (plane::distance_to_point(f.top, aabb::vertex(b, 6)) < 0.0) out++;
-	if (plane::distance_to_point(f.top, aabb::vertex(b, 7)) < 0.0) out++;
+	out += (plane::distance_to_point(f.top, v0) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.top, v1) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.top, v2) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.top, v3) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.top, v4) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.top, v5) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.top, v6) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.top, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	if (plane::distance_to_point(f.near, aabb::vertex(b, 0)) < 0.0) out++;
-	if (plane::distance_to_point(f.near, aabb::vertex(b, 1)) < 0.0) out++;
-	if (plane::distance_to_point(f.near, aabb::vertex(b, 2)) < 0.0) out++;
-	if (plane::distance_to_point(f.near, aabb::vertex(b, 3)) < 0.0) out++;
-	if (plane::distance_to_point(f.near, aabb::vertex(b, 4)) < 0.0) out++;
-	if (plane::distance_to_point(f.near, aabb::vertex(b, 5)) < 0.0) out++;
-	if (plane::distance_to_point(f.near, aabb::vertex(b, 6)) < 0.0) out++;
-	if (plane::distance_to_point(f.near, aabb::vertex(b, 7)) < 0.0) out++;
+	out += (plane::distance_to_point(f.near, v0) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.near, v1) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.near, v2) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.near, v3) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.near, v4) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.near, v5) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.near, v6) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.near, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	if (plane::distance_to_point(f.far, aabb::vertex(b, 0)) < 0.0) out++;
-	if (plane::distance_to_point(f.far, aabb::vertex(b, 1)) < 0.0) out++;
-	if (plane::distance_to_point(f.far, aabb::vertex(b, 2)) < 0.0) out++;
-	if (plane::distance_to_point(f.far, aabb::vertex(b, 3)) < 0.0) out++;
-	if (plane::distance_to_point(f.far, aabb::vertex(b, 4)) < 0.0) out++;
-	if (plane::distance_to_point(f.far, aabb::vertex(b, 5)) < 0.0) out++;
-	if (plane::distance_to_point(f.far, aabb::vertex(b, 6)) < 0.0) out++;
-	if (plane::distance_to_point(f.far, aabb::vertex(b, 7)) < 0.0) out++;
+	out += (plane::distance_to_point(f.far, v0) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.far, v1) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.far, v2) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.far, v3) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.far, v4) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.far, v5) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.far, v6) < 0.0f) ? 1 : 0;
+	out += (plane::distance_to_point(f.far, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	// If we are here, it is because either the box intersects or it is contained in the frustum

@@ -31,18 +31,21 @@ LinearAllocator::~LinearAllocator()
 	if (_backing)
 		_backing->deallocate(_physical_start);
 
-	CE_ASSERT(_offset == 0, "Memory leak of %d bytes, maybe you forgot to call clear()?", _offset);
+	CE_ASSERT(_offset == 0
+		, "Memory leak of %d bytes, maybe you forgot to call clear()?"
+		, _offset
+		);
 }
 
 void* LinearAllocator::allocate(uint32_t size, uint32_t align)
 {
 	const uint32_t actual_size = size + align;
 
-	// Memory exhausted
+	// Out of memory
 	if (_offset + actual_size > _total_size)
 		return NULL;
 
-	void* user_ptr = memory::align_top((char*) _physical_start + _offset, align);
+	void* user_ptr = memory::align_top((char*)_physical_start + _offset, align);
 
 	_offset += actual_size;
 

@@ -11,10 +11,16 @@
 
 namespace crown
 {
+
+/// Functions to manipulate Sphere.
+///
+/// @ingroup Math
 namespace sphere
 {
+	/// Resets the sphere @a s.
 	void reset(Sphere& s);
 
+	/// Returns the volume of the sphere @a s.
 	float volume(const Sphere& s);
 
 	/// Adds @a num @a points to the sphere @a s, expanding its bounds if necessary.
