@@ -43,14 +43,14 @@ public:
 		close();
 	}
 
-	void open(const char* path, FileOpenMode mode)
+	void open(const char* path, FileOpenMode::Enum mode)
 	{
 #if CROWN_PLATFORM_POSIX
-		_file = fopen(path, (mode == FOM_READ) ? "rb" : "wb");
+		_file = fopen(path, (mode == FileOpenMode::READ) ? "rb" : "wb");
 		CE_ASSERT(_file != NULL, "fopen: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		_file = CreateFile(path
-			, (mode == FOM_READ) ? GENERIC_READ : GENERIC_WRITE
+			, (mode == FileOpenMode::READ) ? GENERIC_READ : GENERIC_WRITE
 			, 0
 			, NULL
 			, OPEN_ALWAYS

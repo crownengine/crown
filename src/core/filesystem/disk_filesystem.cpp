@@ -27,7 +27,7 @@ DiskFilesystem::DiskFilesystem(const char* prefix)
 {
 }
 
-File* DiskFilesystem::open(const char* path, FileOpenMode mode)
+File* DiskFilesystem::open(const char* path, FileOpenMode::Enum mode)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -35,7 +35,7 @@ File* DiskFilesystem::open(const char* path, FileOpenMode mode)
 	DynamicString abs_path(alloc);
 	get_absolute_path(path, abs_path);
 
-	return CE_NEW(default_allocator(), DiskFile)(mode, abs_path.c_str());
+	return CE_NEW(default_allocator(), DiskFile)(abs_path.c_str(), mode);
 }
 
 void DiskFilesystem::close(File& file)

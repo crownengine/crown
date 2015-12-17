@@ -46,7 +46,7 @@ struct CompileOptions
 	{
 		add_dependency(path);
 
-		File* file = _fs.open(path, FOM_READ);
+		File* file = _fs.open(path, FileOpenMode::READ);
 		uint32_t size = file->size();
 		Buffer buf(default_allocator());
 		array::resize(buf, size);

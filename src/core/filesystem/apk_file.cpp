@@ -17,7 +17,7 @@ namespace crown
 {
 
 ApkFile::ApkFile(AAssetManager* asset_manager, const char* path)
-	: File(FOM_READ)
+	: File(FileOpenMode::READ)
 	, _asset(NULL)
 {
 	_asset = AAssetManager_open(asset_manager, path, AASSET_MODE_RANDOM);
@@ -56,8 +56,8 @@ void ApkFile::skip(uint32_t bytes)
 
 uint32_t ApkFile::read(void* data, uint32_t size)
 {
-	CE_ASSERT_NOT_NULL(buffer);
-	return (uint32_t)AAsset_read(_asset, buffer, size);
+	CE_ASSERT_NOT_NULL(data);
+	return (uint32_t)AAsset_read(_asset, data, size);
 }
 
 uint32_t ApkFile::write(const void* /*data*/, uint32_t /*size*/)

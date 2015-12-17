@@ -10,10 +10,13 @@
 namespace crown
 {
 
-enum FileOpenMode
+struct FileOpenMode
 {
-	FOM_READ		= 1,
-	FOM_WRITE		= 2
+	enum Enum
+	{
+		READ,
+		WRITE
+	};
 };
 
 /// An abstraction to access data files.
@@ -24,7 +27,7 @@ class File
 public:
 
 	/// Opens the file with the given @a mode
-	File(FileOpenMode mode) : _open_mode(mode) {}
+	File(FileOpenMode::Enum mode) : _open_mode(mode) {}
 	virtual ~File() {};
 
 	/// Sets the position indicator of the file to position.
@@ -64,7 +67,7 @@ public:
 
 protected:
 
-	FileOpenMode _open_mode;
+	FileOpenMode::Enum _open_mode;
 };
 
 } // namespace crown

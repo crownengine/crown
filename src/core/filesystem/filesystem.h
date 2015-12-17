@@ -26,7 +26,7 @@ public:
 	virtual ~Filesystem() {};
 
 	/// Opens the file at the given @a path with the given @a mode.
-	virtual File* open(const char* path, FileOpenMode mode) = 0;
+	virtual File* open(const char* path, FileOpenMode::Enum mode) = 0;
 
 	/// Closes the given @a file.
 	virtual void close(File& file) = 0;

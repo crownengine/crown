@@ -20,7 +20,7 @@ class DiskFile: public File
 public:
 
 	/// Opens @a path with specified @a mode
-	DiskFile(FileOpenMode mode, const char* path);
+	DiskFile(const char* path, FileOpenMode::Enum mode);
 	virtual ~DiskFile();
 
 	/// @copydoc File::seek()

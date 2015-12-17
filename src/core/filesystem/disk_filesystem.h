@@ -32,7 +32,7 @@ public:
 	DiskFilesystem(const char* prefix);
 
 	/// Opens the file at the given @a path with the given @a mode.
-	File* open(const char* path, FileOpenMode mode);
+	File* open(const char* path, FileOpenMode::Enum mode);
 
 	/// Closes the given @a file.
 	void close(File& file);

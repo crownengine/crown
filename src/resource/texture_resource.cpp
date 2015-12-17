@@ -565,7 +565,7 @@ namespace texture_resource
 
 		DynamicString name = root.key("source").to_string();
 
-		File* source = opts._fs.open(name.c_str(), FOM_READ);
+		File* source = opts._fs.open(name.c_str(), FileOpenMode::READ);
 		BinaryReader br(*source);
 		ImageData image;
 

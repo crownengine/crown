@@ -27,7 +27,7 @@ public:
 	/// @copydoc Filesystem::open()
 	/// @note
 	/// @a mode can only be FOM_READ
-	File* open(const char* rel_path, FileOpenMode mode);
+	File* open(const char* path, FileOpenMode::Enum mode);
 
 	/// @copydoc Filesystem::close()
 	void close(File& file);

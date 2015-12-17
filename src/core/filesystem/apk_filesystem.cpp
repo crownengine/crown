@@ -20,10 +20,10 @@ ApkFilesystem::ApkFilesystem(AAssetManager* asset_manager)
 {
 }
 
-File* ApkFilesystem::open(const char* path, FileOpenMode mode)
+File* ApkFilesystem::open(const char* path, FileOpenMode::Enum mode)
 {
 	CE_ASSERT_NOT_NULL(path);
-	CE_ASSERT(mode == FOM_READ, "Cannot open for writing in Android assets folder");
+	CE_ASSERT(mode == FileOpenMode::READ, "Cannot open for writing in Android assets folder");
 	return CE_NEW(default_allocator(), ApkFile)(_asset_manager, path);
 }
 

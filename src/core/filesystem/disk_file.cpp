@@ -11,7 +11,7 @@
 namespace crown
 {
 
-DiskFile::DiskFile(FileOpenMode mode, const char* path)
+DiskFile::DiskFile(const char* path, FileOpenMode::Enum mode)
 	: File(mode)
 {
 	_file.open(path, mode);
