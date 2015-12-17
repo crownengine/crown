@@ -47,6 +47,11 @@ bool ApkFilesystem::is_file(const char* path)
 	return true;
 }
 
+uint64_t ApkFilesystem::last_modified_time(const char* path)
+{
+	return 0;
+}
+
 void ApkFilesystem::create_directory(const char* /*path*/)
 {
 	CE_ASSERT(false, "Attempt to create directory in Android assets folder");
