@@ -171,16 +171,6 @@ inline Matrix4x4& operator*=(Matrix4x4& a, float k)
 	return a;
 }
 
-inline Matrix4x4& operator/=(Matrix4x4& a, float k)
-{
-	const float inv_k = 1.0f / k;
-	a.x *= inv_k;
-	a.y *= inv_k;
-	a.z *= inv_k;
-	a.t *= inv_k;
-	return a;
-}
-
 inline Matrix4x4& operator*=(Matrix4x4& a, const Matrix4x4& b)
 {
 	Matrix4x4 tmp;
@@ -234,13 +224,6 @@ inline Matrix4x4 operator*(Matrix4x4 a, float k)
 inline Matrix4x4 operator*(float k, Matrix4x4 a)
 {
 	a *= k;
-	return a;
-}
-
-/// Divides the matrix @a a by the scalar @a k and returns the result.
-inline Matrix4x4 operator/(Matrix4x4 a, float k)
-{
-	a /= k;
 	return a;
 }
 
