@@ -54,22 +54,16 @@ void ApkFile::skip(uint32_t bytes)
 	CE_UNUSED(seek_result);
 }
 
-uint32_t ApkFile::read(void* buffer, uint32_t size)
+uint32_t ApkFile::read(void* data, uint32_t size)
 {
 	CE_ASSERT_NOT_NULL(buffer);
 	return (uint32_t)AAsset_read(_asset, buffer, size);
 }
 
-uint32_t ApkFile::write(const void* /*buffer*/, uint32_t /*size*/)
+uint32_t ApkFile::write(const void* /*data*/, uint32_t /*size*/)
 {
 	CE_ASSERT(false, "Apk files are read only!");
 	return 0;
-}
-
-bool ApkFile::copy_to(File& /*file*/, uint32_t /*size = 0*/)
-{
-	CE_ASSERT(false, "Not implemented");
-	return false;
 }
 
 void ApkFile::flush()
@@ -95,21 +89,6 @@ uint32_t ApkFile::size()
 uint32_t ApkFile::position()
 {
 	return (uint32_t)(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
-}
-
-bool ApkFile::can_read() const
-{
-	return true;
-}
-
-bool ApkFile::can_write() const
-{
-	return false;
-}
-
-bool ApkFile::can_seek() const
-{
-	return true;
 }
 
 } // namespace crown

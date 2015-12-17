@@ -30,13 +30,10 @@ public:
 	void skip(uint32_t bytes);
 
 	/// @copydoc File::read()
-	uint32_t read(void* buffer, uint32_t size);
+	uint32_t read(void* data, uint32_t size);
 
 	/// @copydoc File::write()
-	uint32_t write(const void* buffer, uint32_t size);
-
-	/// @copydoc File::copy_to()
-	bool copy_to(File& file, uint32_t size = 0);
+	uint32_t write(const void* data, uint32_t size);
 
 	/// @copydoc File::flush()
 	void flush();
@@ -52,15 +49,6 @@ public:
 
 	/// @copydoc File::position()
 	uint32_t position();
-
-	/// @copydoc File::can_read()
-	bool can_read() const;
-
-	/// @copydoc File::can_write()
-	bool can_write() const;
-
-	/// @copydoc File::can_seek()
-	bool can_seek() const;
 
 private:
 
