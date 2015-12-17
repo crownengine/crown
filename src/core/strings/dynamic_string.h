@@ -34,6 +34,9 @@ public:
 	bool operator==(const DynamicString& s) const;
 	bool operator==(const char* s) const;
 
+	/// Reserves space for at least @n characters.
+	void reserve(uint32_t n);
+
 	// Returns the length of the string.
 	uint32_t length() const;
 
@@ -131,6 +134,11 @@ inline bool DynamicString::operator==(const char* s) const
 {
 	CE_ASSERT_NOT_NULL(s);
 	return strcmp(c_str(), s) == 0;
+}
+
+inline void DynamicString::reserve(uint32_t n)
+{
+	array::reserve(_data, n);
 }
 
 inline uint32_t DynamicString::length() const
