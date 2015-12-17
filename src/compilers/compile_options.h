@@ -51,7 +51,7 @@ struct CompileOptions
 		Buffer buf(default_allocator());
 		array::resize(buf, size);
 		file->read(array::begin(buf), size);
-		_fs.close(file);
+		_fs.close(*file);
 		return buf;
 	}
 

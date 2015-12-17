@@ -38,11 +38,9 @@ File* DiskFilesystem::open(const char* path, FileOpenMode mode)
 	return CE_NEW(default_allocator(), DiskFile)(mode, abs_path.c_str());
 }
 
-void DiskFilesystem::close(File* file)
+void DiskFilesystem::close(File& file)
 {
-	CE_ASSERT_NOT_NULL(file);
-
-	CE_DELETE(default_allocator(), file);
+	CE_DELETE(default_allocator(), &file);
 }
 
 bool DiskFilesystem::exists(const char* path)

@@ -35,7 +35,7 @@ public:
 	File* open(const char* path, FileOpenMode mode);
 
 	/// Closes the given @a file.
-	void close(File* file);
+	void close(File& file);
 
 	/// Returns whether @a path exists.
 	bool exists(const char* path);

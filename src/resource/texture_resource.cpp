@@ -590,7 +590,7 @@ namespace texture_resource
 			CE_FATAL("Source image not supported");
 		}
 
-		opts._fs.close(source);
+		opts._fs.close(*source);
 
 		// Write DDS
 		opts.write(TEXTURE_VERSION); // Version

@@ -90,7 +90,7 @@ int32_t ResourceLoader::run()
 
 		File* file = _fs.open(path.c_str(), FOM_READ);
 		rr.data = rr.load_function(*file, *rr.allocator);
-		_fs.close(file);
+		_fs.close(*file);
 
 		add_loaded(rr);
 		_mutex.lock();

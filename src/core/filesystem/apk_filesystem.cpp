@@ -27,10 +27,9 @@ File* ApkFilesystem::open(const char* path, FileOpenMode mode)
 	return CE_NEW(default_allocator(), ApkFile)(_asset_manager, path);
 }
 
-void ApkFilesystem::close(File* file)
+void ApkFilesystem::close(File& file)
 {
-	CE_ASSERT_NOT_NULL(file);
-	CE_DELETE(default_allocator(), file);
+	CE_DELETE(default_allocator(), &file);
 }
 
 bool ApkFilesystem::exists(const char* path)

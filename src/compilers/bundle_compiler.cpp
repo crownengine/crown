@@ -116,7 +116,7 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 		File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
 		uint32_t size = array::size(output);
 		uint32_t written = outf->write(array::begin(output), size);
-		_bundle_fs.close(outf);
+		_bundle_fs.close(*outf);
 		success = size == written;
 	}
 	else

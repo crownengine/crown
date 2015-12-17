@@ -30,7 +30,7 @@ public:
 	File* open(const char* rel_path, FileOpenMode mode);
 
 	/// @copydoc Filesystem::close()
-	void close(File* file);
+	void close(File& file);
 
 	/// Returns always false under Android.
 	bool exists(const char* path);

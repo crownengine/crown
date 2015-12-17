@@ -29,7 +29,7 @@ public:
 	virtual File* open(const char* path, FileOpenMode mode) = 0;
 
 	/// Closes the given @a file.
-	virtual void close(File* file) = 0;
+	virtual void close(File& file) = 0;
 
 	/// Returns whether @a path exists.
 	virtual bool exists(const char* path) = 0;
