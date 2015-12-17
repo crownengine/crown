@@ -11,4 +11,16 @@ namespace crown
 class Filesystem;
 class File;
 
+/// Enumerates file open modes.
+///
+/// @ingroup Filesystem
+struct FileOpenMode
+{
+	enum Enum
+	{
+		READ,
+		WRITE
+	};
+};
+
 } // namespace crown

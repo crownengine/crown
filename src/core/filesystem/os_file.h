@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "file.h" // FileOpenMode
+#include "filesystem_types.h" // FileOpenMode
 #include "types.h"
 #include "error.h"
 #include "macros.h"

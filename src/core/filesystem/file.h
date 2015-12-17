@@ -6,18 +6,10 @@
 #pragma once
 
 #include "types.h"
+#include "filesystem_types.h"
 
 namespace crown
 {
-
-struct FileOpenMode
-{
-	enum Enum
-	{
-		READ,
-		WRITE
-	};
-};
 
 /// An abstraction to access data files.
 ///
