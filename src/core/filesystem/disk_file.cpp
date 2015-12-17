@@ -65,7 +65,7 @@ bool DiskFile::is_valid()
 void DiskFile::flush()
 {
 	check_valid();
-	// FIXME implement flush in File
+	_file.flush();
 }
 
 uint32_t DiskFile::position()

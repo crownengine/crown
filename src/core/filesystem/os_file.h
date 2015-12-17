@@ -147,6 +147,18 @@ public:
 #endif
 	}
 
+	void flush()
+	{
+#if CROWN_PLATFORM_POSIX
+		int err = fflush(_file);
+		CE_ASSERT(err == 0, "fflush: errno = %d", errno);
+#elif CROWN_PLATFORM_WINDOWS
+		BOOL err = FlushFileBuffers(_file);
+		CE_ASSERT(err != 0, "FlushFileBuffers: GetLastError = %d", GetLastError());
+#endif
+		CE_UNUSED(err);
+	}
+
 	/// Moves the file pointer to the given @a position.
 	void seek(uint32_t position)
 	{
