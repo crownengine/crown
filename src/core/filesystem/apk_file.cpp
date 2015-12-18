@@ -27,7 +27,7 @@ ApkFile::~ApkFile()
 	close();
 }
 
-void ApkFile::open(const char* path, FileOpenMode::Enum mode)
+void ApkFile::open(const char* path, FileOpenMode::Enum /*mode*/)
 {
 	_asset = AAssetManager_open(_asset_manager, path, AASSET_MODE_RANDOM);
 	CE_ASSERT(_asset != NULL, "AAssetManager_open: failed to open %s", path);
