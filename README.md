@@ -26,13 +26,17 @@ C++ API: http://taylor001.github.io/crown/doxygen/modules
 
 ##Screenshots
 
-TCP/IP console with autocomplete and color-coded output highlighting.
+[WIP] Level editor.
 
-![console](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/console.png)
+![level-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/level-editor.png)
 
 [WIP] Node editor.
 
 ![node-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/node-editor.png)
+
+TCP/IP console with autocomplete and color-coded output highlighting.
+
+![console](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/console.png)
 
 ##Dependencies
 
