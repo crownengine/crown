@@ -4,6 +4,7 @@
  */
 
 #include "disk_filesystem.h"
+#include "file.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
 #include "disk_file.h"

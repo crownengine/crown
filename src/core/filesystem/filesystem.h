@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "file.h"
+#include "filesystem_types.h"
 #include "container_types.h"
 #include "dynamic_string.h"
 

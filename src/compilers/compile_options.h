@@ -6,6 +6,7 @@
 #pragma once
 
 #include "filesystem.h"
+#include "file.h"
 #include "log.h"
 #include "vector.h"
 #include "temp_allocator.h"
