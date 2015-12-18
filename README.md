@@ -34,10 +34,6 @@ C++ API: http://taylor001.github.io/crown/doxygen/modules
 
 ![node-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/node-editor.png)
 
-TCP/IP console with autocomplete and color-coded output highlighting.
-
-![console](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/console.png)
-
 ##Dependencies
 
 PhysX 3.3.2+ (https://developer.nvidia.com/physx-sdk)
