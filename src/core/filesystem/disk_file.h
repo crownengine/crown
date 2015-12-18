@@ -19,9 +19,14 @@ class DiskFile: public File
 {
 public:
 
-	/// Opens @a path with specified @a mode
-	DiskFile(const char* path, FileOpenMode::Enum mode);
+	DiskFile();
 	virtual ~DiskFile();
+
+	/// @copydoc File::open()
+	void open(const char* path, FileOpenMode::Enum mode);
+
+	/// @copydoc File::close()
+	void close();
 
 	/// @copydoc File::seek()
 	void seek(uint32_t position);

@@ -19,10 +19,16 @@ class NullFile: public File
 public:
 
 	/// @copydoc File::File()
-	NullFile(FileOpenMode mode) : File(mode) {}
+	NullFile() {}
 
 	/// @copydoc File::~File()
 	virtual ~NullFile() {}
+
+	/// @copydoc File::open()
+	void open(const char* /*path*/, FileOpenMode::Enum /*mode*/) {}
+
+	/// @copydoc File::close()
+	void close() {}
 
 	/// @copydoc File::seek()
 	void seek(uint32_t position) { (void)position; }

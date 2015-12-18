@@ -36,7 +36,9 @@ File* DiskFilesystem::open(const char* path, FileOpenMode::Enum mode)
 	DynamicString abs_path(alloc);
 	get_absolute_path(path, abs_path);
 
-	return CE_NEW(default_allocator(), DiskFile)(abs_path.c_str(), mode);
+	DiskFile* file = CE_NEW(default_allocator(), DiskFile)();
+	file->open(abs_path.c_str(), mode);
+	return file;
 }
 
 void DiskFilesystem::close(File& file)

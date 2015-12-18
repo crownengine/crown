@@ -16,9 +16,14 @@ class ApkFile : public File
 {
 public:
 
-	/// Opens the given @a filename.
-	ApkFile(AAssetManager* asset_manager, const char* filename);
+	ApkFile(AAssetManager* asset_manager);
 	~ApkFile();
+
+	/// @copydoc File::open()
+	void open(const char* path, FileOpenMode::Enum mode);
+
+	/// @copydoc File::close()
+	void close();
 
 	/// @copydoc File::seek()
 	void seek(uint32_t position);
@@ -52,6 +57,7 @@ public:
 
 private:
 
+	AAssetManager* _asset_manager;
 	AAsset* _asset;
 };
 

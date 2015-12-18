@@ -11,13 +11,21 @@
 namespace crown
 {
 
-DiskFile::DiskFile(const char* path, FileOpenMode::Enum mode)
-	: File(mode)
+DiskFile::DiskFile()
+{
+}
+
+DiskFile::~DiskFile()
+{
+	close();
+}
+
+void DiskFile::open(const char* path, FileOpenMode::Enum mode)
 {
 	_file.open(path, mode);
 }
 
-DiskFile::~DiskFile()
+void DiskFile::close()
 {
 	_file.close();
 }

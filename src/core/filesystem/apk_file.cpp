@@ -16,17 +16,26 @@
 namespace crown
 {
 
-ApkFile::ApkFile(AAssetManager* asset_manager, const char* path)
-	: File(FileOpenMode::READ)
+ApkFile::ApkFile(AAssetManager* asset_manager)
+	: _asset_manager(asset_manager)
 	, _asset(NULL)
 {
-	_asset = AAssetManager_open(asset_manager, path, AASSET_MODE_RANDOM);
-	CE_ASSERT(_asset != NULL, "AAssetManager_open: failed to open %s", path);
 }
 
 ApkFile::~ApkFile()
 {
-	if (_asset != NULL)
+	close();
+}
+
+void ApkFile::open(const char* path, FileOpenMode::Enum mode)
+{
+	_asset = AAssetManager_open(_asset_manager, path, AASSET_MODE_RANDOM);
+	CE_ASSERT(_asset != NULL, "AAssetManager_open: failed to open %s", path);
+}
+
+void ApkFile::close()
+{
+	if (_asset)
 	{
 		AAsset_close(_asset);
 		_asset = NULL;

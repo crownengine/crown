@@ -18,9 +18,14 @@ class File
 {
 public:
 
-	/// Opens the file with the given @a mode
-	File(FileOpenMode::Enum mode) : _open_mode(mode) {}
-	virtual ~File() {};
+	File() {}
+	virtual ~File() {}
+
+	/// Opens the file at @a path with specified @a mode
+	virtual void open(const char* path, FileOpenMode::Enum mode) = 0;
+
+	/// Closes the file.
+	virtual void close() = 0;
 
 	/// Sets the position indicator of the file to position.
 	virtual void seek(uint32_t position) = 0;
@@ -56,10 +61,6 @@ public:
 	/// Generally, for binary data, it means the number of bytes
 	/// from the beginning of the file.
 	virtual uint32_t position() = 0;
-
-protected:
-
-	FileOpenMode::Enum _open_mode;
 };
 
 } // namespace crown
