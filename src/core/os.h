@@ -200,29 +200,25 @@ namespace os
 
 		closedir(dir);
 #elif CROWN_PLATFORM_WINDOWS
-		HANDLE file = INVALID_HANDLE_VALUE;
-		WIN32_FIND_DATA ffd;
-
 		TempAllocator1024 ta;
 		DynamicString cur_path(path, ta);
 		cur_path += "\\*";
 
-		file = FindFirstFile(cur_path.c_str(), &ffd);
+		WIN32_FIND_DATA ffd;
+		HANDLE file = FindFirstFile(cur_path.c_str(), &ffd);
+		if (file == INVALID_HANDLE_VALUE)
+			return;
 
 		do
 		{
-			CE_ASSERT(file != INVALID_HANDLE_VALUE, "Unable to list files. errono %d", GetLastError());
+			const char* fname = ffd.cFileName;
 
-			if (strcmp(ffd.cFileName, ".") == 0
-				|| strcmp(ffd.cFileName, "..") == 0)
-			{
+			if (!strcmp(fname, ".") || !strcmp(fname, ".."))
 				continue;
-			}
 
-			DynamicString filename(default_allocator());
-
-			filename = ffd.cFileName;
-			vector::push_back(files, filename);
+			TempAllocator512 ta;
+			DynamicString filename(fname, ta);
+			vector::push_back(files, fname);
 		}
 		while (FindNextFile(file, &ffd) != 0);
 
