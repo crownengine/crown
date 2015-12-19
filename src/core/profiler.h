@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "types.h"
 #include "math_types.h"
 
 namespace crown

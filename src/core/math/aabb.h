@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "types.h"
 #include "math_types.h"
 #include "vector3.h"
 #include "matrix4x4.h"
