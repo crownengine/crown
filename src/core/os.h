@@ -124,7 +124,14 @@ namespace os
 		CE_ASSERT(err == 0, "mknod: errno = %d", errno);
 		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-		HANDLE hfile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE hfile = CreateFile(path
+			, GENERIC_READ | GENERIC_WRITE
+			, 0
+			, NULL
+			, CREATE_ALWAYS
+			, FILE_ATTRIBUTE_NORMAL
+			, NULL
+			);
 		CE_ASSERT(hfile != INVALID_HANDLE_VALUE, "CreateFile: GetLastError = %d", GetLastError());
 		CloseHandle(hfile);
 #endif
