@@ -12,6 +12,9 @@
 namespace crown
 {
 
+/// Manages input devices.
+///
+/// @ingroup Input
 class InputManager
 {
 public:

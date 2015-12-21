@@ -10,7 +10,6 @@
 namespace crown
 {
 
-
 /// Bit bucket file.
 /// Discards all data written to it and provides null data reading from it; plain and simple.
 ///
@@ -20,10 +19,16 @@ class NullFile: public File
 public:
 
 	/// @copydoc File::File()
-	NullFile(FileOpenMode mode) : File(mode) {}
+	NullFile() {}
 
 	/// @copydoc File::~File()
 	virtual ~NullFile() {}
+
+	/// @copydoc File::open()
+	void open(const char* /*path*/, FileOpenMode::Enum /*mode*/) {}
+
+	/// @copydoc File::close()
+	void close() {}
 
 	/// @copydoc File::seek()
 	void seek(uint32_t position) { (void)position; }
@@ -37,29 +42,19 @@ public:
 	/// @copydoc File::read()
 	/// @note
 	///	Fills buffer with zeroes
-	uint32_t read(void* buffer, uint32_t size)
+	uint32_t read(void* data, uint32_t size)
 	{
-		for (uint32_t i = 0; i < size; i++)
+		for (uint32_t i = 0; i < size; ++i)
 		{
-			((uint8_t*)buffer)[i] = 0;
+			((uint8_t*)data)[i] = 0;
 		}
 		return size;
 	}
 
 	/// @copydoc File::write()
-	uint32_t write(const void* /*buffer*/, uint32_t size)
+	uint32_t write(const void* /*data*/, uint32_t size)
 	{
 		return size;
-	}
-
-	/// @copydoc File::copy_to()
-	/// @note
-	///	Returns always true
-	bool copy_to(File& file, uint32_t size = 0)
-	{
-		char zero = 0;
-		file.write(&zero, size);
-		return true;
 	}
 
 	/// @copydoc File::flush()
@@ -84,21 +79,6 @@ public:
 	/// @note
 	///	Returns always zero
 	uint32_t position() { return 0; }
-
-	/// @copydoc File::can_read()
-	/// @note
-	///	Returns always true
-	bool can_read() { return true; }
-
-	/// @copydoc File::can_write()
-	/// @note
-	///	Returns always true
-	bool can_write() { return true; }
-
-	/// @copydoc File::can_seek()
-	/// @note
-	///	Returns always true
-	bool can_seek() { return true; }
 };
 
 } // namespace crown

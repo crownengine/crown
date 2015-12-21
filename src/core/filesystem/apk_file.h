@@ -12,13 +12,21 @@
 namespace crown
 {
 
+/// Provides common facilities to access Android APK files.
+///
+/// @ingroup Filesystem
 class ApkFile : public File
 {
 public:
 
-	/// Opens the given @a filename.
-	ApkFile(AAssetManager* asset_manager, const char* filename);
+	ApkFile(AAssetManager* asset_manager);
 	~ApkFile();
+
+	/// @copydoc File::open()
+	void open(const char* path, FileOpenMode::Enum mode);
+
+	/// @copydoc File::close()
+	void close();
 
 	/// @copydoc File::seek()
 	void seek(uint32_t position);
@@ -30,13 +38,10 @@ public:
 	void skip(uint32_t bytes);
 
 	/// @copydoc File::read()
-	uint32_t read(void* buffer, uint32_t size);
+	uint32_t read(void* data, uint32_t size);
 
 	/// @copydoc File::write()
-	uint32_t write(const void* buffer, uint32_t size);
-
-	/// @copydoc File::copy_to()
-	bool copy_to(File& file, uint32_t size = 0);
+	uint32_t write(const void* data, uint32_t size);
 
 	/// @copydoc File::flush()
 	void flush();
@@ -53,17 +58,9 @@ public:
 	/// @copydoc File::position()
 	uint32_t position();
 
-	/// @copydoc File::can_read()
-	bool can_read() const;
-
-	/// @copydoc File::can_write()
-	bool can_write() const;
-
-	/// @copydoc File::can_seek()
-	bool can_seek() const;
-
 private:
 
+	AAssetManager* _asset_manager;
 	AAsset* _asset;
 };
 

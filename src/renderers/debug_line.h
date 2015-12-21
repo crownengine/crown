@@ -61,9 +61,9 @@ private:
 
 	struct Line
 	{
-		float p0[3];
+		Vector3 p0;
 		uint32_t c0;
-		float p1[3];
+		Vector3 p1;
 		uint32_t c1;
 	};
 

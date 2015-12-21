@@ -25,41 +25,39 @@ public:
 	ApkFilesystem(AAssetManager* asset_manager);
 
 	/// @copydoc Filesystem::open()
-	/// @note
-	/// @a mode can only be FOM_READ
-	File* open(const char* rel_path, FileOpenMode mode);
+	File* open(const char* path, FileOpenMode::Enum mode);
 
 	/// @copydoc Filesystem::close()
-	void close(File* file);
+	void close(File& file);
 
-	/// Returns always false under Android.
+	/// @copydoc Filesystem::exists()
 	bool exists(const char* path);
 
-	/// Returns always false under Android.
+	/// @copydoc Filesystem::is_directory()
 	bool is_directory(const char* path);
 
-	/// Returns always false under Android.
+	/// @copydoc Filesystem::is_file()
 	bool is_file(const char* path);
 
-	/// Stub method, assets folder is read-only.
+	/// @copydoc Filesystem::last_modified_time()
+	uint64_t last_modified_time(const char* path);
+
+	/// @copydoc Filesystem::create_directory()
 	void create_directory(const char* path);
 
-	/// Stub method, assets folder is read-only.
+	/// @copydoc Filesystem::delete_directory()
 	void delete_directory(const char* path);
 
-	/// Stub method, assets folder is read-only.
+	/// @copydoc Filesystem::create_file()
 	void create_file(const char* path);
 
-	/// Stub method, assets folder is read-only.
+	/// @copydoc Filesystem::delete_file()
 	void delete_file(const char* path);
 
-	/// @copydoc Filesystem::list_files().
+	/// @copydoc Filesystem::list_files()
 	void list_files(const char* path, Vector<DynamicString>& files);
 
-	/// Returns the absolute path of the given @a path.
-	/// @note
-	/// Assets folder has no concept of "absolute path", all paths are
-	/// relative to the assets folder itself, so, all paths are returned unchanged.
+	/// @copydoc Filesystem::get_absolute_path()
 	void get_absolute_path(const char* path, DynamicString& os_path);
 
 private:

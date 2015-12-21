@@ -91,17 +91,17 @@ namespace shader_resource
 		opts.get_absolute_path("tmpvs", tmpvs_path);
 		opts.get_absolute_path("tmpfs", tmpfs_path);
 
-		File* vs_file = opts._fs.open(vs_code_path.c_str(), FOM_WRITE);
+		File* vs_file = opts._fs.open(vs_code_path.c_str(), FileOpenMode::WRITE);
 		vs_file->write(vs_code.c_str(), vs_code.length());
-		opts._fs.close(vs_file);
+		opts._fs.close(*vs_file);
 
-		File* fs_file = opts._fs.open(fs_code_path.c_str(), FOM_WRITE);
+		File* fs_file = opts._fs.open(fs_code_path.c_str(), FileOpenMode::WRITE);
 		fs_file->write(fs_code.c_str(), fs_code.length());
-		opts._fs.close(fs_file);
+		opts._fs.close(*fs_file);
 
-		File* varying_file = opts._fs.open(varying_def_path.c_str(), FOM_WRITE);
+		File* varying_file = opts._fs.open(varying_def_path.c_str(), FileOpenMode::WRITE);
 		varying_file->write(varying_def.c_str(), varying_def.length());
-		opts._fs.close(varying_file);
+		opts._fs.close(*varying_file);
 
 		TempAllocator4096 ta;
 		StringStream output(ta);

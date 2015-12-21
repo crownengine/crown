@@ -4,6 +4,7 @@
  */
 
 #include "disk_filesystem.h"
+#include "file.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
 #include "disk_file.h"
@@ -27,7 +28,7 @@ DiskFilesystem::DiskFilesystem(const char* prefix)
 {
 }
 
-File* DiskFilesystem::open(const char* path, FileOpenMode mode)
+File* DiskFilesystem::open(const char* path, FileOpenMode::Enum mode)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -35,14 +36,14 @@ File* DiskFilesystem::open(const char* path, FileOpenMode mode)
 	DynamicString abs_path(alloc);
 	get_absolute_path(path, abs_path);
 
-	return CE_NEW(default_allocator(), DiskFile)(mode, abs_path.c_str());
+	DiskFile* file = CE_NEW(default_allocator(), DiskFile)();
+	file->open(abs_path.c_str(), mode);
+	return file;
 }
 
-void DiskFilesystem::close(File* file)
+void DiskFilesystem::close(File& file)
 {
-	CE_ASSERT_NOT_NULL(file);
-
-	CE_DELETE(default_allocator(), file);
+	CE_DELETE(default_allocator(), &file);
 }
 
 bool DiskFilesystem::exists(const char* path)
@@ -76,6 +77,17 @@ bool DiskFilesystem::is_file(const char* path)
 	get_absolute_path(path, abs_path);
 
 	return os::is_file(abs_path.c_str());
+}
+
+uint64_t DiskFilesystem::last_modified_time(const char* path)
+{
+	CE_ASSERT_NOT_NULL(path);
+
+	TempAllocator256 alloc;
+	DynamicString abs_path(alloc);
+	get_absolute_path(path, abs_path);
+
+	return os::mtime(abs_path.c_str());
 }
 
 void DiskFilesystem::create_directory(const char* path)

@@ -20,17 +20,18 @@ ApkFilesystem::ApkFilesystem(AAssetManager* asset_manager)
 {
 }
 
-File* ApkFilesystem::open(const char* path, FileOpenMode mode)
+File* ApkFilesystem::open(const char* path, FileOpenMode::Enum mode)
 {
 	CE_ASSERT_NOT_NULL(path);
-	CE_ASSERT(mode == FOM_READ, "Cannot open for writing in Android assets folder");
-	return CE_NEW(default_allocator(), ApkFile)(_asset_manager, path);
+	CE_ASSERT(mode == FileOpenMode::READ, "Cannot open for writing in Android assets folder");
+	ApkFile* file = CE_NEW(default_allocator(), ApkFile)(_asset_manager);
+	file->open(path, mode);
+	return file;
 }
 
-void ApkFilesystem::close(File* file)
+void ApkFilesystem::close(File& file)
 {
-	CE_ASSERT_NOT_NULL(file);
-	CE_DELETE(default_allocator(), file);
+	CE_DELETE(default_allocator(), &file);
 }
 
 bool ApkFilesystem::exists(const char* path)
@@ -46,6 +47,11 @@ bool ApkFilesystem::is_directory(const char* path)
 bool ApkFilesystem::is_file(const char* path)
 {
 	return true;
+}
+
+uint64_t ApkFilesystem::last_modified_time(const char* path)
+{
+	return 0;
 }
 
 void ApkFilesystem::create_directory(const char* /*path*/)

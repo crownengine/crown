@@ -565,7 +565,7 @@ namespace texture_resource
 
 		DynamicString name = root.key("source").to_string();
 
-		File* source = opts._fs.open(name.c_str(), FOM_READ);
+		File* source = opts._fs.open(name.c_str(), FileOpenMode::READ);
 		BinaryReader br(*source);
 		ImageData image;
 
@@ -590,7 +590,7 @@ namespace texture_resource
 			CE_FATAL("Source image not supported");
 		}
 
-		opts._fs.close(source);
+		opts._fs.close(*source);
 
 		// Write DDS
 		opts.write(TEXTURE_VERSION); // Version

@@ -31,39 +31,40 @@ public:
 	/// The @a prefix must be absolute.
 	DiskFilesystem(const char* prefix);
 
-	/// Opens the file at the given @a path with the given @a mode.
-	File* open(const char* path, FileOpenMode mode);
+	/// @copydoc Filesystem::open()
+	File* open(const char* path, FileOpenMode::Enum mode);
 
-	/// Closes the given @a file.
-	void close(File* file);
+	/// @copydoc Filesystem::close()
+	void close(File& file);
 
-	/// Returns whether @a path exists.
+	/// @copydoc Filesystem::exists()
 	bool exists(const char* path);
 
-	/// Returns true if @a path is a directory.
+	/// @copydoc Filesystem::is_directory()
 	bool is_directory(const char* path);
 
-	/// Returns true if @a path is a regular file.
+	/// @copydoc Filesystem::is_file()
 	bool is_file(const char* path);
 
-	/// Creates the directory at the given @a path.
+	/// @copydoc Filesystem::last_modified_time()
+	uint64_t last_modified_time(const char* path);
+
+	/// @copydoc Filesystem::create_directory()
 	void create_directory(const char* path);
 
-	/// Deletes the directory at the given @a path.
+	/// @copydoc Filesystem::delete_directory()
 	void delete_directory(const char* path);
 
-	/// Creates the file at the given @a path.
+	/// @copydoc Filesystem::create_file()
 	void create_file(const char* path);
 
-	/// Deletes the file at the given @a path.
+	/// @copydoc Filesystem::delete_file()
 	void delete_file(const char* path);
 
-	/// Returns the relative file names in the given @a path.
+	/// @copydoc Filesystem::list_files()
 	void list_files(const char* path, Vector<DynamicString>& files);
 
-	/// Returns the absolute path of the given @a path based on
-	/// the root path of the file source. If @a path is absolute,
-	/// the given path is returned.
+	/// @copydoc Filesystem::get_absolute_path()
 	void get_absolute_path(const char* path, DynamicString& os_path);
 
 private:

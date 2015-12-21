@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "file.h"
+#include "filesystem_types.h"
 #include "container_types.h"
 #include "dynamic_string.h"
 
@@ -26,10 +26,10 @@ public:
 	virtual ~Filesystem() {};
 
 	/// Opens the file at the given @a path with the given @a mode.
-	virtual File* open(const char* path, FileOpenMode mode) = 0;
+	virtual File* open(const char* path, FileOpenMode::Enum mode) = 0;
 
 	/// Closes the given @a file.
-	virtual void close(File* file) = 0;
+	virtual void close(File& file) = 0;
 
 	/// Returns whether @a path exists.
 	virtual bool exists(const char* path) = 0;
@@ -39,6 +39,9 @@ public:
 
 	/// Returns true if @a path is a regular file.
 	virtual bool is_file(const char* path) = 0;
+
+	/// Returns the time of last modify operaton to @a path.
+	virtual uint64_t last_modified_time(const char* path) = 0;
 
 	/// Creates the directory at the given @a path.
 	virtual void create_directory(const char* path) = 0;

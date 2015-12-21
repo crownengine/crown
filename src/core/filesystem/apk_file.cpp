@@ -16,17 +16,26 @@
 namespace crown
 {
 
-ApkFile::ApkFile(AAssetManager* asset_manager, const char* path)
-	: File(FOM_READ)
+ApkFile::ApkFile(AAssetManager* asset_manager)
+	: _asset_manager(asset_manager)
 	, _asset(NULL)
 {
-	_asset = AAssetManager_open(asset_manager, path, AASSET_MODE_RANDOM);
-	CE_ASSERT(_asset != NULL, "AAssetManager_open: failed to open %s", path);
 }
 
 ApkFile::~ApkFile()
 {
-	if (_asset != NULL)
+	close();
+}
+
+void ApkFile::open(const char* path, FileOpenMode::Enum /*mode*/)
+{
+	_asset = AAssetManager_open(_asset_manager, path, AASSET_MODE_RANDOM);
+	CE_ASSERT(_asset != NULL, "AAssetManager_open: failed to open %s", path);
+}
+
+void ApkFile::close()
+{
+	if (_asset)
 	{
 		AAsset_close(_asset);
 		_asset = NULL;
@@ -54,22 +63,16 @@ void ApkFile::skip(uint32_t bytes)
 	CE_UNUSED(seek_result);
 }
 
-uint32_t ApkFile::read(void* buffer, uint32_t size)
+uint32_t ApkFile::read(void* data, uint32_t size)
 {
-	CE_ASSERT_NOT_NULL(buffer);
-	return (uint32_t)AAsset_read(_asset, buffer, size);
+	CE_ASSERT_NOT_NULL(data);
+	return (uint32_t)AAsset_read(_asset, data, size);
 }
 
-uint32_t ApkFile::write(const void* /*buffer*/, uint32_t /*size*/)
+uint32_t ApkFile::write(const void* /*data*/, uint32_t /*size*/)
 {
 	CE_ASSERT(false, "Apk files are read only!");
 	return 0;
-}
-
-bool ApkFile::copy_to(File& /*file*/, uint32_t /*size = 0*/)
-{
-	CE_ASSERT(false, "Not implemented");
-	return false;
 }
 
 void ApkFile::flush()
@@ -95,21 +98,6 @@ uint32_t ApkFile::size()
 uint32_t ApkFile::position()
 {
 	return (uint32_t)(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
-}
-
-bool ApkFile::can_read() const
-{
-	return true;
-}
-
-bool ApkFile::can_write() const
-{
-	return false;
-}
-
-bool ApkFile::can_seek() const
-{
-	return true;
 }
 
 } // namespace crown

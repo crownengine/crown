@@ -88,9 +88,9 @@ int32_t ResourceLoader::run()
 		DynamicString path(alloc);
 		path::join(CROWN_DATA_DIRECTORY, name, path);
 
-		File* file = _fs.open(path.c_str(), FOM_READ);
+		File* file = _fs.open(path.c_str(), FileOpenMode::READ);
 		rr.data = rr.load_function(*file, *rr.allocator);
-		_fs.close(file);
+		_fs.close(*file);
 
 		add_loaded(rr);
 		_mutex.lock();

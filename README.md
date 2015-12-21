@@ -4,7 +4,6 @@ Lightweight and flexible cross-platform game engine.
 I'm an independent developer and your contributions are invaluable to me. If you like the work I do, please consider supporting Crown development by means of a small contribution. I'm also available for hire to work on or with Crown or somewhat related technologies/projects.
 
 [![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
-[![Flattr](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/4945485/Crown)
 
 ##What is it?
 
@@ -22,13 +21,13 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
 Lua API: http://taylor001.github.io/crown/lua_api.html
 
-C++ API: http://taylor001.github.io/crown/doxygen/
+C++ API: http://taylor001.github.io/crown/doxygen/modules
 
 ##Screenshots
 
-TCP/IP console with autocomplete and color-coded output highlighting.
+[WIP] Level editor.
 
-![console](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/console.png)
+![level-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/level-editor.png)
 
 [WIP] Node editor.
 

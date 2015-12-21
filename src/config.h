@@ -3,8 +3,6 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-// Adapted from Branimir Karadžić's config.h (https://github.com/bkaradzic/bx)
-
 #pragma once
 
 #include "platform.h"

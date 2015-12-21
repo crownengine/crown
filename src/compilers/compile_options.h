@@ -6,7 +6,10 @@
 #pragma once
 
 #include "filesystem.h"
+#include "file.h"
 #include "log.h"
+#include "vector.h"
+#include "temp_allocator.h"
 #include <setjmp.h>
 
 #define RESOURCE_COMPILER_ASSERT(condition, opts, msg, ...) do { if (!(condition))\
@@ -22,6 +25,7 @@ struct CompileOptions
 		, _output(output)
 		, _platform(platform)
 		, _jmpbuf(buf)
+		, _dependencies(default_allocator())
 	{
 	}
 
@@ -41,12 +45,14 @@ struct CompileOptions
 
 	Buffer read(const char* path)
 	{
-		File* file = _fs.open(path, FOM_READ);
+		add_dependency(path);
+
+		File* file = _fs.open(path, FileOpenMode::READ);
 		uint32_t size = file->size();
 		Buffer buf(default_allocator());
 		array::resize(buf, size);
 		file->read(array::begin(buf), size);
-		_fs.close(file);
+		_fs.close(*file);
 		return buf;
 	}
 
@@ -81,10 +87,23 @@ struct CompileOptions
 		return _platform;
 	}
 
+	const Vector<DynamicString>& dependencies() const
+	{
+		return _dependencies;
+	}
+
+	void add_dependency(const char* path)
+	{
+		TempAllocator256 ta;
+		DynamicString dep(path, ta);
+		vector::push_back(_dependencies, dep);
+	}
+
 	Filesystem& _fs;
 	Buffer& _output;
 	const char* _platform;
 	jmp_buf* _jmpbuf;
+	Vector<DynamicString> _dependencies;
 };
 
 } // namespace crown

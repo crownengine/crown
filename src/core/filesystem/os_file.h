@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "file.h" // FileOpenMode
+#include "filesystem_types.h" // FileOpenMode
 #include "types.h"
 #include "error.h"
 #include "macros.h"
@@ -13,6 +13,7 @@
 
 #if CROWN_PLATFORM_POSIX
 	#include <stdio.h>
+	#include <errno.h>
 #elif CROWN_PLATFORM_WINDOWS
 	#include "tchar.h"
 	#include "win_headers.h"
@@ -42,20 +43,21 @@ public:
 		close();
 	}
 
-	void open(const char* path, FileOpenMode mode)
+	void open(const char* path, FileOpenMode::Enum mode)
 	{
 #if CROWN_PLATFORM_POSIX
-		_file = fopen(path, (mode == FOM_READ) ? "rb" : "wb");
-		CE_ASSERT(_file != NULL, "Unable to open file: %s", path);
+		_file = fopen(path, (mode == FileOpenMode::READ) ? "rb" : "wb");
+		CE_ASSERT(_file != NULL, "fopen: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		_file = CreateFile(path
-			, mode == FOM_READ ? GENERIC_READ : GENERIC_WRITE
+			, (mode == FileOpenMode::READ) ? GENERIC_READ : GENERIC_WRITE
 			, 0
 			, NULL
 			, OPEN_ALWAYS
 			, FILE_ATTRIBUTE_NORMAL
-			, NULL);
-		CE_ASSERT(_file != INVALID_HANDLE_VALUE, "Unable to open file: %s", path);
+			, NULL
+			);
+		CE_ASSERT(_file != INVALID_HANDLE_VALUE, "CreateFile: GetLastError = %d", GetLastError());
 #endif
 	}
 
@@ -93,12 +95,12 @@ public:
 		size_t pos = position();
 
 		int err = fseek(_file, 0, SEEK_END);
-		CE_ASSERT(err == 0, "Failed to seek");
+		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 
 		size_t size = position();
 
 		err = fseek(_file, (long)pos, SEEK_SET);
-		CE_ASSERT(err == 0, "Failed to seek");
+		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 		CE_UNUSED(err);
 
 		return (uint32_t)size;
@@ -113,11 +115,13 @@ public:
 	{
 		CE_ASSERT(data != NULL, "Data must be != NULL");
 #if CROWN_PLATFORM_POSIX
-		return fread(data, 1, size, _file);
+		size_t bytes_read = fread(data, 1, size, _file);
+		CE_ASSERT(ferror(_file) == 0, "fread error");
+		return (uint32_t)bytes_read;
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD bytes_read;
 		BOOL result = ReadFile(_file, data, size, &bytes_read, NULL);
-		CE_ASSERT(result == TRUE, "Unable to read from file");
+		CE_ASSERT(result == TRUE, "ReadFile: GetLastError = %d", GetLastError());
 
 		if (result && bytes_read == 0)
 			_eof = true;
@@ -132,24 +136,38 @@ public:
 	{
 		CE_ASSERT(data != NULL, "Data must be != NULL");
 #if CROWN_PLATFORM_POSIX
-		return fwrite(data, 1, size, _file);
+		size_t bytes_written = fwrite(data, 1, size, _file);
+		CE_ASSERT(ferror(_file) == 0, "fwrite error");
+		return (uint32_t)bytes_written;
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD bytes_written;
 		WriteFile(_file, data, size, &bytes_written, NULL);
-		CE_ASSERT(size == bytes_written, "Cannot read from file\n");
-		return size;
+		CE_ASSERT(size == bytes_written, "WriteFile: GetLastError = %d", GetLastError());
+		return bytes_written;
 #endif
+	}
+
+	void flush()
+	{
+#if CROWN_PLATFORM_POSIX
+		int err = fflush(_file);
+		CE_ASSERT(err == 0, "fflush: errno = %d", errno);
+#elif CROWN_PLATFORM_WINDOWS
+		BOOL err = FlushFileBuffers(_file);
+		CE_ASSERT(err != 0, "FlushFileBuffers: GetLastError = %d", GetLastError());
+#endif
+		CE_UNUSED(err);
 	}
 
 	/// Moves the file pointer to the given @a position.
 	void seek(uint32_t position)
 	{
 #if CROWN_PLATFORM_POSIX
-		int err = fseek(_file, (long) position, SEEK_SET);
-		CE_ASSERT(err == 0, "Failed to seek");
+		int err = fseek(_file, (long)position, SEEK_SET);
+		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, position, NULL, FILE_BEGIN);
-		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "Failed to seek");
+		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
 #endif
 		CE_UNUSED(err);
 	}
@@ -158,13 +176,13 @@ public:
 	void seek_to_end()
 	{
 #if CROWN_PLATFORM_POSIX
-		int fseek_result = fseek(_file, 0, SEEK_END);
-		CE_ASSERT(fseek_result == 0, "Failed to seek");
-		CE_UNUSED(fseek_result);
+		int err = fseek(_file, 0, SEEK_END);
+		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
-		DWORD seek_result = SetFilePointer(_file, 0, NULL, FILE_END);
-		CE_ASSERT(seek_result != INVALID_SET_FILE_POINTER, "Failed to seek to end");
+		DWORD err = SetFilePointer(_file, 0, NULL, FILE_END);
+		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
 #endif
+		CE_UNUSED(err);
 	}
 
 	/// Moves the file pointer @a bytes bytes ahead the current
@@ -173,12 +191,12 @@ public:
 	{
 #if CROWN_PLATFORM_POSIX
 		int err = fseek(_file, bytes, SEEK_CUR);
-		CE_ASSERT(err == 0, "Failed to seek");
-		CE_UNUSED(err);
+		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, bytes, NULL, FILE_CURRENT);
-		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "Failed to skip");
+		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
 #endif
+		CE_UNUSED(err);
 	}
 
 	/// Returns the position of the file pointer from the
@@ -186,12 +204,15 @@ public:
 	uint32_t position() const
 	{
 #if CROWN_PLATFORM_POSIX
-		return (uint32_t)ftell(_file);
+		long pos = ftell(_file);
+		CE_ASSERT(pos != -1, "ftell: errno = %d", errno);
+		return (uint32_t)pos;
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD pos = SetFilePointer(_file, 0, NULL, FILE_CURRENT);
-		CE_ASSERT(pos != INVALID_SET_FILE_POINTER, "Failed to get position");
+		CE_ASSERT(pos != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
 		return (uint32_t)pos;
 #endif
+		CE_UNUSED(pos);
 	}
 
 	/// Returns whether the file pointer is at the end of the file.

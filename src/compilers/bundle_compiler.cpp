@@ -113,10 +113,10 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 	{
 		CompileOptions opts(_source_fs, output, platform, &buf);
 		compile(_type, src_path.c_str(), opts);
-		File* outf = _bundle_fs.open(path.c_str(), FOM_WRITE);
+		File* outf = _bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
 		uint32_t size = array::size(output);
 		uint32_t written = outf->write(array::begin(output), size);
-		_bundle_fs.close(outf);
+		_bundle_fs.close(*outf);
 		success = size == written;
 	}
 	else

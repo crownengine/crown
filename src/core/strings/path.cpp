@@ -31,11 +31,14 @@ namespace path
 #endif
 	}
 
-	void join(const char* p1, const char* p2, DynamicString& path)
+	void join(const char* a, const char* b, DynamicString& path)
 	{
-		path += p1;
+		const uint32_t la = strlen(a);
+		const uint32_t lb = strlen(b);
+		path.reserve(la + lb + 1);
+		path += a;
 		path += SEPARATOR;
-		path += p2;
+		path += b;
 	}
 
 	const char* basename(const char* path)

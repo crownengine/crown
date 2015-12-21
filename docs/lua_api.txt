@@ -890,8 +890,6 @@ Mouse
 
 	**axis** (id) : Vector3
 		Returns the value of the axis *id*.
-		The returned vector holds x and y coordinates of the pointer
-		in window-space.
 
 	**button_id** (name) : int
 		Returns the *id* of the button *name*.
@@ -940,8 +938,6 @@ Touch
 
 	**axis** (id) : Vector3
 		Returns the value of the axis *id*.
-		The returned vector holds x and y coordinates of the pointer
-		in window-space.
 
 Pad1, Pad2, Pad3, Pad4
 ----------------------
@@ -972,7 +968,6 @@ Pad1, Pad2, Pad3, Pad4
 
 	**axis** (id) : Vector3
 		Returns the value of the axis *id*.
-		The returned vector holds values in the range [-1;+1]
 
 	**button_id** (name) : int
 		Returns the *id* of the button *name*.

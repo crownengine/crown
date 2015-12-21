@@ -29,8 +29,8 @@ namespace path
 	/// Returns whether the @a path is the root path.
 	bool is_root_path(const char* path);
 
-	/// Appends path @a p2 to @a p1 and fills @a path with the result.
-	void join(const char* p1, const char* p2, DynamicString& path);
+	/// Appends path @a b to @a a and fills @a path with the result.
+	void join(const char* a, const char* b, DynamicString& path);
 
 	/// Returns the basename of the @a path.
 	/// @note

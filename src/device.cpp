@@ -72,18 +72,20 @@ void Device::init()
 	// Initialize
 	CE_LOGI("Initializing Crown Engine %s...", version());
 
+	profiler_globals::init();
+
 #if CROWN_PLATFORM_ANDROID
 	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(_device_options.asset_manager());
 #else
 	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(_device_options.bundle_dir());
 #endif // CROWN_PLATFORM_ANDROID
 
-	profiler_globals::init();
-
 	_resource_loader = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 
 	read_config();
+
+	_input_manager = CE_NEW(_allocator, InputManager)();
 
 	audio_globals::init();
 	physics_globals::init();
@@ -95,60 +97,54 @@ void Device::init()
 		, &_bgfx_allocator
 		);
 
-	CE_LOGD("Creating material manager...");
 	material_manager::init();
 	debug_line::init();
-
-	_lua_environment = CE_NEW(_allocator, LuaEnvironment)();
-	_lua_environment->load_libs();
-
-	_input_manager = CE_NEW(_allocator, InputManager)();
-
-	CE_LOGD("Crown Engine initialized.");
-	CE_LOGD("Initializing Game...");
-
-	_is_init = true;
-	_is_running = true;
-	_last_time = os::clocktime();
 
 	_boot_package = create_resource_package(_boot_package_id);
 	_boot_package->load();
 	_boot_package->flush();
 
+	_lua_environment = CE_NEW(_allocator, LuaEnvironment)();
+	_lua_environment->load_libs();
 	_lua_environment->execute((LuaResource*)_resource_manager->get(SCRIPT_TYPE, _boot_script_id));
 	_lua_environment->call_global("init", 0);
+
+	_is_init = true;
+	_is_running = true;
+	_last_time = os::clocktime();
+
+	CE_LOGD("Engine initialized");
 }
 
 void Device::shutdown()
 {
 	CE_ASSERT(_is_init, "Engine is not initialized");
 
-	CE_DELETE(_allocator, _input_manager);
+	_is_running = false;
+	_is_init = false;
 
-	// Shutdowns the game
 	_lua_environment->call_global("shutdown", 0);
+	CE_DELETE(_allocator, _lua_environment);
 
 	_boot_package->unload();
 	destroy_resource_package(*_boot_package);
 
-	CE_DELETE(_allocator, _lua_environment);
-
-	CE_LOGD("Releasing material manager...");
 	debug_line::shutdown();
 	material_manager::shutdown();
 
-	CE_DELETE(_allocator, _resource_manager);
-	CE_DELETE(_allocator, _resource_loader);
-
 	bgfx::shutdown();
+
 	physics_globals::shutdown();
 	audio_globals::shutdown();
-	profiler_globals::shutdown();
 
+	CE_DELETE(_allocator, _input_manager);
+	CE_DELETE(_allocator, _resource_manager);
+	CE_DELETE(_allocator, _resource_loader);
 	CE_DELETE(_allocator, _bundle_filesystem);
 
+	profiler_globals::shutdown();
+
 	_allocator.clear();
-	_is_init = false;
 }
 
 void Device::quit()

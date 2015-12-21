@@ -63,15 +63,6 @@ inline Matrix3x3& operator*=(Matrix3x3& a, float k)
 	return a;
 }
 
-inline Matrix3x3& operator/=(Matrix3x3& a, float k)
-{
-	const float inv_k = 1.0f / k;
-	a.x *= inv_k;
-	a.y *= inv_k;
-	a.z *= inv_k;
-	return a;
-}
-
 inline Matrix3x3& operator*=(Matrix3x3& a, const Matrix3x3& b)
 {
 	Matrix3x3 tmp;
@@ -116,13 +107,6 @@ inline Matrix3x3 operator*(Matrix3x3 a, float k)
 inline Matrix3x3 operator*(float k, Matrix3x3 a)
 {
 	a *= k;
-	return a;
-}
-
-/// Divides the matrix @a a by the scalar @a k.
-inline Matrix3x3 operator/(Matrix3x3 a, float k)
-{
-	a /= k;
 	return a;
 }
 

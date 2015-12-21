@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "types.h"
 #include "quaternion.h"
 #include "error.h"
 

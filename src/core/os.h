@@ -45,6 +45,7 @@ namespace os
 #endif
 	}
 
+	/// Returns whether the @a path exists.
 	inline bool exists(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -54,7 +55,7 @@ namespace os
 #endif
 	}
 
-	/// Returns whether the path is a directory.
+	/// Returns whether @a path is a directory.
 	inline bool is_directory(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -70,7 +71,7 @@ namespace os
 #endif
 	}
 
-	/// Returns whether the path is a regular file.
+	/// Returns whether @a path is a regular file.
 	inline bool is_file(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -115,7 +116,7 @@ namespace os
 #endif
 	}
 
-	/// Creates a regular file.
+	/// Creates a regular file named @a path.
 	inline void create_file(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -124,13 +125,20 @@ namespace os
 		CE_ASSERT(err == 0, "mknod: errno = %d", errno);
 		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-		HANDLE hfile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE hfile = CreateFile(path
+			, GENERIC_READ | GENERIC_WRITE
+			, 0
+			, NULL
+			, CREATE_ALWAYS
+			, FILE_ATTRIBUTE_NORMAL
+			, NULL
+			);
 		CE_ASSERT(hfile != INVALID_HANDLE_VALUE, "CreateFile: GetLastError = %d", GetLastError());
 		CloseHandle(hfile);
 #endif
 	}
 
-	/// Deletes a regular file.
+	/// Deletes the file at @a path.
 	inline void delete_file(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -144,7 +152,7 @@ namespace os
 #endif
 	}
 
-	/// Creates a directory.
+	/// Creates a directory named @a path.
 	inline void create_directory(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -159,7 +167,7 @@ namespace os
 #endif
 	}
 
-	/// Deletes a directory.
+	/// Deletes the directory at @a path.
 	inline void delete_directory(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -173,10 +181,7 @@ namespace os
 #endif
 	}
 
-	/// Returns the list of @a files in the given @a dir directory. Optionally walks into
-	/// subdirectories whether @a recursive is true.
-	/// @note
-	/// Does not follow symbolic links.
+	/// Returns the list of @a files at the given @a path.
 	inline void list_files(const char* path, Vector<DynamicString>& files)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -200,29 +205,25 @@ namespace os
 
 		closedir(dir);
 #elif CROWN_PLATFORM_WINDOWS
-		HANDLE file = INVALID_HANDLE_VALUE;
-		WIN32_FIND_DATA ffd;
-
 		TempAllocator1024 ta;
 		DynamicString cur_path(path, ta);
 		cur_path += "\\*";
 
-		file = FindFirstFile(cur_path.c_str(), &ffd);
+		WIN32_FIND_DATA ffd;
+		HANDLE file = FindFirstFile(cur_path.c_str(), &ffd);
+		if (file == INVALID_HANDLE_VALUE)
+			return;
 
 		do
 		{
-			CE_ASSERT(file != INVALID_HANDLE_VALUE, "Unable to list files. errono %d", GetLastError());
+			const char* fname = ffd.cFileName;
 
-			if (strcmp(ffd.cFileName, ".") == 0
-				|| strcmp(ffd.cFileName, "..") == 0)
-			{
+			if (!strcmp(fname, ".") || !strcmp(fname, ".."))
 				continue;
-			}
 
-			DynamicString filename(default_allocator());
-
-			filename = ffd.cFileName;
-			vector::push_back(files, filename);
+			TempAllocator512 ta;
+			DynamicString filename(fname, ta);
+			vector::push_back(files, fname);
 		}
 		while (FindNextFile(file, &ffd) != 0);
 
@@ -230,6 +231,7 @@ namespace os
 #endif
 	}
 
+	/// Returns the current working directory.
 	inline const char* getcwd(char* buf, uint32_t size)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -240,6 +242,7 @@ namespace os
 #endif
 	}
 
+	/// Returns the value of the environment variable @a name.
 	inline const char* getenv(const char* name)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -306,7 +309,8 @@ namespace os
 #endif
 	}
 
-	/// Executes a process.
+	/// Executes the process @a path with the given @a args and returns its exit code.
+	/// It fills @a output with stdout and stderr.
 	inline int execute_process(const char* path, const char* args, StringStream& output)
 	{
 #if CROWN_PLATFORM_POSIX
