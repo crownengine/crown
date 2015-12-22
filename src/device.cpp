@@ -88,9 +88,6 @@ void Device::init()
 
 	_input_manager = CE_NEW(_allocator, InputManager)();
 
-	audio_globals::init();
-	physics_globals::init();
-
 	bgfx::init(bgfx::RendererType::Count
 		, BGFX_PCI_ID_NONE
 		, 0
@@ -100,6 +97,9 @@ void Device::init()
 
 	material_manager::init();
 	debug_line::init();
+
+	audio_globals::init();
+	physics_globals::init();
 
 	_boot_package = create_resource_package(_boot_package_id);
 	_boot_package->load();
@@ -130,18 +130,18 @@ void Device::shutdown()
 	_boot_package->unload();
 	destroy_resource_package(*_boot_package);
 
-	debug_line::shutdown();
-	material_manager::shutdown();
-
-	bgfx::shutdown();
-
 	physics_globals::shutdown();
 	audio_globals::shutdown();
+
+	debug_line::shutdown();
+	material_manager::shutdown();
 
 	CE_DELETE(_allocator, _input_manager);
 	CE_DELETE(_allocator, _resource_manager);
 	CE_DELETE(_allocator, _resource_loader);
 	CE_DELETE(_allocator, _bundle_filesystem);
+
+	bgfx::shutdown();
 
 	profiler_globals::shutdown();
 
