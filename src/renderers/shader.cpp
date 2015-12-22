@@ -6,13 +6,14 @@
 #include "shader.h"
 #include "config.h"
 #include "filesystem.h"
-#include "json_parser.h"
 #include "os.h"
 #include "reader_writer.h"
 #include "resource_manager.h"
 #include "compile_options.h"
 #include "temp_allocator.h"
 #include "string_stream.h"
+#include "njson.h"
+#include "map.h"
 
 #if CROWN_DEBUG
 #	define SHADERC_NAME "./shaderc-debug-"
@@ -60,15 +61,22 @@ namespace shader_resource
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		njson::parse(buf, object);
 
-		DynamicString vs_code2 = root.key("vs_code").to_string();
-		DynamicString fs_code2 = root.key("fs_code").to_string();
-		DynamicString varying_def = root.key("varying_def").to_string();
-		DynamicString common_code = root.key("common").to_string();
-		DynamicString vs_in_out = root.key("vs_in_out").to_string();
-		DynamicString fs_in_out = root.key("fs_in_out").to_string();
+		DynamicString vs_code2(ta);
+		DynamicString fs_code2(ta);
+		DynamicString varying_def(ta);
+		DynamicString common_code(ta);
+		DynamicString vs_in_out(ta);
+		DynamicString fs_in_out(ta);
+		njson::parse_string(object["vs_code"], vs_code2);
+		njson::parse_string(object["fs_code"], fs_code2);
+		njson::parse_string(object["varying_def"], varying_def);
+		njson::parse_string(object["common"], common_code);
+		njson::parse_string(object["vs_in_out"], vs_in_out);
+		njson::parse_string(object["fs_in_out"], fs_in_out);
 
 		DynamicString vs_code(default_allocator());
 		DynamicString fs_code(default_allocator());
@@ -103,7 +111,6 @@ namespace shader_resource
 		varying_file->write(varying_def.c_str(), varying_def.length());
 		opts._fs.close(*varying_file);
 
-		TempAllocator4096 ta;
 		StringStream output(ta);
 		using namespace string_stream;
 
