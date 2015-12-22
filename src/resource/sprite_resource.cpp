@@ -6,7 +6,6 @@
 #include "allocator.h"
 #include "filesystem.h"
 #include "string_utils.h"
-#include "json_parser.h"
 #include "sprite_resource.h"
 #include "string_utils.h"
 #include "array.h"
@@ -16,6 +15,8 @@
 #include "vector4.h"
 #include "resource_manager.h"
 #include "compile_options.h"
+#include "njson.h"
+#include "map.h"
 
 namespace crown
 {
@@ -29,34 +30,41 @@ namespace sprite_resource
 		Vector2 offset;		// [Ox, Oy]
 	};
 
-	void parse_frame(JSONElement e, SpriteFrame& frame)
+	void parse_frame(const char* json, SpriteFrame& frame)
 	{
-		frame.name   = e.key("name"  ).to_string_id();
-		frame.region = e.key("region").to_vector4();
-		frame.offset = e.key("offset").to_vector2();
-		frame.scale  = e.key("scale" ).to_vector2();
+		TempAllocator512 ta;
+		JsonObject obj(ta);
+		njson::parse(json, obj);
+
+		frame.name   = njson::parse_string_id(obj["name"]);
+		frame.region = njson::parse_vector4(obj["region"]);
+		frame.offset = njson::parse_vector2(obj["offset"]);
+		frame.scale  = njson::parse_vector2(obj["scale"]);
 	}
 
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
+
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		njson::parse(buf, object);
+
+		JsonArray frames(ta);
+		njson::parse_array(object["frames"], frames);
 
 		// Read width/height
-		const float width  = root.key("width" ).to_float();
-		const float height = root.key("height").to_float();
-		const uint32_t num_frames = root.key("frames").size();
+		const float width         = parse_float(object["width" ]);
+		const float height        = parse_float(object["height"]);
+		const uint32_t num_frames = array::size(frames);
 
 		Array<float> vertices(default_allocator());
 		Array<uint16_t> indices(default_allocator());
 		uint32_t num_idx = 0;
-		for (uint32_t i = 0; i < num_frames; i++)
+		for (uint32_t i = 0; i < num_frames; ++i)
 		{
-			JSONElement e(root.key("frames")[i]);
-
 			SpriteFrame frame;
-			parse_frame(e, frame);
+			parse_frame(frames[i], frame);
 
 			const SpriteFrame& fd = frame;
 
@@ -95,7 +103,7 @@ namespace sprite_resource
 		const uint32_t num_vertices = array::size(vertices) / 4; // 4 components per vertex
 		const uint32_t num_indices = array::size(indices);
 
-		// Write header
+		// Write
 		opts.write(SPRITE_VERSION);
 
 		opts.write(num_vertices);
@@ -165,42 +173,53 @@ namespace sprite_resource
 
 namespace sprite_animation_resource
 {
-	void parse_animations(JSONElement e, Array<SpriteAnimationName>& names, Array<SpriteAnimationData>& anim_data, Array<uint32_t>& frames)
+	void parse_animation(const char* json, Array<SpriteAnimationName>& names, Array<SpriteAnimationData>& anim_data, Array<uint32_t>& frames)
 	{
-		const uint32_t num = e.key("animations").size();
-		for (uint32_t i = 0; i < num; i++)
-		{
-			JSONElement anim(e.key("animations")[i]);
+		TempAllocator512 ta;
+		JsonObject obj(ta);
+		njson::parse(json, obj);
 
-			SpriteAnimationName san;
-			san.id = anim.key("name").to_string_id();
+		SpriteAnimationName san;
+		san.id = njson::parse_string_id(obj["name"]);
 
-			const uint32_t num_frames = anim.key("frames").size();
-			SpriteAnimationData sad;
-			sad.num_frames = num_frames;
-			sad.first_frame = array::size(frames);
-			sad.time = anim.key("time").to_float();
+		JsonArray obj_frames(ta);
+		njson::parse_array(obj["frames"], obj_frames);
 
-			// Read frames
-			for (uint32_t ff = 0; ff < num_frames; ff++)
-				array::push_back(frames, (uint32_t) anim.key("frames")[ff].to_int());
+		const uint32_t num_frames = array::size(obj_frames);
 
-			array::push_back(names, san);
-			array::push_back(anim_data, sad);
-		}
+		SpriteAnimationData sad;
+		sad.num_frames  = num_frames;
+		sad.first_frame = array::size(frames);
+		sad.time        = njson::parse_float(obj["time"]);
+
+		// Read frames
+		for (uint32_t ff = 0; ff < num_frames; ++ff)
+			array::push_back(frames, (uint32_t)njson::parse_int(obj_frames[ff]));
+
+		array::push_back(names, san);
+		array::push_back(anim_data, sad);
 	}
 
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
+
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		njson::parse(buf, object);
+
+		JsonArray animations(ta);
+		njson::parse_array(object["animations"], animations);
 
 		Array<SpriteAnimationName> anim_names(default_allocator());
 		Array<SpriteAnimationData> anim_data(default_allocator());
 		Array<uint32_t> anim_frames(default_allocator());
 
-		parse_animations(root, anim_names, anim_data, anim_frames);
+		const uint32_t num_animations = array::size(animations);
+		for (uint32_t i = 0; i < num_animations; ++i)
+		{
+			parse_animation(animations[i], anim_names, anim_data, anim_frames);
+		}
 
 		SpriteAnimationResource sar;
 		sar.version = SPRITE_ANIMATION_VERSION;

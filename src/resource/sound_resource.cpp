@@ -6,8 +6,9 @@
 #include "sound_resource.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
-#include "json_parser.h"
 #include "compile_options.h"
+#include "njson.h"
+#include "map.h"
 
 namespace crown
 {
@@ -15,28 +16,31 @@ namespace sound_resource
 {
 	struct WAVHeader
 	{
-		char    riff[4];			// Should contain 'RIFF'
-		int32_t chunk_size;			// Not Needed
-		char    wave[4];			// Should contain 'WAVE'
-		char    fmt[4];				// Should contain 'fmt '
-		int32_t fmt_size;			// Size of format chunk
-		int16_t fmt_tag;			// Identifies way data is stored, 1 means no compression
-		int16_t fmt_channels;		// Channel, 1 means mono, 2 means stereo
-		int32_t fmt_sample_rate;	// Samples per second
-		int32_t fmt_avarage;		// Avarage bytes per sample
-		int16_t fmt_block_align;	// Block alignment
-		int16_t fmt_bits_ps;		// Number of bits per sample
-		char    data[4];			// Should contain 'data'
-		int32_t data_size;			// Data dimension
+		char    riff[4];         // Should contain 'RIFF'
+		int32_t chunk_size;      // Not Needed
+		char    wave[4];         // Should contain 'WAVE'
+		char    fmt[4];          // Should contain 'fmt '
+		int32_t fmt_size;        // Size of format chunk
+		int16_t fmt_tag;         // Identifies way data is stored, 1 means no compression
+		int16_t fmt_channels;    // Channel, 1 means mono, 2 means stereo
+		int32_t fmt_sample_rate; // Samples per second
+		int32_t fmt_avarage;     // Avarage bytes per sample
+		int16_t fmt_block_align; // Block alignment
+		int16_t fmt_bits_ps;     // Number of bits per sample
+		char    data[4];         // Should contain 'data'
+		int32_t data_size;       // Data dimension
 	};
 
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
 
-		DynamicString name = root.key("source").to_string();
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		njson::parse(buf, object);
+
+		DynamicString name(ta);
+		njson::parse_string(object["source"], name);
 
 		Buffer sound = opts.read(name.c_str());
 		const WAVHeader* wav = (const WAVHeader*)array::begin(sound);

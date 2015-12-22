@@ -6,11 +6,12 @@
 #include "filesystem.h"
 #include "texture_resource.h"
 #include "reader_writer.h"
-#include "json_parser.h"
 #include "math_utils.h"
 #include "resource_manager.h"
 #include "log.h"
 #include "compile_options.h"
+#include "njson.h"
+#include "map.h"
 #include <algorithm>
 
 namespace crown
@@ -560,10 +561,13 @@ namespace texture_resource
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
 
-		DynamicString name = root.key("source").to_string();
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		njson::parse(buf, object);
+
+		DynamicString name(ta);
+		njson::parse_string(object["source"], name);
 
 		File* source = opts._fs.open(name.c_str(), FileOpenMode::READ);
 		BinaryReader br(*source);

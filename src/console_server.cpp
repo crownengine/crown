@@ -122,8 +122,8 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 void ConsoleServer::process(TCPSocket client, const char* json)
 {
 	TempAllocator4096 ta;
-	Map<DynamicString, const char*> root(ta);
-	json::parse_object(json, root);
+	JsonObject root(ta);
+	json::parse(json, root);
 
 	DynamicString type(ta);
 	json::parse_string(root["type"], type);
@@ -142,8 +142,8 @@ void ConsoleServer::process_ping(TCPSocket client, const char* /*json*/)
 void ConsoleServer::process_script(TCPSocket /*client*/, const char* json)
 {
 	TempAllocator4096 ta;
-	Map<DynamicString, const char*> root(ta);
-	json::parse_object(json, root);
+	JsonObject root(ta);
+	json::parse(json, root);
 
 	DynamicString script(ta);
 	json::parse_string(root["script"], script);
@@ -153,8 +153,8 @@ void ConsoleServer::process_script(TCPSocket /*client*/, const char* json)
 void ConsoleServer::process_command(TCPSocket /*client*/, const char* json)
 {
 	TempAllocator4096 ta;
-	Map<DynamicString, const char*> root(ta);
-	json::parse_object(json, root);
+	JsonObject root(ta);
+	json::parse(json, root);
 
 	DynamicString cmd(ta);
 	json::parse_string(root["command"], cmd);

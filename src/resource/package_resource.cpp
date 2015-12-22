@@ -5,12 +5,13 @@
 
 #include "file.h"
 #include "filesystem.h"
-#include "json_parser.h"
 #include "package_resource.h"
 #include "temp_allocator.h"
 #include "reader_writer.h"
 #include "compile_options.h"
 #include "array.h"
+#include "njson.h"
+#include "map.h"
 
 namespace crown
 {
@@ -19,114 +20,130 @@ namespace package_resource
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
 
-		JSONElement texture  = root.key_or_nil("texture");
-		JSONElement script   = root.key_or_nil("lua");
-		JSONElement sound    = root.key_or_nil("sound");
-		JSONElement mesh     = root.key_or_nil("mesh");
-		JSONElement unit     = root.key_or_nil("unit");
-		JSONElement sprite   = root.key_or_nil("sprite");
-		JSONElement physics  = root.key_or_nil("physics");
-		JSONElement material = root.key_or_nil("material");
-		JSONElement font     = root.key_or_nil("font");
-		JSONElement level    = root.key_or_nil("level");
-		JSONElement phyconf  = root.key_or_nil("physics_config");
-		JSONElement shader   = root.key_or_nil("shader");
-		JSONElement sprite_animation = root.key_or_nil("sprite_animation");
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		njson::parse(buf, object);
 
-		const uint32_t num_textures  = texture.is_nil() ? 0 : texture.size();
-		const uint32_t num_scripts   = script.is_nil() ? 0 : script.size();
-		const uint32_t num_sounds    = sound.is_nil() ? 0 : sound.size();
-		const uint32_t num_meshes    = mesh.is_nil() ? 0 : mesh.size();
-		const uint32_t num_units     = unit.is_nil() ? 0 : unit.size();
-		const uint32_t num_sprites   = sprite.is_nil() ? 0 : sprite.size();
-		const uint32_t num_physics   = physics.is_nil() ? 0 : physics.size();
-		const uint32_t num_materials = material.is_nil() ? 0 : material.size();
-		const uint32_t num_fonts     = font.is_nil() ? 0 : font.size();
-		const uint32_t num_levels    = level.is_nil() ? 0 : level.size();
-		const uint32_t num_phyconfs  = phyconf.is_nil() ? 0 : phyconf.size();
-		const uint32_t num_shaders   = shader.is_nil() ? 0 : shader.size();
-		const uint32_t num_sprite_animations = sprite_animation.is_nil() ? 0 : sprite_animation.size();
+		JsonArray texture(ta);
+		JsonArray script(ta);
+		JsonArray sound(ta);
+		JsonArray mesh(ta);
+		JsonArray unit(ta);
+		JsonArray sprite(ta);
+		JsonArray physics(ta);
+		JsonArray material(ta);
+		JsonArray font(ta);
+		JsonArray level(ta);
+		JsonArray phyconf(ta);
+		JsonArray shader(ta);
+		JsonArray sprite_animation(ta);
+
+		if (map::has(object, FixedString("texture")))          njson::parse_array(object["texture"], texture);
+		if (map::has(object, FixedString("lua")))              njson::parse_array(object["lua"], script);
+		if (map::has(object, FixedString("sound")))            njson::parse_array(object["sound"], sound);
+		if (map::has(object, FixedString("mesh")))             njson::parse_array(object["mesh"], mesh);
+		if (map::has(object, FixedString("unit")))             njson::parse_array(object["unit"], unit);
+		if (map::has(object, FixedString("sprite")))           njson::parse_array(object["sprite"], sprite);
+		if (map::has(object, FixedString("physics")))          njson::parse_array(object["physics"], physics);
+		if (map::has(object, FixedString("material")))         njson::parse_array(object["material"], material);
+		if (map::has(object, FixedString("font")))             njson::parse_array(object["font"], font);
+		if (map::has(object, FixedString("level")))            njson::parse_array(object["level"], level);
+		if (map::has(object, FixedString("physics_config")))   njson::parse_array(object["physics_config"], phyconf);
+		if (map::has(object, FixedString("shader")))           njson::parse_array(object["shader"], shader);
+		if (map::has(object, FixedString("sprite_animation"))) njson::parse_array(object["sprite_animation"], sprite_animation);
+
+		const uint32_t num_textures    = array::size(texture);
+		const uint32_t num_scripts     = array::size(script);
+		const uint32_t num_sounds      = array::size(sound);
+		const uint32_t num_meshes      = array::size(mesh);
+		const uint32_t num_units       = array::size(unit);
+		const uint32_t num_sprites     = array::size(sprite);
+		const uint32_t num_physics     = array::size(physics);
+		const uint32_t num_materials   = array::size(material);
+		const uint32_t num_fonts       = array::size(font);
+		const uint32_t num_levels      = array::size(level);
+		const uint32_t num_phyconfs    = array::size(phyconf);
+		const uint32_t num_shaders     = array::size(shader);
+		const uint32_t num_sanimations = array::size(sprite_animation);
 
 		Array<PackageResource::Resource> resources(default_allocator());
 
 		for (uint32_t i = 0; i < num_textures; ++i)
 		{
-			PackageResource::Resource res(TEXTURE_TYPE, texture[i].to_resource_id());
+			PackageResource::Resource res(TEXTURE_TYPE, njson::parse_resource_id(texture[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_scripts; ++i)
 		{
-			PackageResource::Resource res(SCRIPT_TYPE, script[i].to_resource_id());
+			PackageResource::Resource res(SCRIPT_TYPE, njson::parse_resource_id(script[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_sounds; ++i)
 		{
-			PackageResource::Resource res(SOUND_TYPE, sound[i].to_resource_id());
+			PackageResource::Resource res(SOUND_TYPE, njson::parse_resource_id(sound[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_meshes; ++i)
 		{
-			PackageResource::Resource res(MESH_TYPE, mesh[i].to_resource_id());
+			PackageResource::Resource res(MESH_TYPE, njson::parse_resource_id(mesh[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_units; ++i)
 		{
-			PackageResource::Resource res(UNIT_TYPE, unit[i].to_resource_id());
+			PackageResource::Resource res(UNIT_TYPE, njson::parse_resource_id(unit[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_sprites; ++i)
 		{
-			PackageResource::Resource res(SPRITE_TYPE, sprite[i].to_resource_id());
+			PackageResource::Resource res(SPRITE_TYPE, njson::parse_resource_id(sprite[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_physics; ++i)
 		{
-			PackageResource::Resource res(PHYSICS_TYPE, physics[i].to_resource_id());
+			PackageResource::Resource res(PHYSICS_TYPE, njson::parse_resource_id(physics[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_materials; ++i)
 		{
-			PackageResource::Resource res(MATERIAL_TYPE, material[i].to_resource_id());
+			PackageResource::Resource res(MATERIAL_TYPE, njson::parse_resource_id(material[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_fonts; ++i)
 		{
-			PackageResource::Resource res(FONT_TYPE, font[i].to_resource_id());
+			PackageResource::Resource res(FONT_TYPE, njson::parse_resource_id(font[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_levels; ++i)
 		{
-			PackageResource::Resource res(LEVEL_TYPE, level[i].to_resource_id());
+			PackageResource::Resource res(LEVEL_TYPE, njson::parse_resource_id(level[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_phyconfs; ++i)
 		{
-			PackageResource::Resource res(PHYSICS_CONFIG_TYPE, phyconf[i].to_resource_id());
+			PackageResource::Resource res(PHYSICS_CONFIG_TYPE, njson::parse_resource_id(phyconf[i]));
 			array::push_back(resources, res);
 		}
 
 		for (uint32_t i = 0; i < num_shaders; ++i)
 		{
-			PackageResource::Resource res(SHADER_TYPE, shader[i].to_resource_id());
+			PackageResource::Resource res(SHADER_TYPE, njson::parse_resource_id(shader[i]));
 			array::push_back(resources, res);
 		}
 
-		for (uint32_t i = 0; i < num_sprite_animations; ++i)
+		for (uint32_t i = 0; i < num_sanimations; ++i)
 		{
-			PackageResource::Resource res(SPRITE_ANIMATION_TYPE, sprite_animation[i].to_resource_id());
+			PackageResource::Resource res(SPRITE_ANIMATION_TYPE, njson::parse_resource_id(sprite_animation[i]));
 			array::push_back(resources, res);
 		}
 
