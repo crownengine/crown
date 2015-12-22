@@ -18,7 +18,6 @@
 #include "resource_package.h"
 #include "types.h"
 #include "world.h"
-#include "json_parser.h"
 #include "filesystem.h"
 #include "path.h"
 #include "disk_filesystem.h"
@@ -27,6 +26,8 @@
 #include "profiler.h"
 #include "console_server.h"
 #include "input_device.h"
+#include "njson.h"
+#include "map.h"
 
 #if CROWN_PLATFORM_ANDROID
 	#include "apk_filesystem.h"
@@ -413,7 +414,7 @@ bool Device::process_events()
 
 void Device::read_config()
 {
-	TempAllocator1024 ta;
+	TempAllocator4096 ta;
 	DynamicString project_path(ta);
 
 	if (_device_options.project() != NULL)
@@ -428,12 +429,13 @@ void Device::read_config()
 
 	_resource_manager->load(CONFIG_TYPE, config_name);
 	_resource_manager->flush();
-	const char* config_file = (const char*)_resource_manager->get(CONFIG_TYPE, config_name);
+	const char* cfile = (const char*)_resource_manager->get(CONFIG_TYPE, config_name);
 
-	JSONParser config(config_file);
-	JSONElement root = config.root();
-	_boot_script_id = root.key("boot_script").to_resource_id();
-	_boot_package_id = root.key("boot_package").to_resource_id();
+	JsonObject config(ta);
+	njson::parse(cfile, config);
+
+	_boot_script_id  = njson::parse_resource_id(config["boot_script"]);
+	_boot_package_id = njson::parse_resource_id(config["boot_package"]);
 
 	_resource_manager->unload(CONFIG_TYPE, config_name);
 }

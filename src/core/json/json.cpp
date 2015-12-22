@@ -59,17 +59,17 @@ namespace json
 		return json;
 	}
 
-	JSONValueType::Enum type(const char* json)
+	JsonValueType::Enum type(const char* json)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
 		switch (*json)
 		{
-			case '"': return JSONValueType::STRING;
-			case '{': return JSONValueType::OBJECT;
-			case '[': return JSONValueType::ARRAY;
-			case '-': return JSONValueType::NUMBER;
-			default: return (isdigit(*json)) ? JSONValueType::NUMBER : (*json == 'n' ? JSONValueType::NIL : JSONValueType::BOOL);
+			case '"': return JsonValueType::STRING;
+			case '{': return JsonValueType::OBJECT;
+			case '[': return JsonValueType::ARRAY;
+			case '-': return JsonValueType::NUMBER;
+			default: return (isdigit(*json)) ? JsonValueType::NUMBER : (*json == 'n' ? JsonValueType::NIL : JsonValueType::BOOL);
 		}
 	}
 
@@ -208,7 +208,7 @@ namespace json
 		return (float) parse_number(json);
 	}
 
-	void parse_array(const char* json, Array<const char*>& array)
+	void parse_array(const char* json, JsonArray& array)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
@@ -244,7 +244,7 @@ namespace json
 		CE_FATAL("Bad array");
 	}
 
-	void parse_object(const char* json, Map<DynamicString, const char*>& object)
+	void parse_object(const char* json, JsonObject& object)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
@@ -262,16 +262,20 @@ namespace json
 
 			while (*json)
 			{
+				const char* key_begin = *json == '"' ? (json + 1) : json;
+
 				TempAllocator256 ta;
 				DynamicString key(ta);
 				parse_string(json, key);
+
+				FixedString fs_key(key_begin, key.length());
 
 				json = skip_string(json);
 				json = skip_spaces(json);
 				json = next(json, ':');
 				json = skip_spaces(json);
 
-				map::set(object, key, json);
+				map::set(object, fs_key, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);
@@ -288,6 +292,19 @@ namespace json
 		}
 
 		CE_FATAL("Bad object");
+	}
+
+	void parse(const char* json, JsonObject& object)
+	{
+		CE_ASSERT_NOT_NULL(json);
+		parse_object(json, object);
+	}
+
+	void parse(Buffer& json, JsonObject& object)
+	{
+		array::push_back(json, '\0');
+		array::pop_back(json);
+		parse(array::begin(json), object);
 	}
 } // namespace json
 } // namespace crown

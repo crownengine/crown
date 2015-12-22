@@ -4,61 +4,71 @@
  */
 
 #include "font_resource.h"
-#include "json_parser.h"
 #include "allocator.h"
 #include "filesystem.h"
 #include "string_utils.h"
 #include "compile_options.h"
+#include "njson.h"
+#include "map.h"
 
 namespace crown
 {
 namespace font_resource
 {
-	void parse_glyph(JSONElement e, FontGlyphData& glyph)
+	void parse_glyph(const char* json, FontGlyphData& glyph)
 	{
-		glyph.id        = e.key("id").to_int();
-		glyph.x         = e.key("x").to_int();
-		glyph.y         = e.key("y").to_int();
-		glyph.width     = e.key("width").to_int();
-		glyph.height    = e.key("height").to_int();
-		glyph.x_offset  = e.key("x_offset").to_float();
-		glyph.y_offset  = e.key("y_offset").to_float();
-		glyph.x_advance = e.key("x_advance").to_float();
+		TempAllocator512 ta;
+		JsonObject obj(ta);
+		njson::parse(json, obj);
+
+		glyph.id        = njson::parse_int(obj["id"]);
+		glyph.x         = njson::parse_int(obj["x"]);
+		glyph.y         = njson::parse_int(obj["y"]);
+		glyph.width     = njson::parse_int(obj["width"]);
+		glyph.height    = njson::parse_int(obj["height"]);
+		glyph.x_offset  = njson::parse_float(obj["x_offset"]);
+		glyph.y_offset  = njson::parse_float(obj["y_offset"]);
+		glyph.x_advance = njson::parse_float(obj["x_advance"]);
 	}
 
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
+
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		JsonArray glyphs(ta);
+
+		njson::parse(buf, object);
+		njson::parse_array(object["glyphs"], glyphs);
+
+		const uint32_t count      = njson::parse_int(object["count"]);
+		const uint32_t size       = njson::parse_int(object["size"]);
+		const uint32_t font_size  = njson::parse_int(object["font_size"]);
+		const uint32_t num_glyphs = array::size(glyphs);
 
 		Array<FontGlyphData> m_glyphs(default_allocator());
-		JSONElement count = root.key("count");
-		JSONElement size = root.key("size");
-		JSONElement font_size = root.key("font_size");
-		JSONElement glyphs = root.key("glyphs");
 
-		uint32_t num_glyphs = count.to_int();
-
-		for (uint32_t i = 0; i < num_glyphs; i++)
+		for (uint32_t i = 0; i < num_glyphs; ++i)
 		{
 			FontGlyphData data;
 			parse_glyph(glyphs[i], data);
 			array::push_back(m_glyphs, data);
 		}
 
+		// Write
 		FontResource fr;
-		fr.version = FONT_VERSION;
-		fr.num_glyphs = array::size(m_glyphs);
-		fr.texture_size = size.to_int();
-		fr.font_size = font_size.to_int();
+		fr.version      = FONT_VERSION;
+		fr.num_glyphs   = array::size(m_glyphs);
+		fr.texture_size = size;
+		fr.font_size    = font_size;
 
 		opts.write(fr.version);
 		opts.write(fr.num_glyphs);
 		opts.write(fr.texture_size);
 		opts.write(fr.font_size);
 
-		for (uint32_t i = 0; i < array::size(m_glyphs); i++)
+		for (uint32_t i = 0; i < array::size(m_glyphs); ++i)
 		{
 			opts.write(m_glyphs[i].id);
 			opts.write(m_glyphs[i].x);

@@ -5,29 +5,12 @@
 
 #pragma once
 
+#include "json_types.h"
+#include "math_types.h"
 #include "dynamic_string.h"
-#include "container_types.h"
 
 namespace crown
 {
-
-/// @defgroup JSON
-
-/// Enumerates JSON value types.
-///
-/// @ingroup JSON
-struct NJSONValueType
-{
-	enum Enum
-	{
-		NIL,
-		BOOL,
-		NUMBER,
-		STRING,
-		ARRAY,
-		OBJECT
-	};
-};
 
 /// Functions to parse NJSON-encoded strings.
 ///
@@ -35,7 +18,7 @@ struct NJSONValueType
 namespace njson
 {
 	/// Returns the data type of the NJSON string @a json.
-	NJSONValueType::Enum type(const char* json);
+	JsonValueType::Enum type(const char* json);
 
 	/// Parses the NJSON string @a json ad puts it into @a string.
 	void parse_string(const char* json, DynamicString& string);
@@ -54,7 +37,7 @@ namespace njson
 
 	/// Parses the NJSON array @a json and puts it into @a array as pointers to
 	/// the corresponding items into the original @a json string.
-	void parse_array(const char* json, Array<const char*>& array);
+	void parse_array(const char* json, JsonArray& array);
 
 	/// Parses the NJSON object @a json and puts it into @a object as map from
 	/// key to pointer to the corresponding value into the original string @a json.
@@ -62,5 +45,45 @@ namespace njson
 
 	/// Parses the NJSON-encoded @a json.
 	void parse(const char* json, Map<DynamicString, const char*>& object);
+
+	/// Parses the NJSON object @a json and puts it into @a object as map from
+	/// key to pointer to the corresponding value into the original string @a json.
+	void parse_object(const char* json, JsonObject& object);
+
+	/// Parses the NJSON-encoded @a json.
+	void parse(const char* json, JsonObject& object);
+
+	/// Parses the NJSON-encoded @a json.
+	void parse(Buffer& json, JsonObject& object);
 } // namespace njson
+
+namespace njson
+{
+	/// Returns the array @a json as Vector2.
+	/// @note Vector2 = [x, y]
+	Vector2 parse_vector2(const char* json);
+
+	/// Returns the array @a json as Vector3.
+	/// @note Vector3 = [x, y, z]
+	Vector3 parse_vector3(const char* json);
+
+	/// Returns the array @a json as Vector4.
+	/// @note Vector4 = [x, y, z, w]
+	Vector4 parse_vector4(const char* json);
+
+	/// Returns the array @a json as Quaternion.
+	/// @note Quaternion = [x, y, z, w]
+	Quaternion parse_quaternion(const char* json);
+
+	/// Returns the array @a json as Matrix4x4.
+	/// @note Matrix4x4 = [x, x, x, x, y, y, y, y, z, z, z, z, t, t, t, t]
+	Matrix4x4 parse_matrix4x4(const char* json);
+
+	/// Returns the string @a json as StringId32.
+	StringId32 parse_string_id(const char* json);
+
+	/// Returns the string @a json as ResourceId.
+	ResourceId parse_resource_id(const char* json);
+}
+
 } // namespace crown
