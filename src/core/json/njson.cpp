@@ -7,6 +7,7 @@
 #include "string_utils.h"
 #include "temp_allocator.h"
 #include "map.h"
+#include "quaternion.h"
 
 namespace crown
 {
@@ -101,17 +102,17 @@ namespace njson
 		return json;
 	}
 
-	NJSONValueType::Enum type(const char* json)
+	JsonValueType::Enum type(const char* json)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
 		switch (*json)
 		{
-			case '"': return NJSONValueType::STRING;
-			case '{': return NJSONValueType::OBJECT;
-			case '[': return NJSONValueType::ARRAY;
-			case '-': return NJSONValueType::NUMBER;
-			default: return (isdigit(*json)) ? NJSONValueType::NUMBER : (*json == 'n' ? NJSONValueType::NIL : NJSONValueType::BOOL);
+			case '"': return JsonValueType::STRING;
+			case '{': return JsonValueType::OBJECT;
+			case '[': return JsonValueType::ARRAY;
+			case '-': return JsonValueType::NUMBER;
+			default: return (isdigit(*json)) ? JsonValueType::NUMBER : (*json == 'n' ? JsonValueType::NIL : JsonValueType::BOOL);
 		}
 	}
 
@@ -385,5 +386,201 @@ namespace njson
 		else
 			parse_root_object(json, object);
 	}
+
+	void parse_root_object(const char* json, JsonObject& object)
+	{
+		CE_ASSERT_NOT_NULL(json);
+
+		while (*json)
+		{
+			const char* key_begin = *json == '"' ? (json + 1) : json;
+
+			TempAllocator256 ta;
+			DynamicString key(ta);
+			json = parse_key(json, key);
+
+			FixedString fs_key(key_begin, key.length());
+
+			json = skip_spaces(json);
+			json = next(json, '=');
+			json = skip_spaces(json);
+
+			map::set(object, fs_key, json);
+
+			json = skip_value(json);
+			json = skip_spaces(json);
+		}
+	}
+
+	void parse_object(const char* json, JsonObject& object)
+	{
+		CE_ASSERT_NOT_NULL(json);
+
+		if (*json == '{')
+		{
+			json = next(json, '{');
+
+			json = skip_spaces(json);
+
+			if (*json == '}')
+			{
+				next(json, '}');
+				return;
+			}
+
+			while (*json)
+			{
+				const char* key_begin = *json == '"' ? (json + 1) : json;
+
+				TempAllocator256 ta;
+				DynamicString key(ta);
+				json = parse_key(json, key);
+
+				FixedString fs_key(key_begin, key.length());
+
+				json = skip_spaces(json);
+				json = next(json, '=');
+				json = skip_spaces(json);
+
+				map::set(object, fs_key, json);
+
+				json = skip_value(json);
+				json = skip_spaces(json);
+
+				if (*json == '}')
+				{
+					next(json, '}');
+					return;
+				}
+
+				json = skip_spaces(json);
+			}
+		}
+
+		CE_FATAL("Bad object");
+	}
+
+	void parse(const char* json, JsonObject& object)
+	{
+		CE_ASSERT_NOT_NULL(json);
+
+		json = skip_spaces(json);
+
+		if (*json == '{')
+			parse_object(json, object);
+		else
+			parse_root_object(json, object);
+	}
+
+	void parse(Buffer& json, JsonObject& object)
+	{
+		array::push_back(json, '\0');
+		array::pop_back(json);
+		parse(array::begin(json), object);
+	}
 } // namespace njson
+
+namespace njson
+{
+	Vector2 parse_vector2(const char* json)
+	{
+		TempAllocator64 ta;
+		JsonArray array(ta);
+		njson::parse_array(json, array);
+
+		Vector2 v;
+		v.x = njson::parse_float(array[0]);
+		v.y = njson::parse_float(array[1]);
+		return v;
+	}
+
+	Vector3 parse_vector3(const char* json)
+	{
+		TempAllocator64 ta;
+		JsonArray array(ta);
+		njson::parse_array(json, array);
+
+		Vector3 v;
+		v.x = njson::parse_float(array[0]);
+		v.y = njson::parse_float(array[1]);
+		v.z = njson::parse_float(array[2]);
+		return v;
+	}
+
+	Vector4 parse_vector4(const char* json)
+	{
+		TempAllocator64 ta;
+		JsonArray array(ta);
+		njson::parse_array(json, array);
+
+		Vector4 v;
+		v.x = njson::parse_float(array[0]);
+		v.y = njson::parse_float(array[1]);
+		v.z = njson::parse_float(array[2]);
+		v.w = njson::parse_float(array[3]);
+		return v;
+	}
+
+	Quaternion parse_quaternion(const char* json)
+	{
+		TempAllocator64 ta;
+		JsonArray array(ta);
+		njson::parse_array(json, array);
+
+		Vector3 axis;
+		axis.x = njson::parse_float(array[0]);
+		axis.y = njson::parse_float(array[1]);
+		axis.z = njson::parse_float(array[2]);
+
+		float angle = njson::parse_float(array[3]);
+
+		return quaternion(axis, angle);
+	}
+
+	Matrix4x4 parse_matrix4x4(const char* json)
+	{
+		TempAllocator128 ta;
+		JsonArray array(ta);
+		njson::parse_array(json, array);
+
+		Matrix4x4 m;
+		m.x.x = njson::parse_float(array[ 0]);
+		m.x.y = njson::parse_float(array[ 1]);
+		m.x.z = njson::parse_float(array[ 2]);
+		m.x.w = njson::parse_float(array[ 3]);
+
+		m.y.x = njson::parse_float(array[ 4]);
+		m.y.y = njson::parse_float(array[ 5]);
+		m.y.z = njson::parse_float(array[ 6]);
+		m.y.w = njson::parse_float(array[ 7]);
+
+		m.z.x = njson::parse_float(array[ 8]);
+		m.z.y = njson::parse_float(array[ 9]);
+		m.z.z = njson::parse_float(array[10]);
+		m.z.w = njson::parse_float(array[11]);
+
+		m.t.x = njson::parse_float(array[12]);
+		m.t.y = njson::parse_float(array[13]);
+		m.t.z = njson::parse_float(array[14]);
+		m.t.w = njson::parse_float(array[15]);
+		return m;
+	}
+
+	StringId32 parse_string_id(const char* json)
+	{
+		TempAllocator1024 ta;
+		DynamicString str(ta);
+		njson::parse_string(json, str);
+		return str.to_string_id();
+	}
+
+	ResourceId parse_resource_id(const char* json)
+	{
+		TempAllocator1024 ta;
+		DynamicString str(ta);
+		njson::parse_string(json, str);
+		return ResourceId(str.c_str());
+	}
+} // namespace json
+
 } // namespace crown

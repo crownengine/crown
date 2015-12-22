@@ -5,29 +5,11 @@
 
 #pragma once
 
+#include "json_types.h"
 #include "dynamic_string.h"
-#include "container_types.h"
 
 namespace crown
 {
-
-/// @defgroup JSON
-
-/// Enumerates JSON value types.
-///
-/// @ingroup JSON
-struct JSONValueType
-{
-	enum Enum
-	{
-		NIL,
-		BOOL,
-		NUMBER,
-		STRING,
-		ARRAY,
-		OBJECT
-	};
-};
 
 /// Functions to parse JSON-encoded strings.
 ///
@@ -35,7 +17,7 @@ struct JSONValueType
 namespace json
 {
 	/// Returns the data type of the JSON string @a json.
-	JSONValueType::Enum type(const char* json);
+	JsonValueType::Enum type(const char* json);
 
 	/// Parses the JSON string @a json ad puts it into @a string.
 	void parse_string(const char* json, DynamicString& string);
@@ -54,10 +36,16 @@ namespace json
 
 	/// Parses the JSON array @a json and puts it into @a array as pointers to
 	/// the corresponding items into the original @a json string.
-	void parse_array(const char* json, Array<const char*>& array);
+	void parse_array(const char* json, JsonArray& array);
 
 	/// Parses the JSON object @a json and puts it into @a object as map from
 	/// key to pointer to the corresponding value into the original string @a json.
-	void parse_object(const char* json, Map<DynamicString, const char*>& object);
+	void parse_object(const char* json, JsonObject& object);
+
+	/// Parses the NJSON-encoded @a json.
+	void parse(const char* json, JsonObject& object);
+
+	/// Parses the NJSON-encoded @a json.
+	void parse(Buffer& json, JsonObject& object);
 } // namespace json
 } // namespace crown

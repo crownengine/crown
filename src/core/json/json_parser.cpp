@@ -332,7 +332,7 @@ bool JSONElement::is_nil() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONValueType::NIL;
+		return njson::type(_at) == JsonValueType::NIL;
 	}
 
 	return true;
@@ -342,7 +342,7 @@ bool JSONElement::is_bool() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONValueType::BOOL;
+		return njson::type(_at) == JsonValueType::BOOL;
 	}
 
 	return false;
@@ -352,7 +352,7 @@ bool JSONElement::is_number() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONValueType::NUMBER;
+		return njson::type(_at) == JsonValueType::NUMBER;
 	}
 
 	return false;
@@ -362,7 +362,7 @@ bool JSONElement::is_string() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONValueType::STRING;
+		return njson::type(_at) == JsonValueType::STRING;
 	}
 
 	return false;
@@ -372,7 +372,7 @@ bool JSONElement::is_array() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONValueType::ARRAY;
+		return njson::type(_at) == JsonValueType::ARRAY;
 	}
 
 	return false;
@@ -382,7 +382,7 @@ bool JSONElement::is_object() const
 {
 	if (_at != NULL)
 	{
-		return njson::type(_at) == NJSONValueType::OBJECT;
+		return njson::type(_at) == JsonValueType::OBJECT;
 	}
 
 	return false;
@@ -397,34 +397,34 @@ uint32_t JSONElement::size() const
 
 	switch(njson::type(_at))
 	{
-		case NJSONValueType::NIL:
+		case JsonValueType::NIL:
 		{
 			return 1;
 		}
-		case NJSONValueType::OBJECT:
+		case JsonValueType::OBJECT:
 		{
 			Map<DynamicString, const char*> object(default_allocator());
 			njson::parse(_at, object);
 			return map::size(object);
 		}
-		case NJSONValueType::ARRAY:
+		case JsonValueType::ARRAY:
 		{
 			Array<const char*> array(default_allocator());
 			njson::parse_array(_at, array);
 			return array::size(array);
 		}
-		case NJSONValueType::STRING:
+		case JsonValueType::STRING:
 		{
 			TempAllocator256 ta;
 			DynamicString string(ta);
 			njson::parse_string(_at, string);
 			return string.length();
 		}
-		case NJSONValueType::NUMBER:
+		case JsonValueType::NUMBER:
 		{
 			return 1;
 		}
-		case NJSONValueType::BOOL:
+		case JsonValueType::BOOL:
 		{
 			return 1;
 		}
