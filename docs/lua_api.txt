@@ -241,13 +241,13 @@ Matrix4x4
 		Inverts the matrix *m* and returns the result.
 
 	**x** (m) : Vector3
-		Returns the x asis of the matrix *m*.
+		Returns the x axis of the matrix *m*.
 
 	**y** (m) : Vector3
-		Returns the y asis of the matrix *m*.
+		Returns the y axis of the matrix *m*.
 
 	**z** (m) : Vector3
-		Returns the z asis of the matrix *m*.
+		Returns the z axis of the matrix *m*.
 
 	**set_x** (m, x)
 		Sets the x axis of the matrix *m*.

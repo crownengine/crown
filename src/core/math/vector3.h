@@ -176,7 +176,7 @@ inline Vector3 min(const Vector3& a, const Vector3& b)
 	return v;
 }
 
-/// Returns the linearly interpolated vector between @a and @b at time @a t in [0, 1].
+/// Returns the linearly interpolated vector between @a a and @a b at time @a t in [0, 1].
 inline Vector3 lerp(const Vector3& a, const Vector3& b, float t)
 {
 	Vector3 v;

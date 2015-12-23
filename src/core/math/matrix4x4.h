@@ -482,7 +482,7 @@ inline void set_identity(Matrix4x4& m)
 	m.t.w = 1.0f;
 }
 
-/// Returns the x asis of the matrix @a m.
+/// Returns the x axis of the matrix @a m.
 inline Vector3 x(const Matrix4x4& m)
 {
 	Vector3 v;
@@ -492,7 +492,7 @@ inline Vector3 x(const Matrix4x4& m)
 	return v;
 }
 
-/// Returns the y asis of the matrix @a m.
+/// Returns the y axis of the matrix @a m.
 inline Vector3 y(const Matrix4x4& m)
 {
 	Vector3 v;
@@ -502,7 +502,7 @@ inline Vector3 y(const Matrix4x4& m)
 	return v;
 }
 
-/// Returns the z asis of the matrix @a m.
+/// Returns the z axis of the matrix @a m.
 inline Vector3 z(const Matrix4x4& m)
 {
 	Vector3 v;
