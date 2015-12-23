@@ -715,7 +715,7 @@ SoundWorld
 		Resumes all previously paused sounds in the world.
 
 	**is_playing** (sound_world, id) : bool
-		Returns wheter the sound *id* is playing.
+		Returns whether the sound *id* is playing.
 
 ResourcePackage
 ================
@@ -837,7 +837,7 @@ Keyboard
 		Returns whether the button *id* is released in the current frame.
 
 	**any_pressed** () : bool
-		Returns wheter any button is pressed in the current frame.
+		Returns whether any button is pressed in the current frame.
 
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
@@ -883,7 +883,7 @@ Mouse
 		Returns whether the button *id* is released in the current frame.
 
 	**any_pressed** () : bool
-		Returns wheter any button is pressed in the current frame.
+		Returns whether any button is pressed in the current frame.
 
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
@@ -931,7 +931,7 @@ Touch
 		Returns whether the button *id* is released in the current frame.
 
 	**any_pressed** () : bool
-		Returns wheter any button is pressed in the current frame.
+		Returns whether any button is pressed in the current frame.
 
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
@@ -961,7 +961,7 @@ Pad1, Pad2, Pad3, Pad4
 		Returns whether the button *id* is released in the current frame.
 
 	**any_pressed** () : bool
-		Returns wheter any button is pressed in the current frame.
+		Returns whether any button is pressed in the current frame.
 
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
