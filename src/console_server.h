@@ -28,7 +28,7 @@ public:
 
 private:
 
-	void send(TCPSocket client, const char* message);
+	void send(TCPSocket client, const char* json);
 
 	void add_client(TCPSocket socket);
 	ReadResult update_client(TCPSocket client);
@@ -40,18 +40,8 @@ private:
 
 private:
 
-	struct Client
-	{
-		TCPSocket socket;
-
-		void close()
-		{
-			socket.close();
-		}
-	};
-
 	TCPSocket _server;
-	Vector<Client> _clients;
+	Vector<TCPSocket> _clients;
 };
 
 /// Functions for accessing global console.
