@@ -9,6 +9,7 @@
 #include "memory.h"
 #include "array.h"
 #include "string_id.h"
+#include "string_utils.h"
 #include <string.h> // memmove
 
 namespace crown
@@ -78,7 +79,7 @@ inline DynamicString::DynamicString(const char* s, Allocator& a)
 	: _data(a)
 {
 	CE_ASSERT_NOT_NULL(s);
-	array::push(_data, s, (uint32_t)strlen(s));
+	array::push(_data, s, strlen32(s));
 }
 
 inline DynamicString& DynamicString::operator+=(const DynamicString& s)
@@ -89,7 +90,7 @@ inline DynamicString& DynamicString::operator+=(const DynamicString& s)
 inline DynamicString& DynamicString::operator+=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
-	array::push(_data, s, (uint32_t)strlen(s));
+	array::push(_data, s, strlen32(s));
 	return *this;
 }
 
@@ -109,7 +110,7 @@ inline DynamicString& DynamicString::operator=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
 	array::clear(_data);
-	array::push(_data, s, (uint32_t)strlen(s));
+	array::push(_data, s, strlen32(s));
 	return *this;
 }
 
@@ -143,7 +144,7 @@ inline void DynamicString::reserve(uint32_t n)
 
 inline uint32_t DynamicString::length() const
 {
-	return (uint32_t)strlen(this->c_str());
+	return strlen32(this->c_str());
 }
 
 inline void DynamicString::strip_leading(const char* s)
@@ -151,11 +152,11 @@ inline void DynamicString::strip_leading(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 	CE_ASSERT(starts_with(s), "String does not start with %s", s);
 
-	const size_t my_len = strlen(c_str());
-	const size_t s_len = strlen(s);
+	const uint32_t my_len = strlen32(c_str());
+	const uint32_t s_len = strlen32(s);
 
 	memmove(array::begin(_data), array::begin(_data) + s_len, (my_len - s_len));
-	array::resize(_data, uint32_t(my_len - s_len));
+	array::resize(_data, my_len - s_len);
 }
 
 inline void DynamicString::strip_trailing(const char* s)
@@ -163,23 +164,23 @@ inline void DynamicString::strip_trailing(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 	CE_ASSERT(ends_with(s), "String does not end with %s", s);
 
-	const size_t my_len = strlen(c_str());
-	const size_t s_len = strlen(s);
-	array::resize(_data, uint32_t(my_len - s_len));
+	const uint32_t my_len = strlen32(c_str());
+	const uint32_t s_len = strlen32(s);
+	array::resize(_data, my_len - s_len);
 }
 
 inline bool DynamicString::starts_with(const char* s) const
 {
 	CE_ASSERT_NOT_NULL(s);
-	return strncmp(c_str(), s, strlen(s)) == 0;
+	return strncmp(c_str(), s, strlen32(s)) == 0;
 }
 
 inline bool DynamicString::ends_with(const char* s) const
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	const size_t my_len = strlen(c_str());
-	const size_t s_len = strlen(s);
+	const uint32_t my_len = strlen32(c_str());
+	const uint32_t s_len = strlen32(s);
 
 	if (my_len >= s_len)
 	{

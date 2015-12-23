@@ -15,9 +15,9 @@ namespace path
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 #if CROWN_PLATFORM_POSIX
-		return strlen(path) > 0 && path[0] == SEPARATOR;
+		return strlen32(path) > 0 && path[0] == SEPARATOR;
 #elif CROWN_PLATFORM_WINDOWS
-		return strlen(path) > 2 && isalpha(path[0]) && path[1] == ':' && path[2] == SEPARATOR;
+		return strlen32(path) > 2 && isalpha(path[0]) && path[1] == ':' && path[2] == SEPARATOR;
 #endif
 	}
 
@@ -25,16 +25,16 @@ namespace path
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 #if CROWN_PLATFORM_POSIX
-		return is_absolute_path(path) && strlen(path) == 1;
+		return is_absolute_path(path) && strlen32(path) == 1;
 #elif CROWN_PLATFORM_WINDOWS
-		return is_absolute_path(path) && strlen(path) == 3;
+		return is_absolute_path(path) && strlen32(path) == 3;
 #endif
 	}
 
 	void join(const char* a, const char* b, DynamicString& path)
 	{
-		const uint32_t la = strlen(a);
-		const uint32_t lb = strlen(b);
+		const uint32_t la = strlen32(a);
+		const uint32_t lb = strlen32(b);
 		path.reserve(la + lb + 1);
 		path += a;
 		path += SEPARATOR;

@@ -26,7 +26,7 @@ const char* addr2line(const char* addr, char* line, int len)
 	if (f)
 	{
 		fgets(line, len, f);
-		line[strlen(line) - 1] = '\0';
+		line[strlen32(line) - 1] = '\0';
 		pclose(f);
 		return line;
 	}

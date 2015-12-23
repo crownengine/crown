@@ -47,7 +47,7 @@ void ConsoleServer::shutdown()
 
 void ConsoleServer::send(TCPSocket client, const char* json)
 {
-	uint32_t len = strlen(json);
+	uint32_t len = strlen32(json);
 	client.write((const char*)&len, 4);
 	client.write(json, len);
 }

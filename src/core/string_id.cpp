@@ -12,7 +12,7 @@ namespace crown
 {
 
 StringId32::StringId32(const char* str)
-	: _id(murmur32(str, strlen(str)))
+	: _id(murmur32(str, strlen32(str)))
 {
 }
 
@@ -28,7 +28,7 @@ const char* StringId32::to_string(char* buf)
 }
 
 StringId64::StringId64(const char* str)
-	: _id(murmur64(str, strlen(str)))
+	: _id(murmur64(str, strlen32(str)))
 {
 }
 

@@ -86,9 +86,9 @@ namespace string_stream
 		return stream_printf(s, "%g", val);
 	}
 
-	inline StringStream& operator<<(StringStream& s, const char* string)
+	inline StringStream& operator<<(StringStream& s, const char* str)
 	{
-		array::push(s, string, (uint32_t)strlen(string));
+		array::push(s, str, strlen32(str));
 		return s;
 	}
 

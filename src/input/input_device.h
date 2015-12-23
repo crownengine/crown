@@ -62,7 +62,7 @@ public:
 	uint8_t* _last_state;    // num_buttons
 	uint8_t* _current_state; // num_buttons
 	Vector3* _axis;          // num_axes
-	char* _name;             // strlen(name) + 1
+	char* _name;             // strlen32(name) + 1
 
 public:
 

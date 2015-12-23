@@ -52,7 +52,7 @@ namespace shader_resource
 #if CROWN_PLATFORM_LINUX
 		args <<	"120";
 #elif CROWN_PLATFORM_WINDOWS
-		args << (strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0";
+		args << ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
 #endif
 
 		return os::execute_process(SHADERC_PATH, c_str(args), output);

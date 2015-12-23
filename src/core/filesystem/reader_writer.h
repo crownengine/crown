@@ -71,7 +71,7 @@ public:
 	/// The final null character is not copied to the file.
 	void write_string(const char* string)
 	{
-		_file.write(string, strlen(string));
+		_file.write(string, strlen32(string));
 	}
 
 private:

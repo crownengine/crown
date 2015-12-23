@@ -20,6 +20,7 @@
 #include "allocator.h"
 #include "log.h"
 #include "proxy_allocator.h"
+#include "string_utils.h"
 #include <bx/allocator.h>
 #include <bgfx/bgfx.h>
 
@@ -159,7 +160,7 @@ private:
 		{
 			char buf[2048];
 			strncpy(buf, _format, sizeof(buf));
-			buf[strlen(buf)-1] = '\0'; // Remove trailing newline
+			buf[strlen32(buf)-1] = '\0'; // Remove trailing newline
 			CE_LOGDV(buf, _argList);
 		}
 
@@ -204,7 +205,7 @@ private:
 		virtual void* realloc(void* _ptr, size_t _size, size_t _align, const char* /*_file*/, uint32_t /*_line*/)
 		{
 			if (!_ptr)
-				return _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : _align);
+				return _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : (uint32_t)_align);
 
 			if (_size == 0)
 			{
@@ -213,7 +214,7 @@ private:
 			}
 
 			// Realloc
-			void* p = _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : _align);
+			void* p = _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : (uint32_t)_align);
 			_allocator.deallocate(_ptr);
 			return p;
 		}

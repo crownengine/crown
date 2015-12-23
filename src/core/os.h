@@ -112,7 +112,7 @@ namespace os
 		CE_ASSERT(err != 0, "GetFileTime: GetLastError = %d", GetLastError());
 		CE_UNUSED(err);
 		CloseHandle(hfile);
-		return (uint64_t)((ftwrite.dwHighDateTime << 32) | ftwrite.dwLowDateTime);
+		return (uint64_t)((uint64_t(ftwrite.dwHighDateTime) << 32) | ftwrite.dwLowDateTime);
 #endif
 	}
 
@@ -223,7 +223,7 @@ namespace os
 
 			TempAllocator512 ta;
 			DynamicString filename(fname, ta);
-			vector::push_back(files, fname);
+			vector::push_back(files, filename);
 		}
 		while (FindNextFile(file, &ffd) != 0);
 
@@ -335,7 +335,7 @@ namespace os
 		PROCESS_INFORMATION process;
 		memset(&process, 0, sizeof(process));
 
-		int err = CreateProcess(path, args, NULL, NULL, TRUE, 0, NULL, NULL, &info, &process);
+		int err = CreateProcess(path, (LPSTR)args, NULL, NULL, TRUE, 0, NULL, NULL, &info, &process);
 		CE_ASSERT(err != 0, "CreateProcess: GetLastError = %d", GetLastError());
 		CE_UNUSED(err);
 
