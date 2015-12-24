@@ -14,6 +14,7 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
+/// Returns a new quaternion from individual components.
 inline Quaternion quaternion(float x, float y, float z, float w)
 {
 	Quaternion q;
@@ -24,6 +25,7 @@ inline Quaternion quaternion(float x, float y, float z, float w)
 	return q;
 }
 
+/// Returns a new quaternion from @a axis and @a angle.
 inline Quaternion quaternion(const Vector3& axis, float angle)
 {
 	const float ha = angle * 0.5f;
@@ -37,6 +39,7 @@ inline Quaternion quaternion(const Vector3& axis, float angle)
 	return q;
 }
 
+/// Returns a new quaternion from matrix @a m.
 Quaternion quaternion(const Matrix3x3& m);
 
 inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)

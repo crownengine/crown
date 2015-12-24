@@ -618,7 +618,7 @@ inline Vector3 scale(const Matrix4x4& m)
 	return v;
 }
 
-/// Sets the scale of the matrix @æ m.
+/// Sets the scale of the matrix @a m.
 inline void set_scale(Matrix4x4& m, const Vector3& s)
 {
 	Matrix3x3 rot = to_matrix3x3(m);
