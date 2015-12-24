@@ -36,6 +36,11 @@ inline int32_t snprintf(char* str, size_t n, const char* format, ...)
 	return len;
 }
 
+inline uint32_t strlen32(const char* str)
+{
+	return (uint32_t)strlen(str);
+}
+
 inline const char* skip_spaces(const char* str)
 {
 	while (isspace(*str)) ++str;

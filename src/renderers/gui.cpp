@@ -200,7 +200,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 	// Vector2 m_pen;
 
 	// const float scale = ((float)font_size / (float)resource->font_size());
-	// const uint32_t str_len = strlen(str);
+	// const uint32_t str_len = strlen32(str);
 
 	// TransientVertexBuffer vb;
 	// TransientIndexBuffer ib;

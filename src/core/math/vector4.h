@@ -189,7 +189,7 @@ inline Vector4 min(const Vector4& a, const Vector4& b)
 	return v;
 }
 
-/// Returns the linearly interpolated vector between @a and @b at time @a t in [0, 1].
+/// Returns the linearly interpolated vector between @a a and @a b at time @a t in [0, 1].
 inline Vector4 lerp(const Vector4& a, const Vector4& b, float t)
 {
 	Vector4 v;

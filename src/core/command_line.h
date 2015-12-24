@@ -23,8 +23,8 @@ struct CommandLine
 	{
 		for (int i = 0; i < _argc; i++)
 		{
-			if ((shortopt != '\0' && strlen(_argv[i]) > 1 && _argv[i][0] == '-' && _argv[i][1] == shortopt) ||
-				(strlen(_argv[i]) > 2 && _argv[i][0] == '-' && _argv[i][1] == '-' && strcmp(&_argv[i][2], longopt) == 0))
+			if ((shortopt != '\0' && strlen32(_argv[i]) > 1 && _argv[i][0] == '-' && _argv[i][1] == shortopt) ||
+				(strlen32(_argv[i]) > 2 && _argv[i][0] == '-' && _argv[i][1] == '-' && strcmp(&_argv[i][2], longopt) == 0))
 			{
 				return i;
 			}

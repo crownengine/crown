@@ -25,13 +25,13 @@ ConsoleServer::ConsoleServer(uint16_t port, bool wait)
 
 	if (wait)
 	{
-		AcceptResult result;
+		AcceptResult ar;
 		TCPSocket client;
 		do
 		{
-			result = _server.accept(client);
+			ar = _server.accept(client);
 		}
-		while (result.error != AcceptResult::NO_ERROR);
+		while (ar.error != AcceptResult::NO_ERROR);
 
 		add_client(client);
 	}
@@ -47,7 +47,7 @@ void ConsoleServer::shutdown()
 
 void ConsoleServer::send(TCPSocket client, const char* json)
 {
-	uint32_t len = strlen(json);
+	uint32_t len = strlen32(json);
 	client.write((const char*)&len, 4);
 	client.write(json, len);
 }
@@ -55,7 +55,7 @@ void ConsoleServer::send(TCPSocket client, const char* json)
 void ConsoleServer::send(const char* json)
 {
 	for (uint32_t i = 0; i < vector::size(_clients); ++i)
-		send(_clients[i].socket, json);
+		send(_clients[i], json);
 }
 
 void ConsoleServer::update()
@@ -71,7 +71,7 @@ void ConsoleServer::update()
 	// Update all clients
 	for (uint32_t i = 0; i < vector::size(_clients); ++i)
 	{
-		ReadResult rr = update_client(_clients[i].socket);
+		ReadResult rr = update_client(_clients[i]);
 		if (rr.error != ReadResult::NO_ERROR)
 			array::push_back(to_remove, i);
 	}
@@ -90,9 +90,7 @@ void ConsoleServer::update()
 
 void ConsoleServer::add_client(TCPSocket socket)
 {
-	Client cl;
-	cl.socket = socket;
-	vector::push_back(_clients, cl);
+	vector::push_back(_clients, socket);
 }
 
 ReadResult ConsoleServer::update_client(TCPSocket client)

@@ -29,7 +29,14 @@ struct JsonValueType
 	};
 };
 
+/// Array of pointers to json-encoded strings.
+///
+/// @ingroup JSON
 typedef Array<const char*> JsonArray;
+
+/// Map from key to pointers to json-encoded strings.
+///
+/// @ingroup JSON
 typedef Map<FixedString, const char*> JsonObject;
 
 } // namespace crown

@@ -8,6 +8,7 @@
 #if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
 
 #include "macros.h"
+#include "string_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <cxxabi.h>
@@ -26,7 +27,7 @@ const char* addr2line(const char* addr, char* line, int len)
 	if (f)
 	{
 		fgets(line, len, f);
-		line[strlen(line) - 1] = '\0';
+		line[strlen32(line) - 1] = '\0';
 		pclose(f);
 		return line;
 	}

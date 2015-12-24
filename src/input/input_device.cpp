@@ -6,7 +6,8 @@
 #include "input_device.h"
 #include "error.h"
 #include "allocator.h"
-#include <string.h> // strlen, strcpy, memset
+#include "string_utils.h"
+#include <string.h> // strcpy, memset
 
 namespace crown
 {
@@ -88,7 +89,7 @@ InputDevice* InputDevice::create(Allocator& a, const char* name, uint8_t num_but
 		+ sizeof(InputDevice)
 		+ sizeof(uint8_t)*num_buttons*2
 		+ sizeof(Vector3)*num_axes
-		+ strlen(name) + 1;
+		+ strlen32(name) + 1;
 
 	InputDevice* id = (InputDevice*)a.allocate(size);
 

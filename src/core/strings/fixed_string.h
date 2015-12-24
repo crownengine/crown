@@ -22,7 +22,7 @@ public:
 	}
 
 	FixedString(const char* str)
-		: _length(strlen(str))
+		: _length(strlen32(str))
 		, _data(str)
 	{
 	}
@@ -41,14 +41,14 @@ public:
 
 	FixedString& operator=(const char* str)
 	{
-		_length = strlen(str);
+		_length = strlen32(str);
 		_data = str;
 		return *this;
 	}
 
 	bool operator==(const char* str) const
 	{
-		const uint32_t len = strlen(str);
+		const uint32_t len = strlen32(str);
 		return _length == len && !strncmp(_data, str, len);
 	}
 

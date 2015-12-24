@@ -35,7 +35,7 @@ struct InputDevice
 	/// Returns whether the specified @a b button is released in the current frame.
 	bool released(uint8_t i) const;
 
-	/// Returns wheter any button is pressed in the current frame.
+	/// Returns whether any button is pressed in the current frame.
 	bool any_pressed() const;
 
 	/// Returns whether any button is released in the current frame.
@@ -62,7 +62,7 @@ public:
 	uint8_t* _last_state;    // num_buttons
 	uint8_t* _current_state; // num_buttons
 	Vector3* _axis;          // num_axes
-	char* _name;             // strlen(name) + 1
+	char* _name;             // strlen32(name) + 1
 
 public:
 

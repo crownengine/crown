@@ -7,7 +7,7 @@
 #include "dynamic_string.h"
 #include "filesystem.h"
 #include "compile_options.h"
-#include "njson.h"
+#include "sjson.h"
 #include "map.h"
 
 namespace crown
@@ -37,10 +37,10 @@ namespace sound_resource
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		njson::parse(buf, object);
+		sjson::parse(buf, object);
 
 		DynamicString name(ta);
-		njson::parse_string(object["source"], name);
+		sjson::parse_string(object["source"], name);
 
 		Buffer sound = opts.read(name.c_str());
 		const WAVHeader* wav = (const WAVHeader*)array::begin(sound);

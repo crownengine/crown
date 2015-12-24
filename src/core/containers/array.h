@@ -36,7 +36,7 @@ namespace array
 	template <typename T> void resize(Array<T>& a, uint32_t size);
 
 	/// Reserves space in the array @a a for at least @a capacity items.
-	template <typename T> void reserve(uint32_t capacity);
+	template <typename T> void reserve(Array<T>& a, uint32_t capacity);
 
 	/// Sets the capacity of array @a a.
 	template <typename T> void set_capacity(Array<T>& a, uint32_t capacity);
