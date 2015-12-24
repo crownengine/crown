@@ -72,11 +72,11 @@ namespace njson
 	Vector4 parse_vector4(const char* json);
 
 	/// Returns the array @a json as Quaternion.
-	/// @note Quaternion = [x, y, z, w]
+	/// @note Quaternion = [x, y, z, angle]
 	Quaternion parse_quaternion(const char* json);
 
 	/// Returns the array @a json as Matrix4x4.
-	/// @note Matrix4x4 = [x, x, x, x, y, y, y, y, z, z, z, z, t, t, t, t]
+	/// @note Matrix4x4 = [xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw]
 	Matrix4x4 parse_matrix4x4(const char* json);
 
 	/// Returns the string @a json as StringId32.
@@ -84,6 +84,6 @@ namespace njson
 
 	/// Returns the string @a json as ResourceId.
 	ResourceId parse_resource_id(const char* json);
-}
+} // namespace njson
 
 } // namespace crown
