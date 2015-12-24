@@ -15,32 +15,32 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-inline Matrix4x4 matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1
-	, float r1c2, float r2c2, float r3c2, float r4c2
-	, float r1c3, float r2c3, float r3c3, float r4c3
-	, float r1c4, float r2c4, float r3c4, float r4c4
+inline Matrix4x4 matrix4x4(float xx, float xy, float xz, float xw
+	, float yx, float yy, float yz, float yw
+	, float zx, float zy, float zz, float zw
+	, float tx, float ty, float tz, float tw
 	)
 {
 	Matrix4x4 m;
-	m.x.x = r1c1;
-	m.x.y = r1c2;
-	m.x.z = r1c3;
-	m.x.w = r1c4;
+	m.x.x = xx;
+	m.x.y = xy;
+	m.x.z = xz;
+	m.x.w = xw;
 
-	m.y.x = r2c1;
-	m.y.y = r2c2;
-	m.y.z = r2c3;
-	m.y.w = r2c4;
+	m.y.x = yx;
+	m.y.y = yy;
+	m.y.z = yz;
+	m.y.w = yw;
 
-	m.z.x = r3c1;
-	m.z.y = r3c2;
-	m.z.z = r3c3;
-	m.z.w = r3c4;
+	m.z.x = zx;
+	m.z.y = zy;
+	m.z.z = zz;
+	m.z.w = zw;
 
-	m.t.x = r4c1;
-	m.t.y = r4c2;
-	m.t.z = r4c3;
-	m.t.w = r4c4;
+	m.t.x = tx;
+	m.t.y = ty;
+	m.t.z = tz;
+	m.t.w = tw;
 	return m;
 }
 
