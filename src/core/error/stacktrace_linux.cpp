@@ -8,6 +8,7 @@
 #if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
 
 #include "macros.h"
+#include "string_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <cxxabi.h>
