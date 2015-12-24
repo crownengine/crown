@@ -204,8 +204,8 @@ QuaternionBox
 Matrix4x4
 ---------
 
-	**Matrix4x4** (m0, m1, ..., m15) : Matrix4x4
-		Constructor.
+	**Matrix4x4** (xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw) : Matrix4x4
+		Returns a new matrix from individual components.
 
 	**from_quaternion** (q) : Matrix4x4
 		Returns a new matrix from *q*.

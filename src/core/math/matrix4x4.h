@@ -15,6 +15,7 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
+/// Returns a new matrix from individual components.
 inline Matrix4x4 matrix4x4(float xx, float xy, float xz, float xw
 	, float yx, float yy, float yz, float yw
 	, float zx, float zy, float zz, float zw
@@ -44,6 +45,7 @@ inline Matrix4x4 matrix4x4(float xx, float xy, float xz, float xw
 	return m;
 }
 
+/// Returns a new matrix from individual components.
 inline Matrix4x4 matrix4x4(const float a[16])
 {
 	Matrix4x4 m;
@@ -69,6 +71,7 @@ inline Matrix4x4 matrix4x4(const float a[16])
 	return m;
 }
 
+/// Returns a new matrix from axes @a x, @a y and @a z and translation @a t.
 inline Matrix4x4 matrix4x4(const Vector3& x, const Vector3& y, const Vector3& z, const Vector3& t)
 {
 	Matrix4x4 m;
@@ -94,7 +97,8 @@ inline Matrix4x4 matrix4x4(const Vector3& x, const Vector3& y, const Vector3& z,
 	return m;
 }
 
-inline Matrix4x4 matrix4x4(const Quaternion& r, const Vector3& p)
+/// Returns a new matrix from rotation @a r and translation @a t.
+inline Matrix4x4 matrix4x4(const Quaternion& r, const Vector3& t)
 {
 	Matrix4x4 m;
 	m.x.x = 1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z;
@@ -112,29 +116,30 @@ inline Matrix4x4 matrix4x4(const Quaternion& r, const Vector3& p)
 	m.z.z = 1.0f - 2.0f * r.x * r.x - 2.0f * r.y * r.y;
 	m.z.w = 0.0f;
 
-	m.t.x = p.x;
-	m.t.y = p.y;
-	m.t.z = p.z;
+	m.t.x = t.x;
+	m.t.y = t.y;
+	m.t.z = t.z;
 	m.t.w = 1.0f;
 	return m;
 }
 
-inline Matrix4x4 matrix4x4(const Matrix3x3& rot)
+/// Returns a new matrix from rotation matrix @a r.
+inline Matrix4x4 matrix4x4(const Matrix3x3& r)
 {
 	Matrix4x4 m;
-	m.x.x = rot.x.x;
-	m.x.y = rot.x.y;
-	m.x.z = rot.x.z;
+	m.x.x = r.x.x;
+	m.x.y = r.x.y;
+	m.x.z = r.x.z;
 	m.x.w = 0.0f;
 
-	m.y.x = rot.y.x;
-	m.y.y = rot.y.y;
-	m.y.z = rot.y.z;
+	m.y.x = r.y.x;
+	m.y.y = r.y.y;
+	m.y.z = r.y.z;
 	m.y.w = 0.0f;
 
-	m.z.x = rot.z.x;
-	m.z.y = rot.z.y;
-	m.z.z = rot.z.z;
+	m.z.x = r.z.x;
+	m.z.y = r.z.y;
+	m.z.z = r.z.z;
 	m.z.w = 0.0f;
 
 	m.t.x = 0.0f;
