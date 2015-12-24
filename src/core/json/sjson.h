@@ -12,52 +12,52 @@
 namespace crown
 {
 
-/// Functions to parse NJSON-encoded strings.
+/// Functions to parse SJSON-encoded strings.
 ///
 /// @ingroup JSON
-namespace njson
+namespace sjson
 {
-	/// Returns the data type of the NJSON string @a json.
+	/// Returns the data type of the SJSON string @a json.
 	JsonValueType::Enum type(const char* json);
 
-	/// Parses the NJSON string @a json ad puts it into @a string.
+	/// Parses the SJSON string @a json ad puts it into @a string.
 	void parse_string(const char* json, DynamicString& string);
 
-	/// Returns the NJSON number @a json as double.
+	/// Returns the SJSON number @a json as double.
 	double parse_number(const char* json);
 
-	/// Returns the NJSON number @a json as int.
+	/// Returns the SJSON number @a json as int.
 	int32_t parse_int(const char* json);
 
-	/// Returns the NJSON number @a json as float.
+	/// Returns the SJSON number @a json as float.
 	float parse_float(const char* json);
 
-	/// Returns the NJSON boolean @a json as bool.
+	/// Returns the SJSON boolean @a json as bool.
 	bool parse_bool(const char* json);
 
-	/// Parses the NJSON array @a json and puts it into @a array as pointers to
+	/// Parses the SJSON array @a json and puts it into @a array as pointers to
 	/// the corresponding items into the original @a json string.
 	void parse_array(const char* json, JsonArray& array);
 
-	/// Parses the NJSON object @a json and puts it into @a object as map from
+	/// Parses the SJSON object @a json and puts it into @a object as map from
 	/// key to pointer to the corresponding value into the original string @a json.
 	void parse_object(const char* json, Map<DynamicString, const char*>& object);
 
-	/// Parses the NJSON-encoded @a json.
+	/// Parses the SJSON-encoded @a json.
 	void parse(const char* json, Map<DynamicString, const char*>& object);
 
-	/// Parses the NJSON object @a json and puts it into @a object as map from
+	/// Parses the SJSON object @a json and puts it into @a object as map from
 	/// key to pointer to the corresponding value into the original string @a json.
 	void parse_object(const char* json, JsonObject& object);
 
-	/// Parses the NJSON-encoded @a json.
+	/// Parses the SJSON-encoded @a json.
 	void parse(const char* json, JsonObject& object);
 
-	/// Parses the NJSON-encoded @a json.
+	/// Parses the SJSON-encoded @a json.
 	void parse(Buffer& json, JsonObject& object);
-} // namespace njson
+} // namespace sjson
 
-namespace njson
+namespace sjson
 {
 	/// Returns the array @a json as Vector2.
 	/// @note Vector2 = [x, y]
@@ -84,6 +84,6 @@ namespace njson
 
 	/// Returns the string @a json as ResourceId.
 	ResourceId parse_resource_id(const char* json);
-} // namespace njson
+} // namespace sjson
 
 } // namespace crown

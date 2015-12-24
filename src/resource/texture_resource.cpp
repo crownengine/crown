@@ -10,7 +10,7 @@
 #include "resource_manager.h"
 #include "log.h"
 #include "compile_options.h"
-#include "njson.h"
+#include "sjson.h"
 #include "map.h"
 #include <algorithm>
 
@@ -564,10 +564,10 @@ namespace texture_resource
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		njson::parse(buf, object);
+		sjson::parse(buf, object);
 
 		DynamicString name(ta);
-		njson::parse_string(object["source"], name);
+		sjson::parse_string(object["source"], name);
 
 		File* source = opts._fs.open(name.c_str(), FileOpenMode::READ);
 		BinaryReader br(*source);

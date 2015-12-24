@@ -26,7 +26,7 @@
 #include "profiler.h"
 #include "console_server.h"
 #include "input_device.h"
-#include "njson.h"
+#include "sjson.h"
 #include "map.h"
 
 #if CROWN_PLATFORM_ANDROID
@@ -432,10 +432,10 @@ void Device::read_config()
 	const char* cfile = (const char*)_resource_manager->get(CONFIG_TYPE, config_name);
 
 	JsonObject config(ta);
-	njson::parse(cfile, config);
+	sjson::parse(cfile, config);
 
-	_boot_script_id  = njson::parse_resource_id(config["boot_script"]);
-	_boot_package_id = njson::parse_resource_id(config["boot_package"]);
+	_boot_script_id  = sjson::parse_resource_id(config["boot_script"]);
+	_boot_package_id = sjson::parse_resource_id(config["boot_package"]);
 
 	_resource_manager->unload(CONFIG_TYPE, config_name);
 }

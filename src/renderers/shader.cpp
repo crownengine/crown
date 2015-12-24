@@ -12,7 +12,7 @@
 #include "compile_options.h"
 #include "temp_allocator.h"
 #include "string_stream.h"
-#include "njson.h"
+#include "sjson.h"
 #include "map.h"
 
 #if CROWN_DEBUG
@@ -63,7 +63,7 @@ namespace shader_resource
 		Buffer buf = opts.read(path);
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		njson::parse(buf, object);
+		sjson::parse(buf, object);
 
 		DynamicString vs_code2(ta);
 		DynamicString fs_code2(ta);
@@ -71,12 +71,12 @@ namespace shader_resource
 		DynamicString common_code(ta);
 		DynamicString vs_in_out(ta);
 		DynamicString fs_in_out(ta);
-		njson::parse_string(object["vs_code"], vs_code2);
-		njson::parse_string(object["fs_code"], fs_code2);
-		njson::parse_string(object["varying_def"], varying_def);
-		njson::parse_string(object["common"], common_code);
-		njson::parse_string(object["vs_in_out"], vs_in_out);
-		njson::parse_string(object["fs_in_out"], fs_in_out);
+		sjson::parse_string(object["vs_code"], vs_code2);
+		sjson::parse_string(object["fs_code"], fs_code2);
+		sjson::parse_string(object["varying_def"], varying_def);
+		sjson::parse_string(object["common"], common_code);
+		sjson::parse_string(object["vs_in_out"], vs_in_out);
+		sjson::parse_string(object["fs_in_out"], fs_in_out);
 
 		DynamicString vs_code(default_allocator());
 		DynamicString fs_code(default_allocator());

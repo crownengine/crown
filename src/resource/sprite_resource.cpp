@@ -15,7 +15,7 @@
 #include "vector4.h"
 #include "resource_manager.h"
 #include "compile_options.h"
-#include "njson.h"
+#include "sjson.h"
 #include "map.h"
 
 namespace crown
@@ -34,12 +34,12 @@ namespace sprite_resource
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
-		njson::parse(json, obj);
+		sjson::parse(json, obj);
 
-		frame.name   = njson::parse_string_id(obj["name"]);
-		frame.region = njson::parse_vector4(obj["region"]);
-		frame.offset = njson::parse_vector2(obj["offset"]);
-		frame.scale  = njson::parse_vector2(obj["scale"]);
+		frame.name   = sjson::parse_string_id(obj["name"]);
+		frame.region = sjson::parse_vector4(obj["region"]);
+		frame.offset = sjson::parse_vector2(obj["offset"]);
+		frame.scale  = sjson::parse_vector2(obj["scale"]);
 	}
 
 	void compile(const char* path, CompileOptions& opts)
@@ -48,10 +48,10 @@ namespace sprite_resource
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		njson::parse(buf, object);
+		sjson::parse(buf, object);
 
 		JsonArray frames(ta);
-		njson::parse_array(object["frames"], frames);
+		sjson::parse_array(object["frames"], frames);
 
 		// Read width/height
 		const float width         = parse_float(object["width" ]);
@@ -177,24 +177,24 @@ namespace sprite_animation_resource
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
-		njson::parse(json, obj);
+		sjson::parse(json, obj);
 
 		SpriteAnimationName san;
-		san.id = njson::parse_string_id(obj["name"]);
+		san.id = sjson::parse_string_id(obj["name"]);
 
 		JsonArray obj_frames(ta);
-		njson::parse_array(obj["frames"], obj_frames);
+		sjson::parse_array(obj["frames"], obj_frames);
 
 		const uint32_t num_frames = array::size(obj_frames);
 
 		SpriteAnimationData sad;
 		sad.num_frames  = num_frames;
 		sad.first_frame = array::size(frames);
-		sad.time        = njson::parse_float(obj["time"]);
+		sad.time        = sjson::parse_float(obj["time"]);
 
 		// Read frames
 		for (uint32_t ff = 0; ff < num_frames; ++ff)
-			array::push_back(frames, (uint32_t)njson::parse_int(obj_frames[ff]));
+			array::push_back(frames, (uint32_t)sjson::parse_int(obj_frames[ff]));
 
 		array::push_back(names, san);
 		array::push_back(anim_data, sad);
@@ -206,10 +206,10 @@ namespace sprite_animation_resource
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		njson::parse(buf, object);
+		sjson::parse(buf, object);
 
 		JsonArray animations(ta);
-		njson::parse_array(object["animations"], animations);
+		sjson::parse_array(object["animations"], animations);
 
 		Array<SpriteAnimationName> anim_names(default_allocator());
 		Array<SpriteAnimationData> anim_data(default_allocator());

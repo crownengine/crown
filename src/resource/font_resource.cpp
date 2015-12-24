@@ -8,7 +8,7 @@
 #include "filesystem.h"
 #include "string_utils.h"
 #include "compile_options.h"
-#include "njson.h"
+#include "sjson.h"
 #include "map.h"
 
 namespace crown
@@ -19,16 +19,16 @@ namespace font_resource
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
-		njson::parse(json, obj);
+		sjson::parse(json, obj);
 
-		glyph.id        = njson::parse_int(obj["id"]);
-		glyph.x         = njson::parse_int(obj["x"]);
-		glyph.y         = njson::parse_int(obj["y"]);
-		glyph.width     = njson::parse_int(obj["width"]);
-		glyph.height    = njson::parse_int(obj["height"]);
-		glyph.x_offset  = njson::parse_float(obj["x_offset"]);
-		glyph.y_offset  = njson::parse_float(obj["y_offset"]);
-		glyph.x_advance = njson::parse_float(obj["x_advance"]);
+		glyph.id        = sjson::parse_int(obj["id"]);
+		glyph.x         = sjson::parse_int(obj["x"]);
+		glyph.y         = sjson::parse_int(obj["y"]);
+		glyph.width     = sjson::parse_int(obj["width"]);
+		glyph.height    = sjson::parse_int(obj["height"]);
+		glyph.x_offset  = sjson::parse_float(obj["x_offset"]);
+		glyph.y_offset  = sjson::parse_float(obj["y_offset"]);
+		glyph.x_advance = sjson::parse_float(obj["x_advance"]);
 	}
 
 	void compile(const char* path, CompileOptions& opts)
@@ -39,12 +39,12 @@ namespace font_resource
 		JsonObject object(ta);
 		JsonArray glyphs(ta);
 
-		njson::parse(buf, object);
-		njson::parse_array(object["glyphs"], glyphs);
+		sjson::parse(buf, object);
+		sjson::parse_array(object["glyphs"], glyphs);
 
-		const uint32_t count      = njson::parse_int(object["count"]);
-		const uint32_t size       = njson::parse_int(object["size"]);
-		const uint32_t font_size  = njson::parse_int(object["font_size"]);
+		const uint32_t count      = sjson::parse_int(object["count"]);
+		const uint32_t size       = sjson::parse_int(object["size"]);
+		const uint32_t font_size  = sjson::parse_int(object["font_size"]);
 		const uint32_t num_glyphs = array::size(glyphs);
 
 		Array<FontGlyphData> m_glyphs(default_allocator());

@@ -3,7 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "njson.h"
+#include "sjson.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
 #include "map.h"
@@ -11,7 +11,7 @@
 
 namespace crown
 {
-namespace njson
+namespace sjson
 {
 	static const char* next(const char* json, const char c = 0)
 	{
@@ -478,19 +478,19 @@ namespace njson
 		array::pop_back(json);
 		parse(array::begin(json), object);
 	}
-} // namespace njson
+} // namespace sjson
 
-namespace njson
+namespace sjson
 {
 	Vector2 parse_vector2(const char* json)
 	{
 		TempAllocator64 ta;
 		JsonArray array(ta);
-		njson::parse_array(json, array);
+		sjson::parse_array(json, array);
 
 		Vector2 v;
-		v.x = njson::parse_float(array[0]);
-		v.y = njson::parse_float(array[1]);
+		v.x = sjson::parse_float(array[0]);
+		v.y = sjson::parse_float(array[1]);
 		return v;
 	}
 
@@ -498,12 +498,12 @@ namespace njson
 	{
 		TempAllocator64 ta;
 		JsonArray array(ta);
-		njson::parse_array(json, array);
+		sjson::parse_array(json, array);
 
 		Vector3 v;
-		v.x = njson::parse_float(array[0]);
-		v.y = njson::parse_float(array[1]);
-		v.z = njson::parse_float(array[2]);
+		v.x = sjson::parse_float(array[0]);
+		v.y = sjson::parse_float(array[1]);
+		v.z = sjson::parse_float(array[2]);
 		return v;
 	}
 
@@ -511,13 +511,13 @@ namespace njson
 	{
 		TempAllocator64 ta;
 		JsonArray array(ta);
-		njson::parse_array(json, array);
+		sjson::parse_array(json, array);
 
 		Vector4 v;
-		v.x = njson::parse_float(array[0]);
-		v.y = njson::parse_float(array[1]);
-		v.z = njson::parse_float(array[2]);
-		v.w = njson::parse_float(array[3]);
+		v.x = sjson::parse_float(array[0]);
+		v.y = sjson::parse_float(array[1]);
+		v.z = sjson::parse_float(array[2]);
+		v.w = sjson::parse_float(array[3]);
 		return v;
 	}
 
@@ -525,14 +525,14 @@ namespace njson
 	{
 		TempAllocator64 ta;
 		JsonArray array(ta);
-		njson::parse_array(json, array);
+		sjson::parse_array(json, array);
 
 		Vector3 axis;
-		axis.x = njson::parse_float(array[0]);
-		axis.y = njson::parse_float(array[1]);
-		axis.z = njson::parse_float(array[2]);
+		axis.x = sjson::parse_float(array[0]);
+		axis.y = sjson::parse_float(array[1]);
+		axis.z = sjson::parse_float(array[2]);
 
-		float angle = njson::parse_float(array[3]);
+		float angle = sjson::parse_float(array[3]);
 
 		return quaternion(axis, angle);
 	}
@@ -541,28 +541,28 @@ namespace njson
 	{
 		TempAllocator128 ta;
 		JsonArray array(ta);
-		njson::parse_array(json, array);
+		sjson::parse_array(json, array);
 
 		Matrix4x4 m;
-		m.x.x = njson::parse_float(array[ 0]);
-		m.x.y = njson::parse_float(array[ 1]);
-		m.x.z = njson::parse_float(array[ 2]);
-		m.x.w = njson::parse_float(array[ 3]);
+		m.x.x = sjson::parse_float(array[ 0]);
+		m.x.y = sjson::parse_float(array[ 1]);
+		m.x.z = sjson::parse_float(array[ 2]);
+		m.x.w = sjson::parse_float(array[ 3]);
 
-		m.y.x = njson::parse_float(array[ 4]);
-		m.y.y = njson::parse_float(array[ 5]);
-		m.y.z = njson::parse_float(array[ 6]);
-		m.y.w = njson::parse_float(array[ 7]);
+		m.y.x = sjson::parse_float(array[ 4]);
+		m.y.y = sjson::parse_float(array[ 5]);
+		m.y.z = sjson::parse_float(array[ 6]);
+		m.y.w = sjson::parse_float(array[ 7]);
 
-		m.z.x = njson::parse_float(array[ 8]);
-		m.z.y = njson::parse_float(array[ 9]);
-		m.z.z = njson::parse_float(array[10]);
-		m.z.w = njson::parse_float(array[11]);
+		m.z.x = sjson::parse_float(array[ 8]);
+		m.z.y = sjson::parse_float(array[ 9]);
+		m.z.z = sjson::parse_float(array[10]);
+		m.z.w = sjson::parse_float(array[11]);
 
-		m.t.x = njson::parse_float(array[12]);
-		m.t.y = njson::parse_float(array[13]);
-		m.t.z = njson::parse_float(array[14]);
-		m.t.w = njson::parse_float(array[15]);
+		m.t.x = sjson::parse_float(array[12]);
+		m.t.y = sjson::parse_float(array[13]);
+		m.t.z = sjson::parse_float(array[14]);
+		m.t.w = sjson::parse_float(array[15]);
 		return m;
 	}
 
@@ -570,7 +570,7 @@ namespace njson
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		njson::parse_string(json, str);
+		sjson::parse_string(json, str);
 		return str.to_string_id();
 	}
 
@@ -578,7 +578,7 @@ namespace njson
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		njson::parse_string(json, str);
+		sjson::parse_string(json, str);
 		return ResourceId(str.c_str());
 	}
 } // namespace json
