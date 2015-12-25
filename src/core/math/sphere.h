@@ -73,12 +73,13 @@ namespace sphere
 	{
 		for (uint32_t i = 0; i < num; ++i)
 		{
-			const float dist = length_squared(spheres[i].c - s.c);
+			const Sphere si = spheres[i];
+			const float dist = length_squared(si.c - s.c);
 
-			if (dist < (spheres[i].r + s.r) * (spheres[i].r + s.r))
+			if (dist < (si.r + s.r) * (si.r + s.r))
 			{
-				if (spheres[i].r * spheres[i].r > s.r * s.r)
-					s.r = sqrtf(dist + spheres[i].r * spheres[i].r);
+				if (si.r*si.r > s.r*s.r)
+					s.r = sqrtf(dist + si.r*si.r);
 			}
 		}
 	}

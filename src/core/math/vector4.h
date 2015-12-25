@@ -13,22 +13,13 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
+/// Returns a new vector from individual components.
 inline Vector4 vector4(float x, float y, float z, float w)
 {
 	Vector4 v;
 	v.x = x;
 	v.y = y;
 	v.z = z;
-	v.w = w;
-	return v;
-}
-
-inline Vector4 vector4(const Vector3& a, float w)
-{
-	Vector4 v;
-	v.x = a.x;
-	v.y = a.y;
-	v.z = a.z;
 	v.w = w;
 	return v;
 }

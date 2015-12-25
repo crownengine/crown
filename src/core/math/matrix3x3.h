@@ -13,6 +13,7 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
+/// Returns a new matrix from axes @a x, @a y and @a z.
 inline Matrix3x3 matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z)
 {
 	Matrix3x3 m;
@@ -22,6 +23,7 @@ inline Matrix3x3 matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z)
 	return m;
 }
 
+/// Returns a new matrix from rotation @a r.
 inline Matrix3x3 matrix3x3(const Quaternion& r)
 {
 	Matrix3x3 m;

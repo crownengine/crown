@@ -13,7 +13,7 @@ namespace error
 {
 	/// Aborts the program execution logging an error message and the stacktrace if
 	/// the platform supports it.
-	void abort(const char* file, int line, const char* message, ...);
+	void abort(const char* file, int line, const char* format, ...);
 } // namespace error
 } // namespace crown
 

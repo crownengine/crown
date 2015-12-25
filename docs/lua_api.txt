@@ -7,7 +7,7 @@ Vector3
 -------
 
 	**Vector3** (x, y, z) : Vector3
-		Constructor.
+		Returns a new vector from individual components.
 
 	**x** (v) : float
 		Returns the x value of the vector.
@@ -110,14 +110,14 @@ Vector3
 Vector3Box
 ----------
 
-	**Vector3Box** ()
-		Creates a new Vector3Box.
+	**Vector3Box** () : Vector3Box
+		Returns a new Vector3Box.
 
-	**Vector3Box** (v)
-		Creates a new Vector3Box from the Vector3 *v*.
+	**Vector3Box** (v) : Vector3Box
+		Returns a new Vector3Box from the Vector3 *v*.
 
-	**Vector3Box** (x, y, z)
-		Creates a new Vector3Box from components.
+	**Vector3Box** (x, y, z) : Vector3Box
+		Returns a new Vector3Box from components.
 
 	**store** (v)
 		Stores the Vector3 *v* in the box.
@@ -131,8 +131,8 @@ Vector3Box
 Quaternion
 ----------
 
-	**Quaternion** (v, w) : Quaternion
-		Constructor.
+	**Quaternion** (axis, angle) : Quaternion
+		Returns a new quaternion from *axis* and *angle*.
 
 	**negate** (q) : Quaternion
 		Negates the quaternion *q* and returns the result.
@@ -183,14 +183,14 @@ Quaternion
 QuaternionBox
 -------------
 
-	**QuaternionBox** ()
-		Creates a new QuaternionBox.
+	**QuaternionBox** () : QuaternionBox
+		Returns a new QuaternionBox.
 
-	**QuaternionBox** (q)
-		Creates a new QuaternionBox from the Quaternion *q*.
+	**QuaternionBox** (q) : QuaternionBox
+		Returns a new QuaternionBox from the Quaternion *q*.
 
-	**QuaternionBox** (x, y, z, w)
-		Creates a new QuaternionBox from elements.
+	**QuaternionBox** (x, y, z, w) : QuaternionBox
+		Returns a new QuaternionBox from elements.
 
 	**store(q)** ()
 		Stores the Quaternion *q* in the box.
@@ -204,8 +204,8 @@ QuaternionBox
 Matrix4x4
 ---------
 
-	**Matrix4x4** (m0, m1, ..., m15) : Matrix4x4
-		Constructor.
+	**Matrix4x4** (xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw) : Matrix4x4
+		Returns a new matrix from individual components.
 
 	**from_quaternion** (q) : Matrix4x4
 		Returns a new matrix from *q*.
@@ -282,14 +282,20 @@ Matrix4x4
 Matrix4x4Box
 ------------
 
-	**Matrix4x4Box** (m)
-		Creates a new Matrix4x4Box from the Matrix4x4 *m*.
+	**Matrix4x4Box** (m) : Matrix4x4Box
+		Returns a new Matrix4x4Box from the Matrix4x4 *m*.
 
 	**store** (m)
 		Stores the Matrix4x4 *m* in the box.
 
 	**unbox** () : Matrix4x4
 		Returns the stored matrix from the box.
+
+Color4
+------
+
+	**Color4** (r, g, b, a) : Color4
+		Returns a new Color4 from individual components.
 
 Math
 ----

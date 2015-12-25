@@ -275,7 +275,7 @@ namespace sjson
 		return (float) parse_number(json);
 	}
 
-	void parse_array(const char* json, Array<const char*>& array)
+	void parse_array(const char* json, JsonArray& array)
 	{
 		CE_ASSERT_NOT_NULL(json);
 

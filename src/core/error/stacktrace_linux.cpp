@@ -9,7 +9,7 @@
 
 #include "macros.h"
 #include "string_utils.h"
-#include <stdio.h>
+#include "log.h"
 #include <stdlib.h>
 #include <cxxabi.h>
 #include <execinfo.h>
@@ -64,7 +64,7 @@ void print_callstack()
 			char line[256];
 			memset(line, 0, sizeof(line));
 
-			printf("\t[%d] %s: (%s)+%s in %s\n"
+			CE_LOGE("\t[%d] %s: (%s)+%s in %s"
 				, i
 				, msg
 				, (demangle_ok == 0 ? real_name : mangled_name)
@@ -77,7 +77,7 @@ void print_callstack()
 		// otherwise, print the whole line
 		else
 		{
-			printf("\t[%d] %s\n", i, msg);
+			CE_LOGE("\t[%d] %s", i, msg);
 		}
 	}
 	free(messages);

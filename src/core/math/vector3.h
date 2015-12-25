@@ -13,6 +13,7 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
+/// Returns a new vector from individual components.
 inline Vector3 vector3(float x, float y, float z)
 {
 	Vector3 v;

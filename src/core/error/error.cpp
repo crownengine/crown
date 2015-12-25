@@ -5,24 +5,29 @@
 
 #include "error.h"
 #include "stacktrace.h"
+#include "log.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdarg.h>
 
 namespace crown
 {
 namespace error
 {
-	void abort(const char* file, int line, const char* message, ...)
+	static void abort(const char* file, int line, const char* format, va_list args)
 	{
-		va_list ap;
-		va_start(ap, message);
-		vprintf(message, ap);
-		va_end(ap);
-		printf("\tIn: %s:%d\n", file, line);
-		printf("Stacktrace:\n");
+		CE_LOGEV(format, args);
+		CE_LOGE("\tIn: %s:%d", file, line);
+		CE_LOGE("Stacktrace:");
 		print_callstack();
 		exit(EXIT_FAILURE);
+	}
+
+	void abort(const char* file, int line, const char* format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		abort(file, line, format, args);
+		va_end(args);
 	}
 } // namespace error
 } // namespace crown

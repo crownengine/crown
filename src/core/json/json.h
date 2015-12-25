@@ -11,7 +11,7 @@
 namespace crown
 {
 
-/// Functions to parse JSON-encoded strings.
+/// Functions to parse JSON-encoded data.
 ///
 /// @ingroup JSON
 namespace json
