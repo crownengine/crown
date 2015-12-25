@@ -7,9 +7,9 @@
 
 #if CROWN_PLATFORM_WINDOWS
 
+#include "log.h"
 #include <windows.h>
 #include <dbghelp.h>
-#include <stdio.h>
 
 namespace crown
 {
@@ -77,9 +77,9 @@ void print_callstack()
 		res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
 		if (res == TRUE)
-			printf("\t[%i] %s (%s:%d)\n", num, sym->Name, line.FileName, line.LineNumber);
+			CE_LOGE("\t[%i] %s (%s:%d)", num, sym->Name, line.FileName, line.LineNumber);
 		else
-			printf("\t[%i] 0x%p\n", num, stack.AddrPC.Offset);
+			CE_LOGE("\t[%i] 0x%p", num, stack.AddrPC.Offset);
 	}
 
 	SymCleanup(GetCurrentProcess());
