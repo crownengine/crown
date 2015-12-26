@@ -57,6 +57,6 @@ namespace console_server_globals
 	void update();
 
 	/// Returns the global console server object.
-	ConsoleServer& console();
+	ConsoleServer* console();
 } // namespace console_server_globals
 } // namespace crown
