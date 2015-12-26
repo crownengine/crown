@@ -126,7 +126,7 @@ static int vector3_set_z(lua_State* L)
 	return 0;
 }
 
-static int vector3_values(lua_State* L)
+static int vector3_elements(lua_State* L)
 {
 	LuaStack stack(L);
 	Vector3& a = stack.get_vector3(1);
@@ -900,7 +900,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3", "set_x",            vector3_set_x);
 	env.load_module_function("Vector3", "set_y",            vector3_set_y);
 	env.load_module_function("Vector3", "set_z",            vector3_set_z);
-	env.load_module_function("Vector3", "values",           vector3_values);
+	env.load_module_function("Vector3", "elements",         vector3_elements);
 	env.load_module_function("Vector3", "add",              vector3_add);
 	env.load_module_function("Vector3", "subtract",         vector3_subtract);
 	env.load_module_function("Vector3", "multiply",         vector3_multiply);
