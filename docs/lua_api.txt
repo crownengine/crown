@@ -111,7 +111,7 @@ Vector3Box
 ----------
 
 	**Vector3Box** () : Vector3Box
-		Returns a new Vector3Box.
+		Returns a new Vector3Box initialized with the zero vector.
 
 	**Vector3Box** (v) : Vector3Box
 		Returns a new Vector3Box from the Vector3 *v*.
@@ -191,7 +191,7 @@ QuaternionBox
 -------------
 
 	**QuaternionBox** () : QuaternionBox
-		Returns a new QuaternionBox.
+		Returns a new QuaternionBox initialized with the identity quaternion.
 
 	**QuaternionBox** (q) : QuaternionBox
 		Returns a new QuaternionBox from the Quaternion *q*.
@@ -288,6 +288,9 @@ Matrix4x4
 
 Matrix4x4Box
 ------------
+
+	**Matrix4x4Box** () : Matrix4x4Box
+		Returns a new Matrix4x4Box initialized with the identity matrix.
 
 	**Matrix4x4Box** (m) : Matrix4x4Box
 		Returns a new Matrix4x4Box from the Matrix4x4 *m*.
