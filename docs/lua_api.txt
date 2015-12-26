@@ -36,8 +36,8 @@ Vector3
 	**set_z** (v, z)
 		Sets the value of the z value of the vector.
 
-	**values** (v) : float, float, float
-		Returns the x, y and z values of the vector.
+	**elements** (v) : float, float, float
+		Returns the x, y and z elements of the vector.
 
 	**add** (a, b) : Vector3
 		Adds the vector *a* to *b* and returns the result.
@@ -164,8 +164,8 @@ Quaternion
 	**power** (q, exp) : Quaternion
 		Returns the quaternion *q* raised to the power of *exp*.
 
-	**elements** (q) : x, y, z, w
-		Returns the elements of the quaternion.
+	**elements** (q) : float, float, float, float
+		Returns the x, y, z and w elements of the quaternion.
 
 	**look** (dir, [up]) : Quaternion
 		Returns the quaternion describing the rotation needed to face towards *dir*.
@@ -179,6 +179,13 @@ Quaternion
 
 	**forward** (q) : Vector3
 		Returns the forward axis of the rotation described by *q*.
+
+	**lerp** (a, b, t) : Quaternion
+		Returns the linearly interpolated quaternion between *a* and *b* at time *t* in [0, 1].
+		It uses NLerp.
+
+	**to_string** (q) : string
+		Returns a string representing the quaternion *q*.
 
 QuaternionBox
 -------------
@@ -296,6 +303,9 @@ Color4
 
 	**Color4** (r, g, b, a) : Color4
 		Returns a new Color4 from individual components.
+
+	**to_string** (c) : string
+		Returns a string representing the color *c*.
 
 Math
 ----
