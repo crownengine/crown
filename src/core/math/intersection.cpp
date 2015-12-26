@@ -44,7 +44,7 @@ float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sph
 	const float b   = dot(v, dir);
 	const float rr  = s.r * s.r;
 	const float bb  = b * b;
-	const float det = rr - dot(v, v) + b;
+	const float det = rr - dot(v, v) + bb;
 
 	if (det < 0.0f || b < s.r)
 		return -1.0f;
