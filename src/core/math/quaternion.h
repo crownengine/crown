@@ -180,5 +180,30 @@ inline Vector3 forward(const Quaternion& q)
 	return m.z;
 }
 
+/// Returns the linearly interpolated quaternion between *a* and *b* at time *t* in [0, 1]. It uses NLerp.
+inline Quaternion lerp(const Quaternion& a, const Quaternion& b, float t)
+{
+	const float t1 = 1.0f - t;
+
+	Quaternion r;
+
+	if (dot(a, b) < 0.0f)
+	{
+		r.x = t1*a.x + t*-b.x;
+		r.y = t1*a.y + t*-b.y;
+		r.z = t1*a.z + t*-b.z;
+		r.w = t1*a.w + t*-b.w;
+	}
+	else
+	{
+		r.x = t1*a.x + t*b.x;
+		r.y = t1*a.y + t*b.y;
+		r.z = t1*a.z + t*b.z;
+		r.w = t1*a.w + t*b.w;
+	}
+
+	return normalize(r);
+}
+
 // @}
 } // namespace crown

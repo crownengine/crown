@@ -744,6 +744,23 @@ static int quaternion_forward(lua_State* L)
 	return 1;
 }
 
+static int quaternion_lerp(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_quaternion(lerp(stack.get_quaternion(1), stack.get_quaternion(2), stack.get_float(3)));
+	return 1;
+}
+
+static int quaternion_to_string(lua_State* L)
+{
+	LuaStack stack(L);
+	const Quaternion q = stack.get_quaternion(1);
+	char buf[256];
+	snprintf(buf, sizeof(buf), "%.4f %.4f %.4f %.4f", q.x, q.y, q.z, q.w);
+	stack.push_string(buf);
+	return 1;
+}
+
 static int quaternionbox_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -756,16 +773,6 @@ static int quaternionbox_new(lua_State* L)
 			, stack.get_float(3)
 			, stack.get_float(4)));
 
-	return 1;
-}
-
-static int quaternion_to_string(lua_State* L)
-{
-	LuaStack stack(L);
-	const Quaternion q = stack.get_quaternion(1);
-	char buf[256];
-	snprintf(buf, sizeof(buf), "%.4f %.4f %.4f %.4f", q.x, q.y, q.z, q.w);
-	stack.push_string(buf);
 	return 1;
 }
 
@@ -1001,6 +1008,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "right",              quaternion_right);
 	env.load_module_function("Quaternion", "up",                 quaternion_up);
 	env.load_module_function("Quaternion", "forward",            quaternion_forward);
+	env.load_module_function("Quaternion", "lerp",               quaternion_lerp);
 	env.load_module_function("Quaternion", "to_string",          quaternion_to_string);
 
 	env.load_module_constructor("Quaternion", quaternion_ctor);
