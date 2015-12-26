@@ -14,7 +14,7 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new quaternion from individual components.
+/// Returns a new quaternion from individual elements.
 inline Quaternion quaternion(float x, float y, float z, float w)
 {
 	Quaternion q;

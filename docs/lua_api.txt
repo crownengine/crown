@@ -7,7 +7,7 @@ Vector3
 -------
 
 	**Vector3** (x, y, z) : Vector3
-		Returns a new vector from individual components.
+		Returns a new vector from individual elements.
 
 	**x** (v) : float
 		Returns the x value of the vector.
@@ -79,10 +79,10 @@ Vector3
 		Returns the angle between the vectors *a* and *b*.
 
 	**max** (a, b) : Vector3
-		Returns a vector that contains the largest value for each component from *a* and *b*.
+		Returns a vector that contains the largest value for each element from *a* and *b*.
 
 	**min** (a, b) : Vector3
-		Returns a vector that contains the smallest value for each component from *a* and *b*.
+		Returns a vector that contains the smallest value for each element from *a* and *b*.
 
 	**lerp** (a, b, t) : Vector3
 		Returns the linearly interpolated vector between *a* and *b* at time *t* in [0, 1].
@@ -117,7 +117,7 @@ Vector3Box
 		Returns a new Vector3Box from the Vector3 *v*.
 
 	**Vector3Box** (x, y, z) : Vector3Box
-		Returns a new Vector3Box from components.
+		Returns a new Vector3Box from individual elements.
 
 	**store** (v)
 		Stores the Vector3 *v* in the box.
@@ -197,7 +197,7 @@ QuaternionBox
 		Returns a new QuaternionBox from the Quaternion *q*.
 
 	**QuaternionBox** (x, y, z, w) : QuaternionBox
-		Returns a new QuaternionBox from elements.
+		Returns a new QuaternionBox from individual elements.
 
 	**store(q)** ()
 		Stores the Quaternion *q* in the box.
@@ -212,7 +212,7 @@ Matrix4x4
 ---------
 
 	**Matrix4x4** (xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw) : Matrix4x4
-		Returns a new matrix from individual components.
+		Returns a new matrix from individual elements.
 
 	**from_quaternion** (q) : Matrix4x4
 		Returns a new matrix from *q*.
@@ -305,7 +305,7 @@ Color4
 ------
 
 	**Color4** (r, g, b, a) : Color4
-		Returns a new Color4 from individual components.
+		Returns a new Color4 from individual elements.
 
 	**to_string** (c) : string
 		Returns a string representing the color *c*.
@@ -1006,7 +1006,7 @@ Pad Button Names
 Pad Axis Names
 ~~~~~~~~~~~~~~
 
-	* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z component represents the left or right trigger [0; +1].
+	* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z element represents the left or right trigger [0; +1].
 
 Window
 ======
