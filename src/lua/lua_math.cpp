@@ -326,7 +326,7 @@ static int vector3box_new(lua_State* L)
 	LuaStack stack(L);
 
 	if (stack.num_args() == 0)
-		stack.push_vector3box(Vector3());
+		stack.push_vector3box(VECTOR3_ZERO);
 	else if (stack.num_args() == 1)
 		stack.push_vector3box(stack.get_vector3(1));
 	else
@@ -587,7 +587,12 @@ static int matrix4x4_to_string(lua_State* L)
 static int matrix4x4box_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4box(stack.get_matrix4x4(1));
+
+	if (stack.num_args() == 0)
+		stack.push_matrix4x4(MATRIX4X4_IDENTITY);
+	else
+		stack.push_matrix4x4box(stack.get_matrix4x4(1));
+
 	return 1;
 }
 
@@ -765,7 +770,9 @@ static int quaternionbox_new(lua_State* L)
 {
 	LuaStack stack(L);
 
-	if (stack.num_args() == 1)
+	if (stack.num_args() == 0)
+		stack.push_quaternionbox(QUATERNION_IDENTITY);
+	else if (stack.num_args() == 1)
 		stack.push_quaternionbox(stack.get_quaternion(1));
 	else
 		stack.push_quaternionbox(quaternion(stack.get_float(1)
