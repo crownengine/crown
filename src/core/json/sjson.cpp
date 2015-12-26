@@ -310,7 +310,7 @@ namespace sjson
 		CE_FATAL("Bad array");
 	}
 
-	void parse_root_object(const char* json, Map<DynamicString, const char*>& object)
+	static void parse_root_object(const char* json, Map<DynamicString, const char*>& object)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
@@ -387,7 +387,7 @@ namespace sjson
 			parse_root_object(json, object);
 	}
 
-	void parse_root_object(const char* json, JsonObject& object)
+	static void parse_root_object(const char* json, JsonObject& object)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
