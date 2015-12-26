@@ -38,7 +38,7 @@
 namespace crown
 {
 
-Device::Device(DeviceOptions& opts)
+Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _width(0)
 	, _height(0)
@@ -263,9 +263,9 @@ ResourcePackage* Device::create_resource_package(StringId64 id)
 	return CE_NEW(default_allocator(), ResourcePackage)(id, *_resource_manager);
 }
 
-void Device::destroy_resource_package(ResourcePackage& package)
+void Device::destroy_resource_package(ResourcePackage& rp)
 {
-	CE_DELETE(default_allocator(), &package);
+	CE_DELETE(default_allocator(), &rp);
 }
 
 void Device::reload(StringId64 type, StringId64 name)
@@ -443,7 +443,7 @@ void Device::read_config()
 char _buffer[sizeof(Device)];
 Device* _device = NULL;
 
-void init(DeviceOptions& opts)
+void init(const DeviceOptions& opts)
 {
 	CE_ASSERT(_device == NULL, "Crown already initialized");
 	_device = new (_buffer) Device(opts);

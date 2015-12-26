@@ -7,7 +7,7 @@ Vector3
 -------
 
 	**Vector3** (x, y, z) : Vector3
-		Returns a new vector from individual components.
+		Returns a new vector from individual elements.
 
 	**x** (v) : float
 		Returns the x value of the vector.
@@ -36,8 +36,8 @@ Vector3
 	**set_z** (v, z)
 		Sets the value of the z value of the vector.
 
-	**values** (v) : float, float, float
-		Returns the x, y and z values of the vector.
+	**elements** (v) : float, float, float
+		Returns the x, y and z elements of the vector.
 
 	**add** (a, b) : Vector3
 		Adds the vector *a* to *b* and returns the result.
@@ -79,10 +79,10 @@ Vector3
 		Returns the angle between the vectors *a* and *b*.
 
 	**max** (a, b) : Vector3
-		Returns a vector that contains the largest value for each component from *a* and *b*.
+		Returns a vector that contains the largest value for each element from *a* and *b*.
 
 	**min** (a, b) : Vector3
-		Returns a vector that contains the smallest value for each component from *a* and *b*.
+		Returns a vector that contains the smallest value for each element from *a* and *b*.
 
 	**lerp** (a, b, t) : Vector3
 		Returns the linearly interpolated vector between *a* and *b* at time *t* in [0, 1].
@@ -111,13 +111,13 @@ Vector3Box
 ----------
 
 	**Vector3Box** () : Vector3Box
-		Returns a new Vector3Box.
+		Returns a new Vector3Box initialized with the zero vector.
 
 	**Vector3Box** (v) : Vector3Box
 		Returns a new Vector3Box from the Vector3 *v*.
 
 	**Vector3Box** (x, y, z) : Vector3Box
-		Returns a new Vector3Box from components.
+		Returns a new Vector3Box from individual elements.
 
 	**store** (v)
 		Stores the Vector3 *v* in the box.
@@ -164,8 +164,8 @@ Quaternion
 	**power** (q, exp) : Quaternion
 		Returns the quaternion *q* raised to the power of *exp*.
 
-	**elements** (q) : x, y, z, w
-		Returns the elements of the quaternion.
+	**elements** (q) : float, float, float, float
+		Returns the x, y, z and w elements of the quaternion.
 
 	**look** (dir, [up]) : Quaternion
 		Returns the quaternion describing the rotation needed to face towards *dir*.
@@ -180,17 +180,24 @@ Quaternion
 	**forward** (q) : Vector3
 		Returns the forward axis of the rotation described by *q*.
 
+	**lerp** (a, b, t) : Quaternion
+		Returns the linearly interpolated quaternion between *a* and *b* at time *t* in [0, 1].
+		It uses NLerp.
+
+	**to_string** (q) : string
+		Returns a string representing the quaternion *q*.
+
 QuaternionBox
 -------------
 
 	**QuaternionBox** () : QuaternionBox
-		Returns a new QuaternionBox.
+		Returns a new QuaternionBox initialized with the identity quaternion.
 
 	**QuaternionBox** (q) : QuaternionBox
 		Returns a new QuaternionBox from the Quaternion *q*.
 
 	**QuaternionBox** (x, y, z, w) : QuaternionBox
-		Returns a new QuaternionBox from elements.
+		Returns a new QuaternionBox from individual elements.
 
 	**store(q)** ()
 		Stores the Quaternion *q* in the box.
@@ -205,7 +212,7 @@ Matrix4x4
 ---------
 
 	**Matrix4x4** (xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw) : Matrix4x4
-		Returns a new matrix from individual components.
+		Returns a new matrix from individual elements.
 
 	**from_quaternion** (q) : Matrix4x4
 		Returns a new matrix from *q*.
@@ -282,6 +289,9 @@ Matrix4x4
 Matrix4x4Box
 ------------
 
+	**Matrix4x4Box** () : Matrix4x4Box
+		Returns a new Matrix4x4Box initialized with the identity matrix.
+
 	**Matrix4x4Box** (m) : Matrix4x4Box
 		Returns a new Matrix4x4Box from the Matrix4x4 *m*.
 
@@ -295,7 +305,10 @@ Color4
 ------
 
 	**Color4** (r, g, b, a) : Color4
-		Returns a new Color4 from individual components.
+		Returns a new Color4 from individual elements.
+
+	**to_string** (c) : string
+		Returns a string representing the color *c*.
 
 Math
 ----
@@ -993,7 +1006,7 @@ Pad Button Names
 Pad Axis Names
 ~~~~~~~~~~~~~~
 
-	* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z component represents the left or right trigger [0; +1].
+	* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z element represents the left or right trigger [0; +1].
 
 Window
 ======

@@ -35,8 +35,9 @@ namespace crown
 /// @ingroup Device
 struct Device
 {
-	Device(DeviceOptions& opts);
+	Device(const DeviceOptions& opts);
 
+	/// Initializes the engine.
 	void init();
 
 	/// Shutdowns the engine freeing all the allocated resources.
@@ -51,8 +52,7 @@ struct Device
 	/// Returns a string identifying the engine version.
 	const char* version() const { return CROWN_VERSION_MAJOR "." CROWN_VERSION_MINOR "." CROWN_VERSION_MICRO; }
 
-	/// Returns wheter the engine is running (i.e. it is advancing
-	/// the simulation).
+	/// Returns wheter the engine is running.
 	bool is_running() const;
 
 	/// Return the number of frames rendered.
@@ -91,11 +91,11 @@ struct Device
 	/// Returns the resource package @a id.
 	ResourcePackage* create_resource_package(StringId64 id);
 
-	/// Destroy a previously created resource @a package.
+	/// Destroys the resource package @a rp.
 	/// @note
-	/// To unload the resources loaded by the package, you have to call
-	/// ResourcePackage::unload() first.
-	void destroy_resource_package(ResourcePackage& package);
+	/// Resources are not automatically unloaded.
+	/// You have to call ResourcePackage::unload() before destroying a package.
+	void destroy_resource_package(ResourcePackage& rp);
 
 	/// Reloads the resource @a type @a name.
 	void reload(StringId64 type, StringId64 name);
@@ -136,7 +136,7 @@ private:
 	float _last_delta_time;
 	double _time_since_start;
 
-	DeviceOptions& _device_options;
+	const DeviceOptions& _device_options;
 	Filesystem* _bundle_filesystem;
 	StringId64 _boot_package_id;
 	StringId64 _boot_script_id;
@@ -235,7 +235,7 @@ private:
 };
 
 bool next_event(OsEvent& ev);
-void init(DeviceOptions& opts);
+void init(const DeviceOptions& opts);
 void update();
 void shutdown();
 Device* device();

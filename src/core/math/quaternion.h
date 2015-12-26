@@ -14,7 +14,7 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new quaternion from individual components.
+/// Returns a new quaternion from individual elements.
 inline Quaternion quaternion(float x, float y, float z, float w)
 {
 	Quaternion q;
@@ -178,6 +178,31 @@ inline Vector3 forward(const Quaternion& q)
 {
 	const Matrix3x3 m = matrix3x3(q);
 	return m.z;
+}
+
+/// Returns the linearly interpolated quaternion between *a* and *b* at time *t* in [0, 1]. It uses NLerp.
+inline Quaternion lerp(const Quaternion& a, const Quaternion& b, float t)
+{
+	const float t1 = 1.0f - t;
+
+	Quaternion r;
+
+	if (dot(a, b) < 0.0f)
+	{
+		r.x = t1*a.x + t*-b.x;
+		r.y = t1*a.y + t*-b.y;
+		r.z = t1*a.z + t*-b.z;
+		r.w = t1*a.w + t*-b.w;
+	}
+	else
+	{
+		r.x = t1*a.x + t*b.x;
+		r.y = t1*a.y + t*b.y;
+		r.z = t1*a.z + t*b.z;
+		r.w = t1*a.w + t*b.w;
+	}
+
+	return normalize(r);
 }
 
 // @}

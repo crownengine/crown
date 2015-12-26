@@ -44,7 +44,7 @@ float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sph
 	const float b   = dot(v, dir);
 	const float rr  = s.r * s.r;
 	const float bb  = b * b;
-	const float det = rr - dot(v, v) + b;
+	const float det = rr - dot(v, v) + bb;
 
 	if (det < 0.0f || b < s.r)
 		return -1.0f;
@@ -149,20 +149,23 @@ float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix
 	return tmin;
 }
 
-bool plane_3_intersection(const Plane& p1, const Plane& p2, const Plane& p3, Vector3& ip)
+bool plane_3_intersection(const Plane& a, const Plane& b, const Plane& c, Vector3& ip)
 {
-	const Vector3 n1 = p1.n;
-	const Vector3 n2 = p2.n;
-	const Vector3 n3 = p3.n;
-	const float den  = -dot(cross(n1, n2), n3);
+	const Vector3 na = a.n;
+	const Vector3 nb = b.n;
+	const Vector3 nc = c.n;
+	const float den  = -dot(cross(na, nb), nc);
 
 	if (fequal(den, 0.0f))
 		return false;
 
 	const float inv_den = 1.0f / den;
 
-	Vector3 res = p1.d * cross(n2, n3) + p2.d * cross(n3, n1) + p3.d * cross(n1, n2);
-	ip = res * inv_den;
+	const Vector3 nbnc = a.d * cross(nb, nc);
+	const Vector3 ncna = b.d * cross(nc, na);
+	const Vector3 nanb = c.d * cross(na, nb);
+
+	ip = (nbnc + ncna + nanb) * inv_den;
 
 	return true;
 }

@@ -126,7 +126,7 @@ static int vector3_set_z(lua_State* L)
 	return 0;
 }
 
-static int vector3_values(lua_State* L)
+static int vector3_elements(lua_State* L)
 {
 	LuaStack stack(L);
 	Vector3& a = stack.get_vector3(1);
@@ -301,7 +301,7 @@ static int vector3_to_string(lua_State* L)
 {
 	LuaStack stack(L);
 	const Vector3 v = stack.get_vector3(1);
-	char buf[32];
+	char buf[256];
 	snprintf(buf, sizeof(buf), "%.4f %.4f %.4f", v.x, v.y, v.z);
 	stack.push_string(buf);
 	return 1;
@@ -326,7 +326,7 @@ static int vector3box_new(lua_State* L)
 	LuaStack stack(L);
 
 	if (stack.num_args() == 0)
-		stack.push_vector3box(Vector3());
+		stack.push_vector3box(VECTOR3_ZERO);
 	else if (stack.num_args() == 1)
 		stack.push_vector3box(stack.get_vector3(1));
 	else
@@ -569,7 +569,7 @@ static int matrix4x4_to_string(lua_State* L)
 {
 	LuaStack stack(L);
 	Matrix4x4& a = stack.get_matrix4x4(1);
-	char buf[256];
+	char buf[1024];
 	snprintf(buf, sizeof(buf),
 		"%.4f, %.4f, %.4f, %.4f\n"
 		"%.4f, %.4f, %.4f, %.4f\n"
@@ -587,7 +587,12 @@ static int matrix4x4_to_string(lua_State* L)
 static int matrix4x4box_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4box(stack.get_matrix4x4(1));
+
+	if (stack.num_args() == 0)
+		stack.push_matrix4x4(MATRIX4X4_IDENTITY);
+	else
+		stack.push_matrix4x4box(stack.get_matrix4x4(1));
+
 	return 1;
 }
 
@@ -744,11 +749,30 @@ static int quaternion_forward(lua_State* L)
 	return 1;
 }
 
+static int quaternion_lerp(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_quaternion(lerp(stack.get_quaternion(1), stack.get_quaternion(2), stack.get_float(3)));
+	return 1;
+}
+
+static int quaternion_to_string(lua_State* L)
+{
+	LuaStack stack(L);
+	const Quaternion q = stack.get_quaternion(1);
+	char buf[256];
+	snprintf(buf, sizeof(buf), "%.4f %.4f %.4f %.4f", q.x, q.y, q.z, q.w);
+	stack.push_string(buf);
+	return 1;
+}
+
 static int quaternionbox_new(lua_State* L)
 {
 	LuaStack stack(L);
 
-	if (stack.num_args() == 1)
+	if (stack.num_args() == 0)
+		stack.push_quaternionbox(QUATERNION_IDENTITY);
+	else if (stack.num_args() == 1)
 		stack.push_quaternionbox(stack.get_quaternion(1));
 	else
 		stack.push_quaternionbox(quaternion(stack.get_float(1)
@@ -900,7 +924,7 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Vector3", "set_x",            vector3_set_x);
 	env.load_module_function("Vector3", "set_y",            vector3_set_y);
 	env.load_module_function("Vector3", "set_z",            vector3_set_z);
-	env.load_module_function("Vector3", "values",           vector3_values);
+	env.load_module_function("Vector3", "elements",         vector3_elements);
 	env.load_module_function("Vector3", "add",              vector3_add);
 	env.load_module_function("Vector3", "subtract",         vector3_subtract);
 	env.load_module_function("Vector3", "multiply",         vector3_multiply);
@@ -991,6 +1015,8 @@ void load_math(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "right",              quaternion_right);
 	env.load_module_function("Quaternion", "up",                 quaternion_up);
 	env.load_module_function("Quaternion", "forward",            quaternion_forward);
+	env.load_module_function("Quaternion", "lerp",               quaternion_lerp);
+	env.load_module_function("Quaternion", "to_string",          quaternion_to_string);
 
 	env.load_module_constructor("Quaternion", quaternion_ctor);
 
@@ -1002,7 +1028,9 @@ void load_math(LuaEnvironment& env)
 
 	env.load_module_constructor("QuaternionBox", quaternionbox_ctor);
 
-	env.load_module_function("Color4", "new", color4_new);
+	env.load_module_function("Color4", "new",       color4_new);
+	env.load_module_function("Color4", "to_string", quaternion_to_string);
+
 	env.load_module_constructor("Color4",     color4_ctor);
 
 	env.load_module_function("Lightuserdata_mt", "__add",      lightuserdata_add);

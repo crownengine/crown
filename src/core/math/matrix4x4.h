@@ -15,7 +15,7 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new matrix from individual components.
+/// Returns a new matrix from individual elements.
 inline Matrix4x4 matrix4x4(float xx, float xy, float xz, float xw
 	, float yx, float yy, float yz, float yw
 	, float zx, float zy, float zz, float zw
@@ -45,7 +45,7 @@ inline Matrix4x4 matrix4x4(float xx, float xy, float xz, float xw
 	return m;
 }
 
-/// Returns a new matrix from individual components.
+/// Returns a new matrix from individual elements.
 inline Matrix4x4 matrix4x4(const float a[16])
 {
 	Matrix4x4 m;
