@@ -13,7 +13,9 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new vector from individual components.
+/// Returns a new vector from individual sjson::
+
+elements.
 inline Vector2 vector2(float x, float y)
 {
 	Vector2 v;
@@ -140,7 +142,9 @@ inline float angle(const Vector2& a, const Vector2& b)
 	return acos(dot(a, b) / (length(a) * length(b)));
 }
 
-/// Returns a vector that contains the largest value for each component from @a a and @a b.
+/// Returns a vector that contains the largest value for each sjson::
+
+element from @a a and @a b.
 inline Vector2 max(const Vector2& a, const Vector2& b)
 {
 	Vector2 v;
@@ -149,7 +153,9 @@ inline Vector2 max(const Vector2& a, const Vector2& b)
 	return v;
 }
 
-/// Returns a vector that contains the smallest value for each component from @a a and @a b.
+/// Returns a vector that contains the smallest value for each sjson::
+
+element from @a a and @a b.
 inline Vector2 min(const Vector2& a, const Vector2& b)
 {
 	Vector2 v;

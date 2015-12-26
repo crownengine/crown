@@ -13,7 +13,9 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-/// Returns a new color from individual components.
+/// Returns a new color from individual sjson::
+
+elements.
 inline Color4 color4(float r, float g, float b, float a)
 {
 	Color4 c;
@@ -24,7 +26,9 @@ inline Color4 color4(float r, float g, float b, float a)
 	return c;
 }
 
-/// Returns a new color from individual components. Alpha is set to 255.
+/// Returns a new color from individual sjson::
+
+elements. Alpha is set to 255.
 inline Color4 from_rgb(uint8_t r, uint8_t g, uint8_t b)
 {
 	Color4 c;
@@ -35,7 +39,9 @@ inline Color4 from_rgb(uint8_t r, uint8_t g, uint8_t b)
 	return c;
 }
 
-/// Returns a new color from individual components.
+/// Returns a new color from individual sjson::
+
+elements.
 inline Color4 from_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	Color4 c;
