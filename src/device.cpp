@@ -263,9 +263,9 @@ ResourcePackage* Device::create_resource_package(StringId64 id)
 	return CE_NEW(default_allocator(), ResourcePackage)(id, *_resource_manager);
 }
 
-void Device::destroy_resource_package(ResourcePackage& package)
+void Device::destroy_resource_package(ResourcePackage& rp)
 {
-	CE_DELETE(default_allocator(), &package);
+	CE_DELETE(default_allocator(), &rp);
 }
 
 void Device::reload(StringId64 type, StringId64 name)

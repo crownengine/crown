@@ -37,6 +37,7 @@ struct Device
 {
 	Device(const DeviceOptions& opts);
 
+	/// Initializes the engine.
 	void init();
 
 	/// Shutdowns the engine freeing all the allocated resources.
@@ -51,8 +52,7 @@ struct Device
 	/// Returns a string identifying the engine version.
 	const char* version() const { return CROWN_VERSION_MAJOR "." CROWN_VERSION_MINOR "." CROWN_VERSION_MICRO; }
 
-	/// Returns wheter the engine is running (i.e. it is advancing
-	/// the simulation).
+	/// Returns wheter the engine is running.
 	bool is_running() const;
 
 	/// Return the number of frames rendered.
@@ -91,11 +91,11 @@ struct Device
 	/// Returns the resource package @a id.
 	ResourcePackage* create_resource_package(StringId64 id);
 
-	/// Destroy a previously created resource @a package.
+	/// Destroys the resource package @a rp.
 	/// @note
-	/// To unload the resources loaded by the package, you have to call
-	/// ResourcePackage::unload() first.
-	void destroy_resource_package(ResourcePackage& package);
+	/// Resources are not automatically unloaded.
+	/// You have to call ResourcePackage::unload() before destroying a package.
+	void destroy_resource_package(ResourcePackage& rp);
 
 	/// Reloads the resource @a type @a name.
 	void reload(StringId64 type, StringId64 name);
