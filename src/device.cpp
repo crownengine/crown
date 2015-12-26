@@ -38,7 +38,7 @@
 namespace crown
 {
 
-Device::Device(DeviceOptions& opts)
+Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _width(0)
 	, _height(0)
@@ -443,7 +443,7 @@ void Device::read_config()
 char _buffer[sizeof(Device)];
 Device* _device = NULL;
 
-void init(DeviceOptions& opts)
+void init(const DeviceOptions& opts)
 {
 	CE_ASSERT(_device == NULL, "Crown already initialized");
 	_device = new (_buffer) Device(opts);
