@@ -210,9 +210,9 @@ namespace console_server_globals
 #endif // CROWN_DEBUG
 	}
 
-	ConsoleServer& console()
+	ConsoleServer* console()
 	{
-		return *_console;
+		return _console;
 	}
 } // namespace console_server
 } // namespace crown

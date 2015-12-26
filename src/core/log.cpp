@@ -31,6 +31,9 @@ namespace log_internal
 
 	static void console_log(const char* msg, LogSeverity::Enum severity)
 	{
+		if (!console_server_globals::console())
+			return;
+
 		using namespace string_stream;
 		static const char* stt[] = { "info", "warning", "error", "debug" };
 
@@ -42,7 +45,7 @@ namespace log_internal
 		json << "\"severity\":\"" << stt[severity] << "\",";
 		json << "\"message\":\""; sanitize(json, msg) << "\"}";
 
-		console_server_globals::console().send(c_str(json));
+		console_server_globals::console()->send(c_str(json));
 	}
 
 	void logx(LogSeverity::Enum sev, const char* msg, va_list args)

@@ -117,7 +117,7 @@ static int device_console_send(lua_State* L)
 	stack.pop(1);
 	json << "}";
 
-	console_server_globals::console().send(c_str(json));
+	console_server_globals::console()->send(c_str(json));
 	return 0;
 }
 
