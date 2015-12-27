@@ -17,7 +17,7 @@ function update(dt)
 	World.update(world, dt)
 
 	-- Stop the engine when the 'ESC' key is released
-	if Keyboard.button_released(Keyboard.ESCAPE) then
+	if Keyboard.released(Keyboard.button_id("escape")) then
 		Device.quit()
 	end
 end
