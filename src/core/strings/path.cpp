@@ -15,9 +15,9 @@ namespace path
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 #if CROWN_PLATFORM_POSIX
-		return strlen32(path) > 0 && path[0] == SEPARATOR;
+		return strlen32(path) > 0 && path[0] == PATH_SEPARATOR;
 #elif CROWN_PLATFORM_WINDOWS
-		return strlen32(path) > 2 && isalpha(path[0]) && path[1] == ':' && path[2] == SEPARATOR;
+		return strlen32(path) > 2 && isalpha(path[0]) && path[1] == ':' && path[2] == PATH_SEPARATOR;
 #endif
 	}
 
@@ -37,7 +37,7 @@ namespace path
 		const uint32_t lb = strlen32(b);
 		path.reserve(la + lb + 1);
 		path += a;
-		path += SEPARATOR;
+		path += PATH_SEPARATOR;
 		path += b;
 	}
 
