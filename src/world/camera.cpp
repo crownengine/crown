@@ -141,12 +141,12 @@ void Camera::update_projection_matrix()
 	{
 		case ProjectionType::ORTHOGRAPHIC:
 		{
-			set_orthographic(_projection, _left, _right, _bottom, _top, _near, _far);
+			orthographic(_projection, _left, _right, _bottom, _top, _near, _far);
 			break;
 		}
 		case ProjectionType::PERSPECTIVE:
 		{
-			set_perspective(_projection, _FOV, _aspect, _near, _far);
+			perspective(_projection, _FOV, _aspect, _near, _far);
 			break;
 		}
 		default:
