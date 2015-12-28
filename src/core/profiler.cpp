@@ -49,7 +49,7 @@ namespace profiler
 	}
 
 	template <typename T>
-	void push(EventType::Enum type, const T& ev)
+	void push(ProfilerEventType::Enum type, const T& ev)
 	{
 		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(ev) >= THREAD_BUFFER_SIZE)
 			flush_local_buffer();
@@ -70,7 +70,7 @@ namespace profiler
 		ev.name = name;
 		ev.time = os::clocktime();
 
-		push(EventType::ENTER_PROFILE_SCOPE, ev);
+		push(ProfilerEventType::ENTER_PROFILE_SCOPE, ev);
 	}
 
 	void leave_profile_scope()
@@ -78,7 +78,7 @@ namespace profiler
 		LeaveProfileScope ev;
 		ev.time = os::clocktime();
 
-		push(EventType::LEAVE_PROFILE_SCOPE, ev);
+		push(ProfilerEventType::LEAVE_PROFILE_SCOPE, ev);
 	}
 
 	void record_float(const char* name, float value)
@@ -87,7 +87,7 @@ namespace profiler
 		ev.name = name;
 		ev.value = value;
 
-		push(EventType::RECORD_FLOAT, ev);
+		push(ProfilerEventType::RECORD_FLOAT, ev);
 	}
 
 	void record_vector3(const char* name, const Vector3& value)
@@ -96,7 +96,7 @@ namespace profiler
 		ev.name = name;
 		ev.value = value;
 
-		push(EventType::RECORD_VECTOR3, ev);
+		push(ProfilerEventType::RECORD_VECTOR3, ev);
 	}
 
 	void allocate_memory(const char* name, uint32_t size)
@@ -105,7 +105,7 @@ namespace profiler
 		ev.name = name;
 		ev.size = size;
 
-		push(EventType::ALLOCATE_MEMORY, ev);
+		push(ProfilerEventType::ALLOCATE_MEMORY, ev);
 	}
 
 	void deallocate_memory(const char* name, uint32_t size)
@@ -114,7 +114,7 @@ namespace profiler
 		ev.name = name;
 		ev.size = size;
 
-		push(EventType::DEALLOCATE_MEMORY, ev);
+		push(ProfilerEventType::DEALLOCATE_MEMORY, ev);
 	}
 } // namespace profiler
 
@@ -123,7 +123,7 @@ namespace profiler_globals
 	void flush()
 	{
 		profiler::flush_local_buffer();
-		uint32_t end = profiler::EventType::COUNT;
+		uint32_t end = ProfilerEventType::COUNT;
 		array::push(*_buffer, (const char*)&end, (uint32_t)sizeof(end));
 	}
 
