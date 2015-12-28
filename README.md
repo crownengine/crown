@@ -1,8 +1,6 @@
 Lightweight and flexible cross-platform game engine.
 =====
 
-I'm an independent developer and your contributions are invaluable to me. If you like the work I do, please consider supporting Crown development by means of a small contribution. I'm also available for hire to work on or with Crown or somewhat related technologies/projects.
-
 [![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
 
 ##What is it?
@@ -104,6 +102,13 @@ Contact
 Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
 
 Project page: https://github.com/taylor001/crown
+
+Support
+-------
+
+I'm an independent developer and your contributions are invaluable to me. If you like the work I do, please consider supporting Crown development by means of a small contribution. I'm also available for hire to work on or with Crown or somewhat related technologies/projects.
+
+[![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
 
 Contributors
 ------------
