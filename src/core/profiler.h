@@ -10,58 +10,59 @@
 
 namespace crown
 {
+
+struct ProfilerEventType
+{
+	enum Enum
+	{
+		ENTER_PROFILE_SCOPE,
+		LEAVE_PROFILE_SCOPE,
+		RECORD_FLOAT,
+		RECORD_VECTOR3,
+		ALLOCATE_MEMORY,
+		DEALLOCATE_MEMORY,
+
+		COUNT
+	};
+};
+
+struct RecordFloat
+{
+	const char* name;
+	float value;
+};
+
+struct RecordVector3
+{
+	const char* name;
+	Vector3 value;
+};
+
+struct EnterProfileScope
+{
+	const char* name;
+	int64_t time;
+};
+
+struct LeaveProfileScope
+{
+	int64_t time;
+};
+
+struct AllocateMemory
+{
+	const char* name;
+	uint32_t size;
+};
+
+struct DeallocateMemory
+{
+	const char* name;
+	uint32_t size;
+};
+
 namespace profiler
 {
-	struct EventType
-	{
-		enum Enum
-		{
-			ENTER_PROFILE_SCOPE,
-			LEAVE_PROFILE_SCOPE,
-			RECORD_FLOAT,
-			RECORD_VECTOR3,
-			ALLOCATE_MEMORY,
-			DEALLOCATE_MEMORY,
-
-			COUNT
-		};
-	};
-
-	struct RecordFloat
-	{
-		const char* name;
-		float value;
-	};
-
-	struct RecordVector3
-	{
-		const char* name;
-		Vector3 value;
-	};
-
-	struct EnterProfileScope
-	{
-		const char* name;
-		int64_t time;
-	};
-
-	struct LeaveProfileScope
-	{
-		int64_t time;
-	};
-
-	struct AllocateMemory
-	{
-		const char* name;
-		uint32_t size;
-	};
-
-	struct DeallocateMemory
-	{
-		const char* name;
-		uint32_t size;
-	};
-
 	void enter_profile_scope(const char* name);
 	void leave_profile_scope();
 	void record_float(const char* name, float value);

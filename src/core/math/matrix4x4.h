@@ -261,7 +261,7 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 }
 
 /// Sets the matrix @a m to perspective.
-inline void set_perspective(Matrix4x4& m, float fovy, float aspect, float near, float far)
+inline void perspective(Matrix4x4& m, float fovy, float aspect, float near, float far)
 {
 	const float height = 1.0f / tanf(to_rad(fovy) * 0.5f);
 	const float width = height * 1.0f / aspect;
@@ -290,7 +290,7 @@ inline void set_perspective(Matrix4x4& m, float fovy, float aspect, float near, 
 }
 
 /// Sets the matrix @a m to orthographic.
-inline void set_orthographic(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far)
+inline void orthographic(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far)
 {
 	m.x.x = 2.0f / (right - left);
 	m.x.y = 0.0f;
@@ -353,7 +353,7 @@ inline Matrix4x4 get_transposed(Matrix4x4 m)
 }
 
 /// Sets the matrix @a m to look.
-inline void set_look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
+inline void look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
 {
 	Vector3 zaxis = pos - target;
 	normalize(zaxis);

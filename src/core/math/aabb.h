@@ -156,10 +156,10 @@ namespace aabb
 		vertices[6] = vertices[6] * m;
 		vertices[7] = vertices[7] * m;
 
-		AABB res;
-		reset(res);
-		add_points(res, 8, vertices);
-		return res;
+		AABB r;
+		reset(r);
+		add_points(r, 8, vertices);
+		return r;
 	}
 
 	inline void to_vertices(const AABB& b, Vector3 v[8])

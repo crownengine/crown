@@ -9,9 +9,9 @@
 
 namespace crown
 {
-
 /// @addtogroup Math
 /// @{
+
 const float PI              = 3.1415926535897932f;
 const float TWO_PI          = PI * 2.0f;
 const float HALF_PI         = PI * 0.5f;

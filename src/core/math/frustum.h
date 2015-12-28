@@ -138,10 +138,10 @@ namespace frustum
 		vertices[6] = vertex(f, 6);
 		vertices[7] = vertex(f, 7);
 
-		AABB aabb;
-		aabb::reset(aabb);
-		aabb::add_points(aabb, 8, vertices);
-		return aabb;
+		AABB r;
+		aabb::reset(r);
+		aabb::add_points(r, 8, vertices);
+		return r;
 	}
 } // namespace frustum
 
