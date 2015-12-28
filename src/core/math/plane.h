@@ -11,11 +11,6 @@
 namespace crown
 {
 
-const Plane PLANE_ZERO  = { VECTOR3_ZERO, 0.0f };
-const Plane PLANE_XAXIS = { VECTOR3_XAXIS, 0.0f };
-const Plane PLANE_YAXIS = { VECTOR3_YAXIS, 0.0f };
-const Plane PLANE_ZAXIS = { VECTOR3_ZAXIS, 0.0f };
-
 /// Functions to manipulate Plane.
 ///
 /// @ingroup Math
