@@ -177,6 +177,152 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 	}
 }
 
+#define JS_EVENT_BUTTON 0x01 /* button pressed/released */
+#define JS_EVENT_AXIS   0x02 /* joystick moved */
+#define JS_EVENT_INIT   0x80 /* initial state of device */
+
+#define XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  7849
+#define XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE 8689
+#define XINPUT_GAMEPAD_THRESHOLD            30
+
+static uint8_t s_button[] =
+{
+	JoypadButton::A,
+	JoypadButton::B,
+	JoypadButton::X,
+	JoypadButton::Y,
+	JoypadButton::LEFT_SHOULDER,
+	JoypadButton::RIGHT_SHOULDER,
+	JoypadButton::BACK,
+	JoypadButton::START,
+	JoypadButton::GUIDE,
+	JoypadButton::LEFT_THUMB,
+	JoypadButton::RIGHT_THUMB,
+	JoypadButton::UP, // FIXME (reported as axis...)
+	JoypadButton::DOWN,
+	JoypadButton::LEFT,
+	JoypadButton::RIGHT
+};
+
+static uint16_t s_deadzone[] =
+{
+	XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,
+	XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,
+	XINPUT_GAMEPAD_THRESHOLD,
+	XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,
+	XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,
+	XINPUT_GAMEPAD_THRESHOLD
+};
+
+struct JoypadEvent
+{
+	uint32_t time;  /* event timestamp in milliseconds */
+	int16_t value;  /* value */
+	uint8_t type;   /* event type */
+	uint8_t number; /* axis/button number */
+};
+
+struct Joypad
+{
+	void init()
+	{
+		char jspath[] = "/dev/input/jsX";
+		char* num = strchr(jspath, 'X');
+
+		for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		{
+			*num = '0' + i;
+			_fd[i] = open(jspath, O_RDONLY | O_NONBLOCK);
+		}
+
+		memset(_connected, 0, sizeof(_connected));
+		memset(_axis, 0, sizeof(_axis));
+	}
+
+	void shutdown()
+	{
+		for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		{
+			if (_fd[i] != -1)
+				close(_fd[i]);
+		}
+	}
+
+	void update(OsEventQueue& queue)
+	{
+		JoypadEvent ev;
+		memset(&ev, 0, sizeof(ev));
+
+		for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		{
+			const int fd = _fd[i];
+			const bool connected = fd != -1;
+
+			if (connected != _connected[i])
+				queue.push_joypad_event(i, connected);
+
+			_connected[i] = connected;
+
+			if (!connected)
+				continue;
+
+			while(read(fd, &ev, sizeof(ev)) != -1)
+			{
+				const uint8_t num = ev.number;
+				const int16_t val = ev.value;
+
+				switch (ev.type &= ~JS_EVENT_INIT)
+				{
+					case JS_EVENT_AXIS:
+					{
+						AxisData& axis = _axis[i];
+						// Indices into axis.left/right respectively
+						const uint8_t axis_idx[] = { 0, 1, 2, 0, 1, 2 };
+
+						int16_t value = val > s_deadzone[num] || val < -s_deadzone[num] ? val : 0;
+
+						if (num == 2 || num == 5)
+							value = (value + INT16_MAX) >> 1;
+
+						float* values = num > 2 ? axis.right : axis.left;
+						values[axis_idx[num]] = (float)value / (float)INT16_MAX;
+
+						queue.push_joypad_event(i
+							, num > 2 ? 1 : 0
+							, values[0]
+							, values[1]
+							, values[2]
+							);
+						break;
+					}
+					case JS_EVENT_BUTTON:
+					{
+						if (ev.number < CE_COUNTOF(s_button))
+						{
+							queue.push_joypad_event(i
+								, s_button[ev.number]
+								, val == 1
+								);
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	int _fd[CROWN_MAX_JOYPADS];
+	bool _connected[CROWN_MAX_JOYPADS];
+
+	struct AxisData
+	{
+		float left[3];
+		float right[3];
+	};
+
+	AxisData _axis[CROWN_MAX_JOYPADS];
+};
+
 static bool s_exit = false;
 
 struct MainThreadArgs
@@ -233,7 +379,8 @@ struct LinuxDevice
 			| ButtonPressMask
 			| ButtonReleaseMask
 			| PointerMotionMask
-			| EnterWindowMask;
+			| EnterWindowMask
+			;
 
 		_x11_window = XCreateWindow(_x11_display
 			, parent_window
@@ -284,10 +431,14 @@ struct LinuxDevice
 		Thread main_thread;
 		main_thread.start(func, &mta);
 
+		_joypad.init();
+
 		while (!s_exit)
 		{
 			pump_events();
 		}
+
+		_joypad.shutdown();
 
 		main_thread.stop();
 
@@ -314,6 +465,8 @@ struct LinuxDevice
 
 	void pump_events()
 	{
+		_joypad.update(_queue);
+
 		while (XPending(_x11_display))
 		{
 			XEvent event;
@@ -411,6 +564,7 @@ public:
 	XRRScreenConfiguration* _screen_config;
 	bool _x11_detectable_autorepeat;
 	OsEventQueue _queue;
+	Joypad _joypad;
 };
 
 static LinuxDevice s_ldvc;
