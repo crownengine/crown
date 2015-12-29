@@ -861,6 +861,9 @@ Keyboard
 	**any_released** () : bool
 		Returns whether any button is released in the current frame.
 
+	**button_name** (id) : string
+		Returns the name of the button *id*.
+
 	**button_id** (name) : int
 		Returns the *id* of the button *name*.
 
@@ -910,6 +913,12 @@ Mouse
 	**axis** (id) : Vector3
 		Returns the value of the axis *id*.
 
+	**button_name** (id) : string
+		Returns the name of the button *id*.
+
+	**axis_name** (id) : string
+		Returns the name of the axis *id*.
+
 	**button_id** (name) : int
 		Returns the *id* of the button *name*.
 
@@ -958,6 +967,18 @@ Touch
 	**axis** (id) : Vector3
 		Returns the value of the axis *id*.
 
+	**button_name** (id) : string
+		Returns the name of the button *id*.
+
+	**axis_name** (id) : string
+		Returns the name of the axis *id*.
+
+	**button_id** (name) : int
+		Returns the *id* of the button *name*.
+
+	**axis_id** (name) : int
+		Returns the *id* of the axis *name*.
+
 Pad1, Pad2, Pad3, Pad4
 ----------------------
 
@@ -987,6 +1008,12 @@ Pad1, Pad2, Pad3, Pad4
 
 	**axis** (id) : Vector3
 		Returns the value of the axis *id*.
+
+	**button_name** (id) : string
+		Returns the name of the button *id*.
+
+	**axis_name** (id) : string
+		Returns the name of the axis *id*.
 
 	**button_id** (name) : int
 		Returns the *id* of the button *name*.
