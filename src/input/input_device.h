@@ -76,9 +76,9 @@ public:
 	uint8_t* _current_state;   // num_buttons
 	Vector3* _axis;            // num_axes
 	const char** _button_name; // num_buttons
-	const char** _axis_name;   // num_buttons
+	const char** _axis_name;   // num_axes
 	StringId32* _button_hash;  // num_buttons
-	StringId32* _axis_hash;    // num_buttons
+	StringId32* _axis_hash;    // num_axes
 	char* _name;               // strlen32(name) + 1
 
 public:

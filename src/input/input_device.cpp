@@ -130,7 +130,8 @@ InputDevice* InputDevice::create(Allocator& a, const char* name, uint8_t num_but
 		+ sizeof(char*)*num_axes
 		+ sizeof(StringId32)*num_buttons
 		+ sizeof(StringId32)*num_axes
-		+ strlen32(name) + 1;
+		+ strlen32(name) + 1
+		;
 
 	InputDevice* id = (InputDevice*)a.allocate(size);
 
