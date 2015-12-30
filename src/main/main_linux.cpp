@@ -296,7 +296,7 @@ struct Joypad
 						queue.push_joypad_event(i
 							, num > 2 ? 1 : 0
 							, values[0]
-							, values[1]
+							, -values[1]
 							, values[2]
 							);
 						break;
