@@ -8,7 +8,7 @@
 #if CROWN_PLATFORM_WINDOWS
 
 #include "log.h"
-#include <windows.h>
+#include "win_headers.h"
 #include <dbghelp.h>
 
 namespace crown
@@ -63,7 +63,8 @@ void print_callstack()
 			, NULL
 			, SymFunctionTableAccess64
 			, SymGetModuleBase64
-			, NULL))
+			, NULL
+			))
 	{
 		if (stack.AddrPC.Offset == 0)
 			break;
@@ -73,7 +74,8 @@ void print_callstack()
 		BOOL res = SymGetLineFromAddr64(GetCurrentProcess()
 					, stack.AddrPC.Offset
 					, &ldsp
-					, &line);
+					, &line
+					);
 		res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
 		if (res == TRUE)

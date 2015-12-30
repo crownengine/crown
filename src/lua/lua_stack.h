@@ -213,7 +213,7 @@ struct LuaStack
 
 	StringId32 get_string_id(int i)
 	{
-		return StringId32(uint32_t(CHECKINTEGER(L, i)));
+		return StringId32(get_string(i));
 	}
 
 	float get_float(int i)
