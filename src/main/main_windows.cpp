@@ -190,64 +190,82 @@ struct Joypad
 
 			if (state.Gamepad.sThumbLX != gamepad.sThumbLX)
 			{
-				int32_t value = state.Gamepad.sThumbLX;
+				SHORT value = state.Gamepad.sThumbLX;
 				value = value > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
 					? value : 0;
 
-				_axis[0].lx = (float)value / (float)INT16_MAX;
+				_axis[0].lx = value != 0
+					? float(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / float(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+					: 0.0f
+					;
 				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
 
 				gamepad.sThumbLX = state.Gamepad.sThumbLX;
 			}
 			if (state.Gamepad.sThumbLY != gamepad.sThumbLY)
 			{
-				int32_t value = state.Gamepad.sThumbLY;
+				SHORT value = state.Gamepad.sThumbLY;
 				value = value > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
 					? value : 0;
 
-				_axis[0].ly = (float)value / (float)INT16_MAX;
+				_axis[0].ly = value != 0
+					? float(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / float(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+					: 0.0f
+					;
 				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
 
 				gamepad.sThumbLY = state.Gamepad.sThumbLY;
 			}
 			if (state.Gamepad.bLeftTrigger != gamepad.bLeftTrigger)
 			{
-				int32_t value = state.Gamepad.bLeftTrigger;
-				value = value >XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
+				BYTE value = state.Gamepad.bLeftTrigger;
+				value = value > XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
 
-				_axis[0].lz = (float)value / (float)UINT8_MAX;
+				_axis[0].lz = value != 0
+					? float(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / float(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+					: 0.0f
+					;
 				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
 
 				gamepad.bLeftTrigger = state.Gamepad.bLeftTrigger;
 			}
 			if (state.Gamepad.sThumbRX != gamepad.sThumbRX)
 			{
-				int32_t value = state.Gamepad.sThumbRX;
+				SHORT value = state.Gamepad.sThumbRX;
 				value = value > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
 					? value : 0;
 
-				_axis[0].rx = (float)value / (float)INT16_MAX;
+				_axis[0].rx = value != 0
+					? float(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / float(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+					: 0.0f
+					;
 				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
 
 				gamepad.sThumbRX = state.Gamepad.sThumbRX;
 			}
 			if (state.Gamepad.sThumbRY != gamepad.sThumbRY)
 			{
-				int32_t value = state.Gamepad.sThumbRY;
+				SHORT value = state.Gamepad.sThumbRY;
 				value = value > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
 					? value : 0;
 
-				_axis[0].ry = (float)value / (float)INT16_MAX;
+				_axis[0].ry = value != 0
+					? float(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / float(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+					: 0.0f
+					;
 				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
 
 				gamepad.sThumbRY = state.Gamepad.sThumbRY;
 			}
 			if (state.Gamepad.bRightTrigger != gamepad.bRightTrigger)
 			{
-				int32_t value = state.Gamepad.bRightTrigger;
+				BYTE value = state.Gamepad.bRightTrigger;
 				value = value > XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
 
-				_axis[0].rz = (float)value / (float)UINT8_MAX;
+				_axis[0].rz = value != 0
+					? float(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / float(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+					: 0.0f
+					;
 				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
 
 				gamepad.bRightTrigger = state.Gamepad.bRightTrigger;
