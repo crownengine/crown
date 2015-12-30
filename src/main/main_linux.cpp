@@ -278,14 +278,20 @@ struct Joypad
 						AxisData& axis = _axis[i];
 						// Indices into axis.left/right respectively
 						const uint8_t axis_idx[] = { 0, 1, 2, 0, 1, 2 };
+						const int16_t deadzone = s_deadzone[num];
 
-						int16_t value = val > s_deadzone[num] || val < -s_deadzone[num] ? val : 0;
+						int16_t value = val > deadzone || val < -deadzone ? val : 0;
 
+						// Remap triggers to [0, INT16_MAX]
 						if (num == 2 || num == 5)
 							value = (value + INT16_MAX) >> 1;
 
 						float* values = num > 2 ? axis.right : axis.left;
-						values[axis_idx[num]] = (float)value / (float)INT16_MAX;
+
+						values[axis_idx[num]] = value != 0
+							? float(value + (value < 0 ? deadzone : -deadzone)) / float(INT16_MAX - deadzone)
+							: 0.0f
+							;
 
 						queue.push_joypad_event(i
 							, num > 2 ? 1 : 0
