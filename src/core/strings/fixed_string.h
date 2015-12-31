@@ -63,6 +63,16 @@ public:
 		return strncmp(_data, b._data, len) < 0;
 	}
 
+	uint32_t length() const
+	{
+		return _length;
+	}
+
+	const char* data() const
+	{
+		return _data;
+	}
+
 private:
 
 	uint32_t _length;
