@@ -5,30 +5,43 @@
 
 #pragma once
 
-#include "types.h"
-#include "resource_types.h"
-#include "filesystem_types.h"
+#include "container_types.h"
 #include "memory_types.h"
-#include "compiler_types.h"
+#include "filesystem_types.h"
+#include "resource_types.h"
 #include "string_id.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
 {
 
-struct Shader
+class ShaderManager
 {
-	const bgfx::Memory* vs;
-	const bgfx::Memory* fs;
-	bgfx::ProgramHandle program;
-};
+public:
 
-namespace shader_resource
-{
-	void compile(const char* path, CompileOptions& opts);
+	ShaderManager(Allocator& a);
+
 	void* load(File& file, Allocator& a);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* res);
-} // namespace shader_resource
+
+	bgfx::ProgramHandle get(StringId32 shader);
+
+private:
+
+	void add_shader(StringId32 name, bgfx::ProgramHandle program);
+
+private:
+
+	struct ShaderData
+	{
+		bgfx::ProgramHandle program;
+	};
+
+	typedef SortMap<StringId32, ShaderData> ShaderMap;
+
+	ShaderMap _shader_map;
+};
+
 } // namespace crown
