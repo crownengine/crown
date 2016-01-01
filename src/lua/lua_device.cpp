@@ -12,6 +12,7 @@
 #include "string_stream.h"
 #include "console_server.h"
 #include "resource_manager.h"
+#include "profiler.h"
 
 namespace crown
 {
@@ -136,6 +137,34 @@ static int device_enable_resource_autoload(lua_State* L)
 	return 0;
 }
 
+static int profiler_enter_scope(lua_State* L)
+{
+	LuaStack stack(L);
+	profiler::enter_profile_scope(stack.get_string(1));
+	return 0;
+}
+
+static int profiler_leave_scope(lua_State* L)
+{
+	LuaStack stack(L);
+	profiler::leave_profile_scope();
+	return 0;
+}
+
+static int profiler_record(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const char* name = stack.get_string(1);
+
+	if (stack.is_number(2))
+		profiler::record_float(name, stack.get_float(2));
+	else
+		profiler::record_vector3(name, stack.get_vector3(2));
+
+	return 0;
+}
+
 void load_device(LuaEnvironment& env)
 {
 	env.load_module_function("Device", "platform",                 device_platform);
@@ -152,6 +181,10 @@ void load_device(LuaEnvironment& env)
 	env.load_module_function("Device", "console_send",             device_console_send);
 	env.load_module_function("Device", "can_get",                  device_can_get);
 	env.load_module_function("Device", "enable_resource_autoload", device_enable_resource_autoload);
+
+	env.load_module_function("Profiler", "enter_scope", profiler_enter_scope);
+	env.load_module_function("Profiler", "leave_scope", profiler_leave_scope);
+	env.load_module_function("Profiler", "record",      profiler_record);
 }
 
 } // namespace crown
