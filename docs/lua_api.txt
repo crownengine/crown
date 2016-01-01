@@ -1035,6 +1035,18 @@ Pad Axis Names
 
 	* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z element represents the left or right trigger [0; +1].
 
+Profiler
+========
+
+	**enter_scope** (name)
+		Starts a new profile scope with the given *name*.
+
+	**leave_scope** ()
+		Ends the last profile scope.
+
+	**record** (name, value)
+		Rectords *value* with the given *name*. Value can be either number or Vector3.
+
 Window
 ======
 
