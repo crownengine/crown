@@ -7,6 +7,7 @@
 
 #include "types.h"
 #include "file.h"
+#include "string_utils.h"
 
 namespace crown
 {
