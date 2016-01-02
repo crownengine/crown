@@ -29,12 +29,12 @@ struct JsonValueType
 	};
 };
 
-/// Array of pointers to json-encoded strings.
+/// Array of pointers to json-encoded data.
 ///
 /// @ingroup JSON
 typedef Array<const char*> JsonArray;
 
-/// Map from key to pointers to json-encoded strings.
+/// Map from key to pointers to json-encoded data.
 ///
 /// @ingroup JSON
 typedef Map<FixedString, const char*> JsonObject;
