@@ -22,9 +22,6 @@ public:
 	InputManager();
 	~InputManager();
 
-	/// Creates a new input device and returns it.
-	InputDevice* create_input_device(const char* name, uint8_t num_buttons, uint8_t num_axes);
-
 	/// Returns the default keyboard input device.
 	InputDevice* keyboard();
 
