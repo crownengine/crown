@@ -225,6 +225,11 @@ InputDevice* InputManager::touch()
 	return _touch;
 }
 
+uint8_t InputManager::num_joypads()
+{
+	return CE_COUNTOF(_joypad);
+}
+
 InputDevice* InputManager::joypad(uint8_t i)
 {
 	CE_ASSERT(i < CROWN_MAX_JOYPADS, "Index out of bounds");

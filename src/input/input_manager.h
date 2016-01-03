@@ -31,6 +31,9 @@ public:
 	/// Returns the default touch input device.
 	InputDevice* touch();
 
+	/// Returns the number of joypads.
+	uint8_t num_joypads();
+
 	/// Returns the joypad @a i.
 	InputDevice* joypad(uint8_t i);
 
