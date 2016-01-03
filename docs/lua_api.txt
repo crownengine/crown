@@ -199,7 +199,7 @@ QuaternionBox
 	**QuaternionBox** (x, y, z, w) : QuaternionBox
 		Returns a new QuaternionBox from individual elements.
 
-	**store(q)**
+	**store** (q)
 		Stores the Quaternion *q* in the box.
 
 	**store** (x, y, z, w)
