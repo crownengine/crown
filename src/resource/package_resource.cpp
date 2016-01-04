@@ -38,18 +38,18 @@ namespace package_resource
 		JsonArray shader(ta);
 		JsonArray sprite_animation(ta);
 
-		if (map::has(object, FixedString("texture")))          njson::parse_array(object["texture"], texture);
-		if (map::has(object, FixedString("lua")))              njson::parse_array(object["lua"], script);
-		if (map::has(object, FixedString("sound")))            njson::parse_array(object["sound"], sound);
-		if (map::has(object, FixedString("mesh")))             njson::parse_array(object["mesh"], mesh);
-		if (map::has(object, FixedString("unit")))             njson::parse_array(object["unit"], unit);
-		if (map::has(object, FixedString("sprite")))           njson::parse_array(object["sprite"], sprite);
-		if (map::has(object, FixedString("material")))         njson::parse_array(object["material"], material);
-		if (map::has(object, FixedString("font")))             njson::parse_array(object["font"], font);
-		if (map::has(object, FixedString("level")))            njson::parse_array(object["level"], level);
-		if (map::has(object, FixedString("physics_config")))   njson::parse_array(object["physics_config"], phyconf);
-		if (map::has(object, FixedString("shader")))           njson::parse_array(object["shader"], shader);
-		if (map::has(object, FixedString("sprite_animation"))) njson::parse_array(object["sprite_animation"], sprite_animation);
+		if (map::has(object, FixedString("texture")))          sjson::parse_array(object["texture"], texture);
+		if (map::has(object, FixedString("lua")))              sjson::parse_array(object["lua"], script);
+		if (map::has(object, FixedString("sound")))            sjson::parse_array(object["sound"], sound);
+		if (map::has(object, FixedString("mesh")))             sjson::parse_array(object["mesh"], mesh);
+		if (map::has(object, FixedString("unit")))             sjson::parse_array(object["unit"], unit);
+		if (map::has(object, FixedString("sprite")))           sjson::parse_array(object["sprite"], sprite);
+		if (map::has(object, FixedString("material")))         sjson::parse_array(object["material"], material);
+		if (map::has(object, FixedString("font")))             sjson::parse_array(object["font"], font);
+		if (map::has(object, FixedString("level")))            sjson::parse_array(object["level"], level);
+		if (map::has(object, FixedString("physics_config")))   sjson::parse_array(object["physics_config"], phyconf);
+		if (map::has(object, FixedString("shader")))           sjson::parse_array(object["shader"], shader);
+		if (map::has(object, FixedString("sprite_animation"))) sjson::parse_array(object["sprite_animation"], sprite_animation);
 
 		const uint32_t num_textures    = array::size(texture);
 		const uint32_t num_scripts     = array::size(script);
