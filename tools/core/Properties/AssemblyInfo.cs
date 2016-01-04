@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("")]
 [assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("Copyright (c) 2012-2015 Daniele Bartolini and individual contributors. License: https://github.com/taylor001/crown/blob/master/LICENSE")]
+[assembly: AssemblyCopyright ("Copyright (c) 2012-2016 Daniele Bartolini and individual contributors. License: https://github.com/taylor001/crown/blob/master/LICENSE")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 

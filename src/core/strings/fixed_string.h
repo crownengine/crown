@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -61,6 +61,16 @@ public:
 	{
 		const uint32_t len = std::max(_length, b._length);
 		return strncmp(_data, b._data, len) < 0;
+	}
+
+	uint32_t length() const
+	{
+		return _length;
+	}
+
+	const char* data() const
+	{
+		return _data;
 	}
 
 private:

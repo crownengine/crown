@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -88,13 +88,13 @@
 #endif // CROWN_MAX_DEBUG_LINES
 
 #ifndef CROWN_MAX_LUA_VECTOR3
-	#define CROWN_MAX_LUA_VECTOR3 4096
+	#define CROWN_MAX_LUA_VECTOR3 8192
 #endif // CE_MAX
 
 #ifndef CROWN_MAX_LUA_MATRIX4X4
-	#define CROWN_MAX_LUA_MATRIX4X4 4096
+	#define CROWN_MAX_LUA_MATRIX4X4 8192
 #endif // CE_MAX
 
 #ifndef CROWN_MAX_LUA_QUATERNION
-	#define CROWN_MAX_LUA_QUATERNION 4096
+	#define CROWN_MAX_LUA_QUATERNION 8192
 #endif // CE_MAX

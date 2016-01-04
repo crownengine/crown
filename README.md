@@ -121,7 +121,7 @@ Simone Boscaratto ([@Xed89](https://github.com/Xed89))
 License
 -------
 
-	Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+	Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
 
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation

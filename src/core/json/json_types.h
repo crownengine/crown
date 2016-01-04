@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -29,12 +29,12 @@ struct JsonValueType
 	};
 };
 
-/// Array of pointers to json-encoded strings.
+/// Array of pointers to json-encoded data.
 ///
 /// @ingroup JSON
 typedef Array<const char*> JsonArray;
 
-/// Map from key to pointers to json-encoded strings.
+/// Map from key to pointers to json-encoded data.
 ///
 /// @ingroup JSON
 typedef Map<FixedString, const char*> JsonObject;

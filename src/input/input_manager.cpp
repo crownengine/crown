@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -99,7 +99,7 @@ static const char* s_keyboard_button_names[] =
 	"w",            // KeyboardButton::W
 	"x",            // KeyboardButton::X
 	"y",            // KeyboardButton::Y
-	"z",            // KeyboardButton::Z
+	"z"             // KeyboardButton::Z
 };
 CE_STATIC_ASSERT(CE_COUNTOF(s_keyboard_button_names) == KeyboardButton::COUNT);
 
@@ -109,7 +109,7 @@ static const char* s_mouse_button_names[] =
 	"middle",  // MouseButton::MIDDLE
 	"right",   // MouseButton::RIGHT
 	"extra_1", // MouseButton::EXTRA_1
-	"extra_2", // MouseButton::EXTRA_2
+	"extra_2"  // MouseButton::EXTRA_2
 };
 CE_STATIC_ASSERT(CE_COUNTOF(s_mouse_button_names) == MouseButton::COUNT);
 
@@ -117,7 +117,7 @@ static const char* s_mouse_axis_names[] =
 {
 	"cursor",       // MouseAxis::CURSOR
 	"cursor_delta", // MouseAxis::CURSOR_DELTA
-	"wheel",        // MouseAxis::WHEEL
+	"wheel"         // MouseAxis::WHEEL
 };
 CE_STATIC_ASSERT(CE_COUNTOF(s_mouse_axis_names) == MouseAxis::COUNT);
 
@@ -146,14 +146,14 @@ static const char* s_pad_button_names[] =
 	"a",              // JoypadButton::A
 	"b",              // JoypadButton::B
 	"x",              // JoypadButton::X
-	"y",              // JoypadButton::Y
+	"y"               // JoypadButton::Y
 };
 CE_STATIC_ASSERT(CE_COUNTOF(s_pad_button_names) == JoypadButton::COUNT);
 
 static const char* s_pad_axis_names[] =
 {
 	"left",  // JoypadAxis::LEFT
-	"right", // JoypadAxis::RIGHT
+	"right"  // JoypadAxis::RIGHT
 };
 CE_STATIC_ASSERT(CE_COUNTOF(s_pad_axis_names) == JoypadAxis::COUNT);
 
@@ -223,6 +223,11 @@ InputDevice* InputManager::mouse()
 InputDevice* InputManager::touch()
 {
 	return _touch;
+}
+
+uint8_t InputManager::num_joypads()
+{
+	return CE_COUNTOF(_joypad);
 }
 
 InputDevice* InputManager::joypad(uint8_t i)

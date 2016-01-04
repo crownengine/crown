@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -10,7 +10,6 @@
 
 namespace crown
 {
-/// @defgroup Path Path
 
 #if CROWN_PLATFORM_POSIX
 	const char PATH_SEPARATOR = '/';
@@ -20,7 +19,7 @@ namespace crown
 
 /// Functions for operating on strings as file paths.
 ///
-/// @ingroup Path
+/// @ingroup Filesystem
 namespace path
 {
 	/// Returns whether the @a path is absolute.

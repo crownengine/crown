@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -7,6 +7,7 @@
 
 #include "types.h"
 #include "file.h"
+#include "string_utils.h"
 
 namespace crown
 {

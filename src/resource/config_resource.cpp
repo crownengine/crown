@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -14,22 +14,21 @@ namespace config_resource
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
-		Buffer config = opts.read(path);
-		array::push_back(config, '\0');
-		opts.write(config);
+		opts.write(opts.read(path));
 	}
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
+		const uint32_t size = file.size();
+		char* res = (char*)a.allocate(size + 1);
+		file.read(res, size + 1);
+		res[size] = '\0';
 		return res;
 	}
 
-	void unload(Allocator& allocator, void* resource)
+	void unload(Allocator& a, void* resource)
 	{
-		allocator.deallocate(resource);
+		a.deallocate(resource);
 	}
 } // namespace config_resource
 

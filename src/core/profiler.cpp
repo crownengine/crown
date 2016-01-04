@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -37,11 +37,11 @@ namespace profiler_globals
 namespace profiler
 {
 	enum { THREAD_BUFFER_SIZE = 4 * 1024 };
-	char _thread_buffer[THREAD_BUFFER_SIZE];
-	uint32_t _thread_buffer_size = 0;
-	Mutex _buffer_mutex;
+	static char _thread_buffer[THREAD_BUFFER_SIZE];
+	static uint32_t _thread_buffer_size = 0;
+	static Mutex _buffer_mutex;
 
-	void flush_local_buffer()
+	static void flush_local_buffer()
 	{
 		ScopedMutex sm(_buffer_mutex);
 		array::push(*profiler_globals::_buffer, _thread_buffer, _thread_buffer_size);
@@ -49,7 +49,7 @@ namespace profiler
 	}
 
 	template <typename T>
-	void push(ProfilerEventType::Enum type, const T& ev)
+	static void push(ProfilerEventType::Enum type, const T& ev)
 	{
 		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(ev) >= THREAD_BUFFER_SIZE)
 			flush_local_buffer();

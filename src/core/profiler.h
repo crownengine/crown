@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -10,6 +10,8 @@
 
 namespace crown
 {
+
+/// @defgroup Profiler Profiler
 
 struct ProfilerEventType
 {
@@ -61,13 +63,32 @@ struct DeallocateMemory
 	uint32_t size;
 };
 
+/// Functions to access profiler.
+///
+/// @ingroup Profiler
+///
+/// @note
+/// The profiler does not copy pointer data.
+/// You have to store it somewhere and make sure it is
+/// valid throughout the program execution.
 namespace profiler
 {
+	/// Starts a new profile scope with the given @a name.
 	void enter_profile_scope(const char* name);
+
+	/// Ends the last profile scope.
 	void leave_profile_scope();
+
+	/// Records the float @a value with the given @a name.
 	void record_float(const char* name, float value);
+
+	/// Records the vector3 @a value with the given @a name.
 	void record_vector3(const char* name, const Vector3& value);
+
+	/// Records a memory allocation of @a size with the given @a name.
 	void allocate_memory(const char* name, uint32_t size);
+
+	/// Records a memory deallocation of @a size with the given @a name.
 	void deallocate_memory(const char* name, uint32_t size);
 } // namespace profiler
 

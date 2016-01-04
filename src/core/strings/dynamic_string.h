@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -10,6 +10,7 @@
 #include "array.h"
 #include "string_id.h"
 #include "string_utils.h"
+#include "fixed_string.h"
 #include <string.h> // memmove
 
 namespace crown
@@ -26,10 +27,13 @@ public:
 	DynamicString& operator+=(const DynamicString& s);
 	DynamicString& operator+=(const char* s);
 	DynamicString& operator+=(const char c);
+	DynamicString& operator+=(const FixedString& s);
+
 	///
 	DynamicString& operator=(const DynamicString& s);
 	DynamicString& operator=(const char* s);
 	DynamicString& operator=(const char c);
+	DynamicString& operator=(const FixedString& s);
 
 	bool operator<(const DynamicString& s) const;
 	bool operator==(const DynamicString& s) const;
@@ -100,6 +104,12 @@ inline DynamicString& DynamicString::operator+=(const char c)
 	return *this;
 }
 
+inline DynamicString& DynamicString::operator+=(const FixedString& s)
+{
+	array::push(_data, s.data(), s.length());
+	return *this;
+}
+
 inline DynamicString& DynamicString::operator=(const DynamicString& s)
 {
 	_data = s._data;
@@ -118,6 +128,13 @@ inline DynamicString& DynamicString::operator=(const char c)
 {
 	array::clear(_data);
 	array::push_back(_data, c);
+	return *this;
+}
+
+inline DynamicString& DynamicString::operator=(const FixedString& s)
+{
+	array::clear(_data);
+	array::push(_data, s.data(), s.length());
 	return *this;
 }
 

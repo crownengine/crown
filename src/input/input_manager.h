@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -22,9 +22,6 @@ public:
 	InputManager();
 	~InputManager();
 
-	/// Creates a new input device and returns it.
-	InputDevice* create_input_device(const char* name, uint8_t num_buttons, uint8_t num_axes);
-
 	/// Returns the default keyboard input device.
 	InputDevice* keyboard();
 
@@ -33,6 +30,9 @@ public:
 
 	/// Returns the default touch input device.
 	InputDevice* touch();
+
+	/// Returns the number of joypads.
+	uint8_t num_joypads();
 
 	/// Returns the joypad @a i.
 	InputDevice* joypad(uint8_t i);
