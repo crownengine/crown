@@ -23,6 +23,11 @@ newoption {
 }
 
 newoption {
+	trigger = "with-bullet",
+	description = "Build with Bullet support."
+}
+
+newoption {
 	trigger = "with-tools",
 	description = "Build with tools."
 }
@@ -59,6 +64,10 @@ end
 
 if _OPTIONS["with-openal"] then
 	dofile ("openal.lua")
+end
+
+if _OPTIONS["with-bullet"] then
+	dofile ("bullet.lua")
 end
 
 group "engine"

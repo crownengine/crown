@@ -38,12 +38,54 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "third/stb_vorbis",
 		}
 
+		if _OPTIONS["with-bullet"] then
+			includedirs {
+				CROWN_DIR .. "third/bullet3/src",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Collision",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Collision/BroadPhaseCollision",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Collision/NarrowPhaseCollision",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Common",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Dynamics",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Dynamics/ConstraintSover",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Geometry",
+				CROWN_DIR .. "third/bullet3/src/Bullet3OpenCL",
+				CROWN_DIR .. "third/bullet3/src/Bullet3OpenCL/BroadphaseCollision",
+				CROWN_DIR .. "third/bullet3/src/Bullet3OpenCL/initialize",
+				CROWN_DIR .. "third/bullet3/src/Bullet3OpenCL/NarrowPhaseCollision",
+				CROWN_DIR .. "third/bullet3/src/Bullet3OpenCL/ParallelPrimitives",
+				CROWN_DIR .. "third/bullet3/src/Bullet3OpenCL/Raycast",
+				CROWN_DIR .. "third/bullet3/src/Bullet3OpenCL/RigidBody",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Serialize",
+				CROWN_DIR .. "third/bullet3/src/Bullet3Serialize/Bullet2FileLoader",
+				CROWN_DIR .. "third/bullet3/src/BulletCollision",
+				CROWN_DIR .. "third/bullet3/src/BulletCollision/BroadphaseCollision",
+				CROWN_DIR .. "third/bullet3/src/BulletCollision/CollisionDispatch",
+				CROWN_DIR .. "third/bullet3/src/BulletCollision/CollisionShapes",
+				CROWN_DIR .. "third/bullet3/src/BulletCollision/Gimpact",
+				CROWN_DIR .. "third/bullet3/src/BulletCollision/NarrowPhaseCollision",
+				CROWN_DIR .. "third/bullet3/src/BulletDynamics",
+				CROWN_DIR .. "third/bullet3/src/BulletDynamics/Character",
+				CROWN_DIR .. "third/bullet3/src/BulletDynamics/ConstraintSolver",
+				CROWN_DIR .. "third/bullet3/src/BulletDynamics/Dynamics",
+				CROWN_DIR .. "third/bullet3/src/BulletDynamics/Featherstone",
+				CROWN_DIR .. "third/bullet3/src/BulletDynamics/MLCPSolvers",
+				CROWN_DIR .. "third/bullet3/src/BulletDynamics/Vehicle",
+				CROWN_DIR .. "third/bullet3/src/BulletSoftBody",
+				CROWN_DIR .. "third/bullet3/src/LinearMath",
+				CROWN_DIR .. "third/bullet3/src/clew",
+			}
+
+			links {
+				"bullet",
+			}
+		end
+
 		defines {
 			_defines,
 		}
 
 		links {
-			"bgfx"
+			"bgfx",
 		}
 
 		if _OPTIONS["with-luajit"] then
