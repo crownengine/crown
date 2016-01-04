@@ -12,6 +12,7 @@
 #define MESH_EXTENSION             "mesh"
 #define PACKAGE_EXTENSION          "package"
 #define PHYSICS_CONFIG_EXTENSION   "physics_config"
+#define PHYSICS_EXTENSION          "physics"
 #define SHADER_EXTENSION           "shader"
 #define SOUND_EXTENSION            "sound"
 #define SPRITE_ANIMATION_EXTENSION "sprite_animation"
@@ -27,6 +28,7 @@
 #define MESH_TYPE                  StringId64(0x48ff313713a997a1)
 #define PACKAGE_TYPE               StringId64(0xad9c6d9ed1e5e77a)
 #define PHYSICS_CONFIG_TYPE        StringId64(0x72e3cc03787a11a1)
+#define PHYSICS_TYPE               StringId64(0x5f7203c8f280dab8)
 #define SHADER_TYPE                StringId64(0xcce8d5b5f5ae333f)
 #define SOUND_TYPE                 StringId64(0x90641b51c98b7aac)
 #define SPRITE_ANIMATION_TYPE      StringId64(0x487e78e3f87f238d)
@@ -42,6 +44,7 @@
 #define MESH_VERSION               uint32_t(1)
 #define PACKAGE_VERSION            uint32_t(1)
 #define PHYSICS_CONFIG_VERSION     uint32_t(1)
+#define PHYSICS_VERSION            uint32_t(1)
 #define SHADER_VERSION             uint32_t(1)
 #define SOUND_VERSION              uint32_t(1)
 #define SPRITE_ANIMATION_VERSION   uint32_t(1)
