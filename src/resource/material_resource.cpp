@@ -155,7 +155,7 @@ namespace material_resource
 		Array<char> names(default_allocator());
 		Array<char> dynblob(default_allocator());
 
-		ResourceId shader = root.key("shader").to_resource_id();
+		StringId32 shader = root.key("shader").to_string_id();
 		parse_textures(root, texdata, names, dynblob);
 		parse_uniforms(root, unidata, names, dynblob);
 
@@ -268,7 +268,7 @@ namespace material_resource
 		return mr->dynamic_data_offset;
 	}
 
-	StringId64 shader(const MaterialResource* mr)
+	StringId32 shader(const MaterialResource* mr)
 	{
 		return mr->shader;
 	}

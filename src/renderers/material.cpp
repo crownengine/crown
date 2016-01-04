@@ -62,8 +62,9 @@ void Material::bind() const
 		bgfx::setUniform(buh, (char*) uh + sizeof(uh->uniform_handle));
 	}
 
-	Shader* shader = (Shader*) device()->resource_manager()->get(SHADER_TYPE, material_resource::shader(resource));
-	bgfx::submit(0, shader->program);
+	const ShaderManager::ShaderData& sd = device()->shader_manager()->get(material_resource::shader(resource));
+	bgfx::setState(sd.state);
+	bgfx::submit(0, sd.program);
 }
 
 void Material::set_float(const char* name, float val)
