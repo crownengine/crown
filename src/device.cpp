@@ -86,7 +86,7 @@ void Device::init()
 
 	read_config();
 
-	_input_manager = CE_NEW(_allocator, InputManager)();
+	_input_manager = CE_NEW(_allocator, InputManager)(default_allocator());
 
 	bgfx::init(bgfx::RendererType::Count
 		, BGFX_PCI_ID_NONE

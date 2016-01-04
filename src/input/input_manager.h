@@ -8,6 +8,7 @@
 #include "config.h"
 #include "types.h"
 #include "input_types.h"
+#include "memory_types.h"
 
 namespace crown
 {
@@ -19,7 +20,7 @@ class InputManager
 {
 public:
 
-	InputManager();
+	InputManager(Allocator& a);
 	~InputManager();
 
 	/// Returns the default keyboard input device.
@@ -42,6 +43,7 @@ public:
 
 private:
 
+	Allocator* _allocator;
 	InputDevice* _keyboard;
 	InputDevice* _mouse;
 	InputDevice* _touch;
