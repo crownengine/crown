@@ -19,7 +19,7 @@ struct MaterialResource
 {
 	uint32_t version;
 	uint32_t _pad;
-	StringId64 shader;
+	StringId32 shader;
 	uint32_t num_textures;
 	uint32_t texture_data_offset;
 	uint32_t num_uniforms;
@@ -78,7 +78,7 @@ namespace material_resource
 
 	uint32_t dynamic_data_size(const MaterialResource* mr);
 	uint32_t dynamic_data_offset(const MaterialResource* mr);
-	StringId64 shader(const MaterialResource* mr);
+	StringId32 shader(const MaterialResource* mr);
 	uint32_t num_textures(const MaterialResource* mr);
 	uint32_t num_uniforms(const MaterialResource* mr);
 	UniformData* get_uniform_data(const MaterialResource* mr, uint32_t i);

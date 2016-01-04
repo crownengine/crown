@@ -19,6 +19,14 @@ class ShaderManager
 {
 public:
 
+	struct ShaderData
+	{
+		uint64_t state;
+		bgfx::ProgramHandle program;
+	};
+
+public:
+
 	ShaderManager(Allocator& a);
 
 	void* load(File& file, Allocator& a);
@@ -26,18 +34,14 @@ public:
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* res);
 
-	bgfx::ProgramHandle get(StringId32 shader);
+	/// Returns the shader @a id.
+	const ShaderData& get(StringId32 id);
 
 private:
 
-	void add_shader(StringId32 name, bgfx::ProgramHandle program);
+	void add_shader(StringId32 name, uint64_t state, bgfx::ProgramHandle program);
 
 private:
-
-	struct ShaderData
-	{
-		bgfx::ProgramHandle program;
-	};
 
 	typedef SortMap<StringId32, ShaderData> ShaderMap;
 

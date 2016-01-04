@@ -6,7 +6,6 @@
 #include "device.h"
 #include "array.h"
 #include "config.h"
-#include "debug_line.h"
 #include "input_manager.h"
 #include "log.h"
 #include "lua_environment.h"
@@ -63,6 +62,7 @@ Device::Device(const DeviceOptions& opts)
 	, _resource_loader(NULL)
 	, _resource_manager(NULL)
 	, _input_manager(NULL)
+	, _shader_manager(NULL)
 	, _worlds(default_allocator())
 	, _bgfx_allocator(default_allocator())
 {
@@ -95,8 +95,9 @@ void Device::init()
 		, &_bgfx_allocator
 		);
 
+	_shader_manager = CE_NEW(_allocator, ShaderManager)(default_allocator());
+
 	material_manager::init();
-	debug_line::init();
 
 	audio_globals::init();
 	physics_globals::init();
@@ -133,9 +134,9 @@ void Device::shutdown()
 	physics_globals::shutdown();
 	audio_globals::shutdown();
 
-	debug_line::shutdown();
 	material_manager::shutdown();
 
+	CE_DELETE(_allocator, _shader_manager);
 	CE_DELETE(_allocator, _input_manager);
 	CE_DELETE(_allocator, _resource_manager);
 	CE_DELETE(_allocator, _resource_loader);
@@ -293,6 +294,11 @@ LuaEnvironment* Device::lua_environment()
 InputManager* Device::input_manager()
 {
 	return _input_manager;
+}
+
+ShaderManager* Device::shader_manager()
+{
+	return _shader_manager;
 }
 
 bool Device::process_events()

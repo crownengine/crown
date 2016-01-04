@@ -11,16 +11,28 @@
 #include "memory_types.h"
 #include "compiler_types.h"
 #include "string_id.h"
+#include "container_types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
 {
 
-struct Shader
+struct ShaderResource
 {
-	const bgfx::Memory* vs;
-	const bgfx::Memory* fs;
-	bgfx::ProgramHandle program;
+	ShaderResource(Allocator& a)
+		: _data(a)
+	{
+	}
+
+	struct Data
+	{
+		StringId32 name;
+		uint64_t state;
+		const bgfx::Memory* vsmem;
+		const bgfx::Memory* fsmem;
+	};
+
+	Array<Data> _data;
 };
 
 namespace shader_resource

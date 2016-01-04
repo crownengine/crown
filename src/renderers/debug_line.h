@@ -8,16 +8,11 @@
 #include "types.h"
 #include "config.h"
 #include "math_types.h"
+#include "string_id.h"
+#include <bgfx/bgfx.h>
 
 namespace crown
 {
-
-namespace debug_line
-{
-	void init();
-
-	void shutdown();
-} // namespace debug_line
 
 /// Draws lines.
 ///
@@ -62,7 +57,9 @@ private:
 		uint32_t c1;
 	};
 
-	bool _depth_test;
+	StringId32 _shader;
+	bgfx::VertexDecl _vertex_decl;
+
 	uint32_t _num;
 	Line _lines[CROWN_MAX_DEBUG_LINES];
 };

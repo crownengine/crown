@@ -37,6 +37,9 @@ void* ShaderManager::load(File& file, Allocator& a)
 		uint32_t shader_name;
 		br.read(shader_name);
 
+		uint64_t render_state;
+		br.read(render_state);
+
 		uint32_t vs_code_size;
 		br.read(vs_code_size);
 		const bgfx::Memory* vsmem = bgfx::alloc(vs_code_size);
@@ -48,6 +51,7 @@ void* ShaderManager::load(File& file, Allocator& a)
 		br.read(fsmem->data, fs_code_size);
 
 		sr->_data[i].name._id = shader_name;
+		sr->_data[i].state = render_state;
 		sr->_data[i].vsmem = vsmem;
 		sr->_data[i].fsmem = fsmem;
 	}
@@ -70,7 +74,7 @@ void ShaderManager::online(StringId64 id, ResourceManager& rm)
 		bgfx::ProgramHandle program = bgfx::createProgram(vs, fs, true);
 		CE_ASSERT(bgfx::isValid(program), "Failed to create GPU program");
 
-		add_shader(data.name, program);
+		add_shader(data.name, data.state, program);
 	}
 }
 
@@ -81,8 +85,9 @@ void ShaderManager::offline(StringId64 id, ResourceManager& rm)
 	for (uint32_t i = 0; i < array::size(shader->_data); ++i)
 	{
 		const ShaderResource::Data& data = shader->_data[i];
+		const ShaderData& sd = get(data.name);
 
-		bgfx::destroyProgram(get(data.name));
+		bgfx::destroyProgram(sd.program);
 
 		sort_map::remove(_shader_map, data.name);
 		sort_map::sort(_shader_map);
@@ -94,20 +99,22 @@ void ShaderManager::unload(Allocator& a, void* res)
 	CE_DELETE(a, (ShaderResource*)res);
 }
 
-void ShaderManager::add_shader(StringId32 name, bgfx::ProgramHandle program)
+void ShaderManager::add_shader(StringId32 name, uint64_t state, bgfx::ProgramHandle program)
 {
 	ShaderData sd;
+	sd.state = state;
 	sd.program = program;
 	sort_map::set(_shader_map, name, sd);
 	sort_map::sort(_shader_map);
 }
 
-bgfx::ProgramHandle ShaderManager::get(StringId32 shader)
+const ShaderManager::ShaderData& ShaderManager::get(StringId32 id)
 {
-	CE_ASSERT(sort_map::has(_shader_map, shader), "Shader not found");
+	CE_ASSERT(sort_map::has(_shader_map, id), "Shader not found");
 	ShaderData deffault;
+	deffault.state = BGFX_STATE_DEFAULT;
 	deffault.program = BGFX_INVALID_HANDLE;
-	return sort_map::get(_shader_map, shader, deffault).program;
+	return sort_map::get(_shader_map, id, deffault);
 }
 
 } // namespace crown

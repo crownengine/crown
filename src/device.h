@@ -21,6 +21,7 @@
 #include "log.h"
 #include "proxy_allocator.h"
 #include "string_utils.h"
+#include "shader_manager.h"
 #include <bx/allocator.h>
 #include <bgfx/bgfx.h>
 
@@ -109,6 +110,9 @@ struct Device
 	/// Returns the input manager.
 	InputManager* input_manager();
 
+	/// Returns the shader manager.
+	ShaderManager* shader_manager();
+
 private:
 
 	bool process_events();
@@ -146,6 +150,7 @@ private:
 	ResourceLoader* _resource_loader;
 	ResourceManager* _resource_manager;
 	InputManager* _input_manager;
+	ShaderManager* _shader_manager;
 
 	Array<World*> _worlds;
 
