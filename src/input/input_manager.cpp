@@ -157,26 +157,27 @@ static const char* s_pad_axis_names[] =
 };
 CE_STATIC_ASSERT(CE_COUNTOF(s_pad_axis_names) == JoypadAxis::COUNT);
 
-InputManager::InputManager()
-	: _keyboard(NULL)
+InputManager::InputManager(Allocator& a)
+	: _allocator(&a)
+	, _keyboard(NULL)
 	, _mouse(NULL)
 	, _touch(NULL)
 {
-	_keyboard = InputDevice::create(default_allocator()
+	_keyboard = InputDevice::create(*_allocator
 		, "Keyboard"
 		, KeyboardButton::COUNT
 		, 0
 		, s_keyboard_button_names
 		, NULL
 		);
-	_mouse = InputDevice::create(default_allocator()
+	_mouse = InputDevice::create(*_allocator
 		, "Mouse"
 		, MouseButton::COUNT
 		, MouseAxis::COUNT
 		, s_mouse_button_names
 		, s_mouse_axis_names
 		);
-	_touch = InputDevice::create(default_allocator()
+	_touch = InputDevice::create(*_allocator
 		, "Touch"
 		, TouchButton::COUNT
 		, 0
@@ -186,7 +187,7 @@ InputManager::InputManager()
 
 	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
 	{
-		_joypad[i] = InputDevice::create(default_allocator()
+		_joypad[i] = InputDevice::create(*_allocator
 			, "Joypad"
 			, JoypadButton::COUNT
 			, JoypadAxis::COUNT
@@ -203,11 +204,11 @@ InputManager::InputManager()
 InputManager::~InputManager()
 {
 	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
-		InputDevice::destroy(default_allocator(), _joypad[i]);
+		InputDevice::destroy(*_allocator, _joypad[i]);
 
-	InputDevice::destroy(default_allocator(), _touch);
-	InputDevice::destroy(default_allocator(), _mouse);
-	InputDevice::destroy(default_allocator(), _keyboard);
+	InputDevice::destroy(*_allocator, _touch);
+	InputDevice::destroy(*_allocator, _mouse);
+	InputDevice::destroy(*_allocator, _keyboard);
 }
 
 InputDevice* InputManager::keyboard()

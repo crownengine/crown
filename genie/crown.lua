@@ -20,7 +20,6 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "src/core/math",
 			CROWN_DIR .. "src/core/memory",
 			CROWN_DIR .. "src/core/network",
-			CROWN_DIR .. "src/core/settings",
 			CROWN_DIR .. "src/core/strings",
 			CROWN_DIR .. "src/core/thread",
 			CROWN_DIR .. "src/input",
@@ -130,22 +129,7 @@ function crown_project(_name, _kind, _defines)
 				CROWN_DIR .. "third/openal/include"
 			}
 
-			-- Fix this in GENie
-			configuration { "debug", "x32", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-debug-32", }
-			configuration { "development", "x32", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-development-32", }
-			configuration { "release", "x32", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-release-32", }
-			configuration { "debug", "x64", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-debug-64", }
-			configuration { "development", "x64", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-development-64", }
-			configuration { "release", "x64", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-release-64", }
-
-			configuration { "vs*" }
-				links { "openal", }
+			links { "openal" }
 
 			configuration {}
 		end
