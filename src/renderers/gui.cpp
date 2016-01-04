@@ -90,8 +90,6 @@ Gui::Gui(uint16_t width, uint16_t height, const char* material)
 	, m_pose(MATRIX4X4_IDENTITY)
 {
 	orthographic(m_projection, 0, width, 0, height, -0.01f, 100.0f);
-
-	m_material = material_manager::get()->create_material(ResourceId(material));
 }
 
 Vector2 Gui::resolution() const
@@ -140,7 +138,6 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	bgfx::setState(BGFX_STATE_DEFAULT);
 	bgfx::setVertexBuffer(&tvb);
 	bgfx::setIndexBuffer(&tib);
-	material_manager::get()->lookup_material(m_material)->bind();
 }
 
 void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color)
@@ -189,7 +186,6 @@ void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2&
 	bgfx::setState(BGFX_STATE_DEFAULT);
 	bgfx::setVertexBuffer(&tvb);
 	bgfx::setIndexBuffer(&tib);
-	material_manager::get()->lookup_material(m_material)->bind();
 }
 
 void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color)

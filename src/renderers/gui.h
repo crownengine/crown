@@ -48,8 +48,6 @@ public:
 
 	uint16_t m_width;
 	uint16_t m_height;
-	typedef Id MaterialId;
-	MaterialId m_material;
 	Matrix4x4 m_projection;
 	Matrix4x4 m_pose;
 
