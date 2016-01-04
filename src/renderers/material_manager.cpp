@@ -11,29 +11,10 @@
 namespace crown
 {
 
-namespace material_manager
-{
-	static MaterialManager* s_mmgr = NULL;
-
-	void init(ResourceManager& rm)
-	{
-		s_mmgr = CE_NEW(default_allocator(), MaterialManager)(rm);
-	}
-
-	void shutdown()
-	{
-		CE_DELETE(default_allocator(), s_mmgr);
-	}
-
-	MaterialManager* get()
-	{
-		return s_mmgr;
-	}
-} // namespace material_manager
-
-MaterialManager::MaterialManager(ResourceManager& rm)
-	: _resource_manager(&rm)
-	, _materials(default_allocator())
+MaterialManager::MaterialManager(Allocator& a, ResourceManager& rm)
+	: _allocator(&a)
+	, _resource_manager(&rm)
+	, _materials(a)
 {
 }
 
@@ -70,7 +51,7 @@ void MaterialManager::destroy_material(StringId64 id)
 	sort_map::sort(_materials);
 }
 
-Material* MaterialManager::lookup_material(StringId64 id)
+Material* MaterialManager::get(StringId64 id)
 {
 	return sort_map::get(_materials, id, (Material*)NULL);
 }

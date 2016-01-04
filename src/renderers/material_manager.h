@@ -16,24 +16,23 @@ namespace crown
 
 struct MaterialManager
 {
-	MaterialManager(ResourceManager& rm);
+	MaterialManager(Allocator& a, ResourceManager& rm);
 	~MaterialManager();
 
+	/// Creates the material @a id.
 	void create_material(StringId64 id);
+
+	/// Destroys the material @a id.
 	void destroy_material(StringId64 id);
-	Material* lookup_material(StringId64 id);
+
+	/// Returns the material @a id.
+	Material* get(StringId64 id);
 
 private:
 
+	Allocator* _allocator;
 	ResourceManager* _resource_manager;
 	SortMap<StringId64, Material*> _materials;
 };
-
-namespace material_manager
-{
-	void init(ResourceManager& rm);
-	void shutdown();
-	MaterialManager* get();
-} // namespace material_manager
 
 } // namespace crown
