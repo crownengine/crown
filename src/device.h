@@ -22,6 +22,8 @@
 #include "proxy_allocator.h"
 #include "string_utils.h"
 #include "shader_manager.h"
+#include "material_manager.h"
+#include "unit_manager.h"
 #include <bx/allocator.h>
 #include <bgfx/bgfx.h>
 
@@ -81,7 +83,7 @@ struct Device
 	void update();
 
 	/// Renders the given @a world from the point of view of @a camera.
-	void render_world(World& world, Camera* camera);
+	void render_world(World& world, CameraInstance camera);
 
 	/// Creates a new world.
 	World* create_world();
@@ -112,6 +114,12 @@ struct Device
 
 	/// Returns the shader manager.
 	ShaderManager* shader_manager();
+
+	/// Returns the material manager.
+	MaterialManager* material_manager();
+
+	/// Returns the unit manager.
+	UnitManager* unit_manager();
 
 private:
 
@@ -151,6 +159,8 @@ private:
 	ResourceManager* _resource_manager;
 	InputManager* _input_manager;
 	ShaderManager* _shader_manager;
+	MaterialManager* _material_manager;
+	UnitManager* _unit_manager;
 
 	Array<World*> _worlds;
 

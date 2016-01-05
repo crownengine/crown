@@ -63,6 +63,8 @@ Device::Device(const DeviceOptions& opts)
 	, _resource_manager(NULL)
 	, _input_manager(NULL)
 	, _shader_manager(NULL)
+	, _material_manager(NULL)
+	, _unit_manager(NULL)
 	, _worlds(default_allocator())
 	, _bgfx_allocator(default_allocator())
 {
@@ -86,8 +88,6 @@ void Device::init()
 
 	read_config();
 
-	_input_manager = CE_NEW(_allocator, InputManager)(default_allocator());
-
 	bgfx::init(bgfx::RendererType::Count
 		, BGFX_PCI_ID_NONE
 		, 0
@@ -96,8 +96,9 @@ void Device::init()
 		);
 
 	_shader_manager = CE_NEW(_allocator, ShaderManager)(default_allocator());
-
-	material_manager::init();
+	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
+	_input_manager = CE_NEW(_allocator, InputManager)(default_allocator());
+	_unit_manager = CE_NEW(_allocator, UnitManager)(default_allocator());
 
 	audio_globals::init();
 	physics_globals::init();
@@ -134,10 +135,10 @@ void Device::shutdown()
 	physics_globals::shutdown();
 	audio_globals::shutdown();
 
-	material_manager::shutdown();
-
-	CE_DELETE(_allocator, _shader_manager);
+	CE_DELETE(_allocator, _unit_manager);
 	CE_DELETE(_allocator, _input_manager);
+	CE_DELETE(_allocator, _material_manager);
+	CE_DELETE(_allocator, _shader_manager);
 	CE_DELETE(_allocator, _resource_manager);
 	CE_DELETE(_allocator, _resource_loader);
 	CE_DELETE(_allocator, _bundle_filesystem);
@@ -231,14 +232,18 @@ void Device::update()
 	}
 }
 
-void Device::render_world(World& world, Camera* camera)
+void Device::render_world(World& world, CameraInstance camera)
 {
 	world.render(camera);
 }
 
 World* Device::create_world()
 {
-	World* w = CE_NEW(default_allocator(), World)(*_resource_manager, *_lua_environment);
+	World* w = CE_NEW(default_allocator(), World)(*_resource_manager
+		, *_lua_environment
+		, *_material_manager
+		, *_unit_manager
+		);
 	array::push_back(_worlds, w);
 	return w;
 }
@@ -299,6 +304,16 @@ InputManager* Device::input_manager()
 ShaderManager* Device::shader_manager()
 {
 	return _shader_manager;
+}
+
+MaterialManager* Device::material_manager()
+{
+	return _material_manager;
+}
+
+UnitManager* Device::unit_manager()
+{
+	return _unit_manager;
 }
 
 bool Device::process_events()
