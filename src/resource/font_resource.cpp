@@ -22,10 +22,10 @@ namespace font_resource
 		sjson::parse(json, obj);
 
 		glyph.id        = sjson::parse_int(obj["id"]);
-		glyph.x         = sjson::parse_int(obj["x"]);
-		glyph.y         = sjson::parse_int(obj["y"]);
-		glyph.width     = sjson::parse_int(obj["width"]);
-		glyph.height    = sjson::parse_int(obj["height"]);
+		glyph.x         = sjson::parse_float(obj["x"]);
+		glyph.y         = sjson::parse_float(obj["y"]);
+		glyph.width     = sjson::parse_float(obj["width"]);
+		glyph.height    = sjson::parse_float(obj["height"]);
 		glyph.x_offset  = sjson::parse_float(obj["x_offset"]);
 		glyph.y_offset  = sjson::parse_float(obj["y_offset"]);
 		glyph.x_advance = sjson::parse_float(obj["x_advance"]);
