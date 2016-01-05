@@ -239,7 +239,8 @@ void Device::render_world(World& world, CameraInstance camera)
 
 World* Device::create_world()
 {
-	World* w = CE_NEW(default_allocator(), World)(*_resource_manager
+	World* w = CE_NEW(default_allocator(), World)(default_allocator()
+		, *_resource_manager
 		, *_lua_environment
 		, *_material_manager
 		, *_unit_manager
