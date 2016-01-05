@@ -4,7 +4,6 @@
  */
 
 #include "material_manager.h"
-#include "memory.h"
 #include "sort_map.h"
 #include "resource_manager.h"
 
@@ -26,7 +25,7 @@ MaterialManager::~MaterialManager()
 	for (; begin != end; ++begin)
 	{
 		begin->pair.second->destroy();
-		CE_DELETE(default_allocator(), begin->pair.second);
+		CE_DELETE(*_allocator, begin->pair.second);
 	}
 }
 
@@ -35,7 +34,7 @@ void MaterialManager::create_material(StringId64 id)
 	if (sort_map::has(_materials, id))
 		return;
 
-	Material* mat = CE_NEW(default_allocator(), Material);
+	Material* mat = CE_NEW(*_allocator, Material);
 	mat->create((MaterialResource*)_resource_manager->get(MATERIAL_TYPE, id), *this);
 
 	sort_map::set(_materials, id, mat);
@@ -46,7 +45,7 @@ void MaterialManager::destroy_material(StringId64 id)
 {
 	Material* mat = sort_map::get(_materials, id, (Material*)NULL);
 	mat->destroy();
-	CE_DELETE(default_allocator(), mat);
+	CE_DELETE(*_allocator, mat);
 	sort_map::remove(_materials, id);
 	sort_map::sort(_materials);
 }
