@@ -4,7 +4,6 @@
  */
 
 #include "unit_manager.h"
-#include "memory.h"
 #include "array.h"
 #include "queue.h"
 #include "world.h"
