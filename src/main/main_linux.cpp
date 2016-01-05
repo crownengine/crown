@@ -8,7 +8,6 @@
 #if CROWN_PLATFORM_LINUX
 
 #include "device.h"
-#include "memory.h"
 #include "os_event_queue.h"
 #include "thread.h"
 #include "command_line.h"
@@ -380,13 +379,18 @@ struct LinuxDevice
 		win_attribs.border_pixel = 0;
 		win_attribs.event_mask = FocusChangeMask
 			| StructureNotifyMask
-			| KeyPressMask
-			| KeyReleaseMask
-			| ButtonPressMask
-			| ButtonReleaseMask
-			| PointerMotionMask
-			| EnterWindowMask
 			;
+
+		if (!opts->parent_window())
+		{
+			win_attribs.event_mask |= KeyPressMask
+				| KeyReleaseMask
+				| ButtonPressMask
+				| ButtonReleaseMask
+				| PointerMotionMask
+				| EnterWindowMask
+				;
+		}
 
 		_x11_window = XCreateWindow(_x11_display
 			, parent_window
@@ -590,17 +594,22 @@ int main(int argc, char** argv)
 	DeviceOptions opts(argc, argv);
 
 	console_server_globals::init(opts.console_port(), opts.wait_console());
-	bundle_compiler_globals::init(opts.source_dir(), opts.bundle_dir());
 
 	bool do_continue = true;
 	int exitcode = EXIT_SUCCESS;
 
-	do_continue = bundle_compiler::main(opts.do_compile(), opts.do_continue(), opts.platform());
+	if (opts.do_compile())
+	{
+		bundle_compiler_globals::init(opts.source_dir(), opts.bundle_dir());
+		do_continue = bundle_compiler::main(opts.do_compile(), opts.do_continue(), opts.platform());
+	}
 
 	if (do_continue)
 		exitcode = crown::s_ldvc.run(&opts);
 
-	bundle_compiler_globals::shutdown();
+	if (opts.do_compile())
+		bundle_compiler_globals::shutdown();
+
 	console_server_globals::shutdown();
 	memory_globals::shutdown();
 	return exitcode;
