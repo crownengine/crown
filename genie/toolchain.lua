@@ -12,8 +12,8 @@ function toolchain(build_dir, lib_dir)
 		description = "Choose compiler",
 		allowed =
 		{
-			{ "android-arm", "Android - ARM"          },
-			{ "linux-gcc",   "Linux (GCC compiler)"   }
+			{ "android-arm", "Android - ARM"        },
+			{ "linux-gcc",   "Linux (GCC compiler)" }
 		}
 	}
 
@@ -36,10 +36,6 @@ function toolchain(build_dir, lib_dir)
 
 			if not os.is("linux") then print("Action not valid in current OS.") end
 
-			if not os.getenv("PHYSX_SDK_LINUX") then
-				print("Set PHYSX_SDK_LINUX environment variable.")
-			end
-
 			location(build_dir .. "projects/" .. "linux")
 		end
 
@@ -48,11 +44,9 @@ function toolchain(build_dir, lib_dir)
 			if not os.getenv("ANDROID_NDK_ROOT") then
 				print("Set ANDROID_NDK_ROOT environment variable.")
 			end
+
 			if not os.getenv("ANDROID_NDK_ARM") then
 				print("Set ANDROID_NDK_ARM environment variables.")
-			end
-			if not os.getenv("PHYSX_SDK_ANDROID") then
-				print("Set PHYSX_SDK_ANDROID environment variable.")
 			end
 
 			premake.gcc.cc = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-gcc"
@@ -66,9 +60,6 @@ function toolchain(build_dir, lib_dir)
 
 		if not os.is("windows") then print("Action not valid in current OS.") end
 
-		if not os.getenv("PHYSX_SDK_WINDOWS") then
-			print("Set PHYSX_SDK_WINDOWS environment variable.")
-		end
 		if not os.getenv("DXSDK_DIR") then
 			print("Set DXSDK_DIR environment variable.")
 		end
@@ -125,8 +116,6 @@ function toolchain(build_dir, lib_dir)
 		objdir (build_dir .. "linux32" .. "/obj")
 		libdirs {
 			lib_dir .. "../.build/linux32/bin",
-			"$(PHYSX_SDK_LINUX)/Lib/linux32",
-			"$(PHYSX_SDK_LINUX)/Bin/linux32",
 		}
 		buildoptions {
 			"-m32",
@@ -138,8 +127,6 @@ function toolchain(build_dir, lib_dir)
 		objdir (build_dir .. "linux64" .. "/obj")
 		libdirs {
 			lib_dir .. "../.build/linux64/bin",
-			"$(PHYSX_SDK_LINUX)/Lib/linux64",
-			"$(PHYSX_SDK_LINUX)/Bin/linux64",
 		}
 		buildoptions {
 			"-m64",
@@ -211,7 +198,6 @@ function toolchain(build_dir, lib_dir)
 		libdirs {
 			lib_dir .. "../.build/android-arm/bin",
 			"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
-			"$(PHYSX_SDK_ANDROID)/Lib/android9_neon",
 		}
 		includedirs {
 			"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include",
@@ -223,7 +209,6 @@ function toolchain(build_dir, lib_dir)
 			"-mfloat-abi=softfp",
 			"-mfpu=neon",
 			"-Wunused-value",
-			-- "-Wundef", -- note: avoids PhysX warnings
 		}
 		linkoptions {
 			"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm",
@@ -261,7 +246,6 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "win32" .. "/bin")
 		objdir (build_dir .. "win32" .. "/obj")
 		libdirs {
-			"$(PHYSX_SDK_WINDOWS)/Lib/win32",
 			"$(DXSDK_DIR)/Lib/x86",
 		}
 
@@ -269,7 +253,6 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "win64" .. "/bin")
 		objdir (build_dir .. "win64" .. "/obj")
 		libdirs {
-			"$(PHYSX_SDK_WINDOWS)/Lib/win64",
 			"$(DXSDK_DIR)/Lib/x64",
 		}
 
