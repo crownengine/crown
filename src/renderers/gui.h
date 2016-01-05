@@ -7,7 +7,7 @@
 
 #include "math_types.h"
 #include "color4.h"
-#include "render_world_types.h"
+#include "graphics_types.h"
 #include "material.h"
 #include <bgfx/bgfx.h>
 

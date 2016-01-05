@@ -27,6 +27,7 @@
 #include "input_device.h"
 #include "sjson.h"
 #include "map.h"
+#include "vector3.h"
 
 #if CROWN_PLATFORM_ANDROID
 	#include "apk_filesystem.h"
