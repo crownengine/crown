@@ -106,6 +106,18 @@ function crown_project(_name, _kind, _defines)
 				"NDEBUG"
 			}
 
+		configuration { "android*" }
+			kind "ConsoleApp"
+			targetextension ".so"
+			linkoptions {
+				"-shared"
+			}
+			links {
+				"EGL",
+				"GLESv2",
+				"OpenSLES",
+			}
+
 		configuration { "linux-*" }
 			links {
 				"X11",
@@ -115,8 +127,15 @@ function crown_project(_name, _kind, _defines)
 				"dl",
 			}
 
+		configuration { "vs*" }
+			links {
+				"OpenGL32",
+				"dbghelp",
+				"xinput",
+			}
+
 		-- PhysX
-		local function physxincludedirs(prefix)
+		local function includedirs_physx(prefix)
 			includedirs {
 				prefix .. "Include",
 				prefix .. "Include/common",
@@ -138,14 +157,69 @@ function crown_project(_name, _kind, _defines)
 			}
 		end
 
+		local function links_physx(config, os, platform)
+			if os == "linux" then
+				if config == "CHECKED" or config == "PROFILE" then
+					linkoptions {
+						"-rdynamic",
+					}
+				end
+
+				linkoptions {
+					"-Wl,--start-group $(addprefix -l," ..
+					"	PhysX3"                   .. config .. "_" .. platform ..
+					"	PhysX3Common"             .. config .. "_" .. platform ..
+					"	PhysX3Cooking"            .. config .. "_" .. platform ..
+					"	PhysX3CharacterKinematic" .. config .. "_" .. platform ..
+					"	PhysX3Extensions"         .. config ..
+					"	PhysX3Vehicle"            .. config ..
+					"	PhysXProfileSDK"          .. config ..
+					"	PhysXVisualDebuggerSDK"   .. config ..
+					"	PxTask"                   .. config ..
+					") -Wl,--end-group"
+				}
+			end
+
+			if os == "android" then
+				linkoptions {
+					"-Wl,--start-group $(addprefix -l," ..
+					"	LowLevelCloth"            .. config ..
+					"	PhysX3 "                  .. config ..
+					"	PhysX3Common"             .. config ..
+					"	PxTask"                   .. config ..
+					"	LowLevel"                 .. config ..
+					"	PhysX3CharacterKinematic" .. config ..
+					"	PhysX3Cooking"            .. config ..
+					"	PhysX3Extensions"         .. config ..
+					"	PhysX3Vehicle"            .. config ..
+					"	PhysXProfileSDK"          .. config ..
+					"	PhysXVisualDebuggerSDK"   .. config ..
+					"	PvdRuntime"               .. config ..
+					"	SceneQuery"               .. config ..
+					"	SimulationController"     .. config ..
+					") -Wl,--end-group"
+				}
+			end
+
+			if os == "windows" then
+				links {
+					"PhysX3CharacterKinematic" .. config .. "_" .. platform,
+					"PhysX3"                   .. config .. "_" .. platform,
+					"PhysX3Common"             .. config .. "_" .. platform,
+					"PhysX3Cooking"            .. config .. "_" .. platform,
+					"PhysX3Extensions",
+				}
+			end
+		end
+
 		configuration { "android*" }
-			physxincludedirs("$(PHYSX_SDK_ANDROID)/")
+			includedirs_physx("$(PHYSX_SDK_ANDROID)/")
 
 		configuration { "linux*" }
-			physxincludedirs("$(PHYSX_SDK_LINUX)/")
+			includedirs_physx("$(PHYSX_SDK_LINUX)/")
 
 		configuration { "vs*" }
-			physxincludedirs("$(PHYSX_SDK_WINDOWS)/")
+			includedirs_physx("$(PHYSX_SDK_WINDOWS)/")
 
 		configuration { "android-arm" }
 			libdirs {
@@ -174,122 +248,50 @@ function crown_project(_name, _kind, _defines)
 				"$(PHYSX_SDK_WINDOWS)/Lib/win64",
 			}
 
-		local function physxlibs_linux(config, platform)
-			if config == "CHECKED" or config == "PROFILE" then
-				linkoptions {
-					"-rdynamic",
-				}
-			end
-
-			linkoptions {
-				"-Wl,--start-group $(addprefix -l," ..
-				"	PhysX3"                   .. config .. "_" .. platform ..
-				"	PhysX3Common"             .. config .. "_" .. platform ..
-				"	PhysX3Cooking"            .. config .. "_" .. platform ..
-				"	PhysX3CharacterKinematic" .. config .. "_" .. platform ..
-				"	PhysX3Extensions"         .. config ..
-				"	PhysX3Vehicle"            .. config ..
-				"	PhysXProfileSDK"          .. config ..
-				"	PhysXVisualDebuggerSDK"   .. config ..
-				"	PxTask"                   .. config ..
-				") -Wl,--end-group"
-			}
-		end
-
 		configuration { "x32", "debug", "linux-*" }
-			physxlibs_linux("CHECKED", "x86")
+			links_physx("CHECKED", "linux", "x86")
 
 		configuration { "x64", "debug", "linux-*" }
-			physxlibs_linux("CHECKED", "x64")
+			links_physx("CHECKED", "linux", "x64")
 
 		configuration { "x32", "development", "linux-*" }
-			physxlibs_linux("PROFILE", "x86")
+			links_physx("PROFILE", "linux", "x86")
 
 		configuration { "x64", "development", "linux-*" }
-			physxlibs_linux("PROFILE", "x64")
+			links_physx("PROFILE", "linux", "x64")
 
 		configuration { "x32", "release", "linux-*" }
-			physxlibs_linux("", "x86")
+			links_physx("", "linux", "x86")
 
 		configuration { "x64", "release", "linux-*" }
-			physxlibs_linux("", "x64")
-
-		configuration { "android*" }
-			kind "ConsoleApp"
-			targetextension ".so"
-			linkoptions {
-				"-shared"
-			}
-			links {
-				"EGL",
-				"GLESv2",
-				"OpenSLES",
-			}
-
-		local function physxlibs_android(config)
-			linkoptions {
-				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelCloth"            .. config ..
-				"	PhysX3 "                  .. config ..
-				"	PhysX3Common"             .. config ..
-				"	PxTask"                   .. config ..
-				"	LowLevel"                 .. config ..
-				"	PhysX3CharacterKinematic" .. config ..
-				"	PhysX3Cooking"            .. config ..
-				"	PhysX3Extensions"         .. config ..
-				"	PhysX3Vehicle"            .. config ..
-				"	PhysXProfileSDK"          .. config ..
-				"	PhysXVisualDebuggerSDK"   .. config ..
-				"	PvdRuntime"               .. config ..
-				"	SceneQuery"               .. config ..
-				"	SimulationController"     .. config ..
-				") -Wl,--end-group"
-			}
-		end
+			links_physx("", "linux", "x64")
 
 		configuration { "debug", "android-arm" }
-			physxlibs_android("CHECKED")
+			links_physx("CHECKED", "android", "")
 
 		configuration { "development", "android-arm" }
-			physxlibs_android("PROFILE")
+			links_physx("PROFILE", "android", "")
 
 		configuration { "release", "android-arm" }
-			physxlibs_android("")
-
-		configuration { "vs*" }
-			links {
-				"OpenGL32",
-				"dbghelp",
-				"xinput",
-			}
-
-		local function physxlibs_vs(config, platform)
-			links {
-				"PhysX3CharacterKinematic" .. config .. "_" .. platform,
-				"PhysX3"                   .. config .. "_" .. platform,
-				"PhysX3Common"             .. config .. "_" .. platform,
-				"PhysX3Cooking"            .. config .. "_" .. platform,
-				"PhysX3Extensions",
-			}
-		end
+			links_physx("", "android", "")
 
 		configuration { "debug", "x32", "vs*"}
-			physxlibs_vs("CHECKED", "x86")
+			links_physx("CHECKED", "windows", "x86")
 
 		configuration { "debug", "x64", "vs*" }
-			physxlibs_vs("CHECKED", "x64")
+			links_physx("CHECKED", "windows", "x64")
 
 		configuration { "development", "x32", "vs*" }
-			physxlibs_vs("PROFILE", "x86")
+			links_physx("PROFILE", "windows", "x86")
 
 		configuration { "development", "x64", "vs*" }
-			physxlibs_vs("PROFILE", "x64")
+			links_physx("PROFILE", "windows", "x64")
 
 		configuration { "release", "x32", "vs*" }
-			physxlibs_vs("", "x86")
+			links_physx("", "windows", "x86")
 
 		configuration { "release", "x64", "vs*" }
-			physxlibs_vs("", "x64")
+			links_physx("", "windows", "x64")
 
 		configuration {}
 
