@@ -5,15 +5,11 @@
 
 #pragma once
 
-#include "types.h"
-#include "math_types.h"
-#include "matrix4x4.h"
-#include "memory_types.h"
-#include "world_types.h"
 #include "container_types.h"
-#include "matrix3x3.h"
-#include "matrix4x4.h"
-#include "vector3.h"
+#include "math_types.h"
+#include "memory_types.h"
+#include "types.h"
+#include "world_types.h"
 
 namespace crown
 {
@@ -101,18 +97,7 @@ private:
 
 	struct Pose
 	{
-		Pose& operator=(const Matrix4x4& m)
-		{
-			Matrix3x3 rotm = to_matrix3x3(m);
-			normalize(rotm.x);
-			normalize(rotm.y);
-			normalize(rotm.z);
-
-			position = translation(m);
-			rotation = rotm;
-			scale = crown::scale(m);
-			return *this;
-		}
+		Pose& operator=(const Matrix4x4& m);
 
 		Vector3 position;
 		Matrix3x3 rotation;

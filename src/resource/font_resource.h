@@ -26,10 +26,10 @@ struct FontResource
 struct FontGlyphData
 {
 	uint32_t id;
-	uint32_t x;
-	uint32_t y;
-	uint32_t width;
-	uint32_t height;
+	float x;
+	float y;
+	float width;
+	float height;
 	float x_offset;
 	float y_offset;
 	float x_advance;
