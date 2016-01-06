@@ -284,4 +284,17 @@ void SceneGraph::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
+SceneGraph::Pose& SceneGraph::Pose::operator=(const Matrix4x4& m)
+{
+	Matrix3x3 rotm = to_matrix3x3(m);
+	normalize(rotm.x);
+	normalize(rotm.y);
+	normalize(rotm.z);
+
+	position = translation(m);
+	rotation = rotm;
+	scale = crown::scale(m);
+	return *this;
+}
+
 } // namespace crown
