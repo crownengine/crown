@@ -7,6 +7,7 @@
 
 #include "types.h"
 #include "string_id.h"
+#include "math_types.h"
 
 namespace crown
 {
@@ -15,6 +16,8 @@ class ShaderManager;
 class MaterialManager;
 class RenderWorld;
 struct DebugLine;
+struct Gui;
+struct Material;
 
 struct MeshInstance
 {
