@@ -14,6 +14,7 @@ namespace crown
 class ShaderManager;
 class MaterialManager;
 class RenderWorld;
+struct DebugLine;
 
 struct MeshInstance
 {
