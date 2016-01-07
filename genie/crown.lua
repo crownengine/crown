@@ -159,12 +159,6 @@ function crown_project(_name, _kind, _defines)
 
 		local function links_physx(config, os, platform)
 			if os == "linux" then
-				if config == "CHECKED" or config == "PROFILE" then
-					linkoptions {
-						"-rdynamic",
-					}
-				end
-
 				linkoptions {
 					"-Wl,--start-group $(addprefix -l," ..
 					"	PhysX3"                   .. config .. "_" .. platform ..
