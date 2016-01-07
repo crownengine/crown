@@ -5,25 +5,16 @@
 
 #pragma once
 
-#include "camera.h"
-#include "id_array.h"
-#include "linear_allocator.h"
-#include "physics_types.h"
-#include "physics_world.h"
-#include "pool_allocator.h"
-#include "render_world.h"
-#include "render_world_types.h"
-#include "types.h"
-#include "unit.h"
-#include "vector.h"
-#include "world_types.h"
-#include "sound_world.h"
+#include "audio_types.h"
 #include "event_stream.h"
-#include "sprite_animation_player.h"
-#include "resource_types.h"
-#include "quaternion.h"
+#include "graphics_types.h"
 #include "lua_types.h"
+#include "math_types.h"
+#include "physics_types.h"
+#include "resource_types.h"
 #include "string_id.h"
+#include "types.h"
+#include "world_types.h"
 
 namespace crown
 {
@@ -37,18 +28,19 @@ class World
 {
 public:
 
-	World(ResourceManager& rm, LuaEnvironment& env);
+	World(Allocator& a, ResourceManager& rm, LuaEnvironment& env, MaterialManager& mm, UnitManager& um);
 	~World();
 
+	UnitId spawn_unit(const UnitResource& ur, const Vector3& position = VECTOR3_ZERO, const Quaternion& rotation = QUATERNION_IDENTITY);
+
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
-	UnitId spawn_unit(const UnitResource* ur, const Vector3& position = VECTOR3_ZERO, const Quaternion& rotation = QUATERNION_IDENTITY);
 	UnitId spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot);
+
+	/// Spawns a new empty unit with the given @a id.
+	void spawn_empty_unit(UnitId id);
 
 	/// Destroys the unit with the given @a id.
 	void destroy_unit(UnitId id);
-
-	/// Reloads all the units with the associated resource @a old_ur.
-	void reload_units(UnitResource* old_ur, UnitResource* new_ur);
 
 	/// Returns the number of units in the world.
 	uint32_t num_units() const;
@@ -56,18 +48,62 @@ public:
 	/// Returns all the the units in the world.
 	void units(Array<UnitId>& units) const;
 
-	/// Links the unit @a child to the @a node of the unit @a parent.
-	/// After this call, @a child will follow the @a parent unit.
-	void link_unit(UnitId child, UnitId parent);
+	/// Creates a new camera.
+	CameraInstance create_camera(UnitId id, const CameraDesc& cd);
 
-	/// Unlinks the unit @a id from its parent if it has any.
-	void unlink_unit(UnitId id);
+	/// Destroys the camera @a id.
+	void destroy_camera(CameraInstance i);
 
-	/// Returns the unit @a id.
-	Unit* get_unit(UnitId id);
+	/// Returns the camera owned by unit @a id.
+	CameraInstance camera(UnitId id);
 
-	/// Returns the camera @a id.
-	Camera* get_camera(CameraId id);
+	/// Sets the projection type of the camera.
+	void set_camera_projection_type(CameraInstance i, ProjectionType::Enum type);
+
+	/// Returns the projection type of the camera.
+	ProjectionType::Enum camera_projection_type(CameraInstance i) const;
+
+	/// Returns the projection matrix of the camera.
+	const Matrix4x4& camera_projection_matrix(CameraInstance i) const;
+
+	/// Returns the view matrix of the camera.
+	Matrix4x4 camera_view_matrix(CameraInstance i) const;
+
+	/// Returns the field-of-view of the camera in degrees.
+	float camera_fov(CameraInstance i) const;
+
+	/// Sets the field-of-view of the camera in degrees.
+	void set_camera_fov(CameraInstance i, float fov);
+
+	/// Returns the aspect ratio of the camera. (Perspective projection only.)
+	float camera_aspect(CameraInstance i) const;
+
+	/// Sets the aspect ratio of the camera. (Perspective projection only.)
+	void set_camera_aspect(CameraInstance i, float aspect);
+
+	/// Returns the near clip distance of the camera.
+	float camera_near_clip_distance(CameraInstance i) const;
+
+	/// Sets the near clip distance of the camera.
+	void set_camera_near_clip_distance(CameraInstance i, float near);
+
+	/// Returns the far clip distance of the camera.
+	float camera_far_clip_distance(CameraInstance i) const;
+
+	/// Sets the far clip distance of the camera.
+	void set_camera_far_clip_distance(CameraInstance i, float far);
+
+	/// Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
+	void set_camera_orthographic_metrics(CameraInstance i, float left, float right, float bottom, float top);
+
+	/// Sets the coordinates for the camera viewport in pixels.
+	void set_camera_viewport_metrics(CameraInstance i, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+
+	/// Returns @a pos from screen-space to world-space coordinates.
+	Vector3 camera_screen_to_world(CameraInstance i, const Vector3& pos);
+
+	/// Returns @a pos from world-space to screen-space coordinates.
+	Vector3 camera_world_to_screen(CameraInstance i, const Vector3& pos);
 
 	/// Update all animations with @a dt.
 	void update_animations(float dt);
@@ -78,17 +114,13 @@ public:
 	/// Updates all units and sub-systems with the given @a dt delta time.
 	void update(float dt);
 
-	/// Renders the world form the point of view of the given @a camera.
-	void render(Camera* camera);
+	/// Renders the world form the point of view of camera @a i.
+	void render(CameraInstance i);
 
-	CameraId create_camera(SceneGraph& sg, UnitId id, ProjectionType::Enum type, float near, float far);
-
-	/// Destroys the camera @a id.
-	void destroy_camera(CameraId id);
+	SoundInstanceId play_sound(const SoundResource& sr, bool loop = false, float volume = 1.0f, const Vector3& position = VECTOR3_ZERO, float range = 50.0f);
 
 	/// Plays the sound with the given @a name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
-	SoundInstanceId play_sound(const SoundResource* sr, bool loop = false, float volume = 1.0f, const Vector3& position = VECTOR3_ZERO, float range = 50.0f);
 	SoundInstanceId play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range);
 
 	/// Stops the sound with the given @a id.
@@ -96,7 +128,7 @@ public:
 
 	/// Links the sound @a id to the @a node of the given @a unit.
 	/// After this call, the sound @a id will follow the unit @a unit.
-	void link_sound(SoundInstanceId id, Unit* unit, int32_t node);
+	void link_sound(SoundInstanceId id, UnitId unit, int32_t node);
 
 	/// Sets the @a pose of the listener.
 	void set_listener_pose(const Matrix4x4& pose);
@@ -110,15 +142,6 @@ public:
 	/// Sets the @a volume of the sound @a id.
 	void set_sound_volume(SoundInstanceId id, float volume);
 
-	/// Creates a new window-space Gui of size @a width and @a height.
-	GuiId create_window_gui(uint16_t width, uint16_t height, const char* material);
-
-	/// Destroys the gui with the given @a id.
-	void destroy_gui(GuiId id);
-
-	/// Returns the gui @a id.
-	Gui* get_gui(GuiId id);
-
 	/// Creates a new DebugLine. @a depth_test controls whether to
 	/// enable depth test when rendering the lines.
 	DebugLine* create_debug_line(bool depth_test);
@@ -127,10 +150,14 @@ public:
 	void destroy_debug_line(DebugLine& line);
 
 	/// Loads the level @a name into the world.
-	void load_level(const LevelResource* lr);
-	void load_level(StringId64 name);
+	Level* load_level(const LevelResource& lr, const Vector3& pos, const Quaternion& rot);
+	Level* load_level(StringId64 name, const Vector3& pos, const Quaternion& rot);
 
-	SpriteAnimationPlayer* sprite_animation_player();
+	/// Returns the events.
+	EventStream& events();
+
+	/// Returns the scene graph.
+	SceneGraph* scene_graph();
 
 	/// Returns the rendering sub-world.
 	RenderWorld* render_world();
@@ -141,32 +168,66 @@ public:
 	/// Returns the sound sub-world.
 	SoundWorld* sound_world();
 
+public:
+
+	enum { MARKER = 0xfb6ce2d3 };
+
 private:
+
+	CameraInstance make_camera_instance(uint32_t i) { CameraInstance inst = { i }; return inst; }
 
 	void post_unit_spawned_event(UnitId id);
 	void post_unit_destroyed_event(UnitId id);
 	void post_level_loaded_event();
-	void process_physics_events();
 
 private:
 
+	struct Camera
+	{
+		UnitId unit;
+
+		ProjectionType::Enum projection_type;
+		Matrix4x4 projection;
+
+		Frustum frustum;
+		float fov;
+		float aspect;
+		float near;
+		float far;
+
+		// Orthographic projection only
+		float left;
+		float right;
+		float bottom;
+		float top;
+
+		uint16_t view_x;
+		uint16_t view_y;
+		uint16_t view_width;
+		uint16_t view_height;
+
+		void update_projection_matrix();
+	};
+
+	uint32_t _marker;
+
+	Allocator* _allocator;
 	ResourceManager* _resource_manager;
 	LuaEnvironment* _lua_environment;
+	UnitManager* _unit_manager;
 
-	PoolAllocator m_unit_pool;
-	PoolAllocator m_camera_pool;
-
-	IdArray<CE_MAX_UNITS, Unit*> m_units;
-	IdArray<CE_MAX_CAMERAS, Camera*> m_cameras;
-
+	DebugLine* _lines;
 	SceneGraph* _scene_graph;
-	SpriteAnimationPlayer* _sprite_animation_player;
 	RenderWorld* _render_world;
 	PhysicsWorld* _physics_world;
 	SoundWorld* _sound_world;
 
+	Array<UnitId> _units;
+	Array<Level*> _levels;
+	Array<Camera> _camera;
+	Hash<uint32_t> _camera_map;
+
 	EventStream _events;
-	DebugLine* _lines;
 };
 
 } // namespace crown

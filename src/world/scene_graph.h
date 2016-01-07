@@ -14,11 +14,6 @@
 namespace crown
 {
 
-struct TransformInstance
-{
-	uint32_t i;
-};
-
 /// Represents a collection of nodes, possibly linked together to form a tree.
 ///
 /// @ingroup World
@@ -79,6 +74,9 @@ struct SceneGraph
 	/// After unlinking, the @child local pose is set to its previous world pose.
 	void unlink(TransformInstance child);
 
+	void clear_changed();
+	void get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses);
+
 	bool is_valid(TransformInstance i);
 
 	void set_local(TransformInstance i);
@@ -117,6 +115,7 @@ private:
 			, first_child(NULL)
 			, next_sibling(NULL)
 			, prev_sibling(NULL)
+			, changed(NULL)
 		{
 		}
 
@@ -131,6 +130,7 @@ private:
 		TransformInstance* first_child;
 		TransformInstance* next_sibling;
 		TransformInstance* prev_sibling;
+		bool* changed;
 	};
 
 	uint32_t _marker;

@@ -3,143 +3,242 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "world.h"
-#include "error.h"
-#include "resource_manager.h"
 #include "debug_line.h"
-#include "actor.h"
+#include "error.h"
+#include "hash.h"
+#include "level.h"
 #include "lua_environment.h"
-#include "level_resource.h"
-#include "memory.h"
 #include "matrix4x4.h"
-#include <new>
+#include "physics_world.h"
+#include "render_world.h"
+#include "resource_manager.h"
+#include "scene_graph.h"
+#include "sound_world.h"
+#include "temp_allocator.h"
+#include "unit_manager.h"
+#include "unit_resource.h"
+#include "vector3.h"
+#include "vector4.h"
+#include "world.h"
 
 namespace crown
 {
 
-World::World(ResourceManager& rm, LuaEnvironment& env)
-	: _resource_manager(&rm)
+World::World(Allocator& a, ResourceManager& rm, LuaEnvironment& env, MaterialManager& mm, UnitManager& um)
+	: _marker(MARKER)
+	, _allocator(&a)
+	, _resource_manager(&rm)
 	, _lua_environment(&env)
-	, m_unit_pool(default_allocator(), CE_MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
-	, m_camera_pool(default_allocator(), CE_MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
+	, _unit_manager(&um)
+	, _lines(NULL)
 	, _scene_graph(NULL)
-	, _sprite_animation_player(NULL)
 	, _render_world(NULL)
 	, _physics_world(NULL)
 	, _sound_world(NULL)
-	, _events(default_allocator())
-	, _lines(NULL)
+	, _units(a)
+	, _levels(a)
+	, _camera(a)
+	, _camera_map(a)
+	, _events(a)
 {
-	_scene_graph = CE_NEW(default_allocator(), SceneGraph)(default_allocator());
-	_sprite_animation_player = CE_NEW(default_allocator(), SpriteAnimationPlayer);
-	_render_world = CE_NEW(default_allocator(), RenderWorld);
-	_physics_world = CE_NEW(default_allocator(), PhysicsWorld)(*this);
-	_sound_world = SoundWorld::create(default_allocator());
-	_lines = create_debug_line(false);
+	_lines = create_debug_line(true);
+	_scene_graph = CE_NEW(*_allocator, SceneGraph)(*_allocator);
+	_render_world = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, mm, um);
+	_physics_world = PhysicsWorld::create(*_allocator, rm, um, *_lines);
+	_sound_world = SoundWorld::create(*_allocator);
 }
 
 World::~World()
 {
-	// Destroy all units
-	for (uint32_t i = 0; i < id_array::size(m_units); i++)
+	destroy_debug_line(*_lines);
+	SoundWorld::destroy(*_allocator, _sound_world);
+	PhysicsWorld::destroy(*_allocator, _physics_world);
+	CE_DELETE(*_allocator, _render_world);
+	CE_DELETE(*_allocator, _scene_graph);
+
+	for (uint32_t i = 0; i < array::size(_levels); ++i)
 	{
-		CE_DELETE(m_unit_pool, m_units[i]);
+		CE_DELETE(*_allocator, _levels[i]);
 	}
 
-	destroy_debug_line(*_lines);
-	SoundWorld::destroy(default_allocator(), _sound_world);
-	CE_DELETE(default_allocator(), _physics_world);
-	CE_DELETE(default_allocator(), _render_world);
-	CE_DELETE(default_allocator(), _sprite_animation_player);
-	CE_DELETE(default_allocator(), _scene_graph);
+	_marker = 0;
 }
 
-UnitId World::spawn_unit(const UnitResource* ur, const Vector3& pos, const Quaternion& rot)
+UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quaternion& rot)
 {
-	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
-	const UnitId unit_id = id_array::create(m_units, u);
-	new (u) Unit(*this, unit_id, ur, *_scene_graph, matrix4x4(rot, pos));
+	TempAllocator512 ta;
+	UnitId* unit_lookup = (UnitId*)ta.allocate(sizeof(UnitId) * ur.num_units);
 
-	post_unit_spawned_event(unit_id);
-	return unit_id;
+	for (uint32_t i = 0; i < ur.num_units; ++i)
+		unit_lookup[i] = _unit_manager->create();
+
+	// First component data
+	const char* component_data = (const char*)(&ur + 1);
+
+	for (uint32_t cc = 0; cc < ur.num_component_types; ++cc)
+	{
+		const ComponentData* component = (const ComponentData*)component_data;
+		const uint32_t* unit_index = (const uint32_t*)(component + 1);
+		const char* data = (const char*)(unit_index + component->num_instances);
+
+		if (component->type == StringId32("transform")._id)
+		{
+			const TransformDesc* td = (const TransformDesc*)data;
+			for (uint32_t i = 0; i < component->num_instances; ++i)
+			{
+				Matrix4x4 matrix = matrix4x4(rot, pos);
+				Matrix4x4 matrix_res = matrix4x4(td->rotation, td->position);
+				_scene_graph->create(unit_lookup[unit_index[i]], matrix_res*matrix);
+				++td;
+			}
+		}
+
+		if (component->type == StringId32("camera")._id)
+		{
+			const CameraDesc* cd = (const CameraDesc*)data;
+			for (uint32_t i = 0; i < component->num_instances; ++i)
+			{
+				create_camera(unit_lookup[unit_index[i]], *cd);
+				++cd;
+			}
+		}
+
+		if (component->type == StringId32("collider")._id)
+		{
+			const ShapeDesc* sd = (const ShapeDesc*)data;
+			for (uint32_t i = 0; i < component->num_instances; ++i)
+			{
+				physics_world()->create_collider(unit_lookup[unit_index[i]], sd);
+				++sd;
+			}
+		}
+
+		if (component->type == StringId32("actor")._id)
+		{
+			const ActorResource* ar = (const ActorResource*)data;
+			for (uint32_t i = 0; i < component->num_instances; ++i)
+			{
+				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
+				physics_world()->create_actor(unit_lookup[unit_index[i]], ar, tm);
+				++ar;
+			}
+		}
+
+		if (component->type == StringId32("controller")._id)
+		{
+			const ControllerDesc* cd = (const ControllerDesc*)data;
+			for (uint32_t i = 0; i < component->num_instances; ++i)
+			{
+				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
+				physics_world()->create_controller(unit_lookup[unit_index[i]], *cd, tm);
+				++cd;
+			}
+		}
+
+		if (component->type == StringId32("mesh_renderer")._id)
+		{
+			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
+			for (uint32_t i = 0; i < component->num_instances; ++i)
+			{
+				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
+				render_world()->create_mesh(unit_lookup[unit_index[i]], *mrd, tm);
+				++mrd;
+			}
+		}
+
+		if (component->type == StringId32("sprite_renderer")._id)
+		{
+			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
+			for (uint32_t i = 0; i < component->num_instances; ++i)
+			{
+				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
+				render_world()->create_sprite(unit_lookup[unit_index[i]], *srd, tm);
+				++srd;
+			}
+		}
+
+		if (component->type == StringId32("light")._id)
+		{
+			const LightDesc* ld = (const LightDesc*)data;
+			for (uint32_t i = 0; i < component->num_instances; ++i)
+			{
+				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
+				render_world()->create_light(unit_lookup[unit_index[i]], *ld, tm);
+				++ld;
+			}
+		}
+
+		component_data += component->size + sizeof(ComponentData);
+	}
+
+	array::push(_units, &unit_lookup[0], ur.num_units);
+
+	// Post events
+	for (uint32_t i = 0; i < ur.num_units; ++i)
+		post_unit_spawned_event(unit_lookup[i]);
+
+	return unit_lookup[0];
 }
 
 UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot)
 {
-	UnitResource* ur = (UnitResource*)_resource_manager->get(UNIT_TYPE, name);
-	return spawn_unit(ur, pos, rot);
+	const UnitResource* ur = (const UnitResource*)_resource_manager->get(UNIT_TYPE, name);
+	return spawn_unit(*ur, pos, rot);
+}
+
+void World::spawn_empty_unit(UnitId id)
+{
+	array::push_back(_units, id);
+	post_unit_spawned_event(id);
 }
 
 void World::destroy_unit(UnitId id)
 {
-	CE_DELETE(m_unit_pool, id_array::get(m_units, id));
-	id_array::destroy(m_units, id);
+	_unit_manager->destroy(id);
 	post_unit_destroyed_event(id);
-}
-
-void World::reload_units(UnitResource* old_ur, UnitResource* new_ur)
-{
-	for (uint32_t i = 0; i < id_array::size(m_units); i++)
-	{
-		if (m_units[i]->resource() == old_ur)
-		{
-			m_units[i]->reload(new_ur);
-		}
-	}
 }
 
 uint32_t World::num_units() const
 {
-	return id_array::size(m_units);
+	return array::size(_units);
 }
 
 void World::units(Array<UnitId>& units) const
 {
-	for (uint32_t i = 0; i < id_array::size(m_units); i++)
-	{
-		array::push_back(units, m_units[i]->id());
-	}
+	array::reserve(units, array::size(_units));
+	array::push(units, array::begin(_units), array::size(_units));
 }
 
-void World::link_unit(UnitId child, UnitId parent)
+void World::update_animations(float /*dt*/)
 {
-	TransformInstance child_ti = _scene_graph->get(child);
-	TransformInstance parent_ti = _scene_graph->get(parent);
-	_scene_graph->link(child_ti, parent_ti);
-}
-
-void World::unlink_unit(UnitId child)
-{
-	_scene_graph->unlink(_scene_graph->get(child));
-}
-
-Unit* World::get_unit(UnitId id)
-{
-	return id_array::get(m_units, id);
-}
-
-Camera* World::get_camera(CameraId id)
-{
-	return id_array::get(m_cameras, id);
-}
-
-void World::update_animations(float dt)
-{
-	_sprite_animation_player->update(dt);
 }
 
 void World::update_scene(float dt)
 {
+	TempAllocator4096 ta;
+	Array<UnitId> changed_units(ta);
+	Array<Matrix4x4> changed_world(ta);
+
+	_scene_graph->get_changed(changed_units, changed_world);
+	_scene_graph->clear_changed();
+
+	_physics_world->update_actor_world_poses(array::begin(changed_units)
+		, array::end(changed_units)
+		, array::begin(changed_world)
+		);
+
 	_physics_world->update(dt);
 
-	for (uint32_t i = 0; i < id_array::size(m_units); i++)
-	{
-		m_units[i]->update();
-	}
+	_render_world->update_transforms(array::begin(changed_units)
+		, array::end(changed_units)
+		, array::begin(changed_world)
+		);
 
 	_sound_world->update();
 
-	process_physics_events();
+	EventStream& physics_events = _physics_world->events();
+	array::clear(physics_events);
+	array::clear(_events);
 }
 
 void World::update(float dt)
@@ -148,28 +247,195 @@ void World::update(float dt)
 	update_scene(dt);
 }
 
-void World::render(Camera* camera)
+void World::render(CameraInstance i)
 {
-	_render_world->update(camera->view_matrix(), camera->projection_matrix(), camera->_view_x, camera->_view_y,
-		camera->_view_width, camera->_view_height);
+	const Camera& camera = _camera[i.i];
 
-	// _physics_world->draw_debug(*_lines);
+	_render_world->render(camera_view_matrix(i)
+		, camera.projection
+		, camera.view_x
+		, camera.view_y
+		, camera.view_width
+		, camera.view_height
+		);
+
+	_physics_world->draw_debug();
+	_render_world->draw_debug(*_lines);
+
+	_lines->submit();
+	_lines->reset();
 }
 
-CameraId World::create_camera(SceneGraph& sg, UnitId id, ProjectionType::Enum type, float near, float far)
+CameraInstance World::create_camera(UnitId id, const CameraDesc& cd)
 {
-	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, id, type, near, far);
+	Camera camera;
+	camera.unit            = id;
+	camera.projection_type = (ProjectionType::Enum)cd.type;
+	camera.fov             = cd.fov;
+	camera.near            = cd.near_range;
+	camera.far             = cd.far_range;
 
-	return id_array::create(m_cameras, camera);
+	const uint32_t last = array::size(_camera);
+	array::push_back(_camera, camera);
+
+	hash::set(_camera_map, id.encode(), last);
+	return make_camera_instance(last);
 }
 
-void World::destroy_camera(CameraId id)
+void World::destroy_camera(CameraInstance i)
 {
-	CE_DELETE(m_camera_pool, id_array::get(m_cameras, id));
-	id_array::destroy(m_cameras, id);
+	const uint32_t last = array::size(_camera) - 1;
+	const UnitId u = _camera[i.i].unit;
+	const UnitId last_u = _camera[last].unit;
+
+	_camera[i.i] = _camera[last];
+
+	hash::set(_camera_map, last_u.encode(), i.i);
+	hash::remove(_camera_map, u.encode());
 }
 
-SoundInstanceId World::play_sound(const SoundResource* sr, const bool loop, const float volume, const Vector3& pos, const float range)
+CameraInstance World::camera(UnitId id)
+{
+	return make_camera_instance(hash::get(_camera_map, id.encode(), UINT32_MAX));
+}
+
+void World::set_camera_projection_type(CameraInstance i, ProjectionType::Enum type)
+{
+	_camera[i.i].projection_type = type;
+	_camera[i.i].update_projection_matrix();
+}
+
+ProjectionType::Enum World::camera_projection_type(CameraInstance i) const
+{
+	return _camera[i.i].projection_type;
+}
+
+const Matrix4x4& World::camera_projection_matrix(CameraInstance i) const
+{
+	return _camera[i.i].projection;
+}
+
+Matrix4x4 World::camera_view_matrix(CameraInstance i) const
+{
+	const TransformInstance ti = _scene_graph->get(_camera[i.i].unit);
+	Matrix4x4 view = _scene_graph->world_pose(ti);
+	invert(view);
+	return view;
+}
+
+float World::camera_fov(CameraInstance i) const
+{
+	return _camera[i.i].fov;
+}
+
+void World::set_camera_fov(CameraInstance i, float fov)
+{
+	_camera[i.i].fov = fov;
+	_camera[i.i].update_projection_matrix();
+}
+
+float World::camera_aspect(CameraInstance i) const
+{
+	return _camera[i.i].aspect;
+}
+
+void World::set_camera_aspect(CameraInstance i, float aspect)
+{
+	_camera[i.i].aspect = aspect;
+	_camera[i.i].update_projection_matrix();
+}
+
+float World::camera_near_clip_distance(CameraInstance i) const
+{
+	return _camera[i.i].near;
+}
+
+void World::set_camera_near_clip_distance(CameraInstance i, float near)
+{
+	_camera[i.i].near = near;
+	_camera[i.i].update_projection_matrix();
+}
+
+float World::camera_far_clip_distance(CameraInstance i) const
+{
+	return _camera[i.i].far;
+}
+
+void World::set_camera_far_clip_distance(CameraInstance i, float far)
+{
+	_camera[i.i].far = far;
+	_camera[i.i].update_projection_matrix();
+}
+
+void World::set_camera_orthographic_metrics(CameraInstance i, float left, float right, float bottom, float top)
+{
+	_camera[i.i].left = left;
+	_camera[i.i].right = right;
+	_camera[i.i].bottom = bottom;
+	_camera[i.i].top = top;
+
+	_camera[i.i].update_projection_matrix();
+}
+
+void World::set_camera_viewport_metrics(CameraInstance i, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+	_camera[i.i].view_x = x;
+	_camera[i.i].view_y = y;
+	_camera[i.i].view_width = width;
+	_camera[i.i].view_height = height;
+}
+
+Vector3 World::camera_screen_to_world(CameraInstance i, const Vector3& pos)
+{
+	const Camera& c = _camera[i.i];
+
+	const TransformInstance ti = _scene_graph->get(_camera[i.i].unit);
+	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
+	invert(world_inv);
+	Matrix4x4 mvp = world_inv * c.projection;
+	invert(mvp);
+
+	Vector4 ndc;
+	ndc.x = (2.0f * (pos.x - 0.0f)) / c.view_width - 1.0f;
+	ndc.y = (2.0f * (c.view_height - pos.y)) / c.view_height - 1.0f;
+	ndc.z = (2.0f * pos.z) - 1.0f;
+	ndc.w = 1.0f;
+
+	Vector4 tmp = ndc * mvp;
+	tmp *= 1.0f / tmp.w;
+
+	return vector3(tmp.x, tmp.y, tmp.z);
+}
+
+Vector3 World::camera_world_to_screen(CameraInstance i, const Vector3& pos)
+{
+	const Camera& c = _camera[i.i];
+
+	const TransformInstance ti = _scene_graph->get(_camera[i.i].unit);
+	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
+	invert(world_inv);
+
+	Vector4 xyzw;
+	xyzw.x = pos.x;
+	xyzw.y = pos.y;
+	xyzw.z = pos.z;
+	xyzw.w = 1.0f;
+
+	Vector4 clip = xyzw * (world_inv * c.projection);
+
+	Vector4 ndc;
+	ndc.x = clip.x / clip.w;
+	ndc.y = clip.y / clip.w;
+
+	Vector3 screen;
+	screen.x = (c.view_x + c.view_width  * (ndc.x + 1.0f)) / 2.0f;
+	screen.y = (c.view_y + c.view_height * (1.0f - ndc.y)) / 2.0f;
+	screen.z = 0.0f;
+
+	return screen;
+}
+
+SoundInstanceId World::play_sound(const SoundResource& sr, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	return _sound_world->play(sr, loop, volume, pos);
 }
@@ -177,7 +443,7 @@ SoundInstanceId World::play_sound(const SoundResource* sr, const bool loop, cons
 SoundInstanceId World::play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	const SoundResource* sr = (const SoundResource*)_resource_manager->get(SOUND_TYPE, name);
-	return play_sound(sr, loop, volume, pos, range);
+	return play_sound(*sr, loop, volume, pos, range);
 }
 
 void World::stop_sound(SoundInstanceId id)
@@ -185,8 +451,9 @@ void World::stop_sound(SoundInstanceId id)
 	_sound_world->stop(id);
 }
 
-void World::link_sound(SoundInstanceId id, Unit* unit, int32_t node)
+void World::link_sound(SoundInstanceId /*id*/, UnitId /*unit*/, int32_t /*node*/)
 {
+	CE_ASSERT(false, "Not implemented yet");
 }
 
 void World::set_listener_pose(const Matrix4x4& pose)
@@ -209,61 +476,40 @@ void World::set_sound_volume(SoundInstanceId id, float vol)
 	_sound_world->set_sound_volumes(1, &id, &vol);
 }
 
-GuiId World::create_window_gui(uint16_t width, uint16_t height, const char* material)
-{
-	return _render_world->create_gui(width, height, material);
-}
-
-void World::destroy_gui(GuiId id)
-{
-	_render_world->destroy_gui(id);
-}
-
-Gui* World::get_gui(GuiId id)
-{
-	return _render_world->get_gui(id);
-}
-
 DebugLine* World::create_debug_line(bool depth_test)
 {
-	return CE_NEW(default_allocator(), DebugLine)(depth_test);
+	return CE_NEW(*_allocator, DebugLine)(depth_test);
 }
 
 void World::destroy_debug_line(DebugLine& line)
 {
-	CE_DELETE(default_allocator(), &line);
+	CE_DELETE(*_allocator, &line);
 }
 
-void World::load_level(const LevelResource* lr)
+Level* World::load_level(const LevelResource& lr, const Vector3& pos, const Quaternion& rot)
 {
-	using namespace level_resource;
+	Level* level = CE_NEW(*_allocator, Level)(*_allocator, *this, lr);
+	level->load(pos, rot);
 
-	uint32_t num = level_resource::num_units(lr);
-	for (uint32_t i = 0; i < num; i++)
-	{
-		const LevelUnit* lu = level_resource::get_unit(lr, i);
-		spawn_unit(lu->name, lu->position, lu->rotation);
-	}
-
-	num = level_resource::num_sounds(lr);
-	for (uint32_t i = 0; i < num; i++)
-	{
-		const LevelSound* ls = level_resource::get_sound(lr, i);
-		play_sound(ls->name, ls->loop, ls->volume, ls->position, ls->range);
-	}
-
+	array::push_back(_levels, level);
 	post_level_loaded_event();
+	return level;
 }
 
-void World::load_level(StringId64 name)
+Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& rot)
 {
-	const LevelResource* lr = (LevelResource*) _resource_manager->get(LEVEL_TYPE, name);
-	load_level(lr);
+	const LevelResource* lr = (LevelResource*)_resource_manager->get(LEVEL_TYPE, name);
+	return load_level(*lr, pos, rot);
 }
 
-SpriteAnimationPlayer* World::sprite_animation_player()
+EventStream& World::events()
 {
-	return _sprite_animation_player;
+	return _events;
+}
+
+SceneGraph* World::scene_graph()
+{
+	return _scene_graph;
 }
 
 RenderWorld* World::render_world()
@@ -301,74 +547,38 @@ void World::post_level_loaded_event()
 	event_stream::write(_events, EventType::LEVEL_LOADED, ev);
 }
 
-void World::process_physics_events()
+void World::Camera::update_projection_matrix()
 {
-	EventStream& events = _physics_world->events();
-
-	// Read all events
-	const char* ee = array::begin(events);
-	while (ee != array::end(events))
+	switch (projection_type)
 	{
-		event_stream::Header h = *(event_stream::Header*) ee;
-
-		// CE_LOGD("=== PHYSICS EVENT ===");
-		// CE_LOGD("type = %d", h.type);
-		// CE_LOGD("size = %d", h.size);
-
-		const char* event = ee + sizeof(event_stream::Header);
-
-		switch (h.type)
+		case ProjectionType::ORTHOGRAPHIC:
 		{
-			case physics_world::EventType::COLLISION:
-			{
-				physics_world::CollisionEvent coll_ev = *(physics_world::CollisionEvent*) event;
-
-				// CE_LOGD("type    = %s", coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH ? "begin" : "end");
-				// CE_LOGD("actor_0 = (%p)", coll_ev.actors[0]);
-				// CE_LOGD("actor_1 = (%p)", coll_ev.actors[1]);
-				// CE_LOGD("unit_0  = (%p)", coll_ev.actors[0]->unit());
-				// CE_LOGD("unit_1  = (%p)", coll_ev.actors[1]->unit());
-				// CE_LOGD("where   = (%f %f %f)", coll_ev.where.x, coll_ev.where.y, coll_ev.where.z);
-				// CE_LOGD("normal  = (%f %f %f)", coll_ev.normal.x, coll_ev.normal.y, coll_ev.normal.z);
-
-				_lua_environment->call_physics_callback(
-					coll_ev.actors[0],
-					coll_ev.actors[1],
-					(id_array::has(m_units, coll_ev.actors[0]->unit_id())) ? coll_ev.actors[0]->unit() : NULL,
-					(id_array::has(m_units, coll_ev.actors[1]->unit_id())) ? coll_ev.actors[1]->unit() : NULL,
-					coll_ev.where,
-					coll_ev.normal,
-					(coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH) ? "begin" : "end");
-				break;
-			}
-			case physics_world::EventType::TRIGGER:
-			{
-				physics_world::TriggerEvent trigg_ev = *(physics_world::TriggerEvent*) event;
-
-				// CE_LOGD("type    = %s", trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end");
-				// CE_LOGD("trigger = (%p)", trigg_ev.trigger);
-				// CE_LOGD("other   = (%p)", trigg_ev.other);
-
-				_lua_environment->call_trigger_callback(
-					trigg_ev.trigger,
-					trigg_ev.other,
-					(trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end"));
-				break;
-			}
-			default:
-			{
-				CE_FATAL("Unknown Physics event");
-				break;
-			}
+			orthographic(projection
+				, left
+				, right
+				, bottom
+				, top
+				, near
+				, far
+				);
+			break;
 		}
-
-		// CE_LOGD("=====================");
-
-		// Next event
-		ee += sizeof(event_stream::Header) + h.size;
+		case ProjectionType::PERSPECTIVE:
+		{
+			perspective(projection
+				, fov
+				, aspect
+				, near
+				, far
+				);
+			break;
+		}
+		default:
+		{
+			CE_FATAL("Oops, unknown projection type");
+			break;
+		}
 	}
-
-	array::clear(events);
 }
 
 } // namespace crown

@@ -45,7 +45,9 @@ void SceneGraph::allocate(uint32_t num)
 		+ sizeof(UnitId)
 		+ sizeof(Matrix4x4)
 		+ sizeof(Pose)
-		+ sizeof(TransformInstance) * 4);
+		+ sizeof(TransformInstance) * 4
+		+ sizeof(bool)
+		);
 
 	InstanceData new_data;
 	new_data.size = _data.size;
@@ -59,6 +61,7 @@ void SceneGraph::allocate(uint32_t num)
 	new_data.first_child = (TransformInstance*)(new_data.parent + num);
 	new_data.next_sibling = (TransformInstance*)(new_data.first_child + num);
 	new_data.prev_sibling = (TransformInstance*)(new_data.next_sibling + num);
+	new_data.changed = (bool*)(new_data.prev_sibling + num);
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
@@ -67,6 +70,7 @@ void SceneGraph::allocate(uint32_t num)
 	memcpy(new_data.first_child, _data.first_child, _data.size * sizeof(TransformInstance));
 	memcpy(new_data.next_sibling, _data.next_sibling, _data.size * sizeof(TransformInstance));
 	memcpy(new_data.prev_sibling, _data.prev_sibling, _data.size * sizeof(TransformInstance));
+	memcpy(new_data.changed, _data.changed, _data.size * sizeof(bool));
 
 	_allocator.deallocate(_data.buffer);
 	_data = new_data;
@@ -88,6 +92,7 @@ TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& m)
 	_data.first_child[last].i = UINT32_MAX;
 	_data.next_sibling[last].i = UINT32_MAX;
 	_data.prev_sibling[last].i = UINT32_MAX;
+	_data.changed[last] = false;
 
 	++_data.size;
 
@@ -109,6 +114,7 @@ void SceneGraph::destroy(TransformInstance i)
 	_data.first_child[i.i] = _data.first_child[last];
 	_data.next_sibling[i.i] = _data.next_sibling[last];
 	_data.prev_sibling[i.i] = _data.prev_sibling[last];
+	_data.changed[i.i] = _data.changed[last];
 
 	hash::set(_map, last_u.encode(), i.i);
 	hash::remove(_map, u.encode());
@@ -259,6 +265,26 @@ void SceneGraph::unlink(TransformInstance child)
 	_data.prev_sibling[child.i].i = UINT32_MAX;
 }
 
+void SceneGraph::clear_changed()
+{
+	for (uint32_t i = 0; i < _data.size; ++i)
+	{
+		_data.changed[i] = false;
+	}
+}
+
+void SceneGraph::get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses)
+{
+	for (uint32_t i = 0; i < _data.size; ++i)
+	{
+		if (_data.changed[i])
+		{
+			array::push_back(units, _data.unit[i]);
+			array::push_back(world_poses, _data.world[i]);
+		}
+	}
+}
+
 bool SceneGraph::is_valid(TransformInstance i)
 {
 	return i.i != UINT32_MAX;
@@ -269,6 +295,8 @@ void SceneGraph::set_local(TransformInstance i)
 	TransformInstance parent = _data.parent[i.i];
 	Matrix4x4 parent_tm = is_valid(parent) ? _data.world[parent.i] : MATRIX4X4_IDENTITY;
 	transform(parent_tm, i);
+
+	_data.changed[i.i] = true;
 }
 
 void SceneGraph::transform(const Matrix4x4& parent, TransformInstance i)

@@ -5,13 +5,13 @@
 
 
 #include "config.h"
-#include "error.h"
-#include "lua_environment.h"
-#include "lua_stack.h"
-#include "lua_resource.h"
 #include "device.h"
-#include "resource_manager.h"
+#include "error.h"
 #include "log.h"
+#include "lua_environment.h"
+#include "lua_resource.h"
+#include "lua_stack.h"
+#include "resource_manager.h"
 #include <stdarg.h>
 
 namespace crown
@@ -33,6 +33,7 @@ extern void load_window(LuaEnvironment& env);
 extern void load_world(LuaEnvironment& env);
 extern void load_material(LuaEnvironment& env);
 extern void load_input(LuaEnvironment& env);
+extern void load_render_world(LuaEnvironment& env);
 
 // When an error occurs, logs the error message and pauses the engine.
 static int error_handler(lua_State* L)
@@ -103,14 +104,11 @@ void LuaEnvironment::load_libs()
 	load_physics_world(*this);
 	load_resource_package(*this);
 	load_sound_world(*this);
-	load_raycast(*this);
-	load_resource_package(*this);
-	load_sound_world(*this);
-	load_sprite(*this);
 	load_window(*this);
 	load_world(*this);
 	load_material(*this);
 	load_input(*this);
+	load_render_world(*this);
 
 	// Register custom loader
 	lua_getfield(L, LUA_GLOBALSINDEX, "package");

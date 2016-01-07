@@ -3,9 +3,20 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "lua_stack.h"
-#include "lua_environment.h"
+#include "debug_line.h"
 #include "device.h"
+#include "gui.h"
+#include "level.h"
+#include "lua_environment.h"
+#include "lua_stack.h"
+#include "physics_world.h"
+#include "render_world.h"
+#include "resource_package.h"
+#include "scene_graph.h"
+#include "sound_world.h"
+#include "vector2.h"
+#include "vector3.h"
+#include "world.h"
 
 namespace crown
 {
@@ -97,6 +108,53 @@ void LuaStack::push_quaternion(const Quaternion& q)
 void LuaStack::push_matrix4x4(const Matrix4x4& m)
 {
 	lua_pushlightuserdata(L, device()->lua_environment()->next_matrix4x4(m));
+}
+
+void LuaStack::push_color4(const Color4& c)
+{
+	// Color4 represented as Quaternion
+	Quaternion q;
+	q.x = c.x;
+	q.y = c.y;
+	q.z = c.z;
+	q.w = c.w;
+	push_quaternion(q);
+}
+
+void LuaStack::check_type(int i, DebugLine* p)
+{
+	if (!is_pointer(i) || *(uint32_t*)p != DebugLine::MARKER)
+		luaL_typerror(L, i, "DebugLine");
+}
+
+void LuaStack::check_type(int i, ResourcePackage* p)
+{
+	if (!is_pointer(i) || *(uint32_t*)p != ResourcePackage::MARKER)
+		luaL_typerror(L, i, "ResourcePackage");
+}
+
+void LuaStack::check_type(int i, World* p)
+{
+	if (!is_pointer(i) || *(uint32_t*)p != World::MARKER)
+		luaL_typerror(L, i, "World");
+}
+
+void LuaStack::check_type(int i, SceneGraph* p)
+{
+	if (!is_pointer(i) || *(uint32_t*)p != SceneGraph::MARKER)
+		luaL_typerror(L, i, "SceneGraph");
+}
+
+void LuaStack::check_type(int i, RenderWorld* p)
+{
+	if (!is_pointer(i) || *(uint32_t*)p != RenderWorld::MARKER)
+		luaL_typerror(L, i, "RenderWorld");
+}
+
+void LuaStack::check_type(int i, Level* p)
+{
+	if (!is_pointer(i) || *(uint32_t*)p != Level::MARKER)
+		luaL_typerror(L, i, "Level");
 }
 
 } // namespace crown
