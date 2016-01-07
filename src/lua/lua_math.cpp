@@ -5,6 +5,7 @@
 
 #include "math_utils.h"
 #include "math_types.h"
+#include "vector2.h"
 #include "vector3.h"
 #include "matrix4x4.h"
 #include "quaternion.h"
