@@ -17,23 +17,7 @@
 namespace crown
 {
 
-// Lua modules
-extern void load_debug_line(LuaEnvironment& env);
-extern void load_device(LuaEnvironment& env);
-extern void load_gui(LuaEnvironment& env);
-extern void load_math(LuaEnvironment& env);
-extern void load_physics_world(LuaEnvironment& env);
-extern void load_resource_package(LuaEnvironment& env);
-extern void load_sound_world(LuaEnvironment& env);
-extern void load_raycast(LuaEnvironment& env);
-extern void load_resource_package(LuaEnvironment& env);
-extern void load_sound_world(LuaEnvironment& env);
-extern void load_sprite(LuaEnvironment& env);
-extern void load_window(LuaEnvironment& env);
-extern void load_world(LuaEnvironment& env);
-extern void load_material(LuaEnvironment& env);
-extern void load_input(LuaEnvironment& env);
-extern void load_render_world(LuaEnvironment& env);
+extern void load_api(LuaEnvironment& env);
 
 // When an error occurs, logs the error message and pauses the engine.
 static int error_handler(lua_State* L)
@@ -97,18 +81,7 @@ void LuaEnvironment::load_libs()
 	luaL_openlibs(L);
 
 	// Register crown libraries
-	load_debug_line(*this);
-	load_device(*this);
-	load_gui(*this);
-	load_math(*this);
-	load_physics_world(*this);
-	load_resource_package(*this);
-	load_sound_world(*this);
-	load_window(*this);
-	load_world(*this);
-	load_material(*this);
-	load_input(*this);
-	load_render_world(*this);
+	load_api(*this);
 
 	// Register custom loader
 	lua_getfield(L, LUA_GLOBALSINDEX, "package");
