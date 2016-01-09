@@ -149,8 +149,6 @@ function crown_project(_name, _kind, _defines)
 				prefix .. "Include/physxvisualdebuggersdk",
 				prefix .. "Include/pvd",
 				prefix .. "Include/pxtask",
-				prefix .. "Include/RepX",
-				prefix .. "Include/RepXUpgrader",
 				prefix .. "Include/vehicle",
 			}
 		end
