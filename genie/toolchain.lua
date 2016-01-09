@@ -179,7 +179,6 @@ function toolchain(build_dir, lib_dir)
 			"-ffunction-sections",
 			"-Wno-psabi", -- note: the mangling of 'va_list' has changed in GCC 4.4.0
 			"-Wunused-value",
-			-- "-Wundef", -- note: avoids PhysX warnings
 		}
 		buildoptions_cpp {
 			"-std=c++03",

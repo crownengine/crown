@@ -29,11 +29,9 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "src/renderers",
 			CROWN_DIR .. "src/resource",
 			CROWN_DIR .. "src/world",
+			CROWN_DIR .. "third/bx/include",
 			CROWN_DIR .. "third/bgfx/include",
 			CROWN_DIR .. "third/bgfx/src",
-			CROWN_DIR .. "third/bx/include",
-			CROWN_DIR .. "third/freetype",
-			CROWN_DIR .. "third/stb_image",
 			CROWN_DIR .. "third/stb_vorbis",
 		}
 
@@ -168,8 +166,8 @@ function crown_project(_name, _kind, _defines)
 				"X11",
 				"Xrandr",
 				"pthread",
-				"GL",
 				"dl",
+				"GL",
 			}
 
 		configuration { "vs*" }
@@ -196,20 +194,12 @@ function crown_project(_name, _kind, _defines)
 					prefix .. "Include/physxvisualdebuggersdk",
 					prefix .. "Include/pvd",
 					prefix .. "Include/pxtask",
-					prefix .. "Include/RepX",
-					prefix .. "Include/RepXUpgrader",
 					prefix .. "Include/vehicle",
 				}
 			end
 
 			local function links_physx(config, os, platform)
 				if os == "linux" then
-					if config == "CHECKED" or config == "PROFILE" then
-						linkoptions {
-							"-rdynamic",
-						}
-					end
-
 					linkoptions {
 						"-Wl,--start-group $(addprefix -l," ..
 						"	PhysX3"                   .. config .. "_" .. platform ..
@@ -217,10 +207,6 @@ function crown_project(_name, _kind, _defines)
 						"	PhysX3Cooking"            .. config .. "_" .. platform ..
 						"	PhysX3CharacterKinematic" .. config .. "_" .. platform ..
 						"	PhysX3Extensions"         .. config ..
-						"	PhysX3Vehicle"            .. config ..
-						"	PhysXProfileSDK"          .. config ..
-						"	PhysXVisualDebuggerSDK"   .. config ..
-						"	PxTask"                   .. config ..
 						") -Wl,--end-group"
 					}
 				end
@@ -248,10 +234,10 @@ function crown_project(_name, _kind, _defines)
 
 				if os == "windows" then
 					links {
-						"PhysX3CharacterKinematic" .. config .. "_" .. platform,
 						"PhysX3"                   .. config .. "_" .. platform,
 						"PhysX3Common"             .. config .. "_" .. platform,
 						"PhysX3Cooking"            .. config .. "_" .. platform,
+						"PhysX3CharacterKinematic" .. config .. "_" .. platform,
 						"PhysX3Extensions",
 					}
 				end
@@ -294,16 +280,16 @@ function crown_project(_name, _kind, _defines)
 				}
 
 			configuration { "x32", "debug", "linux-*" }
-				links_physx("CHECKED", "linux", "x86")
+				links_physx("DEBUG", "linux", "x86")
 
 			configuration { "x64", "debug", "linux-*" }
-				links_physx("CHECKED", "linux", "x64")
+				links_physx("DEBUG", "linux", "x64")
 
 			configuration { "x32", "development", "linux-*" }
-				links_physx("PROFILE", "linux", "x86")
+				links_physx("CHECKED", "linux", "x86")
 
 			configuration { "x64", "development", "linux-*" }
-				links_physx("PROFILE", "linux", "x64")
+				links_physx("CHECKED", "linux", "x64")
 
 			configuration { "x32", "release", "linux-*" }
 				links_physx("", "linux", "x86")
@@ -312,25 +298,25 @@ function crown_project(_name, _kind, _defines)
 				links_physx("", "linux", "x64")
 
 			configuration { "debug", "android-arm" }
-				links_physx("CHECKED", "android", "")
+				links_physx("DEBUG", "android", "")
 
 			configuration { "development", "android-arm" }
-				links_physx("PROFILE", "android", "")
+				links_physx("CHECKED", "android", "")
 
 			configuration { "release", "android-arm" }
 				links_physx("", "android", "")
 
 			configuration { "debug", "x32", "vs*"}
-				links_physx("CHECKED", "windows", "x86")
+				links_physx("DEBUG", "windows", "x86")
 
 			configuration { "debug", "x64", "vs*" }
-				links_physx("CHECKED", "windows", "x64")
+				links_physx("DEBUG", "windows", "x64")
 
 			configuration { "development", "x32", "vs*" }
-				links_physx("PROFILE", "windows", "x86")
+				links_physx("CHECKED", "windows", "x86")
 
 			configuration { "development", "x64", "vs*" }
-				links_physx("PROFILE", "windows", "x64")
+				links_physx("CHECKED", "windows", "x64")
 
 			configuration { "release", "x32", "vs*" }
 				links_physx("", "windows", "x86")
