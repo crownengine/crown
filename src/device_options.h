@@ -35,7 +35,7 @@ struct DeviceOptions
 	uint16_t window_height() const { return _window_height; }
 
 #if CROWN_PLATFORM_ANDROID
-	const AAssetManager* asset_manager() const;
+	const AAssetManager* asset_manager() const { return _asset_manager; }
 #endif // CROWN_PLATFORM_ANDROID
 
 private:
