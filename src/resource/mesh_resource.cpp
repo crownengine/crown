@@ -350,7 +350,7 @@ namespace mesh_resource
 		{
 			const uint32_t verts_num    = mr->geometries[i]->vertices.num;
 			const uint32_t verts_stride = mr->geometries[i]->vertices.stride;
-			const uint32_t verts_size   = verts_num*verts_sride;
+			const uint32_t verts_size   = verts_num*verts_stride;
 			const uint32_t inds_size    = mr->geometries[i]->indices.num*sizeof(uint16_t);
 
 			const bgfx::Memory* vbmem = bgfx::makeRef(mr->geometries[i]->vertices.data, verts_size);
