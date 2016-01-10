@@ -9,18 +9,59 @@
 #include "resource_types.h"
 #include "filesystem_types.h"
 #include "compiler_types.h"
+#include "math_types.h"
+#include "container_types.h"
+#include "array.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
 {
 
-struct MeshResource
+struct VertexData
+{
+	uint32_t num;
+	uint32_t stride;
+	char* data;
+};
+
+struct IndexData
+{
+	uint32_t num;
+	char* data;   // size = num*sizeof(uint16_t)
+};
+
+struct MeshGeometry
 {
 	bgfx::VertexDecl decl;
-	const bgfx::Memory* vbmem;
-	const bgfx::Memory* ibmem;
-	bgfx::VertexBufferHandle vb;
-	bgfx::IndexBufferHandle ib;
+	bgfx::VertexBufferHandle vertex_buffer;
+	bgfx::IndexBufferHandle index_buffer;
+	OBB obb;
+	VertexData vertices;
+	IndexData indices;
+};
+
+struct MeshResource
+{
+	Array<StringId32> geometry_names;
+	Array<MeshGeometry*> geometries;
+
+	MeshResource(Allocator& a)
+		: geometry_names(a)
+		, geometries(a)
+	{
+	}
+
+	const MeshGeometry* geometry(StringId32 name) const
+	{
+		for (uint32_t i = 0; i < array::size(geometry_names); ++i)
+		{
+			if (geometry_names[i] == name)
+				return geometries[i];
+		}
+
+		CE_ASSERT(false, "Mesh name not found");
+		return NULL;
+	}
 };
 
 namespace mesh_resource
