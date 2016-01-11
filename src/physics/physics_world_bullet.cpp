@@ -320,6 +320,7 @@ public:
 		rbinfo.m_angularDamping = actor_class->angular_damping;
 		rbinfo.m_restitution = 0.81f; // FIXME
 		rbinfo.m_friction = 0.8f; // FIXME
+		rbinfo.m_rollingFriction = 0.5f; // FIXME
 		rbinfo.m_linearSleepingThreshold = 0.01f; // FIXME
 		rbinfo.m_angularSleepingThreshold = 0.01f; // FIXME
 
@@ -800,7 +801,10 @@ public:
 				continue;
 
 			btRigidBody* body = btRigidBody::upcast(collision_array[i]);
-			if (body && body->getMotionState())
+			if (body
+				&& body->getMotionState()
+				&& body->isActive()
+				)
 			{
 				btTransform tr;
 				body->getMotionState()->getWorldTransform(tr);
@@ -812,6 +816,8 @@ public:
 
 				const uint32_t a_idx = (uint32_t)(uintptr_t)body->getUserPointer();
 				const UnitId unit_id = _actor[a_idx].unit;
+
+				post_transform_event(unit_id, pose);
 			}
 		}
 	}
@@ -933,6 +939,15 @@ private:
 		ev.other = other;
 
 		event_stream::write(_events, EventType::PHYSICS_TRIGGER, ev);
+	}
+
+	void post_transform_event(UnitId id, const Matrix4x4& world_tm)
+	{
+		PhysicsTransformEvent ev;
+		ev.unit_id = id;
+		ev.world_tm = world_tm;
+
+		event_stream::write(_events, EventType::PHYSICS_TRANSFORM, ev);
 	}
 
 	struct ColliderInstanceData

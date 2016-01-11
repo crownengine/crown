@@ -7,6 +7,7 @@
 
 #include "math_types.h"
 #include "string_id.h"
+#include "world_types.h"
 
 namespace crown
 {
@@ -236,6 +237,12 @@ struct PhysicsTriggerEvent
 	enum Type { BEGIN_TOUCH, END_TOUCH } type;
 	ActorInstance trigger;
 	ActorInstance other;
+};
+
+struct PhysicsTransformEvent
+{
+	UnitId unit_id;
+	Matrix4x4 world_tm;
 };
 
 } // namespace crown
