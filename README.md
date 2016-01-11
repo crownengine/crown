@@ -31,10 +31,6 @@ C++ API: http://taylor001.github.io/crown/doxygen/modules
 
 ![node-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/node-editor.png)
 
-##Dependencies
-
-PhysX 3.3.2+ (https://developer.nvidia.com/physx-sdk)
-
 ##Building
 
 ### Getting source
@@ -52,11 +48,6 @@ Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 
 	$ export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	$ export ANDROID_NDK_ARM=<path/to/android_ndk_arm>
-	$ export PHYSX_SDK_ANDROID=<path/to/physx_sdk>
-	
-### Prerequisites for Linux
-
-	$ export PHYSX_SDK_LINUX=<path/to/physx_sdk>
 
 ### Prerequisites for Windows
 
@@ -65,7 +56,6 @@ GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)
 GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)  
 GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
 
-	$ setx PHYSX_SDK_WINDOWS <path/to/physx_sdk>
 	$ setx DXSDK_DIR <path/to/dxsdk>
 	
 ### Building
