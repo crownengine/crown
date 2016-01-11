@@ -17,11 +17,6 @@ project "openal"
 		"_LARGE_FILES",
 	}
 
-	configuration { "development or release", "linux-*" }
-		buildoptions {
-			"-fomit-frame-pointer",
-		}
-
 	configuration { "vs*" }
 		defines {
 			"_WINDOWS",
