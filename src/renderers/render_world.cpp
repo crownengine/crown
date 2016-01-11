@@ -515,7 +515,7 @@ void RenderWorld::draw_debug(DebugLine& dl)
 	{
 		const OBB& obb = _mesh_data.obb[i];
 		const Matrix4x4& world = _mesh_data.world[i];
-		dl.add_obb(world * obb.tm, obb.half_extents, COLOR4_RED);
+		dl.add_obb(obb.tm * world, obb.half_extents, COLOR4_RED);
 	}
 
 	for (uint32_t i = 0; i < _light_data.size; ++i)
