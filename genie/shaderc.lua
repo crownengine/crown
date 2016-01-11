@@ -37,10 +37,6 @@ project "shaderc"
 		}
 
 	configuration { "mingw* or linux or osx" }
-		removebuildoptions_cpp {
-			"-std=c++03"
-		}
-
 		buildoptions {
 			"-std=c++11",
 			"-fno-strict-aliasing" -- glsl-optimizer has bugs if strict aliasing is used.

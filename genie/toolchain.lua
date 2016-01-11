@@ -143,7 +143,7 @@ function toolchain(build_dir, lib_dir)
 			"-Wno-unused-local-typedefs",
 		}
 		buildoptions_cpp {
-			"-std=c++03",
+			"-std=c++11",
 		}
 		linkoptions {
 			"-Wl,-rpath=\\$$ORIGIN",
@@ -181,7 +181,7 @@ function toolchain(build_dir, lib_dir)
 			"-Wunused-value",
 		}
 		buildoptions_cpp {
-			"-std=c++03",
+			"-std=c++11",
 		}
 		linkoptions {
 			"-no-canonical-prefixes",
