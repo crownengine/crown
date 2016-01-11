@@ -8,8 +8,7 @@ function init()
 	-- Create world and camera
 	world = Device.create_world()
 	local camera_unit = World.spawn_unit(world, "camera")
-	camera = Unit.camera(camera_unit, "camera")
-	Camera.set_orthographic_metrics(camera, 0, 0, 1280, 720)
+	camera = World.camera(world, camera_unit)
 end
 
 function update(dt)

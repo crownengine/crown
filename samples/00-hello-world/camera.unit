@@ -1,12 +1,15 @@
-cameras = {
-	camera = {
-		node = "root"
-		type = "perspective"
-		near_clip_distance = 0.01
-		far_clip_distance = 1000.0
+components = {
+	"2de2052d-8256-4627-a7db-de8764afcab4" = {
+		type = "transform"
+		position = [0 0 0]
+		rotation = [0 0 1 0]
+		scale = [1 1 1]
 	}
-}
-
-nodes = {
-	root = { parent = null position = [0 0 0] rotation = [0 0 1 0] }
+	"c3c601b0-1a96-42f1-8801-d95a75d8d184" = {
+		type = "camera"
+		projection = "perspective"
+		fov = 60.0
+		near_range = 0.01
+		far_range = 1000.0
+	}
 }
