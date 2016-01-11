@@ -5,15 +5,14 @@
 
 #pragma once
 
-#include "types.h"
-#include "resource_types.h"
-#include "memory_types.h"
+#include "audio_types.h"
 #include "math_types.h"
+#include "memory_types.h"
+#include "resource_types.h"
+#include "types.h"
 
 namespace crown
 {
-
-typedef uint32_t SoundInstanceId;
 
 /// Manages sound objects in a World.
 ///
