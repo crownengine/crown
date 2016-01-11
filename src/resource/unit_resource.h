@@ -6,65 +6,27 @@
 #pragma once
 
 #include "memory_types.h"
-#include "resource_types.h"
 #include "filesystem_types.h"
-#include "math_types.h"
 #include "compiler_types.h"
 
 namespace crown
 {
 
-// All offsets are absolute
 struct UnitResource
 {
 	uint32_t version;
-	uint32_t _pad;
-	StringId64 name;
-	StringId64 physics_resource;
-	StringId64 sprite_animation;
-	uint32_t num_renderables;
-	uint32_t renderables_offset;
-	uint32_t num_materials;
-	uint32_t materials_offset;
-	uint32_t num_cameras;
-	uint32_t cameras_offset;
-	uint32_t num_scene_graph_nodes;
-	uint32_t scene_graph_nodes_offset;
+	uint32_t num_units;
+	uint32_t num_component_types;
+//	ComponentData data[num_component_types]
 };
 
-struct UnitRenderable
+struct ComponentData
 {
-	enum Enum { MESH, SPRITE };
 	uint32_t type;
-	uint32_t _pad;
-	StringId64 resource;
-	StringId32 name;
-	int32_t node;
-	bool visible;
-	char _pad1[3];
-	char _pad2[4];
-};
-
-struct UnitMaterial
-{
-	StringId64 id;
-};
-
-struct UnitCamera
-{
-	StringId32 name;
-	int32_t node;
-	uint32_t type; // ProjectionType::Enum
-	float fov;
-	float near;
-	float far;
-};
-
-struct UnitNode
-{
-	StringId32 name;
-	Matrix4x4 pose;
-	int32_t parent;
+	uint32_t num_instances;
+	uint32_t size;
+//	uint32_t unit_index[num_instances]
+//	char data[size]
 };
 
 namespace unit_resource
@@ -72,16 +34,6 @@ namespace unit_resource
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
-
-	StringId64 sprite_animation(const UnitResource* ur);
-	StringId64 physics_resource(const UnitResource* ur);
-	uint32_t num_renderables(const UnitResource* ur);
-	const UnitRenderable* get_renderable(const UnitResource* ur, uint32_t i);
-	uint32_t num_materials(const UnitResource* ur);
-	const UnitMaterial* get_material(const UnitResource* ur, uint32_t i);
-	uint32_t num_cameras(const UnitResource* ur);
-	const UnitCamera* get_camera(const UnitResource* ur, uint32_t i);
-	uint32_t num_scene_graph_nodes(const UnitResource* ur);
-	const UnitNode* scene_graph_nodes(const UnitResource* ur);
 } // namespace unit_resource
+
 } // namespace crown

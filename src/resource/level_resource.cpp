@@ -3,12 +3,14 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "level_resource.h"
 #include "array.h"
-#include "memory.h"
-#include "json_parser.h"
-#include "filesystem.h"
 #include "compile_options.h"
+#include "filesystem.h"
+#include "level_resource.h"
+#include "map.h"
+#include "memory.h"
+#include "sjson.h"
+#include "unit_compiler.h"
 
 namespace crown
 {
@@ -17,64 +19,51 @@ namespace level_resource
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(buf, object);
 
-		Array<LevelUnit> units(default_allocator());
 		Array<LevelSound> sounds(default_allocator());
-
 		{
-			JSONElement sounds_arr = root.key("sounds");
-			const uint32_t size = sounds_arr.size();
-			for (uint32_t i = 0; i < size; i++)
+			JsonArray sounds_json(ta);
+			sjson::parse_array(object["sounds"], sounds_json);
+
+			for (uint32_t i = 0, n = array::size(sounds_json); i < n; ++i)
 			{
-				JSONElement e = sounds_arr[i];
+				JsonObject sound(ta);
+				sjson::parse_object(sounds_json[i], sound);
+
 				LevelSound ls;
-				ls.name = e.key("name").to_resource_id();
-				ls.position = e.key("position").to_vector3();
-				ls.volume = e.key("volume").to_float();
-				ls.range = e.key("range").to_float();
-				ls.loop = e.key("loop").to_bool();
+				ls.name     = sjson::parse_resource_id(sound["name"]);
+				ls.position = sjson::parse_vector3    (sound["position"]);
+				ls.volume   = sjson::parse_float      (sound["volume"]);
+				ls.range    = sjson::parse_float      (sound["range"]);
+				ls.loop     = sjson::parse_float      (sound["loop"]);
+
 				array::push_back(sounds, ls);
 			}
 		}
 
+		UnitCompiler uc(opts);
+		Array<char> unit_buffer(default_allocator());
 		{
-			JSONElement units_arr = root.key("units");
-			const uint32_t size = units_arr.size();
-			for (uint32_t i = 0; i < size; i++)
-			{
-				JSONElement e = units_arr[i];
-				LevelUnit lu;
-				lu.name = e.key("name").to_resource_id();
-				lu.position = e.key("position").to_vector3();
-				lu.rotation = e.key("rotation").to_quaternion();
-				array::push_back(units, lu);
-			}
+			uc.compile_multiple_units(object["units"]);
+			unit_buffer = uc.get();
 		}
 
+		// Write
 		LevelResource lr;
-		lr.version = LEVEL_VERSION;
-		lr.num_units = array::size(units);
-		lr.num_sounds = array::size(sounds);
-
-		uint32_t offt = sizeof(LevelResource);
-		lr.units_offset = offt; offt += sizeof(LevelUnit) * lr.num_units;
-		lr.sounds_offset = offt;
+		lr.version       = LEVEL_VERSION;
+		lr.num_sounds    = array::size(sounds);
+		lr.units_offset  = sizeof(LevelResource);
+		lr.sounds_offset = lr.units_offset + array::size(unit_buffer);
 
 		opts.write(lr.version);
-		opts.write(lr.num_units);
 		opts.write(lr.units_offset);
 		opts.write(lr.num_sounds);
 		opts.write(lr.sounds_offset);
 
-		for (uint32_t i = 0; i < array::size(units); ++i)
-		{
-			opts.write(units[i].name);
-			opts.write(units[i].position);
-			opts.write(units[i].rotation);
-			opts.write(units[i]._pad);
-		}
+		opts.write(unit_buffer);
 
 		for (uint32_t i = 0; i < array::size(sounds); ++i)
 		{
@@ -103,16 +92,9 @@ namespace level_resource
 		allocator.deallocate(resource);
 	}
 
-	uint32_t num_units(const LevelResource* lr)
+	const UnitResource* get_units(const LevelResource* lr)
 	{
-		return lr->num_units;
-	}
-
-	const LevelUnit* get_unit(const LevelResource* lr, uint32_t i)
-	{
-		CE_ASSERT(i < num_units(lr), "Index out of bounds");
-		const LevelUnit* begin = (LevelUnit*)((char*)lr + lr->units_offset);
-		return &begin[i];
+		return (const UnitResource*)((char*)lr + lr->units_offset);
 	}
 
 	uint32_t num_sounds(const LevelResource* lr)

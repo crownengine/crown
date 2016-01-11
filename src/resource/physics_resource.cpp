@@ -6,51 +6,54 @@
 #include "physics_resource.h"
 #include "physics_types.h"
 #include "filesystem.h"
-#include "json_parser.h"
 #include "string_utils.h"
 #include "dynamic_string.h"
 #include "map.h"
 #include "quaternion.h"
 #include "compile_options.h"
-#include <algorithm>
+#include "aabb.h"
+#include "sphere.h"
+#include "sjson.h"
+#include "map.h"
 
 namespace crown
 {
 namespace physics_resource
 {
-	struct Shape
+	struct ShapeInfo
 	{
 		const char* name;
 		ShapeType::Enum type;
 	};
 
-	static const Shape s_shape[ShapeType::COUNT] =
+	static const ShapeInfo s_shape[] =
 	{
 		{ "sphere",      ShapeType::SPHERE      },
 		{ "capsule",     ShapeType::CAPSULE     },
 		{ "box",         ShapeType::BOX         },
-		{ "plane",       ShapeType::PLANE       },
-		{ "convex_mesh", ShapeType::CONVEX_MESH }
+		{ "convex_hull", ShapeType::CONVEX_HULL },
+		{ "mesh",        ShapeType::MESH        },
+		{ "heightfield", ShapeType::HEIGHTFIELD }
 	};
+	CE_STATIC_ASSERT(CE_COUNTOF(s_shape) == ShapeType::COUNT);
 
-	struct Joint
+	struct JointInfo
 	{
 		const char* name;
 		JointType::Enum type;
 	};
 
-	static const Joint s_joint[JointType::COUNT] =
+	static const JointInfo s_joint[] =
 	{
-		{ "fixed",     JointType::FIXED     },
-		{ "spherical", JointType::SPHERICAL },
-		{ "revolute",  JointType::REVOLUTE  },
-		{ "prismatic", JointType::PRISMATIC },
-		{ "distance",  JointType::DISTANCE  }
+		{ "fixed",  JointType::FIXED  },
+		{ "hinge",  JointType::HINGE  },
+		{ "spring", JointType::SPRING }
 	};
+	CE_STATIC_ASSERT(CE_COUNTOF(s_joint) == JointType::COUNT);
 
 	static uint32_t shape_type_to_enum(const char* type)
 	{
-		for (uint32_t i = 0; i < ShapeType::COUNT; i++)
+		for (uint32_t i = 0; i < CE_COUNTOF(s_shape); ++i)
 		{
 			if (strcmp(type, s_shape[i].name) == 0)
 				return s_shape[i].type;
@@ -62,7 +65,7 @@ namespace physics_resource
 
 	static uint32_t joint_type_to_enum(const char* type)
 	{
-		for (uint32_t i = 0; i < JointType::COUNT; i++)
+		for (uint32_t i = 0; i < CE_COUNTOF(s_joint); ++i)
 		{
 			if (strcmp(type, s_joint[i].name) == 0)
 				return s_joint[i].type;
@@ -72,327 +75,217 @@ namespace physics_resource
 		return 0;
 	}
 
-	void parse_controller(JSONElement e, ControllerResource& controller)
+	Buffer compile_controller(const char* json, CompileOptions& opts)
 	{
-		controller.name =             e.key("name").to_string_id();
-		controller.height =           e.key("height").to_float();
-		controller.radius =           e.key("radius").to_float();
-		controller.slope_limit =      e.key("slope_limit").to_float();
-		controller.step_offset =      e.key("step_offset").to_float();
-		controller.contact_offset =   e.key("contact_offset").to_float();
-		controller.collision_filter = e.key("collision_filter").to_string_id();
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(json, obj);
+
+		ControllerDesc cd;
+		cd.height           = sjson::parse_float    (obj["height"]);
+		cd.radius           = sjson::parse_float    (obj["radius"]);
+		cd.slope_limit      = sjson::parse_float    (obj["slope_limit"]);
+		cd.step_offset      = sjson::parse_float    (obj["step_offset"]);
+		cd.contact_offset   = sjson::parse_float    (obj["contact_offset"]);
+		cd.collision_filter = sjson::parse_string_id(obj["collision_filter"]);
+
+		Buffer buf(default_allocator());
+		array::push(buf, (char*)&cd, sizeof(cd));
+		return buf;
 	}
 
-	void parse_shapes(JSONElement e, Array<ShapeResource>& shapes)
+	void compile_sphere(const char* mesh, ShapeDesc& sd)
 	{
-		Vector<DynamicString> keys(default_allocator());
-		e.to_keys(keys);
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(mesh, obj);
+		JsonArray pos(ta);
+		sjson::parse_array(obj["position"], pos);
 
-		for (uint32_t k = 0; k < vector::size(keys); k++)
+		Array<float> positions(default_allocator());
+		for (uint32_t i = 0; i < array::size(pos); ++i)
+			array::push_back(positions, sjson::parse_float(pos[i]));
+
+		Sphere sphere;
+		sphere::reset(sphere);
+		sphere::add_points(sphere, array::size(positions) / 3, sizeof(Vector3), array::begin(positions));
+
+		sd.sphere.radius = sphere.r;
+	}
+
+	void compile_capsule(const char* mesh, ShapeDesc& sd)
+	{
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(mesh, obj);
+		JsonArray pos(ta);
+		sjson::parse_array(obj["position"], pos);
+
+		Array<float> positions(default_allocator());
+		for (uint32_t i = 0; i < array::size(pos); ++i)
+			array::push_back(positions, sjson::parse_float(pos[i]));
+
+		AABB aabb;
+		aabb::reset(aabb);
+		aabb::add_points(aabb, array::size(positions) / 3, sizeof(Vector3), array::begin(positions));
+
+		sd.capsule.radius = aabb::radius(aabb) / 2.0f;
+		sd.capsule.height = (aabb.max.y - aabb.min.y) / 2.0f;
+	}
+
+	void compile_box(const char* mesh, ShapeDesc& sd)
+	{
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(mesh, obj);
+		JsonArray pos(ta);
+		sjson::parse_array(obj["position"], pos);
+
+		Array<float> positions(default_allocator());
+		for (uint32_t i = 0; i < array::size(pos); ++i)
+			array::push_back(positions, sjson::parse_float(pos[i]));
+
+		AABB aabb;
+		aabb::reset(aabb);
+		aabb::add_points(aabb, array::size(positions) / 3, sizeof(Vector3), array::begin(positions));
+
+		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
+	}
+
+	void compile_convex_hull(const char* mesh, Array<Vector3>& mesh_data)
+	{
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(mesh, obj);
+		JsonArray pos(ta);
+		sjson::parse_array(obj["position"], pos);
+
+		Array<float> positions(default_allocator());
+		for (uint32_t i = 0; i < array::size(pos); ++i)
+			array::push_back(positions, sjson::parse_float(pos[i]));
+
+		for (uint32_t i = 0; i < array::size(positions); i += 3)
 		{
-			JSONElement shape 		= e.key(keys[k].c_str());
+			Vector3 pos;
+			pos.x = positions[i + 0];
+			pos.y = positions[i + 1];
+			pos.z = positions[i + 2];
+			array::push_back(mesh_data, pos);
+		}
+	}
 
-			ShapeResource sr;
-			sr.name =        keys[k].to_string_id();
-			sr.shape_class = shape.key("class").to_string_id();
-			sr.material =    shape.key("material").to_string_id();
-			sr.position =    shape.key("position").to_vector3();
-			sr.rotation =    shape.key("rotation").to_quaternion();
+	Buffer compile_collider(const char* json, CompileOptions& opts)
+	{
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(json, obj);
 
-			DynamicString stype = shape.key("type").to_string();
-			sr.type = shape_type_to_enum(stype.c_str());
+		DynamicString type(ta);
+		sjson::parse_string(obj["shape"], type);
 
-			switch (sr.type)
+		ShapeDesc sd;
+		sd.type        = shape_type_to_enum(type.c_str());
+		sd.shape_class = sjson::parse_string_id(obj["class"]);
+		sd.material    = sjson::parse_string_id(obj["material"]);
+		sd.local_tm    = MATRIX4X4_IDENTITY;
+
+		DynamicString scene(ta);
+		DynamicString name(ta);
+		sjson::parse_string(obj["scene"], scene);
+		sjson::parse_string(obj["name"], name);
+		scene += "." MESH_EXTENSION;
+
+		Buffer file = opts.read(scene.c_str());
+		JsonObject json_mesh(ta);
+		JsonObject geometries(ta);
+		sjson::parse(file, json_mesh);
+		sjson::parse(json_mesh["geometries"], geometries);
+		const char* mesh = geometries[name.c_str()];
+
+		Array<Vector3> mesh_data(default_allocator());
+
+		switch (sd.type)
+		{
+			case ShapeType::SPHERE:      compile_sphere(mesh, sd); break;
+			case ShapeType::CAPSULE:     compile_capsule(mesh, sd); break;
+			case ShapeType::BOX:         compile_box(mesh, sd); break;
+			case ShapeType::CONVEX_HULL: compile_convex_hull(mesh, mesh_data); break;
+			case ShapeType::MESH:
+			case ShapeType::HEIGHTFIELD:
 			{
-				case ShapeType::SPHERE:
-				{
-					sr.data_0 = shape.key("radius").to_float();
-					break;
-				}
-				case ShapeType::CAPSULE:
-				{
-					sr.data_0 = shape.key("radius").to_float();
-					sr.data_1 = shape.key("half_height").to_float();
-					break;
-				}
-				case ShapeType::BOX:
-				{
-					sr.data_0 = shape.key("half_x").to_float();
-					sr.data_1 = shape.key("half_y").to_float();
-					sr.data_2 = shape.key("half_z").to_float();
-					break;
-				}
-				case ShapeType::PLANE:
-				{
-					sr.data_0 = shape.key("n_x").to_float();
-					sr.data_1 = shape.key("n_y").to_float();
-					sr.data_2 = shape.key("n_z").to_float();
-					sr.data_3 = shape.key("distance").to_float();
-					break;
-				}
+				RESOURCE_COMPILER_ASSERT(false, opts, "Not implemented yet");
+				break;
 			}
-			array::push_back(shapes, sr);
 		}
+
+		Buffer buf(default_allocator());
+		array::push(buf, (char*)&sd, sizeof(sd));
+
+		if (array::size(mesh_data))
+		{
+			uint32_t num = array::size(mesh_data);
+			array::push(buf, (char*)&num, sizeof(num));
+			array::push(buf, (char*)array::begin(mesh_data), sizeof(Vector3)*array::size(mesh_data));
+		}
+
+		return buf;
 	}
 
-	void parse_actors(JSONElement e, Array<ActorResource>& actors)
+	Buffer compile_actor(const char* json, CompileOptions& opts)
 	{
-		Vector<DynamicString> keys(default_allocator());
-		e.to_keys(keys);
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(json, obj);
 
-		for (uint32_t k = 0; k < vector::size(keys); k++)
-		{
-			JSONElement actor 	= e.key(keys[k].c_str());
+		ActorResource ar;
+		ar.actor_class      = sjson::parse_string_id(obj["class"]);
+		ar.mass             = sjson::parse_float    (obj["mass"]);
+		ar.collision_filter = sjson::parse_string_id(obj["collision_filter"]);
 
-			ActorResource pa;
-			pa.name =        keys[k].to_string_id();
-			pa.node =        actor.key("node").to_string_id();
-			pa.actor_class = actor.key("class").to_string_id();
-			pa.mass =        actor.key("mass").to_float();
-			pa.flags = 0;
-			pa.flags |= actor.key_or_nil("lock_translation_x").to_bool(false) ? ActorFlags::LOCK_TRANSLATION_X : 0;
-			pa.flags |= actor.key_or_nil("lock_translation_y").to_bool(false) ? ActorFlags::LOCK_TRANSLATION_Y : 0;
-			pa.flags |= actor.key_or_nil("lock_translation_z").to_bool(false) ? ActorFlags::LOCK_TRANSLATION_Z : 0;
-			pa.flags |= actor.key_or_nil("lock_rotation_x").to_bool(false) ? ActorFlags::LOCK_ROTATION_X : 0;
-			pa.flags |= actor.key_or_nil("lock_rotation_y").to_bool(false) ? ActorFlags::LOCK_ROTATION_Y : 0;
-			pa.flags |= actor.key_or_nil("lock_rotation_z").to_bool(false) ? ActorFlags::LOCK_ROTATION_Z : 0;
+		ar.flags = 0;
+		ar.flags |= map::has(obj, FixedString("lock_translation_x")) ? sjson::parse_bool(obj["lock_translation_x"]) : 0;
+		ar.flags |= map::has(obj, FixedString("lock_translation_y")) ? sjson::parse_bool(obj["lock_translation_y"]) : 0;
+		ar.flags |= map::has(obj, FixedString("lock_translation_z")) ? sjson::parse_bool(obj["lock_translation_z"]) : 0;
+		ar.flags |= map::has(obj, FixedString("lock_rotation_x")) ? sjson::parse_bool(obj["lock_rotation_x"]) : 0;
+		ar.flags |= map::has(obj, FixedString("lock_rotation_y")) ? sjson::parse_bool(obj["lock_rotation_y"]) : 0;
+		ar.flags |= map::has(obj, FixedString("lock_rotation_z")) ? sjson::parse_bool(obj["lock_rotation_z"]) : 0;
 
-			array::push_back(actors, pa);
-		}
+		Buffer buf(default_allocator());
+		array::push(buf, (char*)&ar, sizeof(ar));
+		return buf;
 	}
 
-	void parse_joints(JSONElement e, Array<JointResource>& joints)
+	Buffer compile_joint(const char* json, CompileOptions& opts)
 	{
-		Vector<DynamicString> keys(default_allocator());
-		e.to_keys(keys);
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		sjson::parse(json, obj);
 
-		for (uint32_t k = 0; k < vector::size(keys); k++)
+		DynamicString type(ta);
+		sjson::parse_string(obj["type"], type);
+
+		JointDesc jd;
+		jd.type     = joint_type_to_enum(type.c_str());
+		jd.anchor_0 = sjson::parse_vector3(obj["anchor_0"]);
+		jd.anchor_1 = sjson::parse_vector3(obj["anchor_1"]);
+
+		switch (jd.type)
 		{
-			JSONElement joint			= e.key(keys[k].c_str());
-			JSONElement type 			= joint.key("type");
-
-			DynamicString jtype = type.to_string();
-
-			JointResource pj;
-			pj.name         = keys[k].to_string_id();
-			pj.type         = joint_type_to_enum(jtype.c_str());
-			pj.actor_0      = joint.key("actor_0").to_string_id();
-			pj.actor_1      = joint.key("actor_1").to_string_id();
-			pj.anchor_0     = joint.key_or_nil("anchor_0").to_vector3(VECTOR3_ZERO);
-			pj.anchor_1     = joint.key_or_nil("anchor_1").to_vector3(VECTOR3_ZERO);
-			pj.restitution  = joint.key_or_nil("restitution").to_float(0.5f);
-			pj.spring       = joint.key_or_nil("spring").to_float(100.0f);
-			pj.damping      = joint.key_or_nil("damping").to_float(0.0f);
-			pj.distance     = joint.key_or_nil("distance").to_float(1.0f);
-			pj.breakable    = joint.key_or_nil("breakable").to_bool(false);
-			pj.break_force  = joint.key_or_nil("break_force").to_float(3000.0f);
-			pj.break_torque = joint.key_or_nil("break_torque").to_float(1000.0f);
-
-			switch (pj.type)
+			case JointType::HINGE:
 			{
-				case JointType::FIXED:
-				{
-					return;
-				}
-				case JointType::SPHERICAL:
-				{
-					pj.y_limit_angle = joint.key_or_nil("y_limit_angle").to_float(HALF_PI);
-					pj.z_limit_angle = joint.key_or_nil("z_limit_angle").to_float(HALF_PI);
-					pj.contact_dist =  joint.key_or_nil("contact_dist").to_float(0.0f);
-					break;
-				}
-				case JointType::REVOLUTE:
-				case JointType::PRISMATIC:
-				{
-					pj.lower_limit =  joint.key_or_nil("lower_limit").to_float(0.0f);
-					pj.upper_limit =  joint.key_or_nil("upper_limit").to_float(0.0f);
-					pj.contact_dist = joint.key_or_nil("contact_dist").to_float(0.0f);
-					break;
-				}
-				case JointType::DISTANCE:
-				{
-					pj.max_distance = joint.key_or_nil("max_distance").to_float(0.0f);
-					break;
-				}
+				jd.hinge.use_motor         = sjson::parse_bool (obj["use_motor"]);
+				jd.hinge.target_velocity   = sjson::parse_float(obj["target_velocity"]);
+				jd.hinge.max_motor_impulse = sjson::parse_float(obj["max_motor_impulse"]);
+				jd.hinge.lower_limit       = sjson::parse_float(obj["lower_limit"]);
+				jd.hinge.upper_limit       = sjson::parse_float(obj["upper_limit"]);
+				jd.hinge.bounciness        = sjson::parse_float(obj["bounciness"]);
+				break;
 			}
-
-			array::push_back(joints, pj);
-		}
-	}
-
-	void compile(const char* path, CompileOptions& opts)
-	{
-		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
-
-		bool m_has_controller = false;
-		ControllerResource m_controller;
-
-		// Read controller
-		JSONElement controller = root.key_or_nil("controller");
-		if (controller.is_nil())
-		{
-			m_has_controller = false;
-		}
-		else
-		{
-			parse_controller(controller, m_controller);
-			m_has_controller = true;
 		}
 
-		Array<ActorResource> m_actors(default_allocator());
-		Array<ShapeResource> m_shapes(default_allocator());
-		Array<JointResource> m_joints(default_allocator());
-
-		if (root.has_key("colliders")) parse_shapes(root.key("colliders"), m_shapes);
-		if (root.has_key("actors")) parse_actors(root.key("actors"), m_actors);
-		if (root.has_key("joints")) parse_joints(root.key("joints"), m_joints);
-		PhysicsResource pr;
-		pr.version = PHYSICS_VERSION;
-		pr.num_controllers = m_has_controller ? 1 : 0;
-		pr.num_colliders = array::size(m_shapes);
-		pr.num_actors = array::size(m_actors);
-		pr.num_joints = array::size(m_joints);
-
-		uint32_t offt = sizeof(PhysicsResource);
-		pr.controller_offset = offt; offt += sizeof(ControllerResource) * pr.num_controllers;
-		pr.colliders_offset = offt; offt += sizeof(ShapeResource) * pr.num_colliders;
-		pr.actors_offset = offt; offt += sizeof(ActorResource) * pr.num_actors;
-		pr.joints_offset = offt;
-
-		// Write all
-		opts.write(pr.version);
-		opts.write(pr.num_controllers);
-		opts.write(pr.controller_offset);
-		opts.write(pr.num_colliders);
-		opts.write(pr.colliders_offset);
-		opts.write(pr.num_actors);
-		opts.write(pr.actors_offset);
-		opts.write(pr.num_joints);
-		opts.write(pr.joints_offset);
-
-		if (m_has_controller)
-		{
-			opts.write(m_controller.name);
-			opts.write(m_controller.height);
-			opts.write(m_controller.radius);
-			opts.write(m_controller.slope_limit);
-			opts.write(m_controller.step_offset);
-			opts.write(m_controller.contact_offset);
-			opts.write(m_controller.collision_filter);
-		}
-
-		for (uint32_t i = 0; i < array::size(m_shapes); ++i)
-		{
-			opts.write(m_shapes[i].name);
-			opts.write(m_shapes[i].shape_class);
-			opts.write(m_shapes[i].type);
-			opts.write(m_shapes[i].material);
-			opts.write(m_shapes[i].position);
-			opts.write(m_shapes[i].rotation);
-			opts.write(m_shapes[i].data_0);
-			opts.write(m_shapes[i].data_1);
-			opts.write(m_shapes[i].data_2);
-			opts.write(m_shapes[i].data_3);
-		}
-
-		for (uint32_t i = 0; i < array::size(m_actors); i++)
-		{
-			opts.write(m_actors[i].name);
-			opts.write(m_actors[i].node);
-			opts.write(m_actors[i].actor_class);
-			opts.write(m_actors[i].mass);
-			opts.write(m_actors[i].flags);
-		}
-
-		for (uint32_t i = 0; i < array::size(m_joints); i++)
-		{
-			opts.write(m_joints[i].name);
-			opts.write(m_joints[i].type);
-			opts.write(m_joints[i].actor_0);
-			opts.write(m_joints[i].actor_1);
-			opts.write(m_joints[i].anchor_0);
-			opts.write(m_joints[i].anchor_1);
-			opts.write(m_joints[i].breakable);
-			opts.write(m_joints[i]._pad[0]);
-			opts.write(m_joints[i]._pad[1]);
-			opts.write(m_joints[i]._pad[2]);
-			opts.write(m_joints[i].break_force);
-			opts.write(m_joints[i].break_torque);
-			opts.write(m_joints[i].lower_limit);
-			opts.write(m_joints[i].upper_limit);
-			opts.write(m_joints[i].y_limit_angle);
-			opts.write(m_joints[i].z_limit_angle);
-			opts.write(m_joints[i].max_distance);
-			opts.write(m_joints[i].contact_dist);
-			opts.write(m_joints[i].restitution);
-			opts.write(m_joints[i].spring);
-			opts.write(m_joints[i].damping);
-			opts.write(m_joints[i].distance);
-		}
-	}
-
-	void* load(File& file, Allocator& a)
-	{
-		const uint32_t file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
-		CE_ASSERT(*(uint32_t*)res == PHYSICS_VERSION, "Wrong version");
-		return res;
-	}
-
-	void unload(Allocator& allocator, void* resource)
-	{
-		allocator.deallocate(resource);
-	}
-
-	bool has_controller(const PhysicsResource* pr)
-	{
-		return pr->num_controllers == 1;
-	}
-
-	const ControllerResource* controller(const PhysicsResource* pr)
-	{
-		CE_ASSERT(has_controller(pr), "Controller does not exist");
-		ControllerResource* controller = (ControllerResource*) ((char*)pr + pr->controller_offset);
-		return controller;
-	}
-
-	uint32_t num_colliders(const PhysicsResource* pr)
-	{
-		return pr->num_colliders;
-	}
-
-	const ShapeResource* collider(const PhysicsResource* pr, uint32_t i)
-	{
-		CE_ASSERT(i < num_colliders(pr), "Index out of bounds");
-		ShapeResource* collider = (ShapeResource*) ((char*)pr + pr->colliders_offset);
-		return &collider[i];
-	}
-
-	uint32_t num_actors(const PhysicsResource* pr)
-	{
-		return pr->num_actors;
-	}
-
-	const ActorResource* actor(const PhysicsResource* pr, uint32_t i)
-	{
-		CE_ASSERT(i < num_actors(pr), "Index out of bounds");
-		ActorResource* actor = (ActorResource*) ((char*)pr + pr->actors_offset);
-		return &actor[i];
-	}
-
-	uint32_t num_joints(const PhysicsResource* pr)
-	{
-		return pr->num_joints;
-	}
-
-	const JointResource* joint(const PhysicsResource* pr, uint32_t i)
-	{
-		CE_ASSERT(i < num_joints(pr), "Index out of bounds");
-		JointResource* joint = (JointResource*) ((char*)pr + pr->joints_offset);
-		return &joint[i];
+		Buffer buf(default_allocator());
+		array::push(buf, (char*)&jd, sizeof(jd));
+		return buf;
 	}
 } // namespace physics_resource
 
@@ -400,104 +293,108 @@ namespace physics_config_resource
 {
 	static Map<DynamicString, uint32_t>* s_ftm = NULL;
 
-	struct ObjectName
+	void parse_materials(const char* json, Array<PhysicsConfigMaterial>& objects)
 	{
-		StringId32 name;
-		uint32_t index;
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(json, object);
 
-		bool operator()(const ObjectName& a, const ObjectName& b)
+		const typename JsonObject::Node* begin = map::begin(object);
+		const typename JsonObject::Node* end = map::end(object);
+
+		for (; begin != end; ++begin)
 		{
-			return a.name < b.name;
-		}
-	};
+			const FixedString key = begin->pair.first;
+			const char* value     = begin->pair.second;
 
-	void parse_materials(JSONElement e, Array<ObjectName>& names, Array<PhysicsConfigMaterial>& objects)
-	{
-		Vector<DynamicString> keys(default_allocator());
-		e.to_keys(keys);
+			JsonObject material(ta);
+			sjson::parse_object(value, material);
 
-		for (uint32_t i = 0; i < vector::size(keys); i++)
-		{
-			JSONElement material = e.key(keys[i].c_str());
-
-			// Read material name
-			ObjectName mat_name;
-			mat_name.name = keys[i].to_string_id();
-			mat_name.index = i;
-
-			// Read material object
 			PhysicsConfigMaterial mat;
-			mat.static_friction =  material.key("static_friction").to_float();
-			mat.dynamic_friction = material.key("dynamic_friction").to_float();
-			mat.restitution =      material.key("restitution").to_float();
+			mat.name             = StringId32(key.data(), key.length());
+			mat.static_friction  = sjson::parse_float(material["static_friction"]);
+			mat.dynamic_friction = sjson::parse_float(material["dynamic_friction"]);
+			mat.restitution      = sjson::parse_float(material["restitution"]);
 
-			array::push_back(names, mat_name);
 			array::push_back(objects, mat);
 		}
 	}
 
-	void parse_shapes(JSONElement e, Array<ObjectName>& names, Array<PhysicsConfigShape>& objects)
+	void parse_shapes(const char* json, Array<PhysicsConfigShape>& objects)
 	{
-		Vector<DynamicString> keys(default_allocator());
-		e.to_keys(keys);
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(json, object);
 
-		for (uint32_t i = 0; i < vector::size(keys); i++)
+		const typename JsonObject::Node* begin = map::begin(object);
+		const typename JsonObject::Node* end = map::end(object);
+
+		for (; begin != end; ++begin)
 		{
-			JSONElement shape = e.key(keys[i].c_str());
+			const FixedString key = begin->pair.first;
+			const char* value     = begin->pair.second;
 
-			// Read shape name
-			ObjectName shape_name;
-			shape_name.name = keys[i].to_string_id();
-			shape_name.index = i;
+			JsonObject shape(ta);
+			sjson::parse_object(value, shape);
 
-			// Read shape object
 			PhysicsConfigShape ps2;
-			ps2.trigger =          shape.key("trigger").to_bool();
-			ps2.collision_filter = shape.key("collision_filter").to_string_id();
+			ps2.name    = StringId32(key.data(), key.length());
+			ps2.trigger = sjson::parse_bool(shape["trigger"]);
 
-			array::push_back(names, shape_name);
 			array::push_back(objects, ps2);
 		}
 	}
 
-	void parse_actors(JSONElement e, Array<ObjectName>& names, Array<PhysicsConfigActor>& objects)
+	void parse_actors(const char* json, Array<PhysicsConfigActor>& objects)
 	{
-		Vector<DynamicString> keys(default_allocator());
-		e.to_keys(keys);
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(json, object);
 
-		for (uint32_t i = 0; i < vector::size(keys); i++)
+		const typename JsonObject::Node* begin = map::begin(object);
+		const typename JsonObject::Node* end = map::end(object);
+
+		for (; begin != end; ++begin)
 		{
-			JSONElement actor			= e.key(keys[i].c_str());
+			const FixedString key = begin->pair.first;
+			const char* value     = begin->pair.second;
 
-			// Read actor name
-			ObjectName actor_name;
-			actor_name.name = keys[i].to_string_id();
-			actor_name.index = i;
+			JsonObject actor(ta);
+			sjson::parse_object(value, actor);
 
-			// Read actor object
 			PhysicsConfigActor pa2;
-			pa2.linear_damping =  actor.key_or_nil("linear_damping").to_float(0.0f);
-			pa2.angular_damping = actor.key_or_nil("angular_damping").to_float(0.05f);
+			pa2.name            = StringId32(key.data(), key.length());
+			// pa2.linear_damping  = sjson::parse_float(actor["linear_damping"]);  // 0.0f;
+			// pa2.angular_damping = sjson::parse_float(actor["angular_damping"]); // 0.05f;
 
-			JSONElement dynamic			= actor.key_or_nil("dynamic");
-			JSONElement kinematic		= actor.key_or_nil("kinematic");
-			JSONElement disable_gravity	= actor.key_or_nil("disable_gravity");
+			const bool has_dynamic         = map::has(actor, FixedString("dynamic"));
+			const bool has_kinematic       = map::has(actor, FixedString("kinematic"));
+			const bool has_disable_gravity = map::has(actor, FixedString("disable_gravity"));
 
 			pa2.flags = 0;
-			if (!dynamic.is_nil())
+
+			if (has_dynamic)
 			{
-				pa2.flags |= dynamic.to_bool() ? 1 : 0;
+				pa2.flags |= (sjson::parse_bool(actor["dynamic"])
+					? 1
+					: 0
+					);
 			}
-			if (!kinematic.is_nil())
+			if (has_kinematic)
 			{
-				pa2.flags |= kinematic.to_bool() ? PhysicsConfigActor::KINEMATIC : 0;
+				pa2.flags |= (sjson::parse_bool(actor["kinematic"])
+					? PhysicsConfigActor::KINEMATIC
+					: 0
+					);
 			}
-			if (!disable_gravity.is_nil())
+			if (has_disable_gravity)
 			{
-				pa2.flags |= disable_gravity.to_bool() ? PhysicsConfigActor::DISABLE_GRAVITY : 0;
+				pa2.flags |= (sjson::parse_bool(actor["disable_gravity"])
+					? PhysicsConfigActor::DISABLE_GRAVITY
+					: 0
+					);
 			}
 
-			array::push_back(names, actor_name);
 			array::push_back(objects, pa2);
 		}
 	}
@@ -533,32 +430,32 @@ namespace physics_config_resource
 		return mask;
 	}
 
-	void parse_collision_filters(JSONElement e, Array<ObjectName>& names, Array<PhysicsCollisionFilter>& objects)
+	void parse_collision_filters(const char* json, Array<PhysicsCollisionFilter>& objects)
 	{
-		Vector<DynamicString> keys(default_allocator());
-		e.to_keys(keys);
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(json, object);
 
-		for (uint32_t i = 0; i < vector::size(keys); i++)
+		const typename JsonObject::Node* begin = map::begin(object);
+		const typename JsonObject::Node* end = map::end(object);
+
+		for (; begin != end; ++begin)
 		{
-			JSONElement filter			= e.key(keys[i].c_str());
-			JSONElement collides_with	= filter.key("collides_with");
+			const FixedString key = begin->pair.first;
+			const char* value     = begin->pair.second;
 
-			// Read filter name
-			ObjectName filter_name;
-			filter_name.name = keys[i].to_string_id();
-			filter_name.index = i;
+			JsonObject filter(ta);
+			sjson::parse_object(value, filter);
 
 			// Build mask
-			Vector<DynamicString> collides_with_vector(default_allocator());
-			collides_with.to_array(collides_with_vector);
+			// Vector<DynamicString> collides_with_vector(default_allocator());
+			// collides_with.to_array(collides_with_vector);
 
 			PhysicsCollisionFilter pcf;
-			pcf.me = filter_to_mask(keys[i].c_str());
-			pcf.mask = collides_with_to_mask(collides_with_vector);
+			pcf.name  = StringId32(key.data(), key.length());
+			pcf.me    = filter_to_mask(key.data());
+			// pcf.mask  = collides_with_to_mask(collides_with_vector);
 
-			// printf("FILTER: %s (me = %X, mask = %X\n", keys[i].c_str(), pcf.me, pcf.mask);
-
-			array::push_back(names, filter_name);
 			array::push_back(objects, pcf);
 		}
 	}
@@ -566,56 +463,47 @@ namespace physics_config_resource
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(buf, object);
 
 		typedef Map<DynamicString, uint32_t> FilterMap;
 		s_ftm = CE_NEW(default_allocator(), FilterMap)(default_allocator());
 
-		Array<ObjectName> material_names(default_allocator());
-		Array<PhysicsConfigMaterial> material_objects(default_allocator());
-		Array<ObjectName> shape_names(default_allocator());
-		Array<PhysicsConfigShape> shape_objects(default_allocator());
-		Array<ObjectName> actor_names(default_allocator());
-		Array<PhysicsConfigActor> actor_objects(default_allocator());
-		Array<ObjectName> filter_names(default_allocator());
-		Array<PhysicsCollisionFilter> filter_objects(default_allocator());
+		Array<PhysicsConfigMaterial> materials(default_allocator());
+		Array<PhysicsConfigShape> shapes(default_allocator());
+		Array<PhysicsConfigActor> actors(default_allocator());
+		Array<PhysicsCollisionFilter> filters(default_allocator());
 
 		// Parse materials
-		if (root.has_key("collision_filters")) parse_collision_filters(root.key("collision_filters"), filter_names, filter_objects);
-		if (root.has_key("materials")) parse_materials(root.key("materials"), material_names, material_objects);
-		if (root.has_key("shapes")) parse_shapes(root.key("shapes"), shape_names, shape_objects);
-		if (root.has_key("actors")) parse_actors(root.key("actors"), actor_names, actor_objects);
-
-		// Sort objects by name
-		std::sort(array::begin(material_names), array::end(material_names), ObjectName());
-		std::sort(array::begin(shape_names), array::end(shape_names), ObjectName());
-		std::sort(array::begin(actor_names), array::end(actor_names), ObjectName());
-		std::sort(array::begin(filter_names), array::end(filter_names), ObjectName());
+		if (map::has(object, FixedString("collision_filters")))
+			parse_collision_filters(object["collision_filters"], filters);
+		if (map::has(object, FixedString("materials")))
+			parse_materials(object["materials"], materials);
+		if (map::has(object, FixedString("shapes")))
+			parse_shapes(object["shapes"], shapes);
+		if (map::has(object, FixedString("actors")))
+			parse_actors(object["actors"], actors);
 
 		// Setup struct for writing
 		PhysicsConfigResource pcr;
-		pcr.version = PHYSICS_CONFIG_VERSION;
-		pcr.num_materials = array::size(material_names);
-		pcr.num_shapes = array::size(shape_names);
-		pcr.num_actors = array::size(actor_names);
-		pcr.num_filters = array::size(filter_names);
+		pcr.version       = PHYSICS_CONFIG_VERSION;
+		pcr.num_materials = array::size(materials);
+		pcr.num_shapes    = array::size(shapes);
+		pcr.num_actors    = array::size(actors);
+		pcr.num_filters   = array::size(filters);
 
 		uint32_t offt = sizeof(PhysicsConfigResource);
 		pcr.materials_offset = offt;
-		offt += sizeof(StringId32) * pcr.num_materials;
 		offt += sizeof(PhysicsConfigMaterial) * pcr.num_materials;
 
 		pcr.shapes_offset = offt;
-		offt += sizeof(StringId32) * pcr.num_shapes;
 		offt += sizeof(PhysicsConfigShape) * pcr.num_shapes;
 
 		pcr.actors_offset = offt;
-		offt += sizeof(StringId32) * pcr.num_actors;
 		offt += sizeof(PhysicsConfigActor) * pcr.num_actors;
 
 		pcr.filters_offset = offt;
-		offt += sizeof(StringId32) * pcr.num_filters;
 		offt += sizeof(PhysicsCollisionFilter) * pcr.num_filters;
 
 		// Write all
@@ -629,61 +517,40 @@ namespace physics_config_resource
 		opts.write(pcr.num_filters);
 		opts.write(pcr.filters_offset);
 
-		// Write material names
-		for (uint32_t i = 0; i < pcr.num_materials; i++)
+		// Write material objects
+		for (uint32_t i = 0; i < pcr.num_materials; ++i)
 		{
-			opts.write(material_names[i].name);
+			opts.write(materials[i].name._id);
+			opts.write(materials[i].static_friction);
+			opts.write(materials[i].dynamic_friction);
+			opts.write(materials[i].restitution);
 		}
 
 		// Write material objects
-		for (uint32_t i = 0; i < pcr.num_materials; i++)
+		for (uint32_t i = 0; i < pcr.num_shapes; ++i)
 		{
-			opts.write(material_objects[material_names[i].index].static_friction);
-			opts.write(material_objects[material_names[i].index].dynamic_friction);
-			opts.write(material_objects[material_names[i].index].restitution);
-		}
-
-		// Write shape names
-		for (uint32_t i = 0; i < pcr.num_shapes; i++)
-		{
-			opts.write(shape_names[i].name);
-		}
-
-		// Write material objects
-		for (uint32_t i = 0; i < pcr.num_shapes; i++)
-		{
-			opts.write(shape_objects[shape_names[i].index].collision_filter);
-			opts.write(shape_objects[shape_names[i].index].trigger);
-			opts.write(shape_objects[shape_names[i].index]._pad[0]);
-			opts.write(shape_objects[shape_names[i].index]._pad[1]);
-			opts.write(shape_objects[shape_names[i].index]._pad[2]);
-		}
-
-		// Write actor names
-		for (uint32_t i = 0; i < pcr.num_actors; i++)
-		{
-			opts.write(actor_names[i].name);
+			opts.write(shapes[i].name._id);
+			opts.write(shapes[i].trigger);
+			opts.write(shapes[i]._pad[0]);
+			opts.write(shapes[i]._pad[1]);
+			opts.write(shapes[i]._pad[2]);
 		}
 
 		// Write actor objects
-		for (uint32_t i = 0; i < pcr.num_actors; i++)
+		for (uint32_t i = 0; i < pcr.num_actors; ++i)
 		{
-			opts.write(actor_objects[actor_names[i].index].linear_damping);
-			opts.write(actor_objects[actor_names[i].index].angular_damping);
-			opts.write(actor_objects[actor_names[i].index].flags);
-		}
-
-		// Write filter names
-		for (uint32_t i = 0; i < pcr.num_filters; i++)
-		{
-			opts.write(filter_names[i].name);
+			opts.write(actors[i].name._id);
+			opts.write(actors[i].linear_damping);
+			opts.write(actors[i].angular_damping);
+			opts.write(actors[i].flags);
 		}
 
 		// Write filter objects
-		for (uint32_t i = 0; i < pcr.num_filters; i++)
+		for (uint32_t i = 0; i < pcr.num_filters; ++i)
 		{
-			opts.write(filter_objects[filter_names[i].index].me);
-			opts.write(filter_objects[filter_names[i].index].mask);
+			opts.write(filters[i].name._id);
+			opts.write(filters[i].me);
+			opts.write(filters[i].mask);
 		}
 
 		CE_DELETE(default_allocator(), s_ftm);
@@ -711,18 +578,15 @@ namespace physics_config_resource
 	/// Returns the material with the given @a name
 	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
 	{
-		StringId32* begin = (StringId32*) ((char*)pcr + pcr->materials_offset);
-		StringId32* end = begin + num_materials(pcr);
-		StringId32* id = std::find(begin, end, name);
-		CE_ASSERT(id != end, "Material not found");
-		return material_by_index(pcr, id - begin);
-	}
+		const PhysicsConfigMaterial* begin = (PhysicsConfigMaterial*)((const char*)pcr + pcr->materials_offset);
+		for (uint32_t i = 0; i < pcr->num_materials; ++i)
+		{
+			if (begin[i].name == name)
+				return &begin[i];
+		}
 
-	const PhysicsConfigMaterial* material_by_index(const PhysicsConfigResource* pcr, uint32_t i)
-	{
-		CE_ASSERT(i < num_materials(pcr), "Index out of bounds");
-		const PhysicsConfigMaterial* base = (PhysicsConfigMaterial*) ((char*)pcr + pcr->materials_offset + sizeof(StringId32) * num_materials(pcr));
-		return &base[i];
+		CE_FATAL("Material not found");
+		return NULL;
 	}
 
 	uint32_t num_shapes(const PhysicsConfigResource* pcr)
@@ -732,18 +596,15 @@ namespace physics_config_resource
 
 	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name)
 	{
-		StringId32* begin = (StringId32*) ((char*)pcr + pcr->shapes_offset);
-		StringId32* end = begin + num_shapes(pcr);
-		StringId32* id = std::find(begin, end, name);
-		CE_ASSERT(id != end, "Shape not found");
-		return shape_by_index(pcr, id - begin);
-	}
+		const PhysicsConfigShape* begin = (PhysicsConfigShape*)((const char*)pcr + pcr->shapes_offset);
+		for (uint32_t i = 0; i < pcr->num_shapes; ++i)
+		{
+			if (begin[i].name == name)
+				return &begin[i];
+		}
 
-	const PhysicsConfigShape* shape_by_index(const PhysicsConfigResource* pcr, uint32_t i)
-	{
-		CE_ASSERT(i < num_shapes(pcr), "Index out of bounds");
-		const PhysicsConfigShape* base = (PhysicsConfigShape*) ((char*)pcr + pcr->shapes_offset + sizeof(StringId32) * num_shapes(pcr));
-		return &base[i];
+		CE_FATAL("Shape not found");
+		return NULL;
 	}
 
 	uint32_t num_actors(const PhysicsConfigResource* pcr)
@@ -754,18 +615,15 @@ namespace physics_config_resource
 	/// Returns the actor with the given @a name
 	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
 	{
-		StringId32* begin = (StringId32*) ((char*)pcr + pcr->actors_offset);
-		StringId32* end = begin + num_actors(pcr);
-		StringId32* id = std::find(begin, end, name);
-		CE_ASSERT(id != end, "Actor not found");
-		return actor_by_index(pcr, id - begin);
-	}
+		const PhysicsConfigActor* begin = (PhysicsConfigActor*)((const char*)pcr + pcr->actors_offset);
+		for (uint32_t i = 0; i < pcr->num_actors; ++i)
+		{
+			if (begin[i].name == name)
+				return &begin[i];
+		}
 
-	const PhysicsConfigActor* actor_by_index(const PhysicsConfigResource* pcr, uint32_t i)
-	{
-		CE_ASSERT(i < num_actors(pcr), "Index out of bounds");
-		const PhysicsConfigActor* base = (PhysicsConfigActor*) ((char*)pcr + pcr->actors_offset + sizeof(StringId32) * num_actors(pcr));
-		return &base[i];
+		CE_FATAL("Actor not found");
+		return NULL;
 	}
 
 	uint32_t num_filters(const PhysicsConfigResource* pcr)
@@ -775,18 +633,16 @@ namespace physics_config_resource
 
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name)
 	{
-		StringId32* begin = (StringId32*) ((char*)pcr + pcr->filters_offset);
-		StringId32* end = begin + num_filters(pcr);
-		StringId32* id = std::find(begin, end, name);
-		CE_ASSERT(id != end, "Filter not found");
-		return filter_by_index(pcr, id - begin);
+		const PhysicsCollisionFilter* begin = (PhysicsCollisionFilter*)((const char*)pcr + pcr->filters_offset);
+		for (uint32_t i = 0; i < pcr->num_filters; ++i)
+		{
+			if (begin[i].name == name)
+				return &begin[i];
+		}
+
+		CE_FATAL("Filter not found");
+		return NULL;
 	}
 
-	const PhysicsCollisionFilter* filter_by_index(const PhysicsConfigResource* pcr, uint32_t i)
-	{
-		CE_ASSERT(i < num_filters(pcr), "Index out of bounds");
-		const PhysicsCollisionFilter* base = (PhysicsCollisionFilter*) ((char*)pcr + pcr->filters_offset + sizeof(StringId32) * num_filters(pcr));
-		return &base[i];
-	}
 } // namespace physics_config_resource
 } // namespace crown

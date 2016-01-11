@@ -3,16 +3,16 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "material_resource.h"
+#include "compile_options.h"
 #include "dynamic_string.h"
-#include "string_utils.h"
-#include "string_utils.h"
-#include "json_parser.h"
 #include "filesystem.h"
+#include "map.h"
+#include "material_resource.h"
 #include "reader_writer.h"
 #include "resource_manager.h"
+#include "sjson.h"
+#include "string_utils.h"
 #include "vector.h"
-#include "compile_options.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
@@ -41,25 +41,34 @@ namespace material_resource
 		return offt;
 	}
 
-	static void parse_textures(JSONElement root, Array<TextureData>& textures, Array<char>& names, Array<char>& dynamic)
+	static void parse_textures(const char* json, Array<TextureData>& textures, Array<char>& names, Array<char>& dynamic)
 	{
-		using namespace vector;
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(json, object);
 
-		Vector<DynamicString> keys(default_allocator());
-		root.key("textures").to_keys(keys);
+		const typename JsonObject::Node* begin = map::begin(object);
+		const typename JsonObject::Node* end = map::end(object);
 
-		for (uint32_t i = 0; i < size(keys); i++)
+		for (; begin != end; ++begin)
 		{
+			const FixedString key = begin->pair.first;
+			const char* value     = begin->pair.second;
+
+			const ResourceId texid = sjson::parse_resource_id(value);
+
 			TextureHandle th;
 			th.sampler_handle = 0;
 			th.texture_handle = 0;
 
-			ResourceId texid = root.key("textures").key(keys[i].c_str()).to_resource_id();
+			const uint32_t sampler_name_offset = array::size(names);
+			array::push(names, key.data(), key.length());
+			array::push_back(names, '\0');
 
 			TextureData td;
-			td.sampler_name_offset = array::size(names); array::push(names, keys[i].c_str(), keys[i].length()); array::push_back(names, '\0');
-			td.id = texid;
-			td.data_offset = reserve_dynamic_data(th, dynamic);
+			td.sampler_name_offset = sampler_name_offset;
+			td.id                  = texid;
+			td.data_offset         = reserve_dynamic_data(th, dynamic);
 
 			array::push_back(textures, td);
 		}
@@ -92,48 +101,61 @@ namespace material_resource
 		return UniformType::COUNT;
 	}
 
-	static void parse_uniforms(JSONElement root, Array<UniformData>& uniforms, Array<char>& names, Array<char>& dynamic)
+	static void parse_uniforms(const char* json, Array<UniformData>& uniforms, Array<char>& names, Array<char>& dynamic)
 	{
-		using namespace vector;
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(json, object);
 
-		Vector<DynamicString> keys(default_allocator());
-		root.key("uniforms").to_keys(keys);
+		const typename JsonObject::Node* begin = map::begin(object);
+		const typename JsonObject::Node* end = map::end(object);
 
-		for (uint32_t i = 0; i < size(keys); i++)
+		for (; begin != end; ++begin)
 		{
+			const FixedString key = begin->pair.first;
+			const char* value     = begin->pair.second;
+
 			UniformHandle uh;
 			uh.uniform_handle = 0;
 
-			DynamicString type = root.key("uniforms").key(keys[i].c_str()).key("type").to_string();
+			JsonObject uniform(ta);
+			sjson::parse_object(value, uniform);
+
+			DynamicString type(ta);
+			sjson::parse_string(uniform["type"], type);
+
+			const uint32_t name_offset = array::size(names);
+			array::push(names, key.data(), key.length());
+			array::push_back(names, '\0');
 
 			UniformData ud;
-			ud.name_offset = array::size(names); array::push(names, keys[i].c_str(), keys[i].length()); array::push_back(names, '\0');
-			ud.type = string_to_uniform_type(type.c_str());
+			ud.name_offset = name_offset;
+			ud.type        = string_to_uniform_type(type.c_str());
 			ud.data_offset = reserve_dynamic_data(uh, dynamic);
 
 			switch (ud.type)
 			{
 				case UniformType::FLOAT:
 				{
-					float data = root.key("uniforms").key(keys[i].c_str()).key("value").to_float();
+					float data = sjson::parse_float(uniform["value"]);
 					reserve_dynamic_data(data, dynamic);
 					break;
 				}
 				case UniformType::VECTOR2:
 				{
-					Vector2 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector2();
+					Vector2 data = sjson::parse_vector2(uniform["value"]);
 					reserve_dynamic_data(data, dynamic);
 					break;
 				}
 				case UniformType::VECTOR3:
 				{
-					Vector3 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector3();
+					Vector3 data = sjson::parse_vector3(uniform["value"]);
 					reserve_dynamic_data(data, dynamic);
 					break;
 				}
 				case UniformType::VECTOR4:
 				{
-					Vector4 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector4();
+					Vector4 data = sjson::parse_vector4(uniform["value"]);
 					reserve_dynamic_data(data, dynamic);
 					break;
 				}
@@ -147,27 +169,30 @@ namespace material_resource
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
-		JSONParser json(buf);
-		JSONElement root = json.root();
+		TempAllocator4096 ta;
+		JsonObject object(ta);
+		sjson::parse(buf, object);
 
 		Array<TextureData> texdata(default_allocator());
 		Array<UniformData> unidata(default_allocator());
 		Array<char> names(default_allocator());
 		Array<char> dynblob(default_allocator());
 
-		StringId32 shader = root.key("shader").to_string_id();
-		parse_textures(root, texdata, names, dynblob);
-		parse_uniforms(root, unidata, names, dynblob);
+		DynamicString shader(ta);
+		sjson::parse_string(object["shader"], shader);
+
+		parse_textures(object["textures"], texdata, names, dynblob);
+		parse_uniforms(object["uniforms"], unidata, names, dynblob);
 
 		MaterialResource mr;
-		mr.version = MATERIAL_VERSION;
-		mr.shader = shader;
-		mr.num_textures = array::size(texdata);
+		mr.version             = MATERIAL_VERSION;
+		mr.shader              = shader.to_string_id();
+		mr.num_textures        = array::size(texdata);
 		mr.texture_data_offset = sizeof(mr);
-		mr.num_uniforms = array::size(unidata);
-		mr.uniform_data_offset = sizeof(mr) + sizeof(TextureData) * array::size(texdata);
-		mr.dynamic_data_size = array::size(dynblob);
-		mr.dynamic_data_offset = sizeof(mr) + sizeof(TextureData) * array::size(texdata) + sizeof(UniformData) * array::size(unidata);
+		mr.num_uniforms        = array::size(unidata);
+		mr.uniform_data_offset = mr.texture_data_offset + sizeof(TextureData)*array::size(texdata);
+		mr.dynamic_data_size   = array::size(dynblob);
+		mr.dynamic_data_offset = mr.uniform_data_offset + sizeof(UniformData)*array::size(unidata);
 
 		// Write
 		opts.write(mr.version);
