@@ -79,7 +79,7 @@ void Device::init()
 	profiler_globals::init();
 
 #if CROWN_PLATFORM_ANDROID
-	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(_device_options.asset_manager());
+	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(const_cast<AAssetManager*>(_device_options.asset_manager()));
 #else
 	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(_device_options.bundle_dir());
 #endif // CROWN_PLATFORM_ANDROID
