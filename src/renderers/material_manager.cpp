@@ -52,6 +52,7 @@ void MaterialManager::destroy_material(StringId64 id)
 
 Material* MaterialManager::get(StringId64 id)
 {
+	CE_ASSERT(sort_map::has(_materials, id), "Material not found");
 	return sort_map::get(_materials, id, (Material*)NULL);
 }
 
