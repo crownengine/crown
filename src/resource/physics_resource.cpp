@@ -108,7 +108,11 @@ namespace physics_resource
 
 		Sphere sphere;
 		sphere::reset(sphere);
-		sphere::add_points(sphere, array::size(positions) / 3, sizeof(Vector3), array::begin(positions));
+		sphere::add_points(sphere
+			, array::size(positions) / 3
+			, sizeof(Vector3)
+			, array::begin(positions)
+			);
 
 		sd.sphere.radius = sphere.r;
 	}
@@ -127,7 +131,11 @@ namespace physics_resource
 
 		AABB aabb;
 		aabb::reset(aabb);
-		aabb::add_points(aabb, array::size(positions) / 3, sizeof(Vector3), array::begin(positions));
+		aabb::add_points(aabb
+			, array::size(positions) / 3
+			, sizeof(Vector3)
+			, array::begin(positions)
+			);
 
 		sd.capsule.radius = aabb::radius(aabb) / 2.0f;
 		sd.capsule.height = (aabb.max.y - aabb.min.y) / 2.0f;
@@ -147,7 +155,11 @@ namespace physics_resource
 
 		AABB aabb;
 		aabb::reset(aabb);
-		aabb::add_points(aabb, array::size(positions) / 3, sizeof(Vector3), array::begin(positions));
+		aabb::add_points(aabb
+			, array::size(positions) / 3
+			, sizeof(Vector3)
+			, array::begin(positions)
+			);
 
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
@@ -291,8 +303,6 @@ namespace physics_resource
 
 namespace physics_config_resource
 {
-	static Map<DynamicString, uint32_t>* s_ftm = NULL;
-
 	void parse_materials(const char* json, Array<PhysicsConfigMaterial>& objects)
 	{
 		TempAllocator4096 ta;
@@ -399,66 +409,91 @@ namespace physics_config_resource
 		}
 	}
 
-	uint32_t new_filter_mask()
+	struct CollisionFilterCompiler
 	{
-		static uint32_t mask = 1;
-		CE_ASSERT(mask != 0x80000000u, "Too many collision filters");
-		uint32_t tmp = mask;
-		mask = mask << 1;
-		return tmp;
-	}
+		CompileOptions& _opts;
+		Map<StringId32, uint32_t> _filter_map;
+		Array<PhysicsCollisionFilter> _filters;
+		uint32_t _filter;
 
-	uint32_t filter_to_mask(const char* f)
-	{
-		if (map::has(*s_ftm, DynamicString(f)))
-			return map::get(*s_ftm, DynamicString(f), 0u);
-
-		uint32_t new_filter = new_filter_mask();
-		map::set(*s_ftm, DynamicString(f), new_filter);
-		return new_filter;
-	}
-
-	uint32_t collides_with_to_mask(const Vector<DynamicString>& coll_with)
-	{
-		uint32_t mask = 0;
-
-		for (uint32_t i = 0; i < vector::size(coll_with); i++)
+		CollisionFilterCompiler(CompileOptions& opts)
+			: _opts(opts)
+			, _filter_map(default_allocator())
+			, _filters(default_allocator())
+			, _filter(1)
 		{
-			mask |= filter_to_mask(coll_with[i].c_str());
 		}
 
-		return mask;
-	}
-
-	void parse_collision_filters(const char* json, Array<PhysicsCollisionFilter>& objects)
-	{
-		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(json, object);
-
-		const typename JsonObject::Node* begin = map::begin(object);
-		const typename JsonObject::Node* end = map::end(object);
-
-		for (; begin != end; ++begin)
+		void parse(const char* json)
 		{
-			const FixedString key = begin->pair.first;
-			const char* value     = begin->pair.second;
+			TempAllocator4096 ta;
+			JsonObject object(ta);
+			sjson::parse(json, object);
 
-			JsonObject filter(ta);
-			sjson::parse_object(value, filter);
+			auto begin = map::begin(object);
+			auto end = map::end(object);
+			for (; begin != end; ++begin)
+			{
+				const FixedString key = begin->pair.first;
+				const StringId32 id   = StringId32(key.data(), key.length());
 
-			// Build mask
-			// Vector<DynamicString> collides_with_vector(default_allocator());
-			// collides_with.to_array(collides_with_vector);
+				map::set(_filter_map, id, new_filter_mask());
+			}
 
-			PhysicsCollisionFilter pcf;
-			pcf.name  = StringId32(key.data(), key.length());
-			pcf.me    = filter_to_mask(key.data());
-			// pcf.mask  = collides_with_to_mask(collides_with_vector);
+			begin = map::begin(object);
+			end = map::end(object);
+			for (; begin != end; ++begin)
+			{
+				const FixedString key = begin->pair.first;
+				const char* value     = begin->pair.second;
+				const StringId32 id   = StringId32(key.data(), key.length());
 
-			array::push_back(objects, pcf);
+				TempAllocator4096 ta;
+				JsonObject filter(ta);
+				sjson::parse_object(value, filter);
+
+				JsonArray collides_with(ta);
+				sjson::parse_array(filter["collides_with"], collides_with);
+
+				uint32_t mask = 0;
+				for (uint32_t i = 0; i < array::size(collides_with); ++i)
+				{
+					const StringId32 fi = sjson::parse_string_id(collides_with[i]);
+					mask |= filter_to_mask(fi);
+				}
+
+				// Build mask
+				PhysicsCollisionFilter pcf;
+				pcf.name = id;
+				pcf.me   = filter_to_mask(id);
+				pcf.mask = mask;
+
+				array::push_back(_filters, pcf);
+			}
 		}
-	}
+
+		uint32_t new_filter_mask()
+		{
+			RESOURCE_COMPILER_ASSERT(_filter != 0x80000000u
+				, _opts
+				, "Too many collision filters"
+				);
+
+			const uint32_t f = _filter;
+			_filter = _filter << 1;
+			return f;
+		}
+
+		uint32_t filter_to_mask(StringId32 filter)
+		{
+			RESOURCE_COMPILER_ASSERT(map::has(_filter_map, filter)
+				, _opts
+				, "Filter not found"
+				);
+
+			return map::get(_filter_map, filter, 0u);
+		}
+	};
 
 	void compile(const char* path, CompileOptions& opts)
 	{
@@ -467,17 +502,14 @@ namespace physics_config_resource
 		JsonObject object(ta);
 		sjson::parse(buf, object);
 
-		typedef Map<DynamicString, uint32_t> FilterMap;
-		s_ftm = CE_NEW(default_allocator(), FilterMap)(default_allocator());
-
 		Array<PhysicsConfigMaterial> materials(default_allocator());
 		Array<PhysicsConfigShape> shapes(default_allocator());
 		Array<PhysicsConfigActor> actors(default_allocator());
-		Array<PhysicsCollisionFilter> filters(default_allocator());
+		CollisionFilterCompiler cfc(opts);
 
 		// Parse materials
 		if (map::has(object, FixedString("collision_filters")))
-			parse_collision_filters(object["collision_filters"], filters);
+			cfc.parse(object["collision_filters"]);
 		if (map::has(object, FixedString("materials")))
 			parse_materials(object["materials"], materials);
 		if (map::has(object, FixedString("shapes")))
@@ -491,7 +523,7 @@ namespace physics_config_resource
 		pcr.num_materials = array::size(materials);
 		pcr.num_shapes    = array::size(shapes);
 		pcr.num_actors    = array::size(actors);
-		pcr.num_filters   = array::size(filters);
+		pcr.num_filters   = array::size(cfc._filters);
 
 		uint32_t offt = sizeof(PhysicsConfigResource);
 		pcr.materials_offset = offt;
@@ -545,15 +577,12 @@ namespace physics_config_resource
 			opts.write(actors[i].flags);
 		}
 
-		// Write filter objects
-		for (uint32_t i = 0; i < pcr.num_filters; ++i)
+		for (uint32_t i = 0; i < array::size(cfc._filters); ++i)
 		{
-			opts.write(filters[i].name._id);
-			opts.write(filters[i].me);
-			opts.write(filters[i].mask);
+			opts.write(cfc._filters[i].name._id);
+			opts.write(cfc._filters[i].me);
+			opts.write(cfc._filters[i].mask);
 		}
-
-		CE_DELETE(default_allocator(), s_ftm);
 	}
 
 	void* load(File& file, Allocator& a)
