@@ -47,7 +47,7 @@ public:
 	{
 #if CROWN_PLATFORM_POSIX
 		_file = fopen(path, (mode == FileOpenMode::READ) ? "rb" : "wb");
-		CE_ASSERT(_file != NULL, "fopen: errno = %d", errno);
+		CE_ASSERT(_file != NULL, "fopen: errno = %d, path = '%s'", errno, path);
 #elif CROWN_PLATFORM_WINDOWS
 		_file = CreateFile(path
 			, (mode == FileOpenMode::READ) ? GENERIC_READ : GENERIC_WRITE
@@ -57,7 +57,11 @@ public:
 			, FILE_ATTRIBUTE_NORMAL
 			, NULL
 			);
-		CE_ASSERT(_file != INVALID_HANDLE_VALUE, "CreateFile: GetLastError = %d", GetLastError());
+		CE_ASSERT(_file != INVALID_HANDLE_VALUE
+			, "CreateFile: GetLastError = %d, path = '%s'"
+			, GetLastError()
+			, path
+			);
 #endif
 	}
 
