@@ -3,13 +3,12 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "debug_line.h"
-#include "math_utils.h"
 #include "color4.h"
-#include "vector3.h"
-#include "matrix4x4.h"
-#include "error.h"
+#include "debug_line.h"
 #include "device.h"
+#include "math_utils.h"
+#include "matrix4x4.h"
+#include "vector3.h"
 #include <string.h> // memcpy
 
 namespace crown
