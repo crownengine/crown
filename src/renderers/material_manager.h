@@ -14,8 +14,14 @@
 namespace crown
 {
 
-struct MaterialManager
+class MaterialManager
 {
+	Allocator* _allocator;
+	ResourceManager* _resource_manager;
+	SortMap<StringId64, Material*> _materials;
+
+public:
+
 	MaterialManager(Allocator& a, ResourceManager& rm);
 	~MaterialManager();
 
@@ -27,12 +33,6 @@ struct MaterialManager
 
 	/// Returns the material @a id.
 	Material* get(StringId64 id);
-
-private:
-
-	Allocator* _allocator;
-	ResourceManager* _resource_manager;
-	SortMap<StringId64, Material*> _materials;
 };
 
 } // namespace crown

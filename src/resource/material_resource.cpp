@@ -47,8 +47,8 @@ namespace material_resource
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		const typename JsonObject::Node* begin = map::begin(object);
-		const typename JsonObject::Node* end = map::end(object);
+		auto begin = map::begin(object);
+		auto end = map::end(object);
 
 		for (; begin != end; ++begin)
 		{
@@ -107,8 +107,8 @@ namespace material_resource
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		const typename JsonObject::Node* begin = map::begin(object);
-		const typename JsonObject::Node* end = map::end(object);
+		auto begin = map::begin(object);
+		auto end = map::end(object);
 
 		for (; begin != end; ++begin)
 		{

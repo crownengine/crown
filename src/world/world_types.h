@@ -11,10 +11,10 @@
 namespace crown
 {
 
-struct UnitManager;
-struct SceneGraph;
-class World;
 class Level;
+class UnitManager;
+class World;
+struct SceneGraph;
 
 #define UNIT_INDEX_BITS 22
 #define UNIT_INDEX_MASK 0x003fffff

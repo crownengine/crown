@@ -210,8 +210,8 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 		JsonObject keys(ta);
 		sjson::parse(components, keys);
 
-		const typename JsonObject::Node* begin = map::begin(keys);
-		const typename JsonObject::Node* end = map::end(keys);
+		auto begin = map::begin(keys);
+		auto end = map::end(keys);
 
 		for (; begin != end; ++begin)
 		{
