@@ -191,8 +191,8 @@ public:
 			btRigidBody* rb = _actor[i].actor;
 
 			_scene->removeRigidBody(rb);
-			rb->getMotionState()->~btMotionState();
-			rb->getCollisionShape()->~btCollisionShape();
+			CE_DELETE(*_allocator, rb->getMotionState());
+			CE_DELETE(*_allocator, rb->getCollisionShape());
 			CE_DELETE(*_allocator, rb);
 		}
 
@@ -281,25 +281,14 @@ public:
 	{
 		const PhysicsConfigActor* actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
 
-		const uint32_t blob_size = sizeof(btRigidBody)
-			+ sizeof(btDefaultMotionState)
-			+ sizeof(btCompoundShape
-			);
-
-		void* data = _allocator->allocate(blob_size);
-		btRigidBody* actor = (btRigidBody*)data;
-		btDefaultMotionState* ms = (btDefaultMotionState*)(actor + 1);
-		btCompoundShape* shape = (btCompoundShape*)(ms + 1);
-
 		// Create motion state
-		const Quaternion r = rotation(tm);
-		const Vector3 p = translation(tm);
-		const btQuaternion bt_r = to_btQuaternion(r);
-		const btVector3 bt_p = to_btVector3(p);
-		ms = new (ms) btDefaultMotionState(btTransform(bt_r, bt_p));
+		const btVector3 pos    = to_btVector3(translation(tm));
+		const btQuaternion rot = to_btQuaternion(rotation(tm));
+
+		btDefaultMotionState* ms = CE_NEW(*_allocator, btDefaultMotionState)(btTransform(rot, pos));
 
 		// Create compound shape
-		shape = new (shape) btCompoundShape(true);
+		btCompoundShape* shape = CE_NEW(*_allocator, btCompoundShape)(true);
 
 		ColliderInstance ci = first_collider(id);
 		while (is_valid(ci))
@@ -308,12 +297,18 @@ public:
 			ci = next_collider(ci);
 		}
 
-		const float mass = (actor_class->flags & PhysicsConfigActor::DYNAMIC) ? ar->mass : 0.0f;
+		const bool is_kinematic = actor_class->flags & PhysicsConfigActor::KINEMATIC;
+		const bool is_dynamic   = actor_class->flags & PhysicsConfigActor::DYNAMIC;
+		const bool is_static    = !is_kinematic && !is_dynamic;
+
+		const float mass = is_dynamic ? ar->mass : 0.0f;
 
 		// If dynamic, calculate inertia
 		btVector3 inertia;
 		if (mass != 0.0f) // Actor is dynamic iff mass != 0
+		{
 			shape->calculateLocalInertia(mass, inertia);
+		}
 
 		btRigidBody::btRigidBodyConstructionInfo rbinfo(mass, ms, shape, inertia);
 		rbinfo.m_linearDamping = actor_class->linear_damping;
@@ -325,11 +320,7 @@ public:
 		rbinfo.m_angularSleepingThreshold = 0.01f; // FIXME
 
 		// Create rigid body
-		const bool is_kinematic = actor_class->flags & PhysicsConfigActor::KINEMATIC;
-		const bool is_dynamic   = actor_class->flags & PhysicsConfigActor::DYNAMIC;
-		const bool is_static    = !is_kinematic && !is_dynamic;
-
-		actor = new (actor) btRigidBody(rbinfo);
+		btRigidBody* actor = CE_NEW(*_allocator, btRigidBody)(rbinfo);
 
 		int cflags = actor->getCollisionFlags();
 		cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT : 0;
