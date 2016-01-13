@@ -140,9 +140,6 @@ function crown_project(_name, _kind, _defines)
 				"_DEBUG",
 				"CROWN_DEBUG=1"
 			}
-			linkoptions {
-				"-rdynamic"
-			}
 
 		configuration { "release" }
 			defines {

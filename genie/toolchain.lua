@@ -111,6 +111,11 @@ function toolchain(build_dir, lib_dir)
 	configuration { "release", "native" }
 		targetsuffix "-release"
 
+	configuration { "debug or development", "linux-*" }
+		linkoptions {
+			"-rdynamic"
+		}
+
 	configuration { "x32", "linux-*" }
 		targetdir (build_dir .. "linux32" .. "/bin")
 		objdir (build_dir .. "linux32" .. "/obj")
