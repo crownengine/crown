@@ -344,7 +344,7 @@ struct LuaStack
 
 	UnitId get_unit(int i)
 	{
-		uint32_t enc = (uintptr_t)get_pointer(i);
+		uint32_t enc = (uint32_t)(uintptr_t)get_pointer(i);
 
 		if ((enc & LIGHTDATA_TYPE_MASK) != UNIT_MARKER)
 			luaL_typerror(L, i, "UnitId");
