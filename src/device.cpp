@@ -84,7 +84,7 @@ void Device::init()
 	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(_device_options.bundle_dir());
 #endif // CROWN_PLATFORM_ANDROID
 
-	_resource_loader = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
+	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 
 	read_config();
@@ -96,10 +96,11 @@ void Device::init()
 		, &_bgfx_allocator
 		);
 
-	_shader_manager = CE_NEW(_allocator, ShaderManager)(default_allocator());
+	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
 	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
-	_input_manager = CE_NEW(_allocator, InputManager)(default_allocator());
-	_unit_manager = CE_NEW(_allocator, UnitManager)(default_allocator());
+	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
+	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
+	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
 
 	audio_globals::init();
 	physics_globals::init();
@@ -108,7 +109,6 @@ void Device::init()
 	_boot_package->load();
 	_boot_package->flush();
 
-	_lua_environment = CE_NEW(_allocator, LuaEnvironment)();
 	_lua_environment->load_libs();
 	_lua_environment->execute((LuaResource*)_resource_manager->get(SCRIPT_TYPE, _boot_script_id));
 	_lua_environment->call_global("init", 0);
@@ -128,7 +128,6 @@ void Device::shutdown()
 	_is_init = false;
 
 	_lua_environment->call_global("shutdown", 0);
-	CE_DELETE(_allocator, _lua_environment);
 
 	_boot_package->unload();
 	destroy_resource_package(*_boot_package);
@@ -136,6 +135,7 @@ void Device::shutdown()
 	physics_globals::shutdown();
 	audio_globals::shutdown();
 
+	CE_DELETE(_allocator, _lua_environment);
 	CE_DELETE(_allocator, _unit_manager);
 	CE_DELETE(_allocator, _input_manager);
 	CE_DELETE(_allocator, _material_manager);
