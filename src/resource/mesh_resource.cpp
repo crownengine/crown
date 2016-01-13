@@ -265,8 +265,8 @@ namespace mesh_resource
 
 		MeshCompiler mc(opts);
 
-		const typename JsonObject::Node* begin = map::begin(geometries);
-		const typename JsonObject::Node* end = map::end(geometries);
+		auto begin = map::begin(geometries);
+		auto end = map::end(geometries);
 		for (; begin != end; ++begin)
 		{
 			const FixedString key = begin->pair.first;
@@ -288,14 +288,14 @@ namespace mesh_resource
 		br.read(version);
 		CE_ASSERT(version == MESH_VERSION, "Wrong version");
 
-		uint32_t num_geometries;
-		br.read(num_geometries);
+		uint32_t num_geoms;
+		br.read(num_geoms);
 
 		MeshResource* mr = CE_NEW(a, MeshResource)(a);
-		array::resize(mr->geometry_names, num_geometries);
-		array::resize(mr->geometries, num_geometries);
+		array::resize(mr->geometry_names, num_geoms);
+		array::resize(mr->geometries, num_geoms);
 
-		for (uint32_t i = 0; i < num_geometries; ++i)
+		for (uint32_t i = 0; i < num_geoms; ++i)
 		{
 			StringId32 name;
 			br.read(name);
@@ -315,25 +315,24 @@ namespace mesh_resource
 			uint32_t num_inds;
 			br.read(num_inds);
 
-			const uint32_t verts_size = num_verts*stride;
-			const uint32_t inds_size  = num_inds*sizeof(uint16_t);
+			const uint32_t vsize = num_verts*stride;
+			const uint32_t isize = num_inds*sizeof(uint16_t);
 
-			const uint32_t size = sizeof(MeshGeometry)
-				+ verts_size
-				+ inds_size
-				;
+			const uint32_t size = sizeof(MeshGeometry) + vsize + isize;
 
 			MeshGeometry* mg = (MeshGeometry*)a.allocate(size);
 			mg->obb             = obb;
 			mg->decl            = decl;
+			mg->vertex_buffer   = BGFX_INVALID_HANDLE;
+			mg->index_buffer    = BGFX_INVALID_HANDLE;
 			mg->vertices.num    = num_verts;
 			mg->vertices.stride = stride;
 			mg->vertices.data   = (char*)&mg[1];
 			mg->indices.num     = num_inds;
-			mg->indices.data    = mg->vertices.data + verts_size;
+			mg->indices.data    = mg->vertices.data + vsize;
 
-			br.read(mg->vertices.data, verts_size);
-			br.read(mg->indices.data, inds_size);
+			br.read(mg->vertices.data, vsize);
+			br.read(mg->indices.data, isize);
 
 			mr->geometry_names[i] = name;
 			mr->geometries[i] = mg;
@@ -348,16 +347,21 @@ namespace mesh_resource
 
 		for (uint32_t i = 0; i < array::size(mr->geometries); ++i)
 		{
-			const uint32_t verts_num    = mr->geometries[i]->vertices.num;
-			const uint32_t verts_stride = mr->geometries[i]->vertices.stride;
-			const uint32_t verts_size   = verts_num*verts_stride;
-			const uint32_t inds_size    = mr->geometries[i]->indices.num*sizeof(uint16_t);
+			MeshGeometry& mg = *mr->geometries[i];
 
-			const bgfx::Memory* vbmem = bgfx::makeRef(mr->geometries[i]->vertices.data, verts_size);
-			const bgfx::Memory* ibmem = bgfx::makeRef(mr->geometries[i]->indices.data, inds_size);
+			const uint32_t vsize = mg.vertices.num * mg.vertices.stride;
+			const uint32_t isize = mg.indices.num * sizeof(uint16_t);
 
-			mr->geometries[i]->vertex_buffer = bgfx::createVertexBuffer(vbmem, mr->geometries[i]->decl);
-			mr->geometries[i]->index_buffer = bgfx::createIndexBuffer(ibmem);
+			const bgfx::Memory* vmem = bgfx::makeRef(mg.vertices.data, vsize);
+			const bgfx::Memory* imem = bgfx::makeRef(mg.indices.data, isize);
+
+			bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(vmem, mg.decl);
+			bgfx::IndexBufferHandle ibh  = bgfx::createIndexBuffer(imem);
+			CE_ASSERT(bgfx::isValid(vbh), "Invalid vertex buffer");
+			CE_ASSERT(bgfx::isValid(ibh), "Invalid index buffer");
+
+			mg.vertex_buffer = vbh;
+			mg.index_buffer  = ibh;
 		}
 	}
 
@@ -367,8 +371,9 @@ namespace mesh_resource
 
 		for (uint32_t i = 0; i < array::size(mr->geometries); ++i)
 		{
-			bgfx::destroyVertexBuffer(mr->geometries[i]->vertex_buffer);
-			bgfx::destroyIndexBuffer(mr->geometries[i]->index_buffer);
+			MeshGeometry& mg = *mr->geometries[i];
+			bgfx::destroyVertexBuffer(mg.vertex_buffer);
+			bgfx::destroyIndexBuffer(mg.index_buffer);
 		}
 	}
 
