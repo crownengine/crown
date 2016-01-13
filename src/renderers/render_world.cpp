@@ -56,17 +56,20 @@ MeshInstance RenderWorld::create_mesh(UnitId id, const MeshRendererDesc& mrd, co
 		grow_mesh();
 
 	const MeshResource* mr = (const MeshResource*)_resource_manager->get(MESH_TYPE, mrd.mesh_resource);
+	const MeshGeometry* mg = mr->geometry(mrd.mesh_name);
+
 	_material_manager->create_material(mrd.material_resource);
 
 	const uint32_t last = _mesh_data.size;
 
+
 	_mesh_data.unit[last]          = id;
 	_mesh_data.mr[last]            = mr;
-	_mesh_data.mesh[last].vbh      = mr->geometry(mrd.mesh_name)->vertex_buffer;
-	_mesh_data.mesh[last].ibh      = mr->geometry(mrd.mesh_name)->index_buffer;
+	_mesh_data.mesh[last].vbh      = mg->vertex_buffer;
+	_mesh_data.mesh[last].ibh      = mg->index_buffer;
 	_mesh_data.material[last]      = mrd.material_resource;
 	_mesh_data.world[last]         = tr;
-	_mesh_data.obb[last]           = mr->geometry(mrd.mesh_name)->obb;
+	_mesh_data.obb[last]           = mg->obb;
 	_mesh_data.next_instance[last] = make_mesh_instance(UINT32_MAX);
 
 	++_mesh_data.size;
