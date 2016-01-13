@@ -88,6 +88,17 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 
 	if (entry == ResourceEntry::NOT_FOUND)
 	{
+		char type_buf[StringId64::STRING_LENGTH];
+		char name_buf[StringId64::STRING_LENGTH];
+
+		CE_ASSERT(_loader->can_load(type, name)
+			, "Can't load resource #ID(%s-%s)"
+			, type.to_string(type_buf)
+			, name.to_string(name_buf)
+			);
+		CE_UNUSED(type_buf);
+		CE_UNUSED(name_buf);
+
 		ResourceRequest rr;
 		rr.type = type;
 		rr.name = name;
@@ -144,7 +155,11 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 	char type_buf[StringId64::STRING_LENGTH];
 	char name_buf[StringId64::STRING_LENGTH];
 
-	CE_ASSERT(can_get(type, name), "Resource not loaded #ID(%s-%s)", type.to_string(type_buf), name.to_string(name_buf));
+	CE_ASSERT(can_get(type, name)
+		, "Resource not loaded #ID(%s-%s)"
+		, type.to_string(type_buf)
+		, name.to_string(name_buf)
+		);
 	CE_UNUSED(type_buf);
 	CE_UNUSED(name_buf);
 

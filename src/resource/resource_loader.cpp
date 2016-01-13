@@ -29,6 +29,20 @@ ResourceLoader::~ResourceLoader()
 	_thread.stop();
 }
 
+bool ResourceLoader::can_load(StringId64 type, StringId64 name)
+{
+	char buf[1 + 2*StringId64::STRING_LENGTH];
+	type.to_string(buf);
+	buf[16] = '-';
+	name.to_string(buf + 17);
+
+	TempAllocator256 alloc;
+	DynamicString path(alloc);
+	path::join(CROWN_DATA_DIRECTORY, buf, path);
+
+	return _fs.exists(path.c_str());
+}
+
 void ResourceLoader::add_request(const ResourceRequest& rr)
 {
 	ScopedMutex sm(_mutex);
