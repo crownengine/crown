@@ -486,8 +486,8 @@ namespace shader_resource
 			JsonObject render_states(ta);
 			sjson::parse_object(json, render_states);
 
-			const typename JsonObject::Node* begin = map::begin(render_states);
-			const typename JsonObject::Node* end = map::end(render_states);
+			auto begin = map::begin(render_states);
+			auto end = map::end(render_states);
 			for (; begin != end; ++begin)
 			{
 				JsonObject obj(ta);
@@ -541,8 +541,8 @@ namespace shader_resource
 			JsonObject bgfx_shaders(ta);
 			sjson::parse_object(json, bgfx_shaders);
 
-			const typename JsonObject::Node* begin = map::begin(bgfx_shaders);
-			const typename JsonObject::Node* end = map::end(bgfx_shaders);
+			auto begin = map::begin(bgfx_shaders);
+			auto end = map::end(bgfx_shaders);
 			for (; begin != end; ++begin)
 			{
 				JsonObject shader(ta);
@@ -577,8 +577,8 @@ namespace shader_resource
 			JsonObject shaders(ta);
 			sjson::parse_object(json, shaders);
 
-			const typename JsonObject::Node* begin = map::begin(shaders);
-			const typename JsonObject::Node* end = map::end(shaders);
+			auto begin = map::begin(shaders);
+			auto end = map::end(shaders);
 			for (; begin != end; ++begin)
 			{
 				JsonObject obj(ta);
@@ -600,8 +600,8 @@ namespace shader_resource
 			_opts.write(SHADER_VERSION);
 			_opts.write(map::size(_shaders));
 
-			const typename Map<DynamicString, ShaderPermutation>::Node* begin = map::begin(_shaders);
-			const typename Map<DynamicString, ShaderPermutation>::Node* end = map::end(_shaders);
+			auto begin = map::begin(_shaders);
+			auto end = map::end(_shaders);
 			for (; begin != end; ++begin)
 			{
 				const ShaderPermutation& sp = begin->pair.second;
@@ -636,16 +636,18 @@ namespace shader_resource
 				included_code = included._code;
 			}
 
-			DynamicString vs_code(default_allocator());
-			DynamicString fs_code(default_allocator());
-			vs_code += shader._vs_input_output;
-			vs_code += included_code;
-			vs_code += shader._code;
-			vs_code += shader._vs_code;
-			fs_code += shader._fs_input_output;
-			fs_code += included_code;
-			fs_code += shader._code;
-			fs_code += shader._fs_code;
+			using namespace string_stream;
+
+			StringStream vs_code(default_allocator());
+			StringStream fs_code(default_allocator());
+			vs_code << shader._vs_input_output.c_str();
+			vs_code << included_code.c_str();
+			vs_code << shader._code.c_str();
+			vs_code << shader._vs_code.c_str();
+			fs_code << shader._fs_input_output.c_str();
+			fs_code << included_code.c_str();
+			fs_code << shader._code.c_str();
+			fs_code << shader._fs_code.c_str();
 
 			DynamicString vs_code_path(default_allocator());
 			DynamicString fs_code_path(default_allocator());
@@ -660,11 +662,11 @@ namespace shader_resource
 			_opts.get_absolute_path("tmpfs", tmpfs_path);
 
 			File* vs_file = _opts._fs.open(vs_code_path.c_str(), FileOpenMode::WRITE);
-			vs_file->write(vs_code.c_str(), vs_code.length());
+			vs_file->write(c_str(vs_code), array::size(vs_code));
 			_opts._fs.close(*vs_file);
 
 			File* fs_file = _opts._fs.open(fs_code_path.c_str(), FileOpenMode::WRITE);
-			fs_file->write(fs_code.c_str(), fs_code.length());
+			fs_file->write(c_str(fs_code), array::size(fs_code));
 			_opts._fs.close(*fs_file);
 
 			File* varying_file = _opts._fs.open(varying_def_path.c_str(), FileOpenMode::WRITE);
@@ -673,7 +675,6 @@ namespace shader_resource
 
 			TempAllocator4096 ta;
 			StringStream output(ta);
-			using namespace string_stream;
 
 			int exitcode = run_external_compiler(vs_code_path.c_str()
 				, tmpvs_path.c_str()
