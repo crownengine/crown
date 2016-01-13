@@ -1712,6 +1712,8 @@ static int render_world_sprite_instances(lua_State* L)
 		stack.push_sprite_instance(inst);
 		stack.push_key_end();
 	}
+
+	return 1;
 }
 
 static int render_world_set_sprite_visible(lua_State* L)
