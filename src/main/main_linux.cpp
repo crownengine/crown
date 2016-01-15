@@ -352,6 +352,7 @@ struct LinuxDevice
 		, _x11_window(None)
 		, _x11_hidden_cursor(None)
 		, _screen_config(NULL)
+		, _x11_detectable_autorepeat(false)
 	{
 	}
 
