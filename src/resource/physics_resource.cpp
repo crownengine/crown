@@ -51,7 +51,7 @@ namespace physics_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(s_joint) == JointType::COUNT);
 
-	static uint32_t shape_type_to_enum(const char* type)
+	static ShapeType::Enum shape_type_to_enum(const char* type)
 	{
 		for (uint32_t i = 0; i < CE_COUNTOF(s_shape); ++i)
 		{
@@ -59,11 +59,10 @@ namespace physics_resource
 				return s_shape[i].type;
 		}
 
-		CE_FATAL("Bad shape type");
-		return 0;
+		return ShapeType::COUNT;
 	}
 
-	static uint32_t joint_type_to_enum(const char* type)
+	static JointType::Enum joint_type_to_enum(const char* type)
 	{
 		for (uint32_t i = 0; i < CE_COUNTOF(s_joint); ++i)
 		{
@@ -71,8 +70,7 @@ namespace physics_resource
 				return s_joint[i].type;
 		}
 
-		CE_FATAL("Bad joint type");
-		return 0;
+		return JointType::COUNT;
 	}
 
 	Buffer compile_controller(const char* json, CompileOptions& opts)
@@ -195,8 +193,15 @@ namespace physics_resource
 		DynamicString type(ta);
 		sjson::parse_string(obj["shape"], type);
 
+		ShapeType::Enum st = shape_type_to_enum(type.c_str());
+		RESOURCE_COMPILER_ASSERT(st != ShapeType::COUNT
+			, opts
+			, "Unknown shape type: '%s'"
+			, type.c_str()
+			);
+
 		ShapeDesc sd;
-		sd.type        = shape_type_to_enum(type.c_str());
+		sd.type        = st;
 		sd.shape_class = sjson::parse_string_id(obj["class"]);
 		sd.material    = sjson::parse_string_id(obj["material"]);
 		sd.local_tm    = MATRIX4X4_IDENTITY;
@@ -276,8 +281,15 @@ namespace physics_resource
 		DynamicString type(ta);
 		sjson::parse_string(obj["type"], type);
 
+		JointType::Enum jt = joint_type_to_enum(type.c_str());
+		RESOURCE_COMPILER_ASSERT(jt != JointType::COUNT
+			, opts
+			, "Unknown joint type: '%s'"
+			, type.c_str()
+			);
+
 		JointDesc jd;
-		jd.type     = joint_type_to_enum(type.c_str());
+		jd.type     = jt;
 		jd.anchor_0 = sjson::parse_vector3(obj["anchor_0"]);
 		jd.anchor_1 = sjson::parse_vector3(obj["anchor_1"]);
 

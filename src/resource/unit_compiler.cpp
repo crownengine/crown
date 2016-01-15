@@ -54,8 +54,7 @@ static ProjectionType::Enum projection_name_to_enum(const char* name)
 			return s_projection[i].type;
 	}
 
-	CE_FATAL("Bad projection type");
-	return (ProjectionType::Enum)0;
+	return ProjectionType::COUNT;
 }
 
 static LightType::Enum light_name_to_enum(const char* name)
@@ -66,8 +65,7 @@ static LightType::Enum light_name_to_enum(const char* name)
 			return s_light[i].type;
 	}
 
-	CE_FATAL("Bad light type");
-	return (LightType::Enum)0;
+	return LightType::COUNT;
 }
 
 static Buffer compile_transform(const char* json, CompileOptions& opts)
@@ -95,8 +93,15 @@ static Buffer compile_camera(const char* json, CompileOptions& opts)
 	DynamicString type(ta);
 	sjson::parse_string(obj["projection"], type);
 
+	ProjectionType::Enum pt = projection_name_to_enum(type.c_str());
+	RESOURCE_COMPILER_ASSERT(pt != ProjectionType::COUNT
+		, opts
+		, "Unknown projection type: '%s'"
+		, type.c_str()
+		);
+
 	CameraDesc cd;
-	cd.type       = projection_name_to_enum(type.c_str());
+	cd.type       = pt;
 	cd.fov        = sjson::parse_float(obj["fov"]);
 	cd.near_range = sjson::parse_float(obj["near_range"]);
 	cd.far_range  = sjson::parse_float(obj["far_range"]);
@@ -148,8 +153,15 @@ static Buffer compile_light(const char* json, CompileOptions& opts)
 	DynamicString type(ta);
 	sjson::parse_string(obj["light"], type);
 
+	LightType::Enum lt = light_name_to_enum(type.c_str());
+	RESOURCE_COMPILER_ASSERT(lt != LightType::COUNT
+		, opts
+		, "Unknown light type: '%s'"
+		, type.c_str()
+		);
+
 	LightDesc ld;
-	ld.type       = light_name_to_enum(type.c_str());
+	ld.type       = lt;
 	ld.range      = sjson::parse_float  (obj["range"]);
 	ld.intensity  = sjson::parse_float  (obj["intensity"]);
 	ld.spot_angle = sjson::parse_float  (obj["spot_angle"]);
