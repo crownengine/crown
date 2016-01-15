@@ -59,7 +59,7 @@ namespace shader_resource
 		return os::execute_process(SHADERC_PATH, c_str(args), output);
 	}
 
-	struct DepthTest
+	struct DepthFunction
 	{
 		enum Enum
 		{
@@ -79,23 +79,23 @@ namespace shader_resource
 	struct DepthTestInfo
 	{
 		const char* name;
-		DepthTest::Enum value;
+		DepthFunction::Enum value;
 	};
 
 	static DepthTestInfo _depth_test_map[] =
 	{
-		{ "less",     DepthTest::LESS     },
-		{ "lequal",   DepthTest::LEQUAL   },
-		{ "equal",    DepthTest::EQUAL    },
-		{ "gequal",   DepthTest::GEQUAL   },
-		{ "greater",  DepthTest::GREATER  },
-		{ "notequal", DepthTest::NOTEQUAL },
-		{ "never",    DepthTest::NEVER    },
-		{ "always",   DepthTest::ALWAYS   }
+		{ "less",     DepthFunction::LESS     },
+		{ "lequal",   DepthFunction::LEQUAL   },
+		{ "equal",    DepthFunction::EQUAL    },
+		{ "gequal",   DepthFunction::GEQUAL   },
+		{ "greater",  DepthFunction::GREATER  },
+		{ "notequal", DepthFunction::NOTEQUAL },
+		{ "never",    DepthFunction::NEVER    },
+		{ "always",   DepthFunction::ALWAYS   }
 	};
-	CE_STATIC_ASSERT(CE_COUNTOF(_depth_test_map) == DepthTest::COUNT);
+	CE_STATIC_ASSERT(CE_COUNTOF(_depth_test_map) == DepthFunction::COUNT);
 
-	static DepthTest::Enum name_to_depth_test(const char* name)
+	static DepthFunction::Enum name_to_depth_function(const char* name)
 	{
 		for (uint32_t i = 0; i < CE_COUNTOF(_depth_test_map); ++i)
 		{
@@ -103,7 +103,7 @@ namespace shader_resource
 				return _depth_test_map[i].value;
 		}
 
-		return DepthTest::COUNT;
+		return DepthFunction::COUNT;
 	}
 
 	struct BlendFunction
@@ -278,12 +278,71 @@ namespace shader_resource
 		return PrimitiveType::COUNT;
 	}
 
+	static uint64_t _bgfx_depth_function_map[] =
+	{
+		BGFX_STATE_DEPTH_TEST_LESS,     // DepthFunction::LESS
+		BGFX_STATE_DEPTH_TEST_LEQUAL,   // DepthFunction::LEQUAL
+		BGFX_STATE_DEPTH_TEST_EQUAL,    // DepthFunction::EQUAL
+		BGFX_STATE_DEPTH_TEST_GEQUAL,   // DepthFunction::GEQUAL
+		BGFX_STATE_DEPTH_TEST_GREATER,  // DepthFunction::GREATER
+		BGFX_STATE_DEPTH_TEST_NOTEQUAL, // DepthFunction::NOTEQUAL
+		BGFX_STATE_DEPTH_TEST_NEVER,    // DepthFunction::NEVER
+		BGFX_STATE_DEPTH_TEST_ALWAYS,   // DepthFunction::ALWAYS
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_depth_function_map) == DepthFunction::COUNT);
+
+	static uint64_t _bgfx_blend_function_map[] =
+	{
+		BGFX_STATE_BLEND_ZERO,          // BlendFunction::ZERO
+		BGFX_STATE_BLEND_ONE,           // BlendFunction::ONE
+		BGFX_STATE_BLEND_SRC_COLOR,     // BlendFunction::SRC_COLOR
+		BGFX_STATE_BLEND_INV_SRC_COLOR, // BlendFunction::INV_SRC_COLOR
+		BGFX_STATE_BLEND_SRC_ALPHA,     // BlendFunction::SRC_ALPHA
+		BGFX_STATE_BLEND_INV_SRC_ALPHA, // BlendFunction::INV_SRC_ALPHA
+		BGFX_STATE_BLEND_DST_ALPHA,     // BlendFunction::DST_ALPHA
+		BGFX_STATE_BLEND_INV_DST_ALPHA, // BlendFunction::INV_DST_ALPHA
+		BGFX_STATE_BLEND_DST_COLOR,     // BlendFunction::DST_COLOR
+		BGFX_STATE_BLEND_INV_DST_COLOR, // BlendFunction::INV_DST_COLOR
+		BGFX_STATE_BLEND_SRC_ALPHA_SAT, // BlendFunction::SRC_ALPHA_SAT
+		BGFX_STATE_BLEND_FACTOR,        // BlendFunction::FACTOR
+		BGFX_STATE_BLEND_INV_FACTOR,    // BlendFunction::INV_FACTOR
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_blend_function_map) == BlendFunction::COUNT);
+
+	static uint64_t _bgfx_blend_equation_map[] =
+	{
+		BGFX_STATE_BLEND_EQUATION_ADD,    // BlendEquation::ADD
+		BGFX_STATE_BLEND_EQUATION_SUB,    // BlendEquation::SUB
+		BGFX_STATE_BLEND_EQUATION_REVSUB, // BlendEquation::REVSUB
+		BGFX_STATE_BLEND_EQUATION_MIN,    // BlendEquation::MIN
+		BGFX_STATE_BLEND_EQUATION_MAX,    // BlendEquation::MAX
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_blend_equation_map) == BlendEquation::COUNT);
+
+	static uint64_t _bgfx_cull_mode_map[] =
+	{
+		BGFX_STATE_CULL_CW,  // CullMode::CW
+		BGFX_STATE_CULL_CCW, // CullMode::CCW
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_cull_mode_map) == CullMode::COUNT);
+
+	static uint64_t _bgfx_primitive_type_map[] =
+	{
+		BGFX_STATE_PT_TRISTRIP,  // PrimitiveType::PT_TRISTRIP
+		BGFX_STATE_PT_LINES,     // PrimitiveType::PT_LINES
+		BGFX_STATE_PT_LINESTRIP, // PrimitiveType::PT_LINESTRIP
+		BGFX_STATE_PT_POINTS,    // PrimitiveType::PT_POINTS
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_primitive_type_map) == PrimitiveType::COUNT);
+
 	struct RenderState
 	{
-		bool _rgb_write;
-		bool _alpha_write;
-		bool _depth_write;
-		DepthTest::Enum _depth_test;
+		bool _rgb_write_enable;
+		bool _alpha_write_enable;
+		bool _depth_write_enable;
+		bool _depth_test_enable;
+		bool _blend_enable;
+		DepthFunction::Enum _depth_function;
 		BlendFunction::Enum _blend_src;
 		BlendFunction::Enum _blend_dst;
 		BlendEquation::Enum _blend_equation;
@@ -292,10 +351,12 @@ namespace shader_resource
 
 		void reset()
 		{
-			_rgb_write = false;
-			_alpha_write = false;
-			_depth_write = false;
-			_depth_test = DepthTest::COUNT;
+			_rgb_write_enable = false;
+			_alpha_write_enable = false;
+			_depth_write_enable = false;
+			_depth_test_enable = false;
+			_blend_enable = false;
+			_depth_function = DepthFunction::COUNT;
 			_blend_src = BlendFunction::COUNT;
 			_blend_dst = BlendFunction::COUNT;
 			_blend_equation = BlendEquation::COUNT;
@@ -305,74 +366,36 @@ namespace shader_resource
 
 		uint64_t encode() const
 		{
+			const uint64_t depth_func = (_depth_test_enable
+				? _bgfx_depth_function_map[_depth_function]
+				: 0
+				);
+			const uint64_t blend_func = (_blend_enable
+				? BGFX_STATE_BLEND_FUNC(_bgfx_blend_function_map[_blend_src], _bgfx_blend_function_map[_blend_dst])
+				: 0
+				);
+			const uint64_t blend_eq = (_blend_enable
+				? BGFX_STATE_BLEND_EQUATION(_bgfx_blend_equation_map[_blend_equation])
+				: 0
+				);
+			const uint64_t cull_mode = (_cull_mode != CullMode::COUNT
+				? _bgfx_cull_mode_map[_cull_mode]
+				: 0
+				);
+			const uint64_t primitive_type = (_primitive_type != PrimitiveType::COUNT
+				? _bgfx_primitive_type_map[_primitive_type]
+				: 0
+				);
+
 			uint64_t state = 0;
-
-			state |= (_rgb_write ? BGFX_STATE_RGB_WRITE : 0);
-			state |= (_alpha_write ? BGFX_STATE_ALPHA_WRITE : 0);
-			state |= (_depth_write ? BGFX_STATE_DEPTH_WRITE : 0);
-
-			static uint64_t _bgfx_depth_test_map[] =
-			{
-				BGFX_STATE_DEPTH_TEST_LESS,     // DepthTest::LESS
-				BGFX_STATE_DEPTH_TEST_LEQUAL,   // DepthTest::LEQUAL
-				BGFX_STATE_DEPTH_TEST_EQUAL,    // DepthTest::EQUAL
-				BGFX_STATE_DEPTH_TEST_GEQUAL,   // DepthTest::GEQUAL
-				BGFX_STATE_DEPTH_TEST_GREATER,  // DepthTest::GREATER
-				BGFX_STATE_DEPTH_TEST_NOTEQUAL, // DepthTest::NOTEQUAL
-				BGFX_STATE_DEPTH_TEST_NEVER,    // DepthTest::NEVER
-				BGFX_STATE_DEPTH_TEST_ALWAYS,   // DepthTest::ALWAYS
-				0
-			};
-
-			static uint64_t _bgfx_blend_function_map[] =
-			{
-				BGFX_STATE_BLEND_ZERO,          // BlendFunction::ZERO
-				BGFX_STATE_BLEND_ONE,           // BlendFunction::ONE
-				BGFX_STATE_BLEND_SRC_COLOR,     // BlendFunction::SRC_COLOR
-				BGFX_STATE_BLEND_INV_SRC_COLOR, // BlendFunction::INV_SRC_COLOR
-				BGFX_STATE_BLEND_SRC_ALPHA,     // BlendFunction::SRC_ALPHA
-				BGFX_STATE_BLEND_INV_SRC_ALPHA, // BlendFunction::INV_SRC_ALPHA
-				BGFX_STATE_BLEND_DST_ALPHA,     // BlendFunction::DST_ALPHA
-				BGFX_STATE_BLEND_INV_DST_ALPHA, // BlendFunction::INV_DST_ALPHA
-				BGFX_STATE_BLEND_DST_COLOR,     // BlendFunction::DST_COLOR
-				BGFX_STATE_BLEND_INV_DST_COLOR, // BlendFunction::INV_DST_COLOR
-				BGFX_STATE_BLEND_SRC_ALPHA_SAT, // BlendFunction::SRC_ALPHA_SAT
-				BGFX_STATE_BLEND_FACTOR,        // BlendFunction::FACTOR
-				BGFX_STATE_BLEND_INV_FACTOR,    // BlendFunction::INV_FACTOR
-				0
-			};
-
-			static uint64_t _bgfx_blend_equation_map[] =
-			{
-				BGFX_STATE_BLEND_EQUATION_ADD,    // BlendEquation::ADD
-				BGFX_STATE_BLEND_EQUATION_SUB,    // BlendEquation::SUB
-				BGFX_STATE_BLEND_EQUATION_REVSUB, // BlendEquation::REVSUB
-				BGFX_STATE_BLEND_EQUATION_MIN,    // BlendEquation::MIN
-				BGFX_STATE_BLEND_EQUATION_MAX,    // BlendEquation::MAX
-				0
-			};
-
-			static uint64_t _bgfx_cull_mode_map[] =
-			{
-				BGFX_STATE_CULL_CW,  // CullMode::CW
-				BGFX_STATE_CULL_CCW, // CullMode::CCW
-				0
-			};
-
-			static uint64_t _bgfx_primitive_type_map[] =
-			{
-				BGFX_STATE_PT_TRISTRIP,  // PrimitiveType::PT_TRISTRIP
-				BGFX_STATE_PT_LINES,     // PrimitiveType::PT_LINES
-				BGFX_STATE_PT_LINESTRIP, // PrimitiveType::PT_LINESTRIP
-				BGFX_STATE_PT_POINTS,    // PrimitiveType::PT_POINTS
-				0
-			};
-
-			state |= _bgfx_depth_test_map[_depth_test];
-			state |= BGFX_STATE_BLEND_FUNC(_bgfx_blend_function_map[_blend_src], _bgfx_blend_function_map[_blend_dst]);
-			state |= BGFX_STATE_BLEND_EQUATION(_bgfx_blend_equation_map[_blend_equation]);
-			state |= _bgfx_cull_mode_map[_cull_mode];
-			state |= _bgfx_primitive_type_map[_primitive_type];
+			state |= (_rgb_write_enable   ? BGFX_STATE_RGB_WRITE   : 0);
+			state |= (_alpha_write_enable ? BGFX_STATE_ALPHA_WRITE : 0);
+			state |= (_depth_write_enable ? BGFX_STATE_DEPTH_WRITE : 0);
+			state |= depth_func;
+			state |= blend_func;
+			state |= blend_eq;
+			state |= cull_mode;
+			state |= primitive_type;
 
 			return state;
 		}
@@ -493,43 +516,115 @@ namespace shader_resource
 				JsonObject obj(ta);
 				sjson::parse_object(begin->pair.second, obj);
 
-				const bool rgb_write   = sjson::parse_bool(obj["rgb_write"]);
-				const bool alpha_write = sjson::parse_bool(obj["alpha_write"]);
-				const bool depth_write = sjson::parse_bool(obj["depth_write"]);
+				const bool rgb_write_enable   = sjson::parse_bool(obj["rgb_write_enable"]);
+				const bool alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
+				const bool depth_write_enable = sjson::parse_bool(obj["depth_write_enable"]);
+				const bool depth_test_enable  = sjson::parse_bool(obj["depth_test_enable"]);
+				const bool blend_enable       = sjson::parse_bool(obj["blend_enable"]);
 
-				DynamicString depth_test(ta);
+				const bool has_depth_function = map::has(obj, FixedString("depth_function"));
+				const bool has_blend_src      = map::has(obj, FixedString("blend_src"));
+				const bool has_blend_dst      = map::has(obj, FixedString("blend_dst"));
+				const bool has_blend_equation = map::has(obj, FixedString("blend_equation"));
+				const bool has_cull_mode      = map::has(obj, FixedString("cull_mode"));
+				const bool has_primitive_type = map::has(obj, FixedString("primitive_type"));
+
+				DepthFunction::Enum df    = DepthFunction::COUNT;
+				BlendFunction::Enum bfsrc = BlendFunction::COUNT;
+				BlendFunction::Enum bfdst = BlendFunction::COUNT;
+				BlendEquation::Enum be    = BlendEquation::COUNT;
+				CullMode::Enum cm         = CullMode::COUNT;
+				PrimitiveType::Enum pt    = PrimitiveType::COUNT;
+
+				DynamicString depth_function(ta);
 				DynamicString blend_src(ta);
 				DynamicString blend_dst(ta);
 				DynamicString blend_equation(ta);
 				DynamicString cull_mode(ta);
 				DynamicString primitive_type(ta);
-				if (map::has(obj, FixedString("depth_test")))
-					sjson::parse_string(obj["depth_test"], depth_test);
-				if (map::has(obj, FixedString("blend_src")))
-					sjson::parse_string(obj["blend_src"], blend_src);
-				if (map::has(obj, FixedString("blend_dst")))
-					sjson::parse_string(obj["blend_dst"], blend_dst);
-				if (map::has(obj, FixedString("blend_equation")))
-					sjson::parse_string(obj["blend_equation"], blend_equation);
-				if (map::has(obj, FixedString("cull_mode")))
-					sjson::parse_string(obj["cull_mode"], cull_mode);
-				if (map::has(obj, FixedString("primitive_type")))
-					sjson::parse_string(obj["primitive_type"], primitive_type);
 
-				DynamicString key(ta);
-				key = begin->pair.first;
+				if (has_depth_function)
+				{
+					sjson::parse_string(obj["depth_function"], depth_function);
+					df = name_to_depth_function(depth_function.c_str());
+					RESOURCE_COMPILER_ASSERT(df != DepthFunction::COUNT
+						, _opts
+						, "Unknown depth test: '%s"
+						, depth_function.c_str()
+						);
+				}
+
+				if (has_blend_src)
+				{
+					sjson::parse_string(obj["blend_src"], blend_src);
+					bfsrc = name_to_blend_function(blend_src.c_str());
+					RESOURCE_COMPILER_ASSERT(bfsrc != BlendFunction::COUNT
+						, _opts
+						, "Unknown blend function: '%s"
+						, blend_src.c_str()
+						);
+				}
+
+				if (has_blend_dst)
+				{
+					sjson::parse_string(obj["blend_dst"], blend_dst);
+					bfdst = name_to_blend_function(blend_dst.c_str());
+					RESOURCE_COMPILER_ASSERT(bfdst != BlendFunction::COUNT
+						, _opts
+						, "Unknown blend function: '%s"
+						, blend_dst.c_str()
+						);
+				}
+
+				if (has_blend_equation)
+				{
+					sjson::parse_string(obj["blend_equation"], blend_equation);
+					be = name_to_blend_equation(blend_equation.c_str());
+					RESOURCE_COMPILER_ASSERT(be != BlendEquation::COUNT
+						, _opts
+						, "Unknown blend equation: '%s"
+						, blend_equation.c_str()
+						);
+				}
+
+				if (has_cull_mode)
+				{
+					sjson::parse_string(obj["cull_mode"], cull_mode);
+					cm = name_to_cull_mode(cull_mode.c_str());
+					RESOURCE_COMPILER_ASSERT(cm != CullMode::COUNT
+						, _opts
+						, "Unknown cull mode: '%s"
+						, cull_mode.c_str()
+						);
+				}
+
+				if (has_primitive_type)
+				{
+					sjson::parse_string(obj["primitive_type"], primitive_type);
+					pt = name_to_primitive_type(primitive_type.c_str());
+					RESOURCE_COMPILER_ASSERT(pt != PrimitiveType::COUNT
+						, _opts
+						, "Unknown primitive type: '%s"
+						, primitive_type.c_str()
+						);
+				}
 
 				RenderState rs;
 				rs.reset();
-				rs._rgb_write      = rgb_write;
-				rs._alpha_write    = alpha_write;
-				rs._depth_write    = depth_write;
-				rs._depth_test     = name_to_depth_test(depth_test.c_str());
-				rs._blend_src      = name_to_blend_function(blend_src.c_str());
-				rs._blend_dst      = name_to_blend_function(blend_dst.c_str());
-				rs._blend_equation = name_to_blend_equation(blend_equation.c_str());
-				rs._cull_mode      = name_to_cull_mode(cull_mode.c_str());
-				rs._primitive_type = name_to_primitive_type(primitive_type.c_str());
+				rs._rgb_write_enable   = rgb_write_enable;
+				rs._alpha_write_enable = alpha_write_enable;
+				rs._depth_write_enable = depth_write_enable;
+				rs._depth_test_enable  = depth_test_enable;
+				rs._blend_enable       = blend_enable;
+				rs._depth_function     = df;
+				rs._blend_src          = bfsrc;
+				rs._blend_dst          = bfdst;
+				rs._blend_equation     = be;
+				rs._cull_mode          = cm;
+				rs._primitive_type     = pt;
+
+				DynamicString key(ta);
+				key = begin->pair.first;
 
 				map::set(_render_states, key, rs);
 			}
@@ -611,12 +706,15 @@ namespace shader_resource
 
 				RESOURCE_COMPILER_ASSERT(map::has(_bgfx_shaders, sp._bgfx_shader)
 					, _opts
-					, "Unknown bgfx shader"
+					, "Unknown bgfx shader: '%s'"
+					, bgfx_shader
 					);
 				RESOURCE_COMPILER_ASSERT(map::has(_render_states, sp._render_state)
 					, _opts
-					, "Unknown render state"
+					, "Unknown render state: '%s'"
+					, render_state
 					);
+
 				const RenderState& rs = _render_states[render_state];
 
 				_opts.write(shader_name._id); // Shader name
