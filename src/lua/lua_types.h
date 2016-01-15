@@ -7,6 +7,10 @@
 
 namespace crown
 {
-	struct LuaStack;
-	struct LuaEnvironment;
+
+/// @defgroup Lua Lua
+
+struct LuaStack;
+struct LuaEnvironment;
+
 } // namespace crown

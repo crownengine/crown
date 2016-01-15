@@ -19,8 +19,9 @@ enum LuaArgumentType
 	ARGUMENT_FLOAT
 };
 
-/// LuaEnvironment is a wrapper of a subset of Lua functions and
-/// provides utilities for extending Lua
+/// Wraps a subset of Lua functions and provides utilities for extending Lua.
+///
+/// @ingroup Lua
 struct LuaEnvironment
 {
 	LuaEnvironment();
@@ -47,12 +48,21 @@ struct LuaEnvironment
 
 	void clear_temporaries();
 
+	/// Returns a new temporary Vector3.
 	Vector3* next_vector3(const Vector3& v);
+	/// Returns a new temporary Quaternion.
 	Quaternion* next_quaternion(const Quaternion& q);
+	/// Returns a new temporary Matrix4x4.
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m);
-	bool is_vector3(const Vector3* p);
-	bool is_quaternion(const Quaternion* p);
-	bool is_matrix4x4(const Matrix4x4* p);
+
+	/// Returns whether @a p is a temporary Vector3.
+	bool is_vector3(const Vector3* p) const;
+
+	/// Returns whether @a p is a temporary Quaternion.
+	bool is_quaternion(const Quaternion* p) const;
+
+	/// Returns whether @a p is a temporary Matrix4x4.
+	bool is_matrix4x4(const Matrix4x4* p) const;
 
 private:
 

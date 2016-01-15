@@ -33,6 +33,9 @@
 namespace crown
 {
 
+/// Wrapper to manipulate Lua stack.
+///
+/// @ingroup Lua
 struct LuaStack
 {
 	LuaStack(lua_State* L)

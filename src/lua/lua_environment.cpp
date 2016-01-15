@@ -203,7 +203,6 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 Vector3* LuaEnvironment::next_vector3(const Vector3& v)
 {
 	CE_ASSERT(_vec3_used < CROWN_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
-
 	return &(_vec3_buffer[_vec3_used++] = v);
 }
 
@@ -216,23 +215,25 @@ Quaternion* LuaEnvironment::next_quaternion(const Quaternion& q)
 Matrix4x4* LuaEnvironment::next_matrix4x4(const Matrix4x4& m)
 {
 	CE_ASSERT(_mat4_used < CROWN_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
-
 	return &(s_mat4_buffer[_mat4_used++] = m);
 }
 
-bool LuaEnvironment::is_vector3(const Vector3* p)
+bool LuaEnvironment::is_vector3(const Vector3* p) const
 {
-	return (p >= &_vec3_buffer[0] && p <= &_vec3_buffer[CROWN_MAX_LUA_VECTOR3 - 1]);
+	return p >= &_vec3_buffer[0]
+		&& p <= &_vec3_buffer[CROWN_MAX_LUA_VECTOR3 - 1];
 }
 
-bool LuaEnvironment::is_quaternion(const Quaternion* p)
+bool LuaEnvironment::is_quaternion(const Quaternion* p) const
 {
-	return (p >= &_quat_buffer[0] && p <= &_quat_buffer[CROWN_MAX_LUA_QUATERNION - 1]);
+	return p >= &_quat_buffer[0]
+		&& p <= &_quat_buffer[CROWN_MAX_LUA_QUATERNION - 1];
 }
 
-bool LuaEnvironment::is_matrix4x4(const Matrix4x4* p)
+bool LuaEnvironment::is_matrix4x4(const Matrix4x4* p) const
 {
-	return (p >= &s_mat4_buffer[0] && p <= &s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1]);
+	return p >= &s_mat4_buffer[0]
+		&& p <= &s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1];
 }
 
 void LuaEnvironment::clear_temporaries()
