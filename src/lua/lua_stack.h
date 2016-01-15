@@ -532,16 +532,16 @@ struct LuaStack
 		return *m;
 	}
 
-	void check_temporary(int i, Vector3* p);
-	void check_temporary(int i, Quaternion* p);
-	void check_temporary(int i, Matrix4x4* p);
+	void check_temporary(int i, const Vector3* p);
+	void check_temporary(int i, const Quaternion* p);
+	void check_temporary(int i, const Matrix4x4* p);
 
-	void check_type(int i, DebugLine* p);
-	void check_type(int i, ResourcePackage* p);
-	void check_type(int i, World* p);
-	void check_type(int i, SceneGraph* p);
-	void check_type(int i, RenderWorld* p);
-	void check_type(int i, Level* p);
+	void check_type(int i, const DebugLine* p);
+	void check_type(int i, const ResourcePackage* p);
+	void check_type(int i, const World* p);
+	void check_type(int i, const SceneGraph* p);
+	void check_type(int i, const RenderWorld* p);
+	void check_type(int i, const Level* p);
 
 private:
 

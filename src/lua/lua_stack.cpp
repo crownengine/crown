@@ -36,21 +36,21 @@ bool LuaStack::is_matrix4x4(int i)
 	return device()->lua_environment()->is_matrix4x4((Matrix4x4*)get_pointer(i));
 }
 
-void LuaStack::check_temporary(int i, Vector3* p)
+void LuaStack::check_temporary(int i, const Vector3* p)
 {
 	LuaEnvironment* env = device()->lua_environment();
 	if (!is_pointer(i) || !env->is_vector3(p))
 		luaL_typerror(L, i, "Vector3");
 }
 
-void LuaStack::check_temporary(int i, Quaternion* p)
+void LuaStack::check_temporary(int i, const Quaternion* p)
 {
 	LuaEnvironment* env = device()->lua_environment();
 	if (!is_pointer(i) || !env->is_quaternion(p))
 		luaL_typerror(L, i, "Quaternion");
 }
 
-void LuaStack::check_temporary(int i, Matrix4x4* p)
+void LuaStack::check_temporary(int i, const Matrix4x4* p)
 {
 	LuaEnvironment* env = device()->lua_environment();
 	if (!is_pointer(i) || !env->is_matrix4x4(p))
@@ -121,37 +121,37 @@ void LuaStack::push_color4(const Color4& c)
 	push_quaternion(q);
 }
 
-void LuaStack::check_type(int i, DebugLine* p)
+void LuaStack::check_type(int i, const DebugLine* p)
 {
 	if (!is_pointer(i) || *(uint32_t*)p != DebugLine::MARKER)
 		luaL_typerror(L, i, "DebugLine");
 }
 
-void LuaStack::check_type(int i, ResourcePackage* p)
+void LuaStack::check_type(int i, const ResourcePackage* p)
 {
 	if (!is_pointer(i) || *(uint32_t*)p != ResourcePackage::MARKER)
 		luaL_typerror(L, i, "ResourcePackage");
 }
 
-void LuaStack::check_type(int i, World* p)
+void LuaStack::check_type(int i, const World* p)
 {
 	if (!is_pointer(i) || *(uint32_t*)p != World::MARKER)
 		luaL_typerror(L, i, "World");
 }
 
-void LuaStack::check_type(int i, SceneGraph* p)
+void LuaStack::check_type(int i, const SceneGraph* p)
 {
 	if (!is_pointer(i) || *(uint32_t*)p != SceneGraph::MARKER)
 		luaL_typerror(L, i, "SceneGraph");
 }
 
-void LuaStack::check_type(int i, RenderWorld* p)
+void LuaStack::check_type(int i, const RenderWorld* p)
 {
 	if (!is_pointer(i) || *(uint32_t*)p != RenderWorld::MARKER)
 		luaL_typerror(L, i, "RenderWorld");
 }
 
-void LuaStack::check_type(int i, Level* p)
+void LuaStack::check_type(int i, const Level* p)
 {
 	if (!is_pointer(i) || *(uint32_t*)p != Level::MARKER)
 		luaL_typerror(L, i, "Level");
