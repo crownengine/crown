@@ -10,7 +10,6 @@
 #include "physics_types.h"
 #include "resource_types.h"
 #include "string_id.h"
-#include "string_utils.h"
 #include "types.h"
 #include "world_types.h"
 #include <lua.hpp>
