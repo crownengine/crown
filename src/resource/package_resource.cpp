@@ -17,6 +17,28 @@ namespace crown
 {
 namespace package_resource
 {
+	void compile_resources(const char* type, const JsonArray& names, Array<PackageResource::Resource>& output, CompileOptions& opts)
+	{
+		const StringId64 typeh = StringId64(type);
+
+		for (uint32_t i = 0; i < array::size(names); ++i)
+		{
+			TempAllocator1024 ta;
+			DynamicString name(ta);
+			sjson::parse_string(names[i], name);
+
+			RESOURCE_COMPILER_ASSERT(opts.resource_exists(type, name.c_str())
+				, opts
+				, "Resource does not exist: '%s.%s'"
+				, name.c_str()
+				, type
+				);
+
+			const StringId64 nameh = sjson::parse_resource_id(names[i]);
+			array::push_back(output, PackageResource::Resource(typeh, nameh));
+		}
+	}
+
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
@@ -51,98 +73,25 @@ namespace package_resource
 		if (map::has(object, FixedString("shader")))           sjson::parse_array(object["shader"], shader);
 		if (map::has(object, FixedString("sprite_animation"))) sjson::parse_array(object["sprite_animation"], sprite_animation);
 
-		const uint32_t num_textures    = array::size(texture);
-		const uint32_t num_scripts     = array::size(script);
-		const uint32_t num_sounds      = array::size(sound);
-		const uint32_t num_meshes      = array::size(mesh);
-		const uint32_t num_units       = array::size(unit);
-		const uint32_t num_sprites     = array::size(sprite);
-		const uint32_t num_materials   = array::size(material);
-		const uint32_t num_fonts       = array::size(font);
-		const uint32_t num_levels      = array::size(level);
-		const uint32_t num_phyconfs    = array::size(phyconf);
-		const uint32_t num_shaders     = array::size(shader);
-		const uint32_t num_sanimations = array::size(sprite_animation);
-
 		Array<PackageResource::Resource> resources(default_allocator());
 
-		for (uint32_t i = 0; i < num_textures; ++i)
-		{
-			PackageResource::Resource res(TEXTURE_TYPE, sjson::parse_resource_id(texture[i]));
-			array::push_back(resources, res);
-		}
+		compile_resources("texture", texture, resources, opts);
+		compile_resources("lua", script, resources, opts);
+		compile_resources("sound", sound, resources, opts);
+		compile_resources("mesh", mesh, resources, opts);
+		compile_resources("unit", unit, resources, opts);
+		compile_resources("sprite", sprite, resources, opts);
+		compile_resources("material", material, resources, opts);
+		compile_resources("font", font, resources, opts);
+		compile_resources("level", level, resources, opts);
+		compile_resources("physics_config", phyconf, resources, opts);
+		compile_resources("shader", shader, resources, opts);
+		compile_resources("sprite_animation", sprite_animation, resources, opts);
 
-		for (uint32_t i = 0; i < num_scripts; ++i)
-		{
-			PackageResource::Resource res(SCRIPT_TYPE, sjson::parse_resource_id(script[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_sounds; ++i)
-		{
-			PackageResource::Resource res(SOUND_TYPE, sjson::parse_resource_id(sound[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_meshes; ++i)
-		{
-			PackageResource::Resource res(MESH_TYPE, sjson::parse_resource_id(mesh[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_units; ++i)
-		{
-			PackageResource::Resource res(UNIT_TYPE, sjson::parse_resource_id(unit[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_sprites; ++i)
-		{
-			PackageResource::Resource res(SPRITE_TYPE, sjson::parse_resource_id(sprite[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_materials; ++i)
-		{
-			PackageResource::Resource res(MATERIAL_TYPE, sjson::parse_resource_id(material[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_fonts; ++i)
-		{
-			PackageResource::Resource res(FONT_TYPE, sjson::parse_resource_id(font[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_levels; ++i)
-		{
-			PackageResource::Resource res(LEVEL_TYPE, sjson::parse_resource_id(level[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_phyconfs; ++i)
-		{
-			PackageResource::Resource res(PHYSICS_CONFIG_TYPE, sjson::parse_resource_id(phyconf[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_shaders; ++i)
-		{
-			PackageResource::Resource res(SHADER_TYPE, sjson::parse_resource_id(shader[i]));
-			array::push_back(resources, res);
-		}
-
-		for (uint32_t i = 0; i < num_sanimations; ++i)
-		{
-			PackageResource::Resource res(SPRITE_ANIMATION_TYPE, sjson::parse_resource_id(sprite_animation[i]));
-			array::push_back(resources, res);
-		}
-
-		// Write header
+		// Write
 		opts.write(PACKAGE_VERSION);
 		opts.write(array::size(resources));
 
-		// Write resource ids
 		for (uint32_t i = 0; i < array::size(resources); ++i)
 		{
 			opts.write(resources[i].type);

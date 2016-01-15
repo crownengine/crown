@@ -10,6 +10,7 @@
 #include "log.h"
 #include "vector.h"
 #include "temp_allocator.h"
+#include "path.h"
 #include <setjmp.h>
 
 #define RESOURCE_COMPILER_ASSERT(condition, opts, msg, ...) do { if (!(condition))\
@@ -41,6 +42,15 @@ struct CompileOptions
 		va_start(args, msg);
 		error(msg, args);
 		va_end(args);
+	}
+
+	bool resource_exists(const char* type, const char* name)
+	{
+		TempAllocator1024 ta;
+		DynamicString path(name, ta);
+		path += ".";
+		path += type;
+		return _fs.exists(path.c_str());
 	}
 
 	Buffer read(const char* path)
