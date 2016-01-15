@@ -106,6 +106,213 @@ struct LuaStack
 		return lua_type(L, i);
 	}
 
+	bool get_bool(int i)
+	{
+		return lua_toboolean(L, i) == 1;
+	}
+
+	int get_int(int i)
+	{
+		return (int)lua_tonumber(L, i);
+	}
+
+	float get_float(int i)
+	{
+		return (float)lua_tonumber(L, i);
+	}
+
+	const char* get_string(int i)
+	{
+		return lua_tostring(L, i);
+	}
+
+	void* get_pointer(int i)
+	{
+		if (!lua_isuserdata(L, i))
+			luaL_typerror(L, i, "lightuserdata");
+
+		void* p = lua_touserdata(L, i);
+		CE_ASSERT_NOT_NULL(p);
+		return p;
+	}
+
+	uint32_t get_id(int i)
+	{
+		return (uint32_t)lua_tonumber(L, i);
+	}
+
+	StringId32 get_string_id_32(int i)
+	{
+		return StringId32(get_string(i));
+	}
+
+	StringId64 get_string_id_64(int i)
+	{
+		return StringId64(get_string(i));
+	}
+
+	StringId64 get_resource_id(int i)
+	{
+		return StringId64(get_string(i));
+	}
+
+	DebugLine* get_debug_line(int i)
+	{
+		DebugLine* p = (DebugLine*)get_pointer(i);
+		check_type(i, p);
+		return p;
+	}
+
+	ResourcePackage* get_resource_package(int i)
+	{
+		ResourcePackage* p = (ResourcePackage*)get_pointer(i);
+		check_type(i, p);
+		return p;
+	}
+
+	World* get_world(int i)
+	{
+		World* p = (World*)get_pointer(i);
+		check_type(i, p);
+		return p;
+	}
+
+	SceneGraph* get_scene_graph(int i)
+	{
+		SceneGraph* p = (SceneGraph*)get_pointer(i);
+		check_type(i, p);
+		return p;
+	}
+
+	Level* get_level(int i)
+	{
+		Level* p = (Level*)get_pointer(i);
+		check_type(i, p);
+		return p;
+	}
+
+	RenderWorld* get_render_world(int i)
+	{
+		RenderWorld* p = (RenderWorld*)get_pointer(i);
+		check_type(i, p);
+		return p;
+	}
+
+	PhysicsWorld* get_physics_world(int i)
+	{
+		PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
+//		if (*(uint32_t*)p != PhysicsWorld::MARKER)
+//			luaL_typerror(L, i, "PhysicsWorld");
+		return p;
+	}
+
+	SoundWorld* get_sound_world(int i)
+	{
+		SoundWorld* p = (SoundWorld*)get_pointer(i);
+//		if (*(uint32_t*)p != SoundWorld::MARKER)
+//			luaL_typerror(L, i, "SoundWorld");
+		return p;
+	}
+
+	UnitId get_unit(int i)
+	{
+		uint32_t enc = (uint32_t)(uintptr_t)get_pointer(i);
+
+		if ((enc & LIGHTDATA_TYPE_MASK) != UNIT_MARKER)
+			luaL_typerror(L, i, "UnitId");
+
+		UnitId id;
+		id.decode(enc >> 2);
+		return id;
+	}
+
+	CameraInstance get_camera(int i)
+	{
+		CameraInstance inst = { get_id(i) };
+		return inst;
+	}
+
+	TransformInstance get_transform(int i)
+	{
+		TransformInstance inst = { get_id(i) };
+		return inst;
+	}
+
+	MeshInstance get_mesh_instance(int i)
+	{
+		MeshInstance inst = { get_id(i) };
+		return inst;
+	}
+
+	SpriteInstance get_sprite_instance(int i)
+	{
+		SpriteInstance inst = { get_id(i) };
+		return inst;
+	}
+
+	LightInstance get_light_instance(int i)
+	{
+		LightInstance inst = { get_id(i) };
+		return inst;
+	}
+
+	Material* get_material(int i)
+	{
+		return (Material*)get_pointer(i);
+	}
+
+	ActorInstance get_actor(int i)
+	{
+		ActorInstance inst = { get_id(i) };
+		return inst;
+	}
+
+	ControllerInstance get_controller(int i)
+	{
+		ControllerInstance inst = { get_id(i) };
+		return inst;
+	}
+
+	SoundInstanceId get_sound_instance_id(int i)
+	{
+		return get_id(i);
+	}
+
+	Gui* get_gui(int i)
+	{
+		return (Gui*)get_pointer(i);
+	}
+
+	Vector2 get_vector2(int i);
+	Vector3& get_vector3(int i);
+	Matrix4x4& get_matrix4x4(int i);
+	Quaternion& get_quaternion(int i);
+	Color4 get_color4(int i);
+
+	Vector2& get_vector2box(int i)
+	{
+		Vector2* v = (Vector2*)luaL_checkudata(L, i, "Vector2Box");
+		return *v;
+	}
+
+	Vector3& get_vector3box(int i)
+	{
+		Vector3* v = (Vector3*)luaL_checkudata(L, i, "Vector3Box");
+		return *v;
+	}
+
+	Quaternion& get_quaternionbox(int i)
+	{
+		Quaternion* q = (Quaternion*)luaL_checkudata(L, i, "QuaternionBox");
+		return *q;
+	}
+
+	Matrix4x4& get_matrix4x4box(int i)
+	{
+		Matrix4x4* m = (Matrix4x4*)luaL_checkudata(L, i, "Matrix4x4Box");
+		return *m;
+	}
+
 	void push_nil()
 	{
 		lua_pushnil(L);
@@ -118,17 +325,7 @@ struct LuaStack
 
 	void push_int(int value)
 	{
-		lua_pushinteger(L, value);
-	}
-
-	void push_id(uint32_t value)
-	{
-		lua_pushinteger(L, value);
-	}
-
-	void push_string_id(StringId32 value)
-	{
-		lua_pushinteger(L, value.id());
+		lua_pushnumber(L, value);
 	}
 
 	void push_float(float value)
@@ -154,50 +351,25 @@ struct LuaStack
 		lua_pushlstring(L, s, len);
 	}
 
+	void push_string_id(StringId32 value)
+	{
+		lua_pushnumber(L, value.id());
+	}
+
 	void push_pointer(void* p)
 	{
 		CE_ASSERT_NOT_NULL(p);
 		lua_pushlightuserdata(L, p);
 	}
 
-	bool get_bool(int i)
+	void push_function(lua_CFunction f)
 	{
-		return lua_toboolean(L, i) == 1;
+		lua_pushcfunction(L, f);
 	}
 
-	int get_int(int i)
+	void push_id(uint32_t value)
 	{
-		return (int)lua_tonumber(L, i);
-	}
-
-	uint32_t get_id(int i)
-	{
-		return (uint32_t)lua_tonumber(L, i);
-	}
-
-	StringId32 get_string_id(int i)
-	{
-		return StringId32(get_string(i));
-	}
-
-	float get_float(int i)
-	{
-		return (float)lua_tonumber(L, i);
-	}
-
-	const char* get_string(int i)
-	{
-		return lua_tostring(L, i);
-	}
-
-	void* get_pointer(int i)
-	{
-		if (!lua_isuserdata(L, i))
-			luaL_typerror(L, i, "lightuserdata");
-
-		void* p = lua_touserdata(L, i);
-		CE_ASSERT_NOT_NULL(p);
-		return p;
+		lua_pushnumber(L, value);
 	}
 
 	/// Pushes an empty table onto the stack.
@@ -237,21 +409,9 @@ struct LuaStack
 		return lua_next(L, i);
 	}
 
-	StringId64 get_resource_id(int i)
-	{
-		return StringId64(get_string(i));
-	}
-
 	void push_debug_line(DebugLine* line)
 	{
 		push_pointer(line);
-	}
-
-	DebugLine* get_debug_line(int i)
-	{
-		DebugLine* p = (DebugLine*)get_pointer(i);
-		check_type(i, p);
-		return p;
 	}
 
 	void push_resource_package(ResourcePackage* package)
@@ -259,23 +419,9 @@ struct LuaStack
 		push_pointer(package);
 	}
 
-	ResourcePackage* get_resource_package(int i)
-	{
-		ResourcePackage* p = (ResourcePackage*)get_pointer(i);
-		check_type(i, p);
-		return p;
-	}
-
 	void push_world(World* world)
 	{
 		push_pointer(world);
-	};
-
-	World* get_world(int i)
-	{
-		World* p = (World*)get_pointer(i);
-		check_type(i, p);
-		return p;
 	};
 
 	void push_scene_graph(SceneGraph* sg)
@@ -283,23 +429,9 @@ struct LuaStack
 		push_pointer(sg);
 	}
 
-	SceneGraph* get_scene_graph(int i)
-	{
-		SceneGraph* p = (SceneGraph*)get_pointer(i);
-		check_type(i, p);
-		return p;
-	}
-
 	void push_level(Level* level)
 	{
 		push_pointer(level);
-	}
-
-	Level* get_level(int i)
-	{
-		Level* p = (Level*)get_pointer(i);
-		check_type(i, p);
-		return p;
 	}
 
 	void push_render_world(RenderWorld* world)
@@ -307,37 +439,14 @@ struct LuaStack
 		push_pointer(world);
 	}
 
-	RenderWorld* get_render_world(int i)
-	{
-		RenderWorld* p = (RenderWorld*)get_pointer(i);
-		check_type(i, p);
-		return p;
-	}
-
 	void push_physics_world(PhysicsWorld* world)
 	{
 		push_pointer(world);
 	}
 
-	PhysicsWorld* get_physics_world(int i)
-	{
-		PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
-//		if (*(uint32_t*)p != PhysicsWorld::MARKER)
-//			luaL_typerror(L, i, "PhysicsWorld");
-		return p;
-	}
-
 	void push_sound_world(SoundWorld* world)
 	{
 		push_pointer(world);
-	}
-
-	SoundWorld* get_sound_world(int i)
-	{
-		SoundWorld* p = (SoundWorld*)get_pointer(i);
-//		if (*(uint32_t*)p != SoundWorld::MARKER)
-//			luaL_typerror(L, i, "SoundWorld");
-		return p;
 	}
 
 	void push_unit(UnitId id)
@@ -346,27 +455,9 @@ struct LuaStack
 		push_pointer((void*)(uintptr_t)encoded);
 	}
 
-	UnitId get_unit(int i)
-	{
-		uint32_t enc = (uint32_t)(uintptr_t)get_pointer(i);
-
-		if ((enc & LIGHTDATA_TYPE_MASK) != UNIT_MARKER)
-			luaL_typerror(L, i, "UnitId");
-
-		UnitId id;
-		id.decode(enc >> 2);
-		return id;
-	}
-
 	void push_camera(CameraInstance i)
 	{
 		push_id(i.i);
-	}
-
-	CameraInstance get_camera(int i)
-	{
-		CameraInstance inst = { get_id(i) };
-		return inst;
 	}
 
 	void push_transform(TransformInstance i)
@@ -374,21 +465,9 @@ struct LuaStack
 		push_id(i.i);
 	}
 
-	TransformInstance get_transform(int i)
-	{
-		TransformInstance inst = { get_id(i) };
-		return inst;
-	}
-
 	void push_mesh_instance(MeshInstance i)
 	{
 		push_id(i.i);
-	}
-
-	MeshInstance get_mesh_instance(int i)
-	{
-		MeshInstance inst = { get_id(i) };
-		return inst;
 	}
 
 	void push_sprite_instance(SpriteInstance i)
@@ -396,21 +475,9 @@ struct LuaStack
 		push_id(i.i);
 	}
 
-	SpriteInstance get_sprite_instance(int i)
-	{
-		SpriteInstance inst = { get_id(i) };
-		return inst;
-	}
-
 	void push_light_instance(LightInstance i)
 	{
 		push_id(i.i);
-	}
-
-	LightInstance get_light_instance(int i)
-	{
-		LightInstance inst = { get_id(i) };
-		return inst;
 	}
 
 	void push_material(Material* material)
@@ -418,20 +485,9 @@ struct LuaStack
 		push_pointer(material);
 	}
 
-	Material* get_material(int i)
-	{
-		return (Material*)get_pointer(i);
-	}
-
 	void push_actor(ActorInstance i)
 	{
 		push_id(i.i);
-	}
-
-	ActorInstance get_actor(int i)
-	{
-		ActorInstance inst = { get_id(i) };
-		return inst;
 	}
 
 	void push_controller(ControllerInstance i)
@@ -439,20 +495,9 @@ struct LuaStack
 		push_id(i.i);
 	}
 
-	ControllerInstance get_controller(int i)
-	{
-		ControllerInstance inst = { get_id(i) };
-		return inst;
-	}
-
 	void push_sound_instance_id(const SoundInstanceId id)
 	{
 		push_id(id);
-	}
-
-	SoundInstanceId get_sound_instance_id(int i)
-	{
-		return get_id(i);
 	}
 
 	void push_gui(Gui* gui)
@@ -460,16 +505,6 @@ struct LuaStack
 		push_pointer(gui);
 	}
 
-	Gui* get_gui(int i)
-	{
-		return (Gui*)get_pointer(i);
-	}
-
-	Vector2 get_vector2(int i);
-	Vector3& get_vector3(int i);
-	Matrix4x4& get_matrix4x4(int i);
-	Quaternion& get_quaternion(int i);
-	Color4 get_color4(int i);
 	void push_vector2(const Vector2& v);
 	void push_vector3(const Vector3& v);
 	void push_matrix4x4(const Matrix4x4& m);
@@ -484,24 +519,12 @@ struct LuaStack
 		*vec = v;
 	}
 
-	Vector2& get_vector2box(int i)
-	{
-		Vector2* v = (Vector2*)luaL_checkudata(L, i, "Vector2Box");
-		return *v;
-	}
-
 	void push_vector3box(const Vector3& v)
 	{
 		Vector3* vec = (Vector3*)lua_newuserdata(L, sizeof(Vector3));
 		luaL_getmetatable(L, "Vector3Box");
 		lua_setmetatable(L, -2);
 		*vec = v;
-	}
-
-	Vector3& get_vector3box(int i)
-	{
-		Vector3* v = (Vector3*)luaL_checkudata(L, i, "Vector3Box");
-		return *v;
 	}
 
 	void push_quaternionbox(const Quaternion& q)
@@ -512,24 +535,12 @@ struct LuaStack
 		*quat = q;
 	}
 
-	Quaternion& get_quaternionbox(int i)
-	{
-		Quaternion* q = (Quaternion*)luaL_checkudata(L, i, "QuaternionBox");
-		return *q;
-	}
-
 	void push_matrix4x4box(const Matrix4x4& m)
 	{
 		Matrix4x4* mat = (Matrix4x4*)lua_newuserdata(L, sizeof(Matrix4x4));
 		luaL_getmetatable(L, "Matrix4x4Box");
 		lua_setmetatable(L, -2);
 		*mat = m;
-	}
-
-	Matrix4x4& get_matrix4x4box(int i)
-	{
-		Matrix4x4* m = (Matrix4x4*)luaL_checkudata(L, i, "Matrix4x4Box");
-		return *m;
 	}
 
 	void check_temporary(int i, const Vector3* p);

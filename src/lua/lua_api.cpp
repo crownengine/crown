@@ -1008,14 +1008,14 @@ static int input_device_axis_name(lua_State* L, InputDevice& id)
 static int input_device_button_id(lua_State* L, InputDevice& id)
 {
 	LuaStack stack(L);
-	stack.push_int(id.button_id(stack.get_string_id(1)));
+	stack.push_int(id.button_id(stack.get_string_id_32(1)));
 	return 1;
 }
 
 static int input_device_axis_id(lua_State* L, InputDevice& id)
 {
 	LuaStack stack(L);
-	stack.push_int(id.axis_id(stack.get_string_id(1)));
+	stack.push_int(id.axis_id(stack.get_string_id_32(1)));
 	return 1;
 }
 
@@ -1627,7 +1627,7 @@ static int render_world_create_mesh(lua_State* L)
 
 	MeshRendererDesc desc;
 	desc.mesh_resource = stack.get_resource_id(3);
-	desc.mesh_name = stack.get_string_id(4);
+	desc.mesh_name = stack.get_string_id_32(4);
 	desc.material_resource = stack.get_resource_id(5);
 	desc.visible = stack.get_bool(6);
 
@@ -1954,7 +1954,7 @@ static int physics_world_disable_actor_collision(lua_State* L)
 static int physics_world_set_actor_collision_filter(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->set_actor_collision_filter(stack.get_actor(2), stack.get_string_id(3));
+	stack.get_physics_world(1)->set_actor_collision_filter(stack.get_actor(2), stack.get_string_id_32(3));
 	return 0;
 }
 
