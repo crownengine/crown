@@ -84,7 +84,8 @@ struct LuaStack
 
 	bool is_pointer(int i)
 	{
-		return lua_islightuserdata(L, i) == 1 && ((uintptr_t)lua_touserdata(L, i) & 0x3) == 0;
+		return lua_islightuserdata(L, i) == 1
+			&& ((uintptr_t)lua_touserdata(L, i) & 0x3) == 0;
 	}
 
 	bool is_function(int i)
