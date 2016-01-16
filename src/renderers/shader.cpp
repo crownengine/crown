@@ -38,27 +38,6 @@ namespace crown
 {
 namespace shader_resource
 {
-	int run_external_compiler(const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
-	{
-		using namespace string_stream;
-
-		TempAllocator512 ta;
-		StringStream args(ta);
-		args << " -f " << infile;
-		args << " -o " << outfile;
-		args << " --varyingdef " << varying;
-		args << " --type " << type;
-		args << " --platform " << platform;
-		args << " --profile ";
-#if CROWN_PLATFORM_LINUX
-		args <<	"120";
-#elif CROWN_PLATFORM_WINDOWS
-		args << ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
-#endif
-
-		return os::execute_process(SHADERC_PATH, c_str(args), output);
-	}
-
 	struct DepthFunction
 	{
 		enum Enum
@@ -94,17 +73,6 @@ namespace shader_resource
 		{ "always",   DepthFunction::ALWAYS   }
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_depth_test_map) == DepthFunction::COUNT);
-
-	static DepthFunction::Enum name_to_depth_function(const char* name)
-	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_depth_test_map); ++i)
-		{
-			if (strcmp(name, _depth_test_map[i].name) == 0)
-				return _depth_test_map[i].value;
-		}
-
-		return DepthFunction::COUNT;
-	}
 
 	struct BlendFunction
 	{
@@ -152,17 +120,6 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_blend_function_map) == BlendFunction::COUNT);
 
-	static BlendFunction::Enum name_to_blend_function(const char* name)
-	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_blend_function_map); ++i)
-		{
-			if (strcmp(name, _blend_function_map[i].name) == 0)
-				return _blend_function_map[i].value;
-		}
-
-		return BlendFunction::COUNT;
-	}
-
 	struct BlendEquation
 	{
 		enum Enum
@@ -193,17 +150,6 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_blend_equation_map) == BlendEquation::COUNT);
 
-	static BlendEquation::Enum name_to_blend_equation(const char* name)
-	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_blend_equation_map); ++i)
-		{
-			if (strcmp(name, _blend_equation_map[i].name) == 0)
-				return _blend_equation_map[i].value;
-		}
-
-		return BlendEquation::COUNT;
-	}
-
 	struct CullMode
 	{
 		enum Enum
@@ -227,17 +173,6 @@ namespace shader_resource
 		{ "ccw", CullMode::CCW }
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_cull_mode_map) == CullMode::COUNT);
-
-	static CullMode::Enum name_to_cull_mode(const char* name)
-	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_cull_mode_map); ++i)
-		{
-			if (strcmp(name, _cull_mode_map[i].name) == 0)
-				return _cull_mode_map[i].value;
-		}
-
-		return CullMode::COUNT;
-	}
 
 	struct PrimitiveType
 	{
@@ -266,17 +201,6 @@ namespace shader_resource
 		{ "pt_points",    PrimitiveType::PT_POINTS    }
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_primitive_type_map) == PrimitiveType::COUNT);
-
-	static PrimitiveType::Enum name_to_primitive_type(const char* name)
-	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_primitive_type_map); ++i)
-		{
-			if (strcmp(name, _primitive_type_map[i].name) == 0)
-				return _primitive_type_map[i].value;
-		}
-
-		return PrimitiveType::COUNT;
-	}
 
 	static uint64_t _bgfx_depth_function_map[] =
 	{
@@ -334,6 +258,82 @@ namespace shader_resource
 		BGFX_STATE_PT_POINTS,    // PrimitiveType::PT_POINTS
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_primitive_type_map) == PrimitiveType::COUNT);
+
+	static DepthFunction::Enum name_to_depth_function(const char* name)
+	{
+		for (uint32_t i = 0; i < CE_COUNTOF(_depth_test_map); ++i)
+		{
+			if (strcmp(name, _depth_test_map[i].name) == 0)
+				return _depth_test_map[i].value;
+		}
+
+		return DepthFunction::COUNT;
+	}
+
+	static BlendFunction::Enum name_to_blend_function(const char* name)
+	{
+		for (uint32_t i = 0; i < CE_COUNTOF(_blend_function_map); ++i)
+		{
+			if (strcmp(name, _blend_function_map[i].name) == 0)
+				return _blend_function_map[i].value;
+		}
+
+		return BlendFunction::COUNT;
+	}
+
+	static BlendEquation::Enum name_to_blend_equation(const char* name)
+	{
+		for (uint32_t i = 0; i < CE_COUNTOF(_blend_equation_map); ++i)
+		{
+			if (strcmp(name, _blend_equation_map[i].name) == 0)
+				return _blend_equation_map[i].value;
+		}
+
+		return BlendEquation::COUNT;
+	}
+
+	static CullMode::Enum name_to_cull_mode(const char* name)
+	{
+		for (uint32_t i = 0; i < CE_COUNTOF(_cull_mode_map); ++i)
+		{
+			if (strcmp(name, _cull_mode_map[i].name) == 0)
+				return _cull_mode_map[i].value;
+		}
+
+		return CullMode::COUNT;
+	}
+
+	static PrimitiveType::Enum name_to_primitive_type(const char* name)
+	{
+		for (uint32_t i = 0; i < CE_COUNTOF(_primitive_type_map); ++i)
+		{
+			if (strcmp(name, _primitive_type_map[i].name) == 0)
+				return _primitive_type_map[i].value;
+		}
+
+		return PrimitiveType::COUNT;
+	}
+
+	static int run_external_compiler(const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
+	{
+		using namespace string_stream;
+
+		TempAllocator512 ta;
+		StringStream args(ta);
+		args << " -f " << infile;
+		args << " -o " << outfile;
+		args << " --varyingdef " << varying;
+		args << " --type " << type;
+		args << " --platform " << platform;
+		args << " --profile ";
+#if CROWN_PLATFORM_LINUX
+		args <<	"120";
+#elif CROWN_PLATFORM_WINDOWS
+		args << ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
+#endif
+
+		return os::execute_process(SHADERC_PATH, c_str(args), output);
+	}
 
 	struct RenderState
 	{
@@ -461,12 +461,28 @@ namespace shader_resource
 		Map<DynamicString, BgfxShader> _bgfx_shaders;
 		Map<DynamicString, ShaderPermutation> _shaders;
 
+		DynamicString _vs_source_path;
+		DynamicString _fs_source_path;
+		DynamicString _varying_path;
+		DynamicString _vs_compiled_path;
+		DynamicString _fs_compiled_path;
+
 		ShaderCompiler(CompileOptions& opts)
 			: _opts(opts)
 			, _render_states(default_allocator())
 			, _bgfx_shaders(default_allocator())
 			, _shaders(default_allocator())
+			, _vs_source_path(default_allocator())
+			, _fs_source_path(default_allocator())
+			, _varying_path(default_allocator())
+			, _vs_compiled_path(default_allocator())
+			, _fs_compiled_path(default_allocator())
 		{
+			_opts.get_absolute_path("vs_source.sc.temp", _vs_source_path);
+			_opts.get_absolute_path("fs_source.sc.temp", _fs_source_path);
+			_opts.get_absolute_path("varying.sc.temp", _varying_path);
+			_opts.get_absolute_path("vs_compiled.bin.temp", _vs_compiled_path);
+			_opts.get_absolute_path("fs_compiled.bin.temp", _fs_compiled_path);
 		}
 
 		void parse(const char* path)
@@ -690,6 +706,30 @@ namespace shader_resource
 			}
 		}
 
+		void delete_temp_files()
+		{
+			const char* vs_source_path   = _vs_source_path.c_str();
+			const char* fs_source_path   = _fs_source_path.c_str();
+			const char* varying_path     = _varying_path.c_str();
+			const char* vs_compiled_path = _vs_compiled_path.c_str();
+			const char* fs_compiled_path = _fs_compiled_path.c_str();
+
+			if (_opts.file_exists(vs_source_path))
+				_opts.delete_file(vs_source_path);
+
+			if (_opts.file_exists(fs_source_path))
+				_opts.delete_file(fs_source_path);
+
+			if (_opts.file_exists(varying_path))
+				_opts.delete_file(varying_path);
+
+			if (_opts.file_exists(vs_compiled_path))
+				_opts.delete_file(vs_compiled_path);
+
+			if (_opts.file_exists(fs_compiled_path))
+				_opts.delete_file(fs_compiled_path);
+		}
+
 		void compile()
 		{
 			_opts.write(SHADER_VERSION);
@@ -747,57 +787,49 @@ namespace shader_resource
 			fs_code << shader._code.c_str();
 			fs_code << shader._fs_code.c_str();
 
-			DynamicString vs_code_path(default_allocator());
-			DynamicString fs_code_path(default_allocator());
-			DynamicString varying_def_path(default_allocator());
-			DynamicString tmpvs_path(default_allocator());
-			DynamicString tmpfs_path(default_allocator());
-
-			_opts.get_absolute_path("vs_code.tmp", vs_code_path);
-			_opts.get_absolute_path("fs_code.tmp", fs_code_path);
-			_opts.get_absolute_path("varying.tmp", varying_def_path);
-			_opts.get_absolute_path("tmpvs", tmpvs_path);
-			_opts.get_absolute_path("tmpfs", tmpfs_path);
-
-			File* vs_file = _opts._fs.open(vs_code_path.c_str(), FileOpenMode::WRITE);
+			File* vs_file = _opts._fs.open(_vs_source_path.c_str(), FileOpenMode::WRITE);
 			vs_file->write(c_str(vs_code), array::size(vs_code));
 			_opts._fs.close(*vs_file);
 
-			File* fs_file = _opts._fs.open(fs_code_path.c_str(), FileOpenMode::WRITE);
+			File* fs_file = _opts._fs.open(_fs_source_path.c_str(), FileOpenMode::WRITE);
 			fs_file->write(c_str(fs_code), array::size(fs_code));
 			_opts._fs.close(*fs_file);
 
-			File* varying_file = _opts._fs.open(varying_def_path.c_str(), FileOpenMode::WRITE);
+			File* varying_file = _opts._fs.open(_varying_path.c_str(), FileOpenMode::WRITE);
 			varying_file->write(shader._varying.c_str(), shader._varying.length());
 			_opts._fs.close(*varying_file);
 
 			TempAllocator4096 ta;
 			StringStream output(ta);
 
-			int exitcode = run_external_compiler(vs_code_path.c_str()
-				, tmpvs_path.c_str()
-				, varying_def_path.c_str()
+			int exitcode = run_external_compiler(_vs_source_path.c_str()
+				, _vs_compiled_path.c_str()
+				, _varying_path.c_str()
 				, "vertex"
 				, _opts.platform()
 				, output
 				);
-			RESOURCE_COMPILER_ASSERT(exitcode == 0
-				, _opts
-				, "Failed to compile vertex shader:\n%s"
-				, c_str(output)
-				);
+			if (exitcode)
+			{
+				delete_temp_files();
+				RESOURCE_COMPILER_ASSERT(false
+					, _opts
+					, "Failed to compile vertex shader:\n%s"
+					, c_str(output)
+					);
+			}
 
 			array::clear(output);
-			exitcode = run_external_compiler(fs_code_path.c_str()
-				, tmpfs_path.c_str()
-				, varying_def_path.c_str()
+			exitcode = run_external_compiler(_fs_source_path.c_str()
+				, _fs_compiled_path.c_str()
+				, _varying_path.c_str()
 				, "fragment"
 				, _opts.platform()
 				, output
 				);
 			if (exitcode)
 			{
-				_opts.delete_file(tmpvs_path.c_str());
+				delete_temp_files();
 				RESOURCE_COMPILER_ASSERT(false
 					, _opts
 					, "Failed to compile fragment shader:\n%s"
@@ -805,15 +837,10 @@ namespace shader_resource
 					);
 			}
 
-			_opts.delete_file(vs_code_path.c_str());
-			_opts.delete_file(fs_code_path.c_str());
-			_opts.delete_file(varying_def_path.c_str());
+			Buffer tmpvs = _opts.read(_vs_compiled_path.c_str());
+			Buffer tmpfs = _opts.read(_fs_compiled_path.c_str());
 
-			Buffer tmpvs = _opts.read(tmpvs_path.c_str());
-			Buffer tmpfs = _opts.read(tmpfs_path.c_str());
-
-			_opts.delete_file(tmpvs_path.c_str());
-			_opts.delete_file(tmpfs_path.c_str());
+			delete_temp_files();
 
 			// Write
 			_opts.write(uint32_t(array::size(tmpvs)));

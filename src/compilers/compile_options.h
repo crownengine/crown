@@ -44,13 +44,18 @@ struct CompileOptions
 		va_end(args);
 	}
 
+	bool file_exists(const char* path)
+	{
+		return _fs.exists(path);
+	}
+
 	bool resource_exists(const char* type, const char* name)
 	{
 		TempAllocator1024 ta;
 		DynamicString path(name, ta);
 		path += ".";
 		path += type;
-		return _fs.exists(path.c_str());
+		return file_exists(path.c_str());
 	}
 
 	Buffer read(const char* path)
