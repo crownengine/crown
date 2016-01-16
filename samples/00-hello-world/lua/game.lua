@@ -30,7 +30,3 @@ function shutdown()
 	-- Cleanup
 	Device.destroy_world(world)
 end
-
-function g_physics_callback(args)
-	-- Do nothing
-end
