@@ -55,25 +55,6 @@ namespace shader_resource
 		};
 	};
 
-	struct DepthTestInfo
-	{
-		const char* name;
-		DepthFunction::Enum value;
-	};
-
-	static DepthTestInfo _depth_test_map[] =
-	{
-		{ "less",     DepthFunction::LESS     },
-		{ "lequal",   DepthFunction::LEQUAL   },
-		{ "equal",    DepthFunction::EQUAL    },
-		{ "gequal",   DepthFunction::GEQUAL   },
-		{ "greater",  DepthFunction::GREATER  },
-		{ "notequal", DepthFunction::NOTEQUAL },
-		{ "never",    DepthFunction::NEVER    },
-		{ "always",   DepthFunction::ALWAYS   }
-	};
-	CE_STATIC_ASSERT(CE_COUNTOF(_depth_test_map) == DepthFunction::COUNT);
-
 	struct BlendFunction
 	{
 		enum Enum
@@ -95,6 +76,63 @@ namespace shader_resource
 			COUNT
 		};
 	};
+
+	struct BlendEquation
+	{
+		enum Enum
+		{
+			ADD,
+			SUB,
+			REVSUB,
+			MIN,
+			MAX,
+
+			COUNT
+		};
+	};
+
+	struct CullMode
+	{
+		enum Enum
+		{
+			CW,
+			CCW,
+
+			COUNT
+		};
+	};
+
+	struct PrimitiveType
+	{
+		enum Enum
+		{
+			PT_TRISTRIP,
+			PT_LINES,
+			PT_LINESTRIP,
+			PT_POINTS,
+
+			COUNT
+		};
+	};
+
+	struct DepthTestInfo
+	{
+		const char* name;
+		DepthFunction::Enum value;
+	};
+
+	static DepthTestInfo _depth_test_map[] =
+	{
+		{ "less",     DepthFunction::LESS     },
+		{ "lequal",   DepthFunction::LEQUAL   },
+		{ "equal",    DepthFunction::EQUAL    },
+		{ "gequal",   DepthFunction::GEQUAL   },
+		{ "greater",  DepthFunction::GREATER  },
+		{ "notequal", DepthFunction::NOTEQUAL },
+		{ "never",    DepthFunction::NEVER    },
+		{ "always",   DepthFunction::ALWAYS   }
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_depth_test_map) == DepthFunction::COUNT);
 
 	struct BlendFunctionInfo
 	{
@@ -120,20 +158,6 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_blend_function_map) == BlendFunction::COUNT);
 
-	struct BlendEquation
-	{
-		enum Enum
-		{
-			ADD,
-			SUB,
-			REVSUB,
-			MIN,
-			MAX,
-
-			COUNT
-		};
-	};
-
 	struct BlendEquationInfo
 	{
 		const char* name;
@@ -150,17 +174,6 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_blend_equation_map) == BlendEquation::COUNT);
 
-	struct CullMode
-	{
-		enum Enum
-		{
-			CW,
-			CCW,
-
-			COUNT
-		};
-	};
-
 	struct CullModeInfo
 	{
 		const char* name;
@@ -173,19 +186,6 @@ namespace shader_resource
 		{ "ccw", CullMode::CCW }
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_cull_mode_map) == CullMode::COUNT);
-
-	struct PrimitiveType
-	{
-		enum Enum
-		{
-			PT_TRISTRIP,
-			PT_LINES,
-			PT_LINESTRIP,
-			PT_POINTS,
-
-			COUNT
-		};
-	};
 
 	struct PrimitiveTypeInfo
 	{
