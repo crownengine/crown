@@ -16,7 +16,19 @@ project "bullet"
 	}
 
 	configuration { "linux-*" }
-		defines { "B3_USE_CLEW" }
+		defines {
+			"B3_USE_CLEW",
+		}
+		buildoptions {
+			"-Wno-unused-parameter",
+			"-Wno-unused-variable",
+			"-Wno-unused-but-set-variable",
+			"-Wno-unused-function",
+			"-Wno-sign-compare",
+			"-Wno-reorder",
+			"-Wno-type-limits",
+			"-Wno-parentheses",
+		}
 		files {
 			BULLET_DIR .. "src/clew/clew.c",
 			BULLET_DIR .. "src/clew/clew.h",
