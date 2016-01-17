@@ -35,6 +35,79 @@
 namespace crown
 {
 
+struct LightInfo
+{
+	const char* name;
+	LightType::Enum type;
+};
+
+static LightInfo s_light[] =
+{
+	{ "directional", LightType::DIRECTIONAL },
+	{ "omni",        LightType::OMNI        },
+	{ "spot",        LightType::SPOT        }
+};
+CE_STATIC_ASSERT(CE_COUNTOF(s_light) == LightType::COUNT);
+
+struct ProjectionInfo
+{
+	const char* name;
+	ProjectionType::Enum type;
+};
+
+static ProjectionInfo s_projection[] =
+{
+	{ "orthographic", ProjectionType::ORTHOGRAPHIC },
+	{ "perspective",  ProjectionType::PERSPECTIVE  }
+};
+CE_STATIC_ASSERT(CE_COUNTOF(s_projection) == ProjectionType::COUNT);
+
+struct RaycastInfo
+{
+	const char* name;
+	RaycastMode::Enum mode;
+};
+
+static RaycastInfo s_raycast[] =
+{
+	{ "closest", RaycastMode::CLOSEST },
+	{ "all",     RaycastMode::ALL     }
+};
+CE_STATIC_ASSERT(CE_COUNTOF(s_raycast) == RaycastMode::COUNT);
+
+static LightType::Enum name_to_light_type(const char* name)
+{
+	for (uint32_t i = 0; i < CE_COUNTOF(s_light); ++i)
+	{
+		if (strcmp(s_light[i].name, name) == 0)
+			return s_light[i].type;
+	}
+
+	return LightType::COUNT;
+}
+
+static ProjectionType::Enum name_to_projection_type(const char* name)
+{
+	for (uint32_t i = 0; i < CE_COUNTOF(s_projection); ++i)
+	{
+		if (strcmp(s_projection[i].name, name) == 0)
+			return s_projection[i].type;
+	}
+
+	return ProjectionType::COUNT;
+}
+
+static RaycastMode::Enum name_to_raycast_mode(const char* name)
+{
+	for (uint32_t i = 0; i < CE_COUNTOF(s_raycast); ++i)
+	{
+		if (strcmp(s_raycast[i].name, name) == 0)
+			return s_raycast[i].mode;
+	}
+
+	return RaycastMode::COUNT;
+}
+
 static int math_ray_plane_intersection(lua_State* L)
 {
 	LuaStack stack(L);
@@ -1131,31 +1204,6 @@ JOYPAD(3, axis_name)
 JOYPAD(3, button_id)
 JOYPAD(3, axis_id)
 
-struct ProjectionInfo
-{
-	const char* name;
-	ProjectionType::Enum type;
-};
-
-static ProjectionInfo s_projection[] =
-{
-	{ "orthographic", ProjectionType::ORTHOGRAPHIC },
-	{ "perspective",  ProjectionType::PERSPECTIVE  }
-};
-CE_STATIC_ASSERT(CE_COUNTOF(s_projection) == ProjectionType::COUNT);
-
-static ProjectionType::Enum name_to_projection_type(LuaStack& stack, const char* name)
-{
-	for (uint32_t i = 0; i < CE_COUNTOF(s_projection); ++i)
-	{
-		if (strcmp(s_projection[i].name, name) == 0)
-			return s_projection[i].type;
-	}
-
-	LUA_ASSERT(false, stack, "Unknown projection: %s", name);
-	return ProjectionType::COUNT;
-}
-
 static int world_spawn_unit(lua_State* L)
 {
 	LuaStack stack(L);
@@ -1216,9 +1264,12 @@ static int world_camera(lua_State* L)
 static int camera_set_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->set_camera_projection_type(stack.get_camera(2)
-		, name_to_projection_type(stack, stack.get_string(3))
-		);
+
+	const char* name = stack.get_string(3);
+	const ProjectionType::Enum pt = name_to_projection_type(name);
+	LUA_ASSERT(pt != ProjectionType::COUNT, stack, "Unknown projection type: '%s'", name);
+
+	stack.get_world(1)->set_camera_projection_type(stack.get_camera(2), pt);
 	return 0;
 }
 
@@ -1364,9 +1415,10 @@ static int world_stop_sound(lua_State* L)
 static int world_link_sound(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->link_sound(stack.get_sound_instance_id(2),
-		stack.get_unit(3),
-		stack.get_int(4));
+	stack.get_world(1)->link_sound(stack.get_sound_instance_id(2)
+		, stack.get_unit(3)
+		, stack.get_int(4)
+		);
 	return 0;
 }
 
@@ -1380,8 +1432,7 @@ static int world_set_listener_pose(lua_State* L)
 static int world_set_sound_position(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->set_sound_position(stack.get_sound_instance_id(2),
-		stack.get_vector3(3));
+	stack.get_world(1)->set_sound_position(stack.get_sound_instance_id(2), stack.get_vector3(3));
 	return 0;
 }
 
@@ -1396,8 +1447,7 @@ static int world_set_sound_range(lua_State* L)
 static int world_set_sound_volume(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->set_sound_volume(stack.get_sound_instance_id(2),
-		stack.get_float(3));
+	stack.get_world(1)->set_sound_volume(stack.get_sound_instance_id(2), stack.get_float(3));
 	return 0;
 }
 
@@ -1593,32 +1643,6 @@ static int unit_manager_alive(lua_State* L)
 	return 1;
 }
 
-struct LightInfo
-{
-	const char* name;
-	LightType::Enum type;
-};
-
-static LightInfo s_light[] =
-{
-	{ "directional", LightType::DIRECTIONAL },
-	{ "omni",        LightType::OMNI        },
-	{ "spot",        LightType::SPOT        }
-};
-CE_STATIC_ASSERT(CE_COUNTOF(s_light) == LightType::COUNT);
-
-static LightType::Enum name_to_light_type(LuaStack& stack, const char* name)
-{
-	for (uint32_t i = 0; i < CE_COUNTOF(s_light); ++i)
-	{
-		if (strcmp(s_light[i].name, name) == 0)
-			return s_light[i].type;
-	}
-
-	LUA_ASSERT(false, stack, "Unknown light type: %s", name);
-	return LightType::COUNT;
-}
-
 static int render_world_create_mesh(lua_State* L)
 {
 	LuaStack stack(L);
@@ -1796,9 +1820,12 @@ static int render_world_light_spot_angle(lua_State* L)
 static int render_world_set_light_type(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->set_light_type(stack.get_light_instance(2)
-		, name_to_light_type(stack, stack.get_string(3))
-		);
+
+	const char* name = stack.get_string(3);
+	const LightType::Enum lt = name_to_light_type(name);
+	LUA_ASSERT(lt != LightType::COUNT, stack, "Unknown light type: '%s'", name);
+
+	stack.get_render_world(1)->set_light_type(stack.get_light_instance(2), lt);
 	return 0;
 }
 
@@ -1835,30 +1862,6 @@ static int render_world_enable_debug_drawing(lua_State* L)
 	LuaStack stack(L);
 	stack.get_render_world(1)->enable_debug_drawing(stack.get_bool(2));
 	return 0;
-}
-
-struct RaycastInfo
-{
-	const char* name;
-	RaycastMode::Enum mode;
-};
-
-static RaycastInfo s_raycast[] =
-{
-	{ "closest", RaycastMode::CLOSEST },
-	{ "all",     RaycastMode::ALL     }
-};
-CE_STATIC_ASSERT(CE_COUNTOF(s_raycast) == RaycastMode::COUNT);
-
-static RaycastMode::Enum name_to_raycast_mode(const char* name)
-{
-	for (uint32_t i = 0; i < CE_COUNTOF(s_raycast); ++i)
-	{
-		if (strcmp(s_raycast[i].name, name) == 0)
-			return s_raycast[i].mode;
-	}
-
-	return RaycastMode::COUNT;
 }
 
 static int physics_world_actor_instances(lua_State* L)
@@ -2155,13 +2158,17 @@ static int physics_world_raycast(lua_State* L)
 	LuaStack stack(L);
 	PhysicsWorld* world = stack.get_physics_world(1);
 
+	const char* name = stack.get_string(5);
+	const RaycastMode::Enum mode = name_to_raycast_mode(name);
+	LUA_ASSERT(mode != RaycastMode::COUNT, stack, "Unknown raycast mode: '%s'", name);
+
 	TempAllocator1024 ta;
 	Array<RaycastHit> hits(ta);
 
 	world->raycast(stack.get_vector3(2)
 		, stack.get_vector3(3)
 		, stack.get_float(4)
-		, name_to_raycast_mode(stack.get_string(5))
+		, mode
 		, hits
 		);
 
