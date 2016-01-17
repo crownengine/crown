@@ -9,8 +9,6 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
 It is written in [Orthodox C++](https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b).
 
-[![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
-
 ##Supported platforms
 
  * Android (14+, ARM)
