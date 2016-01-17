@@ -141,11 +141,9 @@ function toolchain(build_dir, lib_dir)
 		buildoptions {
 			"-Wall",
 			"-Wextra",
-			"-msse2",
 			-- "-Werror",
 			-- "-pedantic",
-			"-Wno-unknown-pragmas",
-			"-Wno-unused-local-typedefs",
+			"-msse2",
 		}
 		buildoptions_cpp {
 			"-std=c++11",

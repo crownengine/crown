@@ -197,6 +197,10 @@ function crown_project(_name, _kind, _defines)
 
 			local function links_physx(config, os, platform)
 				if os == "linux" then
+					buildoptions {
+						"-Wno-unknown-pragmas",
+						"-Wno-unused-local-typedefs",
+					}
 					linkoptions {
 						"-Wl,--start-group $(addprefix -l," ..
 						"	PhysX3"                   .. config .. "_" .. platform ..
