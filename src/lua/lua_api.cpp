@@ -2388,15 +2388,21 @@ static int debug_line_add_line(lua_State* L)
 static int debug_line_add_axes(lua_State* L)
 {
 	LuaStack stack(L);
-	const float length = stack.num_args() == 3 ? stack.get_float(3) : 1.0f;
-	stack.get_debug_line(1)->add_axes(stack.get_matrix4x4(2), length);
+	const float len = stack.num_args() == 3
+		? stack.get_float(3)
+		: 1.0f
+		;
+	stack.get_debug_line(1)->add_axes(stack.get_matrix4x4(2), len);
 	return 0;
 }
 
 static int debug_line_add_circle(lua_State* L)
 {
 	LuaStack stack(L);
-	const uint32_t segments = stack.num_args() >= 6 ? stack.get_int(6) : 36;
+	const uint32_t segments = stack.num_args() >= 6
+		? stack.get_int(6)
+		: DebugLine::NUM_SEGMENTS
+		;
 	stack.get_debug_line(1)->add_circle(stack.get_vector3(2)
 		, stack.get_float(3)
 		, stack.get_vector3(4)
@@ -2409,7 +2415,10 @@ static int debug_line_add_circle(lua_State* L)
 static int debug_line_add_cone(lua_State* L)
 {
 	LuaStack stack(L);
-	const uint32_t segments = stack.num_args() >= 6 ? stack.get_int(6) : 36;
+	const uint32_t segments = stack.num_args() >= 6
+		? stack.get_int(6)
+		: DebugLine::NUM_SEGMENTS
+		;
 	stack.get_debug_line(1)->add_cone(stack.get_vector3(2)
 		, stack.get_vector3(3)
 		, stack.get_float(4)
@@ -2422,7 +2431,10 @@ static int debug_line_add_cone(lua_State* L)
 static int debug_line_add_sphere(lua_State* L)
 {
 	LuaStack stack(L);
-	const uint32_t segments = stack.num_args() >= 5 ? stack.get_int(5) : 36;
+	const uint32_t segments = stack.num_args() >= 5
+		? stack.get_int(5)
+		: DebugLine::NUM_SEGMENTS
+		;
 	stack.get_debug_line(1)->add_sphere(stack.get_vector3(2)
 		, stack.get_float(3)
 		, stack.get_color4(4)
