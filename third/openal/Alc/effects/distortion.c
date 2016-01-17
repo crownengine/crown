@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -34,7 +34,7 @@ typedef struct ALdistortionState {
     DERIVE_FROM_TYPE(ALeffectState);
 
     /* Effect gains for each channel */
-    ALfloat Gain[MaxChannels];
+    ALfloat Gain[MAX_OUTPUT_CHANNELS];
 
     /* Effect parameters */
     ALfilterState lowpass;
@@ -58,7 +58,6 @@ static ALvoid ALdistortionState_update(ALdistortionState *state, ALCdevice *Devi
     ALfloat bandwidth;
     ALfloat cutoff;
     ALfloat edge;
-    ALfloat gain;
 
     /* Store distorted signal attenuation settings */
     state->attenuation = Slot->EffectProps.Distortion.Gain;
@@ -73,23 +72,23 @@ static ALvoid ALdistortionState_update(ALdistortionState *state, ALCdevice *Devi
     /* Bandwidth value is constant in octaves */
     bandwidth = (cutoff / 2.0f) / (cutoff * 0.67f);
     ALfilterState_setParams(&state->lowpass, ALfilterType_LowPass, 1.0f,
-                            cutoff / (frequency*4.0f), bandwidth);
+        cutoff / (frequency*4.0f), calc_rcpQ_from_bandwidth(cutoff / (frequency*4.0f), bandwidth)
+    );
 
     /* Bandpass filter */
     cutoff = Slot->EffectProps.Distortion.EQCenter;
     /* Convert bandwidth in Hz to octaves */
     bandwidth = Slot->EffectProps.Distortion.EQBandwidth / (cutoff * 0.67f);
     ALfilterState_setParams(&state->bandpass, ALfilterType_BandPass, 1.0f,
-                            cutoff / (frequency*4.0f), bandwidth);
+        cutoff / (frequency*4.0f), calc_rcpQ_from_bandwidth(cutoff / (frequency*4.0f), bandwidth)
+    );
 
-    gain = sqrtf(1.0f / Device->NumChan) * Slot->Gain;
-    SetGains(Device, gain, state->Gain);
+    ComputeAmbientGains(Device, Slot->Gain, state->Gain);
 }
 
-static ALvoid ALdistortionState_process(ALdistortionState *state, ALuint SamplesToDo, const ALfloat *restrict SamplesIn, ALfloat (*restrict SamplesOut)[BUFFERSIZE])
+static ALvoid ALdistortionState_process(ALdistortionState *state, ALuint SamplesToDo, const ALfloat *restrict SamplesIn, ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels)
 {
     const ALfloat fc = state->edge_coeff;
-    float oversample_buffer[64][4];
     ALuint base;
     ALuint it;
     ALuint ot;
@@ -97,8 +96,8 @@ static ALvoid ALdistortionState_process(ALdistortionState *state, ALuint Samples
 
     for(base = 0;base < SamplesToDo;)
     {
-        ALfloat temps[64];
-        ALuint td = minu(SamplesToDo-base, 64);
+        float oversample_buffer[64][4];
+        ALuint td = minu(64, SamplesToDo-base);
 
         /* Perform 4x oversampling to avoid aliasing.   */
         /* Oversampling greatly improves distortion     */
@@ -150,20 +149,19 @@ static ALvoid ALdistortionState_process(ALdistortionState *state, ALuint Samples
                 smp = ALfilterState_processSingle(&state->bandpass, smp);
                 oversample_buffer[it][ot] = smp;
             }
-
-            /* Fourth step, final, do attenuation and perform decimation, */
-            /* store only one sample out of 4.                            */
-            temps[it] = oversample_buffer[it][0] * state->attenuation;
         }
 
-        for(kt = 0;kt < MaxChannels;kt++)
+        for(kt = 0;kt < NumChannels;kt++)
         {
-            ALfloat gain = state->Gain[kt];
-            if(!(gain > GAIN_SILENCE_THRESHOLD))
+            /* Fourth step, final, do attenuation and perform decimation,
+             * store only one sample out of 4.
+             */
+            ALfloat gain = state->Gain[kt] * state->attenuation;
+            if(!(fabsf(gain) > GAIN_SILENCE_THRESHOLD))
                 continue;
 
             for(it = 0;it < td;it++)
-                SamplesOut[kt][base+it] += gain * temps[it];
+                SamplesOut[kt][base+it] += gain * oversample_buffer[it][0];
         }
 
         base += td;

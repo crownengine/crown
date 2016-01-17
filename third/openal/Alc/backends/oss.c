@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -131,7 +131,7 @@ static int ALCplaybackOSS_mixerProc(void *ptr)
                     break;
                 }
 
-                al_nssleep(0, 1000000);
+                al_nssleep(1000000);
                 continue;
             }
 
@@ -345,7 +345,7 @@ static int ALCcaptureOSS_recordProc(void *ptr)
     int amt;
 
     SetRTPriority();
-    althrd_setname(althrd_current(), "alsoft-record");
+    althrd_setname(althrd_current(), RECORD_THREAD_NAME);
 
     frameSize = FrameSizeFromDevFmt(device->FmtChans, device->FmtType);
 
@@ -362,7 +362,7 @@ static int ALCcaptureOSS_recordProc(void *ptr)
         }
         if(amt == 0)
         {
-            al_nssleep(0, 1000000);
+            al_nssleep(1000000);
             continue;
         }
         if(self->doCapture)
@@ -562,8 +562,8 @@ ALCbackendFactory *ALCossBackendFactory_getFactory(void)
 
 ALCboolean ALCossBackendFactory_init(ALCossBackendFactory* UNUSED(self))
 {
-    ConfigValueStr("oss", "device", &oss_driver);
-    ConfigValueStr("oss", "capture", &oss_capture);
+    ConfigValueStr(NULL, "oss", "device", &oss_driver);
+    ConfigValueStr(NULL, "oss", "capture", &oss_capture);
 
     return ALC_TRUE;
 }
@@ -606,25 +606,15 @@ ALCbackend* ALCossBackendFactory_createBackend(ALCossBackendFactory* UNUSED(self
     if(type == ALCbackend_Playback)
     {
         ALCplaybackOSS *backend;
-
-        backend = ALCplaybackOSS_New(sizeof(*backend));
+        NEW_OBJ(backend, ALCplaybackOSS)(device);
         if(!backend) return NULL;
-        memset(backend, 0, sizeof(*backend));
-
-        ALCplaybackOSS_Construct(backend, device);
-
         return STATIC_CAST(ALCbackend, backend);
     }
     if(type == ALCbackend_Capture)
     {
         ALCcaptureOSS *backend;
-
-        backend = ALCcaptureOSS_New(sizeof(*backend));
+        NEW_OBJ(backend, ALCcaptureOSS)(device);
         if(!backend) return NULL;
-        memset(backend, 0, sizeof(*backend));
-
-        ALCcaptureOSS_Construct(backend, device);
-
         return STATIC_CAST(ALCbackend, backend);
     }
 

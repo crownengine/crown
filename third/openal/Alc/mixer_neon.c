@@ -9,6 +9,25 @@
 #include "hrtf.h"
 
 
+static inline void SetupCoeffs(ALfloat (*restrict OutCoeffs)[2],
+                               const HrtfParams *hrtfparams,
+                               ALuint IrSize, ALuint Counter)
+{
+    ALuint c;
+    float32x4_t counter4;
+    {
+        float32x2_t counter2 = vdup_n_f32(-(float)Counter);
+        counter4 = vcombine_f32(counter2, counter2);
+    }
+    for(c = 0;c < IrSize;c += 2)
+    {
+        float32x4_t step4 = vld1q_f32((float32_t*)hrtfparams->CoeffStep[c]);
+        float32x4_t coeffs = vld1q_f32((float32_t*)hrtfparams->Coeffs[c]);
+        coeffs = vmlaq_f32(coeffs, step4, counter4);
+        vst1q_f32((float32_t*)OutCoeffs[c], coeffs);
+    }
+}
+
 static inline void ApplyCoeffsStep(ALuint Offset, ALfloat (*restrict Values)[2],
                                    const ALuint IrSize,
                                    ALfloat (*restrict Coeffs)[2],
@@ -69,14 +88,13 @@ static inline void ApplyCoeffs(ALuint Offset, ALfloat (*restrict Values)[2],
     }
 }
 
-
-#define SUFFIX Neon
+#define MixHrtf MixHrtf_Neon
 #include "mixer_inc.c"
-#undef SUFFIX
+#undef MixHrtf
 
 
-void MixDirect_Neon(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer)[BUFFERSIZE],
-                    MixGains *Gains, ALuint Counter, ALuint OutPos, ALuint BufferSize)
+void Mix_Neon(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer)[BUFFERSIZE],
+              MixGains *Gains, ALuint Counter, ALuint OutPos, ALuint BufferSize)
 {
     ALfloat gain, step;
     float32x4_t gain4;
@@ -87,29 +105,32 @@ void MixDirect_Neon(const ALfloat *data, ALuint OutChans, ALfloat (*restrict Out
         ALuint pos = 0;
         gain = Gains[c].Current;
         step = Gains[c].Step;
-        if(step != 1.0f && Counter > 0)
+        if(step != 0.0f && Counter > 0)
         {
-            for(;pos < BufferSize && pos < Counter;pos++)
+            ALuint minsize = minu(BufferSize, Counter);
+            for(;pos < minsize;pos++)
             {
                 OutBuffer[c][OutPos+pos] += data[pos]*gain;
-                gain *= step;
+                gain += step;
             }
             if(pos == Counter)
                 gain = Gains[c].Target;
             Gains[c].Current = gain;
+
             /* Mix until pos is aligned with 4 or the mix is done. */
-            for(;pos < BufferSize && (pos&3) != 0;pos++)
+            minsize = minu(BufferSize, (pos+3)&~3);
+            for(;pos < minsize;pos++)
                 OutBuffer[c][OutPos+pos] += data[pos]*gain;
         }
 
-        if(!(gain > GAIN_SILENCE_THRESHOLD))
+        if(!(fabsf(gain) > GAIN_SILENCE_THRESHOLD))
             continue;
         gain4 = vdupq_n_f32(gain);
         for(;BufferSize-pos > 3;pos += 4)
         {
             const float32x4_t val4 = vld1q_f32(&data[pos]);
             float32x4_t dry4 = vld1q_f32(&OutBuffer[c][OutPos+pos]);
-            dry4 = vaddq_f32(dry4, vmulq_f32(val4, gain4));
+            dry4 = vmlaq_f32(dry4, val4, gain4);
             vst1q_f32(&OutBuffer[c][OutPos+pos], dry4);
         }
         for(;pos < BufferSize;pos++)

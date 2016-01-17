@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -43,7 +43,7 @@ typedef struct ALechoState {
     } Tap[2];
     ALuint Offset;
     /* The panning gains for the two taps */
-    ALfloat Gain[2][MaxChannels];
+    ALfloat Gain[2][MAX_OUTPUT_CHANNELS];
 
     ALfloat FeedGain;
 
@@ -83,9 +83,9 @@ static ALboolean ALechoState_deviceUpdate(ALechoState *state, ALCdevice *Device)
 
 static ALvoid ALechoState_update(ALechoState *state, ALCdevice *Device, const ALeffectslot *Slot)
 {
+    ALfloat pandir[3] = { 0.0f, 0.0f, 0.0f };
     ALuint frequency = Device->Frequency;
-    ALfloat lrpan, gain;
-    ALfloat dirGain;
+    ALfloat gain, lrpan;
 
     state->Tap[0].delay = fastf2u(Slot->EffectProps.Echo.Delay * frequency) + 1;
     state->Tap[1].delay = fastf2u(Slot->EffectProps.Echo.LRDelay * frequency);
@@ -95,21 +95,23 @@ static ALvoid ALechoState_update(ALechoState *state, ALCdevice *Device, const AL
 
     state->FeedGain = Slot->EffectProps.Echo.Feedback;
 
+    gain = minf(1.0f - Slot->EffectProps.Echo.Damping, 0.01f);
     ALfilterState_setParams(&state->Filter, ALfilterType_HighShelf,
-                            1.0f - Slot->EffectProps.Echo.Damping,
-                            LOWPASSFREQREF/frequency, 0.0f);
+                            gain, LOWPASSFREQREF/frequency,
+                            calc_rcpQ_from_slope(gain, 0.75f));
 
     gain = Slot->Gain;
-    dirGain = fabsf(lrpan);
 
     /* First tap panning */
-    ComputeAngleGains(Device, atan2f(-lrpan, 0.0f), (1.0f-dirGain)*F_PI, gain, state->Gain[0]);
+    pandir[0] = -lrpan;
+    ComputeDirectionalGains(Device, pandir, gain, state->Gain[0]);
 
     /* Second tap panning */
-    ComputeAngleGains(Device, atan2f(+lrpan, 0.0f), (1.0f-dirGain)*F_PI, gain, state->Gain[1]);
+    pandir[0] = +lrpan;
+    ComputeDirectionalGains(Device, pandir, gain, state->Gain[1]);
 }
 
-static ALvoid ALechoState_process(ALechoState *state, ALuint SamplesToDo, const ALfloat *restrict SamplesIn, ALfloat (*restrict SamplesOut)[BUFFERSIZE])
+static ALvoid ALechoState_process(ALechoState *state, ALuint SamplesToDo, const ALfloat *restrict SamplesIn, ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels)
 {
     const ALuint mask = state->BufferLength-1;
     const ALuint tap1 = state->Tap[0].delay;
@@ -121,8 +123,8 @@ static ALvoid ALechoState_process(ALechoState *state, ALuint SamplesToDo, const 
 
     for(base = 0;base < SamplesToDo;)
     {
-        ALfloat temps[64][2];
-        ALuint td = minu(SamplesToDo-base, 64);
+        ALfloat temps[128][2];
+        ALuint td = minu(128, SamplesToDo-base);
 
         for(i = 0;i < td;i++)
         {
@@ -138,17 +140,17 @@ static ALvoid ALechoState_process(ALechoState *state, ALuint SamplesToDo, const 
             offset++;
         }
 
-        for(k = 0;k < MaxChannels;k++)
+        for(k = 0;k < NumChannels;k++)
         {
             ALfloat gain = state->Gain[0][k];
-            if(gain > GAIN_SILENCE_THRESHOLD)
+            if(fabsf(gain) > GAIN_SILENCE_THRESHOLD)
             {
                 for(i = 0;i < td;i++)
                     SamplesOut[k][i+base] += temps[i][0] * gain;
             }
 
             gain = state->Gain[1][k];
-            if(gain > GAIN_SILENCE_THRESHOLD)
+            if(fabsf(gain) > GAIN_SILENCE_THRESHOLD)
             {
                 for(i = 0;i < td;i++)
                     SamplesOut[k][i+base] += temps[i][1] * gain;

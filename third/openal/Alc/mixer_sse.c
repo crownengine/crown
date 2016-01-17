@@ -1,12 +1,5 @@
 #include "config.h"
 
-#ifdef IN_IDE_PARSER
-/* KDevelop's parser won't recognize these defines that get added by the -msse
- * switch used to compile this source. Without them, xmmintrin.h fails to
- * declare anything. */
-#define __MMX__
-#define __SSE__
-#endif
 #include <xmmintrin.h>
 
 #include "AL/al.h"
@@ -18,6 +11,82 @@
 #include "alAuxEffectSlot.h"
 #include "mixer_defs.h"
 
+
+const ALfloat *Resample_bsinc32_SSE(const BsincState *state, const ALfloat *src, ALuint frac,
+                                    ALuint increment, ALfloat *restrict dst, ALuint dstlen)
+{
+    const __m128 sf4 = _mm_set1_ps(state->sf);
+    const ALuint m = state->m;
+    const ALint l = state->l;
+    const ALfloat *fil, *scd, *phd, *spd;
+    ALuint pi, j_f, i;
+    ALfloat pf;
+    ALint j_s;
+    __m128 r4;
+
+    for(i = 0;i < dstlen;i++)
+    {
+        // Calculate the phase index and factor.
+#define FRAC_PHASE_BITDIFF (FRACTIONBITS-BSINC_PHASE_BITS)
+        pi = frac >> FRAC_PHASE_BITDIFF;
+        pf = (frac & ((1<<FRAC_PHASE_BITDIFF)-1)) * (1.0f/(1<<FRAC_PHASE_BITDIFF));
+#undef FRAC_PHASE_BITDIFF
+
+        fil = state->coeffs[pi].filter;
+        scd = state->coeffs[pi].scDelta;
+        phd = state->coeffs[pi].phDelta;
+        spd = state->coeffs[pi].spDelta;
+
+        // Apply the scale and phase interpolated filter.
+        r4 = _mm_setzero_ps();
+        {
+            const __m128 pf4 = _mm_set1_ps(pf);
+            for(j_f = 0,j_s = l;j_f < m;j_f+=4,j_s+=4)
+            {
+                const __m128 f4 = _mm_add_ps(
+                    _mm_add_ps(
+                        _mm_load_ps(&fil[j_f]),
+                        _mm_mul_ps(sf4, _mm_load_ps(&scd[j_f]))
+                    ),
+                    _mm_mul_ps(
+                        pf4,
+                        _mm_add_ps(
+                            _mm_load_ps(&phd[j_f]),
+                            _mm_mul_ps(sf4, _mm_load_ps(&spd[j_f]))
+                        )
+                    )
+                );
+                r4 = _mm_add_ps(r4, _mm_mul_ps(f4, _mm_loadu_ps(&src[j_s])));
+            }
+        }
+        r4 = _mm_add_ps(r4, _mm_shuffle_ps(r4, r4, _MM_SHUFFLE(0, 1, 2, 3)));
+        r4 = _mm_add_ps(r4, _mm_movehl_ps(r4, r4));
+        dst[i] = _mm_cvtss_f32(r4);
+
+        frac += increment;
+        src  += frac>>FRACTIONBITS;
+        frac &= FRACTIONMASK;
+    }
+    return dst;
+}
+
+
+static inline void SetupCoeffs(ALfloat (*restrict OutCoeffs)[2],
+                               const HrtfParams *hrtfparams,
+                               ALuint IrSize, ALuint Counter)
+{
+    const __m128 counter4 = _mm_set1_ps((float)Counter);
+    __m128 coeffs, step4;
+    ALuint i;
+
+    for(i = 0;i < IrSize;i += 2)
+    {
+        step4  = _mm_load_ps(&hrtfparams->CoeffStep[i][0]);
+        coeffs = _mm_load_ps(&hrtfparams->Coeffs[i][0]);
+        coeffs = _mm_sub_ps(coeffs, _mm_mul_ps(step4, counter4));
+        _mm_store_ps(&OutCoeffs[i][0], coeffs);
+    }
+}
 
 static inline void ApplyCoeffsStep(ALuint Offset, ALfloat (*restrict Values)[2],
                                    const ALuint IrSize,
@@ -133,16 +202,16 @@ static inline void ApplyCoeffs(ALuint Offset, ALfloat (*restrict Values)[2],
     }
 }
 
-#define SUFFIX SSE
+#define MixHrtf MixHrtf_SSE
 #include "mixer_inc.c"
-#undef SUFFIX
+#undef MixHrtf
 
 
 void Mix_SSE(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer)[BUFFERSIZE],
              MixGains *Gains, ALuint Counter, ALuint OutPos, ALuint BufferSize)
 {
     ALfloat gain, step;
-    __m128 gain4, step4;
+    __m128 gain4;
     ALuint c;
 
     for(c = 0;c < OutChans;c++)
@@ -150,43 +219,51 @@ void Mix_SSE(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer)
         ALuint pos = 0;
         gain = Gains[c].Current;
         step = Gains[c].Step;
-        if(step != 1.0f && Counter > 0)
+        if(step != 0.0f && Counter > 0)
         {
+            ALuint minsize = minu(BufferSize, Counter);
             /* Mix with applying gain steps in aligned multiples of 4. */
-            if(BufferSize-pos > 3 && Counter-pos > 3)
+            if(minsize-pos > 3)
             {
+                __m128 step4;
                 gain4 = _mm_setr_ps(
                     gain,
-                    gain * step,
-                    gain * step * step,
-                    gain * step * step * step
+                    gain + step,
+                    gain + step + step,
+                    gain + step + step + step
                 );
-                step4 = _mm_set1_ps(step * step * step * step);
+                step4 = _mm_set1_ps(step + step + step + step);
                 do {
                     const __m128 val4 = _mm_load_ps(&data[pos]);
                     __m128 dry4 = _mm_load_ps(&OutBuffer[c][OutPos+pos]);
                     dry4 = _mm_add_ps(dry4, _mm_mul_ps(val4, gain4));
-                    gain4 = _mm_mul_ps(gain4, step4);
+                    gain4 = _mm_add_ps(gain4, step4);
                     _mm_store_ps(&OutBuffer[c][OutPos+pos], dry4);
                     pos += 4;
-                } while(BufferSize-pos > 3 && Counter-pos > 3);
+                } while(minsize-pos > 3);
+                /* NOTE: gain4 now represents the next four gains after the
+                 * last four mixed samples, so the lowest element represents
+                 * the next gain to apply.
+                 */
                 gain = _mm_cvtss_f32(gain4);
             }
             /* Mix with applying left over gain steps that aren't aligned multiples of 4. */
-            for(;pos < BufferSize && pos < Counter;pos++)
+            for(;pos < minsize;pos++)
             {
                 OutBuffer[c][OutPos+pos] += data[pos]*gain;
-                gain *= step;
+                gain += step;
             }
             if(pos == Counter)
                 gain = Gains[c].Target;
             Gains[c].Current = gain;
+
             /* Mix until pos is aligned with 4 or the mix is done. */
-            for(;pos < BufferSize && (pos&3) != 0;pos++)
+            minsize = minu(BufferSize, (pos+3)&~3);
+            for(;pos < minsize;pos++)
                 OutBuffer[c][OutPos+pos] += data[pos]*gain;
         }
 
-        if(!(gain > GAIN_SILENCE_THRESHOLD))
+        if(!(fabsf(gain) > GAIN_SILENCE_THRESHOLD))
             continue;
         gain4 = _mm_set1_ps(gain);
         for(;BufferSize-pos > 3;pos += 4)

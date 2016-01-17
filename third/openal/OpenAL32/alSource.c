@@ -13,14 +13,15 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
 #include "config.h"
 
 #include <stdlib.h>
+#include <limits.h>
 #include <math.h>
 #include <float.h>
 
@@ -33,328 +34,331 @@
 #include "alThunk.h"
 #include "alAuxEffectSlot.h"
 
+#include "backends/base.h"
+
 #include "threads.h"
-
-
-enum Resampler DefaultResampler = LinearResampler;
-const ALsizei ResamplerPadding[ResamplerMax] = {
-    0, /* Point */
-    1, /* Linear */
-    2, /* Cubic */
-};
-const ALsizei ResamplerPrePadding[ResamplerMax] = {
-    0, /* Point */
-    0, /* Linear */
-    1, /* Cubic */
-};
 
 
 extern inline struct ALsource *LookupSource(ALCcontext *context, ALuint id);
 extern inline struct ALsource *RemoveSource(ALCcontext *context, ALuint id);
 
 static ALvoid InitSourceParams(ALsource *Source);
-static ALint64 GetSourceOffset(const ALsource *Source);
-static ALdouble GetSourceSecOffset(const ALsource *Source);
-static ALvoid GetSourceOffsets(const ALsource *Source, ALenum name, ALdouble *offsets, ALdouble updateLen);
-static ALint GetSampleOffset(ALsource *Source);
+static ALint64 GetSourceSampleOffset(ALsource *Source);
+static ALdouble GetSourceSecOffset(ALsource *Source);
+static ALvoid GetSourceOffsets(ALsource *Source, ALenum name, ALdouble *offsets, ALdouble updateLen);
+static ALboolean GetSampleOffset(ALsource *Source, ALuint *offset, ALuint *frac);
 
-typedef enum SrcFloatProp {
-    sfPitch = AL_PITCH,
-    sfGain = AL_GAIN,
-    sfMinGain = AL_MIN_GAIN,
-    sfMaxGain = AL_MAX_GAIN,
-    sfMaxDistance = AL_MAX_DISTANCE,
-    sfRolloffFactor = AL_ROLLOFF_FACTOR,
-    sfDopplerFactor = AL_DOPPLER_FACTOR,
-    sfConeOuterGain = AL_CONE_OUTER_GAIN,
-    sfSecOffset = AL_SEC_OFFSET,
-    sfSampleOffset = AL_SAMPLE_OFFSET,
-    sfByteOffset = AL_BYTE_OFFSET,
-    sfConeInnerAngle = AL_CONE_INNER_ANGLE,
-    sfConeOuterAngle = AL_CONE_OUTER_ANGLE,
-    sfRefDistance = AL_REFERENCE_DISTANCE,
+typedef enum SourceProp {
+    srcPitch = AL_PITCH,
+    srcGain = AL_GAIN,
+    srcMinGain = AL_MIN_GAIN,
+    srcMaxGain = AL_MAX_GAIN,
+    srcMaxDistance = AL_MAX_DISTANCE,
+    srcRolloffFactor = AL_ROLLOFF_FACTOR,
+    srcDopplerFactor = AL_DOPPLER_FACTOR,
+    srcConeOuterGain = AL_CONE_OUTER_GAIN,
+    srcSecOffset = AL_SEC_OFFSET,
+    srcSampleOffset = AL_SAMPLE_OFFSET,
+    srcByteOffset = AL_BYTE_OFFSET,
+    srcConeInnerAngle = AL_CONE_INNER_ANGLE,
+    srcConeOuterAngle = AL_CONE_OUTER_ANGLE,
+    srcRefDistance = AL_REFERENCE_DISTANCE,
 
-    sfPosition = AL_POSITION,
-    sfVelocity = AL_VELOCITY,
-    sfDirection = AL_DIRECTION,
+    srcPosition = AL_POSITION,
+    srcVelocity = AL_VELOCITY,
+    srcDirection = AL_DIRECTION,
 
-    sfSourceRelative = AL_SOURCE_RELATIVE,
-    sfLooping = AL_LOOPING,
-    sfBuffer = AL_BUFFER,
-    sfSourceState = AL_SOURCE_STATE,
-    sfBuffersQueued = AL_BUFFERS_QUEUED,
-    sfBuffersProcessed = AL_BUFFERS_PROCESSED,
-    sfSourceType = AL_SOURCE_TYPE,
-
-    /* ALC_EXT_EFX */
-    sfConeOuterGainHF = AL_CONE_OUTER_GAINHF,
-    sfAirAbsorptionFactor = AL_AIR_ABSORPTION_FACTOR,
-    sfRoomRolloffFactor =  AL_ROOM_ROLLOFF_FACTOR,
-    sfDirectFilterGainHFAuto = AL_DIRECT_FILTER_GAINHF_AUTO,
-    sfAuxSendFilterGainAuto = AL_AUXILIARY_SEND_FILTER_GAIN_AUTO,
-    sfAuxSendFilterGainHFAuto = AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO,
-
-    /* AL_SOFT_direct_channels */
-    sfDirectChannelsSOFT = AL_DIRECT_CHANNELS_SOFT,
-
-    /* AL_EXT_source_distance_model */
-    sfDistanceModel = AL_DISTANCE_MODEL,
-
-    sfSecLength = AL_SEC_LENGTH_SOFT,
-
-    /* AL_SOFT_buffer_sub_data / AL_SOFT_buffer_samples */
-    sfSampleRWOffsetsSOFT = AL_SAMPLE_RW_OFFSETS_SOFT,
-    sfByteRWOffsetsSOFT = AL_BYTE_RW_OFFSETS_SOFT,
-
-    /* AL_SOFT_source_latency */
-    sfSecOffsetLatencySOFT = AL_SEC_OFFSET_LATENCY_SOFT,
-} SrcFloatProp;
-
-typedef enum SrcIntProp {
-    siMaxDistance = AL_MAX_DISTANCE,
-    siRolloffFactor = AL_ROLLOFF_FACTOR,
-    siRefDistance = AL_REFERENCE_DISTANCE,
-    siSourceRelative = AL_SOURCE_RELATIVE,
-    siConeInnerAngle = AL_CONE_INNER_ANGLE,
-    siConeOuterAngle = AL_CONE_OUTER_ANGLE,
-    siLooping = AL_LOOPING,
-    siBuffer = AL_BUFFER,
-    siSourceState = AL_SOURCE_STATE,
-    siBuffersQueued = AL_BUFFERS_QUEUED,
-    siBuffersProcessed = AL_BUFFERS_PROCESSED,
-    siSourceType = AL_SOURCE_TYPE,
-    siSecOffset = AL_SEC_OFFSET,
-    siSampleOffset = AL_SAMPLE_OFFSET,
-    siByteOffset = AL_BYTE_OFFSET,
-    siDopplerFactor = AL_DOPPLER_FACTOR,
-    siPosition = AL_POSITION,
-    siVelocity = AL_VELOCITY,
-    siDirection = AL_DIRECTION,
+    srcSourceRelative = AL_SOURCE_RELATIVE,
+    srcLooping = AL_LOOPING,
+    srcBuffer = AL_BUFFER,
+    srcSourceState = AL_SOURCE_STATE,
+    srcBuffersQueued = AL_BUFFERS_QUEUED,
+    srcBuffersProcessed = AL_BUFFERS_PROCESSED,
+    srcSourceType = AL_SOURCE_TYPE,
 
     /* ALC_EXT_EFX */
-    siDirectFilterGainHFAuto = AL_DIRECT_FILTER_GAINHF_AUTO,
-    siAuxSendFilterGainAutio = AL_AUXILIARY_SEND_FILTER_GAIN_AUTO,
-    siAuxSendFilterGainHFAuto = AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO,
-    siDirectFilter = AL_DIRECT_FILTER,
-    siAuxSendFilter = AL_AUXILIARY_SEND_FILTER,
+    srcConeOuterGainHF = AL_CONE_OUTER_GAINHF,
+    srcAirAbsorptionFactor = AL_AIR_ABSORPTION_FACTOR,
+    srcRoomRolloffFactor =  AL_ROOM_ROLLOFF_FACTOR,
+    srcDirectFilterGainHFAuto = AL_DIRECT_FILTER_GAINHF_AUTO,
+    srcAuxSendFilterGainAuto = AL_AUXILIARY_SEND_FILTER_GAIN_AUTO,
+    srcAuxSendFilterGainHFAuto = AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO,
+    srcDirectFilter = AL_DIRECT_FILTER,
+    srcAuxSendFilter = AL_AUXILIARY_SEND_FILTER,
 
     /* AL_SOFT_direct_channels */
-    siDirectChannelsSOFT = AL_DIRECT_CHANNELS_SOFT,
+    srcDirectChannelsSOFT = AL_DIRECT_CHANNELS_SOFT,
 
     /* AL_EXT_source_distance_model */
-    siDistanceModel = AL_DISTANCE_MODEL,
+    srcDistanceModel = AL_DISTANCE_MODEL,
 
-    siByteLength = AL_BYTE_LENGTH_SOFT,
-    siSampleLength = AL_SAMPLE_LENGTH_SOFT,
+    srcByteLengthSOFT = AL_BYTE_LENGTH_SOFT,
+    srcSampleLengthSOFT = AL_SAMPLE_LENGTH_SOFT,
+    srcSecLengthSOFT = AL_SEC_LENGTH_SOFT,
 
     /* AL_SOFT_buffer_sub_data / AL_SOFT_buffer_samples */
-    siSampleRWOffsetsSOFT = AL_SAMPLE_RW_OFFSETS_SOFT,
-    siByteRWOffsetsSOFT = AL_BYTE_RW_OFFSETS_SOFT,
+    srcSampleRWOffsetsSOFT = AL_SAMPLE_RW_OFFSETS_SOFT,
+    srcByteRWOffsetsSOFT = AL_BYTE_RW_OFFSETS_SOFT,
 
     /* AL_SOFT_source_latency */
-    siSampleOffsetLatencySOFT = AL_SAMPLE_OFFSET_LATENCY_SOFT,
-} SrcIntProp;
+    srcSampleOffsetLatencySOFT = AL_SAMPLE_OFFSET_LATENCY_SOFT,
+    srcSecOffsetLatencySOFT = AL_SEC_OFFSET_LATENCY_SOFT,
 
-static ALboolean SetSourcefv(ALsource *Source, ALCcontext *Context, SrcFloatProp prop, const ALfloat *values);
-static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp prop, const ALint *values);
-static ALboolean SetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp prop, const ALint64SOFT *values);
+    /* AL_EXT_BFORMAT */
+    srcOrientation = AL_ORIENTATION,
+} SourceProp;
 
-static ALboolean GetSourcedv(ALsource *Source, ALCcontext *Context, SrcFloatProp prop, ALdouble *values);
-static ALboolean GetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp prop, ALint *values);
-static ALboolean GetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp prop, ALint64 *values);
+static ALboolean SetSourcefv(ALsource *Source, ALCcontext *Context, SourceProp prop, const ALfloat *values);
+static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SourceProp prop, const ALint *values);
+static ALboolean SetSourcei64v(ALsource *Source, ALCcontext *Context, SourceProp prop, const ALint64SOFT *values);
+
+static ALboolean GetSourcedv(ALsource *Source, ALCcontext *Context, SourceProp prop, ALdouble *values);
+static ALboolean GetSourceiv(ALsource *Source, ALCcontext *Context, SourceProp prop, ALint *values);
+static ALboolean GetSourcei64v(ALsource *Source, ALCcontext *Context, SourceProp prop, ALint64 *values);
 
 static ALint FloatValsByProp(ALenum prop)
 {
-    if(prop != (ALenum)((SrcFloatProp)prop))
+    if(prop != (ALenum)((SourceProp)prop))
         return 0;
-    switch((SrcFloatProp)prop)
+    switch((SourceProp)prop)
     {
-        case sfPitch:
-        case sfGain:
-        case sfMinGain:
-        case sfMaxGain:
-        case sfMaxDistance:
-        case sfRolloffFactor:
-        case sfDopplerFactor:
-        case sfConeOuterGain:
-        case sfSecOffset:
-        case sfSampleOffset:
-        case sfByteOffset:
-        case sfConeInnerAngle:
-        case sfConeOuterAngle:
-        case sfRefDistance:
-        case sfConeOuterGainHF:
-        case sfAirAbsorptionFactor:
-        case sfRoomRolloffFactor:
-        case sfDirectFilterGainHFAuto:
-        case sfAuxSendFilterGainAuto:
-        case sfAuxSendFilterGainHFAuto:
-        case sfDirectChannelsSOFT:
-        case sfDistanceModel:
-        case sfSourceRelative:
-        case sfLooping:
-        case sfBuffer:
-        case sfSourceState:
-        case sfBuffersQueued:
-        case sfBuffersProcessed:
-        case sfSourceType:
-        case sfSecLength:
+        case AL_PITCH:
+        case AL_GAIN:
+        case AL_MIN_GAIN:
+        case AL_MAX_GAIN:
+        case AL_MAX_DISTANCE:
+        case AL_ROLLOFF_FACTOR:
+        case AL_DOPPLER_FACTOR:
+        case AL_CONE_OUTER_GAIN:
+        case AL_SEC_OFFSET:
+        case AL_SAMPLE_OFFSET:
+        case AL_BYTE_OFFSET:
+        case AL_CONE_INNER_ANGLE:
+        case AL_CONE_OUTER_ANGLE:
+        case AL_REFERENCE_DISTANCE:
+        case AL_CONE_OUTER_GAINHF:
+        case AL_AIR_ABSORPTION_FACTOR:
+        case AL_ROOM_ROLLOFF_FACTOR:
+        case AL_DIRECT_FILTER_GAINHF_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAIN_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO:
+        case AL_DIRECT_CHANNELS_SOFT:
+        case AL_DISTANCE_MODEL:
+        case AL_SOURCE_RELATIVE:
+        case AL_LOOPING:
+        case AL_SOURCE_STATE:
+        case AL_BUFFERS_QUEUED:
+        case AL_BUFFERS_PROCESSED:
+        case AL_SOURCE_TYPE:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
+        case AL_SEC_LENGTH_SOFT:
             return 1;
 
-        case sfSampleRWOffsetsSOFT:
-        case sfByteRWOffsetsSOFT:
+        case AL_SAMPLE_RW_OFFSETS_SOFT:
+        case AL_BYTE_RW_OFFSETS_SOFT:
             return 2;
 
-        case sfPosition:
-        case sfVelocity:
-        case sfDirection:
+        case AL_POSITION:
+        case AL_VELOCITY:
+        case AL_DIRECTION:
             return 3;
 
-        case sfSecOffsetLatencySOFT:
+        case AL_ORIENTATION:
+            return 6;
+
+        case AL_SEC_OFFSET_LATENCY_SOFT:
             break; /* Double only */
+
+        case AL_BUFFER:
+        case AL_DIRECT_FILTER:
+        case AL_AUXILIARY_SEND_FILTER:
+            break; /* i/i64 only */
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
+            break; /* i64 only */
     }
     return 0;
 }
 static ALint DoubleValsByProp(ALenum prop)
 {
-    if(prop != (ALenum)((SrcFloatProp)prop))
+    if(prop != (ALenum)((SourceProp)prop))
         return 0;
-    switch((SrcFloatProp)prop)
+    switch((SourceProp)prop)
     {
-        case sfPitch:
-        case sfGain:
-        case sfMinGain:
-        case sfMaxGain:
-        case sfMaxDistance:
-        case sfRolloffFactor:
-        case sfDopplerFactor:
-        case sfConeOuterGain:
-        case sfSecOffset:
-        case sfSampleOffset:
-        case sfByteOffset:
-        case sfConeInnerAngle:
-        case sfConeOuterAngle:
-        case sfRefDistance:
-        case sfConeOuterGainHF:
-        case sfAirAbsorptionFactor:
-        case sfRoomRolloffFactor:
-        case sfDirectFilterGainHFAuto:
-        case sfAuxSendFilterGainAuto:
-        case sfAuxSendFilterGainHFAuto:
-        case sfDirectChannelsSOFT:
-        case sfDistanceModel:
-        case sfSourceRelative:
-        case sfLooping:
-        case sfBuffer:
-        case sfSourceState:
-        case sfBuffersQueued:
-        case sfBuffersProcessed:
-        case sfSourceType:
-        case sfSecLength:
+        case AL_PITCH:
+        case AL_GAIN:
+        case AL_MIN_GAIN:
+        case AL_MAX_GAIN:
+        case AL_MAX_DISTANCE:
+        case AL_ROLLOFF_FACTOR:
+        case AL_DOPPLER_FACTOR:
+        case AL_CONE_OUTER_GAIN:
+        case AL_SEC_OFFSET:
+        case AL_SAMPLE_OFFSET:
+        case AL_BYTE_OFFSET:
+        case AL_CONE_INNER_ANGLE:
+        case AL_CONE_OUTER_ANGLE:
+        case AL_REFERENCE_DISTANCE:
+        case AL_CONE_OUTER_GAINHF:
+        case AL_AIR_ABSORPTION_FACTOR:
+        case AL_ROOM_ROLLOFF_FACTOR:
+        case AL_DIRECT_FILTER_GAINHF_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAIN_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO:
+        case AL_DIRECT_CHANNELS_SOFT:
+        case AL_DISTANCE_MODEL:
+        case AL_SOURCE_RELATIVE:
+        case AL_LOOPING:
+        case AL_SOURCE_STATE:
+        case AL_BUFFERS_QUEUED:
+        case AL_BUFFERS_PROCESSED:
+        case AL_SOURCE_TYPE:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
+        case AL_SEC_LENGTH_SOFT:
             return 1;
 
-        case sfSampleRWOffsetsSOFT:
-        case sfByteRWOffsetsSOFT:
-        case sfSecOffsetLatencySOFT:
+        case AL_SAMPLE_RW_OFFSETS_SOFT:
+        case AL_BYTE_RW_OFFSETS_SOFT:
+        case AL_SEC_OFFSET_LATENCY_SOFT:
             return 2;
 
-        case sfPosition:
-        case sfVelocity:
-        case sfDirection:
+        case AL_POSITION:
+        case AL_VELOCITY:
+        case AL_DIRECTION:
             return 3;
+
+        case AL_ORIENTATION:
+            return 6;
+
+        case AL_BUFFER:
+        case AL_DIRECT_FILTER:
+        case AL_AUXILIARY_SEND_FILTER:
+            break; /* i/i64 only */
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
+            break; /* i64 only */
     }
     return 0;
 }
 
 static ALint IntValsByProp(ALenum prop)
 {
-    if(prop != (ALenum)((SrcIntProp)prop))
+    if(prop != (ALenum)((SourceProp)prop))
         return 0;
-    switch((SrcIntProp)prop)
+    switch((SourceProp)prop)
     {
-        case siMaxDistance:
-        case siRolloffFactor:
-        case siRefDistance:
-        case siSourceRelative:
-        case siConeInnerAngle:
-        case siConeOuterAngle:
-        case siLooping:
-        case siBuffer:
-        case siSourceState:
-        case siBuffersQueued:
-        case siBuffersProcessed:
-        case siSourceType:
-        case siSecOffset:
-        case siSampleOffset:
-        case siByteOffset:
-        case siDopplerFactor:
-        case siDirectFilterGainHFAuto:
-        case siAuxSendFilterGainAutio:
-        case siAuxSendFilterGainHFAuto:
-        case siDirectFilter:
-        case siDirectChannelsSOFT:
-        case siDistanceModel:
-        case siByteLength:
-        case siSampleLength:
+        case AL_PITCH:
+        case AL_GAIN:
+        case AL_MIN_GAIN:
+        case AL_MAX_GAIN:
+        case AL_MAX_DISTANCE:
+        case AL_ROLLOFF_FACTOR:
+        case AL_DOPPLER_FACTOR:
+        case AL_CONE_OUTER_GAIN:
+        case AL_SEC_OFFSET:
+        case AL_SAMPLE_OFFSET:
+        case AL_BYTE_OFFSET:
+        case AL_CONE_INNER_ANGLE:
+        case AL_CONE_OUTER_ANGLE:
+        case AL_REFERENCE_DISTANCE:
+        case AL_CONE_OUTER_GAINHF:
+        case AL_AIR_ABSORPTION_FACTOR:
+        case AL_ROOM_ROLLOFF_FACTOR:
+        case AL_DIRECT_FILTER_GAINHF_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAIN_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO:
+        case AL_DIRECT_CHANNELS_SOFT:
+        case AL_DISTANCE_MODEL:
+        case AL_SOURCE_RELATIVE:
+        case AL_LOOPING:
+        case AL_BUFFER:
+        case AL_SOURCE_STATE:
+        case AL_BUFFERS_QUEUED:
+        case AL_BUFFERS_PROCESSED:
+        case AL_SOURCE_TYPE:
+        case AL_DIRECT_FILTER:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
+        case AL_SEC_LENGTH_SOFT:
             return 1;
 
-        case siSampleRWOffsetsSOFT:
-        case siByteRWOffsetsSOFT:
+        case AL_SAMPLE_RW_OFFSETS_SOFT:
+        case AL_BYTE_RW_OFFSETS_SOFT:
             return 2;
 
-        case siPosition:
-        case siVelocity:
-        case siDirection:
-        case siAuxSendFilter:
+        case AL_POSITION:
+        case AL_VELOCITY:
+        case AL_DIRECTION:
+        case AL_AUXILIARY_SEND_FILTER:
             return 3;
 
-        case siSampleOffsetLatencySOFT:
+        case AL_ORIENTATION:
+            return 6;
+
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
             break; /* i64 only */
+        case AL_SEC_OFFSET_LATENCY_SOFT:
+            break; /* Double only */
     }
     return 0;
 }
 static ALint Int64ValsByProp(ALenum prop)
 {
-    if(prop != (ALenum)((SrcIntProp)prop))
+    if(prop != (ALenum)((SourceProp)prop))
         return 0;
-    switch((SrcIntProp)prop)
+    switch((SourceProp)prop)
     {
-        case siMaxDistance:
-        case siRolloffFactor:
-        case siRefDistance:
-        case siSourceRelative:
-        case siConeInnerAngle:
-        case siConeOuterAngle:
-        case siLooping:
-        case siBuffer:
-        case siSourceState:
-        case siBuffersQueued:
-        case siBuffersProcessed:
-        case siSourceType:
-        case siSecOffset:
-        case siSampleOffset:
-        case siByteOffset:
-        case siDopplerFactor:
-        case siDirectFilterGainHFAuto:
-        case siAuxSendFilterGainAutio:
-        case siAuxSendFilterGainHFAuto:
-        case siDirectFilter:
-        case siDirectChannelsSOFT:
-        case siDistanceModel:
-        case siByteLength:
-        case siSampleLength:
+        case AL_PITCH:
+        case AL_GAIN:
+        case AL_MIN_GAIN:
+        case AL_MAX_GAIN:
+        case AL_MAX_DISTANCE:
+        case AL_ROLLOFF_FACTOR:
+        case AL_DOPPLER_FACTOR:
+        case AL_CONE_OUTER_GAIN:
+        case AL_SEC_OFFSET:
+        case AL_SAMPLE_OFFSET:
+        case AL_BYTE_OFFSET:
+        case AL_CONE_INNER_ANGLE:
+        case AL_CONE_OUTER_ANGLE:
+        case AL_REFERENCE_DISTANCE:
+        case AL_CONE_OUTER_GAINHF:
+        case AL_AIR_ABSORPTION_FACTOR:
+        case AL_ROOM_ROLLOFF_FACTOR:
+        case AL_DIRECT_FILTER_GAINHF_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAIN_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO:
+        case AL_DIRECT_CHANNELS_SOFT:
+        case AL_DISTANCE_MODEL:
+        case AL_SOURCE_RELATIVE:
+        case AL_LOOPING:
+        case AL_BUFFER:
+        case AL_SOURCE_STATE:
+        case AL_BUFFERS_QUEUED:
+        case AL_BUFFERS_PROCESSED:
+        case AL_SOURCE_TYPE:
+        case AL_DIRECT_FILTER:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
+        case AL_SEC_LENGTH_SOFT:
             return 1;
 
-        case siSampleRWOffsetsSOFT:
-        case siByteRWOffsetsSOFT:
-        case siSampleOffsetLatencySOFT:
+        case AL_SAMPLE_RW_OFFSETS_SOFT:
+        case AL_BYTE_RW_OFFSETS_SOFT:
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
             return 2;
 
-        case siPosition:
-        case siVelocity:
-        case siDirection:
-        case siAuxSendFilter:
+        case AL_POSITION:
+        case AL_VELOCITY:
+        case AL_DIRECTION:
+        case AL_AUXILIARY_SEND_FILTER:
             return 3;
+
+        case AL_ORIENTATION:
+            return 6;
+
+        case AL_SEC_OFFSET_LATENCY_SOFT:
+            break; /* Double only */
     }
     return 0;
 }
@@ -365,12 +369,21 @@ static ALint Int64ValsByProp(ALenum prop)
         SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_VALUE, AL_FALSE);      \
 } while(0)
 
-static ALboolean SetSourcefv(ALsource *Source, ALCcontext *Context, SrcFloatProp prop, const ALfloat *values)
+static ALboolean SetSourcefv(ALsource *Source, ALCcontext *Context, SourceProp prop, const ALfloat *values)
 {
     ALint ival;
 
     switch(prop)
     {
+        case AL_BYTE_RW_OFFSETS_SOFT:
+        case AL_SAMPLE_RW_OFFSETS_SOFT:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
+        case AL_SEC_LENGTH_SOFT:
+        case AL_SEC_OFFSET_LATENCY_SOFT:
+            /* Query only */
+            SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_OPERATION, AL_FALSE);
+
         case AL_PITCH:
             CHECKVAL(*values >= 0.0f);
 
@@ -481,29 +494,24 @@ static ALboolean SetSourcefv(ALsource *Source, ALCcontext *Context, SrcFloatProp
             if((Source->state == AL_PLAYING || Source->state == AL_PAUSED) &&
                !Context->DeferUpdates)
             {
+                WriteLock(&Source->queue_lock);
                 if(ApplyOffset(Source) == AL_FALSE)
                 {
+                    WriteUnlock(&Source->queue_lock);
                     UnlockContext(Context);
                     SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_VALUE, AL_FALSE);
                 }
+                WriteUnlock(&Source->queue_lock);
             }
             UnlockContext(Context);
             return AL_TRUE;
-
-
-        case sfSecLength:
-        case AL_SEC_OFFSET_LATENCY_SOFT:
-            /* Query only */
-            SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_OPERATION, AL_FALSE);
 
 
         case AL_POSITION:
             CHECKVAL(isfinite(values[0]) && isfinite(values[1]) && isfinite(values[2]));
 
             LockContext(Context);
-            Source->Position[0] = values[0];
-            Source->Position[1] = values[1];
-            Source->Position[2] = values[2];
+            aluVectorSet(&Source->Position, values[0], values[1], values[2], 1.0f);
             UnlockContext(Context);
             ATOMIC_STORE(&Source->NeedsUpdate, AL_TRUE);
             return AL_TRUE;
@@ -512,9 +520,7 @@ static ALboolean SetSourcefv(ALsource *Source, ALCcontext *Context, SrcFloatProp
             CHECKVAL(isfinite(values[0]) && isfinite(values[1]) && isfinite(values[2]));
 
             LockContext(Context);
-            Source->Velocity[0] = values[0];
-            Source->Velocity[1] = values[1];
-            Source->Velocity[2] = values[2];
+            aluVectorSet(&Source->Velocity, values[0], values[1], values[2], 0.0f);
             UnlockContext(Context);
             ATOMIC_STORE(&Source->NeedsUpdate, AL_TRUE);
             return AL_TRUE;
@@ -523,43 +529,56 @@ static ALboolean SetSourcefv(ALsource *Source, ALCcontext *Context, SrcFloatProp
             CHECKVAL(isfinite(values[0]) && isfinite(values[1]) && isfinite(values[2]));
 
             LockContext(Context);
-            Source->Orientation[0] = values[0];
-            Source->Orientation[1] = values[1];
-            Source->Orientation[2] = values[2];
+            aluVectorSet(&Source->Direction, values[0], values[1], values[2], 0.0f);
+            UnlockContext(Context);
+            ATOMIC_STORE(&Source->NeedsUpdate, AL_TRUE);
+            return AL_TRUE;
+
+        case AL_ORIENTATION:
+            CHECKVAL(isfinite(values[0]) && isfinite(values[1]) && isfinite(values[2]) &&
+                     isfinite(values[3]) && isfinite(values[4]) && isfinite(values[5]));
+
+            LockContext(Context);
+            Source->Orientation[0][0] = values[0];
+            Source->Orientation[0][1] = values[1];
+            Source->Orientation[0][2] = values[2];
+            Source->Orientation[1][0] = values[3];
+            Source->Orientation[1][1] = values[4];
+            Source->Orientation[1][2] = values[5];
             UnlockContext(Context);
             ATOMIC_STORE(&Source->NeedsUpdate, AL_TRUE);
             return AL_TRUE;
 
 
-        case sfSampleRWOffsetsSOFT:
-        case sfByteRWOffsetsSOFT:
-            SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_OPERATION, AL_FALSE);
-
-
-        case sfSourceRelative:
-        case sfLooping:
-        case sfSourceState:
-        case sfSourceType:
-        case sfDistanceModel:
-        case sfDirectFilterGainHFAuto:
-        case sfAuxSendFilterGainAuto:
-        case sfAuxSendFilterGainHFAuto:
-        case sfDirectChannelsSOFT:
+        case AL_SOURCE_RELATIVE:
+        case AL_LOOPING:
+        case AL_SOURCE_STATE:
+        case AL_SOURCE_TYPE:
+        case AL_DISTANCE_MODEL:
+        case AL_DIRECT_FILTER_GAINHF_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAIN_AUTO:
+        case AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO:
+        case AL_DIRECT_CHANNELS_SOFT:
             ival = (ALint)values[0];
-            return SetSourceiv(Source, Context, (SrcIntProp)prop, &ival);
+            return SetSourceiv(Source, Context, prop, &ival);
 
-        case sfBuffer:
-        case sfBuffersQueued:
-        case sfBuffersProcessed:
+        case AL_BUFFERS_QUEUED:
+        case AL_BUFFERS_PROCESSED:
             ival = (ALint)((ALuint)values[0]);
-            return SetSourceiv(Source, Context, (SrcIntProp)prop, &ival);
+            return SetSourceiv(Source, Context, prop, &ival);
+
+        case AL_BUFFER:
+        case AL_DIRECT_FILTER:
+        case AL_AUXILIARY_SEND_FILTER:
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
+            break;
     }
 
     ERR("Unexpected property: 0x%04x\n", prop);
     SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_ENUM, AL_FALSE);
 }
 
-static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp prop, const ALint *values)
+static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SourceProp prop, const ALint *values)
 {
     ALCdevice *device = Context->Device;
     ALbuffer  *buffer = NULL;
@@ -567,10 +586,22 @@ static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
     ALeffectslot *slot = NULL;
     ALbufferlistitem *oldlist;
     ALbufferlistitem *newlist;
-    ALfloat fvals[3];
+    ALfloat fvals[6];
 
     switch(prop)
     {
+        case AL_SOURCE_STATE:
+        case AL_SOURCE_TYPE:
+        case AL_BUFFERS_QUEUED:
+        case AL_BUFFERS_PROCESSED:
+        case AL_SAMPLE_RW_OFFSETS_SOFT:
+        case AL_BYTE_RW_OFFSETS_SOFT:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
+        case AL_SEC_LENGTH_SOFT:
+            /* Query only */
+            SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_OPERATION, AL_FALSE);
+
         case AL_SOURCE_RELATIVE:
             CHECKVAL(*values == AL_FALSE || *values == AL_TRUE);
 
@@ -633,13 +664,6 @@ static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
             }
             return AL_TRUE;
 
-        case siSourceState:
-        case siSourceType:
-        case siBuffersQueued:
-        case siBuffersProcessed:
-            /* Query only */
-            SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_OPERATION, AL_FALSE);
-
         case AL_SEC_OFFSET:
         case AL_SAMPLE_OFFSET:
         case AL_BYTE_OFFSET:
@@ -652,23 +676,17 @@ static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
             if((Source->state == AL_PLAYING || Source->state == AL_PAUSED) &&
                 !Context->DeferUpdates)
             {
+                WriteLock(&Source->queue_lock);
                 if(ApplyOffset(Source) == AL_FALSE)
                 {
+                    WriteUnlock(&Source->queue_lock);
                     UnlockContext(Context);
                     SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_VALUE, AL_FALSE);
                 }
+                WriteUnlock(&Source->queue_lock);
             }
             UnlockContext(Context);
             return AL_TRUE;
-
-
-        case siByteLength:
-        case siSampleLength:
-        case siSampleRWOffsetsSOFT:
-        case siByteRWOffsetsSOFT:
-            /* Query only */
-            SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_OPERATION, AL_FALSE);
-
 
         case AL_DIRECT_FILTER:
             CHECKVAL(*values == 0 || (filter=LookupFilter(device, *values)) != NULL);
@@ -774,15 +792,25 @@ static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
             return AL_TRUE;
 
 
-        case AL_MAX_DISTANCE:
-        case AL_ROLLOFF_FACTOR:
+        /* 1x float */
         case AL_CONE_INNER_ANGLE:
         case AL_CONE_OUTER_ANGLE:
+        case AL_PITCH:
+        case AL_GAIN:
+        case AL_MIN_GAIN:
+        case AL_MAX_GAIN:
         case AL_REFERENCE_DISTANCE:
-        case siDopplerFactor:
+        case AL_ROLLOFF_FACTOR:
+        case AL_CONE_OUTER_GAIN:
+        case AL_MAX_DISTANCE:
+        case AL_DOPPLER_FACTOR:
+        case AL_CONE_OUTER_GAINHF:
+        case AL_AIR_ABSORPTION_FACTOR:
+        case AL_ROOM_ROLLOFF_FACTOR:
             fvals[0] = (ALfloat)*values;
             return SetSourcefv(Source, Context, (int)prop, fvals);
 
+        /* 3x float */
         case AL_POSITION:
         case AL_VELOCITY:
         case AL_DIRECTION:
@@ -791,8 +819,18 @@ static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
             fvals[2] = (ALfloat)values[2];
             return SetSourcefv(Source, Context, (int)prop, fvals);
 
-        case siSampleOffsetLatencySOFT:
-            /* i64 only */
+        /* 6x float */
+        case AL_ORIENTATION:
+            fvals[0] = (ALfloat)values[0];
+            fvals[1] = (ALfloat)values[1];
+            fvals[2] = (ALfloat)values[2];
+            fvals[3] = (ALfloat)values[3];
+            fvals[4] = (ALfloat)values[4];
+            fvals[5] = (ALfloat)values[5];
+            return SetSourcefv(Source, Context, (int)prop, fvals);
+
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
+        case AL_SEC_OFFSET_LATENCY_SOFT:
             break;
     }
 
@@ -800,16 +838,23 @@ static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
     SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_ENUM, AL_FALSE);
 }
 
-static ALboolean SetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp prop, const ALint64SOFT *values)
+static ALboolean SetSourcei64v(ALsource *Source, ALCcontext *Context, SourceProp prop, const ALint64SOFT *values)
 {
-    ALfloat fvals[3];
+    ALfloat fvals[6];
     ALint   ivals[3];
 
     switch(prop)
     {
-        case siSampleRWOffsetsSOFT:
-        case siByteRWOffsetsSOFT:
-        case siSampleOffsetLatencySOFT:
+        case AL_SOURCE_TYPE:
+        case AL_BUFFERS_QUEUED:
+        case AL_BUFFERS_PROCESSED:
+        case AL_SOURCE_STATE:
+        case AL_SAMPLE_RW_OFFSETS_SOFT:
+        case AL_BYTE_RW_OFFSETS_SOFT:
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
+        case AL_SEC_LENGTH_SOFT:
             /* Query only */
             SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_OPERATION, AL_FALSE);
 
@@ -817,14 +862,9 @@ static ALboolean SetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp
         /* 1x int */
         case AL_SOURCE_RELATIVE:
         case AL_LOOPING:
-        case AL_SOURCE_STATE:
-        case AL_BYTE_OFFSET:
+        case AL_SEC_OFFSET:
         case AL_SAMPLE_OFFSET:
-        case siByteLength:
-        case siSampleLength:
-        case siSourceType:
-        case siBuffersQueued:
-        case siBuffersProcessed:
+        case AL_BYTE_OFFSET:
         case AL_DIRECT_FILTER_GAINHF_AUTO:
         case AL_AUXILIARY_SEND_FILTER_GAIN_AUTO:
         case AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO:
@@ -855,13 +895,20 @@ static ALboolean SetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp
             return SetSourceiv(Source, Context, (int)prop, ivals);
 
         /* 1x float */
-        case AL_MAX_DISTANCE:
-        case AL_ROLLOFF_FACTOR:
         case AL_CONE_INNER_ANGLE:
         case AL_CONE_OUTER_ANGLE:
+        case AL_PITCH:
+        case AL_GAIN:
+        case AL_MIN_GAIN:
+        case AL_MAX_GAIN:
         case AL_REFERENCE_DISTANCE:
-        case AL_SEC_OFFSET:
-        case siDopplerFactor:
+        case AL_ROLLOFF_FACTOR:
+        case AL_CONE_OUTER_GAIN:
+        case AL_MAX_DISTANCE:
+        case AL_DOPPLER_FACTOR:
+        case AL_CONE_OUTER_GAINHF:
+        case AL_AIR_ABSORPTION_FACTOR:
+        case AL_ROOM_ROLLOFF_FACTOR:
             fvals[0] = (ALfloat)*values;
             return SetSourcefv(Source, Context, (int)prop, fvals);
 
@@ -873,6 +920,19 @@ static ALboolean SetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp
             fvals[1] = (ALfloat)values[1];
             fvals[2] = (ALfloat)values[2];
             return SetSourcefv(Source, Context, (int)prop, fvals);
+
+        /* 6x float */
+        case AL_ORIENTATION:
+            fvals[0] = (ALfloat)values[0];
+            fvals[1] = (ALfloat)values[1];
+            fvals[2] = (ALfloat)values[2];
+            fvals[3] = (ALfloat)values[3];
+            fvals[4] = (ALfloat)values[4];
+            fvals[5] = (ALfloat)values[5];
+            return SetSourcefv(Source, Context, (int)prop, fvals);
+
+        case AL_SEC_OFFSET_LATENCY_SOFT:
+            break;
     }
 
     ERR("Unexpected property: 0x%04x\n", prop);
@@ -882,8 +942,9 @@ static ALboolean SetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp
 #undef CHECKVAL
 
 
-static ALboolean GetSourcedv(ALsource *Source, ALCcontext *Context, SrcFloatProp prop, ALdouble *values)
+static ALboolean GetSourcedv(ALsource *Source, ALCcontext *Context, SourceProp prop, ALdouble *values)
 {
+    ALCdevice *device = Context->Device;
     ALbufferlistitem *BufferList;
     ALdouble offsets[2];
     ALdouble updateLen;
@@ -936,9 +997,7 @@ static ALboolean GetSourcedv(ALsource *Source, ALCcontext *Context, SrcFloatProp
         case AL_SAMPLE_OFFSET:
         case AL_BYTE_OFFSET:
             LockContext(Context);
-            ReadLock(&Source->queue_lock);
             GetSourceOffsets(Source, prop, offsets, 0.0);
-            ReadUnlock(&Source->queue_lock);
             UnlockContext(Context);
             *values = offsets[0];
             return AL_TRUE;
@@ -959,7 +1018,7 @@ static ALboolean GetSourcedv(ALsource *Source, ALCcontext *Context, SrcFloatProp
             *values = Source->DopplerFactor;
             return AL_TRUE;
 
-        case sfSecLength:
+        case AL_SEC_LENGTH_SOFT:
             ReadLock(&Source->queue_lock);
             if(!(BufferList=ATOMIC_LOAD(&Source->queue)))
                 *values = 0;
@@ -983,51 +1042,57 @@ static ALboolean GetSourcedv(ALsource *Source, ALCcontext *Context, SrcFloatProp
         case AL_SAMPLE_RW_OFFSETS_SOFT:
         case AL_BYTE_RW_OFFSETS_SOFT:
             LockContext(Context);
-            ReadLock(&Source->queue_lock);
-            updateLen = (ALdouble)Context->Device->UpdateSize /
-                        Context->Device->Frequency;
+            updateLen = (ALdouble)device->UpdateSize / device->Frequency;
             GetSourceOffsets(Source, prop, values, updateLen);
-            ReadUnlock(&Source->queue_lock);
             UnlockContext(Context);
             return AL_TRUE;
 
         case AL_SEC_OFFSET_LATENCY_SOFT:
             LockContext(Context);
-            ReadLock(&Source->queue_lock);
             values[0] = GetSourceSecOffset(Source);
-            ReadUnlock(&Source->queue_lock);
-            values[1] = (ALdouble)ALCdevice_GetLatency(Context->Device) /
+            values[1] = (ALdouble)(V0(device->Backend,getLatency)()) /
                         1000000000.0;
             UnlockContext(Context);
             return AL_TRUE;
 
         case AL_POSITION:
             LockContext(Context);
-            values[0] = Source->Position[0];
-            values[1] = Source->Position[1];
-            values[2] = Source->Position[2];
+            values[0] = Source->Position.v[0];
+            values[1] = Source->Position.v[1];
+            values[2] = Source->Position.v[2];
             UnlockContext(Context);
             return AL_TRUE;
 
         case AL_VELOCITY:
             LockContext(Context);
-            values[0] = Source->Velocity[0];
-            values[1] = Source->Velocity[1];
-            values[2] = Source->Velocity[2];
+            values[0] = Source->Velocity.v[0];
+            values[1] = Source->Velocity.v[1];
+            values[2] = Source->Velocity.v[2];
             UnlockContext(Context);
             return AL_TRUE;
 
         case AL_DIRECTION:
             LockContext(Context);
-            values[0] = Source->Orientation[0];
-            values[1] = Source->Orientation[1];
-            values[2] = Source->Orientation[2];
+            values[0] = Source->Direction.v[0];
+            values[1] = Source->Direction.v[1];
+            values[2] = Source->Direction.v[2];
             UnlockContext(Context);
             return AL_TRUE;
 
+        case AL_ORIENTATION:
+            LockContext(Context);
+            values[0] = Source->Orientation[0][0];
+            values[1] = Source->Orientation[0][1];
+            values[2] = Source->Orientation[0][2];
+            values[3] = Source->Orientation[1][0];
+            values[4] = Source->Orientation[1][1];
+            values[5] = Source->Orientation[1][2];
+            UnlockContext(Context);
+            return AL_TRUE;
+
+        /* 1x int */
         case AL_SOURCE_RELATIVE:
         case AL_LOOPING:
-        case AL_BUFFER:
         case AL_SOURCE_STATE:
         case AL_BUFFERS_QUEUED:
         case AL_BUFFERS_PROCESSED:
@@ -1036,20 +1101,28 @@ static ALboolean GetSourcedv(ALsource *Source, ALCcontext *Context, SrcFloatProp
         case AL_AUXILIARY_SEND_FILTER_GAIN_AUTO:
         case AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO:
         case AL_DIRECT_CHANNELS_SOFT:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
         case AL_DISTANCE_MODEL:
             if((err=GetSourceiv(Source, Context, (int)prop, ivals)) != AL_FALSE)
                 *values = (ALdouble)ivals[0];
             return err;
+
+        case AL_BUFFER:
+        case AL_DIRECT_FILTER:
+        case AL_AUXILIARY_SEND_FILTER:
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
+            break;
     }
 
     ERR("Unexpected property: 0x%04x\n", prop);
     SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_ENUM, AL_FALSE);
 }
 
-static ALboolean GetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp prop, ALint *values)
+static ALboolean GetSourceiv(ALsource *Source, ALCcontext *Context, SourceProp prop, ALint *values)
 {
     ALbufferlistitem *BufferList;
-    ALdouble dvals[3];
+    ALdouble dvals[6];
     ALboolean err;
 
     switch(prop)
@@ -1074,7 +1147,7 @@ static ALboolean GetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
             *values = Source->state;
             return AL_TRUE;
 
-        case siByteLength:
+        case AL_BYTE_LENGTH_SOFT:
             ReadLock(&Source->queue_lock);
             if(!(BufferList=ATOMIC_LOAD(&Source->queue)))
                 *values = 0;
@@ -1113,7 +1186,7 @@ static ALboolean GetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
             ReadUnlock(&Source->queue_lock);
             return AL_TRUE;
 
-        case siSampleLength:
+        case AL_SAMPLE_LENGTH_SOFT:
             ReadLock(&Source->queue_lock);
             if(!(BufferList=ATOMIC_LOAD(&Source->queue)))
                 *values = 0;
@@ -1191,32 +1264,44 @@ static ALboolean GetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
             *values = Source->DistanceModel;
             return AL_TRUE;
 
-        case AL_MAX_DISTANCE:
-        case AL_ROLLOFF_FACTOR:
-        case AL_REFERENCE_DISTANCE:
+        /* 1x float/double */
         case AL_CONE_INNER_ANGLE:
         case AL_CONE_OUTER_ANGLE:
+        case AL_PITCH:
+        case AL_GAIN:
+        case AL_MIN_GAIN:
+        case AL_MAX_GAIN:
+        case AL_REFERENCE_DISTANCE:
+        case AL_ROLLOFF_FACTOR:
+        case AL_CONE_OUTER_GAIN:
+        case AL_MAX_DISTANCE:
         case AL_SEC_OFFSET:
         case AL_SAMPLE_OFFSET:
         case AL_BYTE_OFFSET:
         case AL_DOPPLER_FACTOR:
-            if((err=GetSourcedv(Source, Context, (int)prop, dvals)) != AL_FALSE)
+        case AL_AIR_ABSORPTION_FACTOR:
+        case AL_ROOM_ROLLOFF_FACTOR:
+        case AL_CONE_OUTER_GAINHF:
+        case AL_SEC_LENGTH_SOFT:
+            if((err=GetSourcedv(Source, Context, prop, dvals)) != AL_FALSE)
                 *values = (ALint)dvals[0];
             return err;
 
+        /* 2x float/double */
         case AL_SAMPLE_RW_OFFSETS_SOFT:
         case AL_BYTE_RW_OFFSETS_SOFT:
-            if((err=GetSourcedv(Source, Context, (int)prop, dvals)) != AL_FALSE)
+            if((err=GetSourcedv(Source, Context, prop, dvals)) != AL_FALSE)
             {
                 values[0] = (ALint)dvals[0];
                 values[1] = (ALint)dvals[1];
             }
             return err;
 
+        /* 3x float/double */
         case AL_POSITION:
         case AL_VELOCITY:
         case AL_DIRECTION:
-            if((err=GetSourcedv(Source, Context, (int)prop, dvals)) != AL_FALSE)
+            if((err=GetSourcedv(Source, Context, prop, dvals)) != AL_FALSE)
             {
                 values[0] = (ALint)dvals[0];
                 values[1] = (ALint)dvals[1];
@@ -1224,23 +1309,37 @@ static ALboolean GetSourceiv(ALsource *Source, ALCcontext *Context, SrcIntProp p
             }
             return err;
 
-        case siSampleOffsetLatencySOFT:
-            /* i64 only */
-            break;
+        /* 6x float/double */
+        case AL_ORIENTATION:
+            if((err=GetSourcedv(Source, Context, prop, dvals)) != AL_FALSE)
+            {
+                values[0] = (ALint)dvals[0];
+                values[1] = (ALint)dvals[1];
+                values[2] = (ALint)dvals[2];
+                values[3] = (ALint)dvals[3];
+                values[4] = (ALint)dvals[4];
+                values[5] = (ALint)dvals[5];
+            }
+            return err;
 
-        case siDirectFilter:
-        case siAuxSendFilter:
-            /* ??? */
-            break;
+        case AL_SAMPLE_OFFSET_LATENCY_SOFT:
+            break; /* i64 only */
+        case AL_SEC_OFFSET_LATENCY_SOFT:
+            break; /* Double only */
+
+        case AL_DIRECT_FILTER:
+        case AL_AUXILIARY_SEND_FILTER:
+            break; /* ??? */
     }
 
     ERR("Unexpected property: 0x%04x\n", prop);
     SET_ERROR_AND_RETURN_VALUE(Context, AL_INVALID_ENUM, AL_FALSE);
 }
 
-static ALboolean GetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp prop, ALint64 *values)
+static ALboolean GetSourcei64v(ALsource *Source, ALCcontext *Context, SourceProp prop, ALint64 *values)
 {
-    ALdouble dvals[3];
+    ALCdevice *device = Context->Device;
+    ALdouble dvals[6];
     ALint ivals[3];
     ALboolean err;
 
@@ -1248,39 +1347,49 @@ static ALboolean GetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp
     {
         case AL_SAMPLE_OFFSET_LATENCY_SOFT:
             LockContext(Context);
-            ReadLock(&Source->queue_lock);
-            values[0] = GetSourceOffset(Source);
-            ReadUnlock(&Source->queue_lock);
-            values[1] = ALCdevice_GetLatency(Context->Device);
+            values[0] = GetSourceSampleOffset(Source);
+            values[1] = V0(device->Backend,getLatency)();
             UnlockContext(Context);
             return AL_TRUE;
 
-        case AL_MAX_DISTANCE:
-        case AL_ROLLOFF_FACTOR:
-        case AL_REFERENCE_DISTANCE:
+        /* 1x float/double */
         case AL_CONE_INNER_ANGLE:
         case AL_CONE_OUTER_ANGLE:
+        case AL_PITCH:
+        case AL_GAIN:
+        case AL_MIN_GAIN:
+        case AL_MAX_GAIN:
+        case AL_REFERENCE_DISTANCE:
+        case AL_ROLLOFF_FACTOR:
+        case AL_CONE_OUTER_GAIN:
+        case AL_MAX_DISTANCE:
         case AL_SEC_OFFSET:
         case AL_SAMPLE_OFFSET:
         case AL_BYTE_OFFSET:
         case AL_DOPPLER_FACTOR:
-            if((err=GetSourcedv(Source, Context, (int)prop, dvals)) != AL_FALSE)
+        case AL_AIR_ABSORPTION_FACTOR:
+        case AL_ROOM_ROLLOFF_FACTOR:
+        case AL_CONE_OUTER_GAINHF:
+        case AL_SEC_LENGTH_SOFT:
+            if((err=GetSourcedv(Source, Context, prop, dvals)) != AL_FALSE)
                 *values = (ALint64)dvals[0];
             return err;
 
+        /* 2x float/double */
         case AL_SAMPLE_RW_OFFSETS_SOFT:
         case AL_BYTE_RW_OFFSETS_SOFT:
-            if((err=GetSourcedv(Source, Context, (int)prop, dvals)) != AL_FALSE)
+            if((err=GetSourcedv(Source, Context, prop, dvals)) != AL_FALSE)
             {
                 values[0] = (ALint64)dvals[0];
                 values[1] = (ALint64)dvals[1];
             }
             return err;
 
+        /* 3x float/double */
         case AL_POSITION:
         case AL_VELOCITY:
         case AL_DIRECTION:
-            if((err=GetSourcedv(Source, Context, (int)prop, dvals)) != AL_FALSE)
+            if((err=GetSourcedv(Source, Context, prop, dvals)) != AL_FALSE)
             {
                 values[0] = (ALint64)dvals[0];
                 values[1] = (ALint64)dvals[1];
@@ -1288,37 +1397,56 @@ static ALboolean GetSourcei64v(ALsource *Source, ALCcontext *Context, SrcIntProp
             }
             return err;
 
+        /* 6x float/double */
+        case AL_ORIENTATION:
+            if((err=GetSourcedv(Source, Context, prop, dvals)) != AL_FALSE)
+            {
+                values[0] = (ALint64)dvals[0];
+                values[1] = (ALint64)dvals[1];
+                values[2] = (ALint64)dvals[2];
+                values[3] = (ALint64)dvals[3];
+                values[4] = (ALint64)dvals[4];
+                values[5] = (ALint64)dvals[5];
+            }
+            return err;
+
+        /* 1x int */
         case AL_SOURCE_RELATIVE:
         case AL_LOOPING:
         case AL_SOURCE_STATE:
         case AL_BUFFERS_QUEUED:
         case AL_BUFFERS_PROCESSED:
-        case siByteLength:
-        case siSampleLength:
+        case AL_BYTE_LENGTH_SOFT:
+        case AL_SAMPLE_LENGTH_SOFT:
         case AL_SOURCE_TYPE:
         case AL_DIRECT_FILTER_GAINHF_AUTO:
         case AL_AUXILIARY_SEND_FILTER_GAIN_AUTO:
         case AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO:
         case AL_DIRECT_CHANNELS_SOFT:
         case AL_DISTANCE_MODEL:
-            if((err=GetSourceiv(Source, Context, (int)prop, ivals)) != AL_FALSE)
+            if((err=GetSourceiv(Source, Context, prop, ivals)) != AL_FALSE)
                 *values = ivals[0];
             return err;
 
-        case siBuffer:
-        case siDirectFilter:
-            if((err=GetSourceiv(Source, Context, (int)prop, ivals)) != AL_FALSE)
+        /* 1x uint */
+        case AL_BUFFER:
+        case AL_DIRECT_FILTER:
+            if((err=GetSourceiv(Source, Context, prop, ivals)) != AL_FALSE)
                 *values = (ALuint)ivals[0];
             return err;
 
-        case siAuxSendFilter:
-            if((err=GetSourceiv(Source, Context, (int)prop, ivals)) != AL_FALSE)
+        /* 3x uint */
+        case AL_AUXILIARY_SEND_FILTER:
+            if((err=GetSourceiv(Source, Context, prop, ivals)) != AL_FALSE)
             {
                 values[0] = (ALuint)ivals[0];
                 values[1] = (ALuint)ivals[1];
                 values[2] = (ALuint)ivals[2];
             }
             return err;
+
+        case AL_SEC_OFFSET_LATENCY_SOFT:
+            break; /* Double only */
     }
 
     ERR("Unexpected property: 0x%04x\n", prop);
@@ -1389,26 +1517,21 @@ AL_API ALvoid AL_APIENTRY alDeleteSources(ALsizei n, const ALuint *sources)
     }
     for(i = 0;i < n;i++)
     {
-        ALactivesource **srclist, **srclistend;
+        ALvoice *voice, *voice_end;
 
         if((Source=RemoveSource(context, sources[i])) == NULL)
             continue;
         FreeThunkEntry(Source->id);
 
         LockContext(context);
-        srclist = context->ActiveSources;
-        srclistend = srclist + context->ActiveSourceCount;
-        while(srclist != srclistend)
+        voice = context->Voices;
+        voice_end = voice + context->VoiceCount;
+        while(voice != voice_end)
         {
-            if((*srclist)->Source == Source)
-            {
-                ALactivesource *temp = *(--srclistend);
-                *srclistend = *srclist;
-                *srclist = temp;
-                --(context->ActiveSourceCount);
+            ALsource *old = Source;
+            if(COMPARE_EXCHANGE(&voice->Source, &old, NULL))
                 break;
-            }
-            srclist++;
+            voice++;
         }
         UnlockContext(context);
 
@@ -1569,11 +1692,11 @@ AL_API ALvoid AL_APIENTRY alSourcedvSOFT(ALuint source, ALenum param, const ALdo
         alSetError(Context, AL_INVALID_NAME);
     else if(!values)
         alSetError(Context, AL_INVALID_VALUE);
-    else if(!((count=DoubleValsByProp(param)) > 0 && count <= 3))
+    else if(!((count=DoubleValsByProp(param)) > 0 && count <= 6))
         alSetError(Context, AL_INVALID_ENUM);
     else
     {
-        ALfloat fvals[3];
+        ALfloat fvals[6];
         ALint i;
 
         for(i = 0;i < count;i++)
@@ -1772,11 +1895,11 @@ AL_API ALvoid AL_APIENTRY alGetSourcefv(ALuint source, ALenum param, ALfloat *va
         alSetError(Context, AL_INVALID_NAME);
     else if(!values)
         alSetError(Context, AL_INVALID_VALUE);
-    else if(!((count=FloatValsByProp(param)) > 0 && count <= 3))
+    else if(!((count=FloatValsByProp(param)) > 0 && count <= 6))
         alSetError(Context, AL_INVALID_ENUM);
     else
     {
-        ALdouble dvals[3];
+        ALdouble dvals[6];
         if(GetSourcedv(Source, Context, param, dvals))
         {
             ALint i;
@@ -2020,25 +2143,23 @@ AL_API ALvoid AL_APIENTRY alSourcePlayv(ALsizei n, const ALuint *sources)
     }
 
     LockContext(context);
-    while(n > context->MaxActiveSources-context->ActiveSourceCount)
+    while(n > context->MaxVoices-context->VoiceCount)
     {
-        ALactivesource **temp = NULL;
+        ALvoice *temp = NULL;
         ALsizei newcount;
 
-        newcount = context->MaxActiveSources << 1;
+        newcount = context->MaxVoices << 1;
         if(newcount > 0)
-            temp = realloc(context->ActiveSources,
-                           newcount * sizeof(context->ActiveSources[0]));
+            temp = realloc(context->Voices, newcount * sizeof(context->Voices[0]));
         if(!temp)
         {
             UnlockContext(context);
             SET_ERROR_AND_GOTO(context, AL_OUT_OF_MEMORY, done);
         }
-        for(i = context->MaxActiveSources;i < newcount;i++)
-            temp[i] = NULL;
+        memset(&temp[context->MaxVoices], 0, (newcount-context->MaxVoices) * sizeof(temp[0]));
 
-        context->ActiveSources = temp;
-        context->MaxActiveSources = newcount;
+        context->Voices = temp;
+        context->MaxVoices = newcount;
     }
 
     for(i = 0;i < n;i++)
@@ -2385,15 +2506,15 @@ static ALvoid InitSourceParams(ALsource *Source)
     Source->InnerAngle = 360.0f;
     Source->OuterAngle = 360.0f;
     Source->Pitch = 1.0f;
-    Source->Position[0] = 0.0f;
-    Source->Position[1] = 0.0f;
-    Source->Position[2] = 0.0f;
-    Source->Orientation[0] = 0.0f;
-    Source->Orientation[1] = 0.0f;
-    Source->Orientation[2] = 0.0f;
-    Source->Velocity[0] = 0.0f;
-    Source->Velocity[1] = 0.0f;
-    Source->Velocity[2] = 0.0f;
+    aluVectorSet(&Source->Position, 0.0f, 0.0f, 0.0f, 1.0f);
+    aluVectorSet(&Source->Velocity, 0.0f, 0.0f, 0.0f, 0.0f);
+    aluVectorSet(&Source->Direction, 0.0f, 0.0f, 0.0f, 0.0f);
+    Source->Orientation[0][0] =  0.0f;
+    Source->Orientation[0][1] =  0.0f;
+    Source->Orientation[0][2] = -1.0f;
+    Source->Orientation[1][0] =  0.0f;
+    Source->Orientation[1][1] =  1.0f;
+    Source->Orientation[1][2] =  0.0f;
     Source->RefDistance = 1.0f;
     Source->MaxDistance = FLT_MAX;
     Source->RollOffFactor = 1.0f;
@@ -2415,8 +2536,6 @@ static ALvoid InitSourceParams(ALsource *Source)
     Source->Radius = 0.0f;
 
     Source->DistanceModel = DefaultDistanceModel;
-
-    Source->Resampler = DefaultResampler;
 
     Source->state = AL_INITIAL;
     Source->new_state = AL_NONE;
@@ -2450,13 +2569,14 @@ static ALvoid InitSourceParams(ALsource *Source)
  */
 ALvoid SetSourceState(ALsource *Source, ALCcontext *Context, ALenum state)
 {
-    ReadLock(&Source->queue_lock);
+    WriteLock(&Source->queue_lock);
     if(state == AL_PLAYING)
     {
         ALCdevice *device = Context->Device;
         ALbufferlistitem *BufferList;
-        ALactivesource *src = NULL;
-        ALsizei j, k;
+        ALboolean discontinuity;
+        ALvoice *voice = NULL;
+        ALsizei i;
 
         /* Check that there is a queue containing at least one valid, non zero
          * length Buffer. */
@@ -2475,67 +2595,77 @@ ALvoid SetSourceState(ALsource *Source, ALCcontext *Context, ALenum state)
             Source->position = 0;
             Source->position_fraction = 0;
             ATOMIC_STORE(&Source->current_buffer, BufferList);
+            discontinuity = AL_TRUE;
         }
         else
+        {
             Source->state = AL_PLAYING;
+            discontinuity = AL_FALSE;
+        }
 
         // Check if an Offset has been set
         if(Source->Offset >= 0.0)
+        {
             ApplyOffset(Source);
+            /* discontinuity = AL_TRUE;??? */
+        }
 
         /* If there's nothing to play, or device is disconnected, go right to
          * stopped */
         if(!BufferList || !device->Connected)
             goto do_stop;
 
-        for(j = 0;j < Context->ActiveSourceCount;j++)
+        /* Make sure this source isn't already active, while looking for an
+         * unused active source slot to put it in. */
+        for(i = 0;i < Context->VoiceCount;i++)
         {
-            if(Context->ActiveSources[j]->Source == Source)
+            ALsource *old = Source;
+            if(COMPARE_EXCHANGE(&Context->Voices[i].Source, &old, NULL))
             {
-                src = Context->ActiveSources[j];
+                if(voice == NULL)
+                {
+                    voice = &Context->Voices[i];
+                    voice->Source = Source;
+                }
                 break;
             }
+            old = NULL;
+            if(voice == NULL && COMPARE_EXCHANGE(&Context->Voices[i].Source, &old, Source))
+                voice = &Context->Voices[i];
         }
-        if(src == NULL)
+        if(voice == NULL)
         {
-            src = Context->ActiveSources[Context->ActiveSourceCount];
-            if(src == NULL)
-            {
-                src = al_malloc(16, sizeof(src[0]));
-                Context->ActiveSources[Context->ActiveSourceCount] = src;
-            }
-            memset(src, 0, sizeof(*src));
-            Context->ActiveSourceCount++;
-
-            src->Source = Source;
+            voice = &Context->Voices[Context->VoiceCount++];
+            voice->Source = Source;
         }
-        else
-        {
-            ALuint i;
 
-            src->Direct.Moving = AL_FALSE;
-            src->Direct.Counter = 0;
-            for(j = 0;j < MAX_INPUT_CHANNELS;j++)
+        /* Clear previous samples if playback is discontinuous. */
+        if(discontinuity)
+            memset(voice->PrevSamples, 0, sizeof(voice->PrevSamples));
+
+        voice->Direct.Moving  = AL_FALSE;
+        voice->Direct.Counter = 0;
+        for(i = 0;i < MAX_INPUT_CHANNELS;i++)
+        {
+            ALsizei j;
+            for(j = 0;j < HRTF_HISTORY_LENGTH;j++)
+                voice->Direct.Hrtf[i].State.History[j] = 0.0f;
+            for(j = 0;j < HRIR_LENGTH;j++)
             {
-                for(k = 0;k < SRC_HISTORY_LENGTH;k++)
-                    src->Direct.Mix.Hrtf.State[j].History[k] = 0.0f;
-                for(k = 0;k < HRIR_LENGTH;k++)
-                {
-                    src->Direct.Mix.Hrtf.State[j].Values[k][0] = 0.0f;
-                    src->Direct.Mix.Hrtf.State[j].Values[k][1] = 0.0f;
-                }
+                voice->Direct.Hrtf[i].State.Values[j][0] = 0.0f;
+                voice->Direct.Hrtf[i].State.Values[j][1] = 0.0f;
             }
-            for(i = 0;i < device->NumAuxSends;i++)
-            {
-                src->Send[i].Counter = 0;
-                src->Send[i].Moving  = AL_FALSE;
-            }
+        }
+        for(i = 0;i < (ALsizei)device->NumAuxSends;i++)
+        {
+            voice->Send[i].Moving  = AL_FALSE;
+            voice->Send[i].Counter = 0;
         }
 
         if(BufferList->buffer->FmtChannels == FmtMono)
-            src->Update = CalcSourceParams;
+            voice->Update = CalcSourceParams;
         else
-            src->Update = CalcNonAttnSourceParams;
+            voice->Update = CalcNonAttnSourceParams;
 
         ATOMIC_STORE(&Source->NeedsUpdate, AL_TRUE);
     }
@@ -2565,23 +2695,27 @@ ALvoid SetSourceState(ALsource *Source, ALCcontext *Context, ALenum state)
         }
         Source->Offset = -1.0;
     }
-    ReadUnlock(&Source->queue_lock);
+    WriteUnlock(&Source->queue_lock);
 }
 
-/* GetSourceOffset
+/* GetSourceSampleOffset
  *
  * Gets the current read offset for the given Source, in 32.32 fixed-point
  * samples. The offset is relative to the start of the queue (not the start of
  * the current buffer).
  */
-static ALint64 GetSourceOffset(const ALsource *Source)
+ALint64 GetSourceSampleOffset(ALsource *Source)
 {
     const ALbufferlistitem *BufferList;
     const ALbufferlistitem *Current;
     ALuint64 readPos;
 
+    ReadLock(&Source->queue_lock);
     if(Source->state != AL_PLAYING && Source->state != AL_PAUSED)
+    {
+        ReadUnlock(&Source->queue_lock);
         return 0;
+    }
 
     /* NOTE: This is the offset into the *current* buffer, so add the length of
      * any played buffers */
@@ -2596,6 +2730,7 @@ static ALint64 GetSourceOffset(const ALsource *Source)
         BufferList = BufferList->next;
     }
 
+    ReadUnlock(&Source->queue_lock);
     return (ALint64)minu64(readPos, U64(0x7fffffffffffffff));
 }
 
@@ -2604,15 +2739,19 @@ static ALint64 GetSourceOffset(const ALsource *Source)
  * Gets the current read offset for the given Source, in seconds. The offset is
  * relative to the start of the queue (not the start of the current buffer).
  */
-static ALdouble GetSourceSecOffset(const ALsource *Source)
+static ALdouble GetSourceSecOffset(ALsource *Source)
 {
     const ALbufferlistitem *BufferList;
     const ALbufferlistitem *Current;
     const ALbuffer *Buffer = NULL;
     ALuint64 readPos;
 
+    ReadLock(&Source->queue_lock);
     if(Source->state != AL_PLAYING && Source->state != AL_PAUSED)
+    {
+        ReadUnlock(&Source->queue_lock);
         return 0.0;
+    }
 
     /* NOTE: This is the offset into the *current* buffer, so add the length of
      * any played buffers */
@@ -2638,6 +2777,7 @@ static ALdouble GetSourceSecOffset(const ALsource *Source)
     }
     assert(Buffer != NULL);
 
+    ReadUnlock(&Source->queue_lock);
     return (ALdouble)readPos / (ALdouble)FRACTIONONE / (ALdouble)Buffer->Frequency;
 }
 
@@ -2647,19 +2787,21 @@ static ALdouble GetSourceSecOffset(const ALsource *Source)
  * appropriate format (Bytes, Samples or Seconds). The offsets are relative to
  * the start of the queue (not the start of the current buffer).
  */
-static ALvoid GetSourceOffsets(const ALsource *Source, ALenum name, ALdouble *offset, ALdouble updateLen)
+static ALvoid GetSourceOffsets(ALsource *Source, ALenum name, ALdouble *offset, ALdouble updateLen)
 {
     const ALbufferlistitem *BufferList;
     const ALbufferlistitem *Current;
     const ALbuffer *Buffer = NULL;
     ALboolean readFin = AL_FALSE;
-    ALuint readPos, writePos;
+    ALuint readPos, readPosFrac, writePos;
     ALuint totalBufferLen;
 
+    ReadLock(&Source->queue_lock);
     if(Source->state != AL_PLAYING && Source->state != AL_PAUSED)
     {
         offset[0] = 0.0;
         offset[1] = 0.0;
+        ReadUnlock(&Source->queue_lock);
         return;
     }
 
@@ -2670,6 +2812,7 @@ static ALvoid GetSourceOffsets(const ALsource *Source, ALenum name, ALdouble *of
      * any played buffers */
     totalBufferLen = 0;
     readPos = Source->position;
+    readPosFrac = Source->position_fraction;
     BufferList = ATOMIC_LOAD(&Source->queue);
     Current = ATOMIC_LOAD(&Source->current_buffer);
     while(BufferList != NULL)
@@ -2687,7 +2830,7 @@ static ALvoid GetSourceOffsets(const ALsource *Source, ALenum name, ALdouble *of
     assert(Buffer != NULL);
 
     if(Source->state == AL_PLAYING)
-        writePos = readPos + (ALuint)(updateLen*Buffer->Frequency);
+        writePos = readPos + (ALuint)(updateLen*Buffer->Frequency + 0.5f);
     else
         writePos = readPos;
 
@@ -2700,7 +2843,7 @@ static ALvoid GetSourceOffsets(const ALsource *Source, ALenum name, ALdouble *of
     {
         /* Wrap positions back to 0 */
         if(readPos >= totalBufferLen)
-            readPos = 0;
+            readPos = readPosFrac = 0;
         if(writePos >= totalBufferLen)
             writePos = 0;
     }
@@ -2708,13 +2851,13 @@ static ALvoid GetSourceOffsets(const ALsource *Source, ALenum name, ALdouble *of
     switch(name)
     {
         case AL_SEC_OFFSET:
-            offset[0] = (ALdouble)readPos / Buffer->Frequency;
-            offset[1] = (ALdouble)writePos / Buffer->Frequency;
+            offset[0] = (readPos + (ALdouble)readPosFrac/FRACTIONONE)/Buffer->Frequency;
+            offset[1] = (ALdouble)writePos/Buffer->Frequency;
             break;
 
         case AL_SAMPLE_OFFSET:
         case AL_SAMPLE_RW_OFFSETS_SOFT:
-            offset[0] = (ALdouble)readPos;
+            offset[0] = readPos + (ALdouble)readPosFrac/FRACTIONONE;
             offset[1] = (ALdouble)writePos;
             break;
 
@@ -2762,6 +2905,8 @@ static ALvoid GetSourceOffsets(const ALsource *Source, ALenum name, ALdouble *of
             }
             break;
     }
+
+    ReadUnlock(&Source->queue_lock);
 }
 
 
@@ -2774,12 +2919,11 @@ ALboolean ApplyOffset(ALsource *Source)
 {
     ALbufferlistitem *BufferList;
     const ALbuffer *Buffer;
-    ALint bufferLen, totalBufferLen;
-    ALint offset;
+    ALuint bufferLen, totalBufferLen;
+    ALuint offset=0, frac=0;
 
     /* Get sample frame offset */
-    offset = GetSampleOffset(Source);
-    if(offset == -1)
+    if(!GetSampleOffset(Source, &offset, &frac))
         return AL_FALSE;
 
     totalBufferLen = 0;
@@ -2795,7 +2939,7 @@ ALboolean ApplyOffset(ALsource *Source)
             ATOMIC_STORE(&Source->current_buffer, BufferList);
 
             Source->position = offset - totalBufferLen;
-            Source->position_fraction = 0;
+            Source->position_fraction = frac;
             return AL_TRUE;
         }
 
@@ -2811,15 +2955,15 @@ ALboolean ApplyOffset(ALsource *Source)
 
 /* GetSampleOffset
  *
- * Returns the sample offset into the Source's queue (from the Sample, Byte or
- * Second offset supplied by the application). This takes into account the fact
- * that the buffer format may have been modifed since.
+ * Retrieves the sample offset into the Source's queue (from the Sample, Byte
+ * or Second offset supplied by the application). This takes into account the
+ * fact that the buffer format may have been modifed since.
  */
-static ALint GetSampleOffset(ALsource *Source)
+static ALboolean GetSampleOffset(ALsource *Source, ALuint *offset, ALuint *frac)
 {
     const ALbuffer *Buffer = NULL;
     const ALbufferlistitem *BufferList;
-    ALint Offset = -1;
+    ALdouble dbloff, dblfrac;
 
     /* Find the first valid Buffer in the Queue */
     BufferList = ATOMIC_LOAD(&Source->queue);
@@ -2832,45 +2976,49 @@ static ALint GetSampleOffset(ALsource *Source)
         }
         BufferList = BufferList->next;
     }
-
     if(!Buffer)
     {
         Source->Offset = -1.0;
-        return -1;
+        return AL_FALSE;
     }
 
     switch(Source->OffsetType)
     {
     case AL_BYTE_OFFSET:
         /* Determine the ByteOffset (and ensure it is block aligned) */
-        Offset = (ALint)Source->Offset;
+        *offset = (ALuint)Source->Offset;
         if(Buffer->OriginalType == UserFmtIMA4)
         {
             ALsizei align = (Buffer->OriginalAlign-1)/2 + 4;
-            Offset /= align * ChannelsFromUserFmt(Buffer->OriginalChannels);
-            Offset *= Buffer->OriginalAlign;
+            *offset /= align * ChannelsFromUserFmt(Buffer->OriginalChannels);
+            *offset *= Buffer->OriginalAlign;
         }
         else if(Buffer->OriginalType == UserFmtMSADPCM)
         {
             ALsizei align = (Buffer->OriginalAlign-2)/2 + 7;
-            Offset /= align * ChannelsFromUserFmt(Buffer->OriginalChannels);
-            Offset *= Buffer->OriginalAlign;
+            *offset /= align * ChannelsFromUserFmt(Buffer->OriginalChannels);
+            *offset *= Buffer->OriginalAlign;
         }
         else
-            Offset /= FrameSizeFromUserFmt(Buffer->OriginalChannels, Buffer->OriginalType);
+            *offset /= FrameSizeFromUserFmt(Buffer->OriginalChannels, Buffer->OriginalType);
+        *frac = 0;
         break;
 
     case AL_SAMPLE_OFFSET:
-        Offset = (ALint)Source->Offset;
+        dblfrac = modf(Source->Offset, &dbloff);
+        *offset = (ALuint)mind(dbloff, UINT_MAX);
+        *frac = (ALuint)mind(dblfrac*FRACTIONONE, FRACTIONONE-1.0);
         break;
 
     case AL_SEC_OFFSET:
-        Offset = (ALint)(Source->Offset * Buffer->Frequency);
+        dblfrac = modf(Source->Offset*Buffer->Frequency, &dbloff);
+        *offset = (ALuint)mind(dbloff, UINT_MAX);
+        *frac = (ALuint)mind(dblfrac*FRACTIONONE, FRACTIONONE-1.0);
         break;
     }
     Source->Offset = -1.0;
 
-    return Offset;
+    return AL_TRUE;
 }
 
 

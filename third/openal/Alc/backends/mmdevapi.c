@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -51,14 +51,18 @@ DEFINE_GUID(KSDATAFORMAT_SUBTYPE_PCM, 0x00000001, 0x0000, 0x0010, 0x80, 0x00, 0x
 DEFINE_GUID(KSDATAFORMAT_SUBTYPE_IEEE_FLOAT, 0x00000003, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
 DEFINE_DEVPROPKEY(DEVPKEY_Device_FriendlyName, 0xa45c254e, 0xdf1c, 0x4efd, 0x80,0x20, 0x67,0xd1,0x46,0xa8,0x50,0xe0, 14);
+DEFINE_PROPERTYKEY(PKEY_AudioEndpoint_FormFactor, 0x1da5d803, 0xd492, 0x4edd, 0x8c,0x23, 0xe0,0xc0,0xff,0xee,0x7f,0x0e, 0);
 
 #define MONO SPEAKER_FRONT_CENTER
 #define STEREO (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT)
 #define QUAD (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT|SPEAKER_BACK_LEFT|SPEAKER_BACK_RIGHT)
-#define X5DOT1 (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT|SPEAKER_FRONT_CENTER|SPEAKER_LOW_FREQUENCY|SPEAKER_BACK_LEFT|SPEAKER_BACK_RIGHT)
-#define X5DOT1SIDE (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT|SPEAKER_FRONT_CENTER|SPEAKER_LOW_FREQUENCY|SPEAKER_SIDE_LEFT|SPEAKER_SIDE_RIGHT)
+#define X5DOT1 (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT|SPEAKER_FRONT_CENTER|SPEAKER_LOW_FREQUENCY|SPEAKER_SIDE_LEFT|SPEAKER_SIDE_RIGHT)
+#define X5DOT1REAR (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT|SPEAKER_FRONT_CENTER|SPEAKER_LOW_FREQUENCY|SPEAKER_BACK_LEFT|SPEAKER_BACK_RIGHT)
 #define X6DOT1 (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT|SPEAKER_FRONT_CENTER|SPEAKER_LOW_FREQUENCY|SPEAKER_BACK_CENTER|SPEAKER_SIDE_LEFT|SPEAKER_SIDE_RIGHT)
 #define X7DOT1 (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT|SPEAKER_FRONT_CENTER|SPEAKER_LOW_FREQUENCY|SPEAKER_BACK_LEFT|SPEAKER_BACK_RIGHT|SPEAKER_SIDE_LEFT|SPEAKER_SIDE_RIGHT)
+#define X7DOT1_WIDE (SPEAKER_FRONT_LEFT|SPEAKER_FRONT_RIGHT|SPEAKER_FRONT_CENTER|SPEAKER_LOW_FREQUENCY|SPEAKER_BACK_LEFT|SPEAKER_BACK_RIGHT|SPEAKER_FRONT_LEFT_OF_CENTER|SPEAKER_FRONT_RIGHT_OF_CENTER)
+
+#define DEVNAME_HEAD "OpenAL Soft on "
 
 
 typedef struct {
@@ -69,16 +73,14 @@ TYPEDEF_VECTOR(DevMap, vector_DevMap)
 
 static void clear_devlist(vector_DevMap *list)
 {
-    DevMap *iter, *end;
-
-    iter = VECTOR_ITER_BEGIN(*list);
-    end = VECTOR_ITER_END(*list);
-    for(;iter != end;iter++)
-    {
-        AL_STRING_DEINIT(iter->name);
-        free(iter->devid);
-    }
+#define CLEAR_DEVMAP(i) do {     \
+    AL_STRING_DEINIT((i)->name); \
+    free((i)->devid);            \
+    (i)->devid = NULL;           \
+} while(0)
+    VECTOR_FOR_EACH(DevMap, *list, CLEAR_DEVMAP);
     VECTOR_RESIZE(*list, 0);
+#undef CLEAR_DEVMAP
 }
 
 static vector_DevMap PlaybackDevices;
@@ -123,10 +125,13 @@ static void get_device_name(IMMDevice *device, al_string *name)
     PROPVARIANT pvname;
     HRESULT hr;
 
+    al_string_copy_cstr(name, DEVNAME_HEAD);
+
     hr = IMMDevice_OpenPropertyStore(device, STGM_READ, &ps);
     if(FAILED(hr))
     {
         WARN("OpenPropertyStore failed: 0x%08lx\n", hr);
+        al_string_append_cstr(name, "Unknown Device Name");
         return;
     }
 
@@ -134,39 +139,109 @@ static void get_device_name(IMMDevice *device, al_string *name)
 
     hr = IPropertyStore_GetValue(ps, (const PROPERTYKEY*)&DEVPKEY_Device_FriendlyName, &pvname);
     if(FAILED(hr))
-        WARN("GetValue failed: 0x%08lx\n", hr);
+    {
+        WARN("GetValue Device_FriendlyName failed: 0x%08lx\n", hr);
+        al_string_append_cstr(name, "Unknown Device Name");
+    }
+    else if(pvname.vt == VT_LPWSTR)
+        al_string_append_wcstr(name, pvname.pwszVal);
     else
-        al_string_copy_wcstr(name, pvname.pwszVal);
+    {
+        WARN("Unexpected PROPVARIANT type: 0x%04x\n", pvname.vt);
+        al_string_append_cstr(name, "Unknown Device Name");
+    }
 
     PropVariantClear(&pvname);
     IPropertyStore_Release(ps);
 }
 
-static void add_device(IMMDevice *device, vector_DevMap *list)
+static void get_device_formfactor(IMMDevice *device, EndpointFormFactor *formfactor)
+{
+    IPropertyStore *ps;
+    PROPVARIANT pvform;
+    HRESULT hr;
+
+    hr = IMMDevice_OpenPropertyStore(device, STGM_READ, &ps);
+    if(FAILED(hr))
+    {
+        WARN("OpenPropertyStore failed: 0x%08lx\n", hr);
+        return;
+    }
+
+    PropVariantInit(&pvform);
+
+    hr = IPropertyStore_GetValue(ps, &PKEY_AudioEndpoint_FormFactor, &pvform);
+    if(FAILED(hr))
+        WARN("GetValue AudioEndpoint_FormFactor failed: 0x%08lx\n", hr);
+    else if(pvform.vt == VT_UI4)
+        *formfactor = pvform.ulVal;
+    else if(pvform.vt == VT_EMPTY)
+        *formfactor = UnknownFormFactor;
+    else
+        WARN("Unexpected PROPVARIANT type: 0x%04x\n", pvform.vt);
+
+    PropVariantClear(&pvform);
+    IPropertyStore_Release(ps);
+}
+
+
+static void add_device(IMMDevice *device, LPCWSTR devid, vector_DevMap *list)
+{
+    int count = 0;
+    al_string tmpname;
+    DevMap entry;
+
+    AL_STRING_INIT(tmpname);
+    AL_STRING_INIT(entry.name);
+
+    entry.devid = strdupW(devid);
+    get_device_name(device, &tmpname);
+
+    while(1)
+    {
+        const DevMap *iter;
+
+        al_string_copy(&entry.name, tmpname);
+        if(count != 0)
+        {
+            char str[64];
+            snprintf(str, sizeof(str), " #%d", count+1);
+            al_string_append_cstr(&entry.name, str);
+        }
+
+#define MATCH_ENTRY(i) (al_string_cmp(entry.name, (i)->name) == 0)
+        VECTOR_FIND_IF(iter, const DevMap, *list, MATCH_ENTRY);
+        if(iter == VECTOR_ITER_END(*list)) break;
+#undef MATCH_ENTRY
+        count++;
+    }
+
+    TRACE("Got device \"%s\", \"%ls\"\n", al_string_get_cstr(entry.name), entry.devid);
+    VECTOR_PUSH_BACK(*list, entry);
+
+    AL_STRING_DEINIT(tmpname);
+}
+
+static LPWSTR get_device_id(IMMDevice *device)
 {
     LPWSTR devid;
     HRESULT hr;
 
     hr = IMMDevice_GetId(device, &devid);
-    if(SUCCEEDED(hr))
+    if(FAILED(hr))
     {
-        DevMap entry;
-        AL_STRING_INIT(entry.name);
-
-        entry.devid = strdupW(devid);
-        get_device_name(device, &entry.name);
-
-        CoTaskMemFree(devid);
-
-        TRACE("Got device \"%s\", \"%ls\"\n", al_string_get_cstr(entry.name), entry.devid);
-        VECTOR_PUSH_BACK(*list, entry);
+        ERR("Failed to get device id: %lx\n", hr);
+        return NULL;
     }
+
+    return devid;
 }
 
 static HRESULT probe_devices(IMMDeviceEnumerator *devenum, EDataFlow flowdir, vector_DevMap *list)
 {
     IMMDeviceCollection *coll;
     IMMDevice *defdev = NULL;
+    LPWSTR defdevid = NULL;
     HRESULT hr;
     UINT count;
     UINT i;
@@ -183,7 +258,7 @@ static HRESULT probe_devices(IMMDeviceEnumerator *devenum, EDataFlow flowdir, ve
     if(SUCCEEDED(hr) && count > 0)
     {
         clear_devlist(list);
-        if(!VECTOR_RESERVE(*list, count+1))
+        if(!VECTOR_RESERVE(*list, count))
         {
             IMMDeviceCollection_Release(coll);
             return E_OUTOFMEMORY;
@@ -193,22 +268,32 @@ static HRESULT probe_devices(IMMDeviceEnumerator *devenum, EDataFlow flowdir, ve
                                                          eMultimedia, &defdev);
     }
     if(SUCCEEDED(hr) && defdev != NULL)
-        add_device(defdev, list);
+    {
+        defdevid = get_device_id(defdev);
+        if(defdevid)
+            add_device(defdev, defdevid, list);
+    }
 
     for(i = 0;i < count;++i)
     {
         IMMDevice *device;
+        LPWSTR devid;
 
-        if(FAILED(IMMDeviceCollection_Item(coll, i, &device)))
-            continue;
+        hr = IMMDeviceCollection_Item(coll, i, &device);
+        if(FAILED(hr)) continue;
 
-        if(device != defdev)
-            add_device(device, list);
-
+        devid = get_device_id(device);
+        if(devid)
+        {
+            if(wcscmp(devid, defdevid) != 0)
+                add_device(device, devid, list);
+            CoTaskMemFree(devid);
+        }
         IMMDevice_Release(device);
     }
 
     if(defdev) IMMDevice_Release(defdev);
+    if(defdevid) CoTaskMemFree(defdevid);
     IMMDeviceCollection_Release(coll);
 
     return S_OK;
@@ -294,7 +379,7 @@ static DWORD CALLBACK ALCmmdevProxy_messageHandler(void *ptr)
     TRACE("Starting message loop\n");
     while(GetMessage(&msg, NULL, WM_USER_First, WM_USER_Last))
     {
-        TRACE("Got message %u\n", msg.message);
+        TRACE("Got message %u (lparam=%p, wparam=%p)\n", msg.message, (void*)msg.lParam, (void*)msg.wParam);
         switch(msg.message)
         {
         case WM_USER_OpenDevice:
@@ -483,9 +568,9 @@ FORCE_ALIGN static int ALCmmdevPlayback_mixerProc(void *arg)
     if(FAILED(hr))
     {
         ERR("CoInitialize(NULL) failed: 0x%08lx\n", hr);
-        ALCdevice_Lock(device);
+        V0(device->Backend,lock)();
         aluHandleDisconnect(device);
-        ALCdevice_Unlock(device);
+        V0(device->Backend,unlock)();
         return 1;
     }
 
@@ -500,9 +585,9 @@ FORCE_ALIGN static int ALCmmdevPlayback_mixerProc(void *arg)
         if(FAILED(hr))
         {
             ERR("Failed to get padding: 0x%08lx\n", hr);
-            ALCdevice_Lock(device);
+            V0(device->Backend,lock)();
             aluHandleDisconnect(device);
-            ALCdevice_Unlock(device);
+            V0(device->Backend,unlock)();
             break;
         }
         self->Padding = written;
@@ -521,18 +606,18 @@ FORCE_ALIGN static int ALCmmdevPlayback_mixerProc(void *arg)
         hr = IAudioRenderClient_GetBuffer(self->render, len, &buffer);
         if(SUCCEEDED(hr))
         {
-            ALCdevice_Lock(device);
+            V0(device->Backend,lock)();
             aluMixData(device, buffer, len);
             self->Padding = written + len;
-            ALCdevice_Unlock(device);
+            V0(device->Backend,unlock)();
             hr = IAudioRenderClient_ReleaseBuffer(self->render, len, 0);
         }
         if(FAILED(hr))
         {
             ERR("Failed to buffer data: 0x%08lx\n", hr);
-            ALCdevice_Lock(device);
+            V0(device->Backend,lock)();
             aluHandleDisconnect(device);
-            ALCdevice_Unlock(device);
+            V0(device->Backend,unlock)();
             break;
         }
     }
@@ -599,7 +684,7 @@ static ALCenum ALCmmdevPlayback_open(ALCmmdevPlayback *self, const ALCchar *devi
     {
         if(deviceName)
         {
-            const DevMap *iter, *end;
+            const DevMap *iter;
 
             if(VECTOR_SIZE(PlaybackDevices) == 0)
             {
@@ -609,19 +694,18 @@ static ALCenum ALCmmdevPlayback_open(ALCmmdevPlayback *self, const ALCchar *devi
             }
 
             hr = E_FAIL;
-            iter = VECTOR_ITER_BEGIN(PlaybackDevices);
-            end = VECTOR_ITER_END(PlaybackDevices);
-            for(;iter != end;iter++)
-            {
-                if(al_string_cmp_cstr(iter->name, deviceName) == 0)
-                {
-                    self->devid = strdupW(iter->devid);
-                    hr = S_OK;
-                    break;
-                }
-            }
-            if(FAILED(hr))
+#define MATCH_NAME(i) (al_string_cmp_cstr((i)->name, deviceName) == 0)
+            VECTOR_FIND_IF(iter, const DevMap, PlaybackDevices, MATCH_NAME);
+            if(iter == VECTOR_ITER_END(PlaybackDevices))
                 WARN("Failed to find device name matching \"%s\"\n", deviceName);
+            else
+            {
+                ALCdevice *device = STATIC_CAST(ALCbackend,self)->mDevice;
+                self->devid = strdupW(iter->devid);
+                al_string_copy(&device->DeviceName, iter->name);
+                hr = S_OK;
+            }
+#undef MATCH_NAME
         }
     }
 
@@ -677,7 +761,8 @@ static HRESULT ALCmmdevPlayback_openProxy(ALCmmdevPlayback *self)
     if(SUCCEEDED(hr))
     {
         self->client = ptr;
-        get_device_name(self->mmdev, &device->DeviceName);
+        if(al_string_empty(device->DeviceName))
+            get_device_name(self->mmdev, &device->DeviceName);
     }
 
     if(FAILED(hr))
@@ -734,6 +819,7 @@ static ALCboolean ALCmmdevPlayback_reset(ALCmmdevPlayback *self)
 static HRESULT ALCmmdevPlayback_resetProxy(ALCmmdevPlayback *self)
 {
     ALCdevice *device = STATIC_CAST(ALCbackend, self)->mDevice;
+    EndpointFormFactor formfactor = UnknownFormFactor;
     WAVEFORMATEXTENSIBLE OutputType;
     WAVEFORMATEX *wfx = NULL;
     REFERENCE_TIME min_per, buf_time;
@@ -783,11 +869,11 @@ static HRESULT ALCmmdevPlayback_resetProxy(ALCmmdevPlayback *self)
             device->FmtChans = DevFmtQuad;
         else if(OutputType.Format.nChannels == 6 && OutputType.dwChannelMask == X5DOT1)
             device->FmtChans = DevFmtX51;
-        else if(OutputType.Format.nChannels == 6 && OutputType.dwChannelMask == X5DOT1SIDE)
-            device->FmtChans = DevFmtX51Side;
+        else if(OutputType.Format.nChannels == 6 && OutputType.dwChannelMask == X5DOT1REAR)
+            device->FmtChans = DevFmtX51Rear;
         else if(OutputType.Format.nChannels == 7 && OutputType.dwChannelMask == X6DOT1)
             device->FmtChans = DevFmtX61;
-        else if(OutputType.Format.nChannels == 8 && OutputType.dwChannelMask == X7DOT1)
+        else if(OutputType.Format.nChannels == 8 && (OutputType.dwChannelMask == X7DOT1 || OutputType.dwChannelMask == X7DOT1_WIDE))
             device->FmtChans = DevFmtX71;
         else
             ERR("Unhandled channel config: %d -- 0x%08lx\n", OutputType.Format.nChannels, OutputType.dwChannelMask);
@@ -799,6 +885,9 @@ static HRESULT ALCmmdevPlayback_resetProxy(ALCmmdevPlayback *self)
             OutputType.Format.nChannels = 1;
             OutputType.dwChannelMask = MONO;
             break;
+        case DevFmtBFormat3D:
+            device->FmtChans = DevFmtStereo;
+            /*fall-through*/
         case DevFmtStereo:
             OutputType.Format.nChannels = 2;
             OutputType.dwChannelMask = STEREO;
@@ -811,9 +900,9 @@ static HRESULT ALCmmdevPlayback_resetProxy(ALCmmdevPlayback *self)
             OutputType.Format.nChannels = 6;
             OutputType.dwChannelMask = X5DOT1;
             break;
-        case DevFmtX51Side:
+        case DevFmtX51Rear:
             OutputType.Format.nChannels = 6;
-            OutputType.dwChannelMask = X5DOT1SIDE;
+            OutputType.dwChannelMask = X5DOT1REAR;
             break;
         case DevFmtX61:
             OutputType.Format.nChannels = 7;
@@ -894,11 +983,11 @@ static HRESULT ALCmmdevPlayback_resetProxy(ALCmmdevPlayback *self)
             device->FmtChans = DevFmtQuad;
         else if(OutputType.Format.nChannels == 6 && OutputType.dwChannelMask == X5DOT1)
             device->FmtChans = DevFmtX51;
-        else if(OutputType.Format.nChannels == 6 && OutputType.dwChannelMask == X5DOT1SIDE)
-            device->FmtChans = DevFmtX51Side;
+        else if(OutputType.Format.nChannels == 6 && OutputType.dwChannelMask == X5DOT1REAR)
+            device->FmtChans = DevFmtX51Rear;
         else if(OutputType.Format.nChannels == 7 && OutputType.dwChannelMask == X6DOT1)
             device->FmtChans = DevFmtX61;
-        else if(OutputType.Format.nChannels == 8 && OutputType.dwChannelMask == X7DOT1)
+        else if(OutputType.Format.nChannels == 8 && (OutputType.dwChannelMask == X7DOT1 || OutputType.dwChannelMask == X7DOT1_WIDE))
             device->FmtChans = DevFmtX71;
         else
         {
@@ -936,6 +1025,8 @@ static HRESULT ALCmmdevPlayback_resetProxy(ALCmmdevPlayback *self)
         }
         OutputType.Samples.wValidBitsPerSample = OutputType.Format.wBitsPerSample;
     }
+    get_device_formfactor(self->mmdev, &formfactor);
+    device->IsHeadphones = (device->FmtChans == DevFmtStereo && formfactor == Headphones);
 
     SetDefaultWFXChannelOrder(device);
 
@@ -1055,6 +1146,572 @@ static ALint64 ALCmmdevPlayback_getLatency(ALCmmdevPlayback *self)
 }
 
 
+typedef struct ALCmmdevCapture {
+    DERIVE_FROM_TYPE(ALCbackend);
+    DERIVE_FROM_TYPE(ALCmmdevProxy);
+
+    WCHAR *devid;
+
+    IMMDevice *mmdev;
+    IAudioClient *client;
+    IAudioCaptureClient *capture;
+    HANDLE NotifyEvent;
+
+    HANDLE MsgEvent;
+
+    ll_ringbuffer_t *Ring;
+
+    volatile int killNow;
+    althrd_t thread;
+} ALCmmdevCapture;
+
+static int ALCmmdevCapture_recordProc(void *arg);
+
+static void ALCmmdevCapture_Construct(ALCmmdevCapture *self, ALCdevice *device);
+static void ALCmmdevCapture_Destruct(ALCmmdevCapture *self);
+static ALCenum ALCmmdevCapture_open(ALCmmdevCapture *self, const ALCchar *name);
+static HRESULT ALCmmdevCapture_openProxy(ALCmmdevCapture *self);
+static void ALCmmdevCapture_close(ALCmmdevCapture *self);
+static void ALCmmdevCapture_closeProxy(ALCmmdevCapture *self);
+static DECLARE_FORWARD(ALCmmdevCapture, ALCbackend, ALCboolean, reset)
+static HRESULT ALCmmdevCapture_resetProxy(ALCmmdevCapture *self);
+static ALCboolean ALCmmdevCapture_start(ALCmmdevCapture *self);
+static HRESULT ALCmmdevCapture_startProxy(ALCmmdevCapture *self);
+static void ALCmmdevCapture_stop(ALCmmdevCapture *self);
+static void ALCmmdevCapture_stopProxy(ALCmmdevCapture *self);
+static ALCenum ALCmmdevCapture_captureSamples(ALCmmdevCapture *self, ALCvoid *buffer, ALCuint samples);
+static ALuint ALCmmdevCapture_availableSamples(ALCmmdevCapture *self);
+static DECLARE_FORWARD(ALCmmdevCapture, ALCbackend, ALint64, getLatency)
+static DECLARE_FORWARD(ALCmmdevCapture, ALCbackend, void, lock)
+static DECLARE_FORWARD(ALCmmdevCapture, ALCbackend, void, unlock)
+DECLARE_DEFAULT_ALLOCATORS(ALCmmdevCapture)
+
+DEFINE_ALCMMDEVPROXY_VTABLE(ALCmmdevCapture);
+DEFINE_ALCBACKEND_VTABLE(ALCmmdevCapture);
+
+
+static void ALCmmdevCapture_Construct(ALCmmdevCapture *self, ALCdevice *device)
+{
+    SET_VTABLE2(ALCmmdevCapture, ALCbackend, self);
+    SET_VTABLE2(ALCmmdevCapture, ALCmmdevProxy, self);
+    ALCbackend_Construct(STATIC_CAST(ALCbackend, self), device);
+    ALCmmdevProxy_Construct(STATIC_CAST(ALCmmdevProxy, self));
+
+    self->devid = NULL;
+
+    self->mmdev = NULL;
+    self->client = NULL;
+    self->capture = NULL;
+    self->NotifyEvent = NULL;
+
+    self->MsgEvent = NULL;
+
+    self->Ring = NULL;
+
+    self->killNow = 0;
+}
+
+static void ALCmmdevCapture_Destruct(ALCmmdevCapture *self)
+{
+    ll_ringbuffer_free(self->Ring);
+    self->Ring = NULL;
+
+    if(self->NotifyEvent != NULL)
+        CloseHandle(self->NotifyEvent);
+    self->NotifyEvent = NULL;
+    if(self->MsgEvent != NULL)
+        CloseHandle(self->MsgEvent);
+    self->MsgEvent = NULL;
+
+    free(self->devid);
+    self->devid = NULL;
+
+    ALCmmdevProxy_Destruct(STATIC_CAST(ALCmmdevProxy, self));
+    ALCbackend_Destruct(STATIC_CAST(ALCbackend, self));
+}
+
+
+FORCE_ALIGN int ALCmmdevCapture_recordProc(void *arg)
+{
+    ALCmmdevCapture *self = arg;
+    ALCdevice *device = STATIC_CAST(ALCbackend, self)->mDevice;
+    HRESULT hr;
+
+    hr = CoInitialize(NULL);
+    if(FAILED(hr))
+    {
+        ERR("CoInitialize(NULL) failed: 0x%08lx\n", hr);
+        V0(device->Backend,lock)();
+        aluHandleDisconnect(device);
+        V0(device->Backend,unlock)();
+        return 1;
+    }
+
+    althrd_setname(althrd_current(), RECORD_THREAD_NAME);
+
+    while(!self->killNow)
+    {
+        UINT32 avail;
+        DWORD res;
+
+        hr = IAudioCaptureClient_GetNextPacketSize(self->capture, &avail);
+        if(FAILED(hr))
+            ERR("Failed to get next packet size: 0x%08lx\n", hr);
+        else while(avail > 0 && SUCCEEDED(hr))
+        {
+            UINT32 numsamples;
+            DWORD flags;
+            BYTE *data;
+
+            hr = IAudioCaptureClient_GetBuffer(self->capture,
+                &data, &numsamples, &flags, NULL, NULL
+            );
+            if(FAILED(hr))
+            {
+                ERR("Failed to get capture buffer: 0x%08lx\n", hr);
+                break;
+            }
+
+            ll_ringbuffer_write(self->Ring, (char*)data, numsamples);
+
+            hr = IAudioCaptureClient_ReleaseBuffer(self->capture, numsamples);
+            if(FAILED(hr))
+            {
+                ERR("Failed to release capture buffer: 0x%08lx\n", hr);
+                break;
+            }
+
+            hr = IAudioCaptureClient_GetNextPacketSize(self->capture, &avail);
+            if(FAILED(hr))
+                ERR("Failed to get next packet size: 0x%08lx\n", hr);
+        }
+
+        if(FAILED(hr))
+        {
+            V0(device->Backend,lock)();
+            aluHandleDisconnect(device);
+            V0(device->Backend,unlock)();
+            break;
+        }
+
+        res = WaitForSingleObjectEx(self->NotifyEvent, 2000, FALSE);
+        if(res != WAIT_OBJECT_0)
+            ERR("WaitForSingleObjectEx error: 0x%lx\n", res);
+    }
+
+    CoUninitialize();
+    return 0;
+}
+
+
+static ALCenum ALCmmdevCapture_open(ALCmmdevCapture *self, const ALCchar *deviceName)
+{
+    HRESULT hr = S_OK;
+
+    self->NotifyEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    self->MsgEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    if(self->NotifyEvent == NULL || self->MsgEvent == NULL)
+    {
+        ERR("Failed to create message events: %lu\n", GetLastError());
+        hr = E_FAIL;
+    }
+
+    if(SUCCEEDED(hr))
+    {
+        if(deviceName)
+        {
+            const DevMap *iter;
+
+            if(VECTOR_SIZE(CaptureDevices) == 0)
+            {
+                ThreadRequest req = { self->MsgEvent, 0 };
+                if(PostThreadMessage(ThreadID, WM_USER_Enumerate, (WPARAM)&req, CAPTURE_DEVICE_PROBE))
+                    (void)WaitForResponse(&req);
+            }
+
+            hr = E_FAIL;
+#define MATCH_NAME(i) (al_string_cmp_cstr((i)->name, deviceName) == 0)
+            VECTOR_FIND_IF(iter, const DevMap, CaptureDevices, MATCH_NAME);
+            if(iter == VECTOR_ITER_END(CaptureDevices))
+                WARN("Failed to find device name matching \"%s\"\n", deviceName);
+            else
+            {
+                ALCdevice *device = STATIC_CAST(ALCbackend,self)->mDevice;
+                self->devid = strdupW(iter->devid);
+                al_string_copy(&device->DeviceName, iter->name);
+                hr = S_OK;
+            }
+#undef MATCH_NAME
+        }
+    }
+
+    if(SUCCEEDED(hr))
+    {
+        ThreadRequest req = { self->MsgEvent, 0 };
+
+        hr = E_FAIL;
+        if(PostThreadMessage(ThreadID, WM_USER_OpenDevice, (WPARAM)&req, (LPARAM)STATIC_CAST(ALCmmdevProxy, self)))
+            hr = WaitForResponse(&req);
+        else
+            ERR("Failed to post thread message: %lu\n", GetLastError());
+    }
+
+    if(FAILED(hr))
+    {
+        if(self->NotifyEvent != NULL)
+            CloseHandle(self->NotifyEvent);
+        self->NotifyEvent = NULL;
+        if(self->MsgEvent != NULL)
+            CloseHandle(self->MsgEvent);
+        self->MsgEvent = NULL;
+
+        free(self->devid);
+        self->devid = NULL;
+
+        ERR("Device init failed: 0x%08lx\n", hr);
+        return ALC_INVALID_VALUE;
+    }
+    else
+    {
+        ThreadRequest req = { self->MsgEvent, 0 };
+
+        hr = E_FAIL;
+        if(PostThreadMessage(ThreadID, WM_USER_ResetDevice, (WPARAM)&req, (LPARAM)STATIC_CAST(ALCmmdevProxy, self)))
+            hr = WaitForResponse(&req);
+        else
+            ERR("Failed to post thread message: %lu\n", GetLastError());
+
+        if(FAILED(hr))
+        {
+            ALCmmdevCapture_close(self);
+            if(hr == E_OUTOFMEMORY)
+               return ALC_OUT_OF_MEMORY;
+            return ALC_INVALID_VALUE;
+        }
+    }
+
+    return ALC_NO_ERROR;
+}
+
+static HRESULT ALCmmdevCapture_openProxy(ALCmmdevCapture *self)
+{
+    ALCdevice *device = STATIC_CAST(ALCbackend, self)->mDevice;
+    void *ptr;
+    HRESULT hr;
+
+    hr = CoCreateInstance(&CLSID_MMDeviceEnumerator, NULL, CLSCTX_INPROC_SERVER, &IID_IMMDeviceEnumerator, &ptr);
+    if(SUCCEEDED(hr))
+    {
+        IMMDeviceEnumerator *Enumerator = ptr;
+        if(!self->devid)
+            hr = IMMDeviceEnumerator_GetDefaultAudioEndpoint(Enumerator, eCapture, eMultimedia, &self->mmdev);
+        else
+            hr = IMMDeviceEnumerator_GetDevice(Enumerator, self->devid, &self->mmdev);
+        IMMDeviceEnumerator_Release(Enumerator);
+        Enumerator = NULL;
+    }
+    if(SUCCEEDED(hr))
+        hr = IMMDevice_Activate(self->mmdev, &IID_IAudioClient, CLSCTX_INPROC_SERVER, NULL, &ptr);
+    if(SUCCEEDED(hr))
+    {
+        self->client = ptr;
+        if(al_string_empty(device->DeviceName))
+            get_device_name(self->mmdev, &device->DeviceName);
+    }
+
+    if(FAILED(hr))
+    {
+        if(self->mmdev)
+            IMMDevice_Release(self->mmdev);
+        self->mmdev = NULL;
+    }
+
+    return hr;
+}
+
+
+static void ALCmmdevCapture_close(ALCmmdevCapture *self)
+{
+    ThreadRequest req = { self->MsgEvent, 0 };
+
+    if(PostThreadMessage(ThreadID, WM_USER_CloseDevice, (WPARAM)&req, (LPARAM)STATIC_CAST(ALCmmdevProxy, self)))
+        (void)WaitForResponse(&req);
+
+    ll_ringbuffer_free(self->Ring);
+    self->Ring = NULL;
+
+    CloseHandle(self->MsgEvent);
+    self->MsgEvent = NULL;
+
+    CloseHandle(self->NotifyEvent);
+    self->NotifyEvent = NULL;
+
+    free(self->devid);
+    self->devid = NULL;
+}
+
+static void ALCmmdevCapture_closeProxy(ALCmmdevCapture *self)
+{
+    if(self->client)
+        IAudioClient_Release(self->client);
+    self->client = NULL;
+
+    if(self->mmdev)
+        IMMDevice_Release(self->mmdev);
+    self->mmdev = NULL;
+}
+
+
+static HRESULT ALCmmdevCapture_resetProxy(ALCmmdevCapture *self)
+{
+    ALCdevice *device = STATIC_CAST(ALCbackend, self)->mDevice;
+    WAVEFORMATEXTENSIBLE OutputType;
+    WAVEFORMATEX *wfx = NULL;
+    REFERENCE_TIME buf_time;
+    UINT32 buffer_len;
+    void *ptr = NULL;
+    HRESULT hr;
+
+    if(self->client)
+        IAudioClient_Release(self->client);
+    self->client = NULL;
+
+    hr = IMMDevice_Activate(self->mmdev, &IID_IAudioClient, CLSCTX_INPROC_SERVER, NULL, &ptr);
+    if(FAILED(hr))
+    {
+        ERR("Failed to reactivate audio client: 0x%08lx\n", hr);
+        return hr;
+    }
+    self->client = ptr;
+
+    buf_time = ((REFERENCE_TIME)device->UpdateSize*device->NumUpdates*10000000 +
+                                device->Frequency-1) / device->Frequency;
+
+    OutputType.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+    switch(device->FmtChans)
+    {
+        case DevFmtMono:
+            OutputType.Format.nChannels = 1;
+            OutputType.dwChannelMask = MONO;
+            break;
+        case DevFmtStereo:
+            OutputType.Format.nChannels = 2;
+            OutputType.dwChannelMask = STEREO;
+            break;
+        case DevFmtQuad:
+            OutputType.Format.nChannels = 4;
+            OutputType.dwChannelMask = QUAD;
+            break;
+        case DevFmtX51:
+            OutputType.Format.nChannels = 6;
+            OutputType.dwChannelMask = X5DOT1;
+            break;
+        case DevFmtX51Rear:
+            OutputType.Format.nChannels = 6;
+            OutputType.dwChannelMask = X5DOT1REAR;
+            break;
+        case DevFmtX61:
+            OutputType.Format.nChannels = 7;
+            OutputType.dwChannelMask = X6DOT1;
+            break;
+        case DevFmtX71:
+            OutputType.Format.nChannels = 8;
+            OutputType.dwChannelMask = X7DOT1;
+            break;
+
+        case DevFmtBFormat3D:
+            return E_FAIL;
+    }
+    switch(device->FmtType)
+    {
+        case DevFmtUByte:
+            OutputType.Format.wBitsPerSample = 8;
+            OutputType.Samples.wValidBitsPerSample = 8;
+            OutputType.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
+            break;
+        case DevFmtShort:
+            OutputType.Format.wBitsPerSample = 16;
+            OutputType.Samples.wValidBitsPerSample = 16;
+            OutputType.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
+            break;
+        case DevFmtInt:
+            OutputType.Format.wBitsPerSample = 32;
+            OutputType.Samples.wValidBitsPerSample = 32;
+            OutputType.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
+            break;
+        case DevFmtFloat:
+            OutputType.Format.wBitsPerSample = 32;
+            OutputType.Samples.wValidBitsPerSample = 32;
+            OutputType.SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
+            break;
+
+        case DevFmtByte:
+        case DevFmtUShort:
+        case DevFmtUInt:
+            WARN("%s capture samples not supported\n", DevFmtTypeString(device->FmtType));
+            return E_FAIL;
+    }
+    OutputType.Format.nSamplesPerSec = device->Frequency;
+
+    OutputType.Format.nBlockAlign = OutputType.Format.nChannels *
+                                    OutputType.Format.wBitsPerSample / 8;
+    OutputType.Format.nAvgBytesPerSec = OutputType.Format.nSamplesPerSec *
+                                        OutputType.Format.nBlockAlign;
+    OutputType.Format.cbSize = sizeof(OutputType) - sizeof(OutputType.Format);
+
+    hr = IAudioClient_IsFormatSupported(self->client,
+        AUDCLNT_SHAREMODE_SHARED, &OutputType.Format, &wfx
+    );
+    if(FAILED(hr))
+    {
+        ERR("Failed to check format support: 0x%08lx\n", hr);
+        return hr;
+    }
+
+    /* FIXME: We should do conversion/resampling if we didn't get a matching format. */
+    if(wfx->nSamplesPerSec != OutputType.Format.nSamplesPerSec ||
+       wfx->wBitsPerSample != OutputType.Format.wBitsPerSample ||
+       wfx->nChannels != OutputType.Format.nChannels ||
+       wfx->nBlockAlign != OutputType.Format.nBlockAlign)
+    {
+        ERR("Did not get matching format, wanted: %s %s %uhz, got: %d channel(s) %d-bit %luhz\n",
+            DevFmtChannelsString(device->FmtChans), DevFmtTypeString(device->FmtType), device->Frequency,
+            wfx->nChannels, wfx->wBitsPerSample, wfx->nSamplesPerSec);
+        CoTaskMemFree(wfx);
+        return E_FAIL;
+    }
+
+    if(!MakeExtensible(&OutputType, wfx))
+    {
+        CoTaskMemFree(wfx);
+        return E_FAIL;
+    }
+    CoTaskMemFree(wfx);
+    wfx = NULL;
+
+    hr = IAudioClient_Initialize(self->client,
+        AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
+        buf_time, 0, &OutputType.Format, NULL
+    );
+    if(FAILED(hr))
+    {
+        ERR("Failed to initialize audio client: 0x%08lx\n", hr);
+        return hr;
+    }
+
+    hr = IAudioClient_GetBufferSize(self->client, &buffer_len);
+    if(FAILED(hr))
+    {
+        ERR("Failed to get buffer size: 0x%08lx\n", hr);
+        return hr;
+    }
+
+    buffer_len = maxu(device->UpdateSize*device->NumUpdates + 1, buffer_len);
+    ll_ringbuffer_free(self->Ring);
+    self->Ring = ll_ringbuffer_create(buffer_len, OutputType.Format.nBlockAlign);
+    if(!self->Ring)
+    {
+        ERR("Failed to allocate capture ring buffer\n");
+        return E_OUTOFMEMORY;
+    }
+
+    hr = IAudioClient_SetEventHandle(self->client, self->NotifyEvent);
+    if(FAILED(hr))
+    {
+        ERR("Failed to set event handle: 0x%08lx\n", hr);
+        return hr;
+    }
+
+    return hr;
+}
+
+
+static ALCboolean ALCmmdevCapture_start(ALCmmdevCapture *self)
+{
+    ThreadRequest req = { self->MsgEvent, 0 };
+    HRESULT hr = E_FAIL;
+
+    if(PostThreadMessage(ThreadID, WM_USER_StartDevice, (WPARAM)&req, (LPARAM)STATIC_CAST(ALCmmdevProxy, self)))
+        hr = WaitForResponse(&req);
+
+    return SUCCEEDED(hr) ? ALC_TRUE : ALC_FALSE;
+}
+
+static HRESULT ALCmmdevCapture_startProxy(ALCmmdevCapture *self)
+{
+    HRESULT hr;
+    void *ptr;
+
+    ResetEvent(self->NotifyEvent);
+    hr = IAudioClient_Start(self->client);
+    if(FAILED(hr))
+    {
+        ERR("Failed to start audio client: 0x%08lx\n", hr);
+        return hr;
+    }
+
+    hr = IAudioClient_GetService(self->client, &IID_IAudioCaptureClient, &ptr);
+    if(SUCCEEDED(hr))
+    {
+        self->capture = ptr;
+        self->killNow = 0;
+        if(althrd_create(&self->thread, ALCmmdevCapture_recordProc, self) != althrd_success)
+        {
+            ERR("Failed to start thread\n");
+            IAudioCaptureClient_Release(self->capture);
+            self->capture = NULL;
+            hr = E_FAIL;
+        }
+    }
+
+    if(FAILED(hr))
+    {
+        IAudioClient_Stop(self->client);
+        IAudioClient_Reset(self->client);
+    }
+
+    return hr;
+}
+
+
+static void ALCmmdevCapture_stop(ALCmmdevCapture *self)
+{
+    ThreadRequest req = { self->MsgEvent, 0 };
+    if(PostThreadMessage(ThreadID, WM_USER_StopDevice, (WPARAM)&req, (LPARAM)STATIC_CAST(ALCmmdevProxy, self)))
+        (void)WaitForResponse(&req);
+}
+
+static void ALCmmdevCapture_stopProxy(ALCmmdevCapture *self)
+{
+    int res;
+
+    if(!self->capture)
+        return;
+
+    self->killNow = 1;
+    althrd_join(self->thread, &res);
+
+    IAudioCaptureClient_Release(self->capture);
+    self->capture = NULL;
+    IAudioClient_Stop(self->client);
+    IAudioClient_Reset(self->client);
+}
+
+
+ALuint ALCmmdevCapture_availableSamples(ALCmmdevCapture *self)
+{
+    return (ALuint)ll_ringbuffer_read_space(self->Ring);
+}
+
+ALCenum ALCmmdevCapture_captureSamples(ALCmmdevCapture *self, ALCvoid *buffer, ALCuint samples)
+{
+    if(ALCmmdevCapture_availableSamples(self) < samples)
+        return ALC_INVALID_VALUE;
+    ll_ringbuffer_read(self->Ring, buffer, samples);
+    return ALC_NO_ERROR;
+}
+
+
 static inline void AppendAllDevicesList2(const DevMap *entry)
 { AppendAllDevicesList(al_string_get_cstr(entry->name)); }
 static inline void AppendCaptureDeviceList2(const DevMap *entry)
@@ -1125,7 +1782,12 @@ static void ALCmmdevBackendFactory_deinit(ALCmmdevBackendFactory* UNUSED(self))
 
 static ALCboolean ALCmmdevBackendFactory_querySupport(ALCmmdevBackendFactory* UNUSED(self), ALCbackend_Type type)
 {
-    if(type == ALCbackend_Playback)
+    /* TODO: Disable capture with mmdevapi for now, since it doesn't do any
+     * rechanneling or resampling; if the device is configured for 48000hz
+     * stereo input, for example, and the app asks for 22050hz mono,
+     * initialization will fail.
+     */
+    if(type == ALCbackend_Playback /*|| type == ALCbackend_Capture*/)
         return ALC_TRUE;
     return ALC_FALSE;
 }
@@ -1162,13 +1824,15 @@ static ALCbackend* ALCmmdevBackendFactory_createBackend(ALCmmdevBackendFactory* 
     if(type == ALCbackend_Playback)
     {
         ALCmmdevPlayback *backend;
-
-        backend = ALCmmdevPlayback_New(sizeof(*backend));
+        NEW_OBJ(backend, ALCmmdevPlayback)(device);
         if(!backend) return NULL;
-        memset(backend, 0, sizeof(*backend));
-
-        ALCmmdevPlayback_Construct(backend, device);
-
+        return STATIC_CAST(ALCbackend, backend);
+    }
+    if(type == ALCbackend_Capture)
+    {
+        ALCmmdevCapture *backend;
+        NEW_OBJ(backend, ALCmmdevCapture)(device);
+        if(!backend) return NULL;
         return STATIC_CAST(ALCbackend, backend);
     }
 

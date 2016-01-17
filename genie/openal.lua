@@ -11,17 +11,89 @@ project "openal"
 	local AL_DIR = (CROWN_DIR .. "third/openal/")
 
 	defines {
+		"'ALSOFT_VERSION=\"1.17.1\"'",
 		"AL_ALEXT_PROTOTYPES",
 		"AL_BUILD_LIBRARY",
 		"_LARGEFILE_SOURCE",
 		"_LARGE_FILES",
+		"HAVE_STAT",
+		"HAVE_LRINTF",
+		"HAVE_STRTOF",
+		"HAVE_C99_BOOL",
+		"HAVE_STDINT_H",
+		"HAVE_STDBOOL_H",
+		"HAVE_FLOAT_H",
+		"HAVE_FENV_H",
+		"HAVE_MALLOC_H",
+		"HAVE_DIRENT_H",
 	}
+
+	configuration { "android-* or linux-*" }
+		defines {
+			"SIZEOF_LONG=8",
+			"SIZEOF_LONG_LONG=8",
+			"HAVE_C99_VLA",
+			"HAVE_STDALIGN_H",
+			"HAVE_C11_STATIC_ASSERT",
+			"HAVE_C11_ALIGNAS",
+			"HAVE_GCC_DESTRUCTOR",
+			"HAVE_GCC_FORMAT",
+			"HAVE_DLFCN_H",
+			"HAVE_STRINGS_H",
+			"HAVE_PTHREAD_SETSCHEDPARAM",
+			"HAVE_PTHREAD_SETNAME_NP",
+			"HAVE_GCC_GET_CPUID",
+		}
+		buildoptions {
+			"-std=c11",
+			"-Winline",
+			"-fPIC",
+			"-fvisibility=hidden",
+		}
+
+	configuration { "linux-* or vs*" }
+		defines {
+			"HAVE_SSE",
+			"HAVE_SSE2",
+		}
+		files {
+			AL_DIR .. "Alc/mixer_sse2.c",
+			AL_DIR .. "Alc/mixer_sse.c",
+		}
+
+	configuration { "not vs*" }
+		defines {
+			-- These are needed on non-Windows systems for extra features
+			"_GNU_SOURCE=1",
+			"_POSIX_C_SOURCE=200809L",
+			"_XOPEN_SOURCE=700",
+		}
+
+	configuration { "android-*" }
+		files {
+			AL_DIR .. "Alc/backends/opensl.c"
+		}
+		links {
+			"OpenSLES",
+		}
 
 	configuration { "vs*" }
 		defines {
+			"HAVE__ALIGNED_MALLOC",
+			"HAVE_MMDEVAPI",
+			"HAVE_DSOUND",
+			"HAVE_WINMM",
+			"SIZEOF_LONG=4",
+			"SIZEOF_LONG_LONG=8",
+			"HAVE_WINDOWS_H",
+			"HAVE_IO_H",
+			"HAVE_INTRIN_H",
+			"HAVE_GUIDDEF_H",
+			"HAVE_CPUID_INTRINSIC",
+			"HAVE__CONTROLFP",
+			"HAVE___CONTROL87_2",
 			"_WINDOWS",
 			"_WIN32_WINNT=0x0502",
-			"restrict=",
 			"inline=__inline",
 			"_CRT_NONSTDC_NO_DEPRECATE",
 			"strcasecmp=_stricmp",
@@ -30,9 +102,6 @@ project "openal"
 		}
 		buildoptions {
 			"/wd4098",
-		}
-		includedirs {
-			AL_DIR .. "OpenAL32/config_vs2013",
 		}
 		files {
 			AL_DIR .. "Alc/backends/mmdevapi.c",
@@ -45,20 +114,12 @@ project "openal"
 
 	configuration { "linux-*" }
 		defines {
-			-- These are needed on non-Windows systems for extra features
-			"_GNU_SOURCE=1",
-			"_POSIX_C_SOURCE=200809L",
-			"_XOPEN_SOURCE=700",
-		}
-		buildoptions {
-			"-std=c99",
-			"-Winline",
-			"-fPIC",
-			"-fvisibility=hidden",
-			"-pthread",
-		}
-		includedirs {
-			AL_DIR .. "OpenAL32/config_linux",
+			"HAVE_ALIGNED_ALLOC",
+			"HAVE_POSIX_MEMALIGN",
+			"HAVE_ALSA",
+			"HAVE_PULSEAUDIO",
+			"HAVE_CPUID_H",
+			"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
 		}
 		files {
 			AL_DIR .. "Alc/backends/alsa.c",
@@ -68,68 +129,31 @@ project "openal"
 	configuration {}
 
 	includedirs {
+		AL_DIR,
 		AL_DIR .. "include",
 		AL_DIR .. "Alc",
 		AL_DIR .. "OpenAL32/Include",
 	}
 
 	files {
-		AL_DIR .. "common/atomic.c",
-		AL_DIR .. "common/rwlock.c",
-		AL_DIR .. "common/threads.c",
-		AL_DIR .. "common/uintmap.c",
-
+		AL_DIR .. "common/*.c",
 		AL_DIR .. "Alc/ALc.c",
 		AL_DIR .. "Alc/ALu.c",
+		AL_DIR .. "Alc/bsinc.c",
 		AL_DIR .. "Alc/alcConfig.c",
 		AL_DIR .. "Alc/alcRing.c",
 		AL_DIR .. "Alc/bs2b.c",
-		AL_DIR .. "Alc/effects/autowah.c",
-		AL_DIR .. "Alc/effects/chorus.c",
-		AL_DIR .. "Alc/effects/compressor.c",
-		AL_DIR .. "Alc/effects/dedicated.c",
-		AL_DIR .. "Alc/effects/distortion.c",
-		AL_DIR .. "Alc/effects/echo.c",
-		AL_DIR .. "Alc/effects/equalizer.c",
-		AL_DIR .. "Alc/effects/flanger.c",
-		AL_DIR .. "Alc/effects/modulator.c",
-		AL_DIR .. "Alc/effects/null.c",
-		AL_DIR .. "Alc/effects/reverb.c",
 		AL_DIR .. "Alc/helpers.c",
 		AL_DIR .. "Alc/hrtf.c",
 		AL_DIR .. "Alc/panning.c",
 		AL_DIR .. "Alc/mixer.c",
 		AL_DIR .. "Alc/mixer_c.c",
-
-		AL_DIR .. "Alc/midi/base.c",
-		AL_DIR .. "Alc/midi/sf2load.c",
-		AL_DIR .. "Alc/midi/dummy.c",
-		AL_DIR .. "Alc/midi/fluidsynth.c",
-		AL_DIR .. "Alc/midi/soft.c",
-
-		-- Assume SSE2 available everywhere
-		AL_DIR .. "Alc/mixer_sse2.c",
-		AL_DIR .. "Alc/mixer_sse.c",
-
+		AL_DIR .. "Alc/effects/*.c",
+		AL_DIR .. "Alc/midi/*.c",
 		AL_DIR .. "Alc/backends/base.c",
 		AL_DIR .. "Alc/backends/loopback.c",
 		AL_DIR .. "Alc/backends/null.c",
-
-		AL_DIR .. "OpenAL32/alAuxEffectSlot.c",
-		AL_DIR .. "OpenAL32/alBuffer.c",
-		AL_DIR .. "OpenAL32/alEffect.c",
-		AL_DIR .. "OpenAL32/alError.c",
-		AL_DIR .. "OpenAL32/alExtension.c",
-		AL_DIR .. "OpenAL32/alFilter.c",
-		AL_DIR .. "OpenAL32/alFontsound.c",
-		AL_DIR .. "OpenAL32/alListener.c",
-		AL_DIR .. "OpenAL32/alMidi.c",
-		AL_DIR .. "OpenAL32/alPreset.c",
-		AL_DIR .. "OpenAL32/alSoundfont.c",
-		AL_DIR .. "OpenAL32/alSource.c",
-		AL_DIR .. "OpenAL32/alState.c",
-		AL_DIR .. "OpenAL32/alThunk.c",
-		AL_DIR .. "OpenAL32/sample_cvt.c",
+		AL_DIR .. "OpenAL32/*.c",
 	}
 
 	configuration {}

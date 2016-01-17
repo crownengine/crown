@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -106,7 +106,7 @@ static int ALCnullBackend_mixerProc(void *ptr)
         }
 
         if(avail-done < device->UpdateSize)
-            al_nssleep(0, restTime);
+            al_nssleep(restTime);
         else while(avail-done >= device->UpdateSize)
         {
             aluMixData(device, NULL, device->UpdateSize);
@@ -214,13 +214,8 @@ static ALCbackend* ALCnullBackendFactory_createBackend(ALCnullBackendFactory* UN
     if(type == ALCbackend_Playback)
     {
         ALCnullBackend *backend;
-
-        backend = ALCnullBackend_New(sizeof(*backend));
+        NEW_OBJ(backend, ALCnullBackend)(device);
         if(!backend) return NULL;
-        memset(backend, 0, sizeof(*backend));
-
-        ALCnullBackend_Construct(backend, device);
-
         return STATIC_CAST(ALCbackend, backend);
     }
 

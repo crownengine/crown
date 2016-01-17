@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -43,6 +43,9 @@
 #ifndef DSSPEAKER_5POINT1
 #   define DSSPEAKER_5POINT1          0x00000006
 #endif
+#ifndef DSSPEAKER_5POINT1_BACK
+#   define DSSPEAKER_5POINT1_BACK     0x00000006
+#endif
 #ifndef DSSPEAKER_7POINT1
 #   define DSSPEAKER_7POINT1          0x00000007
 #endif
@@ -56,6 +59,8 @@
 
 DEFINE_GUID(KSDATAFORMAT_SUBTYPE_PCM, 0x00000001, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 DEFINE_GUID(KSDATAFORMAT_SUBTYPE_IEEE_FLOAT, 0x00000003, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+
+#define DEVNAME_HEAD "OpenAL Soft on "
 
 
 #ifdef HAVE_DYNLOAD
@@ -118,15 +123,14 @@ static void clear_devlist(vector_DevMap *list)
 {
 #define DEINIT_STR(i) AL_STRING_DEINIT((i)->name)
     VECTOR_FOR_EACH(DevMap, *list, DEINIT_STR);
-#undef DEINIT_STR
     VECTOR_RESIZE(*list, 0);
+#undef DEINIT_STR
 }
 
 static BOOL CALLBACK DSoundEnumDevices(GUID *guid, const WCHAR *desc, const WCHAR* UNUSED(drvname), void *data)
 {
     vector_DevMap *devices = data;
     OLECHAR *guidstr = NULL;
-    DevMap *iter, *end;
     DevMap entry;
     HRESULT hr;
     int count;
@@ -137,24 +141,25 @@ static BOOL CALLBACK DSoundEnumDevices(GUID *guid, const WCHAR *desc, const WCHA
     AL_STRING_INIT(entry.name);
 
     count = 0;
-    do {
-        al_string_copy_wcstr(&entry.name, desc);
+    while(1)
+    {
+        const DevMap *iter;
+
+        al_string_copy_cstr(&entry.name, DEVNAME_HEAD);
+        al_string_append_wcstr(&entry.name, desc);
         if(count != 0)
         {
             char str[64];
             snprintf(str, sizeof(str), " #%d", count+1);
             al_string_append_cstr(&entry.name, str);
         }
-        count++;
 
-        iter = VECTOR_ITER_BEGIN(*devices);
-        end = VECTOR_ITER_END(*devices);
-        for(;iter != end;++iter)
-        {
-            if(al_string_cmp(entry.name, iter->name) == 0)
-                break;
-        }
-    } while(iter != end);
+#define MATCH_ENTRY(i) (al_string_cmp(entry.name, (i)->name) == 0)
+        VECTOR_FIND_IF(iter, const DevMap, *devices, MATCH_ENTRY);
+        if(iter == VECTOR_ITER_END(*devices)) break;
+#undef MATCH_ENTRY
+        count++;
+    }
     entry.guid = *guid;
 
     hr = StringFromCLSID(guid, &guidstr);
@@ -441,28 +446,35 @@ static ALCboolean ALCdsoundPlayback_reset(ALCdsoundPlayback *self)
     hr = IDirectSound_GetSpeakerConfig(self->DS, &speakers);
     if(SUCCEEDED(hr))
     {
+        speakers = DSSPEAKER_CONFIG(speakers);
         if(!(device->Flags&DEVICE_CHANNELS_REQUEST))
         {
-            speakers = DSSPEAKER_CONFIG(speakers);
             if(speakers == DSSPEAKER_MONO)
                 device->FmtChans = DevFmtMono;
             else if(speakers == DSSPEAKER_STEREO || speakers == DSSPEAKER_HEADPHONE)
                 device->FmtChans = DevFmtStereo;
             else if(speakers == DSSPEAKER_QUAD)
                 device->FmtChans = DevFmtQuad;
-            else if(speakers == DSSPEAKER_5POINT1 || speakers == DSSPEAKER_5POINT1_SURROUND)
+            else if(speakers == DSSPEAKER_5POINT1_SURROUND)
                 device->FmtChans = DevFmtX51;
+            else if(speakers == DSSPEAKER_5POINT1_BACK)
+                device->FmtChans = DevFmtX51Rear;
             else if(speakers == DSSPEAKER_7POINT1 || speakers == DSSPEAKER_7POINT1_SURROUND)
                 device->FmtChans = DevFmtX71;
             else
                 ERR("Unknown system speaker config: 0x%lx\n", speakers);
         }
+        device->IsHeadphones = (device->FmtChans == DevFmtStereo &&
+                                speakers == DSSPEAKER_HEADPHONE);
 
         switch(device->FmtChans)
         {
             case DevFmtMono:
                 OutputType.dwChannelMask = SPEAKER_FRONT_CENTER;
                 break;
+            case DevFmtBFormat3D:
+                device->FmtChans = DevFmtStereo;
+                /*fall-through*/
             case DevFmtStereo:
                 OutputType.dwChannelMask = SPEAKER_FRONT_LEFT |
                                            SPEAKER_FRONT_RIGHT;
@@ -478,16 +490,16 @@ static ALCboolean ALCdsoundPlayback_reset(ALCdsoundPlayback *self)
                                            SPEAKER_FRONT_RIGHT |
                                            SPEAKER_FRONT_CENTER |
                                            SPEAKER_LOW_FREQUENCY |
-                                           SPEAKER_BACK_LEFT |
-                                           SPEAKER_BACK_RIGHT;
+                                           SPEAKER_SIDE_LEFT |
+                                           SPEAKER_SIDE_RIGHT;
                 break;
-            case DevFmtX51Side:
+            case DevFmtX51Rear:
                 OutputType.dwChannelMask = SPEAKER_FRONT_LEFT |
                                            SPEAKER_FRONT_RIGHT |
                                            SPEAKER_FRONT_CENTER |
                                            SPEAKER_LOW_FREQUENCY |
-                                           SPEAKER_SIDE_LEFT |
-                                           SPEAKER_SIDE_RIGHT;
+                                           SPEAKER_BACK_LEFT |
+                                           SPEAKER_BACK_RIGHT;
                 break;
             case DevFmtX61:
                 OutputType.dwChannelMask = SPEAKER_FRONT_LEFT |
@@ -745,16 +757,16 @@ static ALCenum ALCdsoundCapture_open(ALCdsoundCapture *self, const ALCchar *devi
                                           SPEAKER_FRONT_RIGHT |
                                           SPEAKER_FRONT_CENTER |
                                           SPEAKER_LOW_FREQUENCY |
-                                          SPEAKER_BACK_LEFT |
-                                          SPEAKER_BACK_RIGHT;
+                                          SPEAKER_SIDE_LEFT |
+                                          SPEAKER_SIDE_RIGHT;
                 break;
-            case DevFmtX51Side:
+            case DevFmtX51Rear:
                 InputType.dwChannelMask = SPEAKER_FRONT_LEFT |
                                           SPEAKER_FRONT_RIGHT |
                                           SPEAKER_FRONT_CENTER |
                                           SPEAKER_LOW_FREQUENCY |
-                                          SPEAKER_SIDE_LEFT |
-                                          SPEAKER_SIDE_RIGHT;
+                                          SPEAKER_BACK_LEFT |
+                                          SPEAKER_BACK_RIGHT;
                 break;
             case DevFmtX61:
                 InputType.dwChannelMask = SPEAKER_FRONT_LEFT |
@@ -774,6 +786,8 @@ static ALCenum ALCdsoundCapture_open(ALCdsoundCapture *self, const ALCchar *devi
                                           SPEAKER_BACK_RIGHT |
                                           SPEAKER_SIDE_LEFT |
                                           SPEAKER_SIDE_RIGHT;
+                break;
+            case DevFmtBFormat3D:
                 break;
         }
 
@@ -1027,26 +1041,16 @@ static ALCbackend* ALCdsoundBackendFactory_createBackend(ALCdsoundBackendFactory
     if(type == ALCbackend_Playback)
     {
         ALCdsoundPlayback *backend;
-
-        backend = ALCdsoundPlayback_New(sizeof(*backend));
+        NEW_OBJ(backend, ALCdsoundPlayback)(device);
         if(!backend) return NULL;
-        memset(backend, 0, sizeof(*backend));
-
-        ALCdsoundPlayback_Construct(backend, device);
-
         return STATIC_CAST(ALCbackend, backend);
     }
 
     if(type == ALCbackend_Capture)
     {
         ALCdsoundCapture *backend;
-
-        backend = ALCdsoundCapture_New(sizeof(*backend));
+        NEW_OBJ(backend, ALCdsoundCapture)(device);
         if(!backend) return NULL;
-        memset(backend, 0, sizeof(*backend));
-
-        ALCdsoundCapture_Construct(backend, device);
-
         return STATIC_CAST(ALCbackend, backend);
     }
 

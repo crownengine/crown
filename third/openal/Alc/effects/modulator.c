@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -42,7 +42,7 @@ typedef struct ALmodulatorState {
     ALuint index;
     ALuint step;
 
-    ALfloat Gain[MaxChannels];
+    ALfloat Gain[MAX_OUTPUT_CHANNELS];
 
     ALfilterState Filter;
 } ALmodulatorState;
@@ -53,7 +53,7 @@ typedef struct ALmodulatorState {
 
 static inline ALfloat Sin(ALuint index)
 {
-    return sinf(index*(F_2PI/WAVEFORM_FRACONE) - F_PI)*0.5f + 0.5f;
+    return sinf(index*(F_TAU/WAVEFORM_FRACONE) - F_PI)*0.5f + 0.5f;
 }
 
 static inline ALfloat Saw(ALuint index)
@@ -69,7 +69,7 @@ static inline ALfloat Square(ALuint index)
 #define DECL_TEMPLATE(func)                                                   \
 static void Process##func(ALmodulatorState *state, ALuint SamplesToDo,        \
   const ALfloat *restrict SamplesIn,                                          \
-  ALfloat (*restrict SamplesOut)[BUFFERSIZE])                                 \
+  ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels)             \
 {                                                                             \
     const ALuint step = state->step;                                          \
     ALuint index = state->index;                                              \
@@ -77,8 +77,8 @@ static void Process##func(ALmodulatorState *state, ALuint SamplesToDo,        \
                                                                               \
     for(base = 0;base < SamplesToDo;)                                         \
     {                                                                         \
-        ALfloat temps[64];                                                    \
-        ALuint td = minu(SamplesToDo-base, 64);                               \
+        ALfloat temps[256];                                                   \
+        ALuint td = minu(256, SamplesToDo-base);                              \
         ALuint i, k;                                                          \
                                                                               \
         for(i = 0;i < td;i++)                                                 \
@@ -92,10 +92,10 @@ static void Process##func(ALmodulatorState *state, ALuint SamplesToDo,        \
             temps[i] = samp * func(index);                                    \
         }                                                                     \
                                                                               \
-        for(k = 0;k < MaxChannels;k++)                                        \
+        for(k = 0;k < NumChannels;k++)                                        \
         {                                                                     \
             ALfloat gain = state->Gain[k];                                    \
-            if(!(gain > GAIN_SILENCE_THRESHOLD))                              \
+            if(!(fabsf(gain) > GAIN_SILENCE_THRESHOLD))                       \
                 continue;                                                     \
                                                                               \
             for(i = 0;i < td;i++)                                             \
@@ -125,7 +125,7 @@ static ALboolean ALmodulatorState_deviceUpdate(ALmodulatorState *UNUSED(state), 
 
 static ALvoid ALmodulatorState_update(ALmodulatorState *state, ALCdevice *Device, const ALeffectslot *Slot)
 {
-    ALfloat gain, cw, a;
+    ALfloat cw, a;
 
     if(Slot->EffectProps.Modulator.Waveform == AL_RING_MODULATOR_SINUSOID)
         state->Waveform = SINUSOID;
@@ -139,7 +139,7 @@ static ALvoid ALmodulatorState_update(ALmodulatorState *state, ALCdevice *Device
     if(state->step == 0) state->step = 1;
 
     /* Custom filter coeffs, which match the old version instead of a low-shelf. */
-    cw = cosf(F_2PI * Slot->EffectProps.Modulator.HighPassCutoff / Device->Frequency);
+    cw = cosf(F_TAU * Slot->EffectProps.Modulator.HighPassCutoff / Device->Frequency);
     a = (2.0f-cw) - sqrtf(powf(2.0f-cw, 2.0f) - 1.0f);
 
     state->Filter.b[0] = a;
@@ -149,24 +149,23 @@ static ALvoid ALmodulatorState_update(ALmodulatorState *state, ALCdevice *Device
     state->Filter.a[1] = -a;
     state->Filter.a[2] = 0.0f;
 
-    gain = sqrtf(1.0f/Device->NumChan) * Slot->Gain;
-    SetGains(Device, gain, state->Gain);
+    ComputeAmbientGains(Device, Slot->Gain, state->Gain);
 }
 
-static ALvoid ALmodulatorState_process(ALmodulatorState *state, ALuint SamplesToDo, const ALfloat *restrict SamplesIn, ALfloat (*restrict SamplesOut)[BUFFERSIZE])
+static ALvoid ALmodulatorState_process(ALmodulatorState *state, ALuint SamplesToDo, const ALfloat *restrict SamplesIn, ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels)
 {
     switch(state->Waveform)
     {
         case SINUSOID:
-            ProcessSin(state, SamplesToDo, SamplesIn, SamplesOut);
+            ProcessSin(state, SamplesToDo, SamplesIn, SamplesOut, NumChannels);
             break;
 
         case SAWTOOTH:
-            ProcessSaw(state, SamplesToDo, SamplesIn, SamplesOut);
+            ProcessSaw(state, SamplesToDo, SamplesIn, SamplesOut, NumChannels);
             break;
 
         case SQUARE:
-            ProcessSquare(state, SamplesToDo, SamplesIn, SamplesOut);
+            ProcessSquare(state, SamplesToDo, SamplesIn, SamplesOut, NumChannels);
             break;
     }
 }

@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -733,11 +733,11 @@ int altimespec_get(struct timespec *ts, int base)
 #endif
 
 
-void al_nssleep(time_t sec, long nsec)
+void al_nssleep(unsigned long nsec)
 {
     struct timespec ts, rem;
-    ts.tv_sec = sec;
-    ts.tv_nsec = nsec;
+    ts.tv_sec = nsec / 1000000000ul;
+    ts.tv_nsec = nsec % 1000000000ul;
 
     while(althrd_sleep(&ts, &rem) == -1)
         ts = rem;

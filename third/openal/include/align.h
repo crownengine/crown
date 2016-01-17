@@ -1,16 +1,16 @@
 #ifndef AL_ALIGN_H
 #define AL_ALIGN_H
 
-#ifdef HAVE_STDALIGN_H
+#if defined(HAVE_STDALIGN_H) && defined(HAVE_C11_ALIGNAS)
 #include <stdalign.h>
 #endif
 
 #ifndef alignas
-#ifdef HAVE_C11_ALIGNAS
-#define alignas _Alignas
-#elif defined(IN_IDE_PARSER)
+#if defined(IN_IDE_PARSER)
 /* KDevelop has problems with our align macro, so just use nothing for parsing. */
 #define alignas(x)
+#elif defined(HAVE_C11_ALIGNAS)
+#define alignas _Alignas
 #else
 /* NOTE: Our custom ALIGN macro can't take a type name like alignas can. For
  * maximum compatibility, only provide constant integer values to alignas. */

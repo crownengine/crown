@@ -7,21 +7,21 @@
 
 /* "Base" vector type, designed to alias with the actual vector types. */
 typedef struct vector__s {
-    ALsizei Capacity;
-    ALsizei Size;
+    size_t Capacity;
+    size_t Size;
 } *vector_;
 
 #define TYPEDEF_VECTOR(T, N) typedef struct {                                 \
-    ALsizei Capacity;                                                         \
-    ALsizei Size;                                                             \
+    size_t Capacity;                                                          \
+    size_t Size;                                                              \
     T Data[];                                                                 \
 } _##N;                                                                       \
 typedef _##N* N;                                                              \
 typedef const _##N* const_##N;
 
 #define VECTOR(T) struct {                                                    \
-    ALsizei Capacity;                                                         \
-    ALsizei Size;                                                             \
+    size_t Capacity;                                                          \
+    size_t Size;                                                              \
     T Data[];                                                                 \
 }*
 
@@ -30,10 +30,10 @@ typedef const _##N* const_##N;
 #define VECTOR_DEINIT(_x)     do { free((_x)); (_x) = NULL; } while(0)
 
 /* Helper to increase a vector's reserve. Do not call directly. */
-ALboolean vector_reserve(char *ptr, size_t base_size, size_t obj_size, ALsizei obj_count, ALboolean exact);
+ALboolean vector_reserve(char *ptr, size_t base_size, size_t obj_size, size_t obj_count, ALboolean exact);
 #define VECTOR_RESERVE(_x, _c) (vector_reserve((char*)&(_x), sizeof(*(_x)), sizeof((_x)->Data[0]), (_c), AL_TRUE))
 
-ALboolean vector_resize(char *ptr, size_t base_size, size_t obj_size, ALsizei obj_count);
+ALboolean vector_resize(char *ptr, size_t base_size, size_t obj_size, size_t obj_count);
 #define VECTOR_RESIZE(_x, _c) (vector_resize((char*)&(_x), sizeof(*(_x)), sizeof((_x)->Data[0]), (_c)))
 
 #define VECTOR_CAPACITY(_x) ((_x) ? (_x)->Capacity : 0)
@@ -73,12 +73,30 @@ ALboolean vector_insert(char *ptr, size_t base_size, size_t obj_size, void *ins_
         _f(_iter);                                                            \
 } while(0)
 
+#define VECTOR_FOR_EACH_PARAMS(_t, _x, _f, ...)  do {                         \
+    _t *_iter = VECTOR_ITER_BEGIN((_x));                                      \
+    _t *_end = VECTOR_ITER_END((_x));                                         \
+    for(;_iter != _end;++_iter)                                               \
+        _f(__VA_ARGS__, _iter);                                               \
+} while(0)
+
 #define VECTOR_FIND_IF(_i, _t, _x, _f)  do {                                  \
     _t *_iter = VECTOR_ITER_BEGIN((_x));                                      \
     _t *_end = VECTOR_ITER_END((_x));                                         \
     for(;_iter != _end;++_iter)                                               \
     {                                                                         \
         if(_f(_iter))                                                         \
+            break;                                                            \
+    }                                                                         \
+    (_i) = _iter;                                                             \
+} while(0)
+
+#define VECTOR_FIND_IF_PARMS(_i, _t, _x, _f, ...)  do {                       \
+    _t *_iter = VECTOR_ITER_BEGIN((_x));                                      \
+    _t *_end = VECTOR_ITER_END((_x));                                         \
+    for(;_iter != _end;++_iter)                                               \
+    {                                                                         \
+        if(_f(__VA_ARGS__, _iter))                                            \
             break;                                                            \
     }                                                                         \
     (_i) = _iter;                                                             \

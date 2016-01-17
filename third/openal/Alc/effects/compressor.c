@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -31,7 +31,7 @@ typedef struct ALcompressorState {
     DERIVE_FROM_TYPE(ALeffectState);
 
     /* Effect gains for each channel */
-    ALfloat Gain[MaxChannels];
+    ALfloat Gain[MAX_OUTPUT_CHANNELS];
 
     /* Effect parameters */
     ALboolean Enabled;
@@ -55,25 +55,22 @@ static ALboolean ALcompressorState_deviceUpdate(ALcompressorState *state, ALCdev
     return AL_TRUE;
 }
 
-static ALvoid ALcompressorState_update(ALcompressorState *state, ALCdevice *Device, const ALeffectslot *Slot)
+static ALvoid ALcompressorState_update(ALcompressorState *state, ALCdevice *device, const ALeffectslot *slot)
 {
-    ALfloat gain;
+    state->Enabled = slot->EffectProps.Compressor.OnOff;
 
-    state->Enabled = Slot->EffectProps.Compressor.OnOff;
-
-    gain = sqrtf(1.0f / Device->NumChan) * Slot->Gain;
-    SetGains(Device, gain, state->Gain);
+    ComputeAmbientGains(device, slot->Gain, state->Gain);
 }
 
-static ALvoid ALcompressorState_process(ALcompressorState *state, ALuint SamplesToDo, const ALfloat *SamplesIn, ALfloat (*SamplesOut)[BUFFERSIZE])
+static ALvoid ALcompressorState_process(ALcompressorState *state, ALuint SamplesToDo, const ALfloat *SamplesIn, ALfloat (*SamplesOut)[BUFFERSIZE], ALuint NumChannels)
 {
     ALuint it, kt;
     ALuint base;
 
     for(base = 0;base < SamplesToDo;)
     {
-        ALfloat temps[64];
-        ALuint td = minu(SamplesToDo-base, 64);
+        ALfloat temps[256];
+        ALuint td = minu(256, SamplesToDo-base);
 
         if(state->Enabled)
         {
@@ -119,10 +116,10 @@ static ALvoid ALcompressorState_process(ALcompressorState *state, ALuint Samples
         }
 
 
-        for(kt = 0;kt < MaxChannels;kt++)
+        for(kt = 0;kt < NumChannels;kt++)
         {
             ALfloat gain = state->Gain[kt];
-            if(!(gain > GAIN_SILENCE_THRESHOLD))
+            if(!(fabsf(gain) > GAIN_SILENCE_THRESHOLD))
                 continue;
 
             for(it = 0;it < td;it++)

@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -31,15 +31,15 @@
 /* Auto-wah is simply a low-pass filter with a cutoff frequency that shifts up
  * or down depending on the input signal, and a resonant peak at the cutoff.
  *
- * Currently, we assume a cutoff frequency range of 500hz (no amplitude) to
- * 3khz (peak gain). Peak gain is assumed to be in normalized scale.
+ * Currently, we assume a cutoff frequency range of 20hz (no amplitude) to
+ * 20khz (peak gain). Peak gain is assumed to be in normalized scale.
  */
 
 typedef struct ALautowahState {
     DERIVE_FROM_TYPE(ALeffectState);
 
     /* Effect gains for each channel */
-    ALfloat Gain[MaxChannels];
+    ALfloat Gain[MAX_OUTPUT_CHANNELS];
 
     /* Effect parameters */
     ALfloat AttackRate;
@@ -66,7 +66,6 @@ static ALboolean ALautowahState_deviceUpdate(ALautowahState *state, ALCdevice *d
 static ALvoid ALautowahState_update(ALautowahState *state, ALCdevice *device, const ALeffectslot *slot)
 {
     ALfloat attackTime, releaseTime;
-    ALfloat gain;
 
     attackTime = slot->EffectProps.Autowah.AttackTime * state->Frequency;
     releaseTime = slot->EffectProps.Autowah.ReleaseTime * state->Frequency;
@@ -76,19 +75,18 @@ static ALvoid ALautowahState_update(ALautowahState *state, ALCdevice *device, co
     state->PeakGain = slot->EffectProps.Autowah.PeakGain;
     state->Resonance = slot->EffectProps.Autowah.Resonance;
 
-    gain = sqrtf(1.0f / device->NumChan) * slot->Gain;
-    SetGains(device, gain, state->Gain);
+    ComputeAmbientGains(device, slot->Gain, state->Gain);
 }
 
-static ALvoid ALautowahState_process(ALautowahState *state, ALuint SamplesToDo, const ALfloat *SamplesIn, ALfloat (*SamplesOut)[BUFFERSIZE])
+static ALvoid ALautowahState_process(ALautowahState *state, ALuint SamplesToDo, const ALfloat *SamplesIn, ALfloat (*SamplesOut)[BUFFERSIZE], ALuint NumChannels)
 {
     ALuint it, kt;
     ALuint base;
 
     for(base = 0;base < SamplesToDo;)
     {
-        ALfloat temps[64];
-        ALuint td = minu(SamplesToDo-base, 64);
+        ALfloat temps[256];
+        ALuint td = minu(256, SamplesToDo-base);
         ALfloat gain = state->GainCtrl;
 
         for(it = 0;it < td;it++)
@@ -114,7 +112,7 @@ static ALvoid ALautowahState_process(ALautowahState *state, ALuint SamplesToDo, 
              * ALfilterType_LowPass. However, instead of passing a bandwidth,
              * we use the resonance property for Q. This also inlines the call.
              */
-            w0 = F_2PI * cutoff / state->Frequency;
+            w0 = F_TAU * cutoff / state->Frequency;
 
             /* FIXME: Resonance controls the resonant peak, or Q. How? Not sure
              * that Q = resonance*0.1. */
@@ -137,10 +135,10 @@ static ALvoid ALautowahState_process(ALautowahState *state, ALuint SamplesToDo, 
         }
         state->GainCtrl = gain;
 
-        for(kt = 0;kt < MaxChannels;kt++)
+        for(kt = 0;kt < NumChannels;kt++)
         {
             ALfloat gain = state->Gain[kt];
-            if(!(gain > GAIN_SILENCE_THRESHOLD))
+            if(!(fabsf(gain) > GAIN_SILENCE_THRESHOLD))
                 continue;
 
             for(it = 0;it < td;it++)

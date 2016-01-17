@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -402,13 +402,27 @@ static void InitEffectParams(ALeffect *effect, ALenum type)
         effect->Props.Reverb.Diffusion = AL_REVERB_DEFAULT_DIFFUSION;
         effect->Props.Reverb.Gain   = AL_REVERB_DEFAULT_GAIN;
         effect->Props.Reverb.GainHF = AL_REVERB_DEFAULT_GAINHF;
+        effect->Props.Reverb.GainLF = 1.0f;
         effect->Props.Reverb.DecayTime    = AL_REVERB_DEFAULT_DECAY_TIME;
         effect->Props.Reverb.DecayHFRatio = AL_REVERB_DEFAULT_DECAY_HFRATIO;
+        effect->Props.Reverb.DecayLFRatio = 1.0f;
         effect->Props.Reverb.ReflectionsGain   = AL_REVERB_DEFAULT_REFLECTIONS_GAIN;
         effect->Props.Reverb.ReflectionsDelay  = AL_REVERB_DEFAULT_REFLECTIONS_DELAY;
+        effect->Props.Reverb.ReflectionsPan[0] = 0.0f;
+        effect->Props.Reverb.ReflectionsPan[1] = 0.0f;
+        effect->Props.Reverb.ReflectionsPan[2] = 0.0f;
         effect->Props.Reverb.LateReverbGain   = AL_REVERB_DEFAULT_LATE_REVERB_GAIN;
         effect->Props.Reverb.LateReverbDelay  = AL_REVERB_DEFAULT_LATE_REVERB_DELAY;
+        effect->Props.Reverb.LateReverbPan[0] = 0.0f;
+        effect->Props.Reverb.LateReverbPan[1] = 0.0f;
+        effect->Props.Reverb.LateReverbPan[2] = 0.0f;
+        effect->Props.Reverb.EchoTime  = 0.25f;
+        effect->Props.Reverb.EchoDepth = 0.0f;
+        effect->Props.Reverb.ModulationTime  = 0.25f;
+        effect->Props.Reverb.ModulationDepth = 0.0f;
         effect->Props.Reverb.AirAbsorptionGainHF = AL_REVERB_DEFAULT_AIR_ABSORPTION_GAINHF;
+        effect->Props.Reverb.HFReference = 5000.0f;
+        effect->Props.Reverb.LFReference = 250.0f;
         effect->Props.Reverb.RoomRolloffFactor = AL_REVERB_DEFAULT_ROOM_ROLLOFF_FACTOR;
         effect->Props.Reverb.DecayHFLimit = AL_REVERB_DEFAULT_DECAY_HFLIMIT;
         SET_VTABLE1(ALreverb, effect);

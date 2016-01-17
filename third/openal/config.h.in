@@ -9,7 +9,7 @@
 /* KDevelop's parser doesn't recognize the C99-standard restrict keyword, but
  * recent versions (at least 4.5.1) do recognize GCC's __restrict. */
 #define restrict __restrict
-#endif 
+#endif
 
 /* Define any available alignment declaration */
 #define ALIGN(x) ${ALIGN_DECL}
@@ -26,13 +26,11 @@
 /* Define if we have SSE CPU extensions */
 #cmakedefine HAVE_SSE
 #cmakedefine HAVE_SSE2
+#cmakedefine HAVE_SSE3
 #cmakedefine HAVE_SSE4_1
 
 /* Define if we have ARM Neon CPU extensions */
 #cmakedefine HAVE_NEON
-
-/* Define if we have FluidSynth support */
-#cmakedefine HAVE_FLUIDSYNTH
 
 /* Define if we have the ALSA backend */
 #cmakedefine HAVE_ALSA
@@ -64,6 +62,9 @@
 /* Define if we have the PulseAudio backend */
 #cmakedefine HAVE_PULSEAUDIO
 
+/* Define if we have the JACK backend */
+#cmakedefine HAVE_JACK
+
 /* Define if we have the CoreAudio backend */
 #cmakedefine HAVE_COREAUDIO
 
@@ -78,6 +79,9 @@
 
 /* Define if we have the lrintf function */
 #cmakedefine HAVE_LRINTF
+
+/* Define if we have the modff function */
+#cmakedefine HAVE_MODFF
 
 /* Define if we have the strtof function */
 #cmakedefine HAVE_STRTOF
@@ -136,8 +140,8 @@
 /* Define if we have malloc.h */
 #cmakedefine HAVE_MALLOC_H
 
-/* Define if we have ftw.h */
-#cmakedefine HAVE_FTW_H
+/* Define if we have dirent.h */
+#cmakedefine HAVE_DIRENT_H
 
 /* Define if we have io.h */
 #cmakedefine HAVE_IO_H
@@ -180,12 +184,6 @@
 
 /* Define if we have __control87_2() */
 #cmakedefine HAVE___CONTROL87_2
-
-/* Define if we have ftw() */
-#cmakedefine HAVE_FTW
-
-/* Define if we have _wfindfirst() */
-#cmakedefine HAVE__WFINDFIRST
 
 /* Define if we have pthread_setschedparam() */
 #cmakedefine HAVE_PTHREAD_SETSCHEDPARAM

@@ -13,7 +13,7 @@ endif
 GENIE=third/bx/tools/bin/$(OS)/genie
 
 android-build:
-	$(GENIE) --file=genie/genie.lua --with-luajit --with-bullet --compiler=android-arm gmake
+	$(GENIE) --file=genie/genie.lua --with-luajit --with-openal --with-bullet --compiler=android-arm gmake
 android-arm-debug: android-build
 	make -R -C build/projects/android config=debug
 android-arm-development: android-build
