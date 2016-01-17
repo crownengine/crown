@@ -1707,9 +1707,9 @@ static int render_world_create_sprite(lua_State* L)
 	UnitId unit = stack.get_unit(2);
 
 	SpriteRendererDesc desc;
-	StringId64 sprite_resource = stack.get_resource_id(3);
-	StringId64 material_resource = stack.get_resource_id(4);
-	bool visible = stack.get_bool(5);
+	desc.sprite_resource = stack.get_resource_id(3);
+	desc.material_resource = stack.get_resource_id(4);
+	desc.visible = stack.get_bool(5);
 
 	stack.push_sprite_instance(rw->create_sprite(unit, desc, MATRIX4X4_IDENTITY));
 	return 1;
