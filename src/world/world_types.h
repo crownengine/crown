@@ -289,7 +289,7 @@ struct JointInstance
 struct MeshRendererDesc
 {
 	StringId64 mesh_resource;     ///< Name of .mesh resource.
-	StringId32 mesh_name;         ///< Name of geometry inside .mesh resource.
+	StringId32 geometry_name;     ///< Name of geometry inside .mesh resource.
 	StringId64 material_resource; ///< Name of .material resource.
 	bool visible;                 ///< Whether mesh is visible.
 	char _pad[3];
