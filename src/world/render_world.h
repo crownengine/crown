@@ -116,9 +116,7 @@ public:
 	bool is_valid(SpriteInstance i) { return i.i != UINT32_MAX; }
 	bool is_valid(LightInstance i) { return i.i != UINT32_MAX; }
 
-public:
-
-	enum { MARKER = 0xc82277de };
+	static const uint32_t MARKER = 0xc82277de;
 
 private:
 

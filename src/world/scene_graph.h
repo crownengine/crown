@@ -83,9 +83,7 @@ struct SceneGraph
 
 	void transform(const Matrix4x4& parent, TransformInstance i);
 
-public:
-
-	enum { MARKER = 0x63a44dbf };
+	static const uint32_t MARKER = 0x63a44dbf;
 
 private:
 

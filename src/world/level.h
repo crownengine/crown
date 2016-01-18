@@ -25,9 +25,7 @@ public:
 
 	void load(const Vector3& pos, const Quaternion& rot);
 
-public:
-
-	enum { MARKER = 0x1f2b43fe };
+	static const uint32_t MARKER = 0x1f2b43fe;
 
 private:
 

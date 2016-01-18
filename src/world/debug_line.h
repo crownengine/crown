@@ -50,10 +50,7 @@ struct DebugLine
 
 	/// Default number of segments.
 	static const uint32_t NUM_SEGMENTS = 36;
-
-public:
-
-	enum { MARKER = 0xd7c17715 };
+	static const uint32_t MARKER = 0xd7c17715;
 
 private:
 

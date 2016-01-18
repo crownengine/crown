@@ -163,9 +163,7 @@ public:
 	/// Returns the sound sub-world.
 	SoundWorld* sound_world();
 
-public:
-
-	enum { MARKER = 0xfb6ce2d3 };
+	static const uint32_t MARKER = 0xfb6ce2d3;
 
 private:
 
