@@ -3,16 +3,16 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "scene_graph.h"
-#include "quaternion.h"
-#include "vector3.h"
-#include "matrix3x3.h"
-#include "matrix4x4.h"
 #include "allocator.h"
 #include "array.h"
 #include "hash.h"
-#include <string.h> // memcpy
+#include "matrix3x3.h"
+#include "matrix4x4.h"
+#include "quaternion.h"
+#include "scene_graph.h"
+#include "vector3.h"
 #include <stdint.h> // UINT_MAX
+#include <string.h> // memcpy
 
 namespace crown
 {

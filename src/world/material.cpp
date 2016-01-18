@@ -3,16 +3,17 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "device.h"
 #include "material.h"
+#include "material_manager.h"
 #include "material_resource.h"
 #include "memory.h"
-#include "device.h"
 #include "resource_manager.h"
-#include "texture_resource.h"
-#include "material_manager.h"
 #include "shader.h"
-#include <string.h> // memcpy
+#include "shader_manager.h"
+#include "texture_resource.h"
 #include <bgfx/bgfx.h>
+#include <string.h> // memcpy
 
 namespace crown
 {

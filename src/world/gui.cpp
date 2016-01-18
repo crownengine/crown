@@ -6,11 +6,11 @@
 #include "color4.h"
 #include "font_resource.h"
 #include "gui.h"
-#include "material_resource.h"
 #include "material_manager.h"
+#include "material_resource.h"
+#include "matrix4x4.h"
 #include "vector2.h"
 #include "vector3.h"
-#include "matrix4x4.h"
 #include <bgfx/bgfx.h>
 
 namespace crown

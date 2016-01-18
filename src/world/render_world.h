@@ -8,9 +8,8 @@
 #include "container_types.h"
 #include "math_types.h"
 #include "resource_types.h"
-#include "graphics_types.h"
-#include "world_types.h"
 #include "string_id.h"
+#include "world_types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown

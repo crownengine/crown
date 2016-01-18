@@ -3,18 +3,17 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "array.h"
+#include "compile_options.h"
+#include "map.h"
+#include "math_utils.h"
+#include "physics_resource.h"
+#include "sjson.h"
+#include "sort_map.h"
+#include "temp_allocator.h"
 #include "unit_compiler.h"
 #include "unit_resource.h"
-#include "array.h"
-#include "sort_map.h"
-#include "compile_options.h"
-#include "math_utils.h"
 #include "world_types.h"
-#include "graphics_types.h"
-#include "physics_resource.h"
-#include "temp_allocator.h"
-#include "sjson.h"
-#include "map.h"
 
 namespace crown
 {

@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "math_types.h"
 #include "color4.h"
-#include "graphics_types.h"
 #include "material.h"
+#include "math_types.h"
+#include "world_types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown

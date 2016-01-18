@@ -8,6 +8,7 @@
 #include "device.h"
 #include "math_utils.h"
 #include "matrix4x4.h"
+#include "shader_manager.h"
 #include "vector3.h"
 #include <string.h> // memcpy
 

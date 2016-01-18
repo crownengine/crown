@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "graphics_types.h"
 #include "math_types.h"
 #include "resource_types.h"
+#include "world_types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown

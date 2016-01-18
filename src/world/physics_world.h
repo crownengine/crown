@@ -6,9 +6,7 @@
 #pragma once
 
 #include "event_stream.h"
-#include "graphics_types.h"
 #include "math_types.h"
-#include "physics_types.h"
 #include "resource_types.h"
 #include "world_types.h"
 

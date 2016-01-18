@@ -5,27 +5,24 @@
 
 #pragma once
 
-#include "types.h"
-#include "config.h"
-#include "linear_allocator.h"
-#include "world_types.h"
-#include "resource_types.h"
-#include "lua_types.h"
-#include "filesystem_types.h"
-#include "container_types.h"
-#include "input_types.h"
-#include "device_options.h"
-#include "os_event_queue.h"
-#include "string_id.h"
 #include "allocator.h"
+#include "config.h"
+#include "container_types.h"
+#include "device_options.h"
+#include "filesystem_types.h"
+#include "input_types.h"
+#include "linear_allocator.h"
 #include "log.h"
+#include "lua_types.h"
+#include "os_event_queue.h"
 #include "proxy_allocator.h"
+#include "resource_types.h"
+#include "string_id.h"
 #include "string_utils.h"
-#include "shader_manager.h"
-#include "material_manager.h"
-#include "unit_manager.h"
-#include <bx/allocator.h>
+#include "types.h"
+#include "world_types.h"
 #include <bgfx/bgfx.h>
+#include <bx/allocator.h>
 
 namespace crown
 {

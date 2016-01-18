@@ -5,9 +5,6 @@
 
 #pragma once
 
-#include "audio_types.h"
-#include "graphics_types.h"
-#include "physics_types.h"
 #include "resource_types.h"
 #include "string_id.h"
 #include "types.h"

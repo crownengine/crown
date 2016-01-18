@@ -3,18 +3,18 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "physics_resource.h"
-#include "physics_types.h"
-#include "filesystem.h"
-#include "string_utils.h"
-#include "dynamic_string.h"
-#include "map.h"
-#include "quaternion.h"
-#include "compile_options.h"
 #include "aabb.h"
-#include "sphere.h"
-#include "sjson.h"
+#include "compile_options.h"
+#include "dynamic_string.h"
+#include "filesystem.h"
 #include "map.h"
+#include "map.h"
+#include "physics_resource.h"
+#include "quaternion.h"
+#include "sjson.h"
+#include "sphere.h"
+#include "string_utils.h"
+#include "world_types.h"
 
 namespace crown
 {
