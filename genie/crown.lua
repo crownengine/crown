@@ -199,11 +199,11 @@ function crown_project(_name, _kind, _defines)
 					}
 					linkoptions {
 						"-Wl,--start-group $(addprefix -l," ..
-						"	PhysX3"                   .. config .. "_" .. platform ..
-						"	PhysX3Common"             .. config .. "_" .. platform ..
-						"	PhysX3Cooking"            .. config .. "_" .. platform ..
-						"	PhysX3CharacterKinematic" .. config .. "_" .. platform ..
-						"	PhysX3Extensions"         .. config ..
+						" PhysX3"                   .. config .. "_" .. platform ..
+						" PhysX3Common"             .. config .. "_" .. platform ..
+						" PhysX3Cooking"            .. config .. "_" .. platform ..
+						" PhysX3CharacterKinematic" .. config .. "_" .. platform ..
+						" PhysX3Extensions"         .. config ..
 						") -Wl,--end-group"
 					}
 				end
@@ -211,20 +211,20 @@ function crown_project(_name, _kind, _defines)
 				if os == "android" then
 					linkoptions {
 						"-Wl,--start-group $(addprefix -l," ..
-						"	LowLevelCloth"            .. config ..
-						"	PhysX3 "                  .. config ..
-						"	PhysX3Common"             .. config ..
-						"	PxTask"                   .. config ..
-						"	LowLevel"                 .. config ..
-						"	PhysX3CharacterKinematic" .. config ..
-						"	PhysX3Cooking"            .. config ..
-						"	PhysX3Extensions"         .. config ..
-						"	PhysX3Vehicle"            .. config ..
-						"	PhysXProfileSDK"          .. config ..
-						"	PhysXVisualDebuggerSDK"   .. config ..
-						"	PvdRuntime"               .. config ..
-						"	SceneQuery"               .. config ..
-						"	SimulationController"     .. config ..
+						" LowLevelCloth"            .. config ..
+						" PhysX3 "                  .. config ..
+						" PhysX3Common"             .. config ..
+						" PxTask"                   .. config ..
+						" LowLevel"                 .. config ..
+						" PhysX3CharacterKinematic" .. config ..
+						" PhysX3Cooking"            .. config ..
+						" PhysX3Extensions"         .. config ..
+						" PhysX3Vehicle"            .. config ..
+						" PhysXProfileSDK"          .. config ..
+						" PhysXVisualDebuggerSDK"   .. config ..
+						" PvdRuntime"               .. config ..
+						" SceneQuery"               .. config ..
+						" SimulationController"     .. config ..
 						") -Wl,--end-group"
 					}
 				end
