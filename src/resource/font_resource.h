@@ -41,9 +41,6 @@ namespace font_resource
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 
-	uint32_t num_glyphs(const FontResource* fr);
-	uint32_t texture_size(const FontResource* fr);
-	uint32_t font_size(const FontResource* fr);
 	const FontGlyphData* get_glyph(const FontResource* fr, uint32_t i);
 } // namespace font_resource
 } // namespace crown

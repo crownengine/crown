@@ -33,8 +33,7 @@ struct SoundResource
 	uint32_t channels;
 	uint16_t block_size;
 	uint16_t bits_ps;
-	uint8_t sound_type;
-	char _pad[3];
+	uint32_t sound_type;
 };
 
 namespace sound_resource
@@ -43,13 +42,6 @@ namespace sound_resource
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 
-	uint32_t size(const SoundResource* sr);
-	uint32_t sample_rate(const SoundResource* sr);
-	uint32_t avg_bytes_ps(const SoundResource* sr);
-	uint32_t channels(const SoundResource* sr);
-	uint16_t block_size(const SoundResource* sr);
-	uint16_t bits_ps(const SoundResource* sr);
-	uint8_t sound_type(const SoundResource* sr);
 	const char* data(const SoundResource* sr);
 } // namespace sound_resource
 } // namespace crown

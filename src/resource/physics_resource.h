@@ -83,17 +83,9 @@ namespace physics_config_resource
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 
-	uint32_t num_materials(const PhysicsConfigResource* pcr);
 	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name);
-	const PhysicsConfigMaterial* material_by_index(const PhysicsConfigResource* pcr, uint32_t i);
-	uint32_t num_shapes(const PhysicsConfigResource* pcr);
 	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name);
-	const PhysicsConfigShape* shape_by_index(const PhysicsConfigResource* pcr, uint32_t i);
-	uint32_t num_actors(const PhysicsConfigResource* pcr);
 	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name);
-	const PhysicsConfigActor* actor_by_index(const PhysicsConfigResource* pcr, uint32_t i);
-	uint32_t num_filters(const PhysicsConfigResource* pcr);
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name);
-	const PhysicsCollisionFilter* filter_by_index(const PhysicsConfigResource* pcr, uint32_t i);
 } // namespace physics_resource
 } // namespace crown

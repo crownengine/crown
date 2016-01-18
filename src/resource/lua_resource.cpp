@@ -81,14 +81,9 @@ namespace lua_resource
 		allocator.deallocate(resource);
 	}
 
-	uint32_t size(const LuaResource* lr)
-	{
-		return lr->size;
-	}
-
 	const char* program(const LuaResource* lr)
 	{
-		return (char*)lr + sizeof(LuaResource);
+		return (char*)&lr[1];
 	}
 } // namespace lua_resource
 } // namespace crown

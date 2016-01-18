@@ -25,9 +25,6 @@ namespace lua_resource
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 
-	/// Returns the size in bytes of the lua program.
-	uint32_t size(const LuaResource* lr);
-
 	/// Returns the lua program.
 	const char* program(const LuaResource* lr);
 } // namespace lua_resource

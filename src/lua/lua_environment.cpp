@@ -54,7 +54,7 @@ static int require(lua_State* L)
 	using namespace lua_resource;
 	LuaStack stack(L);
 	const LuaResource* lr = (LuaResource*)device()->resource_manager()->get(SCRIPT_TYPE, stack.get_resource_id(1));
-	luaL_loadbuffer(L, program(lr), size(lr), "");
+	luaL_loadbuffer(L, program(lr), lr->size, "");
 	return 1;
 }
 
@@ -116,7 +116,7 @@ void LuaEnvironment::execute(const LuaResource* lr)
 {
 	using namespace lua_resource;
 	lua_pushcfunction(L, error_handler);
-	luaL_loadbuffer(L, program(lr), size(lr), "<unknown>");
+	luaL_loadbuffer(L, program(lr), lr->size, "<unknown>");
 	lua_pcall(L, 0, 0, -2);
 	lua_pop(L, 1);
 }

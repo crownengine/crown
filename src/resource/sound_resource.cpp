@@ -44,18 +44,18 @@ namespace sound_resource
 
 		Buffer sound = opts.read(name.c_str());
 		const WAVHeader* wav = (const WAVHeader*)array::begin(sound);
-		const char* wavdata = (const char*) (wav + 1);
+		const char* wavdata = (const char*)&wav[1];
 
 		// Write
 		SoundResource sr;
-		sr.version = SOUND_VERSION;
-		sr.size = wav->data_size;
-		sr.sample_rate = wav->fmt_sample_rate;
+		sr.version      = SOUND_VERSION;
+		sr.size         = wav->data_size;
+		sr.sample_rate  = wav->fmt_sample_rate;
 		sr.avg_bytes_ps = wav->fmt_avarage;
-		sr.channels = wav->fmt_channels;
-		sr.block_size = wav->fmt_block_align;
-		sr.bits_ps = wav->fmt_bits_ps;
-		sr.sound_type = SoundType::WAV;
+		sr.channels     = wav->fmt_channels;
+		sr.block_size   = wav->fmt_block_align;
+		sr.bits_ps      = wav->fmt_bits_ps;
+		sr.sound_type   = SoundType::WAV;
 
 		opts.write(sr.version);
 		opts.write(sr.size);
@@ -65,9 +65,6 @@ namespace sound_resource
 		opts.write(sr.block_size);
 		opts.write(sr.bits_ps);
 		opts.write(sr.sound_type);
-		opts.write(sr._pad[0]);
-		opts.write(sr._pad[1]);
-		opts.write(sr._pad[2]);
 
 		opts.write(wavdata, wav->data_size);
 	}
@@ -86,44 +83,9 @@ namespace sound_resource
 		allocator.deallocate(resource);
 	}
 
-	uint32_t size(const SoundResource* sr)
-	{
-		return sr->size;
-	}
-
-	uint32_t sample_rate(const SoundResource* sr)
-	{
-		return sr->sample_rate;
-	}
-
-	uint32_t avg_bytes_ps(const SoundResource* sr)
-	{
-		return sr->avg_bytes_ps;
-	}
-
-	uint32_t channels(const SoundResource* sr)
-	{
-		return sr->channels;
-	}
-
-	uint16_t block_size(const SoundResource* sr)
-	{
-		return sr->block_size;
-	}
-
-	uint16_t bits_ps(const SoundResource* sr)
-	{
-		return sr->bits_ps;
-	}
-
-	uint8_t sound_type(const SoundResource* sr)
-	{
-		return sr->sound_type;
-	}
-
 	const char* data(const SoundResource* sr)
 	{
-		return (char*)sr + sizeof(SoundResource);
+		return (char*)&sr[1];
 	}
 } // namespace sound_resource
 } // namespace crown

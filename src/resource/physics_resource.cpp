@@ -611,11 +611,6 @@ namespace physics_config_resource
 		allocator.deallocate(resource);
 	}
 
-	uint32_t num_materials(const PhysicsConfigResource* pcr)
-	{
-		return pcr->num_materials;
-	}
-
 	/// Returns the material with the given @a name
 	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
 	{
@@ -628,11 +623,6 @@ namespace physics_config_resource
 
 		CE_FATAL("Material not found");
 		return NULL;
-	}
-
-	uint32_t num_shapes(const PhysicsConfigResource* pcr)
-	{
-		return pcr->num_shapes;
 	}
 
 	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name)
@@ -648,11 +638,6 @@ namespace physics_config_resource
 		return NULL;
 	}
 
-	uint32_t num_actors(const PhysicsConfigResource* pcr)
-	{
-		return pcr->num_actors;
-	}
-
 	/// Returns the actor with the given @a name
 	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
 	{
@@ -665,11 +650,6 @@ namespace physics_config_resource
 
 		CE_FATAL("Actor not found");
 		return NULL;
-	}
-
-	uint32_t num_filters(const PhysicsConfigResource* pcr)
-	{
-		return pcr->num_filters;
 	}
 
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name)
