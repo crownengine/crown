@@ -1651,7 +1651,7 @@ static int render_world_create_mesh(lua_State* L)
 
 	MeshRendererDesc desc;
 	desc.mesh_resource = stack.get_resource_id(3);
-	desc.mesh_name = stack.get_string_id_32(4);
+	desc.geometry_name = stack.get_string_id_32(4);
 	desc.material_resource = stack.get_resource_id(5);
 	desc.visible = stack.get_bool(6);
 

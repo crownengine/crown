@@ -118,7 +118,7 @@ static Buffer compile_mesh_renderer(const char* json, CompileOptions& opts)
 
 	MeshRendererDesc mrd;
 	mrd.mesh_resource     = sjson::parse_resource_id(obj["mesh_resource"]);
-	mrd.mesh_name         = sjson::parse_string_id  (obj["mesh_name"]);
+	mrd.geometry_name     = sjson::parse_string_id  (obj["mesh_name"]);
 	mrd.material_resource = sjson::parse_resource_id(obj["material"]);
 	mrd.visible           = sjson::parse_bool       (obj["visible"]);
 

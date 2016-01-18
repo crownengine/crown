@@ -56,7 +56,7 @@ MeshInstance RenderWorld::create_mesh(UnitId id, const MeshRendererDesc& mrd, co
 		grow_mesh();
 
 	const MeshResource* mr = (const MeshResource*)_resource_manager->get(MESH_TYPE, mrd.mesh_resource);
-	const MeshGeometry* mg = mr->geometry(mrd.mesh_name);
+	const MeshGeometry* mg = mr->geometry(mrd.geometry_name);
 
 	_material_manager->create_material(mrd.material_resource);
 
