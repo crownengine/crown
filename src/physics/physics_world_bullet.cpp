@@ -297,8 +297,8 @@ public:
 			ci = next_collider(ci);
 		}
 
-		const bool is_kinematic = actor_class->flags & PhysicsConfigActor::KINEMATIC;
-		const bool is_dynamic   = actor_class->flags & PhysicsConfigActor::DYNAMIC;
+		const bool is_kinematic = (actor_class->flags & PhysicsConfigActor::KINEMATIC) != 0;
+		const bool is_dynamic   = (actor_class->flags & PhysicsConfigActor::DYNAMIC) != 0;
 		const bool is_static    = !is_kinematic && !is_dynamic;
 
 		const float mass = is_dynamic ? ar->mass : 0.0f;
@@ -491,7 +491,8 @@ public:
 
 	bool is_kinematic(ActorInstance i) const
 	{
-		return _actor[i.i].actor->getCollisionFlags() & btCollisionObject::CF_KINEMATIC_OBJECT;
+		const int flags = _actor[i.i].actor->getCollisionFlags();
+		return flags & btCollisionObject::CF_KINEMATIC_OBJECT != 0;
 	}
 
 	bool is_nonkinematic(ActorInstance i) const
