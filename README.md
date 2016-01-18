@@ -80,9 +80,9 @@ To run a sample on 64-bit linux debug mode:
 
 	$ ./linux-debug-64 --source-dir <full/sample/path> --bundle-dir <full/destination/path> --compile --platform linux --continue
 
-Engine initialization and shutdown.
 ###[00-hello-world](https://github.com/taylor001/crown/tree/master/samples/00-hello-world)
 
+Engine initialization and shutdown.
 
 Contact
 -------
