@@ -10,8 +10,6 @@ function crown_project(_name, _kind, _defines)
 
 		includedirs {
 			CROWN_DIR .. "src",
-			CROWN_DIR .. "src/audio",
-			CROWN_DIR .. "src/compilers",
 			CROWN_DIR .. "src/core",
 			CROWN_DIR .. "src/core/containers",
 			CROWN_DIR .. "src/core/error",
@@ -25,8 +23,6 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "src/input",
 			CROWN_DIR .. "src/lua",
 			CROWN_DIR .. "src/main",
-			CROWN_DIR .. "src/physics",
-			CROWN_DIR .. "src/renderers",
 			CROWN_DIR .. "src/resource",
 			CROWN_DIR .. "src/world",
 			CROWN_DIR .. "third/bx/include",
