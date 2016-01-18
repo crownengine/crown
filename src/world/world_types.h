@@ -12,6 +12,8 @@
 namespace crown
 {
 
+/// @defgroup World World
+
 class Level;
 class MaterialManager;
 class PhysicsWorld;
@@ -29,7 +31,7 @@ typedef uint32_t SoundInstanceId;
 
 /// Enumerates camera projection types.
 ///
-/// @ingroup Graphics
+/// @ingroup World
 struct ProjectionType
 {
 	enum Enum
@@ -43,7 +45,7 @@ struct ProjectionType
 
 /// Enumerates light types.
 ///
-/// @ingroup Graphics
+/// @ingroup World
 struct LightType
 {
 	enum Enum
@@ -56,6 +58,9 @@ struct LightType
 	};
 };
 
+/// Enumerates actor types.
+///
+/// @ingroup World
 struct ActorType
 {
 	enum Enum
@@ -68,6 +73,9 @@ struct ActorType
 	};
 };
 
+/// Enumerates actor flags.
+///
+/// @ingroup World
 struct ActorFlags
 {
 	enum Enum
@@ -81,6 +89,9 @@ struct ActorFlags
 	};
 };
 
+/// Enumerates shape types.
+///
+/// @ingroup World
 struct ShapeType
 {
 	enum Enum
@@ -96,6 +107,9 @@ struct ShapeType
 	};
 };
 
+/// Enumerates joint types.
+///
+/// @ingroup World
 struct JointType
 {
 	enum Enum
@@ -108,6 +122,9 @@ struct JointType
 	};
 };
 
+/// Enumerates collision groups.
+///
+/// @ingroup World
 struct CollisionGroup
 {
 	enum Enum
@@ -147,6 +164,9 @@ struct CollisionGroup
 	};
 };
 
+/// Enumerates raycast modes.
+///
+/// @ingroup World
 struct RaycastMode
 {
 	enum Enum
@@ -183,6 +203,9 @@ struct EventType
 #define UNIT_ID_BITS    8
 #define UNIT_ID_MASK    0x3fc00000
 
+/// Unit id.
+///
+/// @ingroup World
 struct UnitId
 {
 	uint32_t idx;
@@ -260,33 +283,45 @@ struct JointInstance
 	uint32_t i;
 };
 
+/// Mesh renderer description.
+///
+/// @ingroup World
 struct MeshRendererDesc
 {
-	StringId64 mesh_resource;
-	StringId32 mesh_name;
-	StringId64 material_resource; // FIXME
-	bool visible;
+	StringId64 mesh_resource;     ///< Name of .mesh resource.
+	StringId32 mesh_name;         ///< Name of geometry inside .mesh resource.
+	StringId64 material_resource; ///< Name of .material resource.
+	bool visible;                 ///< Whether mesh is visible.
 	char _pad[3];
 };
 
+/// Sprite renderer description.
+///
+/// @ingroup World
 struct SpriteRendererDesc
 {
-	StringId64 sprite_resource;
-	StringId64 material_resource; // FIXME
-	bool visible;
+	StringId64 sprite_resource;   ///< Name of .sprite resource.
+	StringId64 material_resource; ///< Name of .material resource.
+	bool visible;                 ///< Whether sprite is visible.
 	char _pad[3];
 	char _pad1[4];
 };
 
+/// Light description.
+///
+/// @ingroup World
 struct LightDesc
 {
-	uint32_t type;    // LightType::Enum
-	float range;      // In meters
+	uint32_t type;    ///< LightType::Enum
+	float range;      ///< In meters.
 	float intensity;
-	float spot_angle; // In radians
-	Vector3 color;
+	float spot_angle; ///< In radians.
+	Vector3 color;    ///< Color of the light.
 };
 
+/// Transform description.
+///
+/// @ingroup World
 struct TransformDesc
 {
 	Vector3 position;
@@ -294,30 +329,39 @@ struct TransformDesc
 	Vector3 scale;
 };
 
+/// Camera description.
+///
+/// @ingroup World
 struct CameraDesc
 {
-	uint32_t type; // ProjectionType::Enum
-	float fov;
-	float near_range;
-	float far_range;
+	uint32_t type;    ///< ProjectionType::Enum
+	float fov;        ///< Vertical FOV
+	float near_range; ///< Near clipping plane distance
+	float far_range;  ///< Far clipping plane distance
 };
 
+/// Controller description.
+///
+/// @ingroup World
 struct ControllerDesc
 {
-	float height;                // Height of the capsule
-	float radius;                // Radius of the capsule
-	float slope_limit;           // The maximum slope which the character can walk up in radians.
-	float step_offset;           // Maximum height of an obstacle which the character can climb.
-	float contact_offset;        // Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
-	StringId32 collision_filter; // Collision filter from global.physics_config
+	float height;                ///< Height of the capsule
+	float radius;                ///< Radius of the capsule
+	float slope_limit;           ///< The maximum slope which the character can walk up in radians.
+	float step_offset;           ///< Maximum height of an obstacle which the character can climb.
+	float contact_offset;        ///< Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
+	StringId32 collision_filter; ///< Collision filter from global.physics_config
 };
 
+/// Actor resource.
+///
+/// @ingroup World
 struct ActorResource
 {
-	StringId32 actor_class;      // Actor from global.physics
-	float mass;                  // Mass of the actor
-	uint32_t flags;              // ActorFlags
-	StringId32 collision_filter; // Collision filter from global.physics_config
+	StringId32 actor_class;      ///< Name of actor in global.physics resource.
+	float mass;                  ///< Mass of the actor.
+	uint32_t flags;              ///< ActorFlags::Enum
+	StringId32 collision_filter; ///< Name of collision filter in global.physics_config resource.
 };
 
 struct SphereShape
@@ -347,15 +391,15 @@ struct HeightfieldShape
 
 struct ShapeDesc
 {
-	StringId32 shape_class;       // Shape class from global.physics_config
-	uint32_t type;                // ShapeType
-	StringId32 material;          // Material from global.physics_config
-	Matrix4x4 local_tm;           // In actor-space
+	StringId32 shape_class;       ///< Name of shape in global.physics_config resource.
+	uint32_t type;                ///< ShapeType::Enum
+	StringId32 material;          ///< Name of material in global.physics_config resource.
+	Matrix4x4 local_tm;           ///< In actor-space
 	SphereShape sphere;
 	CapsuleShape capsule;
 	BoxShape box;
 	HeightfieldShape heightfield;
-	// dynamic data               // Mesh, Heightfield
+	// dynamic data               ///< Mesh, Heightfield data.
 };
 
 struct HingeJoint
@@ -374,7 +418,7 @@ struct HingeJoint
 
 struct JointDesc
 {
-	uint32_t type;    // JointType::Enum
+	uint32_t type;    ///< JointType::Enum
 	Vector3 anchor_0;
 	Vector3 anchor_1;
 
@@ -388,20 +432,18 @@ struct JointDesc
 struct RaycastHit
 {
 	ActorInstance actor;
-	Vector3 position;    // In world-space
-	Vector3 normal;      // In world-space
+	Vector3 position;    ///< In world-space.
+	Vector3 normal;      ///< In world-space.
 };
 
 struct UnitSpawnedEvent
 {
-	/// The unit spawned
-	UnitId unit;
+	UnitId unit; ///< The unit spawned.
 };
 
 struct UnitDestroyedEvent
 {
-	/// The unit destroyed
-	UnitId unit;
+	UnitId unit; ///< The unit destroyed.
 };
 
 struct LevelLoadedEvent
@@ -412,8 +454,8 @@ struct PhysicsCollisionEvent
 {
 	enum Type { BEGIN_TOUCH, END_TOUCH } type;
 	ActorInstance actors[2];
-	Vector3 where;
-	Vector3 normal;
+	Vector3 where;           ///< In world-space.
+	Vector3 normal;          ///< In world-space.
 };
 
 struct PhysicsTriggerEvent

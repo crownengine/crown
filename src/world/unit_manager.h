@@ -11,7 +11,11 @@
 namespace crown
 {
 
-// http://bitsquid.blogspot.it/2014/08/building-data-oriented-entity-system.html
+// Reference: http://bitsquid.blogspot.it/2014/08/building-data-oriented-entity-system.html
+
+/// Manages units.
+///
+/// @ingroup World
 class UnitManager
 {
 	Array<uint8_t> _generation;

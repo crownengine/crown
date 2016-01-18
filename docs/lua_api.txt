@@ -1025,7 +1025,7 @@ Profiler
 		Ends the last profile scope.
 
 	**record** (name, value)
-		Rectords *value* with the given *name*. Value can be either number or Vector3.
+		Records *value* with the given *name*. Value can be either number or Vector3.
 
 Window
 ======

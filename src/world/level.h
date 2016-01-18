@@ -13,6 +13,9 @@
 namespace crown
 {
 
+/// Game level.
+///
+/// @ingroup World
 class Level
 {
 public:

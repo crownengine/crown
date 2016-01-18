@@ -18,7 +18,7 @@ class RenderWorld;
 
 /// Manages the rendering of GUI objects.
 ///
-/// @ingroup Graphics
+/// @ingroup World
 struct Gui
 {
 	Gui(uint16_t width, uint16_t height, const char* material);

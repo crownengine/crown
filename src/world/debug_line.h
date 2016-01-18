@@ -16,7 +16,7 @@ namespace crown
 
 /// Draws lines.
 ///
-/// @ingroup Graphics
+/// @ingroup World
 struct DebugLine
 {
 	/// Whether to enable @a depth_test

@@ -7,11 +7,10 @@
 
 namespace crown
 {
-/// @defgroup Audio Audio
 
 /// Global audio-related functions
 ///
-/// @ingroup Audio
+/// @ingroup World
 namespace audio_globals
 {
 	/// Initializes the audio system.

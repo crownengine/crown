@@ -15,7 +15,7 @@ namespace crown
 
 /// Manages physics objects in a World.
 ///
-/// @ingroup Physics
+/// @ingroup World
 class PhysicsWorld
 {
 public:

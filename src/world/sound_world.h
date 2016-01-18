@@ -16,7 +16,7 @@ namespace crown
 
 /// Manages sound objects in a World.
 ///
-/// @ingroup Audio
+/// @ingroup World
 class SoundWorld
 {
 public:

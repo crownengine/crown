@@ -15,11 +15,9 @@
 namespace crown
 {
 
-/// @defgroup Graphics Graphics
-
 /// Manages graphics objects in a World.
 ///
-/// @ingroup Graphics
+/// @ingroup World
 class RenderWorld
 {
 public:

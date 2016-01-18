@@ -7,11 +7,10 @@
 
 namespace crown
 {
-/// @defgroup Physics Physics
 
 /// Global physics-related functions
 ///
-/// @ingroup Physics
+/// @ingroup World
 namespace physics_globals
 {
 	/// Initializes the physics system.
