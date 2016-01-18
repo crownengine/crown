@@ -34,7 +34,9 @@ function toolchain(build_dir, lib_dir)
 
 		if "linux-gcc" == _OPTIONS["compiler"] then
 
-			if not os.is("linux") then print("Action not valid in current OS.") end
+			if not os.is("linux") then
+				print("Action not valid in current OS.")
+			end
 
 			location(build_dir .. "projects/" .. "linux")
 		end
@@ -58,10 +60,8 @@ function toolchain(build_dir, lib_dir)
 
 	if _ACTION == "vs2013" then
 
-		if not os.is("windows") then print("Action not valid in current OS.") end
-
-		if not os.getenv("DXSDK_DIR") then
-			print("Set DXSDK_DIR environment variable.")
+		if not os.is("windows") then
+			print("Action not valid in current OS.")
 		end
 
 		location(build_dir .. "projects/" .. _ACTION)
@@ -247,16 +247,10 @@ function toolchain(build_dir, lib_dir)
 	configuration { "x32", "vs*" }
 		targetdir (build_dir .. "win32" .. "/bin")
 		objdir (build_dir .. "win32" .. "/obj")
-		libdirs {
-			"$(DXSDK_DIR)/Lib/x86",
-		}
 
 	configuration { "x64", "vs*" }
 		targetdir (build_dir .. "win64" .. "/bin")
 		objdir (build_dir .. "win64" .. "/obj")
-		libdirs {
-			"$(DXSDK_DIR)/Lib/x64",
-		}
 
 	configuration {} -- reset configuration
 end

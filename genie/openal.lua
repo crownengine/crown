@@ -11,7 +11,6 @@ project "openal"
 	local AL_DIR = (CROWN_DIR .. "third/openal/")
 
 	defines {
-		"'ALSOFT_VERSION=\"1.17.1\"'",
 		"AL_ALEXT_PROTOTYPES",
 		"AL_BUILD_LIBRARY",
 		"_LARGEFILE_SOURCE",
@@ -25,7 +24,6 @@ project "openal"
 		"HAVE_FLOAT_H",
 		"HAVE_FENV_H",
 		"HAVE_MALLOC_H",
-		"HAVE_DIRENT_H",
 	}
 
 	configuration { "android-* or linux-*" }
@@ -43,6 +41,7 @@ project "openal"
 			"HAVE_PTHREAD_SETSCHEDPARAM",
 			"HAVE_PTHREAD_SETNAME_NP",
 			"HAVE_GCC_GET_CPUID",
+			"HAVE_DIRENT_H",
 		}
 		buildoptions {
 			"-std=c11",
@@ -95,6 +94,7 @@ project "openal"
 			"_WINDOWS",
 			"_WIN32_WINNT=0x0502",
 			"inline=__inline",
+			"restrict=",
 			"_CRT_NONSTDC_NO_DEPRECATE",
 			"strcasecmp=_stricmp",
 			"strncasecmp=_strnicmp",
