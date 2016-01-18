@@ -11,24 +11,33 @@
 	#define CROWN_DEBUG 0
 #endif // CROWN_DEBUG
 
-#if !defined(CROWN_PHYSICS_PHYSX)\
-	&& !defined(CROWN_PHYSICS_BULLET)
+#if !defined(CROWN_PHYSICS_BULLET) \
+	&& !defined(CROWN_PHYSICS_PHYSX) \
+	&& !defined(CROWN_PHYSICS_NULL)
 
 	#ifndef CROWN_PHYSICS_PHYSX
 		#define CROWN_PHYSICS_PHYSX 0
-	#endif
+	#endif // CROWN_PHYSICS_PHYSX
 
 	#ifndef CROWN_PHYSICS_BULLET
 		#define CROWN_PHYSICS_BULLET 1
-	#endif
+	#endif // CROWN_PHYSICS_BULLET
+
+	#ifndef CROWN_PHYSICS_NULL
+		#define CROWN_PHYSICS_NULL 0
+	#endif // CROWN_PHYSICS_NULL
 #else
 	#ifndef CROWN_PHYSICS_PHYSX
 		#define CROWN_PHYSICS_PHYSX 0
-	#endif
+	#endif // CROWN_PHYSICS_PHYSX
 
 	#ifndef CROWN_PHYSICS_BULLET
 		#define CROWN_PHYSICS_BULLET 0
-	#endif
+	#endif // CROWN_PHYSICS_BULLET
+
+	#ifndef CROWN_PHYSICS_NULL
+		#define CROWN_PHYSICS_NULL 0
+	#endif // CROWN_PHYSICS_NULL
 #endif
 
 #if !defined(CROWN_SOUND_OPENAL) \
