@@ -56,8 +56,6 @@ GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)
 GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)  
 GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
 
-	$ setx DXSDK_DIR <path/to/dxsdk>
-	
 ### Building
 
 	$ make <configuration>
@@ -82,9 +80,9 @@ To run a sample on 64-bit linux debug mode:
 
 	$ ./linux-debug-64 --source-dir <full/sample/path> --bundle-dir <full/destination/path> --compile --platform linux --continue
 
+Engine initialization and shutdown.
 ###[00-hello-world](https://github.com/taylor001/crown/tree/master/samples/00-hello-world)
 
-Engine initialization and shutdown.
 
 Contact
 -------
