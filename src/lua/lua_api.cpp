@@ -1757,12 +1757,17 @@ static int render_world_set_sprite_frame(lua_State* L)
 static int render_world_create_light(lua_State* L)
 {
 	LuaStack stack(L);
+
+	const char* name = stack.get_string(3);
+	const LightType::Enum lt = name_to_light_type(name);
+	LUA_ASSERT(lt != LightType::COUNT, stack, "Unknown light type: '%s'", name);
+
 	LightDesc ld;
-	ld.type = LightType::DIRECTIONAL;
-	ld.range = 1.0f;
-	ld.intensity = 1.0f;
-	ld.spot_angle = 20.0f;
-	ld.color = vector3(1, 1, 1);
+	ld.type       = lt;
+	ld.range      = stack.get_float(4);
+	ld.intensity  = stack.get_float(5);
+	ld.spot_angle = stack.get_float(6);
+	ld.color      = stack.get_vector3(7);
 	stack.push_light_instance(stack.get_render_world(1)->create_light(stack.get_unit(2), ld, MATRIX4X4_IDENTITY));
 	return 1;
 }

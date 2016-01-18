@@ -531,8 +531,9 @@ Sprite
 Light
 -----
 
-	**create_light** (rw, unit) : Id
+	**create_light** (rw, unit, type, range, intensity, spot_angle, color) : Id
 		Creates a new light for *unit* and returns its id.
+		Type can be either ``directional``, ``omni`` or ``spot``.
 
 	**destroy_light** (rw, id)
 		Destroys the light *id*.
