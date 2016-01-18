@@ -30,8 +30,7 @@ project "bullet"
 			"-Wno-parentheses",
 		}
 		files {
-			BULLET_DIR .. "src/clew/clew.c",
-			BULLET_DIR .. "src/clew/clew.h",
+			BULLET_DIR .. "src/clew/*",
 			BULLET_DIR .. "src/Bullet3OpenCL/**.cpp",
 		}
 
