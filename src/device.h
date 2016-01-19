@@ -161,7 +161,6 @@ private:
 
 	Array<World*> _worlds;
 
-
 private:
 
 	// Disable copying

@@ -21,17 +21,17 @@
 #include "path.h"
 #include "physics.h"
 #include "profiler.h"
+#include "proxy_allocator.h"
 #include "resource_loader.h"
 #include "resource_manager.h"
 #include "resource_package.h"
 #include "shader_manager.h"
 #include "sjson.h"
+#include "string_utils.h"
 #include "types.h"
 #include "unit_manager.h"
 #include "vector3.h"
 #include "world.h"
-#include "proxy_allocator.h"
-#include "string_utils.h"
 #include <bgfx/bgfx.h>
 #include <bx/allocator.h>
 
