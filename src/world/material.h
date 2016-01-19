@@ -15,9 +15,9 @@ namespace crown
 
 struct Material
 {
-	void create(const MaterialResource* mr, MaterialManager& mm);
+	void create(const MaterialResource* mr);
 	void destroy() const;
-	void bind() const;
+	void bind(ResourceManager& rm, ShaderManager& sm) const;
 
 	void set_float(const char* name, float val);
 	void set_vector2(const char* name, const Vector2& val);

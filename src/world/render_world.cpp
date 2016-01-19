@@ -20,10 +20,11 @@
 namespace crown
 {
 
-RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, MaterialManager& mm, UnitManager& um)
+RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um)
 	: _marker(MARKER)
 	, _allocator(&a)
 	, _resource_manager(&rm)
+	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _debug_drawing(false)
 	, _mesh_map(a)
@@ -494,7 +495,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection, uin
 			bgfx::setVertexBuffer(_mesh_data.mesh[i].vbh);
 			bgfx::setIndexBuffer(_mesh_data.mesh[i].ibh);
 
-			_material_manager->get(_mesh_data.material[i])->bind();
+			_material_manager->get(_mesh_data.material[i])->bind(*_resource_manager, *_shader_manager);
 		}
 	}
 
@@ -505,7 +506,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection, uin
 		bgfx::setIndexBuffer(_sprite_data.sprite[i].ibh, _sprite_data.frame[i] * 6, 6);
 		bgfx::setTransform(to_float_ptr(_sprite_data.world[i]));
 
-		_material_manager->get(_sprite_data.material[i])->bind();
+		_material_manager->get(_sprite_data.material[i])->bind(*_resource_manager, *_shader_manager);
 	}
 }
 

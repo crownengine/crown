@@ -23,7 +23,7 @@ class World
 {
 public:
 
-	World(Allocator& a, ResourceManager& rm, LuaEnvironment& env, MaterialManager& mm, UnitManager& um);
+	World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um, LuaEnvironment& env);
 	~World();
 
 	UnitId spawn_unit(const UnitResource& ur, const Vector3& position = VECTOR3_ZERO, const Quaternion& rotation = QUATERNION_IDENTITY);

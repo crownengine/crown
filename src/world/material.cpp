@@ -3,7 +3,6 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "device.h"
 #include "material.h"
 #include "material_manager.h"
 #include "material_resource.h"
@@ -20,7 +19,7 @@ namespace crown
 
 using namespace material_resource;
 
-void Material::create(const MaterialResource* mr, MaterialManager& mm)
+void Material::create(const MaterialResource* mr)
 {
 	const uint32_t size = mr->dynamic_data_size;
 	const uint32_t offt = mr->dynamic_data_offset;
@@ -35,7 +34,7 @@ void Material::destroy() const
 	default_allocator().deallocate(data);
 }
 
-void Material::bind() const
+void Material::bind(ResourceManager& rm, ShaderManager& sm) const
 {
 	// Set samplers
 	for (uint32_t i = 0; i < resource->num_textures; ++i)
@@ -47,7 +46,7 @@ void Material::bind() const
 		bgfx::TextureHandle texture;
 		sampler.idx = th->sampler_handle;
 
-		TextureResource* teximg = (TextureResource*) device()->resource_manager()->get(TEXTURE_TYPE, td->id);
+		const TextureResource* teximg = (TextureResource*)rm.get(TEXTURE_TYPE, td->id);
 		texture.idx = teximg->handle.idx;
 
 		bgfx::setTexture(i, sampler, texture);
@@ -63,7 +62,7 @@ void Material::bind() const
 		bgfx::setUniform(buh, (char*)uh + sizeof(uh->uniform_handle));
 	}
 
-	const ShaderManager::ShaderData& sd = device()->shader_manager()->get(resource->shader);
+	const ShaderManager::ShaderData& sd = sm.get(resource->shader);
 	bgfx::setState(sd.state);
 	bgfx::submit(0, sd.program);
 }

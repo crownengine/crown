@@ -244,9 +244,10 @@ World* Device::create_world()
 {
 	World* w = CE_NEW(default_allocator(), World)(default_allocator()
 		, *_resource_manager
-		, *_lua_environment
+		, *_shader_manager
 		, *_material_manager
 		, *_unit_manager
+		, *_lua_environment
 		);
 	array::push_back(_worlds, w);
 	return w;

@@ -24,7 +24,7 @@
 namespace crown
 {
 
-World::World(Allocator& a, ResourceManager& rm, LuaEnvironment& env, MaterialManager& mm, UnitManager& um)
+World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um, LuaEnvironment& env)
 	: _marker(MARKER)
 	, _allocator(&a)
 	, _resource_manager(&rm)
@@ -43,7 +43,7 @@ World::World(Allocator& a, ResourceManager& rm, LuaEnvironment& env, MaterialMan
 {
 	_lines = create_debug_line(true);
 	_scene_graph = CE_NEW(*_allocator, SceneGraph)(*_allocator);
-	_render_world = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, mm, um);
+	_render_world = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um);
 	_physics_world = PhysicsWorld::create(*_allocator, rm, um, *_lines);
 	_sound_world = SoundWorld::create(*_allocator);
 }

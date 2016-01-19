@@ -19,8 +19,8 @@ MaterialManager::MaterialManager(Allocator& a, ResourceManager& rm)
 
 MaterialManager::~MaterialManager()
 {
-	const SortMap<StringId64, Material*>::Entry* begin = sort_map::begin(_materials);
-	const SortMap<StringId64, Material*>::Entry* end = sort_map::end(_materials);
+	auto begin = sort_map::begin(_materials);
+	auto end = sort_map::end(_materials);
 
 	for (; begin != end; ++begin)
 	{
@@ -35,7 +35,7 @@ void MaterialManager::create_material(StringId64 id)
 		return;
 
 	Material* mat = CE_NEW(*_allocator, Material);
-	mat->create((MaterialResource*)_resource_manager->get(MATERIAL_TYPE, id), *this);
+	mat->create((MaterialResource*)_resource_manager->get(MATERIAL_TYPE, id));
 
 	sort_map::set(_materials, id, mat);
 	sort_map::sort(_materials);

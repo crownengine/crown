@@ -22,7 +22,7 @@ class RenderWorld
 {
 public:
 
-	RenderWorld(Allocator& a, ResourceManager& rm, MaterialManager& mm, UnitManager& um);
+	RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um);
 	~RenderWorld();
 
 	/// Creates a new mesh instance.
@@ -261,6 +261,7 @@ private:
 
 	Allocator* _allocator;
 	ResourceManager* _resource_manager;
+	ShaderManager* _shader_manager;
 	MaterialManager* _material_manager;
 
 	bgfx::UniformHandle _u_light_pos;
