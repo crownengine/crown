@@ -30,6 +30,10 @@
 #include "unit_manager.h"
 #include "vector3.h"
 #include "world.h"
+#include "proxy_allocator.h"
+#include "string_utils.h"
+#include <bgfx/bgfx.h>
+#include <bx/allocator.h>
 
 #if CROWN_PLATFORM_ANDROID
 	#include "apk_filesystem.h"
@@ -39,6 +43,81 @@
 
 namespace crown
 {
+
+struct BgfxCallback : public bgfx::CallbackI
+{
+	virtual void fatal(bgfx::Fatal::Enum _code, const char* _str)
+	{
+		CE_ASSERT(false, "Fatal error: 0x%08x: %s", _code, _str);
+	}
+
+	virtual void traceVargs(const char* /*_filePath*/, uint16_t /*_line*/, const char* _format, va_list _argList)
+	{
+		char buf[2048];
+		strncpy(buf, _format, sizeof(buf));
+		buf[strlen32(buf)-1] = '\0'; // Remove trailing newline
+		CE_LOGDV(buf, _argList);
+	}
+
+	virtual uint32_t cacheReadSize(uint64_t /*_id*/)
+	{
+		return 0;
+	}
+
+	virtual bool cacheRead(uint64_t /*_id*/, void* /*_data*/, uint32_t /*_size*/)
+	{
+		return false;
+	}
+
+	virtual void cacheWrite(uint64_t /*_id*/, const void* /*_data*/, uint32_t /*_size*/)
+	{
+	}
+
+	virtual void screenShot(const char* /*_filePath*/, uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, const void* /*_data*/, uint32_t /*_size*/, bool /*_yflip*/)
+	{
+	}
+
+	virtual void captureBegin(uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, bgfx::TextureFormat::Enum /*_format*/, bool /*_yflip*/)
+	{
+	}
+
+	virtual void captureEnd()
+	{
+	}
+
+	virtual void captureFrame(const void* /*_data*/, uint32_t /*_size*/)
+	{
+	}
+};
+
+struct BgfxAllocator : public bx::AllocatorI
+{
+	BgfxAllocator(Allocator& a)
+		: _allocator("bgfx", a)
+	{
+	}
+
+	virtual void* realloc(void* _ptr, size_t _size, size_t _align, const char* /*_file*/, uint32_t /*_line*/)
+	{
+		if (!_ptr)
+			return _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : (uint32_t)_align);
+
+		if (_size == 0)
+		{
+			_allocator.deallocate(_ptr);
+			return NULL;
+		}
+
+		// Realloc
+		void* p = _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : (uint32_t)_align);
+		_allocator.deallocate(_ptr);
+		return p;
+	}
+
+private:
+
+	ProxyAllocator _allocator;
+};
 
 Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
@@ -57,19 +136,20 @@ Device::Device(const DeviceOptions& opts)
 	, _last_delta_time(0.0f)
 	, _time_since_start(0.0)
 	, _device_options(opts)
-	, _bundle_filesystem(NULL)
 	, _boot_package_id(uint64_t(0))
 	, _boot_script_id(uint64_t(0))
 	, _boot_package(NULL)
-	, _lua_environment(NULL)
+	, _bundle_filesystem(NULL)
 	, _resource_loader(NULL)
 	, _resource_manager(NULL)
-	, _input_manager(NULL)
+	, _bgfx_allocator(NULL)
+	, _bgfx_callback(NULL)
 	, _shader_manager(NULL)
 	, _material_manager(NULL)
+	, _input_manager(NULL)
 	, _unit_manager(NULL)
+	, _lua_environment(NULL)
 	, _worlds(default_allocator())
-	, _bgfx_allocator(default_allocator())
 {
 }
 
@@ -91,11 +171,14 @@ void Device::init()
 
 	read_config();
 
+	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
+	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
+
 	bgfx::init(bgfx::RendererType::Count
 		, BGFX_PCI_ID_NONE
 		, 0
-		, &_bgfx_callback
-		, &_bgfx_allocator
+		, _bgfx_callback
+		, _bgfx_allocator
 		);
 
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
@@ -147,6 +230,8 @@ void Device::shutdown()
 	CE_DELETE(_allocator, _bundle_filesystem);
 
 	bgfx::shutdown();
+	CE_DELETE(_allocator, _bgfx_callback);
+	CE_DELETE(_allocator, _bgfx_allocator);
 
 	profiler_globals::shutdown();
 
