@@ -1207,15 +1207,15 @@ JOYPAD(3, axis_id)
 static int world_spawn_unit(lua_State* L)
 {
 	LuaStack stack(L);
-	World* world = stack.get_world(1);
+	const int nargs = stack.num_args();
+
 	const StringId64 name = stack.get_resource_id(2);
-	const Vector3& pos = stack.num_args() > 2 ? stack.get_vector3(3) : VECTOR3_ZERO;
-	const Quaternion& rot = stack.num_args() > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
+	const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
+	const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
 
 	LUA_ASSERT(device()->resource_manager()->can_get(UNIT_TYPE, name), stack, "Unit not found");
 
-	UnitId unit = world->spawn_unit(name, pos, rot);
-	stack.push_unit(unit);
+	stack.push_unit(stack.get_world(1)->spawn_unit(name, pos, rot));
 	return 1;
 }
 
@@ -1391,13 +1391,13 @@ static int world_update(lua_State* L)
 static int world_play_sound(lua_State* L)
 {
 	LuaStack stack(L);
+	const int32_t nargs = stack.num_args();
 	World* world = stack.get_world(1);
 	const StringId64 name = stack.get_resource_id(2);
-	const int32_t nargs = stack.num_args();
-	const bool loop = nargs > 2 ? stack.get_bool(3) : false;
-	const float volume = nargs > 3 ? stack.get_float(4) : 1.0f;
+	const bool loop    = nargs > 2 ? stack.get_bool(3)    : false;
+	const float volume = nargs > 3 ? stack.get_float(4)   : 1.0f;
 	const Vector3& pos = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
-	const float range = nargs > 5 ? stack.get_float(6) : 1000.0f;
+	const float range  = nargs > 5 ? stack.get_float(6)   : 1000.0f;
 
 	LUA_ASSERT(device()->resource_manager()->can_get(SOUND_TYPE, name), stack, "Sound not found");
 
@@ -1468,9 +1468,11 @@ static int world_destroy_debug_line(lua_State* L)
 static int world_load_level(lua_State* L)
 {
 	LuaStack stack(L);
+	const int nargs = stack.num_args();
+
 	const StringId64 name = stack.get_resource_id(2);
-	const Vector3& pos = stack.num_args() > 2 ? stack.get_vector3(3) : VECTOR3_ZERO;
-	const Quaternion& rot = stack.num_args() > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
+	const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
+	const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
 	LUA_ASSERT(device()->resource_manager()->can_get(LEVEL_TYPE, name), stack, "Level not found");
 	stack.push_level(stack.get_world(1)->load_level(name, pos, rot));
 	return 1;
