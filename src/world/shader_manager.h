@@ -15,15 +15,21 @@
 namespace crown
 {
 
+struct ShaderData
+{
+	uint64_t state;
+	bgfx::ProgramHandle program;
+};
+
+/// Manages shaders.
+///
+/// @ingroup World
 class ShaderManager
 {
-public:
+	typedef SortMap<StringId32, ShaderData> ShaderMap;
+	ShaderMap _shader_map;
 
-	struct ShaderData
-	{
-		uint64_t state;
-		bgfx::ProgramHandle program;
-	};
+	void add_shader(StringId32 name, uint64_t state, bgfx::ProgramHandle program);
 
 public:
 
@@ -36,16 +42,6 @@ public:
 
 	/// Returns the shader @a id.
 	const ShaderData& get(StringId32 id);
-
-private:
-
-	void add_shader(StringId32 name, uint64_t state, bgfx::ProgramHandle program);
-
-private:
-
-	typedef SortMap<StringId32, ShaderData> ShaderMap;
-
-	ShaderMap _shader_map;
 };
 
 } // namespace crown

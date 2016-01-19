@@ -108,7 +108,7 @@ void ShaderManager::add_shader(StringId32 name, uint64_t state, bgfx::ProgramHan
 	sort_map::sort(_shader_map);
 }
 
-const ShaderManager::ShaderData& ShaderManager::get(StringId32 id)
+const ShaderData& ShaderManager::get(StringId32 id)
 {
 	CE_ASSERT(sort_map::has(_shader_map, id), "Shader not found");
 	ShaderData deffault;

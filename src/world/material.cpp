@@ -62,7 +62,7 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm) const
 		bgfx::setUniform(buh, (char*)uh + sizeof(uh->uniform_handle));
 	}
 
-	const ShaderManager::ShaderData& sd = sm.get(resource->shader);
+	const ShaderData& sd = sm.get(resource->shader);
 	bgfx::setState(sd.state);
 	bgfx::submit(0, sd.program);
 }

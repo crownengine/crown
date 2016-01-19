@@ -154,7 +154,7 @@ void DebugLine::submit()
 	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, _vertex_decl);
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
-	const ShaderManager::ShaderData& sd = device()->shader_manager()->get(_shader);
+	const ShaderData& sd = device()->shader_manager()->get(_shader);
 
 	bgfx::setVertexBuffer(&tvb, 0, _num * 2);
 	bgfx::setState(sd.state);
