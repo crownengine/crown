@@ -76,11 +76,6 @@ namespace material_resource
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* res);
 
-	uint32_t dynamic_data_size(const MaterialResource* mr);
-	uint32_t dynamic_data_offset(const MaterialResource* mr);
-	StringId32 shader(const MaterialResource* mr);
-	uint32_t num_textures(const MaterialResource* mr);
-	uint32_t num_uniforms(const MaterialResource* mr);
 	UniformData* get_uniform_data(const MaterialResource* mr, uint32_t i);
 	UniformData* get_uniform_data_by_string(const MaterialResource* mr, const char* str);
 	const char* get_uniform_name(const MaterialResource* mr, const UniformData* ud);
