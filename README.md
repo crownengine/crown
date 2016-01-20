@@ -60,24 +60,15 @@ GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
 
 	$ make <configuration>
 	
-Configuration is `<platform>-<debug/development/release>[32|64]`. E.g.
+Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
 
-	linux-debug64, linux-development64, linux-release64, android-debug, windows-debug32 etc.
-## Documentation
-### Prerequisites
+	linux-debug64, linux-development64, linux-release64, android-arm-debug, windows-debug32 etc.
 
-Doxygen (http://www.doxygen.org)  
-Docutils/reStructuredText (http://docutils.sourceforge.net)
-
-### Building
-
-	$ make docs
-	
 ##Samples
 
-When running a sample your current directory has to be `build/<platform[32|64]>/bin`.
 To run a sample on 64-bit linux debug mode:
 
+    $ cd build/linux64/bin
 	$ ./linux-debug-64 --source-dir <full/sample/path> --bundle-dir <full/destination/path> --compile --platform linux --continue
 
 ###[00-hello-world](https://github.com/taylor001/crown/tree/master/samples/00-hello-world)
