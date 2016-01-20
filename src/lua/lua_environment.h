@@ -22,7 +22,7 @@ enum LuaArgumentType
 /// Wraps a subset of Lua functions and provides utilities for extending Lua.
 ///
 /// @ingroup Lua
-struct LuaEnvironment
+class LuaEnvironment
 {
 	lua_State* L;
 

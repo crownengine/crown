@@ -32,8 +32,12 @@ namespace crown
 /// Wrapper to manipulate Lua stack.
 ///
 /// @ingroup Lua
-struct LuaStack
+class LuaStack
 {
+	lua_State* L;
+
+public:
+
 	LuaStack(lua_State* L)
 		: L(L)
 	{
@@ -549,10 +553,6 @@ struct LuaStack
 	void check_type(int i, const SceneGraph* p);
 	void check_type(int i, const RenderWorld* p);
 	void check_type(int i, const Level* p);
-
-private:
-
-	lua_State* L;
 };
 
 } // namespace crown

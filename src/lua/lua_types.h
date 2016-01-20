@@ -10,7 +10,7 @@ namespace crown
 
 /// @defgroup Lua Lua
 
-struct LuaStack;
-struct LuaEnvironment;
+class LuaStack;
+class LuaEnvironment;
 
 } // namespace crown
