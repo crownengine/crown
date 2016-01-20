@@ -124,7 +124,6 @@ function toolchain(build_dir, lib_dir)
 		}
 		buildoptions {
 			"-m32",
-			"-malign-double", -- Required by PhysX
 		}
 
 	configuration { "x64", "linux-*" }
