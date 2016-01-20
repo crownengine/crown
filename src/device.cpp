@@ -314,7 +314,7 @@ void Device::update()
 		bgfx::frame();
 		profiler_globals::flush();
 
-		_lua_environment->clear_temporaries();
+		_lua_environment->reset_temporaries();
 
 		_frame_count++;
 	}

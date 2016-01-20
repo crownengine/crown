@@ -236,7 +236,7 @@ bool LuaEnvironment::is_matrix4x4(const Matrix4x4* p) const
 		&& p <= &s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1];
 }
 
-void LuaEnvironment::clear_temporaries()
+void LuaEnvironment::reset_temporaries()
 {
 	_vec3_used = 0;
 	_quat_used = 0;

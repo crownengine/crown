@@ -24,6 +24,17 @@ enum LuaArgumentType
 /// @ingroup Lua
 struct LuaEnvironment
 {
+	lua_State* L;
+
+	uint32_t _vec3_used;
+	Vector3 _vec3_buffer[CROWN_MAX_LUA_VECTOR3];
+	uint32_t _quat_used;
+	Quaternion _quat_buffer[CROWN_MAX_LUA_QUATERNION];
+	uint32_t _mat4_used;
+	Matrix4x4 s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4];
+
+public:
+
 	LuaEnvironment();
 	~LuaEnvironment();
 
@@ -46,12 +57,15 @@ struct LuaEnvironment
 	/// Returns true if success, false otherwise
 	void call_global(const char* func, uint8_t argc, ...);
 
-	void clear_temporaries();
+	/// Resets temporary types.
+	void reset_temporaries();
 
 	/// Returns a new temporary Vector3.
 	Vector3* next_vector3(const Vector3& v);
+
 	/// Returns a new temporary Quaternion.
 	Quaternion* next_quaternion(const Quaternion& q);
+
 	/// Returns a new temporary Matrix4x4.
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m);
 
@@ -63,17 +77,6 @@ struct LuaEnvironment
 
 	/// Returns whether @a p is a temporary Matrix4x4.
 	bool is_matrix4x4(const Matrix4x4* p) const;
-
-private:
-
-	lua_State* L;
-
-	uint32_t _vec3_used;
-	Vector3 _vec3_buffer[CROWN_MAX_LUA_VECTOR3];
-	uint32_t _quat_used;
-	Quaternion _quat_buffer[CROWN_MAX_LUA_QUATERNION];
-	uint32_t _mat4_used;
-	Matrix4x4 s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4];
 
 private:
 
