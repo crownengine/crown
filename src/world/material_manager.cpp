@@ -4,8 +4,10 @@
  */
 
 #include "material_manager.h"
-#include "sort_map.h"
+#include "material_resource.h"
 #include "resource_manager.h"
+#include "sort_map.h"
+#include <string.h> // memcpy
 
 namespace crown
 {
@@ -24,8 +26,7 @@ MaterialManager::~MaterialManager()
 
 	for (; begin != end; ++begin)
 	{
-		begin->pair.second->destroy();
-		CE_DELETE(*_allocator, begin->pair.second);
+		_allocator->deallocate(begin->pair.second);
 	}
 }
 
@@ -34,8 +35,15 @@ void MaterialManager::create_material(StringId64 id)
 	if (sort_map::has(_materials, id))
 		return;
 
-	Material* mat = CE_NEW(*_allocator, Material);
-	mat->create((MaterialResource*)_resource_manager->get(MATERIAL_TYPE, id));
+	const MaterialResource* mr = (MaterialResource*)_resource_manager->get(MATERIAL_TYPE, id);
+
+	const uint32_t size = sizeof(Material) + mr->dynamic_data_size;
+	Material* mat = (Material*)_allocator->allocate(size);
+	mat->_resource = mr;
+	mat->_data     = (char*)&mat[1];
+
+	const char* data = (char*)mr + mr->dynamic_data_offset;
+	memcpy(mat->_data, data, mr->dynamic_data_size);
 
 	sort_map::set(_materials, id, mat);
 	sort_map::sort(_materials);
@@ -44,8 +52,8 @@ void MaterialManager::create_material(StringId64 id)
 void MaterialManager::destroy_material(StringId64 id)
 {
 	Material* mat = sort_map::get(_materials, id, (Material*)NULL);
-	mat->destroy();
-	CE_DELETE(*_allocator, mat);
+	_allocator->deallocate(mat);
+
 	sort_map::remove(_materials, id);
 	sort_map::sort(_materials);
 }

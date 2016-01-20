@@ -8,23 +8,19 @@
 #include "math_types.h"
 #include "resource_types.h"
 #include "world_types.h"
-#include <bgfx/bgfx.h>
 
 namespace crown
 {
 
 struct Material
 {
-	void create(const MaterialResource* mr);
-	void destroy() const;
-	void bind(ResourceManager& rm, ShaderManager& sm) const;
+	const MaterialResource* _resource;
+	char* _data;
 
+	void bind(ResourceManager& rm, ShaderManager& sm) const;
 	void set_float(const char* name, float val);
 	void set_vector2(const char* name, const Vector2& val);
 	void set_vector3(const char* name, const Vector3& val);
-
-	const MaterialResource* resource;
-	char* data;
 };
 
 } // namespace crown
