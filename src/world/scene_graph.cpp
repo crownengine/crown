@@ -188,6 +188,12 @@ Matrix4x4 SceneGraph::world_pose(TransformInstance i) const
 	return _data.world[i.i];
 }
 
+void SceneGraph::set_world_pose(TransformInstance i, const Matrix4x4& pose)
+{
+	_data.world[i.i] = pose;
+	_data.changed[i.i] = true;
+}
+
 uint32_t SceneGraph::num_nodes() const
 {
 	return _data.size;
