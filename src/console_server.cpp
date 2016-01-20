@@ -17,8 +17,12 @@
 namespace crown
 {
 
-ConsoleServer::ConsoleServer(uint16_t port, bool wait)
-	: _clients(default_allocator())
+ConsoleServer::ConsoleServer(Allocator& a)
+	: _clients(a)
+{
+}
+
+void ConsoleServer::init(uint16_t port, bool wait)
 {
 	_server.bind(port);
 	_server.listen(5);
@@ -194,7 +198,8 @@ namespace console_server_globals
 
 	void init(uint16_t port, bool wait)
 	{
-		_console = new (_buffer) ConsoleServer(port, wait);
+		_console = new (_buffer) ConsoleServer(default_allocator());
+		_console->init(port, wait);
 	}
 
 	void shutdown()

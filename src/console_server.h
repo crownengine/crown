@@ -11,13 +11,31 @@
 namespace crown
 {
 
+/// Provides service to communicate with engine via TCP/IP.
+///
+/// @ingroup Device
 class ConsoleServer
 {
+	TCPSocket _server;
+	Vector<TCPSocket> _clients;
+
+	void send(TCPSocket client, const char* json);
+	void add_client(TCPSocket socket);
+	ReadResult update_client(TCPSocket client);
+	void process(TCPSocket client, const char* json);
+	void process_ping(TCPSocket client, const char* json);
+	void process_script(TCPSocket client, const char* json);
+	void process_command(TCPSocket client, const char* json);
+
 public:
+
+	ConsoleServer(Allocator& a);
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
-	ConsoleServer(uint16_t port, bool wait);
+	void init(uint16_t port, bool wait);
+
+	/// Shutdowns the server.
 	void shutdown();
 
 	/// Collects requests from clients and processes them all.
@@ -25,23 +43,6 @@ public:
 
 	/// Sends the given JSON-encoded string to all clients.
 	void send(const char* json);
-
-private:
-
-	void send(TCPSocket client, const char* json);
-
-	void add_client(TCPSocket socket);
-	ReadResult update_client(TCPSocket client);
-	void process(TCPSocket client, const char* json);
-
-	void process_ping(TCPSocket client, const char* json);
-	void process_script(TCPSocket client, const char* json);
-	void process_command(TCPSocket client, const char* json);
-
-private:
-
-	TCPSocket _server;
-	Vector<TCPSocket> _clients;
 };
 
 /// Functions for accessing global console.
