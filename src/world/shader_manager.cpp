@@ -6,8 +6,8 @@
 #include "array.h"
 #include "reader_writer.h"
 #include "resource_manager.h"
-#include "shader.h"
 #include "shader_manager.h"
+#include "shader_resource.h"
 #include "sort_map.h"
 #include "string_utils.h"
 

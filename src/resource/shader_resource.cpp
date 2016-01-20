@@ -3,18 +3,18 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "shader.h"
+#include "compile_options.h"
 #include "config.h"
+#include "device.h"
 #include "filesystem.h"
+#include "map.h"
 #include "os.h"
 #include "resource_manager.h"
-#include "compile_options.h"
-#include "temp_allocator.h"
-#include "string_stream.h"
-#include "sjson.h"
-#include "map.h"
 #include "shader_manager.h"
-#include "device.h"
+#include "shader_resource.h"
+#include "sjson.h"
+#include "string_stream.h"
+#include "temp_allocator.h"
 
 #if CROWN_DEBUG
 #	define SHADERC_NAME "shaderc-debug-"
