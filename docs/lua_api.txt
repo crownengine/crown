@@ -380,13 +380,13 @@ World
 	**set_listener_pose** (world, pose)
 		Sets the *pose* of the listener.
 
-	**set_sound_position** (world, position)
+	**set_sound_position** (world, id, position)
 		Sets the *position* of the sound *id*.
 
-	**set_sound_range** (world, range)
+	**set_sound_range** (world, id, range)
 		Sets the *range* of the sound *id*.
 
-	**set_sound_volume** (world, volume)
+	**set_sound_volume** (world, id, volume)
 		Sets the *volume* of the sound *id*.
 
 	**create_debug_line** (world, depth_test) : DebugLine

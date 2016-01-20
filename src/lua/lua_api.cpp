@@ -1439,8 +1439,7 @@ static int world_set_sound_position(lua_State* L)
 static int world_set_sound_range(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->set_sound_range(stack.get_sound_instance_id(2),
-		stack.get_float(3));
+	stack.get_world(1)->set_sound_range(stack.get_sound_instance_id(2), stack.get_float(3));
 	return 0;
 }
 
