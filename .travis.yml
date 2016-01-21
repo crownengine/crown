@@ -6,6 +6,7 @@ compiler:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libpulse-dev
+  - sudo apt-get install -y libxrandr-dev
 
 before_script:
   - git submodule init

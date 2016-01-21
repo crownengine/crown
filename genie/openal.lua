@@ -43,6 +43,7 @@ project "openal"
 			"HAVE_DIRENT_H",
 		}
 		buildoptions {
+			"-std=c99",
 			"-Winline",
 			"-fPIC",
 			"-fvisibility=hidden",
@@ -72,6 +73,18 @@ project "openal"
 		}
 		links {
 			"OpenSLES",
+		}
+
+	configuration { "linux-*" }
+		defines {
+			"HAVE_ALIGNED_ALLOC",
+			"HAVE_POSIX_MEMALIGN",
+			"HAVE_PULSEAUDIO",
+			"HAVE_CPUID_H",
+			"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
+		}
+		files {
+			AL_DIR .. "Alc/backends/pulseaudio.c",
 		}
 
 	configuration { "vs*" }
@@ -108,18 +121,6 @@ project "openal"
 		}
 		links {
 			"winmm",
-		}
-
-	configuration { "linux-*" }
-		defines {
-			"HAVE_ALIGNED_ALLOC",
-			"HAVE_POSIX_MEMALIGN",
-			"HAVE_PULSEAUDIO",
-			"HAVE_CPUID_H",
-			"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
-		}
-		files {
-			AL_DIR .. "Alc/backends/pulseaudio.c",
 		}
 
 	configuration {}
