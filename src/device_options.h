@@ -16,9 +16,38 @@
 namespace crown
 {
 
-struct DeviceOptions
+/// Holds device options.
+///
+/// @ingroup Device
+class DeviceOptions
 {
+	int _argc;
+	char** _argv;
+	const char* _source_dir;
+	const char* _bundle_dir;
+	const char* _project;
+	const char* _platform;
+	bool _wait_console;
+	bool _do_compile;
+	bool _do_continue;
+	uint32_t _parent_window;
+	uint16_t _console_port;
+	uint16_t _window_x;
+	uint16_t _window_y;
+	uint16_t _window_width;
+	uint16_t _window_height;
+
+#if CROWN_PLATFORM_ANDROID
+	AAssetManager* _asset_manager;
+#endif // CROWN_PLATFORM_ANDROID
+
+public:
+
 	DeviceOptions(int argc, char** argv);
+
+	/// Parses the command line and returns
+	/// EXIT_SUCCESS if no error is found.
+	int parse();
 
 	const char* source_dir() const { return _source_dir; }
 	const char* bundle_dir() const { return _bundle_dir; }
@@ -35,29 +64,8 @@ struct DeviceOptions
 	uint16_t window_height() const { return _window_height; }
 
 #if CROWN_PLATFORM_ANDROID
+	void set_asset_manager(AAssetManager* am) { _asset_manager = am; }
 	const AAssetManager* asset_manager() const { return _asset_manager; }
-#endif // CROWN_PLATFORM_ANDROID
-
-private:
-
-	const char* _source_dir;
-	const char* _bundle_dir;
-	const char* _project;
-	const char* _platform;
-	bool _wait_console;
-	bool _do_compile;
-	bool _do_continue;
-	uint32_t _parent_window;
-	uint16_t _console_port;
-	uint16_t _window_x;
-	uint16_t _window_y;
-	uint16_t _window_width;
-	uint16_t _window_height;
-
-public:
-
-#if CROWN_PLATFORM_ANDROID
-	AAssetManager* _asset_manager;
 #endif // CROWN_PLATFORM_ANDROID
 };
 

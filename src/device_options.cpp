@@ -5,6 +5,8 @@
 
 #include "device_options.h"
 #include "command_line.h"
+#include "log.h"
+#include "path.h"
 
 namespace crown
 {
@@ -13,10 +15,10 @@ static void help(const char* msg = NULL)
 {
 	if (msg)
 	{
-		printf("Error: %s\n", msg);
+		CE_LOGE("Error: %s\n", msg);
 	}
 
-	printf(
+	CE_LOGI(
 		"Usage: crown [options]\n"
 		"Options:\n\n"
 
@@ -43,7 +45,9 @@ static void help(const char* msg = NULL)
 }
 
 DeviceOptions::DeviceOptions(int argc, char** argv)
-	: _source_dir(NULL)
+	: _argc(argc)
+	, _argv(argv)
+	, _source_dir(NULL)
 	, _bundle_dir(NULL)
 	, _project(NULL)
 	, _platform(NULL)
@@ -57,24 +61,76 @@ DeviceOptions::DeviceOptions(int argc, char** argv)
 	, _window_width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _window_height(CROWN_DEFAULT_WINDOW_HEIGHT)
 {
-	CommandLine cmd(argc, argv);
+}
 
-	_source_dir = cmd.get_parameter("source-dir");
-	_bundle_dir = cmd.get_parameter("bundle-dir");
-	_project = cmd.get_parameter("project");
-	_platform = cmd.get_parameter("platform");
+int DeviceOptions::parse()
+{
+	CommandLine cl(_argc, _argv);
 
-	_wait_console = cmd.has_argument("wait-console");
-	_do_compile = cmd.has_argument("compile");
-	_do_continue = cmd.has_argument("continue");
+	if (cl.has_argument("help", 'h'))
+	{
+		help();
+		return EXIT_FAILURE;
+	}
 
-	const char* parent = cmd.get_parameter("parent-window");
-	if (parent)
+	if (cl.has_argument("version", 'v'))
+	{
+		CE_LOGI(CROWN_VERSION_STRING);
+		return EXIT_FAILURE;
+	}
+
+	_source_dir = cl.get_parameter("source-dir");
+	if (_source_dir == NULL)
+	{
+		help("Source dir must be specified.");
+		return EXIT_FAILURE;
+	}
+
+	_bundle_dir = cl.get_parameter("bundle-dir");
+	if (_bundle_dir == NULL)
+	{
+		help("Bundle dir must be specified.");
+		return EXIT_FAILURE;
+	}
+
+	if (!path::is_absolute(_source_dir))
+	{
+		help("Source dir must be absolute");
+		return EXIT_FAILURE;
+	}
+
+	if (!path::is_absolute(_bundle_dir))
+	{
+		help("Bundle dir must be absolute");
+		return EXIT_FAILURE;
+	}
+
+	_do_compile = cl.has_argument("compile");
+	_platform = cl.get_parameter("platform");
+	if (_do_compile != NULL && _platform == NULL)
+	{
+		help("Platform must be specified.");
+		return EXIT_FAILURE;
+	}
+
+	_do_continue = cl.has_argument("continue");
+
+	_project = cl.get_parameter("project");
+	_wait_console = cl.has_argument("wait-console");
+
+	const char* parent = cl.get_parameter("parent-window");
+	if (parent != NULL)
+	{
 		_parent_window = parse_uint(parent);
+	}
 
-	const char* port = cmd.get_parameter("console-port");
-	if (port)
+	const char* port = cl.get_parameter("console-port");
+	if (port != NULL)
+	{
 		_console_port = parse_uint(port);
+	}
+
+	return EXIT_SUCCESS;
 }
 
 }
