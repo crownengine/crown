@@ -77,7 +77,6 @@ project "openal"
 
 	configuration { "linux-*" }
 		defines {
-			"HAVE_ALIGNED_ALLOC",
 			"HAVE_POSIX_MEMALIGN",
 			"HAVE_PULSEAUDIO",
 			"HAVE_CPUID_H",
