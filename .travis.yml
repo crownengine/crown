@@ -3,6 +3,10 @@ language: cpp
 compiler:
   - gcc
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libpulse-dev
+
 before_script:
   - git submodule init
   - git submodule update
