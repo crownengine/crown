@@ -594,10 +594,15 @@ int main(int argc, char** argv)
 
 	DeviceOptions opts(argc, argv);
 
+	int exitcode = opts.parse();
+	if (exitcode == EXIT_FAILURE)
+	{
+		return exitcode;
+	}
+
 	console_server_globals::init(opts.console_port(), opts.wait_console());
 
 	bool do_continue = true;
-	int exitcode = EXIT_SUCCESS;
 
 	if (opts.do_compile())
 	{
