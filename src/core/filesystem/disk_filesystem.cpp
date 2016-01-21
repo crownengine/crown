@@ -148,7 +148,7 @@ void DiskFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 
 void DiskFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
 {
-	if (path::is_absolute_path(path))
+	if (path::is_absolute(path))
 	{
 		os_path = path;
 		return;

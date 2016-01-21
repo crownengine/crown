@@ -23,10 +23,10 @@ namespace crown
 namespace path
 {
 	/// Returns whether the @a path is absolute.
-	bool is_absolute_path(const char* path);
+	bool is_absolute(const char* path);
 
 	/// Returns whether the @a path is the root path.
-	bool is_root_path(const char* path);
+	bool is_root(const char* path);
 
 	/// Appends path @a b to @a a and fills @a path with the result.
 	void join(const char* a, const char* b, DynamicString& path);

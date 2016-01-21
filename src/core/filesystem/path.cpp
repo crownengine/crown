@@ -11,7 +11,7 @@ namespace crown
 {
 namespace path
 {
-	bool is_absolute_path(const char* path)
+	bool is_absolute(const char* path)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 #if CROWN_PLATFORM_POSIX
@@ -21,13 +21,13 @@ namespace path
 #endif
 	}
 
-	bool is_root_path(const char* path)
+	bool is_root(const char* path)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
 #if CROWN_PLATFORM_POSIX
-		return is_absolute_path(path) && strlen32(path) == 1;
+		return is_absolute(path) && strlen32(path) == 1;
 #elif CROWN_PLATFORM_WINDOWS
-		return is_absolute_path(path) && strlen32(path) == 3;
+		return is_absolute(path) && strlen32(path) == 3;
 #endif
 	}
 
