@@ -25,9 +25,11 @@ project "bullet"
 			"-Wno-unused-but-set-variable",
 			"-Wno-unused-function",
 			"-Wno-sign-compare",
-			"-Wno-reorder",
 			"-Wno-type-limits",
 			"-Wno-parentheses",
+		}
+		buildoptions_cpp {
+			"-Wno-reorder",
 		}
 		files {
 			BULLET_DIR .. "src/clew/*",
