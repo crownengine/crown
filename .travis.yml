@@ -1,11 +1,11 @@
 language: cpp
 
 compiler:
-	- gcc
+  - gcc
 
 before_script:
-	- git submodule init
-	- git submodule update
+  - git submodule init
+  - git submodule update
 
 script:
-	- make linux
+  - make linux
