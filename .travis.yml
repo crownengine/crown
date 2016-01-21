@@ -8,4 +8,4 @@ before_script:
   - git submodule update
 
 script:
-  - make linux
+  - make linux-debug64 linux-development64 linux-release64
