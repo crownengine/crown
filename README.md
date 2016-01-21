@@ -1,6 +1,7 @@
 Lightweight and flexible cross-platform game engine.
 =====
 
+[![Build Status](https://travis-ci.org/taylor001/crown.svg?branch=master)](https://travis-ci.org/taylor001/crown)
 ##What is it?
 
 It is a general purpose data-driven game engine, written from scratch with a minimalistic and data-oriented design philosophy in mind.
