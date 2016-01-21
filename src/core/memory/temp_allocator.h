@@ -15,110 +15,96 @@
 
 namespace crown
 {
-
-/// Allocates from a fixed-size buffer.
-/// When the internal memory is exhausted or the allocation size exceeds
-/// the remainig internal storage, the backing allocator is used instead.
-/// The memory is automatically freed when the allocator is destroyed.
-///
-/// @ingroup Memory
-template <uint32_t SIZE>
-class TempAllocator : public Allocator
-{
-public:
-
-	/// Uses the @a backing allocator when internal memory is exahusted
-	/// or the allocation size exceeds the remaining storage.
-	TempAllocator(Allocator& backing = default_scratch_allocator());
-	~TempAllocator();
-
-	/// @copydoc Allocator::allocate()
-	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
-
-	/// Does nothing, the memory is automatically freed when the
-	/// allocator is destroyed.
-	void deallocate(void* /*data*/) {}
-
-	/// @copydoc Allocator::allocated_size()
-	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
-
-	/// @copydoc Allocator::total_allocated()
-	uint32_t total_allocated() { return SIZE_NOT_TRACKED; }
-
-private:
-
-	Allocator&	_backing;
-
-	char* _begin;
-	char* _end;
-	char* _cur;
-	uint32_t _chunk_size;
-	char _buffer[SIZE];
-};
-
-typedef TempAllocator<64> TempAllocator64;
-typedef TempAllocator<128> TempAllocator128;
-typedef TempAllocator<256> TempAllocator256;
-typedef TempAllocator<512> TempAllocator512;
-typedef TempAllocator<1024> TempAllocator1024;
-typedef TempAllocator<2048> TempAllocator2048;
-typedef TempAllocator<4096> TempAllocator4096;
-
-template <uint32_t SIZE>
-inline TempAllocator<SIZE>::TempAllocator(Allocator& backing)
-	: _backing(backing)
-	, _begin(&_buffer[0])
-	, _end(&_buffer[SIZE - 1])
-	, _cur(&_buffer[0])
-	, _chunk_size(4 * 1024)
-{
-	*(void**) _begin = 0;
-	_cur += sizeof(void*);
-}
-
-template <uint32_t SIZE>
-inline TempAllocator<SIZE>::~TempAllocator()
-{
-	union { char* as_char; void** as_dvoid; };
-	as_char = _buffer;
-
-	void *p = *(void **)as_dvoid;
-	while (p)
+	/// A temporary memory allocator that primarily allocates memory from a
+	/// local stack buffer of size BUFFER_SIZE. If that memory is exhausted it will
+	/// use the backing allocator (typically a scratch allocator).
+	///
+	/// Memory allocated with a TempAllocator does not have to be deallocated. It is
+	/// automatically deallocated when the TempAllocator is destroyed.
+	template <int BUFFER_SIZE>
+	class TempAllocator : public Allocator
 	{
-		void *next = *(void **)p;
-		_backing.deallocate(p);
-		p = next;
+	public:
+
+		/// Creates a new temporary allocator using the specified backing allocator.
+		TempAllocator(Allocator &backing = default_scratch_allocator());
+		virtual ~TempAllocator();
+
+		virtual void *allocate(uint32_t size, uint32_t align = DEFAULT_ALIGN);
+
+		/// Deallocation is a NOP for the TempAllocator. The memory is automatically
+		/// deallocated when the TempAllocator is destroyed.
+		virtual void deallocate(void *) {}
+
+		/// Returns SIZE_NOT_TRACKED.
+		virtual uint32_t allocated_size(const void*) {return SIZE_NOT_TRACKED;}
+
+		/// Returns SIZE_NOT_TRACKED.
+		virtual uint32_t total_allocated() {return SIZE_NOT_TRACKED;}
+
+	private:
+
+		char _buffer[BUFFER_SIZE];	//< Local stack buffer for allocations.
+		Allocator &_backing;		//< Backing allocator if local memory is exhausted.
+		char *_start;				//< Start of current allocation region
+		char *_p;					//< Current allocation pointer.
+		char *_end;					//< End of current allocation region
+		unsigned _chunk_size;		//< Chunks to allocate from backing allocator
+	};
+
+	// If possible, use one of these predefined sizes for the TempAllocator to avoid
+	// unnecessary template instantiation.
+	typedef TempAllocator<64> TempAllocator64;
+	typedef TempAllocator<128> TempAllocator128;
+	typedef TempAllocator<256> TempAllocator256;
+	typedef TempAllocator<512> TempAllocator512;
+	typedef TempAllocator<1024> TempAllocator1024;
+	typedef TempAllocator<2048> TempAllocator2048;
+	typedef TempAllocator<4096> TempAllocator4096;
+
+	// ---------------------------------------------------------------
+	// Inline function implementations
+	// ---------------------------------------------------------------
+
+	template <int BUFFER_SIZE>
+	TempAllocator<BUFFER_SIZE>::TempAllocator(Allocator &backing) : _backing(backing), _chunk_size(4*1024)
+	{
+		_p = _start = _buffer;
+		_end = _start + BUFFER_SIZE;
+		*(void **)_start = 0;
+		_p += sizeof(void *);
 	}
-}
 
-template <uint32_t SIZE>
-inline void* TempAllocator<SIZE>::allocate(uint32_t size, uint32_t align)
-{
-	_cur = (char*) memory::align_top(_cur, align);
-
-	if (size > uint32_t(_end - _cur))
+	template <int BUFFER_SIZE>
+	TempAllocator<BUFFER_SIZE>::~TempAllocator()
 	{
-		uint32_t to_allocate = sizeof(void*) + size + align;
-
-		if (to_allocate < _chunk_size)
-		{
-			to_allocate = _chunk_size;
+		void *p = *(void **)_buffer;
+		while (p) {
+			void *next = *(void **)p;
+			_backing.deallocate(p);
+			p = next;
 		}
-
-		_chunk_size *= 2;
-
-		void *p = _backing.allocate(to_allocate);
-		*(void **)_begin = p;
-		_cur = _begin = (char*) p;
-		_end = _begin + to_allocate;
-		*(void**) _begin = 0;
-		_cur += sizeof(void*);
-		memory::align_top(p, align);
 	}
 
-	void *result = _cur;
-	_cur += size;
-	return result;
-}
-
+	template <int BUFFER_SIZE>
+	void *TempAllocator<BUFFER_SIZE>::allocate(uint32_t size, uint32_t align)
+	{
+		_p = (char *)memory::align_top(_p, align);
+		if ((int)size > _end - _p) {
+			uint32_t to_allocate = sizeof(void *) + size + align;
+			if (to_allocate < _chunk_size)
+				to_allocate = _chunk_size;
+			_chunk_size *= 2;
+			void *p = _backing.allocate(to_allocate);
+			*(void **)_start = p;
+			_p = _start = (char *)p;
+			_end = _start + to_allocate;
+			*(void **)_start = 0;
+			_p += sizeof(void *);
+			_p = (char *)memory::align_top(_p, align);
+		}
+		void *result = _p;
+		_p += size;
+		return result;
+	}
 } // namespace crown
