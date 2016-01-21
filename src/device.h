@@ -49,7 +49,7 @@ struct Device
 	const char* architecture() const { return CROWN_ARCH_NAME; }
 
 	/// Returns a string identifying the engine version.
-	const char* version() const { return CROWN_VERSION_MAJOR "." CROWN_VERSION_MINOR "." CROWN_VERSION_MICRO; }
+	const char* version() const { return CROWN_VERSION_STRING; }
 
 	/// Returns wheter the engine is running.
 	bool is_running() const;

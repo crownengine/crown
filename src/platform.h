@@ -7,10 +7,6 @@
 
 #pragma once
 
-#define CROWN_VERSION_MAJOR "0"
-#define CROWN_VERSION_MINOR "1"
-#define CROWN_VERSION_MICRO "13"
-
 #define CROWN_COMPILER_CLANG 0
 #define CROWN_COMPILER_GCC 0
 #define CROWN_COMPILER_MSVC 0
