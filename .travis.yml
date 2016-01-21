@@ -1,0 +1,11 @@
+language: cpp
+
+compiler:
+	- gcc
+
+before_script:
+	- git submodule init
+	- git submodule update
+
+script:
+	- make linux
