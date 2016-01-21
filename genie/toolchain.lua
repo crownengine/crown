@@ -145,7 +145,7 @@ function toolchain(build_dir, lib_dir)
 			"-msse2",
 		}
 		buildoptions_cpp {
-			"-std=c++11",
+			"-std=c++0x",
 		}
 		linkoptions {
 			"-Wl,-rpath=\\$$ORIGIN",
@@ -183,7 +183,7 @@ function toolchain(build_dir, lib_dir)
 			"-Wunused-value",
 		}
 		buildoptions_cpp {
-			"-std=c++11",
+			"-std=c++0x",
 		}
 		linkoptions {
 			"-no-canonical-prefixes",
