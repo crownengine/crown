@@ -44,7 +44,6 @@ project "openal"
 			"HAVE_DIRENT_H",
 		}
 		buildoptions {
-			"-std=c11",
 			"-Winline",
 			"-fPIC",
 			"-fvisibility=hidden",
