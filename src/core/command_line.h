@@ -11,8 +11,13 @@ namespace crown
 {
 
 /// Helper for parsing command line.
-struct CommandLine
+class CommandLine
 {
+	int _argc;
+	char** _argv;
+
+public:
+
 	CommandLine(int argc, char** argv)
 		: _argc(argc)
 		, _argv(argv)
@@ -21,16 +26,33 @@ struct CommandLine
 
 	int find_argument(const char* longopt, char shortopt)
 	{
-		for (int i = 0; i < _argc; i++)
+		for (int i = 0; i < _argc; ++i)
 		{
-			if ((shortopt != '\0' && strlen32(_argv[i]) > 1 && _argv[i][0] == '-' && _argv[i][1] == shortopt) ||
-				(strlen32(_argv[i]) > 2 && _argv[i][0] == '-' && _argv[i][1] == '-' && strcmp(&_argv[i][2], longopt) == 0))
+			if (is_longopt(_argv[i], longopt) || is_shortopt(_argv[i], shortopt))
 			{
 				return i;
 			}
 		}
 
 		return _argc;
+	}
+
+	bool is_shortopt(const char* arg, char shortopt)
+	{
+		return shortopt != '\0'
+			&& strlen32(arg) > 1
+			&& arg[0] == '-'
+			&& arg[1] == shortopt
+			;
+	}
+
+	bool is_longopt(const char* arg, const char* longopt)
+	{
+		return strlen32(arg) > 2
+			&& arg[0] == '-'
+			&& arg[1] == '-'
+			&& strcmp(&arg[2], longopt) == 0
+			;
 	}
 
 	const char* get_parameter(const char* longopt, char shortopt = '\0')
@@ -43,11 +65,6 @@ struct CommandLine
 	{
 		return find_argument(longopt, shortopt) < _argc;
 	}
-
-private:
-
-	int _argc;
-	char** _argv;
 };
 
 } // namespace crown
