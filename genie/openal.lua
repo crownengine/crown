@@ -29,6 +29,7 @@ project "openal"
 	configuration { "android-* or linux-*" }
 		defines {
 			"'ALIGN(x)=__attribute__((aligned(x)))'",
+			"restrict=__restrict",
 			"SIZEOF_LONG=8",
 			"SIZEOF_LONG_LONG=8",
 			"HAVE_C99_VLA",
