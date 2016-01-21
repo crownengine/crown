@@ -114,13 +114,11 @@ project "openal"
 		defines {
 			"HAVE_ALIGNED_ALLOC",
 			"HAVE_POSIX_MEMALIGN",
-			"HAVE_ALSA",
 			"HAVE_PULSEAUDIO",
 			"HAVE_CPUID_H",
 			"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
 		}
 		files {
-			AL_DIR .. "Alc/backends/alsa.c",
 			AL_DIR .. "Alc/backends/pulseaudio.c",
 		}
 
