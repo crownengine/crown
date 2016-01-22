@@ -1052,12 +1052,6 @@ Window
 	**restore** ()
 		Restores the window.
 
-	**is_resizable** () : bool
-		Returns whether the window is resizable.
-
-	**set_resizable** (resizable)
-		Sets whether the window is resizable.
-
 	**title** () : string
 		Returns the title of the window.
 
