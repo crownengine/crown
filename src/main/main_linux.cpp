@@ -7,19 +7,18 @@
 
 #if CROWN_PLATFORM_LINUX
 
+#include "bundle_compiler.h"
+#include "command_line.h"
+#include "console_server.h"
 #include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
-#include "command_line.h"
-#include "bundle_compiler.h"
-#include "console_server.h"
-#include "device.h"
 #include <stdlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/XKBlib.h>
 #include <X11/extensions/Xrandr.h>
+#include <X11/Xatom.h>
+#include <X11/XKBlib.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <bgfx/bgfxplatform.h>
 
 namespace crown
@@ -345,12 +344,12 @@ int32_t func(void* data)
 	return EXIT_SUCCESS;
 }
 
+extern void set_x11_display(Display*);
+
 struct LinuxDevice
 {
 	LinuxDevice()
 		: _x11_display(NULL)
-		, _x11_window(None)
-		, _x11_hidden_cursor(None)
 		, _screen_config(NULL)
 		, _x11_detectable_autorepeat(false)
 	{
@@ -366,71 +365,18 @@ struct LinuxDevice
 		_x11_display = XOpenDisplay(NULL);
 		CE_ASSERT(_x11_display != NULL, "XOpenDisplay: error");
 
-		int screen = DefaultScreen(_x11_display);
-		int depth = DefaultDepth(_x11_display, screen);
-		Visual* visual = DefaultVisual(_x11_display, screen);
+		crown::set_x11_display(_x11_display);
 
-		Window root_window = RootWindow(_x11_display, screen);
-		uint32_t pw = opts->parent_window();
-		Window parent_window = (pw == 0) ? root_window : (Window)pw;
-
-		// Create main window
-		XSetWindowAttributes win_attribs;
-		win_attribs.background_pixmap = 0;
-		win_attribs.border_pixel = 0;
-		win_attribs.event_mask = FocusChangeMask
-			| StructureNotifyMask
-			;
-
-		if (!opts->parent_window())
-		{
-			win_attribs.event_mask |= KeyPressMask
-				| KeyReleaseMask
-				| ButtonPressMask
-				| ButtonReleaseMask
-				| PointerMotionMask
-				| EnterWindowMask
-				;
-		}
-
-		_x11_window = XCreateWindow(_x11_display
-			, parent_window
-			, opts->window_x()
-			, opts->window_y()
-			, opts->window_width()
-			, opts->window_height()
-			, 0
-			, depth
-			, InputOutput
-			, visual
-			, CWBorderPixel | CWEventMask
-			, &win_attribs
-			);
-		CE_ASSERT(_x11_window != None, "XCreateWindow: error");
-
-		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
-		XSetWMProtocols(_x11_display, _x11_window, &_wm_delete_message, 1);
+		::Window root_window = RootWindow(_x11_display, DefaultScreen(_x11_display));
 
 		// Do we have detectable autorepeat?
 		Bool detectable;
 		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
 
-		// Build hidden cursor
-		Pixmap bm_no;
-		XColor black, dummy;
-		Colormap colormap;
-		static char no_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-		colormap = XDefaultColormap(_x11_display, screen);
-		XAllocNamedColor(_x11_display, colormap, "black", &black, &dummy);
-		bm_no = XCreateBitmapFromData(_x11_display, _x11_window, no_data, 8, 8);
-		_x11_hidden_cursor = XCreatePixmapCursor(_x11_display, bm_no, bm_no, &black, &black, 0, 0);
-
-		bgfx::x11SetDisplayWindow(_x11_display, _x11_window);
-		XMapRaised(_x11_display, _x11_window);
+		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
 
 		// Save screen configuration
-		_screen_config = XRRGetScreenInfo(_x11_display, parent_window);
+		_screen_config = XRRGetScreenInfo(_x11_display, root_window);
 
 		Rotation rr_old_rot;
 		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_old_rot);
@@ -469,7 +415,6 @@ struct LinuxDevice
 		}
 		XRRFreeScreenConfigInfo(_screen_config);
 
-		XDestroyWindow(_x11_display, _x11_window);
 		XCloseDisplay(_x11_display);
 		return EXIT_SUCCESS;
 	}
@@ -493,8 +438,9 @@ struct LinuxDevice
 				case ClientMessage:
 				{
 					if ((Atom)event.xclient.data.l[0] == _wm_delete_message)
+					{
 						_queue.push_exit_event(0);
-
+					}
 					break;
 				}
 				case ConfigureNotify:
@@ -569,8 +515,6 @@ struct LinuxDevice
 public:
 
 	Display* _x11_display;
-	Window _x11_window;
-	Cursor _x11_hidden_cursor;
 	Atom _wm_delete_message;
 	XRRScreenConfiguration* _screen_config;
 	bool _x11_detectable_autorepeat;

@@ -18,6 +18,7 @@
 #include "resource_types.h"
 #include "string_id.h"
 #include "types.h"
+#include "window.h"
 #include "world_types.h"
 
 namespace crown
@@ -47,6 +48,7 @@ class Device
 	InputManager* _input_manager;
 	UnitManager* _unit_manager;
 	LuaEnvironment* _lua_environment;
+	Window* _window;
 
 	StringId64 _boot_package_id;
 	StringId64 _boot_script_id;
@@ -164,6 +166,9 @@ public:
 
 	/// Returns the unit manager.
 	UnitManager* unit_manager();
+
+	/// Returns the main window.
+	Window* window();
 
 private:
 

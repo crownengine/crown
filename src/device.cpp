@@ -132,6 +132,7 @@ Device::Device(const DeviceOptions& opts)
 	, _input_manager(NULL)
 	, _unit_manager(NULL)
 	, _lua_environment(NULL)
+	, _window(NULL)
 	, _boot_package_id(uint64_t(0))
 	, _boot_script_id(uint64_t(0))
 	, _boot_package(NULL)
@@ -173,6 +174,15 @@ void Device::init()
 
 	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
 	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
+
+	_window = Window::create(_allocator);
+	_window->open(_device_options.window_x()
+		, _device_options.window_y()
+		, _device_options.window_width()
+		, _device_options.window_height()
+		, _device_options.parent_window()
+		);
+	_window->bgfx_setup();
 
 	bgfx::init(bgfx::RendererType::Count
 		, BGFX_PCI_ID_NONE
@@ -230,6 +240,7 @@ void Device::shutdown()
 	CE_DELETE(_allocator, _bundle_filesystem);
 
 	bgfx::shutdown();
+	Window::destroy(_allocator, *_window);
 	CE_DELETE(_allocator, _bgfx_callback);
 	CE_DELETE(_allocator, _bgfx_allocator);
 
@@ -404,6 +415,11 @@ MaterialManager* Device::material_manager()
 UnitManager* Device::unit_manager()
 {
 	return _unit_manager;
+}
+
+Window* Device::window()
+{
+	return _window;
 }
 
 void Device::read_config()

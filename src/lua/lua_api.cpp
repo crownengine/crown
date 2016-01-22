@@ -2617,69 +2617,54 @@ static int gui_draw_text(lua_State* L)
 static int window_show(lua_State* L)
 {
 	LuaStack stack(L);
-	// window()->show();
+	device()->window()->show();
 	return 0;
 }
 
 static int window_hide(lua_State* L)
 {
 	LuaStack stack(L);
-	// window()->hide();
+	device()->window()->hide();
 	return 0;
 }
 
 static int window_resize(lua_State* L)
 {
 	LuaStack stack(L);
-	// window()->resize(stack.get_int(1), stack.get_int(2));
+	device()->window()->resize(stack.get_int(1), stack.get_int(2));
 	return 0;
 }
 
 static int window_move(lua_State* L)
 {
 	LuaStack stack(L);
-	// window()->move(stack.get_int(1), stack.get_int(2));
+	device()->window()->move(stack.get_int(1), stack.get_int(2));
 	return 0;
 }
 
 static int window_minimize(lua_State* /*L*/)
 {
-	// window()->minimize();
+	device()->window()->minimize();
 	return 0;
 }
 
 static int window_restore(lua_State* /*L*/)
 {
-	// window()->restore();
-	return 0;
-}
-
-static int window_is_resizable(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_bool(/*window()->is_resizable()*/ false);
-	return 1;
-}
-
-static int window_set_resizable(lua_State* L)
-{
-	LuaStack stack(L);
-	// window()->set_resizable(stack.get_bool(1));
+	device()->window()->restore();
 	return 0;
 }
 
 static int window_title(lua_State* L)
 {
 	LuaStack stack(L);
-	// stack.push_string(window()->title());
-	stack.push_string("");
+	stack.push_string(device()->window()->title());
 	return 1;
 }
 
 static int window_set_title(lua_State* L)
 {
 	LuaStack stack(L);
-	// window()->set_title(stack.get_string(1));
+	device()->window()->set_title(stack.get_string(1));
 	return 0;
 }
 
@@ -3095,16 +3080,14 @@ void load_api(LuaEnvironment& env)
 	env.load_module_function("Gui", "draw_image_uv",  gui_draw_image_uv);
 	env.load_module_function("Gui", "draw_text",      gui_draw_text);
 
-	env.load_module_function("Window", "show",          window_show);
-	env.load_module_function("Window", "hide",          window_hide);
-	env.load_module_function("Window", "resize",        window_resize);
-	env.load_module_function("Window", "move",          window_move);
-	env.load_module_function("Window", "minimize",      window_minimize);
-	env.load_module_function("Window", "restore",       window_restore);
-	env.load_module_function("Window", "is_resizable",  window_is_resizable);
-	env.load_module_function("Window", "set_resizable", window_set_resizable);
-	env.load_module_function("Window", "title",         window_title);
-	env.load_module_function("Window", "set_title",     window_set_title);
+	env.load_module_function("Window", "show",      window_show);
+	env.load_module_function("Window", "hide",      window_hide);
+	env.load_module_function("Window", "resize",    window_resize);
+	env.load_module_function("Window", "move",      window_move);
+	env.load_module_function("Window", "minimize",  window_minimize);
+	env.load_module_function("Window", "restore",   window_restore);
+	env.load_module_function("Window", "title",     window_title);
+	env.load_module_function("Window", "set_title", window_set_title);
 }
 
 } // namespace crown
