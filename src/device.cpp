@@ -121,20 +121,6 @@ private:
 
 Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
-	, _width(0)
-	, _height(0)
-	, _mouse_curr_x(0)
-	, _mouse_curr_y(0)
-	, _mouse_last_x(0)
-	, _mouse_last_y(0)
-	, _is_init(false)
-	, _is_running(false)
-	, _is_paused(false)
-	, _frame_count(0)
-	, _last_time(0)
-	, _current_time(0)
-	, _last_delta_time(0.0f)
-	, _time_since_start(0.0)
 	, _device_options(opts)
 	, _boot_package_id(uint64_t(0))
 	, _boot_script_id(uint64_t(0))
@@ -150,6 +136,20 @@ Device::Device(const DeviceOptions& opts)
 	, _unit_manager(NULL)
 	, _lua_environment(NULL)
 	, _worlds(default_allocator())
+	, _width(0)
+	, _height(0)
+	, _mouse_curr_x(0)
+	, _mouse_curr_y(0)
+	, _mouse_last_x(0)
+	, _mouse_last_y(0)
+	, _is_init(false)
+	, _is_running(false)
+	, _is_paused(false)
+	, _frame_count(0)
+	, _last_time(0)
+	, _current_time(0)
+	, _last_delta_time(0.0f)
+	, _time_since_start(0.0)
 {
 }
 
@@ -406,6 +406,34 @@ UnitManager* Device::unit_manager()
 	return _unit_manager;
 }
 
+void Device::read_config()
+{
+	TempAllocator4096 ta;
+	DynamicString project_path(ta);
+
+	if (_device_options.project() != NULL)
+	{
+		project_path += _device_options.project();
+		project_path += '/';
+	}
+
+	project_path += CROWN_BOOT_CONFIG;
+
+	const StringId64 config_name(project_path.c_str());
+
+	_resource_manager->load(CONFIG_TYPE, config_name);
+	_resource_manager->flush();
+	const char* cfile = (const char*)_resource_manager->get(CONFIG_TYPE, config_name);
+
+	JsonObject config(ta);
+	sjson::parse(cfile, config);
+
+	_boot_script_id  = sjson::parse_resource_id(config["boot_script"]);
+	_boot_package_id = sjson::parse_resource_id(config["boot_package"]);
+
+	_resource_manager->unload(CONFIG_TYPE, config_name);
+}
+
 bool Device::process_events()
 {
 	OsEvent event;
@@ -521,34 +549,6 @@ bool Device::process_events()
 	}
 
 	return exit;
-}
-
-void Device::read_config()
-{
-	TempAllocator4096 ta;
-	DynamicString project_path(ta);
-
-	if (_device_options.project() != NULL)
-	{
-		project_path += _device_options.project();
-		project_path += '/';
-	}
-
-	project_path += CROWN_BOOT_CONFIG;
-
-	const StringId64 config_name(project_path.c_str());
-
-	_resource_manager->load(CONFIG_TYPE, config_name);
-	_resource_manager->flush();
-	const char* cfile = (const char*)_resource_manager->get(CONFIG_TYPE, config_name);
-
-	JsonObject config(ta);
-	sjson::parse(cfile, config);
-
-	_boot_script_id  = sjson::parse_resource_id(config["boot_script"]);
-	_boot_package_id = sjson::parse_resource_id(config["boot_package"]);
-
-	_resource_manager->unload(CONFIG_TYPE, config_name);
 }
 
 char _buffer[sizeof(Device)];

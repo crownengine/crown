@@ -32,8 +32,49 @@ struct BgfxCallback;
 /// the engine subsystems and related stuff.
 ///
 /// @ingroup Device
-struct Device
+class Device
 {
+	LinearAllocator _allocator;
+
+	const DeviceOptions& _device_options;
+	Filesystem* _bundle_filesystem;
+	ResourceLoader* _resource_loader;
+	ResourceManager* _resource_manager;
+	BgfxAllocator* _bgfx_allocator;
+	BgfxCallback* _bgfx_callback;
+	ShaderManager* _shader_manager;
+	MaterialManager* _material_manager;
+	InputManager* _input_manager;
+	UnitManager* _unit_manager;
+	LuaEnvironment* _lua_environment;
+	StringId64 _boot_package_id;
+	StringId64 _boot_script_id;
+	ResourcePackage* _boot_package;
+
+	Array<World*> _worlds;
+
+	uint16_t _width;
+	uint16_t _height;
+	int16_t _mouse_curr_x;
+	int16_t _mouse_curr_y;
+	int16_t _mouse_last_x;
+	int16_t _mouse_last_y;
+
+	bool _is_init;
+	bool _is_running;
+	bool _is_paused;
+
+	uint64_t _frame_count;
+	int64_t _last_time;
+	int64_t _current_time;
+	float _last_delta_time;
+	double _time_since_start;
+
+	void read_config();
+	bool process_events();
+
+public:
+
 	Device(const DeviceOptions& opts);
 
 	/// Initializes the engine.
@@ -116,50 +157,6 @@ struct Device
 
 	/// Returns the unit manager.
 	UnitManager* unit_manager();
-
-private:
-
-	bool process_events();
-	void read_config();
-
-private:
-
-	// Used to allocate all subsystems
-	LinearAllocator _allocator;
-
-	uint16_t _width;
-	uint16_t _height;
-	int16_t _mouse_curr_x;
-	int16_t _mouse_curr_y;
-	int16_t _mouse_last_x;
-	int16_t _mouse_last_y;
-
-	bool _is_init;
-	bool _is_running;
-	bool _is_paused;
-
-	uint64_t _frame_count;
-	int64_t _last_time;
-	int64_t _current_time;
-	float _last_delta_time;
-	double _time_since_start;
-
-	const DeviceOptions& _device_options;
-	Filesystem* _bundle_filesystem;
-	ResourceLoader* _resource_loader;
-	ResourceManager* _resource_manager;
-	BgfxAllocator* _bgfx_allocator;
-	BgfxCallback* _bgfx_callback;
-	ShaderManager* _shader_manager;
-	MaterialManager* _material_manager;
-	InputManager* _input_manager;
-	UnitManager* _unit_manager;
-	LuaEnvironment* _lua_environment;
-	StringId64 _boot_package_id;
-	StringId64 _boot_script_id;
-	ResourcePackage* _boot_package;
-
-	Array<World*> _worlds;
 
 private:
 

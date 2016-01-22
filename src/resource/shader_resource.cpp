@@ -403,6 +403,16 @@ namespace shader_resource
 
 	struct BgfxShader
 	{
+		ALLOCATOR_AWARE;
+
+		DynamicString _includes;
+		DynamicString _code;
+		DynamicString _vs_code;
+		DynamicString _fs_code;
+		DynamicString _varying;
+		DynamicString _vs_input_output;
+		DynamicString _fs_input_output;
+
 		BgfxShader()
 			: _includes(default_allocator())
 			, _code(default_allocator())
@@ -424,20 +434,15 @@ namespace shader_resource
 			, _fs_input_output(a)
 		{
 		}
-
-		DynamicString _includes;
-		DynamicString _code;
-		DynamicString _vs_code;
-		DynamicString _fs_code;
-		DynamicString _varying;
-		DynamicString _vs_input_output;
-		DynamicString _fs_input_output;
-
-		ALLOCATOR_AWARE;
 	};
 
 	struct ShaderPermutation
 	{
+		ALLOCATOR_AWARE;
+
+		DynamicString _bgfx_shader;
+		DynamicString _render_state;
+
 		ShaderPermutation()
 			: _bgfx_shader(default_allocator())
 			, _render_state(default_allocator())
@@ -449,9 +454,6 @@ namespace shader_resource
 			, _render_state(a)
 		{
 		}
-
-		DynamicString _bgfx_shader;
-		DynamicString _render_state;
 	};
 
 	struct ShaderCompiler
