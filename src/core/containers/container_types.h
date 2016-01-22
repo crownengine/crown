@@ -23,25 +23,20 @@ namespace crown
 template <typename T>
 struct Array
 {
-	Array(Allocator& a);
-
-	/// Allocates capacity * sizeof(T) bytes.
-	Array(Allocator& a, uint32_t capacity);
-	Array(const Array<T>& other);
-	~Array();
-
-	/// Random access by index
-	T& operator[](uint32_t index);
-	const T& operator[](uint32_t index) const;
-
-	Array<T>& operator=(const Array<T>& other);
+	ALLOCATOR_AWARE;
 
 	Allocator* _allocator;
 	uint32_t _capacity;
 	uint32_t _size;
 	T* _data;
 
-	ALLOCATOR_AWARE;
+	Array(Allocator& a);
+	Array(Allocator& a, uint32_t capacity);
+	Array(const Array<T>& other);
+	~Array();
+	T& operator[](uint32_t index);
+	const T& operator[](uint32_t index) const;
+	Array<T>& operator=(const Array<T>& other);
 };
 
 typedef Array<char> Buffer;
@@ -55,23 +50,20 @@ typedef Array<char> Buffer;
 template <typename T>
 struct Vector
 {
-	Vector(Allocator& a);
-	Vector(Allocator& a, uint32_t capacity);
-	Vector(const Vector<T>& other);
-	~Vector();
-
-	/// Random access by index
-	T& operator[](uint32_t index);
-	const T& operator[](uint32_t index) const;
-
-	const Vector<T>& operator=(const Vector<T>& other);
+	ALLOCATOR_AWARE;
 
 	Allocator* _allocator;
 	uint32_t _capacity;
 	uint32_t _size;
 	T* _data;
 
-	ALLOCATOR_AWARE;
+	Vector(Allocator& a);
+	Vector(Allocator& a, uint32_t capacity);
+	Vector(const Vector<T>& other);
+	~Vector();
+	T& operator[](uint32_t index);
+	const T& operator[](uint32_t index) const;
+	const Vector<T>& operator=(const Vector<T>& other);
 };
 
 /// Circular buffer double-ended queue of POD items.
@@ -82,17 +74,15 @@ struct Vector
 template <typename T>
 struct Queue
 {
-	Queue(Allocator& a);
-
-	/// Random access by index
-	T& operator[](uint32_t index);
-	const T& operator[](uint32_t index) const;
+	ALLOCATOR_AWARE;
 
 	uint32_t _read;
 	uint32_t _size;
 	Array<T> _queue;
 
-	ALLOCATOR_AWARE;
+	Queue(Allocator& a);
+	T& operator[](uint32_t index);
+	const T& operator[](uint32_t index) const;
 };
 
 /// Priority queue of POD items.
@@ -101,11 +91,11 @@ struct Queue
 template <typename T>
 struct PriorityQueue
 {
-	PriorityQueue(Allocator& a);
+	ALLOCATOR_AWARE;
 
 	Array<T> _queue;
 
-	ALLOCATOR_AWARE;
+	PriorityQueue(Allocator& a);
 };
 
 /// Hash from an uint64_t to POD items. If you want to use a generic key
@@ -115,7 +105,7 @@ struct PriorityQueue
 template<typename T>
 struct Hash
 {
-	Hash(Allocator &a);
+	ALLOCATOR_AWARE;
 
 	struct Entry
 	{
@@ -127,7 +117,7 @@ struct Hash
 	Array<uint32_t> _hash;
 	Array<Entry> _data;
 
-	ALLOCATOR_AWARE;
+	Hash(Allocator &a);
 };
 
 /// Map from key to value. Uses a Vector internally, so, definitely
@@ -137,16 +127,11 @@ struct Hash
 template <typename TKey, typename TValue>
 struct Map
 {
-	Map(Allocator& a);
-
-	const TValue& operator[](const TKey& key) const;
+	ALLOCATOR_AWARE;
 
 	struct Node
 	{
-		Node(Allocator& a)
-			: pair(a)
-		{
-		}
+		ALLOCATOR_AWARE;
 
 		PAIR(TKey, TValue) pair;
 		uint32_t left;
@@ -154,14 +139,18 @@ struct Map
 		uint32_t parent;
 		uint32_t color;
 
-		ALLOCATOR_AWARE;
+		Node(Allocator& a)
+			: pair(a)
+		{
+		}
 	};
 
 	uint32_t _root;
 	uint32_t _sentinel;
 	Vector<Node> _data;
 
-	ALLOCATOR_AWARE;
+	Map(Allocator& a);
+	const TValue& operator[](const TKey& key) const;
 };
 
 /// Vector of sorted items.
@@ -171,18 +160,18 @@ struct Map
 template <typename TKey, typename TValue, class Compare = less<TKey> >
 struct SortMap
 {
-	SortMap(Allocator& a);
+	ALLOCATOR_AWARE;
 
 	struct Entry
 	{
+		ALLOCATOR_AWARE;
+
+		PAIR(TKey, TValue) pair;
+
 		Entry(Allocator& a)
 			: pair(a)
 		{
 		}
-
-		PAIR(TKey, TValue) pair;
-
-		ALLOCATOR_AWARE;
 	};
 
 	Vector<Entry> _data;
@@ -190,7 +179,7 @@ struct SortMap
 	bool _is_sorted;
 #endif
 
-	ALLOCATOR_AWARE;
+	SortMap(Allocator& a);
 };
 
 } // namespace crown
