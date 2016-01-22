@@ -32,7 +32,7 @@ static void help(const char* msg = NULL)
 		"\nAvailable only in debug and development builds:\n\n"
 
 		"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
-		"  --project <name>           Start the project <name>.\n"
+		"  --boot-dir <path>          Boot the engine with the 'boot.config' from given <path>.\n"
 		"  --compile                  Do a full compile of the resources.\n"
 		"  --platform <platform>      Compile resources for the given <platform>.\n"
 		"      Possible values for <platform> are:\n"
@@ -49,7 +49,7 @@ DeviceOptions::DeviceOptions(int argc, char** argv)
 	, _argv(argv)
 	, _source_dir(NULL)
 	, _bundle_dir(NULL)
-	, _project(NULL)
+	, _boot_dir(NULL)
 	, _platform(NULL)
 	, _wait_console(false)
 	, _do_compile(false)
@@ -115,7 +115,7 @@ int DeviceOptions::parse()
 
 	_do_continue = cl.has_argument("continue");
 
-	_project = cl.get_parameter("project");
+	_boot_dir = cl.get_parameter("boot-dir");
 	_wait_console = cl.has_argument("wait-console");
 
 	const char* parent = cl.get_parameter("parent-window");
@@ -133,5 +133,4 @@ int DeviceOptions::parse()
 	return EXIT_SUCCESS;
 }
 
-}
-
+} // namespace crown

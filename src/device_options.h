@@ -25,7 +25,7 @@ class DeviceOptions
 	char** _argv;
 	const char* _source_dir;
 	const char* _bundle_dir;
-	const char* _project;
+	const char* _boot_dir;
 	const char* _platform;
 	bool _wait_console;
 	bool _do_compile;
@@ -49,9 +49,11 @@ public:
 	/// EXIT_SUCCESS if no error is found.
 	int parse();
 
+	int argc() const { return _argc; }
+	const char** argv() const { return (const char**)_argv; }
 	const char* source_dir() const { return _source_dir; }
 	const char* bundle_dir() const { return _bundle_dir; }
-	const char* project() const { return _project; }
+	const char* boot_dir() const { return _boot_dir; }
 	const char* platform() const { return _platform; }
 	bool wait_console() const { return _wait_console; }
 	bool do_compile() const { return _do_compile; }

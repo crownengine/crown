@@ -83,6 +83,12 @@ public:
 	/// Shutdowns the engine freeing all the allocated resources.
 	void shutdown();
 
+	/// Returns the number of command line parameters.
+	int argc() const { return _device_options.argc(); }
+
+	/// Returns command line parameters.
+	const char** argv() const { return _device_options.argv(); }
+
 	/// Returns a string identifying what platform the engine is running on.
 	const char* platform() const { return CROWN_PLATFORM_NAME; }
 

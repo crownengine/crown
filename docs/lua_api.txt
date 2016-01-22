@@ -737,6 +737,9 @@ ResourcePackage
 Device
 ======
 
+	**argv** () : table
+		Returns a table containing the command line parameters the engine was started with.
+
 	**platform** () : string
 		Returns a string identifying what platform the engine is running on.
 		It can be either ``android``, ``linux`` or ``windows``

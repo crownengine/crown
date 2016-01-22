@@ -2240,6 +2240,21 @@ static int sound_world_tostring(lua_State* L)
 	return 1;
 }
 
+static int device_argv(lua_State* L)
+{
+	LuaStack stack(L);
+	const int argc = device()->argc();
+	const char** argv = device()->argv();
+	stack.push_table(argc);
+	for (int i = 0; i < argc; ++i)
+	{
+		stack.push_key_begin(i + 1);
+		stack.push_string(argv[i]);
+		stack.push_key_end();
+	}
+	return 1;
+}
+
 static int device_platform(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3030,6 +3045,7 @@ void load_api(LuaEnvironment& env)
 	env.load_module_function("SoundWorld", "__index",    "SoundWorld");
 	env.load_module_function("SoundWorld", "__tostring", sound_world_tostring);
 
+	env.load_module_function("Device", "argv",                     device_argv);
 	env.load_module_function("Device", "platform",                 device_platform);
 	env.load_module_function("Device", "architecture",             device_architecture);
 	env.load_module_function("Device", "version",                  device_version);

@@ -409,17 +409,17 @@ UnitManager* Device::unit_manager()
 void Device::read_config()
 {
 	TempAllocator4096 ta;
-	DynamicString project_path(ta);
+	DynamicString boot_dir(ta);
 
-	if (_device_options.project() != NULL)
+	if (_device_options.boot_dir() != NULL)
 	{
-		project_path += _device_options.project();
-		project_path += '/';
+		boot_dir += _device_options.boot_dir();
+		boot_dir += '/';
 	}
 
-	project_path += CROWN_BOOT_CONFIG;
+	boot_dir += CROWN_BOOT_CONFIG;
 
-	const StringId64 config_name(project_path.c_str());
+	const StringId64 config_name(boot_dir.c_str());
 
 	_resource_manager->load(CONFIG_TYPE, config_name);
 	_resource_manager->flush();
