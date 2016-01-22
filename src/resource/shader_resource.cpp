@@ -644,6 +644,11 @@ namespace shader_resource
 				DynamicString key(ta);
 				key = begin->pair.first;
 
+				RESOURCE_COMPILER_ASSERT(!map::has(_render_states, key)
+					, _opts
+					, "Render state redefined: '%s'"
+					, key.c_str()
+					);
 				map::set(_render_states, key, rs);
 			}
 		}
@@ -680,6 +685,11 @@ namespace shader_resource
 				DynamicString key(ta);
 				key = begin->pair.first;
 
+				RESOURCE_COMPILER_ASSERT(!map::has(_bgfx_shaders, key)
+					, _opts
+					, "Bgfx shader redefined: '%s'"
+					, key.c_str()
+					);
 				map::set(_bgfx_shaders, key, bgfxshader);
 			}
 		}
@@ -704,6 +714,11 @@ namespace shader_resource
 				DynamicString key(ta);
 				key = begin->pair.first;
 
+				RESOURCE_COMPILER_ASSERT(!map::has(_shaders, key)
+					, _opts
+					, "Shader redefined: '%s'"
+					, key.c_str()
+					);
 				map::set(_shaders, key, shader);
 			}
 		}
