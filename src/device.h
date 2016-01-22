@@ -47,6 +47,7 @@ class Device
 	InputManager* _input_manager;
 	UnitManager* _unit_manager;
 	LuaEnvironment* _lua_environment;
+
 	StringId64 _boot_package_id;
 	StringId64 _boot_script_id;
 	ResourcePackage* _boot_package;

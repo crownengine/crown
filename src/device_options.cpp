@@ -107,7 +107,7 @@ int DeviceOptions::parse()
 
 	_do_compile = cl.has_argument("compile");
 	_platform = cl.get_parameter("platform");
-	if (_do_compile != NULL && _platform == NULL)
+	if (_do_compile && _platform == NULL)
 	{
 		help("Platform must be specified.");
 		return EXIT_FAILURE;
