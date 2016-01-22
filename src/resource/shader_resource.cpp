@@ -326,11 +326,14 @@ namespace shader_resource
 		args << " --type " << type;
 		args << " --platform " << platform;
 		args << " --profile ";
-#if CROWN_PLATFORM_LINUX
-		args <<	"120";
-#elif CROWN_PLATFORM_WINDOWS
-		args << ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
-#endif
+		if (strcmp("linux", platform) == 0)
+		{
+			args <<	"120";
+		}
+		else if (strcmp("windows", platform) == 0)
+		{
+			args << ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
+		}
 
 		return os::execute_process(SHADERC_PATH, c_str(args), output);
 	}
