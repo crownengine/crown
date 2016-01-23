@@ -13,6 +13,7 @@
 #include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
+#include "window.h"
 #include <stdlib.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/Xatom.h>
@@ -49,9 +50,9 @@ namespace crown
 // 	if ((int) id >= num_rrsizes)
 // 		return;
 
-// 	XRRSetScreenConfig(m_x11_display,
+// 	XRRSetScreenConfig(s_x11_display,
 // 		m_screen_config,
-// 		RootWindow(m_x11_display, DefaultScreen(m_x11_display)),
+// 		RootWindow(s_x11_display, DefaultScreen(s_x11_display)),
 // 		(int) id,
 // 		RR_Rotate_0,
 // 		CurrentTime);
@@ -62,11 +63,11 @@ namespace crown
 // 	XEvent e;
 // 	e.xclient.type = ClientMessage;
 // 	e.xclient.window = m_x11_window;
-// 	e.xclient.message_type = XInternAtom(m_x11_display, "_NET_WM_STATE", False );
+// 	e.xclient.message_type = XInternAtom(s_x11_display, "_NET_WM_STATE", False );
 // 	e.xclient.format = 32;
 // 	e.xclient.data.l[0] = full ? 1 : 0;
-// 	e.xclient.data.l[1] = XInternAtom(m_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
-// 	XSendEvent(m_x11_display, DefaultRootWindow(m_x11_display), False, SubstructureNotifyMask, &e);
+// 	e.xclient.data.l[1] = XInternAtom(s_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+// 	XSendEvent(s_x11_display, DefaultRootWindow(s_x11_display), False, SubstructureNotifyMask, &e);
 // }
 
 static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
@@ -344,13 +345,12 @@ int32_t func(void* data)
 	return EXIT_SUCCESS;
 }
 
-extern void set_x11_display(Display*);
+static Display* s_x11_display = NULL;
 
 struct LinuxDevice
 {
 	LinuxDevice()
-		: _x11_display(NULL)
-		, _screen_config(NULL)
+		: _screen_config(NULL)
 		, _x11_detectable_autorepeat(false)
 	{
 	}
@@ -362,21 +362,19 @@ struct LinuxDevice
 		CE_ASSERT(xs != 0, "XInitThreads: error");
 		CE_UNUSED(xs);
 
-		_x11_display = XOpenDisplay(NULL);
-		CE_ASSERT(_x11_display != NULL, "XOpenDisplay: error");
+		s_x11_display = XOpenDisplay(NULL);
+		CE_ASSERT(s_x11_display != NULL, "XOpenDisplay: error");
 
-		crown::set_x11_display(_x11_display);
-
-		::Window root_window = RootWindow(_x11_display, DefaultScreen(_x11_display));
+		::Window root_window = RootWindow(s_x11_display, DefaultScreen(s_x11_display));
 
 		// Do we have detectable autorepeat?
 		Bool detectable;
-		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
+		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(s_x11_display, true, &detectable);
 
-		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
+		_wm_delete_message = XInternAtom(s_x11_display, "WM_DELETE_WINDOW", False);
 
 		// Save screen configuration
-		_screen_config = XRRGetScreenInfo(_x11_display, root_window);
+		_screen_config = XRRGetScreenInfo(s_x11_display, root_window);
 
 		Rotation rr_old_rot;
 		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_old_rot);
@@ -405,7 +403,7 @@ struct LinuxDevice
 
 		if (rr_rot != rr_old_rot || rr_sizeid != rr_old_sizeid)
 		{
-			XRRSetScreenConfig(_x11_display
+			XRRSetScreenConfig(s_x11_display
 				, _screen_config
 				, root_window
 				, rr_old_sizeid
@@ -415,7 +413,7 @@ struct LinuxDevice
 		}
 		XRRFreeScreenConfigInfo(_screen_config);
 
-		XCloseDisplay(_x11_display);
+		XCloseDisplay(s_x11_display);
 		return EXIT_SUCCESS;
 	}
 
@@ -423,10 +421,10 @@ struct LinuxDevice
 	{
 		_joypad.update(_queue);
 
-		while (XPending(_x11_display))
+		while (XPending(s_x11_display))
 		{
 			XEvent event;
-			XNextEvent(_x11_display, &event);
+			XNextEvent(s_x11_display, &event);
 
 			switch (event.type)
 			{
@@ -514,13 +512,152 @@ struct LinuxDevice
 
 public:
 
-	Display* _x11_display;
 	Atom _wm_delete_message;
 	XRRScreenConfiguration* _screen_config;
 	bool _x11_detectable_autorepeat;
 	OsEventQueue _queue;
 	Joypad _joypad;
 };
+
+class WindowX11 : public Window
+{
+	::Window _x11_window;
+	Cursor _x11_hidden_cursor;
+	Atom _wm_delete_message;
+
+public:
+
+	WindowX11()
+		: _x11_window(None)
+		, _x11_hidden_cursor(None)
+	{
+	}
+
+	void open(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t parent)
+	{
+		int screen = DefaultScreen(s_x11_display);
+		int depth = DefaultDepth(s_x11_display, screen);
+		Visual* visual = DefaultVisual(s_x11_display, screen);
+
+		::Window root_window = RootWindow(s_x11_display, screen);
+		::Window parent_window = (parent == 0) ? root_window : (::Window)parent;
+
+		// Create main window
+		XSetWindowAttributes win_attribs;
+		win_attribs.background_pixmap = 0;
+		win_attribs.border_pixel = 0;
+		win_attribs.event_mask = FocusChangeMask
+			| StructureNotifyMask
+			;
+
+		if (!parent)
+		{
+			win_attribs.event_mask |= KeyPressMask
+				| KeyReleaseMask
+				| ButtonPressMask
+				| ButtonReleaseMask
+				| PointerMotionMask
+				| EnterWindowMask
+				;
+		}
+
+		_x11_window = XCreateWindow(s_x11_display
+			, parent_window
+			, x
+			, y
+			, width
+			, height
+			, 0
+			, depth
+			, InputOutput
+			, visual
+			, CWBorderPixel | CWEventMask
+			, &win_attribs
+			);
+		CE_ASSERT(_x11_window != None, "XCreateWindow: error");
+
+		// Build hidden cursor
+		Pixmap bm_no;
+		XColor black, dummy;
+		Colormap colormap;
+		static char no_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+		colormap = XDefaultColormap(s_x11_display, screen);
+		XAllocNamedColor(s_x11_display, colormap, "black", &black, &dummy);
+		bm_no = XCreateBitmapFromData(s_x11_display, _x11_window, no_data, 8, 8);
+		_x11_hidden_cursor = XCreatePixmapCursor(s_x11_display, bm_no, bm_no, &black, &black, 0, 0);
+
+		_wm_delete_message = XInternAtom(s_x11_display, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(s_x11_display, _x11_window, &_wm_delete_message, 1);
+
+		XMapRaised(s_x11_display, _x11_window);
+	}
+
+	void close()
+	{
+		XDestroyWindow(s_x11_display, _x11_window);
+	}
+
+	void bgfx_setup()
+	{
+		bgfx::x11SetDisplayWindow(s_x11_display, _x11_window);
+	}
+
+	void show()
+	{
+
+	}
+
+	void hide()
+	{
+
+	}
+
+	void resize(uint16_t width, uint16_t height)
+	{
+
+	}
+
+	void move(uint16_t x, uint16_t y)
+	{
+
+	}
+
+	void minimize()
+	{
+
+	}
+
+	void restore()
+	{
+
+	}
+
+	const char* title()
+	{
+
+	}
+
+	void set_title (const char* /*title*/)
+	{
+
+	}
+
+	void* handle()
+	{
+		return (void*)(uintptr_t)_x11_window;
+	}
+};
+
+Window* Window::create(Allocator& a)
+{
+	return CE_NEW(a, WindowX11)();
+}
+
+void Window::destroy(Allocator& a, Window& w)
+{
+	CE_DELETE(a, &w);
+}
 
 static LinuxDevice s_ldvc;
 
