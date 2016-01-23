@@ -39,9 +39,7 @@ function toolchain(build_dir, lib_dir)
 			end
 
 			location(build_dir .. "projects/" .. "linux")
-		end
-
-		if "android-arm" == _OPTIONS["compiler"] then
+		elseif "android-arm" == _OPTIONS["compiler"] then
 
 			if not os.getenv("ANDROID_NDK_ROOT") then
 				print("Set ANDROID_NDK_ROOT environment variable.")
@@ -56,9 +54,7 @@ function toolchain(build_dir, lib_dir)
 			premake.gcc.ar = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-ar"
 			location(build_dir .. "projects/" .. "android")
 		end
-	end
-
-	if _ACTION == "vs2013" then
+	elseif _ACTION == "vs2013" then
 
 		if not os.is("windows") then
 			print("Action not valid in current OS.")
@@ -122,18 +118,12 @@ function toolchain(build_dir, lib_dir)
 		libdirs {
 			lib_dir .. "../.build/linux32/bin",
 		}
-		buildoptions {
-			"-m32",
-		}
 
 	configuration { "x64", "linux-*" }
 		targetdir (build_dir .. "linux64" .. "/bin")
 		objdir (build_dir .. "linux64" .. "/obj")
 		libdirs {
 			lib_dir .. "../.build/linux64/bin",
-		}
-		buildoptions {
-			"-m64",
 		}
 
 	configuration { "linux-*" }

@@ -129,17 +129,8 @@ function crown_project(_name, _kind, _defines)
 		end
 
 		configuration { "debug or development" }
-			flags {
-				"Symbols"
-			}
 			defines {
-				"_DEBUG",
 				"CROWN_DEBUG=1"
-			}
-
-		configuration { "release" }
-			defines {
-				"NDEBUG"
 			}
 
 		configuration { "android*" }
