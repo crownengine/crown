@@ -87,7 +87,7 @@ namespace sort_map_internal
 			sort_map_internal::CompareEntry<TKey, TValue, Compare>());
 
 		if (first != vector::end(m._data) && !(key < first->pair.first))
-		 	result.item_i = first - vector::begin(m._data);
+			result.item_i = uint32_t(first - vector::begin(m._data));
 
 		return result;
 	}
