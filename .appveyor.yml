@@ -4,7 +4,7 @@ os:
 install:
   - git submodule init
   - git submodule update
-  - third/bx/tools/bin/windows/genie --file=genie\genie.lua --with-luajit --with-openal --with-bullet --with-tools vs2013
+  - third\bx\tools\bin\windows\genie --file=genie\genie.lua --with-luajit --with-openal --with-bullet --with-tools vs2013
 
 configuration:
   - debug
