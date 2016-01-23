@@ -516,7 +516,7 @@ int main(int argc, char** argv)
 	}
 
 	if (do_continue)
-		exitcode = crown::s_ldvc.run(&opts);
+		exitcode = crown::s_wdvc.run(&opts);
 
 	if (opts.do_compile())
 		bundle_compiler_globals::shutdown();
