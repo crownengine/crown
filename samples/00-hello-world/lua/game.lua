@@ -3,7 +3,7 @@ camera = camera or nil
 
 function init()
 	-- Set the title of the main window
-	Window.set_title("Hello world!")
+	Window.set_title("00-hello-world")
 
 	-- Create world and camera
 	world = Device.create_world()

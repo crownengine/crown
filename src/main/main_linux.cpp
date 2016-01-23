@@ -605,42 +605,46 @@ public:
 
 	void show()
 	{
-
+		XMapRaised(s_x11_display, _x11_window);
 	}
 
 	void hide()
 	{
-
+		XUnmapWindow(s_x11_display, _x11_window);
 	}
 
 	void resize(uint16_t width, uint16_t height)
 	{
-
+		XResizeWindow(s_x11_display, _x11_window, width, height);
 	}
 
 	void move(uint16_t x, uint16_t y)
 	{
-
+		XMoveWindow(s_x11_display, _x11_window, x, y);
 	}
 
 	void minimize()
 	{
-
 	}
 
 	void restore()
 	{
-
 	}
 
 	const char* title()
 	{
-
+		static char buf[512];
+		memset(buf, 0, sizeof(buf));
+		char* name;
+		XFetchName(s_x11_display, _x11_window, &name);
+		strncpy(buf, name, sizeof(buf));
+		XFree(name);
+		return buf;
 	}
 
-	void set_title (const char* /*title*/)
+	void set_title (const char* title)
 	{
-
+		XStoreName(s_x11_display, _x11_window, title);
 	}
 
 	void* handle()
