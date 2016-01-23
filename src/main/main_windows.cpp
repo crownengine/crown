@@ -303,43 +303,8 @@ int32_t func(void* data)
 
 struct WindowsDevice
 {
-	WindowsDevice()
-		: _hwnd(NULL)
-		, _hdc(NULL)
+	int	run(DeviceOptions* opts)
 	{
-	}
-
-	int32_t	run(DeviceOptions* opts)
-	{
-		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
-		WNDCLASSEX wnd;
-		memset(&wnd, 0, sizeof(wnd));
-		wnd.cbSize = sizeof(wnd);
-		wnd.style = CS_HREDRAW | CS_VREDRAW;
-		wnd.lpfnWndProc = window_proc;
-		wnd.hInstance = instance;
-		wnd.hIcon = LoadIcon(instance, IDI_APPLICATION);
-		wnd.hCursor = LoadCursor(instance, IDC_ARROW);
-		wnd.lpszClassName = "crown";
-		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
-		RegisterClassExA(&wnd);
-
-		_hwnd = CreateWindowA("crown"
-			, "Crown"
-			, WS_OVERLAPPEDWINDOW | WS_VISIBLE
-			, opts->window_x()
-			, opts->window_y()
-			, opts->window_width()
-			, opts->window_height()
-			, 0
-			, NULL
-			, instance
-			, 0
-			);
-		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
-
-		bgfx::winSetHwnd(_hwnd);
-
 		MainThreadArgs mta;
 		mta.opts = opts;
 
@@ -361,7 +326,6 @@ struct WindowsDevice
 		}
 
 		main_thread.stop();
-		DestroyWindow(_hwnd);
 		return EXIT_SUCCESS;
 	}
 
@@ -461,14 +425,10 @@ struct WindowsDevice
 		return DefWindowProc(hwnd, id, wparam, lparam);
 	}
 
-private:
-
 	static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam);
 
 public:
 
-	HWND _hwnd;
-	HDC _hdc;
 	OsEventQueue _queue;
 	Joypad _joypad;
 };
@@ -480,10 +440,138 @@ LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, L
 	return s_wdvc.pump_events(hwnd, id, wparam, lparam);
 }
 
+class WindowWin : public Window
+{
+	HWND _hwnd;
+	uint16_t _x;
+	uint16_t _y;
+	uint16_t _width;
+	uint16_t _height;
+
+public:
+
+	WindowWin()
+		: _hwnd(NULL)
+		, _x(0)
+		, _y(0)
+		, _width(CROWN_DEFAULT_WINDOW_WIDTH)
+		, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
+	{
+	}
+
+	void open(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t /*parent*/)
+	{
+		_x = x;
+		_y = y;
+		_width = width;
+		_height = height;
+
+		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
+		WNDCLASSEX wnd;
+		memset(&wnd, 0, sizeof(wnd));
+		wnd.cbSize = sizeof(wnd);
+		wnd.style = CS_HREDRAW | CS_VREDRAW;
+		wnd.lpfnWndProc = WindowsDevice::window_proc;
+		wnd.hInstance = instance;
+		wnd.hIcon = LoadIcon(instance, IDI_APPLICATION);
+		wnd.hCursor = LoadCursor(instance, IDC_ARROW);
+		wnd.lpszClassName = "crown";
+		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
+		RegisterClassExA(&wnd);
+
+		_hwnd = CreateWindowA("crown"
+			, "Crown"
+			, WS_OVERLAPPEDWINDOW | WS_VISIBLE
+			, x
+			, y
+			, width
+			, height
+			, 0
+			, NULL
+			, instance
+			, 0
+			);
+		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
+	}
+
+	void close()
+	{
+		DestroyWindow(_hwnd);
+	}
+
+	void bgfx_setup()
+	{
+		bgfx::winSetHwnd(_hwnd);
+	}
+
+	void show()
+	{
+		ShowWindow(_hwnd, SW_SHOW);
+	}
+
+	void hide()
+	{
+		ShowWindow(_hwnd, SW_HIDE);
+	}
+
+	void resize(uint16_t width, uint16_t height)
+	{
+		_width = width;
+		_height = height;
+		MoveWindow(_hwnd, _x, _y, width, height, FALSE);
+	}
+
+	void move(uint16_t x, uint16_t y)
+	{
+		_x = x;
+		_y = y;
+		MoveWindow(_hwnd, x, y, _width, _height, FALSE);
+	}
+
+	void minimize()
+	{
+		ShowWindow(_hwnd, SW_MINIMIZE);
+	}
+
+	void restore()
+	{
+		ShowWindow(_hwnd, SW_RESTORE);
+	}
+
+	const char* title()
+	{
+		static char buf[512];
+		memset(buf, 0, sizeof(buf));
+		GetWindowText(_hwnd, buf, sizeof(buf));
+		return buf;
+	}
+
+	void set_title (const char* title)
+	{
+		SetWindowText(_hwnd, title);
+	}
+
+	void* handle()
+	{
+		return (void*)(uintptr_t)_hwnd;
+	}
+};
+
+Window* Window::create(Allocator& a)
+{
+	return CE_NEW(a, WindowWin)();
+}
+
+void Window::destroy(Allocator& a, Window& w)
+{
+	CE_DELETE(a, &w);
+}
+
 bool next_event(OsEvent& ev)
 {
 	return s_wdvc._queue.pop_event(ev);
 }
+
 } // namespace crown
 
 int main(int argc, char** argv)
