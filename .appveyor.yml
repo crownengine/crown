@@ -1,0 +1,13 @@
+os:
+  - Visual Studio 2013
+
+install:
+  - third/bx/tools/bin/windows/genie --file=genie\genie.lua --with-luajit --with-openal --with-bullet --with-tools vs2013
+
+configuration:
+  - debug
+  - development
+  - release
+
+build:
+  - project: build/projects/vs2013/crown.sln
