@@ -10,9 +10,9 @@
 namespace crown
 {
 
-ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator)
-	: _name(name)
-	, _allocator(allocator)
+ProxyAllocator::ProxyAllocator(Allocator& allocator, const char* name)
+	: _allocator(allocator)
+	, _name(name)
 {
 	CE_ASSERT(name != NULL, "Name must be != NULL");
 }

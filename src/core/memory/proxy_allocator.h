@@ -17,10 +17,13 @@ namespace crown
 /// @ingroup Memory
 class ProxyAllocator : public Allocator
 {
+	Allocator& _allocator;
+	const char* _name;
+
 public:
 
 	/// Tag all allocations made with @a allocator by the given @a name
-	ProxyAllocator(const char* name, Allocator& allocator);
+	ProxyAllocator(Allocator& allocator, const char* name);
 
 	/// @copydoc Allocator::allocate()
 	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
@@ -36,11 +39,6 @@ public:
 
 	/// Returns the name of the proxy allocator
 	const char* name() const;
-
-private:
-
-	const char* _name;
-	Allocator& _allocator;
 };
 
 } // namespace crown

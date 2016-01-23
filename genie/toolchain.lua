@@ -238,6 +238,9 @@ function toolchain(build_dir, lib_dir)
 		objdir (build_dir .. "win32" .. "/obj")
 
 	configuration { "x64", "vs*" }
+		defines {
+			"_WIN64",
+		}
 		targetdir (build_dir .. "win64" .. "/bin")
 		objdir (build_dir .. "win64" .. "/obj")
 

@@ -16,6 +16,11 @@ namespace crown
 /// @ingroup Memory
 class LinearAllocator : public Allocator
 {
+	Allocator* _backing;
+	void* _physical_start;
+	uint32_t _total_size;
+	uint32_t _offset;
+
 public:
 
 	/// Allocates @a size bytes from @a backing.
@@ -43,13 +48,6 @@ public:
 
 	/// @copydoc Allocator::total_allocated()
 	uint32_t total_allocated() { return _offset; }
-
-private:
-
-	Allocator* _backing;
-	void* _physical_start;
-	uint32_t _total_size;
-	uint32_t _offset;
 };
 
 } // namespace crown

@@ -28,7 +28,7 @@ namespace crown
 const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL };
 
 ResourceManager::ResourceManager(ResourceLoader& rl)
-	: _resource_heap("resource", default_allocator())
+	: _resource_heap(default_allocator(), "resource")
 	, _loader(&rl)
 	, _type_data(default_allocator())
 	, _rm(default_allocator())

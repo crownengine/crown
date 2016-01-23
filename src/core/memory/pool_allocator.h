@@ -16,6 +16,16 @@ namespace crown
 /// @ingroup Memory
 class PoolAllocator : public Allocator
 {
+	Allocator&	_backing;
+
+	void* _start;
+	void* _freelist;
+	uint32_t _block_size;
+	uint32_t _block_align;
+
+	uint32_t _num_allocations;
+	uint32_t _allocated_size;
+
 public:
 
 	/// Uses @a backing to allocate the memory pool for containing exactly
@@ -36,18 +46,6 @@ public:
 
 	/// @copydoc Allocator::total_allocated()
 	uint32_t total_allocated();
-
-private:
-
-	Allocator&	_backing;
-
-	void* _start;
-	void* _freelist;
-	uint32_t _block_size;
-	uint32_t _block_align;
-
-	uint32_t _num_allocations;
-	uint32_t _allocated_size;
 };
 
 } // namespace crown

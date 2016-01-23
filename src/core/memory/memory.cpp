@@ -38,7 +38,8 @@ namespace memory
 {
 	// Header stored at the beginning of a memory allocation to indicate the
 	// size of the allocated data.
-	struct Header {
+	struct Header
+	{
 		uint32_t size;
 	};
 
@@ -47,32 +48,53 @@ namespace memory
 	const uint32_t HEADER_PAD_VALUE = 0xffffffffu;
 
 	// Given a pointer to the header, returns a pointer to the data that follows it.
-	inline void *data_pointer(Header *header, uint32_t align) {
+	inline void *data_pointer(Header* header, uint32_t align) {
 		void *p = header + 1;
 		return memory::align_top(p, align);
 	}
 
 	// Given a pointer to the data, returns a pointer to the header before it.
-	inline Header *header(const void *data)
+	inline Header*header(const void* data)
 	{
-		uint32_t *p = (uint32_t *)data;
+		uint32_t *p = (uint32_t*)data;
 		while (p[-1] == HEADER_PAD_VALUE)
 			--p;
-		return (Header *)p - 1;
+		return (Header*)p - 1;
 	}
 
 	// Stores the size in the header and pads with HEADER_PAD_VALUE up to the
 	// data pointer.
-	inline void fill(Header *header, void *data, uint32_t size)
+	inline void fill(Header*header, void *data, uint32_t size)
 	{
 		header->size = size;
-		uint32_t *p = (uint32_t *)(header + 1);
+		uint32_t *p = (uint32_t*)(header + 1);
 		while (p < data)
 			*p++ = HEADER_PAD_VALUE;
 	}
+
+	inline uint32_t actual_allocation_size(uint32_t size, uint32_t align)
+	{
+		return size + align + sizeof(Header);
+	}
+
+	inline void pad(Header* header, void* data)
+	{
+		uint32_t* p = (uint32_t*)(header + 1);
+
+		while (p != data)
+		{
+			*p = HEADER_PAD_VALUE;
+			p++;
+		}
+	}
+
 	/// Allocator based on C malloc().
 	class HeapAllocator : public Allocator
 	{
+		Mutex _mutex;
+		uint32_t _allocated_size;
+		uint32_t _allocation_count;
+
 	public:
 
 		HeapAllocator()
@@ -146,30 +168,6 @@ namespace memory
 			Header* h = header(data);
 			return h->size;
 		}
-
-	private:
-
-		uint32_t actual_allocation_size(uint32_t size, uint32_t align)
-		{
-			return size + align + sizeof(Header);
-		}
-
-		void pad(Header* header, void* data)
-		{
-			uint32_t* p = (uint32_t*)(header + 1);
-
-			while (p != data)
-			{
-				*p = HEADER_PAD_VALUE;
-				p++;
-			}
-		}
-
-	private:
-
-		Mutex _mutex;
-		uint32_t _allocated_size;
-		uint32_t _allocation_count;
 	};
 
 	// Copyright (C) 2012 Bitsquid AB
@@ -195,10 +193,10 @@ namespace memory
 		Allocator &_backing;
 
 		// Start and end of the ring buffer.
-		char *_begin, *_end;
+		char*_begin, *_end;
 
 		// Pointers to where to allocate memory and where to free memory.
-		char *_allocate, *_free;
+		char*_allocate, *_free;
 
 	public:
 		/// Creates a ScratchAllocator. The allocator will use the backing
@@ -206,14 +204,16 @@ namespace memory
 		/// that don't fit in the ring buffer.
 		///
 		/// size specifies the size of the ring buffer.
-		ScratchAllocator(Allocator &backing, uint32_t size) : _backing(backing) {
-			_begin = (char *)_backing.allocate(size);
+		ScratchAllocator(Allocator &backing, uint32_t size) : _backing(backing)
+		{
+			_begin = (char*)_backing.allocate(size);
 			_end = _begin + size;
 			_allocate = _begin;
 			_free = _begin;
 		}
 
-		~ScratchAllocator() {
+		~ScratchAllocator()
+		{
 			CE_ASSERT(_free == _allocate, "Memory leak");
 			_backing.deallocate(_begin);
 		}
@@ -227,22 +227,23 @@ namespace memory
 			return p >= _free || p < _allocate;
 		}
 
-		virtual void *allocate(uint32_t size, uint32_t align) {
+		virtual void *allocate(uint32_t size, uint32_t align)
+		{
 			CE_ASSERT(align % 4 == 0, "Must be 4-byte aligned");
 			size = ((size + 3)/4)*4;
 
-			char *p = _allocate;
-			Header *h = (Header *)p;
-			char *data = (char *)data_pointer(h, align);
+			char* p = _allocate;
+			Header* h = (Header*)p;
+			char* data = (char*)data_pointer(h, align);
 			p = data + size;
 
 			// Reached the end of the buffer, wrap around to the beginning.
 			if (p > _end) {
-				h->size = (_end - (char *)h) | 0x80000000u;
+				h->size = uint32_t(_end - (char*)h) | 0x80000000u;
 
 				p = _begin;
-				h = (Header *)p;
-				data = (char *)data_pointer(h, align);
+				h = (Header*)p;
+				data = (char*)data_pointer(h, align);
 				p = data + size;
 			}
 
@@ -250,12 +251,13 @@ namespace memory
 			if (in_use(p))
 				return _backing.allocate(size, align);
 
-			fill(h, data, p - (char *)h);
+			fill(h, data, uint32_t(p - (char*)h));
 			_allocate = p;
 			return data;
 		}
 
-		virtual void deallocate(void *p) {
+		virtual void deallocate(void *p)
+		{
 			if (!p)
 				return;
 
@@ -265,13 +267,13 @@ namespace memory
 			}
 
 			// Mark this slot as free
-			Header *h = header(p);
+			Header*h = header(p);
 			CE_ASSERT((h->size & 0x80000000u) == 0, "Not free");
 			h->size = h->size | 0x80000000u;
 
 			// Advance the free pointer past all free slots.
 			while (_free != _allocate) {
-				Header *h = (Header *)_free;
+				Header*h = (Header*)_free;
 				if ((h->size & 0x80000000u) == 0)
 					break;
 
@@ -281,13 +283,15 @@ namespace memory
 			}
 		}
 
-		virtual uint32_t allocated_size(const void *p) {
-			Header *h = header(p);
-			return h->size - ((char *)p - (char *)h);
+		virtual uint32_t allocated_size(const void *p)
+		{
+			Header* h = header(p);
+			return h->size - uint32_t((char*)p - (char*)h);
 		}
 
-		virtual uint32_t total_allocated() {
-			return _end - _begin;
+		virtual uint32_t total_allocated()
+		{
+			return uint32_t(_end - _begin);
 		}
 	};
 } // namespace memory

@@ -17,9 +17,20 @@ namespace crown
 /// @ingroup Memory
 class StackAllocator : public Allocator
 {
+	struct Header
+	{
+		uint32_t offset;
+		uint32_t alloc_id;
+	};
+
+	char* _begin;
+	char* _top;
+	uint32_t _total_size;
+	uint32_t _allocation_count;
+
 public:
 
-	StackAllocator(void* start, uint32_t size);
+	StackAllocator(char* begin, uint32_t size);
 	~StackAllocator();
 
 	/// @copydoc Allocator::allocate()
@@ -36,19 +47,6 @@ public:
 
 	/// @copydoc Allocator::total_allocated()
 	uint32_t total_allocated();
-
-private:
-
-	struct Header
-	{
-		uint32_t offset;
-		uint32_t alloc_id;
-	};
-
-	void* _physical_start;
-	void* _top;
-	uint32_t _total_size;
-	uint32_t _allocation_count;
 };
 
 } // namespace crown

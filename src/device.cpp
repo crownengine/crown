@@ -93,7 +93,7 @@ struct BgfxCallback : public bgfx::CallbackI
 struct BgfxAllocator : public bx::AllocatorI
 {
 	BgfxAllocator(Allocator& a)
-		: _allocator("bgfx", a)
+		: _allocator(a, "bgfx")
 	{
 	}
 
@@ -300,7 +300,7 @@ void Device::update()
 		const int64_t time = _current_time - _last_time;
 		_last_time = _current_time;
 		const double freq = (double) os::clockfrequency();
-		_last_delta_time = time * (1.0 / freq);
+		_last_delta_time = float(time * (1.0 / freq));
 		_time_since_start += _last_delta_time;
 
 		profiler_globals::clear();
