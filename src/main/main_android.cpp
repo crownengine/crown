@@ -212,6 +212,75 @@ public:
 	MainThreadArgs _margs;
 };
 
+class WindowAndroid : public Window
+{
+public:
+
+	WindowAndroid()
+	{
+	}
+
+	void open(uint16_t /*x*/, uint16_t /*y*/, uint16_t /*width*/, uint16_t /*height*/, uint32_t /*parent*/)
+	{
+	}
+
+	void close()
+	{
+	}
+
+	void bgfx_setup()
+	{
+	}
+
+	void show()
+	{
+	}
+
+	void hide()
+	{
+	}
+
+	void resize(uint16_t /*width*/, uint16_t /*height*/)
+	{
+	}
+
+	void move(uint16_t /*x*/, uint16_t /*y*/)
+	{
+	}
+
+	void minimize()
+	{
+	}
+
+	void restore()
+	{
+	}
+
+	const char* title()
+	{
+		return NULL;
+	}
+
+	void set_title (const char* /*title*/)
+	{
+	}
+
+	void* handle()
+	{
+		return NULL;
+	}
+};
+
+Window* Window::create(Allocator& a)
+{
+	return CE_NEW(a, WindowAndroid)();
+}
+
+void Window::destroy(Allocator& a, Window& w)
+{
+	CE_DELETE(a, &w);
+}
+
 static AndroidDevice s_advc;
 
 bool next_event(OsEvent& ev)
