@@ -144,7 +144,7 @@ bool BundleCompiler::compile_all(const char* platform)
 		const char* type = path::extension(filename);
 
 		char name[256];
-		const uint32_t size = type - filename - 1;
+		const uint32_t size = uint32_t(type - filename - 1);
 		strncpy(name, filename, size);
 		name[size] = '\0';
 
