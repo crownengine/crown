@@ -173,7 +173,6 @@ namespace vector
 	inline void pop_back(Vector<T>& v)
 	{
 		CE_ASSERT(v._size > 0, "The vector is empty");
-
 		v._data[v._size - 1].~T();
 		--v._size;
 	}
@@ -289,8 +288,7 @@ inline Vector<T>::~Vector()
 	for (uint32_t i = 0; i < _size; ++i)
 		_data[i].~T();
 
-	if (_data)
-		_allocator->deallocate(_data);
+	_allocator->deallocate(_data);
 }
 
 template <typename T>

@@ -165,7 +165,6 @@ namespace array
 	inline void pop_back(Array<T>& a)
 	{
 		CE_ASSERT(a._size > 0, "The array is empty");
-
 		--a._size;
 	}
 
@@ -272,8 +271,7 @@ inline Array<T>::Array(const Array<T>& other)
 template <typename T>
 inline Array<T>::~Array()
 {
-	if (_data)
-		_allocator->deallocate(_data);
+	_allocator->deallocate(_data);
 }
 
 template <typename T>
