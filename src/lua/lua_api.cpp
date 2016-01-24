@@ -2614,6 +2614,42 @@ static int gui_draw_text(lua_State* L)
 	return 0;
 }
 
+static int display_modes(lua_State* L)
+{
+	LuaStack stack(L);
+	TempAllocator1024 ta;
+	Array<DisplayMode> modes(ta);
+	device()->display()->modes(modes);
+	stack.push_table(array::size(modes));
+	for (uint32_t i = 0; i < array::size(modes); ++i)
+	{
+		stack.push_key_begin(i+1);
+		stack.push_table(3);
+		{
+			stack.push_key_begin("id");
+			stack.push_int(modes[i].id);
+			stack.push_key_end();
+
+			stack.push_key_begin("width");
+			stack.push_int(modes[i].width);
+			stack.push_key_end();
+
+			stack.push_key_begin("height");
+			stack.push_int(modes[i].height);
+			stack.push_key_end();
+		}
+		stack.push_key_end();
+	}
+	return 1;
+}
+
+static int display_set_mode(lua_State* L)
+{
+	LuaStack stack(L);
+	device()->display()->set_mode(stack.get_int(1));
+	return 0;
+}
+
 static int window_show(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3079,6 +3115,9 @@ void load_api(LuaEnvironment& env)
 	env.load_module_function("Gui", "draw_image",     gui_draw_image);
 	env.load_module_function("Gui", "draw_image_uv",  gui_draw_image_uv);
 	env.load_module_function("Gui", "draw_text",      gui_draw_text);
+
+	env.load_module_function("Display", "modes",    display_modes);
+	env.load_module_function("Display", "set_mode", display_set_mode);
 
 	env.load_module_function("Window", "show",      window_show);
 	env.load_module_function("Window", "hide",      window_hide);

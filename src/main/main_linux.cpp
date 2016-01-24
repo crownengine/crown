@@ -11,6 +11,7 @@
 #include "command_line.h"
 #include "console_server.h"
 #include "device.h"
+#include "display.h"
 #include "os_event_queue.h"
 #include "thread.h"
 #include "window.h"
@@ -24,52 +25,6 @@
 
 namespace crown
 {
-
-// void display_modes(Array<DisplayMode>& modes)
-// {
-// 	int num_rrsizes = 0;
-// 	XRRScreenSize* rrsizes = XRRConfigSizes(m_screen_config, &num_rrsizes);
-
-// 	for (int i = 0; i < num_rrsizes; i++)
-// 	{
-// 		DisplayMode dm;
-// 		dm.id = (uint32_t) i;
-// 		dm.width = rrsizes[i].width;
-// 		dm.height = rrsizes[i].height;
-// 		array::push_back(modes, dm);
-// 	}
-// }
-
-// void set_display_mode(uint32_t id)
-// {
-// 	// Check if id is valid
-// 	int num_rrsizes = 0;
-// 	XRRScreenSize* rrsizes = XRRConfigSizes(m_screen_config, &num_rrsizes);
-// 	(void) rrsizes;
-
-// 	if ((int) id >= num_rrsizes)
-// 		return;
-
-// 	XRRSetScreenConfig(s_x11_display,
-// 		m_screen_config,
-// 		RootWindow(s_x11_display, DefaultScreen(s_x11_display)),
-// 		(int) id,
-// 		RR_Rotate_0,
-// 		CurrentTime);
-// }
-
-// void set_fullscreen(bool full)
-// {
-// 	XEvent e;
-// 	e.xclient.type = ClientMessage;
-// 	e.xclient.window = m_x11_window;
-// 	e.xclient.message_type = XInternAtom(s_x11_display, "_NET_WM_STATE", False );
-// 	e.xclient.format = 32;
-// 	e.xclient.data.l[0] = full ? 1 : 0;
-// 	e.xclient.data.l[1] = XInternAtom(s_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
-// 	XSendEvent(s_x11_display, DefaultRootWindow(s_x11_display), False, SubstructureNotifyMask, &e);
-// }
-
 static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 {
 	switch (x11_key)
@@ -345,12 +300,11 @@ int32_t func(void* data)
 	return EXIT_SUCCESS;
 }
 
-static Display* s_x11_display = NULL;
-
 struct LinuxDevice
 {
 	LinuxDevice()
-		: _screen_config(NULL)
+		: _x11_display(NULL)
+		, _screen_config(NULL)
 		, _x11_detectable_autorepeat(false)
 	{
 	}
@@ -362,19 +316,19 @@ struct LinuxDevice
 		CE_ASSERT(xs != 0, "XInitThreads: error");
 		CE_UNUSED(xs);
 
-		s_x11_display = XOpenDisplay(NULL);
-		CE_ASSERT(s_x11_display != NULL, "XOpenDisplay: error");
+		_x11_display = XOpenDisplay(NULL);
+		CE_ASSERT(_x11_display != NULL, "XOpenDisplay: error");
 
-		::Window root_window = RootWindow(s_x11_display, DefaultScreen(s_x11_display));
+		::Window root_window = RootWindow(_x11_display, DefaultScreen(_x11_display));
 
 		// Do we have detectable autorepeat?
 		Bool detectable;
-		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(s_x11_display, true, &detectable);
+		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
 
-		_wm_delete_message = XInternAtom(s_x11_display, "WM_DELETE_WINDOW", False);
+		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
 
 		// Save screen configuration
-		_screen_config = XRRGetScreenInfo(s_x11_display, root_window);
+		_screen_config = XRRGetScreenInfo(_x11_display, root_window);
 
 		Rotation rr_old_rot;
 		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_old_rot);
@@ -403,7 +357,7 @@ struct LinuxDevice
 
 		if (rr_rot != rr_old_rot || rr_sizeid != rr_old_sizeid)
 		{
-			XRRSetScreenConfig(s_x11_display
+			XRRSetScreenConfig(_x11_display
 				, _screen_config
 				, root_window
 				, rr_old_sizeid
@@ -413,7 +367,7 @@ struct LinuxDevice
 		}
 		XRRFreeScreenConfigInfo(_screen_config);
 
-		XCloseDisplay(s_x11_display);
+		XCloseDisplay(_x11_display);
 		return EXIT_SUCCESS;
 	}
 
@@ -421,10 +375,10 @@ struct LinuxDevice
 	{
 		_joypad.update(_queue);
 
-		while (XPending(s_x11_display))
+		while (XPending(_x11_display))
 		{
 			XEvent event;
-			XNextEvent(s_x11_display, &event);
+			XNextEvent(_x11_display, &event);
 
 			switch (event.type)
 			{
@@ -512,6 +466,7 @@ struct LinuxDevice
 
 public:
 
+	::Display* _x11_display;
 	Atom _wm_delete_message;
 	XRRScreenConfiguration* _screen_config;
 	bool _x11_detectable_autorepeat;
@@ -519,8 +474,11 @@ public:
 	Joypad _joypad;
 };
 
+static LinuxDevice s_ldvc;
+
 class WindowX11 : public Window
 {
+	::Display* _x11_display;
 	::Window _x11_window;
 	Cursor _x11_hidden_cursor;
 	Atom _wm_delete_message;
@@ -528,18 +486,20 @@ class WindowX11 : public Window
 public:
 
 	WindowX11()
-		: _x11_window(None)
+		: _x11_display(NULL)
+		, _x11_window(None)
 		, _x11_hidden_cursor(None)
 	{
+		_x11_display = s_ldvc._x11_display;
 	}
 
 	void open(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t parent)
 	{
-		int screen = DefaultScreen(s_x11_display);
-		int depth = DefaultDepth(s_x11_display, screen);
-		Visual* visual = DefaultVisual(s_x11_display, screen);
+		int screen = DefaultScreen(_x11_display);
+		int depth = DefaultDepth(_x11_display, screen);
+		Visual* visual = DefaultVisual(_x11_display, screen);
 
-		::Window root_window = RootWindow(s_x11_display, screen);
+		::Window root_window = RootWindow(_x11_display, screen);
 		::Window parent_window = (parent == 0) ? root_window : (::Window)parent;
 
 		// Create main window
@@ -561,7 +521,7 @@ public:
 				;
 		}
 
-		_x11_window = XCreateWindow(s_x11_display
+		_x11_window = XCreateWindow(_x11_display
 			, parent_window
 			, x
 			, y
@@ -582,45 +542,45 @@ public:
 		Colormap colormap;
 		static char no_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-		colormap = XDefaultColormap(s_x11_display, screen);
-		XAllocNamedColor(s_x11_display, colormap, "black", &black, &dummy);
-		bm_no = XCreateBitmapFromData(s_x11_display, _x11_window, no_data, 8, 8);
-		_x11_hidden_cursor = XCreatePixmapCursor(s_x11_display, bm_no, bm_no, &black, &black, 0, 0);
+		colormap = XDefaultColormap(_x11_display, screen);
+		XAllocNamedColor(_x11_display, colormap, "black", &black, &dummy);
+		bm_no = XCreateBitmapFromData(_x11_display, _x11_window, no_data, 8, 8);
+		_x11_hidden_cursor = XCreatePixmapCursor(_x11_display, bm_no, bm_no, &black, &black, 0, 0);
 
-		_wm_delete_message = XInternAtom(s_x11_display, "WM_DELETE_WINDOW", False);
-		XSetWMProtocols(s_x11_display, _x11_window, &_wm_delete_message, 1);
+		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(_x11_display, _x11_window, &_wm_delete_message, 1);
 
-		XMapRaised(s_x11_display, _x11_window);
+		XMapRaised(_x11_display, _x11_window);
 	}
 
 	void close()
 	{
-		XDestroyWindow(s_x11_display, _x11_window);
+		XDestroyWindow(_x11_display, _x11_window);
 	}
 
 	void bgfx_setup()
 	{
-		bgfx::x11SetDisplayWindow(s_x11_display, _x11_window);
+		bgfx::x11SetDisplayWindow(_x11_display, _x11_window);
 	}
 
 	void show()
 	{
-		XMapRaised(s_x11_display, _x11_window);
+		XMapRaised(_x11_display, _x11_window);
 	}
 
 	void hide()
 	{
-		XUnmapWindow(s_x11_display, _x11_window);
+		XUnmapWindow(_x11_display, _x11_window);
 	}
 
 	void resize(uint16_t width, uint16_t height)
 	{
-		XResizeWindow(s_x11_display, _x11_window, width, height);
+		XResizeWindow(_x11_display, _x11_window, width, height);
 	}
 
 	void move(uint16_t x, uint16_t y)
 	{
-		XMoveWindow(s_x11_display, _x11_window, x, y);
+		XMoveWindow(_x11_display, _x11_window, x, y);
 	}
 
 	void minimize()
@@ -636,7 +596,7 @@ public:
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
 		char* name;
-		XFetchName(s_x11_display, _x11_window, &name);
+		XFetchName(_x11_display, _x11_window, &name);
 		strncpy(buf, name, sizeof(buf));
 		XFree(name);
 		return buf;
@@ -644,7 +604,7 @@ public:
 
 	void set_title (const char* title)
 	{
-		XStoreName(s_x11_display, _x11_window, title);
+		XStoreName(_x11_display, _x11_window, title);
 	}
 
 	void* handle()
@@ -663,7 +623,78 @@ void Window::destroy(Allocator& a, Window& w)
 	CE_DELETE(a, &w);
 }
 
-static LinuxDevice s_ldvc;
+class DisplayXRandr : public Display
+{
+	::Display* _x11_display;
+	XRRScreenConfiguration* _screen_config;
+
+public:
+
+	DisplayXRandr()
+		: _x11_display(NULL)
+		, _screen_config(NULL)
+	{
+		_x11_display = s_ldvc._x11_display;
+		_screen_config = s_ldvc._screen_config;
+	}
+
+	void modes(Array<DisplayMode>& modes)
+	{
+		int num = 0;
+		XRRScreenSize* sizes = XRRConfigSizes(_screen_config, &num);
+
+		if (!sizes)
+			return;
+
+		for (int i = 0; i < num; ++i)
+		{
+			DisplayMode dm;
+			dm.id     = (uint32_t)i;
+			dm.width  = sizes[i].width;
+			dm.height = sizes[i].height;
+			array::push_back(modes, dm);
+		}
+	}
+
+	void set_mode(uint32_t id)
+	{
+		int num = 0;
+		XRRScreenSize* sizes = XRRConfigSizes(_screen_config, &num);
+
+		if (!sizes || (int)id >= num)
+			return;
+
+		XRRSetScreenConfig(_x11_display
+			, _screen_config
+			, RootWindow(_x11_display, DefaultScreen(_x11_display))
+			, (int)id
+			, RR_Rotate_0
+			, CurrentTime
+			);
+	}
+
+	// void set_fullscreen(bool full)
+	// {
+	// 	XEvent e;
+	// 	e.xclient.type = ClientMessage;
+	// 	e.xclient.window = m_x11_window;
+	// 	e.xclient.message_type = XInternAtom(_x11_display, "_NET_WM_STATE", False );
+	// 	e.xclient.format = 32;
+	// 	e.xclient.data.l[0] = full ? 1 : 0;
+	// 	e.xclient.data.l[1] = XInternAtom(_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+	// 	XSendEvent(_x11_display, DefaultRootWindow(_x11_display), False, SubstructureNotifyMask, &e);
+	// }
+};
+
+Display* Display::create(Allocator& a)
+{
+	return CE_NEW(a, DisplayXRandr)();
+}
+
+void Display::destroy(Allocator& a, Display& d)
+{
+	CE_DELETE(a, &d);
+}
 
 bool next_event(OsEvent& ev)
 {

@@ -10,8 +10,7 @@
 
 namespace crown
 {
-
-/// Window
+/// Window interface.
 ///
 /// @ingroup Device
 class Window

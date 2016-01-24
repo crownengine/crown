@@ -567,6 +567,27 @@ void Window::destroy(Allocator& a, Window& w)
 	CE_DELETE(a, &w);
 }
 
+class DisplayWin : public Display
+{
+	void modes(Array<DisplayMode>& /*modes*/)
+	{
+	}
+
+	void set_mode(uint32_t /*id*/)
+	{
+	}
+};
+
+Display* Display::create(Allocator& a)
+{
+	return CE_NEW(a, DisplayWin)();
+}
+
+void Display::destroy(Allocator& a, Display& d)
+{
+	CE_DELETE(a, &d);
+}
+
 bool next_event(OsEvent& ev)
 {
 	return s_wdvc._queue.pop_event(ev);

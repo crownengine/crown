@@ -134,6 +134,7 @@ Device::Device(const DeviceOptions& opts)
 	, _input_manager(NULL)
 	, _unit_manager(NULL)
 	, _lua_environment(NULL)
+	, _display(NULL)
 	, _window(NULL)
 	, _boot_package_id(uint64_t(0))
 	, _boot_script_id(uint64_t(0))
@@ -177,6 +178,7 @@ void Device::init()
 	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
 	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
 
+	_display = Display::create(_allocator);
 	_window = Window::create(_allocator);
 	_window->open(_device_options.window_x()
 		, _device_options.window_y()
@@ -243,6 +245,7 @@ void Device::shutdown()
 
 	bgfx::shutdown();
 	Window::destroy(_allocator, *_window);
+	Display::destroy(_allocator, *_display);
 	CE_DELETE(_allocator, _bgfx_callback);
 	CE_DELETE(_allocator, _bgfx_allocator);
 
@@ -417,6 +420,11 @@ MaterialManager* Device::material_manager()
 UnitManager* Device::unit_manager()
 {
 	return _unit_manager;
+}
+
+Display* Device::display()
+{
+	return _display;
 }
 
 Window* Device::window()

@@ -9,6 +9,7 @@
 #include "config.h"
 #include "container_types.h"
 #include "device_options.h"
+#include "display.h"
 #include "filesystem_types.h"
 #include "input_types.h"
 #include "linear_allocator.h"
@@ -47,6 +48,7 @@ class Device
 	InputManager* _input_manager;
 	UnitManager* _unit_manager;
 	LuaEnvironment* _lua_environment;
+	Display* _display;
 	Window* _window;
 
 	StringId64 _boot_package_id;
@@ -165,6 +167,9 @@ public:
 
 	/// Returns the unit manager.
 	UnitManager* unit_manager();
+
+	/// Returns the main display.
+	Display* display();
 
 	/// Returns the main window.
 	Window* window();

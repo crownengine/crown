@@ -27,21 +27,6 @@ extern "C"
 namespace crown
 {
 
-// void display_modes(Array<DisplayMode>& /*modes*/)
-// {
-// 	// Do nothing
-// }
-
-// void set_display_mode(uint32_t /*id*/)
-// {
-// 	// Do nothing
-// }
-
-// void set_fullscreen(bool /*full*/)
-// {
-// 	// Do nothing
-// }
-
 static bool s_exit = false;
 
 struct MainThreadArgs
@@ -279,6 +264,27 @@ Window* Window::create(Allocator& a)
 void Window::destroy(Allocator& a, Window& w)
 {
 	CE_DELETE(a, &w);
+}
+
+class DisplayAndroid : public Display
+{
+	void modes(Array<DisplayMode>& /*modes*/)
+	{
+	}
+
+	void set_mode(uint32_t /*id*/)
+	{
+	}
+};
+
+Display* Display::create(Allocator& a)
+{
+	return CE_NEW(a, DisplayAndroid)();
+}
+
+void Display::destroy(Allocator& a, Display& d)
+{
+	CE_DELETE(a, &d);
 }
 
 static AndroidDevice s_advc;
