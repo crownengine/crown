@@ -36,6 +36,13 @@ project "bullet"
 			BULLET_DIR .. "src/Bullet3OpenCL/**.cpp",
 		}
 
+	configuration { "vs*" }
+		buildoptions {
+			"/wd4267",
+			"/wd4244",
+			"/wd4305",
+		}
+
 	configuration {}
 
 	files {

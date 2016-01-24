@@ -112,6 +112,8 @@ project "openal"
 		}
 		buildoptions {
 			"/wd4098",
+			"/wd4267",
+			"/wd4244",
 		}
 		files {
 			AL_DIR .. "Alc/backends/mmdevapi.c",
