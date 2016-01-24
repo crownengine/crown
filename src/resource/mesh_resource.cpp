@@ -140,7 +140,7 @@ namespace mesh_resource
 			array::resize(output, array::size(array));
 			for (uint32_t i = 0; i < array::size(array); ++i)
 			{
-				output[i] = sjson::parse_float(array[i]);
+				output[i] = (uint16_t)sjson::parse_int(array[i]);
 			}
 		}
 
