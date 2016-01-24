@@ -425,8 +425,6 @@ struct WindowsDevice
 		return DefWindowProc(hwnd, id, wparam, lparam);
 	}
 
-	static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam);
-
 public:
 
 	OsEventQueue _queue;
@@ -435,7 +433,7 @@ public:
 
 static WindowsDevice s_wdvc;
 
-LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
+static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 {
 	return s_wdvc.pump_events(hwnd, id, wparam, lparam);
 }
@@ -471,7 +469,7 @@ public:
 		memset(&wnd, 0, sizeof(wnd));
 		wnd.cbSize = sizeof(wnd);
 		wnd.style = CS_HREDRAW | CS_VREDRAW;
-		wnd.lpfnWndProc = WindowsDevice::window_proc;
+		wnd.lpfnWndProc = window_proc;
 		wnd.hInstance = instance;
 		wnd.hIcon = LoadIcon(instance, IDI_APPLICATION);
 		wnd.hCursor = LoadCursor(instance, IDC_ARROW);
