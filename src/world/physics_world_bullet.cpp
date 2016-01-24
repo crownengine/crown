@@ -492,7 +492,7 @@ public:
 	bool is_kinematic(ActorInstance i) const
 	{
 		const int flags = _actor[i.i].actor->getCollisionFlags();
-		return flags & btCollisionObject::CF_KINEMATIC_OBJECT != 0;
+		return (flags & btCollisionObject::CF_KINEMATIC_OBJECT) != 0;
 	}
 
 	bool is_nonkinematic(ActorInstance i) const
