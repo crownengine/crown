@@ -95,13 +95,13 @@ int DeviceOptions::parse()
 
 	if (!path::is_absolute(_source_dir))
 	{
-		help("Source dir must be absolute");
+		help("Source dir must be absolute.");
 		return EXIT_FAILURE;
 	}
 
 	if (!path::is_absolute(_bundle_dir))
 	{
-		help("Bundle dir must be absolute");
+		help("Bundle dir must be absolute.");
 		return EXIT_FAILURE;
 	}
 
@@ -121,13 +121,21 @@ int DeviceOptions::parse()
 	const char* parent = cl.get_parameter("parent-window");
 	if (parent != NULL)
 	{
-		_parent_window = parse_uint(parent);
+		if (sscanf(parent, "%u", &_parent_window) != 1)
+		{
+			help("Parent window is invalid.");
+			return EXIT_FAILURE;
+		}
 	}
 
 	const char* port = cl.get_parameter("console-port");
 	if (port != NULL)
 	{
-		_console_port = parse_uint(port);
+		if (sscanf(port, "%hu", &_console_port) != 1)
+		{
+			help("Console port is invalid.");
+			return EXIT_FAILURE;
+		}
 	}
 
 	return EXIT_SUCCESS;

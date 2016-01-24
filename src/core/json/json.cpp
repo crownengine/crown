@@ -164,7 +164,12 @@ namespace json
 
 		// Ensure null terminated
 		array::push_back(number, '\0');
-		return parse_double(array::begin(number));
+
+		double val;
+		int ok = sscanf(array::begin(number), "%lf", &val);
+		CE_ASSERT(ok == 1, "Failed to parse double: %s", array::begin(number));
+		CE_UNUSED(ok);
+		return val;
 	}
 
 	bool parse_bool(const char* json)

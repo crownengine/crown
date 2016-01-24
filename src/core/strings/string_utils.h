@@ -66,40 +66,4 @@ inline const char* skip_block(const char* str, char a, char b)
 	return NULL;
 }
 
-inline int32_t parse_int(const char* str)
-{
-	int val;
-	int ok = sscanf(str, "%d", &val);
-	CE_ASSERT(ok == 1, "Failed to parse int: %s", str);
-	CE_UNUSED(ok);
-	return val;
-}
-
-inline uint32_t parse_uint(const char* str)
-{
-	unsigned int val;
-	int ok = sscanf(str, "%u", &val);
-	CE_ASSERT(ok == 1, "Failed to parse uint: %s", str);
-	CE_UNUSED(ok);
-	return val;
-}
-
-inline float parse_float(const char* str)
-{
-	float val;
-	int ok = sscanf(str, "%f", &val);
-	CE_ASSERT(ok == 1, "Failed to parse float: %s", str);
-	CE_UNUSED(ok);
-	return val;
-}
-
-inline double parse_double(const char* str)
-{
-	double val;
-	int ok = sscanf(str, "%lf", &val);
-	CE_ASSERT(ok == 1, "Failed to parse float: %s", str);
-	CE_UNUSED(ok);
-	return val;
-}
-
 } // namespace crown
