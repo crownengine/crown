@@ -6,9 +6,7 @@
 #pragma once
 
 #include "types.h"
-#include "error.h"
 #include "platform.h"
-#include "macros.h"
 #include <stdio.h> // sscanf, vsnprintf
 #include <string.h>
 #include <stdarg.h>
