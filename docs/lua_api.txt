@@ -1031,6 +1031,24 @@ Profiler
 	**record** (name, value)
 		Records *value* with the given *name*. Value can be either number or Vector3.
 
+Display
+=======
+
+	**modes** () : table
+		Returns an array of display modes. See `Display Mode`_.
+
+	**set_mode** (id)
+		Sets the display mode *id*.
+
+Display Mode
+------------
+
+	Display mode is a lua table with 3 fields:
+
+	* ``id``: The id of the display mode.
+	* ``width``: The width of the display mode.
+	* ``height``: The height of the display mode.
+
 Window
 ======
 
