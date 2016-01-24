@@ -54,8 +54,8 @@ namespace sprite_resource
 		sjson::parse_array(object["frames"], frames);
 
 		// Read width/height
-		const float width         = parse_float(object["width" ]);
-		const float height        = parse_float(object["height"]);
+		const float width         = sjson::parse_float(object["width" ]);
+		const float height        = sjson::parse_float(object["height"]);
 		const uint32_t num_frames = array::size(frames);
 
 		Array<float> vertices(default_allocator());
