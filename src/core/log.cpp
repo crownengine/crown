@@ -9,8 +9,6 @@
 #include "os.h"
 #include "string_stream.h"
 
-#if CROWN_DEBUG
-
 namespace crown
 {
 namespace log_internal
@@ -69,5 +67,3 @@ namespace log_internal
 	}
 } // namespace log
 } // namespace crown
-
-#endif // CROWN_DEBUG

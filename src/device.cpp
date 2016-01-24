@@ -49,6 +49,8 @@ struct BgfxCallback : public bgfx::CallbackI
 	virtual void fatal(bgfx::Fatal::Enum _code, const char* _str)
 	{
 		CE_ASSERT(false, "Fatal error: 0x%08x: %s", _code, _str);
+		CE_UNUSED(_code);
+		CE_UNUSED(_str);
 	}
 
 	virtual void traceVargs(const char* /*_filePath*/, uint16_t /*_line*/, const char* _format, va_list _argList)
