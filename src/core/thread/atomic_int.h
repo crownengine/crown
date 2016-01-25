@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 struct AtomicInt
 {
 	AtomicInt(int val)

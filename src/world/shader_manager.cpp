@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 ShaderManager::ShaderManager(Allocator& a)
 	: _shader_map(a)
 {

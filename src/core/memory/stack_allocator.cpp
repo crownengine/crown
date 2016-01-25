@@ -8,7 +8,6 @@
 
 namespace crown
 {
-
 StackAllocator::StackAllocator(char* begin, uint32_t size)
 	: _begin(begin)
 	, _top(begin)

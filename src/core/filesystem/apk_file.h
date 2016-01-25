@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 /// Provides common facilities to access Android APK files.
 ///
 /// @ingroup Filesystem

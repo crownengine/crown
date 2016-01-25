@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 /// Helper for parsing command line.
 class CommandLine
 {

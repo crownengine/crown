@@ -15,7 +15,6 @@
 
 namespace crown
 {
-
 /// Holds device options.
 ///
 /// @ingroup Device

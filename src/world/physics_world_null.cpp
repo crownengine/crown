@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 namespace physics_globals
 {
 	void init()

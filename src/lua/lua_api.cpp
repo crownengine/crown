@@ -34,7 +34,6 @@
 
 namespace crown
 {
-
 struct LightInfo
 {
 	const char* name;

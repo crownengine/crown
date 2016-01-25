@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 ResourceLoader::ResourceLoader(Filesystem& fs)
 	: _fs(fs)
 	, _requests(default_allocator())

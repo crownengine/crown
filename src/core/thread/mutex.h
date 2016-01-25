@@ -18,7 +18,6 @@
 
 namespace crown
 {
-
 struct Mutex
 {
 	Mutex()

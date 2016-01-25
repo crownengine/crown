@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 /// Global physics-related functions
 ///
 /// @ingroup World

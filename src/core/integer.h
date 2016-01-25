@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 inline uint32_t next_pow_2(uint32_t x)
 {
 	x--;

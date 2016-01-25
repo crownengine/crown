@@ -15,7 +15,6 @@
 
 namespace crown
 {
-
 // header
 // num_verts
 // verts[num_verts]

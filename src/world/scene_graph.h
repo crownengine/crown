@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 /// Represents a collection of nodes, possibly linked together to form a tree.
 ///
 /// @ingroup World

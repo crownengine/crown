@@ -21,7 +21,6 @@
 
 namespace crown
 {
-
 #if CROWN_DEBUG
 	static const char* al_error_to_string(ALenum error)
 	{

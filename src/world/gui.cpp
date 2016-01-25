@@ -15,7 +15,6 @@
 
 namespace crown
 {
-
 struct VertexData
 {
 	float x;

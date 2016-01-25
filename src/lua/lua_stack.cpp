@@ -20,7 +20,6 @@
 
 namespace crown
 {
-
 bool LuaStack::is_vector3(int i)
 {
 	return device()->lua_environment()->is_vector3((Vector3*)get_pointer(i));

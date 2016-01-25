@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p)
 {
 	const float num = dot(from, p.n);

@@ -15,7 +15,6 @@
 
 namespace crown
 {
-
 namespace physics_resource
 {
 	inline void compile(const char* /*path*/, CompileOptions& /*opts*/) {}

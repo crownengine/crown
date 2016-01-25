@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 /// Manages physics objects in a World.
 ///
 /// @ingroup World

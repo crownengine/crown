@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 /// Global audio-related functions
 ///
 /// @ingroup World

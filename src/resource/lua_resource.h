@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 struct LuaResource
 {
 	uint32_t version;

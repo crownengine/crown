@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 struct MaterialResource
 {
 	uint32_t version;

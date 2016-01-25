@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 void Material::bind(ResourceManager& rm, ShaderManager& sm) const
 {
 	using namespace material_resource;

@@ -16,7 +16,6 @@
 
 namespace crown
 {
-
 struct VertexData
 {
 	uint32_t num;

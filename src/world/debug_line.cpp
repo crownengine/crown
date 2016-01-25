@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 DebugLine::DebugLine(bool depth_test)
 	: _marker(MARKER)
 	, _shader(depth_test ? "debug_line" : "debug_line_noz")

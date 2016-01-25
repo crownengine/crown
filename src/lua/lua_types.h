@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 /// @defgroup Lua Lua
 
 class LuaStack;

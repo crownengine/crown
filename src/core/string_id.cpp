@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 StringId32::StringId32(const char* str)
 	: _id(murmur32(str, strlen32(str), 0))
 {

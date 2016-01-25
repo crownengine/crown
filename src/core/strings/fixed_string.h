@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 class FixedString
 {
 public:

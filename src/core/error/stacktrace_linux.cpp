@@ -18,7 +18,6 @@
 
 namespace crown
 {
-
 const char* addr2line(const char* addr, char* line, int len)
 {
 	char buf[256];

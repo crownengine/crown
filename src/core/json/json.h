@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// Functions to parse JSON-encoded data.
 ///
 /// @ingroup JSON

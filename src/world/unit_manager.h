@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 // Reference: http://bitsquid.blogspot.it/2014/08/building-data-oriented-entity-system.html
 
 /// Manages units.

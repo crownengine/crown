@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 /// Functions to manipulate PriorityQueue.
 ///
 /// @ingroup Containers

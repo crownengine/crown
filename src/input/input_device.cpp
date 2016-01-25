@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 const char* InputDevice::name() const
 {
 	return _name;

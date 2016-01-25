@@ -15,7 +15,6 @@
 
 namespace crown
 {
-
 ApkFile::ApkFile(AAssetManager* asset_manager)
 	: _asset_manager(asset_manager)
 	, _asset(NULL)

@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 DiskFilesystem::DiskFilesystem()
 	: _prefix(default_allocator())
 {

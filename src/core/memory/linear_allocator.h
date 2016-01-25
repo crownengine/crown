@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 /// Allocates memory linearly from a fixed chunk of memory
 /// and frees all the allocations with a single call to clear().
 ///

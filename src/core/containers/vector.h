@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 /// Functions to manipulate Vector.
 ///
 /// @ingroup Containers

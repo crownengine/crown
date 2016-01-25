@@ -8,7 +8,6 @@
 
 namespace crown
 {
-
 LinearAllocator::LinearAllocator(Allocator& backing, uint32_t size)
 	: _backing(&backing)
 	, _physical_start(NULL)

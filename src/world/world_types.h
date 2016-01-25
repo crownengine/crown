@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 /// @defgroup World World
 
 class Level;

@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 /// @defgroup Filesystem Filesystem
 
 /// Provides a platform-independent way to access files and directories

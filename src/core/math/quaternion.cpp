@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
 Quaternion quaternion(const Matrix3x3& m)
 {

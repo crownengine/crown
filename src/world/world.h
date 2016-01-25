@@ -15,7 +15,6 @@
 
 namespace crown
 {
-
 /// Represents a game world.
 ///
 /// @ingroup World

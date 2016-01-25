@@ -16,7 +16,6 @@
 
 namespace crown
 {
-
 ConsoleServer::ConsoleServer(Allocator& a)
 	: _clients(a)
 {

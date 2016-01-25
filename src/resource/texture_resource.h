@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 struct TextureHeader
 {
 	uint32_t version;

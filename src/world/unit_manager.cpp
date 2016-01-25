@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 UnitManager::UnitManager(Allocator& a)
 	: _generation(a)
 	, _free_indices(a)

@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// Enumerates log levels.
 struct LogSeverity
 {

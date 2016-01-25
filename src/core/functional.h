@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 template<typename T>
 struct equal_to
 {

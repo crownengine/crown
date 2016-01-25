@@ -23,7 +23,6 @@
 
 namespace crown
 {
-
 static KeyboardButton::Enum win_translate_key(int32_t winkey)
 {
 	switch (winkey)

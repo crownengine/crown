@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 static void help(const char* msg = NULL)
 {
 	if (msg)

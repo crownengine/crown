@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 namespace audio_globals
 {
 	void init()

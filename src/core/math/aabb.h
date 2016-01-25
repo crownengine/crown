@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 /// Functions to manipulate AABB.
 ///
 /// @ingroup Math

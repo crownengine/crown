@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 /// Functions to manipulate Array.
 ///
 /// @ingroup Containers

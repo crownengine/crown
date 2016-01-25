@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 struct ShaderData
 {
 	uint64_t state;

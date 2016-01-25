@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// @defgroup JSON
 
 /// Enumerates JSON value types.

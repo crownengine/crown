@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 /// Manages sound objects in a World.
 ///
 /// @ingroup World

@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 DiskFile::DiskFile()
 {
 }

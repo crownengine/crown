@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 struct LevelResource
 {
 	uint32_t version;

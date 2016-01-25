@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 class BundleCompiler
 {
 public:

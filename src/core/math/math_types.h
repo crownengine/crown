@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 /// @defgroup Math Math
 
 /// @ingroup Math

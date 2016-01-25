@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 /// Draws lines.
 ///
 /// @ingroup World

@@ -16,7 +16,6 @@
 
 namespace crown
 {
-
 SceneGraph::SceneGraph(Allocator& a)
 	: _marker(MARKER)
 	, _allocator(a)

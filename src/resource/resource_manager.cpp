@@ -24,7 +24,6 @@
 
 namespace crown
 {
-
 const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL };
 
 ResourceManager::ResourceManager(ResourceLoader& rl)

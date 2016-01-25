@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 /// Offers the facility to tag allocators by a string identifier.
 /// Proxy allocator is appended to a global linked list when instantiated
 /// so that it is possible to later visit that list for debugging purposes.

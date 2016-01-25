@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 /// Functions to parse SJSON-encoded data.
 ///
 /// @ingroup JSON

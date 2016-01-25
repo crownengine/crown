@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 /// Netwotk address helper
 ///
 /// @ingroup Network

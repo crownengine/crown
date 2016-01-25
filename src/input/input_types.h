@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 /// @defgroup Input Input
 
 class InputManager;

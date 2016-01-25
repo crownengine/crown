@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 class Filesystem;
 class File;
 

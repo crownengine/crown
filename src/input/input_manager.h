@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 /// Manages input devices.
 ///
 /// @ingroup Input

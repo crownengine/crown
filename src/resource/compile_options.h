@@ -18,7 +18,6 @@
 
 namespace crown
 {
-
 struct CompileOptions
 {
 	CompileOptions(Filesystem& fs, Buffer& output, const char* platform, jmp_buf* buf)

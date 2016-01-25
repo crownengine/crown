@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// Stream of characters.
 typedef Array<char> StringStream;
 

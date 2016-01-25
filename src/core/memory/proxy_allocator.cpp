@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 ProxyAllocator::ProxyAllocator(Allocator& allocator, const char* name)
 	: _allocator(allocator)
 	, _name(name)

@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 struct OsMetricsEvent
 {
 	uint16_t x;

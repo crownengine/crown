@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 struct StringId32
 {
 	uint32_t _id;

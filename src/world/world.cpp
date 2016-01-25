@@ -23,7 +23,6 @@
 
 namespace crown
 {
-
 World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um, LuaEnvironment& env)
 	: _marker(MARKER)
 	, _allocator(&a)

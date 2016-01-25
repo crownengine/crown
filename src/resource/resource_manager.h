@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 /// @defgroup Resource Resource
 
 /// Keeps track and manages resources loaded by ResourceLoader.

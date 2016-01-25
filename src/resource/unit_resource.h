@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 struct UnitResource
 {
 	uint32_t version;

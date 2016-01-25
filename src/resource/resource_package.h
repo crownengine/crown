@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 /// Collection of resources to load in a batch.
 struct ResourcePackage
 {

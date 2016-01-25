@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 ResourcePackage::ResourcePackage(StringId64 id, ResourceManager& resman)
 	: _marker(MARKER)
 	, _resman(&resman)

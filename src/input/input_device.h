@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 /// Represents a generic input device.
 ///
 /// @ingroup Input

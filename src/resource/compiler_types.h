@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 struct CompileOptions;
 
 } // namespace crown

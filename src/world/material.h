@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 struct Material
 {
 	const MaterialResource* _resource;

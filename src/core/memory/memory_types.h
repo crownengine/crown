@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 class Allocator;
 
 }; // namespace crown

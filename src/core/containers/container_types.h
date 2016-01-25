@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 /// @defgroup Containers Containers
 
 /// Dynamic array of POD items.

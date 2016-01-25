@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// An abstraction to access data files.
 ///
 /// @ingroup Filesystem

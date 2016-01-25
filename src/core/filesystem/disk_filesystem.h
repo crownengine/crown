@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 /// Access files on disk.
 /// All the file paths can be either relative or absolute.
 /// When a relative path is given, it is automatically translated

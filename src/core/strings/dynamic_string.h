@@ -15,7 +15,6 @@
 
 namespace crown
 {
-
 ///
 class DynamicString
 {

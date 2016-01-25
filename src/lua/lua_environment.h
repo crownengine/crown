@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 enum LuaArgumentType
 {
 	ARGUMENT_FLOAT

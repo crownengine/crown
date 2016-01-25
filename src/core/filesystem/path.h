@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 #if CROWN_PLATFORM_POSIX
 	const char PATH_SEPARATOR = '/';
 #elif CROWN_PLATFORM_WINDOWS

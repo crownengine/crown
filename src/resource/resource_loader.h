@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 struct ResourceRequest
 {
 	typedef void* (*LoadFunction)(File& file, Allocator& a);

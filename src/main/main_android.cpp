@@ -26,7 +26,6 @@ extern "C"
 
 namespace crown
 {
-
 static bool s_exit = false;
 
 struct MainThreadArgs

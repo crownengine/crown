@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 inline int32_t vsnprintf(char* str, size_t num, const char* format, va_list args)
 {
 #if CROWN_COMPILER_MSVC

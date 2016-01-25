@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 void print_callstack()
 {
 }

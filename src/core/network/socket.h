@@ -33,7 +33,6 @@
 
 namespace crown
 {
-
 struct ConnectResult
 {
 	enum { NO_ERROR, BAD_SOCKET, REFUSED, TIMEOUT, UNKNOWN } error;

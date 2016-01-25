@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 class UnitCompiler
 {
 	typedef Buffer (*CompileFunction)(const char* json, CompileOptions& opts);

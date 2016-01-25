@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// Functions to manipulate Plane.
 ///
 /// @ingroup Math

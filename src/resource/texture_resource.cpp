@@ -16,7 +16,6 @@
 
 namespace crown
 {
-
 #define FOURCC(a, b, c, d)          uint32_t(a | (b << 8) | (c << 16) | (d << 24))
 
 #define DDSD_MAGIC                  FOURCC('D', 'D', 'S', ' ')

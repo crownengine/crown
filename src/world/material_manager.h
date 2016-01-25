@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 class MaterialManager
 {
 	Allocator* _allocator;

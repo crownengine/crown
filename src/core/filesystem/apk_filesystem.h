@@ -15,7 +15,6 @@
 
 namespace crown
 {
-
 /// Access files on Android's assets folder.
 /// The assets folder is read-only and all the paths are relative.
 class ApkFilesystem : public Filesystem

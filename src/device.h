@@ -23,7 +23,6 @@
 
 namespace crown
 {
-
 struct BgfxAllocator;
 struct BgfxCallback;
 

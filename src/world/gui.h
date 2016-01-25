@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 class RenderWorld;
 
 /// Manages the rendering of GUI objects.

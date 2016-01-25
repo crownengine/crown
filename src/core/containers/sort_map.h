@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// Functions to manipulate SortMap.
 ///
 /// @ingroup Containers

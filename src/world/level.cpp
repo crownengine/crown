@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 Level::Level(Allocator& a, World& w, const LevelResource& lr)
 	: _marker(MARKER)
 	, _allocator(&a)

@@ -11,7 +11,6 @@
 
 namespace crown
 {
-
 MaterialManager::MaterialManager(Allocator& a, ResourceManager& rm)
 	: _allocator(&a)
 	, _resource_manager(&rm)

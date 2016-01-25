@@ -55,26 +55,27 @@
 
 namespace crown
 {
-	class ResourceLoader;
-	class ResourceManager;
-	struct ResourcePackage;
+class ResourceLoader;
+class ResourceManager;
+struct ResourcePackage;
 
-	struct ActorResource;
-	struct ControllerResource;
-	struct FontResource;
-	struct JointResource;
-	struct LevelResource;
-	struct LuaResource;
-	struct MaterialResource;
-	struct MeshResource;
-	struct PackageResource;
-	struct PhysicsConfigResource;
-	struct PhysicsResource;
-	struct ShaderResource;
-	struct ShapeResource;
-	struct SoundResource;
-	struct SpriteAnimationResource;
-	struct SpriteResource;
-	struct TextureResource;
-	struct UnitResource;
+struct ActorResource;
+struct ControllerResource;
+struct FontResource;
+struct JointResource;
+struct LevelResource;
+struct LuaResource;
+struct MaterialResource;
+struct MeshResource;
+struct PackageResource;
+struct PhysicsConfigResource;
+struct PhysicsResource;
+struct ShaderResource;
+struct ShapeResource;
+struct SoundResource;
+struct SpriteAnimationResource;
+struct SpriteResource;
+struct TextureResource;
+struct UnitResource;
+
 } // namespace crown

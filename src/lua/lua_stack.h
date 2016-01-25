@@ -28,7 +28,6 @@
 
 namespace crown
 {
-
 /// Wrapper to manipulate Lua stack.
 ///
 /// @ingroup Lua

@@ -43,7 +43,6 @@
 
 namespace crown
 {
-
 struct BgfxCallback : public bgfx::CallbackI
 {
 	virtual void fatal(bgfx::Fatal::Enum _code, const char* _str)

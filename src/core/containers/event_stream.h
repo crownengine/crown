@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// Array of generic event structs.
 ///
 /// @ingroup Containers

@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 void print_callstack()
 {
 	SymInitialize(GetCurrentProcess(), NULL, TRUE);

@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 static const char* s_keyboard_button_names[] =
 {
 	"tab",          // KeyboardButton::TAB

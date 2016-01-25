@@ -16,7 +16,6 @@
 
 namespace crown
 {
-
 extern void load_api(LuaEnvironment& env);
 
 // When an error occurs, logs the error message and pauses the engine.

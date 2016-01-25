@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// @defgroup Profiler Profiler
 
 struct ProfilerEventType

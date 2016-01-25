@@ -7,10 +7,9 @@
 
 namespace crown
 {
-
-///	Pseudo-random number generator.
+/// Pseudo-random number generator.
 ///
-///	Uses LCG algorithm: fast and compatible with the standard C rand().
+/// Uses LCG algorithm: fast and compatible with the standard C rand().
 struct Random
 {
 	/// Initializes the generator with the given @a seed.

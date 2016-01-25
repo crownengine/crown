@@ -21,7 +21,6 @@
 
 namespace crown
 {
-
 /// Standard C file wrapper
 class OsFile
 {

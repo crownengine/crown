@@ -8,7 +8,6 @@
 
 namespace crown
 {
-
 PoolAllocator::PoolAllocator(Allocator& backing, uint32_t num_blocks, uint32_t block_size, uint32_t block_align)
 	: _backing(backing)
 	, _start(NULL)

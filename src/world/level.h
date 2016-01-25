@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 /// Game level.
 ///
 /// @ingroup World

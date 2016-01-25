@@ -10,7 +10,6 @@
 
 namespace crown
 {
-
 /// Provides service to communicate with engine via TCP/IP.
 ///
 /// @ingroup Device

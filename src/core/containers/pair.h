@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 template <typename T1, typename T2, int T1Aware, int T2Aware>
 struct Pair
 {

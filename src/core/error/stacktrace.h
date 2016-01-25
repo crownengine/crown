@@ -7,7 +7,6 @@
 
 namespace crown
 {
-
 /// Prints the current call stack.
 void print_callstack();
 

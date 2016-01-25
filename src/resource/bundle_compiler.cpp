@@ -32,7 +32,6 @@
 
 namespace crown
 {
-
 BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	: _source_fs(source_dir)
 	, _bundle_fs(bundle_dir)

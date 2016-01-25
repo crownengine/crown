@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 /// Allocates memory linearly in a stack-like fashion from a
 /// predefined chunk. All deallocations must occur in LIFO
 /// order.

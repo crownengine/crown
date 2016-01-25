@@ -13,7 +13,6 @@
 
 namespace crown
 {
-
 struct PackageResource
 {
 	struct Resource

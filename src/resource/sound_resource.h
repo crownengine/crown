@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 struct SoundType
 {
 	enum Enum

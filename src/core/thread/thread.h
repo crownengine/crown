@@ -19,7 +19,6 @@
 
 namespace crown
 {
-
 typedef int32_t (*ThreadFunction)(void*);
 
 struct Thread

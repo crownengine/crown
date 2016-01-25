@@ -9,7 +9,6 @@
 
 namespace crown
 {
-
 namespace config_resource
 {
 	void compile(const char* path, CompileOptions& opts)

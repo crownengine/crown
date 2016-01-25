@@ -12,7 +12,6 @@
 
 namespace crown
 {
-
 /// Functions to manipulate Frustum.
 ///
 /// @ingroup Math

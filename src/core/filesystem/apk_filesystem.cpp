@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 ApkFilesystem::ApkFilesystem(AAssetManager* asset_manager)
 	: _asset_manager(asset_manager)
 {

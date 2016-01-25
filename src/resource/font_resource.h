@@ -14,7 +14,6 @@
 
 namespace crown
 {
-
 struct FontResource
 {
 	uint32_t version;
