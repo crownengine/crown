@@ -7,6 +7,7 @@ install:
   - third\bx\tools\bin\windows\genie --file=genie\genie.lua --with-luajit --with-openal --with-bullet --with-tools vs2013
 
 platform:
+  - Win32
   - x64
 
 configuration:
