@@ -12,7 +12,7 @@ namespace crown
 {
 /// Display mode.
 ///
-/// @a ingroup Device
+/// @ingroup Device
 struct DisplayMode
 {
 	uint32_t id;
