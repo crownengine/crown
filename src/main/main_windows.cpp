@@ -302,10 +302,42 @@ int32_t func(void* data)
 
 struct WindowsDevice
 {
+	WindowsDevice()
+		: _hwnd(NULL)
+	{
+	}
+
 	int	run(DeviceOptions* opts)
 	{
 		MainThreadArgs mta;
 		mta.opts = opts;
+
+		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
+		WNDCLASSEX wnd;
+		memset(&wnd, 0, sizeof(wnd));
+		wnd.cbSize = sizeof(wnd);
+		wnd.style = CS_HREDRAW | CS_VREDRAW;
+		wnd.lpfnWndProc = window_proc;
+		wnd.hInstance = instance;
+		wnd.hIcon = LoadIcon(instance, IDI_APPLICATION);
+		wnd.hCursor = LoadCursor(instance, IDC_ARROW);
+		wnd.lpszClassName = "crown";
+		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
+		RegisterClassExA(&wnd);
+
+		_hwnd = CreateWindowA("crown"
+			, "Crown"
+			, WS_OVERLAPPEDWINDOW | WS_VISIBLE
+			, opts->window_x()
+			, opts->window_y()
+			, opts->window_width()
+			, opts->window_height()
+			, 0
+			, NULL
+			, instance
+			, 0
+			);
+		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
 
 		Thread main_thread;
 		main_thread.start(func, &mta);
@@ -424,15 +456,18 @@ struct WindowsDevice
 		return DefWindowProc(hwnd, id, wparam, lparam);
 	}
 
+	static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam);
+
 public:
 
+	HWND _hwnd;
 	OsEventQueue _queue;
 	Joypad _joypad;
 };
 
 static WindowsDevice s_wdvc;
 
-static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 {
 	return s_wdvc.pump_events(hwnd, id, wparam, lparam);
 }
@@ -454,6 +489,7 @@ public:
 		, _width(CROWN_DEFAULT_WINDOW_WIDTH)
 		, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	{
+		_hwnd = s_wdvc._hwnd;
 	}
 
 	void open(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t /*parent*/)
@@ -462,33 +498,6 @@ public:
 		_y = y;
 		_width = width;
 		_height = height;
-
-		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
-		WNDCLASSEX wnd;
-		memset(&wnd, 0, sizeof(wnd));
-		wnd.cbSize = sizeof(wnd);
-		wnd.style = CS_HREDRAW | CS_VREDRAW;
-		wnd.lpfnWndProc = window_proc;
-		wnd.hInstance = instance;
-		wnd.hIcon = LoadIcon(instance, IDI_APPLICATION);
-		wnd.hCursor = LoadCursor(instance, IDC_ARROW);
-		wnd.lpszClassName = "crown";
-		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
-		RegisterClassExA(&wnd);
-
-		_hwnd = CreateWindowA("crown"
-			, "Crown"
-			, WS_OVERLAPPEDWINDOW | WS_VISIBLE
-			, x
-			, y
-			, width
-			, height
-			, 0
-			, NULL
-			, instance
-			, 0
-			);
-		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
 	}
 
 	void close()
