@@ -219,7 +219,6 @@ void World::update_scene(float dt)
 	Array<Matrix4x4> changed_world(ta);
 
 	_scene_graph->get_changed(changed_units, changed_world);
-	_scene_graph->clear_changed();
 
 	_physics_world->update_actor_world_poses(array::begin(changed_units)
 		, array::end(changed_units)
@@ -228,6 +227,50 @@ void World::update_scene(float dt)
 
 	_physics_world->update(dt);
 
+	// Process physics events
+	EventStream& physics_events = _physics_world->events();
+
+	const uint32_t size = array::size(physics_events);
+	uint32_t read = 0;
+	while (read < size)
+	{
+		event_stream::Header h;
+
+		const char* data = &physics_events[read];
+		const char* ev   = data + sizeof(h);
+
+		h = *(event_stream::Header*)data;
+
+		switch (h.type)
+		{
+			case EventType::PHYSICS_TRANSFORM:
+			{
+				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)ev;
+				const TransformInstance ti = _scene_graph->get(ptev.unit_id);
+				_scene_graph->set_world_pose(ti, ptev.world_tm);
+				break;
+			}
+			case EventType::PHYSICS_COLLISION:
+			{
+				break;
+			}
+			case EventType::PHYSICS_TRIGGER:
+			{
+				break;
+			}
+		}
+
+		read += sizeof(h);
+		read += h.size;
+	}
+	array::clear(physics_events);
+
+	array::clear(changed_units);
+	array::clear(changed_world);
+
+	_scene_graph->get_changed(changed_units, changed_world);
+	_scene_graph->clear_changed();
+
 	_render_world->update_transforms(array::begin(changed_units)
 		, array::end(changed_units)
 		, array::begin(changed_world)
@@ -235,8 +278,6 @@ void World::update_scene(float dt)
 
 	_sound_world->update();
 
-	EventStream& physics_events = _physics_world->events();
-	array::clear(physics_events);
 	array::clear(_events);
 }
 
