@@ -17,6 +17,12 @@ namespace crown
 /// @ingroup Input
 class InputManager
 {
+	Allocator* _allocator;
+	InputDevice* _keyboard;
+	InputDevice* _mouse;
+	InputDevice* _touch;
+	InputDevice* _joypad[CROWN_MAX_JOYPADS];
+
 public:
 
 	InputManager(Allocator& a);
@@ -39,14 +45,6 @@ public:
 
 	/// Updates the input devices
 	void update();
-
-private:
-
-	Allocator* _allocator;
-	InputDevice* _keyboard;
-	InputDevice* _mouse;
-	InputDevice* _touch;
-	InputDevice* _joypad[CROWN_MAX_JOYPADS];
 };
 
 } // namespace crown
