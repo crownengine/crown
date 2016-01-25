@@ -15,8 +15,24 @@ namespace crown
 /// Represents a generic input device.
 ///
 /// @ingroup Input
-struct InputDevice
+class InputDevice
 {
+	bool _connected;
+	uint8_t _num_buttons;
+	uint8_t _num_axes;
+	uint8_t _last_button;
+
+	uint8_t* _last_state;      // num_buttons
+	uint8_t* _current_state;   // num_buttons
+	Vector3* _axis;            // num_axes
+	const char** _button_name; // num_buttons
+	const char** _axis_name;   // num_axes
+	StringId32* _button_hash;  // num_buttons
+	StringId32* _axis_hash;    // num_axes
+	char* _name;               // strlen32(name) + 1
+
+public:
+
 	/// Returns the name of the input device.
 	const char* name() const;
 
@@ -63,24 +79,6 @@ struct InputDevice
 	void set_axis(uint8_t i, const Vector3& value);
 
 	void update();
-
-public:
-
-	bool _connected;
-	uint8_t _num_buttons;
-	uint8_t _num_axes;
-	uint8_t _last_button;
-
-	uint8_t* _last_state;      // num_buttons
-	uint8_t* _current_state;   // num_buttons
-	Vector3* _axis;            // num_axes
-	const char** _button_name; // num_buttons
-	const char** _axis_name;   // num_axes
-	StringId32* _button_hash;  // num_buttons
-	StringId32* _axis_hash;    // num_axes
-	char* _name;               // strlen32(name) + 1
-
-public:
 
 	static InputDevice* create(Allocator& a, const char* name, uint8_t num_buttons, uint8_t num_axes, const char** button_names, const char** axis_names);
 	static void destroy(Allocator& a, InputDevice* id);
