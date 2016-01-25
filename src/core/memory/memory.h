@@ -11,12 +11,12 @@
 #include "macros.h"
 #include <new>
 
+/// @defgroup Memory Memory
 namespace crown
 {
 Allocator& default_allocator();
 Allocator& default_scratch_allocator();
 
-/// @defgroup Memory Memory
 namespace memory
 {
 	/// Returns the pointer @a p aligned to the desired @a align byte

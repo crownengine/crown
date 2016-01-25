@@ -9,10 +9,9 @@
 #include "string_id.h"
 #include "types.h"
 
+/// @defgroup World World
 namespace crown
 {
-/// @defgroup World World
-
 class Level;
 class MaterialManager;
 class PhysicsWorld;

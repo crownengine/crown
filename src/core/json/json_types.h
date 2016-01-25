@@ -8,10 +8,9 @@
 #include "container_types.h"
 #include "fixed_string.h"
 
+/// @defgroup JSON
 namespace crown
 {
-/// @defgroup JSON
-
 /// Enumerates JSON value types.
 ///
 /// @ingroup JSON

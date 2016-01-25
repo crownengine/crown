@@ -5,10 +5,9 @@
 
 #pragma once
 
+/// @defgroup Lua Lua
 namespace crown
 {
-/// @defgroup Lua Lua
-
 class LuaStack;
 class LuaEnvironment;
 

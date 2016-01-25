@@ -12,10 +12,9 @@
 #include "string_id.h"
 #include "types.h"
 
+/// @defgroup Resource Resource
 namespace crown
 {
-/// @defgroup Resource Resource
-
 /// Keeps track and manages resources loaded by ResourceLoader.
 ///
 /// @ingroup Resource

@@ -21,12 +21,11 @@
 #include "window.h"
 #include "world_types.h"
 
+/// @defgroup Device Device
 namespace crown
 {
 struct BgfxAllocator;
 struct BgfxCallback;
-
-/// @defgroup Device Device
 
 /// This is the place where to look for accessing all of
 /// the engine subsystems and related stuff.

@@ -5,10 +5,9 @@
 
 #pragma once
 
+/// @defgroup Math Math
 namespace crown
 {
-/// @defgroup Math Math
-
 /// @ingroup Math
 struct Vector2
 {

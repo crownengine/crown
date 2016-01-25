@@ -9,10 +9,9 @@
 #include "container_types.h"
 #include "dynamic_string.h"
 
+/// @defgroup Filesystem Filesystem
 namespace crown
 {
-/// @defgroup Filesystem Filesystem
-
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
 ///

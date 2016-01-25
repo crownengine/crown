@@ -5,10 +5,9 @@
 
 #pragma once
 
+/// @defgroup Input Input
 namespace crown
 {
-/// @defgroup Input Input
-
 class InputManager;
 struct InputDevice;
 

@@ -8,10 +8,12 @@
 #include "types.h"
 #include "math_types.h"
 
+/// @defgroup Profiler Profiler
 namespace crown
 {
-/// @defgroup Profiler Profiler
-
+/// Enumerates profiler event types.
+///
+/// @ingroup Profiler
 struct ProfilerEventType
 {
 	enum Enum

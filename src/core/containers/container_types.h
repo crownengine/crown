@@ -10,10 +10,9 @@
 #include "functional.h"
 #include "pair.h"
 
+/// @defgroup Containers Containers
 namespace crown
 {
-/// @defgroup Containers Containers
-
 /// Dynamic array of POD items.
 /// @note
 /// Does not call constructors/destructors so it is not very suitable for non-POD items.
