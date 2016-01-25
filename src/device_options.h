@@ -6,12 +6,7 @@
 #pragma once
 
 #include "types.h"
-#include "config.h"
-
-#if CROWN_PLATFORM_ANDROID
- 	#include <sys/types.h> // off_t
-	#include <android/asset_manager.h>
-#endif // CROWN_PLATFORM_ANDROID
+#include "platform.h"
 
 namespace crown
 {
@@ -37,7 +32,7 @@ class DeviceOptions
 	uint16_t _window_height;
 
 #if CROWN_PLATFORM_ANDROID
-	AAssetManager* _asset_manager;
+	void* _asset_manager;
 #endif // CROWN_PLATFORM_ANDROID
 
 public:
@@ -65,8 +60,8 @@ public:
 	uint16_t window_height() const { return _window_height; }
 
 #if CROWN_PLATFORM_ANDROID
-	void set_asset_manager(AAssetManager* am) { _asset_manager = am; }
-	const AAssetManager* asset_manager() const { return _asset_manager; }
+	void set_asset_manager(void* am) { _asset_manager = am; }
+	const void* asset_manager() const { return _asset_manager; }
 #endif // CROWN_PLATFORM_ANDROID
 };
 
