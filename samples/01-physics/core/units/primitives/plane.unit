@@ -1,0 +1,29 @@
+components = {
+	"238ae946-75d4-4c4e-b326-ff4c6562fba4" = {
+		type = "transform"
+		position = [ 0 0 0 ]
+		rotation = [ 0 1 0 0 ]
+		scale = [ 1 1 1 ]
+	}
+	"add86f5b-267a-4aa8-954c-385d2fcda2be" = {
+		type = "mesh_renderer"
+		mesh_resource = "core/units/primitives/plane"
+		geometry_name = "Plane"
+		material = "core/units/primitives/primitive"
+		visible = true
+	}
+	"9217e10e-9b45-46d0-9c02-7c95531f4e80" = {
+		type = "collider"
+		class = "character"
+		shape = "convex_hull"
+		scene = "core/units/primitives/plane"
+		name = "Plane"
+		material = "default"
+	}
+	"b5f0e7bd-e78b-4447-acd3-37ca73020177" = {
+		type = "actor"
+		class = "dynamic"
+		mass = 1
+		collision_filter = "default"
+	}
+}

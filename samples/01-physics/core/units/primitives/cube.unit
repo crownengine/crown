@@ -1,0 +1,29 @@
+components = {
+	"23dbf108-db64-4ca2-9647-8c639ee039ad" = {
+		type = "transform"
+		position = [ 0 0 0 ]
+		rotation = [ 0 1 0 0 ]
+		scale = [ 1 1 1 ]
+	}
+	"49753fff-34ea-4aff-8bcf-5116f1c1519a" = {
+		type = "mesh_renderer"
+		mesh_resource = "core/units/primitives/cube"
+		geometry_name = "Cube"
+		material = "core/units/primitives/primitive"
+		visible = true
+	}
+	"08b8b97a-c894-409f-8f57-e7508ff8d3cf" = {
+		type = "collider"
+		class = "character"
+		shape = "convex_hull"
+		scene = "core/units/primitives/cube"
+		name = "Cube"
+		material = "default"
+	}
+	"b15082c5-3aaf-4c9a-8925-e5c958d49171" = {
+		type = "actor"
+		class = "dynamic"
+		mass = 1
+		collision_filter = "default"
+	}
+}

@@ -1,0 +1,29 @@
+components = {
+	"8972a214-327e-4396-b01e-45701189e8c9" = {
+		type = "transform"
+		position = [ 0 0 0 ]
+		rotation = [ 0 1 0 0 ]
+		scale = [ 1 1 1 ]
+	}
+	"ce881722-b0da-41ea-b29b-b26b85cf61b5" = {
+		type = "mesh_renderer"
+		mesh_resource = "core/units/primitives/sphere"
+		geometry_name = "Sphere"
+		material = "core/units/primitives/primitive"
+		visible = true
+	}
+	"37ac9624-1d8c-4612-85da-d74654f48177" = {
+		type = "collider"
+		class = "character"
+		shape = "convex_hull"
+		scene = "core/units/primitives/sphere"
+		name = "Sphere"
+		material = "default"
+	}
+	"b90d4427-bc08-4d40-aaf5-9d0eb80be391" = {
+		type = "actor"
+		class = "dynamic"
+		mass = 1
+		collision_filter = "default"
+	}
+}

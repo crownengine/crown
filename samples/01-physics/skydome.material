@@ -1,0 +1,8 @@
+shader = "mesh_unlit"
+
+textures = {
+	u_albedo = "skydome"
+}
+
+uniforms = {
+}

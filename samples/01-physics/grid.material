@@ -1,0 +1,12 @@
+shader = "mesh"
+
+textures = {
+	u_albedo = "grid"
+}
+
+uniforms = {
+	u_ambient = { type = "vector4" value = [0.4, 0.4, 0.4, 0.0 ] }
+	u_diffuse = { type = "vector4" value = [1.0, 1.0, 1.0, 0.0 ] }
+	u_specular = { type = "vector4" value = [0.0, 0.0, 0.0, 0.0 ] }
+	u_shininess = { type = "float" value = 0.0 }
+}

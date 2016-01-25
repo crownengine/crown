@@ -1,0 +1,12 @@
+lua = [
+	"lua/class"
+	"lua/camera"
+	"lua/game"
+]
+shader = [
+	"core/shaders/common"
+	"core/shaders/default"
+]
+physics_config = [
+	"global"
+]

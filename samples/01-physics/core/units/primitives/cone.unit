@@ -1,0 +1,31 @@
+components = {
+	"1689686c-99b6-4b8a-90c8-9606bb466096" = {
+		type = "transform"
+		position = [ 0 0 0 ]
+		rotation = [ 0 1 0 0 ]
+		scale = [ 1 1 1 ]
+	}
+	"56078f34-c3b0-4c64-a245-5d305021712b" = {
+		type = "mesh_renderer"
+		mesh_resource = "core/units/primitives/cone"
+		geometry_name = "Cone"
+		material = "core/units/primitives/primitive"
+		visible = true
+	}
+/*
+	"157bdce7-ab63-4478-9550-65610918343e" = {
+		type = "collider"
+		class = "character"
+		shape = "convex_hull"
+		scene = "core/units/primitives/cone"
+		name = "Cone"
+		material = "default"
+	}
+	"1862249c-206a-4fdb-9e3f-c37a149e58d8" = {
+		type = "actor"
+		class = "dynamic"
+		mass = 1
+		collision_filter = "default"
+	}
+*/
+}

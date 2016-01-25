@@ -1,0 +1,29 @@
+components = {
+	"805e9323-578b-4d22-8414-b15b1a5ff7bc" = {
+		type = "transform"
+		position = [0 0 0]
+		rotation = [0 0 1 0]
+		scale = [1 1 1]
+	}
+	"445eb72e-e80d-4549-95db-2438f3401168" = {
+		type = "mesh_renderer"
+		mesh_resource = "plane"
+		geometry_name = "Plane"
+		material = "grid"
+		visible = true
+	}
+	"114ece38-a553-4a49-8fa7-07b49e061a66" = {
+		type = "collider"
+		class = "asteroid"
+		material = "asteroid"
+		shape = "convex_hull"
+		scene = "plane"
+		name = "Plane"
+	}
+	"52cec360-697d-4493-a369-1674bcb1d236" = {
+		type = "actor"
+		class = "static"
+		mass = 50
+		collision_filter = "default"
+	}
+}
