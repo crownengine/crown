@@ -2932,7 +2932,6 @@ void load_api(LuaEnvironment& env)
 	env.load_module_function("World", "destroy_unit",                    world_destroy_unit);
 	env.load_module_function("World", "num_units",                       world_num_units);
 	env.load_module_function("World", "units",                           world_units);
-
 	env.load_module_function("World", "camera",                          world_camera);
 	env.load_module_function("World", "set_camera_projection_type",      camera_set_projection_type);
 	env.load_module_function("World", "camera_projection_type",          camera_projection_type);
@@ -2948,7 +2947,6 @@ void load_api(LuaEnvironment& env)
 	env.load_module_function("World", "set_camera_viewport_metrics",     camera_set_viewport_metrics);
 	env.load_module_function("World", "camera_screen_to_world",          camera_screen_to_world);
 	env.load_module_function("World", "camera_world_to_screen",          camera_world_to_screen);
-
 	env.load_module_function("World", "update_animations",               world_update_animations);
 	env.load_module_function("World", "update_scene",                    world_update_scene);
 	env.load_module_function("World", "update",                          world_update);
