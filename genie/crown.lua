@@ -159,6 +159,7 @@ function crown_project(_name, _kind, _defines)
 				"OpenGL32",
 				"dbghelp",
 				"xinput",
+				"psapi",
 			}
 
 		if _OPTIONS["with-physx"] then
