@@ -5,6 +5,7 @@
 
 #pragma once
 
+/// @defgroup Filesystem Filesystem
 namespace crown
 {
 class Filesystem;
