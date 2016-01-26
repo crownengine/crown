@@ -4,7 +4,7 @@
 --
 
 project "openal"
-	kind "SharedLib"
+	kind "StaticLib"
 
 	configuration {}
 
