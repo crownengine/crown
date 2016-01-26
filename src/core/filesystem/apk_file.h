@@ -5,6 +5,10 @@
 
 #pragma once
 
+#include "platform.h"
+
+#if CROWN_PLATFORM_ANDROID
+
 #include "file.h"
 #include <sys/types.h>
 #include <android/asset_manager.h>
@@ -16,6 +20,9 @@ namespace crown
 /// @ingroup Filesystem
 class ApkFile : public File
 {
+	AAssetManager* _asset_manager;
+	AAsset* _asset;
+
 public:
 
 	ApkFile(AAssetManager* asset_manager);
@@ -56,11 +63,8 @@ public:
 
 	/// @copydoc File::position()
 	uint32_t position();
-
-private:
-
-	AAssetManager* _asset_manager;
-	AAsset* _asset;
 };
+
+#endif // CROWN_PLATFORM_ANDROID
 
 } // namespace crown

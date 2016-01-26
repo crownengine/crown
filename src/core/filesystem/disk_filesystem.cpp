@@ -3,14 +3,12 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "disk_filesystem.h"
-#include "file.h"
-#include "string_utils.h"
-#include "temp_allocator.h"
 #include "disk_file.h"
-#include "vector.h"
-#include "path.h"
+#include "disk_filesystem.h"
 #include "os.h"
+#include "path.h"
+#include "temp_allocator.h"
+#include "vector.h"
 
 namespace crown
 {

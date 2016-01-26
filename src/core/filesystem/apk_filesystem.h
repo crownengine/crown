@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "config.h"
+#include "platform.h"
 
 #if CROWN_PLATFORM_ANDROID
 
@@ -19,6 +19,8 @@ namespace crown
 /// The assets folder is read-only and all the paths are relative.
 class ApkFilesystem : public Filesystem
 {
+	AAssetManager* _asset_manager;
+
 public:
 
 	ApkFilesystem(AAssetManager* asset_manager);
@@ -58,10 +60,6 @@ public:
 
 	/// @copydoc Filesystem::get_absolute_path()
 	void get_absolute_path(const char* path, DynamicString& os_path);
-
-private:
-
-	AAssetManager* _asset_manager;
 };
 
 } // namespace crown

@@ -24,6 +24,13 @@ namespace crown
 /// Standard C file wrapper
 class OsFile
 {
+#if CROWN_PLATFORM_POSIX
+	FILE* _file;
+#elif CROWN_PLATFORM_WINDOWS
+	HANDLE _file;
+	bool _eof;
+#endif
+
 public:
 
 	/// Opens the file located at @a path with the given @a mode.
@@ -227,15 +234,6 @@ public:
 		return _eof;
 #endif
 	}
-
-private:
-
-#if CROWN_PLATFORM_POSIX
-	FILE* _file;
-#elif CROWN_PLATFORM_WINDOWS
-	HANDLE _file;
-	bool _eof;
-#endif
 };
 
 } // namespace crown

@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "apk_filesystem.h"
 #include "array.h"
 #include "audio.h"
 #include "config.h"
@@ -34,10 +35,6 @@
 #include "world.h"
 #include <bgfx/bgfx.h>
 #include <bx/allocator.h>
-
-#if CROWN_PLATFORM_ANDROID
-	#include "apk_filesystem.h"
-#endif // CROWN_PLATFORM_ANDROID
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 

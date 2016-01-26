@@ -5,9 +5,8 @@
 
 #pragma once
 
-#include "error.h"
-#include "os_file.h"
 #include "file.h"
+#include "os_file.h"
 
 namespace crown
 {
@@ -16,6 +15,8 @@ namespace crown
 /// @ingroup Filesystem
 class DiskFile: public File
 {
+	OsFile _file;
+
 public:
 
 	DiskFile();
@@ -56,17 +57,6 @@ public:
 
 	/// @copydoc File::position()
 	uint32_t position();
-
-protected:
-
-	OsFile _file;
-
-protected:
-
-	inline void check_valid() const
-	{
-		CE_ASSERT(_file.is_open(), "File is not open");
-	}
 };
 
 } // namespace crown

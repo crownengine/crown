@@ -19,6 +19,8 @@ namespace crown
 /// @ingroup Filesystem
 class DiskFilesystem : public Filesystem
 {
+	DynamicString _prefix;
+
 public:
 
 	/// Sets the root path to the current working directory of
@@ -65,10 +67,6 @@ public:
 
 	/// @copydoc Filesystem::get_absolute_path()
 	void get_absolute_path(const char* path, DynamicString& os_path);
-
-private:
-
-	DynamicString _prefix;
 };
 
 } // namespace crown

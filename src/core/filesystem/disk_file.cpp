@@ -4,9 +4,6 @@
  */
 
 #include "disk_file.h"
-#include "types.h"
-#include "memory.h"
-#include <algorithm>
 
 namespace crown
 {
@@ -31,31 +28,26 @@ void DiskFile::close()
 
 void DiskFile::seek(uint32_t position)
 {
-	check_valid();
 	_file.seek(position);
 }
 
 void DiskFile::seek_to_end()
 {
-	check_valid();
 	_file.seek_to_end();
 }
 
 void DiskFile::skip(uint32_t bytes)
 {
-	check_valid();
 	_file.skip(bytes);
 }
 
 uint32_t DiskFile::read(void* data, uint32_t size)
 {
-	check_valid();
 	return _file.read(data, size);
 }
 
 uint32_t DiskFile::write(const void* data, uint32_t size)
 {
-	check_valid();
 	return _file.write(data, size);
 }
 
@@ -71,19 +63,16 @@ bool DiskFile::is_valid()
 
 void DiskFile::flush()
 {
-	check_valid();
 	_file.flush();
 }
 
 uint32_t DiskFile::position()
 {
-	check_valid();
 	return _file.position();
 }
 
 uint32_t DiskFile::size()
 {
-	check_valid();
 	return _file.size();
 }
 
