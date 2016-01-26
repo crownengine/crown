@@ -65,6 +65,6 @@ public:
 	uint32_t position();
 };
 
-#endif // CROWN_PLATFORM_ANDROID
-
 } // namespace crown
+
+#endif // CROWN_PLATFORM_ANDROID
