@@ -12,16 +12,18 @@
 
 namespace crown
 {
-DiskFilesystem::DiskFilesystem()
-	: _prefix(default_allocator())
+DiskFilesystem::DiskFilesystem(Allocator& a)
+	: _allocator(&a)
+	, _prefix(a)
 {
 	char buf[512];
 	os::getcwd(buf, sizeof(buf));
 	_prefix = buf;
 }
 
-DiskFilesystem::DiskFilesystem(const char* prefix)
-	: _prefix(prefix)
+DiskFilesystem::DiskFilesystem(Allocator& a, const char* prefix)
+	: _allocator(&a)
+	, _prefix(prefix, a)
 {
 }
 
@@ -33,14 +35,14 @@ File* DiskFilesystem::open(const char* path, FileOpenMode::Enum mode)
 	DynamicString abs_path(alloc);
 	get_absolute_path(path, abs_path);
 
-	DiskFile* file = CE_NEW(default_allocator(), DiskFile)();
+	DiskFile* file = CE_NEW(*_allocator, DiskFile)();
 	file->open(abs_path.c_str(), mode);
 	return file;
 }
 
 void DiskFilesystem::close(File& file)
 {
-	CE_DELETE(default_allocator(), &file);
+	CE_DELETE(*_allocator, &file);
 }
 
 bool DiskFilesystem::exists(const char* path)

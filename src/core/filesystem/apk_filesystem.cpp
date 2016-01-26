@@ -14,8 +14,9 @@
 
 namespace crown
 {
-ApkFilesystem::ApkFilesystem(AAssetManager* asset_manager)
-	: _asset_manager(asset_manager)
+ApkFilesystem::ApkFilesystem(Allocator& a, AAssetManager* asset_manager)
+	: _allocator(&a)
+	, _asset_manager(asset_manager)
 {
 }
 
@@ -23,14 +24,14 @@ File* ApkFilesystem::open(const char* path, FileOpenMode::Enum mode)
 {
 	CE_ASSERT_NOT_NULL(path);
 	CE_ASSERT(mode == FileOpenMode::READ, "Cannot open for writing in Android assets folder");
-	ApkFile* file = CE_NEW(default_allocator(), ApkFile)(_asset_manager);
+	ApkFile* file = CE_NEW(*_allocator, ApkFile)(_asset_manager);
 	file->open(path, mode);
 	return file;
 }
 
 void ApkFilesystem::close(File& file)
 {
-	CE_DELETE(default_allocator(), &file);
+	CE_DELETE(*_allocator, &file);
 }
 
 bool ApkFilesystem::exists(const char* path)
@@ -83,8 +84,8 @@ void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 	const char* filename = NULL;
 	while ((filename = AAssetDir_getNextFileName(root_dir)) != NULL)
 	{
-		DynamicString name(default_allocator());
-		name = filename;
+		TempAllocator512 ta;
+		DynamicString name(filename, ta);
 		vector::push_back(files, name);
 	}
 

@@ -33,8 +33,8 @@
 namespace crown
 {
 BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
-	: _source_fs(source_dir)
-	, _bundle_fs(bundle_dir)
+	: _source_fs(default_allocator(), source_dir)
+	, _bundle_fs(default_allocator(), bundle_dir)
 	, _compilers(default_allocator())
 	, _files(default_allocator())
 {
@@ -70,8 +70,7 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	register_resource_compiler(SPRITE_ANIMATION_TYPE, SPRITE_ANIMATION_VERSION, sar::compile);
 	register_resource_compiler(CONFIG_TYPE,           CONFIG_VERSION,           cor::compile);
 
-	DiskFilesystem temp;
-	temp.create_directory(bundle_dir);
+	_bundle_fs.create_directory(bundle_dir);
 
 	scan_source_dir("");
 

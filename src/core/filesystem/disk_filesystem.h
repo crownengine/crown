@@ -19,18 +19,19 @@ namespace crown
 /// @ingroup Filesystem
 class DiskFilesystem : public Filesystem
 {
+	Allocator* _allocator;
 	DynamicString _prefix;
 
 public:
 
 	/// Sets the root path to the current working directory of
 	/// the engine executable.
-	DiskFilesystem();
+	DiskFilesystem(Allocator& a);
 
 	/// Sets the root path to the given @a prefix.
 	/// @note
 	/// The @a prefix must be absolute.
-	DiskFilesystem(const char* prefix);
+	DiskFilesystem(Allocator& a, const char* prefix);
 
 	/// @copydoc Filesystem::open()
 	File* open(const char* path, FileOpenMode::Enum mode);

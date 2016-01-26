@@ -19,11 +19,12 @@ namespace crown
 /// The assets folder is read-only and all the paths are relative.
 class ApkFilesystem : public Filesystem
 {
+	Allocator* _allocator;
 	AAssetManager* _asset_manager;
 
 public:
 
-	ApkFilesystem(AAssetManager* asset_manager);
+	ApkFilesystem(Allocator& a, AAssetManager* asset_manager);
 
 	/// @copydoc Filesystem::open()
 	File* open(const char* path, FileOpenMode::Enum mode);
