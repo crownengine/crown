@@ -210,7 +210,6 @@ namespace material_resource
 
 		// Write
 		opts.write(mr.version);
-		opts.write(mr._pad);
 		opts.write(mr.shader);
 		opts.write(mr.num_textures);
 		opts.write(mr.texture_data_offset);
@@ -230,8 +229,8 @@ namespace material_resource
 
 		for (u32 i = 0; i < array::size(unidata); i++)
 		{
-			opts.write(unidata[i].name_offset);
 			opts.write(unidata[i].type);
+			opts.write(unidata[i].name_offset);
 			opts.write(unidata[i].data_offset);
 		}
 

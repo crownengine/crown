@@ -17,7 +17,6 @@ namespace crown
 struct MaterialResource
 {
 	u32 version;
-	u32 _pad;
 	StringId32 shader;
 	u32 num_textures;
 	u32 texture_data_offset;
@@ -56,8 +55,8 @@ struct UniformType
 
 struct UniformData
 {
-	u32 name_offset; // Uniform name
 	u32 type;        // UniformType::Enum
+	u32 name_offset; // Uniform name
 	u32 data_offset; // Offset into dynamic blob
 };
 
