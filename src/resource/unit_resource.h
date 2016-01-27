@@ -13,18 +13,18 @@ namespace crown
 {
 struct UnitResource
 {
-	uint32_t version;
-	uint32_t num_units;
-	uint32_t num_component_types;
+	u32 version;
+	u32 num_units;
+	u32 num_component_types;
 //	ComponentData data[num_component_types]
 };
 
 struct ComponentData
 {
-	uint32_t type;
-	uint32_t num_instances;
-	uint32_t size;
-//	uint32_t unit_index[num_instances]
+	u32 type;
+	u32 num_instances;
+	u32 size;
+//	u32 unit_index[num_instances]
 //	char data[size]
 };
 

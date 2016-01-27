@@ -20,13 +20,13 @@ Allocator& default_scratch_allocator();
 namespace memory
 {
 	/// Returns the pointer @a p aligned to the desired @a align byte
-	inline void* align_top(void* p, uint32_t align)
+	inline void* align_top(void* p, u32 align)
 	{
 		CE_ASSERT(align >= 1, "Alignment must be > 1");
 		CE_ASSERT(align % 2 == 0 || align == 1, "Alignment must be a power of two");
 
 		uintptr_t ptr = (uintptr_t)p;
-		const uint32_t mod = ptr % align;
+		const u32 mod = ptr % align;
 
 		if (mod)
 			ptr += align - mod;

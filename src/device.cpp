@@ -49,7 +49,7 @@ struct BgfxCallback : public bgfx::CallbackI
 		CE_UNUSED(_str);
 	}
 
-	virtual void traceVargs(const char* /*_filePath*/, uint16_t /*_line*/, const char* _format, va_list _argList)
+	virtual void traceVargs(const char* /*_filePath*/, u16 /*_line*/, const char* _format, va_list _argList)
 	{
 		char buf[2048];
 		strncpy(buf, _format, sizeof(buf));
@@ -57,25 +57,25 @@ struct BgfxCallback : public bgfx::CallbackI
 		CE_LOGDV(buf, _argList);
 	}
 
-	virtual uint32_t cacheReadSize(uint64_t /*_id*/)
+	virtual u32 cacheReadSize(u64 /*_id*/)
 	{
 		return 0;
 	}
 
-	virtual bool cacheRead(uint64_t /*_id*/, void* /*_data*/, uint32_t /*_size*/)
+	virtual bool cacheRead(u64 /*_id*/, void* /*_data*/, u32 /*_size*/)
 	{
 		return false;
 	}
 
-	virtual void cacheWrite(uint64_t /*_id*/, const void* /*_data*/, uint32_t /*_size*/)
+	virtual void cacheWrite(u64 /*_id*/, const void* /*_data*/, u32 /*_size*/)
 	{
 	}
 
-	virtual void screenShot(const char* /*_filePath*/, uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, const void* /*_data*/, uint32_t /*_size*/, bool /*_yflip*/)
+	virtual void screenShot(const char* /*_filePath*/, u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, const void* /*_data*/, u32 /*_size*/, bool /*_yflip*/)
 	{
 	}
 
-	virtual void captureBegin(uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, bgfx::TextureFormat::Enum /*_format*/, bool /*_yflip*/)
+	virtual void captureBegin(u32 /*_width*/, u32 /*_height*/, u32 /*_pitch*/, bgfx::TextureFormat::Enum /*_format*/, bool /*_yflip*/)
 	{
 	}
 
@@ -83,7 +83,7 @@ struct BgfxCallback : public bgfx::CallbackI
 	{
 	}
 
-	virtual void captureFrame(const void* /*_data*/, uint32_t /*_size*/)
+	virtual void captureFrame(const void* /*_data*/, u32 /*_size*/)
 	{
 	}
 };
@@ -95,10 +95,10 @@ struct BgfxAllocator : public bx::AllocatorI
 	{
 	}
 
-	virtual void* realloc(void* _ptr, size_t _size, size_t _align, const char* /*_file*/, uint32_t /*_line*/)
+	virtual void* realloc(void* _ptr, size_t _size, size_t _align, const char* /*_file*/, u32 /*_line*/)
 	{
 		if (!_ptr)
-			return _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : (uint32_t)_align);
+			return _allocator.allocate((u32)_size, (u32)_align == 0 ? 1 : (u32)_align);
 
 		if (_size == 0)
 		{
@@ -107,7 +107,7 @@ struct BgfxAllocator : public bx::AllocatorI
 		}
 
 		// Realloc
-		void* p = _allocator.allocate((uint32_t)_size, (uint32_t)_align == 0 ? 1 : (uint32_t)_align);
+		void* p = _allocator.allocate((u32)_size, (u32)_align == 0 ? 1 : (u32)_align);
 		_allocator.deallocate(_ptr);
 		return p;
 	}
@@ -132,8 +132,8 @@ Device::Device(const DeviceOptions& opts)
 	, _lua_environment(NULL)
 	, _display(NULL)
 	, _window(NULL)
-	, _boot_package_id(uint64_t(0))
-	, _boot_script_id(uint64_t(0))
+	, _boot_package_id(u64(0))
+	, _boot_script_id(u64(0))
 	, _boot_package(NULL)
 	, _worlds(default_allocator())
 	, _width(0)
@@ -267,7 +267,7 @@ void Device::unpause()
 	CE_LOGI("Engine unpaused.");
 }
 
-void Device::resolution(uint16_t& width, uint16_t& height)
+void Device::resolution(u16& width, u16& height)
 {
 	width = _width;
 	height = _height;
@@ -278,17 +278,17 @@ bool Device::is_running() const
 	return _is_running;
 }
 
-uint64_t Device::frame_count() const
+u64 Device::frame_count() const
 {
 	return _frame_count;
 }
 
-float Device::last_delta_time() const
+f32 Device::last_delta_time() const
 {
 	return _last_delta_time;
 }
 
-double Device::time_since_start() const
+f64 Device::time_since_start() const
 {
 	return _time_since_start;
 }
@@ -298,10 +298,10 @@ void Device::update()
 	while (!process_events() && _is_running)
 	{
 		_current_time = os::clocktime();
-		const int64_t time = _current_time - _last_time;
+		const s64 time = _current_time - _last_time;
 		_last_time = _current_time;
-		const double freq = (double) os::clockfrequency();
-		_last_delta_time = float(time * (1.0 / freq));
+		const f64 freq = (f64) os::clockfrequency();
+		_last_delta_time = f32(time * (1.0 / freq));
 		_time_since_start += _last_delta_time;
 
 		profiler_globals::clear();
@@ -320,8 +320,8 @@ void Device::update()
 		_input_manager->update();
 
 		const bgfx::Stats* stats = bgfx::getStats();
-		RECORD_FLOAT("bgfx.gpu_time", double(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
-		RECORD_FLOAT("bgfx.cpu_time", double(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
+		RECORD_FLOAT("bgfx.gpu_time", f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
+		RECORD_FLOAT("bgfx.cpu_time", f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
 
 		bgfx::frame();
 		profiler_globals::flush();
@@ -352,7 +352,7 @@ World* Device::create_world()
 
 void Device::destroy_world(World& w)
 {
-	for (uint32_t i = 0, n = array::size(_worlds); i < n; ++i)
+	for (u32 i = 0, n = array::size(_worlds); i < n; ++i)
 	{
 		if (&w == _worlds[i])
 		{
@@ -462,8 +462,8 @@ bool Device::process_events()
 	bool exit = false;
 	InputManager* im = _input_manager;
 
-	const int16_t dt_x = _mouse_curr_x - _mouse_last_x;
-	const int16_t dt_y = _mouse_curr_y - _mouse_last_y;
+	const s16 dt_x = _mouse_curr_x - _mouse_last_x;
+	const s16 dt_y = _mouse_curr_y - _mouse_last_y;
 	im->mouse()->set_axis(MouseAxis::CURSOR_DELTA, vector3(dt_x, dt_y, 0.0f));
 	_mouse_last_x = _mouse_curr_x;
 	_mouse_last_y = _mouse_curr_y;

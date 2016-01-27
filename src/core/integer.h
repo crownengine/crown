@@ -9,7 +9,7 @@
 
 namespace crown
 {
-inline uint32_t next_pow_2(uint32_t x)
+inline u32 next_pow_2(u32 x)
 {
 	x--;
 
@@ -22,7 +22,7 @@ inline uint32_t next_pow_2(uint32_t x)
 	return ++x;
 }
 
-inline bool is_pow_2(uint32_t x)
+inline bool is_pow_2(u32 x)
 {
 	return !(x & (x - 1)) && x;
 }

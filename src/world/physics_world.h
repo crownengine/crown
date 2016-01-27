@@ -87,16 +87,16 @@ public:
 	virtual bool is_nonkinematic(ActorInstance i) const = 0;
 
 	/// Returns the linear damping of the actor.
-	virtual float actor_linear_damping(ActorInstance i) const = 0;
+	virtual f32 actor_linear_damping(ActorInstance i) const = 0;
 
 	/// Sets the linear damping of the actor.
-	virtual void set_actor_linear_damping(ActorInstance i, float rate) = 0;
+	virtual void set_actor_linear_damping(ActorInstance i, f32 rate) = 0;
 
 	/// Returns the angular damping of the actor.
-	virtual float actor_angular_damping(ActorInstance i) const = 0;
+	virtual f32 actor_angular_damping(ActorInstance i) const = 0;
 
 	/// Sets the angular damping of the actor.
-	virtual void set_actor_angular_damping(ActorInstance i, float rate) = 0;
+	virtual void set_actor_angular_damping(ActorInstance i, f32 rate) = 0;
 
 	/// Returns the linear velocity of the actor.
 	virtual Vector3 actor_linear_velocity(ActorInstance i) const = 0;
@@ -126,11 +126,11 @@ public:
 	/// Pushes the actor as if it was hit by a point object with the given @a mass
 	/// travelling at the given @a velocity.
 	/// @note This call only affects nonkinematic actors.
-	virtual void push_actor(ActorInstance i, const Vector3& vel, float mass) = 0;
+	virtual void push_actor(ActorInstance i, const Vector3& vel, f32 mass) = 0;
 
 	/// Like push() but applies the force at the world position @a pos.
 	/// @note This call only affects nonkinematic actors.
-	virtual void push_actor_at(ActorInstance i, const Vector3& vel, float mass, const Vector3& pos) = 0;
+	virtual void push_actor_at(ActorInstance i, const Vector3& vel, f32 mass, const Vector3& pos) = 0;
 
 	/// Returns whether the actor is sleeping.
 	virtual bool is_sleeping(ActorInstance i) = 0;
@@ -149,7 +149,7 @@ public:
 	virtual void move_controller(ControllerInstance i, const Vector3& pos) = 0;
 
 	/// Sets the contoller height.
-	virtual void set_height(ControllerInstance i, float height) = 0;
+	virtual void set_height(ControllerInstance i, f32 height) = 0;
 
 	/// Returns whether the contoller collides upwards.
 	virtual bool collides_up(ControllerInstance i) const = 0;
@@ -165,7 +165,7 @@ public:
 	virtual void destroy_joint(JointInstance i) = 0;
 
 	/// Performs a raycast.
-	virtual void raycast(const Vector3& from, const Vector3& dir, float len, RaycastMode::Enum mode, Array<RaycastHit>& hits) = 0;
+	virtual void raycast(const Vector3& from, const Vector3& dir, f32 len, RaycastMode::Enum mode, Array<RaycastHit>& hits) = 0;
 
 	/// Returns the gravity.
 	virtual Vector3 gravity() const = 0;
@@ -176,7 +176,7 @@ public:
 	virtual void update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world) = 0;
 
 	/// Updates the physics simulation.
-	virtual void update(float dt) = 0;
+	virtual void update(f32 dt) = 0;
 
 	virtual EventStream& events() = 0;
 

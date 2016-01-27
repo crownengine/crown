@@ -18,14 +18,14 @@ namespace string_stream
 {
 	/// Appends @a val to the stream @a s using appropriate formatting.
 	StringStream& operator<<(StringStream& s, char ch);
-	StringStream& operator<<(StringStream& s, int16_t val);
-	StringStream& operator<<(StringStream& s, uint16_t val);
-	StringStream& operator<<(StringStream& s, int32_t val);
-	StringStream& operator<<(StringStream& s, uint32_t val);
-	StringStream& operator<<(StringStream& s, int64_t val);
-	StringStream& operator<<(StringStream& s, uint64_t val);
-	StringStream& operator<<(StringStream& s, float val);
-	StringStream& operator<<(StringStream& s, double val);
+	StringStream& operator<<(StringStream& s, s16 val);
+	StringStream& operator<<(StringStream& s, u16 val);
+	StringStream& operator<<(StringStream& s, s32 val);
+	StringStream& operator<<(StringStream& s, u32 val);
+	StringStream& operator<<(StringStream& s, s64 val);
+	StringStream& operator<<(StringStream& s, u64 val);
+	StringStream& operator<<(StringStream& s, f32 val);
+	StringStream& operator<<(StringStream& s, f64 val);
 
 	/// Appends the string @a string to the stream @a s.
 	StringStream& operator<<(StringStream& s, const char* string);
@@ -45,42 +45,42 @@ namespace string_stream
 		return s;
 	}
 
-	inline StringStream& operator<<(StringStream& s, int16_t val)
+	inline StringStream& operator<<(StringStream& s, s16 val)
 	{
 		return stream_printf(s, "%hd", val);
 	}
 
-	inline StringStream& operator<<(StringStream& s, uint16_t val)
+	inline StringStream& operator<<(StringStream& s, u16 val)
 	{
 		return stream_printf(s, "%hu", val);
 	}
 
-	inline StringStream& operator<<(StringStream& s, int32_t val)
+	inline StringStream& operator<<(StringStream& s, s32 val)
 	{
 		return stream_printf(s, "%d", val);
 	}
 
-	inline StringStream& operator<<(StringStream& s, uint32_t val)
+	inline StringStream& operator<<(StringStream& s, u32 val)
 	{
 		return stream_printf(s, "%u", val);
 	}
 
-	inline StringStream& operator<<(StringStream& s, int64_t val)
+	inline StringStream& operator<<(StringStream& s, s64 val)
 	{
 		return stream_printf(s, "%lld", val);
 	}
 
-	inline StringStream& operator<<(StringStream& s, uint64_t val)
+	inline StringStream& operator<<(StringStream& s, u64 val)
 	{
 		return stream_printf(s, "%llu", val);
 	}
 
-	inline StringStream& operator<<(StringStream& s, float val)
+	inline StringStream& operator<<(StringStream& s, f32 val)
 	{
 		return stream_printf(s, "%g", val);
 	}
 
-	inline StringStream& operator<<(StringStream& s, double val)
+	inline StringStream& operator<<(StringStream& s, f64 val)
 	{
 		return stream_printf(s, "%g", val);
 	}

@@ -115,9 +115,9 @@ public:
 		return (int)lua_tonumber(L, i);
 	}
 
-	float get_float(int i)
+	f32 get_float(int i)
 	{
-		return (float)lua_tonumber(L, i);
+		return (f32)lua_tonumber(L, i);
 	}
 
 	const char* get_string(int i)
@@ -135,9 +135,9 @@ public:
 		return p;
 	}
 
-	uint32_t get_id(int i)
+	u32 get_id(int i)
 	{
-		return (uint32_t)lua_tonumber(L, i);
+		return (u32)lua_tonumber(L, i);
 	}
 
 	StringId32 get_string_id_32(int i)
@@ -200,7 +200,7 @@ public:
 	PhysicsWorld* get_physics_world(int i)
 	{
 		PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
-//		if (*(uint32_t*)p != PhysicsWorld::MARKER)
+//		if (*(u32*)p != PhysicsWorld::MARKER)
 //			luaL_typerror(L, i, "PhysicsWorld");
 		return p;
 	}
@@ -208,14 +208,14 @@ public:
 	SoundWorld* get_sound_world(int i)
 	{
 		SoundWorld* p = (SoundWorld*)get_pointer(i);
-//		if (*(uint32_t*)p != SoundWorld::MARKER)
+//		if (*(u32*)p != SoundWorld::MARKER)
 //			luaL_typerror(L, i, "SoundWorld");
 		return p;
 	}
 
 	UnitId get_unit(int i)
 	{
-		uint32_t enc = (uint32_t)(uintptr_t)get_pointer(i);
+		u32 enc = (u32)(uintptr_t)get_pointer(i);
 
 		if ((enc & LIGHTDATA_TYPE_MASK) != UNIT_MARKER)
 			luaL_typerror(L, i, "UnitId");
@@ -327,7 +327,7 @@ public:
 		lua_pushnumber(L, value);
 	}
 
-	void push_float(float value)
+	void push_float(f32 value)
 	{
 		lua_pushnumber(L, value);
 	}
@@ -345,7 +345,7 @@ public:
 		va_end(vl);
 	}
 
-	void push_lstring(const char* s, uint32_t len)
+	void push_lstring(const char* s, u32 len)
 	{
 		lua_pushlstring(L, s, len);
 	}
@@ -366,7 +366,7 @@ public:
 		lua_pushcfunction(L, f);
 	}
 
-	void push_id(uint32_t value)
+	void push_id(u32 value)
 	{
 		lua_pushnumber(L, value);
 	}
@@ -450,7 +450,7 @@ public:
 
 	void push_unit(UnitId id)
 	{
-		uint32_t encoded = (id.encode() << 2) | UNIT_MARKER;
+		u32 encoded = (id.encode() << 2) | UNIT_MARKER;
 		push_pointer((void*)(uintptr_t)encoded);
 	}
 

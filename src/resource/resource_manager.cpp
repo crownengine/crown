@@ -133,7 +133,7 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = make_pair(type, name);
 	const ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
-	const uint32_t old_refs = entry.references;
+	const u32 old_refs = entry.references;
 
 	unload(type, name);
 	load(type, name);
@@ -189,7 +189,7 @@ void ResourceManager::complete_requests()
 	Array<ResourceRequest> loaded(ta);
 	_loader->get_loaded(loaded);
 
-	for (uint32_t i = 0; i < array::size(loaded); ++i)
+	for (u32 i = 0; i < array::size(loaded); ++i)
 		complete_request(loaded[i].type, loaded[i].name, loaded[i].data);
 }
 

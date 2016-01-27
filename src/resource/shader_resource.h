@@ -26,7 +26,7 @@ struct ShaderResource
 	struct Data
 	{
 		StringId32 name;
-		uint64_t state;
+		u64 state;
 		const bgfx::Memory* vsmem;
 		const bgfx::Memory* fsmem;
 	};

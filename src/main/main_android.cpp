@@ -33,7 +33,7 @@ struct MainThreadArgs
 	DeviceOptions* opts;
 };
 
-int32_t func(void* data)
+s32 func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*)data;
 	crown::init(*args->opts);
@@ -55,9 +55,9 @@ struct AndroidDevice
 
 		while (app->destroyRequested == 0)
 		{
-			int32_t num;
+			s32 num;
 			android_poll_source* source;
-			/*int32_t id =*/ ALooper_pollAll(-1, NULL, &num, (void**)&source);
+			/*s32 id =*/ ALooper_pollAll(-1, NULL, &num, (void**)&source);
 
 			if (NULL != source)
 			{
@@ -68,7 +68,7 @@ struct AndroidDevice
 		_main_thread.stop();
 	}
 
-	void process_command(struct android_app* app, int32_t cmd)
+	void process_command(struct android_app* app, s32 cmd)
 	{
 		switch (cmd)
 		{
@@ -81,8 +81,8 @@ struct AndroidDevice
 				CE_ASSERT(app->window != NULL, "Android window is NULL");
 				bgfx::androidSetWindow(app->window);
 				// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
-				const int32_t width = ANativeWindow_getWidth(app->window);
-				const int32_t height = ANativeWindow_getHeight(app->window);
+				const s32 width = ANativeWindow_getWidth(app->window);
+				const s32 height = ANativeWindow_getHeight(app->window);
 				_queue.push_metrics_event(0, 0, width, height);
 				_main_thread.start(func, &_margs);
 				break;
@@ -113,48 +113,48 @@ struct AndroidDevice
 		}
 	}
 
-	int32_t process_input(struct android_app* app, AInputEvent* event)
+	s32 process_input(struct android_app* app, AInputEvent* event)
 	{
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
 		{
-			const int32_t action = AMotionEvent_getAction(event);
-			const int32_t pointer_index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-			const int32_t pointer_count = AMotionEvent_getPointerCount(event);
+			const s32 action = AMotionEvent_getAction(event);
+			const s32 pointer_index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+			const s32 pointer_count = AMotionEvent_getPointerCount(event);
 
-			const int32_t pointer_id = AMotionEvent_getPointerId(event, pointer_index);
-			const float x = AMotionEvent_getX(event, pointer_index);
-			const float y = AMotionEvent_getY(event, pointer_index);
+			const s32 pointer_id = AMotionEvent_getPointerId(event, pointer_index);
+			const f32 x = AMotionEvent_getX(event, pointer_index);
+			const f32 y = AMotionEvent_getY(event, pointer_index);
 
-			const int32_t actionMasked = (action & AMOTION_EVENT_ACTION_MASK);
+			const s32 actionMasked = (action & AMOTION_EVENT_ACTION_MASK);
 
 			switch (actionMasked)
 			{
 				case AMOTION_EVENT_ACTION_DOWN:
 				case AMOTION_EVENT_ACTION_POINTER_DOWN:
 				{
-					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointer_id, true);
+					_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, true);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_UP:
 				case AMOTION_EVENT_ACTION_POINTER_UP:
 				{
-					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointer_id, false);
+					_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, false);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_OUTSIDE:
 				case AMOTION_EVENT_ACTION_CANCEL:
 				{
-					_queue.push_touch_event((int16_t)x, (int16_t)y, (uint8_t)pointer_id, false);
+					_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, false);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_MOVE:
 				{
 					for (int index = 0; index < pointer_count; index++)
 					{
-						const float xx = AMotionEvent_getX(event, index);
-						const float yy = AMotionEvent_getY(event, index);
-						const int32_t id = AMotionEvent_getPointerId(event, index);
-						_queue.push_touch_event((int16_t)xx, (int16_t)yy, (uint8_t)id);
+						const f32 xx = AMotionEvent_getX(event, index);
+						const f32 yy = AMotionEvent_getY(event, index);
+						const s32 id = AMotionEvent_getPointerId(event, index);
+						_queue.push_touch_event((s16)xx, (s16)yy, (u8)id);
 					}
 					break;
 				}
@@ -164,8 +164,8 @@ struct AndroidDevice
 		}
 		else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
 		{
-			const int32_t keycode = AKeyEvent_getKeyCode(event);
-			const int32_t keyaction = AKeyEvent_getAction(event);
+			const s32 keycode = AKeyEvent_getKeyCode(event);
+			const s32 keyaction = AKeyEvent_getAction(event);
 
 			if (keycode == AKEYCODE_BACK)
 			{
@@ -179,12 +179,12 @@ struct AndroidDevice
 		return 0;
 	}
 
-	static int32_t on_input_event(struct android_app* app, AInputEvent* event)
+	static s32 on_input_event(struct android_app* app, AInputEvent* event)
 	{
 		return ((AndroidDevice*) app->userData)->process_input(app, event);
 	}
 
-	static void on_app_cmd(struct android_app* app, int32_t cmd)
+	static void on_app_cmd(struct android_app* app, s32 cmd)
 	{
 		((AndroidDevice*) app->userData)->process_command(app, cmd);
 	}
@@ -204,7 +204,7 @@ public:
 	{
 	}
 
-	void open(uint16_t /*x*/, uint16_t /*y*/, uint16_t /*width*/, uint16_t /*height*/, uint32_t /*parent*/)
+	void open(u16 /*x*/, u16 /*y*/, u16 /*width*/, u16 /*height*/, u32 /*parent*/)
 	{
 	}
 
@@ -224,11 +224,11 @@ public:
 	{
 	}
 
-	void resize(uint16_t /*width*/, uint16_t /*height*/)
+	void resize(u16 /*width*/, u16 /*height*/)
 	{
 	}
 
-	void move(uint16_t /*x*/, uint16_t /*y*/)
+	void move(u16 /*x*/, u16 /*y*/)
 	{
 	}
 
@@ -271,7 +271,7 @@ class DisplayAndroid : public Display
 	{
 	}
 
-	void set_mode(uint32_t /*id*/)
+	void set_mode(u32 /*id*/)
 	{
 	}
 };

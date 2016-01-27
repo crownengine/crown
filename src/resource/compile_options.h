@@ -62,7 +62,7 @@ struct CompileOptions
 		add_dependency(path);
 
 		File* file = _fs.open(path, FileOpenMode::READ);
-		uint32_t size = file->size();
+		u32 size = file->size();
 		Buffer buf(default_allocator());
 		array::resize(buf, size);
 		file->read(array::begin(buf), size);
@@ -80,7 +80,7 @@ struct CompileOptions
 		_fs.delete_file(path);
 	}
 
-	void write(const void* data, uint32_t size)
+	void write(const void* data, u32 size)
 	{
 		array::push(_output, (const char*)data, size);
 	}

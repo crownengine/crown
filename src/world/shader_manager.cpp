@@ -21,30 +21,30 @@ ShaderManager::ShaderManager(Allocator& a)
 void* ShaderManager::load(File& file, Allocator& a)
 {
 	BinaryReader br(file);
-	uint32_t version;
+	u32 version;
 	br.read(version);
 	CE_ASSERT(version == SHADER_VERSION, "Wrong version");
 
-	uint32_t num;
+	u32 num;
 	br.read(num);
 
 	ShaderResource* sr = CE_NEW(a, ShaderResource)(a);
 	array::resize(sr->_data, num);
 
-	for (uint32_t i = 0; i < num; ++i)
+	for (u32 i = 0; i < num; ++i)
 	{
-		uint32_t shader_name;
+		u32 shader_name;
 		br.read(shader_name);
 
-		uint64_t render_state;
+		u64 render_state;
 		br.read(render_state);
 
-		uint32_t vs_code_size;
+		u32 vs_code_size;
 		br.read(vs_code_size);
 		const bgfx::Memory* vsmem = bgfx::alloc(vs_code_size);
 		br.read(vsmem->data, vs_code_size);
 
-		uint32_t fs_code_size;
+		u32 fs_code_size;
 		br.read(fs_code_size);
 		const bgfx::Memory* fsmem = bgfx::alloc(fs_code_size);
 		br.read(fsmem->data, fs_code_size);
@@ -62,7 +62,7 @@ void ShaderManager::online(StringId64 id, ResourceManager& rm)
 {
 	const ShaderResource* shader = (ShaderResource*)rm.get(SHADER_TYPE, id);
 
-	for (uint32_t i = 0; i < array::size(shader->_data); ++i)
+	for (u32 i = 0; i < array::size(shader->_data); ++i)
 	{
 		const ShaderResource::Data& data = shader->_data[i];
 
@@ -81,7 +81,7 @@ void ShaderManager::offline(StringId64 id, ResourceManager& rm)
 {
 	const ShaderResource* shader = (ShaderResource*)rm.get(SHADER_TYPE, id);
 
-	for (uint32_t i = 0; i < array::size(shader->_data); ++i)
+	for (u32 i = 0; i < array::size(shader->_data); ++i)
 	{
 		const ShaderResource::Data& data = shader->_data[i];
 		const ShaderData& sd = get(data.name);
@@ -98,7 +98,7 @@ void ShaderManager::unload(Allocator& a, void* res)
 	CE_DELETE(a, (ShaderResource*)res);
 }
 
-void ShaderManager::add_shader(StringId32 name, uint64_t state, bgfx::ProgramHandle program)
+void ShaderManager::add_shader(StringId32 name, u64 state, bgfx::ProgramHandle program)
 {
 	ShaderData sd;
 	sd.state = state;

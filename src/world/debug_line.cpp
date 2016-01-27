@@ -43,7 +43,7 @@ void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4&
 	++_num;
 }
 
-void DebugLine::add_axes(const Matrix4x4& m, float length)
+void DebugLine::add_axes(const Matrix4x4& m, f32 length)
 {
 	const Vector3 pos = translation(m);
 	add_line(pos, pos + x(m)*length, COLOR4_RED);
@@ -51,7 +51,7 @@ void DebugLine::add_axes(const Matrix4x4& m, float length)
 	add_line(pos, pos + z(m)*length, COLOR4_BLUE);
 }
 
-void DebugLine::add_circle(const Vector3& center, float radius, const Vector3& normal, const Color4& color, uint32_t segments)
+void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& normal, const Color4& color, u32 segments)
 {
 	const Vector3 dir = normal;
 	const Vector3 arr[] =
@@ -63,12 +63,12 @@ void DebugLine::add_circle(const Vector3& center, float radius, const Vector3& n
 	Vector3 right = arr[idx];
 	normalize(right);
 
-	const float incr = 360.0f / (float)(segments >= 3 ? segments : 3);
-	float deg0 = 0.0f;
-	for (uint32_t ss = 0; ss < segments; ++ss, deg0 += incr)
+	const f32 incr = 360.0f / (f32)(segments >= 3 ? segments : 3);
+	f32 deg0 = 0.0f;
+	for (u32 ss = 0; ss < segments; ++ss, deg0 += incr)
 	{
-		const float rad0 = to_rad(deg0);
-		const float rad1 = to_rad(deg0 + incr);
+		const f32 rad0 = to_rad(deg0);
+		const f32 rad1 = to_rad(deg0 + incr);
 
 		const Vector3 from0 = right*cos(-rad0) + cross(dir, right)*sin(-rad0) + dir*dot(dir, right)*(1.0f-cos(-rad0));
 		const Vector3 from1 = right*cos(-rad1) + cross(dir, right)*sin(-rad1) + dir*dot(dir, right)*(1.0f-cos(-rad1));
@@ -77,7 +77,7 @@ void DebugLine::add_circle(const Vector3& center, float radius, const Vector3& n
 	}
 }
 
-void DebugLine::add_cone(const Vector3& from, const Vector3& to, float radius, const Color4& color, uint32_t segments)
+void DebugLine::add_cone(const Vector3& from, const Vector3& to, f32 radius, const Color4& color, u32 segments)
 {
 	Vector3 dir = to - from;
 	normalize(dir);
@@ -90,12 +90,12 @@ void DebugLine::add_cone(const Vector3& from, const Vector3& to, float radius, c
 	Vector3 right = arr[idx];
 	normalize(right);
 
-	const float incr = 360.0f / (float)(segments >= 3 ? segments : 3);
-	float deg0 = 0.0f;
-	for (uint32_t ss = 0; ss < segments; ++ss, deg0 += incr)
+	const f32 incr = 360.0f / (f32)(segments >= 3 ? segments : 3);
+	f32 deg0 = 0.0f;
+	for (u32 ss = 0; ss < segments; ++ss, deg0 += incr)
 	{
-		const float rad0 = to_rad(deg0);
-		const float rad1 = to_rad(deg0 + incr);
+		const f32 rad0 = to_rad(deg0);
+		const f32 rad1 = to_rad(deg0 + incr);
 
 		const Vector3 from0 = right*cos(-rad0) + cross(dir, right)*sin(-rad0) + dir*dot(dir, right)*(1.0f-cos(-rad0));
 		const Vector3 from1 = right*cos(-rad1) + cross(dir, right)*sin(-rad1) + dir*dot(dir, right)*(1.0f-cos(-rad1));
@@ -105,7 +105,7 @@ void DebugLine::add_cone(const Vector3& from, const Vector3& to, float radius, c
 	}
 }
 
-void DebugLine::add_sphere(const Vector3& center, const float radius, const Color4& color, uint32_t segments)
+void DebugLine::add_sphere(const Vector3& center, const f32 radius, const Color4& color, u32 segments)
 {
 	add_circle(center, radius, VECTOR3_XAXIS, color, segments);
 	add_circle(center, radius, VECTOR3_YAXIS, color, segments);

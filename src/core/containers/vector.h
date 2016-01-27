@@ -21,40 +21,40 @@ namespace vector
 	template <typename T> bool empty(const Vector<T>& v);
 
 	/// Returns the number of items in the vector @a v.
-	template <typename T> uint32_t size(const Vector<T>& v);
+	template <typename T> u32 size(const Vector<T>& v);
 
 	/// Returns the maximum number of items the vector @a v can hold.
-	template <typename T> uint32_t capacity(const Vector<T>& v);
+	template <typename T> u32 capacity(const Vector<T>& v);
 
 	/// Resizes the vector @a v to the given @a size.
 	/// @note
 	/// Old items will be copied to the newly created vector.
 	/// If the new capacity is smaller than the previous one, the
 	/// vector will be truncated.
-	template <typename T> void resize(Vector<T>& v, uint32_t size);
+	template <typename T> void resize(Vector<T>& v, u32 size);
 
 	/// Reserves space in the vector @a v for at least @a capacity items.
-	template <typename T> void reserve(Vector<T>& v, uint32_t capacity);
+	template <typename T> void reserve(Vector<T>& v, u32 capacity);
 
 	/// Sets the capacity of vector @a v.
-	template <typename T> void set_capacity(Vector<T>& v, uint32_t capacity);
+	template <typename T> void set_capacity(Vector<T>& v, u32 capacity);
 
 	/// Grows the vector @a v to contain at least @a min_capacity items.
-	template <typename T> void grow(Vector<T>& v, uint32_t min_capacity);
+	template <typename T> void grow(Vector<T>& v, u32 min_capacity);
 
 	/// Condenses the vector @a v so that its capacity matches the actual number
 	/// of items in the vector.
 	template <typename T> void condense(Vector<T>& v);
 
 	/// Appends an item to the vector @a v and returns its index.
-	template <typename T> uint32_t push_back(Vector<T>& v, const T& item);
+	template <typename T> u32 push_back(Vector<T>& v, const T& item);
 
 	/// Removes the last item from the vector @a v.
 	template <typename T> void pop_back(Vector<T>& v);
 
 	/// Appends @a count @a items to the vector @a v and returns the number
 	/// of items in the vector after the append operation.
-	template <typename T> uint32_t push(Vector<T>& v, const T* items, uint32_t count);
+	template <typename T> u32 push(Vector<T>& v, const T* items, u32 count);
 
 	/// Clears the content of the vector @a v.
 	/// @note
@@ -81,19 +81,19 @@ namespace vector
 	}
 
 	template <typename T>
-	inline uint32_t size(const Vector<T>& v)
+	inline u32 size(const Vector<T>& v)
 	{
 		return v._size;
 	}
 
 	template <typename T>
-	inline uint32_t capacity(const Vector<T>& v)
+	inline u32 capacity(const Vector<T>& v)
 	{
 		return v._capacity;
 	}
 
 	template <typename T>
-	inline void resize(Vector<T>& v, uint32_t size)
+	inline void resize(Vector<T>& v, u32 size)
 	{
 		if (size > v._capacity)
 			set_capacity(v, size);
@@ -102,14 +102,14 @@ namespace vector
 	}
 
 	template <typename T>
-	inline void reserve(Vector<T>& v, uint32_t capacity)
+	inline void reserve(Vector<T>& v, u32 capacity)
 	{
 		if (capacity > v._capacity)
 			grow(v, capacity);
 	}
 
 	template <typename T>
-	inline void set_capacity(Vector<T>& v, uint32_t capacity)
+	inline void set_capacity(Vector<T>& v, u32 capacity)
 	{
 		if (capacity == v._capacity)
 			return;
@@ -123,14 +123,14 @@ namespace vector
 			v._capacity = capacity;
 			v._data = (T*)v._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
 
-			for (uint32_t i = 0; i < v._size; ++i)
+			for (u32 i = 0; i < v._size; ++i)
 			{
 				new (v._data + i) T(tmp[i]);
 			}
 
 			if (tmp)
 			{
-				for (uint32_t i = 0; i < v._size; ++i)
+				for (u32 i = 0; i < v._size; ++i)
 				{
 					tmp[i].~T();
 				}
@@ -140,9 +140,9 @@ namespace vector
 	}
 
 	template <typename T>
-	inline void grow(Vector<T>& v, uint32_t min_capacity)
+	inline void grow(Vector<T>& v, u32 min_capacity)
 	{
-		uint32_t new_capacity = v._capacity * 2 + 1;
+		u32 new_capacity = v._capacity * 2 + 1;
 
 		if (new_capacity < min_capacity)
 			new_capacity = min_capacity;
@@ -157,7 +157,7 @@ namespace vector
 	}
 
 	template <typename T>
-	inline uint32_t push_back(Vector<T>& v, const T& item)
+	inline u32 push_back(Vector<T>& v, const T& item)
 	{
 		if (v._capacity == v._size)
 			grow(v, 0);
@@ -177,13 +177,13 @@ namespace vector
 	}
 
 	template <typename T>
-	inline uint32_t push(Vector<T>& v, const T* items, uint32_t count)
+	inline u32 push(Vector<T>& v, const T* items, u32 count)
 	{
 		if (v._capacity <= v._size + count)
 			grow(v, v._size + count);
 
 		T* arr = &v._data[v._size];
-		for (uint32_t i = 0; i < count; ++i)
+		for (u32 i = 0; i < count; ++i)
 			arr[i] = items[i];
 
 		v._size += count;
@@ -193,7 +193,7 @@ namespace vector
 	template <typename T>
 	inline void clear(Vector<T>& v)
 	{
-		for (uint32_t i = 0; i < v._size; ++i)
+		for (u32 i = 0; i < v._size; ++i)
 			v._data[i].~T();
 
 		v._size = 0;
@@ -262,7 +262,7 @@ inline Vector<T>::Vector(Allocator& a)
 }
 
 template <typename T>
-inline Vector<T>::Vector(Allocator& a, uint32_t capacity)
+inline Vector<T>::Vector(Allocator& a, u32 capacity)
 	: _allocator(&a)
 	, _capacity(0)
 	, _size(0)
@@ -284,21 +284,21 @@ inline Vector<T>::Vector(const Vector<T>& other)
 template <typename T>
 inline Vector<T>::~Vector()
 {
-	for (uint32_t i = 0; i < _size; ++i)
+	for (u32 i = 0; i < _size; ++i)
 		_data[i].~T();
 
 	_allocator->deallocate(_data);
 }
 
 template <typename T>
-inline T& Vector<T>::operator[](uint32_t index)
+inline T& Vector<T>::operator[](u32 index)
 {
 	CE_ASSERT(index < _size, "Index out of bounds");
 	return _data[index];
 }
 
 template <typename T>
-inline const T& Vector<T>::operator[](uint32_t index) const
+inline const T& Vector<T>::operator[](u32 index) const
 {
 	CE_ASSERT(index < _size, "Index out of bounds");
 	return _data[index];
@@ -307,10 +307,10 @@ inline const T& Vector<T>::operator[](uint32_t index) const
 template <typename T>
 inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
-	const uint32_t size = vector::size(other);
+	const u32 size = vector::size(other);
 	vector::resize(*this, size);
 
-	for (uint32_t i = 0; i < size; ++i)
+	for (u32 i = 0; i < size; ++i)
 		_data[i] = other._data[i];
 
 	return *this;

@@ -112,8 +112,8 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 		CompileOptions opts(_source_fs, output, platform, &buf);
 		compile(_type, src_path.c_str(), opts);
 		File* outf = _bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
-		uint32_t size = array::size(output);
-		uint32_t written = outf->write(array::begin(output), size);
+		u32 size = array::size(output);
+		u32 written = outf->write(array::begin(output), size);
 		_bundle_fs.close(*outf);
 		success = size == written;
 	}
@@ -127,7 +127,7 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 
 bool BundleCompiler::compile_all(const char* platform)
 {
-	for (uint32_t i = 0; i < vector::size(_files); ++i)
+	for (u32 i = 0; i < vector::size(_files); ++i)
 	{
 		if (_files[i].ends_with(".tga")
 			|| _files[i].ends_with(".dds")
@@ -142,7 +142,7 @@ bool BundleCompiler::compile_all(const char* platform)
 		const char* type = path::extension(filename);
 
 		char name[256];
-		const uint32_t size = uint32_t(type - filename - 1);
+		const u32 size = u32(type - filename - 1);
 		strncpy(name, filename, size);
 		name[size] = '\0';
 
@@ -153,7 +153,7 @@ bool BundleCompiler::compile_all(const char* platform)
 	return true;
 }
 
-void BundleCompiler::register_resource_compiler(StringId64 type, uint32_t version, CompileFunction compiler)
+void BundleCompiler::register_resource_compiler(StringId64 type, u32 version, CompileFunction compiler)
 {
 	CE_ASSERT(!sort_map::has(_compilers, type), "Type already registered");
 	CE_ASSERT_NOT_NULL(compiler);
@@ -173,7 +173,7 @@ void BundleCompiler::compile(StringId64 type, const char* path, CompileOptions& 
 	sort_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
 }
 
-uint32_t BundleCompiler::version(StringId64 type)
+u32 BundleCompiler::version(StringId64 type)
 {
 	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
 
@@ -185,7 +185,7 @@ void BundleCompiler::scan_source_dir(const char* cur_dir)
 	Vector<DynamicString> my_files(default_allocator());
 	_source_fs.list_files(cur_dir, my_files);
 
-	for (uint32_t i = 0; i < vector::size(my_files); ++i)
+	for (u32 i = 0; i < vector::size(my_files); ++i)
 	{
 		TempAllocator512 ta;
 		DynamicString file_i(ta);

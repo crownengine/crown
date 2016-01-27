@@ -5,25 +5,27 @@
 
 #pragma once
 
+#include "types.h"
+
 /// @defgroup Math Math
 namespace crown
 {
 /// @ingroup Math
 struct Vector2
 {
-	float x, y;
+	f32 x, y;
 };
 
 /// @ingroup Math
 struct Vector3
 {
-	float x, y, z;
+	f32 x, y, z;
 };
 
 /// @ingroup Math
 struct Vector4
 {
-	float x, y, z, w;
+	f32 x, y, z, w;
 };
 
 /// Holds RGBA color as four floats.
@@ -32,7 +34,7 @@ typedef Vector4 Color4;
 /// @ingroup Math
 struct Quaternion
 {
-	float x, y, z, w;
+	f32 x, y, z, w;
 };
 
 /// @ingroup Math
@@ -69,7 +71,7 @@ struct OBB
 struct Plane
 {
 	Vector3 n;
-	float d;
+	f32 d;
 };
 
 /// @ingroup Math
@@ -87,7 +89,7 @@ struct Frustum
 struct Sphere
 {
 	Vector3 c;
-	float r;
+	f32 r;
 };
 
 const Vector2 VECTOR2_ZERO = { 0.0f, 0.0f };

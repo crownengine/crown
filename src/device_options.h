@@ -24,12 +24,12 @@ class DeviceOptions
 	bool _wait_console;
 	bool _do_compile;
 	bool _do_continue;
-	uint32_t _parent_window;
-	uint16_t _console_port;
-	uint16_t _window_x;
-	uint16_t _window_y;
-	uint16_t _window_width;
-	uint16_t _window_height;
+	u32 _parent_window;
+	u16 _console_port;
+	u16 _window_x;
+	u16 _window_y;
+	u16 _window_width;
+	u16 _window_height;
 
 #if CROWN_PLATFORM_ANDROID
 	void* _asset_manager;
@@ -52,12 +52,12 @@ public:
 	bool wait_console() const { return _wait_console; }
 	bool do_compile() const { return _do_compile; }
 	bool do_continue() const { return _do_continue; }
-	uint32_t parent_window() const { return _parent_window; }
-	uint16_t console_port() const { return _console_port; }
-	uint16_t window_x() const { return _window_x; }
-	uint16_t window_y() const { return _window_y; }
-	uint16_t window_width() const { return _window_width; }
-	uint16_t window_height() const { return _window_height; }
+	u32 parent_window() const { return _parent_window; }
+	u16 console_port() const { return _console_port; }
+	u16 window_x() const { return _window_x; }
+	u16 window_y() const { return _window_y; }
+	u16 window_width() const { return _window_width; }
+	u16 window_height() const { return _window_height; }
 
 #if CROWN_PLATFORM_ANDROID
 	void set_asset_manager(void* am) { _asset_manager = am; }

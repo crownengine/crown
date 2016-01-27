@@ -60,7 +60,7 @@ MeshInstance RenderWorld::create_mesh(UnitId id, const MeshRendererDesc& mrd, co
 
 	_material_manager->create_material(mrd.material_resource);
 
-	const uint32_t last = _mesh_data.size;
+	const u32 last = _mesh_data.size;
 
 
 	_mesh_data.unit[last]          = id;
@@ -90,7 +90,7 @@ MeshInstance RenderWorld::create_mesh(UnitId id, const MeshRendererDesc& mrd, co
 
 void RenderWorld::destroy_mesh(MeshInstance i)
 {
-	const uint32_t last       = _mesh_data.size - 1;
+	const u32 last       = _mesh_data.size - 1;
 	const UnitId u            = _mesh_data.unit[i.i];
 	const MeshInstance first  = first_mesh(u);
 	const MeshInstance last_i = make_mesh_instance(last);
@@ -205,7 +205,7 @@ SpriteInstance RenderWorld::create_sprite(UnitId id, const SpriteRendererDesc& s
 	const SpriteResource* sr = (const SpriteResource*)_resource_manager->get(SPRITE_TYPE, srd.sprite_resource);
 	_material_manager->create_material(srd.material_resource);
 
-	const uint32_t last = _sprite_data.size;
+	const u32 last = _sprite_data.size;
 
 	_sprite_data.unit[last]          = id;
 	_sprite_data.sr[last]            = sr;
@@ -235,7 +235,7 @@ SpriteInstance RenderWorld::create_sprite(UnitId id, const SpriteRendererDesc& s
 
 void RenderWorld::destroy_sprite(SpriteInstance i)
 {
-	const uint32_t last         = _sprite_data.size - 1;
+	const u32 last         = _sprite_data.size - 1;
 	const UnitId u              = _sprite_data.unit[i.i];
 	const SpriteInstance first  = first_sprite(u);
 	const SpriteInstance last_i = make_sprite_instance(last);
@@ -337,7 +337,7 @@ void RenderWorld::set_sprite_visible(SpriteInstance i, bool visible)
 {
 }
 
-void RenderWorld::set_sprite_frame(SpriteInstance i, uint32_t index)
+void RenderWorld::set_sprite_frame(SpriteInstance i, u32 index)
 {
 	_sprite_data.frame[i.i] = index;
 }
@@ -349,7 +349,7 @@ LightInstance RenderWorld::create_light(UnitId id, const LightDesc& ld, const Ma
 	if (_light_data.size == _light_data.capacity)
 		grow_light();
 
-	const uint32_t last = _light_data.size;
+	const u32 last = _light_data.size;
 
 	_light_data.unit[last]       = id;
 	_light_data.world[last]      = tr;
@@ -367,7 +367,7 @@ LightInstance RenderWorld::create_light(UnitId id, const LightDesc& ld, const Ma
 
 void RenderWorld::destroy_light(LightInstance i)
 {
-	const uint32_t last = _light_data.size - 1;
+	const u32 last = _light_data.size - 1;
 	const UnitId u = _light_data.unit[i.i];
 	const UnitId last_u = _light_data.unit[last];
 
@@ -400,17 +400,17 @@ LightType::Enum RenderWorld::light_type(LightInstance i)
 	return (LightType::Enum)_light_data.type[i.i];
 }
 
-float RenderWorld::light_range(LightInstance i)
+f32 RenderWorld::light_range(LightInstance i)
 {
 	return _light_data.range[i.i];
 }
 
-float RenderWorld::light_intensity(LightInstance i)
+f32 RenderWorld::light_intensity(LightInstance i)
 {
 	return _light_data.intensity[i.i];
 }
 
-float RenderWorld::light_spot_angle(LightInstance i)
+f32 RenderWorld::light_spot_angle(LightInstance i)
 {
 	return _light_data.spot_angle[i.i];
 }
@@ -425,17 +425,17 @@ void RenderWorld::set_light_type(LightInstance i, LightType::Enum type)
 	_light_data.type[i.i] = type;
 }
 
-void RenderWorld::set_light_range(LightInstance i, float range)
+void RenderWorld::set_light_range(LightInstance i, f32 range)
 {
 	_light_data.range[i.i] = range;
 }
 
-void RenderWorld::set_light_intensity(LightInstance i, float intensity)
+void RenderWorld::set_light_intensity(LightInstance i, f32 intensity)
 {
 	_light_data.intensity[i.i] = intensity;
 }
 
-void RenderWorld::set_light_spot_angle(LightInstance i, float angle)
+void RenderWorld::set_light_spot_angle(LightInstance i, f32 angle)
 {
 	_light_data.spot_angle[i.i] = angle;
 }
@@ -444,7 +444,7 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 {
 	for (; begin != end; ++begin, ++world)
 	{
-		uint32_t inst = hash::get(_mesh_map, begin->encode(), UINT32_MAX);
+		u32 inst = hash::get(_mesh_map, begin->encode(), UINT32_MAX);
 
 		if (inst != UINT32_MAX)
 			_mesh_data.world[inst] = *world;
@@ -461,7 +461,7 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 	}
 }
 
-void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection, u16 x, u16 y, u16 width, u16 height)
 {
 	bgfx::setViewClear(0
 		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
@@ -478,7 +478,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection, uin
 	// if no other draw calls are submitted to view 0.
 	bgfx::touch(0);
 
-	for (uint32_t ll = 0; ll < _light_data.size; ++ll)
+	for (u32 ll = 0; ll < _light_data.size; ++ll)
 	{
 		const Vector4 ldir = normalize(_light_data.world[ll].z) * view;
 		const Vector3 lpos = translation(_light_data.world[ll]);
@@ -488,7 +488,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection, uin
 		bgfx::setUniform(_u_light_col, to_float_ptr(_light_data.color[ll]));
 
 		// Render meshes
-		for (uint32_t i = 0; i < _mesh_data.first_hidden; ++i)
+		for (u32 i = 0; i < _mesh_data.first_hidden; ++i)
 		{
 			bgfx::setTransform(to_float_ptr(_mesh_data.world[i]));
 			bgfx::setVertexBuffer(_mesh_data.mesh[i].vbh);
@@ -499,7 +499,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection, uin
 	}
 
 	// Render sprites
-	for (uint32_t i = 0; i < _sprite_data.first_hidden; ++i)
+	for (u32 i = 0; i < _sprite_data.first_hidden; ++i)
 	{
 		bgfx::setVertexBuffer(_sprite_data.sprite[i].vbh);
 		bgfx::setIndexBuffer(_sprite_data.sprite[i].ibh, _sprite_data.frame[i] * 6, 6);
@@ -514,14 +514,14 @@ void RenderWorld::draw_debug(DebugLine& dl)
 	if (!_debug_drawing)
 		return;
 
-	for (uint32_t i = 0; i < _mesh_data.size; ++i)
+	for (u32 i = 0; i < _mesh_data.size; ++i)
 	{
 		const OBB& obb = _mesh_data.obb[i];
 		const Matrix4x4& world = _mesh_data.world[i];
 		dl.add_obb(obb.tm * world, obb.half_extents, COLOR4_RED);
 	}
 
-	for (uint32_t i = 0; i < _light_data.size; ++i)
+	for (u32 i = 0; i < _light_data.size; ++i)
 	{
 		const Vector3 pos = translation(_light_data.world[i]);
 		const Vector3 dir = -z(_light_data.world[i]);
@@ -545,9 +545,9 @@ void RenderWorld::draw_debug(DebugLine& dl)
 			}
 			case LightType::SPOT:
 			{
-				const float angle = _light_data.spot_angle[i];
-				const float range = _light_data.range[i];
-				const float radius = tan(angle)*range;
+				const f32 angle = _light_data.spot_angle[i];
+				const f32 range = _light_data.range[i];
+				const f32 radius = tan(angle)*range;
 				dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
 				break;
 			}
@@ -601,11 +601,11 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 	}
 }
 
-void RenderWorld::allocate_mesh(uint32_t num)
+void RenderWorld::allocate_mesh(u32 num)
 {
 	CE_ENSURE(num > _mesh_data.size);
 
-	const uint32_t bytes = num * (0
+	const u32 bytes = num * (0
 		+ sizeof(UnitId)
 		+ sizeof(MeshResource*)
 		+ sizeof(MeshData)
@@ -641,16 +641,16 @@ void RenderWorld::allocate_mesh(uint32_t num)
 	_mesh_data = new_data;
 }
 
-void RenderWorld::allocate_sprite(uint32_t num)
+void RenderWorld::allocate_sprite(u32 num)
 {
 	CE_ENSURE(num > _sprite_data.size);
 
-	const uint32_t bytes = num * (0
+	const u32 bytes = num * (0
 		+ sizeof(UnitId)
 		+ sizeof(SpriteResource**)
 		+ sizeof(SpriteData)
 		+ sizeof(StringId64)
-		+ sizeof(uint32_t)
+		+ sizeof(u32)
 		+ sizeof(Matrix4x4)
 		+ sizeof(AABB)
 		+ sizeof(SpriteInstance)
@@ -666,7 +666,7 @@ void RenderWorld::allocate_sprite(uint32_t num)
 	new_data.sr = (const SpriteResource**)(new_data.unit + num);
 	new_data.sprite = (SpriteData*)(new_data.sr + num);
 	new_data.material = (StringId64*)(new_data.sprite + num);
-	new_data.frame = (uint32_t*)(new_data.material + num);
+	new_data.frame = (u32*)(new_data.material + num);
 	new_data.world = (Matrix4x4*)(new_data.frame + num);
 	new_data.aabb = (AABB*)(new_data.world + num);
 	new_data.next_instance = (SpriteInstance*)(new_data.aabb + num);
@@ -675,7 +675,7 @@ void RenderWorld::allocate_sprite(uint32_t num)
 	memcpy(new_data.sr, _sprite_data.sr, _sprite_data.size * sizeof(SpriteResource**));
 	memcpy(new_data.sprite, _sprite_data.sprite, _sprite_data.size * sizeof(SpriteData));
 	memcpy(new_data.material, _sprite_data.material, _sprite_data.size * sizeof(StringId64));
-	memcpy(new_data.frame, _sprite_data.frame, _sprite_data.size * sizeof(uint32_t));
+	memcpy(new_data.frame, _sprite_data.frame, _sprite_data.size * sizeof(u32));
 	memcpy(new_data.world, _sprite_data.world, _sprite_data.size * sizeof(Matrix4x4));
 	memcpy(new_data.aabb, _sprite_data.aabb, _sprite_data.size * sizeof(AABB));
 	memcpy(new_data.next_instance, _sprite_data.next_instance, _sprite_data.size * sizeof(SpriteInstance));
@@ -684,18 +684,18 @@ void RenderWorld::allocate_sprite(uint32_t num)
 	_sprite_data = new_data;
 }
 
-void RenderWorld::allocate_light(uint32_t num)
+void RenderWorld::allocate_light(u32 num)
 {
 	CE_ENSURE(num > _light_data.size);
 
-	const uint32_t bytes = num * (0
+	const u32 bytes = num * (0
 		+ sizeof(UnitId)
 		+ sizeof(Matrix4x4)
-		+ sizeof(float)
-		+ sizeof(float)
-		+ sizeof(float)
+		+ sizeof(f32)
+		+ sizeof(f32)
+		+ sizeof(f32)
 		+ sizeof(Color4)
-		+ sizeof(uint32_t)
+		+ sizeof(u32)
 		);
 
 	LightInstanceData new_data;
@@ -705,19 +705,19 @@ void RenderWorld::allocate_light(uint32_t num)
 
 	new_data.unit = (UnitId*)(new_data.buffer);
 	new_data.world = (Matrix4x4*)(new_data.unit + num);
-	new_data.range = (float*)(new_data.world + num);
-	new_data.intensity = (float*)(new_data.range + num);
-	new_data.spot_angle = (float*)(new_data.intensity + num);
+	new_data.range = (f32*)(new_data.world + num);
+	new_data.intensity = (f32*)(new_data.range + num);
+	new_data.spot_angle = (f32*)(new_data.intensity + num);
 	new_data.color = (Color4*)(new_data.spot_angle + num);
-	new_data.type = (uint32_t*)(new_data.color + num);
+	new_data.type = (u32*)(new_data.color + num);
 
 	memcpy(new_data.unit, _light_data.unit, _light_data.size * sizeof(UnitId));
 	memcpy(new_data.world, _light_data.world, _light_data.size * sizeof(Matrix4x4));
-	memcpy(new_data.range, _light_data.range, _light_data.size * sizeof(float));
-	memcpy(new_data.intensity, _light_data.intensity, _light_data.size * sizeof(float));
-	memcpy(new_data.spot_angle, _light_data.spot_angle, _light_data.size * sizeof(float));
+	memcpy(new_data.range, _light_data.range, _light_data.size * sizeof(f32));
+	memcpy(new_data.intensity, _light_data.intensity, _light_data.size * sizeof(f32));
+	memcpy(new_data.spot_angle, _light_data.spot_angle, _light_data.size * sizeof(f32));
 	memcpy(new_data.color, _light_data.color, _light_data.size * sizeof(Color4));
-	memcpy(new_data.type, _light_data.type, _light_data.size * sizeof(uint32_t));
+	memcpy(new_data.type, _light_data.type, _light_data.size * sizeof(u32));
 
 	_allocator->deallocate(_light_data.buffer);
 	_light_data = new_data;

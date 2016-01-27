@@ -38,7 +38,7 @@ namespace profiler
 {
 	enum { THREAD_BUFFER_SIZE = 4 * 1024 };
 	static char _thread_buffer[THREAD_BUFFER_SIZE];
-	static uint32_t _thread_buffer_size = 0;
+	static u32 _thread_buffer_size = 0;
 	static Mutex _buffer_mutex;
 
 	static void flush_local_buffer()
@@ -51,17 +51,17 @@ namespace profiler
 	template <typename T>
 	static void push(ProfilerEventType::Enum type, const T& ev)
 	{
-		if (_thread_buffer_size + 2*sizeof(uint32_t) + sizeof(ev) >= THREAD_BUFFER_SIZE)
+		if (_thread_buffer_size + 2*sizeof(u32) + sizeof(ev) >= THREAD_BUFFER_SIZE)
 			flush_local_buffer();
 
 		char* p = _thread_buffer + _thread_buffer_size;
-		*(uint32_t*)p = type;
-		p += sizeof(uint32_t);
-		*(uint32_t*)p = sizeof(ev);
-		p += sizeof(uint32_t);
+		*(u32*)p = type;
+		p += sizeof(u32);
+		*(u32*)p = sizeof(ev);
+		p += sizeof(u32);
 		*(T*)p = ev;
 
-		_thread_buffer_size += 2*sizeof(uint32_t) + sizeof(ev);
+		_thread_buffer_size += 2*sizeof(u32) + sizeof(ev);
 	}
 
 	void enter_profile_scope(const char* name)
@@ -81,7 +81,7 @@ namespace profiler
 		push(ProfilerEventType::LEAVE_PROFILE_SCOPE, ev);
 	}
 
-	void record_float(const char* name, float value)
+	void record_float(const char* name, f32 value)
 	{
 		RecordFloat ev;
 		ev.name = name;
@@ -99,7 +99,7 @@ namespace profiler
 		push(ProfilerEventType::RECORD_VECTOR3, ev);
 	}
 
-	void allocate_memory(const char* name, uint32_t size)
+	void allocate_memory(const char* name, u32 size)
 	{
 		AllocateMemory ev;
 		ev.name = name;
@@ -108,7 +108,7 @@ namespace profiler
 		push(ProfilerEventType::ALLOCATE_MEMORY, ev);
 	}
 
-	void deallocate_memory(const char* name, uint32_t size)
+	void deallocate_memory(const char* name, u32 size)
 	{
 		DeallocateMemory ev;
 		ev.name = name;
@@ -123,8 +123,8 @@ namespace profiler_globals
 	void flush()
 	{
 		profiler::flush_local_buffer();
-		uint32_t end = ProfilerEventType::COUNT;
-		array::push(*_buffer, (const char*)&end, (uint32_t)sizeof(end));
+		u32 end = ProfilerEventType::COUNT;
+		array::push(*_buffer, (const char*)&end, (u32)sizeof(end));
 	}
 
 	void clear()

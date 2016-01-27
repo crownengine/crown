@@ -139,7 +139,7 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 #define XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE 8689
 #define XINPUT_GAMEPAD_THRESHOLD            30
 
-static uint8_t s_button[] =
+static u8 s_button[] =
 {
 	JoypadButton::A,
 	JoypadButton::B,
@@ -158,7 +158,7 @@ static uint8_t s_button[] =
 	JoypadButton::RIGHT
 };
 
-static uint16_t s_deadzone[] =
+static u16 s_deadzone[] =
 {
 	XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,
 	XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,
@@ -170,10 +170,10 @@ static uint16_t s_deadzone[] =
 
 struct JoypadEvent
 {
-	uint32_t time;  /* event timestamp in milliseconds */
-	int16_t value;  /* value */
-	uint8_t type;   /* event type */
-	uint8_t number; /* axis/button number */
+	u32 time;  /* event timestamp in milliseconds */
+	s16 value; /* value */
+	u8 type;   /* event type */
+	u8 number; /* axis/button number */
 };
 
 struct Joypad
@@ -183,7 +183,7 @@ struct Joypad
 		char jspath[] = "/dev/input/jsX";
 		char* num = strchr(jspath, 'X');
 
-		for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		{
 			*num = '0' + i;
 			_fd[i] = open(jspath, O_RDONLY | O_NONBLOCK);
@@ -195,7 +195,7 @@ struct Joypad
 
 	void shutdown()
 	{
-		for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		{
 			if (_fd[i] != -1)
 				close(_fd[i]);
@@ -207,7 +207,7 @@ struct Joypad
 		JoypadEvent ev;
 		memset(&ev, 0, sizeof(ev));
 
-		for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		{
 			const int fd = _fd[i];
 			const bool connected = fd != -1;
@@ -222,8 +222,8 @@ struct Joypad
 
 			while(read(fd, &ev, sizeof(ev)) != -1)
 			{
-				const uint8_t num = ev.number;
-				const int16_t val = ev.value;
+				const u8 num = ev.number;
+				const s16 val = ev.value;
 
 				switch (ev.type &= ~JS_EVENT_INIT)
 				{
@@ -231,19 +231,19 @@ struct Joypad
 					{
 						AxisData& axis = _axis[i];
 						// Indices into axis.left/right respectively
-						const uint8_t axis_idx[] = { 0, 1, 2, 0, 1, 2 };
-						const int16_t deadzone = s_deadzone[num];
+						const u8 axis_idx[] = { 0, 1, 2, 0, 1, 2 };
+						const s16 deadzone = s_deadzone[num];
 
-						int16_t value = val > deadzone || val < -deadzone ? val : 0;
+						s16 value = val > deadzone || val < -deadzone ? val : 0;
 
 						// Remap triggers to [0, INT16_MAX]
 						if (num == 2 || num == 5)
 							value = (value + INT16_MAX) >> 1;
 
-						float* values = num > 2 ? axis.right : axis.left;
+						f32* values = num > 2 ? axis.right : axis.left;
 
 						values[axis_idx[num]] = value != 0
-							? float(value + (value < 0 ? deadzone : -deadzone)) / float(INT16_MAX - deadzone)
+							? f32(value + (value < 0 ? deadzone : -deadzone)) / f32(INT16_MAX - deadzone)
 							: 0.0f
 							;
 
@@ -276,8 +276,8 @@ struct Joypad
 
 	struct AxisData
 	{
-		float left[3];
-		float right[3];
+		f32 left[3];
+		f32 right[3];
 	};
 
 	AxisData _axis[CROWN_MAX_JOYPADS];
@@ -290,7 +290,7 @@ struct MainThreadArgs
 	DeviceOptions* opts;
 };
 
-int32_t func(void* data)
+s32 func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*)data;
 	crown::init(*args->opts);
@@ -309,7 +309,7 @@ struct LinuxDevice
 	{
 	}
 
-	int32_t run(DeviceOptions* opts)
+	int run(DeviceOptions* opts)
 	{
 		// http://tronche.com/gui/x/xlib/display/XInitThreads.html
 		Status xs = XInitThreads();
@@ -493,7 +493,7 @@ public:
 		_x11_display = s_ldvc._x11_display;
 	}
 
-	void open(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t parent)
+	void open(u16 x, u16 y, u16 width, u16 height, u32 parent)
 	{
 		int screen = DefaultScreen(_x11_display);
 		int depth = DefaultDepth(_x11_display, screen);
@@ -573,12 +573,12 @@ public:
 		XUnmapWindow(_x11_display, _x11_window);
 	}
 
-	void resize(uint16_t width, uint16_t height)
+	void resize(u16 width, u16 height)
 	{
 		XResizeWindow(_x11_display, _x11_window, width, height);
 	}
 
-	void move(uint16_t x, uint16_t y)
+	void move(u16 x, u16 y)
 	{
 		XMoveWindow(_x11_display, _x11_window, x, y);
 	}
@@ -649,14 +649,14 @@ public:
 		for (int i = 0; i < num; ++i)
 		{
 			DisplayMode dm;
-			dm.id     = (uint32_t)i;
+			dm.id     = (u32)i;
 			dm.width  = sizes[i].width;
 			dm.height = sizes[i].height;
 			array::push_back(modes, dm);
 		}
 	}
 
-	void set_mode(uint32_t id)
+	void set_mode(u32 id)
 	{
 		int num = 0;
 		XRRScreenSize* sizes = XRRConfigSizes(_screen_config, &num);

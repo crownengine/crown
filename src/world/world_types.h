@@ -25,7 +25,7 @@ struct Gui;
 struct Material;
 struct SceneGraph;
 
-typedef uint32_t SoundInstanceId;
+typedef u32 SoundInstanceId;
 
 /// Enumerates camera projection types.
 ///
@@ -206,24 +206,24 @@ struct EventType
 /// @ingroup World
 struct UnitId
 {
-	uint32_t idx;
+	u32 idx;
 
-	uint32_t index() const
+	u32 index() const
 	{
 		return idx & UNIT_INDEX_MASK;
 	}
 
-	uint32_t id() const
+	u32 id() const
 	{
 		return (idx >> UNIT_INDEX_BITS) & UNIT_ID_MASK;
 	}
 
-	uint32_t encode() const
+	u32 encode() const
 	{
 		return idx;
 	}
 
-	void decode(uint32_t id)
+	void decode(u32 id)
 	{
 		idx = id;
 	}
@@ -238,47 +238,47 @@ inline UnitId INVALID_UNIT() { UnitId id = { UINT32_MAX }; return id; }
 
 struct TransformInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 struct CameraInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 struct MeshInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 struct SpriteInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 struct LightInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 struct ColliderInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 struct ActorInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 struct ControllerInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 struct JointInstance
 {
-	uint32_t i;
+	u32 i;
 };
 
 /// Mesh renderer description.
@@ -310,10 +310,10 @@ struct SpriteRendererDesc
 /// @ingroup World
 struct LightDesc
 {
-	uint32_t type;    ///< LightType::Enum
-	float range;      ///< In meters.
-	float intensity;
-	float spot_angle; ///< In radians.
+	u32 type;    ///< LightType::Enum
+	f32 range;      ///< In meters.
+	f32 intensity;
+	f32 spot_angle; ///< In radians.
 	Vector3 color;    ///< Color of the light.
 };
 
@@ -332,10 +332,10 @@ struct TransformDesc
 /// @ingroup World
 struct CameraDesc
 {
-	uint32_t type;    ///< ProjectionType::Enum
-	float fov;        ///< Vertical FOV
-	float near_range; ///< Near clipping plane distance
-	float far_range;  ///< Far clipping plane distance
+	u32 type;    ///< ProjectionType::Enum
+	f32 fov;        ///< Vertical FOV
+	f32 near_range; ///< Near clipping plane distance
+	f32 far_range;  ///< Far clipping plane distance
 };
 
 /// Controller description.
@@ -343,11 +343,11 @@ struct CameraDesc
 /// @ingroup World
 struct ControllerDesc
 {
-	float height;                ///< Height of the capsule
-	float radius;                ///< Radius of the capsule
-	float slope_limit;           ///< The maximum slope which the character can walk up in radians.
-	float step_offset;           ///< Maximum height of an obstacle which the character can climb.
-	float contact_offset;        ///< Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
+	f32 height;                ///< Height of the capsule
+	f32 radius;                ///< Radius of the capsule
+	f32 slope_limit;           ///< The maximum slope which the character can walk up in radians.
+	f32 step_offset;           ///< Maximum height of an obstacle which the character can climb.
+	f32 contact_offset;        ///< Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
 	StringId32 collision_filter; ///< Collision filter from global.physics_config
 };
 
@@ -357,20 +357,20 @@ struct ControllerDesc
 struct ActorResource
 {
 	StringId32 actor_class;      ///< Name of actor in global.physics resource.
-	float mass;                  ///< Mass of the actor.
-	uint32_t flags;              ///< ActorFlags::Enum
+	f32 mass;                  ///< Mass of the actor.
+	u32 flags;              ///< ActorFlags::Enum
 	StringId32 collision_filter; ///< Name of collision filter in global.physics_config resource.
 };
 
 struct SphereShape
 {
-	float radius;
+	f32 radius;
 };
 
 struct CapsuleShape
 {
-	float radius;
-	float height;
+	f32 radius;
+	f32 height;
 };
 
 struct BoxShape
@@ -380,17 +380,17 @@ struct BoxShape
 
 struct HeightfieldShape
 {
-	uint32_t width;
-	uint32_t length;
-	float height_scale;
-	float min_height;
-	float max_height;
+	u32 width;
+	u32 length;
+	f32 height_scale;
+	f32 min_height;
+	f32 max_height;
 };
 
 struct ShapeDesc
 {
 	StringId32 shape_class;       ///< Name of shape in global.physics_config resource.
-	uint32_t type;                ///< ShapeType::Enum
+	u32 type;                ///< ShapeType::Enum
 	StringId32 material;          ///< Name of material in global.physics_config resource.
 	Matrix4x4 local_tm;           ///< In actor-space
 	SphereShape sphere;
@@ -405,24 +405,24 @@ struct HingeJoint
 	Vector3 axis;
 
 	bool use_motor;
-	float target_velocity;
-	float max_motor_impulse;
+	f32 target_velocity;
+	f32 max_motor_impulse;
 
 	bool use_limits;
-	float lower_limit;
-	float upper_limit;
-	float bounciness;
+	f32 lower_limit;
+	f32 upper_limit;
+	f32 bounciness;
 };
 
 struct JointDesc
 {
-	uint32_t type;    ///< JointType::Enum
+	u32 type;    ///< JointType::Enum
 	Vector3 anchor_0;
 	Vector3 anchor_1;
 
 	bool breakable;
 	char _pad[3];
-	float break_force;
+	f32 break_force;
 
 	HingeJoint hinge;
 };

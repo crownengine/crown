@@ -18,15 +18,15 @@ namespace crown
 {
 struct VertexData
 {
-	uint32_t num;
-	uint32_t stride;
+	u32 num;
+	u32 stride;
 	char* data;
 };
 
 struct IndexData
 {
-	uint32_t num;
-	char* data;   // size = num*sizeof(uint16_t)
+	u32 num;
+	char* data;   // size = num*sizeof(u16)
 };
 
 struct MeshGeometry
@@ -52,7 +52,7 @@ struct MeshResource
 
 	const MeshGeometry* geometry(StringId32 name) const
 	{
-		for (uint32_t i = 0; i < array::size(geometry_names); ++i)
+		for (u32 i = 0; i < array::size(geometry_names); ++i)
 		{
 			if (geometry_names[i] == name)
 				return geometries[i];

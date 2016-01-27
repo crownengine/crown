@@ -29,19 +29,19 @@ public:
 	void close();
 
 	/// @copydoc File::seek()
-	void seek(uint32_t position);
+	void seek(u32 position);
 
 	/// @copydoc File::seek_to_end()
 	void seek_to_end();
 
 	/// @copydoc File::skip()
-	void skip(uint32_t bytes);
+	void skip(u32 bytes);
 
 	/// @copydoc File::read()
-	uint32_t read(void* data, uint32_t size);
+	u32 read(void* data, u32 size);
 
 	/// @copydoc File::write()
-	uint32_t write(const void* data, uint32_t size);
+	u32 write(const void* data, u32 size);
 
 	/// @copydoc File::flush()
 	void flush();
@@ -53,10 +53,10 @@ public:
 	bool is_valid();
 
 	/// @copydoc File::size()
-	uint32_t size();
+	u32 size();
 
 	/// @copydoc File::position()
-	uint32_t position();
+	u32 position();
 };
 
 } // namespace crown

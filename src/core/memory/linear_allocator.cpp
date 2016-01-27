@@ -8,7 +8,7 @@
 
 namespace crown
 {
-LinearAllocator::LinearAllocator(Allocator& backing, uint32_t size)
+LinearAllocator::LinearAllocator(Allocator& backing, u32 size)
 	: _backing(&backing)
 	, _physical_start(NULL)
 	, _total_size(size)
@@ -17,7 +17,7 @@ LinearAllocator::LinearAllocator(Allocator& backing, uint32_t size)
 	_physical_start = backing.allocate(size);
 }
 
-LinearAllocator::LinearAllocator(void* start, uint32_t size)
+LinearAllocator::LinearAllocator(void* start, u32 size)
 	: _backing(NULL)
 	, _physical_start(start)
 	, _total_size(size)
@@ -36,9 +36,9 @@ LinearAllocator::~LinearAllocator()
 		);
 }
 
-void* LinearAllocator::allocate(uint32_t size, uint32_t align)
+void* LinearAllocator::allocate(u32 size, u32 align)
 {
-	const uint32_t actual_size = size + align;
+	const u32 actual_size = size + align;
 
 	// Out of memory
 	if (_offset + actual_size > _total_size)

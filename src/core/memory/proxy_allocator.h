@@ -25,16 +25,16 @@ public:
 	ProxyAllocator(Allocator& allocator, const char* name);
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
 	void deallocate(void* data);
 
 	/// @copydoc Allocator::allocated_size()
-	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+	u32 allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
 
 	/// @copydoc Allocator::total_allocated()
-	uint32_t total_allocated() { return SIZE_NOT_TRACKED; }
+	u32 total_allocated() { return SIZE_NOT_TRACKED; }
 
 	/// Returns the name of the proxy allocator
 	const char* name() const;

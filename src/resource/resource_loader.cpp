@@ -53,7 +53,7 @@ void ResourceLoader::flush()
 	while (num_requests()) {}
 }
 
-uint32_t ResourceLoader::num_requests()
+u32 ResourceLoader::num_requests()
 {
 	ScopedMutex sm(_mutex);
 	return queue::size(_requests);
@@ -69,17 +69,17 @@ void ResourceLoader::get_loaded(Array<ResourceRequest>& loaded)
 {
 	ScopedMutex sm(_loaded_mutex);
 
-	const uint32_t num = queue::size(_loaded);
+	const u32 num = queue::size(_loaded);
 	array::reserve(loaded, num);
 
-	for (uint32_t i = 0; i < num; ++i)
+	for (u32 i = 0; i < num; ++i)
 	{
 		array::push_back(loaded, queue::front(_loaded));
 		queue::pop_front(_loaded);
 	}
 }
 
-int32_t ResourceLoader::run()
+s32 ResourceLoader::run()
 {
 	while (!_exit)
 	{

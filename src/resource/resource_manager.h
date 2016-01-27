@@ -93,7 +93,7 @@ private:
 			return references == e.references && data == e.data;
 		}
 
-		uint32_t references;
+		u32 references;
 		void* data;
 
 		static const ResourceEntry NOT_FOUND;

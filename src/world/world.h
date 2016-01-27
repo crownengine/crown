@@ -37,7 +37,7 @@ public:
 	void destroy_unit(UnitId id);
 
 	/// Returns the number of units in the world.
-	uint32_t num_units() const;
+	u32 num_units() const;
 
 	/// Returns all the the units in the world.
 	void units(Array<UnitId>& units) const;
@@ -64,34 +64,34 @@ public:
 	Matrix4x4 camera_view_matrix(CameraInstance i) const;
 
 	/// Returns the field-of-view of the camera in degrees.
-	float camera_fov(CameraInstance i) const;
+	f32 camera_fov(CameraInstance i) const;
 
 	/// Sets the field-of-view of the camera in degrees.
-	void set_camera_fov(CameraInstance i, float fov);
+	void set_camera_fov(CameraInstance i, f32 fov);
 
 	/// Returns the aspect ratio of the camera. (Perspective projection only.)
-	float camera_aspect(CameraInstance i) const;
+	f32 camera_aspect(CameraInstance i) const;
 
 	/// Sets the aspect ratio of the camera. (Perspective projection only.)
-	void set_camera_aspect(CameraInstance i, float aspect);
+	void set_camera_aspect(CameraInstance i, f32 aspect);
 
 	/// Returns the near clip distance of the camera.
-	float camera_near_clip_distance(CameraInstance i) const;
+	f32 camera_near_clip_distance(CameraInstance i) const;
 
 	/// Sets the near clip distance of the camera.
-	void set_camera_near_clip_distance(CameraInstance i, float near);
+	void set_camera_near_clip_distance(CameraInstance i, f32 near);
 
 	/// Returns the far clip distance of the camera.
-	float camera_far_clip_distance(CameraInstance i) const;
+	f32 camera_far_clip_distance(CameraInstance i) const;
 
 	/// Sets the far clip distance of the camera.
-	void set_camera_far_clip_distance(CameraInstance i, float far);
+	void set_camera_far_clip_distance(CameraInstance i, f32 far);
 
 	/// Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
-	void set_camera_orthographic_metrics(CameraInstance i, float left, float right, float bottom, float top);
+	void set_camera_orthographic_metrics(CameraInstance i, f32 left, f32 right, f32 bottom, f32 top);
 
 	/// Sets the coordinates for the camera viewport in pixels.
-	void set_camera_viewport_metrics(CameraInstance i, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+	void set_camera_viewport_metrics(CameraInstance i, u16 x, u16 y, u16 width, u16 height);
 
 	/// Returns @a pos from screen-space to world-space coordinates.
 	Vector3 camera_screen_to_world(CameraInstance i, const Vector3& pos);
@@ -100,29 +100,29 @@ public:
 	Vector3 camera_world_to_screen(CameraInstance i, const Vector3& pos);
 
 	/// Update all animations with @a dt.
-	void update_animations(float dt);
+	void update_animations(f32 dt);
 
 	/// Update scene with @a dt.
-	void update_scene(float dt);
+	void update_scene(f32 dt);
 
 	/// Updates all units and sub-systems with the given @a dt delta time.
-	void update(float dt);
+	void update(f32 dt);
 
 	/// Renders the world form the point of view of camera @a i.
 	void render(CameraInstance i);
 
-	SoundInstanceId play_sound(const SoundResource& sr, bool loop = false, float volume = 1.0f, const Vector3& position = VECTOR3_ZERO, float range = 50.0f);
+	SoundInstanceId play_sound(const SoundResource& sr, bool loop = false, f32 volume = 1.0f, const Vector3& position = VECTOR3_ZERO, f32 range = 50.0f);
 
 	/// Plays the sound with the given @a name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
-	SoundInstanceId play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range);
+	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3& pos, const f32 range);
 
 	/// Stops the sound with the given @a id.
 	void stop_sound(SoundInstanceId id);
 
 	/// Links the sound @a id to the @a node of the given @a unit.
 	/// After this call, the sound @a id will follow the unit @a unit.
-	void link_sound(SoundInstanceId id, UnitId unit, int32_t node);
+	void link_sound(SoundInstanceId id, UnitId unit, s32 node);
 
 	/// Sets the @a pose of the listener.
 	void set_listener_pose(const Matrix4x4& pose);
@@ -131,10 +131,10 @@ public:
 	void set_sound_position(SoundInstanceId id, const Vector3& position);
 
 	/// Sets the @a range of the sound @a id.
-	void set_sound_range(SoundInstanceId id, float range);
+	void set_sound_range(SoundInstanceId id, f32 range);
 
 	/// Sets the @a volume of the sound @a id.
-	void set_sound_volume(SoundInstanceId id, float volume);
+	void set_sound_volume(SoundInstanceId id, f32 volume);
 
 	/// Creates a new DebugLine. @a depth_test controls whether to
 	/// enable depth test when rendering the lines.
@@ -162,11 +162,11 @@ public:
 	/// Returns the sound sub-world.
 	SoundWorld* sound_world();
 
-	static const uint32_t MARKER = 0xfb6ce2d3;
+	static const u32 MARKER = 0xfb6ce2d3;
 
 private:
 
-	CameraInstance make_camera_instance(uint32_t i) { CameraInstance inst = { i }; return inst; }
+	CameraInstance make_camera_instance(u32 i) { CameraInstance inst = { i }; return inst; }
 
 	void post_unit_spawned_event(UnitId id);
 	void post_unit_destroyed_event(UnitId id);
@@ -182,26 +182,26 @@ private:
 		Matrix4x4 projection;
 
 		Frustum frustum;
-		float fov;
-		float aspect;
-		float near;
-		float far;
+		f32 fov;
+		f32 aspect;
+		f32 near;
+		f32 far;
 
 		// Orthographic projection only
-		float left;
-		float right;
-		float bottom;
-		float top;
+		f32 left;
+		f32 right;
+		f32 bottom;
+		f32 top;
 
-		uint16_t view_x;
-		uint16_t view_y;
-		uint16_t view_width;
-		uint16_t view_height;
+		u16 view_x;
+		u16 view_y;
+		u16 view_width;
+		u16 view_height;
 
 		void update_projection_matrix();
 	};
 
-	uint32_t _marker;
+	u32 _marker;
 
 	Allocator* _allocator;
 	ResourceManager* _resource_manager;
@@ -217,7 +217,7 @@ private:
 	Array<UnitId> _units;
 	Array<Level*> _levels;
 	Array<Camera> _camera;
-	Hash<uint32_t> _camera_map;
+	Hash<u32> _camera_map;
 
 	EventStream _events;
 };

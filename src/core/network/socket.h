@@ -41,13 +41,13 @@ struct ConnectResult
 struct ReadResult
 {
 	enum { NO_ERROR, BAD_SOCKET, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
-	uint32_t bytes_read;
+	u32 bytes_read;
 };
 
 struct WriteResult
 {
 	enum { NO_ERROR, BAD_SOCKET, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
-	uint32_t bytes_wrote;
+	u32 bytes_wrote;
 };
 
 struct AcceptResult
@@ -80,7 +80,7 @@ struct TCPSocket
 #endif
 	}
 
-	ConnectResult connect(const NetAddress& ip, uint16_t port)
+	ConnectResult connect(const NetAddress& ip, u16 port)
 	{
 		close();
 		open();
@@ -130,7 +130,7 @@ struct TCPSocket
 #endif
 	}
 
-	bool bind(uint16_t port)
+	bool bind(u16 port)
 	{
 		close();
 		open();
@@ -158,7 +158,7 @@ struct TCPSocket
 #endif
 	}
 
-	void listen(uint32_t max)
+	void listen(u32 max)
 	{
 #if CROWN_PLATFORM_POSIX
 		int err = ::listen(_socket, max);
@@ -237,7 +237,7 @@ struct TCPSocket
 #endif
 	}
 
-	ReadResult read_internal(void* data, uint32_t size)
+	ReadResult read_internal(void* data, u32 size)
 	{
 		ReadResult rr;
 		rr.error = ReadResult::NO_ERROR;
@@ -245,7 +245,7 @@ struct TCPSocket
 
 #if CROWN_PLATFORM_POSIX
 		char* buf = (char*)data;
-		uint32_t to_read = size;
+		u32 to_read = size;
 
 		while (to_read > 0)
 		{
@@ -274,7 +274,7 @@ struct TCPSocket
 		return rr;
 #elif CROWN_PLATFORM_WINDOWS
 		char* buf = (char*)data;
-		uint32_t to_read = size;
+		u32 to_read = size;
 
 		while (to_read > 0)
 		{
@@ -302,19 +302,19 @@ struct TCPSocket
 #endif
 	}
 
-	ReadResult read_nonblock(void* data, uint32_t size)
+	ReadResult read_nonblock(void* data, u32 size)
 	{
 		set_blocking(false);
 		return read_internal(data, size);
 	}
 
-	ReadResult read(void* data, uint32_t size)
+	ReadResult read(void* data, u32 size)
 	{
 		set_blocking(true);
 		return read_internal(data, size);
 	}
 
-	WriteResult write_internal(const void* data, uint32_t size)
+	WriteResult write_internal(const void* data, u32 size)
 	{
 		WriteResult wr;
 		wr.error = WriteResult::NO_ERROR;
@@ -322,7 +322,7 @@ struct TCPSocket
 
 #if CROWN_PLATFORM_POSIX
 		const char* buf = (const char*)data;
-		uint32_t to_send = size;
+		u32 to_send = size;
 
 		while (to_send > 0)
 		{
@@ -354,7 +354,7 @@ struct TCPSocket
 		return wr;
 #elif CROWN_PLATFORM_WINDOWS
 		const char* buf = (const char*)data;
-		uint32_t to_send = size;
+		u32 to_send = size;
 
 		while (to_send > 0)
 		{
@@ -389,13 +389,13 @@ struct TCPSocket
 #endif
 	}
 
-	WriteResult write_nonblock(const void* data, uint32_t size)
+	WriteResult write_nonblock(const void* data, u32 size)
 	{
 		set_blocking(false);
 		return write_internal(data, size);
 	}
 
-	WriteResult write(const void* data, uint32_t size)
+	WriteResult write(const void* data, u32 size)
 	{
 		set_blocking(true);
 		return write_internal(data, size);
@@ -427,7 +427,7 @@ struct TCPSocket
 		CE_UNUSED(err);
 	}
 
-	void set_timeout(uint32_t seconds)
+	void set_timeout(u32 seconds)
 	{
 #if CROWN_PLATFORM_POSIX
 		struct timeval timeout;

@@ -50,13 +50,13 @@ public:
 
 private:
 
-	uint32_t num_requests();
+	u32 num_requests();
 	void add_loaded(ResourceRequest rr);
 
 	// Loads resources in the loading queue.
-	int32_t run();
+	s32 run();
 
-	static int32_t thread_proc(void* thiz)
+	static s32 thread_proc(void* thiz)
 	{
 		return ((ResourceLoader*)thiz)->run();
 	}

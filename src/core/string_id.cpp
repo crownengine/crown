@@ -15,7 +15,7 @@ StringId32::StringId32(const char* str)
 {
 }
 
-StringId32::StringId32(const char* str, uint32_t len)
+StringId32::StringId32(const char* str, u32 len)
 	: _id(murmur32(str, len, 0))
 {
 }
@@ -31,7 +31,7 @@ StringId64::StringId64(const char* str)
 {
 }
 
-StringId64::StringId64(const char* str, uint32_t len)
+StringId64::StringId64(const char* str, u32 len)
 	: _id(murmur64(str, len, 0))
 {
 }

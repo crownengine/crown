@@ -19,32 +19,32 @@ class PoolAllocator : public Allocator
 
 	void* _start;
 	void* _freelist;
-	uint32_t _block_size;
-	uint32_t _block_align;
+	u32 _block_size;
+	u32 _block_align;
 
-	uint32_t _num_allocations;
-	uint32_t _allocated_size;
+	u32 _num_allocations;
+	u32 _allocated_size;
 
 public:
 
 	/// Uses @a backing to allocate the memory pool for containing exactly
 	/// @a num_blocks blocks of @a block_size size each aligned to @a block_align.
-	PoolAllocator(Allocator& backing, uint32_t num_blocks, uint32_t block_size, uint32_t block_align = Allocator::DEFAULT_ALIGN);
+	PoolAllocator(Allocator& backing, u32 num_blocks, u32 block_size, u32 block_align = Allocator::DEFAULT_ALIGN);
 	~PoolAllocator();
 
 	/// Allocates a block of memory from the memory pool.
 	/// @note
 	/// The @a size and @a align must match those passed to PoolAllocator::PoolAllocator()
-	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
 	void deallocate(void* data);
 
 	/// @copydoc Allocator::allocated_size()
-	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+	u32 allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
 
 	/// @copydoc Allocator::total_allocated()
-	uint32_t total_allocated();
+	u32 total_allocated();
 };
 
 } // namespace crown

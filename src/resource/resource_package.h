@@ -38,7 +38,7 @@ public:
 
 private:
 
-	uint32_t _marker;
+	u32 _marker;
 
 	ResourceManager* _resman;
 	StringId64 _id;

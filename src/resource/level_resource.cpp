@@ -28,7 +28,7 @@ namespace level_resource
 			JsonArray sounds_json(ta);
 			sjson::parse_array(object["sounds"], sounds_json);
 
-			for (uint32_t i = 0, n = array::size(sounds_json); i < n; ++i)
+			for (u32 i = 0, n = array::size(sounds_json); i < n; ++i)
 			{
 				JsonObject sound(ta);
 				sjson::parse_object(sounds_json[i], sound);
@@ -65,7 +65,7 @@ namespace level_resource
 
 		opts.write(unit_buffer);
 
-		for (uint32_t i = 0; i < array::size(sounds); ++i)
+		for (u32 i = 0; i < array::size(sounds); ++i)
 		{
 			opts.write(sounds[i].name);
 			opts.write(sounds[i].position);
@@ -80,10 +80,10 @@ namespace level_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t file_size = file.size();
+		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(uint32_t*)res == LEVEL_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == LEVEL_VERSION, "Wrong version");
 		return res;
 	}
 
@@ -97,12 +97,12 @@ namespace level_resource
 		return (const UnitResource*)((char*)lr + lr->units_offset);
 	}
 
-	uint32_t num_sounds(const LevelResource* lr)
+	u32 num_sounds(const LevelResource* lr)
 	{
 		return lr->num_sounds;
 	}
 
-	const LevelSound* get_sound(const LevelResource* lr, uint32_t i)
+	const LevelSound* get_sound(const LevelResource* lr, u32 i)
 	{
 		CE_ASSERT(i < num_sounds(lr), "Index out of bounds");
 		const LevelSound* begin = (LevelSound*)((char*)lr + lr->sounds_offset);

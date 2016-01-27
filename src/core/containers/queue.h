@@ -21,24 +21,24 @@ namespace queue
 	template<typename T> bool empty(const Queue<T>& q);
 
 	/// Returns the number of items in the queue
-	template<typename T> uint32_t size(const Queue<T>& q);
+	template<typename T> u32 size(const Queue<T>& q);
 
 	/// Returns the number of items the queue can hold before
 	/// a resize must occur.
-	template<typename T> uint32_t space(const Queue<T>& q);
+	template<typename T> u32 space(const Queue<T>& q);
 
 	/// Increase or decrease the capacity of the queue.
 	/// @note
 	/// Old items will be copied to the newly created queue.
 	/// If the new @a capacity is smaller than the previous one, the
 	/// queue will be truncated.
-	template<typename T> void increase_capacity(Queue<T>& q, uint32_t capacity);
+	template<typename T> void increase_capacity(Queue<T>& q, u32 capacity);
 
 	/// Grows the queue to contain at least @a min_capacity items.
 	/// If @a min_capacity is set to 0, the queue automatically
 	/// determines the new capacity based on its size at the
 	/// time of call.
-	template<typename T> void grow(Queue<T>& q, uint32_t min_capacity);
+	template<typename T> void grow(Queue<T>& q, u32 min_capacity);
 
 	/// Appends an @a item to the back of the queue
 	template<typename T> void push_back(Queue<T>& q, const T& item);
@@ -53,10 +53,10 @@ namespace queue
 	template<typename T> void pop_front(Queue<T>& q);
 
 	/// Appends @a n @a items to the back of the queue
-	template<typename T> void push(Queue<T>& q, const T *items, uint32_t n);
+	template<typename T> void push(Queue<T>& q, const T *items, u32 n);
 
 	/// Removes @a n items from the front of the queue
-	template<typename T> void pop(Queue<T>& q, uint32_t n);
+	template<typename T> void pop(Queue<T>& q, u32 n);
 
 	/// Clears the content of the queue.
 	/// @note
@@ -84,21 +84,21 @@ namespace queue
 	}
 
 	template <typename T>
-	inline uint32_t size(const Queue<T>& q)
+	inline u32 size(const Queue<T>& q)
 	{
 		return q._size;
 	}
 
 	template <typename T>
-	inline uint32_t space(const Queue<T>& q)
+	inline u32 space(const Queue<T>& q)
 	{
 		return array::size(q._queue) - q._size;
 	}
 
 	template <typename T>
-	inline void increase_capacity(Queue<T>& q, uint32_t capacity)
+	inline void increase_capacity(Queue<T>& q, u32 capacity)
 	{
-		uint32_t old_size = array::size(q._queue);
+		u32 old_size = array::size(q._queue);
 
 		array::resize(q._queue, capacity);
 
@@ -110,9 +110,9 @@ namespace queue
 	}
 
 	template <typename T>
-	inline void grow(Queue<T>& q, uint32_t min_capacity)
+	inline void grow(Queue<T>& q, u32 min_capacity)
 	{
-		uint32_t new_capacity = array::size(q._queue) * 2 + 1;
+		u32 new_capacity = array::size(q._queue) * 2 + 1;
 
 		if (new_capacity < min_capacity)
 			new_capacity = min_capacity;
@@ -161,15 +161,15 @@ namespace queue
 	}
 
 	template <typename T>
-	inline void push(Queue<T>& q, const T *items, uint32_t n)
+	inline void push(Queue<T>& q, const T *items, u32 n)
 	{
 		if (q.space() < n)
 			q.grow(q.size() + n);
 
-		const uint32_t size = array::size(q._queue);
-		const uint32_t insert = (q._read + q._size) % size;
+		const u32 size = array::size(q._queue);
+		const u32 insert = (q._read + q._size) % size;
 
-		uint32_t to_insert = n;
+		u32 to_insert = n;
 		if (insert + to_insert > size)
 			to_insert = size - insert;
 
@@ -184,7 +184,7 @@ namespace queue
 	}
 
 	template <typename T>
-	inline void pop(Queue<T>& q, uint32_t n)
+	inline void pop(Queue<T>& q, u32 n)
 	{
 		CE_ASSERT(q._size > 0, "The queue is empty");
 
@@ -214,14 +214,14 @@ namespace queue
 	template <typename T>
 	inline T* end(Queue<T>& q)
 	{
-		const uint32_t end = q._read + q._size;
+		const u32 end = q._read + q._size;
 		return end >= array::size(q._queue) ? array::end(q._queue) : array::begin(q._queue) + end;
 	}
 
 	template <typename T>
 	inline const T* end(const Queue<T>& q)
 	{
-		const uint32_t end = q._read + q._size;
+		const u32 end = q._read + q._size;
 		return end >= array::size(q._queue) ? array::end(q._queue) : array::begin(q._queue) + end;
 	}
 
@@ -264,13 +264,13 @@ inline Queue<T>::Queue(Allocator& a)
 }
 
 template <typename T>
-inline T& Queue<T>::operator[](uint32_t index)
+inline T& Queue<T>::operator[](u32 index)
 {
 	return _queue[(_read + index) % array::size(_queue)];
 }
 
 template <typename T>
-inline const T& Queue<T>::operator[](uint32_t index) const
+inline const T& Queue<T>::operator[](u32 index) const
 {
 	return _queue[(_read + index) % array::size(_queue)];
 }

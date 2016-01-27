@@ -23,7 +23,7 @@ namespace material_resource
 	{
 		const char* name;
 		UniformType::Enum type;
-		uint8_t size;
+		u8 size;
 	};
 
 	static const UniformTypeInfo s_uniform_type_info[] =
@@ -37,7 +37,7 @@ namespace material_resource
 
 	static UniformType::Enum name_to_uniform_type(const char* name)
 	{
-		for (uint32_t i = 0; i < CE_COUNTOF(s_uniform_type_info); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(s_uniform_type_info); ++i)
 		{
 			if (strcmp(s_uniform_type_info[i].name, name) == 0)
 				return s_uniform_type_info[i].type;
@@ -61,9 +61,9 @@ namespace material_resource
 
 	// Returns offset to start of data
 	template <typename T>
-	static uint32_t reserve_dynamic_data(T data, Array<char>& dynamic)
+	static u32 reserve_dynamic_data(T data, Array<char>& dynamic)
 	{
-		uint32_t offt = array::size(dynamic);
+		u32 offt = array::size(dynamic);
 		array::push(dynamic, (char*) &data, sizeof(data));
 		return offt;
 	}
@@ -95,7 +95,7 @@ namespace material_resource
 			th.sampler_handle = 0;
 			th.texture_handle = 0;
 
-			const uint32_t sampler_name_offset = array::size(names);
+			const u32 sampler_name_offset = array::size(names);
 			array::push(names, key.data(), key.length());
 			array::push_back(names, '\0');
 
@@ -138,7 +138,7 @@ namespace material_resource
 				, type.c_str()
 				);
 
-			const uint32_t name_offset = array::size(names);
+			const u32 name_offset = array::size(names);
 			array::push(names, key.data(), key.length());
 			array::push_back(names, '\0');
 
@@ -151,7 +151,7 @@ namespace material_resource
 			{
 				case UniformType::FLOAT:
 				{
-					float data = sjson::parse_float(uniform["value"]);
+					f32 data = sjson::parse_float(uniform["value"]);
 					reserve_dynamic_data(data, dynamic);
 					break;
 				}
@@ -219,7 +219,7 @@ namespace material_resource
 		opts.write(mr.dynamic_data_size);
 		opts.write(mr.dynamic_data_offset);
 
-		for (uint32_t i = 0; i < array::size(texdata); i++)
+		for (u32 i = 0; i < array::size(texdata); i++)
 		{
 			opts.write(texdata[i].sampler_name_offset);
 			opts.write(texdata[i]._pad);
@@ -228,7 +228,7 @@ namespace material_resource
 			opts.write(texdata[i]._pad1);
 		}
 
-		for (uint32_t i = 0; i < array::size(unidata); i++)
+		for (u32 i = 0; i < array::size(unidata); i++)
 		{
 			opts.write(unidata[i].name_offset);
 			opts.write(unidata[i].type);
@@ -241,10 +241,10 @@ namespace material_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t file_size = file.size();
+		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(uint32_t*)res == MATERIAL_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == MATERIAL_VERSION, "Wrong version");
 		return res;
 	}
 
@@ -254,14 +254,14 @@ namespace material_resource
 
 		char* base = (char*)mr + mr->dynamic_data_offset;
 
-		for (uint32_t i = 0; i < mr->num_textures; ++i)
+		for (u32 i = 0; i < mr->num_textures; ++i)
 		{
 			TextureData* td = get_texture_data(mr, i);
 			TextureHandle* th = get_texture_handle(mr, i, base);
 			th->sampler_handle = bgfx::createUniform(get_texture_name(mr, td), bgfx::UniformType::Int1).idx;
 		}
 
-		for (uint32_t i = 0; i < mr->num_uniforms; ++i)
+		for (u32 i = 0; i < mr->num_uniforms; ++i)
 		{
 			UniformData* ud = get_uniform_data(mr, i);
 			UniformHandle* uh = get_uniform_handle(mr, i, base);
@@ -275,7 +275,7 @@ namespace material_resource
 
 		char* base = (char*) mr + mr->dynamic_data_offset;
 
-		for (uint32_t i = 0; i < mr->num_textures; ++i)
+		for (u32 i = 0; i < mr->num_textures; ++i)
 		{
 			TextureHandle* th = get_texture_handle(mr, i, base);
 			bgfx::UniformHandle sh;
@@ -283,7 +283,7 @@ namespace material_resource
 			bgfx::destroyUniform(sh);
 		}
 
-		for (uint32_t i = 0; i < mr->num_uniforms; ++i)
+		for (u32 i = 0; i < mr->num_uniforms; ++i)
 		{
 			UniformHandle* uh = get_uniform_handle(mr, i, base);
 			bgfx::UniformHandle bgfx_uh;
@@ -297,7 +297,7 @@ namespace material_resource
 		a.deallocate(res);
 	}
 
-	UniformData* get_uniform_data(const MaterialResource* mr, uint32_t i)
+	UniformData* get_uniform_data(const MaterialResource* mr, u32 i)
 	{
 		UniformData* base = (UniformData*) ((char*)mr + mr->uniform_data_offset);
 		return &base[i];
@@ -305,7 +305,7 @@ namespace material_resource
 
 	UniformData* get_uniform_data_by_string(const MaterialResource* mr, const char* str)
 	{
-		for (uint32_t i = 0, n = mr->num_uniforms; i < n; ++i)
+		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i)
 		{
 			UniformData* base = get_uniform_data(mr, i);
 			const char* name = get_uniform_name(mr, base);
@@ -323,7 +323,7 @@ namespace material_resource
 		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud->name_offset;
 	}
 
-	TextureData* get_texture_data(const MaterialResource* mr, uint32_t i)
+	TextureData* get_texture_data(const MaterialResource* mr, u32 i)
 	{
 		TextureData* base = (TextureData*) ((char*)mr + mr->texture_data_offset);
 		return &base[i];
@@ -334,7 +334,7 @@ namespace material_resource
 		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td->sampler_name_offset;
 	}
 
-	UniformHandle* get_uniform_handle(const MaterialResource* mr, uint32_t i, char* dynamic)
+	UniformHandle* get_uniform_handle(const MaterialResource* mr, u32 i, char* dynamic)
 	{
 		UniformData* ud = get_uniform_data(mr, i);
 		return (UniformHandle*) (dynamic + ud->data_offset);
@@ -346,7 +346,7 @@ namespace material_resource
 		return (UniformHandle*) (dynamic + ud->data_offset);
 	}
 
-	TextureHandle* get_texture_handle(const MaterialResource* mr, uint32_t i, char* dynamic)
+	TextureHandle* get_texture_handle(const MaterialResource* mr, u32 i, char* dynamic)
 	{
 		TextureData* td = get_texture_data(mr, i);
 		return (TextureHandle*) (dynamic + td->data_offset);

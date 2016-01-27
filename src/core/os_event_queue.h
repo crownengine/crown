@@ -14,15 +14,15 @@ namespace crown
 {
 struct OsMetricsEvent
 {
-	uint16_t x;
-	uint16_t y;
-	uint16_t width;
-	uint16_t height;
+	u16 x;
+	u16 y;
+	u16 width;
+	u16 height;
 };
 
 struct OsExitEvent
 {
-	int32_t code;
+	s32 code;
 };
 
 /// Represents an event fired by mouse.
@@ -37,10 +37,10 @@ struct OsMouseEvent
 
 	OsMouseEvent::Enum type;
 	MouseButton::Enum button;
-	int16_t x;
-	int16_t y;
+	s16 x;
+	s16 y;
 	bool pressed;
-	float wheel;
+	f32 wheel;
 };
 
 /// Represents an event fired by keyboard.
@@ -60,9 +60,9 @@ struct OsTouchEvent
 	};
 
 	OsTouchEvent::Enum type;
-	uint8_t pointer_id;
-	int16_t x;
-	int16_t y;
+	u8 pointer_id;
+	s16 x;
+	s16 y;
 	bool pressed;
 };
 
@@ -77,21 +77,21 @@ struct OsJoypadEvent
 	};
 
 	OsJoypadEvent::Enum type;
-	uint8_t index;
+	u8 index;
 	bool connected;
-	uint8_t button;
+	u8 button;
 	bool pressed;
-	float x;
-	float y;
-	float z;
+	f32 x;
+	f32 y;
+	f32 z;
 };
 
 /// Represents an event fired by accelerometer.
 struct OsAccelerometerEvent
 {
-	float x;
-	float y;
-	float z;
+	f32 x;
+	f32 y;
+	f32 z;
 };
 
 struct OsEvent
@@ -139,7 +139,7 @@ struct OsEventQueue
 	{
 	}
 
-	void push_mouse_event(uint16_t x, uint16_t y)
+	void push_mouse_event(u16 x, u16 y)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::MOUSE;
@@ -150,7 +150,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_mouse_event(int16_t x, int16_t y, MouseButton::Enum b, bool pressed)
+	void push_mouse_event(s16 x, s16 y, MouseButton::Enum b, bool pressed)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::MOUSE;
@@ -163,7 +163,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_mouse_event(int16_t x, int16_t y, float wheel)
+	void push_mouse_event(s16 x, s16 y, f32 wheel)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::MOUSE;
@@ -185,7 +185,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_touch_event(int16_t x, int16_t y, uint8_t pointer_id)
+	void push_touch_event(s16 x, s16 y, u8 pointer_id)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::TOUCH;
@@ -197,7 +197,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_joypad_event(uint8_t i, bool connected)
+	void push_joypad_event(u8 i, bool connected)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::JOYPAD;
@@ -208,7 +208,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_joypad_event(uint8_t i, uint8_t button, bool pressed)
+	void push_joypad_event(u8 i, u8 button, bool pressed)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::JOYPAD;
@@ -220,7 +220,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_joypad_event(uint8_t i, uint8_t axis, float x, float y, float z)
+	void push_joypad_event(u8 i, u8 axis, f32 x, f32 y, f32 z)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::JOYPAD;
@@ -234,7 +234,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_touch_event(int16_t x, int16_t y, uint8_t pointer_id, bool pressed)
+	void push_touch_event(s16 x, s16 y, u8 pointer_id, bool pressed)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::TOUCH;
@@ -247,7 +247,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_exit_event(int32_t code)
+	void push_exit_event(s32 code)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::EXIT;
@@ -270,7 +270,7 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	void push_metrics_event(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+	void push_metrics_event(u16 x, u16 y, u16 width, u16 height)
 	{
 		OsEvent ev;
 		ev.type = OsEvent::METRICS;

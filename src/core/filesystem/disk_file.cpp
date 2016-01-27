@@ -26,7 +26,7 @@ void DiskFile::close()
 	_file.close();
 }
 
-void DiskFile::seek(uint32_t position)
+void DiskFile::seek(u32 position)
 {
 	_file.seek(position);
 }
@@ -36,17 +36,17 @@ void DiskFile::seek_to_end()
 	_file.seek_to_end();
 }
 
-void DiskFile::skip(uint32_t bytes)
+void DiskFile::skip(u32 bytes)
 {
 	_file.skip(bytes);
 }
 
-uint32_t DiskFile::read(void* data, uint32_t size)
+u32 DiskFile::read(void* data, u32 size)
 {
 	return _file.read(data, size);
 }
 
-uint32_t DiskFile::write(const void* data, uint32_t size)
+u32 DiskFile::write(const void* data, u32 size)
 {
 	return _file.write(data, size);
 }
@@ -66,12 +66,12 @@ void DiskFile::flush()
 	_file.flush();
 }
 
-uint32_t DiskFile::position()
+u32 DiskFile::position()
 {
 	return _file.position();
 }
 
-uint32_t DiskFile::size()
+u32 DiskFile::size()
 {
 	return _file.size();
 }

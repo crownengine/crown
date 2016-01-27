@@ -17,20 +17,20 @@ class LinearAllocator : public Allocator
 {
 	Allocator* _backing;
 	void* _physical_start;
-	uint32_t _total_size;
-	uint32_t _offset;
+	u32 _total_size;
+	u32 _offset;
 
 public:
 
 	/// Allocates @a size bytes from @a backing.
-	LinearAllocator(Allocator& backing, uint32_t size);
+	LinearAllocator(Allocator& backing, u32 size);
 
 	/// Uses @a size bytes of memory from @a start.
-	LinearAllocator(void* start, uint32_t size);
+	LinearAllocator(void* start, u32 size);
 	~LinearAllocator();
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
 	/// @note
@@ -43,10 +43,10 @@ public:
 	void clear();
 
 	/// @copydoc Allocator::allocated_size()
-	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+	u32 allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
 
 	/// @copydoc Allocator::total_allocated()
-	uint32_t total_allocated() { return _offset; }
+	u32 total_allocated() { return _offset; }
 };
 
 } // namespace crown

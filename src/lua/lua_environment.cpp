@@ -164,7 +164,7 @@ void LuaEnvironment::load_module_constructor(const char* module, const lua_CFunc
 	lua_pop(L, -1);
 }
 
-void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
+void LuaEnvironment::call_global(const char* func, u8 argc, ...)
 {
 	CE_ASSERT_NOT_NULL(func);
 
@@ -176,14 +176,14 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 	lua_pushcfunction(L, error_handler);
 	lua_getglobal(L, func);
 
-	for (uint8_t i = 0; i < argc; i++)
+	for (u8 i = 0; i < argc; i++)
 	{
 		const int type = va_arg(vl, int);
 		switch (type)
 		{
 			case ARGUMENT_FLOAT:
 			{
-				stack.push_float(va_arg(vl, double));
+				stack.push_float(va_arg(vl, f64));
 				break;
 			}
 			default:

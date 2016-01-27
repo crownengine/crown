@@ -16,7 +16,7 @@ ProxyAllocator::ProxyAllocator(Allocator& allocator, const char* name)
 	CE_ASSERT(name != NULL, "Name must be != NULL");
 }
 
-void* ProxyAllocator::allocate(uint32_t size, uint32_t align)
+void* ProxyAllocator::allocate(u32 size, u32 align)
 {
 	void* p = _allocator.allocate(size, align);
 	ALLOCATE_MEMORY(_name, _allocator.allocated_size(p));

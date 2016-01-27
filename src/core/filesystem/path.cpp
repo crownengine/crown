@@ -33,8 +33,8 @@ namespace path
 
 	void join(const char* a, const char* b, DynamicString& path)
 	{
-		const uint32_t la = strlen32(a);
-		const uint32_t lb = strlen32(b);
+		const u32 la = strlen32(a);
+		const u32 lb = strlen32(b);
 		path.reserve(la + lb + 1);
 		path += a;
 		path += PATH_SEPARATOR;

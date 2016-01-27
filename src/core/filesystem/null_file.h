@@ -30,28 +30,28 @@ public:
 	void close() {}
 
 	/// @copydoc File::seek()
-	void seek(uint32_t position) { (void)position; }
+	void seek(u32 position) { (void)position; }
 
 	/// @copydoc File::seek_to_end()
 	void seek_to_end() {}
 
 	/// @copydoc File::skip()
-	void skip(uint32_t bytes) { (void)bytes; }
+	void skip(u32 bytes) { (void)bytes; }
 
 	/// @copydoc File::read()
 	/// @note
 	///	Fills buffer with zeroes
-	uint32_t read(void* data, uint32_t size)
+	u32 read(void* data, u32 size)
 	{
-		for (uint32_t i = 0; i < size; ++i)
+		for (u32 i = 0; i < size; ++i)
 		{
-			((uint8_t*)data)[i] = 0;
+			((u8*)data)[i] = 0;
 		}
 		return size;
 	}
 
 	/// @copydoc File::write()
-	uint32_t write(const void* /*data*/, uint32_t size)
+	u32 write(const void* /*data*/, u32 size)
 	{
 		return size;
 	}
@@ -72,12 +72,12 @@ public:
 	/// @copydoc File::size()
 	/// @note
 	///	Returns always 0xFFFFFFFF
-	uint32_t size() { return ~0; }
+	u32 size() { return ~0; }
 
 	/// @copydoc File::position()
 	/// @note
 	///	Returns always zero
-	uint32_t position() { return 0; }
+	u32 position() { return 0; }
 };
 
 } // namespace crown

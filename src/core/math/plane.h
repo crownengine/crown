@@ -22,7 +22,7 @@ namespace plane
 	Plane& normalize(Plane& p);
 
 	/// Returns the signed distance between plane @a p and point @a point.
-	float distance_to_point(const Plane& p, const Vector3& point);
+	f32 distance_to_point(const Plane& p, const Vector3& point);
 
 } // namespace plane
 
@@ -38,12 +38,12 @@ namespace plane
 
 	inline Plane& normalize(Plane& p)
 	{
-		const float len = length(p.n);
+		const f32 len = length(p.n);
 
 		if (fequal(len, 0.0f))
 			return p;
 
-		const float inv_len = 1.0f / len;
+		const f32 inv_len = 1.0f / len;
 
 		p.n *= inv_len;
 		p.d *= inv_len;
@@ -51,7 +51,7 @@ namespace plane
 		return p;
 	}
 
-	inline float distance_to_point(const Plane& p, const Vector3& point)
+	inline f32 distance_to_point(const Plane& p, const Vector3& point)
 	{
 		return dot(p.n, point) + p.d;
 	}

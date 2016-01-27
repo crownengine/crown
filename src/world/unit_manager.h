@@ -17,8 +17,8 @@ namespace crown
 /// @ingroup World
 class UnitManager
 {
-	Array<uint8_t> _generation;
-	Queue<uint32_t> _free_indices;
+	Array<u8> _generation;
+	Queue<u32> _free_indices;
 
 	typedef void (*DestroyFunction)(UnitId unit, void* user_ptr);
 
@@ -34,7 +34,7 @@ public:
 
 	UnitManager(Allocator& a);
 
-	UnitId make_unit(uint32_t idx, uint8_t gen);
+	UnitId make_unit(u32 idx, u8 gen);
 
 	/// Creates a new empty unit.
 	UnitId create();

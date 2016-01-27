@@ -18,7 +18,7 @@ namespace crown
 namespace map
 {
 	/// Returns the number of items in the map @a m.
-	template <typename TKey, typename TValue> uint32_t size(const Map<TKey, TValue>& m);
+	template <typename TKey, typename TValue> u32 size(const Map<TKey, TValue>& m);
 
 	/// Returns whether the given @a key exists in the map @a m.
 	template <typename TKey, typename TValue> bool has(const Map<TKey, TValue>& m, const TKey& key);
@@ -45,39 +45,39 @@ namespace map
 
 namespace map_internal
 {
-	const uint32_t BLACK = 0xB1B1B1B1u;
-	const uint32_t RED = 0xEDEDEDEDu;
-	const uint32_t NIL = 0xFFFFFFFFu;
+	const u32 BLACK = 0xB1B1B1B1u;
+	const u32 RED = 0xEDEDEDEDu;
+	const u32 NIL = 0xFFFFFFFFu;
 
 	template <typename TKey, typename TValue>
-	inline uint32_t root(const Map<TKey, TValue>& m)
+	inline u32 root(const Map<TKey, TValue>& m)
 	{
 		return m._root;
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t parent(const Map<TKey, TValue>& m, uint32_t n)
+	inline u32 parent(const Map<TKey, TValue>& m, u32 n)
 	{
 		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
 		return m._data[n].parent;
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t left(const Map<TKey, TValue>& m, uint32_t n)
+	inline u32 left(const Map<TKey, TValue>& m, u32 n)
 	{
 		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
 		return m._data[n].left;
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t right(const Map<TKey, TValue>& m, uint32_t n)
+	inline u32 right(const Map<TKey, TValue>& m, u32 n)
 	{
 		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
 		return m._data[n].right;
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t color(const Map<TKey, TValue>& m, uint32_t n)
+	inline u32 color(const Map<TKey, TValue>& m, u32 n)
 	{
 		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
 		return m._data[n].color;
@@ -85,7 +85,7 @@ namespace map_internal
 
 	#ifdef RBTREE_VERIFY
 	template<typename TKey, typename TValue>
-	inline int32_t dbg_verify(Map<TKey, TValue>& m, uint32_t n)
+	inline s32 dbg_verify(Map<TKey, TValue>& m, u32 n)
 	{
 		if (n == m._sentinel)
 		{
@@ -104,8 +104,8 @@ namespace map_internal
 			CE_ASSERT(m._data[n].pair.first < m._data[right(m, n)].pair.first, "Bad RBTree");
 		}
 
-		int32_t bhL = dbg_verify(m, left(m, n));
-		int32_t bhR = dbg_verify(m, right(m, n));
+		s32 bhL = dbg_verify(m, left(m, n));
+		s32 bhR = dbg_verify(m, right(m, n));
 		CE_ASSERT(bhL == bhR, "Bad RBTree");
 
 		if (color(m, n) == BLACK)
@@ -124,9 +124,9 @@ namespace map_internal
 	}
 
 	template<typename TKey, typename TValue>
-	inline int32_t dump(Map<TKey, TValue>& m)
+	inline s32 dump(Map<TKey, TValue>& m)
 	{
-		for (uint32_t i = 0; i < vector::size(m._data); i++)
+		for (u32 i = 0; i < vector::size(m._data); i++)
 		{
 			printf("%d = [%d, %d, %d] ", i, parent(m, i), left(m, i), right(m, i));
 		}
@@ -136,7 +136,7 @@ namespace map_internal
 	#endif
 
 	template <typename TKey, typename TValue>
-	inline uint32_t min(const Map<TKey, TValue>& m, uint32_t x)
+	inline u32 min(const Map<TKey, TValue>& m, u32 x)
 	{
 		if (x == m._sentinel)
 		{
@@ -152,7 +152,7 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t max(const Map<TKey, TValue>& m, uint32_t x)
+	inline u32 max(const Map<TKey, TValue>& m, u32 x)
 	{
 		if (x == m._sentinel)
 		{
@@ -168,14 +168,14 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t successor(const Map<TKey, TValue>& m, uint32_t x)
+	inline u32 successor(const Map<TKey, TValue>& m, u32 x)
 	{
 		if (right(m, x) != m._sentinel)
 		{
 			return min(m, right(m, x));
 		}
 
-		uint32_t y = parent(m, x);
+		u32 y = parent(m, x);
 
 		while (y != NIL && x == right(m, y))
 		{
@@ -187,14 +187,14 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t predecessor(const Map<TKey, TValue>& m, uint32_t x)
+	inline u32 predecessor(const Map<TKey, TValue>& m, u32 x)
 	{
 		if (left(m, x) != m._sentinel)
 		{
 			return max(m, left(m, x));
 		}
 
-		uint32_t y = parent(m, x);
+		u32 y = parent(m, x);
 
 		while (y != NIL && x == left(m, y))
 		{
@@ -206,11 +206,11 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline void rotate_left(Map<TKey, TValue>& m, uint32_t x)
+	inline void rotate_left(Map<TKey, TValue>& m, u32 x)
 	{
 		CE_ASSERT(x < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), x);
 
-		uint32_t y = right(m, x);
+		u32 y = right(m, x);
 		m._data[x].right = left(m, y);
 
 		if (left(m, y) != m._sentinel)
@@ -241,11 +241,11 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline void rotate_right(Map<TKey, TValue>& m, uint32_t x)
+	inline void rotate_right(Map<TKey, TValue>& m, u32 x)
 	{
 		CE_ASSERT(x < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), x);
 
-		uint32_t y = left(m, x);
+		u32 y = left(m, x);
 		m._data[x].left = right(m, y);
 
 		if (right(m, y) != m._sentinel)
@@ -276,11 +276,11 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline void destroy(Map<TKey, TValue>& m, uint32_t n)
+	inline void destroy(Map<TKey, TValue>& m, u32 n)
 	{
 		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
 
-		uint32_t x = vector::size(m._data) - 1;
+		u32 x = vector::size(m._data) - 1;
 
 		if (x == m._root)
 		{
@@ -323,12 +323,12 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline void insert_fixup(Map<TKey, TValue>& m, uint32_t n)
+	inline void insert_fixup(Map<TKey, TValue>& m, u32 n)
 	{
 		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
 
-		uint32_t x;
-		uint32_t y;
+		u32 x;
+		u32 y;
 
 		while (n != root(m) && color(m, parent(m, n)) == RED)
 		{
@@ -390,9 +390,9 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t inner_find(const Map<TKey, TValue>& m, const TKey& key)
+	inline u32 inner_find(const Map<TKey, TValue>& m, const TKey& key)
 	{
-		uint32_t x = m._root;
+		u32 x = m._root;
 
 		while (x != m._sentinel)
 		{
@@ -424,9 +424,9 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t find_or_fail(const Map<TKey, TValue>& m, const TKey& key)
+	inline u32 find_or_fail(const Map<TKey, TValue>& m, const TKey& key)
 	{
-		uint32_t p = inner_find(m, key);
+		u32 p = inner_find(m, key);
 
 		if (p != m._sentinel && m._data[p].pair.first == key)
 			return p;
@@ -435,9 +435,9 @@ namespace map_internal
 	}
 
 	template <typename TKey, typename TValue>
-	inline uint32_t find_or_add(Map<TKey, TValue>& m, const TKey& key)
+	inline u32 find_or_add(Map<TKey, TValue>& m, const TKey& key)
 	{
-		uint32_t p = inner_find(m, key);
+		u32 p = inner_find(m, key);
 
 		if (p != m._sentinel && m._data[p].pair.first == key)
 		{
@@ -485,7 +485,7 @@ namespace map_internal
 namespace map
 {
 	template <typename TKey, typename TValue>
-	uint32_t size(const Map<TKey, TValue>& m)
+	u32 size(const Map<TKey, TValue>& m)
 	{
 		CE_ASSERT(vector::size(m._data) > 0, "Bad Map"); // There should be at least sentinel
 		return vector::size(m._data) - 1;
@@ -500,7 +500,7 @@ namespace map
 	template <typename TKey, typename TValue>
 	inline const TValue& get(const Map<TKey, TValue>& m, const TKey& key, const TValue& deffault)
 	{
-		uint32_t p = map_internal::inner_find(m, key);
+		u32 p = map_internal::inner_find(m, key);
 
 		if (p != m._sentinel && m._data[p].pair.first == key)
 		{
@@ -520,9 +520,9 @@ namespace map
 		node.left = m._sentinel;
 		node.right = m._sentinel;
 		node.parent = map_internal::NIL;
-		uint32_t n = vector::push_back(m._data, node);
-		uint32_t x = m._root;
-		uint32_t y = map_internal::NIL;
+		u32 n = vector::push_back(m._data, node);
+		u32 x = m._root;
+		u32 y = map_internal::NIL;
 
 		if (x == m._sentinel)
 			m._root = n;
@@ -558,15 +558,15 @@ namespace map
 	{
 		using namespace map_internal;
 
-		uint32_t n = inner_find(m, key);
+		u32 n = inner_find(m, key);
 
 		if (!(m._data[n].pair.first == key))
 		{
 			return;
 		}
 
-		uint32_t x;
-		uint32_t y;
+		u32 x;
+		u32 y;
 
 		if (left(m, n) == m._sentinel || right(m, n) == m._sentinel)
 		{
@@ -613,7 +613,7 @@ namespace map
 		// Do the fixup
 		if (color(m, y) == map_internal::BLACK)
 		{
-			uint32_t y;
+			u32 y;
 
 			while (x != m._root && color(m, x) == map_internal::BLACK)
 			{

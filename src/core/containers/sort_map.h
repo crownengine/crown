@@ -16,7 +16,7 @@ namespace crown
 namespace sort_map
 {
 	/// Returns the number of items in the map @m.
-	template <typename TKey, typename TValue, typename Compare> uint32_t size(const SortMap<TKey, TValue, Compare>& m);
+	template <typename TKey, typename TValue, typename Compare> u32 size(const SortMap<TKey, TValue, Compare>& m);
 
 	/// Returns whether the @a key exists in the map.
 	template <typename TKey, typename TValue, typename Compare> bool has(const SortMap<TKey, TValue, Compare>& m, const TKey& key);
@@ -48,11 +48,11 @@ namespace sort_map
 
 namespace sort_map_internal
 {
-	const uint32_t END_OF_LIST = 0xffffffffu;
+	const u32 END_OF_LIST = 0xffffffffu;
 
 	struct FindResult
 	{
-		uint32_t item_i;
+		u32 item_i;
 	};
 
 	template <typename TKey, typename TValue, typename Compare>
@@ -86,7 +86,7 @@ namespace sort_map_internal
 			sort_map_internal::CompareEntry<TKey, TValue, Compare>());
 
 		if (first != vector::end(m._data) && !(key < first->pair.first))
-			result.item_i = uint32_t(first - vector::begin(m._data));
+			result.item_i = u32(first - vector::begin(m._data));
 
 		return result;
 	}
@@ -95,7 +95,7 @@ namespace sort_map_internal
 namespace sort_map
 {
 	template <typename TKey, typename TValue, typename Compare>
-	inline uint32_t size(const SortMap<TKey, TValue, Compare>& m)
+	inline u32 size(const SortMap<TKey, TValue, Compare>& m)
 	{
 		return vector::size(m._data);
 	}

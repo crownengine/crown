@@ -20,7 +20,7 @@ namespace crown
 /// 1. It will not work incrementally.
 /// 2. It will not produce the same results on little-endian and big-endian
 ///    machines.
-uint32_t murmur32(const void* key, uint32_t len, uint32_t seed)
+u32 murmur32(const void* key, u32 len, u32 seed)
 {
 	// 'm' and 'r' are mixing constants generated offline.
 	// They're not really 'magic', they just happen to work well.
@@ -66,19 +66,19 @@ uint32_t murmur32(const void* key, uint32_t len, uint32_t seed)
 	return h;
 }
 
-uint64_t murmur64(const void* key, uint32_t len, uint64_t seed)
+u64 murmur64(const void* key, u32 len, u64 seed)
 {
-	const uint64_t m = 0xc6a4a7935bd1e995ull;
+	const u64 m = 0xc6a4a7935bd1e995ull;
 	const int r = 47;
 
-	uint64_t h = seed ^ (len * m);
+	u64 h = seed ^ (len * m);
 
-	const uint64_t * data = (const uint64_t *)key;
-	const uint64_t * end = data + (len/8);
+	const u64 * data = (const u64 *)key;
+	const u64 * end = data + (len/8);
 
 	while(data != end)
 	{
-		uint64_t k = *data++;
+		u64 k = *data++;
 
 		k *= m;
 		k ^= k >> r;
@@ -92,13 +92,13 @@ uint64_t murmur64(const void* key, uint32_t len, uint64_t seed)
 
 	switch(len & 7)
 	{
-		case 7: h ^= uint64_t(data2[6]) << 48;
-		case 6: h ^= uint64_t(data2[5]) << 40;
-		case 5: h ^= uint64_t(data2[4]) << 32;
-		case 4: h ^= uint64_t(data2[3]) << 24;
-		case 3: h ^= uint64_t(data2[2]) << 16;
-		case 2: h ^= uint64_t(data2[1]) << 8;
-		case 1: h ^= uint64_t(data2[0]);
+		case 7: h ^= u64(data2[6]) << 48;
+		case 6: h ^= u64(data2[5]) << 40;
+		case 5: h ^= u64(data2[4]) << 32;
+		case 4: h ^= u64(data2[3]) << 24;
+		case 3: h ^= u64(data2[2]) << 16;
+		case 2: h ^= u64(data2[1]) << 8;
+		case 1: h ^= u64(data2[0]);
 		h *= m;
 	};
 

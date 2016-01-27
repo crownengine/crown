@@ -25,25 +25,25 @@ namespace aabb
 	Vector3 center(const AABB& b);
 
 	/// Returns the radius of the box @a b.
-	float radius(const AABB& b);
+	f32 radius(const AABB& b);
 
 	/// Returns the volume of the box @a b.
-	float volume(const AABB& b);
+	f32 volume(const AABB& b);
 
 	/// Adds @a num @a points to the box @a b, expanding its bounds if necessary.
-	void add_points(AABB& a, uint32_t num, uint32_t stride, const void* points);
+	void add_points(AABB& a, u32 num, u32 stride, const void* points);
 
 	/// Adds @a num @a points to the box @a b, expanding its bounds if necessary.
-	void add_points(AABB& b, uint32_t num, const Vector3* points);
+	void add_points(AABB& b, u32 num, const Vector3* points);
 
 	/// Adds @a num @a boxes to the box @a b, expanding its bounds if necessary.
-	void add_boxes(AABB& b, uint32_t num, const AABB* boxes);
+	void add_boxes(AABB& b, u32 num, const AABB* boxes);
 
 	/// Returns whether point @a p is contained in the box @a b.
 	bool contains_point(const AABB& b, const Vector3& p);
 
 	/// Returns the @a index -th vertex of the box.
-	Vector3 vertex(const AABB& b, uint32_t index);
+	Vector3 vertex(const AABB& b, u32 index);
 
 	/// Returns the box enclosing @a b transformed by @a m.
 	AABB transformed(const AABB& b, const Matrix4x4& m);
@@ -68,18 +68,18 @@ namespace aabb
 		return (b.min + b.max) * 0.5f;
 	}
 
-	inline float radius(const AABB& b)
+	inline f32 radius(const AABB& b)
 	{
 		return length(b.max - (b.min + b.max) * 0.5f);
 	}
-	inline float volume(const AABB& b)
+	inline f32 volume(const AABB& b)
 	{
 		return (b.max.x - b.min.x) * (b.max.y - b.min.y) * (b.max.z - b.min.z);
 	}
 
-	inline void add_points(AABB& b, uint32_t num, uint32_t stride, const void* points)
+	inline void add_points(AABB& b, u32 num, u32 stride, const void* points)
 	{
-		for (uint32_t i = 0; i < num; ++i)
+		for (u32 i = 0; i < num; ++i)
 		{
 			const Vector3* p = (const Vector3*)points;
 
@@ -94,14 +94,14 @@ namespace aabb
 		}
 	}
 
-	inline void add_points(AABB& b, uint32_t num, const Vector3* points)
+	inline void add_points(AABB& b, u32 num, const Vector3* points)
 	{
 		add_points(b, num, sizeof(Vector3), points);
 	}
 
-	inline void add_boxes(AABB& b, uint32_t num, const AABB* boxes)
+	inline void add_boxes(AABB& b, u32 num, const AABB* boxes)
 	{
-		for (uint32_t i = 0; i < num; ++i)
+		for (u32 i = 0; i < num; ++i)
 		{
 			const AABB& box = boxes[i];
 
@@ -125,7 +125,7 @@ namespace aabb
 			;
 	}
 
-	inline Vector3 vertex(const AABB& b, uint32_t index)
+	inline Vector3 vertex(const AABB& b, u32 index)
 	{
 		switch (index)
 		{

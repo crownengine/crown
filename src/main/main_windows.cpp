@@ -23,7 +23,7 @@
 
 namespace crown
 {
-static KeyboardButton::Enum win_translate_key(int32_t winkey)
+static KeyboardButton::Enum win_translate_key(s32 winkey)
 {
 	switch (winkey)
 	{
@@ -154,7 +154,7 @@ struct Joypad
 
 	void update(OsEventQueue& queue)
 	{
-		for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		{
 			XINPUT_STATE state;
 			memset(&state, 0, sizeof(state));
@@ -176,7 +176,7 @@ struct Joypad
 			const WORD curr = state.Gamepad.wButtons;
 			if (diff != 0)
 			{
-				for (uint8_t bb = 0; bb < CE_COUNTOF(s_xinput_to_joypad); ++bb)
+				for (u8 bb = 0; bb < CE_COUNTOF(s_xinput_to_joypad); ++bb)
 				{
 					WORD bit = s_xinput_to_joypad[bb].bit;
 					if (bit & diff)
@@ -194,7 +194,7 @@ struct Joypad
 					? value : 0;
 
 				_axis[0].lx = value != 0
-					? float(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / float(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+					? f32(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
 					: 0.0f
 					;
 				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
@@ -208,7 +208,7 @@ struct Joypad
 					? value : 0;
 
 				_axis[0].ly = value != 0
-					? float(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / float(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+					? f32(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
 					: 0.0f
 					;
 				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
@@ -221,7 +221,7 @@ struct Joypad
 				value = value > XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
 
 				_axis[0].lz = value != 0
-					? float(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / float(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+					? f32(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / f32(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
 					: 0.0f
 					;
 				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
@@ -235,7 +235,7 @@ struct Joypad
 					? value : 0;
 
 				_axis[0].rx = value != 0
-					? float(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / float(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+					? f32(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
 					: 0.0f
 					;
 				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
@@ -249,7 +249,7 @@ struct Joypad
 					? value : 0;
 
 				_axis[0].ry = value != 0
-					? float(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / float(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+					? f32(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
 					: 0.0f
 					;
 				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
@@ -262,7 +262,7 @@ struct Joypad
 				value = value > XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
 
 				_axis[0].rz = value != 0
-					? float(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / float(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+					? f32(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / f32(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
 					: 0.0f
 					;
 				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
@@ -274,8 +274,8 @@ struct Joypad
 
 	struct Axis
 	{
-		float lx, ly, lz;
-		float rx, ry, rz;
+		f32 lx, ly, lz;
+		f32 rx, ry, rz;
 	};
 
 	XINPUT_STATE _state[CROWN_MAX_JOYPADS];
@@ -290,7 +290,7 @@ struct MainThreadArgs
 	DeviceOptions* opts;
 };
 
-int32_t func(void* data)
+s32 func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*)data;
 	crown::init(*args->opts);
@@ -377,8 +377,8 @@ struct WindowsDevice
 			}
 			case WM_SIZE:
 			{
-				uint32_t width = GET_X_LPARAM(lparam);
-				uint32_t height = GET_Y_LPARAM(lparam);
+				u32 width = GET_X_LPARAM(lparam);
+				u32 height = GET_Y_LPARAM(lparam);
 				_queue.push_metrics_event(0, 0, width, height);
 				break;
 			}
@@ -400,40 +400,40 @@ struct WindowsDevice
 			}
 			case WM_MOUSEWHEEL:
 			{
-				int32_t mx = GET_X_LPARAM(lparam);
-				int32_t my = GET_Y_LPARAM(lparam);
+				s32 mx = GET_X_LPARAM(lparam);
+				s32 my = GET_Y_LPARAM(lparam);
 				short delta = GET_WHEEL_DELTA_WPARAM(wparam);
-				_queue.push_mouse_event(mx, my, (float)(delta/WHEEL_DELTA));
+				_queue.push_mouse_event(mx, my, (f32)(delta/WHEEL_DELTA));
 				break;
 			}
 			case WM_MOUSEMOVE:
 			{
-				int32_t mx = GET_X_LPARAM(lparam);
-				int32_t my = GET_Y_LPARAM(lparam);
+				s32 mx = GET_X_LPARAM(lparam);
+				s32 my = GET_Y_LPARAM(lparam);
 				_queue.push_mouse_event(mx, my);
 				break;
 			}
 			case WM_LBUTTONDOWN:
 			case WM_LBUTTONUP:
 			{
-				int32_t mx = GET_X_LPARAM(lparam);
-				int32_t my = GET_Y_LPARAM(lparam);
+				s32 mx = GET_X_LPARAM(lparam);
+				s32 my = GET_Y_LPARAM(lparam);
 				_queue.push_mouse_event(mx, my, MouseButton::LEFT, id == WM_LBUTTONDOWN);
 				break;
 			}
 			case WM_RBUTTONUP:
 			case WM_RBUTTONDOWN:
 			{
-				int32_t mx = GET_X_LPARAM(lparam);
-				int32_t my = GET_Y_LPARAM(lparam);
+				s32 mx = GET_X_LPARAM(lparam);
+				s32 my = GET_Y_LPARAM(lparam);
 				_queue.push_mouse_event(mx, my, MouseButton::RIGHT, id == WM_RBUTTONDOWN);
 				break;
 			}
 			case WM_MBUTTONDOWN:
 			case WM_MBUTTONUP:
 			{
-				int32_t mx = GET_X_LPARAM(lparam);
-				int32_t my = GET_Y_LPARAM(lparam);
+				s32 mx = GET_X_LPARAM(lparam);
+				s32 my = GET_Y_LPARAM(lparam);
 				_queue.push_mouse_event(mx, my, MouseButton::MIDDLE, id == WM_MBUTTONDOWN);
 				break;
 			}
@@ -475,10 +475,10 @@ LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, L
 class WindowWin : public Window
 {
 	HWND _hwnd;
-	uint16_t _x;
-	uint16_t _y;
-	uint16_t _width;
-	uint16_t _height;
+	u16 _x;
+	u16 _y;
+	u16 _width;
+	u16 _height;
 
 public:
 
@@ -492,7 +492,7 @@ public:
 		_hwnd = s_wdvc._hwnd;
 	}
 
-	void open(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t /*parent*/)
+	void open(u16 x, u16 y, u16 width, u16 height, u32 /*parent*/)
 	{
 		_x = x;
 		_y = y;
@@ -520,14 +520,14 @@ public:
 		ShowWindow(_hwnd, SW_HIDE);
 	}
 
-	void resize(uint16_t width, uint16_t height)
+	void resize(u16 width, u16 height)
 	{
 		_width = width;
 		_height = height;
 		MoveWindow(_hwnd, _x, _y, width, height, FALSE);
 	}
 
-	void move(uint16_t x, uint16_t y)
+	void move(u16 x, u16 y)
 	{
 		_x = x;
 		_y = y;
@@ -579,7 +579,7 @@ class DisplayWin : public Display
 	{
 	}
 
-	void set_mode(uint32_t /*id*/)
+	void set_mode(u32 /*id*/)
 	{
 	}
 };

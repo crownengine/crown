@@ -202,7 +202,7 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_primitive_type_map) == PrimitiveType::COUNT);
 
-	static uint64_t _bgfx_depth_function_map[] =
+	static u64 _bgfx_depth_function_map[] =
 	{
 		BGFX_STATE_DEPTH_TEST_LESS,     // DepthFunction::LESS
 		BGFX_STATE_DEPTH_TEST_LEQUAL,   // DepthFunction::LEQUAL
@@ -215,7 +215,7 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_depth_function_map) == DepthFunction::COUNT);
 
-	static uint64_t _bgfx_blend_function_map[] =
+	static u64 _bgfx_blend_function_map[] =
 	{
 		BGFX_STATE_BLEND_ZERO,          // BlendFunction::ZERO
 		BGFX_STATE_BLEND_ONE,           // BlendFunction::ONE
@@ -233,7 +233,7 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_blend_function_map) == BlendFunction::COUNT);
 
-	static uint64_t _bgfx_blend_equation_map[] =
+	static u64 _bgfx_blend_equation_map[] =
 	{
 		BGFX_STATE_BLEND_EQUATION_ADD,    // BlendEquation::ADD
 		BGFX_STATE_BLEND_EQUATION_SUB,    // BlendEquation::SUB
@@ -243,14 +243,14 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_blend_equation_map) == BlendEquation::COUNT);
 
-	static uint64_t _bgfx_cull_mode_map[] =
+	static u64 _bgfx_cull_mode_map[] =
 	{
 		BGFX_STATE_CULL_CW,  // CullMode::CW
 		BGFX_STATE_CULL_CCW, // CullMode::CCW
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_cull_mode_map) == CullMode::COUNT);
 
-	static uint64_t _bgfx_primitive_type_map[] =
+	static u64 _bgfx_primitive_type_map[] =
 	{
 		BGFX_STATE_PT_TRISTRIP,  // PrimitiveType::PT_TRISTRIP
 		BGFX_STATE_PT_LINES,     // PrimitiveType::PT_LINES
@@ -261,7 +261,7 @@ namespace shader_resource
 
 	static DepthFunction::Enum name_to_depth_function(const char* name)
 	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_depth_test_map); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(_depth_test_map); ++i)
 		{
 			if (strcmp(name, _depth_test_map[i].name) == 0)
 				return _depth_test_map[i].value;
@@ -272,7 +272,7 @@ namespace shader_resource
 
 	static BlendFunction::Enum name_to_blend_function(const char* name)
 	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_blend_function_map); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(_blend_function_map); ++i)
 		{
 			if (strcmp(name, _blend_function_map[i].name) == 0)
 				return _blend_function_map[i].value;
@@ -283,7 +283,7 @@ namespace shader_resource
 
 	static BlendEquation::Enum name_to_blend_equation(const char* name)
 	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_blend_equation_map); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(_blend_equation_map); ++i)
 		{
 			if (strcmp(name, _blend_equation_map[i].name) == 0)
 				return _blend_equation_map[i].value;
@@ -294,7 +294,7 @@ namespace shader_resource
 
 	static CullMode::Enum name_to_cull_mode(const char* name)
 	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_cull_mode_map); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(_cull_mode_map); ++i)
 		{
 			if (strcmp(name, _cull_mode_map[i].name) == 0)
 				return _cull_mode_map[i].value;
@@ -305,7 +305,7 @@ namespace shader_resource
 
 	static PrimitiveType::Enum name_to_primitive_type(const char* name)
 	{
-		for (uint32_t i = 0; i < CE_COUNTOF(_primitive_type_map); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(_primitive_type_map); ++i)
 		{
 			if (strcmp(name, _primitive_type_map[i].name) == 0)
 				return _primitive_type_map[i].value;
@@ -367,30 +367,30 @@ namespace shader_resource
 			_primitive_type = PrimitiveType::COUNT;
 		}
 
-		uint64_t encode() const
+		u64 encode() const
 		{
-			const uint64_t depth_func = (_depth_test_enable
+			const u64 depth_func = (_depth_test_enable
 				? _bgfx_depth_function_map[_depth_function]
 				: 0
 				);
-			const uint64_t blend_func = (_blend_enable
+			const u64 blend_func = (_blend_enable
 				? BGFX_STATE_BLEND_FUNC(_bgfx_blend_function_map[_blend_src], _bgfx_blend_function_map[_blend_dst])
 				: 0
 				);
-			const uint64_t blend_eq = (_blend_enable
+			const u64 blend_eq = (_blend_enable
 				? BGFX_STATE_BLEND_EQUATION(_bgfx_blend_equation_map[_blend_equation])
 				: 0
 				);
-			const uint64_t cull_mode = (_cull_mode != CullMode::COUNT
+			const u64 cull_mode = (_cull_mode != CullMode::COUNT
 				? _bgfx_cull_mode_map[_cull_mode]
 				: 0
 				);
-			const uint64_t primitive_type = (_primitive_type != PrimitiveType::COUNT
+			const u64 primitive_type = (_primitive_type != PrimitiveType::COUNT
 				? _bgfx_primitive_type_map[_primitive_type]
 				: 0
 				);
 
-			uint64_t state = 0;
+			u64 state = 0;
 			state |= (_rgb_write_enable   ? BGFX_STATE_RGB_WRITE   : 0);
 			state |= (_alpha_write_enable ? BGFX_STATE_ALPHA_WRITE : 0);
 			state |= (_depth_write_enable ? BGFX_STATE_DEPTH_WRITE : 0);
@@ -506,7 +506,7 @@ namespace shader_resource
 				JsonArray arr(ta);
 				sjson::parse_array(object["include"], arr);
 
-				for (uint32_t i = 0; i < array::size(arr); ++i)
+				for (u32 i = 0; i < array::size(arr); ++i)
 				{
 					DynamicString path(ta);
 					sjson::parse_string(arr[i], path);
@@ -863,9 +863,9 @@ namespace shader_resource
 			delete_temp_files();
 
 			// Write
-			_opts.write(uint32_t(array::size(tmpvs)));
+			_opts.write(u32(array::size(tmpvs)));
 			_opts.write(array::begin(tmpvs), array::size(tmpvs));
-			_opts.write(uint32_t(array::size(tmpfs)));
+			_opts.write(u32(array::size(tmpfs)));
 			_opts.write(array::begin(tmpfs), array::size(tmpfs));
 		}
 	};

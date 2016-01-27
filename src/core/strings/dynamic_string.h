@@ -39,10 +39,10 @@ public:
 	bool operator==(const char* s) const;
 
 	/// Reserves space for at least @n characters.
-	void reserve(uint32_t n);
+	void reserve(u32 n);
 
 	// Returns the length of the string.
-	uint32_t length() const;
+	u32 length() const;
 
 	/// Removes the leading string @a s.
 	/// @note
@@ -153,12 +153,12 @@ inline bool DynamicString::operator==(const char* s) const
 	return strcmp(c_str(), s) == 0;
 }
 
-inline void DynamicString::reserve(uint32_t n)
+inline void DynamicString::reserve(u32 n)
 {
 	array::reserve(_data, n);
 }
 
-inline uint32_t DynamicString::length() const
+inline u32 DynamicString::length() const
 {
 	return strlen32(this->c_str());
 }
@@ -168,8 +168,8 @@ inline void DynamicString::strip_leading(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 	CE_ASSERT(starts_with(s), "String does not start with %s", s);
 
-	const uint32_t my_len = strlen32(c_str());
-	const uint32_t s_len = strlen32(s);
+	const u32 my_len = strlen32(c_str());
+	const u32 s_len = strlen32(s);
 
 	memmove(array::begin(_data), array::begin(_data) + s_len, (my_len - s_len));
 	array::resize(_data, my_len - s_len);
@@ -180,8 +180,8 @@ inline void DynamicString::strip_trailing(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 	CE_ASSERT(ends_with(s), "String does not end with %s", s);
 
-	const uint32_t my_len = strlen32(c_str());
-	const uint32_t s_len = strlen32(s);
+	const u32 my_len = strlen32(c_str());
+	const u32 s_len = strlen32(s);
 	array::resize(_data, my_len - s_len);
 }
 
@@ -195,8 +195,8 @@ inline bool DynamicString::ends_with(const char* s) const
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	const uint32_t my_len = strlen32(c_str());
-	const uint32_t s_len = strlen32(s);
+	const u32 my_len = strlen32(c_str());
+	const u32 s_len = strlen32(s);
 
 	if (my_len >= s_len)
 	{

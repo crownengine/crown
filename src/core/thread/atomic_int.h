@@ -27,7 +27,7 @@ struct AtomicInt
 		__sync_fetch_and_add(&_val, 0);
 		return _val;
 #elif CROWN_PLATFORM_WINDOWS
-		InterlockedExchangeAdd(&_val, (int32_t)0);
+		InterlockedExchangeAdd(&_val, (s32)0);
 		return _val;
 #endif
 	}

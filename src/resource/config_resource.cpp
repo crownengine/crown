@@ -18,7 +18,7 @@ namespace config_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t size = file.size();
+		const u32 size = file.size();
 		char* res = (char*)a.allocate(size + 1);
 		file.read(res, size + 1);
 		res[size] = '\0';

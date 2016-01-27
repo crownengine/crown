@@ -54,14 +54,14 @@ namespace sprite_resource
 		sjson::parse_array(object["frames"], frames);
 
 		// Read width/height
-		const float width         = sjson::parse_float(object["width" ]);
-		const float height        = sjson::parse_float(object["height"]);
-		const uint32_t num_frames = array::size(frames);
+		const f32 width         = sjson::parse_float(object["width" ]);
+		const f32 height        = sjson::parse_float(object["height"]);
+		const u32 num_frames = array::size(frames);
 
-		Array<float> vertices(default_allocator());
-		Array<uint16_t> indices(default_allocator());
-		uint32_t num_idx = 0;
-		for (uint32_t i = 0; i < num_frames; ++i)
+		Array<f32> vertices(default_allocator());
+		Array<u16> indices(default_allocator());
+		u32 num_idx = 0;
+		for (u32 i = 0; i < num_frames; ++i)
 		{
 			SpriteFrame frame;
 			parse_frame(frames[i], frame);
@@ -69,19 +69,19 @@ namespace sprite_resource
 			const SpriteFrame& fd = frame;
 
 			// Compute uv coords
-			const float u0 = fd.region.x / width;
-			const float v0 = fd.region.y / height;
-			const float u1 = (fd.region.x + fd.region.z) / width;
-			const float v1 = (fd.region.y + fd.region.w) / height;
+			const f32 u0 = fd.region.x / width;
+			const f32 v0 = fd.region.y / height;
+			const f32 u1 = (fd.region.x + fd.region.z) / width;
+			const f32 v1 = (fd.region.y + fd.region.w) / height;
 
 			// Compute positions
-			const float w = fd.region.z / CROWN_DEFAULT_PIXELS_PER_METER;
-			const float h = fd.region.w / CROWN_DEFAULT_PIXELS_PER_METER;
+			const f32 w = fd.region.z / CROWN_DEFAULT_PIXELS_PER_METER;
+			const f32 h = fd.region.w / CROWN_DEFAULT_PIXELS_PER_METER;
 
-			const float x0 = fd.scale.x * (-w * 0.5f) + fd.offset.x;
-			const float y0 = fd.scale.y * (-h * 0.5f) + fd.offset.y;
-			const float x1 = fd.scale.x * ( w * 0.5f) + fd.offset.x;
-			const float y1 = fd.scale.y * ( h * 0.5f) + fd.offset.y;
+			const f32 x0 = fd.scale.x * (-w * 0.5f) + fd.offset.x;
+			const f32 y0 = fd.scale.y * (-h * 0.5f) + fd.offset.y;
+			const f32 x1 = fd.scale.x * ( w * 0.5f) + fd.offset.x;
+			const f32 y1 = fd.scale.y * ( h * 0.5f) + fd.offset.y;
 
 			array::push_back(vertices, x0); array::push_back(vertices, y0); // position
 			array::push_back(vertices, u0); array::push_back(vertices, v0); // uv
@@ -95,25 +95,25 @@ namespace sprite_resource
 			array::push_back(vertices, x0); array::push_back(vertices, y1); // position
 			array::push_back(vertices, u0); array::push_back(vertices, v1); // uv
 
-			array::push_back(indices, uint16_t(num_idx)); array::push_back(indices, uint16_t(num_idx + 1)); array::push_back(indices, uint16_t(num_idx + 2));
-			array::push_back(indices, uint16_t(num_idx)); array::push_back(indices, uint16_t(num_idx + 2)); array::push_back(indices, uint16_t(num_idx + 3));
+			array::push_back(indices, u16(num_idx)); array::push_back(indices, u16(num_idx + 1)); array::push_back(indices, u16(num_idx + 2));
+			array::push_back(indices, u16(num_idx)); array::push_back(indices, u16(num_idx + 2)); array::push_back(indices, u16(num_idx + 3));
 			num_idx += 4;
 		}
 
-		const uint32_t num_vertices = array::size(vertices) / 4; // 4 components per vertex
-		const uint32_t num_indices = array::size(indices);
+		const u32 num_vertices = array::size(vertices) / 4; // 4 components per vertex
+		const u32 num_indices = array::size(indices);
 
 		// Write
 		opts.write(SPRITE_VERSION);
 
 		opts.write(num_vertices);
-		for (uint32_t i = 0; i < array::size(vertices); i++)
+		for (u32 i = 0; i < array::size(vertices); i++)
 		{
 			opts.write(vertices[i]);
 		}
 
 		opts.write(num_indices);
-		for (uint32_t i = 0; i < array::size(indices); i++)
+		for (u32 i = 0; i < array::size(indices); i++)
 		{
 			opts.write(indices[i]);
 		}
@@ -123,18 +123,18 @@ namespace sprite_resource
 	{
 		BinaryReader br(file);
 
-		uint32_t version;
+		u32 version;
 		br.read(version);
 
-		uint32_t num_verts;
+		u32 num_verts;
 		br.read(num_verts);
-		const bgfx::Memory* vbmem = bgfx::alloc(num_verts * sizeof(float) * 4);
-		br.read(vbmem->data, num_verts * sizeof(float) * 4);
+		const bgfx::Memory* vbmem = bgfx::alloc(num_verts * sizeof(f32) * 4);
+		br.read(vbmem->data, num_verts * sizeof(f32) * 4);
 
-		uint32_t num_inds;
+		u32 num_inds;
 		br.read(num_inds);
-		const bgfx::Memory* ibmem = bgfx::alloc(num_inds * sizeof(uint16_t));
-		br.read(ibmem->data, num_inds * sizeof(uint16_t));
+		const bgfx::Memory* ibmem = bgfx::alloc(num_inds * sizeof(u16));
+		br.read(ibmem->data, num_inds * sizeof(u16));
 
 		SpriteResource* so = (SpriteResource*) a.allocate(sizeof(SpriteResource));
 		so->vbmem = vbmem;
@@ -173,7 +173,7 @@ namespace sprite_resource
 
 namespace sprite_animation_resource
 {
-	void parse_animation(const char* json, Array<SpriteAnimationName>& names, Array<SpriteAnimationData>& anim_data, Array<uint32_t>& frames)
+	void parse_animation(const char* json, Array<SpriteAnimationName>& names, Array<SpriteAnimationData>& anim_data, Array<u32>& frames)
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
@@ -185,7 +185,7 @@ namespace sprite_animation_resource
 		JsonArray obj_frames(ta);
 		sjson::parse_array(obj["frames"], obj_frames);
 
-		const uint32_t num_frames = array::size(obj_frames);
+		const u32 num_frames = array::size(obj_frames);
 
 		SpriteAnimationData sad;
 		sad.num_frames  = num_frames;
@@ -193,8 +193,8 @@ namespace sprite_animation_resource
 		sad.time        = sjson::parse_float(obj["time"]);
 
 		// Read frames
-		for (uint32_t ff = 0; ff < num_frames; ++ff)
-			array::push_back(frames, (uint32_t)sjson::parse_int(obj_frames[ff]));
+		for (u32 ff = 0; ff < num_frames; ++ff)
+			array::push_back(frames, (u32)sjson::parse_int(obj_frames[ff]));
 
 		array::push_back(names, san);
 		array::push_back(anim_data, sad);
@@ -213,10 +213,10 @@ namespace sprite_animation_resource
 
 		Array<SpriteAnimationName> anim_names(default_allocator());
 		Array<SpriteAnimationData> anim_data(default_allocator());
-		Array<uint32_t> anim_frames(default_allocator());
+		Array<u32> anim_frames(default_allocator());
 
-		const uint32_t num_animations = array::size(animations);
-		for (uint32_t i = 0; i < num_animations; ++i)
+		const u32 num_animations = array::size(animations);
+		for (u32 i = 0; i < num_animations; ++i)
 		{
 			parse_animation(animations[i], anim_names, anim_data, anim_frames);
 		}
@@ -225,7 +225,7 @@ namespace sprite_animation_resource
 		sar.version = SPRITE_ANIMATION_VERSION;
 		sar.num_animations = array::size(anim_names);
 		sar.num_frames = array::size(anim_frames);
-		sar.frames_offset = uint32_t(sizeof(SpriteAnimationResource) +
+		sar.frames_offset = u32(sizeof(SpriteAnimationResource) +
 					sizeof(SpriteAnimationName) * array::size(anim_names) +
 					sizeof(SpriteAnimationData) * array::size(anim_data));
 
@@ -234,19 +234,19 @@ namespace sprite_animation_resource
 		opts.write(sar.num_frames);
 		opts.write(sar.frames_offset);
 
-		for (uint32_t i = 0; i < array::size(anim_names); i++)
+		for (u32 i = 0; i < array::size(anim_names); i++)
 		{
 			opts.write(anim_names[i].id);
 		}
 
-		for (uint32_t i = 0; i < array::size(anim_data); i++)
+		for (u32 i = 0; i < array::size(anim_data); i++)
 		{
 			opts.write(anim_data[i].num_frames);
 			opts.write(anim_data[i].first_frame);
 			opts.write(anim_data[i].time);
 		}
 
-		for (uint32_t i = 0; i < array::size(anim_frames); i++)
+		for (u32 i = 0; i < array::size(anim_frames); i++)
 		{
 			opts.write(anim_frames[i]);
 		}
@@ -254,10 +254,10 @@ namespace sprite_animation_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t file_size = file.size();
+		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(uint32_t*)res == SPRITE_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == SPRITE_VERSION, "Wrong version");
 		return res;
 	}
 
@@ -268,11 +268,11 @@ namespace sprite_animation_resource
 
 	const SpriteAnimationData* get_animation(const SpriteAnimationResource* sar, StringId32 name)
 	{
-		const uint32_t num = sar->num_animations;
+		const u32 num = sar->num_animations;
 		const SpriteAnimationName* begin = (SpriteAnimationName*) ((char*) sar + sizeof(*sar));
 		const SpriteAnimationData* data = (SpriteAnimationData*) ((char*) sar + sizeof(*sar) + sizeof(SpriteAnimationName) * num);
 
-		for (uint32_t i = 0; i < num; i++)
+		for (u32 i = 0; i < num; i++)
 		{
 			if (begin[i].id == name)
 				return &data[i];
@@ -281,9 +281,9 @@ namespace sprite_animation_resource
 		return NULL;
 	}
 
-	const uint32_t* get_animation_frames(const SpriteAnimationResource* sar)
+	const u32* get_animation_frames(const SpriteAnimationResource* sar)
 	{
-		return (uint32_t*) ((char*) sar + sar->frames_offset);
+		return (u32*) ((char*) sar + sar->frames_offset);
 	}
 } // namespace sprite_animation_resource
 } // namespace crown

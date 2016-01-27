@@ -22,14 +22,14 @@ namespace sjson
 	/// Parses the SJSON string @a json ad puts it into @a string.
 	void parse_string(const char* json, DynamicString& string);
 
-	/// Returns the SJSON number @a json as double.
-	double parse_number(const char* json);
+	/// Returns the SJSON number @a json as f64.
+	f64 parse_number(const char* json);
 
 	/// Returns the SJSON number @a json as int.
-	int32_t parse_int(const char* json);
+	s32 parse_int(const char* json);
 
-	/// Returns the SJSON number @a json as float.
-	float parse_float(const char* json);
+	/// Returns the SJSON number @a json as f32.
+	f32 parse_float(const char* json);
 
 	/// Returns the SJSON boolean @a json as bool.
 	bool parse_bool(const char* json);

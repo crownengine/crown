@@ -21,16 +21,16 @@ namespace sphere
 	void reset(Sphere& s);
 
 	/// Returns the volume of the sphere @a s.
-	float volume(const Sphere& s);
+	f32 volume(const Sphere& s);
 
 	/// Adds @a num @a points to the sphere @a s, expanding its bounds if necessary.
-	void add_points(Sphere& s, uint32_t num, uint32_t stride, const void* points);
+	void add_points(Sphere& s, u32 num, u32 stride, const void* points);
 
 	/// Adds @a num @a points to the sphere expanding if necessary.
-	void add_points(Sphere& s, uint32_t num, const Vector3* points);
+	void add_points(Sphere& s, u32 num, const Vector3* points);
 
 	/// Adds @a num @a spheres expanding if necessary.
-	void add_spheres(Sphere& s, uint32_t num, const Sphere* spheres);
+	void add_spheres(Sphere& s, u32 num, const Sphere* spheres);
 
 	/// Returns whether point @a p is contained into the sphere.
 	bool contains_point(const Sphere& s, const Vector3& p);
@@ -44,18 +44,18 @@ namespace sphere
 		s.r = 0.0f;
 	}
 
-	inline float volume(const Sphere& s)
+	inline f32 volume(const Sphere& s)
 	{
 		return (4.0f/3.0f*PI) * (s.r*s.r*s.r);
 	}
 
-	inline void add_points(Sphere& s, uint32_t num, uint32_t stride, const void* points)
+	inline void add_points(Sphere& s, u32 num, u32 stride, const void* points)
 	{
-		for (uint32_t i = 0; i < num; ++i)
+		for (u32 i = 0; i < num; ++i)
 		{
 			const Vector3* p = (const Vector3*)points;
 
-			const float dist = length_squared(*p - s.c);
+			const f32 dist = length_squared(*p - s.c);
 			if (dist > s.r*s.r)
 				s.r = sqrtf(dist);
 
@@ -63,17 +63,17 @@ namespace sphere
 		}
 	}
 
-	inline void add_points(Sphere& s, uint32_t num, const Vector3* points)
+	inline void add_points(Sphere& s, u32 num, const Vector3* points)
 	{
 		add_points(s, num, sizeof(Vector3), points);
 	}
 
-	inline void add_spheres(Sphere& s, uint32_t num, const Sphere* spheres)
+	inline void add_spheres(Sphere& s, u32 num, const Sphere* spheres)
 	{
-		for (uint32_t i = 0; i < num; ++i)
+		for (u32 i = 0; i < num; ++i)
 		{
 			const Sphere si = spheres[i];
-			const float dist = length_squared(si.c - s.c);
+			const f32 dist = length_squared(si.c - s.c);
 
 			if (dist < (si.r + s.r) * (si.r + s.r))
 			{
@@ -85,7 +85,7 @@ namespace sphere
 
 	inline bool contains_point(const Sphere& s, const Vector3& p)
 	{
-		float dist = length_squared(p - s.c);
+		f32 dist = length_squared(p - s.c);
 		return dist < s.r*s.r;
 	}
 } // namespace sphere

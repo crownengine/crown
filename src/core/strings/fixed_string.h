@@ -26,7 +26,7 @@ public:
 	{
 	}
 
-	FixedString(const char* str, uint32_t len)
+	FixedString(const char* str, u32 len)
 		: _length(len)
 		, _data(str)
 	{
@@ -47,7 +47,7 @@ public:
 
 	bool operator==(const char* str) const
 	{
-		const uint32_t len = strlen32(str);
+		const u32 len = strlen32(str);
 		return _length == len && !strncmp(_data, str, len);
 	}
 
@@ -58,11 +58,11 @@ public:
 
 	bool operator<(const FixedString& b) const
 	{
-		const uint32_t len = std::max(_length, b._length);
+		const u32 len = std::max(_length, b._length);
 		return strncmp(_data, b._data, len) < 0;
 	}
 
-	uint32_t length() const
+	u32 length() const
 	{
 		return _length;
 	}
@@ -74,7 +74,7 @@ public:
 
 private:
 
-	uint32_t _length;
+	u32 _length;
 	const char* _data;
 };
 

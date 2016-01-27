@@ -13,41 +13,41 @@ namespace crown
 struct Random
 {
 	/// Initializes the generator with the given @a seed.
-	Random(int32_t seed);
+	Random(s32 seed);
 
 	/// Returns a pseudo-random integer in the range [0, 32767].
-	int32_t integer();
+	s32 integer();
 
 	/// Returns a pseudo-random integer in the range [0, max).
-	int32_t integer(int32_t max);
+	s32 integer(s32 max);
 
-	/// Returns a pseudo-random float in the range [0.0, 1.0].
-	float unit_float();
+	/// Returns a pseudo-random f32 in the range [0.0, 1.0].
+	f32 unit_float();
 
 private:
 
-	int32_t _seed;
+	s32 _seed;
 };
 
-inline Random::Random(int32_t seed)
+inline Random::Random(s32 seed)
 	: _seed(seed)
 {
 }
 
-inline int32_t Random::integer()
+inline s32 Random::integer()
 {
 	_seed = 214013 * _seed + 13737667;
 	return (_seed >> 16) & 0x7fff;
 }
 
-inline int32_t Random::integer(int32_t max)
+inline s32 Random::integer(s32 max)
 {
 	return (max == 0) ? 0 : integer() % max;
 }
 
-inline float Random::unit_float()
+inline f32 Random::unit_float()
 {
-	return integer() / (float)0x7fff;
+	return integer() / (f32)0x7fff;
 }
 
 } // namespace crown

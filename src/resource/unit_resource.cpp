@@ -26,10 +26,10 @@ namespace unit_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t size = file.size();
+		const u32 size = file.size();
 		void* res = a.allocate(size);
 		file.read(res, size);
-		CE_ASSERT(*(uint32_t*)res == UNIT_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == UNIT_VERSION, "Wrong version");
 		return res;
 	}
 

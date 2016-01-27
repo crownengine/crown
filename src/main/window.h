@@ -18,7 +18,7 @@ class Window
 public:
 
 	/// Opens the window.
-	virtual void open(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t parent) = 0;
+	virtual void open(u16 x, u16 y, u16 width, u16 height, u32 parent) = 0;
 
 	/// Closes the window.
 	virtual void close() = 0;
@@ -30,10 +30,10 @@ public:
 	virtual void hide() = 0;
 
 	/// Resizes the window to @a width and @a height.
-	virtual void resize(uint16_t width, uint16_t height) = 0;
+	virtual void resize(u16 width, u16 height) = 0;
 
 	/// Moves the window to @a x and @a y.
-	virtual void move(uint16_t x, uint16_t y) = 0;
+	virtual void move(u16 x, u16 y) = 0;
 
 	/// Minimizes the window.
 	virtual void minimize() = 0;

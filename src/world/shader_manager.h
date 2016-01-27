@@ -16,7 +16,7 @@ namespace crown
 {
 struct ShaderData
 {
-	uint64_t state;
+	u64 state;
 	bgfx::ProgramHandle program;
 };
 
@@ -28,7 +28,7 @@ class ShaderManager
 	typedef SortMap<StringId32, ShaderData> ShaderMap;
 	ShaderMap _shader_map;
 
-	void add_shader(StringId32 name, uint64_t state, bgfx::ProgramHandle program);
+	void add_shader(StringId32 name, u64 state, bgfx::ProgramHandle program);
 
 public:
 

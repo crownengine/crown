@@ -17,21 +17,21 @@ namespace crown
 {
 struct VertexData
 {
-	float x;
-	float y;
-	float u;
-	float v;
+	f32 x;
+	f32 y;
+	f32 u;
+	f32 v;
 };
 
 struct IndexData
 {
-	uint16_t a;
-	uint16_t b;
+	u16 a;
+	u16 b;
 };
 
 #define UTF8_ACCEPT 0
 
-static const uint8_t s_utf8d[364] =
+static const u8 s_utf8d[364] =
 {
 	// The first part of the table maps bytes to character classes that
 	// to reduce the size of the transition table and create bitmasks.
@@ -53,10 +53,10 @@ static const uint8_t s_utf8d[364] =
 	12,36,12,12,12,12,12,12,12,12,12,12
 };
 
-static uint32_t utf8_decode(uint32_t* state, uint32_t* code_point, uint8_t character)
+static u32 utf8_decode(u32* state, u32* code_point, u8 character)
 {
-	uint32_t byte = character;
-	uint32_t type = s_utf8d[byte];
+	u32 byte = character;
+	u32 type = s_utf8d[byte];
 
 	*code_point = (*state != UTF8_ACCEPT) ? (byte & 0x3fu) | (*code_point << 6) : (0xff >> type) & (byte);
 	*state = s_utf8d[256 + *state + type];
@@ -83,7 +83,7 @@ void Gui::init()
 		.end();
 }
 
-Gui::Gui(uint16_t width, uint16_t height, const char* material)
+Gui::Gui(u16 width, u16 height, const char* material)
 	: m_width(width)
 	, m_height(height)
 	, m_pose(MATRIX4X4_IDENTITY)
@@ -114,7 +114,7 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	bgfx::allocTransientVertexBuffer(&tvb, 4, Gui::s_pos_col);
 	bgfx::allocTransientIndexBuffer(&tib, 6);
 
-	float* verts = (float*) tvb.data;
+	f32* verts = (f32*) tvb.data;
 	verts[0] = pos.x;
 	verts[1] = pos.y;
 	verts[2] = pos.x + size.x;
@@ -124,7 +124,7 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	verts[6] = pos.x;
 	verts[7] = pos.y + size.y;
 
-	uint16_t* inds = (uint16_t*) tib.data;
+	u16* inds = (u16*) tib.data;
 	inds[0] = 0;
 	inds[1] = 1;
 	inds[2] = 2;
@@ -151,7 +151,7 @@ void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2&
 	bgfx::allocTransientVertexBuffer(&tvb, 4, Gui::s_pos_col_tex);
 	bgfx::allocTransientIndexBuffer(&tib, 6);
 
-	float* verts = (float*) tvb.data;
+	f32* verts = (f32*) tvb.data;
 	verts[0] = pos.x;
 	verts[1] = pos.y;
 	verts[2] = uv0.x;
@@ -172,7 +172,7 @@ void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2&
 	verts[14] = uv0.x;
 	verts[15] = uv1.y;
 
-	uint16_t* inds = (uint16_t*) tib.data;
+	u16* inds = (u16*) tib.data;
 	inds[0] = 0;
 	inds[1] = 1;
 	inds[2] = 2;
@@ -187,15 +187,15 @@ void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2&
 	bgfx::setIndexBuffer(&tib);
 }
 
-void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color)
+void Gui::draw_text(const char* str, const char* font, u32 font_size, const Vector3& pos, const Color4& color)
 {
 	// Renderer* r = device()->renderer();
 
 	// const FontResource* resource = (FontResource*) device()->resource_manager()->get("font", font);
 	// Vector2 m_pen;
 
-	// const float scale = ((float)font_size / (float)resource->font_size());
-	// const uint32_t str_len = strlen32(str);
+	// const f32 scale = ((f32)font_size / (f32)resource->font_size());
+	// const u32 str_len = strlen32(str);
 
 	// TransientVertexBuffer vb;
 	// TransientIndexBuffer ib;
@@ -203,13 +203,13 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 	// r->reserve_transient_vertex_buffer(&vb, 4 * str_len, VertexFormat::P2_T2);
 	// r->reserve_transient_index_buffer(&ib, 6 * str_len);
 
-	// uint16_t index = 0;
-	// float x_pen_advance = 0.0f;
-	// float y_pen_advance = 0.0f;
+	// u16 index = 0;
+	// f32 x_pen_advance = 0.0f;
+	// f32 y_pen_advance = 0.0f;
 
-	// uint32_t state = 0;
-	// uint32_t code_point = 0;
-	// for (uint32_t i = 0; i < str_len; i++)
+	// u32 state = 0;
+	// u32 code_point = 0;
+	// for (u32 i = 0; i < str_len; i++)
 	// {
 	// 	switch (str[i])
 	// 	{
@@ -230,23 +230,23 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 	// 	{
 	// 		FontGlyphData g = resource->get_glyph(code_point);
 
-	// 		const float baseline = g.height - g.y_offset;
+	// 		const f32 baseline = g.height - g.y_offset;
 
 	// 		// Set pen position
 	// 		m_pen.x = pos.x + g.x_offset;
 	// 		m_pen.y = pos.y - baseline;
 
 	// 		// Position coords
-	// 		const float x0 = (m_pen.x + x_pen_advance) * scale;
-	// 		const float y0 = (m_pen.y + y_pen_advance) * scale;
-	// 		const float x1 = (m_pen.x + g.width + x_pen_advance) * scale;
-	// 		const float y1 = (m_pen.y + g.height + y_pen_advance) * scale;
+	// 		const f32 x0 = (m_pen.x + x_pen_advance) * scale;
+	// 		const f32 y0 = (m_pen.y + y_pen_advance) * scale;
+	// 		const f32 x1 = (m_pen.x + g.width + x_pen_advance) * scale;
+	// 		const f32 y1 = (m_pen.y + g.height + y_pen_advance) * scale;
 
 	// 		// Texture coords
-	// 		const float u0 = (float) g.x / 512;
-	// 		const float v0 = (float) g.y / 512;
-	// 		const float u1 = u0 + ((float) g.width) / 512;
-	// 		const float v1 = v0 - ((float) g.height) / 512;
+	// 		const f32 u0 = (f32) g.x / 512;
+	// 		const f32 v0 = (f32) g.y / 512;
+	// 		const f32 u1 = u0 + ((f32) g.width) / 512;
+	// 		const f32 v1 = v0 - ((f32) g.height) / 512;
 
 	// 		// Fill vertex buffer
 	// 		(*(VertexData*)(vb.data)).x		= x0;
@@ -310,7 +310,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 	// r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
 	// r->set_vertex_buffer(vb);
 	// r->set_index_buffer(ib);
-	// r->commit(1, (int32_t) pos.z);
+	// r->commit(1, (s32) pos.z);
 }
 
 } // namespace crown

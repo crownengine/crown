@@ -36,7 +36,7 @@ public:
 	{
 	}
 
-	virtual SoundInstanceId play(const SoundResource& /*sr*/, bool /*loop*/, float /*volume*/, const Vector3& /*pos*/)
+	virtual SoundInstanceId play(const SoundResource& /*sr*/, bool /*loop*/, f32 /*volume*/, const Vector3& /*pos*/)
 	{
 		return 0;
 	}
@@ -62,15 +62,15 @@ public:
 	{
 	}
 
-	virtual void set_sound_positions(uint32_t /*num*/, const SoundInstanceId* /*ids*/, const Vector3* /*positions*/)
+	virtual void set_sound_positions(u32 /*num*/, const SoundInstanceId* /*ids*/, const Vector3* /*positions*/)
 	{
 	}
 
-	virtual void set_sound_ranges(uint32_t /*num*/, const SoundInstanceId* /*ids*/, const float* /*ranges*/)
+	virtual void set_sound_ranges(u32 /*num*/, const SoundInstanceId* /*ids*/, const f32* /*ranges*/)
 	{
 	}
 
-	virtual void set_sound_volumes(uint32_t /*num*/, const SoundInstanceId* /*ids*/, const float* /*volumes*/)
+	virtual void set_sound_volumes(u32 /*num*/, const SoundInstanceId* /*ids*/, const f32* /*volumes*/)
 	{
 	}
 

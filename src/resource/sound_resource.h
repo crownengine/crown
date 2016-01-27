@@ -25,14 +25,14 @@ struct SoundType
 
 struct SoundResource
 {
-	uint32_t version;
-	uint32_t size;
-	uint32_t sample_rate;
-	uint32_t avg_bytes_ps;
-	uint32_t channels;
-	uint16_t block_size;
-	uint16_t bits_ps;
-	uint32_t sound_type;
+	u32 version;
+	u32 size;
+	u32 sample_rate;
+	u32 avg_bytes_ps;
+	u32 channels;
+	u16 block_size;
+	u16 bits_ps;
+	u32 sound_type;
 };
 
 namespace sound_resource

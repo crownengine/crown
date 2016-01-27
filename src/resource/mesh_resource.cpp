@@ -27,21 +27,21 @@ namespace mesh_resource
 	{
 		CompileOptions& _opts;
 
-		Array<float> _positions;
-		Array<float> _normals;
-		Array<float> _uvs;
-		Array<float> _tangents;
-		Array<float> _binormals;
+		Array<f32> _positions;
+		Array<f32> _normals;
+		Array<f32> _uvs;
+		Array<f32> _tangents;
+		Array<f32> _binormals;
 
-		Array<uint16_t> _position_indices;
-		Array<uint16_t> _normal_indices;
-		Array<uint16_t> _uv_indices;
-		Array<uint16_t> _tangent_indices;
-		Array<uint16_t> _binormal_indices;
+		Array<u16> _position_indices;
+		Array<u16> _normal_indices;
+		Array<u16> _uv_indices;
+		Array<u16> _tangent_indices;
+		Array<u16> _binormal_indices;
 
-		uint32_t _vertex_stride;
+		u32 _vertex_stride;
 		Array<char> _vertex_buffer;
-		Array<uint16_t> _index_buffer;
+		Array<u16> _index_buffer;
 
 		AABB _aabb;
 		OBB _obb;
@@ -118,29 +118,29 @@ namespace mesh_resource
 			parse_indices(object["indices"]);
 		}
 
-		void parse_float_array(const char* array_json, Array<float>& output)
+		void parse_float_array(const char* array_json, Array<f32>& output)
 		{
 			TempAllocator4096 ta;
 			JsonArray array(ta);
 			sjson::parse_array(array_json, array);
 
 			array::resize(output, array::size(array));
-			for (uint32_t i = 0; i < array::size(array); ++i)
+			for (u32 i = 0; i < array::size(array); ++i)
 			{
 				output[i] = sjson::parse_float(array[i]);
 			}
 		}
 
-		void parse_index_array(const char* array_json, Array<uint16_t>& output)
+		void parse_index_array(const char* array_json, Array<u16>& output)
 		{
 			TempAllocator4096 ta;
 			JsonArray array(ta);
 			sjson::parse_array(array_json, array);
 
 			array::resize(output, array::size(array));
-			for (uint32_t i = 0; i < array::size(array); ++i)
+			for (u32 i = 0; i < array::size(array); ++i)
 			{
-				output[i] = (uint16_t)sjson::parse_int(array[i]);
+				output[i] = (u16)sjson::parse_int(array[i]);
 			}
 		}
 
@@ -168,19 +168,19 @@ namespace mesh_resource
 		void compile()
 		{
 			_vertex_stride = 0;
-			_vertex_stride += 3 * sizeof(float);
-			_vertex_stride += (_has_normal ? 3 * sizeof(float) : 0);
-			_vertex_stride += (_has_uv     ? 2 * sizeof(float) : 0);
+			_vertex_stride += 3 * sizeof(f32);
+			_vertex_stride += (_has_normal ? 3 * sizeof(f32) : 0);
+			_vertex_stride += (_has_uv     ? 2 * sizeof(f32) : 0);
 
 			// Generate vb/ib
 			array::resize(_index_buffer, array::size(_position_indices));
 
-			uint16_t index = 0;
-			for (uint32_t i = 0; i < array::size(_position_indices); ++i)
+			u16 index = 0;
+			for (u32 i = 0; i < array::size(_position_indices); ++i)
 			{
 				_index_buffer[i] = index++;
 
-				const uint16_t p_idx = _position_indices[i] * 3;
+				const u16 p_idx = _position_indices[i] * 3;
 				Vector3 xyz;
 				xyz.x = _positions[p_idx + 0];
 				xyz.y = _positions[p_idx + 1];
@@ -189,7 +189,7 @@ namespace mesh_resource
 
 				if (_has_normal)
 				{
-					const uint16_t n_idx = _normal_indices[i] * 3;
+					const u16 n_idx = _normal_indices[i] * 3;
 					Vector3 n;
 					n.x = _normals[n_idx + 0];
 					n.y = _normals[n_idx + 1];
@@ -198,7 +198,7 @@ namespace mesh_resource
 				}
 				if (_has_uv)
 				{
-					const uint16_t t_idx = _uv_indices[i] * 2;
+					const u16 t_idx = _uv_indices[i] * 2;
 					Vector2 uv;
 					uv.x = _uvs[t_idx + 0];
 					uv.y = _uvs[t_idx + 1];
@@ -225,7 +225,7 @@ namespace mesh_resource
 			aabb::reset(_aabb);
 			aabb::add_points(_aabb
 				, array::size(_positions) / 3
-				, sizeof(float) * 3
+				, sizeof(f32) * 3
 				, array::begin(_positions)
 				);
 
@@ -245,7 +245,7 @@ namespace mesh_resource
 			_opts.write(array::size(_index_buffer));
 
 			_opts.write(_vertex_buffer);
-			_opts.write(array::begin(_index_buffer), array::size(_index_buffer) * sizeof(uint16_t));
+			_opts.write(array::begin(_index_buffer), array::size(_index_buffer) * sizeof(u16));
 		}
 	};
 
@@ -284,18 +284,18 @@ namespace mesh_resource
 	{
 		BinaryReader br(file);
 
-		uint32_t version;
+		u32 version;
 		br.read(version);
 		CE_ASSERT(version == MESH_VERSION, "Wrong version");
 
-		uint32_t num_geoms;
+		u32 num_geoms;
 		br.read(num_geoms);
 
 		MeshResource* mr = CE_NEW(a, MeshResource)(a);
 		array::resize(mr->geometry_names, num_geoms);
 		array::resize(mr->geometries, num_geoms);
 
-		for (uint32_t i = 0; i < num_geoms; ++i)
+		for (u32 i = 0; i < num_geoms; ++i)
 		{
 			StringId32 name;
 			br.read(name);
@@ -306,19 +306,19 @@ namespace mesh_resource
 			OBB obb;
 			br.read(obb);
 
-			uint32_t num_verts;
+			u32 num_verts;
 			br.read(num_verts);
 
-			uint32_t stride;
+			u32 stride;
 			br.read(stride);
 
-			uint32_t num_inds;
+			u32 num_inds;
 			br.read(num_inds);
 
-			const uint32_t vsize = num_verts*stride;
-			const uint32_t isize = num_inds*sizeof(uint16_t);
+			const u32 vsize = num_verts*stride;
+			const u32 isize = num_inds*sizeof(u16);
 
-			const uint32_t size = sizeof(MeshGeometry) + vsize + isize;
+			const u32 size = sizeof(MeshGeometry) + vsize + isize;
 
 			MeshGeometry* mg = (MeshGeometry*)a.allocate(size);
 			mg->obb             = obb;
@@ -345,12 +345,12 @@ namespace mesh_resource
 	{
 		MeshResource* mr = (MeshResource*)rm.get(MESH_TYPE, id);
 
-		for (uint32_t i = 0; i < array::size(mr->geometries); ++i)
+		for (u32 i = 0; i < array::size(mr->geometries); ++i)
 		{
 			MeshGeometry& mg = *mr->geometries[i];
 
-			const uint32_t vsize = mg.vertices.num * mg.vertices.stride;
-			const uint32_t isize = mg.indices.num * sizeof(uint16_t);
+			const u32 vsize = mg.vertices.num * mg.vertices.stride;
+			const u32 isize = mg.indices.num * sizeof(u16);
 
 			const bgfx::Memory* vmem = bgfx::makeRef(mg.vertices.data, vsize);
 			const bgfx::Memory* imem = bgfx::makeRef(mg.indices.data, isize);
@@ -369,7 +369,7 @@ namespace mesh_resource
 	{
 		MeshResource* mr = (MeshResource*)rm.get(MESH_TYPE, id);
 
-		for (uint32_t i = 0; i < array::size(mr->geometries); ++i)
+		for (u32 i = 0; i < array::size(mr->geometries); ++i)
 		{
 			MeshGeometry& mg = *mr->geometries[i];
 			bgfx::destroyVertexBuffer(mg.vertex_buffer);
@@ -381,7 +381,7 @@ namespace mesh_resource
 	{
 		MeshResource* mr = (MeshResource*)res;
 
-		for (uint32_t i = 0; i < array::size(mr->geometries); ++i)
+		for (u32 i = 0; i < array::size(mr->geometries); ++i)
 		{
 			a.deallocate(mr->geometries[i]);
 		}

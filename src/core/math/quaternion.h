@@ -15,7 +15,7 @@ namespace crown
 /// @{
 
 /// Returns a new quaternion from individual elements.
-inline Quaternion quaternion(float x, float y, float z, float w)
+inline Quaternion quaternion(f32 x, f32 y, f32 z, f32 w)
 {
 	Quaternion q;
 	q.x = x;
@@ -26,11 +26,11 @@ inline Quaternion quaternion(float x, float y, float z, float w)
 }
 
 /// Returns a new quaternion from @a axis and @a angle.
-inline Quaternion quaternion(const Vector3& axis, float angle)
+inline Quaternion quaternion(const Vector3& axis, f32 angle)
 {
-	const float ha = angle * 0.5f;
-	const float sa = sinf(ha);
-	const float ca = cosf(ha);
+	const f32 ha = angle * 0.5f;
+	const f32 sa = sinf(ha);
+	const f32 ca = cosf(ha);
 	Quaternion q;
 	q.x = axis.x * sa;
 	q.y = axis.y * sa;
@@ -44,10 +44,10 @@ Quaternion quaternion(const Matrix3x3& m);
 
 inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)
 {
-	const float tx = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y;
-	const float ty = a.w*b.y + a.y*b.w + a.z*b.x - a.x*b.z;
-	const float tz = a.w*b.z + a.z*b.w + a.x*b.y - a.y*b.x;
-	const float tw = a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z;
+	const f32 tx = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y;
+	const f32 ty = a.w*b.y + a.y*b.w + a.z*b.x - a.x*b.z;
+	const f32 tz = a.w*b.z + a.z*b.w + a.x*b.y - a.y*b.x;
+	const f32 tw = a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z;
 	a.x = tx;
 	a.y = ty;
 	a.z = tz;
@@ -74,7 +74,7 @@ inline Quaternion operator*(Quaternion a, const Quaternion& b)
 }
 
 /// Multiplies the quaternion @a a by the scalar @a k.
-inline Quaternion operator*(const Quaternion& q, float k)
+inline Quaternion operator*(const Quaternion& q, f32 k)
 {
 	Quaternion r;
 	r.x = q.x * k;
@@ -85,13 +85,13 @@ inline Quaternion operator*(const Quaternion& q, float k)
 }
 
 /// Returns the dot product between quaternions @a a and @a b.
-inline float dot(const Quaternion& a, const Quaternion& b)
+inline f32 dot(const Quaternion& a, const Quaternion& b)
 {
 	return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 /// Returns the length of @a q.
-inline float length(const Quaternion& q)
+inline f32 length(const Quaternion& q)
 {
 	return sqrtf(dot(q, q));
 }
@@ -99,8 +99,8 @@ inline float length(const Quaternion& q)
 /// Normalizes the quaternion @a q and returns the result.
 inline Quaternion& normalize(Quaternion& q)
 {
-	const float len = length(q);
-	const float inv_len = 1.0f / len;
+	const f32 len = length(q);
+	const f32 inv_len = 1.0f / len;
 	q.x *= inv_len;
 	q.y *= inv_len;
 	q.z *= inv_len;
@@ -122,19 +122,19 @@ inline Quaternion conjugate(const Quaternion& q)
 /// Returns the inverse of quaternion @a q.
 inline Quaternion inverse(const Quaternion& q)
 {
-	const float len = length(q);
-	const float inv_len = 1.0f / len;
+	const f32 len = length(q);
+	const f32 inv_len = 1.0f / len;
 	return conjugate(q) * inv_len;
 }
 
 /// Returns the quaternion @a q raised to the power of @a exp.
-inline Quaternion power(const Quaternion& q, float exp)
+inline Quaternion power(const Quaternion& q, f32 exp)
 {
 	if (fabs(q.w) < 0.9999)
 	{
-		const float alpha = acos(q.w); // alpha = theta/2
-		const float new_alpha = alpha * exp;
-		const float mult = sinf(new_alpha) / sinf(alpha);
+		const f32 alpha = acos(q.w); // alpha = theta/2
+		const f32 new_alpha = alpha * exp;
+		const f32 mult = sinf(new_alpha) / sinf(alpha);
 
 		Quaternion r;
 		r.w = cosf(new_alpha);
@@ -182,9 +182,9 @@ inline Vector3 forward(const Quaternion& q)
 }
 
 /// Returns the linearly interpolated quaternion between *a* and *b* at time *t* in [0, 1]. It uses NLerp.
-inline Quaternion lerp(const Quaternion& a, const Quaternion& b, float t)
+inline Quaternion lerp(const Quaternion& a, const Quaternion& b, f32 t)
 {
-	const float t1 = 1.0f - t;
+	const f32 t1 = 1.0f - t;
 
 	Quaternion r;
 

@@ -38,7 +38,7 @@ public:
 	virtual bool is_file(const char* path) = 0;
 
 	/// Returns the time of last modify operaton to @a path.
-	virtual uint64_t last_modified_time(const char* path) = 0;
+	virtual u64 last_modified_time(const char* path) = 0;
 
 	/// Creates the directory at the given @a path.
 	virtual void create_directory(const char* path) = 0;

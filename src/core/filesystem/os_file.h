@@ -99,7 +99,7 @@ public:
 	}
 
 	/// Return the size of the file in bytes.
-	uint32_t size() const
+	u32 size() const
 	{
 #if CROWN_PLATFORM_POSIX
 		size_t pos = position();
@@ -113,7 +113,7 @@ public:
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 		CE_UNUSED(err);
 
-		return (uint32_t)size;
+		return (u32)size;
 #elif CROWN_PLATFORM_WINDOWS
 		return GetFileSize(_file, NULL);
 #endif
@@ -121,13 +121,13 @@ public:
 
 	/// Reads @a size bytes from the file and stores it into @a data.
 	/// Returns the number of bytes read.
-	uint32_t read(void* data, uint32_t size)
+	u32 read(void* data, u32 size)
 	{
 		CE_ASSERT(data != NULL, "Data must be != NULL");
 #if CROWN_PLATFORM_POSIX
 		size_t bytes_read = fread(data, 1, size, _file);
 		CE_ASSERT(ferror(_file) == 0, "fread error");
-		return (uint32_t)bytes_read;
+		return (u32)bytes_read;
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD bytes_read;
 		BOOL result = ReadFile(_file, data, size, &bytes_read, NULL);
@@ -142,13 +142,13 @@ public:
 
 	/// Writes @a size bytes of data stored in @a data and returns the
 	/// number of bytes written.
-	uint32_t write(const void* data, uint32_t size)
+	u32 write(const void* data, u32 size)
 	{
 		CE_ASSERT(data != NULL, "Data must be != NULL");
 #if CROWN_PLATFORM_POSIX
 		size_t bytes_written = fwrite(data, 1, size, _file);
 		CE_ASSERT(ferror(_file) == 0, "fwrite error");
-		return (uint32_t)bytes_written;
+		return (u32)bytes_written;
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD bytes_written;
 		WriteFile(_file, data, size, &bytes_written, NULL);
@@ -170,7 +170,7 @@ public:
 	}
 
 	/// Moves the file pointer to the given @a position.
-	void seek(uint32_t position)
+	void seek(u32 position)
 	{
 #if CROWN_PLATFORM_POSIX
 		int err = fseek(_file, (long)position, SEEK_SET);
@@ -197,7 +197,7 @@ public:
 
 	/// Moves the file pointer @a bytes bytes ahead the current
 	/// file pointer position.
-	void skip(uint32_t bytes)
+	void skip(u32 bytes)
 	{
 #if CROWN_PLATFORM_POSIX
 		int err = fseek(_file, bytes, SEEK_CUR);
@@ -211,16 +211,16 @@ public:
 
 	/// Returns the position of the file pointer from the
 	/// start of the file in bytes.
-	uint32_t position() const
+	u32 position() const
 	{
 #if CROWN_PLATFORM_POSIX
 		long pos = ftell(_file);
 		CE_ASSERT(pos != -1, "ftell: errno = %d", errno);
-		return (uint32_t)pos;
+		return (u32)pos;
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD pos = SetFilePointer(_file, 0, NULL, FILE_CURRENT);
 		CE_ASSERT(pos != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
-		return (uint32_t)pos;
+		return (u32)pos;
 #endif
 		CE_UNUSED(pos);
 	}

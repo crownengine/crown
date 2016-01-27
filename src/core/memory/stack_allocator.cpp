@@ -8,7 +8,7 @@
 
 namespace crown
 {
-StackAllocator::StackAllocator(char* begin, uint32_t size)
+StackAllocator::StackAllocator(char* begin, u32 size)
 	: _begin(begin)
 	, _top(begin)
 	, _total_size(size)
@@ -25,9 +25,9 @@ StackAllocator::~StackAllocator()
 		);
 }
 
-void* StackAllocator::allocate(uint32_t size, uint32_t align)
+void* StackAllocator::allocate(u32 size, u32 align)
 {
-	const uint32_t actual_size = sizeof(Header) + size + align;
+	const u32 actual_size = sizeof(Header) + size + align;
 
 	// Memory exhausted
 	if (_top + actual_size > _begin + _total_size)
@@ -36,7 +36,7 @@ void* StackAllocator::allocate(uint32_t size, uint32_t align)
 	}
 
 	// The offset from TOS to the start of the buffer
-	uint32_t offset = uint32_t(_top - _begin);
+	u32 offset = u32(_top - _begin);
 
 	// Align user data only, ignore header alignment
 	_top = (char*)memory::align_top(_top + sizeof(Header), align) - sizeof(Header);
@@ -69,9 +69,9 @@ void StackAllocator::deallocate(void* data)
 	_allocation_count--;
 }
 
-uint32_t StackAllocator::total_allocated()
+u32 StackAllocator::total_allocated()
 {
-	return uint32_t(_top - _begin);
+	return u32(_top - _begin);
 }
 
 } // namespace crown

@@ -53,7 +53,7 @@ namespace physics_resource
 
 	static ShapeType::Enum shape_type_to_enum(const char* type)
 	{
-		for (uint32_t i = 0; i < CE_COUNTOF(s_shape); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(s_shape); ++i)
 		{
 			if (strcmp(type, s_shape[i].name) == 0)
 				return s_shape[i].type;
@@ -64,7 +64,7 @@ namespace physics_resource
 
 	static JointType::Enum joint_type_to_enum(const char* type)
 	{
-		for (uint32_t i = 0; i < CE_COUNTOF(s_joint); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(s_joint); ++i)
 		{
 			if (strcmp(type, s_joint[i].name) == 0)
 				return s_joint[i].type;
@@ -100,8 +100,8 @@ namespace physics_resource
 		JsonArray pos(ta);
 		sjson::parse_array(obj["position"], pos);
 
-		Array<float> positions(default_allocator());
-		for (uint32_t i = 0; i < array::size(pos); ++i)
+		Array<f32> positions(default_allocator());
+		for (u32 i = 0; i < array::size(pos); ++i)
 			array::push_back(positions, sjson::parse_float(pos[i]));
 
 		Sphere sphere;
@@ -123,8 +123,8 @@ namespace physics_resource
 		JsonArray pos(ta);
 		sjson::parse_array(obj["position"], pos);
 
-		Array<float> positions(default_allocator());
-		for (uint32_t i = 0; i < array::size(pos); ++i)
+		Array<f32> positions(default_allocator());
+		for (u32 i = 0; i < array::size(pos); ++i)
 			array::push_back(positions, sjson::parse_float(pos[i]));
 
 		AABB aabb;
@@ -147,8 +147,8 @@ namespace physics_resource
 		JsonArray pos(ta);
 		sjson::parse_array(obj["position"], pos);
 
-		Array<float> positions(default_allocator());
-		for (uint32_t i = 0; i < array::size(pos); ++i)
+		Array<f32> positions(default_allocator());
+		for (u32 i = 0; i < array::size(pos); ++i)
 			array::push_back(positions, sjson::parse_float(pos[i]));
 
 		AABB aabb;
@@ -170,11 +170,11 @@ namespace physics_resource
 		JsonArray pos(ta);
 		sjson::parse_array(obj["position"], pos);
 
-		Array<float> positions(default_allocator());
-		for (uint32_t i = 0; i < array::size(pos); ++i)
+		Array<f32> positions(default_allocator());
+		for (u32 i = 0; i < array::size(pos); ++i)
 			array::push_back(positions, sjson::parse_float(pos[i]));
 
-		for (uint32_t i = 0; i < array::size(positions); i += 3)
+		for (u32 i = 0; i < array::size(positions); i += 3)
 		{
 			Vector3 pos;
 			pos.x = positions[i + 0];
@@ -240,7 +240,7 @@ namespace physics_resource
 
 		if (array::size(mesh_data))
 		{
-			uint32_t num = array::size(mesh_data);
+			u32 num = array::size(mesh_data);
 			array::push(buf, (char*)&num, sizeof(num));
 			array::push(buf, (char*)array::begin(mesh_data), sizeof(Vector3)*array::size(mesh_data));
 		}
@@ -424,9 +424,9 @@ namespace physics_config_resource
 	struct CollisionFilterCompiler
 	{
 		CompileOptions& _opts;
-		Map<StringId32, uint32_t> _filter_map;
+		Map<StringId32, u32> _filter_map;
 		Array<PhysicsCollisionFilter> _filters;
-		uint32_t _filter;
+		u32 _filter;
 
 		CollisionFilterCompiler(CompileOptions& opts)
 			: _opts(opts)
@@ -467,8 +467,8 @@ namespace physics_config_resource
 				JsonArray collides_with(ta);
 				sjson::parse_array(filter["collides_with"], collides_with);
 
-				uint32_t mask = 0;
-				for (uint32_t i = 0; i < array::size(collides_with); ++i)
+				u32 mask = 0;
+				for (u32 i = 0; i < array::size(collides_with); ++i)
 				{
 					const StringId32 fi = sjson::parse_string_id(collides_with[i]);
 					mask |= filter_to_mask(fi);
@@ -484,19 +484,19 @@ namespace physics_config_resource
 			}
 		}
 
-		uint32_t new_filter_mask()
+		u32 new_filter_mask()
 		{
 			RESOURCE_COMPILER_ASSERT(_filter != 0x80000000u
 				, _opts
 				, "Too many collision filters"
 				);
 
-			const uint32_t f = _filter;
+			const u32 f = _filter;
 			_filter = _filter << 1;
 			return f;
 		}
 
-		uint32_t filter_to_mask(StringId32 filter)
+		u32 filter_to_mask(StringId32 filter)
 		{
 			RESOURCE_COMPILER_ASSERT(map::has(_filter_map, filter)
 				, _opts
@@ -537,7 +537,7 @@ namespace physics_config_resource
 		pcr.num_actors    = array::size(actors);
 		pcr.num_filters   = array::size(cfc._filters);
 
-		uint32_t offt = sizeof(PhysicsConfigResource);
+		u32 offt = sizeof(PhysicsConfigResource);
 		pcr.materials_offset = offt;
 		offt += sizeof(PhysicsConfigMaterial) * pcr.num_materials;
 
@@ -562,7 +562,7 @@ namespace physics_config_resource
 		opts.write(pcr.filters_offset);
 
 		// Write material objects
-		for (uint32_t i = 0; i < pcr.num_materials; ++i)
+		for (u32 i = 0; i < pcr.num_materials; ++i)
 		{
 			opts.write(materials[i].name._id);
 			opts.write(materials[i].static_friction);
@@ -571,7 +571,7 @@ namespace physics_config_resource
 		}
 
 		// Write material objects
-		for (uint32_t i = 0; i < pcr.num_shapes; ++i)
+		for (u32 i = 0; i < pcr.num_shapes; ++i)
 		{
 			opts.write(shapes[i].name._id);
 			opts.write(shapes[i].trigger);
@@ -581,7 +581,7 @@ namespace physics_config_resource
 		}
 
 		// Write actor objects
-		for (uint32_t i = 0; i < pcr.num_actors; ++i)
+		for (u32 i = 0; i < pcr.num_actors; ++i)
 		{
 			opts.write(actors[i].name._id);
 			opts.write(actors[i].linear_damping);
@@ -589,7 +589,7 @@ namespace physics_config_resource
 			opts.write(actors[i].flags);
 		}
 
-		for (uint32_t i = 0; i < array::size(cfc._filters); ++i)
+		for (u32 i = 0; i < array::size(cfc._filters); ++i)
 		{
 			opts.write(cfc._filters[i].name._id);
 			opts.write(cfc._filters[i].me);
@@ -599,10 +599,10 @@ namespace physics_config_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t file_size = file.size();
+		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(uint32_t*)res == PHYSICS_CONFIG_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == PHYSICS_CONFIG_VERSION, "Wrong version");
 		return res;
 	}
 
@@ -615,7 +615,7 @@ namespace physics_config_resource
 	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsConfigMaterial* begin = (PhysicsConfigMaterial*)((const char*)pcr + pcr->materials_offset);
-		for (uint32_t i = 0; i < pcr->num_materials; ++i)
+		for (u32 i = 0; i < pcr->num_materials; ++i)
 		{
 			if (begin[i].name == name)
 				return &begin[i];
@@ -628,7 +628,7 @@ namespace physics_config_resource
 	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsConfigShape* begin = (PhysicsConfigShape*)((const char*)pcr + pcr->shapes_offset);
-		for (uint32_t i = 0; i < pcr->num_shapes; ++i)
+		for (u32 i = 0; i < pcr->num_shapes; ++i)
 		{
 			if (begin[i].name == name)
 				return &begin[i];
@@ -642,7 +642,7 @@ namespace physics_config_resource
 	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsConfigActor* begin = (PhysicsConfigActor*)((const char*)pcr + pcr->actors_offset);
-		for (uint32_t i = 0; i < pcr->num_actors; ++i)
+		for (u32 i = 0; i < pcr->num_actors; ++i)
 		{
 			if (begin[i].name == name)
 				return &begin[i];
@@ -655,7 +655,7 @@ namespace physics_config_resource
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsCollisionFilter* begin = (PhysicsCollisionFilter*)((const char*)pcr + pcr->filters_offset);
-		for (uint32_t i = 0; i < pcr->num_filters; ++i)
+		for (u32 i = 0; i < pcr->num_filters; ++i)
 		{
 			if (begin[i].name == name)
 				return &begin[i];

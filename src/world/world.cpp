@@ -55,7 +55,7 @@ World::~World()
 	CE_DELETE(*_allocator, _render_world);
 	CE_DELETE(*_allocator, _scene_graph);
 
-	for (uint32_t i = 0; i < array::size(_levels); ++i)
+	for (u32 i = 0; i < array::size(_levels); ++i)
 	{
 		CE_DELETE(*_allocator, _levels[i]);
 	}
@@ -68,22 +68,22 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 	TempAllocator512 ta;
 	UnitId* unit_lookup = (UnitId*)ta.allocate(sizeof(UnitId) * ur.num_units);
 
-	for (uint32_t i = 0; i < ur.num_units; ++i)
+	for (u32 i = 0; i < ur.num_units; ++i)
 		unit_lookup[i] = _unit_manager->create();
 
 	// First component data
 	const char* component_data = (const char*)(&ur + 1);
 
-	for (uint32_t cc = 0; cc < ur.num_component_types; ++cc)
+	for (u32 cc = 0; cc < ur.num_component_types; ++cc)
 	{
 		const ComponentData* component = (const ComponentData*)component_data;
-		const uint32_t* unit_index = (const uint32_t*)(component + 1);
+		const u32* unit_index = (const u32*)(component + 1);
 		const char* data = (const char*)(unit_index + component->num_instances);
 
 		if (component->type == StringId32("transform")._id)
 		{
 			const TransformDesc* td = (const TransformDesc*)data;
-			for (uint32_t i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				Matrix4x4 matrix = matrix4x4(rot, pos);
 				Matrix4x4 matrix_res = matrix4x4(td->rotation, td->position);
@@ -95,7 +95,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 		if (component->type == StringId32("camera")._id)
 		{
 			const CameraDesc* cd = (const CameraDesc*)data;
-			for (uint32_t i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				create_camera(unit_lookup[unit_index[i]], *cd);
 				++cd;
@@ -105,7 +105,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 		if (component->type == StringId32("collider")._id)
 		{
 			const ShapeDesc* sd = (const ShapeDesc*)data;
-			for (uint32_t i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				physics_world()->create_collider(unit_lookup[unit_index[i]], sd);
 				++sd;
@@ -115,7 +115,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 		if (component->type == StringId32("actor")._id)
 		{
 			const ActorResource* ar = (const ActorResource*)data;
-			for (uint32_t i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				physics_world()->create_actor(unit_lookup[unit_index[i]], ar, tm);
@@ -126,7 +126,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 		if (component->type == StringId32("controller")._id)
 		{
 			const ControllerDesc* cd = (const ControllerDesc*)data;
-			for (uint32_t i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				physics_world()->create_controller(unit_lookup[unit_index[i]], *cd, tm);
@@ -137,7 +137,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 		if (component->type == StringId32("mesh_renderer")._id)
 		{
 			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
-			for (uint32_t i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				render_world()->create_mesh(unit_lookup[unit_index[i]], *mrd, tm);
@@ -148,7 +148,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 		if (component->type == StringId32("sprite_renderer")._id)
 		{
 			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
-			for (uint32_t i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				render_world()->create_sprite(unit_lookup[unit_index[i]], *srd, tm);
@@ -159,7 +159,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 		if (component->type == StringId32("light")._id)
 		{
 			const LightDesc* ld = (const LightDesc*)data;
-			for (uint32_t i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				render_world()->create_light(unit_lookup[unit_index[i]], *ld, tm);
@@ -173,7 +173,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 	array::push(_units, &unit_lookup[0], ur.num_units);
 
 	// Post events
-	for (uint32_t i = 0; i < ur.num_units; ++i)
+	for (u32 i = 0; i < ur.num_units; ++i)
 		post_unit_spawned_event(unit_lookup[i]);
 
 	return unit_lookup[0];
@@ -197,7 +197,7 @@ void World::destroy_unit(UnitId id)
 	post_unit_destroyed_event(id);
 }
 
-uint32_t World::num_units() const
+u32 World::num_units() const
 {
 	return array::size(_units);
 }
@@ -208,11 +208,11 @@ void World::units(Array<UnitId>& units) const
 	array::push(units, array::begin(_units), array::size(_units));
 }
 
-void World::update_animations(float /*dt*/)
+void World::update_animations(f32 /*dt*/)
 {
 }
 
-void World::update_scene(float dt)
+void World::update_scene(f32 dt)
 {
 	TempAllocator4096 ta;
 	Array<UnitId> changed_units(ta);
@@ -230,8 +230,8 @@ void World::update_scene(float dt)
 	// Process physics events
 	EventStream& physics_events = _physics_world->events();
 
-	const uint32_t size = array::size(physics_events);
-	uint32_t read = 0;
+	const u32 size = array::size(physics_events);
+	u32 read = 0;
 	while (read < size)
 	{
 		event_stream::Header h;
@@ -281,7 +281,7 @@ void World::update_scene(float dt)
 	array::clear(_events);
 }
 
-void World::update(float dt)
+void World::update(f32 dt)
 {
 	update_animations(dt);
 	update_scene(dt);
@@ -315,7 +315,7 @@ CameraInstance World::create_camera(UnitId id, const CameraDesc& cd)
 	camera.near            = cd.near_range;
 	camera.far             = cd.far_range;
 
-	const uint32_t last = array::size(_camera);
+	const u32 last = array::size(_camera);
 	array::push_back(_camera, camera);
 
 	hash::set(_camera_map, id.encode(), last);
@@ -324,7 +324,7 @@ CameraInstance World::create_camera(UnitId id, const CameraDesc& cd)
 
 void World::destroy_camera(CameraInstance i)
 {
-	const uint32_t last = array::size(_camera) - 1;
+	const u32 last = array::size(_camera) - 1;
 	const UnitId u = _camera[i.i].unit;
 	const UnitId last_u = _camera[last].unit;
 
@@ -363,51 +363,51 @@ Matrix4x4 World::camera_view_matrix(CameraInstance i) const
 	return view;
 }
 
-float World::camera_fov(CameraInstance i) const
+f32 World::camera_fov(CameraInstance i) const
 {
 	return _camera[i.i].fov;
 }
 
-void World::set_camera_fov(CameraInstance i, float fov)
+void World::set_camera_fov(CameraInstance i, f32 fov)
 {
 	_camera[i.i].fov = fov;
 	_camera[i.i].update_projection_matrix();
 }
 
-float World::camera_aspect(CameraInstance i) const
+f32 World::camera_aspect(CameraInstance i) const
 {
 	return _camera[i.i].aspect;
 }
 
-void World::set_camera_aspect(CameraInstance i, float aspect)
+void World::set_camera_aspect(CameraInstance i, f32 aspect)
 {
 	_camera[i.i].aspect = aspect;
 	_camera[i.i].update_projection_matrix();
 }
 
-float World::camera_near_clip_distance(CameraInstance i) const
+f32 World::camera_near_clip_distance(CameraInstance i) const
 {
 	return _camera[i.i].near;
 }
 
-void World::set_camera_near_clip_distance(CameraInstance i, float near)
+void World::set_camera_near_clip_distance(CameraInstance i, f32 near)
 {
 	_camera[i.i].near = near;
 	_camera[i.i].update_projection_matrix();
 }
 
-float World::camera_far_clip_distance(CameraInstance i) const
+f32 World::camera_far_clip_distance(CameraInstance i) const
 {
 	return _camera[i.i].far;
 }
 
-void World::set_camera_far_clip_distance(CameraInstance i, float far)
+void World::set_camera_far_clip_distance(CameraInstance i, f32 far)
 {
 	_camera[i.i].far = far;
 	_camera[i.i].update_projection_matrix();
 }
 
-void World::set_camera_orthographic_metrics(CameraInstance i, float left, float right, float bottom, float top)
+void World::set_camera_orthographic_metrics(CameraInstance i, f32 left, f32 right, f32 bottom, f32 top)
 {
 	_camera[i.i].left = left;
 	_camera[i.i].right = right;
@@ -417,7 +417,7 @@ void World::set_camera_orthographic_metrics(CameraInstance i, float left, float 
 	_camera[i.i].update_projection_matrix();
 }
 
-void World::set_camera_viewport_metrics(CameraInstance i, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void World::set_camera_viewport_metrics(CameraInstance i, u16 x, u16 y, u16 width, u16 height)
 {
 	_camera[i.i].view_x = x;
 	_camera[i.i].view_y = y;
@@ -475,12 +475,12 @@ Vector3 World::camera_world_to_screen(CameraInstance i, const Vector3& pos)
 	return screen;
 }
 
-SoundInstanceId World::play_sound(const SoundResource& sr, const bool loop, const float volume, const Vector3& pos, const float range)
+SoundInstanceId World::play_sound(const SoundResource& sr, const bool loop, const f32 volume, const Vector3& pos, const f32 range)
 {
 	return _sound_world->play(sr, loop, volume, pos);
 }
 
-SoundInstanceId World::play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range)
+SoundInstanceId World::play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3& pos, const f32 range)
 {
 	const SoundResource* sr = (const SoundResource*)_resource_manager->get(SOUND_TYPE, name);
 	return play_sound(*sr, loop, volume, pos, range);
@@ -491,7 +491,7 @@ void World::stop_sound(SoundInstanceId id)
 	_sound_world->stop(id);
 }
 
-void World::link_sound(SoundInstanceId /*id*/, UnitId /*unit*/, int32_t /*node*/)
+void World::link_sound(SoundInstanceId /*id*/, UnitId /*unit*/, s32 /*node*/)
 {
 	CE_ASSERT(false, "Not implemented yet");
 }
@@ -506,12 +506,12 @@ void World::set_sound_position(SoundInstanceId id, const Vector3& pos)
 	_sound_world->set_sound_positions(1, &id, &pos);
 }
 
-void World::set_sound_range(SoundInstanceId id, float range)
+void World::set_sound_range(SoundInstanceId id, f32 range)
 {
 	_sound_world->set_sound_ranges(1, &id, &range);
 }
 
-void World::set_sound_volume(SoundInstanceId id, float vol)
+void World::set_sound_volume(SoundInstanceId id, f32 vol)
 {
 	_sound_world->set_sound_volumes(1, &id, &vol);
 }

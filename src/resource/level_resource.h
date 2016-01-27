@@ -16,18 +16,18 @@ namespace crown
 {
 struct LevelResource
 {
-	uint32_t version;
-	uint32_t units_offset;
-	uint32_t num_sounds;
-	uint32_t sounds_offset;
+	u32 version;
+	u32 units_offset;
+	u32 num_sounds;
+	u32 sounds_offset;
 };
 
 struct LevelSound
 {
 	StringId64 name;
 	Vector3 position;
-	float volume;
-	float range;
+	f32 volume;
+	f32 range;
 	bool loop;
 	char _pad[3];
 };
@@ -39,7 +39,7 @@ namespace level_resource
 	void unload(Allocator& allocator, void* resource);
 
 	const UnitResource* get_units(const LevelResource* lr);
-	uint32_t num_sounds(const LevelResource* lr);
-	const LevelSound* get_sound(const LevelResource* lr, uint32_t i);
+	u32 num_sounds(const LevelResource* lr);
+	const LevelSound* get_sound(const LevelResource* lr, u32 i);
 } // namespace level_resource
 } // namespace crown

@@ -42,7 +42,7 @@ public:
 	bool is_file(const char* path);
 
 	/// @copydoc Filesystem::last_modified_time()
-	uint64_t last_modified_time(const char* path);
+	u64 last_modified_time(const char* path);
 
 	/// @copydoc Filesystem::create_directory()
 	void create_directory(const char* path);

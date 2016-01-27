@@ -32,7 +32,7 @@ public:
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
-	void init(uint16_t port, bool wait);
+	void init(u16 port, bool wait);
 
 	/// Shutdowns the server.
 	void shutdown();
@@ -48,7 +48,7 @@ public:
 namespace console_server_globals
 {
 	// Creates the global console server.
-	void init(uint16_t port, bool wait);
+	void init(u16 port, bool wait);
 
 	/// Destroys the global console server.
 	void shutdown();

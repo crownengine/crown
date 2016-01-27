@@ -118,7 +118,7 @@ struct SoundInstance
 		create(new_sr, position());
 	}
 
-	void play(bool loop, float volume)
+	void play(bool loop, f32 volume)
 	{
 		set_volume(volume);
 		AL_CHECK(alSourcei(_source, AL_LOOPING, (loop ? AL_TRUE : AL_FALSE)));
@@ -176,12 +176,12 @@ struct SoundInstance
 		AL_CHECK(alSourcefv(_source, AL_POSITION, to_float_ptr(pos)));
 	}
 
-	void set_range(float range)
+	void set_range(f32 range)
 	{
 		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, range));
 	}
 
-	void set_volume(float volume)
+	void set_volume(f32 volume)
 	{
 		AL_CHECK(alSourcef(_source, AL_GAIN, volume));
 	}
@@ -212,7 +212,7 @@ public:
 	{
 	}
 
-	virtual SoundInstanceId play(const SoundResource& sr, bool loop, float volume, const Vector3& pos)
+	virtual SoundInstanceId play(const SoundResource& sr, bool loop, f32 volume, const Vector3& pos)
 	{
 		SoundInstance instance;
 		instance.create(sr, pos);
@@ -236,7 +236,7 @@ public:
 
 	virtual void stop_all()
 	{
-		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
 		{
 			_playing_sounds[i].stop();
 		}
@@ -244,7 +244,7 @@ public:
 
 	virtual void pause_all()
 	{
-		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
 		{
 			_playing_sounds[i].pause();
 		}
@@ -252,31 +252,31 @@ public:
 
 	virtual void resume_all()
 	{
-		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
 		{
 			_playing_sounds[i].resume();
 		}
 	}
 
-	virtual void set_sound_positions(uint32_t num, const SoundInstanceId* ids, const Vector3* positions)
+	virtual void set_sound_positions(u32 num, const SoundInstanceId* ids, const Vector3* positions)
 	{
-		for (uint32_t i = 0; i < num; i++)
+		for (u32 i = 0; i < num; i++)
 		{
 			id_array::get(_playing_sounds, ids[i]).set_position(positions[i]);
 		}
 	}
 
-	virtual void set_sound_ranges(uint32_t num, const SoundInstanceId* ids, const float* ranges)
+	virtual void set_sound_ranges(u32 num, const SoundInstanceId* ids, const f32* ranges)
 	{
-		for (uint32_t i = 0; i < num; i++)
+		for (u32 i = 0; i < num; i++)
 		{
 			id_array::get(_playing_sounds, ids[i]).set_range(ranges[i]);
 		}
 	}
 
-	virtual void set_sound_volumes(uint32_t num, const SoundInstanceId* ids, const float* volumes)
+	virtual void set_sound_volumes(u32 num, const SoundInstanceId* ids, const f32* volumes)
 	{
-		for (uint32_t i = 0; i < num; i++)
+		for (u32 i = 0; i < num; i++)
 		{
 			id_array::get(_playing_sounds, ids[i]).set_volume(volumes[i]);
 		}
@@ -284,7 +284,7 @@ public:
 
 	virtual void reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
 	{
-		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
 		{
 			if (_playing_sounds[i].resource() == &old_sr)
 			{
@@ -313,7 +313,7 @@ public:
 		Array<SoundInstanceId> to_delete(alloc);
 
 		// Check what sounds finished playing
-		for (uint32_t i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
 		{
 			SoundInstance& instance = _playing_sounds[i];
 			if (instance.finished())
@@ -323,7 +323,7 @@ public:
 		}
 
 		// Destroy instances which finished playing
-		for (uint32_t i = 0; i < array::size(to_delete); i++)
+		for (u32 i = 0; i < array::size(to_delete); i++)
 		{
 			stop(to_delete[i]);
 		}

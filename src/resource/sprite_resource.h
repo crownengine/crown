@@ -23,7 +23,7 @@ namespace crown
 
 struct SpriteResource
 {
-	uint32_t version;
+	u32 version;
 	const bgfx::Memory* vbmem;
 	const bgfx::Memory* ibmem;
 	bgfx::VertexBufferHandle vb;
@@ -41,10 +41,10 @@ namespace sprite_resource
 
 struct SpriteAnimationResource
 {
-	uint32_t version;
-	uint32_t num_animations;
-	uint32_t num_frames;
-	uint32_t frames_offset;
+	u32 version;
+	u32 num_animations;
+	u32 num_frames;
+	u32 frames_offset;
 };
 
 struct SpriteAnimationName
@@ -54,9 +54,9 @@ struct SpriteAnimationName
 
 struct SpriteAnimationData
 {
-	uint32_t num_frames;
-	uint32_t first_frame;
-	float time;
+	u32 num_frames;
+	u32 first_frame;
+	f32 time;
 };
 
 namespace sprite_animation_resource
@@ -67,7 +67,7 @@ namespace sprite_animation_resource
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* resource);
 	const SpriteAnimationData* get_animation(const SpriteAnimationResource* sar, StringId32 name);
-	const uint32_t* get_animation_frames(const SpriteAnimationResource* sar);
+	const u32* get_animation_frames(const SpriteAnimationResource* sar);
 }
 
 } // namespace crown

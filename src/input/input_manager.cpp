@@ -184,7 +184,7 @@ InputManager::InputManager(Allocator& a)
 		, NULL
 		);
 
-	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 	{
 		_joypad[i] = InputDevice::create(*_allocator
 			, "Joypad"
@@ -202,7 +202,7 @@ InputManager::InputManager(Allocator& a)
 
 InputManager::~InputManager()
 {
-	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		InputDevice::destroy(*_allocator, _joypad[i]);
 
 	InputDevice::destroy(*_allocator, _touch);
@@ -225,12 +225,12 @@ InputDevice* InputManager::touch()
 	return _touch;
 }
 
-uint8_t InputManager::num_joypads()
+u8 InputManager::num_joypads()
 {
 	return CE_COUNTOF(_joypad);
 }
 
-InputDevice* InputManager::joypad(uint8_t i)
+InputDevice* InputManager::joypad(u8 i)
 {
 	CE_ASSERT(i < CROWN_MAX_JOYPADS, "Index out of bounds");
 	return _joypad[i];
@@ -242,7 +242,7 @@ void InputManager::update()
 	_mouse->update();
 	_touch->update();
 
-	for (uint8_t i = 0; i < CROWN_MAX_JOYPADS; ++i)
+	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		_joypad[i]->update();
 }
 

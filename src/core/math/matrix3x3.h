@@ -57,7 +57,7 @@ inline Matrix3x3& operator-=(Matrix3x3& a, const Matrix3x3& b)
 	return a;
 }
 
-inline Matrix3x3& operator*=(Matrix3x3& a, float k)
+inline Matrix3x3& operator*=(Matrix3x3& a, f32 k)
 {
 	a.x *= k;
 	a.y *= k;
@@ -99,14 +99,14 @@ inline Matrix3x3 operator-(Matrix3x3 a, const Matrix3x3& b)
 }
 
 /// Multiplies the matrix @a a by the scalar @a k and returns the result.
-inline Matrix3x3 operator*(Matrix3x3 a, float k)
+inline Matrix3x3 operator*(Matrix3x3 a, f32 k)
 {
 	a *= k;
 	return a;
 }
 
 /// Multiplies the matrix @a a by the scalar @a k and returns the result.
-inline Matrix3x3 operator*(float k, Matrix3x3 a)
+inline Matrix3x3 operator*(f32 k, Matrix3x3 a)
 {
 	a *= k;
 	return a;
@@ -132,7 +132,7 @@ inline Matrix3x3 operator*(Matrix3x3 a, const Matrix3x3& b)
 /// Transposes the matrix @a m and returns the result.
 inline Matrix3x3& transpose(Matrix3x3& m)
 {
-	float tmp;
+	f32 tmp;
 
 	tmp = m.x.y;
 	m.x.y = m.y.x;
@@ -157,7 +157,7 @@ inline Matrix3x3 get_transposed(Matrix3x3 m)
 }
 
 /// Returns the determinant of the matrix @a m.
-inline float determinant(const Matrix3x3& m)
+inline f32 determinant(const Matrix3x3& m)
 {
 	return	+ m.x.x * (m.y.y * m.z.z - m.z.y * m.y.z)
 			- m.y.x * (m.x.y * m.z.z - m.z.y * m.x.z)
@@ -168,18 +168,18 @@ inline float determinant(const Matrix3x3& m)
 /// Inverts the matrix @a m and returns the result.
 inline Matrix3x3& invert(Matrix3x3& m)
 {
-	const float xx = m.x.x;
-	const float xy = m.x.y;
-	const float xz = m.x.z;
-	const float yx = m.y.x;
-	const float yy = m.y.y;
-	const float yz = m.y.z;
-	const float zx = m.z.x;
-	const float zy = m.z.y;
-	const float zz = m.z.z;
+	const f32 xx = m.x.x;
+	const f32 xy = m.x.y;
+	const f32 xz = m.x.z;
+	const f32 yx = m.y.x;
+	const f32 yy = m.y.y;
+	const f32 yz = m.y.z;
+	const f32 zx = m.z.x;
+	const f32 zy = m.z.y;
+	const f32 zz = m.z.z;
 
-	const float det = determinant(m);
-	const float inv_det = 1.0f / det;
+	const f32 det = determinant(m);
+	const f32 inv_det = 1.0f / det;
 
 	m.x.x = + (yy*zz - zy*yz) * inv_det;
 	m.x.y = - (xy*zz - zy*xz) * inv_det;
@@ -222,9 +222,9 @@ inline void set_identity(Matrix3x3& m)
 /// Returns the scale of the matrix @a m.
 inline Vector3 scale(const Matrix3x3& m)
 {
-	const float sx = length(m.x);
-	const float sy = length(m.y);
-	const float sz = length(m.z);
+	const f32 sx = length(m.x);
+	const f32 sy = length(m.y);
+	const f32 sz = length(m.z);
 	Vector3 v;
 	v.x = sx;
 	v.y = sy;
@@ -241,13 +241,13 @@ inline void set_scale(Matrix3x3& m, const Vector3& s)
 }
 
 /// Returns the pointer to the matrix's data
-inline float* to_float_ptr(Matrix3x3& m)
+inline f32* to_float_ptr(Matrix3x3& m)
 {
 	return &m.x.x;
 }
 
 /// Returns the pointer to the matrix's data
-inline const float* to_float_ptr(const Matrix3x3& m)
+inline const f32* to_float_ptr(const Matrix3x3& m)
 {
 	return &m.x.x;
 }

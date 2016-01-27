@@ -40,15 +40,15 @@ namespace memory
 	// size of the allocated data.
 	struct Header
 	{
-		uint32_t size;
+		u32 size;
 	};
 
 	// If we need to align the memory allocation we pad the header with this
 	// value after storing the size. That way we can
-	const uint32_t HEADER_PAD_VALUE = 0xffffffffu;
+	const u32 HEADER_PAD_VALUE = 0xffffffffu;
 
 	// Given a pointer to the header, returns a pointer to the data that follows it.
-	inline void *data_pointer(Header* header, uint32_t align) {
+	inline void *data_pointer(Header* header, u32 align) {
 		void *p = header + 1;
 		return memory::align_top(p, align);
 	}
@@ -56,7 +56,7 @@ namespace memory
 	// Given a pointer to the data, returns a pointer to the header before it.
 	inline Header*header(const void* data)
 	{
-		uint32_t *p = (uint32_t*)data;
+		u32 *p = (u32*)data;
 		while (p[-1] == HEADER_PAD_VALUE)
 			--p;
 		return (Header*)p - 1;
@@ -64,22 +64,22 @@ namespace memory
 
 	// Stores the size in the header and pads with HEADER_PAD_VALUE up to the
 	// data pointer.
-	inline void fill(Header*header, void *data, uint32_t size)
+	inline void fill(Header*header, void *data, u32 size)
 	{
 		header->size = size;
-		uint32_t *p = (uint32_t*)(header + 1);
+		u32 *p = (u32*)(header + 1);
 		while (p < data)
 			*p++ = HEADER_PAD_VALUE;
 	}
 
-	inline uint32_t actual_allocation_size(uint32_t size, uint32_t align)
+	inline u32 actual_allocation_size(u32 size, u32 align)
 	{
 		return size + align + sizeof(Header);
 	}
 
 	inline void pad(Header* header, void* data)
 	{
-		uint32_t* p = (uint32_t*)(header + 1);
+		u32* p = (u32*)(header + 1);
 
 		while (p != data)
 		{
@@ -92,8 +92,8 @@ namespace memory
 	class HeapAllocator : public Allocator
 	{
 		Mutex _mutex;
-		uint32_t _allocated_size;
-		uint32_t _allocation_count;
+		u32 _allocated_size;
+		u32 _allocation_count;
 
 	public:
 
@@ -113,11 +113,11 @@ namespace memory
 		}
 
 		/// @copydoc Allocator::allocate()
-		void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN)
+		void* allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN)
 		{
 			ScopedMutex sm(_mutex);
 
-			uint32_t actual_size = actual_allocation_size(size, align);
+			u32 actual_size = actual_allocation_size(size, align);
 
 			Header* h = (Header*)malloc(actual_size);
 			h->size = actual_size;
@@ -149,20 +149,20 @@ namespace memory
 		}
 
 		/// @copydoc Allocator::allocated_size()
-		uint32_t allocated_size(const void* ptr)
+		u32 allocated_size(const void* ptr)
 		{
 			return get_size(ptr);
 		}
 
 		/// @copydoc Allocator::total_allocated()
-		uint32_t total_allocated()
+		u32 total_allocated()
 		{
 			ScopedMutex sm(_mutex);
 			return _allocated_size;
 		}
 
 		/// Returns the size in bytes of the block of memory pointed by @a data
-		uint32_t get_size(const void* data)
+		u32 get_size(const void* data)
 		{
 			ScopedMutex sm(_mutex);
 			Header* h = header(data);
@@ -204,7 +204,7 @@ namespace memory
 		/// that don't fit in the ring buffer.
 		///
 		/// size specifies the size of the ring buffer.
-		ScratchAllocator(Allocator &backing, uint32_t size) : _backing(backing)
+		ScratchAllocator(Allocator &backing, u32 size) : _backing(backing)
 		{
 			_begin = (char*)_backing.allocate(size);
 			_end = _begin + size;
@@ -227,7 +227,7 @@ namespace memory
 			return p >= _free || p < _allocate;
 		}
 
-		virtual void *allocate(uint32_t size, uint32_t align)
+		virtual void *allocate(u32 size, u32 align)
 		{
 			CE_ASSERT(align % 4 == 0, "Must be 4-byte aligned");
 			size = ((size + 3)/4)*4;
@@ -239,7 +239,7 @@ namespace memory
 
 			// Reached the end of the buffer, wrap around to the beginning.
 			if (p > _end) {
-				h->size = uint32_t(_end - (char*)h) | 0x80000000u;
+				h->size = u32(_end - (char*)h) | 0x80000000u;
 
 				p = _begin;
 				h = (Header*)p;
@@ -251,7 +251,7 @@ namespace memory
 			if (in_use(p))
 				return _backing.allocate(size, align);
 
-			fill(h, data, uint32_t(p - (char*)h));
+			fill(h, data, u32(p - (char*)h));
 			_allocate = p;
 			return data;
 		}
@@ -283,15 +283,15 @@ namespace memory
 			}
 		}
 
-		virtual uint32_t allocated_size(const void *p)
+		virtual u32 allocated_size(const void *p)
 		{
 			Header* h = header(p);
-			return h->size - uint32_t((char*)p - (char*)h);
+			return h->size - u32((char*)p - (char*)h);
 		}
 
-		virtual uint32_t total_allocated()
+		virtual u32 total_allocated()
 		{
-			return uint32_t(_end - _begin);
+			return u32(_end - _begin);
 		}
 	};
 } // namespace memory
@@ -300,7 +300,7 @@ namespace memory_globals
 {
 	using namespace memory;
 
-	static const uint32_t SIZE = sizeof(HeapAllocator)
+	static const u32 SIZE = sizeof(HeapAllocator)
 		+ sizeof(ScratchAllocator)
 		;
 	char _buffer[SIZE];

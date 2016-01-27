@@ -34,7 +34,7 @@ namespace frustum
 	/// 5 = Far bottom right
 	/// 6 = Far top right
 	/// 7 = Far top left
-	Vector3 vertex(const Frustum& f, uint32_t index);
+	Vector3 vertex(const Frustum& f, u32 index);
 
 	/// Returns the AABB enclosing the frustum @a f.
 	AABB to_aabb(const Frustum& f);
@@ -93,7 +93,7 @@ namespace frustum
 			);
 	}
 
-	inline Vector3 vertex(const Frustum& f, uint32_t index)
+	inline Vector3 vertex(const Frustum& f, u32 index)
 	{
 		CE_ASSERT(index < 8, "Index out of bounds");
 

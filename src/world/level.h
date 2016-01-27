@@ -24,11 +24,11 @@ public:
 
 	void load(const Vector3& pos, const Quaternion& rot);
 
-	static const uint32_t MARKER = 0x1f2b43fe;
+	static const u32 MARKER = 0x1f2b43fe;
 
 private:
 
-	uint32_t _marker;
+	u32 _marker;
 
 	Allocator* _allocator;
 	World* _world;

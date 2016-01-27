@@ -19,15 +19,15 @@ UnitManager::UnitManager(Allocator& a)
 {
 }
 
-UnitId UnitManager::make_unit(uint32_t idx, uint8_t gen)
+UnitId UnitManager::make_unit(u32 idx, u8 gen)
 {
-	UnitId id = { 0 | idx | uint32_t(gen) << UNIT_INDEX_BITS };
+	UnitId id = { 0 | idx | u32(gen) << UNIT_INDEX_BITS };
 	return id;
 }
 
 UnitId UnitManager::create()
 {
-	uint32_t idx;
+	u32 idx;
 
 	if (queue::size(_free_indices) > MINIMUM_FREE_INDICES)
 	{
@@ -36,7 +36,7 @@ UnitId UnitManager::create()
 	}
 	else
 	{
-		array::push_back(_generation, uint8_t(0));
+		array::push_back(_generation, u8(0));
 		idx = array::size(_generation) - 1;
 		CE_ASSERT(idx < (1 << UNIT_INDEX_BITS), "Indices out of bounds");
 	}
@@ -58,7 +58,7 @@ bool UnitManager::alive(UnitId id) const
 
 void UnitManager::destroy(UnitId id)
 {
-	const uint32_t idx = id.index();
+	const u32 idx = id.index();
 	++_generation[idx];
 	queue::push_back(_free_indices, idx);
 
@@ -75,7 +75,7 @@ void UnitManager::register_destroy_function(DestroyFunction fn, void* user_ptr)
 
 void UnitManager::trigger_destroy_callbacks(UnitId id)
 {
-	for (uint32_t i = 0; i < array::size(_destroy_callbacks); ++i)
+	for (u32 i = 0; i < array::size(_destroy_callbacks); ++i)
 		_destroy_callbacks[i].destroy(id, _destroy_callbacks[i].user_ptr);
 }
 

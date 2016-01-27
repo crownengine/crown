@@ -41,7 +41,7 @@ void ApkFile::close()
 	}
 }
 
-void ApkFile::seek(uint32_t position)
+void ApkFile::seek(u32 position)
 {
 	off_t seek_result = AAsset_seek(_asset, (off_t)position, SEEK_SET);
 	CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
@@ -55,20 +55,20 @@ void ApkFile::seek_to_end()
 	CE_UNUSED(seek_result);
 }
 
-void ApkFile::skip(uint32_t bytes)
+void ApkFile::skip(u32 bytes)
 {
 	off_t seek_result = AAsset_seek(_asset, (off_t)bytes, SEEK_CUR);
 	CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
-uint32_t ApkFile::read(void* data, uint32_t size)
+u32 ApkFile::read(void* data, u32 size)
 {
 	CE_ASSERT_NOT_NULL(data);
-	return (uint32_t)AAsset_read(_asset, data, size);
+	return (u32)AAsset_read(_asset, data, size);
 }
 
-uint32_t ApkFile::write(const void* /*data*/, uint32_t /*size*/)
+u32 ApkFile::write(const void* /*data*/, u32 /*size*/)
 {
 	CE_ASSERT(false, "Apk files are read only!");
 	return 0;
@@ -89,14 +89,14 @@ bool ApkFile::end_of_file()
 	return AAsset_getRemainingLength(_asset) == 0;
 }
 
-uint32_t ApkFile::size()
+u32 ApkFile::size()
 {
 	return AAsset_getLength(_asset);
 }
 
-uint32_t ApkFile::position()
+u32 ApkFile::position()
 {
-	return (uint32_t)(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
+	return (u32)(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
 }
 
 } // namespace crown

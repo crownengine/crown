@@ -144,21 +144,21 @@ public:
 		return false;
 	}
 
-	virtual float actor_linear_damping(ActorInstance /*i*/) const
+	virtual f32 actor_linear_damping(ActorInstance /*i*/) const
 	{
 		return 0.0f;
 	}
 
-	virtual void set_actor_linear_damping(ActorInstance /*i*/, float /*rate*/)
+	virtual void set_actor_linear_damping(ActorInstance /*i*/, f32 /*rate*/)
 	{
 	}
 
-	virtual float actor_angular_damping(ActorInstance /*i*/) const
+	virtual f32 actor_angular_damping(ActorInstance /*i*/) const
 	{
 		return 0.0f;
 	}
 
-	virtual void set_actor_angular_damping(ActorInstance /*i*/, float /*rate*/)
+	virtual void set_actor_angular_damping(ActorInstance /*i*/, f32 /*rate*/)
 	{
 	}
 
@@ -192,11 +192,11 @@ public:
 	{
 	}
 
-	virtual void push_actor(ActorInstance /*i*/, const Vector3& /*vel*/, float /*mass*/)
+	virtual void push_actor(ActorInstance /*i*/, const Vector3& /*vel*/, f32 /*mass*/)
 	{
 	}
 
-	virtual void push_actor_at(ActorInstance /*i*/, const Vector3& /*vel*/, float /*mass*/, const Vector3& /*pos*/)
+	virtual void push_actor_at(ActorInstance /*i*/, const Vector3& /*vel*/, f32 /*mass*/, const Vector3& /*pos*/)
 	{
 	}
 
@@ -232,7 +232,7 @@ public:
 	{
 	}
 
-	virtual void set_height(ControllerInstance /*i*/, float /*height*/)
+	virtual void set_height(ControllerInstance /*i*/, f32 /*height*/)
 	{
 	}
 
@@ -260,7 +260,7 @@ public:
 	{
 	}
 
-	virtual void raycast(const Vector3& /*from*/, const Vector3& /*dir*/, float /*len*/, RaycastMode::Enum /*mode*/, Array<RaycastHit>& /*hits*/)
+	virtual void raycast(const Vector3& /*from*/, const Vector3& /*dir*/, f32 /*len*/, RaycastMode::Enum /*mode*/, Array<RaycastHit>& /*hits*/)
 	{
 	}
 
@@ -277,7 +277,7 @@ public:
 	{
 	}
 
-	virtual void update(float /*dt*/)
+	virtual void update(f32 /*dt*/)
 	{
 	}
 
@@ -296,10 +296,10 @@ public:
 
 private:
 
-	ColliderInstance make_collider_instance(uint32_t i) { ColliderInstance inst = { i }; return inst; }
-	ActorInstance make_actor_instance(uint32_t i) { ActorInstance inst = { i }; return inst; }
-	ControllerInstance make_controller_instance(uint32_t i) { ControllerInstance inst = { i }; return inst; }
-	JointInstance make_joint_instance(uint32_t i) { JointInstance inst = { i }; return inst; }
+	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
+	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
+	ControllerInstance make_controller_instance(u32 i) { ControllerInstance inst = { i }; return inst; }
+	JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
 
 	EventStream _events;
 };

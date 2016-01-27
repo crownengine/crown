@@ -28,30 +28,30 @@ namespace physics_resource
 
 struct PhysicsConfigResource
 {
-	uint32_t version;
-	uint32_t num_materials;
-	uint32_t materials_offset;
-	uint32_t num_shapes;
-	uint32_t shapes_offset;
-	uint32_t num_actors;
-	uint32_t actors_offset;
-	uint32_t num_filters;
-	uint32_t filters_offset;
+	u32 version;
+	u32 num_materials;
+	u32 materials_offset;
+	u32 num_shapes;
+	u32 shapes_offset;
+	u32 num_actors;
+	u32 actors_offset;
+	u32 num_filters;
+	u32 filters_offset;
 };
 
 struct PhysicsConfigMaterial
 {
 	StringId32 name;
-	float static_friction;
-	float dynamic_friction;
-	float restitution;
+	f32 static_friction;
+	f32 dynamic_friction;
+	f32 restitution;
 };
 
 struct PhysicsCollisionFilter
 {
 	StringId32 name;
-	uint32_t me;
-	uint32_t mask;
+	u32 me;
+	u32 mask;
 };
 
 struct PhysicsConfigShape
@@ -71,9 +71,9 @@ struct PhysicsConfigActor
 	};
 
 	StringId32 name;
-	float linear_damping;
-	float angular_damping;
-	uint32_t flags;
+	f32 linear_damping;
+	f32 angular_damping;
+	u32 flags;
 };
 
 namespace physics_config_resource

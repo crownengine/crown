@@ -20,7 +20,7 @@ class RenderWorld;
 /// @ingroup World
 struct Gui
 {
-	Gui(uint16_t width, uint16_t height, const char* material);
+	Gui(u16 width, u16 height, const char* material);
 
 	Vector2 resolution() const;
 	void move(const Vector2& pos);
@@ -41,12 +41,12 @@ struct Gui
 
 	/// Draws the text @a str with the given @a font and @a font_size.
 	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color = COLOR4_WHITE);
+	void draw_text(const char* str, const char* font, u32 font_size, const Vector3& pos, const Color4& color = COLOR4_WHITE);
 
 public:
 
-	uint16_t m_width;
-	uint16_t m_height;
+	u16 m_width;
+	u16 m_height;
 	Matrix4x4 m_projection;
 	Matrix4x4 m_pose;
 

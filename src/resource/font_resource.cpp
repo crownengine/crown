@@ -42,14 +42,14 @@ namespace font_resource
 		sjson::parse(buf, object);
 		sjson::parse_array(object["glyphs"], glyphs);
 
-		const uint32_t count      = sjson::parse_int(object["count"]);
-		const uint32_t size       = sjson::parse_int(object["size"]);
-		const uint32_t font_size  = sjson::parse_int(object["font_size"]);
-		const uint32_t num_glyphs = array::size(glyphs);
+		const u32 count      = sjson::parse_int(object["count"]);
+		const u32 size       = sjson::parse_int(object["size"]);
+		const u32 font_size  = sjson::parse_int(object["font_size"]);
+		const u32 num_glyphs = array::size(glyphs);
 
 		Array<FontGlyphData> m_glyphs(default_allocator());
 
-		for (uint32_t i = 0; i < num_glyphs; ++i)
+		for (u32 i = 0; i < num_glyphs; ++i)
 		{
 			FontGlyphData data;
 			parse_glyph(glyphs[i], data);
@@ -68,7 +68,7 @@ namespace font_resource
 		opts.write(fr.texture_size);
 		opts.write(fr.font_size);
 
-		for (uint32_t i = 0; i < array::size(m_glyphs); ++i)
+		for (u32 i = 0; i < array::size(m_glyphs); ++i)
 		{
 			opts.write(m_glyphs[i].id);
 			opts.write(m_glyphs[i].x);
@@ -83,10 +83,10 @@ namespace font_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t file_size = file.size();
+		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(uint32_t*)res == FONT_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == FONT_VERSION, "Wrong version");
 		return res;
 	}
 
@@ -95,13 +95,13 @@ namespace font_resource
 		allocator.deallocate(resource);
 	}
 
-	const FontGlyphData* get_glyph(const FontResource* fr, uint32_t i)
+	const FontGlyphData* get_glyph(const FontResource* fr, u32 i)
 	{
 		CE_ASSERT(i < fr->num_glyphs, "Index out of bounds");
 
 		FontGlyphData* begin = (FontGlyphData*)((char*)fr + sizeof(FontResource));
 
-		for (uint32_t i = 0; i < fr->num_glyphs; ++i)
+		for (u32 i = 0; i < fr->num_glyphs; ++i)
 		{
 			if (begin[i].id == i)
 				return &begin[i];

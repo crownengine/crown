@@ -55,22 +55,22 @@ class Device
 
 	Array<World*> _worlds;
 
-	uint16_t _width;
-	uint16_t _height;
-	int16_t _mouse_curr_x;
-	int16_t _mouse_curr_y;
-	int16_t _mouse_last_x;
-	int16_t _mouse_last_y;
+	u16 _width;
+	u16 _height;
+	s16 _mouse_curr_x;
+	s16 _mouse_curr_y;
+	s16 _mouse_last_x;
+	s16 _mouse_last_y;
 
 	bool _is_init;
 	bool _is_running;
 	bool _is_paused;
 
-	uint64_t _frame_count;
-	int64_t _last_time;
-	int64_t _current_time;
-	float _last_delta_time;
-	double _time_since_start;
+	u64 _frame_count;
+	s64 _last_time;
+	s64 _current_time;
+	f32 _last_delta_time;
+	f64 _time_since_start;
 
 	void read_config();
 	bool process_events();
@@ -104,13 +104,13 @@ public:
 	bool is_running() const;
 
 	/// Return the number of frames rendered.
-	uint64_t frame_count() const;
+	u64 frame_count() const;
 
 	/// Returns the time in seconds needed to render the last frame.
-	float last_delta_time() const;
+	f32 last_delta_time() const;
 
 	/// Returns the time in seconds since the the application started.
-	double time_since_start() const;
+	f64 time_since_start() const;
 
 	/// Quits the application.
 	void quit();
@@ -122,7 +122,7 @@ public:
 	void unpause();
 
 	/// Returns the main window resolution.
-	void resolution(uint16_t& width, uint16_t& height);
+	void resolution(u16& width, u16& height);
 
 	/// Updates all the subsystems.
 	void update();

@@ -19,7 +19,7 @@
 
 namespace crown
 {
-typedef int32_t (*ThreadFunction)(void*);
+typedef s32 (*ThreadFunction)(void*);
 
 struct Thread
 {
@@ -42,7 +42,7 @@ struct Thread
 			stop();
 	}
 
-	void start(ThreadFunction func, void* data = NULL, uint32_t stack_size = 0)
+	void start(ThreadFunction func, void* data = NULL, u32 stack_size = 0)
 	{
 		CE_ASSERT(!_is_running, "Thread is already running");
 		CE_ASSERT(func != NULL, "Function must be != NULL");
@@ -104,7 +104,7 @@ struct Thread
 
 private:
 
-	int32_t run()
+	s32 run()
 	{
 		_sem.post();
 		return _function(_data);
@@ -113,7 +113,7 @@ private:
 #if CROWN_PLATFORM_POSIX
 	static void* thread_proc(void* arg)
 	{
-		static int32_t result = -1;
+		static s32 result = -1;
 		result = ((Thread*)arg)->run();
 		return (void*)&result;
 	}
@@ -121,7 +121,7 @@ private:
 	static DWORD WINAPI thread_proc(void* arg)
 	{
 		Thread* thread = (Thread*) arg;
-		int32_t result = thread->run();
+		s32 result = thread->run();
 		return result;
 	}
 #endif
@@ -137,7 +137,7 @@ private:
 	ThreadFunction _function;
 	void* _data;
 	Semaphore _sem;
-	uint32_t _stack_size;
+	u32 _stack_size;
 	bool _is_running;
 
 private:

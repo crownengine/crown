@@ -16,8 +16,8 @@ namespace crown
 {
 struct TextureHeader
 {
-	uint32_t version;
-	uint32_t size;
+	u32 version;
+	u32 size;
 };
 
 struct TextureResource

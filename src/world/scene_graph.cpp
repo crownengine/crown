@@ -30,17 +30,17 @@ SceneGraph::~SceneGraph()
 	_marker = 0;
 }
 
-TransformInstance SceneGraph::make_instance(uint32_t i)
+TransformInstance SceneGraph::make_instance(u32 i)
 {
 	TransformInstance inst = { i };
 	return inst;
 }
 
-void SceneGraph::allocate(uint32_t num)
+void SceneGraph::allocate(u32 num)
 {
 	CE_ASSERT(num > _data.size, "num > _data.size");
 
-	const uint32_t bytes = num * (0
+	const u32 bytes = num * (0
 		+ sizeof(UnitId)
 		+ sizeof(Matrix4x4)
 		+ sizeof(Pose)
@@ -82,7 +82,7 @@ TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& m)
 	if (_data.capacity == _data.size)
 		grow();
 
-	const uint32_t last = _data.size;
+	const u32 last = _data.size;
 
 	_data.unit[last] = id;
 	_data.world[last] = m;
@@ -102,7 +102,7 @@ TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& m)
 
 void SceneGraph::destroy(TransformInstance i)
 {
-	const uint32_t last = _data.size - 1;
+	const u32 last = _data.size - 1;
 	const UnitId u = _data.unit[i.i];
 	const UnitId last_u = _data.unit[last];
 
@@ -193,7 +193,7 @@ void SceneGraph::set_world_pose(TransformInstance i, const Matrix4x4& pose)
 	_data.changed[i.i] = true;
 }
 
-uint32_t SceneGraph::num_nodes() const
+u32 SceneGraph::num_nodes() const
 {
 	return _data.size;
 }
@@ -272,7 +272,7 @@ void SceneGraph::unlink(TransformInstance child)
 
 void SceneGraph::clear_changed()
 {
-	for (uint32_t i = 0; i < _data.size; ++i)
+	for (u32 i = 0; i < _data.size; ++i)
 	{
 		_data.changed[i] = false;
 	}
@@ -280,7 +280,7 @@ void SceneGraph::clear_changed()
 
 void SceneGraph::get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses)
 {
-	for (uint32_t i = 0; i < _data.size; ++i)
+	for (u32 i = 0; i < _data.size; ++i)
 	{
 		if (_data.changed[i])
 		{

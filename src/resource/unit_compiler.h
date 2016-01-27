@@ -26,9 +26,9 @@ public:
 
 private:
 
-	void register_component_compiler(const char* type, CompileFunction fn, float spawn_order);
+	void register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order);
 	Buffer compile_component(StringId32 type, const char* json);
-	void add_component_data(StringId32 type, const Buffer& data, uint32_t unit_index);
+	void add_component_data(StringId32 type, const Buffer& data, u32 unit_index);
 
 private:
 
@@ -42,9 +42,9 @@ private:
 		}
 
 		Buffer _data;
-		Array<uint32_t> _unit_index;
+		Array<u32> _unit_index;
 		CompileFunction _compiler;
-		uint32_t _num;
+		u32 _num;
 
 		ALLOCATOR_AWARE;
 	};
@@ -52,7 +52,7 @@ private:
 	typedef SortMap<StringId32, ComponentTypeData> ComponentTypeMap;
 
 	CompileOptions& _opts;
-	uint32_t _num_units;
+	u32 _num_units;
 	ComponentTypeMap _component_data;
 };
 

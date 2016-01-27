@@ -17,18 +17,18 @@ namespace sound_resource
 	struct WAVHeader
 	{
 		char    riff[4];         // Should contain 'RIFF'
-		int32_t chunk_size;      // Not Needed
+		s32 chunk_size;      // Not Needed
 		char    wave[4];         // Should contain 'WAVE'
 		char    fmt[4];          // Should contain 'fmt '
-		int32_t fmt_size;        // Size of format chunk
-		int16_t fmt_tag;         // Identifies way data is stored, 1 means no compression
-		int16_t fmt_channels;    // Channel, 1 means mono, 2 means stereo
-		int32_t fmt_sample_rate; // Samples per second
-		int32_t fmt_avarage;     // Avarage bytes per sample
-		int16_t fmt_block_align; // Block alignment
-		int16_t fmt_bits_ps;     // Number of bits per sample
+		s32 fmt_size;        // Size of format chunk
+		s16 fmt_tag;         // Identifies way data is stored, 1 means no compression
+		s16 fmt_channels;    // Channel, 1 means mono, 2 means stereo
+		s32 fmt_sample_rate; // Samples per second
+		s32 fmt_avarage;     // Avarage bytes per sample
+		s16 fmt_block_align; // Block alignment
+		s16 fmt_bits_ps;     // Number of bits per sample
 		char    data[4];         // Should contain 'data'
-		int32_t data_size;       // Data dimension
+		s32 data_size;       // Data dimension
 	};
 
 	void compile(const char* path, CompileOptions& opts)
@@ -71,10 +71,10 @@ namespace sound_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t file_size = file.size();
+		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(uint32_t*)res == SOUND_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == SOUND_VERSION, "Wrong version");
 		return res;
 	}
 

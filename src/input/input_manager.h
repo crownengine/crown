@@ -38,10 +38,10 @@ public:
 	InputDevice* touch();
 
 	/// Returns the number of joypads.
-	uint8_t num_joypads();
+	u8 num_joypads();
 
 	/// Returns the joypad @a i.
-	InputDevice* joypad(uint8_t i);
+	InputDevice* joypad(u8 i);
 
 	/// Updates the input devices
 	void update();

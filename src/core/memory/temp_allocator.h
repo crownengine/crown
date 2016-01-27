@@ -30,17 +30,17 @@ namespace crown
 		TempAllocator(Allocator &backing = default_scratch_allocator());
 		virtual ~TempAllocator();
 
-		virtual void *allocate(uint32_t size, uint32_t align = DEFAULT_ALIGN);
+		virtual void *allocate(u32 size, u32 align = DEFAULT_ALIGN);
 
 		/// Deallocation is a NOP for the TempAllocator. The memory is automatically
 		/// deallocated when the TempAllocator is destroyed.
 		virtual void deallocate(void *) {}
 
 		/// Returns SIZE_NOT_TRACKED.
-		virtual uint32_t allocated_size(const void*) {return SIZE_NOT_TRACKED;}
+		virtual u32 allocated_size(const void*) {return SIZE_NOT_TRACKED;}
 
 		/// Returns SIZE_NOT_TRACKED.
-		virtual uint32_t total_allocated() {return SIZE_NOT_TRACKED;}
+		virtual u32 total_allocated() {return SIZE_NOT_TRACKED;}
 
 	private:
 
@@ -87,11 +87,11 @@ namespace crown
 	}
 
 	template <int BUFFER_SIZE>
-	void *TempAllocator<BUFFER_SIZE>::allocate(uint32_t size, uint32_t align)
+	void *TempAllocator<BUFFER_SIZE>::allocate(u32 size, u32 align)
 	{
 		_p = (char *)memory::align_top(_p, align);
 		if ((int)size > _end - _p) {
-			uint32_t to_allocate = sizeof(void *) + size + align;
+			u32 to_allocate = sizeof(void *) + size + align;
 			if (to_allocate < _chunk_size)
 				to_allocate = _chunk_size;
 			_chunk_size *= 2;

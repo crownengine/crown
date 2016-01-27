@@ -59,7 +59,7 @@ public:
 	SpriteInstance previous_sprite(SpriteInstance id);
 
 	void set_sprite_material(SpriteInstance i, StringId64 id);
-	void set_sprite_frame(SpriteInstance i, uint32_t index);
+	void set_sprite_frame(SpriteInstance i, u32 index);
 	void set_sprite_visible(SpriteInstance i, bool visible);
 
 	/// Creates a new light instance.
@@ -78,13 +78,13 @@ public:
 	Color4 light_color(LightInstance i);
 
 	/// Returns the range of the light @a i.
-	float light_range(LightInstance i);
+	f32 light_range(LightInstance i);
 
 	/// Returns the intensity of the light @a i.
-	float light_intensity(LightInstance i);
+	f32 light_intensity(LightInstance i);
 
 	/// Returns the spot angle of the light @a i.
-	float light_spot_angle(LightInstance i);
+	f32 light_spot_angle(LightInstance i);
 
 	/// Sets the @a type of the light @a i.
 	void set_light_type(LightInstance i, LightType::Enum type);
@@ -93,17 +93,17 @@ public:
 	void set_light_color(LightInstance i, const Color4& color);
 
 	/// Sets the @a range of the light @a i.
-	void set_light_range(LightInstance i, float range);
+	void set_light_range(LightInstance i, f32 range);
 
 	/// Sets the @a intensity of the light @a i.
-	void set_light_intensity(LightInstance i, float intensity);
+	void set_light_intensity(LightInstance i, f32 intensity);
 
 	/// Sets the spot @a angle of the light @a i.
-	void set_light_spot_angle(LightInstance i, float angle);
+	void set_light_spot_angle(LightInstance i, f32 angle);
 
 	void update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world);
 
-	void render(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+	void render(const Matrix4x4& view, const Matrix4x4& projection, u16 x, u16 y, u16 width, u16 height);
 
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);
@@ -115,7 +115,7 @@ public:
 	bool is_valid(SpriteInstance i) { return i.i != UINT32_MAX; }
 	bool is_valid(LightInstance i) { return i.i != UINT32_MAX; }
 
-	static const uint32_t MARKER = 0xc82277de;
+	static const u32 MARKER = 0xc82277de;
 
 private:
 
@@ -126,16 +126,16 @@ private:
 
 	void unit_destroyed_callback(UnitId id);
 
-	void allocate_mesh(uint32_t num);
-	void allocate_sprite(uint32_t num);
-	void allocate_light(uint32_t num);
+	void allocate_mesh(u32 num);
+	void allocate_sprite(u32 num);
+	void allocate_light(u32 num);
 	void grow_mesh();
 	void grow_sprite();
 	void grow_light();
 
-	MeshInstance make_mesh_instance(uint32_t i) { MeshInstance inst = { i }; return inst; }
-	SpriteInstance make_sprite_instance(uint32_t i) { SpriteInstance inst = { i }; return inst; }
-	LightInstance make_light_instance(uint32_t i) { LightInstance inst = { i }; return inst; }
+	MeshInstance make_mesh_instance(u32 i) { MeshInstance inst = { i }; return inst; }
+	SpriteInstance make_sprite_instance(u32 i) { SpriteInstance inst = { i }; return inst; }
+	LightInstance make_light_instance(u32 i) { LightInstance inst = { i }; return inst; }
 
 	void add_mesh_node(MeshInstance first, MeshInstance i);
 	void remove_mesh_node(MeshInstance first, MeshInstance i);
@@ -169,11 +169,11 @@ private:
 		{
 		}
 
-		uint32_t size;
-		uint32_t capacity;
+		u32 size;
+		u32 capacity;
 		void* buffer;
 
-		uint32_t first_hidden;
+		u32 first_hidden;
 
 		UnitId* unit;
 		const MeshResource** mr;
@@ -210,17 +210,17 @@ private:
 		{
 		}
 
-		uint32_t size;
-		uint32_t capacity;
+		u32 size;
+		u32 capacity;
 		void* buffer;
 
-		uint32_t first_hidden;
+		u32 first_hidden;
 
 		UnitId* unit;
 		const SpriteResource** sr;
 		SpriteData* sprite;
 		StringId64* material;
-		uint32_t* frame;
+		u32* frame;
 		Matrix4x4* world;
 		AABB* aabb;
 		SpriteInstance* next_instance;
@@ -243,20 +243,20 @@ private:
 		{
 		}
 
-		uint32_t size;
-		uint32_t capacity;
+		u32 size;
+		u32 capacity;
 		void* buffer;
 
 		UnitId* unit;
 		Matrix4x4* world;
-		float* range;
-		float* intensity;
-		float* spot_angle;
+		f32* range;
+		f32* intensity;
+		f32* spot_angle;
 		Color4* color;
-		uint32_t* type; // LightType::Enum
+		u32* type; // LightType::Enum
 	};
 
-	uint32_t _marker;
+	u32 _marker;
 
 	Allocator* _allocator;
 	ResourceManager* _resource_manager;
@@ -268,11 +268,11 @@ private:
 	bgfx::UniformHandle _u_light_col;
 
 	bool _debug_drawing;
-	Hash<uint32_t> _mesh_map;
+	Hash<u32> _mesh_map;
 	MeshInstanceData _mesh_data;
-	Hash<uint32_t> _sprite_map;
+	Hash<u32> _sprite_map;
 	SpriteInstanceData _sprite_data;
-	Hash<uint32_t> _light_map;
+	Hash<u32> _light_map;
 	LightInstanceData _light_data;
 };
 

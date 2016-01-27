@@ -12,75 +12,75 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const float PI              = 3.1415926535897932f;
-const float TWO_PI          = PI * 2.0f;
-const float HALF_PI         = PI * 0.5f;
-const float FLOAT_PRECISION = 1.0e-7f;
+const f32 PI              = 3.1415926535897932f;
+const f32 TWO_PI          = PI * 2.0f;
+const f32 HALF_PI         = PI * 0.5f;
+const f32 FLOAT_PRECISION = 1.0e-7f;
 
-inline bool fequal(float a, float b, float precision = FLOAT_PRECISION)
+inline bool fequal(f32 a, f32 b, f32 precision = FLOAT_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
 
-inline float fmin(float a, float b)
+inline f32 fmin(f32 a, f32 b)
 {
 	return a < b ? a : b;
 }
 
-inline float fmax(float a, float b)
+inline f32 fmax(f32 a, f32 b)
 {
 	return a < b ? b : a;
 }
 
-inline float fclamp(float min, float max, float val)
+inline f32 fclamp(f32 min, f32 max, f32 val)
 {
 	return fmin(fmax(min, val), max);
 }
 
-inline float to_rad(float deg)
+inline f32 to_rad(f32 deg)
 {
 	return deg * PI / 180.0f;
 }
 
-inline float to_deg(float rad)
+inline f32 to_deg(f32 rad)
 {
 	return rad * 180.0f / PI;
 }
 
 /// Returns the linear interpolated value between @a p0 and @a p1 at time @a t
-inline float lerp(const float p0, const float p1, float t)
+inline f32 lerp(const f32 p0, const f32 p1, f32 t)
 {
 	return (1.0f - t) * p0 + t * p1;
 }
 
 /// Returns the cosine interpolated value between @a p0 and @a p1 at time @a t
-inline float cosine(const float p0, const float p1, float t)
+inline f32 cosine(const f32 p0, const f32 p1, f32 t)
 {
-	const float f = t * PI;
-	const float g = (1.0f - cosf(f)) * 0.5f;
+	const f32 f = t * PI;
+	const f32 g = (1.0f - cosf(f)) * 0.5f;
 
 	return p0 + g * (p1 - p0);
 }
 
 /// Returns the cubic interpolated value between @a p0 and @a p1 at time @a t
-inline float cubic(const float p0, const float p1, float t)
+inline f32 cubic(const f32 p0, const f32 p1, f32 t)
 {
-	const float tt  = t * t;
-	const float ttt = tt * t;
+	const f32 tt  = t * t;
+	const f32 ttt = tt * t;
 
 	return p0 * (2.0f * ttt - 3.0f * tt + 1.0f) + p1 * (3.0f * tt  - 2.0f * ttt);
 }
 
 /// Bezier interpolation
-inline float bezier(const float p0, const float p1, const float p2, const float p3, float t)
+inline f32 bezier(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t)
 {
-	const float u   = 1.0f - t;
-	const float tt  = t * t ;
-	const float uu  = u * u;
-	const float uuu = uu * u;
-	const float ttt = tt * t;
+	const f32 u   = 1.0f - t;
+	const f32 tt  = t * t ;
+	const f32 uu  = u * u;
+	const f32 uuu = uu * u;
+	const f32 ttt = tt * t;
 
-	const float tmp = (uuu * p0)
+	const f32 tmp = (uuu * p0)
 		+ (3.0f * uu * t * p1)
 		+ (3.0f * u * tt * p2)
 		+ (ttt * p3);
@@ -89,12 +89,12 @@ inline float bezier(const float p0, const float p1, const float p2, const float 
 }
 
 /// Catmull-Rom interpolation
-inline float catmull_rom(const float p0, const float p1, const float p2, const float p3, float t)
+inline f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t)
 {
-	const float tt  = t * t;
-	const float ttt = tt * t;
+	const f32 tt  = t * t;
+	const f32 ttt = tt * t;
 
-	const float tmp = (2.0f * p1)
+	const f32 tmp = (2.0f * p1)
 		+ (-p0 + p2) * t
 		+ ((2.0f * p0) - (5.0f * p1) + (4.0f * p2) - p3) * tt
 		+ (-p0 + (3.0f * p1) + (-3.0f * p2) + p3) * ttt;

@@ -76,7 +76,7 @@ CE_STATIC_ASSERT(CE_COUNTOF(s_raycast) == RaycastMode::COUNT);
 
 static LightType::Enum name_to_light_type(const char* name)
 {
-	for (uint32_t i = 0; i < CE_COUNTOF(s_light); ++i)
+	for (u32 i = 0; i < CE_COUNTOF(s_light); ++i)
 	{
 		if (strcmp(s_light[i].name, name) == 0)
 			return s_light[i].type;
@@ -87,7 +87,7 @@ static LightType::Enum name_to_light_type(const char* name)
 
 static ProjectionType::Enum name_to_projection_type(const char* name)
 {
-	for (uint32_t i = 0; i < CE_COUNTOF(s_projection); ++i)
+	for (u32 i = 0; i < CE_COUNTOF(s_projection); ++i)
 	{
 		if (strcmp(s_projection[i].name, name) == 0)
 			return s_projection[i].type;
@@ -98,7 +98,7 @@ static ProjectionType::Enum name_to_projection_type(const char* name)
 
 static RaycastMode::Enum name_to_raycast_mode(const char* name)
 {
-	for (uint32_t i = 0; i < CE_COUNTOF(s_raycast); ++i)
+	for (u32 i = 0; i < CE_COUNTOF(s_raycast); ++i)
 	{
 		if (strcmp(s_raycast[i].name, name) == 0)
 			return s_raycast[i].mode;
@@ -113,7 +113,7 @@ static int math_ray_plane_intersection(lua_State* L)
 	const Plane p = plane::from_point_and_normal(stack.get_vector3(3)
 		, stack.get_vector3(4)
 		);
-	const float t = ray_plane_intersection(stack.get_vector3(1)
+	const f32 t = ray_plane_intersection(stack.get_vector3(1)
 		, stack.get_vector3(2)
 		, p
 		);
@@ -124,7 +124,7 @@ static int math_ray_plane_intersection(lua_State* L)
 static int math_ray_disc_intersection(lua_State* L)
 {
 	LuaStack stack(L);
-	const float t = ray_disc_intersection(stack.get_vector3(1)
+	const f32 t = ray_disc_intersection(stack.get_vector3(1)
 		, stack.get_vector3(2)
 		, stack.get_vector3(3)
 		, stack.get_float(4)
@@ -140,7 +140,7 @@ static int math_ray_sphere_intersection(lua_State* L)
 	Sphere s;
 	s.c = stack.get_vector3(3);
 	s.r = stack.get_float(4);
-	const float t = ray_sphere_intersection(stack.get_vector3(1)
+	const f32 t = ray_sphere_intersection(stack.get_vector3(1)
 		, stack.get_vector3(2)
 		, s
 		);
@@ -151,7 +151,7 @@ static int math_ray_sphere_intersection(lua_State* L)
 static int math_ray_obb_intersection(lua_State* L)
 {
 	LuaStack stack(L);
-	const float t = ray_obb_intersection(stack.get_vector3(1)
+	const f32 t = ray_obb_intersection(stack.get_vector3(1)
 		, stack.get_vector3(2)
 		, stack.get_matrix4x4(3)
 		, stack.get_vector3(4)
@@ -987,7 +987,7 @@ static int lightuserdata_newindex(lua_State* L)
 	LuaStack stack(L);
 	Vector3& v = stack.get_vector3(1);
 	const char* s = stack.get_string(2);
-	const float value = stack.get_float(3);
+	const f32 value = stack.get_float(3);
 
 	switch (s[0])
 	{
@@ -1240,12 +1240,12 @@ static int world_units(lua_State* L)
 	Array<UnitId> units(alloc);
 	stack.get_world(1)->units(units);
 
-	const uint32_t num = array::size(units);
+	const u32 num = array::size(units);
 
 	stack.push_table(num);
-	for (uint32_t i = 0; i < num; ++i)
+	for (u32 i = 0; i < num; ++i)
 	{
-		stack.push_key_begin((int32_t) i + 1);
+		stack.push_key_begin((s32) i + 1);
 		stack.push_unit(units[i]);
 		stack.push_key_end();
 	}
@@ -1390,13 +1390,13 @@ static int world_update(lua_State* L)
 static int world_play_sound(lua_State* L)
 {
 	LuaStack stack(L);
-	const int32_t nargs = stack.num_args();
+	const s32 nargs = stack.num_args();
 	World* world = stack.get_world(1);
 	const StringId64 name = stack.get_resource_id(2);
 	const bool loop    = nargs > 2 ? stack.get_bool(3)    : false;
-	const float volume = nargs > 3 ? stack.get_float(4)   : 1.0f;
+	const f32 volume = nargs > 3 ? stack.get_float(4)   : 1.0f;
 	const Vector3& pos = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
-	const float range  = nargs > 5 ? stack.get_float(6)   : 1000.0f;
+	const f32 range  = nargs > 5 ? stack.get_float(6)   : 1000.0f;
 
 	LUA_ASSERT(device()->resource_manager()->can_get(SOUND_TYPE, name), stack, "Sound not found");
 
@@ -1674,7 +1674,7 @@ static int render_world_mesh_instances(lua_State* L)
 	MeshInstance inst = rw->first_mesh(unit);
 
 	stack.push_table();
-	for (uint32_t i = 0; rw->is_valid(inst); ++i, inst = rw->next_mesh(inst))
+	for (u32 i = 0; rw->is_valid(inst); ++i, inst = rw->next_mesh(inst))
 	{
 		stack.push_key_begin(i+1);
 		stack.push_mesh_instance(inst);
@@ -1730,7 +1730,7 @@ static int render_world_sprite_instances(lua_State* L)
 	SpriteInstance inst = rw->first_sprite(unit);
 
 	stack.push_table();
-	for (uint32_t i = 0; rw->is_valid(inst); ++i, inst = rw->next_sprite(inst))
+	for (u32 i = 0; rw->is_valid(inst); ++i, inst = rw->next_sprite(inst))
 	{
 		stack.push_key_begin(i+1);
 		stack.push_sprite_instance(inst);
@@ -2178,7 +2178,7 @@ static int physics_world_raycast(lua_State* L)
 		);
 
 	stack.push_table();
-	for (uint32_t i = 0; i < array::size(hits); ++i)
+	for (u32 i = 0; i < array::size(hits); ++i)
 	{
 		stack.push_key_begin(i+1);
 		stack.push_actor(hits[i].actor);
@@ -2291,7 +2291,7 @@ static int device_quit(lua_State* /*L*/)
 static int device_resolution(lua_State* L)
 {
 	LuaStack stack(L);
-	uint16_t w, h;
+	u16 w, h;
 	device()->resolution(w, h);
 	stack.push_int(w);
 	stack.push_int(h);
@@ -2415,7 +2415,7 @@ static int debug_line_add_line(lua_State* L)
 static int debug_line_add_axes(lua_State* L)
 {
 	LuaStack stack(L);
-	const float len = stack.num_args() == 3
+	const f32 len = stack.num_args() == 3
 		? stack.get_float(3)
 		: 1.0f
 		;
@@ -2426,7 +2426,7 @@ static int debug_line_add_axes(lua_State* L)
 static int debug_line_add_circle(lua_State* L)
 {
 	LuaStack stack(L);
-	const uint32_t segments = stack.num_args() >= 6
+	const u32 segments = stack.num_args() >= 6
 		? stack.get_int(6)
 		: DebugLine::NUM_SEGMENTS
 		;
@@ -2442,7 +2442,7 @@ static int debug_line_add_circle(lua_State* L)
 static int debug_line_add_cone(lua_State* L)
 {
 	LuaStack stack(L);
-	const uint32_t segments = stack.num_args() >= 6
+	const u32 segments = stack.num_args() >= 6
 		? stack.get_int(6)
 		: DebugLine::NUM_SEGMENTS
 		;
@@ -2458,7 +2458,7 @@ static int debug_line_add_cone(lua_State* L)
 static int debug_line_add_sphere(lua_State* L)
 {
 	LuaStack stack(L);
-	const uint32_t segments = stack.num_args() >= 5
+	const u32 segments = stack.num_args() >= 5
 		? stack.get_int(5)
 		: DebugLine::NUM_SEGMENTS
 		;
@@ -2620,7 +2620,7 @@ static int display_modes(lua_State* L)
 	Array<DisplayMode> modes(ta);
 	device()->display()->modes(modes);
 	stack.push_table(array::size(modes));
-	for (uint32_t i = 0; i < array::size(modes); ++i)
+	for (u32 i = 0; i < array::size(modes); ++i)
 	{
 		stack.push_key_begin(i+1);
 		stack.push_table(3);

@@ -16,22 +16,22 @@ namespace crown
 {
 struct FontResource
 {
-	uint32_t version;
-	uint32_t num_glyphs;
-	uint32_t texture_size; // Font texture size -- pow of 2
-	uint32_t font_size;
+	u32 version;
+	u32 num_glyphs;
+	u32 texture_size; // Font texture size -- pow of 2
+	u32 font_size;
 };
 
 struct FontGlyphData
 {
-	uint32_t id;
-	float x;
-	float y;
-	float width;
-	float height;
-	float x_offset;
-	float y_offset;
-	float x_advance;
+	u32 id;
+	f32 x;
+	f32 y;
+	f32 width;
+	f32 height;
+	f32 x_offset;
+	f32 y_offset;
+	f32 x_advance;
 };
 
 namespace font_resource
@@ -40,6 +40,6 @@ namespace font_resource
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 
-	const FontGlyphData* get_glyph(const FontResource* fr, uint32_t i);
+	const FontGlyphData* get_glyph(const FontResource* fr, u32 i);
 } // namespace font_resource
 } // namespace crown

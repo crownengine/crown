@@ -16,53 +16,53 @@
 
 namespace crown
 {
-#define FOURCC(a, b, c, d)          uint32_t(a | (b << 8) | (c << 16) | (d << 24))
+#define FOURCC(a, b, c, d)          u32(a | (b << 8) | (c << 16) | (d << 24))
 
 #define DDSD_MAGIC                  FOURCC('D', 'D', 'S', ' ')
-#define DDSD_HEADERSIZE             uint32_t(124)
-#define DDSD_UNUSED                 uint32_t(0x00000000)
-#define DDSD_CAPS                   uint32_t(0x00000001) // Required in every .dds file.
-#define DDSD_HEIGHT                 uint32_t(0x00000002) // Required in every .dds file.
-#define DDSD_WIDTH                  uint32_t(0x00000004) // Required in every .dds file.
-#define DDSD_PITCH                  uint32_t(0x00000008) // Required when pitch is provided for an uncompressed texture.
-#define DDSD_PIXELFORMAT            uint32_t(0x00001000) // Required in every .dds file.
-#define DDSD_MIPMAPCOUNT            uint32_t(0x00020000) // Required in a mipmapped texture.
-#define DDSD_LINEARSIZE             uint32_t(0x00080000) // Required when pitch is provided for a compressed texture.
-#define DDSD_DEPTH                  uint32_t(0x00800000) // Required in a depth texture.
+#define DDSD_HEADERSIZE             u32(124)
+#define DDSD_UNUSED                 u32(0x00000000)
+#define DDSD_CAPS                   u32(0x00000001) // Required in every .dds file.
+#define DDSD_HEIGHT                 u32(0x00000002) // Required in every .dds file.
+#define DDSD_WIDTH                  u32(0x00000004) // Required in every .dds file.
+#define DDSD_PITCH                  u32(0x00000008) // Required when pitch is provided for an uncompressed texture.
+#define DDSD_PIXELFORMAT            u32(0x00001000) // Required in every .dds file.
+#define DDSD_MIPMAPCOUNT            u32(0x00020000) // Required in a mipmapped texture.
+#define DDSD_LINEARSIZE             u32(0x00080000) // Required when pitch is provided for a compressed texture.
+#define DDSD_DEPTH                  u32(0x00800000) // Required in a depth texture.
 
-#define DDS_HEADER_FLAGS_TEXTURE    uint32_t(DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT)
-#define DDS_HEADER_FLAGS_MIPMAP     uint32_t(DDSD_MIPMAPCOUNT)
-#define DDS_HEADER_FLAGS_VOLUME     uint32_t(DDSD_DEPTH)
-#define DDS_HEADER_FLAGS_PITCH      uint32_t(DDSD_PITCH)
-#define DDS_HEADER_FLAGS_LINEARSIZE uint32_t(DDSD_LINEARSIZE)
+#define DDS_HEADER_FLAGS_TEXTURE    u32(DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT)
+#define DDS_HEADER_FLAGS_MIPMAP     u32(DDSD_MIPMAPCOUNT)
+#define DDS_HEADER_FLAGS_VOLUME     u32(DDSD_DEPTH)
+#define DDS_HEADER_FLAGS_PITCH      u32(DDSD_PITCH)
+#define DDS_HEADER_FLAGS_LINEARSIZE u32(DDSD_LINEARSIZE)
 
-#define DDSCAPS_COMPLEX             uint32_t(0x00000008) // Optional; must be used on any file that contains more than one surface (a mipmap, a cubic environment map, or mipmapped volume texture).
-#define DDSCAPS_MIPMAP              uint32_t(0x00400000) // Optional; should be used for a mipmap.
-#define DDSCAPS_TEXTURE             uint32_t(0x00001000) // Required
+#define DDSCAPS_COMPLEX             u32(0x00000008) // Optional; must be used on any file that contains more than one surface (a mipmap, a cubic environment map, or mipmapped volume texture).
+#define DDSCAPS_MIPMAP              u32(0x00400000) // Optional; should be used for a mipmap.
+#define DDSCAPS_TEXTURE             u32(0x00001000) // Required
 
-#define DDSCAPS2_CUBEMAP            uint32_t(0x00000200) // Required for a cube map.
-#define DDSCAPS2_CUBEMAP_POSITIVEX  uint32_t(0x00000400) // Required when these surfaces are stored in a cube map.
-#define DDSCAPS2_CUBEMAP_NEGATIVEX  uint32_t(0x00000800) // Required when these surfaces are stored in a cube map.
-#define DDSCAPS2_CUBEMAP_POSITIVEY  uint32_t(0x00001000) // Required when these surfaces are stored in a cube map.
-#define DDSCAPS2_CUBEMAP_NEGATIVEY  uint32_t(0x00002000) // Required when these surfaces are stored in a cube map.
-#define DDSCAPS2_CUBEMAP_POSITIVEZ  uint32_t(0x00004000) // Required when these surfaces are stored in a cube map.
-#define DDSCAPS2_CUBEMAP_NEGATIVEZ  uint32_t(0x00008000) // Required when these surfaces are stored in a cube map.
-#define DDSCAPS2_VOLUME             uint32_t(0x00200000) // Required for a volume texture.
+#define DDSCAPS2_CUBEMAP            u32(0x00000200) // Required for a cube map.
+#define DDSCAPS2_CUBEMAP_POSITIVEX  u32(0x00000400) // Required when these surfaces are stored in a cube map.
+#define DDSCAPS2_CUBEMAP_NEGATIVEX  u32(0x00000800) // Required when these surfaces are stored in a cube map.
+#define DDSCAPS2_CUBEMAP_POSITIVEY  u32(0x00001000) // Required when these surfaces are stored in a cube map.
+#define DDSCAPS2_CUBEMAP_NEGATIVEY  u32(0x00002000) // Required when these surfaces are stored in a cube map.
+#define DDSCAPS2_CUBEMAP_POSITIVEZ  u32(0x00004000) // Required when these surfaces are stored in a cube map.
+#define DDSCAPS2_CUBEMAP_NEGATIVEZ  u32(0x00008000) // Required when these surfaces are stored in a cube map.
+#define DDSCAPS2_VOLUME             u32(0x00200000) // Required for a volume texture.
 
-#define DDPF_HEADERSIZE             uint32_t(32)
-#define DDPF_ALPHAPIXELS            uint32_t(0x00000001) // Texture contains alpha data; dwRGBAlphaBitMask contains valid data.
-#define DDPF_ALPHA                  uint32_t(0x00000002) // Used in some older DDS files for alpha channel only uncompressed data (dwRGBBitCount contains the alpha channel bitcount; dwABitMask contains valid data)
-#define DDPF_FOURCC                 uint32_t(0x00000004) // Texture contains compressed RGB data; dwFourCC contains valid data.
-#define DDPF_RGB                    uint32_t(0x00000040) // Texture contains uncompressed RGB data; dwRGBBitCount and the RGB masks (dwRBitMask, dwGBitMask, dwBBitMask) contain valid data.
-#define DDPF_YUV                    uint32_t(0x00000200) // Used in some older DDS files for YUV uncompressed data (dwRGBBitCount contains the YUV bit count; dwRBitMask contains the Y mask, dwGBitMask contains the U mask, dwBBitMask contains the V mask)
-#define DDPF_LUMINANCE              uint32_t(0x00020000) // Used in some older DDS files for single channel color uncompressed data (dwRGBBitCount contains the luminance channel bit count; dwRBitMask contains the channel mask). Can be combined with DDPF_ALPHAPIXELS for a two channel DDS file.
+#define DDPF_HEADERSIZE             u32(32)
+#define DDPF_ALPHAPIXELS            u32(0x00000001) // Texture contains alpha data; dwRGBAlphaBitMask contains valid data.
+#define DDPF_ALPHA                  u32(0x00000002) // Used in some older DDS files for alpha channel only uncompressed data (dwRGBBitCount contains the alpha channel bitcount; dwABitMask contains valid data)
+#define DDPF_FOURCC                 u32(0x00000004) // Texture contains compressed RGB data; dwFourCC contains valid data.
+#define DDPF_RGB                    u32(0x00000040) // Texture contains uncompressed RGB data; dwRGBBitCount and the RGB masks (dwRBitMask, dwGBitMask, dwBBitMask) contain valid data.
+#define DDPF_YUV                    u32(0x00000200) // Used in some older DDS files for YUV uncompressed data (dwRGBBitCount contains the YUV bit count; dwRBitMask contains the Y mask, dwGBitMask contains the U mask, dwBBitMask contains the V mask)
+#define DDPF_LUMINANCE              u32(0x00020000) // Used in some older DDS files for single channel color uncompressed data (dwRGBBitCount contains the luminance channel bit count; dwRBitMask contains the channel mask). Can be combined with DDPF_ALPHAPIXELS for a two channel DDS file.
 
-#define DDS_FOURCC                  uint32_t(DDPF_FOURCC)
-#define DDS_RGB                     uint32_t(DDPF_RGB)
-#define DDS_RGBA                    uint32_t(DDPF_RGB | DDPF_ALPHAPIXELS)
-#define DDS_LUMINANCE               uint32_t(DDPF_LUMINANCE)
-#define DDS_LUMINANCEA              uint32_t(DDPF_LUMINANCE | DDPF_ALPHAPIXELS)
-#define DDS_ALPHA                   uint32_t(DDPF_ALPHA)
+#define DDS_FOURCC                  u32(DDPF_FOURCC)
+#define DDS_RGB                     u32(DDPF_RGB)
+#define DDS_RGBA                    u32(DDPF_RGB | DDPF_ALPHAPIXELS)
+#define DDS_LUMINANCE               u32(DDPF_LUMINANCE)
+#define DDS_LUMINANCEA              u32(DDPF_LUMINANCE | DDPF_ALPHAPIXELS)
+#define DDS_ALPHA                   u32(DDPF_ALPHA)
 
 #define DDPF_FOURCC_DXT1            FOURCC('D', 'X', 'T', '1')
 #define DDPF_FOURCC_DXT2            FOURCC('D', 'X', 'T', '2')
@@ -71,38 +71,38 @@ namespace crown
 #define DDPF_FOURCC_DXT5            FOURCC('D', 'X', 'T', '5')
 #define DDPF_FOURCC_DX10            FOURCC('D', 'X', '1', '0')
 
-#define DDS_HEADER_OFFSET           uint32_t(sizeof(TextureHeader))
-#define DDS_DATA_OFFSET             uint32_t(DDS_HEADER_OFFSET + DDSD_HEADERSIZE)
+#define DDS_HEADER_OFFSET           u32(sizeof(TextureHeader))
+#define DDS_DATA_OFFSET             u32(DDS_HEADER_OFFSET + DDSD_HEADERSIZE)
 
 struct DdsPixelFormat
 {
-	uint32_t size;
-	uint32_t flags;
-	uint32_t fourcc;
-	uint32_t bitcount;
-	uint32_t rmask;
-	uint32_t gmask;
-	uint32_t bmask;
-	uint32_t amask;
+	u32 size;
+	u32 flags;
+	u32 fourcc;
+	u32 bitcount;
+	u32 rmask;
+	u32 gmask;
+	u32 bmask;
+	u32 amask;
 };
 
 struct DdsHeader
 {
-	uint32_t       magic;
-	uint32_t       size;
-	uint32_t       flags;
-	uint32_t       height;
-	uint32_t       width;
-	uint32_t       pitch_or_linear_size;
-	uint32_t       depth;
-	uint32_t       num_mips;
-	uint32_t       reserved[11];
+	u32       magic;
+	u32       size;
+	u32       flags;
+	u32       height;
+	u32       width;
+	u32       pitch_or_linear_size;
+	u32       depth;
+	u32       num_mips;
+	u32       reserved[11];
 	DdsPixelFormat ddspf;
-	uint32_t       caps;
-	uint32_t       caps2;
-	uint32_t       caps3;
-	uint32_t       caps4;
-	uint32_t       reserved2;
+	u32       caps;
+	u32       caps2;
+	u32       caps3;
+	u32       caps4;
+	u32       reserved2;
 };
 
 struct PixelFormat
@@ -126,7 +126,7 @@ struct PixelFormat
 
 namespace pixel_format
 {
-	inline uint32_t size(PixelFormat::Enum fmt)
+	inline u32 size(PixelFormat::Enum fmt)
 	{
 		switch (fmt)
 		{
@@ -166,34 +166,34 @@ namespace texture_resource
 {
 	struct ImageData
 	{
-		uint32_t width;
-		uint32_t height;
-		uint32_t pitch;
+		u32 width;
+		u32 height;
+		u32 pitch;
 		PixelFormat::Enum format;
-		uint32_t num_mips;
+		u32 num_mips;
 		char* data;
 	};
 
 	struct MipData
 	{
-		uint32_t width;
-		uint32_t height;
+		u32 width;
+		u32 height;
 		PixelFormat::Enum format;
-		uint32_t size;
+		u32 size;
 		char* data;
 	};
 
-	void read_mip_image(const ImageData& image, uint8_t mip, MipData& data)
+	void read_mip_image(const ImageData& image, u8 mip, MipData& data)
 	{
-		uint32_t width = image.width;
-		uint32_t height = image.height;
-		//uint32_t pitch = image.pitch;
-		uint32_t cur_mip = 0;
+		u32 width = image.width;
+		u32 height = image.height;
+		//u32 pitch = image.pitch;
+		u32 cur_mip = 0;
 		char* src = image.data;
 
 		while (1)
 		{
-			const uint32_t size = width * height * pixel_format::size(image.format);
+			const u32 size = width * height * pixel_format::size(image.format);
 
 			if (cur_mip == mip)
 			{
@@ -212,15 +212,15 @@ namespace texture_resource
 		}
 	}
 
-	void swap_red_blue(uint32_t width, uint32_t height, uint8_t channels, char* data)
+	void swap_red_blue(u32 width, u32 height, u8 channels, char* data)
 	{
-		uint32_t i = 0;
+		u32 i = 0;
 
-		for (uint32_t h = 0; h < height; h++)
+		for (u32 h = 0; h < height; h++)
 		{
-			for (uint32_t w = 0; w < width; w++)
+			for (u32 w = 0; w < width; w++)
 			{
-				const uint8_t tmp = data[i + 0];
+				const u8 tmp = data[i + 0];
 				data[i + 0] = data[i + 2];
 				data[i + 2] = tmp;
 
@@ -229,17 +229,17 @@ namespace texture_resource
 		}
 	}
 
-	void read_tga_uncompressed(BinaryReader& br, uint32_t width, uint32_t height, uint8_t channels, ImageData& image)
+	void read_tga_uncompressed(BinaryReader& br, u32 width, u32 height, u8 channels, ImageData& image)
 	{
 		if (channels == 2)
 		{
-			uint32_t i = 0;
+			u32 i = 0;
 
-			for (uint32_t h = 0; h < height; h++)
+			for (u32 h = 0; h < height; h++)
 			{
-				for (uint32_t w = 0; w < width; w++)
+				for (u32 w = 0; w < width; w++)
 				{
-					uint16_t data;
+					u16 data;
 					br.read(data);
 
 					image.data[i + 0] = (data & 0x7c) >> 10;
@@ -257,14 +257,14 @@ namespace texture_resource
 		}
 	}
 
-	void read_tga_compressed(BinaryReader& br, uint32_t width, uint32_t height, uint8_t channels, ImageData& image)
+	void read_tga_compressed(BinaryReader& br, u32 width, u32 height, u8 channels, ImageData& image)
 	{
-		uint8_t rle_id = 0;
-		uint32_t i = 0;
-		uint32_t colors_read = 0;
+		u8 rle_id = 0;
+		u32 i = 0;
+		u32 colors_read = 0;
 
 		// Can't be more than 4 channels
-		uint8_t colors[4];
+		u8 colors[4];
 
 		while (i < width * height)
 		{
@@ -328,35 +328,35 @@ namespace texture_resource
 
 	void parse_tga(BinaryReader& br, ImageData& image)
 	{
-		uint8_t id;
+		u8 id;
 		br.read(id);
 
-		uint8_t cmap_type;
+		u8 cmap_type;
 		br.read(cmap_type);
 
-		uint8_t image_type;
+		u8 image_type;
 		br.read(image_type);
 
-		uint8_t garbage;
-		for (uint32_t i = 0; i < 5; i++)
+		u8 garbage;
+		for (u32 i = 0; i < 5; i++)
 			br.read(garbage);
 
-		uint16_t x_offt;
+		u16 x_offt;
 		br.read(x_offt);
 
-		uint16_t y_offt;
+		u16 y_offt;
 		br.read(y_offt);
 
-		uint16_t width;
+		u16 width;
 		br.read(width);
 
-		uint16_t height;
+		u16 height;
 		br.read(height);
 
-		uint8_t depth;
+		u8 depth;
 		br.read(depth);
 
-		uint8_t desc;
+		u8 desc;
 		br.read(desc);
 
 		// Skip TGA ID
@@ -365,7 +365,7 @@ namespace texture_resource
 		CE_ASSERT(image_type != 0, "TGA does not contain image data");
 		CE_ASSERT(image_type == 2 || image_type == 10, "TGA image format not supported");
 
-		const uint32_t channels = depth / 8;
+		const u32 channels = depth / 8;
 
 		image.width = width;
 		image.height = height;
@@ -396,76 +396,76 @@ namespace texture_resource
 	void parse_dds(BinaryReader& br, ImageData& image)
 	{
 		// Read header
-		uint32_t magic;
+		u32 magic;
 		br.read(magic);
 		CE_ASSERT(magic == DDSD_MAGIC, "DDS bad magic number");
 
-		uint32_t hsize;
+		u32 hsize;
 		br.read(hsize);
 		CE_ASSERT(hsize == DDSD_HEADERSIZE, "DDS bas header size");
 
-		uint32_t flags;
+		u32 flags;
 		br.read(flags);
 		CE_ASSERT(flags & (DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT), "DDS bad header flags");
 
-		uint32_t height;
+		u32 height;
 		br.read(height);
 
-		uint32_t width;
+		u32 width;
 		br.read(width);
 
-		uint32_t pitch;
+		u32 pitch;
 		br.read(pitch);
 
-		uint32_t depth;
+		u32 depth;
 		br.read(depth);
 
-		uint32_t num_mips;
+		u32 num_mips;
 		br.read(num_mips);
 
 		// Skip reserved bits
-		br.skip(sizeof(uint32_t) * 11);
+		br.skip(sizeof(u32) * 11);
 
 		// Read pixel format
-		uint32_t pf_hsize;
+		u32 pf_hsize;
 		br.read(pf_hsize);
 		CE_ASSERT(pf_hsize == DDPF_HEADERSIZE, "DDS bad pf header size");
 
-		uint32_t pf_flags;
+		u32 pf_flags;
 		br.read(pf_flags);
 
-		uint32_t pf_fourcc;
+		u32 pf_fourcc;
 		br.read(pf_fourcc);
 
-		uint32_t pf_bitcount;
+		u32 pf_bitcount;
 		br.read(pf_bitcount);
 
-		uint32_t pf_rmask;
+		u32 pf_rmask;
 		br.read(pf_rmask);
 
-		uint32_t pf_gmask;
+		u32 pf_gmask;
 		br.read(pf_gmask);
 
-		uint32_t pf_bmask;
+		u32 pf_bmask;
 		br.read(pf_bmask);
 
-		uint32_t pf_amask;
+		u32 pf_amask;
 		br.read(pf_amask);
 
-		uint32_t caps;
+		u32 caps;
 		br.read(caps);
 		CE_ASSERT((caps & DDSCAPS_TEXTURE), "DDS bad caps");
 
-		uint32_t caps2;
+		u32 caps2;
 		br.read(caps2);
 
-		uint32_t caps3;
+		u32 caps3;
 		br.read(caps3);
 
-		uint32_t caps4;
+		u32 caps4;
 		br.read(caps4);
 
-		uint32_t reserved2;
+		u32 reserved2;
 		br.read(reserved2);
 
 		CE_LOGD("width = %u", width);
@@ -480,7 +480,7 @@ namespace texture_resource
 		image.num_mips = (flags & DDSD_MIPMAPCOUNT) ? num_mips : 1;
 		image.data = (char*) (uintptr_t) DDS_DATA_OFFSET;
 
-		const uint32_t raw_fmt = (pf_flags & DDPF_FOURCC) ? pf_fourcc : pf_flags;
+		const u32 raw_fmt = (pf_flags & DDPF_FOURCC) ? pf_fourcc : pf_flags;
 		switch (raw_fmt)
 		{
 			case DDPF_FOURCC_DXT1: image.format = PixelFormat::DXT1; break;
@@ -508,19 +508,19 @@ namespace texture_resource
 		opts.write(image.height); // dwHeight
 		opts.write(image.width); // dwWidth
 
-		const uint32_t pitch = pixel_format::is_compressed(image.format) ? 0 // fixme
+		const u32 pitch = pixel_format::is_compressed(image.format) ? 0 // fixme
 								: (image.width * pixel_format::size(image.format) * 8 + 7) / 8;
 
 		opts.write(pitch); // dwPitchOrLinearSize
 		opts.write(DDSD_UNUSED); // dwDepth
 		opts.write(image.num_mips); // dwMipMapCount;
 
-		for (uint32_t i = 0; i < 11; i++)
+		for (u32 i = 0; i < 11; i++)
 			opts.write(DDSD_UNUSED); // dwReserved1[11];
 
 		// Pixel format
 		opts.write(DDPF_HEADERSIZE); // dwSize;
-		uint32_t pf = 0;
+		u32 pf = 0;
 		switch (image.format)
 		{
 			case PixelFormat::DXT1:     pf = DDPF_FOURCC_DXT1; break;
@@ -532,11 +532,11 @@ namespace texture_resource
 		}
 		opts.write(pixel_format::is_compressed(image.format) ? DDPF_FOURCC : pf); // dwFlags;
 		opts.write(pixel_format::is_compressed(image.format) ? pf : DDSD_UNUSED); // dwFourCC;
-		opts.write(uint32_t(pixel_format::size(image.format) * 8)); // dwRGBBitCount;
-		opts.write(uint32_t(0x00ff0000)); // dwRBitMask;
-		opts.write(uint32_t(0x0000ff00)); // dwGBitMask;
-		opts.write(uint32_t(0x000000ff)); // dwBBitMask;
-		opts.write(uint32_t(0xff000000)); // dwABitMask;
+		opts.write(u32(pixel_format::size(image.format) * 8)); // dwRGBBitCount;
+		opts.write(u32(0x00ff0000)); // dwRBitMask;
+		opts.write(u32(0x0000ff00)); // dwGBitMask;
+		opts.write(u32(0x000000ff)); // dwBBitMask;
+		opts.write(u32(0xff000000)); // dwABitMask;
 
 		opts.write(DDSCAPS_TEXTURE
 			| (image.num_mips > 1 ? DDSCAPS_COMPLEX : DDSD_UNUSED) // also for cubemap, depth mipmap
@@ -547,7 +547,7 @@ namespace texture_resource
 		opts.write(DDSD_UNUSED); // dwReserved2;
 
 		// Image data
-		for (uint32_t i = 0; i < image.num_mips; i++)
+		for (u32 i = 0; i < image.num_mips; i++)
 		{
 			MipData mip;
 			read_mip_image(image, i, mip);
@@ -579,7 +579,7 @@ namespace texture_resource
 		else if (name.ends_with(".dds"))
 		{
 			// parse_dds(br, image);
-			// uint32_t size = source->size();
+			// u32 size = source->size();
 			// image.data = (char*) default_allocator().allocate(size);
 			// source->seek(0);
 			// source->read(image.data, size);
@@ -597,7 +597,7 @@ namespace texture_resource
 
 		// Write DDS
 		opts.write(TEXTURE_VERSION); // Version
-		opts.write(uint32_t(0)); // Size
+		opts.write(u32(0)); // Size
 		write_dds(image, opts);
 
 		default_allocator().deallocate(image.data);
@@ -605,7 +605,7 @@ namespace texture_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const uint32_t file_size = file.size();
+		const u32 file_size = file.size();
 		file.skip(sizeof(TextureHeader));
 		const bgfx::Memory* mem = bgfx::alloc(file_size);
 		file.read(mem->data, file_size - sizeof(TextureHeader));

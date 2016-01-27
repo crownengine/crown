@@ -21,7 +21,7 @@ namespace package_resource
 	{
 		const StringId64 typeh = StringId64(type);
 
-		for (uint32_t i = 0; i < array::size(names); ++i)
+		for (u32 i = 0; i < array::size(names); ++i)
 		{
 			TempAllocator1024 ta;
 			DynamicString name(ta);
@@ -92,7 +92,7 @@ namespace package_resource
 		opts.write(PACKAGE_VERSION);
 		opts.write(array::size(resources));
 
-		for (uint32_t i = 0; i < array::size(resources); ++i)
+		for (u32 i = 0; i < array::size(resources); ++i)
 		{
 			opts.write(resources[i].type);
 			opts.write(resources[i].name);
@@ -103,11 +103,11 @@ namespace package_resource
 	{
 		BinaryReader br(file);
 
-		uint32_t version;
+		u32 version;
 		br.read(version);
 		CE_ASSERT(version == PACKAGE_VERSION, "Wrong version");
 
-		uint32_t num_resources;
+		u32 num_resources;
 		br.read(num_resources);
 
 		PackageResource* pr = CE_NEW(a, PackageResource)(a);

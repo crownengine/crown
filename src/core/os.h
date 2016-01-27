@@ -88,7 +88,7 @@ namespace os
 	}
 
 	/// Returns the last modification time of @a path.
-	inline uint64_t mtime(const char* path)
+	inline u64 mtime(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
 		struct stat info;
@@ -112,7 +112,7 @@ namespace os
 		CE_ASSERT(err != 0, "GetFileTime: GetLastError = %d", GetLastError());
 		CE_UNUSED(err);
 		CloseHandle(hfile);
-		return (uint64_t)((uint64_t(ftwrite.dwHighDateTime) << 32) | ftwrite.dwLowDateTime);
+		return (u64)((u64(ftwrite.dwHighDateTime) << 32) | ftwrite.dwLowDateTime);
 #endif
 	}
 
@@ -232,7 +232,7 @@ namespace os
 	}
 
 	/// Returns the current working directory.
-	inline const char* getcwd(char* buf, uint32_t size)
+	inline const char* getcwd(char* buf, u32 size)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::getcwd(buf, size);
@@ -252,33 +252,33 @@ namespace os
 #endif
 	}
 
-	inline int64_t clocktime()
+	inline s64 clocktime()
 	{
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
 		timespec now;
 		clock_gettime(CLOCK_MONOTONIC, &now);
-		return now.tv_sec * int64_t(1000000000) + now.tv_nsec;
+		return now.tv_sec * s64(1000000000) + now.tv_nsec;
 #elif CROWN_PLATFORM_OSX
 		struct timeval now;
 		gettimeofday(&now, NULL);
-		return now.tv_sec * int64_t(1000000) + now.tv_usec;
+		return now.tv_sec * s64(1000000) + now.tv_usec;
 #elif CROWN_PLATFORM_WINDOWS
 		LARGE_INTEGER ttime;
 		QueryPerformanceCounter(&ttime);
-		return (int64_t)ttime.QuadPart;
+		return (s64)ttime.QuadPart;
 #endif
 	}
 
-	inline int64_t clockfrequency()
+	inline s64 clockfrequency()
 	{
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
-		return int64_t(1000000000);
+		return s64(1000000000);
 #elif CROWN_PLATFORM_OSX
-		return int64_t(1000000);
+		return s64(1000000);
 #elif CROWN_PLATFORM_WINDOWS
 		LARGE_INTEGER freq;
 		QueryPerformanceFrequency(&freq);
-		return (int64_t)freq.QuadPart;
+		return (s64)freq.QuadPart;
 #endif
 	}
 

@@ -15,9 +15,9 @@ namespace crown
 /// @ingroup Device
 struct DisplayMode
 {
-	uint32_t id;
-	uint32_t width;
-	uint32_t height;
+	u32 id;
+	u32 width;
+	u32 height;
 };
 
 /// Display interface.
@@ -29,7 +29,7 @@ public:
 
 	/// Opens the window.
 	virtual void modes(Array<DisplayMode>& modes) = 0;
-	virtual void set_mode(uint32_t id) = 0;
+	virtual void set_mode(u32 id) = 0;
 
 	static Display* create(Allocator& a);
 	static void destroy(Allocator& a, Display& d);

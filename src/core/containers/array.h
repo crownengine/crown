@@ -22,40 +22,40 @@ namespace array
 	template <typename T> bool empty(const Array<T>& a);
 
 	/// Returns the number of items in the array @a a.
-	template <typename T> uint32_t size(const Array<T>& a);
+	template <typename T> u32 size(const Array<T>& a);
 
 	/// Returns the maximum number of items the array @a a can hold.
-	template <typename T> uint32_t capacity(const Array<T>& a);
+	template <typename T> u32 capacity(const Array<T>& a);
 
 	/// Resizes the array @a a to the given @a size.
 	/// @note
 	/// Old items will be copied to the newly created array.
 	/// If the new capacity is smaller than the previous one, the
 	/// array will be truncated.
-	template <typename T> void resize(Array<T>& a, uint32_t size);
+	template <typename T> void resize(Array<T>& a, u32 size);
 
 	/// Reserves space in the array @a a for at least @a capacity items.
-	template <typename T> void reserve(Array<T>& a, uint32_t capacity);
+	template <typename T> void reserve(Array<T>& a, u32 capacity);
 
 	/// Sets the capacity of array @a a.
-	template <typename T> void set_capacity(Array<T>& a, uint32_t capacity);
+	template <typename T> void set_capacity(Array<T>& a, u32 capacity);
 
 	/// Grows the array @a a to contain at least @a min_capacity items.
-	template <typename T> void grow(Array<T>& a, uint32_t min_capacity);
+	template <typename T> void grow(Array<T>& a, u32 min_capacity);
 
 	/// Condenses the array @a a so that its capacity matches the actual number
 	/// of items in the array.
 	template <typename T> void condense(Array<T>& a);
 
 	/// Appends an item to the array @a a and returns its index.
-	template <typename T> uint32_t push_back(Array<T>& a, const T& item);
+	template <typename T> u32 push_back(Array<T>& a, const T& item);
 
 	/// Removes the last item from the array @a a.
 	template <typename T> void pop_back(Array<T>& a);
 
 	/// Appends @a count @a items to the array @a a and returns the number
 	/// of items in the array after the append operation.
-	template <typename T> uint32_t push(Array<T>& a, const T* items, uint32_t count);
+	template <typename T> u32 push(Array<T>& a, const T* items, u32 count);
 
 	/// Clears the content of the array @a a.
 	/// @note
@@ -83,19 +83,19 @@ namespace array
 	}
 
 	template <typename T>
-	inline uint32_t size(const Array<T>& a)
+	inline u32 size(const Array<T>& a)
 	{
 		return a._size;
 	}
 
 	template <typename T>
-	inline uint32_t capacity(const Array<T>& a)
+	inline u32 capacity(const Array<T>& a)
 	{
 		return a._capacity;
 	}
 
 	template <typename T>
-	inline void resize(Array<T>& a, uint32_t size)
+	inline void resize(Array<T>& a, u32 size)
 	{
 		if (size > a._capacity)
 			set_capacity(a, size);
@@ -104,14 +104,14 @@ namespace array
 	}
 
 	template <typename T>
-	inline void reserve(Array<T>& a, uint32_t capacity)
+	inline void reserve(Array<T>& a, u32 capacity)
 	{
 		if (capacity > a._capacity)
 			grow(a, capacity);
 	}
 
 	template <typename T>
-	inline void set_capacity(Array<T>& a, uint32_t capacity)
+	inline void set_capacity(Array<T>& a, u32 capacity)
 	{
 		if (capacity == a._capacity)
 			return;
@@ -133,9 +133,9 @@ namespace array
 	}
 
 	template <typename T>
-	inline void grow(Array<T>& a, uint32_t min_capacity)
+	inline void grow(Array<T>& a, u32 min_capacity)
 	{
-		uint32_t new_capacity = a._capacity * 2 + 1;
+		u32 new_capacity = a._capacity * 2 + 1;
 
 		if (new_capacity < min_capacity)
 			new_capacity = min_capacity;
@@ -150,7 +150,7 @@ namespace array
 	}
 
 	template <typename T>
-	inline uint32_t push_back(Array<T>& a, const T& item)
+	inline u32 push_back(Array<T>& a, const T& item)
 	{
 		if (a._capacity == a._size)
 			grow(a, 0);
@@ -168,7 +168,7 @@ namespace array
 	}
 
 	template <typename T>
-	inline uint32_t push(Array<T>& a, const T* items, uint32_t count)
+	inline u32 push(Array<T>& a, const T* items, u32 count)
 	{
 		if (a._capacity <= a._size + count)
 			grow(a, a._size + count);
@@ -248,7 +248,7 @@ inline Array<T>::Array(Allocator& a)
 }
 
 template <typename T>
-inline Array<T>::Array(Allocator& a, uint32_t capacity)
+inline Array<T>::Array(Allocator& a, u32 capacity)
 	: _allocator(&a)
 	, _capacity(0)
 	, _size(0)
@@ -274,14 +274,14 @@ inline Array<T>::~Array()
 }
 
 template <typename T>
-inline T& Array<T>::operator[](uint32_t index)
+inline T& Array<T>::operator[](u32 index)
 {
 	CE_ASSERT(index < _size, "Index out of bounds");
 	return _data[index];
 }
 
 template <typename T>
-inline const T& Array<T>::operator[](uint32_t index) const
+inline const T& Array<T>::operator[](u32 index) const
 {
 	CE_ASSERT(index < _size, "Index out of bounds");
 	return _data[index];
@@ -290,7 +290,7 @@ inline const T& Array<T>::operator[](uint32_t index) const
 template <typename T>
 inline Array<T>& Array<T>::operator=(const Array<T>& other)
 {
-	const uint32_t size = other._size;
+	const u32 size = other._size;
 	array::resize(*this, size);
 	memcpy(_data, other._data, sizeof(T) * size);
 	return *this;

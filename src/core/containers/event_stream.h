@@ -25,12 +25,12 @@ namespace event_stream
 {
 	struct Header
 	{
-		uint32_t type;
-		uint32_t size;
+		u32 type;
+		u32 size;
 	};
 
 	/// Appends the @a event of the given @a type and @a size to the stream @a s.
-	inline void write(EventStream& s, uint32_t type, uint32_t size, const void* event)
+	inline void write(EventStream& s, u32 type, u32 size, const void* event)
 	{
 		Header header;
 		header.type = type;
@@ -42,7 +42,7 @@ namespace event_stream
 
 	/// Appends the @a event of the given @a type to the stream @a s
 	template <typename T>
-	inline void write(EventStream& s, uint32_t type, const T& event)
+	inline void write(EventStream& s, u32 type, const T& event)
 	{
 		event_stream::write(s, type, sizeof(T), &event);
 	}

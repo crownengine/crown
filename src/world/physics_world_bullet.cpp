@@ -186,7 +186,7 @@ public:
 
 	~BulletWorld()
 	{
-		for (uint32_t i = 0; i < array::size(_actor); ++i)
+		for (u32 i = 0; i < array::size(_actor); ++i)
 		{
 			btRigidBody* rb = _actor[i].actor;
 
@@ -196,7 +196,7 @@ public:
 			CE_DELETE(*_allocator, rb);
 		}
 
-		for (uint32_t i = 0; i < array::size(_collider); ++i)
+		for (u32 i = 0; i < array::size(_collider); ++i)
 		{
 			CE_DELETE(*_allocator, _collider[i].shape);
 		}
@@ -221,11 +221,11 @@ public:
 				break;
 			case ShapeType::CONVEX_HULL:
 			{
-				const uint32_t num = *(const uint32_t*)&sd[1];
+				const u32 num = *(const u32*)&sd[1];
 				const Vector3* points = (const Vector3*)((const char*)(&sd[1]) + sizeof(num));
 
 				btConvexHullShape* convex = CE_NEW(*_allocator, btConvexHullShape);
-				for (uint32_t i = 0; i < num; ++i)
+				for (u32 i = 0; i < num; ++i)
 				{
 					Vector3 vec = points[i];
 					btVector3 vec_bt(vec.x, vec.y, vec.z);
@@ -247,7 +247,7 @@ public:
 			}
 		}
 
-		const uint32_t last = array::size(_collider);
+		const u32 last = array::size(_collider);
 
 		ColliderInstanceData cid;
 		cid.unit   = id;
@@ -301,7 +301,7 @@ public:
 		const bool is_dynamic   = (actor_class->flags & PhysicsConfigActor::DYNAMIC) != 0;
 		const bool is_static    = !is_kinematic && !is_dynamic;
 
-		const float mass = is_dynamic ? ar->mass : 0.0f;
+		const f32 mass = is_dynamic ? ar->mass : 0.0f;
 
 		// If dynamic, calculate inertia
 		btVector3 inertia;
@@ -338,13 +338,13 @@ public:
 			!(ar->flags & ActorFlags::LOCK_ROTATION_Z) ? 1.0f : 0.0f)
 		);
 
-		const uint32_t last = array::size(_actor);
+		const u32 last = array::size(_actor);
 
 		actor->setUserPointer((void*)(uintptr_t)last);
 
 		// Set collision filters
-		const uint32_t me = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
-		const uint32_t mask = physics_config_resource::filter(_config_resource, ar->collision_filter)->mask;
+		const u32 me = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
+		const u32 mask = physics_config_resource::filter(_config_resource, ar->collision_filter)->mask;
 
 		_scene->addRigidBody(actor, me, mask);
 
@@ -360,7 +360,7 @@ public:
 
 	void destroy_actor(ActorInstance i)
 	{
-		const uint32_t last = array::size(_actor) - 1;
+		const u32 last = array::size(_actor) - 1;
 		const UnitId u      = _actor[i.i].unit;
 		const UnitId last_u = _actor[last].unit;
 
@@ -500,22 +500,22 @@ public:
 		return is_dynamic(i) && !is_kinematic(i);
 	}
 
-	float actor_linear_damping(ActorInstance i) const
+	f32 actor_linear_damping(ActorInstance i) const
 	{
 		return _actor[i.i].actor->getLinearDamping();
 	}
 
-	void set_actor_linear_damping(ActorInstance i, float rate)
+	void set_actor_linear_damping(ActorInstance i, f32 rate)
 	{
 		_actor[i.i].actor->setDamping(rate, _actor[i.i].actor->getAngularDamping());
 	}
 
-	float actor_angular_damping(ActorInstance i) const
+	f32 actor_angular_damping(ActorInstance i) const
 	{
 		return _actor[i.i].actor->getAngularDamping();
 	}
 
-	void set_actor_angular_damping(ActorInstance i, float rate)
+	void set_actor_angular_damping(ActorInstance i, f32 rate)
 	{
 		_actor[i.i].actor->setDamping(_actor[i.i].actor->getLinearDamping(), rate);
 	}
@@ -559,13 +559,13 @@ public:
 		_actor[i.i].actor->applyTorqueImpulse(to_btVector3(imp));
 	}
 
-	void push_actor(ActorInstance i, const Vector3& vel, float mass)
+	void push_actor(ActorInstance i, const Vector3& vel, f32 mass)
 	{
 		const Vector3 f = vel * mass;
 		_actor[i.i].actor->applyCentralForce(to_btVector3(f));
 	}
 
-	void push_actor_at(ActorInstance i, const Vector3& vel, float mass, const Vector3& pos)
+	void push_actor_at(ActorInstance i, const Vector3& vel, f32 mass, const Vector3& pos)
 	{
 		const Vector3 f = vel * mass;
 		_actor[i.i].actor->applyForce(to_btVector3(f), to_btVector3(pos));
@@ -602,7 +602,7 @@ public:
 		_controller[i.i].contr->setWalkDirection(to_btVector3(dir));
 	}
 
-	void set_height(ControllerInstance /*i*/, float /*height*/)
+	void set_height(ControllerInstance /*i*/, f32 /*height*/)
 	{
 		CE_FATAL("Not implemented yet");
 	}
@@ -702,7 +702,7 @@ public:
 		CE_FATAL("Not implemented yet");
 	}
 
-	void raycast(const Vector3& from, const Vector3& dir, float len, RaycastMode::Enum mode, Array<RaycastHit>& hits)
+	void raycast(const Vector3& from, const Vector3& dir, f32 len, RaycastMode::Enum mode, Array<RaycastHit>& hits)
 	{
 		const btVector3 start = to_btVector3(from);
 		const btVector3 end = to_btVector3(from + dir*len);
@@ -719,7 +719,7 @@ public:
 					RaycastHit hit;
 					hit.position = to_vector3(cb.m_hitPointWorld);
 					hit.normal = to_vector3(cb.m_hitNormalWorld);
-					hit.actor.i = (uint32_t)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
+					hit.actor.i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
 					array::push_back(hits, hit);
 				}
 
@@ -740,7 +740,7 @@ public:
 						RaycastHit hit;
 						hit.position = to_vector3(cb.m_hitPointWorld[i]);
 						hit.normal = to_vector3(cb.m_hitNormalWorld[i]);
-						hit.actor.i = (uint32_t)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
+						hit.actor.i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
 						hits[i] = hit;
 					}
 				}
@@ -769,7 +769,7 @@ public:
 	{
 		for (; begin != end; ++begin, ++begin_world)
 		{
-			const uint32_t ai = hash::get(_actor_map, begin->encode(), UINT32_MAX);
+			const u32 ai = hash::get(_actor_map, begin->encode(), UINT32_MAX);
 			const Quaternion rot = rotation(*begin_world);
 			const Vector3 pos = translation(*begin_world);
 
@@ -780,7 +780,7 @@ public:
 		}
 	}
 
-	void update(float dt)
+	void update(f32 dt)
 	{
 		_scene->stepSimulation(dt);
 
@@ -806,7 +806,7 @@ public:
 				const Vector3 pos         = to_vector3(pos_bt);
 				const Matrix4x4 pose      = matrix4x4(rot, pos);
 
-				const uint32_t a_idx = (uint32_t)(uintptr_t)body->getUserPointer();
+				const u32 a_idx = (u32)(uintptr_t)body->getUserPointer();
 				const UnitId unit_id = _actor[a_idx].unit;
 
 				post_transform_event(unit_id, pose);
@@ -837,7 +837,7 @@ public:
 	void tick_callback(btDynamicsWorld* world, btScalar /*dt*/)
 	{
 		// Limit bodies velocity
-		for (uint32_t i = 0; i < array::size(_actor); ++i)
+		for (u32 i = 0; i < array::size(_actor); ++i)
 		{
 			CE_ASSERT_NOT_NULL(_actor[i].actor);
 			const btVector3 velocity = _actor[i].actor->getLinearVelocity();
@@ -855,8 +855,8 @@ public:
 
 			const btCollisionObject* actor_a = contact_manifold->getBody0();
 			const btCollisionObject* actor_b = contact_manifold->getBody1();
-			const ActorInstance a0 = make_actor_instance((uint32_t)(uintptr_t)actor_a->getUserPointer());
-			const ActorInstance a1 = make_actor_instance((uint32_t)(uintptr_t)actor_b->getUserPointer());
+			const ActorInstance a0 = make_actor_instance((u32)(uintptr_t)actor_a->getUserPointer());
+			const ActorInstance a1 = make_actor_instance((u32)(uintptr_t)actor_b->getUserPointer());
 
 			int num_contacts = contact_manifold->getNumContacts();
 			for (int j = 0; j < num_contacts; ++j)
@@ -906,10 +906,10 @@ private:
 	bool is_valid(ControllerInstance i) { return i.i != UINT32_MAX; }
 	bool is_valid(JointInstance i) { return i.i != UINT32_MAX; }
 
-	ColliderInstance make_collider_instance(uint32_t i) { ColliderInstance inst = { i }; return inst; }
-	ActorInstance make_actor_instance(uint32_t i) { ActorInstance inst = { i }; return inst; }
-	ControllerInstance make_controller_instance(uint32_t i) { ControllerInstance inst = { i }; return inst; }
-	JointInstance make_joint_instance(uint32_t i) { JointInstance inst = { i }; return inst; }
+	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
+	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
+	ControllerInstance make_controller_instance(u32 i) { ControllerInstance inst = { i }; return inst; }
+	JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
 
 	void post_collision_event(ActorInstance a0, ActorInstance a1, const Vector3& where, const Vector3& normal, PhysicsCollisionEvent::Type type)
 	{
@@ -963,9 +963,9 @@ private:
 
 	Allocator* _allocator;
 
-	Hash<uint32_t> _collider_map;
-	Hash<uint32_t> _actor_map;
-	Hash<uint32_t> _controller_map;
+	Hash<u32> _collider_map;
+	Hash<u32> _actor_map;
+	Hash<u32> _controller_map;
 	Array<ColliderInstanceData> _collider;
 	Array<ActorInstanceData> _actor;
 	Array<ControllerInstanceData> _controller;

@@ -18,22 +18,22 @@ class StackAllocator : public Allocator
 {
 	struct Header
 	{
-		uint32_t offset;
-		uint32_t alloc_id;
+		u32 offset;
+		u32 alloc_id;
 	};
 
 	char* _begin;
 	char* _top;
-	uint32_t _total_size;
-	uint32_t _allocation_count;
+	u32 _total_size;
+	u32 _allocation_count;
 
 public:
 
-	StackAllocator(char* begin, uint32_t size);
+	StackAllocator(char* begin, u32 size);
 	~StackAllocator();
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(uint32_t size, uint32_t align = Allocator::DEFAULT_ALIGN);
+	void* allocate(u32 size, u32 align = Allocator::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
 	/// @note
@@ -42,10 +42,10 @@ public:
 	void deallocate(void* data);
 
 	/// @copydoc Allocator::allocated_size()
-	uint32_t allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+	u32 allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
 
 	/// @copydoc Allocator::total_allocated()
-	uint32_t total_allocated();
+	u32 total_allocated();
 };
 
 } // namespace crown

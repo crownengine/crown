@@ -46,7 +46,7 @@ CE_STATIC_ASSERT(CE_COUNTOF(s_light) == LightType::COUNT);
 
 static ProjectionType::Enum projection_name_to_enum(const char* name)
 {
-	for (uint32_t i = 0; i < CE_COUNTOF(s_projection); ++i)
+	for (u32 i = 0; i < CE_COUNTOF(s_projection); ++i)
 	{
 		if (strcmp(name, s_projection[i].name) == 0)
 			return s_projection[i].type;
@@ -57,7 +57,7 @@ static ProjectionType::Enum projection_name_to_enum(const char* name)
 
 static LightType::Enum light_name_to_enum(const char* name)
 {
-	for (uint32_t i = 0; i < CE_COUNTOF(s_light); ++i)
+	for (u32 i = 0; i < CE_COUNTOF(s_light); ++i)
 	{
 		if (strcmp(name, s_light[i].name) == 0)
 			return s_light[i].type;
@@ -275,16 +275,16 @@ Buffer UnitCompiler::get()
 	{
 		const StringId32 type             = (end-1)->pair.first;
 		const Buffer& data                = (end-1)->pair.second._data;
-		const Array<uint32_t>& unit_index = (end-1)->pair.second._unit_index;
-		const uint32_t num                = (end-1)->pair.second._num;
+		const Array<u32>& unit_index = (end-1)->pair.second._unit_index;
+		const u32 num                = (end-1)->pair.second._num;
 
 		ComponentData cd;
 		cd.type = type._id;
 		cd.num_instances = num;
-		cd.size = array::size(data) + sizeof(uint32_t)*array::size(unit_index);
+		cd.size = array::size(data) + sizeof(u32)*array::size(unit_index);
 
 		array::push(buf, (char*)&cd, sizeof(cd));
-		array::push(buf, (char*)array::begin(unit_index), sizeof(uint32_t)*array::size(unit_index));
+		array::push(buf, (char*)array::begin(unit_index), sizeof(u32)*array::size(unit_index));
 		array::push(buf, array::begin(data), array::size(data));
 
 		--end;
@@ -293,7 +293,7 @@ Buffer UnitCompiler::get()
 	return buf;
 }
 
-void UnitCompiler::add_component_data(StringId32 type, const Buffer& data, uint32_t unit_index)
+void UnitCompiler::add_component_data(StringId32 type, const Buffer& data, u32 unit_index)
 {
 	ComponentTypeData& ctd = const_cast<ComponentTypeData&>(sort_map::get(_component_data, type, ComponentTypeData(default_allocator())));
 
@@ -302,7 +302,7 @@ void UnitCompiler::add_component_data(StringId32 type, const Buffer& data, uint3
 	++ctd._num;
 }
 
-void UnitCompiler::register_component_compiler(const char* type, CompileFunction fn, float spawn_order)
+void UnitCompiler::register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order)
 {
 	ComponentTypeData ctd(default_allocator());
 	ctd._compiler = fn;

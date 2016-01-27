@@ -78,7 +78,7 @@ bool DiskFilesystem::is_file(const char* path)
 	return os::is_file(abs_path.c_str());
 }
 
-uint64_t DiskFilesystem::last_modified_time(const char* path)
+u64 DiskFilesystem::last_modified_time(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 

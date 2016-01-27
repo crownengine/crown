@@ -27,19 +27,19 @@ public:
 	virtual void close() = 0;
 
 	/// Sets the position indicator of the file to position.
-	virtual void seek(uint32_t position) = 0;
+	virtual void seek(u32 position) = 0;
 
 	/// Sets the position indicator to the end of the file
 	virtual void seek_to_end() = 0;
 
 	/// Sets the position indicator to bytes after current position
-	virtual void skip(uint32_t bytes) = 0;
+	virtual void skip(u32 bytes) = 0;
 
 	/// Reads a block of data from the file.
-	virtual uint32_t read(void* data, uint32_t size) = 0;
+	virtual u32 read(void* data, u32 size) = 0;
 
 	/// Writes a block of data to the file.
-	virtual uint32_t write(const void* data, uint32_t size) = 0;
+	virtual u32 write(const void* data, u32 size) = 0;
 
 	/// Forces the previouses write operations to complete.
 	virtual void flush() = 0;
@@ -54,12 +54,12 @@ public:
 	virtual bool end_of_file() = 0;
 
 	/// Returns the size of file in bytes.
-	virtual uint32_t size() = 0;
+	virtual u32 size() = 0;
 
 	/// Returns the current position in file.
 	/// Generally, for binary data, it means the number of bytes
 	/// from the beginning of the file.
-	virtual uint32_t position() = 0;
+	virtual u32 position() = 0;
 };
 
 } // namespace crown

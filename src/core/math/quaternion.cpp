@@ -12,12 +12,12 @@ namespace crown
 /// Returns the rotation portion of the matrix @a m as a Quaternion.
 Quaternion quaternion(const Matrix3x3& m)
 {
-	const float ww = m.x.x + m.y.y + m.z.z;
-	const float xx = m.x.x - m.y.y - m.z.z;
-	const float yy = m.y.y - m.x.x - m.z.z;
-	const float zz = m.z.z - m.x.x - m.y.y;
-	float max = ww;
-	uint32_t index = 0;
+	const f32 ww = m.x.x + m.y.y + m.z.z;
+	const f32 xx = m.x.x - m.y.y - m.z.z;
+	const f32 yy = m.y.y - m.x.x - m.z.z;
+	const f32 zz = m.z.z - m.x.x - m.y.y;
+	f32 max = ww;
+	u32 index = 0;
 
 	if (xx > max)
 	{
@@ -37,8 +37,8 @@ Quaternion quaternion(const Matrix3x3& m)
 		index = 3;
 	}
 
-	const float biggest = sqrtf(max + 1.0f) * 0.5f;
-	const float mult = 0.25f / biggest;
+	const f32 biggest = sqrtf(max + 1.0f) * 0.5f;
+	const f32 mult = 0.25f / biggest;
 
 	Quaternion tmp;
 	switch (index)

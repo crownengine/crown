@@ -16,10 +16,10 @@ namespace crown
 /// @{
 
 /// Returns a new matrix from individual elements.
-inline Matrix4x4 matrix4x4(float xx, float xy, float xz, float xw
-	, float yx, float yy, float yz, float yw
-	, float zx, float zy, float zz, float zw
-	, float tx, float ty, float tz, float tw
+inline Matrix4x4 matrix4x4(f32 xx, f32 xy, f32 xz, f32 xw
+	, f32 yx, f32 yy, f32 yz, f32 yw
+	, f32 zx, f32 zy, f32 zz, f32 zw
+	, f32 tx, f32 ty, f32 tz, f32 tw
 	)
 {
 	Matrix4x4 m;
@@ -46,7 +46,7 @@ inline Matrix4x4 matrix4x4(float xx, float xy, float xz, float xw
 }
 
 /// Returns a new matrix from individual elements.
-inline Matrix4x4 matrix4x4(const float a[16])
+inline Matrix4x4 matrix4x4(const f32 a[16])
 {
 	Matrix4x4 m;
 	m.x.x = a[0];
@@ -167,7 +167,7 @@ inline Matrix4x4& operator-=(Matrix4x4& a, const Matrix4x4& b)
 	return a;
 }
 
-inline Matrix4x4& operator*=(Matrix4x4& a, float k)
+inline Matrix4x4& operator*=(Matrix4x4& a, f32 k)
 {
 	a.x *= k;
 	a.y *= k;
@@ -219,14 +219,14 @@ inline Matrix4x4 operator-(Matrix4x4 a, const Matrix4x4& b)
 }
 
 /// Multiplies the matrix @a a by the scalar @a k and returns the result.
-inline Matrix4x4 operator*(Matrix4x4 a, float k)
+inline Matrix4x4 operator*(Matrix4x4 a, f32 k)
 {
 	a *= k;
 	return a;
 }
 
 /// Multiplies the matrix @a a by the scalar @a k and returns the result.
-inline Matrix4x4 operator*(float k, Matrix4x4 a)
+inline Matrix4x4 operator*(f32 k, Matrix4x4 a)
 {
 	a *= k;
 	return a;
@@ -261,12 +261,12 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 }
 
 /// Sets the matrix @a m to perspective.
-inline void perspective(Matrix4x4& m, float fovy, float aspect, float near, float far)
+inline void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 near, f32 far)
 {
-	const float height = 1.0f / tanf(to_rad(fovy) * 0.5f);
-	const float width = height * 1.0f / aspect;
-	const float aa = far / (far - near);
-	const float bb = -near * aa;
+	const f32 height = 1.0f / tanf(to_rad(fovy) * 0.5f);
+	const f32 width = height * 1.0f / aspect;
+	const f32 aa = far / (far - near);
+	const f32 bb = -near * aa;
 
 	m.x.x = width;
 	m.x.y = 0.0f;
@@ -290,7 +290,7 @@ inline void perspective(Matrix4x4& m, float fovy, float aspect, float near, floa
 }
 
 /// Sets the matrix @a m to orthographic.
-inline void orthographic(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far)
+inline void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top, f32 near, f32 far)
 {
 	m.x.x = 2.0f / (right - left);
 	m.x.y = 0.0f;
@@ -316,7 +316,7 @@ inline void orthographic(Matrix4x4& m, float left, float right, float bottom, fl
 /// Transposes the matrix @a m and returns the result.
 inline Matrix4x4& transpose(Matrix4x4& m)
 {
-	float tmp;
+	f32 tmp;
 
 	tmp = m.x.y;
 	m.x.y = m.y.x;
@@ -382,26 +382,26 @@ inline void look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const 
 }
 
 /// Returns the determinant of the matrix @a m.
-inline float determinant(const Matrix4x4& m)
+inline f32 determinant(const Matrix4x4& m)
 {
-	const float xx = m.x.x;
-	const float xy = m.x.y;
-	const float xz = m.x.z;
-	const float xw = m.x.w;
-	const float yx = m.y.x;
-	const float yy = m.y.y;
-	const float yz = m.y.z;
-	const float yw = m.y.w;
-	const float zx = m.z.x;
-	const float zy = m.z.y;
-	const float zz = m.z.z;
-	const float zw = m.z.w;
-	const float tx = m.t.x;
-	const float ty = m.t.y;
-	const float tz = m.t.z;
-	const float tw = m.t.w;
+	const f32 xx = m.x.x;
+	const f32 xy = m.x.y;
+	const f32 xz = m.x.z;
+	const f32 xw = m.x.w;
+	const f32 yx = m.y.x;
+	const f32 yy = m.y.y;
+	const f32 yz = m.y.z;
+	const f32 yw = m.y.w;
+	const f32 zx = m.z.x;
+	const f32 zy = m.z.y;
+	const f32 zz = m.z.z;
+	const f32 zw = m.z.w;
+	const f32 tx = m.t.x;
+	const f32 ty = m.t.y;
+	const f32 tz = m.t.z;
+	const f32 tw = m.t.w;
 
-	float det = 0.0f;
+	f32 det = 0.0f;
 	det += + xx * (yy * (zz*tw - tz*zw) - zy * (yz*tw - tz*yw) + ty * (yz*zw - zz*yw));
 	det += - yx * (xy * (zz*tw - tz*zw) - zy * (xz*tw - tz*xw) + ty * (xz*zw - zz*xw));
 	det += + zx * (xy * (yz*tw - tz*yw) - yy * (xz*tw - tz*xw) + ty * (xz*yw - yz*xw));
@@ -413,25 +413,25 @@ inline float determinant(const Matrix4x4& m)
 /// Inverts the matrix @a m and returns the result.
 inline Matrix4x4& invert(Matrix4x4& m)
 {
-	const float xx = m.x.x;
-	const float xy = m.x.y;
-	const float xz = m.x.z;
-	const float xw = m.x.w;
-	const float yx = m.y.x;
-	const float yy = m.y.y;
-	const float yz = m.y.z;
-	const float yw = m.y.w;
-	const float zx = m.z.x;
-	const float zy = m.z.y;
-	const float zz = m.z.z;
-	const float zw = m.z.w;
-	const float tx = m.t.x;
-	const float ty = m.t.y;
-	const float tz = m.t.z;
-	const float tw = m.t.w;
+	const f32 xx = m.x.x;
+	const f32 xy = m.x.y;
+	const f32 xz = m.x.z;
+	const f32 xw = m.x.w;
+	const f32 yx = m.y.x;
+	const f32 yy = m.y.y;
+	const f32 yz = m.y.z;
+	const f32 yw = m.y.w;
+	const f32 zx = m.z.x;
+	const f32 zy = m.z.y;
+	const f32 zz = m.z.z;
+	const f32 zw = m.z.w;
+	const f32 tx = m.t.x;
+	const f32 ty = m.t.y;
+	const f32 tz = m.t.z;
+	const f32 tw = m.t.w;
 
-	const float det = determinant(m);
-	const float inv_det = 1.0f / det;
+	const f32 det = determinant(m);
+	const f32 inv_det = 1.0f / det;
 
 	m.x.x = + (yy * (zz*tw - tz*zw) - zy * (yz*tw - tz*yw) + ty * (yz*zw - zz*yw)) * inv_det;
 	m.x.y = - (xy * (zz*tw - tz*zw) - zy * (xz*tw - tz*xw) + ty * (xz*zw - zz*xw)) * inv_det;
@@ -608,9 +608,9 @@ inline void set_rotation(Matrix4x4& m, const Quaternion& rot)
 /// Returns the scale of the matrix @a m.
 inline Vector3 scale(const Matrix4x4& m)
 {
-	const float sx = length(to_vector3(m.x));
-	const float sy = length(to_vector3(m.y));
-	const float sz = length(to_vector3(m.z));
+	const f32 sx = length(to_vector3(m.x));
+	const f32 sy = length(to_vector3(m.y));
+	const f32 sz = length(to_vector3(m.z));
 	Vector3 v;
 	v.x = sx;
 	v.y = sy;
@@ -627,13 +627,13 @@ inline void set_scale(Matrix4x4& m, const Vector3& s)
 }
 
 /// Returns the pointer to the matrix's data
-inline float* to_float_ptr(Matrix4x4& m)
+inline f32* to_float_ptr(Matrix4x4& m)
 {
 	return to_float_ptr(m.x);
 }
 
 /// Returns the pointer to the matrix's data
-inline const float* to_float_ptr(const Matrix4x4& m)
+inline const f32* to_float_ptr(const Matrix4x4& m)
 {
 	return to_float_ptr(m.x);
 }

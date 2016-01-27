@@ -21,28 +21,28 @@ struct NetAddress
 		set(127, 0, 0, 1);
 	}
 
-	NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+	NetAddress(u8 a, u8 b, u8 c, u8 d)
 		: _addr(0)
 	{
 		set(a, b, c, d);
 	}
 
 	/// Returns the IP address as packed 32-bit integer.
-	uint32_t address() const
+	u32 address() const
 	{
 		return _addr;
 	}
 
-	void set(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+	void set(u8 a, u8 b, u8 c, u8 d)
 	{
 		_addr = 0;
-		_addr |= uint32_t(a) << 24;
-		_addr |= uint32_t(b) << 16;
-		_addr |= uint32_t(c) << 8;
-		_addr |= uint32_t(d) << 0;
+		_addr |= u32(a) << 24;
+		_addr |= u32(b) << 16;
+		_addr |= u32(c) << 8;
+		_addr |= u32(d) << 0;
 	}
 
-	uint32_t _addr;
+	u32 _addr;
 };
 
 } // namespace crown

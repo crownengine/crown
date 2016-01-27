@@ -26,16 +26,16 @@ struct DebugLine
 	void add_line(const Vector3& start, const Vector3& end, const Color4& color);
 
 	/// Adds lines for each axis with the given @a length.
-	void add_axes(const Matrix4x4& m, float length = 1.0f);
+	void add_axes(const Matrix4x4& m, f32 length = 1.0f);
 
 	/// Adds a circle at @a center with the given @a radius and @a normal vector.
-	void add_circle(const Vector3& center, float radius, const Vector3& normal, const Color4& color, uint32_t segments = NUM_SEGMENTS);
+	void add_circle(const Vector3& center, f32 radius, const Vector3& normal, const Color4& color, u32 segments = NUM_SEGMENTS);
 
 	/// Adds a cone with the base centered at @a from and the tip at @a to.
-	void add_cone(const Vector3& from, const Vector3& to, float radius, const Color4& color, uint32_t segments = NUM_SEGMENTS);
+	void add_cone(const Vector3& from, const Vector3& to, f32 radius, const Color4& color, u32 segments = NUM_SEGMENTS);
 
 	/// Adds a sphere at @a center with the given @a radius and @a color.
-	void add_sphere(const Vector3& center, const float radius, const Color4& color, uint32_t segments = NUM_SEGMENTS);
+	void add_sphere(const Vector3& center, const f32 radius, const Color4& color, u32 segments = NUM_SEGMENTS);
 
 	/// Adds an orientd bounding box. @a tm describes the position and orientation of
 	/// the box. @a half_extents describes the size of the box along the axis.
@@ -48,25 +48,25 @@ struct DebugLine
 	void submit();
 
 	/// Default number of segments.
-	static const uint32_t NUM_SEGMENTS = 36;
-	static const uint32_t MARKER = 0xd7c17715;
+	static const u32 NUM_SEGMENTS = 36;
+	static const u32 MARKER = 0xd7c17715;
 
 private:
 
 	struct Line
 	{
 		Vector3 p0;
-		uint32_t c0;
+		u32 c0;
 		Vector3 p1;
-		uint32_t c1;
+		u32 c1;
 	};
 
-	uint32_t _marker;
+	u32 _marker;
 
 	StringId32 _shader;
 	bgfx::VertexDecl _vertex_decl;
 
-	uint32_t _num;
+	u32 _num;
 	Line _lines[CROWN_MAX_DEBUG_LINES];
 };
 

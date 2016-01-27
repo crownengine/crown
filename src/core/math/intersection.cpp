@@ -11,10 +11,10 @@
 
 namespace crown
 {
-float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p)
+f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p)
 {
-	const float num = dot(from, p.n);
-	const float den = dot(dir, p.n);
+	const f32 num = dot(from, p.n);
+	const f32 den = dot(dir, p.n);
 
 	if (fequal(den, 0.0f))
 		return -1.0f;
@@ -22,10 +22,10 @@ float ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plan
 	return (-p.d - num) / den;
 }
 
-float ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, float radius, const Vector3& normal)
+f32 ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, f32 radius, const Vector3& normal)
 {
 	const Plane p = plane::from_point_and_normal(center, normal);
-	const float t = ray_plane_intersection(from, dir, p);
+	const f32 t = ray_plane_intersection(from, dir, p);
 
 	if (t == -1.0f)
 		return -1.0f;
@@ -37,13 +37,13 @@ float ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vecto
 	return -1.0f;
 }
 
-float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s)
+f32 ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sphere& s)
 {
 	const Vector3 v = s.c - from;
-	const float b   = dot(v, dir);
-	const float rr  = s.r * s.r;
-	const float bb  = b * b;
-	const float det = rr - dot(v, v) + bb;
+	const f32 b   = dot(v, dir);
+	const f32 rr  = s.r * s.r;
+	const f32 bb  = b * b;
+	const f32 det = rr - dot(v, v) + bb;
 
 	if (det < 0.0f || b < s.r)
 		return -1.0f;
@@ -52,26 +52,26 @@ float ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Sph
 }
 
 // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
-float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const Vector3& half_extents)
+f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const Vector3& half_extents)
 {
-	float tmin = 0.0f;
-	float tmax = 100000.0f;
+	f32 tmin = 0.0f;
+	f32 tmax = 100000.0f;
 
 	const Vector3 obb_pos = vector3(tm.t.x, tm.t.y, tm.t.z);
 	const Vector3 delta = obb_pos - from;
 
 	{
 		const Vector3 xaxis = vector3(tm.x.x, tm.x.y, tm.x.z);
-		const float e = dot(xaxis, delta);
-		const float f = dot(dir, xaxis);
+		const f32 e = dot(xaxis, delta);
+		const f32 f = dot(dir, xaxis);
 
 		if (fabs(f) > 0.001f)
 		{
-			float t1 = (e-half_extents.x)/f;
-			float t2 = (e+half_extents.x)/f;
+			f32 t1 = (e-half_extents.x)/f;
+			f32 t2 = (e+half_extents.x)/f;
 
 			if (t1>t2){
-				float w=t1;t1=t2;t2=w;
+				f32 w=t1;t1=t2;t2=w;
 			}
 
 			if (t2 < tmax)
@@ -92,15 +92,15 @@ float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix
 
 	{
 		const Vector3 yaxis = vector3(tm.y.x, tm.y.y, tm.y.z);
-		const float e = dot(yaxis, delta);
-		const float f = dot(dir, yaxis);
+		const f32 e = dot(yaxis, delta);
+		const f32 f = dot(dir, yaxis);
 
 		if (fabs(f) > 0.001f){
 
-			float t1 = (e-half_extents.y)/f;
-			float t2 = (e+half_extents.y)/f;
+			f32 t1 = (e-half_extents.y)/f;
+			f32 t2 = (e+half_extents.y)/f;
 
-			if (t1>t2){float w=t1;t1=t2;t2=w;}
+			if (t1>t2){f32 w=t1;t1=t2;t2=w;}
 
 			if (t2 < tmax)
 				tmax = t2;
@@ -119,15 +119,15 @@ float ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix
 
 	{
 		const Vector3 zaxis = vector3(tm.z.x, tm.z.y, tm.z.z);
-		const float e = dot(zaxis, delta);
-		const float f = dot(dir, zaxis);
+		const f32 e = dot(zaxis, delta);
+		const f32 f = dot(dir, zaxis);
 
 		if (fabs(f) > 0.001f){
 
-			float t1 = (e-half_extents.z)/f;
-			float t2 = (e+half_extents.z)/f;
+			f32 t1 = (e-half_extents.z)/f;
+			f32 t2 = (e+half_extents.z)/f;
 
-			if (t1>t2){float w=t1;t1=t2;t2=w;}
+			if (t1>t2){f32 w=t1;t1=t2;t2=w;}
 
 			if (t2 < tmax)
 				tmax = t2;
@@ -153,12 +153,12 @@ bool plane_3_intersection(const Plane& a, const Plane& b, const Plane& c, Vector
 	const Vector3 na = a.n;
 	const Vector3 nb = b.n;
 	const Vector3 nc = c.n;
-	const float den  = -dot(cross(na, nb), nc);
+	const f32 den  = -dot(cross(na, nb), nc);
 
 	if (fequal(den, 0.0f))
 		return false;
 
-	const float inv_den = 1.0f / den;
+	const f32 inv_den = 1.0f / den;
 
 	const Vector3 nbnc = a.d * cross(nb, nc);
 	const Vector3 ncna = b.d * cross(nc, na);
@@ -203,7 +203,7 @@ bool frustum_box_intersection(const Frustum& f, const AABB& b)
 	const Vector3 v6 = aabb::vertex(b, 6);
 	const Vector3 v7 = aabb::vertex(b, 7);
 
-	uint8_t out = 0;
+	u8 out = 0;
 	out += (plane::distance_to_point(f.left, v0) < 0.0f) ? 1 : 0;
 	out += (plane::distance_to_point(f.left, v1) < 0.0f) ? 1 : 0;
 	out += (plane::distance_to_point(f.left, v2) < 0.0f) ? 1 : 0;

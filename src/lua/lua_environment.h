@@ -25,11 +25,11 @@ class LuaEnvironment
 {
 	lua_State* L;
 
-	uint32_t _vec3_used;
+	u32 _vec3_used;
 	Vector3 _vec3_buffer[CROWN_MAX_LUA_VECTOR3];
-	uint32_t _quat_used;
+	u32 _quat_used;
 	Quaternion _quat_buffer[CROWN_MAX_LUA_QUATERNION];
-	uint32_t _mat4_used;
+	u32 _mat4_used;
 	Matrix4x4 s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4];
 
 public:
@@ -54,7 +54,7 @@ public:
 	/// Example call:
 	/// call_global("myfunc", 1, ARGUMENT_FLOAT, 3.14f)
 	/// Returns true if success, false otherwise
-	void call_global(const char* func, uint8_t argc, ...);
+	void call_global(const char* func, u8 argc, ...);
 
 	/// Resets temporary types.
 	void reset_temporaries();

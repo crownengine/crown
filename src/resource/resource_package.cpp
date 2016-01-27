@@ -30,7 +30,7 @@ ResourcePackage::~ResourcePackage()
 
 void ResourcePackage::load()
 {
-	for (uint32_t i = 0; i < array::size(_package->resources); ++i)
+	for (u32 i = 0; i < array::size(_package->resources); ++i)
 	{
 		_resman->load(_package->resources[i].type, _package->resources[i].name);
 	}
@@ -38,7 +38,7 @@ void ResourcePackage::load()
 
 void ResourcePackage::unload()
 {
-	for (uint32_t i = 0; i < array::size(_package->resources); ++i)
+	for (u32 i = 0; i < array::size(_package->resources); ++i)
 	{
 		_resman->unload(_package->resources[i].type, _package->resources[i].name);
 	}
@@ -51,7 +51,7 @@ void ResourcePackage::flush()
 
 bool ResourcePackage::has_loaded() const
 {
-	for (uint32_t i = 0; i < array::size(_package->resources); ++i)
+	for (u32 i = 0; i < array::size(_package->resources); ++i)
 	{
 		if (!_resman->can_get(_package->resources[i].type, _package->resources[i].name))
 			return false;

@@ -49,7 +49,7 @@ bool ApkFilesystem::is_file(const char* path)
 	return true;
 }
 
-uint64_t ApkFilesystem::last_modified_time(const char* path)
+u64 ApkFilesystem::last_modified_time(const char* path)
 {
 	return 0;
 }

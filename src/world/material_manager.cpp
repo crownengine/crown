@@ -36,7 +36,7 @@ void MaterialManager::create_material(StringId64 id)
 
 	const MaterialResource* mr = (MaterialResource*)_resource_manager->get(MATERIAL_TYPE, id);
 
-	const uint32_t size = sizeof(Material) + mr->dynamic_data_size;
+	const u32 size = sizeof(Material) + mr->dynamic_data_size;
 	Material* mat = (Material*)_allocator->allocate(size);
 	mat->_resource = mr;
 	mat->_data     = (char*)&mat[1];

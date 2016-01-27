@@ -66,7 +66,7 @@ struct SceneGraph
 	void set_world_pose(TransformInstance i, const Matrix4x4& pose);
 
 	/// Returns the number of nodes in the graph.
-	uint32_t num_nodes() const;
+	u32 num_nodes() const;
 
 	/// Links the @a child node to the @a parent node.
 	void link(TransformInstance child, TransformInstance parent);
@@ -84,13 +84,13 @@ struct SceneGraph
 
 	void transform(const Matrix4x4& parent, TransformInstance i);
 
-	static const uint32_t MARKER = 0x63a44dbf;
+	static const u32 MARKER = 0x63a44dbf;
 
 private:
 
 	void grow();
-	void allocate(uint32_t num);
-	TransformInstance make_instance(uint32_t i);
+	void allocate(u32 num);
+	TransformInstance make_instance(u32 i);
 
 	struct Pose
 	{
@@ -118,8 +118,8 @@ private:
 		{
 		}
 
-		uint32_t size;
-		uint32_t capacity;
+		u32 size;
+		u32 capacity;
 		void* buffer;
 
 		UnitId* unit;
@@ -132,11 +132,11 @@ private:
 		bool* changed;
 	};
 
-	uint32_t _marker;
+	u32 _marker;
 
 	Allocator& _allocator;
 	InstanceData _data;
-	Hash<uint32_t> _map;
+	Hash<u32> _map;
 };
 
 } // namespace crown

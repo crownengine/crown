@@ -17,7 +17,7 @@ struct Material
 	char* _data;
 
 	void bind(ResourceManager& rm, ShaderManager& sm) const;
-	void set_float(const char* name, float val);
+	void set_float(const char* name, f32 val);
 	void set_vector2(const char* name, const Vector2& val);
 	void set_vector3(const char* name, const Vector3& val);
 };

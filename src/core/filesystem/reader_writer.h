@@ -24,7 +24,7 @@ public:
 	{
 	}
 
-	void write(const void* data, uint32_t size)
+	void write(const void* data, u32 size)
 	{
 		_file.write(data, size);
 	}
@@ -35,7 +35,7 @@ public:
 		_file.write(&data, sizeof(T));
 	}
 
-	void skip(uint32_t bytes)
+	void skip(u32 bytes)
 	{
 		_file.skip(bytes);
 	}
@@ -55,7 +55,7 @@ public:
 	{
 	}
 
-	void read(void* data, uint32_t size)
+	void read(void* data, u32 size)
 	{
 		_file.read(data, size);
 	}
@@ -66,7 +66,7 @@ public:
 		_file.read(&data, sizeof(T));
 	}
 
-	void skip(uint32_t bytes)
+	void skip(u32 bytes)
 	{
 		_file.skip(bytes);
 	}

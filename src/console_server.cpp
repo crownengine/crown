@@ -21,7 +21,7 @@ ConsoleServer::ConsoleServer(Allocator& a)
 {
 }
 
-void ConsoleServer::init(uint16_t port, bool wait)
+void ConsoleServer::init(u16 port, bool wait)
 {
 	_server.bind(port);
 	_server.listen(5);
@@ -42,7 +42,7 @@ void ConsoleServer::init(uint16_t port, bool wait)
 
 void ConsoleServer::shutdown()
 {
-	for (uint32_t i = 0; i < vector::size(_clients); ++i)
+	for (u32 i = 0; i < vector::size(_clients); ++i)
 		_clients[i].close();
 
 	_server.close();
@@ -50,14 +50,14 @@ void ConsoleServer::shutdown()
 
 void ConsoleServer::send(TCPSocket client, const char* json)
 {
-	uint32_t len = strlen32(json);
+	u32 len = strlen32(json);
 	client.write((const char*)&len, 4);
 	client.write(json, len);
 }
 
 void ConsoleServer::send(const char* json)
 {
-	for (uint32_t i = 0; i < vector::size(_clients); ++i)
+	for (u32 i = 0; i < vector::size(_clients); ++i)
 		send(_clients[i], json);
 }
 
@@ -69,10 +69,10 @@ void ConsoleServer::update()
 		add_client(client);
 
 	TempAllocator256 alloc;
-	Array<uint32_t> to_remove(alloc);
+	Array<u32> to_remove(alloc);
 
 	// Update all clients
-	for (uint32_t i = 0; i < vector::size(_clients); ++i)
+	for (u32 i = 0; i < vector::size(_clients); ++i)
 	{
 		ReadResult rr = update_client(_clients[i]);
 		if (rr.error != ReadResult::NO_ERROR)
@@ -80,10 +80,10 @@ void ConsoleServer::update()
 	}
 
 	// Remove clients
-	for (uint32_t i = 0; i < array::size(to_remove); ++i)
+	for (u32 i = 0; i < array::size(to_remove); ++i)
 	{
-		const uint32_t last = vector::size(_clients) - 1;
-		const uint32_t c = to_remove[i];
+		const u32 last = vector::size(_clients) - 1;
+		const u32 c = to_remove[i];
 
 		_clients[c].close();
 		_clients[c] = _clients[last];
@@ -98,7 +98,7 @@ void ConsoleServer::add_client(TCPSocket socket)
 
 ReadResult ConsoleServer::update_client(TCPSocket client)
 {
-	uint32_t msg_len = 0;
+	u32 msg_len = 0;
 	ReadResult rr = client.read_nonblock(&msg_len, 4);
 
 	// If no data received, return
@@ -195,7 +195,7 @@ namespace console_server_globals
 	char _buffer[sizeof(ConsoleServer)];
 	ConsoleServer* _console = NULL;
 
-	void init(uint16_t port, bool wait)
+	void init(u16 port, bool wait)
 	{
 		_console = new (_buffer) ConsoleServer(default_allocator());
 		_console->init(port, wait);

@@ -118,7 +118,7 @@ namespace json
 		CE_FATAL("Bad string");
 	}
 
-	double parse_number(const char* json)
+	f64 parse_number(const char* json)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
@@ -165,9 +165,9 @@ namespace json
 		// Ensure null terminated
 		array::push_back(number, '\0');
 
-		double val;
+		f64 val;
 		int ok = sscanf(array::begin(number), "%lf", &val);
-		CE_ASSERT(ok == 1, "Failed to parse double: %s", array::begin(number));
+		CE_ASSERT(ok == 1, "Failed to parse f64: %s", array::begin(number));
 		CE_UNUSED(ok);
 		return val;
 	}
@@ -203,14 +203,14 @@ namespace json
 		}
 	}
 
-	int32_t parse_int(const char* json)
+	s32 parse_int(const char* json)
 	{
-		return (int32_t) parse_number(json);
+		return (s32) parse_number(json);
 	}
 
-	float parse_float(const char* json)
+	f32 parse_float(const char* json)
 	{
-		return (float) parse_number(json);
+		return (f32) parse_number(json);
 	}
 
 	void parse_array(const char* json, JsonArray& array)

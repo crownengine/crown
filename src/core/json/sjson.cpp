@@ -185,7 +185,7 @@ namespace sjson
 		return NULL;
 	}
 
-	double parse_number(const char* json)
+	f64 parse_number(const char* json)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
@@ -232,9 +232,9 @@ namespace sjson
 		// Ensure null terminated
 		array::push_back(number, '\0');
 
-		double val;
+		f64 val;
 		int ok = sscanf(array::begin(number), "%lf", &val);
-		CE_ASSERT(ok == 1, "Failed to parse double: %s", array::begin(number));
+		CE_ASSERT(ok == 1, "Failed to parse f64: %s", array::begin(number));
 		CE_UNUSED(ok);
 		return val;
 	}
@@ -270,14 +270,14 @@ namespace sjson
 		}
 	}
 
-	int32_t parse_int(const char* json)
+	s32 parse_int(const char* json)
 	{
-		return (int32_t) parse_number(json);
+		return (s32) parse_number(json);
 	}
 
-	float parse_float(const char* json)
+	f32 parse_float(const char* json)
 	{
-		return (float) parse_number(json);
+		return (f32) parse_number(json);
 	}
 
 	void parse_array(const char* json, JsonArray& array)
@@ -537,7 +537,7 @@ namespace sjson
 		axis.y = sjson::parse_float(array[1]);
 		axis.z = sjson::parse_float(array[2]);
 
-		float angle = sjson::parse_float(array[3]);
+		f32 angle = sjson::parse_float(array[3]);
 
 		return quaternion(axis, angle);
 	}

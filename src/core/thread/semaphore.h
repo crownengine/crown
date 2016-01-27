@@ -51,12 +51,12 @@ struct Semaphore
 #endif
 	}
 
-	void post(uint32_t count = 1)
+	void post(u32 count = 1)
 	{
 #if CROWN_PLATFORM_POSIX
 		ScopedMutex sm(_mutex);
 
-		for (uint32_t i = 0; i < count; ++i)
+		for (u32 i = 0; i < count; ++i)
 		{
 			int err = pthread_cond_signal(&_cond);
 			CE_ASSERT(err == 0, "pthread_cond_signal: errno = %d", err);
@@ -96,7 +96,7 @@ private:
 #if CROWN_PLATFORM_POSIX
 	Mutex _mutex;
 	pthread_cond_t _cond;
-	int32_t _count;
+	s32 _count;
 #elif CROWN_PLATFORM_WINDOWS
 	HANDLE _handle;
 #endif
