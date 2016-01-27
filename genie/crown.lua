@@ -28,7 +28,7 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "third/bx/include",
 			CROWN_DIR .. "third/bgfx/include",
 			CROWN_DIR .. "third/bgfx/src",
-			CROWN_DIR .. "third/stb_vorbis",
+			CROWN_DIR .. "third/stb",
 		}
 
 		defines {
