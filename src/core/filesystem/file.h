@@ -26,40 +26,33 @@ public:
 	/// Closes the file.
 	virtual void close() = 0;
 
-	/// Sets the position indicator of the file to position.
-	virtual void seek(u32 position) = 0;
+	/// Returns the size of file in bytes.
+	virtual u32 size() = 0;
 
-	/// Sets the position indicator to the end of the file
-	virtual void seek_to_end() = 0;
-
-	/// Sets the position indicator to bytes after current position
-	virtual void skip(u32 bytes) = 0;
-
-	/// Reads a block of data from the file.
-	virtual u32 read(void* data, u32 size) = 0;
-
-	/// Writes a block of data to the file.
-	virtual u32 write(const void* data, u32 size) = 0;
-
-	/// Forces the previouses write operations to complete.
-	virtual void flush() = 0;
-
-	/// Returns whether the file is valid.
-	/// A file is valid when the buffer where it operates
-	/// exists. (i.e. a file descriptor is attached to the file,
-	/// a memory area is attached to the file etc.)
-	virtual bool is_valid() = 0;
+	/// Returns the number of bytes from the beginning of the file
+	/// to the cursor position.
+	virtual u32 position() = 0;
 
 	/// Returns whether the position is at end of file.
 	virtual bool end_of_file() = 0;
 
-	/// Returns the size of file in bytes.
-	virtual u32 size() = 0;
+	/// Sets the cursor to @a position.
+	virtual void seek(u32 position) = 0;
 
-	/// Returns the current position in file.
-	/// Generally, for binary data, it means the number of bytes
-	/// from the beginning of the file.
-	virtual u32 position() = 0;
+	/// Sets the cursor position to the end of the file.
+	virtual void seek_to_end() = 0;
+
+	/// Sets the cursor position to @a bytes after current position.
+	virtual void skip(u32 bytes) = 0;
+
+	/// Reads @a size bytes from file.
+	virtual u32 read(void* data, u32 size) = 0;
+
+	/// Writes @a size bytes to file.
+	virtual u32 write(const void* data, u32 size) = 0;
+
+	/// Forces the previouses write operations to complete.
+	virtual void flush() = 0;
 };
 
 } // namespace crown

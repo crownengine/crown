@@ -41,6 +41,21 @@ void ApkFile::close()
 	}
 }
 
+u32 ApkFile::size()
+{
+	return AAsset_getLength(_asset);
+}
+
+u32 ApkFile::position()
+{
+	return u32(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
+}
+
+bool ApkFile::end_of_file()
+{
+	return AAsset_getRemainingLength(_asset) == 0;
+}
+
 void ApkFile::seek(u32 position)
 {
 	off_t seek_result = AAsset_seek(_asset, (off_t)position, SEEK_SET);
@@ -77,26 +92,6 @@ u32 ApkFile::write(const void* /*data*/, u32 /*size*/)
 void ApkFile::flush()
 {
 	// Not needed
-}
-
-bool ApkFile::is_valid()
-{
-	return _asset != NULL;
-}
-
-bool ApkFile::end_of_file()
-{
-	return AAsset_getRemainingLength(_asset) == 0;
-}
-
-u32 ApkFile::size()
-{
-	return AAsset_getLength(_asset);
-}
-
-u32 ApkFile::position()
-{
-	return (u32)(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
 }
 
 } // namespace crown

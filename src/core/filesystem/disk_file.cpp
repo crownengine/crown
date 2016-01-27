@@ -7,10 +7,6 @@
 
 namespace crown
 {
-DiskFile::DiskFile()
-{
-}
-
 DiskFile::~DiskFile()
 {
 	close();
@@ -24,6 +20,21 @@ void DiskFile::open(const char* path, FileOpenMode::Enum mode)
 void DiskFile::close()
 {
 	_file.close();
+}
+
+u32 DiskFile::size()
+{
+	return _file.size();
+}
+
+u32 DiskFile::position()
+{
+	return _file.position();
+}
+
+bool DiskFile::end_of_file()
+{
+	return position() == size();
 }
 
 void DiskFile::seek(u32 position)
@@ -51,29 +62,9 @@ u32 DiskFile::write(const void* data, u32 size)
 	return _file.write(data, size);
 }
 
-bool DiskFile::end_of_file()
-{
-	return position() == size();
-}
-
-bool DiskFile::is_valid()
-{
-	return _file.is_open();
-}
-
 void DiskFile::flush()
 {
 	_file.flush();
-}
-
-u32 DiskFile::position()
-{
-	return _file.position();
-}
-
-u32 DiskFile::size()
-{
-	return _file.size();
 }
 
 } // namespace crown

@@ -17,17 +17,26 @@ class NullFile: public File
 {
 public:
 
-	/// @copydoc File::File()
-	NullFile() {}
-
-	/// @copydoc File::~File()
-	virtual ~NullFile() {}
-
 	/// @copydoc File::open()
 	void open(const char* /*path*/, FileOpenMode::Enum /*mode*/) {}
 
 	/// @copydoc File::close()
 	void close() {}
+
+	/// @copydoc File::size()
+	/// @note
+	///	Returns always 0xFFFFFFFF
+	u32 size() { return ~0; }
+
+	/// @copydoc File::position()
+	/// @note
+	///	Returns always zero
+	u32 position() { return 0; }
+
+	/// @copydoc File::end_of_file()
+	/// @note
+	///	Returns always false
+	bool end_of_file() { return false; }
 
 	/// @copydoc File::seek()
 	void seek(u32 position) { (void)position; }
@@ -58,26 +67,6 @@ public:
 
 	/// @copydoc File::flush()
 	void flush() {};
-
-	/// @copydoc File::is_valid()
-	/// @note
-	///	Returns always true
-	bool is_valid() { return true; }
-
-	/// @copydoc File::end_of_file()
-	/// @note
-	///	Returns always false
-	bool end_of_file() { return false; }
-
-	/// @copydoc File::size()
-	/// @note
-	///	Returns always 0xFFFFFFFF
-	u32 size() { return ~0; }
-
-	/// @copydoc File::position()
-	/// @note
-	///	Returns always zero
-	u32 position() { return 0; }
 };
 
 } // namespace crown

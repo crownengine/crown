@@ -34,6 +34,15 @@ public:
 	/// @copydoc File::close()
 	void close();
 
+	/// @copydoc File::size()
+	u32 size();
+
+	/// @copydoc File::position()
+	u32 position();
+
+	/// @copydoc File::end_of_file()
+	bool end_of_file();
+
 	/// @copydoc File::seek()
 	void seek(u32 position);
 
@@ -51,18 +60,6 @@ public:
 
 	/// @copydoc File::flush()
 	void flush();
-
-	/// @copydoc File::is_valid()
-	bool is_valid();
-
-	/// @copydoc File::end_of_file()
-	bool end_of_file();
-
-	/// @copydoc File::size()
-	u32 size();
-
-	/// @copydoc File::position()
-	u32 position();
 };
 
 } // namespace crown
