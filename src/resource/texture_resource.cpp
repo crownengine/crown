@@ -88,21 +88,21 @@ struct DdsPixelFormat
 
 struct DdsHeader
 {
-	u32       magic;
-	u32       size;
-	u32       flags;
-	u32       height;
-	u32       width;
-	u32       pitch_or_linear_size;
-	u32       depth;
-	u32       num_mips;
-	u32       reserved[11];
+	u32 magic;
+	u32 size;
+	u32 flags;
+	u32 height;
+	u32 width;
+	u32 pitch_or_linear_size;
+	u32 depth;
+	u32 num_mips;
+	u32 reserved[11];
 	DdsPixelFormat ddspf;
-	u32       caps;
-	u32       caps2;
-	u32       caps3;
-	u32       caps4;
-	u32       reserved2;
+	u32 caps;
+	u32 caps2;
+	u32 caps3;
+	u32 caps4;
+	u32 reserved2;
 };
 
 struct PixelFormat

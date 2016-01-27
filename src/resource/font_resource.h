@@ -18,7 +18,7 @@ struct FontResource
 {
 	u32 version;
 	u32 num_glyphs;
-	u32 texture_size; // Font texture size -- pow of 2
+	u32 texture_size;
 	u32 font_size;
 };
 

@@ -78,12 +78,12 @@ struct ActorFlags
 {
 	enum Enum
 	{
-		LOCK_TRANSLATION_X = (1 << 0),
-		LOCK_TRANSLATION_Y = (1 << 1),
-		LOCK_TRANSLATION_Z = (1 << 2),
-		LOCK_ROTATION_X    = (1 << 3),
-		LOCK_ROTATION_Y    = (1 << 4),
-		LOCK_ROTATION_Z    = (1 << 5)
+		LOCK_TRANSLATION_X = 1 << 0,
+		LOCK_TRANSLATION_Y = 1 << 1,
+		LOCK_TRANSLATION_Z = 1 << 2,
+		LOCK_ROTATION_X    = 1 << 3,
+		LOCK_ROTATION_Y    = 1 << 4,
+		LOCK_ROTATION_Z    = 1 << 5
 	};
 };
 
@@ -127,38 +127,38 @@ struct CollisionGroup
 {
 	enum Enum
 	{
-		GROUP_0  = (1<<0), // Reserved
-		GROUP_1  = (1<<1),
-		GROUP_2  = (1<<2),
-		GROUP_3  = (1<<3),
-		GROUP_4  = (1<<4),
-		GROUP_5  = (1<<5),
-		GROUP_6  = (1<<6),
-		GROUP_7  = (1<<7),
-		GROUP_8  = (1<<8),
-		GROUP_9  = (1<<9),
-		GROUP_10 = (1<<10),
-		GROUP_11 = (1<<11),
-		GROUP_12 = (1<<12),
-		GROUP_13 = (1<<13),
-		GROUP_14 = (1<<14),
-		GROUP_15 = (1<<15),
-		GROUP_16 = (1<<16),
-		GROUP_17 = (1<<17),
-		GROUP_18 = (1<<18),
-		GROUP_19 = (1<<19),
-		GROUP_20 = (1<<20),
-		GROUP_21 = (1<<21),
-		GROUP_22 = (1<<22),
-		GROUP_23 = (1<<23),
-		GROUP_24 = (1<<24),
-		GROUP_25 = (1<<25),
-		GROUP_26 = (1<<26),
-		GROUP_27 = (1<<27),
-		GROUP_28 = (1<<28),
-		GROUP_29 = (1<<29),
-		GROUP_30 = (1<<30),
-		GROUP_31 = (1<<31)
+		GROUP_0  = 1 <<  0, // Reserved
+		GROUP_1  = 1 <<  1,
+		GROUP_2  = 1 <<  2,
+		GROUP_3  = 1 <<  3,
+		GROUP_4  = 1 <<  4,
+		GROUP_5  = 1 <<  5,
+		GROUP_6  = 1 <<  6,
+		GROUP_7  = 1 <<  7,
+		GROUP_8  = 1 <<  8,
+		GROUP_9  = 1 <<  9,
+		GROUP_10 = 1 << 10,
+		GROUP_11 = 1 << 11,
+		GROUP_12 = 1 << 12,
+		GROUP_13 = 1 << 13,
+		GROUP_14 = 1 << 14,
+		GROUP_15 = 1 << 15,
+		GROUP_16 = 1 << 16,
+		GROUP_17 = 1 << 17,
+		GROUP_18 = 1 << 18,
+		GROUP_19 = 1 << 19,
+		GROUP_20 = 1 << 20,
+		GROUP_21 = 1 << 21,
+		GROUP_22 = 1 << 22,
+		GROUP_23 = 1 << 23,
+		GROUP_24 = 1 << 24,
+		GROUP_25 = 1 << 25,
+		GROUP_26 = 1 << 26,
+		GROUP_27 = 1 << 27,
+		GROUP_28 = 1 << 28,
+		GROUP_29 = 1 << 29,
+		GROUP_30 = 1 << 30,
+		GROUP_31 = 1 << 31
 	};
 };
 
@@ -310,11 +310,11 @@ struct SpriteRendererDesc
 /// @ingroup World
 struct LightDesc
 {
-	u32 type;    ///< LightType::Enum
+	u32 type;       ///< LightType::Enum
 	f32 range;      ///< In meters.
 	f32 intensity;
 	f32 spot_angle; ///< In radians.
-	Vector3 color;    ///< Color of the light.
+	Vector3 color;  ///< Color of the light.
 };
 
 /// Transform description.
@@ -332,7 +332,7 @@ struct TransformDesc
 /// @ingroup World
 struct CameraDesc
 {
-	u32 type;    ///< ProjectionType::Enum
+	u32 type;       ///< ProjectionType::Enum
 	f32 fov;        ///< Vertical FOV
 	f32 near_range; ///< Near clipping plane distance
 	f32 far_range;  ///< Far clipping plane distance
@@ -343,11 +343,11 @@ struct CameraDesc
 /// @ingroup World
 struct ControllerDesc
 {
-	f32 height;                ///< Height of the capsule
-	f32 radius;                ///< Radius of the capsule
-	f32 slope_limit;           ///< The maximum slope which the character can walk up in radians.
-	f32 step_offset;           ///< Maximum height of an obstacle which the character can climb.
-	f32 contact_offset;        ///< Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
+	f32 height;                  ///< Height of the capsule
+	f32 radius;                  ///< Radius of the capsule
+	f32 slope_limit;             ///< The maximum slope which the character can walk up in radians.
+	f32 step_offset;             ///< Maximum height of an obstacle which the character can climb.
+	f32 contact_offset;          ///< Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
 	StringId32 collision_filter; ///< Collision filter from global.physics_config
 };
 
@@ -357,8 +357,8 @@ struct ControllerDesc
 struct ActorResource
 {
 	StringId32 actor_class;      ///< Name of actor in global.physics resource.
-	f32 mass;                  ///< Mass of the actor.
-	u32 flags;              ///< ActorFlags::Enum
+	f32 mass;                    ///< Mass of the actor.
+	u32 flags;                   ///< ActorFlags::Enum
 	StringId32 collision_filter; ///< Name of collision filter in global.physics_config resource.
 };
 
@@ -390,7 +390,7 @@ struct HeightfieldShape
 struct ShapeDesc
 {
 	StringId32 shape_class;       ///< Name of shape in global.physics_config resource.
-	u32 type;                ///< ShapeType::Enum
+	u32 type;                     ///< ShapeType::Enum
 	StringId32 material;          ///< Name of material in global.physics_config resource.
 	Matrix4x4 local_tm;           ///< In actor-space
 	SphereShape sphere;
@@ -416,7 +416,7 @@ struct HingeJoint
 
 struct JointDesc
 {
-	u32 type;    ///< JointType::Enum
+	u32 type;         ///< JointType::Enum
 	Vector3 anchor_0;
 	Vector3 anchor_1;
 

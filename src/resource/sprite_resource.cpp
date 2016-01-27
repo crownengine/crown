@@ -25,9 +25,9 @@ namespace sprite_resource
 	struct SpriteFrame
 	{
 		StringId32 name;
-		Vector4 region;		// [x0, y0, x1, y1]
-		Vector2 scale;		// [Sx, Sy]
-		Vector2 offset;		// [Ox, Oy]
+		Vector4 region;  // [x0, y0, x1, y1]
+		Vector2 scale;   // [Sx, Sy]
+		Vector2 offset;  // [Ox, Oy]
 	};
 
 	void parse_frame(const char* json, SpriteFrame& frame)
@@ -54,8 +54,8 @@ namespace sprite_resource
 		sjson::parse_array(object["frames"], frames);
 
 		// Read width/height
-		const f32 width         = sjson::parse_float(object["width" ]);
-		const f32 height        = sjson::parse_float(object["height"]);
+		const f32 width      = sjson::parse_float(object["width" ]);
+		const f32 height     = sjson::parse_float(object["height"]);
 		const u32 num_frames = array::size(frames);
 
 		Array<f32> vertices(default_allocator());

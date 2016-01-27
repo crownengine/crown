@@ -65,9 +65,9 @@ struct PhysicsConfigActor
 {
 	enum
 	{
-		DYNAMIC         = (1 << 0),
-		KINEMATIC       = (1 << 1),
-		DISABLE_GRAVITY = (1 << 2)
+		DYNAMIC         = 1 << 0,
+		KINEMATIC       = 1 << 1,
+		DISABLE_GRAVITY = 1 << 2
 	};
 
 	StringId32 name;

@@ -42,7 +42,6 @@ namespace font_resource
 		sjson::parse(buf, object);
 		sjson::parse_array(object["glyphs"], glyphs);
 
-		const u32 count      = sjson::parse_int(object["count"]);
 		const u32 size       = sjson::parse_int(object["size"]);
 		const u32 font_size  = sjson::parse_int(object["font_size"]);
 		const u32 num_glyphs = array::size(glyphs);

@@ -29,10 +29,10 @@ struct MaterialResource
 
 struct TextureData
 {
-	u32 sampler_name_offset;	// Sampler uniform name
+	u32 sampler_name_offset; // Sampler uniform name
 	u32 _pad;
-	StringId64 id;					// Resource name
-	u32 data_offset;			// Offset into dynamic blob
+	StringId64 id;           // Resource name
+	u32 data_offset;         // Offset into dynamic blob
 	u32 _pad1;
 };
 
@@ -56,9 +56,9 @@ struct UniformType
 
 struct UniformData
 {
-	u32 name_offset;	// Uniform name
-	u32 type;			// UniformType::Enum
-	u32 data_offset;	// Offset into dynamic blob
+	u32 name_offset; // Uniform name
+	u32 type;        // UniformType::Enum
+	u32 data_offset; // Offset into dynamic blob
 };
 
 struct UniformHandle
