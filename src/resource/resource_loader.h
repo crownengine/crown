@@ -30,6 +30,21 @@ struct ResourceRequest
 /// @ingroup Resource
 class ResourceLoader
 {
+	Filesystem& _fs;
+
+	Queue<ResourceRequest> _requests;
+	Queue<ResourceRequest> _loaded;
+
+	Thread _thread;
+	Mutex _mutex;
+	Mutex _loaded_mutex;
+	bool _exit;
+
+	u32 num_requests();
+	void add_loaded(ResourceRequest rr);
+	s32 run();
+	static s32 thread_proc(void* thiz);
+
 public:
 
 	/// Read resources from @a fs.
@@ -47,30 +62,6 @@ public:
 
 	/// Returns all the resources that have been loaded.
 	void get_loaded(Array<ResourceRequest>& loaded);
-
-private:
-
-	u32 num_requests();
-	void add_loaded(ResourceRequest rr);
-
-	// Loads resources in the loading queue.
-	s32 run();
-
-	static s32 thread_proc(void* thiz)
-	{
-		return ((ResourceLoader*)thiz)->run();
-	}
-
-private:
-
-	Thread _thread;
-	Filesystem& _fs;
-
-	Queue<ResourceRequest> _requests;
-	Queue<ResourceRequest> _loaded;
-	Mutex _mutex;
-	Mutex _loaded_mutex;
-	bool _exit;
 };
 
 } // namespace crown

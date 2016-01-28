@@ -82,7 +82,7 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::load(StringId64 type, StringId64 name)
 {
-	ResourcePair id = make_pair(type, name);
+	ResourcePair id = { type, name };
 	ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (entry == ResourceEntry::NOT_FOUND)
@@ -116,7 +116,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 {
 	flush();
 
-	ResourcePair id = make_pair(type, name);
+	ResourcePair id = { type, name };
 	ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (--entry.references == 0)
@@ -131,7 +131,7 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 
 void ResourceManager::reload(StringId64 type, StringId64 name)
 {
-	const ResourcePair id = make_pair(type, name);
+	const ResourcePair id = { type, name };
 	const ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	const u32 old_refs = entry.references;
 
@@ -145,12 +145,13 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 
 bool ResourceManager::can_get(StringId64 type, StringId64 name)
 {
-	return _autoload ? true : sort_map::has(_rm, make_pair(type, name));
+	const ResourcePair id = { type, name };
+	return _autoload ? true : sort_map::has(_rm, id);
 }
 
 const void* ResourceManager::get(StringId64 type, StringId64 name)
 {
-	const ResourcePair id = make_pair(type, name);
+	const ResourcePair id = { type, name };
 	char type_buf[StringId64::STRING_LENGTH];
 	char name_buf[StringId64::STRING_LENGTH];
 
@@ -199,7 +200,9 @@ void ResourceManager::complete_request(StringId64 type, StringId64 name, void* d
 	entry.references = 1;
 	entry.data = data;
 
-	sort_map::set(_rm, make_pair(type, name), entry);
+	ResourcePair id = { type, name };
+
+	sort_map::set(_rm, id, entry);
 	sort_map::sort(_rm);
 
 	on_online(type, name);

@@ -114,4 +114,9 @@ s32 ResourceLoader::run()
 	return 0;
 }
 
+s32 ResourceLoader::thread_proc(void* thiz)
+{
+	return ((ResourceLoader*)thiz)->run();
+}
+
 } // namespace crown

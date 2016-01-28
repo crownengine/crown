@@ -20,6 +20,58 @@ namespace crown
 /// @ingroup Resource
 class ResourceManager
 {
+	typedef void* (*LoadFunction)(File& file, Allocator& a);
+	typedef void (*OnlineFunction)(StringId64 name, ResourceManager& rm);
+	typedef void (*OfflineFunction)(StringId64 name, ResourceManager& rm);
+	typedef void (*UnloadFunction)(Allocator& allocator, void* resource);
+
+	struct ResourcePair
+	{
+		StringId64 type;
+		StringId64 name;
+
+		bool operator<(const ResourcePair& a) const
+		{
+			return type < a.type || (type == a.type && name < a.name);
+		}
+	};
+
+	struct ResourceEntry
+	{
+		u32 references;
+		void* data;
+
+		bool operator==(const ResourceEntry& e)
+		{
+			return references == e.references && data == e.data;
+		}
+
+		static const ResourceEntry NOT_FOUND;
+	};
+
+	struct ResourceTypeData
+	{
+		LoadFunction load;
+		OnlineFunction online;
+		OfflineFunction offline;
+		UnloadFunction unload;
+	};
+
+	typedef SortMap<StringId64, ResourceTypeData> TypeMap;
+	typedef SortMap<ResourcePair, ResourceEntry> ResourceMap;
+
+	ProxyAllocator _resource_heap;
+	ResourceLoader* _loader;
+	TypeMap _type_data;
+	ResourceMap _rm;
+	bool _autoload;
+
+	void register_resource_type(StringId64 type, LoadFunction load, OnlineFunction online, OfflineFunction offline, UnloadFunction unload);
+	void on_online(StringId64 type, StringId64 name);
+	void on_offline(StringId64 type, StringId64 name);
+	void on_unload(StringId64 type, void* data);
+	void complete_request(StringId64 type, StringId64 name, void* data);
+
 public:
 
 	/// Uses @a rl to load resources.
@@ -51,70 +103,6 @@ public:
 
 	/// Completes all load() requests which have been loaded by ResourceLoader.
 	void complete_requests();
-
-private:
-
-	typedef void* (*LoadFunction)(File& file, Allocator& a);
-	typedef void (*OnlineFunction)(StringId64 name, ResourceManager& rm);
-	typedef void (*OfflineFunction)(StringId64 name, ResourceManager& rm);
-	typedef void (*UnloadFunction)(Allocator& allocator, void* resource);
-
-	void register_resource_type(StringId64 type, LoadFunction load, OnlineFunction online, OfflineFunction offline, UnloadFunction unload);
-
-	void on_online(StringId64 type, StringId64 name);
-	void on_offline(StringId64 type, StringId64 name);
-	void on_unload(StringId64 type, void* data);
-
-	void complete_request(StringId64 type, StringId64 name, void* data);
-
-private:
-
-	struct ResourcePair
-	{
-		StringId64 type;
-		StringId64 name;
-
-		bool operator<(const ResourcePair& a) const
-		{
-			return type < a.type || (type == a.type && name < a.name);
-		}
-	};
-
-	ResourcePair make_pair(StringId64 type, StringId64 name)
-	{
-		ResourcePair pair = { type, name };
-		return pair;
-	}
-
-	struct ResourceEntry
-	{
-		bool operator==(const ResourceEntry& e)
-		{
-			return references == e.references && data == e.data;
-		}
-
-		u32 references;
-		void* data;
-
-		static const ResourceEntry NOT_FOUND;
-	};
-
-	struct ResourceTypeData
-	{
-		LoadFunction load;
-		OnlineFunction online;
-		OfflineFunction offline;
-		UnloadFunction unload;
-	};
-
-	typedef SortMap<StringId64, ResourceTypeData> TypeMap;
-	typedef SortMap<ResourcePair, ResourceEntry> ResourceMap;
-
-	ProxyAllocator _resource_heap;
-	ResourceLoader* _loader;
-	TypeMap _type_data;
-	ResourceMap _rm;
-	bool _autoload;
 };
 
 } // namespace crown
