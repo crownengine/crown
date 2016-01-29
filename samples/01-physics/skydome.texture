@@ -1,1 +1,3 @@
 source = "skydome.tga"
+generate_mips = false
+is_normalmap = false
