@@ -17,21 +17,23 @@
 #include "temp_allocator.h"
 
 #if CROWN_DEBUG
-#	define SHADERC_NAME "shaderc-debug-"
+	#define SHADERC_NAME "shaderc-debug-"
+#elif CROWN_DEVELOPMENT
+	#define SHADERC_NAME "shaderc-development-"
 #else
-#	define SHADERC_NAME "shaderc-development-"
-#endif // CROWN_DEBUG
+	#define SHADERC_NAME "shaderc-release-"
+#endif  // CROWN_DEBUG
 #if CROWN_ARCH_32BIT
-#	define SHADERC_BITS "32"
+	#define SHADERC_BITS "32"
 #elif CROWN_ARCH_64BIT
-#	define SHADERC_BITS "64"
+	#define SHADERC_BITS "64"
 #endif // CROWN_ARCH_32BIT
 #if CROWN_PLATFORM_LINUX
-#	define SHADERC_PATH "./" SHADERC_NAME "" SHADERC_BITS
+	#define SHADERC_PATH "./" SHADERC_NAME "" SHADERC_BITS
 #elif CROWN_PLATFORM_WINDOWS
-#	define SHADERC_PATH SHADERC_NAME "" SHADERC_BITS ".exe"
+	#define SHADERC_PATH SHADERC_NAME "" SHADERC_BITS ".exe"
 #else
-# 	define SHADERC_PATH ""
+	#define SHADERC_PATH ""
 #endif // CROWN_PLATFORM_LINUX
 
 namespace crown

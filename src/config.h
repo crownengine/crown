@@ -16,6 +16,10 @@
 	#define CROWN_DEBUG 0
 #endif // CROWN_DEBUG
 
+#ifndef CROWN_DEVELOPMENT
+	#define CROWN_DEVELOPMENT 0
+#endif // CROWN_DEVELOPMENT
+
 #if !defined(CROWN_PHYSICS_BULLET) \
 	&& !defined(CROWN_PHYSICS_PHYSX) \
 	&& !defined(CROWN_PHYSICS_NULL)

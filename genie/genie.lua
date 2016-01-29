@@ -65,6 +65,7 @@ bgfxProject("", "StaticLib", os.is("windows") and { "BGFX_CONFIG_RENDERER_DIRECT
 
 if _OPTIONS["with-tools"] then
 	dofile ("shaderc.lua")
+	dofile ("texturec.lua")
 end
 
 if _OPTIONS["with-openal"] then

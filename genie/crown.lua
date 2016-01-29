@@ -133,6 +133,11 @@ function crown_project(_name, _kind, _defines)
 				"CROWN_DEBUG=1"
 			}
 
+		configuration { "development" }
+			defines {
+				"CROWN_DEVELOPMENT=1"
+			}
+
 		configuration { "android*" }
 			kind "ConsoleApp"
 			targetextension ".so"
