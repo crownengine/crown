@@ -16,10 +16,10 @@
 #include "string_stream.h"
 #include "temp_allocator.h"
 
-#if CROWN_DEBUG
-	#define SHADERC_NAME "shaderc-debug-"
-#elif CROWN_DEVELOPMENT
+#if CROWN_DEVELOPMENT
 	#define SHADERC_NAME "shaderc-development-"
+#elif CROWN_DEBUG
+	#define SHADERC_NAME "shaderc-debug-"
 #else
 	#define SHADERC_NAME "shaderc-release-"
 #endif  // CROWN_DEBUG

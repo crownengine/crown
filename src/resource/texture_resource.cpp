@@ -11,10 +11,10 @@
 #include "texture_resource.h"
 #include "os.h"
 
-#if CROWN_DEBUG
-	#define TEXTUREC_NAME "texturec-debug-"
-#elif CROWN_DEVELOPMENT
+#if CROWN_DEVELOPMENT
 	#define TEXTUREC_NAME "texturec-development-"
+#elif CROWN_DEBUG
+	#define TEXTUREC_NAME "texturec-debug-"
 #else
 	#define TEXTUREC_NAME "texturec-release-"
 #endif  // CROWN_DEBUG
