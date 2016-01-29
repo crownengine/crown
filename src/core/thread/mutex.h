@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "platform.h"
-#include "types.h"
 #include "error.h"
 #include "macros.h"
+#include "platform.h"
+#include "types.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>
@@ -18,18 +18,30 @@
 
 namespace crown
 {
+/// Mutex.
+///
+/// @ingroup Thread
 struct Mutex
 {
+#if CROWN_PLATFORM_POSIX
+	pthread_mutex_t _mutex;
+#elif CROWN_PLATFORM_WINDOWS
+	CRITICAL_SECTION _cs;
+#endif
+
 	Mutex()
 	{
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_mutexattr_init(&_attr);
-		CE_ASSERT(result == 0, "pthread_mutexattr_init: errno = %d", result);
-		result = pthread_mutexattr_settype(&_attr, PTHREAD_MUTEX_ERRORCHECK);
-		CE_ASSERT(result == 0, "pthread_mutexattr_settype: errno = %d", result);
-		result = pthread_mutex_init(&_mutex, &_attr);
-		CE_ASSERT(result == 0, "pthread_mutex_init: errno = %d", result);
-		CE_UNUSED(result);
+		pthread_mutexattr_t attr;
+		int err = pthread_mutexattr_init(&attr);
+		CE_ASSERT(err == 0, "pthread_mutexattr_init: errno = %d", err);
+		err = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+		CE_ASSERT(err == 0, "pthread_mutexattr_settype: errno = %d", err);
+		err = pthread_mutex_init(&_mutex, &attr);
+		CE_ASSERT(err == 0, "pthread_mutex_init: errno = %d", err);
+		err = pthread_mutexattr_destroy(&attr);
+		CE_ASSERT(err == 0, "pthread_mutexattr_destroy: errno = %d", err);
+		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
 		InitializeCriticalSection(&_cs);
 #endif
@@ -38,47 +50,37 @@ struct Mutex
 	~Mutex()
 	{
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_mutex_destroy(&_mutex);
-		CE_ASSERT(result == 0, "pthread_mutex_destroy: errno = %d", result);
-		result = pthread_mutexattr_destroy(&_attr);
-		CE_ASSERT(result == 0, "pthread_mutexattr_destroy: errno = %d", result);
-		CE_UNUSED(result);
+		int err = pthread_mutex_destroy(&_mutex);
+		CE_ASSERT(err == 0, "pthread_mutex_destroy: errno = %d", err);
+		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
 		DeleteCriticalSection(&_cs);
 #endif
-
 	}
 
+	/// Locks the mutex.
 	void lock()
 	{
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_mutex_lock(&_mutex);
-		CE_ASSERT(result == 0, "pthread_mutex_lock: errno = %d", result);
-		CE_UNUSED(result);
+		int err = pthread_mutex_lock(&_mutex);
+		CE_ASSERT(err == 0, "pthread_mutex_lock: errno = %d", err);
+		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
 		EnterCriticalSection(&_cs);
 #endif
 	}
 
+	/// Unlocks the mutex.
 	void unlock()
 	{
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_mutex_unlock(&_mutex);
-		CE_ASSERT(result == 0, "pthread_mutex_unlock: errno = %d", result);
-		CE_UNUSED(result);
+		int err = pthread_mutex_unlock(&_mutex);
+		CE_ASSERT(err == 0, "pthread_mutex_unlock: errno = %d", err);
+		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
 		LeaveCriticalSection(&_cs);
 #endif
 	}
-
-public:
-
-#if CROWN_PLATFORM_POSIX
-	pthread_mutex_t _mutex;
-	pthread_mutexattr_t _attr;
-#elif CROWN_PLATFORM_WINDOWS
-	CRITICAL_SECTION _cs;
-#endif
 
 private:
 
@@ -88,9 +90,13 @@ private:
 };
 
 /// Automatically locks a mutex when created and unlocks when destroyed.
+///
+/// @ingroup Thread
 struct ScopedMutex
 {
-	/// Locks the given @a m mutex.
+	Mutex& _mutex;
+
+	/// Locks the mutex @a m.
 	ScopedMutex(Mutex& m)
 		: _mutex(m)
 	{
@@ -102,10 +108,6 @@ struct ScopedMutex
 	{
 		_mutex.unlock();
 	}
-
-private:
-
-	Mutex& _mutex;
 
 private:
 

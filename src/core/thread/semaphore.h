@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "platform.h"
 #include "error.h"
 #include "mutex.h"
+#include "platform.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>
@@ -18,8 +18,19 @@
 
 namespace crown
 {
+/// Semaphore.
+///
+/// @ingroup Thread.
 struct Semaphore
 {
+#if CROWN_PLATFORM_POSIX
+	Mutex _mutex;
+	pthread_cond_t _cond;
+	s32 _count;
+#elif CROWN_PLATFORM_WINDOWS
+	HANDLE _handle;
+#endif
+
 	Semaphore()
 #if CROWN_PLATFORM_POSIX
 		: _count(0)
@@ -90,16 +101,6 @@ struct Semaphore
 		CE_UNUSED(err);
 #endif
 	}
-
-private:
-
-#if CROWN_PLATFORM_POSIX
-	Mutex _mutex;
-	pthread_cond_t _cond;
-	s32 _count;
-#elif CROWN_PLATFORM_WINDOWS
-	HANDLE _handle;
-#endif
 
 private:
 

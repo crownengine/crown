@@ -14,8 +14,17 @@
 
 namespace crown
 {
+/// Atomic integer.
+///
+/// @ingroup Thread
 struct AtomicInt
 {
+#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+	mutable int _val;
+#elif CROWN_PLATFORM_WINDOWS
+	mutable LONG _val;
+#endif
+
 	AtomicInt(int val)
 	{
 		store(val);
@@ -40,14 +49,6 @@ struct AtomicInt
 		InterlockedExchange(&_val, val);
 #endif
 	}
-
-private:
-
-#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
-	mutable int _val;
-#elif CROWN_PLATFORM_WINDOWS
-	mutable LONG _val;
-#endif
 };
 
 } // namespace crown

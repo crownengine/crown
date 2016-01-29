@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "platform.h"
 #include "error.h"
-#include "types.h"
+#include "platform.h"
 #include "semaphore.h"
+#include "types.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>
@@ -17,22 +17,37 @@
 	#include <process.h>
 #endif
 
+/// @defgroup Thread Thread
 namespace crown
 {
-typedef s32 (*ThreadFunction)(void*);
-
+/// Thread.
+///
+/// @ingroup Thread.
 struct Thread
 {
-	Thread()
+	typedef s32 (*ThreadFunction)(void* data);
+
+	ThreadFunction _function;
+	void* _user_data;
+	Semaphore _sem;
+	u32 _stack_size;
+	bool _is_running;
 #if CROWN_PLATFORM_POSIX
-		: _handle(0)
+	pthread_t _handle;
 #elif CROWN_PLATFORM_WINDOWS
-		: _handle(INVALID_HANDLE_VALUE)
+	HANDLE _handle;
 #endif
-		, _function(NULL)
-		, _data(NULL)
+
+	Thread()
+		: _function(NULL)
+		, _user_data(NULL)
 		, _stack_size(0)
 		, _is_running(false)
+#if CROWN_PLATFORM_POSIX
+		, _handle(0)
+#elif CROWN_PLATFORM_WINDOWS
+		, _handle(INVALID_HANDLE_VALUE)
+#endif
 	{
 	}
 
@@ -42,33 +57,32 @@ struct Thread
 			stop();
 	}
 
-	void start(ThreadFunction func, void* data = NULL, u32 stack_size = 0)
+	void start(ThreadFunction func, void* user_data = NULL, u32 stack_size = 0)
 	{
 		CE_ASSERT(!_is_running, "Thread is already running");
 		CE_ASSERT(func != NULL, "Function must be != NULL");
 		_function = func;
-		_data = data;
+		_user_data = user_data;
 		_stack_size = stack_size;
 
 #if CROWN_PLATFORM_POSIX
 		pthread_attr_t attr;
-		int result = pthread_attr_init(&attr);
+		int err = pthread_attr_init(&attr);
 		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-		CE_ASSERT(result == 0, "pthread_attr_init: errno = %d", result);
+		CE_ASSERT(err == 0, "pthread_attr_init: errno = %d", err);
 
 		if (_stack_size != 0)
 		{
-			result = pthread_attr_setstacksize(&attr, _stack_size);
-			CE_ASSERT(result == 0, "pthread_attr_setstacksize: errno = %d", result);
+			err = pthread_attr_setstacksize(&attr, _stack_size);
+			CE_ASSERT(err == 0, "pthread_attr_setstacksize: errno = %d", err);
 		}
 
-		result = pthread_create(&_handle, &attr, thread_proc, this);
-		CE_ASSERT(result == 0, "pthread_create: errno = %d", result);
+		err = pthread_create(&_handle, &attr, thread_proc, this);
+		CE_ASSERT(err == 0, "pthread_create: errno = %d", err);
 
-		// Free attr memory
-		result = pthread_attr_destroy(&attr);
-		CE_ASSERT(result == 0, "pthread_attr_destroy: errno = %d", result);
-		CE_UNUSED(result);
+		err = pthread_attr_destroy(&attr);
+		CE_ASSERT(err == 0, "pthread_attr_destroy: errno = %d", err);
+		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
 		_handle = CreateThread(NULL, stack_size, Thread::thread_proc, this, 0, NULL);
 		CE_ASSERT(_handle != NULL, "CreateThread: GetLastError = %d", GetLastError());
@@ -83,9 +97,9 @@ struct Thread
 		CE_ASSERT(_is_running, "Thread is not running");
 
 #if CROWN_PLATFORM_POSIX
-		int result = pthread_join(_handle, NULL);
-		CE_ASSERT(result == 0, "pthread_join: errno = %d", result);
-		CE_UNUSED(result);
+		int err = pthread_join(_handle, NULL);
+		CE_ASSERT(err == 0, "pthread_join: errno = %d", err);
+		CE_UNUSED(err);
 		_handle = 0;
 #elif CROWN_PLATFORM_WINDOWS
 		WaitForSingleObject(_handle, INFINITE);
@@ -107,7 +121,7 @@ private:
 	s32 run()
 	{
 		_sem.post();
-		return _function(_data);
+		return _function(_user_data);
 	}
 
 #if CROWN_PLATFORM_POSIX
@@ -120,25 +134,11 @@ private:
 #elif CROWN_PLATFORM_WINDOWS
 	static DWORD WINAPI thread_proc(void* arg)
 	{
-		Thread* thread = (Thread*) arg;
+		Thread* thread = (Thread*)arg;
 		s32 result = thread->run();
 		return result;
 	}
 #endif
-
-private:
-
-#if CROWN_PLATFORM_POSIX
-	pthread_t _handle;
-#elif CROWN_PLATFORM_WINDOWS
-	HANDLE _handle;
-#endif
-
-	ThreadFunction _function;
-	void* _data;
-	Semaphore _sem;
-	u32 _stack_size;
-	bool _is_running;
 
 private:
 
