@@ -15,7 +15,7 @@ namespace crown
 /// @ingroup Containers
 namespace sort_map
 {
-	/// Returns the number of items in the map @m.
+	/// Returns the number of items in the map @a m.
 	template <typename TKey, typename TValue, typename Compare> u32 size(const SortMap<TKey, TValue, Compare>& m);
 
 	/// Returns whether the @a key exists in the map.
