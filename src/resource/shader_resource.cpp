@@ -99,6 +99,7 @@ namespace shader_resource
 		{
 			CW,
 			CCW,
+			NONE,
 
 			COUNT
 		};
@@ -207,8 +208,9 @@ namespace shader_resource
 
 	static CullModeInfo _cull_mode_map[] =
 	{
-		{ "cw",  CullMode::CW  },
-		{ "ccw", CullMode::CCW }
+		{ "cw",   CullMode::CW   },
+		{ "ccw",  CullMode::CCW  },
+		{ "none", CullMode::NONE }
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_cull_mode_map) == CullMode::COUNT);
 
@@ -299,6 +301,7 @@ namespace shader_resource
 	{
 		BGFX_STATE_CULL_CW,  // CullMode::CW
 		BGFX_STATE_CULL_CCW, // CullMode::CCW
+		0                    // CullMode::NONE
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_cull_mode_map) == CullMode::COUNT);
 
@@ -658,6 +661,7 @@ namespace shader_resource
 				rs._alpha_write_enable = alpha_write_enable;
 				rs._depth_write_enable = depth_write_enable;
 				rs._depth_test_enable  = depth_test_enable;
+				rs._blend_enable       = blend_enable;
 
 				DynamicString depth_function(ta);
 				DynamicString blend_src(ta);
