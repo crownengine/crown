@@ -30,7 +30,6 @@ struct Thread
 	ThreadFunction _function;
 	void* _user_data;
 	Semaphore _sem;
-	u32 _stack_size;
 	bool _is_running;
 #if CROWN_PLATFORM_POSIX
 	pthread_t _handle;
@@ -41,7 +40,6 @@ struct Thread
 	Thread()
 		: _function(NULL)
 		, _user_data(NULL)
-		, _stack_size(0)
 		, _is_running(false)
 #if CROWN_PLATFORM_POSIX
 		, _handle(0)
@@ -63,7 +61,6 @@ struct Thread
 		CE_ASSERT(func != NULL, "Function must be != NULL");
 		_function = func;
 		_user_data = user_data;
-		_stack_size = stack_size;
 
 #if CROWN_PLATFORM_POSIX
 		pthread_attr_t attr;
@@ -71,9 +68,9 @@ struct Thread
 		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 		CE_ASSERT(err == 0, "pthread_attr_init: errno = %d", err);
 
-		if (_stack_size != 0)
+		if (stack_size != 0)
 		{
-			err = pthread_attr_setstacksize(&attr, _stack_size);
+			err = pthread_attr_setstacksize(&attr, stack_size);
 			CE_ASSERT(err == 0, "pthread_attr_setstacksize: errno = %d", err);
 		}
 
