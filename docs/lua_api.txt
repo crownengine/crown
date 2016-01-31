@@ -354,7 +354,7 @@ World
 	**num_units** (world) : int
 		Returns the number of units in the *world*.
 
-	**units** (world) : Table
+	**units** (world) : table
 		Returns all the the units in the world in a table.
 
 	**update_animations** (world, dt)
@@ -746,9 +746,11 @@ Device
 
 	**architecture** () : string
 		Returns a string identifying what architecture the engine is running on.
+		It can be either ``32-bit`` or ``64-bit``.
 
 	**version** () : string
 		Returns a string identifying the engine version.
+		The form is "major.minor.micro".
 
 	**last_delta_time** () : float
 		Returns the time in seconds needed to render the last frame
@@ -756,8 +758,8 @@ Device
 	**quit** ()
 		Quits the application.
 
-	**resolution** () : Table
-		Returns the main window resolution.
+	**resolution** () : float, float
+		Returns the main window resolution (width, height).
 
 	**create_world** () : World
 		Creates a new world.
