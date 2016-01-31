@@ -41,10 +41,10 @@ namespace json
 	/// key to pointer to the corresponding value into the original string @a json.
 	void parse_object(const char* json, JsonObject& object);
 
-	/// Parses the NJSON-encoded @a json.
+	/// Parses the JSON-encoded @a json.
 	void parse(const char* json, JsonObject& object);
 
-	/// Parses the NJSON-encoded @a json.
+	/// Parses the JSON-encoded @a json.
 	void parse(Buffer& json, JsonObject& object);
 } // namespace json
 } // namespace crown

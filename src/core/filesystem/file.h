@@ -33,7 +33,7 @@ public:
 	/// to the cursor position.
 	virtual u32 position() = 0;
 
-	/// Returns whether the position is at end of file.
+	/// Returns whether the cursor position is at end of file.
 	virtual bool end_of_file() = 0;
 
 	/// Sets the cursor to @a position.
