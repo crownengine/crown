@@ -14,8 +14,10 @@
 namespace crown
 {
 /// Dynamic array of POD items.
+///
 /// @note
-/// Does not call constructors/destructors so it is not very suitable for non-POD items.
+/// Does not call constructors/destructors, uses
+/// memcpy to move stuff around.
 ///
 /// @ingroup Containers
 template <typename T>
@@ -40,8 +42,9 @@ struct Array
 typedef Array<char> Buffer;
 
 /// Dynamic array of objects.
+///
 /// @note
-/// Calls constructors and destructors, not suitable for performance-critical stuff.
+/// Calls constructors and destructors.
 /// If your data is POD, use Array<T> instead.
 ///
 /// @ingroup Containers
@@ -64,9 +67,7 @@ struct Vector
 	const Vector<T>& operator=(const Vector<T>& other);
 };
 
-/// Circular buffer f64-ended queue of POD items.
-/// @note
-/// Does not call constructors/destructors so it is not very suitable for non-POD items.
+/// Circular buffer double-ended queue of POD items.
 ///
 /// @ingroup Containers
 template <typename T>
@@ -152,8 +153,11 @@ struct Map
 };
 
 /// Vector of sorted items.
+///
+/// @note
 /// Items are not automatically sorted, you have to call sort_map::sort()
-/// whenever you are done inserting items.
+/// whenever you are done inserting/removing items.
+///
 /// @ingroup Containers.
 template <typename TKey, typename TValue, class Compare = less<TKey> >
 struct SortMap
