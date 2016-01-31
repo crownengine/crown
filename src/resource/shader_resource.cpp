@@ -117,6 +117,29 @@ namespace shader_resource
 		};
 	};
 
+	struct SamplerFilter
+	{
+		enum Enum
+		{
+			POINT,
+			ANISOTROPIC,
+
+			COUNT
+		};
+	};
+
+	struct SamplerWrap
+	{
+		enum Enum
+		{
+			MIRROR,
+			CLAMP,
+			BORDER,
+
+			COUNT
+		};
+	};
+
 	struct DepthTestInfo
 	{
 		const char* name;
@@ -203,6 +226,33 @@ namespace shader_resource
 		{ "pt_points",    PrimitiveType::PT_POINTS    }
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_primitive_type_map) == PrimitiveType::COUNT);
+
+	struct SamplerFilterInfo
+	{
+		const char* name;
+		SamplerFilter::Enum value;
+	};
+
+	static SamplerFilterInfo _sampler_filter_map[] =
+	{
+		{ "point",       SamplerFilter::POINT       },
+		{ "anisotropic", SamplerFilter::ANISOTROPIC }
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_sampler_filter_map) == SamplerFilter::COUNT);
+
+	struct SamplerWrapInfo
+	{
+		const char* name;
+		SamplerWrap::Enum value;
+	};
+
+	static SamplerWrapInfo _sampler_wrap_map[] =
+	{
+		{ "mirror", SamplerWrap::MIRROR },
+		{ "clamp",  SamplerWrap::CLAMP  },
+		{ "border", SamplerWrap::BORDER }
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_sampler_wrap_map) == SamplerWrap::COUNT);
 
 	static u64 _bgfx_depth_function_map[] =
 	{
@@ -316,6 +366,28 @@ namespace shader_resource
 		return PrimitiveType::COUNT;
 	}
 
+	static SamplerFilter::Enum name_to_sampler_filter(const char* name)
+	{
+		for (u32 i = 0; i < CE_COUNTOF(_sampler_filter_map); ++i)
+		{
+			if (strcmp(name, _sampler_filter_map[i].name) == 0)
+				return _sampler_filter_map[i].value;
+		}
+
+		return SamplerFilter::COUNT;
+	}
+
+	static SamplerWrap::Enum name_to_sampler_wrap(const char* name)
+	{
+		for (u32 i = 0; i < CE_COUNTOF(_sampler_wrap_map); ++i)
+		{
+			if (strcmp(name, _sampler_wrap_map[i].name) == 0)
+				return _sampler_wrap_map[i].value;
+		}
+
+		return SamplerWrap::COUNT;
+	}
+
 	static int run_external_compiler(const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
 	{
 		using namespace string_stream;
@@ -406,6 +478,29 @@ namespace shader_resource
 		}
 	};
 
+	struct SamplerState
+	{
+		SamplerFilter::Enum _min_filter;
+		SamplerFilter::Enum _mag_filter;
+		SamplerWrap::Enum _wrap_u;
+		SamplerWrap::Enum _wrap_v;
+		SamplerWrap::Enum _wrap_w;
+
+		void reset()
+		{
+			_min_filter = SamplerFilter::COUNT;
+			_mag_filter = SamplerFilter::COUNT;
+			_wrap_u = SamplerWrap::COUNT;
+			_wrap_v = SamplerWrap::COUNT;
+			_wrap_w = SamplerWrap::COUNT;
+		}
+
+		u32 encode()
+		{
+			return BGFX_TEXTURE_NONE;
+		}
+	};
+
 	struct BgfxShader
 	{
 		ALLOCATOR_AWARE;
@@ -465,6 +560,7 @@ namespace shader_resource
 	{
 		CompileOptions& _opts;
 		Map<DynamicString, RenderState> _render_states;
+		Map<DynamicString, SamplerState> _sampler_states;
 		Map<DynamicString, BgfxShader> _bgfx_shaders;
 		Map<DynamicString, ShaderPermutation> _shaders;
 
@@ -477,6 +573,7 @@ namespace shader_resource
 		ShaderCompiler(CompileOptions& opts)
 			: _opts(opts)
 			, _render_states(default_allocator())
+			, _sampler_states(default_allocator())
 			, _bgfx_shaders(default_allocator())
 			, _shaders(default_allocator())
 			, _vs_source_path(default_allocator())
@@ -519,6 +616,9 @@ namespace shader_resource
 			if (map::has(object, FixedString("render_states")))
 				parse_render_states(object["render_states"]);
 
+			if (map::has(object, FixedString("sampler_states")))
+				parse_sampler_states(object["sampler_states"]);
+
 			if (map::has(object, FixedString("bgfx_shaders")))
 				parse_bgfx_shaders(object["bgfx_shaders"]);
 
@@ -552,12 +652,12 @@ namespace shader_resource
 				const bool has_cull_mode      = map::has(obj, FixedString("cull_mode"));
 				const bool has_primitive_type = map::has(obj, FixedString("primitive_type"));
 
-				DepthFunction::Enum df    = DepthFunction::COUNT;
-				BlendFunction::Enum bfsrc = BlendFunction::COUNT;
-				BlendFunction::Enum bfdst = BlendFunction::COUNT;
-				BlendEquation::Enum be    = BlendEquation::COUNT;
-				CullMode::Enum cm         = CullMode::COUNT;
-				PrimitiveType::Enum pt    = PrimitiveType::COUNT;
+				RenderState rs;
+				rs.reset();
+				rs._rgb_write_enable   = rgb_write_enable;
+				rs._alpha_write_enable = alpha_write_enable;
+				rs._depth_write_enable = depth_write_enable;
+				rs._depth_test_enable  = depth_test_enable;
 
 				DynamicString depth_function(ta);
 				DynamicString blend_src(ta);
@@ -569,8 +669,8 @@ namespace shader_resource
 				if (has_depth_function)
 				{
 					sjson::parse_string(obj["depth_function"], depth_function);
-					df = name_to_depth_function(depth_function.c_str());
-					RESOURCE_COMPILER_ASSERT(df != DepthFunction::COUNT
+					rs._depth_function = name_to_depth_function(depth_function.c_str());
+					RESOURCE_COMPILER_ASSERT(rs._depth_function != DepthFunction::COUNT
 						, _opts
 						, "Unknown depth test: '%s"
 						, depth_function.c_str()
@@ -580,8 +680,8 @@ namespace shader_resource
 				if (has_blend_src)
 				{
 					sjson::parse_string(obj["blend_src"], blend_src);
-					bfsrc = name_to_blend_function(blend_src.c_str());
-					RESOURCE_COMPILER_ASSERT(bfsrc != BlendFunction::COUNT
+					rs._blend_src = name_to_blend_function(blend_src.c_str());
+					RESOURCE_COMPILER_ASSERT(rs._blend_src != BlendFunction::COUNT
 						, _opts
 						, "Unknown blend function: '%s"
 						, blend_src.c_str()
@@ -591,8 +691,8 @@ namespace shader_resource
 				if (has_blend_dst)
 				{
 					sjson::parse_string(obj["blend_dst"], blend_dst);
-					bfdst = name_to_blend_function(blend_dst.c_str());
-					RESOURCE_COMPILER_ASSERT(bfdst != BlendFunction::COUNT
+					rs._blend_dst = name_to_blend_function(blend_dst.c_str());
+					RESOURCE_COMPILER_ASSERT(rs._blend_dst != BlendFunction::COUNT
 						, _opts
 						, "Unknown blend function: '%s"
 						, blend_dst.c_str()
@@ -602,8 +702,8 @@ namespace shader_resource
 				if (has_blend_equation)
 				{
 					sjson::parse_string(obj["blend_equation"], blend_equation);
-					be = name_to_blend_equation(blend_equation.c_str());
-					RESOURCE_COMPILER_ASSERT(be != BlendEquation::COUNT
+					rs._blend_equation = name_to_blend_equation(blend_equation.c_str());
+					RESOURCE_COMPILER_ASSERT(rs._blend_equation != BlendEquation::COUNT
 						, _opts
 						, "Unknown blend equation: '%s"
 						, blend_equation.c_str()
@@ -613,8 +713,8 @@ namespace shader_resource
 				if (has_cull_mode)
 				{
 					sjson::parse_string(obj["cull_mode"], cull_mode);
-					cm = name_to_cull_mode(cull_mode.c_str());
-					RESOURCE_COMPILER_ASSERT(cm != CullMode::COUNT
+					rs._cull_mode = name_to_cull_mode(cull_mode.c_str());
+					RESOURCE_COMPILER_ASSERT(rs._cull_mode != CullMode::COUNT
 						, _opts
 						, "Unknown cull mode: '%s"
 						, cull_mode.c_str()
@@ -624,27 +724,13 @@ namespace shader_resource
 				if (has_primitive_type)
 				{
 					sjson::parse_string(obj["primitive_type"], primitive_type);
-					pt = name_to_primitive_type(primitive_type.c_str());
-					RESOURCE_COMPILER_ASSERT(pt != PrimitiveType::COUNT
+					rs._primitive_type = name_to_primitive_type(primitive_type.c_str());
+					RESOURCE_COMPILER_ASSERT(rs._primitive_type != PrimitiveType::COUNT
 						, _opts
 						, "Unknown primitive type: '%s"
 						, primitive_type.c_str()
 						);
 				}
-
-				RenderState rs;
-				rs.reset();
-				rs._rgb_write_enable   = rgb_write_enable;
-				rs._alpha_write_enable = alpha_write_enable;
-				rs._depth_write_enable = depth_write_enable;
-				rs._depth_test_enable  = depth_test_enable;
-				rs._blend_enable       = blend_enable;
-				rs._depth_function     = df;
-				rs._blend_src          = bfsrc;
-				rs._blend_dst          = bfdst;
-				rs._blend_equation     = be;
-				rs._cull_mode          = cm;
-				rs._primitive_type     = pt;
 
 				DynamicString key(ta);
 				key = begin->pair.first;
@@ -655,6 +741,101 @@ namespace shader_resource
 					, key.c_str()
 					);
 				map::set(_render_states, key, rs);
+			}
+		}
+
+		void parse_sampler_states(const char* json)
+		{
+			TempAllocator4096 ta;
+			JsonObject sampler_states(ta);
+			sjson::parse_object(json, sampler_states);
+
+			auto begin = map::begin(sampler_states);
+			auto end = map::end(sampler_states);
+			for (; begin != end; ++begin)
+			{
+				JsonObject obj(ta);
+				sjson::parse_object(begin->pair.second, obj);
+
+				const bool has_min_filter = map::has(obj, FixedString("min_filter"));
+				const bool has_mag_filter = map::has(obj, FixedString("mag_filter"));
+				const bool has_wrap_u = map::has(obj, FixedString("wrap_u"));
+				const bool has_wrap_v = map::has(obj, FixedString("wrap_v"));
+				const bool has_wrap_w = map::has(obj, FixedString("wrap_w"));
+
+				SamplerState ss;
+				ss.reset();
+
+				DynamicString min_filter(ta);
+				DynamicString mag_filter(ta);
+				DynamicString wrap_u(ta);
+				DynamicString wrap_v(ta);
+				DynamicString wrap_w(ta);
+
+				if (has_min_filter)
+				{
+					sjson::parse_string(obj["min_filter"], min_filter);
+					ss._min_filter = name_to_sampler_filter(min_filter.c_str());
+					RESOURCE_COMPILER_ASSERT(ss._min_filter != SamplerFilter::COUNT
+						, _opts
+						, "Unknown sampler filter: '%s"
+						, min_filter.c_str()
+						);
+				}
+
+				if (has_mag_filter)
+				{
+					sjson::parse_string(obj["mag_filter"], mag_filter);
+					ss._mag_filter = name_to_sampler_filter(mag_filter.c_str());
+					RESOURCE_COMPILER_ASSERT(ss._mag_filter != SamplerFilter::COUNT
+						, _opts
+						, "Unknown sampler filter: '%s"
+						, mag_filter.c_str()
+						);
+				}
+
+				if (has_wrap_u)
+				{
+					sjson::parse_string(obj["wrap_u"], wrap_u);
+					ss._wrap_u = name_to_sampler_wrap(wrap_u.c_str());
+					RESOURCE_COMPILER_ASSERT(ss._wrap_u != SamplerWrap::COUNT
+						, _opts
+						, "Unknown wrap mode: '%s"
+						, wrap_u.c_str()
+						);
+				}
+
+				if (has_wrap_v)
+				{
+					sjson::parse_string(obj["wrap_v"], wrap_v);
+					ss._wrap_v = name_to_sampler_wrap(wrap_v.c_str());
+					RESOURCE_COMPILER_ASSERT(ss._wrap_v != SamplerWrap::COUNT
+						, _opts
+						, "Unknown wrap mode: '%s"
+						, wrap_v.c_str()
+						);
+				}
+
+				if (has_wrap_w)
+				{
+					sjson::parse_string(obj["wrap_w"], wrap_w);
+					ss._wrap_w = name_to_sampler_wrap(wrap_w.c_str());
+					RESOURCE_COMPILER_ASSERT(ss._wrap_w != SamplerWrap::COUNT
+						, _opts
+						, "Unknown wrap mode: '%s"
+						, wrap_w.c_str()
+						);
+				}
+
+				DynamicString key(ta);
+				key = begin->pair.first;
+
+				RESOURCE_COMPILER_ASSERT(!map::has(_sampler_states, key)
+					, _opts
+					, "Sampler state redefined: '%s'"
+					, key.c_str()
+					);
+				map::set(_sampler_states, key, ss);
 			}
 		}
 
