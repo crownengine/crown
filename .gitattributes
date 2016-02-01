@@ -22,7 +22,10 @@
 *.so  binary
 *.dll binary
 *.exe binary
+*.png binary
 *.tga binary
 *.dds binary
+*.ktx binary
+*.pvr binary
 *.wav binary
 *.ogg binary
