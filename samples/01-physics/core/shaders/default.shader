@@ -4,31 +4,31 @@ render_states = {
 	debug_line = {
 		rgb_write_enable = true
 		alpha_write_enable = true
+		depth_func = "lequal"
+		depth_enable = true
 		depth_write_enable = true
-		depth_test_enable = true
 		blend_enable = false
-		depth_function = "lequal"
-		cull_mode = "cw"
 		primitive_type = "pt_lines"
+		cull_mode = "cw"
 	}
 
 	debug_line_noz = {
 		rgb_write_enable = true
 		alpha_write_enable = true
+		depth_func = "lequal"
+		depth_enable = false
 		depth_write_enable = true
-		depth_test_enable = false
 		blend_enable = false
-		depth_function = "lequal"
-		cull_mode = "cw"
 		primitive_type = "pt_lines"
+		cull_mode = "cw"
 	}
 
 	gui = {
 		rgb_write_enable = true
 		alpha_write_enable = true
+		depth_func = "lequal"
+		depth_enable = true
 		depth_write_enable = true
-		depth_test_enable = true
-		depth_function = "lequal"
 		blend_enable = true
 		blend_src = "src_alpha"
 		blend_dst = "inv_src_alpha"
@@ -38,9 +38,9 @@ render_states = {
 	sprite = {
 		rgb_write_enable = true
 		alpha_write_enable = true
+		depth_func = "lequal"
+		depth_enable = true
 		depth_write_enable = true
-		depth_test_enable = true
-		depth_function = "lequal"
 		blend_enable = true
 		blend_src = "src_alpha"
 		blend_dst = "inv_src_alpha"
@@ -50,10 +50,10 @@ render_states = {
 	mesh = {
 		rgb_write_enable = true
 		alpha_write_enable = true
-		blend_enable = false
+		depth_func = "lequal"
+		depth_enable = true
 		depth_write_enable = true
-		depth_test_enable = true
-		depth_function = "lequal"
+		blend_enable = false
 		cull_mode = "ccw"
 	}
 }

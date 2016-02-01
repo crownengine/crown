@@ -166,7 +166,7 @@ namespace shader_resource
 		BlendFunction::Enum value;
 	};
 
-	static BlendFunctionInfo _blend_function_map[] =
+	static BlendFunctionInfo _blend_func_map[] =
 	{
 		{ "zero",          BlendFunction::ZERO          },
 		{ "one",           BlendFunction::ONE           },
@@ -182,7 +182,7 @@ namespace shader_resource
 		{ "factor",        BlendFunction::FACTOR        },
 		{ "inv_factor",    BlendFunction::INV_FACTOR    }
 	};
-	CE_STATIC_ASSERT(CE_COUNTOF(_blend_function_map) == BlendFunction::COUNT);
+	CE_STATIC_ASSERT(CE_COUNTOF(_blend_func_map) == BlendFunction::COUNT);
 
 	struct BlendEquationInfo
 	{
@@ -256,7 +256,7 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_sampler_wrap_map) == SamplerWrap::COUNT);
 
-	static u64 _bgfx_depth_function_map[] =
+	static u64 _bgfx_depth_func_map[] =
 	{
 		BGFX_STATE_DEPTH_TEST_LESS,     // DepthFunction::LESS
 		BGFX_STATE_DEPTH_TEST_LEQUAL,   // DepthFunction::LEQUAL
@@ -267,9 +267,9 @@ namespace shader_resource
 		BGFX_STATE_DEPTH_TEST_NEVER,    // DepthFunction::NEVER
 		BGFX_STATE_DEPTH_TEST_ALWAYS,   // DepthFunction::ALWAYS
 	};
-	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_depth_function_map) == DepthFunction::COUNT);
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_depth_func_map) == DepthFunction::COUNT);
 
-	static u64 _bgfx_blend_function_map[] =
+	static u64 _bgfx_blend_func_map[] =
 	{
 		BGFX_STATE_BLEND_ZERO,          // BlendFunction::ZERO
 		BGFX_STATE_BLEND_ONE,           // BlendFunction::ONE
@@ -285,7 +285,7 @@ namespace shader_resource
 		BGFX_STATE_BLEND_FACTOR,        // BlendFunction::FACTOR
 		BGFX_STATE_BLEND_INV_FACTOR,    // BlendFunction::INV_FACTOR
 	};
-	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_blend_function_map) == BlendFunction::COUNT);
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_blend_func_map) == BlendFunction::COUNT);
 
 	static u64 _bgfx_blend_equation_map[] =
 	{
@@ -314,7 +314,7 @@ namespace shader_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_primitive_type_map) == PrimitiveType::COUNT);
 
-	static DepthFunction::Enum name_to_depth_function(const char* name)
+	static DepthFunction::Enum name_to_depth_func(const char* name)
 	{
 		for (u32 i = 0; i < CE_COUNTOF(_depth_test_map); ++i)
 		{
@@ -327,10 +327,10 @@ namespace shader_resource
 
 	static BlendFunction::Enum name_to_blend_function(const char* name)
 	{
-		for (u32 i = 0; i < CE_COUNTOF(_blend_function_map); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(_blend_func_map); ++i)
 		{
-			if (strcmp(name, _blend_function_map[i].name) == 0)
-				return _blend_function_map[i].value;
+			if (strcmp(name, _blend_func_map[i].name) == 0)
+				return _blend_func_map[i].value;
 		}
 
 		return BlendFunction::COUNT;
@@ -420,9 +420,9 @@ namespace shader_resource
 		bool _rgb_write_enable;
 		bool _alpha_write_enable;
 		bool _depth_write_enable;
-		bool _depth_test_enable;
+		bool _depth_enable;
 		bool _blend_enable;
-		DepthFunction::Enum _depth_function;
+		DepthFunction::Enum _depth_func;
 		BlendFunction::Enum _blend_src;
 		BlendFunction::Enum _blend_dst;
 		BlendEquation::Enum _blend_equation;
@@ -434,9 +434,9 @@ namespace shader_resource
 			_rgb_write_enable = false;
 			_alpha_write_enable = false;
 			_depth_write_enable = false;
-			_depth_test_enable = false;
+			_depth_enable = false;
 			_blend_enable = false;
-			_depth_function = DepthFunction::COUNT;
+			_depth_func = DepthFunction::COUNT;
 			_blend_src = BlendFunction::COUNT;
 			_blend_dst = BlendFunction::COUNT;
 			_blend_equation = BlendEquation::COUNT;
@@ -446,12 +446,12 @@ namespace shader_resource
 
 		u64 encode() const
 		{
-			const u64 depth_func = (_depth_test_enable
-				? _bgfx_depth_function_map[_depth_function]
+			const u64 depth_func = (_depth_enable
+				? _bgfx_depth_func_map[_depth_func]
 				: 0
 				);
 			const u64 blend_func = (_blend_enable
-				? BGFX_STATE_BLEND_FUNC(_bgfx_blend_function_map[_blend_src], _bgfx_blend_function_map[_blend_dst])
+				? BGFX_STATE_BLEND_FUNC(_bgfx_blend_func_map[_blend_src], _bgfx_blend_func_map[_blend_dst])
 				: 0
 				);
 			const u64 blend_eq = (_blend_enable
@@ -645,10 +645,10 @@ namespace shader_resource
 				const bool rgb_write_enable   = sjson::parse_bool(obj["rgb_write_enable"]);
 				const bool alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
 				const bool depth_write_enable = sjson::parse_bool(obj["depth_write_enable"]);
-				const bool depth_test_enable  = sjson::parse_bool(obj["depth_test_enable"]);
+				const bool depth_enable       = sjson::parse_bool(obj["depth_enable"]);
 				const bool blend_enable       = sjson::parse_bool(obj["blend_enable"]);
 
-				const bool has_depth_function = map::has(obj, FixedString("depth_function"));
+				const bool has_depth_func     = map::has(obj, FixedString("depth_func"));
 				const bool has_blend_src      = map::has(obj, FixedString("blend_src"));
 				const bool has_blend_dst      = map::has(obj, FixedString("blend_dst"));
 				const bool has_blend_equation = map::has(obj, FixedString("blend_equation"));
@@ -660,24 +660,24 @@ namespace shader_resource
 				rs._rgb_write_enable   = rgb_write_enable;
 				rs._alpha_write_enable = alpha_write_enable;
 				rs._depth_write_enable = depth_write_enable;
-				rs._depth_test_enable  = depth_test_enable;
+				rs._depth_enable       = depth_enable;
 				rs._blend_enable       = blend_enable;
 
-				DynamicString depth_function(ta);
+				DynamicString depth_func(ta);
 				DynamicString blend_src(ta);
 				DynamicString blend_dst(ta);
 				DynamicString blend_equation(ta);
 				DynamicString cull_mode(ta);
 				DynamicString primitive_type(ta);
 
-				if (has_depth_function)
+				if (has_depth_func)
 				{
-					sjson::parse_string(obj["depth_function"], depth_function);
-					rs._depth_function = name_to_depth_function(depth_function.c_str());
-					RESOURCE_COMPILER_ASSERT(rs._depth_function != DepthFunction::COUNT
+					sjson::parse_string(obj["depth_func"], depth_func);
+					rs._depth_func = name_to_depth_func(depth_func.c_str());
+					RESOURCE_COMPILER_ASSERT(rs._depth_func != DepthFunction::COUNT
 						, _opts
-						, "Unknown depth test: '%s"
-						, depth_function.c_str()
+						, "Unknown depth test: '%s'"
+						, depth_func.c_str()
 						);
 				}
 
@@ -687,7 +687,7 @@ namespace shader_resource
 					rs._blend_src = name_to_blend_function(blend_src.c_str());
 					RESOURCE_COMPILER_ASSERT(rs._blend_src != BlendFunction::COUNT
 						, _opts
-						, "Unknown blend function: '%s"
+						, "Unknown blend function: '%s'"
 						, blend_src.c_str()
 						);
 				}
@@ -698,7 +698,7 @@ namespace shader_resource
 					rs._blend_dst = name_to_blend_function(blend_dst.c_str());
 					RESOURCE_COMPILER_ASSERT(rs._blend_dst != BlendFunction::COUNT
 						, _opts
-						, "Unknown blend function: '%s"
+						, "Unknown blend function: '%s'"
 						, blend_dst.c_str()
 						);
 				}
@@ -709,7 +709,7 @@ namespace shader_resource
 					rs._blend_equation = name_to_blend_equation(blend_equation.c_str());
 					RESOURCE_COMPILER_ASSERT(rs._blend_equation != BlendEquation::COUNT
 						, _opts
-						, "Unknown blend equation: '%s"
+						, "Unknown blend equation: '%s'"
 						, blend_equation.c_str()
 						);
 				}
@@ -720,7 +720,7 @@ namespace shader_resource
 					rs._cull_mode = name_to_cull_mode(cull_mode.c_str());
 					RESOURCE_COMPILER_ASSERT(rs._cull_mode != CullMode::COUNT
 						, _opts
-						, "Unknown cull mode: '%s"
+						, "Unknown cull mode: '%s'"
 						, cull_mode.c_str()
 						);
 				}
@@ -731,7 +731,7 @@ namespace shader_resource
 					rs._primitive_type = name_to_primitive_type(primitive_type.c_str());
 					RESOURCE_COMPILER_ASSERT(rs._primitive_type != PrimitiveType::COUNT
 						, _opts
-						, "Unknown primitive type: '%s"
+						, "Unknown primitive type: '%s'"
 						, primitive_type.c_str()
 						);
 				}
@@ -782,7 +782,7 @@ namespace shader_resource
 					ss._min_filter = name_to_sampler_filter(min_filter.c_str());
 					RESOURCE_COMPILER_ASSERT(ss._min_filter != SamplerFilter::COUNT
 						, _opts
-						, "Unknown sampler filter: '%s"
+						, "Unknown sampler filter: '%s'"
 						, min_filter.c_str()
 						);
 				}
@@ -793,7 +793,7 @@ namespace shader_resource
 					ss._mag_filter = name_to_sampler_filter(mag_filter.c_str());
 					RESOURCE_COMPILER_ASSERT(ss._mag_filter != SamplerFilter::COUNT
 						, _opts
-						, "Unknown sampler filter: '%s"
+						, "Unknown sampler filter: '%s'"
 						, mag_filter.c_str()
 						);
 				}
@@ -804,7 +804,7 @@ namespace shader_resource
 					ss._wrap_u = name_to_sampler_wrap(wrap_u.c_str());
 					RESOURCE_COMPILER_ASSERT(ss._wrap_u != SamplerWrap::COUNT
 						, _opts
-						, "Unknown wrap mode: '%s"
+						, "Unknown wrap mode: '%s'"
 						, wrap_u.c_str()
 						);
 				}
@@ -815,7 +815,7 @@ namespace shader_resource
 					ss._wrap_v = name_to_sampler_wrap(wrap_v.c_str());
 					RESOURCE_COMPILER_ASSERT(ss._wrap_v != SamplerWrap::COUNT
 						, _opts
-						, "Unknown wrap mode: '%s"
+						, "Unknown wrap mode: '%s'"
 						, wrap_v.c_str()
 						);
 				}
@@ -826,7 +826,7 @@ namespace shader_resource
 					ss._wrap_w = name_to_sampler_wrap(wrap_w.c_str());
 					RESOURCE_COMPILER_ASSERT(ss._wrap_w != SamplerWrap::COUNT
 						, _opts
-						, "Unknown wrap mode: '%s"
+						, "Unknown wrap mode: '%s'"
 						, wrap_w.c_str()
 						);
 				}
