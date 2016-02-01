@@ -1,3 +1,37 @@
+sampler_states = {
+	clamp_point = {
+		wrap_u = "clamp"
+		wrap_v = "clamp"
+		wrap_w = "clamp"
+		min_filter = "point"
+		mag_filter = "point"
+	}
+
+	clamp_anisotropic = {
+		wrap_u = "clamp"
+		wrap_v = "clamp"
+		wrap_w = "clamp"
+		min_filter = "anisotropic"
+		mag_filter = "anisotropic"
+	}
+
+	mirror_point = {
+		wrap_u = "mirror"
+		wrap_v = "mirror"
+		wrap_w = "mirror"
+		min_filter = "point"
+		mag_filter = "point"
+	}
+
+	mirror_anisotropic = {
+		wrap_u = "mirror"
+		wrap_v = "mirror"
+		wrap_w = "mirror"
+		min_filter = "anisotropic"
+		mag_filter = "anisotropic"
+	}
+}
+
 bgfx_shaders = {
 	common = {
 		code = "
