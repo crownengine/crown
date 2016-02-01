@@ -3,7 +3,6 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-
 #include "config.h"
 #include "device.h"
 #include "error.h"
