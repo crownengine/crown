@@ -14,7 +14,6 @@
 #include "input_types.h"
 #include "linear_allocator.h"
 #include "lua_types.h"
-#include "os_event_queue.h"
 #include "resource_types.h"
 #include "string_id.h"
 #include "types.h"
@@ -179,7 +178,6 @@ private:
 	Device& operator=(const Device&);
 };
 
-bool next_event(OsEvent& ev);
 void init(const DeviceOptions& opts);
 void update();
 void shutdown();

@@ -19,6 +19,7 @@
 #include "material_manager.h"
 #include "memory.h"
 #include "os.h"
+#include "os_event_queue.h"
 #include "path.h"
 #include "physics.h"
 #include "profiler.h"
@@ -40,6 +41,8 @@
 
 namespace crown
 {
+extern bool next_event(OsEvent& ev);
+
 struct BgfxCallback : public bgfx::CallbackI
 {
 	virtual void fatal(bgfx::Fatal::Enum _code, const char* _str)
