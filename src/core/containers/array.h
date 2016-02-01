@@ -264,7 +264,9 @@ inline Array<T>::Array(const Array<T>& other)
 	, _size(0)
 	, _data(NULL)
 {
-	*this = other;
+	const u32 size = other._size;
+	array::resize(*this, size);
+	memcpy(_data, other._data, sizeof(T) * size);
 }
 
 template <typename T>
