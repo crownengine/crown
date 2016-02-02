@@ -3,32 +3,32 @@ sampler_states = {
 		wrap_u = "clamp"
 		wrap_v = "clamp"
 		wrap_w = "clamp"
-		min_filter = "point"
-		mag_filter = "point"
+		filter_min = "point"
+		filter_mag = "point"
 	}
 
 	clamp_anisotropic = {
 		wrap_u = "clamp"
 		wrap_v = "clamp"
 		wrap_w = "clamp"
-		min_filter = "anisotropic"
-		mag_filter = "anisotropic"
+		filter_min = "anisotropic"
+		filter_mag = "anisotropic"
 	}
 
 	mirror_point = {
 		wrap_u = "mirror"
 		wrap_v = "mirror"
 		wrap_w = "mirror"
-		min_filter = "point"
-		mag_filter = "point"
+		filter_min = "point"
+		filter_mag = "point"
 	}
 
 	mirror_anisotropic = {
 		wrap_u = "mirror"
 		wrap_v = "mirror"
 		wrap_w = "mirror"
-		min_filter = "anisotropic"
-		mag_filter = "anisotropic"
+		filter_min = "anisotropic"
+		filter_mag = "anisotropic"
 	}
 }
 

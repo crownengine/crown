@@ -99,14 +99,16 @@ bgfx_shaders = {
 
 		varying = "
 			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
+			vec4 v_color0    : COLOR0 = vec4(0.0, 0.0, 0.0, 0.0);
 
 			vec2 a_position  : POSITION;
 			vec2 a_texcoord0 : TEXCOORD0;
+			vec4 a_color0    : COLOR0;
 		"
 
 		vs_input_output = "
-			$input = a_position, a_texcoord0
-			$output v_texcoord0
+			$input = a_position, a_texcoord0, a_color0
+			$output v_texcoord0, v_color0
 		"
 
 		vs_code = "
@@ -116,25 +118,25 @@ bgfx_shaders = {
 			#ifdef DIFFUSE_MAP
 				v_texcoord0 = a_texcoord0;
 			#endif // DIFFUSE_MAP
+				v_color0 = a_color0;
 			}
 		"
 
 		fs_input_output = "
-			$input v_texcoord0
+			$input v_texcoord0, v_color0
 		"
 
 		fs_code = "
 			#ifdef DIFFUSE_MAP
 			SAMPLER2D(u_albedo, 0);
 			#endif // DIFFUSE_MAP
-			uniform vec3 u_color = vec3(1, 1, 1);
 
 			void main()
 			{
 			#ifdef DIFFUSE_MAP
-				gl_FragColor = texture2D(u_albedo, v_texcoord0) * vec4(u_color, 1.0);
+				gl_FragColor = texture2D(u_albedo, v_texcoord0) * v_color0;
 			#else
-				gl_FragColor = vec4(u_color, 1.0);
+				gl_FragColor = v_color0;
 			#endif // DIFFUSE_MAP
 			}
 		"
