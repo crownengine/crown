@@ -129,13 +129,18 @@ bool BundleCompiler::compile_all(const char* platform)
 {
 	for (u32 i = 0; i < vector::size(_files); ++i)
 	{
-		if (_files[i].ends_with(".tga")
-			|| _files[i].ends_with(".dds")
-			|| _files[i].ends_with(".sh")
+		if (_files[i].ends_with(".sh")
 			|| _files[i].ends_with(".sc")
-			|| _files[i].starts_with(".")
 			|| _files[i].ends_with(".tmp")
-			|| _files[i].ends_with(".wav"))
+			|| _files[i].ends_with(".wav")
+			|| _files[i].ends_with(".ogg")
+			|| _files[i].ends_with(".png")
+			|| _files[i].ends_with(".tga")
+			|| _files[i].ends_with(".dds")
+			|| _files[i].ends_with(".ktx")
+			|| _files[i].ends_with(".pvr")
+			|| _files[i].starts_with(".")
+			)
 		continue;
 
 		const char* filename = _files[i].c_str();
