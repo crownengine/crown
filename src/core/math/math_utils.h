@@ -12,14 +12,16 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const f32 PI              = 3.1415926535897932f;
-const f32 TWO_PI          = PI * 2.0f;
-const f32 HALF_PI         = PI * 0.5f;
-const f32 FLOAT_PRECISION = 1.0e-7f;
+const f32 PI            = 3.1415926535897932f;
+const f32 PI_TWO        = PI * 2.0f;
+const f32 PI_HALF       = PI * 0.5f;
+const f32 FLOAT_EPSILON = 1.0e-7f;
 
-inline bool fequal(f32 a, f32 b, f32 precision = FLOAT_PRECISION)
+inline bool fequal(f32 a, f32 b, f32 epsilon = FLOAT_EPSILON)
 {
-	return ((b <= (a + precision)) && (b >= (a - precision)));
+	return b <= (a + epsilon)
+		&& b >= (a - epsilon)
+		;
 }
 
 inline f32 fmin(f32 a, f32 b)
