@@ -15,6 +15,8 @@
 
 namespace crown
 {
+	/// Functions to manipulate Hash.
+	///
 	/// The hash function stores its data in a "list-in-an-array" where
 	/// indices are used instead of pointers.
 	///

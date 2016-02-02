@@ -11,6 +11,8 @@
 namespace crown
 {
 /// Stream of characters.
+///
+/// @ingroup Containers
 typedef Array<char> StringStream;
 
 /// Functions to operate on StringStream.
