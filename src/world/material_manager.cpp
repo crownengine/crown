@@ -61,8 +61,6 @@ void MaterialManager::online(StringId64 id, ResourceManager& rm)
 		UniformHandle* uh  = get_uniform_handle(mr, i, base);
 		uh->uniform_handle = bgfx::createUniform(get_uniform_name(mr, ud), bgfx::UniformType::Vec4).idx;
 	}
-
-	create_material(id);
 }
 
 void MaterialManager::offline(StringId64 id, ResourceManager& rm)
