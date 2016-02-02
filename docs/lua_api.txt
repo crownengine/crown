@@ -1041,6 +1041,7 @@ Display
 
 	**set_mode** (id)
 		Sets the display mode *id*.
+		The initial display mode is automatically reset when the program terminates.
 
 Display Mode
 ------------
