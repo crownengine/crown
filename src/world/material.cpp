@@ -12,7 +12,7 @@
 
 namespace crown
 {
-void Material::bind(ResourceManager& rm, ShaderManager& sm) const
+void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view) const
 {
 	using namespace material_resource;
 
@@ -44,7 +44,7 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm) const
 
 	const ShaderData& sd = sm.get(_resource->shader);
 	bgfx::setState(sd.state);
-	bgfx::submit(0, sd.program);
+	bgfx::submit(view, sd.program);
 }
 
 void Material::set_float(const char* name, f32 val)
