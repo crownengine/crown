@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include "container_types.h"
 #include "allocator.h"
+#include "container_types.h"
 #include "error.h"
-#include "macros.h"
 
 namespace crown
 {
@@ -121,7 +120,7 @@ namespace vector
 		{
 			T* tmp = v._data;
 			v._capacity = capacity;
-			v._data = (T*)v._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
+			v._data = (T*)v._allocator->allocate(capacity * sizeof(T), alignof(T));
 
 			for (u32 i = 0; i < v._size; ++i)
 				new (v._data + i) T(tmp[i]);

@@ -83,7 +83,7 @@ namespace map_internal
 		return m._data[n].color;
 	}
 
-	#ifdef RBTREE_VERIFY
+#ifdef RBTREE_VERIFY
 	template<typename TKey, typename TValue>
 	inline s32 dbg_verify(Map<TKey, TValue>& m, u32 n)
 	{
@@ -122,18 +122,7 @@ namespace map_internal
 
 		return bhL;
 	}
-
-	template<typename TKey, typename TValue>
-	inline s32 dump(Map<TKey, TValue>& m)
-	{
-		for (u32 i = 0; i < vector::size(m._data); i++)
-		{
-			printf("%d = [%d, %d, %d] ", i, parent(m, i), left(m, i), right(m, i));
-		}
-		printf("\n");
-		return 0;
-	}
-	#endif
+#endif // RBTREE_VERIFY
 
 	template <typename TKey, typename TValue>
 	inline u32 min(const Map<TKey, TValue>& m, u32 x)
@@ -441,11 +430,8 @@ namespace map_internal
 
 		if (p != m._sentinel && m._data[p].pair.first == key)
 		{
-			printf("Found\n");
 			return p;
 		}
-
-		printf("Not found, adding...\n");
 
 		typename Map<TKey, TValue>::Node n;
 		n.key = key;

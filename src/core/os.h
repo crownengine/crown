@@ -5,14 +5,15 @@
 
 #pragma once
 
+#include "dynamic_string.h"
+#include "error.h"
+#include "macros.h"
 #include "platform.h"
+#include "string_stream.h"
+#include "string_utils.h"
+#include "temp_allocator.h"
 #include "types.h"
 #include "vector.h"
-#include "dynamic_string.h"
-#include "string_utils.h"
-#include "error.h"
-#include "temp_allocator.h"
-#include "string_stream.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <dirent.h> // opendir, readdir

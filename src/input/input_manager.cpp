@@ -3,8 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "input_manager.h"
 #include "input_device.h"
+#include "input_manager.h"
+#include "macros.h"
 #include "memory.h"
 
 namespace crown

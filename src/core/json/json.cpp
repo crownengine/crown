@@ -4,9 +4,10 @@
  */
 
 #include "json.h"
+#include "macros.h"
+#include "map.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
-#include "map.h"
 
 namespace crown
 {

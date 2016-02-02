@@ -6,6 +6,7 @@
 #include "compile_options.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
+#include "macros.h"
 #include "map.h"
 #include "material_resource.h"
 #include "reader_writer.h"

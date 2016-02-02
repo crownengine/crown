@@ -5,10 +5,9 @@
 
 #pragma once
 
+#include "allocator.h"
 #include "container_types.h"
 #include "error.h"
-#include "macros.h"
-#include "allocator.h"
 #include <string.h> // memcpy
 
 namespace crown
@@ -123,7 +122,7 @@ namespace array
 		{
 			T* tmp = a._data;
 			a._capacity = capacity;
-			a._data = (T*)a._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
+			a._data = (T*)a._allocator->allocate(capacity * sizeof(T), alignof(T));
 
 			memcpy(a._data, tmp, a._size * sizeof(T));
 

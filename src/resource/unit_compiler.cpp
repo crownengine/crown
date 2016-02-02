@@ -5,6 +5,7 @@
 
 #include "array.h"
 #include "compile_options.h"
+#include "macros.h"
 #include "map.h"
 #include "math_utils.h"
 #include "physics_resource.h"

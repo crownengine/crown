@@ -8,7 +8,6 @@
 #include "types.h"
 #include "error.h"
 #include "allocator.h"
-#include "macros.h"
 #include <new>
 
 /// @defgroup Memory Memory
@@ -94,7 +93,7 @@ namespace memory_globals
 /// and calls constructor on it.
 /// @note
 /// @a allocator must be a reference to an existing allocator.
-#define CE_NEW(allocator, T) new ((allocator).allocate(sizeof(T), CE_ALIGNOF(T))) T
+#define CE_NEW(allocator, T) new ((allocator).allocate(sizeof(T), alignof(T))) T
 
 /// Calls destructor on @a ptr and deallocates memory using the
 /// given @a allocator.

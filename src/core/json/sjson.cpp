@@ -3,11 +3,12 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "macros.h"
+#include "map.h"
+#include "quaternion.h"
 #include "sjson.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
-#include "map.h"
-#include "quaternion.h"
 
 namespace crown
 {
