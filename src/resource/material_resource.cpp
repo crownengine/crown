@@ -4,17 +4,18 @@
  */
 
 #include "compile_options.h"
+#include "device.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
 #include "macros.h"
 #include "map.h"
+#include "material_manager.h"
 #include "material_resource.h"
 #include "reader_writer.h"
 #include "resource_manager.h"
 #include "sjson.h"
 #include "string_utils.h"
 #include "vector.h"
-#include <bgfx/bgfx.h>
 
 namespace crown
 {
@@ -241,60 +242,22 @@ namespace material_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const u32 file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == MATERIAL_VERSION, "Wrong version");
-		return res;
+		return device()->material_manager()->load(file, a);
 	}
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		MaterialResource* mr = (MaterialResource*) rm.get(MATERIAL_TYPE, id);
-
-		char* base = (char*)mr + mr->dynamic_data_offset;
-
-		for (u32 i = 0; i < mr->num_textures; ++i)
-		{
-			TextureData* td = get_texture_data(mr, i);
-			TextureHandle* th = get_texture_handle(mr, i, base);
-			th->sampler_handle = bgfx::createUniform(get_texture_name(mr, td), bgfx::UniformType::Int1).idx;
-		}
-
-		for (u32 i = 0; i < mr->num_uniforms; ++i)
-		{
-			UniformData* ud = get_uniform_data(mr, i);
-			UniformHandle* uh = get_uniform_handle(mr, i, base);
-			uh->uniform_handle = bgfx::createUniform(get_uniform_name(mr, ud), bgfx::UniformType::Vec4).idx;
-		}
+		device()->material_manager()->online(id, rm);
 	}
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		MaterialResource* mr = (MaterialResource*) rm.get(MATERIAL_TYPE, id);
-
-		char* base = (char*) mr + mr->dynamic_data_offset;
-
-		for (u32 i = 0; i < mr->num_textures; ++i)
-		{
-			TextureHandle* th = get_texture_handle(mr, i, base);
-			bgfx::UniformHandle sh;
-			sh.idx = th->sampler_handle;
-			bgfx::destroyUniform(sh);
-		}
-
-		for (u32 i = 0; i < mr->num_uniforms; ++i)
-		{
-			UniformHandle* uh = get_uniform_handle(mr, i, base);
-			bgfx::UniformHandle bgfx_uh;
-			bgfx_uh.idx = uh->uniform_handle;
-			bgfx::destroyUniform(bgfx_uh);
-		}
+		device()->material_manager()->offline(id, rm);
 	}
 
 	void unload(Allocator& a, void* res)
 	{
-		a.deallocate(res);
+		device()->material_manager()->unload(a, res);
 	}
 
 	UniformData* get_uniform_data(const MaterialResource* mr, u32 i)

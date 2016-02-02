@@ -5,11 +5,12 @@
 
 #pragma once
 
-#include "types.h"
 #include "container_types.h"
-#include "resource_types.h"
+#include "filesystem_types.h"
 #include "material.h"
+#include "resource_types.h"
 #include "string_id.h"
+#include "types.h"
 
 namespace crown
 {
@@ -23,6 +24,11 @@ public:
 
 	MaterialManager(Allocator& a, ResourceManager& rm);
 	~MaterialManager();
+
+	void* load(File& file, Allocator& a);
+	void online(StringId64 id, ResourceManager& rm);
+	void offline(StringId64 id, ResourceManager& rm);
+	void unload(Allocator& a, void* res);
 
 	/// Creates the material @a id.
 	void create_material(StringId64 id);
