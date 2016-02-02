@@ -233,6 +233,11 @@ function toolchain(build_dir, lib_dir)
 			"/ignore:4099", -- LNK4099: The linker was unable to find your .pdb file.
 		}
 
+	configuration { "vs2013" }
+		defines {
+			"alignof=__alignof",
+		}
+
 	configuration { "x32", "vs*" }
 		targetdir (build_dir .. "win32" .. "/bin")
 		objdir (build_dir .. "win32" .. "/obj")
