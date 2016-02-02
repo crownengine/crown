@@ -15,11 +15,13 @@ namespace crown
 /// @ingroup Containers
 typedef Array<char> StringStream;
 
-/// Functions to operate on StringStream.
+/// Functions to manipulate StringStream.
+///
+/// @ingroup Containers
 namespace string_stream
 {
 	/// Appends @a val to the stream @a s using appropriate formatting.
-	StringStream& operator<<(StringStream& s, char ch);
+	StringStream& operator<<(StringStream& s, char val);
 	StringStream& operator<<(StringStream& s, s16 val);
 	StringStream& operator<<(StringStream& s, u16 val);
 	StringStream& operator<<(StringStream& s, s32 val);
@@ -32,7 +34,7 @@ namespace string_stream
 	/// Appends the string @a string to the stream @a s.
 	StringStream& operator<<(StringStream& s, const char* string);
 
-	/// Returns the stream as a NULL-terminated string.
+	/// Returns the stream as a NUL-terminated string.
 	const char* c_str(StringStream& s);
 
 	template <typename T> StringStream& stream_printf(StringStream& s, const char* format, T& val);
@@ -41,9 +43,9 @@ namespace string_stream
 
 namespace string_stream
 {
-	inline StringStream& operator<<(StringStream& s, char ch)
+	inline StringStream& operator<<(StringStream& s, char val)
 	{
-		array::push_back(s, ch);
+		array::push_back(s, val);
 		return s;
 	}
 

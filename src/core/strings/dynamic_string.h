@@ -15,10 +15,14 @@
 
 namespace crown
 {
+/// Dynamic array of charachers.
 ///
-class DynamicString
+/// @ingroup Containers
+struct DynamicString
 {
-public:
+	ALLOCATOR_AWARE;
+
+	Array<char> _data;
 
 	DynamicString(Allocator& a);
 	DynamicString(const char* s, Allocator& a = default_allocator());
@@ -28,7 +32,6 @@ public:
 	DynamicString& operator+=(const char c);
 	DynamicString& operator+=(const FixedString& s);
 
-	///
 	DynamicString& operator=(const DynamicString& s);
 	DynamicString& operator=(const char* s);
 	DynamicString& operator=(const char c);
@@ -63,14 +66,8 @@ public:
 	/// Returns the StringId32 of the string.
 	StringId32 to_string_id() const;
 
-	///
+	/// Returns the string as a NULL-terminated string.
 	const char* c_str() const;
-
-	ALLOCATOR_AWARE;
-
-private:
-
-	Array<char> _data;
 };
 
 inline DynamicString::DynamicString(Allocator& a)
