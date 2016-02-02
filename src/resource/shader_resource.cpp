@@ -265,7 +265,7 @@ namespace shader_resource
 		BGFX_STATE_DEPTH_TEST_GREATER,  // DepthFunction::GREATER
 		BGFX_STATE_DEPTH_TEST_NOTEQUAL, // DepthFunction::NOTEQUAL
 		BGFX_STATE_DEPTH_TEST_NEVER,    // DepthFunction::NEVER
-		BGFX_STATE_DEPTH_TEST_ALWAYS,   // DepthFunction::ALWAYS
+		BGFX_STATE_DEPTH_TEST_ALWAYS    // DepthFunction::ALWAYS
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_depth_func_map) == DepthFunction::COUNT);
 
@@ -283,7 +283,7 @@ namespace shader_resource
 		BGFX_STATE_BLEND_INV_DST_COLOR, // BlendFunction::INV_DST_COLOR
 		BGFX_STATE_BLEND_SRC_ALPHA_SAT, // BlendFunction::SRC_ALPHA_SAT
 		BGFX_STATE_BLEND_FACTOR,        // BlendFunction::FACTOR
-		BGFX_STATE_BLEND_INV_FACTOR,    // BlendFunction::INV_FACTOR
+		BGFX_STATE_BLEND_INV_FACTOR     // BlendFunction::INV_FACTOR
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_blend_func_map) == BlendFunction::COUNT);
 
@@ -293,7 +293,7 @@ namespace shader_resource
 		BGFX_STATE_BLEND_EQUATION_SUB,    // BlendEquation::SUB
 		BGFX_STATE_BLEND_EQUATION_REVSUB, // BlendEquation::REVSUB
 		BGFX_STATE_BLEND_EQUATION_MIN,    // BlendEquation::MIN
-		BGFX_STATE_BLEND_EQUATION_MAX,    // BlendEquation::MAX
+		BGFX_STATE_BLEND_EQUATION_MAX     // BlendEquation::MAX
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_blend_equation_map) == BlendEquation::COUNT);
 
@@ -310,9 +310,47 @@ namespace shader_resource
 		BGFX_STATE_PT_TRISTRIP,  // PrimitiveType::PT_TRISTRIP
 		BGFX_STATE_PT_LINES,     // PrimitiveType::PT_LINES
 		BGFX_STATE_PT_LINESTRIP, // PrimitiveType::PT_LINESTRIP
-		BGFX_STATE_PT_POINTS,    // PrimitiveType::PT_POINTS
+		BGFX_STATE_PT_POINTS     // PrimitiveType::PT_POINTS
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_primitive_type_map) == PrimitiveType::COUNT);
+
+	static u32 _bgfx_sampler_filter_min_map[] =
+	{
+		BGFX_TEXTURE_MIN_POINT,       // SamplerFilter::POINT
+		BGFX_TEXTURE_MIN_ANISOTROPIC  // SamplerFilter::ANISOTROPIC
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_sampler_filter_min_map) == SamplerFilter::COUNT);
+
+	static u32 _bgfx_sampler_filter_mag_map[] =
+	{
+		BGFX_TEXTURE_MAG_POINT,      // SamplerFilter::POINT
+		BGFX_TEXTURE_MAG_ANISOTROPIC // SamplerFilter::ANISOTROPIC
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_sampler_filter_mag_map) == SamplerFilter::COUNT);
+
+	static u32 _bgfx_sampler_wrap_u_map[] =
+	{
+		BGFX_TEXTURE_U_MIRROR, // SamplerWrap::MIRROR
+		BGFX_TEXTURE_U_CLAMP,  // SamplerWrap::CLAMP
+		BGFX_TEXTURE_U_BORDER  // SamplerWrap::BORDER
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_sampler_wrap_u_map) == SamplerWrap::COUNT);
+
+	static u32 _bgfx_sampler_wrap_v_map[] =
+	{
+		BGFX_TEXTURE_V_MIRROR, // SamplerWrap::MIRROR
+		BGFX_TEXTURE_V_CLAMP,  // SamplerWrap::CLAMP
+		BGFX_TEXTURE_V_BORDER  // SamplerWrap::BORDER
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_sampler_wrap_v_map) == SamplerWrap::COUNT);
+
+	static u32 _bgfx_sampler_wrap_w_map[] =
+	{
+		BGFX_TEXTURE_W_MIRROR, // SamplerWrap::MIRROR
+		BGFX_TEXTURE_W_CLAMP,  // SamplerWrap::CLAMP
+		BGFX_TEXTURE_W_BORDER  // SamplerWrap::BORDER
+	};
+	CE_STATIC_ASSERT(CE_COUNTOF(_bgfx_sampler_wrap_w_map) == SamplerWrap::COUNT);
 
 	static DepthFunction::Enum name_to_depth_func(const char* name)
 	{
@@ -483,24 +521,30 @@ namespace shader_resource
 
 	struct SamplerState
 	{
-		SamplerFilter::Enum _min_filter;
-		SamplerFilter::Enum _mag_filter;
+		SamplerFilter::Enum _filter_min;
+		SamplerFilter::Enum _filter_mag;
 		SamplerWrap::Enum _wrap_u;
 		SamplerWrap::Enum _wrap_v;
 		SamplerWrap::Enum _wrap_w;
 
 		void reset()
 		{
-			_min_filter = SamplerFilter::COUNT;
-			_mag_filter = SamplerFilter::COUNT;
+			_filter_min = SamplerFilter::COUNT;
+			_filter_mag = SamplerFilter::COUNT;
 			_wrap_u = SamplerWrap::COUNT;
 			_wrap_v = SamplerWrap::COUNT;
 			_wrap_w = SamplerWrap::COUNT;
 		}
 
-		u32 encode()
+		u32 encode() const
 		{
-			return BGFX_TEXTURE_NONE;
+			u32 state = 0;
+			state |= _filter_min == SamplerFilter::COUNT ? 0 : _bgfx_sampler_filter_min_map[_filter_min];
+			state |= _filter_mag == SamplerFilter::COUNT ? 0 : _bgfx_sampler_filter_mag_map[_filter_mag];
+			state |= _wrap_u == SamplerWrap::COUNT ? 0 : _bgfx_sampler_wrap_u_map[_wrap_u];
+			state |= _wrap_v == SamplerWrap::COUNT ? 0 : _bgfx_sampler_wrap_v_map[_wrap_v];
+			state |= _wrap_w == SamplerWrap::COUNT ? 0 : _bgfx_sampler_wrap_w_map[_wrap_w];
+			return state;
 		}
 	};
 
@@ -515,6 +559,7 @@ namespace shader_resource
 		DynamicString _varying;
 		DynamicString _vs_input_output;
 		DynamicString _fs_input_output;
+		Map<DynamicString, DynamicString> _samplers;
 
 		BgfxShader()
 			: _includes(default_allocator())
@@ -524,6 +569,7 @@ namespace shader_resource
 			, _varying(default_allocator())
 			, _vs_input_output(default_allocator())
 			, _fs_input_output(default_allocator())
+			, _samplers(default_allocator())
 		{
 		}
 
@@ -535,6 +581,7 @@ namespace shader_resource
 			, _varying(a)
 			, _vs_input_output(a)
 			, _fs_input_output(a)
+			, _samplers(a)
 		{
 		}
 	};
@@ -761,8 +808,8 @@ namespace shader_resource
 				JsonObject obj(ta);
 				sjson::parse_object(begin->pair.second, obj);
 
-				const bool has_min_filter = map::has(obj, FixedString("min_filter"));
-				const bool has_mag_filter = map::has(obj, FixedString("mag_filter"));
+				const bool has_filter_min = map::has(obj, FixedString("filter_min"));
+				const bool has_filter_mag = map::has(obj, FixedString("filter_mag"));
 				const bool has_wrap_u = map::has(obj, FixedString("wrap_u"));
 				const bool has_wrap_v = map::has(obj, FixedString("wrap_v"));
 				const bool has_wrap_w = map::has(obj, FixedString("wrap_w"));
@@ -770,31 +817,31 @@ namespace shader_resource
 				SamplerState ss;
 				ss.reset();
 
-				DynamicString min_filter(ta);
-				DynamicString mag_filter(ta);
+				DynamicString filter_min(ta);
+				DynamicString filter_mag(ta);
 				DynamicString wrap_u(ta);
 				DynamicString wrap_v(ta);
 				DynamicString wrap_w(ta);
 
-				if (has_min_filter)
+				if (has_filter_min)
 				{
-					sjson::parse_string(obj["min_filter"], min_filter);
-					ss._min_filter = name_to_sampler_filter(min_filter.c_str());
-					RESOURCE_COMPILER_ASSERT(ss._min_filter != SamplerFilter::COUNT
+					sjson::parse_string(obj["filter_min"], filter_min);
+					ss._filter_min = name_to_sampler_filter(filter_min.c_str());
+					RESOURCE_COMPILER_ASSERT(ss._filter_min != SamplerFilter::COUNT
 						, _opts
 						, "Unknown sampler filter: '%s'"
-						, min_filter.c_str()
+						, filter_min.c_str()
 						);
 				}
 
-				if (has_mag_filter)
+				if (has_filter_mag)
 				{
-					sjson::parse_string(obj["mag_filter"], mag_filter);
-					ss._mag_filter = name_to_sampler_filter(mag_filter.c_str());
-					RESOURCE_COMPILER_ASSERT(ss._mag_filter != SamplerFilter::COUNT
+					sjson::parse_string(obj["filter_mag"], filter_mag);
+					ss._filter_mag = name_to_sampler_filter(filter_mag.c_str());
+					RESOURCE_COMPILER_ASSERT(ss._filter_mag != SamplerFilter::COUNT
 						, _opts
 						, "Unknown sampler filter: '%s'"
-						, mag_filter.c_str()
+						, filter_mag.c_str()
 						);
 				}
 
@@ -871,6 +918,8 @@ namespace shader_resource
 					sjson::parse_string(shader["vs_input_output"], bgfxshader._vs_input_output);
 				if (map::has(shader, FixedString("fs_input_output")))
 					sjson::parse_string(shader["fs_input_output"], bgfxshader._fs_input_output);
+				if (map::has(shader, FixedString("samplers")))
+					parse_bgfx_samplers(shader["samplers"], bgfxshader);
 
 				DynamicString key(ta);
 				key = begin->pair.first;
@@ -881,6 +930,40 @@ namespace shader_resource
 					, key.c_str()
 					);
 				map::set(_bgfx_shaders, key, bgfxshader);
+			}
+		}
+
+		void parse_bgfx_samplers(const char* json, BgfxShader& bgfxshader)
+		{
+			TempAllocator4096 ta;
+			JsonObject bgfx_samplers(ta);
+			sjson::parse_object(json, bgfx_samplers);
+
+			auto begin = map::begin(bgfx_samplers);
+			auto end = map::end(bgfx_samplers);
+			for (; begin != end; ++begin)
+			{
+				JsonObject sampler(ta);
+				sjson::parse_object(begin->pair.second, sampler);
+
+				DynamicString sampler_state(ta);
+				sjson::parse_string(sampler["sampler_state"], sampler_state);
+
+				RESOURCE_COMPILER_ASSERT(map::has(_sampler_states, sampler_state)
+					, _opts
+					, "Unknown sampler state: '%s'"
+					, sampler_state.c_str()
+					);
+
+				DynamicString key(ta);
+				key = begin->pair.first;
+
+				RESOURCE_COMPILER_ASSERT(!map::has(bgfxshader._samplers, key)
+					, _opts
+					, "Bgfx sampler redefined: '%s'"
+					, key.c_str()
+					);
+				map::set(bgfxshader._samplers, key, sampler_state);
 			}
 		}
 
