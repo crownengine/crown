@@ -127,8 +127,7 @@ namespace array
 
 			memcpy(a._data, tmp, a._size * sizeof(T));
 
-			if (tmp)
-				a._allocator->deallocate(tmp);
+			a._allocator->deallocate(tmp);
 		}
 	}
 

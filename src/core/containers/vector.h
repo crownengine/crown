@@ -124,18 +124,12 @@ namespace vector
 			v._data = (T*)v._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
 
 			for (u32 i = 0; i < v._size; ++i)
-			{
 				new (v._data + i) T(tmp[i]);
-			}
 
-			if (tmp)
-			{
-				for (u32 i = 0; i < v._size; ++i)
-				{
-					tmp[i].~T();
-				}
-				v._allocator->deallocate(tmp);
-			}
+			for (u32 i = 0; i < v._size; ++i)
+				tmp[i].~T();
+
+			v._allocator->deallocate(tmp);
 		}
 	}
 
