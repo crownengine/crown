@@ -40,6 +40,6 @@ namespace font_resource
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 
-	const FontGlyphData* get_glyph(const FontResource* fr, u32 i);
+	const FontGlyphData* get_glyph(const FontResource* fr, u32 cp);
 } // namespace font_resource
 } // namespace crown

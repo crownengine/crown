@@ -94,15 +94,15 @@ namespace font_resource
 		allocator.deallocate(resource);
 	}
 
-	const FontGlyphData* get_glyph(const FontResource* fr, u32 i)
+	const FontGlyphData* get_glyph(const FontResource* fr, u32 cp)
 	{
-		CE_ASSERT(i < fr->num_glyphs, "Index out of bounds");
+		CE_ASSERT(cp < fr->num_glyphs, "Index out of bounds");
 
-		FontGlyphData* begin = (FontGlyphData*)((char*)fr + sizeof(FontResource));
+		FontGlyphData* begin = (FontGlyphData*)&fr[1];
 
 		for (u32 i = 0; i < fr->num_glyphs; ++i)
 		{
-			if (begin[i].id == i)
+			if (begin[i].id == cp)
 				return &begin[i];
 		}
 
