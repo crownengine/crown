@@ -53,6 +53,7 @@ static const char* s_keyboard_button_names[] =
 	"down",         // KeyboardButton::DOWN
 	"page_up",      // KeyboardButton::PAGE_UP
 	"page_down",    // KeyboardButton::PAGE_DOWN
+	"insert",       // KeyboardButton::INSERT
 	"delete",       // KeyboardButton::DELETE
 	"end",          // KeyboardButton::END
 	"left_ctrl",    // KeyboardButton::LEFT_CTRL

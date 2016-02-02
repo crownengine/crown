@@ -53,6 +53,7 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 		case XK_Down:         return KeyboardButton::DOWN;
 		case XK_Page_Up:      return KeyboardButton::PAGE_UP;
 		case XK_Page_Down:    return KeyboardButton::PAGE_DOWN;
+		case XK_Insert:       return KeyboardButton::INSERT;
 		case XK_Delete:       return KeyboardButton::DELETE;
 		case XK_End:          return KeyboardButton::END;
 		case XK_Shift_L:      return KeyboardButton::LEFT_SHIFT;

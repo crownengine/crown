@@ -65,6 +65,7 @@ struct KeyboardButton
 		DOWN,
 		PAGE_UP,
 		PAGE_DOWN,
+		INSERT,
 		DELETE,
 		END,
 

@@ -51,6 +51,7 @@ static KeyboardButton::Enum win_translate_key(s32 winkey)
 		case VK_DOWN:     return KeyboardButton::DOWN;
 		case VK_PRIOR:    return KeyboardButton::PAGE_UP;
 		case VK_NEXT:     return KeyboardButton::PAGE_DOWN;
+		case VK_INSERT:   return KeyboardButton::INSERT;
 		case VK_DELETE:   return KeyboardButton::DELETE;
 		case VK_END:      return KeyboardButton::END;
 		case VK_LSHIFT:   return KeyboardButton::LEFT_SHIFT;
