@@ -138,6 +138,10 @@ Device::Device(const DeviceOptions& opts)
 	, _boot_package_name(u64(0))
 	, _boot_script_name(u64(0))
 	, _boot_package(NULL)
+	, _config_window_x(0)
+	, _config_window_y(0)
+	, _config_window_w(CROWN_DEFAULT_WINDOW_WIDTH)
+	, _config_window_h(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _worlds(default_allocator())
 	, _width(0)
 	, _height(0)
@@ -181,8 +185,8 @@ void Device::init()
 	_window = Window::create(_allocator);
 	_window->open(_device_options.window_x()
 		, _device_options.window_y()
-		, _device_options.window_width()
-		, _device_options.window_height()
+		, _config_window_w
+		, _config_window_h
 		, _device_options.parent_window()
 		);
 	_window->bgfx_setup();
@@ -455,6 +459,22 @@ void Device::read_config()
 
 	_boot_script_name  = sjson::parse_resource_id(config["boot_script"]);
 	_boot_package_name = sjson::parse_resource_id(config["boot_package"]);
+
+	// Platform-specific configs
+	if (map::has(config, FixedString(CROWN_PLATFORM_NAME)))
+	{
+		JsonObject platform(ta);
+		sjson::parse(config[CROWN_PLATFORM_NAME], platform);
+
+		if (map::has(platform, FixedString("window_width")))
+		{
+			_config_window_w = (u16)sjson::parse_int(platform["window_width"]);
+		}
+		if (map::has(platform, FixedString("window_height")))
+		{
+			_config_window_h = (u16)sjson::parse_int(platform["window_height"]);
+		}
+	}
 
 	_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 }

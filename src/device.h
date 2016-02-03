@@ -52,6 +52,11 @@ class Device
 	StringId64 _boot_script_name;
 	ResourcePackage* _boot_package;
 
+	u16 _config_window_x;
+	u16 _config_window_y;
+	u16 _config_window_w;
+	u16 _config_window_h;
+
 	Array<World*> _worlds;
 
 	u16 _width;
