@@ -18,28 +18,24 @@ static void help(const char* msg = NULL)
 	}
 
 	CE_LOGI(
-		"Usage: crown [options]\n"
-		"Options:\n\n"
-
-		"  -h --help                  Show this help.\n"
-		"  -v --version               Show version informations.\n"
-		"  --bundle-dir <path>        Use <path> as the source directory for compiled resources.\n"
-		"  --console-port <port>      Set port of the console.\n"
-		"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
-		"                             Used only by tools.\n"
-
-		"\nAvailable only in debug and development builds:\n\n"
-
+		"Usage: crown --bundle-dir <path> [options]\n"
+		"\n"
+		"Options:\n"
+		"\n"
+		"  -h --help                  Display this help.\n"
+		"  -v --version               Display engine version.\n"
 		"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
+		"  --bundle-dir <path>        Use <path> as the destination directory for compiled resources.\n"
 		"  --boot-dir <path>          Boot the engine with the 'boot.config' from given <path>.\n"
 		"  --compile                  Do a full compile of the resources.\n"
 		"  --platform <platform>      Compile resources for the given <platform>.\n"
-		"      Possible values for <platform> are:\n"
-		"          linux\n"
-		"          windows\n"
-		"          android\n"
-		"  --continue                 Continue the execution after the resource compilation step.\n"
+		"      linux\n"
+		"      windows\n"
+		"      android\n"
+		"  --continue                 Run the engine after resource compilation.\n"
+		"  --console-port <port>      Set port of the console.\n"
 		"  --wait-console             Wait for a console connection before starting up.\n"
+		"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
 	);
 }
 
@@ -78,23 +74,10 @@ int DeviceOptions::parse()
 		return EXIT_FAILURE;
 	}
 
-	_source_dir = cl.get_parameter("source-dir");
-	if (_source_dir == NULL)
-	{
-		help("Source dir must be specified.");
-		return EXIT_FAILURE;
-	}
-
 	_bundle_dir = cl.get_parameter("bundle-dir");
 	if (_bundle_dir == NULL)
 	{
 		help("Bundle dir must be specified.");
-		return EXIT_FAILURE;
-	}
-
-	if (!path::is_absolute(_source_dir))
-	{
-		help("Source dir must be absolute.");
 		return EXIT_FAILURE;
 	}
 
@@ -105,11 +88,27 @@ int DeviceOptions::parse()
 	}
 
 	_do_compile = cl.has_argument("compile");
-	_platform = cl.get_parameter("platform");
-	if (_do_compile && _platform == NULL)
+	if (_do_compile)
 	{
-		help("Platform must be specified.");
-		return EXIT_FAILURE;
+		_platform = cl.get_parameter("platform");
+		if (_platform == NULL)
+		{
+			help("Platform must be specified.");
+			return EXIT_FAILURE;
+		}
+
+		_source_dir = cl.get_parameter("source-dir");
+		if (_source_dir == NULL)
+		{
+			help("Source dir must be specified.");
+			return EXIT_FAILURE;
+		}
+
+		if (!path::is_absolute(_source_dir))
+		{
+			help("Source dir must be absolute.");
+			return EXIT_FAILURE;
+		}
 	}
 
 	_do_continue = cl.has_argument("continue");
