@@ -54,20 +54,20 @@ namespace physics_globals
 	static btBroadphaseInterface* _bt_interface;
 	static btSequentialImpulseConstraintSolver* _bt_solver;
 
-	void init()
+	void init(Allocator& a)
 	{
-		_bt_configuration = CE_NEW(default_allocator(), btDefaultCollisionConfiguration);
-		_bt_dispatcher = CE_NEW(default_allocator(), btCollisionDispatcher)(_bt_configuration);
-		_bt_interface = CE_NEW(default_allocator(), btDbvtBroadphase);
-		_bt_solver = CE_NEW(default_allocator(), btSequentialImpulseConstraintSolver);
+		_bt_configuration = CE_NEW(a, btDefaultCollisionConfiguration);
+		_bt_dispatcher    = CE_NEW(a, btCollisionDispatcher)(_bt_configuration);
+		_bt_interface     = CE_NEW(a, btDbvtBroadphase);
+		_bt_solver        = CE_NEW(a, btSequentialImpulseConstraintSolver);
 	}
 
-	void shutdown()
+	void shutdown(Allocator& a)
 	{
-		CE_DELETE(default_allocator(), _bt_solver);
-		CE_DELETE(default_allocator(), _bt_interface);
-		CE_DELETE(default_allocator(), _bt_dispatcher);
-		CE_DELETE(default_allocator(), _bt_configuration);
+		CE_DELETE(a, _bt_solver);
+		CE_DELETE(a, _bt_interface);
+		CE_DELETE(a, _bt_dispatcher);
+		CE_DELETE(a, _bt_configuration);
 	}
 } // namespace physics_globals
 

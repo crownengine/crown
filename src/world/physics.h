@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "memory_types.h"
+
 namespace crown
 {
 /// Global physics-related functions
@@ -14,9 +16,9 @@ namespace physics_globals
 {
 	/// Initializes the physics system.
 	/// This is the place where to create and initialize per-application objects.
-	void init();
+	void init(Allocator& a);
 
 	/// It should reverse the actions performed by physics_globals::init().
-	void shutdown();
+	void shutdown(Allocator& a);
 } // namespace physics_globals
 } // namespace crown

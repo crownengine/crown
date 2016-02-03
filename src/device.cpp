@@ -205,7 +205,7 @@ void Device::init()
 	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
 
 	audio_globals::init();
-	physics_globals::init();
+	physics_globals::init(_allocator);
 
 	_boot_package = create_resource_package(_boot_package_name);
 	_boot_package->load();
@@ -234,7 +234,7 @@ void Device::shutdown()
 	_boot_package->unload();
 	destroy_resource_package(*_boot_package);
 
-	physics_globals::shutdown();
+	physics_globals::shutdown(_allocator);
 	audio_globals::shutdown();
 
 	CE_DELETE(_allocator, _lua_environment);
