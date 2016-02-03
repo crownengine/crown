@@ -135,8 +135,8 @@ Device::Device(const DeviceOptions& opts)
 	, _lua_environment(NULL)
 	, _display(NULL)
 	, _window(NULL)
-	, _boot_package_id(u64(0))
-	, _boot_script_id(u64(0))
+	, _boot_package_name(u64(0))
+	, _boot_script_name(u64(0))
 	, _boot_package(NULL)
 	, _worlds(default_allocator())
 	, _width(0)
@@ -203,12 +203,12 @@ void Device::init()
 	audio_globals::init();
 	physics_globals::init();
 
-	_boot_package = create_resource_package(_boot_package_id);
+	_boot_package = create_resource_package(_boot_package_name);
 	_boot_package->load();
 	_boot_package->flush();
 
 	_lua_environment->load_libs();
-	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_script_id));
+	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_script_name));
 	_lua_environment->call_global("init", 0);
 
 	_is_init = true;
@@ -453,8 +453,8 @@ void Device::read_config()
 	JsonObject config(ta);
 	sjson::parse(cfile, config);
 
-	_boot_script_id  = sjson::parse_resource_id(config["boot_script"]);
-	_boot_package_id = sjson::parse_resource_id(config["boot_package"]);
+	_boot_script_name  = sjson::parse_resource_id(config["boot_script"]);
+	_boot_package_name = sjson::parse_resource_id(config["boot_package"]);
 
 	_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 }

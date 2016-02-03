@@ -48,8 +48,8 @@ class Device
 	Display* _display;
 	Window* _window;
 
-	StringId64 _boot_package_id;
-	StringId64 _boot_script_id;
+	StringId64 _boot_package_name;
+	StringId64 _boot_script_name;
 	ResourcePackage* _boot_package;
 
 	Array<World*> _worlds;
