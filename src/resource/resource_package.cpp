@@ -16,14 +16,14 @@ ResourcePackage::ResourcePackage(StringId64 id, ResourceManager& resman)
 	, _id(id)
 	, _package(NULL)
 {
-	resman.load(PACKAGE_TYPE, _id);
+	resman.load(RESOURCE_TYPE_PACKAGE, _id);
 	resman.flush();
-	_package = (const PackageResource*)resman.get(PACKAGE_TYPE, _id);
+	_package = (const PackageResource*)resman.get(RESOURCE_TYPE_PACKAGE, _id);
 }
 
 ResourcePackage::~ResourcePackage()
 {
-	_resman->unload(PACKAGE_TYPE, _id);
+	_resman->unload(RESOURCE_TYPE_PACKAGE, _id);
 
 	_marker = 0;
 }

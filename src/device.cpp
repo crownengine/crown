@@ -208,7 +208,7 @@ void Device::init()
 	_boot_package->flush();
 
 	_lua_environment->load_libs();
-	_lua_environment->execute((LuaResource*)_resource_manager->get(SCRIPT_TYPE, _boot_script_id));
+	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_script_id));
 	_lua_environment->call_global("init", 0);
 
 	_is_init = true;
@@ -385,7 +385,7 @@ void Device::reload(StringId64 type, StringId64 name)
 	_resource_manager->reload(type, name);
 	const void* new_resource = _resource_manager->get(type, name);
 
-	if (type == SCRIPT_TYPE)
+	if (type == RESOURCE_TYPE_SCRIPT)
 	{
 		_lua_environment->execute((const LuaResource*)new_resource);
 	}
@@ -446,9 +446,9 @@ void Device::read_config()
 
 	const StringId64 config_name(boot_dir.c_str());
 
-	_resource_manager->load(CONFIG_TYPE, config_name);
+	_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
 	_resource_manager->flush();
-	const char* cfile = (const char*)_resource_manager->get(CONFIG_TYPE, config_name);
+	const char* cfile = (const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name);
 
 	JsonObject config(ta);
 	sjson::parse(cfile, config);
@@ -456,7 +456,7 @@ void Device::read_config()
 	_boot_script_id  = sjson::parse_resource_id(config["boot_script"]);
 	_boot_package_id = sjson::parse_resource_id(config["boot_package"]);
 
-	_resource_manager->unload(CONFIG_TYPE, config_name);
+	_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 }
 
 bool Device::process_events()

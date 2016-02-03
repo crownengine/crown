@@ -210,7 +210,7 @@ namespace physics_resource
 		DynamicString name(ta);
 		sjson::parse_string(obj["scene"], scene);
 		sjson::parse_string(obj["name"], name);
-		scene += "." MESH_EXTENSION;
+		scene += "." RESOURCE_EXTENSION_MESH;
 
 		Buffer file = opts.read(scene.c_str());
 		JsonObject json_mesh(ta);
@@ -531,7 +531,7 @@ namespace physics_config_resource
 
 		// Setup struct for writing
 		PhysicsConfigResource pcr;
-		pcr.version       = PHYSICS_CONFIG_VERSION;
+		pcr.version       = RESOURCE_VERSION_PHYSICS_CONFIG;
 		pcr.num_materials = array::size(materials);
 		pcr.num_shapes    = array::size(shapes);
 		pcr.num_actors    = array::size(actors);
@@ -602,7 +602,7 @@ namespace physics_config_resource
 		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == PHYSICS_CONFIG_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_PHYSICS_CONFIG, "Wrong version");
 		return res;
 	}
 

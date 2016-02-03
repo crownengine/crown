@@ -89,7 +89,7 @@ namespace package_resource
 		compile_resources("sprite_animation", sprite_animation, resources, opts);
 
 		// Write
-		opts.write(PACKAGE_VERSION);
+		opts.write(RESOURCE_VERSION_PACKAGE);
 		opts.write(array::size(resources));
 
 		for (u32 i = 0; i < array::size(resources); ++i)
@@ -105,7 +105,7 @@ namespace package_resource
 
 		u32 version;
 		br.read(version);
-		CE_ASSERT(version == PACKAGE_VERSION, "Wrong version");
+		CE_ASSERT(version == RESOURCE_VERSION_PACKAGE, "Wrong version");
 
 		u32 num_resources;
 		br.read(num_resources);

@@ -59,7 +59,7 @@ namespace lua_resource
 		opts.delete_file(luabin.c_str());
 
 		LuaResource lr;
-		lr.version = SCRIPT_VERSION;
+		lr.version = RESOURCE_VERSION_SCRIPT;
 		lr.size = array::size(blob);
 
 		opts.write(lr.version);
@@ -72,7 +72,7 @@ namespace lua_resource
 		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == SCRIPT_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SCRIPT, "Wrong version");
 		return res;
 	}
 

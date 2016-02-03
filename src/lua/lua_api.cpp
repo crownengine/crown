@@ -1212,7 +1212,7 @@ static int world_spawn_unit(lua_State* L)
 	const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
 	const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
 
-	LUA_ASSERT(device()->resource_manager()->can_get(UNIT_TYPE, name), stack, "Unit not found");
+	LUA_ASSERT(device()->resource_manager()->can_get(RESOURCE_TYPE_UNIT, name), stack, "Unit not found");
 
 	stack.push_unit(stack.get_world(1)->spawn_unit(name, pos, rot));
 	return 1;
@@ -1398,7 +1398,7 @@ static int world_play_sound(lua_State* L)
 	const Vector3& pos = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
 	const f32 range  = nargs > 5 ? stack.get_float(6)   : 1000.0f;
 
-	LUA_ASSERT(device()->resource_manager()->can_get(SOUND_TYPE, name), stack, "Sound not found");
+	LUA_ASSERT(device()->resource_manager()->can_get(RESOURCE_TYPE_SOUND, name), stack, "Sound not found");
 
 	stack.push_sound_instance_id(world->play_sound(name, loop, volume, pos, range));
 	return 1;
@@ -1471,7 +1471,7 @@ static int world_load_level(lua_State* L)
 	const StringId64 name = stack.get_resource_id(2);
 	const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
 	const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
-	LUA_ASSERT(device()->resource_manager()->can_get(LEVEL_TYPE, name), stack, "Level not found");
+	LUA_ASSERT(device()->resource_manager()->can_get(RESOURCE_TYPE_LEVEL, name), stack, "Level not found");
 	stack.push_level(stack.get_world(1)->load_level(name, pos, rot));
 	return 1;
 }

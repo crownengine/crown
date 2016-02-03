@@ -181,7 +181,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 
 UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot)
 {
-	const UnitResource* ur = (const UnitResource*)_resource_manager->get(UNIT_TYPE, name);
+	const UnitResource* ur = (const UnitResource*)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
 	return spawn_unit(*ur, pos, rot);
 }
 
@@ -482,7 +482,7 @@ SoundInstanceId World::play_sound(const SoundResource& sr, const bool loop, cons
 
 SoundInstanceId World::play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3& pos, const f32 range)
 {
-	const SoundResource* sr = (const SoundResource*)_resource_manager->get(SOUND_TYPE, name);
+	const SoundResource* sr = (const SoundResource*)_resource_manager->get(RESOURCE_TYPE_SOUND, name);
 	return play_sound(*sr, loop, volume, pos, range);
 }
 
@@ -538,7 +538,7 @@ Level* World::load_level(const LevelResource& lr, const Vector3& pos, const Quat
 
 Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& rot)
 {
-	const LevelResource* lr = (LevelResource*)_resource_manager->get(LEVEL_TYPE, name);
+	const LevelResource* lr = (LevelResource*)_resource_manager->get(RESOURCE_TYPE_LEVEL, name);
 	return load_level(*lr, pos, rot);
 }
 

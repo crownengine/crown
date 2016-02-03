@@ -104,7 +104,7 @@ namespace sprite_resource
 		const u32 num_indices = array::size(indices);
 
 		// Write
-		opts.write(SPRITE_VERSION);
+		opts.write(RESOURCE_VERSION_SPRITE);
 
 		opts.write(num_vertices);
 		for (u32 i = 0; i < array::size(vertices); i++)
@@ -145,7 +145,7 @@ namespace sprite_resource
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		SpriteResource* so = (SpriteResource*) rm.get(SPRITE_TYPE, id);
+		SpriteResource* so = (SpriteResource*) rm.get(RESOURCE_TYPE_SPRITE, id);
 
 		bgfx::VertexDecl decl;
 		decl.begin()
@@ -159,7 +159,7 @@ namespace sprite_resource
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		SpriteResource* so = (SpriteResource*) rm.get(SPRITE_TYPE, id);
+		SpriteResource* so = (SpriteResource*) rm.get(RESOURCE_TYPE_SPRITE, id);
 
 		bgfx::destroyVertexBuffer(so->vb);
 		bgfx::destroyIndexBuffer(so->ib);
@@ -222,7 +222,7 @@ namespace sprite_animation_resource
 		}
 
 		SpriteAnimationResource sar;
-		sar.version = SPRITE_ANIMATION_VERSION;
+		sar.version = RESOURCE_VERSION_SPRITE_ANIMATION;
 		sar.num_animations = array::size(anim_names);
 		sar.num_frames = array::size(anim_frames);
 		sar.frames_offset = u32(sizeof(SpriteAnimationResource) +
@@ -257,7 +257,7 @@ namespace sprite_animation_resource
 		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == SPRITE_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SPRITE, "Wrong version");
 		return res;
 	}
 

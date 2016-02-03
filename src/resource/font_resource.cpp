@@ -57,7 +57,7 @@ namespace font_resource
 
 		// Write
 		FontResource fr;
-		fr.version      = FONT_VERSION;
+		fr.version      = RESOURCE_VERSION_FONT;
 		fr.num_glyphs   = array::size(m_glyphs);
 		fr.texture_size = size;
 		fr.font_size    = font_size;
@@ -85,7 +85,7 @@ namespace font_resource
 		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == FONT_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_FONT, "Wrong version");
 		return res;
 	}
 

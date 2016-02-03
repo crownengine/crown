@@ -55,7 +55,7 @@ MeshInstance RenderWorld::create_mesh(UnitId id, const MeshRendererDesc& mrd, co
 	if (_mesh_data.size == _mesh_data.capacity)
 		grow_mesh();
 
-	const MeshResource* mr = (const MeshResource*)_resource_manager->get(MESH_TYPE, mrd.mesh_resource);
+	const MeshResource* mr = (const MeshResource*)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
 	const MeshGeometry* mg = mr->geometry(mrd.geometry_name);
 
 	_material_manager->create_material(mrd.material_resource);
@@ -202,7 +202,7 @@ SpriteInstance RenderWorld::create_sprite(UnitId id, const SpriteRendererDesc& s
 	if (_sprite_data.size == _sprite_data.capacity)
 		grow_sprite();
 
-	const SpriteResource* sr = (const SpriteResource*)_resource_manager->get(SPRITE_TYPE, srd.sprite_resource);
+	const SpriteResource* sr = (const SpriteResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
 	_material_manager->create_material(srd.material_resource);
 
 	const u32 last = _sprite_data.size;

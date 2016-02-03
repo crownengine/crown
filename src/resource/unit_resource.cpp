@@ -29,7 +29,7 @@ namespace unit_resource
 		const u32 size = file.size();
 		void* res = a.allocate(size);
 		file.read(res, size);
-		CE_ASSERT(*(u32*)res == UNIT_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_UNIT, "Wrong version");
 		return res;
 	}
 

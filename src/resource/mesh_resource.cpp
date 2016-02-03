@@ -260,7 +260,7 @@ namespace mesh_resource
 		JsonObject geometries(ta);
 		sjson::parse(object["geometries"], geometries);
 
-		opts.write(MESH_VERSION);
+		opts.write(RESOURCE_VERSION_MESH);
 		opts.write(map::size(geometries));
 
 		MeshCompiler mc(opts);
@@ -286,7 +286,7 @@ namespace mesh_resource
 
 		u32 version;
 		br.read(version);
-		CE_ASSERT(version == MESH_VERSION, "Wrong version");
+		CE_ASSERT(version == RESOURCE_VERSION_MESH, "Wrong version");
 
 		u32 num_geoms;
 		br.read(num_geoms);
@@ -343,7 +343,7 @@ namespace mesh_resource
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		MeshResource* mr = (MeshResource*)rm.get(MESH_TYPE, id);
+		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
 
 		for (u32 i = 0; i < array::size(mr->geometries); ++i)
 		{
@@ -367,7 +367,7 @@ namespace mesh_resource
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		MeshResource* mr = (MeshResource*)rm.get(MESH_TYPE, id);
+		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
 
 		for (u32 i = 0; i < array::size(mr->geometries); ++i)
 		{

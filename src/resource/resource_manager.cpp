@@ -49,21 +49,21 @@ ResourceManager::ResourceManager(ResourceLoader& rl)
 	namespace sar = sprite_animation_resource;
 	namespace cor = config_resource;
 
-	register_resource_type(SCRIPT_TYPE,           lur::load, NULL,        NULL,         lur::unload);
-	register_resource_type(TEXTURE_TYPE,          txr::load, txr::online, txr::offline, txr::unload);
-	register_resource_type(MESH_TYPE,             mhr::load, mhr::online, mhr::offline, mhr::unload);
-	register_resource_type(SOUND_TYPE,            sdr::load, NULL,        NULL,         sdr::unload);
-	register_resource_type(UNIT_TYPE,             utr::load, NULL,        NULL,         utr::unload);
-	register_resource_type(SPRITE_TYPE,           spr::load, spr::online, spr::offline, spr::unload);
-	register_resource_type(PACKAGE_TYPE,          pkr::load, NULL,        NULL,         pkr::unload);
-	register_resource_type(PHYSICS_TYPE,          phr::load, NULL,        NULL,         phr::unload);
-	register_resource_type(MATERIAL_TYPE,         mtr::load, mtr::online, mtr::offline, mtr::unload);
-	register_resource_type(PHYSICS_CONFIG_TYPE,   pcr::load, NULL,        NULL,         pcr::unload);
-	register_resource_type(FONT_TYPE,             ftr::load, NULL,        NULL,         ftr::unload);
-	register_resource_type(LEVEL_TYPE,            lvr::load, NULL,        NULL,         lvr::unload);
-	register_resource_type(SHADER_TYPE,           shr::load, shr::online, shr::offline, shr::unload);
-	register_resource_type(SPRITE_ANIMATION_TYPE, sar::load, NULL,        NULL,         sar::unload);
-	register_resource_type(CONFIG_TYPE,           cor::load, NULL,        NULL,         cor::unload);
+	register_resource_type(RESOURCE_TYPE_SCRIPT,           lur::load, NULL,        NULL,         lur::unload);
+	register_resource_type(RESOURCE_TYPE_TEXTURE,          txr::load, txr::online, txr::offline, txr::unload);
+	register_resource_type(RESOURCE_TYPE_MESH,             mhr::load, mhr::online, mhr::offline, mhr::unload);
+	register_resource_type(RESOURCE_TYPE_SOUND,            sdr::load, NULL,        NULL,         sdr::unload);
+	register_resource_type(RESOURCE_TYPE_UNIT,             utr::load, NULL,        NULL,         utr::unload);
+	register_resource_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::online, spr::offline, spr::unload);
+	register_resource_type(RESOURCE_TYPE_PACKAGE,          pkr::load, NULL,        NULL,         pkr::unload);
+	register_resource_type(RESOURCE_TYPE_PHYSICS,          phr::load, NULL,        NULL,         phr::unload);
+	register_resource_type(RESOURCE_TYPE_MATERIAL,         mtr::load, mtr::online, mtr::offline, mtr::unload);
+	register_resource_type(RESOURCE_TYPE_PHYSICS_CONFIG,   pcr::load, NULL,        NULL,         pcr::unload);
+	register_resource_type(RESOURCE_TYPE_FONT,             ftr::load, NULL,        NULL,         ftr::unload);
+	register_resource_type(RESOURCE_TYPE_LEVEL,            lvr::load, NULL,        NULL,         lvr::unload);
+	register_resource_type(RESOURCE_TYPE_SHADER,           shr::load, shr::online, shr::offline, shr::unload);
+	register_resource_type(RESOURCE_TYPE_SPRITE_ANIMATION, sar::load, NULL,        NULL,         sar::unload);
+	register_resource_type(RESOURCE_TYPE_CONFIG,           cor::load, NULL,        NULL,         cor::unload);
 }
 
 ResourceManager::~ResourceManager()

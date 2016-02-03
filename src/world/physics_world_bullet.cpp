@@ -179,7 +179,7 @@ public:
 		_scene->setInternalTickCallback(tick_cb, this);
 		_scene->getPairCache()->setOverlapFilterCallback(&_filter_cb);
 
-		_config_resource = (const PhysicsConfigResource*)rm.get(PHYSICS_CONFIG_TYPE, StringId64("global"));
+		_config_resource = (const PhysicsConfigResource*)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, StringId64("global"));
 
 		um.register_destroy_function(BulletWorld::unit_destroyed_callback, this);
 	}

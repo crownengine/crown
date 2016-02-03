@@ -73,7 +73,7 @@ namespace texture_resource
 		opts.delete_file(texout.c_str());
 
 		// Write DDS
-		opts.write(TEXTURE_VERSION);
+		opts.write(RESOURCE_VERSION_TEXTURE);
 		opts.write(array::size(blob));
 		opts.write(blob);
 	}
@@ -94,13 +94,13 @@ namespace texture_resource
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		TextureResource* teximg = (TextureResource*) rm.get(TEXTURE_TYPE, id);
+		TextureResource* teximg = (TextureResource*) rm.get(RESOURCE_TYPE_TEXTURE, id);
 		teximg->handle = bgfx::createTexture(teximg->mem);
 	}
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		TextureResource* teximg = (TextureResource*) rm.get(TEXTURE_TYPE, id);
+		TextureResource* teximg = (TextureResource*) rm.get(RESOURCE_TYPE_TEXTURE, id);
 		bgfx::destroyTexture(teximg->handle);
 	}
 

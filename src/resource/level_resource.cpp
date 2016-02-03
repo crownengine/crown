@@ -53,7 +53,7 @@ namespace level_resource
 
 		// Write
 		LevelResource lr;
-		lr.version       = LEVEL_VERSION;
+		lr.version       = RESOURCE_VERSION_LEVEL;
 		lr.num_sounds    = array::size(sounds);
 		lr.units_offset  = sizeof(LevelResource);
 		lr.sounds_offset = lr.units_offset + array::size(unit_buffer);
@@ -83,7 +83,7 @@ namespace level_resource
 		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == LEVEL_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_LEVEL, "Wrong version");
 		return res;
 	}
 

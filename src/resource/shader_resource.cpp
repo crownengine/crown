@@ -1022,7 +1022,7 @@ namespace shader_resource
 
 		void compile()
 		{
-			_opts.write(SHADER_VERSION);
+			_opts.write(RESOURCE_VERSION_SHADER);
 			_opts.write(map::size(_shaders));
 
 			auto begin = map::begin(_shaders);

@@ -86,11 +86,11 @@ namespace material_resource
 
 			DynamicString texture(ta);
 			sjson::parse_string(value, texture);
-			RESOURCE_COMPILER_ASSERT(opts.resource_exists(TEXTURE_EXTENSION, texture.c_str())
+			RESOURCE_COMPILER_ASSERT(opts.resource_exists(RESOURCE_EXTENSION_TEXTURE, texture.c_str())
 				, opts
 				, "Resource does not exist: '%s.%s'"
 				, texture.c_str()
-				, TEXTURE_EXTENSION
+				, RESOURCE_EXTENSION_TEXTURE
 				);
 
 			TextureHandle th;
@@ -201,7 +201,7 @@ namespace material_resource
 		parse_uniforms(object["uniforms"], unidata, names, dynblob, opts);
 
 		MaterialResource mr;
-		mr.version             = MATERIAL_VERSION;
+		mr.version             = RESOURCE_VERSION_MATERIAL;
 		mr.shader              = shader.to_string_id();
 		mr.num_textures        = array::size(texdata);
 		mr.texture_data_offset = sizeof(mr);

@@ -22,7 +22,7 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view) const
 		const TextureData* td   = get_texture_data(_resource, i);
 		const TextureHandle* th = get_texture_handle(_resource, i, _data);
 
-		const TextureResource* teximg = (TextureResource*)rm.get(TEXTURE_TYPE, td->id);
+		const TextureResource* teximg = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, td->id);
 
 		bgfx::UniformHandle sampler;
 		bgfx::TextureHandle texture;

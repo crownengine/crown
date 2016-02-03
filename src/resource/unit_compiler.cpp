@@ -211,7 +211,7 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 		DynamicString path(ta);
 		sjson::parse_string(prefab, path);
 
-		path += "." UNIT_EXTENSION;
+		path += "." RESOURCE_EXTENSION_UNIT;
 		compile_unit(path.c_str());
 	}
 
@@ -262,7 +262,7 @@ void UnitCompiler::compile_multiple_units(const char* json)
 Buffer UnitCompiler::get()
 {
 	UnitResource ur;
-	ur.version = UNIT_VERSION;
+	ur.version = RESOURCE_VERSION_UNIT;
 	ur.num_units = _num_units;
 	ur.num_component_types = sort_map::size(_component_data);
 

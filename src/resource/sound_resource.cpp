@@ -48,7 +48,7 @@ namespace sound_resource
 
 		// Write
 		SoundResource sr;
-		sr.version      = SOUND_VERSION;
+		sr.version      = RESOURCE_VERSION_SOUND;
 		sr.size         = wav->data_size;
 		sr.sample_rate  = wav->fmt_sample_rate;
 		sr.avg_bytes_ps = wav->fmt_avarage;
@@ -74,7 +74,7 @@ namespace sound_resource
 		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == SOUND_VERSION, "Wrong version");
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SOUND, "Wrong version");
 		return res;
 	}
 

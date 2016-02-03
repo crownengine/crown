@@ -54,21 +54,21 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	namespace sar = sprite_animation_resource;
 	namespace cor = config_resource;
 
-	register_resource_compiler(SCRIPT_TYPE,           SCRIPT_VERSION,           lur::compile);
-	register_resource_compiler(TEXTURE_TYPE,          TEXTURE_VERSION,          txr::compile);
-	register_resource_compiler(MESH_TYPE,             MESH_VERSION,             mhr::compile);
-	register_resource_compiler(SOUND_TYPE,            SOUND_VERSION,            sdr::compile);
-	register_resource_compiler(UNIT_TYPE,             UNIT_VERSION,             utr::compile);
-	register_resource_compiler(SPRITE_TYPE,           SPRITE_VERSION,           spr::compile);
-	register_resource_compiler(PACKAGE_TYPE,          PACKAGE_VERSION,          pkr::compile);
-	register_resource_compiler(PHYSICS_TYPE,          PHYSICS_VERSION,          phr::compile);
-	register_resource_compiler(MATERIAL_TYPE,         MATERIAL_VERSION,         mtr::compile);
-	register_resource_compiler(PHYSICS_CONFIG_TYPE,   PHYSICS_CONFIG_VERSION,   pcr::compile);
-	register_resource_compiler(FONT_TYPE,             FONT_VERSION,             ftr::compile);
-	register_resource_compiler(LEVEL_TYPE,            LEVEL_VERSION,            lvr::compile);
-	register_resource_compiler(SHADER_TYPE,           SHADER_VERSION,           shr::compile);
-	register_resource_compiler(SPRITE_ANIMATION_TYPE, SPRITE_ANIMATION_VERSION, sar::compile);
-	register_resource_compiler(CONFIG_TYPE,           CONFIG_VERSION,           cor::compile);
+	register_resource_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
+	register_resource_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
+	register_resource_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
+	register_resource_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
+	register_resource_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
+	register_resource_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
+	register_resource_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
+	register_resource_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
+	register_resource_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
+	register_resource_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
+	register_resource_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
+	register_resource_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
+	register_resource_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
+	register_resource_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
+	register_resource_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
 
 	_bundle_fs.create_directory(bundle_dir);
 

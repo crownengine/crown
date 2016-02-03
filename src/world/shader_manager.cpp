@@ -23,7 +23,7 @@ void* ShaderManager::load(File& file, Allocator& a)
 	BinaryReader br(file);
 	u32 version;
 	br.read(version);
-	CE_ASSERT(version == SHADER_VERSION, "Wrong version");
+	CE_ASSERT(version == RESOURCE_VERSION_SHADER, "Wrong version");
 
 	u32 num;
 	br.read(num);
@@ -60,7 +60,7 @@ void* ShaderManager::load(File& file, Allocator& a)
 
 void ShaderManager::online(StringId64 id, ResourceManager& rm)
 {
-	const ShaderResource* shader = (ShaderResource*)rm.get(SHADER_TYPE, id);
+	const ShaderResource* shader = (ShaderResource*)rm.get(RESOURCE_TYPE_SHADER, id);
 
 	for (u32 i = 0; i < array::size(shader->_data); ++i)
 	{
@@ -79,7 +79,7 @@ void ShaderManager::online(StringId64 id, ResourceManager& rm)
 
 void ShaderManager::offline(StringId64 id, ResourceManager& rm)
 {
-	const ShaderResource* shader = (ShaderResource*)rm.get(SHADER_TYPE, id);
+	const ShaderResource* shader = (ShaderResource*)rm.get(RESOURCE_TYPE_SHADER, id);
 
 	for (u32 i = 0; i < array::size(shader->_data); ++i)
 	{

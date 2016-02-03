@@ -36,7 +36,7 @@ void* MaterialManager::load(File& file, Allocator& a)
 	const u32 file_size = file.size();
 	void* res = a.allocate(file_size);
 	file.read(res, file_size);
-	CE_ASSERT(*(u32*)res == MATERIAL_VERSION, "Wrong version");
+	CE_ASSERT(*(u32*)res == RESOURCE_VERSION_MATERIAL, "Wrong version");
 	return res;
 }
 
@@ -44,7 +44,7 @@ void MaterialManager::online(StringId64 id, ResourceManager& rm)
 {
 	using namespace material_resource;
 
-	MaterialResource* mr = (MaterialResource*) rm.get(MATERIAL_TYPE, id);
+	MaterialResource* mr = (MaterialResource*) rm.get(RESOURCE_TYPE_MATERIAL, id);
 
 	char* base = (char*)mr + mr->dynamic_data_offset;
 
@@ -67,7 +67,7 @@ void MaterialManager::offline(StringId64 id, ResourceManager& rm)
 {
 	using namespace material_resource;
 
-	MaterialResource* mr = (MaterialResource*) rm.get(MATERIAL_TYPE, id);
+	MaterialResource* mr = (MaterialResource*) rm.get(RESOURCE_TYPE_MATERIAL, id);
 
 	char* base = (char*) mr + mr->dynamic_data_offset;
 
@@ -98,7 +98,7 @@ void MaterialManager::create_material(StringId64 id)
 	if (sort_map::has(_materials, id))
 		return;
 
-	const MaterialResource* mr = (MaterialResource*)_resource_manager->get(MATERIAL_TYPE, id);
+	const MaterialResource* mr = (MaterialResource*)_resource_manager->get(RESOURCE_TYPE_MATERIAL, id);
 
 	const u32 size = sizeof(Material) + mr->dynamic_data_size;
 	Material* mat  = (Material*)_allocator->allocate(size);
