@@ -47,7 +47,8 @@ public:
 
 	bool is_longopt(const char* arg, const char* longopt)
 	{
-		return strlen32(arg) > 2
+		return longopt != NULL
+			&& strlen32(arg) > 2
 			&& arg[0] == '-'
 			&& arg[1] == '-'
 			&& strcmp(&arg[2], longopt) == 0
