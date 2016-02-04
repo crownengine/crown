@@ -21,7 +21,7 @@ namespace font_resource
 		CodePoint cp;
 		GlyphData gd;
 
-		bool operator<(const GlyphInfo& a)
+		bool operator<(const GlyphInfo& a) const
 		{
 			return cp < a.cp;
 		}
