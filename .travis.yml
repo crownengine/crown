@@ -8,9 +8,5 @@ before_install:
   - sudo apt-get install -y libpulse-dev
   - sudo apt-get install -y libxrandr-dev
 
-before_script:
-  - git submodule init
-  - git submodule update
-
 script:
   - make linux-debug64 linux-development64 linux-release64
