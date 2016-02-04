@@ -46,9 +46,6 @@ Engine initialization and shutdown.
 ### Getting source
 
 	$ git clone https://github.com/taylor001/crown.git
-	$ cd crown
-	$ git submodule init
-	$ git submodule update
 
 ### Prerequisites
 
