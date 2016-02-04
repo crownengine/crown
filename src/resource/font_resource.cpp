@@ -10,25 +10,37 @@
 #include "compile_options.h"
 #include "sjson.h"
 #include "map.h"
+#include <algorithm>
 
 namespace crown
 {
 namespace font_resource
 {
-	void parse_glyph(const char* json, FontGlyphData& glyph)
+	struct GlyphInfo
+	{
+		CodePoint cp;
+		GlyphData gd;
+
+		bool operator<(const GlyphInfo& a)
+		{
+			return cp < a.cp;
+		}
+	};
+
+	void parse_glyph(const char* json, GlyphInfo& glyph)
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
 		sjson::parse(json, obj);
 
-		glyph.id        = sjson::parse_int(obj["id"]);
-		glyph.x         = sjson::parse_float(obj["x"]);
-		glyph.y         = sjson::parse_float(obj["y"]);
-		glyph.width     = sjson::parse_float(obj["width"]);
-		glyph.height    = sjson::parse_float(obj["height"]);
-		glyph.x_offset  = sjson::parse_float(obj["x_offset"]);
-		glyph.y_offset  = sjson::parse_float(obj["y_offset"]);
-		glyph.x_advance = sjson::parse_float(obj["x_advance"]);
+		glyph.cp           = sjson::parse_int(obj["id"]);
+		glyph.gd.x         = sjson::parse_float(obj["x"]);
+		glyph.gd.y         = sjson::parse_float(obj["y"]);
+		glyph.gd.width     = sjson::parse_float(obj["width"]);
+		glyph.gd.height    = sjson::parse_float(obj["height"]);
+		glyph.gd.x_offset  = sjson::parse_float(obj["x_offset"]);
+		glyph.gd.y_offset  = sjson::parse_float(obj["y_offset"]);
+		glyph.gd.x_advance = sjson::parse_float(obj["x_advance"]);
 	}
 
 	void compile(const char* path, CompileOptions& opts)
@@ -42,49 +54,47 @@ namespace font_resource
 		sjson::parse(buf, object);
 		sjson::parse_array(object["glyphs"], glyphs);
 
-		const u32 size       = sjson::parse_int(object["size"]);
-		const u32 font_size  = sjson::parse_int(object["font_size"]);
-		const u32 num_glyphs = array::size(glyphs);
+		const u32 texture_size = sjson::parse_int(object["size"]);
+		const u32 font_size    = sjson::parse_int(object["font_size"]);
+		const u32 num_glyphs   = array::size(glyphs);
 
-		Array<FontGlyphData> m_glyphs(default_allocator());
+		Array<GlyphInfo> _glyphs(default_allocator());
+		array::resize(_glyphs, num_glyphs);
 
 		for (u32 i = 0; i < num_glyphs; ++i)
 		{
-			FontGlyphData data;
-			parse_glyph(glyphs[i], data);
-			array::push_back(m_glyphs, data);
+			parse_glyph(glyphs[i], _glyphs[i]);
 		}
 
-		// Write
-		FontResource fr;
-		fr.version      = RESOURCE_VERSION_FONT;
-		fr.num_glyphs   = array::size(m_glyphs);
-		fr.texture_size = size;
-		fr.font_size    = font_size;
+		std::sort(array::begin(_glyphs), array::end(_glyphs));
 
-		opts.write(fr.version);
-		opts.write(fr.num_glyphs);
-		opts.write(fr.texture_size);
-		opts.write(fr.font_size);
+		opts.write(RESOURCE_VERSION_FONT);
+		opts.write(num_glyphs);
+		opts.write(texture_size);
+		opts.write(font_size);
 
-		for (u32 i = 0; i < array::size(m_glyphs); ++i)
+		for (u32 i = 0; i < array::size(_glyphs); ++i)
 		{
-			opts.write(m_glyphs[i].id);
-			opts.write(m_glyphs[i].x);
-			opts.write(m_glyphs[i].y);
-			opts.write(m_glyphs[i].width);
-			opts.write(m_glyphs[i].height);
-			opts.write(m_glyphs[i].x_offset);
-			opts.write(m_glyphs[i].y_offset);
-			opts.write(m_glyphs[i].x_advance);
+			opts.write(_glyphs[i].cp);
+		}
+
+		for (u32 i = 0; i < array::size(_glyphs); ++i)
+		{
+			opts.write(_glyphs[i].gd.x);
+			opts.write(_glyphs[i].gd.y);
+			opts.write(_glyphs[i].gd.width);
+			opts.write(_glyphs[i].gd.height);
+			opts.write(_glyphs[i].gd.x_offset);
+			opts.write(_glyphs[i].gd.y_offset);
+			opts.write(_glyphs[i].gd.x_advance);
 		}
 	}
 
 	void* load(File& file, Allocator& a)
 	{
-		const u32 file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
+		const u32 size = file.size();
+		void* res = a.allocate(size);
+		file.read(res, size);
 		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_FONT, "Wrong version");
 		return res;
 	}
@@ -94,16 +104,18 @@ namespace font_resource
 		allocator.deallocate(resource);
 	}
 
-	const FontGlyphData* get_glyph(const FontResource* fr, u32 cp)
+	const GlyphData* get_glyph(const FontResource* fr, CodePoint cp)
 	{
 		CE_ASSERT(cp < fr->num_glyphs, "Index out of bounds");
 
-		FontGlyphData* begin = (FontGlyphData*)&fr[1];
+		const CodePoint* pts  = (CodePoint*)&fr[1];
+		const GlyphData* data = (GlyphData*)(pts + fr->num_glyphs);
 
+		// FIXME: Can do binary search
 		for (u32 i = 0; i < fr->num_glyphs; ++i)
 		{
-			if (begin[i].id == cp)
-				return &begin[i];
+			if (pts[i] == cp)
+				return &data[i];
 		}
 
 		CE_FATAL("Glyph not found");

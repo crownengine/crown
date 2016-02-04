@@ -22,9 +22,10 @@ struct FontResource
 	u32 font_size;
 };
 
-struct FontGlyphData
+typedef u32 CodePoint;
+
+struct GlyphData
 {
-	u32 id;
 	f32 x;
 	f32 y;
 	f32 width;
@@ -40,6 +41,6 @@ namespace font_resource
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 
-	const FontGlyphData* get_glyph(const FontResource* fr, u32 cp);
+	const GlyphData* get_glyph(const FontResource* fr, CodePoint cp);
 } // namespace font_resource
 } // namespace crown
