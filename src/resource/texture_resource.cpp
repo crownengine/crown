@@ -80,28 +80,36 @@ namespace texture_resource
 
 	void* load(File& file, Allocator& a)
 	{
-		const u32 file_size = file.size();
-		file.skip(sizeof(TextureHeader));
-		const bgfx::Memory* mem = bgfx::alloc(file_size);
-		file.read(mem->data, file_size - sizeof(TextureHeader));
+		BinaryReader br(file);
 
-		TextureResource* teximg = (TextureResource*) a.allocate(sizeof(TextureResource));
-		teximg->mem = mem;
-		teximg->handle.idx = bgfx::invalidHandle;
+		u32 version;
+		br.read(version);
+		CE_ASSERT(version == RESOURCE_VERSION_TEXTURE, "Wrong version");
 
-		return teximg;
+		u32 size;
+		br.read(size);
+
+		TextureResource* tr = (TextureResource*)a.allocate(sizeof(TextureResource) + size);
+
+		void* data = &tr[1];
+		br.read(data, size);
+
+		tr->mem        = bgfx::makeRef(data, size);
+		tr->handle.idx = bgfx::invalidHandle;
+
+		return tr;
 	}
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		TextureResource* teximg = (TextureResource*) rm.get(RESOURCE_TYPE_TEXTURE, id);
-		teximg->handle = bgfx::createTexture(teximg->mem);
+		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
+		tr->handle = bgfx::createTexture(tr->mem);
 	}
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		TextureResource* teximg = (TextureResource*) rm.get(RESOURCE_TYPE_TEXTURE, id);
-		bgfx::destroyTexture(teximg->handle);
+		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
+		bgfx::destroyTexture(tr->handle);
 	}
 
 	void unload(Allocator& a, void* resource)

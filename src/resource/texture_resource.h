@@ -14,15 +14,9 @@
 
 namespace crown
 {
-struct TextureHeader
-{
-	u32 version;
-	u32 size;
-};
-
 struct TextureResource
 {
-	const bgfx::Memory* mem; // BGFX will take care of deallocation
+	const bgfx::Memory* mem;
 	bgfx::TextureHandle handle;
 };
 
