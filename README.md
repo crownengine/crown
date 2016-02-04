@@ -41,10 +41,6 @@ Engine initialization and shutdown.
 
 ##Building
 
-### Getting source
-
-	$ git clone https://github.com/taylor001/crown.git
-
 ### Prerequisites
 
 ### Prerequisites for Android
@@ -76,13 +72,6 @@ To run a sample on 64-bit linux debug mode:
     $ cd build/linux64/bin
 	$ ./linux-debug-64 --source-dir <full/sample/path> --bundle-dir <full/destination/path> --compile --platform linux --continue
 
-Contact
--------
-
-Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
-
-Project page: https://github.com/taylor001/crown
-
 Support
 -------
 
@@ -90,13 +79,12 @@ I'm an independent developer and your contributions are invaluable to me. If you
 
 [![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
 
-Contributors
-------------
+Contact
+-------
 
-In alphabetical order.
+Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
 
-Michele Rossi ([@mikymod](https://github.com/mikymod))  
-Simone Boscaratto ([@Xed89](https://github.com/Xed89))
+Project page: https://github.com/taylor001/crown
 
 License
 -------
