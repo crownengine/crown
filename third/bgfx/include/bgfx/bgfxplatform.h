@@ -11,6 +11,7 @@
 // necessary to use this header in conjunction with creating windows.
 
 #include <bx/platform.h>
+#include <bgfx/bgfx.h>
 
 namespace bgfx
 {
@@ -60,17 +61,67 @@ namespace bgfx
 	///
 	void setPlatformData(const PlatformData& _data);
 
+	/// Internal data.
+	///
+	/// @attention C99 equivalent is `bgfx_internal_data_t`.
 	///
 	struct InternalData
 	{
-		void* context; //!< GL context, or D3D device.
+		const struct Caps* caps; //!< Renderer capabilities.
+		void* context;           //!< GL context, or D3D device.
 	};
 
 	/// Get internal data for interop.
 	///
+	/// @attention It's expected you understand some bgfx internals before you
+	///   use this call.
+	///
+	/// @warning Must be called only on render thread.
+	///
 	/// @attention C99 equivalent is `bgfx_get_internal_data`.
 	///
 	const InternalData* getInternalData();
+
+	/// Override internal texture with externally created texture. Previously
+	/// created internal texture will released.
+	///
+	/// @attention It's expected you understand some bgfx internals before you
+	///   use this call.
+	///
+	/// @param[in] _handle Texture handle.
+	/// @param[in] _ptr Native API pointer to texture.
+	///
+	/// @warning Must be called only on render thread.
+	///
+	/// @attention C99 equivalent is `bgfx_override_internal_texture_ptr`.
+	///
+	void overrideInternal(TextureHandle _handle, uintptr_t _ptr);
+
+	/// Override internal texture by creating new texture. Previously created
+	/// internal texture will released.
+	///
+	/// @attention It's expected you understand some bgfx internals before you
+	///   use this call.
+	///
+	/// @param[in] _handle Texture handle.
+	/// @param[in] _width Width.
+	/// @param[in] _height Height.
+	/// @param[in] _numMips Number of mip-maps.
+	/// @param[in] _format Texture format. See: `TextureFormat::Enum`.
+	/// @param[in] _flags Default texture sampling mode is linear, and wrap mode
+	///   is repeat.
+	///   - `BGFX_TEXTURE_[U/V/W]_[MIRROR/CLAMP]` - Mirror or clamp to edge wrap
+	///     mode.
+	///   - `BGFX_TEXTURE_[MIN/MAG/MIP]_[POINT/ANISOTROPIC]` - Point or anisotropic
+	///     sampling.
+	///
+	/// @returns Native API pointer to texture.
+	///
+	/// @warning Must be called only on render thread.
+	///
+	/// @attention C99 equivalent is `bgfx_override_internal_texture`.
+	///
+	uintptr_t overrideInternal(TextureHandle _handle, uint16_t _width, uint16_t _height, uint8_t _numMips, TextureFormat::Enum _format, uint32_t _flags = BGFX_TEXTURE_NONE);
 
 } // namespace bgfx
 

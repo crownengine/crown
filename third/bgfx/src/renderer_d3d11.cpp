@@ -487,6 +487,8 @@ namespace bgfx { namespace d3d11
 		return false;
 	};
 
+	// Reference:
+	// https://github.com/GPUOpen-LibrariesAndSDKs/AGS_SDK
 	enum AGS_RETURN_CODE
 	{
 		AGS_SUCCESS,
@@ -1753,6 +1755,22 @@ BX_PRAGMA_DIAGNOSTIC_POP();
 			texture.create(mem, tc.m_flags, 0);
 
 			release(mem);
+		}
+
+		void overrideInternal(TextureHandle _handle, uintptr_t _ptr) BX_OVERRIDE
+		{
+			// Resource ref. counts might be messed up outside of bgfx.
+			// Disabling ref. count check once texture is overridden.
+			setGraphicsDebuggerPresent(true);
+			m_textures[_handle.idx].overrideInternal(_ptr);
+		}
+
+		uintptr_t getInternal(TextureHandle _handle) BX_OVERRIDE
+		{
+			// Resource ref. counts might be messed up outside of bgfx.
+			// Disabling ref. count check once texture is overridden.
+			setGraphicsDebuggerPresent(true);
+			return uintptr_t(m_textures[_handle.idx].m_ptr);
 		}
 
 		void destroyTexture(TextureHandle _handle) BX_OVERRIDE
@@ -4159,7 +4177,19 @@ BX_PRAGMA_DIAGNOSTIC_POP();
 		s_renderD3D11->m_srvUavLru.invalidateWithParent(getHandle().idx);
 		DX_RELEASE(m_srv, 0);
 		DX_RELEASE(m_uav, 0);
-		DX_RELEASE(m_ptr, 0);
+		if (0 == (m_flags & BGFX_TEXTURE_INTERNAL_SHARED) )
+		{
+			DX_RELEASE(m_ptr, 0);
+		}
+	}
+
+	void TextureD3D11::overrideInternal(uintptr_t _ptr)
+	{
+		destroy();
+		m_flags |= BGFX_TEXTURE_INTERNAL_SHARED;
+		m_ptr = (ID3D11Resource*)_ptr;
+
+		s_renderD3D11->m_device->CreateShaderResourceView(m_ptr, NULL, &m_srv);
 	}
 
 	void TextureD3D11::update(uint8_t _side, uint8_t _mip, const Rect& _rect, uint16_t _z, uint16_t _depth, uint16_t _pitch, const Memory* _mem)

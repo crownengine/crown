@@ -112,10 +112,10 @@ namespace bgfx
 			strcat(filePath, ".tga");
 
 			bx::CrtFileWriter writer;
-			if (0 == writer.open(filePath) )
+			if (bx::open(&writer, filePath) )
 			{
 				imageWriteTga(&writer, _width, _height, _pitch, _data, false, _yflip);
-				writer.close();
+				bx::close(&writer);
 			}
 #endif // BX_CONFIG_CRT_FILE_READER_WRITER
 		}
@@ -310,7 +310,45 @@ namespace bgfx
 
 	const InternalData* getInternalData()
 	{
+		BGFX_CHECK_RENDER_THREAD();
 		return &g_internalData;
+	}
+
+	void overrideInternal(TextureHandle _handle, uintptr_t _ptr)
+	{
+		BGFX_CHECK_RENDER_THREAD();
+		s_ctx->m_renderCtx->overrideInternal(_handle, _ptr);
+	}
+
+	uintptr_t overrideInternal(TextureHandle _handle, uint16_t _width, uint16_t _height, uint8_t _numMips, TextureFormat::Enum _format, uint32_t _flags)
+	{
+		BGFX_CHECK_RENDER_THREAD();
+
+		uint32_t size = sizeof(uint32_t) + sizeof(TextureCreate);
+		Memory* mem   = const_cast<Memory*>(alloc(size) );
+
+		bx::StaticMemoryBlockWriter writer(mem->data, mem->size);
+		uint32_t magic = BGFX_CHUNK_MAGIC_TEX;
+		bx::write(&writer, magic);
+
+		TextureCreate tc;
+		tc.m_flags   = _flags;
+		tc.m_width   = _width;
+		tc.m_height  = _height;
+		tc.m_sides   = 0;
+		tc.m_depth   = 0;
+		tc.m_numMips = uint8_t(bx::uint16_max(1, _numMips) );
+		tc.m_format  = _format;
+		tc.m_cubeMap = false;
+		tc.m_mem     = NULL;
+		bx::write(&writer, tc);
+
+		s_ctx->m_renderCtx->destroyTexture(_handle);
+		s_ctx->m_renderCtx->createTexture(_handle, mem, _flags, 0);
+
+		release(mem);
+
+		return s_ctx->m_renderCtx->getInternal(_handle);
 	}
 
 	void setGraphicsDebuggerPresent(bool _present)
@@ -1032,6 +1070,15 @@ namespace bgfx
 
 	static void dumpCaps()
 	{
+		BX_TRACE("Sort key masks:");
+		BX_TRACE("\t  View     %016" PRIx64, SORT_KEY_VIEW_MASK);
+		BX_TRACE("\t  Draw bit %016" PRIx64, SORT_KEY_DRAW_BIT);
+		BX_TRACE("\t  Seq      %016" PRIx64, SORT_KEY_SEQ_MASK);
+		BX_TRACE("\tD Trans    %016" PRIx64, SORT_KEY_DRAW_TRANS_MASK);
+		BX_TRACE("\tD Program  %016" PRIx64, SORT_KEY_DRAW_PROGRAM_MASK);
+		BX_TRACE("\tC Program  %016" PRIx64, SORT_KEY_COMPUTE_PROGRAM_MASK);
+		BX_TRACE("\tD Depth    %016" PRIx64, SORT_KEY_DRAW_DEPTH_MASK);
+
 		BX_TRACE("Supported capabilities (renderer %s, vendor 0x%04x, device 0x%04x):"
 				, s_ctx->m_renderCtx->getRendererName()
 				, g_caps.vendorId
@@ -1223,6 +1270,8 @@ namespace bgfx
 			frame();
 		}
 
+		g_internalData.caps = getCaps();
+
 		return true;
 	}
 
@@ -1269,6 +1318,7 @@ namespace bgfx
 		m_render->destroy();
 #endif // BGFX_CONFIG_MULTITHREADED
 
+		memset(&g_internalData, 0, sizeof(InternalData) );
 		s_ctx = NULL;
 
 		m_submit->destroy();
@@ -2831,19 +2881,19 @@ again:
 				);
 		}
 
-		uint32_t size = sizeof(uint32_t)+sizeof(TextureCreate);
-		const Memory* mem = alloc(size);
-
-		bx::StaticMemoryBlockWriter writer(mem->data, mem->size);
-		uint32_t magic = BGFX_CHUNK_MAGIC_TEX;
-		bx::write(&writer, magic);
-
 		if (BackbufferRatio::Count != _ratio)
 		{
 			_width  = uint16_t(s_ctx->m_resolution.m_width);
 			_height = uint16_t(s_ctx->m_resolution.m_height);
 			getTextureSizeFromRatio(_ratio, _width, _height);
 		}
+
+		uint32_t size = sizeof(uint32_t)+sizeof(TextureCreate);
+		const Memory* mem = alloc(size);
+
+		bx::StaticMemoryBlockWriter writer(mem->data, mem->size);
+		uint32_t magic = BGFX_CHUNK_MAGIC_TEX;
+		bx::write(&writer, magic);
 
 		TextureCreate tc;
 		tc.m_flags   = _flags;
@@ -3494,6 +3544,32 @@ again:
 #include <bgfx/c99/bgfx.h>
 #include <bgfx/c99/bgfxplatform.h>
 
+#define FLAGS_MASK_TEST(_flags, _mask) ( (_flags) == ( (_flags) & (_mask) ) )
+
+BX_STATIC_ASSERT(FLAGS_MASK_TEST(0
+	| BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER
+	| BGFX_TEXTURE_INTERNAL_SHARED
+	, BGFX_TEXTURE_RESERVED_MASK
+	) );
+
+BX_STATIC_ASSERT(FLAGS_MASK_TEST(0
+	| BGFX_RESET_INTERNAL_FORCE
+	, BGFX_RESET_RESERVED_MASK
+	) );
+
+BX_STATIC_ASSERT(FLAGS_MASK_TEST(0
+	| BGFX_STATE_INTERNAL_SCISSOR
+	| BGFX_STATE_INTERNAL_OCCLUSION_QUERY
+	, BGFX_STATE_RESERVED_MASK
+	) );
+
+BX_STATIC_ASSERT(FLAGS_MASK_TEST(0
+	| BGFX_SUBMIT_INTERNAL_OCCLUSION_VISIBLE
+	, BGFX_SUBMIT_RESERVED_MASK
+	) );
+
+#undef FLAGS_MASK_TEST
+
 BX_STATIC_ASSERT(bgfx::Fatal::Count         == bgfx::Fatal::Enum(BGFX_FATAL_COUNT) );
 BX_STATIC_ASSERT(bgfx::RendererType::Count  == bgfx::RendererType::Enum(BGFX_RENDERER_TYPE_COUNT) );
 BX_STATIC_ASSERT(bgfx::Attrib::Count        == bgfx::Attrib::Enum(BGFX_ATTRIB_COUNT) );
@@ -3510,6 +3586,7 @@ BX_STATIC_ASSERT(sizeof(bgfx::InstanceDataBuffer)    == sizeof(bgfx_instance_dat
 BX_STATIC_ASSERT(sizeof(bgfx::TextureInfo)           == sizeof(bgfx_texture_info_t) );
 BX_STATIC_ASSERT(sizeof(bgfx::Caps)                  == sizeof(bgfx_caps_t) );
 BX_STATIC_ASSERT(sizeof(bgfx::PlatformData)          == sizeof(bgfx_platform_data_t) );
+BX_STATIC_ASSERT(sizeof(bgfx::InternalData)          == sizeof(bgfx_internal_data_t) );
 
 namespace bgfx
 {
@@ -4380,6 +4457,18 @@ BGFX_C_API const bgfx_internal_data_t* bgfx_get_internal_data()
 	return (const bgfx_internal_data_t*)bgfx::getInternalData();
 }
 
+BGFX_C_API void bgfx_override_internal_texture_ptr(bgfx_texture_handle_t _handle, uintptr_t _ptr)
+{
+	union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } handle = { _handle };
+	bgfx::overrideInternal(handle.cpp, _ptr);
+}
+
+BGFX_C_API uintptr_t bgfx_override_internal_texture(bgfx_texture_handle_t _handle, uint16_t _width, uint16_t _height, uint8_t _numMips, bgfx_texture_format_t _format, uint32_t _flags)
+{
+	union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } handle = { _handle };
+	return bgfx::overrideInternal(handle.cpp, _width, _height, _numMips, bgfx::TextureFormat::Enum(_format), _flags);
+}
+
 BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 {
 	if (_version == BGFX_API_VERSION)
@@ -4388,6 +4477,8 @@ BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 	BGFX_IMPORT_FUNC(render_frame) \
 	BGFX_IMPORT_FUNC(set_platform_data) \
 	BGFX_IMPORT_FUNC(get_internal_data) \
+	BGFX_IMPORT_FUNC(override_internal_texture_ptr) \
+	BGFX_IMPORT_FUNC(override_internal_texture) \
 	BGFX_IMPORT_FUNC(vertex_decl_begin) \
 	BGFX_IMPORT_FUNC(vertex_decl_add) \
 	BGFX_IMPORT_FUNC(vertex_decl_skip) \
