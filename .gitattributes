@@ -1,15 +1,14 @@
-# Set the default behavior, in case people don't have core.autocrlf set.
-* text=auto
-
 *.c   eol=lf
 *.cpp eol=lf
 *.h   eol=lf
 *.hpp eol=lf
-*.lua eol=lf
+*.sc  eol=lf
 *.sh  eol=lf
-*.txt eol=lf
+*.m   eol=lf
+*.mm  eol=lf
 *.md  eol=lf
-*.in  eol=lf
+*.lua eol=lf
+*.mk  eol=lf
 *.rb  eol=lf
 makefile eol=lf
 
