@@ -35,13 +35,13 @@ u8 InputDevice::num_axes() const
 bool InputDevice::pressed(u8 id) const
 {
 	CE_ASSERT(id < _num_buttons, "Index out of bounds");
-	return (~_last_state[id] & _current_state[id]) != 0;
+	return (~_last_state[id] & _state[id]) != 0;
 }
 
 bool InputDevice::released(u8 id) const
 {
 	CE_ASSERT(id < _num_buttons, "Index out of bounds");
-	return (_last_state[id] & ~_current_state[id]) != 0;
+	return (_last_state[id] & ~_state[id]) != 0;
 }
 
 bool InputDevice::any_pressed() const
@@ -105,7 +105,7 @@ void InputDevice::set_button_state(u8 i, bool state)
 {
 	CE_ASSERT(i < _num_buttons, "Index out of bounds");
 	_last_button = i;
-	_current_state[i] = state;
+	_state[i] = state;
 }
 
 void InputDevice::set_axis(u8 i, const Vector3& value)
@@ -116,7 +116,7 @@ void InputDevice::set_axis(u8 i, const Vector3& value)
 
 void InputDevice::update()
 {
-	memcpy(_last_state, _current_state, sizeof(u8)*_num_buttons);
+	memcpy(_last_state, _state, sizeof(u8)*_num_buttons);
 }
 
 InputDevice* InputDevice::create(Allocator& a, const char* name, u8 num_buttons, u8 num_axes, const char** button_names, const char** axis_names)
@@ -140,8 +140,8 @@ InputDevice* InputDevice::create(Allocator& a, const char* name, u8 num_buttons,
 	id->_last_button = 0;
 
 	id->_last_state = (u8*)&id[1];
-	id->_current_state = (u8*)(id->_last_state + num_buttons);
-	id->_axis = (Vector3*)(id->_current_state + num_buttons);
+	id->_state = (u8*)(id->_last_state + num_buttons);
+	id->_axis = (Vector3*)(id->_state + num_buttons);
 	id->_button_name = (const char**)(id->_axis + num_axes);
 	id->_axis_name = (const char**)(id->_button_name + num_buttons);
 	id->_button_hash = (StringId32*)(id->_axis_name + num_axes);
@@ -149,7 +149,7 @@ InputDevice* InputDevice::create(Allocator& a, const char* name, u8 num_buttons,
 	id->_name = (char*)(id->_axis_hash + num_axes);
 
 	memset(id->_last_state, 0, sizeof(u8)*num_buttons);
-	memset(id->_current_state, 0, sizeof(u8)*num_buttons);
+	memset(id->_state, 0, sizeof(u8)*num_buttons);
 	memset(id->_axis, 0, sizeof(Vector3)*num_axes);
 	memcpy(id->_button_name, button_names, sizeof(const char*)*num_buttons);
 	memcpy(id->_axis_name, axis_names, sizeof(const char*)*num_axes);

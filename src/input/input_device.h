@@ -23,7 +23,7 @@ class InputDevice
 	u8 _last_button;
 
 	u8* _last_state;           // num_buttons
-	u8* _current_state;        // num_buttons
+	u8* _state;                // num_buttons
 	Vector3* _axis;            // num_axes
 	const char** _button_name; // num_buttons
 	const char** _axis_name;   // num_axes
