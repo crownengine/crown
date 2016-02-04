@@ -4,6 +4,3 @@
 [submodule "third/bgfx"]
 	path = third/bgfx
 	url = https://github.com/taylor001/bgfx.git
-[submodule "third/bullet3"]
-	path = third/bullet3
-	url = https://github.com/taylor001/bullet3.git
