@@ -1,24 +1,21 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto
 
-# Explicitly declare text files you want to always be normalized and converted
-# to native line endings on checkout.
 *.c   eol=lf
 *.cpp eol=lf
 *.h   eol=lf
 *.hpp eol=lf
-*.lua eof=lf
-*.sh  eof=lf
-*.txt eof=lf
-*.md  eof=lf
-*.in  eof=lf
-*.rb  eof=lf
+*.lua eol=lf
+*.sh  eol=lf
+*.txt eol=lf
+*.md  eol=lf
+*.in  eol=lf
+*.rb  eol=lf
+makefile eol=lf
 
-# Declare files that will always have CRLF line endings on checkout.
 *.sln text eol=crlf
 *.bat text eol=crlf
 
-# Denote all files that are truly binary and should not be modified.
 *.so  binary
 *.dll binary
 *.exe binary
@@ -29,3 +26,18 @@
 *.pvr binary
 *.wav binary
 *.ogg binary
+
+*.config           eol=lf
+*.font             eol=lf
+*.level            eol=lf
+*.material         eol=lf
+*.mesh             eol=lf
+*.package          eol=lf
+*.physics_config   eol=lf
+*.physics          eol=lf
+*.shader           eol=lf
+*.sound            eol=lf
+*.sprite_animation eol=lf
+*.sprite           eol=lf
+*.texture          eol=lf
+*.unit             eol=lf
