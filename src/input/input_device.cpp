@@ -165,9 +165,9 @@ InputDevice* InputDevice::create(Allocator& a, const char* name, u8 num_buttons,
 	return id;
 }
 
-void InputDevice::destroy(Allocator& a, InputDevice* id)
+void InputDevice::destroy(Allocator& a, InputDevice& id)
 {
-	a.deallocate(id);
+	a.deallocate(&id);
 }
 
 } // namespace crown

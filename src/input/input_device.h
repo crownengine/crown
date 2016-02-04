@@ -81,7 +81,7 @@ public:
 	void update();
 
 	static InputDevice* create(Allocator& a, const char* name, u8 num_buttons, u8 num_axes, const char** button_names, const char** axis_names);
-	static void destroy(Allocator& a, InputDevice* id);
+	static void destroy(Allocator& a, InputDevice& id);
 };
 
 } // namespace crown

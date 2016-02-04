@@ -205,11 +205,11 @@ InputManager::InputManager(Allocator& a)
 InputManager::~InputManager()
 {
 	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
-		InputDevice::destroy(*_allocator, _joypad[i]);
+		InputDevice::destroy(*_allocator, *_joypad[i]);
 
-	InputDevice::destroy(*_allocator, _touch);
-	InputDevice::destroy(*_allocator, _mouse);
-	InputDevice::destroy(*_allocator, _keyboard);
+	InputDevice::destroy(*_allocator, *_touch);
+	InputDevice::destroy(*_allocator, *_mouse);
+	InputDevice::destroy(*_allocator, *_keyboard);
 }
 
 InputDevice* InputManager::keyboard()
