@@ -174,7 +174,7 @@ namespace sjson
 		{
 			while (true)
 			{
-				if (isspace(*json) || *json == '=')
+				if (isspace(*json) || *json == '=' || *json == ':')
 					return json;
 
 				key += *json;
@@ -316,83 +316,6 @@ namespace sjson
 		CE_FATAL("Bad array");
 	}
 
-	static void parse_root_object(const char* json, Map<DynamicString, const char*>& object)
-	{
-		CE_ASSERT_NOT_NULL(json);
-
-		while (*json)
-		{
-			TempAllocator256 ta;
-			DynamicString key(ta);
-			json = parse_key(json, key);
-
-			json = skip_spaces(json);
-			json = next(json, '=');
-			json = skip_spaces(json);
-
-			map::set(object, key, json);
-
-			json = skip_value(json);
-			json = skip_spaces(json);
-		}
-	}
-
-	void parse_object(const char* json, Map<DynamicString, const char*>& object)
-	{
-		CE_ASSERT_NOT_NULL(json);
-
-		if (*json == '{')
-		{
-			json = next(json, '{');
-
-			json = skip_spaces(json);
-
-			if (*json == '}')
-			{
-				next(json, '}');
-				return;
-			}
-
-			while (*json)
-			{
-				TempAllocator256 ta;
-				DynamicString key(ta);
-				json = parse_key(json, key);
-
-				json = skip_spaces(json);
-				json = next(json, '=');
-				json = skip_spaces(json);
-
-				map::set(object, key, json);
-
-				json = skip_value(json);
-				json = skip_spaces(json);
-
-				if (*json == '}')
-				{
-					next(json, '}');
-					return;
-				}
-
-				json = skip_spaces(json);
-			}
-		}
-
-		CE_FATAL("Bad object");
-	}
-
-	void parse(const char* json, Map<DynamicString, const char*>& object)
-	{
-		CE_ASSERT_NOT_NULL(json);
-
-		json = skip_spaces(json);
-
-		if (*json == '{')
-			parse_object(json, object);
-		else
-			parse_root_object(json, object);
-	}
-
 	static void parse_root_object(const char* json, JsonObject& object)
 	{
 		CE_ASSERT_NOT_NULL(json);
@@ -408,7 +331,7 @@ namespace sjson
 			FixedString fs_key(key_begin, key.length());
 
 			json = skip_spaces(json);
-			json = next(json, '=');
+			json = next(json, (*json == '=') ? '=' : ':');
 			json = skip_spaces(json);
 
 			map::set(object, fs_key, json);
@@ -445,7 +368,7 @@ namespace sjson
 				FixedString fs_key(key_begin, key.length());
 
 				json = skip_spaces(json);
-				json = next(json, '=');
+				json = next(json, (*json == '=') ? '=' : ':');
 				json = skip_spaces(json);
 
 				map::set(object, fs_key, json);

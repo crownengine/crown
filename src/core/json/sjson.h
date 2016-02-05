@@ -40,13 +40,6 @@ namespace sjson
 
 	/// Parses the SJSON object @a json and puts it into @a object as map from
 	/// key to pointer to the corresponding value into the original string @a json.
-	void parse_object(const char* json, Map<DynamicString, const char*>& object);
-
-	/// Parses the SJSON-encoded @a json.
-	void parse(const char* json, Map<DynamicString, const char*>& object);
-
-	/// Parses the SJSON object @a json and puts it into @a object as map from
-	/// key to pointer to the corresponding value into the original string @a json.
 	void parse_object(const char* json, JsonObject& object);
 
 	/// Parses the SJSON-encoded @a json.
