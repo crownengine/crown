@@ -1,12 +1,7 @@
-Lightweight and flexible cross-platform game engine.
-=====
+The flexible game engine. [![Build Status](https://travis-ci.org/taylor001/crown.svg?branch=master)](https://travis-ci.org/taylor001/crown) [![Build status](https://ci.appveyor.com/api/projects/status/dabkwdxjr456hl52?svg=true)](https://ci.appveyor.com/project/taylor001/crown) [![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
+=====================================
 
-[![Build Status](https://travis-ci.org/taylor001/crown.svg?branch=master)](https://travis-ci.org/taylor001/crown)
-[![Build status](https://ci.appveyor.com/api/projects/status/dabkwdxjr456hl52?svg=true)](https://ci.appveyor.com/project/taylor001/crown)
-
-##What is it?
-
-It is a general purpose data-driven game engine, written from scratch in [orthodox C++](https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b) with a minimalistic and data-oriented design philosophy in mind.
+Crown is a general purpose data-driven game engine, written from scratch in [orthodox C++](https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b) with a minimalistic and data-oriented design philosophy in mind.
 
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles; the current Lua API is similar to that of Bitsquid but this engine is *not* meant to be its clone *nor* to be API compatible with it.
 
