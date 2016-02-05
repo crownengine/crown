@@ -20,13 +20,14 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "src/core/network",
 			CROWN_DIR .. "src/core/strings",
 			CROWN_DIR .. "src/core/thread",
+			CROWN_DIR .. "src/device",
 			CROWN_DIR .. "src/input",
 			CROWN_DIR .. "src/lua",
 			CROWN_DIR .. "src/main",
 			CROWN_DIR .. "src/resource",
 			CROWN_DIR .. "src/world",
-			CROWN_DIR .. "third/bx/include",
 			CROWN_DIR .. "third/bgfx/include",
+			CROWN_DIR .. "third/bx/include",
 			CROWN_DIR .. "third/stb",
 		}
 
