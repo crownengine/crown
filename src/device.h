@@ -131,8 +131,8 @@ public:
 	/// Updates all the subsystems.
 	void update();
 
-	/// Renders the given @a world from the point of view of @a camera.
-	void render_world(World& world, CameraInstance camera);
+	/// Renders @a world using @a camera.
+	void render(World& world, CameraInstance camera);
 
 	/// Creates a new world.
 	World* create_world();

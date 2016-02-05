@@ -340,7 +340,7 @@ void Device::update()
 	}
 }
 
-void Device::render_world(World& world, CameraInstance camera)
+void Device::render(World& world, CameraInstance camera)
 {
 	bgfx::setViewClear(0
 		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH

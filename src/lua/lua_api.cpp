@@ -2304,10 +2304,10 @@ static int device_destroy_world(lua_State* L)
 	return 0;
 }
 
-static int device_render_world(lua_State* L)
+static int device_render(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->render_world(*stack.get_world(1), stack.get_camera(2));
+	device()->render(*stack.get_world(1), stack.get_camera(2));
 	return 0;
 }
 
@@ -3063,7 +3063,7 @@ void load_api(LuaEnvironment& env)
 	env.load_module_function("Device", "resolution",               device_resolution);
 	env.load_module_function("Device", "create_world",             device_create_world);
 	env.load_module_function("Device", "destroy_world",            device_destroy_world);
-	env.load_module_function("Device", "render_world",             device_render_world);
+	env.load_module_function("Device", "render",                   device_render);
 	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
 	env.load_module_function("Device", "console_send",             device_console_send);
