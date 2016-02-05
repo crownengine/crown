@@ -27,8 +27,13 @@ class Display
 {
 public:
 
-	/// Opens the window.
+	/// Fills @a modes with all available display modes.
 	virtual void modes(Array<DisplayMode>& modes) = 0;
+
+	/// Sets the mode @a id.
+	///
+	/// @note
+	/// The initial display mode is automatically reset when the program terminates.
 	virtual void set_mode(u32 id) = 0;
 
 	static Display* create(Allocator& a);
