@@ -1344,14 +1344,6 @@ static int camera_set_orthographic_metrics(lua_State* L)
 	return 0;
 }
 
-static int camera_set_viewport_metrics(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_world(1)->set_camera_viewport_metrics(stack.get_camera(2), stack.get_int(3), stack.get_int(4),
-		stack.get_int(5), stack.get_int(6));
-	return 0;
-}
-
 static int camera_screen_to_world(lua_State* L)
 {
 	LuaStack stack(L);
@@ -2944,7 +2936,6 @@ void load_api(LuaEnvironment& env)
 	env.load_module_function("World", "camera_far_clip_distance",        camera_far_clip_distance);
 	env.load_module_function("World", "set_camera_far_clip_distance",    camera_set_far_clip_distance);
 	env.load_module_function("World", "set_camera_orthographic_metrics", camera_set_orthographic_metrics);
-	env.load_module_function("World", "set_camera_viewport_metrics",     camera_set_viewport_metrics);
 	env.load_module_function("World", "camera_screen_to_world",          camera_screen_to_world);
 	env.load_module_function("World", "camera_world_to_screen",          camera_world_to_screen);
 	env.load_module_function("World", "update_animations",               world_update_animations);

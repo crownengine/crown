@@ -461,23 +461,8 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 	}
 }
 
-void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection, u16 x, u16 y, u16 width, u16 height)
+void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 {
-	bgfx::setViewClear(0
-		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
-		, 0x353839FF
-		, 1.0f
-		, 0
-		);
-
-	// Set view and projection matrix for view 0.
-	bgfx::setViewTransform(0, to_float_ptr(view), to_float_ptr(projection));
-	bgfx::setViewRect(0, x, y, width, height);
-
-	// This dummy draw call is here to make sure that view 0 is cleared
-	// if no other draw calls are submitted to view 0.
-	bgfx::touch(0);
-
 	for (u32 ll = 0; ll < _light_data.size; ++ll)
 	{
 		const Vector4 ldir = normalize(_light_data.world[ll].z) * view;

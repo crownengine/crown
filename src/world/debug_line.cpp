@@ -157,7 +157,7 @@ void DebugLine::submit()
 
 	bgfx::setVertexBuffer(&tvb, 0, _num * 2);
 	bgfx::setState(sd.state);
-	bgfx::submit(0, sd.program);
+	bgfx::submit(1, sd.program);
 }
 
 } // namespace crown

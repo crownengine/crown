@@ -17,6 +17,7 @@
 #include "lua_environment.h"
 #include "map.h"
 #include "material_manager.h"
+#include "matrix4x4.h"
 #include "memory.h"
 #include "os.h"
 #include "os_event_queue.h"
@@ -341,6 +342,30 @@ void Device::update()
 
 void Device::render_world(World& world, CameraInstance camera)
 {
+	bgfx::setViewClear(0
+		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
+		, 0x353839FF
+		, 1.0f
+		, 0
+		);
+
+	bgfx::setViewRect(0, 0, 0, _width, _height);
+	bgfx::setViewRect(1, 0, 0, _width, _height);
+	bgfx::setViewRect(2, 0, 0, _width, _height);
+
+	const f32* view = to_float_ptr(world.camera_view_matrix(camera));
+	const f32* proj = to_float_ptr(world.camera_projection_matrix(camera));
+
+	bgfx::setViewTransform(0, view, proj);
+	bgfx::setViewTransform(1, view, proj);
+	bgfx::setViewTransform(2, view, proj);
+
+	bgfx::touch(0);
+	bgfx::touch(1);
+	bgfx::touch(2);
+
+	world.set_camera_viewport_metrics(camera, 0, 0, _width, _height);
+
 	world.render(camera);
 }
 

@@ -103,7 +103,7 @@ public:
 
 	void update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world);
 
-	void render(const Matrix4x4& view, const Matrix4x4& projection, u16 x, u16 y, u16 width, u16 height);
+	void render(const Matrix4x4& view, const Matrix4x4& projection);
 
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);

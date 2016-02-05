@@ -291,13 +291,7 @@ void World::render(CameraInstance i)
 {
 	const Camera& camera = _camera[i.i];
 
-	_render_world->render(camera_view_matrix(i)
-		, camera.projection
-		, camera.view_x
-		, camera.view_y
-		, camera.view_width
-		, camera.view_height
-		);
+	_render_world->render(camera_view_matrix(i), camera.projection);
 
 	_physics_world->draw_debug();
 	_render_world->draw_debug(*_lines);
