@@ -767,8 +767,8 @@ Device
 	**destroy_world** (world)
 		Destroys the given *world*.
 
-	**render_world** (world, camera)
-		Renders the given *world* from the point of view of the given *camera*.
+	**render** (world, camera)
+		Renders *world* using *camera*.
 
 	**create_resource_package** (name) : ResourcePackage
 		Returns the resource package with the given *package_name* name.
@@ -824,16 +824,16 @@ Keyboard
 --------
 
 	**name** () : string
-		Returns the name of the input device.
+		Returns the name of keyboard.
 
 	**connected** () : bool
-		Returns whether the input device is connected and functioning.
+		Returns whether the keyboard is connected and functioning.
 
 	**num_buttons** () : int
-		Returns the number of buttons of the input device.
+		Returns the number of buttons of the keyboard.
 
 	**num_axes** () : int
-		Returns the number of axes of the input device.
+		Returns the number of axes of the keyboard.
 
 	**pressed** (id) : bool
 		Returns whether the button *id* is pressed in the current frame.
@@ -859,7 +859,7 @@ Keyboard Button Names
 	* ``tab``, ``enter``, ``escape``, ``space``, ``backspace``
 	* ``num_lock``, ``numpad_enter``, ``numpad_.``, ``numpad_*``, ``numpad_+``, ``numpad_-``, ``numpad_/``, ``numpad_0``, ``numpad_1``, ``numpad_2``, ``numpad_3``, ``numpad_4``, ``numpad_5``, ``numpad_6``, ``numpad_7``, ``numpad_8``, ``numpad_9``
 	* ``f1``, ``f2``, ``f3``, ``f4``, ``f5``, ``f6``, ``f7``, ``f8``, ``f9``, ``f10``, ``f11``, ``f12``
-	* ``home``, ``left``, ``up``, ``right``, ``down``, ``page_up``, ``page_down``, ``delete``, ``end``
+	* ``home``, ``left``, ``up``, ``right``, ``down``, ``page_up``, ``page_down``, ``insert``, ``delete``, ``end``
 	* ``left_ctrl``, ``right_ctrl``, ``left_shift``, ``right_shift``, ``caps_lock``, ``left_alt``, ``right_alt``, ``left_super``, ``right_super``
 	* ``0``, ``1``, ``2``, ``3``, ``4``, ``5``, ``6``, ``7``, ``8``, ``9``
 	* ``a``, ``b``, ``c``, ``d``, ``e``, ``f``, ``g``, ``h``, ``i``, ``j``, ``k``, ``l``, ``m``, ``n``, ``o``, ``p``, ``q``, ``r``, ``s``, ``t``, ``u``, ``v``, ``w``, ``x``, ``y``, ``z``
@@ -873,16 +873,16 @@ Mouse
 -----
 
 	**name** () : string
-		Returns the name of the input device.
+		Returns the name of the mouse.
 
 	**connected** () : bool
-		Returns whether the input device is connected and functioning.
+		Returns whether the mouse is connected and functioning.
 
 	**num_buttons** () : int
-		Returns the number of buttons of the input device.
+		Returns the number of buttons of the mouse.
 
 	**num_axes** () : int
-		Returns the number of axes of the input device.
+		Returns the number of axes of the mouse.
 
 	**pressed** (id) : bool
 		Returns whether the button *id* is pressed in the current frame.
@@ -927,16 +927,16 @@ Touch
 -----
 
 	**name** () : string
-		Returns the name of the input device.
+		Returns the name of the touch.
 
 	**connected** () : bool
-		Returns whether the input device is connected and functioning.
+		Returns whether the touch is connected and functioning.
 
 	**num_buttons** () : int
-		Returns the number of buttons of the input device.
+		Returns the number of buttons of the touch.
 
 	**num_axes** () : int
-		Returns the number of axes of the input device.
+		Returns the number of axes of the touch.
 
 	**pressed** (id) : bool
 		Returns whether the button *id* is pressed in the current frame.
@@ -969,16 +969,16 @@ Pad1, Pad2, Pad3, Pad4
 ----------------------
 
 	**name** () : string
-		Returns the name of the input device.
+		Returns the name of the pad.
 
 	**connected** () : bool
-		Returns whether the input device is connected and functioning.
+		Returns whether the pad is connected and functioning.
 
 	**num_buttons** () : int
-		Returns the number of buttons of the input device.
+		Returns the number of buttons of the pad.
 
 	**num_axes** () : int
-		Returns the number of axes of the input device.
+		Returns the number of axes of the pad.
 
 	**pressed** (id) : bool
 		Returns whether the button *id* is pressed in the current frame.
