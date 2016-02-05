@@ -45,25 +45,22 @@ namespace level_resource
 		}
 
 		UnitCompiler uc(opts);
-		Array<char> unit_buffer(default_allocator());
-		{
-			uc.compile_multiple_units(object["units"]);
-			unit_buffer = uc.get();
-		}
+		uc.compile_multiple_units(object["units"]);
+		Buffer unit_blob = uc.blob();
 
 		// Write
 		LevelResource lr;
 		lr.version       = RESOURCE_VERSION_LEVEL;
 		lr.num_sounds    = array::size(sounds);
 		lr.units_offset  = sizeof(LevelResource);
-		lr.sounds_offset = lr.units_offset + array::size(unit_buffer);
+		lr.sounds_offset = lr.units_offset + array::size(unit_blob);
 
 		opts.write(lr.version);
 		opts.write(lr.units_offset);
 		opts.write(lr.num_sounds);
 		opts.write(lr.sounds_offset);
 
-		opts.write(unit_buffer);
+		opts.write(unit_blob);
 
 		for (u32 i = 0; i < array::size(sounds); ++i)
 		{

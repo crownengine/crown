@@ -19,9 +19,8 @@ namespace unit_resource
 
 		UnitCompiler uc(opts);
 		uc.compile_unit(path);
-		unit_data = uc.get();
 
-		opts.write(unit_data);
+		opts.write(uc.blob());
 	}
 
 	void* load(File& file, Allocator& a)

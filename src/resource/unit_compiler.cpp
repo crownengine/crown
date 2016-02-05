@@ -259,7 +259,7 @@ void UnitCompiler::compile_multiple_units(const char* json)
 	}
 }
 
-Buffer UnitCompiler::get()
+Buffer UnitCompiler::blob()
 {
 	UnitResource ur;
 	ur.version = RESOURCE_VERSION_UNIT;
@@ -274,8 +274,8 @@ Buffer UnitCompiler::get()
 
 	while (begin != end)
 	{
-		const StringId32 type             = (end-1)->pair.first;
-		const Buffer& data                = (end-1)->pair.second._data;
+		const StringId32 type        = (end-1)->pair.first;
+		const Buffer& data           = (end-1)->pair.second._data;
 		const Array<u32>& unit_index = (end-1)->pair.second._unit_index;
 		const u32 num                = (end-1)->pair.second._num;
 
