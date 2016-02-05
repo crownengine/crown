@@ -41,7 +41,7 @@ namespace os
 #if CROWN_PLATFORM_ANDROID
 		__android_log_write(ANDROID_LOG_DEBUG, "crown", msg);
 #else
-		puts(msg);
+		fputs(msg, stdout);
 		fflush(stdout);
 #endif
 	}

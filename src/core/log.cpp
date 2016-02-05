@@ -37,8 +37,8 @@ namespace log_internal
 
 		// Build json message
 		using namespace string_stream;
-		TempAllocator2048 alloc;
-		StringStream json(alloc);
+		TempAllocator4096 ta;
+		StringStream json(ta);
 
 		json << "{\"type\":\"message\",";
 		json << "\"severity\":\"" << stt[sev] << "\",";
@@ -50,7 +50,8 @@ namespace log_internal
 	void logx(LogSeverity::Enum sev, const char* msg, va_list args)
 	{
 		char buf[8192];
-		int len = 0;
+		int len = vsnprintf(buf, sizeof(buf), msg, args);
+		buf[len] = '\0';
 
 #if CROWN_PLATFORM_POSIX
 		#define ANSI_RESET  "\x1b[0m"
@@ -65,15 +66,15 @@ namespace log_internal
 			ANSI_RESET
 		};
 
-		len +=  snprintf(&buf[len], sizeof(buf) - len, stt[sev]);
-		len += vsnprintf(&buf[len], sizeof(buf) - len, msg, args);
-		len +=  snprintf(&buf[len], sizeof(buf) - len, ANSI_RESET);
-#else
-		len = vsnprintf(&buf[len], sizeof(buf) - len, msg, args);
-#endif
-		buf[len] = '\0';
-		console_log(buf, sev);
+		os::log(stt[sev]);
 		os::log(buf);
+		os::log(ANSI_RESET);
+#else
+		os::log(buf);
+#endif
+		os::log("\n");
+
+		console_log(buf, sev);
 	}
 
 	void logx(LogSeverity::Enum sev, const char* msg, ...)
