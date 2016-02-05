@@ -27,9 +27,6 @@ function init()
 	local camera_tr = SceneGraph.transform_instances(sg, camera_unit)
 	SceneGraph.set_local_position(sg, camera_tr, Vector3(0, 1.5, -20))
 
-	camera = World.camera(wd, camera_unit)
-	World.set_camera_viewport_metrics(wd, camera, 0, 0, 1000, 625)
-
 	-- Spawn light
 	World.spawn_unit(wd, "core/units/light", Vector3(-25, 25, -25))
 
@@ -107,7 +104,6 @@ end
 function render(dt)
 	local win_w, win_h = Device.resolution()
 	World.set_camera_aspect(wd, camera, win_w/win_h)
-	World.set_camera_viewport_metrics(wd, camera, 0, 0, win_w, win_h)
 
 	Device.render_world(wd, fpscamera:camera())
 end
