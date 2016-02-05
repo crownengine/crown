@@ -558,6 +558,11 @@ public:
 		SetWindowText(_hwnd, title);
 	}
 
+	void show_cursor(bool show)
+	{
+		ShowCursor(show);
+	}
+
 	void* handle()
 	{
 		return (void*)(uintptr_t)_hwnd;

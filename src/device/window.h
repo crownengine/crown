@@ -50,6 +50,9 @@ public:
 	/// Returns the native window handle.
 	virtual void* handle() = 0;
 
+	/// Sets whether to @a show the cursor.
+	virtual void show_cursor(bool show) = 0;
+
 	virtual void bgfx_setup() = 0;
 
 	static Window* create(Allocator& a);

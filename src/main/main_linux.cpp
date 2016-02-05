@@ -612,6 +612,14 @@ public:
 	{
 		return (void*)(uintptr_t)_x11_window;
 	}
+
+	void show_cursor(bool show)
+	{
+		XDefineCursor(_x11_display
+			, _x11_window
+			, show ? None : _x11_hidden_cursor
+			);
+	}
 };
 
 Window* Window::create(Allocator& a)

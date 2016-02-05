@@ -249,6 +249,10 @@ public:
 	{
 	}
 
+	void show_cursor(bool /*show*/)
+	{
+	}
+
 	void* handle()
 	{
 		return NULL;
