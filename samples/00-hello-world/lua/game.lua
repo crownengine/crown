@@ -23,7 +23,7 @@ end
 
 function render(dt)
 	-- Render the world
-	Device.render_world(world, camera)
+	Device.render(world, camera)
 end
 
 function shutdown()
