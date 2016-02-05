@@ -38,14 +38,18 @@ Engine initialization and shutdown.
 
 ### Prerequisites
 
-### Prerequisites for Android
+### Android
 
 Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 
 	$ export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	$ export ANDROID_NDK_ARM=<path/to/android_ndk_arm>
+	
+### Linux
 
-### Prerequisites for Windows
+    $ apt-get install libpulse-dev libxrandr-dev
+
+### Windows
 
 GnuWin32 make (http://gnuwin32.sourceforge.net/packages/make.htm)  
 GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)  
