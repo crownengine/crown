@@ -2695,6 +2695,13 @@ static int window_set_title(lua_State* L)
 	return 0;
 }
 
+static int window_show_cursor(lua_State* L)
+{
+	LuaStack stack(L);
+	device()->window()->show_cursor(stack.get_bool(1));
+	return 0;
+}
+
 void load_api(LuaEnvironment& env)
 {
 	env.load_module_function("Math", "ray_plane_intersection",  math_ray_plane_intersection);
@@ -3107,14 +3114,15 @@ void load_api(LuaEnvironment& env)
 	env.load_module_function("Display", "modes",    display_modes);
 	env.load_module_function("Display", "set_mode", display_set_mode);
 
-	env.load_module_function("Window", "show",      window_show);
-	env.load_module_function("Window", "hide",      window_hide);
-	env.load_module_function("Window", "resize",    window_resize);
-	env.load_module_function("Window", "move",      window_move);
-	env.load_module_function("Window", "minimize",  window_minimize);
-	env.load_module_function("Window", "restore",   window_restore);
-	env.load_module_function("Window", "title",     window_title);
-	env.load_module_function("Window", "set_title", window_set_title);
+	env.load_module_function("Window", "show",        window_show);
+	env.load_module_function("Window", "hide",        window_hide);
+	env.load_module_function("Window", "resize",      window_resize);
+	env.load_module_function("Window", "move",        window_move);
+	env.load_module_function("Window", "minimize",    window_minimize);
+	env.load_module_function("Window", "restore",     window_restore);
+	env.load_module_function("Window", "title",       window_title);
+	env.load_module_function("Window", "set_title",   window_set_title);
+	env.load_module_function("Window", "show_cursor", window_show_cursor);
 }
 
 } // namespace crown

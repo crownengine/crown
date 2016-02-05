@@ -1078,3 +1078,6 @@ Window
 
 	**set_title** (title)
 		Sets the title of the window.
+
+	**show_cursor** (show)
+		Sets whether to *show* the cursor.
