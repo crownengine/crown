@@ -14,8 +14,6 @@
 #include "resource_package.h"
 #include "scene_graph.h"
 #include "sound_world.h"
-#include "vector2.h"
-#include "vector3.h"
 #include "world.h"
 
 namespace crown
@@ -59,7 +57,10 @@ void LuaStack::check_temporary(int i, const Matrix4x4* p)
 Vector2 LuaStack::get_vector2(int i)
 {
 	Vector3 v = get_vector3(i);
-	return vector2(v.x, v.y);
+	Vector2 a;
+	a.x = v.x;
+	a.y = v.y;
+	return a;
 }
 
 Vector3& LuaStack::get_vector3(int i)
@@ -86,12 +87,21 @@ Matrix4x4& LuaStack::get_matrix4x4(int i)
 Color4 LuaStack::get_color4(int i)
 {
 	Quaternion q = get_quaternion(i);
-	return color4(q.x, q.y, q.z, q.w);
+	Color4 c;
+	c.x = q.x;
+	c.y = q.y;
+	c.z = q.z;
+	c.w = q.w;
+	return c;
 }
 
 void LuaStack::push_vector2(const Vector2& v)
 {
-	push_vector3(vector3(v.x, v.y, 0.0f));
+	Vector3 a;
+	a.x = v.x;
+	a.y = v.y;
+	a.z = 0.0f;
+	push_vector3(a);
 }
 
 void LuaStack::push_vector3(const Vector3& v)
