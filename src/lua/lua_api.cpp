@@ -918,7 +918,7 @@ static int quaternionbox_tostring(lua_State* L)
 static int color4_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(quaternion(stack.get_float(1)
+	stack.push_color4(color4(stack.get_float(1)
 		, stack.get_float(2)
 		, stack.get_float(3)
 		, stack.get_float(4)));
@@ -930,6 +930,55 @@ static int color4_ctor(lua_State* L)
 	LuaStack stack(L);
 	stack.remove(1); // Remove table
 	return color4_new(L);
+}
+
+static int color4_black(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_color4(COLOR4_BLACK);
+	return 1;
+}
+
+static int color4_white(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_color4(COLOR4_WHITE);
+	return 1;
+}
+
+static int color4_red(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_color4(COLOR4_RED);
+	return 1;
+}
+
+static int color4_green(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_color4(COLOR4_GREEN);
+	return 1;
+}
+
+static int color4_blue(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_color4(COLOR4_BLUE);
+	return 1;
+}
+
+static int color4_yellow(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_color4(COLOR4_YELLOW);
+	return 1;
+}
+
+static int color4_orange(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_color4(COLOR4_ORANGE);
+	return 1;
 }
 
 static int lightuserdata_add(lua_State* L)
@@ -2821,6 +2870,13 @@ void load_api(LuaEnvironment& env)
 	env.load_module_constructor("QuaternionBox", quaternionbox_ctor);
 
 	env.load_module_function("Color4", "new",       color4_new);
+	env.load_module_function("Color4", "black",     color4_black);
+	env.load_module_function("Color4", "white",     color4_white);
+	env.load_module_function("Color4", "red",       color4_red);
+	env.load_module_function("Color4", "green",     color4_green);
+	env.load_module_function("Color4", "blue",      color4_blue);
+	env.load_module_function("Color4", "yellow",    color4_yellow);
+	env.load_module_function("Color4", "orange",    color4_orange);
 	env.load_module_function("Color4", "to_string", quaternion_to_string);
 
 	env.load_module_constructor("Color4",     color4_ctor);
