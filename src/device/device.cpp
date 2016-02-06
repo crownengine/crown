@@ -358,7 +358,8 @@ void Device::render(World& world, CameraInstance camera)
 
 	bgfx::setViewTransform(0, view, proj);
 	bgfx::setViewTransform(1, view, proj);
-	bgfx::setViewTransform(2, view, proj);
+	bgfx::setViewTransform(2, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(MATRIX4X4_IDENTITY));
+	bgfx::setViewSeq(2, true);
 
 	bgfx::touch(0);
 	bgfx::touch(1);
