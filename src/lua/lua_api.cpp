@@ -163,15 +163,23 @@ static int math_ray_obb_intersection(lua_State* L)
 static int vector3_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(vector3(stack.get_float(1), stack.get_float(2), stack.get_float(3)));
+	Vector3 v;
+	v.x = stack.get_float(1);
+	v.y = stack.get_float(2);
+	v.z = stack.get_float(3);
+	stack.push_vector3(v);
 	return 1;
 }
 
 static int vector3_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.remove(1); // Remove table
-	return vector3_new(L);
+	Vector3 v;
+	v.x = stack.get_float(1 + 1);
+	v.y = stack.get_float(2 + 1);
+	v.z = stack.get_float(3 + 1);
+	stack.push_vector3(v);
+	return 1;
 }
 
 static int vector3_x(lua_State* L)
@@ -400,15 +408,21 @@ static int vector3_to_string(lua_State* L)
 static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector2(vector2(stack.get_float(1), stack.get_float(2)));
+	Vector2 v;
+	v.x = stack.get_float(1);
+	v.y = stack.get_float(2);
+	stack.push_vector2(v);
 	return 1;
 }
 
 static int vector2_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.remove(1); // Remove table
-	return vector2_new(L);
+	Vector2 v;
+	v.x = stack.get_float(1 + 1);
+	v.y = stack.get_float(2 + 1);
+	stack.push_vector2(v);
+	return 1;
 }
 
 static int vector3box_new(lua_State* L)
@@ -416,13 +430,21 @@ static int vector3box_new(lua_State* L)
 	LuaStack stack(L);
 
 	if (stack.num_args() == 0)
+	{
 		stack.push_vector3box(VECTOR3_ZERO);
+	}
 	else if (stack.num_args() == 1)
+	{
 		stack.push_vector3box(stack.get_vector3(1));
+	}
 	else
-		stack.push_vector3box(vector3(stack.get_float(1)
-			, stack.get_float(2)
-			, stack.get_float(3)));
+	{
+		Vector3 v;
+		v.x = stack.get_float(1);
+		v.y = stack.get_float(2);
+		v.z = stack.get_float(3);
+		stack.push_vector3box(v);
+	}
 
 	return 1;
 }
@@ -430,8 +452,25 @@ static int vector3box_new(lua_State* L)
 static int vector3box_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.remove(1); // Remove table
-	return vector3box_new(L);
+
+	if (stack.num_args() == 0 + 1)
+	{
+		stack.push_vector3box(VECTOR3_ZERO);
+	}
+	else if (stack.num_args() == 1 + 1)
+	{
+		stack.push_vector3box(stack.get_vector3(1 + 1));
+	}
+	else
+	{
+		Vector3 v;
+		v.x = stack.get_float(1 + 1);
+		v.y = stack.get_float(2 + 1);
+		v.z = stack.get_float(3 + 1);
+		stack.push_vector3box(v);
+	}
+
+	return 1;
 }
 
 static int vector3box_store(lua_State* L)
@@ -468,30 +507,49 @@ static int vector3box_tostring(lua_State* L)
 static int matrix4x4_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(matrix4x4(stack.get_float(1)
-		, stack.get_float(2)
-		, stack.get_float(3)
-		, stack.get_float(4)
-		, stack.get_float(5)
-		, stack.get_float(6)
-		, stack.get_float(7)
-		, stack.get_float(8)
-		, stack.get_float(9)
-		, stack.get_float(10)
-		, stack.get_float(11)
-		, stack.get_float(12)
-		, stack.get_float(13)
-		, stack.get_float(14)
-		, stack.get_float(15)
-		, stack.get_float(16)));
+	Matrix4x4 m;
+	m.x.x = stack.get_float( 1);
+	m.x.y = stack.get_float( 2);
+	m.x.z = stack.get_float( 3);
+	m.x.w = stack.get_float( 4);
+	m.y.x = stack.get_float( 5);
+	m.y.y = stack.get_float( 6);
+	m.y.z = stack.get_float( 7);
+	m.y.w = stack.get_float( 8);
+	m.z.x = stack.get_float( 9);
+	m.z.y = stack.get_float(10);
+	m.z.z = stack.get_float(11);
+	m.z.w = stack.get_float(12);
+	m.t.x = stack.get_float(13);
+	m.t.y = stack.get_float(14);
+	m.t.z = stack.get_float(15);
+	m.t.w = stack.get_float(16);
+	stack.push_matrix4x4(m);
 	return 1;
 }
 
 static int matrix4x4_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.remove(1); // Remove table
-	return matrix4x4_new(L);
+	Matrix4x4 m;
+	m.x.x = stack.get_float( 1 + 1);
+	m.x.y = stack.get_float( 2 + 1);
+	m.x.z = stack.get_float( 3 + 1);
+	m.x.w = stack.get_float( 4 + 1);
+	m.y.x = stack.get_float( 5 + 1);
+	m.y.y = stack.get_float( 6 + 1);
+	m.y.z = stack.get_float( 7 + 1);
+	m.y.w = stack.get_float( 8 + 1);
+	m.z.x = stack.get_float( 9 + 1);
+	m.z.y = stack.get_float(10 + 1);
+	m.z.z = stack.get_float(11 + 1);
+	m.z.w = stack.get_float(12 + 1);
+	m.t.x = stack.get_float(13 + 1);
+	m.t.y = stack.get_float(14 + 1);
+	m.t.z = stack.get_float(15 + 1);
+	m.t.w = stack.get_float(16 + 1);
+	stack.push_matrix4x4(m);
+	return 1;
 }
 
 static int matrix4x4_from_quaternion(lua_State* L)
@@ -689,8 +747,13 @@ static int matrix4x4box_new(lua_State* L)
 static int matrix4x4box_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.remove(1); // Remove table
-	return matrix4x4box_new(L);
+
+	if (stack.num_args() == 0 + 1)
+		stack.push_matrix4x4(MATRIX4X4_IDENTITY);
+	else
+		stack.push_matrix4x4box(stack.get_matrix4x4(1 + 1));
+
+	return 1;
 }
 
 static int matrix4x4box_store(lua_State* L)
@@ -725,8 +788,8 @@ static int quaternion_new(lua_State* L)
 static int quaternion_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.remove(1); // Remove table
-	return quaternion_new(L);
+	stack.push_quaternion(quaternion(stack.get_vector3(1 + 1), stack.get_float(2 + 1)));
+	return 1;
 }
 
 static int quaternion_negate(lua_State* L)
@@ -861,14 +924,22 @@ static int quaternionbox_new(lua_State* L)
 	LuaStack stack(L);
 
 	if (stack.num_args() == 0)
+	{
 		stack.push_quaternionbox(QUATERNION_IDENTITY);
+	}
 	else if (stack.num_args() == 1)
+	{
 		stack.push_quaternionbox(stack.get_quaternion(1));
+	}
 	else
-		stack.push_quaternionbox(quaternion(stack.get_float(1)
+	{
+		Quaternion q = quaternion(stack.get_float(1)
 			, stack.get_float(2)
 			, stack.get_float(3)
-			, stack.get_float(4)));
+			, stack.get_float(4)
+			);
+		stack.push_quaternionbox(q);
+	}
 
 	return 1;
 }
@@ -876,8 +947,26 @@ static int quaternionbox_new(lua_State* L)
 static int quaternionbox_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.remove(1); // Remove table
-	return quaternionbox_new(L);
+
+	if (stack.num_args() == 0 + 1)
+	{
+		stack.push_quaternionbox(QUATERNION_IDENTITY);
+	}
+	else if (stack.num_args() == 1 + 1)
+	{
+		stack.push_quaternionbox(stack.get_quaternion(1 + 1));
+	}
+	else
+	{
+		Quaternion q = quaternion(stack.get_float(1 + 1)
+			, stack.get_float(2 + 1)
+			, stack.get_float(3 + 1)
+			, stack.get_float(4 + 1)
+			);
+		stack.push_quaternionbox(q);
+	}
+
+	return 1;
 }
 
 static int quaternionbox_store(lua_State* L)
@@ -918,18 +1007,25 @@ static int quaternionbox_tostring(lua_State* L)
 static int color4_new(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_color4(color4(stack.get_float(1)
-		, stack.get_float(2)
-		, stack.get_float(3)
-		, stack.get_float(4)));
+	Color4 c;
+	c.x = stack.get_float(1);
+	c.y = stack.get_float(2);
+	c.z = stack.get_float(3);
+	c.w = stack.get_float(4);
+	stack.push_color4(c);
 	return 1;
 }
 
 static int color4_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.remove(1); // Remove table
-	return color4_new(L);
+	Color4 c;
+	c.x = stack.get_float(1 + 1);
+	c.y = stack.get_float(2 + 1);
+	c.z = stack.get_float(3 + 1);
+	c.w = stack.get_float(4 + 1);
+	stack.push_color4(c);
+	return 1;
 }
 
 static int color4_black(lua_State* L)
