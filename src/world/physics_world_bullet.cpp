@@ -104,7 +104,7 @@ public:
 	{
 		const Vector3 start = to_vector3(from);
 		const Vector3 end = to_vector3(to);
-		_lines->add_line(start, end, COLOR4_DARKORANGE);
+		_lines->add_line(start, end, COLOR4_ORANGE);
 	}
 
 	void drawContactPoint(const btVector3& pointOnB, const btVector3& /*normalOnB*/, btScalar /*distance*/, int /*lifeTime*/, const btVector3& /*color*/)

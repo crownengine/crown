@@ -28,7 +28,9 @@ struct Vector4
 	f32 x, y, z, w;
 };
 
-/// Holds RGBA color as four floats.
+/// RGBA color.
+///
+/// @ingroup Math
 typedef Vector4 Color4;
 
 /// @ingroup Math
@@ -92,6 +94,8 @@ struct Sphere
 	f32 r;
 };
 
+/// @addtogroup Math
+/// @{
 const Vector2 VECTOR2_ZERO  = { 0.0f, 0.0f };
 const Vector2 VECTOR2_ONE   = { 1.0f, 1.0f };
 const Vector2 VECTOR2_XAXIS = { 1.0f, 0.0f };
@@ -116,6 +120,14 @@ const Vector4 VECTOR4_YAXIS = { 0.0f, 1.0f, 0.0f, 0.0f };
 const Vector4 VECTOR4_ZAXIS = { 0.0f, 0.0f, 1.0f, 0.0f };
 const Vector4 VECTOR4_WAXIS = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+const Color4 COLOR4_BLACK  = { 0.0f, 0.0f, 0.0f, 1.0f };
+const Color4 COLOR4_WHITE  = { 1.0f, 1.0f, 1.0f, 1.0f };
+const Color4 COLOR4_RED    = { 1.0f, 0.0f, 0.0f, 1.0f };
+const Color4 COLOR4_GREEN  = { 0.0f, 1.0f, 0.0f, 1.0f };
+const Color4 COLOR4_BLUE   = { 0.0f, 0.0f, 1.0f, 1.0f };
+const Color4 COLOR4_YELLOW = { 1.0f, 1.0f, 0.0f, 1.0f };
+const Color4 COLOR4_ORANGE = { 1.0f, 0.5f, 0.0f, 1.0f };
+
 const Quaternion QUATERNION_IDENTITY = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 const Matrix3x3 MATRIX3X3_IDENTITY = { VECTOR3_XAXIS, VECTOR3_YAXIS, VECTOR3_ZAXIS };
@@ -126,5 +138,6 @@ const Plane PLANE_ZERO  = { VECTOR3_ZERO,  0.0f };
 const Plane PLANE_XAXIS = { VECTOR3_XAXIS, 0.0f };
 const Plane PLANE_YAXIS = { VECTOR3_YAXIS, 0.0f };
 const Plane PLANE_ZAXIS = { VECTOR3_ZAXIS, 0.0f };
+/// @}
 
 } // namespace crown
