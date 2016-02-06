@@ -87,19 +87,13 @@ Vector3
 	**lerp** (a, b, t) : Vector3
 		Returns the linearly interpolated vector between *a* and *b* at time *t* in [0, 1].
 
-	**forward** () : Vector3
-
-	**backward** () : Vector3
-
-	**left** () : Vector3
-
-	**right** () : Vector3
-
-	**up** () : Vector3
-
-	**down** () : Vector3
-
-		Returns the corresponding semantic axis.
+	| **forward** () : Vector3
+	| **backward** () : Vector3
+	| **left** () : Vector3
+	| **right** () : Vector3
+	| **up** () : Vector3
+	| **down** () : Vector3
+	| 	Returns the corresponding semantic axis.
 
 	**zero** () : Vector3
 		Returns a vector with all values set to zero.
@@ -306,6 +300,15 @@ Color4
 
 	**Color4** (r, g, b, a) : Color4
 		Returns a new Color4 from individual elements.
+
+	| **black** () : Color4
+	| **white** () : Color4
+	| **red** () : Color4
+	| **green** () : Color4
+	| **blue** () : Color4
+	| **yellow** () : Color4
+	| **orange** () : Color4
+	|	Returns the corresponding mnemonic color.
 
 	**to_string** (c) : string
 		Returns a string representing the color *c*.
