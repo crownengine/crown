@@ -15,7 +15,8 @@ namespace crown
 struct LuaResource
 {
 	u32 version;
-	u32 size;    // Size of lua code
+	u32 size;
+//	char program[size]
 };
 
 namespace lua_resource
