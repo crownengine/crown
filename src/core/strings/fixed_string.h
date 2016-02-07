@@ -12,6 +12,9 @@ namespace crown
 {
 class FixedString
 {
+	u32 _length;
+	const char* _data;
+
 public:
 
 	FixedString()
@@ -71,11 +74,6 @@ public:
 	{
 		return _data;
 	}
-
-private:
-
-	u32 _length;
-	const char* _data;
 };
 
 } // namespace crown
