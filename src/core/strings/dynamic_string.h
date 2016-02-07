@@ -15,9 +15,9 @@
 
 namespace crown
 {
-/// Dynamic array of charachers.
+/// Dynamic array of characters.
 ///
-/// @ingroup Containers
+/// @ingroup String
 struct DynamicString
 {
 	ALLOCATOR_AWARE;

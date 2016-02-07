@@ -12,6 +12,9 @@
 
 namespace crown
 {
+/// Functions to manipulate UTF8-encoded data.
+///
+/// @ingroup String
 namespace utf8
 {
 	/// See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.

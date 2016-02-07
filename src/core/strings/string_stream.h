@@ -6,18 +6,14 @@
 #pragma once
 
 #include "array.h"
+#include "string_types.h"
 #include "string_utils.h"
 
 namespace crown
 {
-/// Stream of characters.
-///
-/// @ingroup Containers
-typedef Array<char> StringStream;
-
 /// Functions to manipulate StringStream.
 ///
-/// @ingroup Containers
+/// @ingroup String
 namespace string_stream
 {
 	/// Appends @a val to the stream @a s using appropriate formatting.

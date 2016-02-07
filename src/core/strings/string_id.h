@@ -9,6 +9,9 @@
 
 namespace crown
 {
+/// Hashed string.
+///
+/// @ingroup String
 struct StringId32
 {
 	u32 _id;
@@ -27,6 +30,9 @@ struct StringId32
 	static const u32 STRING_LENGTH = 32;
 };
 
+/// Hashed string.
+///
+/// @ingroup String
 struct StringId64
 {
 	u64 _id;

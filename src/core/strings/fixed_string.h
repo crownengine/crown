@@ -10,6 +10,9 @@
 
 namespace crown
 {
+/// Fixed string.
+///
+/// @ingroup String
 class FixedString
 {
 	u32 _length;
