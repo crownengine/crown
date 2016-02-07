@@ -21,7 +21,6 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "src/core/strings",
 			CROWN_DIR .. "src/core/thread",
 			CROWN_DIR .. "src/device",
-			CROWN_DIR .. "src/input",
 			CROWN_DIR .. "src/lua",
 			CROWN_DIR .. "src/main",
 			CROWN_DIR .. "src/resource",
