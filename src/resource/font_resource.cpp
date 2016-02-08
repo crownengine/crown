@@ -3,13 +3,14 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "font_resource.h"
 #include "allocator.h"
-#include "filesystem.h"
-#include "string_utils.h"
 #include "compile_options.h"
-#include "sjson.h"
+#include "filesystem.h"
+#include "font_resource.h"
 #include "map.h"
+#include "resource_types.h"
+#include "sjson.h"
+#include "string_utils.h"
 #include <algorithm>
 
 namespace crown

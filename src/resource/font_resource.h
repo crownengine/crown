@@ -7,10 +7,8 @@
 
 #include "types.h"
 #include "memory_types.h"
-#include "resource_types.h"
 #include "filesystem_types.h"
 #include "compiler_types.h"
-#include "string_id.h"
 
 namespace crown
 {
@@ -22,8 +20,6 @@ struct FontResource
 	u32 font_size;
 };
 
-typedef u32 CodePoint;
-
 struct GlyphData
 {
 	f32 x;
@@ -34,6 +30,8 @@ struct GlyphData
 	f32 y_offset;
 	f32 x_advance;
 };
+
+typedef u32 CodePoint;
 
 namespace font_resource
 {
