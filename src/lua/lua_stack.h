@@ -352,7 +352,7 @@ public:
 
 	void push_string_id(StringId32 value)
 	{
-		lua_pushnumber(L, value.id());
+		lua_pushnumber(L, value._id);
 	}
 
 	void push_pointer(void* p)

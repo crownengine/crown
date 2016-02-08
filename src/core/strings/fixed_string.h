@@ -38,12 +38,6 @@ public:
 	{
 	}
 
-	FixedString(const FixedString& b)
-		: _length(b._length)
-		, _data(b._data)
-	{
-	}
-
 	FixedString& operator=(const char* str)
 	{
 		_length = strlen32(str);
