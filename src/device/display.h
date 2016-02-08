@@ -23,10 +23,8 @@ struct DisplayMode
 /// Display interface.
 ///
 /// @ingroup Device
-class Display
+struct Display
 {
-public:
-
 	/// Fills @a modes with all available display modes.
 	virtual void modes(Array<DisplayMode>& modes) = 0;
 
@@ -35,9 +33,18 @@ public:
 	/// @note
 	/// The initial display mode is automatically reset when the program terminates.
 	virtual void set_mode(u32 id) = 0;
-
-	static Display* create(Allocator& a);
-	static void destroy(Allocator& a, Display& d);
 };
+
+/// Functions to manipulate Display.
+///
+/// @ingroup Device
+namespace display
+{
+	/// Creates a new display.
+	Display* create(Allocator& a);
+
+	/// Destroys the display @a d.
+	void destroy(Allocator& a, Display& d);
+} // namespace display
 
 } // namespace crown

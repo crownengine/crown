@@ -119,55 +119,58 @@ void InputDevice::update()
 	memcpy(_last_state, _state, sizeof(u8)*_num_buttons);
 }
 
-InputDevice* InputDevice::create(Allocator& a, const char* name, u8 num_buttons, u8 num_axes, const char** button_names, const char** axis_names)
+namespace input_device
 {
-	const u32 size = 0
-		+ sizeof(InputDevice)
-		+ sizeof(u8)*num_buttons*2
-		+ sizeof(Vector3)*num_axes
-		+ sizeof(char*)*num_buttons
-		+ sizeof(char*)*num_axes
-		+ sizeof(StringId32)*num_buttons
-		+ sizeof(StringId32)*num_axes
-		+ strlen32(name) + 1
-		;
+	InputDevice* create(Allocator& a, const char* name, u8 num_buttons, u8 num_axes, const char** button_names, const char** axis_names)
+	{
+		const u32 size = 0
+			+ sizeof(InputDevice)
+			+ sizeof(u8)*num_buttons*2
+			+ sizeof(Vector3)*num_axes
+			+ sizeof(char*)*num_buttons
+			+ sizeof(char*)*num_axes
+			+ sizeof(StringId32)*num_buttons
+			+ sizeof(StringId32)*num_axes
+			+ strlen32(name) + 1
+			;
 
-	InputDevice* id = (InputDevice*)a.allocate(size);
+		InputDevice* id = (InputDevice*)a.allocate(size);
 
-	id->_connected = false;
-	id->_num_buttons = num_buttons;
-	id->_num_axes = num_axes;
-	id->_last_button = 0;
+		id->_connected = false;
+		id->_num_buttons = num_buttons;
+		id->_num_axes = num_axes;
+		id->_last_button = 0;
 
-	id->_last_state = (u8*)&id[1];
-	id->_state = (u8*)(id->_last_state + num_buttons);
-	id->_axis = (Vector3*)(id->_state + num_buttons);
-	id->_button_name = (const char**)(id->_axis + num_axes);
-	id->_axis_name = (const char**)(id->_button_name + num_buttons);
-	id->_button_hash = (StringId32*)(id->_axis_name + num_axes);
-	id->_axis_hash = (StringId32*)(id->_button_hash + num_buttons);
-	id->_name = (char*)(id->_axis_hash + num_axes);
+		id->_last_state = (u8*)&id[1];
+		id->_state = (u8*)(id->_last_state + num_buttons);
+		id->_axis = (Vector3*)(id->_state + num_buttons);
+		id->_button_name = (const char**)(id->_axis + num_axes);
+		id->_axis_name = (const char**)(id->_button_name + num_buttons);
+		id->_button_hash = (StringId32*)(id->_axis_name + num_axes);
+		id->_axis_hash = (StringId32*)(id->_button_hash + num_buttons);
+		id->_name = (char*)(id->_axis_hash + num_axes);
 
-	memset(id->_last_state, 0, sizeof(u8)*num_buttons);
-	memset(id->_state, 0, sizeof(u8)*num_buttons);
-	memset(id->_axis, 0, sizeof(Vector3)*num_axes);
-	memcpy(id->_button_name, button_names, sizeof(const char*)*num_buttons);
-	memcpy(id->_axis_name, axis_names, sizeof(const char*)*num_axes);
+		memset(id->_last_state, 0, sizeof(u8)*num_buttons);
+		memset(id->_state, 0, sizeof(u8)*num_buttons);
+		memset(id->_axis, 0, sizeof(Vector3)*num_axes);
+		memcpy(id->_button_name, button_names, sizeof(const char*)*num_buttons);
+		memcpy(id->_axis_name, axis_names, sizeof(const char*)*num_axes);
 
-	for (u32 i = 0; i < num_buttons; ++i)
-		id->_button_hash[i] = StringId32(button_names[i]);
+		for (u32 i = 0; i < num_buttons; ++i)
+			id->_button_hash[i] = StringId32(button_names[i]);
 
-	for (u32 i = 0; i < num_axes; ++i)
-		id->_axis_hash[i] = StringId32(axis_names[i]);
+		for (u32 i = 0; i < num_axes; ++i)
+			id->_axis_hash[i] = StringId32(axis_names[i]);
 
-	strcpy(id->_name, name);
+		strcpy(id->_name, name);
 
-	return id;
-}
+		return id;
+	}
 
-void InputDevice::destroy(Allocator& a, InputDevice& id)
-{
-	a.deallocate(&id);
-}
+	void destroy(Allocator& a, InputDevice& id)
+	{
+		a.deallocate(&id);
+	}
+} // namespace input_device
 
 } // namespace crown

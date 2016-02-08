@@ -15,7 +15,7 @@ namespace crown
 /// Represents a generic input device.
 ///
 /// @ingroup Input
-class InputDevice
+struct InputDevice
 {
 	bool _connected;
 	u8 _num_buttons;
@@ -30,8 +30,6 @@ class InputDevice
 	StringId32* _button_hash;  // num_buttons
 	StringId32* _axis_hash;    // num_axes
 	char* _name;               // strlen32(name) + 1
-
-public:
 
 	/// Returns the name of the input device.
 	const char* name() const;
@@ -79,9 +77,18 @@ public:
 	void set_axis(u8 i, const Vector3& value);
 
 	void update();
-
-	static InputDevice* create(Allocator& a, const char* name, u8 num_buttons, u8 num_axes, const char** button_names, const char** axis_names);
-	static void destroy(Allocator& a, InputDevice& id);
 };
+
+/// Functions to manipulate InputDevice.
+///
+/// @ingroup Input
+namespace input_device
+{
+	/// Creates a new input device.
+	InputDevice* create(Allocator& a, const char* name, u8 num_buttons, u8 num_axes, const char** button_names, const char** axis_names);
+
+	/// Destroys the input device @a id.
+	void destroy(Allocator& a, InputDevice& id);
+} // namespace input_device
 
 } // namespace crown

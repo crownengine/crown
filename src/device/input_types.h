@@ -9,7 +9,7 @@
 namespace crown
 {
 class InputManager;
-class InputDevice;
+struct InputDevice;
 
 /// Enumerates keyboard buttons.
 ///

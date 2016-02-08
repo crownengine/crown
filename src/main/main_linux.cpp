@@ -477,7 +477,7 @@ public:
 
 static LinuxDevice s_ldvc;
 
-class WindowX11 : public Window
+struct WindowX11 : public Window
 {
 	::Display* _x11_display;
 	::Window _x11_window;
@@ -622,22 +622,23 @@ public:
 	}
 };
 
-Window* Window::create(Allocator& a)
+namespace window
 {
-	return CE_NEW(a, WindowX11)();
-}
+	Window* create(Allocator& a)
+	{
+		return CE_NEW(a, WindowX11)();
+	}
 
-void Window::destroy(Allocator& a, Window& w)
-{
-	CE_DELETE(a, &w);
-}
+	void destroy(Allocator& a, Window& w)
+	{
+		CE_DELETE(a, &w);
+	}
+} // namespace window
 
-class DisplayXRandr : public Display
+struct DisplayXRandr : public Display
 {
 	::Display* _x11_display;
 	XRRScreenConfiguration* _screen_config;
-
-public:
 
 	DisplayXRandr()
 		: _x11_display(NULL)
@@ -695,15 +696,18 @@ public:
 	// }
 };
 
-Display* Display::create(Allocator& a)
+namespace display
 {
-	return CE_NEW(a, DisplayXRandr)();
-}
+	Display* create(Allocator& a)
+	{
+		return CE_NEW(a, DisplayXRandr)();
+	}
 
-void Display::destroy(Allocator& a, Display& d)
-{
-	CE_DELETE(a, &d);
-}
+	void destroy(Allocator& a, Display& d)
+	{
+		CE_DELETE(a, &d);
+	}
+} // namespace display
 
 bool next_event(OsEvent& ev)
 {

@@ -182,8 +182,8 @@ void Device::init()
 	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
 	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
 
-	_display = Display::create(_allocator);
-	_window = Window::create(_allocator);
+	_display = display::create(_allocator);
+	_window = window::create(_allocator);
 	_window->open(_device_options.window_x()
 		, _device_options.window_y()
 		, _config_window_w
@@ -248,8 +248,8 @@ void Device::shutdown()
 	CE_DELETE(_allocator, _bundle_filesystem);
 
 	bgfx::shutdown();
-	Window::destroy(_allocator, *_window);
-	Display::destroy(_allocator, *_display);
+	window::destroy(_allocator, *_window);
+	display::destroy(_allocator, *_display);
 	CE_DELETE(_allocator, _bgfx_callback);
 	CE_DELETE(_allocator, _bgfx_allocator);
 

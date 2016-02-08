@@ -13,10 +13,8 @@ namespace crown
 /// Window interface.
 ///
 /// @ingroup Device
-class Window
+struct Window
 {
-public:
-
 	/// Opens the window.
 	virtual void open(u16 x, u16 y, u16 width, u16 height, u32 parent) = 0;
 
@@ -54,9 +52,18 @@ public:
 	virtual void show_cursor(bool show) = 0;
 
 	virtual void bgfx_setup() = 0;
-
-	static Window* create(Allocator& a);
-	static void destroy(Allocator& a, Window& w);
 };
+
+/// Functions to manipulate Window
+///
+/// @ingroup Device
+namespace window
+{
+	/// Creates a new window.
+	Window* create(Allocator& a);
+
+	/// Destroys the window @a w.
+	void destroy(Allocator& a, Window& w);
+} // namespace window
 
 } // namespace crown

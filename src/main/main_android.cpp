@@ -196,10 +196,8 @@ public:
 	MainThreadArgs _margs;
 };
 
-class WindowAndroid : public Window
+struct WindowAndroid : public Window
 {
-public:
-
 	WindowAndroid()
 	{
 	}
@@ -259,17 +257,20 @@ public:
 	}
 };
 
-Window* Window::create(Allocator& a)
+namespace window
 {
-	return CE_NEW(a, WindowAndroid)();
-}
+	Window* create(Allocator& a)
+	{
+		return CE_NEW(a, WindowAndroid)();
+	}
 
-void Window::destroy(Allocator& a, Window& w)
-{
-	CE_DELETE(a, &w);
-}
+	void destroy(Allocator& a, Window& w)
+	{
+		CE_DELETE(a, &w);
+	}
+} // namespace window
 
-class DisplayAndroid : public Display
+struct DisplayAndroid : public Display
 {
 	void modes(Array<DisplayMode>& /*modes*/)
 	{
@@ -280,15 +281,18 @@ class DisplayAndroid : public Display
 	}
 };
 
-Display* Display::create(Allocator& a)
+namespace display
 {
-	return CE_NEW(a, DisplayAndroid)();
-}
+	Display* create(Allocator& a)
+	{
+		return CE_NEW(a, DisplayAndroid)();
+	}
 
-void Display::destroy(Allocator& a, Display& d)
-{
-	CE_DELETE(a, &d);
-}
+	void destroy(Allocator& a, Display& d)
+	{
+		CE_DELETE(a, &d);
+	}
+} // namespace display
 
 static AndroidDevice s_advc;
 

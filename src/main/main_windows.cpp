@@ -473,15 +473,13 @@ LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, L
 	return s_wdvc.pump_events(hwnd, id, wparam, lparam);
 }
 
-class WindowWin : public Window
+struct WindowWin : public Window
 {
 	HWND _hwnd;
 	u16 _x;
 	u16 _y;
 	u16 _width;
 	u16 _height;
-
-public:
 
 	WindowWin()
 		: _hwnd(NULL)
@@ -569,17 +567,20 @@ public:
 	}
 };
 
-Window* Window::create(Allocator& a)
+namespace window
 {
-	return CE_NEW(a, WindowWin)();
-}
+	Window* create(Allocator& a)
+	{
+		return CE_NEW(a, WindowWin)();
+	}
 
-void Window::destroy(Allocator& a, Window& w)
-{
-	CE_DELETE(a, &w);
-}
+	void destroy(Allocator& a, Window& w)
+	{
+		CE_DELETE(a, &w);
+	}
+} // namespace window
 
-class DisplayWin : public Display
+struct DisplayWin : public Display
 {
 	void modes(Array<DisplayMode>& /*modes*/)
 	{
@@ -590,15 +591,18 @@ class DisplayWin : public Display
 	}
 };
 
-Display* Display::create(Allocator& a)
+namespace display
 {
-	return CE_NEW(a, DisplayWin)();
-}
+	Display* create(Allocator& a)
+	{
+		return CE_NEW(a, DisplayWin)();
+	}
 
-void Display::destroy(Allocator& a, Display& d)
-{
-	CE_DELETE(a, &d);
-}
+	void destroy(Allocator& a, Display& d)
+	{
+		CE_DELETE(a, &d);
+	}
+} // namespace display
 
 bool next_event(OsEvent& ev)
 {
