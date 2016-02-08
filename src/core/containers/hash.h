@@ -350,9 +350,10 @@ namespace crown
 		}
 	}
 
-
-	template <typename T> Hash<T>::Hash(Allocator &a) :
-		_hash(a), _data(a)
+	template <typename T> Hash<T>::Hash(Allocator &a)
+		: _hash(a)
+		, _data(a)
 	{
 	}
+
 } // namespace crown
