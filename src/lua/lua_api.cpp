@@ -1814,7 +1814,7 @@ static int render_world_mesh_instances(lua_State* L)
 	rw->mesh_instances(unit, inst);
 
 	stack.push_table(array::size(inst));
-	for (u32 i = 0; array::size(inst); ++i)
+	for (u32 i = 0; i < array::size(inst); ++i)
 	{
 		stack.push_key_begin(i+1);
 		stack.push_mesh_instance(inst[i]);
@@ -1873,7 +1873,7 @@ static int render_world_sprite_instances(lua_State* L)
 	rw->sprite_instances(unit, inst);
 
 	stack.push_table(array::size(inst));
-	for (u32 i = 0; array::size(inst); ++i)
+	for (u32 i = 0; i < array::size(inst); ++i)
 	{
 		stack.push_key_begin(i+1);
 		stack.push_sprite_instance(inst[i]);
