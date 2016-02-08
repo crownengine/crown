@@ -3,16 +3,16 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "console_server.h"
-#include "temp_allocator.h"
-#include "string_stream.h"
-#include "device.h"
-#include "lua_environment.h"
-#include "memory.h"
-#include "dynamic_string.h"
-#include "json.h"
-#include "map.h"
 #include "bundle_compiler.h"
+#include "console_server.h"
+#include "device.h"
+#include "dynamic_string.h"
+#include "lua_environment.h"
+#include "map.h"
+#include "memory.h"
+#include "sjson.h"
+#include "string_stream.h"
+#include "temp_allocator.h"
 
 namespace crown
 {
@@ -51,8 +51,26 @@ void ConsoleServer::shutdown()
 void ConsoleServer::send(TCPSocket client, const char* json)
 {
 	u32 len = strlen32(json);
-	client.write((const char*)&len, 4);
+	client.write(&len, 4);
 	client.write(json, len);
+}
+
+void ConsoleServer::error(TCPSocket client, const char* msg)
+{
+	using namespace string_stream;
+	TempAllocator4096 ta;
+	StringStream ss(ta);
+	ss << "{\"type\":\"error\",\"message\":\"" << msg << "\"}";
+	send(c_str(ss));
+}
+
+void ConsoleServer::success(TCPSocket client, const char* msg)
+{
+	using namespace string_stream;
+	TempAllocator4096 ta;
+	StringStream ss(ta);
+	ss << "{\"type\":\"success\",\"message\":\"" << msg << "\"}";
+	send(c_str(ss));
 }
 
 void ConsoleServer::send(const char* json)
@@ -124,69 +142,57 @@ void ConsoleServer::process(TCPSocket client, const char* json)
 {
 	TempAllocator4096 ta;
 	JsonObject root(ta);
-	json::parse(json, root);
+	sjson::parse(json, root);
 
 	DynamicString type(ta);
-	json::parse_string(root["type"], type);
+	sjson::parse_string(root["type"], type);
 
-	if (type == "ping") process_ping(client, json);
-	else if (type == "script") process_script(client, json);
-	else if (type == "command") process_command(client, json);
-	else CE_FATAL("Request unknown.");
-}
-
-void ConsoleServer::process_ping(TCPSocket client, const char* /*json*/)
-{
-	send(client, "{\"type\":\"pong\"}");
-}
-
-void ConsoleServer::process_script(TCPSocket /*client*/, const char* json)
-{
-	TempAllocator4096 ta;
-	JsonObject root(ta);
-	json::parse(json, root);
-
-	DynamicString script(ta);
-	json::parse_string(root["script"], script);
-	device()->lua_environment()->execute_string(script.c_str());
-}
-
-void ConsoleServer::process_command(TCPSocket /*client*/, const char* json)
-{
-	TempAllocator4096 ta;
-	JsonObject root(ta);
-	json::parse(json, root);
-
-	DynamicString cmd(ta);
-	json::parse_string(root["command"], cmd);
-
-	if (cmd == "compile")
+	if (type == "script")
 	{
-		DynamicString type(ta);
-		DynamicString name(ta);
+		DynamicString script(ta);
+		sjson::parse_string(root["script"], script);
+
+		device()->lua_environment()->execute_string(script.c_str());
+
+		success(client, "Script executed.");
+	}
+	else if (type == "compile")
+	{
+		DynamicString rtype(ta);
+		DynamicString rname(ta);
 		DynamicString platform(ta);
-		json::parse_string(root["resource_type"], type);
-		json::parse_string(root["resource_name"], name);
-		json::parse_string(root["platform"], platform);
+		sjson::parse_string(root["resource_type"], rtype);
+		sjson::parse_string(root["resource_name"], rname);
+		sjson::parse_string(root["platform"], platform);
 
-		bundle_compiler_globals::compiler()->compile(type.c_str(), name.c_str(), platform.c_str());
+		bool succ = bundle_compiler_globals::compiler()->compile(rtype.c_str()
+			, rname.c_str()
+			, platform.c_str()
+			);
+
+		if (succ)
+			success(client, "Resource compiled.");
+		else
+			error(client, "Failed to compile resource.");
 	}
-	else if (cmd == "reload")
+	else if (type == "reload")
 	{
-		DynamicString type(ta);
-		DynamicString name(ta);
-		json::parse_string(root["resource_type"], type);
-		json::parse_string(root["resource_name"], name);
+		StringId64 rtype = sjson::parse_resource_id(root["resource_type"]);
+		StringId64 rname = sjson::parse_resource_id(root["resource_name"]);
 
-		device()->reload(StringId64(type.c_str()), StringId64(name.c_str()));
+		device()->reload(rtype, rname);
 	}
-	else if (cmd == "pause")
+	else if (type == "pause")
 	{
 		device()->pause();
 	}
-	else if (cmd == "unpause")
+	else if (type == "unpause")
 	{
 		device()->unpause();
+	}
+	else
+	{
+		error(client, "Unknown command");
 	}
 }
 

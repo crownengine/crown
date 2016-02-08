@@ -18,13 +18,13 @@ class ConsoleServer
 	TCPSocket _server;
 	Vector<TCPSocket> _clients;
 
-	void send(TCPSocket client, const char* json);
 	void add_client(TCPSocket socket);
 	ReadResult update_client(TCPSocket client);
+
+	void send(TCPSocket client, const char* json);
+	void error(TCPSocket client, const char* msg);
+	void success(TCPSocket client, const char* msg);
 	void process(TCPSocket client, const char* json);
-	void process_ping(TCPSocket client, const char* json);
-	void process_script(TCPSocket client, const char* json);
-	void process_command(TCPSocket client, const char* json);
 
 public:
 
