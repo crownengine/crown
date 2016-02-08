@@ -811,7 +811,7 @@ bool RenderWorld::LightManager::has(UnitId id)
 
 LightInstance RenderWorld::LightManager::light(UnitId id)
 {
-	make_instance(hash::get(_map, id.encode(), UINT32_MAX));
+	return make_instance(hash::get(_map, id.encode(), UINT32_MAX));
 }
 
 void RenderWorld::LightManager::destroy()
