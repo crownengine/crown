@@ -112,6 +112,11 @@ function toolchain(build_dir, lib_dir)
 			"-rdynamic"
 		}
 
+	configuration { "linux-gcc or android-arm" }
+		buildoptions {
+			"-Werror=return-type",
+		}
+
 	configuration { "x32", "linux-*" }
 		targetdir (build_dir .. "linux32" .. "/bin")
 		objdir (build_dir .. "linux32" .. "/obj")
@@ -130,8 +135,6 @@ function toolchain(build_dir, lib_dir)
 		buildoptions {
 			"-Wall",
 			"-Wextra",
-			-- "-Werror",
-			-- "-pedantic",
 			"-msse2",
 		}
 		buildoptions_cpp {
