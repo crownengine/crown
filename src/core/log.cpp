@@ -9,6 +9,7 @@
 #include "platform.h"
 #include "string_stream.h"
 #include "string_utils.h"
+#include "temp_allocator.h"
 
 namespace crown
 {

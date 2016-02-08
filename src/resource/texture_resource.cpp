@@ -10,6 +10,7 @@
 #include "sjson.h"
 #include "texture_resource.h"
 #include "os.h"
+#include "string_stream.h"
 
 #if CROWN_DEVELOPMENT
 	#define TEXTUREC_NAME "texturec-development-"

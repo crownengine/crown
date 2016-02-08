@@ -31,6 +31,7 @@
 #include "shader_manager.h"
 #include "sjson.h"
 #include "string_utils.h"
+#include "temp_allocator.h"
 #include "types.h"
 #include "unit_manager.h"
 #include "vector3.h"

@@ -5,11 +5,13 @@
 
 #pragma once
 
+#include "container_types.h"
+
 /// @defgroup String String
 namespace crown
 {
-class DynamicString;
-class FixedString;
+struct DynamicString;
+struct FixedString;
 struct StringId32;
 struct StringId64;
 

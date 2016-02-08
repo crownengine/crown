@@ -13,12 +13,10 @@ namespace crown
 /// Fixed string.
 ///
 /// @ingroup String
-class FixedString
+struct FixedString
 {
 	u32 _length;
 	const char* _data;
-
-public:
 
 	FixedString()
 		: _length(0)
