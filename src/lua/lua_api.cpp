@@ -1808,13 +1808,16 @@ static int render_world_mesh_instances(lua_State* L)
 	LuaStack stack(L);
 	RenderWorld* rw = stack.get_render_world(1);
 	UnitId unit = stack.get_unit(2);
-	MeshInstance inst = rw->first_mesh(unit);
 
-	stack.push_table();
-	for (u32 i = 0; rw->is_valid(inst); ++i, inst = rw->next_mesh(inst))
+	TempAllocator512 ta;
+	Array<MeshInstance> inst(ta);
+	rw->mesh_instances(unit, inst);
+
+	stack.push_table(array::size(inst));
+	for (u32 i = 0; array::size(inst); ++i)
 	{
 		stack.push_key_begin(i+1);
-		stack.push_mesh_instance(inst);
+		stack.push_mesh_instance(inst[i]);
 		stack.push_key_end();
 	}
 
@@ -1864,13 +1867,16 @@ static int render_world_sprite_instances(lua_State* L)
 	LuaStack stack(L);
 	RenderWorld* rw = stack.get_render_world(1);
 	UnitId unit = stack.get_unit(2);
-	SpriteInstance inst = rw->first_sprite(unit);
 
-	stack.push_table();
-	for (u32 i = 0; rw->is_valid(inst); ++i, inst = rw->next_sprite(inst))
+	TempAllocator512 ta;
+	Array<SpriteInstance> inst(ta);
+	rw->sprite_instances(unit, inst);
+
+	stack.push_table(array::size(inst));
+	for (u32 i = 0; array::size(inst); ++i)
 	{
 		stack.push_key_begin(i+1);
-		stack.push_sprite_instance(inst);
+		stack.push_sprite_instance(inst[i]);
 		stack.push_key_end();
 	}
 

@@ -10,6 +10,7 @@
 #include "resource_types.h"
 #include "string_id.h"
 #include "world_types.h"
+#include "mesh_resource.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
@@ -30,14 +31,8 @@ public:
 	/// Destroys the mesh @a i.
 	void destroy_mesh(MeshInstance i);
 
-	/// Returns the first mesh of the unit @a id.
-	MeshInstance first_mesh(UnitId id);
-
-	/// Returns the next mesh in the chain.
-	MeshInstance next_mesh(MeshInstance id);
-
-	/// Returns the previous mesh in the chain.
-	MeshInstance previous_mesh(MeshInstance id);
+	/// Returns the mesh instances of the unit @a id.
+	void mesh_instances(UnitId id, Array<MeshInstance>& instances);
 
 	void set_mesh_material(MeshInstance i, StringId64 id);
 	void set_mesh_visible(MeshInstance i, bool visible);
@@ -49,14 +44,8 @@ public:
 	/// Destroys the sprite @a i.
 	void destroy_sprite(SpriteInstance i);
 
-	/// Returns the first sprite in the chain.
-	SpriteInstance first_sprite(UnitId id);
-
-	/// Returns the next sprite in the chain.
-	SpriteInstance next_sprite(SpriteInstance i);
-
-	/// Returns the previous sprite in the chain.
-	SpriteInstance previous_sprite(SpriteInstance id);
+	/// Returns the sprite instances of the unit @a id.
+	void sprite_instances(UnitId id, Array<SpriteInstance>& instances);
 
 	void set_sprite_material(SpriteInstance i, StringId64 id);
 	void set_sprite_frame(SpriteInstance i, u32 index);
@@ -111,10 +100,6 @@ public:
 	/// Fills @a dl with debug lines
 	void draw_debug(DebugLine& dl);
 
-	bool is_valid(MeshInstance i) { return i.i != UINT32_MAX; }
-	bool is_valid(SpriteInstance i) { return i.i != UINT32_MAX; }
-	bool is_valid(LightInstance i) { return i.i != UINT32_MAX; }
-
 	static const u32 MARKER = 0xc82277de;
 
 private:
@@ -126,134 +111,151 @@ private:
 
 	void unit_destroyed_callback(UnitId id);
 
-	void allocate_mesh(u32 num);
-	void allocate_sprite(u32 num);
-	void allocate_light(u32 num);
-	void grow_mesh();
-	void grow_sprite();
-	void grow_light();
-
-	MeshInstance make_mesh_instance(u32 i) { MeshInstance inst = { i }; return inst; }
-	SpriteInstance make_sprite_instance(u32 i) { SpriteInstance inst = { i }; return inst; }
-	LightInstance make_light_instance(u32 i) { LightInstance inst = { i }; return inst; }
-
-	void add_mesh_node(MeshInstance first, MeshInstance i);
-	void remove_mesh_node(MeshInstance first, MeshInstance i);
-	void swap_mesh_node(MeshInstance a, MeshInstance b);
-	void add_sprite_node(SpriteInstance first, SpriteInstance i);
-	void remove_sprite_node(SpriteInstance first, SpriteInstance i);
-	void swap_sprite_node(SpriteInstance a, SpriteInstance b);
-
-	struct MeshData
+	struct MeshManager
 	{
-		bgfx::VertexBufferHandle vbh;
-		bgfx::IndexBufferHandle ibh;
-	};
-
-	struct MeshInstanceData
-	{
-		MeshInstanceData()
-			: size(0)
-			, capacity(0)
-			, buffer(NULL)
-
-			, first_hidden(0)
-
-			, unit(NULL)
-			, mr(NULL)
-			, mesh(NULL)
-			, material(NULL)
-			, world(NULL)
-			, obb(NULL)
-			, next_instance(NULL)
+		struct MeshData
 		{
+			bgfx::VertexBufferHandle vbh;
+			bgfx::IndexBufferHandle ibh;
+		};
+
+		struct MeshInstanceData
+		{
+			u32 size;
+			u32 capacity;
+			void* buffer;
+
+			u32 first_hidden;
+
+			UnitId* unit;
+			const MeshResource** resource;
+			MeshData* mesh;
+			StringId64* material;
+			Matrix4x4* world;
+			OBB* obb;
+			MeshInstance* next_instance;
+		};
+
+		Allocator* _allocator;
+		Hash<u32> _map;
+		MeshInstanceData _data;
+
+		MeshManager(Allocator& a)
+			: _allocator(&a)
+			, _map(a)
+		{
+			memset(&_data, 0, sizeof(_data));
 		}
 
-		u32 size;
-		u32 capacity;
-		void* buffer;
+		void allocate(u32 num);
+		void grow();
+		MeshInstance create(UnitId id, const MeshResource* mr, const MeshGeometry* mg, StringId64 material, const Matrix4x4& tr);
+		void destroy(MeshInstance i);
+		bool has(UnitId id);
+		MeshInstance first(UnitId id);
+		MeshInstance next(MeshInstance i);
+		MeshInstance previous(MeshInstance i);
+		void add_node(MeshInstance first, MeshInstance i);
+		void remove_node(MeshInstance first, MeshInstance i);
+		void swap_node(MeshInstance a, MeshInstance b);
+		void destroy();
 
-		u32 first_hidden;
-
-		UnitId* unit;
-		const MeshResource** mr;
-		MeshData* mesh;
-		StringId64* material;
-		Matrix4x4* world;
-		OBB* obb;
-		MeshInstance* next_instance;
+		MeshInstance make_instance(u32 i) { MeshInstance inst = { i }; return inst; }
+		bool is_valid(MeshInstance i) { return i.i != UINT32_MAX; }
 	};
 
-	struct SpriteData
+	struct SpriteManager
 	{
-		bgfx::VertexBufferHandle vbh;
-		bgfx::IndexBufferHandle ibh;
-	};
-
-	struct SpriteInstanceData
-	{
-		SpriteInstanceData()
-			: size(0)
-			, capacity(0)
-			, buffer(NULL)
-
-			, first_hidden(0)
-
-			, unit(NULL)
-			, sr(NULL)
-			, sprite(NULL)
-			, material(NULL)
-			, frame(NULL)
-			, world(NULL)
-			, aabb(NULL)
-			, next_instance(NULL)
+		struct SpriteData
 		{
+			bgfx::VertexBufferHandle vbh;
+			bgfx::IndexBufferHandle ibh;
+		};
+
+		struct SpriteInstanceData
+		{
+			u32 size;
+			u32 capacity;
+			void* buffer;
+
+			u32 first_hidden;
+
+			UnitId* unit;
+			const SpriteResource** resource;
+			SpriteData* sprite;
+			StringId64* material;
+			u32* frame;
+			Matrix4x4* world;
+			AABB* aabb;
+			SpriteInstance* next_instance;
+		};
+
+		Allocator* _allocator;
+		Hash<u32> _map;
+		SpriteInstanceData _data;
+
+		SpriteManager(Allocator& a)
+			: _allocator(&a)
+			, _map(a)
+		{
+			memset(&_data, 0, sizeof(_data));
 		}
 
-		u32 size;
-		u32 capacity;
-		void* buffer;
+		void allocate(u32 num);
+		void grow();
+		SpriteInstance create(UnitId id, const SpriteResource* sr, StringId64 material, const Matrix4x4& tr);
+		void destroy(SpriteInstance i);
+		bool has(UnitId id);
+		SpriteInstance first(UnitId id);
+		SpriteInstance next(SpriteInstance i);
+		SpriteInstance previous(SpriteInstance i);
+		void add_node(SpriteInstance first, SpriteInstance i);
+		void remove_node(SpriteInstance first, SpriteInstance i);
+		void swap_node(SpriteInstance a, SpriteInstance b);
+		void destroy();
 
-		u32 first_hidden;
-
-		UnitId* unit;
-		const SpriteResource** sr;
-		SpriteData* sprite;
-		StringId64* material;
-		u32* frame;
-		Matrix4x4* world;
-		AABB* aabb;
-		SpriteInstance* next_instance;
+		SpriteInstance make_instance(u32 i) { SpriteInstance inst = { i }; return inst; }
+		bool is_valid(SpriteInstance i) { return i.i != UINT32_MAX; }
 	};
 
-	struct LightInstanceData
+	struct LightManager
 	{
-		LightInstanceData()
-			: size(0)
-			, capacity(0)
-			, buffer(NULL)
-
-			, unit(NULL)
-			, world(NULL)
-			, range(NULL)
-			, intensity(NULL)
-			, spot_angle(NULL)
-			, color(NULL)
-			, type(NULL)
+		struct LightInstanceData
 		{
+			u32 size;
+			u32 capacity;
+			void* buffer;
+
+			UnitId* unit;
+			Matrix4x4* world;
+			f32* range;
+			f32* intensity;
+			f32* spot_angle;
+			Color4* color;
+			u32* type; // LightType::Enum
+		};
+
+		Allocator* _allocator;
+		Hash<u32> _map;
+		LightInstanceData _data;
+
+		LightManager(Allocator& a)
+			: _allocator(&a)
+			, _map(a)
+		{
+			memset(&_data, 0, sizeof(_data));
 		}
 
-		u32 size;
-		u32 capacity;
-		void* buffer;
+		LightInstance create(UnitId id, const LightDesc& ld, const Matrix4x4& tr);
+		void destroy(LightInstance i);
+		bool has(UnitId id);
+		LightInstance light(UnitId id);
+		void allocate(u32 num);
+		void grow();
+		void destroy();
 
-		UnitId* unit;
-		Matrix4x4* world;
-		f32* range;
-		f32* intensity;
-		f32* spot_angle;
-		Color4* color;
-		u32* type; // LightType::Enum
+		LightInstance make_instance(u32 i) { LightInstance inst = { i }; return inst; }
+		bool is_valid(LightInstance i) { return i.i != UINT32_MAX; }
 	};
 
 	u32 _marker;
@@ -268,12 +270,9 @@ private:
 	bgfx::UniformHandle _u_light_col;
 
 	bool _debug_drawing;
-	Hash<u32> _mesh_map;
-	MeshInstanceData _mesh_data;
-	Hash<u32> _sprite_map;
-	SpriteInstanceData _sprite_data;
-	Hash<u32> _light_map;
-	LightInstanceData _light_data;
+	MeshManager _mesh_manager;
+	SpriteManager _sprite_manager;
+	LightManager _light_manager;
 };
 
 } // namespace crown

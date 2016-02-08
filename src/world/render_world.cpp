@@ -26,9 +26,9 @@ RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, M
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _debug_drawing(false)
-	, _mesh_map(a)
-	, _sprite_map(a)
-	, _light_map(a)
+	, _mesh_manager(a)
+	, _sprite_manager(a)
+	, _light_manager(a)
 {
 	um.register_destroy_function(RenderWorld::unit_destroyed_callback, this);
 
@@ -43,149 +43,41 @@ RenderWorld::~RenderWorld()
 	bgfx::destroyUniform(_u_light_dir);
 	bgfx::destroyUniform(_u_light_col);
 
-	_allocator->deallocate(_mesh_data.buffer);
-	_allocator->deallocate(_sprite_data.buffer);
-	_allocator->deallocate(_light_data.buffer);
+	_mesh_manager.destroy();
+	_sprite_manager.destroy();
+	_light_manager.destroy();
 
 	_marker = 0;
 }
 
 MeshInstance RenderWorld::create_mesh(UnitId id, const MeshRendererDesc& mrd, const Matrix4x4& tr)
 {
-	if (_mesh_data.size == _mesh_data.capacity)
-		grow_mesh();
-
 	const MeshResource* mr = (const MeshResource*)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
 	const MeshGeometry* mg = mr->geometry(mrd.geometry_name);
-
 	_material_manager->create_material(mrd.material_resource);
 
-	const u32 last = _mesh_data.size;
-
-
-	_mesh_data.unit[last]          = id;
-	_mesh_data.mr[last]            = mr;
-	_mesh_data.mesh[last].vbh      = mg->vertex_buffer;
-	_mesh_data.mesh[last].ibh      = mg->index_buffer;
-	_mesh_data.material[last]      = mrd.material_resource;
-	_mesh_data.world[last]         = tr;
-	_mesh_data.obb[last]           = mg->obb;
-	_mesh_data.next_instance[last] = make_mesh_instance(UINT32_MAX);
-
-	++_mesh_data.size;
-	++_mesh_data.first_hidden;
-
-	MeshInstance first = first_mesh(id);
-	if (!is_valid(first))
-	{
-		hash::set(_mesh_map, id.encode(), last);
-	}
-	else
-	{
-		add_mesh_node(first, make_mesh_instance(last));
-	}
-
-	return make_mesh_instance(last);
+	return _mesh_manager.create(id, mr, mg, mrd.material_resource, tr);
 }
 
 void RenderWorld::destroy_mesh(MeshInstance i)
 {
-	const u32 last       = _mesh_data.size - 1;
-	const UnitId u            = _mesh_data.unit[i.i];
-	const MeshInstance first  = first_mesh(u);
-	const MeshInstance last_i = make_mesh_instance(last);
-
-	swap_mesh_node(last_i, i);
-	remove_mesh_node(first, i);
-
-	_mesh_data.unit[i.i]          = _mesh_data.unit[last];
-	_mesh_data.mr[i.i]            = _mesh_data.mr[last];
-	_mesh_data.mesh[i.i].vbh      = _mesh_data.mesh[last].vbh;
-	_mesh_data.mesh[i.i].ibh      = _mesh_data.mesh[last].ibh;
-	_mesh_data.material[i.i]      = _mesh_data.material[last];
-	_mesh_data.world[i.i]         = _mesh_data.world[last];
-	_mesh_data.obb[i.i]           = _mesh_data.obb[last];
-	_mesh_data.next_instance[i.i] = _mesh_data.next_instance[last];
-
-	--_mesh_data.size;
-	--_mesh_data.first_hidden;
+	_mesh_manager.destroy(i);
 }
 
-void RenderWorld::add_mesh_node(MeshInstance first, MeshInstance i)
+void RenderWorld::mesh_instances(UnitId id, Array<MeshInstance>& instances)
 {
-	MeshInstance curr = first;
-	while (is_valid(next_mesh(curr)))
-		curr = next_mesh(curr);
+	MeshInstance inst = _mesh_manager.first(id);
 
-	_mesh_data.next_instance[curr.i] = i;
-}
-
-void RenderWorld::remove_mesh_node(MeshInstance first, MeshInstance i)
-{
-	const UnitId u = _mesh_data.unit[first.i];
-
-	if (i.i == first.i)
+	while (_mesh_manager.is_valid(inst))
 	{
-		if (!is_valid(next_mesh(i)))
-			hash::set(_mesh_map, u.encode(), UINT32_MAX);
-		else
-			hash::set(_mesh_map, u.encode(), next_mesh(i).i);
+		array::push_back(instances, inst);
+		inst = _mesh_manager.next(inst);
 	}
-	else
-	{
-		MeshInstance prev = previous_mesh(i);
-		_mesh_data.next_instance[prev.i] = next_mesh(i);
-	}
-}
-
-void RenderWorld::swap_mesh_node(MeshInstance a, MeshInstance b)
-{
-	const UnitId u = _mesh_data.unit[a.i];
-	const MeshInstance first = first_mesh(u);
-
-	if (a.i == first.i)
-	{
-		hash::set(_mesh_map, u.encode(), b.i);
-	}
-	else
-	{
-		const MeshInstance prev_a = previous_mesh(a);
-		CE_ENSURE(prev_a.i != a.i);
-		_mesh_data.next_instance[prev_a.i] = b;
-	}
-}
-
-MeshInstance RenderWorld::first_mesh(UnitId id)
-{
-	return make_mesh_instance(hash::get(_mesh_map, id.encode(), UINT32_MAX));
-}
-
-MeshInstance RenderWorld::next_mesh(MeshInstance i)
-{
-	CE_ASSERT(i.i < _mesh_data.size, "Index out of bounds: i.i = %d", i.i);
-	return _mesh_data.next_instance[i.i];
-}
-
-MeshInstance RenderWorld::previous_mesh(MeshInstance i)
-{
-	const UnitId u = _mesh_data.unit[i.i];
-
-	MeshInstance first = first_mesh(u);
-	MeshInstance curr = first;
-	MeshInstance prev = { UINT32_MAX };
-
-	while (curr.i != i.i)
-	{
-		prev = curr;
-		curr = next_mesh(curr);
-	}
-
-	return prev;
 }
 
 void RenderWorld::set_mesh_material(MeshInstance i, StringId64 id)
 {
-	_mesh_data.material[i.i] = id;
+	_mesh_manager._data.material[i.i] = id;
 }
 
 void RenderWorld::set_mesh_visible(MeshInstance i, bool visible)
@@ -194,143 +86,36 @@ void RenderWorld::set_mesh_visible(MeshInstance i, bool visible)
 
 OBB RenderWorld::mesh_obb(MeshInstance i)
 {
-	return _mesh_data.obb[i.i];
+	return _mesh_manager._data.obb[i.i];
 }
 
 SpriteInstance RenderWorld::create_sprite(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr)
 {
-	if (_sprite_data.size == _sprite_data.capacity)
-		grow_sprite();
-
 	const SpriteResource* sr = (const SpriteResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
 	_material_manager->create_material(srd.material_resource);
 
-	const u32 last = _sprite_data.size;
-
-	_sprite_data.unit[last]          = id;
-	_sprite_data.sr[last]            = sr;
-	_sprite_data.sprite[last].vbh    = sr->vb;
-	_sprite_data.sprite[last].ibh    = sr->ib;
-	_sprite_data.material[last]      = srd.material_resource;
-	_sprite_data.frame[last]         = 0;
-	_sprite_data.world[last]         = tr;
-	_sprite_data.aabb[last]          = AABB();
-	_sprite_data.next_instance[last] = make_sprite_instance(UINT32_MAX);
-
-	++_sprite_data.size;
-	++_sprite_data.first_hidden;
-
-	SpriteInstance first = first_sprite(id);
-	if (!is_valid(first))
-	{
-		hash::set(_sprite_map, id.encode(), last);
-	}
-	else
-	{
-		add_sprite_node(first, make_sprite_instance(last));
-	}
-
-	return make_sprite_instance(last);
+	return _sprite_manager.create(id, sr, srd.material_resource, tr);
 }
 
 void RenderWorld::destroy_sprite(SpriteInstance i)
 {
-	const u32 last         = _sprite_data.size - 1;
-	const UnitId u              = _sprite_data.unit[i.i];
-	const SpriteInstance first  = first_sprite(u);
-	const SpriteInstance last_i = make_sprite_instance(last);
-
-	swap_sprite_node(last_i, i);
-	remove_sprite_node(first, i);
-
-	_sprite_data.unit[i.i]          = _sprite_data.unit[last];
-	_sprite_data.sr[i.i]            = _sprite_data.sr[last];
-	_sprite_data.sprite[i.i].vbh    = _sprite_data.sprite[last].vbh;
-	_sprite_data.sprite[i.i].ibh    = _sprite_data.sprite[last].ibh;
-	_sprite_data.material[i.i]      = _sprite_data.material[last];
-	_sprite_data.frame[i.i]         = _sprite_data.frame[last];
-	_sprite_data.world[i.i]         = _sprite_data.world[last];
-	_sprite_data.aabb[i.i]          = _sprite_data.aabb[last];
-	_sprite_data.next_instance[i.i] = _sprite_data.next_instance[last];
-
-	--_sprite_data.size;
-	--_sprite_data.first_hidden;
+	_sprite_manager.destroy(i);
 }
 
-void RenderWorld::add_sprite_node(SpriteInstance first, SpriteInstance i)
+void RenderWorld::sprite_instances(UnitId id, Array<SpriteInstance>& instances)
 {
-	SpriteInstance curr = first;
-	while (is_valid(next_sprite(curr)))
-		curr = next_sprite(curr);
+	SpriteInstance inst = _sprite_manager.first(id);
 
-	_sprite_data.next_instance[curr.i] = i;
-}
-
-void RenderWorld::remove_sprite_node(SpriteInstance first, SpriteInstance i)
-{
-	const UnitId u = _sprite_data.unit[first.i];
-
-	if (i.i == first.i)
+	while (_sprite_manager.is_valid(inst))
 	{
-		if (!is_valid(next_sprite(i)))
-			hash::set(_sprite_map, u.encode(), UINT32_MAX);
-		else
-			hash::set(_sprite_map, u.encode(), next_sprite(i).i);
+		array::push_back(instances, inst);
+		inst = _sprite_manager.next(inst);
 	}
-	else
-	{
-		SpriteInstance prev = previous_sprite(i);
-		_sprite_data.next_instance[prev.i] = next_sprite(i);
-	}
-}
-
-void RenderWorld::swap_sprite_node(SpriteInstance a, SpriteInstance b)
-{
-	const UnitId u = _sprite_data.unit[a.i];
-	const SpriteInstance first = first_sprite(u);
-
-	if (a.i == first.i)
-	{
-		hash::set(_sprite_map, u.encode(), b.i);
-	}
-	else
-	{
-		const SpriteInstance prev_a = previous_sprite(a);
-		_sprite_data.next_instance[prev_a.i] = b;
-	}
-}
-
-SpriteInstance RenderWorld::first_sprite(UnitId id)
-{
-	return make_sprite_instance(hash::get(_sprite_map, id.encode(), UINT32_MAX));
-}
-
-SpriteInstance RenderWorld::next_sprite(SpriteInstance i)
-{
-	CE_ASSERT(i.i < _sprite_data.size, "Index out of bounds");
-	return _sprite_data.next_instance[i.i];
-}
-
-SpriteInstance RenderWorld::previous_sprite(SpriteInstance i)
-{
-	const UnitId u = _sprite_data.unit[i.i];
-
-	SpriteInstance first = first_sprite(u);
-	SpriteInstance curr = first;
-	SpriteInstance prev = { UINT32_MAX };
-
-	while (curr.i != i.i)
-	{
-		prev = curr;
-		curr = next_sprite(curr);
-	}
-
-	return prev;
 }
 
 void RenderWorld::set_sprite_material(SpriteInstance i, StringId64 id)
 {
-	_sprite_data.material[i.i] = id;
+	_sprite_manager._data.material[i.i] = id;
 }
 
 void RenderWorld::set_sprite_visible(SpriteInstance i, bool visible)
@@ -339,158 +124,136 @@ void RenderWorld::set_sprite_visible(SpriteInstance i, bool visible)
 
 void RenderWorld::set_sprite_frame(SpriteInstance i, u32 index)
 {
-	_sprite_data.frame[i.i] = index;
+	_sprite_manager._data.frame[i.i] = index;
 }
 
 LightInstance RenderWorld::create_light(UnitId id, const LightDesc& ld, const Matrix4x4& tr)
 {
-	CE_ASSERT(!hash::has(_light_map, id.encode()), "Unit already has light");
-
-	if (_light_data.size == _light_data.capacity)
-		grow_light();
-
-	const u32 last = _light_data.size;
-
-	_light_data.unit[last]       = id;
-	_light_data.world[last]      = tr;
-	_light_data.range[last]      = ld.range;
-	_light_data.intensity[last]  = ld.intensity;
-	_light_data.spot_angle[last] = ld.spot_angle;
-	_light_data.color[last]      = vector4(ld.color.x, ld.color.y, ld.color.z, 1.0f);
-	_light_data.type[last]       = ld.type;
-
-	++_light_data.size;
-
-	hash::set(_light_map, id.encode(), last);
-	return make_light_instance(last);
+	return _light_manager.create(id, ld, tr);
 }
 
 void RenderWorld::destroy_light(LightInstance i)
 {
-	const u32 last = _light_data.size - 1;
-	const UnitId u = _light_data.unit[i.i];
-	const UnitId last_u = _light_data.unit[last];
-
-	_light_data.unit[i.i]       = _light_data.unit[last];
-	_light_data.world[i.i]      = _light_data.world[last];
-	_light_data.range[i.i]      = _light_data.range[last];
-	_light_data.intensity[i.i]  = _light_data.intensity[last];
-	_light_data.spot_angle[i.i] = _light_data.spot_angle[last];
-	_light_data.color[i.i]      = _light_data.color[last];
-	_light_data.type[i.i]       = _light_data.type[last];
-
-	--_light_data.size;
-
-	hash::set(_light_map, last_u.encode(), i.i);
-	hash::remove(_light_map, u.encode());
+	_light_manager.destroy(i);
 }
 
 LightInstance RenderWorld::light(UnitId id)
 {
-	return make_light_instance(hash::get(_light_map, id.encode(), UINT32_MAX));
+	return _light_manager.light(id);
 }
 
 Color4 RenderWorld::light_color(LightInstance i)
 {
-	return _light_data.color[i.i];
+	return _light_manager._data.color[i.i];
 }
 
 LightType::Enum RenderWorld::light_type(LightInstance i)
 {
-	return (LightType::Enum)_light_data.type[i.i];
+	return (LightType::Enum)_light_manager._data.type[i.i];
 }
 
 f32 RenderWorld::light_range(LightInstance i)
 {
-	return _light_data.range[i.i];
+	return _light_manager._data.range[i.i];
 }
 
 f32 RenderWorld::light_intensity(LightInstance i)
 {
-	return _light_data.intensity[i.i];
+	return _light_manager._data.intensity[i.i];
 }
 
 f32 RenderWorld::light_spot_angle(LightInstance i)
 {
-	return _light_data.spot_angle[i.i];
+	return _light_manager._data.spot_angle[i.i];
 }
 
 void RenderWorld::set_light_color(LightInstance i, const Color4& col)
 {
-	_light_data.color[i.i] = col;
+	_light_manager._data.color[i.i] = col;
 }
 
 void RenderWorld::set_light_type(LightInstance i, LightType::Enum type)
 {
-	_light_data.type[i.i] = type;
+	_light_manager._data.type[i.i] = type;
 }
 
 void RenderWorld::set_light_range(LightInstance i, f32 range)
 {
-	_light_data.range[i.i] = range;
+	_light_manager._data.range[i.i] = range;
 }
 
 void RenderWorld::set_light_intensity(LightInstance i, f32 intensity)
 {
-	_light_data.intensity[i.i] = intensity;
+	_light_manager._data.intensity[i.i] = intensity;
 }
 
 void RenderWorld::set_light_spot_angle(LightInstance i, f32 angle)
 {
-	_light_data.spot_angle[i.i] = angle;
+	_light_manager._data.spot_angle[i.i] = angle;
 }
 
 void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world)
 {
+	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
+	SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
+	LightManager::LightInstanceData& lid = _light_manager._data;
+
 	for (; begin != end; ++begin, ++world)
 	{
-		u32 inst = hash::get(_mesh_map, begin->encode(), UINT32_MAX);
+		if (_mesh_manager.has(*begin))
+		{
+			MeshInstance inst = _mesh_manager.first(*begin);
+			mid.world[inst.i] = *world;
+		}
 
-		if (inst != UINT32_MAX)
-			_mesh_data.world[inst] = *world;
+		if (_sprite_manager.has(*begin))
+		{
+			SpriteInstance inst = _sprite_manager.first(*begin);
+			sid.world[inst.i] = *world;
+		}
 
-		inst = hash::get(_sprite_map, begin->encode(), UINT32_MAX);
-
-		if (inst != UINT32_MAX)
-			_sprite_data.world[inst] = *world;
-
-		inst = hash::get(_light_map, begin->encode(), UINT32_MAX);
-
-		if (inst != UINT32_MAX)
-			_light_data.world[inst] = *world;
+		if (_light_manager.has(*begin))
+		{
+			LightInstance inst = _light_manager.light(*begin);
+			lid.world[inst.i] = *world;
+		}
 	}
 }
 
 void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 {
-	for (u32 ll = 0; ll < _light_data.size; ++ll)
+	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
+	SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
+	LightManager::LightInstanceData& lid = _light_manager._data;
+
+	for (u32 ll = 0; ll < lid.size; ++ll)
 	{
-		const Vector4 ldir = normalize(_light_data.world[ll].z) * view;
-		const Vector3 lpos = translation(_light_data.world[ll]);
+		const Vector4 ldir = normalize(lid.world[ll].z) * view;
+		const Vector3 lpos = translation(lid.world[ll]);
 
 		bgfx::setUniform(_u_light_pos, to_float_ptr(lpos));
 		bgfx::setUniform(_u_light_dir, to_float_ptr(ldir));
-		bgfx::setUniform(_u_light_col, to_float_ptr(_light_data.color[ll]));
+		bgfx::setUniform(_u_light_col, to_float_ptr(lid.color[ll]));
 
 		// Render meshes
-		for (u32 i = 0; i < _mesh_data.first_hidden; ++i)
+		for (u32 i = 0; i < mid.first_hidden; ++i)
 		{
-			bgfx::setTransform(to_float_ptr(_mesh_data.world[i]));
-			bgfx::setVertexBuffer(_mesh_data.mesh[i].vbh);
-			bgfx::setIndexBuffer(_mesh_data.mesh[i].ibh);
+			bgfx::setTransform(to_float_ptr(mid.world[i]));
+			bgfx::setVertexBuffer(mid.mesh[i].vbh);
+			bgfx::setIndexBuffer(mid.mesh[i].ibh);
 
-			_material_manager->get(_mesh_data.material[i])->bind(*_resource_manager, *_shader_manager);
+			_material_manager->get(mid.material[i])->bind(*_resource_manager, *_shader_manager);
 		}
 	}
 
 	// Render sprites
-	for (u32 i = 0; i < _sprite_data.first_hidden; ++i)
+	for (u32 i = 0; i < sid.first_hidden; ++i)
 	{
-		bgfx::setVertexBuffer(_sprite_data.sprite[i].vbh);
-		bgfx::setIndexBuffer(_sprite_data.sprite[i].ibh, _sprite_data.frame[i] * 6, 6);
-		bgfx::setTransform(to_float_ptr(_sprite_data.world[i]));
+		bgfx::setVertexBuffer(sid.sprite[i].vbh);
+		bgfx::setIndexBuffer(sid.sprite[i].ibh, sid.frame[i] * 6, 6);
+		bgfx::setTransform(to_float_ptr(sid.world[i]));
 
-		_material_manager->get(_sprite_data.material[i])->bind(*_resource_manager, *_shader_manager);
+		_material_manager->get(sid.material[i])->bind(*_resource_manager, *_shader_manager);
 	}
 }
 
@@ -499,22 +262,26 @@ void RenderWorld::draw_debug(DebugLine& dl)
 	if (!_debug_drawing)
 		return;
 
-	for (u32 i = 0; i < _mesh_data.size; ++i)
+	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
+	SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
+	LightManager::LightInstanceData& lid = _light_manager._data;
+
+	for (u32 i = 0; i < mid.size; ++i)
 	{
-		const OBB& obb = _mesh_data.obb[i];
-		const Matrix4x4& world = _mesh_data.world[i];
+		const OBB& obb = mid.obb[i];
+		const Matrix4x4& world = mid.world[i];
 		dl.add_obb(obb.tm * world, obb.half_extents, COLOR4_RED);
 	}
 
-	for (u32 i = 0; i < _light_data.size; ++i)
+	for (u32 i = 0; i < lid.size; ++i)
 	{
-		const Vector3 pos = translation(_light_data.world[i]);
-		const Vector3 dir = -z(_light_data.world[i]);
+		const Vector3 pos = translation(lid.world[i]);
+		const Vector3 dir = -z(lid.world[i]);
 
 		// Draw tiny sphere for all light types
-		dl.add_sphere(pos, 0.1f, _light_data.color[i]);
+		dl.add_sphere(pos, 0.1f, lid.color[i]);
 
-		switch (_light_data.type[i])
+		switch (lid.type[i])
 		{
 			case LightType::DIRECTIONAL:
 			{
@@ -525,13 +292,13 @@ void RenderWorld::draw_debug(DebugLine& dl)
 			}
 			case LightType::OMNI:
 			{
-				dl.add_sphere(pos, _light_data.range[i], COLOR4_YELLOW);
+				dl.add_sphere(pos, lid.range[i], COLOR4_YELLOW);
 				break;
 			}
 			case LightType::SPOT:
 			{
-				const f32 angle = _light_data.spot_angle[i];
-				const f32 range = _light_data.range[i];
+				const f32 angle = lid.spot_angle[i];
+				const f32 range = lid.range[i];
 				const f32 radius = tan(angle)*range;
 				dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
 				break;
@@ -553,26 +320,24 @@ void RenderWorld::enable_debug_drawing(bool enable)
 void RenderWorld::unit_destroyed_callback(UnitId id)
 {
 	{
-		MeshInstance first = first_mesh(id);
-		MeshInstance curr = first;
-		MeshInstance next = make_mesh_instance(UINT32_MAX);
+		MeshInstance curr = _mesh_manager.first(id);
+		MeshInstance next;
 
-		while (is_valid(curr))
+		while (_mesh_manager.is_valid(curr))
 		{
-			next = next_mesh(curr);
+			next = _mesh_manager.next(curr);
 			destroy_mesh(curr);
 			curr = next;
 		}
 	}
 
 	{
-		SpriteInstance first = first_sprite(id);
-		SpriteInstance curr = first;
-		SpriteInstance next = make_sprite_instance(UINT32_MAX);
+		SpriteInstance curr = _sprite_manager.first(id);
+		SpriteInstance next;
 
-		while (is_valid(curr))
+		while (_sprite_manager.is_valid(curr))
 		{
-			next = next_sprite(curr);
+			next = _sprite_manager.next(curr);
 			destroy_sprite(curr);
 			curr = next;
 		}
@@ -581,14 +346,14 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 	{
 		LightInstance first = light(id);
 
-		if (is_valid(first))
+		if (_light_manager.is_valid(first))
 			destroy_light(first);
 	}
 }
 
-void RenderWorld::allocate_mesh(u32 num)
+void RenderWorld::MeshManager::allocate(u32 num)
 {
-	CE_ENSURE(num > _mesh_data.size);
+	CE_ENSURE(num > _data.size);
 
 	const u32 bytes = num * (0
 		+ sizeof(UnitId)
@@ -601,34 +366,175 @@ void RenderWorld::allocate_mesh(u32 num)
 		);
 
 	MeshInstanceData new_data;
-	new_data.size = _mesh_data.size;
+	new_data.size = _data.size;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
-	new_data.first_hidden = _mesh_data.first_hidden;
+	new_data.first_hidden = _data.first_hidden;
 
 	new_data.unit = (UnitId*)(new_data.buffer);
-	new_data.mr = (const MeshResource**)(new_data.unit + num);
-	new_data.mesh = (MeshData*)(new_data.mr + num);
+	new_data.resource = (const MeshResource**)(new_data.unit + num);
+	new_data.mesh = (MeshData*)(new_data.resource + num);
 	new_data.material = (StringId64*)(new_data.mesh + num);
 	new_data.world = (Matrix4x4*)(new_data.material + num);
 	new_data.obb = (OBB*)(new_data.world + num);
 	new_data.next_instance = (MeshInstance*)(new_data.obb + num);
 
-	memcpy(new_data.unit, _mesh_data.unit, _mesh_data.size * sizeof(UnitId));
-	memcpy(new_data.mr, _mesh_data.mr, _mesh_data.size * sizeof(MeshResource*));
-	memcpy(new_data.mesh, _mesh_data.mesh, _mesh_data.size * sizeof(MeshData));
-	memcpy(new_data.material, _mesh_data.material, _mesh_data.size * sizeof(StringId64));
-	memcpy(new_data.world, _mesh_data.world, _mesh_data.size * sizeof(Matrix4x4));
-	memcpy(new_data.obb, _mesh_data.obb, _mesh_data.size * sizeof(OBB));
-	memcpy(new_data.next_instance, _mesh_data.next_instance, _mesh_data.size * sizeof(MeshInstance));
+	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
+	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource*));
+	memcpy(new_data.mesh, _data.mesh, _data.size * sizeof(MeshData));
+	memcpy(new_data.material, _data.material, _data.size * sizeof(StringId64));
+	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
+	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
+	memcpy(new_data.next_instance, _data.next_instance, _data.size * sizeof(MeshInstance));
 
-	_allocator->deallocate(_mesh_data.buffer);
-	_mesh_data = new_data;
+	_allocator->deallocate(_data.buffer);
+	_data = new_data;
 }
 
-void RenderWorld::allocate_sprite(u32 num)
+void RenderWorld::MeshManager::grow()
 {
-	CE_ENSURE(num > _sprite_data.size);
+	allocate(_data.capacity * 2 + 1);
+}
+
+MeshInstance RenderWorld::MeshManager::create(UnitId id, const MeshResource* mr, const MeshGeometry* mg, StringId64 mat, const Matrix4x4& tr)
+{
+	if (_data.size == _data.capacity)
+		grow();
+
+	const u32 last = _data.size;
+
+	_data.unit[last]          = id;
+	_data.resource[last]      = mr;
+	_data.mesh[last].vbh      = mg->vertex_buffer;
+	_data.mesh[last].ibh      = mg->index_buffer;
+	_data.material[last]      = mat;
+	_data.world[last]         = tr;
+	_data.obb[last]           = mg->obb;
+	_data.next_instance[last] = make_instance(UINT32_MAX);
+
+	++_data.size;
+	++_data.first_hidden;
+
+	MeshInstance curr = first(id);
+	if (!is_valid(curr))
+	{
+		hash::set(_map, id.encode(), last);
+	}
+	else
+	{
+		add_node(curr, make_instance(last));
+	}
+
+	return make_instance(last);
+}
+
+void RenderWorld::MeshManager::destroy(MeshInstance i)
+{
+	const u32 last             = _data.size - 1;
+	const UnitId u             = _data.unit[i.i];
+	const MeshInstance first_i = first(u);
+	const MeshInstance last_i  = make_instance(last);
+
+	swap_node(last_i, i);
+	remove_node(first_i, i);
+
+	_data.unit[i.i]          = _data.unit[last];
+	_data.resource[i.i]      = _data.resource[last];
+	_data.mesh[i.i].vbh      = _data.mesh[last].vbh;
+	_data.mesh[i.i].ibh      = _data.mesh[last].ibh;
+	_data.material[i.i]      = _data.material[last];
+	_data.world[i.i]         = _data.world[last];
+	_data.obb[i.i]           = _data.obb[last];
+	_data.next_instance[i.i] = _data.next_instance[last];
+
+	--_data.size;
+	--_data.first_hidden;
+}
+
+bool RenderWorld::MeshManager::has(UnitId id)
+{
+	return is_valid(first(id));
+}
+
+MeshInstance RenderWorld::MeshManager::first(UnitId id)
+{
+	return make_instance(hash::get(_map, id.encode(), UINT32_MAX));
+}
+
+MeshInstance RenderWorld::MeshManager::next(MeshInstance i)
+{
+	CE_ASSERT(i.i < _data.size, "Index out of bounds: i.i = %d", i.i);
+	return _data.next_instance[i.i];
+}
+
+MeshInstance RenderWorld::MeshManager::previous(MeshInstance i)
+{
+	const UnitId u = _data.unit[i.i];
+
+	MeshInstance curr = first(u);
+	MeshInstance prev = { UINT32_MAX };
+
+	while (curr.i != i.i)
+	{
+		prev = curr;
+		curr = next(curr);
+	}
+
+	return prev;
+}
+
+void RenderWorld::MeshManager::add_node(MeshInstance first, MeshInstance i)
+{
+	MeshInstance curr = first;
+	while (is_valid(next(curr)))
+		curr = next(curr);
+
+	_data.next_instance[curr.i] = i;
+}
+
+void RenderWorld::MeshManager::remove_node(MeshInstance first, MeshInstance i)
+{
+	const UnitId u = _data.unit[first.i];
+
+	if (i.i == first.i)
+	{
+		if (!is_valid(next(i)))
+			hash::set(_map, u.encode(), UINT32_MAX);
+		else
+			hash::set(_map, u.encode(), next(i).i);
+	}
+	else
+	{
+		MeshInstance prev = previous(i);
+		_data.next_instance[prev.i] = next(i);
+	}
+}
+
+void RenderWorld::MeshManager::swap_node(MeshInstance a, MeshInstance b)
+{
+	const UnitId u = _data.unit[a.i];
+	const MeshInstance first_i = first(u);
+
+	if (a.i == first_i.i)
+	{
+		hash::set(_map, u.encode(), b.i);
+	}
+	else
+	{
+		const MeshInstance prev_a = previous(a);
+		CE_ENSURE(prev_a.i != a.i);
+		_data.next_instance[prev_a.i] = b;
+	}
+}
+
+void RenderWorld::MeshManager::destroy()
+{
+	_allocator->deallocate(_data.buffer);
+}
+
+void RenderWorld::SpriteManager::allocate(u32 num)
+{
+	CE_ENSURE(num > _data.size);
 
 	const u32 bytes = num * (0
 		+ sizeof(UnitId)
@@ -642,36 +548,178 @@ void RenderWorld::allocate_sprite(u32 num)
 		);
 
 	SpriteInstanceData new_data;
-	new_data.size = _sprite_data.size;
+	new_data.size = _data.size;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
-	new_data.first_hidden = _sprite_data.first_hidden;
+	new_data.first_hidden = _data.first_hidden;
 
 	new_data.unit = (UnitId*)(new_data.buffer);
-	new_data.sr = (const SpriteResource**)(new_data.unit + num);
-	new_data.sprite = (SpriteData*)(new_data.sr + num);
+	new_data.resource = (const SpriteResource**)(new_data.unit + num);
+	new_data.sprite = (SpriteData*)(new_data.resource + num);
 	new_data.material = (StringId64*)(new_data.sprite + num);
 	new_data.frame = (u32*)(new_data.material + num);
 	new_data.world = (Matrix4x4*)(new_data.frame + num);
 	new_data.aabb = (AABB*)(new_data.world + num);
 	new_data.next_instance = (SpriteInstance*)(new_data.aabb + num);
 
-	memcpy(new_data.unit, _sprite_data.unit, _sprite_data.size * sizeof(UnitId));
-	memcpy(new_data.sr, _sprite_data.sr, _sprite_data.size * sizeof(SpriteResource**));
-	memcpy(new_data.sprite, _sprite_data.sprite, _sprite_data.size * sizeof(SpriteData));
-	memcpy(new_data.material, _sprite_data.material, _sprite_data.size * sizeof(StringId64));
-	memcpy(new_data.frame, _sprite_data.frame, _sprite_data.size * sizeof(u32));
-	memcpy(new_data.world, _sprite_data.world, _sprite_data.size * sizeof(Matrix4x4));
-	memcpy(new_data.aabb, _sprite_data.aabb, _sprite_data.size * sizeof(AABB));
-	memcpy(new_data.next_instance, _sprite_data.next_instance, _sprite_data.size * sizeof(SpriteInstance));
+	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
+	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
+	memcpy(new_data.sprite, _data.sprite, _data.size * sizeof(SpriteData));
+	memcpy(new_data.material, _data.material, _data.size * sizeof(StringId64));
+	memcpy(new_data.frame, _data.frame, _data.size * sizeof(u32));
+	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
+	memcpy(new_data.aabb, _data.aabb, _data.size * sizeof(AABB));
+	memcpy(new_data.next_instance, _data.next_instance, _data.size * sizeof(SpriteInstance));
 
-	_allocator->deallocate(_sprite_data.buffer);
-	_sprite_data = new_data;
+	_allocator->deallocate(_data.buffer);
+	_data = new_data;
 }
 
-void RenderWorld::allocate_light(u32 num)
+void RenderWorld::SpriteManager::grow()
 {
-	CE_ENSURE(num > _light_data.size);
+	allocate(_data.capacity * 2 + 1);
+}
+
+SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResource* sr, StringId64 mat, const Matrix4x4& tr)
+{
+	if (_data.size == _data.capacity)
+		grow();
+
+	const u32 last = _data.size;
+
+	_data.unit[last]          = id;
+	_data.resource[last]      = sr;
+	_data.sprite[last].vbh    = sr->vb;
+	_data.sprite[last].ibh    = sr->ib;
+	_data.material[last]      = mat;
+	_data.frame[last]         = 0;
+	_data.world[last]         = tr;
+	_data.aabb[last]          = AABB();
+	_data.next_instance[last] = make_instance(UINT32_MAX);
+
+	++_data.size;
+	++_data.first_hidden;
+
+	SpriteInstance curr = first(id);
+	if (!is_valid(curr))
+	{
+		hash::set(_map, id.encode(), last);
+	}
+	else
+	{
+		add_node(curr, make_instance(last));
+	}
+
+	return make_instance(last);
+}
+
+void RenderWorld::SpriteManager::destroy(SpriteInstance i)
+{
+	const u32 last               = _data.size - 1;
+	const UnitId u               = _data.unit[i.i];
+	const SpriteInstance first_i = first(u);
+	const SpriteInstance last_i  = make_instance(last);
+
+	swap_node(last_i, i);
+	remove_node(first_i, i);
+
+	_data.unit[i.i]          = _data.unit[last];
+	_data.resource[i.i]      = _data.resource[last];
+	_data.sprite[i.i].vbh    = _data.sprite[last].vbh;
+	_data.sprite[i.i].ibh    = _data.sprite[last].ibh;
+	_data.material[i.i]      = _data.material[last];
+	_data.frame[i.i]         = _data.frame[last];
+	_data.world[i.i]         = _data.world[last];
+	_data.aabb[i.i]          = _data.aabb[last];
+	_data.next_instance[i.i] = _data.next_instance[last];
+
+	--_data.size;
+	--_data.first_hidden;
+}
+
+bool RenderWorld::SpriteManager::has(UnitId id)
+{
+	return is_valid(first(id));
+}
+
+SpriteInstance RenderWorld::SpriteManager::first(UnitId id)
+{
+	return make_instance(hash::get(_map, id.encode(), UINT32_MAX));
+}
+
+SpriteInstance RenderWorld::SpriteManager::next(SpriteInstance i)
+{
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+	return _data.next_instance[i.i];
+}
+
+SpriteInstance RenderWorld::SpriteManager::previous(SpriteInstance i)
+{
+	const UnitId u = _data.unit[i.i];
+
+	SpriteInstance curr = first(u);
+	SpriteInstance prev = { UINT32_MAX };
+
+	while (curr.i != i.i)
+	{
+		prev = curr;
+		curr = next(curr);
+	}
+
+	return prev;
+}
+
+void RenderWorld::SpriteManager::add_node(SpriteInstance first, SpriteInstance i)
+{
+	SpriteInstance curr = first;
+	while (is_valid(next(curr)))
+		curr = next(curr);
+
+	_data.next_instance[curr.i] = i;
+}
+
+void RenderWorld::SpriteManager::remove_node(SpriteInstance first, SpriteInstance i)
+{
+	const UnitId u = _data.unit[first.i];
+
+	if (i.i == first.i)
+	{
+		if (!is_valid(next(i)))
+			hash::set(_map, u.encode(), UINT32_MAX);
+		else
+			hash::set(_map, u.encode(), next(i).i);
+	}
+	else
+	{
+		SpriteInstance prev = previous(i);
+		_data.next_instance[prev.i] = next(i);
+	}
+}
+
+void RenderWorld::SpriteManager::swap_node(SpriteInstance a, SpriteInstance b)
+{
+	const UnitId u = _data.unit[a.i];
+	const SpriteInstance first_i = first(u);
+
+	if (a.i == first_i.i)
+	{
+		hash::set(_map, u.encode(), b.i);
+	}
+	else
+	{
+		const SpriteInstance prev_a = previous(a);
+		_data.next_instance[prev_a.i] = b;
+	}
+}
+
+void RenderWorld::SpriteManager::destroy()
+{
+	_allocator->deallocate(_data.buffer);
+}
+
+void RenderWorld::LightManager::allocate(u32 num)
+{
+	CE_ENSURE(num > _data.size);
 
 	const u32 bytes = num * (0
 		+ sizeof(UnitId)
@@ -684,7 +732,7 @@ void RenderWorld::allocate_light(u32 num)
 		);
 
 	LightInstanceData new_data;
-	new_data.size = _light_data.size;
+	new_data.size = _data.size;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
 
@@ -696,29 +744,79 @@ void RenderWorld::allocate_light(u32 num)
 	new_data.color = (Color4*)(new_data.spot_angle + num);
 	new_data.type = (u32*)(new_data.color + num);
 
-	memcpy(new_data.unit, _light_data.unit, _light_data.size * sizeof(UnitId));
-	memcpy(new_data.world, _light_data.world, _light_data.size * sizeof(Matrix4x4));
-	memcpy(new_data.range, _light_data.range, _light_data.size * sizeof(f32));
-	memcpy(new_data.intensity, _light_data.intensity, _light_data.size * sizeof(f32));
-	memcpy(new_data.spot_angle, _light_data.spot_angle, _light_data.size * sizeof(f32));
-	memcpy(new_data.color, _light_data.color, _light_data.size * sizeof(Color4));
-	memcpy(new_data.type, _light_data.type, _light_data.size * sizeof(u32));
+	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
+	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
+	memcpy(new_data.range, _data.range, _data.size * sizeof(f32));
+	memcpy(new_data.intensity, _data.intensity, _data.size * sizeof(f32));
+	memcpy(new_data.spot_angle, _data.spot_angle, _data.size * sizeof(f32));
+	memcpy(new_data.color, _data.color, _data.size * sizeof(Color4));
+	memcpy(new_data.type, _data.type, _data.size * sizeof(u32));
 
-	_allocator->deallocate(_light_data.buffer);
-	_light_data = new_data;
+	_allocator->deallocate(_data.buffer);
+	_data = new_data;
 }
 
-void RenderWorld::grow_mesh()
+void RenderWorld::LightManager::grow()
 {
-	allocate_mesh(_mesh_data.capacity * 2 + 1);
+	allocate(_data.capacity * 2 + 1);
 }
-void RenderWorld::grow_sprite()
+
+LightInstance RenderWorld::LightManager::create(UnitId id, const LightDesc& ld, const Matrix4x4& tr)
 {
-	allocate_sprite(_sprite_data.capacity * 2 + 1);
+	CE_ASSERT(!hash::has(_map, id.encode()), "Unit already has light");
+
+	if (_data.size == _data.capacity)
+		grow();
+
+	const u32 last = _data.size;
+
+	_data.unit[last]       = id;
+	_data.world[last]      = tr;
+	_data.range[last]      = ld.range;
+	_data.intensity[last]  = ld.intensity;
+	_data.spot_angle[last] = ld.spot_angle;
+	_data.color[last]      = vector4(ld.color.x, ld.color.y, ld.color.z, 1.0f);
+	_data.type[last]       = ld.type;
+
+	++_data.size;
+
+	hash::set(_map, id.encode(), last);
+	return make_instance(last);
 }
-void RenderWorld::grow_light()
+
+void RenderWorld::LightManager::destroy(LightInstance i)
 {
-	allocate_light(_light_data.capacity * 2 + 1);
+	const u32 last      = _data.size - 1;
+	const UnitId u      = _data.unit[i.i];
+	const UnitId last_u = _data.unit[last];
+
+	_data.unit[i.i]       = _data.unit[last];
+	_data.world[i.i]      = _data.world[last];
+	_data.range[i.i]      = _data.range[last];
+	_data.intensity[i.i]  = _data.intensity[last];
+	_data.spot_angle[i.i] = _data.spot_angle[last];
+	_data.color[i.i]      = _data.color[last];
+	_data.type[i.i]       = _data.type[last];
+
+	--_data.size;
+
+	hash::set(_map, last_u.encode(), i.i);
+	hash::remove(_map, u.encode());
+}
+
+bool RenderWorld::LightManager::has(UnitId id)
+{
+	return is_valid(light(id));
+}
+
+LightInstance RenderWorld::LightManager::light(UnitId id)
+{
+	make_instance(hash::get(_map, id.encode(), UINT32_MAX));
+}
+
+void RenderWorld::LightManager::destroy()
+{
+	_allocator->deallocate(_data.buffer);
 }
 
 } // namespace crown
