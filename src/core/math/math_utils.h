@@ -39,6 +39,11 @@ inline f32 fclamp(f32 min, f32 max, f32 val)
 	return fmin(fmax(min, val), max);
 }
 
+inline f32 ffract(f32 a)
+{
+	return a - floorf(a);
+}
+
 inline f32 to_rad(f32 deg)
 {
 	return deg * PI / 180.0f;
@@ -105,5 +110,4 @@ inline f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f
 }
 
 /// @}
-
 } // namespace crown
