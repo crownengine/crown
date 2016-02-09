@@ -7,12 +7,10 @@
 
 #if CROWN_PLATFORM_ANDROID
 
+#include "console_server.h"
+#include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
-#include "device_options.h"
-#include "console_server.h"
-#include "memory.h"
-#include "device.h"
 #include <stdlib.h>
 #include <jni.h>
 #include <android/sensor.h>

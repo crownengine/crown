@@ -7,12 +7,11 @@
 
 #if CROWN_PLATFORM_WINDOWS
 
+#include "bundle_compiler.h"
+#include "console_server.h"
+#include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
-#include "command_line.h"
-#include "console_server.h"
-#include "bundle_compiler.h"
-#include "device.h"
 #include <bgfx/bgfxplatform.h>
 #include <winsock2.h>
 #ifndef WIN32_LEAN_AND_MEAN

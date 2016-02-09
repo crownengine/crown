@@ -8,7 +8,6 @@
 #if CROWN_PLATFORM_LINUX
 
 #include "bundle_compiler.h"
-#include "command_line.h"
 #include "console_server.h"
 #include "device.h"
 #include "display.h"
