@@ -14,7 +14,7 @@
 #if CROWN_DEBUG
 	#define LUA_ASSERT(condition, stack, msg, ...) do { if (!(condition)) {\
 		stack.push_fstring("\nLua assertion failed: %s\n\t" msg "\n", #condition, ##__VA_ARGS__);\
-		lua_error(stack.state()); }} while (0);
+		lua_error(stack.L); }} while (0);
 #else
 	#define LUA_ASSERT(...) ((void)0)
 #endif // CROWN_DEBUG
