@@ -31,20 +31,13 @@ namespace crown
 /// Wrapper to manipulate Lua stack.
 ///
 /// @ingroup Lua
-class LuaStack
+struct LuaStack
 {
 	lua_State* L;
-
-public:
 
 	LuaStack(lua_State* L)
 		: L(L)
 	{
-	}
-
-	lua_State* state()
-	{
-		return L;
 	}
 
 	/// Returns the number of elements in the stack.

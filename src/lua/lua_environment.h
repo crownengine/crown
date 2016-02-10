@@ -21,7 +21,7 @@ enum LuaArgumentType
 /// Wraps a subset of Lua functions and provides utilities for extending Lua.
 ///
 /// @ingroup Lua
-class LuaEnvironment
+struct LuaEnvironment
 {
 	lua_State* L;
 
@@ -31,8 +31,6 @@ class LuaEnvironment
 	Quaternion _quat_buffer[CROWN_MAX_LUA_QUATERNION];
 	u32 _mat4_used;
 	Matrix4x4 s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4];
-
-public:
 
 	LuaEnvironment();
 	~LuaEnvironment();
