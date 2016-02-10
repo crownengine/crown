@@ -1,4 +1,4 @@
-shader = "mesh_notexture"
+shader = "mesh"
 
 textures = {
 }

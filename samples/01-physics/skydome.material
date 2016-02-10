@@ -1,4 +1,4 @@
-shader = "mesh_unlit"
+shader = "mesh+DIFFUSE_MAP"
 
 textures = {
 	u_albedo = "skydome"
