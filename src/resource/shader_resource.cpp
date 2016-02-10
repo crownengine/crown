@@ -606,6 +606,24 @@ namespace shader_resource
 		}
 	};
 
+	struct StaticCompile
+	{
+		DynamicString _shader;
+		Vector<DynamicString> _defines;
+
+		StaticCompile()
+			: _shader(default_allocator())
+			, _defines(default_allocator())
+		{
+		}
+
+		StaticCompile(Allocator& a)
+			: _shader(a)
+			, _defines(a)
+		{
+		}
+	};
+
 	struct ShaderCompiler
 	{
 		CompileOptions& _opts;
@@ -613,6 +631,7 @@ namespace shader_resource
 		Map<DynamicString, SamplerState> _sampler_states;
 		Map<DynamicString, BgfxShader> _bgfx_shaders;
 		Map<DynamicString, ShaderPermutation> _shaders;
+		Vector<StaticCompile> _static_compile;
 
 		DynamicString _vs_source_path;
 		DynamicString _fs_source_path;
@@ -626,6 +645,7 @@ namespace shader_resource
 			, _sampler_states(default_allocator())
 			, _bgfx_shaders(default_allocator())
 			, _shaders(default_allocator())
+			, _static_compile(default_allocator())
 			, _vs_source_path(default_allocator())
 			, _fs_source_path(default_allocator())
 			, _varying_path(default_allocator())
@@ -674,6 +694,9 @@ namespace shader_resource
 
 			if (map::has(object, FixedString("shaders")))
 				parse_shaders(object["shaders"]);
+
+			if (map::has(object, FixedString("static_compile")))
+				parse_static_compile(object["static_compile"]);
 		}
 
 		void parse_render_states(const char* json)
@@ -996,6 +1019,33 @@ namespace shader_resource
 			}
 		}
 
+		void parse_static_compile(const char* json)
+		{
+			TempAllocator4096 ta;
+			JsonArray static_compile(ta);
+			sjson::parse_array(json, static_compile);
+
+			for (u32 i = 0; i < array::size(static_compile); ++i)
+			{
+				JsonObject obj(ta);
+				sjson::parse_object(static_compile[i], obj);
+
+				StaticCompile sc(default_allocator());
+				sjson::parse_string(obj["shader"], sc._shader);
+
+				JsonArray defines(ta);
+				sjson::parse_array(obj["defines"], defines);
+				for (u32 i = 0; i < array::size(defines); ++i)
+				{
+					DynamicString def(ta);
+					sjson::parse_string(defines[i], def);
+					vector::push_back(sc._defines, def);
+				}
+
+				vector::push_back(_static_compile, sc);
+			}
+		}
+
 		void delete_temp_files()
 		{
 			const char* vs_source_path   = _vs_source_path.c_str();
@@ -1023,16 +1073,31 @@ namespace shader_resource
 		void compile()
 		{
 			_opts.write(RESOURCE_VERSION_SHADER);
-			_opts.write(map::size(_shaders));
+			_opts.write(vector::size(_static_compile));
 
-			auto begin = map::begin(_shaders);
-			auto end = map::end(_shaders);
-			for (; begin != end; ++begin)
+			for (u32 i = 0; i < vector::size(_static_compile); ++i)
 			{
-				const ShaderPermutation& sp = begin->pair.second;
-				const StringId32 shader_name = begin->pair.first.to_string_id();
-				const char* bgfx_shader = sp._bgfx_shader.c_str();
-				const char* render_state = sp._render_state.c_str();
+				const StaticCompile& sc              = _static_compile[i];
+				const char* shader                   = sc._shader.c_str();
+				const Vector<DynamicString>& defines = sc._defines;
+
+				TempAllocator1024 ta;
+				DynamicString str(shader, ta);
+				for (u32 i = 0; i < vector::size(defines); ++i)
+				{
+					str += "+";
+					str += defines[i];
+				}
+				const StringId32 shader_name(str.c_str());
+
+				RESOURCE_COMPILER_ASSERT(map::has(_shaders, sc._shader)
+					, _opts
+					, "Unknown shader: '%s'"
+					, shader
+					);
+				const ShaderPermutation& sp = _shaders[shader];
+				const char* bgfx_shader     = sp._bgfx_shader.c_str();
+				const char* render_state    = sp._render_state.c_str();
 
 				RESOURCE_COMPILER_ASSERT(map::has(_bgfx_shaders, sp._bgfx_shader)
 					, _opts
@@ -1047,13 +1112,32 @@ namespace shader_resource
 
 				const RenderState& rs = _render_states[render_state];
 
-				_opts.write(shader_name._id); // Shader name
-				_opts.write(rs.encode());     // Render state
-				compile(bgfx_shader);         // Shader code
+				_opts.write(shader_name._id);  // Shader name
+				_opts.write(rs.encode());      // Render state
+				compile(bgfx_shader, defines); // Shader code
 			}
 		}
 
-		void compile(const char* bgfx_shader)
+		void compile_sampler_states(const char* bgfx_shader)
+		{
+			const BgfxShader& shader = _bgfx_shaders[bgfx_shader];
+
+			_opts.write(map::size(shader._samplers));
+
+			auto begin = map::begin(shader._samplers);
+			auto end = map::end(shader._samplers);
+			for (; begin != end; ++begin)
+			{
+				const DynamicString& name = begin->pair.first;
+				const DynamicString& sampler_state = begin->pair.second;
+				const SamplerState& ss = _sampler_states[sampler_state.c_str()];
+
+				_opts.write(name.to_string_id());
+				_opts.write(ss.encode());
+			}
+		}
+
+		void compile(const char* bgfx_shader, const Vector<DynamicString>& defines)
 		{
 			const BgfxShader& shader = _bgfx_shaders[bgfx_shader];
 
@@ -1069,10 +1153,18 @@ namespace shader_resource
 			StringStream vs_code(default_allocator());
 			StringStream fs_code(default_allocator());
 			vs_code << shader._vs_input_output.c_str();
+			for (u32 i = 0; i < vector::size(defines); ++i)
+			{
+				vs_code << "#define " << defines[i].c_str() << "\n";
+			}
 			vs_code << included_code.c_str();
 			vs_code << shader._code.c_str();
 			vs_code << shader._vs_code.c_str();
 			fs_code << shader._fs_input_output.c_str();
+			for (u32 i = 0; i < vector::size(defines); ++i)
+			{
+				fs_code << "#define " << defines[i].c_str() << "\n";
+			}
 			fs_code << included_code.c_str();
 			fs_code << shader._code.c_str();
 			fs_code << shader._fs_code.c_str();
@@ -1133,10 +1225,10 @@ namespace shader_resource
 			delete_temp_files();
 
 			// Write
-			_opts.write(u32(array::size(tmpvs)));
-			_opts.write(array::begin(tmpvs), array::size(tmpvs));
-			_opts.write(u32(array::size(tmpfs)));
-			_opts.write(array::begin(tmpfs), array::size(tmpfs));
+			_opts.write(array::size(tmpvs));
+			_opts.write(tmpvs);
+			_opts.write(array::size(tmpfs));
+			_opts.write(tmpfs);
 		}
 	};
 
