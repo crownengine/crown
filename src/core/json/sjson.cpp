@@ -32,11 +32,11 @@ namespace sjson
 
 		bool escaped = false;
 
-		while ((*(json = next(json))) != 0)
+		while (*++json != 0)
 		{
 			if (*json == '"' && !escaped)
 			{
-				json = next(json);
+				++json;
 				return json;
 			}
 			else if (*json == '\\') escaped = true;
@@ -67,18 +67,18 @@ namespace sjson
 
 		if (*json == '/')
 		{
-			json = next(json);
+			++json;
 			if (*json == '/')
 			{
 				json = next(json, '/');
 				while (*json && *json != '\n')
-					json = next(json);
+					++json;
 			}
 			else if (*json == '*')
 			{
-				json = next(json);
+				++json;
 				while (*json && *json != '*')
-					json = next(json);
+					++json;
 				json = next(json, '*');
 				json = next(json, '/');
 			}
@@ -123,17 +123,17 @@ namespace sjson
 
 		if (*json == '"')
 		{
-			while (*(json = next(json)))
+			while (*++json)
 			{
 				// Empty string
 				if (*json == '"')
 				{
-					json = next(json);
+					++json;
 					return;
 				}
 				else if (*json == '\\')
 				{
-					json = next(json);
+					++json;
 
 					switch (*json)
 					{
@@ -201,13 +201,13 @@ namespace sjson
 		while (isdigit(*json))
 		{
 			array::push_back(number, *json);
-			json = next(json);
+			++json;
 		}
 
 		if (*json == '.')
 		{
 			array::push_back(number, '.');
-			while ((*(json = next(json))) && isdigit(*json))
+			while (*++json && isdigit(*json))
 			{
 				array::push_back(number, *json);
 			}
@@ -216,21 +216,20 @@ namespace sjson
 		if (*json == 'e' || *json == 'E')
 		{
 			array::push_back(number, *json);
-			json = next(json);
+			++json;
 
 			if (*json == '-' || *json == '+')
 			{
 				array::push_back(number, *json);
-				json = next(json);
+				++json;
 			}
 			while (isdigit(*json))
 			{
 				array::push_back(number, *json);
-				json = next(json);
+				++json;
 			}
 		}
 
-		// Ensure null terminated
 		array::push_back(number, '\0');
 
 		f64 val;
