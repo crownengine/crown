@@ -32,7 +32,7 @@ namespace sjson
 
 		bool escaped = false;
 
-		while (*++json != 0)
+		while (*++json)
 		{
 			if (*json == '"' && !escaped)
 			{
