@@ -81,9 +81,16 @@ I'm an independent developer and your contributions are invaluable to me. If you
 Contact
 -------
 
-Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
-
+Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))  
 Project page: https://github.com/taylor001/crown
+
+Contributors
+------------
+
+In alphabetical order.
+
+Michele Rossi ([@mikymod](https://github.com/mikymod))  
+Simone Boscaratto ([@Xed89](https://github.com/Xed89))
 
 License
 -------
