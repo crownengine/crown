@@ -10,12 +10,10 @@
 namespace crown
 {
 /// Helper for parsing command line.
-class CommandLine
+struct CommandLine
 {
 	int _argc;
 	char** _argv;
-
-public:
 
 	CommandLine(int argc, char** argv)
 		: _argc(argc)
