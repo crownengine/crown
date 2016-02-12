@@ -63,7 +63,7 @@ void print_callstack()
 			char line[256];
 			memset(line, 0, sizeof(line));
 
-			CE_LOGE("\t[%d] %s: (%s)+%s in %s"
+			CE_LOGE("\t[%2d] %s: (%s)+%s in %s"
 				, i
 				, msg
 				, (demangle_ok == 0 ? real_name : mangled_name)
@@ -76,7 +76,7 @@ void print_callstack()
 		// otherwise, print the whole line
 		else
 		{
-			CE_LOGE("\t[%d] %s", i, msg);
+			CE_LOGE("\t[%2d] %s", i, msg);
 		}
 	}
 	free(messages);

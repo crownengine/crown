@@ -78,9 +78,9 @@ void print_callstack()
 		res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
 		if (res == TRUE)
-			CE_LOGE("\t[%i] %s (%s:%d)", num, sym->Name, line.FileName, line.LineNumber);
+			CE_LOGE("\t[%2i] %s in %s:%d", num, sym->Name, line.FileName, line.LineNumber);
 		else
-			CE_LOGE("\t[%i] 0x%p", num, stack.AddrPC.Offset);
+			CE_LOGE("\t[%2i] 0x%p", num, stack.AddrPC.Offset);
 	}
 
 	SymCleanup(GetCurrentProcess());
