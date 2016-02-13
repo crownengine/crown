@@ -132,6 +132,7 @@ bool BundleCompiler::compile_all(const char* platform)
 		if (_files[i].ends_with(".sh")
 			|| _files[i].ends_with(".sc")
 			|| _files[i].ends_with(".tmp")
+			|| _files[i].ends_with(".temp")
 			|| _files[i].ends_with(".wav")
 			|| _files[i].ends_with(".ogg")
 			|| _files[i].ends_with(".png")
@@ -139,12 +140,18 @@ bool BundleCompiler::compile_all(const char* platform)
 			|| _files[i].ends_with(".dds")
 			|| _files[i].ends_with(".ktx")
 			|| _files[i].ends_with(".pvr")
+			|| _files[i].ends_with(".swp") // VIM swap file.
+			|| _files[i].ends_with("~")
 			|| _files[i].starts_with(".")
 			)
 		continue;
 
 		const char* filename = _files[i].c_str();
 		const char* type = path::extension(filename);
+
+		// Ignore files without extension
+		if (type == NULL)
+			continue;
 
 		char name[256];
 		const u32 size = u32(type - filename - 1);
