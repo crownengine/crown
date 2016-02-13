@@ -171,7 +171,7 @@ bgfx_shaders = {
 
 		fs_code = "
 			SAMPLER2D(u_albedo, 0);
-			uniform vec3 u_color = vec3(1, 1, 1);
+			uniform vec3 u_color;
 
 			void main()
 			{
@@ -227,9 +227,9 @@ bgfx_shaders = {
 			uniform vec4 u_light_dir; // In view-space
 			uniform vec4 u_light_col;
 
-			uniform vec4 u_ambient  = vec4(0.5f, 0.5f, 0.5f, 0.0f);
-			uniform vec4 u_diffuse  = vec4(1.0f, 1.0f, 1.0f, 0.0f);
-			uniform vec4 u_specular = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+			uniform vec4 u_ambient;
+			uniform vec4 u_diffuse;
+			uniform vec4 u_specular;
 
 			void main()
 			{
