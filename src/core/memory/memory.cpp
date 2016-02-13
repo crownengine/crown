@@ -190,6 +190,7 @@ namespace memory
 	// allocator to allocate memory instead.
 	class ScratchAllocator : public Allocator
 	{
+		Mutex _mutex;
 		Allocator &_backing;
 
 		// Start and end of the ring buffer.
@@ -227,8 +228,10 @@ namespace memory
 			return p >= _free || p < _allocate;
 		}
 
-		virtual void *allocate(u32 size, u32 align)
+		void *allocate(u32 size, u32 align)
 		{
+			ScopedMutex sm(_mutex);
+
 			CE_ASSERT(align % 4 == 0, "Must be 4-byte aligned");
 			size = ((size + 3)/4)*4;
 
@@ -256,8 +259,10 @@ namespace memory
 			return data;
 		}
 
-		virtual void deallocate(void *p)
+		void deallocate(void *p)
 		{
+			ScopedMutex sm(_mutex);
+
 			if (!p)
 				return;
 
@@ -283,14 +288,16 @@ namespace memory
 			}
 		}
 
-		virtual u32 allocated_size(const void *p)
+		u32 allocated_size(const void *p)
 		{
+			ScopedMutex sm(_mutex);
 			Header* h = header(p);
 			return h->size - u32((char*)p - (char*)h);
 		}
 
-		virtual u32 total_allocated()
+		u32 total_allocated()
 		{
+			ScopedMutex sm(_mutex);
 			return u32(_end - _begin);
 		}
 	};
