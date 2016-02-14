@@ -140,6 +140,8 @@ bool BundleCompiler::compile_all(const char* platform)
 			|| _files[i].ends_with(".dds")
 			|| _files[i].ends_with(".ktx")
 			|| _files[i].ends_with(".pvr")
+			|| _files[i].ends_with(".swn") // VIM swap file.
+			|| _files[i].ends_with(".swo") // VIM swap file.
 			|| _files[i].ends_with(".swp") // VIM swap file.
 			|| _files[i].ends_with("~")
 			|| _files[i].starts_with(".")
