@@ -27,19 +27,10 @@ struct DynamicString
 	DynamicString(Allocator& a);
 	DynamicString(const char* s, Allocator& a = default_allocator());
 
-	DynamicString& operator+=(const DynamicString& s);
-	DynamicString& operator+=(const char* s);
-	DynamicString& operator+=(const char c);
-	DynamicString& operator+=(const FixedString& s);
-
 	DynamicString& operator=(const DynamicString& s);
 	DynamicString& operator=(const char* s);
 	DynamicString& operator=(const char c);
 	DynamicString& operator=(const FixedString& s);
-
-	bool operator<(const DynamicString& s) const;
-	bool operator==(const DynamicString& s) const;
-	bool operator==(const char* s) const;
 
 	/// Reserves space for at least @n characters.
 	void reserve(u32 n);
@@ -82,28 +73,29 @@ inline DynamicString::DynamicString(const char* s, Allocator& a)
 	array::push(_data, s, strlen32(s));
 }
 
-inline DynamicString& DynamicString::operator+=(const DynamicString& s)
+inline DynamicString& operator+=(DynamicString& a, const DynamicString& b)
 {
-	return *this += s.c_str();
+	array::push(a._data, array::begin(b._data), array::size(b._data));
+	return a;
 }
 
-inline DynamicString& DynamicString::operator+=(const char* s)
+inline DynamicString& operator+=(DynamicString& a, const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
-	array::push(_data, s, strlen32(s));
-	return *this;
+	array::push(a._data, s, strlen32(s));
+	return a;
 }
 
-inline DynamicString& DynamicString::operator+=(const char c)
+inline DynamicString& operator+=(DynamicString& a, const char c)
 {
-	array::push_back(_data, c);
-	return *this;
+	array::push_back(a._data, c);
+	return a;
 }
 
-inline DynamicString& DynamicString::operator+=(const FixedString& s)
+inline DynamicString& operator+=(DynamicString& a, const FixedString& s)
 {
-	array::push(_data, s.data(), s.length());
-	return *this;
+	array::push(a._data, s.data(), s.length());
+	return a;
 }
 
 inline DynamicString& DynamicString::operator=(const DynamicString& s)
@@ -134,20 +126,20 @@ inline DynamicString& DynamicString::operator=(const FixedString& s)
 	return *this;
 }
 
-inline bool DynamicString::operator<(const DynamicString& s) const
+inline bool operator<(const DynamicString& a, const DynamicString& b)
 {
-	return strcmp(c_str(), s.c_str()) < 0;
+	return strcmp(a.c_str(), b.c_str()) < 0;
 }
 
-inline bool DynamicString::operator==(const DynamicString& s) const
+inline bool operator==(const DynamicString& a, const DynamicString& b)
 {
-	return strcmp(c_str(), s.c_str()) == 0;
+	return strcmp(a.c_str(), b.c_str()) == 0;
 }
 
-inline bool DynamicString::operator==(const char* s) const
+inline bool operator==(const DynamicString& a, const char* b)
 {
-	CE_ASSERT_NOT_NULL(s);
-	return strcmp(c_str(), s) == 0;
+	CE_ASSERT_NOT_NULL(b);
+	return strcmp(a.c_str(), b) == 0;
 }
 
 inline void DynamicString::reserve(u32 n)
@@ -210,8 +202,9 @@ inline StringId32 DynamicString::to_string_id() const
 
 inline const char* DynamicString::c_str() const
 {
-	array::push_back(const_cast<Array<char>& >(_data), '\0');
-	array::pop_back(const_cast<Array<char>& >(_data));
+	Array<char>& data = const_cast<Array<char>& >(_data);
+	array::push_back(data, '\0');
+	array::pop_back(data);
 	return array::begin(_data);
 }
 
