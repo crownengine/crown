@@ -32,11 +32,17 @@ struct DynamicString
 	DynamicString& operator=(const char c);
 	DynamicString& operator=(const FixedString& s);
 
+	/// Sets the string to @a s.
+	void set(const char* s, u32 len);
+
 	/// Reserves space for at least @n characters.
 	void reserve(u32 n);
 
-	// Returns the length of the string.
+	/// Returns the length of the string.
 	u32 length() const;
+
+	/// Returns whether the string is empty.
+	bool empty() const;
 
 	/// Removes the leading string @a s.
 	/// @note
@@ -71,6 +77,12 @@ inline DynamicString::DynamicString(const char* s, Allocator& a)
 {
 	CE_ASSERT_NOT_NULL(s);
 	array::push(_data, s, strlen32(s));
+}
+
+inline void DynamicString::set(const char* s, u32 len)
+{
+	array::resize(_data, len);
+	strncpy(array::begin(_data), s, len);
 }
 
 inline DynamicString& operator+=(DynamicString& a, const DynamicString& b)
@@ -150,6 +162,11 @@ inline void DynamicString::reserve(u32 n)
 inline u32 DynamicString::length() const
 {
 	return strlen32(this->c_str());
+}
+
+inline bool DynamicString::empty() const
+{
+	return length() == 0;
 }
 
 inline void DynamicString::strip_leading(const char* s)
