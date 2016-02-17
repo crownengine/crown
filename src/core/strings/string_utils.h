@@ -63,4 +63,51 @@ inline const char* skip_block(const char* str, char a, char b)
 	return NULL;
 }
 
+/// Returns pointer after EOL.
+inline const char* strnl(const char* str)
+{
+	const char* eol = strchr(str, '\n');
+	return eol ? eol + 1 : str + strlen(str);
+}
+
+// Written by Jack Handy: jakkhandy@hotmail.com
+inline int wildcmp(const char *wild, const char *str)
+{
+	const char *cp = NULL, *mp = NULL;
+
+	while (*str && *wild != '*')
+	{
+		if (*wild != *str && *wild != '?')
+			return 0;
+		++wild;
+		++str;
+	}
+
+	while (*str)
+	{
+		if (*wild == '*')
+		{
+			if (!*++wild)
+				return 1;
+		  mp = wild;
+		  cp = str + 1;
+		}
+		else if (*wild == *str || *wild == '?')
+		{
+			++wild;
+			++str;
+		}
+		else
+		{
+			wild = mp;
+			str = cp++;
+		}
+	}
+
+	while (*wild == '*')
+		++wild;
+
+	return !*wild;
+}
+
 } // namespace crown
