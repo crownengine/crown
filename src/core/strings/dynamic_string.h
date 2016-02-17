@@ -44,6 +44,15 @@ struct DynamicString
 	/// Returns whether the string is empty.
 	bool empty() const;
 
+	/// Removes leading white-space characters from the string.
+	void ltrim();
+
+	/// Removes trailing white-space characters from the string.
+	void rtrim();
+
+	/// Removes leading and trailing white-space characters from the string.
+	void trim();
+
 	/// Removes the leading string @a s.
 	/// @note
 	/// The string must start with @a s.
@@ -167,6 +176,33 @@ inline u32 DynamicString::length() const
 inline bool DynamicString::empty() const
 {
 	return length() == 0;
+}
+
+inline void DynamicString::ltrim()
+{
+	const char* str = c_str();
+	const char* end = skip_spaces(str);
+
+	const u32 len = strlen32(end);
+
+	memmove(array::begin(_data), end, len);
+	array::resize(_data, len);
+}
+
+inline void DynamicString::rtrim()
+{
+	char* str = (char*)c_str();
+	char* end = str + strlen32(str) - 1;
+
+	while (end > str && isspace(*end)) --end;
+
+	*(end + 1) = '\0';
+}
+
+inline void DynamicString::trim()
+{
+	ltrim();
+	rtrim();
 }
 
 inline void DynamicString::strip_leading(const char* s)
