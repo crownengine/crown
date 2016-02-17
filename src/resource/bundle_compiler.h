@@ -26,6 +26,7 @@ class BundleCompiler
 
 	SortMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
+	Vector<DynamicString> _globs;
 
 	void register_resource_compiler(StringId64 type, u32 version, CompileFunction compiler);
 	void compile(StringId64 type, const char* path, CompileOptions& opts);

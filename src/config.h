@@ -93,6 +93,10 @@
 	#define CROWN_DATA_DIRECTORY "data"
 #endif // CROWN_DATA_DIRECTORY
 
+#ifndef CROWN_BUNDLEIGNORE
+	#define CROWN_BUNDLEIGNORE ".bundleignore"
+#endif // CROWN_BUNDLEIGNORE
+
 #ifndef CROWN_MAX_JOYPADS
 	#define CROWN_MAX_JOYPADS 4
 #endif // CROWN_MAX_JOYPADS

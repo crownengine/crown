@@ -10,6 +10,7 @@
 #include "config_resource.h"
 #include "disk_filesystem.h"
 #include "dynamic_string.h"
+#include "file.h"
 #include "font_resource.h"
 #include "level_resource.h"
 #include "log.h"
@@ -32,11 +33,41 @@
 
 namespace crown
 {
+class LineReader
+{
+	const char* _str;
+	const u32 _len;
+	u32 _pos;
+
+public:
+
+	LineReader(const char* str)
+		: _str(str)
+		, _len(strlen32(str))
+		, _pos(0)
+	{
+	}
+
+	void read_line(DynamicString& line)
+	{
+		const char* s  = &_str[_pos];
+		const char* nl = strnl(s);
+		_pos += u32(nl - s);
+		line.set(s, nl - s);
+	}
+
+	bool eof()
+	{
+		return _str[_pos] == '\0';
+	}
+};
+
 BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	: _source_fs(default_allocator(), source_dir)
 	, _bundle_fs(default_allocator(), bundle_dir)
 	, _compilers(default_allocator())
 	, _files(default_allocator())
+	, _globs(default_allocator())
 {
 	namespace pcr = physics_config_resource;
 	namespace phr = physics_resource;
@@ -72,10 +103,55 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 
 	_bundle_fs.create_directory(bundle_dir);
 
-	scan_source_dir("");
-
 	if (!_bundle_fs.exists(CROWN_DATA_DIRECTORY))
 		_bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
+
+	scan_source_dir("");
+
+	TempAllocator512 ta;
+	vector::push_back(_globs, DynamicString("*.sh", ta));
+	vector::push_back(_globs, DynamicString("*.tmp", ta));
+	vector::push_back(_globs, DynamicString("*.temp", ta));
+	vector::push_back(_globs, DynamicString("*.wav", ta));
+	vector::push_back(_globs, DynamicString("*.ogg", ta));
+	vector::push_back(_globs, DynamicString("*.png", ta));
+	vector::push_back(_globs, DynamicString("*.tga", ta));
+	vector::push_back(_globs, DynamicString("*.dds", ta));
+	vector::push_back(_globs, DynamicString("*.ktx", ta));
+	vector::push_back(_globs, DynamicString("*.pvr", ta));
+	vector::push_back(_globs, DynamicString("*.swn", ta)); // VIM swap file.
+	vector::push_back(_globs, DynamicString("*.swo", ta)); // VIM swap file.
+	vector::push_back(_globs, DynamicString("*.swp", ta)); // VIM swap file.
+	vector::push_back(_globs, DynamicString("*~", ta));
+	vector::push_back(_globs, DynamicString(".*", ta));
+
+	if (_source_fs.exists(CROWN_BUNDLEIGNORE))
+	{
+		File& file = *_source_fs.open(CROWN_BUNDLEIGNORE, FileOpenMode::READ);
+		const u32 size = file.size();
+		char* data = (char*)default_allocator().allocate(size + 1);
+		file.read(data, size);
+		data[size] = '\0';
+		_source_fs.close(file);
+
+		LineReader lr(data);
+
+		while (!lr.eof())
+		{
+			TempAllocator512 ta;
+			DynamicString line(ta);
+			lr.read_line(line);
+
+			line.trim();
+
+			if (line.empty() || line.starts_with("#"))
+				continue;
+
+			vector::push_back(_globs, line);
+		}
+
+		default_allocator().deallocate(data);
+	}
 }
 
 bool BundleCompiler::compile(const char* type, const char* name, const char* platform)
@@ -129,30 +205,23 @@ bool BundleCompiler::compile_all(const char* platform)
 {
 	for (u32 i = 0; i < vector::size(_files); ++i)
 	{
-		if (_files[i].ends_with(".sh")
-			|| _files[i].ends_with(".sc")
-			|| _files[i].ends_with(".tmp")
-			|| _files[i].ends_with(".temp")
-			|| _files[i].ends_with(".wav")
-			|| _files[i].ends_with(".ogg")
-			|| _files[i].ends_with(".png")
-			|| _files[i].ends_with(".tga")
-			|| _files[i].ends_with(".dds")
-			|| _files[i].ends_with(".ktx")
-			|| _files[i].ends_with(".pvr")
-			|| _files[i].ends_with(".swn") // VIM swap file.
-			|| _files[i].ends_with(".swo") // VIM swap file.
-			|| _files[i].ends_with(".swp") // VIM swap file.
-			|| _files[i].ends_with("~")
-			|| _files[i].starts_with(".")
-			)
-		continue;
-
 		const char* filename = _files[i].c_str();
+
+		bool ignore = false;
+		for (u32 gg = 0; gg < vector::size(_globs); ++gg)
+		{
+			const char* glob = _globs[gg].c_str();
+
+			if (wildcmp(glob, filename))
+			{
+				ignore = true;
+				break;
+			}
+		}
+
 		const char* type = path::extension(filename);
 
-		// Ignore files without extension
-		if (type == NULL)
+		if (ignore || type == NULL)
 			continue;
 
 		char name[256];
