@@ -17,8 +17,10 @@
 *.java eol=lf
 makefile eol=lf
 
-*.sln text eol=crlf
-*.bat text eol=crlf
+*.sln     text eol=crlf
+*.vcproj  text eof=crlf
+*.vcxproj text eof=crlf
+*.bat     text eol=crlf
 
 *.so  binary
 *.dll binary
