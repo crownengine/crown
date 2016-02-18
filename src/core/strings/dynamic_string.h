@@ -35,7 +35,7 @@ struct DynamicString
 	/// Sets the string to @a s.
 	void set(const char* s, u32 len);
 
-	/// Reserves space for at least @n characters.
+	/// Reserves space for at least @a n characters.
 	void reserve(u32 n);
 
 	/// Returns the length of the string.
@@ -94,12 +94,14 @@ inline void DynamicString::set(const char* s, u32 len)
 	strncpy(array::begin(_data), s, len);
 }
 
+/// Appends the string @a b to @a a.
 inline DynamicString& operator+=(DynamicString& a, const DynamicString& b)
 {
 	array::push(a._data, array::begin(b._data), array::size(b._data));
 	return a;
 }
 
+/// Appends the string @a s to @a a.
 inline DynamicString& operator+=(DynamicString& a, const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
@@ -107,12 +109,14 @@ inline DynamicString& operator+=(DynamicString& a, const char* s)
 	return a;
 }
 
+/// Appends the char @a c to @a a.
 inline DynamicString& operator+=(DynamicString& a, const char c)
 {
 	array::push_back(a._data, c);
 	return a;
 }
 
+/// Appends the string @a s to @a a.
 inline DynamicString& operator+=(DynamicString& a, const FixedString& s)
 {
 	array::push(a._data, s.data(), s.length());
@@ -170,7 +174,7 @@ inline void DynamicString::reserve(u32 n)
 
 inline u32 DynamicString::length() const
 {
-	return strlen32(this->c_str());
+	return strlen32(c_str());
 }
 
 inline bool DynamicString::empty() const
