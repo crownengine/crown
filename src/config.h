@@ -97,6 +97,10 @@
 	#define CROWN_BUNDLEIGNORE ".bundleignore"
 #endif // CROWN_BUNDLEIGNORE
 
+#ifndef CROWN_LAST_LOG
+	#define CROWN_LAST_LOG "last.log"
+#endif // CROWN_LAST_LOG
+
 #ifndef CROWN_MAX_JOYPADS
 	#define CROWN_MAX_JOYPADS 4
 #endif // CROWN_MAX_JOYPADS

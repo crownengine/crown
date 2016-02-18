@@ -10,6 +10,7 @@
 #include "console_server.h"
 #include "device.h"
 #include "disk_filesystem.h"
+#include "file.h"
 #include "filesystem.h"
 #include "input_device.h"
 #include "input_manager.h"
@@ -126,6 +127,7 @@ Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
 	, _bundle_filesystem(NULL)
+	, _last_log(NULL)
 	, _resource_loader(NULL)
 	, _resource_manager(NULL)
 	, _bgfx_allocator(NULL)
@@ -164,16 +166,16 @@ Device::Device(const DeviceOptions& opts)
 
 void Device::init()
 {
-	// Initialize
-	CE_LOGI("Initializing Crown Engine %s...", version());
-
 	profiler_globals::init();
 
 #if CROWN_PLATFORM_ANDROID
 	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options.asset_manager()));
 #else
 	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), _device_options.bundle_dir());
+	_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
+
+	CE_LOGI("Initializing Crown Engine %s...", version());
 
 	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
@@ -246,13 +248,19 @@ void Device::shutdown()
 	CE_DELETE(_allocator, _shader_manager);
 	CE_DELETE(_allocator, _resource_manager);
 	CE_DELETE(_allocator, _resource_loader);
-	CE_DELETE(_allocator, _bundle_filesystem);
 
 	bgfx::shutdown();
 	window::destroy(_allocator, *_window);
 	display::destroy(_allocator, *_display);
 	CE_DELETE(_allocator, _bgfx_callback);
 	CE_DELETE(_allocator, _bgfx_allocator);
+
+	if (_last_log)
+	{
+		_bundle_filesystem->close(*_last_log);
+	}
+
+	CE_DELETE(_allocator, _bundle_filesystem);
 
 	profiler_globals::shutdown();
 
@@ -419,6 +427,16 @@ void Device::reload(StringId64 type, StringId64 name)
 	if (type == RESOURCE_TYPE_SCRIPT)
 	{
 		_lua_environment->execute((const LuaResource*)new_resource);
+	}
+}
+
+void Device::log(const char* msg)
+{
+	if (_last_log)
+	{
+		_last_log->write(msg, strlen32(msg));
+		_last_log->write("\n", 1);
+		_last_log->flush();
 	}
 }
 

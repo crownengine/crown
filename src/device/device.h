@@ -36,6 +36,7 @@ class Device
 
 	const DeviceOptions& _device_options;
 	Filesystem* _bundle_filesystem;
+	File* _last_log;
 	ResourceLoader* _resource_loader;
 	ResourceManager* _resource_manager;
 	BgfxAllocator* _bgfx_allocator;
@@ -151,6 +152,8 @@ public:
 
 	/// Reloads the resource @a type @a name.
 	void reload(StringId64 type, StringId64 name);
+
+	void log(const char* msg);
 
 	/// Returns the resource manager.
 	ResourceManager* resource_manager();

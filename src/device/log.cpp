@@ -10,6 +10,7 @@
 #include "string_stream.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
+#include "device.h"
 
 namespace crown
 {
@@ -74,6 +75,11 @@ namespace log_internal
 		os::log(buf);
 #endif
 		os::log("\n");
+
+		if (device())
+		{
+			device()->log(buf);
+		}
 
 		console_log(buf, sev);
 	}
