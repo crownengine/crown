@@ -328,10 +328,10 @@ struct WindowsDevice
 		_hwnd = CreateWindowA("crown"
 			, "Crown"
 			, WS_OVERLAPPEDWINDOW | WS_VISIBLE
-			, opts->window_x()
-			, opts->window_y()
-			, opts->window_width()
-			, opts->window_height()
+			, opts->_window_x
+			, opts->_window_y
+			, opts->_window_width
+			, opts->_window_height
 			, 0
 			, NULL
 			, instance
