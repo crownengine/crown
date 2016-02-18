@@ -169,9 +169,9 @@ void Device::init()
 	profiler_globals::init();
 
 #if CROWN_PLATFORM_ANDROID
-	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options.asset_manager()));
+	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
-	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), _device_options.bundle_dir());
+	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), _device_options._bundle_dir);
 	_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
@@ -187,11 +187,11 @@ void Device::init()
 
 	_display = display::create(_allocator);
 	_window = window::create(_allocator);
-	_window->open(_device_options.window_x()
-		, _device_options.window_y()
+	_window->open(_device_options._window_x
+		, _device_options._window_y
 		, _config_window_w
 		, _config_window_h
-		, _device_options.parent_window()
+		, _device_options._parent_window
 		);
 	_window->bgfx_setup();
 
@@ -485,9 +485,9 @@ void Device::read_config()
 	TempAllocator4096 ta;
 	DynamicString boot_dir(ta);
 
-	if (_device_options.boot_dir() != NULL)
+	if (_device_options._boot_dir != NULL)
 	{
-		boot_dir += _device_options.boot_dir();
+		boot_dir += _device_options._boot_dir;
 		boot_dir += '/';
 	}
 

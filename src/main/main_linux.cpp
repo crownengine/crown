@@ -728,20 +728,20 @@ int main(int argc, char** argv)
 		return exitcode;
 	}
 
-	console_server_globals::init(opts.console_port(), opts.wait_console());
+	console_server_globals::init(opts._console_port, opts._wait_console);
 
 	bool do_continue = true;
 
-	if (opts.do_compile())
+	if (opts._do_compile)
 	{
-		bundle_compiler_globals::init(opts.source_dir(), opts.bundle_dir());
-		do_continue = bundle_compiler::main(opts.do_compile(), opts.do_continue(), opts.platform());
+		bundle_compiler_globals::init(opts._source_dir, opts._bundle_dir);
+		do_continue = bundle_compiler::main(opts._do_compile, opts._do_continue, opts._platform);
 	}
 
 	if (do_continue)
 		exitcode = crown::s_ldvc.run(&opts);
 
-	if (opts.do_compile())
+	if (opts._do_compile)
 		bundle_compiler_globals::shutdown();
 
 	console_server_globals::shutdown();

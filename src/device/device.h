@@ -91,10 +91,10 @@ public:
 	void shutdown();
 
 	/// Returns the number of command line parameters.
-	int argc() const { return _device_options.argc(); }
+	int argc() const { return _device_options._argc; }
 
 	/// Returns command line parameters.
-	const char** argv() const { return _device_options.argv(); }
+	const char** argv() const { return (const char**)_device_options._argv; }
 
 	/// Returns a string identifying what platform the engine is running on.
 	const char* platform() const { return CROWN_PLATFORM_NAME; }

@@ -311,9 +311,9 @@ void android_main(struct android_app* app)
 	memory_globals::init();
 
 	DeviceOptions opts(0, NULL);
-	opts.set_asset_manager(app->activity->assetManager);
+	opts._asset_manager = app->activity->assetManager;
 
-	console_server_globals::init(opts.console_port(), false);
+	console_server_globals::init(opts._console_port, false);
 	crown::s_advc.run(app, opts);
 	console_server_globals::shutdown();
 	memory_globals::shutdown();
