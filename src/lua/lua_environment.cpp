@@ -127,7 +127,7 @@ void LuaEnvironment::execute_string(const char* s)
 	lua_pop(L, 1);
 }
 
-void LuaEnvironment::load_module_function(const char* module, const char* name, const lua_CFunction func)
+void LuaEnvironment::add_module_function(const char* module, const char* name, const lua_CFunction func)
 {
 	luaL_newmetatable(L, module);
 	luaL_Reg entry[2];
@@ -142,15 +142,15 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	lua_pop(L, -1);
 }
 
-void LuaEnvironment::load_module_function(const char* module, const char* name, const char* value)
+void LuaEnvironment::add_module_function(const char* module, const char* name, const char* func)
 {
 	luaL_newmetatable(L, module);
-	lua_getglobal(L, value);
+	lua_getglobal(L, func);
 	lua_setfield(L, -2, name);
 	lua_setglobal(L, module);
 }
 
-void LuaEnvironment::load_module_constructor(const char* module, const lua_CFunction func)
+void LuaEnvironment::set_module_constructor(const char* module, const lua_CFunction func)
 {
 	// Create dummy tables to be used as module's metatable
 	lua_createtable(L, 0, 1);
@@ -213,7 +213,7 @@ Quaternion* LuaEnvironment::next_quaternion(const Quaternion& q)
 Matrix4x4* LuaEnvironment::next_matrix4x4(const Matrix4x4& m)
 {
 	CE_ASSERT(_mat4_used < CROWN_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
-	return &(s_mat4_buffer[_mat4_used++] = m);
+	return &(_mat4_buffer[_mat4_used++] = m);
 }
 
 bool LuaEnvironment::is_vector3(const Vector3* p) const
@@ -230,8 +230,8 @@ bool LuaEnvironment::is_quaternion(const Quaternion* p) const
 
 bool LuaEnvironment::is_matrix4x4(const Matrix4x4* p) const
 {
-	return p >= &s_mat4_buffer[0]
-		&& p <= &s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1];
+	return p >= &_mat4_buffer[0]
+		&& p <= &_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1];
 }
 
 void LuaEnvironment::reset_temporaries()

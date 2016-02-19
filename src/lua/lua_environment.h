@@ -30,22 +30,28 @@ struct LuaEnvironment
 	u32 _quat_used;
 	Quaternion _quat_buffer[CROWN_MAX_LUA_QUATERNION];
 	u32 _mat4_used;
-	Matrix4x4 s_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4];
+	Matrix4x4 _mat4_buffer[CROWN_MAX_LUA_MATRIX4X4];
 
 	LuaEnvironment();
 	~LuaEnvironment();
 
+	/// Loads lua libraries.
 	void load_libs();
 
+	/// Executes the lua resource @a lr.
 	void execute(const LuaResource* lr);
 
-	/// Loads and executes the given @a s lua string.
-	void execute_string(const char* s);
+	/// Executes the @a lua string.
+	void execute_string(const char* lua);
 
-	/// Loads the function with the given @a name and @a func into the table @a module.
-	void load_module_function(const char* module, const char* name, const lua_CFunction func);
-	void load_module_function(const char* module, const char* name, const char* value);
-	void load_module_constructor(const char* module, const lua_CFunction func);
+	/// Adds the function with the given @a name and @a func to the table @a module.
+	void add_module_function(const char* module, const char* name, const lua_CFunction func);
+
+	/// Adds the function with the given @a name and @a func to the table @a module.
+	void add_module_function(const char* module, const char* name, const char* func);
+
+	/// Sets the constructor for the table @a module to the given function.
+	void set_module_constructor(const char* module, const lua_CFunction func);
 
 	/// Calls the global function @a func with @a argc argument number.
 	/// Each argument is a pair (type, value).
