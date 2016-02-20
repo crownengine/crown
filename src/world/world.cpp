@@ -107,7 +107,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 
 		if (component->type == StringId32("collider")._id)
 		{
-			const ShapeDesc* sd = (const ShapeDesc*)data;
+			const ColliderDesc* sd = (const ColliderDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				physics_world()->create_collider(unit_lookup[unit_index[i]], sd);

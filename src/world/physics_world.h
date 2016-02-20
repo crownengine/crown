@@ -22,7 +22,7 @@ public:
 	PhysicsWorld() {}
 	virtual ~PhysicsWorld() {}
 
-	virtual ColliderInstance create_collider(UnitId id, const ShapeDesc* sd) = 0;
+	virtual ColliderInstance create_collider(UnitId id, const ColliderDesc* sd) = 0;
 	virtual ColliderInstance first_collider(UnitId id) = 0;
 	virtual ColliderInstance next_collider(ColliderInstance i) = 0;
 

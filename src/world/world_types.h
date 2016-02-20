@@ -87,10 +87,10 @@ struct ActorFlags
 	};
 };
 
-/// Enumerates shape types.
+/// Enumerates collider types.
 ///
 /// @ingroup World
-struct ShapeType
+struct ColliderType
 {
 	enum Enum
 	{
@@ -387,7 +387,7 @@ struct HeightfieldShape
 	f32 max_height;
 };
 
-struct ShapeDesc
+struct ColliderDesc
 {
 	StringId32 shape_class;       ///< Name of shape in global.physics_config resource.
 	u32 type;                     ///< ShapeType::Enum

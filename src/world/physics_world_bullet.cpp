@@ -204,22 +204,22 @@ public:
 		CE_DELETE(*_allocator, _scene);
 	}
 
-	ColliderInstance create_collider(UnitId id, const ShapeDesc* sd)
+	ColliderInstance create_collider(UnitId id, const ColliderDesc* sd)
 	{
 		btCollisionShape* child_shape = NULL;
 
 		switch(sd->type)
 		{
-			case ShapeType::SPHERE:
+			case ColliderType::SPHERE:
 				child_shape = CE_NEW(*_allocator, btSphereShape)(sd->sphere.radius);
 				break;
-			case ShapeType::CAPSULE:
+			case ColliderType::CAPSULE:
 				child_shape = CE_NEW(*_allocator, btCapsuleShape)(sd->capsule.radius, sd->capsule.height);
 				break;
-			case ShapeType::BOX:
+			case ColliderType::BOX:
 				child_shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(sd->box.half_size));
 				break;
-			case ShapeType::CONVEX_HULL:
+			case ColliderType::CONVEX_HULL:
 			{
 				const u32 num = *(const u32*)&sd[1];
 				const Vector3* points = (const Vector3*)((const char*)(&sd[1]) + sizeof(num));
@@ -234,8 +234,8 @@ public:
 				child_shape = convex;
 				break;
 			}
-			case ShapeType::MESH:
-			case ShapeType::HEIGHTFIELD:
+			case ColliderType::MESH:
+			case ColliderType::HEIGHTFIELD:
 			{
 				CE_FATAL("Not implemented yet");
 				break;

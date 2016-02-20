@@ -20,22 +20,22 @@ namespace crown
 {
 namespace physics_resource
 {
-	struct ShapeInfo
+	struct ColliderInfo
 	{
 		const char* name;
-		ShapeType::Enum type;
+		ColliderType::Enum type;
 	};
 
-	static const ShapeInfo s_shape[] =
+	static const ColliderInfo s_collider[] =
 	{
-		{ "sphere",      ShapeType::SPHERE      },
-		{ "capsule",     ShapeType::CAPSULE     },
-		{ "box",         ShapeType::BOX         },
-		{ "convex_hull", ShapeType::CONVEX_HULL },
-		{ "mesh",        ShapeType::MESH        },
-		{ "heightfield", ShapeType::HEIGHTFIELD }
+		{ "sphere",      ColliderType::SPHERE      },
+		{ "capsule",     ColliderType::CAPSULE     },
+		{ "box",         ColliderType::BOX         },
+		{ "convex_hull", ColliderType::CONVEX_HULL },
+		{ "mesh",        ColliderType::MESH        },
+		{ "heightfield", ColliderType::HEIGHTFIELD }
 	};
-	CE_STATIC_ASSERT(CE_COUNTOF(s_shape) == ShapeType::COUNT);
+	CE_STATIC_ASSERT(CE_COUNTOF(s_collider) == ColliderType::COUNT);
 
 	struct JointInfo
 	{
@@ -51,15 +51,15 @@ namespace physics_resource
 	};
 	CE_STATIC_ASSERT(CE_COUNTOF(s_joint) == JointType::COUNT);
 
-	static ShapeType::Enum shape_type_to_enum(const char* type)
+	static ColliderType::Enum shape_type_to_enum(const char* type)
 	{
-		for (u32 i = 0; i < CE_COUNTOF(s_shape); ++i)
+		for (u32 i = 0; i < CE_COUNTOF(s_collider); ++i)
 		{
-			if (strcmp(type, s_shape[i].name) == 0)
-				return s_shape[i].type;
+			if (strcmp(type, s_collider[i].name) == 0)
+				return s_collider[i].type;
 		}
 
-		return ShapeType::COUNT;
+		return ColliderType::COUNT;
 	}
 
 	static JointType::Enum joint_type_to_enum(const char* type)
@@ -92,7 +92,7 @@ namespace physics_resource
 		return buf;
 	}
 
-	void compile_sphere(const char* mesh, ShapeDesc& sd)
+	void compile_sphere(const char* mesh, ColliderDesc& sd)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -115,7 +115,7 @@ namespace physics_resource
 		sd.sphere.radius = sphere.r;
 	}
 
-	void compile_capsule(const char* mesh, ShapeDesc& sd)
+	void compile_capsule(const char* mesh, ColliderDesc& sd)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -139,7 +139,7 @@ namespace physics_resource
 		sd.capsule.height = (aabb.max.y - aabb.min.y) / 2.0f;
 	}
 
-	void compile_box(const char* mesh, ShapeDesc& sd)
+	void compile_box(const char* mesh, ColliderDesc& sd)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -193,14 +193,14 @@ namespace physics_resource
 		DynamicString type(ta);
 		sjson::parse_string(obj["shape"], type);
 
-		ShapeType::Enum st = shape_type_to_enum(type.c_str());
-		RESOURCE_COMPILER_ASSERT(st != ShapeType::COUNT
+		ColliderType::Enum st = shape_type_to_enum(type.c_str());
+		RESOURCE_COMPILER_ASSERT(st != ColliderType::COUNT
 			, opts
 			, "Unknown shape type: '%s'"
 			, type.c_str()
 			);
 
-		ShapeDesc sd;
+		ColliderDesc sd;
 		sd.type        = st;
 		sd.shape_class = sjson::parse_string_id(obj["class"]);
 		sd.material    = sjson::parse_string_id(obj["material"]);
@@ -223,12 +223,12 @@ namespace physics_resource
 
 		switch (sd.type)
 		{
-			case ShapeType::SPHERE:      compile_sphere(mesh, sd); break;
-			case ShapeType::CAPSULE:     compile_capsule(mesh, sd); break;
-			case ShapeType::BOX:         compile_box(mesh, sd); break;
-			case ShapeType::CONVEX_HULL: compile_convex_hull(mesh, mesh_data); break;
-			case ShapeType::MESH:
-			case ShapeType::HEIGHTFIELD:
+			case ColliderType::SPHERE:      compile_sphere(mesh, sd); break;
+			case ColliderType::CAPSULE:     compile_capsule(mesh, sd); break;
+			case ColliderType::BOX:         compile_box(mesh, sd); break;
+			case ColliderType::CONVEX_HULL: compile_convex_hull(mesh, mesh_data); break;
+			case ColliderType::MESH:
+			case ColliderType::HEIGHTFIELD:
 			{
 				RESOURCE_COMPILER_ASSERT(false, opts, "Not implemented yet");
 				break;
