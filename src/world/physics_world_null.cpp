@@ -35,7 +35,7 @@ public:
 	{
 	}
 
-	virtual ColliderInstance create_collider(UnitId /*id*/, const ShapeDesc* /*sd*/)
+	virtual ColliderInstance create_collider(UnitId /*id*/, const ColliderDesc* /*sd*/)
 	{
 		return make_collider_instance(UINT32_MAX);
 	}
