@@ -5,57 +5,57 @@
 
 #pragma once
 
-#include "color4.h"
-#include "material.h"
 #include "math_types.h"
 #include "world_types.h"
+#include "resource_types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
 {
-class RenderWorld;
-
-/// Manages the rendering of GUI objects.
+/// Immediate mode Gui.
 ///
 /// @ingroup World
 struct Gui
 {
-	Gui(u16 width, u16 height, const char* material);
+	struct VertexData
+	{
+		Vector3 pos;
+		Vector2 uv;
+		u32 col;
+	};
+
+	struct IndexData
+	{
+		u16 a;
+		u16 b;
+	};
+
+	ResourceManager* _resource_manager;
+	ShaderManager* _shader_manager;
+	MaterialManager* _material_manager;
+	u16 _width;
+	u16 _height;
+	Matrix4x4 _projection;
+	Matrix4x4 _world;
+	bgfx::VertexDecl _pos_tex_col;
+
+	Gui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height);
 
 	Vector2 resolution() const;
 	void move(const Vector2& pos);
 
 	Vector2 screen_to_gui(const Vector2& pos);
 
-	/// Draws a rectangle of size @a size at @a pos.
-	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color = COLOR4_WHITE);
+	void triangle(const Vector3& a, const Vector3& b, const Vector3& c, StringId64 material, const Color4& color);
 
-	/// Draws an image with the given @a material.
-	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color = COLOR4_WHITE);
-
-	/// Draws an image with the given @a material and @a uv0 and @a uv1 coordinates.
-	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color = COLOR4_WHITE);
-
-	/// Draws the text @a str with the given @a font and @a font_size.
-	/// @note Higher values of pos.z make the object appear in front of other objects.
-	void draw_text(const char* str, const char* font, u32 font_size, const Vector3& pos, const Color4& color = COLOR4_WHITE);
-
-public:
-
-	u16 m_width;
-	u16 m_height;
-	Matrix4x4 m_projection;
-	Matrix4x4 m_pose;
-
-	static void init();
-
-private:
-
-	static bgfx::VertexDecl s_pos_col;
-	static bgfx::VertexDecl s_pos_col_tex;
+	void rect3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color);
+	void rect(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color);
+	void image_uv3d(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
+	void image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
+	void image3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color);
+	void image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color);
+	void text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color);
+	void text(const Vector2& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color);
 };
 
 } // namespace crown

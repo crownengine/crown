@@ -9,122 +9,122 @@
 #include "material_manager.h"
 #include "material_resource.h"
 #include "matrix4x4.h"
+#include "resource_manager.h"
+#include "string_utils.h"
+#include "utf8.h"
 #include "vector2.h"
 #include "vector3.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
 {
-struct VertexData
+Gui::Gui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height)
+	: _resource_manager(&rm)
+	, _shader_manager(&sm)
+	, _material_manager(&mm)
+	, _width(width)
+	, _height(height)
+	, _projection(MATRIX4X4_IDENTITY)
+	, _world(MATRIX4X4_IDENTITY)
 {
-	f32 x;
-	f32 y;
-	f32 u;
-	f32 v;
-};
+	orthographic(_projection, 0, width, 0, height, -0.01f, 100.0f);
 
-struct IndexData
-{
-	u16 a;
-	u16 b;
-};
-
-#define UTF8_ACCEPT 0
-
-static const u8 s_utf8d[364] =
-{
-	// The first part of the table maps bytes to character classes that
-	// to reduce the size of the transition table and create bitmasks.
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,  9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
-	7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-	8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	10,3,3,3,3,3,3,3,3,3,3,3,3,4,3,3, 11,6,6,6,5,8,8,8,8,8,8,8,8,8,8,8,
-
-	// The second part is a transition table that maps a combination
-	// of a state of the automaton and a character class to a state.
-	 0,12,24,36,60,96,84,12,12,12,48,72, 12,12,12,12,12,12,12,12,12,12,12,12,
-	12, 0,12,12,12,12,12, 0,12, 0,12,12, 12,24,12,12,12,12,12,24,12,24,12,12,
-	12,12,12,12,12,12,12,24,12,12,12,12, 12,24,12,12,12,12,12,12,12,24,12,12,
-	12,12,12,12,12,12,12,36,12,36,12,12, 12,36,12,12,12,12,12,36,12,36,12,12,
-	12,36,12,12,12,12,12,12,12,12,12,12
-};
-
-static u32 utf8_decode(u32* state, u32* code_point, u8 character)
-{
-	u32 byte = character;
-	u32 type = s_utf8d[byte];
-
-	*code_point = (*state != UTF8_ACCEPT) ? (byte & 0x3fu) | (*code_point << 6) : (0xff >> type) & (byte);
-	*state = s_utf8d[256 + *state + type];
-
-	return *state;
-}
-
-bgfx::VertexDecl Gui::s_pos_col;
-bgfx::VertexDecl Gui::s_pos_col_tex;
-
-void Gui::init()
-{
-	Gui::s_pos_col
+	_pos_tex_col
 		.begin()
-		.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
-		.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true)
-		.end();
-
-	Gui::s_pos_col_tex
-		.begin()
-		.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+		.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
 		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
-		.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true)
+		.add(bgfx::Attrib::Color0,    4, bgfx::AttribType::Uint8, true)
 		.end();
-}
-
-Gui::Gui(u16 width, u16 height, const char* material)
-	: m_width(width)
-	, m_height(height)
-	, m_pose(MATRIX4X4_IDENTITY)
-{
-	orthographic(m_projection, 0, width, 0, height, -0.01f, 100.0f);
 }
 
 Vector2 Gui::resolution() const
 {
-	return vector2(m_width, m_height);
+	return vector2(_width, _height);
 }
 
 void Gui::move(const Vector2& pos)
 {
-	set_identity(m_pose);
-	set_translation(m_pose, vector3(pos.x, pos.y, 0));
+	set_identity(_world);
+	set_translation(_world, vector3(pos.x, pos.y, 0));
 }
 
 Vector2 Gui::screen_to_gui(const Vector2& pos)
 {
-	return vector2(pos.x, m_height - pos.y);
+	return vector2(pos.x, _height - pos.y);
 }
 
-void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color)
+void Gui::triangle(const Vector3& a, const Vector3& b, const Vector3& c, StringId64 material, const Color4& color)
 {
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
-	bgfx::allocTransientVertexBuffer(&tvb, 4, Gui::s_pos_col);
+	bgfx::allocTransientVertexBuffer(&tvb, 3, _pos_tex_col);
+	bgfx::allocTransientIndexBuffer(&tib, 3);
+
+	VertexData* vd = (VertexData*)tvb.data;
+	vd[0].pos.x = a.x;
+	vd[0].pos.y = a.y;
+	vd[0].pos.z = a.z;
+	vd[0].uv.x  = 0.0f;
+	vd[0].uv.y  = 0.0f;
+	vd[0].col   = to_abgr(color);
+
+	vd[1].pos.x = b.x;
+	vd[1].pos.y = b.y;
+	vd[1].pos.z = b.z;
+	vd[1].uv.x  = 1.0f;
+	vd[1].uv.y  = 0.0f;
+	vd[1].col   = to_abgr(color);
+
+	vd[2].pos.x = c.x;
+	vd[2].pos.y = c.y;
+	vd[2].pos.z = c.z;
+	vd[2].uv.x  = 1.0f;
+	vd[2].uv.y  = 1.0f;
+	vd[2].col   = to_abgr(color);
+
+	u16* inds = (u16*)tib.data;
+	inds[0] = 0;
+	inds[1] = 1;
+	inds[2] = 2;
+}
+
+void Gui::rect3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
+{
+	bgfx::TransientVertexBuffer tvb;
+	bgfx::TransientIndexBuffer tib;
+	bgfx::allocTransientVertexBuffer(&tvb, 4, _pos_tex_col);
 	bgfx::allocTransientIndexBuffer(&tib, 6);
 
-	f32* verts = (f32*) tvb.data;
-	verts[0] = pos.x;
-	verts[1] = pos.y;
-	verts[2] = pos.x + size.x;
-	verts[3] = pos.y;
-	verts[4] = pos.x + size.x;
-	verts[5] = pos.y + size.y;
-	verts[6] = pos.x;
-	verts[7] = pos.y + size.y;
+	VertexData* vd = (VertexData*)tvb.data;
+	vd[0].pos.x = pos.x;
+	vd[0].pos.y = pos.y;
+	vd[0].pos.z = pos.z;
+	vd[0].uv.x  = 0.0f;
+	vd[0].uv.y  = 1.0f;
+	vd[0].col   = to_abgr(color);
 
-	u16* inds = (u16*) tib.data;
+	vd[1].pos.x = pos.x + size.x;
+	vd[1].pos.y = pos.y;
+	vd[1].pos.z = pos.z;
+	vd[1].uv.x  = 1.0f;
+	vd[1].uv.y  = 1.0f;
+	vd[1].col   = to_abgr(color);
+
+	vd[2].pos.x = pos.x + size.x;
+	vd[2].pos.y = pos.y + size.y;
+	vd[2].pos.z = pos.z;
+	vd[2].uv.x  = 1.0f;
+	vd[2].uv.y  = 0.0f;
+	vd[2].col   = to_abgr(color);
+
+	vd[3].pos.x = pos.x;
+	vd[3].pos.y = pos.y + size.y;
+	vd[3].pos.z = pos.z;
+	vd[3].uv.x  = 0.0f;
+	vd[3].uv.y  = 0.0f;
+	vd[3].col   = to_abgr(color);
+
+	u16* inds = (u16*)tib.data;
 	inds[0] = 0;
 	inds[1] = 1;
 	inds[2] = 2;
@@ -132,47 +132,55 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	inds[4] = 2;
 	inds[5] = 3;
 
-	bgfx::setViewTransform(1, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(m_projection));
-	bgfx::setViewRect(1, 0, 0, m_width, m_height);
-	bgfx::setState(BGFX_STATE_DEFAULT);
 	bgfx::setVertexBuffer(&tvb);
 	bgfx::setIndexBuffer(&tib);
+	bgfx::setTransform(to_float_ptr(_projection));
+	_material_manager->create_material(material);
+	_material_manager->get(material)->bind(*_resource_manager, *_shader_manager, 2);
 }
 
-void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color)
+void Gui::rect(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color)
 {
-	draw_image_uv(material, pos, size, vector2(0, 0), vector2(1, 1), color);
+	rect3d(vector3(pos.x, pos.y, 0.0f), size, material, color);
 }
 
-void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color)
+void Gui::image_uv3d(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
 {
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
-	bgfx::allocTransientVertexBuffer(&tvb, 4, Gui::s_pos_col_tex);
+	bgfx::allocTransientVertexBuffer(&tvb, 4, _pos_tex_col);
 	bgfx::allocTransientIndexBuffer(&tib, 6);
 
-	f32* verts = (f32*) tvb.data;
-	verts[0] = pos.x;
-	verts[1] = pos.y;
-	verts[2] = uv0.x;
-	verts[3] = uv0.y;
+	VertexData* vd = (VertexData*)tvb.data;
+	vd[0].pos.x = pos.x;
+	vd[0].pos.y = pos.y;
+	vd[0].pos.z = pos.z;
+	vd[0].uv.x  = 0.0f;
+	vd[0].uv.y  = 1.0f;
+	vd[0].col   = to_abgr(color);
 
-	verts[4] = pos.x + size.x;
-	verts[5] = pos.y;
-	verts[6] = uv1.x;
-	verts[7] = uv0.y;
+	vd[1].pos.x = pos.x + size.x;
+	vd[1].pos.y = pos.y;
+	vd[1].pos.z = pos.z;
+	vd[1].uv.x  = 1.0f;
+	vd[1].uv.y  = 1.0f;
+	vd[1].col   = to_abgr(color);
 
-	verts[8] = pos.x + size.x;
-	verts[9] = pos.y + size.y;
-	verts[10] = uv1.x;
-	verts[11] = uv1.y;
+	vd[2].pos.x = pos.x + size.x;
+	vd[2].pos.y = pos.y + size.y;
+	vd[2].pos.z = pos.z;
+	vd[2].uv.x  = 1.0f;
+	vd[2].uv.y  = 0.0f;
+	vd[2].col   = to_abgr(color);
 
-	verts[12] = pos.x;
-	verts[13] = pos.y + size.y;
-	verts[14] = uv0.x;
-	verts[15] = uv1.y;
+	vd[3].pos.x = pos.x;
+	vd[3].pos.y = pos.y + size.y;
+	vd[3].pos.z = pos.z;
+	vd[3].uv.x  = 0.0f;
+	vd[3].uv.y  = 0.0f;
+	vd[3].col   = to_abgr(color);
 
-	u16* inds = (u16*) tib.data;
+	u16* inds = (u16*)tib.data;
 	inds[0] = 0;
 	inds[1] = 1;
 	inds[2] = 2;
@@ -180,137 +188,139 @@ void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2&
 	inds[4] = 2;
 	inds[5] = 3;
 
-	bgfx::setViewTransform(1, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(m_projection));
-	bgfx::setViewRect(1, 0, 0, m_width, m_height);
-	bgfx::setState(BGFX_STATE_DEFAULT);
 	bgfx::setVertexBuffer(&tvb);
 	bgfx::setIndexBuffer(&tib);
 }
 
-void Gui::draw_text(const char* str, const char* font, u32 font_size, const Vector3& pos, const Color4& color)
+void Gui::image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
 {
-	// Renderer* r = device()->renderer();
+	image_uv3d(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color);
+}
 
-	// const FontResource* resource = (FontResource*) device()->resource_manager()->get("font", font);
-	// Vector2 m_pen;
+void Gui::image3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
+{
+	image_uv3d(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color);
+}
 
-	// const f32 scale = ((f32)font_size / (f32)resource->font_size());
-	// const u32 str_len = strlen32(str);
+void Gui::image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color)
+{
+	image3d(vector3(pos.x, pos.y, 0.0f), size, material, color);
+}
 
-	// TransientVertexBuffer vb;
-	// TransientIndexBuffer ib;
+void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
+{
+	const FontResource* fr = (FontResource*)_resource_manager->get(RESOURCE_TYPE_FONT, font);
+	const f32 scale = (f32)font_size / (f32)fr->font_size;
+	const u32 len = strlen32(str);
 
-	// r->reserve_transient_vertex_buffer(&vb, 4 * str_len, VertexFormat::P2_T2);
-	// r->reserve_transient_index_buffer(&ib, 6 * str_len);
+	bgfx::TransientVertexBuffer tvb;
+	bgfx::TransientIndexBuffer tib;
+	bgfx::allocTransientVertexBuffer(&tvb, 4 * len, _pos_tex_col);
+	bgfx::allocTransientIndexBuffer(&tib, 6 * len);
 
-	// u16 index = 0;
-	// f32 x_pen_advance = 0.0f;
-	// f32 y_pen_advance = 0.0f;
+	u16 index = 0;
+	f32 x_pen_advance = 0.0f;
+	f32 y_pen_advance = 0.0f;
 
-	// u32 state = 0;
-	// u32 code_point = 0;
-	// for (u32 i = 0; i < str_len; i++)
-	// {
-	// 	switch (str[i])
-	// 	{
-	// 		case '\n':
-	// 		{
-	// 			x_pen_advance = 0.0f;
-	// 			y_pen_advance -= resource->font_size();
-	// 			continue;
-	// 		}
-	// 		case '\t':
-	// 		{
-	// 			x_pen_advance += font_size * 4;
-	// 			continue;
-	// 		}
-	// 	}
+	Vector2 m_pen;
 
-	// 	if (utf8_decode(&state, &code_point, str[i]) == UTF8_ACCEPT)
-	// 	{
-	// 		FontGlyphData g = resource->get_glyph(code_point);
+	u32 state = 0;
+	u32 code_point = 0;
+	for (u32 i = 0; i < len; i++)
+	{
+		switch (str[i])
+		{
+			case '\n':
+			{
+				x_pen_advance = 0.0f;
+				y_pen_advance -= fr->font_size;
+				continue;
+			}
+			case '\t':
+			{
+				x_pen_advance += font_size * 4;
+				continue;
+			}
+		}
 
-	// 		const f32 baseline = g.height - g.y_offset;
+		if (utf8::decode(&state, &code_point, str[i]) == UTF8_ACCEPT)
+		{
+			const GlyphData& g = *font_resource::get_glyph(fr, code_point);
 
-	// 		// Set pen position
-	// 		m_pen.x = pos.x + g.x_offset;
-	// 		m_pen.y = pos.y - baseline;
+			const f32 baseline = g.height - g.y_offset;
 
-	// 		// Position coords
-	// 		const f32 x0 = (m_pen.x + x_pen_advance) * scale;
-	// 		const f32 y0 = (m_pen.y + y_pen_advance) * scale;
-	// 		const f32 x1 = (m_pen.x + g.width + x_pen_advance) * scale;
-	// 		const f32 y1 = (m_pen.y + g.height + y_pen_advance) * scale;
+			// Set pen position
+			m_pen.x = pos.x + g.x_offset;
+			m_pen.y = pos.y - baseline;
 
-	// 		// Texture coords
-	// 		const f32 u0 = (f32) g.x / 512;
-	// 		const f32 v0 = (f32) g.y / 512;
-	// 		const f32 u1 = u0 + ((f32) g.width) / 512;
-	// 		const f32 v1 = v0 - ((f32) g.height) / 512;
+			// Position coords
+			const f32 x0 = (m_pen.x + x_pen_advance) * scale;
+			const f32 y0 = (m_pen.y + y_pen_advance) * scale;
+			const f32 x1 = (m_pen.x + g.width + x_pen_advance) * scale;
+			const f32 y1 = (m_pen.y + g.height + y_pen_advance) * scale;
 
-	// 		// Fill vertex buffer
-	// 		(*(VertexData*)(vb.data)).x		= x0;
-	// 		(*(VertexData*)(vb.data)).y		= y0;
-	// 		(*(VertexData*)(vb.data)).u		= u0;
-	// 		(*(VertexData*)(vb.data)).v		= v1;
-	// 		vb.data += sizeof(VertexData);
+			// Texture coords
+			const f32 u0 = g.x / fr->texture_size;
+			const f32 v1 = g.y / fr->texture_size; // Upper-left char corner
+			const f32 u1 = u0 + g.width  / fr->texture_size;
+			const f32 v0 = v1 + g.height / fr->texture_size; // Bottom-left char corner
 
-	// 		(*(VertexData*)(vb.data)).x		= x1;
-	// 		(*(VertexData*)(vb.data)).y		= y0;
-	// 		(*(VertexData*)(vb.data)).u		= u1;
-	// 		(*(VertexData*)(vb.data)).v		= v1;
-	// 		vb.data += sizeof(VertexData);
+			// Fill vertex buffer
+			VertexData* vd = (VertexData*)&tvb.data[i*4*sizeof(VertexData)];
+			vd[0].pos.x = x0;
+			vd[0].pos.y = y0;
+			vd[0].pos.z = pos.z;
+			vd[0].uv.x  = u0;
+			vd[0].uv.y  = v0;
+			vd[0].col   = to_abgr(color);
 
-	// 		(*(VertexData*)(vb.data)).x		= x1;
-	// 		(*(VertexData*)(vb.data)).y		= y1;
-	// 		(*(VertexData*)(vb.data)).u		= u1;
-	// 		(*(VertexData*)(vb.data)).v		= v0;
-	// 		vb.data += sizeof(VertexData);
+			vd[1].pos.x = x1;
+			vd[1].pos.y = y0;
+			vd[1].pos.z = pos.z;
+			vd[1].uv.x  = u1;
+			vd[1].uv.y  = v0;
+			vd[1].col   = to_abgr(color);
 
-	// 		(*(VertexData*)(vb.data)).x		= x0;
-	// 		(*(VertexData*)(vb.data)).y		= y1;
-	// 		(*(VertexData*)(vb.data)).u		= u0;
-	// 		(*(VertexData*)(vb.data)).v		= v0;
-	// 		vb.data += sizeof(VertexData);
+			vd[2].pos.x = x1;
+			vd[2].pos.y = y1;
+			vd[2].pos.z = pos.z;
+			vd[2].uv.x  = u1;
+			vd[2].uv.y  = v1;
+			vd[2].col   = to_abgr(color);
 
-	// 		// Fill index buffer
-	// 		(*(IndexData*)(ib.data)).a		= index;
-	// 		(*(IndexData*)(ib.data)).b		= index + 1;
-	// 		ib.data += sizeof(IndexData);
+			vd[3].pos.x = x0;
+			vd[3].pos.y = y1;
+			vd[3].pos.z = pos.z;
+			vd[3].uv.x  = u0;
+			vd[3].uv.y  = v1;
+			vd[3].col   = to_abgr(color);
 
-	// 		(*(IndexData*)(ib.data)).a		= index + 2;
-	// 		(*(IndexData*)(ib.data)).b		= index;
-	// 		ib.data += sizeof(IndexData);
+			// Fill index buffer
+			u16* inds = (u16*)&tib.data[i*6*sizeof(u16)];
+			inds[0] = index + 0;
+			inds[1] = index + 1;
+			inds[2] = index + 2;
+			inds[3] = index + 0;
+			inds[4] = index + 2;
+			inds[5] = index + 3;
 
-	// 		(*(IndexData*)(ib.data)).a		= index + 2;
-	// 		(*(IndexData*)(ib.data)).b		= index + 3;
-	// 		ib.data += sizeof(IndexData);
+			// Advance pen position
+			x_pen_advance += g.x_advance;
 
-	// 		// Advance pen position
-	// 		x_pen_advance += g.x_advance;
+			index += 4;
+		}
+	}
 
-	// 		index += 4;
-	// 	}
-	// }
+	bgfx::setVertexBuffer(&tvb);
+	bgfx::setIndexBuffer(&tib);
+	bgfx::setTransform(to_float_ptr(_projection));
+	_material_manager->create_material(material);
+	_material_manager->get(material)->bind(*_resource_manager, *_shader_manager, 2);
+}
 
-	// const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get(resource->material());
-	// const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(mr->get_texture_layer(0));
-
-	// r->set_layer_view(1, matrix4x4::IDENTITY);
-	// r->set_layer_projection(1, m_projection);
-	// r->set_layer_viewport(1, 0, 0, 1000, 625);
-	// r->set_state(STATE_COLOR_WRITE
-	// 				| STATE_CULL_CW
-	// 				| STATE_BLEND_EQUATION_ADD
-	// 				| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-	// r->set_pose(m_pose);
-	// r->set_program(render_world_globals::default_font_program());
-	// r->set_texture(0, render_world_globals::default_font_uniform(), tr->texture(),
-	// 				TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
-	// r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
-	// r->set_vertex_buffer(vb);
-	// r->set_index_buffer(ib);
-	// r->commit(1, (s32) pos.z);
+void Gui::text(const Vector2& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
+{
+	text3d(vector3(pos.x, pos.y, 0.0f), font_size, str, font, material, color);
 }
 
 } // namespace crown

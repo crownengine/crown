@@ -5,6 +5,7 @@
 
 #include "debug_line.h"
 #include "error.h"
+#include "gui.h"
 #include "hash.h"
 #include "level.h"
 #include "lua_environment.h"
@@ -27,6 +28,8 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	: _marker(MARKER)
 	, _allocator(&a)
 	, _resource_manager(&rm)
+	, _shader_manager(&sm)
+	, _material_manager(&mm)
 	, _lua_environment(&env)
 	, _unit_manager(&um)
 	, _lines(NULL)
@@ -518,6 +521,21 @@ DebugLine* World::create_debug_line(bool depth_test)
 void World::destroy_debug_line(DebugLine& line)
 {
 	CE_DELETE(*_allocator, &line);
+}
+
+Gui* World::create_screen_gui(f32 scale_w, f32 scale_h)
+{
+	return CE_NEW(*_allocator, Gui)(*_resource_manager
+		, *_shader_manager
+		, *_material_manager
+		, 1280
+		, 720
+		);
+}
+
+void World::destroy_gui(Gui& gui)
+{
+	CE_DELETE(*_allocator, &gui);
 }
 
 Level* World::load_level(const LevelResource& lr, const Vector3& pos, const Quaternion& rot)
