@@ -3,15 +3,83 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "disk_file.h"
 #include "disk_filesystem.h"
+#include "file.h"
 #include "os.h"
+#include "os_file.h"
 #include "path.h"
 #include "temp_allocator.h"
 #include "vector.h"
 
 namespace crown
 {
+class DiskFile: public File
+{
+	OsFile _file;
+
+public:
+
+	virtual ~DiskFile()
+	{
+		close();
+	}
+
+	void open(const char* path, FileOpenMode::Enum mode)
+	{
+		_file.open(path, mode);
+	}
+
+	void close()
+	{
+		_file.close();
+	}
+
+	u32 size()
+	{
+		return _file.size();
+	}
+
+	u32 position()
+	{
+		return _file.position();
+	}
+
+	bool end_of_file()
+	{
+		return position() == size();
+	}
+
+	void seek(u32 position)
+	{
+		_file.seek(position);
+	}
+
+	void seek_to_end()
+	{
+		_file.seek_to_end();
+	}
+
+	void skip(u32 bytes)
+	{
+		_file.skip(bytes);
+	}
+
+	u32 read(void* data, u32 size)
+	{
+		return _file.read(data, size);
+	}
+
+	u32 write(const void* data, u32 size)
+	{
+		return _file.write(data, size);
+	}
+
+	void flush()
+	{
+		_file.flush();
+	}
+};
+
 DiskFilesystem::DiskFilesystem(Allocator& a)
 	: _allocator(&a)
 	, _prefix(a)

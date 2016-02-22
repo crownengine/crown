@@ -7,14 +7,101 @@
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "apk_file.h"
 #include "apk_filesystem.h"
+#include "file.h"
 #include "os.h"
 #include "temp_allocator.h"
 #include "vector.h"
 
 namespace crown
 {
+class ApkFile : public File
+{
+	AAssetManager* _asset_manager;
+	AAsset* _asset;
+
+public:
+
+	ApkFile(AAssetManager* asset_manager)
+		: _asset_manager(asset_manager)
+		, _asset(NULL)
+	{
+	}
+
+	virtual ~ApkFile()
+	{
+		close();
+	}
+
+	void open(const char* path, FileOpenMode::Enum /*mode*/)
+	{
+		_asset = AAssetManager_open(_asset_manager, path, AASSET_MODE_RANDOM);
+		CE_ASSERT(_asset != NULL, "AAssetManager_open: failed to open %s", path);
+	}
+
+	void close()
+	{
+		if (_asset)
+		{
+			AAsset_close(_asset);
+			_asset = NULL;
+		}
+	}
+
+	u32 size()
+	{
+		return AAsset_getLength(_asset);
+	}
+
+	u32 position()
+	{
+		return u32(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
+	}
+
+	bool end_of_file()
+	{
+		return AAsset_getRemainingLength(_asset) == 0;
+	}
+
+	void seek(u32 position)
+	{
+		off_t seek_result = AAsset_seek(_asset, (off_t)position, SEEK_SET);
+		CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
+		CE_UNUSED(seek_result);
+	}
+
+	void seek_to_end()
+	{
+		off_t seek_result = AAsset_seek(_asset, 0, SEEK_END);
+		CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
+		CE_UNUSED(seek_result);
+	}
+
+	void skip(u32 bytes)
+	{
+		off_t seek_result = AAsset_seek(_asset, (off_t)bytes, SEEK_CUR);
+		CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
+		CE_UNUSED(seek_result);
+	}
+
+	u32 read(void* data, u32 size)
+	{
+		CE_ASSERT_NOT_NULL(data);
+		return (u32)AAsset_read(_asset, data, size);
+	}
+
+	u32 write(const void* /*data*/, u32 /*size*/)
+	{
+		CE_ASSERT(false, "Apk files are read only!");
+		return 0;
+	}
+
+	void flush()
+	{
+		// Not needed
+	}
+};
+
 ApkFilesystem::ApkFilesystem(Allocator& a, AAssetManager* asset_manager)
 	: _allocator(&a)
 	, _asset_manager(asset_manager)
