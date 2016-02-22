@@ -99,8 +99,8 @@ File* DiskFilesystem::open(const char* path, FileOpenMode::Enum mode)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	DiskFile* file = CE_NEW(*_allocator, DiskFile)();
@@ -117,8 +117,8 @@ bool DiskFilesystem::exists(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	return os::exists(abs_path.c_str());
@@ -128,8 +128,8 @@ bool DiskFilesystem::is_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	return os::is_directory(abs_path.c_str());
@@ -139,8 +139,8 @@ bool DiskFilesystem::is_file(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	return os::is_file(abs_path.c_str());
@@ -150,8 +150,8 @@ u64 DiskFilesystem::last_modified_time(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	return os::mtime(abs_path.c_str());
@@ -161,8 +161,8 @@ void DiskFilesystem::create_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	if (!os::exists(abs_path.c_str()))
@@ -173,8 +173,8 @@ void DiskFilesystem::delete_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	os::delete_directory(abs_path.c_str());
@@ -184,8 +184,8 @@ void DiskFilesystem::create_file(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	os::create_file(abs_path.c_str());
@@ -195,8 +195,8 @@ void DiskFilesystem::delete_file(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	os::delete_file(abs_path.c_str());
@@ -206,8 +206,8 @@ void DiskFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	TempAllocator256 alloc;
-	DynamicString abs_path(alloc);
+	TempAllocator256 ta;
+	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
 	os::list_files(abs_path.c_str(), files);

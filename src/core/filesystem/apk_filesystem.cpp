@@ -144,22 +144,22 @@ u64 ApkFilesystem::last_modified_time(const char* path)
 
 void ApkFilesystem::create_directory(const char* /*path*/)
 {
-	CE_ASSERT(false, "Attempt to create directory in Android assets folder");
+	CE_ASSERT(false, "Cannot create directory in Android assets folder");
 }
 
 void ApkFilesystem::delete_directory(const char* /*path*/)
 {
-	CE_ASSERT(false, "Attempt to delete directory in Android assets folder");
+	CE_ASSERT(false, "Cannot delete directory in Android assets folder");
 }
 
 void ApkFilesystem::create_file(const char* /*path*/)
 {
-	CE_ASSERT(false, "Attempt to create file in Android assets folder");
+	CE_ASSERT(false, "Cannot create file in Android assets folder");
 }
 
 void ApkFilesystem::delete_file(const char* /*path*/)
 {
-	CE_ASSERT(false, "Attempt to delete file in Android assets folder");
+	CE_ASSERT(false, "Cannot delete file in Android assets folder");
 }
 
 void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
