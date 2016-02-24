@@ -6,7 +6,7 @@
 #pragma once
 
 #include "platform.h"
-#include "dynamic_string.h"
+#include "string_types.h"
 
 namespace crown
 {

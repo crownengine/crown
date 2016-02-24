@@ -3,9 +3,10 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "dynamic_string.h"
 #include "path.h"
 #include <ctype.h> // isalpha
-#include <string.h> // strlen, strrchr
+#include <string.h> // strrchr
 
 namespace crown
 {
