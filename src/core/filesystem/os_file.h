@@ -22,6 +22,8 @@
 namespace crown
 {
 /// Standard C file wrapper
+///
+/// @ingroup Filesystem
 class OsFile
 {
 #if CROWN_PLATFORM_POSIX
@@ -74,19 +76,16 @@ public:
 	/// Closes the file.
 	void close()
 	{
-#if CROWN_PLATFORM_POSIX
-		if (_file != NULL)
-		{
-			fclose(_file);
-			_file = NULL;
-		}
-#elif CROWN_PLATFORM_WINDOWS
 		if (is_open())
 		{
+#if CROWN_PLATFORM_POSIX
+			fclose(_file);
+			_file = NULL;
+#elif CROWN_PLATFORM_WINDOWS
 			CloseHandle(_file);
 			_file = INVALID_HANDLE_VALUE;
-		}
 #endif
+		}
 	}
 
 	bool is_open() const
@@ -102,17 +101,15 @@ public:
 	u32 size() const
 	{
 #if CROWN_PLATFORM_POSIX
-		size_t pos = position();
-
+		long pos = ftell(_file);
+		CE_ASSERT(pos != -1, "ftell: errno = %d", errno);
 		int err = fseek(_file, 0, SEEK_END);
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
-
-		size_t size = position();
-
+		long size = ftell(_file);
+		CE_ASSERT(size != -1, "ftell: errno = %d", errno);
 		err = fseek(_file, (long)pos, SEEK_SET);
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 		CE_UNUSED(err);
-
 		return (u32)size;
 #elif CROWN_PLATFORM_WINDOWS
 		return GetFileSize(_file, NULL);
@@ -130,12 +127,9 @@ public:
 		return (u32)bytes_read;
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD bytes_read;
-		BOOL result = ReadFile(_file, data, size, &bytes_read, NULL);
-		CE_ASSERT(result == TRUE, "ReadFile: GetLastError = %d", GetLastError());
-
-		if (result && bytes_read == 0)
-			_eof = true;
-
+		BOOL err = ReadFile(_file, data, size, &bytes_read, NULL);
+		CE_ASSERT(err == TRUE, "ReadFile: GetLastError = %d", GetLastError());
+		_eof = err && bytes_read == 0;
 		return bytes_read;
 #endif
 	}
@@ -152,7 +146,10 @@ public:
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD bytes_written;
 		WriteFile(_file, data, size, &bytes_written, NULL);
-		CE_ASSERT(size == bytes_written, "WriteFile: GetLastError = %d", GetLastError());
+		CE_ASSERT(size == bytes_written
+			, "WriteFile: GetLastError = %d"
+			, GetLastError()
+			);
 		return bytes_written;
 #endif
 	}
@@ -164,7 +161,10 @@ public:
 		CE_ASSERT(err == 0, "fflush: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		BOOL err = FlushFileBuffers(_file);
-		CE_ASSERT(err != 0, "FlushFileBuffers: GetLastError = %d", GetLastError());
+		CE_ASSERT(err != 0
+			, "FlushFileBuffers: GetLastError = %d"
+			, GetLastError()
+			);
 #endif
 		CE_UNUSED(err);
 	}
@@ -177,7 +177,10 @@ public:
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, position, NULL, FILE_BEGIN);
-		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
+		CE_ASSERT(err != INVALID_SET_FILE_POINTER
+			, "SetFilePointer: GetLastError = %d"
+			, GetLastError()
+			);
 #endif
 		CE_UNUSED(err);
 	}
@@ -190,7 +193,10 @@ public:
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, 0, NULL, FILE_END);
-		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
+		CE_ASSERT(err != INVALID_SET_FILE_POINTER
+			, "SetFilePointer: GetLastError = %d"
+			, GetLastError()
+			);
 #endif
 		CE_UNUSED(err);
 	}
@@ -204,7 +210,10 @@ public:
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD err = SetFilePointer(_file, bytes, NULL, FILE_CURRENT);
-		CE_ASSERT(err != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
+		CE_ASSERT(err != INVALID_SET_FILE_POINTER
+			, "SetFilePointer: GetLastError = %d"
+			, GetLastError()
+			);
 #endif
 		CE_UNUSED(err);
 	}
@@ -219,10 +228,12 @@ public:
 		return (u32)pos;
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD pos = SetFilePointer(_file, 0, NULL, FILE_CURRENT);
-		CE_ASSERT(pos != INVALID_SET_FILE_POINTER, "SetFilePointer: GetLastError = %d", GetLastError());
+		CE_ASSERT(pos != INVALID_SET_FILE_POINTER
+			, "SetFilePointer: GetLastError = %d"
+			, GetLastError()
+			);
 		return (u32)pos;
 #endif
-		CE_UNUSED(pos);
 	}
 
 	/// Returns whether the file pointer is at the end of the file.
