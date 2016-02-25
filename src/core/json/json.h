@@ -6,7 +6,7 @@
 #pragma once
 
 #include "json_types.h"
-#include "dynamic_string.h"
+#include "string_types.h"
 
 namespace crown
 {

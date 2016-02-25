@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "dynamic_string.h"
 #include "macros.h"
 #include "map.h"
 #include "quaternion.h"
