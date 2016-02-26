@@ -3,13 +3,14 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "resource_loader.h"
 #include "config.h"
-#include "memory.h"
-#include "queue.h"
+#include "dynamic_string.h"
 #include "filesystem.h"
-#include "temp_allocator.h"
+#include "memory.h"
 #include "path.h"
+#include "queue.h"
+#include "resource_loader.h"
+#include "temp_allocator.h"
 
 namespace crown
 {

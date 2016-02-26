@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "dynamic_string.h"
 #include "filesystem.h"
 
 namespace crown

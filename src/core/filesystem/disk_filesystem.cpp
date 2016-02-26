@@ -4,6 +4,7 @@
  */
 
 #include "disk_filesystem.h"
+#include "dynamic_string.h"
 #include "file.h"
 #include "os.h"
 #include "path.h"

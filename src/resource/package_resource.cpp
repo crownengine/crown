@@ -3,15 +3,16 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "array.h"
+#include "compile_options.h"
 #include "file.h"
 #include "filesystem.h"
-#include "package_resource.h"
-#include "temp_allocator.h"
-#include "reader_writer.h"
-#include "compile_options.h"
-#include "array.h"
-#include "sjson.h"
 #include "map.h"
+#include "package_resource.h"
+#include "reader_writer.h"
+#include "sjson.h"
+#include "string_id.h"
+#include "temp_allocator.h"
 
 namespace crown
 {

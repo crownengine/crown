@@ -5,12 +5,13 @@
 
 #pragma once
 
-#include "filesystem.h"
+#include "dynamic_string.h"
 #include "file.h"
+#include "filesystem.h"
 #include "log.h"
-#include "vector.h"
-#include "temp_allocator.h"
 #include "path.h"
+#include "temp_allocator.h"
+#include "vector.h"
 #include <setjmp.h>
 
 #define RESOURCE_COMPILER_ASSERT(condition, opts, msg, ...) do { if (!(condition))\
