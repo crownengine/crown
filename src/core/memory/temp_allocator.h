@@ -21,6 +21,8 @@ namespace crown
 	///
 	/// Memory allocated with a TempAllocator does not have to be deallocated. It is
 	/// automatically deallocated when the TempAllocator is destroyed.
+	///
+	/// @ingroup Memory
 	template <int BUFFER_SIZE>
 	class TempAllocator : public Allocator
 	{
