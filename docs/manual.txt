@@ -1,0 +1,42 @@
+.. contents::
+.. sectnum::
+
+Introduction
+============
+
+What is it?
+-----------
+
+Crown is a general purpose data-driven game engine, written from scratch in orthodox C++ with a minimalistic and data-oriented design philosophy in mind.
+
+It is loosely inspired by Bitsquid (now Stingray) engine and its design principles.
+
+Supported platforms
+-------------------
+
+* Android (14+, ARM)
+* Linux
+* Windows
+
+Basics
+======
+
+The .bundleignore file
+======================
+
+Many programs store metadata files alongside edited files. This is often the case with text editors and version control systems.
+
+When Crown bumps into unknown files in the source directory, it quits the compilation and reports an error.
+
+The ``.bundleignore`` file specifies files that Crown should ignore when compiling data.
+
+Example
+-------
+
+.. code::
+
+  # This is a comment.
+
+  # Blank lines are ignored.
+  # Everything else is simple glob pattern (*, ?).
+  *.txt

@@ -57,6 +57,7 @@ windows-release64: windows-build
 docs:
 	doxygen docs/doxygen/Doxyfile.doxygen
 	rst2html2 --stylesheet=html4css1.css,docs/style.css docs/lua_api.txt build/docs/lua_api.html
+	rst2html2 --stylesheet=html4css1.css,docs/style.css docs/manual.txt build/docs/manual.html
 
 .PHONY: clean
 clean:
