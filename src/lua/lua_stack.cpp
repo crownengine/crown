@@ -54,47 +54,6 @@ void LuaStack::check_temporary(int i, const Matrix4x4* p)
 		luaL_typerror(L, i, "Matrix4x4");
 }
 
-Vector2 LuaStack::get_vector2(int i)
-{
-	Vector3 v = get_vector3(i);
-	Vector2 a;
-	a.x = v.x;
-	a.y = v.y;
-	return a;
-}
-
-Vector3& LuaStack::get_vector3(int i)
-{
-	Vector3* v = (Vector3*)get_pointer(i);
-	check_temporary(i, v);
-	return *v;
-}
-
-Quaternion& LuaStack::get_quaternion(int i)
-{
-	Quaternion* q = (Quaternion*)get_pointer(i);
-	check_temporary(i, q);
-	return *q;
-}
-
-Matrix4x4& LuaStack::get_matrix4x4(int i)
-{
-	Matrix4x4* m = (Matrix4x4*)get_pointer(i);
-	check_temporary(i, m);
-	return *m;
-}
-
-Color4 LuaStack::get_color4(int i)
-{
-	Quaternion q = get_quaternion(i);
-	Color4 c;
-	c.x = q.x;
-	c.y = q.y;
-	c.z = q.z;
-	c.w = q.w;
-	return c;
-}
-
 void LuaStack::push_vector2(const Vector2& v)
 {
 	Vector3 a;

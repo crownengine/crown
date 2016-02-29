@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "config.h"
+#include "math_types.h"
 #include "resource_types.h"
 #include "string_id.h"
 #include "types.h"
@@ -151,68 +153,84 @@ struct LuaStack
 	DebugLine* get_debug_line(int i)
 	{
 		DebugLine* p = (DebugLine*)get_pointer(i);
+#if !CROWN_RELEASE
 		check_type(i, p);
+#endif // !CROWN_RELEASE
 		return p;
 	}
 
 	ResourcePackage* get_resource_package(int i)
 	{
 		ResourcePackage* p = (ResourcePackage*)get_pointer(i);
+#if !CROWN_RELEASE
 		check_type(i, p);
+#endif // !CROWN_RELEASE
 		return p;
 	}
 
 	World* get_world(int i)
 	{
 		World* p = (World*)get_pointer(i);
+#if !CROWN_RELEASE
 		check_type(i, p);
+#endif // !CROWN_RELEASE
 		return p;
 	}
 
 	SceneGraph* get_scene_graph(int i)
 	{
 		SceneGraph* p = (SceneGraph*)get_pointer(i);
+#if !CROWN_RELEASE
 		check_type(i, p);
+#endif // !CROWN_RELEASE
 		return p;
 	}
 
 	Level* get_level(int i)
 	{
 		Level* p = (Level*)get_pointer(i);
+#if !CROWN_RELEASE
 		check_type(i, p);
+#endif // !CROWN_RELEASE
 		return p;
 	}
 
 	RenderWorld* get_render_world(int i)
 	{
 		RenderWorld* p = (RenderWorld*)get_pointer(i);
+#if !CROWN_RELEASE
 		check_type(i, p);
+#endif // !CROWN_RELEASE
 		return p;
 	}
 
 	PhysicsWorld* get_physics_world(int i)
 	{
 		PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
+#if !CROWN_RELEASE
 //		if (*(u32*)p != PhysicsWorld::MARKER)
 //			luaL_typerror(L, i, "PhysicsWorld");
+#endif // !CROWN_RELEASE
 		return p;
 	}
 
 	SoundWorld* get_sound_world(int i)
 	{
 		SoundWorld* p = (SoundWorld*)get_pointer(i);
+#if !CROWN_RELEASE
 //		if (*(u32*)p != SoundWorld::MARKER)
 //			luaL_typerror(L, i, "SoundWorld");
+#endif // !CROWN_RELEASE
 		return p;
 	}
 
 	UnitId get_unit(int i)
 	{
 		u32 enc = (u32)(uintptr_t)get_pointer(i);
-
+#if !CROWN_RELEASE
 		if ((enc & LIGHTDATA_TYPE_MASK) != UNIT_MARKER)
 			luaL_typerror(L, i, "UnitId");
-
+#endif // !CROWN_RELEASE
 		UnitId id;
 		id.decode(enc >> 2);
 		return id;
@@ -275,11 +293,52 @@ struct LuaStack
 		return (Gui*)get_pointer(i);
 	}
 
-	Vector2 get_vector2(int i);
-	Vector3& get_vector3(int i);
-	Matrix4x4& get_matrix4x4(int i);
-	Quaternion& get_quaternion(int i);
-	Color4 get_color4(int i);
+	Vector2 get_vector2(int i)
+	{
+		Vector3 v = get_vector3(i);
+		Vector2 a;
+		a.x = v.x;
+		a.y = v.y;
+		return a;
+	}
+
+	Vector3& get_vector3(int i)
+	{
+		Vector3* v = (Vector3*)get_pointer(i);
+#if !CROWN_RELEASE
+		check_temporary(i, v);
+#endif // !CROWN_RELEASE
+		return *v;
+	}
+
+	Quaternion& get_quaternion(int i)
+	{
+		Quaternion* q = (Quaternion*)get_pointer(i);
+#if !CROWN_RELEASE
+		check_temporary(i, q);
+#endif // !CROWN_RELEASE
+		return *q;
+	}
+
+	Matrix4x4& get_matrix4x4(int i)
+	{
+		Matrix4x4* m = (Matrix4x4*)get_pointer(i);
+#if !CROWN_RELEASE
+		check_temporary(i, m);
+#endif // !CROWN_RELEASE
+		return *m;
+	}
+
+	Color4 get_color4(int i)
+	{
+		Quaternion q = get_quaternion(i);
+		Color4 c;
+		c.x = q.x;
+		c.y = q.y;
+		c.z = q.z;
+		c.w = q.w;
+		return c;
+	}
 
 	Vector2& get_vector2box(int i)
 	{
