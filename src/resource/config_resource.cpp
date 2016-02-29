@@ -20,7 +20,7 @@ namespace config_resource
 	{
 		const u32 size = file.size();
 		char* res = (char*)a.allocate(size + 1);
-		file.read(res, size + 1);
+		file.read(res, size);
 		res[size] = '\0';
 		return res;
 	}
