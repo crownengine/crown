@@ -1169,17 +1169,9 @@ namespace shader_resource
 			fs_code << shader._code.c_str();
 			fs_code << shader._fs_code.c_str();
 
-			File* vs_file = _opts._fs.open(_vs_source_path.c_str(), FileOpenMode::WRITE);
-			vs_file->write(c_str(vs_code), array::size(vs_code));
-			_opts._fs.close(*vs_file);
-
-			File* fs_file = _opts._fs.open(_fs_source_path.c_str(), FileOpenMode::WRITE);
-			fs_file->write(c_str(fs_code), array::size(fs_code));
-			_opts._fs.close(*fs_file);
-
-			File* varying_file = _opts._fs.open(_varying_path.c_str(), FileOpenMode::WRITE);
-			varying_file->write(shader._varying.c_str(), shader._varying.length());
-			_opts._fs.close(*varying_file);
+			_opts.write_temporary(_vs_source_path.c_str(), vs_code);
+			_opts.write_temporary(_fs_source_path.c_str(), fs_code);
+			_opts.write_temporary(_varying_path.c_str(), shader._varying.c_str(), shader._varying.length());
 
 			TempAllocator4096 ta;
 			StringStream output(ta);
@@ -1219,8 +1211,8 @@ namespace shader_resource
 					);
 			}
 
-			Buffer tmpvs = _opts.read(_vs_compiled_path.c_str());
-			Buffer tmpfs = _opts.read(_fs_compiled_path.c_str());
+			Buffer tmpvs = _opts.read_temporary(_vs_compiled_path.c_str());
+			Buffer tmpfs = _opts.read_temporary(_fs_compiled_path.c_str());
 
 			delete_temp_files();
 

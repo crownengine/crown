@@ -70,7 +70,7 @@ namespace texture_resource
 			, c_str(output)
 			);
 
-		Buffer blob = opts.read(texout.c_str());
+		Buffer blob = opts.read_temporary(texout.c_str());
 		opts.delete_file(texout.c_str());
 
 		// Write DDS

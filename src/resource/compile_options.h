@@ -12,6 +12,7 @@
 #include "path.h"
 #include "temp_allocator.h"
 #include "vector.h"
+#include "array.h"
 #include <setjmp.h>
 
 #define RESOURCE_COMPILER_ASSERT(condition, opts, msg, ...) do { if (!(condition))\
@@ -19,8 +20,16 @@
 
 namespace crown
 {
-struct CompileOptions
+class CompileOptions
 {
+	Filesystem& _fs;
+	Buffer& _output;
+	const char* _platform;
+	jmp_buf* _jmpbuf;
+	Vector<DynamicString> _dependencies;
+
+public:
+
 	CompileOptions(Filesystem& fs, Buffer& output, const char* platform, jmp_buf* buf)
 		: _fs(fs)
 		, _output(output)
@@ -56,6 +65,29 @@ struct CompileOptions
 		path += ".";
 		path += type;
 		return file_exists(path.c_str());
+	}
+
+	Buffer read_temporary(const char* path)
+	{
+		File* file = _fs.open(path, FileOpenMode::READ);
+		u32 size = file->size();
+		Buffer buf(default_allocator());
+		array::resize(buf, size);
+		file->read(array::begin(buf), size);
+		_fs.close(*file);
+		return buf;
+	}
+
+	void write_temporary(const char* path, const char* data, u32 size)
+	{
+		File* file = _fs.open(path, FileOpenMode::WRITE);
+		file->write(data, size);
+		_fs.close(*file);
+	}
+
+	void write_temporary(const char* path, const Buffer& data)
+	{
+		write_temporary(path, array::begin(data), array::size(data));
 	}
 
 	Buffer read(const char* path)
@@ -113,12 +145,6 @@ struct CompileOptions
 		DynamicString dep(path, ta);
 		vector::push_back(_dependencies, dep);
 	}
-
-	Filesystem& _fs;
-	Buffer& _output;
-	const char* _platform;
-	jmp_buf* _jmpbuf;
-	Vector<DynamicString> _dependencies;
 };
 
 } // namespace crown

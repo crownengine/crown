@@ -55,7 +55,7 @@ namespace lua_resource
 			, c_str(output)
 			);
 
-		Buffer blob = opts.read(luabin.c_str());
+		Buffer blob = opts.read_temporary(luabin.c_str());
 		opts.delete_file(luabin.c_str());
 
 		LuaResource lr;
