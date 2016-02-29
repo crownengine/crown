@@ -231,15 +231,6 @@ public:
 	}
 };
 
-DiskFilesystem::DiskFilesystem(Allocator& a)
-	: _allocator(&a)
-	, _prefix(a)
-{
-	char buf[512];
-	os::getcwd(buf, sizeof(buf));
-	_prefix = buf;
-}
-
 DiskFilesystem::DiskFilesystem(Allocator& a, const char* prefix)
 	: _allocator(&a)
 	, _prefix(prefix, a)

@@ -25,10 +25,6 @@ class DiskFilesystem : public Filesystem
 
 public:
 
-	/// Sets the root path to the current working directory of
-	/// the engine executable.
-	DiskFilesystem(Allocator& a);
-
 	/// Sets the root path to the given @a prefix.
 	/// @note
 	/// The @a prefix must be absolute.
