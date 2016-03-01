@@ -11,6 +11,7 @@ project "openal"
 	local AL_DIR = (CROWN_DIR .. "third/openal/")
 
 	defines {
+		"AL_LIBTYPE_STATIC",
 		"AL_ALEXT_PROTOTYPES",
 		"AL_BUILD_LIBRARY",
 		"_LARGEFILE_SOURCE",
