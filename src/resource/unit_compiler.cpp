@@ -167,7 +167,7 @@ static Buffer compile_light(const char* json, CompileOptions& opts)
 	ld.color      = sjson::parse_vector3(obj["color"]);
 
 	// FIXME: remove conversion to radians
-	ld.spot_angle = to_rad(ld.spot_angle);
+	ld.spot_angle = frad(ld.spot_angle);
 
 	Buffer buf(default_allocator());
 	array::push(buf, (char*)&ld, sizeof(ld));

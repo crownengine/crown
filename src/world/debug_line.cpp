@@ -67,8 +67,8 @@ void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& nor
 	f32 deg0 = 0.0f;
 	for (u32 ss = 0; ss < segments; ++ss, deg0 += incr)
 	{
-		const f32 rad0 = to_rad(deg0);
-		const f32 rad1 = to_rad(deg0 + incr);
+		const f32 rad0 = frad(deg0);
+		const f32 rad1 = frad(deg0 + incr);
 
 		const Vector3 from0 = right*cos(-rad0) + cross(dir, right)*sin(-rad0) + dir*dot(dir, right)*(1.0f-cos(-rad0));
 		const Vector3 from1 = right*cos(-rad1) + cross(dir, right)*sin(-rad1) + dir*dot(dir, right)*(1.0f-cos(-rad1));
@@ -94,8 +94,8 @@ void DebugLine::add_cone(const Vector3& from, const Vector3& to, f32 radius, con
 	f32 deg0 = 0.0f;
 	for (u32 ss = 0; ss < segments; ++ss, deg0 += incr)
 	{
-		const f32 rad0 = to_rad(deg0);
-		const f32 rad1 = to_rad(deg0 + incr);
+		const f32 rad0 = frad(deg0);
+		const f32 rad1 = frad(deg0 + incr);
 
 		const Vector3 from0 = right*cos(-rad0) + cross(dir, right)*sin(-rad0) + dir*dot(dir, right)*(1.0f-cos(-rad0));
 		const Vector3 from1 = right*cos(-rad1) + cross(dir, right)*sin(-rad1) + dir*dot(dir, right)*(1.0f-cos(-rad1));

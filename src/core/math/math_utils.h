@@ -17,6 +17,7 @@ const f32 PI_TWO        = PI * 2.0f;
 const f32 PI_HALF       = PI * 0.5f;
 const f32 FLOAT_EPSILON = 1.0e-7f;
 
+/// Returns whether @a a and @a b are equal according to @a epsilon.
 inline bool fequal(f32 a, f32 b, f32 epsilon = FLOAT_EPSILON)
 {
 	return b <= (a + epsilon)
@@ -24,32 +25,38 @@ inline bool fequal(f32 a, f32 b, f32 epsilon = FLOAT_EPSILON)
 		;
 }
 
+/// Returns the minimum of @a a and @a b.
 inline f32 fmin(f32 a, f32 b)
 {
 	return a < b ? a : b;
 }
 
+/// Returns the maximum of @a a and @a b.
 inline f32 fmax(f32 a, f32 b)
 {
 	return a < b ? b : a;
 }
 
+/// Clamps @a val to @a min and @a max.
 inline f32 fclamp(f32 min, f32 max, f32 val)
 {
 	return fmin(fmax(min, val), max);
 }
 
+/// Returns the fractional part of @a a.
 inline f32 ffract(f32 a)
 {
 	return a - floorf(a);
 }
 
-inline f32 to_rad(f32 deg)
+/// Returns @a deg in radians.
+inline f32 frad(f32 deg)
 {
 	return deg * PI / 180.0f;
 }
 
-inline f32 to_deg(f32 rad)
+/// Returns @a rad in degrees.
+inline f32 fdeg(f32 rad)
 {
 	return rad * 180.0f / PI;
 }
