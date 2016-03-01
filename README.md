@@ -5,17 +5,11 @@ Crown is a general purpose data-driven game engine, written from scratch in [ort
 
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles; the current Lua API is similar to that of Bitsquid but this engine is *not* meant to be its clone *nor* to be API compatible with it.
 
-##Supported platforms
-
- * Android (14+, ARM)
- * Linux
- * Windows
-
 ##Documentation
 
-Manual: http://taylor001.github.io/crown/manual.html  
-Lua API: http://taylor001.github.io/crown/lua_api.html  
-C++ API: http://taylor001.github.io/crown/doxygen/modules
+  * [Manual](http://taylor001.github.io/crown/manual.html)  
+  * [Lua API](http://taylor001.github.io/crown/lua_api.html)  
+  * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
 
 ##Screenshots
 
