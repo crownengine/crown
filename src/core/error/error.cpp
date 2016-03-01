@@ -4,10 +4,9 @@
  */
 
 #include "error.h"
-#include "stacktrace.h"
 #include "log.h"
-#include <stdlib.h>
 #include <stdarg.h>
+#include <stdlib.h> // exit
 
 namespace crown
 {
@@ -16,8 +15,7 @@ namespace error
 	static void abort(const char* file, int line, const char* format, va_list args)
 	{
 		CE_LOGEV(format, args);
-		CE_LOGE("\tIn: %s:%d", file, line);
-		CE_LOGE("Stacktrace:");
+		CE_LOGE("\tIn: %s:%d\n\nStacktrace:", file, line);
 		print_callstack();
 		exit(EXIT_FAILURE);
 	}

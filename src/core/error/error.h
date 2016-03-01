@@ -7,13 +7,20 @@
 
 #include "config.h"
 
+/// @defgroup Error Error
 namespace crown
 {
+/// Error management.
+///
+/// @ingroup Error
 namespace error
 {
 	/// Aborts the program execution logging an error message and the stacktrace if
 	/// the platform supports it.
 	void abort(const char* file, int line, const char* format, ...);
+
+	/// Prints the current call stack.
+	void print_callstack();
 } // namespace error
 } // namespace crown
 

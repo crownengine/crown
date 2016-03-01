@@ -9,9 +9,12 @@
 
 namespace crown
 {
-void print_callstack()
+namespace error
 {
-}
+	void print_callstack()
+	{
+	}
+} // namespace error
 
 } // namespace crown
 
