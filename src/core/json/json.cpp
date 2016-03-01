@@ -130,7 +130,7 @@ namespace json
 		if (*json == '-')
 		{
 			array::push_back(number, '-');
-			json = next(json, '-');
+			++json;
 		}
 		while (isdigit(*json))
 		{
@@ -206,12 +206,12 @@ namespace json
 
 	s32 parse_int(const char* json)
 	{
-		return (s32) parse_number(json);
+		return (s32)parse_number(json);
 	}
 
 	f32 parse_float(const char* json)
 	{
-		return (f32) parse_number(json);
+		return (f32)parse_number(json);
 	}
 
 	void parse_array(const char* json, JsonArray& array)
@@ -220,14 +220,10 @@ namespace json
 
 		if (*json == '[')
 		{
-			json = next(json, '[');
-			json = skip_spaces(json);
+			json = skip_spaces(++json);
 
 			if (*json == ']')
-			{
-				json = next(json, ']');
 				return;
-			}
 
 			while (*json)
 			{
@@ -237,10 +233,7 @@ namespace json
 				json = skip_spaces(json);
 
 				if (*json == ']')
-				{
-					json = next(json, ']');
 					return;
-				}
 
 				json = next(json, ',');
 				json = skip_spaces(json);
@@ -256,15 +249,10 @@ namespace json
 
 		if (*json == '{')
 		{
-			json = next(json, '{');
-
-			json = skip_spaces(json);
+			json = skip_spaces(++json);
 
 			if (*json == '}')
-			{
-				next(json, '}');
 				return;
-			}
 
 			while (*json)
 			{
@@ -287,10 +275,7 @@ namespace json
 				json = skip_spaces(json);
 
 				if (*json == '}')
-				{
-					next(json, '}');
 					return;
-				}
 
 				json = next(json, ',');
 				json = skip_spaces(json);
