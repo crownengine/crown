@@ -63,11 +63,6 @@ toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 group "libs"
 bgfxProject("", "StaticLib", os.is("windows") and { "BGFX_CONFIG_RENDERER_DIRECT3D9=1" } or {})
 
-if _OPTIONS["with-tools"] then
-	dofile ("shaderc.lua")
-	dofile ("texturec.lua")
-end
-
 if _OPTIONS["with-openal"] then
 	dofile ("openal.lua")
 end
@@ -78,6 +73,12 @@ end
 
 group "engine"
 crown_project("", "ConsoleApp", {})
+
+if _OPTIONS["with-tools"] then
+group "tools"
+	dofile ("shaderc.lua")
+	dofile ("texturec.lua")
+end
 
 -- Install
 configuration { "x32", "linux-*" }
