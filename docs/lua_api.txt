@@ -369,6 +369,28 @@ World
 	**update** (world, dt)
 		Updates the world with *dt*.
 
+	**create_debug_line** (world, depth_test) : DebugLine
+		Creates a new DebugLine. *depth_test* controls whether to
+		enable depth test when rendering the lines.
+
+	**destroy_debug_line** (world, line)
+		Destroys the debug *line*.
+
+	**scene_graph** (world) : SceneGraph
+		Returns the scene graph.
+
+	**render_world** (world) : RenderWorld
+		Returns the render sub-world.
+
+	**physics_world** (world) : PhysicsWorld
+		Returns the physics sub-world.
+
+	**sound_world** (world) : SoundWorld
+		Returns the sound sub-world.
+
+Sound
+-----
+
 	**play_sound** (world, name, [loop, volume, position, range]) : SoundInstanceId
 		Plays the sound with the given *name* at the given *position*, with the given
 		*volume* and *range*. *loop* controls whether the sound must loop or not.
@@ -392,30 +414,14 @@ World
 	**set_sound_volume** (world, id, volume)
 		Sets the *volume* of the sound *id*.
 
-	**create_debug_line** (world, depth_test) : DebugLine
-		Creates a new DebugLine. *depth_test* controls whether to
-		enable depth test when rendering the lines.
-
-	**destroy_debug_line** (world, line)
-		Destroys the debug *line*.
+Level
+-----
 
 	**load_level** (world, name, [pos, rot]) : Level
 		Loads the level *name* into the world at the given *position* and *rotation*.
 
-	**scene_graph** (world) : SceneGraph
-		Returns the scene graph.
-
-	**render_world** (world) : RenderWorld
-		Returns the render sub-world.
-
-	**physics_world** (world) : PhysicsWorld
-		Returns the physics sub-world.
-
-	**sound_world** (world) : SoundWorld
-		Returns the sound sub-world.
-
 SceneGraph
-----------
+==========
 
 	**create** (sg, unit) : int
 		Creates the transform for the *unit*.
@@ -466,7 +472,7 @@ SceneGraph
 		Unlinks *id* transform from its parent, if any.
 
 Material
---------
+========
 
 	**set_float** (material, variable, value)
 		Sets the material variable to the given value.
@@ -478,28 +484,19 @@ Material
 		Sets the material variable to the given value.
 
 Gui
----
+===
 
-	resolution
-		TODO
+	**rect** (pos, size, material_resource, color)
+		Draws a rectangle.
 
-	move
-		TODO
+	**image** (pos, size, material_resource, color)
+		Draws an image.
 
-	screen_to_gui
-		TODO
+	**image_uv** (pos, size, uv0, uv1, material_resource, color)
+		Draws an image with explicit UV coordinates.
 
-	draw_rectangle
-		TODO
-
-	draw_image
-		TODO
-
-	draw_image_uv
-		TODO
-
-	draw_text
-		TODO
+	**text** (pos, font_size, str, font_resource, material_resource, color)
+		Draws text.
 
 RenderWorld
 ===========
