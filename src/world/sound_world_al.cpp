@@ -7,15 +7,14 @@
 
 #if CROWN_SOUND_OPENAL
 
-#include "sound_world.h"
-#include "id_array.h"
 #include "array.h"
-#include "vector3.h"
+#include "audio.h"
+#include "log.h"
 #include "matrix4x4.h"
 #include "sound_resource.h"
+#include "sound_world.h"
 #include "temp_allocator.h"
-#include "log.h"
-#include "audio.h"
+#include "vector3.h"
 #include <AL/al.h>
 #include <AL/alc.h>
 
@@ -34,12 +33,12 @@ namespace crown
 		}
 	}
 
-#	define AL_CHECK(function)\
+	#define AL_CHECK(function)\
 		function;\
 		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\
 				"OpenAL error: %s", al_error_to_string(error)); } while (0)
 #else
-#	define AL_CHECK(function) function;
+	#define AL_CHECK(function) function;
 #endif // CROWN_DEBUG
 
 /// Global audio-related functions
@@ -81,7 +80,7 @@ struct SoundInstance
 		using namespace sound_resource;
 
 		AL_CHECK(alGenSources(1, &_source));
-		CE_ASSERT(alIsSource(_source), "Bad OpenAL source");
+		CE_ASSERT(alIsSource(_source), "alGenSources: error");
 
 		// AL_CHECK(alSourcef(_source, AL_PITCH, 1.0f));
 		// AL_CHECK(alSourcef(_source, AL_REFERENCE_DISTANCE, 0.1f));
@@ -89,16 +88,16 @@ struct SoundInstance
 
 		// Generates AL buffers
 		AL_CHECK(alGenBuffers(1, &_buffer));
-		CE_ASSERT(alIsBuffer(_buffer), "Bad OpenAL buffer");
+		CE_ASSERT(alIsBuffer(_buffer), "alGenBuffers: error");
 
-		ALenum format;
-		switch (bits_ps(&sr))
+		ALenum fmt;
+		switch (sr.bits_ps)
 		{
-			case 8: format = channels(&sr) > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8; break;
-			case 16: format = channels(&sr) > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
+			case  8: fmt = sr.channels > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8; break;
+			case 16: fmt = sr.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
 			default: CE_FATAL("Number of bits per sample not supported."); break;
 		}
-		AL_CHECK(alBufferData(_buffer, format, data(&sr), size(&sr), sample_rate(&sr)));
+		AL_CHECK(alBufferData(_buffer, fmt, data(&sr), sr.size, sr.sample_rate));
 
 		_resource = &sr;
 		set_position(pos);
@@ -193,18 +192,80 @@ struct SoundInstance
 
 public:
 
-	SoundInstanceId _id;
 	const SoundResource* _resource;
+	SoundInstanceId _id;
 	ALuint _buffer;
 	ALuint _source;
 };
 
+#define MAX_OBJECTS       1024
+#define INDEX_MASK        0xffff
+#define NEW_OBJECT_ID_ADD 0x10000
+
 class ALSoundWorld : public SoundWorld
 {
+	struct Index
+	{
+		SoundInstanceId id;
+		u16 index;
+		u16 next;
+	};
+
+	u32 _num_objects;
+	SoundInstance _playing_sounds[MAX_OBJECTS];
+	Index _indices[MAX_OBJECTS];
+	u16 _freelist_enqueue;
+	u16 _freelist_dequeue;
+	Matrix4x4 _listener_pose;
+
+	bool has(SoundInstanceId id)
+	{
+		Index& in = _indices[id & INDEX_MASK];
+		return in.id == id && in.index != UINT16_MAX;
+	}
+
+	SoundInstance& lookup(SoundInstanceId id)
+	{
+		return _playing_sounds[_indices[id & INDEX_MASK].index];
+	}
+
+	SoundInstanceId add()
+	{
+		Index& in = _indices[_freelist_dequeue];
+		_freelist_dequeue = in.next;
+		in.id += NEW_OBJECT_ID_ADD;
+		in.index = _num_objects++;
+		SoundInstance& o = _playing_sounds[in.index];
+		o._id = in.id;
+		return o._id;
+	}
+
+	void remove(SoundInstanceId id)
+	{
+		Index& in = _indices[id & INDEX_MASK];
+
+		SoundInstance& o = _playing_sounds[in.index];
+		o = _playing_sounds[--_num_objects];
+		_indices[o._id & INDEX_MASK].index = in.index;
+
+		in.index = UINT16_MAX;
+		_indices[_freelist_enqueue].next = id & INDEX_MASK;
+		_freelist_enqueue = id & INDEX_MASK;
+	}
+
 public:
 
 	ALSoundWorld()
 	{
+		_num_objects = 0;
+		for (u32 i = 0; i < MAX_OBJECTS; ++i)
+		{
+			_indices[i].id = i;
+			_indices[i].next = i + 1;
+		}
+		_freelist_dequeue = 0;
+		_freelist_enqueue = MAX_OBJECTS - 1;
+
 		set_listener_pose(MATRIX4X4_IDENTITY);
 	}
 
@@ -214,29 +275,28 @@ public:
 
 	virtual SoundInstanceId play(const SoundResource& sr, bool loop, f32 volume, const Vector3& pos)
 	{
-		SoundInstance instance;
-		instance.create(sr, pos);
-		SoundInstanceId id = id_array::create(_playing_sounds, instance);
-		id_array::get(_playing_sounds, id)._id = id;
-		instance.play(loop, volume);
+		SoundInstanceId id = add();
+		SoundInstance& si = lookup(id);
+		si.create(sr, pos);
+		si.play(loop, volume);
 		return id;
 	}
 
 	virtual void stop(SoundInstanceId id)
 	{
-		SoundInstance& instance = id_array::get(_playing_sounds, id);
-		instance.destroy();
-		id_array::destroy(_playing_sounds, id);
+		SoundInstance& si = lookup(id);
+		si.destroy();
+		remove(id);
 	}
 
 	virtual bool is_playing(SoundInstanceId id)
 	{
-		return id_array::has(_playing_sounds, id) && id_array::get(_playing_sounds, id).is_playing();
+		return has(id) && lookup(id).is_playing();
 	}
 
 	virtual void stop_all()
 	{
-		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < _num_objects; ++i)
 		{
 			_playing_sounds[i].stop();
 		}
@@ -244,7 +304,7 @@ public:
 
 	virtual void pause_all()
 	{
-		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < _num_objects; ++i)
 		{
 			_playing_sounds[i].pause();
 		}
@@ -252,7 +312,7 @@ public:
 
 	virtual void resume_all()
 	{
-		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < _num_objects; ++i)
 		{
 			_playing_sounds[i].resume();
 		}
@@ -260,17 +320,17 @@ public:
 
 	virtual void set_sound_positions(u32 num, const SoundInstanceId* ids, const Vector3* positions)
 	{
-		for (u32 i = 0; i < num; i++)
+		for (u32 i = 0; i < num; ++i)
 		{
-			id_array::get(_playing_sounds, ids[i]).set_position(positions[i]);
+			lookup(ids[i]).set_position(positions[i]);
 		}
 	}
 
 	virtual void set_sound_ranges(u32 num, const SoundInstanceId* ids, const f32* ranges)
 	{
-		for (u32 i = 0; i < num; i++)
+		for (u32 i = 0; i < num; ++i)
 		{
-			id_array::get(_playing_sounds, ids[i]).set_range(ranges[i]);
+			lookup(ids[i]).set_range(ranges[i]);
 		}
 	}
 
@@ -278,13 +338,13 @@ public:
 	{
 		for (u32 i = 0; i < num; i++)
 		{
-			id_array::get(_playing_sounds, ids[i]).set_volume(volumes[i]);
+			lookup(ids[i]).set_volume(volumes[i]);
 		}
 	}
 
 	virtual void reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
 	{
-		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < _num_objects; ++i)
 		{
 			if (_playing_sounds[i].resource() == &old_sr)
 			{
@@ -313,7 +373,7 @@ public:
 		Array<SoundInstanceId> to_delete(alloc);
 
 		// Check what sounds finished playing
-		for (u32 i = 0; i < id_array::size(_playing_sounds); i++)
+		for (u32 i = 0; i < _num_objects; ++i)
 		{
 			SoundInstance& instance = _playing_sounds[i];
 			if (instance.finished())
@@ -323,16 +383,11 @@ public:
 		}
 
 		// Destroy instances which finished playing
-		for (u32 i = 0; i < array::size(to_delete); i++)
+		for (u32 i = 0; i < array::size(to_delete); ++i)
 		{
 			stop(to_delete[i]);
 		}
 	}
-
-private:
-
-	IdArray<CE_MAX_SOUND_INSTANCES, SoundInstance> _playing_sounds;
-	Matrix4x4 _listener_pose;
 };
 
 SoundWorld* SoundWorld::create(Allocator& a)

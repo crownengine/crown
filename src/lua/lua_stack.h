@@ -546,7 +546,7 @@ struct LuaStack
 		push_id(i.i);
 	}
 
-	void push_sound_instance_id(const SoundInstanceId id)
+	void push_sound_instance_id(SoundInstanceId id)
 	{
 		push_id(id);
 	}
