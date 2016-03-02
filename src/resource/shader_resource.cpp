@@ -652,11 +652,11 @@ namespace shader_resource
 			, _vs_compiled_path(default_allocator())
 			, _fs_compiled_path(default_allocator())
 		{
-			_opts.get_absolute_path("vs_source.sc.temp", _vs_source_path);
-			_opts.get_absolute_path("fs_source.sc.temp", _fs_source_path);
-			_opts.get_absolute_path("varying.sc.temp", _varying_path);
-			_opts.get_absolute_path("vs_compiled.bin.temp", _vs_compiled_path);
-			_opts.get_absolute_path("fs_compiled.bin.temp", _fs_compiled_path);
+			_opts.get_absolute_path("vs_source.sc.tmp", _vs_source_path);
+			_opts.get_absolute_path("fs_source.sc.tmp", _fs_source_path);
+			_opts.get_absolute_path("varying.sc.tmp", _varying_path);
+			_opts.get_absolute_path("vs_compiled.bin.tmp", _vs_compiled_path);
+			_opts.get_absolute_path("fs_compiled.bin.tmp", _fs_compiled_path);
 		}
 
 		void parse(const char* path)

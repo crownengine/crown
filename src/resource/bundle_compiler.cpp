@@ -109,9 +109,7 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	scan_source_dir("");
 
 	TempAllocator512 ta;
-	vector::push_back(_globs, DynamicString("*.sh", ta));
 	vector::push_back(_globs, DynamicString("*.tmp", ta));
-	vector::push_back(_globs, DynamicString("*.temp", ta));
 	vector::push_back(_globs, DynamicString("*.wav", ta));
 	vector::push_back(_globs, DynamicString("*.ogg", ta));
 	vector::push_back(_globs, DynamicString("*.png", ta));
