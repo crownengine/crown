@@ -19,13 +19,6 @@
 	#include <unistd.h>
 	#include <errno.h>
 #elif CROWN_PLATFORM_WINDOWS
-	//Undefined in WinHeaders.h, but winsock2 ecc need it.
-	#ifndef NEAR
-	#define NEAR
-	#endif
-	#ifndef FAR
-	#define FAR
-	#endif
 	#include <winsock2.h>
 	#include "win_headers.h"
 	#pragma comment(lib, "Ws2_32.lib")
