@@ -6,4 +6,7 @@
 	#define ALC_API __declspec(dllexport)
 	/* Define any available alignment declaration */
 	#define ALIGN(x) __declspec(align(x))
-#endif // _MSC_VER
+#else
+	#define AL_API  __attribute__((visibility("protected")))
+	#define ALC_API __attribute__((visibility("protected")))
+#endif // defined(_MSC_VER)

@@ -81,17 +81,17 @@ function crown_project(_name, _kind, _defines)
 
 			-- Fix this in GENie
 			configuration { "debug", "x32", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-debug-32", }
+				linkoptions { "-Lbin", "-lopenal-debug-32", }
 			configuration { "development", "x32", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-development-32", }
+				linkoptions { "-Lbin", "-lopenal-development-32", }
 			configuration { "release", "x32", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-release-32", }
+				linkoptions { "-Lbin", "-lopenal-release-32", }
 			configuration { "debug", "x64", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-debug-64", }
+				linkoptions { "-Lbin", "-lopenal-debug-64", }
 			configuration { "development", "x64", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-development-64", }
+				linkoptions { "-Lbin", "-lopenal-development-64", }
 			configuration { "release", "x64", "linux-*" }
-				linkoptions { "-Lbin/debug", "-lopenal-release-64", }
+				linkoptions { "-Lbin", "-lopenal-release-64", }
 
 			configuration { "vs*" }
 				links { "openal", }
