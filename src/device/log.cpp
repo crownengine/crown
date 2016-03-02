@@ -4,18 +4,21 @@
  */
 
 #include "console_server.h"
+#include "device.h"
 #include "log.h"
+#include "mutex.h"
 #include "os.h"
 #include "platform.h"
 #include "string_stream.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
-#include "device.h"
 
 namespace crown
 {
 namespace log_internal
 {
+	static Mutex s_mutex;
+
 	static StringStream& sanitize(StringStream& ss, const char* msg)
 	{
 		using namespace string_stream;
@@ -51,6 +54,8 @@ namespace log_internal
 
 	void logx(LogSeverity::Enum sev, const char* msg, va_list args)
 	{
+		ScopedMutex sm(s_mutex);
+
 		char buf[8192];
 		int len = vsnprintf(buf, sizeof(buf), msg, args);
 		buf[len] = '\0';
