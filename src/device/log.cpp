@@ -3,13 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "console_server.h"
 #include "device.h"
 #include "log.h"
 #include "mutex.h"
 #include "os.h"
 #include "platform.h"
-#include "string_stream.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
 
@@ -18,39 +16,6 @@ namespace crown
 namespace log_internal
 {
 	static Mutex s_mutex;
-
-	static StringStream& sanitize(StringStream& ss, const char* msg)
-	{
-		using namespace string_stream;
-		const char* ch = msg;
-		for (; *ch; ch++)
-		{
-			if (*ch == '"')
-				ss << "\\";
-			ss << *ch;
-		}
-
-		return ss;
-	}
-
-	static void console_log(const char* msg, LogSeverity::Enum sev)
-	{
-		if (!console_server_globals::console())
-			return;
-
-		static const char* stt[] = { "info", "warning", "error", "debug" };
-
-		// Build json message
-		using namespace string_stream;
-		TempAllocator4096 ta;
-		StringStream json(ta);
-
-		json << "{\"type\":\"message\",";
-		json << "\"severity\":\"" << stt[sev] << "\",";
-		json << "\"message\":\""; sanitize(json, msg) << "\"}";
-
-		console_server_globals::console()->send(c_str(json));
-	}
 
 	void logx(LogSeverity::Enum sev, const char* msg, va_list args)
 	{
@@ -83,10 +48,8 @@ namespace log_internal
 
 		if (device())
 		{
-			device()->log(buf);
+			device()->log(buf, sev);
 		}
-
-		console_log(buf, sev);
 	}
 
 	void logx(LogSeverity::Enum sev, const char* msg, ...)

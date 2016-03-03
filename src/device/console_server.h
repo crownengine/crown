@@ -32,7 +32,7 @@ public:
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
-	void init(u16 port, bool wait);
+	void listen(u16 port, bool wait);
 
 	/// Shutdowns the server.
 	void shutdown();
@@ -44,19 +44,4 @@ public:
 	void send(const char* json);
 };
 
-/// Functions for accessing global console.
-namespace console_server_globals
-{
-	// Creates the global console server.
-	void init(u16 port, bool wait);
-
-	/// Destroys the global console server.
-	void shutdown();
-
-	/// Updates the global console server.
-	void update();
-
-	/// Returns the global console server object.
-	ConsoleServer* console();
-} // namespace console_server_globals
 } // namespace crown

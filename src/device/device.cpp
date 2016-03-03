@@ -31,6 +31,7 @@
 #include "resource_package.h"
 #include "shader_manager.h"
 #include "sjson.h"
+#include "string_stream.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
 #include "types.h"
@@ -126,6 +127,7 @@ private:
 Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
+	, _console_server(NULL)
 	, _bundle_filesystem(NULL)
 	, _last_log(NULL)
 	, _resource_loader(NULL)
@@ -153,9 +155,8 @@ Device::Device(const DeviceOptions& opts)
 	, _mouse_curr_y(0)
 	, _mouse_last_x(0)
 	, _mouse_last_y(0)
-	, _is_init(false)
-	, _is_running(false)
-	, _is_paused(false)
+	, _quit(false)
+	, _paused(false)
 	, _frame_count(0)
 	, _last_time(0)
 	, _current_time(0)
@@ -167,6 +168,9 @@ Device::Device(const DeviceOptions& opts)
 void Device::init()
 {
 	profiler_globals::init();
+
+	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
+	_console_server->listen(_device_options._console_port, _device_options._wait_console);
 
 #if CROWN_PLATFORM_ANDROID
 	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
@@ -219,19 +223,45 @@ void Device::init()
 	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_script_name));
 	_lua_environment->call_global("init", 0);
 
-	_is_init = true;
-	_is_running = true;
 	_last_time = os::clocktime();
 
 	CE_LOGD("Engine initialized");
-}
 
-void Device::shutdown()
-{
-	CE_ASSERT(_is_init, "Engine is not initialized");
+	while (!process_events() && !_quit)
+	{
+		_current_time = os::clocktime();
+		const s64 time = _current_time - _last_time;
+		_last_time = _current_time;
+		const f64 freq = (f64) os::clockfrequency();
+		_last_delta_time = f32(time * (1.0 / freq));
+		_time_since_start += _last_delta_time;
 
-	_is_running = false;
-	_is_init = false;
+		profiler_globals::clear();
+		_console_server->update();
+
+		RECORD_FLOAT("device.dt", _last_delta_time);
+		RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
+
+		if (!_paused)
+		{
+			_resource_manager->complete_requests();
+			_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
+			_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
+		}
+
+		_input_manager->update();
+
+		const bgfx::Stats* stats = bgfx::getStats();
+		RECORD_FLOAT("bgfx.gpu_time", f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
+		RECORD_FLOAT("bgfx.cpu_time", f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
+
+		bgfx::frame();
+		profiler_globals::flush();
+
+		_lua_environment->reset_temporaries();
+
+		_frame_count++;
+	}
 
 	_lua_environment->call_global("shutdown", 0);
 
@@ -262,6 +292,9 @@ void Device::shutdown()
 
 	CE_DELETE(_allocator, _bundle_filesystem);
 
+	_console_server->shutdown();
+	CE_DELETE(_allocator, _console_server);
+
 	profiler_globals::shutdown();
 
 	_allocator.clear();
@@ -269,18 +302,18 @@ void Device::shutdown()
 
 void Device::quit()
 {
-	_is_running = false;
+	_quit = true;
 }
 
 void Device::pause()
 {
-	_is_paused = true;
+	_paused = true;
 	CE_LOGI("Engine paused.");
 }
 
 void Device::unpause()
 {
-	_is_paused = false;
+	_paused = false;
 	CE_LOGI("Engine unpaused.");
 }
 
@@ -288,11 +321,6 @@ void Device::resolution(u16& width, u16& height)
 {
 	width = _width;
 	height = _height;
-}
-
-bool Device::is_running() const
-{
-	return _is_running;
 }
 
 u64 Device::frame_count() const
@@ -308,45 +336,6 @@ f32 Device::last_delta_time() const
 f64 Device::time_since_start() const
 {
 	return _time_since_start;
-}
-
-void Device::update()
-{
-	while (!process_events() && _is_running)
-	{
-		_current_time = os::clocktime();
-		const s64 time = _current_time - _last_time;
-		_last_time = _current_time;
-		const f64 freq = (f64) os::clockfrequency();
-		_last_delta_time = f32(time * (1.0 / freq));
-		_time_since_start += _last_delta_time;
-
-		profiler_globals::clear();
-		console_server_globals::update();
-
-		RECORD_FLOAT("device.dt", _last_delta_time);
-		RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
-
-		if (!_is_paused)
-		{
-			_resource_manager->complete_requests();
-			_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
-			_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
-		}
-
-		_input_manager->update();
-
-		const bgfx::Stats* stats = bgfx::getStats();
-		RECORD_FLOAT("bgfx.gpu_time", f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
-		RECORD_FLOAT("bgfx.cpu_time", f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
-
-		bgfx::frame();
-		profiler_globals::flush();
-
-		_lua_environment->reset_temporaries();
-
-		_frame_count++;
-	}
 }
 
 void Device::render(World& world, CameraInstance camera)
@@ -430,7 +419,21 @@ void Device::reload(StringId64 type, StringId64 name)
 	}
 }
 
-void Device::log(const char* msg)
+static StringStream& sanitize(StringStream& ss, const char* msg)
+{
+	using namespace string_stream;
+	const char* ch = msg;
+	for (; *ch; ch++)
+	{
+		if (*ch == '"')
+			ss << "\\";
+		ss << *ch;
+	}
+
+	return ss;
+}
+
+void Device::log(const char* msg, LogSeverity::Enum severity)
 {
 	if (_last_log)
 	{
@@ -438,6 +441,26 @@ void Device::log(const char* msg)
 		_last_log->write("\n", 1);
 		_last_log->flush();
 	}
+
+	if (_console_server)
+	{
+		static const char* stt[] = { "info", "warning", "error", "debug" };
+
+		using namespace string_stream;
+		TempAllocator4096 ta;
+		StringStream json(ta);
+
+		json << "{\"type\":\"message\",";
+		json << "\"severity\":\"" << stt[severity] << "\",";
+		json << "\"message\":\""; sanitize(json, msg) << "\"}";
+
+		_console_server->send(c_str(json));
+	}
+}
+
+ConsoleServer* Device::console_server()
+{
+	return _console_server;
 }
 
 ResourceManager* Device::resource_manager()
@@ -651,14 +674,8 @@ void init(const DeviceOptions& opts)
 	_device->init();
 }
 
-void update()
-{
-	_device->update();
-}
-
 void shutdown()
 {
-	_device->shutdown();
 	_device->~Device();
 	_device = NULL;
 }

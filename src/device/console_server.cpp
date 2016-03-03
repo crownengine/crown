@@ -21,7 +21,7 @@ ConsoleServer::ConsoleServer(Allocator& a)
 {
 }
 
-void ConsoleServer::init(u16 port, bool wait)
+void ConsoleServer::listen(u16 port, bool wait)
 {
 	_server.bind(port);
 	_server.listen(5);
@@ -196,33 +196,4 @@ void ConsoleServer::process(TCPSocket client, const char* json)
 	}
 }
 
-namespace console_server_globals
-{
-	char _buffer[sizeof(ConsoleServer)];
-	ConsoleServer* _console = NULL;
-
-	void init(u16 port, bool wait)
-	{
-		_console = new (_buffer) ConsoleServer(default_allocator());
-		_console->init(port, wait);
-	}
-
-	void shutdown()
-	{
-		_console->~ConsoleServer();
-		_console = NULL;
-	}
-
-	void update()
-	{
-#if CROWN_DEBUG
-		_console->update();
-#endif // CROWN_DEBUG
-	}
-
-	ConsoleServer* console()
-	{
-		return _console;
-	}
-} // namespace console_server
 } // namespace crown

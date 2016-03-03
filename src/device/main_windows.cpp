@@ -8,7 +8,6 @@
 #if CROWN_PLATFORM_WINDOWS
 
 #include "bundle_compiler.h"
-#include "console_server.h"
 #include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
@@ -294,7 +293,6 @@ s32 func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*)data;
 	crown::init(*args->opts);
-	crown::update();
 	crown::shutdown();
 	s_exit = true;
 	return EXIT_SUCCESS;
@@ -629,8 +627,6 @@ int main(int argc, char** argv)
 		return exitcode;
 	}
 
-	console_server_globals::init(opts._console_port, opts._wait_console);
-
 	bool do_continue = true;
 
 	if (opts._do_compile)
@@ -645,7 +641,6 @@ int main(int argc, char** argv)
 	if (opts._do_compile)
 		bundle_compiler_globals::shutdown();
 
-	console_server_globals::shutdown();
 	memory_globals::shutdown();
 	return exitcode;
 }

@@ -7,12 +7,14 @@
 
 #include "allocator.h"
 #include "config.h"
+#include "console_server.h"
 #include "container_types.h"
 #include "device_options.h"
 #include "display.h"
 #include "filesystem_types.h"
 #include "input_types.h"
 #include "linear_allocator.h"
+#include "log.h"
 #include "lua_types.h"
 #include "resource_types.h"
 #include "string_id.h"
@@ -35,6 +37,7 @@ class Device
 	LinearAllocator _allocator;
 
 	const DeviceOptions& _device_options;
+	ConsoleServer* _console_server;
 	Filesystem* _bundle_filesystem;
 	File* _last_log;
 	ResourceLoader* _resource_loader;
@@ -67,9 +70,8 @@ class Device
 	s16 _mouse_last_x;
 	s16 _mouse_last_y;
 
-	bool _is_init;
-	bool _is_running;
-	bool _is_paused;
+	bool _quit;
+	bool _paused;
 
 	u64 _frame_count;
 	s64 _last_time;
@@ -87,9 +89,6 @@ public:
 	/// Initializes the engine.
 	void init();
 
-	/// Shutdowns the engine freeing all the allocated resources.
-	void shutdown();
-
 	/// Returns the number of command line parameters.
 	int argc() const { return _device_options._argc; }
 
@@ -104,9 +103,6 @@ public:
 
 	/// Returns a string identifying the engine version.
 	const char* version() const { return CROWN_VERSION_STRING; }
-
-	/// Returns wheter the engine is running.
-	bool is_running() const;
 
 	/// Return the number of frames rendered.
 	u64 frame_count() const;
@@ -153,7 +149,11 @@ public:
 	/// Reloads the resource @a type @a name.
 	void reload(StringId64 type, StringId64 name);
 
-	void log(const char* msg);
+	/// Logs @a msg to log file and console.
+	void log(const char* msg, LogSeverity::Enum severity);
+
+	/// Returns the console server.
+	ConsoleServer* console_server();
 
 	/// Returns the resource manager.
 	ResourceManager* resource_manager();
@@ -187,7 +187,6 @@ private:
 };
 
 void init(const DeviceOptions& opts);
-void update();
 void shutdown();
 Device* device();
 

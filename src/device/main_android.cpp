@@ -7,7 +7,6 @@
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "console_server.h"
 #include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
@@ -35,7 +34,6 @@ s32 func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*)data;
 	crown::init(*args->opts);
-	crown::update();
 	crown::shutdown();
 	s_exit = true;
 	return EXIT_SUCCESS;
@@ -313,9 +311,7 @@ void android_main(struct android_app* app)
 	DeviceOptions opts(0, NULL);
 	opts._asset_manager = app->activity->assetManager;
 
-	console_server_globals::init(opts._console_port, false);
 	crown::s_advc.run(app, opts);
-	console_server_globals::shutdown();
 	memory_globals::shutdown();
 }
 
