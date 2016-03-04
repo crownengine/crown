@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "config.h"
 #include <stdarg.h>
 
 namespace crown
