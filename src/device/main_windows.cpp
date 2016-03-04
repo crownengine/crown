@@ -624,7 +624,7 @@ int main(int argc, char** argv)
 	if (exitcode == EXIT_FAILURE)
 		return exitcode;
 
-	exitcode = crown::s_ldvc.run(&opts);
+	exitcode = crown::s_wdvc.run(&opts);
 
 	memory_globals::shutdown();
 	return exitcode;
