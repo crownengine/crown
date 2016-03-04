@@ -47,22 +47,4 @@ public:
 	void scan_source_dir(const char* path);
 };
 
-namespace bundle_compiler
-{
-	bool main(bool do_compile, bool do_continue, const char* platform);
-} // namespace bundle_compiler
-
-namespace bundle_compiler_globals
-{
-	/// Creates the global resource compiler.
-	void init(const char* source_dir, const char* bundle_dir);
-
-	/// Destroys the global resource compiler.
-	void shutdown();
-
-	/// Returns the global resource compiler.
-	/// Returns NULL if the compiler is not available on the
-	/// running platform.
-	BundleCompiler* compiler();
-} // namespace bundle_compiler_globals
 } // namespace crown

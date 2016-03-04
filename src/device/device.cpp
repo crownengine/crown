@@ -6,6 +6,7 @@
 #include "apk_filesystem.h"
 #include "array.h"
 #include "audio.h"
+#include "bundle_compiler.h"
 #include "config.h"
 #include "console_server.h"
 #include "device.h"
@@ -128,6 +129,7 @@ Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
 	, _console_server(NULL)
+	, _bundle_compiler(NULL)
 	, _bundle_filesystem(NULL)
 	, _last_log(NULL)
 	, _resource_loader(NULL)
@@ -172,125 +174,141 @@ void Device::init()
 	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
 	_console_server->listen(_device_options._console_port, _device_options._wait_console);
 
+	bool do_continue = true;
+
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+	_bundle_compiler = CE_NEW(_allocator, BundleCompiler)(_device_options._source_dir, _device_options._bundle_dir);
+	if (_device_options._do_compile)
+	{
+		bool success = _bundle_compiler->compile_all(_device_options._platform);
+		do_continue = success && _device_options._do_continue;
+	}
+#endif // CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+
+	if (do_continue)
+	{
 #if CROWN_PLATFORM_ANDROID
-	_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
+		_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
-	_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), _device_options._bundle_dir);
-	_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
+		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), _device_options._bundle_dir);
+		_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
-	CE_LOGI("Initializing Crown Engine %s...", version());
+		CE_LOGI("Initializing Crown Engine %s...", version());
 
-	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
-	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
+		_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
+		_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 
-	read_config();
+		read_config();
 
-	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
-	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
+		_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
+		_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
 
-	_display = display::create(_allocator);
-	_window = window::create(_allocator);
-	_window->open(_device_options._window_x
-		, _device_options._window_y
-		, _config_window_w
-		, _config_window_h
-		, _device_options._parent_window
-		);
-	_window->bgfx_setup();
+		_display = display::create(_allocator);
+		_window = window::create(_allocator);
+		_window->open(_device_options._window_x
+			, _device_options._window_y
+			, _config_window_w
+			, _config_window_h
+			, _device_options._parent_window
+			);
+		_window->bgfx_setup();
 
-	bgfx::init(bgfx::RendererType::Count
-		, BGFX_PCI_ID_NONE
-		, 0
-		, _bgfx_callback
-		, _bgfx_allocator
-		);
+		bgfx::init(bgfx::RendererType::Count
+			, BGFX_PCI_ID_NONE
+			, 0
+			, _bgfx_callback
+			, _bgfx_allocator
+			);
 
-	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
-	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
-	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
-	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
-	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
+		_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
+		_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
+		_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
+		_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
+		_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
 
-	audio_globals::init();
-	physics_globals::init(_allocator);
+		audio_globals::init();
+		physics_globals::init(_allocator);
 
-	_boot_package = create_resource_package(_boot_package_name);
-	_boot_package->load();
-	_boot_package->flush();
+		_boot_package = create_resource_package(_boot_package_name);
+		_boot_package->load();
+		_boot_package->flush();
 
-	_lua_environment->load_libs();
-	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_script_name));
-	_lua_environment->call_global("init", 0);
+		_lua_environment->load_libs();
+		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_script_name));
+		_lua_environment->call_global("init", 0);
 
-	_last_time = os::clocktime();
+		_last_time = os::clocktime();
 
-	CE_LOGD("Engine initialized");
+		CE_LOGD("Engine initialized");
 
-	while (!process_events() && !_quit)
-	{
-		_current_time = os::clocktime();
-		const s64 time = _current_time - _last_time;
-		_last_time = _current_time;
-		const f64 freq = (f64) os::clockfrequency();
-		_last_delta_time = f32(time * (1.0 / freq));
-		_time_since_start += _last_delta_time;
-
-		profiler_globals::clear();
-		_console_server->update();
-
-		RECORD_FLOAT("device.dt", _last_delta_time);
-		RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
-
-		if (!_paused)
+		while (!process_events() && !_quit)
 		{
-			_resource_manager->complete_requests();
-			_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
-			_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
+			_current_time = os::clocktime();
+			const s64 time = _current_time - _last_time;
+			_last_time = _current_time;
+			const f64 freq = (f64) os::clockfrequency();
+			_last_delta_time = f32(time * (1.0 / freq));
+			_time_since_start += _last_delta_time;
+
+			profiler_globals::clear();
+			_console_server->update();
+
+			RECORD_FLOAT("device.dt", _last_delta_time);
+			RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
+
+			if (!_paused)
+			{
+				_resource_manager->complete_requests();
+				_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
+				_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
+			}
+
+			_input_manager->update();
+
+			const bgfx::Stats* stats = bgfx::getStats();
+			RECORD_FLOAT("bgfx.gpu_time", f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
+			RECORD_FLOAT("bgfx.cpu_time", f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
+
+			bgfx::frame();
+			profiler_globals::flush();
+
+			_lua_environment->reset_temporaries();
+
+			_frame_count++;
 		}
 
-		_input_manager->update();
+		_lua_environment->call_global("shutdown", 0);
 
-		const bgfx::Stats* stats = bgfx::getStats();
-		RECORD_FLOAT("bgfx.gpu_time", f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
-		RECORD_FLOAT("bgfx.cpu_time", f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
+		_boot_package->unload();
+		destroy_resource_package(*_boot_package);
 
-		bgfx::frame();
-		profiler_globals::flush();
+		physics_globals::shutdown(_allocator);
+		audio_globals::shutdown();
 
-		_lua_environment->reset_temporaries();
+		CE_DELETE(_allocator, _lua_environment);
+		CE_DELETE(_allocator, _unit_manager);
+		CE_DELETE(_allocator, _input_manager);
+		CE_DELETE(_allocator, _material_manager);
+		CE_DELETE(_allocator, _shader_manager);
+		CE_DELETE(_allocator, _resource_manager);
+		CE_DELETE(_allocator, _resource_loader);
 
-		_frame_count++;
+		bgfx::shutdown();
+		window::destroy(_allocator, *_window);
+		display::destroy(_allocator, *_display);
+		CE_DELETE(_allocator, _bgfx_callback);
+		CE_DELETE(_allocator, _bgfx_allocator);
+
+		if (_last_log)
+		{
+			_bundle_filesystem->close(*_last_log);
+		}
+
+		CE_DELETE(_allocator, _bundle_filesystem);
 	}
 
-	_lua_environment->call_global("shutdown", 0);
-
-	_boot_package->unload();
-	destroy_resource_package(*_boot_package);
-
-	physics_globals::shutdown(_allocator);
-	audio_globals::shutdown();
-
-	CE_DELETE(_allocator, _lua_environment);
-	CE_DELETE(_allocator, _unit_manager);
-	CE_DELETE(_allocator, _input_manager);
-	CE_DELETE(_allocator, _material_manager);
-	CE_DELETE(_allocator, _shader_manager);
-	CE_DELETE(_allocator, _resource_manager);
-	CE_DELETE(_allocator, _resource_loader);
-
-	bgfx::shutdown();
-	window::destroy(_allocator, *_window);
-	display::destroy(_allocator, *_display);
-	CE_DELETE(_allocator, _bgfx_callback);
-	CE_DELETE(_allocator, _bgfx_allocator);
-
-	if (_last_log)
-	{
-		_bundle_filesystem->close(*_last_log);
-	}
-
-	CE_DELETE(_allocator, _bundle_filesystem);
+	CE_DELETE(_allocator, _bundle_compiler);
 
 	_console_server->shutdown();
 	CE_DELETE(_allocator, _console_server);
@@ -461,6 +479,11 @@ void Device::log(const char* msg, LogSeverity::Enum severity)
 ConsoleServer* Device::console_server()
 {
 	return _console_server;
+}
+
+BundleCompiler* Device::bundle_compiler()
+{
+	return _bundle_compiler;
 }
 
 ResourceManager* Device::resource_manager()

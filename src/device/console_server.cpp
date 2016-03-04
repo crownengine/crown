@@ -165,7 +165,7 @@ void ConsoleServer::process(TCPSocket client, const char* json)
 		sjson::parse_string(root["resource_name"], rname);
 		sjson::parse_string(root["platform"], platform);
 
-		bool succ = bundle_compiler_globals::compiler()->compile(rtype.c_str()
+		bool succ = device()->bundle_compiler()->compile(rtype.c_str()
 			, rname.c_str()
 			, platform.c_str()
 			);

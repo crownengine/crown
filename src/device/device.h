@@ -6,6 +6,7 @@
 #pragma once
 
 #include "allocator.h"
+#include "compiler_types.h"
 #include "config.h"
 #include "console_server.h"
 #include "container_types.h"
@@ -38,6 +39,7 @@ class Device
 
 	const DeviceOptions& _device_options;
 	ConsoleServer* _console_server;
+	BundleCompiler* _bundle_compiler;
 	Filesystem* _bundle_filesystem;
 	File* _last_log;
 	ResourceLoader* _resource_loader;
@@ -125,9 +127,6 @@ public:
 	/// Returns the main window resolution.
 	void resolution(u16& width, u16& height);
 
-	/// Updates all the subsystems.
-	void update();
-
 	/// Renders @a world using @a camera.
 	void render(World& world, CameraInstance camera);
 
@@ -154,6 +153,9 @@ public:
 
 	/// Returns the console server.
 	ConsoleServer* console_server();
+
+	/// Returns the bundle compiler.
+	BundleCompiler* bundle_compiler();
 
 	/// Returns the resource manager.
 	ResourceManager* resource_manager();

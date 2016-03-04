@@ -289,43 +289,4 @@ void BundleCompiler::scan_source_dir(const char* cur_dir)
 	}
 }
 
-namespace bundle_compiler
-{
-	bool main(bool do_compile, bool do_continue, const char* platform)
-	{
-		bool can_proceed = true;
-
-		if (do_compile)
-		{
-			bool success = bundle_compiler_globals::compiler()->compile_all(platform);
-			can_proceed = !(!success || !do_continue);
-		}
-
-		return can_proceed;
-	}
-} // namespace bundle_compiler
-
-namespace bundle_compiler_globals
-{
-	char _buffer[sizeof(BundleCompiler)];
-	BundleCompiler* _compiler = NULL;
-
-	void init(const char* source_dir, const char* bundle_dir)
-	{
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
-		_compiler = new (_buffer) BundleCompiler(source_dir, bundle_dir);
-#endif
-	}
-
-	void shutdown()
-	{
-		_compiler->~BundleCompiler();
-		_compiler = NULL;
-	}
-
-	BundleCompiler* compiler()
-	{
-		return _compiler;
-	}
-} // namespace bundle_compiler_globals
 } // namespace crown

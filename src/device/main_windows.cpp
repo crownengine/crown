@@ -7,7 +7,6 @@
 
 #if CROWN_PLATFORM_WINDOWS
 
-#include "bundle_compiler.h"
 #include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
@@ -620,26 +619,12 @@ int main(int argc, char** argv)
 	CE_UNUSED(err);
 
 	DeviceOptions opts(argc, argv);
-
 	int exitcode = opts.parse();
+
 	if (exitcode == EXIT_FAILURE)
-	{
 		return exitcode;
-	}
 
-	bool do_continue = true;
-
-	if (opts._do_compile)
-	{
-		bundle_compiler_globals::init(opts._source_dir, opts._bundle_dir);
-		do_continue = bundle_compiler::main(opts._do_compile, opts._do_continue, opts._platform);
-	}
-
-	if (do_continue)
-		exitcode = crown::s_wdvc.run(&opts);
-
-	if (opts._do_compile)
-		bundle_compiler_globals::shutdown();
+	exitcode = crown::s_ldvc.run(&opts);
 
 	memory_globals::shutdown();
 	return exitcode;
