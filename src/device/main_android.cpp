@@ -33,8 +33,7 @@ struct MainThreadArgs
 s32 func(void* data)
 {
 	MainThreadArgs* args = (MainThreadArgs*)data;
-	crown::init(*args->opts);
-	crown::shutdown();
+	crown::run(*args->opts);
 	s_exit = true;
 	return EXIT_SUCCESS;
 }

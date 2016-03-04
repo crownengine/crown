@@ -167,7 +167,7 @@ Device::Device(const DeviceOptions& opts)
 {
 }
 
-void Device::init()
+void Device::run()
 {
 	profiler_globals::init();
 
@@ -690,17 +690,11 @@ bool Device::process_events()
 char _buffer[sizeof(Device)];
 Device* _device = NULL;
 
-void init(const DeviceOptions& opts)
+void run(const DeviceOptions& opts)
 {
 	CE_ASSERT(_device == NULL, "Crown already initialized");
 	_device = new (_buffer) Device(opts);
-	_device->init();
-}
-
-void shutdown()
-{
-	_device->~Device();
-	_device = NULL;
+	_device->run();
 }
 
 Device* device()

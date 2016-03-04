@@ -88,8 +88,8 @@ public:
 
 	Device(const DeviceOptions& opts);
 
-	/// Initializes the engine.
-	void init();
+	/// Runs the engine.
+	void run();
 
 	/// Returns the number of command line parameters.
 	int argc() const { return _device_options._argc; }
@@ -188,8 +188,10 @@ private:
 	Device& operator=(const Device&);
 };
 
-void init(const DeviceOptions& opts);
-void shutdown();
+/// Runs the engine.
+void run(const DeviceOptions& opts);
+
+/// Returns the device.
 Device* device();
 
 } // namespace crown
