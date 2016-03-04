@@ -8,6 +8,7 @@
 #if CROWN_PLATFORM_ANDROID
 
 #include "apk_filesystem.h"
+#include "dynamic_string.h"
 #include "file.h"
 #include "os.h"
 #include "temp_allocator.h"
