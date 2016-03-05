@@ -695,6 +695,8 @@ void run(const DeviceOptions& opts)
 	CE_ASSERT(_device == NULL, "Crown already initialized");
 	_device = new (_buffer) Device(opts);
 	_device->run();
+	_device->~Device();
+	_device = NULL;
 }
 
 Device* device()
