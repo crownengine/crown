@@ -180,8 +180,7 @@ void Device::run()
 	if (_device_options._do_compile)
 	{
 		_bundle_compiler = CE_NEW(_allocator, BundleCompiler)(_device_options._source_dir, _device_options._bundle_dir);
-		bool success = _bundle_compiler->compile_all(_device_options._platform);
-		do_continue = success && _device_options._do_continue;
+		do_continue = _bundle_compiler->compile_all(_device_options._platform) && _device_options._do_continue;
 	}
 #endif // CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 
