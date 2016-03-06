@@ -167,6 +167,167 @@ Device::Device(const DeviceOptions& opts)
 {
 }
 
+void Device::read_config()
+{
+	TempAllocator4096 ta;
+	DynamicString boot_dir(ta);
+
+	if (_device_options._boot_dir != NULL)
+	{
+		boot_dir += _device_options._boot_dir;
+		boot_dir += '/';
+	}
+
+	boot_dir += CROWN_BOOT_CONFIG;
+
+	const StringId64 config_name(boot_dir.c_str());
+
+	_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
+	_resource_manager->flush();
+	const char* cfile = (const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name);
+
+	JsonObject config(ta);
+	sjson::parse(cfile, config);
+
+	_boot_script_name  = sjson::parse_resource_id(config["boot_script"]);
+	_boot_package_name = sjson::parse_resource_id(config["boot_package"]);
+
+	// Platform-specific configs
+	if (map::has(config, FixedString(CROWN_PLATFORM_NAME)))
+	{
+		JsonObject platform(ta);
+		sjson::parse(config[CROWN_PLATFORM_NAME], platform);
+
+		if (map::has(platform, FixedString("window_width")))
+		{
+			_config_window_w = (u16)sjson::parse_int(platform["window_width"]);
+		}
+		if (map::has(platform, FixedString("window_height")))
+		{
+			_config_window_h = (u16)sjson::parse_int(platform["window_height"]);
+		}
+	}
+
+	_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
+}
+
+bool Device::process_events()
+{
+	OsEvent event;
+	bool exit = false;
+	InputManager* im = _input_manager;
+
+	const s16 dt_x = _mouse_curr_x - _mouse_last_x;
+	const s16 dt_y = _mouse_curr_y - _mouse_last_y;
+	im->mouse()->set_axis(MouseAxis::CURSOR_DELTA, vector3(dt_x, dt_y, 0.0f));
+	_mouse_last_x = _mouse_curr_x;
+	_mouse_last_y = _mouse_curr_y;
+
+	while(next_event(event))
+	{
+		if (event.type == OsEvent::NONE) continue;
+
+		switch (event.type)
+		{
+			case OsEvent::TOUCH:
+			{
+				const OsTouchEvent& ev = event.touch;
+				switch (ev.type)
+				{
+					case OsTouchEvent::POINTER:
+						im->touch()->set_button_state(ev.pointer_id, ev.pressed);
+						break;
+					case OsTouchEvent::MOVE:
+						im->touch()->set_axis(ev.pointer_id, vector3(ev.x, ev.y, 0.0f));
+						break;
+					default:
+						CE_FATAL("Unknown touch event type");
+						break;
+				}
+				break;
+			}
+			case OsEvent::MOUSE:
+			{
+				const OsMouseEvent& ev = event.mouse;
+				switch (ev.type)
+				{
+					case OsMouseEvent::BUTTON:
+						im->mouse()->set_button_state(ev.button, ev.pressed);
+						break;
+					case OsMouseEvent::MOVE:
+						_mouse_curr_x = ev.x;
+						_mouse_curr_y = ev.y;
+						im->mouse()->set_axis(MouseAxis::CURSOR, vector3(ev.x, ev.y, 0.0f));
+						break;
+					case OsMouseEvent::WHEEL:
+						im->mouse()->set_axis(MouseAxis::WHEEL, vector3(0.0f, ev.wheel, 0.0f));
+						break;
+					default:
+						CE_FATAL("Unknown mouse event type");
+						break;
+				}
+				break;
+			}
+			case OsEvent::KEYBOARD:
+			{
+				const OsKeyboardEvent& ev = event.keyboard;
+				im->keyboard()->set_button_state(ev.button, ev.pressed);
+				break;
+			}
+			case OsEvent::JOYPAD:
+			{
+				const OsJoypadEvent& ev = event.joypad;
+				switch (ev.type)
+				{
+					case OsJoypadEvent::CONNECTED:
+						im->joypad(ev.index)->set_connected(ev.connected);
+						break;
+					case OsJoypadEvent::BUTTON:
+						im->joypad(ev.index)->set_button_state(ev.button, ev.pressed);
+						break;
+					case OsJoypadEvent::AXIS:
+						im->joypad(ev.index)->set_axis(ev.button, vector3(ev.x, ev.y, ev.z));
+						break;
+					default:
+						CE_FATAL("Unknown joypad event");
+						break;
+				}
+				break;
+			}
+			case OsEvent::METRICS:
+			{
+				const OsMetricsEvent& ev = event.metrics;
+				_width = ev.width;
+				_height = ev.height;
+				bgfx::reset(ev.width, ev.height, BGFX_RESET_VSYNC);
+				break;
+			}
+			case OsEvent::EXIT:
+			{
+				exit = true;
+				break;
+			}
+			case OsEvent::PAUSE:
+			{
+				pause();
+				break;
+			}
+			case OsEvent::RESUME:
+			{
+				unpause();
+				break;
+			}
+			default:
+			{
+				CE_FATAL("Unknown Os Event");
+				break;
+			}
+		}
+	}
+
+	return exit;
+}
+
 void Device::run()
 {
 	profiler_globals::init();
@@ -523,167 +684,6 @@ Display* Device::display()
 Window* Device::window()
 {
 	return _window;
-}
-
-void Device::read_config()
-{
-	TempAllocator4096 ta;
-	DynamicString boot_dir(ta);
-
-	if (_device_options._boot_dir != NULL)
-	{
-		boot_dir += _device_options._boot_dir;
-		boot_dir += '/';
-	}
-
-	boot_dir += CROWN_BOOT_CONFIG;
-
-	const StringId64 config_name(boot_dir.c_str());
-
-	_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
-	_resource_manager->flush();
-	const char* cfile = (const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name);
-
-	JsonObject config(ta);
-	sjson::parse(cfile, config);
-
-	_boot_script_name  = sjson::parse_resource_id(config["boot_script"]);
-	_boot_package_name = sjson::parse_resource_id(config["boot_package"]);
-
-	// Platform-specific configs
-	if (map::has(config, FixedString(CROWN_PLATFORM_NAME)))
-	{
-		JsonObject platform(ta);
-		sjson::parse(config[CROWN_PLATFORM_NAME], platform);
-
-		if (map::has(platform, FixedString("window_width")))
-		{
-			_config_window_w = (u16)sjson::parse_int(platform["window_width"]);
-		}
-		if (map::has(platform, FixedString("window_height")))
-		{
-			_config_window_h = (u16)sjson::parse_int(platform["window_height"]);
-		}
-	}
-
-	_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
-}
-
-bool Device::process_events()
-{
-	OsEvent event;
-	bool exit = false;
-	InputManager* im = _input_manager;
-
-	const s16 dt_x = _mouse_curr_x - _mouse_last_x;
-	const s16 dt_y = _mouse_curr_y - _mouse_last_y;
-	im->mouse()->set_axis(MouseAxis::CURSOR_DELTA, vector3(dt_x, dt_y, 0.0f));
-	_mouse_last_x = _mouse_curr_x;
-	_mouse_last_y = _mouse_curr_y;
-
-	while(next_event(event))
-	{
-		if (event.type == OsEvent::NONE) continue;
-
-		switch (event.type)
-		{
-			case OsEvent::TOUCH:
-			{
-				const OsTouchEvent& ev = event.touch;
-				switch (ev.type)
-				{
-					case OsTouchEvent::POINTER:
-						im->touch()->set_button_state(ev.pointer_id, ev.pressed);
-						break;
-					case OsTouchEvent::MOVE:
-						im->touch()->set_axis(ev.pointer_id, vector3(ev.x, ev.y, 0.0f));
-						break;
-					default:
-						CE_FATAL("Unknown touch event type");
-						break;
-				}
-				break;
-			}
-			case OsEvent::MOUSE:
-			{
-				const OsMouseEvent& ev = event.mouse;
-				switch (ev.type)
-				{
-					case OsMouseEvent::BUTTON:
-						im->mouse()->set_button_state(ev.button, ev.pressed);
-						break;
-					case OsMouseEvent::MOVE:
-						_mouse_curr_x = ev.x;
-						_mouse_curr_y = ev.y;
-						im->mouse()->set_axis(MouseAxis::CURSOR, vector3(ev.x, ev.y, 0.0f));
-						break;
-					case OsMouseEvent::WHEEL:
-						im->mouse()->set_axis(MouseAxis::WHEEL, vector3(0.0f, ev.wheel, 0.0f));
-						break;
-					default:
-						CE_FATAL("Unknown mouse event type");
-						break;
-				}
-				break;
-			}
-			case OsEvent::KEYBOARD:
-			{
-				const OsKeyboardEvent& ev = event.keyboard;
-				im->keyboard()->set_button_state(ev.button, ev.pressed);
-				break;
-			}
-			case OsEvent::JOYPAD:
-			{
-				const OsJoypadEvent& ev = event.joypad;
-				switch (ev.type)
-				{
-					case OsJoypadEvent::CONNECTED:
-						im->joypad(ev.index)->set_connected(ev.connected);
-						break;
-					case OsJoypadEvent::BUTTON:
-						im->joypad(ev.index)->set_button_state(ev.button, ev.pressed);
-						break;
-					case OsJoypadEvent::AXIS:
-						im->joypad(ev.index)->set_axis(ev.button, vector3(ev.x, ev.y, ev.z));
-						break;
-					default:
-						CE_FATAL("Unknown joypad event");
-						break;
-				}
-				break;
-			}
-			case OsEvent::METRICS:
-			{
-				const OsMetricsEvent& ev = event.metrics;
-				_width = ev.width;
-				_height = ev.height;
-				bgfx::reset(ev.width, ev.height, BGFX_RESET_VSYNC);
-				break;
-			}
-			case OsEvent::EXIT:
-			{
-				exit = true;
-				break;
-			}
-			case OsEvent::PAUSE:
-			{
-				pause();
-				break;
-			}
-			case OsEvent::RESUME:
-			{
-				unpause();
-				break;
-			}
-			default:
-			{
-				CE_FATAL("Unknown Os Event");
-				break;
-			}
-		}
-	}
-
-	return exit;
 }
 
 char _buffer[sizeof(Device)];
