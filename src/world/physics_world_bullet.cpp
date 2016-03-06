@@ -360,13 +360,14 @@ public:
 
 	void destroy_actor(ActorInstance i)
 	{
-		const u32 last = array::size(_actor) - 1;
+		const u32 last      = array::size(_actor) - 1;
 		const UnitId u      = _actor[i.i].unit;
 		const UnitId last_u = _actor[last].unit;
 
 		_scene->removeRigidBody(_actor[i.i].actor);
 
 		_actor[i.i] = _actor[last];
+		_actor[i.i].actor->setUserPointer((void*)(uintptr_t)i.i);
 
 		array::pop_back(_actor);
 
