@@ -19,7 +19,7 @@ static void help(const char* msg = NULL)
 	}
 
 	CE_LOGI(
-		"Usage: crown --bundle-dir <path> [options]\n"
+		"Usage: crown [options]\n"
 		"\n"
 		"Options:\n"
 		"\n"
