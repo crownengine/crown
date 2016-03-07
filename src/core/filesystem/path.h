@@ -24,6 +24,9 @@ namespace path
 	/// Returns whether the @a path is absolute.
 	bool is_absolute(const char* path);
 
+	/// Returns whether the @a path is relative.
+	bool is_relative(const char* path);
+
 	/// Returns whether the @a path is the root path.
 	bool is_root(const char* path);
 

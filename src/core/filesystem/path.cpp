@@ -28,6 +28,11 @@ namespace path
 #endif
 	}
 
+	bool is_relative(const char* path)
+	{
+		return !is_absolute(path);
+	}
+
 	bool is_root(const char* path)
 	{
 		CE_ASSERT(path != NULL, "Path must be != NULL");
