@@ -76,14 +76,6 @@ int DeviceOptions::parse()
 	}
 
 	_bundle_dir = cl.get_parameter("bundle-dir");
-	if (_bundle_dir != NULL)
-	{
-		if (!path::is_absolute(_bundle_dir))
-		{
-			help("Bundle dir must be absolute.");
-			return EXIT_FAILURE;
-		}
-	}
 
 	_do_compile = cl.has_argument("compile");
 	if (_do_compile)
@@ -102,6 +94,25 @@ int DeviceOptions::parse()
 			return EXIT_FAILURE;
 		}
 
+		_bundle_dir = cl.get_parameter("bundle-dir");
+		if (_bundle_dir == NULL)
+		{
+			help("Bundle dir must be specified.");
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (_bundle_dir != NULL)
+	{
+		if (!path::is_absolute(_bundle_dir))
+		{
+			help("Bundle dir must be absolute.");
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (_source_dir != NULL)
+	{
 		if (!path::is_absolute(_source_dir))
 		{
 			help("Source dir must be absolute.");
@@ -112,6 +123,15 @@ int DeviceOptions::parse()
 	_do_continue = cl.has_argument("continue");
 
 	_boot_dir = cl.get_parameter("boot-dir");
+	if (_boot_dir != NULL)
+	{
+		if (!path::is_relative(_boot_dir))
+		{
+			help("Boot dir must be relative.");
+			return EXIT_FAILURE;
+		}
+	}
+
 	_wait_console = cl.has_argument("wait-console");
 
 	const char* parent = cl.get_parameter("parent-window");
