@@ -184,9 +184,15 @@ public:
 	virtual void draw_debug() = 0;
 
 	virtual void enable_debug_drawing(bool enable) = 0;
-
-	static PhysicsWorld* create(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl);
-	static void destroy(Allocator& a, PhysicsWorld* pw);
 };
+
+/// Functions to manipulate PhysicsWorld.
+///
+/// @ingroup World
+namespace physics_world
+{
+	PhysicsWorld* create(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl);
+	void destroy(Allocator& a, PhysicsWorld* pw);
+} // namespace physics_world
 
 } // namespace crown

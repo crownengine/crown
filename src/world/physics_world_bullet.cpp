@@ -982,15 +982,19 @@ private:
 	bool _debug_drawing;
 };
 
-PhysicsWorld* PhysicsWorld::create(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)
+namespace physics_world
 {
-	return CE_NEW(a, BulletWorld)(a, rm, um, dl);
-}
+	PhysicsWorld* create(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)
+	{
+		return CE_NEW(a, BulletWorld)(a, rm, um, dl);
+	}
 
-void PhysicsWorld::destroy(Allocator& a, PhysicsWorld* pw)
-{
-	CE_DELETE(a, pw);
-}
+	void destroy(Allocator& a, PhysicsWorld* pw)
+	{
+		CE_DELETE(a, pw);
+	}
+} // namespace physics_world
+
 } // namespace crown
 
 #endif // CROWN_PHYSICS_BULLET

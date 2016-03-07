@@ -57,9 +57,15 @@ public:
 	virtual void set_listener_pose(const Matrix4x4& pose) = 0;
 
 	virtual void update() = 0;
-
-	static SoundWorld* create(Allocator& a);
-	static void destroy(Allocator& a, SoundWorld* sw);
 };
+
+/// Functions to manipulate SoundWorld.
+///
+/// @ingroup World
+namespace sound_world
+{
+	SoundWorld* create(Allocator& a);
+	void destroy(Allocator& a, SoundWorld* sw);
+} // namespace sound_world
 
 } // namespace crown

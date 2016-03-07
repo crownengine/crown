@@ -390,15 +390,18 @@ public:
 	}
 };
 
-SoundWorld* SoundWorld::create(Allocator& a)
+namespace sound_world
 {
-	return CE_NEW(a, ALSoundWorld)();
-}
+	SoundWorld* create(Allocator& a)
+	{
+		return CE_NEW(a, ALSoundWorld)();
+	}
 
-void SoundWorld::destroy(Allocator& a, SoundWorld* sw)
-{
-	CE_DELETE(a, sw);
-}
+	void destroy(Allocator& a, SoundWorld* sw)
+	{
+		CE_DELETE(a, sw);
+	}
+} // namespace sound_world
 
 } // namespace crown
 

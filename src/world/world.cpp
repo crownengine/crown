@@ -46,15 +46,15 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	_lines = create_debug_line(true);
 	_scene_graph = CE_NEW(*_allocator, SceneGraph)(*_allocator);
 	_render_world = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um);
-	_physics_world = PhysicsWorld::create(*_allocator, rm, um, *_lines);
-	_sound_world = SoundWorld::create(*_allocator);
+	_physics_world = physics_world::create(*_allocator, rm, um, *_lines);
+	_sound_world = sound_world::create(*_allocator);
 }
 
 World::~World()
 {
 	destroy_debug_line(*_lines);
-	SoundWorld::destroy(*_allocator, _sound_world);
-	PhysicsWorld::destroy(*_allocator, _physics_world);
+	sound_world::destroy(*_allocator, _sound_world);
+	physics_world::destroy(*_allocator, _physics_world);
 	CE_DELETE(*_allocator, _render_world);
 	CE_DELETE(*_allocator, _scene_graph);
 
