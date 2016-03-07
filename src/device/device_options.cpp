@@ -76,16 +76,13 @@ int DeviceOptions::parse()
 	}
 
 	_bundle_dir = cl.get_parameter("bundle-dir");
-	if (_bundle_dir == NULL)
+	if (_bundle_dir != NULL)
 	{
-		help("Bundle dir must be specified.");
-		return EXIT_FAILURE;
-	}
-
-	if (!path::is_absolute(_bundle_dir))
-	{
-		help("Bundle dir must be absolute.");
-		return EXIT_FAILURE;
+		if (!path::is_absolute(_bundle_dir))
+		{
+			help("Bundle dir must be absolute.");
+			return EXIT_FAILURE;
+		}
 	}
 
 	_do_compile = cl.has_argument("compile");

@@ -350,7 +350,13 @@ void Device::run()
 #if CROWN_PLATFORM_ANDROID
 		_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
-		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), _device_options._bundle_dir);
+		const char* bundle_dir = _device_options._bundle_dir;
+		if (!bundle_dir)
+		{
+			char buf[1024];
+			bundle_dir = os::getcwd(buf, sizeof(buf));
+		}
+		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), bundle_dir);
 		_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
