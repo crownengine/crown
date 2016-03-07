@@ -21,10 +21,6 @@ struct StringId32
 	explicit StringId32(const char* str);
 	explicit StringId32(const char* str, u32 len);
 
-	bool operator==(StringId32 a) const { return _id == a._id; }
-	bool operator!=(StringId32 a) const { return _id != a._id; }
-	bool operator<(StringId32 a) const { return _id < a._id; }
-
 	const char* to_string(char* buf);
 
 	static const u32 STRING_LENGTH = 32;
@@ -42,14 +38,43 @@ struct StringId64
 	explicit StringId64(const char* str);
 	explicit StringId64(const char* str, u32 len);
 
-	bool operator==(StringId64 a) const { return _id == a._id; }
-	bool operator!=(StringId64 a) const { return _id != a._id; }
-	bool operator<(StringId64 a) const { return _id < a._id; }
-
 	const char* to_string(char* buf);
 
 	static const u32 STRING_LENGTH = 32;
 };
+
+/// @addtogroup String
+/// @{
+inline bool operator==(const StringId32& a, const StringId32& b)
+{
+	return a._id == b._id;
+}
+
+inline bool operator!=(const StringId32& a, const StringId32& b)
+{
+	return a._id != b._id;
+}
+
+inline bool operator<(const StringId32& a, const StringId32& b)
+{
+	return a._id < b._id;
+}
+
+inline bool operator==(const StringId64& a, const StringId64& b)
+{
+	return a._id == b._id;
+}
+
+inline bool operator!=(const StringId64& a, const StringId64& b)
+{
+	return a._id != b._id;
+}
+
+inline bool operator<(const StringId64& a, const StringId64& b)
+{
+	return a._id < b._id;
+}
+/// @}
 
 typedef StringId64 ResourceId;
 
