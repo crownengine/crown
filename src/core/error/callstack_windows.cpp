@@ -27,7 +27,7 @@ namespace error
 
 		STACKFRAME64 stack;
 		ZeroMemory(&stack, sizeof(STACKFRAME64));
-	#ifdef _M_IX86
+#ifdef _M_IX86
 		mtype = IMAGE_FILE_MACHINE_I386;
 		stack.AddrPC.Offset = ctx.Eip;
 		stack.AddrPC.Mode = AddrModeFlat;
@@ -35,7 +35,7 @@ namespace error
 		stack.AddrFrame.Mode = AddrModeFlat;
 		stack.AddrStack.Offset = ctx.Esp;
 		stack.AddrStack.Mode = AddrModeFlat;
-	#elif _M_X64
+#elif _M_X64
 		mtype = IMAGE_FILE_MACHINE_AMD64;
 		stack.AddrPC.Offset = ctx.Rip;
 		stack.AddrPC.Mode = AddrModeFlat;
@@ -43,7 +43,7 @@ namespace error
 		stack.AddrFrame.Mode = AddrModeFlat;
 		stack.AddrStack.Offset = ctx.Rsp;
 		stack.AddrStack.Mode = AddrModeFlat;
-	#endif
+#endif
 
 		DWORD ldsp = 0;
 		IMAGEHLP_LINE64 line;
