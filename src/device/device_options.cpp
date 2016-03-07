@@ -86,6 +86,15 @@ int DeviceOptions::parse()
 			help("Platform must be specified.");
 			return EXIT_FAILURE;
 		}
+		else if (true
+			&& strcmp("android", _platform) != 0
+			&& strcmp("linux", _platform) != 0
+			&& strcmp("windows", _platform) != 0
+			)
+		{
+			help("Unknown platform.");
+			return EXIT_FAILURE;
+		}
 
 		_source_dir = cl.get_parameter("source-dir");
 		if (_source_dir == NULL)
