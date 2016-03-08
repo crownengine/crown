@@ -2500,16 +2500,31 @@ static int device_console_send(lua_State* L)
 	StringStream json(alloc);
 
 	json << "{";
-	/* table is in the stack at index 'i' */
-	stack.push_nil();  /* first key */
-	while (stack.next(1) != 0)
+
+	stack.push_nil();
+	while (stack.next(-2) != 0)
 	{
-		/* uses 'key' (at index -2) and 'value' (at index -1) */
-		json << "\"" << stack.get_string(-2) << "\":\"" << stack.get_string(-1) << "\",";
-		/* removes 'value'; keeps 'key' for next iteration */
+		json << "\"" << stack.get_string(-2) << "\":";
+
+		if (stack.is_vector3(-1))
+		{
+			Vector3 v = stack.get_vector3(-1);
+			json << "[" << v.x << "," << v.y << "," << v.z << "]";
+		}
+		else if (stack.is_quaternion(-1))
+		{
+			Quaternion q = stack.get_quaternion(-1);
+			json << "[" << q.x << "," << q.y << "," << q.z << "," << q.w << "]";
+		}
+		else
+		{
+			json << "\"" << stack.get_string(-1) << "\"";
+		}
+
+		json << ",";
 		stack.pop(1);
 	}
-	/* pop key */
+
 	stack.pop(1);
 	json << "}";
 

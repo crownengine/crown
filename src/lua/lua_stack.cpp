@@ -20,17 +20,17 @@ namespace crown
 {
 bool LuaStack::is_vector3(int i)
 {
-	return device()->lua_environment()->is_vector3((Vector3*)get_pointer(i));
+	return device()->lua_environment()->is_vector3((Vector3*)lua_touserdata(L, i));
 }
 
 bool LuaStack::is_quaternion(int i)
 {
-	return device()->lua_environment()->is_quaternion((Quaternion*)get_pointer(i));
+	return device()->lua_environment()->is_quaternion((Quaternion*)lua_touserdata(L, i));
 }
 
 bool LuaStack::is_matrix4x4(int i)
 {
-	return device()->lua_environment()->is_matrix4x4((Matrix4x4*)get_pointer(i));
+	return device()->lua_environment()->is_matrix4x4((Matrix4x4*)lua_touserdata(L, i));
 }
 
 void LuaStack::check_temporary(int i, const Vector3* p)

@@ -79,6 +79,11 @@ struct LuaStack
 		return lua_isnumber(L, i) == 1;
 	}
 
+	bool is_string(int i)
+	{
+		return lua_isstring(L, i) == 1;
+	}
+
 	bool is_pointer(int i)
 	{
 		return lua_islightuserdata(L, i) == 1
