@@ -3,9 +3,12 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "config_resource.h"
 #include "allocator.h"
 #include "compile_options.h"
+#include "config_resource.h"
+#include "map.h"
+#include "resource_types.h"
+#include "sjson.h"
 
 namespace crown
 {
@@ -13,7 +16,25 @@ namespace config_resource
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
-		opts.write(opts.read(path));
+		Buffer buf = opts.read(path);
+
+		TempAllocator1024 ta;
+		JsonObject boot(ta);
+		sjson::parse(buf, boot);
+
+		const char* boot_script_json  = map::get(boot, FixedString("boot_script"), (const char*)NULL);
+		const char* boot_package_json = map::get(boot, FixedString("boot_package"), (const char*)NULL);
+		RESOURCE_COMPILER_ASSERT(boot_script_json != NULL, opts, "'boot_script' must be specified.");
+		RESOURCE_COMPILER_ASSERT(boot_package_json != NULL, opts, "'boot_package' must be specified.");
+
+		DynamicString boot_script(ta);
+		DynamicString boot_package(ta);
+		sjson::parse_string(boot_script_json, boot_script);
+		sjson::parse_string(boot_package_json, boot_package);
+		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SCRIPT, boot_script.c_str(), opts);
+		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_PACKAGE, boot_package.c_str(), opts);
+
+		opts.write(buf);
 	}
 
 	void* load(File& file, Allocator& a)

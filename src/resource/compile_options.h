@@ -18,6 +18,9 @@
 #define RESOURCE_COMPILER_ASSERT(condition, opts, msg, ...) do { if (!(condition))\
 	{ opts.error(msg, ##__VA_ARGS__); } } while(0)
 
+#define RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts)\
+	RESOURCE_COMPILER_ASSERT(opts.resource_exists(type, name), opts, "Resource does not exist: '%s.%s'", name, type)
+
 namespace crown
 {
 class CompileOptions
