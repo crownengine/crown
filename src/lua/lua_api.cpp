@@ -2506,19 +2506,73 @@ static int device_console_send(lua_State* L)
 	{
 		json << "\"" << stack.get_string(-2) << "\":";
 
-		if (stack.is_vector3(-1))
+		if (stack.is_nil(-1))
 		{
-			Vector3 v = stack.get_vector3(-1);
-			json << "[" << v.x << "," << v.y << "," << v.z << "]";
+			json << "null";
+		}
+		else if (stack.is_bool(-1))
+		{
+			const bool b = stack.get_bool(-1);
+			json << (b ? "true" : "false");
+		}
+		else if (stack.is_number(-1))
+		{
+			json << stack.get_float(-1);
+		}
+		else if (stack.is_string(-1))
+		{
+			json << "\"" << stack.get_string(-1) << "\"";
+		}
+		else if (stack.is_vector3(-1))
+		{
+			const Vector3 v = stack.get_vector3(-1);
+			json << "["
+				 << v.x << ","
+				 << v.y << ","
+				 << v.z
+				 << "]"
+				 ;
 		}
 		else if (stack.is_quaternion(-1))
 		{
-			Quaternion q = stack.get_quaternion(-1);
-			json << "[" << q.x << "," << q.y << "," << q.z << "," << q.w << "]";
+			const Quaternion q = stack.get_quaternion(-1);
+			json << "["
+				 << q.x << ","
+				 << q.y << ","
+				 << q.z << ","
+				 << q.w
+				 << "]"
+				 ;
+		}
+		else if (stack.is_matrix4x4(-1))
+		{
+			const Matrix4x4 m = stack.get_matrix4x4(-1);
+			json << "["
+				 << m.x.x << ","
+				 << m.x.y << ","
+				 << m.x.z << ","
+				 << m.x.w << ","
+
+				 << m.y.x << ","
+				 << m.y.y << ","
+				 << m.y.z << ","
+				 << m.y.w << ","
+
+				 << m.z.x << ","
+				 << m.z.y << ","
+				 << m.z.z << ","
+				 << m.z.w << ","
+
+				 << m.t.x << ","
+				 << m.t.y << ","
+				 << m.t.z << ","
+				 << m.t.w << ","
+				 << "]"
+				 ;
 		}
 		else
 		{
-			json << "\"" << stack.get_string(-1) << "\"";
+			LUA_ASSERT(false, stack, "Unsupported key value");
 		}
 
 		json << ",";
