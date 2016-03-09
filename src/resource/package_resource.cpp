@@ -28,12 +28,7 @@ namespace package_resource
 			DynamicString name(ta);
 			sjson::parse_string(names[i], name);
 
-			RESOURCE_COMPILER_ASSERT(opts.resource_exists(type, name.c_str())
-				, opts
-				, "Resource does not exist: '%s.%s'"
-				, name.c_str()
-				, type
-				);
+			RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(type, name.c_str(), opts);
 
 			const StringId64 nameh = sjson::parse_resource_id(names[i]);
 			array::push_back(output, PackageResource::Resource(typeh, nameh));
