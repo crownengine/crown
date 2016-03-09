@@ -74,9 +74,9 @@ Command line reference
 		Compile resources for the given <platform>.
 		Possible values for <platform> are:
 
+		* ``android``
 		* ``linux``
 		* ``windows``
-		* ``android``
 
 	``--continue``
 		Run the engine after resource compilation.
