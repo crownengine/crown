@@ -142,11 +142,10 @@ namespace Crown
 		{
 			builder.Append('[');
 			foreach (object item in a) {
-				WriteNewLine(builder, indentation+1);
+				builder.Append(' ');
 				Write(item, builder, indentation+1);
 			}
-			WriteNewLine(builder, indentation);
-			builder.Append(']');
+			builder.Append(" ]");
 		}
 
 		static void WriteObject(Hashtable t, StringBuilder builder, int indentation)

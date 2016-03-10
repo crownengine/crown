@@ -125,14 +125,11 @@ namespace Crown
 			foreach (object item in a)
 			{
 				if (write_comma)
-					builder.Append(',');
-				WriteNewLine(builder, indentation + 1);
+					builder.Append(' ,');
 				Write(item, builder, indentation + 1);
 				write_comma = true;
-
 			}
-			WriteNewLine(builder, indentation);
-			builder.Append(']');
+			builder.Append(' ]');
 		}
 
 		static void WriteObject(Hashtable t, StringBuilder builder, int indentation)
