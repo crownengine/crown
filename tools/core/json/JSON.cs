@@ -121,15 +121,15 @@ namespace Crown
 		static void WriteArray(ArrayList a, StringBuilder builder, int indentation)
 		{
 			bool write_comma = false;
-			builder.Append('[');
+			builder.Append("[ ");
 			foreach (object item in a)
 			{
 				if (write_comma)
-					builder.Append(' ,');
+					builder.Append(", ");
 				Write(item, builder, indentation + 1);
 				write_comma = true;
 			}
-			builder.Append(' ]');
+			builder.Append("]");
 		}
 
 		static void WriteObject(Hashtable t, StringBuilder builder, int indentation)
