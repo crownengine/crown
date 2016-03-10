@@ -174,7 +174,7 @@ namespace sjson
 
 		while (true)
 		{
-			if (*json == ' ' || *json == '\t' || *json == '\n' || *json == '=')
+			if (isspace(*json) || *json == '=' || *json == ':')
 				return json;
 
 			key += *json++;
