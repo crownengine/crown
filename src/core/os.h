@@ -10,17 +10,17 @@
 #include "platform.h"
 #include "string_types.h"
 #include "types.h"
-#include <stdio.h> // fputs
+#include <stdio.h>  // fputs
 #include <string.h> // memset
 
 #if CROWN_PLATFORM_POSIX
-	#include <dlfcn.h> // dlopen, dlclose, dlsym
+	#include <dlfcn.h>    // dlopen, dlclose, dlsym
 	#include <errno.h>
 	#include <sys/stat.h> // lstat, mknod, mkdir
 	#include <sys/wait.h> // wait
-	#include <time.h> // clock_gettime
-	#include <unistd.h> // access, unlink, rmdir, getcwd, fork, execv
- 	#include <stdlib.h> // exit
+	#include <time.h>     // clock_gettime
+	#include <unistd.h>   // access, unlink, rmdir, getcwd, fork, execv
+ 	#include <stdlib.h>   // exit
 #elif CROWN_PLATFORM_WINDOWS
 	#include <io.h>
 	#include <win_headers.h>
