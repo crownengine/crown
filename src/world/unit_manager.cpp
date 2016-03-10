@@ -46,9 +46,7 @@ UnitId UnitManager::create()
 
 UnitId UnitManager::create(World& world)
 {
-	UnitId id = create();
-	world.spawn_empty_unit(id);
-	return id;
+	return world.spawn_empty_unit();
 }
 
 bool UnitManager::alive(UnitId id) const

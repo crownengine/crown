@@ -188,10 +188,12 @@ UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& 
 	return spawn_unit(*ur, pos, rot);
 }
 
-void World::spawn_empty_unit(UnitId id)
+UnitId World::spawn_empty_unit()
 {
+	UnitId id = _unit_manager->create();
 	array::push_back(_units, id);
 	post_unit_spawned_event(id);
+	return id;
 }
 
 void World::destroy_unit(UnitId id)

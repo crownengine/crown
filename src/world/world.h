@@ -30,8 +30,8 @@ public:
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
 	UnitId spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot);
 
-	/// Spawns a new empty unit with the given @a id.
-	void spawn_empty_unit(UnitId id);
+	/// Spawns a new empty unit and returns its id.
+	UnitId spawn_empty_unit();
 
 	/// Destroys the unit with the given @a id.
 	void destroy_unit(UnitId id);
