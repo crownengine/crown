@@ -1,2051 +1,2052 @@
+
 units = {
-	"e9cbebe4-f4ed-4834-a307-2634ca50d011" = {
+	0089d755-f6b8-4b90-bab6-5d9c8238fc5b = {
 		components = {
-			"cb9c1a5b-6910-4fb2-b457-a9c72a392d90" = {
-				type = "transform"
-				position = [-10 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			06b5c6b6-b82e-4067-98f8-8e30f1036d7c = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"d0dad24e-515e-40ab-a120-7b8d24ecbad0" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			29308a5e-94da-409f-95a9-52830281e2dd = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"0c6ff644-ef9c-405a-bb12-032694d432c0" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			748a9fbd-486c-475a-90e1-312192ff7713 = {
+				position = [ -2 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			b4116b8f-da20-460b-b701-e6075120e501 = {
 				class = "character"
 				material = "default"
-			}
-			"cb2ec6c1-a8c1-48b8-8a13-cafadf55ffdd" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"22ffcd18-270c-4127-ad12-6dfa9a0210f7" = {
+	014002e6-c501-473f-bfba-5065c152042e = {
 		components = {
-			"aa8e6050-19ac-4f53-96b9-d804431fdc24" = {
+			08ec9c23-0ae1-4e34-a67d-19bbbf199830 = {
+				position = [ 2 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-8 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"47ca4dd6-ec8c-408e-9895-6de04068f5e2" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
-			}
-			"804ade98-efc3-4565-933f-037087380e0b" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			75bde4f0-c533-4d9d-8c4e-df4c98ec3bac = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"8e3cea51-20d3-440b-9aa6-a90a1bf1839c" = {
-				type = "actor"
+			8d710285-4706-4532-b12c-cce7935597bb = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			cf4f8927-cb20-4765-902d-9964b2f14638 = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"d54d843a-b3f6-4dfa-9925-cb69c38f01b3" = {
+	04ddb191-6892-4f60-89b5-1335b3bc04fa = {
 		components = {
-			"415aa17b-1470-4469-a857-637f12a92ff1" = {
-				type = "transform"
-				position = [-6 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"775af1f9-627d-4a36-9532-55f67feb2f8b" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			03628832-41de-45bc-b19a-468ad1aebdc2 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"42fd9c41-4b1b-4e80-961a-fda89cab7263" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			a7f613c6-8701-4c34-9d69-65a01a10a546 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			ca6e1c87-81f5-4127-9b70-d14f43f0a408 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"dd7ad33d-4af8-4fb5-ae8b-5cba0d4ed9e8" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			d62700e3-3b43-4992-ab79-99082be93ef1 = {
+				position = [ -4 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
 		}
 	}
-	"171e5a70-e3c0-43e3-bb5e-78cf67d2a260" = {
+	062916f6-1c37-4912-8b6a-f31b05b8f612 = {
 		components = {
-			"d87e32cc-b217-4ff8-bb8a-f640122a13c8" = {
+			33996ac5-45e1-43ef-bd40-d0667261f8c6 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			b4645887-3fd4-4893-b2a0-ab538dbec5af = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			c2f7fbff-177e-4511-9809-a66b05a1360a = {
+				position = [ 8 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-4 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"e40b71cd-ebd0-48dc-8d85-40bc7e446725" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			d692743e-5a12-4a21-be92-899a9b4ff324 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"b7c646da-f864-4f56-989a-81ebdb8df215" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
-			}
-			"5ee126b5-c5e4-4920-b812-b89c4395b692" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
 			}
 		}
 	}
-	"ed0a6955-848e-4329-8886-b7dce77f580b" = {
+	07e7137e-3d93-4d87-a9a0-23b49265b973 = {
 		components = {
-			"582a0f87-d4b2-462b-a24c-d02917c8f5ac" = {
-				type = "transform"
-				position = [-2 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"b86dde93-fd1c-42a2-9cbb-f2b04dcc40ad" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			33ea82c5-1155-4257-be34-84111bf521bf = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"e99a4947-c058-4e96-9415-a862f56e302e" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			346fde7f-8e3e-4fde-8efb-17156c27b031 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"22a27861-cf1a-48a6-8ac3-dcd12c24cee1" = {
-				type = "actor"
+			9d480c50-1d0d-42a1-a8f0-bc0247b5a88b = {
+				position = [ 6 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			eeae35ec-9cd9-4afb-8597-6826e084f5ff = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"5f0cb0f3-704b-4f77-b9f0-ff1aedd16e0e" = {
+	08d0ed1a-8a4b-4f53-8acc-a3b6ae3caa35 = {
 		components = {
-			"de31dc3a-b2cb-4a24-935d-e50e28c56187" = {
+			3c7851e9-3ec5-496c-b093-b07a0697ecd0 = {
+				position = [ -8 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [0 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"621fac3d-79df-45af-a298-a02ed665377e" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			413f5f51-f1c1-4b52-9d59-9684f1fc679e = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"950869a9-d283-401b-ac36-d2e6a0e9a6d1" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			6ff73b9e-669d-4d35-b2df-a03a87bf37ac = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"50e3bd41-c446-4dea-b294-18e0b1c7c96f" = {
-				type = "actor"
+			8d316260-36a1-4c95-ad8e-0a6ceae31ddd = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"59d2f17c-bc6c-4ebc-a804-f3518dc115c4" = {
+	1672277c-bcdd-4c28-9c65-76305f12d68d = {
 		components = {
-			"65c4882f-f876-401e-ba84-3f51770330f5" = {
+			238c8e23-37a3-4522-9ba5-f74c4bc7e4c1 = {
+				position = [ -2 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [2 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"3408ef54-e365-4a73-9353-118349969b74" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
+			3edb90ac-3a62-4e7b-b01b-0e89977108ee = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"6969160c-021b-4a7b-9c77-3101f90697d8" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			a056e2f4-954c-4dab-9f1d-5029d7c44a5e = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"605f0ea3-5f7a-4988-823f-7614e4b04993" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			f39728c1-3f38-4280-831c-56369cb34a7a = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"e74c805d-b6d6-40fe-84f4-209d997d8803" = {
+	171e5a70-e3c0-43e3-bb5e-78cf67d2a260 = {
 		components = {
-			"df6e4db0-0860-4cb3-b310-d04434f11f04" = {
+			5ee126b5-c5e4-4920-b812-b89c4395b692 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			b7c646da-f864-4f56-989a-81ebdb8df215 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			d87e32cc-b217-4ff8-bb8a-f640122a13c8 = {
+				position = [ -4 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [4 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"fdf609b4-ad63-4cf7-ae70-e0502bbc2e34" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			e40b71cd-ebd0-48dc-8d85-40bc7e446725 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"bacb90a0-a662-4464-a051-4ac03d4848c8" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
-			}
-			"1181e646-51cc-4215-bb3f-0e1bca4ee8ce" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
 			}
 		}
 	}
-	"07e7137e-3d93-4d87-a9a0-23b49265b973" = {
+	22ffcd18-270c-4127-ad12-6dfa9a0210f7 = {
 		components = {
-			"9d480c50-1d0d-42a1-a8f0-bc0247b5a88b" = {
-				type = "transform"
-				position = [6 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"33ea82c5-1155-4257-be34-84111bf521bf" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			47ca4dd6-ec8c-408e-9895-6de04068f5e2 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"346fde7f-8e3e-4fde-8efb-17156c27b031" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			804ade98-efc3-4565-933f-037087380e0b = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"eeae35ec-9cd9-4afb-8597-6826e084f5ff" = {
-				type = "actor"
+			8e3cea51-20d3-440b-9aa6-a90a1bf1839c = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
+			aa8e6050-19ac-4f53-96b9-d804431fdc24 = {
+				position = [ -8 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
 		}
 	}
-	"5c65450f-6543-4b37-ae3f-7a7fd915af72" = {
+	231a4d40-0489-48a4-8096-078c2452bbf5 = {
 		components = {
-			"14084905-042f-459a-81cf-d42d3f4cad26" = {
-				type = "transform"
-				position = [8 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			2a7aad7d-3807-4eff-b986-be5359a41327 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"4f13a1a3-f0e0-449b-9ead-aeabd1db7385" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			83681417-ddb7-499e-a00c-f9f7377b41cd = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			b5327224-e9c8-43ae-8ee0-178e8ad4b430 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"d63244d7-9f6c-41ed-b370-75e5f9a7c72d" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"2bdfc948-eeb3-4f47-b0d3-9e325bbe95ba" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			c2ff0346-d7cc-42a3-8d6b-7d6e53daade5 = {
+				position = [ -6 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
 		}
 	}
-	"dcfdf3fa-9a9e-41c2-b720-ecd492624a98" = {
+	2356da9a-01ae-44ff-aaba-a5ee61141051 = {
 		components = {
-			"b8a46811-4545-4983-bb9c-4eba04f709e9" = {
-				type = "transform"
-				position = [10 1.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"ca35918d-07c6-4a73-94b3-ace804c4e725" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			25bcfb7d-d5ef-431a-a04f-a0c1cf7f2fe9 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"c70c7380-5889-4604-b41e-c4216343b908" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"2b25365b-dd93-4e18-a8c4-4daf1788f108" = {
-				type = "actor"
+			30689367-4ba1-49ee-9f60-76c72bc51e96 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-		}
-	}
-	"949e9156-1c6e-4d74-9c15-0ccffcc5ebe6" = {
-		components = {
-			"372a95d2-dfe8-4348-abb1-e57198de8b23" = {
+			778e3337-0767-44cf-87cb-1ecb57dc11e7 = {
+				position = [ 4 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-10 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"74b28969-a518-4e7d-aed4-773b042207c7" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
 			}
-			"c0c2dd07-9f6b-4036-9a0b-6c6efa83d5d9" = {
-				type = "collider"
-				scene = "cube"
+			bb08b333-b301-4b2e-b481-d7cdef7a977d = {
+				class = "character"
+				material = "default"
 				name = "Cube"
+				scene = "cube"
 				shape = "box"
+				type = "collider"
+			}
+		}
+	}
+	36f9fadb-31ab-4652-b712-c8ba087ad1c6 = {
+		components = {
+			e809aa88-6052-47aa-8246-6ebfa1ff1c6f = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"151a1aad-fdd1-43a2-85a3-545d91c439c6" = {
-				type = "actor"
+			efd441fe-8f97-4fc4-a976-6068efc3020d = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
-			}
-		}
-	}
-	"fa5d43f2-bb64-44ab-aa91-3e0054c66eda" = {
-		components = {
-			"b11d956b-9348-43e3-bb8f-a804293c2fef" = {
-				type = "transform"
-				position = [-8 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+				mass = 10
+				type = "actor"
 			}
-			"763d1043-dfa4-4440-a8cb-3578c151574b" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			fa7846f4-3872-450f-8535-76330e760e1c = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"837a57a0-5b2d-4cd2-be3d-f4706faf7ed4" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"7747bc42-eaf6-49a0-9cf2-5ab407a27b6e" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			fc18667a-0919-42a0-b3dc-41ad503c8df6 = {
+				position = [ 0 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
 		}
 	}
-	"952fc2e7-e482-44c7-b517-80f1715977b0" = {
+	3705d07b-f520-4f65-84f7-27468b8632f1 = {
 		components = {
-			"f6069c3a-7620-4621-9908-77204109c446" = {
-				type = "transform"
-				position = [-6 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"83892765-158e-4cf9-a49d-c1469ba12a93" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			2c7f5bd3-cadc-45ac-bb8c-ae6096ee12fc = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"bf37d3a0-a3ee-4e07-b591-a206521ada80" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			3091c7be-20b2-454b-820b-2d6b2519ced9 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"17adcdc5-f4e4-4ab0-a30f-f65b280beb12" = {
-				type = "actor"
+			752d5f19-036b-47f2-8869-0d8680367d4e = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
+			d240e38d-d490-41f1-97d1-65dbfc4b99d9 = {
+				position = [ 4 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
 		}
 	}
-	"53d27790-a224-4216-9cee-2e77622afacd" = {
+	378da60f-01c4-4229-86fe-9a13f6cfb476 = {
 		components = {
-			"4110eb7f-14d9-44f7-be40-2269f1079981" = {
+			2380cfaf-1fd0-4bd7-99cf-4aeb8d28c144 = {
+				position = [ 2 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-4 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"aa505259-7ca5-467b-8e4e-4f6cab76952a" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			8915ced9-f3ff-46d2-bb8b-08225e0db444 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"bb6e0962-d489-4786-a169-f16559cc3e6c" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			cdaab882-3d62-43f3-8438-8794ea19515b = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"69f4862b-722f-45eb-9e23-fb0092ad2b1f" = {
-				type = "actor"
+			e369a40a-92ac-4dfc-9adc-bf6b43d63b1f = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"0089d755-f6b8-4b90-bab6-5d9c8238fc5b" = {
+	3e8f27a3-f4b1-42e3-97a7-904609fdf247 = {
 		components = {
-			"748a9fbd-486c-475a-90e1-312192ff7713" = {
-				type = "transform"
-				position = [-2 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"29308a5e-94da-409f-95a9-52830281e2dd" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			055b792a-0c11-4a21-bbb3-862156a8f771 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"b4116b8f-da20-460b-b701-e6075120e501" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
+			56f23357-beeb-4dc2-83b0-d69fb635cd16 = {
+				position = [ 10 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
-			"06b5c6b6-b82e-4067-98f8-8e30f1036d7c" = {
-				type = "actor"
+			8b581181-2352-4d07-8e33-137833bd0667 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			d76500d8-48e0-4a4b-b3b4-82f75fd60111 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"36f9fadb-31ab-4652-b712-c8ba087ad1c6" = {
+	3e91e69f-dea5-45c9-a144-156fac97ee70 = {
 		components = {
-			"fc18667a-0919-42a0-b3dc-41ad503c8df6" = {
-				type = "transform"
-				position = [0 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			42f5d096-4961-4ee2-8a33-05c655742a31 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"fa7846f4-3872-450f-8535-76330e760e1c" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			520d7c44-5439-44f0-a819-b57a6491702f = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"e809aa88-6052-47aa-8246-6ebfa1ff1c6f" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			597e0da6-05c2-4be3-8c9a-382f98ae4df9 = {
+				position = [ 10 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			e07bc4fd-177f-4860-9355-8f831c4c1b0c = {
 				class = "character"
 				material = "default"
-			}
-			"efd441fe-8f97-4fc4-a976-6068efc3020d" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"f68b0f61-ad5c-4623-af63-b5bffdeafda3" = {
+	467f3730-7db4-4ef3-b2e3-3ec332d4e6ce = {
 		components = {
-			"7aa62a07-c4db-4b14-8ee1-56f5d0d01b99" = {
-				type = "transform"
-				position = [2 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"4b4cc89c-738a-4daf-bc59-fc3f45ec3846" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			0712cd1a-b3b6-4b4b-9ef2-636e45443290 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"4ff358a8-568c-400b-aca9-207a4db36462" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
-			}
-			"bcd83967-ec80-45e1-97a4-056d559bc996" = {
-				type = "actor"
+			50036f1c-f903-471b-8539-30f54d0638dc = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			a6c4ad8b-3564-4bf0-a4f8-c31e088f9fb9 = {
+				position = [ 0 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			ea2f3c41-4bb4-4244-bb21-d2ee10da7ad2 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"691104d3-2bb1-4f03-baca-5d82a8159837" = {
+	53d27790-a224-4216-9cee-2e77622afacd = {
 		components = {
-			"f148629d-55c0-4aa5-8352-6245dec5f4be" = {
+			4110eb7f-14d9-44f7-be40-2269f1079981 = {
+				position = [ -4 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [4 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"98264305-26ca-42de-9246-c0cbd389ed30" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			69f4862b-722f-45eb-9e23-fb0092ad2b1f = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			aa505259-7ca5-467b-8e4e-4f6cab76952a = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"f4c4eee8-49d1-4b59-93d1-0a55db28c678" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			bb6e0962-d489-4786-a169-f16559cc3e6c = {
 				class = "character"
 				material = "default"
-			}
-			"d26a4ebc-508c-4e3b-906a-37b75e328023" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"d2fe407f-dae3-49a0-a6ba-abb40db2078c" = {
+	59d2f17c-bc6c-4ebc-a804-f3518dc115c4 = {
 		components = {
-			"494a394d-706b-432b-a683-9302e6a58db4" = {
-				type = "transform"
-				position = [6 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"fde4569a-3e1e-4561-9f61-91023c26bf5a" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			3408ef54-e365-4a73-9353-118349969b74 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"9be99432-af54-41cd-a11a-4b66d2483db6" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
-			}
-			"fff3d5ef-d722-4337-9384-7342c80b3837" = {
-				type = "actor"
+			605f0ea3-5f7a-4988-823f-7614e4b04993 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			65c4882f-f876-401e-ba84-3f51770330f5 = {
+				position = [ 2 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			6969160c-021b-4a7b-9c77-3101f90697d8 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"aa0e4e0a-858a-455c-8a54-4f9e2e8b70de" = {
+	5c65450f-6543-4b37-ae3f-7a7fd915af72 = {
 		components = {
-			"346bfe90-d9c7-4fae-be51-c342c71b4718" = {
+			14084905-042f-459a-81cf-d42d3f4cad26 = {
+				position = [ 8 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [8 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"c61e61e1-7a88-48a1-9a33-8687fb7fc45e" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			2bdfc948-eeb3-4f47-b0d3-9e325bbe95ba = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			4f13a1a3-f0e0-449b-9ead-aeabd1db7385 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"e07df6a3-d7b0-4f38-b387-0efab3594610" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			d63244d7-9f6c-41ed-b370-75e5f9a7c72d = {
 				class = "character"
 				material = "default"
-			}
-			"a7f1a798-5d70-4c8a-bead-28f899d10a35" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"3e91e69f-dea5-45c9-a144-156fac97ee70" = {
+	5ec701b1-f71e-43d2-acee-9fe523d4a5fe = {
 		components = {
-			"597e0da6-05c2-4be3-8c9a-382f98ae4df9" = {
-				type = "transform"
-				position = [10 3.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			45cb980a-6b1f-4232-8c38-40880268f015 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"520d7c44-5439-44f0-a819-b57a6491702f" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			ae5d25a0-d407-440a-816c-78a7281c82d8 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"e07bc4fd-177f-4860-9355-8f831c4c1b0c" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			b924c6ee-14e0-4dae-99ba-8d175fabdc6b = {
+				position = [ 6 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			d0e95637-0592-4b19-bbc9-435e00792695 = {
 				class = "character"
 				material = "default"
-			}
-			"42f5d096-4961-4ee2-8a33-05c655742a31" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"7eb5d354-fe60-4c42-b355-103ce54ef22e" = {
+	5f0cb0f3-704b-4f77-b9f0-ff1aedd16e0e = {
 		components = {
-			"ae6262e4-80e8-4205-a5ef-02294896d69b" = {
-				type = "transform"
-				position = [-10 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			50e3bd41-c446-4dea-b294-18e0b1c7c96f = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"2d004a47-8032-4228-8bf2-fd98d3362b8f" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			621fac3d-79df-45af-a298-a02ed665377e = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"febf4a3e-fe68-47cf-8714-f0c008c6634d" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			950869a9-d283-401b-ac36-d2e6a0e9a6d1 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"b2f19470-0661-4802-b36f-350bf893d611" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			de31dc3a-b2cb-4a24-935d-e50e28c56187 = {
+				position = [ 0 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
 		}
 	}
-	"dbdd75a5-ff19-4096-8655-1fda2ebb1cff" = {
+	67771505-827f-4b11-9314-4468d6ba03f3 = {
 		components = {
-			"07b6c0ae-0778-482d-b2b7-e39893ad9c58" = {
-				type = "transform"
-				position = [-8 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"7fd2be49-fcfc-40af-b311-48ae2e2eb6dd" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
-			}
-			"5b936f36-4a3b-4b8e-8e75-d1f7d379fcd8" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			2b2ad39b-a6f4-4f6e-b387-87444da20158 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"496647c2-a632-4339-a649-d46f0432ef71" = {
-				type = "actor"
+			54031882-2592-4c02-8aa5-0ecbf90815ea = {
+				position = [ -6 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			babef916-49b2-45e3-8358-ad6cf9a5df51 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
-			}
-		}
-	}
-	"a2fbed3b-5cc9-4fb4-83ee-58115244b0cf" = {
-		components = {
-			"d20c2428-9e03-44f1-903a-2384d3576f1f" = {
-				type = "transform"
-				position = [-6 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+				mass = 10
+				type = "actor"
 			}
-			"d56d19e8-7d21-45ad-8371-6d0f1e0b607c" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			c6b6a794-452d-4bc5-a9f6-ca7b2a3eab76 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"a7091a65-3b1e-4ae2-b71a-1a3d3785ce71" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
-			}
-			"6d77280f-0876-4c34-b851-726296403c59" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
 			}
 		}
 	}
-	"9526869b-d303-4e39-8ea2-4fac01a40fcb" = {
+	691104d3-2bb1-4f03-baca-5d82a8159837 = {
 		components = {
-			"bd7756de-b56c-45a6-9e6a-b3ac6022406d" = {
-				type = "transform"
-				position = [-4 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"df684ed3-b734-4919-84fd-5ce81251a347" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			98264305-26ca-42de-9246-c0cbd389ed30 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"729ae58c-211f-4bd5-8e10-29dce8f527a4" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"641308dc-4c44-4a56-bdf1-20323ed4b694" = {
-				type = "actor"
+			d26a4ebc-508c-4e3b-906a-37b75e328023 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-		}
-	}
-	"aefcf12e-39ce-4a11-b8be-a8c729b6e955" = {
-		components = {
-			"7eddaa5d-d208-43b9-868d-fe58232f5c25" = {
+			f148629d-55c0-4aa5-8352-6245dec5f4be = {
+				position = [ 4 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-2 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"f103dae4-4817-4328-9eb6-5ef499e69d7d" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
-			}
-			"0bca7b41-c6e2-46d6-8f1d-e850aee2d2e9" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			f4c4eee8-49d1-4b59-93d1-0a55db28c678 = {
 				class = "character"
 				material = "default"
-			}
-			"ceb6bd92-3939-4742-a2dd-73b1be0ecdd2" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"467f3730-7db4-4ef3-b2e3-3ec332d4e6ce" = {
+	73b86455-6ebb-49a4-9a78-cf5e3817a85d = {
 		components = {
-			"a6c4ad8b-3564-4bf0-a4f8-c31e088f9fb9" = {
+			0e254443-3e68-4c57-aa5a-a5a3a7edcf91 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			2fb81d38-3f39-4162-86ae-ae3141dd72e5 = {
+				position = [ -8 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [0 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"0712cd1a-b3b6-4b4b-9ef2-636e45443290" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			69b4ffe0-81f0-47f7-94ae-ab6744d9c697 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"ea2f3c41-4bb4-4244-bb21-d2ee10da7ad2" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			dac74ace-363d-4284-8efb-2f431c099cfd = {
 				class = "character"
 				material = "default"
-			}
-			"50036f1c-f903-471b-8539-30f54d0638dc" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"b69ccc0f-65c9-4f18-9de6-8374fa591a62" = {
+	747e1d72-59f6-4352-a56a-173893cce24f = {
 		components = {
-			"14d80d78-65e7-44c8-8660-ea74634f1a5f" = {
+			2dfe1670-41de-4b75-983f-987c0a2dd315 = {
+				position = [ 8 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [2 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"af299eea-3d96-42b3-91a5-f1d5721ecde5" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			5959146b-e705-4dc9-86f8-a3c72ee3cc2b = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"9d5731f6-7eb8-44a9-9e22-de91b6a4c980" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			a6a051b9-efd6-4118-90d6-4adc20e679b9 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"a4b69e02-3b7d-4c47-aa96-b0af07bc97b4" = {
-				type = "actor"
+			db8e5f8f-6ab6-44ac-b014-9622556e2bda = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"9ef1e480-84ec-4085-8a2a-646a452f7372" = {
+	750f4875-be57-4943-ab81-99441ef060b4 = {
 		components = {
-			"d7b01ef7-abd9-4f3d-be23-48834787060e" = {
-				type = "transform"
-				position = [4 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"fc7c3c2b-c914-43d0-8a07-8cff6b7e13c5" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
-			}
-			"ad4afee0-7daa-4b43-b2f9-c5c250a4d899" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			1a09af3e-43e3-411c-aa77-99d4b833cdc4 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"03242e19-657c-4ecd-80fd-afb61de0f121" = {
-				type = "actor"
+			810ac9a2-152b-40be-a1ee-52f821a691da = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
-			}
-		}
-	}
-	"d88deec6-6a06-46c9-9ec4-2f4d0139611f" = {
-		components = {
-			"b22b38a1-bfa7-4dbc-b357-bace4c170951" = {
-				type = "transform"
-				position = [6 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+				mass = 10
+				type = "actor"
 			}
-			"b32b3896-48ef-47fd-afc8-6e3214b39e7d" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			9af70883-2e0b-4e7f-aded-224eb325bd34 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"9ab47f0d-f07e-42ed-9739-83a31457deb3" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"d531cadf-b506-44b7-bfac-9027fbcc4237" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			d09c8c89-e8f5-4636-85d5-811ab3d1c506 = {
+				position = [ -8 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
 		}
 	}
-	"95b25a9f-d17e-40b1-a2aa-86029cbf4dad" = {
+	7533605a-2e14-41da-9193-6f71c1c78ddc = {
 		components = {
-			"fa2179f9-9db5-49e4-a4b1-e12096171b57" = {
+			726c0ca1-4f69-4ce6-871c-e7106b46240c = {
+				position = [ 8 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [8 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"bb8ef2de-c9a0-498e-bc25-1027ace68bbf" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
+			bfc0b3d3-2c22-4c6c-9509-9e721b0dfd52 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"49cf206d-d5fc-4bc6-bd25-3aa4353e5fa2" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			c52737a1-c401-44ee-95ed-e603b0896bc3 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"c650384d-384d-4873-b5d0-1e8e0592837b" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			dca14f70-1a0e-49dc-bcf3-a1a54704c70e = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"8f7a52f7-d7e3-450b-883c-cd75eb2d9ad1" = {
+	7eb5d354-fe60-4c42-b355-103ce54ef22e = {
 		components = {
-			"309a55d5-57f9-4b68-9743-21f6f4272122" = {
-				type = "transform"
-				position = [10 5.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"0d14ea50-780b-4b60-a1dc-29dba673cabc" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			2d004a47-8032-4228-8bf2-fd98d3362b8f = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"07e1795a-403d-4152-aa6d-8ba3c0a590bc" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
+			ae6262e4-80e8-4205-a5ef-02294896d69b = {
+				position = [ -10 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
-			"b2692889-91d9-4f74-b4e2-c25036c58990" = {
-				type = "actor"
+			b2f19470-0661-4802-b36f-350bf893d611 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			febf4a3e-fe68-47cf-8714-f0c008c6634d = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"b30f96f9-6b7f-486a-ab5e-13ca395cd708" = {
+	7f3dca0b-e140-474c-a862-ca617b9ae9e0 = {
 		components = {
-			"a1adbadf-b52c-47fc-bf93-7c919b7e3766" = {
+			0853622a-3296-426c-b6b6-b48a61bdc07b = {
+				position = [ -4 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-10 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"b81a66d5-555e-42c9-8d63-1a236d3a22c0" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
-			}
-			"01f1ff12-4f41-4269-b138-446bff1f3cec" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"df2b60b1-b674-4c5c-ad98-a1955565844e" = {
-				type = "actor"
+			0b2d8432-ec35-4e58-af9b-0086c837f89e = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-		}
-	}
-	"750f4875-be57-4943-ab81-99441ef060b4" = {
-		components = {
-			"d09c8c89-e8f5-4636-85d5-811ab3d1c506" = {
-				type = "transform"
-				position = [-8 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			3f6b7e20-e548-45f5-b021-ade71aef6ad7 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"9af70883-2e0b-4e7f-aded-224eb325bd34" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			5355197d-9c55-4fb8-8cd8-350601a3fd36 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"1a09af3e-43e3-411c-aa77-99d4b833cdc4" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+		}
+	}
+	853d8306-bfdd-4883-9edf-fdbebe168e25 = {
+		components = {
+			4195f13a-cf75-43e0-9c15-8d99f113c3af = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"810ac9a2-152b-40be-a1ee-52f821a691da" = {
-				type = "actor"
+			5fa3229f-86be-43ae-9e51-7549cfb04cdb = {
+				position = [ 0 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			62bdfe0b-b301-419a-b5ad-83ea96c8da25 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
-			}
-		}
-	}
-	"b1ea4481-f654-4216-bacf-babd187a309d" = {
-		components = {
-			"97d07bc0-41bd-47f8-bb9c-167945c5c6a0" = {
-				type = "transform"
-				position = [-6 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+				mass = 10
+				type = "actor"
 			}
-			"eb738534-17e8-4594-a39d-d9c077e9cbce" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			e11b40fa-764c-44f8-9094-028b1c2c460f = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"1d9f73ac-05be-4498-95f0-22f36108ae6c" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
-			}
-			"e037e52a-9f8a-415e-82e2-36414e3efa2d" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
 			}
 		}
 	}
-	"8f08bc75-b727-4d3d-a417-0ab97a3a9b37" = {
+	88b4dcae-76b2-4212-9150-7b56853bd0e1 = {
 		components = {
-			"539bcc28-dc05-433d-a7ed-c4281877f5d9" = {
-				type = "transform"
-				position = [-4 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"c397e332-0356-4f65-9136-bdc49acd2c6b" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
+			9a110e62-550e-40f5-8f58-7c7f91b40ea0 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"ba47c175-4faf-4612-bdeb-c14e91d91220" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			b18ad197-7d8f-4a1c-a717-989aa3874816 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			b18b6e2e-674a-4771-8d83-db3f25debee0 = {
+				position = [ 6 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
-			"b77561fe-5f4d-4ea9-9191-f2ff72bd81d2" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			f68f806c-5d82-4d78-9792-e20485628729 = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"9ddab29e-45c0-40a7-a5fb-c32509c0159a" = {
+	8f08bc75-b727-4d3d-a417-0ab97a3a9b37 = {
 		components = {
-			"be97b2d9-f1a4-4f73-98ee-83f8dd82ce06" = {
+			539bcc28-dc05-433d-a7ed-c4281877f5d9 = {
+				position = [ -4 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-2 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"3b77c416-c5a4-4774-a0aa-5f25ddca692b" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
+			b77561fe-5f4d-4ea9-9191-f2ff72bd81d2 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"0d9fbc6c-1acd-4979-9413-bc56d0d4a0a9" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			ba47c175-4faf-4612-bdeb-c14e91d91220 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"c58f5fb0-bc79-49d8-aa58-20791574d181" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			c397e332-0356-4f65-9136-bdc49acd2c6b = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"e3bb9040-64c8-4cab-b816-06f62e30c738" = {
+	8f7a52f7-d7e3-450b-883c-cd75eb2d9ad1 = {
 		components = {
-			"9b55dd93-8357-46d8-b1e2-83f012046a4a" = {
-				type = "transform"
-				position = [0 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			07e1795a-403d-4152-aa6d-8ba3c0a590bc = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"014c1018-7c88-4e1c-93a8-2661da8f48e5" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			0d14ea50-780b-4b60-a1dc-29dba673cabc = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"fed004b3-e060-4af7-8ef7-72e833d93902" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
+			309a55d5-57f9-4b68-9743-21f6f4272122 = {
+				position = [ 10 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
-			"e578db65-3cb3-4f2d-bf7c-576a55cf9d94" = {
-				type = "actor"
+			b2692889-91d9-4f74-b4e2-c25036c58990 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"014002e6-c501-473f-bfba-5065c152042e" = {
+	949e9156-1c6e-4d74-9c15-0ccffcc5ebe6 = {
 		components = {
-			"08ec9c23-0ae1-4e34-a67d-19bbbf199830" = {
+			151a1aad-fdd1-43a2-85a3-545d91c439c6 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			372a95d2-dfe8-4348-abb1-e57198de8b23 = {
+				position = [ -10 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [2 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"cf4f8927-cb20-4765-902d-9964b2f14638" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			74b28969-a518-4e7d-aed4-773b042207c7 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"75bde4f0-c533-4d9d-8c4e-df4c98ec3bac" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			c0c2dd07-9f6b-4036-9a0b-6c6efa83d5d9 = {
 				class = "character"
 				material = "default"
-			}
-			"8d710285-4706-4532-b12c-cce7935597bb" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"3705d07b-f520-4f65-84f7-27468b8632f1" = {
+	9526869b-d303-4e39-8ea2-4fac01a40fcb = {
 		components = {
-			"d240e38d-d490-41f1-97d1-65dbfc4b99d9" = {
+			641308dc-4c44-4a56-bdf1-20323ed4b694 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			729ae58c-211f-4bd5-8e10-29dce8f527a4 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			bd7756de-b56c-45a6-9e6a-b3ac6022406d = {
+				position = [ -4 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [4 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"2c7f5bd3-cadc-45ac-bb8c-ae6096ee12fc" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			df684ed3-b734-4919-84fd-5ce81251a347 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"3091c7be-20b2-454b-820b-2d6b2519ced9" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
-			}
-			"752d5f19-036b-47f2-8869-0d8680367d4e" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
-			}
 		}
 	}
-	"5ec701b1-f71e-43d2-acee-9fe523d4a5fe" = {
+	952fc2e7-e482-44c7-b517-80f1715977b0 = {
 		components = {
-			"b924c6ee-14e0-4dae-99ba-8d175fabdc6b" = {
-				type = "transform"
-				position = [6 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			17adcdc5-f4e4-4ab0-a30f-f65b280beb12 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"ae5d25a0-d407-440a-816c-78a7281c82d8" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			83892765-158e-4cf9-a49d-c1469ba12a93 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"d0e95637-0592-4b19-bbc9-435e00792695" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			bf37d3a0-a3ee-4e07-b591-a206521ada80 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"45cb980a-6b1f-4232-8c38-40880268f015" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			f6069c3a-7620-4621-9908-77204109c446 = {
+				position = [ -6 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
 		}
 	}
-	"747e1d72-59f6-4352-a56a-173893cce24f" = {
+	95b25a9f-d17e-40b1-a2aa-86029cbf4dad = {
 		components = {
-			"2dfe1670-41de-4b75-983f-987c0a2dd315" = {
-				type = "transform"
-				position = [8 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			49cf206d-d5fc-4bc6-bd25-3aa4353e5fa2 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"5959146b-e705-4dc9-86f8-a3c72ee3cc2b" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			bb8ef2de-c9a0-498e-bc25-1027ace68bbf = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"a6a051b9-efd6-4118-90d6-4adc20e679b9" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"db8e5f8f-6ab6-44ac-b014-9622556e2bda" = {
-				type = "actor"
+			c650384d-384d-4873-b5d0-1e8e0592837b = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
+			fa2179f9-9db5-49e4-a4b1-e12096171b57 = {
+				position = [ 8 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
 		}
 	}
-	"b11a7da6-8647-45bf-8437-fa60f210ff42" = {
+	9ddab29e-45c0-40a7-a5fb-c32509c0159a = {
 		components = {
-			"fecc561e-6233-44e4-96ec-7130260ae55a" = {
-				type = "transform"
-				position = [10 7.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			0d9fbc6c-1acd-4979-9413-bc56d0d4a0a9 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"05dae98b-dfcd-4096-ac45-7406a7902995" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			3b77c416-c5a4-4774-a0aa-5f25ddca692b = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"b2132225-25ee-47b7-8c11-baf3707cebae" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
+			be97b2d9-f1a4-4f73-98ee-83f8dd82ce06 = {
+				position = [ -2 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
-			"0f3b4f59-b900-45c5-8d6a-9b8f17eea74a" = {
-				type = "actor"
+			c58f5fb0-bc79-49d8-aa58-20791574d181 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"d5bed328-7b34-4fc7-8f40-258686677410" = {
+	9ef1e480-84ec-4085-8a2a-646a452f7372 = {
 		components = {
-			"1c96fc76-448c-4fc2-a487-bbc75b215c5b" = {
+			03242e19-657c-4ecd-80fd-afb61de0f121 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			ad4afee0-7daa-4b43-b2f9-c5c250a4d899 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			d7b01ef7-abd9-4f3d-be23-48834787060e = {
+				position = [ 4 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-10 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"e9402a31-4a3a-4a43-b985-299cc57482be" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			fc7c3c2b-c914-43d0-8a07-8cff6b7e13c5 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"ada4969f-3ff9-46de-8d0e-75d50f81c7a5" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+		}
+	}
+	a2fbed3b-5cc9-4fb4-83ee-58115244b0cf = {
+		components = {
+			6d77280f-0876-4c34-b851-726296403c59 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			a7091a65-3b1e-4ae2-b71a-1a3d3785ce71 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"d16cf7c5-cab1-4c33-bb6b-cbb24aa4ee8d" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			d20c2428-9e03-44f1-903a-2384d3576f1f = {
+				position = [ -6 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			d56d19e8-7d21-45ad-8371-6d0f1e0b607c = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"73b86455-6ebb-49a4-9a78-cf5e3817a85d" = {
+	a5d43622-8d3c-4f1b-88f1-d0ddcd70a41c = {
 		components = {
-			"2fb81d38-3f39-4162-86ae-ae3141dd72e5" = {
+			1b063e1c-7f04-4c55-93c6-024a005fb283 = {
+				position = [ -2 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-8 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"69b4ffe0-81f0-47f7-94ae-ab6744d9c697" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			28f1e232-1e04-40c7-a7d9-4e9cd4022a3d = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"dac74ace-363d-4284-8efb-2f431c099cfd" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"0e254443-3e68-4c57-aa5a-a5a3a7edcf91" = {
-				type = "actor"
+			a2ae5064-2795-4d6d-9f51-e252909569d0 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			cadda6c9-087f-4390-adbe-1c2fe4a5295e = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"67771505-827f-4b11-9314-4468d6ba03f3" = {
+	aa0e4e0a-858a-455c-8a54-4f9e2e8b70de = {
 		components = {
-			"54031882-2592-4c02-8aa5-0ecbf90815ea" = {
+			346bfe90-d9c7-4fae-be51-c342c71b4718 = {
+				position = [ 8 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-6 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"c6b6a794-452d-4bc5-a9f6-ca7b2a3eab76" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			a7f1a798-5d70-4c8a-bead-28f899d10a35 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			c61e61e1-7a88-48a1-9a33-8687fb7fc45e = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"2b2ad39b-a6f4-4f6e-b387-87444da20158" = {
-				type = "collider"
-				scene = "cube"
+			e07df6a3-d7b0-4f38-b387-0efab3594610 = {
+				class = "character"
+				material = "default"
 				name = "Cube"
+				scene = "cube"
 				shape = "box"
+				type = "collider"
+			}
+		}
+	}
+	aefcf12e-39ce-4a11-b8be-a8c729b6e955 = {
+		components = {
+			0bca7b41-c6e2-46d6-8f1d-e850aee2d2e9 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"babef916-49b2-45e3-8358-ad6cf9a5df51" = {
-				type = "actor"
+			7eddaa5d-d208-43b9-868d-fe58232f5c25 = {
+				position = [ -2 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			ceb6bd92-3939-4742-a2dd-73b1be0ecdd2 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			f103dae4-4817-4328-9eb6-5ef499e69d7d = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"7f3dca0b-e140-474c-a862-ca617b9ae9e0" = {
+	b0d94cc0-867c-4055-be8e-5212f4a0cda1 = {
 		components = {
-			"0853622a-3296-426c-b6b6-b48a61bdc07b" = {
+			124019b2-cd66-4b79-93f3-8f59a2891699 = {
+				position = [ 4 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-4 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"5355197d-9c55-4fb8-8cd8-350601a3fd36" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			2e89eb14-5c87-4875-886c-36506df20ea0 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			8c3e275f-4b8a-438e-814c-465a0580ff74 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"3f6b7e20-e548-45f5-b021-ade71aef6ad7" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			df0c64bf-7064-4c9a-8334-95f6279af18a = {
 				class = "character"
 				material = "default"
-			}
-			"0b2d8432-ec35-4e58-af9b-0086c837f89e" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"a5d43622-8d3c-4f1b-88f1-d0ddcd70a41c" = {
+	b11a7da6-8647-45bf-8437-fa60f210ff42 = {
 		components = {
-			"1b063e1c-7f04-4c55-93c6-024a005fb283" = {
-				type = "transform"
-				position = [-2 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"28f1e232-1e04-40c7-a7d9-4e9cd4022a3d" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			05dae98b-dfcd-4096-ac45-7406a7902995 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"cadda6c9-087f-4390-adbe-1c2fe4a5295e" = {
-				type = "collider"
-				scene = "cube"
+			0f3b4f59-b900-45c5-8d6a-9b8f17eea74a = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			b2132225-25ee-47b7-8c11-baf3707cebae = {
+				class = "character"
+				material = "default"
 				name = "Cube"
+				scene = "cube"
 				shape = "box"
+				type = "collider"
+			}
+			fecc561e-6233-44e4-96ec-7130260ae55a = {
+				position = [ 10 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+		}
+	}
+	b1ea4481-f654-4216-bacf-babd187a309d = {
+		components = {
+			1d9f73ac-05be-4498-95f0-22f36108ae6c = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"a2ae5064-2795-4d6d-9f51-e252909569d0" = {
-				type = "actor"
+			97d07bc0-41bd-47f8-bb9c-167945c5c6a0 = {
+				position = [ -6 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			e037e52a-9f8a-415e-82e2-36414e3efa2d = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			eb738534-17e8-4594-a39d-d9c077e9cbce = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"e51aab49-cba3-40d7-b9ca-e9f5971c51ca" = {
+	b30f96f9-6b7f-486a-ab5e-13ca395cd708 = {
 		components = {
-			"367b204d-6ed8-4dc6-9734-866169947f29" = {
+			01f1ff12-4f41-4269-b138-446bff1f3cec = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			a1adbadf-b52c-47fc-bf93-7c919b7e3766 = {
+				position = [ -10 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [0 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"c804cff9-b22b-43df-8872-8d53eb45d1e2" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			b81a66d5-555e-42c9-8d63-1a236d3a22c0 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"4df0cc24-707a-476e-a2c6-b53a311db945" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"2dfcde4d-5cc6-43f8-ac5b-38cbbf96cb93" = {
-				type = "actor"
+			df2b60b1-b674-4c5c-ad98-a1955565844e = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"d80d272a-653f-464d-a8fc-602f08f33312" = {
+	b5784332-524b-4af3-aadf-77dfc40ed10c = {
 		components = {
-			"10a5df65-0a00-4044-bc06-b6ec62aa1d5b" = {
-				type = "transform"
-				position = [2 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			268cee03-24f2-4a26-a7d8-38d9b06a2469 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"d8ac488a-1de5-4dff-a30f-37752e7b6dca" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			4b879810-06e6-4c08-a123-8749260e6d89 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"1069ba70-e61f-48af-b460-e574063020f5" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"451be453-0971-4ed0-b26c-095a97bc8031" = {
-				type = "actor"
+			d932df01-8696-48d8-9cd9-55bf7b6b7b39 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
+			df4e98c2-dd99-4587-bdf0-0947722db00a = {
+				position = [ 6 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
 		}
 	}
-	"2356da9a-01ae-44ff-aaba-a5ee61141051" = {
+	b69ccc0f-65c9-4f18-9de6-8374fa591a62 = {
 		components = {
-			"778e3337-0767-44cf-87cb-1ecb57dc11e7" = {
+			14d80d78-65e7-44c8-8660-ea74634f1a5f = {
+				position = [ 2 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [4 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"25bcfb7d-d5ef-431a-a04f-a0c1cf7f2fe9" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
 			}
-			"bb08b333-b301-4b2e-b481-d7cdef7a977d" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			9d5731f6-7eb8-44a9-9e22-de91b6a4c980 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"30689367-4ba1-49ee-9f60-76c72bc51e96" = {
-				type = "actor"
+			a4b69e02-3b7d-4c47-aa96-b0af07bc97b4 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
+			af299eea-3d96-42b3-91a5-f1d5721ecde5 = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
+			}
 		}
 	}
-	"88b4dcae-76b2-4212-9150-7b56853bd0e1" = {
+	d2fe407f-dae3-49a0-a6ba-abb40db2078c = {
 		components = {
-			"b18b6e2e-674a-4771-8d83-db3f25debee0" = {
+			494a394d-706b-432b-a683-9302e6a58db4 = {
+				position = [ 6 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [6 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"f68f806c-5d82-4d78-9792-e20485628729" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			9be99432-af54-41cd-a11a-4b66d2483db6 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			fde4569a-3e1e-4561-9f61-91023c26bf5a = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"b18ad197-7d8f-4a1c-a717-989aa3874816" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"9a110e62-550e-40f5-8f58-7c7f91b40ea0" = {
-				type = "actor"
+			fff3d5ef-d722-4337-9384-7342c80b3837 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"062916f6-1c37-4912-8b6a-f31b05b8f612" = {
+	d54d843a-b3f6-4dfa-9925-cb69c38f01b3 = {
 		components = {
-			"c2f7fbff-177e-4511-9809-a66b05a1360a" = {
+			415aa17b-1470-4469-a857-637f12a92ff1 = {
+				position = [ -6 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [8 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"d692743e-5a12-4a21-be92-899a9b4ff324" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			42fd9c41-4b1b-4e80-961a-fda89cab7263 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			775af1f9-627d-4a36-9532-55f67feb2f8b = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"b4645887-3fd4-4893-b2a0-ab538dbec5af" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"33996ac5-45e1-43ef-bd40-d0667261f8c6" = {
-				type = "actor"
+			dd7ad33d-4af8-4fb5-ae8b-5cba0d4ed9e8 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"d623cb9a-98d2-484d-aa04-7d386eed39cd" = {
+	d5bed328-7b34-4fc7-8f40-258686677410 = {
 		components = {
-			"895a2c7b-5707-4cfb-a438-303b42324a21" = {
+			1c96fc76-448c-4fc2-a487-bbc75b215c5b = {
+				position = [ -10 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [10 9.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"f12a2fa7-0c9c-4ceb-9f5c-dadddad3e607" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
 			}
-			"8ea11254-8971-479d-92f9-50191fb8c11a" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			ada4969f-3ff9-46de-8d0e-75d50f81c7a5 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"01db60b8-08c8-4334-bab2-cb9379f58103" = {
-				type = "actor"
+			d16cf7c5-cab1-4c33-bb6b-cbb24aa4ee8d = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			e9402a31-4a3a-4a43-b985-299cc57482be = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"e2f4772b-4e1b-4ae6-a050-34e6364520c8" = {
+	d623cb9a-98d2-484d-aa04-7d386eed39cd = {
 		components = {
-			"7ef71e4c-042f-46b2-b580-1e556267bb58" = {
+			01db60b8-08c8-4334-bab2-cb9379f58103 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			895a2c7b-5707-4cfb-a438-303b42324a21 = {
+				position = [ 10 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-10 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"753e9037-227d-4bf0-8ae3-946706bd81fd" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			8ea11254-8971-479d-92f9-50191fb8c11a = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			f12a2fa7-0c9c-4ceb-9f5c-dadddad3e607 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"9c5b890c-3a6e-49e5-b793-02aa8b67f3a3" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+		}
+	}
+	d80d272a-653f-464d-a8fc-602f08f33312 = {
+		components = {
+			1069ba70-e61f-48af-b460-e574063020f5 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"46e7ffe8-5c8a-4cbb-80ac-a1f02224f721" = {
-				type = "actor"
+			10a5df65-0a00-4044-bc06-b6ec62aa1d5b = {
+				position = [ 2 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			451be453-0971-4ed0-b26c-095a97bc8031 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			d8ac488a-1de5-4dff-a30f-37752e7b6dca = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"08d0ed1a-8a4b-4f53-8acc-a3b6ae3caa35" = {
+	d88deec6-6a06-46c9-9ec4-2f4d0139611f = {
 		components = {
-			"3c7851e9-3ec5-496c-b093-b07a0697ecd0" = {
+			9ab47f0d-f07e-42ed-9739-83a31457deb3 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			b22b38a1-bfa7-4dbc-b357-bace4c170951 = {
+				position = [ 6 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-8 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"413f5f51-f1c1-4b52-9d59-9684f1fc679e" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			b32b3896-48ef-47fd-afc8-6e3214b39e7d = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
-			}
-			"6ff73b9e-669d-4d35-b2df-a03a87bf37ac" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
 			}
-			"8d316260-36a1-4c95-ad8e-0a6ceae31ddd" = {
-				type = "actor"
+			d531cadf-b506-44b7-bfac-9027fbcc4237 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"231a4d40-0489-48a4-8096-078c2452bbf5" = {
+	dbdd75a5-ff19-4096-8655-1fda2ebb1cff = {
 		components = {
-			"c2ff0346-d7cc-42a3-8d6b-7d6e53daade5" = {
+			07b6c0ae-0778-482d-b2b7-e39893ad9c58 = {
+				position = [ -8 5.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [-6 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"b5327224-e9c8-43ae-8ee0-178e8ad4b430" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
+			496647c2-a632-4339-a649-d46f0432ef71 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"83681417-ddb7-499e-a00c-f9f7377b41cd" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			5b936f36-4a3b-4b8e-8e75-d1f7d379fcd8 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"2a7aad7d-3807-4eff-b986-be5359a41327" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			7fd2be49-fcfc-40af-b311-48ae2e2eb6dd = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"04ddb191-6892-4f60-89b5-1335b3bc04fa" = {
+	dcfdf3fa-9a9e-41c2-b720-ecd492624a98 = {
 		components = {
-			"d62700e3-3b43-4992-ab79-99082be93ef1" = {
-				type = "transform"
-				position = [-4 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			2b25365b-dd93-4e18-a8c4-4daf1788f108 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"03628832-41de-45bc-b19a-468ad1aebdc2" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
+			b8a46811-4545-4983-bb9c-4eba04f709e9 = {
+				position = [ 10 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
-			"ca6e1c87-81f5-4127-9b70-d14f43f0a408" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			c70c7380-5889-4604-b41e-c4216343b908 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"a7f613c6-8701-4c34-9d69-65a01a10a546" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			ca35918d-07c6-4a73-94b3-ace804c4e725 = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"1672277c-bcdd-4c28-9c65-76305f12d68d" = {
+	e2f4772b-4e1b-4ae6-a050-34e6364520c8 = {
 		components = {
-			"238c8e23-37a3-4522-9ba5-f74c4bc7e4c1" = {
-				type = "transform"
-				position = [-2 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			46e7ffe8-5c8a-4cbb-80ac-a1f02224f721 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"f39728c1-3f38-4280-831c-56369cb34a7a" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			753e9037-227d-4bf0-8ae3-946706bd81fd = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"a056e2f4-954c-4dab-9f1d-5029d7c44a5e" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			7ef71e4c-042f-46b2-b580-1e556267bb58 = {
+				position = [ -10 11.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			9c5b890c-3a6e-49e5-b793-02aa8b67f3a3 = {
 				class = "character"
 				material = "default"
-			}
-			"3edb90ac-3a62-4e7b-b01b-0e89977108ee" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"853d8306-bfdd-4883-9edf-fdbebe168e25" = {
+	e3bb9040-64c8-4cab-b816-06f62e30c738 = {
 		components = {
-			"5fa3229f-86be-43ae-9e51-7549cfb04cdb" = {
-				type = "transform"
-				position = [0 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"e11b40fa-764c-44f8-9094-028b1c2c460f" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			014c1018-7c88-4e1c-93a8-2661da8f48e5 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"4195f13a-cf75-43e0-9c15-8d99f113c3af" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
-				class = "character"
-				material = "default"
+			9b55dd93-8357-46d8-b1e2-83f012046a4a = {
+				position = [ 0 7.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
-			"62bdfe0b-b301-419a-b5ad-83ea96c8da25" = {
-				type = "actor"
+			e578db65-3cb3-4f2d-bf7c-576a55cf9d94 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			fed004b3-e060-4af7-8ef7-72e833d93902 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"378da60f-01c4-4229-86fe-9a13f6cfb476" = {
+	e51aab49-cba3-40d7-b9ca-e9f5971c51ca = {
 		components = {
-			"2380cfaf-1fd0-4bd7-99cf-4aeb8d28c144" = {
-				type = "transform"
-				position = [2 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
+			2dfcde4d-5cc6-43f8-ac5b-38cbbf96cb93 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
-			"8915ced9-f3ff-46d2-bb8b-08225e0db444" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
-				geometry_name = "Cube"
-				material = "grid"
-				visible = true
+			367b204d-6ed8-4dc6-9734-866169947f29 = {
+				position = [ 0 9.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
-			"cdaab882-3d62-43f3-8438-8794ea19515b" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			4df0cc24-707a-476e-a2c6-b53a311db945 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"e369a40a-92ac-4dfc-9adc-bf6b43d63b1f" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			c804cff9-b22b-43df-8872-8d53eb45d1e2 = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"b0d94cc0-867c-4055-be8e-5212f4a0cda1" = {
+	e74c805d-b6d6-40fe-84f4-209d997d8803 = {
 		components = {
-			"124019b2-cd66-4b79-93f3-8f59a2891699" = {
+			1181e646-51cc-4215-bb3f-0e1bca4ee8ce = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			bacb90a0-a662-4464-a051-4ac03d4848c8 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
+			}
+			df6e4db0-0860-4cb3-b310-d04434f11f04 = {
+				position = [ 4 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [4 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"8c3e275f-4b8a-438e-814c-465a0580ff74" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			fdf609b4-ad63-4cf7-ae70-e0502bbc2e34 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"df0c64bf-7064-4c9a-8334-95f6279af18a" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+		}
+	}
+	e9cbebe4-f4ed-4834-a307-2634ca50d011 = {
+		components = {
+			0c6ff644-ef9c-405a-bb12-032694d432c0 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"2e89eb14-5c87-4875-886c-36506df20ea0" = {
-				type = "actor"
+			cb2ec6c1-a8c1-48b8-8a13-cafadf55ffdd = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			cb9c1a5b-6910-4fb2-b457-a9c72a392d90 = {
+				position = [ -10 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			d0dad24e-515e-40ab-a120-7b8d24ecbad0 = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
+				visible = true
 			}
 		}
 	}
-	"b5784332-524b-4af3-aadf-77dfc40ed10c" = {
+	ed0a6955-848e-4329-8886-b7dce77f580b = {
 		components = {
-			"df4e98c2-dd99-4587-bdf0-0947722db00a" = {
+			22a27861-cf1a-48a6-8ac3-dcd12c24cee1 = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			582a0f87-d4b2-462b-a24c-d02917c8f5ac = {
+				position = [ -2 1.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
 				type = "transform"
-				position = [6 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
 			}
-			"4b879810-06e6-4c08-a123-8749260e6d89" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			b86dde93-fd1c-42a2-9cbb-f2b04dcc40ad = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"268cee03-24f2-4a26-a7d8-38d9b06a2469" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			e99a4947-c058-4e96-9415-a862f56e302e = {
 				class = "character"
 				material = "default"
-			}
-			"d932df01-8696-48d8-9cd9-55bf7b6b7b39" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
 		}
 	}
-	"7533605a-2e14-41da-9193-6f71c1c78ddc" = {
+	f68b0f61-ad5c-4623-af63-b5bffdeafda3 = {
 		components = {
-			"726c0ca1-4f69-4ce6-871c-e7106b46240c" = {
-				type = "transform"
-				position = [8 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"dca14f70-1a0e-49dc-bcf3-a1a54704c70e" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			4b4cc89c-738a-4daf-bc59-fc3f45ec3846 = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"c52737a1-c401-44ee-95ed-e603b0896bc3" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			4ff358a8-568c-400b-aca9-207a4db36462 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"bfc0b3d3-2c22-4c6c-9509-9e721b0dfd52" = {
-				type = "actor"
+			7aa62a07-c4db-4b14-8ee1-56f5d0d01b99 = {
+				position = [ 2 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			bcd83967-ec80-45e1-97a4-056d559bc996 = {
 				class = "dynamic"
-				mass = 10
 				collision_filter = "default"
+				mass = 10
+				type = "actor"
 			}
 		}
 	}
-	"3e8f27a3-f4b1-42e3-97a7-904609fdf247" = {
+	fa5d43f2-bb64-44ab-aa91-3e0054c66eda = {
 		components = {
-			"56f23357-beeb-4dc2-83b0-d69fb635cd16" = {
-				type = "transform"
-				position = [10 11.1 0]
-				rotation = [0 0 1 0]
-				scale = [1 1 1]
-			}
-			"055b792a-0c11-4a21-bbb3-862156a8f771" = {
-				type = "mesh_renderer"
-				mesh_resource = "cube"
+			763d1043-dfa4-4440-a8cb-3578c151574b = {
 				geometry_name = "Cube"
 				material = "grid"
+				mesh_resource = "cube"
+				type = "mesh_renderer"
 				visible = true
 			}
-			"d76500d8-48e0-4a4b-b3b4-82f75fd60111" = {
-				type = "collider"
-				scene = "cube"
-				name = "Cube"
-				shape = "box"
+			7747bc42-eaf6-49a0-9cf2-5ab407a27b6e = {
+				class = "dynamic"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			837a57a0-5b2d-4cd2-be3d-f4706faf7ed4 = {
 				class = "character"
 				material = "default"
+				name = "Cube"
+				scene = "cube"
+				shape = "box"
+				type = "collider"
 			}
-			"8b581181-2352-4d07-8e33-137833bd0667" = {
-				type = "actor"
-				class = "dynamic"
-				mass = 10
-				collision_filter = "default"
+			b11d956b-9348-43e3-bb8f-a804293c2fef = {
+				position = [ -8 3.1 0 ]
+				rotation = [ 0 0 1 0 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
 		}
 	}
 }
 
-sounds = [
-]
+sounds = {
+}
