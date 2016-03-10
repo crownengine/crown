@@ -335,7 +335,7 @@ Math
 UnitManager
 ===========
 
-	**create** ([world]) : Unit
+	**create** ([world]) : UnitId
 		Creates a new empty unit. If *world* is specified, the unit will be owned by
 		that world.
 
@@ -348,10 +348,10 @@ UnitManager
 World
 =====
 
-	**spawn_unit** (world, name, [position, rotation]) : Unit
+	**spawn_unit** (world, name, [position, rotation]) : UnitId
 		Spawns a new instance of the unit *name* at the given *position* and *rotation*.
 
-	**spawn_empty_unit** (world) : Unit
+	**spawn_empty_unit** (world) : UnitId
 		Spawns a new empty unit and returns its id.
 
 	**destroy_unit** (world, unit)
