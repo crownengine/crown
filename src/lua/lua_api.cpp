@@ -1364,6 +1364,13 @@ static int world_spawn_unit(lua_State* L)
 	return 1;
 }
 
+static int world_spawn_empty_unit(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_unit(stack.get_world(1)->spawn_empty_unit());
+	return 1;
+}
+
 static int world_destroy_unit(lua_State* L)
 {
 	LuaStack stack(L);
@@ -1667,7 +1674,12 @@ static int world_tostring(lua_State* L)
 static int scene_graph_create(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_transform(stack.get_scene_graph(1)->create(stack.get_unit(2), MATRIX4X4_IDENTITY));
+	TransformInstance ti = stack.get_scene_graph(1)->create(stack.get_unit(2)
+		, stack.get_vector3(3)
+		, stack.get_quaternion(4)
+		, stack.get_vector3(5)
+		);
+	stack.push_transform(ti);
 	return 1;
 }
 
@@ -3186,6 +3198,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Pad4", "axis_id",      JOYPAD_FN(3, axis_id));
 
 	env.add_module_function("World", "spawn_unit",                      world_spawn_unit);
+	env.add_module_function("World", "spawn_empty_unit",                world_spawn_empty_unit);
 	env.add_module_function("World", "destroy_unit",                    world_destroy_unit);
 	env.add_module_function("World", "num_units",                       world_num_units);
 	env.add_module_function("World", "units",                           world_units);
