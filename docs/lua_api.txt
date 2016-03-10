@@ -351,6 +351,9 @@ World
 	**spawn_unit** (world, name, [position, rotation]) : Unit
 		Spawns a new instance of the unit *name* at the given *position* and *rotation*.
 
+	**spawn_empty_unit** (world) : Unit
+		Spawns a new empty unit and returns its id.
+
 	**destroy_unit** (world, unit)
 		Destroys the given *unit*.
 
@@ -423,7 +426,7 @@ Level
 SceneGraph
 ==========
 
-	**create** (sg, unit) : int
+	**create** (sg, unit, position, rotation, scale) : int
 		Creates the transform for the *unit*.
 
 	**destroy** (sg, id)
