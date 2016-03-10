@@ -25,13 +25,15 @@ namespace level_resource
 
 		Array<LevelSound> sounds(default_allocator());
 		{
-			JsonArray sounds_json(ta);
-			sjson::parse_array(object["sounds"], sounds_json);
+			JsonObject sounds_json(ta);
+			sjson::parse_object(object["sounds"], sounds_json);
 
-			for (u32 i = 0, n = array::size(sounds_json); i < n; ++i)
+			auto begin = map::begin(sounds_json);
+			auto end = map::end(sounds_json);
+			for (; begin != end; ++begin)
 			{
 				JsonObject sound(ta);
-				sjson::parse_object(sounds_json[i], sound);
+				sjson::parse_object(begin->pair.second, sound);
 
 				LevelSound ls;
 				ls.name     = sjson::parse_resource_id(sound["name"]);
