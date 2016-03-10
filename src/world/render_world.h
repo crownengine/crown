@@ -264,6 +264,7 @@ private:
 	ResourceManager* _resource_manager;
 	ShaderManager* _shader_manager;
 	MaterialManager* _material_manager;
+	UnitManager* _unit_manager;
 
 	bgfx::UniformHandle _u_light_pos;
 	bgfx::UniformHandle _u_light_dir;

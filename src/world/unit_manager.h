@@ -50,6 +50,8 @@ public:
 
 	void register_destroy_function(DestroyFunction fn, void* user_ptr);
 
+	void unregister_destroy_function(void* user_ptr);
+
 	void trigger_destroy_callbacks(UnitId id);
 };
 

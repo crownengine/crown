@@ -73,6 +73,21 @@ void UnitManager::register_destroy_function(DestroyFunction fn, void* user_ptr)
 	array::push_back(_destroy_callbacks, dd);
 }
 
+void UnitManager::unregister_destroy_function(void* user_ptr)
+{
+	for (u32 i = 0, n = array::size(_destroy_callbacks); i < n; ++i)
+	{
+		if (_destroy_callbacks[i].user_ptr == user_ptr)
+		{
+			_destroy_callbacks[i] = _destroy_callbacks[n - 1];
+			array::pop_back(_destroy_callbacks);
+			return;
+		}
+	}
+
+	CE_ASSERT(false, "Bad destroy function");
+}
+
 void UnitManager::trigger_destroy_callbacks(UnitId id)
 {
 	for (u32 i = 0; i < array::size(_destroy_callbacks); ++i)

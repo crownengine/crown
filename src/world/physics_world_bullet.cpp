@@ -157,6 +157,7 @@ public:
 
 	BulletWorld(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)
 		: _allocator(&a)
+		, _unit_manager(&um)
 		, _collider_map(a)
 		, _actor_map(a)
 		, _controller_map(a)
@@ -186,6 +187,8 @@ public:
 
 	~BulletWorld()
 	{
+		_unit_manager->unregister_destroy_function(this);
+
 		for (u32 i = 0; i < array::size(_actor); ++i)
 		{
 			btRigidBody* rb = _actor[i].actor;
@@ -963,6 +966,7 @@ private:
 	};
 
 	Allocator* _allocator;
+	UnitManager* _unit_manager;
 
 	Hash<u32> _collider_map;
 	Hash<u32> _actor_map;

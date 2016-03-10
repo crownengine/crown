@@ -25,6 +25,7 @@ RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, M
 	, _resource_manager(&rm)
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
+	, _unit_manager(&um)
 	, _debug_drawing(false)
 	, _mesh_manager(a)
 	, _sprite_manager(a)
@@ -39,6 +40,8 @@ RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, M
 
 RenderWorld::~RenderWorld()
 {
+	_unit_manager->unregister_destroy_function(this);
+
 	bgfx::destroyUniform(_u_light_pos);
 	bgfx::destroyUniform(_u_light_dir);
 	bgfx::destroyUniform(_u_light_col);
