@@ -1,4 +1,6 @@
 
+sounds = {
+}
 units = {
 	0089d755-f6b8-4b90-bab6-5d9c8238fc5b = {
 		components = {
@@ -2046,7 +2048,4 @@ units = {
 			}
 		}
 	}
-}
-
-sounds = {
 }
