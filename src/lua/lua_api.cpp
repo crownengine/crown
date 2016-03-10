@@ -1693,7 +1693,12 @@ static int scene_graph_destroy(lua_State* L)
 static int scene_graph_transform_instances(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_transform(stack.get_scene_graph(1)->get(stack.get_unit(2)));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	TransformInstance ti = sg->get(stack.get_unit(2));
+	if (sg->is_valid(ti))
+		stack.push_transform(ti);
+	else
+		stack.push_nil();
 	return 1;
 }
 
