@@ -433,7 +433,7 @@ SceneGraph
 		Destroys the transform *id*.
 
 	**transform_instances** (sg, unit) : Id
-		Returns the transform of the *unit*.
+		Returns the transform of the *unit* or nil.
 
 	**local_position** (sg, id) : Vector3
 		Returns the local position of the transform *id*.
