@@ -16,6 +16,19 @@
 
 namespace crown
 {
+SceneGraph::Pose& SceneGraph::Pose::operator=(const Matrix4x4& m)
+{
+	Matrix3x3 rotm = to_matrix3x3(m);
+	normalize(rotm.x);
+	normalize(rotm.y);
+	normalize(rotm.z);
+
+	position = translation(m);
+	rotation = rotm;
+	scale = crown::scale(m);
+	return *this;
+}
+
 SceneGraph::SceneGraph(Allocator& a)
 	: _marker(MARKER)
 	, _allocator(a)
@@ -75,7 +88,18 @@ void SceneGraph::allocate(u32 num)
 	_data = new_data;
 }
 
-TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& m)
+TransformInstance SceneGraph::create(UnitId id, const Vector3& pos, const Quaternion& rot, const Vector3& scale)
+{
+	Matrix4x4 pose;
+	set_identity(pose);
+	set_translation(pose, pos);
+	set_rotation(pose, rot);
+	set_scale(pose, scale);
+
+	return create(id, pose);
+}
+
+TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& pose)
 {
 	CE_ASSERT(!hash::has(_map, id.encode()), "Unit already has transform");
 
@@ -84,14 +108,14 @@ TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& m)
 
 	const u32 last = _data.size;
 
-	_data.unit[last] = id;
-	_data.world[last] = m;
-	_data.local[last] = m;
-	_data.parent[last].i = UINT32_MAX;
-	_data.first_child[last].i = UINT32_MAX;
+	_data.unit[last]           = id;
+	_data.world[last]          = pose;
+	_data.local[last]          = pose;
+	_data.parent[last].i       = UINT32_MAX;
+	_data.first_child[last].i  = UINT32_MAX;
 	_data.next_sibling[last].i = UINT32_MAX;
 	_data.prev_sibling[last].i = UINT32_MAX;
-	_data.changed[last] = false;
+	_data.changed[last]        = false;
 
 	++_data.size;
 
@@ -106,14 +130,14 @@ void SceneGraph::destroy(TransformInstance i)
 	const UnitId u = _data.unit[i.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[i.i] = _data.unit[last];
-	_data.world[i.i] = _data.world[last];
-	_data.local[i.i] = _data.local[last];
-	_data.parent[i.i] = _data.parent[last];
-	_data.first_child[i.i] = _data.first_child[last];
+	_data.unit[i.i]         = _data.unit[last];
+	_data.world[i.i]        = _data.world[last];
+	_data.local[i.i]        = _data.local[last];
+	_data.parent[i.i]       = _data.parent[last];
+	_data.first_child[i.i]  = _data.first_child[last];
 	_data.next_sibling[i.i] = _data.next_sibling[last];
 	_data.prev_sibling[i.i] = _data.prev_sibling[last];
-	_data.changed[i.i] = _data.changed[last];
+	_data.changed[i.i]      = _data.changed[last];
 
 	hash::set(_map, last_u.encode(), i.i);
 	hash::remove(_map, u.encode());
@@ -319,19 +343,6 @@ void SceneGraph::transform(const Matrix4x4& parent, TransformInstance i)
 void SceneGraph::grow()
 {
 	allocate(_data.capacity * 2 + 1);
-}
-
-SceneGraph::Pose& SceneGraph::Pose::operator=(const Matrix4x4& m)
-{
-	Matrix3x3 rotm = to_matrix3x3(m);
-	normalize(rotm.x);
-	normalize(rotm.y);
-	normalize(rotm.z);
-
-	position = translation(m);
-	rotation = rotm;
-	scale = crown::scale(m);
-	return *this;
 }
 
 } // namespace crown

@@ -18,11 +18,64 @@ namespace crown
 /// @ingroup World
 struct SceneGraph
 {
+	struct Pose
+	{
+		Vector3 position;
+		Matrix3x3 rotation;
+		Vector3 scale;
+
+		Pose& operator=(const Matrix4x4& m);
+	};
+
+	struct InstanceData
+	{
+		InstanceData()
+			: size(0)
+			, capacity(0)
+			, buffer(NULL)
+			, unit(NULL)
+			, world(NULL)
+			, local(NULL)
+			, parent(NULL)
+			, first_child(NULL)
+			, next_sibling(NULL)
+			, prev_sibling(NULL)
+			, changed(NULL)
+		{
+		}
+
+		u32 size;
+		u32 capacity;
+		void* buffer;
+
+		UnitId* unit;
+		Matrix4x4* world;
+		Pose* local;
+		TransformInstance* parent;
+		TransformInstance* first_child;
+		TransformInstance* next_sibling;
+		TransformInstance* prev_sibling;
+		bool* changed;
+	};
+
+	u32 _marker;
+
+	Allocator& _allocator;
+	InstanceData _data;
+	Hash<u32> _map;
+
+	void grow();
+	void allocate(u32 num);
+	TransformInstance make_instance(u32 i);
+
 	SceneGraph(Allocator& a);
 	~SceneGraph();
 
 	/// Creates a new transform instance for unit @a id.
-	TransformInstance create(UnitId id, const Matrix4x4& m);
+	TransformInstance create(UnitId id, const Matrix4x4& pose);
+
+	/// Creates a new transform instance for unit @a id.
+	TransformInstance create(UnitId id, const Vector3& pos, const Quaternion& rot, const Vector3& scale);
 
 	/// Destroys the transform @a i.
 	void destroy(TransformInstance i);
@@ -85,58 +138,6 @@ struct SceneGraph
 	void transform(const Matrix4x4& parent, TransformInstance i);
 
 	static const u32 MARKER = 0x63a44dbf;
-
-private:
-
-	void grow();
-	void allocate(u32 num);
-	TransformInstance make_instance(u32 i);
-
-	struct Pose
-	{
-		Pose& operator=(const Matrix4x4& m);
-
-		Vector3 position;
-		Matrix3x3 rotation;
-		Vector3 scale;
-	};
-
-	struct InstanceData
-	{
-		InstanceData()
-			: size(0)
-			, capacity(0)
-			, buffer(NULL)
-			, unit(NULL)
-			, world(NULL)
-			, local(NULL)
-			, parent(NULL)
-			, first_child(NULL)
-			, next_sibling(NULL)
-			, prev_sibling(NULL)
-			, changed(NULL)
-		{
-		}
-
-		u32 size;
-		u32 capacity;
-		void* buffer;
-
-		UnitId* unit;
-		Matrix4x4* world;
-		Pose* local;
-		TransformInstance* parent;
-		TransformInstance* first_child;
-		TransformInstance* next_sibling;
-		TransformInstance* prev_sibling;
-		bool* changed;
-	};
-
-	u32 _marker;
-
-	Allocator& _allocator;
-	InstanceData _data;
-	Hash<u32> _map;
 };
 
 } // namespace crown
