@@ -171,16 +171,13 @@ namespace sjson
 			parse_string(json, key);
 			return skip_string(json);
 		}
-		else if (isalpha(*json))
-		{
-			while (true)
-			{
-				if (isspace(*json) || *json == '=' || *json == ':')
-					return json;
 
-				key += *json;
-				++json;
-			}
+		while (true)
+		{
+			if (*json == ' ' || *json == '\t' || *json == '\n' || *json == '=')
+				return json;
+
+			key += *json++;
 		}
 
 		CE_FATAL("Bad key");
