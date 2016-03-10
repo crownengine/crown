@@ -28,6 +28,7 @@ namespace Crown
 		{
 			StringBuilder builder = new StringBuilder();
 			Write(t, builder, 0);
+			builder.AppendLine();
 			return builder.ToString();
 		}
 
