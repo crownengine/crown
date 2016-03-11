@@ -18,13 +18,12 @@ struct IPAddress
 
 	/// Initializes the address to 127.0.0.1
 	IPAddress()
-		: _addr(0)
 	{
 		set(127, 0, 0, 1);
 	}
 
+	/// Initializes the address from individual components.
 	IPAddress(u8 a, u8 b, u8 c, u8 d)
-		: _addr(0)
 	{
 		set(a, b, c, d);
 	}
@@ -35,6 +34,7 @@ struct IPAddress
 		return _addr;
 	}
 
+	/// Sets the address from individual components.
 	void set(u8 a, u8 b, u8 c, u8 d)
 	{
 		_addr = 0;
