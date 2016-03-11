@@ -12,6 +12,7 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "murmur.h"
+#include "path.h"
 #include "sjson.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
@@ -19,7 +20,6 @@
 
 namespace crown
 {
-
 static void test_array()
 {
 	memory_globals::init();
@@ -132,6 +132,69 @@ static void test_sjson()
 	memory_globals::shutdown();
 }
 
+static void test_path()
+{
+#if CROWN_PLATFORM_POSIX
+	{
+		const bool a = path::is_absolute("/home/foo");
+		CE_ENSURE(a == true);
+		const bool b = path::is_absolute("home/foo");
+		CE_ENSURE(b == false);
+	}
+	{
+		const bool a = path::is_relative("/home/foo");
+		CE_ENSURE(a == false);
+		const bool b = path::is_relative("home/foo");
+		CE_ENSURE(b == true);
+	}
+	{
+		const bool a = path::is_root("/");
+		CE_ENSURE(a == true);
+		const bool b = path::is_root("/home");
+		CE_ENSURE(b == false);
+	}
+#else
+	{
+		const bool a = path::is_absolute("C:\\Users\\foo");
+		CE_ENSURE(a == true);
+		const bool b = path::is_absolute("Users\\foo");
+		CE_ENSURE(b == false);
+	}
+	{
+		const bool a = path::is_relative("D:\\Users\\foo");
+		CE_ENSURE(a == false);
+		const bool b = path::is_relative("Users\\foo");
+		CE_ENSURE(b == true);
+	}
+	{
+		const bool a = path::is_root("E:\\");
+		CE_ENSURE(a == true);
+		const bool b = path::is_root("E:\\Users");
+		CE_ENSURE(b == false);
+	}
+#endif // CROWN_PLATFORM_POSIX
+	{
+		const char* p = path::basename("");
+		CE_ENSURE(strcmp(p, "") == 0);
+		const char* q = path::basename("/");
+		CE_ENSURE(strcmp(q, "") == 0);
+		const char* r = path::basename("boot.config");
+		CE_ENSURE(strcmp(r, "boot.config") == 0);
+		const char* s = path::basename("foo/boot.config");
+		CE_ENSURE(strcmp(s, "boot.config") == 0);
+		const char* t = path::basename("/foo/boot.config");
+		CE_ENSURE(strcmp(t, "boot.config") == 0);
+	}
+	{
+		const char* p = path::extension("");
+		CE_ENSURE(p == NULL);
+		const char* q = path::extension("boot");
+		CE_ENSURE(q == NULL);
+		const char* r = path::extension("boot.bar.config");
+		CE_ENSURE(strcmp(r, "config") == 0);
+	}
+}
+
 static void run_unit_tests()
 {
 	test_array();
@@ -139,6 +202,7 @@ static void run_unit_tests()
 	test_murmur();
 	test_json();
 	test_sjson();
+	test_path();
 }
 
 } // namespace crown
