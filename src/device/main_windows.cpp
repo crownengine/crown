@@ -7,9 +7,11 @@
 
 #if CROWN_PLATFORM_WINDOWS
 
+#include "command_line.h"
 #include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
+#include "unit_tests.cpp"
 #include <bgfx/bgfxplatform.h>
 #include <winsock2.h>
 #ifndef WIN32_LEAN_AND_MEAN
@@ -609,6 +611,18 @@ bool next_event(OsEvent& ev)
 int main(int argc, char** argv)
 {
 	using namespace crown;
+
+#if CROWN_BUILD_UNIT_TESTS
+	{
+		CommandLine cl(argc, argv);
+		if (cl.has_argument("run-unit-tests"))
+		{
+			run_unit_tests();
+			return 0;
+		}
+	}
+#endif // CROWN_BUILD_UNIT_TESTS
+
 	memory_globals::init();
 
 	WSADATA dummy;
