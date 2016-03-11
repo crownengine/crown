@@ -5,19 +5,18 @@
 
 #pragma once
 
-#include "config.h"
-#include "types.h"
 #include "error.h"
+#include "ip_address.h"
 #include "macros.h"
-#include "net_address.h"
+#include "platform.h"
+#include "types.h"
 
 #if CROWN_PLATFORM_POSIX
-	#include <sys/socket.h>
-	#include <sys/types.h>
-	#include <netinet/in.h>
-	#include <fcntl.h>
-	#include <unistd.h>
 	#include <errno.h>
+	#include <fcntl.h>      // fcntl
+	#include <netinet/in.h> // htons, htonl, ...
+	#include <sys/socket.h>
+	#include <unistd.h>     // close
 #elif CROWN_PLATFORM_WINDOWS
 	#include <winsock2.h>
 	#include "win_headers.h"
@@ -53,6 +52,12 @@ struct AcceptResult
 /// @ingroup Network
 struct TCPSocket
 {
+#if CROWN_PLATFORM_POSIX
+	int _socket;
+#elif CROWN_PLATFORM_WINDOWS
+	SOCKET _socket;
+#endif
+
 	TCPSocket()
 #if CROWN_PLATFORM_POSIX
 		: _socket(0)
@@ -73,7 +78,7 @@ struct TCPSocket
 #endif
 	}
 
-	ConnectResult connect(const NetAddress& ip, u16 port)
+	ConnectResult connect(const IPAddress& ip, u16 port)
 	{
 		close();
 		open();
@@ -441,14 +446,6 @@ struct TCPSocket
 #endif
 		CE_UNUSED(err);
 	}
-
-private:
-
-#if CROWN_PLATFORM_POSIX
-	int _socket;
-#elif CROWN_PLATFORM_WINDOWS
-	SOCKET _socket;
-#endif
 };
 
 } // namespace crown

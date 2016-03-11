@@ -9,19 +9,21 @@
 
 namespace crown
 {
-/// Netwotk address helper
+/// IP address.
 ///
 /// @ingroup Network
-struct NetAddress
+struct IPAddress
 {
+	u32 _addr;
+
 	/// Initializes the address to 127.0.0.1
-	NetAddress()
+	IPAddress()
 		: _addr(0)
 	{
 		set(127, 0, 0, 1);
 	}
 
-	NetAddress(u8 a, u8 b, u8 c, u8 d)
+	IPAddress(u8 a, u8 b, u8 c, u8 d)
 		: _addr(0)
 	{
 		set(a, b, c, d);
@@ -41,8 +43,6 @@ struct NetAddress
 		_addr |= u32(c) << 8;
 		_addr |= u32(d) << 0;
 	}
-
-	u32 _addr;
 };
 
 } // namespace crown
