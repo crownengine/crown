@@ -13,5 +13,11 @@ configuration:
   - development
   - release
 
+test_script:
+  - build/win32/bin/crown-debug-32 --run-unit-tests
+  - build/win32/bin/crown-development-32 --run-unit-tests
+  - build/win64/bin/crown-debug-64 --run-unit-tests
+  - build/win64/bin/crown-development-64 --run-unit-tests
+
 build:
   project: build/projects/vs2013/crown.sln
