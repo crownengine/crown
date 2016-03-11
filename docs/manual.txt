@@ -93,3 +93,6 @@ Command line reference
 		Set the parent window <handle> of the main window.
 
 		This option should be used only by the tools.
+
+	``--run-unit-tests``
+		Run unit tests and quit. Available only on ``linux`` and ``windows``.
