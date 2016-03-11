@@ -76,6 +76,4 @@ inline bool operator<(const StringId64& a, const StringId64& b)
 }
 /// @}
 
-typedef StringId64 ResourceId;
-
 } // namespace crown

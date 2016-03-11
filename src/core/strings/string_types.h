@@ -15,6 +15,8 @@ struct FixedString;
 struct StringId32;
 struct StringId64;
 
+typedef StringId64 ResourceId;
+
 /// Stream of characters.
 ///
 /// @ingroup String
