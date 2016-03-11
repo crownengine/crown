@@ -126,6 +126,8 @@ TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& pose)
 
 void SceneGraph::destroy(TransformInstance i)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	const u32 last = _data.size - 1;
 	const UnitId u = _data.unit[i.i];
 	const UnitId last_u = _data.unit[last];
@@ -152,45 +154,53 @@ TransformInstance SceneGraph::get(UnitId id)
 
 void SceneGraph::set_local_position(TransformInstance i, const Vector3& pos)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	_data.local[i.i].position = pos;
 	set_local(i);
 }
 
 void SceneGraph::set_local_rotation(TransformInstance i, const Quaternion& rot)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	_data.local[i.i].rotation = matrix3x3(rot);
 	set_local(i);
 }
 
 void SceneGraph::set_local_scale(TransformInstance i, const Vector3& scale)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	_data.local[i.i].scale = scale;
 	set_local(i);
 }
 
 void SceneGraph::set_local_pose(TransformInstance i, const Matrix4x4& pose)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	_data.local[i.i] = pose;
 	set_local(i);
 }
 
 Vector3 SceneGraph::local_position(TransformInstance i) const
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	return _data.local[i.i].position;
 }
 
 Quaternion SceneGraph::local_rotation(TransformInstance i) const
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	return quaternion(_data.local[i.i].rotation);
 }
 
 Vector3 SceneGraph::local_scale(TransformInstance i) const
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	return _data.local[i.i].scale;
 }
 
 Matrix4x4 SceneGraph::local_pose(TransformInstance i) const
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	Matrix4x4 tr = matrix4x4(quaternion(_data.local[i.i].rotation), _data.local[i.i].position);
 	set_scale(tr, _data.local[i.i].scale);
 	return tr;
@@ -198,21 +208,25 @@ Matrix4x4 SceneGraph::local_pose(TransformInstance i) const
 
 Vector3 SceneGraph::world_position(TransformInstance i) const
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	return translation(_data.world[i.i]);
 }
 
 Quaternion SceneGraph::world_rotation(TransformInstance i) const
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	return rotation(_data.world[i.i]);
 }
 
 Matrix4x4 SceneGraph::world_pose(TransformInstance i) const
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	return _data.world[i.i];
 }
 
 void SceneGraph::set_world_pose(TransformInstance i, const Matrix4x4& pose)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	_data.world[i.i] = pose;
 	_data.changed[i.i] = true;
 }
@@ -224,6 +238,9 @@ u32 SceneGraph::num_nodes() const
 
 void SceneGraph::link(TransformInstance child, TransformInstance parent)
 {
+	CE_ASSERT(child.i < _data.size, "Index out of bounds");
+	CE_ASSERT(parent.i < _data.size, "Index out of bounds");
+
 	unlink(child);
 
 	if (!is_valid(_data.first_child[parent.i]))
@@ -278,6 +295,8 @@ void SceneGraph::link(TransformInstance child, TransformInstance parent)
 
 void SceneGraph::unlink(TransformInstance child)
 {
+	CE_ASSERT(child.i < _data.size, "Index out of bounds");
+
 	if (!is_valid(_data.parent[child.i]))
 		return;
 
