@@ -2540,7 +2540,15 @@ static int device_console_send(lua_State* L)
 		}
 		else if (stack.is_string(-1))
 		{
-			json << "\"" << stack.get_string(-1) << "\"";
+			const char* str = stack.get_string(-1);
+			json << "\"";
+			for (; *str; ++str)
+			{
+				if (*str == '"' || *str == '\\')
+					json << '\\';
+				json << *str;
+			}
+			json << "\"";
 		}
 		else if (stack.is_vector3(-1))
 		{
