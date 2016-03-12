@@ -40,7 +40,7 @@ namespace level_resource
 				ls.position = sjson::parse_vector3    (sound["position"]);
 				ls.volume   = sjson::parse_float      (sound["volume"]);
 				ls.range    = sjson::parse_float      (sound["range"]);
-				ls.loop     = sjson::parse_float      (sound["loop"]);
+				ls.loop     = sjson::parse_bool       (sound["loop"]);
 
 				array::push_back(sounds, ls);
 			}
