@@ -9,6 +9,8 @@ namespace Crown
 {
 	public struct Vector3
 	{
+		public float x, y, z;
+
 		public Vector3(float x, float y, float z)
 		{
 			this.x = x;
@@ -35,7 +37,5 @@ namespace Crown
 		{
 			return a * k;
 		}
-
-		public float x, y, z;
 	}
 }
