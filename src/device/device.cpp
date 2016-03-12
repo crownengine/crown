@@ -433,8 +433,8 @@ void Device::run()
 			_input_manager->update();
 
 			const bgfx::Stats* stats = bgfx::getStats();
-			RECORD_FLOAT("bgfx.gpu_time", f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
-			RECORD_FLOAT("bgfx.cpu_time", f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
+			RECORD_FLOAT("bgfx.gpu_time", f32(f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq));
+			RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq));
 
 			bgfx::frame();
 			profiler_globals::flush();
