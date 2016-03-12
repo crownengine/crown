@@ -3,10 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "config.h"
+
 #if CROWN_BUILD_UNIT_TESTS
 
 #include "array.h"
-#include "config.h"
 #include "dynamic_string.h"
 #include "json.h"
 #include "math_utils.h"
@@ -14,6 +15,7 @@
 #include "murmur.h"
 #include "path.h"
 #include "sjson.h"
+#include "string_id.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
 #include "vector.h"
@@ -56,6 +58,32 @@ static void test_murmur()
 	CE_ENSURE(m == 0x7c2365dbu);
 	const u64 n = murmur64("murmur64", 8, 0);
 	CE_ENSURE(n == 0x90631502d1a3432bu);
+}
+
+static void test_string_id()
+{
+	{
+		StringId32 a("murmur32");
+		CE_ENSURE(a._id == 0x7c2365dbu);
+
+		StringId32 b("murmur32", 8);
+		CE_ENSURE(a._id == 0x7c2365dbu);
+
+		char buf[128];
+		a.to_string(buf);
+		CE_ENSURE(strcmp(buf, "7c2365db") == 0);
+	}
+	{
+		StringId64 a("murmur64");
+		CE_ENSURE(a._id == 0x90631502d1a3432bu);
+
+		StringId64 b("murmur64", 8);
+		CE_ENSURE(a._id == 0x90631502d1a3432bu);
+
+		char buf[128];
+		a.to_string(buf);
+		CE_ENSURE(strcmp(buf, "90631502d1a3432b") == 0);
+	}
 }
 
 static void test_json()
@@ -200,6 +228,7 @@ static void run_unit_tests()
 	test_array();
 	test_vector();
 	test_murmur();
+	test_string_id();
 	test_json();
 	test_sjson();
 	test_path();
