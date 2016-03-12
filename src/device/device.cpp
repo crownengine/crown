@@ -609,7 +609,7 @@ static StringStream& sanitize(StringStream& ss, const char* msg)
 	const char* ch = msg;
 	for (; *ch; ch++)
 	{
-		if (*ch == '"')
+		if (*ch == '"' || *ch == '\\')
 			ss << "\\";
 		ss << *ch;
 	}
@@ -629,6 +629,7 @@ void Device::log(const char* msg, LogSeverity::Enum severity)
 	if (_console_server)
 	{
 		static const char* stt[] = { "info", "warning", "error", "debug" };
+		CE_STATIC_ASSERT(CE_COUNTOF(stt) == LogSeverity::COUNT);
 
 		using namespace string_stream;
 		TempAllocator4096 ta;

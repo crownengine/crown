@@ -17,7 +17,9 @@ struct LogSeverity
 		INFO,
 		WARN,
 		ERROR,
-		DEBUG
+		DEBUG,
+
+		COUNT
 	};
 };
 
