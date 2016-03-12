@@ -1819,12 +1819,14 @@ static int render_world_create_mesh(lua_State* L)
 	UnitId unit = stack.get_unit(2);
 
 	MeshRendererDesc desc;
-	desc.mesh_resource = stack.get_resource_id(3);
-	desc.geometry_name = stack.get_string_id_32(4);
+	desc.mesh_resource     = stack.get_resource_id(3);
+	desc.geometry_name     = stack.get_string_id_32(4);
 	desc.material_resource = stack.get_resource_id(5);
-	desc.visible = stack.get_bool(6);
+	desc.visible           = stack.get_bool(6);
 
-	stack.push_mesh_instance(rw->create_mesh(unit, desc, MATRIX4X4_IDENTITY));
+	Matrix4x4 pose = stack.get_matrix4x4(7);
+
+	stack.push_mesh_instance(rw->create_mesh(unit, desc, pose));
 	return 1;
 }
 
