@@ -617,6 +617,9 @@ static StringStream& sanitize(StringStream& ss, const char* msg)
 	return ss;
 }
 
+static const char* s_severity_map[] = { "info", "warning", "error", "debug" };
+CE_STATIC_ASSERT(CE_COUNTOF(s_severity_map) == LogSeverity::COUNT);
+
 void Device::log(const char* msg, LogSeverity::Enum severity)
 {
 	if (_last_log)
@@ -628,14 +631,11 @@ void Device::log(const char* msg, LogSeverity::Enum severity)
 
 	if (_console_server)
 	{
-		static const char* stt[] = { "info", "warning", "error", "debug" };
-		CE_STATIC_ASSERT(CE_COUNTOF(stt) == LogSeverity::COUNT);
-
 		TempAllocator4096 ta;
 		StringStream json(ta);
 
 		json << "{\"type\":\"message\",";
-		json << "\"severity\":\"" << stt[severity] << "\",";
+		json << "\"severity\":\"" << s_severity_map[severity] << "\",";
 		json << "\"message\":\""; sanitize(json, msg) << "\"}";
 
 		_console_server->send(string_stream::c_str(json));
