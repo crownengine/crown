@@ -34,8 +34,6 @@ namespace lua_resource
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
-		using namespace string_stream;
-
 		TempAllocator1024 ta;
 		DynamicString luasrc(ta);
 		DynamicString luabin(ta);
@@ -48,11 +46,11 @@ namespace lua_resource
 		args << " " << luabin.c_str();
 
 		StringStream output(ta);
-		int exitcode = os::execute_process(LUAJIT_EXE, c_str(args), output);
+		int exitcode = os::execute_process(LUAJIT_EXE, string_stream::c_str(args), output);
 		RESOURCE_COMPILER_ASSERT(exitcode == 0
 			, opts
 			, "Failed to compile lua:\n%s"
-			, c_str(output)
+			, string_stream::c_str(output)
 			);
 
 		Buffer blob = opts.read_temporary(luabin.c_str());

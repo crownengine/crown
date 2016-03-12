@@ -57,20 +57,18 @@ void ConsoleServer::send(TCPSocket client, const char* json)
 
 void ConsoleServer::error(TCPSocket client, const char* msg)
 {
-	using namespace string_stream;
 	TempAllocator4096 ta;
 	StringStream ss(ta);
 	ss << "{\"type\":\"error\",\"message\":\"" << msg << "\"}";
-	send(client, c_str(ss));
+	send(client, string_stream::c_str(ss));
 }
 
 void ConsoleServer::success(TCPSocket client, const char* msg)
 {
-	using namespace string_stream;
 	TempAllocator4096 ta;
 	StringStream ss(ta);
 	ss << "{\"type\":\"success\",\"message\":\"" << msg << "\"}";
-	send(client, c_str(ss));
+	send(client, string_stream::c_str(ss));
 }
 
 void ConsoleServer::send(const char* json)

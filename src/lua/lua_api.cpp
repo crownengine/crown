@@ -2512,7 +2512,6 @@ static int device_destroy_resource_package(lua_State* L)
 
 static int device_console_send(lua_State* L)
 {
-	using namespace string_stream;
 	LuaStack stack(L);
 
 	TempAllocator1024 alloc;
@@ -2609,7 +2608,7 @@ static int device_console_send(lua_State* L)
 	stack.pop(1);
 	json << "}";
 
-	device()->console_server()->send(c_str(json));
+	device()->console_server()->send(string_stream::c_str(json));
 	return 0;
 }
 

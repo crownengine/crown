@@ -431,8 +431,6 @@ namespace shader_resource
 
 	static int run_external_compiler(const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
 	{
-		using namespace string_stream;
-
 		TempAllocator512 ta;
 		StringStream args(ta);
 		args << " -f " << infile;
@@ -450,7 +448,7 @@ namespace shader_resource
 			args << ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
 		}
 
-		return os::execute_process(SHADERC_PATH, c_str(args), output);
+		return os::execute_process(SHADERC_PATH, string_stream::c_str(args), output);
 	}
 
 	struct RenderState
@@ -1148,8 +1146,6 @@ namespace shader_resource
 				included_code = included._code;
 			}
 
-			using namespace string_stream;
-
 			StringStream vs_code(default_allocator());
 			StringStream fs_code(default_allocator());
 			vs_code << shader._vs_input_output.c_str();
@@ -1189,7 +1185,7 @@ namespace shader_resource
 				RESOURCE_COMPILER_ASSERT(false
 					, _opts
 					, "Failed to compile vertex shader:\n%s"
-					, c_str(output)
+					, string_stream::c_str(output)
 					);
 			}
 
@@ -1207,7 +1203,7 @@ namespace shader_resource
 				RESOURCE_COMPILER_ASSERT(false
 					, _opts
 					, "Failed to compile fragment shader:\n%s"
-					, c_str(output)
+					, string_stream::c_str(output)
 					);
 			}
 

@@ -631,7 +631,6 @@ void Device::log(const char* msg, LogSeverity::Enum severity)
 		static const char* stt[] = { "info", "warning", "error", "debug" };
 		CE_STATIC_ASSERT(CE_COUNTOF(stt) == LogSeverity::COUNT);
 
-		using namespace string_stream;
 		TempAllocator4096 ta;
 		StringStream json(ta);
 
@@ -639,7 +638,7 @@ void Device::log(const char* msg, LogSeverity::Enum severity)
 		json << "\"severity\":\"" << stt[severity] << "\",";
 		json << "\"message\":\""; sanitize(json, msg) << "\"}";
 
-		_console_server->send(c_str(json));
+		_console_server->send(string_stream::c_str(json));
 	}
 }
 

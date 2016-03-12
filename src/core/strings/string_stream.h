@@ -16,20 +16,6 @@ namespace crown
 /// @ingroup String
 namespace string_stream
 {
-	/// Appends @a val to the stream @a s using appropriate formatting.
-	StringStream& operator<<(StringStream& s, char val);
-	StringStream& operator<<(StringStream& s, s16 val);
-	StringStream& operator<<(StringStream& s, u16 val);
-	StringStream& operator<<(StringStream& s, s32 val);
-	StringStream& operator<<(StringStream& s, u32 val);
-	StringStream& operator<<(StringStream& s, s64 val);
-	StringStream& operator<<(StringStream& s, u64 val);
-	StringStream& operator<<(StringStream& s, f32 val);
-	StringStream& operator<<(StringStream& s, f64 val);
-
-	/// Appends the string @a string to the stream @a s.
-	StringStream& operator<<(StringStream& s, const char* string);
-
 	/// Returns the stream as a NUL-terminated string.
 	const char* c_str(StringStream& s);
 
@@ -37,60 +23,65 @@ namespace string_stream
 
 } // namespace string_stream
 
+/// @addtogroup String
+/// @{
+/// Appends @a val to the stream @a s using appropriate formatting.
+inline StringStream& operator<<(StringStream& s, char val)
+{
+	array::push_back(s, val);
+	return s;
+}
+
+inline StringStream& operator<<(StringStream& s, s16 val)
+{
+	return string_stream::stream_printf(s, "%hd", val);
+}
+
+inline StringStream& operator<<(StringStream& s, u16 val)
+{
+	return string_stream::stream_printf(s, "%hu", val);
+}
+
+inline StringStream& operator<<(StringStream& s, s32 val)
+{
+	return string_stream::stream_printf(s, "%d", val);
+}
+
+inline StringStream& operator<<(StringStream& s, u32 val)
+{
+	return string_stream::stream_printf(s, "%u", val);
+}
+
+inline StringStream& operator<<(StringStream& s, s64 val)
+{
+	return string_stream::stream_printf(s, "%lld", val);
+}
+
+inline StringStream& operator<<(StringStream& s, u64 val)
+{
+	return string_stream::stream_printf(s, "%llu", val);
+}
+
+inline StringStream& operator<<(StringStream& s, f32 val)
+{
+	return string_stream::stream_printf(s, "%g", val);
+}
+
+inline StringStream& operator<<(StringStream& s, f64 val)
+{
+	return string_stream::stream_printf(s, "%g", val);
+}
+
+/// Appends the string @a str to the stream @a s.
+inline StringStream& operator<<(StringStream& s, const char* str)
+{
+	array::push(s, str, strlen32(str));
+	return s;
+}
+/// @}
+
 namespace string_stream
 {
-	inline StringStream& operator<<(StringStream& s, char val)
-	{
-		array::push_back(s, val);
-		return s;
-	}
-
-	inline StringStream& operator<<(StringStream& s, s16 val)
-	{
-		return stream_printf(s, "%hd", val);
-	}
-
-	inline StringStream& operator<<(StringStream& s, u16 val)
-	{
-		return stream_printf(s, "%hu", val);
-	}
-
-	inline StringStream& operator<<(StringStream& s, s32 val)
-	{
-		return stream_printf(s, "%d", val);
-	}
-
-	inline StringStream& operator<<(StringStream& s, u32 val)
-	{
-		return stream_printf(s, "%u", val);
-	}
-
-	inline StringStream& operator<<(StringStream& s, s64 val)
-	{
-		return stream_printf(s, "%lld", val);
-	}
-
-	inline StringStream& operator<<(StringStream& s, u64 val)
-	{
-		return stream_printf(s, "%llu", val);
-	}
-
-	inline StringStream& operator<<(StringStream& s, f32 val)
-	{
-		return stream_printf(s, "%g", val);
-	}
-
-	inline StringStream& operator<<(StringStream& s, f64 val)
-	{
-		return stream_printf(s, "%g", val);
-	}
-
-	inline StringStream& operator<<(StringStream& s, const char* str)
-	{
-		array::push(s, str, strlen32(str));
-		return s;
-	}
-
 	inline const char* c_str(StringStream& s)
 	{
 		array::push_back(s, '\0');
@@ -106,4 +97,5 @@ namespace string_stream
 		return s << buf;
 	}
 } // namespace string_stream
+
 } // namespace crown

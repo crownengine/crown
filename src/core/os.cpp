@@ -69,8 +69,6 @@ namespace os
 	int execute_process(const char* path, const char* args, StringStream& output)
 	{
 #if CROWN_PLATFORM_POSIX
-		using namespace string_stream;
-
 		TempAllocator512 ta;
 		DynamicString cmd(path, ta);
 		cmd += " 2>&1 ";
