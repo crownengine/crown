@@ -721,7 +721,7 @@ int main(int argc, char** argv)
 
 #if CROWN_BUILD_UNIT_TESTS
 	{
-		CommandLine cl(argc, argv);
+		CommandLine cl(argc, (const char**)argv);
 		if (cl.has_argument("run-unit-tests"))
 		{
 			run_unit_tests();
@@ -732,7 +732,7 @@ int main(int argc, char** argv)
 
 	memory_globals::init();
 
-	DeviceOptions opts(argc, argv);
+	DeviceOptions opts(argc, (const char**)argv);
 	int exitcode = opts.parse();
 
 	if (exitcode == EXIT_FAILURE)

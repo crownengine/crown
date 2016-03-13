@@ -16,7 +16,7 @@ namespace crown
 struct DeviceOptions
 {
 	int _argc;
-	char** _argv;
+	const char** _argv;
 	const char* _source_dir;
 	const char* _bundle_dir;
 	const char* _boot_dir;
@@ -35,7 +35,7 @@ struct DeviceOptions
 	void* _asset_manager;
 #endif // CROWN_PLATFORM_ANDROID
 
-	DeviceOptions(int argc, char** argv);
+	DeviceOptions(int argc, const char** argv);
 
 	/// Parses the command line and returns
 	/// EXIT_SUCCESS if no error is found.

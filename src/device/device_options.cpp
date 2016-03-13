@@ -40,7 +40,7 @@ static void help(const char* msg = NULL)
 	);
 }
 
-DeviceOptions::DeviceOptions(int argc, char** argv)
+DeviceOptions::DeviceOptions(int argc, const char** argv)
 	: _argc(argc)
 	, _argv(argv)
 	, _source_dir(NULL)

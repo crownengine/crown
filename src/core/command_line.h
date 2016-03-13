@@ -13,9 +13,9 @@ namespace crown
 struct CommandLine
 {
 	int _argc;
-	char** _argv;
+	const char** _argv;
 
-	CommandLine(int argc, char** argv)
+	CommandLine(int argc, const char** argv)
 		: _argc(argc)
 		, _argv(argv)
 	{
