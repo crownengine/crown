@@ -21,6 +21,7 @@ struct StringId32
 	explicit StringId32(const char* str);
 	explicit StringId32(const char* str, u32 len);
 
+	void hash(const char* str, u32 len);
 	const char* to_string(char* buf);
 
 	static const u32 STRING_LENGTH = 32;
@@ -38,6 +39,7 @@ struct StringId64
 	explicit StringId64(const char* str);
 	explicit StringId64(const char* str, u32 len);
 
+	void hash(const char* str, u32 len);
 	const char* to_string(char* buf);
 
 	static const u32 STRING_LENGTH = 32;

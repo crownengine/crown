@@ -3,21 +3,28 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "string_id.h"
+#include "error.h"
 #include "murmur.h"
+#include "string_id.h"
 #include "string_utils.h"
 #include <inttypes.h> // PRIx64
 
 namespace crown
 {
 StringId32::StringId32(const char* str)
-	: _id(murmur32(str, strlen32(str), 0))
 {
+	hash(str, strlen32(str));
 }
 
 StringId32::StringId32(const char* str, u32 len)
-	: _id(murmur32(str, len, 0))
 {
+	hash(str, len);
+}
+
+void StringId32::hash(const char* str, u32 len)
+{
+	CE_ASSERT_NOT_NULL(str);
+	_id = murmur32(str, len, 0);
 }
 
 const char* StringId32::to_string(char* buf)
@@ -27,13 +34,19 @@ const char* StringId32::to_string(char* buf)
 }
 
 StringId64::StringId64(const char* str)
-	: _id(murmur64(str, strlen32(str), 0))
 {
+	hash(str, strlen32(str));
 }
 
 StringId64::StringId64(const char* str, u32 len)
-	: _id(murmur64(str, len, 0))
 {
+	hash(str, len);
+}
+
+void StringId64::hash(const char* str, u32 len)
+{
+	CE_ASSERT_NOT_NULL(str);
+	_id = murmur64(str, len, 0);
 }
 
 const char* StringId64::to_string(char* buf)
