@@ -127,7 +127,7 @@ static void test_sjson()
 {
 	memory_globals::init();
 	{
-		JsonValueType::Enum type = json::type("null");
+		JsonValueType::Enum type = sjson::type("null");
 		CE_ENSURE(type == JsonValueType::NIL);
 		type = sjson::type("true");
 		CE_ENSURE(type == JsonValueType::BOOL);
