@@ -22,6 +22,18 @@
 
 namespace crown
 {
+static void test_memory()
+{
+	memory_globals::init();
+	Allocator& a = default_allocator();
+
+	void* p = a.allocate(32);
+	CE_ENSURE(a.allocated_size(p) >= 32);
+	a.deallocate(p);
+
+	memory_globals::shutdown();
+}
+
 static void test_array()
 {
 	memory_globals::init();
@@ -225,6 +237,7 @@ static void test_path()
 
 static void run_unit_tests()
 {
+	test_memory();
 	test_array();
 	test_vector();
 	test_murmur();
