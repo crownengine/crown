@@ -8,8 +8,10 @@
 #if CROWN_BUILD_UNIT_TESTS
 
 #include "array.h"
+#include "command_line.h"
 #include "dynamic_string.h"
 #include "json.h"
+#include "macros.h"
 #include "math_utils.h"
 #include "memory.h"
 #include "murmur.h"
@@ -235,6 +237,23 @@ static void test_path()
 	}
 }
 
+static void test_command_line()
+{
+	const char* argv[] =
+	{
+		"args",
+		"-s",
+		"--switch",
+		"--argument",
+		"orange"
+	};
+
+	CommandLine cl(CE_COUNTOF(argv), argv);
+	CE_ENSURE(cl.has_argument("switch", 's'));
+	const char* orange = cl.get_parameter("argument");
+	CE_ENSURE(orange != NULL && strcmp(orange, "orange") == 0);
+}
+
 static void run_unit_tests()
 {
 	test_memory();
@@ -245,6 +264,7 @@ static void run_unit_tests()
 	test_json();
 	test_sjson();
 	test_path();
+	test_command_line();
 }
 
 } // namespace crown
