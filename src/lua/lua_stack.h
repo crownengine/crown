@@ -95,6 +95,11 @@ struct LuaStack
 		return lua_isfunction(L, i) == 1;
 	}
 
+	bool is_table(int i)
+	{
+		return lua_istable(L, i) == 1;
+	}
+
 	bool is_vector3(int i);
 	bool is_quaternion(int i);
 	bool is_matrix4x4(int i);
