@@ -2513,6 +2513,7 @@ static int device_destroy_resource_package(lua_State* L)
 static int device_console_send(lua_State* L)
 {
 	LuaStack stack(L);
+	LUA_ASSERT(stack.is_table(1), stack, "Table expected");
 
 	TempAllocator1024 alloc;
 	StringStream json(alloc);
