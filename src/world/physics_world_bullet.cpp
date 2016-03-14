@@ -811,12 +811,11 @@ public:
 				const btVector3 pos_bt    = tr.getOrigin();
 				const Quaternion rot      = to_quaternion(rot_bt);
 				const Vector3 pos         = to_vector3(pos_bt);
-				const Matrix4x4 pose      = matrix4x4(rot, pos);
 
 				const u32 a_idx = (u32)(uintptr_t)body->getUserPointer();
 				const UnitId unit_id = _actor[a_idx].unit;
 
-				post_transform_event(unit_id, pose);
+				post_transform_event(unit_id, pos, rot);
 			}
 		}
 	}
@@ -940,11 +939,12 @@ private:
 		event_stream::write(_events, EventType::PHYSICS_TRIGGER, ev);
 	}
 
-	void post_transform_event(UnitId id, const Matrix4x4& world_tm)
+	void post_transform_event(UnitId id, const Vector3& pos, const Quaternion& rot)
 	{
 		PhysicsTransformEvent ev;
 		ev.unit_id = id;
-		ev.world_tm = world_tm;
+		ev.position = pos;
+		ev.rotation = rot;
 
 		event_stream::write(_events, EventType::PHYSICS_TRANSFORM, ev);
 	}

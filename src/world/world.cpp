@@ -252,7 +252,8 @@ void World::update_scene(f32 dt)
 			{
 				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)ev;
 				const TransformInstance ti = _scene_graph->get(ptev.unit_id);
-				_scene_graph->set_world_pose(ti, ptev.world_tm);
+				const Matrix4x4 pose = matrix4x4(ptev.rotation, ptev.position);
+				_scene_graph->set_world_pose(ti, pose);
 				break;
 			}
 			case EventType::PHYSICS_COLLISION:
