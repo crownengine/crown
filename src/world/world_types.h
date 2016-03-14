@@ -206,35 +206,40 @@ struct EventType
 /// @ingroup World
 struct UnitId
 {
-	u32 idx;
+	u32 _idx;
 
 	u32 index() const
 	{
-		return idx & UNIT_INDEX_MASK;
+		return _idx & UNIT_INDEX_MASK;
 	}
 
 	u32 id() const
 	{
-		return (idx >> UNIT_INDEX_BITS) & UNIT_ID_MASK;
+		return (_idx >> UNIT_INDEX_BITS) & UNIT_ID_MASK;
 	}
 
 	u32 encode() const
 	{
-		return idx;
+		return _idx;
 	}
 
 	void decode(u32 id)
 	{
-		idx = id;
+		_idx = id;
 	}
 
 	bool is_valid()
 	{
-		return idx != UINT32_MAX;
+		return _idx != UINT32_MAX;
 	}
 };
 
-inline UnitId INVALID_UNIT() { UnitId id = { UINT32_MAX }; return id; }
+inline bool operator==(const UnitId& a, const UnitId& b)
+{
+	return a._idx == b._idx;
+}
+
+const UnitId UNIT_INVALID = { UINT32_MAX };
 
 struct TransformInstance
 {
