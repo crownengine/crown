@@ -782,7 +782,8 @@ public:
 
 			const Quaternion rot = rotation(*begin_world);
 			const Vector3 pos = translation(*begin_world);
-			_actor[ai].actor->setCenterOfMassTransform(btTransform(to_btQuaternion(rot), to_btVector3(pos)));
+			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/MotionStates
+			_actor[ai].actor->getMotionState()->setWorldTransform(btTransform(to_btQuaternion(rot), to_btVector3(pos)));
 		}
 	}
 
