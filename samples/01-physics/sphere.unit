@@ -2,7 +2,7 @@ components = {
 	"637b5db3-1074-4852-a9f2-59c2eea2c2a5" = {
 		type = "transform"
 		position = [0 0 0]
-		rotation = [0 0 1 0]
+		rotation = [ 0 0 0 1 ]
 		scale = [1 1 1]
 	}
 	"7b9da2e3-47ca-40fd-a31b-cb6cbe8fba57" = {
