@@ -368,6 +368,9 @@ public:
 		const UnitId last_u = _actor[last].unit;
 
 		_scene->removeRigidBody(_actor[i.i].actor);
+		CE_DELETE(*_allocator, _actor[i.i].actor->getMotionState());
+		CE_DELETE(*_allocator, _actor[i.i].actor->getCollisionShape());
+		CE_DELETE(*_allocator, _actor[i.i].actor);
 
 		_actor[i.i] = _actor[last];
 		_actor[i.i].actor->setUserPointer((void*)(uintptr_t)i.i);
@@ -774,12 +777,11 @@ public:
 		for (; begin != end; ++begin, ++begin_world)
 		{
 			const u32 ai = hash::get(_actor_map, begin->encode(), UINT32_MAX);
-			const Quaternion rot = rotation(*begin_world);
-			const Vector3 pos = translation(*begin_world);
-
 			if (ai == UINT32_MAX)
 				continue;
 
+			const Quaternion rot = rotation(*begin_world);
+			const Vector3 pos = translation(*begin_world);
 			_actor[ai].actor->setCenterOfMassTransform(btTransform(to_btQuaternion(rot), to_btVector3(pos)));
 		}
 	}
