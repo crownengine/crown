@@ -438,14 +438,12 @@ namespace sjson
 		JsonArray array(ta);
 		sjson::parse_array(json, array);
 
-		Vector3 axis;
-		axis.x = sjson::parse_float(array[0]);
-		axis.y = sjson::parse_float(array[1]);
-		axis.z = sjson::parse_float(array[2]);
-
-		f32 angle = sjson::parse_float(array[3]);
-
-		return quaternion(axis, angle);
+		Quaternion q;
+		q.x = sjson::parse_float(array[0]);
+		q.y = sjson::parse_float(array[1]);
+		q.z = sjson::parse_float(array[2]);
+		q.w = sjson::parse_float(array[3]);
+		return q;
 	}
 
 	Matrix4x4 parse_matrix4x4(const char* json)

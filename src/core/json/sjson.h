@@ -64,7 +64,7 @@ namespace sjson
 	Vector4 parse_vector4(const char* json);
 
 	/// Returns the array @a json as Quaternion.
-	/// @note Quaternion = [x, y, z, angle]
+	/// @note Quaternion = [x, y, z, w]
 	Quaternion parse_quaternion(const char* json);
 
 	/// Returns the array @a json as Matrix4x4.
