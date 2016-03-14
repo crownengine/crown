@@ -80,15 +80,18 @@ void RenderWorld::mesh_instances(UnitId id, Array<MeshInstance>& instances)
 
 void RenderWorld::set_mesh_material(MeshInstance i, StringId64 id)
 {
+	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
 	_mesh_manager._data.material[i.i] = id;
 }
 
 void RenderWorld::set_mesh_visible(MeshInstance i, bool visible)
 {
+	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
 }
 
 OBB RenderWorld::mesh_obb(MeshInstance i)
 {
+	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
 	return _mesh_manager._data.obb[i.i];
 }
 
@@ -102,6 +105,7 @@ SpriteInstance RenderWorld::create_sprite(UnitId id, const SpriteRendererDesc& s
 
 void RenderWorld::destroy_sprite(SpriteInstance i)
 {
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 	_sprite_manager.destroy(i);
 }
 
@@ -118,15 +122,18 @@ void RenderWorld::sprite_instances(UnitId id, Array<SpriteInstance>& instances)
 
 void RenderWorld::set_sprite_material(SpriteInstance i, StringId64 id)
 {
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 	_sprite_manager._data.material[i.i] = id;
 }
 
 void RenderWorld::set_sprite_visible(SpriteInstance i, bool visible)
 {
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 }
 
 void RenderWorld::set_sprite_frame(SpriteInstance i, u32 index)
 {
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 	_sprite_manager._data.frame[i.i] = index;
 }
 
@@ -137,6 +144,7 @@ LightInstance RenderWorld::create_light(UnitId id, const LightDesc& ld, const Ma
 
 void RenderWorld::destroy_light(LightInstance i)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager.destroy(i);
 }
 
@@ -147,51 +155,61 @@ LightInstance RenderWorld::light(UnitId id)
 
 Color4 RenderWorld::light_color(LightInstance i)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	return _light_manager._data.color[i.i];
 }
 
 LightType::Enum RenderWorld::light_type(LightInstance i)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	return (LightType::Enum)_light_manager._data.type[i.i];
 }
 
 f32 RenderWorld::light_range(LightInstance i)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	return _light_manager._data.range[i.i];
 }
 
 f32 RenderWorld::light_intensity(LightInstance i)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	return _light_manager._data.intensity[i.i];
 }
 
 f32 RenderWorld::light_spot_angle(LightInstance i)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	return _light_manager._data.spot_angle[i.i];
 }
 
 void RenderWorld::set_light_color(LightInstance i, const Color4& col)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.color[i.i] = col;
 }
 
 void RenderWorld::set_light_type(LightInstance i, LightType::Enum type)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.type[i.i] = type;
 }
 
 void RenderWorld::set_light_range(LightInstance i, f32 range)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.range[i.i] = range;
 }
 
 void RenderWorld::set_light_intensity(LightInstance i, f32 intensity)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.intensity[i.i] = intensity;
 }
 
 void RenderWorld::set_light_spot_angle(LightInstance i, f32 angle)
 {
+	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.spot_angle[i.i] = angle;
 }
 
@@ -433,6 +451,8 @@ MeshInstance RenderWorld::MeshManager::create(UnitId id, const MeshResource* mr,
 
 void RenderWorld::MeshManager::destroy(MeshInstance i)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	const u32 last             = _data.size - 1;
 	const UnitId u             = _data.unit[i.i];
 	const MeshInstance first_i = first(u);
@@ -466,12 +486,14 @@ MeshInstance RenderWorld::MeshManager::first(UnitId id)
 
 MeshInstance RenderWorld::MeshManager::next(MeshInstance i)
 {
-	CE_ASSERT(i.i < _data.size, "Index out of bounds: i.i = %d", i.i);
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 	return _data.next_instance[i.i];
 }
 
 MeshInstance RenderWorld::MeshManager::previous(MeshInstance i)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	const UnitId u = _data.unit[i.i];
 
 	MeshInstance curr = first(u);
@@ -488,6 +510,9 @@ MeshInstance RenderWorld::MeshManager::previous(MeshInstance i)
 
 void RenderWorld::MeshManager::add_node(MeshInstance first, MeshInstance i)
 {
+	CE_ASSERT(first.i < _data.size, "Index out of bounds");
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	MeshInstance curr = first;
 	while (is_valid(next(curr)))
 		curr = next(curr);
@@ -497,6 +522,9 @@ void RenderWorld::MeshManager::add_node(MeshInstance first, MeshInstance i)
 
 void RenderWorld::MeshManager::remove_node(MeshInstance first, MeshInstance i)
 {
+	CE_ASSERT(first.i < _data.size, "Index out of bounds");
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	const UnitId u = _data.unit[first.i];
 
 	if (i.i == first.i)
@@ -515,6 +543,9 @@ void RenderWorld::MeshManager::remove_node(MeshInstance first, MeshInstance i)
 
 void RenderWorld::MeshManager::swap_node(MeshInstance a, MeshInstance b)
 {
+	CE_ASSERT(a.i < _data.size, "Index out of bounds");
+	CE_ASSERT(b.i < _data.size, "Index out of bounds");
+
 	const UnitId u = _data.unit[a.i];
 	const MeshInstance first_i = first(u);
 
@@ -618,6 +649,8 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResourc
 
 void RenderWorld::SpriteManager::destroy(SpriteInstance i)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	const u32 last               = _data.size - 1;
 	const UnitId u               = _data.unit[i.i];
 	const SpriteInstance first_i = first(u);
@@ -658,6 +691,8 @@ SpriteInstance RenderWorld::SpriteManager::next(SpriteInstance i)
 
 SpriteInstance RenderWorld::SpriteManager::previous(SpriteInstance i)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	const UnitId u = _data.unit[i.i];
 
 	SpriteInstance curr = first(u);
@@ -674,6 +709,9 @@ SpriteInstance RenderWorld::SpriteManager::previous(SpriteInstance i)
 
 void RenderWorld::SpriteManager::add_node(SpriteInstance first, SpriteInstance i)
 {
+	CE_ASSERT(first.i < _data.size, "Index out of bounds");
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	SpriteInstance curr = first;
 	while (is_valid(next(curr)))
 		curr = next(curr);
@@ -683,6 +721,9 @@ void RenderWorld::SpriteManager::add_node(SpriteInstance first, SpriteInstance i
 
 void RenderWorld::SpriteManager::remove_node(SpriteInstance first, SpriteInstance i)
 {
+	CE_ASSERT(first.i < _data.size, "Index out of bounds");
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	const UnitId u = _data.unit[first.i];
 
 	if (i.i == first.i)
@@ -701,6 +742,9 @@ void RenderWorld::SpriteManager::remove_node(SpriteInstance first, SpriteInstanc
 
 void RenderWorld::SpriteManager::swap_node(SpriteInstance a, SpriteInstance b)
 {
+	CE_ASSERT(a.i < _data.size, "Index out of bounds");
+	CE_ASSERT(b.i < _data.size, "Index out of bounds");
+
 	const UnitId u = _data.unit[a.i];
 	const SpriteInstance first_i = first(u);
 
@@ -789,6 +833,8 @@ LightInstance RenderWorld::LightManager::create(UnitId id, const LightDesc& ld, 
 
 void RenderWorld::LightManager::destroy(LightInstance i)
 {
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+
 	const u32 last      = _data.size - 1;
 	const UnitId u      = _data.unit[i.i];
 	const UnitId last_u = _data.unit[last];
