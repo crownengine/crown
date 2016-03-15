@@ -25,6 +25,7 @@ namespace string_stream
 
 /// @addtogroup String
 /// @{
+
 /// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, char val)
 {
@@ -32,41 +33,49 @@ inline StringStream& operator<<(StringStream& s, char val)
 	return s;
 }
 
+/// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, s16 val)
 {
 	return string_stream::stream_printf(s, "%hd", val);
 }
 
+/// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, u16 val)
 {
 	return string_stream::stream_printf(s, "%hu", val);
 }
 
+/// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, s32 val)
 {
 	return string_stream::stream_printf(s, "%d", val);
 }
 
+/// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, u32 val)
 {
 	return string_stream::stream_printf(s, "%u", val);
 }
 
+/// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, s64 val)
 {
 	return string_stream::stream_printf(s, "%lld", val);
 }
 
+/// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, u64 val)
 {
 	return string_stream::stream_printf(s, "%llu", val);
 }
 
+/// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, f32 val)
 {
 	return string_stream::stream_printf(s, "%g", val);
 }
 
+/// Appends @a val to the stream @a s using appropriate formatting.
 inline StringStream& operator<<(StringStream& s, f64 val)
 {
 	return string_stream::stream_printf(s, "%g", val);
