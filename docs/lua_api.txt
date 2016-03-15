@@ -128,6 +128,9 @@ Quaternion
 	**Quaternion** (axis, angle) : Quaternion
 		Returns a new quaternion from *axis* and *angle*.
 
+	**from_elements** (x, y, z, w) : Quaternion
+		Returns a new quaternion from individual elements.
+
 	**negate** (q) : Quaternion
 		Negates the quaternion *q* and returns the result.
 
@@ -510,7 +513,7 @@ RenderWorld
 Mesh
 ----
 
-	**create_mesh** (rw, unit, mesh_resource, geometry_name, material_resource, visible) : Id
+	**create_mesh** (rw, unit, mesh_resource, geometry_name, material_resource, visible, pose) : Id
 		Creates a new mesh instance for *unit* and returns its id.
 
 	**destroy_mesh** (rw, id)
