@@ -29,5 +29,10 @@ namespace Crown
 			this.z = axis.z * sa;
 			this.w = ca;
 		}
+
+		public override string ToString()
+		{
+			return string.Format("{0}, {1}, {2}, {3}", x, y, z, w);
+		}
 	}
 }
