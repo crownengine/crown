@@ -793,6 +793,13 @@ static int quaternion_ctor(lua_State* L)
 	return 1;
 }
 
+static int quaternion_from_elements(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_quaternion(quaternion(stack.get_float(1), stack.get_float(2), stack.get_float(3), stack.get_float(4)));
+	return 1;
+}
+
 static int quaternion_negate(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3070,6 +3077,7 @@ void load_api(LuaEnvironment& env)
 	env.set_module_constructor("Matrix4x4Box", matrix4x4box_ctor);
 
 	env.add_module_function("Quaternion", "new",                quaternion_new);
+	env.add_module_function("Quaternion", "from_elements",      quaternion_from_elements);
 	env.add_module_function("Quaternion", "negate",             quaternion_negate);
 	env.add_module_function("Quaternion", "identity",           quaternion_identity);
 	env.add_module_function("Quaternion", "multiply",           quaternion_multiply);
