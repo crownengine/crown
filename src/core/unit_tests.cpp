@@ -171,6 +171,59 @@ static void test_sjson()
 		sjson::parse_string("\"This is SJSON\"", str);
 		CE_ENSURE(strcmp(str.c_str(), "This is SJSON") == 0);
 	}
+	{
+		const Vector2 a = sjson::parse_vector2("[ 1.2 -2.5 ]");
+		CE_ENSURE(fequal(a.x,  1.2f));
+		CE_ENSURE(fequal(a.y, -2.5f));
+
+		const Vector3 b = sjson::parse_vector3("[ 3.1 0.5 -5.7]");
+		CE_ENSURE(fequal(b.x,  3.1f));
+		CE_ENSURE(fequal(b.y,  0.5f));
+		CE_ENSURE(fequal(b.z, -5.7f));
+
+		const Vector4 c = sjson::parse_vector4("[ 6.7 -1.3 2.9 -0.4 ]");
+		CE_ENSURE(fequal(c.x,  6.7f));
+		CE_ENSURE(fequal(c.y, -1.3f));
+		CE_ENSURE(fequal(c.z,  2.9f));
+		CE_ENSURE(fequal(c.w, -0.4f));
+
+		const Quaternion d = sjson::parse_quaternion("[ -1.5 -3.4 9.1 -3.5 ]");
+		CE_ENSURE(fequal(d.x, -1.5f));
+		CE_ENSURE(fequal(d.y, -3.4f));
+		CE_ENSURE(fequal(d.z,  9.1f));
+		CE_ENSURE(fequal(d.w, -3.5f));
+
+		const Matrix4x4 e = sjson::parse_matrix4x4(
+			"["
+			"-3.2  5.3 -0.7  4.1 "
+			" 5.6  7.0 -3.2 -1.2 "
+			"-6.3  9.0  3.9  1.1 "
+			" 0.4 -7.3  8.9 -0.1 "
+			"]"
+			);
+		CE_ENSURE(fequal(e.x.x, -3.2f));
+		CE_ENSURE(fequal(e.x.y,  5.3f));
+		CE_ENSURE(fequal(e.x.z, -0.7f));
+		CE_ENSURE(fequal(e.x.w,  4.1f));
+		CE_ENSURE(fequal(e.y.x,  5.6f));
+		CE_ENSURE(fequal(e.y.y,  7.0f));
+		CE_ENSURE(fequal(e.y.z, -3.2f));
+		CE_ENSURE(fequal(e.y.w, -1.2f));
+		CE_ENSURE(fequal(e.z.x, -6.3f));
+		CE_ENSURE(fequal(e.z.y,  9.0f));
+		CE_ENSURE(fequal(e.z.z,  3.9f));
+		CE_ENSURE(fequal(e.z.w,  1.1f));
+		CE_ENSURE(fequal(e.t.x,  0.4f));
+		CE_ENSURE(fequal(e.t.y, -7.3f));
+		CE_ENSURE(fequal(e.t.z,  8.9f));
+		CE_ENSURE(fequal(e.t.w, -0.1f));
+
+		const StringId32 f = sjson::parse_string_id("\"murmur32\"");
+		CE_ENSURE(f._id == 0x7c2365dbu);
+
+		const ResourceId g = sjson::parse_resource_id("\"murmur64\"");
+		CE_ENSURE(g._id == 0x90631502d1a3432bu);
+	}
 	memory_globals::shutdown();
 }
 
