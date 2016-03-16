@@ -402,7 +402,8 @@ struct ColliderDesc
 	CapsuleShape capsule;
 	BoxShape box;
 	HeightfieldShape heightfield;
-	// dynamic data               ///< Mesh, Heightfield data.
+	u32 size;                     ///< Size of additional data.
+//	char data[size]               ///< Convex Hull, Mesh, Heightfield data.
 };
 
 struct HingeJoint

@@ -224,8 +224,8 @@ public:
 				break;
 			case ColliderType::CONVEX_HULL:
 			{
-				const u32 num = *(const u32*)&sd[1];
-				const Vector3* points = (const Vector3*)((const char*)(&sd[1]) + sizeof(num));
+				const u32 num = sd->size / sizeof(Vector3);
+				const Vector3* points = (const Vector3*)&sd[1];
 
 				btConvexHullShape* convex = CE_NEW(*_allocator, btConvexHullShape);
 				for (u32 i = 0; i < num; ++i)

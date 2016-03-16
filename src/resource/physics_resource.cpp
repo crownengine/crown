@@ -200,11 +200,12 @@ namespace physics_resource
 			, type.c_str()
 			);
 
-		ColliderDesc sd;
-		sd.type        = st;
-		sd.shape_class = sjson::parse_string_id(obj["class"]);
-		sd.material    = sjson::parse_string_id(obj["material"]);
-		sd.local_tm    = MATRIX4X4_IDENTITY;
+		ColliderDesc cd;
+		cd.type        = st;
+		cd.shape_class = sjson::parse_string_id(obj["class"]);
+		cd.material    = sjson::parse_string_id(obj["material"]);
+		cd.local_tm    = MATRIX4X4_IDENTITY;
+		cd.size        = 0;
 
 		DynamicString scene(ta);
 		DynamicString name(ta);
@@ -221,11 +222,11 @@ namespace physics_resource
 
 		Array<Vector3> mesh_data(default_allocator());
 
-		switch (sd.type)
+		switch (cd.type)
 		{
-			case ColliderType::SPHERE:      compile_sphere(mesh, sd); break;
-			case ColliderType::CAPSULE:     compile_capsule(mesh, sd); break;
-			case ColliderType::BOX:         compile_box(mesh, sd); break;
+			case ColliderType::SPHERE:      compile_sphere(mesh, cd); break;
+			case ColliderType::CAPSULE:     compile_capsule(mesh, cd); break;
+			case ColliderType::BOX:         compile_box(mesh, cd); break;
 			case ColliderType::CONVEX_HULL: compile_convex_hull(mesh, mesh_data); break;
 			case ColliderType::MESH:
 			case ColliderType::HEIGHTFIELD:
@@ -235,15 +236,13 @@ namespace physics_resource
 			}
 		}
 
+		cd.size = sizeof(Vector3)*array::size(mesh_data);
+
 		Buffer buf(default_allocator());
-		array::push(buf, (char*)&sd, sizeof(sd));
+		array::push(buf, (char*)&cd, sizeof(cd));
 
 		if (array::size(mesh_data))
-		{
-			u32 num = array::size(mesh_data);
-			array::push(buf, (char*)&num, sizeof(num));
 			array::push(buf, (char*)array::begin(mesh_data), sizeof(Vector3)*array::size(mesh_data));
-		}
 
 		return buf;
 	}
