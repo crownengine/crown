@@ -529,6 +529,37 @@ units = {
 			}
 		}
 	}
+	4952264c-be89-4c53-9d52-66fe94d44536 = {
+		components = {
+			1089a8ef-c51f-417d-9160-3716b5b441d7 = {
+				position = [ 0 0 25 ]
+				rotation = [ 0 0.707107 0 0.707107 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+			3d3bbab0-2fca-4932-a38f-41e7cb339216 = {
+				class = "static"
+				collision_filter = "default"
+				mass = 10
+				type = "actor"
+			}
+			d79ef8c9-b2c1-4a67-adc9-07154f7352d7 = {
+				class = "character"
+				material = "default"
+				name = "Cube"
+				scene = "ramp"
+				shape = "convex_hull"
+				type = "collider"
+			}
+			e8d9961f-d868-4b26-a4d7-7d2891cead99 = {
+				geometry_name = "Cube"
+				material = "grid"
+				mesh_resource = "ramp"
+				type = "mesh_renderer"
+				visible = true
+			}
+		}
+	}
 	53d27790-a224-4216-9cee-2e77622afacd = {
 		components = {
 			4110eb7f-14d9-44f7-be40-2269f1079981 = {
@@ -774,6 +805,37 @@ units = {
 				scene = "cube"
 				shape = "box"
 				type = "collider"
+			}
+		}
+	}
+	7409effa-3f2c-4aae-95a6-5377418f9354 = {
+		components = {
+			114ece38-a553-4a49-8fa7-07b49e061a66 = {
+				class = "asteroid"
+				material = "asteroid"
+				name = "Plane"
+				scene = "plane"
+				shape = "convex_hull"
+				type = "collider"
+			}
+			445eb72e-e80d-4549-95db-2438f3401168 = {
+				geometry_name = "Plane"
+				material = "grid"
+				mesh_resource = "plane"
+				type = "mesh_renderer"
+				visible = true
+			}
+			52cec360-697d-4493-a369-1674bcb1d236 = {
+				class = "static"
+				collision_filter = "default"
+				mass = 50
+				type = "actor"
+			}
+			805e9323-578b-4d22-8414-b15b1a5ff7bc = {
+				position = [ 0 0 0 ]
+				rotation = [ 0 0 0 1 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
 			}
 		}
 	}

@@ -25,7 +25,7 @@ function init()
 	-- Spawn camera
 	camera_unit = World.spawn_unit(wd, "core/units/camera")
 	local camera_tr = SceneGraph.transform_instances(sg, camera_unit)
-	SceneGraph.set_local_position(sg, camera_tr, Vector3(0, 1.5, -20))
+	SceneGraph.set_local_position(sg, camera_tr, Vector3(0, 6.5, -30))
 
 	-- Spawn light
 	World.spawn_unit(wd, "core/units/light", Vector3(-25, 25, -25))
@@ -35,14 +35,8 @@ function init()
 	local skydome_transform = SceneGraph.transform_instances(sg, skydome)
 	SceneGraph.set_local_scale(sg, skydome_transform, Vector3(500, 500, 500))
 
-	-- Spawn ground
-	World.spawn_unit(wd, "plane", Vector3(0, 0, 0))
-
 	-- Load test level
 	World.load_level(wd, "test", Vector3(0, 0.1, 0))
-
-	-- Spawn additional stuff
-	World.spawn_unit(wd, "ramp", Vector3(0, 0, 25), Quaternion.look(Vector3(1, 0, 0)))
 
 	-- Debug stuff
 	PhysicsWorld.enable_debug_drawing(pw, physics_debug)
