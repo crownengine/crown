@@ -3,8 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "intersection.h"
 #include "aabb.h"
+#include "intersection.h"
 #include "plane.h"
 #include "sphere.h"
 #include "vector3.h"

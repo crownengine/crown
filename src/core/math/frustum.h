@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "math_types.h"
-#include "plane.h"
 #include "aabb.h"
 #include "intersection.h"
+#include "math_types.h"
+#include "plane.h"
 
 namespace crown
 {
