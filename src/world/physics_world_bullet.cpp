@@ -225,16 +225,8 @@ public:
 			case ColliderType::CONVEX_HULL:
 			{
 				const u32 num = sd->size / sizeof(Vector3);
-				const Vector3* points = (const Vector3*)&sd[1];
-
-				btConvexHullShape* convex = CE_NEW(*_allocator, btConvexHullShape);
-				for (u32 i = 0; i < num; ++i)
-				{
-					Vector3 vec = points[i];
-					btVector3 vec_bt(vec.x, vec.y, vec.z);
-					convex->addPoint(vec_bt);
-				}
-				child_shape = convex;
+				const btScalar* points = (const btScalar*)&sd[1];
+				child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
 				break;
 			}
 			case ColliderType::MESH:
