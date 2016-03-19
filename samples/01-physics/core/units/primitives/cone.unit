@@ -12,7 +12,6 @@ components = {
 		material = "core/units/primitives/primitive"
 		visible = true
 	}
-/*
 	"157bdce7-ab63-4478-9550-65610918343e" = {
 		type = "collider"
 		class = "character"
@@ -27,5 +26,4 @@ components = {
 		mass = 1
 		collision_filter = "default"
 	}
-*/
 }
