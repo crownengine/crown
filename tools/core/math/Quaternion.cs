@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+using System.Collections;
 using System;
 
 namespace Crown
@@ -17,6 +18,14 @@ namespace Crown
 			this.y = y;
 			this.z = z;
 			this.w = w;
+		}
+
+		public Quaternion(ArrayList arr)
+		{
+			this.x = (float)(double)arr[0];
+			this.y = (float)(double)arr[1];
+			this.z = (float)(double)arr[2];
+			this.w = (float)(double)arr[3];
 		}
 
 		public Quaternion(Vector3 axis, float angle)

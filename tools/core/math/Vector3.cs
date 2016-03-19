@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+using System.Collections;
 using System;
 
 namespace Crown
@@ -16,6 +17,13 @@ namespace Crown
 			this.x = x;
 			this.y = y;
 			this.z = z;
+		}
+
+		public Vector3(ArrayList arr)
+		{
+			this.x = (float)(double)arr[0];
+			this.y = (float)(double)arr[1];
+			this.z = (float)(double)arr[2];
 		}
 
 		public static Vector3 operator+(Vector3 a, Vector3 b)
