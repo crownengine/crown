@@ -27,9 +27,6 @@ function init()
 	local camera_tr = SceneGraph.transform_instances(sg, camera_unit)
 	SceneGraph.set_local_position(sg, camera_tr, Vector3(0, 6.5, -30))
 
-	-- Spawn light
-	World.spawn_unit(wd, "core/units/light", Vector3(-25, 25, -25))
-
 	-- Spawn skydome
 	skydome = World.spawn_unit(wd, "skydome")
 	local skydome_transform = SceneGraph.transform_instances(sg, skydome)

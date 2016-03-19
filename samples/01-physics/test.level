@@ -188,6 +188,31 @@ units = {
 			}
 		}
 	}
+	0e2b8158-3938-4424-8d7c-9e75cf157bdb = {
+		components = {
+			9d609bcd-6ade-41f4-8d21-1db1c5ba3af9 = {
+				color = [ 1 1 1 ]
+				intensity = 3
+				light = "directional"
+				range = 1
+				spot_angle = 30
+				type = "light"
+			}
+			cd4f9fa1-1808-498f-b93a-413d29544425 = {
+				geometry_name = "Icosphere"
+				material = "notexture"
+				mesh_resource = "core/units/light"
+				type = "mesh_renderer"
+				visible = true
+			}
+			d89876e4-a430-4172-9da9-12f11ae84bec = {
+				position = [ -23.8463 16 -23.6929 ]
+				rotation = [ 0 0.991665 0 -0.128845 ]
+				scale = [ 1 1 1 ]
+				type = "transform"
+			}
+		}
+	}
 	1672277c-bcdd-4c28-9c65-76305f12d68d = {
 		components = {
 			238c8e23-37a3-4522-9ba5-f74c4bc7e4c1 = {
