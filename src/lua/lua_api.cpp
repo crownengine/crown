@@ -1892,7 +1892,9 @@ static int render_world_create_sprite(lua_State* L)
 	desc.material_resource = stack.get_resource_id(4);
 	desc.visible = stack.get_bool(5);
 
-	stack.push_sprite_instance(rw->create_sprite(unit, desc, MATRIX4X4_IDENTITY));
+	Matrix4x4 pose = stack.get_matrix4x4(6);
+
+	stack.push_sprite_instance(rw->create_sprite(unit, desc, pose));
 	return 1;
 }
 
@@ -1952,7 +1954,10 @@ static int render_world_create_light(lua_State* L)
 	ld.intensity  = stack.get_float(5);
 	ld.spot_angle = stack.get_float(6);
 	ld.color      = stack.get_vector3(7);
-	stack.push_light_instance(stack.get_render_world(1)->create_light(stack.get_unit(2), ld, MATRIX4X4_IDENTITY));
+
+	Matrix4x4 pose = stack.get_matrix4x4(8);
+
+	stack.push_light_instance(stack.get_render_world(1)->create_light(stack.get_unit(2), ld, pose));
 	return 1;
 }
 
