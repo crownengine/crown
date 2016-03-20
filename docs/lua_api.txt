@@ -525,7 +525,7 @@ Mesh
 Sprite
 ------
 
-	**create_sprite** (rw, unit, sprite_resource, material_resource, visible) : Id
+	**create_sprite** (rw, unit, sprite_resource, material_resource, visible, pose) : Id
 		Creates a new sprite instance for *unit* and returns its id.
 
 	**destroy_sprite** (rw, id)
@@ -537,7 +537,7 @@ Sprite
 Light
 -----
 
-	**create_light** (rw, unit, type, range, intensity, spot_angle, color) : Id
+	**create_light** (rw, unit, type, range, intensity, spot_angle, color, pose) : Id
 		Creates a new light for *unit* and returns its id.
 		Type can be either ``directional``, ``omni`` or ``spot``.
 
