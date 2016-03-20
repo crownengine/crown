@@ -429,7 +429,7 @@ Level
 SceneGraph
 ==========
 
-	**create** (sg, unit, position, rotation, scale) : int
+	**create** (sg, unit, position, rotation, scale) : Id
 		Creates the transform for the *unit*.
 
 	**destroy** (sg, id)
