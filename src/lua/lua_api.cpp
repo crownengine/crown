@@ -2640,6 +2640,27 @@ static int device_enable_resource_autoload(lua_State* L)
 	return 0;
 }
 
+static int device_temp_count(lua_State* L)
+{
+	LuaStack stack(L);
+	u32 nv, nq, nm;
+	device()->lua_environment()->temp_count(nv, nq, nm);
+	stack.push_int(nv);
+	stack.push_int(nq);
+	stack.push_int(nm);
+	return 3;
+}
+
+static int device_set_temp_count(lua_State* L)
+{
+	LuaStack stack(L);
+	u32 nv = stack.get_int(1);
+	u32 nq = stack.get_int(2);
+	u32 nm = stack.get_int(3);
+	device()->lua_environment()->set_temp_count(nv, nq, nm);
+	return 0;
+}
+
 static int profiler_enter_scope(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3377,6 +3398,8 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Device", "console_send",             device_console_send);
 	env.add_module_function("Device", "can_get",                  device_can_get);
 	env.add_module_function("Device", "enable_resource_autoload", device_enable_resource_autoload);
+	env.add_module_function("Device", "temp_count",               device_temp_count);
+	env.add_module_function("Device", "set_temp_count",           device_set_temp_count);
 
 	env.add_module_function("Profiler", "enter_scope", profiler_enter_scope);
 	env.add_module_function("Profiler", "leave_scope", profiler_leave_scope);
