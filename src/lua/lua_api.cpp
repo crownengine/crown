@@ -161,6 +161,19 @@ static int math_ray_obb_intersection(lua_State* L)
 	return 1;
 }
 
+static int math_ray_triangle_intersection(lua_State* L)
+{
+	LuaStack stack(L);
+	const f32 t = ray_triangle_intersection(stack.get_vector3(1)
+		, stack.get_vector3(2)
+		, stack.get_vector3(3)
+		, stack.get_vector3(4)
+		, stack.get_vector3(5)
+		);
+	stack.push_float(t);
+	return 1;
+}
+
 static int vector3_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3015,10 +3028,11 @@ static int window_show_cursor(lua_State* L)
 
 void load_api(LuaEnvironment& env)
 {
-	env.add_module_function("Math", "ray_plane_intersection",  math_ray_plane_intersection);
-	env.add_module_function("Math", "ray_disc_intersection",   math_ray_disc_intersection);
-	env.add_module_function("Math", "ray_sphere_intersection", math_ray_sphere_intersection);
-	env.add_module_function("Math", "ray_obb_intersection",    math_ray_obb_intersection);
+	env.add_module_function("Math", "ray_plane_intersection",    math_ray_plane_intersection);
+	env.add_module_function("Math", "ray_disc_intersection",     math_ray_disc_intersection);
+	env.add_module_function("Math", "ray_sphere_intersection",   math_ray_sphere_intersection);
+	env.add_module_function("Math", "ray_obb_intersection",      math_ray_obb_intersection);
+	env.add_module_function("Math", "ray_triangle_intersection", math_ray_triangle_intersection);
 
 	env.add_module_function("Vector3", "new",              vector3_new);
 	env.add_module_function("Vector3", "x",                vector3_x);
