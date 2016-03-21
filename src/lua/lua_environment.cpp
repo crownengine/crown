@@ -234,6 +234,20 @@ bool LuaEnvironment::is_matrix4x4(const Matrix4x4* p) const
 		&& p <= &_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1];
 }
 
+void LuaEnvironment::temp_count(u32& num_vec3, u32& num_quat, u32& num_mat4)
+{
+	num_vec3 = _vec3_used;
+	num_quat = _quat_used;
+	num_mat4 = _mat4_used;
+}
+
+void LuaEnvironment::set_temp_count(u32 num_vec3, u32 num_quat, u32 num_mat4)
+{
+	_vec3_used = num_vec3;
+	_quat_used = num_quat;
+	_mat4_used = num_mat4;
+}
+
 void LuaEnvironment::reset_temporaries()
 {
 	_vec3_used = 0;

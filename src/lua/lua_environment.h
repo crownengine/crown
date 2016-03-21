@@ -60,6 +60,12 @@ struct LuaEnvironment
 	/// Returns true if success, false otherwise
 	void call_global(const char* func, u8 argc, ...);
 
+	/// Returns the number of temporary objects in use.
+	void temp_count(u32& num_vec3, u32& num_quat, u32& num_mat4);
+
+	/// Sets the number of temporary objects in use.
+	void set_temp_count(u32 num_vec3, u32 num_quat, u32 num_mat4);
+
 	/// Resets temporary types.
 	void reset_temporaries();
 
