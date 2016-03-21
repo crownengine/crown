@@ -2618,7 +2618,7 @@ static int device_console_send(lua_State* L)
 				 << m.t.x << ","
 				 << m.t.y << ","
 				 << m.t.z << ","
-				 << m.t.w << ","
+				 << m.t.w
 				 << "]"
 				 ;
 		}
