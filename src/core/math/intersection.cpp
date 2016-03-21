@@ -55,7 +55,7 @@ f32 ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Spher
 f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const Vector3& half_extents)
 {
 	f32 tmin = 0.0f;
-	f32 tmax = 100000.0f;
+	f32 tmax = 999999999.9f;
 
 	const Vector3 obb_pos = vector3(tm.t.x, tm.t.y, tm.t.z);
 	const Vector3 delta = obb_pos - from;
@@ -70,9 +70,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 			f32 t1 = (e-half_extents.x)/f;
 			f32 t2 = (e+half_extents.x)/f;
 
-			if (t1>t2){
-				f32 w=t1;t1=t2;t2=w;
-			}
+			if (t1 > t2) { f32 w=t1;t1=t2;t2=w; }
 
 			if (t2 < tmax)
 				tmax = t2;
@@ -85,7 +83,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		}
 		else
 		{
-			if(-e-half_extents.x > 0.0f || -e+half_extents.x < 0.0f)
+			if (-e-half_extents.x > 0.0f || -e+half_extents.x < 0.0f)
 				return -1.0f;
 		}
 	}
@@ -95,12 +93,12 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		const f32 e = dot(yaxis, delta);
 		const f32 f = dot(dir, yaxis);
 
-		if (fabs(f) > 0.001f){
-
+		if (fabs(f) > 0.001f)
+		{
 			f32 t1 = (e-half_extents.y)/f;
 			f32 t2 = (e+half_extents.y)/f;
 
-			if (t1>t2){f32 w=t1;t1=t2;t2=w;}
+			if (t1 > t2) { f32 w=t1;t1=t2;t2=w; }
 
 			if (t2 < tmax)
 				tmax = t2;
@@ -112,7 +110,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		}
 		else
 		{
-			if(-e-half_extents.y > 0.0f || -e+half_extents.y < 0.0f)
+			if (-e-half_extents.y > 0.0f || -e+half_extents.y < 0.0f)
 				return -1.0f;
 		}
 	}
@@ -122,12 +120,12 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		const f32 e = dot(zaxis, delta);
 		const f32 f = dot(dir, zaxis);
 
-		if (fabs(f) > 0.001f){
-
+		if (fabs(f) > 0.001f)
+		{
 			f32 t1 = (e-half_extents.z)/f;
 			f32 t2 = (e+half_extents.z)/f;
 
-			if (t1>t2){f32 w=t1;t1=t2;t2=w;}
+			if (t1 > t2) { f32 w=t1;t1=t2;t2=w; }
 
 			if (t2 < tmax)
 				tmax = t2;
@@ -140,7 +138,7 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 		}
 		else
 		{
-			if(-e-half_extents.z > 0.0f || -e+half_extents.z < 0.0f)
+			if (-e-half_extents.z > 0.0f || -e+half_extents.z < 0.0f)
 				return -1.0f;
 		}
 	}
@@ -148,12 +146,83 @@ f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x
 	return tmin;
 }
 
+f32 ray_triangle_intersection(const Vector3& from, const Vector3& dir, const Vector3& v0, const Vector3& v1, const Vector3& v2)
+{
+	const Vector3 verts[] = { v0, v1, v2 };
+	const u16 inds[] = { 0, 1, 2 };
+	return ray_mesh_intersection(from, dir, MATRIX4X4_IDENTITY, verts, sizeof(Vector3), inds, 3);
+}
+
+f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num)
+{
+	bool hit = false;
+	f32 tmin = 999999999.9f;
+
+	for (u32 i = 0; i < num; i += 3)
+	{
+		const u32 i0 = indices[i + 0];
+		const u32 i1 = indices[i + 1];
+		const u32 i2 = indices[i + 2];
+
+		const Vector3& v0 = *(const Vector3*)((const char*)vertices + i0*stride) * tm;
+		const Vector3& v1 = *(const Vector3*)((const char*)vertices + i1*stride) * tm;
+		const Vector3& v2 = *(const Vector3*)((const char*)vertices + i2*stride) * tm;
+
+		// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+
+		// Find vectors for two edges sharing v0
+		const Vector3 e1 = v1 - v0;
+		const Vector3 e2 = v2 - v0;
+
+		// Begin calculating determinant - also used to calculate u parameter
+		const Vector3 P = cross(dir, e2);
+
+		// If determinant is near zero, ray lies in plane of triangle
+		const f32 det = dot(e1, P);
+		if (fequal(det, 0.0f))
+			continue;
+
+		const f32 inv_det = 1.0f / det;
+
+		// Distance from v0 to ray origin
+		const Vector3 T = from - v0;
+
+		// u parameter and test bound
+		const f32 u = dot(T, P) * inv_det;
+
+		// The intersection lies outside of the triangle
+		if (u < 0.0f || u > 1.0f)
+			continue;
+
+		// Prepare to test v parameter
+		const Vector3 Q = cross(T, e1);
+
+		// v parameter and test bound
+		const f32 v = dot(dir, Q) * inv_det;
+
+		// The intersection lies outside of the triangle
+		if (v < 0.0f || u + v  > 1.0f)
+			continue;
+
+		const f32 t = dot(e2, Q) * inv_det;
+
+		// Ray intersection
+		if (t > FLOAT_EPSILON)
+		{
+			hit = true;
+			tmin = fmin(t, tmin);
+		}
+	}
+
+	return hit ? tmin : -1.0f;
+}
+
 bool plane_3_intersection(const Plane& a, const Plane& b, const Plane& c, Vector3& ip)
 {
 	const Vector3 na = a.n;
 	const Vector3 nb = b.n;
 	const Vector3 nc = c.n;
-	const f32 den  = -dot(cross(na, nb), nc);
+	const f32 den    = -dot(cross(na, nb), nc);
 
 	if (fequal(den, 0.0f))
 		return false;

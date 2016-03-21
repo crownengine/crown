@@ -28,6 +28,14 @@ f32 ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Spher
 /// bounding box (tm, half_extents) or -1.0 if no intersection.
 f32 ray_obb_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const Vector3& half_extents);
 
+/// Returns the distance along ray (from, dir) to intersection point with the triangle
+/// (v0, v1, v2) or -1.0 if no intersection.
+f32 ray_triangle_intersection(const Vector3& from, const Vector3& dir, const Vector3& v0, const Vector3& v1, const Vector3& v2);
+
+/// Returns the distance along ray (from, dir) to intersection point with the triangle
+/// mesh defined by (vertices, stride, indices, num) or -1.0 if no intersection.
+f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num);
+
 /// Returns whether the planes @a a, @a b and @a c intersects and if so fills @a ip with the intersection point.
 bool plane_3_intersection(const Plane& a, const Plane& b, const Plane& c, Vector3& ip);
 
