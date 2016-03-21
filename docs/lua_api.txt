@@ -335,6 +335,10 @@ Math
 		Returns the distance along ray (from, dir) to intersection point with the oriented
 		bounding box (tm, half_extents) or -1.0 if no intersection.
 
+	**ray_triangle_intersection** (from, dir, v0, v1, v2) : float
+		Returns the distance along ray (from, dir) to intersection point with the triangle
+		(v0, v1, v2) or -1.0 if no intersection.
+
 UnitManager
 ===========
 
@@ -794,6 +798,12 @@ Device
 
 	**enable_resource_autoload** (enable)
 		Sets whether resources should be automatically loaded when accessed.
+
+	**temp_count** () : int, int, int
+		Returns the number of temporary objects used by Lua.
+
+	**set_temp_count** (nv, nq, nm)
+		Sets the number of temporary objects used by Lua.
 
 DebugLine
 =========
