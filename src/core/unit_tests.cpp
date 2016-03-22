@@ -99,8 +99,44 @@ static void test_vector2()
 	}
 	{
 		const Vector2 a = vector2(1.2f,  4.2f);
+		const f32 c = length_squared(a);
+		CE_ENSURE(fequal(c, 19.08f, 0.0001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
 		const f32 c = length(a);
 		CE_ENSURE(fequal(c,  4.36806f, 0.0001f));
+	}
+	{
+		Vector2 a = vector2(1.2f,  4.2f);
+		normalize(a);
+		CE_ENSURE(fequal(length(a), 1.0f, 0.00001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 b = vector2(2.7f, -1.9f);
+		const float c = distance_squared(a, b);
+		CE_ENSURE(fequal(c, 39.46f, 0.00001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 b = vector2(2.7f, -1.9f);
+		const float c = distance(a, b);
+		CE_ENSURE(fequal(c, 6.28171f, 0.00001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 c = max(a, b);
+		CE_ENSURE(fequal(c.x,  2.7f, 0.00001f));
+		CE_ENSURE(fequal(c.y,  4.2f, 0.00001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 c = min(a, b);
+		CE_ENSURE(fequal(c.x,  1.2f, 0.00001f));
+		CE_ENSURE(fequal(c.y, -1.9f, 0.00001f));
 	}
 }
 
@@ -145,8 +181,46 @@ static void test_vector3()
 	}
 	{
 		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const f32 c = length_squared(a);
+		CE_ENSURE(fequal(c, 24.37f, 0.0001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
 		const f32 c = length(a);
 		CE_ENSURE(fequal(c,  4.93659f, 0.0001f));
+	}
+	{
+		Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		normalize(a);
+		CE_ENSURE(fequal(length(a), 1.0f, 0.00001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const float c = distance_squared(a, b);
+		CE_ENSURE(fequal(c, 42.70f, 0.00001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const float c = distance(a, b);
+		CE_ENSURE(fequal(c, 6.53452f, 0.00001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 c = max(a, b);
+		CE_ENSURE(fequal(c.x,  2.7f, 0.00001f));
+		CE_ENSURE(fequal(c.y,  4.2f, 0.00001f));
+		CE_ENSURE(fequal(c.z, -2.3f, 0.00001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 c = min(a, b);
+		CE_ENSURE(fequal(c.x,  1.2f, 0.00001f));
+		CE_ENSURE(fequal(c.y, -1.9f, 0.00001f));
+		CE_ENSURE(fequal(c.z, -4.1f, 0.00001f));
 	}
 }
 
@@ -186,8 +260,48 @@ static void test_vector4()
 	}
 	{
 		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const f32 c = length_squared(a);
+		CE_ENSURE(fequal(c, 54.62f, 0.0001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
 		const f32 c = length(a);
 		CE_ENSURE(fequal(c,  7.39053f, 0.0001f));
+	}
+	{
+		Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		normalize(a);
+		CE_ENSURE(fequal(length(a), 1.0f, 0.00001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const float c = distance_squared(a, b);
+		CE_ENSURE(fequal(c, 62.95f, 0.00001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const float c = distance(a, b);
+		CE_ENSURE(fequal(c, 7.93410f, 0.00001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 c = max(a, b);
+		CE_ENSURE(fequal(c.x,  2.7f, 0.00001f));
+		CE_ENSURE(fequal(c.y,  4.2f, 0.00001f));
+		CE_ENSURE(fequal(c.z, -2.3f, 0.00001f));
+		CE_ENSURE(fequal(c.w,  5.5f, 0.00001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 c = min(a, b);
+		CE_ENSURE(fequal(c.x,  1.2f, 0.00001f));
+		CE_ENSURE(fequal(c.y, -1.9f, 0.00001f));
+		CE_ENSURE(fequal(c.z, -4.1f, 0.00001f));
+		CE_ENSURE(fequal(c.w,  1.0f, 0.00001f));
 	}
 }
 
