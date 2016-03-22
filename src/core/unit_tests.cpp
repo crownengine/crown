@@ -21,6 +21,9 @@
 #include "string_utils.h"
 #include "temp_allocator.h"
 #include "vector.h"
+#include "vector2.h"
+#include "vector3.h"
+#include "vector4.h"
 
 namespace crown
 {
@@ -64,6 +67,128 @@ static void test_vector()
 		CE_ENSURE(v[0] == 1);
 	}
 	memory_globals::shutdown();
+}
+
+static void test_vector2()
+{
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 c = a - b;
+		CE_ENSURE(fequal(c.x, -1.5f, 0.0001f));
+		CE_ENSURE(fequal(c.y,  6.1f, 0.0001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 b = vector2(2.7f, -1.9f);
+		const Vector2 c = a + b;
+		CE_ENSURE(fequal(c.x,  3.9f, 0.0001f));
+		CE_ENSURE(fequal(c.y,  2.3f, 0.0001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 b = a * 2.0f;
+		CE_ENSURE(fequal(b.x,  2.4f, 0.0001f));
+		CE_ENSURE(fequal(b.y,  8.4f, 0.0001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const Vector2 b = vector2(2.7f, -1.9f);
+		const f32 c = dot(a, b);
+		CE_ENSURE(fequal(c,  -4.74f, 0.0001f));
+	}
+	{
+		const Vector2 a = vector2(1.2f,  4.2f);
+		const f32 c = length(a);
+		CE_ENSURE(fequal(c,  4.36806f, 0.0001f));
+	}
+}
+
+static void test_vector3()
+{
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 c = a - b;
+		CE_ENSURE(fequal(c.x, -1.5f, 0.0001f));
+		CE_ENSURE(fequal(c.y,  6.1f, 0.0001f));
+		CE_ENSURE(fequal(c.z,  1.8f, 0.0001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 c = a + b;
+		CE_ENSURE(fequal(c.x,  3.9f, 0.0001f));
+		CE_ENSURE(fequal(c.y,  2.3f, 0.0001f));
+		CE_ENSURE(fequal(c.z, -6.4f, 0.0001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = a * 2.0f;
+		CE_ENSURE(fequal(b.x,  2.4f, 0.0001f));
+		CE_ENSURE(fequal(b.y,  8.4f, 0.0001f));
+		CE_ENSURE(fequal(b.z, -4.6f, 0.0001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const f32 c = dot(a, b);
+		CE_ENSURE(fequal(c,  4.69f, 0.0001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const Vector3 b = vector3(2.7f, -1.9f, -4.1f);
+		const Vector3 c = cross(a, b);
+		CE_ENSURE(fequal(c.x, -21.59f, 0.0001f));
+		CE_ENSURE(fequal(c.y,  -1.29f, 0.0001f));
+		CE_ENSURE(fequal(c.z, -13.62f, 0.0001f));
+	}
+	{
+		const Vector3 a = vector3(1.2f,  4.2f, -2.3f);
+		const f32 c = length(a);
+		CE_ENSURE(fequal(c,  4.93659f, 0.0001f));
+	}
+}
+
+static void test_vector4()
+{
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 c = a - b;
+		CE_ENSURE(fequal(c.x, -1.5f, 0.0001f));
+		CE_ENSURE(fequal(c.y,  6.1f, 0.0001f));
+		CE_ENSURE(fequal(c.z,  1.8f, 0.0001f));
+		CE_ENSURE(fequal(c.w,  4.5f, 0.0001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const Vector4 c = a + b;
+		CE_ENSURE(fequal(c.x,  3.9f, 0.0001f));
+		CE_ENSURE(fequal(c.y,  2.3f, 0.0001f));
+		CE_ENSURE(fequal(c.z, -6.4f, 0.0001f));
+		CE_ENSURE(fequal(c.w,  6.5f, 0.0001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 1.5f);
+		const Vector4 b = a * 2.0f;
+		CE_ENSURE(fequal(b.x,  2.4f, 0.0001f));
+		CE_ENSURE(fequal(b.y,  8.4f, 0.0001f));
+		CE_ENSURE(fequal(b.z, -4.6f, 0.0001f));
+		CE_ENSURE(fequal(b.w,  3.0f, 0.0001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const Vector4 b = vector4(2.7f, -1.9f, -4.1f, 1.0f);
+		const f32 c = dot(a, b);
+		CE_ENSURE(fequal(c,  10.19f, 0.0001f));
+	}
+	{
+		const Vector4 a = vector4(1.2f,  4.2f, -2.3f, 5.5f);
+		const f32 c = length(a);
+		CE_ENSURE(fequal(c,  7.39053f, 0.0001f));
+	}
 }
 
 static void test_murmur()
@@ -312,6 +437,9 @@ static void run_unit_tests()
 	test_memory();
 	test_array();
 	test_vector();
+	test_vector2();
+	test_vector3();
+	test_vector4();
 	test_murmur();
 	test_string_id();
 	test_json();
