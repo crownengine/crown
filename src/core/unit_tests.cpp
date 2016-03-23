@@ -343,31 +343,50 @@ static void test_json()
 {
 	memory_globals::init();
 	{
-		JsonValueType::Enum type = json::type("null");
-		CE_ENSURE(type == JsonValueType::NIL);
-		type = json::type("true");
-		CE_ENSURE(type == JsonValueType::BOOL);
-		type = json::type("false");
-		CE_ENSURE(type == JsonValueType::BOOL);
-		type = json::type("3.14");
-		CE_ENSURE(type == JsonValueType::NUMBER);
-		type = json::type("\"foo\"");
-		CE_ENSURE(type == JsonValueType::STRING);
-		type = json::type("[]");
-		CE_ENSURE(type == JsonValueType::ARRAY);
-		type = json::type("{}");
-		CE_ENSURE(type == JsonValueType::OBJECT);
-
-		const s32 i = json::parse_int("3.14");
-		CE_ENSURE(i == 3);
-		const f32 f = json::parse_float("3.14");
-		CE_ENSURE(fequal(f, 3.14f));
-
-		const bool b = json::parse_bool("true");
-		CE_ENSURE(b == true);
-		const bool c = json::parse_bool("false");
-		CE_ENSURE(c == false);
-
+		JsonValueType::Enum t = json::type("null");
+		CE_ENSURE(t == JsonValueType::NIL);
+	}
+	{
+		JsonValueType::Enum t = json::type("true");
+		CE_ENSURE(t == JsonValueType::BOOL);
+	}
+	{
+		JsonValueType::Enum t = json::type("false");
+		CE_ENSURE(t == JsonValueType::BOOL);
+	}
+	{
+		JsonValueType::Enum t = json::type("3.14");
+		CE_ENSURE(t == JsonValueType::NUMBER);
+	}
+	{
+		JsonValueType::Enum t = json::type("\"foo\"");
+		CE_ENSURE(t == JsonValueType::STRING);
+	}
+	{
+		JsonValueType::Enum t = json::type("[]");
+		CE_ENSURE(t == JsonValueType::ARRAY);
+	}
+	{
+		JsonValueType::Enum t = json::type("{}");
+		CE_ENSURE(t == JsonValueType::OBJECT);
+	}
+	{
+		const s32 a = json::parse_int("3.14");
+		CE_ENSURE(a == 3);
+	}
+	{
+		const f32 a = json::parse_float("3.14");
+		CE_ENSURE(fequal(a, 3.14f));
+	}
+	{
+		const bool a = json::parse_bool("true");
+		CE_ENSURE(a == true);
+	}
+	{
+		const bool a = json::parse_bool("false");
+		CE_ENSURE(a == false);
+	}
+	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
 		json::parse_string("\"This is JSON\"", str);
@@ -380,59 +399,82 @@ static void test_sjson()
 {
 	memory_globals::init();
 	{
-		JsonValueType::Enum type = sjson::type("null");
-		CE_ENSURE(type == JsonValueType::NIL);
-		type = sjson::type("true");
-		CE_ENSURE(type == JsonValueType::BOOL);
-		type = sjson::type("false");
-		CE_ENSURE(type == JsonValueType::BOOL);
-		type = sjson::type("3.14");
-		CE_ENSURE(type == JsonValueType::NUMBER);
-		type = sjson::type("\"foo\"");
-		CE_ENSURE(type == JsonValueType::STRING);
-		type = sjson::type("[]");
-		CE_ENSURE(type == JsonValueType::ARRAY);
-		type = sjson::type("{}");
-		CE_ENSURE(type == JsonValueType::OBJECT);
-
-		const s32 i = sjson::parse_int("3.14");
-		CE_ENSURE(i == 3);
-		const f32 f = sjson::parse_float("3.14");
-		CE_ENSURE(fequal(f, 3.14f));
-
-		const bool b = sjson::parse_bool("true");
-		CE_ENSURE(b == true);
-		const bool c = sjson::parse_bool("false");
-		CE_ENSURE(c == false);
-
+		JsonValueType::Enum t = sjson::type("null");
+		CE_ENSURE(t == JsonValueType::NIL);
+	}
+	{
+		JsonValueType::Enum t = sjson::type("true");
+		CE_ENSURE(t == JsonValueType::BOOL);
+	}
+	{
+		JsonValueType::Enum t = sjson::type("false");
+		CE_ENSURE(t == JsonValueType::BOOL);
+	}
+	{
+		JsonValueType::Enum t = sjson::type("3.14");
+		CE_ENSURE(t == JsonValueType::NUMBER);
+	}
+	{
+		JsonValueType::Enum t = sjson::type("\"foo\"");
+		CE_ENSURE(t == JsonValueType::STRING);
+	}
+	{
+		JsonValueType::Enum t = sjson::type("[]");
+		CE_ENSURE(t == JsonValueType::ARRAY);
+	}
+	{
+		JsonValueType::Enum t = sjson::type("{}");
+		CE_ENSURE(t == JsonValueType::OBJECT);
+	}
+	{
+		const s32 a = sjson::parse_int("3.14");
+		CE_ENSURE(a == 3);
+	}
+	{
+		const f32 a = sjson::parse_float("3.14");
+		CE_ENSURE(fequal(a, 3.14f));
+	}
+	{
+		const bool a = sjson::parse_bool("true");
+		CE_ENSURE(a == true);
+	}
+	{
+		const bool a = sjson::parse_bool("false");
+		CE_ENSURE(a == false);
+	}
+	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		sjson::parse_string("\"This is SJSON\"", str);
-		CE_ENSURE(strcmp(str.c_str(), "This is SJSON") == 0);
+		sjson::parse_string("\"This is JSON\"", str);
+		CE_ENSURE(strcmp(str.c_str(), "This is JSON") == 0);
 	}
 	{
 		const Vector2 a = sjson::parse_vector2("[ 1.2 -2.5 ]");
 		CE_ENSURE(fequal(a.x,  1.2f));
 		CE_ENSURE(fequal(a.y, -2.5f));
-
-		const Vector3 b = sjson::parse_vector3("[ 3.1 0.5 -5.7]");
-		CE_ENSURE(fequal(b.x,  3.1f));
-		CE_ENSURE(fequal(b.y,  0.5f));
-		CE_ENSURE(fequal(b.z, -5.7f));
-
-		const Vector4 c = sjson::parse_vector4("[ 6.7 -1.3 2.9 -0.4 ]");
-		CE_ENSURE(fequal(c.x,  6.7f));
-		CE_ENSURE(fequal(c.y, -1.3f));
-		CE_ENSURE(fequal(c.z,  2.9f));
-		CE_ENSURE(fequal(c.w, -0.4f));
-
-		const Quaternion d = sjson::parse_quaternion("[ -1.5 -3.4 9.1 -3.5 ]");
-		CE_ENSURE(fequal(d.x, -1.5f));
-		CE_ENSURE(fequal(d.y, -3.4f));
-		CE_ENSURE(fequal(d.z,  9.1f));
-		CE_ENSURE(fequal(d.w, -3.5f));
-
-		const Matrix4x4 e = sjson::parse_matrix4x4(
+	}
+	{
+		const Vector3 a = sjson::parse_vector3("[ 3.1 0.5 -5.7]");
+		CE_ENSURE(fequal(a.x,  3.1f));
+		CE_ENSURE(fequal(a.y,  0.5f));
+		CE_ENSURE(fequal(a.z, -5.7f));
+	}
+	{
+		const Vector4 a = sjson::parse_vector4("[ 6.7 -1.3 2.9 -0.4 ]");
+		CE_ENSURE(fequal(a.x,  6.7f));
+		CE_ENSURE(fequal(a.y, -1.3f));
+		CE_ENSURE(fequal(a.z,  2.9f));
+		CE_ENSURE(fequal(a.w, -0.4f));
+	}
+	{
+		const Quaternion a = sjson::parse_quaternion("[ -1.5 -3.4 9.1 -3.5 ]");
+		CE_ENSURE(fequal(a.x, -1.5f));
+		CE_ENSURE(fequal(a.y, -3.4f));
+		CE_ENSURE(fequal(a.z,  9.1f));
+		CE_ENSURE(fequal(a.w, -3.5f));
+	}
+	{
+		const Matrix4x4 a = sjson::parse_matrix4x4(
 			"["
 			"-3.2  5.3 -0.7  4.1 "
 			" 5.6  7.0 -3.2 -1.2 "
@@ -440,28 +482,30 @@ static void test_sjson()
 			" 0.4 -7.3  8.9 -0.1 "
 			"]"
 			);
-		CE_ENSURE(fequal(e.x.x, -3.2f));
-		CE_ENSURE(fequal(e.x.y,  5.3f));
-		CE_ENSURE(fequal(e.x.z, -0.7f));
-		CE_ENSURE(fequal(e.x.w,  4.1f));
-		CE_ENSURE(fequal(e.y.x,  5.6f));
-		CE_ENSURE(fequal(e.y.y,  7.0f));
-		CE_ENSURE(fequal(e.y.z, -3.2f));
-		CE_ENSURE(fequal(e.y.w, -1.2f));
-		CE_ENSURE(fequal(e.z.x, -6.3f));
-		CE_ENSURE(fequal(e.z.y,  9.0f));
-		CE_ENSURE(fequal(e.z.z,  3.9f));
-		CE_ENSURE(fequal(e.z.w,  1.1f));
-		CE_ENSURE(fequal(e.t.x,  0.4f));
-		CE_ENSURE(fequal(e.t.y, -7.3f));
-		CE_ENSURE(fequal(e.t.z,  8.9f));
-		CE_ENSURE(fequal(e.t.w, -0.1f));
-
-		const StringId32 f = sjson::parse_string_id("\"murmur32\"");
-		CE_ENSURE(f._id == 0x7c2365dbu);
-
-		const ResourceId g = sjson::parse_resource_id("\"murmur64\"");
-		CE_ENSURE(g._id == 0x90631502d1a3432bu);
+		CE_ENSURE(fequal(a.x.x, -3.2f));
+		CE_ENSURE(fequal(a.x.y,  5.3f));
+		CE_ENSURE(fequal(a.x.z, -0.7f));
+		CE_ENSURE(fequal(a.x.w,  4.1f));
+		CE_ENSURE(fequal(a.y.x,  5.6f));
+		CE_ENSURE(fequal(a.y.y,  7.0f));
+		CE_ENSURE(fequal(a.y.z, -3.2f));
+		CE_ENSURE(fequal(a.y.w, -1.2f));
+		CE_ENSURE(fequal(a.z.x, -6.3f));
+		CE_ENSURE(fequal(a.z.y,  9.0f));
+		CE_ENSURE(fequal(a.z.z,  3.9f));
+		CE_ENSURE(fequal(a.z.w,  1.1f));
+		CE_ENSURE(fequal(a.t.x,  0.4f));
+		CE_ENSURE(fequal(a.t.y, -7.3f));
+		CE_ENSURE(fequal(a.t.z,  8.9f));
+		CE_ENSURE(fequal(a.t.w, -0.1f));
+	}
+	{
+		const StringId32 a = sjson::parse_string_id("\"murmur32\"");
+		CE_ENSURE(a._id == 0x7c2365dbu);
+	}
+	{
+		const ResourceId a = sjson::parse_resource_id("\"murmur64\"");
+		CE_ENSURE(a._id == 0x90631502d1a3432bu);
 	}
 	memory_globals::shutdown();
 }
