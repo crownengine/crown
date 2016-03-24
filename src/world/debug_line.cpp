@@ -136,6 +136,24 @@ void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const 
 	add_line(o - x + y - z, o - x + y + z, color);
 }
 
+void DebugLine::add_mesh(const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num, const Color4& color)
+{
+	for (u32 i = 0; i < num; ++i)
+	{
+		const u32 i0 = indices[i + 0];
+		const u32 i1 = indices[i + 1];
+		const u32 i2 = indices[i + 2];
+
+		const Vector3& v0 = *(const Vector3*)((const char*)vertices + i0*stride) * tm;
+		const Vector3& v1 = *(const Vector3*)((const char*)vertices + i1*stride) * tm;
+		const Vector3& v2 = *(const Vector3*)((const char*)vertices + i2*stride) * tm;
+
+		add_line(v0, v1, color);
+		add_line(v1, v2, color);
+		add_line(v2, v0, color);
+	}
+}
+
 void DebugLine::reset()
 {
 	_num = 0;

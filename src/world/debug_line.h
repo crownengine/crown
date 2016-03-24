@@ -18,6 +18,22 @@ namespace crown
 /// @ingroup World
 struct DebugLine
 {
+	struct Line
+	{
+		Vector3 p0;
+		u32 c0;
+		Vector3 p1;
+		u32 c1;
+	};
+
+	u32 _marker;
+
+	StringId32 _shader;
+	bgfx::VertexDecl _vertex_decl;
+
+	u32 _num;
+	Line _lines[CROWN_MAX_DEBUG_LINES];
+
 	/// Whether to enable @a depth_test
 	DebugLine(bool depth_test);
 	~DebugLine();
@@ -41,6 +57,9 @@ struct DebugLine
 	/// the box. @a half_extents describes the size of the box along the axis.
 	void add_obb(const Matrix4x4& tm, const Vector3& half_extents, const Color4& color);
 
+	/// Adds the mesh described by (vertices, stride, indices, num).
+	void add_mesh(const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num, const Color4& color);
+
 	/// Resets all the lines.
 	void reset();
 
@@ -50,24 +69,6 @@ struct DebugLine
 	/// Default number of segments.
 	static const u32 NUM_SEGMENTS = 36;
 	static const u32 MARKER = 0xd7c17715;
-
-private:
-
-	struct Line
-	{
-		Vector3 p0;
-		u32 c0;
-		Vector3 p1;
-		u32 c1;
-	};
-
-	u32 _marker;
-
-	StringId32 _shader;
-	bgfx::VertexDecl _vertex_decl;
-
-	u32 _num;
-	Line _lines[CROWN_MAX_DEBUG_LINES];
 };
 
 } // namespace crown
