@@ -7,6 +7,7 @@
 
 #if CROWN_BUILD_UNIT_TESTS
 
+#include "aabb.h"
 #include "array.h"
 #include "command_line.h"
 #include "dynamic_string.h"
@@ -19,6 +20,7 @@
 #include "murmur.h"
 #include "path.h"
 #include "sjson.h"
+#include "sphere.h"
 #include "string_id.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
@@ -559,6 +561,164 @@ static void test_matrix4x4()
 	}
 }
 
+static void test_aabb()
+{
+	{
+		AABB a;
+		aabb::reset(a);
+		CE_ENSURE(a.min == VECTOR3_ZERO);
+		CE_ENSURE(a.max == VECTOR3_ZERO);
+	}
+	{
+		AABB a;
+		a.min = vector3(-2.3f, 1.2f, -4.5f);
+		a.max = vector3( 3.7f, 5.3f, -2.9f);
+		const Vector3 c = aabb::center(a);
+		CE_ENSURE(fequal(c.x,  0.70f, 0.00001f));
+		CE_ENSURE(fequal(c.y,  3.25f, 0.00001f));
+		CE_ENSURE(fequal(c.z, -3.70f, 0.00001f));
+	}
+	{
+		AABB a;
+		a.min = vector3(-2.3f, 1.2f, -4.5f);
+		a.max = vector3( 3.7f, 5.3f, -2.9f);
+		const float c = aabb::volume(a);
+		CE_ENSURE(fequal(c, 39.36f, 0.00001f));
+	}
+	{
+		AABB a;
+		aabb::reset(a);
+
+		const Vector3 points[] =
+		{
+			{ -1.2f,  3.4f,  5.5f },
+			{  8.2f, -2.4f, -1.5f },
+			{ -5.9f,  9.2f,  6.0f }
+		};
+		aabb::add_points(a, CE_COUNTOF(points), points);
+		CE_ENSURE(fequal(a.min.x, -5.9f, 0.00001f));
+		CE_ENSURE(fequal(a.min.y, -2.4f, 0.00001f));
+		CE_ENSURE(fequal(a.min.z, -1.5f, 0.00001f));
+		CE_ENSURE(fequal(a.max.x,  8.2f, 0.00001f));
+		CE_ENSURE(fequal(a.max.y,  9.2f, 0.00001f));
+		CE_ENSURE(fequal(a.max.z,  6.0f, 0.00001f));
+	}
+	{
+		AABB boxes[3];
+		aabb::reset(boxes[0]);
+		aabb::reset(boxes[1]);
+		aabb::reset(boxes[2]);
+
+		const Vector3 points[] =
+		{
+			{ -1.2f,  3.4f,  5.5f },
+			{  8.2f, -2.4f, -1.5f },
+			{ -5.9f,  9.2f,  6.0f },
+
+			{ -2.8f, -3.5f,  1.9f },
+			{ -8.3f, -3.1f,  1.9f },
+			{  4.0f, -3.9f, -1.4f },
+
+			{ -0.4f, -1.8f, -2.2f },
+			{ -8.6f, -4.8f,  2.8f },
+			{  4.1f,  4.7f, -0.4f }
+		};
+		aabb::add_points(boxes[0], CE_COUNTOF(points)/3, &points[0]);
+		aabb::add_points(boxes[1], CE_COUNTOF(points)/3, &points[3]);
+		aabb::add_points(boxes[2], CE_COUNTOF(points)/3, &points[6]);
+
+		AABB d;
+		aabb::reset(d);
+		aabb::add_boxes(d, CE_COUNTOF(boxes), boxes);
+		CE_ENSURE(fequal(d.min.x, -8.6f, 0.00001f));
+		CE_ENSURE(fequal(d.min.y, -4.8f, 0.00001f));
+		CE_ENSURE(fequal(d.min.z, -2.2f, 0.00001f));
+		CE_ENSURE(fequal(d.max.x,  8.2f, 0.00001f));
+		CE_ENSURE(fequal(d.max.y,  9.2f, 0.00001f));
+		CE_ENSURE(fequal(d.max.z,  6.0f, 0.00001f));
+	}
+	{
+		AABB a;
+		a.min = vector3(-2.3f, 1.2f, -4.5f);
+		a.max = vector3( 3.7f, 5.3f, -2.9f);
+		CE_ENSURE( aabb::contains_point(a, vector3(1.2f,  3.0f, -4.4f)));
+		CE_ENSURE(!aabb::contains_point(a, vector3(3.8f,  3.0f, -4.4f)));
+		CE_ENSURE(!aabb::contains_point(a, vector3(1.2f, -1.0f, -4.4f)));
+		CE_ENSURE(!aabb::contains_point(a, vector3(1.2f,  3.0f, -4.6f)));
+	}
+}
+
+static void test_sphere()
+{
+	{
+		Sphere a;
+		sphere::reset(a);
+		CE_ENSURE(a.c == VECTOR3_ZERO);
+		CE_ENSURE(fequal(a.r, 0.0f, 0.00001f));
+	}
+	{
+		Sphere a;
+		a.c = VECTOR3_ZERO;
+		a.r = 1.61f;
+		const float b = sphere::volume(a);
+		CE_ENSURE(fequal(b, 17.48099f, 0.00001f));
+	}
+	{
+		Sphere a;
+		sphere::reset(a);
+
+		const Vector3 points[] =
+		{
+			{ -1.2f,  3.4f,  5.5f },
+			{  8.2f, -2.4f, -1.5f },
+			{ -5.9f,  9.2f,  6.0f }
+		};
+		sphere::add_points(a, CE_COUNTOF(points), points);
+		CE_ENSURE(fequal(a.c.x, 0.0f, 0.00001f));
+		CE_ENSURE(fequal(a.c.y, 0.0f, 0.00001f));
+		CE_ENSURE(fequal(a.c.z, 0.0f, 0.00001f));
+		CE_ENSURE(fequal(a.r, 12.46795f, 0.00001f));
+	}
+	{
+		Sphere spheres[3];
+		sphere::reset(spheres[0]);
+		sphere::reset(spheres[1]);
+		sphere::reset(spheres[2]);
+
+		const Vector3 points[] =
+		{
+			{  6.6f,  3.5f, -5.7f },
+			{ -5.3f, -9.1f, -7.9f },
+			{ -1.5f,  4.4f, -5.8f },
+
+			{  7.2f, -2.4f, -9.5f },
+			{  4.0f, -8.1f,  6.6f },
+			{ -8.2f,  2.2f,  4.6f },
+
+			{  2.9f, -4.8f, -6.8f },
+			{ -7.6f, -7.0f,  0.8f },
+			{  8.2f,  2.8f, -4.8f }
+		};
+		sphere::add_points(spheres[0], CE_COUNTOF(points)/3, &points[0]);
+		sphere::add_points(spheres[1], CE_COUNTOF(points)/3, &points[3]);
+		sphere::add_points(spheres[2], CE_COUNTOF(points)/3, &points[6]);
+
+		Sphere d;
+		sphere::reset(d);
+		sphere::add_spheres(d, CE_COUNTOF(spheres), spheres);
+		CE_ENSURE(fequal(d.r, 13.16472f, 0.00001f));
+	}
+	{
+		Sphere a;
+		a.c = vector3(-2.3f, 1.2f, -4.5f);
+		a.r = 1.0f;
+		CE_ENSURE( sphere::contains_point(a, vector3(-2.9f, 1.6f, -4.0f)));
+		CE_ENSURE(!sphere::contains_point(a, vector3(-3.9f, 1.6f, -4.0f)));
+		CE_ENSURE(!sphere::contains_point(a, vector3(-2.9f, 2.6f, -4.0f)));
+		CE_ENSURE(!sphere::contains_point(a, vector3(-2.9f, 1.6f, -6.0f)));
+	}
+}
+
 static void test_murmur()
 {
 	const u32 m = murmur32("murmur32", 8, 0);
@@ -854,6 +1014,8 @@ static void run_unit_tests()
 	test_vector4();
 	test_matrix3x3();
 	test_matrix4x4();
+	test_aabb();
+	test_sphere();
 	test_murmur();
 	test_string_id();
 	test_json();
