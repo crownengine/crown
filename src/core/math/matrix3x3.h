@@ -13,6 +13,24 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
+/// Returns a new matrix from individual elements.
+inline Matrix3x3 matrix3x3(f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, f32 zy, f32 zz)
+{
+	Matrix3x3 m;
+	m.x.x = xx;
+	m.x.y = xy;
+	m.x.z = xz;
+
+	m.y.x = yx;
+	m.y.y = yy;
+	m.y.z = yz;
+
+	m.z.x = zx;
+	m.z.y = zy;
+	m.z.z = zz;
+	return m;
+}
+
 /// Returns a new matrix from axes @a x, @a y and @a z.
 inline Matrix3x3 matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z)
 {
