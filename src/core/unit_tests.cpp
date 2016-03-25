@@ -13,6 +13,8 @@
 #include "json.h"
 #include "macros.h"
 #include "math_utils.h"
+#include "matrix3x3.h"
+#include "matrix4x4.h"
 #include "memory.h"
 #include "murmur.h"
 #include "path.h"
@@ -302,6 +304,258 @@ static void test_vector4()
 		CE_ENSURE(fequal(c.y, -1.9f, 0.00001f));
 		CE_ENSURE(fequal(c.z, -4.1f, 0.00001f));
 		CE_ENSURE(fequal(c.w,  1.0f, 0.00001f));
+	}
+}
+
+static void test_matrix3x3()
+{
+	{
+		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+			,  2.2f, -5.1f,  1.1f
+			,  3.2f,  3.3f, -3.8f
+			);
+		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+			, -1.6f, -7.1f, -2.4f
+			, -3.1f, -2.2f,  8.9f
+			);
+		const Matrix3x3 c = a + b;
+		CE_ENSURE(fequal(c.x.x,   4.4f, 0.00001f));
+		CE_ENSURE(fequal(c.x.y,   2.5f, 0.00001f));
+		CE_ENSURE(fequal(c.x.z,  11.1f, 0.00001f));
+		CE_ENSURE(fequal(c.y.x,   0.6f, 0.00001f));
+		CE_ENSURE(fequal(c.y.y, -12.2f, 0.00001f));
+		CE_ENSURE(fequal(c.y.z,  -1.3f, 0.00001f));
+		CE_ENSURE(fequal(c.z.x,   0.1f, 0.00001f));
+		CE_ENSURE(fequal(c.z.y,   1.1f, 0.00001f));
+		CE_ENSURE(fequal(c.z.z,   5.1f, 0.00001f));
+	}
+	{
+		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+			,  2.2f, -5.1f,  1.1f
+			,  3.2f,  3.3f, -3.8f
+			);
+		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+			, -1.6f, -7.1f, -2.4f
+			, -3.1f, -2.2f,  8.9f
+			);
+		const Matrix3x3 c = a - b;
+		CE_ENSURE(fequal(c.x.x,  -2.0f, 0.00001f));
+		CE_ENSURE(fequal(c.x.y,  -7.1f, 0.00001f));
+		CE_ENSURE(fequal(c.x.z,  -0.9f, 0.00001f));
+		CE_ENSURE(fequal(c.y.x,   3.8f, 0.00001f));
+		CE_ENSURE(fequal(c.y.y,   2.0f, 0.00001f));
+		CE_ENSURE(fequal(c.y.z,   3.5f, 0.00001f));
+		CE_ENSURE(fequal(c.z.x,   6.3f, 0.00001f));
+		CE_ENSURE(fequal(c.z.y,   5.5f, 0.00001f));
+		CE_ENSURE(fequal(c.z.z, -12.7f, 0.00001f));
+	}
+	{
+		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+			,  2.2f, -5.1f,  1.1f
+			,  3.2f,  3.3f, -3.8f
+			);
+		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+			, -1.6f, -7.1f, -2.4f
+			, -3.1f, -2.2f,  8.9f
+			);
+		const Matrix3x3 c = a * b;
+		CE_ENSURE(fequal(c.x.x,  -8.29f, 0.00001f));
+		CE_ENSURE(fequal(c.x.y,  10.87f, 0.00001f));
+		CE_ENSURE(fequal(c.x.z,  58.11f, 0.00001f));
+		CE_ENSURE(fequal(c.y.x,  11.79f, 0.00001f));
+		CE_ENSURE(fequal(c.y.y,  44.35f, 0.00001f));
+		CE_ENSURE(fequal(c.y.z,  35.23f, 0.00001f));
+		CE_ENSURE(fequal(c.z.x,  16.74f, 0.00001f));
+		CE_ENSURE(fequal(c.z.y,   0.29f, 0.00001f));
+		CE_ENSURE(fequal(c.z.z, -22.54f, 0.00001f));
+	}
+	{
+		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+			,  2.2f, -5.1f,  1.1f
+			,  3.2f,  3.3f, -3.8f
+			);
+		const f32 det = determinant(a);
+		CE_ENSURE(fequal(det, 111.834f, 0.00001f));
+	}
+	{
+		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+			,  2.2f, -5.1f,  1.1f
+			,  3.2f,  3.3f, -3.8f
+			);
+		const Matrix3x3 b = get_inverted(a);
+		CE_ENSURE(fequal(b.x.x,  0.140833f, 0.00001f));
+		CE_ENSURE(fequal(b.x.y,  0.072339f, 0.00001f));
+		CE_ENSURE(fequal(b.x.z,  0.209954f, 0.00001f));
+		CE_ENSURE(fequal(b.y.x,  0.106228f, 0.00001f));
+		CE_ENSURE(fequal(b.y.y, -0.186705f, 0.00001f));
+		CE_ENSURE(fequal(b.y.z,  0.088524f, 0.00001f));
+		CE_ENSURE(fequal(b.z.x,  0.210848f, 0.00001f));
+		CE_ENSURE(fequal(b.z.y, -0.101221f, 0.00001f));
+		CE_ENSURE(fequal(b.z.z, -0.009478f, 0.00001f));
+	}
+	{
+		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+			,  2.2f, -5.1f,  1.1f
+			,  3.2f,  3.3f, -3.8f
+			);
+		const Matrix3x3 b = get_transposed(a);
+		CE_ENSURE(fequal(b.x.x,  1.2f, 0.00001f));
+		CE_ENSURE(fequal(b.x.y,  2.2f, 0.00001f));
+		CE_ENSURE(fequal(b.x.z,  3.2f, 0.00001f));
+		CE_ENSURE(fequal(b.y.x, -2.3f, 0.00001f));
+		CE_ENSURE(fequal(b.y.y, -5.1f, 0.00001f));
+		CE_ENSURE(fequal(b.y.z,  3.3f, 0.00001f));
+		CE_ENSURE(fequal(b.z.x,  5.1f, 0.00001f));
+		CE_ENSURE(fequal(b.z.y,  1.1f, 0.00001f));
+		CE_ENSURE(fequal(b.z.z, -3.8f, 0.00001f));
+	}
+}
+
+static void test_matrix4x4()
+{
+	{
+		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+			,  2.2f, -5.1f,  1.1f, -7.4f
+			,  3.2f,  3.3f, -3.8f, -9.2f
+			, -6.8f, -2.9f,  1.0f,  4.9f
+			);
+		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+			, -1.6f, -7.1f, -2.4f, -6.2f
+			, -3.1f, -2.2f,  8.9f,  8.3f
+			,  3.8f,  9.1f, -3.1f, -7.1f
+			);
+		const Matrix4x4 c = a + b;
+		CE_ENSURE(fequal(c.x.x,   4.4f, 0.00001f));
+		CE_ENSURE(fequal(c.x.y,   2.5f, 0.00001f));
+		CE_ENSURE(fequal(c.x.z,  11.1f, 0.00001f));
+		CE_ENSURE(fequal(c.x.w,   4.1f, 0.00001f));
+		CE_ENSURE(fequal(c.y.x,   0.6f, 0.00001f));
+		CE_ENSURE(fequal(c.y.y, -12.2f, 0.00001f));
+		CE_ENSURE(fequal(c.y.z,  -1.3f, 0.00001f));
+		CE_ENSURE(fequal(c.y.w, -13.6f, 0.00001f));
+		CE_ENSURE(fequal(c.z.x,   0.1f, 0.00001f));
+		CE_ENSURE(fequal(c.z.y,   1.1f, 0.00001f));
+		CE_ENSURE(fequal(c.z.z,   5.1f, 0.00001f));
+		CE_ENSURE(fequal(c.z.w,  -0.9f, 0.00001f));
+		CE_ENSURE(fequal(c.t.x,  -3.0f, 0.00001f));
+		CE_ENSURE(fequal(c.t.y,   6.2f, 0.00001f));
+		CE_ENSURE(fequal(c.t.z,  -2.1f, 0.00001f));
+		CE_ENSURE(fequal(c.t.w,  -2.2f, 0.00001f));
+	}
+	{
+		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+			,  2.2f, -5.1f,  1.1f, -7.4f
+			,  3.2f,  3.3f, -3.8f, -9.2f
+			, -6.8f, -2.9f,  1.0f,  4.9f
+			);
+		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+			, -1.6f, -7.1f, -2.4f, -6.2f
+			, -3.1f, -2.2f,  8.9f,  8.3f
+			,  3.8f,  9.1f, -3.1f, -7.1f
+			);
+		const Matrix4x4 c = a - b;
+		CE_ENSURE(fequal(c.x.x,  -2.0f, 0.00001f));
+		CE_ENSURE(fequal(c.x.y,  -7.1f, 0.00001f));
+		CE_ENSURE(fequal(c.x.z,  -0.9f, 0.00001f));
+		CE_ENSURE(fequal(c.x.w,  -6.5f, 0.00001f));
+		CE_ENSURE(fequal(c.y.x,   3.8f, 0.00001f));
+		CE_ENSURE(fequal(c.y.y,   2.0f, 0.00001f));
+		CE_ENSURE(fequal(c.y.z,   3.5f, 0.00001f));
+		CE_ENSURE(fequal(c.y.w,  -1.2f, 0.00001f));
+		CE_ENSURE(fequal(c.z.x,   6.3f, 0.00001f));
+		CE_ENSURE(fequal(c.z.y,   5.5f, 0.00001f));
+		CE_ENSURE(fequal(c.z.z, -12.7f, 0.00001f));
+		CE_ENSURE(fequal(c.z.w, -17.5f, 0.00001f));
+		CE_ENSURE(fequal(c.t.x, -10.6f, 0.00001f));
+		CE_ENSURE(fequal(c.t.y, -12.0f, 0.00001f));
+		CE_ENSURE(fequal(c.t.z,   4.1f, 0.00001f));
+		CE_ENSURE(fequal(c.t.w,  12.0f, 0.00001f));
+	}
+	{
+		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+			,  2.2f, -5.1f,  1.1f, -7.4f
+			,  3.2f,  3.3f, -3.8f, -9.2f
+			, -6.8f, -2.9f,  1.0f,  4.9f
+			);
+		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+			, -1.6f, -7.1f, -2.4f, -6.2f
+			, -3.1f, -2.2f,  8.9f,  8.3f
+			,  3.8f,  9.1f, -3.1f, -7.1f
+			);
+		const Matrix4x4 c = a * b;
+		CE_ENSURE(fequal(c.x.x, -12.85, 0.00001f));
+		CE_ENSURE(fequal(c.x.y,  -0.05, 0.00001f));
+		CE_ENSURE(fequal(c.x.z,  61.83, 0.00001f));
+		CE_ENSURE(fequal(c.x.w,  71.47, 0.00001f));
+		CE_ENSURE(fequal(c.y.x, -16.33, 0.00001f));
+		CE_ENSURE(fequal(c.y.y, -22.99, 0.00001f));
+		CE_ENSURE(fequal(c.y.z,  58.17, 0.00001f));
+		CE_ENSURE(fequal(c.y.w, 104.95, 0.00001f));
+		CE_ENSURE(fequal(c.z.x, -18.22, 0.00001f));
+		CE_ENSURE(fequal(c.z.y, -83.43, 0.00001f));
+		CE_ENSURE(fequal(c.z.z,   5.98, 0.00001f));
+		CE_ENSURE(fequal(c.z.w,  30.28, 0.00001f));
+		CE_ENSURE(fequal(c.t.x,  -1.60, 0.00001f));
+		CE_ENSURE(fequal(c.t.y,  30.34, 0.00001f));
+		CE_ENSURE(fequal(c.t.z, -40.13, 0.00001f));
+		CE_ENSURE(fequal(c.t.w, -44.55, 0.00001f));
+	}
+	{
+		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+			,  2.2f, -5.1f,  1.1f, -7.4f
+			,  3.2f,  3.3f, -3.8f, -9.2f
+			, -6.8f, -2.9f,  1.0f,  4.9f
+			);
+		const f32 det = determinant(a);
+		CE_ENSURE(fequal(det, -1379.14453f, 0.00001f));
+	}
+	{
+		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+			,  2.2f, -5.1f,  1.1f, -7.4f
+			,  3.2f,  3.3f, -3.8f, -9.2f
+			, -6.8f, -2.9f,  1.0f,  4.9f
+			);
+		const Matrix4x4 b = get_inverted(a);
+		CE_ENSURE(fequal(b.x.x, -0.08464f, 0.00001f));
+		CE_ENSURE(fequal(b.x.y,  0.06129f, 0.00001f));
+		CE_ENSURE(fequal(b.x.z, -0.15210f, 0.00001f));
+		CE_ENSURE(fequal(b.x.w, -0.21374f, 0.00001f));
+		CE_ENSURE(fequal(b.y.x,  0.14384f, 0.00001f));
+		CE_ENSURE(fequal(b.y.y, -0.18486f, 0.00001f));
+		CE_ENSURE(fequal(b.y.z,  0.14892f, 0.00001f));
+		CE_ENSURE(fequal(b.y.w,  0.03565f, 0.00001f));
+		CE_ENSURE(fequal(b.z.x,  0.26073f, 0.00001f));
+		CE_ENSURE(fequal(b.z.y, -0.09877f, 0.00001f));
+		CE_ENSURE(fequal(b.z.z,  0.07063f, 0.00001f));
+		CE_ENSURE(fequal(b.z.w,  0.04729f, 0.00001f));
+		CE_ENSURE(fequal(b.t.x, -0.08553f, 0.00001f));
+		CE_ENSURE(fequal(b.t.y, -0.00419f, 0.00001f));
+		CE_ENSURE(fequal(b.t.z, -0.13735f, 0.00001f));
+		CE_ENSURE(fequal(b.t.w, -0.08108f, 0.00001f));
+	}
+	{
+		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+			,  2.2f, -5.1f,  1.1f, -7.4f
+			,  3.2f,  3.3f, -3.8f, -9.2f
+			, -6.8f, -2.9f,  1.0f,  4.9f
+			);
+		const Matrix4x4 b = get_transposed(a);
+		CE_ENSURE(fequal(b.x.x,  1.2f, 0.00001f));
+		CE_ENSURE(fequal(b.x.y,  2.2f, 0.00001f));
+		CE_ENSURE(fequal(b.x.z,  3.2f, 0.00001f));
+		CE_ENSURE(fequal(b.x.w, -6.8f, 0.00001f));
+		CE_ENSURE(fequal(b.y.x, -2.3f, 0.00001f));
+		CE_ENSURE(fequal(b.y.y, -5.1f, 0.00001f));
+		CE_ENSURE(fequal(b.y.z,  3.3f, 0.00001f));
+		CE_ENSURE(fequal(b.y.w, -2.9f, 0.00001f));
+		CE_ENSURE(fequal(b.z.x,  5.1f, 0.00001f));
+		CE_ENSURE(fequal(b.z.y,  1.1f, 0.00001f));
+		CE_ENSURE(fequal(b.z.z, -3.8f, 0.00001f));
+		CE_ENSURE(fequal(b.z.w,  1.0f, 0.00001f));
+		CE_ENSURE(fequal(b.t.x, -1.2f, 0.00001f));
+		CE_ENSURE(fequal(b.t.y, -7.4f, 0.00001f));
+		CE_ENSURE(fequal(b.t.z, -9.2f, 0.00001f));
+		CE_ENSURE(fequal(b.t.w,  4.9f, 0.00001f));
 	}
 }
 
@@ -598,6 +852,8 @@ static void run_unit_tests()
 	test_vector2();
 	test_vector3();
 	test_vector4();
+	test_matrix3x3();
+	test_matrix4x4();
 	test_murmur();
 	test_string_id();
 	test_json();
