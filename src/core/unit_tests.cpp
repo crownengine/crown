@@ -11,6 +11,7 @@
 #include "array.h"
 #include "command_line.h"
 #include "dynamic_string.h"
+#include "dynamic_string.h"
 #include "json.h"
 #include "macros.h"
 #include "math_utils.h"
@@ -753,6 +754,47 @@ static void test_string_id()
 	}
 }
 
+static void test_dynamic_string()
+{
+	memory_globals::init();
+	{
+		TempAllocator1024 ta;
+		DynamicString str(ta);
+		CE_ENSURE(str.empty());
+
+		str.set("murmur32", 8);
+		CE_ENSURE(str.length() == 8);
+
+		const StringId32 id = str.to_string_id();
+		CE_ENSURE(id._id == 0x7c2365dbu);
+	}
+	{
+		TempAllocator1024 ta;
+		DynamicString str("Test ", ta);
+		str += "string.";
+		CE_ENSURE(strcmp(str.c_str(), "Test string.") == 0);
+	}
+	{
+		TempAllocator1024 ta;
+		DynamicString str("   \tSushi\t   ", ta);
+		str.ltrim();
+		CE_ENSURE(strcmp(str.c_str(), "Sushi\t   ") == 0);
+	}
+	{
+		TempAllocator1024 ta;
+		DynamicString str("   \tSushi\t   ", ta);
+		str.rtrim();
+		CE_ENSURE(strcmp(str.c_str(), "   \tSushi") == 0);
+	}
+	{
+		TempAllocator1024 ta;
+		DynamicString str("   \tSushi\t   ", ta);
+		str.trim();
+		CE_ENSURE(strcmp(str.c_str(), "Sushi") == 0);
+	}
+	memory_globals::shutdown();
+}
+
 static void test_json()
 {
 	memory_globals::init();
@@ -1018,6 +1060,7 @@ static void run_unit_tests()
 	test_sphere();
 	test_murmur();
 	test_string_id();
+	test_dynamic_string();
 	test_json();
 	test_sjson();
 	test_path();
