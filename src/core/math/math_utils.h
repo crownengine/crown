@@ -12,9 +12,9 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const f32 PI            = 3.1415926535897932f;
-const f32 PI_TWO        = PI * 2.0f;
-const f32 PI_HALF       = PI * 0.5f;
+const f32 PI            = 3.14159265358979323846f;
+const f32 PI_TWO        = 6.28318530717958647693f;
+const f32 PI_HALF       = 1.57079632679489661923f;
 const f32 FLOAT_EPSILON = 1.0e-7f;
 
 /// Returns whether @a a and @a b are equal according to @a epsilon.
