@@ -9,6 +9,7 @@
 
 #include "aabb.h"
 #include "array.h"
+#include "color4.h"
 #include "command_line.h"
 #include "dynamic_string.h"
 #include "json.h"
@@ -306,6 +307,53 @@ static void test_vector4()
 		CE_ENSURE(fequal(c.y, -1.9f, 0.00001f));
 		CE_ENSURE(fequal(c.z, -4.1f, 0.00001f));
 		CE_ENSURE(fequal(c.w,  1.0f, 0.00001f));
+	}
+}
+
+static void test_color4()
+{
+	{
+		const Color4 a = color4(1.3f, 2.6f, 0.2f, 0.6f);
+		CE_ENSURE(fequal(a.x, 1.3f, 0.00001f));
+		CE_ENSURE(fequal(a.y, 2.6f, 0.00001f));
+		CE_ENSURE(fequal(a.z, 0.2f, 0.00001f));
+		CE_ENSURE(fequal(a.w, 0.6f, 0.00001f));
+	}
+	{
+		const Color4 a = from_rgba(63, 231, 12, 98);
+		CE_ENSURE(fequal(a.x, 0.24705f, 0.00001f));
+		CE_ENSURE(fequal(a.y, 0.90588f, 0.00001f));
+		CE_ENSURE(fequal(a.z, 0.04705f, 0.00001f));
+		CE_ENSURE(fequal(a.w, 0.38431f, 0.00001f));
+	}
+	{
+		const Color4 a = from_rgb(63, 231, 12);
+		CE_ENSURE(fequal(a.x, 0.24705f, 0.00001f));
+		CE_ENSURE(fequal(a.y, 0.90588f, 0.00001f));
+		CE_ENSURE(fequal(a.z, 0.04705f, 0.00001f));
+		CE_ENSURE(fequal(a.w, 1.0f    , 0.00001f));
+	}
+	{
+		const Color4 a = from_rgba(0x3fe70c62);
+		CE_ENSURE(fequal(a.x, 0.24705f, 0.00001f));
+		CE_ENSURE(fequal(a.y, 0.90588f, 0.00001f));
+		CE_ENSURE(fequal(a.z, 0.04705f, 0.00001f));
+		CE_ENSURE(fequal(a.w, 0.38431f, 0.00001f));
+	}
+	{
+		const Color4 a = from_rgba(63, 231, 12, 98);
+
+		const u32 rgba = to_rgba(a);
+		CE_ENSURE(rgba == 0x3fe70c62);
+
+		const u32 rgb = to_rgb(a);
+		CE_ENSURE(rgb == 0x3fe70cff);
+
+		const u32 bgr = to_bgr(a);
+		CE_ENSURE(bgr == 0xff0ce73f);
+
+		const u32 abgr = to_abgr(a);
+		CE_ENSURE(abgr == 0x620ce73f);
 	}
 }
 
@@ -1053,6 +1101,7 @@ static void run_unit_tests()
 	test_vector2();
 	test_vector3();
 	test_vector4();
+	test_color4();
 	test_matrix3x3();
 	test_matrix4x4();
 	test_aabb();
