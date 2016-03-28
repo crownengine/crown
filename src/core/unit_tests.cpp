@@ -20,6 +20,7 @@
 #include "memory.h"
 #include "murmur.h"
 #include "path.h"
+#include "quaternion.h"
 #include "sjson.h"
 #include "sphere.h"
 #include "string_id.h"
@@ -307,6 +308,17 @@ static void test_vector4()
 		CE_ENSURE(fequal(c.y, -1.9f, 0.00001f));
 		CE_ENSURE(fequal(c.z, -4.1f, 0.00001f));
 		CE_ENSURE(fequal(c.w,  1.0f, 0.00001f));
+	}
+}
+
+static void test_quaternion()
+{
+	{
+		const Quaternion a = quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+		CE_ENSURE(fequal(a.x, 0.0f, 0.00001f));
+		CE_ENSURE(fequal(a.y, 0.0f, 0.00001f));
+		CE_ENSURE(fequal(a.z, 0.0f, 0.00001f));
+		CE_ENSURE(fequal(a.w, 1.0f, 0.00001f));
 	}
 }
 
@@ -1101,6 +1113,7 @@ static void run_unit_tests()
 	test_vector2();
 	test_vector3();
 	test_vector4();
+	test_quaternion();
 	test_color4();
 	test_matrix3x3();
 	test_matrix4x4();
