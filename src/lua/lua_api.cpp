@@ -2540,6 +2540,8 @@ static void lua_dump_table(lua_State* L, int i, StringStream& json)
 	LuaStack stack(L);
 
 	bool comma = false;
+	int array_index = 1;
+
 	json << "{";
 
 	stack.push_nil();
@@ -2549,7 +2551,12 @@ static void lua_dump_table(lua_State* L, int i, StringStream& json)
 			json << ",";
 		comma = true;
 
-		json << "\"" << stack.get_string(-2) << "\":";
+		json << "\"";
+		if (stack.is_string(-2) && !stack.is_number(-2))
+			json << stack.get_string(-2);
+		else
+			json << array_index++;
+		json << "\":";
 
 		if (stack.is_nil(i + 2))
 		{
