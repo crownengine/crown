@@ -2535,37 +2535,38 @@ static int device_destroy_resource_package(lua_State* L)
 	return 0;
 }
 
-static int device_console_send(lua_State* L)
+static void lua_dump_table(lua_State* L, int i, StringStream& json)
 {
 	LuaStack stack(L);
-	LUA_ASSERT(stack.is_table(1), stack, "Table expected");
 
-	TempAllocator1024 alloc;
-	StringStream json(alloc);
-
+	bool comma = false;
 	json << "{";
 
 	stack.push_nil();
-	while (stack.next(-2) != 0)
+	while (stack.next(i) != 0)
 	{
+		if (comma)
+			json << ",";
+		comma = true;
+
 		json << "\"" << stack.get_string(-2) << "\":";
 
-		if (stack.is_nil(-1))
+		if (stack.is_nil(i + 2))
 		{
 			json << "null";
 		}
-		else if (stack.is_bool(-1))
+		else if (stack.is_bool(i + 2))
 		{
-			const bool b = stack.get_bool(-1);
+			const bool b = stack.get_bool(i + 2);
 			json << (b ? "true" : "false");
 		}
-		else if (stack.is_number(-1))
+		else if (stack.is_number(i + 2))
 		{
-			json << stack.get_float(-1);
+			json << stack.get_float(i + 2);
 		}
-		else if (stack.is_string(-1))
+		else if (stack.is_string(i + 2))
 		{
-			const char* str = stack.get_string(-1);
+			const char* str = stack.get_string(i + 2);
 			json << "\"";
 			for (; *str; ++str)
 			{
@@ -2575,9 +2576,9 @@ static int device_console_send(lua_State* L)
 			}
 			json << "\"";
 		}
-		else if (stack.is_vector3(-1))
+		else if (stack.is_vector3(i + 2))
 		{
-			const Vector3 v = stack.get_vector3(-1);
+			const Vector3 v = stack.get_vector3(i + 2);
 			json << "["
 				 << v.x << ","
 				 << v.y << ","
@@ -2585,9 +2586,9 @@ static int device_console_send(lua_State* L)
 				 << "]"
 				 ;
 		}
-		else if (stack.is_quaternion(-1))
+		else if (stack.is_quaternion(i + 2))
 		{
-			const Quaternion q = stack.get_quaternion(-1);
+			const Quaternion q = stack.get_quaternion(i + 2);
 			json << "["
 				 << q.x << ","
 				 << q.y << ","
@@ -2596,9 +2597,9 @@ static int device_console_send(lua_State* L)
 				 << "]"
 				 ;
 		}
-		else if (stack.is_matrix4x4(-1))
+		else if (stack.is_matrix4x4(i + 2))
 		{
-			const Matrix4x4 m = stack.get_matrix4x4(-1);
+			const Matrix4x4 m = stack.get_matrix4x4(i + 2);
 			json << "["
 				 << m.x.x << ","
 				 << m.x.y << ","
@@ -2622,17 +2623,29 @@ static int device_console_send(lua_State* L)
 				 << "]"
 				 ;
 		}
+		else if (stack.is_table(i + 2))
+		{
+			lua_dump_table(L, i + 2, json);
+		}
 		else
 		{
 			LUA_ASSERT(false, stack, "Unsupported key value");
 		}
 
-		json << ",";
 		stack.pop(1);
 	}
 
-	stack.pop(1);
 	json << "}";
+}
+
+static int device_console_send(lua_State* L)
+{
+	LuaStack stack(L);
+	LUA_ASSERT(stack.is_table(1), stack, "Table expected");
+
+	TempAllocator1024 alloc;
+	StringStream json(alloc);
+	lua_dump_table(L, 1, json);
 
 	device()->console_server()->send(string_stream::c_str(json));
 	return 0;
