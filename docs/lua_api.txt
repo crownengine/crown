@@ -790,7 +790,7 @@ Device
 
 	**console_send** (table)
 		Sends the given lua *table* to clients connected to the engine.
-		Values can be either nil, bool, number, string, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.
+		Values can be either nil, bool, number, string, table, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.
 
 	**can_get** (type, name) : bool
 		Returns whether the resource (type, name) is loaded.
