@@ -32,7 +32,7 @@ DebugLine::~DebugLine()
 
 void DebugLine::add_line(const Vector3& start, const Vector3& end, const Color4& color)
 {
-	if (_num >= CROWN_MAX_DEBUG_LINES)
+	if (_num >= MAX_LINES)
 		 return;
 
 	_lines[_num].p0 = start;

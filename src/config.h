@@ -115,10 +115,6 @@
 	#define CE_MAX_SOUND_INSTANCES 64 // Per world
 #endif // CE_MAX
 
-#ifndef CROWN_MAX_DEBUG_LINES
-	#define CROWN_MAX_DEBUG_LINES 32768 // Per DebugLine
-#endif // CROWN_MAX_DEBUG_LINES
-
 #ifndef CROWN_MAX_LUA_VECTOR3
 	#define CROWN_MAX_LUA_VECTOR3 8192
 #endif // CE_MAX

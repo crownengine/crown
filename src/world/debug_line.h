@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include "types.h"
-#include "config.h"
 #include "math_types.h"
 #include "string_id.h"
+#include "types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
@@ -18,6 +17,11 @@ namespace crown
 /// @ingroup World
 struct DebugLine
 {
+	/// Default number of segments.
+	static const u32 NUM_SEGMENTS = 36;
+	static const u32 MARKER = 0xd7c17715;
+	static const u32 MAX_LINES = 32768;
+
 	struct Line
 	{
 		Vector3 p0;
@@ -32,7 +36,7 @@ struct DebugLine
 	bgfx::VertexDecl _vertex_decl;
 
 	u32 _num;
-	Line _lines[CROWN_MAX_DEBUG_LINES];
+	Line _lines[MAX_LINES];
 
 	/// Whether to enable @a depth_test
 	DebugLine(bool depth_test);
@@ -65,10 +69,6 @@ struct DebugLine
 
 	/// Submits the lines to renderer for drawing.
 	void submit();
-
-	/// Default number of segments.
-	static const u32 NUM_SEGMENTS = 36;
-	static const u32 MARKER = 0xd7c17715;
 };
 
 } // namespace crown
