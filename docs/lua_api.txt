@@ -827,6 +827,9 @@ DebugLine
 		Adds an orientd bounding box. *tm* describes the position and orientation of
 		the box. *half_extents* describes the size of the box along the axis.
 
+	**add_unit** (debug_line, tm, name, color)
+		Adds the meshes from the unit @a name.
+
 	**reset** (debug_line)
 		Resets all the lines.
 
