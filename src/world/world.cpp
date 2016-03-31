@@ -83,29 +83,27 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 		const u32* unit_index = (const u32*)(component + 1);
 		const char* data = (const char*)(unit_index + component->num_instances);
 
-		if (component->type == StringId32("transform")._id)
+		if (component->type == COMPONENT_TYPE_TRANSFORM)
 		{
 			const TransformDesc* td = (const TransformDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i, ++td)
 			{
 				Matrix4x4 matrix = matrix4x4(rot, pos);
 				Matrix4x4 matrix_res = matrix4x4(td->rotation, td->position);
 				_scene_graph->create(unit_lookup[unit_index[i]], matrix_res*matrix);
-				++td;
 			}
 		}
 
-		if (component->type == StringId32("camera")._id)
+		if (component->type == COMPONENT_TYPE_CAMERA)
 		{
 			const CameraDesc* cd = (const CameraDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
 			{
 				create_camera(unit_lookup[unit_index[i]], *cd);
-				++cd;
 			}
 		}
 
-		if (component->type == StringId32("collider")._id)
+		if (component->type == COMPONENT_TYPE_COLLIDER)
 		{
 			const ColliderDesc* cd = (const ColliderDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i)
@@ -115,58 +113,53 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 			}
 		}
 
-		if (component->type == StringId32("actor")._id)
+		if (component->type == COMPONENT_TYPE_ACTOR)
 		{
 			const ActorResource* ar = (const ActorResource*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i, ++ar)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				physics_world()->create_actor(unit_lookup[unit_index[i]], ar, tm);
-				++ar;
 			}
 		}
 
-		if (component->type == StringId32("controller")._id)
+		if (component->type == COMPONENT_TYPE_CONTROLLER)
 		{
 			const ControllerDesc* cd = (const ControllerDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				physics_world()->create_controller(unit_lookup[unit_index[i]], *cd, tm);
-				++cd;
 			}
 		}
 
-		if (component->type == StringId32("mesh_renderer")._id)
+		if (component->type == COMPONENT_TYPE_MESH_RENDERER)
 		{
 			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i, ++mrd)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				render_world()->create_mesh(unit_lookup[unit_index[i]], *mrd, tm);
-				++mrd;
 			}
 		}
 
-		if (component->type == StringId32("sprite_renderer")._id)
+		if (component->type == COMPONENT_TYPE_SPRITE_RENDERER)
 		{
 			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i, ++srd)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				render_world()->create_sprite(unit_lookup[unit_index[i]], *srd, tm);
-				++srd;
 			}
 		}
 
-		if (component->type == StringId32("light")._id)
+		if (component->type == COMPONENT_TYPE_LIGHT)
 		{
 			const LightDesc* ld = (const LightDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i, ++ld)
 			{
 				Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->get(unit_lookup[unit_index[i]]));
 				render_world()->create_light(unit_lookup[unit_index[i]], *ld, tm);
-				++ld;
 			}
 		}
 

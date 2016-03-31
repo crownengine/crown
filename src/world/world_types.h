@@ -27,6 +27,15 @@ struct SceneGraph;
 
 typedef u32 SoundInstanceId;
 
+const StringId32 COMPONENT_TYPE_TRANSFORM       = StringId32("transform");
+const StringId32 COMPONENT_TYPE_CAMERA          = StringId32("camera");
+const StringId32 COMPONENT_TYPE_COLLIDER        = StringId32("collider");
+const StringId32 COMPONENT_TYPE_ACTOR           = StringId32("actor");
+const StringId32 COMPONENT_TYPE_CONTROLLER      = StringId32("controller");
+const StringId32 COMPONENT_TYPE_MESH_RENDERER   = StringId32("mesh_renderer");
+const StringId32 COMPONENT_TYPE_SPRITE_RENDERER = StringId32("sprite_renderer");
+const StringId32 COMPONENT_TYPE_LIGHT           = StringId32("light");
+
 /// Enumerates camera projection types.
 ///
 /// @ingroup World
