@@ -169,10 +169,10 @@ void DebugLine::add_unit(ResourceManager& rm, const Matrix4x4& tm, StringId64 na
 		const u32* unit_index = (const u32*)(component + 1);
 		const char* data = (const char*)(unit_index + component->num_instances);
 
-		if (component->type == StringId32("mesh_renderer")._id)
+		if (component->type == COMPONENT_TYPE_MESH_RENDERER)
 		{
 			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0; i < component->num_instances; ++i, ++mrd)
 			{
 				const MeshResource* mr = (const MeshResource*)rm.get(RESOURCE_TYPE_MESH, mrd->mesh_resource);
 				const MeshGeometry* mg = mr->geometry(mrd->geometry_name);
@@ -184,8 +184,6 @@ void DebugLine::add_unit(ResourceManager& rm, const Matrix4x4& tm, StringId64 na
 					, mg->indices.num
 					, color
 					);
-
-				++mrd;
 			}
 		}
 
