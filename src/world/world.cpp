@@ -109,7 +109,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 			for (u32 i = 0; i < component->num_instances; ++i)
 			{
 				physics_world()->create_collider(unit_lookup[unit_index[i]], cd);
-				cd = (ColliderDesc*)((char*)cd + sizeof(ColliderDesc) + cd->size);
+				cd = (ColliderDesc*)((char*)(cd + 1) + cd->size);
 			}
 		}
 
