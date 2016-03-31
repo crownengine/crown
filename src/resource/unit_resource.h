@@ -21,7 +21,7 @@ struct UnitResource
 
 struct ComponentData
 {
-	u32 type;
+	StringId32 type;
 	u32 num_instances;
 	u32 size;
 //	u32 unit_index[num_instances]

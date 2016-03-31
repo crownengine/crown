@@ -280,7 +280,7 @@ Buffer UnitCompiler::blob()
 		const u32 num                = (end-1)->pair.second._num;
 
 		ComponentData cd;
-		cd.type = type._id;
+		cd.type = type;
 		cd.num_instances = num;
 		cd.size = array::size(data) + sizeof(u32)*array::size(unit_index);
 
