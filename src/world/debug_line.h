@@ -6,6 +6,7 @@
 #pragma once
 
 #include "math_types.h"
+#include "resource_types.h"
 #include "string_id.h"
 #include "types.h"
 #include <bgfx/bgfx.h>
@@ -63,6 +64,9 @@ struct DebugLine
 
 	/// Adds the mesh described by (vertices, stride, indices, num).
 	void add_mesh(const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num, const Color4& color);
+
+	/// Adds the meshes from the unit @a name.
+	void add_unit(ResourceManager& rm, const Matrix4x4& tm, StringId64 name, const Color4& color);
 
 	/// Resets all the lines.
 	void reset();

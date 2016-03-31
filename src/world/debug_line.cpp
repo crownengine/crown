@@ -8,7 +8,10 @@
 #include "device.h"
 #include "math_utils.h"
 #include "matrix4x4.h"
+#include "mesh_resource.h"
+#include "resource_manager.h"
 #include "shader_manager.h"
+#include "unit_resource.h"
 #include "vector3.h"
 #include <string.h> // memcpy
 
@@ -138,7 +141,7 @@ void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const 
 
 void DebugLine::add_mesh(const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num, const Color4& color)
 {
-	for (u32 i = 0; i < num; ++i)
+	for (u32 i = 0; i < num; i += 3)
 	{
 		const u32 i0 = indices[i + 0];
 		const u32 i1 = indices[i + 1];
@@ -151,6 +154,42 @@ void DebugLine::add_mesh(const Matrix4x4& tm, const void* vertices, u32 stride, 
 		add_line(v0, v1, color);
 		add_line(v1, v2, color);
 		add_line(v2, v0, color);
+	}
+}
+
+void DebugLine::add_unit(ResourceManager& rm, const Matrix4x4& tm, StringId64 name, const Color4& color)
+{
+	const UnitResource& ur = *(const UnitResource*)rm.get(RESOURCE_TYPE_UNIT, name);
+
+	const char* component_data = (const char*)(&ur + 1);
+
+	for (u32 cc = 0; cc < ur.num_component_types; ++cc)
+	{
+		const ComponentData* component = (const ComponentData*)component_data;
+		const u32* unit_index = (const u32*)(component + 1);
+		const char* data = (const char*)(unit_index + component->num_instances);
+
+		if (component->type == StringId32("mesh_renderer")._id)
+		{
+			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
+			for (u32 i = 0; i < component->num_instances; ++i)
+			{
+				const MeshResource* mr = (const MeshResource*)rm.get(RESOURCE_TYPE_MESH, mrd->mesh_resource);
+				const MeshGeometry* mg = mr->geometry(mrd->geometry_name);
+
+				add_mesh(tm
+					, mg->vertices.data
+					, mg->vertices.stride
+					, (u16*)mg->indices.data
+					, mg->indices.num
+					, color
+					);
+
+				++mrd;
+			}
+		}
+
+		component_data += component->size + sizeof(ComponentData);
 	}
 }
 

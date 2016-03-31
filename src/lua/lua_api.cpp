@@ -2800,6 +2800,17 @@ static int debug_line_add_obb(lua_State* L)
 	return 0;
 }
 
+static int debug_line_add_unit(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_debug_line(1)->add_unit(*device()->resource_manager()
+		, stack.get_matrix4x4(2)
+		, stack.get_resource_id(3)
+		, stack.get_color4(4)
+		);
+	return 0;
+}
+
 static int debug_line_reset(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3445,6 +3456,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("DebugLine", "add_cone",   debug_line_add_cone);
 	env.add_module_function("DebugLine", "add_sphere", debug_line_add_sphere);
 	env.add_module_function("DebugLine", "add_obb",    debug_line_add_obb);
+	env.add_module_function("DebugLine", "add_unit",   debug_line_add_unit);
 	env.add_module_function("DebugLine", "reset",      debug_line_reset);
 	env.add_module_function("DebugLine", "submit",     debug_line_submit);
 	env.add_module_function("DebugLine", "__index",    "DebugLine");
