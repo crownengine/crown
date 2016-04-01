@@ -50,15 +50,14 @@ namespace sphere
 
 	inline void add_points(Sphere& s, u32 num, u32 stride, const void* points)
 	{
-		for (u32 i = 0; i < num; ++i)
+		const char* pts = (const char*)points;
+		for (u32 i = 0; i < num; ++i, pts += stride)
 		{
-			const Vector3* p = (const Vector3*)points;
+			const Vector3* p = (const Vector3*)pts;
 
 			const f32 dist = length_squared(*p - s.c);
 			if (dist > s.r*s.r)
 				s.r = sqrtf(dist);
-
-			points = (const void*)((const char*)points + stride);
 		}
 	}
 

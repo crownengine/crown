@@ -78,9 +78,10 @@ namespace aabb
 
 	inline void add_points(AABB& b, u32 num, u32 stride, const void* points)
 	{
-		for (u32 i = 0; i < num; ++i)
+		const char* pts = (const char*)points;
+		for (u32 i = 0; i < num; ++i, pts += stride)
 		{
-			const Vector3* p = (const Vector3*)points;
+			const Vector3* p = (const Vector3*)pts;
 
 			if (p->x < b.min.x) b.min.x = p->x;
 			if (p->y < b.min.y) b.min.y = p->y;
@@ -88,14 +89,12 @@ namespace aabb
 			if (p->x > b.max.x) b.max.x = p->x;
 			if (p->y > b.max.y) b.max.y = p->y;
 			if (p->z > b.max.z) b.max.z = p->z;
-
-			points = (const void*)((const char*)points + stride);
 		}
 	}
 
 	inline void add_points(AABB& b, u32 num, const Vector3* points)
 	{
-		add_points(b, num, sizeof(Vector3), points);
+		aabb::add_points(b, num, sizeof(Vector3), points);
 	}
 
 	inline void add_boxes(AABB& b, u32 num, const AABB* boxes)
@@ -126,6 +125,8 @@ namespace aabb
 
 	inline Vector3 vertex(const AABB& b, u32 index)
 	{
+		CE_ASSERT(index < 8, "Index out of bounds");
+
 		switch (index)
 		{
 			case 0: return vector3(b.min.x, b.min.y, b.min.z);
@@ -136,7 +137,7 @@ namespace aabb
 			case 5: return vector3(b.max.x, b.max.y, b.min.z);
 			case 6: return vector3(b.max.x, b.max.y, b.max.z);
 			case 7: return vector3(b.min.x, b.max.y, b.max.z);
-			default: CE_FATAL("Bad index"); return vector3(0.0f, 0.0f, 0.0f);
+			default: return VECTOR3_ZERO;
 		}
 	}
 
@@ -155,8 +156,8 @@ namespace aabb
 		vertices[7] = vertices[7] * m;
 
 		AABB r;
-		reset(r);
-		add_points(r, 8, vertices);
+		aabb::reset(r);
+		aabb::add_points(r, 8, vertices);
 		return r;
 	}
 
@@ -207,8 +208,8 @@ namespace aabb
 	inline Sphere to_sphere(const AABB& b)
 	{
 		Sphere s;
-		s.c = center(b);
-		s.r = radius(b);
+		s.c = aabb::center(b);
+		s.r = aabb::radius(b);
 		return s;
 	}
 } // namespace aabb
