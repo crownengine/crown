@@ -828,7 +828,7 @@ DebugLine
 		the box. *half_extents* describes the size of the box along the axis.
 
 	**add_unit** (debug_line, tm, name, color)
-		Adds the meshes from the unit @a name.
+		Adds the meshes from the unit *name*.
 
 	**reset** (debug_line)
 		Resets all the lines.
