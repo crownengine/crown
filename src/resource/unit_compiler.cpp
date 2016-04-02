@@ -223,7 +223,6 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 
 		auto begin = map::begin(keys);
 		auto end = map::end(keys);
-
 		for (; begin != end; ++begin)
 		{
 			const char* value = begin->pair.second;
@@ -234,7 +233,7 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 
 			const StringId32 type = sjson::parse_string_id(component["type"]);
 
-			Buffer buf = compile_component(type, value);
+			Buffer buf = compile_component(type, component["data"]);
 			add_component_data(type, buf, _num_units);
 		}
 
