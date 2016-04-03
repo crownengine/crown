@@ -1,29 +1,37 @@
 components = {
 	"637b5db3-1074-4852-a9f2-59c2eea2c2a5" = {
 		type = "transform"
-		position = [0 0 0]
-		rotation = [ 0 0 0 1 ]
-		scale = [1 1 1]
+		data = {
+			position = [0 0 0]
+			rotation = [ 0 0 0 1 ]
+			scale = [1 1 1]
+		}
 	}
 	"7b9da2e3-47ca-40fd-a31b-cb6cbe8fba57" = {
 		type = "mesh_renderer"
-		mesh_resource = "sphere"
-		geometry_name = "Sphere"
-		material = "grid"
-		visible = true
+		data = {
+			mesh_resource = "sphere"
+			geometry_name = "Sphere"
+			material = "grid"
+			visible = true
+		}
 	}
 	"9e94f3a3-4113-4af8-bc64-c78c2e82bcd4" = {
 		type = "collider"
-		class = "character"
-		material = "default"
-		shape = "sphere"
-		scene = "sphere"
-		name = "Sphere"
+		data = {
+			class = "character"
+			material = "default"
+			shape = "sphere"
+			scene = "sphere"
+			name = "Sphere"
+		}
 	}
 	"cff93999-e1aa-4b23-bc10-d2897e061c26" = {
 		type = "actor"
-		class = "dynamic"
-		mass = 15
-		collision_filter = "default"
+		data = {
+			class = "dynamic"
+			mass = 15
+			collision_filter = "default"
+		}
 	}
 }

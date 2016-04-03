@@ -1,29 +1,37 @@
 components = {
 	"1089a8ef-c51f-417d-9160-3716b5b441d7" = {
 		type = "transform"
-		position = [0 0 0]
-		rotation = [ 0 0 0 1 ]
-		scale = [1 1 1]
+		data = {
+			position = [0 0 0]
+			rotation = [ 0 0 0 1 ]
+			scale = [1 1 1]
+		}
 	}
 	"e8d9961f-d868-4b26-a4d7-7d2891cead99" = {
 		type = "mesh_renderer"
-		mesh_resource = "ramp"
-		geometry_name = "Cube"
-		material = "grid"
-		visible = true
+		data = {
+			mesh_resource = "ramp"
+			geometry_name = "Cube"
+			material = "grid"
+			visible = true
+		}
 	}
 	"d79ef8c9-b2c1-4a67-adc9-07154f7352d7" = {
 		type = "collider"
-		class = "character"
-		shape = "convex_hull"
-		scene = "ramp"
-		name = "Cube"
-		material = "default"
+		data = {
+			class = "character"
+			shape = "convex_hull"
+			scene = "ramp"
+			name = "Cube"
+			material = "default"
+		}
 	}
 	"3d3bbab0-2fca-4932-a38f-41e7cb339216" = {
 		type = "actor"
-		class = "static"
-		mass = 10
-		collision_filter = "default"
+		data = {
+			class = "static"
+			mass = 10
+			collision_filter = "default"
+		}
 	}
 }

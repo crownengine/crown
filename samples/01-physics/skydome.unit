@@ -1,15 +1,19 @@
 components = {
 	"6ef7e034-8519-4189-9527-04dfe17aebca" = {
 		type = "transform"
-		position = [0 0 0]
-		rotation = [ 0 0 0 1 ]
-		scale = [1 1 1]
+		data = {
+			position = [0 0 0]
+			rotation = [ 0 0 0 1 ]
+			scale = [1 1 1]
+		}
 	}
 	"cc39f446-7e04-40f1-9770-2b44c3f41b0f" = {
 		type = "mesh_renderer"
-		mesh_resource = "skydome"
-		geometry_name = "Sphere"
-		material = "skydome"
-		visible = true
+		data = {
+			mesh_resource = "skydome"
+			geometry_name = "Sphere"
+			material = "skydome"
+			visible = true
+		}
 	}
 }
