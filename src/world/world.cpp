@@ -77,7 +77,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 	// First component data
 	const char* component_data = (const char*)(&ur + 1);
 
-	for (u32 cc = 0; cc < ur.num_component_types; ++cc)
+	for (u32 cc = 0; cc < ur.num_component_types; ++cc, component_data += component->size + sizeof(ComponentData))
 	{
 		const ComponentData* component = (const ComponentData*)component_data;
 		const u32* unit_index = (const u32*)(component + 1);
@@ -162,8 +162,6 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				render_world()->create_light(unit_lookup[unit_index[i]], *ld, tm);
 			}
 		}
-
-		component_data += component->size + sizeof(ComponentData);
 	}
 
 	array::push(_units, &unit_lookup[0], ur.num_units);
