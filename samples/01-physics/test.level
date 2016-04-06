@@ -166,7 +166,7 @@ units = {
 					intensity = 3
 					light = "directional"
 					range = 1
-					spot_angle = 30
+					spot_angle = 0.523599
 				}
 				type = "light"
 			}

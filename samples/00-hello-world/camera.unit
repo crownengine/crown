@@ -11,7 +11,7 @@ components = {
 		type = "camera"
 		data = {
 			projection = "perspective"
-			fov = 60.0
+			fov = 1.0472
 			near_range = 0.01
 			far_range = 1000.0
 		}

@@ -13,7 +13,7 @@ components = {
 			light = "directional"
 			range = 1
 			intensity = 3
-			spot_angle = 30
+			spot_angle = 0.523599
 			color = [ 1 1 1 ]
 		}
 	}
