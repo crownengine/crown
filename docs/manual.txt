@@ -21,6 +21,11 @@ Supported platforms
 Basics
 ======
 
+Units of measurement
+--------------------
+
+Crown uses MKS (meters, kilograms and seconds) units and radians for angles.
+
 The .bundleignore file
 ======================
 
