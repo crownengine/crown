@@ -156,6 +156,10 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				render_world()->create_light(unit_lookup[unit_index[i]], *ld, tm);
 			}
 		}
+		else
+		{
+			CE_FATAL("Unknown component type");
+		}
 	}
 
 	array::push(_units, &unit_lookup[0], ur.num_units);

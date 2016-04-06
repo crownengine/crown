@@ -244,8 +244,8 @@ void UnitCompiler::compile_multiple_units(const char* json)
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
 
-	const JsonObject::Node* begin = map::begin(obj);
-	const JsonObject::Node* end = map::end(obj);
+	auto begin = map::begin(obj);
+	auto end = map::end(obj);
 
 	for (; begin != end; ++begin)
 	{
@@ -260,31 +260,43 @@ Buffer UnitCompiler::blob()
 	UnitResource ur;
 	ur.version = RESOURCE_VERSION_UNIT;
 	ur.num_units = _num_units;
-	ur.num_component_types = sort_map::size(_component_data);
+	ur.num_component_types = 0;
+
+	auto begin = sort_map::begin(_component_data);
+	auto end = sort_map::end(_component_data);
+
+	for (; begin != end; ++begin)
+	{
+		const u32 num = begin->pair.second._num;
+
+		if (num > 0)
+			++ur.num_component_types;
+	}
 
 	Buffer buf(default_allocator());
 	array::push(buf, (char*)&ur, sizeof(ur));
 
-	const SortMap<StringId32, ComponentTypeData>::Entry* begin = sort_map::begin(_component_data);
-	const SortMap<StringId32, ComponentTypeData>::Entry* end = sort_map::end(_component_data);
+	begin = sort_map::begin(_component_data);
+	end = sort_map::end(_component_data);
 
-	while (begin != end)
+	for (; begin != end; --end)
 	{
 		const StringId32 type        = (end-1)->pair.first;
 		const Buffer& data           = (end-1)->pair.second._data;
 		const Array<u32>& unit_index = (end-1)->pair.second._unit_index;
 		const u32 num                = (end-1)->pair.second._num;
 
-		ComponentData cd;
-		cd.type = type;
-		cd.num_instances = num;
-		cd.size = array::size(data) + sizeof(u32)*array::size(unit_index);
+		if (num > 0)
+		{
+			ComponentData cd;
+			cd.type = type;
+			cd.num_instances = num;
+			cd.size = array::size(data) + sizeof(u32)*array::size(unit_index);
 
-		array::push(buf, (char*)&cd, sizeof(cd));
-		array::push(buf, (char*)array::begin(unit_index), sizeof(u32)*array::size(unit_index));
-		array::push(buf, array::begin(data), array::size(data));
-
-		--end;
+			array::push(buf, (char*)&cd, sizeof(cd));
+			array::push(buf, (char*)array::begin(unit_index), sizeof(u32)*array::size(unit_index));
+			array::push(buf, array::begin(data), array::size(data));
+		}
 	}
 
 	return buf;
