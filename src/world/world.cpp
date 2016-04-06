@@ -74,12 +74,13 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 	for (u32 i = 0; i < ur.num_units; ++i)
 		unit_lookup[i] = _unit_manager->create();
 
-	// First component data
-	const char* component_data = (const char*)(&ur + 1);
+	// Start of components data
+	const char* components_begin = (const char*)(&ur + 1);
+	const ComponentData* component = NULL;
 
-	for (u32 cc = 0; cc < ur.num_component_types; ++cc, component_data += component->size + sizeof(ComponentData))
+	for (u32 cc = 0; cc < ur.num_component_types; ++cc, components_begin += component->size + sizeof(ComponentData))
 	{
-		const ComponentData* component = (const ComponentData*)component_data;
+		component = (const ComponentData*)components_begin;
 		const u32* unit_index = (const u32*)(component + 1);
 		const char* data = (const char*)(unit_index + component->num_instances);
 
@@ -93,8 +94,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				_scene_graph->create(unit_lookup[unit_index[i]], matrix_res*matrix);
 			}
 		}
-
-		if (component->type == COMPONENT_TYPE_CAMERA)
+		else if (component->type == COMPONENT_TYPE_CAMERA)
 		{
 			const CameraDesc* cd = (const CameraDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
@@ -102,8 +102,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				create_camera(unit_lookup[unit_index[i]], *cd);
 			}
 		}
-
-		if (component->type == COMPONENT_TYPE_COLLIDER)
+		else if (component->type == COMPONENT_TYPE_COLLIDER)
 		{
 			const ColliderDesc* cd = (const ColliderDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i)
@@ -112,8 +111,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				cd = (ColliderDesc*)((char*)(cd + 1) + cd->size);
 			}
 		}
-
-		if (component->type == COMPONENT_TYPE_ACTOR)
+		else if (component->type == COMPONENT_TYPE_ACTOR)
 		{
 			const ActorResource* ar = (const ActorResource*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++ar)
@@ -122,8 +120,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				physics_world()->create_actor(unit_lookup[unit_index[i]], ar, tm);
 			}
 		}
-
-		if (component->type == COMPONENT_TYPE_CONTROLLER)
+		else if (component->type == COMPONENT_TYPE_CONTROLLER)
 		{
 			const ControllerDesc* cd = (const ControllerDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
@@ -132,8 +129,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				physics_world()->create_controller(unit_lookup[unit_index[i]], *cd, tm);
 			}
 		}
-
-		if (component->type == COMPONENT_TYPE_MESH_RENDERER)
+		else if (component->type == COMPONENT_TYPE_MESH_RENDERER)
 		{
 			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++mrd)
@@ -142,8 +138,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				render_world()->create_mesh(unit_lookup[unit_index[i]], *mrd, tm);
 			}
 		}
-
-		if (component->type == COMPONENT_TYPE_SPRITE_RENDERER)
+		else if (component->type == COMPONENT_TYPE_SPRITE_RENDERER)
 		{
 			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++srd)
@@ -152,8 +147,7 @@ UnitId World::spawn_unit(const UnitResource& ur, const Vector3& pos, const Quate
 				render_world()->create_sprite(unit_lookup[unit_index[i]], *srd, tm);
 			}
 		}
-
-		if (component->type == COMPONENT_TYPE_LIGHT)
+		else if (component->type == COMPONENT_TYPE_LIGHT)
 		{
 			const LightDesc* ld = (const LightDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++ld)
