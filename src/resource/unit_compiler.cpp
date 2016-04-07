@@ -150,7 +150,7 @@ static Buffer compile_light(const char* json, CompileOptions& opts)
 	sjson::parse(json, obj);
 
 	DynamicString type(ta);
-	sjson::parse_string(obj["light"], type);
+	sjson::parse_string(obj["type"], type);
 
 	LightType::Enum lt = light_name_to_enum(type.c_str());
 	RESOURCE_COMPILER_ASSERT(lt != LightType::COUNT
