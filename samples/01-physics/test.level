@@ -164,9 +164,9 @@ units = {
 				data = {
 					color = [ 1 1 1 ]
 					intensity = 3
-					type = "directional"
 					range = 1
 					spot_angle = 0.523599
+					type = "directional"
 				}
 				type = "light"
 			}
