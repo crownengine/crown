@@ -5,8 +5,9 @@
 
 #pragma once
 
-#include "container_types.h"
 #include "compile_options.h"
+#include "container_types.h"
+#include "json_types.h"
 
 namespace crown
 {
@@ -46,9 +47,11 @@ public:
 
 	UnitCompiler(CompileOptions& opts);
 
+	Buffer read_unit(const char* name);
 	void compile_unit(const char* path);
 	void compile_unit_from_json(const char* json);
 	void compile_multiple_units(const char* json);
+
 
 	Buffer blob();
 };

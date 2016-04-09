@@ -187,39 +187,85 @@ UnitCompiler::UnitCompiler(CompileOptions& opts)
 	register_component_compiler("joint",           &physics_resource::compile_joint, 1.0f);
 }
 
-void UnitCompiler::compile_unit(const char* path)
+Buffer UnitCompiler::read_unit(const char* path)
 {
 	Buffer buf = _opts.read(path);
 	array::push_back(buf, '\0');
-	array::pop_back(buf);
-	compile_unit_from_json(array::begin(buf));
+	return buf;
+}
+
+void UnitCompiler::compile_unit(const char* path)
+{
+	compile_unit_from_json(array::begin(read_unit(path)));
 }
 
 void UnitCompiler::compile_unit_from_json(const char* json)
 {
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	Buffer data(default_allocator());
+	array::reserve(data, 1024*1024);
 
-	const char* prefab = map::get(obj, FixedString("prefab"), (const char*)NULL);
-	if (prefab)
+	u32 num_prefabs = 1;
+
+	TempAllocator4096 ta;
+	JsonObject prefabs[4] = { JsonObject(ta), JsonObject(ta), JsonObject(ta), JsonObject(ta) };
+	sjson::parse(json, prefabs[0]);
+
+	for (u32 i = 0; i < CE_COUNTOF(prefabs); ++i, ++num_prefabs)
 	{
+		const JsonObject& prefab = prefabs[i];
+
+		if (!map::has(prefab, FixedString("prefab")))
+			break;
+
 		TempAllocator512 ta;
 		DynamicString path(ta);
-		sjson::parse_string(prefab, path);
-
+		sjson::parse_string(prefab["prefab"], path);
+		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_UNIT, path.c_str(), _opts);
 		path += "." RESOURCE_EXTENSION_UNIT;
-		compile_unit(path.c_str());
+
+		Buffer buf = read_unit(path.c_str());
+		const char* d = array::end(data);
+		array::push(data, array::begin(buf), array::size(buf));
+		sjson::parse(d, prefabs[i + 1]);
 	}
 
-	const char* components = map::get(obj, FixedString("components"), (const char*)NULL);
-	if (components)
-	{
-		JsonObject keys(ta);
-		sjson::parse(components, keys);
 
-		auto begin = map::begin(keys);
-		auto end = map::end(keys);
+	JsonObject& prefab_root = prefabs[num_prefabs - 1];
+	JsonObject prefab_root_components(ta);
+	sjson::parse(prefab_root["components"], prefab_root_components);
+
+	if (num_prefabs > 1)
+	{
+		// Merge prefabs' components
+		for (u32 i = 0; i < num_prefabs; ++i)
+		{
+			const JsonObject& prefab = prefabs[num_prefabs - i - 1];
+
+			if (!map::has(prefab, FixedString("modified_components")))
+				continue;
+
+			JsonObject modified_components(ta);
+			sjson::parse(prefab["modified_components"], modified_components);
+
+			auto begin = map::begin(modified_components);
+			auto end = map::end(modified_components);
+			for (; begin != end; ++begin)
+			{
+				const FixedString key = begin->pair.first;
+				const FixedString id(&key.data()[1], key.length()-1);
+				const char* value = begin->pair.second;
+
+				// FIXME
+				map::remove(prefab_root_components, id);
+				map::set(prefab_root_components, id, value);
+			}
+		}
+	}
+
+	if (map::size(prefab_root_components) > 0)
+	{
+		auto begin = map::begin(prefab_root_components);
+		auto end = map::end(prefab_root_components);
 		for (; begin != end; ++begin)
 		{
 			const char* value = begin->pair.second;
@@ -248,11 +294,7 @@ void UnitCompiler::compile_multiple_units(const char* json)
 	auto end = map::end(obj);
 
 	for (; begin != end; ++begin)
-	{
-		const char* unit = begin->pair.second;
-
-		compile_unit_from_json(unit);
-	}
+		compile_unit_from_json(begin->pair.second);
 }
 
 Buffer UnitCompiler::blob()
