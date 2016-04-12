@@ -101,3 +101,9 @@ Command line reference
 
 	``--run-unit-tests``
 		Run unit tests and quit. Available only on ``linux`` and ``windows``.
+
+API reference
+=============
+
+* `Lua API <lua_api.html>`_
+* `C++ API <doxygen/modules.html>`_
