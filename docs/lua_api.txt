@@ -526,6 +526,9 @@ Mesh
 	**mesh_instances** (rw, unit) : table
 		Returns all the mesh instances of the *unit*.
 
+	**mesh_raycast** (rw, id, from, dir) : float
+		Returns the distance along ray (from, dir) to intersection point with the mesh *id* or -1.0 if no intersection.
+
 Sprite
 ------
 
