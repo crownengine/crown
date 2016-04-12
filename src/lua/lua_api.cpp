@@ -1887,6 +1887,18 @@ static int render_world_mesh_obb(lua_State* L)
 	return 2;
 }
 
+static int render_world_mesh_raycast(lua_State* L)
+{
+	LuaStack stack(L);
+	RenderWorld* rw = stack.get_render_world(1);
+	float t = rw->mesh_raycast(stack.get_mesh_instance(2)
+		, stack.get_vector3(3)
+		, stack.get_vector3(4)
+		);
+	stack.push_float(t);
+	return 1;
+}
+
 static int render_world_set_mesh_visible(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3356,6 +3368,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "destroy_mesh",         render_world_destroy_mesh);
 	env.add_module_function("RenderWorld", "mesh_instances",       render_world_mesh_instances);
 	env.add_module_function("RenderWorld", "mesh_obb",             render_world_mesh_obb);
+	env.add_module_function("RenderWorld", "mesh_raycast",         render_world_mesh_raycast);
 	env.add_module_function("RenderWorld", "set_mesh_visible",     render_world_set_mesh_visible);
 	env.add_module_function("RenderWorld", "create_sprite",        render_world_create_sprite);
 	env.add_module_function("RenderWorld", "destroy_sprite",       render_world_destroy_sprite);

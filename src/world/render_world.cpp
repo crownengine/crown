@@ -7,6 +7,7 @@
 #include "color4.h"
 #include "debug_line.h"
 #include "hash.h"
+#include "intersection.h"
 #include "material.h"
 #include "material_manager.h"
 #include "matrix4x4.h"
@@ -93,6 +94,20 @@ OBB RenderWorld::mesh_obb(MeshInstance i)
 {
 	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
 	return _mesh_manager._data.obb[i.i];
+}
+
+f32 RenderWorld::mesh_raycast(MeshInstance i, const Vector3& from, const Vector3& dir)
+{
+	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
+	const MeshGeometry* mg = _mesh_manager._data.geometry[i.i];
+	return ray_mesh_intersection(from
+		, dir
+		, _mesh_manager._data.world[i.i]
+		, mg->vertices.data
+		, mg->vertices.stride
+		, (u16*)mg->indices.data
+		, mg->indices.num
+		);
 }
 
 SpriteInstance RenderWorld::create_sprite(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr)
@@ -379,6 +394,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	const u32 bytes = num * (0
 		+ sizeof(UnitId)
 		+ sizeof(MeshResource*)
+		+ sizeof(MeshGeometry*)
 		+ sizeof(MeshData)
 		+ sizeof(StringId64)
 		+ sizeof(Matrix4x4)
@@ -394,7 +410,8 @@ void RenderWorld::MeshManager::allocate(u32 num)
 
 	new_data.unit = (UnitId*)(new_data.buffer);
 	new_data.resource = (const MeshResource**)(new_data.unit + num);
-	new_data.mesh = (MeshData*)(new_data.resource + num);
+	new_data.geometry = (const MeshGeometry**)(new_data.resource + num);
+	new_data.mesh = (MeshData*)(new_data.geometry + num);
 	new_data.material = (StringId64*)(new_data.mesh + num);
 	new_data.world = (Matrix4x4*)(new_data.material + num);
 	new_data.obb = (OBB*)(new_data.world + num);
@@ -402,6 +419,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource*));
+	memcpy(new_data.geometry, _data.geometry, _data.size * sizeof(MeshGeometry*));
 	memcpy(new_data.mesh, _data.mesh, _data.size * sizeof(MeshData));
 	memcpy(new_data.material, _data.material, _data.size * sizeof(StringId64));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
@@ -426,6 +444,7 @@ MeshInstance RenderWorld::MeshManager::create(UnitId id, const MeshResource* mr,
 
 	_data.unit[last]          = id;
 	_data.resource[last]      = mr;
+	_data.geometry[last]      = mg;
 	_data.mesh[last].vbh      = mg->vertex_buffer;
 	_data.mesh[last].ibh      = mg->index_buffer;
 	_data.material[last]      = mat;
@@ -463,6 +482,7 @@ void RenderWorld::MeshManager::destroy(MeshInstance i)
 
 	_data.unit[i.i]          = _data.unit[last];
 	_data.resource[i.i]      = _data.resource[last];
+	_data.geometry[i.i]      = _data.geometry[last];
 	_data.mesh[i.i].vbh      = _data.mesh[last].vbh;
 	_data.mesh[i.i].ibh      = _data.mesh[last].ibh;
 	_data.material[i.i]      = _data.material[last];

@@ -38,6 +38,8 @@ public:
 	void set_mesh_visible(MeshInstance i, bool visible);
 	OBB mesh_obb(MeshInstance i);
 
+	f32 mesh_raycast(MeshInstance i, const Vector3& from, const Vector3& dir);
+
 	/// Creates a new sprite instance.
 	SpriteInstance create_sprite(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr);
 
@@ -129,6 +131,7 @@ private:
 
 			UnitId* unit;
 			const MeshResource** resource;
+			const MeshGeometry** geometry;
 			MeshData* mesh;
 			StringId64* material;
 			Matrix4x4* world;
