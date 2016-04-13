@@ -569,14 +569,14 @@ static int matrix4x4_ctor(lua_State* L)
 static int matrix4x4_from_quaternion(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(matrix4x4(stack.get_quaternion(1), vector3(0, 0, 0)));
+	stack.push_matrix4x4(matrix4x4(stack.get_quaternion(1), VECTOR3_ZERO));
 	return 1;
 }
 
 static int matrix4x4_from_translation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(matrix4x4(QUATERNION_IDENTITY, stack.get_vector3(1)));
+	stack.push_matrix4x4(matrix4x4(stack.get_vector3(1)));
 	return 1;
 }
 
