@@ -124,6 +124,32 @@ inline Matrix4x4 matrix4x4(const Quaternion& r, const Vector3& t)
 	return m;
 }
 
+/// Returns a new matrix from translation @a t.
+inline Matrix4x4 matrix4x4(const Vector3& t)
+{
+	Matrix4x4 m;
+	m.x.x = 1.0f;
+	m.x.y = 0.0f;
+	m.x.z = 0.0f;
+	m.x.w = 0.0f;
+
+	m.y.x = 0.0f;
+	m.y.y = 1.0f;
+	m.y.z = 0.0f;
+	m.y.w = 0.0f;
+
+	m.z.x = 0.0f;
+	m.z.y = 0.0f;
+	m.z.z = 1.0f;
+	m.z.w = 0.0f;
+
+	m.t.x = t.x;
+	m.t.y = t.y;
+	m.t.z = t.z;
+	m.t.w = 1.0f;
+	return m;
+}
+
 /// Returns a new matrix from rotation matrix @a r.
 inline Matrix4x4 matrix4x4(const Matrix3x3& r)
 {
