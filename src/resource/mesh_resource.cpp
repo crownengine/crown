@@ -39,6 +39,8 @@ namespace mesh_resource
 		Array<u16> _tangent_indices;
 		Array<u16> _binormal_indices;
 
+		Matrix4x4 _matrix_local;
+
 		u32 _vertex_stride;
 		Array<char> _vertex_buffer;
 		Array<u16> _index_buffer;
@@ -63,6 +65,7 @@ namespace mesh_resource
 			, _uv_indices(default_allocator())
 			, _tangent_indices(default_allocator())
 			, _binormal_indices(default_allocator())
+			, _matrix_local(MATRIX4X4_IDENTITY)
 			, _vertex_stride(0)
 			, _vertex_buffer(default_allocator())
 			, _index_buffer(default_allocator())
@@ -95,11 +98,13 @@ namespace mesh_resource
 			_has_uv = false;
 		}
 
-		void parse(const char* json)
+		void parse(const char* geometry, const char* node)
 		{
 			TempAllocator4096 ta;
 			JsonObject object(ta);
-			sjson::parse(json, object);
+			JsonObject object_node(ta);
+			sjson::parse(geometry, object);
+			sjson::parse(node, object_node);
 
 			_has_normal = map::has(object, FixedString("normal"));
 			_has_uv     = map::has(object, FixedString("texcoord"));
@@ -116,6 +121,8 @@ namespace mesh_resource
 			}
 
 			parse_indices(object["indices"]);
+
+			_matrix_local = sjson::parse_matrix4x4(object_node["matrix_local"]);
 		}
 
 		void parse_float_array(const char* array_json, Array<f32>& output)
@@ -185,6 +192,7 @@ namespace mesh_resource
 				xyz.x = _positions[p_idx + 0];
 				xyz.y = _positions[p_idx + 1];
 				xyz.z = _positions[p_idx + 2];
+				xyz = xyz * _matrix_local;
 				array::push(_vertex_buffer, (char*)&xyz, sizeof(xyz));
 
 				if (_has_normal)
@@ -221,13 +229,14 @@ namespace mesh_resource
 
 			_decl.end();
 
-			// Buonds
+			// Bounds
 			aabb::reset(_aabb);
 			aabb::add_points(_aabb
 				, array::size(_positions) / 3
 				, sizeof(f32) * 3
 				, array::begin(_positions)
 				);
+			_aabb = aabb::transformed(_aabb, _matrix_local);
 
 			_obb.tm = matrix4x4(QUATERNION_IDENTITY, aabb::center(_aabb));
 			_obb.half_extents.x = (_aabb.max.x - _aabb.min.x) * 0.5f;
@@ -259,6 +268,8 @@ namespace mesh_resource
 
 		JsonObject geometries(ta);
 		sjson::parse(object["geometries"], geometries);
+		JsonObject nodes(ta);
+		sjson::parse(object["nodes"], nodes);
 
 		opts.write(RESOURCE_VERSION_MESH);
 		opts.write(map::size(geometries));
@@ -270,11 +281,14 @@ namespace mesh_resource
 		for (; begin != end; ++begin)
 		{
 			const FixedString key = begin->pair.first;
+			const char* geometry = begin->pair.second;
+			const char* node = nodes[key];
+
 			const StringId32 name(key.data(), key.length());
 			opts.write(name._id);
 
 			mc.reset();
-			mc.parse(begin->pair.second);
+			mc.parse(geometry, node);
 			mc.compile();
 			mc.write();
 		}
