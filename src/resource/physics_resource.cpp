@@ -211,14 +211,22 @@ namespace physics_resource
 		DynamicString name(ta);
 		sjson::parse_string(obj["scene"], scene);
 		sjson::parse_string(obj["name"], name);
+		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH, scene.c_str(), opts);
 		scene += "." RESOURCE_EXTENSION_MESH;
 
 		Buffer file = opts.read(scene.c_str());
 		JsonObject json_mesh(ta);
 		JsonObject geometries(ta);
+		JsonObject nodes(ta);
+		JsonObject node(ta);
 		sjson::parse(file, json_mesh);
 		sjson::parse(json_mesh["geometries"], geometries);
+		sjson::parse(json_mesh["nodes"], nodes);
+		sjson::parse(nodes[name.c_str()], node);
 		const char* mesh = geometries[name.c_str()];
+
+		Matrix4x4 matrix_local = sjson::parse_matrix4x4(node["matrix_local"]);
+		cd.local_tm = matrix_local;
 
 		Array<Vector3> mesh_data(default_allocator());
 
