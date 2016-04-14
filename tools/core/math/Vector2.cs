@@ -18,6 +18,12 @@ namespace Crown
 			this.y = y;
 		}
 
+		public Vector2(double x, double y)
+		{
+			this.x = (float)x;
+			this.y = (float)y;
+		}
+
 		public Vector2(ArrayList arr)
 		{
 			this.x = (float)(double)arr[0];

@@ -20,6 +20,14 @@ namespace Crown
 			this.w = w;
 		}
 
+		public Quaternion(double x, double y, double z, double w)
+		{
+			this.x = (float)x;
+			this.y = (float)y;
+			this.z = (float)z;
+			this.w = (float)w;
+		}
+
 		public Quaternion(ArrayList arr)
 		{
 			this.x = (float)(double)arr[0];

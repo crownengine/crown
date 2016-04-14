@@ -19,6 +19,13 @@ namespace Crown
 			this.z = z;
 		}
 
+		public Vector3(double x, double y, double z)
+		{
+			this.x = (float)x;
+			this.y = (float)y;
+			this.z = (float)z;
+		}
+
 		public Vector3(ArrayList arr)
 		{
 			this.x = (float)(double)arr[0];
