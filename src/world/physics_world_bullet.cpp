@@ -81,6 +81,16 @@ static btQuaternion to_btQuaternion(const Quaternion& q)
 	return btQuaternion(q.x, q.y, q.z, q.w);
 }
 
+static btTransform to_btTransform(const Matrix4x4& m)
+{
+	btMatrix3x3 basis(m.x.x, m.y.x, m.z.x
+		, m.x.y, m.y.y, m.z.y
+		, m.x.z, m.y.z, m.z.z
+		);
+	btVector3 pos(m.t.x, m.t.y, m.t.z);
+	return btTransform(basis, pos);
+}
+
 static Vector3 to_vector3(const btVector3& v)
 {
 	return vector3(v.x(), v.y(), v.z());
@@ -245,9 +255,10 @@ public:
 		const u32 last = array::size(_collider);
 
 		ColliderInstanceData cid;
-		cid.unit   = id;
-		cid.shape  = child_shape;
-		cid.next.i = UINT32_MAX;
+		cid.unit     = id;
+		cid.local_tm = sd->local_tm;
+		cid.shape    = child_shape;
+		cid.next.i   = UINT32_MAX;
 
 		ColliderInstance ci = first_collider(id);
 		while (is_valid(ci) && is_valid(next_collider(ci)))
@@ -276,11 +287,10 @@ public:
 	{
 		const PhysicsConfigActor* actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
 
-		// Create motion state
-		const btVector3 pos    = to_btVector3(translation(tm));
-		const btQuaternion rot = to_btQuaternion(rotation(tm));
-
-		btDefaultMotionState* ms = CE_NEW(*_allocator, btDefaultMotionState)(btTransform(rot, pos));
+		const bool is_kinematic = (actor_class->flags & PhysicsConfigActor::KINEMATIC) != 0;
+		const bool is_dynamic   = (actor_class->flags & PhysicsConfigActor::DYNAMIC) != 0;
+		const bool is_static    = !is_kinematic && !is_dynamic;
+		const f32  mass         = is_dynamic ? ar->mass : 0.0f;
 
 		// Create compound shape
 		btCompoundShape* shape = CE_NEW(*_allocator, btCompoundShape)(true);
@@ -288,22 +298,17 @@ public:
 		ColliderInstance ci = first_collider(id);
 		while (is_valid(ci))
 		{
-			shape->addChildShape(btTransform::getIdentity(), _collider[ci.i].shape);
+			shape->addChildShape(to_btTransform(_collider[ci.i].local_tm), _collider[ci.i].shape);
 			ci = next_collider(ci);
 		}
 
-		const bool is_kinematic = (actor_class->flags & PhysicsConfigActor::KINEMATIC) != 0;
-		const bool is_dynamic   = (actor_class->flags & PhysicsConfigActor::DYNAMIC) != 0;
-		const bool is_static    = !is_kinematic && !is_dynamic;
-
-		const f32 mass = is_dynamic ? ar->mass : 0.0f;
+		// Create motion state
+		btDefaultMotionState* ms = CE_NEW(*_allocator, btDefaultMotionState)(to_btTransform(tm));
 
 		// If dynamic, calculate inertia
 		btVector3 inertia;
 		if (mass != 0.0f) // Actor is dynamic iff mass != 0
-		{
 			shape->calculateLocalInertia(mass, inertia);
-		}
 
 		btRigidBody::btRigidBodyConstructionInfo rbinfo(mass, ms, shape, inertia);
 		rbinfo.m_linearDamping = actor_class->linear_damping;
@@ -323,14 +328,14 @@ public:
 		actor->setCollisionFlags(cflags);
 
 		actor->setLinearFactor(btVector3(
-			!(ar->flags & ActorFlags::LOCK_TRANSLATION_X) ? 1.0f : 0.0f,
-			!(ar->flags & ActorFlags::LOCK_TRANSLATION_Y) ? 1.0f : 0.0f,
-			!(ar->flags & ActorFlags::LOCK_TRANSLATION_Z) ? 1.0f : 0.0f)
+			(ar->flags & ActorFlags::LOCK_TRANSLATION_X) ? 0.0f : 1.0f,
+			(ar->flags & ActorFlags::LOCK_TRANSLATION_Y) ? 0.0f : 1.0f,
+			(ar->flags & ActorFlags::LOCK_TRANSLATION_Z) ? 0.0f : 1.0f)
 		);
 		actor->setAngularFactor(btVector3(
-			!(ar->flags & ActorFlags::LOCK_ROTATION_X) ? 1.0f : 0.0f,
-			!(ar->flags & ActorFlags::LOCK_ROTATION_Y) ? 1.0f : 0.0f,
-			!(ar->flags & ActorFlags::LOCK_ROTATION_Z) ? 1.0f : 0.0f)
+			(ar->flags & ActorFlags::LOCK_ROTATION_X) ? 0.0f : 1.0f,
+			(ar->flags & ActorFlags::LOCK_ROTATION_Y) ? 0.0f : 1.0f,
+			(ar->flags & ActorFlags::LOCK_ROTATION_Z) ? 0.0f : 1.0f)
 		);
 
 		const u32 last = array::size(_actor);
@@ -944,6 +949,7 @@ private:
 	struct ColliderInstanceData
 	{
 		UnitId unit;
+		Matrix4x4 local_tm;
 		btCollisionShape* shape;
 		ColliderInstance next;
 	};
