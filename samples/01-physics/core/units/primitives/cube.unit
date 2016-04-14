@@ -29,7 +29,7 @@ components = {
 	"b15082c5-3aaf-4c9a-8925-e5c958d49171" = {
 		type = "actor"
 		data = {
-			class = "dynamic"
+			class = "static"
 			mass = 1
 			collision_filter = "default"
 		}

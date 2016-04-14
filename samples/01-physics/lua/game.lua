@@ -29,8 +29,6 @@ function init()
 
 	-- Spawn skydome
 	skydome = World.spawn_unit(wd, "skydome")
-	local skydome_transform = SceneGraph.transform_instances(sg, skydome)
-	SceneGraph.set_local_scale(sg, skydome_transform, Vector3(500, 500, 500))
 
 	-- Load test level
 	World.load_level(wd, "test", Vector3(0, 0.1, 0))

@@ -13,3 +13,8 @@ geometries = {
         }
     }
 }
+nodes = {
+	"Plane" = {
+		matrix_local = [ 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 ]
+	}
+}
