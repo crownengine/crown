@@ -340,6 +340,9 @@ void Device::run()
 			bundle_dir = os::getcwd(buf, sizeof(buf));
 		}
 		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), bundle_dir);
+		if (!_bundle_filesystem->exists(bundle_dir))
+			_bundle_filesystem->create_directory(bundle_dir);
+
 		_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
