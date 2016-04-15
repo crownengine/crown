@@ -57,12 +57,14 @@ struct FixedString
 inline bool operator==(const FixedString& a, const char* str)
 {
 	const u32 len = strlen32(str);
-	return a._length == len && !strncmp(a._data, str, len);
+	return a._length == len
+		&& strncmp(a._data, str, len) == 0;
 }
 
 inline bool operator==(const FixedString& a, const FixedString& b)
 {
-	return (a._length == b._length) && !strncmp(a._data, b._data, a._length);
+	return a._length == b._length
+		&& strncmp(a._data, b._data, a._length) == 0;
 }
 
 inline bool operator<(const FixedString& a, const FixedString& b)
