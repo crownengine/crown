@@ -43,23 +43,6 @@ struct FixedString
 		return *this;
 	}
 
-	bool operator==(const char* str) const
-	{
-		const u32 len = strlen32(str);
-		return _length == len && !strncmp(_data, str, len);
-	}
-
-	bool operator==(const FixedString& b) const
-	{
-		return (_length == b._length) && !strncmp(_data, b._data, _length);
-	}
-
-	bool operator<(const FixedString& b) const
-	{
-		const u32 len = std::max(_length, b._length);
-		return strncmp(_data, b._data, len) < 0;
-	}
-
 	u32 length() const
 	{
 		return _length;
@@ -70,5 +53,22 @@ struct FixedString
 		return _data;
 	}
 };
+
+inline bool operator==(const FixedString& a, const char* str)
+{
+	const u32 len = strlen32(str);
+	return a._length == len && !strncmp(a._data, str, len);
+}
+
+inline bool operator==(const FixedString& a, const FixedString& b)
+{
+	return (a._length == b._length) && !strncmp(a._data, b._data, a._length);
+}
+
+inline bool operator<(const FixedString& a, const FixedString& b)
+{
+	const u32 len = std::max(a._length, b._length);
+	return strncmp(a._data, b._data, len) < 0;
+}
 
 } // namespace crown
