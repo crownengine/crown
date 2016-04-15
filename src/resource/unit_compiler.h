@@ -33,13 +33,27 @@ class UnitCompiler
 		}
 	};
 
+	struct ComponentTypeInfo
+	{
+		StringId32 _type;
+		float _spawn_order;
+
+		bool operator<(const ComponentTypeInfo& a)
+		{
+			return _spawn_order < a._spawn_order;
+		}
+	};
+
 	typedef SortMap<StringId32, ComponentTypeData> ComponentTypeMap;
+	typedef Array<ComponentTypeInfo> ComponentTypeArray;
 
 	CompileOptions& _opts;
 	u32 _num_units;
 	ComponentTypeMap _component_data;
+	ComponentTypeArray _component_info;
 
 	void register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order);
+	void register_component_compiler(StringId32 type, CompileFunction fn, f32 spawn_order);
 	Buffer compile_component(StringId32 type, const char* json);
 	void add_component_data(StringId32 type, const Buffer& data, u32 unit_index);
 
