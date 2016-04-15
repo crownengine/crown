@@ -38,7 +38,7 @@ class UnitCompiler
 		StringId32 _type;
 		float _spawn_order;
 
-		bool operator<(const ComponentTypeInfo& a)
+		bool operator<(const ComponentTypeInfo& a) const
 		{
 			return _spawn_order < a._spawn_order;
 		}
