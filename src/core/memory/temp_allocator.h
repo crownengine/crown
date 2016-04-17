@@ -46,6 +46,8 @@ namespace crown
 
 	private:
 
+		inline void init_chunk(char *chunk, u32 size);
+
 		char _buffer[BUFFER_SIZE];	//< Local stack buffer for allocations.
 		Allocator &_backing;		//< Backing allocator if local memory is exhausted.
 		char *_start;				//< Start of current allocation region
@@ -71,16 +73,14 @@ namespace crown
 	template <int BUFFER_SIZE>
 	TempAllocator<BUFFER_SIZE>::TempAllocator(Allocator &backing) : _backing(backing), _chunk_size(4*1024)
 	{
-		_p = _start = _buffer;
-		_end = _start + BUFFER_SIZE;
-		*(void **)_start = 0;
-		_p += sizeof(void *);
+		init_chunk(_buffer, BUFFER_SIZE);
 	}
 
 	template <int BUFFER_SIZE>
 	TempAllocator<BUFFER_SIZE>::~TempAllocator()
 	{
-		void *p = *(void **)_buffer;
+		char *start = _buffer;
+		void *p = *(void **)start;
 		while (p) {
 			void *next = *(void **)p;
 			_backing.deallocate(p);
@@ -99,14 +99,20 @@ namespace crown
 			_chunk_size *= 2;
 			void *p = _backing.allocate(to_allocate);
 			*(void **)_start = p;
-			_p = _start = (char *)p;
-			_end = _start + to_allocate;
-			*(void **)_start = 0;
-			_p += sizeof(void *);
+			init_chunk((char *)p, to_allocate);
 			_p = (char *)memory::align_top(_p, align);
 		}
 		void *result = _p;
 		_p += size;
 		return result;
+	}
+
+	template <int BUFFER_SIZE>
+	void TempAllocator<BUFFER_SIZE>::init_chunk(char *chunk, u32 size)
+	{
+		_p = _start = chunk;
+		_end = _start + size;
+		*(void **)_start = 0;
+		_p += sizeof(void *);
 	}
 } // namespace crown
