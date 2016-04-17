@@ -212,8 +212,6 @@ def write_file(file, objects, scene,
 				ml[2][1], ml[2][2] = ml[2][2], ml[2][1]
 				ml[3][1], ml[3][2] = ml[3][2], ml[3][1]
 
-				cv = EXPORT_GLOBAL_MATRIX
-
 				fw('    \"%s\" = {\n' % o.name)
 				fw ('        matrix_local = [ ')
 				fw ('%f %f %f %f ' % ml[0][:])
