@@ -207,11 +207,18 @@ def write_file(file, objects, scene,
 				ml = o.matrix_local.copy()
 				ml.transpose()
 
+				ml[0][1], ml[0][2] = ml[0][2], ml[0][1]
+				ml[1][1], ml[1][2] = ml[1][2], ml[1][1]
+				ml[2][1], ml[2][2] = ml[2][2], ml[2][1]
+				ml[3][1], ml[3][2] = ml[3][2], ml[3][1]
+
+				cv = EXPORT_GLOBAL_MATRIX
+
 				fw('    \"%s\" = {\n' % o.name)
 				fw ('        matrix_local = [ ')
 				fw ('%f %f %f %f ' % ml[0][:])
-				fw ('%f %f %f %f ' % ml[1][:])
 				fw ('%f %f %f %f ' % ml[2][:])
+				fw ('%f %f %f %f ' % ml[1][:])
 				fw ('%f %f %f %f ' % ml[3][:])
 				fw (']\n')
 				fw('    }\n')
