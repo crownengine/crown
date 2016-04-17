@@ -58,7 +58,7 @@ def write_file(file, objects, scene,
 		if me is None:
 			return
 
-		me.transform(EXPORT_GLOBAL_MATRIX * ob.matrix_world)
+		me.transform(EXPORT_GLOBAL_MATRIX)
 
 		if EXPORT_TRI:
 			mesh_triangulate(me)
@@ -77,8 +77,12 @@ def write_file(file, objects, scene,
 
 		if EXPORT_NORMALS and me.polygons:
 			me.calc_normals()
+			if faceuv:
+				me.calc_tangents(me.uv_layers.active.name)
 
 		normals = {}
+		tangents = {}
+		bitangents = {}
 		texcoords = {}
 
 		def write_positions(me):
@@ -100,6 +104,24 @@ def write_file(file, objects, scene,
 					if noKey not in normals:
 						normals[noKey] = len(normals)
 						fw(" %.6f %.6f %.6f" % noKey)
+
+		def write_tangents(me):
+			for l in me.loops:
+				noKey = veckey3d(l.tangent)
+				if noKey not in tangents:
+					tangents[noKey] = len(tangents)
+					fw(" %.6f %.6f %.6f" % noKey)
+
+		def write_bitangents(me):
+			for l in me.loops:
+				n = l.normal
+				t = l.tangent
+				sgn = l.bitangent_sign
+				nt = n.cross(t)
+				noKey = veckey3d(sgn * nt)
+				if noKey not in bitangents:
+					bitangents[noKey] = len(bitangents)
+					fw(" %.6f %.6f %.6f" % noKey)
 
 		def write_texcoords(me):
 			for f in me.polygons:
@@ -127,6 +149,18 @@ def write_file(file, objects, scene,
 					for v_idx in f.vertices:
 						fw(' %d' % no)
 
+		def write_tangent_indices(me, tangents):
+			for l in me.loops:
+				fw(' %d' % (tangents[veckey3d(l.tangent)]))
+
+		def write_bitangent_indices(me, bitangents):
+			for l in me.loops:
+				n = l.normal
+				t = l.tangent
+				sgn = l.bitangent_sign
+				nt = n.cross(t)
+				fw(' %d' % bitangents[veckey3d(sgn * nt)])
+
 		def write_texcoord_indices(me, texcoords):
 			for f in me.polygons:
 				for loop_index in f.loop_indices:
@@ -142,6 +176,8 @@ def write_file(file, objects, scene,
 				fw("                ["); write_normal_indices(me, normals); fw(" ]\n")
 			if faceuv:
 				fw("                ["); write_texcoord_indices(me, texcoords); fw(" ]\n")
+				fw("                ["); write_tangent_indices(me, tangents); fw(" ]\n")
+				fw("                ["); write_bitangent_indices(me, bitangents); fw(" ]\n")
 			fw("            ]\n")
 			fw("        }\n")
 
@@ -151,6 +187,8 @@ def write_file(file, objects, scene,
 			fw("        normal = ["); write_normals(me); fw(" ]\n")
 		if faceuv:
 			fw("        texcoord = ["); write_texcoords(me); fw(" ]\n")
+			fw("        tangent = ["); write_tangents(me); fw(" ]\n")
+			fw("        bitangent = ["); write_bitangents(me); fw(" ]\n")
 		write_indices(me, normals, texcoords);
 		fw("    }\n")
 
@@ -162,7 +200,25 @@ def write_file(file, objects, scene,
 			if o.type == 'MESH': write_mesh(o, o.name)
 		fw("}\n")
 
+	def write_nodes(objects):
+		fw("nodes = {\n")
+		for o in objects:
+			if o.type == 'MESH':
+				ml = o.matrix_local.copy()
+				ml.transpose()
+
+				fw('    \"%s\" = {\n' % o.name)
+				fw ('        matrix_local = [ ')
+				fw ('%f %f %f %f ' % ml[0][:])
+				fw ('%f %f %f %f ' % ml[1][:])
+				fw ('%f %f %f %f ' % ml[2][:])
+				fw ('%f %f %f %f ' % ml[3][:])
+				fw (']\n')
+				fw('    }\n')
+		fw("}\n")
+
 	write_geometries(objects)
+	write_nodes(objects)
 
 def _write(context, filepath,
 	EXPORT_TRI,
@@ -277,7 +333,7 @@ class MyExporter(bpy.types.Operator, ExportHelper):
 					))
 
 		scale_mt = Matrix.Scale(self.global_scale, 4)
-		global_matrix = (scale_mt * axis_conversion(to_forward='-Z', to_up='Y').to_4x4())
+		global_matrix = (scale_mt * axis_conversion(to_forward='Z', to_up='Y').to_4x4())
 
 		keywords["global_matrix"] = global_matrix
 		return save(self, context, **keywords)
