@@ -80,7 +80,8 @@ namespace crown
 	template <int BUFFER_SIZE>
 	TempAllocator<BUFFER_SIZE>::~TempAllocator()
 	{
-		void *p = *(void **)_buffer;
+		char* start = _buffer;
+		void *p = *(void **)start;
 		while (p) {
 			void *next = *(void **)p;
 			_backing.deallocate(p);
