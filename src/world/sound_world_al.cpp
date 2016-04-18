@@ -38,7 +38,7 @@ namespace crown
 		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\
 				"OpenAL error: %s", al_error_to_string(error)); } while (0)
 #else
-	#define AL_CHECK(function) function;
+	#define AL_CHECK(function) function
 #endif // CROWN_DEBUG
 
 /// Global audio-related functions
@@ -90,7 +90,7 @@ struct SoundInstance
 		AL_CHECK(alGenBuffers(1, &_buffer));
 		CE_ASSERT(alIsBuffer(_buffer), "alGenBuffers: error");
 
-		ALenum fmt;
+		ALenum fmt = AL_INVALID_ENUM;
 		switch (sr.bits_ps)
 		{
 			case  8: fmt = sr.channels > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8; break;
