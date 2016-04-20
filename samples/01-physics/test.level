@@ -158,6 +158,19 @@ units = {
 		}
 		prefab = "cube"
 	}
+	2a450c56-45db-4226-8ddc-bf26b04dd5d5 = {
+		modified_components = {
+			#6ef7e034-8519-4189-9527-04dfe17aebca = {
+				data = {
+					position = [ 0 0 0 ]
+					rotation = [ 0 0 0 1 ]
+					scale = [ 1 1 1 ]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "skydome"
+	}
 	2c4f369d-fbc1-4a16-a931-123b7f00a85b = {
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
@@ -305,8 +318,8 @@ units = {
 		modified_components = {
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
 				data = {
-					position = [ -21 9 -20 ]
-					rotation = [ 0 0.991665 0 -0.128845 ]
+					position = [ -50 50 -50 ]
+					rotation = [ 0 -0.9914449 0 0.130526 ]
 					scale = [ 1 1 1 ]
 				}
 				type = "transform"

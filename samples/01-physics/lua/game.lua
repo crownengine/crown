@@ -27,9 +27,6 @@ function init()
 	local camera_tr = SceneGraph.transform_instances(sg, camera_unit)
 	SceneGraph.set_local_position(sg, camera_tr, Vector3(0, 6.5, -30))
 
-	-- Spawn skydome
-	skydome = World.spawn_unit(wd, "skydome")
-
 	-- Load test level
 	World.load_level(wd, "test", Vector3(0, 0.1, 0))
 
