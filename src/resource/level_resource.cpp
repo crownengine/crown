@@ -91,7 +91,7 @@ namespace level_resource
 		allocator.deallocate(resource);
 	}
 
-	const UnitResource* get_units(const LevelResource* lr)
+	const UnitResource* unit_resource(const LevelResource* lr)
 	{
 		return (const UnitResource*)((char*)lr + lr->units_offset);
 	}

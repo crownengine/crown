@@ -20,15 +20,64 @@ namespace crown
 /// @ingroup World
 class World
 {
+	struct Camera
+	{
+		UnitId unit;
+
+		ProjectionType::Enum projection_type;
+		Matrix4x4 projection;
+
+		Frustum frustum;
+		f32 fov;
+		f32 aspect;
+		f32 near;
+		f32 far;
+
+		// Orthographic projection only
+		f32 left;
+		f32 right;
+		f32 bottom;
+		f32 top;
+
+		u16 view_x;
+		u16 view_y;
+		u16 view_width;
+		u16 view_height;
+
+		void update_projection_matrix();
+	};
+
+	u32 _marker;
+
+	Allocator* _allocator;
+	ResourceManager* _resource_manager;
+	ShaderManager* _shader_manager;
+	MaterialManager* _material_manager;
+	LuaEnvironment* _lua_environment;
+	UnitManager* _unit_manager;
+
+	DebugLine* _lines;
+	SceneGraph* _scene_graph;
+	RenderWorld* _render_world;
+	PhysicsWorld* _physics_world;
+	SoundWorld* _sound_world;
+
+	Array<UnitId> _units;
+	Array<Level*> _levels;
+	Array<Camera> _camera;
+	Hash<u32> _camera_map;
+
+	EventStream _events;
+
+	CameraInstance make_camera_instance(u32 i) { CameraInstance inst = { i }; return inst; }
+
 public:
 
 	World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um, LuaEnvironment& env);
 	~World();
 
-	UnitId spawn_unit(const UnitResource& ur, const Vector3& position = VECTOR3_ZERO, const Quaternion& rotation = QUATERNION_IDENTITY);
-
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
-	UnitId spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot);
+	UnitId spawn_unit(StringId64 name, const Vector3& pos = VECTOR3_ZERO, const Quaternion& rot = QUATERNION_IDENTITY);
 
 	/// Spawns a new empty unit and returns its id.
 	UnitId spawn_empty_unit();
@@ -150,7 +199,6 @@ public:
 	void destroy_gui(Gui& gui);
 
 	/// Loads the level @a name into the world.
-	Level* load_level(const LevelResource& lr, const Vector3& pos, const Quaternion& rot);
 	Level* load_level(StringId64 name, const Vector3& pos, const Quaternion& rot);
 
 	/// Returns the events.
@@ -168,66 +216,13 @@ public:
 	/// Returns the sound sub-world.
 	SoundWorld* sound_world();
 
-	static const u32 MARKER = 0xfb6ce2d3;
-
-private:
-
-	CameraInstance make_camera_instance(u32 i) { CameraInstance inst = { i }; return inst; }
-
 	void post_unit_spawned_event(UnitId id);
 	void post_unit_destroyed_event(UnitId id);
 	void post_level_loaded_event();
 
-private:
-
-	struct Camera
-	{
-		UnitId unit;
-
-		ProjectionType::Enum projection_type;
-		Matrix4x4 projection;
-
-		Frustum frustum;
-		f32 fov;
-		f32 aspect;
-		f32 near;
-		f32 far;
-
-		// Orthographic projection only
-		f32 left;
-		f32 right;
-		f32 bottom;
-		f32 top;
-
-		u16 view_x;
-		u16 view_y;
-		u16 view_width;
-		u16 view_height;
-
-		void update_projection_matrix();
-	};
-
-	u32 _marker;
-
-	Allocator* _allocator;
-	ResourceManager* _resource_manager;
-	ShaderManager* _shader_manager;
-	MaterialManager* _material_manager;
-	LuaEnvironment* _lua_environment;
-	UnitManager* _unit_manager;
-
-	DebugLine* _lines;
-	SceneGraph* _scene_graph;
-	RenderWorld* _render_world;
-	PhysicsWorld* _physics_world;
-	SoundWorld* _sound_world;
-
-	Array<UnitId> _units;
-	Array<Level*> _levels;
-	Array<Camera> _camera;
-	Hash<u32> _camera_map;
-
-	EventStream _events;
+	static const u32 MARKER = 0xfb6ce2d3;
 };
+
+void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const UnitId* unit_lookup);
 
 } // namespace crown

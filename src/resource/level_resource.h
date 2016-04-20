@@ -38,7 +38,7 @@ namespace level_resource
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 
-	const UnitResource* get_units(const LevelResource* lr);
+	const UnitResource* unit_resource(const LevelResource* lr);
 	u32 num_sounds(const LevelResource* lr);
 	const LevelSound* get_sound(const LevelResource* lr, u32 i);
 } // namespace level_resource
