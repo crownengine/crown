@@ -54,7 +54,7 @@ render_states = {
 		depth_enable = true
 		depth_write_enable = true
 		blend_enable = false
-		cull_mode = "ccw"
+		cull_mode = "cw"
 	}
 }
 

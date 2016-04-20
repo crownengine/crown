@@ -16,6 +16,7 @@ components = {
 			far_range = 1000.0
 		}
 	}
+/*
 	"c0e8cff2-dac5-41cd-94cc-b67eaf6d4800" = {
 		type = "mesh_renderer"
 		data = {
@@ -25,4 +26,5 @@ components = {
 			visible = true
 		}
 	}
+*/
 }
