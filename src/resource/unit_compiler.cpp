@@ -280,9 +280,9 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 			Buffer buf = compile_component(type, component["data"]);
 			add_component_data(type, buf, _num_units);
 		}
-
-		++_num_units;
 	}
+
+	++_num_units;
 }
 
 void UnitCompiler::compile_multiple_units(const char* json)
