@@ -115,9 +115,9 @@ bgfx_shaders = {
 			void main()
 			{
 				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
-			#ifdef DIFFUSE_MAP
+		#ifdef DIFFUSE_MAP
 				v_texcoord0 = a_texcoord0;
-			#endif // DIFFUSE_MAP
+		#endif // DIFFUSE_MAP
 				v_color0 = a_color0;
 			}
 		"
@@ -127,17 +127,17 @@ bgfx_shaders = {
 		"
 
 		fs_code = "
-			#ifdef DIFFUSE_MAP
+		#ifdef DIFFUSE_MAP
 			SAMPLER2D(u_albedo, 0);
-			#endif // DIFFUSE_MAP
+		#endif // DIFFUSE_MAP
 
 			void main()
 			{
-			#ifdef DIFFUSE_MAP
+		#ifdef DIFFUSE_MAP
 				gl_FragColor = texture2D(u_albedo, v_texcoord0) * v_color0;
-			#else
+		#else
 				gl_FragColor = v_color0;
-			#endif // DIFFUSE_MAP
+		#endif // DIFFUSE_MAP
 			}
 		"
 	}
@@ -219,10 +219,11 @@ bgfx_shaders = {
 
 		fs_code =
 		"
-			#ifdef DIFFUSE_MAP
+		#ifdef DIFFUSE_MAP
 			SAMPLER2D(u_albedo, 0);
-			#endif // DIFFUSE_MAP
+		#endif // DIFFUSE_MAP
 
+		#if !defined(NO_LIGHT)
 			uniform vec4 u_light_pos; // In world-space
 			uniform vec4 u_light_dir; // In view-space
 			uniform vec4 u_light_col;
@@ -230,9 +231,11 @@ bgfx_shaders = {
 			uniform vec4 u_ambient;
 			uniform vec4 u_diffuse;
 			uniform vec4 u_specular;
+		#endif
 
 			void main()
 			{
+		#if !defined(NO_LIGHT)
 				// normalize both input vectors
 				vec3 n = normalize(v_normal);
 				vec3 e = normalize(v_view.xyz);
@@ -240,11 +243,15 @@ bgfx_shaders = {
 				float intensity = max(0.0f, dot(n, u_light_dir.xyz));
 
 				vec4 colorOut = max(intensity * (u_diffuse * u_light_col), u_ambient);
-			#ifdef DIFFUSE_MAP
+		#else
+				vec4 colorOut = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		#endif // !defined(NO_LIGHT)
+
+		#ifdef DIFFUSE_MAP
 				gl_FragColor = colorOut * texture2D(u_albedo, v_uv0);
-			#else
+		#else
 				gl_FragColor = colorOut;
-			#endif // DIFFUSE_MAP
+		#endif // DIFFUSE_MAP
 			}
 		"
 	}
@@ -285,4 +292,5 @@ static_compile = [
 	{ shader = "sprite" defines = [] }
 	{ shader = "mesh" defines = [] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP"] }
+	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
 ]
