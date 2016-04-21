@@ -292,8 +292,8 @@ units = {
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
-					position = [ 0 0 0 ]
-					rotation = [ 0 0 0 1 ]
+					position = [ -256 -230 0 ]
+					rotation = [ 0 0 -0.7071068 0.7071068 ]
 					scale = [ 1 1 1 ]
 				}
 				type = "transform"
@@ -313,6 +313,19 @@ units = {
 			}
 		}
 		prefab = "cube"
+	}
+	663ef523-b073-424b-9cd4-546680541377 = {
+		modified_components = {
+			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
+				data = {
+					position = [ 0 -230 256 ]
+					rotation = [ 0.5 -0.5 0.5 -0.5 ]
+					scale = [ 1 1 1 ]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "plane"
 	}
 	683c5131-06e1-4dad-96cd-3ef6d573d9bf = {
 		modified_components = {
@@ -496,6 +509,19 @@ units = {
 		}
 		prefab = "cube"
 	}
+	9ab38fec-f03e-475f-a07c-98c618fab522 = {
+		modified_components = {
+			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
+				data = {
+					position = [ 256 -230 0 ]
+					rotation = [ 0.7071068 -0.7071068 3.090862E-08 -3.090862E-08 ]
+					scale = [ 1 1 1 ]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "plane"
+	}
 	9c35713a-b50a-4c4d-9338-44eb2913d61c = {
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
@@ -665,6 +691,19 @@ units = {
 		}
 		prefab = "cube"
 	}
+	ba8d7ab5-8d00-46bf-9740-c6bfd6f1a95d = {
+		modified_components = {
+			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
+				data = {
+					position = [ 0 0 0 ]
+					rotation = [ 0 0 0 1 ]
+					scale = [ 1 1 1 ]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "plane"
+	}
 	bb229d7a-8c1b-4ebd-b8f9-ea7ee75f31a6 = {
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
@@ -794,6 +833,19 @@ units = {
 			}
 		}
 		prefab = "cube"
+	}
+	e0398eaa-22ee-453f-a016-b768d95a8785 = {
+		modified_components = {
+			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
+				data = {
+					position = [ -2.52724E-05 -230 -256 ]
+					rotation = [ -0.5 0.5 0.5 -0.5 ]
+					scale = [ 1 1 1 ]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "plane"
 	}
 	e31c8dde-f80b-4bba-80fb-6d263df32ab8 = {
 		modified_components = {
