@@ -28,6 +28,7 @@ Level::~Level()
 
 void Level::load(const Vector3& pos, const Quaternion& rot)
 {
+	// Spawn units
 	const UnitResource* ur = level_resource::unit_resource(_resource);
 	const u32 num_units = ur->num_units;
 
@@ -41,6 +42,19 @@ void Level::load(const Vector3& pos, const Quaternion& rot)
 	// Post events
 	for (u32 i = 0; i < num_units; ++i)
 		_world->post_unit_spawned_event(_unit_lookup[i]);
+
+	// Play sounds
+	const u32 num_sounds = level_resource::num_sounds(_resource);
+	for (u32 i = 0; i < num_sounds; ++i)
+	{
+		const LevelSound* ls = level_resource::get_sound(_resource, i);
+		_world->play_sound(ls->name
+			, ls->loop
+			, ls->volume
+			, ls->position
+			, ls->range
+			);
+	}
 }
 
 } // namespace crown
