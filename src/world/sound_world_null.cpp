@@ -36,7 +36,7 @@ public:
 	{
 	}
 
-	virtual SoundInstanceId play(const SoundResource& /*sr*/, bool /*loop*/, f32 /*volume*/, const Vector3& /*pos*/)
+	virtual SoundInstanceId play(const SoundResource& /*sr*/, bool /*loop*/, f32 /*volume*/, f32 /*range*/, const Vector3& /*pos*/)
 	{
 		return 0;
 	}

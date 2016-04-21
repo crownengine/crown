@@ -61,7 +61,7 @@ namespace audio_globals
 		CE_LOGD("OpenAL Version  : %s", alGetString(AL_VERSION));
 		CE_LOGD("OpenAL Renderer : %s", alGetString(AL_RENDERER));
 
-		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
+		AL_CHECK(alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED));
 		AL_CHECK(alDopplerFactor(1.0f));
 		AL_CHECK(alDopplerVelocity(343.0f));
 	}
@@ -75,16 +75,16 @@ namespace audio_globals
 
 struct SoundInstance
 {
-	void create(const SoundResource& sr, const Vector3& pos)
+	void create(const SoundResource& sr, const Vector3& pos, f32 range)
 	{
 		using namespace sound_resource;
 
 		AL_CHECK(alGenSources(1, &_source));
 		CE_ASSERT(alIsSource(_source), "alGenSources: error");
 
-		// AL_CHECK(alSourcef(_source, AL_PITCH, 1.0f));
-		// AL_CHECK(alSourcef(_source, AL_REFERENCE_DISTANCE, 0.1f));
-		// AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, 1000.0f));
+		AL_CHECK(alSourcef(_source, AL_REFERENCE_DISTANCE, 0.01f));
+		AL_CHECK(alSourcef(_source, AL_MAX_DISTANCE, range));
+		AL_CHECK(alSourcef(_source, AL_PITCH, 1.0f));
 
 		// Generates AL buffers
 		AL_CHECK(alGenBuffers(1, &_buffer));
@@ -114,7 +114,7 @@ struct SoundInstance
 	void reload(const SoundResource& new_sr)
 	{
 		destroy();
-		create(new_sr, position());
+		create(new_sr, position(), range());
 	}
 
 	void play(bool loop, f32 volume)
@@ -168,6 +168,13 @@ struct SoundInstance
 		ALfloat pos[3];
 		AL_CHECK(alGetSourcefv(_source, AL_POSITION, pos));
 		return vector3(pos[0], pos[1], pos[2]);
+	}
+
+	float range()
+	{
+		ALfloat range;
+		AL_CHECK(alGetSourcefv(_source, AL_MAX_DISTANCE, &range));
+		return range;
 	}
 
 	void set_position(const Vector3& pos)
@@ -273,11 +280,11 @@ public:
 	{
 	}
 
-	virtual SoundInstanceId play(const SoundResource& sr, bool loop, f32 volume, const Vector3& pos)
+	virtual SoundInstanceId play(const SoundResource& sr, bool loop, f32 volume, f32 range, const Vector3& pos)
 	{
 		SoundInstanceId id = add();
 		SoundInstance& si = lookup(id);
-		si.create(sr, pos);
+		si.create(sr, pos, range);
 		si.play(loop, volume);
 		return id;
 	}
