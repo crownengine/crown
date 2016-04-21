@@ -32,7 +32,6 @@ def mesh_triangulate(me):
 def write_file(file
 	, objects
 	, scene
-	, EXPORT_TRI=True
 	, EXPORT_NORMALS=True
 	, EXPORT_UV=True
 	, EXPORT_APPLY_MODIFIERS=True
@@ -56,8 +55,7 @@ def write_file(file
 		if me is None:
 			return
 
-		if EXPORT_TRI:
-			mesh_triangulate(me)
+		mesh_triangulate(me)
 
 		if EXPORT_UV:
 			faceuv = len(me.uv_textures) > 0
@@ -226,7 +224,6 @@ def write_file(file
 
 def _write(context
 	, filepath
-	, EXPORT_TRI
 	, EXPORT_NORMALS
 	, EXPORT_UV
 	, EXPORT_APPLY_MODIFIERS
@@ -239,16 +236,12 @@ def _write(context
 	if bpy.ops.object.mode_set.poll():
 		bpy.ops.object.mode_set(mode='OBJECT')
 
-	if EXPORT_SEL_ONLY:
-		objects = context.selected_objects
-	else:
-		objects = scene.objects
+	objects = context.selected_objects if EXPORT_SEL_ONLY else scene.objects
 
 	f = open(filepath, "wb")
 	write_file(f
 		, objects
 		, scene
-		, EXPORT_TRI
 		, EXPORT_NORMALS
 		, EXPORT_UV
 		, EXPORT_APPLY_MODIFIERS
@@ -258,18 +251,14 @@ def _write(context
 def save(operator
 	, context
 	, filepath=""
-	, use_triangles=False
 	, use_normals=False
 	, use_uvs=True
 	, use_mesh_modifiers=True
 	, use_selection=True
-	, use_animation=False
-	, global_matrix=None
 	):
 
 	_write(context
 		, filepath
-		, EXPORT_TRI=use_triangles
 		, EXPORT_NORMALS=use_normals
 		, EXPORT_UV=use_uvs
 		, EXPORT_APPLY_MODIFIERS=use_mesh_modifiers
@@ -311,17 +300,6 @@ class MyExporter(bpy.types.Operator, ExportHelper):
 	use_uvs = BoolProperty(name="Include UVs"
 		, description="Write out the active UV coordinates"
 		, default=True
-		)
-
-	use_triangles = BoolProperty(name="Triangulate Faces"
-		, description="Convert all faces to triangles"
-		, default=True
-		)
-
-	global_scale = FloatProperty(name="Scale"
-		, min=0.01
-		, max=1000.0
-		, default=1.0
 		)
 
 	def execute(self, context):
