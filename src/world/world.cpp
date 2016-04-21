@@ -365,7 +365,7 @@ Vector3 World::camera_world_to_screen(CameraInstance i, const Vector3& pos)
 
 SoundInstanceId World::play_sound(const SoundResource& sr, const bool loop, const f32 volume, const Vector3& pos, const f32 range)
 {
-	return _sound_world->play(sr, loop, volume, pos);
+	return _sound_world->play(sr, loop, volume, range, pos);
 }
 
 SoundInstanceId World::play_sound(StringId64 name, const bool loop, const f32 volume, const Vector3& pos, const f32 range)
