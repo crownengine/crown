@@ -15,10 +15,10 @@ bl_info = {
 	"category"    : "Import-Export"
 }
 
-import os
 import bpy
-import mathutils
 import bpy_extras.io_utils
+import mathutils
+import os
 
 # Triangulates the mesh me
 def mesh_triangulate(me):
@@ -29,16 +29,14 @@ def mesh_triangulate(me):
 	bm.to_mesh(me)
 	bm.free()
 
-def write_file(file, objects, scene,
-	EXPORT_TRI=True,
-	EXPORT_NORMALS=True,
-	EXPORT_UV=True,
-	EXPORT_APPLY_MODIFIERS=True,
-	EXPORT_GLOBAL_MATRIX=None,
+def write_file(file
+	, objects
+	, scene
+	, EXPORT_TRI=True
+	, EXPORT_NORMALS=True
+	, EXPORT_UV=True
+	, EXPORT_APPLY_MODIFIERS=True
 	):
-
-	if EXPORT_GLOBAL_MATRIX is None:
-		EXPORT_GLOBAL_MATRIX = mathutils.Matrix()
 
 	def veckey3d(v):
 		return round(v.x, 6), round(v.y, 6), round(v.z, 6)
@@ -57,8 +55,6 @@ def write_file(file, objects, scene,
 
 		if me is None:
 			return
-
-		me.transform(EXPORT_GLOBAL_MATRIX)
 
 		if EXPORT_TRI:
 			mesh_triangulate(me)
@@ -87,8 +83,8 @@ def write_file(file, objects, scene,
 
 		def write_positions(me):
 			for v in me.vertices:
-				posKey = veckey3d(v.co)
-				fw(" %.6f %.6f %.6f" % posKey)
+				x, y, z = veckey3d(v.co)
+				fw(" %.6f %.6f %.6f" % (x, z, y))
 
 		def write_normals(me):
 			for f in me.polygons:
@@ -98,12 +94,14 @@ def write_file(file, objects, scene,
 						noKey = veckey3d(v.normal)
 						if noKey not in normals:
 							normals[noKey] = len(normals)
-							fw(" %.6f %.6f %.6f" % noKey)
+							x, y, z = noKey
+							fw(" %.6f %.6f %.6f" % (x, z, y))
 				else:
 					noKey = veckey3d(f.normal)
 					if noKey not in normals:
 						normals[noKey] = len(normals)
-						fw(" %.6f %.6f %.6f" % noKey)
+						x, y, z = noKey
+						fw(" %.6f %.6f %.6f" % (x, z, y))
 
 		def write_tangents(me):
 			for l in me.loops:
@@ -130,7 +128,8 @@ def write_file(file, objects, scene,
 					uvkey = veckey2d(uv)
 					if uvkey not in texcoords:
 						texcoords[uvkey] = len(texcoords)
-						fw(" %.6f %.6f" % uvkey)
+						u, v = uvkey
+						fw(" %.6f %.6f" % (u, 1.0 - v))
 
 		def write_position_indices(me):
 			for f in me.polygons:
@@ -225,13 +224,13 @@ def write_file(file, objects, scene,
 	write_geometries(objects)
 	write_nodes(objects)
 
-def _write(context, filepath,
-	EXPORT_TRI,
-	EXPORT_NORMALS,
-	EXPORT_UV,
-	EXPORT_APPLY_MODIFIERS,
-	EXPORT_SEL_ONLY,
-	EXPORT_GLOBAL_MATRIX,
+def _write(context
+	, filepath
+	, EXPORT_TRI
+	, EXPORT_NORMALS
+	, EXPORT_UV
+	, EXPORT_APPLY_MODIFIERS
+	, EXPORT_SEL_ONLY
 	):
 
 	scene = context.scene
@@ -246,32 +245,35 @@ def _write(context, filepath,
 		objects = scene.objects
 
 	f = open(filepath, "wb")
-	write_file(f, objects, scene,
-		EXPORT_TRI,
-		EXPORT_NORMALS,
-		EXPORT_UV,
-		EXPORT_APPLY_MODIFIERS,
-		EXPORT_GLOBAL_MATRIX,
+	write_file(f
+		, objects
+		, scene
+		, EXPORT_TRI
+		, EXPORT_NORMALS
+		, EXPORT_UV
+		, EXPORT_APPLY_MODIFIERS
 	)
 	f.close()
 
-def save(operator, context, filepath="",
-	use_triangles=False,
-	use_normals=False,
-	use_uvs=True,
-	use_mesh_modifiers=True,
-	use_selection=True,
-	use_animation=False,
-	global_matrix=None,
+def save(operator
+	, context
+	, filepath=""
+	, use_triangles=False
+	, use_normals=False
+	, use_uvs=True
+	, use_mesh_modifiers=True
+	, use_selection=True
+	, use_animation=False
+	, global_matrix=None
 	):
 
-	_write(context, filepath,
-		EXPORT_TRI=use_triangles,
-		EXPORT_NORMALS=use_normals,
-		EXPORT_UV=use_uvs,
-		EXPORT_APPLY_MODIFIERS=use_mesh_modifiers,
-		EXPORT_SEL_ONLY=use_selection,
-		EXPORT_GLOBAL_MATRIX=global_matrix,
+	_write(context
+		, filepath
+		, EXPORT_TRI=use_triangles
+		, EXPORT_NORMALS=use_normals
+		, EXPORT_UV=use_uvs
+		, EXPORT_APPLY_MODIFIERS=use_mesh_modifiers
+		, EXPORT_SEL_ONLY=use_selection
 		)
 
 	return {'FINISHED'}
@@ -287,60 +289,50 @@ class MyExporter(bpy.types.Operator, ExportHelper):
 	bl_options = {'PRESET'}
 
 	filename_ext = ".mesh"
-	filter_glob = StringProperty(
-		default="*.mesh;",
-		options={'HIDDEN'},
+	filter_glob = StringProperty(default="*.mesh;"
+		, options={'HIDDEN'}
 		)
 
-	use_selection = BoolProperty(
-		name="Selection Only",
-		description="Export selected objects only",
-		default=False,
+	use_selection = BoolProperty(name="Selection Only"
+		, description="Export selected objects only"
+		, default=False
 		)
 
-	use_mesh_modifiers = BoolProperty(
-		name="Apply Modifiers",
-		description="Apply modifiers (preview resolution)",
-		default=True,
+	use_mesh_modifiers = BoolProperty(name="Apply Modifiers"
+		, description="Apply modifiers (preview resolution)"
+		, default=True
 		)
 
-	use_normals = BoolProperty(
-		name="Include Normals",
-		description="",
-		default=True,
+	use_normals = BoolProperty(name="Include Normals"
+		, description=""
+		, default=True
 		)
 
-	use_uvs = BoolProperty(
-		name="Include UVs",
-		description="Write out the active UV coordinates",
-		default=True,
+	use_uvs = BoolProperty(name="Include UVs"
+		, description="Write out the active UV coordinates"
+		, default=True
 		)
 
-	use_triangles = BoolProperty(
-		name="Triangulate Faces",
-		description="Convert all faces to triangles",
-		default=True,
+	use_triangles = BoolProperty(name="Triangulate Faces"
+		, description="Convert all faces to triangles"
+		, default=True
 		)
 
-	global_scale = FloatProperty(
-		name="Scale",
-		min=0.01, max=1000.0,
-		default=1.0,
+	global_scale = FloatProperty(name="Scale"
+		, min=0.01
+		, max=1000.0
+		, default=1.0
 		)
 
 	def execute(self, context):
 		from mathutils import Matrix
-		keywords = self.as_keywords(ignore=("axis_forward",
-					"axis_up",
-					"global_scale",
-					"check_existing",
-					"filter_glob",
-					))
+		keywords = self.as_keywords(ignore=("axis_forward"
+			, "axis_up"
+			, "global_scale"
+			, "check_existing"
+			, "filter_glob"
+			))
 
-		scale_mt = Matrix.Scale(self.global_scale, 4)
-		global_matrix = (scale_mt * axis_conversion(to_forward='Z', to_up='Y').to_4x4())
-
-		keywords["global_matrix"] = global_matrix
 		return save(self, context, **keywords)
 
 def menu_func_export(self, context):
