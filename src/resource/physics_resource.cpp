@@ -92,96 +92,32 @@ namespace physics_resource
 		return buf;
 	}
 
-	void compile_sphere(const char* mesh, ColliderDesc& sd)
+	void compile_sphere(const Array<Vector3>& points, ColliderDesc& sd)
 	{
-		TempAllocator4096 ta;
-		JsonObject obj(ta);
-		sjson::parse(mesh, obj);
-		JsonArray pos(ta);
-		sjson::parse_array(obj["position"], pos);
-
-		Array<f32> positions(default_allocator());
-		for (u32 i = 0; i < array::size(pos); ++i)
-			array::push_back(positions, sjson::parse_float(pos[i]));
-
 		Sphere sphere;
 		sphere::reset(sphere);
-		sphere::add_points(sphere
-			, array::size(positions) / 3
-			, sizeof(Vector3)
-			, array::begin(positions)
-			);
+		sphere::add_points(sphere, array::size(points), array::begin(points));
 
 		sd.sphere.radius = sphere.r;
 	}
 
-	void compile_capsule(const char* mesh, ColliderDesc& sd)
+	void compile_capsule(const Array<Vector3>& points, ColliderDesc& sd)
 	{
-		TempAllocator4096 ta;
-		JsonObject obj(ta);
-		sjson::parse(mesh, obj);
-		JsonArray pos(ta);
-		sjson::parse_array(obj["position"], pos);
-
-		Array<f32> positions(default_allocator());
-		for (u32 i = 0; i < array::size(pos); ++i)
-			array::push_back(positions, sjson::parse_float(pos[i]));
-
 		AABB aabb;
 		aabb::reset(aabb);
-		aabb::add_points(aabb
-			, array::size(positions) / 3
-			, sizeof(Vector3)
-			, array::begin(positions)
-			);
+		aabb::add_points(aabb, array::size(points), array::begin(points));
 
 		sd.capsule.radius = aabb::radius(aabb) / 2.0f;
 		sd.capsule.height = (aabb.max.y - aabb.min.y) / 2.0f;
 	}
 
-	void compile_box(const char* mesh, ColliderDesc& sd)
+	void compile_box(const Array<Vector3>& points, ColliderDesc& sd)
 	{
-		TempAllocator4096 ta;
-		JsonObject obj(ta);
-		sjson::parse(mesh, obj);
-		JsonArray pos(ta);
-		sjson::parse_array(obj["position"], pos);
-
-		Array<f32> positions(default_allocator());
-		for (u32 i = 0; i < array::size(pos); ++i)
-			array::push_back(positions, sjson::parse_float(pos[i]));
-
 		AABB aabb;
 		aabb::reset(aabb);
-		aabb::add_points(aabb
-			, array::size(positions) / 3
-			, sizeof(Vector3)
-			, array::begin(positions)
-			);
+		aabb::add_points(aabb, array::size(points), array::begin(points));
 
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
-	}
-
-	void compile_convex_hull(const char* mesh, Array<Vector3>& mesh_data)
-	{
-		TempAllocator4096 ta;
-		JsonObject obj(ta);
-		sjson::parse(mesh, obj);
-		JsonArray pos(ta);
-		sjson::parse_array(obj["position"], pos);
-
-		Array<f32> positions(default_allocator());
-		for (u32 i = 0; i < array::size(pos); ++i)
-			array::push_back(positions, sjson::parse_float(pos[i]));
-
-		for (u32 i = 0; i < array::size(positions); i += 3)
-		{
-			Vector3 pos;
-			pos.x = positions[i + 0];
-			pos.y = positions[i + 1];
-			pos.z = positions[i + 2];
-			array::push_back(mesh_data, pos);
-		}
 	}
 
 	Buffer compile_collider(const char* json, CompileOptions& opts)
@@ -207,6 +143,7 @@ namespace physics_resource
 		cd.local_tm    = MATRIX4X4_IDENTITY;
 		cd.size        = 0;
 
+		// Parse .mesh
 		DynamicString scene(ta);
 		DynamicString name(ta);
 		sjson::parse_string(obj["scene"], scene);
@@ -217,25 +154,37 @@ namespace physics_resource
 		Buffer file = opts.read(scene.c_str());
 		JsonObject json_mesh(ta);
 		JsonObject geometries(ta);
+		JsonObject geometry(ta);
 		JsonObject nodes(ta);
 		JsonObject node(ta);
 		sjson::parse(file, json_mesh);
 		sjson::parse(json_mesh["geometries"], geometries);
+		sjson::parse(geometries[name.c_str()], geometry);
 		sjson::parse(json_mesh["nodes"], nodes);
 		sjson::parse(nodes[name.c_str()], node);
-		const char* mesh = geometries[name.c_str()];
 
 		Matrix4x4 matrix_local = sjson::parse_matrix4x4(node["matrix_local"]);
 		cd.local_tm = matrix_local;
 
-		Array<Vector3> mesh_data(default_allocator());
+		JsonArray positions(ta);
+		sjson::parse_array(geometry["position"], positions);
+
+		Array<Vector3> points(default_allocator());
+		for (u32 i = 0; i < array::size(positions); i += 3)
+		{
+			Vector3 p;
+			p.x = sjson::parse_float(positions[i + 0]);
+			p.y = sjson::parse_float(positions[i + 1]);
+			p.z = sjson::parse_float(positions[i + 2]);
+			array::push_back(points, p*matrix_local);
+		}
 
 		switch (cd.type)
 		{
-			case ColliderType::SPHERE:      compile_sphere(mesh, cd); break;
-			case ColliderType::CAPSULE:     compile_capsule(mesh, cd); break;
-			case ColliderType::BOX:         compile_box(mesh, cd); break;
-			case ColliderType::CONVEX_HULL: compile_convex_hull(mesh, mesh_data); break;
+			case ColliderType::SPHERE:      compile_sphere(points, cd); break;
+			case ColliderType::CAPSULE:     compile_capsule(points, cd); break;
+			case ColliderType::BOX:         compile_box(points, cd); break;
+			case ColliderType::CONVEX_HULL: break;
 			case ColliderType::MESH:
 			case ColliderType::HEIGHTFIELD:
 			{
@@ -244,13 +193,13 @@ namespace physics_resource
 			}
 		}
 
-		cd.size = sizeof(Vector3)*array::size(mesh_data);
+		cd.size = cd.type == ColliderType::CONVEX_HULL ? sizeof(Vector3)*array::size(points) : 0;
 
 		Buffer buf(default_allocator());
 		array::push(buf, (char*)&cd, sizeof(cd));
 
-		if (array::size(mesh_data))
-			array::push(buf, (char*)array::begin(mesh_data), sizeof(Vector3)*array::size(mesh_data));
+		if (cd.type == ColliderType::CONVEX_HULL)
+			array::push(buf, (char*)array::begin(points), sizeof(Vector3)*array::size(points));
 
 		return buf;
 	}

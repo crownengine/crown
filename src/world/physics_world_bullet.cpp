@@ -298,7 +298,7 @@ public:
 		ColliderInstance ci = first_collider(id);
 		while (is_valid(ci))
 		{
-			shape->addChildShape(to_btTransform(_collider[ci.i].local_tm), _collider[ci.i].shape);
+			shape->addChildShape(btTransform::getIdentity(), _collider[ci.i].shape);
 			ci = next_collider(ci);
 		}
 
