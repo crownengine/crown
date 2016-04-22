@@ -48,37 +48,9 @@ namespace sphere
 		return (4.0f/3.0f*PI) * (s.r*s.r*s.r);
 	}
 
-	inline void add_points(Sphere& s, u32 num, u32 stride, const void* points)
-	{
-		const char* pts = (const char*)points;
-		for (u32 i = 0; i < num; ++i, pts += stride)
-		{
-			const Vector3* p = (const Vector3*)pts;
-
-			const f32 dist = length_squared(*p - s.c);
-			if (dist > s.r*s.r)
-				s.r = sqrtf(dist);
-		}
-	}
-
 	inline void add_points(Sphere& s, u32 num, const Vector3* points)
 	{
 		add_points(s, num, sizeof(Vector3), points);
-	}
-
-	inline void add_spheres(Sphere& s, u32 num, const Sphere* spheres)
-	{
-		for (u32 i = 0; i < num; ++i)
-		{
-			const Sphere si = spheres[i];
-			const f32 dist = length_squared(si.c - s.c);
-
-			if (dist < (si.r + s.r) * (si.r + s.r))
-			{
-				if (si.r*si.r > s.r*s.r)
-					s.r = sqrtf(dist + si.r*si.r);
-			}
-		}
 	}
 
 	inline bool contains_point(const Sphere& s, const Vector3& p)
