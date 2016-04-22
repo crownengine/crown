@@ -71,6 +71,7 @@ namespace aabb
 	{
 		return length(b.max - (b.min + b.max) * 0.5f);
 	}
+
 	inline f32 volume(const AABB& b)
 	{
 		return (b.max.x - b.min.x) * (b.max.y - b.min.y) * (b.max.z - b.min.z);
