@@ -429,8 +429,19 @@ void Device::run()
 			if (!_paused)
 			{
 				_resource_manager->complete_requests();
-				_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
-				_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
+
+				{
+					const s64 t0 = os::clocktime();
+					_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
+					const s64 t1 = os::clocktime();
+					RECORD_FLOAT("lua.update", (t1 - t0)*(1.0 / freq));
+				}
+				{
+					const s64 t0 = os::clocktime();
+					_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
+					const s64 t1 = os::clocktime();
+					RECORD_FLOAT("lua.render", (t1 - t0)*(1.0 / freq));
+				}
 			}
 
 			_input_manager->update();
@@ -468,19 +479,16 @@ void Device::run()
 		display::destroy(_allocator, *_display);
 		CE_DELETE(_allocator, _bgfx_callback);
 		CE_DELETE(_allocator, _bgfx_allocator);
-
-		if (_last_log)
-		{
-			_bundle_filesystem->close(*_last_log);
-		}
-
-		CE_DELETE(_allocator, _bundle_filesystem);
 	}
-
-	CE_DELETE(_allocator, _bundle_compiler);
 
 	_console_server->shutdown();
 	CE_DELETE(_allocator, _console_server);
+	CE_DELETE(_allocator, _bundle_compiler);
+
+	if (_last_log)
+		_bundle_filesystem->close(*_last_log);
+
+	CE_DELETE(_allocator, _bundle_filesystem);
 
 	profiler_globals::shutdown();
 
