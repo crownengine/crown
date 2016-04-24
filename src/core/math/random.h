@@ -12,8 +12,12 @@ namespace crown
 /// Pseudo-random number generator.
 ///
 /// Uses LCG algorithm: fast and compatible with the standard C rand().
-struct Random
+class Random
 {
+	s32 _seed;
+
+public:
+
 	/// Initializes the generator with the given @a seed.
 	Random(s32 seed);
 
@@ -25,10 +29,6 @@ struct Random
 
 	/// Returns a pseudo-random f32 in the range [0.0, 1.0].
 	f32 unit_float();
-
-private:
-
-	s32 _seed;
 };
 
 inline Random::Random(s32 seed)
