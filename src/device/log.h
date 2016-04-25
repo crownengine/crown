@@ -10,6 +10,8 @@
 namespace crown
 {
 /// Enumerates log levels.
+///
+/// @ingroup Device
 struct LogSeverity
 {
 	enum Enum
