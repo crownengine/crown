@@ -176,6 +176,7 @@ inline Matrix4x4 matrix4x4(const Matrix3x3& r)
 	return m;
 }
 
+/// Adds the matrix @a a to @a b and returns the result.
 inline Matrix4x4& operator+=(Matrix4x4& a, const Matrix4x4& b)
 {
 	a.x += b.x;
@@ -185,6 +186,7 @@ inline Matrix4x4& operator+=(Matrix4x4& a, const Matrix4x4& b)
 	return a;
 }
 
+/// Subtracts the matrix @a b from @a a and returns the result.
 inline Matrix4x4& operator-=(Matrix4x4& a, const Matrix4x4& b)
 {
 	a.x -= b.x;
@@ -194,6 +196,7 @@ inline Matrix4x4& operator-=(Matrix4x4& a, const Matrix4x4& b)
 	return a;
 }
 
+/// Multiplies the matrix @a a by the scalar @a k and returns the result.
 inline Matrix4x4& operator*=(Matrix4x4& a, f32 k)
 {
 	a.x *= k;
@@ -203,6 +206,7 @@ inline Matrix4x4& operator*=(Matrix4x4& a, f32 k)
 	return a;
 }
 
+/// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
 inline Matrix4x4& operator*=(Matrix4x4& a, const Matrix4x4& b)
 {
 	Matrix4x4 tmp;

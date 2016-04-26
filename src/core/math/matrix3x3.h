@@ -59,6 +59,7 @@ inline Matrix3x3 matrix3x3(const Quaternion& r)
 	return m;
 }
 
+/// Adds the matrix @a a to @a b and returns the result.
 inline Matrix3x3& operator+=(Matrix3x3& a, const Matrix3x3& b)
 {
 	a.x += b.x;
@@ -67,6 +68,7 @@ inline Matrix3x3& operator+=(Matrix3x3& a, const Matrix3x3& b)
 	return a;
 }
 
+/// Subtracts the matrix @a b from @a a and returns the result.
 inline Matrix3x3& operator-=(Matrix3x3& a, const Matrix3x3& b)
 {
 	a.x -= b.x;
@@ -75,6 +77,7 @@ inline Matrix3x3& operator-=(Matrix3x3& a, const Matrix3x3& b)
 	return a;
 }
 
+/// Multiplies the matrix @a a by the scalar @a k and returns the result.
 inline Matrix3x3& operator*=(Matrix3x3& a, f32 k)
 {
 	a.x *= k;
@@ -83,6 +86,7 @@ inline Matrix3x3& operator*=(Matrix3x3& a, f32 k)
 	return a;
 }
 
+/// Multiplies the matrix @a a by @a b and returns the result. (i.e. transforms first by @a a then by @a b)
 inline Matrix3x3& operator*=(Matrix3x3& a, const Matrix3x3& b)
 {
 	Matrix3x3 tmp;
