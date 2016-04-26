@@ -10,27 +10,20 @@ namespace Crown
 {
 	public struct Vector3
 	{
-		public float x, y, z;
+		public double x, y, z;
 
-		public Vector3(float x, float y, float z)
+		public Vector3(double x, double y, double z)
 		{
 			this.x = x;
 			this.y = y;
 			this.z = z;
 		}
 
-		public Vector3(double x, double y, double z)
-		{
-			this.x = (float)x;
-			this.y = (float)y;
-			this.z = (float)z;
-		}
-
 		public Vector3(ArrayList arr)
 		{
-			this.x = (float)(double)arr[0];
-			this.y = (float)(double)arr[1];
-			this.z = (float)(double)arr[2];
+			this.x = (double)arr[0];
+			this.y = (double)arr[1];
+			this.z = (double)arr[2];
 		}
 
 		public static Vector3 operator+(Vector3 a, Vector3 b)

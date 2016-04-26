@@ -10,24 +10,18 @@ namespace Crown
 {
 	public struct Vector2
 	{
-		public float x, y;
+		public double x, y;
 
-		public Vector2(float x, float y)
+		public Vector2(double x, double y)
 		{
 			this.x = x;
 			this.y = y;
 		}
 
-		public Vector2(double x, double y)
-		{
-			this.x = (float)x;
-			this.y = (float)y;
-		}
-
 		public Vector2(ArrayList arr)
 		{
-			this.x = (float)(double)arr[0];
-			this.y = (float)(double)arr[1];
+			this.x = (double)(double)arr[0];
+			this.y = (double)(double)arr[1];
 		}
 
 		public static Vector2 operator+(Vector2 a, Vector2 b)

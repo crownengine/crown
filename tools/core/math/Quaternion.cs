@@ -10,9 +10,9 @@ namespace Crown
 {
 	public struct Quaternion
 	{
-		public float x, y, z, w;
+		public double x, y, z, w;
 
-		public Quaternion(float x, float y, float z, float w)
+		public Quaternion(double x, double y, double z, double w)
 		{
 			this.x = x;
 			this.y = y;
@@ -20,20 +20,12 @@ namespace Crown
 			this.w = w;
 		}
 
-		public Quaternion(double x, double y, double z, double w)
-		{
-			this.x = (float)x;
-			this.y = (float)y;
-			this.z = (float)z;
-			this.w = (float)w;
-		}
-
 		public Quaternion(ArrayList arr)
 		{
-			this.x = (float)(double)arr[0];
-			this.y = (float)(double)arr[1];
-			this.z = (float)(double)arr[2];
-			this.w = (float)(double)arr[3];
+			this.x = (double)arr[0];
+			this.y = (double)arr[1];
+			this.z = (double)arr[2];
+			this.w = (double)arr[3];
 		}
 
 		public Quaternion(Vector3 axis, float angle)
@@ -47,7 +39,7 @@ namespace Crown
 			this.w = ca;
 		}
 
-		public static Quaternion FromEuler(float rx, float ry, float rz)
+		public static Quaternion FromEuler(double rx, double ry, double rz)
 		{
 			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/
 			double c1 = Math.Cos(ry*0.5);

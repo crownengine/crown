@@ -9,21 +9,21 @@ namespace Crown
 {
 	public static class MathUtils
 	{
-		public static bool Fequal(float a, float b, float epsilon = 0.00001f)
+		public static bool Equal(double a, double b, double epsilon = 0.00001f)
 		{
 			return b <= (a + epsilon)
 				&& b >= (a - epsilon)
 				;
 		}
 
-		public static float Frad(float deg)
+		public static double Rad(double deg)
 		{
-			return deg * (float)Math.PI / 180.0f;
+			return deg * Math.PI / 180.0;
 		}
 
-		public static float Fdeg(float rad)
+		public static double Deg(double rad)
 		{
-			return rad * 180.0f / (float)Math.PI;
+			return rad * 180.0 / Math.PI;
 		}
 	}
 }
