@@ -23,6 +23,7 @@ inline Vector3 vector3(f32 x, f32 y, f32 z)
 	return v;
 }
 
+/// Adds the vector @a a to @a b and returns the result.
 inline Vector3& operator+=(Vector3& a, const Vector3& b)
 {
 	a.x += b.x;
@@ -31,6 +32,7 @@ inline Vector3& operator+=(Vector3& a, const Vector3& b)
 	return a;
 }
 
+/// Subtracts the vector @a b from @a a and returns the result.
 inline Vector3& operator-=(Vector3& a, const Vector3& b)
 {
 	a.x -= b.x;
@@ -39,6 +41,7 @@ inline Vector3& operator-=(Vector3& a, const Vector3& b)
 	return a;
 }
 
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
 inline Vector3& operator*=(Vector3& a, f32 k)
 {
 	a.x *= k;

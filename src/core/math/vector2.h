@@ -22,6 +22,7 @@ inline Vector2 vector2(f32 x, f32 y)
 	return v;
 }
 
+/// Adds the vector @a a to @a b and returns the result.
 inline Vector2& operator+=(Vector2& a, const Vector2& b)
 {
 	a.x += b.x;
@@ -29,6 +30,7 @@ inline Vector2& operator+=(Vector2& a, const Vector2& b)
 	return a;
 }
 
+/// Subtracts the vector @a b from @a a and returns the result.
 inline Vector2& operator-=(Vector2& a, const Vector2& b)
 {
 	a.x -= b.x;
@@ -36,6 +38,7 @@ inline Vector2& operator-=(Vector2& a, const Vector2& b)
 	return a;
 }
 
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
 inline Vector2& operator*=(Vector2& a, f32 k)
 {
 	a.x *= k;
