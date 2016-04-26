@@ -484,14 +484,14 @@ SceneGraph
 Material
 ========
 
-	**set_float** (material, variable, value)
-		Sets the material variable to the given value.
+	**set_float** (material, name, value)
+		Sets the *value* of the variable *name*.
 
-	**set_vector2** (material, variable, value)
-		Sets the material variable to the given value.
+	**set_vector2** (material, name, value)
+		Sets the *value* of the variable *name*.
 
-	**set_vector3** (material, variable, value)
-		Sets the material variable to the given value.
+	**set_vector3** (material, name, value)
+		Sets the *value* of the variable *name*.
 
 Gui
 ===
