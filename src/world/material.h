@@ -11,15 +11,24 @@
 
 namespace crown
 {
+/// Material
+///
+/// @ingroup World
 struct Material
 {
 	const MaterialResource* _resource;
 	char* _data;
 
 	void bind(ResourceManager& rm, ShaderManager& sm, u8 view = 0) const;
-	void set_float(const char* name, f32 val);
-	void set_vector2(const char* name, const Vector2& val);
-	void set_vector3(const char* name, const Vector3& val);
+
+	/// Sets the @a value of the variable @a name.
+	void set_float(StringId32 name, f32 value);
+
+	/// Sets the @a value of the variable @a name.
+	void set_vector2(StringId32 name, const Vector2& value);
+
+	/// Sets the @a value of the variable @a name.
+	void set_vector3(StringId32 name, const Vector3& value);
 };
 
 } // namespace crown

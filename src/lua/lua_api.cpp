@@ -2883,21 +2883,21 @@ static int resource_package_tostring(lua_State* L)
 static int material_set_float(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_material(1)->set_float(stack.get_string(2), stack.get_float(3));
+	stack.get_material(1)->set_float(stack.get_string_id_32(2), stack.get_float(3));
 	return 0;
 }
 
 static int material_set_vector2(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_material(1)->set_vector2(stack.get_string(2), stack.get_vector2(3));
+	stack.get_material(1)->set_vector2(stack.get_string_id_32(2), stack.get_vector2(3));
 	return 0;
 }
 
 static int material_set_vector3(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_material(1)->set_vector3(stack.get_string(2), stack.get_vector3(3));
+	stack.get_material(1)->set_vector3(stack.get_string_id_32(2), stack.get_vector3(3));
 	return 0;
 }
 

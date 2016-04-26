@@ -47,25 +47,22 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view) const
 	bgfx::submit(view, sd.program);
 }
 
-void Material::set_float(const char* name, f32 val)
+void Material::set_float(StringId32 name, f32 value)
 {
-	using namespace material_resource;
-	char* p = (char*)get_uniform_handle_by_string(_resource, name, _data);
-	*((f32*)(p + sizeof(u32))) = val;
+	char* p = (char*)material_resource::get_uniform_handle_by_name(_resource, name, _data);
+	*(f32*)(p + sizeof(u32)) = value;
 }
 
-void Material::set_vector2(const char* name, const Vector2& val)
+void Material::set_vector2(StringId32 name, const Vector2& value)
 {
-	using namespace material_resource;
-	char* p = (char*)get_uniform_handle_by_string(_resource, name, _data);
-	*((Vector2*)(p + sizeof(u32))) = val;
+	char* p = (char*)material_resource::get_uniform_handle_by_name(_resource, name, _data);
+	*(Vector2*)(p + sizeof(u32)) = value;
 }
 
-void Material::set_vector3(const char* name, const Vector3& val)
+void Material::set_vector3(StringId32 name, const Vector3& value)
 {
-	using namespace material_resource;
-	char* p = (char*)get_uniform_handle_by_string(_resource, name, _data);
-	*((Vector3*)(p + sizeof(u32))) = val;
+	char* p = (char*)material_resource::get_uniform_handle_by_name(_resource, name, _data);
+	*(Vector3*)(p + sizeof(u32)) = value;
 }
 
 } // namespace crown

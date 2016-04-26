@@ -140,8 +140,9 @@ namespace material_resource
 			array::push_back(names, '\0');
 
 			UniformData ud;
-			ud.name_offset = name_offset;
 			ud.type        = ut;
+			ud.name        = StringId32(key.data(), key.length());
+			ud.name_offset = name_offset;
 			ud.data_offset = reserve_dynamic_data(uh, dynamic);
 
 			switch (ud.type)
@@ -227,6 +228,7 @@ namespace material_resource
 		for (u32 i = 0; i < array::size(unidata); i++)
 		{
 			opts.write(unidata[i].type);
+			opts.write(unidata[i].name);
 			opts.write(unidata[i].name_offset);
 			opts.write(unidata[i].data_offset);
 		}
@@ -261,18 +263,16 @@ namespace material_resource
 		return &base[i];
 	}
 
-	UniformData* get_uniform_data_by_string(const MaterialResource* mr, const char* str)
+	UniformData* get_uniform_data_by_name(const MaterialResource* mr, StringId32 name)
 	{
 		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i)
 		{
-			UniformData* base = get_uniform_data(mr, i);
-			const char* name = get_uniform_name(mr, base);
-
-			if (strcmp(str, name) == 0)
-				return base;
+			UniformData* data = get_uniform_data(mr, i);
+			if (data->name == name)
+				return data;
 		}
 
-		CE_ASSERT(false, "Bad uniform name: '%s'", str);
+		CE_FATAL("Unknown uniform");
 		return NULL;
 	}
 
@@ -298,9 +298,9 @@ namespace material_resource
 		return (UniformHandle*) (dynamic + ud->data_offset);
 	}
 
-	UniformHandle* get_uniform_handle_by_string(const MaterialResource* mr, const char* str, char* dynamic)
+	UniformHandle* get_uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic)
 	{
-		UniformData* ud = get_uniform_data_by_string(mr, str);
+		UniformData* ud = get_uniform_data_by_name(mr, name);
 		return (UniformHandle*) (dynamic + ud->data_offset);
 	}
 

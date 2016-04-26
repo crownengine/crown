@@ -56,7 +56,8 @@ struct UniformType
 struct UniformData
 {
 	u32 type;        // UniformType::Enum
-	u32 name_offset; // Uniform name
+	StringId32 name; // Uniform name
+	u32 name_offset; // Uniform name (string)
 	u32 data_offset; // Offset into dynamic blob
 };
 
@@ -75,12 +76,12 @@ namespace material_resource
 	void unload(Allocator& a, void* res);
 
 	UniformData* get_uniform_data(const MaterialResource* mr, u32 i);
-	UniformData* get_uniform_data_by_string(const MaterialResource* mr, const char* str);
+	UniformData* get_uniform_data_by_name(const MaterialResource* mr, StringId32 name);
 	const char* get_uniform_name(const MaterialResource* mr, const UniformData* ud);
 	TextureData* get_texture_data(const MaterialResource* mr, u32 i);
 	const char* get_texture_name(const MaterialResource* mr, const TextureData* td);
 	UniformHandle* get_uniform_handle(const MaterialResource* mr, u32 i, char* dynamic);
-	UniformHandle* get_uniform_handle_by_string(const MaterialResource* mr, const char* str, char* dynamic);
+	UniformHandle* get_uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic);
 	TextureHandle* get_texture_handle(const MaterialResource* mr, u32 i, char* dynamic);
 } // namespace material_resource
 } // namespace crown
