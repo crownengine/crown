@@ -15,15 +15,14 @@ class BundleCompiler
 {
 	typedef void (*CompileFunction)(const char* path, CompileOptions& opts);
 
-	DiskFilesystem _source_fs;
-	DiskFilesystem _bundle_fs;
-
 	struct ResourceTypeData
 	{
 		u32 version;
 		CompileFunction compiler;
 	};
 
+	DiskFilesystem _source_fs;
+	DiskFilesystem _bundle_fs;
 	SortMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
