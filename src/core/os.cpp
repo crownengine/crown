@@ -8,6 +8,7 @@
 #include "string_stream.h"
 #include "temp_allocator.h"
 #include "vector.h"
+#include <string.h> // strcmp
 
 #if CROWN_PLATFORM_POSIX
 	#include <dirent.h> // opendir, readdir
