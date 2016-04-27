@@ -11,11 +11,11 @@
 #include "string_types.h"
 #include "types.h"
 #include <stdio.h>  // fputs
-#include <string.h> // memset
 
 #if CROWN_PLATFORM_POSIX
 	#include <dlfcn.h>    // dlopen, dlclose, dlsym
 	#include <errno.h>
+	#include <string.h>   // memset
 	#include <sys/stat.h> // lstat, mknod, mkdir
 	#include <sys/wait.h> // wait
 	#include <time.h>     // clock_gettime
@@ -58,7 +58,7 @@ namespace os
 	{
 #if CROWN_PLATFORM_POSIX
 		struct stat info;
-		memset(&info, 0, sizeof(struct stat));
+		memset(&info, 0, sizeof(info));
 		int err = lstat(path, &info);
 		CE_ASSERT(err == 0, "lstat: errno = %d", errno);
 		CE_UNUSED(err);
@@ -74,7 +74,7 @@ namespace os
 	{
 #if CROWN_PLATFORM_POSIX
 		struct stat info;
-		memset(&info, 0, sizeof(struct stat));
+		memset(&info, 0, sizeof(info));
 		int err = lstat(path, &info);
 		CE_ASSERT(err == 0, "lstat: errno = %d", errno);
 		CE_UNUSED(err);
@@ -90,7 +90,7 @@ namespace os
 	{
 #if CROWN_PLATFORM_POSIX
 		struct stat info;
-		memset(&info, 0, sizeof(struct stat));
+		memset(&info, 0, sizeof(info));
 		int err = lstat(path, &info);
 		CE_ASSERT(err == 0, "lstat: errno = %d", errno);
 		CE_UNUSED(err);
