@@ -169,6 +169,14 @@ namespace physics_resource
 		JsonArray positions(ta);
 		sjson::parse_array(geometry["position"], positions);
 
+		JsonObject indices(ta);
+		JsonArray indices_data(ta);
+		JsonArray position_indices(ta);
+		sjson::parse_object(geometry["indices"], indices);
+		sjson::parse_array(indices["data"], indices_data);
+		sjson::parse_array(indices_data[0], position_indices);
+
+
 		Array<Vector3> points(default_allocator());
 		for (u32 i = 0; i < array::size(positions); i += 3)
 		{
@@ -179,13 +187,19 @@ namespace physics_resource
 			array::push_back(points, p*matrix_local);
 		}
 
+		Array<u16> point_indices(default_allocator());
+		for (u32 i = 0; i < array::size(position_indices); ++i)
+		{
+			array::push_back(point_indices, (u16)sjson::parse_int(position_indices[i]));
+		}
+
 		switch (cd.type)
 		{
 			case ColliderType::SPHERE:      compile_sphere(points, cd); break;
 			case ColliderType::CAPSULE:     compile_capsule(points, cd); break;
 			case ColliderType::BOX:         compile_box(points, cd); break;
 			case ColliderType::CONVEX_HULL: break;
-			case ColliderType::MESH:
+			case ColliderType::MESH:        break;
 			case ColliderType::HEIGHTFIELD:
 			{
 				RESOURCE_COMPILER_ASSERT(false, opts, "Not implemented yet");
@@ -193,13 +207,28 @@ namespace physics_resource
 			}
 		}
 
-		cd.size = cd.type == ColliderType::CONVEX_HULL ? sizeof(Vector3)*array::size(points) : 0;
+		const u32 num_points  = array::size(points);
+		const u32 num_indices = array::size(point_indices);
+
+		const bool needs_points = cd.type == ColliderType::CONVEX_HULL
+			|| cd.type == ColliderType::MESH;
+
+		cd.size += (needs_points ? sizeof(u32) + sizeof(Vector3)*array::size(points) : 0);
+		cd.size += (cd.type == ColliderType::MESH ? sizeof(u32) + sizeof(u16)*array::size(point_indices) : 0);
 
 		Buffer buf(default_allocator());
 		array::push(buf, (char*)&cd, sizeof(cd));
 
-		if (cd.type == ColliderType::CONVEX_HULL)
+		if (needs_points)
+		{
+			array::push(buf, (char*)&num_points, sizeof(num_points));
 			array::push(buf, (char*)array::begin(points), sizeof(Vector3)*array::size(points));
+		}
+		if (cd.type == ColliderType::MESH)
+		{
+			array::push(buf, (char*)&num_indices, sizeof(num_indices));
+			array::push(buf, (char*)array::begin(point_indices), sizeof(u16)*array::size(point_indices));
+		}
 
 		return buf;
 	}
