@@ -5,28 +5,29 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E591C9C0-C1CF-43F3-92C1-7E9F3B3602B9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>core</RootNamespace>
-    <AssemblyName>core</AssemblyName>
+    <RootNamespace>Crown</RootNamespace>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\..\build\tools\</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>core_debug</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\..\build\tools\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>core</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -37,6 +38,15 @@
     <Compile Include="json\SJSON.cs" />
     <Compile Include="math\Vector2.cs" />
     <Compile Include="math\Vector3.cs" />
+    <Compile Include="ConsoleClient.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="LocalExec.cs" />
+    <Compile Include="math\Quaternion.cs" />
+    <Compile Include="EngineAPI.cs" />
+    <Compile Include="math\Matrix4x4.cs" />
+    <Compile Include="math\Vector4.cs" />
+    <Compile Include="Lua.cs" />
+    <Compile Include="math\MathUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
