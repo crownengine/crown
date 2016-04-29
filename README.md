@@ -87,7 +87,7 @@ Michele Rossi ([@mikymod](https://github.com/mikymod))
 Simone Boscaratto ([@Xed89](https://github.com/Xed89))
 
 License (Engine)
----------------------
+----------------
 
 	Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
 
