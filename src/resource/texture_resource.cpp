@@ -46,6 +46,7 @@ namespace texture_resource
 
 		DynamicString name(ta);
 		sjson::parse_string(object["source"], name);
+		RESOURCE_COMPILER_ASSERT_FILE_EXISTS(name.c_str(), opts);
 
 		const bool generate_mips = sjson::parse_bool(object["generate_mips"]);
 		const bool is_normalmap  = sjson::parse_bool(object["is_normalmap"]);
