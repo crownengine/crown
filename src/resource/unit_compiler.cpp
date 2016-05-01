@@ -116,6 +116,10 @@ static Buffer compile_mesh_renderer(const char* json, CompileOptions& opts)
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
 
+	DynamicString mesh_resource(ta);
+	sjson::parse_string(obj["mesh_resource"], mesh_resource);
+	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH, mesh_resource.c_str(), opts);
+
 	MeshRendererDesc mrd;
 	mrd.mesh_resource     = sjson::parse_resource_id(obj["mesh_resource"]);
 	mrd.geometry_name     = sjson::parse_string_id  (obj["geometry_name"]);
@@ -132,6 +136,10 @@ static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
+
+	DynamicString resource(ta);
+	sjson::parse_string(obj["resource"], resource);
+	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SPRITE, resource.c_str(), opts);
 
 	SpriteRendererDesc srd;
 	srd.sprite_resource   = sjson::parse_resource_id(obj["resource"]);
