@@ -4,7 +4,6 @@
  */
 
 using Gtk;
-using GLib;
 using System;
 
 namespace Crown
