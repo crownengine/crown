@@ -20,8 +20,8 @@ namespace Crown
 
 		public Vector2(ArrayList arr)
 		{
-			this.x = (double)(double)arr[0];
-			this.y = (double)(double)arr[1];
+			this.x = (double)arr[0];
+			this.y = (double)arr[1];
 		}
 
 		public static Vector2 operator+(Vector2 a, Vector2 b)

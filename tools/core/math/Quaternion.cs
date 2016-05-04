@@ -30,9 +30,9 @@ namespace Crown
 
 		public Quaternion(Vector3 axis, float angle)
 		{
-			float ha = angle * 0.5f;
-			float sa = (float)Math.Sin(ha);
-			float ca = (float)Math.Cos(ha);
+			double ha = angle * 0.5;
+			double sa = Math.Sin(ha);
+			double ca = Math.Cos(ha);
 			this.x = axis.x * sa;
 			this.y = axis.y * sa;
 			this.z = axis.z * sa;
