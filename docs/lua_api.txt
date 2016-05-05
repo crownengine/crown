@@ -6,8 +6,14 @@ Math
 Vector3
 -------
 
+Constructors
+~~~~~~~~~~~~
+
 	**Vector3** (x, y, z) : Vector3
 		Returns a new vector from individual elements.
+
+Functions
+~~~~~~~~~
 
 	**x** (v) : float
 		Returns the x value of the vector.
@@ -104,6 +110,9 @@ Vector3
 Vector3Box
 ----------
 
+Constructors
+~~~~~~~~~~~~
+
 	**Vector3Box** () : Vector3Box
 		Returns a new Vector3Box initialized with the zero vector.
 
@@ -112,6 +121,9 @@ Vector3Box
 
 	**Vector3Box** (x, y, z) : Vector3Box
 		Returns a new Vector3Box from individual elements.
+
+Functions
+~~~~~~~~~
 
 	**store** (v)
 		Stores the Vector3 *v* in the box.
@@ -125,11 +137,20 @@ Vector3Box
 Quaternion
 ----------
 
+Constructors
+~~~~~~~~~~~~
+
 	**Quaternion** (axis, angle) : Quaternion
 		Returns a new quaternion from *axis* and *angle*.
 
 	**from_elements** (x, y, z, w) : Quaternion
 		Returns a new quaternion from individual elements.
+
+	**from_axis_angle** (axis, angle) : Quaternion
+		Returns a new quaternion from *axis* and *angle*.
+
+Functions
+~~~~~~~~~
 
 	**negate** (q) : Quaternion
 		Negates the quaternion *q* and returns the result.
@@ -187,6 +208,9 @@ Quaternion
 QuaternionBox
 -------------
 
+Constructors
+~~~~~~~~~~~~
+
 	**QuaternionBox** () : QuaternionBox
 		Returns a new QuaternionBox initialized with the identity quaternion.
 
@@ -195,6 +219,9 @@ QuaternionBox
 
 	**QuaternionBox** (x, y, z, w) : QuaternionBox
 		Returns a new QuaternionBox from individual elements.
+
+Functions
+~~~~~~~~~
 
 	**store** (q)
 		Stores the Quaternion *q* in the box.
@@ -207,6 +234,9 @@ QuaternionBox
 
 Matrix4x4
 ---------
+
+Constructors
+~~~~~~~~~~~~
 
 	**Matrix4x4** (xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw) : Matrix4x4
 		Returns a new matrix from individual elements.
@@ -222,6 +252,9 @@ Matrix4x4
 
 	**from_axes** (x, y, z, t) : Matrix4x4
 		Returns a new matrix from *x*, *y*, *z* and *t*.
+
+Functions
+~~~~~~~~~
 
 	**copy** (m) : Matrix4x4
 		Returns a copy of the matrix *m*.
@@ -286,11 +319,17 @@ Matrix4x4
 Matrix4x4Box
 ------------
 
+Constructors
+~~~~~~~~~~~~
+
 	**Matrix4x4Box** () : Matrix4x4Box
 		Returns a new Matrix4x4Box initialized with the identity matrix.
 
 	**Matrix4x4Box** (m) : Matrix4x4Box
 		Returns a new Matrix4x4Box from the Matrix4x4 *m*.
+
+Functions
+~~~~~~~~~
 
 	**store** (m)
 		Stores the Matrix4x4 *m* in the box.
@@ -301,8 +340,14 @@ Matrix4x4Box
 Color4
 ------
 
+Constructors
+~~~~~~~~~~~~
+
 	**Color4** (r, g, b, a) : Color4
 		Returns a new Color4 from individual elements.
+
+Functions
+~~~~~~~~~
 
 	| **black** () : Color4
 	| **white** () : Color4
