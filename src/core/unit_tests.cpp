@@ -12,6 +12,7 @@
 #include "color4.h"
 #include "command_line.h"
 #include "dynamic_string.h"
+#include "hash_map.h"
 #include "json.h"
 #include "macros.h"
 #include "math_utils.h"
@@ -74,6 +75,32 @@ static void test_vector()
 		vector::push_back(v, 1);
 		ENSURE(vector::size(v) == 1);
 		ENSURE(v[0] == 1);
+	}
+	memory_globals::shutdown();
+}
+
+static void test_hash_map()
+{
+	memory_globals::init();
+	Allocator& a = default_allocator();
+	{
+		HashMap<s32, s32> m(a);
+
+		ENSURE(hash_map::get(m, 0, 42) == 42);
+		ENSURE(!hash_map::has(m, 10));
+
+		for (s32 i = 0; i < 100; ++i)
+			hash_map::set(m, i, i*i);
+		for (s32 i = 0; i < 100; ++i)
+			ENSURE(hash_map::get(m, i, 0) == i*i);
+
+		hash_map::remove(m, 20);
+		ENSURE(!hash_map::has(m, 20));
+
+		hash_map::clear(m);
+
+		for (s32 i = 0; i < 100; ++i)
+			ENSURE(!hash_map::has(m, i));
 	}
 	memory_globals::shutdown();
 }
@@ -1113,6 +1140,7 @@ static void run_unit_tests()
 	test_memory();
 	test_array();
 	test_vector();
+	test_hash_map();
 	test_vector2();
 	test_vector3();
 	test_vector4();
