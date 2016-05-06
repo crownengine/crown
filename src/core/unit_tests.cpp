@@ -86,6 +86,7 @@ static void test_hash_map()
 	{
 		HashMap<s32, s32> m(a);
 
+		ENSURE(hash_map::size(m) == 0);
 		ENSURE(hash_map::get(m, 0, 42) == 42);
 		ENSURE(!hash_map::has(m, 10));
 
