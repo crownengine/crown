@@ -111,10 +111,6 @@
 	#define CROWN_MAX_JOYPADS 4
 #endif // CROWN_MAX_JOYPADS
 
-#ifndef CE_MAX_SOUND_INSTANCES
-	#define CE_MAX_SOUND_INSTANCES 64 // Per world
-#endif // CE_MAX
-
 #ifndef CROWN_MAX_LUA_VECTOR3
 	#define CROWN_MAX_LUA_VECTOR3 8192
 #endif // CE_MAX
