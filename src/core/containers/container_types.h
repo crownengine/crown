@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "types.h"
-#include "memory_types.h"
 #include "functional.h"
+#include "memory_types.h"
 #include "pair.h"
+#include "types.h"
 
 /// @defgroup Containers Containers
 namespace crown
@@ -97,28 +97,6 @@ struct PriorityQueue
 	PriorityQueue(Allocator& a);
 };
 
-/// Hash from an u64 to POD items. If you want to use a generic key
-/// item, use a hash function to map that item to an u64.
-///
-/// @ingroup Containers
-template<typename T>
-struct Hash
-{
-	ALLOCATOR_AWARE;
-
-	struct Entry
-	{
-		u64 key;
-		u32 next;
-		T value;
-	};
-
-	Array<u32> _hash;
-	Array<Entry> _data;
-
-	Hash(Allocator &a);
-};
-
 /// Map from key to value. Uses a Vector internally, so, definitely
 /// not suited to performance-critical stuff.
 ///
@@ -149,6 +127,38 @@ struct Map
 	Vector<Node> _data;
 
 	Map(Allocator& a);
+	const TValue& operator[](const TKey& key) const;
+};
+
+/// Hash map.
+///
+/// @ingroup Containers
+template <typename TKey, typename TValue, class Hash = hash<TKey> >
+struct HashMap
+{
+	ALLOCATOR_AWARE;
+
+	struct Entry
+	{
+		ALLOCATOR_AWARE;
+
+		PAIR(TKey, TValue) pair;
+
+		Entry(Allocator& a)
+			: pair(a)
+		{
+		}
+	};
+
+	Allocator* _allocator;
+	u32 _capacity;
+	u32 _size;
+	u32 _mask;
+	u32* _hashes;
+	Entry* _data;
+
+	HashMap(Allocator& a);
+	~HashMap();
 	const TValue& operator[](const TKey& key) const;
 };
 
