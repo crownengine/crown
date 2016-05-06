@@ -9,6 +9,7 @@
 
 #include "container_types.h"
 #include <algorithm> // std::swap
+#include <new>
 #include <string.h>  // memcpy
 
 namespace crown
@@ -130,6 +131,7 @@ namespace hash_map_internal
 		}
 
 	INSERT_AND_RETURN:
+		new (m._data + hash_i) typename HashMap<TKey, TValue, Hash>::Entry(*m._allocator);
 		m._data[hash_i].pair.first = key;
 		m._data[hash_i].pair.second = value;
 		m._hashes[hash_i] = hash;
