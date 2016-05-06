@@ -199,7 +199,10 @@ namespace hash_map
 	const TValue& get(const HashMap<TKey, TValue, Hash>& m, const TKey& key, const TValue& deffault)
 	{
 		const u32 i = hash_map_internal::find(m, key);
-		return i == hash_map_internal::END_OF_LIST ? deffault : m._data[i].pair.second;
+		if (i == hash_map_internal::END_OF_LIST)
+			return deffault;
+		else
+			return m._data[i].pair.second;
 	}
 
 	template <typename TKey, typename TValue, typename Hash>
