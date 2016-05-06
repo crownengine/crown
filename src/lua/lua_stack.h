@@ -242,7 +242,7 @@ struct LuaStack
 			luaL_typerror(L, i, "UnitId");
 #endif // !CROWN_RELEASE
 		UnitId id;
-		id.decode(enc >> 2);
+		id._idx = enc >> 2;
 		return id;
 	}
 
@@ -512,7 +512,7 @@ struct LuaStack
 
 	void push_unit(UnitId id)
 	{
-		u32 encoded = (id.encode() << 2) | UNIT_MARKER;
+		u32 encoded = (id._idx << 2) | UNIT_MARKER;
 		push_pointer((void*)(uintptr_t)encoded);
 	}
 

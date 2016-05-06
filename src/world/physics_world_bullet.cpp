@@ -10,7 +10,7 @@
 #include "array.h"
 #include "color4.h"
 #include "debug_line.h"
-#include "hash.h"
+#include "hash_map.h"
 #include "log.h"
 #include "matrix4x4.h"
 #include "physics.h"
@@ -297,7 +297,7 @@ public:
 		if (is_valid(ci))
 			_collider[ci.i].next.i = last;
 		else
-			hash::set(_collider_map, id.encode(), last);
+			hash_map::set(_collider_map, id, last);
 
 		array::push_back(_collider, cid);
 		return make_collider_instance(last);
@@ -305,7 +305,7 @@ public:
 
 	ColliderInstance first_collider(UnitId id)
 	{
-		return make_collider_instance(hash::get(_collider_map, id.encode(), UINT32_MAX));
+		return make_collider_instance(hash_map::get(_collider_map, id, UINT32_MAX));
 	}
 
 	ColliderInstance next_collider(ColliderInstance i)
@@ -383,7 +383,7 @@ public:
 		aid.actor = actor;
 
 		array::push_back(_actor, aid);
-		hash::set(_actor_map, id.encode(), last);
+		hash_map::set(_actor_map, id, last);
 
 		return make_actor_instance(last);
 	}
@@ -404,13 +404,13 @@ public:
 
 		array::pop_back(_actor);
 
-		hash::set(_actor_map, last_u.encode(), i.i);
-		hash::remove(_actor_map, u.encode());
+		hash_map::set(_actor_map, last_u, i.i);
+		hash_map::remove(_actor_map, u);
 	}
 
 	ActorInstance actor(UnitId id)
 	{
-		return make_actor_instance(hash::get(_actor_map, id.encode(), UINT32_MAX));
+		return make_actor_instance(hash_map::get(_actor_map, id, UINT32_MAX));
 	}
 
 	Vector3 actor_world_position(ActorInstance i) const
@@ -628,7 +628,7 @@ public:
 
 	ControllerInstance controller(UnitId id)
 	{
-		return make_controller_instance(hash::get(_controller_map, id.encode(), UINT32_MAX));
+		return make_controller_instance(hash_map::get(_controller_map, id, UINT32_MAX));
 	}
 
 	void move_controller(ControllerInstance i, const Vector3& dir)
@@ -803,7 +803,7 @@ public:
 	{
 		for (; begin != end; ++begin, ++begin_world)
 		{
-			const u32 ai = hash::get(_actor_map, begin->encode(), UINT32_MAX);
+			const u32 ai = hash_map::get(_actor_map, *begin, UINT32_MAX);
 			if (ai == UINT32_MAX)
 				continue;
 
@@ -1000,9 +1000,9 @@ private:
 	Allocator* _allocator;
 	UnitManager* _unit_manager;
 
-	Hash<u32> _collider_map;
-	Hash<u32> _actor_map;
-	Hash<u32> _controller_map;
+	HashMap<UnitId, u32> _collider_map;
+	HashMap<UnitId, u32> _actor_map;
+	HashMap<UnitId, u32> _controller_map;
 	Array<ColliderInstanceData> _collider;
 	Array<ActorInstanceData> _actor;
 	Array<ControllerInstanceData> _controller;

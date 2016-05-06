@@ -65,7 +65,7 @@ class World
 	Array<UnitId> _units;
 	Array<Level*> _levels;
 	Array<Camera> _camera;
-	Hash<u32> _camera_map;
+	HashMap<UnitId, u32> _camera_map;
 
 	EventStream _events;
 

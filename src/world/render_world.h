@@ -140,7 +140,7 @@ private:
 		};
 
 		Allocator* _allocator;
-		Hash<u32> _map;
+		HashMap<UnitId, u32> _map;
 		MeshInstanceData _data;
 
 		MeshManager(Allocator& a)
@@ -194,7 +194,7 @@ private:
 		};
 
 		Allocator* _allocator;
-		Hash<u32> _map;
+		HashMap<UnitId, u32> _map;
 		SpriteInstanceData _data;
 
 		SpriteManager(Allocator& a)
@@ -239,7 +239,7 @@ private:
 		};
 
 		Allocator* _allocator;
-		Hash<u32> _map;
+		HashMap<UnitId, u32> _map;
 		LightInstanceData _data;
 
 		LightManager(Allocator& a)

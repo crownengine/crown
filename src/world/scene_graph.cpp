@@ -5,7 +5,7 @@
 
 #include "allocator.h"
 #include "array.h"
-#include "hash.h"
+#include "hash_map.h"
 #include "matrix3x3.h"
 #include "matrix4x4.h"
 #include "quaternion.h"
@@ -101,7 +101,7 @@ TransformInstance SceneGraph::create(UnitId id, const Vector3& pos, const Quater
 
 TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& pose)
 {
-	CE_ASSERT(!hash::has(_map, id.encode()), "Unit already has transform");
+	CE_ASSERT(!hash_map::has(_map, id), "Unit already has transform");
 
 	if (_data.capacity == _data.size)
 		grow();
@@ -119,7 +119,7 @@ TransformInstance SceneGraph::create(UnitId id, const Matrix4x4& pose)
 
 	++_data.size;
 
-	hash::set(_map, id.encode(), last);
+	hash_map::set(_map, id, last);
 
 	return make_instance(last);
 }
@@ -141,15 +141,15 @@ void SceneGraph::destroy(TransformInstance i)
 	_data.prev_sibling[i.i] = _data.prev_sibling[last];
 	_data.changed[i.i]      = _data.changed[last];
 
-	hash::set(_map, last_u.encode(), i.i);
-	hash::remove(_map, u.encode());
+	hash_map::set(_map, last_u, i.i);
+	hash_map::remove(_map, u);
 
 	--_data.size;
 }
 
 TransformInstance SceneGraph::get(UnitId id)
 {
-	return make_instance(hash::get(_map, id.encode(), UINT32_MAX));
+	return make_instance(hash_map::get(_map, id, UINT32_MAX));
 }
 
 void SceneGraph::set_local_position(TransformInstance i, const Vector3& pos)

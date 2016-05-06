@@ -62,7 +62,7 @@ struct SceneGraph
 
 	Allocator& _allocator;
 	InstanceData _data;
-	Hash<u32> _map;
+	HashMap<UnitId, u32> _map;
 
 	void grow();
 	void allocate(u32 num);

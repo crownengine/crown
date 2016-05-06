@@ -6,7 +6,7 @@
 #include "aabb.h"
 #include "color4.h"
 #include "debug_line.h"
-#include "hash.h"
+#include "hash_map.h"
 #include "intersection.h"
 #include "material.h"
 #include "material_manager.h"
@@ -458,7 +458,7 @@ MeshInstance RenderWorld::MeshManager::create(UnitId id, const MeshResource* mr,
 	MeshInstance curr = first(id);
 	if (!is_valid(curr))
 	{
-		hash::set(_map, id.encode(), last);
+		hash_map::set(_map, id, last);
 	}
 	else
 	{
@@ -501,7 +501,7 @@ bool RenderWorld::MeshManager::has(UnitId id)
 
 MeshInstance RenderWorld::MeshManager::first(UnitId id)
 {
-	return make_instance(hash::get(_map, id.encode(), UINT32_MAX));
+	return make_instance(hash_map::get(_map, id, UINT32_MAX));
 }
 
 MeshInstance RenderWorld::MeshManager::next(MeshInstance i)
@@ -550,9 +550,9 @@ void RenderWorld::MeshManager::remove_node(MeshInstance first, MeshInstance i)
 	if (i.i == first.i)
 	{
 		if (!is_valid(next(i)))
-			hash::set(_map, u.encode(), UINT32_MAX);
+			hash_map::set(_map, u, UINT32_MAX);
 		else
-			hash::set(_map, u.encode(), next(i).i);
+			hash_map::set(_map, u, next(i).i);
 	}
 	else
 	{
@@ -571,7 +571,7 @@ void RenderWorld::MeshManager::swap_node(MeshInstance a, MeshInstance b)
 
 	if (a.i == first_i.i)
 	{
-		hash::set(_map, u.encode(), b.i);
+		hash_map::set(_map, u, b.i);
 	}
 	else
 	{
@@ -657,7 +657,7 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResourc
 	SpriteInstance curr = first(id);
 	if (!is_valid(curr))
 	{
-		hash::set(_map, id.encode(), last);
+		hash_map::set(_map, id, last);
 	}
 	else
 	{
@@ -700,7 +700,7 @@ bool RenderWorld::SpriteManager::has(UnitId id)
 
 SpriteInstance RenderWorld::SpriteManager::first(UnitId id)
 {
-	return make_instance(hash::get(_map, id.encode(), UINT32_MAX));
+	return make_instance(hash_map::get(_map, id, UINT32_MAX));
 }
 
 SpriteInstance RenderWorld::SpriteManager::next(SpriteInstance i)
@@ -749,9 +749,9 @@ void RenderWorld::SpriteManager::remove_node(SpriteInstance first, SpriteInstanc
 	if (i.i == first.i)
 	{
 		if (!is_valid(next(i)))
-			hash::set(_map, u.encode(), UINT32_MAX);
+			hash_map::set(_map, u, UINT32_MAX);
 		else
-			hash::set(_map, u.encode(), next(i).i);
+			hash_map::set(_map, u, next(i).i);
 	}
 	else
 	{
@@ -770,7 +770,7 @@ void RenderWorld::SpriteManager::swap_node(SpriteInstance a, SpriteInstance b)
 
 	if (a.i == first_i.i)
 	{
-		hash::set(_map, u.encode(), b.i);
+		hash_map::set(_map, u, b.i);
 	}
 	else
 	{
@@ -830,7 +830,7 @@ void RenderWorld::LightManager::grow()
 
 LightInstance RenderWorld::LightManager::create(UnitId id, const LightDesc& ld, const Matrix4x4& tr)
 {
-	CE_ASSERT(!hash::has(_map, id.encode()), "Unit already has light");
+	CE_ASSERT(!hash_map::has(_map, id), "Unit already has light");
 
 	if (_data.size == _data.capacity)
 		grow();
@@ -847,7 +847,7 @@ LightInstance RenderWorld::LightManager::create(UnitId id, const LightDesc& ld, 
 
 	++_data.size;
 
-	hash::set(_map, id.encode(), last);
+	hash_map::set(_map, id, last);
 	return make_instance(last);
 }
 
@@ -869,8 +869,8 @@ void RenderWorld::LightManager::destroy(LightInstance i)
 
 	--_data.size;
 
-	hash::set(_map, last_u.encode(), i.i);
-	hash::remove(_map, u.encode());
+	hash_map::set(_map, last_u, i.i);
+	hash_map::remove(_map, u);
 }
 
 bool RenderWorld::LightManager::has(UnitId id)
@@ -880,7 +880,7 @@ bool RenderWorld::LightManager::has(UnitId id)
 
 LightInstance RenderWorld::LightManager::light(UnitId id)
 {
-	return make_instance(hash::get(_map, id.encode(), UINT32_MAX));
+	return make_instance(hash_map::get(_map, id, UINT32_MAX));
 }
 
 void RenderWorld::LightManager::destroy()

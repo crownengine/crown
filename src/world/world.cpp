@@ -6,7 +6,7 @@
 #include "debug_line.h"
 #include "error.h"
 #include "gui.h"
-#include "hash.h"
+#include "hash_map.h"
 #include "level.h"
 #include "lua_environment.h"
 #include "matrix4x4.h"
@@ -206,7 +206,7 @@ CameraInstance World::create_camera(UnitId id, const CameraDesc& cd)
 	const u32 last = array::size(_camera);
 	array::push_back(_camera, camera);
 
-	hash::set(_camera_map, id.encode(), last);
+	hash_map::set(_camera_map, id, last);
 	return make_camera_instance(last);
 }
 
@@ -218,13 +218,13 @@ void World::destroy_camera(CameraInstance i)
 
 	_camera[i.i] = _camera[last];
 
-	hash::set(_camera_map, last_u.encode(), i.i);
-	hash::remove(_camera_map, u.encode());
+	hash_map::set(_camera_map, last_u, i.i);
+	hash_map::remove(_camera_map, u);
 }
 
 CameraInstance World::camera(UnitId id)
 {
-	return make_camera_instance(hash::get(_camera_map, id.encode(), UINT32_MAX));
+	return make_camera_instance(hash_map::get(_camera_map, id, UINT32_MAX));
 }
 
 void World::set_camera_projection_type(CameraInstance i, ProjectionType::Enum type)

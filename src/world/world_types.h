@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "functional.h"
 #include "math_types.h"
 #include "string_id.h"
 #include "types.h"
@@ -227,16 +228,6 @@ struct UnitId
 		return (_idx >> UNIT_INDEX_BITS) & UNIT_ID_MASK;
 	}
 
-	u32 encode() const
-	{
-		return _idx;
-	}
-
-	void decode(u32 id)
-	{
-		_idx = id;
-	}
-
 	bool is_valid()
 	{
 		return _idx != UINT32_MAX;
@@ -249,6 +240,15 @@ inline bool operator==(const UnitId& a, const UnitId& b)
 }
 
 const UnitId UNIT_INVALID = { UINT32_MAX };
+
+template <>
+struct hash<UnitId>
+{
+	u32 operator()(const UnitId& id) const
+	{
+		return id._idx;
+	}
+};
 
 struct TransformInstance
 {
