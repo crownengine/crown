@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui>
+	<menubar name="menubar">
+		<menu action="menu-file">
+			<menuitem action="new"></menuitem>
+			<menuitem action="open"></menuitem>
+			<menuitem action="save"></menuitem>
+			<menuitem action="save-as"></menuitem>
+			<separator></separator>
+			<menuitem action="quit"></menuitem>
+		</menu>
+		<menu action="menu-edit">
+			<menuitem action="undo"></menuitem>
+			<menuitem action="redo"></menuitem>
+			<separator></separator>
+			<menuitem action="duplicate"></menuitem>
+			<menuitem action="delete"></menuitem>
+			<separator></separator>
+			<menuitem action="place"></menuitem>
+			<menuitem action="move"></menuitem>
+			<menuitem action="rotate"></menuitem>
+			<menuitem action="scale"></menuitem>
+			<separator></separator>
+			<menuitem action="snap-relative"></menuitem>
+			<menuitem action="snap-absolute"></menuitem>
+			<separator></separator>
+			<menuitem action="reference-system-local"></menuitem>
+			<menuitem action="reference-system-world"></menuitem>
+			<separator></separator>
+			<menuitem action="snap-to-grid"></menuitem>
+			<separator></separator>
+			<menu action="menu-grid">
+				<menuitem action="grid-show"></menuitem>
+				<separator></separator>
+				<menuitem action="grid-custom"></menuitem>
+				<separator></separator>
+				<menuitem action="grid-0.1"></menuitem>
+				<menuitem action="grid-0.2"></menuitem>
+				<menuitem action="grid-0.5"></menuitem>
+				<menuitem action="grid-1"></menuitem>
+				<menuitem action="grid-2"></menuitem>
+				<menuitem action="grid-5"></menuitem>
+			</menu>
+			<menu action="menu-rotation-snap">
+				<menuitem action="rotation-snap-custom"></menuitem>
+				<separator></separator>
+				<menuitem action="rotation-snap-1"></menuitem>
+				<menuitem action="rotation-snap-15"></menuitem>
+				<menuitem action="rotation-snap-30"></menuitem>
+				<menuitem action="rotation-snap-45"></menuitem>
+				<menuitem action="rotation-snap-90"></menuitem>
+				<menuitem action="rotation-snap-180"></menuitem>
+			</menu>
+		</menu>
+		<menu action="menu-create">
+			<menu action="menu-primitives">
+				<menuitem action="primitive-cube"></menuitem>
+				<menuitem action="primitive-sphere"></menuitem>
+				<menuitem action="primitive-cone"></menuitem>
+				<menuitem action="primitive-cylinder"></menuitem>
+				<menuitem action="primitive-plane"></menuitem>
+			</menu>
+			<menuitem action="camera"></menuitem>
+			<menuitem action="light"></menuitem>
+		</menu>
+		<menu action="menu-view">
+			<menuitem action="resource-browser"></menuitem>
+			<separator></separator>
+			<menuitem action="debug-render-world"></menuitem>
+			<menuitem action="debug-physics-world"></menuitem>
+		</menu>
+		<menu action="menu-engine">
+			<menuitem action="restart"></menuitem>
+			<separator></separator>
+			<menuitem action="reload-lua"></menuitem>
+		</menu>
+		<menu action="menu-run">
+			<menuitem action="game-run"></menuitem>
+		</menu>
+		<menu action="menu-help">
+			<menuitem action="manual"></menuitem>
+			<menuitem action="report-issue"></menuitem>
+			<separator></separator>
+			<menuitem action="open-last-log"></menuitem>
+			<separator></separator>
+			<menuitem action="about"></menuitem>
+		</menu>
+	</menubar>
+	<toolbar name="toolbar">
+		<toolitem action="place"></toolitem>
+		<toolitem action="move"></toolitem>
+		<toolitem action="rotate"></toolitem>
+		<toolitem action="scale"></toolitem>
+		<separator></separator>
+		<toolitem action="snap-relative"></toolitem>
+		<toolitem action="snap-absolute"></toolitem>
+		<separator></separator>
+		<toolitem action="reference-system-local"></toolitem>
+		<toolitem action="reference-system-world"></toolitem>
+		<separator></separator>
+		<toolitem action="snap-to-grid"></toolitem>
+		<separator></separator>
+		<toolitem action="game-run"></toolitem>
+	</toolbar>
+</ui>
