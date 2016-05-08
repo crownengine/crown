@@ -10,7 +10,7 @@ namespace Crown
 	/// <summary>
 	/// Vector4 spin button.
 	/// </summary>
-	public class SpinButtonVector4 : Gtk.HBox
+	public class SpinButtonVector4 : Gtk.Box
 	{
 		// Data
 		private bool _stop_emit;
@@ -44,6 +44,8 @@ namespace Crown
 
 		public SpinButtonVector4(Vector4 xyz, Vector4 min, Vector4 max)
 		{
+			Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
+
 			// Data
 			_stop_emit = false;
 

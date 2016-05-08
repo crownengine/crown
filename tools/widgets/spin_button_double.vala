@@ -38,6 +38,8 @@ namespace Crown
 
 		public SpinButtonDouble(double x, double min, double max)
 		{
+			this.hexpand = true;
+
 			// Data
 			_stop_emit = false;
 
