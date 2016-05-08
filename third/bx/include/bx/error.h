@@ -14,10 +14,13 @@
 				_ptr->setError(_result,  "" _msg); \
 			BX_MACRO_BLOCK_END
 
+#define BX_ERROR_USE_TEMP_WHEN_NULL(_ptr) \
+			const bx::Error tmpError; /* It should not be used directly! */ \
+			_ptr = NULL == _ptr ? const_cast<bx::Error*>(&tmpError) : _ptr
+
 #define BX_ERROR_SCOPE(_ptr) \
-			const bx::Error tmpError /* It should not be used directly! */; \
-			_ptr = NULL == _ptr ? const_cast<bx::Error*>(&tmpError) : _ptr; \
-			bx::ErrorScope bxErrorScope(const_cast<bx::Error*>(&tmpError))
+			BX_ERROR_USE_TEMP_WHEN_NULL(_ptr); \
+			bx::ErrorScope bxErrorScope(const_cast<bx::Error*>(&tmpError) )
 
 #define BX_ERROR_RESULT(_err, _code) \
 			BX_STATIC_ASSERT(_code != 0, "ErrorCode 0 is reserved!"); \

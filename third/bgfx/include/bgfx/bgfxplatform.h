@@ -91,11 +91,14 @@ namespace bgfx
 	/// @param[in] _handle Texture handle.
 	/// @param[in] _ptr Native API pointer to texture.
 	///
+	/// @returns Native API pointer to texture. If result is 0, texture is not created yet from the
+	///   main thread.
+	///
 	/// @warning Must be called only on render thread.
 	///
 	/// @attention C99 equivalent is `bgfx_override_internal_texture_ptr`.
 	///
-	void overrideInternal(TextureHandle _handle, uintptr_t _ptr);
+	uintptr_t overrideInternal(TextureHandle _handle, uintptr_t _ptr);
 
 	/// Override internal texture by creating new texture. Previously created
 	/// internal texture will released.
@@ -115,7 +118,8 @@ namespace bgfx
 	///   - `BGFX_TEXTURE_[MIN/MAG/MIP]_[POINT/ANISOTROPIC]` - Point or anisotropic
 	///     sampling.
 	///
-	/// @returns Native API pointer to texture.
+	/// @returns Native API pointer to texture. If result is 0, texture is not created yet from the
+	///   main thread.
 	///
 	/// @warning Must be called only on render thread.
 	///
@@ -228,7 +232,7 @@ namespace bgfx
 
 } // namespace bgfx
 
-#elif BX_PLATFORM_WINRT
+#elif BX_PLATFORM_XBOXONE || BX_PLATFORM_WINRT
 #   include <Unknwn.h>
 
 namespace bgfx
@@ -275,6 +279,9 @@ namespace bgfx
 #	elif BX_PLATFORM_WINDOWS
 		pd.ndt          = NULL;
 		pd.nwh          = wmi.info.win.window;
+#	elif BX_PLATFORM_STEAMLINK
+		pd.ndt          = wmi.info.vivante.display;
+		pd.nwh          = wmi.info.vivante.window;
 #	endif // BX_PLATFORM_
 		pd.context      = NULL;
 		pd.backBuffer   = NULL;
