@@ -10,14 +10,14 @@ namespace Crown
 	/// <summary>
 	/// Vector2 spin button.
 	/// </summary>
-	public class Vector2SpinButton : Gtk.HBox
+	public class SpinButtonVector2 : Gtk.HBox
 	{
 		// Data
 		private bool _stop_emit;
 
 		// Widgets
-		private DoubleSpinButton _x;
-		private DoubleSpinButton _y;
+		private SpinButtonDouble _x;
+		private SpinButtonDouble _y;
 
 		public Vector2 value
 		{
@@ -38,14 +38,14 @@ namespace Crown
 		// Events
 		public signal void value_changed();
 
-		public Vector2SpinButton(Vector2 xyz, Vector2 min, Vector2 max)
+		public SpinButtonVector2(Vector2 xyz, Vector2 min, Vector2 max)
 		{
 			// Data
 			_stop_emit = false;
 
 			// Widgets
-			_x = new DoubleSpinButton(xyz.x, min.x, max.x);
-			_y = new DoubleSpinButton(xyz.y, min.y, max.y);
+			_x = new SpinButtonDouble(xyz.x, min.x, max.x);
+			_y = new SpinButtonDouble(xyz.y, min.y, max.y);
 
 			_x.value_changed.connect(on_value_changed);
 			_y.value_changed.connect(on_value_changed);

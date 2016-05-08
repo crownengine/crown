@@ -10,29 +10,32 @@ namespace Crown
 	/// <summary>
 	/// Vector3 spin button.
 	/// </summary>
-	public class Vector3SpinButton : Gtk.HBox
+	public class SpinButtonRotation : Gtk.HBox
 	{
 		// Data
 		private bool _stop_emit;
 
 		// Widgets
-		private DoubleSpinButton _x;
-		private DoubleSpinButton _y;
-		private DoubleSpinButton _z;
+		private SpinButtonDouble _x;
+		private SpinButtonDouble _y;
+		private SpinButtonDouble _z;
 
-		public Vector3 value
+		public Quaternion value
 		{
 			get
 			{
-				return Vector3(_x.value, _y.value, _z.value);
+				double x = MathUtils.rad(_x.value);
+				double y = MathUtils.rad(_y.value);
+				double z = MathUtils.rad(_z.value);
+				return Quaternion.from_euler(x, y, z);
 			}
 			set
 			{
 				_stop_emit = true;
-				Vector3 val = (Vector3)value;
-				_x.value = val.x;
-				_y.value = val.y;
-				_z.value = val.z;
+				Vector3 euler = ((Quaternion)value).to_euler();
+				_x.value = MathUtils.deg(euler.x);
+				_y.value = MathUtils.deg(euler.y);
+				_z.value = MathUtils.deg(euler.z);
 				_stop_emit = false;
 			}
 		}
@@ -40,15 +43,15 @@ namespace Crown
 		// Events
 		public signal void value_changed();
 
-		public Vector3SpinButton(Vector3 xyz, Vector3 min, Vector3 max)
+		public SpinButtonRotation(Vector3 xyz)
 		{
 			// Data
 			_stop_emit = false;
 
 			// Widgets
-			_x = new DoubleSpinButton(xyz.x, min.x, max.x);
-			_y = new DoubleSpinButton(xyz.y, min.y, max.y);
-			_z = new DoubleSpinButton(xyz.z, min.z, max.z);
+			_x = new SpinButtonDouble(xyz.x, -180.0, 180.0);
+			_y = new SpinButtonDouble(xyz.y, -180.0, 180.0);
+			_z = new SpinButtonDouble(xyz.z, -180.0, 180.0);
 
 			_x.value_changed.connect(on_value_changed);
 			_y.value_changed.connect(on_value_changed);

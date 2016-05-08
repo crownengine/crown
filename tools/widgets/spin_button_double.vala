@@ -11,7 +11,7 @@ namespace Crown
 	/// <summary>
 	/// Double spin button.
 	/// </summary>
-	public class DoubleSpinButton : Gtk.Bin
+	public class SpinButtonDouble : Gtk.Bin
 	{
 		// Data
 		private bool _stop_emit;
@@ -36,7 +36,7 @@ namespace Crown
 		// Events
 		public signal void value_changed();
 
-		public DoubleSpinButton(double x, double min, double max)
+		public SpinButtonDouble(double x, double min, double max)
 		{
 			// Data
 			_stop_emit = false;
