@@ -11,14 +11,9 @@ project "bullet"
 
 	includedirs {
 		BULLET_DIR .. "src",
-		BULLET_DIR .. "src/Bullet3OpenCL",
-		BULLET_DIR .. "src/clew",
 	}
 
 	configuration { "linux-*" }
-		defines {
-			"B3_USE_CLEW",
-		}
 		buildoptions {
 			"-Wno-unused-parameter",
 			"-Wno-unused-variable",
@@ -30,10 +25,6 @@ project "bullet"
 		}
 		buildoptions_cpp {
 			"-Wno-reorder",
-		}
-		files {
-			BULLET_DIR .. "src/clew/*",
-			BULLET_DIR .. "src/Bullet3OpenCL/**.cpp",
 		}
 
 	configuration { "vs*" }
