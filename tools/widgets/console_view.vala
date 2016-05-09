@@ -77,13 +77,13 @@ namespace Crown
 
 			// // Create tags for color-formatted text
 			Gtk.TextTag tag_info = new Gtk.TextTag("info");
-			tag_info.background_rgba = { 1.0, 1.0, 1.0, 0.0 };
+			tag_info.foreground_rgba = { 1.0, 1.0, 1.0, 1.0 };
 			Gtk.TextTag tag_warning = new Gtk.TextTag("warning");
-			tag_warning.background_rgba = { 1.0, 1.0, 0.6, 1.0 };
+			tag_warning.foreground_rgba = { 1.0, 1.0, 0.4, 1.0 };
 			Gtk.TextTag tag_error = new Gtk.TextTag("error");
-			tag_error.background_rgba = { 1.0, 0.6, 0.6, 1.0 };
+			tag_error.foreground_rgba = { 1.0, 0.4, 0.4, 1.0 };
 			Gtk.TextTag tag_debug = new Gtk.TextTag("debug");
-			tag_debug.background_rgba = { 0.8, 0.8, 0.8, 1.0 };
+			tag_debug.foreground_rgba = { 0.8, 0.8, 0.8, 1.0 };
 
 			Gtk.TextBuffer tb = _text_view.buffer;
 			tb.tag_table.add(tag_info);
