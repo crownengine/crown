@@ -53,6 +53,17 @@ windows-development64: windows-build
 windows-release64: windows-build
 	devenv build/projects/vs2013/crown.sln /Build "release|x64"
 
+tools-build:
+	$(GENIE) --file=genie/tools.lua gmake
+tools-debug64: tools-build
+	make -R -C build/projects config=debug
+	cp -r tools/level_editor/icons build/tools/icons
+	cp -r tools/level_editor/ui build/tools/ui
+tools-release64: tools-build
+	make -R -C build/projects config=release
+	cp -r tools/level_editor/icons build/tools/icons
+	cp -r tools/level_editor/ui build/tools/ui
+
 .PHONY: docs
 docs:
 	doxygen docs/doxygen/Doxyfile.doxygen
