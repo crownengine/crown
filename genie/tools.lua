@@ -56,6 +56,9 @@ solution "tools"
 
 		buildoptions {
 			"-lm",
+			"-Wno-deprecated-declarations",
+			"-Wno-incompatible-pointer-types",
+			"-Wno-discarded-qualifiers",
 		}
 
 		files {
