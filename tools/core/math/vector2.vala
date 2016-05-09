@@ -18,10 +18,10 @@ namespace Crown
 			this.y = y;
 		}
 
-		public Vector2.from_array(ArrayList<double?> arr)
+		public Vector2.from_array(ArrayList<Value?> arr)
 		{
-			this.x = arr[0];
-			this.y = arr[1];
+			this.x = (double)arr[0];
+			this.y = (double)arr[1];
 		}
 
 		public string to_string()

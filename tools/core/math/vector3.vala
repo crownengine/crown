@@ -20,11 +20,11 @@ namespace Crown
 			this.z = z;
 		}
 
-		public Vector3.from_array(ArrayList<double?> arr)
+		public Vector3.from_array(ArrayList<Value?> arr)
 		{
-			this.x = arr[0];
-			this.y = arr[1];
-			this.z = arr[2];
+			this.x = (double)arr[0];
+			this.y = (double)arr[1];
+			this.z = (double)arr[2];
 		}
 
 		public string to_string()

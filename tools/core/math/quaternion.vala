@@ -22,12 +22,12 @@ namespace Crown
 			this.w = w;
 		}
 
-		public Quaternion.from_array(ArrayList<double?> arr)
+		public Quaternion.from_array(ArrayList<Value?> arr)
 		{
-			this.x = arr[0];
-			this.y = arr[1];
-			this.z = arr[2];
-			this.w = arr[3];
+			this.x = (double)arr[0];
+			this.y = (double)arr[1];
+			this.z = (double)arr[2];
+			this.w = (double)arr[3];
 		}
 
 		public Quaternion.from_axis_angle(Vector3 axis, float angle)
