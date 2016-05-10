@@ -25,15 +25,15 @@ struct DynamicString
 	Array<char> _data;
 
 	DynamicString(Allocator& a);
-	DynamicString(const char* s, Allocator& a = default_allocator());
+	DynamicString(const char* str, Allocator& a = default_allocator());
 
-	DynamicString& operator=(const DynamicString& s);
-	DynamicString& operator=(const char* s);
+	DynamicString& operator=(const DynamicString& ds);
+	DynamicString& operator=(const char* str);
 	DynamicString& operator=(const char c);
-	DynamicString& operator=(const FixedString& s);
+	DynamicString& operator=(const FixedString& fs);
 
 	/// Sets the string to @a s.
-	void set(const char* s, u32 len);
+	void set(const char* str, u32 len);
 
 	/// Reserves space for at least @a n characters.
 	void reserve(u32 n);
@@ -56,18 +56,18 @@ struct DynamicString
 	/// Removes the leading string @a s.
 	/// @note
 	/// The string must start with @a s.
-	void strip_leading(const char* s);
+	void strip_leading(const char* str);
 
 	/// Removes the trailing string @a s.
 	/// @note
 	/// The string must end with @a s.
-	void strip_trailing(const char* s);
+	void strip_trailing(const char* str);
 
 	/// Returns whether the string starts with the given @a s string.
-	bool starts_with(const char* s) const;
+	bool has_prefix(const char* str) const;
 
 	/// Returns wheterh the string ends with the given @a s string.
-	bool ends_with(const char* s) const;
+	bool has_suffix(const char* str) const;
 
 	/// Returns the StringId32 of the string.
 	StringId32 to_string_id() const;
@@ -81,17 +81,17 @@ inline DynamicString::DynamicString(Allocator& a)
 {
 }
 
-inline DynamicString::DynamicString(const char* s, Allocator& a)
+inline DynamicString::DynamicString(const char* str, Allocator& a)
 	: _data(a)
 {
-	CE_ASSERT_NOT_NULL(s);
-	array::push(_data, s, strlen32(s));
+	CE_ASSERT_NOT_NULL(str);
+	array::push(_data, str, strlen32(str));
 }
 
-inline void DynamicString::set(const char* s, u32 len)
+inline void DynamicString::set(const char* str, u32 len)
 {
 	array::resize(_data, len);
-	strncpy(array::begin(_data), s, len);
+	strncpy(array::begin(_data), str, len);
 }
 
 /// Appends the string @a b to @a a.
@@ -102,10 +102,10 @@ inline DynamicString& operator+=(DynamicString& a, const DynamicString& b)
 }
 
 /// Appends the string @a s to @a a.
-inline DynamicString& operator+=(DynamicString& a, const char* s)
+inline DynamicString& operator+=(DynamicString& a, const char* str)
 {
-	CE_ASSERT_NOT_NULL(s);
-	array::push(a._data, s, strlen32(s));
+	CE_ASSERT_NOT_NULL(str);
+	array::push(a._data, str, strlen32(str));
 	return a;
 }
 
@@ -117,23 +117,23 @@ inline DynamicString& operator+=(DynamicString& a, const char c)
 }
 
 /// Appends the string @a s to @a a.
-inline DynamicString& operator+=(DynamicString& a, const FixedString& s)
+inline DynamicString& operator+=(DynamicString& a, const FixedString& fs)
 {
-	array::push(a._data, s.data(), s.length());
+	array::push(a._data, fs.data(), fs.length());
 	return a;
 }
 
-inline DynamicString& DynamicString::operator=(const DynamicString& s)
+inline DynamicString& DynamicString::operator=(const DynamicString& ds)
 {
-	_data = s._data;
+	_data = ds._data;
 	return *this;
 }
 
-inline DynamicString& DynamicString::operator=(const char* s)
+inline DynamicString& DynamicString::operator=(const char* str)
 {
-	CE_ASSERT_NOT_NULL(s);
+	CE_ASSERT_NOT_NULL(str);
 	array::clear(_data);
-	array::push(_data, s, strlen32(s));
+	array::push(_data, str, strlen32(str));
 	return *this;
 }
 
@@ -144,10 +144,10 @@ inline DynamicString& DynamicString::operator=(const char c)
 	return *this;
 }
 
-inline DynamicString& DynamicString::operator=(const FixedString& s)
+inline DynamicString& DynamicString::operator=(const FixedString& fs)
 {
 	array::clear(_data);
-	array::push(_data, s.data(), s.length());
+	array::push(_data, fs.data(), fs.length());
 	return *this;
 }
 
@@ -161,10 +161,10 @@ inline bool operator==(const DynamicString& a, const DynamicString& b)
 	return strcmp(a.c_str(), b.c_str()) == 0;
 }
 
-inline bool operator==(const DynamicString& a, const char* b)
+inline bool operator==(const DynamicString& a, const char* str)
 {
-	CE_ASSERT_NOT_NULL(b);
-	return strcmp(a.c_str(), b) == 0;
+	CE_ASSERT_NOT_NULL(str);
+	return strcmp(a.c_str(), str) == 0;
 }
 
 inline void DynamicString::reserve(u32 n)
@@ -209,44 +209,44 @@ inline void DynamicString::trim()
 	rtrim();
 }
 
-inline void DynamicString::strip_leading(const char* s)
+inline void DynamicString::strip_leading(const char* str)
 {
-	CE_ASSERT_NOT_NULL(s);
-	CE_ASSERT(starts_with(s), "String does not start with %s", s);
+	CE_ASSERT_NOT_NULL(str);
+	CE_ASSERT(has_prefix(str), "String does not start with '%s'", str);
 
 	const u32 my_len = strlen32(c_str());
-	const u32 s_len = strlen32(s);
+	const u32 s_len = strlen32(str);
 
 	memmove(array::begin(_data), array::begin(_data) + s_len, (my_len - s_len));
 	array::resize(_data, my_len - s_len);
 }
 
-inline void DynamicString::strip_trailing(const char* s)
+inline void DynamicString::strip_trailing(const char* str)
 {
-	CE_ASSERT_NOT_NULL(s);
-	CE_ASSERT(ends_with(s), "String does not end with %s", s);
+	CE_ASSERT_NOT_NULL(str);
+	CE_ASSERT(has_suffix(str), "String does not end with '%s'", str);
 
 	const u32 my_len = strlen32(c_str());
-	const u32 s_len = strlen32(s);
+	const u32 s_len = strlen32(str);
 	array::resize(_data, my_len - s_len);
 }
 
-inline bool DynamicString::starts_with(const char* s) const
+inline bool DynamicString::has_prefix(const char* str) const
 {
-	CE_ASSERT_NOT_NULL(s);
-	return strncmp(c_str(), s, strlen32(s)) == 0;
+	CE_ASSERT_NOT_NULL(str);
+	return strncmp(c_str(), str, strlen32(str)) == 0;
 }
 
-inline bool DynamicString::ends_with(const char* s) const
+inline bool DynamicString::has_suffix(const char* str) const
 {
-	CE_ASSERT_NOT_NULL(s);
+	CE_ASSERT_NOT_NULL(str);
 
 	const u32 my_len = strlen32(c_str());
-	const u32 s_len = strlen32(s);
+	const u32 s_len = strlen32(str);
 
 	if (my_len >= s_len)
 	{
-		return strncmp(array::begin(_data) + (my_len - s_len), s, s_len) == 0;
+		return strncmp(array::begin(_data) + (my_len - s_len), str, s_len) == 0;
 	}
 
 	return false;
