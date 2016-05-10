@@ -32,7 +32,7 @@ struct DynamicString
 	DynamicString& operator=(const char c);
 	DynamicString& operator=(const FixedString& fs);
 
-	/// Sets the string to @a s.
+	/// Sets the string to @a str.
 	void set(const char* str, u32 len);
 
 	/// Reserves space for at least @a n characters.
@@ -53,20 +53,10 @@ struct DynamicString
 	/// Removes leading and trailing white-space characters from the string.
 	void trim();
 
-	/// Removes the leading string @a s.
-	/// @note
-	/// The string must start with @a s.
-	void strip_leading(const char* str);
-
-	/// Removes the trailing string @a s.
-	/// @note
-	/// The string must end with @a s.
-	void strip_trailing(const char* str);
-
-	/// Returns whether the string starts with the given @a s string.
+	/// Returns whether the string starts with @a str.
 	bool has_prefix(const char* str) const;
 
-	/// Returns wheterh the string ends with the given @a s string.
+	/// Returns wheterh the string ends with @a str.
 	bool has_suffix(const char* str) const;
 
 	/// Returns the StringId32 of the string.
@@ -207,28 +197,6 @@ inline void DynamicString::trim()
 {
 	ltrim();
 	rtrim();
-}
-
-inline void DynamicString::strip_leading(const char* str)
-{
-	CE_ASSERT_NOT_NULL(str);
-	CE_ASSERT(has_prefix(str), "String does not start with '%s'", str);
-
-	const u32 my_len = strlen32(c_str());
-	const u32 s_len = strlen32(str);
-
-	memmove(array::begin(_data), array::begin(_data) + s_len, (my_len - s_len));
-	array::resize(_data, my_len - s_len);
-}
-
-inline void DynamicString::strip_trailing(const char* str)
-{
-	CE_ASSERT_NOT_NULL(str);
-	CE_ASSERT(has_suffix(str), "String does not end with '%s'", str);
-
-	const u32 my_len = strlen32(c_str());
-	const u32 s_len = strlen32(str);
-	array::resize(_data, my_len - s_len);
 }
 
 inline bool DynamicString::has_prefix(const char* str) const
