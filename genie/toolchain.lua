@@ -19,8 +19,6 @@ function toolchain(build_dir, lib_dir)
 
 	if (_ACTION == nil) then return end
 
-	location (build_dir .. "projects/" .. _ACTION)
-
 	if _ACTION == "clean" then
 		os.rmdir(BUILD_DIR)
 	end
