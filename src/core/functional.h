@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "murmur.h"
 #include "types.h"
 
 namespace crown
@@ -145,6 +146,24 @@ struct hash<u64>
 	u32 operator()(const u64 val) const
 	{
 		return (u32)val;
+	}
+};
+
+template<>
+struct hash<f32>
+{
+	u32 operator()(const f32 val) const
+	{
+		return val == 0.0f ? 0 : murmur32(&val, sizeof(val), 0);
+	}
+};
+
+template<>
+struct hash<f64>
+{
+	u32 operator()(const f64 val) const
+	{
+		return val == 0.0 ? 0 : murmur32(&val, sizeof(val), 0);
 	}
 };
 
