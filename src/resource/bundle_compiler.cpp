@@ -142,7 +142,7 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 
 			line.trim();
 
-			if (line.empty() || line.starts_with("#"))
+			if (line.empty() || line.has_prefix("#"))
 				continue;
 
 			vector::push_back(_globs, line);
