@@ -7,7 +7,9 @@
 #include "console_server.h"
 #include "debug_line.h"
 #include "device.h"
+#include "dynamic_string.h"
 #include "gui.h"
+#include "guid.h"
 #include "input_device.h"
 #include "input_manager.h"
 #include "intersection.h"
@@ -2588,6 +2590,17 @@ static int device_set_temp_count(lua_State* L)
 	return 0;
 }
 
+static int device_guid(lua_State* L)
+{
+	LuaStack stack(L);
+	TempAllocator64 ta;
+	DynamicString str(ta);
+	Guid guid = guid::new_guid();
+	guid::to_string(guid, str);
+	stack.push_string(str.c_str());
+	return 1;
+}
+
 static int profiler_enter_scope(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3333,6 +3346,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Device", "enable_resource_autoload", device_enable_resource_autoload);
 	env.add_module_function("Device", "temp_count",               device_temp_count);
 	env.add_module_function("Device", "set_temp_count",           device_set_temp_count);
+	env.add_module_function("Device", "guid",                     device_guid);
 
 	env.add_module_function("Profiler", "enter_scope", profiler_enter_scope);
 	env.add_module_function("Profiler", "leave_scope", profiler_leave_scope);
