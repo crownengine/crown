@@ -5,6 +5,7 @@
 
 #include "array.h"
 #include "config_resource.h"
+#include "dynamic_string.h"
 #include "font_resource.h"
 #include "level_resource.h"
 #include "lua_resource.h"
@@ -87,16 +88,19 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 
 	if (entry == ResourceEntry::NOT_FOUND)
 	{
-		char type_buf[StringId64::STRING_LENGTH];
-		char name_buf[StringId64::STRING_LENGTH];
+		TempAllocator64 ta;
+		DynamicString type_str(ta);
+		DynamicString name_str(ta);
+		type.to_string(type_str);
+		name.to_string(name_str);
 
 		CE_ASSERT(_loader->can_load(type, name)
 			, "Can't load resource #ID(%s-%s)"
-			, type.to_string(type_buf)
-			, name.to_string(name_buf)
+			, type_str.c_str()
+			, name_str.c_str()
 			);
-		CE_UNUSED(type_buf);
-		CE_UNUSED(name_buf);
+		CE_UNUSED(type_str);
+		CE_UNUSED(name_str);
 
 		ResourceRequest rr;
 		rr.type = type;
@@ -152,16 +156,19 @@ bool ResourceManager::can_get(StringId64 type, StringId64 name)
 const void* ResourceManager::get(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
-	char type_buf[StringId64::STRING_LENGTH];
-	char name_buf[StringId64::STRING_LENGTH];
+	TempAllocator128 ta;
+	DynamicString type_str(ta);
+	DynamicString name_str(ta);
+	type.to_string(type_str);
+	name.to_string(name_str);
 
 	CE_ASSERT(can_get(type, name)
 		, "Resource not loaded #ID(%s-%s)"
-		, type.to_string(type_buf)
-		, name.to_string(name_buf)
+		, type_str.c_str()
+		, name_str.c_str()
 		);
-	CE_UNUSED(type_buf);
-	CE_UNUSED(name_buf);
+	CE_UNUSED(type_str);
+	CE_UNUSED(name_str);
 
 	if (_autoload && !sort_map::has(_rm, id))
 	{

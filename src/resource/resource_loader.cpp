@@ -31,14 +31,19 @@ ResourceLoader::~ResourceLoader()
 
 bool ResourceLoader::can_load(StringId64 type, StringId64 name)
 {
-	char buf[1 + 2*StringId64::STRING_LENGTH];
-	type.to_string(buf);
-	buf[16] = '-';
-	name.to_string(buf + 17);
+	TempAllocator128 ta;
+	DynamicString type_str(ta);
+	DynamicString name_str(ta);
+	type.to_string(type_str);
+	name.to_string(name_str);
 
-	TempAllocator256 alloc;
-	DynamicString path(alloc);
-	path::join(CROWN_DATA_DIRECTORY, buf, path);
+	DynamicString res_path(ta);
+	res_path += type_str;
+	res_path += '-';
+	res_path += name_str;
+
+	DynamicString path(ta);
+	path::join(CROWN_DATA_DIRECTORY, res_path.c_str(), path);
 
 	return _fs.exists(path.c_str());
 }
@@ -93,14 +98,19 @@ s32 ResourceLoader::run()
 		ResourceRequest rr = queue::front(_requests);
 		_mutex.unlock();
 
-		char name[1 + 2*StringId64::STRING_LENGTH];
-		rr.type.to_string(name);
-		name[16] = '-';
-		rr.name.to_string(name + 17);
+		TempAllocator128 ta;
+		DynamicString type_str(ta);
+		DynamicString name_str(ta);
+		rr.type.to_string(type_str);
+		rr.name.to_string(name_str);
 
-		TempAllocator256 alloc;
-		DynamicString path(alloc);
-		path::join(CROWN_DATA_DIRECTORY, name, path);
+		DynamicString res_path(ta);
+		res_path += type_str;
+		res_path += '-';
+		res_path += name_str;
+
+		DynamicString path(ta);
+		path::join(CROWN_DATA_DIRECTORY, res_path.c_str(), path);
 
 		File* file = _fs.open(path.c_str(), FileOpenMode::READ);
 		rr.data = rr.load_function(*file, *rr.allocator);

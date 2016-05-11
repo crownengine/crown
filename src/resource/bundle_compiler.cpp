@@ -157,23 +157,29 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 	StringId64 _type(type);
 	StringId64 _name(name);
 
-	TempAllocator512 alloc;
-	DynamicString path(alloc);
-	TempAllocator512 alloc2;
-	DynamicString src_path(alloc2);
+	TempAllocator1024 ta;
+	DynamicString path(ta);
+	DynamicString src_path(ta);
 
+	// Build source file path
 	src_path += name;
-	src_path += ".";
+	src_path += '.';
 	src_path += type;
 
-	char res_name[1 + 2*StringId64::STRING_LENGTH];
-	_type.to_string(res_name);
-	res_name[16] = '-';
-	_name.to_string(res_name + 17);
+	// Build compiled file path
+	DynamicString type_str(ta);
+	DynamicString name_str(ta);
+	_type.to_string(type_str);
+	_name.to_string(name_str);
 
-	path::join(CROWN_DATA_DIRECTORY, res_name, path);
+	DynamicString dst_path(ta);
+	dst_path += type_str;
+	dst_path += '-';
+	dst_path += name_str;
 
-	CE_LOGI("%s <= %s.%s", res_name, name, type);
+	path::join(CROWN_DATA_DIRECTORY, dst_path.c_str(), path);
+
+	CE_LOGI("%s <= %s", dst_path.c_str(), src_path.c_str());
 
 	bool success = true;
 	jmp_buf buf;
