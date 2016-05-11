@@ -236,7 +236,7 @@ namespace Crown
 
 		static Value? parse_value(uint8 [] json, ref int index)
 		{
-			uint8 c = Next(json, ref index);
+			uint8 c = next(json, ref index);
 
 			if (c == '{')
 				return parse_object(json, ref index);
@@ -269,7 +269,7 @@ namespace Crown
 
 		}
 
-		static uint8 Next(uint8 [] json, ref int index)
+		static uint8 next(uint8 [] json, ref int index)
 		{
 			skip_whitespace(json, ref index);
 			return json[index];
@@ -281,7 +281,7 @@ namespace Crown
 			consume(json, ref index, "{");
 			skip_whitespace(json, ref index);
 
-			while (Next(json, ref index) != '}') {
+			while (next(json, ref index) != '}') {
 				string key = parse_identifier(json, ref index);
 				consume(json, ref index, "=");
 				Value? value = parse_value(json, ref index);
@@ -295,7 +295,7 @@ namespace Crown
 		{
 			ArrayList<Value?> a = new ArrayList<Value?>();
 			consume(json, ref index, "[");
-			while (Next(json, ref index) != ']') {
+			while (next(json, ref index) != ']') {
 				Value? value = parse_value(json, ref index);
 				a.add(value);
 			}
