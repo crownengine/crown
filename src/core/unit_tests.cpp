@@ -12,6 +12,7 @@
 #include "color4.h"
 #include "command_line.h"
 #include "dynamic_string.h"
+#include "guid.h"
 #include "hash_map.h"
 #include "json.h"
 #include "macros.h"
@@ -895,6 +896,25 @@ static void test_dynamic_string()
 	memory_globals::shutdown();
 }
 
+static void test_guid()
+{
+	memory_globals::init();
+	{
+		Guid guid = guid::new_guid();
+		TempAllocator1024 ta;
+		DynamicString str(ta);
+		guid::to_string(guid, str);
+		Guid parsed = guid::parse(str.c_str());
+		ENSURE(guid == parsed);
+	}
+	{
+		Guid guid;
+		ENSURE(guid::try_parse("961f8005-6a7e-4371-9272-8454dd786884", guid));
+		ENSURE(!guid::try_parse("961f80056a7e-4371-9272-8454dd786884", guid));
+	}
+	memory_globals::shutdown();
+}
+
 static void test_json()
 {
 	memory_globals::init();
@@ -1164,6 +1184,7 @@ static void run_unit_tests()
 	test_murmur();
 	test_string_id();
 	test_dynamic_string();
+	test_guid();
 	test_json();
 	test_sjson();
 	test_path();
