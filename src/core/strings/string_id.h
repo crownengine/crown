@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "string_types.h"
 #include "types.h"
 
 namespace crown
@@ -22,9 +23,9 @@ struct StringId32
 	explicit StringId32(const char* str, u32 len);
 
 	void hash(const char* str, u32 len);
-	const char* to_string(char* buf);
 
-	static const u32 STRING_LENGTH = 32;
+	/// Fills @a s with the string representation of the id.
+	void to_string(DynamicString& s);
 };
 
 /// Hashed string.
@@ -40,9 +41,9 @@ struct StringId64
 	explicit StringId64(const char* str, u32 len);
 
 	void hash(const char* str, u32 len);
-	const char* to_string(char* buf);
 
-	static const u32 STRING_LENGTH = 32;
+	/// Fills @a s with the string representation of the id.
+	void to_string(DynamicString& s);
 };
 
 /// @addtogroup String
