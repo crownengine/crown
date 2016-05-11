@@ -8,6 +8,9 @@
 
 namespace crown
 {
+/// Holds a globally unique identifier.
+///
+/// @ingroup Core
 struct Guid
 {
 	u32 data1;
