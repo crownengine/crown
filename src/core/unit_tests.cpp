@@ -882,6 +882,16 @@ static void test_dynamic_string()
 		str.trim();
 		ENSURE(strcmp(str.c_str(), "Sushi") == 0);
 	}
+	{
+		TempAllocator1024 ta;
+		DynamicString str("Hello everyone!", ta);
+		ENSURE(str.has_prefix("Hello"));
+		ENSURE(!str.has_prefix("hello"));
+		ENSURE(str.has_suffix("one!"));
+		ENSURE(!str.has_suffix("one"));
+		ENSURE(!str.has_prefix("Hello everyone!!!"));
+		ENSURE(!str.has_suffix("Hello everyone!!!"));
+	}
 	memory_globals::shutdown();
 }
 

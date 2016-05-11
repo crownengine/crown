@@ -202,22 +202,17 @@ inline void DynamicString::trim()
 inline bool DynamicString::has_prefix(const char* str) const
 {
 	CE_ASSERT_NOT_NULL(str);
-	return strncmp(c_str(), str, strlen32(str)) == 0;
+	const u32 ml = strlen32(c_str());
+	const u32 sl = strlen32(str);
+	return sl <= ml && strncmp(&_data[0], str, sl) == 0;
 }
 
 inline bool DynamicString::has_suffix(const char* str) const
 {
 	CE_ASSERT_NOT_NULL(str);
-
-	const u32 my_len = strlen32(c_str());
-	const u32 s_len = strlen32(str);
-
-	if (my_len >= s_len)
-	{
-		return strncmp(array::begin(_data) + (my_len - s_len), str, s_len) == 0;
-	}
-
-	return false;
+	const u32 ml = strlen32(c_str());
+	const u32 sl = strlen32(str);
+	return sl <= ml && strncmp(&_data[ml-sl], str, sl) == 0;
 }
 
 inline StringId32 DynamicString::to_string_id() const
