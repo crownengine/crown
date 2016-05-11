@@ -39,7 +39,7 @@ namespace Crown
 			}
 		}
 
-		// Events
+		// Signals
 		public signal void value_changed();
 
 		public SpinButtonVector4(Vector4 xyz, Vector4 min, Vector4 max)

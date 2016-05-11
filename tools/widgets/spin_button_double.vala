@@ -33,7 +33,7 @@ namespace Crown
 			}
 		}
 
-		// Events
+		// Signals
 		public signal void value_changed();
 
 		public SpinButtonDouble(double x, double min, double max)
