@@ -853,6 +853,9 @@ Device
 	**set_temp_count** (nv, nq, nm)
 		Sets the number of temporary objects used by Lua.
 
+	**guid** () : string
+		Returns a new GUID.
+
 DebugLine
 =========
 
