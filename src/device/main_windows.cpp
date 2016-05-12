@@ -608,39 +608,44 @@ bool next_event(OsEvent& ev)
 
 } // namespace crown
 
+struct InitMemoryGlobals
+{
+	InitMemoryGlobals()
+	{
+		crown::memory_globals::init();
+	}
+
+	~InitMemoryGlobals()
+	{
+		crown::memory_globals::shutdown();
+	}
+};
+
 int main(int argc, char** argv)
 {
 	using namespace crown;
-
 #if CROWN_BUILD_UNIT_TESTS
+	CommandLine cl(argc, (const char**)argv);
+	if (cl.has_argument("run-unit-tests"))
 	{
-		CommandLine cl(argc, (const char**)argv);
-		if (cl.has_argument("run-unit-tests"))
-		{
-			run_unit_tests();
-			return 0;
-		}
+		run_unit_tests();
+		return 0;
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
+	InitMemoryGlobals m;
+	CE_UNUSED(m);
 
-	memory_globals::init();
-
-	WSADATA dummy;
-	int err = WSAStartup(MAKEWORD(2, 2), &dummy);
+	WSADATA wsdata;
+	int err = WSAStartup(MAKEWORD(2, 2), &wsdata);
 	CE_ASSERT(err == 0, "WSAStartup: error = %d", err);
-	CE_UNUSED(dummy);
+	CE_UNUSED(wsdata);
 	CE_UNUSED(err);
 
 	DeviceOptions opts(argc, (const char**)argv);
-	int exitcode = opts.parse();
+	if (opts.parse() == EXIT_SUCCESS)
+		return s_wdvc.run(&opts);
 
-	if (exitcode == EXIT_FAILURE)
-		return exitcode;
-
-	exitcode = crown::s_wdvc.run(&opts);
-
-	memory_globals::shutdown();
-	return exitcode;
+	return EXIT_FAILURE;
 }
 
 #endif // CROWN_PLATFORM_WINDOWS

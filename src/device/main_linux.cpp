@@ -520,6 +520,16 @@ public:
 				| EnterWindowMask
 				;
 		}
+		else
+		{
+			XWindowAttributes parent_attrs;
+			XGetWindowAttributes(_x11_display, parent_window, &parent_attrs);
+			depth = parent_attrs.depth;
+			visual = parent_attrs.visual;
+		}
+
+		CE_LOGD("%d", visual->bits_per_rgb); /* the associated visual structure */
+		CE_LOGD("%d", depth);			     /* the associated visual structure */
 
 		_x11_window = XCreateWindow(_x11_display
 			, parent_window
@@ -715,33 +725,38 @@ bool next_event(OsEvent& ev)
 
 } // namespace crown
 
+struct InitMemoryGlobals
+{
+	InitMemoryGlobals()
+	{
+		crown::memory_globals::init();
+	}
+
+	~InitMemoryGlobals()
+	{
+		crown::memory_globals::shutdown();
+	}
+};
+
 int main(int argc, char** argv)
 {
 	using namespace crown;
-
 #if CROWN_BUILD_UNIT_TESTS
+	CommandLine cl(argc, (const char**)argv);
+	if (cl.has_argument("run-unit-tests"))
 	{
-		CommandLine cl(argc, (const char**)argv);
-		if (cl.has_argument("run-unit-tests"))
-		{
-			run_unit_tests();
-			return 0;
-		}
+		run_unit_tests();
+		return EXIT_SUCCESS;
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
-
-	memory_globals::init();
+	InitMemoryGlobals m;
+	CE_UNUSED(m);
 
 	DeviceOptions opts(argc, (const char**)argv);
-	int exitcode = opts.parse();
+	if (opts.parse() == EXIT_SUCCESS)
+		return s_ldvc.run(&opts);
 
-	if (exitcode == EXIT_FAILURE)
-		return exitcode;
-
-	exitcode = crown::s_ldvc.run(&opts);
-
-	memory_globals::shutdown();
-	return exitcode;
+	return EXIT_FAILURE;
 }
 
 #endif // CROWN_PLATFORM_LINUX
