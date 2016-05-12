@@ -67,12 +67,12 @@ namespace Crown
 
 		public string set_snap_mode(SnapMode sm)
 		{
-			return """LevelEditor:set_snap_mode("%s")""".printf(sm == SnapMode.Relative ? "relative" : "absolute");
+			return """LevelEditor:set_snap_mode("%s")""".printf(sm == SnapMode.RELATIVE ? "relative" : "absolute");
 		}
 
 		public string set_reference_system(ReferenceSystem rs)
 		{
-			return """LevelEditor:set_reference_system("%s")""".printf(rs == ReferenceSystem.Local ? "local" : "world");
+			return """LevelEditor:set_reference_system("%s")""".printf(rs == ReferenceSystem.LOCAL ? "local" : "world");
 		}
 
 		public string enable_show_grid(bool enabled)
@@ -175,7 +175,7 @@ namespace Crown
 
 		public string set_placeable(PlaceableType type, string name)
 		{
-			return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf((type == PlaceableType.Unit ? "unit" : "sound"), name);
+			return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf((type == PlaceableType.UNIT ? "unit" : "sound"), name);
 		}
 
 		public string set_selected_unit(Guid id)

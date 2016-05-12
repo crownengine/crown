@@ -15,7 +15,7 @@ namespace Crown
 
 		public string set_preview_unit(PlaceableType placeable_type, string name)
 		{
-			return "UnitPreview:set_preview_unit(\"%s\")".printf(placeable_type == PlaceableType.Unit ? name : _placeables[(int)placeable_type]);
+			return "UnitPreview:set_preview_unit(\"%s\")".printf(placeable_type == PlaceableType.UNIT ? name : _placeables[(int)placeable_type]);
 		}
 	}
 }
