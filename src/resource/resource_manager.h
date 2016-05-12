@@ -66,7 +66,6 @@ class ResourceManager
 	ResourceMap _rm;
 	bool _autoload;
 
-	void register_resource_type(StringId64 type, LoadFunction load, OnlineFunction online, OfflineFunction offline, UnloadFunction unload);
 	void on_online(StringId64 type, StringId64 name);
 	void on_offline(StringId64 type, StringId64 name);
 	void on_unload(StringId64 type, void* data);
@@ -103,6 +102,9 @@ public:
 
 	/// Completes all load() requests which have been loaded by ResourceLoader.
 	void complete_requests();
+
+	/// Registers a new resource @a type into the resource manager.
+	void register_resource_type(StringId64 type, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline);
 };
 
 } // namespace crown

@@ -4,24 +4,11 @@
  */
 
 #include "array.h"
-#include "config_resource.h"
 #include "dynamic_string.h"
-#include "font_resource.h"
-#include "level_resource.h"
-#include "lua_resource.h"
-#include "material_resource.h"
-#include "mesh_resource.h"
-#include "package_resource.h"
-#include "physics_resource.h"
 #include "resource_loader.h"
 #include "resource_manager.h"
-#include "shader_resource.h"
 #include "sort_map.h"
-#include "sound_resource.h"
-#include "sprite_resource.h"
 #include "temp_allocator.h"
-#include "texture_resource.h"
-#include "unit_resource.h"
 
 namespace crown
 {
@@ -34,37 +21,6 @@ ResourceManager::ResourceManager(ResourceLoader& rl)
 	, _rm(default_allocator())
 	, _autoload(false)
 {
-	namespace pcr = physics_config_resource;
-	namespace phr = physics_resource;
-	namespace pkr = package_resource;
-	namespace sdr = sound_resource;
-	namespace mhr = mesh_resource;
-	namespace utr = unit_resource;
-	namespace txr = texture_resource;
-	namespace mtr = material_resource;
-	namespace lur = lua_resource;
-	namespace ftr = font_resource;
-	namespace lvr = level_resource;
-	namespace spr = sprite_resource;
-	namespace shr = shader_resource;
-	namespace sar = sprite_animation_resource;
-	namespace cor = config_resource;
-
-	register_resource_type(RESOURCE_TYPE_SCRIPT,           lur::load, NULL,        NULL,         lur::unload);
-	register_resource_type(RESOURCE_TYPE_TEXTURE,          txr::load, txr::online, txr::offline, txr::unload);
-	register_resource_type(RESOURCE_TYPE_MESH,             mhr::load, mhr::online, mhr::offline, mhr::unload);
-	register_resource_type(RESOURCE_TYPE_SOUND,            sdr::load, NULL,        NULL,         sdr::unload);
-	register_resource_type(RESOURCE_TYPE_UNIT,             utr::load, NULL,        NULL,         utr::unload);
-	register_resource_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::online, spr::offline, spr::unload);
-	register_resource_type(RESOURCE_TYPE_PACKAGE,          pkr::load, NULL,        NULL,         pkr::unload);
-	register_resource_type(RESOURCE_TYPE_PHYSICS,          phr::load, NULL,        NULL,         phr::unload);
-	register_resource_type(RESOURCE_TYPE_MATERIAL,         mtr::load, mtr::online, mtr::offline, mtr::unload);
-	register_resource_type(RESOURCE_TYPE_PHYSICS_CONFIG,   pcr::load, NULL,        NULL,         pcr::unload);
-	register_resource_type(RESOURCE_TYPE_FONT,             ftr::load, NULL,        NULL,         ftr::unload);
-	register_resource_type(RESOURCE_TYPE_LEVEL,            lvr::load, NULL,        NULL,         lvr::unload);
-	register_resource_type(RESOURCE_TYPE_SHADER,           shr::load, shr::online, shr::offline, shr::unload);
-	register_resource_type(RESOURCE_TYPE_SPRITE_ANIMATION, sar::load, NULL,        NULL,         sar::unload);
-	register_resource_type(RESOURCE_TYPE_CONFIG,           cor::load, NULL,        NULL,         cor::unload);
 }
 
 ResourceManager::~ResourceManager()
@@ -215,7 +171,7 @@ void ResourceManager::complete_request(StringId64 type, StringId64 name, void* d
 	on_online(type, name);
 }
 
-void ResourceManager::register_resource_type(StringId64 type, LoadFunction load, OnlineFunction online, OfflineFunction offline, UnloadFunction unload)
+void ResourceManager::register_resource_type(StringId64 type, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
 {
 	CE_ASSERT_NOT_NULL(load);
 	CE_ASSERT_NOT_NULL(unload);

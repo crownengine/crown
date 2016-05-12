@@ -8,35 +8,48 @@
 #include "audio.h"
 #include "bundle_compiler.h"
 #include "config.h"
+#include "config_resource.h"
 #include "console_server.h"
 #include "device.h"
 #include "disk_filesystem.h"
 #include "file.h"
 #include "filesystem.h"
+#include "font_resource.h"
 #include "input_device.h"
 #include "input_manager.h"
+#include "level_resource.h"
 #include "log.h"
 #include "lua_environment.h"
+#include "lua_resource.h"
 #include "map.h"
 #include "material_manager.h"
+#include "material_resource.h"
 #include "matrix4x4.h"
 #include "memory.h"
+#include "mesh_resource.h"
 #include "os.h"
 #include "os_event_queue.h"
+#include "package_resource.h"
 #include "path.h"
 #include "physics.h"
+#include "physics_resource.h"
 #include "profiler.h"
 #include "proxy_allocator.h"
 #include "resource_loader.h"
 #include "resource_manager.h"
 #include "resource_package.h"
 #include "shader_manager.h"
+#include "shader_resource.h"
 #include "sjson.h"
+#include "sound_resource.h"
+#include "sprite_resource.h"
 #include "string_stream.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
+#include "texture_resource.h"
 #include "types.h"
 #include "unit_manager.h"
+#include "unit_resource.h"
 #include "vector3.h"
 #include "world.h"
 #include <bgfx/bgfx.h>
@@ -367,6 +380,37 @@ void Device::run()
 
 		_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
 		_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
+
+		namespace pcr = physics_config_resource;
+		namespace phr = physics_resource;
+		namespace pkr = package_resource;
+		namespace sdr = sound_resource;
+		namespace mhr = mesh_resource;
+		namespace utr = unit_resource;
+		namespace txr = texture_resource;
+		namespace mtr = material_resource;
+		namespace lur = lua_resource;
+		namespace ftr = font_resource;
+		namespace lvr = level_resource;
+		namespace spr = sprite_resource;
+		namespace shr = shader_resource;
+		namespace sar = sprite_animation_resource;
+		namespace cor = config_resource;
+		_resource_manager->register_resource_type(RESOURCE_TYPE_SCRIPT,           lur::load, lur::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
+		_resource_manager->register_resource_type(RESOURCE_TYPE_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
+		_resource_manager->register_resource_type(RESOURCE_TYPE_SOUND,            sdr::load, sdr::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_UNIT,             utr::load, utr::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::unload, spr::online, spr::offline);
+		_resource_manager->register_resource_type(RESOURCE_TYPE_PACKAGE,          pkr::load, pkr::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_PHYSICS,          phr::load, phr::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_MATERIAL,         mtr::load, mtr::unload, mtr::online, mtr::offline);
+		_resource_manager->register_resource_type(RESOURCE_TYPE_PHYSICS_CONFIG,   pcr::load, pcr::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_FONT,             ftr::load, ftr::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_LEVEL,            lvr::load, lvr::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_SHADER,           shr::load, shr::unload, shr::online, shr::offline);
+		_resource_manager->register_resource_type(RESOURCE_TYPE_SPRITE_ANIMATION, sar::load, sar::unload, NULL,        NULL        );
+		_resource_manager->register_resource_type(RESOURCE_TYPE_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
 
 		read_config();
 
