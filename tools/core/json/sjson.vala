@@ -57,9 +57,9 @@ namespace Crown
 		{
 			FileStream fs = FileStream.open(path, "r");
 			// Get file size
-			fs.seek (0, FileSeek.END);
-			long size = fs.tell ();
-			fs.rewind ();
+			fs.seek(0, FileSeek.END);
+			long size = fs.tell();
+			fs.rewind();
 			uint8[] bytes = new uint8[size];
 			fs.read(bytes);
 			return decode(bytes) as Hashtable;
