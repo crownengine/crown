@@ -629,7 +629,7 @@ int main(int argc, char** argv)
 	if (cl.has_argument("run-unit-tests"))
 	{
 		run_unit_tests();
-		return 0;
+		return EXIT_SUCCESS;
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
 	InitMemoryGlobals m;

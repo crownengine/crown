@@ -528,9 +528,6 @@ public:
 			visual = parent_attrs.visual;
 		}
 
-		CE_LOGD("%d", visual->bits_per_rgb); /* the associated visual structure */
-		CE_LOGD("%d", depth);			     /* the associated visual structure */
-
 		_x11_window = XCreateWindow(_x11_display
 			, parent_window
 			, x
