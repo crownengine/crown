@@ -1,0 +1,18 @@
+
+sounds = {
+}
+units = {
+	cac60251-0000-d5b9-c54e-c1dc6ead0ac4 = {
+		modified_components = {
+			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
+				data = {
+					position = [ 0 10 -10 ]
+					rotation = [ 0 0.92386999999999997 0.38268000000000002 0 ]
+					scale = [ 1 1 1 ]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "core/units/light"
+	}
+}
