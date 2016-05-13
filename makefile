@@ -57,12 +57,12 @@ tools-build:
 	$(GENIE) --file=genie/tools.lua gmake
 tools-debug64: tools-build
 	make -R -C build/projects config=debug
-	cp -r tools/level_editor/icons build/tools/icons
-	cp -r tools/level_editor/ui build/tools/ui
+	cp -r tools/level_editor/icons build/tools
+	cp -r tools/level_editor/ui build/tools
 tools-release64: tools-build
 	make -R -C build/projects config=release
-	cp -r tools/level_editor/icons build/tools/icons
-	cp -r tools/level_editor/ui build/tools/ui
+	cp -r tools/level_editor/icons build/tools
+	cp -r tools/level_editor/ui build/tools
 
 .PHONY: docs
 docs:
