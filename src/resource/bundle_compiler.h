@@ -5,9 +5,10 @@
 
 #pragma once
 
-#include "disk_filesystem.h"
-#include "container_types.h"
 #include "compile_options.h"
+#include "console_server.h"
+#include "container_types.h"
+#include "disk_filesystem.h"
 
 namespace crown
 {
@@ -26,8 +27,8 @@ class BundleCompiler
 	SortMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
+	ConsoleServer _console_server;
 
-	void register_resource_compiler(StringId64 type, u32 version, CompileFunction compiler);
 	void compile(StringId64 type, const char* path, CompileOptions& opts);
 	// Returns the version of the compiler for @a type.
 	u32 version(StringId64 type);
@@ -44,6 +45,9 @@ public:
 
 	/// Scans the source directory for resources.
 	void scan_source_dir(const char* path);
+
+	/// Registers the resource @a compiler for the given resource @a type and @a version.
+	void register_compiler(StringId64 type, u32 version, CompileFunction compiler);
 };
 
 } // namespace crown

@@ -171,7 +171,7 @@ void ResourceManager::complete_request(StringId64 type, StringId64 name, void* d
 	on_online(type, name);
 }
 
-void ResourceManager::register_resource_type(StringId64 type, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
+void ResourceManager::register_type(StringId64 type, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
 {
 	CE_ASSERT_NOT_NULL(load);
 	CE_ASSERT_NOT_NULL(unload);

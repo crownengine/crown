@@ -3,14 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "bundle_compiler.h"
 #include "console_server.h"
-#include "device.h"
-#include "dynamic_string.h"
-#include "lua_environment.h"
 #include "map.h"
-#include "memory.h"
 #include "sjson.h"
+#include "sort_map.h"
+#include "string_id.h"
 #include "string_stream.h"
 #include "temp_allocator.h"
 
@@ -18,6 +15,7 @@ namespace crown
 {
 ConsoleServer::ConsoleServer(Allocator& a)
 	: _clients(a)
+	, _commands(a)
 {
 }
 
@@ -139,59 +137,31 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 void ConsoleServer::process(TCPSocket client, const char* json)
 {
 	TempAllocator4096 ta;
-	JsonObject root(ta);
-	sjson::parse(json, root);
+	JsonObject obj(ta);
+	sjson::parse(json, obj);
 
-	DynamicString type(ta);
-	sjson::parse_string(root["type"], type);
+	CommandData cd;
+	cd.cmd = NULL;
+	cd.data = NULL;
+	cd = sort_map::get(_commands, sjson::parse_string_id(obj["type"]), cd);
 
-	if (type == "script")
-	{
-		DynamicString script(ta);
-		sjson::parse_string(root["script"], script);
-
-		device()->lua_environment()->execute_string(script.c_str());
-
-		success(client, "Script executed.");
-	}
-	else if (type == "compile")
-	{
-		DynamicString rtype(ta);
-		DynamicString rname(ta);
-		DynamicString platform(ta);
-		sjson::parse_string(root["resource_type"], rtype);
-		sjson::parse_string(root["resource_name"], rname);
-		sjson::parse_string(root["platform"], platform);
-
-		bool succ = device()->bundle_compiler()->compile(rtype.c_str()
-			, rname.c_str()
-			, platform.c_str()
-			);
-
-		if (succ)
-			success(client, "Resource compiled.");
-		else
-			error(client, "Failed to compile resource.");
-	}
-	else if (type == "reload")
-	{
-		StringId64 rtype = sjson::parse_resource_id(root["resource_type"]);
-		StringId64 rname = sjson::parse_resource_id(root["resource_name"]);
-
-		device()->reload(rtype, rname);
-	}
-	else if (type == "pause")
-	{
-		device()->pause();
-	}
-	else if (type == "unpause")
-	{
-		device()->unpause();
-	}
+	if (cd.cmd)
+		cd.cmd(cd.data, *this, client, json);
 	else
-	{
 		error(client, "Unknown command");
-	}
+}
+
+void ConsoleServer::register_command(StringId32 type, CommandFunction cmd, void* data)
+{
+	CE_ASSERT(!sort_map::has(_commands, type), "Command type already registered");
+	CE_ASSERT_NOT_NULL(cmd);
+
+	CommandData cd;
+	cd.cmd = cmd;
+	cd.data = data;
+
+	sort_map::set(_commands, type, cd);
+	sort_map::sort(_commands);
 }
 
 } // namespace crown

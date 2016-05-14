@@ -7,27 +7,17 @@
 #include "bundle_compiler.h"
 #include "compile_options.h"
 #include "config.h"
-#include "config_resource.h"
+#include "console_server.h"
 #include "disk_filesystem.h"
 #include "dynamic_string.h"
 #include "file.h"
-#include "font_resource.h"
-#include "level_resource.h"
 #include "log.h"
-#include "lua_resource.h"
-#include "material_resource.h"
-#include "mesh_resource.h"
+#include "map.h"
 #include "os.h"
-#include "package_resource.h"
 #include "path.h"
-#include "physics_resource.h"
-#include "shader_resource.h"
+#include "sjson.h"
 #include "sort_map.h"
-#include "sound_resource.h"
-#include "sprite_resource.h"
 #include "temp_allocator.h"
-#include "texture_resource.h"
-#include "unit_resource.h"
 #include "vector.h"
 #include <setjmp.h>
 
@@ -62,45 +52,35 @@ public:
 	}
 };
 
+static void console_command_compile(void* data, ConsoleServer& cs, TCPSocket client, const char* json)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	DynamicString type(ta);
+	DynamicString name(ta);
+	DynamicString platform(ta);
+	sjson::parse(json, obj);
+	sjson::parse_string(obj["resource_type"], type);
+	sjson::parse_string(obj["resource_name"], name);
+	sjson::parse_string(obj["platform"], platform);
+
+	BundleCompiler* bc = (BundleCompiler*)data;
+	bool succ = bc->compile(type.c_str(), name.c_str(), platform.c_str());
+
+	if (succ)
+		cs.success(client, "Resource compiled.");
+	else
+		cs.error(client, "Failed to compile resource.");
+}
+
 BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	: _source_fs(default_allocator(), source_dir)
 	, _bundle_fs(default_allocator(), bundle_dir)
 	, _compilers(default_allocator())
 	, _files(default_allocator())
 	, _globs(default_allocator())
+	, _console_server(default_allocator())
 {
-	namespace pcr = physics_config_resource;
-	namespace phr = physics_resource;
-	namespace pkr = package_resource;
-	namespace sdr = sound_resource;
-	namespace mhr = mesh_resource;
-	namespace utr = unit_resource;
-	namespace txr = texture_resource;
-	namespace mtr = material_resource;
-	namespace lur = lua_resource;
-	namespace ftr = font_resource;
-	namespace lvr = level_resource;
-	namespace spr = sprite_resource;
-	namespace shr = shader_resource;
-	namespace sar = sprite_animation_resource;
-	namespace cor = config_resource;
-
-	register_resource_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
-	register_resource_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
-	register_resource_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
-	register_resource_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
-	register_resource_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
-	register_resource_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
-	register_resource_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
-	register_resource_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
-	register_resource_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
-	register_resource_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
-	register_resource_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
-	register_resource_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
-	register_resource_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
-	register_resource_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
-	register_resource_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
-
 	_bundle_fs.create_directory(bundle_dir);
 
 	if (!_bundle_fs.exists(CROWN_DATA_DIRECTORY))
@@ -150,6 +130,9 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 
 		default_allocator().deallocate(data);
 	}
+
+	_console_server.register_command(StringId32("compile"), console_command_compile, this);
+	_console_server.listen(CROWN_DEFAULT_COMPILER_PORT, false);
 }
 
 bool BundleCompiler::compile(const char* type, const char* name, const char* platform)
@@ -240,7 +223,7 @@ bool BundleCompiler::compile_all(const char* platform)
 	return true;
 }
 
-void BundleCompiler::register_resource_compiler(StringId64 type, u32 version, CompileFunction compiler)
+void BundleCompiler::register_compiler(StringId64 type, u32 version, CompileFunction compiler)
 {
 	CE_ASSERT(!sort_map::has(_compilers, type), "Type already registered");
 	CE_ASSERT_NOT_NULL(compiler);

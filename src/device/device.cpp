@@ -138,6 +138,36 @@ private:
 	ProxyAllocator _allocator;
 };
 
+static void console_command_script(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	DynamicString script(ta);
+	sjson::parse(json, obj);
+	sjson::parse_string(obj["script"], script);
+	device()->lua_environment()->execute_string(script.c_str());
+}
+
+static void console_command_reload(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	sjson::parse(json, obj);
+	StringId64 type = sjson::parse_resource_id(obj["resource_type"]);
+	StringId64 name = sjson::parse_resource_id(obj["resource_name"]);
+ 	device()->reload(type, name);
+}
+
+static void console_command_pause(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/)
+{
+	device()->pause();
+}
+
+static void console_command_unpause(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/)
+{
+	device()->unpause();
+}
+
 Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
@@ -362,14 +392,49 @@ void Device::run()
 	profiler_globals::init();
 
 	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
+	_console_server->register_command(StringId32("script"), console_command_script, NULL);
+	_console_server->register_command(StringId32("reload"), console_command_reload, NULL);
+	_console_server->register_command(StringId32("pause"), console_command_pause, NULL);
+	_console_server->register_command(StringId32("unpause"), console_command_unpause, NULL);
 	_console_server->listen(_device_options._console_port, _device_options._wait_console);
 
 	bool do_continue = true;
+
+	namespace pcr = physics_config_resource;
+	namespace phr = physics_resource;
+	namespace pkr = package_resource;
+	namespace sdr = sound_resource;
+	namespace mhr = mesh_resource;
+	namespace utr = unit_resource;
+	namespace txr = texture_resource;
+	namespace mtr = material_resource;
+	namespace lur = lua_resource;
+	namespace ftr = font_resource;
+	namespace lvr = level_resource;
+	namespace spr = sprite_resource;
+	namespace shr = shader_resource;
+	namespace sar = sprite_animation_resource;
+	namespace cor = config_resource;
 
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	if (_device_options._do_compile)
 	{
 		_bundle_compiler = CE_NEW(_allocator, BundleCompiler)(_device_options._source_dir, _device_options._bundle_dir);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
+		_bundle_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
 		do_continue = _bundle_compiler->compile_all(_device_options._platform) && _device_options._do_continue;
 	}
 #endif // CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
@@ -380,37 +445,21 @@ void Device::run()
 
 		_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
 		_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
-
-		namespace pcr = physics_config_resource;
-		namespace phr = physics_resource;
-		namespace pkr = package_resource;
-		namespace sdr = sound_resource;
-		namespace mhr = mesh_resource;
-		namespace utr = unit_resource;
-		namespace txr = texture_resource;
-		namespace mtr = material_resource;
-		namespace lur = lua_resource;
-		namespace ftr = font_resource;
-		namespace lvr = level_resource;
-		namespace spr = sprite_resource;
-		namespace shr = shader_resource;
-		namespace sar = sprite_animation_resource;
-		namespace cor = config_resource;
-		_resource_manager->register_resource_type(RESOURCE_TYPE_SCRIPT,           lur::load, lur::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
-		_resource_manager->register_resource_type(RESOURCE_TYPE_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
-		_resource_manager->register_resource_type(RESOURCE_TYPE_SOUND,            sdr::load, sdr::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_UNIT,             utr::load, utr::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::unload, spr::online, spr::offline);
-		_resource_manager->register_resource_type(RESOURCE_TYPE_PACKAGE,          pkr::load, pkr::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_PHYSICS,          phr::load, phr::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_MATERIAL,         mtr::load, mtr::unload, mtr::online, mtr::offline);
-		_resource_manager->register_resource_type(RESOURCE_TYPE_PHYSICS_CONFIG,   pcr::load, pcr::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_FONT,             ftr::load, ftr::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_LEVEL,            lvr::load, lvr::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_SHADER,           shr::load, shr::unload, shr::online, shr::offline);
-		_resource_manager->register_resource_type(RESOURCE_TYPE_SPRITE_ANIMATION, sar::load, sar::unload, NULL,        NULL        );
-		_resource_manager->register_resource_type(RESOURCE_TYPE_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           lur::load, lur::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
+		_resource_manager->register_type(RESOURCE_TYPE_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
+		_resource_manager->register_type(RESOURCE_TYPE_SOUND,            sdr::load, sdr::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_UNIT,             utr::load, utr::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::unload, spr::online, spr::offline);
+		_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          pkr::load, pkr::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_PHYSICS,          phr::load, phr::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_MATERIAL,         mtr::load, mtr::unload, mtr::online, mtr::offline);
+		_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   pcr::load, pcr::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_FONT,             ftr::load, ftr::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_LEVEL,            lvr::load, lvr::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_SHADER,           shr::load, shr::unload, shr::online, shr::offline);
+		_resource_manager->register_type(RESOURCE_TYPE_SPRITE_ANIMATION, sar::load, sar::unload, NULL,        NULL        );
+		_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
 
 		read_config();
 
