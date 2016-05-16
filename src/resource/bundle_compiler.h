@@ -27,7 +27,7 @@ class BundleCompiler
 	SortMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
-	ConsoleServer _console_server;
+	ConsoleServer* _console_server;
 
 	void compile(StringId64 type, const char* path, CompileOptions& opts);
 	// Returns the version of the compiler for @a type.
@@ -35,8 +35,14 @@ class BundleCompiler
 
 public:
 
-	BundleCompiler(const char* source_dir, const char* bundle_dir);
+	BundleCompiler(const char* source_dir, const char* bundle_dir, ConsoleServer& cs);
 
+	/// Runs the compiler. If @a server is true, it listens for compile
+	/// requests on port CROWN_DEFAULT_SERVER_PORT.
+	bool run(bool server);
+
+	/// Compiles the resource (@a type, @a name) for the given @a platform.
+	/// Returns true on success, false otherwise.
 	bool compile(const char* type, const char* name, const char* platform);
 
 	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.

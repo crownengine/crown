@@ -73,16 +73,19 @@ static void console_command_compile(void* data, ConsoleServer& cs, TCPSocket cli
 		cs.error(client, "Failed to compile resource.");
 }
 
-BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
+BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir, ConsoleServer& cs)
 	: _source_fs(default_allocator(), source_dir)
 	, _bundle_fs(default_allocator(), bundle_dir)
 	, _compilers(default_allocator())
 	, _files(default_allocator())
 	, _globs(default_allocator())
-	, _console_server(default_allocator())
+	, _console_server(&cs)
 {
 	_bundle_fs.create_directory(bundle_dir);
+}
 
+bool BundleCompiler::run(bool server)
+{
 	if (!_bundle_fs.exists(CROWN_DATA_DIRECTORY))
 		_bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
 
@@ -131,8 +134,18 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 		default_allocator().deallocate(data);
 	}
 
-	_console_server.register_command(StringId32("compile"), console_command_compile, this);
-	_console_server.listen(CROWN_DEFAULT_COMPILER_PORT, false);
+	bool success = compile_all("linux");
+
+	if (server)
+	{
+		_console_server->register_command(StringId32("compile"), console_command_compile, this);
+		_console_server->listen(CROWN_DEFAULT_COMPILER_PORT, true);
+
+		while (true)
+			_console_server->update();
+	}
+
+	return success;
 }
 
 bool BundleCompiler::compile(const char* type, const char* name, const char* platform)

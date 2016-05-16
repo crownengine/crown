@@ -392,13 +392,6 @@ void Device::run()
 	profiler_globals::init();
 
 	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
-	_console_server->register_command(StringId32("script"), console_command_script, NULL);
-	_console_server->register_command(StringId32("reload"), console_command_reload, NULL);
-	_console_server->register_command(StringId32("pause"), console_command_pause, NULL);
-	_console_server->register_command(StringId32("unpause"), console_command_unpause, NULL);
-	_console_server->listen(_device_options._console_port, _device_options._wait_console);
-
-	bool do_continue = true;
 
 	namespace pcr = physics_config_resource;
 	namespace phr = physics_resource;
@@ -416,10 +409,12 @@ void Device::run()
 	namespace sar = sprite_animation_resource;
 	namespace cor = config_resource;
 
+	bool do_continue = true;
+
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	if (_device_options._do_compile)
 	{
-		_bundle_compiler = CE_NEW(_allocator, BundleCompiler)(_device_options._source_dir, _device_options._bundle_dir);
+		_bundle_compiler = CE_NEW(_allocator, BundleCompiler)(_device_options._source_dir, _device_options._bundle_dir, *_console_server);
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
@@ -435,12 +430,19 @@ void Device::run()
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
-		do_continue = _bundle_compiler->compile_all(_device_options._platform) && _device_options._do_continue;
+
+		do_continue = _bundle_compiler->run(_device_options._server) && _device_options._do_continue;
 	}
 #endif // CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 
 	if (do_continue)
 	{
+		_console_server->register_command(StringId32("script"), console_command_script, NULL);
+		_console_server->register_command(StringId32("reload"), console_command_reload, NULL);
+		_console_server->register_command(StringId32("pause"), console_command_pause, NULL);
+		_console_server->register_command(StringId32("unpause"), console_command_unpause, NULL);
+		_console_server->listen(_device_options._console_port, _device_options._wait_console);
+
 		CE_LOGI("Initializing Crown Engine %s...", version());
 
 		_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
