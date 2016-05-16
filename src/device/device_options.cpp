@@ -37,6 +37,7 @@ static void help(const char* msg = NULL)
 		"  --console-port <port>      Set port of the console.\n"
 		"  --wait-console             Wait for a console connection before starting up.\n"
 		"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
+		"  --server                   Run the engine in server mode.\n"
 	);
 }
 
@@ -50,6 +51,7 @@ DeviceOptions::DeviceOptions(int argc, const char** argv)
 	, _wait_console(false)
 	, _do_compile(false)
 	, _do_continue(false)
+	, _server(false)
 	, _parent_window(0)
 	, _console_port(CROWN_DEFAULT_CONSOLE_PORT)
 	, _window_x(0)
@@ -130,6 +132,7 @@ int DeviceOptions::parse()
 	}
 
 	_do_continue = cl.has_argument("continue");
+	_server = cl.has_argument("server");
 
 	_boot_dir = cl.get_parameter("boot-dir");
 	if (_boot_dir != NULL)
