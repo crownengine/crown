@@ -11,10 +11,12 @@
 #include "command_line.h"
 #include "device.h"
 #include "display.h"
+#include "os.h"
 #include "os_event_queue.h"
 #include "thread.h"
 #include "unit_tests.cpp"
 #include "window.h"
+#include <bgfx/bgfxplatform.h>
 #include <stdlib.h>
 #include <string.h> // memset
 #include <X11/extensions/Xrandr.h>
@@ -22,7 +24,6 @@
 #include <X11/XKBlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <bgfx/bgfxplatform.h>
 
 namespace crown
 {
@@ -344,7 +345,97 @@ struct LinuxDevice
 
 		while (!s_exit)
 		{
-			pump_events();
+			_joypad.update(_queue);
+
+			while (XPending(_x11_display))
+			{
+				XEvent event;
+				XNextEvent(_x11_display, &event);
+
+				switch (event.type)
+				{
+					case EnterNotify:
+					{
+						_queue.push_mouse_event(event.xcrossing.x, event.xcrossing.y);
+						break;
+					}
+					case ClientMessage:
+					{
+						if ((Atom)event.xclient.data.l[0] == _wm_delete_message)
+						{
+							_queue.push_exit_event(0);
+						}
+						break;
+					}
+					case ConfigureNotify:
+					{
+						_queue.push_metrics_event(event.xconfigure.x
+							, event.xconfigure.y
+							, event.xconfigure.width
+							, event.xconfigure.height
+							);
+						break;
+					}
+					case ButtonPress:
+					case ButtonRelease:
+					{
+						if (event.xbutton.button == Button4 || event.xbutton.button == Button5)
+						{
+							_queue.push_mouse_event(event.xbutton.x
+								, event.xbutton.y
+								, event.xbutton.button == Button4 ? 1.0f : -1.0f
+								);
+							break;
+						}
+
+						MouseButton::Enum mb;
+						switch (event.xbutton.button)
+						{
+							case Button1: mb = MouseButton::LEFT; break;
+							case Button2: mb = MouseButton::MIDDLE; break;
+							case Button3: mb = MouseButton::RIGHT; break;
+							default: mb = MouseButton::COUNT; break;
+						}
+
+						if (mb != MouseButton::COUNT)
+						{
+							_queue.push_mouse_event(event.xbutton.x
+								, event.xbutton.y
+								, mb
+								, event.type == ButtonPress
+								);
+						}
+						break;
+					}
+					case MotionNotify:
+					{
+						_queue.push_mouse_event(event.xmotion.x, event.xmotion.y);
+						break;
+					}
+					case KeyPress:
+					case KeyRelease:
+					{
+						KeySym keysym = XLookupKeysym(&event.xkey, 0);
+						KeyboardButton::Enum kb = x11_translate_key(keysym);
+
+						if (kb != KeyboardButton::COUNT)
+							_queue.push_keyboard_event(kb, event.type == KeyPress);
+
+						break;
+					}
+					case KeymapNotify:
+					{
+						XRefreshKeyboardMapping(&event.xmapping);
+						break;
+					}
+					default:
+					{
+						break;
+					}
+				}
+			}
+
+			os::sleep(16);
 		}
 
 		_joypad.shutdown();
@@ -369,99 +460,6 @@ struct LinuxDevice
 
 		XCloseDisplay(_x11_display);
 		return EXIT_SUCCESS;
-	}
-
-	void pump_events()
-	{
-		_joypad.update(_queue);
-
-		while (XPending(_x11_display))
-		{
-			XEvent event;
-			XNextEvent(_x11_display, &event);
-
-			switch (event.type)
-			{
-				case EnterNotify:
-				{
-					_queue.push_mouse_event(event.xcrossing.x, event.xcrossing.y);
-					break;
-				}
-				case ClientMessage:
-				{
-					if ((Atom)event.xclient.data.l[0] == _wm_delete_message)
-					{
-						_queue.push_exit_event(0);
-					}
-					break;
-				}
-				case ConfigureNotify:
-				{
-					_queue.push_metrics_event(event.xconfigure.x
-						, event.xconfigure.y
-						, event.xconfigure.width
-						, event.xconfigure.height
-						);
-					break;
-				}
-				case ButtonPress:
-				case ButtonRelease:
-				{
-					if (event.xbutton.button == Button4 || event.xbutton.button == Button5)
-					{
-						_queue.push_mouse_event(event.xbutton.x
-							, event.xbutton.y
-							, event.xbutton.button == Button4 ? 1.0f : -1.0f
-							);
-						break;
-					}
-
-					MouseButton::Enum mb;
-					switch (event.xbutton.button)
-					{
-						case Button1: mb = MouseButton::LEFT; break;
-						case Button2: mb = MouseButton::MIDDLE; break;
-						case Button3: mb = MouseButton::RIGHT; break;
-						default: mb = MouseButton::COUNT; break;
-					}
-
-					if (mb != MouseButton::COUNT)
-					{
-						_queue.push_mouse_event(event.xbutton.x
-							, event.xbutton.y
-							, mb
-							, event.type == ButtonPress
-							);
-					}
-					break;
-				}
-				case MotionNotify:
-				{
-					_queue.push_mouse_event(event.xmotion.x, event.xmotion.y);
-					break;
-				}
-				case KeyPress:
-				case KeyRelease:
-				{
-					KeySym keysym = XLookupKeysym(&event.xkey, 0);
-					KeyboardButton::Enum kb = x11_translate_key(keysym);
-
-					if (kb != KeyboardButton::COUNT)
-						_queue.push_keyboard_event(kb, event.type == KeyPress);
-
-					break;
-				}
-				case KeymapNotify:
-				{
-					XRefreshKeyboardMapping(&event.xmapping);
-					break;
-				}
-				default:
-				{
-					break;
-				}
-			}
-		}
 	}
 
 public:
