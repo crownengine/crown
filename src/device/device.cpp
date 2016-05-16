@@ -373,24 +373,6 @@ bool Device::process_events()
 
 void Device::run()
 {
-#if CROWN_PLATFORM_ANDROID
-		_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
-#else
-		const char* bundle_dir = _device_options._bundle_dir;
-		if (!bundle_dir)
-		{
-			char buf[1024];
-			bundle_dir = os::getcwd(buf, sizeof(buf));
-		}
-		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), bundle_dir);
-		if (!_bundle_filesystem->exists(bundle_dir))
-			_bundle_filesystem->create_directory(bundle_dir);
-
-		_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
-#endif // CROWN_PLATFORM_ANDROID
-
-	profiler_globals::init();
-
 	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
 
 	namespace pcr = physics_config_resource;
@@ -437,6 +419,22 @@ void Device::run()
 
 	if (do_continue)
 	{
+#if CROWN_PLATFORM_ANDROID
+		_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
+#else
+		const char* bundle_dir = _device_options._bundle_dir;
+		if (!bundle_dir)
+		{
+			char buf[1024];
+			bundle_dir = os::getcwd(buf, sizeof(buf));
+		}
+		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), bundle_dir);
+		if (!_bundle_filesystem->exists(bundle_dir))
+			_bundle_filesystem->create_directory(bundle_dir);
+
+		_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
+#endif // CROWN_PLATFORM_ANDROID
+
 		_console_server->register_command(StringId32("script"), console_command_script, NULL);
 		_console_server->register_command(StringId32("reload"), console_command_reload, NULL);
 		_console_server->register_command(StringId32("pause"), console_command_pause, NULL);
@@ -444,6 +442,8 @@ void Device::run()
 		_console_server->listen(_device_options._console_port, _device_options._wait_console);
 
 		CE_LOGI("Initializing Crown Engine %s...", version());
+
+		profiler_globals::init();
 
 		_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
 		_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
@@ -574,18 +574,18 @@ void Device::run()
 		display::destroy(_allocator, *_display);
 		CE_DELETE(_allocator, _bgfx_callback);
 		CE_DELETE(_allocator, _bgfx_allocator);
+
+		if (_last_log)
+			_bundle_filesystem->close(*_last_log);
+
+		CE_DELETE(_allocator, _bundle_filesystem);
+
+		profiler_globals::shutdown();
 	}
 
 	_console_server->shutdown();
 	CE_DELETE(_allocator, _console_server);
 	CE_DELETE(_allocator, _bundle_compiler);
-
-	if (_last_log)
-		_bundle_filesystem->close(*_last_log);
-
-	CE_DELETE(_allocator, _bundle_filesystem);
-
-	profiler_globals::shutdown();
 
 	_allocator.clear();
 }
