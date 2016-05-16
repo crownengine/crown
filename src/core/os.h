@@ -33,6 +33,72 @@ namespace crown
 {
 namespace os
 {
+	inline s64 clocktime()
+	{
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
+		timespec now;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		return now.tv_sec * s64(1000000000) + now.tv_nsec;
+#elif CROWN_PLATFORM_OSX
+		struct timeval now;
+		gettimeofday(&now, NULL);
+		return now.tv_sec * s64(1000000) + now.tv_usec;
+#elif CROWN_PLATFORM_WINDOWS
+		LARGE_INTEGER ttime;
+		QueryPerformanceCounter(&ttime);
+		return (s64)ttime.QuadPart;
+#endif
+	}
+
+	inline s64 clockfrequency()
+	{
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
+		return s64(1000000000);
+#elif CROWN_PLATFORM_OSX
+		return s64(1000000);
+#elif CROWN_PLATFORM_WINDOWS
+		LARGE_INTEGER freq;
+		QueryPerformanceFrequency(&freq);
+		return (s64)freq.QuadPart;
+#endif
+	}
+
+	inline void sleep(u32 ms)
+	{
+#if CROWN_PLATFORM_POSIX
+		usleep(ms * 1000);
+#elif CROWN_PLATFORM_WINDOWS
+		Sleep(ms);
+#endif
+	}
+
+	inline void* open_library(const char* path)
+	{
+#if CROWN_PLATFORM_POSIX
+		return ::dlopen(path, RTLD_LAZY);
+#elif CROWN_PLATFORM_WINDOWS
+		return (void*)LoadLibraryA(path);
+#endif
+	}
+
+	inline void close_library(void* library)
+	{
+#if CROWN_PLATFORM_POSIX
+		dlclose(library);
+#elif CROWN_PLATFORM_WINDOWS
+		FreeLibrary((HMODULE)library);
+#endif
+	}
+
+	inline void* lookup_symbol(void* library, const char* name)
+	{
+#if CROWN_PLATFORM_POSIX
+		return ::dlsym(library, name);
+#elif CROWN_PLATFORM_WINDOWS
+		return (void*)GetProcAddress((HMODULE)library, name);
+#endif
+	}
+
 	inline void log(const char* msg)
 	{
 #if CROWN_PLATFORM_ANDROID
@@ -200,63 +266,6 @@ namespace os
 		return ::getenv(name);
 #elif CROWN_PLATFORM_WINDOWS
 		// GetEnvironmentVariable(name, buf, size);
-#endif
-	}
-
-	inline s64 clocktime()
-	{
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
-		timespec now;
-		clock_gettime(CLOCK_MONOTONIC, &now);
-		return now.tv_sec * s64(1000000000) + now.tv_nsec;
-#elif CROWN_PLATFORM_OSX
-		struct timeval now;
-		gettimeofday(&now, NULL);
-		return now.tv_sec * s64(1000000) + now.tv_usec;
-#elif CROWN_PLATFORM_WINDOWS
-		LARGE_INTEGER ttime;
-		QueryPerformanceCounter(&ttime);
-		return (s64)ttime.QuadPart;
-#endif
-	}
-
-	inline s64 clockfrequency()
-	{
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
-		return s64(1000000000);
-#elif CROWN_PLATFORM_OSX
-		return s64(1000000);
-#elif CROWN_PLATFORM_WINDOWS
-		LARGE_INTEGER freq;
-		QueryPerformanceFrequency(&freq);
-		return (s64)freq.QuadPart;
-#endif
-	}
-
-	inline void* open_library(const char* path)
-	{
-#if CROWN_PLATFORM_POSIX
-		return ::dlopen(path, RTLD_LAZY);
-#elif CROWN_PLATFORM_WINDOWS
-		return (void*)LoadLibraryA(path);
-#endif
-	}
-
-	inline void close_library(void* library)
-	{
-#if CROWN_PLATFORM_POSIX
-		dlclose(library);
-#elif CROWN_PLATFORM_WINDOWS
-		FreeLibrary((HMODULE)library);
-#endif
-	}
-
-	inline void* lookup_symbol(void* library, const char* name)
-	{
-#if CROWN_PLATFORM_POSIX
-		return ::dlsym(library, name);
-#elif CROWN_PLATFORM_WINDOWS
-		return (void*)GetProcAddress((HMODULE)library, name);
 #endif
 	}
 
