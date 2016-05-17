@@ -30,8 +30,6 @@ class ConsoleServer
 
 	void add_client(TCPSocket socket);
 	ReadResult update_client(TCPSocket client);
-
-	void send(TCPSocket client, const char* json);
 	void process(TCPSocket client, const char* json);
 
 public:
@@ -50,6 +48,9 @@ public:
 
 	/// Sends the given JSON-encoded string to all clients.
 	void send(const char* json);
+
+	/// Sends the given JSON-encoded string to @a client.
+	void send(TCPSocket client, const char* json);
 
 	/// Sends an error message to @a client.
 	void error(TCPSocket client, const char* msg);
