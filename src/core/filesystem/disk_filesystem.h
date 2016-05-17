@@ -25,10 +25,12 @@ class DiskFilesystem : public Filesystem
 
 public:
 
+	DiskFilesystem(Allocator& a);
+
 	/// Sets the root path to the given @a prefix.
 	/// @note
 	/// The @a prefix must be absolute.
-	DiskFilesystem(Allocator& a, const char* prefix);
+	void set_prefix(const char* prefix);
 
 	/// @copydoc Filesystem::open()
 	File* open(const char* path, FileOpenMode::Enum mode);

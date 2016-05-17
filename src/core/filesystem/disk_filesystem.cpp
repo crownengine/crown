@@ -231,10 +231,15 @@ public:
 	}
 };
 
-DiskFilesystem::DiskFilesystem(Allocator& a, const char* prefix)
+DiskFilesystem::DiskFilesystem(Allocator& a)
 	: _allocator(&a)
-	, _prefix(prefix, a)
+	, _prefix(a)
 {
+}
+
+void DiskFilesystem::set_prefix(const char* prefix)
+{
+	_prefix.set(prefix, strlen32(prefix));
 }
 
 File* DiskFilesystem::open(const char* path, FileOpenMode::Enum mode)
