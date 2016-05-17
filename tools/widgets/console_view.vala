@@ -109,14 +109,7 @@ namespace Crown
 		{
 			string[] words = cmd.split(" ");
 
-			if (words[0] == "compile")
-			{
-				if (words.length == 3)
-					_console_client.send(EngineAPI.compile(words[1], words[2], "linux"));
-				else
-					log("Hint: compile <type> <name>", "error");
-			}
-			else if (words[0] == "reload")
+			if (words[0] == "reload")
 			{
 				if (words.length == 3)
 					_console_client.send(EngineAPI.reload(words[1], words[2]));
