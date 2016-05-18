@@ -22,9 +22,12 @@ namespace Crown
 			uint64 d = rnd.next_int();
 
 			uint32 d1 = a;
-			uint16 d2 = (uint16)(b & 0xffff0000u) >> 16;
-			uint16 d3 = (uint16)(b & 0x0000ffffu) >>  0;
+			uint16 d2 = (uint16)((b & 0xffff0000u) >> 16);
+			uint16 d3 = (uint16)((b & 0x0000ffffu) >>  0);
 			uint64 d4 = (c << 32 | d);
+
+			d3 = (d3 & 0x4fffu) | 0x4000u;
+			d4 = (d4 & 0x3fffffffffffffffu) | 0x8000000000000000u;
 			return { d1, d2, d3, d4 };
 		}
 
