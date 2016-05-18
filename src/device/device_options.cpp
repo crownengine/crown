@@ -77,6 +77,7 @@ int DeviceOptions::parse()
 		return EXIT_FAILURE;
 	}
 
+	_source_dir = cl.get_parameter("source-dir");
 	_bundle_dir = cl.get_parameter("bundle-dir");
 
 	_do_compile = cl.has_argument("compile");
@@ -98,17 +99,25 @@ int DeviceOptions::parse()
 			return EXIT_FAILURE;
 		}
 
-		_source_dir = cl.get_parameter("source-dir");
 		if (_source_dir == NULL)
 		{
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
 
-		_bundle_dir = cl.get_parameter("bundle-dir");
 		if (_bundle_dir == NULL)
 		{
 			help("Bundle dir must be specified.");
+			return EXIT_FAILURE;
+		}
+	}
+
+	_server = cl.has_argument("server");
+	if (_server)
+	{
+		if (_source_dir == NULL)
+		{
+			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
 	}
@@ -132,7 +141,6 @@ int DeviceOptions::parse()
 	}
 
 	_do_continue = cl.has_argument("continue");
-	_server = cl.has_argument("server");
 
 	_boot_dir = cl.get_parameter("boot-dir");
 	if (_boot_dir != NULL)
