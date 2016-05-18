@@ -99,6 +99,9 @@ Command line reference
 
 		This option should be used only by the tools.
 
+	``--server``
+		Run the engine in server mode.
+
 	``--run-unit-tests``
 		Run unit tests and quit. Available only on ``linux`` and ``windows``.
 
