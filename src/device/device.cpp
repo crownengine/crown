@@ -168,6 +168,37 @@ static void console_command_unpause(void* /*data*/, ConsoleServer& /*cs*/, TCPSo
 	device()->unpause();
 }
 
+static void console_command_compile(void* data, ConsoleServer& cs, TCPSocket client, const char* json)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	sjson::parse(json, obj);
+
+	DynamicString id(ta);
+	DynamicString bundle_dir(ta);
+	DynamicString platform(ta);
+	sjson::parse_string(obj["id"], id);
+	sjson::parse_string(obj["bundle_dir"], bundle_dir);
+	sjson::parse_string(obj["platform"], platform);
+
+	{
+		TempAllocator512 ta;
+		StringStream ss(ta);
+		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"start\":true}";
+		cs.send(client, string_stream::c_str(ss));
+	}
+
+	BundleCompiler* bc = (BundleCompiler*)data;
+	bool succ = bc->compile(bundle_dir.c_str(), platform.c_str());
+
+	{
+		TempAllocator512 ta;
+		StringStream ss(ta);
+		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"success\":" << (succ ? "true" : "false") << "}";
+		cs.send(client, string_stream::c_str(ss));
+	}
+}
+
 Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
@@ -394,9 +425,9 @@ void Device::run()
 	bool do_continue = true;
 
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
-	if (_device_options._do_compile)
+	if (_device_options._do_compile || _device_options._server)
 	{
-		_bundle_compiler = CE_NEW(_allocator, BundleCompiler)(_device_options._source_dir, _device_options._bundle_dir, *_console_server);
+		_bundle_compiler = CE_NEW(_allocator, BundleCompiler)();
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
@@ -413,7 +444,27 @@ void Device::run()
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
 		_bundle_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
 
-		do_continue = _bundle_compiler->run(_device_options._server) && _device_options._do_continue;
+		_bundle_compiler->scan(_device_options._source_dir);
+
+		if (_device_options._server)
+		{
+			_console_server->register_command(StringId32("compile"), console_command_compile, _bundle_compiler);
+			_console_server->listen(CROWN_DEFAULT_COMPILER_PORT, false);
+
+			while (true)
+			{
+				_console_server->update();
+				os::sleep(60);
+			}
+		}
+		else
+		{
+			const char* source_dir = _device_options._source_dir;
+			const char* bundle_dir = _device_options._bundle_dir;
+			const char* platform = _device_options._platform;
+			do_continue = _bundle_compiler->compile(bundle_dir, platform);
+			do_continue = do_continue && _device_options._do_continue;
+		}
 	}
 #endif // CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 
@@ -428,7 +479,8 @@ void Device::run()
 			char buf[1024];
 			bundle_dir = os::getcwd(buf, sizeof(buf));
 		}
-		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator(), bundle_dir);
+		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator());
+		((DiskFilesystem*)_bundle_filesystem)->set_prefix(bundle_dir);
 		if (!_bundle_filesystem->exists(bundle_dir))
 			_bundle_filesystem->create_directory(bundle_dir);
 

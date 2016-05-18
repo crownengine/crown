@@ -52,44 +52,17 @@ public:
 	}
 };
 
-static void console_command_compile(void* data, ConsoleServer& cs, TCPSocket client, const char* json)
-{
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	DynamicString type(ta);
-	DynamicString name(ta);
-	DynamicString platform(ta);
-	sjson::parse(json, obj);
-	sjson::parse_string(obj["resource_type"], type);
-	sjson::parse_string(obj["resource_name"], name);
-	sjson::parse_string(obj["platform"], platform);
-
-	BundleCompiler* bc = (BundleCompiler*)data;
-	bool succ = bc->compile(type.c_str(), name.c_str(), platform.c_str());
-
-	if (succ)
-		cs.success(client, "Resource compiled.");
-	else
-		cs.error(client, "Failed to compile resource.");
-}
-
-BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir, ConsoleServer& cs)
-	: _source_fs(default_allocator(), source_dir)
-	, _bundle_fs(default_allocator(), bundle_dir)
+BundleCompiler::BundleCompiler()
+	: _source_fs(default_allocator())
 	, _compilers(default_allocator())
 	, _files(default_allocator())
 	, _globs(default_allocator())
-	, _console_server(&cs)
 {
-	_bundle_fs.create_directory(bundle_dir);
 }
 
-bool BundleCompiler::run(bool server)
+void BundleCompiler::scan(const char* source_dir)
 {
-	if (!_bundle_fs.exists(CROWN_DATA_DIRECTORY))
-		_bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
-
-	scan_source_dir("");
+	_source_fs.set_prefix(source_dir);
 
 	TempAllocator512 ta;
 	vector::push_back(_globs, DynamicString("*.tmp", ta));
@@ -134,21 +107,10 @@ bool BundleCompiler::run(bool server)
 		default_allocator().deallocate(data);
 	}
 
-	bool success = compile_all("linux");
-
-	if (server)
-	{
-		_console_server->register_command(StringId32("compile"), console_command_compile, this);
-		_console_server->listen(CROWN_DEFAULT_COMPILER_PORT, true);
-
-		while (true)
-			_console_server->update();
-	}
-
-	return success;
+	scan_source_dir("");
 }
 
-bool BundleCompiler::compile(const char* type, const char* name, const char* platform)
+bool BundleCompiler::compile(DiskFilesystem& bundle_fs, const char* type, const char* name, const char* platform)
 {
 	StringId64 _type(type);
 	StringId64 _name(name);
@@ -187,10 +149,10 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 	{
 		CompileOptions opts(_source_fs, output, platform, &buf);
 		compile(_type, src_path.c_str(), opts);
-		File* outf = _bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
+		File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
 		u32 size = array::size(output);
 		u32 written = outf->write(array::begin(output), size);
-		_bundle_fs.close(*outf);
+		bundle_fs.close(*outf);
 		success = size == written;
 	}
 	else
@@ -201,8 +163,17 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 	return success;
 }
 
-bool BundleCompiler::compile_all(const char* platform)
+bool BundleCompiler::compile(const char* bundle_dir, const char* platform)
 {
+	// Create bundle dir if necessary
+	DiskFilesystem bundle_fs(default_allocator());
+	bundle_fs.set_prefix(bundle_dir);
+	bundle_fs.create_directory("");
+
+	if (!bundle_fs.exists(CROWN_DATA_DIRECTORY))
+		bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
+
+	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(_files); ++i)
 	{
 		const char* filename = _files[i].c_str();
@@ -229,7 +200,7 @@ bool BundleCompiler::compile_all(const char* platform)
 		strncpy(name, filename, size);
 		name[size] = '\0';
 
-		if (!compile(type, name, platform))
+		if (!compile(bundle_fs, type, name, platform))
 			return false;
 	}
 

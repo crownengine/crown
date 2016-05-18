@@ -19,10 +19,16 @@ static void help(const char* msg = NULL)
 	}
 
 	CE_LOGI(
-		"Usage: crown [options]\n"
+		"The Flexible Game Engine\n"
+		"Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.\n"
+		"License: https://github.com/taylor001/crown/blob/master/LICENSE\n"
+		"\n"
+		"Complete documentation available at https://taylor001.github.io/crown/manual.html\n"
+		"\n"
+		"Usage:\n"
+		"  crown [options]\n"
 		"\n"
 		"Options:\n"
-		"\n"
 		"  -h --help                  Display this help.\n"
 		"  -v --version               Display engine version.\n"
 		"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
