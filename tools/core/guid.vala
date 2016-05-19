@@ -84,10 +84,7 @@ namespace Crown
 				&& a.data4 == b.data4
 				;
 		}
-
-		public static Guid empty()
-		{
-			return { 0, 0, 0, 0 };
-		}
 	}
+
+	const Guid GUID_ZERO = { 0, 0, 0, 0 };
 }
