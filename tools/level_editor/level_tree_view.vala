@@ -157,7 +157,7 @@ namespace Crown
 
 		private void on_database_key_changed(Guid id, string key)
 		{
-			if (id != Guid.empty())
+			if (id != GUID_ZERO)
 				return;
 
 			if (key != "units" && key != "sounds")
@@ -173,8 +173,8 @@ namespace Crown
 			_tree_store.set(unit_iter, 0, "Units", 1, ItemType.FOLDER, -1);
 			_tree_store.set(sound_iter, 0, "Sounds", 1, ItemType.FOLDER, -1);
 
-			Value? units  = _db.get_property(Guid.empty(), "units");
-			Value? sounds = _db.get_property(Guid.empty(), "sounds");
+			Value? units  = _db.get_property(GUID_ZERO, "units");
+			Value? sounds = _db.get_property(GUID_ZERO, "sounds");
 
 			if (units != null)
 			{
