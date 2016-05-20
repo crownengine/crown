@@ -6,11 +6,11 @@
 namespace Crown
 {
 #if CROWN_PLATFORM_LINUX
-	const string ENGINE_DIR = "../linux64/bin";
+	const string ENGINE_DIR = "../engine/linux64/bin";
 	const string EXE_PREFIX = "./";
 	const string EXE_SUFFIX = "";
 #elif CROWN_PLATFORM_WINDOWS
-	const string ENGINE_DIR = "../win64/bin";
+	const string ENGINE_DIR = "../engine/win64/bin";
 	const string EXE_PREFIX = "";
 	const string EXE_SUFFIX = ".exe";
 #endif
