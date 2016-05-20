@@ -14,4 +14,4 @@ configuration:
   - release
 
 build:
-  project: build/projects/vs2013/crown.sln
+  project: build/engine/projects/vs2013/crown.sln
