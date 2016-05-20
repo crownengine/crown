@@ -28,6 +28,14 @@ Engine initialization and shutdown.
 ###[01-physics](https://github.com/taylor001/crown/tree/master/samples/01-physics)
 ![01-physics](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/01-physics.png)
 
+##Download
+
+Linux: [pepper-0.0.16.tar.gz](http://52.27.219.161/~ubuntu/pepper-0.0.16.tar.gz)
+
+### ArchLinux
+
+	$ yaourt -S pepper && pepper
+
 ##Building
 
 ### Prerequisites
