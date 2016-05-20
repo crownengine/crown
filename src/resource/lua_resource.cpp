@@ -38,7 +38,7 @@ namespace lua_resource
 		DynamicString luasrc(ta);
 		DynamicString luabin(ta);
 		opts.get_absolute_path(path, luasrc);
-		opts.get_absolute_path("luabin.tmp", luabin);
+		opts.get_temporary_path("lua.bin", luabin);
 
 		StringStream args(ta);
 		args << " " << LUAJIT_FLAGS;
