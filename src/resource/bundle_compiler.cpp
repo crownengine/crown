@@ -147,7 +147,7 @@ bool BundleCompiler::compile(DiskFilesystem& bundle_fs, const char* type, const 
 
 	if (!setjmp(buf))
 	{
-		CompileOptions opts(_source_fs, output, platform, &buf);
+		CompileOptions opts(_source_fs, bundle_fs, output, platform, &buf);
 		compile(_type, src_path.c_str(), opts);
 		File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
 		u32 size = array::size(output);
@@ -172,6 +172,9 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* platform)
 
 	if (!bundle_fs.exists(CROWN_DATA_DIRECTORY))
 		bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
+
+	if (!bundle_fs.exists(CROWN_TEMP_DIRECTORY))
+		bundle_fs.create_directory(CROWN_TEMP_DIRECTORY);
 
 	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(_files); ++i)

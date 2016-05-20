@@ -5,14 +5,15 @@
 
 #pragma once
 
+#include "array.h"
 #include "dynamic_string.h"
 #include "file.h"
 #include "filesystem.h"
+#include "guid.h"
 #include "log.h"
 #include "path.h"
 #include "temp_allocator.h"
 #include "vector.h"
-#include "array.h"
 #include <setjmp.h>
 
 #define RESOURCE_COMPILER_ASSERT(condition, opts, msg, ...) do { if (!(condition))\
@@ -28,7 +29,8 @@ namespace crown
 {
 class CompileOptions
 {
-	Filesystem& _fs;
+	Filesystem& _source_fs;
+	Filesystem& _bundle_fs;
 	Buffer& _output;
 	const char* _platform;
 	jmp_buf* _jmpbuf;
@@ -36,8 +38,9 @@ class CompileOptions
 
 public:
 
-	CompileOptions(Filesystem& fs, Buffer& output, const char* platform, jmp_buf* buf)
-		: _fs(fs)
+	CompileOptions(Filesystem& source_fs, Filesystem& bundle_fs, Buffer& output, const char* platform, jmp_buf* buf)
+		: _source_fs(source_fs)
+		, _bundle_fs(bundle_fs)
 		, _output(output)
 		, _platform(platform)
 		, _jmpbuf(buf)
@@ -61,7 +64,7 @@ public:
 
 	bool file_exists(const char* path)
 	{
-		return _fs.exists(path);
+		return _source_fs.exists(path);
 	}
 
 	bool resource_exists(const char* type, const char* name)
@@ -75,20 +78,20 @@ public:
 
 	Buffer read_temporary(const char* path)
 	{
-		File* file = _fs.open(path, FileOpenMode::READ);
+		File* file = _bundle_fs.open(path, FileOpenMode::READ);
 		u32 size = file->size();
 		Buffer buf(default_allocator());
 		array::resize(buf, size);
 		file->read(array::begin(buf), size);
-		_fs.close(*file);
+		_bundle_fs.close(*file);
 		return buf;
 	}
 
 	void write_temporary(const char* path, const char* data, u32 size)
 	{
-		File* file = _fs.open(path, FileOpenMode::WRITE);
+		File* file = _source_fs.open(path, FileOpenMode::WRITE);
 		file->write(data, size);
-		_fs.close(*file);
+		_source_fs.close(*file);
 	}
 
 	void write_temporary(const char* path, const Buffer& data)
@@ -100,23 +103,37 @@ public:
 	{
 		add_dependency(path);
 
-		File* file = _fs.open(path, FileOpenMode::READ);
+		File* file = _source_fs.open(path, FileOpenMode::READ);
 		u32 size = file->size();
 		Buffer buf(default_allocator());
 		array::resize(buf, size);
 		file->read(array::begin(buf), size);
-		_fs.close(*file);
+		_source_fs.close(*file);
 		return buf;
 	}
 
 	void get_absolute_path(const char* path, DynamicString& abs)
 	{
-		_fs.get_absolute_path(path, abs);
+		_source_fs.get_absolute_path(path, abs);
+	}
+
+	void get_temporary_path(const char* suffix, DynamicString& abs)
+	{
+		_bundle_fs.get_absolute_path(CROWN_TEMP_DIRECTORY, abs);
+
+		TempAllocator64 ta;
+		DynamicString prefix(ta);
+		guid::to_string(guid::new_guid(), prefix);
+
+		abs += '/';
+		abs += prefix;
+		abs += '.';
+		abs += suffix;
 	}
 
 	void delete_file(const char* path)
 	{
-		_fs.delete_file(path);
+		_bundle_fs.delete_file(path);
 	}
 
 	void write(const void* data, u32 size)
