@@ -68,10 +68,10 @@ Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
 
 ##Samples
 
-To run a sample on 64-bit linux debug mode:
+To run a sample on 64-bit linux development mode:
 
-    $ cd build/linux64/bin
-	$ ./linux-debug-64 --source-dir <full/sample/path> --bundle-dir <full/destination/path> --compile --platform linux --continue
+    $ cd build/engine/linux64/bin
+	$ ./linux-development-64 --source-dir <path> --bundle-dir <path> --compile --platform linux --continue
 
 Support
 -------
