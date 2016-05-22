@@ -27,6 +27,9 @@ solution "tools"
 			flags {
 				"Symbols",
 			}
+			defines {
+				"CROWN_DEBUG",
+			}
 
 		configuration { "release" }
 			flags {
