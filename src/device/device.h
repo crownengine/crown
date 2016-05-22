@@ -104,7 +104,7 @@ public:
 	const char* architecture() const { return CROWN_ARCH_NAME; }
 
 	/// Returns a string identifying the engine version.
-	const char* version() const { return CROWN_VERSION_STRING; }
+	const char* version() const { return CROWN_VERSION; }
 
 	/// Return the number of frames rendered.
 	u64 frame_count() const;

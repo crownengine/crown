@@ -79,7 +79,7 @@ int DeviceOptions::parse()
 
 	if (cl.has_argument("version", 'v'))
 	{
-		CE_LOGI(CROWN_VERSION_STRING);
+		CE_LOGI(CROWN_VERSION);
 		return EXIT_FAILURE;
 	}
 
