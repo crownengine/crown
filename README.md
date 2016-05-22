@@ -13,7 +13,7 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
 ##Screenshots
 
-Level editor.
+###[Level Editor](https://github.com/taylor001/crown/tree/master/tools/level_editor)
 
 ![level-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/level-editor.png)
 
