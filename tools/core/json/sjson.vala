@@ -10,6 +10,7 @@
 
 using Gee;
 using GLib;
+using Posix;
 
 namespace Crown
 {
@@ -56,6 +57,7 @@ namespace Crown
 		public static Hashtable load(string path)
 		{
 			FileStream fs = FileStream.open(path, "r");
+			GLib.assert(fs != null);
 			// Get file size
 			fs.seek(0, FileSeek.END);
 			long size = fs.tell();
@@ -72,6 +74,7 @@ namespace Crown
 		{
 			string s = Encode(h);
 			FileStream fs = FileStream.open(path, "w");
+			GLib.assert(fs != null);
 			uint8[] bytes = s.data;
 			fs.write(bytes);
 		}
@@ -81,10 +84,15 @@ namespace Crown
 		   write_object_fields(t, builder, 0);
 		}
 
+		static int cmpfn_key(ref string a, ref string b)
+		{
+			return Posix.strcmp(a, b);
+		}
+
 		static void write_object_fields(Hashtable t, StringBuilder builder, int indentation)
 		{
 			string[] keys = t.keys.to_array();
-			// keys.sort(); // FIXME
+			Posix.qsort(keys, keys.length, sizeof(string), (Posix.compar_fn_t)cmpfn_key);
 			foreach (string key in keys) {
 				write_new_line(builder, indentation);
 				builder.append(key);
@@ -123,7 +131,7 @@ namespace Crown
 			else if (o.holds(typeof(Hashtable)))
 				write_object((Hashtable)o, builder, indentation);
 			else
-				assert(false);
+				GLib.assert(false);
 		}
 
 		static void write_string(string s, StringBuilder builder)
@@ -203,7 +211,7 @@ namespace Crown
 				index += 2;
 			}
 			else
-				assert(false);
+				GLib.assert(false);
 		}
 
 		static string parse_identifier(uint8 [] json, ref int index)
@@ -229,7 +237,7 @@ namespace Crown
 			skip_whitespace(json, ref index);
 			for (int i=0; i<consume.length; ++i) {
 				if (json[index] != consume[i])
-					assert(false);
+					GLib.assert(false);
 				++index;
 			}
 		}
@@ -263,7 +271,7 @@ namespace Crown
 			}
 			else
 			{
-				assert(false);
+				GLib.assert(false);
 				return null;
 			}
 
@@ -327,11 +335,11 @@ namespace Crown
 					else if (q == 't') s.add('\t');
 					else if (q == 'u')
 					{
-						assert(false);
+						GLib.assert(false);
 					}
 					else
 					{
-						assert(false);
+						GLib.assert(false);
 					}
 				}
 			}
