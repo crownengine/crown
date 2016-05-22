@@ -28,6 +28,14 @@ Engine initialization and shutdown.
 ###[01-physics](https://github.com/taylor001/crown/tree/master/samples/01-physics)
 ![01-physics](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/01-physics.png)
 
+##Download
+
+Linux: [pepper-0.0.16-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.16/pepper-0.0.16-linux-x64.tar.gz)
+
+### ArchLinux
+
+	$ yaourt -S pepper && pepper
+
 ##Building
 
 ### Prerequisites
@@ -60,10 +68,10 @@ Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
 
 ##Samples
 
-To run a sample on 64-bit linux debug mode:
+To run a sample on 64-bit linux development mode:
 
-    $ cd build/linux64/bin
-	$ ./linux-debug-64 --source-dir <full/sample/path> --bundle-dir <full/destination/path> --compile --platform linux --continue
+    $ cd build/engine/linux64/bin
+	$ ./linux-development-64 --source-dir <path> --bundle-dir <path> --compile --platform linux --continue
 
 Support
 -------
