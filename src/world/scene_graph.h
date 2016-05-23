@@ -60,7 +60,8 @@ struct SceneGraph
 
 	u32 _marker;
 
-	Allocator& _allocator;
+	Allocator* _allocator;
+	UnitManager* _unit_manager;
 	InstanceData _data;
 	HashMap<UnitId, u32> _map;
 
@@ -68,7 +69,14 @@ struct SceneGraph
 	void allocate(u32 num);
 	TransformInstance make_instance(u32 i);
 
-	SceneGraph(Allocator& a);
+	void unit_destroyed_callback(UnitId id);
+
+	static void unit_destroyed_callback(UnitId id, void* user_ptr)
+	{
+		((SceneGraph*)user_ptr)->unit_destroyed_callback(id);
+	}
+
+	SceneGraph(Allocator& a, UnitManager& um);
 	~SceneGraph();
 
 	/// Creates a new transform instance for unit @a id.

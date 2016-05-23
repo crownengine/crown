@@ -10,6 +10,7 @@
 #include "matrix4x4.h"
 #include "quaternion.h"
 #include "scene_graph.h"
+#include "unit_manager.h"
 #include "vector3.h"
 #include <stdint.h> // UINT_MAX
 #include <string.h> // memcpy
@@ -29,16 +30,20 @@ SceneGraph::Pose& SceneGraph::Pose::operator=(const Matrix4x4& m)
 	return *this;
 }
 
-SceneGraph::SceneGraph(Allocator& a)
+SceneGraph::SceneGraph(Allocator& a, UnitManager& um)
 	: _marker(MARKER)
-	, _allocator(a)
+	, _allocator(&a)
+	, _unit_manager(&um)
 	, _map(a)
 {
+	um.register_destroy_function(SceneGraph::unit_destroyed_callback, this);
 }
 
 SceneGraph::~SceneGraph()
 {
-	_allocator.deallocate(_data.buffer);
+	_unit_manager->unregister_destroy_function(this);
+
+	_allocator->deallocate(_data.buffer);
 
 	_marker = 0;
 }
@@ -64,7 +69,7 @@ void SceneGraph::allocate(u32 num)
 	InstanceData new_data;
 	new_data.size = _data.size;
 	new_data.capacity = num;
-	new_data.buffer = _allocator.allocate(bytes);
+	new_data.buffer = _allocator->allocate(bytes);
 
 	new_data.unit = (UnitId*)(new_data.buffer);
 	new_data.world = (Matrix4x4*)(new_data.unit + num);
@@ -84,8 +89,15 @@ void SceneGraph::allocate(u32 num)
 	memcpy(new_data.prev_sibling, _data.prev_sibling, _data.size * sizeof(TransformInstance));
 	memcpy(new_data.changed, _data.changed, _data.size * sizeof(bool));
 
-	_allocator.deallocate(_data.buffer);
+	_allocator->deallocate(_data.buffer);
 	_data = new_data;
+}
+
+void SceneGraph::unit_destroyed_callback(UnitId id)
+{
+	TransformInstance ti = get(id);
+	if (is_valid(ti))
+		destroy(ti);
 }
 
 TransformInstance SceneGraph::create(UnitId id, const Vector3& pos, const Quaternion& rot, const Vector3& scale)

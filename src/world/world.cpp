@@ -44,7 +44,7 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	, _events(a)
 {
 	_lines = create_debug_line(true);
-	_scene_graph = CE_NEW(*_allocator, SceneGraph)(*_allocator);
+	_scene_graph = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
 	_render_world = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um);
 	_physics_world = physics_world::create(*_allocator, rm, um, *_lines);
 	_sound_world = sound_world::create(*_allocator);
