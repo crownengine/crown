@@ -64,7 +64,7 @@ namespace Crown
 
 			add(_vbox);
 
-			set_size_request(470, 250);
+			set_size_request(300, 250);
 			show_all();
 		}
 

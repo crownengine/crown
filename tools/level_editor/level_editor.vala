@@ -295,7 +295,7 @@ namespace Crown
 
 			_pane_right = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_pane_right.pack1(vb, true, false);
-			_pane_right.pack2(rb, true, true);
+			_pane_right.pack2(rb, true, false);
 
 			_notebook = new Notebook();
 			_notebook.append_page(_pane_right, new Gtk.Label("Level"));
@@ -322,6 +322,7 @@ namespace Crown
 
 			this.add(_vbox);
 			this.set_size_request(1280, 720);
+			this.maximize();
 			this.show_all();
 		}
 

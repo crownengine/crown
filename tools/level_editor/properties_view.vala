@@ -406,7 +406,7 @@ namespace Crown
 
 			set_current_widget(_nothing_to_show);
 
-			set_size_request(470, 200);
+			set_size_request(300, 200);
 		}
 
 		private void add_component_view(string label, string component_type, ComponentView cv)
