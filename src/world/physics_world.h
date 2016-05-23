@@ -23,6 +23,7 @@ public:
 	virtual ~PhysicsWorld() {}
 
 	virtual ColliderInstance create_collider(UnitId id, const ColliderDesc* sd) = 0;
+	virtual void destroy_collider(ColliderInstance i) = 0;
 	virtual ColliderInstance first_collider(UnitId id) = 0;
 	virtual ColliderInstance next_collider(ColliderInstance i) = 0;
 

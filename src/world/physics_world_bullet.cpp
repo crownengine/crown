@@ -303,6 +303,67 @@ public:
 		return make_collider_instance(last);
 	}
 
+	void destroy_collider(ColliderInstance i)
+	{
+		CE_ASSERT(i.i < array::size(_collider), "Index out of bounds");
+
+		const u32 last                 = array::size(_collider) - 1;
+		const UnitId u                 = _collider[i.i].unit;
+		const ColliderInstance first_i = first_collider(u);
+		const ColliderInstance last_i  = make_collider_instance(last);
+
+		swap_collider_node(last_i, i);
+		remove_collider_node(first_i, i);
+
+		CE_DELETE(*_allocator, _collider[i.i].vertex_array);
+		CE_DELETE(*_allocator, _collider[i.i].shape);
+
+		_collider[i.i] = _collider[last];
+
+		array::pop_back(_collider);
+	}
+
+	void remove_collider_node(ColliderInstance first, ColliderInstance i)
+	{
+		CE_ASSERT(first.i < array::size(_collider), "Index out of bounds");
+		CE_ASSERT(i.i < array::size(_collider), "Index out of bounds");
+
+		const UnitId u = _collider[first.i].unit;
+
+		if (i.i == first.i)
+		{
+			if (!is_valid(next_collider(i)))
+				hash_map::remove(_collider_map, u);
+			else
+				hash_map::set(_collider_map, u, next_collider(i).i);
+		}
+		else
+		{
+			ColliderInstance prev = previous_collider(i);
+			_collider[prev.i].next = next_collider(i);
+		}
+	}
+
+	void swap_collider_node(ColliderInstance a, ColliderInstance b)
+	{
+		CE_ASSERT(a.i < array::size(_collider), "Index out of bounds");
+		CE_ASSERT(b.i < array::size(_collider), "Index out of bounds");
+
+		const UnitId u = _collider[a.i].unit;
+		const ColliderInstance first_i = first_collider(u);
+
+		if (a.i == first_i.i)
+		{
+			hash_map::set(_collider_map, u, b.i);
+		}
+		else
+		{
+			const ColliderInstance prev_a = previous_collider(a);
+			CE_ENSURE(prev_a.i != a.i);
+			_collider[prev_a.i].next = b;
+		}
+	}
+
 	ColliderInstance first_collider(UnitId id)
 	{
 		return make_collider_instance(hash_map::get(_collider_map, id, UINT32_MAX));
@@ -311,6 +372,24 @@ public:
 	ColliderInstance next_collider(ColliderInstance i)
 	{
 		return _collider[i.i].next;
+	}
+
+	ColliderInstance previous_collider(ColliderInstance i)
+	{
+		CE_ASSERT(i.i < array::size(_collider), "Index out of bounds");
+
+		const UnitId u = _collider[i.i].unit;
+
+		ColliderInstance curr = first_collider(u);
+		ColliderInstance prev = { UINT32_MAX };
+
+		while (curr.i != i.i)
+		{
+			prev = curr;
+			curr = next_collider(curr);
+		}
+
+		return prev;
 	}
 
 	ActorInstance create_actor(UnitId id, const ActorResource* ar, const Matrix4x4& tm)
@@ -916,9 +995,23 @@ public:
 
 	void unit_destroyed_callback(UnitId id)
 	{
-		ActorInstance first = actor(id);
-		if (is_valid(first))
-			destroy_actor(first);
+		{
+			ActorInstance first = actor(id);
+			if (is_valid(first))
+				destroy_actor(first);
+		}
+
+		{
+			ColliderInstance curr = first_collider(id);
+			ColliderInstance next;
+
+			while (is_valid(curr))
+			{
+				next = next_collider(curr);
+				destroy_collider(curr);
+				curr = next;
+			}
+		}
 	}
 
 	static void tick_cb(btDynamicsWorld* world, btScalar dt)

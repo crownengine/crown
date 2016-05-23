@@ -40,6 +40,10 @@ public:
 		return make_collider_instance(UINT32_MAX);
 	}
 
+	virtual void destroy_collider(ColliderInstance /*i*/)
+	{
+	}
+
 	virtual ColliderInstance first_collider(UnitId /*id*/)
 	{
 		return make_collider_instance(UINT32_MAX);
