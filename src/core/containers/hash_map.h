@@ -210,7 +210,7 @@ namespace hash_map
 	template <typename TKey, typename TValue, typename Hash>
 	void set(HashMap<TKey, TValue, Hash>& m, const TKey& key, const TValue& value)
 	{
-		if (m._size == 0)
+		if (m._capacity == 0)
 			hash_map_internal::grow(m);
 
 		// Find or make
