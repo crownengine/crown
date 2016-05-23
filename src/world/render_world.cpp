@@ -550,7 +550,7 @@ void RenderWorld::MeshManager::remove_node(MeshInstance first, MeshInstance i)
 	if (i.i == first.i)
 	{
 		if (!is_valid(next(i)))
-			hash_map::set(_map, u, UINT32_MAX);
+			hash_map::remove(_map, u);
 		else
 			hash_map::set(_map, u, next(i).i);
 	}
@@ -749,7 +749,7 @@ void RenderWorld::SpriteManager::remove_node(SpriteInstance first, SpriteInstanc
 	if (i.i == first.i)
 	{
 		if (!is_valid(next(i)))
-			hash_map::set(_map, u, UINT32_MAX);
+			hash_map::remove(_map, u);
 		else
 			hash_map::set(_map, u, next(i).i);
 	}
