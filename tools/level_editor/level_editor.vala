@@ -1043,7 +1043,7 @@ namespace Crown
 			}
 
 			dlg.program_name = "Crown Game Engine";
-			dlg.version = "0.0.16";
+			dlg.version = CROWN_VERSION;
 			dlg.website = "https://github.com/taylor001/crown";
 			dlg.copyright = "Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.";
 			dlg.license = "Crown Game Engine.\n"

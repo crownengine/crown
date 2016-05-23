@@ -5,6 +5,8 @@
 
 namespace Crown
 {
+	const string CROWN_VERSION = "0.0.16";
+
 #if CROWN_PLATFORM_LINUX
 	const string ENGINE_DIR = "../engine/linux64/bin";
 	const string EXE_PREFIX = "./";
