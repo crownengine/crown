@@ -87,6 +87,15 @@ UnitId World::spawn_empty_unit()
 void World::destroy_unit(UnitId id)
 {
 	_unit_manager->destroy(id);
+	for (u32 i = 0, n = array::size(_units); i < n; ++i)
+	{
+		if (_units[i] == id)
+		{
+			_units[i] = _units[n - 1];
+			array::pop_back(_units);
+			break;
+		}
+	}
 	post_unit_destroyed_event(id);
 }
 
