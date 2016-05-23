@@ -31,7 +31,7 @@ SceneGraph::Pose& SceneGraph::Pose::operator=(const Matrix4x4& m)
 }
 
 SceneGraph::SceneGraph(Allocator& a, UnitManager& um)
-	: _marker(MARKER)
+	: _marker(SCENE_GRAPH_MARKER)
 	, _allocator(&a)
 	, _unit_manager(&um)
 	, _map(a)

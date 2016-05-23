@@ -608,12 +608,41 @@ struct LuaStack
 	void check_temporary(int i, const Quaternion* p);
 	void check_temporary(int i, const Matrix4x4* p);
 
-	void check_type(int i, const DebugLine* p);
-	void check_type(int i, const ResourcePackage* p);
-	void check_type(int i, const World* p);
-	void check_type(int i, const SceneGraph* p);
-	void check_type(int i, const RenderWorld* p);
-	void check_type(int i, const Level* p);
+	void check_type(int i, const DebugLine* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != DEBUG_LINE_MARKER)
+			luaL_typerror(L, i, "DebugLine");
+	}
+
+	void check_type(int i, const ResourcePackage* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != RESOURCE_PACKAGE_MARKER)
+			luaL_typerror(L, i, "ResourcePackage");
+	}
+
+	void check_type(int i, const World* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != WORLD_MARKER)
+			luaL_typerror(L, i, "World");
+	}
+
+	void check_type(int i, const SceneGraph* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != SCENE_GRAPH_MARKER)
+			luaL_typerror(L, i, "SceneGraph");
+	}
+
+	void check_type(int i, const RenderWorld* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != RENDER_WORLD_MARKER)
+			luaL_typerror(L, i, "RenderWorld");
+	}
+
+	void check_type(int i, const Level* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != LEVEL_MARKER)
+			luaL_typerror(L, i, "Level");
+	}
 };
 
 } // namespace crown

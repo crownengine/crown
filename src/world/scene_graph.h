@@ -144,8 +144,6 @@ struct SceneGraph
 	void set_local(TransformInstance i);
 
 	void transform(const Matrix4x4& parent, TransformInstance i);
-
-	static const u32 MARKER = 0x63a44dbf;
 };
 
 } // namespace crown

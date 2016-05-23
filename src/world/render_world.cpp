@@ -21,7 +21,7 @@
 namespace crown
 {
 RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um)
-	: _marker(MARKER)
+	: _marker(RENDER_WORLD_MARKER)
 	, _allocator(&a)
 	, _resource_manager(&rm)
 	, _shader_manager(&sm)

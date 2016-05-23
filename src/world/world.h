@@ -219,8 +219,6 @@ public:
 	void post_unit_spawned_event(UnitId id);
 	void post_unit_destroyed_event(UnitId id);
 	void post_level_loaded_event();
-
-	static const u32 MARKER = 0xfb6ce2d3;
 };
 
 void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const UnitId* unit_lookup);

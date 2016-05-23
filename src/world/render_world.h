@@ -102,8 +102,6 @@ public:
 	/// Fills @a dl with debug lines
 	void draw_debug(DebugLine& dl);
 
-	static const u32 MARKER = 0xc82277de;
-
 private:
 
 	static void unit_destroyed_callback(UnitId id, void* user_ptr)

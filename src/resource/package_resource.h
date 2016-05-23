@@ -10,6 +10,7 @@
 #include "filesystem_types.h"
 #include "memory_types.h"
 #include "resource_types.h"
+#include "string_id.h"
 #include "string_types.h"
 
 namespace crown

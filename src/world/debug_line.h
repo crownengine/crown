@@ -20,7 +20,6 @@ struct DebugLine
 {
 	/// Default number of segments.
 	static const u32 NUM_SEGMENTS = 36;
-	static const u32 MARKER = 0xd7c17715;
 	static const u32 MAX_LINES = 32768;
 
 	struct Line

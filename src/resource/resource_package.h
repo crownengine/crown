@@ -5,15 +5,22 @@
 
 #pragma once
 
-#include "types.h"
 #include "resource_types.h"
 #include "string_id.h"
+#include "types.h"
 
 namespace crown
 {
 /// Collection of resources to load in a batch.
 struct ResourcePackage
 {
+	u32 _marker;
+	ResourceManager* _resource_manager;
+	StringId64 _package_id;
+	const PackageResource* _package;
+
+public:
+
 	ResourcePackage(StringId64 id, ResourceManager& resman);
 	~ResourcePackage();
 
@@ -31,18 +38,6 @@ struct ResourcePackage
 
 	/// Returns whether the package has been loaded.
 	bool has_loaded() const;
-
-public:
-
-	enum { MARKER = 0x9a1ac68c };
-
-private:
-
-	u32 _marker;
-
-	ResourceManager* _resman;
-	StringId64 _id;
-	const PackageResource* _package;
 };
 
 } // namespace crown

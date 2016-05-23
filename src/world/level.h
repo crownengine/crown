@@ -32,8 +32,6 @@ public:
 	~Level();
 
 	void load(const Vector3& pos, const Quaternion& rot);
-
-	static const u32 MARKER = 0x1f2b43fe;
 };
 
 } // namespace crown
