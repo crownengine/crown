@@ -604,6 +604,7 @@ struct LuaStack
 		*mat = m;
 	}
 
+#if !CROWN_RELEASE
 	void check_temporary(int i, const Vector3* p);
 	void check_temporary(int i, const Quaternion* p);
 	void check_temporary(int i, const Matrix4x4* p);
@@ -643,6 +644,7 @@ struct LuaStack
 		if (!is_pointer(i) || *(u32*)p != LEVEL_MARKER)
 			luaL_typerror(L, i, "Level");
 	}
+#endif // !CROWN_RELEASE
 };
 
 } // namespace crown
