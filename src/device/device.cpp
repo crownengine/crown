@@ -227,8 +227,6 @@ Device::Device(const DeviceOptions& opts)
 	, _quit(false)
 	, _paused(false)
 	, _frame_count(0)
-	, _last_time(0)
-	, _current_time(0)
 	, _last_delta_time(0.0f)
 	, _time_since_start(0.0)
 {
@@ -550,15 +548,16 @@ void Device::run()
 		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, boot_script_name));
 		_lua_environment->call_global("init", 0);
 
-		_last_time = os::clocktime();
-
 		CE_LOGD("Engine initialized");
+
+		s64 last_time = os::clocktime();
+		s64 curr_time;
 
 		while (!process_events() && !_quit)
 		{
-			_current_time = os::clocktime();
-			const s64 time = _current_time - _last_time;
-			_last_time = _current_time;
+			curr_time = os::clocktime();
+			const s64 time = curr_time - last_time;
+			last_time = curr_time;
 			const f64 freq = (f64) os::clockfrequency();
 			_last_delta_time = f32(time * (1.0 / freq));
 			_time_since_start += _last_delta_time;

@@ -66,8 +66,6 @@ class Device
 	bool _paused;
 
 	u64 _frame_count;
-	s64 _last_time;
-	s64 _current_time;
 	f32 _last_delta_time;
 	f64 _time_since_start;
 
