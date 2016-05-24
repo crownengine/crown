@@ -1083,6 +1083,7 @@ namespace Crown
 	{
 		Gtk.init(ref args);
 		Intl.setlocale(LocaleCategory.ALL, "C");
+		Gtk.Settings.get_default().gtk_application_prefer_dark_theme = true;
 
 		var window = new LevelEditor(args[1], args[2]);
 		window.show_all();
