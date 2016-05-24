@@ -217,13 +217,6 @@ Device::Device(const DeviceOptions& opts)
 	, _lua_environment(NULL)
 	, _display(NULL)
 	, _window(NULL)
-	, _boot_package_name(u64(0))
-	, _boot_script_name(u64(0))
-	, _boot_package(NULL)
-	, _config_window_x(0)
-	, _config_window_y(0)
-	, _config_window_w(CROWN_DEFAULT_WINDOW_WIDTH)
-	, _config_window_h(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _worlds(default_allocator())
 	, _width(0)
 	, _height(0)
@@ -239,50 +232,6 @@ Device::Device(const DeviceOptions& opts)
 	, _last_delta_time(0.0f)
 	, _time_since_start(0.0)
 {
-}
-
-void Device::read_config()
-{
-	TempAllocator4096 ta;
-	DynamicString boot_dir(ta);
-
-	if (_device_options._boot_dir != NULL)
-	{
-		boot_dir += _device_options._boot_dir;
-		boot_dir += '/';
-	}
-
-	boot_dir += CROWN_BOOT_CONFIG;
-
-	const StringId64 config_name(boot_dir.c_str());
-
-	_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
-	_resource_manager->flush();
-	const char* cfile = (const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name);
-
-	JsonObject config(ta);
-	sjson::parse(cfile, config);
-
-	_boot_script_name  = sjson::parse_resource_id(config["boot_script"]);
-	_boot_package_name = sjson::parse_resource_id(config["boot_package"]);
-
-	// Platform-specific configs
-	if (map::has(config, FixedString(CROWN_PLATFORM_NAME)))
-	{
-		JsonObject platform(ta);
-		sjson::parse(config[CROWN_PLATFORM_NAME], platform);
-
-		if (map::has(platform, FixedString("window_width")))
-		{
-			_config_window_w = (u16)sjson::parse_int(platform["window_width"]);
-		}
-		if (map::has(platform, FixedString("window_height")))
-		{
-			_config_window_h = (u16)sjson::parse_int(platform["window_height"]);
-		}
-	}
-
-	_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 }
 
 bool Device::process_events()
@@ -515,8 +464,55 @@ void Device::run()
 		_resource_manager->register_type(RESOURCE_TYPE_SPRITE_ANIMATION, sar::load, sar::unload, NULL,        NULL        );
 		_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
 
-		read_config();
+		// Read config
+		StringId64 boot_package_name(u64(0));
+		StringId64 boot_script_name(u64(0));
+		u16 window_w = CROWN_DEFAULT_WINDOW_WIDTH;
+		u16 window_h = CROWN_DEFAULT_WINDOW_HEIGHT;
 
+		{
+			TempAllocator4096 ta;
+			DynamicString boot_dir(ta);
+
+			if (_device_options._boot_dir != NULL)
+			{
+				boot_dir += _device_options._boot_dir;
+				boot_dir += '/';
+			}
+			boot_dir += CROWN_BOOT_CONFIG;
+
+			const StringId64 config_name(boot_dir.c_str());
+
+			_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
+			_resource_manager->flush();
+			const char* cfile = (const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name);
+
+			JsonObject config(ta);
+			sjson::parse(cfile, config);
+
+			boot_script_name  = sjson::parse_resource_id(config["boot_script"]);
+			boot_package_name = sjson::parse_resource_id(config["boot_package"]);
+
+			// Platform-specific configs
+			if (map::has(config, FixedString(CROWN_PLATFORM_NAME)))
+			{
+				JsonObject platform(ta);
+				sjson::parse(config[CROWN_PLATFORM_NAME], platform);
+
+				if (map::has(platform, FixedString("window_width")))
+				{
+					window_w = (u16)sjson::parse_int(platform["window_width"]);
+				}
+				if (map::has(platform, FixedString("window_height")))
+				{
+					window_h = (u16)sjson::parse_int(platform["window_height"]);
+				}
+			}
+
+			_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
+		}
+
+		// Init all remaining subsystems
 		_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
 		_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
 
@@ -524,8 +520,8 @@ void Device::run()
 		_window = window::create(_allocator);
 		_window->open(_device_options._window_x
 			, _device_options._window_y
-			, _config_window_w
-			, _config_window_h
+			, window_w
+			, window_h
 			, _device_options._parent_window
 			);
 		_window->bgfx_setup();
@@ -546,12 +542,12 @@ void Device::run()
 		audio_globals::init();
 		physics_globals::init(_allocator);
 
-		_boot_package = create_resource_package(_boot_package_name);
-		_boot_package->load();
-		_boot_package->flush();
+		ResourcePackage* boot_package = create_resource_package(boot_package_name);
+		boot_package->load();
+		boot_package->flush();
 
 		_lua_environment->load_libs();
-		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_script_name));
+		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, boot_script_name));
 		_lua_environment->call_global("init", 0);
 
 		_last_time = os::clocktime();
@@ -607,8 +603,8 @@ void Device::run()
 
 		_lua_environment->call_global("shutdown", 0);
 
-		_boot_package->unload();
-		destroy_resource_package(*_boot_package);
+		boot_package->unload();
+		destroy_resource_package(*boot_package);
 
 		physics_globals::shutdown(_allocator);
 		audio_globals::shutdown();

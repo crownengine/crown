@@ -53,16 +53,6 @@ class Device
 	LuaEnvironment* _lua_environment;
 	Display* _display;
 	Window* _window;
-
-	StringId64 _boot_package_name;
-	StringId64 _boot_script_name;
-	ResourcePackage* _boot_package;
-
-	u16 _config_window_x;
-	u16 _config_window_y;
-	u16 _config_window_w;
-	u16 _config_window_h;
-
 	Array<World*> _worlds;
 
 	u16 _width;
@@ -81,7 +71,6 @@ class Device
 	f32 _last_delta_time;
 	f64 _time_since_start;
 
-	void read_config();
 	bool process_events();
 
 public:
