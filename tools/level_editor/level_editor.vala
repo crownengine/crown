@@ -240,16 +240,16 @@ namespace Crown
 
 			try
 			{
-				Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_file("icons/tool-place.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_file("icons/tool-move.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_file("icons/tool-rotate.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_file("icons/tool-scale.png"));
-				Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_file("icons/axis-local.png"));
-				Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_file("icons/axis-world.png"));
-				Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_file("icons/snap-to-grid.png"));
-				Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_file("icons/reference-local.png"));
-				Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_file("icons/reference-world.png"));
-				Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_file("icons/run.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_file("ui/icons/tool-place.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_file("ui/icons/tool-move.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_file("ui/icons/tool-rotate.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_file("ui/icons/tool-scale.png"));
+				Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_file("ui/icons/axis-local.png"));
+				Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_file("ui/icons/axis-world.png"));
+				Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_file("ui/icons/snap-to-grid.png"));
+				Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_file("ui/icons/reference-local.png"));
+				Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_file("ui/icons/reference-world.png"));
+				Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_file("ui/icons/run.png"));
 			}
 			catch (Error e)
 			{
@@ -1035,7 +1035,7 @@ namespace Crown
 
 			try
 			{
-				dlg.set_logo(new Pixbuf.from_file("icons/pepper-128x128.png"));
+				dlg.set_logo(new Pixbuf.from_file("ui/icons/pepper-128x128.png"));
 			}
 			catch (Error e)
 			{
