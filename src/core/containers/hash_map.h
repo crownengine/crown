@@ -22,6 +22,9 @@ namespace hash_map
 	/// Returns the number of items in the map @a m.
 	template <typename TKey, typename TValue, typename Hash> u32 size(const HashMap<TKey, TValue, Hash>& m);
 
+	/// Returns the maximum number of items the map @a m can hold.
+	template <typename TKey, typename TValue, typename Hash> u32 capacity(const HashMap<TKey, TValue, Hash>& m);
+
 	/// Returns whether the given @a key exists in the map @a m.
 	template <typename TKey, typename TValue, typename Hash> bool has(const HashMap<TKey, TValue, Hash>& m, const TKey& key);
 
@@ -52,24 +55,13 @@ namespace hash_map_internal
 	inline u32 hash_key(const TKey& key)
 	{
 		const Hash hash;
-		u32 h = hash(key);
-
-		// MSB is used to indicate a deleted elem, so
-		// clear it
-		h &= 0x7fffffffu;
-
-		// Ensure that we never return 0 as a hash,
-		// since we use 0 to indicate that the elem has never
-		// been used at all.
-		h |= h == 0u;
-
-		return h;
+		return hash(key);
 	}
 
-	inline bool is_deleted(u32 hash)
+	inline bool is_deleted(u32 index)
 	{
 		// MSB set indicates that this hash is a "tombstone"
-		return (hash >> 31) != 0;
+		return (index >> 31) != 0;
 	}
 
 	template <typename TKey, typename TValue, typename Hash>
@@ -90,11 +82,11 @@ namespace hash_map_internal
 		u32 dist = 0;
 		for(;;)
 		{
-			if (m._hashes[hash_i] == 0)
+			if (m._index[hash_i].index == FREE)
 				return END_OF_LIST;
-			else if (dist > probe_distance(m, m._hashes[hash_i], hash_i))
+			else if (dist > probe_distance(m, m._index[hash_i].hash, hash_i))
 				return END_OF_LIST;
-			else if (m._hashes[hash_i] == hash && m._data[hash_i].pair.first == key)
+			else if (!is_deleted(m._index[hash_i].index) && m._index[hash_i].hash == hash && m._data[hash_i].pair.first == key)
 				return hash_i;
 
 			hash_i = (hash_i + 1) & m._mask;
@@ -103,26 +95,35 @@ namespace hash_map_internal
 	}
 
 	template <typename TKey, typename TValue, typename Hash>
-	void insert(HashMap<TKey, TValue, Hash>& m, u32 hash, TKey& key, TValue& value)
+	void insert(HashMap<TKey, TValue, Hash>& m, u32 hash, const TKey& key, const TValue& value)
 	{
+		PAIR(TKey, TValue) new_item(*m._allocator);
+		new_item.first  = key;
+		new_item.second = value;
+
 		u32 hash_i = hash & m._mask;
 		u32 dist = 0;
 		for(;;)
 		{
-			if (m._hashes[hash_i] == FREE)
+			if (m._index[hash_i].index == FREE)
 				goto INSERT_AND_RETURN;
 
 			// If the existing elem has probed less than us, then swap places with existing
 			// elem, and keep going to find another slot for that elem.
-			u32 existing_elem_probe_dist = probe_distance(m, m._hashes[hash_i], hash_i);
-			if (existing_elem_probe_dist < dist)
+			u32 existing_elem_probe_dist = probe_distance(m, m._index[hash_i].hash, hash_i);
+			if (is_deleted(m._index[hash_i].index) || existing_elem_probe_dist < dist)
 			{
-				if (is_deleted(m._hashes[hash_i]))
+				if (is_deleted(m._index[hash_i].index))
 					goto INSERT_AND_RETURN;
 
-				std::swap(hash, m._hashes[hash_i]);
-				std::swap(key, m._data[hash_i].pair.first);
-				std::swap(value, m._data[hash_i].pair.second);
+				std::swap(hash, m._index[hash_i].hash);
+				m._index[hash_i].index = 0x0123abcd;
+				PAIR(TKey, TValue) empty(*m._allocator);
+				PAIR(TKey, TValue) tmp(*m._allocator);
+				memcpy(&tmp, &m._data[hash_i].pair, sizeof(new_item));
+				memcpy(&m._data[hash_i].pair, &new_item, sizeof(new_item));
+				memcpy(&new_item, &tmp, sizeof(new_item));
+
 				dist = existing_elem_probe_dist;
 			}
 
@@ -132,23 +133,29 @@ namespace hash_map_internal
 
 	INSERT_AND_RETURN:
 		new (m._data + hash_i) typename HashMap<TKey, TValue, Hash>::Entry(*m._allocator);
-		m._data[hash_i].pair.first = key;
-		m._data[hash_i].pair.second = value;
-		m._hashes[hash_i] = hash;
+		memcpy(m._data + hash_i, &new_item, sizeof(new_item));
+		m._index[hash_i].hash = hash;
+		m._index[hash_i].index = 0x0123abcd;
+		PAIR(TKey, TValue) empty(*m._allocator);
+		memcpy(&new_item, &empty, sizeof(new_item));
 	}
 
 	template <typename TKey, typename TValue, typename Hash>
 	void rehash(HashMap<TKey, TValue, Hash>& m, u32 new_capacity)
 	{
 		typedef typename HashMap<TKey, TValue, Hash>::Entry Entry;
+		typedef typename HashMap<TKey, TValue, Hash>::Index Index;
 
 		HashMap<TKey, TValue, Hash> nm(*m._allocator);
-		nm._hashes = (u32*)nm._allocator->allocate(new_capacity*sizeof(u32), alignof(u32));
+		nm._index = (Index*)nm._allocator->allocate(new_capacity*sizeof(Index), alignof(Index));
 		nm._data = (Entry*)nm._allocator->allocate(new_capacity*sizeof(Entry), alignof(Entry));
 
 		// Flag all elements as free
 		for (u32 i = 0; i < new_capacity; ++i)
-			nm._hashes[i] = FREE;
+		{
+			nm._index[i].hash = 0;
+			nm._index[i].index = FREE;
+		}
 
 		nm._capacity = new_capacity;
 		nm._size = m._size;
@@ -157,9 +164,10 @@ namespace hash_map_internal
 		for (u32 i = 0; i < m._capacity; ++i)
 		{
 			typename HashMap<TKey, TValue, Hash>::Entry& e = m._data[i];
-			const u32 hash = m._hashes[i];
+			const u32 hash = m._index[i].hash;
+			const u32 index = m._index[i].index;
 
-			if (hash != FREE && !is_deleted(hash))
+			if (index != FREE && !is_deleted(index))
 				hash_map_internal::insert(nm, hash, e.pair.first, e.pair.second);
 		}
 
@@ -192,6 +200,12 @@ namespace hash_map
 	}
 
 	template <typename TKey, typename TValue, typename Hash>
+	u32 capacity(const HashMap<TKey, TValue, Hash>& m)
+	{
+		return m._capacity;
+	}
+
+	template <typename TKey, typename TValue, typename Hash>
 	bool has(const HashMap<TKey, TValue, Hash>& m, const TKey& key)
 	{
 		return hash_map_internal::find(m, key) != hash_map_internal::END_OF_LIST;
@@ -217,7 +231,7 @@ namespace hash_map
 		const u32 i = hash_map_internal::find(m, key);
 		if (i == hash_map_internal::END_OF_LIST)
 		{
-			hash_map_internal::insert(m, hash_map_internal::hash_key<TKey, Hash>(key), const_cast<TKey&>(key), const_cast<TValue&>(value));
+			hash_map_internal::insert(m, hash_map_internal::hash_key<TKey, Hash>(key), key, value);
 			++m._size;
 		}
 		else
@@ -236,7 +250,7 @@ namespace hash_map
 			return;
 
 		m._data[i].~Entry();
-		m._hashes[i] |= hash_map_internal::DELETED;
+		m._index[i].index |= hash_map_internal::DELETED;
 		--m._size;
 	}
 
@@ -247,7 +261,7 @@ namespace hash_map
 
 		// Flag all elements as free
 		for (u32 i = 0; i < m._capacity; ++i)
-			m._hashes[i] = hash_map_internal::FREE;
+			m._index[i].index = hash_map_internal::FREE;
 
 		for (u32 i = 0; i < m._size; ++i)
 			m._data[i].~Entry();
@@ -260,7 +274,7 @@ HashMap<TKey, TValue, Hash>::HashMap(Allocator& a)
 	, _capacity(0)
 	, _size(0)
 	, _mask(0)
-	, _hashes(NULL)
+	, _index(NULL)
 	, _data(NULL)
 {
 }
@@ -268,7 +282,7 @@ HashMap<TKey, TValue, Hash>::HashMap(Allocator& a)
 template <typename TKey, typename TValue, typename Hash>
 HashMap<TKey, TValue, Hash>::~HashMap()
 {
-	_allocator->deallocate(_hashes);
+	_allocator->deallocate(_index);
 
 	for (u32 i = 0; i < _size; ++i)
 		_data[i].~Entry();

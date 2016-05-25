@@ -150,11 +150,17 @@ struct HashMap
 		}
 	};
 
+	struct Index
+	{
+		u32 hash;
+		u32 index;
+	};
+
 	Allocator* _allocator;
 	u32 _capacity;
 	u32 _size;
 	u32 _mask;
-	u32* _hashes;
+	Index* _index;
 	Entry* _data;
 
 	HashMap(Allocator& a);
