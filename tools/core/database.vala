@@ -7,134 +7,381 @@ using Gee;
 
 namespace Crown
 {
-	public class Stack
-	{
-		private ArrayList<Value?> _data;
-
-		public Stack()
-		{
-			_data = new ArrayList<Value?>();
-		}
-
-		public void push(Value? value)
-		{
-			_data.add(value);
-		}
-
-		public Value? pop()
-		{
-			return _data.remove_at(_data.size - 1);
-		}
-
-		public Value? peek()
-		{
-			return _data.last();
-		}
-
-		public int size()
-		{
-			return _data.size;
-		}
-
-		public void clear()
-		{
-			_data.clear();
-		}
-	}
-
 	public class Database
 	{
-		private abstract class ChangeAction
+		private enum ActionType
 		{
+			CREATE,
+			DESTROY,
+			SET_PROPERTY,
+			ADD_TO_SET,
+			REMOVE_FROM_SET,
+			RESTORE_POINT
 		}
 
-		private class CreateAction : ChangeAction
+		private enum ValueType
 		{
-			public Guid _id;
-
-			public CreateAction(Guid id)
-			{
-				_id = id;
-			}
+			NULL,
+			BOOL,
+			DOUBLE,
+			STRING,
+			GUID,
+			VECTOR3,
+			QUATERNION
 		}
 
-		private class DestroyAction : ChangeAction
+		private struct CreateAction
 		{
-			public Guid _id;
-
-			public DestroyAction(Guid id)
-			{
-				_id = id;
-			}
+			public Guid id;
 		}
 
-		private class SetPropertyAction : ChangeAction
+		private struct DestroyAction
 		{
-			public Guid _id;
-			public string _key;
-			public Value? _value;
-
-			public SetPropertyAction(Guid id, string key, Value? value)
-			{
-				_id = id;
-				_key = key;
-				_value = value;
-			}
+			public Guid id;
 		}
 
-		private class AddToSetAction : ChangeAction
+		private struct SetPropertyAction
 		{
-			public Guid _id;
-			public string _key;
-			public Guid _item_id;
-
-			public AddToSetAction(Guid id, string key, Guid item_id)
-			{
-				_id = id;
-				_key = key;
-				_item_id = item_id;
-			}
+			public Guid id;
+			public string key;
+			public Value? val;
 		}
 
-		private class RemoveFromSetAction : ChangeAction
+		private struct AddToSetAction
 		{
-			public Guid _id;
-			public string _key;
-			public Guid _item_id;
-
-			public RemoveFromSetAction(Guid id, string key, Guid item_id)
-			{
-				_id = id;
-				_key = key;
-				_item_id = item_id;
-			}
+			public Guid id;
+			public string key;
+			public Guid item_id;
 		}
 
-		public delegate void ActionCallback(bool undo, int id, Value? data);
-
-		private class RestorePoint : ChangeAction
+		private struct RemoveFromSetAction
 		{
-			public ActionCallback _undo_redo;
-			public int _id;
-			public Value? _data;
+			public Guid id;
+			public string key;
+			public Guid item_id;
+		}
 
-			public RestorePoint(ActionCallback undo_redo, int id, Value? data)
+		private struct RestorePoint
+		{
+			public int id;
+			public uint32 size;
+			public Guid[] data;
+		}
+
+		private class Stack
+		{
+			private uint8[] _data;
+			private uint32 _read;
+
+			public Stack()
 			{
-				_undo_redo = undo_redo;
-				_id = id;
-				_data = data;
+				_data = new uint8[1024*1024];
+				_read = 0;
 			}
 
-			public void Redo()
+			public void clear()
 			{
-				if (_undo_redo != null)
-					_undo_redo(false, _id, _data);
+				_read = 0;
 			}
 
-			public void Undo()
+			public uint32 size()
 			{
-				if (_undo_redo != null)
-					_undo_redo(true, _id, _data);
+				return _read;
+			}
+
+			public void write_data(void* data, ulong len)
+			{
+				uint8* buf = (uint8*)data;
+				for (ulong i = 0; i < len; ++i, ++_read)
+					_data[_read] = buf[i];
+			}
+
+			public void write_bool(bool a)
+			{
+				write_data(&a, sizeof(bool));
+			}
+
+			public void write_int(int a)
+			{
+				write_data(&a, sizeof(int));
+			}
+
+			public void write_uint32(uint32 a)
+			{
+				write_data(&a, sizeof(uint32));
+			}
+
+			public void write_double(double a)
+			{
+				write_data(&a, sizeof(double));
+			}
+
+			public void write_string(string str)
+			{
+				uint32 len = str.length;
+				write_data(&str.data[0], len);
+				write_data(&len, sizeof(uint32));
+			}
+
+			public void write_guid(Guid a)
+			{
+				write_data(&a, sizeof(Guid));
+			}
+
+			public void write_vector3(Vector3 a)
+			{
+				write_data(&a, sizeof(Vector3));
+			}
+
+			public void write_quaternion(Quaternion a)
+			{
+				write_data(&a, sizeof(Quaternion));
+			}
+
+			public void write_action_type(ActionType t)
+			{
+				write_uint32((uint32)t);
+			}
+
+			public void write_value_type(ValueType t)
+			{
+				write_uint32((uint32)t);
+			}
+
+			public ActionType read_action_type()
+			{
+				_read -= (uint32)sizeof(uint32);
+				uint32 a = *(uint32*)(&_data[_read]);
+				return (ActionType)a;
+			}
+
+			public bool read_bool()
+			{
+				_read -= (uint32)sizeof(bool);
+				bool a = *(bool*)(&_data[_read]);
+				return a;
+			}
+
+			public int read_int()
+			{
+				_read -= (uint32)sizeof(int);
+				int a = *(int*)(&_data[_read]);
+				return a;
+			}
+
+			public uint32 read_uint32()
+			{
+				_read -= (uint32)sizeof(uint32);
+				uint32 a = *(uint32*)(&_data[_read]);
+				return a;
+			}
+
+			public double read_double()
+			{
+				_read -= (uint32)sizeof(double);
+				double a = *(double*)(&_data[_read]);
+				return a;
+			}
+
+			public Guid read_guid()
+			{
+				_read -= (uint32)sizeof(Guid);
+				Guid a = *(Guid*)(&_data[_read]);
+				return a;
+			}
+
+			public Vector3 read_vector3()
+			{
+				_read -= (uint32)sizeof(Vector3);
+				Vector3 a = *(Vector3*)(&_data[_read]);
+				return a;
+			}
+
+			public Quaternion read_quaternion()
+			{
+				_read -= (uint32)sizeof(Quaternion);
+				Quaternion a = *(Quaternion*)(&_data[_read]);
+				return a;
+			}
+
+			public string read_string()
+			{
+				_read -= (uint32)sizeof(uint32);
+				uint32 len = *(uint32*)(&_data[_read]);
+				_read -= len;
+				uint8[] str = new uint8[len + 1];
+				for (uint32 i = 0; i < len; ++i)
+					str[i] = *(uint8*)(&_data[_read + i]);
+				str[len] = '\0';
+				return (string)str;
+			}
+
+			public ValueType read_value_type()
+			{
+				_read -= (uint32)sizeof(uint32);
+				uint32 a = *(uint32*)(&_data[_read]);
+				return (ValueType)a;
+			}
+
+			public void write_create_action(Guid id)
+			{
+				write_guid(id);
+				write_action_type(ActionType.CREATE);
+			}
+
+			public void write_destroy_action(Guid id)
+			{
+				write_guid(id);
+				write_action_type(ActionType.DESTROY);
+			}
+
+			public void write_set_property_action(Guid id, string key, Value? val)
+			{
+				if (val == null)
+				{
+					// Push nothing
+					write_value_type(ValueType.NULL);
+				}
+				else if (val.holds(typeof(bool)))
+				{
+					write_bool((bool)val);
+					write_value_type(ValueType.BOOL);
+				}
+				else if (val.holds(typeof(double)))
+				{
+					write_double((double)val);
+					write_value_type(ValueType.DOUBLE);
+				}
+				else if (val.holds(typeof(string)))
+				{
+					write_string((string)val);
+					write_value_type(ValueType.STRING);
+				}
+				else if (val.holds(typeof(Guid)))
+				{
+					write_guid((Guid)val);
+					write_value_type(ValueType.GUID);
+				}
+				else if (val.holds(typeof(Vector3)))
+				{
+					write_vector3((Vector3)val);
+					write_value_type(ValueType.VECTOR3);
+				}
+				else if (val.holds(typeof(Quaternion)))
+				{
+					write_quaternion((Quaternion)val);
+					write_value_type(ValueType.QUATERNION);
+				}
+
+				write_string(key);
+				write_guid(id);
+				write_action_type(ActionType.SET_PROPERTY);
+			}
+
+			public void write_add_to_set_action(Guid id, string key, Guid item_id)
+			{
+				write_guid(item_id);
+				write_string(key);
+				write_guid(id);
+				write_action_type(ActionType.ADD_TO_SET);
+			}
+
+			public void write_remove_from_set_action(Guid id, string key, Guid item_id)
+			{
+				write_guid(item_id);
+				write_string(key);
+				write_guid(id);
+				write_action_type(ActionType.REMOVE_FROM_SET);
+			}
+
+			public void write_restore_point(int id, uint32 size, Guid[] data)
+			{
+				uint32 num_guids = data.length;
+				for (uint32 i = 0; i < num_guids; ++i)
+					write_guid(data[i]);
+				write_uint32(num_guids);
+				write_uint32(size);
+				write_int(id);
+				write_action_type(ActionType.RESTORE_POINT);
+			}
+
+			public uint32 peek_type()
+			{
+				return *(uint32*)(&_data[_read - (uint32)sizeof(uint32)]);
+			}
+
+			public CreateAction read_create_action()
+			{
+				ActionType t = read_action_type();
+				assert(t == ActionType.CREATE);
+				return { read_guid() };
+			}
+
+			public DestroyAction read_destroy_action()
+			{
+				ActionType t = read_action_type();
+				assert(t == ActionType.DESTROY);
+				return { read_guid() };
+			}
+
+			public SetPropertyAction read_set_property_action()
+			{
+				ActionType t = read_action_type();
+				assert(t == ActionType.SET_PROPERTY);
+
+				Guid id = read_guid();
+				string key = read_string();
+				ValueType type = read_value_type();
+
+				Value? val = null;
+
+				if (type == ValueType.NULL)
+				{
+					// Pop nothing
+				}
+				else if (type == ValueType.BOOL)
+					val = read_bool();
+				else if (type == ValueType.DOUBLE)
+					val = read_double();
+				else if (type == ValueType.STRING)
+					val = read_string();
+				else if (type == ValueType.GUID)
+					val = read_guid();
+				else if (type == ValueType.VECTOR3)
+					val = read_vector3();
+				else if (type == ValueType.QUATERNION)
+					val = read_quaternion();
+				else
+					assert(false);
+
+				return { id, key, val };
+			}
+
+			public AddToSetAction read_add_to_set_action()
+			{
+				ActionType t = read_action_type();
+				assert(t == ActionType.ADD_TO_SET);
+				return { read_guid(), read_string(), read_guid() };
+			}
+
+			public RemoveFromSetAction read_remove_from_set_action()
+			{
+				ActionType t = read_action_type();
+				assert(t == ActionType.REMOVE_FROM_SET);
+				return { read_guid(), read_string(), read_guid() };
+			}
+
+			public RestorePoint read_restore_point()
+			{
+				ActionType t = read_action_type();
+				assert(t == ActionType.RESTORE_POINT);
+				int id = read_int();
+				uint32 size = read_uint32();
+				uint32 num_guids = read_uint32();
+				Guid[] ids = new Guid[num_guids];
+				for (uint32 i = 0; i < num_guids; ++i)
+					ids[i] = read_guid();
+				return { id, size, ids };
 			}
 		}
 
@@ -142,16 +389,21 @@ namespace Crown
 		private HashMap<string, Value?> _data;
 		private Stack _undo;
 		private Stack _redo;
+		private Stack _undo_points;
+		private Stack _redo_points;
 		private bool _changed;
 
 		// Signals
 		public signal void key_changed(Guid id, string key);
+		public signal void undo_redo(bool undo, int id, Guid[] data);
 
 		public Database()
 		{
 			_data = new HashMap<string, Value?>();
 			_undo = new Stack();
 			_redo = new Stack();
+			_undo_points = new Stack();
+			_redo_points = new Stack();
 
 			reset();
 		}
@@ -164,6 +416,8 @@ namespace Crown
 			_data.clear();
 			_undo.clear();
 			_redo.clear();
+			_undo_points.clear();
+			_redo_points.clear();
 
 			_changed = false;
 
@@ -543,7 +797,7 @@ namespace Crown
 			assert(id != GUID_ZERO);
 			assert(!has_object(id));
 
-			_undo.push(new DestroyAction(id));
+			_undo.write_destroy_action(id);
 			_redo.clear();
 
 			create_internal(id);
@@ -577,7 +831,7 @@ namespace Crown
 				}
 			}
 
-			_undo.push(new CreateAction(id));
+			_undo.write_create_action(id);
 			_redo.clear();
 
 			destroy_internal(id);
@@ -590,7 +844,7 @@ namespace Crown
 			assert(is_valid_value(value));
 
 			HashMap<string, Value?> ob = get_data(id);
-			_undo.push(new SetPropertyAction(id, key, ob.has_key(key) ? ob[key] : null));
+			_undo.write_set_property_action(id, key, ob.has_key(key) ? ob[key] : null);
 			_redo.clear();
 
 			set_property_internal(id, key, value);
@@ -603,7 +857,7 @@ namespace Crown
 			assert(item_id != GUID_ZERO);
 			assert(has_object(item_id));
 
-			_undo.push(new RemoveFromSetAction(id, key, item_id));
+			_undo.write_remove_from_set_action(id, key, item_id);
 			_redo.clear();
 
 			add_to_set_internal(id, key, item_id);
@@ -615,7 +869,7 @@ namespace Crown
 			assert(is_valid_key(key));
 			assert(item_id != GUID_ZERO);
 
-			_undo.push(new AddToSetAction(id, key, item_id));
+			_undo.write_add_to_set_action(id, key, item_id);
 			_redo.clear();
 
 			remove_from_set_internal(id, key, item_id);
@@ -663,12 +917,12 @@ namespace Crown
 			return data.keys.to_array();
 		}
 
-		public void add_restore_point(ActionCallback? undo_redo = null, int id = -1, Value? data = null)
+		public void add_restore_point(int id, Guid[] data)
 		{
 #if CROWN_DEBUG
 			stdout.printf("add_restore_point %d\n", id);
 #endif // CROWN_DEBUG
-			_undo.push(new RestorePoint(undo_redo, id, data));
+			_undo_points.write_restore_point(id, _undo.size(), data);
 		}
 
 		/// <summary>
@@ -743,137 +997,101 @@ namespace Crown
 			}
 		}
 
-		public void undo_single_action()
+		public void undo()
 		{
-			RestorePoint begin_action = null;
+			if (_undo_points.size() == 0)
+				return;
 
-			while (true)
+			RestorePoint rp = _undo_points.read_restore_point();
+			_redo_points.write_restore_point(rp.id, _redo.size(), rp.data);
+			undo_until(rp.size);
+			undo_redo(true, rp.id, rp.data);
+		}
+
+		public void redo()
+		{
+			if (_redo_points.size() == 0)
+				return;
+
+			RestorePoint rp = _redo_points.read_restore_point();
+			_undo_points.write_restore_point(rp.id, _undo.size(), rp.data);
+			redo_until(rp.size);
+			undo_redo(false, rp.id, rp.data);
+		}
+
+		private void undo_until(uint32 size)
+		{
+			while (_undo.size() != size)
 			{
-				if (_undo.size() == 0)
+				uint32 type = _undo.peek_type();
+				if (type == ActionType.CREATE)
 				{
-					if (begin_action != null)
-					{
-						_redo.push(begin_action);
-						begin_action.Undo();
-					}
-					return;
+					CreateAction a = _undo.read_create_action();
+					_redo.write_destroy_action(a.id);
+					create_internal(a.id);
 				}
-
-				Value? action = _undo.peek();
-				if (action.holds(typeof(RestorePoint)))
+				else if (type == ActionType.DESTROY)
 				{
-					if (begin_action == null)
-					{
-						begin_action = (RestorePoint)action;
-						_undo.pop();
-						continue;
-					}
-					else
-					{
-						_redo.push(begin_action);
-						begin_action.Undo();
-						return;
-					}
+					DestroyAction a = _undo.read_destroy_action();
+					_redo.write_create_action(a.id);
+					destroy_internal(a.id);
 				}
-				else if (action.holds(typeof(CreateAction)))
+				else if (type == ActionType.SET_PROPERTY)
 				{
-					CreateAction a = (action as CreateAction);
-					_redo.push(new DestroyAction(a._id));
-					create_internal(a._id);
+					SetPropertyAction a = _undo.read_set_property_action();
+					_redo.write_set_property_action(a.id, a.key, get_data(a.id).has_key(a.key) ? get_data(a.id)[a.key] : null);
+					set_property_internal(a.id, a.key, a.val);
 				}
-				else if (action.holds(typeof(DestroyAction)))
+				else if (type == ActionType.ADD_TO_SET)
 				{
-					DestroyAction a = (action as DestroyAction);
-					_redo.push(new CreateAction(a._id));
-					destroy_internal(a._id);
+					AddToSetAction a = _undo.read_add_to_set_action();
+					_redo.write_remove_from_set_action(a.id, a.key, a.item_id);
+					add_to_set_internal(a.id, a.key, a.item_id);
 				}
-				else if (action.holds(typeof(SetPropertyAction)))
+				else if (type == ActionType.REMOVE_FROM_SET)
 				{
-					SetPropertyAction a = (action as SetPropertyAction);
-					_redo.push(new SetPropertyAction(a._id, a._key, get_data(a._id).has_key(a._key) ? get_data(a._id)[a._key] : null));
-					set_property_internal(a._id, a._key, a._value);
+					RemoveFromSetAction a = _undo.read_remove_from_set_action();
+					_redo.write_add_to_set_action(a.id, a.key, a.item_id);
+					remove_from_set_internal(a.id, a.key, a.item_id);
 				}
-				else if (action.holds(typeof(AddToSetAction)))
-				{
-					AddToSetAction a = (action as AddToSetAction);
-					_redo.push(new RemoveFromSetAction(a._id, a._key, a._item_id));
-					add_to_set_internal(a._id, a._key, a._item_id);
-				}
-				else if (action.holds(typeof(RemoveFromSetAction)))
-				{
-					RemoveFromSetAction a = (action as RemoveFromSetAction);
-					_redo.push(new AddToSetAction(a._id, a._key, a._item_id));
-					remove_from_set_internal(a._id, a._key, a._item_id);
-				}
-
-				_undo.pop();
 			}
 		}
 
-		public void redo_single_action()
+		private void redo_until(uint32 size)
 		{
-			RestorePoint begin_action = null;
-
-			while (true)
+			while (_redo.size() != size)
 			{
-				if (_redo.size() == 0)
+				uint32 type = _redo.peek_type();
+				if (type == ActionType.CREATE)
 				{
-					if (begin_action != null)
-					{
-						_undo.push(begin_action);
-						begin_action.Redo();
-					}
-					return;
+					CreateAction a = _redo.read_create_action();
+					_undo.write_destroy_action(a.id);
+					create_internal(a.id);
 				}
-
-				Value? action = _redo.peek();
-				if (action.holds(typeof(RestorePoint)))
+				else if (type == ActionType.DESTROY)
 				{
-					if (begin_action == null)
-					{
-						begin_action = (RestorePoint)action;
-						_redo.pop();
-						continue;
-					}
-					else
-					{
-						_undo.push(begin_action);
-						begin_action.Redo();
-						return;
-					}
+					DestroyAction a = _redo.read_destroy_action();
+					_undo.write_create_action(a.id);
+					destroy_internal(a.id);
 				}
-				else if (action.holds(typeof(CreateAction)))
+				else if (type == ActionType.SET_PROPERTY)
 				{
-					CreateAction a = (action as CreateAction);
-					_undo.push(new DestroyAction(a._id));
-					create_internal(a._id);
+					SetPropertyAction a = _redo.read_set_property_action();
+					_undo.write_set_property_action(a.id, a.key, get_data(a.id).has_key(a.key) ? get_data(a.id)[a.key] : null);
+					set_property_internal(a.id, a.key, a.val);
 				}
-				else if (action.holds(typeof(DestroyAction)))
+				else if (type == ActionType.ADD_TO_SET)
 				{
-					DestroyAction a = (action as DestroyAction);
-					_undo.push(new CreateAction(a._id));
-					destroy_internal(a._id);
+					AddToSetAction a = _redo.read_add_to_set_action();
+					_undo.write_remove_from_set_action(a.id, a.key, a.item_id);
+					add_to_set_internal(a.id, a.key, a.item_id);
 				}
-				else if (action.holds(typeof(SetPropertyAction)))
+				else if (type == ActionType.REMOVE_FROM_SET)
 				{
-					SetPropertyAction a = (action as SetPropertyAction);
-					_undo.push(new SetPropertyAction(a._id, a._key, get_data(a._id).has_key(a._key) ? get_data(a._id)[a._key] : null));
-					set_property_internal(a._id, a._key, a._value);
+					RemoveFromSetAction a = _redo.read_remove_from_set_action();
+					_undo.write_add_to_set_action(a.id, a.key, a.item_id);
+					remove_from_set_internal(a.id, a.key, a.item_id);
 				}
-				else if (action.holds(typeof(AddToSetAction)))
-				{
-					AddToSetAction a = (action as AddToSetAction);
-					_undo.push(new RemoveFromSetAction(a._id, a._key, a._item_id));
-					add_to_set_internal(a._id, a._key, a._item_id);
-				}
-				else if (action.holds(typeof(RemoveFromSetAction)))
-				{
-					RemoveFromSetAction a = (action as RemoveFromSetAction);
-					_undo.push(new AddToSetAction(a._id, a._key, a._item_id));
-					remove_from_set_internal(a._id, a._key, a._item_id);
-				}
-
-				_redo.pop();
 			}
 		}
 	}
