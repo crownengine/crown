@@ -99,10 +99,34 @@ static void test_hash_map()
 		hash_map::remove(m, 20);
 		ENSURE(!hash_map::has(m, 20));
 
+		hash_map::remove(m, 2000);
+		ENSURE(!hash_map::has(m, 2000));
+
+		hash_map::remove(m, 50);
+		ENSURE(!hash_map::has(m, 50));
+
 		hash_map::clear(m);
 
 		for (s32 i = 0; i < 100; ++i)
 			ENSURE(!hash_map::has(m, i));
+	}
+	{
+		HashMap<s32, s32> m(a);
+		hash_map_internal::grow(m);
+		ENSURE(hash_map::capacity(m) == 16);
+
+		hash_map::set(m, 0, 7);
+
+		hash_map::set(m, 1, 1);
+
+		for (s32 i = 2; i < 150; ++i)
+		{
+			hash_map::set(m, i, 2);
+			ENSURE(hash_map::has(m, 0));
+			ENSURE(hash_map::has(m, 1));
+			ENSURE(hash_map::has(m, i));
+			hash_map::remove(m, i);
+		}
 	}
 	memory_globals::shutdown();
 }
