@@ -133,7 +133,7 @@ namespace Crown
 			{
 				Value id;
 				_tree_store.get_value(iter, 0, out id);
-				_level.destroy_objects(new Guid?[] { Guid.parse((string)id) });
+				_level.destroy_objects(new Guid[] { Guid.parse((string)id) });
 
 				_tree_store.remove(ref iter);
 			}

@@ -459,7 +459,7 @@ namespace Crown
 					string[] keys = ids.keys.to_array();
 					Posix.qsort(keys, keys.length, sizeof(string), (Posix.compar_fn_t)stringcmp);
 
-					Guid?[] n_ids            = new Guid?[keys.length];
+					Guid[] n_ids             = new Guid[keys.length];
 					Vector3[] n_positions    = new Vector3[keys.length];
 					Quaternion[] n_rotations = new Quaternion[keys.length];
 					Vector3[] n_scales       = new Vector3[keys.length];
@@ -971,12 +971,12 @@ namespace Crown
 
 		private void on_undo(Gtk.Action action)
 		{
-			_db.undo_single_action();
+			_db.undo();
 		}
 
 		private void on_redo(Gtk.Action action)
 		{
-			_db.redo_single_action();
+			_db.redo();
 		}
 
 		private void on_duplicate(Gtk.Action action)

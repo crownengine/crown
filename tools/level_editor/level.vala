@@ -35,6 +35,8 @@ namespace Crown
 
 			// Data
 			_db = db;
+			_db.undo_redo.connect(undo_redo_action);
+
 			_prefabs = new Database();
 			_loaded_prefabs = new Gee.HashSet<string>();
 			_selection = new Gee.ArrayList<Guid?>();
@@ -96,7 +98,7 @@ namespace Crown
 			_loaded_prefabs.add(name);
 		}
 
-		public void generate_spawn_unit_commands(Guid?[] unit_ids, StringBuilder sb)
+		public void generate_spawn_unit_commands(Guid[] unit_ids, StringBuilder sb)
 		{
 			foreach (Guid unit_id in unit_ids)
 			{
@@ -143,7 +145,7 @@ namespace Crown
 			}
 		}
 
-		public void generate_spawn_sound_commands(Guid?[] sound_ids, StringBuilder sb)
+		public void generate_spawn_sound_commands(Guid[] sound_ids, StringBuilder sb)
 		{
 			foreach (Guid sound_id in sound_ids)
 			{
@@ -163,105 +165,121 @@ namespace Crown
 			HashSet<Guid?> units = _db.get_property(GUID_ZERO, "units") as HashSet<Guid?>;
 			HashSet<Guid?> sounds = _db.get_property(GUID_ZERO, "sounds") as HashSet<Guid?>;
 
+			Guid[] unit_ids = new Guid[units.size];
+			Guid[] sound_ids = new Guid[sounds.size];
+
+			// FIXME
+			{
+				Guid?[] tmp = units.to_array();
+				for (int i = 0; i < tmp.length; ++i)
+					unit_ids[i] = tmp[i];
+			}
+			// FIXME
+			{
+				Guid?[] tmp = sounds.to_array();
+				for (int i = 0; i < tmp.length; ++i)
+					sound_ids[i] = tmp[i];
+			}
+
 			StringBuilder sb = new StringBuilder();
-			generate_spawn_unit_commands(units.to_array(), sb);
-			generate_spawn_sound_commands(sounds.to_array(), sb);
+			generate_spawn_unit_commands(unit_ids, sb);
+			generate_spawn_sound_commands(sound_ids, sb);
 			_client.send_script(sb.str);
 		}
 
-		private void undo_redo_action(bool undo, int id, Value? data)
+		private void undo_redo_action(bool undo, int id, Guid[] data)
 		{
 			switch (id)
 			{
 				case (int)ActionType.SPAWN_UNIT:
 				{
-					Guid unit_id = (Guid)data;
+					Guid unit_id = data[0];
 					if (undo)
-						do_destroy_objects(new Guid?[] { unit_id });
+						do_destroy_objects(new Guid[] { unit_id });
 					else
-						do_spawn_units(new Guid?[] { unit_id });
+						do_spawn_units(new Guid[] { unit_id });
 					break;
 				}
 				case (int)ActionType.DESTROY_UNIT:
 				{
-					Guid unit_id = (Guid)data;
+					Guid unit_id = data[0];
 					if (undo)
-						do_spawn_units(new Guid?[] { unit_id });
+						do_spawn_units(new Guid[] { unit_id });
 					else
-						do_destroy_objects(new Guid?[] { unit_id });
+						do_destroy_objects(new Guid[] { unit_id });
 					break;
 				}
 				case (int)ActionType.SPAWN_SOUND:
 				{
-					Guid sound_id = (Guid)data;
+					Guid sound_id = data[0];
 					if (undo)
-						do_destroy_objects(new Guid?[] { sound_id });
+						do_destroy_objects(new Guid[] { sound_id });
 					else
-						do_spawn_sounds(new Guid?[] { sound_id });
+						do_spawn_sounds(new Guid[] { sound_id });
 					break;
 				}
 				case (int)ActionType.DESTROY_SOUND:
 				{
-					Guid sound_id = (Guid)data;
+					Guid sound_id = data[0];
 					if (undo)
-						do_spawn_sounds(new Guid?[] { sound_id });
+						do_spawn_sounds(new Guid[] { sound_id });
 					else
-						do_destroy_objects(new Guid?[] { sound_id });
+						do_destroy_objects(new Guid[] { sound_id });
 					break;
 				}
 				case (int)ActionType.MOVE_OBJECTS:
 				{
-					// Guid?[] ids = (Guid?[])data;
+					Guid[] ids = data;
 
-					// Vector3[] positions = new Vector3[ids.length];
-					// Quaternion[] rotations = new Quaternion[ids.length];
-					// Vector3[] scales = new Vector3[ids.length];
+					Vector3[] positions = new Vector3[ids.length];
+					Quaternion[] rotations = new Quaternion[ids.length];
+					Vector3[] scales = new Vector3[ids.length];
 
-					// for (int i = 0; i < ids.length; ++i)
-					// {
-					// 	if (is_unit(ids[i]))
-					// 	{
-					// 		Guid unit_id = ids[i];
-					// 		Guid transform_id = GUID_ZERO;
+					for (int i = 0; i < ids.length; ++i)
+					{
+						if (is_unit(ids[i]))
+						{
+							Guid unit_id = ids[i];
+							Guid transform_id = GUID_ZERO;
 
-					// 		if (has_component(unit_id, "transform", ref transform_id))
-					// 		{
-					// 			positions[i] = (Vector3)   get_component_property(unit_id, transform_id, "data.position");
-					// 			rotations[i] = (Quaternion)get_component_property(unit_id, transform_id, "data.rotation");
-					// 			scales[i]    = (Vector3)   get_component_property(unit_id, transform_id, "data.scale");
-					// 		}
-					// 		else
-					// 		{
-					// 			positions[i] = (Vector3)   _db.get_property(unit_id, "position");
-					// 			rotations[i] = (Quaternion)_db.get_property(unit_id, "rotation");
-					// 			scales[i]    = (Vector3)   _db.get_property(unit_id, "scale");
-					// 		}
-					// 	}
-					// 	else if (is_sound(ids[i]))
-					// 	{
-					// 		Guid sound_id = ids[i];
-					// 		positions[i] = (Vector3)   _db.get_property(sound_id, "position");
-					// 		rotations[i] = (Quaternion)_db.get_property(sound_id, "rotation");
-					// 		scales[i]    = Vector3(1.0, 1.0, 1.0);
-					// 	}
-					// 	else
-					// 	{
-					// 		assert(false);
-					// 	}
-					// }
+							if (has_component(unit_id, "transform", ref transform_id))
+							{
+								positions[i] = (Vector3)   get_component_property(unit_id, transform_id, "data.position");
+								rotations[i] = (Quaternion)get_component_property(unit_id, transform_id, "data.rotation");
+								scales[i]    = (Vector3)   get_component_property(unit_id, transform_id, "data.scale");
+							}
+							else
+							{
+								positions[i] = (Vector3)   _db.get_property(unit_id, "position");
+								rotations[i] = (Quaternion)_db.get_property(unit_id, "rotation");
+								scales[i]    = (Vector3)   _db.get_property(unit_id, "scale");
+							}
+						}
+						else if (is_sound(ids[i]))
+						{
+							Guid sound_id = ids[i];
+							positions[i] = (Vector3)   _db.get_property(sound_id, "position");
+							rotations[i] = (Quaternion)_db.get_property(sound_id, "rotation");
+							scales[i]    = Vector3(1.0, 1.0, 1.0);
+						}
+						else
+						{
+							assert(false);
+						}
+					}
 
-					// do_move_objects(ids, positions, rotations, scales);
-					// // FIXME: Hack to force update the component view
-					// selection_changed(_selection);
+					do_move_objects(ids, positions, rotations, scales);
+					// FIXME: Hack to force update the component view
+					selection_changed(_selection);
 					break;
 				}
 				case (int)ActionType.DUPLICATE_OBJECTS:
 				{
-					// DuplicateObjectsArgs args = (DuplicateObjectsArgs)data;
-					// if (undo)
-					// 	do_destroy_objects(args._new_ids);
-					// else
-					// 	do_spawn_objects(args._new_ids);
+					Guid[] new_ids = data;
+					if (undo)
+						do_destroy_objects(new_ids);
+					else
+						do_spawn_objects(new_ids);
 					break;
 				}
 				default:
@@ -272,38 +290,38 @@ namespace Crown
 			}
 		}
 
-		private void do_spawn_objects(Guid?[] ids)
+		private void do_spawn_objects(Guid[] ids)
 		{
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < ids.length; ++i)
 			{
 				if (is_unit(ids[i]))
 				{
-					generate_spawn_unit_commands(new Guid?[] { ids[i] }, sb);
+					generate_spawn_unit_commands(new Guid[] { ids[i] }, sb);
 				}
 				else if (is_sound(ids[i]))
 				{
-					generate_spawn_sound_commands(new Guid?[] { ids[i] }, sb);
+					generate_spawn_sound_commands(new Guid[] { ids[i] }, sb);
 				}
 			}
 			_client.send_script(sb.str);
 		}
 
-		private void do_spawn_units(Guid?[] ids)
+		private void do_spawn_units(Guid[] ids)
 		{
 			StringBuilder sb = new StringBuilder();
 			generate_spawn_unit_commands(ids, sb);
 			_client.send_script(sb.str);
 		}
 
-		private void do_spawn_sounds(Guid?[] ids)
+		private void do_spawn_sounds(Guid[] ids)
 		{
 			StringBuilder sb = new StringBuilder();
 			generate_spawn_sound_commands(ids, sb);
 			_client.send_script(sb.str);
 		}
 
-		private void do_destroy_objects(Guid?[] ids)
+		private void do_destroy_objects(Guid[] ids)
 		{
 			StringBuilder sb = new StringBuilder();
 			foreach (Guid id in ids)
@@ -312,7 +330,7 @@ namespace Crown
 			_client.send_script(sb.str);
 		}
 
-		private void do_move_objects(Guid?[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
+		private void do_move_objects(Guid[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
 		{
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < ids.length; ++i)
@@ -327,16 +345,22 @@ namespace Crown
 				return;
 
 			Guid id = _selection.last();
-			move_objects(new Guid?[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
-			do_move_objects(new Guid?[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
+			move_objects(new Guid[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
+			do_move_objects(new Guid[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
 		}
 
 		public void duplicate_selected_objects()
 		{
 			if (_selection.size > 0)
 			{
-				Guid?[] ids = _selection.to_array();
-				Guid?[] new_ids = new Guid?[ids.length];
+				Guid[] ids = new Guid[_selection.size];
+				// FIXME
+				{
+					Guid?[] tmp = _selection.to_array();
+					for (int i = 0; i < tmp.length; ++i)
+						ids[i] = tmp[i];
+				}
+				Guid[] new_ids = new Guid[ids.length];
 
 				for (int i = 0; i < new_ids.length; ++i)
 					new_ids[i] = Guid.new_guid();
@@ -347,26 +371,21 @@ namespace Crown
 
 		public void destroy_selected_objects()
 		{
-			Guid?[] ids = _selection.to_array();
+			Guid[] ids = new Guid[_selection.size];
+			// FIXME
+			{
+				Guid?[] tmp = _selection.to_array();
+				for (int i = 0; i < tmp.length; ++i)
+					ids[i] = tmp[i];
+			}
 			_selection.clear();
 
 			destroy_objects(ids);
 		}
 
-		private struct DuplicateObjectsArgs
+		public void duplicate_objects(Guid[] ids, Guid[] new_ids)
 		{
-			public Guid?[] _ids;
-			public Guid?[] _new_ids;
-
-			public DuplicateObjectsArgs(Guid?[] ids, Guid?[] new_ids)
-			{
-				_ids = ids;
-				_new_ids = new_ids;
-			}
-		}
-
-		public void duplicate_objects(Guid?[] ids, Guid?[] new_ids)
-		{
+			_db.add_restore_point((int)ActionType.DUPLICATE_OBJECTS, new_ids);
 			for (int i = 0; i < ids.length; ++i)
 			{
 				_db.duplicate(ids[i], new_ids[i]);
@@ -380,22 +399,20 @@ namespace Crown
 					_db.add_to_set(GUID_ZERO, "sounds", new_ids[i]);
 				}
 			}
-			// FIXME
-			// _db.add_restore_point(undo_redo_action, (int)ActionType.DUPLICATE_OBJECTS, new DuplicateObjectsArgs(ids, new_ids));
-
 			do_spawn_objects(new_ids);
 		}
 
 		public void spawn_unit(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
 		{
 			on_unit_spawned(id, name, pos, rot, scl);
-			do_spawn_units(new Guid?[] { id });
+			do_spawn_units(new Guid[] { id });
 		}
 
 		public void on_unit_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
 		{
 			load_prefab(name);
 
+			_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
 			_db.create(id);
 			_db.set_property(id, "prefab", name);
 
@@ -414,11 +431,11 @@ namespace Crown
 				_db.set_property(id, "scale", scl);
 			}
 			_db.add_to_set(GUID_ZERO, "units", id);
-			_db.add_restore_point(undo_redo_action, (int)ActionType.SPAWN_UNIT, id);
 		}
 
 		public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 		{
+			_db.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid[] { id });
 			_db.create(id);
 			_db.set_property(id, "position", pos);
 			_db.set_property(id, "rotation", rot);
@@ -427,24 +444,23 @@ namespace Crown
 			_db.set_property(id, "volume", volume);
 			_db.set_property(id, "loop", loop);
 			_db.add_to_set(GUID_ZERO, "sounds", id);
-			_db.add_restore_point(undo_redo_action, (int)ActionType.SPAWN_SOUND, id);
 		}
 
-		public void destroy_objects(Guid?[] ids)
+		public void destroy_objects(Guid[] ids)
 		{
 			foreach (Guid id in ids)
 			{
 				if (is_unit(id))
 				{
+					_db.add_restore_point((int)ActionType.DESTROY_UNIT, new Guid[] { id });
 					_db.remove_from_set(GUID_ZERO, "units", id);
 					_db.destroy(id);
-					_db.add_restore_point(undo_redo_action, (int)ActionType.DESTROY_UNIT, id);
 				}
 				else if (is_sound(id))
 				{
+					_db.add_restore_point((int)ActionType.DESTROY_SOUND, new Guid[] { id });
 					_db.remove_from_set(GUID_ZERO, "sounds", id);
 					_db.destroy(id);
-					_db.add_restore_point(undo_redo_action, (int)ActionType.DESTROY_SOUND, id);
 				}
 			}
 
@@ -460,8 +476,10 @@ namespace Crown
 			selection_changed(_selection);
 		}
 
-		public void move_objects(Guid?[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
+		public void move_objects(Guid[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
 		{
+			_db.add_restore_point((int)ActionType.MOVE_OBJECTS, ids);
+
 			for (int i = 0; i < ids.length; ++i)
 			{
 				Guid id = ids[i];
@@ -492,9 +510,6 @@ namespace Crown
 					_db.set_property(id, "rotation", rot);
 				}
 			}
-			// FIXME
-			// _db.add_restore_point(undo_redo_action, (int)ActionType.MOVE_OBJECTS, (Value?)ids);
-
 			// FIXME: Hack to force update the component view
 			selection_changed(_selection);
 		}
