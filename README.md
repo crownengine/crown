@@ -91,7 +91,7 @@ Contributors
 
 In alphabetical order.
 
-Michela Iacchelli - Pepper logo.
+Michela Iacchelli - Pepper logo.  
 Michele Rossi ([@mikymod](https://github.com/mikymod))  
 Simone Boscaratto ([@Xed89](https://github.com/Xed89))
 
