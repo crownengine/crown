@@ -62,14 +62,28 @@ namespace array
 	/// the number of items in the array.
 	template <typename T> void clear(Array<T>& a);
 
+	/// Returns a pointer to the first item in the array @a a.
 	template <typename T> T* begin(Array<T>& a);
+
+	/// Returns a pointer to the first item in the array @a a.
 	template <typename T> const T* begin(const Array<T>& a);
+
+	/// Returns a pointer to the item following the last item in the array @a a.
 	template <typename T> T* end(Array<T>& a);
+
+	/// Returns a pointer to the item following the last item in the array @a a.
 	template <typename T> const T* end(const Array<T>& a);
 
+	/// Returns the first element of the array @a a.
 	template <typename T> T& front(Array<T>& a);
+
+	/// Returns the first element of the array @a a.
 	template <typename T> const T& front(const Array<T>& a);
+
+	/// Returns the last element of the array @a a.
 	template <typename T> T& back(Array<T>& a);
+
+	/// Returns the last element of the array @a a.
 	template <typename T> const T& back(const Array<T>& a);
 } // namespace array
 

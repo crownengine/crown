@@ -60,14 +60,28 @@ namespace vector
 	/// Calls destructor on the items.
 	template <typename T> void clear(Vector<T>& v);
 
+	/// Returns a pointer to the first item in the vector @a v.
 	template <typename T> T* begin(Vector<T>& v);
+
+	/// Returns a pointer to the first item in the vector @a v.
 	template <typename T> const T* begin(const Vector<T>& v);
+
+	/// Returns a pointer to the item following the last item in the vector @a v.
 	template <typename T> T* end(Vector<T>& v);
+
+	/// Returns a pointer to the item following the last item in the vector @a v.
 	template <typename T> const T* end(const Vector<T>& v);
 
+	/// Returns the first item of the vector @a v.
 	template <typename T> T& front(Vector<T>& v);
+
+	/// Returns the first item of the vector @a v.
 	template <typename T> const T& front(const Vector<T>& v);
+
+	/// Returns the last item of the vector @a v.
 	template <typename T> T& back(Vector<T>& v);
+
+	/// Returns the last item of the vector @a v.
 	template <typename T> const T& back(const Vector<T>& v);
 } // namespace vector
 
