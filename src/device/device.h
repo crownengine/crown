@@ -57,10 +57,6 @@ class Device
 
 	u16 _width;
 	u16 _height;
-	s16 _mouse_curr_x;
-	s16 _mouse_curr_y;
-	s16 _mouse_last_x;
-	s16 _mouse_last_y;
 
 	bool _quit;
 	bool _paused;
@@ -69,7 +65,7 @@ class Device
 	f32 _last_delta_time;
 	f64 _time_since_start;
 
-	bool process_events();
+	bool process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& mouse_last_y);
 
 public:
 

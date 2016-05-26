@@ -220,10 +220,6 @@ Device::Device(const DeviceOptions& opts)
 	, _worlds(default_allocator())
 	, _width(0)
 	, _height(0)
-	, _mouse_curr_x(0)
-	, _mouse_curr_y(0)
-	, _mouse_last_x(0)
-	, _mouse_last_y(0)
 	, _quit(false)
 	, _paused(false)
 	, _frame_count(0)
@@ -232,17 +228,17 @@ Device::Device(const DeviceOptions& opts)
 {
 }
 
-bool Device::process_events()
+bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& mouse_last_y)
 {
 	OsEvent event;
 	bool exit = false;
 	InputManager* im = _input_manager;
 
-	const s16 dt_x = _mouse_curr_x - _mouse_last_x;
-	const s16 dt_y = _mouse_curr_y - _mouse_last_y;
+	const s16 dt_x = mouse_x - mouse_last_x;
+	const s16 dt_y = mouse_y - mouse_last_y;
 	im->mouse()->set_axis(MouseAxis::CURSOR_DELTA, vector3(dt_x, dt_y, 0.0f));
-	_mouse_last_x = _mouse_curr_x;
-	_mouse_last_y = _mouse_curr_y;
+	mouse_last_x = mouse_x;
+	mouse_last_y = mouse_y;
 
 	while(next_event(event))
 	{
@@ -276,8 +272,8 @@ bool Device::process_events()
 						im->mouse()->set_button_state(ev.button, ev.pressed);
 						break;
 					case OsMouseEvent::MOVE:
-						_mouse_curr_x = ev.x;
-						_mouse_curr_y = ev.y;
+						mouse_x = ev.x;
+						mouse_y = ev.y;
 						im->mouse()->set_axis(MouseAxis::CURSOR, vector3(ev.x, ev.y, 0.0f));
 						break;
 					case OsMouseEvent::WHEEL:
@@ -550,10 +546,15 @@ void Device::run()
 
 		CE_LOGD("Engine initialized");
 
+		s16 mouse_x = 0;
+		s16 mouse_y = 0;
+		s16 mouse_last_x = 0;
+		s16 mouse_last_y = 0;
+
 		s64 last_time = os::clocktime();
 		s64 curr_time;
 
-		while (!process_events() && !_quit)
+		while (!process_events(mouse_x, mouse_y, mouse_last_x, mouse_last_y) && !_quit)
 		{
 			curr_time = os::clocktime();
 			const s64 time = curr_time - last_time;
