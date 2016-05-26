@@ -58,13 +58,17 @@ GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)
 GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)  
 GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
 
-### Building
+### Building engine
 
-	$ make <configuration>
+	$ make engine-<configuration>
 	
 Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
 
 	linux-debug64, linux-development64, linux-release64, android-arm-debug, windows-debug32 etc.
+
+### Building tools
+
+	$ make tools-linux-<debug/release>64
 
 ##Samples
 
