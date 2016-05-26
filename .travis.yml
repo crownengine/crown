@@ -4,11 +4,17 @@ compiler:
   - gcc
 
 before_install:
+  - sudo add-apt-repository ppa:vala-team -y
   - sudo apt-get -qq update
   - sudo apt-get install -y libpulse-dev
   - sudo apt-get install -y libxrandr-dev
+  - sudo apt-get install -y libgtk-3-dev
+  - sudo apt-get install -y valac
+  - sudo apt-get install -y libgee-0.8-dev
 
 script:
   - make engine-linux-debug64 && ./build/engine/linux64/bin/crown-debug-64 --run-unit-tests
   - make engine-linux-development64 && ./build/engine/linux64/bin/crown-development-64 --run-unit-tests
   - make engine-linux-release64
+  - make tools-linux-debug64
+  - make tools-linux-release64
