@@ -9,6 +9,6 @@ before_install:
   - sudo apt-get install -y libxrandr-dev
 
 script:
-  - make linux-debug64 && ./build/engine/linux64/bin/crown-debug-64 --run-unit-tests
-  - make linux-development64 && ./build/engine/linux64/bin/crown-development-64 --run-unit-tests
-  - make linux-release64
+  - make engine-linux-debug64 && ./build/engine/linux64/bin/crown-debug-64 --run-unit-tests
+  - make engine-linux-development64 && ./build/engine/linux64/bin/crown-development-64 --run-unit-tests
+  - make engine-linux-release64
