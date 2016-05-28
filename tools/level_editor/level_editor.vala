@@ -1090,5 +1090,5 @@ namespace Crown
 
 		Gtk.main();
 		return 0;
-	 }
+	}
 }
