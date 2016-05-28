@@ -1085,10 +1085,12 @@ namespace Crown
 		Intl.setlocale(LocaleCategory.ALL, "C");
 		Gtk.Settings.get_default().gtk_application_prefer_dark_theme = true;
 
+/*
 		Gtk.CssProvider provider = new Gtk.CssProvider();
 		Gdk.Screen screen = Gdk.Display.get_default().get_default_screen();
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
 		provider.load_from_path("ui/theme/gtk-contained-dark.css");
+*/
 
 		var window = new LevelEditor(args[1], args[2]);
 		window.show_all();
