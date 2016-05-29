@@ -7,7 +7,7 @@ Introduction
 What is it?
 -----------
 
-Crown is a general purpose data-driven game engine, written from scratch in orthodox C++ with a minimalistic and data-oriented design philosophy in mind.
+Pepper is a general purpose data-driven game engine, written from scratch in orthodox C++ with a minimalistic and data-oriented design philosophy in mind.
 
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles.
 
@@ -18,25 +18,64 @@ Supported platforms
 * Linux
 * Windows
 
-Basics
-======
+Basic concepts
+==============
 
-Units of measurement
+The source directory
 --------------------
 
-Crown uses MKS (meters, kilograms and seconds) units and radians for angles.
+The source directory contains all the files that make up the game.
+
+.. code::
+
+  .
+  ├── lua
+  |   └── game.lua
+  ├── boot.config
+  ├── boot.package
+  └── global.physics_config
+
+The boot directory and the boot.config file
+-------------------------------------------
+
+Any directory containing the file named ``boot.config`` is a boot directory.
+The ``boot.config`` file specifies a number of options.
+
+In the example below, the engine is told to load the package ``boot`` and run the Lua script ``lua/game``.
+
+.. code::
+
+  boot_package = "boot"      // Package to load on boot
+  boot_script  = "lua/game"  // Lua script to execute on boot
+
+Within `the source directory`_, there can be an arbitrary number of boot directories. You can specify the boot directory using the switch ``--boot-dir``.
+
+The bundle directory
+--------------------
+
+Pepper reads source data from `the source directory`_ and compiles it into efficient binary representation.
+The result of the compilation process is stored in the bundle directory.
+
+.. code::
+
+  .
+  ├── data                                   // <- Contains compiled data files
+  |   ├── a14e8dfa2cd117e2-9dea40fdc2245efc  // <- Compiled file
+  |   ├── 72e3cc03787a11a1-0b2f08fe66e395c0  // <- Another compiled file
+  |   └── ...
+  ├── temp                                   // <- Temporary files from data compilers
+  └── last.log                               // <- Text log from the last engine execution
 
 The .bundleignore file
-======================
+----------------------
 
 Many programs store metadata files alongside edited files. This is often the case with text editors and version control systems.
 
-When Crown bumps into unknown files in the source directory, it quits the compilation and reports an error.
+When Pepper bumps into unknown files in the source directory, it quits the compilation and reports an error.
 
-The ``.bundleignore`` file specifies files that Crown should ignore when compiling data.
+The ``.bundleignore`` file specifies files that Pepper should ignore when compiling data.
 
-Example
--------
+Example:
 
 .. code::
 
@@ -45,6 +84,11 @@ Example
   # Blank lines are ignored.
   # Everything else is simple glob pattern (*, ?).
   *.txt
+
+Units of measurement
+--------------------
+
+Pepper uses MKS (meters, kilograms and seconds) units and radians for angles.
 
 Command line reference
 ======================
@@ -102,11 +146,13 @@ Command line reference
 	``--server``
 		Run the engine in server mode.
 
+		When using this option you must also specify ``--source-dir``.
+
 	``--run-unit-tests``
 		Run unit tests and quit. Available only on ``linux`` and ``windows``.
 
 API reference
 =============
 
-* `Lua API <lua_api.html>`_
-* `C++ API <doxygen/modules.html>`_
+* `Lua API Reference <lua_api.html>`_
+* `C++ API Reference <doxygen/modules.html>`_
