@@ -73,24 +73,23 @@ namespace Crown
 			_box.pack_start(_scrolled_window, false, false, 0);
 			_box.pack_start(_engine_view, true, true, 0);
 
+			resource_selected.connect(on_resource_selected);
+
 			add(_box);
 			set_size_request(300, 400);
 		}
 
-		private void on_row_activated(Gtk.TreePath path2, TreeViewColumn column)
+		private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
 		{
-			Gtk.TreePath path = _tree_filter.convert_path_to_child_path(path2);
+			Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(path);
 			Gtk.TreeIter iter;
-			if (_tree_store.get_iter(out iter, path))
+			if (_tree_store.get_iter(out iter, child_path))
 			{
 				Value name;
 				Value type;
 				_tree_store.get_value(iter, 0, out name);
 				_tree_store.get_value(iter, 1, out type);
 				resource_selected((PlaceableType)type, (string)name);
-
-				string s = UnitPreviewAPI.set_preview_unit((PlaceableType)type, (string)name);
-				_console_client.send_script(s);
 			}
 		}
 
@@ -114,9 +113,6 @@ namespace Crown
 						_tree_store.get_value(iter, 0, out name);
 						_tree_store.get_value(iter, 1, out type);
 						resource_selected((PlaceableType)type, (string)name);
-
-						string s = UnitPreviewAPI.set_preview_unit((PlaceableType)type, (string)name);
-						_console_client.send_script(s);
 					}
 				}
 			}
@@ -169,6 +165,18 @@ namespace Crown
 		private void on_filter_entry_text_changed()
 		{
 			_tree_filter.refilter();
+
+			Gtk.TreePath path = new Gtk.TreePath.from_string("0");
+			Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(path);
+			Gtk.TreeIter iter;
+			if (_tree_store.get_iter(out iter, child_path))
+			{
+				Value name;
+				Value type;
+				_tree_store.get_value(iter, 0, out name);
+				_tree_store.get_value(iter, 1, out type);
+				resource_selected((PlaceableType)type, (string)name);
+			}
 		}
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -225,6 +233,11 @@ namespace Crown
 			{
 				throw new IOError.CANCELLED("Operation was cancelled");
 			}
+		}
+
+		private void on_resource_selected(PlaceableType placeable_type, string name)
+		{
+			_console_client.send_script(UnitPreviewAPI.set_preview_unit(placeable_type, name));
 		}
 	}
 }
