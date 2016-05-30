@@ -1170,10 +1170,9 @@ function LevelEditor:init()
 	self._pw = World.physics_world(self._world)
 	self._rw = World.render_world(self._world)
 	self._sg = World.scene_graph(self._world)
-	self._camera_unit = World.spawn_unit(self._world, "core/units/camera")
 	self._lines_no_depth = World.create_debug_line(self._world, false)
 	self._lines = World.create_debug_line(self._world, true)
-	self._fpscamera = FPSCamera(self._world, self._camera_unit)
+	self._fpscamera = FPSCamera(self._world, World.spawn_unit(self._world, "core/units/camera"))
 	self._mouse = { x = 0, y = 0, dx = 0, dy = 0, button = { left = false, middle = false, right = false }, wheel = { delta = 0 }}
 	self._keyboard = { ctrl = false, shift = false }
 	self._grid = { size = 1 }
@@ -1194,7 +1193,7 @@ function LevelEditor:init()
 	self.tool = self.place_tool
 
 	-- Spawn camera
-	local camera_transform = SceneGraph.transform_instances(self._sg, self._camera_unit)
+	local camera_transform = SceneGraph.transform_instances(self._sg, self._fpscamera:unit())
 	local pos = Vector3(20, 20, -20)
 	local dir = Vector3.normalize(Vector3.zero() - pos)
 	SceneGraph.set_local_rotation(self._sg, camera_transform, Quaternion.look(dir))
@@ -1235,12 +1234,6 @@ function LevelEditor:update(dt)
 end
 
 function LevelEditor:render(dt)
-	-- Update window's viewport
-	local win_w, win_h = Device.resolution()
-	local aspect = win_w / win_h
-	local camera = World.camera(self._world, self._camera_unit)
-	World.set_camera_aspect(self._world, camera, win_w/win_h)
-
 	Device.render(self._world, self._fpscamera:camera())
 end
 

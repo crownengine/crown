@@ -88,9 +88,6 @@ function update(dt)
 end
 
 function render(dt)
-	local win_w, win_h = Device.resolution()
-	World.set_camera_aspect(wd, camera, win_w/win_h)
-
 	Device.render(wd, fpscamera:camera())
 end
 
