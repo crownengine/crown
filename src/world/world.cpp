@@ -271,11 +271,6 @@ void World::set_camera_fov(CameraInstance i, f32 fov)
 	_camera[i.i].update_projection_matrix();
 }
 
-f32 World::camera_aspect(CameraInstance i) const
-{
-	return _camera[i.i].aspect;
-}
-
 void World::set_camera_aspect(CameraInstance i, f32 aspect)
 {
 	_camera[i.i].aspect = aspect;

@@ -701,6 +701,7 @@ void Device::render(World& world, CameraInstance camera)
 	bgfx::touch(1);
 	bgfx::touch(2);
 
+	world.set_camera_aspect(camera, (float)_width/(float)_height);
 	world.set_camera_viewport_metrics(camera, 0, 0, _width, _height);
 
 	world.render(camera);

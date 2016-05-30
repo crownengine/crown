@@ -1351,20 +1351,6 @@ static int camera_set_fov(lua_State* L)
 	return 0;
 }
 
-static int camera_aspect(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_float(stack.get_world(1)->camera_aspect(stack.get_camera(2)));
-	return 1;
-}
-
-static int camera_set_aspect(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_world(1)->set_camera_aspect(stack.get_camera(2), stack.get_float(3));
-	return 0;
-}
-
 static int camera_near_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3201,8 +3187,6 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "camera_projection_type",          camera_projection_type);
 	env.add_module_function("World", "camera_fov",                      camera_fov);
 	env.add_module_function("World", "set_camera_fov",                  camera_set_fov);
-	env.add_module_function("World", "camera_aspect",                   camera_aspect);
-	env.add_module_function("World", "set_camera_aspect",               camera_set_aspect);
 	env.add_module_function("World", "camera_near_clip_distance",       camera_near_clip_distance);
 	env.add_module_function("World", "set_camera_near_clip_distance",   camera_set_near_clip_distance);
 	env.add_module_function("World", "camera_far_clip_distance",        camera_far_clip_distance);

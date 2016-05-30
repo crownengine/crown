@@ -118,9 +118,6 @@ public:
 	/// Sets the field-of-view of the camera in degrees.
 	void set_camera_fov(CameraInstance i, f32 fov);
 
-	/// Returns the aspect ratio of the camera. (Perspective projection only.)
-	f32 camera_aspect(CameraInstance i) const;
-
 	/// Sets the aspect ratio of the camera. (Perspective projection only.)
 	void set_camera_aspect(CameraInstance i, f32 aspect);
 
