@@ -23,6 +23,7 @@ function UnitPreview:update(dt)
 			local tm, hext = RenderWorld.mesh_obb(self._rw, meshes[1])
 
 			local radius = Vector3.length(hext)
+			radius = math.ceil(radius / 4)  * 4
 			radius = radius <   1 and   1 or radius
 			radius = radius > 100 and 100 or radius
 
