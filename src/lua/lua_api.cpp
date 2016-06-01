@@ -20,7 +20,7 @@
 #include "math_utils.h"
 #include "matrix4x4.h"
 #include "physics_world.h"
-#include "plane.h"
+#include "plane3.h"
 #include "profiler.h"
 #include "quaternion.h"
 #include "render_world.h"

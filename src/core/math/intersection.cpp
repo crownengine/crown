@@ -5,7 +5,7 @@
 
 #include "aabb.h"
 #include "intersection.h"
-#include "plane.h"
+#include "plane3.h"
 #include "sphere.h"
 #include "vector3.h"
 
