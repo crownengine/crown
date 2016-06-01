@@ -111,7 +111,7 @@ namespace Crown
 		private SpinButtonDouble _range;
 		private SpinButtonDouble _intensity;
 		private SpinButtonDouble _spot_angle;
-		private Gtk.ColorButton _color;
+		private ColorButtonVector3 _color;
 
 		public LightComponentView(Level level)
 		{
@@ -126,12 +126,13 @@ namespace Crown
 			_range      = new SpinButtonDouble(0.0, 0.0, 999.0);
 			_intensity  = new SpinButtonDouble(0.0, 0.0,  10.0);
 			_spot_angle = new SpinButtonDouble(0.0, 0.0,  90.0);
-			_color      = new ColorButton();
+			_color      = new ColorButtonVector3();
 
+			_type.value_changed.connect(on_value_changed);
 			_range.value_changed.connect(on_value_changed);
 			_intensity.value_changed.connect(on_value_changed);
 			_spot_angle.value_changed.connect(on_value_changed);
-			_color.color_set.connect(on_value_changed);
+			_color.value_changed.connect(on_value_changed);
 
 			uint row = 0;
 			attach_row(row++, "Type", _type);
@@ -143,16 +144,11 @@ namespace Crown
 
 		private void on_value_changed()
 		{
-			// Vector3 color = Vector3((double)_color.Color.Red/(double)ushort.MaxValue
-			// 	, (double)_color.Color.Green/(double)ushort.MaxValue
-			// 	, (double)_color.Color.Blue/(double)ushort.MaxValue
-			// 	);
-
-			_level.set_component_property(_unit_id, _component_id, "data.type",       "directional"); // FIXME
+			_level.set_component_property(_unit_id, _component_id, "data.type",       _type.value);
 			_level.set_component_property(_unit_id, _component_id, "data.range",      _range.value);
 			_level.set_component_property(_unit_id, _component_id, "data.intensity",  _intensity.value);
 			_level.set_component_property(_unit_id, _component_id, "data.spot_angle", _spot_angle.value);
-			// _level.set_component_property(_unit_id, _component_id, "data.color",      color);
+			_level.set_component_property(_unit_id, _component_id, "data.color",      _color.value);
 			_level.set_component_property(_unit_id, _component_id, "type", "light");
 		}
 
@@ -164,10 +160,11 @@ namespace Crown
 			double spot_angle = (double) _level.get_component_property(_unit_id, _component_id, "data.spot_angle");
 			Vector3 color     = (Vector3)_level.get_component_property(_unit_id, _component_id, "data.color");
 
+			_type.value       = type;
 			_range.value      = range;
 			_intensity.value  = intensity;
 			_spot_angle.value = spot_angle;
-			// _color.color      = new Gdk.Color((byte)(255.0*color.x), (byte)(255.0*color.y), (byte)(255.0*color.z));
+			_color.value      = color;
 		}
 	}
 
@@ -361,9 +358,17 @@ namespace Crown
 
 	public class PropertiesView : Gtk.Bin
 	{
+		public struct ComponentEntry
+		{
+			string type;
+			int position;
+		}
+
 		// Data
 		private Level _level;
+		private HashMap<string, Gtk.Expander> _expanders;
 		private HashMap<string, ComponentView> _components;
+		private ArrayList<ComponentEntry?> _entries;
 
 		// Widgets
 		private Gtk.Label _nothing_to_show;
@@ -378,21 +383,27 @@ namespace Crown
 			_level = level;
 			_level.selection_changed.connect(on_selection_changed);
 
+			_expanders = new HashMap<string, Gtk.Expander>();
 			_components = new HashMap<string, ComponentView>();
+			_entries = new ArrayList<ComponentEntry?>();
 
 			// Widgets
 			_components_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_components_vbox.margin_right = 18;
 
 			// Unit
-			add_component_view("Transform", "transform", new TransformComponentView(_level));
-			add_component_view("Light", "light", new LightComponentView(_level));
-			add_component_view("Camera", "camera", new CameraComponentView(_level));
-			add_component_view("Mesh Renderer", "mesh_renderer", new MeshRendererComponentView(_level));
+			add_component_view("Transform",     "transform",     0, new TransformComponentView(_level));
+			add_component_view("Light",         "light",         1, new LightComponentView(_level));
+			add_component_view("Camera",        "camera",        2, new CameraComponentView(_level));
+			add_component_view("Mesh Renderer", "mesh_renderer", 3, new MeshRendererComponentView(_level));
 
 			// Sound
-			add_component_view("Transform", "sound_transform", new SoundTransformView(_level));
-			add_component_view("Sound Properties", "sound_properties", new SoundPropertiesView(_level));
+			add_component_view("Transform",        "sound_transform",  0, new SoundTransformView(_level));
+			add_component_view("Sound Properties", "sound_properties", 1, new SoundPropertiesView(_level));
+
+			_entries.sort((a, b) => { return (a.position < b.position ? -1 : 1); });
+			foreach (var entry in _entries)
+				_components_vbox.pack_start(_expanders[entry.type], false, true, 0);
 
 			_nothing_to_show = new Gtk.Label("Nothing to show");
 
@@ -409,7 +420,7 @@ namespace Crown
 			set_size_request(300, 200);
 		}
 
-		private void add_component_view(string label, string component_type, ComponentView cv)
+		private void add_component_view(string label, string component_type, int position, ComponentView cv)
 		{
 			Gtk.Label lb = new Gtk.Label(null);
 			lb.set_markup("<b>%s</b>".printf(label));
@@ -421,7 +432,9 @@ namespace Crown
 			expander.expanded = true;
 
 			_components[component_type] = cv;
-			_components_vbox.pack_start(expander, false, true, 0);
+			_expanders[component_type] = expander;
+
+			_entries.add({ component_type, position });
 		}
 
 		private void set_current_widget(Gtk.Widget w)
@@ -451,23 +464,19 @@ namespace Crown
 			{
 				set_current_widget(_scrolled_window);
 
-				Guid unit_id = id;
+				foreach (var entry in _entries)
+				{
+					Gtk.Expander expander = _expanders[entry.type];
+					ComponentView cv = _components[entry.type];
+					expander.hide();
 
-				foreach (var entry in _components.entries)
-				{
-					ComponentView cv = entry.value;
-					cv.hide();
-				}
-				foreach (var entry in _components.entries)
-				{
-					ComponentView cv = entry.value;
 					Guid component_id = GUID_ZERO;
-					if (_level.has_component(unit_id, entry.key, ref component_id))
+					if (_level.has_component(id, entry.type, ref component_id))
 					{
-						cv._unit_id = unit_id;
+						cv._unit_id = id;
 						cv._component_id = component_id;
 						cv.update();
-						cv.show_all();
+						expander.show_all();
 					}
 				}
 			}
@@ -475,10 +484,10 @@ namespace Crown
 			{
 				set_current_widget(_scrolled_window);
 
-				foreach (var entry in _components.entries)
+				foreach (var entry in _entries)
 				{
-					ComponentView cv = entry.value;
-					cv.hide();
+					Gtk.Expander expander = _expanders[entry.type];
+					expander.hide();
 				}
 
 				ComponentView st = _components["sound_transform"];
