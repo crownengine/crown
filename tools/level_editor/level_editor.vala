@@ -117,7 +117,7 @@ namespace Crown
 			{ "light",                null,  "Light",            null,             null, on_create_light     },
 			{ "menu-engine",          null,  "En_gine",          null,             null, null                },
 			{ "menu-view",            null,  "View",             null,             null, null                },
-			{ "resource-browser",     null,  "Resource Browser", null,             null, on_resource_browser },
+			{ "resource-browser",     null,  "Resource Browser", "<ctrl>P",        null, on_resource_browser },
 			{ "restart",              null,  "_Restart",         null,             null, on_engine_restart   },
 			{ "reload-lua",           null,  "Reload Lua",       "F7",             null, on_reload_lua       },
 			{ "menu-run",             null,  "_Run",             null,             null, null                },
@@ -312,10 +312,10 @@ namespace Crown
 			_file_filter.set_filter_name("Level (*.level)");
 			_file_filter.add_pattern("*.level");
 
-			_resource_browser = new ResourceBrowser(_source_dir, _bundle_dir);
+			_resource_browser = new ResourceBrowser(toolbar, _source_dir, _bundle_dir);
 			_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
-			_resource_browser.transient_for = this;
 			_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
+			_resource_browser.modal = true;
 
 			this.destroy.connect(this.on_destroy);
 			this.delete_event.connect(this.on_delete_event);

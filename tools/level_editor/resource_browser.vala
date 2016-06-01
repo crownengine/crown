@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Crown
 {
-	public class ResourceBrowser : Gtk.Window
+	public class ResourceBrowser : Gtk.Popover
 	{
 		// Project paths
 		private string _source_dir;
@@ -22,6 +22,7 @@ namespace Crown
 		private Gtk.TreeStore _tree_store;
 		private Gtk.TreeModelFilter _tree_filter;
 		private Gtk.TreeView _tree_view;
+		private Gtk.TreeSelection _tree_selection;
 		private Gtk.ScrolledWindow _scrolled_window;
 		private Gtk.Box _box;
 
@@ -30,9 +31,9 @@ namespace Crown
 		// Signals
 		public signal void resource_selected(PlaceableType placeable_type, string name);
 
-		public ResourceBrowser(string source_dir, string bundle_dir)
+		public ResourceBrowser(Gtk.Widget parent, string source_dir, string bundle_dir)
 		{
-			this.title = "Resource Browser";
+			this.relative_to = parent;
 
 			// Project paths
 			_source_dir = source_dir;
@@ -47,6 +48,7 @@ namespace Crown
 			_filter_entry = new Gtk.SearchEntry();
 			_filter_entry.set_placeholder_text("Search...");
 			_filter_entry.changed.connect(on_filter_entry_text_changed);
+			_filter_entry.key_press_event.connect(on_filter_entry_key_pressed);
 
 			_tree_store = new Gtk.TreeStore(2, typeof(string), typeof(PlaceableType));
 			_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
@@ -59,6 +61,10 @@ namespace Crown
 			_tree_view.row_activated.connect(on_row_activated);
 			_tree_view.button_press_event.connect(on_button_pressed);
 
+			_tree_selection = _tree_view.get_selection();
+			_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+
 			_scrolled_window = new Gtk.ScrolledWindow(null, null);
 			_scrolled_window.add(_tree_view);
 			_scrolled_window.set_size_request(300, 400);
@@ -70,10 +76,8 @@ namespace Crown
 
 			_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_box.pack_start(_filter_entry, false, false, 0);
-			_box.pack_start(_scrolled_window, false, false, 0);
 			_box.pack_start(_engine_view, true, true, 0);
-
-			resource_selected.connect(on_resource_selected);
+			_box.pack_start(_scrolled_window, false, false, 0);
 
 			add(_box);
 			set_size_request(300, 400);
@@ -90,6 +94,7 @@ namespace Crown
 				_tree_store.get_value(iter, 0, out name);
 				_tree_store.get_value(iter, 1, out type);
 				resource_selected((PlaceableType)type, (string)name);
+				this.hide();
 			}
 		}
 
@@ -113,6 +118,7 @@ namespace Crown
 						_tree_store.get_value(iter, 0, out name);
 						_tree_store.get_value(iter, 1, out type);
 						resource_selected((PlaceableType)type, (string)name);
+						this.hide();
 					}
 				}
 			}
@@ -164,19 +170,10 @@ namespace Crown
 
 		private void on_filter_entry_text_changed()
 		{
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
 			_tree_filter.refilter();
-
-			Gtk.TreePath path = new Gtk.TreePath.from_string("0");
-			Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(path);
-			Gtk.TreeIter iter;
-			if (_tree_store.get_iter(out iter, child_path))
-			{
-				Value name;
-				Value type;
-				_tree_store.get_value(iter, 0, out name);
-				_tree_store.get_value(iter, 1, out type);
-				resource_selected((PlaceableType)type, (string)name);
-			}
+			_tree_selection.changed.connect(on_tree_selection_changed);
+			_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
 		}
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -197,8 +194,7 @@ namespace Crown
 		private void walk_directory_tree()
 		{
 			_tree_view.model = null;
-			File file = File.new_for_path(_source_dir);
-			list_children(file);
+			list_children(File.new_for_path(_source_dir));
 			_tree_view.model = _tree_filter;
 		}
 
@@ -235,9 +231,50 @@ namespace Crown
 			}
 		}
 
-		private void on_resource_selected(PlaceableType placeable_type, string name)
+		private bool on_filter_entry_key_pressed(Gdk.EventKey ev)
 		{
-			_console_client.send_script(UnitPreviewAPI.set_preview_unit(placeable_type, name));
+			Gtk.TreeModel model;
+			Gtk.TreeIter iter;
+			bool selected = _tree_selection.get_selected(out model, out iter);
+
+			if (ev.keyval == Gdk.Key.Down)
+			{
+				if (selected && model.iter_next(ref iter))
+					_tree_selection.select_iter(iter);
+			}
+			else if (ev.keyval == Gdk.Key.Up)
+			{
+				if (selected && model.iter_previous(ref iter))
+					_tree_selection.select_iter(iter);
+			}
+			else if (ev.keyval == 65293)
+			{
+				Value name;
+				Value type;
+				model.get_value(iter, 0, out name);
+				model.get_value(iter, 1, out type);
+				resource_selected((PlaceableType)type, (string)name);
+
+				this.hide();
+			}
+			else
+				return false;
+
+			return true;
+		}
+
+		private void on_tree_selection_changed()
+		{
+			Gtk.TreeModel model;
+			Gtk.TreeIter iter;
+			if (_tree_selection.get_selected(out model, out iter))
+			{
+				Value name;
+				Value type;
+				model.get_value(iter, 0, out name);
+				model.get_value(iter, 1, out type);
+				_console_client.send_script(UnitPreviewAPI.set_preview_unit((PlaceableType)type, (string)name));
+			}
 		}
 	}
 }
