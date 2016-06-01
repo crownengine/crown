@@ -113,7 +113,7 @@ static RaycastMode::Enum name_to_raycast_mode(const char* name)
 static int math_ray_plane_intersection(lua_State* L)
 {
 	LuaStack stack(L);
-	const Plane p = plane::from_point_and_normal(stack.get_vector3(3)
+	const Plane3 p = plane3::from_point_and_normal(stack.get_vector3(3)
 		, stack.get_vector3(4)
 		);
 	const f32 t = ray_plane_intersection(stack.get_vector3(1)

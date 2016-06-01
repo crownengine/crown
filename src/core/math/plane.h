@@ -11,33 +11,33 @@
 
 namespace crown
 {
-/// Functions to manipulate Plane.
+/// Functions to manipulate Plane3.
 ///
 /// @ingroup Math
-namespace plane
+namespace plane3
 {
 	/// Returns the plane defined by @a point and @a normal.
-	Plane from_point_and_normal(const Vector3& point, const Vector3& normal);
+	Plane3 from_point_and_normal(const Vector3& point, const Vector3& normal);
 
 	/// Normalizes the plane @a p and returns its result.
-	Plane& normalize(Plane& p);
+	Plane3& normalize(Plane3& p);
 
 	/// Returns the signed distance between plane @a p and point @a point.
-	f32 distance_to_point(const Plane& p, const Vector3& point);
+	f32 distance_to_point(const Plane3& p, const Vector3& point);
 
-} // namespace plane
+} // namespace plane3
 
-namespace plane
+namespace plane3
 {
-	inline Plane from_point_and_normal(const Vector3& point, const Vector3& normal)
+	inline Plane3 from_point_and_normal(const Vector3& point, const Vector3& normal)
 	{
-		Plane p;
+		Plane3 p;
 		p.n = normal;
 		p.d = -dot(normal, point);
 		return p;
 	}
 
-	inline Plane& normalize(Plane& p)
+	inline Plane3& normalize(Plane3& p)
 	{
 		const f32 len = length(p.n);
 
@@ -52,10 +52,10 @@ namespace plane
 		return p;
 	}
 
-	inline f32 distance_to_point(const Plane& p, const Vector3& point)
+	inline f32 distance_to_point(const Plane3& p, const Vector3& point)
 	{
 		return dot(p.n, point) + p.d;
 	}
-} // namespace plane
+} // namespace plane3
 
 } // namespace crown

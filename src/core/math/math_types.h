@@ -70,7 +70,7 @@ struct OBB
 /// where: d = -vector3::dot(n, p)
 ///
 /// @ingroup Math
-struct Plane
+struct Plane3
 {
 	Vector3 n;
 	f32 d;
@@ -79,12 +79,12 @@ struct Plane
 /// @ingroup Math
 struct Frustum
 {
-	Plane left;
-	Plane right;
-	Plane bottom;
-	Plane top;
-	Plane near;
-	Plane far;
+	Plane3 left;
+	Plane3 right;
+	Plane3 bottom;
+	Plane3 top;
+	Plane3 near;
+	Plane3 far;
 };
 
 /// @ingroup Math
@@ -134,10 +134,10 @@ const Matrix3x3 MATRIX3X3_IDENTITY = { VECTOR3_XAXIS, VECTOR3_YAXIS, VECTOR3_ZAX
 
 const Matrix4x4 MATRIX4X4_IDENTITY = { VECTOR4_XAXIS, VECTOR4_YAXIS, VECTOR4_ZAXIS, VECTOR4_WAXIS };
 
-const Plane PLANE_ZERO  = { VECTOR3_ZERO,  0.0f };
-const Plane PLANE_XAXIS = { VECTOR3_XAXIS, 0.0f };
-const Plane PLANE_YAXIS = { VECTOR3_YAXIS, 0.0f };
-const Plane PLANE_ZAXIS = { VECTOR3_ZAXIS, 0.0f };
+const Plane3 PLANE3_ZERO  = { VECTOR3_ZERO,  0.0f };
+const Plane3 PLANE3_XAXIS = { VECTOR3_XAXIS, 0.0f };
+const Plane3 PLANE3_YAXIS = { VECTOR3_YAXIS, 0.0f };
+const Plane3 PLANE3_ZAXIS = { VECTOR3_ZAXIS, 0.0f };
 /// @}
 
 } // namespace crown

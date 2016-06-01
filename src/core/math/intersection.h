@@ -14,7 +14,7 @@ namespace crown
 
 /// Returns the distance along ray (from, dir) to intersection point with plane @a p
 /// or -1.0 if no intersection.
-f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p);
+f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane3& p);
 
 /// Returns the distance along ray (from, dir) to intersection point with disc defined by
 /// @a center, @a radius and @a normal or -1.0 if no intersection.
@@ -37,7 +37,7 @@ f32 ray_triangle_intersection(const Vector3& from, const Vector3& dir, const Vec
 f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4x4& tm, const void* vertices, u32 stride, const u16* indices, u32 num);
 
 /// Returns whether the planes @a a, @a b and @a c intersects and if so fills @a ip with the intersection point.
-bool plane_3_intersection(const Plane& a, const Plane& b, const Plane& c, Vector3& ip);
+bool plane_3_intersection(const Plane3& a, const Plane3& b, const Plane3& c, Vector3& ip);
 
 /// Returns whether the frustum @a f and the sphere @a s intersects.
 bool frustum_sphere_intersection(const Frustum& f, const Sphere& s);

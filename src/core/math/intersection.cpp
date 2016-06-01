@@ -11,7 +11,7 @@
 
 namespace crown
 {
-f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane& p)
+f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane3& p)
 {
 	const f32 num = dot(from, p.n);
 	const f32 den = dot(dir, p.n);
@@ -24,7 +24,7 @@ f32 ray_plane_intersection(const Vector3& from, const Vector3& dir, const Plane&
 
 f32 ray_disc_intersection(const Vector3& from, const Vector3& dir, const Vector3& center, f32 radius, const Vector3& normal)
 {
-	const Plane p = plane::from_point_and_normal(center, normal);
+	const Plane3 p = plane3::from_point_and_normal(center, normal);
 	const f32 t = ray_plane_intersection(from, dir, p);
 
 	if (t == -1.0f)
@@ -217,7 +217,7 @@ f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4
 	return hit ? tmin : -1.0f;
 }
 
-bool plane_3_intersection(const Plane& a, const Plane& b, const Plane& c, Vector3& ip)
+bool plane_3_intersection(const Plane3& a, const Plane3& b, const Plane3& c, Vector3& ip)
 {
 	const Vector3 na = a.n;
 	const Vector3 nb = b.n;
@@ -240,20 +240,20 @@ bool plane_3_intersection(const Plane& a, const Plane& b, const Plane& c, Vector
 
 bool frustum_sphere_intersection(const Frustum& f, const Sphere& s)
 {
-	if (plane::distance_to_point(f.left, s.c) < -s.r ||
-		plane::distance_to_point(f.right, s.c) < -s.r)
+	if (plane3::distance_to_point(f.left, s.c) < -s.r ||
+		plane3::distance_to_point(f.right, s.c) < -s.r)
 	{
 		return false;
 	}
 
-	if (plane::distance_to_point(f.bottom, s.c) < -s.r ||
-		plane::distance_to_point(f.top, s.c) < -s.r)
+	if (plane3::distance_to_point(f.bottom, s.c) < -s.r ||
+		plane3::distance_to_point(f.top, s.c) < -s.r)
 	{
 		return false;
 	}
 
-	if (plane::distance_to_point(f.near, s.c) < -s.r ||
-		plane::distance_to_point(f.far, s.c) < -s.r)
+	if (plane3::distance_to_point(f.near, s.c) < -s.r ||
+		plane3::distance_to_point(f.far, s.c) < -s.r)
 	{
 		return false;
 	}
@@ -273,69 +273,69 @@ bool frustum_box_intersection(const Frustum& f, const AABB& b)
 	const Vector3 v7 = aabb::vertex(b, 7);
 
 	u8 out = 0;
-	out += (plane::distance_to_point(f.left, v0) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.left, v1) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.left, v2) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.left, v3) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.left, v4) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.left, v5) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.left, v6) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.left, v7) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.left, v0) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.left, v1) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.left, v2) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.left, v3) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.left, v4) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.left, v5) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.left, v6) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.left, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	out += (plane::distance_to_point(f.right, v0) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.right, v1) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.right, v2) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.right, v3) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.right, v4) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.right, v5) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.right, v6) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.right, v7) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.right, v0) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.right, v1) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.right, v2) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.right, v3) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.right, v4) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.right, v5) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.right, v6) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.right, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	out += (plane::distance_to_point(f.bottom, v0) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.bottom, v1) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.bottom, v2) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.bottom, v3) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.bottom, v4) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.bottom, v5) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.bottom, v6) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.bottom, v7) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.bottom, v0) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.bottom, v1) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.bottom, v2) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.bottom, v3) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.bottom, v4) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.bottom, v5) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.bottom, v6) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.bottom, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	out += (plane::distance_to_point(f.top, v0) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.top, v1) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.top, v2) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.top, v3) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.top, v4) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.top, v5) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.top, v6) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.top, v7) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.top, v0) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.top, v1) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.top, v2) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.top, v3) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.top, v4) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.top, v5) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.top, v6) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.top, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	out += (plane::distance_to_point(f.near, v0) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.near, v1) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.near, v2) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.near, v3) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.near, v4) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.near, v5) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.near, v6) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.near, v7) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.near, v0) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.near, v1) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.near, v2) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.near, v3) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.near, v4) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.near, v5) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.near, v6) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.near, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	out = 0;
-	out += (plane::distance_to_point(f.far, v0) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.far, v1) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.far, v2) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.far, v3) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.far, v4) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.far, v5) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.far, v6) < 0.0f) ? 1 : 0;
-	out += (plane::distance_to_point(f.far, v7) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.far, v0) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.far, v1) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.far, v2) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.far, v3) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.far, v4) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.far, v5) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.far, v6) < 0.0f) ? 1 : 0;
+	out += (plane3::distance_to_point(f.far, v7) < 0.0f) ? 1 : 0;
 	if (out == 8) return false;
 
 	// If we are here, it is because either the box intersects or it is contained in the frustum
