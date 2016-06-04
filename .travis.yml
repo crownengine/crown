@@ -19,5 +19,3 @@ script:
   - make engine-linux-debug64 && ./build/engine/linux64/bin/crown-debug-64 --run-unit-tests
   - make engine-linux-development64 && ./build/engine/linux64/bin/crown-development-64 --run-unit-tests
   - make engine-linux-release64
-  - make tools-linux-debug64
-  - make tools-linux-release64
