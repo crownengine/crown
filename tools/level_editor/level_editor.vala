@@ -769,12 +769,17 @@ namespace Crown
 				return;
 			}
 
-			Dialog dlg = new Dialog.with_buttons("File changed, save?", this, DialogFlags.MODAL);
-			dlg.add_button("Quit without saving", ResponseType.NO);
-			dlg.add_button("Cancel", ResponseType.CANCEL);
-			dlg.add_button("Save", ResponseType.YES);
-			int rt = dlg.run();
-			dlg.destroy();
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.WARNING
+				, Gtk.ButtonsType.NONE
+				, "File changed, save?"
+				);
+			md.add_button("Quit without Saving", ResponseType.NO);
+			md.add_button("Cancel", ResponseType.CANCEL);
+			md.add_button("Save", ResponseType.YES);
+			int rt = md.run();
+			md.destroy();
 
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
 				shutdown();
@@ -790,12 +795,17 @@ namespace Crown
 				return;
 			}
 
-			Dialog dlg = new Dialog.with_buttons("File changed, save?", this, DialogFlags.MODAL);
-			dlg.add_button("New without saving", ResponseType.NO);
-			dlg.add_button("Cancel", ResponseType.CANCEL);
-			dlg.add_button("Save", ResponseType.YES);
-			int rt = dlg.run();
-			dlg.destroy();
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.WARNING
+				, Gtk.ButtonsType.NONE
+				, "File changed, save?"
+				);
+			md.add_button("Quit without Saving", ResponseType.NO);
+			md.add_button("Cancel", ResponseType.CANCEL);
+			md.add_button("Save", ResponseType.YES);
+			int rt = md.run();
+			md.destroy();
 
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
 			{
@@ -813,12 +823,17 @@ namespace Crown
 				return;
 			}
 
-			Dialog dlg = new Dialog.with_buttons("File changed, save?", this, DialogFlags.MODAL);
-			dlg.add_button("Open without saving", ResponseType.NO);
-			dlg.add_button("Cancel", ResponseType.CANCEL);
-			dlg.add_button("Save", ResponseType.YES);
-			int rt = dlg.run();
-			dlg.destroy();
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.WARNING
+				, Gtk.ButtonsType.NONE
+				, "File changed, save?"
+				);
+			md.add_button("Quit without Saving", ResponseType.NO);
+			md.add_button("Cancel", ResponseType.CANCEL);
+			md.add_button("Save", ResponseType.YES);
+			int rt = md.run();
+			md.destroy();
 
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
 				load();
