@@ -51,7 +51,7 @@ Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 
     $ sudo add-apt-repository ppa:vala-team
     $ sudo apt-get install libgtk-3-dev valac libgee-0.8-dev
-    $ sudo apt-get install mesa-common-dev libpulse-dev libxrandr-dev
+    $ sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev
 
 ### Windows
 
