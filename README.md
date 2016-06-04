@@ -49,9 +49,9 @@ Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 	
 ### Linux
     
-    $ add-apt-repository ppa:vala-team
-    $ apt-get install libgtk-3-dev valac libgee-0.8-dev
-    $ apt-get install libpulse-dev libxrandr-dev
+    $ sudo add-apt-repository ppa:vala-team
+    $ sudo apt-get install libgtk-3-dev valac libgee-0.8-dev
+    $ sudo apt-get install libpulse-dev libxrandr-dev
 
 ### Windows
 
