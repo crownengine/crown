@@ -196,8 +196,8 @@ void World::render(CameraInstance i)
 
 	_render_world->render(camera_view_matrix(i), camera.projection);
 
-	_physics_world->draw_debug();
-	_render_world->draw_debug(*_lines);
+	_physics_world->debug_draw();
+	_render_world->debug_draw(*_lines);
 
 	_lines->submit();
 	_lines->reset();

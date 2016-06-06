@@ -290,7 +290,7 @@ public:
 		return _events;
 	}
 
-	virtual void draw_debug()
+	virtual void debug_draw()
 	{
 	}
 

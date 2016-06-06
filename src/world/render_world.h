@@ -99,8 +99,11 @@ public:
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);
 
+	/// Fills @a dl with debug lines from light @a i.
+	void debug_draw_light(LightInstance i, DebugLine& dl);
+
 	/// Fills @a dl with debug lines
-	void draw_debug(DebugLine& dl);
+	void debug_draw(DebugLine& dl);
 
 private:
 

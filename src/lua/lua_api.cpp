@@ -1946,6 +1946,13 @@ static int render_world_set_light_spot_angle(lua_State* L)
 	return 0;
 }
 
+static int render_world_debug_draw_light(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_render_world(1)->debug_draw_light(stack.get_light_instance(2), *stack.get_debug_line(3));
+	return 0;
+}
+
 static int render_world_enable_debug_drawing(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3260,6 +3267,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "set_light_range",      render_world_set_light_range);
 	env.add_module_function("RenderWorld", "set_light_intensity",  render_world_set_light_intensity);
 	env.add_module_function("RenderWorld", "set_light_spot_angle", render_world_set_light_spot_angle);
+	env.add_module_function("RenderWorld", "debug_draw_light",     render_world_debug_draw_light);
 	env.add_module_function("RenderWorld", "enable_debug_drawing", render_world_enable_debug_drawing);
 
 	env.add_module_function("PhysicsWorld", "actor_instances",               physics_world_actor_instances);

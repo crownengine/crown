@@ -293,7 +293,44 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 	}
 }
 
-void RenderWorld::draw_debug(DebugLine& dl)
+void RenderWorld::debug_draw_light(LightInstance i, DebugLine& dl)
+{
+	LightManager::LightInstanceData& lid = _light_manager._data;
+
+	const Vector3 pos = translation(lid.world[i.i]);
+	const Vector3 dir = -z(lid.world[i.i]);
+
+	switch (lid.type[i.i])
+	{
+		case LightType::DIRECTIONAL:
+		{
+			const Vector3 end = pos + dir*3.0f;
+			dl.add_line(pos, end, COLOR4_YELLOW);
+			dl.add_cone(pos + dir*2.8f, end, 0.1f, COLOR4_YELLOW);
+			break;
+		}
+		case LightType::OMNI:
+		{
+			dl.add_sphere(pos, lid.range[i.i], COLOR4_YELLOW);
+			break;
+		}
+		case LightType::SPOT:
+		{
+			const f32 angle  = lid.spot_angle[i.i];
+			const f32 range  = lid.range[i.i];
+			const f32 radius = tan(angle)*range;
+			dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
+			break;
+		}
+		default:
+		{
+			CE_ASSERT(false, "Bad light type");
+			break;
+		}
+	}
+}
+
+void RenderWorld::debug_draw(DebugLine& dl)
 {
 	if (!_debug_drawing)
 		return;
@@ -310,42 +347,7 @@ void RenderWorld::draw_debug(DebugLine& dl)
 	}
 
 	for (u32 i = 0; i < lid.size; ++i)
-	{
-		const Vector3 pos = translation(lid.world[i]);
-		const Vector3 dir = -z(lid.world[i]);
-
-		// Draw tiny sphere for all light types
-		dl.add_sphere(pos, 0.1f, lid.color[i]);
-
-		switch (lid.type[i])
-		{
-			case LightType::DIRECTIONAL:
-			{
-				const Vector3 end = pos + dir*3.0f;
-				dl.add_line(pos, end, COLOR4_YELLOW);
-				dl.add_cone(pos + dir*2.8f, end, 0.1f, COLOR4_YELLOW);
-				break;
-			}
-			case LightType::OMNI:
-			{
-				dl.add_sphere(pos, lid.range[i], COLOR4_YELLOW);
-				break;
-			}
-			case LightType::SPOT:
-			{
-				const f32 angle = lid.spot_angle[i];
-				const f32 range = lid.range[i];
-				const f32 radius = tan(angle)*range;
-				dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
-				break;
-			}
-			default:
-			{
-				CE_ASSERT(false, "Bad light type");
-				break;
-			}
-		}
-	}
+		debug_draw_light({ i }, dl);
 }
 
 void RenderWorld::enable_debug_drawing(bool enable)

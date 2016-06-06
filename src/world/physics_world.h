@@ -182,7 +182,7 @@ public:
 	virtual EventStream& events() = 0;
 
 	/// Draws debug lines.
-	virtual void draw_debug() = 0;
+	virtual void debug_draw() = 0;
 
 	virtual void enable_debug_drawing(bool enable) = 0;
 };

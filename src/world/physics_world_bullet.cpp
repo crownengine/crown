@@ -931,7 +931,7 @@ public:
 		return _events;
 	}
 
-	void draw_debug()
+	void debug_draw()
 	{
 		if (!_debug_drawing)
 			return;
