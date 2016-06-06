@@ -30,7 +30,7 @@ Engine initialization and shutdown.
 
 ##Download
 
-Linux: [pepper-0.0.21-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.21/pepper-0.0.21-linux-x64.tar.gz)
+Linux: [pepper-0.0.22-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.22/pepper-0.0.22-linux-x64.tar.gz)
 
 ### ArchLinux
 
