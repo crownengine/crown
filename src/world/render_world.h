@@ -34,8 +34,13 @@ public:
 	/// Returns the mesh instances of the unit @a id.
 	void mesh_instances(UnitId id, Array<MeshInstance>& instances);
 
+	/// Sets the material @a id of the mesh @a i.
 	void set_mesh_material(MeshInstance i, StringId64 id);
+
+	/// Sets whether the mesh @a i is @a visible.
 	void set_mesh_visible(MeshInstance i, bool visible);
+
+	/// Returns the OBB of the mesh @a i.
 	OBB mesh_obb(MeshInstance i);
 
 	f32 mesh_raycast(MeshInstance i, const Vector3& from, const Vector3& dir);
@@ -49,8 +54,13 @@ public:
 	/// Returns the sprite instances of the unit @a id.
 	void sprite_instances(UnitId id, Array<SpriteInstance>& instances);
 
+	/// Sets the material @a id of the sprite @a i.
 	void set_sprite_material(SpriteInstance i, StringId64 id);
+
+	/// Sets the frame @a index of the sprite @a i.
 	void set_sprite_frame(SpriteInstance i, u32 index);
+
+	/// Sets whether the sprite @a i is @a visible.
 	void set_sprite_visible(SpriteInstance i, bool visible);
 
 	/// Creates a new light instance.
