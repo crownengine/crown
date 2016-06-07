@@ -93,7 +93,8 @@ function crown_project(_name, _kind, _defines)
 			configuration { "release", "x64", "linux-*" }
 				linkoptions { "-Lbin", "-lopenal-release-64", }
 
-			links { "openal", }
+			configuration {}
+				links { "openal", }
 
 			configuration {}
 		end
