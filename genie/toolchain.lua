@@ -47,9 +47,10 @@ function toolchain(build_dir, lib_dir)
 				print("Set ANDROID_NDK_ARM environment variables.")
 			end
 
-			premake.gcc.cc = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-gcc"
+			premake.gcc.cc  = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-gcc"
 			premake.gcc.cxx = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-g++"
-			premake.gcc.ar = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-ar"
+			premake.gcc.ar  = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-ar"
+
 			location(build_dir .. "projects/" .. "android")
 		end
 	elseif _ACTION == "vs2013" then
@@ -71,8 +72,8 @@ function toolchain(build_dir, lib_dir)
 	}
 
 	defines {
-		"__STDC_FORMAT_MACROS",
 		"__STDC_CONSTANT_MACROS",
+		"__STDC_FORMAT_MACROS",
 		"__STDC_LIMIT_MACROS",
 	}
 
