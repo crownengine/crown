@@ -66,6 +66,7 @@ bgfxProject("", "StaticLib", os.is("windows") and { "BGFX_CONFIG_RENDERER_DIRECT
 
 if _OPTIONS["with-openal"] then
 	dofile ("openal.lua")
+	openal_project(os.is("windows") and "SharedLib" or "StaticLib")
 end
 
 if _OPTIONS["with-bullet"] then
