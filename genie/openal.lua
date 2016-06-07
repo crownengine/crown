@@ -11,42 +11,42 @@ project "openal"
 	local AL_DIR = (CROWN_DIR .. "third/openal/")
 
 	defines {
+		"_LARGE_FILES",
+		"_LARGEFILE_SOURCE",
 		"AL_ALEXT_PROTOTYPES",
 		"AL_BUILD_LIBRARY",
-		"_LARGEFILE_SOURCE",
-		"_LARGE_FILES",
-		"HAVE_STAT",
-		"HAVE_LRINTF",
-		"HAVE_STRTOF",
 		"HAVE_C99_BOOL",
-		"HAVE_STDINT_H",
-		"HAVE_STDBOOL_H",
-		"HAVE_FLOAT_H",
 		"HAVE_FENV_H",
+		"HAVE_FLOAT_H",
+		"HAVE_LRINTF",
 		"HAVE_MALLOC_H",
+		"HAVE_STAT",
+		"HAVE_STDBOOL_H",
+		"HAVE_STDINT_H",
+		"HAVE_STRTOF",
 	}
 
 	configuration { "android-* or linux-*" }
 		defines {
 			"'ALIGN(x)=__attribute__((aligned(x)))'",
+			"HAVE_C99_VLA",
+			"HAVE_DIRENT_H",
+			"HAVE_DLFCN_H",
+			"HAVE_GCC_DESTRUCTOR",
+			"HAVE_GCC_FORMAT",
+			"HAVE_GCC_GET_CPUID",
+			"HAVE_PTHREAD_SETNAME_NP",
+			"HAVE_PTHREAD_SETSCHEDPARAM",
+			"HAVE_STRINGS_H",
 			"restrict=__restrict",
 			"SIZEOF_LONG=8",
 			"SIZEOF_LONG_LONG=8",
-			"HAVE_C99_VLA",
-			"HAVE_GCC_DESTRUCTOR",
-			"HAVE_GCC_FORMAT",
-			"HAVE_DLFCN_H",
-			"HAVE_STRINGS_H",
-			"HAVE_PTHREAD_SETSCHEDPARAM",
-			"HAVE_PTHREAD_SETNAME_NP",
-			"HAVE_GCC_GET_CPUID",
-			"HAVE_DIRENT_H",
 		}
 		buildoptions {
 			"-std=c99",
-			"-Winline",
 			"-fPIC",
 			"-fvisibility=hidden",
+			"-Winline",
 		}
 
 	configuration { "linux-* or vs*" }
@@ -77,10 +77,10 @@ project "openal"
 
 	configuration { "linux-*" }
 		defines {
-			"HAVE_POSIX_MEMALIGN",
-			"HAVE_PULSEAUDIO",
 			"HAVE_CPUID_H",
+			"HAVE_POSIX_MEMALIGN",
 			"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
+			"HAVE_PULSEAUDIO",
 		}
 		files {
 			AL_DIR .. "Alc/backends/pulseaudio.c",
@@ -88,27 +88,27 @@ project "openal"
 
 	configuration { "vs*" }
 		defines {
-			"HAVE__ALIGNED_MALLOC",
-			"HAVE_MMDEVAPI",
-			"HAVE_DSOUND",
-			"HAVE_WINMM",
-			"SIZEOF_LONG=4",
-			"SIZEOF_LONG_LONG=8",
-			"HAVE_WINDOWS_H",
-			"HAVE_IO_H",
-			"HAVE_INTRIN_H",
-			"HAVE_GUIDDEF_H",
-			"HAVE_CPUID_INTRINSIC",
-			"HAVE__CONTROLFP",
-			"HAVE___CONTROL87_2",
-			"_WINDOWS",
+			"_CRT_NONSTDC_NO_DEPRECATE",
 			"_WIN32_WINNT=0x0502",
+			"_WINDOWS",
+			"HAVE___CONTROL87_2",
+			"HAVE__ALIGNED_MALLOC",
+			"HAVE__CONTROLFP",
+			"HAVE_CPUID_INTRINSIC",
+			"HAVE_DSOUND",
+			"HAVE_GUIDDEF_H",
+			"HAVE_INTRIN_H",
+			"HAVE_IO_H",
+			"HAVE_MMDEVAPI",
+			"HAVE_WINDOWS_H",
+			"HAVE_WINMM",
 			"inline=__inline",
 			"restrict=",
-			"_CRT_NONSTDC_NO_DEPRECATE",
+			"SIZEOF_LONG=4",
+			"SIZEOF_LONG_LONG=8",
+			"snprintf=_snprintf",
 			"strcasecmp=_stricmp",
 			"strncasecmp=_strnicmp",
-			"snprintf=_snprintf",
 		}
 		buildoptions {
 			"/wd4098",

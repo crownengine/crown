@@ -93,8 +93,7 @@ function crown_project(_name, _kind, _defines)
 			configuration { "release", "x64", "linux-*" }
 				linkoptions { "-Lbin", "-lopenal-release-64", }
 
-			configuration { "vs*" }
-				links { "openal", }
+			links { "openal", }
 
 			configuration {}
 		end
@@ -162,7 +161,6 @@ function crown_project(_name, _kind, _defines)
 			links {
 				"EGL",
 				"GLESv2",
-				"OpenSLES",
 			}
 
 		configuration { "linux-*" }
