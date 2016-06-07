@@ -2507,18 +2507,18 @@ namespace bgfx { namespace gl
 				}
 			}
 
-			uint32_t flags = _resolution.m_flags & ~(0
+			const uint32_t maskFlags = ~(0
 				| BGFX_RESET_HMD_RECENTER
 				| BGFX_RESET_MAXANISOTROPY
 				| BGFX_RESET_DEPTH_CLAMP
 				| BGFX_RESET_SUSPEND
 				);
 
-			if (m_resolution.m_width  != _resolution.m_width
-			||  m_resolution.m_height != _resolution.m_height
-			||  m_resolution.m_flags  != flags)
+			if (m_resolution.m_width            !=  _resolution.m_width
+			||  m_resolution.m_height           !=  _resolution.m_height
+			|| (m_resolution.m_flags&maskFlags) != (_resolution.m_flags&maskFlags) )
 			{
-				flags &= ~BGFX_RESET_INTERNAL_FORCE;
+				uint32_t flags = _resolution.m_flags & (~BGFX_RESET_INTERNAL_FORCE);
 
 				m_resolution = _resolution;
 				m_resolution.m_flags = flags;
@@ -5090,7 +5090,7 @@ namespace bgfx { namespace gl
 					uint32_t version =
 						  usesIUsamplers || usesTexelFetch ? 130
 						: usesTextureLod ? 120
-						: 0
+						: 120
 						;
 
 					if (0 != version)
@@ -5639,6 +5639,11 @@ namespace bgfx { namespace gl
 	void RendererContextGL::submit(Frame* _render, ClearQuad& _clearQuad, TextVideoMemBlitter& _textVideoMemBlitter)
 	{
 		BGFX_GPU_PROFILER_BEGIN_DYNAMIC("rendererSubmit");
+
+		if (_render->m_capture)
+		{
+			renderDocTriggerCapture();
+		}
 
 		if (1 < m_numWindows
 		&&  m_vaoSupport)
@@ -6198,7 +6203,15 @@ namespace bgfx { namespace gl
 						}
 						else
 						{
-							GL_CHECK(glDisable(GL_DEPTH_TEST) );
+							if (BGFX_STATE_DEPTH_WRITE & newFlags)
+							{
+								GL_CHECK(glEnable(GL_DEPTH_TEST) );
+								GL_CHECK(glDepthFunc(GL_ALWAYS) );
+							}
+							else
+							{
+								GL_CHECK(glDisable(GL_DEPTH_TEST) );
+							}
 						}
 					}
 

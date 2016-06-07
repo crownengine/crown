@@ -1,4 +1,4 @@
-// dear imgui, v1.49 WIP
+// dear imgui, v1.50 WIP
 // (internals)
 
 // You may use this file to debug, understand or extend ImGui features but we don't provide any guarantee of forward compatibility!
@@ -12,11 +12,18 @@
 #endif
 
 #include <stdio.h>      // FILE*
-#include <math.h>       // sqrtf()
+#include <math.h>       // sqrtf, fabsf, fmodf, powf, floorf, ceilf, cosf, sinf
 
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4251) // class 'xxx' needs to have dll-interface to be used by clients of struct 'xxx' // when IMGUI_API is set to__declspec(dllexport)
+#endif
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"        // for stb_textedit.h
+#pragma clang diagnostic ignored "-Wmissing-prototypes"     // for stb_textedit.h
+#pragma clang diagnostic ignored "-Wold-style-cast"
 #endif
 
 //-----------------------------------------------------------------------------
@@ -33,7 +40,6 @@ struct ImGuiTextEditState;
 struct ImGuiIniData;
 struct ImGuiMouseCursorData;
 struct ImGuiPopupRef;
-struct ImGuiState;
 struct ImGuiWindow;
 
 typedef int ImGuiLayoutType;      // enum ImGuiLayoutType_
@@ -48,12 +54,6 @@ typedef int ImGuiSliderFlags;     // enum ImGuiSliderFlags_
 namespace ImGuiStb
 {
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#pragma clang diagnostic ignored "-Wmissing-prototypes"
-#endif
-
 #undef STB_TEXTEDIT_STRING
 #undef STB_TEXTEDIT_CHARTYPE
 #define STB_TEXTEDIT_STRING             ImGuiTextEditState
@@ -61,17 +61,13 @@ namespace ImGuiStb
 #define STB_TEXTEDIT_GETWIDTH_NEWLINE   -1.0f
 #include "stb_textedit.h"
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
 } // namespace ImGuiStb
 
 //-----------------------------------------------------------------------------
 // Context
 //-----------------------------------------------------------------------------
 
-extern IMGUI_API ImGuiState*  GImGui;
+extern IMGUI_API ImGuiContext*  GImGui;     // current implicit ImGui context pointer
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -144,7 +140,7 @@ static inline ImVec2 ImFloor(ImVec2 v)                                          
 struct ImPlacementNewDummy {};
 inline void* operator new(size_t, ImPlacementNewDummy, void* ptr) { return ptr; }
 inline void operator delete(void*, ImPlacementNewDummy, void*) {}
-#define IM_PLACEMENT_NEW(_PTR)  new(ImPlacementNewDummy() ,_PTR)
+#define IM_PLACEMENT_NEW(_PTR)  new(ImPlacementNewDummy(), _PTR)
 #endif
 
 //-----------------------------------------------------------------------------
@@ -274,7 +270,7 @@ struct ImGuiColumnData
     //float     IndentX;
 };
 
-// Simple column measurement currently used for MenuItem() only. This is very short-sighted for now and NOT a generic helper.
+// Simple column measurement currently used for MenuItem() only. This is very short-sighted/throw-away code and NOT a generic helper.
 struct IMGUI_API ImGuiSimpleColumns
 {
     int         Count;
@@ -283,9 +279,9 @@ struct IMGUI_API ImGuiSimpleColumns
     float       Pos[8], NextWidths[8];
 
     ImGuiSimpleColumns();
-    void       Update(int count, float spacing, bool clear);
-    float      DeclColumns(float w0, float w1, float w2);
-    float      CalcExtraSpace(float avail_w);
+    void        Update(int count, float spacing, bool clear);
+    float       DeclColumns(float w0, float w1, float w2);
+    float       CalcExtraSpace(float avail_w);
 };
 
 // Internal state of the currently focused/edited text input box
@@ -345,7 +341,7 @@ struct ImGuiPopupRef
 };
 
 // Main state for ImGui
-struct ImGuiState
+struct ImGuiContext
 {
     bool                    Initialized;
     ImGuiIO                 IO;
@@ -374,11 +370,12 @@ struct ImGuiState
     bool                    ActiveIdIsAlive;
     bool                    ActiveIdIsJustActivated;            // Set at the time of activation for one frame
     bool                    ActiveIdAllowOverlap;               // Set only by active widget
+    ImVec2                  ActiveIdClickOffset;                // Clicked offset from upper-left corner, if applicable (currently only set by ButtonBehavior)
     ImGuiWindow*            ActiveIdWindow;
     ImGuiWindow*            MovedWindow;                        // Track the child window we clicked on to move a window.
     ImGuiID                 MovedWindowMoveId;                  // == MovedWindow->RootWindow->MoveId
     ImVector<ImGuiIniData>  Settings;                           // .ini Settings
-    float                   SettingsDirtyTimer;                 // Save .ini settinngs on disk when time reaches zero
+    float                   SettingsDirtyTimer;                 // Save .ini Settings on disk when time reaches zero
     ImVector<ImGuiColMod>   ColorModifiers;                     // Stack for PushStyleColor()/PopStyleColor()
     ImVector<ImGuiStyleMod> StyleModifiers;                     // Stack for PushStyleVar()/PopStyleVar()
     ImVector<ImFont*>       FontStack;                          // Stack for PushFont()/PopFont()
@@ -394,6 +391,10 @@ struct ImGuiState
     ImGuiSetCond            SetNextWindowSizeCond;
     ImGuiSetCond            SetNextWindowContentSizeCond;
     ImGuiSetCond            SetNextWindowCollapsedCond;
+    ImRect                  SetNextWindowSizeConstraintRect;           // Valid if 'SetNextWindowSizeConstraint' is true
+    ImGuiSizeConstraintCallback SetNextWindowSizeConstraintCallback;
+    void*                       SetNextWindowSizeConstraintCallbackUserData;
+    bool                    SetNextWindowSizeConstraint;
     bool                    SetNextWindowFocus;
     bool                    SetNextTreeNodeOpenVal;
     ImGuiSetCond            SetNextTreeNodeOpenCond;
@@ -411,13 +412,12 @@ struct ImGuiState
     ImFont                  InputTextPasswordFont;
     ImGuiID                 ScalarAsInputTextId;                // Temporary text input when CTRL+clicking on a slider, etc.
     ImGuiStorage            ColorEditModeStorage;               // Store user selection of color edit mode
-    ImVec2                  ActiveClickDeltaToCenter;
     float                   DragCurrentValue;                   // Currently dragged value, always float, not rounded by end-user precision settings
     ImVec2                  DragLastMouseDelta;
     float                   DragSpeedDefaultRatio;              // If speed == 0.0f, uses (max-min) * DragSpeedDefaultRatio
     float                   DragSpeedScaleSlow;
     float                   DragSpeedScaleFast;
-    ImVec2                  ScrollbarClickDeltaToGrabCenter;   // Distance between mouse and center of grab box, normalized in parent space. Use storage?
+    ImVec2                  ScrollbarClickDeltaToGrabCenter;    // Distance between mouse and center of grab box, normalized in parent space. Use storage?
     char                    Tooltip[1024];
     char*                   PrivateClipboard;                   // If no custom clipboard handler is defined
     ImVec2                  OsImePosRequest, OsImePosSet;       // Cursor position request & last passed to the OS Input Method Editor
@@ -437,7 +437,7 @@ struct ImGuiState
     int                     CaptureKeyboardNextFrame;
     char                    TempBuffer[1024*3+1];               // temporary text buffer
 
-    ImGuiState()
+    ImGuiContext()
     {
         Initialized = false;
         Font = NULL;
@@ -459,6 +459,7 @@ struct ImGuiState
         ActiveIdIsAlive = false;
         ActiveIdIsJustActivated = false;
         ActiveIdAllowOverlap = false;
+        ActiveIdClickOffset = ImVec2(-1,-1);
         ActiveIdWindow = NULL;
         MovedWindow = NULL;
         MovedWindowMoveId = 0;
@@ -472,11 +473,12 @@ struct ImGuiState
         SetNextWindowContentSizeCond = 0;
         SetNextWindowCollapsedCond = 0;
         SetNextWindowFocus = false;
+        SetNextWindowSizeConstraintCallback = NULL;
+        SetNextWindowSizeConstraintCallbackUserData = NULL;
         SetNextTreeNodeOpenVal = false;
         SetNextTreeNodeOpenCond = 0;
 
         ScalarAsInputTextId = 0;
-        ActiveClickDeltaToCenter = ImVec2(0.0f, 0.0f);
         DragCurrentValue = 0.0f;
         DragLastMouseDelta = ImVec2(0.0f, 0.0f);
         DragSpeedDefaultRatio = 0.01f;
@@ -602,6 +604,7 @@ struct IMGUI_API ImGuiWindow
     ImVec2                  SizeFull;                           // Size when non collapsed
     ImVec2                  SizeContents;                       // Size of contents (== extents reach of the drawing cursor) from previous frame
     ImVec2                  SizeContentsExplicit;               // Size of contents explicitly set by the user via SetNextWindowContentSize()
+    ImRect                  ContentsRegionRect;                 // Maximum visible content position in window coordinates. ~~ (SizeContentsExplicit ? SizeContentsExplicit : Size - ScrollbarSizes) - CursorStartPos, per axis
     ImVec2                  WindowPadding;                      // Window padding at the time of begin. We need to lock it, in particular manipulation of the ShowBorder would have an effect
     ImGuiID                 MoveID;                             // == window->GetID("#MOVE")
     ImVec2                  Scroll;
@@ -637,7 +640,8 @@ struct IMGUI_API ImGuiWindow
     float                   FontWindowScale;                    // Scale multiplier per-window
     ImDrawList*             DrawList;
     ImGuiWindow*            RootWindow;                         // If we are a child window, this is pointing to the first non-child parent window. Else point to ourself.
-    ImGuiWindow*            RootNonPopupWindow;                 // If we are a child widnow, this is pointing to the first non-child non-popup parent window. Else point to ourself.
+    ImGuiWindow*            RootNonPopupWindow;                 // If we are a child window, this is pointing to the first non-child non-popup parent window. Else point to ourself.
+    ImGuiWindow*            ParentWindow;                       // If we are a child window, this is pointing to our parent window. Else point to NULL.
 
     // Focus
     int                     FocusIdxAllCounter;                 // Start at -1 and increase as assigned via FocusItemRegister()
@@ -673,8 +677,8 @@ namespace ImGui
     // If this ever crash because g.CurrentWindow is NULL it means that either
     // - ImGui::NewFrame() has never been called, which is illegal.
     // - You are calling ImGui functions after ImGui::Render() and before the next ImGui::NewFrame(), which is also illegal.
-    inline    ImGuiWindow*  GetCurrentWindowRead()      { ImGuiState& g = *GImGui; return g.CurrentWindow; }
-    inline    ImGuiWindow*  GetCurrentWindow()          { ImGuiState& g = *GImGui; g.CurrentWindow->Accessed = true; return g.CurrentWindow; }
+    inline    ImGuiWindow*  GetCurrentWindowRead()      { ImGuiContext& g = *GImGui; return g.CurrentWindow; }
+    inline    ImGuiWindow*  GetCurrentWindow()          { ImGuiContext& g = *GImGui; g.CurrentWindow->Accessed = true; return g.CurrentWindow; }
     IMGUI_API ImGuiWindow*  GetParentWindow();
     IMGUI_API ImGuiWindow*  FindWindowByName(const char* name);
     IMGUI_API void          FocusWindow(ImGuiWindow* window);
@@ -739,7 +743,11 @@ namespace ImGui
     IMGUI_API int           ParseFormatPrecision(const char* fmt, int default_value);
     IMGUI_API float         RoundScalar(float value, int decimal_precision);
 
-} // namespace ImGuiP
+} // namespace ImGui
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #ifdef _MSC_VER
 #pragma warning (pop)

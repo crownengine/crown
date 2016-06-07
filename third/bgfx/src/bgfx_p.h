@@ -264,6 +264,7 @@ namespace bgfx
 {
 	extern InternalData g_internalData;
 	extern PlatformData g_platformData;
+	extern bool g_platformDataChangedSinceReset;
 
 #if BGFX_CONFIG_MAX_DRAW_CALLS < (64<<10)
 	typedef uint16_t RenderItemCount;
@@ -1374,6 +1375,8 @@ namespace bgfx
 			, m_waitSubmit(0)
 			, m_waitRender(0)
 			, m_hmdInitialized(false)
+			, m_capture(false)
+			, m_discard(false)
 		{
 			SortKey term;
 			term.reset();
@@ -1427,6 +1430,7 @@ namespace bgfx
 			m_cmdPre.start();
 			m_cmdPost.start();
 			m_uniformBuffer->reset();
+			m_capture = false;
 			m_discard = false;
 		}
 
@@ -1835,6 +1839,7 @@ namespace bgfx
 		int64_t m_waitRender;
 
 		bool m_hmdInitialized;
+		bool m_capture;
 		bool m_discard;
 	};
 
@@ -2134,7 +2139,11 @@ namespace bgfx
 			BX_WARN(0 != _width && 0 != _height, "Frame buffer resolution width or height cannot be 0 (width %d, height %d).", _width, _height);
 			m_resolution.m_width  = bx::uint32_max(1, _width);
 			m_resolution.m_height = bx::uint32_max(1, _height);
-			m_resolution.m_flags  = _flags;
+			m_resolution.m_flags  = 0
+				| _flags
+				| (g_platformDataChangedSinceReset ? BGFX_RESET_INTERNAL_FORCE : 0)
+				;
+			g_platformDataChangedSinceReset = false;
 
 			m_flipAfterRender = !!(_flags & BGFX_RESET_FLIP_AFTER_RENDER);
 
@@ -3120,20 +3129,21 @@ namespace bgfx
 			textureDecRef(_handle);
 		}
 
-		BGFX_API_FUNC(void readTexture(TextureHandle _handle, void* _data) )
+		BGFX_API_FUNC(uint32_t readTexture(TextureHandle _handle, void* _data) )
 		{
 			CommandBuffer& cmdbuf = getCommandBuffer(CommandBuffer::ReadTexture);
 			cmdbuf.write(_handle);
 			cmdbuf.write(_data);
+			return m_frames + 2;
 		}
 
-		BGFX_API_FUNC(void readTexture(FrameBufferHandle _handle, uint8_t _attachment, void* _data) )
+		BGFX_API_FUNC(uint32_t readTexture(FrameBufferHandle _handle, uint8_t _attachment, void* _data) )
 		{
 			const FrameBufferRef& ref = m_frameBufferRef[_handle.idx];
 			BX_CHECK(!ref.m_window, "Can't sample window frame buffer.");
 			TextureHandle textureHandle = ref.un.m_th[_attachment];
 			BX_CHECK(isValid(textureHandle), "Frame buffer texture %d is invalid.", _attachment);
-			readTexture(textureHandle, _data);
+			return readTexture(textureHandle, _data);
 		}
 
 		void resizeTexture(TextureHandle _handle, uint16_t _width, uint16_t _height)
@@ -3860,7 +3870,7 @@ namespace bgfx
 			blit(_id, _dst, _dstMip, _dstX, _dstY, _dstZ, textureHandle, _srcMip, _srcX, _srcY, _srcZ, _width, _height, _depth);
 		}
 
-		BGFX_API_FUNC(uint32_t frame() );
+		BGFX_API_FUNC(uint32_t frame(bool _capture = false) );
 
 		void dumpViewStats();
 		void freeDynamicBuffers();
@@ -3892,6 +3902,7 @@ namespace bgfx
 				bool ok = m_gameSem.wait();
 				BX_CHECK(ok, "Semaphore wait failed."); BX_UNUSED(ok);
 				m_render->m_waitSubmit = bx::getHPCounter()-start;
+				m_submit->m_perfStats.waitSubmit = m_submit->m_waitSubmit;
 			}
 		}
 
@@ -3912,6 +3923,7 @@ namespace bgfx
 				bool ok = m_renderSem.wait();
 				BX_CHECK(ok, "Semaphore wait failed."); BX_UNUSED(ok);
 				m_submit->m_waitRender = bx::getHPCounter() - start;
+				m_submit->m_perfStats.waitRender = m_submit->m_waitRender;
 			}
 		}
 
