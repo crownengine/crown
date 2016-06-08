@@ -13,7 +13,7 @@ endif
 GENIE=third/bx/tools/bin/$(OS)/genie
 
 engine-android-build:
-	$(GENIE) --file=genie/genie.lua --with-luajit --with-openal --with-bullet --compiler=android-arm gmake
+	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --compiler=android-arm gmake
 engine-android-arm-debug: engine-android-build
 	make -R -C build/engine/projects/android config=debug
 engine-android-arm-development: engine-android-build
@@ -23,7 +23,7 @@ engine-android-arm-release: engine-android-build
 engine-android-arm: engine-android-arm-debug engine-android-arm-development engine-android-arm-release
 
 engine-linux-build:
-	$(GENIE) --file=genie/genie.lua --with-luajit --with-openal --with-bullet --with-tools --compiler=linux-gcc gmake
+	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --with-tools --compiler=linux-gcc gmake
 engine-linux-debug32: engine-linux-build
 	make -R -C build/engine/projects/linux config=debug32
 engine-linux-development32: engine-linux-build
@@ -39,7 +39,7 @@ engine-linux-release64: engine-linux-build
 engine-linux: engine-linux-debug32 engine-linux-development32 engine-linux-release32 engine-linux-debug64 engine-linux-development64 engine-linux-release64
 
 engine-windows-build:
-	$(GENIE) --file=genie\genie.lua --with-luajit --with-openal --with-bullet --with-tools vs2013
+	$(GENIE) --file=scripts\genie.lua --with-luajit --with-openal --with-bullet --with-tools vs2013
 engine-windows-debug32: engine-windows-build
 	devenv build/engine/projects/vs2013/crown.sln /Build "debug|Win32"
 engine-windows-development32: engine-windows-build
@@ -54,7 +54,7 @@ engine-windows-release64: engine-windows-build
 	devenv build/engine/projects/vs2013/crown.sln /Build "release|x64"
 
 tools-build:
-	$(GENIE) --file=genie/tools.lua gmake
+	$(GENIE) --file=scripts/tools.lua gmake
 tools-linux-debug64: tools-build engine-linux-development64
 	make -R -C build/projects config=debug
 	cp -r tools/ui build/tools
