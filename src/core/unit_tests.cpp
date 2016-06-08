@@ -600,22 +600,22 @@ static void test_matrix4x4()
 			,  3.8f,  9.1f, -3.1f, -7.1f
 			);
 		const Matrix4x4 c = a * b;
-		ENSURE(fequal(c.x.x, -12.85, 0.00001f));
-		ENSURE(fequal(c.x.y,  -0.05, 0.00001f));
-		ENSURE(fequal(c.x.z,  61.83, 0.00001f));
-		ENSURE(fequal(c.x.w,  71.47, 0.00001f));
-		ENSURE(fequal(c.y.x, -16.33, 0.00001f));
-		ENSURE(fequal(c.y.y, -22.99, 0.00001f));
-		ENSURE(fequal(c.y.z,  58.17, 0.00001f));
-		ENSURE(fequal(c.y.w, 104.95, 0.00001f));
-		ENSURE(fequal(c.z.x, -18.22, 0.00001f));
-		ENSURE(fequal(c.z.y, -83.43, 0.00001f));
-		ENSURE(fequal(c.z.z,   5.98, 0.00001f));
-		ENSURE(fequal(c.z.w,  30.28, 0.00001f));
-		ENSURE(fequal(c.t.x,  -1.60, 0.00001f));
-		ENSURE(fequal(c.t.y,  30.34, 0.00001f));
-		ENSURE(fequal(c.t.z, -40.13, 0.00001f));
-		ENSURE(fequal(c.t.w, -44.55, 0.00001f));
+		ENSURE(fequal(c.x.x, -12.85f, 0.00001f));
+		ENSURE(fequal(c.x.y,  -0.05f, 0.00001f));
+		ENSURE(fequal(c.x.z,  61.83f, 0.00001f));
+		ENSURE(fequal(c.x.w,  71.47f, 0.00001f));
+		ENSURE(fequal(c.y.x, -16.33f, 0.00001f));
+		ENSURE(fequal(c.y.y, -22.99f, 0.00001f));
+		ENSURE(fequal(c.y.z,  58.17f, 0.00001f));
+		ENSURE(fequal(c.y.w, 104.95f, 0.00001f));
+		ENSURE(fequal(c.z.x, -18.22f, 0.00001f));
+		ENSURE(fequal(c.z.y, -83.43f, 0.00001f));
+		ENSURE(fequal(c.z.z,   5.98f, 0.00001f));
+		ENSURE(fequal(c.z.w,  30.28f, 0.00001f));
+		ENSURE(fequal(c.t.x,  -1.60f, 0.00001f));
+		ENSURE(fequal(c.t.y,  30.34f, 0.00001f));
+		ENSURE(fequal(c.t.z, -40.13f, 0.00001f));
+		ENSURE(fequal(c.t.w, -44.55f, 0.00001f));
 	}
 	{
 		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
