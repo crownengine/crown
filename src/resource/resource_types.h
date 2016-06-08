@@ -5,6 +5,36 @@
 
 #pragma once
 
+/// @defgroup Resource Resource
+namespace crown
+{
+class ResourceLoader;
+class ResourceManager;
+struct ResourcePackage;
+
+struct ActorResource;
+struct ControllerResource;
+struct FontResource;
+struct JointResource;
+struct LevelResource;
+struct LuaResource;
+struct MaterialResource;
+struct MeshResource;
+struct PackageResource;
+struct PhysicsConfigResource;
+struct PhysicsResource;
+struct ShaderResource;
+struct ShapeResource;
+struct SoundResource;
+struct SpriteAnimationResource;
+struct SpriteResource;
+struct TextureResource;
+struct UnitResource;
+
+} // namespace crown
+
+/// @addtogroup Resource
+/// @{
 #define RESOURCE_EXTENSION_CONFIG           "config"
 #define RESOURCE_EXTENSION_FONT             "font"
 #define RESOURCE_EXTENSION_LEVEL            "level"
@@ -52,30 +82,4 @@
 #define RESOURCE_VERSION_SPRITE           u32(1)
 #define RESOURCE_VERSION_TEXTURE          u32(1)
 #define RESOURCE_VERSION_UNIT             u32(1)
-
-namespace crown
-{
-class ResourceLoader;
-class ResourceManager;
-struct ResourcePackage;
-
-struct ActorResource;
-struct ControllerResource;
-struct FontResource;
-struct JointResource;
-struct LevelResource;
-struct LuaResource;
-struct MaterialResource;
-struct MeshResource;
-struct PackageResource;
-struct PhysicsConfigResource;
-struct PhysicsResource;
-struct ShaderResource;
-struct ShapeResource;
-struct SoundResource;
-struct SpriteAnimationResource;
-struct SpriteResource;
-struct TextureResource;
-struct UnitResource;
-
-} // namespace crown
+/// @}

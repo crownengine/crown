@@ -6,6 +6,7 @@
 #pragma once
 
 /// @defgroup Input Input
+/// @ingroup Device
 namespace crown
 {
 class InputManager;

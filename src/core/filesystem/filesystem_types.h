@@ -6,6 +6,7 @@
 #pragma once
 
 /// @defgroup Filesystem Filesystem
+/// @ingroup Core
 namespace crown
 {
 class Filesystem;

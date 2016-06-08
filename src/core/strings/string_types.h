@@ -8,6 +8,7 @@
 #include "container_types.h"
 
 /// @defgroup String String
+/// @ingroup Core
 namespace crown
 {
 struct DynamicString;

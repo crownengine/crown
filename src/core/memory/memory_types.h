@@ -5,6 +5,8 @@
 
 #pragma once
 
+/// @defgroup Memory Memory
+/// @ingroup Core
 namespace crown
 {
 class Allocator;

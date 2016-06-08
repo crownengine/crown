@@ -12,7 +12,6 @@
 #include "string_id.h"
 #include "types.h"
 
-/// @defgroup Resource Resource
 namespace crown
 {
 /// Keeps track and manages resources loaded by ResourceLoader.

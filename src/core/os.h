@@ -29,8 +29,13 @@
 	#include <android/log.h>
 #endif
 
+/// @defgroup OS OS
+/// @ingroup Core
 namespace crown
 {
+/// Operating system functions.
+///
+/// @ingroup OS
 namespace os
 {
 	inline s64 clocktime()
@@ -63,6 +68,7 @@ namespace os
 #endif
 	}
 
+	/// Suspends execution for @a ms milliseconds.
 	inline void sleep(u32 ms)
 	{
 #if CROWN_PLATFORM_POSIX

@@ -10,6 +10,8 @@
 namespace crown
 {
 /// Helper for parsing command line.
+///
+/// @ingroup Core
 struct CommandLine
 {
 	int _argc;

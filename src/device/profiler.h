@@ -8,12 +8,11 @@
 #include "types.h"
 #include "math_types.h"
 
-/// @defgroup Profiler Profiler
 namespace crown
 {
 /// Enumerates profiler event types.
 ///
-/// @ingroup Profiler
+/// @ingroup Device
 struct ProfilerEventType
 {
 	enum Enum
@@ -66,7 +65,7 @@ struct DeallocateMemory
 
 /// Functions to access profiler.
 ///
-/// @ingroup Profiler
+/// @ingroup Device
 ///
 /// @note
 /// The profiler does not copy pointer data.

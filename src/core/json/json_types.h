@@ -9,6 +9,7 @@
 #include "fixed_string.h"
 
 /// @defgroup JSON
+/// @ingroup Core
 namespace crown
 {
 /// Enumerates JSON value types.

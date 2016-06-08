@@ -8,6 +8,7 @@
 #include "types.h"
 
 /// @defgroup Math Math
+/// @ingroup Core
 namespace crown
 {
 /// @ingroup Math

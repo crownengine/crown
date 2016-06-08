@@ -6,6 +6,7 @@
 #pragma once
 
 /// @defgroup Network Network
+/// @ingroup Core
 namespace crown
 {
 struct Socket;

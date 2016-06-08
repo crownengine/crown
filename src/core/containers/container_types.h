@@ -11,6 +11,7 @@
 #include "types.h"
 
 /// @defgroup Containers Containers
+/// @ingroup Core
 namespace crown
 {
 /// Dynamic array of POD items.

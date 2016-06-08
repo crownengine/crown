@@ -8,6 +8,7 @@
 #include "config.h"
 
 /// @defgroup Error Error
+/// @ingroup Core
 namespace crown
 {
 /// Error management.

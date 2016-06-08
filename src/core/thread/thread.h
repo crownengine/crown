@@ -18,6 +18,7 @@
 #endif
 
 /// @defgroup Thread Thread
+/// @ingroup Core
 namespace crown
 {
 /// Thread.

@@ -10,7 +10,6 @@
 #include "allocator.h"
 #include <new>
 
-/// @defgroup Memory Memory
 namespace crown
 {
 Allocator& default_allocator();
