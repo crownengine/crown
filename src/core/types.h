@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <stddef.h> // NULL
 #include <stdint.h>
 
 namespace crown
@@ -29,4 +28,8 @@ typedef double   f64;
 
 #if !defined(alignof)
 	#define alignof(x) __alignof(x)
+#endif
+
+#ifndef NULL
+	#define NULL 0
 #endif
