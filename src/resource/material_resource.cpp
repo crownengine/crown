@@ -7,7 +7,6 @@
 #include "device.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
-#include "macros.h"
 #include "map.h"
 #include "material_manager.h"
 #include "material_resource.h"
@@ -35,11 +34,11 @@ namespace material_resource
 		{ "vector3", UniformType::VECTOR3, 12 },
 		{ "vector4", UniformType::VECTOR4, 16 }
 	};
-	CE_STATIC_ASSERT(CE_COUNTOF(s_uniform_type_info) == UniformType::COUNT);
+	CE_STATIC_ASSERT(countof(s_uniform_type_info) == UniformType::COUNT);
 
 	static UniformType::Enum name_to_uniform_type(const char* name)
 	{
-		for (u32 i = 0; i < CE_COUNTOF(s_uniform_type_info); ++i)
+		for (u32 i = 0; i < countof(s_uniform_type_info); ++i)
 		{
 			if (strcmp(s_uniform_type_info[i].name, name) == 0)
 				return s_uniform_type_info[i].type;

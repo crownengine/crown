@@ -22,6 +22,7 @@ namespace error
 	/// Prints the current call stack.
 	void print_callstack();
 } // namespace error
+
 } // namespace crown
 
 #if CROWN_DEBUG

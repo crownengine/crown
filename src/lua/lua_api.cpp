@@ -49,7 +49,7 @@ static LightInfo s_light[] =
 	{ "omni",        LightType::OMNI        },
 	{ "spot",        LightType::SPOT        }
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_light) == LightType::COUNT);
+CE_STATIC_ASSERT(countof(s_light) == LightType::COUNT);
 
 struct ProjectionInfo
 {
@@ -62,7 +62,7 @@ static ProjectionInfo s_projection[] =
 	{ "orthographic", ProjectionType::ORTHOGRAPHIC },
 	{ "perspective",  ProjectionType::PERSPECTIVE  }
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_projection) == ProjectionType::COUNT);
+CE_STATIC_ASSERT(countof(s_projection) == ProjectionType::COUNT);
 
 struct RaycastInfo
 {
@@ -75,11 +75,11 @@ static RaycastInfo s_raycast[] =
 	{ "closest", RaycastMode::CLOSEST },
 	{ "all",     RaycastMode::ALL     }
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_raycast) == RaycastMode::COUNT);
+CE_STATIC_ASSERT(countof(s_raycast) == RaycastMode::COUNT);
 
 static LightType::Enum name_to_light_type(const char* name)
 {
-	for (u32 i = 0; i < CE_COUNTOF(s_light); ++i)
+	for (u32 i = 0; i < countof(s_light); ++i)
 	{
 		if (strcmp(s_light[i].name, name) == 0)
 			return s_light[i].type;
@@ -90,7 +90,7 @@ static LightType::Enum name_to_light_type(const char* name)
 
 static ProjectionType::Enum name_to_projection_type(const char* name)
 {
-	for (u32 i = 0; i < CE_COUNTOF(s_projection); ++i)
+	for (u32 i = 0; i < countof(s_projection); ++i)
 	{
 		if (strcmp(s_projection[i].name, name) == 0)
 			return s_projection[i].type;
@@ -101,7 +101,7 @@ static ProjectionType::Enum name_to_projection_type(const char* name)
 
 static RaycastMode::Enum name_to_raycast_mode(const char* name)
 {
-	for (u32 i = 0; i < CE_COUNTOF(s_raycast); ++i)
+	for (u32 i = 0; i < countof(s_raycast); ++i)
 	{
 		if (strcmp(s_raycast[i].name, name) == 0)
 			return s_raycast[i].mode;

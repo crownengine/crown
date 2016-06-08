@@ -15,7 +15,6 @@
 #include "guid.h"
 #include "hash_map.h"
 #include "json.h"
-#include "macros.h"
 #include "math_utils.h"
 #include "matrix3x3.h"
 #include "matrix4x4.h"
@@ -711,7 +710,7 @@ static void test_aabb()
 			{  8.2f, -2.4f, -1.5f },
 			{ -5.9f,  9.2f,  6.0f }
 		};
-		aabb::add_points(a, CE_COUNTOF(points), points);
+		aabb::add_points(a, countof(points), points);
 		ENSURE(fequal(a.min.x, -5.9f, 0.00001f));
 		ENSURE(fequal(a.min.y, -2.4f, 0.00001f));
 		ENSURE(fequal(a.min.z, -1.5f, 0.00001f));
@@ -739,13 +738,13 @@ static void test_aabb()
 			{ -8.6f, -4.8f,  2.8f },
 			{  4.1f,  4.7f, -0.4f }
 		};
-		aabb::add_points(boxes[0], CE_COUNTOF(points)/3, &points[0]);
-		aabb::add_points(boxes[1], CE_COUNTOF(points)/3, &points[3]);
-		aabb::add_points(boxes[2], CE_COUNTOF(points)/3, &points[6]);
+		aabb::add_points(boxes[0], countof(points)/3, &points[0]);
+		aabb::add_points(boxes[1], countof(points)/3, &points[3]);
+		aabb::add_points(boxes[2], countof(points)/3, &points[6]);
 
 		AABB d;
 		aabb::reset(d);
-		aabb::add_boxes(d, CE_COUNTOF(boxes), boxes);
+		aabb::add_boxes(d, countof(boxes), boxes);
 		ENSURE(fequal(d.min.x, -8.6f, 0.00001f));
 		ENSURE(fequal(d.min.y, -4.8f, 0.00001f));
 		ENSURE(fequal(d.min.z, -2.2f, 0.00001f));
@@ -789,7 +788,7 @@ static void test_sphere()
 			{  8.2f, -2.4f, -1.5f },
 			{ -5.9f,  9.2f,  6.0f }
 		};
-		sphere::add_points(a, CE_COUNTOF(points), points);
+		sphere::add_points(a, countof(points), points);
 		ENSURE(fequal(a.c.x, 0.0f, 0.00001f));
 		ENSURE(fequal(a.c.y, 0.0f, 0.00001f));
 		ENSURE(fequal(a.c.z, 0.0f, 0.00001f));
@@ -815,13 +814,13 @@ static void test_sphere()
 			{ -7.6f, -7.0f,  0.8f },
 			{  8.2f,  2.8f, -4.8f }
 		};
-		sphere::add_points(spheres[0], CE_COUNTOF(points)/3, &points[0]);
-		sphere::add_points(spheres[1], CE_COUNTOF(points)/3, &points[3]);
-		sphere::add_points(spheres[2], CE_COUNTOF(points)/3, &points[6]);
+		sphere::add_points(spheres[0], countof(points)/3, &points[0]);
+		sphere::add_points(spheres[1], countof(points)/3, &points[3]);
+		sphere::add_points(spheres[2], countof(points)/3, &points[6]);
 
 		Sphere d;
 		sphere::reset(d);
-		sphere::add_spheres(d, CE_COUNTOF(spheres), spheres);
+		sphere::add_spheres(d, countof(spheres), spheres);
 		ENSURE(fequal(d.r, 13.16472f, 0.00001f));
 	}
 	{
@@ -1188,7 +1187,7 @@ static void test_command_line()
 		"orange"
 	};
 
-	CommandLine cl(CE_COUNTOF(argv), argv);
+	CommandLine cl(countof(argv), argv);
 	ENSURE(cl.has_argument("switch", 's'));
 	const char* orange = cl.get_parameter("argument");
 	ENSURE(orange != NULL && strcmp(orange, "orange") == 0);

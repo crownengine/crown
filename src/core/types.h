@@ -33,3 +33,5 @@ typedef double   f64;
 #ifndef NULL
 	#define NULL 0
 #endif
+
+#define countof(arr) (sizeof(arr)/sizeof(arr[0]))

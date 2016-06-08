@@ -773,7 +773,7 @@ static StringStream& sanitize(StringStream& ss, const char* msg)
 }
 
 static const char* s_severity_map[] = { "info", "warning", "error", "debug" };
-CE_STATIC_ASSERT(CE_COUNTOF(s_severity_map) == LogSeverity::COUNT);
+CE_STATIC_ASSERT(countof(s_severity_map) == LogSeverity::COUNT);
 
 void Device::log(const char* msg, LogSeverity::Enum severity)
 {

@@ -176,7 +176,7 @@ struct Joypad
 			const WORD curr = state.Gamepad.wButtons;
 			if (diff != 0)
 			{
-				for (u8 bb = 0; bb < CE_COUNTOF(s_xinput_to_joypad); ++bb)
+				for (u8 bb = 0; bb < countof(s_xinput_to_joypad); ++bb)
 				{
 					WORD bit = s_xinput_to_joypad[bb].bit;
 					if (bit & diff)

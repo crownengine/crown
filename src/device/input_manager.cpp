@@ -102,7 +102,7 @@ static const char* s_keyboard_button_names[] =
 	"y",            // KeyboardButton::Y
 	"z"             // KeyboardButton::Z
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_keyboard_button_names) == KeyboardButton::COUNT);
+CE_STATIC_ASSERT(countof(s_keyboard_button_names) == KeyboardButton::COUNT);
 
 static const char* s_mouse_button_names[] =
 {
@@ -112,7 +112,7 @@ static const char* s_mouse_button_names[] =
 	"extra_1", // MouseButton::EXTRA_1
 	"extra_2"  // MouseButton::EXTRA_2
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_mouse_button_names) == MouseButton::COUNT);
+CE_STATIC_ASSERT(countof(s_mouse_button_names) == MouseButton::COUNT);
 
 static const char* s_mouse_axis_names[] =
 {
@@ -120,7 +120,7 @@ static const char* s_mouse_axis_names[] =
 	"cursor_delta", // MouseAxis::CURSOR_DELTA
 	"wheel"         // MouseAxis::WHEEL
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_mouse_axis_names) == MouseAxis::COUNT);
+CE_STATIC_ASSERT(countof(s_mouse_axis_names) == MouseAxis::COUNT);
 
 static const char* s_touch_button_names[] =
 {
@@ -129,7 +129,7 @@ static const char* s_touch_button_names[] =
 	"pointer_2", // TouchButton::POINTER_2
 	"pointer_3"  // TouchButton::POINTER_3
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_touch_button_names) == TouchButton::COUNT);
+CE_STATIC_ASSERT(countof(s_touch_button_names) == TouchButton::COUNT);
 
 static const char* s_pad_button_names[] =
 {
@@ -149,14 +149,14 @@ static const char* s_pad_button_names[] =
 	"x",              // JoypadButton::X
 	"y"               // JoypadButton::Y
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_pad_button_names) == JoypadButton::COUNT);
+CE_STATIC_ASSERT(countof(s_pad_button_names) == JoypadButton::COUNT);
 
 static const char* s_pad_axis_names[] =
 {
 	"left",  // JoypadAxis::LEFT
 	"right"  // JoypadAxis::RIGHT
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_pad_axis_names) == JoypadAxis::COUNT);
+CE_STATIC_ASSERT(countof(s_pad_axis_names) == JoypadAxis::COUNT);
 
 InputManager::InputManager(Allocator& a)
 	: _allocator(&a)
@@ -229,7 +229,7 @@ InputDevice* InputManager::touch()
 
 u8 InputManager::num_joypads()
 {
-	return CE_COUNTOF(_joypad);
+	return countof(_joypad);
 }
 
 InputDevice* InputManager::joypad(u8 i)

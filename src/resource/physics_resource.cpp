@@ -35,7 +35,7 @@ namespace physics_resource
 		{ "mesh",        ColliderType::MESH        },
 		{ "heightfield", ColliderType::HEIGHTFIELD }
 	};
-	CE_STATIC_ASSERT(CE_COUNTOF(s_collider) == ColliderType::COUNT);
+	CE_STATIC_ASSERT(countof(s_collider) == ColliderType::COUNT);
 
 	struct JointInfo
 	{
@@ -49,11 +49,11 @@ namespace physics_resource
 		{ "hinge",  JointType::HINGE  },
 		{ "spring", JointType::SPRING }
 	};
-	CE_STATIC_ASSERT(CE_COUNTOF(s_joint) == JointType::COUNT);
+	CE_STATIC_ASSERT(countof(s_joint) == JointType::COUNT);
 
 	static ColliderType::Enum shape_type_to_enum(const char* type)
 	{
-		for (u32 i = 0; i < CE_COUNTOF(s_collider); ++i)
+		for (u32 i = 0; i < countof(s_collider); ++i)
 		{
 			if (strcmp(type, s_collider[i].name) == 0)
 				return s_collider[i].type;
@@ -64,7 +64,7 @@ namespace physics_resource
 
 	static JointType::Enum joint_type_to_enum(const char* type)
 	{
-		for (u32 i = 0; i < CE_COUNTOF(s_joint); ++i)
+		for (u32 i = 0; i < countof(s_joint); ++i)
 		{
 			if (strcmp(type, s_joint[i].name) == 0)
 				return s_joint[i].type;

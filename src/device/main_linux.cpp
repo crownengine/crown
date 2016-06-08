@@ -260,7 +260,7 @@ struct Joypad
 					}
 					case JS_EVENT_BUTTON:
 					{
-						if (ev.number < CE_COUNTOF(s_button))
+						if (ev.number < countof(s_button))
 						{
 							queue.push_joypad_event(i
 								, s_button[ev.number]

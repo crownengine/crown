@@ -8,7 +8,6 @@
 #if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
 
 #include "log.h"
-#include "macros.h"
 #include "string_utils.h"
 #include <cxxabi.h>
 #include <execinfo.h>
@@ -38,7 +37,7 @@ namespace error
 	void print_callstack()
 	{
 		void* array[64];
-		int size = backtrace(array, CE_COUNTOF(array));
+		int size = backtrace(array, countof(array));
 		char** messages = backtrace_symbols(array, size);
 
 		// skip first stack frame (points here)

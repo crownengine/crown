@@ -29,7 +29,7 @@ static const ProjectionInfo s_projection[] =
 	{ "perspective",  ProjectionType::PERSPECTIVE  },
 	{ "orthographic", ProjectionType::ORTHOGRAPHIC }
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_projection) == ProjectionType::COUNT);
+CE_STATIC_ASSERT(countof(s_projection) == ProjectionType::COUNT);
 
 struct LightInfo
 {
@@ -43,11 +43,11 @@ static const LightInfo s_light[] =
 	{ "omni",        LightType::OMNI        },
 	{ "spot",        LightType::SPOT        }
 };
-CE_STATIC_ASSERT(CE_COUNTOF(s_light) == LightType::COUNT);
+CE_STATIC_ASSERT(countof(s_light) == LightType::COUNT);
 
 static ProjectionType::Enum projection_name_to_enum(const char* name)
 {
-	for (u32 i = 0; i < CE_COUNTOF(s_projection); ++i)
+	for (u32 i = 0; i < countof(s_projection); ++i)
 	{
 		if (strcmp(name, s_projection[i].name) == 0)
 			return s_projection[i].type;
@@ -58,7 +58,7 @@ static ProjectionType::Enum projection_name_to_enum(const char* name)
 
 static LightType::Enum light_name_to_enum(const char* name)
 {
-	for (u32 i = 0; i < CE_COUNTOF(s_light); ++i)
+	for (u32 i = 0; i < countof(s_light); ++i)
 	{
 		if (strcmp(name, s_light[i].name) == 0)
 			return s_light[i].type;
@@ -219,7 +219,7 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 	JsonObject prefabs[4] = { JsonObject(ta), JsonObject(ta), JsonObject(ta), JsonObject(ta) };
 	sjson::parse(json, prefabs[0]);
 
-	for (u32 i = 0; i < CE_COUNTOF(prefabs); ++i, ++num_prefabs)
+	for (u32 i = 0; i < countof(prefabs); ++i, ++num_prefabs)
 	{
 		const JsonObject& prefab = prefabs[i];
 
