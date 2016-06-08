@@ -23,7 +23,7 @@ public class CrownActivity extends NativeActivity
 		super.onCreate(savedInstanceState);
 		_activity = this;
 		// Init additional stuff here (ads, etc.)
-    }
+	}
 
 	@Override
 	public void onDestroy()
