@@ -11,55 +11,48 @@
 /// @ingroup Core
 namespace crown
 {
-/// @ingroup Math
+/// @addtogroup Math
+/// @{
+
 struct Vector2
 {
 	f32 x, y;
 };
 
-/// @ingroup Math
 struct Vector3
 {
 	f32 x, y, z;
 };
 
-/// @ingroup Math
 struct Vector4
 {
 	f32 x, y, z, w;
 };
 
 /// RGBA color.
-///
-/// @ingroup Math
 typedef Vector4 Color4;
 
-/// @ingroup Math
 struct Quaternion
 {
 	f32 x, y, z, w;
 };
 
-/// @ingroup Math
 struct Matrix3x3
 {
 	Vector3 x, y, z;
 };
 
-/// @ingroup Math
 struct Matrix4x4
 {
 	Vector4 x, y, z, t;
 };
 
-/// @ingroup Math
 struct AABB
 {
 	Vector3 min;
 	Vector3 max;
 };
 
-/// @ingroup Math
 struct OBB
 {
 	Matrix4x4 tm;
@@ -69,15 +62,12 @@ struct OBB
 /// 3D Plane.
 /// The form is ax + by + cz + d = 0
 /// where: d = -vector3::dot(n, p)
-///
-/// @ingroup Math
 struct Plane3
 {
 	Vector3 n;
 	f32 d;
 };
 
-/// @ingroup Math
 struct Frustum
 {
 	Plane3 left;
@@ -88,15 +78,12 @@ struct Frustum
 	Plane3 far;
 };
 
-/// @ingroup Math
 struct Sphere
 {
 	Vector3 c;
 	f32 r;
 };
 
-/// @addtogroup Math
-/// @{
 const Vector2 VECTOR2_ZERO  = { 0.0f, 0.0f };
 const Vector2 VECTOR2_ONE   = { 1.0f, 1.0f };
 const Vector2 VECTOR2_XAXIS = { 1.0f, 0.0f };
