@@ -538,21 +538,6 @@ Material
 	**set_vector3** (material, name, value)
 		Sets the *value* of the variable *name*.
 
-Gui
-===
-
-	**rect** (pos, size, material_resource, color)
-		Draws a rectangle.
-
-	**image** (pos, size, material_resource, color)
-		Draws an image.
-
-	**image_uv** (pos, size, uv0, uv1, material_resource, color)
-		Draws an image with explicit UV coordinates.
-
-	**text** (pos, font_size, str, font_resource, material_resource, color)
-		Draws text.
-
 RenderWorld
 ===========
 
@@ -855,6 +840,21 @@ Device
 
 	**guid** () : string
 		Returns a new GUID.
+
+DebugGui
+========
+
+	**rect** (pos, size, material_resource, color)
+		Draws a rectangle.
+
+	**image** (pos, size, material_resource, color)
+		Draws an image.
+
+	**image_uv** (pos, size, uv0, uv1, material_resource, color)
+		Draws an image with explicit UV coordinates.
+
+	**text** (pos, font_size, str, font_resource, material_resource, color)
+		Draws text.
 
 DebugLine
 =========
