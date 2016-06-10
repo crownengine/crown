@@ -7,7 +7,6 @@
 #include "compile_options.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
-#include "macros.h"
 #include "map.h"
 #include "physics_resource.h"
 #include "quaternion.h"

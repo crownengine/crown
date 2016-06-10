@@ -5,7 +5,6 @@
 
 #include "input_device.h"
 #include "input_manager.h"
-#include "macros.h"
 #include "memory.h"
 
 namespace crown

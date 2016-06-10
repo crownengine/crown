@@ -5,7 +5,6 @@
 
 #include "dynamic_string.h"
 #include "guid.h"
-#include "macros.h"
 #include "platform.h"
 
 #if CROWN_PLATFORM_POSIX

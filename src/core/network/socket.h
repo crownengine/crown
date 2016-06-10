@@ -7,7 +7,6 @@
 
 #include "error.h"
 #include "ip_address.h"
-#include "macros.h"
 #include "platform.h"
 #include "types.h"
 

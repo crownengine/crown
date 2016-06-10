@@ -4,7 +4,6 @@
  */
 
 #include "dynamic_string.h"
-#include "macros.h"
 #include "map.h"
 #include "quaternion.h"
 #include "sjson.h"

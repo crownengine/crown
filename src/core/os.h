@@ -6,7 +6,6 @@
 #pragma once
 
 #include "error.h"
-#include "macros.h"
 #include "platform.h"
 #include "string_types.h"
 #include "types.h"
