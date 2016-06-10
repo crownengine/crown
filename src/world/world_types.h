@@ -21,8 +21,8 @@ class ShaderManager;
 class SoundWorld;
 class UnitManager;
 class World;
+struct DebugGui;
 struct DebugLine;
-struct Gui;
 struct Material;
 struct SceneGraph;
 

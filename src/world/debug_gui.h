@@ -15,7 +15,7 @@ namespace crown
 /// Immediate mode Gui.
 ///
 /// @ingroup World
-struct Gui
+struct DebugGui
 {
 	struct VertexData
 	{
@@ -39,7 +39,7 @@ struct Gui
 	Matrix4x4 _world;
 	bgfx::VertexDecl _pos_tex_col;
 
-	Gui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height);
+	DebugGui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height);
 
 	Vector2 resolution() const;
 	void move(const Vector2& pos);

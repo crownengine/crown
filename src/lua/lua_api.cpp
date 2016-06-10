@@ -5,10 +5,10 @@
 
 #include "color4.h"
 #include "console_server.h"
+#include "debug_gui.h"
 #include "debug_line.h"
 #include "device.h"
 #include "dynamic_string.h"
-#include "gui.h"
 #include "guid.h"
 #include "input_device.h"
 #include "input_manager.h"
@@ -1498,17 +1498,17 @@ static int world_destroy_debug_line(lua_State* L)
 	return 0;
 }
 
-static int world_create_screen_gui(lua_State* L)
+static int world_create_screen_debug_gui(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_gui(stack.get_world(1)->create_screen_gui(stack.get_float(2), stack.get_float(3)));
+	stack.push_debug_gui(stack.get_world(1)->create_screen_debug_gui(stack.get_float(2), stack.get_float(3)));
 	return 1;
 }
 
 static int world_destroy_gui(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->destroy_gui(*stack.get_gui(2));
+	stack.get_world(1)->destroy_gui(*stack.get_debug_gui(2));
 	return 0;
 }
 
@@ -2792,7 +2792,7 @@ static int material_set_vector3(lua_State* L)
 static int gui_resolution(lua_State* L)
 {
 	LuaStack stack(L);
-	const Vector2 resolution = stack.get_gui(1)->resolution();
+	const Vector2 resolution = stack.get_debug_gui(1)->resolution();
 	stack.push_int((s32)resolution.x);
 	stack.push_int((s32)resolution.y);
 	return 2;
@@ -2801,21 +2801,21 @@ static int gui_resolution(lua_State* L)
 static int gui_move(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_gui(1)->move(stack.get_vector2(2));
+	stack.get_debug_gui(1)->move(stack.get_vector2(2));
 	return 0;
 }
 
 static int gui_screen_to_gui(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector2(stack.get_gui(1)->screen_to_gui(stack.get_vector2(2)));
+	stack.push_vector2(stack.get_debug_gui(1)->screen_to_gui(stack.get_vector2(2)));
 	return 1;
 }
 
 static int gui_rect(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_gui(1)->rect(stack.get_vector2(2)
+	stack.get_debug_gui(1)->rect(stack.get_vector2(2)
 		, stack.get_vector2(3)
 		, stack.get_resource_id(4)
 		, stack.get_color4(5)
@@ -2826,7 +2826,7 @@ static int gui_rect(lua_State* L)
 static int gui_image(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_gui(1)->image(stack.get_vector2(2)
+	stack.get_debug_gui(1)->image(stack.get_vector2(2)
 		, stack.get_vector2(3)
 		, stack.get_resource_id(4)
 		, stack.get_color4(5)
@@ -2837,7 +2837,7 @@ static int gui_image(lua_State* L)
 static int gui_image_uv(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_gui(1)->image_uv(stack.get_vector2(2)
+	stack.get_debug_gui(1)->image_uv(stack.get_vector2(2)
 		, stack.get_vector2(3)
 		, stack.get_vector2(4)
 		, stack.get_vector2(5)
@@ -2850,7 +2850,7 @@ static int gui_image_uv(lua_State* L)
 static int gui_text(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_gui(1)->text(stack.get_vector2(2)
+	stack.get_debug_gui(1)->text(stack.get_vector2(2)
 		, stack.get_int(3)
 		, stack.get_string(4)
 		, stack.get_resource_id(5)
@@ -3213,7 +3213,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "set_sound_volume",                world_set_sound_volume);
 	env.add_module_function("World", "create_debug_line",               world_create_debug_line);
 	env.add_module_function("World", "destroy_debug_line",              world_destroy_debug_line);
-	env.add_module_function("World", "create_screen_gui",               world_create_screen_gui);
+	env.add_module_function("World", "create_screen_debug_gui",         world_create_screen_debug_gui);
 	env.add_module_function("World", "destroy_gui",                     world_destroy_gui);
 	env.add_module_function("World", "load_level",                      world_load_level);
 	env.add_module_function("World", "scene_graph",                     world_scene_graph);
@@ -3367,13 +3367,13 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Material", "set_vector2", material_set_vector2);
 	env.add_module_function("Material", "set_vector3", material_set_vector3);
 
-	env.add_module_function("Gui", "resolution",    gui_resolution);
-	env.add_module_function("Gui", "move",          gui_move);
-	env.add_module_function("Gui", "screen_to_gui", gui_screen_to_gui);
-	env.add_module_function("Gui", "rect",          gui_rect);
-	env.add_module_function("Gui", "image",         gui_image);
-	env.add_module_function("Gui", "image_uv",      gui_image_uv);
-	env.add_module_function("Gui", "text",          gui_text);
+	env.add_module_function("DebugGui", "resolution",    gui_resolution);
+	env.add_module_function("DebugGui", "move",          gui_move);
+	env.add_module_function("DebugGui", "screen_to_gui", gui_screen_to_gui);
+	env.add_module_function("DebugGui", "rect",          gui_rect);
+	env.add_module_function("DebugGui", "image",         gui_image);
+	env.add_module_function("DebugGui", "image_uv",      gui_image_uv);
+	env.add_module_function("DebugGui", "text",          gui_text);
 
 	env.add_module_function("Display", "modes",    display_modes);
 	env.add_module_function("Display", "set_mode", display_set_mode);

@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "debug_gui.h"
 #include "debug_line.h"
 #include "error.h"
-#include "gui.h"
 #include "hash_map.h"
 #include "level.h"
 #include "lua_environment.h"
@@ -418,9 +418,9 @@ void World::destroy_debug_line(DebugLine& line)
 	CE_DELETE(*_allocator, &line);
 }
 
-Gui* World::create_screen_gui(f32 scale_w, f32 scale_h)
+DebugGui* World::create_screen_debug_gui(f32 scale_w, f32 scale_h)
 {
-	return CE_NEW(*_allocator, Gui)(*_resource_manager
+	return CE_NEW(*_allocator, DebugGui)(*_resource_manager
 		, *_shader_manager
 		, *_material_manager
 		, 1280
@@ -428,7 +428,7 @@ Gui* World::create_screen_gui(f32 scale_w, f32 scale_h)
 		);
 }
 
-void World::destroy_gui(Gui& gui)
+void World::destroy_gui(DebugGui& gui)
 {
 	CE_DELETE(*_allocator, &gui);
 }

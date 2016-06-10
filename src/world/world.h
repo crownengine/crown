@@ -190,10 +190,10 @@ public:
 	void destroy_debug_line(DebugLine& line);
 
 	/// Creates a new screen-space Gui.
-	Gui* create_screen_gui(f32 scale_w, f32 scale_h);
+	DebugGui* create_screen_debug_gui(f32 scale_w, f32 scale_h);
 
 	/// Destroys the @a gui.
-	void destroy_gui(Gui& gui);
+	void destroy_gui(DebugGui& gui);
 
 	/// Loads the level @a name into the world.
 	Level* load_level(StringId64 name, const Vector3& pos, const Quaternion& rot);

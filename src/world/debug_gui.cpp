@@ -4,8 +4,8 @@
  */
 
 #include "color4.h"
+#include "debug_gui.h"
 #include "font_resource.h"
-#include "gui.h"
 #include "material_manager.h"
 #include "material_resource.h"
 #include "matrix4x4.h"
@@ -18,7 +18,7 @@
 
 namespace crown
 {
-Gui::Gui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height)
+DebugGui::DebugGui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height)
 	: _resource_manager(&rm)
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
@@ -37,23 +37,23 @@ Gui::Gui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width,
 		.end();
 }
 
-Vector2 Gui::resolution() const
+Vector2 DebugGui::resolution() const
 {
 	return vector2(_width, _height);
 }
 
-void Gui::move(const Vector2& pos)
+void DebugGui::move(const Vector2& pos)
 {
 	set_identity(_world);
 	set_translation(_world, vector3(pos.x, pos.y, 0));
 }
 
-Vector2 Gui::screen_to_gui(const Vector2& pos)
+Vector2 DebugGui::screen_to_gui(const Vector2& pos)
 {
 	return vector2(pos.x, _height - pos.y);
 }
 
-void Gui::triangle(const Vector3& a, const Vector3& b, const Vector3& c, StringId64 material, const Color4& color)
+void DebugGui::triangle(const Vector3& a, const Vector3& b, const Vector3& c, StringId64 material, const Color4& color)
 {
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
@@ -88,7 +88,7 @@ void Gui::triangle(const Vector3& a, const Vector3& b, const Vector3& c, StringI
 	inds[2] = 2;
 }
 
-void Gui::rect3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
+void DebugGui::rect3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
 {
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
@@ -139,12 +139,12 @@ void Gui::rect3d(const Vector3& pos, const Vector2& size, StringId64 material, c
 	_material_manager->get(material)->bind(*_resource_manager, *_shader_manager, 2);
 }
 
-void Gui::rect(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color)
+void DebugGui::rect(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color)
 {
 	rect3d(vector3(pos.x, pos.y, 0.0f), size, material, color);
 }
 
-void Gui::image_uv3d(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
+void DebugGui::image_uv3d(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
 {
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
@@ -192,22 +192,22 @@ void Gui::image_uv3d(const Vector3& pos, const Vector2& size, const Vector2& uv0
 	bgfx::setIndexBuffer(&tib);
 }
 
-void Gui::image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
+void DebugGui::image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
 {
 	image_uv3d(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color);
 }
 
-void Gui::image3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
+void DebugGui::image3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
 {
 	image_uv3d(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color);
 }
 
-void Gui::image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color)
+void DebugGui::image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color)
 {
 	image3d(vector3(pos.x, pos.y, 0.0f), size, material, color);
 }
 
-void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
+void DebugGui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
 {
 	const FontResource* fr = (FontResource*)_resource_manager->get(RESOURCE_TYPE_FONT, font);
 	const f32 scale = (f32)font_size / (f32)fr->font_size;
@@ -318,7 +318,7 @@ void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 
 	_material_manager->get(material)->bind(*_resource_manager, *_shader_manager, 2);
 }
 
-void Gui::text(const Vector2& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
+void DebugGui::text(const Vector2& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
 {
 	text3d(vector3(pos.x, pos.y, 0.0f), font_size, str, font, material, color);
 }

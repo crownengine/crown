@@ -298,9 +298,9 @@ struct LuaStack
 		return get_id(i);
 	}
 
-	Gui* get_gui(int i)
+	DebugGui* get_debug_gui(int i)
 	{
-		return (Gui*)get_pointer(i);
+		return (DebugGui*)get_pointer(i);
 	}
 
 	Vector2 get_vector2(int i)
@@ -561,9 +561,9 @@ struct LuaStack
 		push_id(id);
 	}
 
-	void push_gui(Gui* gui)
+	void push_debug_gui(DebugGui* dg)
 	{
-		push_pointer(gui);
+		push_pointer(dg);
 	}
 
 	void push_vector2(const Vector2& v);
