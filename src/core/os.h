@@ -77,7 +77,8 @@ namespace os
 #endif
 	}
 
-	inline void* open_library(const char* path)
+	/// Opens the library at @a path.
+	inline void* library_open(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::dlopen(path, RTLD_LAZY);
@@ -86,7 +87,8 @@ namespace os
 #endif
 	}
 
-	inline void close_library(void* library)
+	/// Closes a @a library previously opened by library_open.
+	inline void library_close(void* library)
 	{
 #if CROWN_PLATFORM_POSIX
 		dlclose(library);
@@ -95,7 +97,8 @@ namespace os
 #endif
 	}
 
-	inline void* lookup_symbol(void* library, const char* name)
+	/// Returns a pointer to the symbol @a name in the given @a library.
+	inline void* library_symbol(void* library, const char* name)
 	{
 #if CROWN_PLATFORM_POSIX
 		return ::dlsym(library, name);
@@ -104,6 +107,7 @@ namespace os
 #endif
 	}
 
+	/// Logs the message @a msg.
 	inline void log(const char* msg)
 	{
 #if CROWN_PLATFORM_ANDROID
