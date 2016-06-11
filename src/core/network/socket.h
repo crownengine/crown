@@ -26,24 +26,62 @@ namespace crown
 {
 struct ConnectResult
 {
-	enum { NO_ERROR, BAD_SOCKET, REFUSED, TIMEOUT, UNKNOWN } error;
+	enum
+	{
+		NO_ERROR,
+		BAD_SOCKET,
+		REFUSED,
+		TIMEOUT,
+		UNKNOWN
+	} error;
+};
+
+struct BindResult
+{
+	enum
+	{
+		NO_ERROR,
+		BAD_SOCKET,
+		ADDRESS_IN_USE,
+		UNKNOWN
+	} error;
+};
+
+struct AcceptResult
+{
+	enum
+	{
+		NO_ERROR,
+		BAD_SOCKET,
+		NO_CONNECTION,
+		UNKNOWN
+	} error;
 };
 
 struct ReadResult
 {
-	enum { NO_ERROR, BAD_SOCKET, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
+	enum
+	{
+		NO_ERROR,
+		BAD_SOCKET,
+		REMOTE_CLOSED,
+		TIMEOUT,
+		UNKNOWN
+	} error;
 	u32 bytes_read;
 };
 
 struct WriteResult
 {
-	enum { NO_ERROR, BAD_SOCKET, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
+	enum
+	{
+		NO_ERROR,
+		BAD_SOCKET,
+		REMOTE_CLOSED,
+		TIMEOUT,
+		UNKNOWN
+	} error;
 	u32 bytes_wrote;
-};
-
-struct AcceptResult
-{
-	enum { NO_ERROR, BAD_SOCKET, NO_CONNECTION, UNKNOWN } error;
 };
 
 /// TCP socket
@@ -93,6 +131,7 @@ struct TCPSocket
 #endif
 	}
 
+	/// Connects to the @a ip address and @a port and returns the result.
 	ConnectResult connect(const IPAddress& ip, u16 port)
 	{
 		close();
@@ -110,7 +149,6 @@ struct TCPSocket
 
 		if (err == 0)
 			return cr;
-
 #if CROWN_PLATFORM_POSIX
 		if (errno == ECONNREFUSED)
 			cr.error = ConnectResult::REFUSED;
@@ -130,7 +168,8 @@ struct TCPSocket
 		return cr;
 	}
 
-	bool bind(u16 port)
+	/// Binds the socket to @a port and returns the result.
+	BindResult bind(u16 port)
 	{
 		close();
 		open();
@@ -143,15 +182,29 @@ struct TCPSocket
 
 		int err = ::bind(_socket, (const sockaddr*)&address, sizeof(sockaddr_in));
 
+		BindResult br;
+		br.error = BindResult::NO_ERROR;
+
+		if (err == 0)
+			return br;
 #if CROWN_PLATFORM_POSIX
-		CE_ASSERT(err == 0, "bind: errno = %d", errno);
+		if (errno == EBADF)
+			br.error = BindResult::BAD_SOCKET;
+		else if (errno == EADDRINUSE)
+			br.error = BindResult::ADDRESS_IN_USE;
+		else
+			br.error = BindResult::UNKNOWN;
 #elif CROWN_PLATFORM_WINDOWS
-		CE_ASSERT(err == 0, "bind: WSAGetLastError = %d", WSAGetLastError());
+		int wsaerr = WSAGetLastError();
+		if (wsaerr == WSAEADDRINUSE)
+			br.error = BindResult::ADDRESS_IN_USE;
+		else
+			br.error = BindResult::UNKNOWN;
 #endif
-		CE_UNUSED(err);
-		return true;
+		return br;
 	}
 
+	/// Listens for @a max socket connections.
 	void listen(u32 max)
 	{
 		int err = ::listen(_socket, max);
@@ -195,12 +248,14 @@ struct TCPSocket
 		return ar;
 	}
 
+	/// Accepts a new connection @a c.
 	AcceptResult accept_nonblock(TCPSocket& c)
 	{
 		set_blocking(false);
 		return accept_internal(c);
 	}
 
+	/// Accepts a new connection @a c.
 	AcceptResult accept(TCPSocket& c)
 	{
 		set_blocking(true);
@@ -259,12 +314,14 @@ struct TCPSocket
 		return rr;
 	}
 
+	/// Reads @a size bytes and returns the result.
 	ReadResult read_nonblock(void* data, u32 size)
 	{
 		set_blocking(false);
 		return read_internal(data, size);
 	}
 
+	/// Reads @a size bytes and returns the result.
 	ReadResult read(void* data, u32 size)
 	{
 		set_blocking(true);
@@ -283,7 +340,7 @@ struct TCPSocket
 		while (to_send > 0)
 		{
 #if CROWN_PLATFORM_POSIX
-			ssize_t bytes_wrote = ::send(_socket, (const char*)buf, to_send, 0);
+			ssize_t bytes_wrote = ::send(_socket, buf, to_send, 0);
 
 			if (bytes_wrote == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 				return wr;
@@ -303,7 +360,7 @@ struct TCPSocket
 				return wr;
 			}
 #elif CROWN_PLATFORM_WINDOWS
-			int bytes_wrote = ::send(_socket, (const char*)buf, (int)to_send, 0);
+			int bytes_wrote = ::send(_socket, buf, (int)to_send, 0);
 
 			if (bytes_wrote == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
 			{
@@ -332,30 +389,33 @@ struct TCPSocket
 		return wr;
 	}
 
+	/// Writes @a size bytes and returns the result.
 	WriteResult write_nonblock(const void* data, u32 size)
 	{
 		set_blocking(false);
 		return write_internal(data, size);
 	}
 
+	/// Writes @a size bytes and returns the result.
 	WriteResult write(const void* data, u32 size)
 	{
 		set_blocking(true);
 		return write_internal(data, size);
 	}
 
+	/// Sets whether the socket is @a blocking.
 	void set_blocking(bool blocking)
 	{
 #if CROWN_PLATFORM_POSIX
 		int flags = fcntl(_socket, F_GETFL, 0);
 		fcntl(_socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
 #elif CROWN_PLATFORM_WINDOWS
-		//Warning! http://www.sockets.com/winsock.htm#IoctlSocket
 		u_long non_blocking = blocking ? 0 : 1;
 		ioctlsocket(_socket, FIONBIO, &non_blocking);
 #endif
 	}
 
+	/// Sets whether the socket should @a reuse a busy port.
 	void set_reuse_address(bool reuse)
 	{
 		int optval = (int)reuse;
@@ -368,6 +428,7 @@ struct TCPSocket
 		CE_UNUSED(err);
 	}
 
+	/// Sets the timeout to the given @a seconds.
 	void set_timeout(u32 seconds)
 	{
 		struct timeval timeout;
