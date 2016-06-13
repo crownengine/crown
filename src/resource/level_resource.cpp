@@ -6,6 +6,7 @@
 #include "array.h"
 #include "compile_options.h"
 #include "filesystem.h"
+#include "json_object.h"
 #include "level_resource.h"
 #include "map.h"
 #include "memory.h"
@@ -28,8 +29,8 @@ namespace level_resource
 			JsonObject sounds_json(ta);
 			sjson::parse_object(object["sounds"], sounds_json);
 
-			auto begin = map::begin(sounds_json);
-			auto end = map::end(sounds_json);
+			auto begin = json_object::begin(sounds_json);
+			auto end = json_object::end(sounds_json);
 			for (; begin != end; ++begin)
 			{
 				JsonObject sound(ta);

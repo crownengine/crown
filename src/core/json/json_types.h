@@ -36,6 +36,14 @@ typedef Array<const char*> JsonArray;
 /// Map from key to pointers to json-encoded data.
 ///
 /// @ingroup JSON
-typedef Map<FixedString, const char*> JsonObject;
+struct JsonObject
+{
+	Map<FixedString, const char*> _map;
+
+	JsonObject(Allocator& a);
+
+	const char* operator[](const char* key) const;
+	const char* operator[](const FixedString& key) const;
+};
 
 } // namespace crown

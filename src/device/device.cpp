@@ -17,6 +17,7 @@
 #include "font_resource.h"
 #include "input_device.h"
 #include "input_manager.h"
+#include "json_object.h"
 #include "level_resource.h"
 #include "log.h"
 #include "lua_environment.h"
@@ -488,16 +489,16 @@ void Device::run()
 			boot_package_name = sjson::parse_resource_id(config["boot_package"]);
 
 			// Platform-specific configs
-			if (map::has(config, FixedString(CROWN_PLATFORM_NAME)))
+			if (json_object::has(config, CROWN_PLATFORM_NAME))
 			{
 				JsonObject platform(ta);
 				sjson::parse(config[CROWN_PLATFORM_NAME], platform);
 
-				if (map::has(platform, FixedString("window_width")))
+				if (json_object::has(platform, "window_width"))
 				{
 					window_w = (u16)sjson::parse_int(platform["window_width"]);
 				}
-				if (map::has(platform, FixedString("window_height")))
+				if (json_object::has(platform, "window_height"))
 				{
 					window_h = (u16)sjson::parse_int(platform["window_height"]);
 				}

@@ -7,7 +7,7 @@
 #include "compile_options.h"
 #include "filesystem.h"
 #include "font_resource.h"
-#include "map.h"
+#include "json_object.h"
 #include "resource_types.h"
 #include "sjson.h"
 #include "string_utils.h"

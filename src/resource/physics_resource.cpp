@@ -7,6 +7,7 @@
 #include "compile_options.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
+#include "json_object.h"
 #include "map.h"
 #include "physics_resource.h"
 #include "quaternion.h"
@@ -244,12 +245,12 @@ namespace physics_resource
 		ar.collision_filter = sjson::parse_string_id(obj["collision_filter"]);
 
 		ar.flags = 0;
-		ar.flags |= map::has(obj, FixedString("lock_translation_x")) ? sjson::parse_bool(obj["lock_translation_x"]) : 0;
-		ar.flags |= map::has(obj, FixedString("lock_translation_y")) ? sjson::parse_bool(obj["lock_translation_y"]) : 0;
-		ar.flags |= map::has(obj, FixedString("lock_translation_z")) ? sjson::parse_bool(obj["lock_translation_z"]) : 0;
-		ar.flags |= map::has(obj, FixedString("lock_rotation_x")) ? sjson::parse_bool(obj["lock_rotation_x"]) : 0;
-		ar.flags |= map::has(obj, FixedString("lock_rotation_y")) ? sjson::parse_bool(obj["lock_rotation_y"]) : 0;
-		ar.flags |= map::has(obj, FixedString("lock_rotation_z")) ? sjson::parse_bool(obj["lock_rotation_z"]) : 0;
+		ar.flags |= json_object::has(obj, "lock_translation_x") ? sjson::parse_bool(obj["lock_translation_x"]) : 0;
+		ar.flags |= json_object::has(obj, "lock_translation_y") ? sjson::parse_bool(obj["lock_translation_y"]) : 0;
+		ar.flags |= json_object::has(obj, "lock_translation_z") ? sjson::parse_bool(obj["lock_translation_z"]) : 0;
+		ar.flags |= json_object::has(obj, "lock_rotation_x") ? sjson::parse_bool(obj["lock_rotation_x"]) : 0;
+		ar.flags |= json_object::has(obj, "lock_rotation_y") ? sjson::parse_bool(obj["lock_rotation_y"]) : 0;
+		ar.flags |= json_object::has(obj, "lock_rotation_z") ? sjson::parse_bool(obj["lock_rotation_z"]) : 0;
 
 		Buffer buf(default_allocator());
 		array::push(buf, (char*)&ar, sizeof(ar));
@@ -305,8 +306,8 @@ namespace physics_config_resource
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		auto begin = map::begin(object);
-		auto end = map::end(object);
+		auto begin = json_object::begin(object);
+		auto end = json_object::end(object);
 
 		for (; begin != end; ++begin)
 		{
@@ -332,8 +333,8 @@ namespace physics_config_resource
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		auto begin = map::begin(object);
-		auto end = map::end(object);
+		auto begin = json_object::begin(object);
+		auto end = json_object::end(object);
 
 		for (; begin != end; ++begin)
 		{
@@ -357,8 +358,8 @@ namespace physics_config_resource
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		auto begin = map::begin(object);
-		auto end = map::end(object);
+		auto begin = json_object::begin(object);
+		auto end = json_object::end(object);
 
 		for (; begin != end; ++begin)
 		{
@@ -373,9 +374,9 @@ namespace physics_config_resource
 			// pa2.linear_damping  = sjson::parse_float(actor["linear_damping"]);  // 0.0f;
 			// pa2.angular_damping = sjson::parse_float(actor["angular_damping"]); // 0.05f;
 
-			const bool has_dynamic         = map::has(actor, FixedString("dynamic"));
-			const bool has_kinematic       = map::has(actor, FixedString("kinematic"));
-			const bool has_disable_gravity = map::has(actor, FixedString("disable_gravity"));
+			const bool has_dynamic         = json_object::has(actor, "dynamic");
+			const bool has_kinematic       = json_object::has(actor, "kinematic");
+			const bool has_disable_gravity = json_object::has(actor, "disable_gravity");
 
 			pa2.flags = 0;
 
@@ -426,8 +427,8 @@ namespace physics_config_resource
 			JsonObject object(ta);
 			sjson::parse(json, object);
 
-			auto begin = map::begin(object);
-			auto end = map::end(object);
+			auto begin = json_object::begin(object);
+			auto end = json_object::end(object);
 			for (; begin != end; ++begin)
 			{
 				const FixedString key = begin->pair.first;
@@ -436,8 +437,8 @@ namespace physics_config_resource
 				map::set(_filter_map, id, new_filter_mask());
 			}
 
-			begin = map::begin(object);
-			end = map::end(object);
+			begin = json_object::begin(object);
+			end = json_object::end(object);
 			for (; begin != end; ++begin)
 			{
 				const FixedString key = begin->pair.first;
@@ -504,13 +505,13 @@ namespace physics_config_resource
 		CollisionFilterCompiler cfc(opts);
 
 		// Parse materials
-		if (map::has(object, FixedString("collision_filters")))
+		if (json_object::has(object, "collision_filters"))
 			cfc.parse(object["collision_filters"]);
-		if (map::has(object, FixedString("materials")))
+		if (json_object::has(object, "materials"))
 			parse_materials(object["materials"], materials);
-		if (map::has(object, FixedString("shapes")))
+		if (json_object::has(object, "shapes"))
 			parse_shapes(object["shapes"], shapes);
-		if (map::has(object, FixedString("actors")))
+		if (json_object::has(object, "actors"))
 			parse_actors(object["actors"], actors);
 
 		// Setup struct for writing

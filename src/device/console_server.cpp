@@ -4,7 +4,7 @@
  */
 
 #include "console_server.h"
-#include "map.h"
+#include "json_object.h"
 #include "sjson.h"
 #include "sort_map.h"
 #include "string_id.h"

@@ -6,7 +6,7 @@
 #include "allocator.h"
 #include "compile_options.h"
 #include "config_resource.h"
-#include "map.h"
+#include "json_object.h"
 #include "resource_types.h"
 #include "sjson.h"
 
@@ -22,8 +22,8 @@ namespace config_resource
 		JsonObject boot(ta);
 		sjson::parse(buf, boot);
 
-		const char* boot_script_json  = map::get(boot, FixedString("boot_script"), (const char*)NULL);
-		const char* boot_package_json = map::get(boot, FixedString("boot_package"), (const char*)NULL);
+		const char* boot_script_json  = boot["boot_script"];
+		const char* boot_package_json = boot["boot_package"];
 		RESOURCE_COMPILER_ASSERT(boot_script_json != NULL, opts, "'boot_script' must be specified.");
 		RESOURCE_COMPILER_ASSERT(boot_package_json != NULL, opts, "'boot_package' must be specified.");
 

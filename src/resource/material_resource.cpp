@@ -7,6 +7,7 @@
 #include "device.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
+#include "json_object.h"
 #include "map.h"
 #include "material_manager.h"
 #include "material_resource.h"
@@ -75,8 +76,8 @@ namespace material_resource
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		auto begin = map::begin(object);
-		auto end = map::end(object);
+		auto begin = json_object::begin(object);
+		auto end = json_object::end(object);
 
 		for (; begin != end; ++begin)
 		{
@@ -110,8 +111,8 @@ namespace material_resource
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		auto begin = map::begin(object);
-		auto end = map::end(object);
+		auto begin = json_object::begin(object);
+		auto end = json_object::end(object);
 
 		for (; begin != end; ++begin)
 		{

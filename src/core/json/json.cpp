@@ -268,7 +268,7 @@ namespace json
 				json = next(json, ':');
 				json = skip_spaces(json);
 
-				map::set(object, fs_key, json);
+				map::set(object._map, fs_key, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);

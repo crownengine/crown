@@ -3,20 +3,17 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "allocator.h"
-#include "filesystem.h"
-#include "string_utils.h"
+#include "array.h"
+#include "compile_options.h"
+#include "config.h"
+#include "json_object.h"
+#include "reader_writer.h"
+#include "resource_manager.h"
+#include "sjson.h"
 #include "sprite_resource.h"
 #include "string_utils.h"
-#include "array.h"
-#include "config.h"
-#include "reader_writer.h"
 #include "vector2.h"
 #include "vector4.h"
-#include "resource_manager.h"
-#include "compile_options.h"
-#include "sjson.h"
-#include "map.h"
 
 namespace crown
 {

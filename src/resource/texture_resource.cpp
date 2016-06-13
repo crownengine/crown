@@ -4,13 +4,13 @@
  */
 
 #include "compile_options.h"
-#include "map.h"
+#include "json_object.h"
+#include "os.h"
 #include "reader_writer.h"
 #include "resource_manager.h"
 #include "sjson.h"
-#include "texture_resource.h"
-#include "os.h"
 #include "string_stream.h"
+#include "texture_resource.h"
 
 #if CROWN_DEVELOPMENT
 	#define TEXTUREC_NAME "texturec-development-"

@@ -7,6 +7,7 @@
 #include "config.h"
 #include "device.h"
 #include "filesystem.h"
+#include "json_object.h"
 #include "map.h"
 #include "os.h"
 #include "resource_manager.h"
@@ -668,7 +669,7 @@ namespace shader_resource
 			JsonObject object(ta);
 			sjson::parse(b, object);
 
-			if (map::has(object, FixedString("include")))
+			if (json_object::has(object, "include"))
 			{
 				JsonArray arr(ta);
 				sjson::parse_array(object["include"], arr);
@@ -681,19 +682,19 @@ namespace shader_resource
 				}
 			}
 
-			if (map::has(object, FixedString("render_states")))
+			if (json_object::has(object, "render_states"))
 				parse_render_states(object["render_states"]);
 
-			if (map::has(object, FixedString("sampler_states")))
+			if (json_object::has(object, "sampler_states"))
 				parse_sampler_states(object["sampler_states"]);
 
-			if (map::has(object, FixedString("bgfx_shaders")))
+			if (json_object::has(object, "bgfx_shaders"))
 				parse_bgfx_shaders(object["bgfx_shaders"]);
 
-			if (map::has(object, FixedString("shaders")))
+			if (json_object::has(object, "shaders"))
 				parse_shaders(object["shaders"]);
 
-			if (map::has(object, FixedString("static_compile")))
+			if (json_object::has(object, "static_compile"))
 				parse_static_compile(object["static_compile"]);
 		}
 
@@ -703,8 +704,8 @@ namespace shader_resource
 			JsonObject render_states(ta);
 			sjson::parse_object(json, render_states);
 
-			auto begin = map::begin(render_states);
-			auto end = map::end(render_states);
+			auto begin = json_object::begin(render_states);
+			auto end = json_object::end(render_states);
 			for (; begin != end; ++begin)
 			{
 				JsonObject obj(ta);
@@ -716,12 +717,12 @@ namespace shader_resource
 				const bool depth_enable       = sjson::parse_bool(obj["depth_enable"]);
 				const bool blend_enable       = sjson::parse_bool(obj["blend_enable"]);
 
-				const bool has_depth_func     = map::has(obj, FixedString("depth_func"));
-				const bool has_blend_src      = map::has(obj, FixedString("blend_src"));
-				const bool has_blend_dst      = map::has(obj, FixedString("blend_dst"));
-				const bool has_blend_equation = map::has(obj, FixedString("blend_equation"));
-				const bool has_cull_mode      = map::has(obj, FixedString("cull_mode"));
-				const bool has_primitive_type = map::has(obj, FixedString("primitive_type"));
+				const bool has_depth_func     = json_object::has(obj, "depth_func");
+				const bool has_blend_src      = json_object::has(obj, "blend_src");
+				const bool has_blend_dst      = json_object::has(obj, "blend_dst");
+				const bool has_blend_equation = json_object::has(obj, "blend_equation");
+				const bool has_cull_mode      = json_object::has(obj, "cull_mode");
+				const bool has_primitive_type = json_object::has(obj, "primitive_type");
 
 				RenderState rs;
 				rs.reset();
@@ -822,18 +823,18 @@ namespace shader_resource
 			JsonObject sampler_states(ta);
 			sjson::parse_object(json, sampler_states);
 
-			auto begin = map::begin(sampler_states);
-			auto end = map::end(sampler_states);
+			auto begin = json_object::begin(sampler_states);
+			auto end = json_object::end(sampler_states);
 			for (; begin != end; ++begin)
 			{
 				JsonObject obj(ta);
 				sjson::parse_object(begin->pair.second, obj);
 
-				const bool has_filter_min = map::has(obj, FixedString("filter_min"));
-				const bool has_filter_mag = map::has(obj, FixedString("filter_mag"));
-				const bool has_wrap_u = map::has(obj, FixedString("wrap_u"));
-				const bool has_wrap_v = map::has(obj, FixedString("wrap_v"));
-				const bool has_wrap_w = map::has(obj, FixedString("wrap_w"));
+				const bool has_filter_min = json_object::has(obj, "filter_min");
+				const bool has_filter_mag = json_object::has(obj, "filter_mag");
+				const bool has_wrap_u = json_object::has(obj, "wrap_u");
+				const bool has_wrap_v = json_object::has(obj, "wrap_v");
+				const bool has_wrap_w = json_object::has(obj, "wrap_w");
 
 				SamplerState ss;
 				ss.reset();
@@ -917,29 +918,29 @@ namespace shader_resource
 			JsonObject bgfx_shaders(ta);
 			sjson::parse_object(json, bgfx_shaders);
 
-			auto begin = map::begin(bgfx_shaders);
-			auto end = map::end(bgfx_shaders);
+			auto begin = json_object::begin(bgfx_shaders);
+			auto end = json_object::end(bgfx_shaders);
 			for (; begin != end; ++begin)
 			{
 				JsonObject shader(ta);
 				sjson::parse_object(begin->pair.second, shader);
 
 				BgfxShader bgfxshader(default_allocator());
-				if (map::has(shader, FixedString("includes")))
+				if (json_object::has(shader, "includes"))
 					sjson::parse_string(shader["includes"], bgfxshader._includes);
-				if (map::has(shader, FixedString("code")))
+				if (json_object::has(shader, "code"))
 					sjson::parse_string(shader["code"], bgfxshader._code);
-				if (map::has(shader, FixedString("vs_code")))
+				if (json_object::has(shader, "vs_code"))
 					sjson::parse_string(shader["vs_code"], bgfxshader._vs_code);
-				if (map::has(shader, FixedString("fs_code")))
+				if (json_object::has(shader, "fs_code"))
 					sjson::parse_string(shader["fs_code"], bgfxshader._fs_code);
-				if (map::has(shader, FixedString("varying")))
+				if (json_object::has(shader, "varying"))
 					sjson::parse_string(shader["varying"], bgfxshader._varying);
-				if (map::has(shader, FixedString("vs_input_output")))
+				if (json_object::has(shader, "vs_input_output"))
 					sjson::parse_string(shader["vs_input_output"], bgfxshader._vs_input_output);
-				if (map::has(shader, FixedString("fs_input_output")))
+				if (json_object::has(shader, "fs_input_output"))
 					sjson::parse_string(shader["fs_input_output"], bgfxshader._fs_input_output);
-				if (map::has(shader, FixedString("samplers")))
+				if (json_object::has(shader, "samplers"))
 					parse_bgfx_samplers(shader["samplers"], bgfxshader);
 
 				DynamicString key(ta);
@@ -960,8 +961,8 @@ namespace shader_resource
 			JsonObject bgfx_samplers(ta);
 			sjson::parse_object(json, bgfx_samplers);
 
-			auto begin = map::begin(bgfx_samplers);
-			auto end = map::end(bgfx_samplers);
+			auto begin = json_object::begin(bgfx_samplers);
+			auto end = json_object::end(bgfx_samplers);
 			for (; begin != end; ++begin)
 			{
 				JsonObject sampler(ta);
@@ -994,8 +995,8 @@ namespace shader_resource
 			JsonObject shaders(ta);
 			sjson::parse_object(json, shaders);
 
-			auto begin = map::begin(shaders);
-			auto end = map::end(shaders);
+			auto begin = json_object::begin(shaders);
+			auto end = json_object::end(shaders);
 			for (; begin != end; ++begin)
 			{
 				JsonObject obj(ta);

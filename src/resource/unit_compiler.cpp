@@ -5,6 +5,7 @@
 
 #include "array.h"
 #include "compile_options.h"
+#include "json_object.h"
 #include "map.h"
 #include "math_utils.h"
 #include "physics_resource.h"
@@ -222,7 +223,7 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 	{
 		const JsonObject& prefab = prefabs[i];
 
-		if (!map::has(prefab, FixedString("prefab")))
+		if (!json_object::has(prefab, "prefab"))
 			break;
 
 		TempAllocator512 ta;
@@ -249,14 +250,14 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 		{
 			const JsonObject& prefab = prefabs[num_prefabs - i - 1];
 
-			if (!map::has(prefab, FixedString("modified_components")))
+			if (!json_object::has(prefab, "modified_components"))
 				continue;
 
 			JsonObject modified_components(ta);
 			sjson::parse(prefab["modified_components"], modified_components);
 
-			auto begin = map::begin(modified_components);
-			auto end = map::end(modified_components);
+			auto begin = json_object::begin(modified_components);
+			auto end = json_object::end(modified_components);
 			for (; begin != end; ++begin)
 			{
 				const FixedString key = begin->pair.first;
@@ -264,16 +265,16 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 				const char* value = begin->pair.second;
 
 				// FIXME
-				map::remove(prefab_root_components, id);
-				map::set(prefab_root_components, id, value);
+				map::remove(prefab_root_components._map, id);
+				map::set(prefab_root_components._map, id, value);
 			}
 		}
 	}
 
-	if (map::size(prefab_root_components) > 0)
+	if (json_object::size(prefab_root_components) > 0)
 	{
-		auto begin = map::begin(prefab_root_components);
-		auto end = map::end(prefab_root_components);
+		auto begin = json_object::begin(prefab_root_components);
+		auto end = json_object::end(prefab_root_components);
 		for (; begin != end; ++begin)
 		{
 			const char* value = begin->pair.second;
@@ -298,8 +299,8 @@ void UnitCompiler::compile_multiple_units(const char* json)
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
 
-	auto begin = map::begin(obj);
-	auto end = map::end(obj);
+	auto begin = json_object::begin(obj);
+	auto end = json_object::end(obj);
 
 	for (; begin != end; ++begin)
 		compile_unit_from_json(begin->pair.second);

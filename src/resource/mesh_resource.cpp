@@ -7,6 +7,7 @@
 #include "compile_options.h"
 #include "dynamic_string.h"
 #include "filesystem.h"
+#include "json_object.h"
 #include "log.h"
 #include "map.h"
 #include "matrix4x4.h"
@@ -106,8 +107,8 @@ namespace mesh_resource
 			sjson::parse(geometry, object);
 			sjson::parse(node, object_node);
 
-			_has_normal = map::has(object, FixedString("normal"));
-			_has_uv     = map::has(object, FixedString("texcoord"));
+			_has_normal = json_object::has(object, "normal");
+			_has_uv     = json_object::has(object, "texcoord");
 
 			parse_float_array(object["position"], _positions);
 
@@ -272,12 +273,12 @@ namespace mesh_resource
 		sjson::parse(object["nodes"], nodes);
 
 		opts.write(RESOURCE_VERSION_MESH);
-		opts.write(map::size(geometries));
+		opts.write(json_object::size(geometries));
 
 		MeshCompiler mc(opts);
 
-		auto begin = map::begin(geometries);
-		auto end = map::end(geometries);
+		auto begin = json_object::begin(geometries);
+		auto end = json_object::end(geometries);
 		for (; begin != end; ++begin)
 		{
 			const FixedString key = begin->pair.first;
