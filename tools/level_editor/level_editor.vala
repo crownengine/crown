@@ -801,7 +801,7 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("Quit without Saving", ResponseType.NO);
+			md.add_button("New without Saving", ResponseType.NO);
 			md.add_button("Cancel", ResponseType.CANCEL);
 			md.add_button("Save", ResponseType.YES);
 			int rt = md.run();
@@ -829,7 +829,7 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("Quit without Saving", ResponseType.NO);
+			md.add_button("Open without Saving", ResponseType.NO);
 			md.add_button("Cancel", ResponseType.CANCEL);
 			md.add_button("Save", ResponseType.YES);
 			int rt = md.run();
