@@ -7,7 +7,9 @@ render_states = {
 		depth_func = "lequal"
 		depth_enable = true
 		depth_write_enable = true
-		blend_enable = false
+		blend_enable = true
+		blend_src = "src_alpha"
+		blend_dst = "inv_src_alpha"
 		primitive_type = "pt_lines"
 		cull_mode = "cw"
 	}
@@ -18,7 +20,9 @@ render_states = {
 		depth_func = "lequal"
 		depth_enable = false
 		depth_write_enable = true
-		blend_enable = false
+		blend_enable = true
+		blend_src = "src_alpha"
+		blend_dst = "inv_src_alpha"
 		primitive_type = "pt_lines"
 		cull_mode = "cw"
 	}
@@ -63,7 +67,7 @@ bgfx_shaders = {
 		includes = "common"
 
 		varying = "
-			vec4 v_color0   : COLOR0 = vec4(1.0, 0.0, 0.0, 1.0);
+			vec4 v_color0   : COLOR0 = vec4(0.0, 0.0, 0.0, 0.0);
 
 			vec3 a_position : POSITION;
 			vec4 a_color0   : COLOR0;
@@ -107,7 +111,7 @@ bgfx_shaders = {
 		"
 
 		vs_input_output = "
-			$input = a_position, a_texcoord0, a_color0
+			$input a_position, a_texcoord0, a_color0
 			$output v_texcoord0, v_color0
 		"
 
@@ -153,7 +157,7 @@ bgfx_shaders = {
 		"
 
 		vs_input_output = "
-			$input = a_position, a_texcoord0
+			$input a_position, a_texcoord0
 			$output v_texcoord0
 		"
 
