@@ -1,6 +1,15 @@
 require "core/level_editor/camera"
 require "core/level_editor/class"
 
+Colors = {
+	grid          = function() return Color4(0.75, 0.75, 0.75, 1.0) end,
+	grid_disabled = function() return Color4(0.5, 0.5, 0.5, 1.0) end,
+	axis_x        = function() return Color4.red() end,
+	axis_y        = function() return Color4.green() end,
+	axis_z        = function() return Color4.blue() end,
+	axis_selected = function() return Color4.yellow() end,
+}
+
 function log(msg)
 	Device.console_send { type = "message", message = msg, severity = "info" }
 end
@@ -665,12 +674,12 @@ function MoveTool:update(dt, x, y)
 	-- Drawing
 	if selected then
 		local lines = LevelEditor._lines_no_depth
-		DebugLine.add_line(lines, p, p + l * Matrix4x4.x(tm), self:is_axis_selected("x") and Color4.yellow() or Color4.red())
-		DebugLine.add_line(lines, p, p + l * Matrix4x4.y(tm), self:is_axis_selected("y") and Color4.yellow() or Color4.green())
-		DebugLine.add_line(lines, p, p + l * Matrix4x4.z(tm), self:is_axis_selected("z") and Color4.yellow() or Color4.blue())
-		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0), self:is_axis_selected("xy") and Color4.yellow() or Color4.red())
-		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1), self:is_axis_selected("yz") and Color4.yellow() or Color4.green())
-		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1), self:is_axis_selected("xz") and Color4.yellow() or Color4.blue())
+		DebugLine.add_line(lines, p, p + l * Matrix4x4.x(tm), self:is_axis_selected("x") and Colors.axis_selected() or Colors.axis_x())
+		DebugLine.add_line(lines, p, p + l * Matrix4x4.y(tm), self:is_axis_selected("y") and Colors.axis_selected() or Colors.axis_y())
+		DebugLine.add_line(lines, p, p + l * Matrix4x4.z(tm), self:is_axis_selected("z") and Colors.axis_selected() or Colors.axis_z())
+		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.4, 0.0)), l * Vector3(0.1, 0.1, 0.0), self:is_axis_selected("xy") and Colors.axis_selected() or Colors.axis_x())
+		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.0, 0.4, 0.4)), l * Vector3(0.0, 0.1, 0.1), self:is_axis_selected("yz") and Colors.axis_selected() or Colors.axis_y())
+		DebugLine.add_obb(lines, transform(tm, l * Vector3(0.4, 0.0, 0.4)), l * Vector3(0.1, 0.0, 0.1), self:is_axis_selected("xz") and Colors.axis_selected() or Colors.axis_z())
 
 		if self:axis_selected() then
 			DebugLine.add_sphere(lines, self:drag_start(), 0.05, Color4.green())
@@ -860,9 +869,9 @@ function RotateTool:update(dt, x, y)
 	-- Drawing
 	if selected then
 		local lines = LevelEditor._lines_no_depth
-		DebugLine.add_circle(lines, p, l, Matrix4x4.x(tm), self._selected == "x" and Color4.yellow() or Color4.red())
-		DebugLine.add_circle(lines, p, l, Matrix4x4.y(tm), self._selected == "y" and Color4.yellow() or Color4.green())
-		DebugLine.add_circle(lines, p, l, Matrix4x4.z(tm), self._selected == "z" and Color4.yellow() or Color4.blue())
+		DebugLine.add_circle(lines, p, l, Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
+		DebugLine.add_circle(lines, p, l, Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
+		DebugLine.add_circle(lines, p, l, Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
 	end
 end
 
@@ -1074,14 +1083,14 @@ function ScaleTool:update(dt, x, y)
 	local p = self:position()
 
 	local lines = LevelEditor._lines_no_depth
-	DebugLine.add_line(lines, p, p + l * Matrix4x4.x(tm), self._selected == "x" and Color4.yellow() or Color4.red())
-	DebugLine.add_line(lines, p, p + l * Matrix4x4.y(tm), self._selected == "y" and Color4.yellow() or Color4.green())
-	DebugLine.add_line(lines, p, p + l * Matrix4x4.z(tm), self._selected == "z" and Color4.yellow() or Color4.blue())
+	DebugLine.add_line(lines, p, p + l * Matrix4x4.x(tm), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
+	DebugLine.add_line(lines, p, p + l * Matrix4x4.y(tm), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
+	DebugLine.add_line(lines, p, p + l * Matrix4x4.z(tm), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
 
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(1, 0, 0)), l * Vector3(0.1, 0.1, 0.1), self._selected == "x" and Color4.yellow() or Color4.red())
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 1, 0)), l * Vector3(0.1, 0.1, 0.1), self._selected == "y" and Color4.yellow() or Color4.green())
-	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 0, 1)), l * Vector3(0.1, 0.1, 0.1), self._selected == "z" and Color4.yellow() or Color4.blue())
-	DebugLine.add_obb(lines, transform(tm, l * Vector3.zero()), l * Vector3(0.1, 0.1, 0.1), self._selected == "xyz" and Color4.yellow() or Color4.blue())
+	DebugLine.add_obb(lines, transform(tm, l * Vector3(1, 0, 0)), l * Vector3(0.1, 0.1, 0.1), self._selected == "x" and Colors.axis_selected() or Colors.axis_x())
+	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 1, 0)), l * Vector3(0.1, 0.1, 0.1), self._selected == "y" and Colors.axis_selected() or Colors.axis_y())
+	DebugLine.add_obb(lines, transform(tm, l * Vector3(0, 0, 1)), l * Vector3(0.1, 0.1, 0.1), self._selected == "z" and Colors.axis_selected() or Colors.axis_z())
+	DebugLine.add_obb(lines, transform(tm, l * Vector3.zero()), l * Vector3(0.1, 0.1, 0.1), self._selected == "xyz" and Colors.axis_selected() or Colors.axis_z())
 end
 
 function ScaleTool:mouse_move(x, y)
@@ -1377,7 +1386,7 @@ function LevelEditor:find_spawn_point(x, y)
 end
 
 function LevelEditor:draw_grid(tm, center, size, axis)
-	local color = self:snap_to_grid_enabled() and Color4(0.75, 0.75, 0.75, 1.0) or Color4(0.5, 0.5, 0.5, 1.0)
+	local color = self:snap_to_grid_enabled() and Colors.grid() or Colors.grid_disabled()
 	draw_grid(self._lines, tm, center, size, axis, color)
 end
 
