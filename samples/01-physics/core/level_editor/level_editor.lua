@@ -495,46 +495,48 @@ end
 function PlaceTool:mouse_up(x, y)
 	self:set_state("idle")
 
-	if self._placeable ~= nil then
-		local level_object = nil
-		if self._placeable_type == "unit" then
-			local guid = Device.guid()
-			local unit = World.spawn_unit(LevelEditor._world, self._placeable, self:position())
-			level_object = UnitBox(LevelEditor._world, guid, unit, self._placeable)
-
-			Device.console_send { type = "unit_spawned"
-				, id = guid
-				, name = level_object:prefab()
-				, position = level_object:local_position()
-				, rotation = level_object:local_rotation()
-				, scale = level_object:local_scale()
-				}
-
-			LevelEditor._objects[guid] = level_object
-		elseif self._placeable_type == "sound" then
-			local guid = Device.guid()
-			level_object = SoundObject(LevelEditor._world, guid, self._placeable, 50.0, 1.0, false)
-			level_object:set_local_position(self:position())
-			level_object:set_local_rotation(Quaternion.identity())
-
-			Device.console_send { type = "sound_spawned"
-				, id = guid
-				, name = level_object:name()
-				, position = level_object:local_position()
-				, rotation = level_object:local_rotation()
-				, scale = level_object:local_scale()
-				, range = level_object._range
-				, volume = level_object._volume
-				, loop = level_object._loop
-				}
-
-			LevelEditor._objects[guid] = level_object
-		end
-
-		LevelEditor._selection:clear()
-		LevelEditor._selection:add(level_object:id())
-		LevelEditor._selection:send()
+	if self._placeable == nil then
+		return
 	end
+
+	local level_object = nil
+	if self._placeable_type == "unit" then
+		local guid = Device.guid()
+		local unit = World.spawn_unit(LevelEditor._world, self._placeable, self:position())
+		level_object = UnitBox(LevelEditor._world, guid, unit, self._placeable)
+
+		Device.console_send { type = "unit_spawned"
+			, id = guid
+			, name = level_object:prefab()
+			, position = level_object:local_position()
+			, rotation = level_object:local_rotation()
+			, scale = level_object:local_scale()
+			}
+
+		LevelEditor._objects[guid] = level_object
+	elseif self._placeable_type == "sound" then
+		local guid = Device.guid()
+		level_object = SoundObject(LevelEditor._world, guid, self._placeable, 50.0, 1.0, false)
+		level_object:set_local_position(self:position())
+		level_object:set_local_rotation(Quaternion.identity())
+
+		Device.console_send { type = "sound_spawned"
+			, id = guid
+			, name = level_object:name()
+			, position = level_object:local_position()
+			, rotation = level_object:local_rotation()
+			, scale = level_object:local_scale()
+			, range = level_object._range
+			, volume = level_object._volume
+			, loop = level_object._loop
+			}
+
+		LevelEditor._objects[guid] = level_object
+	end
+
+	LevelEditor._selection:clear()
+	LevelEditor._selection:add(level_object:id())
+	LevelEditor._selection:send()
 end
 
 MoveTool = class(MoveTool)
