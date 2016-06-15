@@ -7,7 +7,7 @@
 
 #include "compile_options.h"
 #include "container_types.h"
-#include "disk_filesystem.h"
+#include "filesystem_disk.h"
 
 namespace crown
 {
@@ -21,14 +21,14 @@ class BundleCompiler
 		CompileFunction compiler;
 	};
 
-	DiskFilesystem _source_fs;
+	FilesystemDisk _source_fs;
 	SortMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
 
 	void compile(StringId64 type, const char* path, CompileOptions& opts);
 	void scan_source_dir(const char* path);
-	bool compile(DiskFilesystem& bundle_fs, const char* type, const char* name, const char* platform);
+	bool compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform);
 
 public:
 

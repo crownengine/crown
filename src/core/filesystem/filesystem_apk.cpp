@@ -7,29 +7,29 @@
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "apk_filesystem.h"
 #include "dynamic_string.h"
 #include "file.h"
+#include "filesystem_apk.h"
 #include "os.h"
 #include "temp_allocator.h"
 #include "vector.h"
 
 namespace crown
 {
-class ApkFile : public File
+class FileApk : public File
 {
 	AAssetManager* _asset_manager;
 	AAsset* _asset;
 
 public:
 
-	ApkFile(AAssetManager* asset_manager)
+	FileApk(AAssetManager* asset_manager)
 		: _asset_manager(asset_manager)
 		, _asset(NULL)
 	{
 	}
 
-	virtual ~ApkFile()
+	virtual ~FileApk()
 	{
 		close();
 	}
@@ -103,67 +103,67 @@ public:
 	}
 };
 
-ApkFilesystem::ApkFilesystem(Allocator& a, AAssetManager* asset_manager)
+FilesystemApk::FilesystemApk(Allocator& a, AAssetManager* asset_manager)
 	: _allocator(&a)
 	, _asset_manager(asset_manager)
 {
 }
 
-File* ApkFilesystem::open(const char* path, FileOpenMode::Enum mode)
+File* FilesystemApk::open(const char* path, FileOpenMode::Enum mode)
 {
 	CE_ASSERT_NOT_NULL(path);
 	CE_ASSERT(mode == FileOpenMode::READ, "Cannot open for writing in Android assets folder");
-	ApkFile* file = CE_NEW(*_allocator, ApkFile)(_asset_manager);
+	FileApk* file = CE_NEW(*_allocator, FileApk)(_asset_manager);
 	file->open(path, mode);
 	return file;
 }
 
-void ApkFilesystem::close(File& file)
+void FilesystemApk::close(File& file)
 {
 	CE_DELETE(*_allocator, &file);
 }
 
-bool ApkFilesystem::exists(const char* path)
+bool FilesystemApk::exists(const char* path)
 {
 	return false;
 }
 
-bool ApkFilesystem::is_directory(const char* path)
+bool FilesystemApk::is_directory(const char* path)
 {
 	return true;
 }
 
-bool ApkFilesystem::is_file(const char* path)
+bool FilesystemApk::is_file(const char* path)
 {
 	return true;
 }
 
-u64 ApkFilesystem::last_modified_time(const char* path)
+u64 FilesystemApk::last_modified_time(const char* path)
 {
 	return 0;
 }
 
-void ApkFilesystem::create_directory(const char* /*path*/)
+void FilesystemApk::create_directory(const char* /*path*/)
 {
 	CE_ASSERT(false, "Cannot create directory in Android assets folder");
 }
 
-void ApkFilesystem::delete_directory(const char* /*path*/)
+void FilesystemApk::delete_directory(const char* /*path*/)
 {
 	CE_ASSERT(false, "Cannot delete directory in Android assets folder");
 }
 
-void ApkFilesystem::create_file(const char* /*path*/)
+void FilesystemApk::create_file(const char* /*path*/)
 {
 	CE_ASSERT(false, "Cannot create file in Android assets folder");
 }
 
-void ApkFilesystem::delete_file(const char* /*path*/)
+void FilesystemApk::delete_file(const char* /*path*/)
 {
 	CE_ASSERT(false, "Cannot delete file in Android assets folder");
 }
 
-void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
+void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -182,7 +182,7 @@ void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 	AAssetDir_close(root_dir);
 }
 
-void ApkFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
+void FilesystemApk::get_absolute_path(const char* path, DynamicString& os_path)
 {
 	os_path = path;
 }

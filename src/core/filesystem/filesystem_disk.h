@@ -5,28 +5,32 @@
 
 #pragma once
 
-#include "platform.h"
-
-#if CROWN_PLATFORM_ANDROID
-
+#include "dynamic_string.h"
 #include "filesystem.h"
-#include <sys/types.h> // off_t
-#include <android/asset_manager.h>
 
 namespace crown
 {
-/// Access files on Android's assets folder.
-/// The assets folder is read-only and all the paths are relative.
+/// Access files on disk.
+/// All the file paths can be either relative or absolute.
+/// When a relative path is given, it is automatically translated
+/// to its absolute counterpart based on the file source's root path.
+/// Accessing files using absolute path directly is also possible,
+/// but platform-specific and thus generally not recommended.
 ///
 /// @ingroup Filesystem
-class ApkFilesystem : public Filesystem
+class FilesystemDisk : public Filesystem
 {
 	Allocator* _allocator;
-	AAssetManager* _asset_manager;
+	DynamicString _prefix;
 
 public:
 
-	ApkFilesystem(Allocator& a, AAssetManager* asset_manager);
+	FilesystemDisk(Allocator& a);
+
+	/// Sets the root path to the given @a prefix.
+	/// @note
+	/// The @a prefix must be absolute.
+	void set_prefix(const char* prefix);
 
 	/// @copydoc Filesystem::open()
 	File* open(const char* path, FileOpenMode::Enum mode);
@@ -66,5 +70,3 @@ public:
 };
 
 } // namespace crown
-
-#endif // CROWN_PLATFORM_ANDROID

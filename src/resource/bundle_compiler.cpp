@@ -8,9 +8,9 @@
 #include "compile_options.h"
 #include "config.h"
 #include "console_server.h"
-#include "disk_filesystem.h"
 #include "dynamic_string.h"
 #include "file.h"
+#include "filesystem_disk.h"
 #include "log.h"
 #include "map.h"
 #include "os.h"
@@ -137,7 +137,7 @@ void BundleCompiler::scan(const char* source_dir)
 	scan_source_dir("");
 }
 
-bool BundleCompiler::compile(DiskFilesystem& bundle_fs, const char* type, const char* name, const char* platform)
+bool BundleCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform)
 {
 	StringId64 _type(type);
 	StringId64 _name(name);
@@ -193,7 +193,7 @@ bool BundleCompiler::compile(DiskFilesystem& bundle_fs, const char* type, const 
 bool BundleCompiler::compile(const char* bundle_dir, const char* platform)
 {
 	// Create bundle dir if necessary
-	DiskFilesystem bundle_fs(default_allocator());
+	FilesystemDisk bundle_fs(default_allocator());
 	bundle_fs.set_prefix(bundle_dir);
 	bundle_fs.create_directory("");
 

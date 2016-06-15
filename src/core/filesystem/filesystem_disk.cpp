@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "disk_filesystem.h"
 #include "dynamic_string.h"
 #include "file.h"
+#include "filesystem_disk.h"
 #include "os.h"
 #include "path.h"
 #include "temp_allocator.h"
@@ -21,7 +21,7 @@
 
 namespace crown
 {
-class DiskFile : public File
+class FileDisk : public File
 {
 #if CROWN_PLATFORM_POSIX
 	FILE* _file;
@@ -33,7 +33,7 @@ class DiskFile : public File
 public:
 
 	/// Opens the file located at @a path with the given @a mode.
-	DiskFile()
+	FileDisk()
 #if CROWN_PLATFORM_POSIX
 		: _file(NULL)
 #elif CROWN_PLATFORM_WINDOWS
@@ -43,7 +43,7 @@ public:
 	{
 	}
 
-	virtual ~DiskFile()
+	virtual ~FileDisk()
 	{
 		close();
 	}
@@ -231,18 +231,18 @@ public:
 	}
 };
 
-DiskFilesystem::DiskFilesystem(Allocator& a)
+FilesystemDisk::FilesystemDisk(Allocator& a)
 	: _allocator(&a)
 	, _prefix(a)
 {
 }
 
-void DiskFilesystem::set_prefix(const char* prefix)
+void FilesystemDisk::set_prefix(const char* prefix)
 {
 	_prefix.set(prefix, strlen32(prefix));
 }
 
-File* DiskFilesystem::open(const char* path, FileOpenMode::Enum mode)
+File* FilesystemDisk::open(const char* path, FileOpenMode::Enum mode)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -250,17 +250,17 @@ File* DiskFilesystem::open(const char* path, FileOpenMode::Enum mode)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	DiskFile* file = CE_NEW(*_allocator, DiskFile)();
+	FileDisk* file = CE_NEW(*_allocator, FileDisk)();
 	file->open(abs_path.c_str(), mode);
 	return file;
 }
 
-void DiskFilesystem::close(File& file)
+void FilesystemDisk::close(File& file)
 {
 	CE_DELETE(*_allocator, &file);
 }
 
-bool DiskFilesystem::exists(const char* path)
+bool FilesystemDisk::exists(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -271,7 +271,7 @@ bool DiskFilesystem::exists(const char* path)
 	return os::exists(abs_path.c_str());
 }
 
-bool DiskFilesystem::is_directory(const char* path)
+bool FilesystemDisk::is_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -282,7 +282,7 @@ bool DiskFilesystem::is_directory(const char* path)
 	return os::is_directory(abs_path.c_str());
 }
 
-bool DiskFilesystem::is_file(const char* path)
+bool FilesystemDisk::is_file(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -293,7 +293,7 @@ bool DiskFilesystem::is_file(const char* path)
 	return os::is_file(abs_path.c_str());
 }
 
-u64 DiskFilesystem::last_modified_time(const char* path)
+u64 FilesystemDisk::last_modified_time(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -304,7 +304,7 @@ u64 DiskFilesystem::last_modified_time(const char* path)
 	return os::mtime(abs_path.c_str());
 }
 
-void DiskFilesystem::create_directory(const char* path)
+void FilesystemDisk::create_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -316,7 +316,7 @@ void DiskFilesystem::create_directory(const char* path)
 		os::create_directory(abs_path.c_str());
 }
 
-void DiskFilesystem::delete_directory(const char* path)
+void FilesystemDisk::delete_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -327,7 +327,7 @@ void DiskFilesystem::delete_directory(const char* path)
 	os::delete_directory(abs_path.c_str());
 }
 
-void DiskFilesystem::create_file(const char* path)
+void FilesystemDisk::create_file(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -338,7 +338,7 @@ void DiskFilesystem::create_file(const char* path)
 	os::create_file(abs_path.c_str());
 }
 
-void DiskFilesystem::delete_file(const char* path)
+void FilesystemDisk::delete_file(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -349,7 +349,7 @@ void DiskFilesystem::delete_file(const char* path)
 	os::delete_file(abs_path.c_str());
 }
 
-void DiskFilesystem::list_files(const char* path, Vector<DynamicString>& files)
+void FilesystemDisk::list_files(const char* path, Vector<DynamicString>& files)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -360,7 +360,7 @@ void DiskFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 	os::list_files(abs_path.c_str(), files);
 }
 
-void DiskFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
+void FilesystemDisk::get_absolute_path(const char* path, DynamicString& os_path)
 {
 	if (path::is_absolute(path))
 	{

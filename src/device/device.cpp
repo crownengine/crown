@@ -3,7 +3,6 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "apk_filesystem.h"
 #include "array.h"
 #include "audio.h"
 #include "bundle_compiler.h"
@@ -11,9 +10,10 @@
 #include "config_resource.h"
 #include "console_server.h"
 #include "device.h"
-#include "disk_filesystem.h"
 #include "file.h"
 #include "filesystem.h"
+#include "filesystem_apk.h"
+#include "filesystem_disk.h"
 #include "font_resource.h"
 #include "input_device.h"
 #include "input_manager.h"
@@ -415,7 +415,7 @@ void Device::run()
 	if (do_continue)
 	{
 #if CROWN_PLATFORM_ANDROID
-		_bundle_filesystem = CE_NEW(_allocator, ApkFilesystem)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
+		_bundle_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
 		const char* bundle_dir = _device_options._bundle_dir;
 		if (!bundle_dir)
@@ -423,8 +423,8 @@ void Device::run()
 			char buf[1024];
 			bundle_dir = os::getcwd(buf, sizeof(buf));
 		}
-		_bundle_filesystem = CE_NEW(_allocator, DiskFilesystem)(default_allocator());
-		((DiskFilesystem*)_bundle_filesystem)->set_prefix(bundle_dir);
+		_bundle_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
+		((FilesystemDisk*)_bundle_filesystem)->set_prefix(bundle_dir);
 		if (!_bundle_filesystem->exists(bundle_dir))
 			_bundle_filesystem->create_directory(bundle_dir);
 
