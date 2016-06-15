@@ -1093,7 +1093,7 @@ namespace shader_resource
 				RESOURCE_COMPILER_ASSERT(map::has(_shaders, sc._shader)
 					, _opts
 					, "Unknown shader: '%s'"
-					, shader
+					, shader.c_str()
 					);
 				const ShaderPermutation& sp       = _shaders[shader];
 				const DynamicString& bgfx_shader  = sp._bgfx_shader;
