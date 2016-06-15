@@ -9,11 +9,11 @@
 #include "platform.h"
 #include "string_types.h"
 #include "types.h"
-#include <stdio.h>  // fputs
 
 #if CROWN_PLATFORM_POSIX
 	#include <dlfcn.h>    // dlopen, dlclose, dlsym
 	#include <errno.h>
+	#include <stdio.h>    // fputs
 	#include <string.h>   // memset
 	#include <sys/stat.h> // lstat, mknod, mkdir
 	#include <sys/wait.h> // wait
@@ -22,6 +22,7 @@
  	#include <stdlib.h>   // exit
 #elif CROWN_PLATFORM_WINDOWS
 	#include <io.h>
+	#include <stdio.h>
 	#include <win_headers.h>
 #endif
 #if CROWN_PLATFORM_ANDROID
