@@ -1077,11 +1077,12 @@ namespace shader_resource
 			for (u32 i = 0; i < vector::size(_static_compile); ++i)
 			{
 				const StaticCompile& sc              = _static_compile[i];
-				const char* shader                   = sc._shader.c_str();
+				const DynamicString& shader          = sc._shader;
 				const Vector<DynamicString>& defines = sc._defines;
 
 				TempAllocator1024 ta;
-				DynamicString str(shader, ta);
+				DynamicString str(ta);
+				str = shader;
 				for (u32 i = 0; i < vector::size(defines); ++i)
 				{
 					str += "+";
@@ -1094,32 +1095,35 @@ namespace shader_resource
 					, "Unknown shader: '%s'"
 					, shader
 					);
-				const ShaderPermutation& sp = _shaders[shader];
-				const char* bgfx_shader     = sp._bgfx_shader.c_str();
-				const char* render_state    = sp._render_state.c_str();
+				const ShaderPermutation& sp       = _shaders[shader];
+				const DynamicString& bgfx_shader  = sp._bgfx_shader;
+				const DynamicString& render_state = sp._render_state;
 
 				RESOURCE_COMPILER_ASSERT(map::has(_bgfx_shaders, sp._bgfx_shader)
 					, _opts
 					, "Unknown bgfx shader: '%s'"
-					, bgfx_shader
+					, bgfx_shader.c_str()
 					);
 				RESOURCE_COMPILER_ASSERT(map::has(_render_states, sp._render_state)
 					, _opts
 					, "Unknown render state: '%s'"
-					, render_state
+					, render_state.c_str()
 					);
 
 				const RenderState& rs = _render_states[render_state];
 
 				_opts.write(shader_name._id);  // Shader name
 				_opts.write(rs.encode());      // Render state
-				compile(bgfx_shader, defines); // Shader code
+				compile(bgfx_shader.c_str(), defines); // Shader code
 			}
 		}
 
 		void compile_sampler_states(const char* bgfx_shader)
 		{
-			const BgfxShader& shader = _bgfx_shaders[bgfx_shader];
+			TempAllocator512 ta;
+			DynamicString key(ta);
+			key = bgfx_shader;
+			const BgfxShader& shader = _bgfx_shaders[key];
 
 			_opts.write(map::size(shader._samplers));
 
@@ -1129,7 +1133,7 @@ namespace shader_resource
 			{
 				const DynamicString& name = begin->pair.first;
 				const DynamicString& sampler_state = begin->pair.second;
-				const SamplerState& ss = _sampler_states[sampler_state.c_str()];
+				const SamplerState& ss = _sampler_states[sampler_state];
 
 				_opts.write(name.to_string_id());
 				_opts.write(ss.encode());
@@ -1138,12 +1142,15 @@ namespace shader_resource
 
 		void compile(const char* bgfx_shader, const Vector<DynamicString>& defines)
 		{
-			const BgfxShader& shader = _bgfx_shaders[bgfx_shader];
+			TempAllocator512 taa;
+			DynamicString key(taa);
+			key = bgfx_shader;
+			const BgfxShader& shader = _bgfx_shaders[key];
 
 			DynamicString included_code(default_allocator());
 			if (!(shader._includes == ""))
 			{
-				const BgfxShader& included = _bgfx_shaders[shader._includes.c_str()];
+				const BgfxShader& included = _bgfx_shaders[shader._includes];
 				included_code = included._code;
 			}
 

@@ -65,19 +65,46 @@ void BundleCompiler::scan(const char* source_dir)
 	_source_fs.set_prefix(source_dir);
 
 	TempAllocator512 ta;
-	vector::push_back(_globs, DynamicString("*.tmp", ta));
-	vector::push_back(_globs, DynamicString("*.wav", ta));
-	vector::push_back(_globs, DynamicString("*.ogg", ta));
-	vector::push_back(_globs, DynamicString("*.png", ta));
-	vector::push_back(_globs, DynamicString("*.tga", ta));
-	vector::push_back(_globs, DynamicString("*.dds", ta));
-	vector::push_back(_globs, DynamicString("*.ktx", ta));
-	vector::push_back(_globs, DynamicString("*.pvr", ta));
-	vector::push_back(_globs, DynamicString("*.swn", ta)); // VIM swap file.
-	vector::push_back(_globs, DynamicString("*.swo", ta)); // VIM swap file.
-	vector::push_back(_globs, DynamicString("*.swp", ta)); // VIM swap file.
-	vector::push_back(_globs, DynamicString("*~", ta));
-	vector::push_back(_globs, DynamicString(".*", ta));
+	DynamicString ext_tmp(ta);
+	DynamicString ext_wav(ta);
+	DynamicString ext_ogg(ta);
+	DynamicString ext_png(ta);
+	DynamicString ext_tga(ta);
+	DynamicString ext_dds(ta);
+	DynamicString ext_ktx(ta);
+	DynamicString ext_pvr(ta);
+	DynamicString ext_swn(ta); // VIM swap file.
+	DynamicString ext_swo(ta); // VIM swap file.
+	DynamicString ext_swp(ta); // VIM swap file.
+	DynamicString ext_bak(ta);
+	DynamicString ext_all(ta);
+	ext_tmp.set("*.tmp", 5);
+	ext_wav.set("*.wav", 5);
+	ext_ogg.set("*.ogg", 5);
+	ext_png.set("*.png", 5);
+	ext_tga.set("*.tga", 5);
+	ext_dds.set("*.dds", 5);
+	ext_ktx.set("*.ktx", 5);
+	ext_pvr.set("*.pvr", 5);
+	ext_swn.set("*.swn", 5);
+	ext_swo.set("*.swo", 5);
+	ext_swp.set("*.swp", 5);
+	ext_bak.set("*~", 2);
+	ext_all.set(".*", 2);
+
+	vector::push_back(_globs, ext_tmp);
+	vector::push_back(_globs, ext_wav);
+	vector::push_back(_globs, ext_ogg);
+	vector::push_back(_globs, ext_png);
+	vector::push_back(_globs, ext_tga);
+	vector::push_back(_globs, ext_dds);
+	vector::push_back(_globs, ext_ktx);
+	vector::push_back(_globs, ext_pvr);
+	vector::push_back(_globs, ext_swn);
+	vector::push_back(_globs, ext_swo);
+	vector::push_back(_globs, ext_swp);
+	vector::push_back(_globs, ext_bak);
+	vector::push_back(_globs, ext_all);
 
 	if (_source_fs.exists(CROWN_BUNDLEIGNORE))
 	{

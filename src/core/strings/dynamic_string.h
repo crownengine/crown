@@ -25,7 +25,6 @@ struct DynamicString
 	Array<char> _data;
 
 	DynamicString(Allocator& a);
-	DynamicString(const char* str, Allocator& a = default_allocator());
 
 	DynamicString& operator=(const DynamicString& ds);
 	DynamicString& operator=(const char* str);
@@ -69,13 +68,6 @@ struct DynamicString
 inline DynamicString::DynamicString(Allocator& a)
 	: _data(a)
 {
-}
-
-inline DynamicString::DynamicString(const char* str, Allocator& a)
-	: _data(a)
-{
-	CE_ASSERT_NOT_NULL(str);
-	array::push(_data, str, strlen32(str));
 }
 
 inline void DynamicString::set(const char* str, u32 len)

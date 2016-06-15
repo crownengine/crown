@@ -70,7 +70,8 @@ public:
 	bool resource_exists(const char* type, const char* name)
 	{
 		TempAllocator1024 ta;
-		DynamicString path(name, ta);
+		DynamicString path(ta);
+		path += name;
 		path += ".";
 		path += type;
 		return file_exists(path.c_str());
@@ -165,7 +166,8 @@ public:
 	void add_dependency(const char* path)
 	{
 		TempAllocator256 ta;
-		DynamicString dep(path, ta);
+		DynamicString dep(ta);
+		dep += path;
 		vector::push_back(_dependencies, dep);
 	}
 };

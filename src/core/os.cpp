@@ -35,7 +35,8 @@ namespace os
 				continue;
 
 			TempAllocator512 ta;
-			DynamicString fname(dname, ta);
+			DynamicString fname(ta);
+			fname.set(dname, strlen32(dname));
 			vector::push_back(files, fname);
 		}
 
@@ -52,14 +53,15 @@ namespace os
 
 		do
 		{
-			const char* fname = ffd.cFileName;
+			const char* filename = ffd.cFileName;
 
 			if (!strcmp(fname, ".") || !strcmp(fname, ".."))
 				continue;
 
 			TempAllocator512 ta;
-			DynamicString filename(fname, ta);
-			vector::push_back(files, filename);
+			DynamicString fname(ta);
+			fname.set(filename, strlen32(filename));
+			vector::push_back(files, fname);
 		}
 		while (FindNextFile(file, &ffd) != 0);
 
@@ -71,7 +73,8 @@ namespace os
 	{
 #if CROWN_PLATFORM_POSIX
 		TempAllocator512 ta;
-		DynamicString cmd(path, ta);
+		DynamicString cmd(ta);
+		cmd += path;
 		cmd += " 2>&1 ";
 		cmd += args;
 		FILE* file = popen(cmd.c_str(), "r");

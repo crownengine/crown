@@ -888,31 +888,36 @@ static void test_dynamic_string()
 	}
 	{
 		TempAllocator1024 ta;
-		DynamicString str("Test ", ta);
+		DynamicString str(ta);
+		str += "Test ";
 		str += "string.";
 		ENSURE(strcmp(str.c_str(), "Test string.") == 0);
 	}
 	{
 		TempAllocator1024 ta;
-		DynamicString str("   \tSushi\t   ", ta);
+		DynamicString str(ta);
+		str.set("   \tSushi\t   ", 15);
 		str.ltrim();
 		ENSURE(strcmp(str.c_str(), "Sushi\t   ") == 0);
 	}
 	{
 		TempAllocator1024 ta;
-		DynamicString str("   \tSushi\t   ", ta);
+		DynamicString str(ta);
+		str.set("   \tSushi\t   ", 15);
 		str.rtrim();
 		ENSURE(strcmp(str.c_str(), "   \tSushi") == 0);
 	}
 	{
 		TempAllocator1024 ta;
-		DynamicString str("   \tSushi\t   ", ta);
+		DynamicString str(ta);
+		str.set("   \tSushi\t   ", 15);
 		str.trim();
 		ENSURE(strcmp(str.c_str(), "Sushi") == 0);
 	}
 	{
 		TempAllocator1024 ta;
-		DynamicString str("Hello everyone!", ta);
+		DynamicString str(ta);
+		str.set("Hello everyone!", 15);
 		ENSURE(str.has_prefix("Hello"));
 		ENSURE(!str.has_prefix("hello"));
 		ENSURE(str.has_suffix("one!"));
