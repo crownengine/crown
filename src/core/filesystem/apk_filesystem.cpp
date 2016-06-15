@@ -174,7 +174,8 @@ void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 	while ((filename = AAssetDir_getNextFileName(root_dir)) != NULL)
 	{
 		TempAllocator512 ta;
-		DynamicString name(filename, ta);
+		DynamicString name(ta);
+		name = filename;
 		vector::push_back(files, name);
 	}
 
