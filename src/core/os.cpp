@@ -54,14 +54,14 @@ namespace os
 
 		do
 		{
-			const char* filename = ffd.cFileName;
+			const char* dname = ffd.cFileName;
 
-			if (!strcmp(fname, ".") || !strcmp(fname, ".."))
+			if (!strcmp(dname, ".") || !strcmp(dname, ".."))
 				continue;
 
 			TempAllocator512 ta;
 			DynamicString fname(ta);
-			fname.set(filename, strlen32(filename));
+			fname.set(dname, strlen32(dname));
 			vector::push_back(files, fname);
 		}
 		while (FindNextFile(file, &ffd) != 0);
