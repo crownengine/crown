@@ -43,7 +43,8 @@ namespace os
 		closedir(dir);
 #elif CROWN_PLATFORM_WINDOWS
 		TempAllocator1024 ta;
-		DynamicString cur_path(path, ta);
+		DynamicString cur_path(ta);
+		cur_path += path;
 		cur_path += "\\*";
 
 		WIN32_FIND_DATA ffd;
