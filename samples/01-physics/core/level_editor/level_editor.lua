@@ -2,12 +2,12 @@ require "core/level_editor/camera"
 require "core/level_editor/class"
 
 Colors = {
-	grid          = function() return Color4(0.75, 0.75, 0.75, 1.0) end,
-	grid_disabled = function() return Color4(0.5, 0.5, 0.5, 1.0) end,
-	axis_x        = function() return Color4.red() end,
-	axis_y        = function() return Color4.green() end,
-	axis_z        = function() return Color4.blue() end,
-	axis_selected = function() return Color4.yellow() end,
+	grid          = function() return Color4(0.4, 0.4, 0.4, 1.0) end,
+	grid_disabled = function() return Color4(0.4, 0.4, 0.4, 0.4) end,
+	axis_x        = function() return Color4(0.85, 0, 0, 1.0) end,
+	axis_y        = function() return Color4(0, 0.85, 0, 1.0) end,
+	axis_z        = function() return Color4(0, 0, 0.85, 1.0) end,
+	axis_selected = function() return Color4(0.85, 0.85, 0, 1.0) end,
 }
 
 function log(msg)
