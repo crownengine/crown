@@ -58,13 +58,43 @@ function draw_grid(lines, tm, center, size, axis, color)
 		y = Matrix4x4.y(tm)
 	end
 
+	local cr, cg, cb, ca = Quaternion.elements(color)
+	local color_transparent = Color4(cr, cg, cb, 0)
+
 	for i = -10, 10 do
+		local abs_i = math.abs(i)
+
 		for j = -10, 10 do
+			local abs_j = math.abs(j)
+
+			local alpha = math.min(abs_i * abs_i + abs_j * abs_j + 25, 100) / 100
+			local line_color = Color4.lerp(color, color_transparent, alpha)
+
 			local p = pos + (x * i * size) + (y * j * size)
-			DebugLine.add_line(lines, -size / 2 * x + p, size / 2 * x + p, color)
-			DebugLine.add_line(lines, -size / 2 * y + p, size / 2 * y + p, color)
+			DebugLine.add_line(lines, -size / 2 * x + p, size / 2 * x + p, line_color)
+			DebugLine.add_line(lines, -size / 2 * y + p, size / 2 * y + p, line_color)
 		end
 	end
+
+	Device.set_temp_count(nv, nq, nm)
+end
+
+function draw_world_origin_grid(lines, size, step)
+	local nv, nq, nm = Device.temp_count()
+
+	local n = size / step
+	local r = n * step
+
+	for i = 1, n do
+		local s = i*step
+		DebugLine.add_line(lines, Vector3(-r, 0, -s), Vector3( r, 0, -s), Colors.grid())
+		DebugLine.add_line(lines, Vector3(-r, 0,  s), Vector3( r, 0,  s), Colors.grid())
+		DebugLine.add_line(lines, Vector3(-s, 0, -r), Vector3(-s, 0,  r), Colors.grid())
+		DebugLine.add_line(lines, Vector3( s, 0, -r), Vector3( s, 0,  r), Colors.grid())
+	end
+
+	DebugLine.add_line(lines, Vector3(-r, 0,  0), Vector3(r, 0, 0), Color4.black())
+	DebugLine.add_line(lines, Vector3( 0, 0, -r), Vector3(0, 0, r), Color4.black())
 
 	Device.set_temp_count(nv, nq, nm)
 end
@@ -1237,7 +1267,7 @@ function LevelEditor:update(dt)
 	self._spawn_height = t and (pos + dir * t).y or 0
 
 	if self._show_grid then
-		self:draw_grid(Matrix4x4.identity(), Vector3.zero(), self._grid.size, "xz")
+		draw_world_origin_grid(self._lines, 10, self._grid.size)
 	end
 
 	DebugLine.submit(self._lines_no_depth)
