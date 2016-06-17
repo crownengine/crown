@@ -26,13 +26,13 @@ namespace json_object
 	}
 
 	/// Returns a pointer to the first item in the object @a jo.
-	inline const typename Map<FixedString, const char*>::Node* begin(const JsonObject& jo)
+	inline const Map<FixedString, const char*>::Node* begin(const JsonObject& jo)
 	{
 		return map::begin(jo._map);
 	}
 
 	/// Returns a pointer to the item following the last item in the object @a jo.
-	inline const typename Map<FixedString, const char*>::Node* end(const JsonObject& jo)
+	inline const Map<FixedString, const char*>::Node* end(const JsonObject& jo)
 	{
 		return map::end(jo._map);
 	}
