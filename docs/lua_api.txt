@@ -349,6 +349,9 @@ Constructors
 Functions
 ~~~~~~~~~
 
+	**lerp** (a, b, t) : Color4
+		Returns the linearly interpolated color between *a* and *b* at time *t* in [0, 1].
+
 	| **black** () : Color4
 	| **white** () : Color4
 	| **red** () : Color4
