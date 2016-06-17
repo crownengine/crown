@@ -933,6 +933,13 @@ static int color4_ctor(lua_State* L)
 	return 1;
 }
 
+static int color4_lerp(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_color4(lerp(stack.get_color4(1), stack.get_color4(2), stack.get_float(3)));
+	return 1;
+}
+
 static int color4_black(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3071,6 +3078,7 @@ void load_api(LuaEnvironment& env)
 
 	env.set_module_constructor("QuaternionBox", quaternionbox_ctor);
 
+	env.add_module_function("Color4", "lerp",      color4_lerp);
 	env.add_module_function("Color4", "black",     color4_black);
 	env.add_module_function("Color4", "white",     color4_white);
 	env.add_module_function("Color4", "red",       color4_red);
