@@ -99,7 +99,7 @@ function draw_world_origin_grid(lines, size, step)
 	Device.set_temp_count(nv, nq, nm)
 end
 
-function raycast(pos, dir, objects)
+function raycast(objects, pos, dir)
 	local nearest = math.huge
 	local hit = nil
 
@@ -1255,7 +1255,7 @@ function LevelEditor:update(dt)
 	self._mouse.wheel.delta = 0
 
 	local pos, dir = self._fpscamera:camera_ray(self._mouse.x, self._mouse.y)
-	local t = raycast(pos, dir, self._objects)
+	local t = raycast(self._objects, pos, dir)
 	self._spawn_height = t and (pos + dir * t).y or 0
 
 	if self._show_grid then
