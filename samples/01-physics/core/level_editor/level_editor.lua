@@ -100,16 +100,14 @@ function draw_world_origin_grid(lines, size, step)
 end
 
 function raycast(pos, dir, objects)
-	local nearest = 999999.0
+	local nearest = math.huge
 	local hit = nil
 
 	for k, v in pairs(objects) do
 		local t = v:raycast(pos, dir)
-		if t ~= -1.0 then
-			if t < nearest then
-				nearest = t
-				hit = nearest
-			end
+		if t ~= -1.0 and t < nearest then
+			nearest = t
+			hit = nearest
 		end
 	end
 
@@ -415,18 +413,16 @@ function SelectTool:mouse_down(x, y)
 	local pos, dir = LevelEditor:camera():camera_ray(x, y)
 
 	-- raycast()
-	local nearest = 999999.0
+	local nearest = math.huge
 	local hit = nil
 	local selected_object = nil
 
 	for k, v in pairs(LevelEditor._objects) do
 		local t = v:raycast(pos, dir)
-		if t ~= -1.0 then
-			if t < nearest then
-				nearest = t
-				hit = nearest
-				selected_object = v
-			end
+		if t ~= -1.0 and t < nearest then
+			nearest = t
+			hit = nearest
+			selected_object = v
 		end
 	end
 
@@ -690,14 +686,12 @@ function MoveTool:update(dt, x, y)
 		}
 
 		local nearest = nil
-		local t = 9999999.0
+		local t = math.huge
 		local axis_names = { "x", "y", "z", "xy", "yz", "xz" }
 		for i, name in ipairs(axis_names) do
-			if axis[i] ~= -1.0 then
-				if axis[i] < t then
-					nearest = i
-					t = axis[i]
-				end
+			if axis[i] ~= -1.0 and axis[i] < t then
+				nearest = i
+				t = axis[i]
 			end
 		end
 		self._selected = nearest and axis_names[nearest] or nil
@@ -885,14 +879,12 @@ function RotateTool:update(dt, x, y)
 		}
 
 		local nearest = nil
-		local t = 9999999.0
+		local t = math.huge
 		local axis_names = { "x", "y", "z" }
 		for i, name in ipairs(axis_names) do
-			if axis[i] ~= -1.0 then
-				if axis[i] < t then
-					nearest = i
-					t = axis[i]
-				end
+			if axis[i] ~= -1.0 and axis[i] < t then
+				nearest = i
+				t = axis[i]
 			end
 		end
 		self._selected = nearest and axis_names[nearest] or nil
