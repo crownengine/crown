@@ -141,7 +141,7 @@ namespace Crown
 			{
 				ENGINE_EXE,
 				"--bundle-dir", _bundle_dir,
-				"--boot-dir", "core/unit_preview",
+				"--boot-dir", UNIT_PREVIEW_BOOT_DIR,
 				"--parent-window", window_xid.to_string(),
 				"--console-port", "10002",
 				"--wait-console",

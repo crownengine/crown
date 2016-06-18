@@ -65,7 +65,7 @@ namespace Crown
 
 		public void new_level()
 		{
-			load(_source_dir + "core/levels/empty.level");
+			load(_source_dir + "core/editors/levels/empty.level");
 		}
 
 		public void load(string path)

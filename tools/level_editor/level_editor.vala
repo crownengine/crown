@@ -572,7 +572,7 @@ namespace Crown
 			{
 				ENGINE_EXE,
 				"--bundle-dir", _bundle_dir,
-				"--boot-dir", "core/level_editor",
+				"--boot-dir", LEVEL_EDITOR_BOOT_DIR,
 				"--parent-window", window_xid.to_string(),
 				"--wait-console",
 				null
