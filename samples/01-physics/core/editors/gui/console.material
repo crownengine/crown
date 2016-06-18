@@ -1,0 +1,8 @@
+shader = "gui+DIFFUSE_MAP"
+
+textures = {
+	u_albedo = "core/editors/gui/console"
+}
+
+uniforms = {
+}
