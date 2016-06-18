@@ -1,0 +1,19 @@
+lua = [
+	"core/editors/level_editor/camera"
+	"core/editors/level_editor/class"
+	"core/editors/unit_preview/boot"
+	"core/editors/unit_preview/unit_preview"
+]
+
+physics_config = [
+	"global"
+]
+
+unit = [
+	"core/units/camera"
+]
+
+shader = [
+	"core/shaders/common"
+	"core/shaders/default"
+]

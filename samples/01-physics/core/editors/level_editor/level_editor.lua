@@ -1,5 +1,5 @@
-require "core/level_editor/camera"
-require "core/level_editor/class"
+require "core/editors/level_editor/camera"
+require "core/editors/level_editor/class"
 
 Colors = {
 	grid          = function() return Color4(0.4, 0.4, 0.4, 1.0) end,

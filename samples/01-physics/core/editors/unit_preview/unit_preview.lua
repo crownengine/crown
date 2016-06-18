@@ -1,4 +1,4 @@
-require "core/level_editor/camera"
+require "core/editors/level_editor/camera"
 
 UnitPreview = UnitPreview or {}
 

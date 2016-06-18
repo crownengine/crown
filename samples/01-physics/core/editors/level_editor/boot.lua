@@ -1,4 +1,4 @@
-require "core/level_editor/level_editor"
+require "core/editors/level_editor/level_editor"
 
 function init()
 	Device.enable_resource_autoload(true)

@@ -1,4 +1,4 @@
-require "core/unit_preview/unit_preview"
+require "core/editors/unit_preview/unit_preview"
 
 function init()
 	Device.enable_resource_autoload(true)

@@ -1,4 +1,4 @@
-require "core/level_editor/class"
+require "core/editors/level_editor/class"
 
 FPSCamera = class(FPSCamera)
 
