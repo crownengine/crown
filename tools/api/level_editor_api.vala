@@ -187,5 +187,11 @@ namespace Crown
 		{
 			return @"LevelEditor:destroy(\"%s\")".printf(id.to_string());
 		}
+
+		public string set_color(string name, Vector3 color)
+		{
+			Quaternion c = Quaternion(color.x, color.y, color.z, 1.0);
+			return @"Colors.%s = function() return %s end".printf(name, Lua.quaternion(c));
+		}
 	}
 }
