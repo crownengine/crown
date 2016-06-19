@@ -414,19 +414,17 @@ function SelectTool:mouse_down(x, y)
 
 	-- raycast()
 	local nearest = math.huge
-	local hit = nil
 	local selected_object = nil
 
 	for k, v in pairs(LevelEditor._objects) do
 		local t = v:raycast(pos, dir)
 		if t ~= -1.0 and t < nearest then
 			nearest = t
-			hit = nearest
 			selected_object = v
 		end
 	end
 
-	if hit ~= nil then
+	if selected_object ~= nil then
 		if not LevelEditor:multiple_selection_enabled() then
 			LevelEditor._selection:clear()
 		end
