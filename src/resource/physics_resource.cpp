@@ -159,8 +159,18 @@ namespace physics_resource
 		JsonObject node(ta);
 		sjson::parse(file, json_mesh);
 		sjson::parse(json_mesh["geometries"], geometries);
+		RESOURCE_COMPILER_ASSERT(json_object::has(geometries, name.c_str())
+			, opts
+			, "Geometry '%s' does not exist"
+			, name.c_str()
+			);
 		sjson::parse(geometries[name.c_str()], geometry);
 		sjson::parse(json_mesh["nodes"], nodes);
+		RESOURCE_COMPILER_ASSERT(json_object::has(nodes, name.c_str())
+			, opts
+			, "Node '%s' does not exist"
+			, name.c_str()
+			);
 		sjson::parse(nodes[name.c_str()], node);
 
 		Matrix4x4 matrix_local = sjson::parse_matrix4x4(node["matrix_local"]);
