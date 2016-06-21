@@ -293,7 +293,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 	}
 }
 
-void RenderWorld::debug_draw_light(LightInstance i, DebugLine& dl)
+void RenderWorld::light_debug_draw(LightInstance i, DebugLine& dl)
 {
 	LightManager::LightInstanceData& lid = _light_manager._data;
 
@@ -347,7 +347,7 @@ void RenderWorld::debug_draw(DebugLine& dl)
 	}
 
 	for (u32 i = 0; i < lid.size; ++i)
-		debug_draw_light({ i }, dl);
+		light_debug_draw({ i }, dl);
 }
 
 void RenderWorld::enable_debug_drawing(bool enable)

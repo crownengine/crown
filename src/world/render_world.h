@@ -110,7 +110,7 @@ public:
 	void enable_debug_drawing(bool enable);
 
 	/// Fills @a dl with debug lines from light @a i.
-	void debug_draw_light(LightInstance i, DebugLine& dl);
+	void light_debug_draw(LightInstance i, DebugLine& dl);
 
 	/// Fills @a dl with debug lines
 	void debug_draw(DebugLine& dl);
