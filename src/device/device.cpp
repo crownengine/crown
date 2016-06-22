@@ -681,7 +681,7 @@ void Device::render(World& world, CameraInstance camera)
 {
 	bgfx::setViewClear(0
 		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
-		, 0x353839FF
+		, 0x353839ff
 		, 1.0f
 		, 0
 		);
