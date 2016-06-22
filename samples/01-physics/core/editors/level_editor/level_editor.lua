@@ -1440,13 +1440,13 @@ end
 function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometry_name, material_resource, visible)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	RenderWorld.create_mesh(self._rw, unit_id, mesh_resource, geometry_name, material_resource, visible, unit_box:world_pose())
+	RenderWorld.mesh_create(self._rw, unit_id, mesh_resource, geometry_name, material_resource, visible, unit_box:world_pose())
 end
 
 function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, color)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	RenderWorld.create_light(self._rw, unit_id, type, range, intensity, spot_angle, color, unit_box:world_pose())
+	RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, color, unit_box:world_pose())
 end
 
 function LevelEditor:move_object(id, pos, rot, scale)
