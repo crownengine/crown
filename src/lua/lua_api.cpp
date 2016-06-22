@@ -1727,7 +1727,7 @@ static int render_world_mesh_create(lua_State* L)
 	return 1;
 }
 
-static int render_world_destroy_mesh(lua_State* L)
+static int render_world_mesh_destroy(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->mesh_destroy(stack.get_mesh_instance(2));
@@ -1776,14 +1776,14 @@ static int render_world_mesh_raycast(lua_State* L)
 	return 1;
 }
 
-static int render_world_set_mesh_visible(lua_State* L)
+static int render_world_mesh_set_visible(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->mesh_set_visible(stack.get_mesh_instance(2), stack.get_bool(3));
 	return 0;
 }
 
-static int render_world_create_sprite(lua_State* L)
+static int render_world_sprite_create(lua_State* L)
 {
 	LuaStack stack(L);
 	RenderWorld* rw = stack.get_render_world(1);
@@ -1828,21 +1828,21 @@ static int render_world_sprite_instances(lua_State* L)
 	return 1;
 }
 
-static int render_world_set_sprite_visible(lua_State* L)
+static int render_world_sprite_set_visible(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->sprite_set_visible(stack.get_sprite_instance(2), stack.get_bool(3));
 	return 0;
 }
 
-static int render_world_set_sprite_frame(lua_State* L)
+static int render_world_sprite_set_frame(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->sprite_set_frame(stack.get_sprite_instance(2), stack.get_int(3));
 	return 0;
 }
 
-static int render_world_create_light(lua_State* L)
+static int render_world_light_create(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -1863,7 +1863,7 @@ static int render_world_create_light(lua_State* L)
 	return 1;
 }
 
-static int render_world_destroy_light(lua_State* L)
+static int render_world_light_destroy(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->light_destroy(stack.get_light_instance(2));
@@ -1920,7 +1920,7 @@ static int render_world_light_debug_draw(lua_State* L)
 	return 0;
 }
 
-static int render_world_set_light_type(lua_State* L)
+static int render_world_light_set_type(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -1932,28 +1932,28 @@ static int render_world_set_light_type(lua_State* L)
 	return 0;
 }
 
-static int render_world_set_light_color(lua_State* L)
+static int render_world_light_set_color(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->light_set_color(stack.get_light_instance(2), stack.get_color4(3));
 	return 0;
 }
 
-static int render_world_set_light_range(lua_State* L)
+static int render_world_light_set_range(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->light_set_range(stack.get_light_instance(2), stack.get_float(3));
 	return 0;
 }
 
-static int render_world_set_light_intensity(lua_State* L)
+static int render_world_light_set_intensity(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->light_set_intensity(stack.get_light_instance(2), stack.get_float(3));
 	return 0;
 }
 
-static int render_world_set_light_spot_angle(lua_State* L)
+static int render_world_light_set_spot_angle(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->light_set_spot_angle(stack.get_light_instance(2), stack.get_float(3));
@@ -3252,18 +3252,18 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("UnitManager", "alive",  unit_manager_alive);
 
 	env.add_module_function("RenderWorld", "mesh_create",          render_world_mesh_create);
-	env.add_module_function("RenderWorld", "mesh_destroy",         render_world_destroy_mesh);
+	env.add_module_function("RenderWorld", "mesh_destroy",         render_world_mesh_destroy);
 	env.add_module_function("RenderWorld", "mesh_instances",       render_world_mesh_instances);
 	env.add_module_function("RenderWorld", "mesh_obb",             render_world_mesh_obb);
 	env.add_module_function("RenderWorld", "mesh_raycast",         render_world_mesh_raycast);
-	env.add_module_function("RenderWorld", "mesh_set_visible",     render_world_set_mesh_visible);
-	env.add_module_function("RenderWorld", "sprite_create",        render_world_create_sprite);
+	env.add_module_function("RenderWorld", "mesh_set_visible",     render_world_mesh_set_visible);
+	env.add_module_function("RenderWorld", "sprite_create",        render_world_sprite_create);
 	env.add_module_function("RenderWorld", "sprite_destroy",       render_world_sprite_destroy);
 	env.add_module_function("RenderWorld", "sprite_instances",     render_world_sprite_instances);
-	env.add_module_function("RenderWorld", "sprite_set_frame",     render_world_set_sprite_frame);
-	env.add_module_function("RenderWorld", "sprite_set_visible",   render_world_set_sprite_visible);
-	env.add_module_function("RenderWorld", "light_create",         render_world_create_light);
-	env.add_module_function("RenderWorld", "light_destroy",        render_world_destroy_light);
+	env.add_module_function("RenderWorld", "sprite_set_frame",     render_world_sprite_set_frame);
+	env.add_module_function("RenderWorld", "sprite_set_visible",   render_world_sprite_set_visible);
+	env.add_module_function("RenderWorld", "light_create",         render_world_light_create);
+	env.add_module_function("RenderWorld", "light_destroy",        render_world_light_destroy);
 	env.add_module_function("RenderWorld", "light_instances",      render_world_light_instances);
 	env.add_module_function("RenderWorld", "light_type",           render_world_light_type);
 	env.add_module_function("RenderWorld", "light_color",          render_world_light_color);
@@ -3271,11 +3271,11 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "light_intensity",      render_world_light_intensity);
 	env.add_module_function("RenderWorld", "light_spot_angle",     render_world_light_spot_angle);
 	env.add_module_function("RenderWorld", "light_debug_draw",     render_world_light_debug_draw);
-	env.add_module_function("RenderWorld", "light_set_type",       render_world_set_light_type);
-	env.add_module_function("RenderWorld", "light_set_color",      render_world_set_light_color);
-	env.add_module_function("RenderWorld", "light_set_range",      render_world_set_light_range);
-	env.add_module_function("RenderWorld", "light_set_intensity",  render_world_set_light_intensity);
-	env.add_module_function("RenderWorld", "light_set_spot_angle", render_world_set_light_spot_angle);
+	env.add_module_function("RenderWorld", "light_set_type",       render_world_light_set_type);
+	env.add_module_function("RenderWorld", "light_set_color",      render_world_light_set_color);
+	env.add_module_function("RenderWorld", "light_set_range",      render_world_light_set_range);
+	env.add_module_function("RenderWorld", "light_set_intensity",  render_world_light_set_intensity);
+	env.add_module_function("RenderWorld", "light_set_spot_angle", render_world_light_set_spot_angle);
 	env.add_module_function("RenderWorld", "enable_debug_drawing", render_world_enable_debug_drawing);
 
 	env.add_module_function("PhysicsWorld", "actor_instances",               physics_world_actor_instances);
