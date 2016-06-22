@@ -54,7 +54,7 @@ RenderWorld::~RenderWorld()
 	_marker = 0;
 }
 
-MeshInstance RenderWorld::create_mesh(UnitId id, const MeshRendererDesc& mrd, const Matrix4x4& tr)
+MeshInstance RenderWorld::mesh_create(UnitId id, const MeshRendererDesc& mrd, const Matrix4x4& tr)
 {
 	const MeshResource* mr = (const MeshResource*)_resource_manager->get(RESOURCE_TYPE_MESH, mrd.mesh_resource);
 	const MeshGeometry* mg = mr->geometry(mrd.geometry_name);
@@ -63,7 +63,7 @@ MeshInstance RenderWorld::create_mesh(UnitId id, const MeshRendererDesc& mrd, co
 	return _mesh_manager.create(id, mr, mg, mrd.material_resource, tr);
 }
 
-void RenderWorld::destroy_mesh(MeshInstance i)
+void RenderWorld::mesh_destroy(MeshInstance i)
 {
 	_mesh_manager.destroy(i);
 }
@@ -79,13 +79,13 @@ void RenderWorld::mesh_instances(UnitId id, Array<MeshInstance>& instances)
 	}
 }
 
-void RenderWorld::set_mesh_material(MeshInstance i, StringId64 id)
+void RenderWorld::mesh_set_material(MeshInstance i, StringId64 id)
 {
 	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
 	_mesh_manager._data.material[i.i] = id;
 }
 
-void RenderWorld::set_mesh_visible(MeshInstance i, bool visible)
+void RenderWorld::mesh_set_visible(MeshInstance i, bool visible)
 {
 	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
 }
@@ -110,7 +110,7 @@ f32 RenderWorld::mesh_raycast(MeshInstance i, const Vector3& from, const Vector3
 		);
 }
 
-SpriteInstance RenderWorld::create_sprite(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr)
+SpriteInstance RenderWorld::sprite_create(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr)
 {
 	const SpriteResource* sr = (const SpriteResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
 	_material_manager->create_material(srd.material_resource);
@@ -118,7 +118,7 @@ SpriteInstance RenderWorld::create_sprite(UnitId id, const SpriteRendererDesc& s
 	return _sprite_manager.create(id, sr, srd.material_resource, tr);
 }
 
-void RenderWorld::destroy_sprite(SpriteInstance i)
+void RenderWorld::sprite_destroy(SpriteInstance i)
 {
 	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 	_sprite_manager.destroy(i);
@@ -135,29 +135,29 @@ void RenderWorld::sprite_instances(UnitId id, Array<SpriteInstance>& instances)
 	}
 }
 
-void RenderWorld::set_sprite_material(SpriteInstance i, StringId64 id)
+void RenderWorld::sprite_set_material(SpriteInstance i, StringId64 id)
 {
 	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 	_sprite_manager._data.material[i.i] = id;
 }
 
-void RenderWorld::set_sprite_visible(SpriteInstance i, bool visible)
+void RenderWorld::sprite_set_visible(SpriteInstance i, bool visible)
 {
 	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 }
 
-void RenderWorld::set_sprite_frame(SpriteInstance i, u32 index)
+void RenderWorld::sprite_set_frame(SpriteInstance i, u32 index)
 {
 	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 	_sprite_manager._data.frame[i.i] = index;
 }
 
-LightInstance RenderWorld::create_light(UnitId id, const LightDesc& ld, const Matrix4x4& tr)
+LightInstance RenderWorld::light_create(UnitId id, const LightDesc& ld, const Matrix4x4& tr)
 {
 	return _light_manager.create(id, ld, tr);
 }
 
-void RenderWorld::destroy_light(LightInstance i)
+void RenderWorld::light_destroy(LightInstance i)
 {
 	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager.destroy(i);
@@ -198,31 +198,31 @@ f32 RenderWorld::light_spot_angle(LightInstance i)
 	return _light_manager._data.spot_angle[i.i];
 }
 
-void RenderWorld::set_light_color(LightInstance i, const Color4& col)
+void RenderWorld::light_set_color(LightInstance i, const Color4& col)
 {
 	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.color[i.i] = col;
 }
 
-void RenderWorld::set_light_type(LightInstance i, LightType::Enum type)
+void RenderWorld::light_set_type(LightInstance i, LightType::Enum type)
 {
 	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.type[i.i] = type;
 }
 
-void RenderWorld::set_light_range(LightInstance i, f32 range)
+void RenderWorld::light_set_range(LightInstance i, f32 range)
 {
 	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.range[i.i] = range;
 }
 
-void RenderWorld::set_light_intensity(LightInstance i, f32 intensity)
+void RenderWorld::light_set_intensity(LightInstance i, f32 intensity)
 {
 	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.intensity[i.i] = intensity;
 }
 
-void RenderWorld::set_light_spot_angle(LightInstance i, f32 angle)
+void RenderWorld::light_set_spot_angle(LightInstance i, f32 angle)
 {
 	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.spot_angle[i.i] = angle;
@@ -364,7 +364,7 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 		while (_mesh_manager.is_valid(curr))
 		{
 			next = _mesh_manager.next(curr);
-			destroy_mesh(curr);
+			mesh_destroy(curr);
 			curr = next;
 		}
 	}
@@ -376,7 +376,7 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 		while (_sprite_manager.is_valid(curr))
 		{
 			next = _sprite_manager.next(curr);
-			destroy_sprite(curr);
+			sprite_destroy(curr);
 			curr = next;
 		}
 	}
@@ -385,7 +385,7 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 		LightInstance first = light(id);
 
 		if (_light_manager.is_valid(first))
-			destroy_light(first);
+			light_destroy(first);
 	}
 }
 

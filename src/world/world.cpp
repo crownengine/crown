@@ -592,7 +592,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0; i < component->num_instances; ++i, ++mrd)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
-				render_world->create_mesh(unit_lookup[unit_index[i]], *mrd, tm);
+				render_world->mesh_create(unit_lookup[unit_index[i]], *mrd, tm);
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_SPRITE_RENDERER)
@@ -601,7 +601,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0; i < component->num_instances; ++i, ++srd)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
-				render_world->create_sprite(unit_lookup[unit_index[i]], *srd, tm);
+				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_LIGHT)
@@ -610,7 +610,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0; i < component->num_instances; ++i, ++ld)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
-				render_world->create_light(unit_lookup[unit_index[i]], *ld, tm);
+				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
 			}
 		}
 		else

@@ -26,19 +26,19 @@ public:
 	~RenderWorld();
 
 	/// Creates a new mesh instance.
-	MeshInstance create_mesh(UnitId id, const MeshRendererDesc& mrd, const Matrix4x4& tr);
+	MeshInstance mesh_create(UnitId id, const MeshRendererDesc& mrd, const Matrix4x4& tr);
 
 	/// Destroys the mesh @a i.
-	void destroy_mesh(MeshInstance i);
+	void mesh_destroy(MeshInstance i);
 
 	/// Returns the mesh instances of the unit @a id.
 	void mesh_instances(UnitId id, Array<MeshInstance>& instances);
 
 	/// Sets the material @a id of the mesh @a i.
-	void set_mesh_material(MeshInstance i, StringId64 id);
+	void mesh_set_material(MeshInstance i, StringId64 id);
 
 	/// Sets whether the mesh @a i is @a visible.
-	void set_mesh_visible(MeshInstance i, bool visible);
+	void mesh_set_visible(MeshInstance i, bool visible);
 
 	/// Returns the OBB of the mesh @a i.
 	OBB mesh_obb(MeshInstance i);
@@ -46,28 +46,28 @@ public:
 	f32 mesh_raycast(MeshInstance i, const Vector3& from, const Vector3& dir);
 
 	/// Creates a new sprite instance.
-	SpriteInstance create_sprite(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr);
+	SpriteInstance sprite_create(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr);
 
 	/// Destroys the sprite @a i.
-	void destroy_sprite(SpriteInstance i);
+	void sprite_destroy(SpriteInstance i);
 
 	/// Returns the sprite instances of the unit @a id.
 	void sprite_instances(UnitId id, Array<SpriteInstance>& instances);
 
 	/// Sets the material @a id of the sprite @a i.
-	void set_sprite_material(SpriteInstance i, StringId64 id);
+	void sprite_set_material(SpriteInstance i, StringId64 id);
 
 	/// Sets the frame @a index of the sprite @a i.
-	void set_sprite_frame(SpriteInstance i, u32 index);
+	void sprite_set_frame(SpriteInstance i, u32 index);
 
 	/// Sets whether the sprite @a i is @a visible.
-	void set_sprite_visible(SpriteInstance i, bool visible);
+	void sprite_set_visible(SpriteInstance i, bool visible);
 
 	/// Creates a new light instance.
-	LightInstance create_light(UnitId id, const LightDesc& ld, const Matrix4x4& tr);
+	LightInstance light_create(UnitId id, const LightDesc& ld, const Matrix4x4& tr);
 
 	/// Destroys the light @a i.
-	void destroy_light(LightInstance i);
+	void light_destroy(LightInstance i);
 
 	/// Returns the light of the unit @a id.
 	LightInstance light(UnitId id);
@@ -88,19 +88,19 @@ public:
 	f32 light_spot_angle(LightInstance i);
 
 	/// Sets the @a type of the light @a i.
-	void set_light_type(LightInstance i, LightType::Enum type);
+	void light_set_type(LightInstance i, LightType::Enum type);
 
 	/// Sets the @a color of the light @a i.
-	void set_light_color(LightInstance i, const Color4& color);
+	void light_set_color(LightInstance i, const Color4& color);
 
 	/// Sets the @a range of the light @a i.
-	void set_light_range(LightInstance i, f32 range);
+	void light_set_range(LightInstance i, f32 range);
 
 	/// Sets the @a intensity of the light @a i.
-	void set_light_intensity(LightInstance i, f32 intensity);
+	void light_set_intensity(LightInstance i, f32 intensity);
 
 	/// Sets the spot @a angle of the light @a i.
-	void set_light_spot_angle(LightInstance i, f32 angle);
+	void light_set_spot_angle(LightInstance i, f32 angle);
 
 	void update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world);
 
