@@ -550,10 +550,10 @@ RenderWorld
 Mesh
 ----
 
-	**create_mesh** (rw, unit, mesh_resource, geometry_name, material_resource, visible, pose) : Id
+	**mesh_create** (rw, unit, mesh_resource, geometry_name, material_resource, visible, pose) : Id
 		Creates a new mesh instance for *unit* and returns its id.
 
-	**destroy_mesh** (rw, id)
+	**mesh_destroy** (rw, id)
 		Destroys the mesh *id*.
 
 	**mesh_instances** (rw, unit) : table
@@ -565,10 +565,10 @@ Mesh
 Sprite
 ------
 
-	**create_sprite** (rw, unit, sprite_resource, material_resource, visible, pose) : Id
+	**sprite_create** (rw, unit, sprite_resource, material_resource, visible, pose) : Id
 		Creates a new sprite instance for *unit* and returns its id.
 
-	**destroy_sprite** (rw, id)
+	**sprite_destroy** (rw, id)
 		Destroys the sprite *id*.
 
 	**sprite_instances** (rw, unit) : table
@@ -577,11 +577,11 @@ Sprite
 Light
 -----
 
-	**create_light** (rw, unit, type, range, intensity, spot_angle, color, pose) : Id
+	**light_create** (rw, unit, type, range, intensity, spot_angle, color, pose) : Id
 		Creates a new light for *unit* and returns its id.
 		Type can be either ``directional``, ``omni`` or ``spot``.
 
-	**destroy_light** (rw, id)
+	**light_destroy** (rw, id)
 		Destroys the light *id*.
 
 	**light_instances** (rw, unit) : Id
@@ -603,19 +603,19 @@ Light
 	**light_spot_angle** (rw, id) : float
 		Returns the spot angle of the light *id*.
 
-	**set_light_type** (rw, id, type)
+	**light_set_type** (rw, id, type)
 		Sets the *type* of the light *id*.
 
-	**set_light_color** (rw, id, color)
+	**light_set_color** (rw, id, color)
 		Sets the *color* of the light *id*.
 
-	**set_light_range** (rw, id, range)
+	**light_set_range** (rw, id, range)
 		Sets the *range* of the light *id*.
 
-	**set_light_intensity** (rw, id, intensity)
+	**light_set_intensity** (rw, id, intensity)
 		Sets the *intensity* of the light *id*.
 
-	**set_light_spot_angle** (rw, id, angle)
+	**light_set_spot_angle** (rw, id, angle)
 		Sets the spot *angle* of the light *id*.
 
 PhysicsWorld
