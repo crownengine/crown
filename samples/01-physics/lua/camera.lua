@@ -13,7 +13,6 @@ function FPSCamera:init(world, unit)
 	self._sg = World.scene_graph(world)
 	self._translation_speed = 0.05
 	self._rotation_speed = 0.006
-	self._orthographic_zoom = 10
 end
 
 function FPSCamera:unit()

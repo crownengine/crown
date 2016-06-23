@@ -7,7 +7,6 @@ function FPSCamera:init(world, unit)
 	self._unit = unit
 	self._translation_speed = 0.75
 	self._rotation_speed = 0.006
-	self._orthographic_zoom = 10
 end
 
 function FPSCamera:unit()
