@@ -92,16 +92,16 @@ public:
 	void units(Array<UnitId>& units) const;
 
 	/// Creates a new camera.
-	CameraInstance create_camera(UnitId id, const CameraDesc& cd);
+	CameraInstance camera_create(UnitId id, const CameraDesc& cd);
 
 	/// Destroys the camera @a id.
-	void destroy_camera(CameraInstance i);
+	void camera_destroy(CameraInstance i);
 
 	/// Returns the camera owned by unit @a id.
 	CameraInstance camera(UnitId id);
 
 	/// Sets the projection type of the camera.
-	void set_camera_projection_type(CameraInstance i, ProjectionType::Enum type);
+	void camera_set_projection_type(CameraInstance i, ProjectionType::Enum type);
 
 	/// Returns the projection type of the camera.
 	ProjectionType::Enum camera_projection_type(CameraInstance i) const;
@@ -116,28 +116,28 @@ public:
 	f32 camera_fov(CameraInstance i) const;
 
 	/// Sets the field-of-view of the camera in degrees.
-	void set_camera_fov(CameraInstance i, f32 fov);
+	void camera_set_fov(CameraInstance i, f32 fov);
 
 	/// Sets the aspect ratio of the camera. (Perspective projection only.)
-	void set_camera_aspect(CameraInstance i, f32 aspect);
+	void camera_set_aspect(CameraInstance i, f32 aspect);
 
 	/// Returns the near clip distance of the camera.
 	f32 camera_near_clip_distance(CameraInstance i) const;
 
 	/// Sets the near clip distance of the camera.
-	void set_camera_near_clip_distance(CameraInstance i, f32 near);
+	void camera_set_near_clip_distance(CameraInstance i, f32 near);
 
 	/// Returns the far clip distance of the camera.
 	f32 camera_far_clip_distance(CameraInstance i) const;
 
 	/// Sets the far clip distance of the camera.
-	void set_camera_far_clip_distance(CameraInstance i, f32 far);
+	void camera_set_far_clip_distance(CameraInstance i, f32 far);
 
 	/// Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
-	void set_camera_orthographic_metrics(CameraInstance i, f32 left, f32 right, f32 bottom, f32 top);
+	void camera_set_orthographic_metrics(CameraInstance i, f32 left, f32 right, f32 bottom, f32 top);
 
 	/// Sets the coordinates for the camera viewport in pixels.
-	void set_camera_viewport_metrics(CameraInstance i, u16 x, u16 y, u16 width, u16 height);
+	void camera_set_viewport_metrics(CameraInstance i, u16 x, u16 y, u16 width, u16 height);
 
 	/// Returns @a pos from screen-space to world-space coordinates.
 	Vector3 camera_screen_to_world(CameraInstance i, const Vector3& pos);

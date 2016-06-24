@@ -203,7 +203,7 @@ void World::render(CameraInstance i)
 	_lines->reset();
 }
 
-CameraInstance World::create_camera(UnitId id, const CameraDesc& cd)
+CameraInstance World::camera_create(UnitId id, const CameraDesc& cd)
 {
 	Camera camera;
 	camera.unit            = id;
@@ -219,7 +219,7 @@ CameraInstance World::create_camera(UnitId id, const CameraDesc& cd)
 	return make_camera_instance(last);
 }
 
-void World::destroy_camera(CameraInstance i)
+void World::camera_destroy(CameraInstance i)
 {
 	const u32 last = array::size(_camera) - 1;
 	const UnitId u = _camera[i.i].unit;
@@ -236,7 +236,7 @@ CameraInstance World::camera(UnitId id)
 	return make_camera_instance(hash_map::get(_camera_map, id, UINT32_MAX));
 }
 
-void World::set_camera_projection_type(CameraInstance i, ProjectionType::Enum type)
+void World::camera_set_projection_type(CameraInstance i, ProjectionType::Enum type)
 {
 	_camera[i.i].projection_type = type;
 	_camera[i.i].update_projection_matrix();
@@ -265,13 +265,13 @@ f32 World::camera_fov(CameraInstance i) const
 	return _camera[i.i].fov;
 }
 
-void World::set_camera_fov(CameraInstance i, f32 fov)
+void World::camera_set_fov(CameraInstance i, f32 fov)
 {
 	_camera[i.i].fov = fov;
 	_camera[i.i].update_projection_matrix();
 }
 
-void World::set_camera_aspect(CameraInstance i, f32 aspect)
+void World::camera_set_aspect(CameraInstance i, f32 aspect)
 {
 	_camera[i.i].aspect = aspect;
 	_camera[i.i].update_projection_matrix();
@@ -282,7 +282,7 @@ f32 World::camera_near_clip_distance(CameraInstance i) const
 	return _camera[i.i].near;
 }
 
-void World::set_camera_near_clip_distance(CameraInstance i, f32 near)
+void World::camera_set_near_clip_distance(CameraInstance i, f32 near)
 {
 	_camera[i.i].near = near;
 	_camera[i.i].update_projection_matrix();
@@ -293,13 +293,13 @@ f32 World::camera_far_clip_distance(CameraInstance i) const
 	return _camera[i.i].far;
 }
 
-void World::set_camera_far_clip_distance(CameraInstance i, f32 far)
+void World::camera_set_far_clip_distance(CameraInstance i, f32 far)
 {
 	_camera[i.i].far = far;
 	_camera[i.i].update_projection_matrix();
 }
 
-void World::set_camera_orthographic_metrics(CameraInstance i, f32 left, f32 right, f32 bottom, f32 top)
+void World::camera_set_orthographic_metrics(CameraInstance i, f32 left, f32 right, f32 bottom, f32 top)
 {
 	_camera[i.i].left = left;
 	_camera[i.i].right = right;
@@ -309,7 +309,7 @@ void World::set_camera_orthographic_metrics(CameraInstance i, f32 left, f32 righ
 	_camera[i.i].update_projection_matrix();
 }
 
-void World::set_camera_viewport_metrics(CameraInstance i, u16 x, u16 y, u16 width, u16 height)
+void World::camera_set_viewport_metrics(CameraInstance i, u16 x, u16 y, u16 width, u16 height)
 {
 	_camera[i.i].view_x = x;
 	_camera[i.i].view_y = y;
@@ -556,7 +556,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const CameraDesc* cd = (const CameraDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
 			{
-				w.create_camera(unit_lookup[unit_index[i]], *cd);
+				w.camera_create(unit_lookup[unit_index[i]], *cd);
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_COLLIDER)
