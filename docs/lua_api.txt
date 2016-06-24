@@ -649,103 +649,103 @@ Actor
 	**actor_world_pose** (pw, actor) : Matrix4x4
 		Returns the world pose of the actor.
 
-	**teleport_actor_world_position** (pw, actor, position)
+	**actor_teleport_world_position** (pw, actor, position)
 		Teleports the actor to the given world position.
 
-	**teleport_actor_world_rotation** (pw, actor, rotation)
+	**actor_teleport_world_rotation** (pw, actor, rotation)
 		Teleports the actor to the given world rotation.
 
-	**teleport_actor_world_pose** (pw, actor, pose)
+	**actor_teleport_world_pose** (pw, actor, pose)
 		Teleports the actor to the given world pose.
 
 	**actor_center_of_mass** (pw, actor) : Vector3
 		Returns the center of mass of the actor.
 
-	**enable_actor_gravity** (pw, actor)
+	**actor_enable_gravity** (pw, actor)
 		Enables gravity for the actor.
 
-	**disable_actor_gravity** (pw, actor)
+	**actor_disable_gravity** (pw, actor)
 		Disables gravity for the actor.
 
-	**enable_actor_collision** (pw, actor)
+	**actor_enable_collision** (pw, actor)
 		Enables collision detection for the actor.
 
-	**disable_actor_collision** (pw, actor)
+	**actor_disable_collision** (pw, actor)
 		Disables collision detection for the actor.
 
-	**set_actor_collision_filter** (pw, actor, name)
+	**actor_set_collision_filter** (pw, actor, name)
 		Sets the collision filter of the actor.
 
-	**set_actor_kinematic** (pw, actor, kinematic)
+	**actor_set_kinematic** (pw, actor, kinematic)
 		Sets whether the actor is kinematic or not.
 		Note that this call has no effect on static actors.
 
-	**move_actor** (pw, actor, position)
+	**actor_move** (pw, actor, position)
 		Moves the actor to *pos*
 		Note that this call only affects nonkinematic actors.
 
-	**is_static** (pw, actor) : bool
+	**actor_is_static** (pw, actor) : bool
 		Returns whether the actor is static.
 
-	**is_dynamic** (pw, actor) bool
+	**actor_is_dynamic** (pw, actor) bool
 		Returns whether the actor is dynamic.
 
-	**is_kinematic** (pw, actor) : bool
+	**actor_is_kinematic** (pw, actor) : bool
 		Returns whether the actor is kinematic (keyframed).
 
-	**is_nonkinematic** (pw, actor) : bool
+	**actor_is_nonkinematic** (pw, actor) : bool
 		Returns whether the actor is nonkinematic (i.e. dynamic and not kinematic).
 
 	**actor_linear_damping** (pw, actor) : float
 		Returns the linear damping of the actor.
 
-	**set_actor_linear_damping** (pw, actor, damping)
+	**actor_set_linear_damping** (pw, actor, damping)
 		Sets the linear damping of the actor.
 
 	**actor_angular_damping** (pw, actor) : float
 		Returns the angular damping of the actor.
 
-	**set_actor_angular_damping** (pw, actor, rate)
+	**actor_set_angular_damping** (pw, actor, rate)
 		Sets the angular damping of the actor.
 
 	**actor_linear_velocity** (pw, actor) : Vector3
 		Returns the linear velocity of the actor.
 
-	**set_actor_linear_velocity** (pw, actor, velocity)
+	**actor_set_linear_velocity** (pw, actor, velocity)
 		Sets the linear velocity of the actor.
 		Note that this call only affects nonkinematic actors.
 
 	**actor_angular_velocity** (pw, actor) : Vector3
 		Returns the angular velocity of the actor.
 
-	**set_actor_angular_velocity** (pw, actor, velocity)
+	**actor_set_angular_velocity** (pw, actor, velocity)
 		Sets the angular velocity of the actor.
 		Note that this call only affects nonkinematic actors.
 
-	**add_actor_impulse** (pw, actor, impulse)
+	**actor_add_impulse** (pw, actor, impulse)
 		Adds a linear impulse (acting along the center of mass) to the actor.
 		Note that this call only affects nonkinematic actors.
 
-	**add_actor_impulse_at** (pw, actor, impulse, position)
+	**actor_add_impulse_at** (pw, actor, impulse, position)
 		Adds a linear impulse (acting along the world position *pos*) to the actor.
 		Note that this call only affects nonkinematic actors.
 
-	**add_actor_torque_impulse** (pw, actor, impulse)
+	**actor_add_torque_impulse** (pw, actor, impulse)
 		Adds a torque impulse to the actor.
 
-	**push_actor** (pw, actor, velocity, mass)
+	**actor_push** (pw, actor, velocity, mass)
 		Pushes the actor as if it was hit by a point object with the given *mass*
 		travelling at the given *velocity*.
 		Note that this call only affects nonkinematic actors.
 
-	**push_actor_at** (pw, actor, velocity, mass, position)
+	**actor_push_at** (pw, actor, velocity, mass, position)
 		Like push() but applies the force at the world position *pos*.
 		Note that this call only affects nonkinematic actors.
 
-	**is_sleeping** (pw, actor) : bool
+	**actor_is_sleeping** (pw, actor) : bool
 		Returns whether the actor is sleeping.
 
-	**wake_up** (pw, actor)
+	**actor_wake_up** (pw, actor)
 		Wakes the actor up.
 
 SoundWorld
