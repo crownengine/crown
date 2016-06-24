@@ -446,6 +446,47 @@ World
 	**sound_world** (world) : SoundWorld
 		Returns the sound sub-world.
 
+Camera
+------
+
+	**camera** (world, unit) : Id
+		Returns the camera owned by unit *id*.
+
+	**camera_set_projection_type** (world, camera, projection)
+		Sets the projection type of the camera.
+		Projection can be either ``orthographic`` or ``perspective``.
+
+	**camera_projection_type** (world, camera) : string
+		Returns the projection type of the camera.
+		It can be either ``orthographic`` or ``perspective``.
+
+	**camera_fov** (world, camera) : float
+		Returns the field-of-view of the camera in degrees.
+
+	**camera_set_fov** (world, camera, fov)
+		Sets the field-of-view of the camera in degrees.
+
+	**camera_near_clip_distance** (world, camera) : float
+		Returns the near clip distance of the camera.
+
+	**camera_set_near_clip_distance** (world, camera, near)
+		Sets the near clip distance of the camera.
+
+	**camera_far_clip_distance** (world, camera) : float
+		Returns the far clip distance of the camera.
+
+	**camera_set_far_clip_distance** (world, camera, far)
+		Sets the far clip distance of the camera.
+
+	**camera_set_orthographic_metrics** (world, camera, left, right, bottom, top)
+		Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
+
+	**camera_screen_to_world** (world, camera, pos) : Vector3
+		Returns *pos* from screen-space to world-space coordinates.
+
+	**camera_world_to_screen** (world, camera, pos) : Vector3
+		Returns *pos* from world-space to screen-space coordinates.
+
 Sound
 -----
 
