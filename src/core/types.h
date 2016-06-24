@@ -35,6 +35,10 @@ typedef double   f64;
 	#define alignof(x) __alignof(x)
 #endif
 
+#if !defined(__va_copy)
+	#define __va_copy(dest, src) (dest = src)
+#endif
+
 #ifndef NULL
 	#define NULL 0
 #endif
