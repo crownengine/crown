@@ -1975,7 +1975,7 @@ static int physics_world_actor_instances(lua_State* L)
 	if (inst.i == UINT32_MAX)
 		stack.push_nil();
 	else
-		stack.actor_push(inst);
+		stack.push_actor(inst);
 
 	return 1;
 }
@@ -2279,7 +2279,7 @@ static int physics_world_raycast(lua_State* L)
 	for (u32 i = 0; i < array::size(hits); ++i)
 	{
 		stack.push_key_begin(i+1);
-		stack.actor_push(hits[i].actor);
+		stack.push_actor(hits[i].actor);
 		stack.push_key_end();
 	}
 
