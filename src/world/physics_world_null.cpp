@@ -40,7 +40,7 @@ public:
 		return make_collider_instance(UINT32_MAX);
 	}
 
-	virtual void destroy_collider(ColliderInstance /*i*/)
+	virtual void collider_destroy(ColliderInstance /*i*/)
 	{
 	}
 
@@ -54,12 +54,12 @@ public:
 		return make_collider_instance(UINT32_MAX);
 	}
 
-	virtual ActorInstance create_actor(UnitId /*id*/, const ActorResource* /*ar*/, const Matrix4x4& /*tm*/)
+	virtual ActorInstance actor_create(UnitId /*id*/, const ActorResource* /*ar*/, const Matrix4x4& /*tm*/)
 	{
 		return make_actor_instance(UINT32_MAX);
 	}
 
-	virtual void destroy_actor(ActorInstance /*i*/)
+	virtual void actor_destroy(ActorInstance /*i*/)
 	{
 	}
 
@@ -83,15 +83,15 @@ public:
 		return MATRIX4X4_IDENTITY;
 	}
 
-	virtual void teleport_actor_world_position(ActorInstance /*i*/, const Vector3& /*p*/)
+	virtual void actor_teleport_world_position(ActorInstance /*i*/, const Vector3& /*p*/)
 	{
 	}
 
-	virtual void teleport_actor_world_rotation(ActorInstance /*i*/, const Quaternion& /*r*/)
+	virtual void actor_teleport_world_rotation(ActorInstance /*i*/, const Quaternion& /*r*/)
 	{
 	}
 
-	virtual void teleport_actor_world_pose(ActorInstance /*i*/, const Matrix4x4& /*m*/)
+	virtual void actor_teleport_world_pose(ActorInstance /*i*/, const Matrix4x4& /*m*/)
 	{
 	}
 
@@ -100,50 +100,50 @@ public:
 		return VECTOR3_ZERO;
 	}
 
-	virtual void enable_actor_gravity(ActorInstance /*i*/)
+	virtual void actor_enable_gravity(ActorInstance /*i*/)
 	{
 	}
 
-	virtual void disable_actor_gravity(ActorInstance /*i*/)
+	virtual void actor_disable_gravity(ActorInstance /*i*/)
 	{
 	}
 
-	virtual void enable_actor_collision(ActorInstance /*i*/)
+	virtual void actor_enable_collision(ActorInstance /*i*/)
 	{
 	}
 
-	virtual void disable_actor_collision(ActorInstance /*i*/)
+	virtual void actor_disable_collision(ActorInstance /*i*/)
 	{
 	}
 
-	virtual void set_actor_collision_filter(ActorInstance /*i*/, StringId32 /*filter*/)
+	virtual void actor_set_collision_filter(ActorInstance /*i*/, StringId32 /*filter*/)
 	{
 	}
 
-	virtual void set_actor_kinematic(ActorInstance /*i*/, bool /*kinematic*/)
+	virtual void actor_set_kinematic(ActorInstance /*i*/, bool /*kinematic*/)
 	{
 	}
 
-	virtual void move_actor(ActorInstance /*i*/, const Vector3& /*pos*/)
+	virtual void actor_move(ActorInstance /*i*/, const Vector3& /*pos*/)
 	{
 	}
 
-	virtual bool is_static(ActorInstance /*i*/) const
-	{
-		return false;
-	}
-
-	virtual bool is_dynamic(ActorInstance /*i*/) const
+	virtual bool actor_is_static(ActorInstance /*i*/) const
 	{
 		return false;
 	}
 
-	virtual bool is_kinematic(ActorInstance /*i*/) const
+	virtual bool actor_is_dynamic(ActorInstance /*i*/) const
 	{
 		return false;
 	}
 
-	virtual bool is_nonkinematic(ActorInstance /*i*/) const
+	virtual bool actor_is_kinematic(ActorInstance /*i*/) const
+	{
+		return false;
+	}
+
+	virtual bool actor_is_nonkinematic(ActorInstance /*i*/) const
 	{
 		return false;
 	}
@@ -153,7 +153,7 @@ public:
 		return 0.0f;
 	}
 
-	virtual void set_actor_linear_damping(ActorInstance /*i*/, f32 /*rate*/)
+	virtual void actor_set_linear_damping(ActorInstance /*i*/, f32 /*rate*/)
 	{
 	}
 
@@ -162,7 +162,7 @@ public:
 		return 0.0f;
 	}
 
-	virtual void set_actor_angular_damping(ActorInstance /*i*/, f32 /*rate*/)
+	virtual void actor_set_angular_damping(ActorInstance /*i*/, f32 /*rate*/)
 	{
 	}
 
@@ -171,7 +171,7 @@ public:
 		return VECTOR3_ZERO;
 	}
 
-	virtual void set_actor_linear_velocity(ActorInstance /*i*/, const Vector3& /*vel*/)
+	virtual void actor_set_linear_velocity(ActorInstance /*i*/, const Vector3& /*vel*/)
 	{
 	}
 
@@ -180,45 +180,45 @@ public:
 		return VECTOR3_ZERO;
 	}
 
-	virtual void set_actor_angular_velocity(ActorInstance /*i*/, const Vector3& /*vel*/)
+	virtual void actor_set_angular_velocity(ActorInstance /*i*/, const Vector3& /*vel*/)
 	{
 	}
 
-	virtual void add_actor_impulse(ActorInstance /*i*/, const Vector3& /*impulse*/)
+	virtual void actor_add_impulse(ActorInstance /*i*/, const Vector3& /*impulse*/)
 	{
 	}
 
-	virtual void add_actor_impulse_at(ActorInstance /*i*/, const Vector3& /*impulse*/, const Vector3& /*pos*/)
+	virtual void actor_add_impulse_at(ActorInstance /*i*/, const Vector3& /*impulse*/, const Vector3& /*pos*/)
 	{
 	}
 
-	virtual void add_actor_torque_impulse(ActorInstance /*i*/, const Vector3& /*imp*/)
+	virtual void actor_add_actor_torque_impulse(ActorInstance /*i*/, const Vector3& /*imp*/)
 	{
 	}
 
-	virtual void push_actor(ActorInstance /*i*/, const Vector3& /*vel*/, f32 /*mass*/)
+	virtual void actor_push(ActorInstance /*i*/, const Vector3& /*vel*/, f32 /*mass*/)
 	{
 	}
 
-	virtual void push_actor_at(ActorInstance /*i*/, const Vector3& /*vel*/, f32 /*mass*/, const Vector3& /*pos*/)
+	virtual void actor_push_at(ActorInstance /*i*/, const Vector3& /*vel*/, f32 /*mass*/, const Vector3& /*pos*/)
 	{
 	}
 
-	virtual bool is_sleeping(ActorInstance /*i*/)
+	virtual bool actor_is_sleeping(ActorInstance /*i*/)
 	{
 		return false;
 	}
 
-	virtual void wake_up(ActorInstance /*i*/)
+	virtual void actor_wake_up(ActorInstance /*i*/)
 	{
 	}
 
-	virtual ControllerInstance create_controller(UnitId /*id*/, const ControllerDesc& /*cd*/, const Matrix4x4& /*tm*/)
+	virtual ControllerInstance controller_create(UnitId /*id*/, const ControllerDesc& /*cd*/, const Matrix4x4& /*tm*/)
 	{
 		return make_controller_instance(UINT32_MAX);
 	}
 
-	virtual void destroy_controller(ControllerInstance /*id*/)
+	virtual void controller_destroy(ControllerInstance /*id*/)
 	{
 	}
 
@@ -227,40 +227,40 @@ public:
 		return make_controller_instance(UINT32_MAX);
 	}
 
-	virtual Vector3 position(ControllerInstance /*i*/) const
+	virtual Vector3 controller_position(ControllerInstance /*i*/) const
 	{
 		return VECTOR3_ZERO;
 	}
 
-	virtual void move_controller(ControllerInstance /*i*/, const Vector3& /*pos*/)
+	virtual void controller_move(ControllerInstance /*i*/, const Vector3& /*pos*/)
 	{
 	}
 
-	virtual void set_height(ControllerInstance /*i*/, f32 /*height*/)
+	virtual void controller_set_height(ControllerInstance /*i*/, f32 /*height*/)
 	{
 	}
 
-	virtual bool collides_up(ControllerInstance /*i*/) const
-	{
-		return false;
-	}
-
-	virtual bool collides_down(ControllerInstance /*i*/) const
+	virtual bool controller_collides_up(ControllerInstance /*i*/) const
 	{
 		return false;
 	}
 
-	virtual bool collides_sides(ControllerInstance /*i*/) const
+	virtual bool controller_collides_down(ControllerInstance /*i*/) const
 	{
 		return false;
 	}
 
-	virtual JointInstance create_joint(ActorInstance /*a0*/, ActorInstance /*a1*/, const JointDesc& /*jd*/)
+	virtual bool controller_collides_sides(ControllerInstance /*i*/) const
+	{
+		return false;
+	}
+
+	virtual JointInstance joint_create(ActorInstance /*a0*/, ActorInstance /*a1*/, const JointDesc& /*jd*/)
 	{
 		return make_joint_instance(UINT32_MAX);
 	}
 
-	virtual void destroy_joint(JointInstance /*i*/)
+	virtual void joint_destroy(JointInstance /*i*/)
 	{
 	}
 

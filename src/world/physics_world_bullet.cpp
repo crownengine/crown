@@ -219,7 +219,7 @@ public:
 		CE_DELETE(*_allocator, _scene);
 	}
 
-	ColliderInstance create_collider(UnitId id, const ColliderDesc* sd)
+	ColliderInstance collider_create(UnitId id, const ColliderDesc* sd)
 	{
 		btTriangleIndexVertexArray* vertex_array = NULL;
 		btCollisionShape* child_shape = NULL;
@@ -290,9 +290,9 @@ public:
 		cid.shape        = child_shape;
 		cid.next.i       = UINT32_MAX;
 
-		ColliderInstance ci = first_collider(id);
-		while (is_valid(ci) && is_valid(next_collider(ci)))
-			ci = next_collider(ci);
+		ColliderInstance ci = collider_first(id);
+		while (is_valid(ci) && is_valid(collider_next(ci)))
+			ci = collider_next(ci);
 
 		if (is_valid(ci))
 			_collider[ci.i].next.i = last;
@@ -303,17 +303,17 @@ public:
 		return make_collider_instance(last);
 	}
 
-	void destroy_collider(ColliderInstance i)
+	void collider_destroy(ColliderInstance i)
 	{
 		CE_ASSERT(i.i < array::size(_collider), "Index out of bounds");
 
 		const u32 last                 = array::size(_collider) - 1;
 		const UnitId u                 = _collider[i.i].unit;
-		const ColliderInstance first_i = first_collider(u);
+		const ColliderInstance first_i = collider_first(u);
 		const ColliderInstance last_i  = make_collider_instance(last);
 
-		swap_collider_node(last_i, i);
-		remove_collider_node(first_i, i);
+		collider_swap_node(last_i, i);
+		collider_remove_node(first_i, i);
 
 		CE_DELETE(*_allocator, _collider[i.i].vertex_array);
 		CE_DELETE(*_allocator, _collider[i.i].shape);
@@ -323,7 +323,7 @@ public:
 		array::pop_back(_collider);
 	}
 
-	void remove_collider_node(ColliderInstance first, ColliderInstance i)
+	void collider_remove_node(ColliderInstance first, ColliderInstance i)
 	{
 		CE_ASSERT(first.i < array::size(_collider), "Index out of bounds");
 		CE_ASSERT(i.i < array::size(_collider), "Index out of bounds");
@@ -332,25 +332,25 @@ public:
 
 		if (i.i == first.i)
 		{
-			if (!is_valid(next_collider(i)))
+			if (!is_valid(collider_next(i)))
 				hash_map::remove(_collider_map, u);
 			else
-				hash_map::set(_collider_map, u, next_collider(i).i);
+				hash_map::set(_collider_map, u, collider_next(i).i);
 		}
 		else
 		{
-			ColliderInstance prev = previous_collider(i);
-			_collider[prev.i].next = next_collider(i);
+			ColliderInstance prev = collider_previous(i);
+			_collider[prev.i].next = collider_next(i);
 		}
 	}
 
-	void swap_collider_node(ColliderInstance a, ColliderInstance b)
+	void collider_swap_node(ColliderInstance a, ColliderInstance b)
 	{
 		CE_ASSERT(a.i < array::size(_collider), "Index out of bounds");
 		CE_ASSERT(b.i < array::size(_collider), "Index out of bounds");
 
 		const UnitId u = _collider[a.i].unit;
-		const ColliderInstance first_i = first_collider(u);
+		const ColliderInstance first_i = collider_first(u);
 
 		if (a.i == first_i.i)
 		{
@@ -358,41 +358,41 @@ public:
 		}
 		else
 		{
-			const ColliderInstance prev_a = previous_collider(a);
+			const ColliderInstance prev_a = collider_previous(a);
 			CE_ENSURE(prev_a.i != a.i);
 			_collider[prev_a.i].next = b;
 		}
 	}
 
-	ColliderInstance first_collider(UnitId id)
+	ColliderInstance collider_first(UnitId id)
 	{
 		return make_collider_instance(hash_map::get(_collider_map, id, UINT32_MAX));
 	}
 
-	ColliderInstance next_collider(ColliderInstance i)
+	ColliderInstance collider_next(ColliderInstance i)
 	{
 		return _collider[i.i].next;
 	}
 
-	ColliderInstance previous_collider(ColliderInstance i)
+	ColliderInstance collider_previous(ColliderInstance i)
 	{
 		CE_ASSERT(i.i < array::size(_collider), "Index out of bounds");
 
 		const UnitId u = _collider[i.i].unit;
 
-		ColliderInstance curr = first_collider(u);
+		ColliderInstance curr = collider_first(u);
 		ColliderInstance prev = { UINT32_MAX };
 
 		while (curr.i != i.i)
 		{
 			prev = curr;
-			curr = next_collider(curr);
+			curr = collider_next(curr);
 		}
 
 		return prev;
 	}
 
-	ActorInstance create_actor(UnitId id, const ActorResource* ar, const Matrix4x4& tm)
+	ActorInstance actor_create(UnitId id, const ActorResource* ar, const Matrix4x4& tm)
 	{
 		const PhysicsConfigActor* actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
 
@@ -404,11 +404,11 @@ public:
 		// Create compound shape
 		btCompoundShape* shape = CE_NEW(*_allocator, btCompoundShape)(true);
 
-		ColliderInstance ci = first_collider(id);
+		ColliderInstance ci = collider_first(id);
 		while (is_valid(ci))
 		{
 			shape->addChildShape(btTransform::getIdentity(), _collider[ci.i].shape);
-			ci = next_collider(ci);
+			ci = collider_next(ci);
 		}
 
 		// Create motion state
@@ -467,7 +467,7 @@ public:
 		return make_actor_instance(last);
 	}
 
-	void destroy_actor(ActorInstance i)
+	void actor_destroy(ActorInstance i)
 	{
 		const u32 last      = array::size(_actor) - 1;
 		const UnitId u      = _actor[i.i].unit;
@@ -516,21 +516,21 @@ public:
 		return matrix4x4(to_quaternion(r), to_vector3(p));
 	}
 
-	void teleport_actor_world_position(ActorInstance i, const Vector3& p)
+	void actor_teleport_world_position(ActorInstance i, const Vector3& p)
 	{
 		btTransform pose = _actor[i.i].actor->getCenterOfMassTransform();
 		pose.setOrigin(to_btVector3(p));
 		_actor[i.i].actor->setCenterOfMassTransform(pose);
 	}
 
-	void teleport_actor_world_rotation(ActorInstance i, const Quaternion& r)
+	void actor_teleport_world_rotation(ActorInstance i, const Quaternion& r)
 	{
 		btTransform pose = _actor[i.i].actor->getCenterOfMassTransform();
 		pose.setRotation(to_btQuaternion(r));
 		_actor[i.i].actor->setCenterOfMassTransform(pose);
 	}
 
-	void teleport_actor_world_pose(ActorInstance i, const Matrix4x4& m)
+	void actor_teleport_world_pose(ActorInstance i, const Matrix4x4& m)
 	{
 		const Quaternion rot = rotation(m);
 		const Vector3 pos = translation(m);
@@ -543,58 +543,58 @@ public:
 
 	Vector3 actor_center_of_mass(ActorInstance i) const
 	{
-		if (is_static(i))
+		if (actor_is_static(i))
 			return VECTOR3_ZERO;
 
 		const btVector3 c = _actor[i.i].actor->getCenterOfMassTransform().getOrigin();
 		return to_vector3(c);
 	}
 
-	void enable_actor_gravity(ActorInstance i)
+	void actor_enable_gravity(ActorInstance i)
 	{
 		_actor[i.i].actor->setGravity(_scene->getGravity());
 	}
 
-	void disable_actor_gravity(ActorInstance i)
+	void actor_disable_gravity(ActorInstance i)
 	{
 		_actor[i.i].actor->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	}
 
-	void enable_actor_collision(ActorInstance /*i*/)
+	void actor_enable_collision(ActorInstance /*i*/)
 	{
 		CE_FATAL("Not implemented yet");
 	}
 
-	void disable_actor_collision(ActorInstance /*i*/)
+	void actor_disable_collision(ActorInstance /*i*/)
 	{
 		CE_FATAL("Not implemented yet");
 	}
 
-	void set_actor_collision_filter(ActorInstance /*i*/, StringId32 /*filter*/)
+	void actor_set_collision_filter(ActorInstance /*i*/, StringId32 /*filter*/)
 	{
 		CE_FATAL("Not implemented yet");
 	}
 
-	void set_actor_kinematic(ActorInstance i, bool kinematic)
+	void actor_set_kinematic(ActorInstance i, bool kinematic)
 	{
 		if (kinematic)
 			_actor[i.i].actor->setCollisionFlags(_actor[i.i].actor->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 	}
 
-	void move_actor(ActorInstance i, const Vector3& pos)
+	void actor_move(ActorInstance i, const Vector3& pos)
 	{
-		if (!is_kinematic(i))
+		if (!actor_is_kinematic(i))
 			return;
 
 		_actor[i.i].actor->setLinearVelocity(to_btVector3(pos));
 	}
 
-	bool is_static(ActorInstance i) const
+	bool actor_is_static(ActorInstance i) const
 	{
 		return _actor[i.i].actor->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT;
 	}
 
-	bool is_dynamic(ActorInstance i) const
+	bool actor_is_dynamic(ActorInstance i) const
 	{
 		const int flags = _actor[i.i].actor->getCollisionFlags();
 		return !(flags & btCollisionObject::CF_STATIC_OBJECT)
@@ -602,15 +602,15 @@ public:
 			;
 	}
 
-	bool is_kinematic(ActorInstance i) const
+	bool actor_is_kinematic(ActorInstance i) const
 	{
 		const int flags = _actor[i.i].actor->getCollisionFlags();
 		return (flags & btCollisionObject::CF_KINEMATIC_OBJECT) != 0;
 	}
 
-	bool is_nonkinematic(ActorInstance i) const
+	bool actor_is_nonkinematic(ActorInstance i) const
 	{
-		return is_dynamic(i) && !is_kinematic(i);
+		return actor_is_dynamic(i) && !actor_is_kinematic(i);
 	}
 
 	f32 actor_linear_damping(ActorInstance i) const
@@ -618,7 +618,7 @@ public:
 		return _actor[i.i].actor->getLinearDamping();
 	}
 
-	void set_actor_linear_damping(ActorInstance i, f32 rate)
+	void actor_set_linear_damping(ActorInstance i, f32 rate)
 	{
 		_actor[i.i].actor->setDamping(rate, _actor[i.i].actor->getAngularDamping());
 	}
@@ -628,7 +628,7 @@ public:
 		return _actor[i.i].actor->getAngularDamping();
 	}
 
-	void set_actor_angular_damping(ActorInstance i, f32 rate)
+	void actor_set_angular_damping(ActorInstance i, f32 rate)
 	{
 		_actor[i.i].actor->setDamping(_actor[i.i].actor->getLinearDamping(), rate);
 	}
@@ -639,7 +639,7 @@ public:
 		return to_vector3(v);
 	}
 
-	void set_actor_linear_velocity(ActorInstance i, const Vector3& vel)
+	void actor_set_linear_velocity(ActorInstance i, const Vector3& vel)
 	{
 		_actor[i.i].actor->setLinearVelocity(to_btVector3(vel));
 	}
@@ -650,57 +650,57 @@ public:
 		return to_vector3(v);
 	}
 
-	void set_actor_angular_velocity(ActorInstance i, const Vector3& vel)
+	void actor_set_angular_velocity(ActorInstance i, const Vector3& vel)
 	{
 		_actor[i.i].actor->setAngularVelocity(to_btVector3(vel));
 	}
 
-	void add_actor_impulse(ActorInstance i, const Vector3& impulse)
+	void actor_add_impulse(ActorInstance i, const Vector3& impulse)
 	{
 		_actor[i.i].actor->activate();
 		_actor[i.i].actor->applyCentralImpulse(to_btVector3(impulse));
 	}
 
-	void add_actor_impulse_at(ActorInstance i, const Vector3& impulse, const Vector3& pos)
+	void actor_add_impulse_at(ActorInstance i, const Vector3& impulse, const Vector3& pos)
 	{
 		_actor[i.i].actor->activate();
 		_actor[i.i].actor->applyImpulse(to_btVector3(impulse), to_btVector3(pos));
 	}
 
-	void add_actor_torque_impulse(ActorInstance i, const Vector3& imp)
+	void actor_add_torque_impulse(ActorInstance i, const Vector3& imp)
 	{
 		_actor[i.i].actor->applyTorqueImpulse(to_btVector3(imp));
 	}
 
-	void push_actor(ActorInstance i, const Vector3& vel, f32 mass)
+	void actor_push(ActorInstance i, const Vector3& vel, f32 mass)
 	{
 		const Vector3 f = vel * mass;
 		_actor[i.i].actor->applyCentralForce(to_btVector3(f));
 	}
 
-	void push_actor_at(ActorInstance i, const Vector3& vel, f32 mass, const Vector3& pos)
+	void actor_push_at(ActorInstance i, const Vector3& vel, f32 mass, const Vector3& pos)
 	{
 		const Vector3 f = vel * mass;
 		_actor[i.i].actor->applyForce(to_btVector3(f), to_btVector3(pos));
 	}
 
-	bool is_sleeping(ActorInstance i)
+	bool actor_is_sleeping(ActorInstance i)
 	{
 		return !_actor[i.i].actor->isActive();
 	}
 
-	void wake_up(ActorInstance i)
+	void actor_wake_up(ActorInstance i)
 	{
 		_actor[i.i].actor->activate(true);
 	}
 
-	ControllerInstance create_controller(UnitId /*id*/,	const ControllerDesc& /*cd*/, const Matrix4x4& /*tm*/)
+	ControllerInstance controller_create(UnitId /*id*/,	const ControllerDesc& /*cd*/, const Matrix4x4& /*tm*/)
 	{
 		CE_FATAL("Not implemented yet");
 		return make_controller_instance(UINT32_MAX);
 	}
 
-	void destroy_controller(ControllerInstance /*i*/)
+	void controller_destroy(ControllerInstance /*i*/)
 	{
 		CE_FATAL("Not implemented yet");
 	}
@@ -710,41 +710,41 @@ public:
 		return make_controller_instance(hash_map::get(_controller_map, id, UINT32_MAX));
 	}
 
-	void move_controller(ControllerInstance i, const Vector3& dir)
+	void controller_move(ControllerInstance i, const Vector3& dir)
 	{
 		_controller[i.i].contr->setWalkDirection(to_btVector3(dir));
 	}
 
-	void set_height(ControllerInstance /*i*/, f32 /*height*/)
+	void controller_set_height(ControllerInstance /*i*/, f32 /*height*/)
 	{
 		CE_FATAL("Not implemented yet");
 	}
 
-	Vector3 position(ControllerInstance /*i*/) const
+	Vector3 controller_position(ControllerInstance /*i*/) const
 	{
 		CE_FATAL("Not implemented yet");
 		return VECTOR3_ZERO;
 	}
 
-	bool collides_up(ControllerInstance /*i*/) const
+	bool controller_collides_up(ControllerInstance /*i*/) const
 	{
 		CE_FATAL("Not implemented yet");
 		return false;
 	}
 
-	bool collides_down(ControllerInstance /*i*/) const
+	bool controller_collides_down(ControllerInstance /*i*/) const
 	{
 		CE_FATAL("Not implemented yet");
 		return false;
 	}
 
-	bool collides_sides(ControllerInstance /*i*/) const
+	bool controller_collides_sides(ControllerInstance /*i*/) const
 	{
 		CE_FATAL("Not implemented yet");
 		return false;
 	}
 
-	JointInstance create_joint(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
+	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
 	{
 		const btVector3 anchor_0 = to_btVector3(jd.anchor_0);
 		const btVector3 anchor_1 = to_btVector3(jd.anchor_1);
@@ -810,7 +810,7 @@ public:
 		return make_joint_instance(UINT32_MAX);
 	}
 
-	void destroy_joint(JointInstance /*i*/)
+	void joint_destroy(JointInstance /*i*/)
 	{
 		CE_FATAL("Not implemented yet");
 	}
@@ -998,17 +998,17 @@ public:
 		{
 			ActorInstance first = actor(id);
 			if (is_valid(first))
-				destroy_actor(first);
+				actor_destroy(first);
 		}
 
 		{
-			ColliderInstance curr = first_collider(id);
+			ColliderInstance curr = collider_first(id);
 			ColliderInstance next;
 
 			while (is_valid(curr))
 			{
-				next = next_collider(curr);
-				destroy_collider(curr);
+				next = collider_next(curr);
+				collider_destroy(curr);
 				curr = next;
 			}
 		}

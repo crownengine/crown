@@ -1975,7 +1975,7 @@ static int physics_world_actor_instances(lua_State* L)
 	if (inst.i == UINT32_MAX)
 		stack.push_nil();
 	else
-		stack.push_actor(inst);
+		stack.actor_push(inst);
 
 	return 1;
 }
@@ -2001,24 +2001,24 @@ static int physics_world_actor_world_pose(lua_State* L)
 	return 1;
 }
 
-static int physics_world_teleport_actor_world_position(lua_State* L)
+static int physics_world_actor_teleport_world_position(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->teleport_actor_world_position(stack.get_actor(2), stack.get_vector3(3));
+	stack.get_physics_world(1)->actor_teleport_world_position(stack.get_actor(2), stack.get_vector3(3));
 	return 0;
 }
 
-static int physics_world_teleport_actor_world_rotation(lua_State* L)
+static int physics_world_actor_teleport_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->teleport_actor_world_rotation(stack.get_actor(2), stack.get_quaternion(3));
+	stack.get_physics_world(1)->actor_teleport_world_rotation(stack.get_actor(2), stack.get_quaternion(3));
 	return 0;
 }
 
-static int physics_world_teleport_actor_world_pose(lua_State* L)
+static int physics_world_actor_teleport_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->teleport_actor_world_pose(stack.get_actor(2), stack.get_matrix4x4(3));
+	stack.get_physics_world(1)->actor_teleport_world_pose(stack.get_actor(2), stack.get_matrix4x4(3));
 	return 0;
 }
 
@@ -2029,80 +2029,80 @@ static int physics_world_actor_center_of_mass(lua_State* L)
 	return 1;
 }
 
-static int physics_world_enable_actor_gravity(lua_State* L)
+static int physics_world_actor_enable_gravity(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->enable_actor_gravity(stack.get_actor(2));
+	stack.get_physics_world(1)->actor_enable_gravity(stack.get_actor(2));
 	return 0;
 }
 
-static int physics_world_disable_actor_gravity(lua_State* L)
+static int physics_world_actor_disable_gravity(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->disable_actor_gravity(stack.get_actor(2));
+	stack.get_physics_world(1)->actor_disable_gravity(stack.get_actor(2));
 	return 0;
 }
 
-static int physics_world_enable_actor_collision(lua_State* L)
+static int physics_world_actor_enable_collision(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->enable_actor_collision(stack.get_actor(2));
+	stack.get_physics_world(1)->actor_enable_collision(stack.get_actor(2));
 	return 0;
 }
 
-static int physics_world_disable_actor_collision(lua_State* L)
+static int physics_world_actor_disable_collision(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->disable_actor_collision(stack.get_actor(2));
+	stack.get_physics_world(1)->actor_disable_collision(stack.get_actor(2));
 	return 0;
 }
 
-static int physics_world_set_actor_collision_filter(lua_State* L)
+static int physics_world_actor_set_collision_filter(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->set_actor_collision_filter(stack.get_actor(2), stack.get_string_id_32(3));
+	stack.get_physics_world(1)->actor_set_collision_filter(stack.get_actor(2), stack.get_string_id_32(3));
 	return 0;
 }
 
-static int physics_world_set_actor_kinematic(lua_State* L)
+static int physics_world_actor_set_kinematic(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->set_actor_kinematic(stack.get_actor(2), stack.get_bool(3));
+	stack.get_physics_world(1)->actor_set_kinematic(stack.get_actor(2), stack.get_bool(3));
 	return 0;
 }
 
-static int physics_world_move_actor(lua_State* L)
+static int physics_world_actor_move(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->move_actor(stack.get_actor(2), stack.get_vector3(3));
+	stack.get_physics_world(1)->actor_move(stack.get_actor(2), stack.get_vector3(3));
 	return 0;
 }
 
-static int physics_world_is_static(lua_State* L)
+static int physics_world_actor_is_static(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(stack.get_physics_world(1)->is_static(stack.get_actor(2)));
+	stack.push_bool(stack.get_physics_world(1)->actor_is_static(stack.get_actor(2)));
 	return 1;
 }
 
-static int physics_world_is_dynamic(lua_State* L)
+static int physics_world_actor_is_dynamic(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(stack.get_physics_world(1)->is_dynamic(stack.get_actor(2)));
+	stack.push_bool(stack.get_physics_world(1)->actor_is_dynamic(stack.get_actor(2)));
 	return 1;
 }
 
-static int physics_world_is_kinematic(lua_State* L)
+static int physics_world_actor_is_kinematic(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(stack.get_physics_world(1)->is_kinematic(stack.get_actor(2)));
+	stack.push_bool(stack.get_physics_world(1)->actor_is_kinematic(stack.get_actor(2)));
 	return 1;
 }
 
-static int physics_world_is_nonkinematic(lua_State* L)
+static int physics_world_actor_is_nonkinematic(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(stack.get_physics_world(1)->is_nonkinematic(stack.get_actor(2)));
+	stack.push_bool(stack.get_physics_world(1)->actor_is_nonkinematic(stack.get_actor(2)));
 	return 1;
 }
 
@@ -2114,10 +2114,10 @@ static int physics_world_actor_linear_damping(lua_State* L)
 	return 1;
 }
 
-static int physics_world_set_actor_linear_damping(lua_State* L)
+static int physics_world_actor_set_linear_damping(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->set_actor_linear_damping(stack.get_actor(2), stack.get_float(3));
+	stack.get_physics_world(1)->actor_set_linear_damping(stack.get_actor(2), stack.get_float(3));
 	return 0;
 }
 
@@ -2128,10 +2128,10 @@ static int physics_world_actor_angular_damping(lua_State* L)
 	return 1;
 }
 
-static int physics_world_set_actor_angular_damping(lua_State* L)
+static int physics_world_actor_set_angular_damping(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->set_actor_angular_damping(stack.get_actor(2), stack.get_float(3));
+	stack.get_physics_world(1)->actor_set_angular_damping(stack.get_actor(2), stack.get_float(3));
 	return 0;
 }
 
@@ -2142,10 +2142,10 @@ static int physics_world_actor_linear_velocity(lua_State* L)
 	return 1;
 }
 
-static int physics_world_set_actor_linear_velocity(lua_State* L)
+static int physics_world_actor_set_linear_velocity(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->set_actor_linear_velocity(stack.get_actor(2), stack.get_vector3(3));
+	stack.get_physics_world(1)->actor_set_linear_velocity(stack.get_actor(2), stack.get_vector3(3));
 	return 0;
 }
 
@@ -2156,59 +2156,59 @@ static int physics_world_actor_angular_velocity(lua_State* L)
 	return 1;
 }
 
-static int physics_world_set_actor_angular_velocity(lua_State* L)
+static int physics_world_actor_set_angular_velocity(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->set_actor_angular_velocity(stack.get_actor(2), stack.get_vector3(3));
+	stack.get_physics_world(1)->actor_set_angular_velocity(stack.get_actor(2), stack.get_vector3(3));
 	return 0;
 }
 
-static int physics_world_add_actor_impulse(lua_State* L)
+static int physics_world_actor_add_impulse(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->add_actor_impulse(stack.get_actor(2), stack.get_vector3(3));
+	stack.get_physics_world(1)->actor_add_impulse(stack.get_actor(2), stack.get_vector3(3));
 	return 0;
 }
 
-static int physics_world_add_actor_impulse_at(lua_State* L)
+static int physics_world_actor_add_impulse_at(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->add_actor_impulse_at(stack.get_actor(2), stack.get_vector3(3), stack.get_vector3(4));
+	stack.get_physics_world(1)->actor_add_impulse_at(stack.get_actor(2), stack.get_vector3(3), stack.get_vector3(4));
 	return 0;
 }
 
-static int physics_world_add_actor_torque_impulse(lua_State* L)
+static int physics_world_actor_add_actor_torque_impulse(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->add_actor_torque_impulse(stack.get_actor(2), stack.get_vector3(3));
+	stack.get_physics_world(1)->actor_add_torque_impulse(stack.get_actor(2), stack.get_vector3(3));
 	return 0;
 }
 
-static int physics_world_push_actor(lua_State* L)
+static int physics_world_actor_push(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->push_actor(stack.get_actor(2), stack.get_vector3(3), stack.get_float(4));
+	stack.get_physics_world(1)->actor_push(stack.get_actor(2), stack.get_vector3(3), stack.get_float(4));
 	return 0;
 }
 
-static int physics_world_push_actor_at(lua_State* L)
+static int physics_world_actor_push_at(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->push_actor_at(stack.get_actor(2), stack.get_vector3(3), stack.get_float(4), stack.get_vector3(5));
+	stack.get_physics_world(1)->actor_push_at(stack.get_actor(2), stack.get_vector3(3), stack.get_float(4), stack.get_vector3(5));
 	return 0;
 }
 
-static int physics_world_is_sleeping(lua_State* L)
+static int physics_world_actor_is_sleeping(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(stack.get_physics_world(1)->is_sleeping(stack.get_actor(2)));
+	stack.push_bool(stack.get_physics_world(1)->actor_is_sleeping(stack.get_actor(2)));
 	return 1;
 }
 
-static int physics_world_wake_up(lua_State* L)
+static int physics_world_actor_wake_up(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->wake_up(stack.get_actor(2));
+	stack.get_physics_world(1)->actor_wake_up(stack.get_actor(2));
 	return 0;
 }
 
@@ -2219,14 +2219,14 @@ static int physics_world_controller_instances(lua_State* L)
 	return 1;
 }
 
-static int physics_world_move_controller(lua_State* L)
+static int physics_world_controller_move(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_physics_world(1)->move_controller(stack.get_controller(2), stack.get_vector3(3));
+	stack.get_physics_world(1)->controller_move(stack.get_controller(2), stack.get_vector3(3));
 	return 0;
 }
 
-static int physics_world_create_joint(lua_State* L)
+static int physics_world_joint_create(lua_State* L)
 {
 	LuaStack stack(L);
 	JointDesc jd;
@@ -2238,7 +2238,7 @@ static int physics_world_create_joint(lua_State* L)
 	jd.hinge.lower_limit = -3.14f / 4.0f;
 	jd.hinge.upper_limit = 3.14f / 4.0f;
 	jd.hinge.bounciness = 12.0f;
-	stack.get_physics_world(1)->create_joint(stack.get_actor(2), stack.get_actor(3), jd);
+	stack.get_physics_world(1)->joint_create(stack.get_actor(2), stack.get_actor(3), jd);
 	return 0;
 }
 
@@ -2279,7 +2279,7 @@ static int physics_world_raycast(lua_State* L)
 	for (u32 i = 0; i < array::size(hits); ++i)
 	{
 		stack.push_key_begin(i+1);
-		stack.push_actor(hits[i].actor);
+		stack.actor_push(hits[i].actor);
 		stack.push_key_end();
 	}
 
@@ -3282,39 +3282,39 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("PhysicsWorld", "actor_world_position",          physics_world_actor_world_position);
 	env.add_module_function("PhysicsWorld", "actor_world_rotation",          physics_world_actor_world_rotation);
 	env.add_module_function("PhysicsWorld", "actor_world_pose",              physics_world_actor_world_pose);
-	env.add_module_function("PhysicsWorld", "teleport_actor_world_position", physics_world_teleport_actor_world_position);
-	env.add_module_function("PhysicsWorld", "teleport_actor_world_rotation", physics_world_teleport_actor_world_rotation);
-	env.add_module_function("PhysicsWorld", "teleport_actor_world_pose",     physics_world_teleport_actor_world_pose);
+	env.add_module_function("PhysicsWorld", "actor_teleport_world_position", physics_world_actor_teleport_world_position);
+	env.add_module_function("PhysicsWorld", "actor_teleport_world_rotation", physics_world_actor_teleport_world_rotation);
+	env.add_module_function("PhysicsWorld", "actor_teleport_world_pose",     physics_world_actor_teleport_world_pose);
 	env.add_module_function("PhysicsWorld", "actor_center_of_mass",          physics_world_actor_center_of_mass);
-	env.add_module_function("PhysicsWorld", "enable_actor_gravity",          physics_world_enable_actor_gravity);
-	env.add_module_function("PhysicsWorld", "disable_actor_gravity",         physics_world_disable_actor_gravity);
-	env.add_module_function("PhysicsWorld", "enable_actor_collision",        physics_world_enable_actor_collision);
-	env.add_module_function("PhysicsWorld", "disable_actor_collision",       physics_world_disable_actor_collision);
-	env.add_module_function("PhysicsWorld", "set_actor_collision_filter",    physics_world_set_actor_collision_filter);
-	env.add_module_function("PhysicsWorld", "set_actor_kinematic",           physics_world_set_actor_kinematic);
-	env.add_module_function("PhysicsWorld", "move_actor",                    physics_world_move_actor);
-	env.add_module_function("PhysicsWorld", "is_static",                     physics_world_is_static);
-	env.add_module_function("PhysicsWorld", "is_dynamic",                    physics_world_is_dynamic);
-	env.add_module_function("PhysicsWorld", "is_kinematic",                  physics_world_is_kinematic);
-	env.add_module_function("PhysicsWorld", "is_nonkinematic",               physics_world_is_nonkinematic);
+	env.add_module_function("PhysicsWorld", "actor_enable_gravity",          physics_world_actor_enable_gravity);
+	env.add_module_function("PhysicsWorld", "actor_disable_gravity",         physics_world_actor_disable_gravity);
+	env.add_module_function("PhysicsWorld", "actor_enable_collision",        physics_world_actor_enable_collision);
+	env.add_module_function("PhysicsWorld", "actor_disable_collision",       physics_world_actor_disable_collision);
+	env.add_module_function("PhysicsWorld", "actor_set_collision_filter",    physics_world_actor_set_collision_filter);
+	env.add_module_function("PhysicsWorld", "actor_set_kinematic",           physics_world_actor_set_kinematic);
+	env.add_module_function("PhysicsWorld", "actor_move",                    physics_world_actor_move);
+	env.add_module_function("PhysicsWorld", "actor_is_static",               physics_world_actor_is_static);
+	env.add_module_function("PhysicsWorld", "actor_is_dynamic",              physics_world_actor_is_dynamic);
+	env.add_module_function("PhysicsWorld", "actor_is_kinematic",            physics_world_actor_is_kinematic);
+	env.add_module_function("PhysicsWorld", "actor_is_nonkinematic",         physics_world_actor_is_nonkinematic);
 	env.add_module_function("PhysicsWorld", "actor_linear_damping",          physics_world_actor_linear_damping);
-	env.add_module_function("PhysicsWorld", "set_actor_linear_damping",      physics_world_set_actor_linear_damping);
+	env.add_module_function("PhysicsWorld", "actor_set_linear_damping",      physics_world_actor_set_linear_damping);
 	env.add_module_function("PhysicsWorld", "actor_angular_damping",         physics_world_actor_angular_damping);
-	env.add_module_function("PhysicsWorld", "set_actor_angular_damping",     physics_world_set_actor_angular_damping);
+	env.add_module_function("PhysicsWorld", "actor_set_angular_damping",     physics_world_actor_set_angular_damping);
 	env.add_module_function("PhysicsWorld", "actor_linear_velocity",         physics_world_actor_linear_velocity);
-	env.add_module_function("PhysicsWorld", "set_actor_linear_velocity",     physics_world_set_actor_linear_velocity);
+	env.add_module_function("PhysicsWorld", "actor_set_linear_velocity",     physics_world_actor_set_linear_velocity);
 	env.add_module_function("PhysicsWorld", "actor_angular_velocity",        physics_world_actor_angular_velocity);
-	env.add_module_function("PhysicsWorld", "set_actor_angular_velocity",    physics_world_set_actor_angular_velocity);
-	env.add_module_function("PhysicsWorld", "add_actor_impulse",             physics_world_add_actor_impulse);
-	env.add_module_function("PhysicsWorld", "add_actor_impulse_at",          physics_world_add_actor_impulse_at);
-	env.add_module_function("PhysicsWorld", "add_actor_torque_impulse",      physics_world_add_actor_torque_impulse);
-	env.add_module_function("PhysicsWorld", "push_actor",                    physics_world_push_actor);
-	env.add_module_function("PhysicsWorld", "push_actor_at",                 physics_world_push_actor_at);
-	env.add_module_function("PhysicsWorld", "is_sleeping",                   physics_world_is_sleeping);
-	env.add_module_function("PhysicsWorld", "wake_up",                       physics_world_wake_up);
+	env.add_module_function("PhysicsWorld", "actor_set_angular_velocity",    physics_world_actor_set_angular_velocity);
+	env.add_module_function("PhysicsWorld", "actor_add_impulse",             physics_world_actor_add_impulse);
+	env.add_module_function("PhysicsWorld", "actor_add_impulse_at",          physics_world_actor_add_impulse_at);
+	env.add_module_function("PhysicsWorld", "actor_add_actor_torque_impulse",physics_world_actor_add_actor_torque_impulse);
+	env.add_module_function("PhysicsWorld", "actor_push",                    physics_world_actor_push);
+	env.add_module_function("PhysicsWorld", "actor_push_at",                 physics_world_actor_push_at);
+	env.add_module_function("PhysicsWorld", "actor_is_sleeping",             physics_world_actor_is_sleeping);
+	env.add_module_function("PhysicsWorld", "actor_wake_up",                 physics_world_actor_wake_up);
 	env.add_module_function("PhysicsWorld", "controller_instances",          physics_world_controller_instances);
-	env.add_module_function("PhysicsWorld", "move_controller",               physics_world_move_controller);
-	env.add_module_function("PhysicsWorld", "create_joint",                  physics_world_create_joint);
+	env.add_module_function("PhysicsWorld", "controller_move",               physics_world_controller_move);
+	env.add_module_function("PhysicsWorld", "joint_create",                  physics_world_joint_create);
 	env.add_module_function("PhysicsWorld", "gravity",                       physics_world_gravity);
 	env.add_module_function("PhysicsWorld", "set_gravity",                   physics_world_set_gravity);
 	env.add_module_function("PhysicsWorld", "raycast",                       physics_world_raycast);

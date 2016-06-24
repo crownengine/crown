@@ -564,7 +564,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const ColliderDesc* cd = (const ColliderDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i)
 			{
-				physics_world->create_collider(unit_lookup[unit_index[i]], cd);
+				physics_world->collider_create(unit_lookup[unit_index[i]], cd);
 				cd = (ColliderDesc*)((char*)(cd + 1) + cd->size);
 			}
 		}
@@ -574,7 +574,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0; i < component->num_instances; ++i, ++ar)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
-				physics_world->create_actor(unit_lookup[unit_index[i]], ar, tm);
+				physics_world->actor_create(unit_lookup[unit_index[i]], ar, tm);
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_CONTROLLER)
@@ -583,7 +583,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
-				physics_world->create_controller(unit_lookup[unit_index[i]], *cd, tm);
+				physics_world->controller_create(unit_lookup[unit_index[i]], *cd, tm);
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_MESH_RENDERER)
