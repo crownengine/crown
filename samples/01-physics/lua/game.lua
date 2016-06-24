@@ -65,7 +65,7 @@ function update(dt)
 		local u1 = World.spawn_unit(wd, "sphere", pos)
 		Vector3.normalize(dir)
 		local a1 = PhysicsWorld.actor_instances(pw, u1)
-		PhysicsWorld.add_actor_impulse(pw, a1, dir * 500.0)
+		PhysicsWorld.actor_add_impulse(pw, a1, dir * 500.0)
 	end
 
 	-- Perform a raycast when middle mouse button is pressed
@@ -75,7 +75,7 @@ function update(dt)
 		local dir = Matrix4x4.z(SceneGraph.local_pose(sg, camera_transform))
 		local hits = PhysicsWorld.raycast(pw, pos, dir, 100, "closest")
 		if #hits > 0 then
-			PhysicsWorld.add_actor_impulse(pw, hits[1], dir * 400.0)
+			PhysicsWorld.actor_add_impulse(pw, hits[1], dir * 400.0)
 		end
 	end
 
