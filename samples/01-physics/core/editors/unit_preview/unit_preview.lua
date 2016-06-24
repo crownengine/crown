@@ -62,6 +62,6 @@ function UnitPreview:set_preview_unit(unit)
 
 	local actor = PhysicsWorld.actor_instances(self._pw, self._unit_id)
 	if actor then
-		PhysicsWorld.set_actor_kinematic(self._pw, actor, true)
+		PhysicsWorld.actor_set_kinematic(self._pw, actor, true)
 	end
 end

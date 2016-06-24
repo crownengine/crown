@@ -203,7 +203,7 @@ function UnitBox:init(world, id, unit_id, prefab)
 
 	local actor = PhysicsWorld.actor_instances(pw, unit_id)
 	if actor then
-		PhysicsWorld.set_actor_kinematic(pw, actor, true)
+		PhysicsWorld.actor_set_kinematic(pw, actor, true)
 	end
 end
 
