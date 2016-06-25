@@ -160,6 +160,15 @@ struct LuaStack
 		return StringId64(get_string(i));
 	}
 
+	DebugGui* get_debug_gui(int i)
+	{
+		DebugGui* p = (DebugGui*)get_pointer(i);
+#if !CROWN_RELEASE
+		check_type(i, p);
+#endif // !CROWN_RELEASE
+		return p;
+	}
+
 	DebugLine* get_debug_line(int i)
 	{
 		DebugLine* p = (DebugLine*)get_pointer(i);
@@ -296,11 +305,6 @@ struct LuaStack
 	SoundInstanceId get_sound_instance_id(int i)
 	{
 		return get_id(i);
-	}
-
-	DebugGui* get_debug_gui(int i)
-	{
-		return (DebugGui*)get_pointer(i);
 	}
 
 	Vector2 get_vector2(int i)
@@ -470,6 +474,11 @@ struct LuaStack
 		return lua_next(L, i);
 	}
 
+	void push_debug_gui(DebugGui* dg)
+	{
+		push_pointer(dg);
+	}
+
 	void push_debug_line(DebugLine* line)
 	{
 		push_pointer(line);
@@ -561,11 +570,6 @@ struct LuaStack
 		push_id(id);
 	}
 
-	void push_debug_gui(DebugGui* dg)
-	{
-		push_pointer(dg);
-	}
-
 	void push_vector2(const Vector2& v);
 	void push_vector3(const Vector3& v);
 	void push_matrix4x4(const Matrix4x4& m);
@@ -608,6 +612,12 @@ struct LuaStack
 	void check_temporary(int i, const Vector3* p);
 	void check_temporary(int i, const Quaternion* p);
 	void check_temporary(int i, const Matrix4x4* p);
+
+	void check_type(int i, const DebugGui* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != DEBUG_GUI_MARKER)
+			luaL_typerror(L, i, "DebugGui");
+	}
 
 	void check_type(int i, const DebugLine* p)
 	{

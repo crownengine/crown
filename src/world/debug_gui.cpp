@@ -19,7 +19,8 @@
 namespace crown
 {
 DebugGui::DebugGui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height)
-	: _resource_manager(&rm)
+	: _marker(DEBUG_GUI_MARKER)
+	, _resource_manager(&rm)
 	, _shader_manager(&sm)
 	, _material_manager(&mm)
 	, _width(width)
@@ -29,12 +30,17 @@ DebugGui::DebugGui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, 
 {
 	orthographic(_projection, 0, width, 0, height, -0.01f, 100.0f);
 
-	_pos_tex_col
-		.begin()
+	_pos_tex_col.begin()
 		.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
 		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
 		.add(bgfx::Attrib::Color0,    4, bgfx::AttribType::Uint8, true)
-		.end();
+		.end()
+		;
+}
+
+DebugGui::~DebugGui()
+{
+	_marker = 0;
 }
 
 Vector2 DebugGui::resolution() const

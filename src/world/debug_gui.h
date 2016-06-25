@@ -30,6 +30,8 @@ struct DebugGui
 		u16 b;
 	};
 
+	u32 _marker;
+
 	ResourceManager* _resource_manager;
 	ShaderManager* _shader_manager;
 	MaterialManager* _material_manager;
@@ -40,6 +42,7 @@ struct DebugGui
 	bgfx::VertexDecl _pos_tex_col;
 
 	DebugGui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height);
+	~DebugGui();
 
 	Vector2 resolution() const;
 	void move(const Vector2& pos);

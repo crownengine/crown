@@ -29,6 +29,7 @@ struct SceneGraph;
 typedef u32 SoundInstanceId;
 
 const u32 DEBUG_LINE_MARKER       = 0xd7c17715;
+const u32 DEBUG_GUI_MARKER        = 0xf081a80a;
 const u32 LEVEL_MARKER            = 0x1f2b43fe;
 const u32 RENDER_WORLD_MARKER     = 0xc82277de;
 const u32 RESOURCE_PACKAGE_MARKER = 0x9a1ac68c;
