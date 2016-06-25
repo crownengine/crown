@@ -5,6 +5,7 @@
 
 local CROWN_DIR = (path.getabsolute("..") .. "/")
 local CROWN_BUILD_DIR = (CROWN_DIR .. "build/")
+local CROWN_TOOLS_DIR = (CROWN_BUILD_DIR .. "tools/")
 
 solution "tools"
 	language "Vala"
@@ -14,8 +15,8 @@ solution "tools"
 		"release",
 	}
 
-	location(CROWN_BUILD_DIR .. "projects/")
-	targetdir(CROWN_BUILD_DIR .. "tools")
+	location(CROWN_TOOLS_DIR .. "projects/")
+	targetdir(CROWN_TOOLS_DIR)
 
 	configuration { "debug" }
 		targetsuffix "-debug"

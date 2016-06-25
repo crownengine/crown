@@ -56,10 +56,10 @@ engine-windows-release64: engine-windows-build
 tools-build:
 	$(GENIE) --file=scripts/tools.lua gmake
 tools-linux-debug64: tools-build engine-linux-development64
-	make -R -C build/projects config=debug
+	make -R -C build/tools/projects config=debug
 	cp -r tools/ui build/tools
 tools-linux-release64: tools-build engine-linux-development64
-	make -R -C build/projects config=release
+	make -R -C build/tools/projects config=release
 	cp -r tools/ui build/tools
 
 .PHONY: docs
