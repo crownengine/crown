@@ -13,11 +13,6 @@ namespace crown
 {
 static void help(const char* msg = NULL)
 {
-	if (msg)
-	{
-		CE_LOGE("Error: %s\n", msg);
-	}
-
 	CE_LOGI(
 		"The Flexible Game Engine\n"
 		"Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.\n"
@@ -45,6 +40,9 @@ static void help(const char* msg = NULL)
 		"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
 		"  --server                   Run the engine in server mode.\n"
 	);
+
+	if (msg)
+		CE_LOGE("Error: %s", msg);
 }
 
 DeviceOptions::DeviceOptions(int argc, const char** argv)
