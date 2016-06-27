@@ -79,13 +79,6 @@ To run a sample on 64-bit linux development mode:
     $ cd build/engine/linux64/bin
 	$ ./linux-development-64 --source-dir <path> --bundle-dir <path> --compile --platform linux --continue
 
-Support
--------
-
-I'm an independent developer and your contributions are invaluable to me. If you like the work I do, please consider supporting Crown development by means of a small contribution. I'm also available for hire to work on or with Crown or somewhat related technologies/projects.
-
-[![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
-
 Contact
 -------
 
