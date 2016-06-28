@@ -2,12 +2,12 @@ require "core/editors/level_editor/camera"
 require "core/editors/level_editor/class"
 
 Colors = {
-	grid          = function() return Color4(0.4, 0.4, 0.4, 1.0) end,
-	grid_disabled = function() return Color4(0.4, 0.4, 0.4, 0.4) end,
-	axis_x        = function() return Color4(0.85, 0, 0, 1.0) end,
-	axis_y        = function() return Color4(0, 0.85, 0, 1.0) end,
-	axis_z        = function() return Color4(0, 0, 0.85, 1.0) end,
-	axis_selected = function() return Color4(0.85, 0.85, 0, 1.0) end,
+	grid          = function() return Color4(102, 102, 102, 255) end,
+	grid_disabled = function() return Color4(102, 102, 102, 102) end,
+	axis_x        = function() return Color4(217,   0,   0, 255) end,
+	axis_y        = function() return Color4(  0, 217,   0, 255) end,
+	axis_z        = function() return Color4(  0,   0, 217, 255) end,
+	axis_selected = function() return Color4(217, 217,   0, 255) end,
 }
 
 function log(msg)
@@ -59,7 +59,7 @@ function draw_grid(lines, tm, center, size, axis, color)
 	end
 
 	local cr, cg, cb, ca = Quaternion.elements(color)
-	local color_transparent = Color4(cr, cg, cb, 0)
+	local color_transparent = Quaternion.from_elements(cr, cg, cb, 0)
 
 	for i = -10, 10 do
 		local abs_i = math.abs(i)

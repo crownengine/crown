@@ -924,12 +924,11 @@ static int quaternionbox_tostring(lua_State* L)
 static int color4_ctor(lua_State* L)
 {
 	LuaStack stack(L);
-	Color4 c;
-	c.x = stack.get_float(1 + 1);
-	c.y = stack.get_float(2 + 1);
-	c.z = stack.get_float(3 + 1);
-	c.w = stack.get_float(4 + 1);
-	stack.push_color4(c);
+	u8 r = (u8)stack.get_int(1 + 1);
+	u8 g = (u8)stack.get_int(2 + 1);
+	u8 b = (u8)stack.get_int(3 + 1);
+	u8 a = (u8)stack.get_int(4 + 1);
+	stack.push_color4(from_rgba(r, g, b, a));
 	return 1;
 }
 
