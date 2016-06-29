@@ -47,7 +47,7 @@ Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 	$ export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	$ export ANDROID_NDK_ARM=<path/to/android_ndk_arm>
 	
-### Linux (Ubuntu 14.04)
+### Linux (Ubuntu >= 16.04)
 
     $ sudo add-apt-repository ppa:vala-team
     $ sudo apt-get install libgtk-3-dev valac libgee-0.8-dev
