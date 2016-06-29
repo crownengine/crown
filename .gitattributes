@@ -15,6 +15,7 @@
 *.rb   eol=lf
 *.py   eol=lf
 *.java eol=lf
+*.vala eol=lf
 makefile eol=lf
 
 *.sln     text eol=crlf
