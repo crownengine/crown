@@ -90,6 +90,7 @@ Contributors
 
 In chronological order.
 
+Daniele Bartolini ([@taylor001](https://github.com/taylor001))  
 Simone Boscaratto ([@Xed89](https://github.com/Xed89))  
 Michele Rossi ([@mikymod](https://github.com/mikymod))  
 Michela Iacchelli - Pepper logo.
