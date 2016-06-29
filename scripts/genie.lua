@@ -29,11 +29,6 @@ newoption {
 }
 
 newoption {
-	trigger = "with-physx",
-	description = "Build with PhysX support."
-}
-
-newoption {
 	trigger = "with-tools",
 	description = "Build with tools."
 }
@@ -89,23 +84,11 @@ configuration { "x32", "linux-*" }
 		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit "              .. CROWN_ENGINE_DIR .. "linux32/bin",
 	}
 
-	if _OPTIONS["with-physx"] then
-		postbuildcommands {
-			"cp -r " .. "$(PHYSX_SDK_LINUX)/Bin/linux32/libPhysX3* " .. CROWN_ENGINE_DIR .. "linux32/bin",
-		}
-	end
-
 configuration { "x64", "linux-*" }
 	postbuildcommands {
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x64/luajit " .. CROWN_ENGINE_DIR .. "linux64/bin",
 		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit "              .. CROWN_ENGINE_DIR .. "linux64/bin",
 	}
-
-	if _OPTIONS["with-physx"] then
-		postbuildcommands {
-			"cp -r " .. "$(PHYSX_SDK_LINUX)/Bin/linux64/libPhysX3* " .. CROWN_ENGINE_DIR .. "linux64/bin",
-		}
-	end
 
 configuration { "x32", "vs*" }
 	postbuildcommands {
@@ -116,13 +99,6 @@ configuration { "x32", "vs*" }
 		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit "                .. CROWN_ENGINE_DIR .. "win32/bin",
 	}
 
-	if _OPTIONS["with-physx"] then
-		postbuildcommands {
-			"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/PhysX3* "            .. CROWN_ENGINE_DIR .. "win32/bin",
-			"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win32/nvToolsExt32_1.dll " .. CROWN_ENGINE_DIR .. "win32/bin",
-		}
-	end
-
 configuration { "x64", "vs*" }
 	postbuildcommands {
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/luajit.exe " .. CROWN_ENGINE_DIR .. "win64/bin",
@@ -131,10 +107,3 @@ configuration { "x64", "vs*" }
 		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.dll "  .. CROWN_ENGINE_DIR .. "win64/bin",
 		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit "                .. CROWN_ENGINE_DIR .. "win64/bin",
 	}
-
-	if _OPTIONS["with-physx"] then
-		postbuildcommands {
-			"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/PhysX3* "            .. CROWN_ENGINE_DIR .. "win64/bin",
-			"cp    " .. "$(PHYSX_SDK_WINDOWS)/bin/win64/nvToolsExt64_1.dll " .. CROWN_ENGINE_DIR .. "win64/bin",
-		}
-	end
