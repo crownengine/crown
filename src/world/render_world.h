@@ -43,6 +43,8 @@ public:
 	/// Returns the OBB of the mesh @a i.
 	OBB mesh_obb(MeshInstance i);
 
+	/// Returns the distance along ray (from, dir) to intersection point with mesh @a i
+	/// or -1.0 if no intersection.
 	f32 mesh_raycast(MeshInstance i, const Vector3& from, const Vector3& dir);
 
 	/// Creates a new sprite instance.
