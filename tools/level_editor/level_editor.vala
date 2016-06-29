@@ -96,6 +96,7 @@ namespace Crown
 			{ "open",                 null,  "Open",             "<ctrl>O",        null, on_open             },
 			{ "save",                 null,  "Save",             "<ctrl>S",        null, on_save             },
 			{ "save-as",              null,  "Save As...",       null,             null, on_save_as          },
+			{ "preferences",          null,  "Preferences",      null,             null, on_preferences      },
 			{ "quit",                 null,  "Quit",             "<ctrl>Q",        null, on_quit             },
 			{ "menu-edit",            null,  "_Edit",            null,             null, null                },
 			{ "undo",                 null,  "Undo",             "<ctrl>Z",        null, on_undo             },
@@ -847,6 +848,10 @@ namespace Crown
 		private void on_save_as(Gtk.Action action)
 		{
 			save_as();
+		}
+
+		private void on_preferences(Gtk.Action action)
+		{
 		}
 
 		private void on_quit(Gtk.Action action)
