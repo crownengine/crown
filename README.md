@@ -88,11 +88,12 @@ Project page: https://github.com/taylor001/crown
 Contributors
 ------------
 
-In alphabetical order.
+In chronological order.
 
-Michela Iacchelli - Pepper logo.  
+Daniele Bartolini ([@taylor001](https://github.com/taylor001))  
+Simone Boscaratto ([@Xed89](https://github.com/Xed89))  
 Michele Rossi ([@mikymod](https://github.com/mikymod))  
-Simone Boscaratto ([@Xed89](https://github.com/Xed89))
+Michela Iacchelli - Pepper logo.
 
 License (Engine)
 ----------------
