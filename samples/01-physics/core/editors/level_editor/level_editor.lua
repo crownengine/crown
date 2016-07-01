@@ -295,6 +295,14 @@ function UnitBox:raycast(pos, dir)
 	return RenderWorld.mesh_raycast(rw, meshes[1], pos, dir)
 end
 
+function UnitBox:draw()
+	-- Draw lights
+	local lights = RenderWorld.light_instances(LevelEditor._rw, self._unit_id)
+	if lights ~= nil then
+		RenderWorld.light_debug_draw(LevelEditor._rw, lights, LevelEditor._lines)
+	end
+end
+
 SoundObject = class(SoundObject)
 
 function SoundObject:init(world, id, name, range, volume, loop)
@@ -396,6 +404,9 @@ function SoundObject:raycast(pos, dir)
 	local pose = self:world_pose()
 	-- return Math.ray_obb_intersection(pos, dir, Matrix4x4.multiply(tm, pose), hext)
 	return RenderWorld.mesh_raycast(rw, meshes[1], pos, dir)
+end
+
+function SoundObject:draw()
 end
 
 SelectTool = class(SelectTool)
@@ -1258,6 +1269,11 @@ function LevelEditor:update(dt)
 
 	if self._show_grid then
 		draw_world_origin_grid(self._lines, 10, self._grid.size)
+	end
+
+	-- Draw level objects
+	for k, v in pairs(self._objects) do
+		self._objects[k]:draw()
 	end
 
 	DebugLine.submit(self._lines_no_depth)
