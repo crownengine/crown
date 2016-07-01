@@ -1872,7 +1872,13 @@ static int render_world_light_destroy(lua_State* L)
 static int render_world_light_instances(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_light_instance(stack.get_render_world(1)->light(stack.get_unit(2)));
+	LightInstance inst = stack.get_render_world(1)->light(stack.get_unit(2));
+
+	if (inst.i == UINT32_MAX)
+		stack.push_nil();
+	else
+		stack.push_light_instance(inst);
+
 	return 1;
 }
 
