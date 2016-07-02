@@ -149,14 +149,19 @@ static void console_command_script(void* /*data*/, ConsoleServer& /*cs*/, TCPSoc
 	device()->lua_environment()->execute_string(script.c_str());
 }
 
-static void console_command_reload(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
+static void console_command_reload(void* data, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
-	StringId64 type = sjson::parse_resource_id(obj["resource_type"]);
-	StringId64 name = sjson::parse_resource_id(obj["resource_name"]);
- 	device()->reload(type, name);
+
+	DynamicString type(ta);
+	DynamicString name(ta);
+	sjson::parse_string(obj["resource_type"], type);
+	sjson::parse_string(obj["resource_name"], name);
+	CE_LOGI("Reloading resource '%s.%s'", name.c_str(), type.c_str());
+	((Device*)data)->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
+	CE_LOGI("Reloaded resource '%s.%s'", name.c_str(), type.c_str());
 }
 
 static void console_command_pause(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/)
@@ -189,8 +194,9 @@ static void console_command_compile(void* data, ConsoleServer& cs, TCPSocket cli
 		cs.send(client, string_stream::c_str(ss));
 	}
 
-	BundleCompiler* bc = (BundleCompiler*)data;
-	bool succ = bc->compile(bundle_dir.c_str(), platform.c_str());
+	CE_LOGI("Compiling '%s'", id.c_str());
+	bool succ = ((BundleCompiler*)data)->compile(bundle_dir.c_str(), platform.c_str());
+	CE_LOGI("Compiled '%s'", id.c_str());
 
 	{
 		TempAllocator512 ta;
@@ -432,7 +438,7 @@ void Device::run()
 #endif // CROWN_PLATFORM_ANDROID
 
 		_console_server->register_command(StringId32("script"), console_command_script, NULL);
-		_console_server->register_command(StringId32("reload"), console_command_reload, NULL);
+		_console_server->register_command(StringId32("reload"), console_command_reload, this);
 		_console_server->register_command(StringId32("pause"), console_command_pause, NULL);
 		_console_server->register_command(StringId32("unpause"), console_command_unpause, NULL);
 		_console_server->listen(_device_options._console_port, _device_options._wait_console);
