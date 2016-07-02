@@ -11,6 +11,15 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
   * [Lua API](http://taylor001.github.io/crown/lua_api.html)  
   * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
 
+##Download
+
+### Linux (Tarball)
+[pepper-0.0.23-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.23/pepper-0.0.23-linux-x64.tar.gz)
+
+### ArchLinux
+
+	$ yaourt -S pepper
+
 ##Screenshots
 
 ###[Level Editor](https://github.com/taylor001/crown/tree/master/tools/level_editor)
@@ -27,14 +36,6 @@ Engine initialization and shutdown.
 
 ###[01-physics](https://github.com/taylor001/crown/tree/master/samples/01-physics)
 ![01-physics](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/01-physics.png)
-
-##Download
-
-Linux: [pepper-0.0.23-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.23/pepper-0.0.23-linux-x64.tar.gz)
-
-### ArchLinux
-
-	$ yaourt -S pepper && pepper
 
 ##Building
 
