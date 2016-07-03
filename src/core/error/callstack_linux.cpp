@@ -64,7 +64,7 @@ namespace error
 				char line[256];
 				memset(line, 0, sizeof(line));
 
-				CE_LOGE("\t[%2d] %s: (%s)+%s in %s"
+				loge("\t[%2d] %s: (%s)+%s in %s"
 					, i
 					, msg
 					, (demangle_ok == 0 ? real_name : mangled_name)
@@ -77,7 +77,7 @@ namespace error
 			// otherwise, print the whole line
 			else
 			{
-				CE_LOGE("\t[%2d] %s", i, msg);
+				loge("\t[%2d] %s", i, msg);
 			}
 		}
 		free(messages);

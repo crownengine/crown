@@ -14,8 +14,8 @@ namespace error
 {
 	static void abort(const char* file, int line, const char* format, va_list args)
 	{
-		CE_LOGEV(format, args);
-		CE_LOGE("\tIn: %s:%d\n\nStacktrace:", file, line);
+		logev(format, args);
+		loge("\tIn: %s:%d\n\nStacktrace:", file, line);
 		print_callstack();
 		exit(EXIT_FAILURE);
 	}

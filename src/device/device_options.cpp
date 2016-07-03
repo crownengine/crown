@@ -13,7 +13,7 @@ namespace crown
 {
 static void help(const char* msg = NULL)
 {
-	CE_LOGI(
+	logi(
 		"The Flexible Game Engine\n"
 		"Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.\n"
 		"License: https://github.com/taylor001/crown/blob/master/LICENSE\n"
@@ -42,7 +42,7 @@ static void help(const char* msg = NULL)
 	);
 
 	if (msg)
-		CE_LOGE("Error: %s", msg);
+		loge("Error: %s", msg);
 }
 
 DeviceOptions::DeviceOptions(int argc, const char** argv)
@@ -77,7 +77,7 @@ int DeviceOptions::parse()
 
 	if (cl.has_argument("version", 'v'))
 	{
-		CE_LOGI(CROWN_VERSION);
+		logi(CROWN_VERSION);
 		return EXIT_FAILURE;
 	}
 

@@ -76,7 +76,7 @@ struct BgfxCallback : public bgfx::CallbackI
 		char buf[2048];
 		strncpy(buf, _format, sizeof(buf));
 		buf[strlen32(buf)-1] = '\0'; // Remove trailing newline
-		CE_LOGDV(buf, _argList);
+		logdv(buf, _argList);
 	}
 
 	virtual u32 cacheReadSize(u64 /*_id*/)
@@ -159,9 +159,9 @@ static void console_command_reload(void* data, ConsoleServer& /*cs*/, TCPSocket 
 	DynamicString name(ta);
 	sjson::parse_string(obj["resource_type"], type);
 	sjson::parse_string(obj["resource_name"], name);
-	CE_LOGI("Reloading resource '%s.%s'", name.c_str(), type.c_str());
+	logi("Reloading resource '%s.%s'", name.c_str(), type.c_str());
 	((Device*)data)->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
-	CE_LOGI("Reloaded resource '%s.%s'", name.c_str(), type.c_str());
+	logi("Reloaded resource '%s.%s'", name.c_str(), type.c_str());
 }
 
 static void console_command_pause(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/)
@@ -194,9 +194,9 @@ static void console_command_compile(void* data, ConsoleServer& cs, TCPSocket cli
 		cs.send(client, string_stream::c_str(ss));
 	}
 
-	CE_LOGI("Compiling '%s'", id.c_str());
+	logi("Compiling '%s'", id.c_str());
 	bool succ = ((BundleCompiler*)data)->compile(bundle_dir.c_str(), platform.c_str());
-	CE_LOGI("Compiled '%s'", id.c_str());
+	logi("Compiled '%s'", id.c_str());
 
 	{
 		TempAllocator512 ta;
@@ -443,7 +443,7 @@ void Device::run()
 		_console_server->register_command(StringId32("unpause"), console_command_unpause, NULL);
 		_console_server->listen(_device_options._console_port, _device_options._wait_console);
 
-		CE_LOGI("Initializing Crown Engine %s...", version());
+		logi("Initializing Crown Engine %s...", version());
 
 		profiler_globals::init();
 
@@ -551,7 +551,7 @@ void Device::run()
 		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, boot_script_name));
 		_lua_environment->call_global("init", 0);
 
-		CE_LOGD("Engine initialized");
+		logd("Engine initialized");
 
 		s16 mouse_x = 0;
 		s16 mouse_y = 0;
@@ -653,13 +653,13 @@ void Device::quit()
 void Device::pause()
 {
 	_paused = true;
-	CE_LOGI("Engine paused.");
+	logi("Engine paused.");
 }
 
 void Device::unpause()
 {
 	_paused = false;
-	CE_LOGI("Engine unpaused.");
+	logi("Engine unpaused.");
 }
 
 void Device::resolution(u16& width, u16& height)

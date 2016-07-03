@@ -32,11 +32,11 @@ namespace log_internal
 } // namespace log_internal
 } // namespace crown
 
-#define CE_LOGIV(msg, va_list) crown::log_internal::logx(crown::LogSeverity::INFO, msg, va_list)
-#define CE_LOGDV(msg, va_list) crown::log_internal::logx(crown::LogSeverity::DEBUG, msg, va_list)
-#define CE_LOGEV(msg, va_list) crown::log_internal::logx(crown::LogSeverity::ERROR, msg, va_list)
-#define CE_LOGWV(msg, va_list) crown::log_internal::logx(crown::LogSeverity::WARN, msg, va_list)
-#define CE_LOGI(msg, ...) crown::log_internal::logx(crown::LogSeverity::INFO, msg, ##__VA_ARGS__)
-#define CE_LOGD(msg, ...) crown::log_internal::logx(crown::LogSeverity::DEBUG, msg, ##__VA_ARGS__)
-#define CE_LOGE(msg, ...) crown::log_internal::logx(crown::LogSeverity::ERROR, msg, ##__VA_ARGS__)
-#define CE_LOGW(msg, ...) crown::log_internal::logx(crown::LogSeverity::WARN, msg, ##__VA_ARGS__)
+#define logiv(msg, va_list) crown::log_internal::logx(crown::LogSeverity::INFO, msg, va_list)
+#define logdv(msg, va_list) crown::log_internal::logx(crown::LogSeverity::DEBUG, msg, va_list)
+#define logev(msg, va_list) crown::log_internal::logx(crown::LogSeverity::ERROR, msg, va_list)
+#define logwv(msg, va_list) crown::log_internal::logx(crown::LogSeverity::WARN, msg, va_list)
+#define logi(msg, ...) crown::log_internal::logx(crown::LogSeverity::INFO, msg, ##__VA_ARGS__)
+#define logd(msg, ...) crown::log_internal::logx(crown::LogSeverity::DEBUG, msg, ##__VA_ARGS__)
+#define loge(msg, ...) crown::log_internal::logx(crown::LogSeverity::ERROR, msg, ##__VA_ARGS__)
+#define logw(msg, ...) crown::log_internal::logx(crown::LogSeverity::WARN, msg, ##__VA_ARGS__)

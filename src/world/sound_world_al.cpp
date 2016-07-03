@@ -57,9 +57,9 @@ namespace audio_globals
 
 		AL_CHECK(alcMakeContextCurrent(s_al_context));
 
-		CE_LOGD("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
-		CE_LOGD("OpenAL Version  : %s", alGetString(AL_VERSION));
-		CE_LOGD("OpenAL Renderer : %s", alGetString(AL_RENDERER));
+		logd("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
+		logd("OpenAL Version  : %s", alGetString(AL_VERSION));
+		logd("OpenAL Renderer : %s", alGetString(AL_RENDERER));
 
 		AL_CHECK(alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED));
 		AL_CHECK(alDopplerFactor(1.0f));

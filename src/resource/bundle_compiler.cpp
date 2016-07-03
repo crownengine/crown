@@ -164,7 +164,7 @@ bool BundleCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const 
 
 	path::join(CROWN_DATA_DIRECTORY, dst_path.c_str(), path);
 
-	CE_LOGI("%s <= %s", dst_path.c_str(), src_path.c_str());
+	logi("%s <= %s", dst_path.c_str(), src_path.c_str());
 
 	bool success = true;
 	jmp_buf buf;

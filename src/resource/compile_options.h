@@ -50,7 +50,7 @@ public:
 
 	void error(const char* msg, va_list args)
 	{
-		CE_LOGEV(msg, args);
+		logev(msg, args);
 		longjmp(*_jmpbuf, 1);
 	}
 

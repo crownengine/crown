@@ -29,7 +29,7 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view) const
 		sampler.idx = th->sampler_handle;
 		texture.idx = teximg->handle.idx;
 
-		bgfx::setTexture(i, sampler, texture);
+		bgfx::setTexture(i, sampler, texture, BGFX_TEXTURE_MIN_POINT | BGFX_TEXTURE_MAG_POINT);
 	}
 
 	// Set uniforms

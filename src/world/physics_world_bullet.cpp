@@ -126,7 +126,7 @@ public:
 
 	void reportErrorWarning(const char* warningString)
 	{
-		CE_LOGW(warningString);
+		logw(warningString);
 	}
 
 	void draw3dText(const btVector3& /*location*/, const char* /*textString*/)
