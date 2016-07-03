@@ -1,4 +1,4 @@
-The flexible game engine. [![Build Status](https://travis-ci.org/taylor001/crown.svg?branch=master)](https://travis-ci.org/taylor001/crown) [![Build status](https://ci.appveyor.com/api/projects/status/dabkwdxjr456hl52?svg=true)](https://ci.appveyor.com/project/taylor001/crown) [![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
+The flexible game engine. [![Build Status](https://travis-ci.org/taylor001/crown.svg?branch=master)](https://travis-ci.org/taylor001/crown) [![Build status](https://ci.appveyor.com/api/projects/status/dabkwdxjr456hl52?svg=true)](https://ci.appveyor.com/project/taylor001/crown) [![Join the chat at https://gitter.im/taylor001/crown](https://badges.gitter.im/taylor001/crown.svg)](https://gitter.im/taylor001/crown?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6FQMPUQQ8KQKW)
 =====================================
 
 Crown is a general purpose data-driven game engine, written from scratch in [orthodox C++](https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b) with a minimalistic and data-oriented design philosophy in mind.
@@ -10,6 +10,15 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
   * [Manual](http://taylor001.github.io/crown/manual.html)  
   * [Lua API](http://taylor001.github.io/crown/lua_api.html)  
   * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
+
+##Download
+
+### Linux (Tarball)
+[pepper-0.0.23-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.23/pepper-0.0.23-linux-x64.tar.gz)
+
+### ArchLinux
+
+	$ yaourt -S pepper
 
 ##Screenshots
 
@@ -27,14 +36,6 @@ Engine initialization and shutdown.
 
 ###[01-physics](https://github.com/taylor001/crown/tree/master/samples/01-physics)
 ![01-physics](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/01-physics.png)
-
-##Download
-
-Linux: [pepper-0.0.23-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.23/pepper-0.0.23-linux-x64.tar.gz)
-
-### ArchLinux
-
-	$ yaourt -S pepper && pepper
 
 ##Building
 
