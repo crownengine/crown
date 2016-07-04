@@ -409,7 +409,6 @@ void Device::run()
 		}
 		else
 		{
-			const char* source_dir = _device_options._source_dir;
 			const char* bundle_dir = _device_options._bundle_dir;
 			const char* platform = _device_options._platform;
 			do_continue = _bundle_compiler->compile(bundle_dir, platform);
@@ -755,7 +754,6 @@ void Device::destroy_resource_package(ResourcePackage& rp)
 
 void Device::reload(StringId64 type, StringId64 name)
 {
-	const void* old_resource = _resource_manager->get(type, name);
 	_resource_manager->reload(type, name);
 	const void* new_resource = _resource_manager->get(type, name);
 
