@@ -566,7 +566,7 @@ void Device::run()
 			curr_time = os::clocktime();
 			const s64 time = curr_time - last_time;
 			last_time = curr_time;
-			const f64 freq = (f64) os::clockfrequency();
+			const f64 freq = (f64)os::clockfrequency();
 			_last_delta_time = f32(time * (1.0 / freq));
 			_time_since_start += _last_delta_time;
 
