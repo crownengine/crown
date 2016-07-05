@@ -192,11 +192,25 @@ namespace Crown
 			_near_range = new SpinButtonDouble(0.0, 0.001, 9999.0);
 			_far_range  = new SpinButtonDouble(0.0, 0.001, 9999.0);
 
+			_projection.value_changed.connect(on_value_changed);
+			_fov.value_changed.connect(on_value_changed);
+			_near_range.value_changed.connect(on_value_changed);
+			_far_range.value_changed.connect(on_value_changed);
+
 			uint row = 0;
 			attach_row(row++, "Projection", _projection);
 			attach_row(row++, "FOV", _fov);
 			attach_row(row++, "Near Range", _near_range);
 			attach_row(row++, "Far Range", _far_range);
+		}
+
+		private void on_value_changed()
+		{
+			_level.set_component_property(_unit_id, _component_id, "data.projection", _projection.value);
+			_level.set_component_property(_unit_id, _component_id, "data.fov",        _fov.value);
+			_level.set_component_property(_unit_id, _component_id, "data.near_range", _near_range.value);
+			_level.set_component_property(_unit_id, _component_id, "data.far_range",  _far_range.value);
+			_level.set_component_property(_unit_id, _component_id, "type", "camera");
 		}
 
 		public override void update()
@@ -206,7 +220,8 @@ namespace Crown
 			double near_range = (double)_level.get_component_property(_unit_id, _component_id, "data.near_range");
 			double far_range  = (double)_level.get_component_property(_unit_id, _component_id, "data.far_range");
 
-			_fov.value        = MathUtils.deg(fov);
+			_projection.value = type;
+			_fov.value        = fov;
 			_near_range.value = near_range;
 			_far_range.value  = far_range;
 		}
