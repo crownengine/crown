@@ -196,7 +196,11 @@ static void console_command_compile(void* data, ConsoleServer& cs, TCPSocket cli
 
 	logi("Compiling '%s'", id.c_str());
 	bool succ = ((BundleCompiler*)data)->compile(bundle_dir.c_str(), platform.c_str());
-	logi("Compiled '%s'", id.c_str());
+
+	if (succ)
+		logi("Compiled '%s'", id.c_str());
+	else
+		loge("Error while compiling '%s'", id.c_str());
 
 	{
 		TempAllocator512 ta;
