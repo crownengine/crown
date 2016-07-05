@@ -64,6 +64,7 @@ namespace Crown
 		private Database _db;
 		private Level _level;
 		private string _level_filename;
+		private ResourceCompiler _resource_compiler;
 
 		// Widgets
 		private StartingCompiler _starting_compiler;
@@ -219,6 +220,7 @@ namespace Crown
 			_db = new Database();
 			_level = new Level(_db, _engine, _source_dir);
 			_level_filename = null;
+			_resource_compiler = new ResourceCompiler(_compiler);
 
 			// Widgets
 			_console_view = new ConsoleView(_engine);
@@ -388,30 +390,11 @@ namespace Crown
 
 					if (msg.has_key("start"))
 					{
+						// FIXME
 					}
 					else if (msg.has_key("success"))
 					{
-						if (_engine_view == null)
-						{
-							_engine_view = new EngineView(_engine);
-							_engine_view.realized.connect(on_engine_view_realized);
-							_engine_view.button_press_event.connect(on_button_press);
-							_engine_view.button_release_event.connect(on_button_release);
-							_engine_view._event_box.focus_in_event.connect(on_focus_in);
-							_engine_view._event_box.focus_out_event.connect(on_focus_out);
-
-							_alignment_engine.remove(_alignment_engine.get_child());
-							_alignment_level_tree_view.remove(_alignment_level_tree_view.get_child());
-							_alignment_properties_view.remove(_alignment_properties_view.get_child());
-
-							_alignment_engine.add(_engine_view);
-							_alignment_level_tree_view.add(_level_treeview);
-							_alignment_properties_view.add(_properties_view);
-
-							_alignment_engine.show_all();
-							_alignment_level_tree_view.show_all();
-							_alignment_properties_view.show_all();
-						}
+						_resource_compiler.finished((bool)msg["success"]);
 					}
 				}
 				else if (msg_type == "unit_spawned")
@@ -556,7 +539,32 @@ namespace Crown
 			while (!_compiler.is_connected())
 				_compiler.connect("127.0.0.1", CROWN_DEFAULT_SERVER_PORT);
 
-			_compiler.send(EngineAPI.compile(Guid.new_guid(), _bundle_dir, _platform));
+			_resource_compiler.compile.begin(_bundle_dir, _platform, (obj, res) => {
+				if (_resource_compiler.compile.end(res))
+				{
+					if (_engine_view != null)
+						return;
+
+					_engine_view = new EngineView(_engine);
+					_engine_view.realized.connect(on_engine_view_realized);
+					_engine_view.button_press_event.connect(on_button_press);
+					_engine_view.button_release_event.connect(on_button_release);
+					_engine_view._event_box.focus_in_event.connect(on_focus_in);
+					_engine_view._event_box.focus_out_event.connect(on_focus_out);
+
+					_alignment_engine.remove(_alignment_engine.get_child());
+					_alignment_level_tree_view.remove(_alignment_level_tree_view.get_child());
+					_alignment_properties_view.remove(_alignment_properties_view.get_child());
+
+					_alignment_engine.add(_engine_view);
+					_alignment_level_tree_view.add(_level_treeview);
+					_alignment_properties_view.add(_properties_view);
+
+					_alignment_engine.show_all();
+					_alignment_level_tree_view.show_all();
+					_alignment_properties_view.show_all();
+				}
+			});
 		}
 
 		private void stop_compiler()
@@ -613,25 +621,30 @@ namespace Crown
 
 		private void start_game()
 		{
-			string args[] =
-			{
-				ENGINE_EXE,
-				"--bundle-dir", _bundle_dir,
-				"--console-port", "12345",
-				null
-			};
+			_resource_compiler.compile.begin(_bundle_dir, _platform, (obj, res) => {
+				if (_resource_compiler.compile.end(res))
+				{
+					string args[] =
+					{
+						ENGINE_EXE,
+						"--bundle-dir", _bundle_dir,
+						"--console-port", "12345",
+						null
+					};
 
-			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.NONE);
-			sl.set_cwd(ENGINE_DIR);
+					GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.NONE);
+					sl.set_cwd(ENGINE_DIR);
 
-			try
-			{
-				_game_process = sl.spawnv(args);
-			}
-			catch (Error e)
-			{
-				_console_view.log(e.message, "error");
-			}
+					try
+					{
+						_game_process = sl.spawnv(args);
+					}
+					catch (Error e)
+					{
+						_console_view.log(e.message, "error");
+					}
+				}
+			});
 		}
 
 		private void stop_game()
@@ -957,10 +970,14 @@ namespace Crown
 
 		private void on_reload_lua(Gtk.Action action)
 		{
-			_compiler.send(EngineAPI.compile(Guid.new_guid(), _bundle_dir, _platform));
-			// _engine.send(EngineAPI.pause());
-			// _engine.send(EngineAPI.reload("lua", "core/level_editor/level_editor"));
-			// _engine.send(EngineAPI.unpause());
+			_resource_compiler.compile.begin(_bundle_dir, _platform, (obj, res) => {
+				if (_resource_compiler.compile.end(res))
+				{
+					_engine.send(EngineAPI.pause());
+					_engine.send(EngineAPI.reload("lua", "core/editors/level_editor/level_editor"));
+					_engine.send(EngineAPI.unpause());
+				}
+			});
 		}
 
 		public void on_snap_to_grid(Gtk.Action action)
