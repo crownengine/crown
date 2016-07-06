@@ -85,19 +85,6 @@ struct Queue
 	const T& operator[](u32 index) const;
 };
 
-/// Priority queue of POD items.
-///
-/// @ingroup Containers
-template <typename T>
-struct PriorityQueue
-{
-	ALLOCATOR_AWARE;
-
-	Array<T> _queue;
-
-	PriorityQueue(Allocator& a);
-};
-
 /// Map from key to value. Uses a Vector internally, so, definitely
 /// not suited to performance-critical stuff.
 ///
