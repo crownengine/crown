@@ -343,7 +343,7 @@ namespace Crown
 
 		private void on_resource_browser_resource_selected(PlaceableType placeable_type, string name)
 		{
-			_engine.send_script(LevelEditorAPI.set_placeable(placeable_type, name));
+			_engine.send_script(LevelEditorApi.set_placeable(placeable_type, name));
 		}
 
 		private void on_compiler_connected()
@@ -490,15 +490,15 @@ namespace Crown
 		private void send_state()
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.append(LevelEditorAPI.set_grid_size(_grid_size));
-			sb.append(LevelEditorAPI.set_rotation_snap(_rotation_snap));
-			sb.append(LevelEditorAPI.enable_show_grid(_show_grid));
-			sb.append(LevelEditorAPI.enable_snap_to_grid(_snap_to_grid));
-			sb.append(LevelEditorAPI.enable_debug_render_world(_debug_render_world));
-			sb.append(LevelEditorAPI.enable_debug_physics_world(_debug_physics_world));
-			sb.append(LevelEditorAPI.set_tool_type(_tool_type));
-			sb.append(LevelEditorAPI.set_snap_mode(_snap_mode));
-			sb.append(LevelEditorAPI.set_reference_system(_reference_system));
+			sb.append(LevelEditorApi.set_grid_size(_grid_size));
+			sb.append(LevelEditorApi.set_rotation_snap(_rotation_snap));
+			sb.append(LevelEditorApi.enable_show_grid(_show_grid));
+			sb.append(LevelEditorApi.enable_snap_to_grid(_snap_to_grid));
+			sb.append(LevelEditorApi.enable_debug_render_world(_debug_render_world));
+			sb.append(LevelEditorApi.enable_debug_physics_world(_debug_physics_world));
+			sb.append(LevelEditorApi.set_tool_type(_tool_type));
+			sb.append(LevelEditorApi.set_snap_mode(_snap_mode));
+			sb.append(LevelEditorApi.set_reference_system(_reference_system));
 			_engine.send_script(sb.str);
 		}
 
@@ -925,37 +925,37 @@ namespace Crown
 
 		private void on_create_cube(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorAPI.set_placeable(PlaceableType.UNIT, "core/units/primitives/cube"));
+			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/cube"));
 		}
 
 		private void on_create_sphere(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorAPI.set_placeable(PlaceableType.UNIT, "core/units/primitives/sphere"));
+			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/sphere"));
 		}
 
 		private void on_create_cone(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorAPI.set_placeable(PlaceableType.UNIT, "core/units/primitives/cone"));
+			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/cone"));
 		}
 
 		private void on_create_cylinder(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorAPI.set_placeable(PlaceableType.UNIT, "core/units/primitives/cylinder"));
+			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/cylinder"));
 		}
 
 		private void on_create_plane(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorAPI.set_placeable(PlaceableType.UNIT, "core/units/primitives/plane"));
+			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/plane"));
 		}
 
 		private void on_create_camera(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorAPI.set_placeable(PlaceableType.UNIT, "core/units/camera"));
+			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/camera"));
 		}
 
 		private void on_create_light(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorAPI.set_placeable(PlaceableType.UNIT, "core/units/light"));
+			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/light"));
 		}
 
 		private void on_resource_browser(Gtk.Action action)
@@ -973,9 +973,9 @@ namespace Crown
 			_resource_compiler.compile.begin(_bundle_dir, _platform, (obj, res) => {
 				if (_resource_compiler.compile.end(res))
 				{
-					_engine.send(EngineAPI.pause());
-					_engine.send(EngineAPI.reload("lua", "core/editors/level_editor/level_editor"));
-					_engine.send(EngineAPI.unpause());
+					_engine.send(EngineApi.pause());
+					_engine.send(EngineApi.reload("lua", "core/editors/level_editor/level_editor"));
+					_engine.send(EngineApi.unpause());
 				}
 			});
 		}

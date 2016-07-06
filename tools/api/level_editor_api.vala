@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-	namespace LevelEditorAPI
+	namespace LevelEditorApi
 	{
 		public string reset()
 		{

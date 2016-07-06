@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-	namespace EngineAPI
+	namespace EngineApi
 	{
 		public string compile(Guid id, string bundle_dir, string platform)
 		{

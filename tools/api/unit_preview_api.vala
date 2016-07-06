@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-	namespace UnitPreviewAPI
+	namespace UnitPreviewApi
 	{
 		const string[] _placeables =
 		{

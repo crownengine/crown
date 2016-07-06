@@ -30,7 +30,7 @@ namespace Crown
 
 			_id = Guid.new_guid();
 			_success = false;
-			_compiler.send(EngineAPI.compile(_id, bundle_dir, platform));
+			_compiler.send(EngineApi.compile(_id, bundle_dir, platform));
 			_callback = compile.callback;
 			yield;
 

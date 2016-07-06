@@ -51,7 +51,7 @@ namespace Crown
 			_selection.clear();
 			selection_changed(_selection);
 
-			_client.send_script(LevelEditorAPI.reset());
+			_client.send_script(LevelEditorApi.reset());
 		}
 
 		public void selection(Guid[] ids)
@@ -105,13 +105,13 @@ namespace Crown
 				if (has_prefab(unit_id))
 					load_prefab((string)_db.get_property(unit_id, "prefab"));
 
-				sb.append(LevelEditorAPI.spawn_empty_unit(unit_id));
+				sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
 				Guid component_id = GUID_ZERO;
 
 				if (has_component(unit_id, "transform", ref component_id))
 				{
-					string s = LevelEditorAPI.add_tranform_component(unit_id
+					string s = LevelEditorApi.add_tranform_component(unit_id
 						, component_id
 						, (Vector3)   get_component_property(unit_id, component_id, "data.position")
 						, (Quaternion)get_component_property(unit_id, component_id, "data.rotation")
@@ -121,7 +121,7 @@ namespace Crown
 				}
 				if (has_component(unit_id, "mesh_renderer", ref component_id))
 				{
-					string s = LevelEditorAPI.add_mesh_component(unit_id
+					string s = LevelEditorApi.add_mesh_component(unit_id
 						, component_id
 						, (string)get_component_property(unit_id, component_id, "data.mesh_resource")
 						, (string)get_component_property(unit_id, component_id, "data.geometry_name")
@@ -132,7 +132,7 @@ namespace Crown
 				}
 				if (has_component(unit_id, "light", ref component_id))
 				{
-					string s = LevelEditorAPI.add_light_component(unit_id
+					string s = LevelEditorApi.add_light_component(unit_id
 						, component_id
 						, (string) get_component_property(unit_id, component_id, "data.type")
 						, (double) get_component_property(unit_id, component_id, "data.range")
@@ -149,7 +149,7 @@ namespace Crown
 		{
 			foreach (Guid sound_id in sound_ids)
 			{
-				string s = LevelEditorAPI.spawn_sound(sound_id
+				string s = LevelEditorApi.spawn_sound(sound_id
 					, (Vector3)   _db.get_property(sound_id, "position")
 					, (Quaternion)_db.get_property(sound_id, "rotation")
 					, (double)    _db.get_property(sound_id, "range")
@@ -325,7 +325,7 @@ namespace Crown
 		{
 			StringBuilder sb = new StringBuilder();
 			foreach (Guid id in ids)
-				sb.append(LevelEditorAPI.destroy(id));
+				sb.append(LevelEditorApi.destroy(id));
 
 			_client.send_script(sb.str);
 		}
@@ -334,7 +334,7 @@ namespace Crown
 		{
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < ids.length; ++i)
-				sb.append(LevelEditorAPI.move_object(ids[i], positions[i], rotations[i], scales[i]));
+				sb.append(LevelEditorApi.move_object(ids[i], positions[i], rotations[i], scales[i]));
 
 			_client.send_script(sb.str);
 		}
@@ -469,7 +469,7 @@ namespace Crown
 
 		public void set_selected_unit(Guid id)
 		{
-			_client.send_script(LevelEditorAPI.set_selected_unit(id));
+			_client.send_script(LevelEditorApi.set_selected_unit(id));
 			_selection.clear();
 			_selection.add(id);
 

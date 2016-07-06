@@ -273,7 +273,7 @@ namespace Crown
 				Value type;
 				model.get_value(iter, 0, out name);
 				model.get_value(iter, 1, out type);
-				_console_client.send_script(UnitPreviewAPI.set_preview_unit((PlaceableType)type, (string)name));
+				_console_client.send_script(UnitPreviewApi.set_preview_unit((PlaceableType)type, (string)name));
 			}
 		}
 	}
