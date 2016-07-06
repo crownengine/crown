@@ -461,9 +461,7 @@ function SelectTool:mouse_down(x, y)
 end
 
 function SelectTool:mouse_up(x, y)
-	if LevelEditor._selection:last_selected_object() ~= nil then
-		LevelEditor._selection:send()
-	end
+	LevelEditor._selection:send()
 end
 
 PlaceTool = class(PlaceTool)
