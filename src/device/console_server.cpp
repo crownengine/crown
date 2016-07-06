@@ -140,27 +140,20 @@ void ConsoleServer::process(TCPSocket client, const char* json)
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
 
-	CommandData cd;
-	cd.cmd = NULL;
-	cd.data = NULL;
-	cd = sort_map::get(_commands, sjson::parse_string_id(obj["type"]), cd);
+	CommandFunction cmd = sort_map::get(_commands, sjson::parse_string_id(obj["type"]), (CommandFunction)NULL);
 
-	if (cd.cmd)
-		cd.cmd(cd.data, *this, client, json);
+	if (cmd)
+		cmd(*this, client, json);
 	else
 		error(client, "Unknown command");
 }
 
-void ConsoleServer::register_command(StringId32 type, CommandFunction cmd, void* data)
+void ConsoleServer::register_command(const char* type, CommandFunction cmd)
 {
-	CE_ASSERT(!sort_map::has(_commands, type), "Command type already registered");
+	CE_ASSERT_NOT_NULL(type);
 	CE_ASSERT_NOT_NULL(cmd);
 
-	CommandData cd;
-	cd.cmd = cmd;
-	cd.data = data;
-
-	sort_map::set(_commands, type, cd);
+	sort_map::set(_commands, StringId32(type), cmd);
 	sort_map::sort(_commands);
 }
 

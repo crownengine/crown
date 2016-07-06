@@ -8,6 +8,7 @@
 #include "bundle_compiler.h"
 #include "config.h"
 #include "config_resource.h"
+#include "console_api.h"
 #include "console_server.h"
 #include "device.h"
 #include "file.h"
@@ -138,77 +139,6 @@ private:
 
 	ProxyAllocator _allocator;
 };
-
-static void console_command_script(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
-{
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	DynamicString script(ta);
-	sjson::parse(json, obj);
-	sjson::parse_string(obj["script"], script);
-	device()->lua_environment()->execute_string(script.c_str());
-}
-
-static void console_command_reload(void* data, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
-{
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	sjson::parse(json, obj);
-
-	DynamicString type(ta);
-	DynamicString name(ta);
-	sjson::parse_string(obj["resource_type"], type);
-	sjson::parse_string(obj["resource_name"], name);
-	logi("Reloading resource '%s.%s'", name.c_str(), type.c_str());
-	((Device*)data)->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
-	logi("Reloaded resource '%s.%s'", name.c_str(), type.c_str());
-}
-
-static void console_command_pause(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/)
-{
-	device()->pause();
-}
-
-static void console_command_unpause(void* /*data*/, ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/)
-{
-	device()->unpause();
-}
-
-static void console_command_compile(void* data, ConsoleServer& cs, TCPSocket client, const char* json)
-{
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	sjson::parse(json, obj);
-
-	DynamicString id(ta);
-	DynamicString bundle_dir(ta);
-	DynamicString platform(ta);
-	sjson::parse_string(obj["id"], id);
-	sjson::parse_string(obj["bundle_dir"], bundle_dir);
-	sjson::parse_string(obj["platform"], platform);
-
-	{
-		TempAllocator512 ta;
-		StringStream ss(ta);
-		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"start\":true}";
-		cs.send(client, string_stream::c_str(ss));
-	}
-
-	logi("Compiling '%s'", id.c_str());
-	bool succ = ((BundleCompiler*)data)->compile(bundle_dir.c_str(), platform.c_str());
-
-	if (succ)
-		logi("Compiled '%s'", id.c_str());
-	else
-		loge("Error while compiling '%s'", id.c_str());
-
-	{
-		TempAllocator512 ta;
-		StringStream ss(ta);
-		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"success\":" << (succ ? "true" : "false") << "}";
-		cs.send(client, string_stream::c_str(ss));
-	}
-}
 
 Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
@@ -360,6 +290,7 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 void Device::run()
 {
 	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
+	load_console_api(*_console_server);
 
 	namespace pcr = physics_config_resource;
 	namespace phr = physics_resource;
@@ -403,7 +334,6 @@ void Device::run()
 
 		if (_device_options._server)
 		{
-			_console_server->register_command(StringId32("compile"), console_command_compile, _bundle_compiler);
 			_console_server->listen(CROWN_DEFAULT_COMPILER_PORT, false);
 
 			while (true)
@@ -424,6 +354,8 @@ void Device::run()
 
 	if (do_continue)
 	{
+		_console_server->listen(_device_options._console_port, _device_options._wait_console);
+
 #if CROWN_PLATFORM_ANDROID
 		_bundle_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
@@ -440,12 +372,6 @@ void Device::run()
 
 		_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
-
-		_console_server->register_command(StringId32("script"), console_command_script, NULL);
-		_console_server->register_command(StringId32("reload"), console_command_reload, this);
-		_console_server->register_command(StringId32("pause"), console_command_pause, NULL);
-		_console_server->register_command(StringId32("unpause"), console_command_unpause, NULL);
-		_console_server->listen(_device_options._console_port, _device_options._wait_console);
 
 		logi("Initializing Crown Engine %s...", version());
 

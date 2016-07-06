@@ -16,17 +16,11 @@ namespace crown
 /// @ingroup Device
 class ConsoleServer
 {
-	typedef void (*CommandFunction)(void* data, ConsoleServer& cs, TCPSocket client, const char* json);
-
-	struct CommandData
-	{
-		CommandFunction cmd;
-		void* data;
-	};
+	typedef void (*CommandFunction)(ConsoleServer& cs, TCPSocket client, const char* json);
 
 	TCPSocket _server;
 	Vector<TCPSocket> _clients;
-	SortMap<StringId32, CommandData> _commands;
+	SortMap<StringId32, CommandFunction> _commands;
 
 	void add_client(TCPSocket socket);
 	ReadResult update_client(TCPSocket client);
@@ -59,7 +53,7 @@ public:
 	void success(TCPSocket client, const char* msg);
 
 	/// Registers the command @a type.
-	void register_command(StringId32 type, CommandFunction cmd, void* data);
+	void register_command(const char* type, CommandFunction cmd);
 };
 
 } // namespace crown
