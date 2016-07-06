@@ -93,7 +93,15 @@ void RenderWorld::mesh_set_visible(MeshInstance i, bool visible)
 OBB RenderWorld::mesh_obb(MeshInstance i)
 {
 	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
-	return _mesh_manager._data.obb[i.i];
+
+	const Matrix4x4& world = _mesh_manager._data.world[i.i];
+	const OBB& obb = _mesh_manager._data.obb[i.i];
+
+	OBB o;
+	o.tm = obb.tm * world;
+	o.half_extents = obb.half_extents;
+
+	return o;
 }
 
 f32 RenderWorld::mesh_raycast(MeshInstance i, const Vector3& from, const Vector3& dir)
