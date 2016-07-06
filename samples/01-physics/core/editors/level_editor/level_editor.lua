@@ -99,6 +99,12 @@ function draw_world_origin_grid(lines, size, step)
 	Device.set_temp_count(nv, nq, nm)
 end
 
+function draw_mesh_obb(render_world, unit_id, lines)
+	local meshes = RenderWorld.mesh_instances(render_world, unit_id)
+	local tm, hext = RenderWorld.mesh_obb(render_world, meshes[1])
+	DebugLine.add_obb(lines, tm, hext, Color4.red())
+end
+
 function raycast(objects, pos, dir)
 	local nearest = math.huge
 	local hit = nil
@@ -121,6 +127,9 @@ function Selection:init()
 end
 
 function Selection:clear()
+	for k, v in pairs(self._objects) do
+		LevelEditor._objects[v]:on_selected(false)
+	end
 	self._objects = {}
 end
 
@@ -135,6 +144,7 @@ end
 function Selection:add(id)
 	if not self:has(id) then
 		self._objects[#self._objects + 1] = id
+		LevelEditor._objects[id]:on_selected(true)
 	end
 end
 
@@ -198,6 +208,7 @@ function UnitBox:init(world, id, unit_id, prefab)
 	self._unit_id = unit_id
 	self._prefab = prefab
 	self._sg = World.scene_graph(world)
+	self._selected = false
 
 	local pw = World.physics_world(world)
 
@@ -282,16 +293,14 @@ function UnitBox:set_local_pose(pose)
 	if tr then SceneGraph.set_local_pose(self._sg, tr, pose) end
 end
 
-function UnitBox:raycast(pos, dir)
-	-- FIXME: Handle units w/o transform
-	local rw = LevelEditor._rw
-	local sg = LevelEditor._sg
+function UnitBox:on_selected(selected)
+	self._selected = selected
+end
 
+function UnitBox:raycast(pos, dir)
+	local rw = LevelEditor._rw
 	local meshes = RenderWorld.mesh_instances(rw, self._unit_id)
 	local tm, hext = RenderWorld.mesh_obb(rw, meshes[1])
-
-	local pose = self:world_pose()
-	-- return Math.ray_obb_intersection(pos, dir, Matrix4x4.multiply(tm, pose), hext)
 	return RenderWorld.mesh_raycast(rw, meshes[1], pos, dir)
 end
 
@@ -300,6 +309,10 @@ function UnitBox:draw()
 	local lights = RenderWorld.light_instances(LevelEditor._rw, self._unit_id)
 	if lights ~= nil then
 		RenderWorld.light_debug_draw(LevelEditor._rw, lights, LevelEditor._lines)
+	end
+
+	if self._selected then
+		draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
 	end
 end
 
@@ -314,6 +327,7 @@ function SoundObject:init(world, id, name, range, volume, loop)
 	self._loop = loop
 	self._unit_id = World.spawn_unit(world, "core/units/sound")
 	self._sg = World.scene_graph(world)
+	self._selected = false
 
 	local pw = World.physics_world(world)
 end
@@ -393,20 +407,21 @@ function SoundObject:set_local_pose(pose)
 	if tr then SceneGraph.set_local_pose(self._sg, tr, pose) end
 end
 
-function SoundObject:raycast(pos, dir)
-	-- FIXME: Handle units w/o transform
-	local rw = LevelEditor._rw
-	local sg = LevelEditor._sg
+function UnitBox:on_selected(selected)
+	self._selected = selected
+end
 
+function SoundObject:raycast(pos, dir)
+	local rw = LevelEditor._rw
 	local meshes = RenderWorld.mesh_instances(rw, self._unit_id)
 	local tm, hext = RenderWorld.mesh_obb(rw, meshes[1])
-
-	local pose = self:world_pose()
-	-- return Math.ray_obb_intersection(pos, dir, Matrix4x4.multiply(tm, pose), hext)
 	return RenderWorld.mesh_raycast(rw, meshes[1], pos, dir)
 end
 
 function SoundObject:draw()
+	if self._selected then
+		draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
+	end
 end
 
 SelectTool = class(SelectTool)
@@ -440,6 +455,8 @@ function SelectTool:mouse_down(x, y)
 			LevelEditor._selection:clear()
 		end
 		LevelEditor._selection:add(selected_object:id())
+	else
+		LevelEditor._selection:clear()
 	end
 end
 
