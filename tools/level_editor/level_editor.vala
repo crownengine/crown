@@ -1072,7 +1072,7 @@ namespace Crown
 
 			try
 			{
-				dlg.set_logo(new Pixbuf.from_file("ui/icons/pepper-128x128.png"));
+				dlg.set_logo(new Pixbuf.from_file("ui/icons/128x128/pepper.png"));
 			}
 			catch (Error e)
 			{
