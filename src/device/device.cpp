@@ -253,7 +253,8 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 
 	while(next_event(event))
 	{
-		if (event.type == OsEvent::NONE) continue;
+		if (event.type == OsEvent::NONE)
+			continue;
 
 		switch (event.type)
 		{
