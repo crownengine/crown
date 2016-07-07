@@ -4,10 +4,10 @@
  */
 
 #include "allocator.h"
-#include "bundle_compiler.h"
 #include "compile_options.h"
 #include "config.h"
 #include "console_server.h"
+#include "data_compiler.h"
 #include "dynamic_string.h"
 #include "file.h"
 #include "filesystem_disk.h"
@@ -52,7 +52,7 @@ public:
 	}
 };
 
-BundleCompiler::BundleCompiler()
+DataCompiler::DataCompiler()
 	: _source_fs(default_allocator())
 	, _compilers(default_allocator())
 	, _files(default_allocator())
@@ -60,7 +60,7 @@ BundleCompiler::BundleCompiler()
 {
 }
 
-void BundleCompiler::scan(const char* source_dir)
+void DataCompiler::scan(const char* source_dir)
 {
 	_source_fs.set_prefix(source_dir);
 
@@ -137,7 +137,7 @@ void BundleCompiler::scan(const char* source_dir)
 	scan_source_dir("");
 }
 
-bool BundleCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform)
+bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform)
 {
 	StringId64 _type(type);
 	StringId64 _name(name);
@@ -190,7 +190,7 @@ bool BundleCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const 
 	return success;
 }
 
-bool BundleCompiler::compile(const char* bundle_dir, const char* platform)
+bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 {
 	// Create bundle dir if necessary
 	FilesystemDisk bundle_fs(default_allocator());
@@ -237,7 +237,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* platform)
 	return true;
 }
 
-void BundleCompiler::register_compiler(StringId64 type, u32 version, CompileFunction compiler)
+void DataCompiler::register_compiler(StringId64 type, u32 version, CompileFunction compiler)
 {
 	CE_ASSERT(!sort_map::has(_compilers, type), "Type already registered");
 	CE_ASSERT_NOT_NULL(compiler);
@@ -250,21 +250,21 @@ void BundleCompiler::register_compiler(StringId64 type, u32 version, CompileFunc
 	sort_map::sort(_compilers);
 }
 
-void BundleCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)
+void DataCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)
 {
 	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
 
 	sort_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
 }
 
-u32 BundleCompiler::version(StringId64 type)
+u32 DataCompiler::version(StringId64 type)
 {
 	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
 
 	return sort_map::get(_compilers, type, ResourceTypeData()).version;
 }
 
-void BundleCompiler::scan_source_dir(const char* cur_dir)
+void DataCompiler::scan_source_dir(const char* cur_dir)
 {
 	Vector<DynamicString> my_files(default_allocator());
 	_source_fs.list_files(cur_dir, my_files);
@@ -283,7 +283,7 @@ void BundleCompiler::scan_source_dir(const char* cur_dir)
 
 		if (_source_fs.is_directory(file_i.c_str()))
 		{
-			BundleCompiler::scan_source_dir(file_i.c_str());
+			DataCompiler::scan_source_dir(file_i.c_str());
 		}
 		else // Assume a regular file
 		{

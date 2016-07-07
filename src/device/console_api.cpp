@@ -3,8 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "bundle_compiler.h"
 #include "console_server.h"
+#include "data_compiler.h"
 #include "device.h"
 #include "dynamic_string.h"
 #include "json_object.h"
@@ -71,7 +71,7 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	}
 
 	logi("Compiling '%s'", id.c_str());
-	bool succ = device()->bundle_compiler()->compile(bundle_dir.c_str(), platform.c_str());
+	bool succ = device()->data_compiler()->compile(bundle_dir.c_str(), platform.c_str());
 
 	if (succ)
 		logi("Compiled '%s'", id.c_str());

@@ -11,7 +11,7 @@
 
 namespace crown
 {
-class BundleCompiler
+class DataCompiler
 {
 	typedef void (*CompileFunction)(const char* path, CompileOptions& opts);
 
@@ -32,7 +32,7 @@ class BundleCompiler
 
 public:
 
-	BundleCompiler();
+	DataCompiler();
 
 	/// Scans @a source_dir for resources.
 	void scan(const char* source_dir);

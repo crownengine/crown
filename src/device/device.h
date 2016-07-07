@@ -39,7 +39,7 @@ class Device
 
 	const DeviceOptions& _device_options;
 	ConsoleServer* _console_server;
-	BundleCompiler* _bundle_compiler;
+	DataCompiler* _data_compiler;
 	Filesystem* _bundle_filesystem;
 	File* _last_log;
 	ResourceLoader* _resource_loader;
@@ -138,7 +138,7 @@ public:
 	ConsoleServer* console_server();
 
 	/// Returns the bundle compiler.
-	BundleCompiler* bundle_compiler();
+	DataCompiler* data_compiler();
 
 	/// Returns the resource manager.
 	ResourceManager* resource_manager();

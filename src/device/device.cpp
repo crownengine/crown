@@ -5,11 +5,11 @@
 
 #include "array.h"
 #include "audio.h"
-#include "bundle_compiler.h"
 #include "config.h"
 #include "config_resource.h"
 #include "console_api.h"
 #include "console_server.h"
+#include "data_compiler.h"
 #include "device.h"
 #include "file.h"
 #include "filesystem.h"
@@ -144,7 +144,7 @@ Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
 	, _console_server(NULL)
-	, _bundle_compiler(NULL)
+	, _data_compiler(NULL)
 	, _bundle_filesystem(NULL)
 	, _last_log(NULL)
 	, _resource_loader(NULL)
@@ -313,24 +313,24 @@ void Device::run()
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	if (_device_options._do_compile || _device_options._server)
 	{
-		_bundle_compiler = CE_NEW(_allocator, BundleCompiler)();
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
-		_bundle_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
+		_data_compiler = CE_NEW(_allocator, DataCompiler)();
+		_data_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
 
-		_bundle_compiler->scan(_device_options._source_dir);
+		_data_compiler->scan(_device_options._source_dir);
 
 		if (_device_options._server)
 		{
@@ -346,7 +346,7 @@ void Device::run()
 		{
 			const char* bundle_dir = _device_options._bundle_dir;
 			const char* platform = _device_options._platform;
-			do_continue = _bundle_compiler->compile(bundle_dir, platform);
+			do_continue = _data_compiler->compile(bundle_dir, platform);
 			do_continue = do_continue && _device_options._do_continue;
 		}
 	}
@@ -570,7 +570,7 @@ void Device::run()
 
 	_console_server->shutdown();
 	CE_DELETE(_allocator, _console_server);
-	CE_DELETE(_allocator, _bundle_compiler);
+	CE_DELETE(_allocator, _data_compiler);
 
 	_allocator.clear();
 }
@@ -738,9 +738,9 @@ ConsoleServer* Device::console_server()
 	return _console_server;
 }
 
-BundleCompiler* Device::bundle_compiler()
+DataCompiler* Device::data_compiler()
 {
-	return _bundle_compiler;
+	return _data_compiler;
 }
 
 ResourceManager* Device::resource_manager()

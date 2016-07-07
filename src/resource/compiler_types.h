@@ -7,7 +7,7 @@
 
 namespace crown
 {
-class BundleCompiler;
+class DataCompiler;
 class CompileOptions;
 
 } // namespace crown
