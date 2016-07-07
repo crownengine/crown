@@ -55,10 +55,10 @@ struct CommandLine
 			;
 	}
 
-	const char* get_parameter(const char* longopt, char shortopt = '\0')
+	const char* get_parameter(int i, const char* longopt, char shortopt = '\0')
 	{
 		int argc = find_argument(longopt, shortopt);
-		return argc < _argc ? _argv[argc + 1] : NULL;
+		return argc + i < _argc ? _argv[argc + i + 1] : NULL;
 	}
 
 	bool has_argument(const char* longopt, char shortopt = '\0')
