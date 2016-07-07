@@ -1194,7 +1194,7 @@ static void test_command_line()
 
 	CommandLine cl(countof(argv), argv);
 	ENSURE(cl.has_argument("switch", 's'));
-	const char* orange = cl.get_parameter("argument");
+	const char* orange = cl.get_parameter(0, "argument");
 	ENSURE(orange != NULL && strcmp(orange, "orange") == 0);
 }
 
