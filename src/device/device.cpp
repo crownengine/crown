@@ -330,7 +330,16 @@ void Device::run()
 		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
 		_data_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
 
-		_data_compiler->scan(_device_options._source_dir);
+		_data_compiler->map_source_dir("", _device_options._source_dir);
+
+		if (_device_options._map_source_dir_name)
+		{
+			_data_compiler->map_source_dir(_device_options._map_source_dir_name
+				, _device_options._map_source_dir_prefix
+				);
+		}
+
+		_data_compiler->scan();
 
 		if (_device_options._server)
 		{

@@ -49,6 +49,8 @@ DeviceOptions::DeviceOptions(int argc, const char** argv)
 	: _argc(argc)
 	, _argv(argv)
 	, _source_dir(NULL)
+	, _map_source_dir_name(NULL)
+	, _map_source_dir_prefix(NULL)
 	, _bundle_dir(NULL)
 	, _boot_dir(NULL)
 	, _platform(NULL)
@@ -81,13 +83,24 @@ int DeviceOptions::parse()
 		return EXIT_FAILURE;
 	}
 
-	_source_dir = cl.get_parameter("source-dir");
-	_bundle_dir = cl.get_parameter("bundle-dir");
+	_source_dir = cl.get_parameter(0, "source-dir");
+	_bundle_dir = cl.get_parameter(0, "bundle-dir");
+
+	_map_source_dir_name = cl.get_parameter(0, "map-source-dir");
+	if (_map_source_dir_name)
+	{
+		_map_source_dir_prefix = cl.get_parameter(1, "map-source-dir");
+		if (_map_source_dir_prefix == NULL)
+		{
+			help("Mapped source directory must be specified.");
+			return EXIT_FAILURE;
+		}
+	}
 
 	_do_compile = cl.has_argument("compile");
 	if (_do_compile)
 	{
-		_platform = cl.get_parameter("platform");
+		_platform = cl.get_parameter(0, "platform");
 		if (_platform == NULL)
 		{
 			help("Platform must be specified.");
@@ -144,9 +157,18 @@ int DeviceOptions::parse()
 		}
 	}
 
+	if (_map_source_dir_prefix != NULL)
+	{
+		if (!path::is_absolute(_map_source_dir_prefix))
+		{
+			help("Mapped source dir must be absolute.");
+			return EXIT_FAILURE;
+		}
+	}
+
 	_do_continue = cl.has_argument("continue");
 
-	_boot_dir = cl.get_parameter("boot-dir");
+	_boot_dir = cl.get_parameter(0, "boot-dir");
 	if (_boot_dir != NULL)
 	{
 		if (!path::is_relative(_boot_dir))
@@ -158,7 +180,7 @@ int DeviceOptions::parse()
 
 	_wait_console = cl.has_argument("wait-console");
 
-	const char* parent = cl.get_parameter("parent-window");
+	const char* parent = cl.get_parameter(0, "parent-window");
 	if (parent != NULL)
 	{
 		if (sscanf(parent, "%u", &_parent_window) != 1)
@@ -168,7 +190,7 @@ int DeviceOptions::parse()
 		}
 	}
 
-	const char* port = cl.get_parameter("console-port");
+	const char* port = cl.get_parameter(0, "console-port");
 	if (port != NULL)
 	{
 		if (sscanf(port, "%hu", &_console_port) != 1)

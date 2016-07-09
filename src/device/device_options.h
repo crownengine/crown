@@ -18,6 +18,8 @@ struct DeviceOptions
 	int _argc;
 	const char** _argv;
 	const char* _source_dir;
+	const char* _map_source_dir_name;
+	const char* _map_source_dir_prefix;
 	const char* _bundle_dir;
 	const char* _boot_dir;
 	const char* _platform;
