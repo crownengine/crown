@@ -6,6 +6,7 @@
 #pragma once
 
 #include "array.h"
+#include "data_compiler.h"
 #include "dynamic_string.h"
 #include "file.h"
 #include "filesystem.h"
@@ -29,7 +30,7 @@ namespace crown
 {
 class CompileOptions
 {
-	Filesystem& _source_fs;
+	DataCompiler& _data_compiler;
 	Filesystem& _bundle_fs;
 	Buffer& _output;
 	const char* _platform;
@@ -38,8 +39,8 @@ class CompileOptions
 
 public:
 
-	CompileOptions(Filesystem& source_fs, Filesystem& bundle_fs, Buffer& output, const char* platform, jmp_buf* buf)
-		: _source_fs(source_fs)
+	CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform, jmp_buf* buf)
+		: _data_compiler(dc)
 		, _bundle_fs(bundle_fs)
 		, _output(output)
 		, _platform(platform)
@@ -64,7 +65,14 @@ public:
 
 	bool file_exists(const char* path)
 	{
-		return _source_fs.exists(path);
+		TempAllocator256 ta;
+		DynamicString source_dir(ta);
+		FilesystemDisk fs(ta);
+
+		_data_compiler.source_dir(path, source_dir);
+		fs.set_prefix(source_dir.c_str());
+
+		return fs.exists(path);
 	}
 
 	bool resource_exists(const char* type, const char* name)
@@ -90,9 +98,9 @@ public:
 
 	void write_temporary(const char* path, const char* data, u32 size)
 	{
-		File* file = _source_fs.open(path, FileOpenMode::WRITE);
+		File* file = _bundle_fs.open(path, FileOpenMode::WRITE);
 		file->write(data, size);
-		_source_fs.close(*file);
+		_bundle_fs.close(*file);
 	}
 
 	void write_temporary(const char* path, const Buffer& data)
@@ -104,18 +112,32 @@ public:
 	{
 		add_dependency(path);
 
-		File* file = _source_fs.open(path, FileOpenMode::READ);
+		TempAllocator256 ta;
+		DynamicString source_dir(ta);
+		FilesystemDisk source_fs(ta);
+
+		_data_compiler.source_dir(path, source_dir);
+		source_fs.set_prefix(source_dir.c_str());
+
+		File* file = source_fs.open(path, FileOpenMode::READ);
 		u32 size = file->size();
 		Buffer buf(default_allocator());
 		array::resize(buf, size);
 		file->read(array::begin(buf), size);
-		_source_fs.close(*file);
+		source_fs.close(*file);
 		return buf;
 	}
 
 	void get_absolute_path(const char* path, DynamicString& abs)
 	{
-		_source_fs.get_absolute_path(path, abs);
+		TempAllocator256 ta;
+		DynamicString source_dir(ta);
+		FilesystemDisk source_fs(ta);
+
+		_data_compiler.source_dir(path, source_dir);
+		source_fs.set_prefix(source_dir.c_str());
+
+		source_fs.get_absolute_path(path, abs);
 	}
 
 	void get_temporary_path(const char* suffix, DynamicString& abs)

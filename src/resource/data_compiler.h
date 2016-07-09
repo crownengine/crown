@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "compile_options.h"
+#include "compiler_types.h"
 #include "container_types.h"
 #include "filesystem_disk.h"
 
@@ -22,22 +22,26 @@ class DataCompiler
 	};
 
 	FilesystemDisk _source_fs;
+	Map<DynamicString, DynamicString> _source_dirs;
 	SortMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
 
 	void compile(StringId64 type, const char* path, CompileOptions& opts);
-	void scan_source_dir(const char* path);
+	void scan_source_dir(const char* prefix, const char* path);
 	bool compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform);
 
 public:
 
 	DataCompiler();
 
-	/// Scans @a source_dir for resources.
-	void scan(const char* source_dir);
+	void map_source_dir(const char* name, const char* source_dir);
+	void source_dir(const char* resource_name, DynamicString& source_dir);
 
-	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.
+	/// Scans source tree for resources.
+	void scan();
+
+	/// Compiles all the resources found in the source tree and puts them in @a bundle_dir.
 	/// Returns true on success, false otherwise.
 	bool compile(const char* bundle_dir, const char* platform);
 

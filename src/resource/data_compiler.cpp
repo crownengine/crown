@@ -54,16 +54,45 @@ public:
 
 DataCompiler::DataCompiler()
 	: _source_fs(default_allocator())
+	, _source_dirs(default_allocator())
 	, _compilers(default_allocator())
 	, _files(default_allocator())
 	, _globs(default_allocator())
 {
 }
 
-void DataCompiler::scan(const char* source_dir)
+void DataCompiler::map_source_dir(const char* name, const char* source_dir)
 {
-	_source_fs.set_prefix(source_dir);
+	TempAllocator256 ta;
+	DynamicString sname(ta);
+	DynamicString sdir(ta);
+	sname.set(name, strlen32(name));
+	sdir.set(source_dir, strlen32(source_dir));
+	map::set(_source_dirs, sname, sdir);
+}
 
+void DataCompiler::source_dir(const char* resource_name, DynamicString& source_dir)
+{
+	const char* slash = strchr(resource_name, '/');
+
+	TempAllocator256 ta;
+	DynamicString source_name(ta);
+
+	if (slash != NULL)
+		source_name.set(resource_name, (slash - resource_name));
+	else
+		source_name.set("", 0);
+
+	DynamicString deffault(ta);
+	DynamicString empty(ta);
+	empty = "";
+
+	deffault   = map::get(_source_dirs, empty, empty);
+	source_dir = map::get(_source_dirs, source_name, deffault);
+}
+
+void DataCompiler::scan()
+{
 	TempAllocator512 ta;
 	DynamicString ext_tmp(ta);
 	DynamicString ext_wav(ta);
@@ -106,35 +135,47 @@ void DataCompiler::scan(const char* source_dir)
 	vector::push_back(_globs, ext_bak);
 	vector::push_back(_globs, ext_all);
 
-	if (_source_fs.exists(CROWN_BUNDLEIGNORE))
+	auto cur = map::begin(_source_dirs);
+	auto end = map::end(_source_dirs);
+
+	for (; cur != end; ++cur)
 	{
-		File& file = *_source_fs.open(CROWN_BUNDLEIGNORE, FileOpenMode::READ);
-		const u32 size = file.size();
-		char* data = (char*)default_allocator().allocate(size + 1);
-		file.read(data, size);
-		data[size] = '\0';
-		_source_fs.close(file);
+		DynamicString prefix(default_allocator());
+		prefix += cur->pair.second.c_str();
+		prefix += '/';
+		prefix += cur->pair.first.c_str();
+		_source_fs.set_prefix(prefix.c_str());
 
-		LineReader lr(data);
-
-		while (!lr.eof())
+		if (_source_fs.exists(CROWN_BUNDLEIGNORE))
 		{
-			TempAllocator512 ta;
-			DynamicString line(ta);
-			lr.read_line(line);
+			File& file = *_source_fs.open(CROWN_BUNDLEIGNORE, FileOpenMode::READ);
+			const u32 size = file.size();
+			char* data = (char*)default_allocator().allocate(size + 1);
+			file.read(data, size);
+			data[size] = '\0';
+			_source_fs.close(file);
 
-			line.trim();
+			LineReader lr(data);
 
-			if (line.empty() || line.has_prefix("#"))
-				continue;
+			while (!lr.eof())
+			{
+				TempAllocator512 ta;
+				DynamicString line(ta);
+				lr.read_line(line);
 
-			vector::push_back(_globs, line);
+				line.trim();
+
+				if (line.empty() || line.has_prefix("#"))
+					continue;
+
+				vector::push_back(_globs, line);
+			}
+
+			default_allocator().deallocate(data);
 		}
 
-		default_allocator().deallocate(data);
+		scan_source_dir(cur->pair.first.c_str(), "");
 	}
-
-	scan_source_dir("");
 }
 
 bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform)
@@ -174,7 +215,7 @@ bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const ch
 
 	if (!setjmp(buf))
 	{
-		CompileOptions opts(_source_fs, bundle_fs, output, platform, &buf);
+		CompileOptions opts(*this, bundle_fs, output, platform, &buf);
 		compile(_type, src_path.c_str(), opts);
 		File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
 		u32 size = array::size(output);
@@ -264,7 +305,7 @@ u32 DataCompiler::version(StringId64 type)
 	return sort_map::get(_compilers, type, ResourceTypeData()).version;
 }
 
-void DataCompiler::scan_source_dir(const char* cur_dir)
+void DataCompiler::scan_source_dir(const char* prefix, const char* cur_dir)
 {
 	Vector<DynamicString> my_files(default_allocator());
 	_source_fs.list_files(cur_dir, my_files);
@@ -283,11 +324,18 @@ void DataCompiler::scan_source_dir(const char* cur_dir)
 
 		if (_source_fs.is_directory(file_i.c_str()))
 		{
-			DataCompiler::scan_source_dir(file_i.c_str());
+			DataCompiler::scan_source_dir(prefix, file_i.c_str());
 		}
 		else // Assume a regular file
 		{
-			vector::push_back(_files, file_i);
+			DynamicString resource_name(ta);
+			if (strcmp(prefix, "") != 0)
+			{
+				resource_name += prefix;
+				resource_name += '/';
+			}
+			resource_name += file_i;
+			vector::push_back(_files, resource_name);
 		}
 	}
 }
