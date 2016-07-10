@@ -11,7 +11,7 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
   * [Lua API](http://taylor001.github.io/crown/lua_api.html)  
   * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
 
-##Download
+##Download (Stable)
 
 ### Linux (Tarball)
 [pepper-0.0.23-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.23/pepper-0.0.23-linux-x64.tar.gz)
@@ -72,13 +72,6 @@ Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
 ### Building tools
 
 	$ make tools-linux-<debug/release>64
-
-##Samples
-
-To run a sample on 64-bit linux development mode:
-
-    $ cd build/engine/linux64/bin
-	$ ./linux-development-64 --source-dir <path> --bundle-dir <path> --compile --platform linux --continue
 
 Contact
 -------
