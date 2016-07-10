@@ -407,7 +407,7 @@ function SoundObject:set_local_pose(pose)
 	if tr then SceneGraph.set_local_pose(self._sg, tr, pose) end
 end
 
-function UnitBox:on_selected(selected)
+function SoundObject:on_selected(selected)
 	self._selected = selected
 end
 

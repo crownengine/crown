@@ -64,6 +64,7 @@
 			</menu>
 			<menuitem action="camera"></menuitem>
 			<menuitem action="light"></menuitem>
+			<menuitem action="sound-source"></menuitem>
 		</menu>
 		<menu action="menu-view">
 			<menuitem action="resource-browser"></menuitem>
