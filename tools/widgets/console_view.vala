@@ -112,7 +112,7 @@ namespace Crown
 			if (words[0] == "reload")
 			{
 				if (words.length == 3)
-					_console_client.send(EngineAPI.reload(words[1], words[2]));
+					_console_client.send(EngineApi.reload(words[1], words[2]));
 				else
 					log("Hint reload <type> <name>", "error");
 			}
