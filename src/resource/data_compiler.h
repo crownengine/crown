@@ -38,6 +38,8 @@ public:
 	void map_source_dir(const char* name, const char* source_dir);
 	void source_dir(const char* resource_name, DynamicString& source_dir);
 
+	void add_ignore_glob(const char* glob);
+
 	/// Scans source tree for resources.
 	void scan();
 

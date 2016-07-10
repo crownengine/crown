@@ -91,50 +91,32 @@ void DataCompiler::source_dir(const char* resource_name, DynamicString& source_d
 	source_dir = map::get(_source_dirs, source_name, deffault);
 }
 
+void DataCompiler::add_ignore_glob(const char* glob)
+{
+	TempAllocator64 ta;
+	DynamicString str(ta);
+	str.set(glob, strlen32(glob));
+	vector::push_back(_globs, str);
+}
+
 void DataCompiler::scan()
 {
-	TempAllocator512 ta;
-	DynamicString ext_tmp(ta);
-	DynamicString ext_wav(ta);
-	DynamicString ext_ogg(ta);
-	DynamicString ext_png(ta);
-	DynamicString ext_tga(ta);
-	DynamicString ext_dds(ta);
-	DynamicString ext_ktx(ta);
-	DynamicString ext_pvr(ta);
-	DynamicString ext_swn(ta); // VIM swap file.
-	DynamicString ext_swo(ta); // VIM swap file.
-	DynamicString ext_swp(ta); // VIM swap file.
-	DynamicString ext_bak(ta);
-	DynamicString ext_all(ta);
-	ext_tmp.set("*.tmp", 5);
-	ext_wav.set("*.wav", 5);
-	ext_ogg.set("*.ogg", 5);
-	ext_png.set("*.png", 5);
-	ext_tga.set("*.tga", 5);
-	ext_dds.set("*.dds", 5);
-	ext_ktx.set("*.ktx", 5);
-	ext_pvr.set("*.pvr", 5);
-	ext_swn.set("*.swn", 5);
-	ext_swo.set("*.swo", 5);
-	ext_swp.set("*.swp", 5);
-	ext_bak.set("*~", 2);
-	ext_all.set(".*", 2);
+	// Add ignore globs
+	add_ignore_glob("*.tmp");
+	add_ignore_glob("*.wav");
+	add_ignore_glob("*.ogg");
+	add_ignore_glob("*.png");
+	add_ignore_glob("*.tga");
+	add_ignore_glob("*.dds");
+	add_ignore_glob("*.ktx");
+	add_ignore_glob("*.pvr");
+	add_ignore_glob("*.swn"); // VIM swap file.
+	add_ignore_glob("*.swo"); // VIM swap file.
+	add_ignore_glob("*.swp"); // VIM swap file.
+	add_ignore_glob("*~");
+	add_ignore_glob(".*");
 
-	vector::push_back(_globs, ext_tmp);
-	vector::push_back(_globs, ext_wav);
-	vector::push_back(_globs, ext_ogg);
-	vector::push_back(_globs, ext_png);
-	vector::push_back(_globs, ext_tga);
-	vector::push_back(_globs, ext_dds);
-	vector::push_back(_globs, ext_ktx);
-	vector::push_back(_globs, ext_pvr);
-	vector::push_back(_globs, ext_swn);
-	vector::push_back(_globs, ext_swo);
-	vector::push_back(_globs, ext_swp);
-	vector::push_back(_globs, ext_bak);
-	vector::push_back(_globs, ext_all);
-
+	// Scan all source directories
 	auto cur = map::begin(_source_dirs);
 	auto end = map::end(_source_dirs);
 
@@ -168,7 +150,7 @@ void DataCompiler::scan()
 				if (line.empty() || line.has_prefix("#"))
 					continue;
 
-				vector::push_back(_globs, line);
+				add_ignore_glob(line.c_str());
 			}
 
 			default_allocator().deallocate(data);
