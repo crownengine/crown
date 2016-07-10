@@ -5,6 +5,7 @@
 
 #include "array.h"
 #include "audio.h"
+#include "boot_config.h"
 #include "config.h"
 #include "config_resource.h"
 #include "console_api.h"
@@ -169,7 +170,7 @@ Device::Device(const DeviceOptions& opts)
 {
 }
 
-bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& mouse_last_y)
+bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& mouse_last_y, bool vsync)
 {
 	OsEvent event;
 	bool exit = false;
@@ -258,7 +259,7 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 				const OsMetricsEvent& ev = event.metrics;
 				_width = ev.width;
 				_height = ev.height;
-				bgfx::reset(ev.width, ev.height, BGFX_RESET_VSYNC);
+				bgfx::reset(ev.width, ev.height, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
 				break;
 			}
 			case OsEvent::EXIT:
@@ -405,13 +406,9 @@ void Device::run()
 		_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
 
 		// Read config
-		StringId64 boot_package_name(u64(0));
-		StringId64 boot_script_name(u64(0));
-		u16 window_w = CROWN_DEFAULT_WINDOW_WIDTH;
-		u16 window_h = CROWN_DEFAULT_WINDOW_HEIGHT;
-
+		BootConfig boot_config;
 		{
-			TempAllocator4096 ta;
+			TempAllocator512 ta;
 			DynamicString boot_dir(ta);
 
 			if (_device_options._boot_dir != NULL)
@@ -422,33 +419,9 @@ void Device::run()
 			boot_dir += CROWN_BOOT_CONFIG;
 
 			const StringId64 config_name(boot_dir.c_str());
-
 			_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
 			_resource_manager->flush();
-			const char* cfile = (const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name);
-
-			JsonObject config(ta);
-			sjson::parse(cfile, config);
-
-			boot_script_name  = sjson::parse_resource_id(config["boot_script"]);
-			boot_package_name = sjson::parse_resource_id(config["boot_package"]);
-
-			// Platform-specific configs
-			if (json_object::has(config, CROWN_PLATFORM_NAME))
-			{
-				JsonObject platform(ta);
-				sjson::parse(config[CROWN_PLATFORM_NAME], platform);
-
-				if (json_object::has(platform, "window_width"))
-				{
-					window_w = (u16)sjson::parse_int(platform["window_width"]);
-				}
-				if (json_object::has(platform, "window_height"))
-				{
-					window_h = (u16)sjson::parse_int(platform["window_height"]);
-				}
-			}
-
+			boot_config.parse((const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
 			_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 		}
 
@@ -460,8 +433,8 @@ void Device::run()
 		_window = window::create(_allocator);
 		_window->open(_device_options._window_x
 			, _device_options._window_y
-			, window_w
-			, window_h
+			, boot_config.window_w
+			, boot_config.window_h
 			, _device_options._parent_window
 			);
 		_window->bgfx_setup();
@@ -482,12 +455,12 @@ void Device::run()
 		audio_globals::init();
 		physics_globals::init(_allocator);
 
-		ResourcePackage* boot_package = create_resource_package(boot_package_name);
+		ResourcePackage* boot_package = create_resource_package(boot_config.boot_package_name);
 		boot_package->load();
 		boot_package->flush();
 
 		_lua_environment->load_libs();
-		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, boot_script_name));
+		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, boot_config.boot_script_name));
 		_lua_environment->call_global("init", 0);
 
 		logd("Engine initialized");
@@ -500,7 +473,7 @@ void Device::run()
 		s64 last_time = os::clocktime();
 		s64 curr_time;
 
-		while (!process_events(mouse_x, mouse_y, mouse_last_x, mouse_last_y) && !_quit)
+		while (!process_events(mouse_x, mouse_y, mouse_last_x, mouse_last_y, boot_config.vsync) && !_quit)
 		{
 			curr_time = os::clocktime();
 			const s64 time = curr_time - last_time;

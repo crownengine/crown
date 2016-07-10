@@ -65,7 +65,7 @@ class Device
 	f32 _last_delta_time;
 	f64 _time_since_start;
 
-	bool process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& mouse_last_y);
+	bool process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& mouse_last_y, bool vsync);
 
 public:
 
