@@ -11,12 +11,30 @@ Pepper is a general purpose data-driven game engine, written from scratch in ort
 
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles.
 
-Supported platforms
+System requirements
 -------------------
 
-* Android (14+, ARM)
-* Linux
-* Windows
+Software
+~~~~~~~~
+
+* Ubuntu 16.04+ or any other distribution with GTK+3.14 or newer.
+
+Hardware
+~~~~~~~~
+
+* 64-bit quad-core CPU
+* 4 GB of RAM
+* OpenGL 3.2 compatible graphics card
+* 1280x768 display
+
+Deployment platforms
+--------------------
+
+You can deploy applications made with Pepper to the following platforms:
+
+* Android 2.3.7+ (ARM)
+* Ubuntu 12.04+
+* Windows 7, 8, 10
 
 Basic concepts
 ==============
