@@ -90,14 +90,55 @@ Units of measurement
 
 Pepper uses MKS (meters, kilograms and seconds) units and radians for angles.
 
+boot.config file reference
+==========================
+
+Generic configurations
+----------------------
+
+	``boot_script = "lua/game"``
+		Lua script to launch on boot
+
+	``boot_package = "boot"``
+		Package to load on boot
+
+Platform-specific configurations
+--------------------------------
+
+All configurations for a given *platform* are placed under a key named *platform*. E.g.:
+
+.. code::
+
+  // Linux-only configs
+  linux = {
+      renderer = {
+          window_width  = 1280
+          window_height = 720
+          vsync = true
+      }
+  }
+
+
+Renderer configurations
+~~~~~~~~~~~~~~~~~~~~~~~
+
+	``window_width = 1280``
+		Main window width.
+
+	``window_height = 720``
+		Main window height.
+
+	``vsync = true``
+		Whether to enable vsync.
+
 Command line reference
 ======================
 
 	``-h --help``
-		Display the help.
+		Display the help and quit.
 
 	``-v --version``
-		Display engine version.
+		Display engine version and quit.
 
 	``--source-dir <path>``
 		Use <path> as the source directory for resource compilation.

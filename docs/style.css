@@ -9,7 +9,7 @@
 	font-family: sans-serif;
 	font-size: 11pt;
 	line-height: 145%;
-	color: #141414;
+	color: #1f1f1f;
 }
 
 div.topic {
@@ -24,4 +24,21 @@ tt.literal {
 	border-style: solid;
 	border-color: #e7e7e7;
 	padding: 1px 7px 1px 7px;
+}
+
+a {
+	color: #4078c0;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:visited {
+	color: #4078c0;
+}
+
+a.toc-backref {
+	color: #333;
 }
