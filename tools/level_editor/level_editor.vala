@@ -39,6 +39,7 @@ namespace Crown
 	{
 		// Project paths
 		private string _source_dir;
+		private string _toolchain_dir;
 		private string _bundle_dir;
 		private string _platform;
 
@@ -183,12 +184,13 @@ namespace Crown
 			{ "debug-physics-world", null, "Debug Physics World", null, null, on_debug_physics_world, false }
 		};
 
-		public LevelEditor(string source_dir, string bundle_dir)
+		public LevelEditor(string source_dir, string toolchain_dir, string bundle_dir)
 		{
 			this.title = "Level Editor";
 
 			// Project paths
 			_source_dir = source_dir;
+			_toolchain_dir = toolchain_dir;
 			_bundle_dir = bundle_dir;
 			_platform   = "linux";
 
@@ -218,7 +220,7 @@ namespace Crown
 
 			// Level data
 			_db = new Database();
-			_level = new Level(_db, _engine, _source_dir);
+			_level = new Level(_db, _engine, _source_dir, _toolchain_dir);
 			_level_filename = null;
 			_resource_compiler = new ResourceCompiler(_compiler);
 
@@ -521,6 +523,7 @@ namespace Crown
 			{
 				ENGINE_EXE,
 				"--source-dir", _source_dir,
+				"--map-source-dir", "core", _toolchain_dir,
 				"--server",
 				null
 			};
@@ -1127,7 +1130,7 @@ namespace Crown
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
 		provider.load_from_path("ui/theme/style.css");
 
-		var window = new LevelEditor(args[1], args[2]);
+		var window = new LevelEditor(args[1], args[2], args[3]);
 		window.show_all();
 
 		Gtk.main();

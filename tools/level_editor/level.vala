@@ -12,6 +12,7 @@ namespace Crown
 	{
 		// Project paths
 		private string _source_dir;
+		private string _toolchain_dir;
 
 		// Engine connections
 		private ConsoleClient _client;
@@ -25,10 +26,11 @@ namespace Crown
 		// Signals
 		public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 
-		public Level(Database db, ConsoleClient client, string source_dir)
+		public Level(Database db, ConsoleClient client, string source_dir, string toolchain_dir)
 		{
 			// Project paths
 			_source_dir = source_dir;
+			_toolchain_dir = toolchain_dir;
 
 			// Engine connections
 			_client = client;
@@ -65,7 +67,7 @@ namespace Crown
 
 		public void new_level()
 		{
-			load(_source_dir + "core/editors/levels/empty.level");
+			load(_toolchain_dir + "core/editors/levels/empty.level");
 		}
 
 		public void load(string path)
@@ -88,7 +90,12 @@ namespace Crown
 				return;
 
 			Database prefab_db = new Database();
-			prefab_db.load(_source_dir + "/" + name + ".unit");
+
+			File file = File.new_for_path(_toolchain_dir + "/" + name + ".unit");
+			if (file.query_exists())
+				prefab_db.load(file.get_path());
+			else
+				prefab_db.load(_source_dir + "/" + name + ".unit");
 
 			Value? prefab = prefab_db.get_property(GUID_ZERO, "prefab");
 			if (prefab != null)
