@@ -2,266 +2,223 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.14"/>
-  <object class="GtkDialog" id="preferences_dialog">
+  <template class="__glade_unnamed_5" parent="GtkGrid">
+    <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Preferences</property>
-    <property name="resizable">False</property>
-    <property name="modal">True</property>
-    <property name="type_hint">dialog</property>
-    <child internal-child="vbox">
-      <object class="GtkBox">
+    <property name="row_spacing">6</property>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_left">18</property>
-            <property name="margin_right">18</property>
-            <property name="margin_top">18</property>
-            <property name="margin_bottom">18</property>
-            <property name="row_spacing">6</property>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Grid</property>
-                <property name="xalign">0</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                </attributes>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="grid_color_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="hexpand">True</property>
-                <property name="use_alpha">True</property>
-                <property name="alpha">65535</property>
-                <property name="rgba">rgb(102,102,102)</property>
-                <property name="show_editor">True</property>
-                <signal name="color-set" handler="color_set" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
-                <property name="label" translatable="yes">Grid</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="grid_disabled_color_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="hexpand">True</property>
-                <property name="use_alpha">True</property>
-                <property name="alpha">26214</property>
-                <property name="rgba">rgb(102,102,102)</property>
-                <property name="show_editor">True</property>
-                <signal name="color-set" handler="color_set" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
-                <property name="label" translatable="yes">Grid (Disabled)</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Axes</property>
-                <property name="xalign">0</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                </attributes>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="axis_x_color_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="hexpand">True</property>
-                <property name="use_alpha">True</property>
-                <property name="alpha">65535</property>
-                <property name="rgba">rgb(217,0,0)</property>
-                <property name="show_editor">True</property>
-                <signal name="color-set" handler="color_set" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
-                <property name="label" translatable="yes">X Axis</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
-                <property name="label" translatable="yes">Y Axis</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
-                <property name="label" translatable="yes">Z Axis</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="axis_y_color_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="hexpand">True</property>
-                <property name="use_alpha">True</property>
-                <property name="alpha">65535</property>
-                <property name="rgba">rgb(0,217,0)</property>
-                <property name="show_editor">True</property>
-                <signal name="color-set" handler="color_set" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="axis_z_color_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="hexpand">True</property>
-                <property name="use_alpha">True</property>
-                <property name="alpha">65535</property>
-                <property name="rgba">rgb(0,0,217)</property>
-                <property name="show_editor">True</property>
-                <signal name="color-set" handler="color_set" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
-                <property name="label" translatable="yes">Selected</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">7</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="selected_color_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_alpha">True</property>
-                <property name="alpha">65535</property>
-                <property name="rgba">rgb(217,217,0)</property>
-                <property name="show_editor">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">7</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="padding">1</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
+        <property name="label" translatable="yes">Grid</property>
+        <property name="xalign">0</property>
+        <attributes>
+          <attribute name="weight" value="bold"/>
+        </attributes>
       </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">0</property>
+      </packing>
     </child>
-  </object>
+    <child>
+      <object class="GtkColorButton" id="grid_color_button">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="hexpand">True</property>
+        <property name="use_alpha">True</property>
+        <property name="alpha">65535</property>
+        <property name="rgba">rgb(102,102,102)</property>
+        <property name="show_editor">True</property>
+        <signal name="color-set" handler="color_set" swapped="no"/>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_right">12</property>
+        <property name="label" translatable="yes">Grid</property>
+        <property name="xalign">1</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkColorButton" id="grid_disabled_color_button">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="hexpand">True</property>
+        <property name="use_alpha">True</property>
+        <property name="alpha">26214</property>
+        <property name="rgba">rgb(102,102,102)</property>
+        <property name="show_editor">True</property>
+        <signal name="color-set" handler="color_set" swapped="no"/>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_right">12</property>
+        <property name="label" translatable="yes">Grid (Disabled)</property>
+        <property name="xalign">1</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Axes</property>
+        <property name="xalign">0</property>
+        <attributes>
+          <attribute name="weight" value="bold"/>
+        </attributes>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkColorButton" id="axis_x_color_button">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="hexpand">True</property>
+        <property name="use_alpha">True</property>
+        <property name="alpha">65535</property>
+        <property name="rgba">rgb(217,0,0)</property>
+        <property name="show_editor">True</property>
+        <signal name="color-set" handler="color_set" swapped="no"/>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_right">12</property>
+        <property name="label" translatable="yes">X Axis</property>
+        <property name="xalign">1</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_right">12</property>
+        <property name="label" translatable="yes">Y Axis</property>
+        <property name="xalign">1</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">5</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_right">12</property>
+        <property name="label" translatable="yes">Z Axis</property>
+        <property name="xalign">1</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">6</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkColorButton" id="axis_y_color_button">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="hexpand">True</property>
+        <property name="use_alpha">True</property>
+        <property name="alpha">65535</property>
+        <property name="rgba">rgb(0,217,0)</property>
+        <property name="show_editor">True</property>
+        <signal name="color-set" handler="color_set" swapped="no"/>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">5</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkColorButton" id="axis_z_color_button">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="hexpand">True</property>
+        <property name="use_alpha">True</property>
+        <property name="alpha">65535</property>
+        <property name="rgba">rgb(0,0,217)</property>
+        <property name="show_editor">True</property>
+        <signal name="color-set" handler="color_set" swapped="no"/>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">6</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_right">12</property>
+        <property name="label" translatable="yes">Selected</property>
+        <property name="xalign">1</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">7</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkColorButton" id="selected_color_button">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="use_alpha">True</property>
+        <property name="alpha">65535</property>
+        <property name="rgba">rgb(217,217,0)</property>
+        <property name="show_editor">True</property>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="top_attach">7</property>
+      </packing>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+  </template>
 </interface>
