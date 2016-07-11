@@ -19,6 +19,7 @@ struct BootConfig
 	StringId64 boot_package_name;
 	u16 window_w;
 	u16 window_h;
+	float aspect_ratio;
 	bool vsync;
 
 	BootConfig();

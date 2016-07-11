@@ -5,7 +5,6 @@
 
 #include "array.h"
 #include "audio.h"
-#include "boot_config.h"
 #include "config.h"
 #include "config_resource.h"
 #include "console_api.h"
@@ -406,7 +405,6 @@ void Device::run()
 		_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
 
 		// Read config
-		BootConfig boot_config;
 		{
 			TempAllocator512 ta;
 			DynamicString boot_dir(ta);
@@ -421,7 +419,7 @@ void Device::run()
 			const StringId64 config_name(boot_dir.c_str());
 			_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
 			_resource_manager->flush();
-			boot_config.parse((const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
+			_boot_config.parse((const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
 			_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 		}
 
@@ -433,8 +431,8 @@ void Device::run()
 		_window = window::create(_allocator);
 		_window->open(_device_options._window_x
 			, _device_options._window_y
-			, boot_config.window_w
-			, boot_config.window_h
+			, _boot_config.window_w
+			, _boot_config.window_h
 			, _device_options._parent_window
 			);
 		_window->bgfx_setup();
@@ -455,12 +453,12 @@ void Device::run()
 		audio_globals::init();
 		physics_globals::init(_allocator);
 
-		ResourcePackage* boot_package = create_resource_package(boot_config.boot_package_name);
+		ResourcePackage* boot_package = create_resource_package(_boot_config.boot_package_name);
 		boot_package->load();
 		boot_package->flush();
 
 		_lua_environment->load_libs();
-		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, boot_config.boot_script_name));
+		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
 		_lua_environment->call_global("init", 0);
 
 		logd("Engine initialized");
@@ -473,7 +471,7 @@ void Device::run()
 		s64 last_time = os::clocktime();
 		s64 curr_time;
 
-		while (!process_events(mouse_x, mouse_y, mouse_last_x, mouse_last_y, boot_config.vsync) && !_quit)
+		while (!process_events(mouse_x, mouse_y, mouse_last_x, mouse_last_y, _boot_config.vsync) && !_quit)
 		{
 			curr_time = os::clocktime();
 			const s64 time = curr_time - last_time;
@@ -620,10 +618,14 @@ void Device::render(World& world, CameraInstance camera)
 	bgfx::touch(1);
 	bgfx::touch(2);
 
-	world.camera_set_aspect(camera, (float)_width/(float)_height);
+	float aspect_ratio = (_boot_config.aspect_ratio == -1.0f
+		? (float)_width/(float)_height
+		: _boot_config.aspect_ratio
+		);
+	world.camera_set_aspect(camera, aspect_ratio);
 	world.camera_set_viewport_metrics(camera, 0, 0, _width, _height);
 
-	world.render(camera);
+	world.render(world.camera_view_matrix(camera), world.camera_projection_matrix(camera));
 }
 
 World* Device::create_world()

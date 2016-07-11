@@ -190,11 +190,9 @@ void World::update(f32 dt)
 	update_scene(dt);
 }
 
-void World::render(CameraInstance i)
+void World::render(const Matrix4x4& view, const Matrix4x4& projection)
 {
-	const Camera& camera = _camera[i.i];
-
-	_render_world->render(camera_view_matrix(i), camera.projection);
+	_render_world->render(view, projection);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);

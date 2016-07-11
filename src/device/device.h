@@ -6,6 +6,7 @@
 #pragma once
 
 #include "allocator.h"
+#include "boot_config.h"
 #include "compiler_types.h"
 #include "config.h"
 #include "console_server.h"
@@ -38,6 +39,7 @@ class Device
 	LinearAllocator _allocator;
 
 	const DeviceOptions& _device_options;
+	BootConfig _boot_config;
 	ConsoleServer* _console_server;
 	DataCompiler* _data_compiler;
 	Filesystem* _bundle_filesystem;

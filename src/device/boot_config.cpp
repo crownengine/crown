@@ -17,6 +17,7 @@ BootConfig::BootConfig()
 	, boot_package_name(u64(0))
 	, window_w(CROWN_DEFAULT_WINDOW_WIDTH)
 	, window_h(CROWN_DEFAULT_WINDOW_HEIGHT)
+	, aspect_ratio(-1.0f)
 	, vsync(true)
 {
 }
@@ -46,6 +47,8 @@ bool BootConfig::parse(const char* json)
 				window_w = (u16)sjson::parse_int(renderer["window_width"]);
 			if (json_object::has(renderer, "window_height"))
 				window_h = (u16)sjson::parse_int(renderer["window_height"]);
+			if (json_object::has(renderer, "aspect_ratio"))
+				aspect_ratio = sjson::parse_float(renderer["aspect_ratio"]);
 			if (json_object::has(renderer, "vsync"))
 				vsync = sjson::parse_bool(renderer["vsync"]);
 		}
