@@ -123,18 +123,18 @@ end
 Selection = class(Selection)
 
 function Selection:init()
-	self._objects = {}
+	self._ids = {}
 end
 
 function Selection:clear()
-	for k, v in pairs(self._objects) do
+	for k, v in pairs(self._ids) do
 		LevelEditor._objects[v]:on_selected(false)
 	end
-	self._objects = {}
+	self._ids = {}
 end
 
 function Selection:has(id)
-	for k, v in pairs(self._objects) do
+	for k, v in pairs(self._ids) do
 		if v == id then return true end
 	end
 
@@ -143,23 +143,37 @@ end
 
 function Selection:add(id)
 	if not self:has(id) then
-		self._objects[#self._objects + 1] = id
+		self._ids[#self._ids + 1] = id
 		LevelEditor._objects[id]:on_selected(true)
 	end
 end
 
 function Selection:remove(id)
-	-- FIXME
+	if self:has(id) then
+		-- Remove id from selection
+		local new_ids = {}
+		for k, v in pairs(self._ids) do
+			if self._ids[k] ~= id then
+				new_ids[#new_ids + 1] = self._ids[k]
+			end
+		end
+		self._ids = new_ids
+
+		local obj = LevelEditor._objects[id]
+		if obj ~= nil then
+			obj:on_selected(false)
+		end
+	end
 end
 
 function Selection:last_selected_object()
-	local last = self._objects[#self._objects]
+	local last = self._ids[#self._ids]
 	return last and LevelEditor._objects[last] or nil
 end
 
 function Selection:objects()
 	local objs = {}
-	for k, v in pairs(self._objects) do
+	for k, v in pairs(self._ids) do
 		objs[#objs + 1] = LevelEditor._objects[v]
 	end
 	return objs
@@ -175,7 +189,7 @@ function Selection:world_poses()
 end
 
 function Selection:send()
-	Device.console_send { type = "selection", objects = self._objects }
+	Device.console_send { type = "selection", objects = self._ids }
 end
 
 function Selection:send_move_objects()
@@ -1499,12 +1513,8 @@ function LevelEditor:set_selected_unit(id)
 end
 
 function LevelEditor:destroy(id)
-	local unit_box = self._objects[id]
-	unit_box:destroy()
-
+	self._objects[id]:destroy()
 	self._objects[id] = nil
-
-	-- FIXME
-	self._selection:clear()
+	self._selection:remove(id)
 	self._selection:send()
 end
