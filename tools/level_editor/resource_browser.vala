@@ -33,8 +33,6 @@ namespace Crown
 
 		public ResourceBrowser(Gtk.Widget parent, string source_dir, string bundle_dir)
 		{
-			this.relative_to = parent;
-
 			// Project paths
 			_source_dir = source_dir;
 			_data_dir = bundle_dir;
@@ -43,6 +41,7 @@ namespace Crown
 			_console_client = new ConsoleClient();
 
 			// Widgets
+			this.relative_to = parent;
 			this.destroy.connect(on_destroy);
 
 			_filter_entry = new Gtk.SearchEntry();
@@ -161,6 +160,8 @@ namespace Crown
 
 			while (!_console_client.is_connected())
 				_console_client.connect("127.0.0.1", 10002);
+
+			_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
 		}
 
 		private void on_engine_view_realized()
@@ -247,7 +248,7 @@ namespace Crown
 				if (selected && model.iter_previous(ref iter))
 					_tree_selection.select_iter(iter);
 			}
-			else if (ev.keyval == 65293)
+			else if (ev.keyval == 65293) // Enter
 			{
 				Value name;
 				Value type;
