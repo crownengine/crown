@@ -313,6 +313,7 @@ namespace Crown
 			_rotation.value = rot;
 		}
 	}
+
 	public class SoundPropertiesView : ComponentView
 	{
 		// Data
@@ -503,16 +504,15 @@ namespace Crown
 				{
 					Gtk.Expander expander = _expanders[entry.type];
 					expander.hide();
-				}
 
-				ComponentView st = _components["sound_transform"];
-				ComponentView sp = _components["sound_properties"];
-				st._component_id = id;
-				st.update();
-				st.show_all();
-				sp._component_id = id;
-				sp.update();
-				sp.show_all();
+					if (entry.type == "sound_transform" || entry.type == "sound_properties")
+					{
+						ComponentView cv = _components[entry.type];
+						cv._component_id = id;
+						cv.update();
+						expander.show_all();
+					}
+				}
 			}
 			else
 			{
