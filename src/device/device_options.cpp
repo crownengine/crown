@@ -27,7 +27,7 @@ static void help(const char* msg = NULL)
 		"  -h --help                  Display this help.\n"
 		"  -v --version               Display engine version.\n"
 		"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
-		"  --bundle-dir <path>        Use <path> as the destination directory for compiled resources.\n"
+		"  --data-dir <path>          Use <path> as the destination directory for compiled resources.\n"
 		"  --boot-dir <path>          Boot the engine with the 'boot.config' from given <path>.\n"
 		"  --compile                  Do a full compile of the resources.\n"
 		"  --platform <platform>      Compile resources for the given <platform>.\n"
@@ -51,7 +51,7 @@ DeviceOptions::DeviceOptions(int argc, const char** argv)
 	, _source_dir(NULL)
 	, _map_source_dir_name(NULL)
 	, _map_source_dir_prefix(NULL)
-	, _bundle_dir(NULL)
+	, _data_dir(NULL)
 	, _boot_dir(NULL)
 	, _platform(NULL)
 	, _wait_console(false)
@@ -84,7 +84,7 @@ int DeviceOptions::parse()
 	}
 
 	_source_dir = cl.get_parameter(0, "source-dir");
-	_bundle_dir = cl.get_parameter(0, "bundle-dir");
+	_data_dir = cl.get_parameter(0, "data-dir");
 
 	_map_source_dir_name = cl.get_parameter(0, "map-source-dir");
 	if (_map_source_dir_name)
@@ -122,7 +122,7 @@ int DeviceOptions::parse()
 			return EXIT_FAILURE;
 		}
 
-		if (_bundle_dir == NULL)
+		if (_data_dir == NULL)
 		{
 			help("Bundle dir must be specified.");
 			return EXIT_FAILURE;
@@ -139,9 +139,9 @@ int DeviceOptions::parse()
 		}
 	}
 
-	if (_bundle_dir != NULL)
+	if (_data_dir != NULL)
 	{
-		if (!path::is_absolute(_bundle_dir))
+		if (!path::is_absolute(_data_dir))
 		{
 			help("Bundle dir must be absolute.");
 			return EXIT_FAILURE;

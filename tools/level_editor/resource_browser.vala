@@ -11,7 +11,7 @@ namespace Crown
 	{
 		// Project paths
 		private string _source_dir;
-		private string _bundle_dir;
+		private string _data_dir;
 
 		// Data
 		private GLib.Subprocess _engine_process;
@@ -37,7 +37,7 @@ namespace Crown
 
 			// Project paths
 			_source_dir = source_dir;
-			_bundle_dir = bundle_dir;
+			_data_dir = bundle_dir;
 
 			// Data
 			_console_client = new ConsoleClient();
@@ -140,7 +140,7 @@ namespace Crown
 			string args[] =
 			{
 				ENGINE_EXE,
-				"--bundle-dir", _bundle_dir,
+				"--data-dir", _data_dir,
 				"--boot-dir", UNIT_PREVIEW_BOOT_DIR,
 				"--parent-window", window_xid.to_string(),
 				"--console-port", "10002",

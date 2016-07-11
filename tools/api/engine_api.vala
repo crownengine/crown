@@ -7,9 +7,9 @@ namespace Crown
 {
 	namespace EngineApi
 	{
-		public string compile(Guid id, string bundle_dir, string platform)
+		public string compile(Guid id, string data_dir, string platform)
 		{
-			return "{\"type\":\"compile\",\"id\":\"%s\",\"bundle_dir\":\"%s\",\"platform\":\"%s\"}".printf(id.to_string(), bundle_dir, platform);
+			return "{\"type\":\"compile\",\"id\":\"%s\",\"data_dir\":\"%s\",\"platform\":\"%s\"}".printf(id.to_string(), data_dir, platform);
 		}
 
 		public string reload(string type, string name)

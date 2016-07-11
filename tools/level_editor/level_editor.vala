@@ -40,7 +40,7 @@ namespace Crown
 		// Project paths
 		private string _source_dir;
 		private string _toolchain_dir;
-		private string _bundle_dir;
+		private string _data_dir;
 		private string _platform;
 
 		// Editor state
@@ -192,7 +192,7 @@ namespace Crown
 			// Project paths
 			_source_dir = source_dir;
 			_toolchain_dir = toolchain_dir;
-			_bundle_dir = bundle_dir;
+			_data_dir = bundle_dir;
 			_platform   = "linux";
 
 			// Editor state
@@ -318,7 +318,7 @@ namespace Crown
 			_file_filter.set_filter_name("Level (*.level)");
 			_file_filter.add_pattern("*.level");
 
-			_resource_browser = new ResourceBrowser(toolbar, _source_dir, _bundle_dir);
+			_resource_browser = new ResourceBrowser(toolbar, _source_dir, _data_dir);
 			_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
 			_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
 			_resource_browser.modal = true;
@@ -543,7 +543,7 @@ namespace Crown
 			while (!_compiler.is_connected())
 				_compiler.connect("127.0.0.1", CROWN_DEFAULT_SERVER_PORT);
 
-			_resource_compiler.compile.begin(_bundle_dir, _platform, (obj, res) => {
+			_resource_compiler.compile.begin(_data_dir, _platform, (obj, res) => {
 				if (_resource_compiler.compile.end(res))
 				{
 					if (_engine_view != null)
@@ -584,7 +584,7 @@ namespace Crown
 			string args[] =
 			{
 				ENGINE_EXE,
-				"--bundle-dir", _bundle_dir,
+				"--data-dir", _data_dir,
 				"--boot-dir", LEVEL_EDITOR_BOOT_DIR,
 				"--parent-window", window_xid.to_string(),
 				"--wait-console",
@@ -625,13 +625,13 @@ namespace Crown
 
 		private void start_game()
 		{
-			_resource_compiler.compile.begin(_bundle_dir, _platform, (obj, res) => {
+			_resource_compiler.compile.begin(_data_dir, _platform, (obj, res) => {
 				if (_resource_compiler.compile.end(res))
 				{
 					string args[] =
 					{
 						ENGINE_EXE,
-						"--bundle-dir", _bundle_dir,
+						"--data-dir", _data_dir,
 						"--console-port", "12345",
 						null
 					};
@@ -979,7 +979,7 @@ namespace Crown
 
 		private void on_reload_lua(Gtk.Action action)
 		{
-			_resource_compiler.compile.begin(_bundle_dir, _platform, (obj, res) => {
+			_resource_compiler.compile.begin(_data_dir, _platform, (obj, res) => {
 				if (_resource_compiler.compile.end(res))
 				{
 					_engine.send(EngineApi.pause());
@@ -1061,7 +1061,7 @@ namespace Crown
 
 		private void on_open_last_log(Gtk.Action action)
 		{
-			File file = File.new_for_path(_bundle_dir + "/last.log");
+			File file = File.new_for_path(_data_dir + "/last.log");
 			try
 			{
 				AppInfo.launch_default_for_uri(file.get_uri(), null);

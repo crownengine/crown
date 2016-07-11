@@ -354,9 +354,9 @@ void Device::run()
 		}
 		else
 		{
-			const char* bundle_dir = _device_options._bundle_dir;
+			const char* data_dir = _device_options._data_dir;
 			const char* platform = _device_options._platform;
-			do_continue = _data_compiler->compile(bundle_dir, platform);
+			do_continue = _data_compiler->compile(data_dir, platform);
 			do_continue = do_continue && _device_options._do_continue;
 		}
 	}
@@ -369,16 +369,16 @@ void Device::run()
 #if CROWN_PLATFORM_ANDROID
 		_bundle_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
-		const char* bundle_dir = _device_options._bundle_dir;
-		if (!bundle_dir)
+		const char* data_dir = _device_options._data_dir;
+		if (!data_dir)
 		{
 			char buf[1024];
-			bundle_dir = os::getcwd(buf, sizeof(buf));
+			data_dir = os::getcwd(buf, sizeof(buf));
 		}
 		_bundle_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
-		((FilesystemDisk*)_bundle_filesystem)->set_prefix(bundle_dir);
-		if (!_bundle_filesystem->exists(bundle_dir))
-			_bundle_filesystem->create_directory(bundle_dir);
+		((FilesystemDisk*)_bundle_filesystem)->set_prefix(data_dir);
+		if (!_bundle_filesystem->exists(data_dir))
+			_bundle_filesystem->create_directory(data_dir);
 
 		_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID

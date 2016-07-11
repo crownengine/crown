@@ -20,7 +20,7 @@ struct DeviceOptions
 	const char* _source_dir;
 	const char* _map_source_dir_name;
 	const char* _map_source_dir_prefix;
-	const char* _bundle_dir;
+	const char* _data_dir;
 	const char* _boot_dir;
 	const char* _platform;
 	bool _wait_console;

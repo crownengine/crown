@@ -57,10 +57,10 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	sjson::parse(json, obj);
 
 	DynamicString id(ta);
-	DynamicString bundle_dir(ta);
+	DynamicString data_dir(ta);
 	DynamicString platform(ta);
 	sjson::parse_string(obj["id"], id);
-	sjson::parse_string(obj["bundle_dir"], bundle_dir);
+	sjson::parse_string(obj["data_dir"], data_dir);
 	sjson::parse_string(obj["platform"], platform);
 
 	{
@@ -71,7 +71,7 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	}
 
 	logi("Compiling '%s'", id.c_str());
-	bool succ = device()->data_compiler()->compile(bundle_dir.c_str(), platform.c_str());
+	bool succ = device()->data_compiler()->compile(data_dir.c_str(), platform.c_str());
 
 	if (succ)
 		logi("Compiled '%s'", id.c_str());
