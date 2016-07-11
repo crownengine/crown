@@ -31,11 +31,11 @@ namespace Crown
 		// Signals
 		public signal void resource_selected(PlaceableType placeable_type, string name);
 
-		public ResourceBrowser(Gtk.Widget parent, string source_dir, string bundle_dir)
+		public ResourceBrowser(Gtk.Widget parent, string source_dir, string data_dir)
 		{
 			// Project paths
 			_source_dir = source_dir;
-			_data_dir = bundle_dir;
+			_data_dir = data_dir;
 
 			// Data
 			_console_client = new ConsoleClient();

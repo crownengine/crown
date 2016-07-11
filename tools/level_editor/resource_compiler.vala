@@ -23,14 +23,14 @@ namespace Crown
 		}
 
 		// Returns true if success, false otherwise.
-		public async bool compile(string bundle_dir, string platform)
+		public async bool compile(string data_dir, string platform)
 		{
 			if (_callback != null)
 				return false;
 
 			_id = Guid.new_guid();
 			_success = false;
-			_compiler.send(EngineApi.compile(_id, bundle_dir, platform));
+			_compiler.send(EngineApi.compile(_id, data_dir, platform));
 			_callback = compile.callback;
 			yield;
 

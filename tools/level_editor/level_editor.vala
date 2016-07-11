@@ -185,14 +185,14 @@ namespace Crown
 			{ "debug-physics-world", null, "Debug Physics World", null, null, on_debug_physics_world, false }
 		};
 
-		public LevelEditor(string source_dir, string toolchain_dir, string bundle_dir)
+		public LevelEditor(string source_dir, string toolchain_dir, string data_dir)
 		{
 			this.title = "Level Editor";
 
 			// Project paths
 			_source_dir = source_dir;
 			_toolchain_dir = toolchain_dir;
-			_data_dir = bundle_dir;
+			_data_dir = data_dir;
 			_platform   = "linux";
 
 			// Editor state
