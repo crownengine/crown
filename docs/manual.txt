@@ -68,11 +68,11 @@ In the example below, the engine is told to load the package ``boot`` and run th
 
 Within `the source directory`_, there can be an arbitrary number of boot directories. You can specify the boot directory using the switch ``--boot-dir``.
 
-The bundle directory
+The data directory
 --------------------
 
 Pepper reads source data from `the source directory`_ and compiles it into efficient binary representation.
-The result of the compilation process is stored in the bundle directory.
+The result of the compilation process is stored in the data directory.
 
 .. code::
 
@@ -141,13 +141,17 @@ Renderer configurations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 	``window_width = 1280``
-		Main window width.
+		Sets the width of the main window.
 
 	``window_height = 720``
-		Main window height.
+		Sets the height of the main window.
+
+	``aspect_ratio = -1``
+		Sets the aspect ratio.
+		If the value is set to ``-1``, the aspect ratio is computed as `width`/`height` of the main window.
 
 	``vsync = true``
-		Whether to enable vsync.
+		Sets whether to enable the vsync.
 
 Command line reference
 ======================
@@ -163,7 +167,7 @@ Command line reference
 
 		The <path> must be absolute.
 
-	``--bundle-dir <path>``
+	``--data-dir <path>``
 		Use <path> as the destination directory for compiled resources.
 
 		The <path> must be absolute.
@@ -176,7 +180,7 @@ Command line reference
 	``--compile``
 		Do a full compile of the resources.
 
-		When using this option you must also specify ``--platform``, ``--source-dir`` and ``--bundle-dir``.
+		When using this option you must also specify ``--platform``, ``--source-dir`` and ``--data-dir``.
 
 	``--platform <platform>``
 		Compile resources for the given <platform>.
