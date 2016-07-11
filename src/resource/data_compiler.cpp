@@ -162,12 +162,15 @@ void DataCompiler::scan()
 
 bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform)
 {
-	StringId64 _type(type);
-	StringId64 _name(name);
-
 	TempAllocator1024 ta;
 	DynamicString path(ta);
 	DynamicString src_path(ta);
+	DynamicString type_str(ta);
+	DynamicString name_str(ta);
+	DynamicString dst_path(ta);
+
+	StringId64 _type(type);
+	StringId64 _name(name);
 
 	// Build source file path
 	src_path += name;
@@ -175,12 +178,10 @@ bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const ch
 	src_path += type;
 
 	// Build compiled file path
-	DynamicString type_str(ta);
-	DynamicString name_str(ta);
 	_type.to_string(type_str);
 	_name.to_string(name_str);
 
-	DynamicString dst_path(ta);
+	// Build destination file path
 	dst_path += type_str;
 	dst_path += '-';
 	dst_path += name_str;
