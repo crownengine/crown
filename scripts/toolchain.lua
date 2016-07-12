@@ -160,7 +160,6 @@ function toolchain(build_dir, lib_dir)
 			"c",
 			"dl",
 			"m",
-			"gcc",
 			"gnustl_static",
 			"android",
 			"log",

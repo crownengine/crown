@@ -146,6 +146,7 @@ function crown_project(_name, _kind, _defines)
 				"-shared"
 			}
 			links {
+				"gcc",
 				"EGL",
 				"GLESv2",
 			}
