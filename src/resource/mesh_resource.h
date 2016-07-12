@@ -58,7 +58,7 @@ struct MeshResource
 				return geometries[i];
 		}
 
-		CE_ASSERT(false, "Mesh name not found");
+		CE_FATAL("Mesh name not found");
 		return NULL;
 	}
 };

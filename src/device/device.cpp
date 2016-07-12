@@ -659,7 +659,7 @@ void Device::destroy_world(World& w)
 		}
 	}
 
-	CE_ASSERT(false, "Bad world");
+	CE_FATAL("Bad world");
 }
 
 ResourcePackage* Device::create_resource_package(StringId64 id)

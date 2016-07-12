@@ -83,7 +83,7 @@ void UnitManager::unregister_destroy_function(void* user_ptr)
 		}
 	}
 
-	CE_ASSERT(false, "Bad destroy function");
+	CE_FATAL("Bad destroy function");
 }
 
 void UnitManager::trigger_destroy_callbacks(UnitId id)

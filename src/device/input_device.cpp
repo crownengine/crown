@@ -80,7 +80,7 @@ u8 InputDevice::button_id(StringId32 name)
 			return i;
 	}
 
-	CE_ASSERT(false, "Unknown button name");
+	CE_FATAL("Unknown button name");
 	return 0;
 }
 
@@ -92,7 +92,7 @@ u8 InputDevice::axis_id(StringId32 name)
 			return i;
 	}
 
-	CE_ASSERT(false, "Unknown axis name");
+	CE_FATAL("Unknown axis name");
 	return 0;
 }
 

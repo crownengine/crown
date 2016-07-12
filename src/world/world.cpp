@@ -380,7 +380,7 @@ void World::stop_sound(SoundInstanceId id)
 
 void World::link_sound(SoundInstanceId /*id*/, UnitId /*unit*/, s32 /*node*/)
 {
-	CE_ASSERT(false, "Not implemented yet");
+	CE_FATAL("Not implemented yet");
 }
 
 void World::set_listener_pose(const Matrix4x4& pose)

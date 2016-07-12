@@ -10,26 +10,26 @@
 
 // void* operator new(size_t) throw (std::bad_alloc)
 // {
-// 	CE_ASSERT(false, "operator new forbidden");
+// 	CE_FATAL("operator new forbidden");
 
 // 	return NULL;
 // }
 
 // void* operator new[](size_t) throw (std::bad_alloc)
 // {
-// 	CE_ASSERT(false, "operator new[] forbidden");
+// 	CE_FATAL("operator new[] forbidden");
 
 // 	return NULL;
 // }
 
 // void operator delete(void*) throw ()
 // {
-// 	CE_ASSERT(false, "operator delete forbidden");
+// 	CE_FATAL("operator delete forbidden");
 // }
 
 // void operator delete[](void*) throw ()
 // {
-// 	CE_ASSERT(false, "operator delete[] forbidden");
+// 	CE_FATAL("operator delete[] forbidden");
 // }
 
 namespace crown

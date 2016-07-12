@@ -93,7 +93,7 @@ public:
 
 	u32 write(const void* /*data*/, u32 /*size*/)
 	{
-		CE_ASSERT(false, "Apk files are read only!");
+		CE_FATAL("Apk files are read only!");
 		return 0;
 	}
 
@@ -145,22 +145,22 @@ u64 FilesystemApk::last_modified_time(const char* path)
 
 void FilesystemApk::create_directory(const char* /*path*/)
 {
-	CE_ASSERT(false, "Cannot create directory in Android assets folder");
+	CE_FATAL("Cannot create directory in Android assets folder");
 }
 
 void FilesystemApk::delete_directory(const char* /*path*/)
 {
-	CE_ASSERT(false, "Cannot delete directory in Android assets folder");
+	CE_FATAL("Cannot delete directory in Android assets folder");
 }
 
 void FilesystemApk::create_file(const char* /*path*/)
 {
-	CE_ASSERT(false, "Cannot create file in Android assets folder");
+	CE_FATAL("Cannot create file in Android assets folder");
 }
 
 void FilesystemApk::delete_file(const char* /*path*/)
 {
-	CE_ASSERT(false, "Cannot delete file in Android assets folder");
+	CE_FATAL("Cannot delete file in Android assets folder");
 }
 
 void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)
