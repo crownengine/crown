@@ -907,17 +907,15 @@ public:
 				&& body->isActive()
 				)
 			{
+				const UnitId unit_id = _actor[(u32)(uintptr_t)body->getUserPointer()].unit;
+
 				btTransform tr;
 				body->getMotionState()->getWorldTransform(tr);
-				const btQuaternion rot_bt = tr.getRotation();
-				const btVector3 pos_bt    = tr.getOrigin();
-				const Quaternion rot      = to_quaternion(rot_bt);
-				const Vector3 pos         = to_vector3(pos_bt);
 
-				const u32 a_idx = (u32)(uintptr_t)body->getUserPointer();
-				const UnitId unit_id = _actor[a_idx].unit;
-
-				post_transform_event(unit_id, pos, rot);
+				post_transform_event(unit_id
+					, to_vector3(tr.getOrigin())
+					, to_quaternion(tr.getRotation())
+					);
 			}
 		}
 	}
