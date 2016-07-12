@@ -5,7 +5,6 @@
 
 #include "dynamic_string.h"
 #include "map.h"
-#include "quaternion.h"
 #include "sjson.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
