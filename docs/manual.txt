@@ -17,15 +17,26 @@ System requirements
 Software
 ~~~~~~~~
 
-* Ubuntu 16.04+ or any other distribution with GTK+3.14 or newer.
+* Ubuntu 16.04+ or any other distribution with GTK+ 3.14 or newer.
 
 Hardware
 ~~~~~~~~
 
-* 64-bit quad-core CPU
+**Minimum**
+
+* 64-bit dual-core CPU
 * 4 GB of RAM
-* OpenGL 3.2 compatible graphics card
-* 1280x768 display
+* OpenGL 2.1 compatible graphics card with 512 MB of RAM
+* True color 1280x768 display
+* Three-button mouse
+
+**Recommended**
+
+* 64-bit quad-core CPU
+* 8 GB of RAM
+* OpenGL 3.2 compatible graphics card with 1 GB of RAM
+* True color 1920x1080 display
+* Three-button mouse
 
 Deployment platforms
 --------------------
