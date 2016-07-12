@@ -136,18 +136,16 @@ void World::update_scene(f32 dt)
 	u32 read = 0;
 	while (read < size)
 	{
-		event_stream::Header h;
+		const EventHeader* esh = (EventHeader*)&physics_events[read];
+		const char* data = (char*)&esh[1];
 
-		const char* data = &physics_events[read];
-		const char* ev   = data + sizeof(h);
+		read += sizeof(esh) + esh->size;
 
-		h = *(event_stream::Header*)data;
-
-		switch (h.type)
+		switch (esh->type)
 		{
 		case EventType::PHYSICS_TRANSFORM:
 			{
-				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)ev;
+				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
 				const TransformInstance ti = _scene_graph->get(ptev.unit_id);
 				const Matrix4x4 pose = matrix4x4(ptev.rotation, ptev.position);
 				_scene_graph->set_world_pose(ti, pose);
@@ -164,9 +162,6 @@ void World::update_scene(f32 dt)
 			CE_FATAL("Unknown event type");
 			break;
 		}
-
-		read += sizeof(h);
-		read += h.size;
 	}
 	array::clear(physics_events);
 

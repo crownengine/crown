@@ -10,6 +10,12 @@
 
 namespace crown
 {
+struct EventHeader
+{
+	u32 type;
+	u32 size;
+};
+
 /// Array of generic event structs.
 ///
 /// @ingroup Containers
@@ -23,20 +29,14 @@ typedef Array<char> EventStream;
 /// @ingroup Containers
 namespace event_stream
 {
-	struct Header
-	{
-		u32 type;
-		u32 size;
-	};
-
 	/// Appends the @a event of the given @a type and @a size to the stream @a s.
 	inline void write(EventStream& s, u32 type, u32 size, const void* event)
 	{
-		Header header;
-		header.type = type;
-		header.size = size;
+		EventHeader eh;
+		eh.type = type;
+		eh.size = size;
 
-		array::push(s, (char*)&header, sizeof(Header));
+		array::push(s, (char*)&eh, sizeof(eh));
 		array::push(s, (char*)event, size);
 	}
 
@@ -47,4 +47,5 @@ namespace event_stream
 		event_stream::write(s, type, sizeof(T), &event);
 	}
 } // namespace event_stream
+
 } // namespace crown
