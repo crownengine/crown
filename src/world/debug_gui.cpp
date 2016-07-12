@@ -236,17 +236,14 @@ void DebugGui::text3d(const Vector3& pos, u32 font_size, const char* str, String
 	{
 		switch (str[i])
 		{
-			case '\n':
-			{
-				x_pen_advance = 0.0f;
-				y_pen_advance -= fr->font_size;
-				continue;
-			}
-			case '\t':
-			{
-				x_pen_advance += font_size * 4;
-				continue;
-			}
+		case '\n':
+			x_pen_advance = 0.0f;
+			y_pen_advance -= fr->font_size;
+			continue;
+
+		case '\t':
+			x_pen_advance += font_size * 4;
+			continue;
 		}
 
 		if (utf8::decode(&state, &code_point, str[i]) == UTF8_ACCEPT)

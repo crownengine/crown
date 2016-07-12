@@ -43,43 +43,37 @@ Quaternion quaternion(const Matrix3x3& m)
 	Quaternion tmp;
 	switch (index)
 	{
-		case 0:
-		{
-			tmp.w = biggest;
-			tmp.x = (m.y.z - m.z.y) * mult;
-			tmp.y = (m.z.x - m.x.z) * mult;
-			tmp.z = (m.x.y - m.y.x) * mult;
-			break;
-		}
-		case 1:
-		{
-			tmp.x = biggest;
-			tmp.w = (m.y.z - m.z.y) * mult;
-			tmp.y = (m.x.y + m.y.x) * mult;
-			tmp.z = (m.z.x + m.x.z) * mult;
-			break;
-		}
-		case 2:
-		{
-			tmp.y = biggest;
-			tmp.w = (m.z.x - m.x.z) * mult;
-			tmp.x = (m.x.y + m.y.x) * mult;
-			tmp.z = (m.y.z + m.z.y) * mult;
-			break;
-		}
-		case 3:
-		{
-			tmp.z = biggest;
-			tmp.w = (m.x.y - m.y.x) * mult;
-			tmp.x = (m.z.x + m.x.z) * mult;
-			tmp.y = (m.y.z + m.z.y) * mult;
-			break;
-		}
-		default:
-		{
-			CE_FATAL("You should not be here");
-			break;
-		}
+	case 0:
+		tmp.w = biggest;
+		tmp.x = (m.y.z - m.z.y) * mult;
+		tmp.y = (m.z.x - m.x.z) * mult;
+		tmp.z = (m.x.y - m.y.x) * mult;
+		break;
+
+	case 1:
+		tmp.x = biggest;
+		tmp.w = (m.y.z - m.z.y) * mult;
+		tmp.y = (m.x.y + m.y.x) * mult;
+		tmp.z = (m.z.x + m.x.z) * mult;
+		break;
+
+	case 2:
+		tmp.y = biggest;
+		tmp.w = (m.z.x - m.x.z) * mult;
+		tmp.x = (m.x.y + m.y.x) * mult;
+		tmp.z = (m.y.z + m.z.y) * mult;
+		break;
+
+	case 3:
+		tmp.z = biggest;
+		tmp.w = (m.x.y - m.y.x) * mult;
+		tmp.x = (m.z.x + m.x.z) * mult;
+		tmp.y = (m.y.z + m.z.y) * mult;
+		break;
+
+	default:
+		CE_FATAL("Fatal");
+		break;
 	}
 
 	normalize(tmp);

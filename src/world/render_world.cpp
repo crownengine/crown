@@ -310,31 +310,30 @@ void RenderWorld::light_debug_draw(LightInstance i, DebugLine& dl)
 
 	switch (lid.type[i.i])
 	{
-		case LightType::DIRECTIONAL:
+	case LightType::DIRECTIONAL:
 		{
 			const Vector3 end = pos + dir*3.0f;
 			dl.add_line(pos, end, COLOR4_YELLOW);
 			dl.add_cone(pos + dir*2.8f, end, 0.1f, COLOR4_YELLOW);
-			break;
 		}
-		case LightType::OMNI:
-		{
-			dl.add_sphere(pos, lid.range[i.i], COLOR4_YELLOW);
-			break;
-		}
-		case LightType::SPOT:
+		break;
+
+	case LightType::OMNI:
+		dl.add_sphere(pos, lid.range[i.i], COLOR4_YELLOW);
+		break;
+
+	case LightType::SPOT:
 		{
 			const f32 angle  = lid.spot_angle[i.i];
 			const f32 range  = lid.range[i.i];
 			const f32 radius = tan(angle)*range;
 			dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
-			break;
 		}
-		default:
-		{
-			CE_ASSERT(false, "Bad light type");
-			break;
-		}
+		break;
+
+	default:
+		CE_FATAL("Unknown light type");
+		break;
 	}
 }
 

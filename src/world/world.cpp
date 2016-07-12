@@ -145,22 +145,24 @@ void World::update_scene(f32 dt)
 
 		switch (h.type)
 		{
-			case EventType::PHYSICS_TRANSFORM:
+		case EventType::PHYSICS_TRANSFORM:
 			{
 				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)ev;
 				const TransformInstance ti = _scene_graph->get(ptev.unit_id);
 				const Matrix4x4 pose = matrix4x4(ptev.rotation, ptev.position);
 				_scene_graph->set_world_pose(ti, pose);
-				break;
 			}
-			case EventType::PHYSICS_COLLISION:
-			{
-				break;
-			}
-			case EventType::PHYSICS_TRIGGER:
-			{
-				break;
-			}
+			break;
+
+		case EventType::PHYSICS_COLLISION:
+			break;
+
+		case EventType::PHYSICS_TRIGGER:
+			break;
+
+		default:
+			CE_FATAL("Unknown event type");
+			break;
 		}
 
 		read += sizeof(h);
@@ -493,33 +495,28 @@ void World::Camera::update_projection_matrix()
 {
 	switch (projection_type)
 	{
-		case ProjectionType::ORTHOGRAPHIC:
-		{
-			orthographic(projection
-				, left
-				, right
-				, bottom
-				, top
-				, near
-				, far
-				);
-			break;
-		}
-		case ProjectionType::PERSPECTIVE:
-		{
-			perspective(projection
-				, fov
-				, aspect
-				, near
-				, far
-				);
-			break;
-		}
-		default:
-		{
-			CE_FATAL("Oops, unknown projection type");
-			break;
-		}
+	case ProjectionType::ORTHOGRAPHIC:
+		orthographic(projection
+			, left
+			, right
+			, bottom
+			, top
+			, near
+			, far
+			);
+		break;
+
+	case ProjectionType::PERSPECTIVE:
+		perspective(projection
+			, fov
+			, aspect
+			, near
+			, far
+			);
+		break;
+	default:
+		CE_FATAL("Oops, unknown projection type");
+		break;
 	}
 }
 

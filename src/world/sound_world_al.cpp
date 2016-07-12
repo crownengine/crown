@@ -25,11 +25,11 @@ namespace crown
 	{
 		switch (error)
 		{
-			case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
-			case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
-			case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
-			case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
-			default: return "UNKNOWN_AL_ERROR";
+		case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
+		case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
+		case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
+		case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
+		default: return "UNKNOWN_AL_ERROR";
 		}
 	}
 
@@ -93,9 +93,9 @@ struct SoundInstance
 		ALenum fmt = AL_INVALID_ENUM;
 		switch (sr.bits_ps)
 		{
-			case  8: fmt = sr.channels > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8; break;
-			case 16: fmt = sr.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
-			default: CE_FATAL("Number of bits per sample not supported."); break;
+		case  8: fmt = sr.channels > 1 ? AL_FORMAT_STEREO8  : AL_FORMAT_MONO8; break;
+		case 16: fmt = sr.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
+		default: CE_FATAL("Number of bits per sample not supported."); break;
 		}
 		AL_CHECK(alBufferData(_buffer, fmt, data(&sr), sr.size, sr.sample_rate));
 

@@ -180,16 +180,13 @@ void LuaEnvironment::call_global(const char* func, u8 argc, ...)
 		const int type = va_arg(vl, int);
 		switch (type)
 		{
-			case ARGUMENT_FLOAT:
-			{
-				stack.push_float(va_arg(vl, f64));
-				break;
-			}
-			default:
-			{
-				CE_ASSERT(false, "Oops, lua argument unknown");
-				break;
-			}
+		case ARGUMENT_FLOAT:
+			stack.push_float(va_arg(vl, f64));
+			break;
+
+		default:
+			CE_FATAL("Unknown argument type");
+			break;
 		}
 	}
 

@@ -226,25 +226,29 @@ public:
 
 		switch(sd->type)
 		{
-			case ColliderType::SPHERE:
-				child_shape = CE_NEW(*_allocator, btSphereShape)(sd->sphere.radius);
-				break;
-			case ColliderType::CAPSULE:
-				child_shape = CE_NEW(*_allocator, btCapsuleShape)(sd->capsule.radius, sd->capsule.height);
-				break;
-			case ColliderType::BOX:
-				child_shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(sd->box.half_size));
-				break;
-			case ColliderType::CONVEX_HULL:
+		case ColliderType::SPHERE:
+			child_shape = CE_NEW(*_allocator, btSphereShape)(sd->sphere.radius);
+			break;
+
+		case ColliderType::CAPSULE:
+			child_shape = CE_NEW(*_allocator, btCapsuleShape)(sd->capsule.radius, sd->capsule.height);
+			break;
+
+		case ColliderType::BOX:
+			child_shape = CE_NEW(*_allocator, btBoxShape)(to_btVector3(sd->box.half_size));
+			break;
+
+		case ColliderType::CONVEX_HULL:
 			{
 				const char* data       = (char*)&sd[1];
 				const u32 num          = *(u32*)data;
 				const btScalar* points = (btScalar*)(data + sizeof(u32));
 
 				child_shape = CE_NEW(*_allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
-				break;
 			}
-			case ColliderType::MESH:
+			break;
+
+		case ColliderType::MESH:
 			{
 				const char* data      = (char*)&sd[1];
 				const u32 num_points  = *(u32*)data;
@@ -267,18 +271,16 @@ public:
 				const btVector3 aabb_min(-1000.0f,-1000.0f,-1000.0f);
 				const btVector3 aabb_max(1000.0f,1000.0f,1000.0f);
 				child_shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
-				break;
 			}
-			case ColliderType::HEIGHTFIELD:
-			{
-				CE_FATAL("Not implemented yet");
-				break;
-			}
-			default:
-			{
-				CE_FATAL("Bad shape");
-				break;
-			}
+			break;
+
+		case ColliderType::HEIGHTFIELD:
+			CE_FATAL("Not implemented");
+			break;
+
+		default:
+			CE_FATAL("Unknown shape type");
+			break;
 		}
 
 		const u32 last = array::size(_collider);
@@ -754,7 +756,7 @@ public:
 		btTypedConstraint* joint = NULL;
 		switch(jd.type)
 		{
-			case JointType::FIXED:
+		case JointType::FIXED:
 			{
 				const btTransform frame_0 = btTransform(btQuaternion::getIdentity(), anchor_0);
 				const btTransform frame_1 = btTransform(btQuaternion::getIdentity(), anchor_1);
@@ -763,18 +765,18 @@ public:
 	 				, frame_0
 	 				, frame_1
 	 				);
-				break;
 			}
-			case JointType::SPRING:
-			{
-				joint = CE_NEW(*_allocator, btPoint2PointConstraint)(*actor_0
-					, *actor_1
-					, anchor_0
-					, anchor_1
-					);
-				break;
-			}
-			case JointType::HINGE:
+			break;
+
+		case JointType::SPRING:
+			joint = CE_NEW(*_allocator, btPoint2PointConstraint)(*actor_0
+				, *actor_1
+				, anchor_0
+				, anchor_1
+				);
+			break;
+
+		case JointType::HINGE:
 			{
 				btHingeConstraint* hinge = CE_NEW(*_allocator, btHingeConstraint)(*actor_0
 					, *actor_1
@@ -795,13 +797,12 @@ public:
 					);
 
 				joint = hinge;
-				break;
 			}
-			default:
-			{
-				CE_FATAL("Bad joint type");
-				break;
-			}
+			break;
+
+		default:
+			CE_FATAL("Unknown joint type");
+			break;
 		}
 
 		joint->setBreakingImpulseThreshold(jd.break_force);
@@ -822,23 +823,22 @@ public:
 
 		switch (mode)
 		{
-			case RaycastMode::CLOSEST:
+		case RaycastMode::CLOSEST:
 			{
 				btCollisionWorld::ClosestRayResultCallback cb(start, end);
 				_scene->rayTest(start, end, cb);
 
+				array::resize(hits, 1);
 				if (cb.hasHit())
 				{
-					RaycastHit hit;
-					hit.position = to_vector3(cb.m_hitPointWorld);
-					hit.normal = to_vector3(cb.m_hitNormalWorld);
-					hit.actor.i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
-					array::push_back(hits, hit);
+					hits[0].position = to_vector3(cb.m_hitPointWorld);
+					hits[0].normal   = to_vector3(cb.m_hitNormalWorld);
+					hits[0].actor.i  = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
 				}
-
-				break;
 			}
-			case RaycastMode::ALL:
+			break;
+
+		case RaycastMode::ALL:
 			{
 				btCollisionWorld::AllHitsRayResultCallback cb(start, end);
 				_scene->rayTest(start, end, cb);
@@ -846,25 +846,21 @@ public:
 				if (cb.hasHit())
 				{
 					const int num = cb.m_hitPointWorld.size();
-					array::resize(hits, num);
 
+					array::resize(hits, num);
 					for (int i = 0; i < num; ++i)
 					{
-						RaycastHit hit;
-						hit.position = to_vector3(cb.m_hitPointWorld[i]);
-						hit.normal = to_vector3(cb.m_hitNormalWorld[i]);
-						hit.actor.i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
-						hits[i] = hit;
+						hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
+						hits[i].normal   = to_vector3(cb.m_hitNormalWorld[i]);
+						hits[i].actor.i  = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
 					}
 				}
+			}
+			break;
 
-				break;
-			}
-			default:
-			{
-				CE_FATAL("Bad raycast mode");
-				break;
-			}
+		default:
+			CE_FATAL("Unknown raycast mode");
+			break;
 		}
 	}
 

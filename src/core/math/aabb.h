@@ -99,15 +99,15 @@ namespace aabb
 
 		switch (index)
 		{
-			case 0: return vector3(b.min.x, b.min.y, b.min.z);
-			case 1: return vector3(b.max.x, b.min.y, b.min.z);
-			case 2: return vector3(b.max.x, b.min.y, b.max.z);
-			case 3: return vector3(b.min.x, b.min.y, b.max.z);
-			case 4: return vector3(b.min.x, b.max.y, b.min.z);
-			case 5: return vector3(b.max.x, b.max.y, b.min.z);
-			case 6: return vector3(b.max.x, b.max.y, b.max.z);
-			case 7: return vector3(b.min.x, b.max.y, b.max.z);
-			default: return VECTOR3_ZERO;
+		case 0: return vector3(b.min.x, b.min.y, b.min.z);
+		case 1: return vector3(b.max.x, b.min.y, b.min.z);
+		case 2: return vector3(b.max.x, b.min.y, b.max.z);
+		case 3: return vector3(b.min.x, b.min.y, b.max.z);
+		case 4: return vector3(b.min.x, b.max.y, b.min.z);
+		case 5: return vector3(b.max.x, b.max.y, b.min.z);
+		case 6: return vector3(b.max.x, b.max.y, b.max.z);
+		case 7: return vector3(b.min.x, b.max.y, b.max.z);
+		default: return VECTOR3_ZERO;
 		}
 	}
 

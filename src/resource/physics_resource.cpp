@@ -205,16 +205,14 @@ namespace physics_resource
 
 		switch (cd.type)
 		{
-			case ColliderType::SPHERE:      compile_sphere(points, cd); break;
-			case ColliderType::CAPSULE:     compile_capsule(points, cd); break;
-			case ColliderType::BOX:         compile_box(points, cd); break;
-			case ColliderType::CONVEX_HULL: break;
-			case ColliderType::MESH:        break;
-			case ColliderType::HEIGHTFIELD:
-			{
-				RESOURCE_COMPILER_ASSERT(false, opts, "Not implemented yet");
-				break;
-			}
+		case ColliderType::SPHERE:      compile_sphere(points, cd); break;
+		case ColliderType::CAPSULE:     compile_capsule(points, cd); break;
+		case ColliderType::BOX:         compile_box(points, cd); break;
+		case ColliderType::CONVEX_HULL: break;
+		case ColliderType::MESH:        break;
+		case ColliderType::HEIGHTFIELD:
+			RESOURCE_COMPILER_ASSERT(false, opts, "Not implemented yet");
+			break;
 		}
 
 		const u32 num_points  = array::size(points);
@@ -290,16 +288,14 @@ namespace physics_resource
 
 		switch (jd.type)
 		{
-			case JointType::HINGE:
-			{
-				jd.hinge.use_motor         = sjson::parse_bool (obj["use_motor"]);
-				jd.hinge.target_velocity   = sjson::parse_float(obj["target_velocity"]);
-				jd.hinge.max_motor_impulse = sjson::parse_float(obj["max_motor_impulse"]);
-				jd.hinge.lower_limit       = sjson::parse_float(obj["lower_limit"]);
-				jd.hinge.upper_limit       = sjson::parse_float(obj["upper_limit"]);
-				jd.hinge.bounciness        = sjson::parse_float(obj["bounciness"]);
-				break;
-			}
+		case JointType::HINGE:
+			jd.hinge.use_motor         = sjson::parse_bool (obj["use_motor"]);
+			jd.hinge.target_velocity   = sjson::parse_float(obj["target_velocity"]);
+			jd.hinge.max_motor_impulse = sjson::parse_float(obj["max_motor_impulse"]);
+			jd.hinge.lower_limit       = sjson::parse_float(obj["lower_limit"]);
+			jd.hinge.upper_limit       = sjson::parse_float(obj["upper_limit"]);
+			jd.hinge.bounciness        = sjson::parse_float(obj["bounciness"]);
+			break;
 		}
 
 		Buffer buf(default_allocator());

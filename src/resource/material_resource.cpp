@@ -147,31 +147,25 @@ namespace material_resource
 
 			switch (ud.type)
 			{
-				case UniformType::FLOAT:
-				{
-					f32 data = sjson::parse_float(uniform["value"]);
-					reserve_dynamic_data(data, dynamic);
-					break;
-				}
-				case UniformType::VECTOR2:
-				{
-					Vector2 data = sjson::parse_vector2(uniform["value"]);
-					reserve_dynamic_data(data, dynamic);
-					break;
-				}
-				case UniformType::VECTOR3:
-				{
-					Vector3 data = sjson::parse_vector3(uniform["value"]);
-					reserve_dynamic_data(data, dynamic);
-					break;
-				}
-				case UniformType::VECTOR4:
-				{
-					Vector4 data = sjson::parse_vector4(uniform["value"]);
-					reserve_dynamic_data(data, dynamic);
-					break;
-				}
-				default: CE_FATAL("Oops"); break;
+			case UniformType::FLOAT:
+				reserve_dynamic_data(sjson::parse_float(uniform["value"]), dynamic);
+				break;
+
+			case UniformType::VECTOR2:
+				reserve_dynamic_data(sjson::parse_vector2(uniform["value"]), dynamic);
+				break;
+
+			case UniformType::VECTOR3:
+				reserve_dynamic_data(sjson::parse_vector3(uniform["value"]), dynamic);
+				break;
+
+			case UniformType::VECTOR4:
+				reserve_dynamic_data(sjson::parse_vector4(uniform["value"]), dynamic);
+				break;
+
+			default:
+				CE_FATAL("Unknown uniform type");
+				break;
 			}
 
 			array::push_back(uniforms, ud);

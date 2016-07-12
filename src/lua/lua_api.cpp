@@ -1029,10 +1029,10 @@ static int lightuserdata_index(lua_State* L)
 
 	switch (s[0])
 	{
-		case 'x': stack.push_float(v.x); return 1;
-		case 'y': stack.push_float(v.y); return 1;
-		case 'z': stack.push_float(v.z); return 1;
-		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
+	case 'x': stack.push_float(v.x); return 1;
+	case 'y': stack.push_float(v.y); return 1;
+	case 'z': stack.push_float(v.z); return 1;
+	default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
 	}
 
 	return 0;
@@ -1047,10 +1047,10 @@ static int lightuserdata_newindex(lua_State* L)
 
 	switch (s[0])
 	{
-		case 'x': v.x = value; break;
-		case 'y': v.y = value; break;
-		case 'z': v.z = value; break;
-		default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
+	case 'x': v.x = value; break;
+	case 'y': v.y = value; break;
+	case 'z': v.z = value; break;
+	default: LUA_ASSERT(false, stack, "Bad index: '%c'", s[0]); break;
 	}
 
 	return 0;

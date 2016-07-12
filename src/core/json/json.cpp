@@ -51,10 +51,10 @@ namespace json
 
 		switch (*json)
 		{
-			case '"': json = skip_string(json); break;
-			case '[': json = skip_block(json, '[', ']'); break;
-			case '{': json = skip_block(json, '{', '}'); break;
-			default: for (; *json != ',' && *json != '}' && *json != ']'; ++json) ; break;
+		case '"': json = skip_string(json); break;
+		case '[': json = skip_block(json, '[', ']'); break;
+		case '{': json = skip_block(json, '{', '}'); break;
+		default: for (; *json != ',' && *json != '}' && *json != ']'; ++json) ; break;
 		}
 
 		return json;
@@ -66,11 +66,11 @@ namespace json
 
 		switch (*json)
 		{
-			case '"': return JsonValueType::STRING;
-			case '{': return JsonValueType::OBJECT;
-			case '[': return JsonValueType::ARRAY;
-			case '-': return JsonValueType::NUMBER;
-			default: return (isdigit(*json)) ? JsonValueType::NUMBER : (*json == 'n' ? JsonValueType::NIL : JsonValueType::BOOL);
+		case '"': return JsonValueType::STRING;
+		case '{': return JsonValueType::OBJECT;
+		case '[': return JsonValueType::ARRAY;
+		case '-': return JsonValueType::NUMBER;
+		default: return (isdigit(*json)) ? JsonValueType::NUMBER : (*json == 'n' ? JsonValueType::NIL : JsonValueType::BOOL);
 		}
 	}
 
@@ -94,20 +94,20 @@ namespace json
 
 					switch (*json)
 					{
-						case '"': string += '"'; break;
-						case '\\': string += '\\'; break;
-						case '/': string += '/'; break;
-						case 'b': string += '\b'; break;
-						case 'f': string += '\f'; break;
-						case 'n': string += '\n'; break;
-						case 'r': string += '\r'; break;
-						case 't': string += '\t'; break;
-						default:
-						{
-							CE_FATAL("Bad escape character");
-							break;
-						}
+					case '"': string += '"'; break;
+					case '\\': string += '\\'; break;
+					case '/': string += '/'; break;
+					case 'b': string += '\b'; break;
+					case 'f': string += '\f'; break;
+					case 'n': string += '\n'; break;
+					case 'r': string += '\r'; break;
+					case 't': string += '\t'; break;
+					default:
+					{
+						CE_FATAL("Bad escape character");
+						break;
 					}
+				}
 				}
 				else
 				{
@@ -178,28 +178,24 @@ namespace json
 
 		switch (*json)
 		{
-			case 't':
-			{
-				json = next(json, 't');
-				json = next(json, 'r');
-				json = next(json, 'u');
-				json = next(json, 'e');
-				return true;
-			}
-			case 'f':
-			{
-				json = next(json, 'f');
-				json = next(json, 'a');
-				json = next(json, 'l');
-				json = next(json, 's');
-				json = next(json, 'e');
-				return false;
-			}
-			default:
-			{
-				CE_FATAL("Bad boolean");
-				return false;
-			}
+		case 't':
+			json = next(json, 't');
+			json = next(json, 'r');
+			json = next(json, 'u');
+			json = next(json, 'e');
+			return true;
+
+		case 'f':
+			json = next(json, 'f');
+			json = next(json, 'a');
+			json = next(json, 'l');
+			json = next(json, 's');
+			json = next(json, 'e');
+			return false;
+
+		default:
+			CE_FATAL("Bad boolean");
+			return false;
 		}
 	}
 
