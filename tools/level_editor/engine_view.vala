@@ -44,13 +44,13 @@ namespace Crown
 		{
 			switch (k)
 			{
-				case Gdk.Key.w:         return "w";
-				case Gdk.Key.a:         return "a";
-				case Gdk.Key.s:         return "s";
-				case Gdk.Key.d:         return "d";
-				case Gdk.Key.Control_L: return "left_ctrl";
-				case Gdk.Key.Shift_L:   return "left_shift";
-				default:                return "<unknown>";
+			case Gdk.Key.w:         return "w";
+			case Gdk.Key.a:         return "a";
+			case Gdk.Key.s:         return "s";
+			case Gdk.Key.d:         return "d";
+			case Gdk.Key.Control_L: return "left_ctrl";
+			case Gdk.Key.Shift_L:   return "left_shift";
+			default:                return "<unknown>";
 			}
 		}
 

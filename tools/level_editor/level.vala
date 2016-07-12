@@ -198,43 +198,47 @@ namespace Crown
 		{
 			switch (id)
 			{
-				case (int)ActionType.SPAWN_UNIT:
+			case (int)ActionType.SPAWN_UNIT:
 				{
 					Guid unit_id = data[0];
 					if (undo)
 						do_destroy_objects(new Guid[] { unit_id });
 					else
 						do_spawn_units(new Guid[] { unit_id });
-					break;
 				}
-				case (int)ActionType.DESTROY_UNIT:
+				break;
+
+			case (int)ActionType.DESTROY_UNIT:
 				{
 					Guid unit_id = data[0];
 					if (undo)
 						do_spawn_units(new Guid[] { unit_id });
 					else
 						do_destroy_objects(new Guid[] { unit_id });
-					break;
 				}
-				case (int)ActionType.SPAWN_SOUND:
+				break;
+
+			case (int)ActionType.SPAWN_SOUND:
 				{
 					Guid sound_id = data[0];
 					if (undo)
 						do_destroy_objects(new Guid[] { sound_id });
 					else
 						do_spawn_sounds(new Guid[] { sound_id });
-					break;
 				}
-				case (int)ActionType.DESTROY_SOUND:
+				break;
+
+			case (int)ActionType.DESTROY_SOUND:
 				{
 					Guid sound_id = data[0];
 					if (undo)
 						do_spawn_sounds(new Guid[] { sound_id });
 					else
 						do_destroy_objects(new Guid[] { sound_id });
-					break;
 				}
-				case (int)ActionType.MOVE_OBJECTS:
+				break;
+
+			case (int)ActionType.MOVE_OBJECTS:
 				{
 					Guid[] ids = data;
 
@@ -278,22 +282,22 @@ namespace Crown
 					do_move_objects(ids, positions, rotations, scales);
 					// FIXME: Hack to force update the component view
 					selection_changed(_selection);
-					break;
 				}
-				case (int)ActionType.DUPLICATE_OBJECTS:
+				break;
+
+			case (int)ActionType.DUPLICATE_OBJECTS:
 				{
 					Guid[] new_ids = data;
 					if (undo)
 						do_destroy_objects(new_ids);
 					else
 						do_spawn_objects(new_ids);
-					break;
 				}
-				default:
-				{
-					assert(false);
-					break;
-				}
+				break;
+
+			default:
+				assert(false);
+				break;
 			}
 		}
 
