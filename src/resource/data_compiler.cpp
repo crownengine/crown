@@ -113,6 +113,7 @@ void DataCompiler::scan()
 	add_ignore_glob("*.swn"); // VIM swap file.
 	add_ignore_glob("*.swo"); // VIM swap file.
 	add_ignore_glob("*.swp"); // VIM swap file.
+	add_ignore_glob("*.bak");
 	add_ignore_glob("*~");
 	add_ignore_glob(".*");
 
@@ -190,6 +191,12 @@ bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const ch
 
 	logi("%s <= %s", dst_path.c_str(), src_path.c_str());
 
+	if (!can_compile(_type))
+	{
+		loge("Unknown resource type: '%s'", type);
+		return false;
+	}
+
 	bool success = true;
 	jmp_buf buf;
 
@@ -199,11 +206,14 @@ bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const ch
 	if (!setjmp(buf))
 	{
 		CompileOptions opts(*this, bundle_fs, output, platform, &buf);
+
 		compile(_type, src_path.c_str(), opts);
+
 		File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
 		u32 size = array::size(output);
 		u32 written = outf->write(array::begin(output), size);
 		bundle_fs.close(*outf);
+
 		success = size == written;
 	}
 	else
@@ -272,6 +282,11 @@ void DataCompiler::register_compiler(StringId64 type, u32 version, CompileFuncti
 
 	sort_map::set(_compilers, type, rtd);
 	sort_map::sort(_compilers);
+}
+
+bool DataCompiler::can_compile(StringId64 type)
+{
+	return sort_map::has(_compilers, type);
 }
 
 void DataCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)

@@ -27,6 +27,7 @@ class DataCompiler
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
 
+	bool can_compile(StringId64 type);
 	void compile(StringId64 type, const char* path, CompileOptions& opts);
 	void scan_source_dir(const char* prefix, const char* path);
 	bool compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform);
