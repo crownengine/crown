@@ -49,10 +49,9 @@ static int error_handler(lua_State* L)
 // Redirects require to the resource manager.
 static int require(lua_State* L)
 {
-	using namespace lua_resource;
 	LuaStack stack(L);
 	const LuaResource* lr = (LuaResource*)device()->resource_manager()->get(RESOURCE_TYPE_SCRIPT, stack.get_resource_id(1));
-	luaL_loadbuffer(L, program(lr), lr->size, "");
+	luaL_loadbuffer(L, lua_resource::program(lr), lr->size, "");
 	return 1;
 }
 
