@@ -67,11 +67,10 @@ struct AndroidDevice
 	{
 		switch (cmd)
 		{
-			case APP_CMD_SAVE_STATE:
-			{
-				break;
-			}
-			case APP_CMD_INIT_WINDOW:
+		case APP_CMD_SAVE_STATE:
+			break;
+
+		case APP_CMD_INIT_WINDOW:
 			{
 				CE_ASSERT(app->window != NULL, "Android window is NULL");
 				bgfx::androidSetWindow(app->window);
@@ -80,31 +79,25 @@ struct AndroidDevice
 				const s32 height = ANativeWindow_getHeight(app->window);
 				_queue.push_metrics_event(0, 0, width, height);
 				_main_thread.start(func, &_margs);
-				break;
 			}
-			case APP_CMD_TERM_WINDOW:
-			{
-				// The window is being hidden or closed, clean it up.
-				break;
-			}
-			case APP_CMD_WINDOW_RESIZED:
-			{
-				// Not triggered by Android
-				break;
-			}
-			case APP_CMD_GAINED_FOCUS:
-			{
-				break;
-			}
-			case APP_CMD_LOST_FOCUS:
-			{
-				break;
-			}
-			case APP_CMD_DESTROY:
-			{
-				_queue.push_exit_event(0);
-				break;
-			}
+			break;
+		case APP_CMD_TERM_WINDOW:
+			// The window is being hidden or closed, clean it up.
+			break;
+
+		case APP_CMD_WINDOW_RESIZED:
+			// Not triggered by Android
+			break;
+
+		case APP_CMD_GAINED_FOCUS:
+			break;
+
+		case APP_CMD_LOST_FOCUS:
+			break;
+
+		case APP_CMD_DESTROY:
+			_queue.push_exit_event(0);
+			break;
 		}
 	}
 
@@ -124,35 +117,30 @@ struct AndroidDevice
 
 			switch (actionMasked)
 			{
-				case AMOTION_EVENT_ACTION_DOWN:
-				case AMOTION_EVENT_ACTION_POINTER_DOWN:
+			case AMOTION_EVENT_ACTION_DOWN:
+			case AMOTION_EVENT_ACTION_POINTER_DOWN:
+				_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, true);
+				break;
+
+			case AMOTION_EVENT_ACTION_UP:
+			case AMOTION_EVENT_ACTION_POINTER_UP:
+				_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, false);
+				break;
+
+			case AMOTION_EVENT_ACTION_OUTSIDE:
+			case AMOTION_EVENT_ACTION_CANCEL:
+				_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, false);
+				break;
+
+			case AMOTION_EVENT_ACTION_MOVE:
+				for (int index = 0; index < pointer_count; index++)
 				{
-					_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, true);
-					break;
+					const f32 xx = AMotionEvent_getX(event, index);
+					const f32 yy = AMotionEvent_getY(event, index);
+					const s32 id = AMotionEvent_getPointerId(event, index);
+					_queue.push_touch_event((s16)xx, (s16)yy, (u8)id);
 				}
-				case AMOTION_EVENT_ACTION_UP:
-				case AMOTION_EVENT_ACTION_POINTER_UP:
-				{
-					_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, false);
-					break;
-				}
-				case AMOTION_EVENT_ACTION_OUTSIDE:
-				case AMOTION_EVENT_ACTION_CANCEL:
-				{
-					_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, false);
-					break;
-				}
-				case AMOTION_EVENT_ACTION_MOVE:
-				{
-					for (int index = 0; index < pointer_count; index++)
-					{
-						const f32 xx = AMotionEvent_getX(event, index);
-						const f32 yy = AMotionEvent_getY(event, index);
-						const s32 id = AMotionEvent_getPointerId(event, index);
-						_queue.push_touch_event((s16)xx, (s16)yy, (u8)id);
-					}
-					break;
-				}
+				break;
 			}
 
 			return 1;
@@ -165,7 +153,8 @@ struct AndroidDevice
 			if (keycode == AKEYCODE_BACK)
 			{
 				_queue.push_keyboard_event(KeyboardButton::ESCAPE
-					, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false);
+					, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false
+					);
 			}
 
 			return 1;
