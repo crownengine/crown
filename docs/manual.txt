@@ -14,15 +14,13 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 System requirements
 -------------------
 
-Software
-~~~~~~~~
+Developing applications with Pepper requires a system with the following characteristics:
 
-* Ubuntu 16.04+ or any other distribution with GTK+ 3.14 or newer.
+**Operating system**
 
-Hardware
-~~~~~~~~
+* 64-bit Ubuntu 16.04+ or any other 64-bit distribution with GTK+ 3.14 or newer.
 
-**Minimum**
+**Hardware (minimum)**
 
 * 64-bit dual-core CPU
 * 4 GB of RAM
@@ -30,7 +28,7 @@ Hardware
 * True color 1280x768 display
 * Three-button mouse
 
-**Recommended**
+**Hardware (recommended)**
 
 * 64-bit quad-core CPU
 * 8 GB of RAM
@@ -43,9 +41,9 @@ Deployment platforms
 
 You can deploy applications made with Pepper to the following platforms:
 
-* Android 2.3.7+ (ARM)
-* Ubuntu 12.04+
-* Windows 7, 8, 10
+* Android 2.3.7+ (ARMv7)
+* Ubuntu 12.04+ (32 and 64-bit)
+* Windows 7, 8, 10 (32 and 64-bit)
 
 Basic concepts
 ==============
