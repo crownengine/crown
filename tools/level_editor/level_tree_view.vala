@@ -27,6 +27,7 @@ namespace Crown
 		private Gtk.TreeStore _tree_store;
 		private Gtk.TreeModelFilter _tree_filter;
 		private Gtk.TreeView _tree_view;
+		private Gtk.TreeSelection _tree_selection;
 		private Gtk.ScrolledWindow _scrolled_window;
 		private Gtk.Box _vbox;
 
@@ -34,6 +35,7 @@ namespace Crown
 		{
 			// Data
 			_level = level;
+			_level.selection_changed.connect(on_level_selection_changed);
 
 			_db = db;
 			_db.key_changed.connect(on_database_key_changed);
@@ -55,6 +57,10 @@ namespace Crown
 			_tree_view.model = _tree_filter;
 			_tree_view.button_press_event.connect(on_button_pressed);
 
+			_tree_selection = _tree_view.get_selection();
+			_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
+			_tree_selection.changed.connect(on_tree_selection_changed);
+
 			_scrolled_window = new Gtk.ScrolledWindow(null, null);
 			_scrolled_window.add(_tree_view);
 
@@ -72,29 +78,7 @@ namespace Crown
 		{
 			uint button = ev.button;
 
-			if (button == 1)
-			{
-				Gtk.TreePath path;
-				int cell_x;
-				int cell_y;
-				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
-				{
-					Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(path);
-					Gtk.TreeIter iter;
-					if (_tree_store.get_iter(out iter, child_path))
-					{
-						Value type;
-						_tree_store.get_value(iter, 1, out type);
-						if ((int)type == ItemType.FOLDER)
-							return false;
-
-						Value id;
-						_tree_store.get_value(iter, 0, out id);
-						_level.set_selected_unit(Guid.parse((string)id));
-					}
-				}
-			}
-			else if (button == 3)
+			if (button == 3) // Right
 			{
 				Gtk.TreePath path;
 				int cell_x;
@@ -155,6 +139,33 @@ namespace Crown
 			return false;
 		}
 
+		private void on_tree_selection_changed()
+		{
+			_level.selection_changed.disconnect(on_level_selection_changed);
+
+			Guid[] ids = {};
+			_tree_selection.selected_foreach((model, path, iter) => {
+				Value type;
+				model.get_value(iter, 1, out type);
+				if ((int)type == ItemType.FOLDER)
+					return;
+
+				Value id;
+				model.get_value(iter, 0, out id);
+				ids += Guid.parse((string)id);
+			});
+
+			_level.selection_set(ids);
+			_level.selection_changed.connect(on_level_selection_changed);
+		}
+
+		private void on_level_selection_changed(Gee.ArrayList<Guid?> selection)
+		{
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
+			// FIXME
+			_tree_selection.changed.connect(on_tree_selection_changed);
+		}
+
 		private void on_database_key_changed(Guid id, string key)
 		{
 			if (id != GUID_ZERO)
@@ -163,6 +174,7 @@ namespace Crown
 			if (key != "units" && key != "sounds")
 				return;
 
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
 			_tree_view.model = null;
 			_tree_store.clear();
 
@@ -197,11 +209,15 @@ namespace Crown
 
 			_tree_view.model = _tree_filter;
 			_tree_view.expand_all();
+
+			_tree_selection.changed.connect(on_tree_selection_changed);
 		}
 
 		private void on_filter_entry_text_changed()
 		{
+			_tree_selection.changed.disconnect(on_tree_selection_changed);
 			_tree_filter.refilter();
+			_tree_selection.changed.connect(on_tree_selection_changed);
 		}
 	}
 }

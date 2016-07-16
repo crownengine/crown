@@ -478,7 +478,7 @@ namespace Crown
 						ids[i] = Guid.parse((string)objects[k]);
 					}
 
-					_level.selection(ids);
+					_level.on_selection(ids);
 				}
 			}
 			catch (Error e)

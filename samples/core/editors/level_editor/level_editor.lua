@@ -166,6 +166,14 @@ function Selection:remove(id)
 	end
 end
 
+function Selection:set(ids)
+	self:clear()
+	for k, v in pairs(ids) do
+		LevelEditor._objects[v]:on_selected(true)
+	end
+	self._ids = ids
+end
+
 function Selection:last_selected_object()
 	local last = self._ids[#self._ids]
 	return last and LevelEditor._objects[last] or nil
@@ -1503,13 +1511,6 @@ end
 
 function LevelEditor:set_placeable(placeable_type, name)
 	self.place_tool:set_placeable(placeable_type, name)
-end
-
-function LevelEditor:set_selected_unit(id)
-	local unit_box = self._objects[id]
-
-	self._selection:clear()
-	self._selection:add(unit_box:id())
 end
 
 function LevelEditor:destroy(id)

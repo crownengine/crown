@@ -178,9 +178,14 @@ namespace Crown
 			return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf((type == PlaceableType.UNIT ? "unit" : "sound"), name);
 		}
 
-		public string set_selected_unit(Guid id)
+		public string selection_set(Guid[] ids)
 		{
-			return @"LevelEditor:set_selected_unit(\"%s\")".printf(id.to_string());
+			StringBuilder sb = new StringBuilder();
+			sb.append("LevelEditor._selection:set({");
+			for (int i = 0; i < ids.length; ++i)
+				sb.append("\"%s\",".printf(ids[i].to_string()));
+			sb.append("})");
+			return sb.str;
 		}
 
 		public string destroy(Guid id)

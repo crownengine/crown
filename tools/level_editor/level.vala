@@ -56,15 +56,6 @@ namespace Crown
 			_client.send_script(LevelEditorApi.reset());
 		}
 
-		public void selection(Guid[] ids)
-		{
-			_selection.clear();
-			foreach (Guid id in ids)
-				_selection.add(id);
-
-			selection_changed(_selection);
-		}
-
 		public void new_level()
 		{
 			load(_toolchain_dir + "core/editors/levels/empty.level");
@@ -457,6 +448,15 @@ namespace Crown
 			_db.add_to_set(GUID_ZERO, "sounds", id);
 		}
 
+		public void on_selection(Guid[] ids)
+		{
+			_selection.clear();
+			foreach (Guid id in ids)
+				_selection.add(id);
+
+			selection_changed(_selection);
+		}
+
 		public void destroy_objects(Guid[] ids)
 		{
 			foreach (Guid id in ids)
@@ -478,11 +478,12 @@ namespace Crown
 			do_destroy_objects(ids);
 		}
 
-		public void set_selected_unit(Guid id)
+		public void selection_set(Guid[] ids)
 		{
-			_client.send_script(LevelEditorApi.set_selected_unit(id));
 			_selection.clear();
-			_selection.add(id);
+			for (int i = 0; i < ids.length; ++i)
+				_selection.add(ids[i]);
+			_client.send_script(LevelEditorApi.selection_set(ids));
 
 			selection_changed(_selection);
 		}
