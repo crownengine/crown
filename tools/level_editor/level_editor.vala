@@ -72,6 +72,9 @@ namespace Crown
 		private ConsoleView _console_view;
 		private EngineView _engine_view;
 		private LevelTreeView _level_treeview;
+/*
+		private LevelLayersTreeView _level_layers_treeview;
+*/
 		private PropertiesView _properties_view;
 /*
 		private GraphStore _graph_store;
@@ -85,7 +88,8 @@ namespace Crown
 		private Gtk.UIManager _ui_manager;
 		private Gtk.Paned _pane_left;
 		private Gtk.Paned _pane_right;
-		private Gtk.Notebook _notebook;
+		private Gtk.Notebook _notebook_left;
+		private Gtk.Notebook _notebook_right;
 		private Gtk.Box _vbox;
 		private Gtk.FileFilter _file_filter;
 
@@ -228,6 +232,9 @@ namespace Crown
 			// Widgets
 			_console_view = new ConsoleView(_engine);
 			_level_treeview = new LevelTreeView(_db, _level);
+/*
+			_level_layers_treeview = new LevelLayersTreeView(_db, _level);
+*/
 			_properties_view = new PropertiesView(_level);
 /*
 			_graph_store = new GraphStore();
@@ -246,16 +253,18 @@ namespace Crown
 
 			try
 			{
-				Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_file("ui/icons/tool-place.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_file("ui/icons/tool-move.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_file("ui/icons/tool-rotate.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_file("ui/icons/tool-scale.png"));
-				Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_file("ui/icons/axis-local.png"));
-				Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_file("ui/icons/axis-world.png"));
-				Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_file("ui/icons/snap-to-grid.png"));
-				Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_file("ui/icons/reference-local.png"));
-				Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_file("ui/icons/reference-world.png"));
-				Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_file("ui/icons/run.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_file("ui/icons/theme/tool-place.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_file("ui/icons/theme/tool-move.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_file("ui/icons/theme/tool-rotate.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_file("ui/icons/theme/tool-scale.png"));
+				Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_file("ui/icons/theme/axis-local.png"));
+				Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_file("ui/icons/theme/axis-world.png"));
+				Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_file("ui/icons/theme/snap-to-grid.png"));
+				Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_file("ui/icons/theme/reference-local.png"));
+				Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_file("ui/icons/theme/reference-world.png"));
+				Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_file("ui/icons/theme/run.png"));
+				Gtk.IconTheme.add_builtin_icon("level-tree",      16, new Pixbuf.from_file("ui/icons/theme/level-tree.png"));
+				Gtk.IconTheme.add_builtin_icon("level-layers",    16, new Pixbuf.from_file("ui/icons/theme/level-layers.png"));
 			}
 			catch (Error e)
 			{
@@ -295,24 +304,30 @@ namespace Crown
 			vb.pack_start(toolbar, false, false, 0);
 			vb.pack_start(_pane_left, true, true, 0);
 
+			_notebook_right = new Notebook();
+			_notebook_right.show_border = false;
+			_notebook_right.append_page(_level_treeview, new Gtk.Image.from_icon_name("level-tree", IconSize.SMALL_TOOLBAR));
+			_notebook_right.append_page(new Gtk.Label("Nothing to show"), new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
+
 			Gtk.Paned rb = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			rb.pack1(_alignment_level_tree_view, true, true);
+			rb.pack1(_notebook_right, true, true);
 			rb.pack2(_alignment_properties_view, true, true);
 
 			_pane_right = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_pane_right.pack1(vb, true, false);
 			_pane_right.pack2(rb, true, false);
 
-			_notebook = new Notebook();
-			_notebook.append_page(_pane_right, new Gtk.Label("Level"));
+			_notebook_left = new Notebook();
+			_notebook_left.show_border = false;
+			_notebook_left.append_page(_pane_right, new Gtk.Label("Level"));
 /*
-			_notebook.append_page(_graph_view, new Gtk.Label("Pepper"));
+			_notebook_left.append_page(_graph_view, new Gtk.Label("Pepper"));
 */
 
 			MenuBar menu = (MenuBar)_ui_manager.get_widget("/menubar");
 			_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_vbox.pack_start(menu, false, false, 0);
-			_vbox.pack_start(_notebook, true, true, 0);
+			_vbox.pack_start(_notebook_left, true, true, 0);
 
 			_file_filter = new FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
