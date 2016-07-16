@@ -11,9 +11,6 @@ local fpscamera = fpscamera or nil
 local move = false
 
 function init()
-	-- Set the title of the main window
-	Window.set_title("01-physics")
-
 	Device.enable_resource_autoload(true)
 
 	-- Create World

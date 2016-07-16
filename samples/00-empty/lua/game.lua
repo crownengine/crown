@@ -2,9 +2,6 @@ world = world or nil
 camera = camera or nil
 
 function init()
-	-- Set the title of the main window
-	Window.set_title("00-hello-world")
-
 	-- Create world and camera
 	world = Device.create_world()
 	local camera_unit = World.spawn_unit(world, "camera")
