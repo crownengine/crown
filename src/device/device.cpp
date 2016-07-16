@@ -143,6 +143,7 @@ private:
 Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
+	, _boot_config(default_allocator())
 	, _console_server(NULL)
 	, _data_compiler(NULL)
 	, _bundle_filesystem(NULL)
@@ -440,6 +441,7 @@ void Device::run()
 			, _boot_config.window_h
 			, _device_options._parent_window
 			);
+		_window->set_title(_boot_config.window_title.c_str());
 		_window->bgfx_setup();
 
 		bgfx::init(bgfx::RendererType::Count

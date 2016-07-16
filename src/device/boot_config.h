@@ -5,8 +5,9 @@
 
 #pragma once
 
-#include "types.h"
+#include "dynamic_string.h"
 #include "string_id.h"
+#include "types.h"
 
 namespace crown
 {
@@ -17,12 +18,13 @@ struct BootConfig
 {
 	StringId64 boot_script_name;
 	StringId64 boot_package_name;
+	DynamicString window_title;
 	u16 window_w;
 	u16 window_h;
 	float aspect_ratio;
 	bool vsync;
 
-	BootConfig();
+	BootConfig(Allocator& a);
 	bool parse(const char* json);
 };
 
