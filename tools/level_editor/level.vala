@@ -191,41 +191,37 @@ namespace Crown
 			{
 			case (int)ActionType.SPAWN_UNIT:
 				{
-					Guid unit_id = data[0];
 					if (undo)
-						do_destroy_objects(new Guid[] { unit_id });
+						do_destroy_objects(data);
 					else
-						do_spawn_units(new Guid[] { unit_id });
+						do_spawn_units(data);
 				}
 				break;
 
 			case (int)ActionType.DESTROY_UNIT:
 				{
-					Guid unit_id = data[0];
 					if (undo)
-						do_spawn_units(new Guid[] { unit_id });
+						do_spawn_units(data);
 					else
-						do_destroy_objects(new Guid[] { unit_id });
+						do_destroy_objects(data);
 				}
 				break;
 
 			case (int)ActionType.SPAWN_SOUND:
 				{
-					Guid sound_id = data[0];
 					if (undo)
-						do_destroy_objects(new Guid[] { sound_id });
+						do_destroy_objects(data);
 					else
-						do_spawn_sounds(new Guid[] { sound_id });
+						do_spawn_sounds(data);
 				}
 				break;
 
 			case (int)ActionType.DESTROY_SOUND:
 				{
-					Guid sound_id = data[0];
 					if (undo)
-						do_spawn_sounds(new Guid[] { sound_id });
+						do_spawn_sounds(data);
 					else
-						do_destroy_objects(new Guid[] { sound_id });
+						do_destroy_objects(data);
 				}
 				break;
 
@@ -459,17 +455,32 @@ namespace Crown
 
 		public void destroy_objects(Guid[] ids)
 		{
+			Guid[] units = {};
+			Guid[] sounds = {};
+
 			foreach (Guid id in ids)
 			{
 				if (is_unit(id))
+					units += id;
+				else if (is_sound(id))
+					sounds += id;
+			}
+
+			if (units.length > 0)
+			{
+				_db.add_restore_point((int)ActionType.DESTROY_UNIT, units);
+				foreach (Guid id in units)
 				{
-					_db.add_restore_point((int)ActionType.DESTROY_UNIT, new Guid[] { id });
 					_db.remove_from_set(GUID_ZERO, "units", id);
 					_db.destroy(id);
 				}
-				else if (is_sound(id))
+			}
+
+			if (sounds.length > 0)
+			{
+				_db.add_restore_point((int)ActionType.DESTROY_SOUND, sounds);
+				foreach (Guid id in sounds)
 				{
-					_db.add_restore_point((int)ActionType.DESTROY_SOUND, new Guid[] { id });
 					_db.remove_from_set(GUID_ZERO, "sounds", id);
 					_db.destroy(id);
 				}
