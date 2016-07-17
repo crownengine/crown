@@ -72,9 +72,7 @@ namespace Crown
 		private ConsoleView _console_view;
 		private EngineView _engine_view;
 		private LevelTreeView _level_treeview;
-/*
 		private LevelLayersTreeView _level_layers_treeview;
-*/
 		private PropertiesView _properties_view;
 /*
 		private GraphStore _graph_store;
@@ -232,9 +230,7 @@ namespace Crown
 			// Widgets
 			_console_view = new ConsoleView(_engine);
 			_level_treeview = new LevelTreeView(_db, _level);
-/*
 			_level_layers_treeview = new LevelLayersTreeView(_db, _level);
-*/
 			_properties_view = new PropertiesView(_level);
 /*
 			_graph_store = new GraphStore();
@@ -265,6 +261,8 @@ namespace Crown
 				Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_file("ui/icons/theme/run.png"));
 				Gtk.IconTheme.add_builtin_icon("level-tree",      16, new Pixbuf.from_file("ui/icons/theme/level-tree.png"));
 				Gtk.IconTheme.add_builtin_icon("level-layers",    16, new Pixbuf.from_file("ui/icons/theme/level-layers.png"));
+				Gtk.IconTheme.add_builtin_icon("layer-visible",   16, new Pixbuf.from_file("ui/icons/theme/layer-visible.png"));
+				Gtk.IconTheme.add_builtin_icon("layer-locked",    16, new Pixbuf.from_file("ui/icons/theme/layer-locked.png"));
 			}
 			catch (Error e)
 			{
@@ -307,7 +305,7 @@ namespace Crown
 			_notebook_right = new Notebook();
 			_notebook_right.show_border = false;
 			_notebook_right.append_page(_level_treeview, new Gtk.Image.from_icon_name("level-tree", IconSize.SMALL_TOOLBAR));
-			_notebook_right.append_page(new Gtk.Label("Nothing to show"), new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
+			_notebook_right.append_page(_level_layers_treeview, new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
 
 			Gtk.Paned rb = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 			rb.pack1(_notebook_right, true, true);
