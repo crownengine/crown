@@ -125,15 +125,16 @@ namespace Crown
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
 		{
-			Value name;
+			Value value_name;
 			Value type;
-			model.get_value(iter, 0, out name);
+			model.get_value(iter, 0, out value_name);
 			model.get_value(iter, 1, out type);
 
 			_tree_view.expand_all();
 
-			string text = (string)name;
-			if ((int)type == ItemType.FOLDER || _filter_entry.text == "" || text.index_of(_filter_entry.text) > -1)
+			string name = ((string)value_name).down();
+			string filter_text = _filter_entry.text.down();
+			if ((int)type == ItemType.FOLDER || filter_text == "" || name.index_of(filter_text) > -1)
 				return true;
 
 			return false;
