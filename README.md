@@ -14,7 +14,7 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 ##Download (Stable)
 
 ### Linux (Tarball)
-[pepper-0.0.23-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.23/pepper-0.0.23-linux-x64.tar.gz)
+[pepper-0.0.24-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.24/pepper-0.0.24-linux-x64.tar.gz)
 
 ### ArchLinux
 
