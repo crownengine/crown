@@ -33,22 +33,28 @@ Basic concepts
 The source directory
 --------------------
 
-The source directory contains all the files that make up the game.
+The source directory contains all the files that make up an application. Pepper will read the content of the source directory and compile it into efficient binary representation for the target platform(s).
+
+There is no fixed structure for the files and folders in the source directory, you can organize your content as you see fit. You can for example decide to put all the textures and sounds in the "textures" and "sounds" folders respectively, or maybe sort the content on a per-object basis by putting all the assets for an enemy in the "units/enemy" folder.
+
+There is, however, a small number of required files which are needed for the engine to start-up correctly:
 
 .. code::
 
   .
-  ├── lua
-  |   └── game.lua
-  ├── boot.config
-  ├── boot.package
-  └── global.physics_config
+  ├── boot.config            // First file loaded by the engine
+  ├── boot.package           // Package to load on boot
+  ├── boot.lua               // Lua script to launch on boot
+  └── global.physics_config  // Global physics-related configurations
 
 The boot directory and the boot.config file
 -------------------------------------------
 
-Any directory containing the file named ``boot.config`` is a boot directory.
-The ``boot.config`` file specifies a number of options.
+Any directory within `the source directory`_ containing the file named ``boot.config`` is a boot directory.
+
+The ``boot.config`` is the first file loaded by Pepper; it specifies the package to load and the lua script to execute on boot and various other boot-time settings. See `boot.config file reference`_ for more details.
+
+There can be an arbitrary number of boot directories. You can set which boot directory with the switch ``--boot-dir``.
 
 In the example below, the engine is told to load the package ``boot`` and run the Lua script ``lua/game``.
 
@@ -57,7 +63,6 @@ In the example below, the engine is told to load the package ``boot`` and run th
   boot_package = "boot"      // Package to load on boot
   boot_script  = "lua/game"  // Lua script to execute on boot
 
-Within `the source directory`_, there can be an arbitrary number of boot directories. You can specify the boot directory using the switch ``--boot-dir``.
 
 The data directory
 --------------------
@@ -123,6 +128,7 @@ All configurations for a given *platform* are placed under a key named *platform
       renderer = {
           window_width  = 1280
           window_height = 720
+          aspect_ratio = -1
           vsync = true
       }
   }
@@ -139,7 +145,7 @@ Renderer configurations
 
 	``aspect_ratio = -1``
 		Sets the aspect ratio.
-		If the value is set to ``-1``, the aspect ratio is computed as `width`/`height` of the main window.
+		If the value is set to ``-1``, the aspect ratio is computed as ``width/height`` of the main window.
 
 	``vsync = true``
 		Sets whether to enable the vsync.
