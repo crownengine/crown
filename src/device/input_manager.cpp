@@ -130,6 +130,15 @@ static const char* s_touch_button_names[] =
 };
 CE_STATIC_ASSERT(countof(s_touch_button_names) == TouchButton::COUNT);
 
+static const char* s_touch_axis_names[] =
+{
+	"pointer_0", // TouchAxis::POINTER_0
+	"pointer_1", // TouchAxis::POINTER_1
+	"pointer_2", // TouchAxis::POINTER_2
+	"pointer_3"  // TouchAxis::POINTER_3
+};
+CE_STATIC_ASSERT(countof(s_touch_axis_names) == TouchAxis::COUNT);
+
 static const char* s_pad_button_names[] =
 {
 	"up",             // JoypadButton::UP
@@ -180,9 +189,9 @@ InputManager::InputManager(Allocator& a)
 	_touch = input_device::create(*_allocator
 		, "Touch"
 		, TouchButton::COUNT
-		, 0
+		, TouchAxis::COUNT
 		, s_touch_button_names
-		, NULL
+		, s_touch_axis_names
 		);
 
 	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)

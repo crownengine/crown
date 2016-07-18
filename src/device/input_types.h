@@ -168,6 +168,21 @@ struct TouchButton
 	};
 };
 
+/// Enumerates touch panel axes.
+///
+/// @ingroup Input
+struct TouchAxis
+{
+	enum Enum
+	{
+		POINTER_0,
+		POINTER_1,
+		POINTER_2,
+		POINTER_3,
+		COUNT
+	};
+};
+
 /// Enumerates joypad buttons.
 ///
 /// @ingroup Input

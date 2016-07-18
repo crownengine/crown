@@ -123,9 +123,9 @@ void FilesystemApk::close(File& file)
 	CE_DELETE(*_allocator, &file);
 }
 
-bool FilesystemApk::exists(const char* path)
+bool FilesystemApk::exists(const char* /*path*/)
 {
-	return false;
+	return true;
 }
 
 bool FilesystemApk::is_directory(const char* path)

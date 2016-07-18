@@ -10,11 +10,12 @@
 #include "device.h"
 #include "os_event_queue.h"
 #include "thread.h"
-#include <stdlib.h>
-#include <jni.h>
 #include <android/sensor.h>
+#include <android/window.h>
 #include <android_native_app_glue.h>
 #include <bgfx/bgfxplatform.h>
+#include <jni.h>
+#include <stdlib.h>
 
 extern "C"
 {
@@ -47,6 +48,10 @@ struct AndroidDevice
 		app->userData = this;
 		app->onAppCmd = crown::AndroidDevice::on_app_cmd;
 		app->onInputEvent = crown::AndroidDevice::on_input_event;
+		ANativeActivity_setWindowFlags(app->activity
+			, AWINDOW_FLAG_FULLSCREEN | AWINDOW_FLAG_KEEP_SCREEN_ON
+			, 0
+			);
 
 		while (app->destroyRequested == 0)
 		{
@@ -74,11 +79,14 @@ struct AndroidDevice
 			{
 				CE_ASSERT(app->window != NULL, "Android window is NULL");
 				bgfx::androidSetWindow(app->window);
+
 				// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
-				const s32 width = ANativeWindow_getWidth(app->window);
+				const s32 width  = ANativeWindow_getWidth(app->window);
 				const s32 height = ANativeWindow_getHeight(app->window);
 				_queue.push_metrics_event(0, 0, width, height);
-				_main_thread.start(func, &_margs);
+
+				if (!_main_thread.is_running())
+					_main_thread.start(func, &_margs);
 			}
 			break;
 		case APP_CMD_TERM_WINDOW:
