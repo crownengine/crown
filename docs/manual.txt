@@ -42,10 +42,10 @@ There is, however, a small number of required files which are needed for the eng
 .. code::
 
   .
-  ├── boot.config            // First file loaded by the engine
-  ├── boot.package           // Package to load on boot
-  ├── boot.lua               // Lua script to launch on boot
-  └── global.physics_config  // Global physics-related configurations
+  ├── boot.config            <- First file loaded by the engine
+  ├── boot.package           <- Package to load on boot
+  ├── boot.lua               <- Lua script to launch on boot
+  └── global.physics_config  <- Global physics-related configurations
 
 The boot directory and the boot.config file
 -------------------------------------------
@@ -54,7 +54,7 @@ Any directory within `the source directory`_ containing the file named ``boot.co
 
 The ``boot.config`` is the first file loaded by Pepper; it specifies the package to load and the lua script to execute on boot and various other boot-time settings. See `boot.config file reference`_ for more details.
 
-There can be an arbitrary number of boot directories. You can set which boot directory with the switch ``--boot-dir``.
+There can be an arbitrary number of boot directories. You can set which boot directory Pepper should use with the switch ``--boot-dir``.
 
 In the example below, the engine is told to load the package ``boot`` and run the Lua script ``lua/game``.
 
@@ -73,12 +73,12 @@ The result of the compilation process is stored in the data directory.
 .. code::
 
   .
-  ├── data                                   // <- Contains compiled data files
-  |   ├── a14e8dfa2cd117e2-9dea40fdc2245efc  // <- Compiled file
-  |   ├── 72e3cc03787a11a1-0b2f08fe66e395c0  // <- Another compiled file
+  ├── data                                   <- Contains compiled data files
+  |   ├── a14e8dfa2cd117e2-9dea40fdc2245efc  <- Compiled file
+  |   ├── 72e3cc03787a11a1-0b2f08fe66e395c0  <- Another compiled file
   |   └── ...
-  ├── temp                                   // <- Temporary files from data compilers
-  └── last.log                               // <- Text log from the last engine execution
+  ├── temp                                   <- Temporary files from data compilers
+  └── last.log                               <- Text log from the last engine execution
 
 The .bundleignore file
 ----------------------
@@ -116,6 +116,9 @@ Generic configurations
 	``boot_package = "boot"``
 		Package to load on boot
 
+	``window_title = "My window"``
+		Title of the main window on platforms that support it.
+
 Platform-specific configurations
 --------------------------------
 
@@ -126,8 +129,7 @@ All configurations for a given *platform* are placed under a key named *platform
   // Linux-only configs
   linux = {
       renderer = {
-          window_width  = 1280
-          window_height = 720
+          resolution = [ 1280 720 ]
           aspect_ratio = -1
           vsync = true
       }
@@ -137,11 +139,8 @@ All configurations for a given *platform* are placed under a key named *platform
 Renderer configurations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-	``window_width = 1280``
-		Sets the width of the main window.
-
-	``window_height = 720``
-		Sets the height of the main window.
+	``resolution = [ 1280 720 ]``
+		Sets the width and height of the main window.
 
 	``aspect_ratio = -1``
 		Sets the aspect ratio.
