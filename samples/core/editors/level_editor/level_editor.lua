@@ -476,9 +476,15 @@ function SelectTool:mouse_down(x, y)
 		if not LevelEditor:multiple_selection_enabled() then
 			LevelEditor._selection:clear()
 		end
-		LevelEditor._selection:add(selected_object:id())
+		if LevelEditor._selection:has(selected_object:id()) then
+			LevelEditor._selection:remove(selected_object:id())
+		else
+			LevelEditor._selection:add(selected_object:id())
+		end
+		LevelEditor._selection:send()
 	else
 		LevelEditor._selection:clear()
+		LevelEditor._selection:send()
 	end
 end
 
