@@ -48,10 +48,13 @@ bool BootConfig::parse(const char* json)
 			JsonObject renderer(ta);
 			sjson::parse(platform["renderer"], renderer);
 
-			if (json_object::has(renderer, "window_width"))
-				window_w = (u16)sjson::parse_int(renderer["window_width"]);
-			if (json_object::has(renderer, "window_height"))
-				window_h = (u16)sjson::parse_int(renderer["window_height"]);
+			if (json_object::has(renderer, "resolution"))
+			{
+				JsonArray resolution(ta);
+				sjson::parse_array(renderer["resolution"], resolution);
+				window_w = sjson::parse_int(resolution[0]);
+				window_h = sjson::parse_int(resolution[1]);
+			}
 			if (json_object::has(renderer, "aspect_ratio"))
 				aspect_ratio = sjson::parse_float(renderer["aspect_ratio"]);
 			if (json_object::has(renderer, "vsync"))
