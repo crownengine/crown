@@ -439,13 +439,9 @@ namespace shader_resource
 		args << " --varyingdef " << varying;
 		args << " --type " << type;
 		args << " --platform " << platform;
-		args << " --profile ";
-		if (strcmp("linux", platform) == 0)
+		if (strcmp("windows", platform) == 0)
 		{
-			args <<	"120";
-		}
-		else if (strcmp("windows", platform) == 0)
-		{
+			args << " --profile ";
 			args << ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
 		}
 
