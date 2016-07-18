@@ -64,7 +64,7 @@ namespace error
 				char line[256];
 				memset(line, 0, sizeof(line));
 
-				loge("\t[%2d] %s: (%s)+%s in %s"
+				logi("\t[%2d] %s: (%s)+%s in %s"
 					, i
 					, msg
 					, (demangle_ok == 0 ? real_name : mangled_name)
@@ -77,7 +77,7 @@ namespace error
 			// otherwise, print the whole line
 			else
 			{
-				loge("\t[%2d] %s", i, msg);
+				logi("\t[%2d] %s", i, msg);
 			}
 		}
 		free(messages);

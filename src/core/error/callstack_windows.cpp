@@ -80,9 +80,9 @@ namespace error
 			res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
 			if (res == TRUE)
-				loge("\t[%2i] %s in %s:%d", num, sym->Name, line.FileName, line.LineNumber);
+				logi("\t[%2i] %s in %s:%d", num, sym->Name, line.FileName, line.LineNumber);
 			else
-				loge("\t[%2i] 0x%p", num, stack.AddrPC.Offset);
+				logi("\t[%2i] 0x%p", num, stack.AddrPC.Offset);
 		}
 
 		SymCleanup(GetCurrentProcess());
