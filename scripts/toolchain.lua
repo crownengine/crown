@@ -145,6 +145,7 @@ function toolchain(build_dir, lib_dir)
 		}
 
 	configuration { "android-*" }
+		targetprefix("lib")
 		flags {
 			"NoImportLib"
 		}
