@@ -355,6 +355,8 @@ struct WindowsDevice
 		}
 
 		main_thread.stop();
+		DestroyWindow(_hwnd);
+
 		return EXIT_SUCCESS;
 	}
 
@@ -503,7 +505,6 @@ struct WindowWin : public Window
 
 	void close()
 	{
-		DestroyWindow(_hwnd);
 	}
 
 	void bgfx_setup()

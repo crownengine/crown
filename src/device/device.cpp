@@ -542,6 +542,7 @@ void Device::run()
 		CE_DELETE(_allocator, _resource_loader);
 
 		bgfx::shutdown();
+		_window->close();
 		window::destroy(_allocator, *_window);
 		display::destroy(_allocator, *_display);
 		CE_DELETE(_allocator, _bgfx_callback);
