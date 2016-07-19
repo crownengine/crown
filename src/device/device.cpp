@@ -556,9 +556,9 @@ void Device::run()
 		profiler_globals::shutdown();
 	}
 
+	CE_DELETE(_allocator, _data_compiler);
 	_console_server->shutdown();
 	CE_DELETE(_allocator, _console_server);
-	CE_DELETE(_allocator, _data_compiler);
 
 	_allocator.clear();
 }
@@ -614,17 +614,18 @@ void Device::render(World& world, CameraInstance camera)
 	bgfx::setViewRect(1, 0, 0, _width, _height);
 	bgfx::setViewRect(2, 0, 0, _width, _height);
 
-	const f32* view = to_float_ptr(world.camera_view_matrix(camera));
-	const f32* proj = to_float_ptr(world.camera_projection_matrix(camera));
+	const Matrix4x4 view = world.camera_view_matrix(camera);
+	const Matrix4x4 proj = world.camera_projection_matrix(camera);
 
-	bgfx::setViewTransform(0, view, proj);
-	bgfx::setViewTransform(1, view, proj);
+	bgfx::setViewTransform(0, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(1, to_float_ptr(view), to_float_ptr(proj));
 	bgfx::setViewTransform(2, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(MATRIX4X4_IDENTITY));
 	bgfx::setViewSeq(2, true);
 
 	bgfx::touch(0);
 	bgfx::touch(1);
 	bgfx::touch(2);
+
 
 	float aspect_ratio = (_boot_config.aspect_ratio == -1.0f
 		? (float)_width/(float)_height
@@ -633,7 +634,7 @@ void Device::render(World& world, CameraInstance camera)
 	world.camera_set_aspect(camera, aspect_ratio);
 	world.camera_set_viewport_metrics(camera, 0, 0, _width, _height);
 
-	world.render(world.camera_view_matrix(camera), world.camera_projection_matrix(camera));
+	world.render(view, proj);
 }
 
 World* Device::create_world()
