@@ -400,16 +400,16 @@ void RenderWorld::MeshManager::allocate(u32 num)
 {
 	CE_ENSURE(num > _data.size);
 
-	const u32 bytes = num * (0
-		+ sizeof(UnitId)
-		+ sizeof(MeshResource*)
-		+ sizeof(MeshGeometry*)
-		+ sizeof(MeshData)
-		+ sizeof(StringId64)
-		+ sizeof(Matrix4x4)
-		+ sizeof(OBB)
-		+ sizeof(MeshInstance)
-		);
+	const u32 bytes = 0
+		+ num*sizeof(UnitId) + alignof(UnitId)
+		+ num*sizeof(MeshResource*) + alignof(MeshResource*)
+		+ num*sizeof(MeshGeometry*) + alignof(MeshGeometry*)
+		+ num*sizeof(MeshData) + alignof(MeshData)
+		+ num*sizeof(StringId64) + alignof(StringId64)
+		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
+		+ num*sizeof(OBB) + alignof(OBB)
+		+ num*sizeof(MeshInstance) + alignof(MeshInstance)
+		;
 
 	MeshInstanceData new_data;
 	new_data.size = _data.size;
@@ -417,14 +417,14 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.buffer = _allocator->allocate(bytes);
 	new_data.first_hidden = _data.first_hidden;
 
-	new_data.unit = (UnitId*)(new_data.buffer);
-	new_data.resource = (const MeshResource**)(new_data.unit + num);
-	new_data.geometry = (const MeshGeometry**)(new_data.resource + num);
-	new_data.mesh = (MeshData*)(new_data.geometry + num);
-	new_data.material = (StringId64*)(new_data.mesh + num);
-	new_data.world = (Matrix4x4*)(new_data.material + num);
-	new_data.obb = (OBB*)(new_data.world + num);
-	new_data.next_instance = (MeshInstance*)(new_data.obb + num);
+	new_data.unit          = (UnitId*             )new_data.buffer;
+	new_data.resource      = (const MeshResource**)memory::align_top(new_data.unit + num,     alignof(*new_data.resource));
+	new_data.geometry      = (const MeshGeometry**)memory::align_top(new_data.resource + num, alignof(*new_data.geometry));
+	new_data.mesh          = (MeshData*           )memory::align_top(new_data.geometry + num, alignof(*new_data.mesh));
+	new_data.material      = (StringId64*         )memory::align_top(new_data.mesh + num,     alignof(*new_data.material));
+	new_data.world         = (Matrix4x4*          )memory::align_top(new_data.material + num, alignof(*new_data.world));
+	new_data.obb           = (OBB*                )memory::align_top(new_data.world + num,    alignof(*new_data.obb));
+	new_data.next_instance = (MeshInstance*       )memory::align_top(new_data.obb + num,      alignof(*new_data.next_instance));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource*));
@@ -599,16 +599,16 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 {
 	CE_ENSURE(num > _data.size);
 
-	const u32 bytes = num * (0
-		+ sizeof(UnitId)
-		+ sizeof(SpriteResource**)
-		+ sizeof(SpriteData)
-		+ sizeof(StringId64)
-		+ sizeof(u32)
-		+ sizeof(Matrix4x4)
-		+ sizeof(AABB)
-		+ sizeof(SpriteInstance)
-		);
+	const u32 bytes = 0
+		+ num*sizeof(UnitId) + alignof(UnitId)
+		+ num*sizeof(SpriteResource**) + alignof(SpriteResource*)
+		+ num*sizeof(SpriteData) + alignof(SpriteData)
+		+ num*sizeof(StringId64) + alignof(StringId64)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
+		+ num*sizeof(AABB) + alignof(AABB)
+		+ num*sizeof(SpriteInstance) + alignof(SpriteInstance)
+		;
 
 	SpriteInstanceData new_data;
 	new_data.size = _data.size;
@@ -616,14 +616,14 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.buffer = _allocator->allocate(bytes);
 	new_data.first_hidden = _data.first_hidden;
 
-	new_data.unit = (UnitId*)(new_data.buffer);
-	new_data.resource = (const SpriteResource**)(new_data.unit + num);
-	new_data.sprite = (SpriteData*)(new_data.resource + num);
-	new_data.material = (StringId64*)(new_data.sprite + num);
-	new_data.frame = (u32*)(new_data.material + num);
-	new_data.world = (Matrix4x4*)(new_data.frame + num);
-	new_data.aabb = (AABB*)(new_data.world + num);
-	new_data.next_instance = (SpriteInstance*)(new_data.aabb + num);
+	new_data.unit          = (UnitId*               )new_data.buffer;
+	new_data.resource      = (const SpriteResource**)memory::align_top(new_data.unit + num,     alignof(*new_data.resource));
+	new_data.sprite        = (SpriteData*           )memory::align_top(new_data.resource + num, alignof(*new_data.sprite));
+	new_data.material      = (StringId64*           )memory::align_top(new_data.sprite + num,   alignof(*new_data.material));
+	new_data.frame         = (u32*                  )memory::align_top(new_data.material + num, alignof(*new_data.frame));
+	new_data.world         = (Matrix4x4*            )memory::align_top(new_data.frame + num,    alignof(*new_data.world));
+	new_data.aabb          = (AABB*                 )memory::align_top(new_data.world + num,    alignof(*new_data.aabb));
+	new_data.next_instance = (SpriteInstance*       )memory::align_top(new_data.aabb + num,     alignof(*new_data.next_instance));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
@@ -797,28 +797,28 @@ void RenderWorld::LightManager::allocate(u32 num)
 {
 	CE_ENSURE(num > _data.size);
 
-	const u32 bytes = num * (0
-		+ sizeof(UnitId)
-		+ sizeof(Matrix4x4)
-		+ sizeof(f32)
-		+ sizeof(f32)
-		+ sizeof(f32)
-		+ sizeof(Color4)
-		+ sizeof(u32)
-		);
+	const u32 bytes = 0
+		+ num*sizeof(UnitId) + alignof(UnitId)
+		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
+		+ num*sizeof(f32) + alignof(f32)
+		+ num*sizeof(f32) + alignof(f32)
+		+ num*sizeof(f32) + alignof(f32)
+		+ num*sizeof(Color4) + alignof(Color4)
+		+ num*sizeof(u32) + alignof(u32)
+		;
 
 	LightInstanceData new_data;
 	new_data.size = _data.size;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
 
-	new_data.unit = (UnitId*)(new_data.buffer);
-	new_data.world = (Matrix4x4*)(new_data.unit + num);
-	new_data.range = (f32*)(new_data.world + num);
-	new_data.intensity = (f32*)(new_data.range + num);
-	new_data.spot_angle = (f32*)(new_data.intensity + num);
-	new_data.color = (Color4*)(new_data.spot_angle + num);
-	new_data.type = (u32*)(new_data.color + num);
+	new_data.unit       = (UnitId*   )new_data.buffer;
+	new_data.world      = (Matrix4x4*)memory::align_top(new_data.unit + num,       alignof(*new_data.world));
+	new_data.range      = (f32*      )memory::align_top(new_data.world + num,      alignof(*new_data.range));
+	new_data.intensity  = (f32*      )memory::align_top(new_data.range + num,      alignof(*new_data.intensity));
+	new_data.spot_angle = (f32*      )memory::align_top(new_data.intensity + num,  alignof(*new_data.spot_angle));
+	new_data.color      = (Color4*   )memory::align_top(new_data.spot_angle + num, alignof(*new_data.color));
+	new_data.type       = (u32*      )memory::align_top(new_data.color + num,      alignof(*new_data.type));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));

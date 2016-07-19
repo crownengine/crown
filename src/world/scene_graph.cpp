@@ -58,27 +58,27 @@ void SceneGraph::allocate(u32 num)
 {
 	CE_ASSERT(num > _data.size, "num > _data.size");
 
-	const u32 bytes = num * (0
-		+ sizeof(UnitId)
-		+ sizeof(Matrix4x4)
-		+ sizeof(Pose)
-		+ sizeof(TransformInstance) * 4
-		+ sizeof(bool)
-		);
+	const u32 bytes = 0
+		+ num*sizeof(UnitId) + alignof(UnitId)
+		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
+		+ num*sizeof(Pose) + alignof(Pose)
+		+ num*sizeof(TransformInstance) * 4 + alignof(TransformInstance)
+		+ num*sizeof(bool) + alignof(bool)
+		;
 
 	InstanceData new_data;
 	new_data.size = _data.size;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
 
-	new_data.unit = (UnitId*)(new_data.buffer);
-	new_data.world = (Matrix4x4*)(new_data.unit + num);
-	new_data.local = (Pose*)(new_data.world + num);
-	new_data.parent = (TransformInstance*)(new_data.local + num);
-	new_data.first_child = (TransformInstance*)(new_data.parent + num);
-	new_data.next_sibling = (TransformInstance*)(new_data.first_child + num);
-	new_data.prev_sibling = (TransformInstance*)(new_data.next_sibling + num);
-	new_data.changed = (bool*)(new_data.prev_sibling + num);
+	new_data.unit         = (UnitId*           )new_data.buffer;
+	new_data.world        = (Matrix4x4*        )memory::align_top(new_data.unit + num,         alignof(*new_data.world));
+	new_data.local        = (Pose*             )memory::align_top(new_data.world + num,        alignof(*new_data.local));
+	new_data.parent       = (TransformInstance*)memory::align_top(new_data.local + num,        alignof(*new_data.parent));
+	new_data.first_child  = (TransformInstance*)memory::align_top(new_data.parent + num,       alignof(*new_data.first_child));
+	new_data.next_sibling = (TransformInstance*)memory::align_top(new_data.first_child + num,  alignof(*new_data.next_sibling));
+	new_data.prev_sibling = (TransformInstance*)memory::align_top(new_data.next_sibling + num, alignof(*new_data.prev_sibling));
+	new_data.changed      = (bool*             )memory::align_top(new_data.prev_sibling + num, alignof(*new_data.changed));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));

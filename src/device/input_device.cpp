@@ -3,11 +3,12 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "input_device.h"
-#include "error.h"
 #include "allocator.h"
-#include "string_utils.h"
+#include "error.h"
+#include "input_device.h"
+#include "memory.h"
 #include "string_id.h"
+#include "string_utils.h"
 #include <string.h> // strcpy, memset
 
 namespace crown
@@ -124,31 +125,31 @@ namespace input_device
 	InputDevice* create(Allocator& a, const char* name, u8 num_buttons, u8 num_axes, const char** button_names, const char** axis_names)
 	{
 		const u32 size = 0
-			+ sizeof(InputDevice)
-			+ sizeof(u8)*num_buttons*2
-			+ sizeof(Vector3)*num_axes
-			+ sizeof(char*)*num_buttons
-			+ sizeof(char*)*num_axes
-			+ sizeof(StringId32)*num_buttons
-			+ sizeof(StringId32)*num_axes
-			+ strlen32(name) + 1
+			+ sizeof(InputDevice) + alignof(InputDevice)
+			+ sizeof(u8)*num_buttons*2 + alignof(u8)
+			+ sizeof(Vector3)*num_axes + alignof(Vector3)
+			+ sizeof(char*)*num_buttons + alignof(char*)
+			+ sizeof(char*)*num_axes + alignof(char*)
+			+ sizeof(StringId32)*num_buttons + alignof(StringId32)
+			+ sizeof(StringId32)*num_axes + alignof(StringId32)
+			+ strlen32(name) + 1 + alignof(char)
 			;
 
 		InputDevice* id = (InputDevice*)a.allocate(size);
 
-		id->_connected = false;
+		id->_connected   = false;
 		id->_num_buttons = num_buttons;
-		id->_num_axes = num_axes;
+		id->_num_axes    = num_axes;
 		id->_last_button = 0;
 
-		id->_last_state = (u8*)&id[1];
-		id->_state = (u8*)(id->_last_state + num_buttons);
-		id->_axis = (Vector3*)(id->_state + num_buttons);
-		id->_button_name = (const char**)(id->_axis + num_axes);
-		id->_axis_name = (const char**)(id->_button_name + num_buttons);
-		id->_button_hash = (StringId32*)(id->_axis_name + num_axes);
-		id->_axis_hash = (StringId32*)(id->_button_hash + num_buttons);
-		id->_name = (char*)(id->_axis_hash + num_axes);
+		id->_last_state  = (u8*         )&id[1];
+		id->_state       = (u8*         )memory::align_top(id->_last_state + num_buttons,  alignof(*id->_state      ));
+		id->_axis        = (Vector3*    )memory::align_top(id->_state + num_buttons,       alignof(*id->_axis       ));
+		id->_button_name = (const char**)memory::align_top(id->_axis + num_axes,           alignof(*id->_button_name));
+		id->_axis_name   = (const char**)memory::align_top(id->_button_name + num_buttons, alignof(*id->_axis_name  ));
+		id->_button_hash = (StringId32* )memory::align_top(id->_axis_name + num_axes,      alignof(*id->_button_hash));
+		id->_axis_hash   = (StringId32* )memory::align_top(id->_button_hash + num_buttons, alignof(*id->_axis_hash  ));
+		id->_name        = (char*       )memory::align_top(id->_axis_hash + num_axes,      alignof(*id->_name       ));
 
 		memset(id->_last_state, 0, sizeof(u8)*num_buttons);
 		memset(id->_state, 0, sizeof(u8)*num_buttons);
