@@ -1514,7 +1514,7 @@ end
 function LevelEditor:add_sprite_component(id, component_id, sprite_resource, material_resource, visible)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id();
-	RenderWorld.sprite_create(self.rw, unit_id, sprite_resource, material_resource, visible, unit_box:world_pose())
+	RenderWorld.sprite_create(self._rw, unit_id, sprite_resource, material_resource, visible, unit_box:world_pose())
 end
 
 function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, color)
