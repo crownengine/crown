@@ -103,6 +103,47 @@ namespace Crown
 		}
 	}
 
+	public class MeshRendererComponentView : ComponentView
+	{
+		// Data
+		Level _level;
+
+		// Widgets
+		private Gtk.Entry _mesh_resource;
+		private Gtk.Entry _geometry;
+		private Gtk.Entry _material;
+		private Gtk.CheckButton _visible;
+
+		public MeshRendererComponentView(Level level)
+		{
+			// Data
+			_level = level;
+
+			// Widgets
+			_mesh_resource = new Gtk.Entry();
+			_geometry = new Gtk.Entry();
+			_material = new Gtk.Entry();
+			_visible = new Gtk.CheckButton();
+			_mesh_resource.sensitive = false;
+			_geometry.sensitive = false;
+			_material.sensitive = false;
+
+			uint row = 0;
+			attach_row(row++, "Mesh", _mesh_resource);
+			attach_row(row++, "Geometry", _geometry);
+			attach_row(row++, "Material", _material);
+			attach_row(row++, "Visible", _visible);
+		}
+
+		public override void update()
+		{
+			_mesh_resource.text = (string)_level.get_component_property(_unit_id, _component_id, "data.mesh_resource");
+			_geometry.text      = (string)_level.get_component_property(_unit_id, _component_id, "data.geometry_name");
+			_material.text      = (string)_level.get_component_property(_unit_id, _component_id, "data.material");
+			_visible.active     = (bool)  _level.get_component_property(_unit_id, _component_id, "data.visible");
+		}
+	}
+
 	public class LightComponentView : ComponentView
 	{
 		// Data
@@ -211,7 +252,7 @@ namespace Crown
 		private void on_value_changed()
 		{
 			_level.set_component_property(_unit_id, _component_id, "data.projection", _projection.value);
-			_level.set_component_property(_unit_id, _component_id, "data.fov",        _fov.value);
+			_level.set_component_property(_unit_id, _component_id, "data.fov",        _fov.value*(Math.PI/180.0));
 			_level.set_component_property(_unit_id, _component_id, "data.near_range", _near_range.value);
 			_level.set_component_property(_unit_id, _component_id, "data.far_range",  _far_range.value);
 			_level.set_component_property(_unit_id, _component_id, "type", "camera");
@@ -225,50 +266,9 @@ namespace Crown
 			double far_range  = (double)_level.get_component_property(_unit_id, _component_id, "data.far_range");
 
 			_projection.value = type;
-			_fov.value        = fov;
+			_fov.value        = fov*(180.0/Math.PI);
 			_near_range.value = near_range;
 			_far_range.value  = far_range;
-		}
-	}
-
-	public class MeshRendererComponentView : ComponentView
-	{
-		// Data
-		Level _level;
-
-		// Widgets
-		private Gtk.Entry _mesh_resource;
-		private Gtk.Entry _geometry;
-		private Gtk.Entry _material;
-		private Gtk.CheckButton _visible;
-
-		public MeshRendererComponentView(Level level)
-		{
-			// Data
-			_level = level;
-
-			// Widgets
-			_mesh_resource = new Gtk.Entry();
-			_geometry = new Gtk.Entry();
-			_material = new Gtk.Entry();
-			_visible = new Gtk.CheckButton();
-			_mesh_resource.sensitive = false;
-			_geometry.sensitive = false;
-			_material.sensitive = false;
-
-			uint row = 0;
-			attach_row(row++, "Mesh", _mesh_resource);
-			attach_row(row++, "Geometry", _geometry);
-			attach_row(row++, "Material", _material);
-			attach_row(row++, "Visible", _visible);
-		}
-
-		public override void update()
-		{
-			_mesh_resource.text = (string)_level.get_component_property(_unit_id, _component_id, "data.mesh_resource");
-			_geometry.text      = (string)_level.get_component_property(_unit_id, _component_id, "data.geometry_name");
-			_material.text      = (string)_level.get_component_property(_unit_id, _component_id, "data.material");
-			_visible.active     = (bool)  _level.get_component_property(_unit_id, _component_id, "data.visible");
 		}
 	}
 
