@@ -144,6 +144,42 @@ namespace Crown
 		}
 	}
 
+	public class SpriteRendererComponentView : ComponentView
+	{
+		// Data
+		Level _level;
+
+		// Widgets
+		private Gtk.Entry _sprite_resource;
+		private Gtk.Entry _material;
+		private Gtk.CheckButton _visible;
+
+		public SpriteRendererComponentView(Level level)
+		{
+			// Data
+			_level = level;
+
+			// Widgets
+			_sprite_resource = new Gtk.Entry();
+			_material = new Gtk.Entry();
+			_visible = new Gtk.CheckButton();
+			_sprite_resource.sensitive = false;
+			_material.sensitive = false;
+
+			uint row = 0;
+			attach_row(row++, "Sprite", _sprite_resource);
+			attach_row(row++, "Material", _material);
+			attach_row(row++, "Visible", _visible);
+		}
+
+		public override void update()
+		{
+			_sprite_resource.text = (string)_level.get_component_property(_unit_id, _component_id, "data.sprite_resource");
+			_material.text        = (string)_level.get_component_property(_unit_id, _component_id, "data.material");
+			_visible.active       = (bool)  _level.get_component_property(_unit_id, _component_id, "data.visible");
+		}
+	}
+
 	public class LightComponentView : ComponentView
 	{
 		// Data
@@ -412,10 +448,11 @@ namespace Crown
 			_components_vbox.margin_right = 18;
 
 			// Unit
-			add_component_view("Transform",     "transform",     0, new TransformComponentView(_level));
-			add_component_view("Light",         "light",         1, new LightComponentView(_level));
-			add_component_view("Camera",        "camera",        2, new CameraComponentView(_level));
-			add_component_view("Mesh Renderer", "mesh_renderer", 3, new MeshRendererComponentView(_level));
+			add_component_view("Transform",       "transform",       0, new TransformComponentView(_level));
+			add_component_view("Light",           "light",           1, new LightComponentView(_level));
+			add_component_view("Camera",          "camera",          2, new CameraComponentView(_level));
+			add_component_view("Mesh Renderer",   "mesh_renderer",   3, new MeshRendererComponentView(_level));
+			add_component_view("Sprite Renderer", "sprite_renderer", 3, new SpriteRendererComponentView(_level));
 
 			// Sound
 			add_component_view("Transform",        "sound_transform",  0, new SoundTransformView(_level));
