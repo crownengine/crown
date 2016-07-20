@@ -630,7 +630,7 @@ Light
 		Destroys the light *id*.
 
 	**light_instances** (rw, unit) : Id
-		Returns the light of the *unit*.
+		Returns the light of the *unit* or nil.
 
 	**light_type** (rw, id) : string
 		Returns the type of the light *id*.
