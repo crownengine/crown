@@ -137,12 +137,12 @@ static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
 
-	DynamicString resource(ta);
-	sjson::parse_string(obj["resource"], resource);
-	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SPRITE, resource.c_str(), opts);
+	DynamicString sprite_resource(ta);
+	sjson::parse_string(obj["sprite_resource"], sprite_resource);
+	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SPRITE, sprite_resource.c_str(), opts);
 
 	SpriteRendererDesc srd;
-	srd.sprite_resource   = sjson::parse_resource_id(obj["resource"]);
+	srd.sprite_resource   = sjson::parse_resource_id(obj["sprite_resource"]);
 	srd.material_resource = sjson::parse_resource_id(obj["material"]);
 	srd.visible           = sjson::parse_bool       (obj["visible"]);
 
