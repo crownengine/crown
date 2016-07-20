@@ -92,7 +92,7 @@ public:
 	void units(Array<UnitId>& units) const;
 
 	/// Creates a new camera.
-	CameraInstance camera_create(UnitId id, const CameraDesc& cd);
+	CameraInstance camera_create(UnitId id, const CameraDesc& cd, const Matrix4x4& tr);
 
 	/// Destroys the camera @a id.
 	void camera_destroy(CameraInstance i);

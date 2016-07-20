@@ -1323,6 +1323,24 @@ static int world_camera(lua_State* L)
 	return 1;
 }
 
+static int camera_create(lua_State* L)
+{
+	LuaStack stack(L);
+	World* world = stack.get_world(1);
+	UnitId unit = stack.get_unit(2);
+
+	CameraDesc cd;
+	cd.type       = name_to_projection_type(stack.get_string(3));
+	cd.fov        = stack.get_float(4);
+	cd.near_range = stack.get_float(5);
+	cd.far_range  = stack.get_float(6);
+
+	Matrix4x4 pose = stack.get_matrix4x4(7);
+
+	stack.push_camera(world->camera_create(unit, cd, pose));
+	return 1;
+}
+
 static int camera_set_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3203,6 +3221,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "num_units",                       world_num_units);
 	env.add_module_function("World", "units",                           world_units);
 	env.add_module_function("World", "camera",                          world_camera);
+	env.add_module_function("World", "camera_create",                   camera_create);
 	env.add_module_function("World", "camera_set_projection_type",      camera_set_projection_type);
 	env.add_module_function("World", "camera_projection_type",          camera_projection_type);
 	env.add_module_function("World", "camera_fov",                      camera_fov);

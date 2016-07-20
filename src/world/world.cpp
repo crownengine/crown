@@ -198,7 +198,7 @@ void World::render(const Matrix4x4& view, const Matrix4x4& projection)
 	_lines->reset();
 }
 
-CameraInstance World::camera_create(UnitId id, const CameraDesc& cd)
+CameraInstance World::camera_create(UnitId id, const CameraDesc& cd, const Matrix4x4& /*tr*/)
 {
 	Camera camera;
 	camera.unit            = id;
@@ -546,7 +546,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const CameraDesc* cd = (const CameraDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
 			{
-				w.camera_create(unit_lookup[unit_index[i]], *cd);
+				w.camera_create(unit_lookup[unit_index[i]], *cd, MATRIX4X4_IDENTITY);
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_COLLIDER)
