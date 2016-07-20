@@ -338,6 +338,15 @@ function UnitBox:draw()
 	end
 end
 
+function UnitBox:set_light(type, range, intensity, angle, color)
+	local light = RenderWorld.light_instances(LevelEditor._rw, self._unit_id)
+	RenderWorld.light_set_type(LevelEditor._rw, self._unit_id, type)
+	RenderWorld.light_set_color(LevelEditor._rw, self._unit_id, color)
+	RenderWorld.light_set_range(LevelEditor._rw, self._unit_id, range)
+	RenderWorld.light_set_intensity(LevelEditor._rw, self._unit_id, intensity)
+	RenderWorld.light_set_spot_angle(LevelEditor._rw, self._unit_id, angle)
+end
+
 SoundObject = class(SoundObject)
 
 function SoundObject:init(world, id, name, range, volume, loop)
@@ -1517,7 +1526,7 @@ end
 function LevelEditor:add_camera_component(id, component_id, projection, fov, far_range, near_range)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id();
-	World.camera_create(self.rw, unit_id, projection, fov, far_range, near_range, unit_box:world_pose());
+	World.camera_create(self._world, unit_id, projection, fov, far_range, near_range, unit_box:world_pose());
 end
 
 function LevelEditor:move_object(id, pos, rot, scale)

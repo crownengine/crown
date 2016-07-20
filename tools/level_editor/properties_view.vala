@@ -146,12 +146,14 @@ namespace Crown
 
 		private void on_value_changed()
 		{
-			_level.set_component_property(_unit_id, _component_id, "data.type",       _type.value);
-			_level.set_component_property(_unit_id, _component_id, "data.range",      _range.value);
-			_level.set_component_property(_unit_id, _component_id, "data.intensity",  _intensity.value);
-			_level.set_component_property(_unit_id, _component_id, "data.spot_angle", _spot_angle.value);
-			_level.set_component_property(_unit_id, _component_id, "data.color",      _color.value);
-			_level.set_component_property(_unit_id, _component_id, "type", "light");
+			_level.set_light(_unit_id
+				, _component_id
+				, _type.value
+				, _range.value
+				, _intensity.value
+				, _spot_angle.value*(Math.PI/180.0)
+				, _color.value
+				);
 		}
 
 		public override void update()
@@ -165,7 +167,7 @@ namespace Crown
 			_type.value       = type;
 			_range.value      = range;
 			_intensity.value  = intensity;
-			_spot_angle.value = spot_angle;
+			_spot_angle.value = spot_angle*(180.0/Math.PI);
 			_color.value      = color;
 		}
 	}

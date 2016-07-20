@@ -368,6 +368,18 @@ namespace Crown
 			do_move_objects(new Guid[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
 		}
 
+		public void set_light(Guid unit_id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
+		{
+			set_component_property(unit_id, component_id, "data.type",       type);
+			set_component_property(unit_id, component_id, "data.range",      range);
+			set_component_property(unit_id, component_id, "data.intensity",  intensity);
+			set_component_property(unit_id, component_id, "data.spot_angle", spot_angle);
+			set_component_property(unit_id, component_id, "data.color",      color);
+			set_component_property(unit_id, component_id, "type", "light");
+
+			_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
+		}
+
 		public void duplicate_selected_objects()
 		{
 			if (_selection.size > 0)

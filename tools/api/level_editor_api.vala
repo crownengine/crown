@@ -194,6 +194,17 @@ namespace Crown
 				);
 		}
 
+		public string set_light(Guid id, string type, double range, double intensity, double spot_angle, Vector3 color)
+		{
+			return @"LevelEditor._objects[\"%s\"]:set_light(\"%s\", %f, %f, %f, %s)".printf(id.to_string()
+				, type
+				, range
+				, intensity
+				, spot_angle
+				, Lua.quaternion({color.x, color.y, color.z, 1.0})
+				);
+		}
+
 		public string set_placeable(PlaceableType type, string name)
 		{
 			return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf((type == PlaceableType.UNIT ? "unit" : "sound"), name);
