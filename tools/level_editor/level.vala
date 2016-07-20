@@ -128,6 +128,16 @@ namespace Crown
 						);
 					sb.append(s);
 				}
+				if (has_component(unit_id, "sprite_renderer", ref component_id))
+				{
+					string s = LevelEditorApi.add_sprite_component(unit_id
+						, component_id
+						, (string)get_component_property(unit_id, component_id, "data.sprite_resource")
+						, (string)get_component_property(unit_id, component_id, "data.material")
+						, (bool)  get_component_property(unit_id, component_id, "data.visible")
+						);
+					sb.append(s);
+				}
 				if (has_component(unit_id, "light", ref component_id))
 				{
 					string s = LevelEditorApi.add_light_component(unit_id
@@ -137,6 +147,17 @@ namespace Crown
 						, (double) get_component_property(unit_id, component_id, "data.intensity")
 						, (double) get_component_property(unit_id, component_id, "data.spot_angle")
 						, (Vector3)get_component_property(unit_id, component_id, "data.color")
+						);
+					sb.append(s);
+				}
+				if (has_component(unit_id, "camera", ref component_id))
+				{
+					string s = LevelEditorApi.add_camera_component(unit_id
+						, component_id
+						, (string)get_component_property(unit_id, component_id, "data.projection")
+						, (double)get_component_property(unit_id, component_id, "data.fov")
+						, (double)get_component_property(unit_id, component_id, "data.far_range")
+						, (double)get_component_property(unit_id, component_id, "data.near_range")
 						);
 					sb.append(s);
 				}

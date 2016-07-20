@@ -152,6 +152,27 @@ namespace Crown
 				);
 		}
 
+		public string add_sprite_component(Guid id, Guid component_id, string sprite_resource, string material_resource, bool visible)
+		{
+			return "LevelEditor:add_sprite_component(\"%s\", \"%s\", \"%s\", \"%s\", %s)".printf(id.to_string()
+				, component_id.to_string()
+				, sprite_resource
+				, material_resource
+				, Lua.bool(visible)
+				);
+		}
+
+		public string add_camera_component(Guid id, Guid component_id, string projection, double fov, double far_range, double near_range)
+		{
+			return "LevelEditor:add_camera_component(\"%s\", \"%s\", \"%s\", %f, %f, %f)".printf(id.to_string()
+				, component_id.to_string()
+				, projection
+				, fov
+				, far_range
+				, near_range
+				);
+		}
+
 		public string add_light_component(Guid id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
 		{
 			return "LevelEditor:add_light_component(\"%s\", \"%s\", \"%s\", %f, %f, %f, %s)".printf(id.to_string()
