@@ -47,10 +47,11 @@ struct PackageResource
 	Array<Resource> resources;
 };
 
-namespace package_resource
+namespace package_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
-} // namespace package_resource
+} // namespace package_resource_internal
+
 } // namespace crown

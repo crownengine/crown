@@ -15,7 +15,7 @@
 
 namespace crown
 {
-namespace level_resource
+namespace level_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
@@ -91,7 +91,10 @@ namespace level_resource
 	{
 		allocator.deallocate(resource);
 	}
+} // namespace level_resource_internal
 
+namespace level_resource
+{
 	const UnitResource* unit_resource(const LevelResource* lr)
 	{
 		return (const UnitResource*)((char*)lr + lr->units_offset);
@@ -109,4 +112,5 @@ namespace level_resource
 		return &begin[i];
 	}
 } // namespace level_resource
+
 } // namespace crown

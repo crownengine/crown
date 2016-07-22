@@ -15,7 +15,7 @@
 
 namespace crown
 {
-namespace font_resource
+namespace font_resource_internal
 {
 	struct GlyphInfo
 	{
@@ -104,7 +104,10 @@ namespace font_resource
 	{
 		allocator.deallocate(resource);
 	}
+} // namespace font_resource_internal
 
+namespace font_resource
+{
 	const GlyphData* get_glyph(const FontResource* fr, CodePoint cp)
 	{
 		CE_ASSERT(cp < fr->num_glyphs, "Index out of bounds");
@@ -123,4 +126,5 @@ namespace font_resource
 		return NULL;
 	}
 } // namespace font_resource
+
 } // namespace crown

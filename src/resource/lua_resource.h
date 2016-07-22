@@ -19,13 +19,17 @@ struct LuaResource
 //	char program[size]
 };
 
-namespace lua_resource
+namespace lua_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
+} // namespace lua_resource_internal
 
+namespace lua_resource
+{
 	/// Returns the lua program.
 	const char* program(const LuaResource* lr);
 } // namespace lua_resource
+
 } // namespace crown

@@ -67,14 +67,17 @@ struct UniformHandle
 	// data
 };
 
-namespace material_resource
+namespace material_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* res);
+} // namespace material_resource_internal
 
+namespace material_resource
+{
 	UniformData* get_uniform_data(const MaterialResource* mr, u32 i);
 	UniformData* get_uniform_data_by_name(const MaterialResource* mr, StringId32 name);
 	const char* get_uniform_name(const MaterialResource* mr, const UniformData* ud);
@@ -84,4 +87,5 @@ namespace material_resource
 	UniformHandle* get_uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic);
 	TextureHandle* get_texture_handle(const MaterialResource* mr, u32 i, char* dynamic);
 } // namespace material_resource
+
 } // namespace crown

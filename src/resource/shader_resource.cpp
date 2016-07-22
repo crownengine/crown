@@ -39,7 +39,7 @@
 
 namespace crown
 {
-namespace shader_resource
+namespace shader_resource_internal
 {
 	struct DepthFunction
 	{
@@ -1250,5 +1250,6 @@ namespace shader_resource
 	{
 		device()->shader_manager()->unload(a, res);
 	}
-} // namespace shader_resource
+} // namespace shader_resource_internal
+
 } // namespace crown

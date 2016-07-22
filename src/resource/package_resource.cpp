@@ -17,7 +17,7 @@
 
 namespace crown
 {
-namespace package_resource
+namespace package_resource_internal
 {
 	void compile_resources(const char* type, const JsonArray& names, Array<PackageResource::Resource>& output, CompileOptions& opts)
 	{
@@ -118,5 +118,6 @@ namespace package_resource
 	{
 		CE_DELETE(a, (PackageResource*)resource);
 	}
-} // namespace package_resource
+} // namespace package_resource_internal
+
 } // namespace crown

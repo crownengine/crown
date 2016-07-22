@@ -32,14 +32,23 @@ struct LevelSound
 	char _pad[3];
 };
 
-namespace level_resource
+namespace level_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
+} // namespace level_resource_internal
 
+namespace level_resource
+{
+	/// Returns the unit resource in the level.
 	const UnitResource* unit_resource(const LevelResource* lr);
+
+	/// Returns the number of sounds in the level resource.
 	u32 num_sounds(const LevelResource* lr);
+
+	/// Returns the sound @a i.
 	const LevelSound* get_sound(const LevelResource* lr, u32 i);
 } // namespace level_resource
+
 } // namespace crown

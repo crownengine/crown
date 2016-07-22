@@ -12,7 +12,7 @@
 
 namespace crown
 {
-namespace config_resource
+namespace config_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
@@ -50,6 +50,6 @@ namespace config_resource
 	{
 		a.deallocate(resource);
 	}
-} // namespace config_resource
+} // namespace config_resource_internal
 
 } // namespace crown

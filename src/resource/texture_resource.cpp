@@ -34,7 +34,7 @@
 
 namespace crown
 {
-namespace texture_resource
+namespace texture_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts)
 	{
@@ -117,6 +117,6 @@ namespace texture_resource
 	{
 		a.deallocate(resource);
 	}
+} // namespace texture_resource_internal
 
-} // namespace texture_resource
 } // namespace crown

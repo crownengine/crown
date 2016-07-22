@@ -15,7 +15,7 @@
 
 namespace crown
 {
-namespace physics_resource
+namespace physics_resource_internal
 {
 	inline void compile(const char* /*path*/, CompileOptions& /*opts*/) {}
 	inline void* load(File& /*file*/, Allocator& /*a*/) { return NULL; }
@@ -24,7 +24,7 @@ namespace physics_resource
 	Buffer compile_collider(const char* json, CompileOptions& opts);
 	Buffer compile_actor(const char* json, CompileOptions& opts);
 	Buffer compile_joint(const char* json, CompileOptions& opts);
-} // namespace physics_resource
+} // namespace physics_resource_internal
 
 struct PhysicsConfigResource
 {
@@ -76,15 +76,26 @@ struct PhysicsConfigActor
 	u32 flags;
 };
 
-namespace physics_config_resource
+namespace physics_config_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
+} // namespace physics_config_resource_internal
 
+namespace physics_config_resource
+{
+	/// Returns the material @a name.
 	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name);
+
+	/// Returns the shape @a name.
 	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name);
+
+	/// Returns the actor @a name.
 	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name);
+
+	/// Returns the collision filter @a name.
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name);
-} // namespace physics_resource
+} // namespace physics_config_resource
+
 } // namespace crown

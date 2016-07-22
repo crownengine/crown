@@ -12,14 +12,14 @@
 
 namespace crown
 {
-namespace sound_resource
+namespace sound_resource_internal
 {
 	struct WAVHeader
 	{
-		char    riff[4];         // Should contain 'RIFF'
+		char riff[4];        // Should contain 'RIFF'
 		s32 chunk_size;      // Not Needed
-		char    wave[4];         // Should contain 'WAVE'
-		char    fmt[4];          // Should contain 'fmt '
+		char wave[4];        // Should contain 'WAVE'
+		char fmt[4];         // Should contain 'fmt '
 		s32 fmt_size;        // Size of format chunk
 		s16 fmt_tag;         // Identifies way data is stored, 1 means no compression
 		s16 fmt_channels;    // Channel, 1 means mono, 2 means stereo
@@ -27,7 +27,7 @@ namespace sound_resource
 		s32 fmt_avarage;     // Avarage bytes per sample
 		s16 fmt_block_align; // Block alignment
 		s16 fmt_bits_ps;     // Number of bits per sample
-		char    data[4];         // Should contain 'data'
+		char data[4];        // Should contain 'data'
 		s32 data_size;       // Data dimension
 	};
 
@@ -82,10 +82,14 @@ namespace sound_resource
 	{
 		allocator.deallocate(resource);
 	}
+} // namespace sound_resource_internal
 
+namespace sound_resource
+{
 	const char* data(const SoundResource* sr)
 	{
 		return (char*)&sr[1];
 	}
 } // namespace sound_resource
+
 } // namespace crown

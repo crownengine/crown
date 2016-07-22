@@ -18,7 +18,7 @@
 
 namespace crown
 {
-namespace physics_resource
+namespace physics_resource_internal
 {
 	struct ColliderInfo
 	{
@@ -302,9 +302,9 @@ namespace physics_resource
 		array::push(buf, (char*)&jd, sizeof(jd));
 		return buf;
 	}
-} // namespace physics_resource
+} // namespace physics_resource_internal
 
-namespace physics_config_resource
+namespace physics_config_resource_internal
 {
 	void parse_materials(const char* json, Array<PhysicsConfigMaterial>& objects)
 	{
@@ -601,8 +601,10 @@ namespace physics_config_resource
 	{
 		allocator.deallocate(resource);
 	}
+} // namespcae physics_config_resource_internal
 
-	/// Returns the material with the given @a name
+namespace physics_config_resource
+{
 	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsConfigMaterial* begin = (PhysicsConfigMaterial*)((const char*)pcr + pcr->materials_offset);
@@ -629,7 +631,6 @@ namespace physics_config_resource
 		return NULL;
 	}
 
-	/// Returns the actor with the given @a name
 	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		const PhysicsConfigActor* begin = (PhysicsConfigActor*)((const char*)pcr + pcr->actors_offset);
@@ -655,6 +656,6 @@ namespace physics_config_resource
 		CE_FATAL("Filter not found");
 		return NULL;
 	}
-
 } // namespace physics_config_resource
+
 } // namespace crown

@@ -298,21 +298,21 @@ void Device::run()
 	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
 	load_console_api(*_console_server);
 
-	namespace pcr = physics_config_resource;
-	namespace phr = physics_resource;
-	namespace pkr = package_resource;
-	namespace sdr = sound_resource;
-	namespace mhr = mesh_resource;
-	namespace utr = unit_resource;
-	namespace txr = texture_resource;
-	namespace mtr = material_resource;
-	namespace lur = lua_resource;
-	namespace ftr = font_resource;
-	namespace lvr = level_resource;
-	namespace spr = sprite_resource;
-	namespace shr = shader_resource;
-	namespace sar = sprite_animation_resource;
-	namespace cor = config_resource;
+	namespace cor = config_resource_internal;
+	namespace ftr = font_resource_internal;
+	namespace lur = lua_resource_internal;
+	namespace lvr = level_resource_internal;
+	namespace mhr = mesh_resource_internal;
+	namespace mtr = material_resource_internal;
+	namespace pcr = physics_config_resource_internal;
+	namespace phr = physics_resource_internal;
+	namespace pkr = package_resource_internal;
+	namespace sar = sprite_animation_resource_internal;
+	namespace sdr = sound_resource_internal;
+	namespace shr = shader_resource_internal;
+	namespace spr = sprite_resource_internal;
+	namespace txr = texture_resource_internal;
+	namespace utr = unit_resource_internal;
 
 	bool do_continue = true;
 
@@ -320,21 +320,21 @@ void Device::run()
 	if (_device_options._do_compile || _device_options._server)
 	{
 		_data_compiler = CE_NEW(_allocator, DataCompiler)();
-		_data_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
 		_data_compiler->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
 		_data_compiler->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
 		_data_compiler->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
 		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
 
 		_data_compiler->map_source_dir("", _device_options._source_dir);
 

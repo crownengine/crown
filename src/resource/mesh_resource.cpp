@@ -22,7 +22,7 @@
 
 namespace crown
 {
-namespace mesh_resource
+namespace mesh_resource_internal
 {
 	struct MeshCompiler
 	{
@@ -402,5 +402,6 @@ namespace mesh_resource
 		}
 		CE_DELETE(a, (MeshResource*)res);
 	}
-} // namespace mesh_resource
+} // namespace mesh_resource_internal
+
 } // namespace crown

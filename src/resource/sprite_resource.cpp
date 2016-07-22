@@ -17,7 +17,7 @@
 
 namespace crown
 {
-namespace sprite_resource
+namespace sprite_resource_internal
 {
 	struct SpriteFrame
 	{
@@ -166,9 +166,9 @@ namespace sprite_resource
 	{
 		a.deallocate(resource);
 	}
-} // namespace sprite_resource
+} // namespace sprite_resource_internal
 
-namespace sprite_animation_resource
+namespace sprite_animation_resource_internal
 {
 	void parse_animation(const char* json, Array<SpriteAnimationName>& names, Array<SpriteAnimationData>& anim_data, Array<u32>& frames)
 	{
@@ -262,7 +262,10 @@ namespace sprite_animation_resource
 	{
 		a.deallocate(resource);
 	}
+} // namespace sprite_animation_resource_internal
 
+namespace sprite_animation_resource
+{
 	const SpriteAnimationData* get_animation(const SpriteAnimationResource* sar, StringId32 name)
 	{
 		const u32 num = sar->num_animations;
@@ -283,4 +286,5 @@ namespace sprite_animation_resource
 		return (u32*) ((char*) sar + sar->frames_offset);
 	}
 } // namespace sprite_animation_resource
+
 } // namespace crown

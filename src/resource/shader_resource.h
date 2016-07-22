@@ -34,12 +34,13 @@ struct ShaderResource
 	Array<Data> _data;
 };
 
-namespace shader_resource
+namespace shader_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* res);
-} // namespace shader_resource
+} // namespace shader_resource_internal
+
 } // namespace crown

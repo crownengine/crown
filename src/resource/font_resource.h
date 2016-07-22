@@ -33,12 +33,17 @@ struct GlyphData
 
 typedef u32 CodePoint;
 
-namespace font_resource
+namespace font_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
+} // namespace font_resource_internal
 
+namespace font_resource
+{
+	/// Returns the glyph for the code point @a cp.
 	const GlyphData* get_glyph(const FontResource* fr, CodePoint cp);
 } // namespace font_resource
+
 } // namespace crown

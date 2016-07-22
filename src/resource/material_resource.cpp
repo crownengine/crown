@@ -19,7 +19,7 @@
 
 namespace crown
 {
-namespace material_resource
+namespace material_resource_internal
 {
 	struct UniformTypeInfo
 	{
@@ -250,7 +250,10 @@ namespace material_resource
 	{
 		device()->material_manager()->unload(a, res);
 	}
+} // namespace material_resource_internal
 
+namespace material_resource
+{
 	UniformData* get_uniform_data(const MaterialResource* mr, u32 i)
 	{
 		UniformData* base = (UniformData*) ((char*)mr + mr->uniform_data_offset);
@@ -304,4 +307,5 @@ namespace material_resource
 		return (TextureHandle*) (dynamic + td->data_offset);
 	}
 } // namespace material_resource
+
 } // namespace crown
