@@ -626,7 +626,6 @@ void Device::render(World& world, CameraInstance camera)
 	bgfx::touch(1);
 	bgfx::touch(2);
 
-
 	float aspect_ratio = (_boot_config.aspect_ratio == -1.0f
 		? (float)_width/(float)_height
 		: _boot_config.aspect_ratio
