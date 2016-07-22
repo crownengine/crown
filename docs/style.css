@@ -40,5 +40,13 @@ a:visited {
 }
 
 a.toc-backref {
-	color: #333;
+	color: #4078c0;
+}
+
+blockquote {
+	margin-left: 0;
+	margin-top: 0;
+	margin-bottom: 16px;
+	padding: 0 1em;
+	border-left: 0.25em solid #ddd;
 }
