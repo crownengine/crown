@@ -488,13 +488,13 @@ void Device::run()
 					const s64 t0 = os::clocktime();
 					_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
 					const s64 t1 = os::clocktime();
-					RECORD_FLOAT("lua.update", (t1 - t0)*(1.0 / freq));
+					RECORD_FLOAT("lua.update", f32((t1 - t0)*(1.0 / freq)));
 				}
 				{
 					const s64 t0 = os::clocktime();
 					_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
 					const s64 t1 = os::clocktime();
-					RECORD_FLOAT("lua.render", (t1 - t0)*(1.0 / freq));
+					RECORD_FLOAT("lua.render", f32((t1 - t0)*(1.0 / freq)));
 				}
 			}
 
