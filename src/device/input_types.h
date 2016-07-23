@@ -12,6 +12,20 @@ namespace crown
 class InputManager;
 struct InputDevice;
 
+/// Enumerates input device types.
+///
+/// @ingroup Input
+struct InputDeviceType
+{
+	enum Enum
+	{
+		KEYBOARD,
+		MOUSE,
+		TOUCHSCREEN,
+		JOYPAD
+	};
+};
+
 /// Enumerates keyboard buttons.
 ///
 /// @ingroup Input

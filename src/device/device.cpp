@@ -11,6 +11,7 @@
 #include "console_server.h"
 #include "data_compiler.h"
 #include "device.h"
+#include "device_event_queue.h"
 #include "file.h"
 #include "filesystem.h"
 #include "filesystem_apk.h"
@@ -30,7 +31,6 @@
 #include "memory.h"
 #include "mesh_resource.h"
 #include "os.h"
-#include "os_event_queue.h"
 #include "package_resource.h"
 #include "path.h"
 #include "physics.h"
@@ -172,9 +172,101 @@ Device::Device(const DeviceOptions& opts)
 
 bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& mouse_last_y, bool vsync)
 {
-	OsEvent event;
-	bool exit = false;
 	InputManager* im = _input_manager;
+	bool exit = false;
+	bool reset = false;
+
+	OsEvent event;
+	while(next_event(event))
+	{
+		if (event.type == OsEventType::NONE)
+			continue;
+
+		switch (event.type)
+		{
+		case OsEventType::BUTTON:
+			{
+				const ButtonEvent ev = event.button;
+				switch (ev.device_id)
+				{
+				case InputDeviceType::KEYBOARD:
+					im->keyboard()->set_button_state(ev.button_num, ev.pressed);
+					break;
+
+				case InputDeviceType::MOUSE:
+					im->mouse()->set_button_state(ev.button_num, ev.pressed);
+					break;
+
+				case InputDeviceType::TOUCHSCREEN:
+					im->touch()->set_button_state(ev.button_num, ev.pressed);
+					break;
+
+				case InputDeviceType::JOYPAD:
+					im->joypad(ev.device_num)->set_button_state(ev.button_num, ev.pressed);
+					break;
+				}
+			}
+			break;
+
+		case OsEventType::AXIS:
+			{
+				const AxisEvent ev = event.axis;
+				switch (ev.device_id)
+				{
+				case InputDeviceType::MOUSE:
+					im->mouse()->set_axis(ev.axis_num, vector3(ev.axis_x, ev.axis_y, ev.axis_z));
+					if (ev.axis_num == MouseAxis::CURSOR)
+					{
+						mouse_x = ev.axis_x;
+						mouse_y = ev.axis_y;
+					}
+					break;
+
+				case InputDeviceType::JOYPAD:
+					im->joypad(ev.device_num)->set_axis(ev.axis_num, vector3(ev.axis_x, ev.axis_y, ev.axis_z));
+					break;
+				}
+			}
+			break;
+
+		case OsEventType::STATUS:
+			{
+				const StatusEvent ev = event.status;
+				switch (ev.device_id)
+				{
+				case InputDeviceType::JOYPAD:
+					im->joypad(ev.device_num)->set_connected(ev.connected);
+					break;
+				}
+			}
+			break;
+
+		case OsEventType::RESOLUTION:
+			{
+				const ResolutionEvent& ev = event.resolution;
+				_width  = ev.width;
+				_height = ev.height;
+				reset   = true;
+			}
+			break;
+
+		case OsEventType::EXIT:
+			exit = true;
+			break;
+
+		case OsEventType::PAUSE:
+			pause();
+			break;
+
+		case OsEventType::RESUME:
+			unpause();
+			break;
+
+		default:
+			CE_FATAL("Unknown OS event");
+			break;
+		}
+	}
 
 	const s16 dt_x = mouse_x - mouse_last_x;
 	const s16 dt_y = mouse_y - mouse_last_y;
@@ -182,113 +274,8 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 	mouse_last_x = mouse_x;
 	mouse_last_y = mouse_y;
 
-	while(next_event(event))
-	{
-		if (event.type == OsEvent::NONE)
-			continue;
-
-		switch (event.type)
-		{
-		case OsEvent::TOUCH:
-			{
-				const OsTouchEvent& ev = event.touch;
-				switch (ev.type)
-				{
-				case OsTouchEvent::POINTER:
-					im->touch()->set_button_state(ev.pointer_id, ev.pressed);
-					break;
-
-				case OsTouchEvent::MOVE:
-					im->touch()->set_axis(ev.pointer_id, vector3(ev.x, ev.y, 0.0f));
-					break;
-
-				default:
-					CE_FATAL("Unknown touch event type");
-					break;
-				}
-			}
-			break;
-
-		case OsEvent::MOUSE:
-			{
-				const OsMouseEvent& ev = event.mouse;
-				switch (ev.type)
-				{
-				case OsMouseEvent::BUTTON:
-					im->mouse()->set_button_state(ev.button, ev.pressed);
-					break;
-
-				case OsMouseEvent::MOVE:
-					mouse_x = ev.x;
-					mouse_y = ev.y;
-					im->mouse()->set_axis(MouseAxis::CURSOR, vector3(ev.x, ev.y, 0.0f));
-					break;
-
-				case OsMouseEvent::WHEEL:
-					im->mouse()->set_axis(MouseAxis::WHEEL, vector3(0.0f, ev.wheel, 0.0f));
-					break;
-
-				default:
-					CE_FATAL("Unknown mouse event type");
-					break;
-				}
-			}
-			break;
-
-		case OsEvent::KEYBOARD:
-			im->keyboard()->set_button_state(event.keyboard.button, event.keyboard.pressed);
-			break;
-
-		case OsEvent::JOYPAD:
-			{
-				const OsJoypadEvent& ev = event.joypad;
-				switch (ev.type)
-				{
-				case OsJoypadEvent::CONNECTED:
-					im->joypad(ev.index)->set_connected(ev.connected);
-					break;
-
-				case OsJoypadEvent::BUTTON:
-					im->joypad(ev.index)->set_button_state(ev.button, ev.pressed);
-					break;
-
-				case OsJoypadEvent::AXIS:
-					im->joypad(ev.index)->set_axis(ev.button, vector3(ev.x, ev.y, ev.z));
-					break;
-
-				default:
-					CE_FATAL("Unknown joypad event");
-					break;
-				}
-			}
-			break;
-
-		case OsEvent::METRICS:
-			{
-				const OsMetricsEvent& ev = event.metrics;
-				_width = ev.width;
-				_height = ev.height;
-				bgfx::reset(ev.width, ev.height, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
-			}
-			break;
-
-		case OsEvent::EXIT:
-			exit = true;
-			break;
-
-		case OsEvent::PAUSE:
-			pause();
-			break;
-
-		case OsEvent::RESUME:
-			unpause();
-			break;
-
-		default:
-			CE_FATAL("Unknown os event");
-			break;
-		}
-	}
+	if (reset)
+		bgfx::reset(_width, _height, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
 
 	return exit;
 }

@@ -9,7 +9,7 @@
 
 #include "command_line.h"
 #include "device.h"
-#include "os_event_queue.h"
+#include "device_event_queue.h"
 #include "thread.h"
 #include "unit_tests.cpp"
 #include <bgfx/bgfxplatform.h>
@@ -152,7 +152,7 @@ struct Joypad
 		memset(&_connected, 0, sizeof(_connected));
 	}
 
-	void update(OsEventQueue& queue)
+	void update(DeviceEventQueue& queue)
 	{
 		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		{
@@ -163,7 +163,7 @@ struct Joypad
 			const bool connected = result == ERROR_SUCCESS;
 
 			if (connected != _connected[i])
-				queue.push_joypad_event(i, connected);
+				queue.push_status_event(InputDeviceType::JOYPAD, i, connected);
 
 			_connected[i] = connected;
 
@@ -181,7 +181,11 @@ struct Joypad
 					WORD bit = s_xinput_to_joypad[bb].bit;
 					if (bit & diff)
 					{
-						queue.push_joypad_event(i, s_xinput_to_joypad[bb].button, (curr & bit) != 0);
+						queue.push_button_event(InputDeviceType::JOYPAD
+							, i
+							, s_xinput_to_joypad[bb].button
+							, (curr & bit) != 0
+							);
 						gamepad.wButtons = curr;
 					}
 				}
@@ -197,7 +201,13 @@ struct Joypad
 					? f32(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
 					: 0.0f
 					;
-				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
+				queue.push_axis_event(InputDeviceType::JOYPAD
+					, i
+					, JoypadAxis::LEFT
+					, _axis[0].lx
+					, _axis[0].ly
+					, _axis[0].lz
+					);
 
 				gamepad.sThumbLX = state.Gamepad.sThumbLX;
 			}
@@ -211,7 +221,13 @@ struct Joypad
 					? f32(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
 					: 0.0f
 					;
-				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
+				queue.push_axis_event(InputDeviceType::JOYPAD
+					, i
+					, JoypadAxis::LEFT
+					, _axis[0].lx
+					, _axis[0].ly
+					, _axis[0].lz
+					);
 
 				gamepad.sThumbLY = state.Gamepad.sThumbLY;
 			}
@@ -224,7 +240,13 @@ struct Joypad
 					? f32(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / f32(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
 					: 0.0f
 					;
-				queue.push_joypad_event(i, JoypadAxis::LEFT, _axis[0].lx, _axis[0].ly, _axis[0].lz);
+				queue.push_axis_event(InputDeviceType::JOYPAD
+					, i
+					, JoypadAxis::LEFT
+					, _axis[0].lx
+					, _axis[0].ly
+					, _axis[0].lz
+					);
 
 				gamepad.bLeftTrigger = state.Gamepad.bLeftTrigger;
 			}
@@ -238,7 +260,13 @@ struct Joypad
 					? f32(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
 					: 0.0f
 					;
-				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
+				queue.push_axis_event(InputDeviceType::JOYPAD
+					, i
+					, JoypadAxis::RIGHT
+					, _axis[0].rx
+					, _axis[0].ry
+					, _axis[0].rz
+					);
 
 				gamepad.sThumbRX = state.Gamepad.sThumbRX;
 			}
@@ -252,7 +280,13 @@ struct Joypad
 					? f32(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
 					: 0.0f
 					;
-				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
+				queue.push_axis_event(InputDeviceType::JOYPAD
+					, i
+					, JoypadAxis::RIGHT
+					, _axis[0].rx
+					, _axis[0].ry
+					, _axis[0].rz
+					);
 
 				gamepad.sThumbRY = state.Gamepad.sThumbRY;
 			}
@@ -265,7 +299,13 @@ struct Joypad
 					? f32(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / f32(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
 					: 0.0f
 					;
-				queue.push_joypad_event(i, JoypadAxis::RIGHT, _axis[0].rx, _axis[0].ry, _axis[0].rz);
+				queue.push_axis_event(InputDeviceType::JOYPAD
+					, i
+					, JoypadAxis::RIGHT
+					, _axis[0].rx
+					, _axis[0].ry
+					, _axis[0].rz
+					);
 
 				gamepad.bRightTrigger = state.Gamepad.bRightTrigger;
 			}
@@ -370,14 +410,14 @@ struct WindowsDevice
 		case WM_QUIT:
 		case WM_CLOSE:
 			s_exit = true;
-			_queue.push_exit_event(0);
+			_queue.push_exit_event();
 			return 0;
 
 		case WM_SIZE:
 			{
-				u32 width = GET_X_LPARAM(lparam);
+				u32 width  = GET_X_LPARAM(lparam);
 				u32 height = GET_Y_LPARAM(lparam);
-				_queue.push_metrics_event(0, 0, width, height);
+				_queue.push_resolution_event(width, height);
 			}
 			break;
 
@@ -388,7 +428,7 @@ struct WindowsDevice
 			case SC_RESTORE:
 				{
 					HWND parent = GetWindow(hwnd, GW_OWNER);
-					if (NULL != parent)
+					if (parent != NULL)
 					{
 						PostMessage(parent, id, wparam, lparam);
 					}
@@ -402,7 +442,13 @@ struct WindowsDevice
 				s32 mx = GET_X_LPARAM(lparam);
 				s32 my = GET_Y_LPARAM(lparam);
 				short delta = GET_WHEEL_DELTA_WPARAM(wparam);
-				_queue.push_mouse_event(mx, my, (f32)(delta/WHEEL_DELTA));
+				_queue.push_axis_event(InputDeviceType::MOUSE
+					, 0
+					, MouseAxis::WHEEL
+					, 0.0f
+					, (f32)(delta/WHEEL_DELTA)
+					, 0.0f
+					);
 			}
 			break;
 
@@ -410,7 +456,13 @@ struct WindowsDevice
 			{
 				s32 mx = GET_X_LPARAM(lparam);
 				s32 my = GET_Y_LPARAM(lparam);
-				_queue.push_mouse_event(mx, my);
+				_queue.push_axis_event(InputDeviceType::MOUSE
+					, 0
+					, MouseAxis::CURSOR
+					, mx
+					, my
+					, 0.0f
+					);
 			}
 			break;
 
@@ -419,7 +471,11 @@ struct WindowsDevice
 			{
 				s32 mx = GET_X_LPARAM(lparam);
 				s32 my = GET_Y_LPARAM(lparam);
-				_queue.push_mouse_event(mx, my, MouseButton::LEFT, id == WM_LBUTTONDOWN);
+				_queue.push_button_event(InputDeviceType::MOUSE
+					, 0
+					, MouseButton::LEFT
+					, id == WM_LBUTTONDOWN
+					);
 			}
 			break;
 
@@ -428,7 +484,11 @@ struct WindowsDevice
 			{
 				s32 mx = GET_X_LPARAM(lparam);
 				s32 my = GET_Y_LPARAM(lparam);
-				_queue.push_mouse_event(mx, my, MouseButton::RIGHT, id == WM_RBUTTONDOWN);
+				_queue.push_button_event(InputDeviceType::MOUSE
+					, 0
+					, MouseButton::RIGHT
+					, id == WM_RBUTTONDOWN
+					);
 			}
 			break;
 
@@ -437,7 +497,11 @@ struct WindowsDevice
 			{
 				s32 mx = GET_X_LPARAM(lparam);
 				s32 my = GET_Y_LPARAM(lparam);
-				_queue.push_mouse_event(mx, my, MouseButton::MIDDLE, id == WM_MBUTTONDOWN);
+				_queue.push_button_event(InputDeviceType::MOUSE
+					, 0
+					, MouseButton::MIDDLE
+					, id == WM_MBUTTONDOWN
+					);
 			}
 			break;
 
@@ -449,8 +513,13 @@ struct WindowsDevice
 				KeyboardButton::Enum kb = win_translate_key(wparam & 0xff);
 
 				if (kb != KeyboardButton::COUNT)
-					_queue.push_keyboard_event(kb, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN));
-
+				{
+					_queue.push_button_event(InputDeviceType::KEYBOARD
+						, 0
+						, kb
+						, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN)
+						);
+				}
 			}
 			break;
 
@@ -466,7 +535,7 @@ struct WindowsDevice
 public:
 
 	HWND _hwnd;
-	OsEventQueue _queue;
+	DeviceEventQueue _queue;
 	Joypad _joypad;
 };
 
@@ -648,10 +717,10 @@ int main(int argc, char** argv)
 	CE_UNUSED(err);
 
 	DeviceOptions opts(argc, (const char**)argv);
-	if (opts.parse() == EXIT_SUCCESS)
-		return s_wdvc.run(&opts);
+	if (opts.parse() != EXIT_SUCCESS)
+		return EXIT_FAILURE;
 
-	return EXIT_FAILURE;
+	return s_wdvc.run(&opts);
 }
 
 #endif // CROWN_PLATFORM_WINDOWS

@@ -10,9 +10,9 @@
 #include "array.h"
 #include "command_line.h"
 #include "device.h"
+#include "device_event_queue.h"
 #include "display.h"
 #include "os.h"
-#include "os_event_queue.h"
 #include "thread.h"
 #include "unit_tests.cpp"
 #include "window.h"
@@ -205,7 +205,7 @@ struct Joypad
 		}
 	}
 
-	void update(OsEventQueue& queue)
+	void update(DeviceEventQueue& queue)
 	{
 		JoypadEvent ev;
 		memset(&ev, 0, sizeof(ev));
@@ -216,7 +216,7 @@ struct Joypad
 			const bool connected = fd != -1;
 
 			if (connected != _connected[i])
-				queue.push_joypad_event(i, connected);
+				queue.push_status_event(InputDeviceType::JOYPAD, i, connected);
 
 			_connected[i] = connected;
 
@@ -250,7 +250,8 @@ struct Joypad
 							: 0.0f
 							;
 
-						queue.push_joypad_event(i
+						queue.push_axis_event(InputDeviceType::JOYPAD
+							, i
 							, num > 2 ? 1 : 0
 							, values[0]
 							, -values[1]
@@ -262,7 +263,8 @@ struct Joypad
 				case JS_EVENT_BUTTON:
 					if (ev.number < countof(s_button))
 					{
-						queue.push_joypad_event(i
+						queue.push_button_event(InputDeviceType::JOYPAD
+							, i
 							, s_button[ev.number]
 							, val == 1
 							);
@@ -357,18 +359,22 @@ struct LinuxDevice
 				switch (event.type)
 				{
 				case EnterNotify:
-					_queue.push_mouse_event(event.xcrossing.x, event.xcrossing.y);
+					_queue.push_axis_event(InputDeviceType::MOUSE
+						, 0
+						, MouseAxis::CURSOR
+						, event.xcrossing.x
+						, event.xcrossing.y
+						, 0.0f
+						);
 					break;
 
 				case ClientMessage:
 					if ((Atom)event.xclient.data.l[0] == _wm_delete_message)
-						_queue.push_exit_event(0);
+						_queue.push_exit_event();
 					break;
 
 				case ConfigureNotify:
-					_queue.push_metrics_event(event.xconfigure.x
-						, event.xconfigure.y
-						, event.xconfigure.width
+					_queue.push_resolution_event(event.xconfigure.width
 						, event.xconfigure.height
 						);
 					break;
@@ -378,9 +384,12 @@ struct LinuxDevice
 					{
 						if (event.xbutton.button == Button4 || event.xbutton.button == Button5)
 						{
-							_queue.push_mouse_event(event.xbutton.x
-								, event.xbutton.y
+							_queue.push_axis_event(InputDeviceType::MOUSE
+								, 0
+								, MouseAxis::WHEEL
+								, 0.0f
 								, event.xbutton.button == Button4 ? 1.0f : -1.0f
+								, 0.0f
 								);
 							break;
 						}
@@ -396,8 +405,8 @@ struct LinuxDevice
 
 						if (mb != MouseButton::COUNT)
 						{
-							_queue.push_mouse_event(event.xbutton.x
-								, event.xbutton.y
+							_queue.push_button_event(InputDeviceType::MOUSE
+								, 0
 								, mb
 								, event.type == ButtonPress
 								);
@@ -406,7 +415,13 @@ struct LinuxDevice
 					break;
 
 				case MotionNotify:
-					_queue.push_mouse_event(event.xmotion.x, event.xmotion.y);
+					_queue.push_axis_event(InputDeviceType::MOUSE
+						, 0
+						, MouseAxis::CURSOR
+						, event.xmotion.x
+						, event.xmotion.y
+						, 0.0f
+						);
 					break;
 
 				case KeyPress:
@@ -416,8 +431,13 @@ struct LinuxDevice
 						KeyboardButton::Enum kb = x11_translate_key(keysym);
 
 						if (kb != KeyboardButton::COUNT)
-							_queue.push_keyboard_event(kb, event.type == KeyPress);
-
+						{
+							_queue.push_button_event(InputDeviceType::KEYBOARD
+								, 0
+								, kb
+								, event.type == KeyPress
+								);
+						}
 					}
 					break;
 				case KeymapNotify:
@@ -462,7 +482,7 @@ public:
 	Atom _wm_delete_message;
 	XRRScreenConfiguration* _screen_config;
 	bool _x11_detectable_autorepeat;
-	OsEventQueue _queue;
+	DeviceEventQueue _queue;
 	Joypad _joypad;
 };
 
@@ -742,10 +762,10 @@ int main(int argc, char** argv)
 	CE_UNUSED(m);
 
 	DeviceOptions opts(argc, (const char**)argv);
-	if (opts.parse() == EXIT_SUCCESS)
-		return s_ldvc.run(&opts);
+	if (opts.parse() != EXIT_SUCCESS)
+		return EXIT_FAILURE;
 
-	return EXIT_FAILURE;
+	return s_ldvc.run(&opts);
 }
 
 #endif // CROWN_PLATFORM_LINUX

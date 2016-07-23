@@ -8,7 +8,7 @@
 #if CROWN_PLATFORM_ANDROID
 
 #include "device.h"
-#include "os_event_queue.h"
+#include "device_event_queue.h"
 #include "thread.h"
 #include <android/sensor.h>
 #include <android/window.h>
@@ -57,12 +57,10 @@ struct AndroidDevice
 		{
 			s32 num;
 			android_poll_source* source;
-			/*s32 id =*/ ALooper_pollAll(-1, NULL, &num, (void**)&source);
+			ALooper_pollAll(-1, NULL, &num, (void**)&source);
 
-			if (NULL != source)
-			{
+			if (source != NULL)
 				source->process(app, source);
-			}
 		}
 
 		_main_thread.stop();
@@ -83,12 +81,13 @@ struct AndroidDevice
 				// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
 				const s32 width  = ANativeWindow_getWidth(app->window);
 				const s32 height = ANativeWindow_getHeight(app->window);
-				_queue.push_metrics_event(0, 0, width, height);
+				_queue.push_resolution_event(width, height);
 
 				if (!_main_thread.is_running())
 					_main_thread.start(func, &_margs);
 			}
 			break;
+
 		case APP_CMD_TERM_WINDOW:
 			// The window is being hidden or closed, clean it up.
 			break;
@@ -104,7 +103,7 @@ struct AndroidDevice
 			break;
 
 		case APP_CMD_DESTROY:
-			_queue.push_exit_event(0);
+			_queue.push_exit_event();
 			break;
 		}
 	}
@@ -127,17 +126,29 @@ struct AndroidDevice
 			{
 			case AMOTION_EVENT_ACTION_DOWN:
 			case AMOTION_EVENT_ACTION_POINTER_DOWN:
-				_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, true);
+				_queue.push_button_event(InputDeviceType::TOUCHSCREEN
+					, 0
+					, pointer_id
+					, true
+					);
 				break;
 
 			case AMOTION_EVENT_ACTION_UP:
 			case AMOTION_EVENT_ACTION_POINTER_UP:
-				_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, false);
+				_queue.push_button_event(InputDeviceType::TOUCHSCREEN
+					, 0
+					, pointer_id
+					, false
+					);
 				break;
 
 			case AMOTION_EVENT_ACTION_OUTSIDE:
 			case AMOTION_EVENT_ACTION_CANCEL:
-				_queue.push_touch_event((s16)x, (s16)y, (u8)pointer_id, false);
+				_queue.push_button_event(InputDeviceType::TOUCHSCREEN
+					, 0
+					, pointer_id
+					, false
+					);
 				break;
 
 			case AMOTION_EVENT_ACTION_MOVE:
@@ -146,7 +157,13 @@ struct AndroidDevice
 					const f32 xx = AMotionEvent_getX(event, index);
 					const f32 yy = AMotionEvent_getY(event, index);
 					const s32 id = AMotionEvent_getPointerId(event, index);
-					_queue.push_touch_event((s16)xx, (s16)yy, (u8)id);
+					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
+						, 0
+						, id
+						, xx
+						, yy
+						, 0.0f
+						);
 				}
 				break;
 			}
@@ -155,12 +172,14 @@ struct AndroidDevice
 		}
 		else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
 		{
-			const s32 keycode = AKeyEvent_getKeyCode(event);
+			const s32 keycode   = AKeyEvent_getKeyCode(event);
 			const s32 keyaction = AKeyEvent_getAction(event);
 
 			if (keycode == AKEYCODE_BACK)
 			{
-				_queue.push_keyboard_event(KeyboardButton::ESCAPE
+				_queue.push_button_event(InputDeviceType::KEYBOARD
+					, 0
+					, KeyboardButton::ESCAPE
 					, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false
 					);
 			}
@@ -183,7 +202,7 @@ struct AndroidDevice
 
 public:
 
-	OsEventQueue _queue;
+	DeviceEventQueue _queue;
 	Thread _main_thread;
 	MainThreadArgs _margs;
 };
