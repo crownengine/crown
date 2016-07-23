@@ -143,13 +143,13 @@ namespace input_device
 		id->_last_button = 0;
 
 		id->_last_state  = (u8*         )&id[1];
-		id->_state       = (u8*         )memory::align_top(id->_last_state + num_buttons,  alignof(*id->_state      ));
-		id->_axis        = (Vector3*    )memory::align_top(id->_state + num_buttons,       alignof(*id->_axis       ));
-		id->_button_name = (const char**)memory::align_top(id->_axis + num_axes,           alignof(*id->_button_name));
-		id->_axis_name   = (const char**)memory::align_top(id->_button_name + num_buttons, alignof(*id->_axis_name  ));
-		id->_button_hash = (StringId32* )memory::align_top(id->_axis_name + num_axes,      alignof(*id->_button_hash));
-		id->_axis_hash   = (StringId32* )memory::align_top(id->_button_hash + num_buttons, alignof(*id->_axis_hash  ));
-		id->_name        = (char*       )memory::align_top(id->_axis_hash + num_axes,      alignof(*id->_name       ));
+		id->_state       = (u8*         )memory::align_top(id->_last_state + num_buttons,  alignof(u8         ));
+		id->_axis        = (Vector3*    )memory::align_top(id->_state + num_buttons,       alignof(Vector3    ));
+		id->_button_name = (const char**)memory::align_top(id->_axis + num_axes,           alignof(const char*));
+		id->_axis_name   = (const char**)memory::align_top(id->_button_name + num_buttons, alignof(const char*));
+		id->_button_hash = (StringId32* )memory::align_top(id->_axis_name + num_axes,      alignof(StringId32 ));
+		id->_axis_hash   = (StringId32* )memory::align_top(id->_button_hash + num_buttons, alignof(StringId32 ));
+		id->_name        = (char*       )memory::align_top(id->_axis_hash + num_axes,      alignof(char       ));
 
 		memset(id->_last_state, 0, sizeof(u8)*num_buttons);
 		memset(id->_state, 0, sizeof(u8)*num_buttons);

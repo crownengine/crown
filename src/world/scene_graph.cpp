@@ -72,13 +72,13 @@ void SceneGraph::allocate(u32 num)
 	new_data.buffer = _allocator->allocate(bytes);
 
 	new_data.unit         = (UnitId*           )new_data.buffer;
-	new_data.world        = (Matrix4x4*        )memory::align_top(new_data.unit + num,         alignof(*new_data.world));
-	new_data.local        = (Pose*             )memory::align_top(new_data.world + num,        alignof(*new_data.local));
-	new_data.parent       = (TransformInstance*)memory::align_top(new_data.local + num,        alignof(*new_data.parent));
-	new_data.first_child  = (TransformInstance*)memory::align_top(new_data.parent + num,       alignof(*new_data.first_child));
-	new_data.next_sibling = (TransformInstance*)memory::align_top(new_data.first_child + num,  alignof(*new_data.next_sibling));
-	new_data.prev_sibling = (TransformInstance*)memory::align_top(new_data.next_sibling + num, alignof(*new_data.prev_sibling));
-	new_data.changed      = (bool*             )memory::align_top(new_data.prev_sibling + num, alignof(*new_data.changed));
+	new_data.world        = (Matrix4x4*        )memory::align_top(new_data.unit + num,         alignof(Matrix4x4        ));
+	new_data.local        = (Pose*             )memory::align_top(new_data.world + num,        alignof(Pose             ));
+	new_data.parent       = (TransformInstance*)memory::align_top(new_data.local + num,        alignof(TransformInstance));
+	new_data.first_child  = (TransformInstance*)memory::align_top(new_data.parent + num,       alignof(TransformInstance));
+	new_data.next_sibling = (TransformInstance*)memory::align_top(new_data.first_child + num,  alignof(TransformInstance));
+	new_data.prev_sibling = (TransformInstance*)memory::align_top(new_data.next_sibling + num, alignof(TransformInstance));
+	new_data.changed      = (bool*             )memory::align_top(new_data.prev_sibling + num, alignof(bool             ));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
