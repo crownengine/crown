@@ -22,7 +22,7 @@ components = {
 		data = {
 			mesh_resource = "core/units/camera"
 			geometry_name = "Cube"
-			material = "notexture"
+			material = "core/units/camera"
 			visible = true
 		}
 	}

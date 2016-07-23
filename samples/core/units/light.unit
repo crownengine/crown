@@ -22,7 +22,7 @@ components = {
 		data = {
 			mesh_resource = "core/units/light"
 			geometry_name = "Icosphere"
-			material = "notexture"
+			material = "core/units/light"
 			visible = true
 		}
 	}

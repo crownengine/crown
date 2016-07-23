@@ -12,7 +12,7 @@ components = {
 		data = {
 			mesh_resource = "core/units/sound"
 			geometry_name = "Cylinder"
-			material = "notexture"
+			material = "core/units/sound"
 			visible = true
 		}
 	}
