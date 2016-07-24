@@ -20,8 +20,10 @@ static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
 	DynamicString script(ta);
+
 	sjson::parse(json, obj);
 	sjson::parse_string(obj["script"], script);
+
 	device()->lua_environment()->execute_string(script.c_str());
 }
 
@@ -29,12 +31,13 @@ static void console_command_reload(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
-
 	DynamicString type(ta);
 	DynamicString name(ta);
+
+	sjson::parse(json, obj);
 	sjson::parse_string(obj["resource_type"], type);
 	sjson::parse_string(obj["resource_name"], name);
+
 	logi("Reloading resource '%s.%s'", name.c_str(), type.c_str());
 	device()->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
 	logi("Reloaded resource '%s.%s'", name.c_str(), type.c_str());
@@ -54,11 +57,11 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
-
 	DynamicString id(ta);
 	DynamicString data_dir(ta);
 	DynamicString platform(ta);
+
+	sjson::parse(json, obj);
 	sjson::parse_string(obj["id"], id);
 	sjson::parse_string(obj["data_dir"], data_dir);
 	sjson::parse_string(obj["platform"], platform);
