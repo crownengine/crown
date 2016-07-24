@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/org/pepper">
+		<file compressed="true" preprocess="xml-stripblanks">level_editor_create_project.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">level_editor_menu.xml</file>
+		<file compressed="true" preprocess="xml-stripblanks">level_editor_preferences_dialog.ui</file>
+
+		<file>icons/128x128/pepper.png</file>
+		<file>icons/16x16/pepper.png</file>
+		<file>icons/24x24/pepper.png</file>
+		<file>icons/256x256/pepper.png</file>
+		<file>icons/32x32/pepper.png</file>
+		<file>icons/64x64/pepper.png</file>
+
+		<file>icons/theme/axis-local.png</file>
+		<file>icons/theme/axis-world.png</file>
+		<file>icons/theme/layer-locked.png</file>
+		<file>icons/theme/layer-visible.png</file>
+		<file>icons/theme/level-layers.png</file>
+		<file>icons/theme/level-tree.png</file>
+		<file>icons/theme/reference-local.png</file>
+		<file>icons/theme/reference-world.png</file>
+		<file>icons/theme/run.png</file>
+		<file>icons/theme/snap-to-grid.png</file>
+		<file>icons/theme/tool-move.png</file>
+		<file>icons/theme/tool-place.png</file>
+		<file>icons/theme/tool-rotate.png</file>
+		<file>icons/theme/tool-scale.png</file>
+
+		<file compressed="true">theme/style.css</file>
+	</gresource>
+</gresources>
