@@ -97,6 +97,7 @@ namespace Crown
 				| Gdk.EventMask.KEY_PRESS_MASK
 				| Gdk.EventMask.KEY_RELEASE_MASK
 				| Gdk.EventMask.FOCUS_CHANGE_MASK
+				| Gdk.EventMask.SCROLL_MASK
 				;
 
 			if (input_enabled)
