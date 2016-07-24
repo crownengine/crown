@@ -15,6 +15,9 @@ solution "tools"
 		"release",
 	}
 
+	-- FIXME: Fix this in GENie
+	premake.valac.valac = premake.valac.valac .. " --gresources=" .. CROWN_DIR .. "tools/ui/resources.xml" .. " --target-glib=2.38"
+
 	location(CROWN_TOOLS_DIR .. "projects/")
 	targetdir(CROWN_TOOLS_DIR)
 
@@ -66,7 +69,8 @@ solution "tools"
 		}
 
 		files {
-			CROWN_DIR .. "tools/**.vala"
+			CROWN_DIR .. "tools/**.vala",
+			CROWN_DIR .. "tools/ui/resources.c",
 		}
 
 	configuration {}
