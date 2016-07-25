@@ -340,6 +340,9 @@ namespace Crown
 			_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
 			_resource_browser.modal = true;
 
+			// Save level once every 5 minutes.
+			GLib.Timeout.add_seconds(5*3600, save_timeout);
+
 			this.destroy.connect(this.on_destroy);
 			this.delete_event.connect(this.on_delete_event);
 
@@ -788,6 +791,14 @@ namespace Crown
 			}
 
 			return saved;
+		}
+
+		private bool save_timeout()
+		{
+			if (_level_filename != null)
+				save();
+
+			return true;
 		}
 
 		private void shutdown()
