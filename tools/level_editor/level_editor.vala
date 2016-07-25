@@ -642,6 +642,9 @@ namespace Crown
 
 		private void start_game()
 		{
+			if (!save())
+				return;
+
 			_resource_compiler.compile.begin(_data_dir, _platform, (obj, res) => {
 				if (_resource_compiler.compile.end(res))
 				{
