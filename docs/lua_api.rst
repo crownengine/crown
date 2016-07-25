@@ -533,7 +533,7 @@ SceneGraph
 		Destroys the transform *id*.
 
 	**transform_instances** (sg, unit) : Id
-		Returns the transform of the *unit* or nil.
+		Returns the transform of the *unit* or ``nil``.
 
 	**local_position** (sg, id) : Vector3
 		Returns the local position of the transform *id*.
@@ -630,7 +630,7 @@ Light
 		Destroys the light *id*.
 
 	**light_instances** (rw, unit) : Id
-		Returns the light of the *unit* or nil.
+		Returns the light of the *unit* or ``nil``.
 
 	**light_type** (rw, id) : string
 		Returns the type of the light *id*.
@@ -871,7 +871,7 @@ Device
 
 	**console_send** (table)
 		Sends the given lua *table* to clients connected to the engine.
-		Values can be either nil, bool, number, string, table, array, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.
+		Values can be either ``nil``, bool, number, string, table, array, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.
 
 	**can_get** (type, name) : bool
 		Returns whether the resource (type, name) is loaded.
@@ -969,7 +969,7 @@ Keyboard
 		Returns the name of the button *id*.
 
 	**button_id** (name) : int
-		Returns the *id* of the button *name*.
+		Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 Keyboard Button Names
 ~~~~~~~~~~~~~~~~~~~~~
@@ -1024,10 +1024,10 @@ Mouse
 		Returns the name of the axis *id*.
 
 	**button_id** (name) : int
-		Returns the *id* of the button *name*.
+		Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 	**axis_id** (name) : int
-		Returns the *id* of the axis *name*.
+		Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
 Mouse Button Names
 ~~~~~~~~~~~~~~~~~~
@@ -1078,10 +1078,10 @@ Touch
 		Returns the name of the axis *id*.
 
 	**button_id** (name) : int
-		Returns the *id* of the button *name*.
+		Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 	**axis_id** (name) : int
-		Returns the *id* of the axis *name*.
+		Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
 Pad1, Pad2, Pad3, Pad4
 ----------------------
@@ -1120,10 +1120,10 @@ Pad1, Pad2, Pad3, Pad4
 		Returns the name of the axis *id*.
 
 	**button_id** (name) : int
-		Returns the *id* of the button *name*.
+		Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 	**axis_id** (name) : int
-		Returns the *id* of the axis *name*.
+		Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
 Pad Button Names
 ~~~~~~~~~~~~~~~~
