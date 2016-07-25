@@ -813,6 +813,7 @@ namespace Crown
 			md.add_button("Quit without Saving", ResponseType.NO);
 			md.add_button("Cancel", ResponseType.CANCEL);
 			md.add_button("Save", ResponseType.YES);
+			md.set_default_response(ResponseType.YES);
 			int rt = md.run();
 			md.destroy();
 
@@ -839,6 +840,7 @@ namespace Crown
 			md.add_button("New without Saving", ResponseType.NO);
 			md.add_button("Cancel", ResponseType.CANCEL);
 			md.add_button("Save", ResponseType.YES);
+			md.set_default_response(ResponseType.YES);
 			int rt = md.run();
 			md.destroy();
 
@@ -867,6 +869,7 @@ namespace Crown
 			md.add_button("Open without Saving", ResponseType.NO);
 			md.add_button("Cancel", ResponseType.CANCEL);
 			md.add_button("Save", ResponseType.YES);
+			md.set_default_response(ResponseType.YES);
 			int rt = md.run();
 			md.destroy();
 
