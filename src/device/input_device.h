@@ -58,16 +58,16 @@ struct InputDevice
 	/// Returns the value of the axis @a id.
 	Vector3 axis(u8 id) const;
 
-	/// Returns the name of the button @a id.
+	/// Returns the name of the button @a id or NULL if no matching button is found.
 	const char* button_name(u8 id);
 
-	/// Returns the name of the axis @a id.
+	/// Returns the name of the axis @a id of NULL if no matching axis is found.
 	const char* axis_name(u8 id);
 
-	/// Returns the id of the button @a name.
+	/// Returns the id of the button @a name or UINT8_MAX if no matching button is found.
 	u8 button_id(StringId32 name);
 
-	/// Returns the id of the axis @a name.
+	/// Returns the id of the axis @a name of UINT8_MAX if no matching axis is found.
 	u8 axis_id(StringId32 name);
 
 	void set_connected(bool connected);

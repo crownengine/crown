@@ -35,14 +35,18 @@ u8 InputDevice::num_axes() const
 
 bool InputDevice::pressed(u8 id) const
 {
-	CE_ASSERT(id < _num_buttons, "Index out of bounds");
-	return (~_last_state[id] & _state[id]) != 0;
+	return id < _num_buttons
+		? (~_last_state[id] & _state[id]) != 0
+		: false
+		;
 }
 
 bool InputDevice::released(u8 id) const
 {
-	CE_ASSERT(id < _num_buttons, "Index out of bounds");
-	return (_last_state[id] & ~_state[id]) != 0;
+	return id < _num_buttons
+		? (_last_state[id] & ~_state[id]) != 0
+		: false
+		;
 }
 
 bool InputDevice::any_pressed() const
@@ -57,20 +61,26 @@ bool InputDevice::any_released() const
 
 Vector3 InputDevice::axis(u8 id) const
 {
-	CE_ASSERT(id < _num_axes, "Index out of bounds");
-	return _axis[id];
+	return id < _num_axes
+		? _axis[id]
+		: VECTOR3_ZERO
+		;
 }
 
 const char* InputDevice::button_name(u8 id)
 {
-	CE_ASSERT(id < _num_buttons, "Index out of bounds");
-	return _button_name[id];
+	return id < _num_buttons
+		? _button_name[id]
+		: NULL
+		;
 }
 
 const char* InputDevice::axis_name(u8 id)
 {
-	CE_ASSERT(id < _num_axes, "Index out of bounds");
-	return _axis_name[id];
+	return id < _num_axes
+		? _axis_name[id]
+		: NULL
+		;
 }
 
 u8 InputDevice::button_id(StringId32 name)
@@ -81,8 +91,7 @@ u8 InputDevice::button_id(StringId32 name)
 			return i;
 	}
 
-	CE_FATAL("Unknown button name");
-	return 0;
+	return UINT8_MAX;
 }
 
 u8 InputDevice::axis_id(StringId32 name)
@@ -93,8 +102,7 @@ u8 InputDevice::axis_id(StringId32 name)
 			return i;
 	}
 
-	CE_FATAL("Unknown axis name");
-	return 0;
+	return UINT8_MAX;
 }
 
 void InputDevice::set_connected(bool connected)
