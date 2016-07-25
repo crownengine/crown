@@ -1015,7 +1015,8 @@ namespace Crown
 		{
 			if (_resource_browser == null)
 			{
-				_resource_browser = new ResourceBrowser(_toolbar, _source_dir, _data_dir);
+				_resource_browser = new ResourceBrowser(_source_dir, _data_dir);
+				_resource_browser.relative_to = _toolbar;
 				_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
 				_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
 				_resource_browser.modal = true;

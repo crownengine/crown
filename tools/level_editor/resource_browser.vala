@@ -31,7 +31,7 @@ namespace Crown
 		// Signals
 		public signal void resource_selected(PlaceableType placeable_type, string name);
 
-		public ResourceBrowser(Gtk.Widget parent, string source_dir, string data_dir)
+		public ResourceBrowser(string source_dir, string data_dir)
 		{
 			// Project paths
 			_source_dir = source_dir;
@@ -41,7 +41,6 @@ namespace Crown
 			_console_client = new ConsoleClient();
 
 			// Widgets
-			this.relative_to = parent;
 			this.destroy.connect(on_destroy);
 
 			_filter_entry = new Gtk.SearchEntry();
