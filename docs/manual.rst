@@ -111,10 +111,10 @@ Generic configurations
 ----------------------
 
 	``boot_script = "lua/game"``
-		Lua script to launch on boot
+		Lua script to launch on boot.
 
 	``boot_package = "boot"``
-		Package to load on boot
+		Package to load on boot.
 
 	``window_title = "My window"``
 		Title of the main window on platforms that support it.
