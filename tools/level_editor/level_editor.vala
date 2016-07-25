@@ -87,6 +87,7 @@ namespace Crown
 
 		private Gtk.ActionGroup _action_group;
 		private Gtk.UIManager _ui_manager;
+		private Gtk.Toolbar _toolbar;
 		private Gtk.Paned _pane_left;
 		private Gtk.Paned _pane_right;
 		private Gtk.Notebook _notebook_left;
@@ -295,15 +296,16 @@ namespace Crown
 				error(e.message);
 			}
 
+			_toolbar = _ui_manager.get_widget("/toolbar") as Toolbar;
+			_toolbar.set_icon_size(Gtk.IconSize.SMALL_TOOLBAR);
+			_toolbar.set_style(Gtk.ToolbarStyle.ICONS);
+
 			_pane_left = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 			_pane_left.pack1(_alignment_engine, true, true);
 			_pane_left.pack2(_console_view, true, true);
 
-			Toolbar toolbar = _ui_manager.get_widget("/toolbar") as Toolbar;
-			toolbar.set_icon_size(Gtk.IconSize.SMALL_TOOLBAR);
-			toolbar.set_style(Gtk.ToolbarStyle.ICONS);
 			Gtk.Box vb = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-			vb.pack_start(toolbar, false, false, 0);
+			vb.pack_start(_toolbar, false, false, 0);
 			vb.pack_start(_pane_left, true, true, 0);
 
 			_notebook_right = new Notebook();
@@ -334,11 +336,6 @@ namespace Crown
 			_file_filter = new FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
 			_file_filter.add_pattern("*.level");
-
-			_resource_browser = new ResourceBrowser(toolbar, _source_dir, _data_dir);
-			_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
-			_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
-			_resource_browser.modal = true;
 
 			// Save level once every 5 minutes.
 			GLib.Timeout.add_seconds(5*3600, save_timeout);
@@ -803,7 +800,12 @@ namespace Crown
 
 		private void shutdown()
 		{
-			_resource_browser.destroy();
+			if (_resource_browser != null)
+				_resource_browser.destroy();
+
+			if (_preferences_dialog != null)
+				_preferences_dialog.destroy();
+
 			stop_game();
 			stop_engine();
 			stop_compiler();
@@ -1011,6 +1013,14 @@ namespace Crown
 
 		private void on_resource_browser(Gtk.Action action)
 		{
+			if (_resource_browser == null)
+			{
+				_resource_browser = new ResourceBrowser(_toolbar, _source_dir, _data_dir);
+				_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
+				_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
+				_resource_browser.modal = true;
+			}
+
 			_resource_browser.show_all();
 		}
 
