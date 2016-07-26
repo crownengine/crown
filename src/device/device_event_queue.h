@@ -5,10 +5,8 @@
 
 #pragma once
 
-#include "types.h"
-#include "input_types.h"
-#include "math_types.h"
 #include "atomic_int.h"
+#include "types.h"
 
 namespace crown
 {
