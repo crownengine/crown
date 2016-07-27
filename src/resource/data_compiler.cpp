@@ -61,6 +61,130 @@ DataCompiler::DataCompiler()
 {
 }
 
+void DataCompiler::add_file(const char* path)
+{
+	for (u32 gg = 0; gg < vector::size(_globs); ++gg)
+	{
+		if (wildcmp(_globs[gg].c_str(), path))
+			return;
+	}
+
+	TempAllocator512 ta;
+	DynamicString str(ta);
+	str.set(path, strlen32(path));
+	vector::push_back(_files, str);
+}
+
+bool DataCompiler::can_compile(StringId64 type)
+{
+	return sort_map::has(_compilers, type);
+}
+
+void DataCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)
+{
+	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
+
+	sort_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
+}
+
+void DataCompiler::scan_source_dir(const char* prefix, const char* cur_dir)
+{
+	Vector<DynamicString> my_files(default_allocator());
+	_source_fs.list_files(cur_dir, my_files);
+
+	for (u32 i = 0; i < vector::size(my_files); ++i)
+	{
+		TempAllocator512 ta;
+		DynamicString file_i(ta);
+
+		if (strcmp(cur_dir, "") != 0)
+		{
+			file_i += cur_dir;
+			file_i += '/';
+		}
+		file_i += my_files[i];
+
+		if (_source_fs.is_directory(file_i.c_str()))
+		{
+			DataCompiler::scan_source_dir(prefix, file_i.c_str());
+		}
+		else // Assume a regular file
+		{
+			DynamicString resource_name(ta);
+			if (strcmp(prefix, "") != 0)
+			{
+				resource_name += prefix;
+				resource_name += '/';
+			}
+			resource_name += file_i;
+			add_file(resource_name.c_str());
+		}
+	}
+}
+
+bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform)
+{
+	TempAllocator1024 ta;
+	DynamicString path(ta);
+	DynamicString src_path(ta);
+	DynamicString type_str(ta);
+	DynamicString name_str(ta);
+	DynamicString dst_path(ta);
+
+	StringId64 _type(type);
+	StringId64 _name(name);
+
+	// Build source file path
+	src_path += name;
+	src_path += '.';
+	src_path += type;
+
+	// Build compiled file path
+	_type.to_string(type_str);
+	_name.to_string(name_str);
+
+	// Build destination file path
+	dst_path += type_str;
+	dst_path += '-';
+	dst_path += name_str;
+
+	path::join(CROWN_DATA_DIRECTORY, dst_path.c_str(), path);
+
+	logi("%s <= %s", dst_path.c_str(), src_path.c_str());
+
+	if (!can_compile(_type))
+	{
+		loge("Unknown resource type: '%s'", type);
+		return false;
+	}
+
+	bool success = true;
+	jmp_buf buf;
+
+	Buffer output(default_allocator());
+	array::reserve(output, 4*1024*1024);
+
+	if (!setjmp(buf))
+	{
+		CompileOptions opts(*this, bundle_fs, output, platform, &buf);
+
+		compile(_type, src_path.c_str(), opts);
+
+		File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
+		u32 size = array::size(output);
+		u32 written = outf->write(array::begin(output), size);
+		bundle_fs.close(*outf);
+
+		success = size == written;
+	}
+	else
+	{
+		success = false;
+	}
+
+	return success;
+}
+
 void DataCompiler::map_source_dir(const char* name, const char* source_dir)
 {
 	TempAllocator256 ta;
@@ -161,69 +285,6 @@ void DataCompiler::scan()
 	}
 }
 
-bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform)
-{
-	TempAllocator1024 ta;
-	DynamicString path(ta);
-	DynamicString src_path(ta);
-	DynamicString type_str(ta);
-	DynamicString name_str(ta);
-	DynamicString dst_path(ta);
-
-	StringId64 _type(type);
-	StringId64 _name(name);
-
-	// Build source file path
-	src_path += name;
-	src_path += '.';
-	src_path += type;
-
-	// Build compiled file path
-	_type.to_string(type_str);
-	_name.to_string(name_str);
-
-	// Build destination file path
-	dst_path += type_str;
-	dst_path += '-';
-	dst_path += name_str;
-
-	path::join(CROWN_DATA_DIRECTORY, dst_path.c_str(), path);
-
-	logi("%s <= %s", dst_path.c_str(), src_path.c_str());
-
-	if (!can_compile(_type))
-	{
-		loge("Unknown resource type: '%s'", type);
-		return false;
-	}
-
-	bool success = true;
-	jmp_buf buf;
-
-	Buffer output(default_allocator());
-	array::reserve(output, 4*1024*1024);
-
-	if (!setjmp(buf))
-	{
-		CompileOptions opts(*this, bundle_fs, output, platform, &buf);
-
-		compile(_type, src_path.c_str(), opts);
-
-		File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
-		u32 size = array::size(output);
-		u32 written = outf->write(array::begin(output), size);
-		bundle_fs.close(*outf);
-
-		success = size == written;
-	}
-	else
-	{
-		success = false;
-	}
-
-	return success;
-}
-
 bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 {
 	// Create bundle dir if necessary
@@ -241,22 +302,9 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 	for (u32 i = 0; i < vector::size(_files); ++i)
 	{
 		const char* filename = _files[i].c_str();
-
-		bool ignore = false;
-		for (u32 gg = 0; gg < vector::size(_globs); ++gg)
-		{
-			const char* glob = _globs[gg].c_str();
-
-			if (wildcmp(glob, filename))
-			{
-				ignore = true;
-				break;
-			}
-		}
-
 		const char* type = path::extension(filename);
 
-		if (ignore || type == NULL)
+		if (type == NULL)
 			continue;
 
 		char name[256];
@@ -284,58 +332,11 @@ void DataCompiler::register_compiler(StringId64 type, u32 version, CompileFuncti
 	sort_map::sort(_compilers);
 }
 
-bool DataCompiler::can_compile(StringId64 type)
-{
-	return sort_map::has(_compilers, type);
-}
-
-void DataCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)
-{
-	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
-
-	sort_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
-}
-
 u32 DataCompiler::version(StringId64 type)
 {
 	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
 
 	return sort_map::get(_compilers, type, ResourceTypeData()).version;
-}
-
-void DataCompiler::scan_source_dir(const char* prefix, const char* cur_dir)
-{
-	Vector<DynamicString> my_files(default_allocator());
-	_source_fs.list_files(cur_dir, my_files);
-
-	for (u32 i = 0; i < vector::size(my_files); ++i)
-	{
-		TempAllocator512 ta;
-		DynamicString file_i(ta);
-
-		if (strcmp(cur_dir, "") != 0)
-		{
-			file_i += cur_dir;
-			file_i += '/';
-		}
-		file_i += my_files[i];
-
-		if (_source_fs.is_directory(file_i.c_str()))
-		{
-			DataCompiler::scan_source_dir(prefix, file_i.c_str());
-		}
-		else // Assume a regular file
-		{
-			DynamicString resource_name(ta);
-			if (strcmp(prefix, "") != 0)
-			{
-				resource_name += prefix;
-				resource_name += '/';
-			}
-			resource_name += file_i;
-			vector::push_back(_files, resource_name);
-		}
-	}
 }
 
 } // namespace crown
