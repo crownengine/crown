@@ -142,7 +142,11 @@ struct LuaStack
 
 	u32 get_id(int i)
 	{
+#if !CROWN_RELEASE
+		return (u32)luaL_checknumber(L, i);
+#else
 		return (u32)lua_tonumber(L, i);
+#endif
 	}
 
 	StringId32 get_string_id_32(int i)
