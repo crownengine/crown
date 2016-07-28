@@ -495,7 +495,7 @@ namespace Crown
 				return ((Vector3)value).to_string();
 			if (value.holds(typeof(Quaternion)))
 				return ((Quaternion)value).to_string();
-			if (value.holds(typeof(HashSet<Guid?>)))
+			if (value.holds(typeof(HashSet)))
 				return "Set<Guid>";
 
 			return "<invalid>";
@@ -572,7 +572,7 @@ namespace Crown
 
 		private Value? decode_value(Value? value)
 		{
-			if (value.holds(typeof(ArrayList<Value?>)))
+			if (value.holds(typeof(ArrayList)))
 			{
 				ArrayList<Value?> al = (ArrayList<Value?>)value;
 				if (al.size == 3)
@@ -638,7 +638,7 @@ namespace Crown
 
 		private Value? encode_value(Value? value)
 		{
-			assert(is_valid_value(value) || value.holds(typeof(HashSet<Guid?>)));
+			assert(is_valid_value(value) || value.holds(typeof(HashSet)));
 
 			if (value.holds(typeof(Vector3)))
 			{
@@ -664,7 +664,7 @@ namespace Crown
 				Guid id = (Guid)value;
 				return "\"%s\"".printf(id.to_string());
 			}
-			else if (value.holds(typeof(HashSet<Guid?>)))
+			else if (value.holds(typeof(HashSet)))
 			{
 				HashSet<Guid?> hs = (HashSet<Guid?>)value;
 				Hashtable ht = new Hashtable();
@@ -815,7 +815,7 @@ namespace Crown
 			foreach (string key in keys)
 			{
 				Value? value = o[key];
-				if (value.holds(typeof(HashSet<Guid?>)))
+				if (value.holds(typeof(HashSet)))
 				{
 					HashSet<Guid?> hs = (HashSet<Guid?>)value;
 					Guid?[] ids = hs.to_array();
@@ -942,7 +942,7 @@ namespace Crown
 			foreach (string key in keys)
 			{
 				Value? val = o[key];
-				if (val.holds(typeof(HashSet<Guid?>)))
+				if (val.holds(typeof(HashSet)))
 				{
 					HashSet<Guid?> hs = (HashSet<Guid?>)val;
 					foreach (Guid j in hs)
@@ -980,7 +980,7 @@ namespace Crown
 					continue;
 
 				Value? value = o[key];
-				if (value.holds(typeof(HashSet<Guid?>)))
+				if (value.holds(typeof(HashSet)))
 				{
 					HashSet<Guid?> hs = (HashSet<Guid?>)value;
 					foreach (Guid j in hs)
