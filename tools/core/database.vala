@@ -920,9 +920,12 @@ namespace Crown
 		public void add_restore_point(int id, Guid[] data)
 		{
 #if CROWN_DEBUG
-			stdout.printf("add_restore_point %d\n", id);
+			stdout.printf("add_restore_point %d, undo size = %u\n", id, _undo.size());
 #endif // CROWN_DEBUG
 			_undo_points.write_restore_point(id, _undo.size(), data);
+
+			_redo.clear();
+			_redo_points.clear();
 		}
 
 		/// <summary>
