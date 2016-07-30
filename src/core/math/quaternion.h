@@ -42,6 +42,7 @@ inline Quaternion quaternion(const Vector3& axis, f32 angle)
 /// Returns a new quaternion from matrix @a m.
 Quaternion quaternion(const Matrix3x3& m);
 
+/// Multiplies the quaternions @a a by @a b and returns the result. (i.e. rotates first by @a a then by @a b).
 inline Quaternion& operator*=(Quaternion& a, const Quaternion& b)
 {
 	const f32 tx = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y;
@@ -66,7 +67,7 @@ inline Quaternion operator-(const Quaternion& q)
 	return r;
 }
 
-/// Multiplies the quaternions @a a and @a b. (i.e. rotates first by @a a then by @a b).
+/// Multiplies the quaternions @a a by @a b and returns the result. (i.e. rotates first by @a a then by @a b).
 inline Quaternion operator*(Quaternion a, const Quaternion& b)
 {
 	a *= b;
