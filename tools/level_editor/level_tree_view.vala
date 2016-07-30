@@ -132,9 +132,12 @@ namespace Crown
 
 			_tree_view.expand_all();
 
+			if ((int)type == ItemType.FOLDER)
+				return true;
+
 			string name = ((string)value_name).down();
 			string filter_text = _filter_entry.text.down();
-			if ((int)type == ItemType.FOLDER || filter_text == "" || name.index_of(filter_text) > -1)
+			if (filter_text == "" || name.index_of(filter_text) > -1)
 				return true;
 
 			return false;
