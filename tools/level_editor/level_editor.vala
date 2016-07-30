@@ -738,10 +738,14 @@ namespace Crown
 
 			if (fcd.run() == (int)ResponseType.ACCEPT)
 			{
-				_level_filename = fcd.get_filename();
-				_level.load(_level_filename);
-				_level.send();
-				send_state();
+				string filename = fcd.get_filename();
+				if (filename.has_suffix(".level"))
+				{
+					_level_filename = filename;
+					_level.load(_level_filename);
+					_level.send();
+					send_state();
+				}
 			}
 
 			fcd.destroy();
