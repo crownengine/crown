@@ -633,6 +633,10 @@ struct WindowWin : public Window
 		ShowCursor(show);
 	}
 
+	void set_fullscreen(bool /*fullscreen*/)
+	{
+	}
+
 	void* handle()
 	{
 		return (void*)(uintptr_t)_hwnd;

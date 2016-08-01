@@ -21,6 +21,7 @@ BootConfig::BootConfig(Allocator& a)
 	, window_h(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, aspect_ratio(-1.0f)
 	, vsync(true)
+	, fullscreen(false)
 {
 }
 
@@ -59,6 +60,8 @@ bool BootConfig::parse(const char* json)
 				aspect_ratio = sjson::parse_float(renderer["aspect_ratio"]);
 			if (json_object::has(renderer, "vsync"))
 				vsync = sjson::parse_bool(renderer["vsync"]);
+			if (json_object::has(renderer, "fullscreen"))
+				fullscreen = sjson::parse_bool(renderer["fullscreen"]);
 		}
 	}
 

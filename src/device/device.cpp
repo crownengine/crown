@@ -429,6 +429,7 @@ void Device::run()
 			, _device_options._parent_window
 			);
 		_window->set_title(_boot_config.window_title.c_str());
+		_window->set_fullscreen(_boot_config.fullscreen);
 		_window->bgfx_setup();
 
 		bgfx::init(bgfx::RendererType::Count

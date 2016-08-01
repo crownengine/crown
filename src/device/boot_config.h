@@ -23,6 +23,7 @@ struct BootConfig
 	u16 window_h;
 	float aspect_ratio;
 	bool vsync;
+	bool fullscreen;
 
 	BootConfig(Allocator& a);
 	bool parse(const char* json);

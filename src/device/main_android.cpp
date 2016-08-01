@@ -262,6 +262,10 @@ struct WindowAndroid : public Window
 	{
 	}
 
+	void set_fullscreen(bool /*fullscreen*/)
+	{
+	}
+
 	void* handle()
 	{
 		return NULL;

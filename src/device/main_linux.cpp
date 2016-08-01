@@ -638,6 +638,18 @@ public:
 			, show ? None : _x11_hidden_cursor
 			);
 	}
+
+	void set_fullscreen(bool full)
+	{
+		XEvent e;
+		e.xclient.type = ClientMessage;
+		e.xclient.window = _x11_window;
+		e.xclient.message_type = XInternAtom(_x11_display, "_NET_WM_STATE", False);
+		e.xclient.format = 32;
+		e.xclient.data.l[0] = full ? 1 : 0;
+		e.xclient.data.l[1] = XInternAtom(_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+		XSendEvent(_x11_display, DefaultRootWindow(_x11_display), False, SubstructureNotifyMask, &e);
+	}
 };
 
 namespace window
@@ -655,21 +667,10 @@ namespace window
 
 struct DisplayXRandr : public Display
 {
-	::Display* _x11_display;
-	XRRScreenConfiguration* _screen_config;
-
-	DisplayXRandr()
-		: _x11_display(NULL)
-		, _screen_config(NULL)
-	{
-		_x11_display = s_ldvc._x11_display;
-		_screen_config = s_ldvc._screen_config;
-	}
-
 	void modes(Array<DisplayMode>& modes)
 	{
 		int num = 0;
-		XRRScreenSize* sizes = XRRConfigSizes(_screen_config, &num);
+		XRRScreenSize* sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
 
 		if (!sizes)
 			return;
@@ -687,31 +688,19 @@ struct DisplayXRandr : public Display
 	void set_mode(u32 id)
 	{
 		int num = 0;
-		XRRScreenSize* sizes = XRRConfigSizes(_screen_config, &num);
+		XRRScreenSize* sizes = XRRConfigSizes(s_ldvc._screen_config, &num);
 
 		if (!sizes || (int)id >= num)
 			return;
 
-		XRRSetScreenConfig(_x11_display
-			, _screen_config
-			, RootWindow(_x11_display, DefaultScreen(_x11_display))
+		XRRSetScreenConfig(s_ldvc._x11_display
+			, s_ldvc._screen_config
+			, RootWindow(s_ldvc._x11_display, DefaultScreen(s_ldvc._x11_display))
 			, (int)id
 			, RR_Rotate_0
 			, CurrentTime
 			);
 	}
-
-	// void set_fullscreen(bool full)
-	// {
-	// 	XEvent e;
-	// 	e.xclient.type = ClientMessage;
-	// 	e.xclient.window = m_x11_window;
-	// 	e.xclient.message_type = XInternAtom(_x11_display, "_NET_WM_STATE", False );
-	// 	e.xclient.format = 32;
-	// 	e.xclient.data.l[0] = full ? 1 : 0;
-	// 	e.xclient.data.l[1] = XInternAtom(_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
-	// 	XSendEvent(_x11_display, DefaultRootWindow(_x11_display), False, SubstructureNotifyMask, &e);
-	// }
 };
 
 namespace display
