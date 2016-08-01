@@ -149,6 +149,9 @@ Renderer configurations
 	``vsync = true``
 		Sets whether to enable the vsync.
 
+	``fullscreen = false``
+		Sets whether to enable fullscreen.
+
 Command line reference
 ======================
 
