@@ -1854,18 +1854,7 @@ static int render_world_sprite_instances(lua_State* L)
 	RenderWorld* rw = stack.get_render_world(1);
 	UnitId unit = stack.get_unit(2);
 
-	TempAllocator512 ta;
-	Array<SpriteInstance> inst(ta);
-	rw->sprite_instances(unit, inst);
-
-	stack.push_table(array::size(inst));
-	for (u32 i = 0; i < array::size(inst); ++i)
-	{
-		stack.push_key_begin(i+1);
-		stack.push_sprite_instance(inst[i]);
-		stack.push_key_end();
-	}
-
+	stack.push_sprite_instance(rw->sprite(unit));
 	return 1;
 }
 

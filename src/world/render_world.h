@@ -54,7 +54,7 @@ public:
 	void sprite_destroy(SpriteInstance i);
 
 	/// Returns the sprite instances of the unit @a id.
-	void sprite_instances(UnitId id, Array<SpriteInstance>& instances);
+	SpriteInstance sprite(UnitId id);
 
 	/// Sets the material @a id of the sprite @a i.
 	void sprite_set_material(SpriteInstance i, StringId64 id);
@@ -217,17 +217,12 @@ private:
 			memset(&_data, 0, sizeof(_data));
 		}
 
-		void allocate(u32 num);
-		void grow();
 		SpriteInstance create(UnitId id, const SpriteResource* sr, StringId64 material, const Matrix4x4& tr);
 		void destroy(SpriteInstance i);
 		bool has(UnitId id);
-		SpriteInstance first(UnitId id);
-		SpriteInstance next(SpriteInstance i);
-		SpriteInstance previous(SpriteInstance i);
-		void add_node(SpriteInstance first, SpriteInstance i);
-		void remove_node(SpriteInstance first, SpriteInstance i);
-		void swap_node(SpriteInstance a, SpriteInstance b);
+		SpriteInstance sprite(UnitId id);
+		void allocate(u32 num);
+		void grow();
 		void destroy();
 
 		SpriteInstance make_instance(u32 i) { SpriteInstance inst = { i }; return inst; }

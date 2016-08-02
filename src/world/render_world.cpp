@@ -132,15 +132,9 @@ void RenderWorld::sprite_destroy(SpriteInstance i)
 	_sprite_manager.destroy(i);
 }
 
-void RenderWorld::sprite_instances(UnitId id, Array<SpriteInstance>& instances)
+SpriteInstance RenderWorld::sprite(UnitId id)
 {
-	SpriteInstance inst = _sprite_manager.first(id);
-
-	while (_sprite_manager.is_valid(inst))
-	{
-		array::push_back(instances, inst);
-		inst = _sprite_manager.next(inst);
-	}
+	return _sprite_manager.sprite(id);
 }
 
 void RenderWorld::sprite_set_material(SpriteInstance i, StringId64 id)
@@ -252,7 +246,7 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 
 		if (_sprite_manager.has(*begin))
 		{
-			SpriteInstance inst = _sprite_manager.first(*begin);
+			SpriteInstance inst = _sprite_manager.sprite(*begin);
 			sid.world[inst.i] = *world;
 		}
 
@@ -377,15 +371,10 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 	}
 
 	{
-		SpriteInstance curr = _sprite_manager.first(id);
-		SpriteInstance next;
+		SpriteInstance first = sprite(id);
 
-		while (_sprite_manager.is_valid(curr))
-		{
-			next = _sprite_manager.next(curr);
-			sprite_destroy(curr);
-			curr = next;
-		}
+		if (_sprite_manager.is_valid(first))
+			sprite_destroy(first);
 	}
 
 	{
@@ -663,16 +652,7 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResourc
 	++_data.size;
 	++_data.first_hidden;
 
-	SpriteInstance curr = first(id);
-	if (!is_valid(curr))
-	{
-		hash_map::set(_map, id, last);
-	}
-	else
-	{
-		add_node(curr, make_instance(last));
-	}
-
+	hash_map::set(_map, id, last);
 	return make_instance(last);
 }
 
@@ -680,13 +660,9 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance i)
 {
 	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 
-	const u32 last               = _data.size - 1;
-	const UnitId u               = _data.unit[i.i];
-	const SpriteInstance first_i = first(u);
-	const SpriteInstance last_i  = make_instance(last);
-
-	swap_node(last_i, i);
-	remove_node(first_i, i);
+	const u32 last      = _data.size - 1;
+	const UnitId u      = _data.unit[i.i];
+	const UnitId last_u = _data.unit[last];
 
 	_data.unit[i.i]          = _data.unit[last];
 	_data.resource[i.i]      = _data.resource[last];
@@ -700,92 +676,19 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance i)
 
 	--_data.size;
 	--_data.first_hidden;
+
+	hash_map::set(_map, last_u, i.i);
+	hash_map::remove(_map, u);
 }
 
 bool RenderWorld::SpriteManager::has(UnitId id)
 {
-	return is_valid(first(id));
+	return is_valid(sprite(id));
 }
 
-SpriteInstance RenderWorld::SpriteManager::first(UnitId id)
+SpriteInstance RenderWorld::SpriteManager::sprite(UnitId id)
 {
 	return make_instance(hash_map::get(_map, id, UINT32_MAX));
-}
-
-SpriteInstance RenderWorld::SpriteManager::next(SpriteInstance i)
-{
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-	return _data.next_instance[i.i];
-}
-
-SpriteInstance RenderWorld::SpriteManager::previous(SpriteInstance i)
-{
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-
-	const UnitId u = _data.unit[i.i];
-
-	SpriteInstance curr = first(u);
-	SpriteInstance prev = { UINT32_MAX };
-
-	while (curr.i != i.i)
-	{
-		prev = curr;
-		curr = next(curr);
-	}
-
-	return prev;
-}
-
-void RenderWorld::SpriteManager::add_node(SpriteInstance first, SpriteInstance i)
-{
-	CE_ASSERT(first.i < _data.size, "Index out of bounds");
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-
-	SpriteInstance curr = first;
-	while (is_valid(next(curr)))
-		curr = next(curr);
-
-	_data.next_instance[curr.i] = i;
-}
-
-void RenderWorld::SpriteManager::remove_node(SpriteInstance first, SpriteInstance i)
-{
-	CE_ASSERT(first.i < _data.size, "Index out of bounds");
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-
-	const UnitId u = _data.unit[first.i];
-
-	if (i.i == first.i)
-	{
-		if (!is_valid(next(i)))
-			hash_map::remove(_map, u);
-		else
-			hash_map::set(_map, u, next(i).i);
-	}
-	else
-	{
-		SpriteInstance prev = previous(i);
-		_data.next_instance[prev.i] = next(i);
-	}
-}
-
-void RenderWorld::SpriteManager::swap_node(SpriteInstance a, SpriteInstance b)
-{
-	CE_ASSERT(a.i < _data.size, "Index out of bounds");
-	CE_ASSERT(b.i < _data.size, "Index out of bounds");
-
-	const UnitId u = _data.unit[a.i];
-	const SpriteInstance first_i = first(u);
-
-	if (a.i == first_i.i)
-	{
-		hash_map::set(_map, u, b.i);
-	}
-	else
-	{
-		const SpriteInstance prev_a = previous(a);
-		_data.next_instance[prev_a.i] = b;
-	}
 }
 
 void RenderWorld::SpriteManager::destroy()
