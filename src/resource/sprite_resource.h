@@ -42,21 +42,8 @@ namespace sprite_resource_internal
 struct SpriteAnimationResource
 {
 	u32 version;
-	u32 num_animations;
 	u32 num_frames;
-	u32 frames_offset;
-};
-
-struct SpriteAnimationName
-{
-	StringId32 id;
-};
-
-struct SpriteAnimationData
-{
-	u32 num_frames;
-	u32 first_frame;
-	f32 time;
+	f32 total_time;
 };
 
 namespace sprite_animation_resource_internal
@@ -70,11 +57,8 @@ namespace sprite_animation_resource_internal
 
 namespace sprite_animation_resource
 {
-	/// Returns the sprite animation @a name.
-	const SpriteAnimationData* get_animation(const SpriteAnimationResource* sar, StringId32 name);
-
 	/// Returns the frames of the sprite animation @a sar.
-	const u32* get_animation_frames(const SpriteAnimationResource* sar);
+	const u32* frames(const SpriteAnimationResource* sar);
 } // namespace sprite_animation_resource
 
 } // namespace crown

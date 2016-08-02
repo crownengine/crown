@@ -170,83 +170,38 @@ namespace sprite_resource_internal
 
 namespace sprite_animation_resource_internal
 {
-	void parse_animation(const char* json, Array<SpriteAnimationName>& names, Array<SpriteAnimationData>& anim_data, Array<u32>& frames)
-	{
-		TempAllocator512 ta;
-		JsonObject obj(ta);
-		sjson::parse(json, obj);
-
-		SpriteAnimationName san;
-		san.id = sjson::parse_string_id(obj["name"]);
-
-		JsonArray obj_frames(ta);
-		sjson::parse_array(obj["frames"], obj_frames);
-
-		const u32 num_frames = array::size(obj_frames);
-
-		SpriteAnimationData sad;
-		sad.num_frames  = num_frames;
-		sad.first_frame = array::size(frames);
-		sad.time        = sjson::parse_float(obj["time"]);
-
-		// Read frames
-		for (u32 ff = 0; ff < num_frames; ++ff)
-			array::push_back(frames, (u32)sjson::parse_int(obj_frames[ff]));
-
-		array::push_back(names, san);
-		array::push_back(anim_data, sad);
-	}
-
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
+		JsonArray  object_frames(ta);
+
+		Array<u32> frames(default_allocator());
+		float total_time = 0.0f;
+
 		sjson::parse(buf, object);
+		sjson::parse_array(object["frames"], object_frames);
 
-		JsonArray animations(ta);
-		sjson::parse_array(object["animations"], animations);
+		array::resize(frames, array::size(object_frames));
+		for (u32 i = 0; i < array::size(object_frames); ++i)
+			frames[i] = (u32)sjson::parse_float(object_frames[i]);
 
-		Array<SpriteAnimationName> anim_names(default_allocator());
-		Array<SpriteAnimationData> anim_data(default_allocator());
-		Array<u32> anim_frames(default_allocator());
+		total_time = sjson::parse_float(object["total_time"]);
 
-		const u32 num_animations = array::size(animations);
-		for (u32 i = 0; i < num_animations; ++i)
-		{
-			parse_animation(animations[i], anim_names, anim_data, anim_frames);
-		}
-
+		// Write
 		SpriteAnimationResource sar;
 		sar.version = RESOURCE_VERSION_SPRITE_ANIMATION;
-		sar.num_animations = array::size(anim_names);
-		sar.num_frames = array::size(anim_frames);
-		sar.frames_offset = u32(sizeof(SpriteAnimationResource) +
-					sizeof(SpriteAnimationName) * array::size(anim_names) +
-					sizeof(SpriteAnimationData) * array::size(anim_data));
+		sar.num_frames = array::size(frames);
+		sar.total_time = total_time;
 
 		opts.write(sar.version);
-		opts.write(sar.num_animations);
 		opts.write(sar.num_frames);
-		opts.write(sar.frames_offset);
+		opts.write(sar.total_time);
 
-		for (u32 i = 0; i < array::size(anim_names); i++)
-		{
-			opts.write(anim_names[i].id);
-		}
-
-		for (u32 i = 0; i < array::size(anim_data); i++)
-		{
-			opts.write(anim_data[i].num_frames);
-			opts.write(anim_data[i].first_frame);
-			opts.write(anim_data[i].time);
-		}
-
-		for (u32 i = 0; i < array::size(anim_frames); i++)
-		{
-			opts.write(anim_frames[i]);
-		}
+		for (u32 i = 0; i < array::size(frames); i++)
+			opts.write(frames[i]);
 	}
 
 	void* load(File& file, Allocator& a)
@@ -266,24 +221,9 @@ namespace sprite_animation_resource_internal
 
 namespace sprite_animation_resource
 {
-	const SpriteAnimationData* get_animation(const SpriteAnimationResource* sar, StringId32 name)
+	const u32* frames(const SpriteAnimationResource* sar)
 	{
-		const u32 num = sar->num_animations;
-		const SpriteAnimationName* begin = (SpriteAnimationName*) ((char*) sar + sizeof(*sar));
-		const SpriteAnimationData* data = (SpriteAnimationData*) ((char*) sar + sizeof(*sar) + sizeof(SpriteAnimationName) * num);
-
-		for (u32 i = 0; i < num; i++)
-		{
-			if (begin[i].id == name)
-				return &data[i];
-		}
-
-		return NULL;
-	}
-
-	const u32* get_animation_frames(const SpriteAnimationResource* sar)
-	{
-		return (u32*) ((char*) sar + sar->frames_offset);
+		return (u32*)&sar[1];
 	}
 } // namespace sprite_animation_resource
 
