@@ -118,7 +118,6 @@ namespace hash_map_internal
 
 				std::swap(hash, m._index[hash_i].hash);
 				m._index[hash_i].index = 0x0123abcd;
-				PAIR(TKey, TValue) empty(*m._allocator);
 				PAIR(TKey, TValue) tmp(*m._allocator);
 				memcpy(&tmp, &m._data[hash_i].pair, sizeof(new_item));
 				memcpy(&m._data[hash_i].pair, &new_item, sizeof(new_item));
