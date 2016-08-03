@@ -22,9 +22,8 @@ namespace sprite_resource_internal
 	struct SpriteFrame
 	{
 		StringId32 name;
-		Vector4 region;  // [x0, y0, x1, y1]
-		Vector2 scale;   // [Sx, Sy]
-		Vector2 offset;  // [Ox, Oy]
+		Vector4 region; // [x, y, w, h]
+		Vector2 pivot;  // [x, y]
 	};
 
 	void parse_frame(const char* json, SpriteFrame& frame)
@@ -35,8 +34,7 @@ namespace sprite_resource_internal
 
 		frame.name   = sjson::parse_string_id(obj["name"]);
 		frame.region = sjson::parse_vector4(obj["region"]);
-		frame.offset = sjson::parse_vector2(obj["offset"]);
-		frame.scale  = sjson::parse_vector2(obj["scale"]);
+		frame.pivot  = sjson::parse_vector2(obj["pivot"]);
 	}
 
 	void compile(const char* path, CompileOptions& opts)
@@ -67,18 +65,19 @@ namespace sprite_resource_internal
 
 			// Compute uv coords
 			const f32 u0 = fd.region.x / width;
-			const f32 v0 = fd.region.y / height;
+			const f32 v0 = (fd.region.y + fd.region.w) / height;
 			const f32 u1 = (fd.region.x + fd.region.z) / width;
-			const f32 v1 = (fd.region.y + fd.region.w) / height;
+			const f32 v1 = fd.region.y / height;
 
 			// Compute positions
-			const f32 w = fd.region.z / CROWN_DEFAULT_PIXELS_PER_METER;
-			const f32 h = fd.region.w / CROWN_DEFAULT_PIXELS_PER_METER;
-
-			const f32 x0 = fd.scale.x * (-w * 0.5f) + fd.offset.x;
-			const f32 y0 = fd.scale.y * (-h * 0.5f) + fd.offset.y;
-			const f32 x1 = fd.scale.x * ( w * 0.5f) + fd.offset.x;
-			const f32 y1 = fd.scale.y * ( h * 0.5f) + fd.offset.y;
+			f32 x0 = fd.region.x - fd.pivot.x;
+			f32 y0 = -(fd.region.y + fd.region.w - fd.pivot.y);
+			f32 x1 = fd.region.x + fd.region.z - fd.pivot.x;
+			f32 y1 = -(fd.region.y - fd.pivot.y);
+			x0 /= CROWN_DEFAULT_PIXELS_PER_METER;
+			y0 /= CROWN_DEFAULT_PIXELS_PER_METER;
+			x1 /= CROWN_DEFAULT_PIXELS_PER_METER;
+			y1 /= CROWN_DEFAULT_PIXELS_PER_METER;
 
 			array::push_back(vertices, x0); array::push_back(vertices, y0); // position
 			array::push_back(vertices, u0); array::push_back(vertices, v0); // uv
@@ -105,15 +104,11 @@ namespace sprite_resource_internal
 
 		opts.write(num_vertices);
 		for (u32 i = 0; i < array::size(vertices); i++)
-		{
 			opts.write(vertices[i]);
-		}
 
 		opts.write(num_indices);
 		for (u32 i = 0; i < array::size(indices); i++)
-		{
 			opts.write(indices[i]);
-		}
 	}
 
 	void* load(File& file, Allocator& a)
