@@ -194,8 +194,7 @@ namespace os
 	inline void create_file(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
-		// Permission mask: rw-r--r--
-		int err = ::mknod(path, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0);
+		int err = ::mknod(path, 0644 | S_IFREG , 0);
 		CE_ASSERT(err == 0, "mknod: errno = %d", errno);
 		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
@@ -230,8 +229,7 @@ namespace os
 	inline void create_directory(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
-		// rwxr-xr-x
-		int err = ::mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		int err = ::mkdir(path, 0755);
 		CE_ASSERT(err == 0, "mkdir: errno = %d", errno);
 		CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
