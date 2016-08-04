@@ -74,52 +74,7 @@ namespace json
 		}
 	}
 
-	void parse_string(const char* json, DynamicString& string)
-	{
-		CE_ASSERT_NOT_NULL(json);
-
-		if (*json == '"')
-		{
-			while (*++json)
-			{
-				// Empty string
-				if (*json == '"')
-				{
-					++json;
-					return;
-				}
-				else if (*json == '\\')
-				{
-					++json;
-
-					switch (*json)
-					{
-					case '"': string += '"'; break;
-					case '\\': string += '\\'; break;
-					case '/': string += '/'; break;
-					case 'b': string += '\b'; break;
-					case 'f': string += '\f'; break;
-					case 'n': string += '\n'; break;
-					case 'r': string += '\r'; break;
-					case 't': string += '\t'; break;
-					default:
-					{
-						CE_FATAL("Bad escape character");
-						break;
-					}
-				}
-				}
-				else
-				{
-					string += *json;
-				}
-			}
-		}
-
-		CE_FATAL("Bad string");
-	}
-
-	f64 parse_number(const char* json)
+	static f64 parse_number(const char* json)
 	{
 		CE_ASSERT_NOT_NULL(json);
 
@@ -172,6 +127,16 @@ namespace json
 		return val;
 	}
 
+	s32 parse_int(const char* json)
+	{
+		return (s32)parse_number(json);
+	}
+
+	f32 parse_float(const char* json)
+	{
+		return (f32)parse_number(json);
+	}
+
 	bool parse_bool(const char* json)
 	{
 		CE_ASSERT_NOT_NULL(json);
@@ -199,14 +164,49 @@ namespace json
 		}
 	}
 
-	s32 parse_int(const char* json)
+	void parse_string(const char* json, DynamicString& string)
 	{
-		return (s32)parse_number(json);
-	}
+		CE_ASSERT_NOT_NULL(json);
 
-	f32 parse_float(const char* json)
-	{
-		return (f32)parse_number(json);
+		if (*json == '"')
+		{
+			while (*++json)
+			{
+				// Empty string
+				if (*json == '"')
+				{
+					++json;
+					return;
+				}
+				else if (*json == '\\')
+				{
+					++json;
+
+					switch (*json)
+					{
+					case '"': string += '"'; break;
+					case '\\': string += '\\'; break;
+					case '/': string += '/'; break;
+					case 'b': string += '\b'; break;
+					case 'f': string += '\f'; break;
+					case 'n': string += '\n'; break;
+					case 'r': string += '\r'; break;
+					case 't': string += '\t'; break;
+					default:
+					{
+						CE_FATAL("Bad escape character");
+						break;
+					}
+				}
+				}
+				else
+				{
+					string += *json;
+				}
+			}
+		}
+
+		CE_FATAL("Bad string");
 	}
 
 	void parse_array(const char* json, JsonArray& array)

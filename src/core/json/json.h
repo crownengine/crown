@@ -18,12 +18,6 @@ namespace json
 	/// Returns the data type of the JSON string @a json.
 	JsonValueType::Enum type(const char* json);
 
-	/// Parses the JSON string @a json ad puts it into @a string.
-	void parse_string(const char* json, DynamicString& string);
-
-	/// Returns the JSON number @a json as f64.
-	f64 parse_number(const char* json);
-
 	/// Returns the JSON number @a json as int.
 	s32 parse_int(const char* json);
 
@@ -32,6 +26,9 @@ namespace json
 
 	/// Returns the JSON boolean @a json as bool.
 	bool parse_bool(const char* json);
+
+	/// Parses the JSON string @a json ad puts it into @a string.
+	void parse_string(const char* json, DynamicString& string);
 
 	/// Parses the JSON array @a json and puts it into @a array as pointers to
 	/// the corresponding items into the original @a json string.

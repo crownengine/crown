@@ -19,12 +19,6 @@ namespace sjson
 	/// Returns the data type of the SJSON string @a json.
 	JsonValueType::Enum type(const char* json);
 
-	/// Parses the SJSON string @a json ad puts it into @a string.
-	void parse_string(const char* json, DynamicString& string);
-
-	/// Returns the SJSON number @a json as f64.
-	f64 parse_number(const char* json);
-
 	/// Returns the SJSON number @a json as int.
 	s32 parse_int(const char* json);
 
@@ -33,6 +27,9 @@ namespace sjson
 
 	/// Returns the SJSON boolean @a json as bool.
 	bool parse_bool(const char* json);
+
+	/// Parses the SJSON string @a json ad puts it into @a string.
+	void parse_string(const char* json, DynamicString& string);
 
 	/// Parses the SJSON array @a json and puts it into @a array as pointers to
 	/// the corresponding items into the original @a json string.
