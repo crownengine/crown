@@ -490,7 +490,6 @@ static LinuxDevice s_ldvc;
 
 struct WindowX11 : public Window
 {
-	::Display* _x11_display;
 	::Window _x11_window;
 	Cursor _x11_hidden_cursor;
 	Atom _wm_delete_message;
@@ -498,20 +497,18 @@ struct WindowX11 : public Window
 public:
 
 	WindowX11()
-		: _x11_display(NULL)
-		, _x11_window(None)
+		: _x11_window(None)
 		, _x11_hidden_cursor(None)
 	{
-		_x11_display = s_ldvc._x11_display;
 	}
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent)
 	{
-		int screen = DefaultScreen(_x11_display);
-		int depth = DefaultDepth(_x11_display, screen);
-		Visual* visual = DefaultVisual(_x11_display, screen);
+		int screen = DefaultScreen(s_ldvc._x11_display);
+		int depth = DefaultDepth(s_ldvc._x11_display, screen);
+		Visual* visual = DefaultVisual(s_ldvc._x11_display, screen);
 
-		::Window root_window = RootWindow(_x11_display, screen);
+		::Window root_window = RootWindow(s_ldvc._x11_display, screen);
 		::Window parent_window = (parent == 0) ? root_window : (::Window)parent;
 
 		// Create main window
@@ -535,12 +532,12 @@ public:
 		else
 		{
 			XWindowAttributes parent_attrs;
-			XGetWindowAttributes(_x11_display, parent_window, &parent_attrs);
+			XGetWindowAttributes(s_ldvc._x11_display, parent_window, &parent_attrs);
 			depth = parent_attrs.depth;
 			visual = parent_attrs.visual;
 		}
 
-		_x11_window = XCreateWindow(_x11_display
+		_x11_window = XCreateWindow(s_ldvc._x11_display
 			, parent_window
 			, x
 			, y
@@ -561,45 +558,45 @@ public:
 		Colormap colormap;
 		static char no_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-		colormap = XDefaultColormap(_x11_display, screen);
-		XAllocNamedColor(_x11_display, colormap, "black", &black, &dummy);
-		bm_no = XCreateBitmapFromData(_x11_display, _x11_window, no_data, 8, 8);
-		_x11_hidden_cursor = XCreatePixmapCursor(_x11_display, bm_no, bm_no, &black, &black, 0, 0);
+		colormap = XDefaultColormap(s_ldvc._x11_display, screen);
+		XAllocNamedColor(s_ldvc._x11_display, colormap, "black", &black, &dummy);
+		bm_no = XCreateBitmapFromData(s_ldvc._x11_display, _x11_window, no_data, 8, 8);
+		_x11_hidden_cursor = XCreatePixmapCursor(s_ldvc._x11_display, bm_no, bm_no, &black, &black, 0, 0);
 
-		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
-		XSetWMProtocols(_x11_display, _x11_window, &_wm_delete_message, 1);
+		_wm_delete_message = XInternAtom(s_ldvc._x11_display, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(s_ldvc._x11_display, _x11_window, &_wm_delete_message, 1);
 
-		XMapRaised(_x11_display, _x11_window);
+		XMapRaised(s_ldvc._x11_display, _x11_window);
 	}
 
 	void close()
 	{
-		XDestroyWindow(_x11_display, _x11_window);
+		XDestroyWindow(s_ldvc._x11_display, _x11_window);
 	}
 
 	void bgfx_setup()
 	{
-		bgfx::x11SetDisplayWindow(_x11_display, _x11_window);
+		bgfx::x11SetDisplayWindow(s_ldvc._x11_display, _x11_window);
 	}
 
 	void show()
 	{
-		XMapRaised(_x11_display, _x11_window);
+		XMapRaised(s_ldvc._x11_display, _x11_window);
 	}
 
 	void hide()
 	{
-		XUnmapWindow(_x11_display, _x11_window);
+		XUnmapWindow(s_ldvc._x11_display, _x11_window);
 	}
 
 	void resize(u16 width, u16 height)
 	{
-		XResizeWindow(_x11_display, _x11_window, width, height);
+		XResizeWindow(s_ldvc._x11_display, _x11_window, width, height);
 	}
 
 	void move(u16 x, u16 y)
 	{
-		XMoveWindow(_x11_display, _x11_window, x, y);
+		XMoveWindow(s_ldvc._x11_display, _x11_window, x, y);
 	}
 
 	void minimize()
@@ -615,7 +612,7 @@ public:
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
 		char* name;
-		XFetchName(_x11_display, _x11_window, &name);
+		XFetchName(s_ldvc._x11_display, _x11_window, &name);
 		strncpy(buf, name, sizeof(buf));
 		XFree(name);
 		return buf;
@@ -623,7 +620,7 @@ public:
 
 	void set_title (const char* title)
 	{
-		XStoreName(_x11_display, _x11_window, title);
+		XStoreName(s_ldvc._x11_display, _x11_window, title);
 	}
 
 	void* handle()
@@ -633,7 +630,7 @@ public:
 
 	void show_cursor(bool show)
 	{
-		XDefineCursor(_x11_display
+		XDefineCursor(s_ldvc._x11_display
 			, _x11_window
 			, show ? None : _x11_hidden_cursor
 			);
@@ -644,11 +641,11 @@ public:
 		XEvent e;
 		e.xclient.type = ClientMessage;
 		e.xclient.window = _x11_window;
-		e.xclient.message_type = XInternAtom(_x11_display, "_NET_WM_STATE", False);
+		e.xclient.message_type = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE", False);
 		e.xclient.format = 32;
 		e.xclient.data.l[0] = full ? 1 : 0;
-		e.xclient.data.l[1] = XInternAtom(_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
-		XSendEvent(_x11_display, DefaultRootWindow(_x11_display), False, SubstructureNotifyMask, &e);
+		e.xclient.data.l[1] = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask, &e);
 	}
 };
 
