@@ -19,14 +19,14 @@ end
 
 function FPSCamera:position()
 	local sg = World.scene_graph(self._world)
-	local camera_transform = SceneGraph.transform_instances(sg, self._unit)
+	local camera_transform = SceneGraph.instances(sg, self._unit)
 	local camera_position = SceneGraph.world_position(sg, camera_transform)
 	return camera_position
 end
 
 function FPSCamera:world_pose()
 	local sg = World.scene_graph(self._world)
-	local camera_transform = SceneGraph.transform_instances(sg, self._unit)
+	local camera_transform = SceneGraph.instances(sg, self._unit)
 	return SceneGraph.world_pose(sg, camera_transform)
 end
 
@@ -61,7 +61,7 @@ function FPSCamera:update(dx, dy, keyboard)
 	local sg = World.scene_graph(self._world)
 
 	local camera = self:camera()
-	local camera_transform = SceneGraph.transform_instances(sg, self._unit)
+	local camera_transform = SceneGraph.instances(sg, self._unit)
 	local camera_local_pose = SceneGraph.local_pose(sg, camera_transform)
 	local camera_right_vector = Matrix4x4.x(camera_local_pose)
 	local camera_position = Matrix4x4.translation(camera_local_pose)

@@ -257,32 +257,32 @@ function UnitBox:destroy()
 end
 
 function UnitBox:local_position()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.local_position(self._sg, tr) or Vector3.zero()
 end
 
 function UnitBox:local_rotation()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.local_rotation(self._sg, tr) or Quaternion.identity()
 end
 
 function UnitBox:local_scale()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.local_scale(self._sg, tr) or Vector3(1, 1, 1)
 end
 
 function UnitBox:local_pose()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.local_pose(self._sg, tr) or Matrix4x4.identity()
 end
 
 function UnitBox:world_position()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.world_position(self._sg, tr) or Vector3.zero()
 end
 
 function UnitBox:world_rotation()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.world_rotation(self._sg, tr) or Quaternion.identity()
 end
 
@@ -291,27 +291,27 @@ function UnitBox:world_scale()
 end
 
 function UnitBox:world_pose()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.world_pose(self._sg, tr) or Matrix4x4.identity()
 end
 
 function UnitBox:set_local_position(pos)
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	if tr then SceneGraph.set_local_position(self._sg, tr, pos) end
 end
 
 function UnitBox:set_local_rotation(rot)
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	if tr then SceneGraph.set_local_rotation(self._sg, tr, rot) end
 end
 
 function UnitBox:set_local_scale(scale)
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	if tr then SceneGraph.set_local_scale(self._sg, tr, scale) end
 end
 
 function UnitBox:set_local_pose(pose)
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	if tr then SceneGraph.set_local_pose(self._sg, tr, pose) end
 end
 
@@ -380,32 +380,32 @@ function SoundObject:name()
 end
 
 function SoundObject:local_position()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.local_position(self._sg, tr) or Vector3.zero()
 end
 
 function SoundObject:local_rotation()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.local_rotation(self._sg, tr) or Quaternion.identity()
 end
 
 function SoundObject:local_scale()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.local_scale(self._sg, tr) or Vector3(1, 1, 1)
 end
 
 function SoundObject:local_pose()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.local_pose(self._sg, tr) or Matrix4x4.identity()
 end
 
 function SoundObject:world_position()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.world_position(self._sg, tr) or Vector3.zero()
 end
 
 function SoundObject:world_rotation()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.world_rotation(self._sg, tr) or Quaternion.identity()
 end
 
@@ -414,27 +414,27 @@ function SoundObject:world_scale()
 end
 
 function SoundObject:world_pose()
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	return tr and SceneGraph.world_pose(self._sg, tr) or Matrix4x4.identity()
 end
 
 function SoundObject:set_local_position(pos)
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	if tr then SceneGraph.set_local_position(self._sg, tr, pos) end
 end
 
 function SoundObject:set_local_rotation(rot)
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	if tr then SceneGraph.set_local_rotation(self._sg, tr, rot) end
 end
 
 function SoundObject:set_local_scale(scale)
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	if tr then SceneGraph.set_local_scale(self._sg, tr, scale) end
 end
 
 function SoundObject:set_local_pose(pose)
-	local tr = SceneGraph.transform_instances(self._sg, self._unit_id)
+	local tr = SceneGraph.instances(self._sg, self._unit_id)
 	if tr then SceneGraph.set_local_pose(self._sg, tr, pose) end
 end
 
@@ -1287,7 +1287,7 @@ function LevelEditor:init()
 	self.tool = self.place_tool
 
 	-- Spawn camera
-	local camera_transform = SceneGraph.transform_instances(self._sg, self._fpscamera:unit())
+	local camera_transform = SceneGraph.instances(self._sg, self._fpscamera:unit())
 	local pos = Vector3(20, 20, -20)
 	local dir = Vector3.normalize(Vector3.zero() - pos)
 	SceneGraph.set_local_rotation(self._sg, camera_transform, Quaternion.look(dir))

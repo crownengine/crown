@@ -28,7 +28,7 @@ function UnitPreview:update(dt)
 			radius = radius > 100 and 100 or radius
 
 			local camera_unit = self._fpscamera:unit()
-			local tr = SceneGraph.transform_instances(self._sg, camera_unit)
+			local tr = SceneGraph.instances(self._sg, camera_unit)
 			local pos = Vector3(radius, radius, -radius) * 2
 			local camera_pos = Matrix4x4.translation(tm) + pos
 			local target_pos = Matrix4x4.translation(tm)

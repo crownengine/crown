@@ -34,7 +34,7 @@ function FPSCamera:update(dx, dy)
 	if Keyboard.released(Keyboard.button_id("d")) then dkey = false end
 
 	local camera = self:camera()
-	local camera_transform = SceneGraph.transform_instances(self._sg, self._unit)
+	local camera_transform = SceneGraph.instances(self._sg, self._unit)
 	local camera_local_pose = SceneGraph.local_pose(self._sg, camera_transform)
 	local camera_right_vector = Matrix4x4.x(camera_local_pose)
 	local camera_position = Matrix4x4.translation(camera_local_pose)
