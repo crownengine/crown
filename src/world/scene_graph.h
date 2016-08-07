@@ -89,7 +89,7 @@ struct SceneGraph
 	void destroy(TransformInstance i);
 
 	/// Returns the transform instance of unit @a id.
-	TransformInstance get(UnitId id);
+	TransformInstance instances(UnitId id);
 
 	/// Sets the local position, rotation, scale or pose of the given @a node.
 	void set_local_position(TransformInstance i, const Vector3& pos);

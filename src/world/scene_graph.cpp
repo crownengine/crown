@@ -95,7 +95,7 @@ void SceneGraph::allocate(u32 num)
 
 void SceneGraph::unit_destroyed_callback(UnitId id)
 {
-	TransformInstance ti = get(id);
+	TransformInstance ti = instances(id);
 	if (is_valid(ti))
 		destroy(ti);
 }
@@ -159,7 +159,7 @@ void SceneGraph::destroy(TransformInstance i)
 	--_data.size;
 }
 
-TransformInstance SceneGraph::get(UnitId id)
+TransformInstance SceneGraph::instances(UnitId id)
 {
 	return make_instance(hash_map::get(_map, id, UINT32_MAX));
 }

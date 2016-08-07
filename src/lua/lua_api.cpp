@@ -1628,11 +1628,11 @@ static int scene_graph_destroy(lua_State* L)
 	return 0;
 }
 
-static int scene_graph_transform_instances(lua_State* L)
+static int scene_graph_instances(lua_State* L)
 {
 	LuaStack stack(L);
 	SceneGraph* sg = stack.get_scene_graph(1);
-	TransformInstance ti = sg->get(stack.get_unit(2));
+	TransformInstance ti = sg->instances(stack.get_unit(2));
 	if (sg->is_valid(ti))
 		stack.push_transform(ti);
 	else
@@ -3268,22 +3268,22 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "__index",                         "World");
 	env.add_module_function("World", "__tostring",                      world_tostring);
 
-	env.add_module_function("SceneGraph", "create",              scene_graph_create);
-	env.add_module_function("SceneGraph", "destroy",             scene_graph_destroy);
-	env.add_module_function("SceneGraph", "transform_instances", scene_graph_transform_instances);
-	env.add_module_function("SceneGraph", "local_position",      scene_graph_local_position);
-	env.add_module_function("SceneGraph", "local_rotation",      scene_graph_local_rotation);
-	env.add_module_function("SceneGraph", "local_scale",         scene_graph_local_scale);
-	env.add_module_function("SceneGraph", "local_pose",          scene_graph_local_pose);
-	env.add_module_function("SceneGraph", "world_position",      scene_graph_world_position);
-	env.add_module_function("SceneGraph", "world_rotation",      scene_graph_world_rotation);
-	env.add_module_function("SceneGraph", "world_pose",          scene_graph_world_pose);
-	env.add_module_function("SceneGraph", "set_local_position",  scene_graph_set_local_position);
-	env.add_module_function("SceneGraph", "set_local_rotation",  scene_graph_set_local_rotation);
-	env.add_module_function("SceneGraph", "set_local_scale",     scene_graph_set_local_scale);
-	env.add_module_function("SceneGraph", "set_local_pose",      scene_graph_set_local_pose);
-	env.add_module_function("SceneGraph", "link",                scene_graph_link);
-	env.add_module_function("SceneGraph", "unlink",              scene_graph_unlink);
+	env.add_module_function("SceneGraph", "create",             scene_graph_create);
+	env.add_module_function("SceneGraph", "destroy",            scene_graph_destroy);
+	env.add_module_function("SceneGraph", "instances",          scene_graph_instances);
+	env.add_module_function("SceneGraph", "local_position",     scene_graph_local_position);
+	env.add_module_function("SceneGraph", "local_rotation",     scene_graph_local_rotation);
+	env.add_module_function("SceneGraph", "local_scale",        scene_graph_local_scale);
+	env.add_module_function("SceneGraph", "local_pose",         scene_graph_local_pose);
+	env.add_module_function("SceneGraph", "world_position",     scene_graph_world_position);
+	env.add_module_function("SceneGraph", "world_rotation",     scene_graph_world_rotation);
+	env.add_module_function("SceneGraph", "world_pose",         scene_graph_world_pose);
+	env.add_module_function("SceneGraph", "set_local_position", scene_graph_set_local_position);
+	env.add_module_function("SceneGraph", "set_local_rotation", scene_graph_set_local_rotation);
+	env.add_module_function("SceneGraph", "set_local_scale",    scene_graph_set_local_scale);
+	env.add_module_function("SceneGraph", "set_local_pose",     scene_graph_set_local_pose);
+	env.add_module_function("SceneGraph", "link",               scene_graph_link);
+	env.add_module_function("SceneGraph", "unlink",             scene_graph_unlink);
 
 	env.add_module_function("UnitManager", "create", unit_manager_create);
 	env.add_module_function("UnitManager", "alive",  unit_manager_alive);

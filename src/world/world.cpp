@@ -146,7 +146,7 @@ void World::update_scene(f32 dt)
 		case EventType::PHYSICS_TRANSFORM:
 			{
 				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
-				const TransformInstance ti = _scene_graph->get(ptev.unit_id);
+				const TransformInstance ti = _scene_graph->instances(ptev.unit_id);
 				const Matrix4x4 pose = matrix4x4(ptev.rotation, ptev.position);
 				_scene_graph->set_world_pose(ti, pose);
 			}
@@ -249,7 +249,7 @@ const Matrix4x4& World::camera_projection_matrix(CameraInstance i) const
 
 Matrix4x4 World::camera_view_matrix(CameraInstance i) const
 {
-	const TransformInstance ti = _scene_graph->get(_camera[i.i].unit);
+	const TransformInstance ti = _scene_graph->instances(_camera[i.i].unit);
 	Matrix4x4 view = _scene_graph->world_pose(ti);
 	invert(view);
 	return view;
@@ -316,7 +316,7 @@ Vector3 World::camera_screen_to_world(CameraInstance i, const Vector3& pos)
 {
 	const Camera& c = _camera[i.i];
 
-	const TransformInstance ti = _scene_graph->get(_camera[i.i].unit);
+	const TransformInstance ti = _scene_graph->instances(_camera[i.i].unit);
 	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
 	invert(world_inv);
 	Matrix4x4 mvp = world_inv * c.projection;
@@ -338,7 +338,7 @@ Vector3 World::camera_world_to_screen(CameraInstance i, const Vector3& pos)
 {
 	const Camera& c = _camera[i.i];
 
-	const TransformInstance ti = _scene_graph->get(_camera[i.i].unit);
+	const TransformInstance ti = _scene_graph->instances(_camera[i.i].unit);
 	Matrix4x4 world_inv = _scene_graph->world_pose(ti);
 	invert(world_inv);
 
@@ -563,7 +563,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const ActorResource* ar = (const ActorResource*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++ar)
 			{
-				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
+				Matrix4x4 tm = scene_graph->world_pose(scene_graph->instances(unit_lookup[unit_index[i]]));
 				physics_world->actor_create(unit_lookup[unit_index[i]], ar, tm);
 			}
 		}
@@ -572,7 +572,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const ControllerDesc* cd = (const ControllerDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
 			{
-				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
+				Matrix4x4 tm = scene_graph->world_pose(scene_graph->instances(unit_lookup[unit_index[i]]));
 				physics_world->controller_create(unit_lookup[unit_index[i]], *cd, tm);
 			}
 		}
@@ -581,7 +581,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++mrd)
 			{
-				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
+				Matrix4x4 tm = scene_graph->world_pose(scene_graph->instances(unit_lookup[unit_index[i]]));
 				render_world->mesh_create(unit_lookup[unit_index[i]], *mrd, tm);
 			}
 		}
@@ -590,7 +590,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++srd)
 			{
-				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
+				Matrix4x4 tm = scene_graph->world_pose(scene_graph->instances(unit_lookup[unit_index[i]]));
 				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
 			}
 		}
@@ -599,7 +599,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const LightDesc* ld = (const LightDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++ld)
 			{
-				Matrix4x4 tm = scene_graph->world_pose(scene_graph->get(unit_lookup[unit_index[i]]));
+				Matrix4x4 tm = scene_graph->world_pose(scene_graph->instances(unit_lookup[unit_index[i]]));
 				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
 			}
 		}
