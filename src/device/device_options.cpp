@@ -124,7 +124,7 @@ int DeviceOptions::parse()
 
 		if (_data_dir == NULL)
 		{
-			help("Bundle dir must be specified.");
+			help("Data dir must be specified.");
 			return EXIT_FAILURE;
 		}
 	}
@@ -143,7 +143,7 @@ int DeviceOptions::parse()
 	{
 		if (!path::is_absolute(_data_dir))
 		{
-			help("Bundle dir must be absolute.");
+			help("Data dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
