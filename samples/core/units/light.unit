@@ -12,7 +12,7 @@ components = {
 		data = {
 			type = "directional"
 			range = 1
-			intensity = 3
+			intensity = 1
 			spot_angle = 0.523599
 			color = [ 1 1 1 ]
 		}
