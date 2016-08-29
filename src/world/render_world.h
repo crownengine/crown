@@ -277,9 +277,11 @@ private:
 	MaterialManager* _material_manager;
 	UnitManager* _unit_manager;
 
-	bgfx::UniformHandle _u_light_pos;
-	bgfx::UniformHandle _u_light_dir;
-	bgfx::UniformHandle _u_light_col;
+	bgfx::UniformHandle _u_light_position;
+	bgfx::UniformHandle _u_light_direction;
+	bgfx::UniformHandle _u_light_color;
+	bgfx::UniformHandle _u_light_range;
+	bgfx::UniformHandle _u_light_intensity;
 
 	bool _debug_drawing;
 	MeshManager _mesh_manager;

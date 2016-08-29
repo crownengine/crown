@@ -34,18 +34,22 @@ RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, M
 {
 	um.register_destroy_function(RenderWorld::unit_destroyed_callback, this);
 
-	_u_light_pos = bgfx::createUniform("u_light_pos", bgfx::UniformType::Vec4);
-	_u_light_dir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
-	_u_light_col = bgfx::createUniform("u_light_col", bgfx::UniformType::Vec4);
+	_u_light_position  = bgfx::createUniform("u_light_position", bgfx::UniformType::Vec4);
+	_u_light_direction = bgfx::createUniform("u_light_direction", bgfx::UniformType::Vec4);
+	_u_light_color     = bgfx::createUniform("u_light_color", bgfx::UniformType::Vec4);
+	_u_light_range     = bgfx::createUniform("u_light_range", bgfx::UniformType::Vec4);
+	_u_light_intensity = bgfx::createUniform("u_light_intensity", bgfx::UniformType::Vec4);
 }
 
 RenderWorld::~RenderWorld()
 {
 	_unit_manager->unregister_destroy_function(this);
 
-	bgfx::destroyUniform(_u_light_pos);
-	bgfx::destroyUniform(_u_light_dir);
-	bgfx::destroyUniform(_u_light_col);
+	bgfx::destroyUniform(_u_light_intensity);
+	bgfx::destroyUniform(_u_light_range);
+	bgfx::destroyUniform(_u_light_color);
+	bgfx::destroyUniform(_u_light_direction);
+	bgfx::destroyUniform(_u_light_position);
 
 	_mesh_manager.destroy();
 	_sprite_manager.destroy();
@@ -269,9 +273,11 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 		const Vector4 ldir = normalize(lid.world[ll].z) * view;
 		const Vector3 lpos = translation(lid.world[ll]);
 
-		bgfx::setUniform(_u_light_pos, to_float_ptr(lpos));
-		bgfx::setUniform(_u_light_dir, to_float_ptr(ldir));
-		bgfx::setUniform(_u_light_col, to_float_ptr(lid.color[ll]));
+		bgfx::setUniform(_u_light_position, to_float_ptr(lpos));
+		bgfx::setUniform(_u_light_direction, to_float_ptr(ldir));
+		bgfx::setUniform(_u_light_color, to_float_ptr(lid.color[ll]));
+		bgfx::setUniform(_u_light_range, &lid.range[ll]);
+		bgfx::setUniform(_u_light_intensity, &lid.intensity[ll]);
 
 		// Render meshes
 		for (u32 i = 0; i < mid.first_hidden; ++i)
