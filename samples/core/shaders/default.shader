@@ -174,12 +174,16 @@ bgfx_shaders = {
 		"
 
 		fs_code = "
+			uniform vec4 u_color;
 			SAMPLER2D(u_albedo, 0);
-			uniform vec3 u_color;
 
 			void main()
 			{
-				gl_FragColor = texture2D(u_albedo, v_texcoord0) * vec4(u_color, 1.0);
+				vec4 color = texture2D(u_albedo, v_texcoord0);
+				if (color.a <= 0.0)
+					discard;
+
+				gl_FragColor = color * u_color;
 			}
 		"
 	}
@@ -191,7 +195,7 @@ bgfx_shaders = {
 		"
 			vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 0.0);
 			vec4 v_view      : TEXCOORD0 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec2 v_uv0       : TEXCOORD1 = vec2(0.0, 0.0);
+			vec2 v_texcoord0 : TEXCOORD1 = vec2(0.0, 0.0);
 
 			vec3 a_position  : POSITION;
 			vec3 a_normal    : NORMAL;
@@ -201,7 +205,7 @@ bgfx_shaders = {
 		vs_input_output =
 		"
 			$input a_position, a_normal, a_texcoord0
-			$output v_normal, v_view, v_uv0
+			$output v_normal, v_view, v_texcoord0
 		"
 
 		vs_code =
@@ -212,30 +216,32 @@ bgfx_shaders = {
 				v_view = mul(u_modelView, vec4(a_position, 1.0));
 				v_normal = normalize(mul(u_modelView, vec4(a_normal, 0.0)).xyz);
 
-				v_uv0 = a_texcoord0;
+				v_texcoord0 = a_texcoord0;
 			}
 		"
 
 		fs_input_output =
 		"
-			$input v_normal, v_view, v_uv0
+			$input v_normal, v_view, v_texcoord0
 		"
 
 		fs_code =
 		"
-		#ifdef DIFFUSE_MAP
-			SAMPLER2D(u_albedo, 0);
-		#endif // DIFFUSE_MAP
-
 		#if !defined(NO_LIGHT)
-			uniform vec4 u_light_pos; // In world-space
-			uniform vec4 u_light_dir; // In view-space
-			uniform vec4 u_light_col;
+			uniform vec4 u_light_position;  // In world-space
+			uniform vec4 u_light_direction; // In view-space
+			uniform vec4 u_light_color;
+			uniform vec4 u_light_range;
+			uniform vec4 u_light_intensity;
 
 			uniform vec4 u_ambient;
 			uniform vec4 u_diffuse;
 			uniform vec4 u_specular;
 		#endif
+
+		#ifdef DIFFUSE_MAP
+			SAMPLER2D(u_albedo, 0);
+		#endif // DIFFUSE_MAP
 
 			void main()
 			{
@@ -243,18 +249,20 @@ bgfx_shaders = {
 				// normalize both input vectors
 				vec3 n = normalize(v_normal);
 				vec3 e = normalize(v_view.xyz);
+				vec3 l = u_light_direction.xyz;
 
-				float intensity = max(0.0f, dot(n, u_light_dir.xyz));
+				float nl = max(0.0, dot(n, l));
+				vec4 light_diffuse = nl * u_light_color * u_light_intensity.x;
 
-				vec4 colorOut = max(intensity * (u_diffuse * u_light_col), u_ambient);
+				vec4 color = max(u_diffuse * light_diffuse, u_ambient);
 		#else
-				vec4 colorOut = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+				vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		#endif // !defined(NO_LIGHT)
 
 		#ifdef DIFFUSE_MAP
-				gl_FragColor = colorOut * texture2D(u_albedo, v_uv0);
+				gl_FragColor = color * texture2D(u_albedo, v_texcoord0);
 		#else
-				gl_FragColor = colorOut;
+				gl_FragColor = color;
 		#endif // DIFFUSE_MAP
 			}
 		"
