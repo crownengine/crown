@@ -20,7 +20,7 @@ function FPSCamera:unit()
 end
 
 function FPSCamera:camera()
-	return World.camera(self._world, self._unit)
+	return World.camera_instances(self._world, self._unit)
 end
 
 function FPSCamera:update(dx, dy)

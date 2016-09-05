@@ -5,7 +5,7 @@ function init()
 	-- Create world and camera
 	world = Device.create_world()
 	local camera_unit = World.spawn_unit(world, "camera")
-	camera = World.camera(world, camera_unit)
+	camera = World.camera_instances(world, camera_unit)
 end
 
 function update(dt)
