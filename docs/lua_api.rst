@@ -449,12 +449,12 @@ World
 Camera
 ------
 
-	**camera** (world, unit) : Id
-		Returns the camera owned by unit *id*.
-
 	**camera_create** (world, unit, projection, fov, far_range, near_range, pose) : Id
 		Creates a new camera for *unit* and returns its id.
 		Projection can be either ``orthographic`` or ``perspective``.
+
+	**camera_instances** (world, unit) : Id
+		Returns the id of the camera owned by *unit*.
 
 	**camera_set_projection_type** (world, camera, projection)
 		Sets the projection type of the camera.
