@@ -18,9 +18,9 @@ function UnitPreview:update(dt)
 	World.update(self._world, dt)
 
 	if self._unit_id then
-		local meshes = RenderWorld.mesh_instances(self._rw, self._unit_id)
-		if meshes then
-			local tm, hext = RenderWorld.mesh_obb(self._rw, meshes[1])
+		local mesh_component = RenderWorld.mesh_instances(self._rw, self._unit_id)
+		if mesh_component then
+			local tm, hext = RenderWorld.mesh_obb(self._rw, mesh_component)
 
 			local radius = Vector3.length(hext)
 			radius = math.ceil(radius / 4)  * 4

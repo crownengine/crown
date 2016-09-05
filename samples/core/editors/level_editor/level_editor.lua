@@ -100,8 +100,8 @@ function draw_world_origin_grid(lines, size, step)
 end
 
 function draw_mesh_obb(render_world, unit_id, lines)
-	local meshes = RenderWorld.mesh_instances(render_world, unit_id)
-	local tm, hext = RenderWorld.mesh_obb(render_world, meshes[1])
+	local mesh_component = RenderWorld.mesh_instances(render_world, unit_id)
+	local tm, hext = RenderWorld.mesh_obb(render_world, mesh_component)
 	DebugLine.add_obb(lines, tm, hext, Color4.red())
 end
 
@@ -321,9 +321,9 @@ end
 
 function UnitBox:raycast(pos, dir)
 	local rw = LevelEditor._rw
-	local meshes = RenderWorld.mesh_instances(rw, self._unit_id)
-	local tm, hext = RenderWorld.mesh_obb(rw, meshes[1])
-	return RenderWorld.mesh_raycast(rw, meshes[1], pos, dir)
+	local mesh_component = RenderWorld.mesh_instances(rw, self._unit_id)
+	local tm, hext = RenderWorld.mesh_obb(rw, mesh_component)
+	return RenderWorld.mesh_raycast(rw, mesh_component, pos, dir)
 end
 
 function UnitBox:draw()
