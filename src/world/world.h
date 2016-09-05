@@ -98,7 +98,7 @@ public:
 	void camera_destroy(CameraInstance i);
 
 	/// Returns the camera owned by unit @a id.
-	CameraInstance camera(UnitId id);
+	CameraInstance camera_instances(UnitId id);
 
 	/// Sets the projection type of the camera.
 	void camera_set_projection_type(CameraInstance i, ProjectionType::Enum type);

@@ -226,7 +226,7 @@ void World::camera_destroy(CameraInstance i)
 	hash_map::remove(_camera_map, u);
 }
 
-CameraInstance World::camera(UnitId id)
+CameraInstance World::camera_instances(UnitId id)
 {
 	return make_camera_instance(hash_map::get(_camera_map, id, UINT32_MAX));
 }

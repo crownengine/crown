@@ -136,7 +136,7 @@ void RenderWorld::sprite_destroy(SpriteInstance i)
 	_sprite_manager.destroy(i);
 }
 
-SpriteInstance RenderWorld::sprite(UnitId id)
+SpriteInstance RenderWorld::sprite_instances(UnitId id)
 {
 	return _sprite_manager.sprite(id);
 }
@@ -169,7 +169,7 @@ void RenderWorld::light_destroy(LightInstance i)
 	_light_manager.destroy(i);
 }
 
-LightInstance RenderWorld::light(UnitId id)
+LightInstance RenderWorld::light_instances(UnitId id)
 {
 	return _light_manager.light(id);
 }
@@ -377,14 +377,14 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 	}
 
 	{
-		SpriteInstance first = sprite(id);
+		SpriteInstance first = sprite_instances(id);
 
 		if (_sprite_manager.is_valid(first))
 			sprite_destroy(first);
 	}
 
 	{
-		LightInstance first = light(id);
+		LightInstance first = light_instances(id);
 
 		if (_light_manager.is_valid(first))
 			light_destroy(first);

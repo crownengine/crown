@@ -1361,7 +1361,12 @@ static int camera_create(lua_State* L)
 static int world_camera_instances(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_camera(stack.get_world(1)->camera(stack.get_unit(2)));
+	CameraInstance inst = stack.get_world(1)->camera_instances(stack.get_unit(2));
+
+	if (inst.i == UINT32_MAX)
+		return 0;
+
+	stack.push_camera(inst);
 	return 1;
 }
 
@@ -1631,12 +1636,12 @@ static int scene_graph_destroy(lua_State* L)
 static int scene_graph_instances(lua_State* L)
 {
 	LuaStack stack(L);
-	SceneGraph* sg = stack.get_scene_graph(1);
-	TransformInstance ti = sg->instances(stack.get_unit(2));
-	if (sg->is_valid(ti))
-		stack.push_transform(ti);
-	else
-		stack.push_nil();
+	TransformInstance inst = stack.get_scene_graph(1)->instances(stack.get_unit(2));
+
+	if (inst.i == UINT32_MAX)
+		return 0;
+
+	stack.push_transform(inst);
 	return 1;
 }
 
@@ -1785,15 +1790,11 @@ static int render_world_mesh_instances(lua_State* L)
 	Array<MeshInstance> inst(ta);
 	rw->mesh_instances(unit, inst);
 
-	stack.push_table(array::size(inst));
-	for (u32 i = 0; i < array::size(inst); ++i)
-	{
-		stack.push_key_begin(i+1);
+	const u32 n = array::size(inst);
+	for (u32 i = 0; i < n; ++i)
 		stack.push_mesh_instance(inst[i]);
-		stack.push_key_end();
-	}
 
-	return 1;
+	return n;
 }
 
 static int render_world_mesh_obb(lua_State* L)
@@ -1851,10 +1852,12 @@ static int render_world_sprite_destroy(lua_State* L)
 static int render_world_sprite_instances(lua_State* L)
 {
 	LuaStack stack(L);
-	RenderWorld* rw = stack.get_render_world(1);
-	UnitId unit = stack.get_unit(2);
+	SpriteInstance inst = stack.get_render_world(1)->sprite_instances(stack.get_unit(2));
 
-	stack.push_sprite_instance(rw->sprite(unit));
+	if (inst.i == UINT32_MAX)
+		return 0;
+
+	stack.push_sprite_instance(inst);
 	return 1;
 }
 
@@ -1903,13 +1906,12 @@ static int render_world_light_destroy(lua_State* L)
 static int render_world_light_instances(lua_State* L)
 {
 	LuaStack stack(L);
-	LightInstance inst = stack.get_render_world(1)->light(stack.get_unit(2));
+	LightInstance inst = stack.get_render_world(1)->light_instances(stack.get_unit(2));
 
 	if (inst.i == UINT32_MAX)
-		stack.push_nil();
-	else
-		stack.push_light_instance(inst);
+		return 0;
 
+	stack.push_light_instance(inst);
 	return 1;
 }
 
@@ -2009,10 +2011,9 @@ static int physics_world_actor_instances(lua_State* L)
 	ActorInstance inst = stack.get_physics_world(1)->actor(stack.get_unit(2));
 
 	if (inst.i == UINT32_MAX)
-		stack.push_nil();
-	else
-		stack.push_actor(inst);
+		return 0;
 
+	stack.push_actor(inst);
 	return 1;
 }
 
@@ -2251,7 +2252,12 @@ static int physics_world_actor_wake_up(lua_State* L)
 static int physics_world_controller_instances(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_controller(stack.get_physics_world(1)->controller(stack.get_unit(2)));
+	ControllerInstance inst = stack.get_physics_world(1)->controller(stack.get_unit(2));
+
+	if (inst.i == UINT32_MAX)
+		return 0;
+
+	stack.push_controller(inst);
 	return 1;
 }
 

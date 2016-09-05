@@ -54,7 +54,7 @@ public:
 	void sprite_destroy(SpriteInstance i);
 
 	/// Returns the sprite instances of the unit @a id.
-	SpriteInstance sprite(UnitId id);
+	SpriteInstance sprite_instances(UnitId id);
 
 	/// Sets the material @a id of the sprite @a i.
 	void sprite_set_material(SpriteInstance i, StringId64 id);
@@ -72,7 +72,7 @@ public:
 	void light_destroy(LightInstance i);
 
 	/// Returns the light of the unit @a id.
-	LightInstance light(UnitId id);
+	LightInstance light_instances(UnitId id);
 
 	/// Returns the type of the light @a i.
 	LightType::Enum light_type(LightInstance i);
