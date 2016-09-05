@@ -454,7 +454,7 @@ Camera
 		Projection can be either ``orthographic`` or ``perspective``.
 
 	**camera_instances** (world, unit) : Id
-		Returns the id of the camera owned by *unit*.
+		Returns the IDs for all the cameras of the *unit*.
 
 	**camera_set_projection_type** (world, camera, projection)
 		Sets the projection type of the camera.
@@ -533,7 +533,7 @@ SceneGraph
 		Destroys the transform *id*.
 
 	**instances** (sg, unit) : Id
-		Returns the transform of the *unit* or ``nil``.
+		Returns the IDs for all the transforms of the *unit*.
 
 	**local_position** (sg, id) : Vector3
 		Returns the local position of the transform *id*.
@@ -601,8 +601,8 @@ Mesh
 	**mesh_destroy** (rw, id)
 		Destroys the mesh *id*.
 
-	**mesh_instances** (rw, unit) : table
-		Returns all the mesh instances of the *unit*.
+	**mesh_instances** (rw, unit) : Id
+		Returns the IDs for all the meshes of the *unit*.
 
 	**mesh_raycast** (rw, id, from, dir) : float
 		Returns the distance along ray (from, dir) to intersection point with the mesh *id* or -1.0 if no intersection.
@@ -616,8 +616,8 @@ Sprite
 	**sprite_destroy** (rw, id)
 		Destroys the sprite *id*.
 
-	**sprite_instances** (rw, unit) : table
-		Returns all the sprites of the *unit*.
+	**sprite_instances** (rw, unit) : Id
+		Returns the IDs for all the sprites of the *unit*.
 
 Light
 -----
@@ -630,7 +630,7 @@ Light
 		Destroys the light *id*.
 
 	**light_instances** (rw, unit) : Id
-		Returns the light of the *unit* or ``nil``.
+		Returns the IDs for all the lights of the *unit*.
 
 	**light_type** (rw, id) : string
 		Returns the type of the light *id*.
@@ -683,7 +683,7 @@ Actor
 -----
 
 	**actor_instances** (pw, unit) : Id
-		Returns the actor of the *unit*.
+		Returns the IDs for all the actors of the *unit*.
 
 	**actor_world_position** (pw, actor) : Vector3
 		Returns the world position of the actor.
