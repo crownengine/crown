@@ -444,9 +444,9 @@ end
 
 function SoundObject:raycast(pos, dir)
 	local rw = LevelEditor._rw
-	local meshes = RenderWorld.mesh_instances(rw, self._unit_id)
-	local tm, hext = RenderWorld.mesh_obb(rw, meshes[1])
-	return RenderWorld.mesh_raycast(rw, meshes[1], pos, dir)
+	local mesh_component = RenderWorld.mesh_instances(rw, self._unit_id)
+	local tm, hext = RenderWorld.mesh_obb(rw, mesh_component)
+	return RenderWorld.mesh_raycast(rw, mesh_component, pos, dir)
 end
 
 function SoundObject:draw()
