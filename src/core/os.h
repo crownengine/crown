@@ -113,6 +113,8 @@ namespace os
 	{
 #if CROWN_PLATFORM_ANDROID
 		__android_log_write(ANDROID_LOG_DEBUG, "crown", msg);
+#elif CROWN_PLATFORM_WINDOWS
+		OutputDebugStringA(msg);
 #else
 		fputs(msg, stdout);
 		fflush(stdout);
