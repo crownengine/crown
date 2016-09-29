@@ -16,6 +16,7 @@
 	#include <netinet/in.h> // htons, htonl, ...
 	#include <sys/socket.h>
 	#include <unistd.h>     // close
+	typedef int SOCKET;
 #elif CROWN_PLATFORM_WINDOWS
 	#include <winsock2.h>
 	#pragma comment(lib, "Ws2_32.lib")
@@ -88,11 +89,7 @@ struct WriteResult
 /// @ingroup Network
 struct TCPSocket
 {
-#if CROWN_PLATFORM_POSIX
-	int _socket;
-#elif CROWN_PLATFORM_WINDOWS
 	SOCKET _socket;
-#endif
 
 	TCPSocket()
 #if CROWN_PLATFORM_POSIX
@@ -217,7 +214,7 @@ struct TCPSocket
 
 	AcceptResult accept_internal(TCPSocket& c)
 	{
-		int err = ::accept(_socket, NULL, NULL);
+		SOCKET err = ::accept(_socket, NULL, NULL);
 
 		AcceptResult ar;
 		ar.error = AcceptResult::SUCCESS;
