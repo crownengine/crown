@@ -43,7 +43,7 @@ public:
 		const char* s  = &_str[_pos];
 		const char* nl = strnl(s);
 		_pos += u32(nl - s);
-		line.set(s, nl - s);
+		line.set(s, u32(nl - s));
 	}
 
 	bool eof()
@@ -203,7 +203,7 @@ void DataCompiler::source_dir(const char* resource_name, DynamicString& source_d
 	DynamicString source_name(ta);
 
 	if (slash != NULL)
-		source_name.set(resource_name, (slash - resource_name));
+		source_name.set(resource_name, u32(slash - resource_name));
 	else
 		source_name.set("", 0);
 
