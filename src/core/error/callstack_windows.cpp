@@ -8,7 +8,7 @@
 #if CROWN_PLATFORM_WINDOWS
 
 #include "log.h"
-#include "win_headers.h"
+#include <windows.h>
 #include <dbghelp.h>
 
 namespace crown

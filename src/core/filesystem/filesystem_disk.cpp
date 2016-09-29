@@ -15,8 +15,8 @@
 	#include <stdio.h>
 	#include <errno.h>
 #elif CROWN_PLATFORM_WINDOWS
-	#include "tchar.h"
-	#include "win_headers.h"
+	#include <tchar.h>
+	#include <windows.h>
 #endif
 
 namespace crown
