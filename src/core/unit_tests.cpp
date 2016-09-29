@@ -1198,7 +1198,7 @@ static void test_command_line()
 	ENSURE(orange != NULL && strcmp(orange, "orange") == 0);
 }
 
-static void run_unit_tests()
+void run_unit_tests()
 {
 	test_memory();
 	test_array();
