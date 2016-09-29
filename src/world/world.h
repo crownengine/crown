@@ -30,8 +30,8 @@ class World
 		Frustum frustum;
 		f32 fov;
 		f32 aspect;
-		f32 near;
-		f32 far;
+		f32 near_range;
+		f32 far_range;
 
 		// Orthographic projection only
 		f32 left;

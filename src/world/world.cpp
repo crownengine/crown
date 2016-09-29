@@ -204,8 +204,8 @@ CameraInstance World::camera_create(UnitId id, const CameraDesc& cd, const Matri
 	camera.unit            = id;
 	camera.projection_type = (ProjectionType::Enum)cd.type;
 	camera.fov             = cd.fov;
-	camera.near            = cd.near_range;
-	camera.far             = cd.far_range;
+	camera.near_range      = cd.near_range;
+	camera.far_range       = cd.far_range;
 
 	const u32 last = array::size(_camera);
 	array::push_back(_camera, camera);
@@ -274,23 +274,23 @@ void World::camera_set_aspect(CameraInstance i, f32 aspect)
 
 f32 World::camera_near_clip_distance(CameraInstance i) const
 {
-	return _camera[i.i].near;
+	return _camera[i.i].near_range;
 }
 
 void World::camera_set_near_clip_distance(CameraInstance i, f32 near)
 {
-	_camera[i.i].near = near;
+	_camera[i.i].near_range = near;
 	_camera[i.i].update_projection_matrix();
 }
 
 f32 World::camera_far_clip_distance(CameraInstance i) const
 {
-	return _camera[i.i].far;
+	return _camera[i.i].far_range;
 }
 
 void World::camera_set_far_clip_distance(CameraInstance i, f32 far)
 {
-	_camera[i.i].far = far;
+	_camera[i.i].far_range = far;
 	_camera[i.i].update_projection_matrix();
 }
 
@@ -405,7 +405,7 @@ void World::set_sound_volume(SoundInstanceId id, f32 vol)
 
 DebugLine* World::create_debug_line(bool depth_test)
 {
-	return CE_NEW(*_allocator, DebugLine)(depth_test);
+	return CE_NEW(*_allocator, DebugLine)(*_shader_manager, depth_test);
 }
 
 void World::destroy_debug_line(DebugLine& line)
@@ -496,8 +496,8 @@ void World::Camera::update_projection_matrix()
 			, right
 			, bottom
 			, top
-			, near
-			, far
+			, near_range
+			, far_range
 			);
 		break;
 
@@ -505,8 +505,8 @@ void World::Camera::update_projection_matrix()
 		perspective(projection
 			, fov
 			, aspect
-			, near
-			, far
+			, near_range
+			, far_range
 			);
 		break;
 	default:

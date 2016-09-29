@@ -5,7 +5,6 @@
 
 #include "color4.h"
 #include "debug_line.h"
-#include "device.h"
 #include "math_utils.h"
 #include "matrix4x4.h"
 #include "mesh_resource.h"
@@ -17,8 +16,9 @@
 
 namespace crown
 {
-DebugLine::DebugLine(bool depth_test)
+DebugLine::DebugLine(ShaderManager& sm, bool depth_test)
 	: _marker(DEBUG_LINE_MARKER)
+	, _shader_manager(&sm)
 	, _shader(depth_test ? "debug_line" : "debug_line_noz")
 	, _num(0)
 {
@@ -208,7 +208,7 @@ void DebugLine::submit()
 	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, _vertex_decl);
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
-	const ShaderData& sd = device()->shader_manager()->get(_shader);
+	const ShaderData& sd = _shader_manager->get(_shader);
 
 	bgfx::setVertexBuffer(&tvb, 0, _num * 2);
 	bgfx::setState(sd.state);

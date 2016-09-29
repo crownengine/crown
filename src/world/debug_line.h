@@ -9,6 +9,7 @@
 #include "resource_types.h"
 #include "string_id.h"
 #include "types.h"
+#include "world_types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown
@@ -32,6 +33,7 @@ struct DebugLine
 
 	u32 _marker;
 
+	ShaderManager* _shader_manager;
 	StringId32 _shader;
 	bgfx::VertexDecl _vertex_decl;
 
@@ -39,7 +41,7 @@ struct DebugLine
 	Line _lines[MAX_LINES];
 
 	/// Whether to enable @a depth_test
-	DebugLine(bool depth_test);
+	DebugLine(ShaderManager& sm, bool depth_test);
 	~DebugLine();
 
 	/// Adds a line from @a start to @a end with the given @a color.
