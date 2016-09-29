@@ -32,7 +32,7 @@ void ConsoleServer::listen(u16 port, bool wait)
 		{
 			ar = _server.accept(client);
 		}
-		while (ar.error != AcceptResult::NO_ERROR);
+		while (ar.error != AcceptResult::SUCCESS);
 
 		add_client(client);
 	}
@@ -79,7 +79,7 @@ void ConsoleServer::update()
 {
 	TCPSocket client;
 	AcceptResult result = _server.accept_nonblock(client);
-	if (result.error == AcceptResult::NO_ERROR)
+	if (result.error == AcceptResult::SUCCESS)
 		add_client(client);
 
 	TempAllocator256 alloc;
@@ -89,7 +89,7 @@ void ConsoleServer::update()
 	for (u32 i = 0; i < vector::size(_clients); ++i)
 	{
 		ReadResult rr = update_client(_clients[i]);
-		if (rr.error != ReadResult::NO_ERROR)
+		if (rr.error != ReadResult::SUCCESS)
 			array::push_back(to_remove, i);
 	}
 
@@ -116,9 +116,9 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 	ReadResult rr = client.read_nonblock(&msg_len, 4);
 
 	// If no data received, return
-	if (rr.error == ReadResult::NO_ERROR && rr.bytes_read == 0) return rr;
+	if (rr.error == ReadResult::SUCCESS && rr.bytes_read == 0) return rr;
 	if (rr.error == ReadResult::REMOTE_CLOSED) return rr;
-	if (rr.error != ReadResult::NO_ERROR) return rr;
+	if (rr.error != ReadResult::SUCCESS) return rr;
 
 	// Else read the message
 	TempAllocator4096 ta;
@@ -128,7 +128,7 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 	array::push_back(msg_buf, '\0');
 
 	if (msg_result.error == ReadResult::REMOTE_CLOSED) return msg_result;
-	if (msg_result.error != ReadResult::NO_ERROR) return msg_result;
+	if (msg_result.error != ReadResult::SUCCESS) return msg_result;
 
 	process(client, array::begin(msg_buf));
 	return msg_result;

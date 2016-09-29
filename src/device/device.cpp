@@ -217,8 +217,8 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 					im->mouse()->set_axis(ev.axis_num, vector3(ev.axis_x, ev.axis_y, ev.axis_z));
 					if (ev.axis_num == MouseAxis::CURSOR)
 					{
-						mouse_x = ev.axis_x;
-						mouse_y = ev.axis_y;
+						mouse_x = (s16)ev.axis_x;
+						mouse_y = (s16)ev.axis_y;
 					}
 					break;
 

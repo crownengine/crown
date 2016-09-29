@@ -9,7 +9,7 @@
 
 #if CROWN_PLATFORM_WINDOWS
 	#include "types.h"
-	#include "win_headers.h"
+	#include <windows.h>
 #endif
 
 namespace crown

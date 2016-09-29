@@ -292,12 +292,12 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 }
 
 /// Sets the matrix @a m to perspective.
-inline void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 near, f32 far)
+inline void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 nnear, f32 ffar)
 {
 	const f32 height = 1.0f / tanf(fovy * 0.5f);
 	const f32 width = height * 1.0f / aspect;
-	const f32 aa = far / (far - near);
-	const f32 bb = -near * aa;
+	const f32 aa = ffar / (ffar - nnear);
+	const f32 bb = -nnear * aa;
 
 	m.x.x = width;
 	m.x.y = 0.0f;
@@ -321,7 +321,7 @@ inline void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 near, f32 far)
 }
 
 /// Sets the matrix @a m to orthographic.
-inline void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top, f32 near, f32 far)
+inline void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top, f32 nnear, f32 ffar)
 {
 	m.x.x = 2.0f / (right - left);
 	m.x.y = 0.0f;
@@ -335,12 +335,12 @@ inline void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top,
 
 	m.z.x = 0.0f;
 	m.z.y = 0.0f;
-	m.z.z = 1.0f / (far - near);
+	m.z.z = 1.0f / (ffar - nnear);
 	m.z.w = 0.0f;
 
 	m.t.x = (left + right) / (left - right);
 	m.t.y = (top + bottom) / (bottom - top);
-	m.t.z = near / (near - far);
+	m.t.z = nnear / (nnear - ffar);
 	m.t.w = 1.0f;
 }
 

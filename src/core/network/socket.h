@@ -18,7 +18,6 @@
 	#include <unistd.h>     // close
 #elif CROWN_PLATFORM_WINDOWS
 	#include <winsock2.h>
-	#include "win_headers.h"
 	#pragma comment(lib, "Ws2_32.lib")
 #endif
 
@@ -28,7 +27,7 @@ struct ConnectResult
 {
 	enum
 	{
-		NO_ERROR,
+		SUCCESS,
 		BAD_SOCKET,
 		REFUSED,
 		TIMEOUT,
@@ -40,7 +39,7 @@ struct BindResult
 {
 	enum
 	{
-		NO_ERROR,
+		SUCCESS,
 		BAD_SOCKET,
 		ADDRESS_IN_USE,
 		UNKNOWN
@@ -51,7 +50,7 @@ struct AcceptResult
 {
 	enum
 	{
-		NO_ERROR,
+		SUCCESS,
 		BAD_SOCKET,
 		NO_CONNECTION,
 		UNKNOWN
@@ -62,7 +61,7 @@ struct ReadResult
 {
 	enum
 	{
-		NO_ERROR,
+		SUCCESS,
 		BAD_SOCKET,
 		REMOTE_CLOSED,
 		TIMEOUT,
@@ -75,7 +74,7 @@ struct WriteResult
 {
 	enum
 	{
-		NO_ERROR,
+		SUCCESS,
 		BAD_SOCKET,
 		REMOTE_CLOSED,
 		TIMEOUT,
@@ -145,7 +144,7 @@ struct TCPSocket
 		int err = ::connect(_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
 
 		ConnectResult cr;
-		cr.error = ConnectResult::NO_ERROR;
+		cr.error = ConnectResult::SUCCESS;
 
 		if (err == 0)
 			return cr;
@@ -183,7 +182,7 @@ struct TCPSocket
 		int err = ::bind(_socket, (const sockaddr*)&address, sizeof(sockaddr_in));
 
 		BindResult br;
-		br.error = BindResult::NO_ERROR;
+		br.error = BindResult::SUCCESS;
 
 		if (err == 0)
 			return br;
@@ -221,7 +220,7 @@ struct TCPSocket
 		int err = ::accept(_socket, NULL, NULL);
 
 		AcceptResult ar;
-		ar.error = AcceptResult::NO_ERROR;
+		ar.error = AcceptResult::SUCCESS;
 
 #if CROWN_PLATFORM_POSIX
 		if (err >= 0)
@@ -265,7 +264,7 @@ struct TCPSocket
 	ReadResult read_internal(void* data, u32 size)
 	{
 		ReadResult rr;
-		rr.error = ReadResult::NO_ERROR;
+		rr.error = ReadResult::SUCCESS;
 		rr.bytes_read = 0;
 
 		char* buf = (char*)data;
@@ -331,7 +330,7 @@ struct TCPSocket
 	WriteResult write_internal(const void* data, u32 size)
 	{
 		WriteResult wr;
-		wr.error = WriteResult::NO_ERROR;
+		wr.error = WriteResult::SUCCESS;
 		wr.bytes_wrote = 0;
 
 		const char* buf = (const char*)data;

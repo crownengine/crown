@@ -11,11 +11,11 @@
 #include "device.h"
 #include "device_event_queue.h"
 #include "thread.h"
-#include "unit_tests.cpp"
+#include "unit_tests.h"
 #include <bgfx/bgfxplatform.h>
 #include <winsock2.h>
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN
 #endif
 #include <windowsx.h>
 #include <xinput.h>
@@ -50,8 +50,8 @@ static KeyboardButton::Enum win_translate_key(s32 winkey)
 	case VK_DOWN:     return KeyboardButton::DOWN;
 	case VK_PRIOR:    return KeyboardButton::PAGE_UP;
 	case VK_NEXT:     return KeyboardButton::PAGE_DOWN;
-	case VK_INSERT:   return KeyboardButton::INSERT;
-	case VK_DELETE:   return KeyboardButton::DELETE;
+	case VK_INSERT:   return KeyboardButton::INS;
+	case VK_DELETE:   return KeyboardButton::DEL;
 	case VK_END:      return KeyboardButton::END;
 	case VK_LSHIFT:   return KeyboardButton::LEFT_SHIFT;
 	case VK_RSHIFT:   return KeyboardButton::RIGHT_SHIFT;
@@ -459,8 +459,8 @@ struct WindowsDevice
 				_queue.push_axis_event(InputDeviceType::MOUSE
 					, 0
 					, MouseAxis::CURSOR
-					, mx
-					, my
+					, (f32)mx
+					, (f32)my
 					, 0.0f
 					);
 			}

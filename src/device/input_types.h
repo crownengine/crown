@@ -80,8 +80,8 @@ struct KeyboardButton
 		DOWN,
 		PAGE_UP,
 		PAGE_DOWN,
-		INSERT,
-		DELETE,
+		INS,
+		DEL,
 		END,
 
 		/* Modifier keys */

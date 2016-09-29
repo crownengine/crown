@@ -13,7 +13,7 @@
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>
 #elif CROWN_PLATFORM_WINDOWS
-	#include "win_headers.h"
+	#include <windows.h>
 	#include <process.h>
 #endif
 
