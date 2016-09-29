@@ -99,7 +99,7 @@ namespace os
 
 		DWORD exitcode = 1;
 		::WaitForSingleObject(process.hProcess, INFINITE);
-  		GetExitCodeProcess(process.hProcess, &exitcode);
+		GetExitCodeProcess(process.hProcess, &exitcode);
 		CloseHandle(process.hProcess);
 		CloseHandle(process.hThread);
 		return (int)exitcode;
