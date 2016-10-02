@@ -344,7 +344,6 @@ namespace Crown
 			this.delete_event.connect(this.on_delete_event);
 
 			this.add(_vbox);
-			this.set_size_request(1280, 720);
 			this.maximize();
 			this.show_all();
 		}
