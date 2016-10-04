@@ -405,8 +405,8 @@ struct HeightfieldShape
 	u32 width;
 	u32 length;
 	f32 height_scale;
-	f32 min_height;
-	f32 max_height;
+	f32 height_min;
+	f32 height_max;
 };
 
 struct ColliderDesc
