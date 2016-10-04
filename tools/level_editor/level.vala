@@ -364,7 +364,7 @@ namespace Crown
 				return;
 
 			Guid id = _selection.last();
-			move_objects(new Guid[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
+			on_move_objects(new Guid[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
 			do_move_objects(new Guid[] { id }, new Vector3[] { pos }, new Quaternion[] { rot }, new Vector3[] { scl });
 		}
 
@@ -532,7 +532,7 @@ namespace Crown
 			selection_changed(_selection);
 		}
 
-		public void move_objects(Guid[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
+		public void on_move_objects(Guid[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
 		{
 			_db.add_restore_point((int)ActionType.MOVE_OBJECTS, ids);
 

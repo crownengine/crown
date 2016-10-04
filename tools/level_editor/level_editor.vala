@@ -477,7 +477,7 @@ namespace Crown
 						n_scales[i]    = Vector3.from_array((ArrayList<Value?>)new_scales[k]);
 					}
 
-					_level.move_objects(n_ids, n_positions, n_rotations, n_scales);
+					_level.on_move_objects(n_ids, n_positions, n_rotations, n_scales);
 				}
 				else if (msg_type == "selection")
 				{
