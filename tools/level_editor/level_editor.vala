@@ -250,7 +250,6 @@ namespace Crown
 			_alignment_properties_view.add(_starting_compiler);
 
 			start_compiler();
-			new_level();
 
 			try
 			{
@@ -621,7 +620,7 @@ namespace Crown
 			while (!_engine.is_connected())
 				_engine.connect("127.0.0.1", 10001);
 
-			_level.send();
+			new_level();
 			send_state();
 		}
 
@@ -719,7 +718,7 @@ namespace Crown
 		private void new_level()
 		{
 			_level_filename = null;
-			_level.new_level();
+			_level.load_empty_level();
 		}
 
 		private void load()
@@ -742,7 +741,6 @@ namespace Crown
 				{
 					_level_filename = filename;
 					_level.load(_level_filename);
-					_level.send();
 					send_state();
 				}
 			}
@@ -845,7 +843,6 @@ namespace Crown
 			if (!_db.changed())
 			{
 				new_level();
-				_level.send();
 				send_state();
 				return;
 			}
@@ -866,7 +863,6 @@ namespace Crown
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
 			{
 				new_level();
-				_level.send();
 				send_state();
 			}
 		}
