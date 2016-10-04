@@ -46,4 +46,5 @@ namespace path
 	/// "/home/texture" -> NULL
 	const char* extension(const char* path);
 } // namespace path
+
 } // namespace crown
