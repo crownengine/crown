@@ -556,7 +556,10 @@ namespace Crown
 			}
 
 			while (!_compiler.is_connected())
+			{
 				_compiler.connect("127.0.0.1", CROWN_DEFAULT_SERVER_PORT);
+				GLib.Thread.usleep(100*1000);
+			}
 
 			_resource_compiler.compile.begin(_data_dir, _platform, (obj, res) => {
 				if (_resource_compiler.compile.end(res))
@@ -618,7 +621,10 @@ namespace Crown
 			}
 
 			while (!_engine.is_connected())
+			{
 				_engine.connect("127.0.0.1", 10001);
+				GLib.Thread.usleep(100*1000);
+			}
 
 			new_level();
 			send_state();
