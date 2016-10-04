@@ -322,8 +322,11 @@ end
 function UnitBox:raycast(pos, dir)
 	local rw = LevelEditor._rw
 	local mesh_component = RenderWorld.mesh_instances(rw, self._unit_id)
-	local tm, hext = RenderWorld.mesh_obb(rw, mesh_component)
-	return RenderWorld.mesh_raycast(rw, mesh_component, pos, dir)
+	if mesh_component then
+		local tm, hext = RenderWorld.mesh_obb(rw, mesh_component)
+		return RenderWorld.mesh_raycast(rw, mesh_component, pos, dir)
+	end
+	return -1.0
 end
 
 function UnitBox:draw()
@@ -334,7 +337,10 @@ function UnitBox:draw()
 	end
 
 	if self._selected then
-		draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
+		local mesh_component = RenderWorld.mesh_instances(LevelEditor._rw, self._unit_id)
+		if mesh_component then
+			draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
+		end
 	end
 end
 
