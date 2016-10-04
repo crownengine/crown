@@ -80,28 +80,13 @@ namespace Crown
 
 			if (button == 3) // Right
 			{
-				Gtk.TreePath path;
-				int cell_x;
-				int cell_y;
-				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
-				{
-					Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(path);
-					Gtk.TreeIter iter;
-					if (_tree_store.get_iter(out iter, child_path))
-					{
-						Value type;
-						_tree_store.get_value(iter, 1, out type);
-						if ((int)type == ItemType.FOLDER)
-							return false;
-
-						Gtk.Menu menu = new Gtk.Menu();
-						Gtk.MenuItem mi = new Gtk.MenuItem.with_label("Delete");
-						mi.activate.connect(on_popup_delete);
-						menu.add(mi);
-						menu.show_all();
-						menu.popup(null, null, null, button, ev.time);
-					}
-				}
+				Gtk.Menu menu = new Gtk.Menu();
+				Gtk.MenuItem mi = new Gtk.MenuItem.with_label("Delete");
+				mi.activate.connect(on_popup_delete);
+				menu.add(mi);
+				menu.show_all();
+				menu.popup(null, null, null, button, ev.time);
+				return true;
 			}
 
 			return false;
@@ -109,18 +94,19 @@ namespace Crown
 
 		private void on_popup_delete()
 		{
-			GLib.List<Gtk.TreePath> rows = _tree_view.get_selection().get_selected_rows(null);
-			Gtk.TreePath path = _tree_filter.convert_path_to_child_path(rows.nth(0).data);
+			Guid[] ids = {};
+			_tree_selection.selected_foreach((model, path, iter) => {
+				Value type;
+				model.get_value(iter, 1, out type);
+				if ((int)type == ItemType.FOLDER)
+					return;
 
-			TreeIter iter;
-			if (_tree_store.get_iter(out iter, path))
-			{
 				Value id;
-				_tree_store.get_value(iter, 0, out id);
-				_level.destroy_objects(new Guid[] { Guid.parse((string)id) });
+				model.get_value(iter, 0, out id);
+				ids += Guid.parse((string)id);
+			});
 
-				_tree_store.remove(ref iter);
-			}
+			_level.destroy_objects(ids);
 		}
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
