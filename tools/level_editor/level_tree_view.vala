@@ -152,7 +152,30 @@ namespace Crown
 		private void on_level_selection_changed(Gee.ArrayList<Guid?> selection)
 		{
 			_tree_selection.changed.disconnect(on_tree_selection_changed);
-			// FIXME
+			_tree_selection.unselect_all();
+
+			_tree_filter.foreach ((model, path, iter) => {
+				Value type;
+				model.get_value(iter, 1, out type);
+				if ((int)type == ItemType.FOLDER)
+					return false;
+
+				Value id;
+				model.get_value(iter, 0, out id);
+				Guid guid_model = Guid.parse((string)id);
+
+				foreach (Guid? guid in selection)
+				{
+					if (guid_model == guid)
+					{
+						_tree_selection.select_iter(iter);
+						return false;
+					}
+				}
+
+				return false;
+			});
+
 			_tree_selection.changed.connect(on_tree_selection_changed);
 		}
 
