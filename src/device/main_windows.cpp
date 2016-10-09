@@ -53,15 +53,15 @@ static KeyboardButton::Enum win_translate_key(s32 winkey)
 	case VK_INSERT:   return KeyboardButton::INS;
 	case VK_DELETE:   return KeyboardButton::DEL;
 	case VK_END:      return KeyboardButton::END;
-	case VK_LSHIFT:   return KeyboardButton::LEFT_SHIFT;
-	case VK_RSHIFT:   return KeyboardButton::RIGHT_SHIFT;
-	case VK_LCONTROL: return KeyboardButton::LEFT_CTRL;
-	case VK_RCONTROL: return KeyboardButton::RIGHT_CTRL;
+	case VK_LSHIFT:   return KeyboardButton::SHIFT_LEFT;
+	case VK_RSHIFT:   return KeyboardButton::SHIFT_RIGHT;
+	case VK_LCONTROL: return KeyboardButton::CTRL_LEFT;
+	case VK_RCONTROL: return KeyboardButton::CTRL_RIGHT;
 	case VK_CAPITAL:  return KeyboardButton::CAPS_LOCK;
-	case VK_LMENU:    return KeyboardButton::LEFT_ALT;
-	case VK_RMENU:    return KeyboardButton::RIGHT_ALT;
-	case VK_LWIN:     return KeyboardButton::LEFT_SUPER;
-	case VK_RWIN:     return KeyboardButton::RIGHT_SUPER;
+	case VK_LMENU:    return KeyboardButton::ALT_LEFT;
+	case VK_RMENU:    return KeyboardButton::ALT_RIGHT;
+	case VK_LWIN:     return KeyboardButton::SUPER_LEFT;
+	case VK_RWIN:     return KeyboardButton::SUPER_RIGHT;
 	case VK_NUMLOCK:  return KeyboardButton::NUM_LOCK;
 	// case VK_RETURN:   return KeyboardButton::NUMPAD_ENTER;
 	case VK_DECIMAL:  return KeyboardButton::NUMPAD_DELETE;
@@ -133,10 +133,10 @@ static XinputToJoypad s_xinput_to_joypad[] =
 	{ XINPUT_GAMEPAD_DPAD_RIGHT,     JoypadButton::RIGHT          },
 	{ XINPUT_GAMEPAD_START,          JoypadButton::START          },
 	{ XINPUT_GAMEPAD_BACK,           JoypadButton::BACK           },
-	{ XINPUT_GAMEPAD_LEFT_THUMB,     JoypadButton::LEFT_THUMB     },
-	{ XINPUT_GAMEPAD_RIGHT_THUMB,    JoypadButton::RIGHT_THUMB    },
-	{ XINPUT_GAMEPAD_LEFT_SHOULDER,  JoypadButton::LEFT_SHOULDER  },
-	{ XINPUT_GAMEPAD_RIGHT_SHOULDER, JoypadButton::RIGHT_SHOULDER },
+	{ XINPUT_GAMEPAD_LEFT_THUMB,     JoypadButton::THUMB_LEFT     },
+	{ XINPUT_GAMEPAD_RIGHT_THUMB,    JoypadButton::THUMB_RIGHT    },
+	{ XINPUT_GAMEPAD_LEFT_SHOULDER,  JoypadButton::SHOULDER_LEFT  },
+	{ XINPUT_GAMEPAD_RIGHT_SHOULDER, JoypadButton::SHOULDER_RIGHT },
 	{ XINPUT_GAMEPAD_A,              JoypadButton::A              },
 	{ XINPUT_GAMEPAD_B,              JoypadButton::B              },
 	{ XINPUT_GAMEPAD_X,              JoypadButton::X              },

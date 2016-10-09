@@ -58,15 +58,15 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 	case XK_Insert:       return KeyboardButton::INS;
 	case XK_Delete:       return KeyboardButton::DEL;
 	case XK_End:          return KeyboardButton::END;
-	case XK_Shift_L:      return KeyboardButton::LEFT_SHIFT;
-	case XK_Shift_R:      return KeyboardButton::RIGHT_SHIFT;
-	case XK_Control_L:    return KeyboardButton::LEFT_CTRL;
-	case XK_Control_R:    return KeyboardButton::RIGHT_CTRL;
+	case XK_Shift_L:      return KeyboardButton::SHIFT_LEFT;
+	case XK_Shift_R:      return KeyboardButton::SHIFT_RIGHT;
+	case XK_Control_L:    return KeyboardButton::CTRL_LEFT;
+	case XK_Control_R:    return KeyboardButton::CTRL_RIGHT;
 	case XK_Caps_Lock:    return KeyboardButton::CAPS_LOCK;
-	case XK_Alt_L:        return KeyboardButton::LEFT_ALT;
-	case XK_Alt_R:        return KeyboardButton::RIGHT_ALT;
-	case XK_Super_L:      return KeyboardButton::LEFT_SUPER;
-	case XK_Super_R:      return KeyboardButton::RIGHT_SUPER;
+	case XK_Alt_L:        return KeyboardButton::ALT_LEFT;
+	case XK_Alt_R:        return KeyboardButton::ALT_RIGHT;
+	case XK_Super_L:      return KeyboardButton::SUPER_LEFT;
+	case XK_Super_R:      return KeyboardButton::SUPER_RIGHT;
 	case XK_Num_Lock:     return KeyboardButton::NUM_LOCK;
 	case XK_KP_Enter:     return KeyboardButton::NUMPAD_ENTER;
 	case XK_KP_Delete:    return KeyboardButton::NUMPAD_DELETE;
@@ -148,13 +148,13 @@ static u8 s_button[] =
 	JoypadButton::B,
 	JoypadButton::X,
 	JoypadButton::Y,
-	JoypadButton::LEFT_SHOULDER,
-	JoypadButton::RIGHT_SHOULDER,
+	JoypadButton::SHOULDER_LEFT,
+	JoypadButton::SHOULDER_RIGHT,
 	JoypadButton::BACK,
 	JoypadButton::START,
 	JoypadButton::GUIDE,
-	JoypadButton::LEFT_THUMB,
-	JoypadButton::RIGHT_THUMB,
+	JoypadButton::THUMB_LEFT,
+	JoypadButton::THUMB_RIGHT,
 	JoypadButton::UP, // FIXME (reported as axis...)
 	JoypadButton::DOWN,
 	JoypadButton::LEFT,

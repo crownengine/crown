@@ -55,15 +55,15 @@ static const char* s_keyboard_button_names[] =
 	"ins",          // KeyboardButton::INS
 	"del",          // KeyboardButton::DEL
 	"end",          // KeyboardButton::END
-	"left_ctrl",    // KeyboardButton::LEFT_CTRL
-	"right_ctrl",   // KeyboardButton::RIGHT_CTRL
-	"left_shift",   // KeyboardButton::LEFT_SHIFT
-	"right_shift",  // KeyboardButton::RIGHT_SHIFT
+	"ctrl_left",    // KeyboardButton::CTRL_LEFT
+	"ctrl_right",   // KeyboardButton::CTRL_RIGHT
+	"shift_left",   // KeyboardButton::SHIFT_LEFT
+	"shift_right",  // KeyboardButton::SHIFT_RIGHT
 	"caps_lock",    // KeyboardButton::CAPS_LOCK
-	"left_alt",     // KeyboardButton::LEFT_ALT
-	"right_alt",    // KeyboardButton::RIGHT_ALT
-	"left_super",   // KeyboardButton::LEFT_SUPER
-	"right_super",  // KeyboardButton::RIGHT_SUPER
+	"alt_left",     // KeyboardButton::ALT_LEFT
+	"alt_right",    // KeyboardButton::ALT_RIGHT
+	"super_left",   // KeyboardButton::SUPER_LEFT
+	"super_right",  // KeyboardButton::SUPER_RIGHT
 	"0",            // KeyboardButton::NUMBER_0
 	"1",            // KeyboardButton::NUMBER_1
 	"2",            // KeyboardButton::NUMBER_2
@@ -148,10 +148,10 @@ static const char* s_pad_button_names[] =
 	"start",          // JoypadButton::START
 	"back",           // JoypadButton::BACK
 	"guide",          // JoypadButton::GUIDE
-	"left_thumb",     // JoypadButton::LEFT_THUMB
-	"right_thumb",    // JoypadButton::RIGHT_THUMB
-	"left_shoulder",  // JoypadButton::LEFT_SHOULDER
-	"right_shoulder", // JoypadButton::RIGHT_SHOULDER
+	"thumb_left",     // JoypadButton::THUMB_LEFT
+	"thumb_right",    // JoypadButton::THUMB_RIGHT
+	"shoulder_left",  // JoypadButton::SHOULDER_LEFT
+	"shoulder_right", // JoypadButton::SHOULDER_RIGHT
 	"a",              // JoypadButton::A
 	"b",              // JoypadButton::B
 	"x",              // JoypadButton::X
