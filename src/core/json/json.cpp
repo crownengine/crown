@@ -29,17 +29,17 @@ namespace json
 	{
 		CE_ASSERT_NOT_NULL(json);
 
-		bool escaped = false;
-
 		while (*++json)
 		{
-			if (*json == '"' && !escaped)
+			if (*json == '"')
 			{
 				++json;
 				return json;
 			}
-			else if (*json == '\\') escaped = true;
-			else escaped = false;
+			else if (*json == '\\')
+			{
+				++json;
+			}
 		}
 
 		return json;
