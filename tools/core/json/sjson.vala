@@ -23,7 +23,7 @@ namespace Crown
 		///  Encodes the Hashtable t in the simplified JSON format. The Hashtable can
 		///  contain, numbers, bools, strings, ArrayLists and Hashtables.
 		/// </summary>
-		public static string Encode(Hashtable t)
+		public static string encode(Hashtable t)
 		{
 			StringBuilder sb = new StringBuilder();
 			write_root_object(t, sb);
@@ -72,7 +72,7 @@ namespace Crown
 		/// </summary>
 		public static void save(Hashtable h, string path)
 		{
-			string s = Encode(h);
+			string s = encode(h);
 			FileStream fs = FileStream.open(path, "w");
 			GLib.assert(fs != null);
 			uint8[] bytes = s.data;
