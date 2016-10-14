@@ -106,6 +106,10 @@ namespace Crown
 				InputStream input_stream = (InputStream)obj;
 				uint8[] header = input_stream.read_bytes_async.end(ar).get_data();
 
+				// Connection closed
+				if (header.length == 0)
+					return;
+
 				// FIXME: Add bit conversion utils
 				uint32 size = 0;
 				size |= header[3] << 24;
