@@ -25,7 +25,7 @@ inline Vector4 vector4(f32 x, f32 y, f32 z, f32 w)
 }
 
 /// Adds the vector @a a to @a b and returns the result.
-inline Vector4& operator+=(Vector4& a,	const Vector4& b)
+inline Vector4& operator+=(Vector4& a, const Vector4& b)
 {
 	a.x += b.x;
 	a.y += b.y;
@@ -35,7 +35,7 @@ inline Vector4& operator+=(Vector4& a,	const Vector4& b)
 }
 
 /// Subtracts the vector @a b from @a a and returns the result.
-inline Vector4& operator-=(Vector4& a,	const Vector4& b)
+inline Vector4& operator-=(Vector4& a, const Vector4& b)
 {
 	a.x -= b.x;
 	a.y -= b.y;
