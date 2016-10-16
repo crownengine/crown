@@ -117,17 +117,29 @@ struct LuaStack
 
 	int get_int(int i)
 	{
+#if !CROWN_RELEASE
+		return (int)luaL_checknumber(L, i);
+#else
 		return (int)lua_tonumber(L, i);
+#endif
 	}
 
 	f32 get_float(int i)
 	{
+#if !CROWN_RELEASE
+		return (f32)luaL_checknumber(L, i);
+#else
 		return (f32)lua_tonumber(L, i);
+#endif
 	}
 
 	const char* get_string(int i)
 	{
+#if !CROWN_RELEASE
+		return luaL_checkstring(L, i);
+#else
 		return lua_tostring(L, i);
+#endif
 	}
 
 	void* get_pointer(int i)
