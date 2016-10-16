@@ -458,6 +458,11 @@ end
 function SoundObject:draw()
 	if self._selected then
 		draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
+		DebugLine.add_sphere(LevelEditor._lines
+			, self:local_position()
+			, self._range
+			, Color4.yellow()
+			)
 	end
 end
 
@@ -609,7 +614,7 @@ function PlaceTool:mouse_up(x, y)
 		LevelEditor._objects[guid] = level_object
 	elseif self._placeable_type == "sound" then
 		local guid = Device.guid()
-		level_object = SoundObject(LevelEditor._world, guid, self._placeable, 50.0, 1.0, false)
+		level_object = SoundObject(LevelEditor._world, guid, self._placeable, 10.0, 1.0, false)
 		level_object:set_local_position(self:position())
 		level_object:set_local_rotation(Quaternion.identity())
 
