@@ -98,4 +98,6 @@ namespace Crown
 			return "%f, %f, %f, %f".printf(x, y, z, w);
 		}
 	}
+
+	const Quaternion QUATERNION_IDENTITY = { 0.0, 0.0, 0.0, 1.0 };
 }

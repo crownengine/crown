@@ -32,4 +32,7 @@ namespace Crown
 			return "%f, %f, %f".printf(x, y, z);
 		}
 	}
+
+	const Vector3 VECTOR3_ZERO = { 0.0, 0.0, 0.0 };
+	const Vector3 VECTOR3_ONE  = { 1.0, 1.0, 1.0 };
 }
