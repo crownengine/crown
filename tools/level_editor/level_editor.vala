@@ -104,6 +104,7 @@ namespace Crown
 			{ "open",                 null,  "Open",             "<ctrl>O",        null, on_open                },
 			{ "save",                 null,  "Save",             "<ctrl>S",        null, on_save                },
 			{ "save-as",              null,  "Save As...",       null,             null, on_save_as             },
+			{ "import",               null,  "Import...",        null,             null, on_import              },
 			{ "preferences",          null,  "Preferences",      null,             null, on_preferences         },
 			{ "quit",                 null,  "Quit",             "<ctrl>Q",        null, on_quit                },
 			{ "menu-edit",            null,  "_Edit",            null,             null, null                   },
@@ -906,6 +907,26 @@ namespace Crown
 		private void on_save_as(Gtk.Action action)
 		{
 			save_as();
+		}
+
+		private void on_import(Gtk.Action action)
+		{
+			FileChooserDialog fcd = new FileChooserDialog("Import..."
+				, this
+				, FileChooserAction.OPEN
+				, "Cancel"
+				, ResponseType.CANCEL
+				, "Open"
+				, ResponseType.ACCEPT
+				);
+			fcd.select_multiple = true;
+
+			if (fcd.run() == (int)ResponseType.ACCEPT)
+			{
+				// TODO
+			}
+
+			fcd.destroy();
 		}
 
 		private void on_preferences(Gtk.Action action)
