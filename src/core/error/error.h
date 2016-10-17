@@ -33,5 +33,5 @@ namespace error
 	#define CE_ASSERT(...) ((void)0)
 #endif // CROWN_DEBUG
 
-#define CE_FATAL(msg) CE_ASSERT(false, msg)
+#define CE_FATAL(msg, ...) CE_ASSERT(false, msg, ##__VA_ARGS__)
 #define CE_ENSURE(condition) CE_ASSERT(condition, "")
