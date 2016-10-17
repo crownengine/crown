@@ -22,32 +22,32 @@ namespace Crown
 				);
 		}
 
-		public string set_mouse_move(int x, int y, int dx, int dy)
+		public string mouse_move(int x, int y, int dx, int dy)
 		{
-			return "LevelEditor:set_mouse_move(%d,%d,%d,%d)".printf(x, y, dx, dy);
+			return "LevelEditor:mouse_move(%d,%d,%d,%d)".printf(x, y, dx, dy);
 		}
 
-		public string set_mouse_wheel(double delta)
+		public string mouse_wheel(double delta)
 		{
-			return "LevelEditor:set_mouse_wheel(%f)".printf(delta);
+			return "LevelEditor:mouse_wheel(%f)".printf(delta);
 		}
 
-		public string set_mouse_down(int x, int y)
+		public string mouse_down(int x, int y)
 		{
 			return "LevelEditor:mouse_down(%d,%d)".printf(x, y);
 		}
 
-		public string set_mouse_up(int x, int y)
+		public string mouse_up(int x, int y)
 		{
 			return "LevelEditor:mouse_up(%d,%d)".printf(x, y);
 		}
 
-		public string set_key_down(string key)
+		public string key_down(string key)
 		{
 			return "LevelEditor:key_down(\"%s\")".printf(key);
 		}
 
-		public string set_key_up(string key)
+		public string key_up(string key)
 		{
 			return "LevelEditor:key_up(\"%s\")".printf(key);
 		}
