@@ -205,6 +205,13 @@ namespace Crown
 				);
 		}
 
+		public string set_sound_range(Guid id, double range)
+		{
+			return @"LevelEditor._objects[\"%s\"]:set_range(%f)".printf(id.to_string()
+				, range
+				);
+		}
+
 		public string set_placeable(PlaceableType type, string name)
 		{
 			return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf((type == PlaceableType.UNIT ? "unit" : "sound"), name);

@@ -289,6 +289,15 @@ namespace Crown
 			_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		}
 
+		public void set_sound(Guid sound_id, double range, double volume, bool loop)
+		{
+			_db.set_property(sound_id, "range", range);
+			_db.set_property(sound_id, "volume", volume);
+			_db.set_property(sound_id, "loop", loop);
+
+			_client.send_script(LevelEditorApi.set_sound_range(sound_id, range));
+		}
+
 		private void send_spawn_units(Guid[] ids)
 		{
 			StringBuilder sb = new StringBuilder();

@@ -372,14 +372,14 @@ namespace Crown
 
 			// Widgets
 			_name   = new Gtk.Entry();
-			_range  = new SpinButtonDouble(0.0, 0.001, 9999.0);
-			_volume = new SpinButtonDouble(0.0, 0.0,   1.0);
+			_range  = new SpinButtonDouble(0.0, 0.0, 9999.0);
+			_volume = new SpinButtonDouble(0.0, 0.0,    1.0);
 			_loop   = new Gtk.CheckButton();
 			_name.sensitive = false;
 
-			_range.value_changed.connect(on_range_changed);
-			_volume.value_changed.connect(on_volume_changed);
-			_loop.toggled.connect(on_loop_toggled);
+			_range.value_changed.connect(on_value_changed);
+			_volume.value_changed.connect(on_value_changed);
+			_loop.toggled.connect(on_value_changed);
 
 			uint row = 0;
 			attach_row(row++, "Name", _name);
@@ -388,19 +388,13 @@ namespace Crown
 			attach_row(row++, "Loop", _loop);
 		}
 
-		private void on_range_changed()
+		private void on_value_changed()
 		{
-			_level.set_property(_component_id, "range", _range.value);
-		}
-
-		private void on_volume_changed()
-		{
-			_level.set_property(_component_id, "volume", _range.value);
-		}
-
-		private void on_loop_toggled()
-		{
-			_level.set_property(_component_id, "loop", _loop.active);
+			_level.set_sound(_component_id
+				, _range.value
+				, _volume.value
+				, _loop.active
+				);
 		}
 
 		public override void update()

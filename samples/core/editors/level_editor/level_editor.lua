@@ -466,6 +466,10 @@ function SoundObject:draw()
 	end
 end
 
+function SoundObject:set_range(range)
+	self._range = range
+end
+
 SelectTool = class(SelectTool)
 
 function SelectTool:init()
