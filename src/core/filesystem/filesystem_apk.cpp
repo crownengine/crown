@@ -87,7 +87,7 @@ public:
 
 	u32 read(void* data, u32 size)
 	{
-		CE_ASSERT_NOT_NULL(data);
+		CE_ENSURE(NULL != data);
 		return (u32)AAsset_read(_asset, data, size);
 	}
 
@@ -111,7 +111,7 @@ FilesystemApk::FilesystemApk(Allocator& a, AAssetManager* asset_manager)
 
 File* FilesystemApk::open(const char* path, FileOpenMode::Enum mode)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 	CE_ASSERT(mode == FileOpenMode::READ, "Cannot open for writing in Android assets folder");
 	FileApk* file = CE_NEW(*_allocator, FileApk)(_asset_manager);
 	file->open(path, mode);
@@ -165,7 +165,7 @@ void FilesystemApk::delete_file(const char* /*path*/)
 
 void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	AAssetDir* root_dir = AAssetManager_openDir(_asset_manager, path);
 	CE_ASSERT(root_dir != NULL, "Failed to open Android assets folder");

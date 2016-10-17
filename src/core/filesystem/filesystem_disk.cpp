@@ -244,7 +244,7 @@ void FilesystemDisk::set_prefix(const char* prefix)
 
 File* FilesystemDisk::open(const char* path, FileOpenMode::Enum mode)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -262,7 +262,7 @@ void FilesystemDisk::close(File& file)
 
 bool FilesystemDisk::exists(const char* path)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -273,7 +273,7 @@ bool FilesystemDisk::exists(const char* path)
 
 bool FilesystemDisk::is_directory(const char* path)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -284,7 +284,7 @@ bool FilesystemDisk::is_directory(const char* path)
 
 bool FilesystemDisk::is_file(const char* path)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -295,7 +295,7 @@ bool FilesystemDisk::is_file(const char* path)
 
 u64 FilesystemDisk::last_modified_time(const char* path)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -306,7 +306,7 @@ u64 FilesystemDisk::last_modified_time(const char* path)
 
 void FilesystemDisk::create_directory(const char* path)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -318,7 +318,7 @@ void FilesystemDisk::create_directory(const char* path)
 
 void FilesystemDisk::delete_directory(const char* path)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -329,7 +329,7 @@ void FilesystemDisk::delete_directory(const char* path)
 
 void FilesystemDisk::create_file(const char* path)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -340,7 +340,7 @@ void FilesystemDisk::create_file(const char* path)
 
 void FilesystemDisk::delete_file(const char* path)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
@@ -351,7 +351,7 @@ void FilesystemDisk::delete_file(const char* path)
 
 void FilesystemDisk::list_files(const char* path, Vector<DynamicString>& files)
 {
-	CE_ASSERT_NOT_NULL(path);
+	CE_ENSURE(NULL != path);
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);

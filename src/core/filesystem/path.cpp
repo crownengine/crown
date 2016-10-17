@@ -14,7 +14,7 @@ namespace path
 {
 	bool is_absolute(const char* path)
 	{
-		CE_ASSERT_NOT_NULL(path);
+		CE_ENSURE(NULL != path);
 #if CROWN_PLATFORM_POSIX
 		return strlen32(path) > 0
 			&& path[0] == PATH_SEPARATOR
@@ -30,13 +30,13 @@ namespace path
 
 	bool is_relative(const char* path)
 	{
-		CE_ASSERT_NOT_NULL(path);
+		CE_ENSURE(NULL != path);
 		return !is_absolute(path);
 	}
 
 	bool is_root(const char* path)
 	{
-		CE_ASSERT_NOT_NULL(path);
+		CE_ENSURE(NULL != path);
 #if CROWN_PLATFORM_POSIX
 		return is_absolute(path) && strlen32(path) == 1;
 #elif CROWN_PLATFORM_WINDOWS
@@ -46,8 +46,8 @@ namespace path
 
 	void join(const char* path_a, const char* path_b, DynamicString& path)
 	{
-		CE_ASSERT_NOT_NULL(path_a);
-		CE_ASSERT_NOT_NULL(path_b);
+		CE_ENSURE(NULL != path_a);
+		CE_ENSURE(NULL != path_b);
 		const u32 la = strlen32(path_a);
 		const u32 lb = strlen32(path_b);
 		path.reserve(la + lb + 1);
@@ -58,14 +58,14 @@ namespace path
 
 	const char* basename(const char* path)
 	{
-		CE_ASSERT_NOT_NULL(path);
+		CE_ENSURE(NULL != path);
 		const char* ls = strrchr(path, '/');
 		return ls == NULL ? path : ls + 1;
 	}
 
 	const char* extension(const char* path)
 	{
-		CE_ASSERT_NOT_NULL(path);
+		CE_ENSURE(NULL != path);
 		const char* ld = strrchr(path, '.');
 		return ld == NULL ? NULL : ld + 1;
 	}

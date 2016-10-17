@@ -15,7 +15,7 @@ namespace sjson
 {
 	static const char* next(const char* json, const char c = 0)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (c && c != *json)
 		{
@@ -27,7 +27,7 @@ namespace sjson
 
 	static const char* skip_string(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		while (*++json)
 		{
@@ -47,7 +47,7 @@ namespace sjson
 
 	static const char* skip_value(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		switch (*json)
 		{
@@ -62,7 +62,7 @@ namespace sjson
 
 	static const char* skip_comments(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (*json == '/')
 		{
@@ -90,7 +90,7 @@ namespace sjson
 
 	static const char* skip_spaces(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		while (*json)
 		{
@@ -104,7 +104,7 @@ namespace sjson
 
 	JsonValueType::Enum type(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		switch (*json)
 		{
@@ -118,7 +118,7 @@ namespace sjson
 
 	static const char* parse_key(const char* json, DynamicString& key)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 		if (*json == '"')
 		{
 			parse_string(json, key);
@@ -139,7 +139,7 @@ namespace sjson
 
 	static f64 parse_number(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		TempAllocator512 alloc;
 	 	Array<char> number(alloc);
@@ -202,7 +202,7 @@ namespace sjson
 
 	bool parse_bool(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		switch (*json)
 		{
@@ -229,7 +229,7 @@ namespace sjson
 
 	void parse_string(const char* json, DynamicString& string)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (*json == '"')
 		{
@@ -270,7 +270,7 @@ namespace sjson
 
 	void parse_array(const char* json, JsonArray& array)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (*json == '[')
 		{
@@ -298,7 +298,7 @@ namespace sjson
 
 	static void parse_root_object(const char* json, JsonObject& object)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		while (*json)
 		{
@@ -323,7 +323,7 @@ namespace sjson
 
 	void parse_object(const char* json, JsonObject& object)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (*json == '{')
 		{
@@ -363,7 +363,7 @@ namespace sjson
 
 	void parse(const char* json, JsonObject& object)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		json = skip_spaces(json);
 

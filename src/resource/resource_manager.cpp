@@ -173,8 +173,8 @@ void ResourceManager::complete_request(StringId64 type, StringId64 name, void* d
 
 void ResourceManager::register_type(StringId64 type, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
 {
-	CE_ASSERT_NOT_NULL(load);
-	CE_ASSERT_NOT_NULL(unload);
+	CE_ENSURE(NULL != load);
+	CE_ENSURE(NULL != unload);
 
 	ResourceTypeData data;
 	data.load = load;

@@ -150,8 +150,8 @@ void ConsoleServer::process(TCPSocket client, const char* json)
 
 void ConsoleServer::register_command(const char* type, CommandFunction cmd)
 {
-	CE_ASSERT_NOT_NULL(type);
-	CE_ASSERT_NOT_NULL(cmd);
+	CE_ENSURE(NULL != type);
+	CE_ENSURE(NULL != cmd);
 
 	sort_map::set(_commands, StringId32(type), cmd);
 	sort_map::sort(_commands);

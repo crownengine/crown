@@ -148,7 +148,7 @@ struct LuaStack
 			luaL_typerror(L, i, "lightuserdata");
 
 		void* p = lua_touserdata(L, i);
-		CE_ASSERT_NOT_NULL(p);
+		CE_ENSURE(NULL != p);
 		return p;
 	}
 
@@ -439,7 +439,7 @@ struct LuaStack
 
 	void push_pointer(void* p)
 	{
-		CE_ASSERT_NOT_NULL(p);
+		CE_ENSURE(NULL != p);
 		lua_pushlightuserdata(L, p);
 	}
 

@@ -15,7 +15,7 @@ namespace json
 {
 	static const char* next(const char* json, const char c = 0)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (c && c != *json)
 		{
@@ -27,7 +27,7 @@ namespace json
 
 	static const char* skip_string(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		while (*++json)
 		{
@@ -47,7 +47,7 @@ namespace json
 
 	static const char* skip_value(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		switch (*json)
 		{
@@ -62,7 +62,7 @@ namespace json
 
 	JsonValueType::Enum type(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		switch (*json)
 		{
@@ -76,7 +76,7 @@ namespace json
 
 	static f64 parse_number(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		TempAllocator512 alloc;
 	 	Array<char> number(alloc);
@@ -139,7 +139,7 @@ namespace json
 
 	bool parse_bool(const char* json)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		switch (*json)
 		{
@@ -166,7 +166,7 @@ namespace json
 
 	void parse_string(const char* json, DynamicString& string)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (*json == '"')
 		{
@@ -211,7 +211,7 @@ namespace json
 
 	void parse_array(const char* json, JsonArray& array)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (*json == '[')
 		{
@@ -240,7 +240,7 @@ namespace json
 
 	void parse_object(const char* json, JsonObject& object)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 
 		if (*json == '{')
 		{
@@ -282,7 +282,7 @@ namespace json
 
 	void parse(const char* json, JsonObject& object)
 	{
-		CE_ASSERT_NOT_NULL(json);
+		CE_ENSURE(NULL != json);
 		parse_object(json, object);
 	}
 

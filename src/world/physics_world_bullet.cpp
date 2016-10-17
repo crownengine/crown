@@ -945,7 +945,7 @@ public:
 		// Limit bodies velocity
 		for (u32 i = 0; i < array::size(_actor); ++i)
 		{
-			CE_ASSERT_NOT_NULL(_actor[i].actor);
+			CE_ENSURE(NULL != _actor[i].actor);
 			const btVector3 velocity = _actor[i].actor->getLinearVelocity();
 			const btScalar speed = velocity.length();
 

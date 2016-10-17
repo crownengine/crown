@@ -86,7 +86,7 @@ inline DynamicString& operator+=(DynamicString& a, const DynamicString& b)
 /// Appends the string @a s to @a a.
 inline DynamicString& operator+=(DynamicString& a, const char* str)
 {
-	CE_ASSERT_NOT_NULL(str);
+	CE_ENSURE(NULL != str);
 	array::push(a._data, str, strlen32(str));
 	return a;
 }
@@ -113,7 +113,7 @@ inline DynamicString& DynamicString::operator=(const DynamicString& ds)
 
 inline DynamicString& DynamicString::operator=(const char* str)
 {
-	CE_ASSERT_NOT_NULL(str);
+	CE_ENSURE(NULL != str);
 	array::clear(_data);
 	array::push(_data, str, strlen32(str));
 	return *this;
@@ -145,7 +145,7 @@ inline bool operator==(const DynamicString& a, const DynamicString& b)
 
 inline bool operator==(const DynamicString& a, const char* str)
 {
-	CE_ASSERT_NOT_NULL(str);
+	CE_ENSURE(NULL != str);
 	return strcmp(a.c_str(), str) == 0;
 }
 
@@ -193,7 +193,7 @@ inline void DynamicString::trim()
 
 inline bool DynamicString::has_prefix(const char* str) const
 {
-	CE_ASSERT_NOT_NULL(str);
+	CE_ENSURE(NULL != str);
 	const u32 ml = strlen32(c_str());
 	const u32 sl = strlen32(str);
 	return sl <= ml && strncmp(&_data[0], str, sl) == 0;
@@ -201,7 +201,7 @@ inline bool DynamicString::has_prefix(const char* str) const
 
 inline bool DynamicString::has_suffix(const char* str) const
 {
-	CE_ASSERT_NOT_NULL(str);
+	CE_ENSURE(NULL != str);
 	const u32 ml = strlen32(c_str());
 	const u32 sl = strlen32(str);
 	return sl <= ml && strncmp(&_data[ml-sl], str, sl) == 0;

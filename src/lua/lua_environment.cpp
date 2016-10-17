@@ -164,7 +164,7 @@ void LuaEnvironment::set_module_constructor(const char* module, const lua_CFunct
 
 void LuaEnvironment::call_global(const char* func, u8 argc, ...)
 {
-	CE_ASSERT_NOT_NULL(func);
+	CE_ENSURE(NULL != func);
 
 	LuaStack stack(L);
 

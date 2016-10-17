@@ -24,7 +24,7 @@ StringId32::StringId32(const char* str, u32 len)
 
 void StringId32::hash(const char* str, u32 len)
 {
-	CE_ASSERT_NOT_NULL(str);
+	CE_ENSURE(NULL != str);
 	_id = murmur32(str, len, 0);
 }
 
@@ -47,7 +47,7 @@ StringId64::StringId64(const char* str, u32 len)
 
 void StringId64::hash(const char* str, u32 len)
 {
-	CE_ASSERT_NOT_NULL(str);
+	CE_ENSURE(NULL != str);
 	_id = murmur64(str, len, 0);
 }
 

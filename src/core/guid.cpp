@@ -46,7 +46,7 @@ namespace guid
 
 	bool try_parse(const char* str, Guid& guid)
 	{
-		CE_ASSERT_NOT_NULL(str);
+		CE_ENSURE(NULL != str);
 		u32 a, b, c, d, e, f;
 		int num = sscanf(str, "%8x-%4x-%4x-%4x-%4x%8x", &a, &b, &c, &d, &e, &f);
 		guid.data1 = a;

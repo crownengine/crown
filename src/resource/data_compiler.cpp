@@ -322,7 +322,7 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 void DataCompiler::register_compiler(StringId64 type, u32 version, CompileFunction compiler)
 {
 	CE_ASSERT(!sort_map::has(_compilers, type), "Type already registered");
-	CE_ASSERT_NOT_NULL(compiler);
+	CE_ENSURE(NULL != compiler);
 
 	ResourceTypeData rtd;
 	rtd.version = version;
