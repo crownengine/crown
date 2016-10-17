@@ -130,7 +130,7 @@ namespace Crown
 				);
 
 			if (ev.button == 1)
-				s += LevelEditorApi.set_mouse_up((int)ev.x, (int)ev.y);
+				s += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
 
 			_client.send_script(s);
 			return false;
@@ -153,7 +153,7 @@ namespace Crown
 				);
 
 			if (ev.button == 1)
-				s += LevelEditorApi.set_mouse_down((int)ev.x, (int)ev.y);
+				s += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
 
 			_client.send_script(s);
 			return false;
@@ -174,7 +174,7 @@ namespace Crown
 				return true;
 
 			if (!_keys[(int)ev.keyval])
-				_client.send_script(LevelEditorApi.set_key_down(key_to_string((int)ev.keyval)));
+				_client.send_script(LevelEditorApi.key_down(key_to_string((int)ev.keyval)));
 
 			_keys[(int)ev.keyval] = true;
 
@@ -187,7 +187,7 @@ namespace Crown
 				return false;
 
 			if (_keys[(int)ev.keyval])
-				_client.send_script(LevelEditorApi.set_key_up(key_to_string((int)ev.keyval)));
+				_client.send_script(LevelEditorApi.key_up(key_to_string((int)ev.keyval)));
 
 			_keys[(int)ev.keyval] = false;
 
@@ -203,7 +203,7 @@ namespace Crown
 
 			if (_even++ % 2 == 0)
 			{
-				_client.send_script(LevelEditorApi.set_mouse_move(_mouse_curr_x
+				_client.send_script(LevelEditorApi.mouse_move(_mouse_curr_x
 					, _mouse_curr_y
 					, _mouse_delta_x
 					, _mouse_delta_y
@@ -218,7 +218,7 @@ namespace Crown
 
 		private bool on_scroll(Gdk.EventScroll ev)
 		{
-			_client.send_script(LevelEditorApi.set_mouse_wheel(ev.direction == Gdk.ScrollDirection.UP ? 1.0 : -1.0));
+			_client.send_script(LevelEditorApi.mouse_wheel(ev.direction == Gdk.ScrollDirection.UP ? 1.0 : -1.0));
 			return false;
 		}
 

@@ -1370,7 +1370,7 @@ function LevelEditor:set_mouse_state(x, y, left, middle, right)
 	self._mouse.right = right
 end
 
-function LevelEditor:set_mouse_move(x, y, dx, dy)
+function LevelEditor:mouse_move(x, y, dx, dy)
 	self._mouse.x = x
 	self._mouse.y = y
 	self._mouse.dx = dx
@@ -1379,7 +1379,7 @@ function LevelEditor:set_mouse_move(x, y, dx, dy)
 	self.tool:mouse_move(x, y)
 end
 
-function LevelEditor:set_mouse_wheel(delta)
+function LevelEditor:mouse_wheel(delta)
 	self._mouse.wheel.delta = self._mouse.wheel.delta + delta;
 end
 
