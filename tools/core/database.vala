@@ -691,7 +691,7 @@ namespace Crown
 		private void create_internal(Guid id)
 		{
 			assert(id != GUID_ZERO);
-#if CROWN_DEBUG
+#if 0
 			stdout.printf("create %s\n", id.to_string());
 #endif // CROWN_DEBUG
 			(_data["_objects"] as HashMap<string, Value?>).set(id.to_string(), new HashMap<string, Value?>());
@@ -704,7 +704,7 @@ namespace Crown
 		{
 			assert(id != GUID_ZERO);
 			assert(has_object(id));
-#if CROWN_DEBUG
+#if 0
 			stdout.printf("destroy %s\n", id.to_string());
 #endif // CROWN_DEBUG
 			(_data["_objects"] as HashMap<string, Value?>).unset(id.to_string());
@@ -718,7 +718,7 @@ namespace Crown
 			assert(has_object(id));
 			assert(is_valid_key(key));
 			assert(is_valid_value(value));
-#if CROWN_DEBUG
+#if 0
 			stdout.printf("set_property %s %s %s\n"
 				, id.to_string()
 				, key
@@ -749,7 +749,7 @@ namespace Crown
 			assert(is_valid_key(key));
 			assert(item_id != GUID_ZERO);
 			assert(has_object(item_id));
-#if CROWN_DEBUG
+#if 0
 			stdout.printf("add_to_set %s %s %s\n"
 				, id.to_string()
 				, key
@@ -778,7 +778,7 @@ namespace Crown
 			assert(has_object(id));
 			assert(is_valid_key(key));
 			assert(item_id != GUID_ZERO);
-#if CROWN_DEBUG
+#if 0
 			stdout.printf("remove_from_set %s %s %s\n"
 				, id.to_string()
 				, key
@@ -896,7 +896,7 @@ namespace Crown
 
 			HashMap<string, Value?> ob = get_data(id);
 			Value? value = (ob.has_key(key) ? ob[key] : null);
-#if CROWN_DEBUG
+#if 0
 			stdout.printf("get_property %s %s %s\n"
 				, id.to_string()
 				, key
@@ -919,7 +919,7 @@ namespace Crown
 
 		public void add_restore_point(int id, Guid[] data)
 		{
-#if CROWN_DEBUG
+#if 0
 			stdout.printf("add_restore_point %d, undo size = %u\n", id, _undo.size());
 #endif // CROWN_DEBUG
 			_undo_points.write_restore_point(id, _undo.size(), data);
