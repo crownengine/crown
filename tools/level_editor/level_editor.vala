@@ -37,11 +37,7 @@ namespace Crown
 
 	public class LevelEditor : Gtk.Window
 	{
-		// Project paths
-		private string _source_dir;
-		private string _toolchain_dir;
-		private string _data_dir;
-		private string _platform;
+		private Project _project;
 
 		// Editor state
 		private double _grid_size;
@@ -192,15 +188,11 @@ namespace Crown
 			{ "debug-physics-world", null, "Debug Physics World", null, null, on_debug_physics_world, false }
 		};
 
-		public LevelEditor(string source_dir, string toolchain_dir, string data_dir)
+		public LevelEditor(Project project)
 		{
 			this.title = "Level Editor";
 
-			// Project paths
-			_source_dir = source_dir;
-			_toolchain_dir = toolchain_dir;
-			_data_dir = data_dir;
-			_platform   = "linux";
+			_project = project;
 
 			// Editor state
 			_grid_size = 1.0;
@@ -228,7 +220,7 @@ namespace Crown
 
 			// Level data
 			_db = new Database();
-			_level = new Level(_db, _engine, _source_dir, _toolchain_dir);
+			_level = new Level(_db, _engine, _project.source_dir(), _project.toolchain_dir());
 			_level_filename = null;
 			_resource_compiler = new ResourceCompiler(_compiler);
 
@@ -539,8 +531,8 @@ namespace Crown
 			string args[] =
 			{
 				ENGINE_EXE,
-				"--source-dir", _source_dir,
-				"--map-source-dir", "core", _toolchain_dir,
+				"--source-dir", _project.source_dir(),
+				"--map-source-dir", "core", _project.toolchain_dir(),
 				"--server",
 				null
 			};
@@ -562,7 +554,7 @@ namespace Crown
 				GLib.Thread.usleep(100*1000);
 			}
 
-			_resource_compiler.compile.begin(_data_dir, _platform, (obj, res) => {
+			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_resource_compiler.compile.end(res))
 				{
 					if (_engine_view != null)
@@ -603,7 +595,7 @@ namespace Crown
 			string args[] =
 			{
 				ENGINE_EXE,
-				"--data-dir", _data_dir,
+				"--data-dir", _project.data_dir(),
 				"--boot-dir", LEVEL_EDITOR_BOOT_DIR,
 				"--parent-window", window_xid.to_string(),
 				"--wait-console",
@@ -650,13 +642,13 @@ namespace Crown
 			if (!save())
 				return;
 
-			_resource_compiler.compile.begin(_data_dir, _platform, (obj, res) => {
+			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_resource_compiler.compile.end(res))
 				{
 					string args[] =
 					{
 						ENGINE_EXE,
-						"--data-dir", _data_dir,
+						"--data-dir", _project.data_dir(),
 						"--console-port", "12345",
 						null
 					};
@@ -739,7 +731,7 @@ namespace Crown
 				, ResponseType.ACCEPT
 				);
 			fcd.add_filter(_file_filter);
-			fcd.set_current_folder(_source_dir);
+			fcd.set_current_folder(_project.source_dir());
 
 			if (fcd.run() == (int)ResponseType.ACCEPT)
 			{
@@ -768,7 +760,7 @@ namespace Crown
 				, ResponseType.ACCEPT
 				);
 			fcd.add_filter(_file_filter);
-			fcd.set_current_folder(_source_dir);
+			fcd.set_current_folder(_project.source_dir());
 
 			if (fcd.run() == (int)ResponseType.ACCEPT)
 			{
@@ -1041,7 +1033,7 @@ namespace Crown
 		{
 			if (_resource_browser == null)
 			{
-				_resource_browser = new ResourceBrowser(_source_dir, _data_dir);
+				_resource_browser = new ResourceBrowser(_project.source_dir(), _project.data_dir());
 				_resource_browser.relative_to = _toolbar;
 				_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
 				_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
@@ -1058,7 +1050,7 @@ namespace Crown
 
 		private void on_reload_lua(Gtk.Action action)
 		{
-			_resource_compiler.compile.begin(_data_dir, _platform, (obj, res) => {
+			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_resource_compiler.compile.end(res))
 				{
 					_engine.send(EngineApi.pause());
@@ -1140,7 +1132,7 @@ namespace Crown
 
 		private void on_open_last_log(Gtk.Action action)
 		{
-			File file = File.new_for_path(_data_dir + "/last.log");
+			File file = File.new_for_path(_project.data_dir() + "/last.log");
 			try
 			{
 				AppInfo.launch_default_for_uri(file.get_uri(), null);
@@ -1215,8 +1207,11 @@ namespace Crown
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
 		provider.load_from_resource("/org/pepper/theme/style.css");
 
-		var window = new LevelEditor(args[1], args[2], args[3]);
-		window.show_all();
+		Project project = new Project();
+		project.load(args[1], args[2], args[3]);
+
+		var editor = new LevelEditor(project);
+		editor.show_all();
 
 		Gtk.main();
 		return 0;
