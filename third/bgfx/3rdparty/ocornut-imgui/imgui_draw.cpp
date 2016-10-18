@@ -18,9 +18,11 @@
 #include "imgui_internal.h"
 
 #include <stdio.h>      // vsnprintf, sscanf, printf
-#if !defined(alloca) && !defined(__FreeBSD__) && !defined(__DragonFly__)
+#if !defined(alloca)
 #ifdef _WIN32
 #include <malloc.h>     // alloca
+#elif (defined(__FreeBSD__) || defined(FreeBSD_kernel) || defined(__DragonFly__)) && !defined(__GLIBC__)
+#include <stdlib.h>     // alloca. FreeBSD uses stdlib.h unless GLIBC
 #else
 #include <alloca.h>     // alloca
 #endif
@@ -37,7 +39,9 @@
 #pragma clang diagnostic ignored "-Wfloat-equal"            // warning : comparing floating point with == or != is unsafe   // storing and comparing against same constants ok.
 #pragma clang diagnostic ignored "-Wglobal-constructors"    // warning : declaration requires a global destructor           // similar to above, not sure what the exact difference it.
 #pragma clang diagnostic ignored "-Wsign-conversion"        // warning : implicit conversion changes signedness             //
+#if __has_warning("-Wreserved-id-macro")
 #pragma clang diagnostic ignored "-Wreserved-id-macro"      // warning : macro name is a reserved identifier                //
+#endif
 #elif defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-function"          // warning: 'xxxx' defined but not used
 #pragma GCC diagnostic ignored "-Wdouble-promotion"         // warning: implicit conversion from 'float' to 'double' when passing argument to function
@@ -197,7 +201,7 @@ void ImDrawList::UpdateClipRect()
 
     // Try to merge with previous command if it matches, else use current command
     ImDrawCmd* prev_cmd = CmdBuffer.Size > 1 ? curr_cmd - 1 : NULL;
-    if (prev_cmd && memcmp(&prev_cmd->ClipRect, &curr_clip_rect, sizeof(ImVec4)) == 0 && prev_cmd->TextureId == GetCurrentTextureId() && prev_cmd->UserCallback == NULL)
+    if (curr_cmd->ElemCount == 0 && prev_cmd && memcmp(&prev_cmd->ClipRect, &curr_clip_rect, sizeof(ImVec4)) == 0 && prev_cmd->TextureId == GetCurrentTextureId() && prev_cmd->UserCallback == NULL)
         CmdBuffer.pop_back();
     else
         curr_cmd->ClipRect = curr_clip_rect;
@@ -429,7 +433,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
     {
         // Anti-aliased stroke
         const float AA_SIZE = 1.0f;
-        const ImU32 col_trans = col & 0x00ffffff;
+        const ImU32 col_trans = col & IM_COL32(255,255,255,0);
 
         const int idx_count = thick_line ? count*18 : count*12;
         const int vtx_count = thick_line ? points_count*4 : points_count*3;
@@ -602,7 +606,7 @@ void ImDrawList::AddConvexPolyFilled(const ImVec2* points, const int points_coun
     {
         // Anti-aliased Fill
         const float AA_SIZE = 1.0f;
-        const ImU32 col_trans = col & 0x00ffffff;
+        const ImU32 col_trans = col & IM_COL32(255,255,255,0);
         const int idx_count = (points_count-2)*3 + points_count*6;
         const int vtx_count = (points_count*2);
         PrimReserve(idx_count, vtx_count);
@@ -797,7 +801,7 @@ void ImDrawList::PathRect(const ImVec2& a, const ImVec2& b, float rounding, int 
 
 void ImDrawList::AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
     PathLineTo(a + ImVec2(0.5f,0.5f));
     PathLineTo(b + ImVec2(0.5f,0.5f));
@@ -805,21 +809,21 @@ void ImDrawList::AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thic
 }
 
 // a: upper-left, b: lower-right. we don't render 1 px sized rectangles properly.
-void ImDrawList::AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding, int rounding_corners, float thickness)
+void ImDrawList::AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding, int rounding_corners_flags, float thickness)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
-    PathRect(a + ImVec2(0.5f,0.5f), b - ImVec2(0.5f,0.5f), rounding, rounding_corners);
+    PathRect(a + ImVec2(0.5f,0.5f), b - ImVec2(0.5f,0.5f), rounding, rounding_corners_flags);
     PathStroke(col, true, thickness);
 }
 
-void ImDrawList::AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding, int rounding_corners)
+void ImDrawList::AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding, int rounding_corners_flags)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
     if (rounding > 0.0f)
     {
-        PathRect(a, b, rounding, rounding_corners);
+        PathRect(a, b, rounding, rounding_corners_flags);
         PathFill(col);
     }
     else
@@ -831,7 +835,7 @@ void ImDrawList::AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, floa
 
 void ImDrawList::AddRectFilledMultiColor(const ImVec2& a, const ImVec2& c, ImU32 col_upr_left, ImU32 col_upr_right, ImU32 col_bot_right, ImU32 col_bot_left)
 {
-    if (((col_upr_left | col_upr_right | col_bot_right | col_bot_left) >> 24) == 0)
+    if (((col_upr_left | col_upr_right | col_bot_right | col_bot_left) & IM_COL32_A_MASK) == 0)
         return;
 
     const ImVec2 uv = GImGui->FontTexUvWhitePixel;
@@ -846,7 +850,7 @@ void ImDrawList::AddRectFilledMultiColor(const ImVec2& a, const ImVec2& c, ImU32
 
 void ImDrawList::AddQuad(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImU32 col, float thickness)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     PathLineTo(a);
@@ -858,7 +862,7 @@ void ImDrawList::AddQuad(const ImVec2& a, const ImVec2& b, const ImVec2& c, cons
 
 void ImDrawList::AddQuadFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImU32 col)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     PathLineTo(a);
@@ -870,7 +874,7 @@ void ImDrawList::AddQuadFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c
 
 void ImDrawList::AddTriangle(const ImVec2& a, const ImVec2& b, const ImVec2& c, ImU32 col, float thickness)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     PathLineTo(a);
@@ -881,7 +885,7 @@ void ImDrawList::AddTriangle(const ImVec2& a, const ImVec2& b, const ImVec2& c, 
 
 void ImDrawList::AddTriangleFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c, ImU32 col)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     PathLineTo(a);
@@ -892,7 +896,7 @@ void ImDrawList::AddTriangleFilled(const ImVec2& a, const ImVec2& b, const ImVec
 
 void ImDrawList::AddCircle(const ImVec2& centre, float radius, ImU32 col, int num_segments, float thickness)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     const float a_max = IM_PI*2.0f * ((float)num_segments - 1.0f) / (float)num_segments;
@@ -902,7 +906,7 @@ void ImDrawList::AddCircle(const ImVec2& centre, float radius, ImU32 col, int nu
 
 void ImDrawList::AddCircleFilled(const ImVec2& centre, float radius, ImU32 col, int num_segments)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     const float a_max = IM_PI*2.0f * ((float)num_segments - 1.0f) / (float)num_segments;
@@ -912,7 +916,7 @@ void ImDrawList::AddCircleFilled(const ImVec2& centre, float radius, ImU32 col, 
 
 void ImDrawList::AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     PathLineTo(pos0);
@@ -922,7 +926,7 @@ void ImDrawList::AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImV
 
 void ImDrawList::AddText(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end, float wrap_width, const ImVec4* cpu_fine_clip_rect)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     if (text_end == NULL)
@@ -957,7 +961,7 @@ void ImDrawList::AddText(const ImVec2& pos, ImU32 col, const char* text_begin, c
 
 void ImDrawList::AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv0, const ImVec2& uv1, ImU32 col)
 {
-    if ((col >> 24) == 0)
+    if ((col & IM_COL32_A_MASK) == 0)
         return;
 
     // FIXME-OPT: This is wasting draw calls.
@@ -1119,7 +1123,7 @@ void    ImFontAtlas::GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_wid
         const unsigned char* src = pixels;
         unsigned int* dst = TexPixelsRGBA32;
         for (int n = TexWidth * TexHeight; n > 0; n--)
-            *dst++ = ((unsigned int)(*src++) << 24) | 0x00FFFFFF;
+            *dst++ = IM_COL32(255, 255, 255, (unsigned int)(*src++));
     }
 
     *out_pixels = (unsigned char*)TexPixelsRGBA32;
@@ -1167,7 +1171,7 @@ static void         Decode85(const unsigned char* src, unsigned char* dst)
     while (*src)
     {
         unsigned int tmp = Decode85Byte(src[0]) + 85*(Decode85Byte(src[1]) + 85*(Decode85Byte(src[2]) + 85*(Decode85Byte(src[3]) + 85*Decode85Byte(src[4]))));
-        dst[0] = ((tmp >> 0) & 0xFF); dst[1] = ((tmp >> 8) & 0xFF); dst[2] = ((tmp >> 16) & 0xFF); dst[3] = ((tmp >> 24) & 0xFF);   // We can't assume little-endianess.
+        dst[0] = ((tmp >> 0) & 0xFF); dst[1] = ((tmp >> 8) & 0xFF); dst[2] = ((tmp >> 16) & 0xFF); dst[3] = ((tmp >> 24) & 0xFF);   // We can't assume little-endianness.
         src += 5;
         dst += 4;
     }
@@ -1652,6 +1656,17 @@ const ImWchar*  ImFontAtlas::GetGlyphRangesCyrillic()
     return &ranges[0];
 }
 
+const ImWchar*  ImFontAtlas::GetGlyphRangesThai()
+{
+    static const ImWchar ranges[] =
+    {
+        0x0020, 0x00FF, // Basic Latin
+        0x0E00, 0x0E7F, // Thai
+        0,
+    };
+    return &ranges[0];
+}
+
 //-----------------------------------------------------------------------------
 // ImFont
 //-----------------------------------------------------------------------------
@@ -1697,7 +1712,7 @@ void ImFont::BuildLookupTable()
     for (int i = 0; i != Glyphs.Size; i++)
         max_codepoint = ImMax(max_codepoint, (int)Glyphs[i].Codepoint);
 
-    IM_ASSERT(Glyphs.Size < 32*1024);
+    IM_ASSERT(Glyphs.Size < 0xFFFF); // -1 is reserved
     IndexXAdvance.clear();
     IndexLookup.clear();
     GrowIndex(max_codepoint + 1);
@@ -1705,7 +1720,7 @@ void ImFont::BuildLookupTable()
     {
         int codepoint = (int)Glyphs[i].Codepoint;
         IndexXAdvance[codepoint] = Glyphs[i].XAdvance;
-        IndexLookup[codepoint] = (short)i;
+        IndexLookup[codepoint] = (unsigned short)i;
     }
 
     // Create a glyph to handle TAB
@@ -1719,7 +1734,7 @@ void ImFont::BuildLookupTable()
         tab_glyph.Codepoint = '\t';
         tab_glyph.XAdvance *= 4;
         IndexXAdvance[(int)tab_glyph.Codepoint] = (float)tab_glyph.XAdvance;
-        IndexLookup[(int)tab_glyph.Codepoint] = (short)(Glyphs.Size-1);
+        IndexLookup[(int)tab_glyph.Codepoint] = (unsigned short)(Glyphs.Size-1);
     }
 
     FallbackGlyph = NULL;
@@ -1747,7 +1762,7 @@ void ImFont::GrowIndex(int new_size)
     for (int i = old_size; i < new_size; i++)
     {
         IndexXAdvance[i] = -1.0f;
-        IndexLookup[i] = (short)-1;
+        IndexLookup[i] = (unsigned short)-1;
     }
 }
 
@@ -1756,13 +1771,13 @@ void ImFont::AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst)
     IM_ASSERT(IndexLookup.Size > 0);    // Currently this can only be called AFTER the font has been built, aka after calling ImFontAtlas::GetTexDataAs*() function.
     int index_size = IndexLookup.Size;
 
-    if (dst < index_size && IndexLookup.Data[dst] == -1 && !overwrite_dst) // 'dst' already exists
+    if (dst < index_size && IndexLookup.Data[dst] == (unsigned short)-1 && !overwrite_dst) // 'dst' already exists
         return;
     if (src >= index_size && dst >= index_size) // both 'dst' and 'src' don't exist -> no-op
         return;
 
     GrowIndex(dst + 1);
-    IndexLookup[dst] = (src < index_size) ? IndexLookup.Data[src] : -1;
+    IndexLookup[dst] = (src < index_size) ? IndexLookup.Data[src] : (unsigned short)-1;
     IndexXAdvance[dst] = (src < index_size) ? IndexXAdvance.Data[src] : 1.0f;
 }
 
@@ -1770,8 +1785,8 @@ const ImFont::Glyph* ImFont::FindGlyph(unsigned short c) const
 {
     if (c < IndexLookup.Size)
     {
-        const short i = IndexLookup[c];
-        if (i != -1)
+        const unsigned short i = IndexLookup[c];
+        if (i != (unsigned short)-1)
             return &Glyphs.Data[i];
     }
     return FallbackGlyph;
@@ -1830,7 +1845,7 @@ const char* ImFont::CalcWordWrapPositionA(float scale, const char* text, const c
             }
         }
 
-        const float char_width = ((int)c < IndexXAdvance.Size) ? IndexXAdvance[(int)c] * scale : FallbackXAdvance;
+        const float char_width = ((int)c < IndexXAdvance.Size ? IndexXAdvance[(int)c] : FallbackXAdvance) * scale;
         if (ImCharIsSpace(c))
         {
             if (inside_word)
@@ -2313,7 +2328,7 @@ static const char proggy_clean_ttf_compressed_data_base85[11980+1] =
     "%(?A%R$f<->Zts'^kn=-^@c4%-pY6qI%J%1IGxfLU9CP8cbPlXv);C=b),<2mOvP8up,UVf3839acAWAW-W?#ao/^#%KYo8fRULNd2.>%m]UK:n%r$'sw]J;5pAoO_#2mO3n,'=H5(et"
     "Hg*`+RLgv>=4U8guD$I%D:W>-r5V*%j*W:Kvej.Lp$<M-SGZ':+Q_k+uvOSLiEo(<aD/K<CCc`'Lx>'?;++O'>()jLR-^u68PHm8ZFWe+ej8h:9r6L*0//c&iH&R8pRbA#Kjm%upV1g:"
     "a_#Ur7FuA#(tRh#.Y5K+@?3<-8m0$PEn;J:rh6?I6uG<-`wMU'ircp0LaE_OtlMb&1#6T.#FDKu#1Lw%u%+GM+X'e?YLfjM[VO0MbuFp7;>Q&#WIo)0@F%q7c#4XAXN-U&VB<HFF*qL("
-    "$/V,;(kXZejWO`<[5??ewY(*9=%wDc;,u<'9t3W-(H1th3+G]ucQ]kLs7df($/*JL]@*t7Bu_G3_7mp7<iaQjO@.kLg;x3B0lqp7Hf,^Ze7-##@/c58Mo(3;knp0%)A7?-W+eI'o8)b<"
+    "$/V,;(kXZejWO`<[5?\?ewY(*9=%wDc;,u<'9t3W-(H1th3+G]ucQ]kLs7df($/*JL]@*t7Bu_G3_7mp7<iaQjO@.kLg;x3B0lqp7Hf,^Ze7-##@/c58Mo(3;knp0%)A7?-W+eI'o8)b<"
     "nKnw'Ho8C=Y>pqB>0ie&jhZ[?iLR@@_AvA-iQC(=ksRZRVp7`.=+NpBC%rh&3]R:8XDmE5^V8O(x<<aG/1N$#FX$0V5Y6x'aErI3I$7x%E`v<-BY,)%-?Psf*l?%C3.mM(=/M0:JxG'?"
     "7WhH%o'a<-80g0NBxoO(GH<dM]n.+%q@jH?f.UsJ2Ggs&4<-e47&Kl+f//9@`b+?.TeN_&B8Ss?v;^Trk;f#YvJkl&w$]>-+k?'(<S:68tq*WoDfZu';mM?8X[ma8W%*`-=;D.(nc7/;"
     ")g:T1=^J$&BRV(-lTmNB6xqB[@0*o.erM*<SWF]u2=st-*(6v>^](H.aREZSi,#1:[IXaZFOm<-ui#qUq2$##Ri;u75OK#(RtaW-K-F`S+cF]uN`-KMQ%rP/Xri.LRcB##=YL3BgM/3M"

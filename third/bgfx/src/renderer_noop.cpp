@@ -5,28 +5,51 @@
 
 #include "bgfx_p.h"
 
-#if BGFX_CONFIG_RENDERER_NULL
+#if BGFX_CONFIG_RENDERER_NOOP
 
 namespace bgfx { namespace noop
 {
-	struct RendererContextNULL : public RendererContextI
+	struct RendererContextNOOP : public RendererContextI
 	{
-		RendererContextNULL()
+		RendererContextNOOP()
 		{
+			// Pretend all features that are not returning results to CPU
+			// are available.
+			g_caps.supported = 0
+				| BGFX_CAPS_TEXTURE_COMPARE_LEQUAL
+				| BGFX_CAPS_TEXTURE_COMPARE_ALL
+				| BGFX_CAPS_TEXTURE_3D
+				| BGFX_CAPS_VERTEX_ATTRIB_HALF
+				| BGFX_CAPS_VERTEX_ATTRIB_UINT10
+				| BGFX_CAPS_INSTANCING
+				| BGFX_CAPS_FRAGMENT_DEPTH
+				| BGFX_CAPS_BLEND_INDEPENDENT
+				| BGFX_CAPS_COMPUTE
+				| BGFX_CAPS_FRAGMENT_ORDERING
+				| BGFX_CAPS_SWAP_CHAIN
+				| BGFX_CAPS_INDEX32
+				| BGFX_CAPS_DRAW_INDIRECT
+				| BGFX_CAPS_HIDPI
+				| BGFX_CAPS_TEXTURE_BLIT
+				| BGFX_CAPS_ALPHA_TO_COVERAGE
+				| BGFX_CAPS_CONSERVATIVE_RASTER
+				| BGFX_CAPS_TEXTURE_2D_ARRAY
+				| BGFX_CAPS_TEXTURE_CUBE_ARRAY
+				;
 		}
 
-		~RendererContextNULL()
+		~RendererContextNOOP()
 		{
 		}
 
 		RendererType::Enum getRendererType() const BX_OVERRIDE
 		{
-			return RendererType::Null;
+			return RendererType::Noop;
 		}
 
 		const char* getRendererName() const BX_OVERRIDE
 		{
-			return BGFX_RENDERER_NULL_NAME;
+			return BGFX_RENDERER_NOOP_NAME;
 		}
 
 		void flip(HMD& /*_hmd*/) BX_OVERRIDE
@@ -117,7 +140,7 @@ namespace bgfx { namespace noop
 		{
 		}
 
-		void resizeTexture(TextureHandle /*_handle*/, uint16_t /*_width*/, uint16_t /*_height*/) BX_OVERRIDE
+		void resizeTexture(TextureHandle /*_handle*/, uint16_t /*_width*/, uint16_t /*_height*/, uint8_t /*_numMips*/) BX_OVERRIDE
 		{
 		}
 
@@ -183,18 +206,18 @@ namespace bgfx { namespace noop
 		}
 	};
 
-	static RendererContextNULL* s_renderNULL;
+	static RendererContextNOOP* s_renderNOOP;
 
 	RendererContextI* rendererCreate()
 	{
-		s_renderNULL = BX_NEW(g_allocator, RendererContextNULL);
-		return s_renderNULL;
+		s_renderNOOP = BX_NEW(g_allocator, RendererContextNOOP);
+		return s_renderNOOP;
 	}
 
 	void rendererDestroy()
 	{
-		BX_DELETE(g_allocator, s_renderNULL);
-		s_renderNULL = NULL;
+		BX_DELETE(g_allocator, s_renderNOOP);
+		s_renderNOOP = NULL;
 	}
 } /* namespace noop */ } // namespace bgfx
 
@@ -212,4 +235,4 @@ namespace bgfx { namespace noop
 	}
 } /* namespace noop */ } // namespace bgfx
 
-#endif // BGFX_CONFIG_RENDERER_NULL
+#endif // BGFX_CONFIG_RENDERER_NOOP

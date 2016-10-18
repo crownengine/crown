@@ -575,8 +575,8 @@ namespace ImGuiWM
                 ImColor oSelectedTab(37, 37, 37, 255); // selected
                 ImColor oBorderColor(72, 72, 72, 255); // border
 
-                ImVec2 oRectMin = ImGui::GetItemBoxMin();
-                ImVec2 oRectMax = ImGui::GetItemBoxMax();
+                ImVec2 oRectMin = ImGui::GetItemRectMin();
+                ImVec2 oRectMax = ImGui::GetItemRectMax();
 
                 const float fOverlap = 10.f;
                 const float fSlopWidth = 30.f;
@@ -647,7 +647,14 @@ namespace ImGuiWM
 
                 pDrawList->PathClear();
 
-                ImGui::RenderTextClipped(oRectMin, ImVec2(oRectMax.x, oRectMax.y), (*it)->GetTitle(), NULL, &oTextSize, ImGuiAlign_Center | ImGuiAlign_VCenter);
+                ImGui::RenderTextClipped(
+                      oRectMin
+                    , ImVec2(oRectMax.x, oRectMax.y)
+                    , (*it)->GetTitle()
+                    , NULL
+                    , &oTextSize
+                    , ImVec2(0.5f, 0.5f)
+                );
 
                 if (ImGui::BeginPopupContextItem("TabMenu"))
                 {
