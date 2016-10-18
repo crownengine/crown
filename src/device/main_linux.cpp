@@ -576,7 +576,13 @@ public:
 
 	void bgfx_setup()
 	{
-		bgfx::x11SetDisplayWindow(s_ldvc._x11_display, _x11_window);
+		bgfx::PlatformData pd;
+		pd.ndt          = s_ldvc._x11_display;
+		pd.nwh          = (void*)(uintptr_t)_x11_window;
+		pd.context      = NULL;
+		pd.backBuffer   = NULL;
+		pd.backBufferDS = NULL;
+		bgfx::setPlatformData(pd);
 	}
 
 	void show()

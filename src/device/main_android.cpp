@@ -76,7 +76,14 @@ struct AndroidDevice
 		case APP_CMD_INIT_WINDOW:
 			{
 				CE_ASSERT(app->window != NULL, "Android window is NULL");
-				bgfx::androidSetWindow(app->window);
+
+				bgfx::PlatformData pd;
+				pd.ndt          = NULL;
+				pd.nwh          = app->window;
+				pd.context      = NULL;
+				pd.backBuffer   = NULL;
+				pd.backBufferDS = NULL;
+				bgfx::setPlatformData(pd);
 
 				// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
 				const s32 width  = ANativeWindow_getWidth(app->window);

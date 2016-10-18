@@ -578,7 +578,10 @@ struct WindowWin : public Window
 
 	void bgfx_setup()
 	{
-		bgfx::winSetHwnd(_hwnd);
+		bgfx::PlatformData pd;
+		memset(&pd, 0, sizeof(pd));
+		pd.nwh = _hwnd;
+		bgfx::setPlatformData(pd);
 	}
 
 	void show()
