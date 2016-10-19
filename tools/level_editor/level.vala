@@ -289,8 +289,9 @@ namespace Crown
 			_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		}
 
-		public void set_sound(Guid sound_id, double range, double volume, bool loop)
+		public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
 		{
+			_db.set_property(sound_id, "name", name);
 			_db.set_property(sound_id, "range", range);
 			_db.set_property(sound_id, "volume", volume);
 			_db.set_property(sound_id, "loop", loop);
@@ -471,6 +472,7 @@ namespace Crown
 			foreach (Guid sound_id in sound_ids)
 			{
 				string s = LevelEditorApi.spawn_sound(sound_id
+					, (string)    _db.get_property(sound_id, "name")
 					, (Vector3)   _db.get_property(sound_id, "position")
 					, (Quaternion)_db.get_property(sound_id, "rotation")
 					, (double)    _db.get_property(sound_id, "range")

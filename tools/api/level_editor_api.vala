@@ -120,9 +120,10 @@ namespace Crown
 			return "LevelEditor:spawn_empty_unit(\"%s\")".printf(id.to_string());
 		}
 
-		public string spawn_sound(Guid id, Vector3 pos, Quaternion rot, double range, double volume, bool loop)
+		public string spawn_sound(Guid id, string name, Vector3 pos, Quaternion rot, double range, double volume, bool loop)
 		{
-			return "LevelEditor:spawn_sound(\"%s\", %s, %s, %f, %f, %s)".printf(id.to_string()
+			return "LevelEditor:spawn_sound(\"%s\", \"%s\", %s, %s, %f, %f, %s)".printf(id.to_string()
+				, name
 				, Lua.vector3(pos)
 				, Lua.quaternion(rot)
 				, range

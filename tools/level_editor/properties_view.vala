@@ -391,6 +391,7 @@ namespace Crown
 		private void on_value_changed()
 		{
 			_level.set_sound(_component_id
+				, _name.text
 				, _range.value
 				, _volume.value
 				, _loop.active
