@@ -504,7 +504,7 @@ namespace Crown
 
 		private void on_selection_changed(Gee.ArrayList<Guid?> selection)
 		{
-			if (selection.size == 0)
+			if (selection.size != 1)
 			{
 				set_current_widget(_nothing_to_show);
 				return;
