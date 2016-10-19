@@ -26,6 +26,7 @@ namespace Crown
 		private Gtk.Entry _filter_entry;
 		private Gtk.TreeStore _tree_store;
 		private Gtk.TreeModelFilter _tree_filter;
+		private Gtk.TreeModelSort _tree_sort;
 		private Gtk.TreeView _tree_view;
 		private Gtk.TreeSelection _tree_selection;
 		private Gtk.ScrolledWindow _scrolled_window;
@@ -45,16 +46,33 @@ namespace Crown
 			_filter_entry.set_placeholder_text("Search...");
 			_filter_entry.changed.connect(on_filter_entry_text_changed);
 
-			_tree_store = new TreeStore(2, typeof(string), typeof(int));
-			_tree_filter = new TreeModelFilter(_tree_store, null);
+			_tree_store = new Gtk.TreeStore(2, typeof(string), typeof(int));
+
+			_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
 			_tree_filter.set_visible_func(filter_tree);
+
+			_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
+			_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
+					Value type_a;
+					Value type_b;
+					model.get_value(iter_a, 1, out type_a);
+					model.get_value(iter_b, 1, out type_b);
+					if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
+						return -1;
+
+					Value id_a;
+					Value id_b;
+					model.get_value(iter_a, 0, out id_a);
+					model.get_value(iter_b, 0, out id_b);
+					return strcmp((string)id_a, (string)id_b);
+				});
 
 			_tree_view = new Gtk.TreeView();
 			_tree_view.insert_column_with_attributes(-1, "Objects", new Gtk.CellRendererText(), "text", 0, null);
 			// _tree_view.insert_column_with_attributes(-1, "Types", new Gtk.CellRendererText(), "text", 1, null); // DEBUG
 			_tree_view.headers_clickable = false;
 			_tree_view.headers_visible = false;
-			_tree_view.model = _tree_filter;
+			_tree_view.model = _tree_sort;
 			_tree_view.button_press_event.connect(on_button_pressed);
 
 			_tree_selection = _tree_view.get_selection();
@@ -154,7 +172,7 @@ namespace Crown
 			_tree_selection.changed.disconnect(on_tree_selection_changed);
 			_tree_selection.unselect_all();
 
-			_tree_filter.foreach ((model, path, iter) => {
+			_tree_sort.foreach ((model, path, iter) => {
 				Value type;
 				model.get_value(iter, 1, out type);
 				if ((int)type == ItemType.FOLDER)
@@ -220,7 +238,7 @@ namespace Crown
 				}
 			}
 
-			_tree_view.model = _tree_filter;
+			_tree_view.model = _tree_sort;
 			_tree_view.expand_all();
 
 			_tree_selection.changed.connect(on_tree_selection_changed);
