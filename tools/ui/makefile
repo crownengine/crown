@@ -1,7 +1,7 @@
 OBJS = \
-	level_editor_create_project.ui     \
 	level_editor_menu.xml              \
 	level_editor_preferences_dialog.ui \
+	level_editor_project_dialog.ui     \
 \
 	icons/128x128/pepper.png           \
 	icons/16x16/pepper.png             \
