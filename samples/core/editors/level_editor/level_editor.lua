@@ -330,13 +330,13 @@ function UnitBox:raycast(pos, dir)
 end
 
 function UnitBox:draw()
-	-- Draw lights
-	local lights = RenderWorld.light_instances(LevelEditor._rw, self._unit_id)
-	if lights ~= nil then
-		RenderWorld.light_debug_draw(LevelEditor._rw, lights, LevelEditor._lines)
-	end
-
 	if self._selected then
+		-- Draw lights
+		local lights = RenderWorld.light_instances(LevelEditor._rw, self._unit_id)
+		if lights ~= nil then
+			RenderWorld.light_debug_draw(LevelEditor._rw, lights, LevelEditor._lines)
+		end
+
 		local mesh_component = RenderWorld.mesh_instances(LevelEditor._rw, self._unit_id)
 		if mesh_component then
 			draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
