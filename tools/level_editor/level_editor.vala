@@ -340,18 +340,6 @@ namespace Crown
 			this.show_all();
 		}
 
-		private bool on_focus_in(EventFocus ev)
-		{
-			add_accel_group(_ui_manager.get_accel_group());
-			return true;
-		}
-
-		private bool on_focus_out(EventFocus ev)
-		{
-			remove_accel_group(_ui_manager.get_accel_group());
-			return true;
-		}
-
 		private void on_resource_browser_resource_selected(PlaceableType placeable_type, string name)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable(placeable_type, name));
@@ -564,8 +552,6 @@ namespace Crown
 					_engine_view.realized.connect(on_engine_view_realized);
 					_engine_view.button_press_event.connect(on_button_press);
 					_engine_view.button_release_event.connect(on_button_release);
-					_engine_view._event_box.focus_in_event.connect(on_focus_in);
-					_engine_view._event_box.focus_out_event.connect(on_focus_out);
 
 					_alignment_engine.remove(_alignment_engine.get_child());
 					_alignment_level_tree_view.remove(_alignment_level_tree_view.get_child());
