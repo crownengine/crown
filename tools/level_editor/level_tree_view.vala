@@ -210,10 +210,13 @@ namespace Crown
 			_tree_store.clear();
 
 			Gtk.TreeIter unit_iter;
+			Gtk.TreeIter light_iter;
 			Gtk.TreeIter sound_iter;
 			_tree_store.append(out unit_iter, null);
+			_tree_store.append(out light_iter, null);
 			_tree_store.append(out sound_iter, null);
 			_tree_store.set(unit_iter, 0, "Units", 1, ItemType.FOLDER, -1);
+			_tree_store.set(light_iter, 0, "Lights", 1, ItemType.FOLDER, -1);
 			_tree_store.set(sound_iter, 0, "Sounds", 1, ItemType.FOLDER, -1);
 
 			Value? units  = _db.get_property(GUID_ZERO, "units");
@@ -224,7 +227,7 @@ namespace Crown
 				foreach (Guid unit in (HashSet<Guid?>)units)
 				{
 					Gtk.TreeIter iter;
-					_tree_store.append(out iter, unit_iter);
+					_tree_store.append(out iter, _level.is_light(unit) ? light_iter : unit_iter);
 					_tree_store.set(iter, 0, unit.to_string(), 1, ItemType.UNIT, -1);
 				}
 			}

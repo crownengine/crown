@@ -743,6 +743,12 @@ namespace Crown
 			return (_db.get_property(GUID_ZERO, "units") as HashSet<Guid?>).contains(id);
 		}
 
+		public bool is_light(Guid id)
+		{
+			return has_prefab(id)
+				&& (string)_db.get_property(id, "prefab") == "core/units/light";
+		}
+
 		public bool is_sound(Guid id)
 		{
 			return (_db.get_property(GUID_ZERO, "sounds") as HashSet<Guid?>).contains(id);
