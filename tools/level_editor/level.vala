@@ -53,8 +53,6 @@ namespace Crown
 
 			_selection.clear();
 			selection_changed(_selection);
-
-			_client.send_script(LevelEditorApi.reset());
 		}
 
 		/// Loads the level from @a path.
@@ -370,6 +368,7 @@ namespace Crown
 			}
 
 			StringBuilder sb = new StringBuilder();
+			sb.append(LevelEditorApi.reset());
 			generate_spawn_unit_commands(unit_ids, sb);
 			generate_spawn_sound_commands(sound_ids, sb);
 			_client.send_script(sb.str);
