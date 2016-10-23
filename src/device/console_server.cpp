@@ -105,10 +105,10 @@ void ConsoleServer::update()
 
 			// Read the message
 			TempAllocator4096 ta;
-			Array<char> msg_buf(ta);
-			array::resize(msg_buf, msg_len);
-			rr = _clients[i].read(array::begin(msg_buf), msg_len);
-			array::push_back(msg_buf, '\0');
+			Array<char> msg(ta);
+			array::resize(msg, msg_len + 1);
+			rr = _clients[i].read(array::begin(msg), msg_len);
+			array::push_back(msg, '\0');
 
 			if (rr.error != ReadResult::SUCCESS)
 			{
@@ -116,7 +116,7 @@ void ConsoleServer::update()
 				break;
 			}
 
-			process(_clients[i], array::begin(msg_buf));
+			process(_clients[i], array::begin(msg));
 		}
 	}
 
@@ -143,7 +143,10 @@ void ConsoleServer::process(TCPSocket client, const char* json)
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
 
-	CommandFunction cmd = sort_map::get(_commands, sjson::parse_string_id(obj["type"]), (CommandFunction)NULL);
+	CommandFunction cmd = sort_map::get(_commands
+		, sjson::parse_string_id(obj["type"])
+		, (CommandFunction)NULL
+		);
 
 	if (cmd)
 		cmd(*this, client, json);
