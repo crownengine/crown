@@ -48,7 +48,16 @@ function UnitPreview:shutdown()
 	Device.destroy_world(self._world)
 end
 
-function UnitPreview:set_preview_unit(unit)
+function UnitPreview:set_preview_resource(type, name)
+	local unit = nil
+	if type == "unit" then
+		unit = name
+	elseif type == "sound" then
+		unit = "core/units/sound"
+	else
+		return
+	end
+
 	if self._unit_name == unit then
 		return
 	end

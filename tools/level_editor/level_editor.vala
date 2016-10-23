@@ -29,12 +29,6 @@ namespace Crown
 		WORLD
 	}
 
-	public enum PlaceableType
-	{
-		UNIT,
-		SOUND
-	}
-
 	public class LevelEditor : Gtk.Window
 	{
 		private Project _project;
@@ -340,9 +334,9 @@ namespace Crown
 			this.show_all();
 		}
 
-		private void on_resource_browser_resource_selected(PlaceableType placeable_type, string name)
+		private void on_resource_browser_resource_selected(string type, string name)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(placeable_type, name));
+			_engine.send_script(LevelEditorApi.set_placeable(type, name));
 		}
 
 		private void on_compiler_connected()
@@ -977,49 +971,49 @@ namespace Crown
 
 		private void on_create_cube(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/cube"));
+			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cube"));
 		}
 
 		private void on_create_sphere(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/sphere"));
+			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/sphere"));
 		}
 
 		private void on_create_cone(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/cone"));
+			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cone"));
 		}
 
 		private void on_create_cylinder(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/cylinder"));
+			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cylinder"));
 		}
 
 		private void on_create_plane(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/primitives/plane"));
+			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/plane"));
 		}
 
 		private void on_create_camera(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/camera"));
+			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/camera"));
 		}
 
 		private void on_create_light(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.UNIT, "core/units/light"));
+			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/light"));
 		}
 
 		private void on_create_sound_source(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(PlaceableType.SOUND, ""));
+			_engine.send_script(LevelEditorApi.set_placeable("sound", ""));
 		}
 
 		private void on_resource_browser(Gtk.Action action)
 		{
 			if (_resource_browser == null)
 			{
-				_resource_browser = new ResourceBrowser(_project.source_dir(), _project.data_dir());
+				_resource_browser = new ResourceBrowser(_project);
 				_resource_browser.relative_to = _toolbar;
 				_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
 				_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });

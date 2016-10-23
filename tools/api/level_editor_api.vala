@@ -213,9 +213,9 @@ namespace Crown
 				);
 		}
 
-		public string set_placeable(PlaceableType type, string name)
+		public string set_placeable(string type, string name)
 		{
-			return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf((type == PlaceableType.UNIT ? "unit" : "sound"), name);
+			return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf(type, name);
 		}
 
 		public string selection_set(Guid[] ids)

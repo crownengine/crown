@@ -7,15 +7,9 @@ namespace Crown
 {
 	namespace UnitPreviewApi
 	{
-		const string[] _placeables =
+		public string set_preview_resource(string placeable_type, string name)
 		{
-			"unknown",
-			"core/units/sound",
-		};
-
-		public string set_preview_unit(PlaceableType placeable_type, string name)
-		{
-			return "UnitPreview:set_preview_unit(\"%s\")".printf(placeable_type == PlaceableType.UNIT ? name : _placeables[(int)placeable_type]);
+			return "UnitPreview:set_preview_resource(\"%s\", \"%s\")".printf(placeable_type, name);
 		}
 	}
 }

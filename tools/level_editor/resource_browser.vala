@@ -4,16 +4,30 @@
  */
 
 using Gtk;
+using Gee;
 
 namespace Crown
 {
+	const string resource_types[] =
+	{
+		"unit",
+		"sound"
+	};
+
+	public bool is_type(string type)
+	{
+		for (int i = 0; i < resource_types.length; ++i)
+		{
+			if (resource_types[i] == type)
+				return true;
+		}
+		return false;
+	}
+
 	public class ResourceBrowser : Gtk.Popover
 	{
-		// Project paths
-		private string _source_dir;
-		private string _data_dir;
-
 		// Data
+		private Project _project;
 		private GLib.Subprocess _engine_process;
 		private ConsoleClient _console_client;
 
@@ -21,6 +35,7 @@ namespace Crown
 		private Gtk.Entry _filter_entry;
 		private Gtk.TreeStore _tree_store;
 		private Gtk.TreeModelFilter _tree_filter;
+		private Gtk.TreeModelSort _tree_sort;
 		private Gtk.TreeView _tree_view;
 		private Gtk.TreeSelection _tree_selection;
 		private Gtk.ScrolledWindow _scrolled_window;
@@ -29,15 +44,12 @@ namespace Crown
 		private EngineView _engine_view;
 
 		// Signals
-		public signal void resource_selected(PlaceableType placeable_type, string name);
+		public signal void resource_selected(string type, string name);
 
-		public ResourceBrowser(string source_dir, string data_dir)
+		public ResourceBrowser(Project project)
 		{
-			// Project paths
-			_source_dir = source_dir;
-			_data_dir = data_dir;
-
 			// Data
+			_project = project;
 			_console_client = new ConsoleClient();
 
 			// Widgets
@@ -48,16 +60,29 @@ namespace Crown
 			_filter_entry.changed.connect(on_filter_entry_text_changed);
 			_filter_entry.key_press_event.connect(on_filter_entry_key_pressed);
 
-			_tree_store = new Gtk.TreeStore(2, typeof(string), typeof(PlaceableType));
+			_tree_store = new Gtk.TreeStore(2, typeof(string), typeof(string));
+
 			_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
 			_tree_filter.set_visible_func(filter_tree);
 
+			_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
+			_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
+				Value id_a;
+				Value id_b;
+				model.get_value(iter_a, 0, out id_a);
+				model.get_value(iter_b, 0, out id_b);
+				return strcmp((string)id_a, (string)id_b);
+			});
+
 			_tree_view = new Gtk.TreeView();
 			_tree_view.insert_column_with_attributes(-1, "Name", new Gtk.CellRendererText(), "text", 0, null);
-			_tree_view.model = _tree_filter;
+			_tree_view.insert_column_with_attributes(-1, "Type", new Gtk.CellRendererText(), "text", 1, null); // Debug
+			_tree_view.model = _tree_sort;
 			_tree_view.headers_visible = false;
+			_tree_view.can_focus = false;
 			_tree_view.row_activated.connect(on_row_activated);
 			_tree_view.button_press_event.connect(on_button_pressed);
+			_tree_view.button_release_event.connect(on_button_released);
 
 			_tree_selection = _tree_view.get_selection();
 			_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
@@ -67,7 +92,17 @@ namespace Crown
 			_scrolled_window.add(_tree_view);
 			_scrolled_window.set_size_request(300, 400);
 
-			walk_directory_tree();
+			Database db = _project.files();
+			HashSet<Guid?> files = db.get_property(GUID_ZERO, "data") as HashSet<Guid?>;
+			files.foreach((id) => {
+				Gtk.TreeIter resource_iter;
+				_tree_store.append(out resource_iter, null);
+				string name = (string)db.get_property(id, "name");
+				string type = (string)db.get_property(id, "type");
+				_tree_store.set(resource_iter, 0, name, 1, type, -1);
+				return true;
+			});
+			_tree_filter.refilter();
 
 			_engine_view = new EngineView(_console_client, false);
 			_engine_view.realized.connect(on_engine_view_realized);
@@ -83,7 +118,8 @@ namespace Crown
 
 		private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
 		{
-			Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(path);
+			Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
+			Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
 			Gtk.TreeIter iter;
 			if (_tree_store.get_iter(out iter, child_path))
 			{
@@ -91,23 +127,22 @@ namespace Crown
 				Value type;
 				_tree_store.get_value(iter, 0, out name);
 				_tree_store.get_value(iter, 1, out type);
-				resource_selected((PlaceableType)type, (string)name);
+				resource_selected((string)type, (string)name);
 				this.hide();
 			}
 		}
 
 		private bool on_button_pressed(Gdk.EventButton ev)
 		{
-			int button = (int)ev.button;
-
-			if (button == 1)
+			if (ev.button == 1)
 			{
 				Gtk.TreePath path;
 				int cell_x;
 				int cell_y;
 				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
 				{
-					Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(path);
+					Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
+					Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
 					Gtk.TreeIter iter;
 					if (_tree_store.get_iter(out iter, child_path))
 					{
@@ -115,9 +150,25 @@ namespace Crown
 						Value type;
 						_tree_store.get_value(iter, 0, out name);
 						_tree_store.get_value(iter, 1, out type);
-						resource_selected((PlaceableType)type, (string)name);
-						this.hide();
+						resource_selected((string)type, (string)name);
 					}
+				}
+			}
+
+			return false;
+		}
+
+		private bool on_button_released(Gdk.EventButton ev)
+		{
+			if (ev.button == 1)
+			{
+				Gtk.TreePath path;
+				int cell_x;
+				int cell_y;
+				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
+				{
+					if (_tree_view.get_selection().path_is_selected(path))
+						this.hide();
 				}
 			}
 
@@ -138,7 +189,7 @@ namespace Crown
 			string args[] =
 			{
 				ENGINE_EXE,
-				"--data-dir", _data_dir,
+				"--data-dir", _project.data_dir(),
 				"--boot-dir", UNIT_PREVIEW_BOOT_DIR,
 				"--parent-window", window_xid.to_string(),
 				"--console-port", "10002",
@@ -158,7 +209,10 @@ namespace Crown
 			}
 
 			while (!_console_client.is_connected())
+			{
 				_console_client.connect("127.0.0.1", 10002);
+				GLib.Thread.usleep(100*1000);
+			}
 
 			_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
 		}
@@ -179,56 +233,18 @@ namespace Crown
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
 		{
 			Value name;
+			Value type;
 			model.get_value(iter, 0, out name);
+			model.get_value(iter, 1, out type);
 
-			if (_filter_entry.text == "")
-					 return true;
+			string name_str = (string)name;
+			string type_str = (string)type;
 
-			string text = (string)name;
-			if (text.index_of(_filter_entry.text) > -1)
-				return true;
-			else
-				return false;
-		}
-
-		private void walk_directory_tree()
-		{
-			_tree_view.model = null;
-			list_children(File.new_for_path(_source_dir));
-			_tree_view.model = _tree_filter;
-		}
-
-		private void list_children(File file, string space = "", Cancellable? cancellable = null) throws Error
-		{
-			FileEnumerator enumerator = file.enumerate_children ("standard::*", FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
-
-			FileInfo info = null;
-			while (cancellable.is_cancelled () == false && ((info = enumerator.next_file (cancellable)) != null)) {
-				if (info.get_file_type () == FileType.DIRECTORY)
-				{
-					File subdir = file.resolve_relative_path (info.get_name ());
-					list_children (subdir, space + " ", cancellable);
-				}
-				else
-				{
-					string path = file.get_path() + "/" + info.get_name();
-					string path_rel = File.new_for_path(_source_dir).get_relative_path(File.new_for_path(path));
-					string type = path_rel.substring(path_rel.last_index_of("."), path_rel.length - path_rel.last_index_of("."));
-					string name = path_rel.substring(0, path_rel.last_index_of("."));
-
-					if (type == ".unit" || type == ".sound")
-					{
-						Gtk.TreeIter resource_iter;
-						_tree_store.append(out resource_iter, null);
-						_tree_store.set(resource_iter, 0, name, 1, type == ".unit" ? PlaceableType.UNIT : PlaceableType.SOUND, -1);
-					}
-				}
-			}
-
-			if (cancellable.is_cancelled ())
-			{
-				throw new IOError.CANCELLED("Operation was cancelled");
-			}
+			return name_str != null
+				&& type_str != null
+				&& is_type(type_str)
+				&& (_filter_entry.text.length == 0 || name_str.index_of(_filter_entry.text) > -1)
+				;
 		}
 
 		private bool on_filter_entry_key_pressed(Gdk.EventKey ev)
@@ -240,21 +256,29 @@ namespace Crown
 			if (ev.keyval == Gdk.Key.Down)
 			{
 				if (selected && model.iter_next(ref iter))
+				{
 					_tree_selection.select_iter(iter);
+					_tree_view.scroll_to_cell(model.get_path(iter), null, true, 1.0f, 0.0f);
+				}
 			}
 			else if (ev.keyval == Gdk.Key.Up)
 			{
 				if (selected && model.iter_previous(ref iter))
+				{
 					_tree_selection.select_iter(iter);
+					_tree_view.scroll_to_cell(model.get_path(iter), null, true, 1.0f, 0.0f);
+				}
 			}
 			else if (ev.keyval == 65293) // Enter
 			{
-				Value name;
-				Value type;
-				model.get_value(iter, 0, out name);
-				model.get_value(iter, 1, out type);
-				resource_selected((PlaceableType)type, (string)name);
-
+				if (selected)
+				{
+					Value name;
+					Value type;
+					model.get_value(iter, 0, out name);
+					model.get_value(iter, 1, out type);
+					resource_selected((string)type, (string)name);
+				}
 				this.hide();
 			}
 			else
@@ -273,7 +297,7 @@ namespace Crown
 				Value type;
 				model.get_value(iter, 0, out name);
 				model.get_value(iter, 1, out type);
-				_console_client.send_script(UnitPreviewApi.set_preview_unit((PlaceableType)type, (string)name));
+				_console_client.send_script(UnitPreviewApi.set_preview_resource((string)type, (string)name));
 			}
 		}
 	}
