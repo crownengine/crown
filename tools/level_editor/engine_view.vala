@@ -201,14 +201,11 @@ namespace Crown
 			int _mouse_delta_x = _mouse_curr_x - _mouse_last_x;
 			int _mouse_delta_y = _mouse_curr_y - _mouse_last_y;
 
-			if (_even++ % 2 == 0)
-			{
-				_client.send_script(LevelEditorApi.mouse_move(_mouse_curr_x
-					, _mouse_curr_y
-					, _mouse_delta_x
-					, _mouse_delta_y
-					));
-			}
+			_client.send_script(LevelEditorApi.mouse_move(_mouse_curr_x
+				, _mouse_curr_y
+				, _mouse_delta_x
+				, _mouse_delta_y
+				));
 
 			_mouse_last_x = _mouse_curr_x;
 			_mouse_last_y = _mouse_curr_y;
