@@ -88,9 +88,36 @@ void ConsoleServer::update()
 	// Update all clients
 	for (u32 i = 0; i < vector::size(_clients); ++i)
 	{
-		ReadResult rr = update_client(_clients[i]);
-		if (rr.error != ReadResult::SUCCESS)
-			array::push_back(to_remove, i);
+		for (;;)
+		{
+			u32 msg_len = 0;
+			ReadResult rr = _clients[i].read_nonblock(&msg_len, 4);
+
+			if (rr.error != ReadResult::SUCCESS)
+			{
+				array::push_back(to_remove, i);
+				break;
+			}
+
+			// No data
+			if (rr.bytes_read == 0)
+				break;
+
+			// Read the message
+			TempAllocator4096 ta;
+			Array<char> msg_buf(ta);
+			array::resize(msg_buf, msg_len);
+			rr = _clients[i].read(array::begin(msg_buf), msg_len);
+			array::push_back(msg_buf, '\0');
+
+			if (rr.error != ReadResult::SUCCESS)
+			{
+				array::push_back(to_remove, i);
+				break;
+			}
+
+			process(_clients[i], array::begin(msg_buf));
+		}
 	}
 
 	// Remove clients
@@ -108,30 +135,6 @@ void ConsoleServer::update()
 void ConsoleServer::add_client(TCPSocket socket)
 {
 	vector::push_back(_clients, socket);
-}
-
-ReadResult ConsoleServer::update_client(TCPSocket client)
-{
-	u32 msg_len = 0;
-	ReadResult rr = client.read_nonblock(&msg_len, 4);
-
-	// If no data received, return
-	if (rr.error == ReadResult::SUCCESS && rr.bytes_read == 0) return rr;
-	if (rr.error == ReadResult::REMOTE_CLOSED) return rr;
-	if (rr.error != ReadResult::SUCCESS) return rr;
-
-	// Else read the message
-	TempAllocator4096 ta;
-	Array<char> msg_buf(ta);
-	array::resize(msg_buf, msg_len);
-	ReadResult msg_result = client.read(array::begin(msg_buf), msg_len);
-	array::push_back(msg_buf, '\0');
-
-	if (msg_result.error == ReadResult::REMOTE_CLOSED) return msg_result;
-	if (msg_result.error != ReadResult::SUCCESS) return msg_result;
-
-	process(client, array::begin(msg_buf));
-	return msg_result;
 }
 
 void ConsoleServer::process(TCPSocket client, const char* json)

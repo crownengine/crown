@@ -23,7 +23,6 @@ class ConsoleServer
 	SortMap<StringId32, CommandFunction> _commands;
 
 	void add_client(TCPSocket socket);
-	ReadResult update_client(TCPSocket client);
 	void process(TCPSocket client, const char* json);
 
 public:
