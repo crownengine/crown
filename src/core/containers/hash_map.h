@@ -256,14 +256,14 @@ namespace hash_map
 	template <typename TKey, typename TValue, typename Hash>
 	void clear(HashMap<TKey, TValue, Hash>& m)
 	{
-		m._size = 0;
-
-		// Flag all elements as free
 		for (u32 i = 0; i < m._capacity; ++i)
+		{
+			if (m._index[i].index == 0x0123abcd)
+				m._data[i].~Entry();
 			m._index[i].index = hash_map_internal::FREE;
+		}
 
-		for (u32 i = 0; i < m._size; ++i)
-			m._data[i].~Entry();
+		m._size = 0;
 	}
 } // namespace hash_map
 
@@ -281,10 +281,13 @@ HashMap<TKey, TValue, Hash>::HashMap(Allocator& a)
 template <typename TKey, typename TValue, typename Hash>
 HashMap<TKey, TValue, Hash>::~HashMap()
 {
-	_allocator->deallocate(_index);
+	for (u32 i = 0; i < _capacity; ++i)
+	{
+		if (_index[i].index == 0x0123abcd)
+			_data[i].~Entry();
+	}
 
-	for (u32 i = 0; i < _size; ++i)
-		_data[i].~Entry();
+	_allocator->deallocate(_index);
 	_allocator->deallocate(_data);
 }
 
