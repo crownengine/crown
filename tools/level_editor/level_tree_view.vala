@@ -53,19 +53,19 @@ namespace Crown
 
 			_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 			_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
-					Value type_a;
-					Value type_b;
-					model.get_value(iter_a, 1, out type_a);
-					model.get_value(iter_b, 1, out type_b);
-					if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
-						return -1;
+				Value type_a;
+				Value type_b;
+				model.get_value(iter_a, 1, out type_a);
+				model.get_value(iter_b, 1, out type_b);
+				if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
+					return -1;
 
-					Value id_a;
-					Value id_b;
-					model.get_value(iter_a, 0, out id_a);
-					model.get_value(iter_b, 0, out id_b);
-					return strcmp((string)id_a, (string)id_b);
-				});
+				Value id_a;
+				Value id_b;
+				model.get_value(iter_a, 0, out id_a);
+				model.get_value(iter_b, 0, out id_b);
+				return strcmp((string)id_a, (string)id_b);
+			});
 
 			_tree_view = new Gtk.TreeView();
 			_tree_view.insert_column_with_attributes(-1, "Objects", new Gtk.CellRendererText(), "text", 0, null);
@@ -129,9 +129,9 @@ namespace Crown
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
 		{
-			Value value_name;
+			Value name;
 			Value type;
-			model.get_value(iter, 0, out value_name);
+			model.get_value(iter, 0, out name);
 			model.get_value(iter, 1, out type);
 
 			_tree_view.expand_all();
@@ -139,12 +139,12 @@ namespace Crown
 			if ((int)type == ItemType.FOLDER)
 				return true;
 
-			string name = ((string)value_name).down();
+			string name_str = (string)name;
 			string filter_text = _filter_entry.text.down();
-			if (filter_text == "" || name.index_of(filter_text) > -1)
-				return true;
 
-			return false;
+			return name_str != null
+				&& (filter_text == "" || name_str.down().index_of(filter_text) > -1)
+				;
 		}
 
 		private void on_tree_selection_changed()
