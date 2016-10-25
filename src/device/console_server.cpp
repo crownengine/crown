@@ -78,8 +78,8 @@ void ConsoleServer::send(const char* json)
 void ConsoleServer::update()
 {
 	TCPSocket client;
-	AcceptResult result = _server.accept_nonblock(client);
-	if (result.error == AcceptResult::SUCCESS)
+	AcceptResult ar = _server.accept_nonblock(client);
+	if (ar.error == AcceptResult::SUCCESS)
 		add_client(client);
 
 	TempAllocator256 alloc;
@@ -93,15 +93,14 @@ void ConsoleServer::update()
 			u32 msg_len = 0;
 			ReadResult rr = _clients[i].read_nonblock(&msg_len, 4);
 
+			if (rr.error == ReadResult::WOULDBLOCK)
+				break;
+
 			if (rr.error != ReadResult::SUCCESS)
 			{
 				array::push_back(to_remove, i);
 				break;
 			}
-
-			// No data
-			if (rr.bytes_read == 0)
-				break;
 
 			// Read the message
 			TempAllocator4096 ta;

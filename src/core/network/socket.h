@@ -63,6 +63,7 @@ struct ReadResult
 	enum
 	{
 		SUCCESS,
+		WOULDBLOCK,
 		BAD_SOCKET,
 		REMOTE_CLOSED,
 		TIMEOUT,
@@ -76,6 +77,7 @@ struct WriteResult
 	enum
 	{
 		SUCCESS,
+		WOULDBLOCK,
 		BAD_SOCKET,
 		REMOTE_CLOSED,
 		TIMEOUT,
@@ -274,6 +276,7 @@ struct TCPSocket
 
 			if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 			{
+				rr.error = ReadResult::WOULDBLOCK;
 				return rr;
 			}
 			else if (read_bytes == -1 && errno == ETIMEDOUT)
@@ -290,7 +293,10 @@ struct TCPSocket
 			int read_bytes = ::recv(_socket, buf, (int)to_read, 0);
 
 			if (read_bytes == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
+			{
+				rr.error = ReadResult::WOULDBLOCK;
 				return rr;
+			}
 			else if (read_bytes == SOCKET_ERROR && WSAGetLastError() == WSAETIMEDOUT)
 			{
 				rr.error = ReadResult::TIMEOUT;
@@ -339,7 +345,10 @@ struct TCPSocket
 			ssize_t bytes_wrote = ::send(_socket, buf, to_send, 0);
 
 			if (bytes_wrote == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+			{
+				wr.error = WriteResult::WOULDBLOCK;
 				return wr;
+			}
 			else if (bytes_wrote == -1 && errno == ETIMEDOUT)
 			{
 				wr.error = WriteResult::TIMEOUT;
@@ -360,6 +369,7 @@ struct TCPSocket
 
 			if (bytes_wrote == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
 			{
+				wr.error = WriteResult::WOULDBLOCK;
 				return wr;
 			}
 			else if (bytes_wrote == SOCKET_ERROR && WSAGetLastError() == WSAETIMEDOUT)
