@@ -7,6 +7,7 @@
 #include "dynamic_string.h"
 #include "filesystem.h"
 #include "memory.h"
+#include "os.h"
 #include "path.h"
 #include "queue.h"
 #include "resource_loader.h"
@@ -93,8 +94,10 @@ s32 ResourceLoader::run()
 		if (queue::empty(_requests))
 		{
 			_mutex.unlock();
+			os::sleep(16);
 			continue;
 		}
+
 		ResourceRequest rr = queue::front(_requests);
 		_mutex.unlock();
 
