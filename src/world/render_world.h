@@ -117,13 +117,6 @@ public:
 	/// Fills @a dl with debug lines
 	void debug_draw(DebugLine& dl);
 
-private:
-
-	static void unit_destroyed_callback(UnitId id, void* user_ptr)
-	{
-		((RenderWorld*)user_ptr)->unit_destroyed_callback(id);
-	}
-
 	void unit_destroyed_callback(UnitId id);
 
 	struct MeshManager

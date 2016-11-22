@@ -20,6 +20,11 @@
 
 namespace crown
 {
+static void unit_destroyed_callback_bridge(UnitId id, void* user_ptr)
+{
+	((RenderWorld*)user_ptr)->unit_destroyed_callback(id);
+}
+
 RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um)
 	: _marker(RENDER_WORLD_MARKER)
 	, _allocator(&a)
@@ -32,7 +37,7 @@ RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, M
 	, _sprite_manager(a)
 	, _light_manager(a)
 {
-	um.register_destroy_function(RenderWorld::unit_destroyed_callback, this);
+	um.register_destroy_function(unit_destroyed_callback_bridge, this);
 
 	_u_light_position  = bgfx::createUniform("u_light_position", bgfx::UniformType::Vec4);
 	_u_light_direction = bgfx::createUniform("u_light_direction", bgfx::UniformType::Vec4);

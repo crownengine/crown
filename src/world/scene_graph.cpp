@@ -17,6 +17,11 @@
 
 namespace crown
 {
+static void unit_destroyed_callback_bridge(UnitId id, void* user_ptr)
+{
+	((SceneGraph*)user_ptr)->unit_destroyed_callback(id);
+}
+
 SceneGraph::Pose& SceneGraph::Pose::operator=(const Matrix4x4& m)
 {
 	Matrix3x3 rotm = to_matrix3x3(m);
@@ -36,7 +41,7 @@ SceneGraph::SceneGraph(Allocator& a, UnitManager& um)
 	, _unit_manager(&um)
 	, _map(a)
 {
-	um.register_destroy_function(SceneGraph::unit_destroyed_callback, this);
+	um.register_destroy_function(unit_destroyed_callback_bridge, this);
 }
 
 SceneGraph::~SceneGraph()

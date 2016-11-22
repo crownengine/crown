@@ -65,17 +65,6 @@ struct SceneGraph
 	InstanceData _data;
 	HashMap<UnitId, u32> _map;
 
-	void grow();
-	void allocate(u32 num);
-	TransformInstance make_instance(u32 i);
-
-	void unit_destroyed_callback(UnitId id);
-
-	static void unit_destroyed_callback(UnitId id, void* user_ptr)
-	{
-		((SceneGraph*)user_ptr)->unit_destroyed_callback(id);
-	}
-
 	SceneGraph(Allocator& a, UnitManager& um);
 	~SceneGraph();
 
@@ -138,12 +127,13 @@ struct SceneGraph
 
 	void clear_changed();
 	void get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses);
-
 	bool is_valid(TransformInstance i);
-
 	void set_local(TransformInstance i);
-
 	void transform(const Matrix4x4& parent, TransformInstance i);
+	void grow();
+	void allocate(u32 num);
+	TransformInstance make_instance(u32 i);
+	void unit_destroyed_callback(UnitId id);
 };
 
 } // namespace crown
