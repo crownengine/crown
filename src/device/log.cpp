@@ -47,9 +47,7 @@ namespace log_internal
 		os::log("\n");
 
 		if (device())
-		{
 			device()->log(buf, sev);
-		}
 	}
 
 	void logx(LogSeverity::Enum sev, const char* msg, ...)
