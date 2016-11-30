@@ -43,7 +43,7 @@ struct LightInfo
 	LightType::Enum type;
 };
 
-static LightInfo s_light[] =
+static const LightInfo s_light[] =
 {
 	{ "directional", LightType::DIRECTIONAL },
 	{ "omni",        LightType::OMNI        },
@@ -57,7 +57,7 @@ struct ProjectionInfo
 	ProjectionType::Enum type;
 };
 
-static ProjectionInfo s_projection[] =
+static const ProjectionInfo s_projection[] =
 {
 	{ "orthographic", ProjectionType::ORTHOGRAPHIC },
 	{ "perspective",  ProjectionType::PERSPECTIVE  }
@@ -70,7 +70,7 @@ struct RaycastInfo
 	RaycastMode::Enum mode;
 };
 
-static RaycastInfo s_raycast[] =
+static const RaycastInfo s_raycast[] =
 {
 	{ "closest", RaycastMode::CLOSEST },
 	{ "all",     RaycastMode::ALL     }
