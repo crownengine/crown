@@ -73,7 +73,7 @@ namespace physics_resource_internal
 		return JointType::COUNT;
 	}
 
-	Buffer compile_controller(const char* json, CompileOptions& opts)
+	Buffer compile_controller(const char* json, CompileOptions& /*opts*/)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -241,7 +241,7 @@ namespace physics_resource_internal
 		return buf;
 	}
 
-	Buffer compile_actor(const char* json, CompileOptions& opts)
+	Buffer compile_actor(const char* json, CompileOptions& /*opts*/)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);

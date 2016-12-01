@@ -67,7 +67,7 @@ static LightType::Enum light_name_to_enum(const char* name)
 	return LightType::COUNT;
 }
 
-static Buffer compile_transform(const char* json, CompileOptions& opts)
+static Buffer compile_transform(const char* json, CompileOptions& /*opts*/)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
