@@ -44,6 +44,7 @@ const StringId32 COMPONENT_TYPE_LIGHT           = StringId32("light");
 const StringId32 COMPONENT_TYPE_MESH_RENDERER   = StringId32("mesh_renderer");
 const StringId32 COMPONENT_TYPE_SPRITE_RENDERER = StringId32("sprite_renderer");
 const StringId32 COMPONENT_TYPE_TRANSFORM       = StringId32("transform");
+const StringId32 COMPONENT_TYPE_SCRIPT          = StringId32("script");
 
 /// Enumerates camera projection types.
 ///
@@ -337,6 +338,14 @@ struct LightDesc
 	f32 intensity;
 	f32 spot_angle; ///< In radians.
 	Vector3 color;  ///< Color of the light.
+};
+
+/// Script description.
+///
+/// @ingroup World
+struct ScriptDesc
+{
+	StringId64 script_resource; ///< Name of .lua resource.
 };
 
 /// Transform description.

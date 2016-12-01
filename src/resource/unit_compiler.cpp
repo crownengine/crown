@@ -118,7 +118,10 @@ static Buffer compile_mesh_renderer(const char* json, CompileOptions& opts)
 
 	DynamicString mesh_resource(ta);
 	sjson::parse_string(obj["mesh_resource"], mesh_resource);
-	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH, mesh_resource.c_str(), opts);
+	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH
+		, mesh_resource.c_str()
+		, opts
+		);
 
 	MeshRendererDesc mrd;
 	mrd.mesh_resource     = sjson::parse_resource_id(obj["mesh_resource"]);
@@ -139,7 +142,10 @@ static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
 
 	DynamicString sprite_resource(ta);
 	sjson::parse_string(obj["sprite_resource"], sprite_resource);
-	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SPRITE, sprite_resource.c_str(), opts);
+	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SPRITE
+		, sprite_resource.c_str()
+		, opts
+		);
 
 	SpriteRendererDesc srd;
 	srd.sprite_resource   = sjson::parse_resource_id(obj["sprite_resource"]);
@@ -179,6 +185,27 @@ static Buffer compile_light(const char* json, CompileOptions& opts)
 	return buf;
 }
 
+static Buffer compile_script(const char* json, CompileOptions& opts)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	sjson::parse(json, obj);
+
+	DynamicString script_resource(ta);
+	sjson::parse_string(obj["script_resource"], script_resource);
+	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SCRIPT
+		, script_resource.c_str()
+		, opts
+		);
+
+	ScriptDesc sd;
+	sd.script_resource = sjson::parse_resource_id(obj["script_resource"]);
+
+	Buffer buf(default_allocator());
+	array::push(buf, (char*)&sd, sizeof(sd));
+	return buf;
+}
+
 UnitCompiler::UnitCompiler(CompileOptions& opts)
 	: _opts(opts)
 	, _num_units(0)
@@ -190,6 +217,7 @@ UnitCompiler::UnitCompiler(CompileOptions& opts)
 	register_component_compiler("mesh_renderer",   &compile_mesh_renderer,                         1.0f);
 	register_component_compiler("sprite_renderer", &compile_sprite_renderer,                       1.0f);
 	register_component_compiler("light",           &compile_light,                                 1.0f);
+	register_component_compiler("script",          &compile_script,                                1.0f);
 	register_component_compiler("controller",      &physics_resource_internal::compile_controller, 1.0f);
 	register_component_compiler("collider",        &physics_resource_internal::compile_collider,   1.0f);
 	register_component_compiler("actor",           &physics_resource_internal::compile_actor,      2.0f);
@@ -229,7 +257,10 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 		TempAllocator512 ta;
 		DynamicString path(ta);
 		sjson::parse_string(prefab["prefab"], path);
-		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_UNIT, path.c_str(), _opts);
+		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_UNIT
+			, path.c_str()
+			, _opts
+			);
 		path += "." RESOURCE_EXTENSION_UNIT;
 
 		Buffer buf = read_unit(path.c_str());

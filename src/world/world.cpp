@@ -603,6 +603,14 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
 			}
 		}
+		else if (component->type == COMPONENT_TYPE_SCRIPT)
+		{
+			const ScriptDesc* sd = (const ScriptDesc*)data;
+			for (u32 i = 0; i < component->num_instances; ++i, ++sd)
+			{
+				CE_FATAL("Not implemented");
+			}
+		}
 		else
 		{
 			CE_FATAL("Unknown component type");

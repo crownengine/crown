@@ -308,6 +308,33 @@ namespace Crown
 		}
 	}
 
+	public class ScriptComponentView : ComponentView
+	{
+		// Data
+		Level _level;
+
+		// Widgets
+		private Gtk.Entry _script_resource;
+
+		public ScriptComponentView(Level level)
+		{
+			// Data
+			_level = level;
+
+			// Widgets
+			_script_resource = new Gtk.Entry();
+			_script_resource.sensitive = false;
+
+			uint row = 0;
+			attach_row(row++, "Script", _script_resource);
+		}
+
+		public override void update()
+		{
+			_script_resource.text = (string)_level.get_component_property(_unit_id, _component_id, "data.script_resource");
+		}
+	}
+
 	public class SoundTransformView : ComponentView
 	{
 		// Data
@@ -448,6 +475,7 @@ namespace Crown
 			add_component_view("Camera",          "camera",          2, new CameraComponentView(_level));
 			add_component_view("Mesh Renderer",   "mesh_renderer",   3, new MeshRendererComponentView(_level));
 			add_component_view("Sprite Renderer", "sprite_renderer", 3, new SpriteRendererComponentView(_level));
+			add_component_view("Script",          "script",          3, new ScriptComponentView(_level));
 
 			// Sound
 			add_component_view("Transform",        "sound_transform",  0, new SoundTransformView(_level));
