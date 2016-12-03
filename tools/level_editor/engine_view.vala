@@ -44,13 +44,11 @@ namespace Crown
 		{
 			switch (k)
 			{
-			case Gdk.Key.w:         return "w";
-			case Gdk.Key.a:         return "a";
-			case Gdk.Key.s:         return "s";
-			case Gdk.Key.d:         return "d";
-			case Gdk.Key.Control_L: return "left_ctrl";
-			case Gdk.Key.Shift_L:   return "left_shift";
-			default:                return "<unknown>";
+			case Gdk.Key.w: return "w";
+			case Gdk.Key.a: return "a";
+			case Gdk.Key.s: return "s";
+			case Gdk.Key.d: return "d";
+			default:        return "<unknown>";
 			}
 		}
 
@@ -77,12 +75,10 @@ namespace Crown
 			_window_id = 0;
 
 			_keys = new HashMap<int, bool>();
-			_keys[Gdk.Key.w]         = false;
-			_keys[Gdk.Key.a]         = false;
-			_keys[Gdk.Key.s]         = false;
-			_keys[Gdk.Key.d]         = false;
-			_keys[Gdk.Key.Control_L] = false;
-			_keys[Gdk.Key.Shift_L]   = false;
+			_keys[Gdk.Key.w] = false;
+			_keys[Gdk.Key.a] = false;
+			_keys[Gdk.Key.s] = false;
+			_keys[Gdk.Key.d] = false;
 
 			// Widgets
 			_socket = new Gtk.Socket();
@@ -178,7 +174,7 @@ namespace Crown
 
 			_keys[(int)ev.keyval] = true;
 
-			return true;
+			return false;
 		}
 
 		private bool on_key_release(Gdk.EventKey ev)

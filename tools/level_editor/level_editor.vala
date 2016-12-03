@@ -328,10 +328,32 @@ namespace Crown
 
 			this.destroy.connect(this.on_destroy);
 			this.delete_event.connect(this.on_delete_event);
+			this.key_press_event.connect(this.on_key_press);
+			this.key_release_event.connect(this.on_key_release);
 
 			this.add(_vbox);
 			this.maximize();
 			this.show_all();
+		}
+
+		private bool on_key_press(Gdk.EventKey ev)
+		{
+			if (ev.keyval == Gdk.Key.Control_L)
+				_engine.send_script(LevelEditorApi.key_down("left_ctrl"));
+			else if (ev.keyval == Gdk.Key.Shift_L)
+				_engine.send_script(LevelEditorApi.key_down("left_shift"));
+
+			return false;
+		}
+
+		private bool on_key_release(Gdk.EventKey ev)
+		{
+			if (ev.keyval == Gdk.Key.Control_L)
+				_engine.send_script(LevelEditorApi.key_up("left_ctrl"));
+			else if (ev.keyval == Gdk.Key.Shift_L)
+				_engine.send_script(LevelEditorApi.key_up("left_shift"));
+
+			return false;
 		}
 
 		private void on_resource_browser_resource_selected(string type, string name)
