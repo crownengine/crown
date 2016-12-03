@@ -298,9 +298,9 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 	// Render sprites
 	for (u32 i = 0; i < sid.first_hidden; ++i)
 	{
+		bgfx::setTransform(to_float_ptr(sid.world[i]));
 		bgfx::setVertexBuffer(sid.sprite[i].vbh);
 		bgfx::setIndexBuffer(sid.sprite[i].ibh, sid.frame[i] * 6, 6);
-		bgfx::setTransform(to_float_ptr(sid.world[i]));
 
 		_material_manager->get(sid.material[i])->bind(*_resource_manager, *_shader_manager);
 	}
