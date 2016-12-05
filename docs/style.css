@@ -5,11 +5,19 @@
 
 @import url(html4css1.css);
 
-.document {
+body {
 	font-family: sans-serif;
-	font-size: 11pt;
-	line-height: 145%;
-	color: #1f1f1f;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #444;
+	margin: 40px auto;
+	max-width: 650px;
+	padding: 0 10px;
+	background-color: #f6f6f6;
+}
+
+h1,h2,h3 {
+	line-height:1.2
 }
 
 div.topic {
