@@ -19,22 +19,22 @@ function UnitPreview:update(dt)
 
 	if self._unit_id then
 		local mesh_component = RenderWorld.mesh_instances(self._rw, self._unit_id)
-		if mesh_component then
-			local tm, hext = RenderWorld.mesh_obb(self._rw, mesh_component)
+		local tm, hext = mesh_component
+			and RenderWorld.mesh_obb(self._rw, mesh_component)
+			or Matrix4x4.identity(), Vector3(1, 1, 1)
 
-			local radius = Vector3.length(hext)
-			radius = math.ceil(radius / 4)  * 4
-			radius = radius <   1 and   1 or radius
-			radius = radius > 100 and 100 or radius
+		local radius = Vector3.length(hext)
+		radius = math.ceil(radius / 2)  * 2
+		radius = radius <   1 and   1 or radius
+		radius = radius > 100 and 100 or radius
 
-			local camera_unit = self._fpscamera:unit()
-			local tr = SceneGraph.instances(self._sg, camera_unit)
-			local pos = Vector3(radius, radius, -radius) * 2
-			local camera_pos = Matrix4x4.translation(tm) + pos
-			local target_pos = Matrix4x4.translation(tm)
-			SceneGraph.set_local_rotation(self._sg, tr, Quaternion.look(Vector3.normalize(target_pos - camera_pos)))
-			SceneGraph.set_local_position(self._sg, tr, camera_pos)
-		end
+		local camera_unit = self._fpscamera:unit()
+		local tr = SceneGraph.instances(self._sg, camera_unit)
+		local pos = Vector3(radius, radius, -radius) * 2
+		local camera_pos = Matrix4x4.translation(tm) + pos
+		local target_pos = Matrix4x4.translation(tm)
+		SceneGraph.set_local_rotation(self._sg, tr, Quaternion.look(Vector3.normalize(target_pos - camera_pos)))
+		SceneGraph.set_local_position(self._sg, tr, camera_pos)
 	end
 
 	self._fpscamera:update(0, 0, {})
