@@ -12,7 +12,6 @@
 #include "filesystem.h"
 #include "guid.h"
 #include "log.h"
-#include "os.h"
 #include "path.h"
 #include "string_stream.h"
 #include "temp_allocator.h"
@@ -208,25 +207,7 @@ public:
 		vector::push_back(_dependencies, dep);
 	}
 
-	int run_external_compiler(const char* const* argv, StringStream& output)
-	{
-		TempAllocator512 ta;
-		StringStream ss(ta);
-
-		for (s32 i = 1; argv[i] != NULL; ++i)
-		{
-			const char* arg = argv[i];
-			for (; *arg; ++arg)
-			{
-				if (*arg == ' ')
-					ss << '\\';
-				ss << *arg;
-			}
-			ss << ' ';
-		}
-
-		return os::execute_process(argv[0], string_stream::c_str(ss), output);
-	}
+	int run_external_compiler(const char* const* argv, StringStream& output);
 };
 
 } // namespace crown
