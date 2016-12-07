@@ -20,6 +20,7 @@ div.topic {
 }
 
 cite {
+	font-family: monospace;
 	font-style: normal;
 	background-color: #fbfbfb;
 	border-radius: 2px;

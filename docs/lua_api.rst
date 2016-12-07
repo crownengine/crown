@@ -10,88 +10,88 @@ Constructors
 ~~~~~~~~~~~~
 
 **Vector3** (x, y, z) : Vector3
-Returns a new vector from individual elements.
+	Returns a new vector from individual elements.
 
 Functions
 ~~~~~~~~~
 
 **x** (v) : float
-Returns the x value of the vector.
+	Returns the x value of the vector.
 
 **y** (v) : float
-Returns the y value of the vector.
+	Returns the y value of the vector.
 
 **z** (v) : float
-Returns the z value of the vector.
+	Returns the z value of the vector.
 
 **.x** : float
-Returns/assigns the x value of the vector.
+	Returns/assigns the x value of the vector.
 
 **.y** : float
-Returns/assigns the y value of the vector.
+	Returns/assigns the y value of the vector.
 
 **.z** : float
-Returns/assigns the z value of the vector.
+	Returns/assigns the z value of the vector.
 
 **set_x** (v, x)
-Sets the value of the x value of the vector.
+	Sets the value of the x value of the vector.
 
 **set_y** (v, y)
-Sets the value of the y value of the vector.
+	Sets the value of the y value of the vector.
 
 **set_z** (v, z)
-Sets the value of the z value of the vector.
+	Sets the value of the z value of the vector.
 
 **elements** (v) : float, float, float
-Returns the x, y and z elements of the vector.
+	Returns the x, y and z elements of the vector.
 
 **add** (a, b) : Vector3
-Adds the vector *a* to *b* and returns the result.
+	Adds the vector *a* to *b* and returns the result.
 
 **subtract** (a, b) : Vector3
-Subtracts the vector *b* from *a* and returns the result.
+	Subtracts the vector *b* from *a* and returns the result.
 
 **multiply** (a, k) : Vector3
-Multiplies the vector *a* by the scalar *k* and returns the result.
+	Multiplies the vector *a* by the scalar *k* and returns the result.
 
 **dot** (a, b) : float
-Returns the dot product between the vectors *a* and *b*.
+	Returns the dot product between the vectors *a* and *b*.
 
 **cross** (a, b) : Vector3
-Returns the cross product between the vectors *a* and *b*.
+	Returns the cross product between the vectors *a* and *b*.
 
 **equal** (a, b) : bool
-Returns true whether the vectors *a* and *b* are equal.
+	Returns true whether the vectors *a* and *b* are equal.
 
 **length** (a) : float
-Returns the lenght of *a*.
+	Returns the lenght of *a*.
 
 **length_squared** (a) : float
-Returns the squared length of *a*.
+	Returns the squared length of *a*.
 
 **set_length** (a, len)
-Sets the lenght of *a* to *len*.
+	Sets the lenght of *a* to *len*.
 
 **normalize** (a) : Vector3
-Normalizes *a* and returns the result.
+	Normalizes *a* and returns the result.
 
 **distance** (a, b) : float
-Returns the distance between the points *a* and *b*.
+	Returns the distance between the points *a* and *b*.
 
 **distance_squared** (a, b) : float
-Returns the squared distance between the points *a* and *b*.
+	Returns the squared distance between the points *a* and *b*.
 
 **angle** (a, b) : float
-Returns the angle between the vectors *a* and *b*.
+	Returns the angle between the vectors *a* and *b*.
 
 **max** (a, b) : Vector3
-Returns a vector that contains the largest value for each element from *a* and *b*.
+	Returns a vector that contains the largest value for each element from *a* and *b*.
 
 **min** (a, b) : Vector3
-Returns a vector that contains the smallest value for each element from *a* and *b*.
+	Returns a vector that contains the smallest value for each element from *a* and *b*.
 
 **lerp** (a, b, t) : Vector3
-Returns the linearly interpolated vector between *a* and *b* at time *t* in [0, 1].
+	Returns the linearly interpolated vector between *a* and *b* at time *t* in [0, 1].
 
 | **forward** () : Vector3
 | **backward** () : Vector3
@@ -102,10 +102,10 @@ Returns the linearly interpolated vector between *a* and *b* at time *t* in [0, 
 | 	Returns the corresponding semantic axis.
 
 **zero** () : Vector3
-Returns a vector with all values set to zero.
+	Returns a vector with all values set to zero.
 
 **to_string** (v) : string
-Returns a string representing the vector *v*.
+	Returns a string representing the vector *v*.
 
 Vector3Box
 ----------
@@ -114,13 +114,13 @@ Constructors
 ~~~~~~~~~~~~
 
 **Vector3Box** () : Vector3Box
-Returns a new Vector3Box initialized with the zero vector.
+	Returns a new Vector3Box initialized with the zero vector.
 
 **Vector3Box** (v) : Vector3Box
-Returns a new Vector3Box from the Vector3 *v*.
+	Returns a new Vector3Box from the Vector3 *v*.
 
 **Vector3Box** (x, y, z) : Vector3Box
-Returns a new Vector3Box from individual elements.
+	Returns a new Vector3Box from individual elements.
 
 Functions
 ~~~~~~~~~
