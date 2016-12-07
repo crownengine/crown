@@ -749,7 +749,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["depth_func"], depth_func);
 					rs._depth_func = name_to_depth_func(depth_func.c_str());
-					RESOURCE_COMPILER_ASSERT(rs._depth_func != DepthFunction::COUNT
+					DATA_COMPILER_ASSERT(rs._depth_func != DepthFunction::COUNT
 						, _opts
 						, "Unknown depth test: '%s'"
 						, depth_func.c_str()
@@ -760,7 +760,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["blend_src"], blend_src);
 					rs._blend_src = name_to_blend_function(blend_src.c_str());
-					RESOURCE_COMPILER_ASSERT(rs._blend_src != BlendFunction::COUNT
+					DATA_COMPILER_ASSERT(rs._blend_src != BlendFunction::COUNT
 						, _opts
 						, "Unknown blend function: '%s'"
 						, blend_src.c_str()
@@ -771,7 +771,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["blend_dst"], blend_dst);
 					rs._blend_dst = name_to_blend_function(blend_dst.c_str());
-					RESOURCE_COMPILER_ASSERT(rs._blend_dst != BlendFunction::COUNT
+					DATA_COMPILER_ASSERT(rs._blend_dst != BlendFunction::COUNT
 						, _opts
 						, "Unknown blend function: '%s'"
 						, blend_dst.c_str()
@@ -782,7 +782,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["blend_equation"], blend_equation);
 					rs._blend_equation = name_to_blend_equation(blend_equation.c_str());
-					RESOURCE_COMPILER_ASSERT(rs._blend_equation != BlendEquation::COUNT
+					DATA_COMPILER_ASSERT(rs._blend_equation != BlendEquation::COUNT
 						, _opts
 						, "Unknown blend equation: '%s'"
 						, blend_equation.c_str()
@@ -793,7 +793,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["cull_mode"], cull_mode);
 					rs._cull_mode = name_to_cull_mode(cull_mode.c_str());
-					RESOURCE_COMPILER_ASSERT(rs._cull_mode != CullMode::COUNT
+					DATA_COMPILER_ASSERT(rs._cull_mode != CullMode::COUNT
 						, _opts
 						, "Unknown cull mode: '%s'"
 						, cull_mode.c_str()
@@ -804,7 +804,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["primitive_type"], primitive_type);
 					rs._primitive_type = name_to_primitive_type(primitive_type.c_str());
-					RESOURCE_COMPILER_ASSERT(rs._primitive_type != PrimitiveType::COUNT
+					DATA_COMPILER_ASSERT(rs._primitive_type != PrimitiveType::COUNT
 						, _opts
 						, "Unknown primitive type: '%s'"
 						, primitive_type.c_str()
@@ -814,7 +814,7 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = begin->pair.first;
 
-				RESOURCE_COMPILER_ASSERT(!map::has(_render_states, key)
+				DATA_COMPILER_ASSERT(!map::has(_render_states, key)
 					, _opts
 					, "Render state redefined: '%s'"
 					, key.c_str()
@@ -855,7 +855,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["filter_min"], filter_min);
 					ss._filter_min = name_to_sampler_filter(filter_min.c_str());
-					RESOURCE_COMPILER_ASSERT(ss._filter_min != SamplerFilter::COUNT
+					DATA_COMPILER_ASSERT(ss._filter_min != SamplerFilter::COUNT
 						, _opts
 						, "Unknown sampler filter: '%s'"
 						, filter_min.c_str()
@@ -866,7 +866,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["filter_mag"], filter_mag);
 					ss._filter_mag = name_to_sampler_filter(filter_mag.c_str());
-					RESOURCE_COMPILER_ASSERT(ss._filter_mag != SamplerFilter::COUNT
+					DATA_COMPILER_ASSERT(ss._filter_mag != SamplerFilter::COUNT
 						, _opts
 						, "Unknown sampler filter: '%s'"
 						, filter_mag.c_str()
@@ -877,7 +877,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["wrap_u"], wrap_u);
 					ss._wrap_u = name_to_sampler_wrap(wrap_u.c_str());
-					RESOURCE_COMPILER_ASSERT(ss._wrap_u != SamplerWrap::COUNT
+					DATA_COMPILER_ASSERT(ss._wrap_u != SamplerWrap::COUNT
 						, _opts
 						, "Unknown wrap mode: '%s'"
 						, wrap_u.c_str()
@@ -888,7 +888,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["wrap_v"], wrap_v);
 					ss._wrap_v = name_to_sampler_wrap(wrap_v.c_str());
-					RESOURCE_COMPILER_ASSERT(ss._wrap_v != SamplerWrap::COUNT
+					DATA_COMPILER_ASSERT(ss._wrap_v != SamplerWrap::COUNT
 						, _opts
 						, "Unknown wrap mode: '%s'"
 						, wrap_v.c_str()
@@ -899,7 +899,7 @@ namespace shader_resource_internal
 				{
 					sjson::parse_string(obj["wrap_w"], wrap_w);
 					ss._wrap_w = name_to_sampler_wrap(wrap_w.c_str());
-					RESOURCE_COMPILER_ASSERT(ss._wrap_w != SamplerWrap::COUNT
+					DATA_COMPILER_ASSERT(ss._wrap_w != SamplerWrap::COUNT
 						, _opts
 						, "Unknown wrap mode: '%s'"
 						, wrap_w.c_str()
@@ -909,7 +909,7 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = begin->pair.first;
 
-				RESOURCE_COMPILER_ASSERT(!map::has(_sampler_states, key)
+				DATA_COMPILER_ASSERT(!map::has(_sampler_states, key)
 					, _opts
 					, "Sampler state redefined: '%s'"
 					, key.c_str()
@@ -952,7 +952,7 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = begin->pair.first;
 
-				RESOURCE_COMPILER_ASSERT(!map::has(_bgfx_shaders, key)
+				DATA_COMPILER_ASSERT(!map::has(_bgfx_shaders, key)
 					, _opts
 					, "Bgfx shader redefined: '%s'"
 					, key.c_str()
@@ -977,7 +977,7 @@ namespace shader_resource_internal
 				DynamicString sampler_state(ta);
 				sjson::parse_string(sampler["sampler_state"], sampler_state);
 
-				RESOURCE_COMPILER_ASSERT(map::has(_sampler_states, sampler_state)
+				DATA_COMPILER_ASSERT(map::has(_sampler_states, sampler_state)
 					, _opts
 					, "Unknown sampler state: '%s'"
 					, sampler_state.c_str()
@@ -986,7 +986,7 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = begin->pair.first;
 
-				RESOURCE_COMPILER_ASSERT(!map::has(bgfxshader._samplers, key)
+				DATA_COMPILER_ASSERT(!map::has(bgfxshader._samplers, key)
 					, _opts
 					, "Bgfx sampler redefined: '%s'"
 					, key.c_str()
@@ -1015,7 +1015,7 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = begin->pair.first;
 
-				RESOURCE_COMPILER_ASSERT(!map::has(_shaders, key)
+				DATA_COMPILER_ASSERT(!map::has(_shaders, key)
 					, _opts
 					, "Shader redefined: '%s'"
 					, key.c_str()
@@ -1096,7 +1096,7 @@ namespace shader_resource_internal
 				}
 				const StringId32 shader_name(str.c_str());
 
-				RESOURCE_COMPILER_ASSERT(map::has(_shaders, sc._shader)
+				DATA_COMPILER_ASSERT(map::has(_shaders, sc._shader)
 					, _opts
 					, "Unknown shader: '%s'"
 					, shader.c_str()
@@ -1105,12 +1105,12 @@ namespace shader_resource_internal
 				const DynamicString& bgfx_shader  = sp._bgfx_shader;
 				const DynamicString& render_state = sp._render_state;
 
-				RESOURCE_COMPILER_ASSERT(map::has(_bgfx_shaders, sp._bgfx_shader)
+				DATA_COMPILER_ASSERT(map::has(_bgfx_shaders, sp._bgfx_shader)
 					, _opts
 					, "Unknown bgfx shader: '%s'"
 					, bgfx_shader.c_str()
 					);
-				RESOURCE_COMPILER_ASSERT(map::has(_render_states, sp._render_state)
+				DATA_COMPILER_ASSERT(map::has(_render_states, sp._render_state)
 					, _opts
 					, "Unknown render state: '%s'"
 					, render_state.c_str()
@@ -1196,7 +1196,7 @@ namespace shader_resource_internal
 			if (ec)
 			{
 				delete_temp_files();
-				RESOURCE_COMPILER_ASSERT(false
+				DATA_COMPILER_ASSERT(false
 					, _opts
 					, "Failed to compile vertex shader:\n%s"
 					, string_stream::c_str(output)
@@ -1214,7 +1214,7 @@ namespace shader_resource_internal
 			if (ec)
 			{
 				delete_temp_files();
-				RESOURCE_COMPILER_ASSERT(false
+				DATA_COMPILER_ASSERT(false
 					, _opts
 					, "Failed to compile fragment shader:\n%s"
 					, string_stream::c_str(output)

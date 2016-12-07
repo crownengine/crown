@@ -45,7 +45,7 @@ namespace texture_resource_internal
 
 		DynamicString name(ta);
 		sjson::parse_string(object["source"], name);
-		RESOURCE_COMPILER_ASSERT_FILE_EXISTS(name.c_str(), opts);
+		DATA_COMPILER_ASSERT_FILE_EXISTS(name.c_str(), opts);
 
 		const bool generate_mips = sjson::parse_bool(object["generate_mips"]);
 		const bool is_normalmap  = sjson::parse_bool(object["is_normalmap"]);
@@ -69,7 +69,7 @@ namespace texture_resource_internal
 
 		StringStream output(ta);
 		int ec = opts.run_external_compiler(argv, output);
-		RESOURCE_COMPILER_ASSERT(ec == 0
+		DATA_COMPILER_ASSERT(ec == 0
 			, opts
 			, "Failed to compile texture:\n%s"
 			, string_stream::c_str(output)

@@ -24,15 +24,15 @@ namespace config_resource_internal
 
 		const char* boot_script_json  = boot["boot_script"];
 		const char* boot_package_json = boot["boot_package"];
-		RESOURCE_COMPILER_ASSERT(boot_script_json != NULL, opts, "'boot_script' must be specified.");
-		RESOURCE_COMPILER_ASSERT(boot_package_json != NULL, opts, "'boot_package' must be specified.");
+		DATA_COMPILER_ASSERT(boot_script_json != NULL, opts, "'boot_script' must be specified.");
+		DATA_COMPILER_ASSERT(boot_package_json != NULL, opts, "'boot_package' must be specified.");
 
 		DynamicString boot_script(ta);
 		DynamicString boot_package(ta);
 		sjson::parse_string(boot_script_json, boot_script);
 		sjson::parse_string(boot_package_json, boot_package);
-		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SCRIPT, boot_script.c_str(), opts);
-		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_PACKAGE, boot_package.c_str(), opts);
+		DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SCRIPT, boot_script.c_str(), opts);
+		DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_PACKAGE, boot_package.c_str(), opts);
 
 		opts.write(buf);
 	}

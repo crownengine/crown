@@ -130,7 +130,7 @@ namespace physics_resource_internal
 		sjson::parse_string(obj["shape"], type);
 
 		ColliderType::Enum st = shape_type_to_enum(type.c_str());
-		RESOURCE_COMPILER_ASSERT(st != ColliderType::COUNT
+		DATA_COMPILER_ASSERT(st != ColliderType::COUNT
 			, opts
 			, "Unknown shape type: '%s'"
 			, type.c_str()
@@ -148,7 +148,7 @@ namespace physics_resource_internal
 		DynamicString name(ta);
 		sjson::parse_string(obj["scene"], scene);
 		sjson::parse_string(obj["name"], name);
-		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH, scene.c_str(), opts);
+		DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH, scene.c_str(), opts);
 		scene += "." RESOURCE_EXTENSION_MESH;
 
 		Buffer file = opts.read(scene.c_str());
@@ -159,14 +159,14 @@ namespace physics_resource_internal
 		JsonObject node(ta);
 		sjson::parse(file, json_mesh);
 		sjson::parse(json_mesh["geometries"], geometries);
-		RESOURCE_COMPILER_ASSERT(json_object::has(geometries, name.c_str())
+		DATA_COMPILER_ASSERT(json_object::has(geometries, name.c_str())
 			, opts
 			, "Geometry '%s' does not exist"
 			, name.c_str()
 			);
 		sjson::parse(geometries[name.c_str()], geometry);
 		sjson::parse(json_mesh["nodes"], nodes);
-		RESOURCE_COMPILER_ASSERT(json_object::has(nodes, name.c_str())
+		DATA_COMPILER_ASSERT(json_object::has(nodes, name.c_str())
 			, opts
 			, "Node '%s' does not exist"
 			, name.c_str()
@@ -211,7 +211,7 @@ namespace physics_resource_internal
 		case ColliderType::CONVEX_HULL: break;
 		case ColliderType::MESH:        break;
 		case ColliderType::HEIGHTFIELD:
-			RESOURCE_COMPILER_ASSERT(false, opts, "Not implemented yet");
+			DATA_COMPILER_ASSERT(false, opts, "Not implemented yet");
 			break;
 		}
 
@@ -275,7 +275,7 @@ namespace physics_resource_internal
 		sjson::parse_string(obj["type"], type);
 
 		JointType::Enum jt = joint_type_to_enum(type.c_str());
-		RESOURCE_COMPILER_ASSERT(jt != JointType::COUNT
+		DATA_COMPILER_ASSERT(jt != JointType::COUNT
 			, opts
 			, "Unknown joint type: '%s'"
 			, type.c_str()
@@ -477,7 +477,7 @@ namespace physics_config_resource_internal
 
 		u32 new_filter_mask()
 		{
-			RESOURCE_COMPILER_ASSERT(_filter != 0x80000000u
+			DATA_COMPILER_ASSERT(_filter != 0x80000000u
 				, _opts
 				, "Too many collision filters"
 				);
@@ -489,7 +489,7 @@ namespace physics_config_resource_internal
 
 		u32 filter_to_mask(StringId32 filter)
 		{
-			RESOURCE_COMPILER_ASSERT(map::has(_filter_map, filter)
+			DATA_COMPILER_ASSERT(map::has(_filter_map, filter)
 				, _opts
 				, "Filter not found"
 				);

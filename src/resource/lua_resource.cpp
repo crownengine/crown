@@ -49,7 +49,7 @@ namespace lua_resource_internal
 			NULL
 		};
 		int ec = opts.run_external_compiler(argv, output);
-		RESOURCE_COMPILER_ASSERT(ec == 0
+		DATA_COMPILER_ASSERT(ec == 0
 			, opts
 			, "Failed to compile lua:\n%s"
 			, string_stream::c_str(output)

@@ -93,7 +93,7 @@ static Buffer compile_camera(const char* json, CompileOptions& opts)
 	sjson::parse_string(obj["projection"], type);
 
 	ProjectionType::Enum pt = projection_name_to_enum(type.c_str());
-	RESOURCE_COMPILER_ASSERT(pt != ProjectionType::COUNT
+	DATA_COMPILER_ASSERT(pt != ProjectionType::COUNT
 		, opts
 		, "Unknown projection type: '%s'"
 		, type.c_str()
@@ -118,7 +118,7 @@ static Buffer compile_mesh_renderer(const char* json, CompileOptions& opts)
 
 	DynamicString mesh_resource(ta);
 	sjson::parse_string(obj["mesh_resource"], mesh_resource);
-	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH
+	DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH
 		, mesh_resource.c_str()
 		, opts
 		);
@@ -142,7 +142,7 @@ static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
 
 	DynamicString sprite_resource(ta);
 	sjson::parse_string(obj["sprite_resource"], sprite_resource);
-	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SPRITE
+	DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SPRITE
 		, sprite_resource.c_str()
 		, opts
 		);
@@ -167,7 +167,7 @@ static Buffer compile_light(const char* json, CompileOptions& opts)
 	sjson::parse_string(obj["type"], type);
 
 	LightType::Enum lt = light_name_to_enum(type.c_str());
-	RESOURCE_COMPILER_ASSERT(lt != LightType::COUNT
+	DATA_COMPILER_ASSERT(lt != LightType::COUNT
 		, opts
 		, "Unknown light type: '%s'"
 		, type.c_str()
@@ -193,7 +193,7 @@ static Buffer compile_script(const char* json, CompileOptions& opts)
 
 	DynamicString script_resource(ta);
 	sjson::parse_string(obj["script_resource"], script_resource);
-	RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SCRIPT
+	DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SCRIPT
 		, script_resource.c_str()
 		, opts
 		);
@@ -257,7 +257,7 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 		TempAllocator512 ta;
 		DynamicString path(ta);
 		sjson::parse_string(prefab["prefab"], path);
-		RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_UNIT
+		DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_UNIT
 			, path.c_str()
 			, _opts
 			);
@@ -415,7 +415,7 @@ void UnitCompiler::register_component_compiler(StringId32 type, CompileFunction 
 
 Buffer UnitCompiler::compile_component(StringId32 type, const char* json)
 {
-	RESOURCE_COMPILER_ASSERT(sort_map::has(_component_data, type), _opts, "Unknown component");
+	DATA_COMPILER_ASSERT(sort_map::has(_component_data, type), _opts, "Unknown component");
 
 	return sort_map::get(_component_data, type, ComponentTypeData(default_allocator()))._compiler(json, _opts);
 }

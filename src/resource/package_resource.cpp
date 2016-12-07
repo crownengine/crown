@@ -29,7 +29,7 @@ namespace package_resource_internal
 			DynamicString name(ta);
 			sjson::parse_string(names[i], name);
 
-			RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(type, name.c_str(), opts);
+			DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name.c_str(), opts);
 
 			const StringId64 nameh = sjson::parse_resource_id(names[i]);
 			array::push_back(output, PackageResource::Resource(typeh, nameh));

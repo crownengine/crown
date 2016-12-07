@@ -86,7 +86,7 @@ namespace material_resource_internal
 
 			DynamicString texture(ta);
 			sjson::parse_string(value, texture);
-			RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_TEXTURE, texture.c_str(), opts);
+			DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_TEXTURE, texture.c_str(), opts);
 
 			TextureHandle th;
 			th.sampler_handle = 0;
@@ -129,7 +129,7 @@ namespace material_resource_internal
 			sjson::parse_string(uniform["type"], type);
 
 			const UniformType::Enum ut = name_to_uniform_type(type.c_str());
-			RESOURCE_COMPILER_ASSERT(ut != UniformType::COUNT
+			DATA_COMPILER_ASSERT(ut != UniformType::COUNT
 				, opts
 				, "Unknown uniform type: '%s'"
 				, type.c_str()

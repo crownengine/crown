@@ -19,26 +19,26 @@
 #include "vector.h"
 #include <setjmp.h>
 
-#define RESOURCE_COMPILER_ASSERT(condition, opts, msg, ...) \
-	do                                                      \
-	{                                                       \
-		if (!(condition))                                   \
-			opts.error(msg, ##__VA_ARGS__);                 \
+#define DATA_COMPILER_ASSERT(condition, opts, msg, ...) \
+	do                                                  \
+	{                                                   \
+		if (!(condition))                               \
+			opts.error(msg, ##__VA_ARGS__);             \
 	} while(0)
 
-#define RESOURCE_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts) \
-	RESOURCE_COMPILER_ASSERT(opts.resource_exists(type, name)      \
-		, opts                                                     \
-		, "Resource does not exist: '%s.%s'"                       \
-		, name                                                     \
-		, type                                                     \
+#define DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts) \
+	DATA_COMPILER_ASSERT(opts.resource_exists(type, name)      \
+		, opts                                                 \
+		, "Resource does not exist: '%s.%s'"                   \
+		, name                                                 \
+		, type                                                 \
 		)
 
-#define RESOURCE_COMPILER_ASSERT_FILE_EXISTS(name, opts) \
-	RESOURCE_COMPILER_ASSERT(opts.file_exists(name)      \
-		, opts                                           \
-		, "File does not exist: '%s'"                    \
-		, name                                           \
+#define DATA_COMPILER_ASSERT_FILE_EXISTS(name, opts) \
+	DATA_COMPILER_ASSERT(opts.file_exists(name)      \
+		, opts                                       \
+		, "File does not exist: '%s'"                \
+		, name                                       \
 		)
 
 namespace crown
