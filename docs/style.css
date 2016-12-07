@@ -3,8 +3,6 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-@import url(html4css1.css);
-
 body {
 	font-family: sans-serif;
 	font-size: 14px;
@@ -16,22 +14,31 @@ body {
 	background-color: #f6f6f6;
 }
 
-h1,h2,h3 {
-	line-height:1.2
-}
-
 div.topic {
 	border: 1px solid #aaa;
 	background-color: #f9f9f9;
 }
 
-tt.literal {
-	background-color: #fafafa;
+cite {
+	font-style: normal;
+	background-color: #fbfbfb;
 	border-radius: 2px;
 	border-width: 1px;
 	border-style: solid;
-	border-color: #e7e7e7;
+	border-color: #dedede;
 	padding: 1px 7px 1px 7px;
+}
+
+blockquote {
+	margin-left: 0;
+	margin-top: 0;
+	margin-bottom: 16px;
+	padding: 0 1em;
+	border-left: 0.25em solid #ddd;
+}
+
+h1, h2, h3 {
+	line-height:1.2
 }
 
 a {
@@ -49,12 +56,4 @@ a:visited {
 
 a.toc-backref {
 	color: #4078c0;
-}
-
-blockquote {
-	margin-left: 0;
-	margin-top: 0;
-	margin-bottom: 16px;
-	padding: 0 1em;
-	border-left: 0.25em solid #ddd;
 }

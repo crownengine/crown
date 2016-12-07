@@ -41,27 +41,27 @@ There is, however, a small number of required files which are needed for the eng
 
 .. code::
 
-  .
-  ├── boot.config            <- First file loaded by the engine
-  ├── boot.package           <- Package to load on boot
-  ├── boot.lua               <- Lua script to launch on boot
-  └── global.physics_config  <- Global physics-related configurations
+	.
+	├── boot.config            <- First file loaded by the engine
+	├── boot.package           <- Package to load on boot
+	├── boot.lua               <- Lua script to launch on boot
+	└── global.physics_config  <- Global physics-related configurations
 
 The boot directory and the boot.config file
 -------------------------------------------
 
-Any directory within `the source directory`_ containing the file named ``boot.config`` is a boot directory.
+Any directory within `the source directory`_ containing the file named `boot.config` is a boot directory.
 
-The ``boot.config`` is the first file loaded by Pepper; it specifies the package to load and the lua script to execute on boot and various other boot-time settings. See `boot.config file reference`_ for more details.
+The `boot.config` is the first file loaded by Pepper; it specifies the package to load and the lua script to execute on boot and various other boot-time settings. See `boot.config file reference`_ for more details.
 
-There can be an arbitrary number of boot directories. You can set which boot directory Pepper should use with the switch ``--boot-dir``.
+There can be an arbitrary number of boot directories. You can set which boot directory Pepper should use with the switch `--boot-dir`.
 
-In the example below, the engine is told to load the package ``boot`` and run the Lua script ``lua/game``.
+In the example below, the engine is told to load the package `boot` and run the Lua script `lua/game`.
 
 .. code::
 
-  boot_package = "boot"      // Package to load on boot
-  boot_script  = "lua/game"  // Lua script to execute on boot
+	boot_package = "boot"      // Package to load on boot
+	boot_script  = "lua/game"  // Lua script to execute on boot
 
 
 The data directory
@@ -72,13 +72,13 @@ The result of the compilation process is stored in the data directory.
 
 .. code::
 
-  .
-  ├── data                                   <- Contains compiled data files
-  |   ├── a14e8dfa2cd117e2-9dea40fdc2245efc  <- Compiled file
-  |   ├── 72e3cc03787a11a1-0b2f08fe66e395c0  <- Another compiled file
-  |   └── ...
-  ├── temp                                   <- Temporary files from data compilers
-  └── last.log                               <- Text log from the last engine execution
+	.
+	├── data                                   <- Contains compiled data files
+	|   ├── a14e8dfa2cd117e2-9dea40fdc2245efc  <- Compiled file
+	|   ├── 72e3cc03787a11a1-0b2f08fe66e395c0  <- Another compiled file
+	|   └── ...
+	├── temp                                   <- Temporary files from data compilers
+	└── last.log                               <- Text log from the last engine execution
 
 The .bundleignore file
 ----------------------
@@ -87,17 +87,17 @@ Many programs store metadata files alongside edited files. This is often the cas
 
 When Pepper bumps into unknown files in the source directory, it quits the compilation and reports an error.
 
-The ``.bundleignore`` file specifies files that Pepper should ignore when compiling data.
+The `.bundleignore` file specifies files that Pepper should ignore when compiling data.
 
 Example:
 
 .. code::
 
-  # This is a comment.
+	# This is a comment.
 
-  # Blank lines are ignored.
-  # Everything else is simple glob pattern (*, ?).
-  *.txt
+	# Blank lines are ignored.
+	# Everything else is simple glob pattern (*, ?).
+	*.txt
 
 Units of measurement
 --------------------
@@ -110,14 +110,14 @@ boot.config file reference
 Generic configurations
 ----------------------
 
-	``boot_script = "lua/game"``
-		Lua script to launch on boot.
+`boot_script = "lua/game"`
+	Lua script to launch on boot.
 
-	``boot_package = "boot"``
-		Package to load on boot.
+`boot_package = "boot"`
+	Package to load on boot.
 
-	``window_title = "My window"``
-		Title of the main window on platforms that support it.
+`window_title = "My window"`
+	Title of the main window on platforms that support it.
 
 Platform-specific configurations
 --------------------------------
@@ -126,92 +126,92 @@ All configurations for a given *platform* are placed under a key named *platform
 
 .. code::
 
-  // Linux-only configs
-  linux = {
-      renderer = {
-          resolution = [ 1280 720 ]
-          aspect_ratio = -1
-          vsync = true
-      }
-  }
+	// Linux-only configs
+	linux = {
+	  renderer = {
+	      resolution = [ 1280 720 ]
+	      aspect_ratio = -1
+	      vsync = true
+	  }
+	}
 
 
 Renderer configurations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-	``resolution = [ 1280 720 ]``
-		Sets the width and height of the main window.
+`resolution = [ 1280 720 ]`
+	Sets the width and height of the main window.
 
-	``aspect_ratio = -1``
-		Sets the aspect ratio.
-		If the value is set to ``-1``, the aspect ratio is computed as ``width/height`` of the main window.
+`aspect_ratio = -1`
+	Sets the aspect ratio.
+	If the value is set to `-1`, the aspect ratio is computed as `width/height` of the main window.
 
-	``vsync = true``
-		Sets whether to enable the vsync.
+`vsync = true`
+	Sets whether to enable the vsync.
 
-	``fullscreen = false``
-		Sets whether to enable fullscreen.
+`fullscreen = false`
+	Sets whether to enable fullscreen.
 
 Command line reference
 ======================
 
-	``-h --help``
-		Display the help and quit.
+`-h` `--help`
+	Display the help and quit.
 
-	``-v --version``
-		Display engine version and quit.
+`-v` `--version`
+	Display engine version and quit.
 
-	``--source-dir <path>``
-		Use <path> as the source directory for resource compilation.
+`--source-dir <path>`
+	Use <path> as the source directory for resource compilation.
 
-		The <path> must be absolute.
+	The <path> must be absolute.
 
-	``--data-dir <path>``
-		Use <path> as the destination directory for compiled resources.
+`--data-dir <path>`
+	Use <path> as the destination directory for compiled resources.
 
-		The <path> must be absolute.
+	The <path> must be absolute.
 
-	``--boot-dir <path>``
-		Boot the engine with the ``boot.config`` from given <path>.
+`--boot-dir <path>`
+	Boot the engine with the `boot.config` from given <path>.
 
-		The <path> must be relative.
+	The <path> must be relative.
 
-	``--compile``
-		Do a full compile of the resources.
+`--compile`
+	Do a full compile of the resources.
 
-		When using this option you must also specify ``--platform``, ``--source-dir`` and ``--data-dir``.
+	When using this option you must also specify `--platform`, `--source-dir` and `--data-dir`.
 
-	``--platform <platform>``
-		Compile resources for the given <platform>.
-		Possible values for <platform> are:
+`--platform <platform>`
+	Compile resources for the given <platform>.
+	Possible values for <platform> are:
 
-		* ``android``
-		* ``linux``
-		* ``windows``
+	* `android`
+	* `linux`
+	* `windows`
 
-	``--continue``
-		Run the engine after resource compilation.
+`--continue`
+	Run the engine after resource compilation.
 
-	``--console-port <port>``
-		Set port of the console.
+`--console-port <port>`
+	Set port of the console.
 
-		When no port is specified, the engine uses the port 10001.
+	When no port is specified, the engine uses the port 10001.
 
-	``--wait-console``
-		Wait for a console connection before starting up.
+`--wait-console`
+	Wait for a console connection before starting up.
 
-	``--parent-window <handle>``
-		Set the parent window <handle> of the main window.
+`--parent-window <handle>`
+	Set the parent window <handle> of the main window.
 
-		This option should be used only by the tools.
+	This option should be used only by the tools.
 
-	``--server``
-		Run the engine in server mode.
+`--server`
+	Run the engine in server mode.
 
-		When using this option you must also specify ``--source-dir``.
+	When using this option you must also specify `--source-dir`.
 
-	``--run-unit-tests``
-		Run unit tests and quit. Available only on ``linux`` and ``windows``.
+`--run-unit-tests`
+	Run unit tests and quit. Available only on `linux` and `windows`.
 
 API reference
 =============
