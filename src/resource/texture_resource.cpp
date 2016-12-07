@@ -5,7 +5,6 @@
 
 #include "compile_options.h"
 #include "json_object.h"
-#include "os.h"
 #include "reader_writer.h"
 #include "resource_manager.h"
 #include "sjson.h"
@@ -56,15 +55,21 @@ namespace texture_resource_internal
 		opts.get_absolute_path(name.c_str(), texsrc);
 		opts.get_temporary_path("texture.ktx", texout);
 
-		StringStream args(ta);
-		args << " -f " << texsrc.c_str();
-		args << " -o " << texout.c_str();
-		args << (generate_mips ? " -m " : "");
-		args << (is_normalmap  ? " -n " : "");
+		const char* argv[] =
+		{
+			TEXTUREC_PATH,
+			"-f",
+			texsrc.c_str(),
+			"-o",
+			texout.c_str(),
+			(generate_mips ? "-m" : ""),
+			(is_normalmap  ? "-n" : ""),
+			NULL
+		};
 
 		StringStream output(ta);
-		int exitcode = os::execute_process(TEXTUREC_PATH, string_stream::c_str(args), output);
-		RESOURCE_COMPILER_ASSERT(exitcode == 0
+		int ec = opts.run_external_compiler(argv, output);
+		RESOURCE_COMPILER_ASSERT(ec == 0
 			, opts
 			, "Failed to compile texture:\n%s"
 			, string_stream::c_str(output)

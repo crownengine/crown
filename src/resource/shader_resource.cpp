@@ -9,7 +9,6 @@
 #include "filesystem.h"
 #include "json_object.h"
 #include "map.h"
-#include "os.h"
 #include "resource_manager.h"
 #include "shader_manager.h"
 #include "shader_resource.h"
@@ -430,22 +429,33 @@ namespace shader_resource_internal
 		return SamplerWrap::COUNT;
 	}
 
-	static int run_external_compiler(const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
+	static int run_external_compiler(CompileOptions& opts, const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
 	{
-		TempAllocator512 ta;
-		StringStream args(ta);
-		args << " -f " << infile;
-		args << " -o " << outfile;
-		args << " --varyingdef " << varying;
-		args << " --type " << type;
-		args << " --platform " << platform;
+		const char* argv[] =
+		{
+			SHADERC_PATH,
+			"-f",
+			infile,
+			"-o",
+			outfile,
+			"--varyingdef",
+			varying,
+			"--type",
+			type,
+			"--platform",
+			platform,
+			NULL,
+			NULL,
+			NULL,
+		};
+
 		if (strcmp("windows", platform) == 0)
 		{
-			args << " --profile ";
-			args << ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
+			argv[11] = "--profile";
+			argv[12] = ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
 		}
 
-		return os::execute_process(SHADERC_PATH, string_stream::c_str(args), output);
+		return opts.run_external_compiler(argv, output);
 	}
 
 	struct RenderState
@@ -1176,14 +1186,14 @@ namespace shader_resource_internal
 			TempAllocator4096 ta;
 			StringStream output(ta);
 
-			int exitcode = run_external_compiler(_vs_source_path.c_str()
+			int ec = run_external_compiler(_opts, _vs_source_path.c_str()
 				, _vs_compiled_path.c_str()
 				, _varying_path.c_str()
 				, "vertex"
 				, _opts.platform()
 				, output
 				);
-			if (exitcode)
+			if (ec)
 			{
 				delete_temp_files();
 				RESOURCE_COMPILER_ASSERT(false
@@ -1194,14 +1204,14 @@ namespace shader_resource_internal
 			}
 
 			array::clear(output);
-			exitcode = run_external_compiler(_fs_source_path.c_str()
+			ec = run_external_compiler(_opts, _fs_source_path.c_str()
 				, _fs_compiled_path.c_str()
 				, _varying_path.c_str()
 				, "fragment"
 				, _opts.platform()
 				, output
 				);
-			if (exitcode)
+			if (ec)
 			{
 				delete_temp_files();
 				RESOURCE_COMPILER_ASSERT(false

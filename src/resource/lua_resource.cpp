@@ -8,7 +8,6 @@
 #include "config.h"
 #include "dynamic_string.h"
 #include "lua_resource.h"
-#include "os.h"
 #include "string_stream.h"
 #include "temp_allocator.h"
 
@@ -40,14 +39,17 @@ namespace lua_resource_internal
 		opts.get_absolute_path(path, luasrc);
 		opts.get_temporary_path("lua.bin", luabin);
 
-		StringStream args(ta);
-		args << " " << LUAJIT_FLAGS;
-		args << " " << luasrc.c_str();
-		args << " " << luabin.c_str();
-
 		StringStream output(ta);
-		int exitcode = os::execute_process(LUAJIT_EXE, string_stream::c_str(args), output);
-		RESOURCE_COMPILER_ASSERT(exitcode == 0
+		const char* argv[] =
+		{
+			LUAJIT_EXE,
+			LUAJIT_FLAGS,
+			luasrc.c_str(),
+			luabin.c_str(),
+			NULL
+		};
+		int ec = opts.run_external_compiler(argv, output);
+		RESOURCE_COMPILER_ASSERT(ec == 0
 			, opts
 			, "Failed to compile lua:\n%s"
 			, string_stream::c_str(output)
