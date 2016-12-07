@@ -73,12 +73,12 @@ The result of the compilation process is stored in the data directory.
 .. code::
 
 	.
-	├── data                                   <- Contains compiled data files
-	|   ├── a14e8dfa2cd117e2-9dea40fdc2245efc  <- Compiled file
-	|   ├── 72e3cc03787a11a1-0b2f08fe66e395c0  <- Another compiled file
+	├── data                <- Contains compiled data files
+	|   ├── a14e8dfa2cd...  <- Compiled file
+	|   ├── 72e3cc03787...  <- Another compiled file
 	|   └── ...
-	├── temp                                   <- Temporary files from data compilers
-	└── last.log                               <- Text log from the last engine execution
+	├── temp                <- Temporary files from data compilers
+	└── last.log            <- Text log from the last engine execution
 
 The .bundleignore file
 ----------------------
