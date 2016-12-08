@@ -27,6 +27,15 @@ namespace Crown
 			this.z = (double)arr[2];
 		}
 
+		public ArrayList<Value?> to_array()
+		{
+			ArrayList<Value?> arr = new	ArrayList<Value?>();
+			arr.add(this.x);
+			arr.add(this.y);
+			arr.add(this.z);
+			return arr;
+		}
+
 		public string to_string()
 		{
 			return "%f, %f, %f".printf(x, y, z);

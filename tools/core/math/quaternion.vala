@@ -64,6 +64,16 @@ namespace Crown
 			this.w = nw;
 		}
 
+		public ArrayList<Value?> to_array()
+		{
+			ArrayList<Value?> arr = new	ArrayList<Value?>();
+			arr.add(this.x);
+			arr.add(this.y);
+			arr.add(this.z);
+			arr.add(this.w);
+			return arr;
+		}
+
 		public Vector3 to_euler()
 		{
 			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
