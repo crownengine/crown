@@ -5,18 +5,12 @@
 
 #pragma once
 
-#include "array.h"
-#include "data_compiler.h"
-#include "dynamic_string.h"
-#include "file.h"
-#include "filesystem.h"
-#include "guid.h"
-#include "log.h"
-#include "path.h"
-#include "string_stream.h"
-#include "temp_allocator.h"
-#include "vector.h"
+#include "compiler_types.h"
+#include "container_types.h"
+#include "filesystem_types.h"
+#include "string_types.h"
 #include <setjmp.h>
+#include <stdarg.h>
 
 #define DATA_COMPILER_ASSERT(condition, opts, msg, ...) \
 	do                                                  \
@@ -53,130 +47,31 @@ class CompileOptions
 
 public:
 
-	CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform, jmp_buf* buf)
-		: _data_compiler(dc)
-		, _bundle_fs(bundle_fs)
-		, _output(output)
-		, _platform(platform)
-		, _jmpbuf(buf)
-		, _dependencies(default_allocator())
-	{
-	}
+	CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform, jmp_buf* buf);
 
-	void error(const char* msg, va_list args)
-	{
-		logev(msg, args);
-		longjmp(*_jmpbuf, 1);
-	}
+	void error(const char* msg, va_list args);
 
-	void error(const char* msg, ...)
-	{
-		va_list args;
-		va_start(args, msg);
-		error(msg, args);
-		va_end(args);
-	}
+	void error(const char* msg, ...);
 
-	bool file_exists(const char* path)
-	{
-		TempAllocator256 ta;
-		DynamicString source_dir(ta);
-		FilesystemDisk fs(ta);
+	bool file_exists(const char* path);
 
-		_data_compiler.source_dir(path, source_dir);
-		fs.set_prefix(source_dir.c_str());
+	bool resource_exists(const char* type, const char* name);
 
-		return fs.exists(path);
-	}
+	Buffer read_temporary(const char* path);
 
-	bool resource_exists(const char* type, const char* name)
-	{
-		TempAllocator1024 ta;
-		DynamicString path(ta);
-		path += name;
-		path += ".";
-		path += type;
-		return file_exists(path.c_str());
-	}
+	void write_temporary(const char* path, const char* data, u32 size);
 
-	Buffer read_temporary(const char* path)
-	{
-		File* file = _bundle_fs.open(path, FileOpenMode::READ);
-		u32 size = file->size();
-		Buffer buf(default_allocator());
-		array::resize(buf, size);
-		file->read(array::begin(buf), size);
-		_bundle_fs.close(*file);
-		return buf;
-	}
+	void write_temporary(const char* path, const Buffer& data);
 
-	void write_temporary(const char* path, const char* data, u32 size)
-	{
-		File* file = _bundle_fs.open(path, FileOpenMode::WRITE);
-		file->write(data, size);
-		_bundle_fs.close(*file);
-	}
+	Buffer read(const char* path);
 
-	void write_temporary(const char* path, const Buffer& data)
-	{
-		write_temporary(path, array::begin(data), array::size(data));
-	}
+	void get_absolute_path(const char* path, DynamicString& abs);
 
-	Buffer read(const char* path)
-	{
-		add_dependency(path);
+	void get_temporary_path(const char* suffix, DynamicString& abs);
 
-		TempAllocator256 ta;
-		DynamicString source_dir(ta);
-		FilesystemDisk source_fs(ta);
+	void delete_file(const char* path);
 
-		_data_compiler.source_dir(path, source_dir);
-		source_fs.set_prefix(source_dir.c_str());
-
-		File* file = source_fs.open(path, FileOpenMode::READ);
-		u32 size = file->size();
-		Buffer buf(default_allocator());
-		array::resize(buf, size);
-		file->read(array::begin(buf), size);
-		source_fs.close(*file);
-		return buf;
-	}
-
-	void get_absolute_path(const char* path, DynamicString& abs)
-	{
-		TempAllocator256 ta;
-		DynamicString source_dir(ta);
-		FilesystemDisk source_fs(ta);
-
-		_data_compiler.source_dir(path, source_dir);
-		source_fs.set_prefix(source_dir.c_str());
-
-		source_fs.get_absolute_path(path, abs);
-	}
-
-	void get_temporary_path(const char* suffix, DynamicString& abs)
-	{
-		_bundle_fs.get_absolute_path(CROWN_TEMP_DIRECTORY, abs);
-
-		TempAllocator64 ta;
-		DynamicString prefix(ta);
-		guid::to_string(guid::new_guid(), prefix);
-
-		abs += '/';
-		abs += prefix;
-		abs += '.';
-		abs += suffix;
-	}
-
-	void delete_file(const char* path)
-	{
-		_bundle_fs.delete_file(path);
-	}
-
-	void write(const void* data, u32 size)
-	{
-		array::push(_output, (const char*)data, size);
-	}
+	void write(const void* data, u32 size);
 
 	template <typename T>
 	void write(const T& data)
@@ -184,28 +79,13 @@ public:
 		write(&data, sizeof(data));
 	}
 
-	void write(const Buffer& data)
-	{
-		array::push(_output, array::begin(data), array::size(data));
-	}
+	void write(const Buffer& data);
 
-	const char* platform() const
-	{
-		return _platform;
-	}
+	const char* platform() const;
 
-	const Vector<DynamicString>& dependencies() const
-	{
-		return _dependencies;
-	}
+	const Vector<DynamicString>& dependencies() const;
 
-	void add_dependency(const char* path)
-	{
-		TempAllocator256 ta;
-		DynamicString dep(ta);
-		dep += path;
-		vector::push_back(_dependencies, dep);
-	}
+	void add_dependency(const char* path);
 
 	int run_external_compiler(const char* const* argv, StringStream& output);
 };

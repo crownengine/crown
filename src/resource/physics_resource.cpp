@@ -6,6 +6,7 @@
 #include "aabb.h"
 #include "compile_options.h"
 #include "dynamic_string.h"
+#include "file.h"
 #include "filesystem.h"
 #include "json_object.h"
 #include "map.h"
@@ -14,6 +15,7 @@
 #include "sjson.h"
 #include "sphere.h"
 #include "string_utils.h"
+#include "temp_allocator.h"
 #include "world_types.h"
 
 namespace crown

@@ -4,9 +4,11 @@
  */
 
 #include "allocator.h"
+#include "array.h"
 #include "file.h"
 #include "filesystem.h"
 #include "resource_types.h"
+#include "sort_map.h"
 #include "unit_compiler.h"
 
 namespace crown

@@ -8,6 +8,7 @@
 #include "compile_options.h"
 #include "container_types.h"
 #include "json_types.h"
+#include "string_id.h"
 
 namespace crown
 {

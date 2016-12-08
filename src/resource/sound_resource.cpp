@@ -6,9 +6,11 @@
 #include "allocator.h"
 #include "compile_options.h"
 #include "dynamic_string.h"
+#include "file.h"
 #include "json_object.h"
 #include "sjson.h"
 #include "sound_resource.h"
+#include "temp_allocator.h"
 
 namespace crown
 {

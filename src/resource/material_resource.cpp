@@ -15,6 +15,7 @@
 #include "resource_manager.h"
 #include "sjson.h"
 #include "string_utils.h"
+#include "temp_allocator.h"
 #include "vector.h"
 
 namespace crown

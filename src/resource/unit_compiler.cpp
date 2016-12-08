@@ -5,6 +5,7 @@
 
 #include "array.h"
 #include "compile_options.h"
+#include "dynamic_string.h"
 #include "json_object.h"
 #include "map.h"
 #include "math_utils.h"

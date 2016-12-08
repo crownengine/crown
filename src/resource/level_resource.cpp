@@ -5,12 +5,14 @@
 
 #include "array.h"
 #include "compile_options.h"
+#include "file.h"
 #include "filesystem.h"
 #include "json_object.h"
 #include "level_resource.h"
 #include "map.h"
 #include "memory.h"
 #include "sjson.h"
+#include "temp_allocator.h"
 #include "unit_compiler.h"
 
 namespace crown

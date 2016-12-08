@@ -7,6 +7,7 @@
 #include "compile_options.h"
 #include "config.h"
 #include "dynamic_string.h"
+#include "file.h"
 #include "lua_resource.h"
 #include "string_stream.h"
 #include "temp_allocator.h"

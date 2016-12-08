@@ -4,13 +4,16 @@
  */
 
 #include "allocator.h"
+#include "array.h"
 #include "compile_options.h"
+#include "file.h"
 #include "filesystem.h"
 #include "font_resource.h"
 #include "json_object.h"
 #include "resource_types.h"
 #include "sjson.h"
 #include "string_utils.h"
+#include "temp_allocator.h"
 #include <algorithm>
 
 namespace crown

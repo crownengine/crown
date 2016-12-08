@@ -12,6 +12,7 @@
 #include "sjson.h"
 #include "sprite_resource.h"
 #include "string_utils.h"
+#include "temp_allocator.h"
 #include "vector2.h"
 #include "vector4.h"
 

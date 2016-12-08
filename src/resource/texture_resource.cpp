@@ -4,11 +4,13 @@
  */
 
 #include "compile_options.h"
+#include "dynamic_string.h"
 #include "json_object.h"
 #include "reader_writer.h"
 #include "resource_manager.h"
 #include "sjson.h"
 #include "string_stream.h"
+#include "temp_allocator.h"
 #include "texture_resource.h"
 
 #if CROWN_DEVELOPMENT
