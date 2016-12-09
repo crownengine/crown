@@ -19,7 +19,7 @@
 	#include <sys/wait.h> // wait
 	#include <time.h>     // clock_gettime
 	#include <unistd.h>   // access, unlink, rmdir, getcwd, fork, execv
- 	#include <stdlib.h>   // exit
+ 	#include <stdlib.h>   // getenv
 #elif CROWN_PLATFORM_WINDOWS
 	#include <io.h>
 	#include <stdio.h>
