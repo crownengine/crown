@@ -479,6 +479,7 @@ namespace Crown
 				;
 		}
 
+#if 0
 		private static string value_to_string(Value? value)
 		{
 			if (value == null)
@@ -500,6 +501,7 @@ namespace Crown
 
 			return "<invalid>";
 		}
+#endif // CROWN_DEBUG
 
 		private void decode(Hashtable json)
 		{
