@@ -5,6 +5,8 @@
 
 #include "color4.h"
 #include "debug_line.h"
+#include "frustum.h"
+#include "intersection.h"
 #include "math_utils.h"
 #include "matrix4x4.h"
 #include "mesh_resource.h"
@@ -113,6 +115,35 @@ void DebugLine::add_sphere(const Vector3& center, const f32 radius, const Color4
 	add_circle(center, radius, VECTOR3_XAXIS, color, segments);
 	add_circle(center, radius, VECTOR3_YAXIS, color, segments);
 	add_circle(center, radius, VECTOR3_ZAXIS, color, segments);
+}
+
+void DebugLine::add_frustum(const Matrix4x4& mvp, const Color4& color)
+{
+	Frustum f;
+	frustum::from_matrix(f, mvp);
+
+	Vector3 pt[8];
+	plane_3_intersection(f.plane_near, f.plane_left,   f.plane_top,    pt[0]);
+	plane_3_intersection(f.plane_near, f.plane_top,    f.plane_right,  pt[1]);
+	plane_3_intersection(f.plane_near, f.plane_right,  f.plane_bottom, pt[2]);
+	plane_3_intersection(f.plane_near, f.plane_bottom, f.plane_left,   pt[3]);
+	plane_3_intersection(f.plane_far,  f.plane_left,   f.plane_top,    pt[4]);
+	plane_3_intersection(f.plane_far,  f.plane_top,    f.plane_right,  pt[5]);
+	plane_3_intersection(f.plane_far,  f.plane_right,  f.plane_bottom, pt[6]);
+	plane_3_intersection(f.plane_far,  f.plane_bottom, f.plane_left,   pt[7]);
+
+	add_line(pt[0], pt[1], color);
+	add_line(pt[1], pt[2], color);
+	add_line(pt[2], pt[3], color);
+	add_line(pt[3], pt[0], color);
+	add_line(pt[4], pt[5], color);
+	add_line(pt[5], pt[6], color);
+	add_line(pt[6], pt[7], color);
+	add_line(pt[7], pt[4], color);
+	add_line(pt[0], pt[4], color);
+	add_line(pt[1], pt[5], color);
+	add_line(pt[2], pt[6], color);
+	add_line(pt[3], pt[7], color);
 }
 
 void DebugLine::add_obb(const Matrix4x4& tm, const Vector3& half_extents, const Color4& color)
