@@ -64,10 +64,10 @@ namespace frustum
 		f.plane_top.n.z    = m.z.w - m.z.y;
 		f.plane_top.d      = m.t.w - m.t.y;
 
-		f.plane_near.n.x   = m.x.w + m.x.z;
-		f.plane_near.n.y   = m.y.w + m.y.z;
-		f.plane_near.n.z   = m.z.w + m.z.z;
-		f.plane_near.d     = m.t.w + m.t.z;
+		f.plane_near.n.x   = m.x.z;
+		f.plane_near.n.y   = m.y.z;
+		f.plane_near.n.z   = m.z.z;
+		f.plane_near.d     = m.t.z;
 
 		f.plane_far.n.x    = m.x.w - m.x.z;
 		f.plane_far.n.y    = m.y.w - m.y.z;
