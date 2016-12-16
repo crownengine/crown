@@ -926,6 +926,9 @@ DebugLine
 	Adds an orientd bounding box. *tm* describes the position and orientation of
 	the box. *half_extents* describes the size of the box along the axis.
 
+**add_frustum** (debug_line, mvp, color)
+	Adds a frustum defined by *mvp*.
+
 **add_unit** (debug_line, tm, name, color)
 	Adds the meshes from the unit *name*.
 
