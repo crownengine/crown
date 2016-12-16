@@ -31,8 +31,10 @@
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="margin_bottom">18</property>
             <property name="border_width">12</property>
             <property name="row_spacing">6</property>
+            <property name="column_spacing">12</property>
             <child>
               <object class="GtkLabel">
                 <property name="visible">True</property>
@@ -69,7 +71,6 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
                 <property name="label" translatable="yes">Grid</property>
                 <property name="xalign">1</property>
               </object>
@@ -99,7 +100,6 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
                 <property name="label" translatable="yes">Grid (Disabled)</property>
                 <property name="xalign">1</property>
               </object>
@@ -144,7 +144,6 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
                 <property name="label" translatable="yes">X Axis</property>
                 <property name="xalign">1</property>
               </object>
@@ -157,7 +156,6 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
                 <property name="label" translatable="yes">Y Axis</property>
                 <property name="xalign">1</property>
               </object>
@@ -170,7 +168,6 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
                 <property name="label" translatable="yes">Z Axis</property>
                 <property name="xalign">1</property>
               </object>
@@ -217,7 +214,6 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_right">12</property>
                 <property name="label" translatable="yes">Selected</property>
                 <property name="xalign">1</property>
               </object>
@@ -256,6 +252,9 @@
           </packing>
         </child>
       </object>
+    </child>
+    <child>
+      <placeholder/>
     </child>
   </template>
 </interface>
