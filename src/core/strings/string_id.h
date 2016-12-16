@@ -77,6 +77,24 @@ inline bool operator<(const StringId64& a, const StringId64& b)
 {
 	return a._id < b._id;
 }
+
+template <>
+struct hash<StringId32>
+{
+	u32 operator()(const StringId32& id) const
+	{
+		return id._id;
+	}
+};
+
+template <>
+struct hash<StringId64>
+{
+	u32 operator()(const StringId64& id) const
+	{
+		return (u32)id._id;
+	}
+};
 /// @}
 
 } // namespace crown
