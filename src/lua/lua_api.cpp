@@ -2749,6 +2749,15 @@ static int debug_line_add_obb(lua_State* L)
 	return 0;
 }
 
+static int debug_line_add_frustum(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_debug_line(1)->add_frustum(stack.get_matrix4x4(2)
+		, stack.get_color4(3)
+		);
+	return 0;
+}
+
 static int debug_line_add_unit(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3395,17 +3404,18 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Profiler", "leave_scope", profiler_leave_scope);
 	env.add_module_function("Profiler", "record",      profiler_record);
 
-	env.add_module_function("DebugLine", "add_line",   debug_line_add_line);
-	env.add_module_function("DebugLine", "add_axes",   debug_line_add_axes);
-	env.add_module_function("DebugLine", "add_circle", debug_line_add_circle);
-	env.add_module_function("DebugLine", "add_cone",   debug_line_add_cone);
-	env.add_module_function("DebugLine", "add_sphere", debug_line_add_sphere);
-	env.add_module_function("DebugLine", "add_obb",    debug_line_add_obb);
-	env.add_module_function("DebugLine", "add_unit",   debug_line_add_unit);
-	env.add_module_function("DebugLine", "reset",      debug_line_reset);
-	env.add_module_function("DebugLine", "submit",     debug_line_submit);
-	env.add_module_function("DebugLine", "__index",    "DebugLine");
-	env.add_module_function("DebugLine", "__tostring", debug_line_tostring);
+	env.add_module_function("DebugLine", "add_line",    debug_line_add_line);
+	env.add_module_function("DebugLine", "add_axes",    debug_line_add_axes);
+	env.add_module_function("DebugLine", "add_circle",  debug_line_add_circle);
+	env.add_module_function("DebugLine", "add_cone",    debug_line_add_cone);
+	env.add_module_function("DebugLine", "add_sphere",  debug_line_add_sphere);
+	env.add_module_function("DebugLine", "add_obb",     debug_line_add_obb);
+	env.add_module_function("DebugLine", "add_frustum", debug_line_add_frustum);
+	env.add_module_function("DebugLine", "add_unit",    debug_line_add_unit);
+	env.add_module_function("DebugLine", "reset",       debug_line_reset);
+	env.add_module_function("DebugLine", "submit",      debug_line_submit);
+	env.add_module_function("DebugLine", "__index",     "DebugLine");
+	env.add_module_function("DebugLine", "__tostring",  debug_line_tostring);
 
 	env.add_module_function("ResourcePackage", "load",       resource_package_load);
 	env.add_module_function("ResourcePackage", "unload",     resource_package_unload);
