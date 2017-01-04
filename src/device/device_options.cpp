@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
@@ -15,7 +15,7 @@ static void help(const char* msg = NULL)
 {
 	logi(
 		"The Flexible Game Engine\n"
-		"Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.\n"
+		"Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.\n"
 		"License: https://github.com/taylor001/crown/blob/master/LICENSE\n"
 		"\n"
 		"Complete documentation available at https://taylor001.github.io/crown/manual.html\n"

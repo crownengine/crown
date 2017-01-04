@@ -7,8 +7,8 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
 ##Documentation
 
-  * [Manual](http://taylor001.github.io/crown/manual.html)  
-  * [Lua API](http://taylor001.github.io/crown/lua_api.html)  
+  * [Manual](http://taylor001.github.io/crown/manual.html)
+  * [Lua API](http://taylor001.github.io/crown/lua_api.html)
   * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
 
 ##Download (Stable)
@@ -47,7 +47,7 @@ Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 
 	$ export ANDROID_NDK_ROOT=<path/to/android_ndk>
 	$ export ANDROID_NDK_ARM=<path/to/android_ndk_arm>
-	
+
 ### Linux (Ubuntu >= 16.04)
 
     $ sudo add-apt-repository ppa:vala-team
@@ -56,15 +56,15 @@ Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 
 ### Windows
 
-GnuWin32 make (http://gnuwin32.sourceforge.net/packages/make.htm)  
-GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)  
-GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)  
+GnuWin32 make (http://gnuwin32.sourceforge.net/packages/make.htm)
+GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)
+GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)
 GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
 
 ### Building engine
 
 	$ make engine-<configuration>
-	
+
 Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
 
 	linux-debug64, linux-development64, linux-release64, android-arm-debug, windows-debug32 etc.
@@ -76,7 +76,7 @@ Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
 Contact
 -------
 
-Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))  
+Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
 Project page: https://github.com/taylor001/crown
 
 Contributors
@@ -84,15 +84,15 @@ Contributors
 
 In chronological order.
 
-Daniele Bartolini ([@taylor001](https://github.com/taylor001))  
-Simone Boscaratto ([@Xed89](https://github.com/Xed89))  
-Michele Rossi ([@mikymod](https://github.com/mikymod))  
+Daniele Bartolini ([@taylor001](https://github.com/taylor001))
+Simone Boscaratto ([@Xed89](https://github.com/Xed89))
+Michele Rossi ([@mikymod](https://github.com/mikymod))
 Michela Iacchelli - Pepper logo.
 
 License (Engine)
 ----------------
 
-	Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
+	Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.
 
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
@@ -118,7 +118,7 @@ License (Engine)
 License (Tools)
 ---------------
 
-	Copyright (c) 2012-2016 Daniele Bartolini and individual contributors.
+	Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
