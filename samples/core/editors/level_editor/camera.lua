@@ -19,15 +19,13 @@ end
 
 function FPSCamera:position()
 	local sg = World.scene_graph(self._world)
-	local camera_transform = SceneGraph.instances(sg, self._unit)
-	local camera_position = SceneGraph.world_position(sg, camera_transform)
+	local camera_position = SceneGraph.world_position(sg, self._unit)
 	return camera_position
 end
 
 function FPSCamera:world_pose()
 	local sg = World.scene_graph(self._world)
-	local camera_transform = SceneGraph.instances(sg, self._unit)
-	return SceneGraph.world_pose(sg, camera_transform)
+	return SceneGraph.world_pose(sg, self._unit)
 end
 
 function FPSCamera:set_translation_speed(speed)
@@ -61,8 +59,7 @@ function FPSCamera:update(dx, dy, keyboard)
 	local sg = World.scene_graph(self._world)
 
 	local camera = self:camera()
-	local camera_transform = SceneGraph.instances(sg, self._unit)
-	local camera_local_pose = SceneGraph.local_pose(sg, camera_transform)
+	local camera_local_pose = SceneGraph.local_pose(sg, self._unit)
 	local camera_right_vector = Matrix4x4.x(camera_local_pose)
 	local camera_position = Matrix4x4.translation(camera_local_pose)
 	local camera_rotation = Matrix4x4.rotation(camera_local_pose)
@@ -79,7 +76,7 @@ function FPSCamera:update(dx, dy, keyboard)
 	Matrix4x4.set_translation(new_rotation, camera_position)
 
 	-- Fixme
-	SceneGraph.set_local_pose(sg, camera_transform, new_rotation)
+	SceneGraph.set_local_pose(sg, self._unit, new_rotation)
 
 	-- Translation
 	local speed = self._translation_speed;
@@ -88,5 +85,5 @@ function FPSCamera:update(dx, dy, keyboard)
 	if keyboard.akey then camera_position = camera_position + camera_right_vector * -1 * speed end
 	if keyboard.dkey then camera_position = camera_position + camera_right_vector * speed end
 
-	SceneGraph.set_local_position(sg, camera_transform, camera_position)
+	SceneGraph.set_local_position(sg, self._unit, camera_position)
 end

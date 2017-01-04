@@ -527,52 +527,53 @@ SceneGraph
 ==========
 
 **create** (sg, unit, position, rotation, scale) : Id
-	Creates the transform for the *unit*.
+	Creates the transform for the *unit* and returns its ID.
 
-**destroy** (sg, id)
-	Destroys the transform *id*.
+**destroy** (sg, unit, id)
+	Destroys the transform for the *unit*. The transform *id* is ignored.
 
 **instances** (sg, unit) : Id
 	Returns the IDs for all the transforms of the *unit*.
 
-**local_position** (sg, id) : Vector3
-	Returns the local position of the transform *id*.
+**local_position** (sg, unit) : Vector3
+	Returns the local position of the *unit*.
 
-**local_rotation** (sg, id) : Quaternion
-	Returns the local rotation of the transform *id*.
+**local_rotation** (sg, unit) : Quaternion
+	Returns the local rotation of the *unit*.
 
-**local_scale** (sg, id) : Vector3
-	Returns the local scale of the transform *id*.
+**local_scale** (sg, unit) : Vector3
+	Returns the local scale of the *unit*.
 
-**local_pose** (sg, id) : Matrix4x4
-	Returns the local pose of the transform *id*.
+**local_pose** (sg, unit) : Matrix4x4
+	Returns the local pose of the *unit*.
 
-**world_position** (sg, id) : Vector3
-	Returns the world position of the transform *id*.
+**world_position** (sg, unit) : Vector3
+	Returns the world position of the *unit*.
 
-**world_rotation** (sg, id) : Quaternion
-	Returns the world rotation of the transform *id*.
+**world_rotation** (sg, unit) : Quaternion
+	Returns the world rotation of the *unit*.
 
-**world_pose** (sg, id) : Matrix4x4
-	Returns the world pose of the transform *id*.
+**world_pose** (sg, unit) : Matrix4x4
+	Returns the world pose of the *unit*.
 
-**set_local_position** (sg, id, position)
-	Sets the local *position* of the transform *id*.
+**set_local_position** (sg, unit, position)
+	Sets the local *position* of the *unit*.
 
-**set_local_rotation** (sg, id, rotation)
-	Sets the local *rotation* of the transform *id*.
+**set_local_rotation** (sg, unit, rotation)
+	Sets the local *rotation* of the *unit*.
 
-**set_local_scale** (sg, id, scale)
-	Sets the local *scale* of the transform *id*.
+**set_local_scale** (sg, unit, scale)
+	Sets the local *scale* of the *unit*.
 
-**set_local_pose** (sg, id, pose)
-	Sets the local *pose* of the transform *id*.
+**set_local_pose** (sg, unit, pose)
+	Sets the local *pose* of the *unit*.
 
 **link** (sg, child, parent)
-	Links *child* transform to *parent* transform.
+	Links the unit *child* to the unit *parent*.
 
-**unlink** (sg, id)
-	Unlinks *id* transform from its parent, if any.
+**unlink** (sg, unit)
+	Unlinks the *unit* from its parent if it has any.
+	After unlinking, the @a unit's local pose is set to its previous world pose.
 
 Material
 ========

@@ -74,56 +74,59 @@ struct SceneGraph
 	/// Creates a new transform instance for unit @a id.
 	TransformInstance create(UnitId id, const Vector3& pos, const Quaternion& rot, const Vector3& scale);
 
-	/// Destroys the transform @a i.
-	void destroy(TransformInstance i);
+	/// Destroys the transform for the @a unit. The transform is ignored.
+	void destroy(UnitId unit, TransformInstance id);
 
 	/// Returns the transform instance of unit @a id.
 	TransformInstance instances(UnitId id);
 
-	/// Sets the local position, rotation, scale or pose of the given @a node.
-	void set_local_position(TransformInstance i, const Vector3& pos);
+	/// Returns whether the @a unit has a transform.
+	bool has(UnitId unit);
+
+	/// Sets the local position, rotation, scale or pose of the given @a unit.
+	void set_local_position(UnitId unit, const Vector3& pos);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_rotation(TransformInstance i, const Quaternion& rot);
+	void set_local_rotation(UnitId unit, const Quaternion& rot);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_scale(TransformInstance i, const Vector3& scale);
+	void set_local_scale(UnitId unit, const Vector3& scale);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_pose(TransformInstance i, const Matrix4x4& pose);
+	void set_local_pose(UnitId unit, const Matrix4x4& pose);
 
-	/// Returns the local position, rotation or pose of the given @a node.
-	Vector3 local_position(TransformInstance i) const;
-
-	/// @copydoc SceneGraph::local_position()
-	Quaternion local_rotation(TransformInstance i) const;
+	/// Returns the local position, rotation or pose of the given @a unit.
+	Vector3 local_position(UnitId unit);
 
 	/// @copydoc SceneGraph::local_position()
-	Vector3 local_scale(TransformInstance i) const;
+	Quaternion local_rotation(UnitId unit);
 
 	/// @copydoc SceneGraph::local_position()
-	Matrix4x4 local_pose(TransformInstance i) const;
+	Vector3 local_scale(UnitId unit);
 
-	/// Returns the world position, rotation or pose of the given @a node.
-	Vector3 world_position(TransformInstance i) const;
+	/// @copydoc SceneGraph::local_position()
+	Matrix4x4 local_pose(UnitId unit);
+
+	/// Returns the world position, rotation or pose of the given @a unit.
+	Vector3 world_position(UnitId unit);
 
 	/// @copydoc SceneGraph::world_position()
-	Quaternion world_rotation(TransformInstance i) const;
+	Quaternion world_rotation(UnitId unit);
 
 	/// @copydoc SceneGraph::world_position()
-	Matrix4x4 world_pose(TransformInstance i) const;
+	Matrix4x4 world_pose(UnitId unit);
 
 	void set_world_pose(TransformInstance i, const Matrix4x4& pose);
 
 	/// Returns the number of nodes in the graph.
 	u32 num_nodes() const;
 
-	/// Links the @a child node to the @a parent node.
-	void link(TransformInstance child, TransformInstance parent);
+	/// Links the unit @a child to the unit @a parent.
+	void link(UnitId child, UnitId parent);
 
-	/// Unlinks the @a child node from its parent if it has any.
-	/// After unlinking, the @child local pose is set to its previous world pose.
-	void unlink(TransformInstance child);
+	/// Unlinks the @a unit from its parent if it has any.
+	/// After unlinking, the @a unit's local pose is set to its previous world pose.
+	void unlink(UnitId unit);
 
 	void clear_changed();
 	void get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses);

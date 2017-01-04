@@ -1617,7 +1617,10 @@ static int world_tostring(lua_State* L)
 static int scene_graph_create(lua_State* L)
 {
 	LuaStack stack(L);
-	TransformInstance ti = stack.get_scene_graph(1)->create(stack.get_unit(2)
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(!sg->has(unit), stack, "Unit already has transform");
+	TransformInstance ti = sg->create(unit
 		, stack.get_vector3(3)
 		, stack.get_quaternion(4)
 		, stack.get_vector3(5)
@@ -1629,110 +1632,155 @@ static int scene_graph_create(lua_State* L)
 static int scene_graph_destroy(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_scene_graph(1)->destroy(stack.get_transform(2));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	sg->destroy(unit, stack.get_transform(3));
 	return 0;
 }
 
 static int scene_graph_instances(lua_State* L)
 {
 	LuaStack stack(L);
-	TransformInstance inst = stack.get_scene_graph(1)->instances(stack.get_unit(2));
+	TransformInstance ti = stack.get_scene_graph(1)->instances(stack.get_unit(2));
 
-	if (inst.i == UINT32_MAX)
-		return 0;
+	if (ti.i == UINT32_MAX)
+		stack.push_nil();
+	else
+		stack.push_transform(ti);
 
-	stack.push_transform(inst);
 	return 1;
 }
 
 static int scene_graph_local_position(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(stack.get_scene_graph(1)->local_position(stack.get_transform(2)));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	stack.push_vector3(sg->local_position(unit));
 	return 1;
 }
 
 static int scene_graph_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(stack.get_scene_graph(1)->local_rotation(stack.get_transform(2)));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	stack.push_quaternion(sg->local_rotation(unit));
 	return 1;
 }
 
 static int scene_graph_local_scale(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(stack.get_scene_graph(1)->local_scale(stack.get_transform(2)));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	stack.push_vector3(sg->local_scale(unit));
 	return 1;
 }
 
 static int scene_graph_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(stack.get_scene_graph(1)->local_pose(stack.get_transform(2)));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	stack.push_matrix4x4(sg->local_pose(unit));
 	return 1;
 }
 
 static int scene_graph_world_position(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(stack.get_scene_graph(1)->world_position(stack.get_transform(2)));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	stack.push_vector3(sg->world_position(unit));
 	return 1;
 }
 
 static int scene_graph_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_quaternion(stack.get_scene_graph(1)->world_rotation(stack.get_transform(2)));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	stack.push_quaternion(sg->world_rotation(unit));
 	return 1;
 }
 
 static int scene_graph_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_matrix4x4(stack.get_scene_graph(1)->world_pose(stack.get_transform(2)));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	stack.push_matrix4x4(sg->world_pose(unit));
 	return 1;
 }
 
 static int scene_graph_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_scene_graph(1)->set_local_position(stack.get_transform(2), stack.get_vector3(3));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	sg->set_local_position(unit, stack.get_vector3(3));
 	return 0;
 }
 
 static int scene_graph_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_scene_graph(1)->set_local_rotation(stack.get_transform(2), stack.get_quaternion(3));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	sg->set_local_rotation(unit, stack.get_quaternion(3));
 	return 0;
 }
 
 static int scene_graph_set_local_scale(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_scene_graph(1)->set_local_scale(stack.get_transform(2), stack.get_vector3(3));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	sg->set_local_scale(unit, stack.get_vector3(3));
 	return 0;
 }
 
 static int scene_graph_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_scene_graph(1)->set_local_pose(stack.get_transform(2), stack.get_matrix4x4(3));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	sg->set_local_pose(unit, stack.get_matrix4x4(3));
 	return 0;
 }
 
 static int scene_graph_link(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_scene_graph(1)->link(stack.get_transform(2), stack.get_transform(3));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId child = stack.get_unit(2);
+	UnitId parent = stack.get_unit(3);
+	LUA_ASSERT(sg->has(child), stack, "Unit child does not have transform");
+	LUA_ASSERT(sg->has(parent), stack, "Unit parent does not have transform");
+	sg->link(child, parent);
 	return 0;
 }
 
 static int scene_graph_unlink(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_scene_graph(1)->unlink(stack.get_transform(2));
+	SceneGraph* sg = stack.get_scene_graph(1);
+	UnitId unit = stack.get_unit(2);
+	LUA_ASSERT(sg->has(unit), stack, "Unit does not have transform");
+	sg->unlink(unit);
 	return 0;
 }
 
