@@ -55,8 +55,6 @@ namespace sprite_resource_internal
 		const u32 num_frames = array::size(frames);
 
 		Array<f32> vertices(default_allocator());
-		Array<u16> indices(default_allocator());
-		u32 num_idx = 0;
 		for (u32 i = 0; i < num_frames; ++i)
 		{
 			SpriteFrame frame;
@@ -91,14 +89,9 @@ namespace sprite_resource_internal
 
 			array::push_back(vertices, x0); array::push_back(vertices, y1); // position
 			array::push_back(vertices, u0); array::push_back(vertices, v1); // uv
-
-			array::push_back(indices, u16(num_idx)); array::push_back(indices, u16(num_idx + 1)); array::push_back(indices, u16(num_idx + 2));
-			array::push_back(indices, u16(num_idx)); array::push_back(indices, u16(num_idx + 2)); array::push_back(indices, u16(num_idx + 3));
-			num_idx += 4;
 		}
 
 		const u32 num_vertices = array::size(vertices) / 4; // 4 components per vertex
-		const u32 num_indices = array::size(indices);
 
 		// Write
 		opts.write(RESOURCE_VERSION_SPRITE);
@@ -106,56 +99,15 @@ namespace sprite_resource_internal
 		opts.write(num_vertices);
 		for (u32 i = 0; i < array::size(vertices); i++)
 			opts.write(vertices[i]);
-
-		opts.write(num_indices);
-		for (u32 i = 0; i < array::size(indices); i++)
-			opts.write(indices[i]);
 	}
 
 	void* load(File& file, Allocator& a)
 	{
-		BinaryReader br(file);
-
-		u32 version;
-		br.read(version);
-
-		u32 num_verts;
-		br.read(num_verts);
-		const bgfx::Memory* vbmem = bgfx::alloc(num_verts * sizeof(f32) * 4);
-		br.read(vbmem->data, num_verts * sizeof(f32) * 4);
-
-		u32 num_inds;
-		br.read(num_inds);
-		const bgfx::Memory* ibmem = bgfx::alloc(num_inds * sizeof(u16));
-		br.read(ibmem->data, num_inds * sizeof(u16));
-
-		SpriteResource* so = (SpriteResource*) a.allocate(sizeof(SpriteResource));
-		so->vbmem = vbmem;
-		so->ibmem = ibmem;
-
-		return so;
-	}
-
-	void online(StringId64 id, ResourceManager& rm)
-	{
-		SpriteResource* so = (SpriteResource*) rm.get(RESOURCE_TYPE_SPRITE, id);
-
-		bgfx::VertexDecl decl;
-		decl.begin()
-			.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false)
-			.end();
-
-		so->vb = bgfx::createVertexBuffer(so->vbmem, decl);
-		so->ib = bgfx::createIndexBuffer(so->ibmem);
-	}
-
-	void offline(StringId64 id, ResourceManager& rm)
-	{
-		SpriteResource* so = (SpriteResource*) rm.get(RESOURCE_TYPE_SPRITE, id);
-
-		bgfx::destroyVertexBuffer(so->vb);
-		bgfx::destroyIndexBuffer(so->ib);
+		const u32 file_size = file.size();
+		void* res = a.allocate(file_size);
+		file.read(res, file_size);
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SPRITE, "Wrong version");
+		return res;
 	}
 
 	void unload(Allocator& a, void* resource)
@@ -163,6 +115,14 @@ namespace sprite_resource_internal
 		a.deallocate(resource);
 	}
 } // namespace sprite_resource_internal
+
+namespace sprite_resource
+{
+	const f32* frame_data(const SpriteResource* sr, u32 i)
+	{
+		return ((f32*)&sr[1]) + 16*i;
+	}
+}
 
 namespace sprite_animation_resource_internal
 {
@@ -205,7 +165,7 @@ namespace sprite_animation_resource_internal
 		const u32 file_size = file.size();
 		void* res = a.allocate(file_size);
 		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SPRITE, "Wrong version");
+		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SPRITE_ANIMATION, "Wrong version");
 		return res;
 	}
 

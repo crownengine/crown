@@ -65,6 +65,10 @@ public:
 	/// Sets whether the sprite @a i is @a visible.
 	void sprite_set_visible(SpriteInstance i, bool visible);
 
+	/// Returns the distance along ray (from, dir) to intersection point with sprite @a i
+	/// or -1.0 if no intersection.
+	f32 sprite_raycast(SpriteInstance i, const Vector3& from, const Vector3& dir);
+
 	/// Creates a new light instance.
 	LightInstance light_create(UnitId id, const LightDesc& ld, const Matrix4x4& tr);
 
@@ -175,12 +179,6 @@ public:
 
 	struct SpriteManager
 	{
-		struct SpriteData
-		{
-			bgfx::VertexBufferHandle vbh;
-			bgfx::IndexBufferHandle ibh;
-		};
-
 		struct SpriteInstanceData
 		{
 			u32 size;
@@ -191,7 +189,6 @@ public:
 
 			UnitId* unit;
 			const SpriteResource** resource;
-			SpriteData* sprite;
 			StringId64* material;
 			u32* frame;
 			Matrix4x4* world;

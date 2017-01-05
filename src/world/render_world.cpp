@@ -163,6 +163,37 @@ void RenderWorld::sprite_set_frame(SpriteInstance i, u32 index)
 	_sprite_manager._data.frame[i.i] = index;
 }
 
+f32 RenderWorld::sprite_raycast(SpriteInstance i, const Vector3& from, const Vector3& dir)
+{
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+
+	const SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
+	const f32* frame = sprite_resource::frame_data(sid.resource[i.i], sid.frame[i.i]);
+
+	const f32 vertices[] =
+	{
+		frame[ 0], frame[ 1], 0.0f,
+		frame[ 4], frame[ 5], 0.0f,
+		frame[ 8], frame[ 9], 0.0f,
+		frame[12], frame[13], 0.0f
+	};
+
+	const u16 indices[] =
+	{
+		0, 1, 2,
+		0, 2, 3
+	};
+
+	return ray_mesh_intersection(from
+		, dir
+		, _sprite_manager._data.world[i.i]
+		, vertices
+		, sizeof(Vector3)
+		, indices
+		, 6
+		);
+}
+
 LightInstance RenderWorld::light_create(UnitId id, const LightDesc& ld, const Matrix4x4& tr)
 {
 	return _light_manager.create(id, ld, tr);
@@ -296,13 +327,42 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 	}
 
 	// Render sprites
-	for (u32 i = 0; i < sid.first_hidden; ++i)
 	{
-		bgfx::setTransform(to_float_ptr(sid.world[i]));
-		bgfx::setVertexBuffer(sid.sprite[i].vbh);
-		bgfx::setIndexBuffer(sid.sprite[i].ibh, sid.frame[i] * 6, 6);
+		bgfx::VertexDecl decl;
+		decl.begin()
+			.add(bgfx::Attrib::Position,  2, bgfx::AttribType::Float)
+			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false)
+			.end()
+			;
+		bgfx::TransientVertexBuffer tvb;
+		bgfx::allocTransientVertexBuffer(&tvb, 4*sid.first_hidden, decl);
+		bgfx::TransientIndexBuffer tib;
+		bgfx::allocTransientIndexBuffer(&tib, 6*sid.first_hidden);
 
-		_material_manager->get(sid.material[i])->bind(*_resource_manager, *_shader_manager);
+		f32* vdata = (f32*)tvb.data;
+		u16* idata = (u16*)tib.data;
+
+		// Render sprites
+		for (u32 i = 0; i < sid.first_hidden; ++i)
+		{
+			const f32* frame = sprite_resource::frame_data(sid.resource[i], sid.frame[i]);
+
+			for (u32 i = 0; i < 16; ++i)
+				*vdata++ = *frame++;
+
+			*idata++ = i*4+0;
+			*idata++ = i*4+1;
+			*idata++ = i*4+2;
+			*idata++ = i*4+0;
+			*idata++ = i*4+2;
+			*idata++ = i*4+3;
+
+			bgfx::setTransform(to_float_ptr(sid.world[i]));
+			bgfx::setVertexBuffer(&tvb);
+			bgfx::setIndexBuffer(&tib, i*6, 6);
+
+			_material_manager->get(sid.material[i])->bind(*_resource_manager, *_shader_manager);
+		}
 	}
 }
 
@@ -602,7 +662,6 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	const u32 bytes = 0
 		+ num*sizeof(UnitId) + alignof(UnitId)
 		+ num*sizeof(SpriteResource**) + alignof(SpriteResource*)
-		+ num*sizeof(SpriteData) + alignof(SpriteData)
 		+ num*sizeof(StringId64) + alignof(StringId64)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
@@ -618,8 +677,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 
 	new_data.unit          = (UnitId*               )new_data.buffer;
 	new_data.resource      = (const SpriteResource**)memory::align_top(new_data.unit + num,     alignof(const SpriteResource*));
-	new_data.sprite        = (SpriteData*           )memory::align_top(new_data.resource + num, alignof(SpriteData           ));
-	new_data.material      = (StringId64*           )memory::align_top(new_data.sprite + num,   alignof(StringId64           ));
+	new_data.material      = (StringId64*           )memory::align_top(new_data.resource + num, alignof(StringId64           ));
 	new_data.frame         = (u32*                  )memory::align_top(new_data.material + num, alignof(u32                  ));
 	new_data.world         = (Matrix4x4*            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4            ));
 	new_data.aabb          = (AABB*                 )memory::align_top(new_data.world + num,    alignof(AABB                 ));
@@ -627,7 +685,6 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
-	memcpy(new_data.sprite, _data.sprite, _data.size * sizeof(SpriteData));
 	memcpy(new_data.material, _data.material, _data.size * sizeof(StringId64));
 	memcpy(new_data.frame, _data.frame, _data.size * sizeof(u32));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
@@ -652,8 +709,6 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResourc
 
 	_data.unit[last]          = id;
 	_data.resource[last]      = sr;
-	_data.sprite[last].vbh    = sr->vb;
-	_data.sprite[last].ibh    = sr->ib;
 	_data.material[last]      = mat;
 	_data.frame[last]         = 0;
 	_data.world[last]         = tr;
@@ -677,8 +732,6 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance i)
 
 	_data.unit[i.i]          = _data.unit[last];
 	_data.resource[i.i]      = _data.resource[last];
-	_data.sprite[i.i].vbh    = _data.sprite[last].vbh;
-	_data.sprite[i.i].ibh    = _data.sprite[last].ibh;
 	_data.material[i.i]      = _data.material[last];
 	_data.frame[i.i]         = _data.frame[last];
 	_data.world[i.i]         = _data.world[last];

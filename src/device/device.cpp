@@ -386,7 +386,7 @@ void Device::run()
 		_resource_manager->register_type(RESOURCE_TYPE_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
 		_resource_manager->register_type(RESOURCE_TYPE_SOUND,            sdr::load, sdr::unload, NULL,        NULL        );
 		_resource_manager->register_type(RESOURCE_TYPE_UNIT,             utr::load, utr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::unload, spr::online, spr::offline);
+		_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::unload, NULL,        NULL        );
 		_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          pkr::load, pkr::unload, NULL,        NULL        );
 		_resource_manager->register_type(RESOURCE_TYPE_PHYSICS,          phr::load, phr::unload, NULL,        NULL        );
 		_resource_manager->register_type(RESOURCE_TYPE_MATERIAL,         mtr::load, mtr::unload, mtr::online, mtr::offline);
