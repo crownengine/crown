@@ -15,29 +15,25 @@
 
 namespace crown
 {
-// header
-// num_verts
-// verts[num_verts]
-// num_inds
-// inds[num_inds]
-
 struct SpriteResource
 {
 	u32 version;
-	const bgfx::Memory* vbmem;
-	const bgfx::Memory* ibmem;
-	bgfx::VertexBufferHandle vb;
-	bgfx::IndexBufferHandle ib;
+	u32 num_verts;
+	// verts[num_verts]
 };
 
 namespace sprite_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
 	void* load(File& file, Allocator& a);
-	void online(StringId64 id, ResourceManager& rm);
-	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* resource);
 } // namespace sprite_resource_internal
+
+namespace sprite_resource
+{
+	/// Returns the frame data for the frame @a i.
+	const f32* frame_data(const SpriteResource* sr, u32 i);
+} // namespace sprite_resource
 
 struct SpriteAnimationResource
 {
