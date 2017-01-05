@@ -1177,13 +1177,13 @@ static int input_device_axis_id(lua_State* L, InputDevice& dev)
 #define JOYPAD_FN(index, name) joypad_##name##index
 
 #define KEYBOARD(name) static int KEYBOARD_FN(name)(lua_State* L)\
-	{ return input_device_##name(L, *device()->input_manager()->keyboard()); }
+	{ return input_device_##name(L, *device()->_input_manager->keyboard()); }
 #define MOUSE(name) static int MOUSE_FN(name)(lua_State* L)\
-	{ return input_device_##name(L, *device()->input_manager()->mouse()); }
+	{ return input_device_##name(L, *device()->_input_manager->mouse()); }
 #define TOUCH(name) static int TOUCH_FN(name)(lua_State* L)\
-	{ return input_device_##name(L, *device()->input_manager()->touch()); }
+	{ return input_device_##name(L, *device()->_input_manager->touch()); }
 #define JOYPAD(index, name) static int JOYPAD_FN(index, name)(lua_State* L)\
-	{ return input_device_##name(L, *device()->input_manager()->joypad(index)); }
+	{ return input_device_##name(L, *device()->_input_manager->joypad(index)); }
 
 KEYBOARD(name)
 KEYBOARD(connected)
@@ -1292,7 +1292,7 @@ static int world_spawn_unit(lua_State* L)
 	const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
 	const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
 
-	LUA_ASSERT(device()->resource_manager()->can_get(RESOURCE_TYPE_UNIT, name), stack, "Unit not found");
+	LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_UNIT, name), stack, "Unit not found");
 
 	stack.push_unit(stack.get_world(1)->spawn_unit(name, pos, rot));
 	return 1;
@@ -1486,7 +1486,7 @@ static int world_play_sound(lua_State* L)
 	const Vector3& pos = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
 	const f32 range  = nargs > 5 ? stack.get_float(6)   : 1000.0f;
 
-	LUA_ASSERT(device()->resource_manager()->can_get(RESOURCE_TYPE_SOUND, name), stack, "Sound not found");
+	LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_SOUND, name), stack, "Sound not found");
 
 	stack.push_sound_instance_id(world->play_sound(name, loop, volume, pos, range));
 	return 1;
@@ -1573,7 +1573,7 @@ static int world_load_level(lua_State* L)
 	const StringId64 name = stack.get_resource_id(2);
 	const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
 	const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
-	LUA_ASSERT(device()->resource_manager()->can_get(RESOURCE_TYPE_LEVEL, name), stack, "Level not found");
+	LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_LEVEL, name), stack, "Level not found");
 	stack.push_level(stack.get_world(1)->load_level(name, pos, rot));
 	return 1;
 }
@@ -1789,9 +1789,9 @@ static int unit_manager_create(lua_State* L)
 	LuaStack stack(L);
 
 	if (stack.num_args() == 1)
-		stack.push_unit(device()->unit_manager()->create(*stack.get_world(1)));
+		stack.push_unit(device()->_unit_manager->create(*stack.get_world(1)));
 	else
-		stack.push_unit(device()->unit_manager()->create());
+		stack.push_unit(device()->_unit_manager->create());
 
 	return 1;
 }
@@ -1799,7 +1799,7 @@ static int unit_manager_create(lua_State* L)
 static int unit_manager_alive(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_bool(device()->unit_manager()->alive(stack.get_unit(1)));
+	stack.push_bool(device()->_unit_manager->alive(stack.get_unit(1)));
 	return 1;
 }
 
@@ -2640,7 +2640,7 @@ static int device_console_send(lua_State* L)
 	StringStream json(alloc);
 	lua_dump_table(L, 1, json);
 
-	device()->console_server()->send(string_stream::c_str(json));
+	device()->_console_server->send(string_stream::c_str(json));
 	return 0;
 }
 
@@ -2648,14 +2648,14 @@ static int device_can_get(lua_State* L)
 {
 	LuaStack stack(L);
 	const StringId64 type(stack.get_string(1));
-	stack.push_bool(device()->resource_manager()->can_get(type, stack.get_resource_id(2)));
+	stack.push_bool(device()->_resource_manager->can_get(type, stack.get_resource_id(2)));
 	return 1;
 }
 
 static int device_enable_resource_autoload(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->resource_manager()->enable_autoload(stack.get_bool(1));
+	device()->_resource_manager->enable_autoload(stack.get_bool(1));
 	return 0;
 }
 
@@ -2663,7 +2663,7 @@ static int device_temp_count(lua_State* L)
 {
 	LuaStack stack(L);
 	u32 nv, nq, nm;
-	device()->lua_environment()->temp_count(nv, nq, nm);
+	device()->_lua_environment->temp_count(nv, nq, nm);
 	stack.push_int(nv);
 	stack.push_int(nq);
 	stack.push_int(nm);
@@ -2676,7 +2676,7 @@ static int device_set_temp_count(lua_State* L)
 	u32 nv = stack.get_int(1);
 	u32 nq = stack.get_int(2);
 	u32 nm = stack.get_int(3);
-	device()->lua_environment()->set_temp_count(nv, nq, nm);
+	device()->_lua_environment->set_temp_count(nv, nq, nm);
 	return 0;
 }
 
@@ -2809,7 +2809,7 @@ static int debug_line_add_frustum(lua_State* L)
 static int debug_line_add_unit(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_debug_line(1)->add_unit(*device()->resource_manager()
+	stack.get_debug_line(1)->add_unit(*device()->_resource_manager
 		, stack.get_matrix4x4(2)
 		, stack.get_resource_id(3)
 		, stack.get_color4(4)
@@ -2971,7 +2971,7 @@ static int display_modes(lua_State* L)
 	LuaStack stack(L);
 	TempAllocator1024 ta;
 	Array<DisplayMode> modes(ta);
-	device()->display()->modes(modes);
+	device()->_display->modes(modes);
 	stack.push_table(array::size(modes));
 	for (u32 i = 0; i < array::size(modes); ++i)
 	{
@@ -2998,68 +2998,68 @@ static int display_modes(lua_State* L)
 static int display_set_mode(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->display()->set_mode(stack.get_int(1));
+	device()->_display->set_mode(stack.get_int(1));
 	return 0;
 }
 
 static int window_show(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->window()->show();
+	device()->_window->show();
 	return 0;
 }
 
 static int window_hide(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->window()->hide();
+	device()->_window->hide();
 	return 0;
 }
 
 static int window_resize(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->window()->resize(stack.get_int(1), stack.get_int(2));
+	device()->_window->resize(stack.get_int(1), stack.get_int(2));
 	return 0;
 }
 
 static int window_move(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->window()->move(stack.get_int(1), stack.get_int(2));
+	device()->_window->move(stack.get_int(1), stack.get_int(2));
 	return 0;
 }
 
 static int window_minimize(lua_State* /*L*/)
 {
-	device()->window()->minimize();
+	device()->_window->minimize();
 	return 0;
 }
 
 static int window_restore(lua_State* /*L*/)
 {
-	device()->window()->restore();
+	device()->_window->restore();
 	return 0;
 }
 
 static int window_title(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_string(device()->window()->title());
+	stack.push_string(device()->_window->title());
 	return 1;
 }
 
 static int window_set_title(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->window()->set_title(stack.get_string(1));
+	device()->_window->set_title(stack.get_string(1));
 	return 0;
 }
 
 static int window_show_cursor(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->window()->show_cursor(stack.get_bool(1));
+	device()->_window->show_cursor(stack.get_bool(1));
 	return 0;
 }
 

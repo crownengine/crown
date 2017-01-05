@@ -34,7 +34,7 @@ struct BgfxCallback;
 /// the engine subsystems and related stuff.
 ///
 /// @ingroup Device
-class Device
+struct Device
 {
 	LinearAllocator _allocator;
 
@@ -135,36 +135,6 @@ public:
 
 	/// Logs @a msg to log file and console.
 	void log(const char* msg, LogSeverity::Enum severity);
-
-	/// Returns the console server.
-	ConsoleServer* console_server();
-
-	/// Returns the bundle compiler.
-	DataCompiler* data_compiler();
-
-	/// Returns the resource manager.
-	ResourceManager* resource_manager();
-
-	/// Returns the lua environment.
-	LuaEnvironment* lua_environment();
-
-	/// Returns the input manager.
-	InputManager* input_manager();
-
-	/// Returns the shader manager.
-	ShaderManager* shader_manager();
-
-	/// Returns the material manager.
-	MaterialManager* material_manager();
-
-	/// Returns the unit manager.
-	UnitManager* unit_manager();
-
-	/// Returns the main display.
-	Display* display();
-
-	/// Returns the main window.
-	Window* window();
 
 private:
 

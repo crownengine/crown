@@ -24,7 +24,7 @@ static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	sjson::parse(json, obj);
 	sjson::parse_string(obj["script"], script);
 
-	device()->lua_environment()->execute_string(script.c_str());
+	device()->_lua_environment->execute_string(script.c_str());
 }
 
 static void console_command_reload(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
@@ -74,7 +74,7 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	}
 
 	logi("Compiling '%s'", id.c_str());
-	bool succ = device()->data_compiler()->compile(data_dir.c_str(), platform.c_str());
+	bool succ = device()->_data_compiler->compile(data_dir.c_str(), platform.c_str());
 
 	if (succ)
 		logi("Compiled '%s'", id.c_str());

@@ -713,56 +713,6 @@ void Device::log(const char* msg, LogSeverity::Enum severity)
 	}
 }
 
-ConsoleServer* Device::console_server()
-{
-	return _console_server;
-}
-
-DataCompiler* Device::data_compiler()
-{
-	return _data_compiler;
-}
-
-ResourceManager* Device::resource_manager()
-{
-	return _resource_manager;
-}
-
-LuaEnvironment* Device::lua_environment()
-{
-	return _lua_environment;
-}
-
-InputManager* Device::input_manager()
-{
-	return _input_manager;
-}
-
-ShaderManager* Device::shader_manager()
-{
-	return _shader_manager;
-}
-
-MaterialManager* Device::material_manager()
-{
-	return _material_manager;
-}
-
-UnitManager* Device::unit_manager()
-{
-	return _unit_manager;
-}
-
-Display* Device::display()
-{
-	return _display;
-}
-
-Window* Device::window()
-{
-	return _window;
-}
-
 char _buffer[sizeof(Device)];
 Device* _device = NULL;
 

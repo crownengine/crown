@@ -1243,22 +1243,22 @@ namespace shader_resource_internal
 
 	void* load(File& file, Allocator& a)
 	{
-		return device()->shader_manager()->load(file, a);
+		return device()->_shader_manager->load(file, a);
 	}
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		device()->shader_manager()->online(id, rm);
+		device()->_shader_manager->online(id, rm);
 	}
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		device()->shader_manager()->offline(id, rm);
+		device()->_shader_manager->offline(id, rm);
 	}
 
 	void unload(Allocator& a, void* res)
 	{
-		device()->shader_manager()->unload(a, res);
+		device()->_shader_manager->unload(a, res);
 	}
 } // namespace shader_resource_internal
 

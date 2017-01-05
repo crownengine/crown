@@ -234,22 +234,22 @@ namespace material_resource_internal
 
 	void* load(File& file, Allocator& a)
 	{
-		return device()->material_manager()->load(file, a);
+		return device()->_material_manager->load(file, a);
 	}
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		device()->material_manager()->online(id, rm);
+		device()->_material_manager->online(id, rm);
 	}
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		device()->material_manager()->offline(id, rm);
+		device()->_material_manager->offline(id, rm);
 	}
 
 	void unload(Allocator& a, void* res)
 	{
-		device()->material_manager()->unload(a, res);
+		device()->_material_manager->unload(a, res);
 	}
 } // namespace material_resource_internal
 
