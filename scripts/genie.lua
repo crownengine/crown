@@ -4,11 +4,11 @@
 --
 
 CROWN_DIR = (path.getabsolute("..") .. "/")
-local CROWN_THIRD_DIR  = (CROWN_DIR .. "third/")
+local CROWN_THIRD_DIR  = (CROWN_DIR .. "3rdparty/")
 local CROWN_BUILD_DIR  = (CROWN_DIR .. "build/")
 local CROWN_ENGINE_DIR = (CROWN_BUILD_DIR .. "engine/")
-BGFX_DIR = (CROWN_DIR .. "third/bgfx/")
-BX_DIR = (CROWN_DIR .. "third/bx/")
+BGFX_DIR = (CROWN_DIR .. "3rdparty/bgfx/")
+BX_DIR = (CROWN_DIR .. "3rdparty/bx/")
 
 function copyLib()
 end

@@ -9,7 +9,7 @@ function openal_project(_kind)
 
 		configuration {}
 
-		local AL_DIR = (CROWN_DIR .. "third/openal/")
+		local AL_DIR = (CROWN_DIR .. "3rdparty/openal/")
 
 		defines {
 			"_LARGE_FILES",

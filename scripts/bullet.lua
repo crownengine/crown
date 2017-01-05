@@ -3,7 +3,7 @@
 -- License: https://github.com/taylor001/crown/blob/master/LICENSE
 --
 
-local BULLET_DIR = (CROWN_DIR .. "third/bullet3/")
+local BULLET_DIR = (CROWN_DIR .. "3rdparty/bullet3/")
 
 project "bullet"
 	kind "StaticLib"

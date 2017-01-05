@@ -10,7 +10,7 @@ else
 	OS=windows
 endif
 
-GENIE=third/bx/tools/bin/$(OS)/genie
+GENIE=3rdparty/bx/tools/bin/$(OS)/genie
 
 engine-android-build:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --compiler=android-arm gmake
