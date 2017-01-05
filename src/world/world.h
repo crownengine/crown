@@ -18,7 +18,7 @@ namespace crown
 /// Represents a game world.
 ///
 /// @ingroup World
-class World
+struct World
 {
 	struct Camera
 	{
@@ -197,21 +197,6 @@ public:
 
 	/// Loads the level @a name into the world.
 	Level* load_level(StringId64 name, const Vector3& pos, const Quaternion& rot);
-
-	/// Returns the events.
-	EventStream& events();
-
-	/// Returns the scene graph.
-	SceneGraph* scene_graph();
-
-	/// Returns the rendering sub-world.
-	RenderWorld* render_world();
-
-	/// Returns the physics sub-world.
-	PhysicsWorld* physics_world();
-
-	/// Returns the sound sub-world.
-	SoundWorld* sound_world();
 
 	void post_unit_spawned_event(UnitId id);
 	void post_unit_destroyed_event(UnitId id);

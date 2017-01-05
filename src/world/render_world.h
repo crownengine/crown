@@ -18,7 +18,7 @@ namespace crown
 /// Manages graphics objects in a World.
 ///
 /// @ingroup World
-class RenderWorld
+struct RenderWorld
 {
 public:
 

@@ -23,7 +23,7 @@ struct ShaderData
 /// Manages shaders.
 ///
 /// @ingroup World
-class ShaderManager
+struct ShaderManager
 {
 	typedef SortMap<StringId32, ShaderData> ShaderMap;
 	ShaderMap _shader_map;

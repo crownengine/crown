@@ -15,7 +15,7 @@ namespace crown
 /// Manages physics objects in a World.
 ///
 /// @ingroup World
-class PhysicsWorld
+struct PhysicsWorld
 {
 public:
 

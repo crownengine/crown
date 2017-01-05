@@ -15,7 +15,7 @@ namespace crown
 /// Manages units.
 ///
 /// @ingroup World
-class UnitManager
+struct UnitManager
 {
 	Array<u8> _generation;
 	Queue<u32> _free_indices;

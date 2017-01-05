@@ -13,18 +13,18 @@
 /// @defgroup World World
 namespace crown
 {
-class Level;
-class MaterialManager;
-class PhysicsWorld;
-class RenderWorld;
-class ShaderManager;
-class SoundWorld;
-class UnitManager;
-class World;
 struct DebugGui;
 struct DebugLine;
+struct Level;
 struct Material;
+struct MaterialManager;
+struct PhysicsWorld;
+struct RenderWorld;
 struct SceneGraph;
+struct ShaderManager;
+struct SoundWorld;
+struct UnitManager;
+struct World;
 
 typedef u32 SoundInstanceId;
 

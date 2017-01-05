@@ -438,31 +438,6 @@ Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& 
 	return level;
 }
 
-EventStream& World::events()
-{
-	return _events;
-}
-
-SceneGraph* World::scene_graph()
-{
-	return _scene_graph;
-}
-
-RenderWorld* World::render_world()
-{
-	return _render_world;
-}
-
-PhysicsWorld* World::physics_world()
-{
-	return _physics_world;
-}
-
-SoundWorld* World::sound_world()
-{
-	return _sound_world;
-}
-
 void World::post_unit_spawned_event(UnitId id)
 {
 	UnitSpawnedEvent ev;
@@ -514,9 +489,9 @@ void World::Camera::update_projection_matrix()
 
 void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const UnitId* unit_lookup)
 {
-	SceneGraph* scene_graph = w.scene_graph();
-	RenderWorld* render_world = w.render_world();
-	PhysicsWorld* physics_world = w.physics_world();
+	SceneGraph* scene_graph = w._scene_graph;
+	RenderWorld* render_world = w._render_world;
+	PhysicsWorld* physics_world = w._physics_world;
 
 	// Start of components data
 	const char* components_begin = (const char*)(&ur + 1);

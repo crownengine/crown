@@ -1581,28 +1581,28 @@ static int world_load_level(lua_State* L)
 static int world_scene_graph(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_scene_graph(stack.get_world(1)->scene_graph());
+	stack.push_scene_graph(stack.get_world(1)->_scene_graph);
 	return 1;
 }
 
 static int world_render_world(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_render_world(stack.get_world(1)->render_world());
+	stack.push_render_world(stack.get_world(1)->_render_world);
 	return 1;
 }
 
 static int world_physics_world(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_physics_world(stack.get_world(1)->physics_world());
+	stack.push_physics_world(stack.get_world(1)->_physics_world);
 	return 1;
 }
 
 static int world_sound_world(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_sound_world(stack.get_world(1)->sound_world());
+	stack.push_sound_world(stack.get_world(1)->_sound_world);
 	return 1;
 }
 

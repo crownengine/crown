@@ -22,7 +22,7 @@ namespace physics_globals
 	}
 } // namespace physics_globals
 
-class PhysicsWorldNull : public PhysicsWorld
+struct PhysicsWorldNull : public PhysicsWorld
 {
 public:
 

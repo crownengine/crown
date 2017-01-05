@@ -16,7 +16,7 @@ namespace crown
 /// Game level.
 ///
 /// @ingroup World
-class Level
+struct Level
 {
 	u32 _marker;
 

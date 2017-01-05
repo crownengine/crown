@@ -14,7 +14,7 @@
 
 namespace crown
 {
-class MaterialManager
+struct MaterialManager
 {
 	Allocator* _allocator;
 	ResourceManager* _resource_manager;
