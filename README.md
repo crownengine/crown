@@ -56,9 +56,9 @@ Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 
 ### Windows
 
-GnuWin32 make (http://gnuwin32.sourceforge.net/packages/make.htm)
-GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)
-GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)
+GnuWin32 make (http://gnuwin32.sourceforge.net/packages/make.htm)  
+GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)  
+GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)  
 GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
 
 ### Building engine
