@@ -33,8 +33,8 @@ namespace guid
 	/// Parses the @a guid from @a str and returns true if success.
 	bool try_parse(const char* str, Guid& guid);
 
-	/// Fills @a s with the string representation of the @a guid.
-	void to_string(const Guid& guid, DynamicString& s);
+	/// Fills @a str with the string representation of the @a guid.
+	void to_string(const Guid& guid, DynamicString& str);
 }
 
 /// Returns whether Guid @a and @b are equal.
