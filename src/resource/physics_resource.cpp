@@ -150,8 +150,8 @@ namespace physics_resource_internal
 		DynamicString name(ta);
 		sjson::parse_string(obj["scene"], scene);
 		sjson::parse_string(obj["name"], name);
-		DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_MESH, scene.c_str(), opts);
-		scene += "." RESOURCE_EXTENSION_MESH;
+		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("mesh", scene.c_str(), opts);
+		scene += ".mesh";
 
 		Buffer file = opts.read(scene.c_str());
 		JsonObject json_mesh(ta);

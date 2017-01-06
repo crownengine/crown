@@ -35,22 +35,6 @@ struct UnitResource;
 
 /// @addtogroup Resource
 /// @{
-#define RESOURCE_EXTENSION_CONFIG           "config"
-#define RESOURCE_EXTENSION_FONT             "font"
-#define RESOURCE_EXTENSION_LEVEL            "level"
-#define RESOURCE_EXTENSION_MATERIAL         "material"
-#define RESOURCE_EXTENSION_MESH             "mesh"
-#define RESOURCE_EXTENSION_PACKAGE          "package"
-#define RESOURCE_EXTENSION_PHYSICS_CONFIG   "physics_config"
-#define RESOURCE_EXTENSION_PHYSICS          "physics"
-#define RESOURCE_EXTENSION_SCRIPT           "lua"
-#define RESOURCE_EXTENSION_SHADER           "shader"
-#define RESOURCE_EXTENSION_SOUND            "sound"
-#define RESOURCE_EXTENSION_SPRITE_ANIMATION "sprite_animation"
-#define RESOURCE_EXTENSION_SPRITE           "sprite"
-#define RESOURCE_EXTENSION_TEXTURE          "texture"
-#define RESOURCE_EXTENSION_UNIT             "unit"
-
 #define RESOURCE_TYPE_CONFIG           StringId64(0x82645835e6b73232)
 #define RESOURCE_TYPE_FONT             StringId64(0x9efe0a916aae7880)
 #define RESOURCE_TYPE_LEVEL            StringId64(0x2a690fd348fe9ac5)

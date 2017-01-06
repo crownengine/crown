@@ -34,8 +34,8 @@ namespace config_resource_internal
 		DynamicString boot_package(ta);
 		sjson::parse_string(boot_script_json, boot_script);
 		sjson::parse_string(boot_package_json, boot_package);
-		DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_SCRIPT, boot_script.c_str(), opts);
-		DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_PACKAGE, boot_package.c_str(), opts);
+		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("lua", boot_script.c_str(), opts);
+		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("package", boot_package.c_str(), opts);
 
 		opts.write(buf);
 	}

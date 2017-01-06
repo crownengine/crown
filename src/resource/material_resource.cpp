@@ -87,7 +87,7 @@ namespace material_resource_internal
 
 			DynamicString texture(ta);
 			sjson::parse_string(value, texture);
-			DATA_COMPILER_ASSERT_RESOURCE_EXISTS(RESOURCE_EXTENSION_TEXTURE, texture.c_str(), opts);
+			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("texture", texture.c_str(), opts);
 
 			TextureHandle th;
 			th.sampler_handle = 0;
