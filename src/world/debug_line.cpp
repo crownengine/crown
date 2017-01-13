@@ -239,11 +239,8 @@ void DebugLine::submit()
 	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, _vertex_decl);
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
-	const ShaderData& sd = _shader_manager->get(_shader);
-
 	bgfx::setVertexBuffer(&tvb, 0, _num * 2);
-	bgfx::setState(sd.state);
-	bgfx::submit(1, sd.program);
+	_shader_manager->submit(_shader, 1);
 }
 
 } // namespace crown

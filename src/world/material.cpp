@@ -42,9 +42,7 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view) const
 		bgfx::setUniform(buh, (char*)uh + sizeof(uh->uniform_handle));
 	}
 
-	const ShaderData& sd = sm.get(_resource->shader);
-	bgfx::setState(sd.state);
-	bgfx::submit(view, sd.program);
+	sm.submit(_resource->shader, view);
 }
 
 void Material::set_float(StringId32 name, f32 value)

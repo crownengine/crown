@@ -84,7 +84,11 @@ void ShaderManager::offline(StringId64 id, ResourceManager& rm)
 	for (u32 i = 0; i < array::size(shader->_data); ++i)
 	{
 		const ShaderResource::Data& data = shader->_data[i];
-		const ShaderData& sd = get(data.name);
+
+		ShaderData sd;
+		sd.state = BGFX_STATE_DEFAULT;
+		sd.program = BGFX_INVALID_HANDLE;
+		sd = sort_map::get(_shader_map, data.name, sd);
 
 		bgfx::destroyProgram(sd.program);
 
@@ -107,13 +111,16 @@ void ShaderManager::add_shader(StringId32 name, u64 state, bgfx::ProgramHandle p
 	sort_map::sort(_shader_map);
 }
 
-const ShaderData& ShaderManager::get(StringId32 id)
+void ShaderManager::submit(StringId32 shader_id, u8 view_id)
 {
-	CE_ASSERT(sort_map::has(_shader_map, id), "Shader not found");
-	ShaderData deffault;
-	deffault.state = BGFX_STATE_DEFAULT;
-	deffault.program = BGFX_INVALID_HANDLE;
-	return sort_map::get(_shader_map, id, deffault);
+	CE_ASSERT(sort_map::has(_shader_map, shader_id), "Shader not found");
+	ShaderData sd;
+	sd.state = BGFX_STATE_DEFAULT;
+	sd.program = BGFX_INVALID_HANDLE;
+	sd = sort_map::get(_shader_map, shader_id, sd);
+
+	bgfx::setState(sd.state);
+	bgfx::submit(view_id, sd.program);
 }
 
 } // namespace crown
