@@ -347,7 +347,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 		{
 			const f32* frame = sprite_resource::frame_data(sid.resource[i], sid.frame[i]);
 
-			for (u32 i = 0; i < 16; ++i)
+			for (u32 vi = 0; vi < 16; ++vi)
 				*vdata++ = *frame++;
 
 			*idata++ = i*4+0;
