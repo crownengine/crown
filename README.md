@@ -76,7 +76,7 @@ Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
 Contact
 -------
 
-Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
+Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))  
 Project page: https://github.com/taylor001/crown
 
 Contributors
@@ -84,9 +84,9 @@ Contributors
 
 In chronological order.
 
-Daniele Bartolini ([@taylor001](https://github.com/taylor001))
-Simone Boscaratto ([@Xed89](https://github.com/Xed89))
-Michele Rossi ([@mikymod](https://github.com/mikymod))
+Daniele Bartolini ([@taylor001](https://github.com/taylor001))  
+Simone Boscaratto ([@Xed89](https://github.com/Xed89))  
+Michele Rossi ([@mikymod](https://github.com/mikymod))  
 Michela Iacchelli - Pepper logo.
 
 License (Engine)
