@@ -33,7 +33,7 @@ Basic concepts
 The source directory
 --------------------
 
-The source directory contains all the files that make up an application. Pepper will read the content of the source directory and compile it into efficient binary representation for the target platform(s).
+The source directory contains all the files that make up an application.
 
 There is no fixed structure for the files and folders in the source directory, you can organize your content as you see fit. You can for example decide to put all the textures and sounds in the "textures" and "sounds" folders respectively, or maybe sort the content on a per-object basis by putting all the assets for an enemy in the "units/enemy" folder.
 
