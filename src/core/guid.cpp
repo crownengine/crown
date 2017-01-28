@@ -24,7 +24,7 @@ namespace guid
 		Guid guid;
 #if CROWN_PLATFORM_POSIX
 		int fd = open("/dev/urandom", O_RDONLY);
-		CE_ASSERT(fd != -1, "open: erron = %d", errno);
+		CE_ASSERT(fd != -1, "open: errno = %d", errno);
 		read(fd, &guid, sizeof(guid));
 		close(fd);
 		guid.data3 = (guid.data3 & 0x4fffu) | 0x4000u;
