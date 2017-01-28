@@ -266,51 +266,57 @@ struct TCPSocket
 		rr.error = ReadResult::SUCCESS;
 		rr.bytes_read = 0;
 
-		char* buf = (char*)data;
 		u32 to_read = size;
 
 		while (to_read > 0)
 		{
 #if CROWN_PLATFORM_POSIX
-			ssize_t read_bytes = ::recv(_socket, buf, to_read, 0);
+			ssize_t bytes_read = ::recv(_socket
+				, (char*)data + rr.bytes_read
+				, to_read
+				, 0
+				);
 
-			if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+			if (bytes_read == -1)
 			{
-				rr.error = ReadResult::WOULDBLOCK;
+				if (errno == EAGAIN || errno == EWOULDBLOCK)
+					rr.error = ReadResult::WOULDBLOCK;
+				else if (errno == ETIMEDOUT)
+					rr.error = ReadResult::TIMEOUT;
+				else
+					rr.error = ReadResult::UNKNOWN;
 				return rr;
 			}
-			else if (read_bytes == -1 && errno == ETIMEDOUT)
-			{
-				rr.error = ReadResult::TIMEOUT;
-				return rr;
-			}
-			else if (read_bytes == 0)
+			else if (bytes_read == 0)
 			{
 				rr.error = ReadResult::REMOTE_CLOSED;
 				return rr;
 			}
 #elif CROWN_PLATFORM_WINDOWS
-			int read_bytes = ::recv(_socket, buf, (int)to_read, 0);
+			int bytes_read = ::recv(_socket
+				, (char*)data + rr.bytes_read
+				, (int)to_read
+				, 0
+				);
 
-			if (read_bytes == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
+			if (bytes_read == SOCKET_ERROR)
 			{
-				rr.error = ReadResult::WOULDBLOCK;
+				if (WSAGetLastError() == WSAEWOULDBLOCK)
+					rr.error = ReadResult::WOULDBLOCK;
+				else if (WSAGetLastError() == WSAETIMEDOUT)
+					rr.error = ReadResult::TIMEOUT;
+				else
+					rr.error = ReadResult::UNKNOWN;
 				return rr;
 			}
-			else if (read_bytes == SOCKET_ERROR && WSAGetLastError() == WSAETIMEDOUT)
-			{
-				rr.error = ReadResult::TIMEOUT;
-				return rr;
-			}
-			else if (read_bytes == 0)
+			else if (bytes_read == 0)
 			{
 				rr.error = ReadResult::REMOTE_CLOSED;
 				return rr;
 			}
 #endif
-			buf += read_bytes;
-			to_read -= read_bytes;
-			rr.bytes_read += read_bytes;
+			to_read -= bytes_read;
+			rr.bytes_read += bytes_read;
 		}
 
 		return rr;
@@ -336,45 +342,47 @@ struct TCPSocket
 		wr.error = WriteResult::SUCCESS;
 		wr.bytes_wrote = 0;
 
-		const char* buf = (const char*)data;
 		u32 to_send = size;
 
 		while (to_send > 0)
 		{
 #if CROWN_PLATFORM_POSIX
-			ssize_t bytes_wrote = ::send(_socket, buf, to_send, 0);
+			ssize_t bytes_wrote = ::send(_socket
+				, (char*)data + wr.bytes_wrote
+				, to_send
+				, 0
+				);
 
-			if (bytes_wrote == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+			if (bytes_wrote == -1)
 			{
-				wr.error = WriteResult::WOULDBLOCK;
-				return wr;
-			}
-			else if (bytes_wrote == -1 && errno == ETIMEDOUT)
-			{
-				wr.error = WriteResult::TIMEOUT;
+				if (errno == EAGAIN || errno == EWOULDBLOCK)
+					wr.error = WriteResult::WOULDBLOCK;
+				else if (errno == ETIMEDOUT)
+					wr.error = WriteResult::TIMEOUT;
+				else
+					wr.error = WriteResult::UNKNOWN;
 				return wr;
 			}
 			else if (bytes_wrote == 0)
 			{
 				wr.error = WriteResult::REMOTE_CLOSED;
-				return wr;
-			}
-			else
-			{
-				wr.error = WriteResult::UNKNOWN;
 				return wr;
 			}
 #elif CROWN_PLATFORM_WINDOWS
-			int bytes_wrote = ::send(_socket, buf, (int)to_send, 0);
+			int bytes_wrote = ::send(_socket
+				, (char*)data + wr.bytes_wrote
+				, (int)to_send
+				, 0
+				);
 
-			if (bytes_wrote == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
+			if (bytes_wrote == SOCKET_ERROR)
 			{
-				wr.error = WriteResult::WOULDBLOCK;
-				return wr;
-			}
-			else if (bytes_wrote == SOCKET_ERROR && WSAGetLastError() == WSAETIMEDOUT)
-			{
-				wr.error = WriteResult::TIMEOUT;
+				if (WSAGetLastError() == WSAEWOULDBLOCK)
+					wr.error = WriteResult::WOULDBLOCK;
+				else if (WSAGetLastError() == WSAETIMEDOUT)
+					wr.error = WriteResult::TIMEOUT;
+				else
+					wr.error = WriteResult::UNKNOWN;
 				return wr;
 			}
 			else if (bytes_wrote == 0)
@@ -382,13 +390,7 @@ struct TCPSocket
 				wr.error = WriteResult::REMOTE_CLOSED;
 				return wr;
 			}
-			else
-			{
-				wr.error = WriteResult::UNKNOWN;
-				return wr;
-			}
 #endif
-			buf += bytes_wrote;
 			to_send -= bytes_wrote;
 			wr.bytes_wrote += bytes_wrote;
 		}
