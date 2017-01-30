@@ -32,8 +32,20 @@
 #include "vector3.h"
 #include "vector4.h"
 
-#define ENSURE(condition) do { if (!(condition)) {\
-	printf("Assertion failed: '%s' in %s:%d\n\n", #condition, __FILE__, __LINE__); abort(); }} while (0)
+#define ENSURE(condition)                                \
+	do                                                   \
+	{                                                    \
+		if (!(condition))                                \
+		{                                                \
+			printf("Assertion failed: '%s' in %s:%d\n\n" \
+				, #condition                             \
+				, __FILE__                               \
+				, __LINE__                               \
+				);                                       \
+				exit(EXIT_FAILURE);                      \
+		}                                                \
+	}                                                    \
+	while (0)
 
 namespace crown
 {
