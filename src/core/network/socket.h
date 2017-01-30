@@ -37,11 +37,11 @@ namespace
 {
 	inline int last_error()
 	{
-	#ifdef CROWN_PLATFORM_LINUX
+#ifdef CROWN_PLATFORM_LINUX
 		return errno;
-	#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		return WSAGetLastError();
-	#endif
+#endif
 	}
 }
 
