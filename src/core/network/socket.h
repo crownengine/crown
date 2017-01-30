@@ -23,17 +23,26 @@
 #elif CROWN_PLATFORM_WINDOWS
 	#include <winsock2.h>
 	#pragma comment(lib, "Ws2_32.lib")
+	#ifndef _INC_ERRNO
+		#define EADDRINUSE WSAEADDRINUSE
+		#define ECONNREFUSED WSAECONNREFUSED
+		#define ETIMEDOUT WSAETIMEDOUT
+		#define EWOULDBLOCK WSAEWOULDBLOCK
+	#endif // _INC_ERRNO
 #endif
 
 namespace crown
 {
-inline int last_error()
+namespace
 {
-#ifdef CROWN_PLATFORM_LINUX
-	return errno;
-#elif CROWN_PLATFORM_WINDOWS
-	return WSAGetLastError();
-#endif
+	inline int last_error()
+	{
+	#ifdef CROWN_PLATFORM_LINUX
+		return errno;
+	#elif CROWN_PLATFORM_WINDOWS
+		return WSAGetLastError();
+	#endif
+	}
 }
 
 struct ConnectResult
