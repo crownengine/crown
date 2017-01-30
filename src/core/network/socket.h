@@ -17,6 +17,9 @@
 	#include <sys/socket.h>
 	#include <unistd.h>     // close
 	typedef int SOCKET;
+	#define INVALID_SOCKET (-1)
+	#define SOCKET_ERROR (-1)
+	#define closesocket close
 #elif CROWN_PLATFORM_WINDOWS
 	#include <winsock2.h>
 	#pragma comment(lib, "Ws2_32.lib")
@@ -24,12 +27,20 @@
 
 namespace crown
 {
+inline int last_error()
+{
+#ifdef CROWN_PLATFORM_LINUX
+	return errno;
+#elif CROWN_PLATFORM_WINDOWS
+	return WSAGetLastError();
+#endif
+}
+
 struct ConnectResult
 {
 	enum
 	{
 		SUCCESS,
-		BAD_SOCKET,
 		REFUSED,
 		TIMEOUT,
 		UNKNOWN
@@ -41,7 +52,6 @@ struct BindResult
 	enum
 	{
 		SUCCESS,
-		BAD_SOCKET,
 		ADDRESS_IN_USE,
 		UNKNOWN
 	} error;
@@ -52,7 +62,6 @@ struct AcceptResult
 	enum
 	{
 		SUCCESS,
-		BAD_SOCKET,
 		NO_CONNECTION,
 		UNKNOWN
 	} error;
@@ -64,7 +73,6 @@ struct ReadResult
 	{
 		SUCCESS,
 		WOULDBLOCK,
-		BAD_SOCKET,
 		REMOTE_CLOSED,
 		TIMEOUT,
 		UNKNOWN
@@ -78,7 +86,6 @@ struct WriteResult
 	{
 		SUCCESS,
 		WOULDBLOCK,
-		BAD_SOCKET,
 		REMOTE_CLOSED,
 		TIMEOUT,
 		UNKNOWN
@@ -94,39 +101,23 @@ struct TCPSocket
 	SOCKET _socket;
 
 	TCPSocket()
-#if CROWN_PLATFORM_POSIX
-		: _socket(0)
-#elif CROWN_PLATFORM_WINDOWS
 		: _socket(INVALID_SOCKET)
-#endif
 	{
 	}
 
 	void open()
 	{
 		_socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-#if CROWN_PLATFORM_POSIX
-		CE_ASSERT(_socket >= 0, "socket: errno = %d", errno);
-#elif CROWN_PLATFORM_WINDOWS
-		CE_ASSERT(_socket >= 0, "socket: WSAGetLastError = %d", WSAGetLastError());
-#endif
+		CE_ASSERT(_socket >= 0, "socket: last_error() = %d", last_error());
 	}
 
 	void close()
 	{
-#if CROWN_PLATFORM_POSIX
-		if (_socket != 0)
-		{
-			::close(_socket);
-			_socket = 0;
-		}
-#elif CROWN_PLATFORM_WINDOWS
 		if (_socket != INVALID_SOCKET)
 		{
 			::closesocket(_socket);
 			_socket = INVALID_SOCKET;
 		}
-#endif
 	}
 
 	/// Connects to the @a ip address and @a port and returns the result.
@@ -145,24 +136,16 @@ struct TCPSocket
 		ConnectResult cr;
 		cr.error = ConnectResult::SUCCESS;
 
-		if (err == 0)
-			return cr;
-#if CROWN_PLATFORM_POSIX
-		if (errno == ECONNREFUSED)
-			cr.error = ConnectResult::REFUSED;
-		else if (errno == ETIMEDOUT)
-			cr.error = ConnectResult::TIMEOUT;
-		else
-			cr.error = ConnectResult::UNKNOWN;
-#elif CROWN_PLATFORM_WINDOWS
-		int wsaerr = WSAGetLastError();
-		if (wsaerr == WSAECONNREFUSED)
-			cr.error = ConnectResult::REFUSED;
-		else if (wsaerr == WSAETIMEDOUT)
-			cr.error = ConnectResult::TIMEOUT;
-		else
-			cr.error = ConnectResult::UNKNOWN;
-#endif
+		if (err == SOCKET_ERROR)
+		{
+			if (last_error() == ECONNREFUSED)
+				cr.error = ConnectResult::REFUSED;
+			else if (last_error() == ETIMEDOUT)
+				cr.error = ConnectResult::TIMEOUT;
+			else
+				cr.error = ConnectResult::UNKNOWN;
+		}
+
 		return cr;
 	}
 
@@ -183,22 +166,14 @@ struct TCPSocket
 		BindResult br;
 		br.error = BindResult::SUCCESS;
 
-		if (err == 0)
-			return br;
-#if CROWN_PLATFORM_POSIX
-		if (errno == EBADF)
-			br.error = BindResult::BAD_SOCKET;
-		else if (errno == EADDRINUSE)
-			br.error = BindResult::ADDRESS_IN_USE;
-		else
-			br.error = BindResult::UNKNOWN;
-#elif CROWN_PLATFORM_WINDOWS
-		int wsaerr = WSAGetLastError();
-		if (wsaerr == WSAEADDRINUSE)
-			br.error = BindResult::ADDRESS_IN_USE;
-		else
-			br.error = BindResult::UNKNOWN;
-#endif
+		if (err == SOCKET_ERROR)
+		{
+			if (last_error() == EADDRINUSE)
+				br.error = BindResult::ADDRESS_IN_USE;
+			else
+				br.error = BindResult::UNKNOWN;
+		}
+
 		return br;
 	}
 
@@ -206,11 +181,7 @@ struct TCPSocket
 	void listen(u32 max)
 	{
 		int err = ::listen(_socket, max);
-#if CROWN_PLATFORM_POSIX
-		CE_ASSERT(err == 0, "listen: errno = %d", errno);
-#elif CROWN_PLATFORM_WINDOWS
-		CE_ASSERT(err == 0, "listen: WSAGetLastError = %d", WSAGetLastError());
-#endif
+		CE_ASSERT(err == 0, "listen: last_error() = %d", last_error());
 		CE_UNUSED(err);
 	}
 
@@ -221,28 +192,18 @@ struct TCPSocket
 		AcceptResult ar;
 		ar.error = AcceptResult::SUCCESS;
 
-#if CROWN_PLATFORM_POSIX
-		if (err >= 0)
-			c._socket = err;
-		else if (err == -1 && errno == EBADF)
-			ar.error = AcceptResult::BAD_SOCKET;
-		else if (err == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
-			ar.error = AcceptResult::NO_CONNECTION;
+		if (err == INVALID_SOCKET)
+		{
+			if (last_error() == EWOULDBLOCK)
+				ar.error = AcceptResult::NO_CONNECTION;
+			else
+				ar.error = AcceptResult::UNKNOWN;
+		}
 		else
-			ar.error = AcceptResult::UNKNOWN;
-#elif CROWN_PLATFORM_WINDOWS
-		if (err != INVALID_SOCKET)
 		{
 			c._socket = err;
-			return ar;
 		}
 
-		int wsaerr = WSAGetLastError();
-		if (wsaerr == WSAEWOULDBLOCK)
-			ar.error = AcceptResult::NO_CONNECTION;
-		else
-			ar.error = AcceptResult::UNKNOWN;
-#endif
 		return ar;
 	}
 
@@ -270,40 +231,17 @@ struct TCPSocket
 
 		while (to_read > 0)
 		{
-#if CROWN_PLATFORM_POSIX
-			ssize_t bytes_read = ::recv(_socket
+			int bytes_read = ::recv(_socket
 				, (char*)data + rr.bytes_read
 				, to_read
 				, 0
 				);
 
-			if (bytes_read == -1)
-			{
-				if (errno == EAGAIN || errno == EWOULDBLOCK)
-					rr.error = ReadResult::WOULDBLOCK;
-				else if (errno == ETIMEDOUT)
-					rr.error = ReadResult::TIMEOUT;
-				else
-					rr.error = ReadResult::UNKNOWN;
-				return rr;
-			}
-			else if (bytes_read == 0)
-			{
-				rr.error = ReadResult::REMOTE_CLOSED;
-				return rr;
-			}
-#elif CROWN_PLATFORM_WINDOWS
-			int bytes_read = ::recv(_socket
-				, (char*)data + rr.bytes_read
-				, (int)to_read
-				, 0
-				);
-
 			if (bytes_read == SOCKET_ERROR)
 			{
-				if (WSAGetLastError() == WSAEWOULDBLOCK)
+				if (last_error() == EWOULDBLOCK)
 					rr.error = ReadResult::WOULDBLOCK;
-				else if (WSAGetLastError() == WSAETIMEDOUT)
+				else if (last_error() == ETIMEDOUT)
 					rr.error = ReadResult::TIMEOUT;
 				else
 					rr.error = ReadResult::UNKNOWN;
@@ -314,7 +252,7 @@ struct TCPSocket
 				rr.error = ReadResult::REMOTE_CLOSED;
 				return rr;
 			}
-#endif
+
 			to_read -= bytes_read;
 			rr.bytes_read += bytes_read;
 		}
@@ -342,44 +280,21 @@ struct TCPSocket
 		wr.error = WriteResult::SUCCESS;
 		wr.bytes_wrote = 0;
 
-		u32 to_send = size;
+		u32 to_write = size;
 
-		while (to_send > 0)
+		while (to_write > 0)
 		{
-#if CROWN_PLATFORM_POSIX
-			ssize_t bytes_wrote = ::send(_socket
-				, (char*)data + wr.bytes_wrote
-				, to_send
-				, 0
-				);
-
-			if (bytes_wrote == -1)
-			{
-				if (errno == EAGAIN || errno == EWOULDBLOCK)
-					wr.error = WriteResult::WOULDBLOCK;
-				else if (errno == ETIMEDOUT)
-					wr.error = WriteResult::TIMEOUT;
-				else
-					wr.error = WriteResult::UNKNOWN;
-				return wr;
-			}
-			else if (bytes_wrote == 0)
-			{
-				wr.error = WriteResult::REMOTE_CLOSED;
-				return wr;
-			}
-#elif CROWN_PLATFORM_WINDOWS
 			int bytes_wrote = ::send(_socket
 				, (char*)data + wr.bytes_wrote
-				, (int)to_send
+				, to_write
 				, 0
 				);
 
 			if (bytes_wrote == SOCKET_ERROR)
 			{
-				if (WSAGetLastError() == WSAEWOULDBLOCK)
+				if (last_error() == EWOULDBLOCK)
 					wr.error = WriteResult::WOULDBLOCK;
-				else if (WSAGetLastError() == WSAETIMEDOUT)
+				else if (last_error() == ETIMEDOUT)
 					wr.error = WriteResult::TIMEOUT;
 				else
 					wr.error = WriteResult::UNKNOWN;
@@ -390,8 +305,8 @@ struct TCPSocket
 				wr.error = WriteResult::REMOTE_CLOSED;
 				return wr;
 			}
-#endif
-			to_send -= bytes_wrote;
+
+			to_write -= bytes_wrote;
 			wr.bytes_wrote += bytes_wrote;
 		}
 		return wr;
@@ -428,11 +343,7 @@ struct TCPSocket
 	{
 		int optval = (int)reuse;
 		int err = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
-#if CROWN_PLATFORM_POSIX
-		CE_ASSERT(err == 0, "setsockopt: errno = %d", errno);
-#elif CROWN_PLATFORM_WINDOWS
-		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError = %d", WSAGetLastError());
-#endif
+		CE_ASSERT(err == 0, "setsockopt: last_error() = %d", last_error());
 		CE_UNUSED(err);
 	}
 
@@ -442,17 +353,11 @@ struct TCPSocket
 		struct timeval timeout;
 		timeout.tv_sec = seconds;
 		timeout.tv_usec = 0;
-#if CROWN_PLATFORM_POSIX
+
 		int err = setsockopt(_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-		CE_ASSERT(err == 0, "setsockopt: errno: %d", errno);
+		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
 		err = setsockopt(_socket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
-		CE_ASSERT(err == 0, "setsockopt: errno: %d", errno);
-#elif CROWN_PLATFORM_WINDOWS
-		int err = setsockopt(_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError: %d", WSAGetLastError());
-		err = setsockopt(_socket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
-		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError: %d", WSAGetLastError());
-#endif
+		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
 		CE_UNUSED(err);
 	}
 };
