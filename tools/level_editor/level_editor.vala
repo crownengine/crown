@@ -89,45 +89,49 @@ namespace Crown
 
 		const Gtk.ActionEntry[] action_entries =
 		{
-			{ "menu-file",            null,  "_File",            null,             null, null                   },
-			{ "new",                  null,  "New",              "<ctrl>N",        null, on_new                 },
-			{ "open",                 null,  "Open",             "<ctrl>O",        null, on_open                },
-			{ "save",                 null,  "Save",             "<ctrl>S",        null, on_save                },
-			{ "save-as",              null,  "Save As...",       null,             null, on_save_as             },
-			{ "import",               null,  "Import...",        null,             null, on_import              },
-			{ "preferences",          null,  "Preferences",      null,             null, on_preferences         },
-			{ "quit",                 null,  "Quit",             "<ctrl>Q",        null, on_quit                },
-			{ "menu-edit",            null,  "_Edit",            null,             null, null                   },
-			{ "undo",                 null,  "Undo",             "<ctrl>Z",        null, on_undo                },
-			{ "redo",                 null,  "Redo",             "<shift><ctrl>Z", null, on_redo                },
-			{ "duplicate",            null,  "Duplicate",        "<ctrl>D",        null, on_duplicate           },
-			{ "delete",               null,  "Delete",           "<ctrl>K",        null, on_delete              },
-			{ "menu-grid",            null,  "Grid",             null,             null, null                   },
-			{ "grid-custom",          null,  "Custom",           "G",              null, on_custom_grid         },
-			{ "menu-rotation-snap",   null,  "Rotation Snap",    null,             null, null                   },
-			{ "rotation-snap-custom", null,  "Custom",           "H",              null, on_rotation_snap       },
-			{ "menu-create",          null,  "Create",           null,             null, null                   },
-			{ "menu-primitives",      null,  "Primitives",       null,             null, null                   },
-			{ "primitive-cube",       null,  "Cube",             null,             null, on_create_cube         },
-			{ "primitive-sphere",     null,  "Sphere",           null,             null, on_create_sphere       },
-			{ "primitive-cone",       null,  "Cone",             null,             null, on_create_cone         },
-			{ "primitive-cylinder",   null,  "Cylinder",         null,             null, on_create_cylinder     },
-			{ "primitive-plane",      null,  "Plane",            null,             null, on_create_plane        },
-			{ "camera",               null,  "Camera",           null,             null, on_create_camera       },
-			{ "light",                null,  "Light",            null,             null, on_create_light        },
-			{ "sound-source",         null,  "Sound Source",     null,             null, on_create_sound_source },
-			{ "menu-engine",          null,  "En_gine",          null,             null, null                   },
-			{ "menu-view",            null,  "View",             null,             null, null                   },
-			{ "resource-browser",     null,  "Resource Browser", "<ctrl>P",        null, on_resource_browser    },
-			{ "restart",              null,  "_Restart",         null,             null, on_engine_restart      },
-			{ "reload-lua",           null,  "Reload Lua",       "F7",             null, on_reload_lua          },
-			{ "menu-run",             null,  "_Run",             null,             null, null                   },
-			{ "game-run",             "run", "Run Game",         "F5",             null, on_run_game            },
-			{ "menu-help",            null,  "Help",             null,             null, null                   },
-			{ "manual",               null,  "Manual",           "F1",             null, on_manual              },
-			{ "report-issue",         null,  "Report an Issue",  null,             null, on_report_issue        },
-			{ "open-last-log",        null,  "Open last.log",    null,             null, on_open_last_log       },
-			{ "about",                null,  "About",            null,             null, on_about               }
+			{ "menu-file",            null,  "_File",              null,             null, null                   },
+			{ "new",                  null,  "New",                "<ctrl>N",        null, on_new                 },
+			{ "open",                 null,  "Open...",            "<ctrl>O",        null, on_open                },
+			{ "save",                 null,  "Save",               "<ctrl>S",        null, on_save                },
+			{ "save-as",              null,  "Save As...",         null,             null, on_save_as             },
+			{ "import",               null,  "Import",             null,             null, null                   },
+			{ "import-sprites",       null,  "Sprites...",         null,             null, on_import_sprites      },
+			{ "import-meshes",        null,  "Meshes...",          null,             null, on_import_meshes       },
+			{ "import-sounds",        null,  "Sounds...",          null,             null, on_import_sounds       },
+			{ "import-textures",      null,  "Textures...",        null,             null, on_import_textures     },
+			{ "preferences",          null,  "Preferences",        null,             null, on_preferences         },
+			{ "quit",                 null,  "Quit",               "<ctrl>Q",        null, on_quit                },
+			{ "menu-edit",            null,  "_Edit",              null,             null, null                   },
+			{ "undo",                 null,  "Undo",               "<ctrl>Z",        null, on_undo                },
+			{ "redo",                 null,  "Redo",               "<shift><ctrl>Z", null, on_redo                },
+			{ "duplicate",            null,  "Duplicate",          "<ctrl>D",        null, on_duplicate           },
+			{ "delete",               null,  "Delete",             "<ctrl>K",        null, on_delete              },
+			{ "menu-grid",            null,  "Grid",               null,             null, null                   },
+			{ "grid-custom",          null,  "Custom",             "G",              null, on_custom_grid         },
+			{ "menu-rotation-snap",   null,  "Rotation Snap",      null,             null, null                   },
+			{ "rotation-snap-custom", null,  "Custom",             "H",              null, on_rotation_snap       },
+			{ "menu-create",          null,  "Create",             null,             null, null                   },
+			{ "menu-primitives",      null,  "Primitives",         null,             null, null                   },
+			{ "primitive-cube",       null,  "Cube",               null,             null, on_create_cube         },
+			{ "primitive-sphere",     null,  "Sphere",             null,             null, on_create_sphere       },
+			{ "primitive-cone",       null,  "Cone",               null,             null, on_create_cone         },
+			{ "primitive-cylinder",   null,  "Cylinder",           null,             null, on_create_cylinder     },
+			{ "primitive-plane",      null,  "Plane",              null,             null, on_create_plane        },
+			{ "camera",               null,  "Camera",             null,             null, on_create_camera       },
+			{ "light",                null,  "Light",              null,             null, on_create_light        },
+			{ "sound-source",         null,  "Sound Source",       null,             null, on_create_sound_source },
+			{ "menu-engine",          null,  "En_gine",            null,             null, null                   },
+			{ "menu-view",            null,  "View",               null,             null, null                   },
+			{ "resource-browser",     null,  "Resource Browser",   "<ctrl>P",        null, on_resource_browser    },
+			{ "restart",              null,  "_Restart",           null,             null, on_engine_restart      },
+			{ "reload-lua",           null,  "Reload Lua",         "F7",             null, on_reload_lua          },
+			{ "menu-run",             null,  "_Run",               null,             null, null                   },
+			{ "game-run",             "run", "Run Game",           "F5",             null, on_run_game            },
+			{ "menu-help",            null,  "Help",               null,             null, null                   },
+			{ "manual",               null,  "Manual",             "F1",             null, on_manual              },
+			{ "report-issue",         null,  "Report an Issue",    null,             null, on_report_issue        },
+			{ "open-last-log",        null,  "Open last.log",      null,             null, on_open_last_log       },
+			{ "about",                null,  "About",              null,             null, on_about               }
 		};
 
 		const Gtk.RadioActionEntry[] grid_entries =
@@ -322,6 +326,12 @@ namespace Crown
 			_file_filter = new FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
 			_file_filter.add_pattern("*.level");
+
+			_resource_browser = new ResourceBrowser(_project);
+			_resource_browser.relative_to = _toolbar;
+			_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
+			_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
+			_resource_browser.modal = true;
 
 			// Save level once every 5 minutes.
 			GLib.Timeout.add_seconds(5*3600, save_timeout);
@@ -903,7 +913,7 @@ namespace Crown
 			save_as();
 		}
 
-		private void on_import(Gtk.Action action)
+		private void on_import_begin(Gtk.FileFilter ff, out SList<string> filenames, out string filename)
 		{
 			FileChooserDialog fcd = new FileChooserDialog("Import..."
 				, this
@@ -914,13 +924,109 @@ namespace Crown
 				, ResponseType.ACCEPT
 				);
 			fcd.select_multiple = true;
+			fcd.add_filter(ff);
 
-			if (fcd.run() == (int)ResponseType.ACCEPT)
+			if (fcd.run() != (int)ResponseType.ACCEPT)
 			{
-				// TODO
+				fcd.destroy();
+				return;
 			}
 
+			filenames = fcd.get_filenames();
 			fcd.destroy();
+
+			FileChooserDialog dst = new FileChooserDialog("Select destination folder..."
+				, this
+				, FileChooserAction.SELECT_FOLDER
+				, "Cancel"
+				, ResponseType.CANCEL
+				, "Select"
+				, ResponseType.ACCEPT
+				);
+			dst.set_current_folder(_project.source_dir());
+
+			if (dst.run() != (int)ResponseType.ACCEPT)
+			{
+				dst.destroy();
+				return;
+			}
+
+			filename = dst.get_filename();
+			dst.destroy();
+		}
+
+		private void on_import_end()
+		{
+			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				if (_resource_compiler.compile.end(res))
+				{
+					_project.scan_source_dir();
+				}
+			});
+		}
+
+		private void on_import_sprites(Gtk.Action action)
+		{
+			Gtk.FileFilter ff = new FileFilter();
+			ff.set_filter_name("Sprite (*.png)");
+			ff.add_pattern("*.png");
+
+			SList<string> filenames;
+			string filename;
+			on_import_begin(ff, out filenames, out filename);
+
+			_project.import_sprites(filenames, filename);
+
+			on_import_end();
+		}
+
+		private void on_import_meshes(Gtk.Action action)
+		{
+			Gtk.FileFilter ff = new FileFilter();
+			ff.set_filter_name("Mesh (*.mesh)");
+			ff.add_pattern("*.mesh");
+
+			SList<string> filenames;
+			string filename;
+			on_import_begin(ff, out filenames, out filename);
+
+			_project.import_meshes(filenames, filename);
+
+			on_import_end();
+		}
+
+		private void on_import_sounds(Gtk.Action action)
+		{
+			Gtk.FileFilter ff = new FileFilter();
+			ff.set_filter_name("Sound (*.wav)");
+			ff.add_pattern("*.wav");
+
+			SList<string> filenames;
+			string filename;
+			on_import_begin(ff, out filenames, out filename);
+
+			_project.import_sounds(filenames, filename);
+
+			on_import_end();
+		}
+
+		private void on_import_textures(Gtk.Action action)
+		{
+			Gtk.FileFilter ff = new FileFilter();
+			ff.set_filter_name("Texture (*.png, *.tga, *.dds, *.ktx, *.pvr)");
+			ff.add_pattern("*.png");
+			ff.add_pattern("*.tga");
+			ff.add_pattern("*.dds");
+			ff.add_pattern("*.ktx");
+			ff.add_pattern("*.pvr");
+
+			SList<string> filenames;
+			string filename;
+			on_import_begin(ff, out filenames, out filename);
+
+			_project.import_textures(filenames, filename);
+
+			on_import_end();
 		}
 
 		private void on_preferences(Gtk.Action action)
@@ -1033,15 +1139,6 @@ namespace Crown
 
 		private void on_resource_browser(Gtk.Action action)
 		{
-			if (_resource_browser == null)
-			{
-				_resource_browser = new ResourceBrowser(_project);
-				_resource_browser.relative_to = _toolbar;
-				_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
-				_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
-				_resource_browser.modal = true;
-			}
-
 			_resource_browser.show_all();
 		}
 

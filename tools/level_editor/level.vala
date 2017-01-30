@@ -72,7 +72,7 @@ namespace Crown
 		/// Loads the empty level template.
 		public void load_empty_level()
 		{
-			load(_toolchain_dir + "core/editors/levels/empty.level");
+			load(_toolchain_dir + "/" + "core/editors/levels/empty.level");
 		}
 
 		public void spawn_unit(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)

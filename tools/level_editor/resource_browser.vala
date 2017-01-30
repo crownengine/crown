@@ -50,6 +50,8 @@ namespace Crown
 		{
 			// Data
 			_project = project;
+			_project.changed.connect(on_project_changed);
+
 			_console_client = new ConsoleClient();
 
 			// Widgets
@@ -92,17 +94,7 @@ namespace Crown
 			_scrolled_window.add(_tree_view);
 			_scrolled_window.set_size_request(300, 400);
 
-			Database db = _project.files();
-			HashSet<Guid?> files = db.get_property(GUID_ZERO, "data") as HashSet<Guid?>;
-			files.foreach((id) => {
-				Gtk.TreeIter resource_iter;
-				_tree_store.append(out resource_iter, null);
-				string name = (string)db.get_property(id, "name");
-				string type = (string)db.get_property(id, "type");
-				_tree_store.set(resource_iter, 0, name, 1, type, -1);
-				return true;
-			});
-			_tree_filter.refilter();
+			read_project();
 
 			_engine_view = new EngineView(_console_client, false);
 			_engine_view.realized.connect(on_engine_view_realized);
@@ -299,6 +291,28 @@ namespace Crown
 				model.get_value(iter, 1, out type);
 				_console_client.send_script(UnitPreviewApi.set_preview_resource((string)type, (string)name));
 			}
+		}
+
+		private void read_project()
+		{
+			_tree_store.clear();
+
+			Database db = _project.files();
+			HashSet<Guid?> files = db.get_property(GUID_ZERO, "data") as HashSet<Guid?>;
+			files.foreach((id) => {
+				Gtk.TreeIter resource_iter;
+				_tree_store.append(out resource_iter, null);
+				string name = (string)db.get_property(id, "name");
+				string type = (string)db.get_property(id, "type");
+				_tree_store.set(resource_iter, 0, name, 1, type, -1);
+				return true;
+			});
+			_tree_filter.refilter();
+		}
+
+		private void on_project_changed()
+		{
+			read_project();
 		}
 	}
 }
