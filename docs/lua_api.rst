@@ -617,6 +617,18 @@ Sprite
 **sprite_destroy** (rw, id)
 	Destroys the sprite *id*.
 
+**sprite_set_frame** (rw, id, frame)
+	Sets the frame *index* of the sprite *id*.
+
+**sprite_set_visible** (rw, id, visible)
+	Sets whether the sprite *id* is *visible*.
+
+**sprite_flip_x** (rw, id, flip)
+	Sets whether to flip the sprite on the y-axis.
+
+**sprite_flip_y** (rw, id, flip)
+	Sets whether to flip the sprite on the y-axis.
+
 **sprite_instances** (rw, unit) : Id
 	Returns the IDs for all the sprites of the *unit*.
 

@@ -78,17 +78,25 @@ namespace sprite_resource_internal
 			x1 /= CROWN_DEFAULT_PIXELS_PER_METER;
 			y1 /= CROWN_DEFAULT_PIXELS_PER_METER;
 
-			array::push_back(vertices, x0); array::push_back(vertices, y0); // position
-			array::push_back(vertices, u0); array::push_back(vertices, v0); // uv
+			array::push_back(vertices, x0);
+			array::push_back(vertices, y0);
+			array::push_back(vertices, u0);
+			array::push_back(vertices, v0);
 
-			array::push_back(vertices, x1); array::push_back(vertices, y0); // position
-			array::push_back(vertices, u1); array::push_back(vertices, v0); // uv
+			array::push_back(vertices, x1);
+			array::push_back(vertices, y0);
+			array::push_back(vertices, u1);
+			array::push_back(vertices, v0);
 
-			array::push_back(vertices, x1); array::push_back(vertices, y1); // position
-			array::push_back(vertices, u1); array::push_back(vertices, v1); // uv
+			array::push_back(vertices, x1);
+			array::push_back(vertices, y1);
+			array::push_back(vertices, u1);
+			array::push_back(vertices, v1);
 
-			array::push_back(vertices, x0); array::push_back(vertices, y1); // position
-			array::push_back(vertices, u0); array::push_back(vertices, v1); // uv
+			array::push_back(vertices, x0);
+			array::push_back(vertices, y1);
+			array::push_back(vertices, u0);
+			array::push_back(vertices, v1);
 		}
 
 		const u32 num_vertices = array::size(vertices) / 4; // 4 components per vertex

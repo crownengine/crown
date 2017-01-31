@@ -1923,6 +1923,20 @@ static int render_world_sprite_set_frame(lua_State* L)
 	return 0;
 }
 
+static int render_world_sprite_flip_x(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_render_world(1)->sprite_flip_x(stack.get_sprite_instance(2), stack.get_bool(3));
+	return 0;
+}
+
+static int render_world_sprite_flip_y(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_render_world(1)->sprite_flip_y(stack.get_sprite_instance(2), stack.get_bool(3));
+	return 0;
+}
+
 static int render_world_sprite_raycast(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3374,6 +3388,8 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "sprite_instances",     render_world_sprite_instances);
 	env.add_module_function("RenderWorld", "sprite_set_frame",     render_world_sprite_set_frame);
 	env.add_module_function("RenderWorld", "sprite_set_visible",   render_world_sprite_set_visible);
+	env.add_module_function("RenderWorld", "sprite_flip_x",        render_world_sprite_flip_x);
+	env.add_module_function("RenderWorld", "sprite_flip_y",        render_world_sprite_flip_y);
 	env.add_module_function("RenderWorld", "sprite_raycast",       render_world_sprite_raycast);
 	env.add_module_function("RenderWorld", "light_create",         render_world_light_create);
 	env.add_module_function("RenderWorld", "light_destroy",        render_world_light_destroy);

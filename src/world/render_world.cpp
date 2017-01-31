@@ -152,16 +152,29 @@ void RenderWorld::sprite_set_material(SpriteInstance i, StringId64 id)
 	_sprite_manager._data.material[i.i] = id;
 }
 
-void RenderWorld::sprite_set_visible(SpriteInstance i, bool visible)
-{
-	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
-}
-
 void RenderWorld::sprite_set_frame(SpriteInstance i, u32 index)
 {
 	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
 	_sprite_manager._data.frame[i.i] = index;
 }
+
+void RenderWorld::sprite_set_visible(SpriteInstance i, bool visible)
+{
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+}
+
+void RenderWorld::sprite_flip_x(SpriteInstance i, bool flip)
+{
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.flip_x[i.i] = flip;
+}
+
+void RenderWorld::sprite_flip_y(SpriteInstance i, bool flip)
+{
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.flip_y[i.i] = flip;
+}
+
 
 f32 RenderWorld::sprite_raycast(SpriteInstance i, const Vector3& from, const Vector3& dir)
 {
@@ -347,8 +360,53 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 		{
 			const f32* frame = sprite_resource::frame_data(sid.resource[i], sid.frame[i]);
 
-			for (u32 vi = 0; vi < 16; ++vi)
-				*vdata++ = *frame++;
+			float u0 = frame[ 2]; // u
+			float v0 = frame[ 3]; // v
+
+			float u1 = frame[ 6]; // u
+			float v1 = frame[ 7]; // v
+
+			float u2 = frame[10]; // u
+			float v2 = frame[11]; // v
+
+			float u3 = frame[14]; // u
+			float v3 = frame[15]; // v
+
+			if (sid.flip_x[i])
+			{
+				float u;
+				u = u0; u0 = u1; u1 = u;
+				u = u2; u2 = u3; u3 = u;
+			}
+
+			if (sid.flip_y[i])
+			{
+				float v;
+				v = v0; v0 = v2; v2 = v;
+				v = v1; v1 = v3; v3 = v;
+			}
+
+			vdata[ 0] = frame[ 0]; // x
+			vdata[ 1] = frame[ 1]; // y
+			vdata[ 2] = u0;
+			vdata[ 3] = v0;
+
+			vdata[ 4] = frame[ 4]; // x
+			vdata[ 5] = frame[ 5]; // y
+			vdata[ 6] = u1;
+			vdata[ 7] = v1;
+
+			vdata[ 8] = frame[ 8]; // x
+			vdata[ 9] = frame[ 9]; // y
+			vdata[10] = u2;
+			vdata[11] = v2;
+
+			vdata[12] = frame[12]; // x
+			vdata[13] = frame[13]; // y
+			vdata[14] = u3;
+			vdata[15] = v3;
+
+			vdata += 16;
 
 			*idata++ = i*4+0;
 			*idata++ = i*4+1;
@@ -666,6 +724,8 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(AABB) + alignof(AABB)
+		+ num*sizeof(bool) + alignof(bool)
+		+ num*sizeof(bool) + alignof(bool)
 		+ num*sizeof(SpriteInstance) + alignof(SpriteInstance)
 		;
 
@@ -681,7 +741,9 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.frame         = (u32*                  )memory::align_top(new_data.material + num, alignof(u32                  ));
 	new_data.world         = (Matrix4x4*            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4            ));
 	new_data.aabb          = (AABB*                 )memory::align_top(new_data.world + num,    alignof(AABB                 ));
-	new_data.next_instance = (SpriteInstance*       )memory::align_top(new_data.aabb + num,     alignof(SpriteInstance       ));
+	new_data.flip_x        = (bool*                 )memory::align_top(new_data.aabb + num,     alignof(bool                 ));
+	new_data.flip_y        = (bool*                 )memory::align_top(new_data.flip_x + num,   alignof(bool                 ));
+	new_data.next_instance = (SpriteInstance*       )memory::align_top(new_data.flip_y + num,   alignof(SpriteInstance       ));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
@@ -689,6 +751,8 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	memcpy(new_data.frame, _data.frame, _data.size * sizeof(u32));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.aabb, _data.aabb, _data.size * sizeof(AABB));
+	memcpy(new_data.flip_x, _data.flip_x, _data.size * sizeof(bool));
+	memcpy(new_data.flip_y, _data.flip_y, _data.size * sizeof(bool));
 	memcpy(new_data.next_instance, _data.next_instance, _data.size * sizeof(SpriteInstance));
 
 	_allocator->deallocate(_data.buffer);
@@ -713,6 +777,8 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResourc
 	_data.frame[last]         = 0;
 	_data.world[last]         = tr;
 	_data.aabb[last]          = AABB();
+	_data.flip_x[last]        = false;
+	_data.flip_y[last]        = false;
 	_data.next_instance[last] = make_instance(UINT32_MAX);
 
 	++_data.size;
@@ -736,6 +802,8 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance i)
 	_data.frame[i.i]         = _data.frame[last];
 	_data.world[i.i]         = _data.world[last];
 	_data.aabb[i.i]          = _data.aabb[last];
+	_data.flip_x[i.i]        = _data.flip_x[last];
+	_data.flip_y[i.i]        = _data.flip_y[last];
 	_data.next_instance[i.i] = _data.next_instance[last];
 
 	--_data.size;

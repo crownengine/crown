@@ -65,6 +65,12 @@ public:
 	/// Sets whether the sprite @a i is @a visible.
 	void sprite_set_visible(SpriteInstance i, bool visible);
 
+	/// Sets whether to flip the sprite on the x-axis.
+	void sprite_flip_x(SpriteInstance i, bool flip);
+
+	/// Sets whether to flip the sprite on the y-axis.
+	void sprite_flip_y(SpriteInstance i, bool flip);
+
 	/// Returns the distance along ray (from, dir) to intersection point with sprite @a i
 	/// or -1.0 if no intersection.
 	f32 sprite_raycast(SpriteInstance i, const Vector3& from, const Vector3& dir);
@@ -193,6 +199,8 @@ public:
 			u32* frame;
 			Matrix4x4* world;
 			AABB* aabb;
+			bool* flip_x;
+			bool* flip_y;
 			SpriteInstance* next_instance;
 		};
 
