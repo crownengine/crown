@@ -617,7 +617,7 @@ Sprite
 **sprite_destroy** (rw, id)
 	Destroys the sprite *id*.
 
-**sprite_set_frame** (rw, id, frame)
+**sprite_set_frame** (rw, id, index)
 	Sets the frame *index* of the sprite *id*.
 
 **sprite_set_visible** (rw, id, visible)
