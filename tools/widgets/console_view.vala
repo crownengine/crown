@@ -82,14 +82,11 @@ namespace Crown
 			tag_warning.foreground_rgba = { 1.0, 1.0, 0.4, 1.0 };
 			Gtk.TextTag tag_error = new Gtk.TextTag("error");
 			tag_error.foreground_rgba = { 1.0, 0.4, 0.4, 1.0 };
-			Gtk.TextTag tag_debug = new Gtk.TextTag("debug");
-			tag_debug.foreground_rgba = { 0.8, 0.8, 0.8, 1.0 };
 
 			Gtk.TextBuffer tb = _text_view.buffer;
 			tb.tag_table.add(tag_info);
 			tb.tag_table.add(tag_warning);
 			tb.tag_table.add(tag_error);
-			tb.tag_table.add(tag_debug);
 
 			_scrolled_window = new Gtk.ScrolledWindow(null, null);
 			_scrolled_window.add(_text_view);

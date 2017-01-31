@@ -77,7 +77,7 @@ struct BgfxCallback : public bgfx::CallbackI
 		char buf[2048];
 		strncpy(buf, _format, sizeof(buf));
 		buf[strlen32(buf)-1] = '\0'; // Remove trailing newline
-		logdv(buf, _argList);
+		logiv(buf, _argList);
 	}
 
 	virtual u32 cacheReadSize(u64 /*_id*/)
@@ -456,7 +456,7 @@ void Device::run()
 		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
 		_lua_environment->call_global("init", 0);
 
-		logd("Engine initialized");
+		logi("Engine initialized");
 
 		s16 mouse_x = 0;
 		s16 mouse_y = 0;
@@ -688,7 +688,7 @@ static StringStream& sanitize(StringStream& ss, const char* msg)
 	return ss;
 }
 
-static const char* s_severity_map[] = { "info", "warning", "error", "debug" };
+static const char* s_severity_map[] = { "info", "warning", "error" };
 CE_STATIC_ASSERT(countof(s_severity_map) == LogSeverity::COUNT);
 
 void Device::log(const char* msg, LogSeverity::Enum severity)
