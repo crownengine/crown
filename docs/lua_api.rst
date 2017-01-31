@@ -624,7 +624,7 @@ Sprite
 	Sets whether the sprite *id* is *visible*.
 
 **sprite_flip_x** (rw, id, flip)
-	Sets whether to flip the sprite on the y-axis.
+	Sets whether to flip the sprite on the x-axis.
 
 **sprite_flip_y** (rw, id, flip)
 	Sets whether to flip the sprite on the y-axis.
