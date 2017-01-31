@@ -150,7 +150,7 @@ void DebugGui::rect(const Vector2& pos, const Vector2& size, StringId64 material
 	rect3d(vector3(pos.x, pos.y, 0.0f), size, material, color);
 }
 
-void DebugGui::image_uv3d(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
+void DebugGui::image3d_uv(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
 {
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
@@ -200,12 +200,12 @@ void DebugGui::image_uv3d(const Vector3& pos, const Vector2& size, const Vector2
 
 void DebugGui::image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
 {
-	image_uv3d(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color);
+	image3d_uv(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color);
 }
 
 void DebugGui::image3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
 {
-	image_uv3d(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color);
+	image3d_uv(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color);
 }
 
 void DebugGui::image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color)

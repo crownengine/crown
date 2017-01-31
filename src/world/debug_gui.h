@@ -53,10 +53,10 @@ struct DebugGui
 
 	void rect3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color);
 	void rect(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color);
-	void image_uv3d(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
-	void image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
 	void image3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color);
 	void image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color);
+	void image3d_uv(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
+	void image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
 	void text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color);
 	void text(const Vector2& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color);
 };
