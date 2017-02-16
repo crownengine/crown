@@ -43,10 +43,11 @@ namespace
 
 namespace socket_internal
 {
-	void open(SOCKET socket)
+	SOCKET open()
 	{
-		socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		CE_ASSERT(socket >= 0, "socket: last_error() = %d", last_error());
+		return socket;
 	}
 
 	AcceptResult accept(SOCKET socket, TCPSocket& c)
@@ -167,7 +168,7 @@ void TCPSocket::close()
 ConnectResult TCPSocket::connect(const IPAddress& ip, u16 port)
 {
 	close();
-	socket_internal::open(_socket);
+	_socket = socket_internal::open();
 
 	sockaddr_in addr_in;
 	addr_in.sin_family = AF_INET;
@@ -195,7 +196,7 @@ ConnectResult TCPSocket::connect(const IPAddress& ip, u16 port)
 BindResult TCPSocket::bind(u16 port)
 {
 	close();
-	socket_internal::open(_socket);
+	_socket = socket_internal::open();
 	set_reuse_address(true);
 
 	sockaddr_in address;
