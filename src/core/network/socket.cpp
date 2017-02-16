@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "error.h"
 #include "ip_address.h"
 #include "socket.h"
 

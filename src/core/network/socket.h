@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "error.h"
 #include "network_types.h"
 #include "platform.h"
 #include "types.h"
