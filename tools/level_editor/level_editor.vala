@@ -562,7 +562,7 @@ namespace Crown
 				_console_view.log(e.message, "error");
 			}
 
-			while (!_compiler.is_connected())
+			for (int tries = 0; !_compiler.is_connected() && tries < 5; ++tries)
 			{
 				_compiler.connect("127.0.0.1", CROWN_DEFAULT_SERVER_PORT);
 				GLib.Thread.usleep(100*1000);
@@ -625,7 +625,7 @@ namespace Crown
 				_console_view.log(e.message, "error");
 			}
 
-			while (!_engine.is_connected())
+			for (int tries = 0; !_engine.is_connected() && tries < 5; ++tries)
 			{
 				_engine.connect("127.0.0.1", 10001);
 				GLib.Thread.usleep(100*1000);
