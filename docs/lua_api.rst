@@ -612,69 +612,72 @@ Sprite
 ------
 
 **sprite_create** (rw, unit, sprite_resource, material_resource, visible, pose) : Id
-	Creates a new sprite instance for *unit* and returns its id.
+	Creates a new sprite instance for the *unit* and returns its id.
 
-**sprite_destroy** (rw, id)
-	Destroys the sprite *id*.
-
-**sprite_set_frame** (rw, id, index)
-	Sets the frame *index* of the sprite *id*.
-
-**sprite_set_visible** (rw, id, visible)
-	Sets whether the sprite *id* is *visible*.
-
-**sprite_flip_x** (rw, id, flip)
-	Sets whether to flip the sprite on the x-axis.
-
-**sprite_flip_y** (rw, id, flip)
-	Sets whether to flip the sprite on the y-axis.
+**sprite_destroy** (rw, unit)
+	Destroys the sprite of the *unit*.
 
 **sprite_instances** (rw, unit) : Id
 	Returns the IDs for all the sprites of the *unit*.
+
+**sprite_set_frame** (rw, unit, index)
+	Sets the frame *index* of the sprite.
+
+**sprite_set_visible** (rw, unit, visible)
+	Sets whether the sprite is *visible*.
+
+**sprite_flip_x** (rw, unit, flip)
+	Sets whether to flip the sprite on the x-axis.
+
+**sprite_flip_y** (rw, unit, flip)
+	Sets whether to flip the sprite on the y-axis.
 
 Light
 -----
 
 **light_create** (rw, unit, type, range, intensity, spot_angle, color, pose) : Id
-	Creates a new light for *unit* and returns its id.
+	Creates a new light for the *unit* and returns its id.
 	Type can be either `directional`, `omni` or `spot`.
 
-**light_destroy** (rw, id)
-	Destroys the light *id*.
+**light_destroy** (rw, unit)
+	Destroys the light of the *unit*.
 
 **light_instances** (rw, unit) : Id
 	Returns the IDs for all the lights of the *unit*.
 
-**light_type** (rw, id) : string
-	Returns the type of the light *id*.
+**light_type** (rw, unit) : string
+	Returns the type of the light of the *unit*.
 	It can be either `directional`, `omni` or `spot`.
 
-**light_color** (rw, id) : Color4
-	Returns the color of the light *id*.
+**light_color** (rw, unit) : Color4
+	Returns the color of the light.
 
-**light_range** (rw, id) : float
-	Returns the range of the light *id*.
+**light_range** (rw, unit) : float
+	Returns the range of the light.
 
-**light_intensity** (rw, id) : float
-	Returns the intensity of the light *id*.
+**light_intensity** (rw, unit) : float
+	Returns the intensity of the light.
 
-**light_spot_angle** (rw, id) : float
-	Returns the spot angle of the light *id*.
+**light_spot_angle** (rw, unit) : float
+	Returns the spot angle of the light.
 
-**light_set_type** (rw, id, type)
-	Sets the *type* of the light *id*.
+**light_set_type** (rw, unit, type)
+	Sets the *type* of the light.
 
-**light_set_color** (rw, id, color)
-	Sets the *color* of the light *id*.
+**light_set_color** (rw, unit, color)
+	Sets the *color* of the light.
 
-**light_set_range** (rw, id, range)
-	Sets the *range* of the light *id*.
+**light_set_range** (rw, unit, range)
+	Sets the *range* of the light.
 
-**light_set_intensity** (rw, id, intensity)
-	Sets the *intensity* of the light *id*.
+**light_set_intensity** (rw, unit, intensity)
+	Sets the *intensity* of the light.
 
-**light_set_spot_angle** (rw, id, angle)
-	Sets the spot *angle* of the light *id*.
+**light_set_spot_angle** (rw, unit, angle)v
+	Sets the spot *angle* of the light.
+
+**light_debug_draw** (rw, unit, debug_line)
+	Fills *debug_line* with debug lines from the light.
 
 PhysicsWorld
 =============

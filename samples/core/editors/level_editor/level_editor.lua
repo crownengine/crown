@@ -317,7 +317,7 @@ function UnitBox:raycast(pos, dir)
 
 	local sprite_component = RenderWorld.sprite_instances(rw, self._unit_id)
 	if sprite_component then
-		return RenderWorld.sprite_raycast(rw, sprite_component, pos, dir)
+		return RenderWorld.sprite_raycast(rw, self._unit_id, pos, dir)
 	end
 
 	return -1.0
@@ -328,7 +328,7 @@ function UnitBox:draw()
 		-- Draw lights
 		local lights = RenderWorld.light_instances(LevelEditor._rw, self._unit_id)
 		if lights ~= nil then
-			RenderWorld.light_debug_draw(LevelEditor._rw, lights, LevelEditor._lines)
+			RenderWorld.light_debug_draw(LevelEditor._rw, self._unit_id, LevelEditor._lines)
 		end
 
 		local mesh_component = RenderWorld.mesh_instances(LevelEditor._rw, self._unit_id)
