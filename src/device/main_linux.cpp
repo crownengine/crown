@@ -17,6 +17,7 @@
 #include "unit_tests.h"
 #include "window.h"
 #include <bgfx/bgfxplatform.h>
+#include <fcntl.h>  // O_RDONLY, ...
 #include <stdlib.h>
 #include <string.h> // memset
 #include <X11/extensions/Xrandr.h>
