@@ -1893,7 +1893,7 @@ static int render_world_sprite_create(lua_State* L)
 static int render_world_sprite_destroy(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->sprite_destroy(stack.get_sprite_instance(2));
+	stack.get_render_world(1)->sprite_destroy(stack.get_unit(2), stack.get_sprite_instance(3));
 	return 0;
 }
 
@@ -1912,28 +1912,28 @@ static int render_world_sprite_instances(lua_State* L)
 static int render_world_sprite_set_visible(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->sprite_set_visible(stack.get_sprite_instance(2), stack.get_bool(3));
+	stack.get_render_world(1)->sprite_set_visible(stack.get_unit(2), stack.get_bool(3));
 	return 0;
 }
 
 static int render_world_sprite_set_frame(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->sprite_set_frame(stack.get_sprite_instance(2), stack.get_int(3));
+	stack.get_render_world(1)->sprite_set_frame(stack.get_unit(2), stack.get_int(3));
 	return 0;
 }
 
 static int render_world_sprite_flip_x(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->sprite_flip_x(stack.get_sprite_instance(2), stack.get_bool(3));
+	stack.get_render_world(1)->sprite_flip_x(stack.get_unit(2), stack.get_bool(3));
 	return 0;
 }
 
 static int render_world_sprite_flip_y(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->sprite_flip_y(stack.get_sprite_instance(2), stack.get_bool(3));
+	stack.get_render_world(1)->sprite_flip_y(stack.get_unit(2), stack.get_bool(3));
 	return 0;
 }
 
@@ -1941,7 +1941,7 @@ static int render_world_sprite_raycast(lua_State* L)
 {
 	LuaStack stack(L);
 	RenderWorld* rw = stack.get_render_world(1);
-	float t = rw->sprite_raycast(stack.get_sprite_instance(2)
+	float t = rw->sprite_raycast(stack.get_unit(2)
 		, stack.get_vector3(3)
 		, stack.get_vector3(4)
 		);
@@ -1973,7 +1973,9 @@ static int render_world_light_create(lua_State* L)
 static int render_world_light_destroy(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->light_destroy(stack.get_light_instance(2));
+	stack.get_render_world(1)->light_destroy(stack.get_unit(2)
+		, stack.get_light_instance(3)
+		);
 	return 0;
 }
 
@@ -1992,7 +1994,7 @@ static int render_world_light_instances(lua_State* L)
 static int render_world_light_type(lua_State* L)
 {
 	LuaStack stack(L);
-	LightType::Enum type = stack.get_render_world(1)->light_type(stack.get_light_instance(2));
+	LightType::Enum type = stack.get_render_world(1)->light_type(stack.get_unit(2));
 	stack.push_string(s_light[type].name);
 	return 1;
 }
@@ -2000,36 +2002,29 @@ static int render_world_light_type(lua_State* L)
 static int render_world_light_color(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_color4(stack.get_render_world(1)->light_color(stack.get_light_instance(2)));
+	stack.push_color4(stack.get_render_world(1)->light_color(stack.get_unit(2)));
 	return 1;
 }
 
 static int render_world_light_range(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(stack.get_render_world(1)->light_range(stack.get_light_instance(2)));
+	stack.push_float(stack.get_render_world(1)->light_range(stack.get_unit(2)));
 	return 1;
 }
 
 static int render_world_light_intensity(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(stack.get_render_world(1)->light_intensity(stack.get_light_instance(2)));
+	stack.push_float(stack.get_render_world(1)->light_intensity(stack.get_unit(2)));
 	return 1;
 }
 
 static int render_world_light_spot_angle(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(stack.get_render_world(1)->light_spot_angle(stack.get_light_instance(2)));
+	stack.push_float(stack.get_render_world(1)->light_spot_angle(stack.get_unit(2)));
 	return 1;
-}
-
-static int render_world_light_debug_draw(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_render_world(1)->light_debug_draw(stack.get_light_instance(2), *stack.get_debug_line(3));
-	return 0;
 }
 
 static int render_world_light_set_type(lua_State* L)
@@ -2040,35 +2035,42 @@ static int render_world_light_set_type(lua_State* L)
 	const LightType::Enum lt = name_to_light_type(name);
 	LUA_ASSERT(lt != LightType::COUNT, stack, "Unknown light type: '%s'", name);
 
-	stack.get_render_world(1)->light_set_type(stack.get_light_instance(2), lt);
+	stack.get_render_world(1)->light_set_type(stack.get_unit(2), lt);
 	return 0;
 }
 
 static int render_world_light_set_color(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->light_set_color(stack.get_light_instance(2), stack.get_color4(3));
+	stack.get_render_world(1)->light_set_color(stack.get_unit(2), stack.get_color4(3));
 	return 0;
 }
 
 static int render_world_light_set_range(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->light_set_range(stack.get_light_instance(2), stack.get_float(3));
+	stack.get_render_world(1)->light_set_range(stack.get_unit(2), stack.get_float(3));
 	return 0;
 }
 
 static int render_world_light_set_intensity(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->light_set_intensity(stack.get_light_instance(2), stack.get_float(3));
+	stack.get_render_world(1)->light_set_intensity(stack.get_unit(2), stack.get_float(3));
 	return 0;
 }
 
 static int render_world_light_set_spot_angle(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_render_world(1)->light_set_spot_angle(stack.get_light_instance(2), stack.get_float(3));
+	stack.get_render_world(1)->light_set_spot_angle(stack.get_unit(2), stack.get_float(3));
+	return 0;
+}
+
+static int render_world_light_debug_draw(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_render_world(1)->light_debug_draw(stack.get_unit(2), *stack.get_debug_line(3));
 	return 0;
 }
 
@@ -3399,12 +3401,12 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "light_range",          render_world_light_range);
 	env.add_module_function("RenderWorld", "light_intensity",      render_world_light_intensity);
 	env.add_module_function("RenderWorld", "light_spot_angle",     render_world_light_spot_angle);
-	env.add_module_function("RenderWorld", "light_debug_draw",     render_world_light_debug_draw);
 	env.add_module_function("RenderWorld", "light_set_type",       render_world_light_set_type);
 	env.add_module_function("RenderWorld", "light_set_color",      render_world_light_set_color);
 	env.add_module_function("RenderWorld", "light_set_range",      render_world_light_set_range);
 	env.add_module_function("RenderWorld", "light_set_intensity",  render_world_light_set_intensity);
 	env.add_module_function("RenderWorld", "light_set_spot_angle", render_world_light_set_spot_angle);
+	env.add_module_function("RenderWorld", "light_debug_draw",     render_world_light_debug_draw);
 	env.add_module_function("RenderWorld", "enable_debug_drawing", render_world_enable_debug_drawing);
 
 	env.add_module_function("PhysicsWorld", "actor_instances",               physics_world_actor_instances);

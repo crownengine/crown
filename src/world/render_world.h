@@ -50,69 +50,72 @@ public:
 	/// Creates a new sprite instance.
 	SpriteInstance sprite_create(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr);
 
-	/// Destroys the sprite @a i.
-	void sprite_destroy(SpriteInstance i);
+	/// Destroys the sprite of the @a unit.
+	void sprite_destroy(UnitId unit, SpriteInstance i);
 
-	/// Returns the sprite instances of the unit @a id.
-	SpriteInstance sprite_instances(UnitId id);
+	/// Returns the sprite instances of the @a unit.
+	SpriteInstance sprite_instances(UnitId unit);
 
-	/// Sets the material @a id of the sprite @a i.
-	void sprite_set_material(SpriteInstance i, StringId64 id);
+	/// Sets the material @a id of the sprite.
+	void sprite_set_material(UnitId unit, StringId64 id);
 
-	/// Sets the frame @a index of the sprite @a i.
-	void sprite_set_frame(SpriteInstance i, u32 index);
+	/// Sets the frame @a index of the sprite.
+	void sprite_set_frame(UnitId unit, u32 index);
 
-	/// Sets whether the sprite @a i is @a visible.
-	void sprite_set_visible(SpriteInstance i, bool visible);
+	/// Sets whether the sprite is @a visible.
+	void sprite_set_visible(UnitId unit, bool visible);
 
 	/// Sets whether to flip the sprite on the x-axis.
-	void sprite_flip_x(SpriteInstance i, bool flip);
+	void sprite_flip_x(UnitId unit, bool flip);
 
 	/// Sets whether to flip the sprite on the y-axis.
-	void sprite_flip_y(SpriteInstance i, bool flip);
+	void sprite_flip_y(UnitId unit, bool flip);
 
-	/// Returns the distance along ray (from, dir) to intersection point with sprite @a i
+	/// Returns the distance along ray (from, dir) to intersection point with sprite
 	/// or -1.0 if no intersection.
-	f32 sprite_raycast(SpriteInstance i, const Vector3& from, const Vector3& dir);
+	f32 sprite_raycast(UnitId unit, const Vector3& from, const Vector3& dir);
 
 	/// Creates a new light instance.
-	LightInstance light_create(UnitId id, const LightDesc& ld, const Matrix4x4& tr);
+	LightInstance light_create(UnitId unit, const LightDesc& ld, const Matrix4x4& tr);
 
-	/// Destroys the light @a i.
-	void light_destroy(LightInstance i);
+	/// Destroys the light.
+	void light_destroy(UnitId unit, LightInstance i);
 
-	/// Returns the light of the unit @a id.
-	LightInstance light_instances(UnitId id);
+	/// Returns the light of the @a unit.
+	LightInstance light_instances(UnitId unit);
 
-	/// Returns the type of the light @a i.
-	LightType::Enum light_type(LightInstance i);
+	/// Returns the type of the light.
+	LightType::Enum light_type(UnitId unit);
 
-	/// Returns the color of the light @a i.
-	Color4 light_color(LightInstance i);
+	/// Returns the color of the light.
+	Color4 light_color(UnitId unit);
 
-	/// Returns the range of the light @a i.
-	f32 light_range(LightInstance i);
+	/// Returns the range of the light.
+	f32 light_range(UnitId unit);
 
-	/// Returns the intensity of the light @a i.
-	f32 light_intensity(LightInstance i);
+	/// Returns the intensity of the light.
+	f32 light_intensity(UnitId unit);
 
-	/// Returns the spot angle of the light @a i.
-	f32 light_spot_angle(LightInstance i);
+	/// Returns the spot angle of the light.
+	f32 light_spot_angle(UnitId unit);
 
-	/// Sets the @a type of the light @a i.
-	void light_set_type(LightInstance i, LightType::Enum type);
+	/// Sets the @a type of the light.
+	void light_set_type(UnitId unit, LightType::Enum type);
 
-	/// Sets the @a color of the light @a i.
-	void light_set_color(LightInstance i, const Color4& color);
+	/// Sets the @a color of the light.
+	void light_set_color(UnitId unit, const Color4& color);
 
-	/// Sets the @a range of the light @a i.
-	void light_set_range(LightInstance i, f32 range);
+	/// Sets the @a range of the light.
+	void light_set_range(UnitId unit, f32 range);
 
-	/// Sets the @a intensity of the light @a i.
-	void light_set_intensity(LightInstance i, f32 intensity);
+	/// Sets the @a intensity of the light.
+	void light_set_intensity(UnitId unit, f32 intensity);
 
-	/// Sets the spot @a angle of the light @a i.
-	void light_set_spot_angle(LightInstance i, f32 angle);
+	/// Sets the spot @a angle of the light.
+	void light_set_spot_angle(UnitId unit, f32 angle);
+
+	/// Fills @a dl with debug lines from the light.
+	void light_debug_draw(UnitId unit, DebugLine& dl);
 
 	void update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world);
 
@@ -120,9 +123,6 @@ public:
 
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);
-
-	/// Fills @a dl with debug lines from light @a i.
-	void light_debug_draw(LightInstance i, DebugLine& dl);
 
 	/// Fills @a dl with debug lines
 	void debug_draw(DebugLine& dl);
