@@ -274,6 +274,7 @@ namespace os
 		return ::getenv(name);
 #elif CROWN_PLATFORM_WINDOWS
 		// GetEnvironmentVariable(name, buf, size);
+		return NULL;
 #endif
 	}
 
