@@ -438,7 +438,7 @@ namespace sjson
 
 	Matrix4x4 parse_matrix4x4(const char* json)
 	{
-		TempAllocator128 ta;
+		TempAllocator256 ta;
 		JsonArray array(ta);
 		sjson::parse_array(json, array);
 
@@ -467,7 +467,7 @@ namespace sjson
 
 	StringId32 parse_string_id(const char* json)
 	{
-		TempAllocator1024 ta;
+		TempAllocator256 ta;
 		DynamicString str(ta);
 		sjson::parse_string(json, str);
 		return str.to_string_id();
@@ -475,7 +475,7 @@ namespace sjson
 
 	ResourceId parse_resource_id(const char* json)
 	{
-		TempAllocator1024 ta;
+		TempAllocator256 ta;
 		DynamicString str(ta);
 		sjson::parse_string(json, str);
 		return ResourceId(str.c_str());
