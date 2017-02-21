@@ -7,10 +7,3 @@ The Flexible Game Engine
 
    manual
    lua_api
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
