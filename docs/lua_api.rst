@@ -1,4 +1,6 @@
-.. contents::
+=================
+Lua API Reference
+=================
 
 Math
 ====
@@ -451,18 +453,18 @@ Camera
 
 **camera_create** (world, unit, projection, fov, far_range, near_range, pose) : Id
 	Creates a new camera for *unit* and returns its id.
-	Projection can be either `orthographic` or `perspective`.
+	Projection can be either ``orthographic`` or ``perspective``.
 
 **camera_instances** (world, unit) : Id
 	Returns the IDs for all the cameras of the *unit*.
 
 **camera_set_projection_type** (world, camera, projection)
 	Sets the projection type of the camera.
-	Projection can be either `orthographic` or `perspective`.
+	Projection can be either ``orthographic`` or ``perspective``.
 
 **camera_projection_type** (world, camera) : string
 	Returns the projection type of the camera.
-	It can be either `orthographic` or `perspective`.
+	It can be either ``orthographic`` or ``perspective``.
 
 **camera_fov** (world, camera) : float
 	Returns the field-of-view of the camera in degrees.
@@ -637,7 +639,7 @@ Light
 
 **light_create** (rw, unit, type, range, intensity, spot_angle, color, pose) : Id
 	Creates a new light for the *unit* and returns its id.
-	Type can be either `directional`, `omni` or `spot`.
+	Type can be either ``directional``, ``omni`` or ``spot``.
 
 **light_destroy** (rw, unit)
 	Destroys the light of the *unit*.
@@ -647,7 +649,7 @@ Light
 
 **light_type** (rw, unit) : string
 	Returns the type of the light of the *unit*.
-	It can be either `directional`, `omni` or `spot`.
+	It can be either ``directional``, ``omni`` or ``spot``.
 
 **light_color** (rw, unit) : Color4
 	Returns the color of the light.
@@ -690,7 +692,7 @@ PhysicsWorld
 
 **raycast** (pw, from, dir, length, mode) : table
 	Returns the actors which intersects the raycast.
-	Mode can be either `closest` or `all`.
+	Mode can be either ``closest`` or ``all``.
 
 **enable_debug_drawing** (pw, enable)
 	Sets whether to *enable* debug drawing.
@@ -849,11 +851,11 @@ Device
 
 **platform** () : string
 	Returns a string identifying what platform the engine is running on.
-	It can be either `android`, `linux` or `windows`
+	It can be either ``android``, ``linux`` or ``windows``
 
 **architecture** () : string
 	Returns a string identifying what architecture the engine is running on.
-	It can be either `32-bit` or `64-bit`.
+	It can be either ``32-bit`` or ``64-bit``.
 
 **version** () : string
 	Returns a string identifying the engine version.
@@ -887,7 +889,7 @@ Device
 
 **console_send** (table)
 	Sends the given lua *table* to clients connected to the engine.
-	Values can be either `nil`, bool, number, string, table, array, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.
+	Values can be either ``nil``, bool, number, string, table, array, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.
 
 **can_get** (type, name) : bool
 	Returns whether the resource (type, name) is loaded.
@@ -988,18 +990,18 @@ Keyboard
 	Returns the name of the button *id*.
 
 **button_id** (name) : int
-	Returns the *id* of the button *name* or `nil` if no matching button is found.
+	Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 Keyboard Button Names
 ~~~~~~~~~~~~~~~~~~~~~
 
-* `tab`, `enter`, `escape`, `space`, `backspace`
-* `num_lock`, `numpad_enter`, `numpad_.`, `numpad_*`, `numpad_+`, `numpad_-`, `numpad_/`, `numpad_0`, `numpad_1`, `numpad_2`, `numpad_3`, `numpad_4`, `numpad_5`, `numpad_6`, `numpad_7`, `numpad_8`, `numpad_9`
-* `f1`, `f2`, `f3`, `f4`, `f5`, `f6`, `f7`, `f8`, `f9`, `f10`, `f11`, `f12`
-* `home`, `left`, `up`, `right`, `down`, `page_up`, `page_down`, `ins`, `del`, `end`
-* `ctrl_left`, `ctrl_right`, `shift_left`, `shift_right`, `caps_lock`, `alt_left`, `alt_right`, `super_left`, `super_right`
-* `0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`
-* `a`, `b`, `c`, `d`, `e`, `f`, `g`, `h`, `i`, `j`, `k`, `l`, `m`, `n`, `o`, `p`, `q`, `r`, `s`, `t`, `u`, `v`, `w`, `x`, `y`, `z`
+* ``tab``, ``enter``, ``escape``, ``space``, ``backspace``
+* ``num_lock``, ``numpad_enter``, ``numpad_.``, ``numpad_*``, ``numpad_+``, ``numpad_-``, ``numpad_/``, ``numpad_0``, ``numpad_1``, ``numpad_2``, ``numpad_3``, ``numpad_4``, ``numpad_5``, ``numpad_6``, ``numpad_7``, ``numpad_8``, ``numpad_9``
+* ``f1``, ``f2``, ``f3``, ``f4``, ``f5``, ``f6``, ``f7``, ``f8``, ``f9``, ``f10``, ``f11``, ``f12``
+* ``home``, ``left``, ``up``, ``right``, ``down``, ``page_up``, ``page_down``, ``ins``, ``del``, ``end``
+* ``ctrl_left``, ``ctrl_right``, ``shift_left``, ``shift_right``, ``caps_lock``, ``alt_left``, ``alt_right``, ``super_left``, ``super_right``
+* ``0``, ``1``, ``2``, ``3``, ``4``, ``5``, ``6``, ``7``, ``8``, ``9``
+* ``a``, ``b``, ``c``, ``d``, ``e``, ``f``, ``g``, ``h``, ``i``, ``j``, ``k``, ``l``, ``m``, ``n``, ``o``, ``p``, ``q``, ``r``, ``s``, ``t``, ``u``, ``v``, ``w``, ``x``, ``y``, ``z``
 
 Keyboard Axis Names
 ~~~~~~~~~~~~~~~~~~~
@@ -1043,22 +1045,22 @@ Mouse
 	Returns the name of the axis *id*.
 
 **button_id** (name) : int
-	Returns the *id* of the button *name* or `nil` if no matching button is found.
+	Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 **axis_id** (name) : int
-	Returns the *id* of the axis *name* or `nil` if no matching axis is found.
+	Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
 Mouse Button Names
 ~~~~~~~~~~~~~~~~~~
 
-`left`, `middle`, `right`, `extra_1`, `extra_2`
+``left``, ``middle``, ``right``, ``extra_1``, ``extra_2``
 
 Mouse Axis Names
 ~~~~~~~~~~~~~~~~
 
-* `cursor`: Returns the cursor position (x, y) in screen coordinates.
-* `cursor_delta`: Returns the delta of the cursor position (x, y) since last frame.
-* `wheel`: Returns the movement of the mouse wheel in the y axis. Positive values of y mean upward scrolling, negative values mean downward scrolling.
+* ``cursor``: Returns the cursor position (x, y) in screen coordinates.
+* ``cursor_delta``: Returns the delta of the cursor position (x, y) since last frame.
+* ``wheel``: Returns the movement of the mouse wheel in the y axis. Positive values of y mean upward scrolling, negative values mean downward scrolling.
 
 Touch
 -----
@@ -1097,10 +1099,10 @@ Touch
 	Returns the name of the axis *id*.
 
 **button_id** (name) : int
-	Returns the *id* of the button *name* or `nil` if no matching button is found.
+	Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 **axis_id** (name) : int
-	Returns the *id* of the axis *name* or `nil` if no matching axis is found.
+	Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
 Pad1, Pad2, Pad3, Pad4
 ----------------------
@@ -1139,24 +1141,24 @@ Pad1, Pad2, Pad3, Pad4
 	Returns the name of the axis *id*.
 
 **button_id** (name) : int
-	Returns the *id* of the button *name* or `nil` if no matching button is found.
+	Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 **axis_id** (name) : int
-	Returns the *id* of the axis *name* or `nil` if no matching axis is found.
+	Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
 Pad Button Names
 ~~~~~~~~~~~~~~~~
 
-* `up`, `down`, `left`, `right`
-* `start`, `back`, `guide`
-* `thumb_left`, `thumb_right`
-* `shoulder_left`, `shoulder_right`
-* `a`, `b`, `x`, `y`
+* ``up``, ``down``, ``left``, ``right``
+* ``start``, ``back``, ``guide``
+* ``thumb_left``, ``thumb_right``
+* ``shoulder_left``, ``shoulder_right``
+* ``a``, ``b``, ``x``, ``y``
 
 Pad Axis Names
 ~~~~~~~~~~~~~~
 
-* `left`, `right`: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z element represents the left or right trigger [0; +1].
+* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z element represents the left or right trigger [0; +1].
 
 Profiler
 ========
@@ -1185,9 +1187,9 @@ Display Mode
 
 Display mode is a lua table with 3 fields:
 
-* `id`: The id of the display mode.
-* `width`: The width of the display mode.
-* `height`: The height of the display mode.
+* ``id``: The id of the display mode.
+* ``width``: The width of the display mode.
+* ``height``: The height of the display mode.
 
 Window
 ======

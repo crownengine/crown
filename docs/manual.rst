@@ -1,5 +1,6 @@
-.. contents::
-.. sectnum::
+======
+Manual
+======
 
 Introduction
 ============
@@ -50,13 +51,13 @@ There is, however, a small number of required files which are needed for the eng
 The boot directory and the boot.config file
 -------------------------------------------
 
-Any directory within `the source directory`_ containing the file named `boot.config` is a boot directory.
+Any directory within `the source directory`_ containing the file named ``boot.config`` is a boot directory.
 
-The `boot.config` is the first file loaded by Pepper; it specifies the package to load and the lua script to execute on boot and various other boot-time settings. See `boot.config file reference`_ for more details.
+The ``boot.config`` is the first file loaded by Pepper; it specifies the package to load and the lua script to execute on boot and various other boot-time settings. See `boot.config file reference`_ for more details.
 
-There can be an arbitrary number of boot directories. You can set which boot directory Pepper should use with the switch `--boot-dir`.
+There can be an arbitrary number of boot directories. You can set which boot directory Pepper should use with the switch ``--boot-dir``.
 
-In the example below, the engine is told to load the package `boot` and run the Lua script `lua/game`.
+In the example below, the engine is told to load the package ``boot`` and run the Lua script ``lua/game``.
 
 .. code::
 
@@ -87,7 +88,7 @@ Many programs store metadata files alongside edited files. This is often the cas
 
 When Pepper bumps into unknown files in the source directory, it quits the compilation and reports an error.
 
-The `.bundleignore` file specifies files that Pepper should ignore when compiling data.
+The ``.bundleignore`` file specifies files that Pepper should ignore when compiling data.
 
 Example:
 
@@ -110,13 +111,13 @@ boot.config file reference
 Generic configurations
 ----------------------
 
-`boot_script = "lua/game"`
+``boot_script = "lua/game"``
 	Lua script to launch on boot.
 
-`boot_package = "boot"`
+``boot_package = "boot"``
 	Package to load on boot.
 
-`window_title = "My window"`
+``window_title = "My window"``
 	Title of the main window on platforms that support it.
 
 Platform-specific configurations
@@ -139,82 +140,76 @@ All configurations for a given *platform* are placed under a key named *platform
 Renderer configurations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-`resolution = [ 1280 720 ]`
+``resolution = [ 1280 720 ]``
 	Sets the width and height of the main window.
 
-`aspect_ratio = -1`
+``aspect_ratio = -1``
 	Sets the aspect ratio.
-	If the value is set to `-1`, the aspect ratio is computed as `width/height` of the main window.
+	If the value is set to ``-1``, the aspect ratio is computed as ``width/height`` of the main window.
 
-`vsync = true`
+``vsync = true``
 	Sets whether to enable the vsync.
 
-`fullscreen = false`
+``fullscreen = false``
 	Sets whether to enable fullscreen.
 
 Command line reference
 ======================
 
-`-h` `--help`
+``-h`` ``--help``
 	Display the help and quit.
 
-`-v` `--version`
+``-v`` ``--version``
 	Display engine version and quit.
 
-`--source-dir <path>`
+``--source-dir <path>``
 	Use <path> as the source directory for resource compilation.
 
 	The <path> must be absolute.
 
-`--data-dir <path>`
+``--data-dir <path>``
 	Use <path> as the destination directory for compiled resources.
 
 	The <path> must be absolute.
 
-`--boot-dir <path>`
-	Boot the engine with the `boot.config` from given <path>.
+``--boot-dir <path>``
+	Boot the engine with the ``boot.config`` from given <path>.
 
 	The <path> must be relative.
 
-`--compile`
+``--compile``
 	Do a full compile of the resources.
 
-	When using this option you must also specify `--platform`, `--source-dir` and `--data-dir`.
+	When using this option you must also specify ``--platform``, ``--source-dir`` and ``--data-dir``.
 
-`--platform <platform>`
+``--platform <platform>``
 	Compile resources for the given <platform>.
 	Possible values for <platform> are:
 
-	* `android`
-	* `linux`
-	* `windows`
+	* ``android``
+	* ``linux``
+	* ``windows``
 
-`--continue`
+``--continue``
 	Run the engine after resource compilation.
 
-`--console-port <port>`
+``--console-port <port>``
 	Set port of the console.
 
 	When no port is specified, the engine uses the port 10001.
 
-`--wait-console`
+``--wait-console``
 	Wait for a console connection before starting up.
 
-`--parent-window <handle>`
+``--parent-window <handle>``
 	Set the parent window <handle> of the main window.
 
 	This option should be used only by the tools.
 
-`--server`
+``--server``
 	Run the engine in server mode.
 
-	When using this option you must also specify `--source-dir`.
+	When using this option you must also specify ``--source-dir``.
 
-`--run-unit-tests`
-	Run unit tests and quit. Available only on `linux` and `windows`.
-
-API reference
-=============
-
-* `Lua API Reference <lua_api.html>`_
-* `C++ API Reference <doxygen/modules.html>`_
+``--run-unit-tests``
+	Run unit tests and quit. Available only on ``linux`` and ``windows``.

@@ -63,9 +63,8 @@ tools-linux-release64: build/tools/projects engine-linux-development64
 
 .PHONY: docs
 docs:
+	make -C docs/ html
 	doxygen docs/doxygen/Doxyfile.doxygen
-	rst2html2 --stylesheet=html4css1.css,docs/style.css docs/lua_api.rst build/docs/lua_api.html
-	rst2html2 --stylesheet=html4css1.css,docs/style.css docs/manual.rst build/docs/manual.html
 
 .PHONY: clean
 clean:
