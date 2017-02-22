@@ -1,5 +1,5 @@
 =================
-Lua API Reference
+Lua API reference
 =================
 
 Math

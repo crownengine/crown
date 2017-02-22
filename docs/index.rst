@@ -5,5 +5,8 @@ The Flexible Game Engine
    :maxdepth: 2
    :caption: Contents:
 
-   manual
+   introduction
+   basics
    lua_api
+   boot_config
+   command_line
