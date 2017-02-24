@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "guid.h"
 #include "json_types.h"
 #include "math_types.h"
 #include "string_types.h"
@@ -73,6 +74,9 @@ namespace sjson
 
 	/// Returns the string @a json as ResourceId.
 	ResourceId parse_resource_id(const char* json);
+
+	/// Returns the string @a json as Guid.
+	Guid parse_guid(const char* json);
 } // namespace sjson
 
 } // namespace crown

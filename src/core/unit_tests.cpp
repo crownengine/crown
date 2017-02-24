@@ -1127,6 +1127,11 @@ static void test_sjson()
 		const ResourceId a = sjson::parse_resource_id("\"murmur64\"");
 		ENSURE(a._id == 0x90631502d1a3432bu);
 	}
+	{
+		const Guid guid = guid::parse("0f6c3b1c-9cba-4282-9096-2a77ca047b1b");
+		const Guid parsed = sjson::parse_guid("\"0f6c3b1c-9cba-4282-9096-2a77ca047b1b\"");
+		ENSURE(guid == parsed);
+	}
 	memory_globals::shutdown();
 }
 

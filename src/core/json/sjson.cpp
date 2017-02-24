@@ -480,6 +480,14 @@ namespace sjson
 		sjson::parse_string(json, str);
 		return ResourceId(str.c_str());
 	}
+
+	Guid parse_guid(const char* json)
+	{
+		TempAllocator64 ta;
+		DynamicString str(ta);
+		sjson::parse_string(json, str);
+		return guid::parse(str.c_str());
+	}
 } // namespace json
 
 } // namespace crown
