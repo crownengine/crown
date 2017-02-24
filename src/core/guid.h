@@ -3,6 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#pragma once
+
 #include "string_types.h"
 #include "types.h"
 
@@ -31,7 +33,7 @@ namespace guid
 	Guid parse(const char* str);
 
 	/// Parses the @a guid from @a str and returns true if success.
-	bool try_parse(const char* str, Guid& guid);
+	bool try_parse(Guid& guid, const char* str);
 
 	/// Fills @a str with the string representation of the @a guid.
 	void to_string(const Guid& guid, DynamicString& str);

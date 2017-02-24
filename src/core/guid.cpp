@@ -40,11 +40,11 @@ namespace guid
 	Guid parse(const char* str)
 	{
 		Guid guid;
-		try_parse(str, guid);
+		try_parse(guid, str);
 		return guid;
 	}
 
-	bool try_parse(const char* str, Guid& guid)
+	bool try_parse(Guid& guid, const char* str)
 	{
 		CE_ENSURE(NULL != str);
 		u32 a, b, c, d, e, f;
