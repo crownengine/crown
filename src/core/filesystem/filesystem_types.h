@@ -11,6 +11,7 @@ namespace crown
 {
 class Filesystem;
 class File;
+struct FileMonitor;
 
 /// Enumerates file open modes.
 ///
