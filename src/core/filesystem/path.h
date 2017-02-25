@@ -31,7 +31,7 @@ namespace path
 	bool is_root(const char* path);
 
 	/// Appends @a path_b to @a path_a and fills @a path with the result.
-	void join(const char* path_a, const char* path_b, DynamicString& path);
+	void join(DynamicString& path, const char* path_a, const char* path_b);
 
 	/// Returns the basename of the @a path.
 	/// @note

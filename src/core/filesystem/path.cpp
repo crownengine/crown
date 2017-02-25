@@ -44,7 +44,7 @@ namespace path
 #endif
 	}
 
-	void join(const char* path_a, const char* path_b, DynamicString& path)
+	void join(DynamicString& path, const char* path_a, const char* path_b)
 	{
 		CE_ENSURE(NULL != path_a);
 		CE_ENSURE(NULL != path_b);

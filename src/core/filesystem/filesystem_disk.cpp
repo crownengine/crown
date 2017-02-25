@@ -368,7 +368,7 @@ void FilesystemDisk::get_absolute_path(const char* path, DynamicString& os_path)
 		return;
 	}
 
-	path::join(_prefix.c_str(), path, os_path);
+	path::join(os_path, _prefix.c_str(), path);
 }
 
 } // namespace crown
