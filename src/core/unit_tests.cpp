@@ -1156,6 +1156,12 @@ static void test_path()
 		const bool b = path::is_root("/home");
 		ENSURE(b == false);
 	}
+	{
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		path::join(path, "/home", "foo");
+		ENSURE(path == "/home/foo");
+	}
 #else
 	{
 		const bool a = path::is_absolute("C:\\Users\\foo");
@@ -1174,6 +1180,12 @@ static void test_path()
 		ENSURE(a == true);
 		const bool b = path::is_root("E:\\Users");
 		ENSURE(b == false);
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		path::join(path, "C:\\Users", "foo");
+		ENSURE(path == "C:\\Users\\foo");
 	}
 #endif // CROWN_PLATFORM_POSIX
 	{
