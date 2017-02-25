@@ -339,12 +339,11 @@ function UnitBox:draw()
 end
 
 function UnitBox:set_light(type, range, intensity, angle, color)
-	local light = RenderWorld.light_instances(LevelEditor._rw, self._unit_id)
-	RenderWorld.light_set_type(LevelEditor._rw, light, type)
-	RenderWorld.light_set_color(LevelEditor._rw, light, color)
-	RenderWorld.light_set_range(LevelEditor._rw, light, range)
-	RenderWorld.light_set_intensity(LevelEditor._rw, light, intensity)
-	RenderWorld.light_set_spot_angle(LevelEditor._rw, light, angle)
+	RenderWorld.light_set_type(LevelEditor._rw, self._unit_id, type)
+	RenderWorld.light_set_color(LevelEditor._rw, self._unit_id, color)
+	RenderWorld.light_set_range(LevelEditor._rw, self._unit_id, range)
+	RenderWorld.light_set_intensity(LevelEditor._rw, self._unit_id, intensity)
+	RenderWorld.light_set_spot_angle(LevelEditor._rw, self._unit_id, angle)
 end
 
 SoundObject = class(SoundObject)
