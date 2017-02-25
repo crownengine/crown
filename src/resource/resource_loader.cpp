@@ -44,7 +44,7 @@ bool ResourceLoader::can_load(StringId64 type, StringId64 name)
 	res_path += name_str;
 
 	DynamicString path(ta);
-	path::join(CROWN_DATA_DIRECTORY, res_path.c_str(), path);
+	path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
 
 	return _fs.exists(path.c_str());
 }
@@ -113,7 +113,7 @@ s32 ResourceLoader::run()
 		res_path += name_str;
 
 		DynamicString path(ta);
-		path::join(CROWN_DATA_DIRECTORY, res_path.c_str(), path);
+		path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
 
 		File* file = _fs.open(path.c_str(), FileOpenMode::READ);
 		rr.data = rr.load_function(*file, *rr.allocator);
