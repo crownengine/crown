@@ -1156,12 +1156,6 @@ static void test_path()
 		const bool b = path::is_root("/home");
 		ENSURE(b == false);
 	}
-	{
-		TempAllocator128 ta;
-		DynamicString path(ta);
-		path::join(path, "/home", "foo");
-		ENSURE(path == "/home/foo");
-	}
 #else
 	{
 		const bool a = path::is_absolute("C:\\Users\\foo");
@@ -1181,53 +1175,6 @@ static void test_path()
 		const bool b = path::is_root("E:\\Users");
 		ENSURE(b == false);
 	}
-	{
-		TempAllocator128 ta;
-		DynamicString path(ta);
-		path::join(path, "C:\\Users", "foo");
-		ENSURE(path == "C:\\Users\\foo");
-	}
-#else
-	{
-		const bool a = path::is_absolute("C:\\Users\\foo");
-		ENSURE(a == true);
-		const bool b = path::is_absolute("Users\\foo");
-		ENSURE(b == false);
-	}
-	{
-		const bool a = path::is_relative("D:\\Users\\foo");
-		ENSURE(a == false);
-		const bool b = path::is_relative("Users\\foo");
-		ENSURE(b == true);
-	}
-	{
-		const bool a = path::is_root("E:\\");
-		ENSURE(a == true);
-		const bool b = path::is_root("E:\\Users");
-		ENSURE(b == false);
-	}
-#endif // CROWN_PLATFORM_POSIX
-	{
-		const char* p = path::basename("");
-		ENSURE(strcmp(p, "") == 0);
-		const char* q = path::basename("/");
-		ENSURE(strcmp(q, "") == 0);
-		const char* r = path::basename("boot.config");
-		ENSURE(strcmp(r, "boot.config") == 0);
-		const char* s = path::basename("foo/boot.config");
-		ENSURE(strcmp(s, "boot.config") == 0);
-		const char* t = path::basename("/foo/boot.config");
-		ENSURE(strcmp(t, "boot.config") == 0);
-	}
-	{
-		const char* p = path::extension("");
-		ENSURE(p == NULL);
-		const char* q = path::extension("boot");
-		ENSURE(q == NULL);
-		const char* r = path::extension("boot.bar.config");
-		ENSURE(strcmp(r, "config") == 0);
-	}
-}
 #endif // CROWN_PLATFORM_POSIX
 	{
 		const char* p = path::basename("");
