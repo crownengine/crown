@@ -304,38 +304,7 @@ void RenderWorld::light_debug_draw(UnitId unit, DebugLine& dl)
 {
 	LightInstance i = _light_manager.light(unit);
 	CE_ASSERT(i.i < _light_manager._data.size, "Index out of bounds");
-	LightManager::LightInstanceData& lid = _light_manager._data;
-
-	const Vector3 pos = translation(lid.world[i.i]);
-	const Vector3 dir = -z(lid.world[i.i]);
-
-	switch (lid.type[i.i])
-	{
-	case LightType::DIRECTIONAL:
-		{
-			const Vector3 end = pos + dir*3.0f;
-			dl.add_line(pos, end, COLOR4_YELLOW);
-			dl.add_cone(pos + dir*2.8f, end, 0.1f, COLOR4_YELLOW);
-		}
-		break;
-
-	case LightType::OMNI:
-		dl.add_sphere(pos, lid.range[i.i], COLOR4_YELLOW);
-		break;
-
-	case LightType::SPOT:
-		{
-			const f32 angle  = lid.spot_angle[i.i];
-			const f32 range  = lid.range[i.i];
-			const f32 radius = tan(angle)*range;
-			dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
-		}
-		break;
-
-	default:
-		CE_FATAL("Unknown light type");
-		break;
-	}
+	_light_manager.debug_draw(i.i, 1, dl);
 }
 
 void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, const Matrix4x4* world)
@@ -495,8 +464,7 @@ void RenderWorld::debug_draw(DebugLine& dl)
 		dl.add_obb(obb.tm * world, obb.half_extents, COLOR4_RED);
 	}
 
-	for (u32 i = 0; i < lid.size; ++i)
-		light_debug_draw({ i }, dl);
+	_light_manager.debug_draw(0, _light_manager._data.size, dl);
 }
 
 void RenderWorld::enable_debug_drawing(bool enable)
@@ -949,6 +917,43 @@ LightInstance RenderWorld::LightManager::light(UnitId id)
 void RenderWorld::LightManager::destroy()
 {
 	_allocator->deallocate(_data.buffer);
+}
+
+void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine& dl)
+{
+	for (u32 i = start_index; i < start_index + num; ++i)
+	{
+		const Vector3 pos = translation(_data.world[i]);
+		const Vector3 dir = -z(_data.world[i]);
+
+		switch (_data.type[i])
+		{
+		case LightType::DIRECTIONAL:
+			{
+				const Vector3 end = pos + dir*3.0f;
+				dl.add_line(pos, end, COLOR4_YELLOW);
+				dl.add_cone(pos + dir*2.8f, end, 0.1f, COLOR4_YELLOW);
+			}
+			break;
+
+		case LightType::OMNI:
+			dl.add_sphere(pos, _data.range[i], COLOR4_YELLOW);
+			break;
+
+		case LightType::SPOT:
+			{
+				const f32 angle  = _data.spot_angle[i];
+				const f32 range  = _data.range[i];
+				const f32 radius = tan(angle)*range;
+				dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW);
+			}
+			break;
+
+		default:
+			CE_FATAL("Unknown light type");
+			break;
+		}
+	}
 }
 
 } // namespace crown

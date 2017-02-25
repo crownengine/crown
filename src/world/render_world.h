@@ -259,6 +259,8 @@ public:
 		void destroy(LightInstance i);
 		bool has(UnitId id);
 		LightInstance light(UnitId id);
+		void debug_draw(u32 start_index, u32 num, DebugLine& dl);
+
 		void allocate(u32 num);
 		void grow();
 		void destroy();
