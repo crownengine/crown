@@ -1211,7 +1211,7 @@ namespace Crown
 		{
 			try
 			{
-				AppInfo.launch_default_for_uri("https://taylor001.github.io/crown/manual.html", null);
+				AppInfo.launch_default_for_uri("https://taylor001.github.io/crown/html", null);
 			}
 			catch (Error e)
 			{
