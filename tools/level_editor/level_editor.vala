@@ -93,7 +93,7 @@ namespace Crown
 			{ "new",                  null,  "New",                "<ctrl>N",        null, on_new                 },
 			{ "open",                 null,  "Open...",            "<ctrl>O",        null, on_open                },
 			{ "save",                 null,  "Save",               "<ctrl>S",        null, on_save                },
-			{ "save-as",              null,  "Save As...",         null,             null, on_save_as             },
+			{ "save-as",              null,  "Save As...",         "<shift><ctrl>S", null, on_save_as             },
 			{ "import",               null,  "Import",             null,             null, null                   },
 			{ "import-sprites",       null,  "Sprites...",         null,             null, on_import_sprites      },
 			{ "import-meshes",        null,  "Meshes...",          null,             null, on_import_meshes       },
@@ -777,6 +777,8 @@ namespace Crown
 			if (fcd.run() == (int)ResponseType.ACCEPT)
 			{
 				_level_filename = fcd.get_filename();
+				if (!_level_filename.has_suffix(".level"))
+					_level_filename += ".level";
 				_level.save(_level_filename);
 				saved = true;
 			}
