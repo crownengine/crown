@@ -36,6 +36,8 @@ namespace Crown
 		{
 			// Data
 			_engine = engine;
+
+			this.title = "Preferences";
 		}
 
 		private static Vector3 rgba_to_vector3(Gdk.RGBA rgba)
