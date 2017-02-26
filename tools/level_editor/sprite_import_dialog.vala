@@ -99,7 +99,8 @@ Gtk.Label label_with_alignment(string text, Gtk.Align align)
 public class SpriteImportDialog : Gtk.Dialog
 {
 	public Gdk.Pixbuf _pixbuf;
-	public Gtk.DrawingArea da;
+	public Gtk.DrawingArea _drawing_area;
+	public Gtk.ScrolledWindow _scrolled_window;
 
 	public Gtk.Label resolution;
 	public Gtk.SpinButton cells_h;
@@ -125,10 +126,10 @@ public class SpriteImportDialog : Gtk.Dialog
 			stdout.printf("Pixbuf.from_file: error");
 		}
 
-		da = new Gtk.DrawingArea();
-		da.set_size_request(_pixbuf.width, _pixbuf.height);
+		_drawing_area = new Gtk.DrawingArea();
+		_drawing_area.set_size_request(_pixbuf.width, _pixbuf.height);
 
-		da.draw.connect((cr) => {
+		_drawing_area.draw.connect((cr) => {
 				Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
 				cr.paint();
 
@@ -184,6 +185,11 @@ public class SpriteImportDialog : Gtk.Dialog
 				return true;
 			});
 
+		_scrolled_window = new Gtk.ScrolledWindow(null, null);
+		_scrolled_window.min_content_width = 512;
+		_scrolled_window.min_content_height = 512;
+		_scrolled_window.add(_drawing_area);
+
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());
 		resolution.halign = Gtk.Align.START;
 
@@ -210,7 +216,7 @@ public class SpriteImportDialog : Gtk.Dialog
 				cell_w.value = _pixbuf.width / cells_h.value;
 				cell_h.value = _pixbuf.height / cells_v.value;
 			}
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		cells_v.value_changed.connect(() => {
@@ -219,7 +225,7 @@ public class SpriteImportDialog : Gtk.Dialog
 				cell_w.value = _pixbuf.width / cells_h.value;
 				cell_h.value = _pixbuf.height / cells_v.value;
 			}
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		cell_wh_auto.toggled.connect(() => {
@@ -227,31 +233,31 @@ public class SpriteImportDialog : Gtk.Dialog
 			cell_h.sensitive = !cell_wh_auto.active;
 			cell_w.value = _pixbuf.width / cells_h.value;
 			cell_h.value = _pixbuf.height / cells_v.value;
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		cell_w.value_changed.connect (() => {
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		cell_h.value_changed.connect(() => {
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		offset_x.value_changed.connect(() => {
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		offset_y.value_changed.connect(() => {
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		spacing_x.value_changed.connect(() => {
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		spacing_y.value_changed.connect(() => {
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		pivot = new Gtk.ComboBoxText();
@@ -267,7 +273,7 @@ public class SpriteImportDialog : Gtk.Dialog
 		pivot.active = Pivot.CENTER;
 
 		pivot.changed.connect(() => {
-			da.queue_draw();
+			_drawing_area.queue_draw();
 		});
 
 		Gtk.Grid grid = new Gtk.Grid();
@@ -298,11 +304,11 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.column_spacing = 12;
 
 		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 12);
-		box.add(da);
-		box.add(grid);
+		box.pack_start(_scrolled_window, true, true);
+		box.pack_end(grid, false, false);
 		box.margin_bottom = 18;
 
-		get_content_area().add(box);
+		get_content_area().pack_start(box);
 		get_content_area().show_all();
 
 		add_button("Cancel", Gtk.ResponseType.CANCEL);
