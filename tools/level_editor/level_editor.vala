@@ -194,7 +194,7 @@ namespace Crown
 
 			// Editor state
 			_grid_size = 1.0;
-			_rotation_snap = 45.0;
+			_rotation_snap = 15.0;
 			_show_grid = true;
 			_snap_to_grid = true;
 			_debug_render_world = false;

@@ -1267,7 +1267,7 @@ function LevelEditor:init()
 	self._mouse = { x = 0, y = 0, dx = 0, dy = 0, button = { left = false, middle = false, right = false }, wheel = { delta = 0 }}
 	self._keyboard = { ctrl = false, shift = false }
 	self._grid = { size = 1 }
-	self._rotation_snap = 45.0 * math.pi / 180.0
+	self._rotation_snap = 15.0 * math.pi / 180.0
 	self._objects = {}
 	self._selection = Selection()
 	self._show_grid = true
