@@ -215,8 +215,8 @@ public class SpriteImportDialog : Gtk.Dialog
 			});
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
-		_scrolled_window.min_content_width = 512;
-		_scrolled_window.min_content_height = 512;
+		_scrolled_window.min_content_width = 640;
+		_scrolled_window.min_content_height = 640;
 		_scrolled_window.add(_drawing_area);
 
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());
