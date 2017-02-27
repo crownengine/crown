@@ -98,6 +98,7 @@ Gtk.Label label_with_alignment(string text, Gtk.Align align)
 
 public class SpriteImportDialog : Gtk.Dialog
 {
+	public Cairo.Surface _checker;
 	public Gdk.Pixbuf _pixbuf;
 	public Gtk.DrawingArea _drawing_area;
 	public Gtk.ScrolledWindow _scrolled_window;
@@ -126,10 +127,38 @@ public class SpriteImportDialog : Gtk.Dialog
 			stdout.printf("Pixbuf.from_file: error");
 		}
 
+		// Create checkered pattern
+		{
+			int width = 16;
+			int height = 16;
+			_checker = new Cairo.ImageSurface(Cairo.Format.RGB24, width, height);
+
+			Cairo.Context cr = new Cairo.Context(_checker);
+			cr.set_source_rgb(0.8, 0.8, 0.8);
+			cr.paint();
+			cr.set_source_rgb(0.5, 0.5, 0.5);
+			cr.rectangle(width / 2, 0, width / 2, height / 2);
+			cr.rectangle(0, height / 2, width / 2, height / 2);
+			cr.fill();
+		}
+
 		_drawing_area = new Gtk.DrawingArea();
 		_drawing_area.set_size_request(_pixbuf.width, _pixbuf.height);
 
 		_drawing_area.draw.connect((cr) => {
+				cr.set_source_rgb(0.1, 0.1, 0.1);
+				cr.paint();
+
+				cr.save();
+				cr.set_source_surface(_checker, 0, 0);
+				Cairo.Pattern pattern = cr.get_source();
+				pattern.set_filter(Cairo.Filter.NEAREST);
+				pattern.set_extend(Cairo.Extend.REPEAT);
+				cr.rectangle(0, 0, _pixbuf.width, _pixbuf.height);
+				cr.clip();
+				cr.paint();
+				cr.restore();
+
 				Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
 				cr.paint();
 
