@@ -10,6 +10,12 @@
 
 namespace crown
 {
+#if CROWN_PLATFORM_POSIX
+const char PATH_SEPARATOR = '/';
+#elif CROWN_PLATFORM_WINDOWS
+const char PATH_SEPARATOR = '\\';
+#endif // CROWN_PLATFORM_POSIX
+
 namespace path
 {
 	bool is_absolute(const char* path)
@@ -68,6 +74,12 @@ namespace path
 		CE_ENSURE(NULL != path);
 		const char* ld = strrchr(path, '.');
 		return ld == NULL ? NULL : ld + 1;
+	}
+
+	bool has_trailing_separator(const char* path)
+	{
+		CE_ENSURE(NULL != path);
+		return path[strlen32(path) - 1] == PATH_SEPARATOR;
 	}
 } // namespace path
 } // namespace crown

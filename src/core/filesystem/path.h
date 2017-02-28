@@ -10,12 +10,6 @@
 
 namespace crown
 {
-#if CROWN_PLATFORM_POSIX
-	const char PATH_SEPARATOR = '/';
-#elif CROWN_PLATFORM_WINDOWS
-	const char PATH_SEPARATOR = '\\';
-#endif // CROWN_PLATFORM_POSIX
-
 /// Functions for operating on strings as file paths.
 ///
 /// @ingroup Filesystem
@@ -45,6 +39,9 @@ namespace path
 	/// "/home/texture.tga" -> "tga"
 	/// "/home/texture" -> NULL
 	const char* extension(const char* path);
+
+	/// Returns whether the @a path has a trailing separator.
+	bool has_trailing_separator(const char* path);
 } // namespace path
 
 } // namespace crown

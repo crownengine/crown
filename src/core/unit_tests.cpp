@@ -1162,6 +1162,10 @@ static void test_path()
 		path::join(path, "/home", "foo");
 		ENSURE(path == "/home/foo");
 	}
+	{
+		ENSURE(path::has_trailing_separator("/home/foo/"));
+		ENSURE(!path::has_trailing_separator("/home/foo"));
+	}
 #else
 	{
 		const bool a = path::is_absolute("C:\\Users\\foo");
@@ -1186,6 +1190,10 @@ static void test_path()
 		DynamicString path(ta);
 		path::join(path, "C:\\Users", "foo");
 		ENSURE(path == "C:\\Users\\foo");
+	}
+	{
+		ENSURE(path::has_trailing_separator("C:\\Users\\foo\\"));
+		ENSURE(!path::has_trailing_separator("C:\\Users\\foo"));
 	}
 #endif // CROWN_PLATFORM_POSIX
 	{

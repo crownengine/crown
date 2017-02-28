@@ -57,7 +57,7 @@ struct FileMonitorImpl
 	void add_watch(const char* path, bool recursive)
 	{
 		CE_ENSURE(path != NULL);
-		CE_ASSERT(path[strlen32(path)-1] != PATH_SEPARATOR, "Malformed path");
+		CE_ASSERT(!path::has_trailing_separator(path), "Malformed path");
 
 		int wd = inotify_add_watch(_fd
 			, path
