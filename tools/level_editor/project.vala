@@ -17,6 +17,7 @@ namespace Crown
 		private string _platform;
 
 		private Database _files;
+		private HashMap<string, Guid?> _map;
 
 		public signal void changed();
 
@@ -28,6 +29,7 @@ namespace Crown
 			_platform = "linux";
 
 			_files = new Database();
+			_map = new HashMap<string, Guid?>();
 		}
 
 		public void load(string source_dir, string toolchain_dir, string data_dir)
@@ -35,8 +37,6 @@ namespace Crown
 			_source_dir    = File.new_for_path(source_dir);
 			_toolchain_dir = File.new_for_path(toolchain_dir);
 			_data_dir      = File.new_for_path(data_dir);
-
-			scan_source_dir();
 		}
 
 		public string source_dir()
@@ -64,48 +64,32 @@ namespace Crown
 			return _files;
 		}
 
-		public void scan_source_dir()
+		public void add_file(string path)
 		{
-			_files.reset();
-			list_directory_entries(_source_dir);
+			string name = path.substring(0, path.last_index_of("."));
+			string type = path.substring(path.last_index_of(".") + 1);
+
+			Guid id = Guid.new_guid();
+			_files.create(id);
+			_files.set_property(id, "path", path);
+			_files.set_property(id, "type", type);
+			_files.set_property(id, "name", name);
+			_files.add_to_set(GUID_ZERO, "data", id);
+
+			_map[path] = id;
+
 			changed();
 		}
 
-		private void list_directory_entries(File dir, Cancellable? cancellable = null) throws Error
+		public void remove_file(string path)
 		{
-			FileEnumerator enumerator = dir.enumerate_children(GLib.FileAttribute.STANDARD_NAME
-				, FileQueryInfoFlags.NOFOLLOW_SYMLINKS
-				, cancellable
-				);
+			Guid id = _map[path];
+			_files.remove_from_set(GUID_ZERO, "data", id);
+			_files.destroy(id);
 
-			FileInfo info = null;
-			while (!cancellable.is_cancelled() && ((info = enumerator.next_file (cancellable)) != null))
-			{
-				if (info.get_file_type () == FileType.DIRECTORY)
-				{
-					File subdir = dir.resolve_relative_path (info.get_name());
-					list_directory_entries(subdir, cancellable);
-				}
-				else
-				{
-					string path     = dir.get_path() + "/" + info.get_name();
-					string path_rel = _source_dir.get_relative_path(File.new_for_path(path));
-					string name     = path_rel.substring(0, path_rel.last_index_of("."));
-					string type     = path_rel.substring(path_rel.last_index_of(".") + 1);
+			_map.unset(path);
 
-					Guid id = Guid.new_guid();
-					_files.create(id);
-					_files.set_property(id, "path", path);
-					_files.set_property(id, "type", type);
-					_files.set_property(id, "name", name);
-					_files.add_to_set(GUID_ZERO, "data", id);
-				}
-			}
-
-			if (cancellable.is_cancelled ())
-			{
-				throw new IOError.CANCELLED("Operation was cancelled");
-			}
+			changed();
 		}
 
 		public void import_sprites(SList<string> filenames, string destination_dir)
@@ -330,7 +314,6 @@ namespace Crown
 
 				string dst_dir_rel    = _source_dir.get_relative_path(File.new_for_path(destination_dir));
 				string basename       = file_src.get_basename();
-				string basename_noext = basename.substring(0, basename.last_index_of_char('.'));
 				string dst_noext      = file_dst.get_path().substring(0, file_dst.get_path().last_index_of_char('.'));
 
 				if (!filename_i.has_suffix(".wav"))
@@ -354,7 +337,6 @@ namespace Crown
 
 				string dst_dir_rel    = _source_dir.get_relative_path(File.new_for_path(destination_dir));
 				string basename       = file_src.get_basename();
-				string basename_noext = basename.substring(0, basename.last_index_of_char('.'));
 				string dst_noext      = file_dst.get_path().substring(0, file_dst.get_path().last_index_of_char('.'));
 
 				if (!filename_i.has_suffix(".png"))

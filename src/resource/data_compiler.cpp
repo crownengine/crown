@@ -17,6 +17,7 @@
 #include "path.h"
 #include "sjson.h"
 #include "sort_map.h"
+#include "string_stream.h"
 #include "temp_allocator.h"
 #include "vector.h"
 #include <setjmp.h>
@@ -52,13 +53,20 @@ public:
 	}
 };
 
-DataCompiler::DataCompiler()
-	: _source_fs(default_allocator())
+DataCompiler::DataCompiler(ConsoleServer& cs)
+	: _console_server(&cs)
+	, _source_fs(default_allocator())
 	, _source_dirs(default_allocator())
 	, _compilers(default_allocator())
 	, _files(default_allocator())
 	, _globs(default_allocator())
+	, _file_monitor(default_allocator())
 {
+}
+
+DataCompiler::~DataCompiler()
+{
+	_file_monitor.stop();
 }
 
 void DataCompiler::add_file(const char* path)
@@ -73,6 +81,67 @@ void DataCompiler::add_file(const char* path)
 	DynamicString str(ta);
 	str.set(path, strlen32(path));
 	vector::push_back(_files, str);
+
+	StringStream ss(ta);
+	ss << "{\"type\":\"add_file\",\"path\":\"" << str.c_str() << "\"}";
+	_console_server->send(string_stream::c_str(ss));
+}
+
+void DataCompiler::add_tree(const char* path)
+{
+	TempAllocator512 ta;
+	DynamicString source_dir(ta);
+	source_dir = map::get(_source_dirs, source_dir, source_dir);
+
+	_source_fs.set_prefix(source_dir.c_str());
+	DataCompiler::scan_source_dir(source_dir.c_str(), path);
+
+	StringStream ss(ta);
+	ss << "{\"type\":\"add_tree\",\"path\":\"" << path << "\"}";
+	_console_server->send(string_stream::c_str(ss));
+}
+
+void DataCompiler::remove_file(const char* path)
+{
+	for (u32 i = 0; i < vector::size(_files); ++i)
+	{
+		if (_files[i] == path)
+		{
+			_files[i] = _files[vector::size(_files) - 1];
+			vector::pop_back(_files);
+
+			TempAllocator512 ta;
+			StringStream ss(ta);
+			ss << "{\"type\":\"remove_file\",\"path\":\"" << path << "\"}";
+			_console_server->send(string_stream::c_str(ss));
+			return;
+		}
+	}
+}
+
+void DataCompiler::remove_tree(const char* path)
+{
+	TempAllocator512 ta;
+	StringStream ss(ta);
+	ss << "{\"type\":\"remove_tree\",\"path\":\"" << path << "\"}";
+	_console_server->send(string_stream::c_str(ss));
+
+	for (u32 i = 0; i < vector::size(_files);)
+	{
+		if (_files[i].has_prefix(path))
+		{
+			TempAllocator512 ta;
+			StringStream ss(ta);
+			ss << "{\"type\":\"remove_file\",\"path\":\"" << _files[i].c_str() << "\"}";
+			_console_server->send(string_stream::c_str(ss));
+
+			_files[i] = _files[vector::size(_files) - 1];
+			vector::pop_back(_files);
+			continue;
+		}
+
+		++i;
+	}
 }
 
 bool DataCompiler::can_compile(StringId64 type)
@@ -283,6 +352,8 @@ void DataCompiler::scan()
 
 		scan_source_dir(cur->pair.first.c_str(), "");
 	}
+
+	_file_monitor.start(map::begin(_source_dirs)->pair.second.c_str(), true, filemonitor_callback, this);
 }
 
 bool DataCompiler::compile(const char* bundle_dir, const char* platform)
@@ -297,6 +368,8 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 
 	if (!bundle_fs.exists(CROWN_TEMP_DIRECTORY))
 		bundle_fs.create_directory(CROWN_TEMP_DIRECTORY);
+
+	std::sort(vector::begin(_files), vector::end(_files));
 
 	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(_files); ++i)
@@ -337,6 +410,60 @@ u32 DataCompiler::version(StringId64 type)
 	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
 
 	return sort_map::get(_compilers, type, ResourceTypeData()).version;
+}
+
+void DataCompiler::filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed)
+{
+	TempAllocator512 ta;
+	DynamicString resource_name(ta);
+	DynamicString resource_name_renamed(ta);
+	DynamicString source_dir(ta);
+
+	source_dir            = map::get(_source_dirs, source_dir, source_dir);
+	resource_name         = &path[source_dir.length()+1]; // FIXME: add path::relative()
+	resource_name_renamed = path_renamed ? &path_renamed[source_dir.length()+1] : "";
+
+	switch (fme)
+	{
+	case FileMonitorEvent::CREATED:
+		if (!is_dir)
+			add_file(resource_name.c_str());
+		else
+			add_tree(resource_name.c_str());
+		break;
+
+	case FileMonitorEvent::DELETED:
+		if (!is_dir)
+			remove_file(resource_name.c_str());
+		else
+			remove_tree(resource_name.c_str());
+		break;
+
+	case FileMonitorEvent::RENAMED:
+		if (!is_dir)
+		{
+			remove_file(resource_name.c_str());
+			add_file(resource_name_renamed.c_str());
+		}
+		else
+		{
+			remove_tree(resource_name.c_str());
+			add_tree(resource_name_renamed.c_str());
+		}
+		break;
+
+	case FileMonitorEvent::CHANGED:
+		break;
+
+	default:
+		CE_ASSERT(false, "Unknown FileMonitorEvent: %d", fme);
+		break;
+	}
+}
+
+void DataCompiler::filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified)
+{
+	((DataCompiler*)thiz)->filemonitor_callback(fme, is_dir, path_original, path_modified);
 }
 
 } // namespace crown

@@ -409,6 +409,18 @@ namespace Crown
 				{
 					_console_view.log((string)msg["message"], (string)msg["severity"]);
 				}
+				else if (msg_type == "add_file")
+				{
+					string path = (string)msg["path"];
+
+					_project.add_file(path);
+				}
+				else if (msg_type == "remove_file")
+				{
+					string path = (string)msg["path"];
+
+					_project.remove_file(path);
+				}
 				else if (msg_type == "compile")
 				{
 					Guid id = Guid.parse((string)msg["id"]);
@@ -548,6 +560,7 @@ namespace Crown
 				"--source-dir", _project.source_dir(),
 				"--map-source-dir", "core", _project.toolchain_dir(),
 				"--server",
+				"--wait-console",
 				null
 			};
 
@@ -960,10 +973,7 @@ namespace Crown
 		private void on_import_end()
 		{
 			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				if (_resource_compiler.compile.end(res))
-				{
-					_project.scan_source_dir();
-				}
+				_resource_compiler.compile.end(res);
 			});
 		}
 

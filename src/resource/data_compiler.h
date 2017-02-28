@@ -6,7 +6,9 @@
 #pragma once
 
 #include "compiler_types.h"
+#include "console_server.h"
 #include "container_types.h"
+#include "file_monitor.h"
 #include "filesystem_disk.h"
 
 namespace crown
@@ -21,21 +23,32 @@ class DataCompiler
 		CompileFunction compiler;
 	};
 
+	ConsoleServer* _console_server;
 	FilesystemDisk _source_fs;
 	Map<DynamicString, DynamicString> _source_dirs;
 	SortMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
+	FileMonitor _file_monitor;
 
 	void add_file(const char* path);
+	void add_tree(const char* path);
+	void remove_file(const char* path);
+	void remove_tree(const char* path);
+
+	void scan_source_dir(const char* prefix, const char* path);
+
 	bool can_compile(StringId64 type);
 	void compile(StringId64 type, const char* path, CompileOptions& opts);
-	void scan_source_dir(const char* prefix, const char* path);
 	bool compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform);
+
+	void filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed);
+	static void filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified);
 
 public:
 
-	DataCompiler();
+	DataCompiler(ConsoleServer& cs);
+	~DataCompiler();
 
 	void map_source_dir(const char* name, const char* source_dir);
 	void source_dir(const char* resource_name, DynamicString& source_dir);

@@ -285,6 +285,8 @@ void Device::run()
 	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
 	load_console_api(*_console_server);
 
+	_console_server->listen(_device_options._server ? CROWN_DEFAULT_COMPILER_PORT : _device_options._console_port, _device_options._wait_console);
+
 	namespace cor = config_resource_internal;
 	namespace ftr = font_resource_internal;
 	namespace lur = lua_resource_internal;
@@ -306,7 +308,7 @@ void Device::run()
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	if (_device_options._do_compile || _device_options._server)
 	{
-		_data_compiler = CE_NEW(_allocator, DataCompiler)();
+		_data_compiler = CE_NEW(_allocator, DataCompiler)(*_console_server);
 		_data_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
 		_data_compiler->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
 		_data_compiler->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
@@ -336,8 +338,6 @@ void Device::run()
 
 		if (_device_options._server)
 		{
-			_console_server->listen(CROWN_DEFAULT_COMPILER_PORT, false);
-
 			while (true)
 			{
 				_console_server->update();
@@ -356,8 +356,6 @@ void Device::run()
 
 	if (do_continue)
 	{
-		_console_server->listen(_device_options._console_port, _device_options._wait_console);
-
 #if CROWN_PLATFORM_ANDROID
 		_bundle_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
