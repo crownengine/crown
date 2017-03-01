@@ -46,9 +46,7 @@ typedef double   f64;
 #define countof(arr) (sizeof(arr)/sizeof(arr[0]))
 
 #define CE_UNUSED(x) do { (void)(x); } while (0)
-#define CE_CONCATENATE1(a, b) a ## b
-#define CE_CONCATENATE(a, b) CE_CONCATENATE1(a, b)
-#define CE_STATIC_ASSERT(condition) typedef int CE_CONCATENATE(STATIC_ASSERT,__LINE__)[condition ? 1 : -1]
+#define CE_STATIC_ASSERT(condition, ...) static_assert(condition, "" # __VA_ARGS__)
 
 #if defined(__GNUC__)
 	#define CE_THREAD __thread

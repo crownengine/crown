@@ -672,25 +672,11 @@ void Device::reload(StringId64 type, StringId64 name)
 	}
 }
 
-static StringStream& sanitize(StringStream& ss, const char* msg)
-{
-	using namespace string_stream;
-	const char* ch = msg;
-	for (; *ch; ch++)
-	{
-		if (*ch == '"' || *ch == '\\')
-			ss << "\\";
-		ss << *ch;
-	}
-
-	return ss;
-}
-
-static const char* s_severity_map[] = { "info", "warning", "error" };
-CE_STATIC_ASSERT(countof(s_severity_map) == LogSeverity::COUNT);
-
 void Device::log(const char* msg, LogSeverity::Enum severity)
 {
+	static const char* s_severity_map[] = { "info", "warning", "error" };
+	CE_STATIC_ASSERT(countof(s_severity_map) == LogSeverity::COUNT);
+
 	if (_last_log)
 	{
 		_last_log->write(msg, strlen32(msg));
@@ -704,8 +690,20 @@ void Device::log(const char* msg, LogSeverity::Enum severity)
 		StringStream json(ta);
 
 		json << "{\"type\":\"message\",";
-		json << "\"severity\":\"" << s_severity_map[severity] << "\",";
-		json << "\"message\":\""; sanitize(json, msg) << "\"}";
+		json << "\"severity\":\"";
+		json << s_severity_map[severity];
+		json << "\",";
+		json << "\"message\":\"";
+
+		// Sanitize msg
+		for (; *msg; msg++)
+		{
+			if (*msg == '"' || *msg == '\\')
+				json << "\\";
+			json << *msg;
+		}
+
+		json << "\"}";
 
 		_console_server->send(string_stream::c_str(json));
 	}
