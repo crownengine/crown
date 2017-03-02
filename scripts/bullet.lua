@@ -46,7 +46,6 @@ project "bullet"
 		BULLET_DIR .. "src/Bullet3Common/**.cpp",
 		BULLET_DIR .. "src/Bullet3Dynamics/**.cpp",
 		BULLET_DIR .. "src/Bullet3Geometry/**.cpp",
-		BULLET_DIR .. "src/Bullet3Serialize/**.cpp",
 	}
 
 	configuration {}
