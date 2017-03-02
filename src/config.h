@@ -44,22 +44,22 @@
 #endif
 
 #if !defined(CROWN_SOUND_OPENAL) \
-	&& !defined(CROWN_SOUND_NULL)
+	&& !defined(SOUND_WORLD_NOOP)
 
 	#ifndef CROWN_SOUND_OPENAL
 		#define CROWN_SOUND_OPENAL 1
 	#endif // CROWN_SOUND_OPENAL
 
-	#ifndef CROWN_SOUND_NULL
-		#define CROWN_SOUND_NULL 0
-	#endif // CROWN_SOUND_NULL
+	#ifndef SOUND_WORLD_NOOP
+		#define SOUND_WORLD_NOOP 0
+	#endif // SOUND_WORLD_NOOP
 #else
 	#ifndef CROWN_SOUND_OPENAL
 		#define CROWN_SOUND_OPENAL 0
 	#endif
 
-	#ifndef CROWN_SOUND_NULL
-		#define CROWN_SOUND_NULL 0
+	#ifndef SOUND_WORLD_NOOP
+		#define SOUND_WORLD_NOOP 0
 	#endif
 #endif
 

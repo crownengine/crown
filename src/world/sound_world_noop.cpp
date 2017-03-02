@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#if CROWN_SOUND_NULL
+#if SOUND_WORLD_NOOP
 
 #include "sound_world.h"
 #include "audio.h"
@@ -24,15 +24,15 @@ namespace audio_globals
 	}
 }
 
-class NullSoundWorld : public SoundWorld
+class SoundWorldNoop : public SoundWorld
 {
 public:
 
-	NullSoundWorld()
+	SoundWorldNoop()
 	{
 	}
 
-	virtual ~NullSoundWorld()
+	virtual ~SoundWorldNoop()
 	{
 	}
 
@@ -87,16 +87,18 @@ public:
 	}
 };
 
-SoundWorld* SoundWorld::create(Allocator& a)
+namespace sound_world
 {
-	return CE_NEW(a, NullSoundWorld)();
-}
+	SoundWorld* create(Allocator& a)
+	{
+		return CE_NEW(a, SoundWorldNoop)();
+	}
 
-void SoundWorld::destroy(Allocator& a, SoundWorld* sw)
-{
-	CE_DELETE(a, sw);
-}
-
+	void destroy(Allocator& a, SoundWorld* sw)
+	{
+		CE_DELETE(a, sw);
+	}
+} // namespace sound_world
 } // namespace crown
 
-#endif // CROWN_SOUND_NULL
+#endif // SOUND_WORLD_NOOP
