@@ -18,7 +18,6 @@
 	#define closesocket close
 #elif CROWN_PLATFORM_WINDOWS
 	#include <winsock2.h>
-	#pragma comment(lib, "Ws2_32.lib")
 	#ifndef _INC_ERRNO
 		#define EADDRINUSE WSAEADDRINUSE
 		#define ECONNREFUSED WSAECONNREFUSED

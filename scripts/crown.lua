@@ -166,6 +166,7 @@ function crown_project(_name, _kind, _defines)
 				"dbghelp",
 				"xinput",
 				"psapi",
+				"ws2_32",
 			}
 
 		configuration {}
