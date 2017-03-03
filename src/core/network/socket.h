@@ -13,7 +13,6 @@
 	typedef int SOCKET;
 #elif CROWN_PLATFORM_WINDOWS
 	#include <winsock2.h>
-	#pragma comment(lib, "Ws2_32.lib")
 #endif
 
 namespace crown

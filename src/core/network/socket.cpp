@@ -17,7 +17,6 @@
 	#define SOCKET_ERROR (-1)
 	#define closesocket close
 #elif CROWN_PLATFORM_WINDOWS
-	#include <winsock2.h>
 	#ifndef _INC_ERRNO
 		#define EADDRINUSE WSAEADDRINUSE
 		#define ECONNREFUSED WSAECONNREFUSED
@@ -32,7 +31,7 @@ namespace
 {
 	inline int last_error()
 	{
-#ifdef CROWN_PLATFORM_LINUX
+#if CROWN_PLATFORM_LINUX
 		return errno;
 #elif CROWN_PLATFORM_WINDOWS
 		return WSAGetLastError();
@@ -269,7 +268,9 @@ void TCPSocket::set_blocking(bool blocking)
 	fcntl(_socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
 #elif CROWN_PLATFORM_WINDOWS
 	u_long non_blocking = blocking ? 0 : 1;
-	ioctlsocket(_socket, FIONBIO, &non_blocking);
+	int err = ioctlsocket(_socket, FIONBIO, &non_blocking);
+	CE_ASSERT(err == 0, "ioctlsocket: last_error() = %d", last_error());
+	CE_UNUSED(err);
 #endif
 }
 
