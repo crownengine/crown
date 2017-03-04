@@ -5,8 +5,9 @@
 
 #pragma once
 
-#include "types.h"
+#include "dynamic_string.h"
 #include "platform.h"
+#include "types.h"
 
 namespace crown
 {
@@ -17,10 +18,10 @@ struct DeviceOptions
 {
 	int _argc;
 	const char** _argv;
-	const char* _source_dir;
+	DynamicString _source_dir;
 	const char* _map_source_dir_name;
-	const char* _map_source_dir_prefix;
-	const char* _data_dir;
+	DynamicString _map_source_dir_prefix;
+	DynamicString _data_dir;
 	const char* _boot_dir;
 	const char* _platform;
 	bool _wait_console;
@@ -38,7 +39,7 @@ struct DeviceOptions
 	void* _asset_manager;
 #endif // CROWN_PLATFORM_ANDROID
 
-	DeviceOptions(int argc, const char** argv);
+	DeviceOptions(Allocator& a, int argc, const char** argv);
 
 	/// Parses the command line and returns
 	/// EXIT_SUCCESS if no error is found.

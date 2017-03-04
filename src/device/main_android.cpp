@@ -334,7 +334,7 @@ void android_main(struct android_app* app)
 
 	memory_globals::init();
 
-	DeviceOptions opts(0, NULL);
+	DeviceOptions opts(default_allocator(), 0, NULL);
 	opts._asset_manager = app->activity->assetManager;
 
 	crown::s_advc.run(app, opts);

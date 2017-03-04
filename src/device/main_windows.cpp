@@ -723,11 +723,16 @@ int main(int argc, char** argv)
 	CE_UNUSED(wsdata);
 	CE_UNUSED(err);
 
-	DeviceOptions opts(argc, (const char**)argv);
-	if (opts.parse() != EXIT_SUCCESS)
-		return EXIT_FAILURE;
+	int ec = EXIT_SUCCESS;
 
-	return s_wdvc.run(&opts);
+	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
+	ec = opts.parse();
+
+	if (ec == EXIT_SUCCESS)
+		ec = s_wdvc.run(&opts);
+
+	WSACleanup();
+	return ec;
 }
 
 #endif // CROWN_PLATFORM_WINDOWS

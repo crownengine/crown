@@ -755,11 +755,15 @@ int main(int argc, char** argv)
 	InitMemoryGlobals m;
 	CE_UNUSED(m);
 
-	DeviceOptions opts(argc, (const char**)argv);
-	if (opts.parse() != EXIT_SUCCESS)
-		return EXIT_FAILURE;
+	int ec = EXIT_SUCCESS;
 
-	return s_ldvc.run(&opts);
+	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
+	ec = opts.parse();
+
+	if (ec == EXIT_SUCCESS)
+		ec = s_ldvc.run(&opts);
+
+	return ec;
 }
 
 #endif // CROWN_PLATFORM_LINUX

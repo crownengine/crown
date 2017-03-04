@@ -18,7 +18,7 @@ static void help(const char* msg = NULL)
 		"Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.\n"
 		"License: https://github.com/taylor001/crown/blob/master/LICENSE\n"
 		"\n"
-		"Complete documentation available at https://taylor001.github.io/crown/manual.html\n"
+		"Complete documentation available at https://taylor001.github.io/crown/html\n"
 		"\n"
 		"Usage:\n"
 		"  crown [options]\n"
@@ -45,13 +45,13 @@ static void help(const char* msg = NULL)
 		loge("Error: %s", msg);
 }
 
-DeviceOptions::DeviceOptions(int argc, const char** argv)
+DeviceOptions::DeviceOptions(Allocator& a, int argc, const char** argv)
 	: _argc(argc)
 	, _argv(argv)
-	, _source_dir(NULL)
+	, _source_dir(a)
 	, _map_source_dir_name(NULL)
-	, _map_source_dir_prefix(NULL)
-	, _data_dir(NULL)
+	, _map_source_dir_prefix(a)
+	, _data_dir(a)
 	, _boot_dir(NULL)
 	, _platform(NULL)
 	, _wait_console(false)
@@ -83,14 +83,14 @@ int DeviceOptions::parse()
 		return EXIT_FAILURE;
 	}
 
-	_source_dir = cl.get_parameter(0, "source-dir");
-	_data_dir = cl.get_parameter(0, "data-dir");
+	path::reduce(_source_dir, cl.get_parameter(0, "source-dir"));
+	path::reduce(_data_dir, cl.get_parameter(0, "data-dir"));
 
 	_map_source_dir_name = cl.get_parameter(0, "map-source-dir");
 	if (_map_source_dir_name)
 	{
-		_map_source_dir_prefix = cl.get_parameter(1, "map-source-dir");
-		if (_map_source_dir_prefix == NULL)
+		path::reduce(_map_source_dir_prefix, cl.get_parameter(1, "map-source-dir"));
+		if (_map_source_dir_prefix.empty())
 		{
 			help("Mapped source directory must be specified.");
 			return EXIT_FAILURE;
@@ -116,13 +116,13 @@ int DeviceOptions::parse()
 			return EXIT_FAILURE;
 		}
 
-		if (_source_dir == NULL)
+		if (_source_dir.empty())
 		{
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
 
-		if (_data_dir == NULL)
+		if (_data_dir.empty())
 		{
 			help("Data dir must be specified.");
 			return EXIT_FAILURE;
@@ -132,34 +132,34 @@ int DeviceOptions::parse()
 	_server = cl.has_argument("server");
 	if (_server)
 	{
-		if (_source_dir == NULL)
+		if (_source_dir.empty())
 		{
 			help("Source dir must be specified.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (_data_dir != NULL)
+	if (!_data_dir.empty())
 	{
-		if (!path::is_absolute(_data_dir))
+		if (!path::is_absolute(_data_dir.c_str()))
 		{
 			help("Data dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (_source_dir != NULL)
+	if (!_source_dir.empty())
 	{
-		if (!path::is_absolute(_source_dir))
+		if (!path::is_absolute(_source_dir.c_str()))
 		{
 			help("Source dir must be absolute.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (_map_source_dir_prefix != NULL)
+	if (!_map_source_dir_prefix.empty())
 	{
-		if (!path::is_absolute(_map_source_dir_prefix))
+		if (!path::is_absolute(_map_source_dir_prefix.c_str()))
 		{
 			help("Mapped source dir must be absolute.");
 			return EXIT_FAILURE;

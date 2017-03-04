@@ -325,12 +325,12 @@ void Device::run()
 		_data_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
 		_data_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
 
-		_data_compiler->map_source_dir("", _device_options._source_dir);
+		_data_compiler->map_source_dir("", _device_options._source_dir.c_str());
 
 		if (_device_options._map_source_dir_name)
 		{
 			_data_compiler->map_source_dir(_device_options._map_source_dir_name
-				, _device_options._map_source_dir_prefix
+				, _device_options._map_source_dir_prefix.c_str()
 				);
 		}
 
@@ -346,7 +346,7 @@ void Device::run()
 		}
 		else
 		{
-			const char* data_dir = _device_options._data_dir;
+			const char* data_dir = _device_options._data_dir.c_str();
 			const char* platform = _device_options._platform;
 			do_continue = _data_compiler->compile(data_dir, platform);
 			do_continue = do_continue && _device_options._do_continue;
@@ -359,7 +359,7 @@ void Device::run()
 #if CROWN_PLATFORM_ANDROID
 		_bundle_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
-		const char* data_dir = _device_options._data_dir;
+		const char* data_dir = _device_options._data_dir.c_str();
 		if (!data_dir)
 		{
 			char buf[1024];
