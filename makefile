@@ -53,13 +53,21 @@ engine-windows-development64: build/engine/projects/vs2013
 engine-windows-release64: build/engine/projects/vs2013
 	devenv build/engine/projects/vs2013/crown.sln /Build "release|x64"
 
-build/tools/projects:
-	$(GENIE) --file=scripts/tools.lua gmake
+build/tools/projects/linux:
+	$(GENIE) --file=scripts/tools.lua --compiler=linux-gcc gmake
 	make -R -C tools/ui
-tools-linux-debug64: build/tools/projects engine-linux-development64
-	make -R -C build/tools/projects config=debug
-tools-linux-release64: build/tools/projects engine-linux-development64
-	make -R -C build/tools/projects config=release
+tools-linux-debug64: build/tools/projects/linux engine-linux-development64
+	make -R -C build/tools/projects/linux config=debug
+tools-linux-release64: build/tools/projects/linux engine-linux-development64
+	make -R -C build/tools/projects/linux config=release
+
+build/tools/projects/mingw:
+	$(GENIE) --file=scripts/tools.lua --compiler=mingw gmake
+	make -R -C tools/ui
+tools-mingw-debug64: build/tools/projects/mingw
+	make -R -C build/tools/projects/mingw config=debug
+tools-mingw-release64: build/tools/projects/mingw
+	make -R -C build/tools/projects/mingw config=release
 
 .PHONY: docs
 docs:

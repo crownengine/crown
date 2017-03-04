@@ -3,26 +3,69 @@
 -- License: https://github.com/taylor001/crown/blob/master/LICENSE
 --
 
+solution "tools"
+language "Vala"
+
+configurations {
+	"debug",
+	"release",
+}
+
 local CROWN_DIR = (path.getabsolute("..") .. "/")
 local CROWN_BUILD_DIR = (CROWN_DIR .. "build/")
 local CROWN_TOOLS_DIR = (CROWN_BUILD_DIR .. "tools/")
 
-solution "tools"
-	language "Vala"
-
-	configurations {
-		"debug",
-		"release",
+newoption
+{
+	trigger = "compiler",
+	value = "COMPILER",
+	description = "Choose compiler",
+	allowed =
+	{
+		{ "linux-gcc", "Linux (GCC compiler)" },
+		{ "mingw",     "MinGW"                },
 	}
+}
+
+if _ACTION == "gmake" then
+
+	if nil == _OPTIONS["compiler"] then
+		print("Choose a compiler!")
+		os.exit(1)
+	end
+
+	if "linux-gcc" == _OPTIONS["compiler"] then
+
+		if not os.is("linux") then
+			print("Action not valid in current OS.")
+		end
+
+		location(CROWN_TOOLS_DIR .. "projects/" .. "linux")
+
+	elseif "mingw" == _OPTIONS["compiler"] then
+
+		location(CROWN_TOOLS_DIR .. "projects/" .. "mingw")
+	end
+else
+	print("Invalid action.")
+	os.exit(1)
+end
 
 	-- FIXME: Fix this in GENie
 	premake.valac.valac = premake.valac.valac .. " --gresources=" .. CROWN_DIR .. "tools/ui/resources.xml" .. " --target-glib=2.38"
 
-	location(CROWN_TOOLS_DIR .. "projects/")
-	targetdir(CROWN_TOOLS_DIR)
+	configuration { "linux-*" }
+		targetdir (CROWN_TOOLS_DIR .. "linux64" .. "/bin")
+		objdir (CROWN_TOOLS_DIR .. "linux64" .. "/obj")
+
+	configuration { "mingw" }
+		targetdir (CROWN_TOOLS_DIR .. "mingw64" .. "/bin")
+		objdir (CROWN_TOOLS_DIR .. "mingw64" .. "/obj")
 
 	configuration { "debug" }
-		targetsuffix "-debug"
+		targetsuffix "-debug64"
+	configuration { "release" }
+		targetsuffix "-release64"
 
 	project "level-editor"
 		kind "ConsoleApp"
