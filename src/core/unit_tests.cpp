@@ -1166,6 +1166,18 @@ static void test_path()
 		ENSURE(path::has_trailing_separator("/home/foo/"));
 		ENSURE(!path::has_trailing_separator("/home/foo"));
 	}
+	{
+		TempAllocator128 ta;
+		DynamicString clean(ta);
+		path::reduce(clean, "/home/./foo/");
+		ENSURE(clean == "/home/foo");
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString clean(ta);
+		path::reduce(clean, "\\home\\.\\foo\\");
+		ENSURE(clean == "/home/foo");
+	}
 #else
 	{
 		const bool a = path::is_absolute("C:\\Users\\foo");
@@ -1194,6 +1206,18 @@ static void test_path()
 	{
 		ENSURE(path::has_trailing_separator("C:\\Users\\foo\\"));
 		ENSURE(!path::has_trailing_separator("C:\\Users\\foo"));
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString clean(ta);
+		path::reduce(clean, "C:\\Users\\.\\foo\\");
+		ENSURE(clean == "C:\\Users\\foo");
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString clean(ta);
+		path::reduce(clean, "C:/Users/./foo/");
+		ENSURE(clean == "C:\\Users\\foo");
 	}
 #endif // CROWN_PLATFORM_POSIX
 	{

@@ -42,6 +42,9 @@ namespace path
 
 	/// Returns whether the @a path has a trailing separator.
 	bool has_trailing_separator(const char* path);
+
+	/// Removes unnecessary dots and separators from @a path.
+	void reduce(DynamicString& clean, const char* path);
 } // namespace path
 
 } // namespace crown

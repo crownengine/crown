@@ -81,5 +81,32 @@ namespace path
 		CE_ENSURE(NULL != path);
 		return path[strlen32(path) - 1] == PATH_SEPARATOR;
 	}
+
+	inline bool any_separator(char c)
+	{
+		return c == '/' || c == '\\';
+	}
+
+	void reduce(DynamicString& clean, const char* path)
+	{
+		if (path == NULL)
+			return;
+
+		char cc = any_separator(*path) ? PATH_SEPARATOR : *path;
+		clean += cc;
+		++path;
+
+		for (; *path; ++path)
+		{
+			if (cc == PATH_SEPARATOR && (any_separator(*path) || *path == '.'))
+				continue;
+
+			cc = any_separator(*path) ? PATH_SEPARATOR : *path;
+			clean += cc;
+		}
+
+		if (has_trailing_separator(clean.c_str()))
+			array::pop_back(clean._data);
+	}
 } // namespace path
 } // namespace crown
