@@ -77,7 +77,7 @@ namespace log_internal
 		}
 
 		if (device())
-			device()->log(buf, sev);
+			device()->log(buf);
 	}
 
 	void logx(LogSeverity::Enum sev, const char* msg, ...)
