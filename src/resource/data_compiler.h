@@ -69,4 +69,6 @@ public:
 	u32 version(StringId64 type);
 };
 
+int main_data_compiler(int argc, char** argv);
+
 } // namespace crown

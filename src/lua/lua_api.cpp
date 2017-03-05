@@ -2668,7 +2668,7 @@ static int device_console_send(lua_State* L)
 	StringStream json(alloc);
 	lua_dump_table(L, 1, json);
 
-	device()->_console_server->send(string_stream::c_str(json));
+	console_server()->send(string_stream::c_str(json));
 	return 0;
 }
 

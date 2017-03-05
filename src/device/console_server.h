@@ -8,6 +8,7 @@
 #include "container_types.h"
 #include "socket.h"
 #include "string_types.h"
+#include "hash_map.h"
 
 namespace crown
 {
@@ -16,11 +17,17 @@ namespace crown
 /// @ingroup Device
 class ConsoleServer
 {
-	typedef void (*CommandFunction)(ConsoleServer& cs, TCPSocket client, const char* json);
+	typedef void (*CommandFunction)(ConsoleServer& cs, TCPSocket client, const char* json, void* user_data);
+
+	struct Command
+	{
+		CommandFunction function;
+		void* user_data;
+	};
 
 	TCPSocket _server;
 	Vector<TCPSocket> _clients;
-	SortMap<StringId32, CommandFunction> _commands;
+	HashMap<StringId32, Command> _commands;
 
 	void add_client(TCPSocket socket);
 	void process(TCPSocket client, const char* json);
@@ -52,7 +59,16 @@ public:
 	void success(TCPSocket client, const char* msg);
 
 	/// Registers the command @a type.
-	void register_command(const char* type, CommandFunction cmd);
+	void register_command(const char* type, CommandFunction cmd, void* user_data);
 };
+
+namespace console_server_globals
+{
+	void init();
+
+	void shutdown();
+} // namespace console_server_globals
+
+ConsoleServer* console_server();
 
 } // namespace crown

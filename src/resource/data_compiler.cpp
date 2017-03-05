@@ -22,6 +22,24 @@
 #include "vector.h"
 #include <setjmp.h>
 
+#include "resource_types.h"
+#include "config_resource.h"
+#include "font_resource.h"
+#include "lua_resource.h"
+#include "level_resource.h"
+#include "mesh_resource.h"
+#include "material_resource.h"
+#include "physics_resource.h"
+#include "package_resource.h"
+#include "sound_resource.h"
+#include "shader_resource.h"
+#include "sprite_resource.h"
+#include "texture_resource.h"
+#include "unit_resource.h"
+#include "device_options.h"
+#include "console_api.h"
+#include "json_object.h"
+
 namespace crown
 {
 class LineReader
@@ -53,6 +71,42 @@ public:
 	}
 };
 
+static void console_command_compile(ConsoleServer& cs, TCPSocket client, const char* json, void* user_data)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	DynamicString id(ta);
+	DynamicString data_dir(ta);
+	DynamicString platform(ta);
+
+	sjson::parse(json, obj);
+	sjson::parse_string(obj["id"], id);
+	sjson::parse_string(obj["data_dir"], data_dir);
+	sjson::parse_string(obj["platform"], platform);
+
+	{
+		TempAllocator512 ta;
+		StringStream ss(ta);
+		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"start\":true}";
+		cs.send(client, string_stream::c_str(ss));
+	}
+
+	logi("Compiling '%s'", id.c_str());
+	bool succ = ((DataCompiler*)user_data)->compile(data_dir.c_str(), platform.c_str());
+
+	if (succ)
+		logi("Compiled '%s'", id.c_str());
+	else
+		loge("Error while compiling '%s'", id.c_str());
+
+	{
+		TempAllocator512 ta;
+		StringStream ss(ta);
+		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"success\":" << (succ ? "true" : "false") << "}";
+		cs.send(client, string_stream::c_str(ss));
+	}
+}
+
 DataCompiler::DataCompiler(ConsoleServer& cs)
 	: _console_server(&cs)
 	, _source_fs(default_allocator())
@@ -62,6 +116,7 @@ DataCompiler::DataCompiler(ConsoleServer& cs)
 	, _globs(default_allocator())
 	, _file_monitor(default_allocator())
 {
+	cs.register_command("compile", console_command_compile, this);
 }
 
 DataCompiler::~DataCompiler()
@@ -464,6 +519,104 @@ void DataCompiler::filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir,
 void DataCompiler::filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified)
 {
 	((DataCompiler*)thiz)->filemonitor_callback(fme, is_dir, path_original, path_modified);
+}
+
+struct InitMemoryGlobals
+{
+	InitMemoryGlobals()
+	{
+		crown::memory_globals::init();
+	}
+
+	~InitMemoryGlobals()
+	{
+		crown::memory_globals::shutdown();
+	}
+};
+
+int main_data_compiler(int argc, char** argv)
+{
+	InitMemoryGlobals m;
+	CE_UNUSED(m);
+
+	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
+	if (opts.parse() == EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	DataCompiler* _data_compiler = NULL;
+
+	console_server_globals::init();
+	load_console_api(*console_server());
+
+	console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
+
+	namespace cor = config_resource_internal;
+	namespace ftr = font_resource_internal;
+	namespace lur = lua_resource_internal;
+	namespace lvr = level_resource_internal;
+	namespace mhr = mesh_resource_internal;
+	namespace mtr = material_resource_internal;
+	namespace pcr = physics_config_resource_internal;
+	namespace phr = physics_resource_internal;
+	namespace pkr = package_resource_internal;
+	namespace sar = sprite_animation_resource_internal;
+	namespace sdr = sound_resource_internal;
+	namespace shr = shader_resource_internal;
+	namespace spr = sprite_resource_internal;
+	namespace txr = texture_resource_internal;
+	namespace utr = unit_resource_internal;
+
+	bool success = false;
+
+	if (opts._do_compile || opts._server)
+	{
+		_data_compiler = CE_NEW(default_allocator(), DataCompiler)(*console_server());
+		_data_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
+		_data_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
+
+		_data_compiler->map_source_dir("", opts._source_dir.c_str());
+
+		if (opts._map_source_dir_name)
+		{
+			_data_compiler->map_source_dir(opts._map_source_dir_name
+				, opts._map_source_dir_prefix.c_str()
+				);
+		}
+
+		_data_compiler->scan();
+
+		if (opts._server)
+		{
+			while (true)
+			{
+				console_server()->update();
+				os::sleep(60);
+			}
+		}
+		else
+		{
+			success = _data_compiler->compile(opts._data_dir.c_str(), opts._platform);
+		}
+	}
+
+	CE_DELETE(default_allocator(), _data_compiler);
+
+	console_server_globals::shutdown();
+
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 } // namespace crown

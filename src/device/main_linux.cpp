@@ -9,6 +9,7 @@
 
 #include "array.h"
 #include "command_line.h"
+#include "data_compiler.h"
 #include "device.h"
 #include "device_event_queue.h"
 #include "display.h"
@@ -16,16 +17,16 @@
 #include "thread.h"
 #include "unit_tests.h"
 #include "window.h"
+#include <X11/XKBlib.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/extensions/Xrandr.h>
 #include <bgfx/bgfxplatform.h>
 #include <fcntl.h>  // O_RDONLY, ...
 #include <stdlib.h>
 #include <string.h> // memset
 #include <unistd.h> // close
-#include <X11/extensions/Xrandr.h>
-#include <X11/Xatom.h>
-#include <X11/XKBlib.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 
 namespace crown
 {
@@ -752,6 +753,12 @@ int main(int argc, char** argv)
 		return EXIT_SUCCESS;
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
+	if (cl.has_argument("compile") || cl.has_argument("server"))
+	{
+		if (main_data_compiler(argc, argv) != EXIT_SUCCESS || !cl.has_argument("continue"))
+			return EXIT_FAILURE;
+	}
+
 	InitMemoryGlobals m;
 	CE_UNUSED(m);
 

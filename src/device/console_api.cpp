@@ -15,7 +15,7 @@
 
 namespace crown
 {
-static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
+static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* /*user_data*/)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -27,7 +27,7 @@ static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	device()->_lua_environment->execute_string(script.c_str());
 }
 
-static void console_command_reload(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json)
+static void console_command_reload(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* /*user_data*/)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -43,59 +43,22 @@ static void console_command_reload(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	logi("Reloaded resource '%s.%s'", name.c_str(), type.c_str());
 }
 
-static void console_command_pause(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/)
+static void console_command_pause(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/, void* /*user_data*/)
 {
 	device()->pause();
 }
 
-static void console_command_unpause(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/)
+static void console_command_unpause(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/, void* /*user_data*/)
 {
 	device()->unpause();
 }
 
-static void console_command_compile(ConsoleServer& cs, TCPSocket client, const char* json)
-{
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	DynamicString id(ta);
-	DynamicString data_dir(ta);
-	DynamicString platform(ta);
-
-	sjson::parse(json, obj);
-	sjson::parse_string(obj["id"], id);
-	sjson::parse_string(obj["data_dir"], data_dir);
-	sjson::parse_string(obj["platform"], platform);
-
-	{
-		TempAllocator512 ta;
-		StringStream ss(ta);
-		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"start\":true}";
-		cs.send(client, string_stream::c_str(ss));
-	}
-
-	logi("Compiling '%s'", id.c_str());
-	bool succ = device()->_data_compiler->compile(data_dir.c_str(), platform.c_str());
-
-	if (succ)
-		logi("Compiled '%s'", id.c_str());
-	else
-		loge("Error while compiling '%s'", id.c_str());
-
-	{
-		TempAllocator512 ta;
-		StringStream ss(ta);
-		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"success\":" << (succ ? "true" : "false") << "}";
-		cs.send(client, string_stream::c_str(ss));
-	}
-}
-
 void load_console_api(ConsoleServer& cs)
 {
-	cs.register_command("script",  console_command_script);
-	cs.register_command("reload",  console_command_reload);
-	cs.register_command("pause",   console_command_pause);
-	cs.register_command("unpause", console_command_unpause);
-	cs.register_command("compile", console_command_compile);
+	cs.register_command("script",  console_command_script, NULL);
+	cs.register_command("reload",  console_command_reload, NULL);
+	cs.register_command("pause",   console_command_pause, NULL);
+	cs.register_command("unpause", console_command_unpause, NULL);
 }
 
 } // namespace crown

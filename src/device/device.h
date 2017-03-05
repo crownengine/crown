@@ -9,7 +9,6 @@
 #include "boot_config.h"
 #include "compiler_types.h"
 #include "config.h"
-#include "console_server.h"
 #include "container_types.h"
 #include "device_options.h"
 #include "display.h"
@@ -40,8 +39,6 @@ struct Device
 
 	const DeviceOptions& _device_options;
 	BootConfig _boot_config;
-	ConsoleServer* _console_server;
-	DataCompiler* _data_compiler;
 	Filesystem* _bundle_filesystem;
 	File* _last_log;
 	ResourceLoader* _resource_loader;

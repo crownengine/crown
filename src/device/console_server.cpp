@@ -4,9 +4,9 @@
  */
 
 #include "console_server.h"
+#include "hash_map.h"
 #include "json_object.h"
 #include "sjson.h"
-#include "sort_map.h"
 #include "string_id.h"
 #include "string_stream.h"
 #include "temp_allocator.h"
@@ -142,24 +142,52 @@ void ConsoleServer::process(TCPSocket client, const char* json)
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
 
-	CommandFunction cmd = sort_map::get(_commands
+	Command cmd;
+	cmd.function = NULL;
+	cmd.user_data = NULL;
+
+	cmd = hash_map::get(_commands
 		, sjson::parse_string_id(obj["type"])
-		, (CommandFunction)NULL
+		, cmd
 		);
 
-	if (cmd)
-		cmd(*this, client, json);
+	if (cmd.function)
+		cmd.function(*this, client, json, cmd.user_data);
 	else
 		error(client, "Unknown command");
 }
 
-void ConsoleServer::register_command(const char* type, CommandFunction cmd)
+void ConsoleServer::register_command(const char* type, CommandFunction function, void* user_data)
 {
 	CE_ENSURE(NULL != type);
-	CE_ENSURE(NULL != cmd);
+	CE_ENSURE(NULL != function);
 
-	sort_map::set(_commands, StringId32(type), cmd);
-	sort_map::sort(_commands);
+	Command cmd;
+	cmd.function = function;
+	cmd.user_data = user_data;
+
+	hash_map::set(_commands, StringId32(type), cmd);
+}
+
+namespace console_server_globals
+{
+	ConsoleServer* _console_server = NULL;
+
+	void init()
+	{
+		_console_server = CE_NEW(default_allocator(), ConsoleServer)(default_allocator());
+	}
+
+	void shutdown()
+	{
+		_console_server->shutdown();
+		CE_DELETE(default_allocator(), _console_server);
+	}
+}
+
+ConsoleServer* console_server()
+{
+	return console_server_globals::_console_server;
 }
 
 } // namespace crown

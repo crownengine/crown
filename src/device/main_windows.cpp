@@ -8,6 +8,7 @@
 #if CROWN_PLATFORM_WINDOWS
 
 #include "command_line.h"
+#include "data_compiler.h"
 #include "device.h"
 #include "device_event_queue.h"
 #include "thread.h"
@@ -706,6 +707,13 @@ struct InitMemoryGlobals
 int main(int argc, char** argv)
 {
 	using namespace crown;
+
+	WSADATA wsdata;
+	int err = WSAStartup(MAKEWORD(2, 2), &wsdata);
+	CE_ASSERT(err == 0, "WSAStartup: error = %d", err);
+	CE_UNUSED(wsdata);
+	CE_UNUSED(err);
+
 #if CROWN_BUILD_UNIT_TESTS
 	CommandLine cl(argc, (const char**)argv);
 	if (cl.has_argument("run-unit-tests"))
@@ -714,14 +722,14 @@ int main(int argc, char** argv)
 		return EXIT_SUCCESS;
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
+	if (cl.has_argument("compile") || cl.has_argument("server"))
+	{
+		if (main_data_compiler(argc, argv) != EXIT_SUCCESS || !cl.has_argument("continue"))
+			return EXIT_FAILURE;
+	}
+
 	InitMemoryGlobals m;
 	CE_UNUSED(m);
-
-	WSADATA wsdata;
-	int err = WSAStartup(MAKEWORD(2, 2), &wsdata);
-	CE_ASSERT(err == 0, "WSAStartup: error = %d", err);
-	CE_UNUSED(wsdata);
-	CE_UNUSED(err);
 
 	int ec = EXIT_SUCCESS;
 

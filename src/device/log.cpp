@@ -3,11 +3,13 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "console_server.h"
 #include "device.h"
 #include "log.h"
 #include "mutex.h"
 #include "os.h"
 #include "platform.h"
+#include "string_stream.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
 
@@ -45,6 +47,34 @@ namespace log_internal
 		os::log(buf);
 #endif
 		os::log("\n");
+
+		if (console_server())
+		{
+			static const char* s_severity_map[] = { "info", "warning", "error" };
+			CE_STATIC_ASSERT(countof(s_severity_map) == LogSeverity::COUNT);
+
+			TempAllocator4096 ta;
+			StringStream json(ta);
+
+			json << "{\"type\":\"message\",";
+			json << "\"severity\":\"";
+			json << s_severity_map[sev];
+			json << "\",";
+			json << "\"message\":\"";
+
+			// Sanitize buf
+			const char* ch = buf;
+			for (; *ch; ch++)
+			{
+				if (*ch == '"' || *ch == '\\')
+					json << "\\";
+				json << *ch;
+			}
+
+			json << "\"}";
+
+			console_server()->send(string_stream::c_str(json));
+		}
 
 		if (device())
 			device()->log(buf, sev);

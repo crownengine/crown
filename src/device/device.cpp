@@ -9,7 +9,7 @@
 #include "config_resource.h"
 #include "console_api.h"
 #include "console_server.h"
-#include "data_compiler.h"
+#include "console_server.h"
 #include "device.h"
 #include "device_event_queue.h"
 #include "file.h"
@@ -144,8 +144,6 @@ Device::Device(const DeviceOptions& opts)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
 	, _boot_config(default_allocator())
-	, _console_server(NULL)
-	, _data_compiler(NULL)
 	, _bundle_filesystem(NULL)
 	, _last_log(NULL)
 	, _resource_loader(NULL)
@@ -282,10 +280,10 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 
 void Device::run()
 {
-	_console_server = CE_NEW(_allocator, ConsoleServer)(default_allocator());
-	load_console_api(*_console_server);
+	console_server_globals::init();
+	load_console_api(*console_server());
 
-	_console_server->listen(_device_options._server ? CROWN_DEFAULT_COMPILER_PORT : _device_options._console_port, _device_options._wait_console);
+	console_server()->listen(_device_options._console_port, _device_options._wait_console);
 
 	namespace cor = config_resource_internal;
 	namespace ftr = font_resource_internal;
@@ -303,248 +301,192 @@ void Device::run()
 	namespace txr = texture_resource_internal;
 	namespace utr = unit_resource_internal;
 
-	bool do_continue = true;
-
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
-	if (_device_options._do_compile || _device_options._server)
-	{
-		_data_compiler = CE_NEW(_allocator, DataCompiler)(*_console_server);
-		_data_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
-
-		_data_compiler->map_source_dir("", _device_options._source_dir.c_str());
-
-		if (_device_options._map_source_dir_name)
-		{
-			_data_compiler->map_source_dir(_device_options._map_source_dir_name
-				, _device_options._map_source_dir_prefix.c_str()
-				);
-		}
-
-		_data_compiler->scan();
-
-		if (_device_options._server)
-		{
-			while (true)
-			{
-				_console_server->update();
-				os::sleep(60);
-			}
-		}
-		else
-		{
-			const char* data_dir = _device_options._data_dir.c_str();
-			const char* platform = _device_options._platform;
-			do_continue = _data_compiler->compile(data_dir, platform);
-			do_continue = do_continue && _device_options._do_continue;
-		}
-	}
-#endif // CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
-
-	if (do_continue)
-	{
 #if CROWN_PLATFORM_ANDROID
-		_bundle_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
+	_bundle_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
-		const char* data_dir = _device_options._data_dir.c_str();
-		if (!data_dir)
-		{
-			char buf[1024];
-			data_dir = os::getcwd(buf, sizeof(buf));
-		}
-		_bundle_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
-		((FilesystemDisk*)_bundle_filesystem)->set_prefix(data_dir);
-		if (!_bundle_filesystem->exists(data_dir))
-			_bundle_filesystem->create_directory(data_dir);
+	const char* data_dir = _device_options._data_dir.c_str();
+	if (!data_dir)
+	{
+		char buf[1024];
+		data_dir = os::getcwd(buf, sizeof(buf));
+	}
+	_bundle_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
+	((FilesystemDisk*)_bundle_filesystem)->set_prefix(data_dir);
+	if (!_bundle_filesystem->exists(data_dir))
+		_bundle_filesystem->create_directory(data_dir);
 
-		_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
+	_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
-		logi("Initializing Crown Engine %s...", version());
+	logi("Initializing Crown Engine %s...", version());
 
-		profiler_globals::init();
+	profiler_globals::init();
 
-		_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
-		_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
-		_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           lur::load, lur::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
-		_resource_manager->register_type(RESOURCE_TYPE_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
-		_resource_manager->register_type(RESOURCE_TYPE_SOUND,            sdr::load, sdr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_UNIT,             utr::load, utr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          pkr::load, pkr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_PHYSICS,          phr::load, phr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_MATERIAL,         mtr::load, mtr::unload, mtr::online, mtr::offline);
-		_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   pcr::load, pcr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_FONT,             ftr::load, ftr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_LEVEL,            lvr::load, lvr::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_SHADER,           shr::load, shr::unload, shr::online, shr::offline);
-		_resource_manager->register_type(RESOURCE_TYPE_SPRITE_ANIMATION, sar::load, sar::unload, NULL,        NULL        );
-		_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
+	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
+	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
+	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           lur::load, lur::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
+	_resource_manager->register_type(RESOURCE_TYPE_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
+	_resource_manager->register_type(RESOURCE_TYPE_SOUND,            sdr::load, sdr::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_UNIT,             utr::load, utr::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           spr::load, spr::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          pkr::load, pkr::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS,          phr::load, phr::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_MATERIAL,         mtr::load, mtr::unload, mtr::online, mtr::offline);
+	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   pcr::load, pcr::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_FONT,             ftr::load, ftr::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_LEVEL,            lvr::load, lvr::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_SHADER,           shr::load, shr::unload, shr::online, shr::offline);
+	_resource_manager->register_type(RESOURCE_TYPE_SPRITE_ANIMATION, sar::load, sar::unload, NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
 
-		// Read config
+	// Read config
+	{
+		TempAllocator512 ta;
+		DynamicString boot_dir(ta);
+
+		if (_device_options._boot_dir != NULL)
 		{
-			TempAllocator512 ta;
-			DynamicString boot_dir(ta);
-
-			if (_device_options._boot_dir != NULL)
-			{
-				boot_dir += _device_options._boot_dir;
-				boot_dir += '/';
-			}
-			boot_dir += CROWN_BOOT_CONFIG;
-
-			const StringId64 config_name(boot_dir.c_str());
-			_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
-			_resource_manager->flush();
-			_boot_config.parse((const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
-			_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
+			boot_dir += _device_options._boot_dir;
+			boot_dir += '/';
 		}
+		boot_dir += CROWN_BOOT_CONFIG;
 
-		// Init all remaining subsystems
-		_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
-		_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
-
-		_display = display::create(_allocator);
-		_window = window::create(_allocator);
-		_window->open(_device_options._window_x
-			, _device_options._window_y
-			, _boot_config.window_w
-			, _boot_config.window_h
-			, _device_options._parent_window
-			);
-		_window->set_title(_boot_config.window_title.c_str());
-		_window->set_fullscreen(_boot_config.fullscreen);
-		_window->bgfx_setup();
-
-		bgfx::init(bgfx::RendererType::Count
-			, BGFX_PCI_ID_NONE
-			, 0
-			, _bgfx_callback
-			, _bgfx_allocator
-			);
-
-		_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
-		_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
-		_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
-		_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
-		_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
-
-		audio_globals::init();
-		physics_globals::init(_allocator);
-
-		ResourcePackage* boot_package = create_resource_package(_boot_config.boot_package_name);
-		boot_package->load();
-		boot_package->flush();
-
-		_lua_environment->load_libs();
-		_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
-		_lua_environment->call_global("init", 0);
-
-		logi("Engine initialized");
-
-		s16 mouse_x = 0;
-		s16 mouse_y = 0;
-		s16 mouse_last_x = 0;
-		s16 mouse_last_y = 0;
-
-		s64 last_time = os::clocktime();
-		s64 curr_time;
-
-		while (!process_events(mouse_x, mouse_y, mouse_last_x, mouse_last_y, _boot_config.vsync) && !_quit)
-		{
-			curr_time = os::clocktime();
-			const s64 time = curr_time - last_time;
-			last_time = curr_time;
-			const f64 freq = (f64)os::clockfrequency();
-			_last_delta_time = f32(time * (1.0 / freq));
-			_time_since_start += _last_delta_time;
-
-			profiler_globals::clear();
-			_console_server->update();
-
-			RECORD_FLOAT("device.dt", _last_delta_time);
-			RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
-
-			if (!_paused)
-			{
-				_resource_manager->complete_requests();
-
-				{
-					const s64 t0 = os::clocktime();
-					_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
-					const s64 t1 = os::clocktime();
-					RECORD_FLOAT("lua.update", f32((t1 - t0)*(1.0 / freq)));
-				}
-				{
-					const s64 t0 = os::clocktime();
-					_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
-					const s64 t1 = os::clocktime();
-					RECORD_FLOAT("lua.render", f32((t1 - t0)*(1.0 / freq)));
-				}
-			}
-
-			_input_manager->update();
-
-			const bgfx::Stats* stats = bgfx::getStats();
-			RECORD_FLOAT("bgfx.gpu_time", f32(f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq));
-			RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq));
-
-			bgfx::frame();
-			profiler_globals::flush();
-
-			_lua_environment->reset_temporaries();
-
-			_frame_count++;
-		}
-
-		_lua_environment->call_global("shutdown", 0);
-
-		boot_package->unload();
-		destroy_resource_package(*boot_package);
-
-		physics_globals::shutdown(_allocator);
-		audio_globals::shutdown();
-
-		CE_DELETE(_allocator, _lua_environment);
-		CE_DELETE(_allocator, _unit_manager);
-		CE_DELETE(_allocator, _input_manager);
-		CE_DELETE(_allocator, _material_manager);
-		CE_DELETE(_allocator, _shader_manager);
-		CE_DELETE(_allocator, _resource_manager);
-		CE_DELETE(_allocator, _resource_loader);
-
-		bgfx::shutdown();
-		_window->close();
-		window::destroy(_allocator, *_window);
-		display::destroy(_allocator, *_display);
-		CE_DELETE(_allocator, _bgfx_callback);
-		CE_DELETE(_allocator, _bgfx_allocator);
-
-		if (_last_log)
-			_bundle_filesystem->close(*_last_log);
-
-		CE_DELETE(_allocator, _bundle_filesystem);
-
-		profiler_globals::shutdown();
+		const StringId64 config_name(boot_dir.c_str());
+		_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
+		_resource_manager->flush();
+		_boot_config.parse((const char*)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));
+		_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 	}
 
-	CE_DELETE(_allocator, _data_compiler);
-	_console_server->shutdown();
-	CE_DELETE(_allocator, _console_server);
+	// Init all remaining subsystems
+	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
+	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
+
+	_display = display::create(_allocator);
+	_window = window::create(_allocator);
+	_window->open(_device_options._window_x
+		, _device_options._window_y
+		, _boot_config.window_w
+		, _boot_config.window_h
+		, _device_options._parent_window
+		);
+	_window->set_title(_boot_config.window_title.c_str());
+	_window->set_fullscreen(_boot_config.fullscreen);
+	_window->bgfx_setup();
+
+	bgfx::init(bgfx::RendererType::Count
+		, BGFX_PCI_ID_NONE
+		, 0
+		, _bgfx_callback
+		, _bgfx_allocator
+		);
+
+	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
+	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
+	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
+	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
+	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
+
+	audio_globals::init();
+	physics_globals::init(_allocator);
+
+	ResourcePackage* boot_package = create_resource_package(_boot_config.boot_package_name);
+	boot_package->load();
+	boot_package->flush();
+
+	_lua_environment->load_libs();
+	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
+	_lua_environment->call_global("init", 0);
+
+	logi("Engine initialized");
+
+	s16 mouse_x = 0;
+	s16 mouse_y = 0;
+	s16 mouse_last_x = 0;
+	s16 mouse_last_y = 0;
+
+	s64 last_time = os::clocktime();
+	s64 curr_time;
+
+	while (!process_events(mouse_x, mouse_y, mouse_last_x, mouse_last_y, _boot_config.vsync) && !_quit)
+	{
+		curr_time = os::clocktime();
+		const s64 time = curr_time - last_time;
+		last_time = curr_time;
+		const f64 freq = (f64)os::clockfrequency();
+		_last_delta_time = f32(time * (1.0 / freq));
+		_time_since_start += _last_delta_time;
+
+		profiler_globals::clear();
+		console_server()->update();
+
+		RECORD_FLOAT("device.dt", _last_delta_time);
+		RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
+
+		if (!_paused)
+		{
+			_resource_manager->complete_requests();
+
+			{
+				const s64 t0 = os::clocktime();
+				_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
+				const s64 t1 = os::clocktime();
+				RECORD_FLOAT("lua.update", f32((t1 - t0)*(1.0 / freq)));
+			}
+			{
+				const s64 t0 = os::clocktime();
+				_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
+				const s64 t1 = os::clocktime();
+				RECORD_FLOAT("lua.render", f32((t1 - t0)*(1.0 / freq)));
+			}
+		}
+
+		_input_manager->update();
+
+		const bgfx::Stats* stats = bgfx::getStats();
+		RECORD_FLOAT("bgfx.gpu_time", f32(f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq));
+		RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq));
+
+		bgfx::frame();
+		profiler_globals::flush();
+
+		_lua_environment->reset_temporaries();
+
+		_frame_count++;
+	}
+
+	_lua_environment->call_global("shutdown", 0);
+
+	boot_package->unload();
+	destroy_resource_package(*boot_package);
+
+	physics_globals::shutdown(_allocator);
+	audio_globals::shutdown();
+
+	CE_DELETE(_allocator, _lua_environment);
+	CE_DELETE(_allocator, _unit_manager);
+	CE_DELETE(_allocator, _input_manager);
+	CE_DELETE(_allocator, _material_manager);
+	CE_DELETE(_allocator, _shader_manager);
+	CE_DELETE(_allocator, _resource_manager);
+	CE_DELETE(_allocator, _resource_loader);
+
+	bgfx::shutdown();
+	_window->close();
+	window::destroy(_allocator, *_window);
+	display::destroy(_allocator, *_display);
+	CE_DELETE(_allocator, _bgfx_callback);
+	CE_DELETE(_allocator, _bgfx_allocator);
+
+	if (_last_log)
+		_bundle_filesystem->close(*_last_log);
+
+	CE_DELETE(_allocator, _bundle_filesystem);
+
+	profiler_globals::shutdown();
+
+	console_server_globals::shutdown();
 
 	_allocator.clear();
 }
@@ -674,38 +616,11 @@ void Device::reload(StringId64 type, StringId64 name)
 
 void Device::log(const char* msg, LogSeverity::Enum severity)
 {
-	static const char* s_severity_map[] = { "info", "warning", "error" };
-	CE_STATIC_ASSERT(countof(s_severity_map) == LogSeverity::COUNT);
-
 	if (_last_log)
 	{
 		_last_log->write(msg, strlen32(msg));
 		_last_log->write("\n", 1);
 		_last_log->flush();
-	}
-
-	if (_console_server)
-	{
-		TempAllocator4096 ta;
-		StringStream json(ta);
-
-		json << "{\"type\":\"message\",";
-		json << "\"severity\":\"";
-		json << s_severity_map[severity];
-		json << "\",";
-		json << "\"message\":\"";
-
-		// Sanitize msg
-		for (; *msg; msg++)
-		{
-			if (*msg == '"' || *msg == '\\')
-				json << "\\";
-			json << *msg;
-		}
-
-		json << "\"}";
-
-		_console_server->send(string_stream::c_str(json));
 	}
 }
 
