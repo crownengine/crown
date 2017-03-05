@@ -1259,7 +1259,7 @@ static void test_command_line()
 	ENSURE(orange != NULL && strcmp(orange, "orange") == 0);
 }
 
-void run_unit_tests()
+int main_unit_tests()
 {
 	test_memory();
 	test_array();
@@ -1282,6 +1282,8 @@ void run_unit_tests()
 	test_sjson();
 	test_path();
 	test_command_line();
+
+	return EXIT_SUCCESS;
 }
 
 } // namespace crown

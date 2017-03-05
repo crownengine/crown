@@ -8,6 +8,6 @@
 namespace crown
 {
 	/// Runs all the unit tests.
-	void run_unit_tests();
+	int main_unit_tests();
 
 } // namespace crown

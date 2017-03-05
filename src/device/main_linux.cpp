@@ -749,8 +749,7 @@ int main(int argc, char** argv)
 	CommandLine cl(argc, (const char**)argv);
 	if (cl.has_argument("run-unit-tests"))
 	{
-		run_unit_tests();
-		return EXIT_SUCCESS;
+		return main_unit_tests();
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
 	if (cl.has_argument("compile") || cl.has_argument("server"))
