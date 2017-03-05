@@ -131,7 +131,7 @@ public:
 	void reload(StringId64 type, StringId64 name);
 
 	/// Logs @a msg to log file and console.
-	void log(const char* msg, LogSeverity::Enum severity);
+	void log(const char* msg);
 
 private:
 

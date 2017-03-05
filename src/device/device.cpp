@@ -614,7 +614,7 @@ void Device::reload(StringId64 type, StringId64 name)
 	}
 }
 
-void Device::log(const char* msg, LogSeverity::Enum severity)
+void Device::log(const char* msg)
 {
 	if (_last_log)
 	{
