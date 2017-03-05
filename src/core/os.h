@@ -71,9 +71,9 @@ namespace os
 	/// Returns the value of the environment variable @a name.
 	const char* getenv(const char* name);
 
-	/// Executes the process @a path with the given @a args and returns its exit code.
+	/// Executes the process described by @a argv and returns its exit code.
 	/// It fills @a output with stdout and stderr.
-	int execute_process(const char* path, const char* args, StringStream& output);
+	int execute_process(const char* const* argv, StringStream& output);
 
 } // namespace os
 } // namespace crown

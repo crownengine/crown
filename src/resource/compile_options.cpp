@@ -169,22 +169,7 @@ void CompileOptions::add_dependency(const char* path)
 
 int CompileOptions::run_external_compiler(const char* const* argv, StringStream& output)
 {
-	TempAllocator512 ta;
-	StringStream ss(ta);
-
-	for (s32 i = 1; argv[i] != NULL; ++i)
-	{
-		const char* arg = argv[i];
-		for (; *arg; ++arg)
-		{
-			if (*arg == ' ')
-				ss << '\\';
-			ss << *arg;
-		}
-		ss << ' ';
-	}
-
-	return os::execute_process(argv[0], string_stream::c_str(ss), output);
+	return os::execute_process(argv, output);
 }
 
 } // namespace crown

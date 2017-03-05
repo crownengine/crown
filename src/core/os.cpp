@@ -330,15 +330,29 @@ namespace os
 #endif
 	}
 
-	int execute_process(const char* path, const char* args, StringStream& output)
+	int execute_process(const char* const* argv, StringStream& output)
 	{
-#if CROWN_PLATFORM_POSIX
 		TempAllocator512 ta;
-		DynamicString cmd(ta);
-		cmd += path;
-		cmd += " 2>&1 ";
-		cmd += args;
-		FILE* file = popen(cmd.c_str(), "r");
+		StringStream path(ta);
+
+		path << argv[0];
+		path << ' ';
+#if CROWN_PLATFORM_POSIX
+		path << "2>&1 ";
+#endif
+		for (s32 i = 1; argv[i] != NULL; ++i)
+		{
+			const char* arg = argv[i];
+			for (; *arg; ++arg)
+			{
+				if (*arg == ' ')
+					path << '\\';
+				path << *arg;
+			}
+			path << ' ';
+		}
+#if CROWN_PLATFORM_POSIX
+		FILE* file = popen(string_stream::c_str(path), "r");
 
 		char buf[1024];
 		while (fgets(buf, sizeof(buf), file) != NULL)
@@ -353,7 +367,17 @@ namespace os
 		PROCESS_INFORMATION process;
 		memset(&process, 0, sizeof(process));
 
-		int err = CreateProcess(path, (LPSTR)args, NULL, NULL, TRUE, 0, NULL, NULL, &info, &process);
+		int err = CreateProcess(argv[0]
+			, (LPSTR)string_stream::c_str(path)
+			, NULL
+			, NULL
+			, TRUE
+			, 0
+			, NULL
+			, NULL
+			, &info
+			, &process
+			);
 		CE_ASSERT(err != 0, "CreateProcess: GetLastError = %d", GetLastError());
 		CE_UNUSED(err);
 
