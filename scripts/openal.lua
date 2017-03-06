@@ -29,7 +29,6 @@ function openal_project(_kind)
 
 		configuration { "android-* or linux-*" }
 			defines {
-				"'ALIGN(x)=__attribute__((aligned(x)))'",
 				"HAVE_C99_VLA",
 				"HAVE_DIRENT_H",
 				"HAVE_DLFCN_H",

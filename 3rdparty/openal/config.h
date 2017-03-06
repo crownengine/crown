@@ -9,4 +9,5 @@
 #else
 	#define AL_API  __attribute__((visibility("protected")))
 	#define ALC_API __attribute__((visibility("protected")))
+	#define ALIGN(x) __attribute__((aligned(x)))
 #endif // defined(_MSC_VER)
