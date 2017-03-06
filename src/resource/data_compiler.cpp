@@ -543,8 +543,6 @@ int main_data_compiler(int argc, char** argv)
 	if (opts.parse() == EXIT_FAILURE)
 		return EXIT_FAILURE;
 
-	DataCompiler* _data_compiler = NULL;
-
 	console_server_globals::init();
 	load_console_api(*console_server());
 
@@ -566,54 +564,50 @@ int main_data_compiler(int argc, char** argv)
 	namespace txr = texture_resource_internal;
 	namespace utr = unit_resource_internal;
 
-	bool success = false;
+	DataCompiler* dc = CE_NEW(default_allocator(), DataCompiler)(*console_server());
+	dc->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
+	dc->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
+	dc->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
+	dc->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
+	dc->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
+	dc->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
+	dc->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
+	dc->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
+	dc->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
+	dc->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
+	dc->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
+	dc->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
+	dc->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
+	dc->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
+	dc->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
 
-	if (opts._do_compile || opts._server)
+	dc->map_source_dir("", opts._source_dir.c_str());
+
+	if (opts._map_source_dir_name)
 	{
-		_data_compiler = CE_NEW(default_allocator(), DataCompiler)(*console_server());
-		_data_compiler->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          phr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
-		_data_compiler->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
-
-		_data_compiler->map_source_dir("", opts._source_dir.c_str());
-
-		if (opts._map_source_dir_name)
-		{
-			_data_compiler->map_source_dir(opts._map_source_dir_name
-				, opts._map_source_dir_prefix.c_str()
-				);
-		}
-
-		_data_compiler->scan();
-
-		if (opts._server)
-		{
-			while (true)
-			{
-				console_server()->update();
-				os::sleep(60);
-			}
-		}
-		else
-		{
-			success = _data_compiler->compile(opts._data_dir.c_str(), opts._platform);
-		}
+		dc->map_source_dir(opts._map_source_dir_name
+			, opts._map_source_dir_prefix.c_str()
+			);
 	}
 
-	CE_DELETE(default_allocator(), _data_compiler);
+	dc->scan();
 
+	bool success = true;
+
+	if (opts._server)
+	{
+		while (true)
+		{
+			console_server()->update();
+			os::sleep(60);
+		}
+	}
+	else
+	{
+		success = dc->compile(opts._data_dir.c_str(), opts._platform);
+	}
+
+	CE_DELETE(default_allocator(), dc);
 	console_server_globals::shutdown();
 
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
