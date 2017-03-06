@@ -119,6 +119,7 @@ function toolchain(build_dir, lib_dir)
 		buildoptions {
 			"-Wall",
 			"-Wextra",
+			"-Wundef",
 			"-msse2",
 		}
 		buildoptions_cpp {
