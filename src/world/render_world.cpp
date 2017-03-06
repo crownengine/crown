@@ -364,6 +364,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 	}
 
 	// Render sprites
+	if (sid.first_hidden)
 	{
 		bgfx::VertexDecl decl;
 		decl.begin()
