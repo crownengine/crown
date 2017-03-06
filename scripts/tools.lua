@@ -63,9 +63,9 @@ end
 		objdir (CROWN_TOOLS_DIR .. "mingw64" .. "/obj")
 
 	configuration { "debug" }
-		targetsuffix "-debug64"
+		targetsuffix "-debug"
 	configuration { "release" }
-		targetsuffix "-release64"
+		targetsuffix "-release"
 
 	project "level-editor"
 		kind "ConsoleApp"
