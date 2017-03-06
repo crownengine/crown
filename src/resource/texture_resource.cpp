@@ -14,21 +14,17 @@
 #include "texture_resource.h"
 
 #if CROWN_DEVELOPMENT
-	#define TEXTUREC_NAME "texturec-development-"
+	#define TEXTUREC_NAME "texturec-development"
 #elif CROWN_DEBUG
-	#define TEXTUREC_NAME "texturec-debug-"
+	#define TEXTUREC_NAME "texturec-debug"
 #else
-	#define TEXTUREC_NAME "texturec-release-"
+	#define TEXTUREC_NAME "texturec-release"
 #endif  // CROWN_DEBUG
-#if CROWN_ARCH_32BIT
-	#define TEXTUREC_BITS "32"
-#elif CROWN_ARCH_64BIT
-	#define TEXTUREC_BITS "64"
-#endif // CROWN_ARCH_32BIT
+
 #if CROWN_PLATFORM_LINUX
-	#define TEXTUREC_PATH "./" TEXTUREC_NAME "" TEXTUREC_BITS
+	#define TEXTUREC_PATH "./" TEXTUREC_NAME ""
 #elif CROWN_PLATFORM_WINDOWS
-	#define TEXTUREC_PATH TEXTUREC_NAME "" TEXTUREC_BITS ".exe"
+	#define TEXTUREC_PATH TEXTUREC_NAME ".exe"
 #else
 	#define TEXTUREC_PATH ""
 #endif // CROWN_PLATFORM_LINUX

@@ -16,7 +16,7 @@ namespace Crown
 	const string EXE_PREFIX = "";
 	const string EXE_SUFFIX = ".exe";
 #endif
-	const string ENGINE_EXE = EXE_PREFIX + "crown-development-64" + EXE_SUFFIX;
+	const string ENGINE_EXE = EXE_PREFIX + "crown-development" + EXE_SUFFIX;
 
 	const uint16 CROWN_DEFAULT_SERVER_PORT = 10618;
 

@@ -77,34 +77,19 @@ function toolchain(build_dir, lib_dir)
 		"__STDC_LIMIT_MACROS",
 	}
 
+	configuration { "debug" }
+		targetsuffix "-debug"
+
+	configuration { "development" }
+		targetsuffix "-development"
+
+	configuration { "release" }
+		targetsuffix "-release"
+
 	configuration { "development or release" }
 		flags {
 			"OptimizeSpeed"
 		}
-
-	configuration { "debug", "x32" }
-		targetsuffix "-debug-32"
-	configuration { "debug", "x64" }
-		targetsuffix "-debug-64"
-
-	configuration { "development", "x32" }
-		targetsuffix "-development-32"
-	configuration { "development", "x64" }
-		targetsuffix "-development-64"
-
-	configuration { "release", "x32" }
-		targetsuffix "-release-32"
-	configuration { "release", "x64" }
-		targetsuffix "-release-64"
-
-	configuration { "debug", "native" }
-		targetsuffix "-debug"
-
-	configuration { "development", "native" }
-		targetsuffix "-development"
-
-	configuration { "release", "native" }
-		targetsuffix "-release"
 
 	configuration { "debug or development", "linux-*" }
 		linkoptions {
