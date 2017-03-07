@@ -25,8 +25,13 @@ OBJS = \
 	icons/theme/tool-rotate.png        \
 	icons/theme/tool-scale.png         \
 
-resources.c: resources.xml $(OBJS)
+.PHONY: all
+all: resources.xml $(OBJS)
 	glib-compile-resources resources.xml --target=resources.c --generate
 
+.PHONY: clean
 clean:
 	-@rm resources.c
+
+.PHONY: rebuild
+rebuild: clean all
