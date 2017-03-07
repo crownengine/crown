@@ -6,9 +6,13 @@ The source directory
 
 The source directory contains all the files that make up an application.
 
-There is no fixed structure for the files and folders in the source directory, you can organize your content as you see fit. You can for example decide to put all the textures and sounds in the "textures" and "sounds" folders respectively, or maybe sort the content on a per-object basis by putting all the assets for an enemy in the "units/enemy" folder.
+There is no fixed structure for the files and folders in the source directory, you can organize
+your content as you see fit. You can for example decide to put all the textures and sounds in the
+"textures" and "sounds" folders, or maybe sort the content on a per-object basis by putting all the
+assets for an enemy in the "units/enemy" folder.
 
-There is, however, a small number of required files which are needed for the engine to start-up correctly:
+There is, however, a small number of required files which are needed for the engine to start-up
+correctly:
 
 .. code::
 
@@ -21,16 +25,25 @@ There is, however, a small number of required files which are needed for the eng
 The boot directory and the boot.config file
 -------------------------------------------
 
-Any directory within `the source directory`_ containing the file named ``boot.config`` is a boot directory.
+Any directory within `the source directory`_ containing the file named ``boot.config`` is a boot
+directory.
 
-The ``boot.config`` is the first file loaded by Pepper; it specifies the package to load and the lua script to execute on boot and various other boot-time settings. See `boot.config file reference`_ for more details.
+The ``boot.config`` is the first file read by Pepper; it specifies the package to load and the lua
+script to execute on boot and various other boot-time settings.
+See `boot.config file reference`_ for more details.
 
-There can be an arbitrary number of boot directories. You can set which boot directory Pepper should use with the switch ``--boot-dir``.
+Normally there is a single ``boot.config`` file, placed at the top of the source directory. This is
+the file which Pepper looks at by default.
 
-In the example below, the engine is told to load the package ``boot`` and run the Lua script ``lua/game``.
+In some circumstances is desirable to have multiple ``boot.config`` files.
+You can set which boot directory Pepper should use with the switch ``--boot-dir``.
+
+In the example below, a minimal ``boot.config`` file tells the engine to load the package ``boot``
+and run the Lua script ``lua/game``.
 
 .. code::
 
+	$ cat boot.config
 	boot_package = "boot"      // Package to load on boot
 	boot_script  = "lua/game"  // Lua script to execute on boot
 
@@ -38,8 +51,8 @@ In the example below, the engine is told to load the package ``boot`` and run th
 The data directory
 --------------------
 
-Pepper reads source data from `the source directory`_ and compiles it into efficient binary representation.
-The result of the compilation process is stored in the data directory.
+Pepper reads source data from `the source directory`_ and compiles it into efficient binary
+representation. The result of the compilation process is stored in the data directory.
 
 .. code::
 
@@ -51,19 +64,22 @@ The result of the compilation process is stored in the data directory.
 	├── temp                <- Temporary files from data compilers
 	└── last.log            <- Text log from the last engine execution
 
-The .bundleignore file
+The .dataignore file
 ----------------------
 
-Many programs store metadata files alongside edited files. This is often the case with text editors and version control systems.
+The ``.dataignore`` file specifies files that Pepper should ignore when compiling data.
 
-When Pepper bumps into unknown files in the source directory, it quits the compilation and reports an error.
+When Pepper bumps into unknown files in the source directory, it reports and error and quits the
+compilation.
+This is often desired behavior, since you do not want non-essential data in your source directory.
 
-The ``.bundleignore`` file specifies files that Pepper should ignore when compiling data.
+In all other cases, you should create a ``.dataignore`` in the source directory.
 
 Example:
 
 .. code::
 
+	$ cat .dataignore
 	# This is a comment.
 
 	# Blank lines are ignored.

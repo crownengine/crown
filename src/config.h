@@ -95,9 +95,9 @@
 	#define CROWN_TEMP_DIRECTORY "temp"
 #endif // CROWN_TEMP_DIRECTORY
 
-#ifndef CROWN_BUNDLEIGNORE
-	#define CROWN_BUNDLEIGNORE ".bundleignore"
-#endif // CROWN_BUNDLEIGNORE
+#ifndef CROWN_DATAIGNORE
+	#define CROWN_DATAIGNORE ".dataignore"
+#endif // CROWN_DATAIGNORE
 
 #ifndef CROWN_LAST_LOG
 	#define CROWN_LAST_LOG "last.log"

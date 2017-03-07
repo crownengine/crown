@@ -349,22 +349,6 @@ void DataCompiler::add_ignore_glob(const char* glob)
 
 void DataCompiler::scan()
 {
-	// Add ignore globs
-	add_ignore_glob("*.tmp");
-	add_ignore_glob("*.wav");
-	add_ignore_glob("*.ogg");
-	add_ignore_glob("*.png");
-	add_ignore_glob("*.tga");
-	add_ignore_glob("*.dds");
-	add_ignore_glob("*.ktx");
-	add_ignore_glob("*.pvr");
-	add_ignore_glob("*.swn"); // VIM swap file.
-	add_ignore_glob("*.swo"); // VIM swap file.
-	add_ignore_glob("*.swp"); // VIM swap file.
-	add_ignore_glob("*.bak");
-	add_ignore_glob("*~");
-	add_ignore_glob(".*");
-
 	// Scan all source directories
 	auto cur = map::begin(_source_dirs);
 	auto end = map::end(_source_dirs);
@@ -377,9 +361,9 @@ void DataCompiler::scan()
 		prefix += cur->pair.first.c_str();
 		_source_fs.set_prefix(prefix.c_str());
 
-		if (_source_fs.exists(CROWN_BUNDLEIGNORE))
+		if (_source_fs.exists(CROWN_DATAIGNORE))
 		{
-			File& file = *_source_fs.open(CROWN_BUNDLEIGNORE, FileOpenMode::READ);
+			File& file = *_source_fs.open(CROWN_DATAIGNORE, FileOpenMode::READ);
 			const u32 size = file.size();
 			char* data = (char*)default_allocator().allocate(size + 1);
 			file.read(data, size);
@@ -580,6 +564,22 @@ int main_data_compiler(int argc, char** argv)
 	dc->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
 	dc->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
 	dc->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
+
+	// Add ignore globs
+	dc->add_ignore_glob("*.tmp");
+	dc->add_ignore_glob("*.wav");
+	dc->add_ignore_glob("*.ogg");
+	dc->add_ignore_glob("*.png");
+	dc->add_ignore_glob("*.tga");
+	dc->add_ignore_glob("*.dds");
+	dc->add_ignore_glob("*.ktx");
+	dc->add_ignore_glob("*.pvr");
+	dc->add_ignore_glob("*.swn"); // VIM swap file.
+	dc->add_ignore_glob("*.swo"); // VIM swap file.
+	dc->add_ignore_glob("*.swp"); // VIM swap file.
+	dc->add_ignore_glob("*.bak");
+	dc->add_ignore_glob("*~");
+	dc->add_ignore_glob(".*");
 
 	dc->map_source_dir("", opts._source_dir.c_str());
 
