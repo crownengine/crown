@@ -56,22 +56,13 @@ Android NDK (https://developer.android.com/tools/sdk/ndk/index.html)
 
 ### Windows
 
-GnuWin32 make (http://gnuwin32.sourceforge.net/packages/make.htm)  
-GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)  
-GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)  
-GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
+MSYS2 (http://www.msys2.org)
 
-### Building engine
+### Building and running Level Editor
 
-	$ make engine-<configuration>
-
-Configuration is `<platform>-[arch-]<debug/development/release>[32|64]`. E.g.
-
-	linux-debug64, linux-development64, linux-release64, android-arm-debug, windows-debug32 etc.
-
-### Building tools
-
-	$ make tools-linux-<debug/release>64
+	$ make tools-linux-release64
+	$ cd build/linux64/bin
+	$ ./level-editor-release ../../../samples/01-physics ../../../samples /tmp/pepper_$RANDOM
 
 Contact
 -------
