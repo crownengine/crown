@@ -26,10 +26,6 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
 ![level-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/level-editor.png)
 
-[WIP] Node editor.
-
-![node-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/node-editor.png)
-
 ###[00-empty](https://github.com/taylor001/crown/tree/master/samples/00-empty)
 
 Engine initialization and shutdown.
