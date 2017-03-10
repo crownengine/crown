@@ -3,9 +3,6 @@
 -- License: https://github.com/taylor001/crown/blob/master/LICENSE
 --
 
-local CROWN_DIR = (path.getabsolute("..") .. "/")
-local CROWN_BUILD_DIR = (CROWN_DIR .. "build/")
-
 -- FIXME: Fix this in GENie
 premake.valac.valac = premake.valac.valac .. " --gresources=" .. CROWN_DIR .. "tools/ui/resources.xml" .. " --target-glib=2.38"
 
@@ -28,11 +25,13 @@ project "level-editor"
 			"CROWN_PLATFORM_WINDOWS"
 		}
 
+	local CROWN_BUILD_DIR = (CROWN_DIR .. "build/")
+
 	configuration { "linux-*" }
 		targetdir (CROWN_BUILD_DIR .. "linux64" .. "/bin")
 		objdir (CROWN_BUILD_DIR .. "linux64" .. "/obj")
 
-	configuration { "mingw" }
+	configuration { "mingw*" }
 		targetdir (CROWN_BUILD_DIR .. "mingw64" .. "/bin")
 		objdir (CROWN_BUILD_DIR .. "mingw64" .. "/obj")
 

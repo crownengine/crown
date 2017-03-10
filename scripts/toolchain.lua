@@ -13,7 +13,8 @@ function toolchain(build_dir, lib_dir)
 		allowed =
 		{
 			{ "android-arm", "Android - ARM"        },
-			{ "linux-gcc",   "Linux (GCC compiler)" }
+			{ "linux-gcc",   "Linux (GCC compiler)" },
+			{ "mingw-gcc",   "MinGW (GCC compiler)" },
 		}
 	}
 
@@ -30,14 +31,7 @@ function toolchain(build_dir, lib_dir)
 			os.exit(1)
 		end
 
-		if "linux-gcc" == _OPTIONS["compiler"] then
-
-			if not os.is("linux") then
-				print("Action not valid in current OS.")
-			end
-
-			location(build_dir .. "projects/" .. "linux")
-		elseif "android-arm" == _OPTIONS["compiler"] then
+		if "android-arm" == _OPTIONS["compiler"] then
 
 			if not os.getenv("ANDROID_NDK_ROOT") then
 				print("Set ANDROID_NDK_ROOT environment variable.")
@@ -52,6 +46,29 @@ function toolchain(build_dir, lib_dir)
 			premake.gcc.ar  = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-ar"
 
 			location(build_dir .. "projects/" .. "android")
+
+		elseif "linux-gcc" == _OPTIONS["compiler"] then
+
+			if not os.is("linux") then
+				print("Action not valid in current OS.")
+			end
+
+			location(build_dir .. "projects/" .. "linux")
+
+		elseif "mingw-gcc" == _OPTIONS["compiler"] then
+
+			if not os.getenv("MINGW") then
+				print("Set MINGW environment variable.")
+				os.exit(1)
+			end
+
+			premake.gcc.cc  = "$(MINGW)/bin/x86_64-w64-mingw32-gcc"
+			premake.gcc.cxx = "$(MINGW)/bin/x86_64-w64-mingw32-g++"
+			premake.gcc.ar  = "$(MINGW)/bin/ar"
+			premake.valac.valac = "$(MINGW)/bin/x86_64-w64-vala"
+
+			location(build_dir .. "projects/" .. "mingw")
+
 		end
 	elseif _ACTION == "vs2013" then
 
@@ -105,14 +122,14 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "linux32" .. "/bin")
 		objdir (build_dir .. "linux32" .. "/obj")
 		libdirs {
-			lib_dir .. "../.build/linux32/bin",
+			lib_dir .. "../build/linux32/bin",
 		}
 
 	configuration { "x64", "linux-*" }
 		targetdir (build_dir .. "linux64" .. "/bin")
 		objdir (build_dir .. "linux64" .. "/obj")
 		libdirs {
-			lib_dir .. "../.build/linux64/bin",
+			lib_dir .. "../build/linux64/bin",
 		}
 
 	configuration { "linux-*" }
@@ -175,7 +192,7 @@ function toolchain(build_dir, lib_dir)
 		targetdir (build_dir .. "android-arm" .. "/bin")
 		objdir (build_dir .. "android-arm" .. "/obj")
 		libdirs {
-			lib_dir .. "../.build/android-arm/bin",
+			lib_dir .. "../build/android-arm/bin",
 			"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
 		}
 		includedirs {
@@ -196,6 +213,45 @@ function toolchain(build_dir, lib_dir)
 			"-march=armv7-a",
 			"-Wl,--fix-cortex-a8",
 		}
+
+	configuration { "mingw-*" }
+		defines { "WIN32" }
+		includedirs { path.join(CROWN_DIR, "3rdparty/bx/include/compat/mingw") }
+		buildoptions {
+			"-fdata-sections",
+			"-ffunction-sections",
+			"-msse2",
+			"-Wunused-value",
+			"-Wundef",
+		}
+		buildoptions_cpp {
+			"-std=c++0x",
+		}
+		linkoptions {
+			"-Wl,--gc-sections",
+			"-static",
+			"-static-libgcc",
+			"-static-libstdc++",
+		}
+
+	configuration { "x32", "mingw-gcc" }
+		targetdir (path.join(build_dir, "mingw32/bin"))
+		objdir (path.join(build_dir, "mingw32/obj"))
+		libdirs {
+			lib_dir .. "../build/mingw32/bin",
+		}
+		buildoptions {
+			"-m32",
+			"-mstackrealign",
+		}
+
+	configuration { "x64", "mingw-gcc" }
+		targetdir (path.join(build_dir, "mingw64/bin"))
+		objdir (path.join(build_dir, "mingw64/obj"))
+		libdirs {
+			lib_dir .. "../build/mingw64/bin",
+		}
+		buildoptions { "-m64" }
 
 	configuration { "vs*" }
 		includedirs { CROWN_DIR .. "src/core/compat/msvc" }

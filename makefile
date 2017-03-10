@@ -38,6 +38,22 @@ linux-release64: build/projects/linux
 	make -R -C build/projects/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
+build/projects/mingw:
+	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --with-tools --compiler=mingw-gcc gmake
+mingw-debug32: build/projects/mingw
+	make -R -C build/projects/mingw config=debug32
+mingw-development32: build/projects/mingw
+	make -R -C build/projects/mingw config=development32
+mingw-release32: build/projects/mingw
+	make -R -C build/projects/mingw config=release32
+mingw-debug64: build/projects/mingw
+	make -R -C build/projects/mingw config=debug64
+mingw-development64: build/projects/mingw
+	make -R -C build/projects/mingw config=development64
+mingw-release64: build/projects/mingw
+	make -R -C build/projects/mingw config=release64
+mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
+
 build/projects/vs2013:
 	$(GENIE) --file=scripts\genie.lua --with-luajit --with-openal --with-bullet --with-tools vs2013
 windows-debug32: build/projects/vs2013
