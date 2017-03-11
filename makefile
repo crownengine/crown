@@ -12,6 +12,28 @@ endif
 
 GENIE=3rdparty/bx/tools/bin/$(OS)/genie
 
+build/linux32/bin/luajit:
+	make -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
+	mkdir -p build/linux32/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/linux32/bin
+	make -R -C 3rdparty/luajit/src clean
+build/linux64/bin/luajit:
+	make -R -C 3rdparty/luajit/src HOST_CC="gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
+	mkdir -p build/linux64/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/linux64/bin
+	make -R -C 3rdparty/luajit/src clean
+
+build/mingw32/bin/luajit.exe:
+	make -R -C 3rdparty/luajit/src HOST_CC="x86_64-w64-mingw32-gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Windows BUILDMODE=static
+	mkdir -p build/mingw32/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/mingw32/bin
+	make -R -C 3rdparty/luajit/src clean
+build/mingw64/bin/luajit.exe:
+	make -R -C 3rdparty/luajit/src HOST_CC="x86_64-w64-mingw32-gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Windows BUILDMODE=static
+	mkdir -p build/mingw64/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/mingw64/bin
+	make -R -C 3rdparty/luajit/src clean
+
 build/projects/android:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --compiler=android-arm gmake
 android-arm-debug: build/projects/android
@@ -24,33 +46,33 @@ android-arm: android-arm-debug android-arm-development android-arm-release
 
 build/projects/linux:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --with-tools --compiler=linux-gcc gmake
-linux-debug32: build/projects/linux
+linux-debug32: build/projects/linux build/linux32/bin/luajit
 	make -R -C build/projects/linux config=debug32
-linux-development32: build/projects/linux
+linux-development32: build/projects/linux build/linux32/bin/luajit
 	make -R -C build/projects/linux config=development32
-linux-release32: build/projects/linux
+linux-release32: build/projects/linux build/linux32/bin/luajit
 	make -R -C build/projects/linux config=release32
-linux-debug64: build/projects/linux
+linux-debug64: build/projects/linux build/linux64/bin/luajit
 	make -R -C build/projects/linux config=debug64
-linux-development64: build/projects/linux
+linux-development64: build/projects/linux build/linux64/bin/luajit
 	make -R -C build/projects/linux config=development64
-linux-release64: build/projects/linux
+linux-release64: build/projects/linux build/linux64/bin/luajit
 	make -R -C build/projects/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
 build/projects/mingw:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --with-tools --compiler=mingw-gcc gmake
-mingw-debug32: build/projects/mingw
+mingw-debug32: build/projects/mingw build/mingw32/bin/luajit.exe
 	make -R -C build/projects/mingw config=debug32
-mingw-development32: build/projects/mingw
+mingw-development32: build/projects/mingw build/mingw32/bin/luajit.exe
 	make -R -C build/projects/mingw config=development32
-mingw-release32: build/projects/mingw
+mingw-release32: build/projects/mingw build/mingw32/bin/luajit.exe
 	make -R -C build/projects/mingw config=release32
-mingw-debug64: build/projects/mingw
+mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe
 	make -R -C build/projects/mingw config=debug64
-mingw-development64: build/projects/mingw
+mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe
 	make -R -C build/projects/mingw config=development64
-mingw-release64: build/projects/mingw
+mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 	make -R -C build/projects/mingw config=release64
 mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
 
@@ -82,6 +104,9 @@ tools-mingw-debug64: mingw-development64
 tools-mingw-release64: mingw-development64
 	make -R -C build/projects/mingw level-editor config=release
 
+asd:
+	mkdir asd
+
 .PHONY: docs
 docs:
 	make -C docs/ html
@@ -91,3 +116,4 @@ docs:
 clean:
 	@echo Cleaning...
 	-@rm -rf build
+	-@make -R -C 3rdparty/luajit/src clean

@@ -83,34 +83,3 @@ group "tools"
 	dofile ("shaderc.lua")
 	dofile ("texturec.lua")
 end
-
--- Install
-configuration { "x32", "linux-*" }
-	postbuildcommands {
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x86/luajit " .. CROWN_BUILD_DIR .. "linux32/bin",
-		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit "              .. CROWN_BUILD_DIR .. "linux32/bin",
-	}
-
-configuration { "x64", "linux-*" }
-	postbuildcommands {
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/linux_x64/luajit " .. CROWN_BUILD_DIR .. "linux64/bin",
-		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit "              .. CROWN_BUILD_DIR .. "linux64/bin",
-	}
-
-configuration { "x32", "vs*" }
-	postbuildcommands {
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/luajit.exe " .. CROWN_BUILD_DIR .. "win32/bin",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.lib "  .. CROWN_BUILD_DIR .. "win32/bin",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.exp "  .. CROWN_BUILD_DIR .. "win32/bin",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x86/lua51.dll "  .. CROWN_BUILD_DIR .. "win32/bin",
-		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit "                .. CROWN_BUILD_DIR .. "win32/bin",
-	}
-
-configuration { "x64", "vs*" }
-	postbuildcommands {
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/luajit.exe " .. CROWN_BUILD_DIR .. "win64/bin",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.lib "  .. CROWN_BUILD_DIR .. "win64/bin",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.exp "  .. CROWN_BUILD_DIR .. "win64/bin",
-		"cp    " .. CROWN_THIRD_DIR .. "luajit/pre/win_x64/lua51.dll "  .. CROWN_BUILD_DIR .. "win64/bin",
-		"cp -r " .. CROWN_THIRD_DIR .. "luajit/src/jit "                .. CROWN_BUILD_DIR .. "win64/bin",
-	}

@@ -41,24 +41,8 @@ function crown_project(_name, _kind, _defines)
 			includedirs {
 				CROWN_DIR .. "3rdparty/luajit/src",
 			}
-			configuration { "android-arm" }
-				libdirs {
-					CROWN_DIR .. "3rdparty/luajit/pre/android_arm"
-				}
-			configuration { "linux-* or android-arm" }
-				links {
-					"luajit"
-				}
-			configuration { "x32", "linux-*" }
-				libdirs {
-					CROWN_DIR .. "3rdparty/luajit/pre/linux_x86"
-				}
-			configuration { "x64", "linux-*" }
-				libdirs {
-					CROWN_DIR .. "3rdparty/luajit/pre/linux_x64"
-				}
 
-			configuration { "mingw-*" }
+			configuration { "not vs*" }
 				links {
 					"luajit"
 				}
