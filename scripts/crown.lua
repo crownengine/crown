@@ -58,6 +58,11 @@ function crown_project(_name, _kind, _defines)
 					CROWN_DIR .. "3rdparty/luajit/pre/linux_x64"
 				}
 
+			configuration { "mingw-*" }
+				links {
+					"luajit"
+				}
+
 			configuration { "vs*"}
 				links {
 					"lua51"
@@ -128,13 +133,13 @@ function crown_project(_name, _kind, _defines)
 				"GL",
 			}
 
-		configuration { "vs*" }
+		configuration { "vs* or mingw*" }
 			links {
-				"OpenGL32",
 				"dbghelp",
 				"xinput",
 				"psapi",
 				"ws2_32",
+				"ole32",
 			}
 
 		configuration {}
