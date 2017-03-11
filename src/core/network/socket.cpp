@@ -16,13 +16,10 @@
 	#define INVALID_SOCKET (-1)
 	#define SOCKET_ERROR (-1)
 	#define closesocket close
-#elif CROWN_PLATFORM_WINDOWS
-	#ifndef _INC_ERRNO
-		#define EADDRINUSE WSAEADDRINUSE
-		#define ECONNREFUSED WSAECONNREFUSED
-		#define ETIMEDOUT WSAETIMEDOUT
-		#define EWOULDBLOCK WSAEWOULDBLOCK
-	#endif // _INC_ERRNO
+	#define WSAEADDRINUSE EADDRINUSE
+	#define WSAECONNREFUSED ECONNREFUSED
+	#define WSAETIMEDOUT ETIMEDOUT
+	#define WSAEWOULDBLOCK EWOULDBLOCK
 #endif
 
 namespace crown
@@ -57,7 +54,7 @@ namespace socket_internal
 
 		if (err == INVALID_SOCKET)
 		{
-			if (last_error() == EWOULDBLOCK)
+			if (last_error() == WSAEWOULDBLOCK)
 				ar.error = AcceptResult::NO_CONNECTION;
 			else
 				ar.error = AcceptResult::UNKNOWN;
@@ -88,9 +85,9 @@ namespace socket_internal
 
 			if (bytes_read == SOCKET_ERROR)
 			{
-				if (last_error() == EWOULDBLOCK)
+				if (last_error() == WSAEWOULDBLOCK)
 					rr.error = ReadResult::WOULDBLOCK;
-				else if (last_error() == ETIMEDOUT)
+				else if (last_error() == WSAETIMEDOUT)
 					rr.error = ReadResult::TIMEOUT;
 				else
 					rr.error = ReadResult::UNKNOWN;
@@ -127,9 +124,9 @@ namespace socket_internal
 
 			if (bytes_wrote == SOCKET_ERROR)
 			{
-				if (last_error() == EWOULDBLOCK)
+				if (last_error() == WSAEWOULDBLOCK)
 					wr.error = WriteResult::WOULDBLOCK;
-				else if (last_error() == ETIMEDOUT)
+				else if (last_error() == WSAETIMEDOUT)
 					wr.error = WriteResult::TIMEOUT;
 				else
 					wr.error = WriteResult::UNKNOWN;
@@ -180,9 +177,9 @@ ConnectResult TCPSocket::connect(const IPAddress& ip, u16 port)
 
 	if (err == SOCKET_ERROR)
 	{
-		if (last_error() == ECONNREFUSED)
+		if (last_error() == WSAECONNREFUSED)
 			cr.error = ConnectResult::REFUSED;
-		else if (last_error() == ETIMEDOUT)
+		else if (last_error() == WSAETIMEDOUT)
 			cr.error = ConnectResult::TIMEOUT;
 		else
 			cr.error = ConnectResult::UNKNOWN;
@@ -209,7 +206,7 @@ BindResult TCPSocket::bind(u16 port)
 
 	if (err == SOCKET_ERROR)
 	{
-		if (last_error() == EADDRINUSE)
+		if (last_error() == WSAEADDRINUSE)
 			br.error = BindResult::ADDRESS_IN_USE;
 		else
 			br.error = BindResult::UNKNOWN;
