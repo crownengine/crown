@@ -65,7 +65,6 @@ function toolchain(build_dir, lib_dir)
 			premake.gcc.cc  = "$(MINGW)/bin/x86_64-w64-mingw32-gcc"
 			premake.gcc.cxx = "$(MINGW)/bin/x86_64-w64-mingw32-g++"
 			premake.gcc.ar  = "$(MINGW)/bin/ar"
-			premake.valac.valac = "$(MINGW)/bin/x86_64-w64-vala"
 
 			location(build_dir .. "projects/" .. "mingw")
 
