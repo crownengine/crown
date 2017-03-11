@@ -15,12 +15,12 @@ GENIE=3rdparty/bx/tools/bin/$(OS)/genie
 build/linux32/bin/luajit:
 	make -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
 	mkdir -p build/linux32/bin
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/linux32/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit 3rdparty/luajit/src/libluajit.a build/linux32/bin
 	make -R -C 3rdparty/luajit/src clean
 build/linux64/bin/luajit:
 	make -R -C 3rdparty/luajit/src HOST_CC="gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
 	mkdir -p build/linux64/bin
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/linux64/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit 3rdparty/luajit/src/libluajit.a build/linux64/bin
 	make -R -C 3rdparty/luajit/src clean
 
 build/mingw32/bin/luajit.exe:
