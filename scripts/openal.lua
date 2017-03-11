@@ -27,29 +27,38 @@ function openal_project(_kind)
 			"HAVE_STRTOF",
 		}
 
-		configuration { "android-* or linux-*" }
+		configuration { "not vs*" }
 			defines {
 				"HAVE_C99_VLA",
 				"HAVE_DIRENT_H",
-				"HAVE_DLFCN_H",
 				"HAVE_GCC_DESTRUCTOR",
 				"HAVE_GCC_FORMAT",
-				"HAVE_GCC_GET_CPUID",
+				"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
 				"HAVE_PTHREAD_SETNAME_NP",
 				"HAVE_PTHREAD_SETSCHEDPARAM",
 				"HAVE_STRINGS_H",
 				"restrict=__restrict",
 				"SIZEOF_LONG=8",
 				"SIZEOF_LONG_LONG=8",
+				-- These are needed on non-Windows systems for extra features
+				"_GNU_SOURCE=1",
+				"_POSIX_C_SOURCE=200809L",
+				"_XOPEN_SOURCE=700",
 			}
 			buildoptions {
 				"-std=c99",
 				"-fPIC",
-				"-fvisibility=hidden",
 				"-Winline",
+				"-fvisibility=hidden",
 			}
 
-		configuration { "linux-* or vs*" }
+		configuration { "linux-* or android-*" }
+			defines {
+				"HAVE_DLFCN_H",
+				"HAVE_GCC_GET_CPUID",
+			}
+
+		configuration { "not android-*" }
 			defines {
 				"HAVE_SSE",
 				"HAVE_SSE2",
@@ -57,14 +66,6 @@ function openal_project(_kind)
 			files {
 				AL_DIR .. "Alc/mixer_sse2.c",
 				AL_DIR .. "Alc/mixer_sse.c",
-			}
-
-		configuration { "not vs*" }
-			defines {
-				-- These are needed on non-Windows systems for extra features
-				"_GNU_SOURCE=1",
-				"_POSIX_C_SOURCE=200809L",
-				"_XOPEN_SOURCE=700",
 			}
 
 		configuration { "android-*" }
@@ -79,16 +80,14 @@ function openal_project(_kind)
 			defines {
 				"HAVE_CPUID_H",
 				"HAVE_POSIX_MEMALIGN",
-				"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
 				"HAVE_PULSEAUDIO",
 			}
 			files {
 				AL_DIR .. "Alc/backends/pulseaudio.c",
 			}
 
-		configuration { "vs*" }
+		configuration { "vs* or mingw-*"}
 			defines {
-				"_CRT_NONSTDC_NO_DEPRECATE",
 				"_WIN32_WINNT=0x0502",
 				"_WINDOWS",
 				"HAVE___CONTROL87_2",
@@ -102,6 +101,20 @@ function openal_project(_kind)
 				"HAVE_MMDEVAPI",
 				"HAVE_WINDOWS_H",
 				"HAVE_WINMM",
+			}
+			files {
+				AL_DIR .. "Alc/backends/mmdevapi.c",
+				AL_DIR .. "Alc/backends/dsound.c",
+				AL_DIR .. "Alc/backends/winmm.c",
+			}
+			links {
+				"winmm",
+				"ole32",
+			}
+
+		configuration { "vs*" }
+			defines {
+				"_CRT_NONSTDC_NO_DEPRECATE",
 				"inline=__inline",
 				"restrict=",
 				"SIZEOF_LONG=4",
@@ -114,14 +127,6 @@ function openal_project(_kind)
 				"/wd4098",
 				"/wd4267",
 				"/wd4244",
-			}
-			files {
-				AL_DIR .. "Alc/backends/mmdevapi.c",
-				AL_DIR .. "Alc/backends/dsound.c",
-				AL_DIR .. "Alc/backends/winmm.c",
-			}
-			links {
-				"winmm",
 			}
 
 		configuration {}
