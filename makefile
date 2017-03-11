@@ -55,7 +55,7 @@ mingw-release64: build/projects/mingw
 mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
 
 build/projects/vs2013:
-	$(GENIE) --file=scripts\genie.lua --with-luajit --with-openal --with-bullet --with-tools vs2013
+	$(GENIE) --file=scripts\genie.lua --with-luajit --with-openal --with-bullet --with-tools --no-level-editor vs2013
 windows-debug32: build/projects/vs2013
 	devenv build/projects/vs2013/crown.sln /Build "debug|Win32"
 windows-development32: build/projects/vs2013

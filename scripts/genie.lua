@@ -32,6 +32,11 @@ newoption {
 	description = "Build with tools."
 }
 
+newoption {
+	trigger = "no-level-editor",
+	description = "Do not build Level Editor."
+}
+
 solution "crown"
 	configurations {
 		"debug",
@@ -72,7 +77,9 @@ crown_project("", "ConsoleApp", {})
 
 if _OPTIONS["with-tools"] then
 group "tools"
-	dofile ("level-editor.lua")
+	if not _OPTIONS["no-level-editor"] then
+		dofile ("level-editor.lua")
+	end
 	dofile ("shaderc.lua")
 	dofile ("texturec.lua")
 end
