@@ -91,6 +91,7 @@ windows-development64: build/projects/vs2013
 windows-release64: build/projects/vs2013
 	devenv build/projects/vs2013/crown.sln /Build "release|x64"
 
+.PHONY: rebuild-glib-resources
 rebuild-glib-resources:
 	make -R -C tools/ui rebuild
 
@@ -104,9 +105,6 @@ tools-mingw-debug64: mingw-development64
 tools-mingw-release64: mingw-development64
 	make -R -C build/projects/mingw level-editor config=release
 
-asd:
-	mkdir asd
-
 .PHONY: docs
 docs:
 	make -C docs/ html
@@ -116,4 +114,4 @@ docs:
 clean:
 	@echo Cleaning...
 	-@rm -rf build
-	-@make -R -C 3rdparty/luajit/src clean
+	-@make -R -C 3rdparty/luajit/src clean -s
