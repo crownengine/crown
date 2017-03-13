@@ -12,6 +12,17 @@ endif
 
 GENIE=3rdparty/bx/tools/bin/$(OS)/genie
 
+NDKABI=14
+NDKCC=$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-
+NDKFLAGS=--sysroot $(ANDROID_NDK_ROOT)/platforms/android-$(NDKABI)/arch-arm
+NDKARCH=-march=armv7-a -mfloat-abi=softfp -mfpu=neon -mthumb -Wl,--fix-cortex-a8
+
+build/android-arm/bin/libluajit.a:
+	make -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CROSS=$(NDKCC) TARGET_FLAGS="$(NDKFLAGS) $(NDKARCH)"
+	mkdir -p build/android-arm/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/libluajit.a build/android-arm/bin
+	make -R -C 3rdparty/luajit/src clean
+
 build/linux32/bin/luajit:
 	make -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
 	mkdir -p build/linux32/bin
@@ -36,11 +47,11 @@ build/mingw64/bin/luajit.exe:
 
 build/projects/android:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --compiler=android-arm gmake
-android-arm-debug: build/projects/android
+android-arm-debug: build/projects/android build/android-arm/bin/libluajit.a
 	make -R -C build/projects/android config=debug
-android-arm-development: build/projects/android
+android-arm-development: build/projects/android build/android-arm/bin/libluajit.a
 	make -R -C build/projects/android config=development
-android-arm-release: build/projects/android
+android-arm-release: build/projects/android build/android-arm/bin/libluajit.a
 	make -R -C build/projects/android config=release
 android-arm: android-arm-debug android-arm-development android-arm-release
 

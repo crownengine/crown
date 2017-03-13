@@ -33,7 +33,6 @@ function openal_project(_kind)
 				"HAVE_DIRENT_H",
 				"HAVE_GCC_DESTRUCTOR",
 				"HAVE_GCC_FORMAT",
-				"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
 				"HAVE_PTHREAD_SETNAME_NP",
 				"HAVE_PTHREAD_SETSCHEDPARAM",
 				"HAVE_STRINGS_H",
@@ -80,6 +79,7 @@ function openal_project(_kind)
 			defines {
 				"HAVE_CPUID_H",
 				"HAVE_POSIX_MEMALIGN",
+				"HAVE_PTHREAD_MUTEX_TIMEDLOCK",
 				"HAVE_PULSEAUDIO",
 			}
 			files {

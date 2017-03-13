@@ -20,7 +20,7 @@
 	#define WSAECONNREFUSED ECONNREFUSED
 	#define WSAETIMEDOUT ETIMEDOUT
 	#define WSAEWOULDBLOCK EWOULDBLOCK
-#endif
+#endif // CROWN_PLATFORM_POSIX
 
 namespace crown
 {
@@ -28,7 +28,7 @@ namespace
 {
 	inline int last_error()
 	{
-#if CROWN_PLATFORM_LINUX
+#if CROWN_PLATFORM_POSIX
 		return errno;
 #elif CROWN_PLATFORM_WINDOWS
 		return WSAGetLastError();
