@@ -5,13 +5,13 @@ Crown is a general purpose data-driven game engine, written from scratch in [ort
 
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles; the current Lua API is similar to that of Bitsquid but this engine is *not* meant to be its clone *nor* to be API compatible with it.
 
-##Documentation
+## Documentation
 
   * [Manual](http://taylor001.github.io/crown/html)
   * [Lua API](http://taylor001.github.io/crown/html/lua_api.html)
   * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
 
-##Download (Stable)
+## Download (Stable)
 
 ### Linux (Tarball)
 [pepper-0.0.25-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.25/pepper-0.0.25-linux-x64.tar.gz)
@@ -20,20 +20,20 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
 	$ yaourt -S pepper
 
-##Screenshots
+## Screenshots
 
-###[Level Editor](https://github.com/taylor001/crown/tree/master/tools/level_editor)
+### [Level Editor](https://github.com/taylor001/crown/tree/master/tools/level_editor)
 
 ![level-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/level-editor.png)
 
-###[00-empty](https://github.com/taylor001/crown/tree/master/samples/00-empty)
+### [00-empty](https://github.com/taylor001/crown/tree/master/samples/00-empty)
 
 Engine initialization and shutdown.
 
-###[01-physics](https://github.com/taylor001/crown/tree/master/samples/01-physics)
+### [01-physics](https://github.com/taylor001/crown/tree/master/samples/01-physics)
 ![01-physics](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/01-physics.png)
 
-##Building
+## Building
 
 ### Prerequisites
 
