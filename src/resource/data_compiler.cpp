@@ -11,12 +11,12 @@
 #include "dynamic_string.h"
 #include "file.h"
 #include "filesystem_disk.h"
+#include "hash_map.h"
 #include "log.h"
 #include "map.h"
 #include "os.h"
 #include "path.h"
 #include "sjson.h"
-#include "sort_map.h"
 #include "string_stream.h"
 #include "temp_allocator.h"
 #include "vector.h"
@@ -201,14 +201,14 @@ void DataCompiler::remove_tree(const char* path)
 
 bool DataCompiler::can_compile(StringId64 type)
 {
-	return sort_map::has(_compilers, type);
+	return hash_map::has(_compilers, type);
 }
 
 void DataCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)
 {
-	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
+	CE_ASSERT(hash_map::has(_compilers, type), "Compiler not found");
 
-	sort_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
+	hash_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
 }
 
 void DataCompiler::scan_source_dir(const char* prefix, const char* cur_dir)
@@ -433,22 +433,21 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 
 void DataCompiler::register_compiler(StringId64 type, u32 version, CompileFunction compiler)
 {
-	CE_ASSERT(!sort_map::has(_compilers, type), "Type already registered");
+	CE_ASSERT(!hash_map::has(_compilers, type), "Type already registered");
 	CE_ENSURE(NULL != compiler);
 
 	ResourceTypeData rtd;
 	rtd.version = version;
 	rtd.compiler = compiler;
 
-	sort_map::set(_compilers, type, rtd);
-	sort_map::sort(_compilers);
+	hash_map::set(_compilers, type, rtd);
 }
 
 u32 DataCompiler::version(StringId64 type)
 {
-	CE_ASSERT(sort_map::has(_compilers, type), "Compiler not found");
+	CE_ASSERT(hash_map::has(_compilers, type), "Compiler not found");
 
-	return sort_map::get(_compilers, type, ResourceTypeData()).version;
+	return hash_map::get(_compilers, type, ResourceTypeData()).version;
 }
 
 void DataCompiler::filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed)

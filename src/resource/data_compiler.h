@@ -26,7 +26,7 @@ class DataCompiler
 	ConsoleServer* _console_server;
 	FilesystemDisk _source_fs;
 	Map<DynamicString, DynamicString> _source_dirs;
-	SortMap<StringId64, ResourceTypeData> _compilers;
+	HashMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
 	FileMonitor _file_monitor;
