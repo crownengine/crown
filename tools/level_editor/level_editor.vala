@@ -610,7 +610,10 @@ namespace Crown
 			_compiler.close();
 
 			if (_compiler_process != null)
+			{
 				_compiler_process.force_exit();
+				_compiler_process.wait();
+			}
 		}
 
 		private void start_engine(uint window_xid)
@@ -651,7 +654,10 @@ namespace Crown
 			_engine.close();
 
 			if (_engine_process != null)
+			{
 				_engine_process.force_exit();
+				_engine_process.wait();
+			}
 		}
 
 		private void restart_engine()
@@ -694,7 +700,10 @@ namespace Crown
 		private void stop_game()
 		{
 			if (_game_process != null)
+			{
 				_game_process.force_exit();
+				_game_process.wait();
+			}
 		}
 
 		private void on_engine_view_realized()
