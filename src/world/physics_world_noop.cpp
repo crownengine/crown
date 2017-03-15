@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#if CROWN_PHYSICS_NULL
+#if CROWN_PHYSICS_NOOP
 
 #include "physics_world.h"
 
@@ -22,16 +22,16 @@ namespace physics_globals
 	}
 } // namespace physics_globals
 
-struct PhysicsWorldNull : public PhysicsWorld
+struct PhysicsWorldNoop : public PhysicsWorld
 {
 public:
 
-	PhysicsWorldNull(Allocator& a)
+	PhysicsWorldNoop(Allocator& a)
 		: _events(a)
 	{
 	}
 
-	virtual ~PhysicsWorldNull()
+	virtual ~PhysicsWorldNoop()
 	{
 	}
 
@@ -310,7 +310,7 @@ private:
 
 PhysicsWorld* PhysicsWorld::create(Allocator& a, ResourceManager& /*rm*/, UnitManager& /*um*/, DebugLine& /*dl*/)
 {
-	return CE_NEW(a, PhysicsWorldNull)(a);
+	return CE_NEW(a, PhysicsWorldNoop)(a);
 }
 
 void PhysicsWorld::destroy(Allocator& a, PhysicsWorld* pw)
@@ -320,4 +320,4 @@ void PhysicsWorld::destroy(Allocator& a, PhysicsWorld* pw)
 
 } // namespace crown
 
-#endif // CROWN_PHYSICS_WORLD_NULL
+#endif // CROWN_PHYSICS_NOOP
