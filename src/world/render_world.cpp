@@ -455,8 +455,6 @@ void RenderWorld::debug_draw(DebugLine& dl)
 		return;
 
 	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
-	SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;
-	LightManager::LightInstanceData& lid = _light_manager._data;
 
 	for (u32 i = 0; i < mid.size; ++i)
 	{
