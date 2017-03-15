@@ -58,7 +58,6 @@ namespace Crown
 		private ResourceCompiler _resource_compiler;
 
 		// Widgets
-		private StartingCompiler _starting_compiler;
 		private ConsoleView _console_view;
 		private EngineView _engine_view;
 		private LevelTreeView _level_treeview;
@@ -232,13 +231,12 @@ namespace Crown
 			_graph_view = new GraphView(_graph_store);
 */
 
-			_starting_compiler = new StartingCompiler();
 			_alignment_engine = new Gtk.Alignment(0, 0, 1, 1);
 			_alignment_level_tree_view = new Gtk.Alignment(0, 0, 1, 1);
 			_alignment_properties_view = new Gtk.Alignment(0, 0, 1, 1);
-			_alignment_engine.add(_starting_compiler);
-			_alignment_level_tree_view.add(_starting_compiler);
-			_alignment_properties_view.add(_starting_compiler);
+			_alignment_engine.add(new StartingCompiler());
+			_alignment_level_tree_view.add(new StartingCompiler());
+			_alignment_properties_view.add(new StartingCompiler());
 
 			start_compiler();
 
@@ -304,7 +302,7 @@ namespace Crown
 			_notebook_right.append_page(_level_layers_treeview, new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
 
 			Gtk.Paned rb = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			rb.pack1(_notebook_right, true, true);
+			rb.pack1(_alignment_level_tree_view, true, true);
 			rb.pack2(_alignment_properties_view, true, true);
 
 			_pane_right = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
@@ -597,7 +595,7 @@ namespace Crown
 					_alignment_properties_view.remove(_alignment_properties_view.get_child());
 
 					_alignment_engine.add(_engine_view);
-					_alignment_level_tree_view.add(_level_treeview);
+					_alignment_level_tree_view.add(_notebook_right);
 					_alignment_properties_view.add(_properties_view);
 
 					_alignment_engine.show_all();
