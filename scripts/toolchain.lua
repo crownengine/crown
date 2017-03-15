@@ -304,5 +304,11 @@ function strip()
 			"$(SILENT) strip -s \"$(TARGET)\""
 		}
 
+	configuration { "mingw*", "Release" }
+		postbuildcommands {
+			"$(SILENT) echo Stripping symbols.",
+			"$(SILENT) $(MINGW)/bin/strip -s \"$(TARGET)\""
+		}
+
 	configuration {} -- reset configuration
 end
