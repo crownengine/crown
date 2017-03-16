@@ -5,7 +5,6 @@
 
 #include "command_line.h"
 #include "device_options.h"
-#include "log.h"
 #include "path.h"
 #include <stdlib.h>
 
@@ -13,7 +12,7 @@ namespace crown
 {
 static void help(const char* msg = NULL)
 {
-	logi(
+	printf(
 		"The Flexible Game Engine\n"
 		"Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.\n"
 		"License: https://github.com/taylor001/crown/blob/master/LICENSE\n"
@@ -42,7 +41,7 @@ static void help(const char* msg = NULL)
 	);
 
 	if (msg)
-		loge("Error: %s", msg);
+		printf("Error: %s", msg);
 }
 
 DeviceOptions::DeviceOptions(Allocator& a, int argc, const char** argv)
@@ -79,7 +78,7 @@ int DeviceOptions::parse()
 
 	if (cl.has_argument("version", 'v'))
 	{
-		logi(CROWN_VERSION);
+		printf(CROWN_VERSION);
 		return EXIT_FAILURE;
 	}
 
