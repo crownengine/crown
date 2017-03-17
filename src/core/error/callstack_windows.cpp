@@ -79,7 +79,7 @@ namespace error
 						);
 			res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
-			char buf[512]
+			char buf[512];
 
 			if (res == TRUE)
 			{
