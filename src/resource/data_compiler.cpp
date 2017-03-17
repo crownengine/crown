@@ -6,39 +6,39 @@
 #include "allocator.h"
 #include "compile_options.h"
 #include "config.h"
+#include "config_resource.h"
+#include "console_api.h"
 #include "console_server.h"
 #include "data_compiler.h"
+#include "device_options.h"
 #include "dynamic_string.h"
 #include "file.h"
 #include "filesystem_disk.h"
+#include "font_resource.h"
 #include "hash_map.h"
+#include "json_object.h"
+#include "level_resource.h"
 #include "log.h"
+#include "lua_resource.h"
 #include "map.h"
+#include "material_resource.h"
+#include "mesh_resource.h"
 #include "os.h"
+#include "package_resource.h"
 #include "path.h"
+#include "physics_resource.h"
+#include "resource_types.h"
+#include "shader_resource.h"
 #include "sjson.h"
+#include "sound_resource.h"
+#include "sprite_resource.h"
 #include "string_stream.h"
 #include "temp_allocator.h"
-#include "vector.h"
-#include <setjmp.h>
-
-#include "resource_types.h"
-#include "config_resource.h"
-#include "font_resource.h"
-#include "lua_resource.h"
-#include "level_resource.h"
-#include "mesh_resource.h"
-#include "material_resource.h"
-#include "physics_resource.h"
-#include "package_resource.h"
-#include "sound_resource.h"
-#include "shader_resource.h"
-#include "sprite_resource.h"
 #include "texture_resource.h"
 #include "unit_resource.h"
-#include "device_options.h"
-#include "console_api.h"
-#include "json_object.h"
+#include "vector.h"
+
+namespace { const crown::log_internal::System COMPILER = { "Compiler" }; }
 
 namespace crown
 {
@@ -91,13 +91,13 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 		cs.send(client, string_stream::c_str(ss));
 	}
 
-	logi("Compiling '%s'", id.c_str());
+	logi(COMPILER, "Compiling '%s'", id.c_str());
 	bool succ = ((DataCompiler*)user_data)->compile(data_dir.c_str(), platform.c_str());
 
 	if (succ)
-		logi("Compiled '%s'", id.c_str());
+		logi(COMPILER, "Compiled '%s'", id.c_str());
 	else
-		loge("Error while compiling '%s'", id.c_str());
+		loge(COMPILER, "Failed to compile '%s'", id.c_str());
 
 	{
 		TempAllocator512 ta;
@@ -274,23 +274,22 @@ bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const ch
 
 	path::join(path, CROWN_DATA_DIRECTORY, dst_path.c_str());
 
-	logi("%s <= %s", dst_path.c_str(), src_path.c_str());
+	logi(COMPILER, "%s <= %s", dst_path.c_str(), src_path.c_str());
 
 	if (!can_compile(_type))
 	{
-		loge("Unknown resource type: '%s'", type);
+		loge(COMPILER, "Unknown resource type: '%s'", type);
 		return false;
 	}
 
 	bool success = true;
-	jmp_buf buf;
 
 	Buffer output(default_allocator());
 	array::reserve(output, 4*1024*1024);
 
-	if (!setjmp(buf))
+	if (!setjmp(_jmpbuf))
 	{
-		CompileOptions opts(*this, bundle_fs, output, platform, &buf);
+		CompileOptions opts(*this, bundle_fs, output, platform);
 
 		compile(_type, src_path.c_str(), opts);
 
@@ -448,6 +447,12 @@ u32 DataCompiler::version(StringId64 type)
 	CE_ASSERT(hash_map::has(_compilers, type), "Compiler not found");
 
 	return hash_map::get(_compilers, type, ResourceTypeData()).version;
+}
+
+void DataCompiler::error(const char* msg, va_list args)
+{
+	logev(COMPILER, msg, args);
+	longjmp(_jmpbuf, 1);
 }
 
 void DataCompiler::filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed)

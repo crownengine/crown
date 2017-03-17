@@ -46,6 +46,8 @@
 #include <LinearMath/btDefaultMotionState.h>
 #include <LinearMath/btIDebugDraw.h>
 
+namespace { const crown::log_internal::System PHYSICS = { "Physics" }; }
+
 namespace crown
 {
 namespace physics_globals
@@ -126,7 +128,7 @@ public:
 
 	void reportErrorWarning(const char* warningString)
 	{
-		logw(warningString);
+		logw(PHYSICS, warningString);
 	}
 
 	void draw3dText(const btVector3& /*location*/, const char* /*textString*/)

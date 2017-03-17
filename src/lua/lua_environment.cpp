@@ -13,6 +13,8 @@
 #include "resource_manager.h"
 #include <stdarg.h>
 
+namespace { const crown::log_internal::System LUA = { "Lua" }; }
+
 namespace crown
 {
 extern void load_api(LuaEnvironment& env);
@@ -38,7 +40,7 @@ static int error_handler(lua_State* L)
 	lua_pushinteger(L, 2);
 	lua_call(L, 2, 1); // Call debug.traceback
 
-	loge(lua_tostring(L, -1)); // Print error message
+	loge(LUA, lua_tostring(L, -1)); // Print error message
 	lua_pop(L, 1); // Remove error message from stack
 	lua_pop(L, 1); // Remove debug.traceback from stack
 

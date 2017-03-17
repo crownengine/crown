@@ -26,14 +26,19 @@ struct LogSeverity
 
 namespace log_internal
 {
-	void logx(LogSeverity::Enum sev, const char* msg, va_list args);
-	void logx(LogSeverity::Enum sev, const char* msg, ...);
+	struct System
+	{
+		const char* name;
+	};
+
+	void logx(LogSeverity::Enum sev, System system, const char* msg, va_list args);
+	void logx(LogSeverity::Enum sev, System system, const char* msg, ...);
 } // namespace log_internal
 } // namespace crown
 
-#define logiv(msg, va_list) crown::log_internal::logx(crown::LogSeverity::LOG_INFO, msg, va_list)
-#define logev(msg, va_list) crown::log_internal::logx(crown::LogSeverity::LOG_ERROR, msg, va_list)
-#define logwv(msg, va_list) crown::log_internal::logx(crown::LogSeverity::LOG_WARN, msg, va_list)
-#define logi(msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_INFO, msg, ##__VA_ARGS__)
-#define loge(msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_ERROR, msg, ##__VA_ARGS__)
-#define logw(msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_WARN, msg, ##__VA_ARGS__)
+#define logiv(system, msg, va_list) crown::log_internal::logx(crown::LogSeverity::LOG_INFO, system, msg, va_list)
+#define logev(system, msg, va_list) crown::log_internal::logx(crown::LogSeverity::LOG_ERROR, system, msg, va_list)
+#define logwv(system, msg, va_list) crown::log_internal::logx(crown::LogSeverity::LOG_WARN, system, msg, va_list)
+#define logi(system, msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_INFO, system, msg, ## __VA_ARGS__)
+#define loge(system, msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_ERROR, system, msg, ## __VA_ARGS__)
+#define logw(system, msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_WARN, system, msg, ## __VA_ARGS__)

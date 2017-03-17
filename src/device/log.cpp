@@ -19,7 +19,7 @@ namespace log_internal
 {
 	static Mutex s_mutex;
 
-	void logx(LogSeverity::Enum sev, const char* msg, va_list args)
+	void logx(LogSeverity::Enum sev, System system, const char* msg, va_list args)
 	{
 		ScopedMutex sm(s_mutex);
 
@@ -60,6 +60,9 @@ namespace log_internal
 			json << "\"severity\":\"";
 			json << s_severity_map[sev];
 			json << "\",";
+			json << "\"system\":\"";
+			json << system.name;
+			json << "\",";
 			json << "\"message\":\"";
 
 			// Sanitize buf
@@ -80,11 +83,11 @@ namespace log_internal
 			device()->log(buf);
 	}
 
-	void logx(LogSeverity::Enum sev, const char* msg, ...)
+	void logx(LogSeverity::Enum sev, System system, const char* msg, ...)
 	{
 		va_list args;
 		va_start(args, msg);
-		logx(sev, msg, args);
+		logx(sev, system, msg, args);
 		va_end(args);
 	}
 } // namespace log

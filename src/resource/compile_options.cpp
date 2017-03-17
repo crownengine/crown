@@ -19,20 +19,18 @@
 
 namespace crown
 {
-CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform, jmp_buf* buf)
+CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform)
 	: _data_compiler(dc)
 	, _bundle_fs(bundle_fs)
 	, _output(output)
 	, _platform(platform)
-	, _jmpbuf(buf)
 	, _dependencies(default_allocator())
 {
 }
 
 void CompileOptions::error(const char* msg, va_list args)
 {
-	logev(msg, args);
-	longjmp(*_jmpbuf, 1);
+	_data_compiler.error(msg, args);
 }
 
 void CompileOptions::error(const char* msg, ...)

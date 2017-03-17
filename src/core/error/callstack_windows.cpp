@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "config.h"
+#include "platform.h"
 
 #if CROWN_PLATFORM_WINDOWS
 
-#include "log.h"
+#include "string_stream.h"
 #include <windows.h>
 #include <dbghelp.h>
 
@@ -15,7 +15,7 @@ namespace crown
 {
 namespace error
 {
-	void print_callstack()
+	void callstack(StringStream& ss)
 	{
 		SymInitialize(GetCurrentProcess(), NULL, TRUE);
 		SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
@@ -79,10 +79,30 @@ namespace error
 						);
 			res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
+			char buf[512]
+
 			if (res == TRUE)
-				logi("\t[%2i] %s in %s:%d", num, sym->Name, line.FileName, line.LineNumber);
+			{
+				snprintf(buf
+					, sizeof(buf)
+					, "    [%2i] %s in %s:%d"
+					, num
+					, sym->Name
+					, line.FileName
+					, line.LineNumber
+					);
+			}
 			else
-				logi("\t[%2i] 0x%p", num, stack.AddrPC.Offset);
+			{
+				snprintf(buf
+					, sizeof(buf)
+					, "    [%2i] 0x%p"
+					, num
+					, stack.AddrPC.Offset
+					);
+			}
+
+			ss << buf;
 		}
 
 		SymCleanup(GetCurrentProcess());

@@ -77,7 +77,7 @@ namespace Crown
 
 			// // Create tags for color-formatted text
 			Gtk.TextTag tag_info = new Gtk.TextTag("info");
-			tag_info.foreground_rgba = { 1.0, 1.0, 1.0, 1.0 };
+			tag_info.foreground_rgba = { 0.7, 0.7, 0.7, 1.0 };
 			Gtk.TextTag tag_warning = new Gtk.TextTag("warning");
 			tag_warning.foreground_rgba = { 1.0, 1.0, 0.4, 1.0 };
 			Gtk.TextTag tag_error = new Gtk.TextTag("error");
@@ -111,11 +111,11 @@ namespace Crown
 				if (words.length == 3)
 					_console_client.send(EngineApi.reload(words[1], words[2]));
 				else
-					log("Hint reload <type> <name>", "error");
+					log("Console View", "Hint reload <type> <name>", "error");
 			}
 			else
 			{
-				log("Unknown command: '%s'".printf(words[0]), "error");
+				log("Console View", "Unknown command: '%s'".printf(words[0]), "error");
 			}
 		}
 
@@ -135,8 +135,6 @@ namespace Crown
 			if (text.length > 0)
 			{
 				_entry_history.push(text);
-				log("> " + text, "info");
-
 				do_stuff(text);
 			}
 
@@ -155,9 +153,9 @@ namespace Crown
 			return true;
 		}
 
-		public void log(string text, string severity)
+		public void log(string system, string text, string severity)
 		{
-			string line = text + "\n";
+			string line = system + ": " + text + "\n";
 			Gtk.TextBuffer buffer = _text_view.buffer;
 			Gtk.TextIter end_iter;
 			buffer.get_end_iter(out end_iter);

@@ -18,6 +18,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+namespace { const crown::log_internal::System SOUND = { "Sound" }; }
+
 namespace crown
 {
 #if CROWN_DEBUG
@@ -50,16 +52,16 @@ namespace audio_globals
 	void init()
 	{
 		s_al_device = alcOpenDevice(NULL);
-		CE_ASSERT(s_al_device, "Cannot open OpenAL audio device");
+		CE_ASSERT(s_al_device, "alcOpenDevice: error");
 
 		s_al_context = alcCreateContext(s_al_device, NULL);
-		CE_ASSERT(s_al_context, "Cannot create OpenAL context");
+		CE_ASSERT(s_al_context, "alcCreateContext: error");
 
 		AL_CHECK(alcMakeContextCurrent(s_al_context));
 
-		logi("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
-		logi("OpenAL Version  : %s", alGetString(AL_VERSION));
-		logi("OpenAL Renderer : %s", alGetString(AL_RENDERER));
+		logi(SOUND, "OpenAL Vendor   : %s", alGetString(AL_VENDOR));
+		logi(SOUND, "OpenAL Version  : %s", alGetString(AL_VERSION));
+		logi(SOUND, "OpenAL Renderer : %s", alGetString(AL_RENDERER));
 
 		AL_CHECK(alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED));
 		AL_CHECK(alDopplerFactor(1.0f));

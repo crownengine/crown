@@ -18,27 +18,27 @@ namespace error
 {
 	/// Aborts the program execution logging an error message and the stacktrace if
 	/// the platform supports it.
-	void abort(const char* file, int line, const char* format, ...);
+	void abort(const char* format, ...);
 
-	/// Prints the current call stack.
-	void print_callstack();
 } // namespace error
 
 } // namespace crown
 
 #if CROWN_DEBUG
-	#define CE_ASSERT(condition, msg, ...)                  \
-		do                                                  \
-		{                                                   \
-			if (!(condition))                               \
-			{                                               \
-				crown::error::abort(__FILE__                \
-					, __LINE__                              \
-					, "\nAssertion failed: %s\n\t" msg "\n" \
-					, #condition                            \
-					, ##__VA_ARGS__                         \
-					);                                      \
-			}                                               \
+	#define CE_ASSERT(condition, msg, ...)                   \
+		do                                                   \
+		{                                                    \
+			if (!(condition))                                \
+			{                                                \
+				crown::error::abort("Assertion failed: %s\n" \
+					"    In: %s:%d\n"                        \
+					"    " msg                               \
+					, # condition                            \
+					, __FILE__                               \
+					, __LINE__                               \
+					, ## __VA_ARGS__                         \
+					);                                       \
+			}                                                \
 		} while (0)
 #else
 	#define CE_ASSERT(...) ((void)0)

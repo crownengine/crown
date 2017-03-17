@@ -3,22 +3,16 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "platform.h"
+#pragma once
 
-#if CROWN_PLATFORM_ANDROID
-
-#include "string_stream.h"
+#include "string_types.h"
 
 namespace crown
 {
 namespace error
 {
-	void callstack(StringStream& ss)
-	{
-		ss << "Not supported";
-	}
+	/// Fills @a ss with the current call stack.
+	void callstack(StringStream& ss);
+
 } // namespace error
-
 } // namespace crown
-
-#endif // CROWN_PLATFORM_ANDROID

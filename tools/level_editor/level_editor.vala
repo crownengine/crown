@@ -371,24 +371,24 @@ namespace Crown
 
 		private void on_compiler_connected()
 		{
-			_console_view.log("Compiler connected.", "info");
+			_console_view.log("Editor", "Compiler connected.", "info");
 			_compiler.receive_async();
 		}
 
 		private void on_compiler_disconnected()
 		{
-			_console_view.log("Compiler disconnected.", "info");
+			_console_view.log("Editor", "Compiler disconnected.", "info");
 		}
 
 		private void on_engine_connected()
 		{
-			_console_view.log("Engine connected.", "info");
+			_console_view.log("Editor", "Engine connected.", "info");
 			_engine.receive_async();
 		}
 
 		private void on_engine_disconnected()
 		{
-			_console_view.log("Engine disconnected.", "info");
+			_console_view.log("Editor", "Engine disconnected.", "info");
 		}
 
 		private static int stringcmp(ref string a, ref string b)
@@ -405,7 +405,7 @@ namespace Crown
 
 				if (msg_type == "message")
 				{
-					_console_view.log((string)msg["message"], (string)msg["severity"]);
+					_console_view.log((string)msg["system"], (string)msg["message"], (string)msg["severity"]);
 				}
 				else if (msg_type == "add_file")
 				{
@@ -515,7 +515,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.log(e.message, "error");
+				_console_view.log("Editor", e.message, "error");
 			}
 
 			// Receive next message
@@ -570,7 +570,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.log(e.message, "error");
+				_console_view.log("Editor", e.message, "error");
 			}
 
 			for (int tries = 0; !_compiler.is_connected() && tries < 5; ++tries)
@@ -636,7 +636,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.log(e.message, "error");
+				_console_view.log("Editor", e.message, "error");
 			}
 
 			for (int tries = 0; !_engine.is_connected() && tries < 5; ++tries)
@@ -691,7 +691,7 @@ namespace Crown
 					}
 					catch (Error e)
 					{
-						_console_view.log(e.message, "error");
+						_console_view.log("Editor", e.message, "error");
 					}
 				}
 			});
@@ -1232,7 +1232,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.log(e.message, "error");
+				_console_view.log("Editor", e.message, "error");
 			}
 		}
 
@@ -1244,7 +1244,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.log(e.message, "error");
+				_console_view.log("Editor", e.message, "error");
 			}
 		}
 
@@ -1257,7 +1257,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.log(e.message, "error");
+				_console_view.log("Editor", e.message, "error");
 			}
 		}
 

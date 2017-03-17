@@ -38,9 +38,7 @@ static void console_command_reload(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	sjson::parse_string(obj["resource_type"], type);
 	sjson::parse_string(obj["resource_name"], name);
 
-	logi("Reloading resource '%s.%s'", name.c_str(), type.c_str());
 	device()->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
-	logi("Reloaded resource '%s.%s'", name.c_str(), type.c_str());
 }
 
 static void console_command_pause(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/, void* /*user_data*/)

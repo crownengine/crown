@@ -9,7 +9,6 @@
 #include "container_types.h"
 #include "filesystem_types.h"
 #include "string_types.h"
-#include <setjmp.h>
 #include <stdarg.h>
 
 #define DATA_COMPILER_ASSERT(condition, opts, msg, ...) \
@@ -42,12 +41,11 @@ class CompileOptions
 	Filesystem& _bundle_fs;
 	Buffer& _output;
 	const char* _platform;
-	jmp_buf* _jmpbuf;
 	Vector<DynamicString> _dependencies;
 
 public:
 
-	CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform, jmp_buf* buf);
+	CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform);
 
 	void error(const char* msg, va_list args);
 

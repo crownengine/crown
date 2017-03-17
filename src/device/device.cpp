@@ -59,6 +59,8 @@
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
+namespace { const crown::log_internal::System DEVICE = { "Device" }; }
+
 namespace crown
 {
 extern bool next_event(OsEvent& ev);
@@ -77,7 +79,7 @@ struct BgfxCallback : public bgfx::CallbackI
 		char buf[2048];
 		strncpy(buf, _format, sizeof(buf));
 		buf[strlen32(buf)-1] = '\0'; // Remove trailing newline
-		logiv(buf, _argList);
+		logiv(DEVICE, buf, _argList);
 	}
 
 	virtual u32 cacheReadSize(u64 /*_id*/)
@@ -318,7 +320,7 @@ void Device::run()
 	_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
-	logi("Initializing Crown Engine %s...", version());
+	logi(DEVICE, "Initializing Crown Engine %s %s %s", version(), platform(), architecture());
 
 	profiler_globals::init();
 
@@ -399,7 +401,7 @@ void Device::run()
 	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
 	_lua_environment->call_global("init", 0);
 
-	logi("Engine initialized");
+	logi(DEVICE, "Initialized");
 
 	s16 mouse_x = 0;
 	s16 mouse_y = 0;
@@ -499,13 +501,13 @@ void Device::quit()
 void Device::pause()
 {
 	_paused = true;
-	logi("Engine paused.");
+	logi(DEVICE, "Paused");
 }
 
 void Device::unpause()
 {
 	_paused = false;
-	logi("Engine unpaused.");
+	logi(DEVICE, "Unpaused");
 }
 
 void Device::resolution(u16& width, u16& height)
@@ -605,6 +607,14 @@ void Device::destroy_resource_package(ResourcePackage& rp)
 
 void Device::reload(StringId64 type, StringId64 name)
 {
+	TempAllocator64 ta;
+	DynamicString type_str(ta);
+	DynamicString name_str(ta);
+	type.to_string(type_str);
+	name.to_string(name_str);
+
+	logi(DEVICE, "Reloading #ID(%s-%s)", type_str.c_str(), name_str.c_str());
+
 	_resource_manager->reload(type, name);
 	const void* new_resource = _resource_manager->get(type, name);
 
@@ -612,6 +622,8 @@ void Device::reload(StringId64 type, StringId64 name)
 	{
 		_lua_environment->execute((const LuaResource*)new_resource);
 	}
+
+	logi(DEVICE, "Reloaded #ID(%s-%s)", type_str.c_str(), name_str.c_str());
 }
 
 void Device::log(const char* msg)

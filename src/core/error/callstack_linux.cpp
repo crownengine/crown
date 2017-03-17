@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "config.h"
+#include "platform.h"
 
 #if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
 
-#include "log.h"
+#include "string_stream.h"
 #include "string_utils.h"
 #include <cxxabi.h>
 #include <execinfo.h>
@@ -34,7 +34,7 @@ namespace error
 		return "<addr2line missing>";
 	}
 
-	void print_callstack()
+	void callstack(StringStream& ss)
 	{
 		void* array[64];
 		int size = backtrace(array, countof(array));
@@ -50,7 +50,9 @@ namespace error
 			char* addr_begin   = strchr(msg, '[');
 			char* addr_end     = strchr(msg, ']');
 
-			// if the line could be processed, attempt to demangle the symbol
+			char buf[512];
+
+			// Attempt to demangle the symbol
 			if (mangled_name && offset_begin && offset_end && mangled_name < offset_begin)
 			{
 				*mangled_name++ = '\0';
@@ -64,7 +66,9 @@ namespace error
 				char line[256];
 				memset(line, 0, sizeof(line));
 
-				logi("\t[%2d] %s: (%s)+%s in %s"
+				snprintf(buf
+					, sizeof(buf)
+					, "    [%2d] %s: (%s)+%s in %s\n"
 					, i
 					, msg
 					, (demangle_ok == 0 ? real_name : mangled_name)
@@ -74,11 +78,12 @@ namespace error
 
 				free(real_name);
 			}
-			// otherwise, print the whole line
 			else
 			{
-				logi("\t[%2d] %s", i, msg);
+				snprintf(buf, sizeof(buf), "    [%2d] %s\n", i, msg);
 			}
+
+			ss << buf;
 		}
 		free(messages);
 	}

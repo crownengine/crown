@@ -10,6 +10,7 @@
 #include "container_types.h"
 #include "file_monitor.h"
 #include "filesystem_disk.h"
+#include <setjmp.h>
 
 namespace crown
 {
@@ -30,6 +31,7 @@ class DataCompiler
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
 	FileMonitor _file_monitor;
+	jmp_buf _jmpbuf;
 
 	void add_file(const char* path);
 	void add_tree(const char* path);
@@ -67,6 +69,8 @@ public:
 
 	// Returns the version of the compiler for @a type.
 	u32 version(StringId64 type);
+
+	void error(const char* msg, va_list args);
 };
 
 int main_data_compiler(int argc, char** argv);
