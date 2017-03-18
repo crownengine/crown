@@ -27,36 +27,43 @@ static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	device()->_lua_environment->execute_string(script.c_str());
 }
 
-static void console_command_reload(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* /*user_data*/)
+static void console_command(ConsoleServer& cs, TCPSocket client, const char* json, void* /*user_data*/)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	DynamicString type(ta);
-	DynamicString name(ta);
+	JsonArray args(ta);
 
 	sjson::parse(json, obj);
-	sjson::parse_string(obj["resource_type"], type);
-	sjson::parse_string(obj["resource_name"], name);
+	sjson::parse_array(obj["args"], args);
 
-	device()->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
-}
+	DynamicString cmd(ta);
+	sjson::parse_string(args[0], cmd);
 
-static void console_command_pause(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/, void* /*user_data*/)
-{
-	device()->pause();
-}
+	if (cmd == "pause")
+		device()->pause();
+	else if (cmd == "unpause")
+		device()->unpause();
+	else if (cmd == "reload")
+	{
+		if (array::size(args) != 3)
+		{
+			cs.error(client, "Usage: reload type name");
+			return;
+		}
 
-static void console_command_unpause(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/, void* /*user_data*/)
-{
-	device()->unpause();
+		DynamicString type(ta);
+		DynamicString name(ta);
+		sjson::parse_string(args[1], type);
+		sjson::parse_string(args[2], name);
+
+		device()->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
+	}
 }
 
 void load_console_api(ConsoleServer& cs)
 {
 	cs.register_command("script",  console_command_script, NULL);
-	cs.register_command("reload",  console_command_reload, NULL);
-	cs.register_command("pause",   console_command_pause, NULL);
-	cs.register_command("unpause", console_command_unpause, NULL);
+	cs.register_command("command", console_command, NULL);
 }
 
 } // namespace crown

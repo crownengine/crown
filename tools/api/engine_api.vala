@@ -15,6 +15,18 @@ namespace Crown
 				);
 		}
 
+		public string command(string[] args)
+		{
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < args.length; ++i)
+			{
+				string arg = args[i].replace("\\", "\\\\").replace("\"", "\\\"");
+				sb.append("\"%s\",".printf(arg));
+			}
+
+			return "{\"type\":\"command\",\"args\":[%s]}".printf(sb.str);
+		}
+
 		public string reload(string type, string name)
 		{
 			return "{\"type\":\"reload\",\"resource_type\":\"%s\",\"resource_name\":\"%s\"}".printf(type, name);

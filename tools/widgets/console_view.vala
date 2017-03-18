@@ -102,31 +102,6 @@ namespace Crown
 			show_all();
 		}
 
-		private void do_command(string cmd)
-		{
-			string[] words = cmd.split(" ");
-
-			if (words[0] == "reload")
-			{
-				if (words.length == 3)
-					_console_client.send(EngineApi.reload(words[1], words[2]));
-				else
-					log("Console View", "Hint reload <type> <name>", "error");
-			}
-			else
-			{
-				log("Console View", "Unknown command: '%s'".printf(words[0]), "error");
-			}
-		}
-
-		private void do_stuff(string text)
-		{
-			if (text[0] == ':')
-				do_command(text[1:text.length]);
-			else
-				_console_client.send_script(text);
-		}
-
 		private void on_entry_activated()
 		{
 			string text = _entry.text;
@@ -135,7 +110,16 @@ namespace Crown
 			if (text.length > 0)
 			{
 				_entry_history.push(text);
-				do_stuff(text);
+
+				if (text[0] == ':')
+				{
+					string[] args = text[1:text.length].split(" ");
+					_console_client.send(EngineApi.command(args));
+				}
+				else
+				{
+					_console_client.send_script(text);
+				}
 			}
 
 			_entry.text = "";

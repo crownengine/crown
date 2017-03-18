@@ -42,9 +42,12 @@ namespace Crown
 		{
 			try
 			{
-				_connection.close();
-				_connection = null;
-				disconnected();
+				if (_connection != null)
+				{
+					_connection.close();
+					_connection = null;
+					disconnected();
+				}
 			}
 			catch (Error e)
 			{
