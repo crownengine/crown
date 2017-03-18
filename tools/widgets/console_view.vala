@@ -134,6 +134,8 @@ namespace Crown
 			else
 				return false;
 
+			_entry.set_position(_entry.text.length);
+
 			return true;
 		}
 
