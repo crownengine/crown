@@ -108,7 +108,10 @@ namespace Crown
 
 				// Connection closed
 				if (header.length == 0)
+				{
+					close();
 					return;
+				}
 
 				// FIXME: Add bit conversion utils
 				uint32 size = 0;

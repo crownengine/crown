@@ -50,6 +50,7 @@ namespace Crown
 		private GLib.Subprocess _game_process;
 		private ConsoleClient _compiler;
 		private ConsoleClient _engine;
+		private ConsoleClient _game;
 
 		// Level data
 		private Database _db;
@@ -214,6 +215,10 @@ namespace Crown
 			_engine.connected.connect(on_engine_connected);
 			_engine.disconnected.connect(on_engine_disconnected);
 			_engine.message_received.connect(on_message_received);
+			_game = new ConsoleClient();
+			_game.connected.connect(on_game_connected);
+			_game.disconnected.connect(on_game_disconnected);
+			_game.message_received.connect(on_message_received);
 
 			// Level data
 			_db = new Database();
@@ -371,24 +376,35 @@ namespace Crown
 
 		private void on_compiler_connected()
 		{
-			_console_view.log("Editor", "Compiler connected.", "info");
+			_console_view.log("Editor", "Compiler connected", "info");
 			_compiler.receive_async();
 		}
 
 		private void on_compiler_disconnected()
 		{
-			_console_view.log("Editor", "Compiler disconnected.", "info");
+			_console_view.log("Editor", "Compiler disconnected", "info");
 		}
 
 		private void on_engine_connected()
 		{
-			_console_view.log("Editor", "Engine connected.", "info");
+			_console_view.log("Editor", "Engine connected", "info");
 			_engine.receive_async();
 		}
 
 		private void on_engine_disconnected()
 		{
-			_console_view.log("Editor", "Engine disconnected.", "info");
+			_console_view.log("Editor", "Engine disconnected", "info");
+		}
+
+		private void on_game_connected()
+		{
+			_console_view.log("Editor", "Game connected", "info");
+			_game.receive_async();
+		}
+
+		private void on_game_disconnected()
+		{
+			_console_view.log("Editor", "Game disconnected", "info");
 		}
 
 		private static int stringcmp(ref string a, ref string b)
@@ -693,12 +709,20 @@ namespace Crown
 					{
 						_console_view.log("Editor", e.message, "error");
 					}
+
+					for (int tries = 0; !_game.is_connected() && tries < 5; ++tries)
+					{
+						_game.connect("127.0.0.1", 12345);
+						GLib.Thread.usleep(100*1000);
+					}
 				}
 			});
 		}
 
 		private void stop_game()
 		{
+			_game.close();
+
 			if (_game_process != null)
 			{
 				_game_process.force_exit();
