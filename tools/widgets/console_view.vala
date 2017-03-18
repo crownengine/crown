@@ -153,6 +153,21 @@ namespace Crown
 			return true;
 		}
 
+		public void logi(string system, string text)
+		{
+			log(system, text, "info");
+		}
+
+		public void logw(string system, string text)
+		{
+			log(system, text, "warning");
+		}
+
+		public void loge(string system, string text)
+		{
+			log(system, text, "error");
+		}
+
 		public void log(string system, string text, string severity)
 		{
 			string line = system + ": " + text + "\n";
