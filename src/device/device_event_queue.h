@@ -75,6 +75,10 @@ union OsEvent
 /// Used only to pass events from os thread to main thread.
 struct DeviceEventQueue
 {
+	AtomicInt _tail;
+	AtomicInt _head;
+	OsEvent _queue[MAX_OS_EVENTS];
+
 	DeviceEventQueue()
 		: _tail(0)
 		, _head(0)
@@ -148,7 +152,8 @@ struct DeviceEventQueue
 	{
 		int cur_tail = _tail.load();
 		int next_tail = increment(cur_tail);
-		if(next_tail != _head.load())
+
+		if (next_tail != _head.load())
 		{
 			_queue[cur_tail] = ev;
 			_tail.store(next_tail);
@@ -161,23 +166,20 @@ struct DeviceEventQueue
 	bool pop_event(OsEvent& ev)
 	{
 		const int cur_head = _head.load();
-		if(cur_head == _tail.load()) return false;
+
+		if (cur_head == _tail.load())
+			return false;
 
 		ev = _queue[cur_head];
 		_head.store(increment(cur_head));
+
 		return true;
 	}
 
 	int increment(int idx) const
 	{
-	  return (idx + 1) % MAX_OS_EVENTS;
+		return (idx + 1) % MAX_OS_EVENTS;
 	}
-
-private:
-
-	OsEvent _queue[MAX_OS_EVENTS];
-	AtomicInt _tail;
-	AtomicInt _head;
 };
 
 } // namespace crown
