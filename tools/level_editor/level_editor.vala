@@ -528,6 +528,14 @@ namespace Crown
 
 					_level.on_selection(ids);
 				}
+				else if (msg_type == "error")
+				{
+					_console_view.loge("Editor", "Error: " + (string)msg["message"]);
+				}
+				else
+				{
+					_console_view.loge("Editor", "Unknown message type: " + msg_type);
+				}
 			}
 			catch (Error e)
 			{

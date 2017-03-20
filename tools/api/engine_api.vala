@@ -29,17 +29,17 @@ namespace Crown
 
 		public string reload(string type, string name)
 		{
-			return "{\"type\":\"reload\",\"resource_type\":\"%s\",\"resource_name\":\"%s\"}".printf(type, name);
+			return command({ "reload", type, name });
 		}
 
 		public string pause()
 		{
-			return "{\"type\":\"pause\"}";
+			return command({ "pause" });
 		}
 
 		public string unpause()
 		{
-			return "{\"type\":\"unpause\"}";
+			return command({ "unpause" });
 		}
 	}
 }
