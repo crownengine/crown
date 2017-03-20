@@ -3,6 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#pragma once
+
 #include "json_types.h"
 #include "map.h"
 
