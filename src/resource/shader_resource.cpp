@@ -143,7 +143,7 @@ namespace shader_resource_internal
 		DepthFunction::Enum value;
 	};
 
-	static DepthTestInfo _depth_test_map[] =
+	static const DepthTestInfo _depth_test_map[] =
 	{
 		{ "less",     DepthFunction::LESS     },
 		{ "lequal",   DepthFunction::LEQUAL   },
@@ -162,7 +162,7 @@ namespace shader_resource_internal
 		BlendFunction::Enum value;
 	};
 
-	static BlendFunctionInfo _blend_func_map[] =
+	static const BlendFunctionInfo _blend_func_map[] =
 	{
 		{ "zero",          BlendFunction::ZERO          },
 		{ "one",           BlendFunction::ONE           },
@@ -186,7 +186,7 @@ namespace shader_resource_internal
 		BlendEquation::Enum value;
 	};
 
-	static BlendEquationInfo _blend_equation_map[] =
+	static const BlendEquationInfo _blend_equation_map[] =
 	{
 		{ "add",    BlendEquation::ADD    },
 		{ "sub",    BlendEquation::SUB    },
@@ -202,7 +202,7 @@ namespace shader_resource_internal
 		CullMode::Enum value;
 	};
 
-	static CullModeInfo _cull_mode_map[] =
+	static const CullModeInfo _cull_mode_map[] =
 	{
 		{ "cw",   CullMode::CW   },
 		{ "ccw",  CullMode::CCW  },
@@ -216,7 +216,7 @@ namespace shader_resource_internal
 		PrimitiveType::Enum value;
 	};
 
-	static PrimitiveTypeInfo _primitive_type_map[] =
+	static const PrimitiveTypeInfo _primitive_type_map[] =
 	{
 		{ "pt_tristrip",  PrimitiveType::PT_TRISTRIP  },
 		{ "pt_lines",     PrimitiveType::PT_LINES     },
@@ -231,7 +231,7 @@ namespace shader_resource_internal
 		SamplerFilter::Enum value;
 	};
 
-	static SamplerFilterInfo _sampler_filter_map[] =
+	static const SamplerFilterInfo _sampler_filter_map[] =
 	{
 		{ "point",       SamplerFilter::POINT       },
 		{ "anisotropic", SamplerFilter::ANISOTROPIC }
@@ -244,7 +244,7 @@ namespace shader_resource_internal
 		SamplerWrap::Enum value;
 	};
 
-	static SamplerWrapInfo _sampler_wrap_map[] =
+	static const SamplerWrapInfo _sampler_wrap_map[] =
 	{
 		{ "mirror", SamplerWrap::MIRROR },
 		{ "clamp",  SamplerWrap::CLAMP  },
@@ -252,7 +252,7 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_sampler_wrap_map) == SamplerWrap::COUNT);
 
-	static u64 _bgfx_depth_func_map[] =
+	static const u64 _bgfx_depth_func_map[] =
 	{
 		BGFX_STATE_DEPTH_TEST_LESS,     // DepthFunction::LESS
 		BGFX_STATE_DEPTH_TEST_LEQUAL,   // DepthFunction::LEQUAL
@@ -265,7 +265,7 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_depth_func_map) == DepthFunction::COUNT);
 
-	static u64 _bgfx_blend_func_map[] =
+	static const u64 _bgfx_blend_func_map[] =
 	{
 		BGFX_STATE_BLEND_ZERO,          // BlendFunction::ZERO
 		BGFX_STATE_BLEND_ONE,           // BlendFunction::ONE
@@ -283,7 +283,7 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_blend_func_map) == BlendFunction::COUNT);
 
-	static u64 _bgfx_blend_equation_map[] =
+	static const u64 _bgfx_blend_equation_map[] =
 	{
 		BGFX_STATE_BLEND_EQUATION_ADD,    // BlendEquation::ADD
 		BGFX_STATE_BLEND_EQUATION_SUB,    // BlendEquation::SUB
@@ -293,7 +293,7 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_blend_equation_map) == BlendEquation::COUNT);
 
-	static u64 _bgfx_cull_mode_map[] =
+	static const u64 _bgfx_cull_mode_map[] =
 	{
 		BGFX_STATE_CULL_CW,  // CullMode::CW
 		BGFX_STATE_CULL_CCW, // CullMode::CCW
@@ -301,7 +301,7 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_cull_mode_map) == CullMode::COUNT);
 
-	static u64 _bgfx_primitive_type_map[] =
+	static const u64 _bgfx_primitive_type_map[] =
 	{
 		BGFX_STATE_PT_TRISTRIP,  // PrimitiveType::PT_TRISTRIP
 		BGFX_STATE_PT_LINES,     // PrimitiveType::PT_LINES
@@ -310,21 +310,21 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_primitive_type_map) == PrimitiveType::COUNT);
 
-	static u32 _bgfx_sampler_filter_min_map[] =
+	static const u32 _bgfx_sampler_filter_min_map[] =
 	{
 		BGFX_TEXTURE_MIN_POINT,       // SamplerFilter::POINT
 		BGFX_TEXTURE_MIN_ANISOTROPIC  // SamplerFilter::ANISOTROPIC
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_filter_min_map) == SamplerFilter::COUNT);
 
-	static u32 _bgfx_sampler_filter_mag_map[] =
+	static const u32 _bgfx_sampler_filter_mag_map[] =
 	{
 		BGFX_TEXTURE_MAG_POINT,      // SamplerFilter::POINT
 		BGFX_TEXTURE_MAG_ANISOTROPIC // SamplerFilter::ANISOTROPIC
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_filter_mag_map) == SamplerFilter::COUNT);
 
-	static u32 _bgfx_sampler_wrap_u_map[] =
+	static const u32 _bgfx_sampler_wrap_u_map[] =
 	{
 		BGFX_TEXTURE_U_MIRROR, // SamplerWrap::MIRROR
 		BGFX_TEXTURE_U_CLAMP,  // SamplerWrap::CLAMP
@@ -332,7 +332,7 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_wrap_u_map) == SamplerWrap::COUNT);
 
-	static u32 _bgfx_sampler_wrap_v_map[] =
+	static const u32 _bgfx_sampler_wrap_v_map[] =
 	{
 		BGFX_TEXTURE_V_MIRROR, // SamplerWrap::MIRROR
 		BGFX_TEXTURE_V_CLAMP,  // SamplerWrap::CLAMP
@@ -340,7 +340,7 @@ namespace shader_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_wrap_v_map) == SamplerWrap::COUNT);
 
-	static u32 _bgfx_sampler_wrap_w_map[] =
+	static const u32 _bgfx_sampler_wrap_w_map[] =
 	{
 		BGFX_TEXTURE_W_MIRROR, // SamplerWrap::MIRROR
 		BGFX_TEXTURE_W_CLAMP,  // SamplerWrap::CLAMP
