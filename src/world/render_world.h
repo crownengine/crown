@@ -180,7 +180,6 @@ public:
 		void destroy();
 
 		MeshInstance make_instance(u32 i) { MeshInstance inst = { i }; return inst; }
-		bool is_valid(MeshInstance i) { return i.i != UINT32_MAX; }
 	};
 
 	struct SpriteManager
@@ -224,7 +223,6 @@ public:
 		void destroy();
 
 		SpriteInstance make_instance(u32 i) { SpriteInstance inst = { i }; return inst; }
-		bool is_valid(SpriteInstance i) { return i.i != UINT32_MAX; }
 	};
 
 	struct LightManager
@@ -266,7 +264,6 @@ public:
 		void destroy();
 
 		LightInstance make_instance(u32 i) { LightInstance inst = { i }; return inst; }
-		bool is_valid(LightInstance i) { return i.i != UINT32_MAX; }
 	};
 
 	u32 _marker;

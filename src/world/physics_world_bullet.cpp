@@ -1023,11 +1023,6 @@ public:
 
 private:
 
-	bool is_valid(ColliderInstance i) { return i.i != UINT32_MAX; }
-	bool is_valid(ActorInstance i) { return i.i != UINT32_MAX; }
-	bool is_valid(ControllerInstance i) { return i.i != UINT32_MAX; }
-	bool is_valid(JointInstance i) { return i.i != UINT32_MAX; }
-
 	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
 	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
 	ControllerInstance make_controller_instance(u32 i) { ControllerInstance inst = { i }; return inst; }

@@ -259,50 +259,25 @@ struct hash<UnitId>
 	}
 };
 
-struct TransformInstance
-{
-	u32 i;
-};
+#define INSTANCE_ID(name)            \
+	struct name                      \
+	{                                \
+		u32 i;                       \
+	};                               \
+	inline bool is_valid(name inst)  \
+	{                                \
+		return inst.i != UINT32_MAX; \
+	}
 
-struct CameraInstance
-{
-	u32 i;
-};
-
-struct MeshInstance
-{
-	u32 i;
-};
-
-struct SpriteInstance
-{
-	u32 i;
-};
-
-struct LightInstance
-{
-	u32 i;
-};
-
-struct ColliderInstance
-{
-	u32 i;
-};
-
-struct ActorInstance
-{
-	u32 i;
-};
-
-struct ControllerInstance
-{
-	u32 i;
-};
-
-struct JointInstance
-{
-	u32 i;
-};
+INSTANCE_ID(TransformInstance);
+INSTANCE_ID(CameraInstance);
+INSTANCE_ID(MeshInstance);
+INSTANCE_ID(SpriteInstance);
+INSTANCE_ID(LightInstance);
+INSTANCE_ID(ColliderInstance);
+INSTANCE_ID(ActorInstance);
+INSTANCE_ID(ControllerInstance);
+INSTANCE_ID(JointInstance);
 
 /// Mesh renderer description.
 ///

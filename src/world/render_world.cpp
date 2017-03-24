@@ -81,7 +81,7 @@ void RenderWorld::mesh_instances(UnitId id, Array<MeshInstance>& instances)
 {
 	MeshInstance inst = _mesh_manager.first(id);
 
-	while (_mesh_manager.is_valid(inst))
+	while (is_valid(inst))
 	{
 		array::push_back(instances, inst);
 		inst = _mesh_manager.next(inst);
@@ -477,7 +477,7 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 		MeshInstance curr = _mesh_manager.first(id);
 		MeshInstance next;
 
-		while (_mesh_manager.is_valid(curr))
+		while (is_valid(curr))
 		{
 			next = _mesh_manager.next(curr);
 			mesh_destroy(curr);
@@ -488,14 +488,14 @@ void RenderWorld::unit_destroyed_callback(UnitId id)
 	{
 		SpriteInstance first = sprite_instances(id);
 
-		if (_sprite_manager.is_valid(first))
+		if (is_valid(first))
 			sprite_destroy(id, first);
 	}
 
 	{
 		LightInstance first = light_instances(id);
 
-		if (_light_manager.is_valid(first))
+		if (is_valid(first))
 			light_destroy(id, first);
 	}
 }

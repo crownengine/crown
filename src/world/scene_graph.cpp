@@ -369,11 +369,6 @@ void SceneGraph::get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses
 	}
 }
 
-bool SceneGraph::is_valid(TransformInstance i)
-{
-	return i.i != UINT32_MAX;
-}
-
 void SceneGraph::set_local(TransformInstance i)
 {
 	TransformInstance parent = _data.parent[i.i];

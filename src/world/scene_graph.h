@@ -130,7 +130,6 @@ struct SceneGraph
 
 	void clear_changed();
 	void get_changed(Array<UnitId>& units, Array<Matrix4x4>& world_poses);
-	bool is_valid(TransformInstance i);
 	void set_local(TransformInstance i);
 	void transform(const Matrix4x4& parent, TransformInstance i);
 	void grow();
