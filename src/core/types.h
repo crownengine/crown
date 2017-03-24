@@ -45,6 +45,7 @@ typedef double   f64;
 
 #define countof(arr) (sizeof(arr)/sizeof(arr[0]))
 
+#define CE_NOOP(...) do { (void)0; } while (0)
 #define CE_UNUSED(x) do { (void)(x); } while (0)
 #define CE_STATIC_ASSERT(condition, ...) static_assert(condition, "" # __VA_ARGS__)
 
