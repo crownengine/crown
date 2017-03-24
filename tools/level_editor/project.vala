@@ -14,6 +14,7 @@ namespace Crown
 		private File _source_dir;
 		private File _toolchain_dir;
 		private File _data_dir;
+		private File _level_editor_test;
 		private string _platform;
 
 		private Database _files;
@@ -26,6 +27,7 @@ namespace Crown
 			_source_dir = null;
 			_toolchain_dir = null;
 			_data_dir = null;
+			_level_editor_test = null;
 			_platform = "linux";
 
 			_files = new Database();
@@ -34,9 +36,10 @@ namespace Crown
 
 		public void load(string source_dir, string toolchain_dir, string data_dir)
 		{
-			_source_dir    = File.new_for_path(source_dir);
-			_toolchain_dir = File.new_for_path(toolchain_dir);
-			_data_dir      = File.new_for_path(data_dir);
+			_source_dir        = File.new_for_path(source_dir);
+			_toolchain_dir     = File.new_for_path(toolchain_dir);
+			_data_dir          = File.new_for_path(data_dir);
+			_level_editor_test = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.level");
 		}
 
 		public string source_dir()
@@ -57,6 +60,23 @@ namespace Crown
 		public string platform()
 		{
 			return _platform;
+		}
+
+		public string level_editor_test_level()
+		{
+			return _level_editor_test.get_path();
+		}
+
+		public void delete_level_editor_test_level()
+		{
+			try
+			{
+				_level_editor_test.delete();
+			}
+			catch (GLib.Error e)
+			{
+				stderr.printf("%s\n", e.message);
+			}
 		}
 
 		public Database files()

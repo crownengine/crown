@@ -1,4 +1,4 @@
-require "lua/class"
+require "core/lua/class"
 
 local wkey = false
 local skey = false
@@ -34,7 +34,7 @@ function FPSCamera:update(dx, dy)
 	if Keyboard.released(Keyboard.button_id("d")) then dkey = false end
 
 	local camera = self:camera()
-	local camera_local_pose = SceneGraph.local_pose(self._sg, camera_unit)
+	local camera_local_pose = SceneGraph.local_pose(self._sg, self._unit)
 	local camera_right_vector = Matrix4x4.x(camera_local_pose)
 	local camera_position = Matrix4x4.translation(camera_local_pose)
 	local camera_rotation = Matrix4x4.rotation(camera_local_pose)
@@ -51,7 +51,7 @@ function FPSCamera:update(dx, dy)
 	Matrix4x4.set_translation(new_rotation, camera_position)
 
 	-- Fixme
-	SceneGraph.set_local_pose(self._sg, camera_unit, new_rotation)
+	SceneGraph.set_local_pose(self._sg, self._unit, new_rotation)
 
 	-- Translation
 	if wkey then camera_position = camera_position + view_dir end
@@ -59,5 +59,5 @@ function FPSCamera:update(dx, dy)
 	if akey then camera_position = camera_position + camera_right_vector * -1 end
 	if dkey then camera_position = camera_position + camera_right_vector end
 
-	SceneGraph.set_local_position(self._sg, camera_unit, camera_position)
+	SceneGraph.set_local_position(self._sg, self._unit, camera_position)
 end

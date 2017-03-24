@@ -398,6 +398,7 @@ void Device::run()
 	boot_package->flush();
 
 	_lua_environment->load_libs();
+	_lua_environment->execute_string(_device_options._lua_string.c_str());
 	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
 	_lua_environment->call_global("init", 0);
 

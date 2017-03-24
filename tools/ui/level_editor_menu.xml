@@ -85,7 +85,8 @@
 			<menuitem action="reload-lua"></menuitem>
 		</menu>
 		<menu action="menu-run">
-			<menuitem action="game-run"></menuitem>
+			<menuitem action="test-level"></menuitem>
+			<menuitem action="run-game"></menuitem>
 		</menu>
 		<menu action="menu-help">
 			<menuitem action="manual"></menuitem>
@@ -110,6 +111,6 @@
 		<separator></separator>
 		<toolitem action="snap-to-grid"></toolitem>
 		<separator></separator>
-		<toolitem action="game-run"></toolitem>
+		<toolitem action="test-level"></toolitem>
 	</toolbar>
 </ui>

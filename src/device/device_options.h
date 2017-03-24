@@ -24,6 +24,7 @@ struct DeviceOptions
 	DynamicString _data_dir;
 	const char* _boot_dir;
 	const char* _platform;
+	DynamicString _lua_string;
 	bool _wait_console;
 	bool _do_compile;
 	bool _do_continue;

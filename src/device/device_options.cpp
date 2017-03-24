@@ -53,6 +53,7 @@ DeviceOptions::DeviceOptions(Allocator& a, int argc, const char** argv)
 	, _data_dir(a)
 	, _boot_dir(NULL)
 	, _platform(NULL)
+	, _lua_string(a)
 	, _wait_console(false)
 	, _do_compile(false)
 	, _do_continue(false)
@@ -198,6 +199,10 @@ int DeviceOptions::parse()
 			return EXIT_FAILURE;
 		}
 	}
+
+	const char* ls = cl.get_parameter(0, "lua-string");
+	if (ls)
+		_lua_string = ls;
 
 	return EXIT_SUCCESS;
 }

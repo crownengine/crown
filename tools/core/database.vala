@@ -408,9 +408,7 @@ namespace Crown
 			reset();
 		}
 
-		/// <summary>
 		/// Resets database to clean state.
-		/// </summary>
 		public void reset()
 		{
 			_data.clear();
@@ -425,17 +423,19 @@ namespace Crown
 			_data.set("_objects", new HashMap<string, Value?>());
 		}
 
-		/// <summary>
 		/// Returns whether the database has been changed since last call to Save().
-		/// </summary>
 		public bool changed()
 		{
 			return _changed;
 		}
 
-		/// <summary>
+		/// Marks the database as changed without modifiying any data.
+		public void touch()
+		{
+			_changed = true;
+		}
+
 		/// Saves database to path.
-		/// </summary>
 		public void save(string path)
 		{
 			Hashtable json = encode();
@@ -443,9 +443,7 @@ namespace Crown
 			_changed = false;
 		}
 
-		/// <summary>
 		/// Loads database from path.
-		/// </summary>
 		public void load(string path)
 		{
 			Hashtable json = SJSON.load(path);
@@ -930,9 +928,7 @@ namespace Crown
 			_redo_points.clear();
 		}
 
-		/// <summary>
 		/// Duplicates the object specified by id and assign new_id to the duplicated object.
-		/// </summary>
 		public void duplicate(Guid id, Guid new_id)
 		{
 			assert(id != GUID_ZERO);
@@ -964,9 +960,7 @@ namespace Crown
 			}
 		}
 
-		/// <summary>
 		/// Copies the database to db under the given new_key.
-		/// </summary>
 		public void copy_to(Database db, string new_key)
 		{
 			assert(db != null);
