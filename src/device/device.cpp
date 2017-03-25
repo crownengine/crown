@@ -7,8 +7,6 @@
 #include "audio.h"
 #include "config.h"
 #include "config_resource.h"
-#include "console_api.h"
-#include "console_server.h"
 #include "console_server.h"
 #include "device.h"
 #include "device_event_queue.h"
@@ -142,10 +140,56 @@ private:
 	ProxyAllocator _allocator;
 };
 
-Device::Device(const DeviceOptions& opts)
+static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* user_data)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	DynamicString script(ta);
+
+	sjson::parse(json, obj);
+	sjson::parse_string(obj["script"], script);
+
+	((Device*)user_data)->_lua_environment->execute_string(script.c_str());
+}
+
+static void console_command(ConsoleServer& cs, TCPSocket client, const char* json, void* user_data)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	JsonArray args(ta);
+
+	sjson::parse(json, obj);
+	sjson::parse_array(obj["args"], args);
+
+	DynamicString cmd(ta);
+	sjson::parse_string(args[0], cmd);
+
+	if (cmd == "pause")
+		device()->pause();
+	else if (cmd == "unpause")
+		device()->unpause();
+	else if (cmd == "reload")
+	{
+		if (array::size(args) != 3)
+		{
+			cs.error(client, "Usage: reload type name");
+			return;
+		}
+
+		DynamicString type(ta);
+		DynamicString name(ta);
+		sjson::parse_string(args[1], type);
+		sjson::parse_string(args[2], name);
+
+		((Device*)user_data)->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
+	}
+}
+
+Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _device_options(opts)
 	, _boot_config(default_allocator())
+	, _console_server(&cs)
 	, _bundle_filesystem(NULL)
 	, _last_log(NULL)
 	, _resource_loader(NULL)
@@ -282,10 +326,10 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 
 void Device::run()
 {
-	console_server_globals::init();
-	load_console_api(*console_server());
+	_console_server->register_command("script",  console_command_script, this);
+	_console_server->register_command("command", console_command, this);
 
-	console_server()->listen(_device_options._console_port, _device_options._wait_console);
+	_console_server->listen(_device_options._console_port, _device_options._wait_console);
 
 	namespace cor = config_resource_internal;
 	namespace ftr = font_resource_internal;
@@ -422,7 +466,7 @@ void Device::run()
 		_time_since_start += _last_delta_time;
 
 		profiler_globals::clear();
-		console_server()->update();
+		_console_server->update();
 
 		RECORD_FLOAT("device.dt", _last_delta_time);
 		RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
@@ -488,8 +532,6 @@ void Device::run()
 	CE_DELETE(_allocator, _bundle_filesystem);
 
 	profiler_globals::shutdown();
-
-	console_server_globals::shutdown();
 
 	_allocator.clear();
 }
@@ -643,10 +685,12 @@ Device* _device = NULL;
 void run(const DeviceOptions& opts)
 {
 	CE_ASSERT(_device == NULL, "Crown already initialized");
-	_device = new (_buffer) Device(opts);
+	console_server_globals::init();
+	_device = new (_buffer) Device(opts, *console_server());
 	_device->run();
 	_device->~Device();
 	_device = NULL;
+	console_server_globals::shutdown();
 }
 
 Device* device()

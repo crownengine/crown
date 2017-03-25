@@ -7,7 +7,6 @@
 #include "compile_options.h"
 #include "config.h"
 #include "config_resource.h"
-#include "console_api.h"
 #include "console_server.h"
 #include "data_compiler.h"
 #include "device_options.h"
@@ -532,8 +531,6 @@ int main_data_compiler(int argc, char** argv)
 		return EXIT_FAILURE;
 
 	console_server_globals::init();
-	load_console_api(*console_server());
-
 	console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
 
 	namespace cor = config_resource_internal;
