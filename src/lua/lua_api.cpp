@@ -2473,21 +2473,21 @@ static int device_argv(lua_State* L)
 static int device_platform(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_string(device()->platform());
+	stack.push_string(CROWN_PLATFORM_NAME);
 	return 1;
 }
 
 static int device_architecture(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_string(device()->architecture());
+	stack.push_string(CROWN_ARCH_NAME);
 	return 1;
 }
 
 static int device_version(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_string(device()->version());
+	stack.push_string(CROWN_VERSION);
 	return 1;
 }
 

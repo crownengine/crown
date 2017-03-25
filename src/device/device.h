@@ -79,15 +79,6 @@ public:
 	/// Returns command line parameters.
 	const char** argv() const { return (const char**)_device_options._argv; }
 
-	/// Returns a string identifying what platform the engine is running on.
-	const char* platform() const { return CROWN_PLATFORM_NAME; }
-
-	/// Returns a string identifying what architecture the engine is running on.
-	const char* architecture() const { return CROWN_ARCH_NAME; }
-
-	/// Returns a string identifying the engine version.
-	const char* version() const { return CROWN_VERSION; }
-
 	/// Return the number of frames rendered.
 	u64 frame_count() const;
 

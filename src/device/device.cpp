@@ -320,7 +320,7 @@ void Device::run()
 	_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
-	logi(DEVICE, "Initializing Crown Engine %s %s %s", version(), platform(), architecture());
+	logi(DEVICE, "Initializing Crown Engine %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
 
 	profiler_globals::init();
 
