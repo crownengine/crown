@@ -14,6 +14,7 @@
 #include "render_world.h"
 #include "resource_manager.h"
 #include "scene_graph.h"
+#include "script_world.h"
 #include "sound_world.h"
 #include "temp_allocator.h"
 #include "unit_manager.h"
@@ -48,20 +49,23 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	_render_world = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um);
 	_physics_world = physics_world::create(*_allocator, rm, um, *_lines);
 	_sound_world = sound_world::create(*_allocator);
+	_script_world = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
 }
 
 World::~World()
 {
+	for (u32 i = 0; i < array::size(_levels); ++i)
+		CE_DELETE(*_allocator, _levels[i]);
+
+	for (u32 i = 0; i < array::size(_units); ++i)
+		_unit_manager->destroy(_units[i]);
+
 	destroy_debug_line(*_lines);
 	sound_world::destroy(*_allocator, _sound_world);
 	physics_world::destroy(*_allocator, _physics_world);
 	CE_DELETE(*_allocator, _render_world);
 	CE_DELETE(*_allocator, _scene_graph);
-
-	for (u32 i = 0; i < array::size(_levels); ++i)
-	{
-		CE_DELETE(*_allocator, _levels[i]);
-	}
+	CE_DELETE(*_allocator, _script_world);
 
 	_marker = 0;
 }
@@ -71,8 +75,6 @@ UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& 
 	const UnitResource* ur = (const UnitResource*)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
 	UnitId id = _unit_manager->create();
 	spawn_units(*this, *ur, pos, rot, &id);
-	array::push_back(_units, id);
-	post_unit_spawned_event(id);
 	return id;
 }
 
@@ -177,6 +179,8 @@ void World::update_scene(f32 dt)
 		);
 
 	_sound_world->update();
+
+	script_world::update(*_script_world, dt);
 
 	array::clear(_events);
 }
@@ -481,8 +485,9 @@ void World::Camera::update_projection_matrix()
 			, far_range
 			);
 		break;
+
 	default:
-		CE_FATAL("Oops, unknown projection type");
+		CE_FATAL("Unknown projection type");
 		break;
 	}
 }
@@ -492,6 +497,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 	SceneGraph* scene_graph = w._scene_graph;
 	RenderWorld* render_world = w._render_world;
 	PhysicsWorld* physics_world = w._physics_world;
+	ScriptWorld* script_world = w._script_world;
 
 	// Start of components data
 	const char* components_begin = (const char*)(&ur + 1);
@@ -580,7 +586,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const ScriptDesc* sd = (const ScriptDesc*)data;
 			for (u32 i = 0; i < component->num_instances; ++i, ++sd)
 			{
-				CE_FATAL("Not implemented");
+				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
 			}
 		}
 		else
@@ -588,6 +594,13 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			CE_FATAL("Unknown component type");
 		}
 	}
+
+	for (u32 i = 0; i < ur.num_units; ++i)
+		array::push_back(w._units, unit_lookup[i]);
+
+	// Post events
+	for (u32 i = 0; i < ur.num_units; ++i)
+		w.post_unit_spawned_event(unit_lookup[i]);
 }
 
 } // namespace crown

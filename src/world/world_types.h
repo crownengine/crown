@@ -21,6 +21,7 @@ struct MaterialManager;
 struct PhysicsWorld;
 struct RenderWorld;
 struct SceneGraph;
+struct ScriptWorld;
 struct ShaderManager;
 struct SoundWorld;
 struct UnitManager;
@@ -35,6 +36,7 @@ const u32 RENDER_WORLD_MARKER     = 0xc82277de;
 const u32 RESOURCE_PACKAGE_MARKER = 0x9a1ac68c;
 const u32 SCENE_GRAPH_MARKER      = 0x63a44dbf;
 const u32 WORLD_MARKER            = 0xfb6ce2d3;
+const u32 SCRIPT_WORLD_MARKER     = 0x78486cdc;
 
 const StringId32 COMPONENT_TYPE_ACTOR           = StringId32("actor");
 const StringId32 COMPONENT_TYPE_CAMERA          = StringId32("camera");
@@ -278,6 +280,7 @@ INSTANCE_ID(ColliderInstance);
 INSTANCE_ID(ActorInstance);
 INSTANCE_ID(ControllerInstance);
 INSTANCE_ID(JointInstance);
+INSTANCE_ID(ScriptInstance);
 
 /// Mesh renderer description.
 ///

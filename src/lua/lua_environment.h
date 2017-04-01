@@ -6,9 +6,10 @@
 #pragma once
 
 #include "config.h"
-#include "types.h"
-#include "resource_types.h"
+#include "lua_stack.h"
 #include "math_types.h"
+#include "resource_types.h"
+#include "types.h"
 #include <lua.hpp>
 
 namespace crown
@@ -39,10 +40,10 @@ struct LuaEnvironment
 	void load_libs();
 
 	/// Executes the lua resource @a lr.
-	void execute(const LuaResource* lr);
+	LuaStack execute(const LuaResource* lr);
 
 	/// Executes the @a lua string.
-	void execute_string(const char* lua);
+	LuaStack execute_string(const char* lua);
 
 	/// Adds the function with the given @a name and @a func to the table @a module.
 	void add_module_function(const char* module, const char* name, const lua_CFunction func);
@@ -59,6 +60,8 @@ struct LuaEnvironment
 	/// call_global("myfunc", 1, ARGUMENT_FLOAT, 3.14f)
 	/// Returns true if success, false otherwise
 	void call_global(const char* func, u8 argc, ...);
+
+	LuaStack get_global(const char* global);
 
 	/// Returns the number of temporary objects in use.
 	void temp_count(u32& num_vec3, u32& num_quat, u32& num_mat4);

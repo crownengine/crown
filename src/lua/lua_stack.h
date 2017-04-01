@@ -269,6 +269,15 @@ struct LuaStack
 		return p;
 	}
 
+	ScriptWorld* get_script_world(int i)
+	{
+		ScriptWorld* p = (ScriptWorld*)get_pointer(i);
+#if !CROWN_RELEASE
+		check_type(i, p);
+#endif // !CROWN_RELEASE
+		return p;
+	}
+
 	UnitId get_unit(int i)
 	{
 		u32 enc = (u32)(uintptr_t)get_pointer(i);
@@ -331,6 +340,12 @@ struct LuaStack
 	SoundInstanceId get_sound_instance_id(int i)
 	{
 		return get_id(i);
+	}
+
+	ScriptInstance get_script_instance(int i)
+	{
+		ScriptInstance inst = { get_id(i) };
+		return inst;
 	}
 
 	Vector2 get_vector2(int i)
@@ -545,6 +560,11 @@ struct LuaStack
 		push_pointer(world);
 	}
 
+	void push_script_world(ScriptWorld* world)
+	{
+		push_pointer(world);
+	}
+
 	void push_unit(UnitId id)
 	{
 		u32 encoded = (id._idx << 2) | UNIT_MARKER;
@@ -596,6 +616,11 @@ struct LuaStack
 		push_id(id);
 	}
 
+	void push_script_instance(ScriptInstance i)
+	{
+		push_id(i.i);
+	}
+
 	void push_vector2(const Vector2& v);
 	void push_vector3(const Vector3& v);
 	void push_matrix4x4(const Matrix4x4& m);
@@ -632,6 +657,16 @@ struct LuaStack
 		luaL_getmetatable(L, "Matrix4x4Box");
 		lua_setmetatable(L, -2);
 		*mat = m;
+	}
+
+	void push_value(int i)
+	{
+		lua_pushvalue(L, i);
+	}
+
+	void call(int nresults)
+	{
+		lua_pcall(L, 2, nresults, 0);
 	}
 
 #if !CROWN_RELEASE
@@ -679,6 +714,12 @@ struct LuaStack
 	{
 		if (!is_pointer(i) || *(u32*)p != LEVEL_MARKER)
 			luaL_typerror(L, i, "Level");
+	}
+
+	void check_type(int i, const ScriptWorld* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != SCRIPT_WORLD_MARKER)
+			luaL_typerror(L, i, "ScriptWorld");
 	}
 #endif // !CROWN_RELEASE
 };

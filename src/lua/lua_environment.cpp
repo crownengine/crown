@@ -111,21 +111,24 @@ void LuaEnvironment::load_libs()
 	lua_gc(L, LUA_GCRESTART, 0);
 }
 
-void LuaEnvironment::execute(const LuaResource* lr)
+LuaStack LuaEnvironment::execute(const LuaResource* lr)
 {
-	using namespace lua_resource;
+	LuaStack stack(L);
 	lua_pushcfunction(L, error_handler);
-	luaL_loadbuffer(L, program(lr), lr->size, "<unknown>");
-	lua_pcall(L, 0, 0, -2);
+	luaL_loadbuffer(L, lua_resource::program(lr), lr->size, "<unknown>");
+	lua_pcall(L, 0, 1, -2);
 	lua_pop(L, 1);
+	return stack;
 }
 
-void LuaEnvironment::execute_string(const char* s)
+LuaStack LuaEnvironment::execute_string(const char* s)
 {
+	LuaStack stack(L);
 	lua_pushcfunction(L, error_handler);
 	luaL_loadstring(L, s);
 	lua_pcall(L, 0, 0, -2);
 	lua_pop(L, 1);
+	return stack;
 }
 
 void LuaEnvironment::add_module_function(const char* module, const char* name, const lua_CFunction func)
@@ -194,6 +197,15 @@ void LuaEnvironment::call_global(const char* func, u8 argc, ...)
 	va_end(vl);
 	lua_pcall(L, argc, 0, -argc - 2);
 	lua_pop(L, -1);
+
+	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
+}
+
+LuaStack LuaEnvironment::get_global(const char* global)
+{
+	LuaStack stack(L);
+	lua_getglobal(L, global);
+	return stack;
 }
 
 Vector3* LuaEnvironment::next_vector3(const Vector3& v)
