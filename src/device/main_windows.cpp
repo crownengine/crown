@@ -716,14 +716,14 @@ int main(int argc, char** argv)
 
 #if CROWN_BUILD_UNIT_TESTS
 	CommandLine cl(argc, (const char**)argv);
-	if (cl.has_argument("run-unit-tests"))
+	if (cl.has_option("run-unit-tests"))
 	{
 		return main_unit_tests();
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
-	if (cl.has_argument("compile") || cl.has_argument("server"))
+	if (cl.has_option("compile") || cl.has_option("server"))
 	{
-		if (main_data_compiler(argc, argv) != EXIT_SUCCESS || !cl.has_argument("continue"))
+		if (main_data_compiler(argc, argv) != EXIT_SUCCESS || !cl.has_option("continue"))
 			return EXIT_FAILURE;
 	}
 

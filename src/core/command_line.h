@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "string_utils.h"
-
 namespace crown
 {
 /// Helper for parsing command line.
@@ -17,54 +15,16 @@ struct CommandLine
 	int _argc;
 	const char** _argv;
 
-	CommandLine(int argc, const char** argv)
-		: _argc(argc)
-		, _argv(argv)
-	{
-	}
+	/// Constructor.
+	CommandLine(int argc, const char** argv);
 
-	int find_argument(const char* longopt, char shortopt)
-	{
-		for (int i = 0; i < _argc; ++i)
-		{
-			if (is_longopt(_argv[i], longopt) || is_shortopt(_argv[i], shortopt))
-			{
-				return i;
-			}
-		}
+	/// Returns the i-th parameter of the option identified by
+	/// @a longopt or @a shortopt, or NULL if the parameter does not exist.
+	const char* get_parameter(int i, const char* longopt, char shortopt = '\0');
 
-		return _argc;
-	}
-
-	bool is_shortopt(const char* arg, char shortopt)
-	{
-		return shortopt != '\0'
-			&& strlen32(arg) > 1
-			&& arg[0] == '-'
-			&& arg[1] == shortopt
-			;
-	}
-
-	bool is_longopt(const char* arg, const char* longopt)
-	{
-		return longopt != NULL
-			&& strlen32(arg) > 2
-			&& arg[0] == '-'
-			&& arg[1] == '-'
-			&& strcmp(&arg[2], longopt) == 0
-			;
-	}
-
-	const char* get_parameter(int i, const char* longopt, char shortopt = '\0')
-	{
-		int argc = find_argument(longopt, shortopt);
-		return argc + i < _argc ? _argv[argc + i + 1] : NULL;
-	}
-
-	bool has_argument(const char* longopt, char shortopt = '\0')
-	{
-		return find_argument(longopt, shortopt) < _argc;
-	}
+	/// Returns whether the command line has the option identified
+	/// by @a longopt or @a shortopt.
+	bool has_option(const char* longopt, char shortopt = '\0');
 };
 
 } // namespace crown

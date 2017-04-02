@@ -71,13 +71,13 @@ int DeviceOptions::parse()
 {
 	CommandLine cl(_argc, _argv);
 
-	if (cl.has_argument("help", 'h'))
+	if (cl.has_option("help", 'h'))
 	{
 		help();
 		return EXIT_FAILURE;
 	}
 
-	if (cl.has_argument("version", 'v'))
+	if (cl.has_option("version", 'v'))
 	{
 		printf(CROWN_VERSION);
 		return EXIT_FAILURE;
@@ -97,7 +97,7 @@ int DeviceOptions::parse()
 		}
 	}
 
-	_do_compile = cl.has_argument("compile");
+	_do_compile = cl.has_option("compile");
 	if (_do_compile)
 	{
 		_platform = cl.get_parameter(0, "platform");
@@ -129,7 +129,7 @@ int DeviceOptions::parse()
 		}
 	}
 
-	_server = cl.has_argument("server");
+	_server = cl.has_option("server");
 	if (_server)
 	{
 		if (_source_dir.empty())
@@ -166,7 +166,7 @@ int DeviceOptions::parse()
 		}
 	}
 
-	_do_continue = cl.has_argument("continue");
+	_do_continue = cl.has_option("continue");
 
 	_boot_dir = cl.get_parameter(0, "boot-dir");
 	if (_boot_dir != NULL)
@@ -178,7 +178,7 @@ int DeviceOptions::parse()
 		}
 	}
 
-	_wait_console = cl.has_argument("wait-console");
+	_wait_console = cl.has_option("wait-console");
 
 	const char* parent = cl.get_parameter(0, "parent-window");
 	if (parent != NULL)
