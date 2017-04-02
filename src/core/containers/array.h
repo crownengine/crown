@@ -260,16 +260,6 @@ inline Array<T>::Array(Allocator& a)
 }
 
 template <typename T>
-inline Array<T>::Array(Allocator& a, u32 capacity)
-	: _allocator(&a)
-	, _capacity(0)
-	, _size(0)
-	, _data(NULL)
-{
-	array::resize(*this, capacity);
-}
-
-template <typename T>
 inline Array<T>::Array(const Array<T>& other)
 	: _allocator(other._allocator)
 	, _capacity(0)

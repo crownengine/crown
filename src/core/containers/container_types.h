@@ -32,7 +32,6 @@ struct Array
 	T* _data;
 
 	Array(Allocator& a);
-	Array(Allocator& a, u32 capacity);
 	Array(const Array<T>& other);
 	~Array();
 	T& operator[](u32 index);
@@ -60,7 +59,6 @@ struct Vector
 	T* _data;
 
 	Vector(Allocator& a);
-	Vector(Allocator& a, u32 capacity);
 	Vector(const Vector<T>& other);
 	~Vector();
 	T& operator[](u32 index);

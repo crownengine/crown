@@ -269,16 +269,6 @@ inline Vector<T>::Vector(Allocator& a)
 }
 
 template <typename T>
-inline Vector<T>::Vector(Allocator& a, u32 capacity)
-	: _allocator(&a)
-	, _capacity(0)
-	, _size(0)
-	, _data(NULL)
-{
-	vector::resize(*this, capacity);
-}
-
-template <typename T>
 inline Vector<T>::Vector(const Vector<T>& other)
 	: _allocator(other._allocator)
 	, _capacity(0)
