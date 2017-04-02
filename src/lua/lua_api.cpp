@@ -1171,19 +1171,29 @@ static int input_device_axis_id(lua_State* L, InputDevice& dev)
 	return 1;
 }
 
-#define KEYBOARD_FN(name) keyboard_##name
-#define MOUSE_FN(name) mouse_##name
-#define TOUCH_FN(name) touch_##name
-#define JOYPAD_FN(index, name) joypad_##name##index
+#define KEYBOARD(name)                                                          \
+	static int keyboard_ ## name(lua_State* L)                                  \
+	{                                                                           \
+		return input_device_ ## name(L, *device()->_input_manager->keyboard()); \
+	}
 
-#define KEYBOARD(name) static int KEYBOARD_FN(name)(lua_State* L)\
-	{ return input_device_##name(L, *device()->_input_manager->keyboard()); }
-#define MOUSE(name) static int MOUSE_FN(name)(lua_State* L)\
-	{ return input_device_##name(L, *device()->_input_manager->mouse()); }
-#define TOUCH(name) static int TOUCH_FN(name)(lua_State* L)\
-	{ return input_device_##name(L, *device()->_input_manager->touch()); }
-#define JOYPAD(index, name) static int JOYPAD_FN(index, name)(lua_State* L)\
-	{ return input_device_##name(L, *device()->_input_manager->joypad(index)); }
+#define MOUSE(name)                                                          \
+	static int mouse_ ## name(lua_State* L)                                  \
+	{                                                                        \
+		return input_device_ ## name(L, *device()->_input_manager->mouse()); \
+	}
+
+#define TOUCH(name)                                                          \
+	static int touch_ ## name(lua_State* L)                                  \
+	{                                                                        \
+		return input_device_ ## name(L, *device()->_input_manager->touch()); \
+	}
+
+#define PAD(index, name)                                                           \
+	static int pad ## index ## _ ## name(lua_State* L)                             \
+	{                                                                              \
+		return input_device_ ## name(L, *device()->_input_manager->joypad(index)); \
+	}
 
 KEYBOARD(name)
 KEYBOARD(connected)
@@ -1227,61 +1237,61 @@ TOUCH(axis_name)
 TOUCH(button_id)
 TOUCH(axis_id)
 
-JOYPAD(0, name)
-JOYPAD(0, connected)
-JOYPAD(0, num_buttons)
-JOYPAD(0, num_axes)
-JOYPAD(0, pressed)
-JOYPAD(0, released)
-JOYPAD(0, any_pressed)
-JOYPAD(0, any_released)
-JOYPAD(0, axis)
-JOYPAD(0, button_name)
-JOYPAD(0, axis_name)
-JOYPAD(0, button_id)
-JOYPAD(0, axis_id)
+PAD(0, name)
+PAD(0, connected)
+PAD(0, num_buttons)
+PAD(0, num_axes)
+PAD(0, pressed)
+PAD(0, released)
+PAD(0, any_pressed)
+PAD(0, any_released)
+PAD(0, axis)
+PAD(0, button_name)
+PAD(0, axis_name)
+PAD(0, button_id)
+PAD(0, axis_id)
 
-JOYPAD(1, name)
-JOYPAD(1, connected)
-JOYPAD(1, num_buttons)
-JOYPAD(1, num_axes)
-JOYPAD(1, pressed)
-JOYPAD(1, released)
-JOYPAD(1, any_pressed)
-JOYPAD(1, any_released)
-JOYPAD(1, axis)
-JOYPAD(1, button_name)
-JOYPAD(1, axis_name)
-JOYPAD(1, button_id)
-JOYPAD(1, axis_id)
+PAD(1, name)
+PAD(1, connected)
+PAD(1, num_buttons)
+PAD(1, num_axes)
+PAD(1, pressed)
+PAD(1, released)
+PAD(1, any_pressed)
+PAD(1, any_released)
+PAD(1, axis)
+PAD(1, button_name)
+PAD(1, axis_name)
+PAD(1, button_id)
+PAD(1, axis_id)
 
-JOYPAD(2, name)
-JOYPAD(2, connected)
-JOYPAD(2, num_buttons)
-JOYPAD(2, num_axes)
-JOYPAD(2, pressed)
-JOYPAD(2, released)
-JOYPAD(2, any_pressed)
-JOYPAD(2, any_released)
-JOYPAD(2, axis)
-JOYPAD(2, button_name)
-JOYPAD(2, axis_name)
-JOYPAD(2, button_id)
-JOYPAD(2, axis_id)
+PAD(2, name)
+PAD(2, connected)
+PAD(2, num_buttons)
+PAD(2, num_axes)
+PAD(2, pressed)
+PAD(2, released)
+PAD(2, any_pressed)
+PAD(2, any_released)
+PAD(2, axis)
+PAD(2, button_name)
+PAD(2, axis_name)
+PAD(2, button_id)
+PAD(2, axis_id)
 
-JOYPAD(3, name)
-JOYPAD(3, connected)
-JOYPAD(3, num_buttons)
-JOYPAD(3, num_axes)
-JOYPAD(3, pressed)
-JOYPAD(3, released)
-JOYPAD(3, any_pressed)
-JOYPAD(3, any_released)
-JOYPAD(3, axis)
-JOYPAD(3, button_name)
-JOYPAD(3, axis_name)
-JOYPAD(3, button_id)
-JOYPAD(3, axis_id)
+PAD(3, name)
+PAD(3, connected)
+PAD(3, num_buttons)
+PAD(3, num_axes)
+PAD(3, pressed)
+PAD(3, released)
+PAD(3, any_pressed)
+PAD(3, any_released)
+PAD(3, axis)
+PAD(3, button_name)
+PAD(3, axis_name)
+PAD(3, button_id)
+PAD(3, axis_id)
 
 static int world_spawn_unit(lua_State* L)
 {
@@ -3224,100 +3234,100 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Lightuserdata_mt", "__index",    lightuserdata_index);
 	env.add_module_function("Lightuserdata_mt", "__newindex", lightuserdata_newindex);
 
-	env.add_module_function("Keyboard", "name",         KEYBOARD_FN(name));
-	env.add_module_function("Keyboard", "connected",    KEYBOARD_FN(connected));
-	env.add_module_function("Keyboard", "num_buttons",  KEYBOARD_FN(num_buttons));
-	env.add_module_function("Keyboard", "num_axes",     KEYBOARD_FN(num_axes));
-	env.add_module_function("Keyboard", "pressed",      KEYBOARD_FN(pressed));
-	env.add_module_function("Keyboard", "released",     KEYBOARD_FN(released));
-	env.add_module_function("Keyboard", "any_pressed",  KEYBOARD_FN(any_pressed));
-	env.add_module_function("Keyboard", "any_released", KEYBOARD_FN(any_released));
-	env.add_module_function("Keyboard", "button_name",  KEYBOARD_FN(button_name));
-	env.add_module_function("Keyboard", "button_id",    KEYBOARD_FN(button_id));
+	env.add_module_function("Keyboard", "name",         keyboard_name);
+	env.add_module_function("Keyboard", "connected",    keyboard_connected);
+	env.add_module_function("Keyboard", "num_buttons",  keyboard_num_buttons);
+	env.add_module_function("Keyboard", "num_axes",     keyboard_num_axes);
+	env.add_module_function("Keyboard", "pressed",      keyboard_pressed);
+	env.add_module_function("Keyboard", "released",     keyboard_released);
+	env.add_module_function("Keyboard", "any_pressed",  keyboard_any_pressed);
+	env.add_module_function("Keyboard", "any_released", keyboard_any_released);
+	env.add_module_function("Keyboard", "button_name",  keyboard_button_name);
+	env.add_module_function("Keyboard", "button_id",    keyboard_button_id);
 
-	env.add_module_function("Mouse", "name",         MOUSE_FN(name));
-	env.add_module_function("Mouse", "connected",    MOUSE_FN(connected));
-	env.add_module_function("Mouse", "num_buttons",  MOUSE_FN(num_buttons));
-	env.add_module_function("Mouse", "num_axes",     MOUSE_FN(num_axes));
-	env.add_module_function("Mouse", "pressed",      MOUSE_FN(pressed));
-	env.add_module_function("Mouse", "released",     MOUSE_FN(released));
-	env.add_module_function("Mouse", "any_pressed",  MOUSE_FN(any_pressed));
-	env.add_module_function("Mouse", "any_released", MOUSE_FN(any_released));
-	env.add_module_function("Mouse", "axis",         MOUSE_FN(axis));
-	env.add_module_function("Mouse", "button_name",  MOUSE_FN(button_name));
-	env.add_module_function("Mouse", "axis_name",    MOUSE_FN(axis_name));
-	env.add_module_function("Mouse", "button_id",    MOUSE_FN(button_id));
-	env.add_module_function("Mouse", "axis_id",      MOUSE_FN(axis_id));
+	env.add_module_function("Mouse", "name",         mouse_name);
+	env.add_module_function("Mouse", "connected",    mouse_connected);
+	env.add_module_function("Mouse", "num_buttons",  mouse_num_buttons);
+	env.add_module_function("Mouse", "num_axes",     mouse_num_axes);
+	env.add_module_function("Mouse", "pressed",      mouse_pressed);
+	env.add_module_function("Mouse", "released",     mouse_released);
+	env.add_module_function("Mouse", "any_pressed",  mouse_any_pressed);
+	env.add_module_function("Mouse", "any_released", mouse_any_released);
+	env.add_module_function("Mouse", "axis",         mouse_axis);
+	env.add_module_function("Mouse", "button_name",  mouse_button_name);
+	env.add_module_function("Mouse", "axis_name",    mouse_axis_name);
+	env.add_module_function("Mouse", "button_id",    mouse_button_id);
+	env.add_module_function("Mouse", "axis_id",      mouse_axis_id);
 
-	env.add_module_function("Touch", "name",         TOUCH_FN(name));
-	env.add_module_function("Touch", "connected",    TOUCH_FN(connected));
-	env.add_module_function("Touch", "num_buttons",  TOUCH_FN(num_buttons));
-	env.add_module_function("Touch", "num_axes",     TOUCH_FN(num_axes));
-	env.add_module_function("Touch", "pressed",      TOUCH_FN(pressed));
-	env.add_module_function("Touch", "released",     TOUCH_FN(released));
-	env.add_module_function("Touch", "any_pressed",  TOUCH_FN(any_pressed));
-	env.add_module_function("Touch", "any_released", TOUCH_FN(any_released));
-	env.add_module_function("Touch", "axis",         TOUCH_FN(axis));
-	env.add_module_function("Touch", "button_name",  TOUCH_FN(button_name));
-	env.add_module_function("Touch", "axis_name",    TOUCH_FN(axis_name));
-	env.add_module_function("Touch", "button_id",    TOUCH_FN(button_id));
-	env.add_module_function("Touch", "axis_id",      TOUCH_FN(axis_id));
+	env.add_module_function("Touch", "name",         touch_name);
+	env.add_module_function("Touch", "connected",    touch_connected);
+	env.add_module_function("Touch", "num_buttons",  touch_num_buttons);
+	env.add_module_function("Touch", "num_axes",     touch_num_axes);
+	env.add_module_function("Touch", "pressed",      touch_pressed);
+	env.add_module_function("Touch", "released",     touch_released);
+	env.add_module_function("Touch", "any_pressed",  touch_any_pressed);
+	env.add_module_function("Touch", "any_released", touch_any_released);
+	env.add_module_function("Touch", "axis",         touch_axis);
+	env.add_module_function("Touch", "button_name",  touch_button_name);
+	env.add_module_function("Touch", "axis_name",    touch_axis_name);
+	env.add_module_function("Touch", "button_id",    touch_button_id);
+	env.add_module_function("Touch", "axis_id",      touch_axis_id);
 
-	env.add_module_function("Pad1", "name",         JOYPAD_FN(0, name));
-	env.add_module_function("Pad1", "connected",    JOYPAD_FN(0, connected));
-	env.add_module_function("Pad1", "num_buttons",  JOYPAD_FN(0, num_buttons));
-	env.add_module_function("Pad1", "num_axes",     JOYPAD_FN(0, num_axes));
-	env.add_module_function("Pad1", "pressed",      JOYPAD_FN(0, pressed));
-	env.add_module_function("Pad1", "released",     JOYPAD_FN(0, released));
-	env.add_module_function("Pad1", "any_pressed",  JOYPAD_FN(0, any_pressed));
-	env.add_module_function("Pad1", "any_released", JOYPAD_FN(0, any_released));
-	env.add_module_function("Pad1", "axis",         JOYPAD_FN(0, axis));
-	env.add_module_function("Pad1", "button_name",  JOYPAD_FN(0, button_name));
-	env.add_module_function("Pad1", "axis_name",    JOYPAD_FN(0, axis_name));
-	env.add_module_function("Pad1", "button_id",    JOYPAD_FN(0, button_id));
-	env.add_module_function("Pad1", "axis_id",      JOYPAD_FN(0, axis_id));
+	env.add_module_function("Pad1", "name",         pad0_name);
+	env.add_module_function("Pad1", "connected",    pad0_connected);
+	env.add_module_function("Pad1", "num_buttons",  pad0_num_buttons);
+	env.add_module_function("Pad1", "num_axes",     pad0_num_axes);
+	env.add_module_function("Pad1", "pressed",      pad0_pressed);
+	env.add_module_function("Pad1", "released",     pad0_released);
+	env.add_module_function("Pad1", "any_pressed",  pad0_any_pressed);
+	env.add_module_function("Pad1", "any_released", pad0_any_released);
+	env.add_module_function("Pad1", "axis",         pad0_axis);
+	env.add_module_function("Pad1", "button_name",  pad0_button_name);
+	env.add_module_function("Pad1", "axis_name",    pad0_axis_name);
+	env.add_module_function("Pad1", "button_id",    pad0_button_id);
+	env.add_module_function("Pad1", "axis_id",      pad0_axis_id);
 
-	env.add_module_function("Pad2", "name",         JOYPAD_FN(1, name));
-	env.add_module_function("Pad2", "connected",    JOYPAD_FN(1, connected));
-	env.add_module_function("Pad2", "num_buttons",  JOYPAD_FN(1, num_buttons));
-	env.add_module_function("Pad2", "num_axes",     JOYPAD_FN(1, num_axes));
-	env.add_module_function("Pad2", "pressed",      JOYPAD_FN(1, pressed));
-	env.add_module_function("Pad2", "released",     JOYPAD_FN(1, released));
-	env.add_module_function("Pad2", "any_pressed",  JOYPAD_FN(1, any_pressed));
-	env.add_module_function("Pad2", "any_released", JOYPAD_FN(1, any_released));
-	env.add_module_function("Pad2", "axis",         JOYPAD_FN(1, axis));
-	env.add_module_function("Pad2", "button_name",  JOYPAD_FN(1, button_name));
-	env.add_module_function("Pad2", "axis_name",    JOYPAD_FN(1, axis_name));
-	env.add_module_function("Pad2", "button_id",    JOYPAD_FN(1, button_id));
-	env.add_module_function("Pad2", "axis_id",      JOYPAD_FN(1, axis_id));
+	env.add_module_function("Pad2", "name",         pad1_name);
+	env.add_module_function("Pad2", "connected",    pad1_connected);
+	env.add_module_function("Pad2", "num_buttons",  pad1_num_buttons);
+	env.add_module_function("Pad2", "num_axes",     pad1_num_axes);
+	env.add_module_function("Pad2", "pressed",      pad1_pressed);
+	env.add_module_function("Pad2", "released",     pad1_released);
+	env.add_module_function("Pad2", "any_pressed",  pad1_any_pressed);
+	env.add_module_function("Pad2", "any_released", pad1_any_released);
+	env.add_module_function("Pad2", "axis",         pad1_axis);
+	env.add_module_function("Pad2", "button_name",  pad1_button_name);
+	env.add_module_function("Pad2", "axis_name",    pad1_axis_name);
+	env.add_module_function("Pad2", "button_id",    pad1_button_id);
+	env.add_module_function("Pad2", "axis_id",      pad1_axis_id);
 
-	env.add_module_function("Pad3", "name",         JOYPAD_FN(2, name));
-	env.add_module_function("Pad3", "connected",    JOYPAD_FN(2, connected));
-	env.add_module_function("Pad3", "num_buttons",  JOYPAD_FN(2, num_buttons));
-	env.add_module_function("Pad3", "num_axes",     JOYPAD_FN(2, num_axes));
-	env.add_module_function("Pad3", "pressed",      JOYPAD_FN(2, pressed));
-	env.add_module_function("Pad3", "released",     JOYPAD_FN(2, released));
-	env.add_module_function("Pad3", "any_pressed",  JOYPAD_FN(2, any_pressed));
-	env.add_module_function("Pad3", "any_released", JOYPAD_FN(2, any_released));
-	env.add_module_function("Pad3", "axis",         JOYPAD_FN(2, axis));
-	env.add_module_function("Pad3", "button_name",  JOYPAD_FN(2, button_name));
-	env.add_module_function("Pad3", "axis_name",    JOYPAD_FN(2, axis_name));
-	env.add_module_function("Pad3", "button_id",    JOYPAD_FN(2, button_id));
-	env.add_module_function("Pad3", "axis_id",      JOYPAD_FN(2, axis_id));
+	env.add_module_function("Pad3", "name",         pad2_name);
+	env.add_module_function("Pad3", "connected",    pad2_connected);
+	env.add_module_function("Pad3", "num_buttons",  pad2_num_buttons);
+	env.add_module_function("Pad3", "num_axes",     pad2_num_axes);
+	env.add_module_function("Pad3", "pressed",      pad2_pressed);
+	env.add_module_function("Pad3", "released",     pad2_released);
+	env.add_module_function("Pad3", "any_pressed",  pad2_any_pressed);
+	env.add_module_function("Pad3", "any_released", pad2_any_released);
+	env.add_module_function("Pad3", "axis",         pad2_axis);
+	env.add_module_function("Pad3", "button_name",  pad2_button_name);
+	env.add_module_function("Pad3", "axis_name",    pad2_axis_name);
+	env.add_module_function("Pad3", "button_id",    pad2_button_id);
+	env.add_module_function("Pad3", "axis_id",      pad2_axis_id);
 
-	env.add_module_function("Pad4", "name",         JOYPAD_FN(3, name));
-	env.add_module_function("Pad4", "connected",    JOYPAD_FN(3, connected));
-	env.add_module_function("Pad4", "num_buttons",  JOYPAD_FN(3, num_buttons));
-	env.add_module_function("Pad4", "num_axes",     JOYPAD_FN(3, num_axes));
-	env.add_module_function("Pad4", "pressed",      JOYPAD_FN(3, pressed));
-	env.add_module_function("Pad4", "released",     JOYPAD_FN(3, released));
-	env.add_module_function("Pad4", "any_pressed",  JOYPAD_FN(3, any_pressed));
-	env.add_module_function("Pad4", "any_released", JOYPAD_FN(3, any_released));
-	env.add_module_function("Pad4", "axis",         JOYPAD_FN(3, axis));
-	env.add_module_function("Pad4", "button_name",  JOYPAD_FN(3, button_name));
-	env.add_module_function("Pad4", "axis_name",    JOYPAD_FN(3, axis_name));
-	env.add_module_function("Pad4", "button_id",    JOYPAD_FN(3, button_id));
-	env.add_module_function("Pad4", "axis_id",      JOYPAD_FN(3, axis_id));
+	env.add_module_function("Pad4", "name",         pad3_name);
+	env.add_module_function("Pad4", "connected",    pad3_connected);
+	env.add_module_function("Pad4", "num_buttons",  pad3_num_buttons);
+	env.add_module_function("Pad4", "num_axes",     pad3_num_axes);
+	env.add_module_function("Pad4", "pressed",      pad3_pressed);
+	env.add_module_function("Pad4", "released",     pad3_released);
+	env.add_module_function("Pad4", "any_pressed",  pad3_any_pressed);
+	env.add_module_function("Pad4", "any_released", pad3_any_released);
+	env.add_module_function("Pad4", "axis",         pad3_axis);
+	env.add_module_function("Pad4", "button_name",  pad3_button_name);
+	env.add_module_function("Pad4", "axis_name",    pad3_axis_name);
+	env.add_module_function("Pad4", "button_id",    pad3_button_id);
+	env.add_module_function("Pad4", "axis_id",      pad3_axis_id);
 
 	env.add_module_function("World", "spawn_unit",                      world_spawn_unit);
 	env.add_module_function("World", "spawn_empty_unit",                world_spawn_empty_unit);
