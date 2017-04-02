@@ -19,7 +19,7 @@
 		{                                                                 \
 			if (!(condition))                                             \
 			{                                                             \
-				stack.push_fstring("\nAassertion failed: %s\n\t" msg "\n" \
+				stack.push_fstring("Aassertion failed: %s\n    " msg "\n" \
 					, # condition                                         \
 					, ## __VA_ARGS__                                      \
 					);                                                    \
