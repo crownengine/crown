@@ -101,15 +101,15 @@ int DeviceOptions::parse()
 	if (_do_compile)
 	{
 		_platform = cl.get_parameter(0, "platform");
-		if (_platform == NULL)
+		if (!_platform)
 		{
 			help("Platform must be specified.");
 			return EXIT_FAILURE;
 		}
 		else if (true
-			&& strcmp("android", _platform) != 0
-			&& strcmp("linux", _platform) != 0
-			&& strcmp("windows", _platform) != 0
+			&& strcmp(_platform, "android") != 0
+			&& strcmp(_platform, "linux") != 0
+			&& strcmp(_platform, "windows") != 0
 			)
 		{
 			help("Unknown platform.");
@@ -169,7 +169,7 @@ int DeviceOptions::parse()
 	_do_continue = cl.has_option("continue");
 
 	_boot_dir = cl.get_parameter(0, "boot-dir");
-	if (_boot_dir != NULL)
+	if (_boot_dir)
 	{
 		if (!path::is_relative(_boot_dir))
 		{
@@ -181,7 +181,7 @@ int DeviceOptions::parse()
 	_wait_console = cl.has_option("wait-console");
 
 	const char* parent = cl.get_parameter(0, "parent-window");
-	if (parent != NULL)
+	if (parent)
 	{
 		if (sscanf(parent, "%u", &_parent_window) != 1)
 		{
@@ -191,7 +191,7 @@ int DeviceOptions::parse()
 	}
 
 	const char* port = cl.get_parameter(0, "console-port");
-	if (port != NULL)
+	if (port)
 	{
 		if (sscanf(port, "%hu", &_console_port) != 1)
 		{
