@@ -14,18 +14,18 @@
 #include <lua.hpp>
 
 #if CROWN_DEBUG
-	#define LUA_ASSERT(condition, stack, msg, ...)                        \
-		do                                                                \
-		{                                                                 \
-			if (!(condition))                                             \
-			{                                                             \
-				stack.push_fstring("Aassertion failed: %s\n    " msg "\n" \
-					, # condition                                         \
-					, ## __VA_ARGS__                                      \
-					);                                                    \
-				lua_error(stack.L);                                       \
-			}                                                             \
-		}                                                                 \
+	#define LUA_ASSERT(condition, stack, msg, ...)                       \
+		do                                                               \
+		{                                                                \
+			if (!(condition))                                            \
+			{                                                            \
+				stack.push_fstring("Assertion failed: %s\n    " msg "\n" \
+					, # condition                                        \
+					, ## __VA_ARGS__                                     \
+					);                                                   \
+				lua_error(stack.L);                                      \
+			}                                                            \
+		}                                                                \
 		while (0)
 #else
 	#define LUA_ASSERT(...) CE_NOOP()
