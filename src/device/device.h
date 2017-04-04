@@ -16,7 +16,6 @@
 #include "filesystem_types.h"
 #include "input_types.h"
 #include "linear_allocator.h"
-#include "log.h"
 #include "lua_types.h"
 #include "resource_types.h"
 #include "string_id.h"
