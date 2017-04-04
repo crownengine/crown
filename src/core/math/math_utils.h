@@ -12,10 +12,10 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
-const f32 PI            = 3.14159265358979323846f;
-const f32 PI_TWO        = 6.28318530717958647693f;
-const f32 PI_HALF       = 1.57079632679489661923f;
-const f32 FLOAT_EPSILON = 1.0e-7f;
+static const f32 PI            = 3.14159265358979323846f;
+static const f32 PI_TWO        = 6.28318530717958647693f;
+static const f32 PI_HALF       = 1.57079632679489661923f;
+static const f32 FLOAT_EPSILON = 1.0e-7f;
 
 /// Returns whether @a a and @a b are equal according to @a epsilon.
 inline bool fequal(f32 a, f32 b, f32 epsilon = FLOAT_EPSILON)

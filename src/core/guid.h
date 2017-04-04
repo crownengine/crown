@@ -49,6 +49,6 @@ inline bool operator==(const Guid& a, const Guid& b)
 		;
 }
 
-const Guid GUID_ZERO = { 0u, 0u, 0u, 0u };
+static const Guid GUID_ZERO = { 0u, 0u, 0u, 0u };
 
 } // namespace crown

@@ -29,24 +29,24 @@ struct World;
 
 typedef u32 SoundInstanceId;
 
-const u32 DEBUG_LINE_MARKER       = 0xd7c17715;
-const u32 DEBUG_GUI_MARKER        = 0xf081a80a;
-const u32 LEVEL_MARKER            = 0x1f2b43fe;
-const u32 RENDER_WORLD_MARKER     = 0xc82277de;
-const u32 RESOURCE_PACKAGE_MARKER = 0x9a1ac68c;
-const u32 SCENE_GRAPH_MARKER      = 0x63a44dbf;
-const u32 WORLD_MARKER            = 0xfb6ce2d3;
-const u32 SCRIPT_WORLD_MARKER     = 0x78486cdc;
+#define DEBUG_LINE_MARKER       0xd7c17715
+#define DEBUG_GUI_MARKER        0xf081a80a
+#define LEVEL_MARKER            0x1f2b43fe
+#define RENDER_WORLD_MARKER     0xc82277de
+#define RESOURCE_PACKAGE_MARKER 0x9a1ac68c
+#define SCENE_GRAPH_MARKER      0x63a44dbf
+#define WORLD_MARKER            0xfb6ce2d3
+#define SCRIPT_WORLD_MARKER     0x78486cdc
 
-const StringId32 COMPONENT_TYPE_ACTOR           = StringId32("actor");
-const StringId32 COMPONENT_TYPE_CAMERA          = StringId32("camera");
-const StringId32 COMPONENT_TYPE_COLLIDER        = StringId32("collider");
-const StringId32 COMPONENT_TYPE_CONTROLLER      = StringId32("controller");
-const StringId32 COMPONENT_TYPE_LIGHT           = StringId32("light");
-const StringId32 COMPONENT_TYPE_MESH_RENDERER   = StringId32("mesh_renderer");
-const StringId32 COMPONENT_TYPE_SPRITE_RENDERER = StringId32("sprite_renderer");
-const StringId32 COMPONENT_TYPE_TRANSFORM       = StringId32("transform");
-const StringId32 COMPONENT_TYPE_SCRIPT          = StringId32("script");
+static const StringId32 COMPONENT_TYPE_ACTOR           = StringId32("actor");
+static const StringId32 COMPONENT_TYPE_CAMERA          = StringId32("camera");
+static const StringId32 COMPONENT_TYPE_COLLIDER        = StringId32("collider");
+static const StringId32 COMPONENT_TYPE_CONTROLLER      = StringId32("controller");
+static const StringId32 COMPONENT_TYPE_LIGHT           = StringId32("light");
+static const StringId32 COMPONENT_TYPE_MESH_RENDERER   = StringId32("mesh_renderer");
+static const StringId32 COMPONENT_TYPE_SPRITE_RENDERER = StringId32("sprite_renderer");
+static const StringId32 COMPONENT_TYPE_TRANSFORM       = StringId32("transform");
+static const StringId32 COMPONENT_TYPE_SCRIPT          = StringId32("script");
 
 /// Enumerates camera projection types.
 ///
