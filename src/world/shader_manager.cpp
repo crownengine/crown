@@ -4,11 +4,11 @@
  */
 
 #include "array.h"
+#include "hash_map.h"
 #include "reader_writer.h"
 #include "resource_manager.h"
 #include "shader_manager.h"
 #include "shader_resource.h"
-#include "sort_map.h"
 #include "string_utils.h"
 
 namespace crown
@@ -88,12 +88,11 @@ void ShaderManager::offline(StringId64 id, ResourceManager& rm)
 		ShaderData sd;
 		sd.state = BGFX_STATE_DEFAULT;
 		sd.program = BGFX_INVALID_HANDLE;
-		sd = sort_map::get(_shader_map, data.name, sd);
+		sd = hash_map::get(_shader_map, data.name, sd);
 
 		bgfx::destroyProgram(sd.program);
 
-		sort_map::remove(_shader_map, data.name);
-		sort_map::sort(_shader_map);
+		hash_map::remove(_shader_map, data.name);
 	}
 }
 
@@ -107,17 +106,16 @@ void ShaderManager::add_shader(StringId32 name, u64 state, bgfx::ProgramHandle p
 	ShaderData sd;
 	sd.state = state;
 	sd.program = program;
-	sort_map::set(_shader_map, name, sd);
-	sort_map::sort(_shader_map);
+	hash_map::set(_shader_map, name, sd);
 }
 
 void ShaderManager::submit(StringId32 shader_id, u8 view_id)
 {
-	CE_ASSERT(sort_map::has(_shader_map, shader_id), "Shader not found");
+	CE_ASSERT(hash_map::has(_shader_map, shader_id), "Shader not found");
 	ShaderData sd;
 	sd.state = BGFX_STATE_DEFAULT;
 	sd.program = BGFX_INVALID_HANDLE;
-	sd = sort_map::get(_shader_map, shader_id, sd);
+	sd = hash_map::get(_shader_map, shader_id, sd);
 
 	bgfx::setState(sd.state);
 	bgfx::submit(view_id, sd.program);

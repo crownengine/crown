@@ -25,7 +25,7 @@ struct ShaderManager
 		bgfx::ProgramHandle program;
 	};
 
-	typedef SortMap<StringId32, ShaderData> ShaderMap;
+	typedef HashMap<StringId32, ShaderData> ShaderMap;
 	ShaderMap _shader_map;
 
 	void add_shader(StringId32 name, u64 state, bgfx::ProgramHandle program);
