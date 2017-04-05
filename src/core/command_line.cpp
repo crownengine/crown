@@ -8,37 +8,34 @@
 
 namespace crown
 {
-namespace
+static bool is_shortopt(const char* arg, char shortopt)
 {
-	bool is_shortopt(const char* arg, char shortopt)
+	return shortopt != '\0'
+		&& strlen32(arg) > 1
+		&& arg[0] == '-'
+		&& arg[1] == shortopt
+		;
+}
+
+static bool is_longopt(const char* arg, const char* longopt)
+{
+	return longopt != NULL
+		&& strlen32(arg) > 2
+		&& arg[0] == '-'
+		&& arg[1] == '-'
+		&& strcmp(&arg[2], longopt) == 0
+		;
+}
+
+static int find_option(int argc, const char** argv, const char* longopt, char shortopt)
+{
+	for (int i = 0; i < argc; ++i)
 	{
-		return shortopt != '\0'
-			&& strlen32(arg) > 1
-			&& arg[0] == '-'
-			&& arg[1] == shortopt
-			;
+		if (is_longopt(argv[i], longopt) || is_shortopt(argv[i], shortopt))
+			return i;
 	}
 
-	bool is_longopt(const char* arg, const char* longopt)
-	{
-		return longopt != NULL
-			&& strlen32(arg) > 2
-			&& arg[0] == '-'
-			&& arg[1] == '-'
-			&& strcmp(&arg[2], longopt) == 0
-			;
-	}
-
-	int find_option(int argc, const char** argv, const char* longopt, char shortopt)
-	{
-		for (int i = 0; i < argc; ++i)
-		{
-			if (is_longopt(argv[i], longopt) || is_shortopt(argv[i], shortopt))
-				return i;
-		}
-
-		return argc;
-	}
+	return argc;
 }
 
 CommandLine::CommandLine(int argc, const char** argv)
