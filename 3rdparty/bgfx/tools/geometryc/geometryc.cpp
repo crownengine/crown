@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -61,7 +61,6 @@ namespace stl = tinystl;
 #include <bx/hash.h>
 #include <bx/uint32_t.h>
 #include <bx/fpumath.h>
-#include <bx/tokenizecmd.h>
 #include <bx/crtimpl.h>
 
 #include "bounds.h"
@@ -286,7 +285,7 @@ void write(bx::WriterI* _writer, const void* _vertices, uint32_t _numVertices, u
 	}
 
 	Aabb aabb;
-	calcAabb(aabb, _vertices, _numVertices, _stride);
+	toAabb(aabb, _vertices, _numVertices, _stride);
 	bx::write(_writer, aabb);
 
 	Obb obb;
@@ -360,7 +359,7 @@ void help(const char* _error = NULL)
 
 	fprintf(stderr
 		, "geometryc, bgfx geometry compiler tool\n"
-		  "Copyright 2011-2016 Branimir Karadzic. All rights reserved.\n"
+		  "Copyright 2011-2017 Branimir Karadzic. All rights reserved.\n"
 		  "License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause\n\n"
 		);
 
@@ -525,13 +524,13 @@ int main(int _argc, const char* _argv[])
 						index.m_vbc = 0;
 					}
 
-					char* vertex   = argv[edge+1];
-					char* texcoord = strchr(vertex, '/');
+					const char* vertex   = argv[edge+1];
+					char* texcoord = const_cast<char*>(bx::strnchr(vertex, '/') );
 					if (NULL != texcoord)
 					{
 						*texcoord++ = '\0';
 
-						char* normal = strchr(texcoord, '/');
+						char* normal = const_cast<char*>(bx::strnchr(texcoord, '/') );
 						if (NULL != normal)
 						{
 							*normal++ = '\0';
@@ -861,7 +860,7 @@ int main(int _argc, const char* _argv[])
 
 				if (hasTangent)
 				{
-					calcTangents(vertexData, numVertices, decl, indexData, numIndices);
+					calcTangents(vertexData, uint16_t(numVertices), decl, indexData, numIndices);
 				}
 
 				bx::MemoryWriter memWriter(&memBlock);
@@ -878,7 +877,7 @@ int main(int _argc, const char* _argv[])
 							, prim1.m_numIndices
 							, vertexData + prim1.m_startVertex
 							, numVertices
-							, stride
+							, uint16_t(stride)
 							);
 					}
 				}
@@ -992,7 +991,7 @@ int main(int _argc, const char* _argv[])
 	{
 		if (hasTangent)
 		{
-			calcTangents(vertexData, numVertices, decl, indexData, numIndices);
+			calcTangents(vertexData, uint16_t(numVertices), decl, indexData, numIndices);
 		}
 
 		bx::MemoryWriter memWriter(&memBlock);
@@ -1009,7 +1008,7 @@ int main(int _argc, const char* _argv[])
 					, prim1.m_numIndices
 					, vertexData + prim1.m_startVertex
 					, numVertices
-					, stride
+					, uint16_t(stride)
 					);
 			}
 		}

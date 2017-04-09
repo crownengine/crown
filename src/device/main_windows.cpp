@@ -13,7 +13,7 @@
 #include "device_event_queue.h"
 #include "thread.h"
 #include "unit_tests.h"
-#include <bgfx/bgfxplatform.h>
+#include <bgfx/platform.h>
 #include <winsock2.h>
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN

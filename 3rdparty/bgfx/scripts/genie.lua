@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2016 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2017 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 --
 
@@ -72,6 +72,7 @@ solution "bgfx"
 
 MODULE_DIR = path.getabsolute("../")
 BGFX_DIR   = path.getabsolute("..")
+BIMG_DIR   = path.getabsolute(path.join(BGFX_DIR, "../bimg"))
 BX_DIR     = os.getenv("BX_DIR")
 
 local BGFX_BUILD_DIR = path.join(BGFX_DIR, ".build")
@@ -85,10 +86,6 @@ if not os.isdir(BX_DIR) then
 	print("For more info see: https://bkaradzic.github.io/bgfx/build.html")
 	os.exit()
 end
-
-defines {
-	"BX_CONFIG_ENABLE_MSVC_LEVEL4_WARNINGS=1"
-}
 
 dofile (path.join(BX_DIR, "scripts/toolchain.lua"))
 if not toolchain(BGFX_BUILD_DIR, BGFX_THIRD_PARTY_DIR) then
@@ -126,6 +123,7 @@ function exampleProject(_name)
 
 	includedirs {
 		path.join(BX_DIR,   "include"),
+		path.join(BIMG_DIR, "include"),
 		path.join(BGFX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty"),
 		path.join(BGFX_DIR, "examples/common"),
@@ -141,9 +139,16 @@ function exampleProject(_name)
 		path.join(BGFX_DIR, "examples", _name, "**.bin.h"),
 	}
 
+	flags {
+		"FatalWarnings",
+	}
+
 	links {
-		"bgfx",
 		"example-common",
+		"bgfx",
+		"bimg_decode",
+		"bimg",
+		"bx",
 	}
 
 	if _OPTIONS["with-sdl"] then
@@ -363,6 +368,11 @@ dofile "bgfx.lua"
 group "libs"
 bgfxProject("", "StaticLib", {})
 
+dofile(path.join(BX_DIR,   "scripts/bx.lua"))
+dofile(path.join(BIMG_DIR, "scripts/bimg.lua"))
+dofile(path.join(BIMG_DIR, "scripts/bimg_decode.lua"))
+dofile(path.join(BIMG_DIR, "scripts/bimg_encode.lua"))
+
 if _OPTIONS["with-examples"] or _OPTIONS["with-tools"] then
 	group "examples"
 	dofile "example-common.lua"
@@ -401,6 +411,8 @@ if _OPTIONS["with-examples"] then
 	exampleProject("29-debugdraw")
 	exampleProject("30-picking")
 	exampleProject("31-rsm")
+	exampleProject("32-particles")
+	exampleProject("33-pom")
 
 	-- C99 source doesn't compile under WinRT settings
 	if not premake.vstudio.iswinrt() then

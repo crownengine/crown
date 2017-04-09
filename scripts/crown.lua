@@ -35,6 +35,8 @@ function crown_project(_name, _kind, _defines)
 
 		links {
 			"bgfx",
+			"bx",
+			"bimg",
 		}
 
 		if _OPTIONS["with-luajit"] then

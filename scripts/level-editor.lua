@@ -3,9 +3,6 @@
 -- License: https://github.com/taylor001/crown/blob/master/LICENSE
 --
 
--- FIXME: Fix this in GENie
-premake.valac.valac = premake.valac.valac .. " --gresources=" .. CROWN_DIR .. "tools/ui/resources.xml" .. " --target-glib=2.38"
-
 project "level-editor"
 	kind "ConsoleApp"
 	language "Vala"
@@ -57,6 +54,11 @@ project "level-editor"
 		"-Wno-unused-variable",
 		"-Wno-unused-parameter",
 		"-Wno-unused-but-set-variable",
+	}
+
+	buildoptions_vala {
+		"--gresources=" .. CROWN_DIR .. "tools/ui/resources.xml",
+		"--target-glib=2.38",
 	}
 
 	files {

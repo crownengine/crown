@@ -7,6 +7,7 @@ CROWN_DIR = (path.getabsolute("..") .. "/")
 local CROWN_THIRD_DIR  = (CROWN_DIR .. "3rdparty/")
 local CROWN_BUILD_DIR  = (CROWN_DIR .. "build/")
 BGFX_DIR = (CROWN_DIR .. "3rdparty/bgfx/")
+BIMG_DIR = (CROWN_DIR .. "3rdparty/bimg/")
 BX_DIR = (CROWN_DIR .. "3rdparty/bx/")
 
 function copyLib()
@@ -55,13 +56,20 @@ solution "crown"
 	configuration {}
 
 dofile ("toolchain.lua")
-dofile (BGFX_DIR .. "scripts/bgfx.lua")
-dofile ("crown.lua")
-
 toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 
+dofile ("crown.lua")
+group "engine"
+crown_project("", "ConsoleApp", {})
+
 group "libs"
+dofile (BGFX_DIR .. "scripts/bgfx.lua")
 bgfxProject("", "StaticLib", os.is("windows") and { "BGFX_CONFIG_RENDERER_DIRECT3D9=1" } or {})
+
+dofile (BX_DIR .. "scripts/bx.lua")
+dofile (BIMG_DIR .. "scripts/bimg.lua")
+dofile (BIMG_DIR .. "scripts/bimg_encode.lua")
+dofile (BIMG_DIR .. "scripts/bimg_decode.lua")
 
 if _OPTIONS["with-openal"] then
 	dofile ("openal.lua")
@@ -72,14 +80,12 @@ if _OPTIONS["with-bullet"] then
 	dofile ("bullet.lua")
 end
 
-group "engine"
-crown_project("", "ConsoleApp", {})
-
 if _OPTIONS["with-tools"] then
-group "tools"
+	group "tools"
+	dofile (BGFX_DIR .. "scripts/shaderc.lua")
+	dofile (BGFX_DIR .. "scripts/texturec.lua")
+
 	if not _OPTIONS["no-level-editor"] then
 		dofile ("level-editor.lua")
 	end
-	dofile ("shaderc.lua")
-	dofile ("texturec.lua")
 end

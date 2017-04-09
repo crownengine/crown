@@ -1,6 +1,6 @@
 #
-# Copyright 2011-2016 Branimir Karadzic. All rights reserved.
-# License: http://www.opensource.org/licenses/BSD-2-Clause
+# Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+# License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 #
 
 THISDIR:=$(dir $(lastword $(MAKEFILE_LIST)))
@@ -23,7 +23,20 @@ all:
 	@echo "  TARGET=5 (metal)"
 	@echo "  TARGET=6 (pssl)"
 	@echo "  TARGET=7 (spriv)"
+
+.PHONY: rebuild
+rebuild:
+	@make -s --no-print-directory TARGET=0 clean all
+	@make -s --no-print-directory TARGET=1 clean all
+	@make -s --no-print-directory TARGET=2 clean all
+	@make -s --no-print-directory TARGET=3 clean all
+	@make -s --no-print-directory TARGET=4 clean all
+	@make -s --no-print-directory TARGET=5 clean all
+	@make -s --no-print-directory TARGET=7 clean all
+
 else
+
+ADDITIONAL_INCLUDES?=
 
 ifeq ($(TARGET), 0)
 VS_FLAGS=--platform windows -p vs_3_0 -O 3
@@ -80,9 +93,9 @@ endif
 endif
 
 THISDIR := $(dir $(lastword $(MAKEFILE_LIST)))
-VS_FLAGS+=-i $(THISDIR)../src/
-FS_FLAGS+=-i $(THISDIR)../src/
-CS_FLAGS+=-i $(THISDIR)../src/
+VS_FLAGS+=-i $(THISDIR)../src/ $(ADDITIONAL_INCLUDES)
+FS_FLAGS+=-i $(THISDIR)../src/ $(ADDITIONAL_INCLUDES)
+CS_FLAGS+=-i $(THISDIR)../src/ $(ADDITIONAL_INCLUDES)
 
 BUILD_OUTPUT_DIR=$(addprefix ./, $(RUNTIME_DIR)/$(SHADER_PATH))
 BUILD_INTERMEDIATE_DIR=$(addprefix $(BUILD_DIR)/, $(SHADER_PATH))
@@ -141,6 +154,10 @@ all: dirs $(BIN)
 clean:
 	@echo Cleaning...
 	@-rm -vf $(BIN)
+
+.PHONY: cleanall
+cleanall:
+	@echo Cleaning...
 	@-$(call CMD_RMDIR,$(BUILD_INTERMEDIATE_DIR))
 
 .PHONY: dirs

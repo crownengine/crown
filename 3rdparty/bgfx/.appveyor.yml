@@ -5,8 +5,6 @@ os:
 
 environment:
   matrix:
-  - TOOLSET: vs2010
-  - TOOLSET: vs2012
   - TOOLSET: vs2013
   - TOOLSET: vs2015
 
@@ -15,7 +13,8 @@ configuration:
   - Release
 
 install:
-  - git clone https://github.com/bkaradzic/bx ..\bx
+  - git clone --depth 1 https://github.com/bkaradzic/bx ..\bx
+  - git clone --depth 1 https://github.com/bkaradzic/bimg ..\bimg
   - ..\bx\tools\bin\windows\genie --with-tools %TOOLSET%
 
 build:

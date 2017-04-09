@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -8,7 +8,6 @@
 #include "glcontext_glx.cpp"
 #include "glcontext_ppapi.cpp"
 #include "glcontext_wgl.cpp"
-#include "image.cpp"
 #include "hmd.cpp"
 #include "hmd_ovr.cpp"
 #include "hmd_openvr.cpp"

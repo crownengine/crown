@@ -232,7 +232,7 @@ void DebugLine::submit()
 	if (!_num)
 		return;
 
-	if (!checkAvailTransientVertexBuffer(_num * 2, _vertex_decl))
+	if (!bgfx::getAvailTransientVertexBuffer(_num * 2, _vertex_decl))
 		return;
 
 	bgfx::TransientVertexBuffer tvb;

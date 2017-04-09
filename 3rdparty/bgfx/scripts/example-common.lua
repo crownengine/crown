@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2016 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2017 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 --
 
@@ -8,7 +8,8 @@ project ("example-common")
 	kind "StaticLib"
 
 	includedirs {
-		path.join(BX_DIR, "include"),
+		path.join(BX_DIR,   "include"),
+		path.join(BIMG_DIR, "include"),
 		path.join(BGFX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty"),
 	}

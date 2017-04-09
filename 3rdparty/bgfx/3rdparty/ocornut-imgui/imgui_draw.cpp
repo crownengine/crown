@@ -46,6 +46,7 @@
 #pragma GCC diagnostic ignored "-Wunused-function"          // warning: 'xxxx' defined but not used
 #pragma GCC diagnostic ignored "-Wdouble-promotion"         // warning: implicit conversion from 'float' to 'double' when passing argument to function
 #pragma GCC diagnostic ignored "-Wconversion"               // warning: conversion to 'xxxx' from 'xxxx' may alter its value
+#pragma GCC diagnostic ignored "-Wcast-qual"                // warning: cast from type 'xxxx' to type 'xxxx' casts away qualifiers
 #endif
 
 //-------------------------------------------------------------------------
@@ -1186,7 +1187,7 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
         font_cfg.OversampleH = font_cfg.OversampleV = 1;
         font_cfg.PixelSnapH = true;
     }
-    if (font_cfg.Name[0] == '\0') strcpy(font_cfg.Name, "<default>");
+    if (font_cfg.Name[0] == '\0') strcpy(font_cfg.Name, "ProggyClean.ttf, 13px");
 
     const char* ttf_compressed_base85 = GetDefaultCompressedFontDataTTFBase85();
     ImFont* font = AddFontFromMemoryCompressedBase85TTF(ttf_compressed_base85, 13.0f, &font_cfg, GetGlyphRangesDefault());
@@ -1196,7 +1197,7 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
 ImFont* ImFontAtlas::AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg_template, const ImWchar* glyph_ranges)
 {
     int data_size = 0;
-    void* data = ImLoadFileToMemory(filename, "rb", &data_size, 0);
+    void* data = ImFileLoadToMemory(filename, "rb", &data_size, 0);
     if (!data)
     {
         IM_ASSERT(0); // Could not load file.
@@ -1208,7 +1209,7 @@ ImFont* ImFontAtlas::AddFontFromFileTTF(const char* filename, float size_pixels,
         // Store a short copy of filename into into the font name for convenience
         const char* p;
         for (p = filename + strlen(filename); p > filename && p[-1] != '/' && p[-1] != '\\'; p--) {}
-        snprintf(font_cfg.Name, IM_ARRAYSIZE(font_cfg.Name), "%s", p);
+        snprintf(font_cfg.Name, IM_ARRAYSIZE(font_cfg.Name), "%s, %.0fpx", p, size_pixels);
     }
     return AddFontFromMemoryTTF(data, data_size, size_pixels, &font_cfg, glyph_ranges);
 }
@@ -1387,7 +1388,7 @@ bool    ImFontAtlas::Build()
     {
         ImFontConfig& cfg = ConfigData[input_i];
         ImFontTempBuildData& tmp = tmp_array[input_i];
-        ImFont* dst_font = cfg.DstFont;
+        ImFont* dst_font = cfg.DstFont; // We can have multiple input fonts writing into a same destination font (when using MergeMode=true)
 
         float font_scale = stbtt_ScaleForPixelHeight(&tmp.FontInfo, cfg.SizePixels);
         int unscaled_ascent, unscaled_descent, unscaled_line_gap;
@@ -1404,6 +1405,7 @@ bool    ImFontAtlas::Build()
             dst_font->Ascent = ascent;
             dst_font->Descent = descent;
             dst_font->Glyphs.resize(0);
+            dst_font->MetricsTotalSurface = 0;
         }
         dst_font->ConfigDataCount++;
         float off_y = (cfg.MergeMode && cfg.MergeGlyphCenterV) ? (ascent - dst_font->Ascent) * 0.5f : 0.0f;
@@ -1436,6 +1438,7 @@ bool    ImFontAtlas::Build()
                 glyph.XAdvance = (pc.xadvance + cfg.GlyphExtraSpacing.x);  // Bake spacing into XAdvance
                 if (cfg.PixelSnapH)
                     glyph.XAdvance = (float)(int)(glyph.XAdvance + 0.5f);
+                dst_font->MetricsTotalSurface += (int)(glyph.X1 - glyph.X0 + 1.99f) * (int)(glyph.Y1 - glyph.Y0 + 1.99f); // +1 to account for average padding, +0.99 to round
             }
         }
         cfg.DstFont->BuildLookupTable();
@@ -1695,15 +1698,16 @@ void    ImFont::Clear()
 {
     FontSize = 0.0f;
     DisplayOffset = ImVec2(0.0f, 1.0f);
-    ConfigData = NULL;
-    ConfigDataCount = 0;
-    Ascent = Descent = 0.0f;
-    ContainerAtlas = NULL;
     Glyphs.clear();
-    FallbackGlyph = NULL;
-    FallbackXAdvance = 0.0f;
     IndexXAdvance.clear();
     IndexLookup.clear();
+    FallbackGlyph = NULL;
+    FallbackXAdvance = 0.0f;
+    ConfigDataCount = 0;
+    ConfigData = NULL;
+    ContainerAtlas = NULL;
+    Ascent = Descent = 0.0f;
+    MetricsTotalSurface = 0;
 }
 
 void ImFont::BuildLookupTable()
@@ -1852,6 +1856,7 @@ const char* ImFont::CalcWordWrapPositionA(float scale, const char* text, const c
             {
                 line_width += blank_width;
                 blank_width = 0.0f;
+                word_end = s;
             }
             blank_width += char_width;
             inside_word = false;
@@ -1944,7 +1949,7 @@ ImVec2 ImFont::CalcTextSizeA(float size, float max_width, float wrap_width, cons
         else
         {
             s += ImTextCharFromUtf8(&c, s, text_end);
-            if (c == 0)
+            if (c == 0) // Malformed UTF-8?
                 break;
         }
 
@@ -2002,7 +2007,7 @@ void ImFont::RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width, bool cpu_fine_clip) const
 {
     if (!text_end)
-        text_end = text_begin + strlen(text_begin);
+        text_end = text_begin + strlen(text_begin); // ImGui functions generally already provides a valid text_end, so this is merely to handle direct calls.
 
     // Align to be pixel perfect
     pos.x = (float)(int)pos.x + DisplayOffset.x;
@@ -2070,7 +2075,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
         else
         {
             s += ImTextCharFromUtf8(&c, s, text_end);
-            if (c == 0)
+            if (c == 0) // Malformed UTF-8?
                 break;
         }
 

@@ -1,11 +1,9 @@
 /*
- * Copyright 2011-2016 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
 #include "bgfx_p.h"
-
-#if BGFX_CONFIG_RENDERER_NOOP
 
 namespace bgfx { namespace noop
 {
@@ -13,28 +11,32 @@ namespace bgfx { namespace noop
 	{
 		RendererContextNOOP()
 		{
-			// Pretend all features that are not returning results to CPU
-			// are available.
+			// Pretend all features are available.
 			g_caps.supported = 0
-				| BGFX_CAPS_TEXTURE_COMPARE_LEQUAL
-				| BGFX_CAPS_TEXTURE_COMPARE_ALL
-				| BGFX_CAPS_TEXTURE_3D
-				| BGFX_CAPS_VERTEX_ATTRIB_HALF
-				| BGFX_CAPS_VERTEX_ATTRIB_UINT10
-				| BGFX_CAPS_INSTANCING
-				| BGFX_CAPS_FRAGMENT_DEPTH
+				| BGFX_CAPS_ALPHA_TO_COVERAGE
 				| BGFX_CAPS_BLEND_INDEPENDENT
 				| BGFX_CAPS_COMPUTE
-				| BGFX_CAPS_FRAGMENT_ORDERING
-				| BGFX_CAPS_SWAP_CHAIN
-				| BGFX_CAPS_INDEX32
-				| BGFX_CAPS_DRAW_INDIRECT
-				| BGFX_CAPS_HIDPI
-				| BGFX_CAPS_TEXTURE_BLIT
-				| BGFX_CAPS_ALPHA_TO_COVERAGE
 				| BGFX_CAPS_CONSERVATIVE_RASTER
+				| BGFX_CAPS_DRAW_INDIRECT
+				| BGFX_CAPS_FRAGMENT_DEPTH
+				| BGFX_CAPS_FRAGMENT_ORDERING
+				| BGFX_CAPS_GRAPHICS_DEBUGGER
+				| BGFX_CAPS_HIDPI
+				| BGFX_CAPS_HMD
+				| BGFX_CAPS_INDEX32
+				| BGFX_CAPS_INSTANCING
+				| BGFX_CAPS_OCCLUSION_QUERY
+				| BGFX_CAPS_RENDERER_MULTITHREADED
+				| BGFX_CAPS_SWAP_CHAIN
 				| BGFX_CAPS_TEXTURE_2D_ARRAY
+				| BGFX_CAPS_TEXTURE_3D
+				| BGFX_CAPS_TEXTURE_BLIT
+				| BGFX_CAPS_TEXTURE_COMPARE_ALL
+				| BGFX_CAPS_TEXTURE_COMPARE_LEQUAL
 				| BGFX_CAPS_TEXTURE_CUBE_ARRAY
+				| BGFX_CAPS_TEXTURE_READ_BACK
+				| BGFX_CAPS_VERTEX_ATTRIB_HALF
+				| BGFX_CAPS_VERTEX_ATTRIB_UINT10
 				;
 		}
 
@@ -50,6 +52,11 @@ namespace bgfx { namespace noop
 		const char* getRendererName() const BX_OVERRIDE
 		{
 			return BGFX_RENDERER_NOOP_NAME;
+		}
+
+		bool isDeviceRemoved() BX_OVERRIDE
+		{
+			return false;
 		}
 
 		void flip(HMD& /*_hmd*/) BX_OVERRIDE
@@ -136,7 +143,7 @@ namespace bgfx { namespace noop
 		{
 		}
 
-		void readTexture(TextureHandle /*_handle*/, void* /*_data*/) BX_OVERRIDE
+		void readTexture(TextureHandle /*_handle*/, void* /*_data*/, uint8_t /*_mip*/) BX_OVERRIDE
 		{
 		}
 
@@ -177,7 +184,7 @@ namespace bgfx { namespace noop
 		{
 		}
 
-		void saveScreenShot(const char* /*_filePath*/) BX_OVERRIDE
+		void requestScreenShot(FrameBufferHandle /*_handle*/, const char* /*_filePath*/) BX_OVERRIDE
 		{
 		}
 
@@ -190,6 +197,10 @@ namespace bgfx { namespace noop
 		}
 
 		void setMarker(const char* /*_marker*/, uint32_t /*_size*/) BX_OVERRIDE
+		{
+		}
+
+		void invalidateOcclusionQuery(OcclusionQueryHandle /*_handle*/) BX_OVERRIDE
 		{
 		}
 
@@ -220,19 +231,3 @@ namespace bgfx { namespace noop
 		s_renderNOOP = NULL;
 	}
 } /* namespace noop */ } // namespace bgfx
-
-#else
-
-namespace bgfx { namespace noop
-{
-	RendererContextI* rendererCreate()
-	{
-		return NULL;
-	}
-
-	void rendererDestroy()
-	{
-	}
-} /* namespace noop */ } // namespace bgfx
-
-#endif // BGFX_CONFIG_RENDERER_NOOP

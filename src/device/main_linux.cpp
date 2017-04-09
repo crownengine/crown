@@ -22,7 +22,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/Xrandr.h>
-#include <bgfx/bgfxplatform.h>
+#include <bgfx/platform.h>
 #include <fcntl.h>  // O_RDONLY, ...
 #include <stdlib.h>
 #include <string.h> // memset

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -11,6 +11,7 @@
 #endif // BX_PLATFORM_WINDOWS
 
 #include "bgfx_p.h"
+#include <bgfx/embedded_shader.h>
 
 #if BGFX_CONFIG_PROFILER_REMOTERY_BUILD_LIB
 #	define RMT_USE_D3D11 BGFX_CONFIG_RENDERER_DIRECT3D11
@@ -19,7 +20,11 @@
 #endif // BGFX_CONFIG_PROFILER_REMOTERY_BUILD_LIB
 
 #include <bx/crtimpl.h>
+#include <bx/mutex.h>
+
 #include "topology.h"
+
+BX_ERROR_RESULT(BGFX_ERROR_TEXTURE_VALIDATION,  BX_MAKEFOURCC('b', 'g', 0, 1) );
 
 namespace bgfx
 {
@@ -73,7 +78,7 @@ namespace bgfx
 			if ( (int32_t)sizeof(temp) < total)
 			{
 				out = (char*)alloca(total+1);
-				memcpy(out, temp, len);
+				bx::memCopy(out, temp, len);
 				bx::vsnprintf(out + len, total-len, _format, _argList);
 			}
 			out[total] = '\0';
@@ -113,14 +118,15 @@ namespace bgfx
 			BX_UNUSED(_filePath, _width, _height, _pitch, _data, _size, _yflip);
 
 #if BX_CONFIG_CRT_FILE_READER_WRITER
-			char* filePath = (char*)alloca(strlen(_filePath)+5);
-			strcpy(filePath, _filePath);
-			strcat(filePath, ".tga");
+			const int32_t len = bx::strnlen(_filePath)+5;
+			char* filePath = (char*)alloca(len);
+			bx::strlncpy(filePath, len, _filePath);
+			bx::strlncat(filePath, len, ".tga");
 
 			bx::CrtFileWriter writer;
 			if (bx::open(&writer, filePath) )
 			{
-				imageWriteTga(&writer, _width, _height, _pitch, _data, false, _yflip);
+				bimg::imageWriteTga(&writer, _width, _height, _pitch, _data, false, _yflip);
 				bx::close(&writer);
 			}
 #endif // BX_CONFIG_CRT_FILE_READER_WRITER
@@ -165,7 +171,7 @@ namespace bgfx
 					{
 #if BGFX_CONFIG_MEMORY_TRACKING
 						{
-							bx::LwMutexScope scope(m_mutex);
+							bx::MutexScope scope(m_mutex);
 							BX_CHECK(m_numBlocks > 0, "Number of blocks is 0. Possible alloc/free mismatch?");
 							--m_numBlocks;
 						}
@@ -187,7 +193,7 @@ namespace bgfx
 				{
 #if BGFX_CONFIG_MEMORY_TRACKING
 					{
-						bx::LwMutexScope scope(m_mutex);
+						bx::MutexScope scope(m_mutex);
 						++m_numBlocks;
 						m_maxBlocks = bx::uint32_max(m_maxBlocks, m_numBlocks);
 					}
@@ -204,7 +210,7 @@ namespace bgfx
 #if BGFX_CONFIG_MEMORY_TRACKING
 				if (NULL == _ptr)
 				{
-					bx::LwMutexScope scope(m_mutex);
+					bx::MutexScope scope(m_mutex);
 					++m_numBlocks;
 					m_maxBlocks = bx::uint32_max(m_maxBlocks, m_numBlocks);
 				}
@@ -220,7 +226,7 @@ namespace bgfx
 
 	protected:
 #if BGFX_CONFIG_MEMORY_TRACKING
-		bx::LwMutex m_mutex;
+		bx::Mutex m_mutex;
 		uint32_t m_numBlocks;
 		uint32_t m_maxBlocks;
 #endif // BGFX_CONFIG_MEMORY_TRACKING
@@ -311,7 +317,7 @@ namespace bgfx
 				, "Only backbuffer pointer and native window handle can be changed after initialization!"
 				);
 		}
-		memcpy(&g_platformData, &_data, sizeof(PlatformData) );
+		bx::memCopy(&g_platformData, &_data, sizeof(PlatformData) );
 		g_platformDataChangedSinceReset = true;
 	}
 
@@ -388,7 +394,7 @@ namespace bgfx
 
 		if (BX_UNLIKELY(NULL == g_callback) )
 		{
-			dbgPrintfVargs(_format, argList);
+			bx::debugPrintfVargs(_format, argList);
 			abort();
 		}
 		else
@@ -416,7 +422,7 @@ namespace bgfx
 
 		if (BX_UNLIKELY(NULL == g_callback) )
 		{
-			dbgPrintfVargs(_format, argList);
+			bx::debugPrintfVargs(_format, argList);
 		}
 		else
 		{
@@ -438,63 +444,33 @@ namespace bgfx
 #include "fs_clear6.bin.h"
 #include "fs_clear7.bin.h"
 
-	struct EmbeddedShader
-	{
-		struct Data
-		{
-			bgfx::RendererType::Enum type;
-			const uint8_t* data;
-			uint32_t size;
-		};
-
-		const char* name;
-		Data data[RendererType::Count];
-	};
-
-#define BGFX_DECLARE_SHADER_EMBEDDED(_name)                                                                           \
-	{                                                                                                                 \
-		#_name,                                                                                                       \
-		{                                                                                                             \
-			{ bgfx::RendererType::Direct3D9,  BX_CONCATENATE(_name, _dx9 ),  sizeof(BX_CONCATENATE(_name, _dx9 ) ) }, \
-			{ bgfx::RendererType::Direct3D11, BX_CONCATENATE(_name, _dx11),  sizeof(BX_CONCATENATE(_name, _dx11) ) }, \
-			{ bgfx::RendererType::Direct3D12, BX_CONCATENATE(_name, _dx11),  sizeof(BX_CONCATENATE(_name, _dx11) ) }, \
-			{ bgfx::RendererType::Gnm,        BX_CONCATENATE(_name, _pssl),  BX_CONCATENATE(_name, _pssl_size)     }, \
-			{ bgfx::RendererType::Metal,      BX_CONCATENATE(_name, _mtl ),  sizeof(BX_CONCATENATE(_name, _mtl ) ) }, \
-			{ bgfx::RendererType::OpenGL,     BX_CONCATENATE(_name, _glsl),  sizeof(BX_CONCATENATE(_name, _glsl) ) }, \
-			{ bgfx::RendererType::OpenGLES,   BX_CONCATENATE(_name, _glsl),  sizeof(BX_CONCATENATE(_name, _glsl) ) }, \
-			{ bgfx::RendererType::Vulkan,     BX_CONCATENATE(_name, _glsl),  sizeof(BX_CONCATENATE(_name, _glsl) ) }, \
-			{ bgfx::RendererType::Count,      NULL,                          0                                     }, \
-		}                                                                                                             \
-	}
-
 	static const EmbeddedShader s_embeddedShaders[] =
 	{
-		BGFX_DECLARE_SHADER_EMBEDDED(vs_debugfont),
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_debugfont),
+		BGFX_EMBEDDED_SHADER(vs_debugfont),
+		BGFX_EMBEDDED_SHADER(fs_debugfont),
+		BGFX_EMBEDDED_SHADER(vs_clear),
+		BGFX_EMBEDDED_SHADER(fs_clear0),
+		BGFX_EMBEDDED_SHADER(fs_clear1),
+		BGFX_EMBEDDED_SHADER(fs_clear2),
+		BGFX_EMBEDDED_SHADER(fs_clear3),
+		BGFX_EMBEDDED_SHADER(fs_clear4),
+		BGFX_EMBEDDED_SHADER(fs_clear5),
+		BGFX_EMBEDDED_SHADER(fs_clear6),
+		BGFX_EMBEDDED_SHADER(fs_clear7),
 
-		BGFX_DECLARE_SHADER_EMBEDDED(vs_clear),
-
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_clear0),
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_clear1),
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_clear2),
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_clear3),
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_clear4),
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_clear5),
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_clear6),
-		BGFX_DECLARE_SHADER_EMBEDDED(fs_clear7),
-
-		{ NULL, { { bgfx::RendererType::Count, NULL, 0 } } }
+		BGFX_EMBEDDED_SHADER_END()
 	};
 
-	static ShaderHandle createEmbeddedShader(RendererType::Enum _type, const char* _name)
+	ShaderHandle createEmbeddedShader(const EmbeddedShader* _es, RendererType::Enum _type, const char* _name)
 	{
-		for (const EmbeddedShader* es = s_embeddedShaders; NULL != es->name; ++es)
+		for (const EmbeddedShader* es = _es; NULL != es->name; ++es)
 		{
-			if (0 == strcmp(_name, es->name) )
+			if (0 == bx::strncmp(_name, es->name) )
 			{
 				for (const EmbeddedShader::Data* esd = es->data; RendererType::Count != esd->type; ++esd)
 				{
-					if (_type == esd->type)
+					if (_type == esd->type
+					&&  1 < esd->size)
 					{
 						return createShader(makeRef(esd->data, esd->size) );
 					}
@@ -505,7 +481,6 @@ namespace bgfx
 		ShaderHandle handle = BGFX_INVALID_HANDLE;
 		return handle;
 	}
-
 
 #include "charset.h"
 
@@ -519,10 +494,84 @@ namespace bgfx
 				for (uint32_t xx = 0; xx < 8; ++xx)
 				{
 					uint8_t bit = 1<<(7-xx);
-					memset(&pix[xx*_bpp], _charset[ii*_height+yy]&bit ? 255 : 0, _bpp);
+					bx::memSet(&pix[xx*_bpp], _charset[ii*_height+yy]&bit ? 255 : 0, _bpp);
 				}
 
 				pix += _pitch;
+			}
+		}
+	}
+
+	static uint8_t parseAttrTo(char*& _ptr, char _to, uint8_t _default)
+	{
+		const char* str = bx::strnchr(_ptr, _to);
+		if (NULL != str
+		&&  3 > str-_ptr)
+		{
+			char tmp[4];
+
+			int32_t len = int32_t(str-_ptr);
+			bx::strlncpy(tmp, sizeof(tmp), _ptr, len);
+
+			uint8_t attr = uint8_t(atoi(tmp) );
+			_ptr += len+1;
+			return attr;
+		}
+
+		return _default;
+	}
+
+	static uint8_t parseAttr(char*& _ptr, uint8_t _default)
+	{
+		char* ptr = _ptr;
+		if (*ptr++ != '[')
+		{
+			return _default;
+		}
+
+		if (0 == bx::strncmp(ptr, "0m", 2) )
+		{
+			_ptr = ptr + 2;
+			return _default;
+		}
+
+		uint8_t fg = parseAttrTo(ptr, ';', _default & 0xf);
+		uint8_t bg = parseAttrTo(ptr, 'm', _default >> 4);
+
+		uint8_t attr = (bg<<4) | fg;
+		_ptr = ptr;
+		return attr;
+	}
+
+	void TextVideoMem::printfVargs(uint16_t _x, uint16_t _y, uint8_t _attr, const char* _format, va_list _argList)
+	{
+		if (_x < m_width && _y < m_height)
+		{
+			va_list argListCopy;
+			va_copy(argListCopy, _argList);
+			uint32_t num = bx::vsnprintf(NULL, 0, _format, argListCopy) + 1;
+			char* temp = (char*)alloca(num);
+			va_copy(argListCopy, _argList);
+			num = bx::vsnprintf(temp, num, _format, argListCopy);
+
+			uint8_t attr = _attr;
+			uint8_t* mem = &m_mem[(_y*m_width+_x)*2];
+			for (uint32_t ii = 0, xx = _x; ii < num && xx < m_width; ++ii)
+			{
+				char ch = temp[ii];
+				if (BX_UNLIKELY(ch == '\x1b') )
+				{
+					char* ptr = &temp[ii+1];
+					attr = parseAttr(ptr, _attr);
+					ii += uint32_t(ptr - &temp[ii+1]);
+				}
+				else
+				{
+					mem[0] = ch;
+					mem[1] = attr;
+					mem += 2;
+					++xx;
+				}
 			}
 		}
 	}
@@ -542,10 +591,10 @@ namespace bgfx
 			.add(Attrib::TexCoord0, 2, AttribType::Float)
 			.end();
 
-		uint16_t width = 2048;
+		uint16_t width  = 2048;
 		uint16_t height = 24;
-		uint8_t bpp = 1;
-		uint32_t pitch = width*bpp;
+		uint8_t  bpp    = 1;
+		uint32_t pitch  = width*bpp;
 
 		const Memory* mem;
 
@@ -562,8 +611,8 @@ namespace bgfx
 						, mem
 						);
 
-		ShaderHandle vsh = createEmbeddedShader(g_caps.rendererType, "vs_debugfont");
-		ShaderHandle fsh = createEmbeddedShader(g_caps.rendererType, "fs_debugfont");
+		ShaderHandle vsh = createEmbeddedShader(s_embeddedShaders, g_caps.rendererType, "vs_debugfont");
+		ShaderHandle fsh = createEmbeddedShader(s_embeddedShaders, g_caps.rendererType, "fs_debugfont");
 
 		m_program = createProgram(vsh, fsh, true);
 
@@ -662,7 +711,7 @@ namespace bgfx
 							{ (xx  )*8.0f, (yy+1)*fontHeight, 0.0f, fg, bg, (ch  )*8.0f*texelWidth - texelWidthHalf, ubottom },
 						};
 
-						memcpy(vertex, vert, sizeof(vert) );
+						bx::memCopy(vertex, vert, sizeof(vert) );
 						vertex += 4;
 
 						indices[0] = uint16_t(startVertex+0);
@@ -702,13 +751,13 @@ namespace bgfx
 				.add(Attrib::Position, 3, AttribType::Float)
 				.end();
 
-			ShaderHandle vsh = createEmbeddedShader(g_caps.rendererType, "vs_clear");
+			ShaderHandle vsh = createEmbeddedShader(s_embeddedShaders, g_caps.rendererType, "vs_clear");
 
 			for (uint32_t ii = 0, num = g_caps.limits.maxFBAttachments; ii < num; ++ii)
 			{
 				char name[32];
 				bx::snprintf(name, BX_COUNTOF(name), "fs_clear%d", ii);
-				ShaderHandle fsh = createEmbeddedShader(g_caps.rendererType, name);
+				ShaderHandle fsh = createEmbeddedShader(s_embeddedShaders, g_caps.rendererType, name);
 
 				m_program[ii] = createProgram(vsh, fsh);
 				BX_CHECK(isValid(m_program[ii]), "Failed to create clear quad program.");
@@ -761,7 +810,7 @@ namespace bgfx
 		for (uint32_t ii = 0; ii < UniformType::Count; ++ii)
 		{
 			if (NULL != s_uniformTypeName[ii]
-			&&  0 == strcmp(_name, s_uniformTypeName[ii]) )
+			&&  0 == bx::strncmp(_name, s_uniformTypeName[ii]) )
 			{
 				return UniformType::Enum(ii);
 			}
@@ -795,7 +844,7 @@ namespace bgfx
 	{
 		for (uint32_t ii = 0; ii < PredefinedUniform::Count; ++ii)
 		{
-			if (0 == strcmp(_name, s_predefinedName[ii]) )
+			if (0 == bx::strncmp(_name, s_predefinedName[ii]) )
 			{
 				return PredefinedUniform::Enum(ii);
 			}
@@ -861,11 +910,13 @@ namespace bgfx
 		}
 
 		m_renderItem[m_numRenderItems].draw = m_draw;
+		m_renderItemBind[m_numRenderItems]  = m_bind;
 		++m_numRenderItems;
 
 		if (!_preserveState)
 		{
 			m_draw.clear();
+			m_bind.clear();
 			m_uniformBegin = m_uniformEnd;
 			m_stateFlags = BGFX_STATE_NONE;
 		}
@@ -910,9 +961,11 @@ namespace bgfx
 		m_compute.m_constBegin = m_uniformBegin;
 		m_compute.m_constEnd   = m_uniformEnd;
 		m_renderItem[m_numRenderItems].compute = m_compute;
+		m_renderItemBind[m_numRenderItems]     = m_bind;
 		++m_numRenderItems;
 
 		m_compute.clear();
+		m_bind.clear();
 		m_uniformBegin = m_uniformEnd;
 
 		return m_num;
@@ -952,15 +1005,21 @@ namespace bgfx
 
 	void Frame::sort()
 	{
-		for (uint32_t ii = 0, num = m_num; ii < num; ++ii)
+		uint8_t viewRemap[BGFX_CONFIG_MAX_VIEWS];
+		for (uint32_t ii = 0; ii < BGFX_CONFIG_MAX_VIEWS; ++ii)
 		{
-			m_sortKeys[ii] = SortKey::remapView(m_sortKeys[ii], m_viewRemap);
+			viewRemap[m_viewRemap[ii] ] = uint8_t(ii);
 		}
-		bx::radixSort(m_sortKeys, s_ctx->m_tempKeys, m_sortValues, s_ctx->m_tempValues, m_num);
 
 		for (uint32_t ii = 0, num = m_num; ii < num; ++ii)
 		{
-			m_blitKeys[ii] = BlitKey::remapView(m_blitKeys[ii], m_viewRemap);
+			m_sortKeys[ii] = SortKey::remapView(m_sortKeys[ii], viewRemap);
+		}
+		bx::radixSort(m_sortKeys, s_ctx->m_tempKeys, m_sortValues, s_ctx->m_tempValues, m_num);
+
+		for (uint32_t ii = 0, num = m_numBlitItems; ii < num; ++ii)
+		{
+			m_blitKeys[ii] = BlitKey::remapView(m_blitKeys[ii], viewRemap);
 		}
 		bx::radixSort(m_blitKeys, (uint32_t*)&s_ctx->m_tempKeys, m_numBlitItems);
 	}
@@ -977,16 +1036,16 @@ namespace bgfx
 			}
 
 			BGFX_CHECK_RENDER_THREAD();
-			if (s_ctx->renderFrame() )
+			RenderFrame::Enum result = s_ctx->renderFrame(BGFX_CONFIG_API_SEMAPHORE_TIMEOUT);
+			if (RenderFrame::Exiting == result)
 			{
 				Context* ctx = s_ctx;
 				ctx->apiSemWait();
 				s_ctx = NULL;
 				ctx->renderSemPost();
-				return RenderFrame::Exiting;
 			}
 
-			return RenderFrame::Render;
+			return result;
 		}
 
 		BX_CHECK(false, "This call only makes sense if used with multi-threaded renderer.");
@@ -1019,7 +1078,7 @@ namespace bgfx
 
 	void UniformBuffer::writeMarker(const char* _marker)
 	{
-		uint16_t num = (uint16_t)strlen(_marker)+1;
+		uint16_t num = (uint16_t)bx::strnlen(_marker)+1;
 		uint32_t opcode = encodeOpcode(bgfx::UniformType::Count, 0, num, true);
 		write(opcode);
 		write(_marker, num);
@@ -1064,6 +1123,27 @@ namespace bgfx
 	static void dumpCaps()
 	{
 		BX_TRACE("");
+
+		if (0 < g_caps.numGPUs)
+		{
+			BX_TRACE("Detected GPUs (%d):", g_caps.numGPUs);
+			BX_TRACE("\t +----------------   Index");
+			BX_TRACE("\t |  +-------------   Device ID");
+			BX_TRACE("\t |  |    +--------   Vendor ID");
+			for (uint32_t ii = 0; ii < g_caps.numGPUs; ++ii)
+			{
+				const Caps::GPU& gpu = g_caps.gpu[ii];
+				BX_UNUSED(gpu);
+
+				BX_TRACE("\t %d: %04x %04x"
+					, ii
+					, gpu.deviceId
+					, gpu.vendorId
+					);
+			}
+
+			BX_TRACE("");
+		}
 
 		RendererType::Enum renderers[RendererType::Count];
 		uint8_t num = getSupportedRenderers(BX_COUNTOF(renderers), renderers);
@@ -1170,7 +1250,7 @@ namespace bgfx
 		BX_TRACE("");
 	}
 
-	TextureFormat::Enum getViableTextureFormat(const ImageContainer& _imageContainer)
+	TextureFormat::Enum getViableTextureFormat(const bimg::ImageContainer& _imageContainer)
 	{
 		const uint32_t formatCaps = g_caps.formats[_imageContainer.m_format];
 		bool convert = 0 == formatCaps;
@@ -1199,7 +1279,12 @@ namespace bgfx
 			return TextureFormat::BGRA8;
 		}
 
-		return _imageContainer.m_format;
+		return TextureFormat::Enum(_imageContainer.m_format);
+	}
+
+	const char* getName(TextureFormat::Enum _fmt)
+	{
+		return bimg::getName(bimg::TextureFormat::Enum(_fmt));
 	}
 
 	static TextureFormat::Enum s_emulatedFormats[] =
@@ -1213,8 +1298,12 @@ namespace bgfx
 		TextureFormat::ETC2,
 		TextureFormat::ETC2A,
 		TextureFormat::ETC2A1,
+		TextureFormat::PTC12,
 		TextureFormat::PTC14,
+		TextureFormat::PTC12A,
 		TextureFormat::PTC14A,
+		TextureFormat::PTC22,
+		TextureFormat::PTC24,
 		TextureFormat::BGRA8, // GL doesn't support BGRA8 without extensions.
 		TextureFormat::RGBA8, // D3D9 doesn't support RGBA8
 	};
@@ -1223,9 +1312,10 @@ namespace bgfx
 	{
 		BX_CHECK(!m_rendererInitialized, "Already initialized?");
 
-		m_exit   = false;
-		m_frames = 0;
-		m_debug  = BGFX_DEBUG_NONE;
+		m_exit    = false;
+		m_flipped = true;
+		m_frames  = 0;
+		m_debug   = BGFX_DEBUG_NONE;
 
 		m_submit->create();
 
@@ -1308,7 +1398,7 @@ namespace bgfx
 
 		for (uint32_t ii = 0; ii < TextureFormat::UnknownDepth; ++ii)
 		{
-			bool convertable = imageConvert(TextureFormat::BGRA8, TextureFormat::Enum(ii) );
+			bool convertable = bimg::imageConvert(bimg::TextureFormat::BGRA8, bimg::TextureFormat::Enum(ii) );
 			g_caps.formats[ii] |= 0 == (g_caps.formats[ii] & BGFX_CAPS_FORMAT_TEXTURE_2D  ) && convertable ? BGFX_CAPS_FORMAT_TEXTURE_2D_EMULATED   : 0;
 			g_caps.formats[ii] |= 0 == (g_caps.formats[ii] & BGFX_CAPS_FORMAT_TEXTURE_3D  ) && convertable ? BGFX_CAPS_FORMAT_TEXTURE_3D_EMULATED   : 0;
 			g_caps.formats[ii] |= 0 == (g_caps.formats[ii] & BGFX_CAPS_FORMAT_TEXTURE_CUBE) && convertable ? BGFX_CAPS_FORMAT_TEXTURE_CUBE_EMULATED : 0;
@@ -1380,7 +1470,7 @@ namespace bgfx
 #if BGFX_CONFIG_MULTITHREADED
 		// Render thread shutdown sequence.
 		renderSemWait(); // Wait for previous frame.
-		gameSemPost();   // OK to set context to NULL.
+		apiSemPost();   // OK to set context to NULL.
 		// s_ctx is NULL here.
 		renderSemWait(); // In RenderFrame::Exiting state.
 
@@ -1392,7 +1482,7 @@ namespace bgfx
 		m_render->destroy();
 #endif // BGFX_CONFIG_MULTITHREADED
 
-		memset(&g_internalData, 0, sizeof(InternalData) );
+		bx::memSet(&g_internalData, 0, sizeof(InternalData) );
 		s_ctx = NULL;
 
 		m_submit->destroy();
@@ -1436,48 +1526,54 @@ namespace bgfx
 			destroyDynamicVertexBufferInternal(m_freeDynamicVertexBufferHandle[ii]);
 		}
 		m_numFreeDynamicVertexBufferHandles = 0;
+
+		for (uint16_t ii = 0, num = m_numFreeOcclusionQueryHandles; ii < num; ++ii)
+		{
+			m_occlusionQueryHandle.free(m_freeOcclusionQueryHandle[ii].idx);
+		}
+		m_numFreeOcclusionQueryHandles = 0;
 	}
 
 	void Context::freeAllHandles(Frame* _frame)
 	{
-		for (uint16_t ii = 0, num = _frame->m_numFreeIndexBufferHandles; ii < num; ++ii)
+		for (uint16_t ii = 0, num = _frame->m_freeIndexBuffer.getNumQueued(); ii < num; ++ii)
 		{
-			m_indexBufferHandle.free(_frame->m_freeIndexBufferHandle[ii].idx);
+			m_indexBufferHandle.free(_frame->m_freeIndexBuffer.get(ii).idx);
 		}
 
-		for (uint16_t ii = 0, num = _frame->m_numFreeVertexBufferHandles; ii < num; ++ii)
+		for (uint16_t ii = 0, num = _frame->m_freeVertexBuffer.getNumQueued(); ii < num; ++ii)
 		{
-			destroyVertexBufferInternal(_frame->m_freeVertexBufferHandle[ii]);
+			destroyVertexBufferInternal(_frame->m_freeVertexBuffer.get(ii));
 		}
 
-		for (uint16_t ii = 0, num = _frame->m_numFreeVertexDeclHandles; ii < num; ++ii)
+		for (uint16_t ii = 0, num = _frame->m_freeVertexDecl.getNumQueued(); ii < num; ++ii)
 		{
-			m_vertexDeclHandle.free(_frame->m_freeVertexDeclHandle[ii].idx);
+			m_vertexDeclHandle.free(_frame->m_freeVertexDecl.get(ii).idx);
 		}
 
-		for (uint16_t ii = 0, num = _frame->m_numFreeShaderHandles; ii < num; ++ii)
+		for (uint16_t ii = 0, num = _frame->m_freeShader.getNumQueued(); ii < num; ++ii)
 		{
-			m_shaderHandle.free(_frame->m_freeShaderHandle[ii].idx);
+			m_shaderHandle.free(_frame->m_freeShader.get(ii).idx);
 		}
 
-		for (uint16_t ii = 0, num = _frame->m_numFreeProgramHandles; ii < num; ++ii)
+		for (uint16_t ii = 0, num = _frame->m_freeProgram.getNumQueued(); ii < num; ++ii)
 		{
-			m_programHandle.free(_frame->m_freeProgramHandle[ii].idx);
+			m_programHandle.free(_frame->m_freeProgram.get(ii).idx);
 		}
 
-		for (uint16_t ii = 0, num = _frame->m_numFreeTextureHandles; ii < num; ++ii)
+		for (uint16_t ii = 0, num = _frame->m_freeTexture.getNumQueued(); ii < num; ++ii)
 		{
-			m_textureHandle.free(_frame->m_freeTextureHandle[ii].idx);
+			m_textureHandle.free(_frame->m_freeTexture.get(ii).idx);
 		}
 
-		for (uint16_t ii = 0, num = _frame->m_numFreeFrameBufferHandles; ii < num; ++ii)
+		for (uint16_t ii = 0, num = _frame->m_freeFrameBuffer.getNumQueued(); ii < num; ++ii)
 		{
-			m_frameBufferHandle.free(_frame->m_freeFrameBufferHandle[ii].idx);
+			m_frameBufferHandle.free(_frame->m_freeFrameBuffer.get(ii).idx);
 		}
 
-		for (uint16_t ii = 0, num = _frame->m_numFreeUniformHandles; ii < num; ++ii)
+		for (uint16_t ii = 0, num = _frame->m_freeUniform.getNumQueued(); ii < num; ++ii)
 		{
-			m_uniformHandle.free(_frame->m_freeUniformHandle[ii].idx);
+			m_uniformHandle.free(_frame->m_freeUniform.get(ii).idx);
 		}
 	}
 
@@ -1488,6 +1584,11 @@ namespace bgfx
 		if (BX_ENABLED(BGFX_CONFIG_DEBUG_OCCLUSION) )
 		{
 			m_occlusionQuerySet.clear();
+		}
+
+		if (BX_ENABLED(BGFX_CONFIG_DEBUG_UNIFORM) )
+		{
+			m_uniformSet.clear();
 		}
 
 		m_submit->m_capture = _capture;
@@ -1505,7 +1606,7 @@ namespace bgfx
 		swap();
 
 		// release render thread
-		gameSemPost();
+		apiSemPost();
 	}
 
 	void Context::swap()
@@ -1515,24 +1616,24 @@ namespace bgfx
 		m_resolution.m_flags &= ~BGFX_RESET_INTERNAL_FORCE;
 		m_submit->m_debug = m_debug;
 
-		memcpy(m_submit->m_viewRemap, m_viewRemap, sizeof(m_viewRemap) );
-		memcpy(m_submit->m_fb, m_fb, sizeof(m_fb) );
-		memcpy(m_submit->m_clear, m_clear, sizeof(m_clear) );
-		memcpy(m_submit->m_rect, m_rect, sizeof(m_rect) );
-		memcpy(m_submit->m_scissor, m_scissor, sizeof(m_scissor) );
-		memcpy(m_submit->m_view, m_view, sizeof(m_view) );
-		memcpy(m_submit->m_proj, m_proj, sizeof(m_proj) );
-		memcpy(m_submit->m_viewFlags, m_viewFlags, sizeof(m_viewFlags) );
+		bx::memCopy(m_submit->m_viewRemap, m_viewRemap, sizeof(m_viewRemap) );
+		bx::memCopy(m_submit->m_fb, m_fb, sizeof(m_fb) );
+		bx::memCopy(m_submit->m_clear, m_clear, sizeof(m_clear) );
+		bx::memCopy(m_submit->m_rect, m_rect, sizeof(m_rect) );
+		bx::memCopy(m_submit->m_scissor, m_scissor, sizeof(m_scissor) );
+		bx::memCopy(m_submit->m_view, m_view, sizeof(m_view) );
+		bx::memCopy(m_submit->m_proj, m_proj, sizeof(m_proj) );
+		bx::memCopy(m_submit->m_viewFlags, m_viewFlags, sizeof(m_viewFlags) );
 		if (m_colorPaletteDirty > 0)
 		{
 			--m_colorPaletteDirty;
-			memcpy(m_submit->m_colorPalette, m_clearColor, sizeof(m_clearColor) );
+			bx::memCopy(m_submit->m_colorPalette, m_clearColor, sizeof(m_clearColor) );
 		}
 		m_submit->finish();
 
 		bx::xchg(m_render, m_submit);
 
-		memcpy(m_render->m_occlusion, m_submit->m_occlusion, sizeof(m_submit->m_occlusion) );
+		bx::memCopy(m_render->m_occlusion, m_submit->m_occlusion, sizeof(m_submit->m_occlusion) );
 
 		if (!BX_ENABLED(BGFX_CONFIG_MULTITHREADED)
 		||  m_singleThreaded)
@@ -1543,7 +1644,7 @@ namespace bgfx
 		m_frames++;
 		m_submit->start();
 
-		memset(m_seq, 0, sizeof(m_seq) );
+		bx::memSet(m_seq, 0, sizeof(m_seq) );
 		freeAllHandles(m_submit);
 
 		m_submit->resetFreeHandles();
@@ -1558,36 +1659,64 @@ namespace bgfx
 		return m_uniformRef[_handle.idx].m_name.getPtr();
 	}
 
-	bool Context::renderFrame()
+	RendererContextI* rendererCreate(RendererType::Enum _type);
+	void rendererDestroy(RendererContextI* _renderCtx);
+
+	void Context::flip()
+	{
+		if (m_rendererInitialized
+		&& !m_flipped)
+		{
+			m_renderCtx->flip(m_render->m_hmd);
+			m_flipped = true;
+
+			if (m_renderCtx->isDeviceRemoved() )
+			{
+				// Something horribly went wrong, fallback to noop renderer.
+				rendererDestroy(m_renderCtx);
+
+				m_renderCtx = rendererCreate(RendererType::Noop);
+				g_caps.rendererType = RendererType::Noop;
+			}
+		}
+	}
+
+	RenderFrame::Enum Context::renderFrame(int32_t _msecs)
 	{
 		BGFX_PROFILER_SCOPE(bgfx, render_frame, 0xff2040ff);
 
-		if (m_rendererInitialized
-		&& !m_flipAfterRender)
+		if (!m_flipAfterRender)
 		{
-			m_renderCtx->flip(m_render->m_hmd);
+			flip();
 		}
 
-		if (apiSemWait(BGFX_CONFIG_API_SEMAPHORE_TIMEOUT) )
+		if (apiSemWait(_msecs) )
 		{
 			rendererExecCommands(m_render->m_cmdPre);
 			if (m_rendererInitialized)
 			{
 				BGFX_PROFILER_SCOPE(bgfx, render_submit, 0xff2040ff);
 				m_renderCtx->submit(m_render, m_clearQuad, m_textVideoMemBlitter);
+				m_flipped = false;
 			}
 			rendererExecCommands(m_render->m_cmdPost);
 
 			renderSemPost();
 
-			if (m_rendererInitialized
-			&&  m_flipAfterRender)
+			if (m_flipAfterRender)
 			{
-				m_renderCtx->flip(m_render->m_hmd);
+				flip();
 			}
 		}
+		else
+		{
+			return RenderFrame::Timeout;
+		}
 
-		return m_exit;
+		return m_exit
+			? RenderFrame::Exiting
+			: RenderFrame::Render
+			;
 	}
 
 	void rendererUpdateUniforms(RendererContextI* _renderCtx, UniformBuffer* _uniformBuffer, uint32_t _begin, uint32_t _end)
@@ -1722,7 +1851,7 @@ namespace bgfx
 
 	static RendererCreator s_rendererCreator[] =
 	{
-		{ noop::rendererCreate,  noop::rendererDestroy,  BGFX_RENDERER_NOOP_NAME,       !!BGFX_CONFIG_RENDERER_NOOP       }, // Noop
+		{ noop::rendererCreate,  noop::rendererDestroy,  BGFX_RENDERER_NOOP_NAME,       true                              }, // Noop
 		{ d3d9::rendererCreate,  d3d9::rendererDestroy,  BGFX_RENDERER_DIRECT3D9_NAME,  !!BGFX_CONFIG_RENDERER_DIRECT3D9  }, // Direct3D9
 		{ d3d11::rendererCreate, d3d11::rendererDestroy, BGFX_RENDERER_DIRECT3D11_NAME, !!BGFX_CONFIG_RENDERER_DIRECT3D11 }, // Direct3D11
 		{ d3d12::rendererCreate, d3d12::rendererDestroy, BGFX_RENDERER_DIRECT3D12_NAME, !!BGFX_CONFIG_RENDERER_DIRECT3D12 }, // Direct3D12
@@ -1730,15 +1859,13 @@ namespace bgfx
 #if BX_PLATFORM_OSX || BX_PLATFORM_IOS
 		{ mtl::rendererCreate,   mtl::rendererDestroy,   BGFX_RENDERER_METAL_NAME,      !!BGFX_CONFIG_RENDERER_METAL      }, // Metal
 #else
-		{ noop::rendererCreate,  noop::rendererDestroy,  BGFX_RENDERER_NOOP_NAME,       !!BGFX_CONFIG_RENDERER_NOOP       }, // Noop
+		{ noop::rendererCreate,  noop::rendererDestroy,  BGFX_RENDERER_NOOP_NAME,       false                             }, // Noop
 #endif // BX_PLATFORM_OSX || BX_PLATFORM_IOS
 		{ gl::rendererCreate,    gl::rendererDestroy,    BGFX_RENDERER_OPENGL_NAME,     !!BGFX_CONFIG_RENDERER_OPENGLES   }, // OpenGLES
 		{ gl::rendererCreate,    gl::rendererDestroy,    BGFX_RENDERER_OPENGL_NAME,     !!BGFX_CONFIG_RENDERER_OPENGL     }, // OpenGL
 		{ vk::rendererCreate,    vk::rendererDestroy,    BGFX_RENDERER_VULKAN_NAME,     !!BGFX_CONFIG_RENDERER_VULKAN     }, // Vulkan
 	};
 	BX_STATIC_ASSERT(BX_COUNTOF(s_rendererCreator) == RendererType::Count);
-
-	static RendererDestroyFn s_rendererDestroyFn;
 
 	struct Condition
 	{
@@ -1759,7 +1886,7 @@ namespace bgfx
 		};
 
 		OSVERSIONINFOEXA ovi;
-		memset(&ovi, 0, sizeof(ovi) );
+		bx::memSet(&ovi, 0, sizeof(ovi) );
 		ovi.dwOSVersionInfoSize = sizeof(ovi);
 		// _WIN32_WINNT_WINBLUE 0x0603
 		// _WIN32_WINNT_WIN8    0x0602
@@ -1837,6 +1964,10 @@ namespace bgfx
 				{
 					score += RendererType::OpenGLES == renderer ? 20 : 0;
 				}
+				else if (BX_ENABLED(BX_PLATFORM_PS4) )
+				{
+					score += RendererType::Gnm      == renderer ? 20 : 0;
+				}
 				else if (BX_ENABLED(0
 					 ||  BX_PLATFORM_XBOXONE
 					 ||  BX_PLATFORM_WINRT
@@ -1849,7 +1980,7 @@ namespace bgfx
 			}
 		}
 
-		qsort(scores, numScores, sizeof(int32_t), compareDescending);
+		bx::quickSort(scores, numScores, sizeof(int32_t), compareDescending);
 
 		RendererContextI* renderCtx = NULL;
 		for (uint32_t ii = 0; ii < numScores; ++ii)
@@ -1858,7 +1989,6 @@ namespace bgfx
 			renderCtx = s_rendererCreator[renderer].createFn();
 			if (NULL != renderCtx)
 			{
-				s_rendererDestroyFn = s_rendererCreator[renderer].destroyFn;
 				break;
 			}
 
@@ -1868,9 +1998,12 @@ namespace bgfx
 		return renderCtx;
 	}
 
-	void rendererDestroy()
+	void rendererDestroy(RendererContextI* _renderCtx)
 	{
-		s_rendererDestroyFn();
+		if (NULL != _renderCtx)
+		{
+			s_rendererCreator[_renderCtx->getRendererType()].destroyFn();
+		}
 	}
 
 	void Context::rendererExecCommands(CommandBuffer& _cmdbuf)
@@ -1905,6 +2038,7 @@ namespace bgfx
 					_cmdbuf.read(type);
 
 					m_renderCtx = rendererCreate(type);
+
 					m_rendererInitialized = NULL != m_renderCtx;
 
 					if (!m_rendererInitialized)
@@ -1937,8 +2071,10 @@ namespace bgfx
 			case CommandBuffer::RendererShutdownEnd:
 				{
 					BX_CHECK(!m_rendererInitialized && !m_exit, "This shouldn't happen! Bad synchronization?");
-					rendererDestroy();
+
+					rendererDestroy(m_renderCtx);
 					m_renderCtx = NULL;
+
 					m_exit = true;
 				}
 				// fall through
@@ -2235,7 +2371,10 @@ namespace bgfx
 					void* data;
 					_cmdbuf.read(data);
 
-					m_renderCtx->readTexture(handle, data);
+					uint8_t mip;
+					_cmdbuf.read(mip);
+
+					m_renderCtx->readTexture(handle, data, mip);
 				}
 				break;
 
@@ -2341,14 +2480,17 @@ namespace bgfx
 				}
 				break;
 
-			case CommandBuffer::SaveScreenShot:
+			case CommandBuffer::RequestScreenShot:
 				{
+					FrameBufferHandle handle;
+					_cmdbuf.read(handle);
+
 					uint16_t len;
 					_cmdbuf.read(len);
 
 					const char* filePath = (const char*)_cmdbuf.skip(len);
 
-					m_renderCtx->saveScreenShot(filePath);
+					m_renderCtx->requestScreenShot(handle, filePath);
 				}
 				break;
 
@@ -2363,6 +2505,15 @@ namespace bgfx
 					const char* name = (const char*)_cmdbuf.skip(len);
 
 					m_renderCtx->updateViewName(id, name);
+				}
+				break;
+
+			case CommandBuffer::InvalidateOcclusionQuery:
+				{
+					OcclusionQueryHandle handle;
+					_cmdbuf.read(handle);
+
+					m_renderCtx->invalidateOcclusionQuery(handle);
 				}
 				break;
 
@@ -2475,7 +2626,7 @@ namespace bgfx
 			goto error;
 		}
 
-		memset(&g_caps, 0, sizeof(g_caps) );
+		bx::memSet(&g_caps, 0, sizeof(g_caps) );
 		g_caps.limits.maxDrawCalls            = BGFX_CONFIG_MAX_DRAW_CALLS;
 		g_caps.limits.maxBlits                = BGFX_CONFIG_MAX_BLIT_ITEMS;
 		g_caps.limits.maxViews                = BGFX_CONFIG_MAX_VIEWS;
@@ -2491,7 +2642,7 @@ namespace bgfx
 		g_caps.limits.maxDynamicIndexBuffers  = BGFX_CONFIG_MAX_DYNAMIC_INDEX_BUFFERS;
 		g_caps.limits.maxDynamicVertexBuffers = BGFX_CONFIG_MAX_DYNAMIC_VERTEX_BUFFERS;
 		g_caps.limits.maxUniforms             = BGFX_CONFIG_MAX_UNIFORMS;
-		g_caps.limits.maxOcclusionQueries     = BGFX_CONFIG_MAX_OCCUSION_QUERIES;
+		g_caps.limits.maxOcclusionQueries     = BGFX_CONFIG_MAX_OCCLUSION_QUERIES;
 		g_caps.limits.maxFBAttachments        = 1;
 
 		g_caps.vendorId = _vendorId;
@@ -2501,7 +2652,7 @@ namespace bgfx
 
 		errorState = ErrorState::ContextAllocated;
 
-		s_ctx = BX_ALIGNED_NEW(g_allocator, Context, 16);
+		s_ctx = BX_ALIGNED_NEW(g_allocator, Context, 64);
 		if (s_ctx->init(_type) )
 		{
 			BX_TRACE("Init complete.");
@@ -2514,7 +2665,7 @@ error:
 		switch (errorState)
 		{
 		case ErrorState::ContextAllocated:
-			BX_ALIGNED_DELETE(g_allocator, s_ctx, 16);
+			BX_ALIGNED_DELETE(g_allocator, s_ctx, 64);
 			s_ctx = NULL;
 
 		case ErrorState::Default:
@@ -2622,7 +2773,7 @@ error:
 	{
 		BX_CHECK(0 < _size, "Invalid memory operation. _size is 0.");
 		const Memory* mem = alloc(_size);
-		memcpy(mem->data, _data, _size);
+		bx::memCopy(mem->data, _data, _size);
 		return mem;
 	}
 
@@ -2776,34 +2927,26 @@ error:
 		s_ctx->destroyDynamicVertexBuffer(_handle);
 	}
 
-	bool checkAvailTransientIndexBuffer(uint32_t _num)
+	uint32_t getAvailTransientIndexBuffer(uint32_t _num)
 	{
 		BGFX_CHECK_MAIN_THREAD();
 		BX_CHECK(0 < _num, "Requesting 0 indices.");
-		return s_ctx->checkAvailTransientIndexBuffer(_num);
+		return s_ctx->getAvailTransientIndexBuffer(_num);
 	}
 
-	bool checkAvailTransientVertexBuffer(uint32_t _num, const VertexDecl& _decl)
+	uint32_t getAvailTransientVertexBuffer(uint32_t _num, const VertexDecl& _decl)
 	{
 		BGFX_CHECK_MAIN_THREAD();
 		BX_CHECK(0 < _num, "Requesting 0 vertices.");
 		BX_CHECK(0 != _decl.m_stride, "Invalid VertexDecl.");
-		return s_ctx->checkAvailTransientVertexBuffer(_num, _decl.m_stride);
+		return s_ctx->getAvailTransientVertexBuffer(_num, _decl.m_stride);
 	}
 
-	bool checkAvailInstanceDataBuffer(uint32_t _num, uint16_t _stride)
+	uint32_t getAvailInstanceDataBuffer(uint32_t _num, uint16_t _stride)
 	{
 		BGFX_CHECK_MAIN_THREAD();
 		BX_CHECK(0 < _num, "Requesting 0 instances.");
-		return s_ctx->checkAvailTransientVertexBuffer(_num, _stride);
-	}
-
-	bool checkAvailTransientBuffers(uint32_t _numVertices, const VertexDecl& _decl, uint32_t _numIndices)
-	{
-		BX_CHECK(0 != _decl.m_stride, "Invalid VertexDecl.");
-		return checkAvailTransientVertexBuffer(_numVertices, _decl)
-			&& checkAvailTransientIndexBuffer(_numIndices)
-			;
+		return s_ctx->getAvailTransientVertexBuffer(_num, _stride);
 	}
 
 	void allocTransientIndexBuffer(TransientIndexBuffer* _tib, uint32_t _num)
@@ -2834,7 +2977,8 @@ error:
 
 	bool allocTransientBuffers(bgfx::TransientVertexBuffer* _tvb, const bgfx::VertexDecl& _decl, uint32_t _numVertices, bgfx::TransientIndexBuffer* _tib, uint32_t _numIndices)
 	{
-		if (checkAvailTransientBuffers(_numVertices, _decl, _numIndices) )
+		if (_numVertices == getAvailTransientVertexBuffer(_numVertices, _decl)
+		&&  _numIndices  == getAvailTransientIndexBuffer(_numIndices) )
 		{
 			allocTransientVertexBuffer(_tvb, _numVertices, _decl);
 			allocTransientIndexBuffer(_tib, _numIndices);
@@ -2911,50 +3055,117 @@ error:
 		s_ctx->destroyProgram(_handle);
 	}
 
-	void calcTextureSize(TextureInfo& _info, uint16_t _width, uint16_t _height, uint16_t _depth, bool _cubeMap, bool _hasMips, uint16_t _numLayers, TextureFormat::Enum _format)
+	static void isTextureValid(uint16_t _depth, bool _cubeMap, uint16_t _numLayers, TextureFormat::Enum _format, uint32_t _flags, bx::Error* _err)
 	{
-		const ImageBlockInfo& blockInfo = getBlockInfo(_format);
-		const uint8_t  bpp         = blockInfo.bitsPerPixel;
-		const uint16_t blockWidth  = blockInfo.blockWidth;
-		const uint16_t blockHeight = blockInfo.blockHeight;
-		const uint16_t minBlockX   = blockInfo.minBlockX;
-		const uint16_t minBlockY   = blockInfo.minBlockY;
+		BX_ERROR_SCOPE(_err);
 
-		_width   = bx::uint16_max(blockWidth  * minBlockX, ( (_width  + blockWidth  - 1) / blockWidth)*blockWidth);
-		_height  = bx::uint16_max(blockHeight * minBlockY, ( (_height + blockHeight - 1) / blockHeight)*blockHeight);
-		_depth   = bx::uint16_max(1, _depth);
-		const uint8_t  numMips = calcNumMips(_hasMips, _width, _height, _depth);
-		const uint32_t sides   = _cubeMap ? 6 : 1;
+		const bool is3DTexture = 1 < _depth;
 
-		uint32_t width  = _width;
-		uint32_t height = _height;
-		uint32_t depth  = _depth;
-		uint32_t size   = 0;
-
-		for (uint32_t lod = 0; lod < numMips; ++lod)
+		if (_cubeMap && is3DTexture)
 		{
-			width  = bx::uint32_max(blockWidth  * minBlockX, ( (width  + blockWidth  - 1) / blockWidth )*blockWidth);
-			height = bx::uint32_max(blockHeight * minBlockY, ( (height + blockHeight - 1) / blockHeight)*blockHeight);
-			depth  = bx::uint32_max(1, depth);
-
-			size += width*height*depth*bpp/8 * sides;
-
-			width  >>= 1;
-			height >>= 1;
-			depth  >>= 1;
+			_err->setError(BGFX_ERROR_TEXTURE_VALIDATION
+				, "Texture can't be depth and cube map at the same time."
+				);
+			return;
 		}
 
-		size *= _numLayers;
+		if (is3DTexture
+		&& 	0 == (g_caps.supported & BGFX_CAPS_TEXTURE_3D) )
+		{
+			_err->setError(BGFX_ERROR_TEXTURE_VALIDATION
+				, "Texture3D is not supported! "
+				  "Use bgfx::getCaps to check BGFX_CAPS_TEXTURE_3D backend renderer capabilities."
+				);
+			return;
+		}
 
-		_info.format  = _format;
-		_info.width   = _width;
-		_info.height  = _height;
-		_info.depth   = _depth;
-		_info.numMips = numMips;
-		_info.numLayers = _numLayers;
-		_info.cubeMap   = _cubeMap;
-		_info.storageSize  = size;
-		_info.bitsPerPixel = bpp;
+		if (0 != (_flags & BGFX_TEXTURE_RT_MASK)
+		&&  0 != (_flags & BGFX_TEXTURE_READ_BACK) )
+		{
+			_err->setError(BGFX_ERROR_TEXTURE_VALIDATION
+				, "Can't create render target with BGFX_TEXTURE_READ_BACK flag."
+				);
+			return;
+		}
+
+		if (1 < _numLayers
+		&&  0 == (g_caps.supported & BGFX_CAPS_TEXTURE_2D_ARRAY) )
+		{
+			_err->setError(BGFX_ERROR_TEXTURE_VALIDATION
+				, "Texture array is not supported! "
+				  "Use bgfx::getCaps to check BGFX_CAPS_TEXTURE_2D_ARRAY backend renderer capabilities."
+				);
+			return;
+		}
+
+		bool formatSupported = 0 != (g_caps.formats[_format] & (0
+				| BGFX_CAPS_FORMAT_TEXTURE_2D
+				| BGFX_CAPS_FORMAT_TEXTURE_2D_EMULATED
+				| BGFX_CAPS_FORMAT_TEXTURE_2D_SRGB
+				) );
+		uint16_t srgbCaps = BGFX_CAPS_FORMAT_TEXTURE_2D_SRGB;
+
+		if (_cubeMap)
+		{
+			formatSupported = 0 != (g_caps.formats[_format] & (0
+				| BGFX_CAPS_FORMAT_TEXTURE_CUBE
+				| BGFX_CAPS_FORMAT_TEXTURE_CUBE_EMULATED
+				| BGFX_CAPS_FORMAT_TEXTURE_CUBE_SRGB
+				) );
+			srgbCaps = BGFX_CAPS_FORMAT_TEXTURE_CUBE_SRGB;
+		}
+		else if (is3DTexture)
+		{
+			formatSupported = 0 != (g_caps.formats[_format] & (0
+				| BGFX_CAPS_FORMAT_TEXTURE_3D
+				| BGFX_CAPS_FORMAT_TEXTURE_3D_EMULATED
+				| BGFX_CAPS_FORMAT_TEXTURE_3D_SRGB
+				) );
+			srgbCaps = BGFX_CAPS_FORMAT_TEXTURE_3D_SRGB;
+		}
+
+		if (!formatSupported)
+		{
+			_err->setError(BGFX_ERROR_TEXTURE_VALIDATION
+				, "Texture format is not supported! "
+				  "Use bgfx::isTextureValid to check support for texture format before creating it."
+				);
+			return;
+		}
+
+		if (0 != (_flags & BGFX_TEXTURE_MSAA_SAMPLE)
+		&&  0 == (g_caps.supported & BGFX_CAPS_FORMAT_TEXTURE_MSAA) )
+		{
+			_err->setError(BGFX_ERROR_TEXTURE_VALIDATION
+				, "MSAA sampling for this texture format is not supported."
+				);
+			return;
+		}
+
+		if (0 != (_flags & BGFX_TEXTURE_SRGB)
+		&&  0 == (g_caps.supported & srgbCaps & (0
+				| BGFX_CAPS_FORMAT_TEXTURE_2D_SRGB
+				| BGFX_CAPS_FORMAT_TEXTURE_3D_SRGB
+				| BGFX_CAPS_FORMAT_TEXTURE_CUBE_SRGB
+				) ) )
+		{
+			_err->setError(BGFX_ERROR_TEXTURE_VALIDATION
+				, "sRGB sampling for this texture format is not supported."
+				);
+			return;
+		}
+	}
+
+	bool isTextureValid(uint16_t _depth, bool _cubeMap, uint16_t _numLayers, TextureFormat::Enum _format, uint32_t _flags)
+	{
+		bx::Error err;
+		isTextureValid(_depth, _cubeMap, _numLayers, _format, _flags, &err);
+		return err.isOk();
+	}
+
+	void calcTextureSize(TextureInfo& _info, uint16_t _width, uint16_t _height, uint16_t _depth, bool _cubeMap, bool _hasMips, uint16_t _numLayers, TextureFormat::Enum _format)
+	{
+		bimg::imageGetSize( (bimg::TextureInfo*)&_info, _width, _height, _depth, _cubeMap, _hasMips, _numLayers, bimg::TextureFormat::Enum(_format) );
 	}
 
 	TextureHandle createTexture(const Memory* _mem, uint32_t _flags, uint8_t _skip, TextureInfo* _info)
@@ -2986,18 +3197,12 @@ error:
 	{
 		BGFX_CHECK_MAIN_THREAD();
 
-		BX_CHECK(0 == (_flags & BGFX_TEXTURE_RT_MASK) || 0 == (_flags & BGFX_TEXTURE_READ_BACK)
-			, "Can't create render target with BGFX_TEXTURE_READ_BACK flag."
-			);
-		BX_CHECK(0 != (g_caps.formats[_format] & (BGFX_CAPS_FORMAT_TEXTURE_2D|BGFX_CAPS_FORMAT_TEXTURE_2D_EMULATED|BGFX_CAPS_FORMAT_TEXTURE_2D_SRGB) )
-			, "Format %s is not supported for 2D texture. Use bgfx::getCaps to check available texture formats."
-			, getName(_format)
-			);
-		BX_CHECK(false
-			|| 1 >= _numLayers
-			|| 0 != (g_caps.supported & BGFX_CAPS_TEXTURE_2D_ARRAY)
-			, "_numLayers is %d. Texture 2D array is not supported! Use bgfx::getCaps to check BGFX_CAPS_TEXTURE_2D_ARRAY backend renderer capabilities."
+		bx::Error err;
+		isTextureValid(0, false, _numLayers, _format, _flags, &err);
+		BX_CHECK(err.isOk(), "%s (layers %d, format %s)"
+			, err.getMessage().getPtr()
 			, _numLayers
+			, getName(_format)
 			);
 
 		if (BackbufferRatio::Count != _ratio)
@@ -3058,11 +3263,10 @@ error:
 	TextureHandle createTexture3D(uint16_t _width, uint16_t _height, uint16_t _depth, bool _hasMips, TextureFormat::Enum _format, uint32_t _flags, const Memory* _mem)
 	{
 		BGFX_CHECK_MAIN_THREAD();
-		BGFX_CHECK_CAPS(BGFX_CAPS_TEXTURE_3D, "Texture3D is not supported!");
-		BX_CHECK(0 != (g_caps.formats[_format] & (BGFX_CAPS_FORMAT_TEXTURE_3D|BGFX_CAPS_FORMAT_TEXTURE_3D_EMULATED|BGFX_CAPS_FORMAT_TEXTURE_3D_SRGB) )
-			, "Format %s is not supported for 3D texture. Use bgfx::getCaps to check available texture formats."
-			, getName(_format)
-			);
+
+		bx::Error err;
+		isTextureValid(_depth, false, 1, _format, _flags, &err);
+		BX_CHECK(err.isOk(), "%s", err.getMessage().getPtr() );
 
 		const uint8_t numMips = calcNumMips(_hasMips, _width, _height, _depth);
 
@@ -3102,16 +3306,10 @@ error:
 	TextureHandle createTextureCube(uint16_t _size, bool _hasMips, uint16_t _numLayers, TextureFormat::Enum _format, uint32_t _flags, const Memory* _mem)
 	{
 		BGFX_CHECK_MAIN_THREAD();
-		BX_CHECK(0 != (g_caps.formats[_format] & (BGFX_CAPS_FORMAT_TEXTURE_CUBE|BGFX_CAPS_FORMAT_TEXTURE_CUBE_EMULATED|BGFX_CAPS_FORMAT_TEXTURE_CUBE_SRGB) )
-			, "Format %s is not supported for cube texture. Use bgfx::getCaps to check available texture formats."
-			, getName(_format)
-			);
-		BX_CHECK(false
-			|| 1 >= _numLayers
-			|| 0 != (g_caps.supported & BGFX_CAPS_TEXTURE_CUBE_ARRAY)
-			, "_numLayers is %d. Texture cube array is not supported! Use bgfx::getCaps to check BGFX_CAPS_TEXTURE_CUBE_ARRAY backend renderer capabilities."
-			, _numLayers
-			);
+
+		bx::Error err;
+		isTextureValid(0, true, _numLayers, _format, _flags, &err);
+		BX_CHECK(err.isOk(), "%s", err.getMessage().getPtr() );
 
 		const uint8_t numMips = calcNumMips(_hasMips, _size, _size);
 		_numLayers = bx::uint16_max(_numLayers, 1);
@@ -3159,7 +3357,7 @@ error:
 	{
 		BGFX_CHECK_MAIN_THREAD();
 		BX_CHECK(NULL != _mem, "_mem can't be NULL");
-		if (_width == 0
+		if (_width  == 0
 		||  _height == 0)
 		{
 			release(_mem);
@@ -3204,20 +3402,12 @@ error:
 		}
 	}
 
-	uint32_t readTexture(TextureHandle _handle, void* _data)
+	uint32_t readTexture(TextureHandle _handle, void* _data, uint8_t _mip)
 	{
 		BGFX_CHECK_MAIN_THREAD();
 		BX_CHECK(NULL != _data, "_data can't be NULL");
 		BGFX_CHECK_CAPS(BGFX_CAPS_TEXTURE_READ_BACK, "Texture read-back is not supported!");
-		return s_ctx->readTexture(_handle, _data);
-	}
-
-	uint32_t readTexture(FrameBufferHandle _handle, uint8_t _attachment, void* _data)
-	{
-		BGFX_CHECK_MAIN_THREAD();
-		BX_CHECK(NULL != _data, "_data can't be NULL");
-		BGFX_CHECK_CAPS(BGFX_CAPS_TEXTURE_READ_BACK, "Texture read-back is not supported!");
-		return s_ctx->readTexture(_handle, _attachment, _data);
+		return s_ctx->readTexture(_handle, _data, _mip);
 	}
 
 	FrameBufferHandle createFrameBuffer(uint16_t _width, uint16_t _height, TextureFormat::Enum _format, uint32_t _textureFlags)
@@ -3266,6 +3456,12 @@ error:
 		return s_ctx->createFrameBuffer(_nwh, _width, _height, _depthFormat);
 	}
 
+	TextureHandle getTexture(FrameBufferHandle _handle, uint8_t _attachment)
+	{
+		BGFX_CHECK_MAIN_THREAD();
+		return s_ctx->getTexture(_handle, _attachment);
+	}
+
 	void destroyFrameBuffer(FrameBufferHandle _handle)
 	{
 		BGFX_CHECK_MAIN_THREAD();
@@ -3276,6 +3472,12 @@ error:
 	{
 		BGFX_CHECK_MAIN_THREAD();
 		return s_ctx->createUniform(_name, _type, _num);
+	}
+
+	void getUniformInfo(UniformHandle _handle, UniformInfo& _info)
+	{
+		BGFX_CHECK_MAIN_THREAD();
+		s_ctx->getUniformInfo(_handle, _info);
 	}
 
 	void destroyUniform(UniformHandle _handle)
@@ -3291,11 +3493,11 @@ error:
 		return s_ctx->createOcclusionQuery();
 	}
 
-	OcclusionQueryResult::Enum getResult(OcclusionQueryHandle _handle)
+	OcclusionQueryResult::Enum getResult(OcclusionQueryHandle _handle, int32_t* _result)
 	{
 		BGFX_CHECK_MAIN_THREAD();
 		BGFX_CHECK_CAPS(BGFX_CAPS_OCCLUSION_QUERY, "Occlusion query is not supported!");
-		return s_ctx->getResult(_handle);
+		return s_ctx->getResult(_handle, _result);
 	}
 
 	void destroyOcclusionQuery(OcclusionQueryHandle _handle)
@@ -3411,11 +3613,11 @@ error:
 		s_ctx->setViewTransform(_id, _view, _projL, _flags, _projR);
 	}
 
-	void setViewRemap(uint8_t _id, uint8_t _num, const void* _remap)
+	void setViewOrder(uint8_t _id, uint8_t _num, const void* _order)
 	{
 		BGFX_CHECK_MAIN_THREAD();
 		BX_CHECK(checkView(_id), "Invalid view id: %d", _id);
-		s_ctx->setViewRemap(_id, _num, _remap);
+		s_ctx->setViewOrder(_id, _num, _order);
 	}
 
 	void resetView(uint8_t _id)
@@ -3582,14 +3784,6 @@ error:
 		s_ctx->setTexture(_stage, _sampler, _handle, _flags);
 	}
 
-	void setTexture(uint8_t _stage, UniformHandle _sampler, FrameBufferHandle _handle, uint8_t _attachment, uint32_t _flags)
-	{
-		BGFX_CHECK_MAIN_THREAD();
-		BX_CHECK(_stage < BGFX_CONFIG_MAX_TEXTURE_SAMPLERS, "Invalid stage %d (max %d).", _stage, BGFX_CONFIG_MAX_TEXTURE_SAMPLERS);
-		BX_CHECK(_attachment < g_caps.limits.maxFBAttachments, "Frame buffer attachment index %d is invalid.", _attachment);
-		s_ctx->setTexture(_stage, _sampler, _handle, _attachment, _flags);
-	}
-
 	uint32_t touch(uint8_t _id)
 	{
 		ProgramHandle handle = BGFX_INVALID_HANDLE;
@@ -3616,6 +3810,7 @@ error:
 	uint32_t submit(uint8_t _id, ProgramHandle _program, IndirectBufferHandle _indirectHandle, uint16_t _start, uint16_t _num, int32_t _depth, bool _preserveState)
 	{
 		BGFX_CHECK_MAIN_THREAD();
+		BGFX_CHECK_CAPS(BGFX_CAPS_DRAW_INDIRECT, "Draw indirect is not supported! Use bgfx::getCaps to check BGFX_CAPS_DRAW_INDIRECT backend renderer capabilities.");
 		return s_ctx->submit(_id, _program, _indirectHandle, _start, _num, _depth, _preserveState);
 	}
 
@@ -3661,23 +3856,18 @@ error:
 		s_ctx->setImage(_stage, _sampler, _handle, _mip, _access, _format);
 	}
 
-	void setImage(uint8_t _stage, UniformHandle _sampler, FrameBufferHandle _handle, uint8_t _attachment, Access::Enum _access, TextureFormat::Enum _format)
-	{
-		BGFX_CHECK_MAIN_THREAD();
-		BX_CHECK(_stage < BGFX_CONFIG_MAX_TEXTURE_SAMPLERS, "Invalid stage %d (max %d).", _stage, BGFX_CONFIG_MAX_TEXTURE_SAMPLERS);
-		BX_CHECK(_attachment < g_caps.limits.maxFBAttachments, "Frame buffer attachment index %d is invalid.", _attachment);
-		s_ctx->setImage(_stage, _sampler, _handle, _attachment, _access, _format);
-	}
-
 	uint32_t dispatch(uint8_t _id, ProgramHandle _handle, uint16_t _numX, uint16_t _numY, uint16_t _numZ, uint8_t _flags)
 	{
 		BGFX_CHECK_MAIN_THREAD();
+		BGFX_CHECK_CAPS(BGFX_CAPS_COMPUTE, "Compute is not supported! Use bgfx::getCaps to check BGFX_CAPS_COMPUTE backend renderer capabilities.");
 		return s_ctx->dispatch(_id, _handle, _numX, _numY, _numZ, _flags);
 	}
 
 	uint32_t dispatch(uint8_t _id, ProgramHandle _handle, IndirectBufferHandle _indirectHandle, uint16_t _start, uint16_t _num, uint8_t _flags)
 	{
 		BGFX_CHECK_MAIN_THREAD();
+		BGFX_CHECK_CAPS(BGFX_CAPS_DRAW_INDIRECT, "Dispatch indirect is not supported! Use bgfx::getCaps to check BGFX_CAPS_DRAW_INDIRECT backend renderer capabilities.");
+		BGFX_CHECK_CAPS(BGFX_CAPS_COMPUTE, "Compute is not supported! Use bgfx::getCaps to check BGFX_CAPS_COMPUTE backend renderer capabilities.");
 		return s_ctx->dispatch(_id, _handle, _indirectHandle, _start, _num, _flags);
 	}
 
@@ -3692,11 +3882,6 @@ error:
 		blit(_id, _dst, 0, _dstX, _dstY, 0, _src, 0, _srcX, _srcY, 0, _width, _height, 0);
 	}
 
-	void blit(uint8_t _id, TextureHandle _dst, uint16_t _dstX, uint16_t _dstY, FrameBufferHandle _src, uint8_t _attachment, uint16_t _srcX, uint16_t _srcY, uint16_t _width, uint16_t _height)
-	{
-		blit(_id, _dst, 0, _dstX, _dstY, 0, _src, _attachment, 0, _srcX, _srcY, 0, _width, _height, 0);
-	}
-
 	void blit(uint8_t _id, TextureHandle _dst, uint8_t _dstMip, uint16_t _dstX, uint16_t _dstY, uint16_t _dstZ, TextureHandle _src, uint8_t _srcMip, uint16_t _srcX, uint16_t _srcY, uint16_t _srcZ, uint16_t _width, uint16_t _height, uint16_t _depth)
 	{
 		BGFX_CHECK_MAIN_THREAD();
@@ -3704,23 +3889,98 @@ error:
 		s_ctx->blit(_id, _dst, _dstMip, _dstX, _dstY, _dstZ, _src, _srcMip, _srcX, _srcY, _srcZ, _width, _height, _depth);
 	}
 
-	void blit(uint8_t _id, TextureHandle _dst, uint8_t _dstMip, uint16_t _dstX, uint16_t _dstY, uint16_t _dstZ, FrameBufferHandle _src, uint8_t _attachment, uint8_t _srcMip, uint16_t _srcX, uint16_t _srcY, uint16_t _srcZ, uint16_t _width, uint16_t _height, uint16_t _depth)
+	void requestScreenShot(FrameBufferHandle _handle, const char* _filePath)
 	{
 		BGFX_CHECK_MAIN_THREAD();
-		BGFX_CHECK_CAPS(BGFX_CAPS_TEXTURE_BLIT, "Texture blit is not supported!");
-		BX_CHECK(_attachment < g_caps.limits.maxFBAttachments, "Frame buffer attachment index %d is invalid.", _attachment);
-		s_ctx->blit(_id, _dst, _dstMip, _dstX, _dstY, _dstZ, _src, _attachment, _srcMip, _srcX, _srcY, _srcZ, _width, _height, _depth);
-	}
-
-	void saveScreenShot(const char* _filePath)
-	{
-		BGFX_CHECK_MAIN_THREAD();
-		s_ctx->saveScreenShot(_filePath);
+		s_ctx->requestScreenShot(_handle, _filePath);
 	}
 } // namespace bgfx
 
+#define BGFX_TEXTURE_FORMAT_BIMG(_fmt) \
+			BX_STATIC_ASSERT(uint32_t(bgfx::TextureFormat::_fmt) == uint32_t(bimg::TextureFormat::_fmt) )
+
+BGFX_TEXTURE_FORMAT_BIMG(BC1);
+BGFX_TEXTURE_FORMAT_BIMG(BC2);
+BGFX_TEXTURE_FORMAT_BIMG(BC3);
+BGFX_TEXTURE_FORMAT_BIMG(BC4);
+BGFX_TEXTURE_FORMAT_BIMG(BC5);
+BGFX_TEXTURE_FORMAT_BIMG(BC6H);
+BGFX_TEXTURE_FORMAT_BIMG(BC7);
+BGFX_TEXTURE_FORMAT_BIMG(ETC1);
+BGFX_TEXTURE_FORMAT_BIMG(ETC2);
+BGFX_TEXTURE_FORMAT_BIMG(ETC2A);
+BGFX_TEXTURE_FORMAT_BIMG(ETC2A1);
+BGFX_TEXTURE_FORMAT_BIMG(PTC12);
+BGFX_TEXTURE_FORMAT_BIMG(PTC14);
+BGFX_TEXTURE_FORMAT_BIMG(PTC12A);
+BGFX_TEXTURE_FORMAT_BIMG(PTC14A);
+BGFX_TEXTURE_FORMAT_BIMG(PTC22);
+BGFX_TEXTURE_FORMAT_BIMG(PTC24);
+BGFX_TEXTURE_FORMAT_BIMG(Unknown);
+BGFX_TEXTURE_FORMAT_BIMG(R1);
+BGFX_TEXTURE_FORMAT_BIMG(A8);
+BGFX_TEXTURE_FORMAT_BIMG(R8);
+BGFX_TEXTURE_FORMAT_BIMG(R8I);
+BGFX_TEXTURE_FORMAT_BIMG(R8U);
+BGFX_TEXTURE_FORMAT_BIMG(R8S);
+BGFX_TEXTURE_FORMAT_BIMG(R16);
+BGFX_TEXTURE_FORMAT_BIMG(R16I);
+BGFX_TEXTURE_FORMAT_BIMG(R16U);
+BGFX_TEXTURE_FORMAT_BIMG(R16F);
+BGFX_TEXTURE_FORMAT_BIMG(R16S);
+BGFX_TEXTURE_FORMAT_BIMG(R32I);
+BGFX_TEXTURE_FORMAT_BIMG(R32U);
+BGFX_TEXTURE_FORMAT_BIMG(R32F);
+BGFX_TEXTURE_FORMAT_BIMG(RG8);
+BGFX_TEXTURE_FORMAT_BIMG(RG8I);
+BGFX_TEXTURE_FORMAT_BIMG(RG8U);
+BGFX_TEXTURE_FORMAT_BIMG(RG8S);
+BGFX_TEXTURE_FORMAT_BIMG(RG16);
+BGFX_TEXTURE_FORMAT_BIMG(RG16I);
+BGFX_TEXTURE_FORMAT_BIMG(RG16U);
+BGFX_TEXTURE_FORMAT_BIMG(RG16F);
+BGFX_TEXTURE_FORMAT_BIMG(RG16S);
+BGFX_TEXTURE_FORMAT_BIMG(RG32I);
+BGFX_TEXTURE_FORMAT_BIMG(RG32U);
+BGFX_TEXTURE_FORMAT_BIMG(RG32F);
+BGFX_TEXTURE_FORMAT_BIMG(RGB8);
+BGFX_TEXTURE_FORMAT_BIMG(RGB8I);
+BGFX_TEXTURE_FORMAT_BIMG(RGB8U);
+BGFX_TEXTURE_FORMAT_BIMG(RGB8S);
+BGFX_TEXTURE_FORMAT_BIMG(RGB9E5F);
+BGFX_TEXTURE_FORMAT_BIMG(BGRA8);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA8);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA8I);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA8U);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA8S);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA16);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA16I);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA16U);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA16F);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA16S);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA32I);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA32U);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA32F);
+BGFX_TEXTURE_FORMAT_BIMG(R5G6B5);
+BGFX_TEXTURE_FORMAT_BIMG(RGBA4);
+BGFX_TEXTURE_FORMAT_BIMG(RGB5A1);
+BGFX_TEXTURE_FORMAT_BIMG(RGB10A2);
+BGFX_TEXTURE_FORMAT_BIMG(R11G11B10F);
+BGFX_TEXTURE_FORMAT_BIMG(UnknownDepth);
+BGFX_TEXTURE_FORMAT_BIMG(D16);
+BGFX_TEXTURE_FORMAT_BIMG(D24);
+BGFX_TEXTURE_FORMAT_BIMG(D24S8);
+BGFX_TEXTURE_FORMAT_BIMG(D32);
+BGFX_TEXTURE_FORMAT_BIMG(D16F);
+BGFX_TEXTURE_FORMAT_BIMG(D24F);
+BGFX_TEXTURE_FORMAT_BIMG(D32F);
+BGFX_TEXTURE_FORMAT_BIMG(D0S8);
+BGFX_TEXTURE_FORMAT_BIMG(Count);
+
+#undef BGFX_TEXTURE_FORMAT_BIMG
+
 #include <bgfx/c99/bgfx.h>
-#include <bgfx/c99/bgfxplatform.h>
+#include <bgfx/c99/platform.h>
 
 #define FLAGS_MASK_TEST(_flags, _mask) ( (_flags) == ( (_flags) & (_mask) ) )
 
@@ -3776,6 +4036,7 @@ BGFX_C99_STRUCT_SIZE_CHECK(bgfx::TransientIndexBuffer,  bgfx_transient_index_buf
 BGFX_C99_STRUCT_SIZE_CHECK(bgfx::TransientVertexBuffer, bgfx_transient_vertex_buffer_t);
 BGFX_C99_STRUCT_SIZE_CHECK(bgfx::InstanceDataBuffer,    bgfx_instance_data_buffer_t);
 BGFX_C99_STRUCT_SIZE_CHECK(bgfx::TextureInfo,           bgfx_texture_info_t);
+BGFX_C99_STRUCT_SIZE_CHECK(bgfx::UniformInfo,           bgfx_uniform_info_t);
 BGFX_C99_STRUCT_SIZE_CHECK(bgfx::Attachment,            bgfx_attachment_t);
 BGFX_C99_STRUCT_SIZE_CHECK(bgfx::Caps::GPU,             bgfx_caps_gpu_t);
 BGFX_C99_STRUCT_SIZE_CHECK(bgfx::Caps::Limits,          bgfx_caps_limits_t);
@@ -3919,16 +4180,6 @@ uint32_t bgfx_topology_convert(bgfx_topology_convert_t _conversion, void* _dst, 
 void bgfx_topology_sort_tri_list(bgfx_topology_sort_t _sort, void* _dst, uint32_t _dstSize, const float _dir[3], const float _pos[3], const void* _vertices, uint32_t _stride, const void* _indices, uint32_t _numIndices, bool _index32)
 {
 	bgfx::topologySortTriList(bgfx::TopologySort::Enum(_sort), _dst, _dstSize, _dir, _pos, _vertices, _stride, _indices, _numIndices, _index32);
-}
-
-BGFX_C_API void bgfx_image_swizzle_bgra8(uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _src, void* _dst)
-{
-	bgfx::imageSwizzleBgra8(_width, _height, _pitch, _src, _dst);
-}
-
-BGFX_C_API void bgfx_image_rgba8_downsample_2x2(uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _src, void* _dst)
-{
-	bgfx::imageRgba8Downsample2x2(_width, _height, _pitch, _src, _dst);
 }
 
 BGFX_C_API uint8_t bgfx_get_supported_renderers(uint8_t _max, bgfx_renderer_type_t* _enum)
@@ -4121,26 +4372,20 @@ BGFX_C_API void bgfx_destroy_dynamic_vertex_buffer(bgfx_dynamic_vertex_buffer_ha
 	bgfx::destroyDynamicVertexBuffer(handle.cpp);
 }
 
-BGFX_C_API bool bgfx_check_avail_transient_index_buffer(uint32_t _num)
+BGFX_C_API uint32_t bgfx_get_avail_transient_index_buffer(uint32_t _num)
 {
-	return bgfx::checkAvailTransientIndexBuffer(_num);
+	return bgfx::getAvailTransientIndexBuffer(_num);
 }
 
-BGFX_C_API bool bgfx_check_avail_transient_vertex_buffer(uint32_t _num, const bgfx_vertex_decl_t* _decl)
+BGFX_C_API uint32_t bgfx_get_avail_transient_vertex_buffer(uint32_t _num, const bgfx_vertex_decl_t* _decl)
 {
 	const bgfx::VertexDecl& decl = *(const bgfx::VertexDecl*)_decl;
-	return bgfx::checkAvailTransientVertexBuffer(_num, decl);
+	return bgfx::getAvailTransientVertexBuffer(_num, decl);
 }
 
-BGFX_C_API bool bgfx_check_avail_instance_data_buffer(uint32_t _num, uint16_t _stride)
+BGFX_C_API uint32_t bgfx_get_avail_instance_data_buffer(uint32_t _num, uint16_t _stride)
 {
-	return bgfx::checkAvailInstanceDataBuffer(_num, _stride);
-}
-
-BGFX_C_API bool bgfx_check_avail_transient_buffers(uint32_t _numVertices, const bgfx_vertex_decl_t* _decl, uint32_t _numIndices)
-{
-	const bgfx::VertexDecl& decl = *(const bgfx::VertexDecl*)_decl;
-	return bgfx::checkAvailTransientBuffers(_numVertices, decl, _numIndices);
+	return bgfx::getAvailInstanceDataBuffer(_num, _stride);
 }
 
 BGFX_C_API void bgfx_alloc_transient_index_buffer(bgfx_transient_index_buffer_t* _tib, uint32_t _num)
@@ -4220,6 +4465,11 @@ BGFX_C_API void bgfx_destroy_program(bgfx_program_handle_t _handle)
 	bgfx::destroyProgram(handle.cpp);
 }
 
+BGFX_C_API bool bgfx_is_texture_valid(uint16_t _depth, bool _cubeMap, uint16_t _numLayers, bgfx_texture_format_t _format, uint32_t _flags)
+{
+	return bgfx::isTextureValid(_depth, _cubeMap, _numLayers, bgfx::TextureFormat::Enum(_format), _flags);
+}
+
 BGFX_C_API void bgfx_calc_texture_size(bgfx_texture_info_t* _info, uint16_t _width, uint16_t _height, uint16_t _depth, bool _cubeMap, bool _hasMips, uint16_t _numLayers, bgfx_texture_format_t _format)
 {
 	bgfx::TextureInfo& info = *(bgfx::TextureInfo*)_info;
@@ -4280,16 +4530,10 @@ BGFX_C_API void bgfx_update_texture_cube(bgfx_texture_handle_t _handle, uint16_t
 	bgfx::updateTextureCube(handle.cpp, _layer, _side, _mip, _x, _y, _width, _height, (const bgfx::Memory*)_mem, _pitch);
 }
 
-BGFX_C_API uint32_t bgfx_read_texture(bgfx_texture_handle_t _handle, void* _data)
+BGFX_C_API uint32_t bgfx_read_texture(bgfx_texture_handle_t _handle, void* _data, uint8_t _mip)
 {
 	union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } handle = { _handle };
-	return bgfx::readTexture(handle.cpp, _data);
-}
-
-BGFX_C_API uint32_t bgfx_read_frame_buffer(bgfx_frame_buffer_handle_t _handle, uint8_t _attachment, void* _data)
-{
-	union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } handle = { _handle };
-	return bgfx::readTexture(handle.cpp, _attachment, _data);
+	return bgfx::readTexture(handle.cpp, _data, _mip);
 }
 
 BGFX_C_API void bgfx_destroy_texture(bgfx_texture_handle_t _handle)
@@ -4333,6 +4577,14 @@ BGFX_C_API bgfx_frame_buffer_handle_t bgfx_create_frame_buffer_from_nwh(void* _n
 	return handle.c;
 }
 
+BGFX_C_API bgfx_texture_handle_t bgfx_get_texture(bgfx_frame_buffer_handle_t _handle, uint8_t _attachment)
+{
+	union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } handle = { _handle };
+	union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } textureHandle;
+	textureHandle.cpp = bgfx::getTexture(handle.cpp, _attachment);
+	return textureHandle.c;
+}
+
 BGFX_C_API void bgfx_destroy_frame_buffer(bgfx_frame_buffer_handle_t _handle)
 {
 	union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } handle = { _handle };
@@ -4344,6 +4596,13 @@ BGFX_C_API bgfx_uniform_handle_t bgfx_create_uniform(const char* _name, bgfx_uni
 	union { bgfx_uniform_handle_t c; bgfx::UniformHandle cpp; } handle;
 	handle.cpp = bgfx::createUniform(_name, bgfx::UniformType::Enum(_type), _num);
 	return handle.c;
+}
+
+BGFX_C_API void bgfx_get_uniform_info(bgfx_uniform_handle_t _handle, bgfx_uniform_info_t* _info)
+{
+	union { bgfx_uniform_handle_t c; bgfx::UniformHandle cpp; } handle = { _handle };
+	bgfx::UniformInfo& info = *(bgfx::UniformInfo*)_info;
+	bgfx::getUniformInfo(handle.cpp, info);
 }
 
 BGFX_C_API void bgfx_destroy_uniform(bgfx_uniform_handle_t _handle)
@@ -4359,10 +4618,10 @@ BGFX_C_API bgfx_occlusion_query_handle_t bgfx_create_occlusion_query()
 	return handle.c;
 }
 
-BGFX_C_API bgfx_occlusion_query_result_t bgfx_get_result(bgfx_occlusion_query_handle_t _handle)
+BGFX_C_API bgfx_occlusion_query_result_t bgfx_get_result(bgfx_occlusion_query_handle_t _handle, int32_t* _result)
 {
 	union { bgfx_occlusion_query_handle_t c; bgfx::OcclusionQueryHandle cpp; } handle = { _handle };
-	return bgfx_occlusion_query_result_t(bgfx::getResult(handle.cpp) );
+	return bgfx_occlusion_query_result_t(bgfx::getResult(handle.cpp, _result) );
 }
 
 BGFX_C_API void bgfx_destroy_occlusion_query(bgfx_occlusion_query_handle_t _handle)
@@ -4427,9 +4686,9 @@ BGFX_C_API void bgfx_set_view_transform_stereo(uint8_t _id, const void* _view, c
 	bgfx::setViewTransform(_id, _view, _projL, _flags, _projR);
 }
 
-BGFX_C_API void bgfx_set_view_remap(uint8_t _id, uint8_t _num, const void* _remap)
+BGFX_C_API void bgfx_set_view_order(uint8_t _id, uint8_t _num, const void* _order)
 {
-	bgfx::setViewRemap(_id, _num, _remap);
+	bgfx::setViewOrder(_id, _num, _order);
 }
 
 BGFX_C_API void bgfx_reset_view(uint8_t _id)
@@ -4547,13 +4806,6 @@ BGFX_C_API void bgfx_set_texture(uint8_t _stage, bgfx_uniform_handle_t _sampler,
 	bgfx::setTexture(_stage, sampler.cpp, handle.cpp, _flags);
 }
 
-BGFX_C_API void bgfx_set_texture_from_frame_buffer(uint8_t _stage, bgfx_uniform_handle_t _sampler, bgfx_frame_buffer_handle_t _handle, uint8_t _attachment, uint32_t _flags)
-{
-	union { bgfx_uniform_handle_t c;      bgfx::UniformHandle cpp;     } sampler = { _sampler };
-	union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } handle  = { _handle };
-	bgfx::setTexture(_stage, sampler.cpp, handle.cpp, _attachment, _flags);
-}
-
 BGFX_C_API uint32_t bgfx_touch(uint8_t _id)
 {
 	return bgfx::touch(_id);
@@ -4584,13 +4836,6 @@ BGFX_C_API void bgfx_set_image(uint8_t _stage, bgfx_uniform_handle_t _sampler, b
 	union { bgfx_uniform_handle_t c; bgfx::UniformHandle cpp; } sampler = { _sampler };
 	union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } handle  = { _handle  };
 	bgfx::setImage(_stage, sampler.cpp, handle.cpp, _mip, bgfx::Access::Enum(_access), bgfx::TextureFormat::Enum(_format) );
-}
-
-BGFX_C_API void bgfx_set_image_from_frame_buffer(uint8_t _stage, bgfx_uniform_handle_t _sampler, bgfx_frame_buffer_handle_t _handle, uint8_t _attachment, bgfx_access_t _access, bgfx_texture_format_t _format)
-{
-	union { bgfx_uniform_handle_t c;      bgfx::UniformHandle cpp;     } sampler = { _sampler };
-	union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } handle  = { _handle };
-	bgfx::setImage(_stage, sampler.cpp, handle.cpp, _attachment, bgfx::Access::Enum(_access), bgfx::TextureFormat::Enum(_format) );
 }
 
 BGFX_C_API void bgfx_set_compute_index_buffer(uint8_t _stage, bgfx_index_buffer_handle_t _handle, bgfx_access_t _access)
@@ -4648,16 +4893,10 @@ BGFX_C_API void bgfx_blit(uint8_t _id, bgfx_texture_handle_t _dst, uint8_t _dstM
 	bgfx::blit(_id, dst.cpp, _dstMip, _dstX, _dstY, _dstZ, src.cpp, _srcMip, _srcX, _srcY, _srcZ, _width, _height, _depth);
 }
 
-BGFX_C_API void bgfx_blit_frame_buffer(uint8_t _id, bgfx_texture_handle_t _dst, uint8_t _dstMip, uint16_t _dstX, uint16_t _dstY, uint16_t _dstZ, bgfx_frame_buffer_handle_t _src, uint8_t _attachment, uint8_t _srcMip, uint16_t _srcX, uint16_t _srcY, uint16_t _srcZ, uint16_t _width, uint16_t _height, uint16_t _depth)
+BGFX_C_API void bgfx_request_screen_shot(bgfx_frame_buffer_handle _handle, const char* _filePath)
 {
-	union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } dst = { _dst };
-	union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } src = { _src };
-	bgfx::blit(_id, dst.cpp, _dstMip, _dstX, _dstY, _dstZ, src.cpp, _attachment, _srcMip, _srcX, _srcY, _srcZ, _width, _height, _depth);
-}
-
-BGFX_C_API void bgfx_save_screen_shot(const char* _filePath)
-{
-	bgfx::saveScreenShot(_filePath);
+	union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } handle = { _handle };
+	bgfx::requestScreenShot(handle.cpp, _filePath);
 }
 
 BGFX_C_API bgfx_render_frame_t bgfx_render_frame()
@@ -4707,8 +4946,6 @@ BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 	BGFX_IMPORT_FUNC(weld_vertices) \
 	BGFX_IMPORT_FUNC(topology_convert) \
 	BGFX_IMPORT_FUNC(topology_sort_tri_list) \
-	BGFX_IMPORT_FUNC(image_swizzle_bgra8) \
-	BGFX_IMPORT_FUNC(image_rgba8_downsample_2x2) \
 	BGFX_IMPORT_FUNC(get_supported_renderers) \
 	BGFX_IMPORT_FUNC(get_renderer_name) \
 	BGFX_IMPORT_FUNC(init) \
@@ -4740,10 +4977,9 @@ BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 	BGFX_IMPORT_FUNC(create_dynamic_vertex_buffer_mem) \
 	BGFX_IMPORT_FUNC(update_dynamic_vertex_buffer) \
 	BGFX_IMPORT_FUNC(destroy_dynamic_vertex_buffer) \
-	BGFX_IMPORT_FUNC(check_avail_transient_index_buffer) \
-	BGFX_IMPORT_FUNC(check_avail_transient_vertex_buffer) \
-	BGFX_IMPORT_FUNC(check_avail_instance_data_buffer) \
-	BGFX_IMPORT_FUNC(check_avail_transient_buffers) \
+	BGFX_IMPORT_FUNC(get_avail_transient_index_buffer) \
+	BGFX_IMPORT_FUNC(get_avail_transient_vertex_buffer) \
+	BGFX_IMPORT_FUNC(get_avail_instance_data_buffer) \
 	BGFX_IMPORT_FUNC(alloc_transient_index_buffer) \
 	BGFX_IMPORT_FUNC(alloc_transient_vertex_buffer) \
 	BGFX_IMPORT_FUNC(alloc_transient_buffers) \
@@ -4756,6 +4992,7 @@ BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 	BGFX_IMPORT_FUNC(create_program) \
 	BGFX_IMPORT_FUNC(create_compute_program) \
 	BGFX_IMPORT_FUNC(destroy_program) \
+	BGFX_IMPORT_FUNC(is_texture_valid) \
 	BGFX_IMPORT_FUNC(calc_texture_size) \
 	BGFX_IMPORT_FUNC(create_texture) \
 	BGFX_IMPORT_FUNC(create_texture_2d) \
@@ -4765,13 +5002,16 @@ BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 	BGFX_IMPORT_FUNC(update_texture_2d) \
 	BGFX_IMPORT_FUNC(update_texture_3d) \
 	BGFX_IMPORT_FUNC(update_texture_cube) \
+	BGFX_IMPORT_FUNC(read_texture) \
 	BGFX_IMPORT_FUNC(destroy_texture) \
 	BGFX_IMPORT_FUNC(create_frame_buffer) \
 	BGFX_IMPORT_FUNC(create_frame_buffer_scaled) \
 	BGFX_IMPORT_FUNC(create_frame_buffer_from_attachment) \
 	BGFX_IMPORT_FUNC(create_frame_buffer_from_nwh) \
+	BGFX_IMPORT_FUNC(get_texture) \
 	BGFX_IMPORT_FUNC(destroy_frame_buffer) \
 	BGFX_IMPORT_FUNC(create_uniform) \
+	BGFX_IMPORT_FUNC(get_uniform_info) \
 	BGFX_IMPORT_FUNC(destroy_uniform) \
 	BGFX_IMPORT_FUNC(create_occlusion_query) \
 	BGFX_IMPORT_FUNC(get_result) \
@@ -4786,7 +5026,7 @@ BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 	BGFX_IMPORT_FUNC(set_view_frame_buffer) \
 	BGFX_IMPORT_FUNC(set_view_transform) \
 	BGFX_IMPORT_FUNC(set_view_transform_stereo) \
-	BGFX_IMPORT_FUNC(set_view_remap) \
+	BGFX_IMPORT_FUNC(set_view_order) \
 	BGFX_IMPORT_FUNC(set_marker) \
 	BGFX_IMPORT_FUNC(set_state) \
 	BGFX_IMPORT_FUNC(set_condition) \
@@ -4807,13 +5047,11 @@ BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 	BGFX_IMPORT_FUNC(set_instance_data_from_vertex_buffer) \
 	BGFX_IMPORT_FUNC(set_instance_data_from_dynamic_vertex_buffer) \
 	BGFX_IMPORT_FUNC(set_texture) \
-	BGFX_IMPORT_FUNC(set_texture_from_frame_buffer) \
 	BGFX_IMPORT_FUNC(touch) \
 	BGFX_IMPORT_FUNC(submit) \
 	BGFX_IMPORT_FUNC(submit_occlusion_query) \
 	BGFX_IMPORT_FUNC(submit_indirect) \
 	BGFX_IMPORT_FUNC(set_image) \
-	BGFX_IMPORT_FUNC(set_image_from_frame_buffer) \
 	BGFX_IMPORT_FUNC(set_compute_index_buffer) \
 	BGFX_IMPORT_FUNC(set_compute_vertex_buffer) \
 	BGFX_IMPORT_FUNC(set_compute_dynamic_index_buffer) \
@@ -4823,7 +5061,7 @@ BGFX_C_API bgfx_interface_vtbl_t* bgfx_get_interface(uint32_t _version)
 	BGFX_IMPORT_FUNC(dispatch_indirect) \
 	BGFX_IMPORT_FUNC(discard) \
 	BGFX_IMPORT_FUNC(blit) \
-	BGFX_IMPORT_FUNC(save_screen_shot)
+	BGFX_IMPORT_FUNC(request_screen_shot)
 
 		static bgfx_interface_vtbl_t s_bgfx_interface =
 		{
