@@ -9,8 +9,8 @@
 /// @ingroup Device
 namespace crown
 {
-class InputManager;
 struct InputDevice;
+struct InputManager;
 
 /// Enumerates input device types.
 ///

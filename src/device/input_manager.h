@@ -6,16 +6,16 @@
 #pragma once
 
 #include "config.h"
-#include "types.h"
 #include "input_types.h"
 #include "memory_types.h"
+#include "types.h"
 
 namespace crown
 {
 /// Manages input devices.
 ///
 /// @ingroup Input
-class InputManager
+struct InputManager
 {
 	Allocator* _allocator;
 	InputDevice* _keyboard;
@@ -23,9 +23,10 @@ class InputManager
 	InputDevice* _touch;
 	InputDevice* _joypad[CROWN_MAX_JOYPADS];
 
-public:
-
+	/// Constructor.
 	InputManager(Allocator& a);
+
+	/// Destructor.
 	~InputManager();
 
 	/// Returns the default keyboard input device.
@@ -43,7 +44,7 @@ public:
 	/// Returns the joypad @a i.
 	InputDevice* joypad(u8 i);
 
-	/// Updates the input devices
+	/// Updates the input devices.
 	void update();
 };
 
