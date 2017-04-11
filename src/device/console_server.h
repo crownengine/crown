@@ -6,16 +6,16 @@
 #pragma once
 
 #include "container_types.h"
+#include "hash_map.h"
 #include "socket.h"
 #include "string_types.h"
-#include "hash_map.h"
 
 namespace crown
 {
 /// Provides service to communicate with engine via TCP/IP.
 ///
 /// @ingroup Device
-class ConsoleServer
+struct ConsoleServer
 {
 	typedef void (*CommandFunction)(ConsoleServer& cs, TCPSocket client, const char* json, void* user_data);
 
@@ -26,14 +26,10 @@ class ConsoleServer
 	};
 
 	TCPSocket _server;
-	Vector<TCPSocket> _clients;
+	Array<TCPSocket> _clients;
 	HashMap<StringId32, Command> _commands;
 
-	void add_client(TCPSocket socket);
-	void process(TCPSocket client, const char* json);
-
-public:
-
+	/// Constructor.
 	ConsoleServer(Allocator& a);
 
 	/// Listens on the given @a port. If @a wait is true, this function

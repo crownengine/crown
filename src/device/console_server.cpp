@@ -34,13 +34,13 @@ void ConsoleServer::listen(u16 port, bool wait)
 		}
 		while (ar.error != AcceptResult::SUCCESS);
 
-		add_client(client);
+		array::push_back(_clients, client);
 	}
 }
 
 void ConsoleServer::shutdown()
 {
-	for (u32 i = 0; i < vector::size(_clients); ++i)
+	for (u32 i = 0; i < array::size(_clients); ++i)
 		_clients[i].close();
 
 	_server.close();
@@ -63,7 +63,7 @@ void ConsoleServer::error(TCPSocket client, const char* msg)
 
 void ConsoleServer::send(const char* json)
 {
-	for (u32 i = 0; i < vector::size(_clients); ++i)
+	for (u32 i = 0; i < array::size(_clients); ++i)
 		send(_clients[i], json);
 }
 
@@ -72,13 +72,13 @@ void ConsoleServer::update()
 	TCPSocket client;
 	AcceptResult ar = _server.accept_nonblock(client);
 	if (ar.error == AcceptResult::SUCCESS)
-		add_client(client);
+		array::push_back(_clients, client);
 
 	TempAllocator256 alloc;
 	Array<u32> to_remove(alloc);
 
 	// Update all clients
-	for (u32 i = 0; i < vector::size(_clients); ++i)
+	for (u32 i = 0; i < array::size(_clients); ++i)
 	{
 		for (;;)
 		{
@@ -94,7 +94,7 @@ void ConsoleServer::update()
 				break;
 			}
 
-			// Read the message
+			// Read message
 			TempAllocator4096 ta;
 			Array<char> msg(ta);
 			array::resize(msg, msg_len + 1);
@@ -107,46 +107,35 @@ void ConsoleServer::update()
 				break;
 			}
 
-			process(_clients[i], array::begin(msg));
+			// Process message
+			JsonObject obj(ta);
+			sjson::parse(array::begin(msg), obj);
+
+			Command cmd;
+			cmd.function = NULL;
+			cmd.user_data = NULL;
+			cmd = hash_map::get(_commands
+				, sjson::parse_string_id(obj["type"])
+				, cmd
+				);
+
+			if (cmd.function)
+				cmd.function(*this, _clients[i], array::begin(msg), cmd.user_data);
+			else
+				error(_clients[i], "Unknown command");
 		}
 	}
 
 	// Remove clients
 	for (u32 i = 0; i < array::size(to_remove); ++i)
 	{
-		const u32 last = vector::size(_clients) - 1;
+		const u32 last = array::size(_clients) - 1;
 		const u32 c = to_remove[i];
 
 		_clients[c].close();
 		_clients[c] = _clients[last];
-		vector::pop_back(_clients);
+		array::pop_back(_clients);
 	}
-}
-
-void ConsoleServer::add_client(TCPSocket socket)
-{
-	vector::push_back(_clients, socket);
-}
-
-void ConsoleServer::process(TCPSocket client, const char* json)
-{
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	sjson::parse(json, obj);
-
-	Command cmd;
-	cmd.function = NULL;
-	cmd.user_data = NULL;
-
-	cmd = hash_map::get(_commands
-		, sjson::parse_string_id(obj["type"])
-		, cmd
-		);
-
-	if (cmd.function)
-		cmd.function(*this, client, json, cmd.user_data);
-	else
-		error(client, "Unknown command");
 }
 
 void ConsoleServer::register_command(const char* type, CommandFunction function, void* user_data)
