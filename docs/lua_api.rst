@@ -634,6 +634,10 @@ Sprite
 **sprite_flip_y** (rw, unit, flip)
 	Sets whether to flip the sprite on the y-axis.
 
+**sprite_raycast** (rw, unit, from, dir) : float
+	Returns the distance along ray (from, dir) to intersection point with the sprite or -1.0 if no
+	intersection.
+
 Light
 -----
 
