@@ -58,7 +58,7 @@ MSYS2 (http://www.msys2.org)
 
 	$ make tools-linux-release64
 	$ cd build/linux64/bin
-	$ ./level-editor-release ../../../samples/01-physics ../../../samples /tmp/pepper_$RANDOM
+	$ ./level-editor-release ../../../samples/01-physics ../../../samples
 
 Contact
 -------
