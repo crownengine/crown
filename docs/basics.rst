@@ -28,15 +28,15 @@ The boot directory and the boot.config file
 Any directory within `the source directory`_ containing the file named ``boot.config`` is a boot
 directory.
 
-The ``boot.config`` is the first file read by Pepper; it specifies the package to load and the lua
+The ``boot.config`` is the first file read by Crown; it specifies the package to load and the lua
 script to execute on boot and various other boot-time settings.
 See `boot.config file reference`_ for more details.
 
 Normally there is a single ``boot.config`` file, placed at the top of the source directory. This is
-the file which Pepper looks at by default.
+the file which Crown looks at by default.
 
 In some circumstances is desirable to have multiple ``boot.config`` files.
-You can set which boot directory Pepper should use with the switch ``--boot-dir``.
+You can set which boot directory Crown should use with the switch ``--boot-dir``.
 
 In the example below, a minimal ``boot.config`` file tells the engine to load the package ``boot``
 and run the Lua script ``lua/game``.
@@ -51,7 +51,7 @@ and run the Lua script ``lua/game``.
 The data directory
 --------------------
 
-Pepper reads source data from `the source directory`_ and compiles it into efficient binary
+Crown reads source data from `the source directory`_ and compiles it into efficient binary
 representation. The result of the compilation process is stored in the data directory.
 
 .. code::
@@ -67,9 +67,9 @@ representation. The result of the compilation process is stored in the data dire
 The .dataignore file
 ----------------------
 
-The ``.dataignore`` file specifies files that Pepper should ignore when compiling data.
+The ``.dataignore`` file specifies files that Crown should ignore when compiling data.
 
-When Pepper bumps into unknown files in the source directory, it reports and error and quits the
+When Crown bumps into unknown files in the source directory, it reports and error and quits the
 compilation.
 This is often desired behavior, since you do not want non-essential data in your source directory.
 
@@ -89,4 +89,4 @@ Example:
 Units of measurement
 --------------------
 
-Pepper uses MKS (meters, kilograms and seconds) units and radians for angles.
+Crown uses MKS (meters, kilograms and seconds) units and radians for angles.

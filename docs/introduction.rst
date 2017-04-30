@@ -5,7 +5,7 @@ Introduction
 What is it?
 -----------
 
-Pepper is a general purpose data-driven game engine, written from scratch in orthodox C++ with a minimalistic and data-oriented design philosophy in mind.
+Crown is a general purpose data-driven game engine, written from scratch in orthodox C++ with a minimalistic and data-oriented design philosophy in mind.
 
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles.
 
