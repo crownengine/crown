@@ -1373,7 +1373,7 @@ namespace Crown
 		provider.load_from_resource("/org/pepper/theme/style.css");
 
 		Project project = new Project();
-		project.load(args[1], args[2], args[3]);
+		project.load(args[1], args[2]);
 
 		var editor = new LevelEditor(project);
 		editor.show_all();
