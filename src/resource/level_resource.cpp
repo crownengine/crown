@@ -5,6 +5,7 @@
 
 #include "array.h"
 #include "compile_options.h"
+#include "dynamic_string.h"
 #include "file.h"
 #include "filesystem.h"
 #include "json_object.h"
@@ -37,6 +38,13 @@ namespace level_resource_internal
 			{
 				JsonObject sound(ta);
 				sjson::parse_object(begin->pair.second, sound);
+
+				DynamicString sound_name(ta);
+				sjson::parse_string(sound["name"], sound_name);
+				DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sound"
+					, sound_name.c_str()
+					, opts
+					);
 
 				LevelSound ls;
 				ls.name     = sjson::parse_resource_id(sound["name"]);
