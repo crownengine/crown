@@ -18,6 +18,15 @@ namespace Crown
 			SOUND
 		}
 
+		private enum Column
+		{
+			TYPE,
+			GUID,
+			NAME,
+
+			COUNT
+		}
+
 		// Data
 		private Level _level;
 		private Database _db;
@@ -46,7 +55,11 @@ namespace Crown
 			_filter_entry.set_placeholder_text("Search...");
 			_filter_entry.changed.connect(on_filter_entry_text_changed);
 
-			_tree_store = new Gtk.TreeStore(2, typeof(string), typeof(int));
+			_tree_store = new Gtk.TreeStore(Column.COUNT
+				, typeof(int)    // Column.TYPE
+				, typeof(string) // Column.GUID
+				, typeof(string) // Column.NAME
+				);
 
 			_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
 			_tree_filter.set_visible_func(filter_tree);
@@ -55,21 +68,33 @@ namespace Crown
 			_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
 				Value type_a;
 				Value type_b;
-				model.get_value(iter_a, 1, out type_a);
-				model.get_value(iter_b, 1, out type_b);
+				model.get_value(iter_a, Column.TYPE, out type_a);
+				model.get_value(iter_b, Column.TYPE, out type_b);
 				if ((int)type_a == ItemType.FOLDER || (int)type_b == ItemType.FOLDER)
 					return -1;
 
 				Value id_a;
 				Value id_b;
-				model.get_value(iter_a, 0, out id_a);
-				model.get_value(iter_b, 0, out id_b);
+				model.get_value(iter_a, Column.NAME, out id_a);
+				model.get_value(iter_b, Column.NAME, out id_b);
 				return strcmp((string)id_a, (string)id_b);
 			});
 
 			_tree_view = new Gtk.TreeView();
-			_tree_view.insert_column_with_attributes(-1, "Objects", new Gtk.CellRendererText(), "text", 0, null);
-			// _tree_view.insert_column_with_attributes(-1, "Types", new Gtk.CellRendererText(), "text", 1, null); // DEBUG
+			// _tree_view.insert_column_with_attributes(-1
+			// 	, "Types"
+			// 	, new Gtk.CellRendererText()
+			// 	, "text"
+			// 	, Column.TYPE
+			// 	, null
+			// 	);
+			_tree_view.insert_column_with_attributes(-1
+				, "Names"
+				, new Gtk.CellRendererText()
+				, "text"
+				, Column.NAME
+				, null
+				);
 			_tree_view.headers_clickable = false;
 			_tree_view.headers_visible = false;
 			_tree_view.model = _tree_sort;
@@ -115,12 +140,12 @@ namespace Crown
 			Guid[] ids = {};
 			_tree_selection.selected_foreach((model, path, iter) => {
 				Value type;
-				model.get_value(iter, 1, out type);
+				model.get_value(iter, Column.TYPE, out type);
 				if ((int)type == ItemType.FOLDER)
 					return;
 
 				Value id;
-				model.get_value(iter, 0, out id);
+				model.get_value(iter, Column.GUID, out id);
 				ids += Guid.parse((string)id);
 			});
 
@@ -129,10 +154,9 @@ namespace Crown
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
 		{
-			Value name;
-			Value type;
-			model.get_value(iter, 0, out name);
-			model.get_value(iter, 1, out type);
+			Value type, name;
+			model.get_value(iter, Column.TYPE, out type);
+			model.get_value(iter, Column.GUID, out name);
 
 			_tree_view.expand_all();
 
@@ -154,12 +178,12 @@ namespace Crown
 			Guid[] ids = {};
 			_tree_selection.selected_foreach((model, path, iter) => {
 				Value type;
-				model.get_value(iter, 1, out type);
+				model.get_value(iter, Column.TYPE, out type);
 				if ((int)type == ItemType.FOLDER)
 					return;
 
 				Value id;
-				model.get_value(iter, 0, out id);
+				model.get_value(iter, Column.GUID, out id);
 				ids += Guid.parse((string)id);
 			});
 
@@ -174,12 +198,12 @@ namespace Crown
 
 			_tree_sort.foreach ((model, path, iter) => {
 				Value type;
-				model.get_value(iter, 1, out type);
+				model.get_value(iter, Column.TYPE, out type);
 				if ((int)type == ItemType.FOLDER)
 					return false;
 
 				Value id;
-				model.get_value(iter, 0, out id);
+				model.get_value(iter, Column.GUID, out id);
 				Guid guid_model = Guid.parse((string)id);
 
 				foreach (Guid? guid in selection)
@@ -215,9 +239,33 @@ namespace Crown
 			_tree_store.append(out unit_iter, null);
 			_tree_store.append(out light_iter, null);
 			_tree_store.append(out sound_iter, null);
-			_tree_store.set(unit_iter, 0, "Units", 1, ItemType.FOLDER, -1);
-			_tree_store.set(light_iter, 0, "Lights", 1, ItemType.FOLDER, -1);
-			_tree_store.set(sound_iter, 0, "Sounds", 1, ItemType.FOLDER, -1);
+			_tree_store.set(unit_iter
+				, Column.TYPE
+				, ItemType.FOLDER
+				, Column.GUID
+				, ""
+				, Column.NAME
+				, "Units"
+				, -1
+				);
+			_tree_store.set(light_iter
+				, Column.TYPE
+				, ItemType.FOLDER
+				, Column.GUID
+				, ""
+				, Column.NAME
+				, "Lights"
+				, -1
+				);
+			_tree_store.set(sound_iter
+				, Column.TYPE
+				, ItemType.FOLDER
+				, Column.GUID
+				, ""
+				, Column.NAME
+				, "Sounds"
+				, -1
+				);
 
 			Value? units  = _db.get_property(GUID_ZERO, "units");
 			Value? sounds = _db.get_property(GUID_ZERO, "sounds");
@@ -228,7 +276,15 @@ namespace Crown
 				{
 					Gtk.TreeIter iter;
 					_tree_store.append(out iter, _level.is_light(unit) ? light_iter : unit_iter);
-					_tree_store.set(iter, 0, unit.to_string(), 1, ItemType.UNIT, -1);
+					_tree_store.set(iter
+						, Column.TYPE
+						, ItemType.UNIT
+						, Column.GUID
+						, unit.to_string()
+						, Column.NAME
+						, _level.object_name(unit)
+						, -1
+						);
 				}
 			}
 			if (sounds != null)
@@ -237,7 +293,15 @@ namespace Crown
 				{
 					Gtk.TreeIter iter;
 					_tree_store.append(out iter, sound_iter);
-					_tree_store.set(iter, 0, sound.to_string(), 1, ItemType.SOUND, -1);
+					_tree_store.set(iter
+						, Column.TYPE
+						, ItemType.SOUND
+						, Column.GUID
+						, sound.to_string()
+						, Column.NAME
+						, _level.object_name(sound)
+						, -1
+						);
 				}
 			}
 

@@ -8,6 +8,7 @@ using Gee;
 
 namespace Crown
 {
+	/// Manages objects in a level.
 	public class Level
 	{
 		// Project paths
@@ -22,6 +23,9 @@ namespace Crown
 		private Database _prefabs;
 		private Gee.HashSet<string> _loaded_prefabs;
 		private Gee.ArrayList<Guid?> _selection;
+
+		private uint _num_units;
+		private uint _num_sounds;
 
 		// Signals
 		public signal void selection_changed(Gee.ArrayList<Guid?> selection);
@@ -42,6 +46,8 @@ namespace Crown
 			_prefabs = new Database();
 			_loaded_prefabs = new Gee.HashSet<string>();
 			_selection = new Gee.ArrayList<Guid?>();
+
+			reset();
 		}
 
 		/// Resets the level
@@ -53,6 +59,9 @@ namespace Crown
 
 			_selection.clear();
 			selection_changed(_selection);
+
+			_num_units = 0;
+			_num_sounds = 0;
 		}
 
 		/// Loads the level from @a path.
@@ -186,6 +195,7 @@ namespace Crown
 
 			_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
 			_db.create(id);
+			_db.set_property(id, "editor.name", "unit_%04u".printf(_num_units++));
 			_db.set_property(id, "prefab", name);
 
 			Guid transform_id = GUID_ZERO;
@@ -209,6 +219,7 @@ namespace Crown
 		{
 			_db.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid[] { id });
 			_db.create(id);
+			_db.set_property(id, "editor.name", "sound_%04u".printf(_num_sounds++));
 			_db.set_property(id, "position", pos);
 			_db.set_property(id, "rotation", rot);
 			_db.set_property(id, "name", name);
@@ -295,6 +306,12 @@ namespace Crown
 			_db.set_property(sound_id, "loop", loop);
 
 			_client.send_script(LevelEditorApi.set_sound_range(sound_id, range));
+		}
+
+		public string object_name(Guid object_id)
+		{
+			Value? name = _db.get_property(object_id, "editor.name");
+			return name != null ? (string)name : "<unnamed>";
 		}
 
 		private void send_spawn_units(Guid[] ids)
