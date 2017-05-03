@@ -104,7 +104,7 @@ windows-release64: build/projects/vs2013
 
 .PHONY: rebuild-glib-resources
 rebuild-glib-resources:
-	make -R -C tools/ui rebuild
+	make -R -C tools rebuild
 
 tools-linux-debug64: linux-development64
 	make -R -C build/projects/linux level-editor config=debug

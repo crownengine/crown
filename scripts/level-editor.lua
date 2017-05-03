@@ -57,13 +57,13 @@ project "level-editor"
 	}
 
 	buildoptions_vala {
-		"--gresources=" .. CROWN_DIR .. "tools/ui/resources.xml",
+		"--gresources=" .. CROWN_DIR .. "tools/gresources.xml",
 		"--target-glib=2.38",
 	}
 
 	files {
 		CROWN_DIR .. "tools/**.vala",
-		CROWN_DIR .. "tools/ui/resources.c",
+		CROWN_DIR .. "tools/gresources.c",
 	}
 
 	configuration {}

@@ -254,20 +254,20 @@ namespace Crown
 
 			try
 			{
-				Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_resource("/org/pepper/icons/theme/tool-place.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_resource("/org/pepper/icons/theme/tool-move.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_resource("/org/pepper/icons/theme/tool-rotate.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_resource("/org/pepper/icons/theme/tool-scale.png"));
-				Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_resource("/org/pepper/icons/theme/axis-local.png"));
-				Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_resource("/org/pepper/icons/theme/axis-world.png"));
-				Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_resource("/org/pepper/icons/theme/snap-to-grid.png"));
-				Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_resource("/org/pepper/icons/theme/reference-local.png"));
-				Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_resource("/org/pepper/icons/theme/reference-world.png"));
-				Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_resource("/org/pepper/icons/theme/run.png"));
-				Gtk.IconTheme.add_builtin_icon("level-tree",      16, new Pixbuf.from_resource("/org/pepper/icons/theme/level-tree.png"));
-				Gtk.IconTheme.add_builtin_icon("level-layers",    16, new Pixbuf.from_resource("/org/pepper/icons/theme/level-layers.png"));
-				Gtk.IconTheme.add_builtin_icon("layer-visible",   16, new Pixbuf.from_resource("/org/pepper/icons/theme/layer-visible.png"));
-				Gtk.IconTheme.add_builtin_icon("layer-locked",    16, new Pixbuf.from_resource("/org/pepper/icons/theme/layer-locked.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-place.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-move.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-rotate.png"));
+				Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-scale.png"));
+				Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/axis-local.png"));
+				Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/axis-world.png"));
+				Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/snap-to-grid.png"));
+				Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/reference-local.png"));
+				Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/reference-world.png"));
+				Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/run.png"));
+				Gtk.IconTheme.add_builtin_icon("level-tree",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/level-tree.png"));
+				Gtk.IconTheme.add_builtin_icon("level-layers",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/level-layers.png"));
+				Gtk.IconTheme.add_builtin_icon("layer-visible",   16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/layer-visible.png"));
+				Gtk.IconTheme.add_builtin_icon("layer-locked",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/layer-locked.png"));
 			}
 			catch (Error e)
 			{
@@ -287,7 +287,7 @@ namespace Crown
 			_ui_manager = new UIManager();
 			try
 			{
-				_ui_manager.add_ui_from_resource("/org/pepper/level_editor_menu.xml");
+				_ui_manager.add_ui_from_resource("/org/crown/level_editor/level_editor.xml");
 				_ui_manager.insert_action_group(_action_group, 0);
 				add_accel_group(_ui_manager.get_accel_group());
 			}
@@ -1317,7 +1317,7 @@ namespace Crown
 
 			try
 			{
-				dlg.set_logo(new Pixbuf.from_resource("/org/pepper/icons/128x128/pepper.png"));
+				dlg.set_logo(new Pixbuf.from_resource("/org/crown/ui/icons/128x128/pepper.png"));
 			}
 			catch (Error e)
 			{
@@ -1370,7 +1370,7 @@ namespace Crown
 		Gtk.CssProvider provider = new Gtk.CssProvider();
 		Gdk.Screen screen = Gdk.Display.get_default().get_default_screen();
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
-		provider.load_from_resource("/org/pepper/theme/style.css");
+		provider.load_from_resource("/org/crown/theme/style.css");
 
 		Project project = new Project();
 		project.load(args[1], args[2]);
