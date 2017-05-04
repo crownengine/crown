@@ -1370,7 +1370,7 @@ namespace Crown
 		Gtk.CssProvider provider = new Gtk.CssProvider();
 		Gdk.Screen screen = Gdk.Display.get_default().get_default_screen();
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
-		provider.load_from_resource("/org/crown/theme/style.css");
+		provider.load_from_resource("/org/crown/ui/theme/style.css");
 
 		Project project = new Project();
 		project.load(args[1], args[2]);
