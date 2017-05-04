@@ -156,7 +156,7 @@ namespace Crown
 		{
 			Value type, name;
 			model.get_value(iter, Column.TYPE, out type);
-			model.get_value(iter, Column.GUID, out name);
+			model.get_value(iter, Column.NAME, out name);
 
 			_tree_view.expand_all();
 
