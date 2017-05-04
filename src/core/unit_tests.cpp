@@ -1169,13 +1169,13 @@ static void test_path()
 	{
 		TempAllocator128 ta;
 		DynamicString clean(ta);
-		path::reduce(clean, "/home/./foo/");
+		path::reduce(clean, "/home//foo/");
 		ENSURE(clean == "/home/foo");
 	}
 	{
 		TempAllocator128 ta;
 		DynamicString clean(ta);
-		path::reduce(clean, "\\home\\.\\foo\\");
+		path::reduce(clean, "\\home\\\\foo\\");
 		ENSURE(clean == "/home/foo");
 	}
 #else
@@ -1210,13 +1210,13 @@ static void test_path()
 	{
 		TempAllocator128 ta;
 		DynamicString clean(ta);
-		path::reduce(clean, "C:\\Users\\.\\foo\\");
+		path::reduce(clean, "C:\\Users\\\\foo\\");
 		ENSURE(clean == "C:\\Users\\foo");
 	}
 	{
 		TempAllocator128 ta;
 		DynamicString clean(ta);
-		path::reduce(clean, "C:/Users/./foo/");
+		path::reduce(clean, "C:/Users//foo/");
 		ENSURE(clean == "C:\\Users\\foo");
 	}
 #endif // CROWN_PLATFORM_POSIX

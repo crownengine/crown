@@ -98,7 +98,7 @@ namespace path
 
 		for (; *path; ++path)
 		{
-			if (cc == PATH_SEPARATOR && (any_separator(*path) || *path == '.'))
+			if (cc == PATH_SEPARATOR && any_separator(*path))
 				continue;
 
 			cc = any_separator(*path) ? PATH_SEPARATOR : *path;
