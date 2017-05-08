@@ -145,19 +145,17 @@ namespace Crown
 
 			foreach (unowned string filename_i in filenames)
 			{
-				GLib.File file_src = File.new_for_path(filename_i);
-				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
-
-				string dst_dir_rel    = _source_dir.get_relative_path(File.new_for_path(destination_dir));
-				string basename       = file_src.get_basename();
-				string basename_noext = basename.substring(0, basename.last_index_of_char('.'));
-				string dst_noext      = file_dst.get_path().substring(0, file_dst.get_path().last_index_of_char('.'));
-
 				if (!filename_i.has_suffix(".png"))
 					continue;
 
+				GLib.File file_src = File.new_for_path(filename_i);
+				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
+
+				string resource_filename = _source_dir.get_relative_path(file_dst);
+				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+
 				Hashtable textures = new Hashtable();
-				textures["u_albedo"] = dst_dir_rel + "/" + basename_noext;
+				textures["u_albedo"] = resource_name;
 
 				Hashtable uniform = new Hashtable();
 				uniform["type"]  = "vector4";
@@ -170,15 +168,15 @@ namespace Crown
 				material["shader"]   = "sprite";
 				material["textures"] = textures;
 				material["uniforms"] = uniforms;
-				SJSON.save(material, dst_noext + ".material");
+				SJSON.save(material, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".material");
 
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 
 				Hashtable texture = new Hashtable();
-				texture["source"]        = dst_dir_rel + "/" + basename;
+				texture["source"]        = resource_filename;
 				texture["generate_mips"] = false;
 				texture["is_normalmap"]  = false;
-				SJSON.save(texture, dst_noext + ".texture");
+				SJSON.save(texture, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".texture");
 
 				Hashtable sprite = new Hashtable();
 				sprite["width"]  = width;
@@ -212,7 +210,7 @@ namespace Crown
 				}
 				sprite["frames"] = frames;
 
-				SJSON.save(sprite, dst_noext + ".sprite");
+				SJSON.save(sprite, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".sprite");
 
 				Hashtable data = new Hashtable();
 				data["position"] = VECTOR3_ZERO.to_array();
@@ -227,8 +225,8 @@ namespace Crown
 				components[Guid.new_guid().to_string()] = comp;
 
 				data = new Hashtable();
-				data["material"]        = dst_dir_rel + "/" + basename_noext;
-				data["sprite_resource"] = dst_dir_rel + "/" + basename_noext;
+				data["material"]        = resource_name;
+				data["sprite_resource"] = resource_name;
 				data["visible"]         = true;
 
 				comp = new Hashtable();
@@ -240,7 +238,7 @@ namespace Crown
 				Hashtable unit = new Hashtable();
 				unit["components"] = components;
 
-				SJSON.save(unit, dst_noext + ".unit");
+				SJSON.save(unit, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".unit");
 			}
 		}
 
@@ -248,16 +246,14 @@ namespace Crown
 		{
 			foreach (unowned string filename_i in filenames)
 			{
+				if (!filename_i.has_suffix(".mesh"))
+					continue;
+
 				GLib.File file_src = File.new_for_path(filename_i);
 				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
 
-				string dst_dir_rel    = _source_dir.get_relative_path(File.new_for_path(destination_dir));
-				string basename       = file_src.get_basename();
-				string basename_noext = basename.substring(0, basename.last_index_of_char('.'));
-				string dst_noext      = file_dst.get_path().substring(0, file_dst.get_path().last_index_of_char('.'));
-
-				if (!filename_i.has_suffix(".mesh"))
-					continue;
+				string resource_filename = _source_dir.get_relative_path(file_dst);
+				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
 				// Choose material or create new one
 				FileChooserDialog mtl = new FileChooserDialog("Select material... (Cancel to create a new one)"
@@ -275,7 +271,7 @@ namespace Crown
 				fltr.add_pattern("*.material");
 				mtl.add_filter(fltr);
 
-				string material_name = dst_dir_rel + "/" + basename_noext;
+				string material_name = resource_name;
 				if (mtl.run() == (int)ResponseType.ACCEPT)
 				{
 					material_name = _source_dir.get_relative_path(File.new_for_path(mtl.get_filename()));
@@ -287,7 +283,7 @@ namespace Crown
 					material["shader"]   = "mesh+DIFFUSE_MAP";
 					material["textures"] = new Hashtable();
 					material["uniforms"] = new Hashtable();
-					SJSON.save(material, dst_noext + ".material");
+					SJSON.save(material, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".material");
 				}
 				mtl.destroy();
 
@@ -314,7 +310,7 @@ namespace Crown
 					data = new Hashtable();
 					data["geometry_name"] = node_name;
 					data["material"]      = material_name;
-					data["mesh_resource"] = dst_dir_rel + "/" + basename_noext;
+					data["mesh_resource"] = resource_name;
 					data["visible"]       = true;
 
 					comp = new Hashtable();
@@ -327,7 +323,7 @@ namespace Crown
 				Hashtable unit = new Hashtable();
 				unit["components"] = components;
 
-				SJSON.save(unit, dst_noext + ".unit");
+				SJSON.save(unit, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".unit");
 			}
 		}
 
@@ -335,22 +331,21 @@ namespace Crown
 		{
 			foreach (unowned string filename_i in filenames)
 			{
+				if (!filename_i.has_suffix(".wav"))
+					continue;
+
 				GLib.File file_src = File.new_for_path(filename_i);
 				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
 
-				string dst_dir_rel    = _source_dir.get_relative_path(File.new_for_path(destination_dir));
-				string basename       = file_src.get_basename();
-				string dst_noext      = file_dst.get_path().substring(0, file_dst.get_path().last_index_of_char('.'));
-
-				if (!filename_i.has_suffix(".wav"))
-					continue;
+				string resource_filename = _source_dir.get_relative_path(file_dst);
+				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 
 				Hashtable sound = new Hashtable();
-				sound["source"] = dst_dir_rel + "/" + basename;
+				sound["source"] = resource_filename;
 
-				SJSON.save(sound, dst_noext + ".sound");
+				SJSON.save(sound, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".sound");
 			}
 		}
 
@@ -358,23 +353,23 @@ namespace Crown
 		{
 			foreach (unowned string filename_i in filenames)
 			{
+				if (!filename_i.has_suffix(".png"))
+					continue;
+
 				GLib.File file_src = File.new_for_path(filename_i);
 				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
 
-				string dst_dir_rel    = _source_dir.get_relative_path(File.new_for_path(destination_dir));
-				string basename       = file_src.get_basename();
-				string dst_noext      = file_dst.get_path().substring(0, file_dst.get_path().last_index_of_char('.'));
-
-				if (!filename_i.has_suffix(".png"))
+				string resource_filename = _source_dir.get_relative_path(file_dst);
+				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 
 				Hashtable texture = new Hashtable();
-				texture["source"]        = dst_dir_rel + "/" + basename;
+				texture["source"]        = resource_filename;
 				texture["generate_mips"] = true;
 				texture["is_normalmap"]  = false;
 
-				SJSON.save(texture, dst_noext + ".texture");
+				SJSON.save(texture, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".texture");
 			}
 		}
 	}
