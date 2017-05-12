@@ -458,39 +458,39 @@ Camera
 **camera_instances** (world, unit) : Id
 	Returns the IDs for all the cameras of the *unit*.
 
-**camera_set_projection_type** (world, camera, projection)
+**camera_set_projection_type** (world, unit, projection)
 	Sets the projection type of the camera.
 	Projection can be either ``orthographic`` or ``perspective``.
 
-**camera_projection_type** (world, camera) : string
+**camera_projection_type** (world, unit) : string
 	Returns the projection type of the camera.
 	It can be either ``orthographic`` or ``perspective``.
 
-**camera_fov** (world, camera) : float
+**camera_fov** (world, unit) : float
 	Returns the field-of-view of the camera in degrees.
 
-**camera_set_fov** (world, camera, fov)
+**camera_set_fov** (world, unit, fov)
 	Sets the field-of-view of the camera in degrees.
 
-**camera_near_clip_distance** (world, camera) : float
+**camera_near_clip_distance** (world, unit) : float
 	Returns the near clip distance of the camera.
 
-**camera_set_near_clip_distance** (world, camera, near)
+**camera_set_near_clip_distance** (world, unit, near)
 	Sets the near clip distance of the camera.
 
-**camera_far_clip_distance** (world, camera) : float
+**camera_far_clip_distance** (world, unit) : float
 	Returns the far clip distance of the camera.
 
-**camera_set_far_clip_distance** (world, camera, far)
+**camera_set_far_clip_distance** (world, unit, far)
 	Sets the far clip distance of the camera.
 
-**camera_set_orthographic_metrics** (world, camera, left, right, bottom, top)
+**camera_set_orthographic_metrics** (world, unit, left, right, bottom, top)
 	Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
 
-**camera_screen_to_world** (world, camera, pos) : Vector3
+**camera_screen_to_world** (world, unit, pos) : Vector3
 	Returns *pos* from screen-space to world-space coordinates.
 
-**camera_world_to_screen** (world, camera, pos) : Vector3
+**camera_world_to_screen** (world, unit, pos) : Vector3
 	Returns *pos* from world-space to screen-space coordinates.
 
 Sound

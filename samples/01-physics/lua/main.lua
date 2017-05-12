@@ -26,7 +26,7 @@ function Game.level_loaded()
 	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
 	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 6.5, -30))
 
-	GameBase.game_camera = World.camera_instances(GameBase.world, camera_unit)
+	GameBase.game_camera = camera_unit
 
 	Game.camera = FPSCamera(GameBase.world, camera_unit)
 

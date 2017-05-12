@@ -215,10 +215,10 @@ CameraInstance World::camera_create(UnitId id, const CameraDesc& cd, const Matri
 	array::push_back(_camera, camera);
 
 	hash_map::set(_camera_map, id, last);
-	return make_camera_instance(last);
+	return camera_make_instance(last);
 }
 
-void World::camera_destroy(CameraInstance i)
+void World::camera_destroy(UnitId unit, CameraInstance i)
 {
 	const u32 last = array::size(_camera) - 1;
 	const UnitId u = _camera[i.i].unit;
@@ -232,73 +232,85 @@ void World::camera_destroy(CameraInstance i)
 
 CameraInstance World::camera_instances(UnitId id)
 {
-	return make_camera_instance(hash_map::get(_camera_map, id, UINT32_MAX));
+	return camera_make_instance(hash_map::get(_camera_map, id, UINT32_MAX));
 }
 
-void World::camera_set_projection_type(CameraInstance i, ProjectionType::Enum type)
+void World::camera_set_projection_type(UnitId unit, ProjectionType::Enum type)
 {
+	CameraInstance i = camera_instances(unit);
 	_camera[i.i].projection_type = type;
 	_camera[i.i].update_projection_matrix();
 }
 
-ProjectionType::Enum World::camera_projection_type(CameraInstance i) const
+ProjectionType::Enum World::camera_projection_type(UnitId unit)
 {
+	CameraInstance i = camera_instances(unit);
 	return _camera[i.i].projection_type;
 }
 
-const Matrix4x4& World::camera_projection_matrix(CameraInstance i) const
+const Matrix4x4& World::camera_projection_matrix(UnitId unit)
 {
+	CameraInstance i = camera_instances(unit);
 	return _camera[i.i].projection;
 }
 
-Matrix4x4 World::camera_view_matrix(CameraInstance i) const
+Matrix4x4 World::camera_view_matrix(UnitId unit)
 {
+	CameraInstance i = camera_instances(unit);
 	Matrix4x4 view = _scene_graph->world_pose(_camera[i.i].unit);
 	invert(view);
 	return view;
 }
 
-f32 World::camera_fov(CameraInstance i) const
+f32 World::camera_fov(UnitId unit)
 {
+	CameraInstance i = camera_instances(unit);
 	return _camera[i.i].fov;
 }
 
-void World::camera_set_fov(CameraInstance i, f32 fov)
+void World::camera_set_fov(UnitId unit, f32 fov)
 {
+	CameraInstance i = camera_instances(unit);
 	_camera[i.i].fov = fov;
 	_camera[i.i].update_projection_matrix();
 }
 
-void World::camera_set_aspect(CameraInstance i, f32 aspect)
+void World::camera_set_aspect(UnitId unit, f32 aspect)
 {
+	CameraInstance i = camera_instances(unit);
 	_camera[i.i].aspect = aspect;
 	_camera[i.i].update_projection_matrix();
 }
 
-f32 World::camera_near_clip_distance(CameraInstance i) const
+f32 World::camera_near_clip_distance(UnitId unit)
 {
+	CameraInstance i = camera_instances(unit);
 	return _camera[i.i].near_range;
 }
 
-void World::camera_set_near_clip_distance(CameraInstance i, f32 near)
+void World::camera_set_near_clip_distance(UnitId unit, f32 near)
 {
+	CameraInstance i = camera_instances(unit);
 	_camera[i.i].near_range = near;
 	_camera[i.i].update_projection_matrix();
 }
 
-f32 World::camera_far_clip_distance(CameraInstance i) const
+f32 World::camera_far_clip_distance(UnitId unit)
 {
+	CameraInstance i = camera_instances(unit);
 	return _camera[i.i].far_range;
 }
 
-void World::camera_set_far_clip_distance(CameraInstance i, f32 far)
+void World::camera_set_far_clip_distance(UnitId unit, f32 far)
 {
+	CameraInstance i = camera_instances(unit);
 	_camera[i.i].far_range = far;
 	_camera[i.i].update_projection_matrix();
 }
 
-void World::camera_set_orthographic_metrics(CameraInstance i, f32 left, f32 right, f32 bottom, f32 top)
+void World::camera_set_orthographic_metrics(UnitId unit, f32 left, f32 right, f32 bottom, f32 top)
 {
+	CameraInstance i = camera_instances(unit);
 	_camera[i.i].left = left;
 	_camera[i.i].right = right;
 	_camera[i.i].bottom = bottom;
@@ -307,16 +319,18 @@ void World::camera_set_orthographic_metrics(CameraInstance i, f32 left, f32 righ
 	_camera[i.i].update_projection_matrix();
 }
 
-void World::camera_set_viewport_metrics(CameraInstance i, u16 x, u16 y, u16 width, u16 height)
+void World::camera_set_viewport_metrics(UnitId unit, u16 x, u16 y, u16 width, u16 height)
 {
+	CameraInstance i = camera_instances(unit);
 	_camera[i.i].view_x = x;
 	_camera[i.i].view_y = y;
 	_camera[i.i].view_width = width;
 	_camera[i.i].view_height = height;
 }
 
-Vector3 World::camera_screen_to_world(CameraInstance i, const Vector3& pos)
+Vector3 World::camera_screen_to_world(UnitId unit, const Vector3& pos)
 {
+	CameraInstance i = camera_instances(unit);
 	const Camera& c = _camera[i.i];
 
 	Matrix4x4 world_inv = _scene_graph->world_pose(c.unit);
@@ -336,8 +350,9 @@ Vector3 World::camera_screen_to_world(CameraInstance i, const Vector3& pos)
 	return vector3(tmp.x, tmp.y, tmp.z);
 }
 
-Vector3 World::camera_world_to_screen(CameraInstance i, const Vector3& pos)
+Vector3 World::camera_world_to_screen(UnitId unit, const Vector3& pos)
 {
+	CameraInstance i = camera_instances(unit);
 	const Camera& c = _camera[i.i];
 
 	Matrix4x4 world_inv = _scene_graph->world_pose(c.unit);

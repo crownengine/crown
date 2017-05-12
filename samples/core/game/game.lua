@@ -69,7 +69,7 @@ function GameBase.render(dt)
 		GameBase.game.render(dt)
 	end
 
-	Device.render(GameBase.world, GameBase.game_camera or GameBase.camera:camera())
+	Device.render(GameBase.world, GameBase.game_camera or GameBase.camera:unit())
 end
 
 function GameBase.shutdown()

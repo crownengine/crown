@@ -1350,7 +1350,7 @@ static int world_units(lua_State* L)
 	return 1;
 }
 
-static int camera_create(lua_State* L)
+static int world_camera_create(lua_State* L)
 {
 	LuaStack stack(L);
 	World* world = stack.get_world(1);
@@ -1380,7 +1380,7 @@ static int world_camera_instances(lua_State* L)
 	return 1;
 }
 
-static int camera_set_projection_type(lua_State* L)
+static int world_camera_set_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -1388,79 +1388,79 @@ static int camera_set_projection_type(lua_State* L)
 	const ProjectionType::Enum pt = name_to_projection_type(name);
 	LUA_ASSERT(pt != ProjectionType::COUNT, stack, "Unknown projection type: '%s'", name);
 
-	stack.get_world(1)->camera_set_projection_type(stack.get_camera(2), pt);
+	stack.get_world(1)->camera_set_projection_type(stack.get_unit(2), pt);
 	return 0;
 }
 
-static int camera_projection_type(lua_State* L)
+static int world_camera_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
-	ProjectionType::Enum type = stack.get_world(1)->camera_projection_type(stack.get_camera(2));
+	ProjectionType::Enum type = stack.get_world(1)->camera_projection_type(stack.get_unit(2));
 	stack.push_string(s_projection[type].name);
 	return 1;
 }
 
-static int camera_fov(lua_State* L)
+static int world_camera_fov(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(stack.get_world(1)->camera_fov(stack.get_camera(2)));
+	stack.push_float(stack.get_world(1)->camera_fov(stack.get_unit(2)));
 	return 1;
 }
 
-static int camera_set_fov(lua_State* L)
+static int world_camera_set_fov(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->camera_set_fov(stack.get_camera(2), stack.get_float(3));
+	stack.get_world(1)->camera_set_fov(stack.get_unit(2), stack.get_float(3));
 	return 0;
 }
 
-static int camera_near_clip_distance(lua_State* L)
+static int world_camera_near_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(stack.get_world(1)->camera_near_clip_distance(stack.get_camera(2)));
+	stack.push_float(stack.get_world(1)->camera_near_clip_distance(stack.get_unit(2)));
 	return 1;
 }
 
-static int camera_set_near_clip_distance(lua_State* L)
+static int world_camera_set_near_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->camera_set_near_clip_distance(stack.get_camera(2), stack.get_float(3));
+	stack.get_world(1)->camera_set_near_clip_distance(stack.get_unit(2), stack.get_float(3));
 	return 0;
 }
 
-static int camera_far_clip_distance(lua_State* L)
+static int world_camera_far_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(stack.get_world(1)->camera_far_clip_distance(stack.get_camera(2)));
+	stack.push_float(stack.get_world(1)->camera_far_clip_distance(stack.get_unit(2)));
 	return 1;
 }
 
-static int camera_set_far_clip_distance(lua_State* L)
+static int world_camera_set_far_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->camera_set_far_clip_distance(stack.get_camera(2), stack.get_float(3));
+	stack.get_world(1)->camera_set_far_clip_distance(stack.get_unit(2), stack.get_float(3));
 	return 0;
 }
 
-static int camera_set_orthographic_metrics(lua_State* L)
+static int world_camera_set_orthographic_metrics(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->camera_set_orthographic_metrics(stack.get_camera(2), stack.get_float(3), stack.get_float(4),
+	stack.get_world(1)->camera_set_orthographic_metrics(stack.get_unit(2), stack.get_float(3), stack.get_float(4),
 		stack.get_float(5), stack.get_float(6));
 	return 0;
 }
 
-static int camera_screen_to_world(lua_State* L)
+static int world_camera_screen_to_world(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(stack.get_world(1)->camera_screen_to_world(stack.get_camera(2), stack.get_vector3(3)));
+	stack.push_vector3(stack.get_world(1)->camera_screen_to_world(stack.get_unit(2), stack.get_vector3(3)));
 	return 1;
 }
 
-static int camera_world_to_screen(lua_State* L)
+static int world_camera_world_to_screen(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_vector3(stack.get_world(1)->camera_world_to_screen(stack.get_camera(2), stack.get_vector3(3)));
+	stack.push_vector3(stack.get_world(1)->camera_world_to_screen(stack.get_unit(2), stack.get_vector3(3)));
 	return 1;
 }
 
@@ -2541,7 +2541,7 @@ static int device_destroy_world(lua_State* L)
 static int device_render(lua_State* L)
 {
 	LuaStack stack(L);
-	device()->render(*stack.get_world(1), stack.get_camera(2));
+	device()->render(*stack.get_world(1), stack.get_unit(2));
 	return 0;
 }
 
@@ -3334,19 +3334,19 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "destroy_unit",                    world_destroy_unit);
 	env.add_module_function("World", "num_units",                       world_num_units);
 	env.add_module_function("World", "units",                           world_units);
-	env.add_module_function("World", "camera_create",                   camera_create);
+	env.add_module_function("World", "camera_create",                   world_camera_create);
 	env.add_module_function("World", "camera_instances",                world_camera_instances);
-	env.add_module_function("World", "camera_set_projection_type",      camera_set_projection_type);
-	env.add_module_function("World", "camera_projection_type",          camera_projection_type);
-	env.add_module_function("World", "camera_fov",                      camera_fov);
-	env.add_module_function("World", "camera_set_fov",                  camera_set_fov);
-	env.add_module_function("World", "camera_near_clip_distance",       camera_near_clip_distance);
-	env.add_module_function("World", "camera_set_near_clip_distance",   camera_set_near_clip_distance);
-	env.add_module_function("World", "camera_far_clip_distance",        camera_far_clip_distance);
-	env.add_module_function("World", "camera_set_far_clip_distance",    camera_set_far_clip_distance);
-	env.add_module_function("World", "camera_set_orthographic_metrics", camera_set_orthographic_metrics);
-	env.add_module_function("World", "camera_screen_to_world",          camera_screen_to_world);
-	env.add_module_function("World", "camera_world_to_screen",          camera_world_to_screen);
+	env.add_module_function("World", "camera_set_projection_type",      world_camera_set_projection_type);
+	env.add_module_function("World", "camera_projection_type",          world_camera_projection_type);
+	env.add_module_function("World", "camera_fov",                      world_camera_fov);
+	env.add_module_function("World", "camera_set_fov",                  world_camera_set_fov);
+	env.add_module_function("World", "camera_near_clip_distance",       world_camera_near_clip_distance);
+	env.add_module_function("World", "camera_set_near_clip_distance",   world_camera_set_near_clip_distance);
+	env.add_module_function("World", "camera_far_clip_distance",        world_camera_far_clip_distance);
+	env.add_module_function("World", "camera_set_far_clip_distance",    world_camera_set_far_clip_distance);
+	env.add_module_function("World", "camera_set_orthographic_metrics", world_camera_set_orthographic_metrics);
+	env.add_module_function("World", "camera_screen_to_world",          world_camera_screen_to_world);
+	env.add_module_function("World", "camera_world_to_screen",          world_camera_world_to_screen);
 	env.add_module_function("World", "update_animations",               world_update_animations);
 	env.add_module_function("World", "update_scene",                    world_update_scene);
 	env.add_module_function("World", "update",                          world_update);

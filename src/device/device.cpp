@@ -574,7 +574,7 @@ f64 Device::time_since_start() const
 	return _time_since_start;
 }
 
-void Device::render(World& world, CameraInstance camera)
+void Device::render(World& world, UnitId camera_unit)
 {
 	bgfx::setViewClear(0
 		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
@@ -587,8 +587,8 @@ void Device::render(World& world, CameraInstance camera)
 	bgfx::setViewRect(1, 0, 0, _width, _height);
 	bgfx::setViewRect(2, 0, 0, _width, _height);
 
-	const Matrix4x4 view = world.camera_view_matrix(camera);
-	const Matrix4x4 proj = world.camera_projection_matrix(camera);
+	const Matrix4x4 view = world.camera_view_matrix(camera_unit);
+	const Matrix4x4 proj = world.camera_projection_matrix(camera_unit);
 
 	bgfx::setViewTransform(0, to_float_ptr(view), to_float_ptr(proj));
 	bgfx::setViewTransform(1, to_float_ptr(view), to_float_ptr(proj));
@@ -603,8 +603,8 @@ void Device::render(World& world, CameraInstance camera)
 		? (float)_width/(float)_height
 		: _boot_config.aspect_ratio
 		);
-	world.camera_set_aspect(camera, aspect_ratio);
-	world.camera_set_viewport_metrics(camera, 0, 0, _width, _height);
+	world.camera_set_aspect(camera_unit, aspect_ratio);
+	world.camera_set_viewport_metrics(camera_unit, 0, 0, _width, _height);
 
 	world.render(view, proj);
 }

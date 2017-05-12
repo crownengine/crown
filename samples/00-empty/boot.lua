@@ -1,11 +1,10 @@
 world = world or nil
-camera = camera or nil
+camera_unit = camera_unit or nil
 
 function init()
 	-- Create world and camera
 	world = Device.create_world()
-	local camera_unit = World.spawn_unit(world, "camera")
-	camera = World.camera_instances(world, camera_unit)
+	camera_unit = World.spawn_unit(world, "camera")
 end
 
 function update(dt)
@@ -20,7 +19,7 @@ end
 
 function render(dt)
 	-- Render the world
-	Device.render(world, camera)
+	Device.render(world, camera_unit)
 end
 
 function shutdown()

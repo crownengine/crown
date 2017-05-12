@@ -102,7 +102,7 @@ public:
 	void resolution(u16& width, u16& height);
 
 	/// Renders @a world using @a camera.
-	void render(World& world, CameraInstance camera);
+	void render(World& world, UnitId camera_unit);
 
 	/// Creates a new world.
 	World* create_world();

@@ -1329,7 +1329,7 @@ function LevelEditor:update(dt)
 end
 
 function LevelEditor:render(dt)
-	Device.render(self._world, self._fpscamera:camera())
+	Device.render(self._world, self._fpscamera:unit())
 end
 
 function LevelEditor:shutdown()

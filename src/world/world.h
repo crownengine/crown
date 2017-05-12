@@ -70,7 +70,7 @@ struct World
 
 	EventStream _events;
 
-	CameraInstance make_camera_instance(u32 i) { CameraInstance inst = { i }; return inst; }
+	CameraInstance camera_make_instance(u32 i) { CameraInstance inst = { i }; return inst; }
 
 public:
 
@@ -96,55 +96,55 @@ public:
 	CameraInstance camera_create(UnitId id, const CameraDesc& cd, const Matrix4x4& tr);
 
 	/// Destroys the camera @a id.
-	void camera_destroy(CameraInstance i);
+	void camera_destroy(UnitId unit, CameraInstance i);
 
 	/// Returns the camera owned by unit @a id.
 	CameraInstance camera_instances(UnitId id);
 
 	/// Sets the projection type of the camera.
-	void camera_set_projection_type(CameraInstance i, ProjectionType::Enum type);
+	void camera_set_projection_type(UnitId unit, ProjectionType::Enum type);
 
 	/// Returns the projection type of the camera.
-	ProjectionType::Enum camera_projection_type(CameraInstance i) const;
+	ProjectionType::Enum camera_projection_type(UnitId unit);
 
 	/// Returns the projection matrix of the camera.
-	const Matrix4x4& camera_projection_matrix(CameraInstance i) const;
+	const Matrix4x4& camera_projection_matrix(UnitId unit);
 
 	/// Returns the view matrix of the camera.
-	Matrix4x4 camera_view_matrix(CameraInstance i) const;
+	Matrix4x4 camera_view_matrix(UnitId unit);
 
 	/// Returns the field-of-view of the camera in degrees.
-	f32 camera_fov(CameraInstance i) const;
+	f32 camera_fov(UnitId unit);
 
 	/// Sets the field-of-view of the camera in degrees.
-	void camera_set_fov(CameraInstance i, f32 fov);
+	void camera_set_fov(UnitId unit, f32 fov);
 
 	/// Sets the aspect ratio of the camera. (Perspective projection only.)
-	void camera_set_aspect(CameraInstance i, f32 aspect);
+	void camera_set_aspect(UnitId unit, f32 aspect);
 
 	/// Returns the near clip distance of the camera.
-	f32 camera_near_clip_distance(CameraInstance i) const;
+	f32 camera_near_clip_distance(UnitId unit);
 
 	/// Sets the near clip distance of the camera.
-	void camera_set_near_clip_distance(CameraInstance i, f32 near);
+	void camera_set_near_clip_distance(UnitId unit, f32 near);
 
 	/// Returns the far clip distance of the camera.
-	f32 camera_far_clip_distance(CameraInstance i) const;
+	f32 camera_far_clip_distance(UnitId unit);
 
 	/// Sets the far clip distance of the camera.
-	void camera_set_far_clip_distance(CameraInstance i, f32 far);
+	void camera_set_far_clip_distance(UnitId unit, f32 far);
 
 	/// Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
-	void camera_set_orthographic_metrics(CameraInstance i, f32 left, f32 right, f32 bottom, f32 top);
+	void camera_set_orthographic_metrics(UnitId unit, f32 left, f32 right, f32 bottom, f32 top);
 
 	/// Sets the coordinates for the camera viewport in pixels.
-	void camera_set_viewport_metrics(CameraInstance i, u16 x, u16 y, u16 width, u16 height);
+	void camera_set_viewport_metrics(UnitId unit, u16 x, u16 y, u16 width, u16 height);
 
 	/// Returns @a pos from screen-space to world-space coordinates.
-	Vector3 camera_screen_to_world(CameraInstance i, const Vector3& pos);
+	Vector3 camera_screen_to_world(UnitId unit, const Vector3& pos);
 
 	/// Returns @a pos from world-space to screen-space coordinates.
-	Vector3 camera_world_to_screen(CameraInstance i, const Vector3& pos);
+	Vector3 camera_world_to_screen(UnitId unit, const Vector3& pos);
 
 	/// Update all animations with @a dt.
 	void update_animations(f32 dt);

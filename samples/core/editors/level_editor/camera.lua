@@ -41,24 +41,22 @@ function FPSCamera:mouse_wheel(delta)
 end
 
 function FPSCamera:camera_ray(x, y)
-	local camera = self:camera()
-	local near = World.camera_screen_to_world(self._world, camera, Vector3(x, y, 0))
-	local far = World.camera_screen_to_world(self._world, camera, Vector3(x, y, 1))
+	local near = World.camera_screen_to_world(self._world, self._unit, Vector3(x, y, 0))
+	local far = World.camera_screen_to_world(self._world, self._unit, Vector3(x, y, 1))
 	local dir = Vector3.normalize(far - near)
 	return self:position(), dir
 end
 
 function FPSCamera:screen_length_to_world_length(position, length)
 	local right = Matrix4x4.x(self:world_pose())
-	local a = World.camera_world_to_screen(self._world, self:camera(), position)
-	local b = World.camera_world_to_screen(self._world, self:camera(), position + right)
+	local a = World.camera_world_to_screen(self._world, self._unit, position)
+	local b = World.camera_world_to_screen(self._world, self._unit, position + right)
 	return length / Vector3.distance(a, b)
 end
 
 function FPSCamera:update(dx, dy, keyboard)
 	local sg = World.scene_graph(self._world)
 
-	local camera = self:camera()
 	local camera_local_pose = SceneGraph.local_pose(sg, self._unit)
 	local camera_right_vector = Matrix4x4.x(camera_local_pose)
 	local camera_position = Matrix4x4.translation(camera_local_pose)
