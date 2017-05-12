@@ -58,7 +58,7 @@ namespace Crown
 
 			_tree_store = new Gtk.TreeStore(Column.COUNT
 				, typeof(int)    // Column.TYPE
-				, typeof(string) // Column.GUID
+				, typeof(Guid)   // Column.GUID
 				, typeof(string) // Column.NAME
 				);
 
@@ -136,7 +136,7 @@ namespace Crown
 			Value guid;
 			_tree_sort.get_value(iter, Column.GUID, out guid);
 
-			_level.object_set_editor_name(Guid.parse((string)guid), new_text);
+			_level.object_set_editor_name((Guid)guid, new_text);
 
 			Gtk.TreeIter iter_filter;
 			Gtk.TreeIter iter_model;
@@ -145,7 +145,7 @@ namespace Crown
 
 			_tree_store.set(iter_model
 				, Column.NAME
-				, _level.object_editor_name(Guid.parse((string)guid))
+				, _level.object_editor_name((Guid)guid)
 				, -1
 				);
 		}
@@ -179,7 +179,7 @@ namespace Crown
 
 				Value id;
 				model.get_value(iter, Column.GUID, out id);
-				ids += Guid.parse((string)id);
+				ids += (Guid)id;
 			});
 
 			_level.destroy_objects(ids);
@@ -217,7 +217,7 @@ namespace Crown
 
 				Value id;
 				model.get_value(iter, Column.GUID, out id);
-				ids += Guid.parse((string)id);
+				ids += (Guid)id;
 			});
 
 			_level.selection_set(ids);
@@ -237,11 +237,10 @@ namespace Crown
 
 				Value id;
 				model.get_value(iter, Column.GUID, out id);
-				Guid guid_model = Guid.parse((string)id);
 
 				foreach (Guid? guid in selection)
 				{
-					if (guid_model == guid)
+					if ((Guid)id == guid)
 					{
 						_tree_selection.select_iter(iter);
 						return false;
@@ -264,7 +263,7 @@ namespace Crown
 
 				Value guid;
 				model.get_value(iter, Column.GUID, out guid);
-				Guid guid_model = Guid.parse((string)guid);
+				Guid guid_model = (Guid)guid;
 
 				if (guid_model == object_id)
 				{
@@ -308,7 +307,7 @@ namespace Crown
 				, Column.TYPE
 				, ItemType.FOLDER
 				, Column.GUID
-				, ""
+				, GUID_ZERO
 				, Column.NAME
 				, "Units"
 				, -1
@@ -317,7 +316,7 @@ namespace Crown
 				, Column.TYPE
 				, ItemType.FOLDER
 				, Column.GUID
-				, ""
+				, GUID_ZERO
 				, Column.NAME
 				, "Lights"
 				, -1
@@ -326,7 +325,7 @@ namespace Crown
 				, Column.TYPE
 				, ItemType.FOLDER
 				, Column.GUID
-				, ""
+				, GUID_ZERO
 				, Column.NAME
 				, "Sounds"
 				, -1
@@ -345,7 +344,7 @@ namespace Crown
 						, Column.TYPE
 						, ItemType.UNIT
 						, Column.GUID
-						, unit.to_string()
+						, unit
 						, Column.NAME
 						, _level.object_editor_name(unit)
 						, -1
@@ -362,7 +361,7 @@ namespace Crown
 						, Column.TYPE
 						, ItemType.SOUND
 						, Column.GUID
-						, sound.to_string()
+						, sound
 						, Column.NAME
 						, _level.object_editor_name(sound)
 						, -1
