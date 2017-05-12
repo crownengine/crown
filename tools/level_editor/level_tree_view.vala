@@ -133,6 +133,11 @@ namespace Crown
 			if ((int)type == ItemType.FOLDER)
 				return;
 
+			Value name;
+			_tree_sort.get_value(iter, Column.NAME, out name);
+			if ((string)name == new_text)
+				return;
+
 			Value guid;
 			_tree_sort.get_value(iter, Column.GUID, out guid);
 
