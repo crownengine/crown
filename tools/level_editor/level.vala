@@ -29,6 +29,7 @@ namespace Crown
 
 		// Signals
 		public signal void selection_changed(Gee.ArrayList<Guid?> selection);
+		public signal void object_editor_name_changed(Guid object_id, string name);
 
 		public Level(Database db, ConsoleClient client, string source_dir, string toolchain_dir)
 		{
@@ -308,10 +309,18 @@ namespace Crown
 			_client.send_script(LevelEditorApi.set_sound_range(sound_id, range));
 		}
 
-		public string object_name(Guid object_id)
+		public string object_editor_name(Guid object_id)
 		{
 			Value? name = _db.get_property(object_id, "editor.name");
 			return name != null ? (string)name : "<unnamed>";
+		}
+
+		public void object_set_editor_name(Guid object_id, string name)
+		{
+			_db.add_restore_point((int)ActionType.OBJECT_SET_EDITOR_NAME, new Guid[] { object_id });
+			_db.set_property(object_id, "editor.name", name);
+
+			object_editor_name_changed(object_id, name);
 		}
 
 		private void send_spawn_units(Guid[] ids)
@@ -594,6 +603,10 @@ namespace Crown
 					else
 						send_spawn_objects(new_ids);
 				}
+				break;
+
+			case (int)ActionType.OBJECT_SET_EDITOR_NAME:
+				object_editor_name_changed(data[0], object_editor_name(data[0]));
 				break;
 
 			default:

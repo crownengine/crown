@@ -46,6 +46,7 @@ namespace Crown
 			// Data
 			_level = level;
 			_level.selection_changed.connect(on_level_selection_changed);
+			_level.object_editor_name_changed.connect(on_object_editor_name_changed);
 
 			_db = db;
 			_db.key_changed.connect(on_database_key_changed);
@@ -81,16 +82,21 @@ namespace Crown
 			});
 
 			_tree_view = new Gtk.TreeView();
-			// _tree_view.insert_column_with_attributes(-1
-			// 	, "Types"
-			// 	, new Gtk.CellRendererText()
-			// 	, "text"
-			// 	, Column.TYPE
-			// 	, null
-			// 	);
+			/*
+			_tree_view.insert_column_with_attributes(-1
+				, "Guids"
+				, new gtk.CellRendererText()
+				, "text"
+				, Column.GUID
+				, null
+				);
+			*/
+			Gtk.CellRendererText cell = new Gtk.CellRendererText();
+			cell.editable = true;
+			cell.edited.connect(on_object_name_edited);
 			_tree_view.insert_column_with_attributes(-1
 				, "Names"
-				, new Gtk.CellRendererText()
+				, cell
 				, "text"
 				, Column.NAME
 				, null
@@ -115,6 +121,33 @@ namespace Crown
 
 			set_size_request(300, 250);
 			show_all();
+		}
+
+		private void on_object_name_edited(string path, string new_text)
+		{
+			Gtk.TreeIter iter;
+			_tree_sort.get_iter_from_string(out iter, path);
+
+			Value type;
+			_tree_sort.get_value(iter, Column.TYPE, out type);
+			if ((int)type == ItemType.FOLDER)
+				return;
+
+			Value guid;
+			_tree_sort.get_value(iter, Column.GUID, out guid);
+
+			_level.object_set_editor_name(Guid.parse((string)guid), new_text);
+
+			Gtk.TreeIter iter_filter;
+			Gtk.TreeIter iter_model;
+			_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
+			_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+
+			_tree_store.set(iter_model
+				, Column.NAME
+				, _level.object_editor_name(Guid.parse((string)guid))
+				, -1
+				);
 		}
 
 		private bool on_button_pressed(Gdk.EventButton ev)
@@ -221,6 +254,38 @@ namespace Crown
 			_tree_selection.changed.connect(on_tree_selection_changed);
 		}
 
+		private void on_object_editor_name_changed(Guid object_id, string name)
+		{
+			_tree_sort.foreach ((model, path, iter) => {
+				Value type;
+				model.get_value(iter, Column.TYPE, out type);
+				if ((int)type == ItemType.FOLDER)
+					return false;
+
+				Value guid;
+				model.get_value(iter, Column.GUID, out guid);
+				Guid guid_model = Guid.parse((string)guid);
+
+				if (guid_model == object_id)
+				{
+					Gtk.TreeIter iter_filter;
+					Gtk.TreeIter iter_model;
+					_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
+					_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+
+					_tree_store.set(iter_model
+						, Column.NAME
+						, name
+						, -1
+						);
+
+					return true;
+				}
+
+				return false;
+			});
+		}
+
 		private void on_database_key_changed(Guid id, string key)
 		{
 			if (id != GUID_ZERO)
@@ -282,7 +347,7 @@ namespace Crown
 						, Column.GUID
 						, unit.to_string()
 						, Column.NAME
-						, _level.object_name(unit)
+						, _level.object_editor_name(unit)
 						, -1
 						);
 				}
@@ -299,7 +364,7 @@ namespace Crown
 						, Column.GUID
 						, sound.to_string()
 						, Column.NAME
-						, _level.object_name(sound)
+						, _level.object_editor_name(sound)
 						, -1
 						);
 				}
