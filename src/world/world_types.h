@@ -282,6 +282,8 @@ INSTANCE_ID(ControllerInstance);
 INSTANCE_ID(JointInstance);
 INSTANCE_ID(ScriptInstance);
 
+#undef INSTANCE_ID
+
 /// Mesh renderer description.
 ///
 /// @ingroup World
