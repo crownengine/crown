@@ -379,6 +379,7 @@ namespace Crown
 		private void on_resource_browser_resource_selected(string type, string name)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable(type, name));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_compiler_connected()
@@ -1161,41 +1162,49 @@ namespace Crown
 		private void on_create_cube(Gtk.Action action)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cube"));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_create_sphere(Gtk.Action action)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/sphere"));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_create_cone(Gtk.Action action)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cone"));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_create_cylinder(Gtk.Action action)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cylinder"));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_create_plane(Gtk.Action action)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/plane"));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_create_camera(Gtk.Action action)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/camera"));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_create_light(Gtk.Action action)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/light"));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_create_sound_source(Gtk.Action action)
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("sound", ""));
+			_action_group.get_action("place").activate();
 		}
 
 		private void on_resource_browser(Gtk.Action action)
