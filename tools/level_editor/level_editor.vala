@@ -1381,8 +1381,67 @@ namespace Crown
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
 		provider.load_from_resource("/org/crown/ui/theme/style.css");
 
+		string source_dir = "";
+		if (args.length > 1)
+		{
+			if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR))
+			{
+				stdout.printf("Source directory does not exist or it is not a directory\n");
+				return -1;
+			}
+
+			source_dir = args[1];
+		}
+		else
+		{
+			stdout.printf("You must specify a source directory\n");
+			return -1;
+		}
+
+		string toolchain_dir = "";
+		if (args.length > 2)
+		{
+			if (!GLib.FileUtils.test(args[2], FileTest.EXISTS) || !GLib.FileUtils.test(args[2], FileTest.IS_DIR))
+			{
+				stdout.printf("Toolchain directory does not exist or it is not a directory\n");
+				return -1;
+			}
+
+			toolchain_dir = args[2];
+		}
+		else
+		{
+			bool found = false;
+
+			/// More desirable paths come first
+			string toolchain_paths[] =
+			{
+				"",
+				"../../../samples"
+			};
+
+			for (int i = 0; i < toolchain_paths.length; ++i)
+			{
+				string path = Path.build_path(Path.DIR_SEPARATOR_S, toolchain_paths[i], "core");
+
+				// Try to locate the toolchain directory
+				if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
+				{
+					toolchain_dir = toolchain_paths[i];
+					found = true;
+					break;
+				}
+			}
+
+			if (!found)
+			{
+				stdout.printf("Unable to find the toolchain directory\n");
+				return -1;
+			}
+		}
+
 		Project project = new Project();
-		project.load(args[1], args[2]);
+		project.load(source_dir, toolchain_dir);
 
 		var editor = new LevelEditor(project);
 		editor.show_all();
