@@ -58,7 +58,7 @@ MSYS2 (http://www.msys2.org)
 
 	$ make tools-linux-release64
 	$ cd build/linux64/bin
-	$ ./level-editor-release ../../../samples/01-physics ../../../samples
+	$ ./level-editor-release ../../../samples/01-physics
 
 Contact
 -------
