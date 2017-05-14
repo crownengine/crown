@@ -105,6 +105,11 @@ function draw_mesh_obb(render_world, unit_id, lines)
 	DebugLine.add_obb(lines, tm, hext, Color4.red())
 end
 
+function draw_sprite_obb(render_world, unit_id, lines)
+	local tm, hext = RenderWorld.sprite_obb(render_world, unit_id)
+	DebugLine.add_obb(lines, tm, hext, Color4.red())
+end
+
 function raycast(objects, pos, dir)
 	local nearest = math.huge
 	local hit = nil
@@ -334,6 +339,11 @@ function UnitBox:draw()
 		local mesh_component = RenderWorld.mesh_instances(LevelEditor._rw, self._unit_id)
 		if mesh_component then
 			draw_mesh_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
+		end
+
+		local sprite = RenderWorld.sprite_instances(LevelEditor._rw, self._unit_id)
+		if sprite then
+			draw_sprite_obb(LevelEditor._rw, self._unit_id, LevelEditor._lines)
 		end
 	end
 end
