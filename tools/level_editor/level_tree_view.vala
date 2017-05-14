@@ -142,17 +142,6 @@ namespace Crown
 			_tree_sort.get_value(iter, Column.GUID, out guid);
 
 			_level.object_set_editor_name((Guid)guid, new_text);
-
-			Gtk.TreeIter iter_filter;
-			Gtk.TreeIter iter_model;
-			_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
-			_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
-
-			_tree_store.set(iter_model
-				, Column.NAME
-				, _level.object_editor_name((Guid)guid)
-				, -1
-				);
 		}
 
 		private bool on_button_pressed(Gdk.EventButton ev)
