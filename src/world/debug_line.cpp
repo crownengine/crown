@@ -12,6 +12,7 @@
 #include "mesh_resource.h"
 #include "resource_manager.h"
 #include "shader_manager.h"
+#include "sprite_resource.h"
 #include "unit_resource.h"
 #include "vector3.h"
 #include <string.h> // memcpy
@@ -213,6 +214,19 @@ void DebugLine::add_unit(ResourceManager& rm, const Matrix4x4& tm, StringId64 na
 					, mg->vertices.stride
 					, (u16*)mg->indices.data
 					, mg->indices.num
+					, color
+					);
+			}
+		}
+		else if (component->type == COMPONENT_TYPE_SPRITE_RENDERER)
+		{
+			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
+			for (u32 i = 0; i < component->num_instances; ++i, ++srd)
+			{
+				const SpriteResource* sr = (const SpriteResource*)rm.get(RESOURCE_TYPE_SPRITE, srd->sprite_resource);
+
+				add_obb(sr->obb.tm*tm
+					, sr->obb.half_extents
 					, color
 					);
 			}
