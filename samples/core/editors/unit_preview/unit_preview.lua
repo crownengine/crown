@@ -40,7 +40,7 @@ function UnitPreview:update(dt)
 end
 
 function UnitPreview:render(dt)
-	Device.render(self._world, self._fpscamera:camera())
+	Device.render(self._world, self._fpscamera:unit())
 end
 
 function UnitPreview:shutdown()
