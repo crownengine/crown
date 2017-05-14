@@ -164,7 +164,7 @@ units = {
 	}
 	2a450c56-45db-4226-8ddc-bf26b04dd5d5 = {
 		editor = {
-			name = "unit_0010"
+			name = "skydome"
 		}
 		modified_components = {
 			#6ef7e034-8519-4189-9527-04dfe17aebca = {
@@ -500,7 +500,7 @@ units = {
 	}
 	ba8d7ab5-8d00-46bf-9740-c6bfd6f1a95d = {
 		editor = {
-			name = "unit_0030"
+			name = "ground"
 		}
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
@@ -564,7 +564,7 @@ units = {
 	}
 	ce46276d-06fe-4b1f-b400-452965e66d49 = {
 		editor = {
-			name = "unit_0034"
+			name = "ramp"
 		}
 		modified_components = {
 			#1089a8ef-c51f-417d-9160-3716b5b441d7 = {
