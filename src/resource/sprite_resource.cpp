@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "aabb.h"
 #include "array.h"
 #include "compile_options.h"
 #include "config.h"
@@ -99,12 +100,35 @@ namespace sprite_resource_internal
 			array::push_back(vertices, v1);
 		}
 
+		AABB aabb;
+		aabb::reset(aabb);
+		for (u32 i = 0; i < array::size(vertices); i += 4)
+		{
+			Vector3 v;
+			v.x = vertices[i + 0];
+			v.y = vertices[i + 1];
+			v.z = 0.0f;
+			aabb::add_points(aabb, 1, &v);
+		}
+
+		OBB obb;
+		obb.tm = matrix4x4(QUATERNION_IDENTITY, aabb::center(aabb));
+		obb.half_extents.x = (aabb.max.x - aabb.min.x) * 0.5f;
+		obb.half_extents.y = (aabb.max.y - aabb.min.y) * 0.5f;
+		obb.half_extents.z = (aabb.max.z - aabb.min.z) * 0.5f;
+
 		const u32 num_vertices = array::size(vertices) / 4; // 4 components per vertex
 
 		// Write
-		opts.write(RESOURCE_VERSION_SPRITE);
+		SpriteResource sr;
+		sr.version = RESOURCE_VERSION_SPRITE;
+		sr.obb = obb;
+		sr.num_verts = num_vertices;
 
-		opts.write(num_vertices);
+		opts.write(sr.version);
+		opts.write(sr.obb);
+
+		opts.write(sr.num_verts);
 		for (u32 i = 0; i < array::size(vertices); i++)
 			opts.write(vertices[i]);
 	}

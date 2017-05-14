@@ -71,6 +71,9 @@ public:
 	/// Sets whether to flip the sprite on the y-axis.
 	void sprite_flip_y(UnitId unit, bool flip);
 
+	/// Returns the OBB of the sprite.
+	OBB sprite_obb(UnitId unit);
+
 	/// Returns the distance along ray (from, dir) to intersection point with sprite
 	/// or -1.0 if no intersection.
 	f32 sprite_raycast(UnitId unit, const Vector3& from, const Vector3& dir);

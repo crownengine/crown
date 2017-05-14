@@ -181,6 +181,21 @@ void RenderWorld::sprite_flip_y(UnitId unit, bool flip)
 	_sprite_manager._data.flip_y[i.i] = flip;
 }
 
+OBB RenderWorld::sprite_obb(UnitId unit)
+{
+	SpriteInstance i = _sprite_manager.sprite(unit);
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+
+	const OBB& obb = _sprite_manager._data.resource[i.i]->obb;
+	const Matrix4x4& world = _sprite_manager._data.world[i.i];
+
+	OBB o;
+	o.tm = obb.tm * world;
+	o.half_extents = obb.half_extents;
+
+	return o;
+}
+
 f32 RenderWorld::sprite_raycast(UnitId unit, const Vector3& from, const Vector3& dir)
 {
 	SpriteInstance i = _sprite_manager.sprite(unit);
