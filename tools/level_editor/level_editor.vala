@@ -113,9 +113,9 @@ namespace Crown
 			{ "duplicate",            null,  "Duplicate",          "<ctrl>D",        null,         on_duplicate           },
 			{ "delete",               null,  "Delete",             "<ctrl>K",        null,         on_delete              },
 			{ "menu-grid",            null,  "Grid",               null,             null,         null                   },
-			{ "grid-custom",          null,  "Custom",             "G",              null,         on_custom_grid         },
+			{ "grid-custom",          null,  "Custom",             null,             null,         on_custom_grid	      },
 			{ "menu-rotation-snap",   null,  "Rotation Snap",      null,             null,         null                   },
-			{ "rotation-snap-custom", null,  "Custom",             "H",              null,         on_rotation_snap       },
+			{ "rotation-snap-custom", null,  "Custom",             null,             null,         on_rotation_snap       },
 			{ "menu-create",          null,  "Create",             null,             null,         null                   },
 			{ "menu-primitives",      null,  "Primitives",         null,             null,         null                   },
 			{ "primitive-cube",       null,  "Cube",               null,             null,         on_create_cube         },
@@ -163,10 +163,10 @@ namespace Crown
 
 		const RadioActionEntry[] tool_entries =
 		{
-			{ "place",  "tool-place",  "Place",  "Q", "Place",  (int)ToolType.PLACE  },
-			{ "move",   "tool-move",   "Move",   "W", "Move",   (int)ToolType.MOVE   },
-			{ "rotate", "tool-rotate", "Rotate", "E", "Rotate", (int)ToolType.ROTATE },
-			{ "scale",  "tool-scale",  "Scale",  "R", "Scale",  (int)ToolType.SCALE  }
+			{ "place",  "tool-place",  "Place",  null, "Place",  (int)ToolType.PLACE  },
+			{ "move",   "tool-move",   "Move",   null, "Move",   (int)ToolType.MOVE   },
+			{ "rotate", "tool-rotate", "Rotate", null, "Rotate", (int)ToolType.ROTATE },
+			{ "scale",  "tool-scale",  "Scale",  null, "Scale",  (int)ToolType.SCALE  }
 		};
 
 		const RadioActionEntry[] snap_mode_entries =
