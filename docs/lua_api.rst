@@ -608,7 +608,7 @@ Mesh
 	Returns the IDs for all the meshes of the *unit*.
 
 **mesh_obb** (rw, id) : Matrix4x4, Vector3
-	Returns the OBB of the mesh *id*.
+	Returns the OBB of the mesh *id* as (pose, half_extents).
 
 **mesh_raycast** (rw, id, from, dir) : float
 	Returns the distance along ray (from, dir) to intersection point with the mesh *id* or -1.0 if no intersection.
@@ -631,14 +631,14 @@ Sprite
 **sprite_set_visible** (rw, unit, visible)
 	Sets whether the sprite is *visible*.
 
-**sprite_obb** (rw, unit) : Matrix4x4, Vector3
-	Returns the OBB of the sprite.
-
 **sprite_flip_x** (rw, unit, flip)
 	Sets whether to flip the sprite on the x-axis.
 
 **sprite_flip_y** (rw, unit, flip)
 	Sets whether to flip the sprite on the y-axis.
+
+**sprite_obb** (rw, unit) : Matrix4x4, Vector3
+	Returns the OBB of the sprite as (pose, half_extents).
 
 **sprite_raycast** (rw, unit, from, dir) : float
 	Returns the distance along ray (from, dir) to intersection point with the sprite or -1.0 if no
