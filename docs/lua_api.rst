@@ -303,7 +303,7 @@ Functions
 **set_rotation** (m, r)
 	Sets the rotation portion of the matrix *m*.
 
-**translation** (m, a) : Vector3
+**translation** (m) : Vector3
 	Returns the translation portion of the matrix *m*.
 
 **set_translation** (m, t)
