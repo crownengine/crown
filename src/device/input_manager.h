@@ -22,6 +22,8 @@ struct InputManager
 	InputDevice* _mouse;
 	InputDevice* _touch;
 	InputDevice* _joypad[CROWN_MAX_JOYPADS];
+	s16 _mouse_last_x;
+	s16 _mouse_last_y;
 
 	/// Constructor.
 	InputManager(Allocator& a);

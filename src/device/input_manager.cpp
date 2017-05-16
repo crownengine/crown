@@ -6,6 +6,7 @@
 #include "input_device.h"
 #include "input_manager.h"
 #include "memory.h"
+#include "vector3.h"
 
 namespace crown
 {
@@ -171,6 +172,8 @@ InputManager::InputManager(Allocator& a)
 	, _keyboard(NULL)
 	, _mouse(NULL)
 	, _touch(NULL)
+	, _mouse_last_x(0)
+	, _mouse_last_y(0)
 {
 	_keyboard = input_device::create(*_allocator
 		, "Keyboard"
@@ -249,7 +252,13 @@ InputDevice* InputManager::joypad(u8 i)
 void InputManager::update()
 {
 	_keyboard->update();
+
+	const Vector3 cursor = _mouse->axis(MouseAxis::CURSOR);
+	_mouse->set_axis(MouseAxis::CURSOR_DELTA, vector3((s16)cursor.x - _mouse_last_x, (s16)cursor.y - _mouse_last_y, 0.0f));
+	_mouse_last_x = (s16)cursor.x;
+	_mouse_last_y = (s16)cursor.y;
 	_mouse->update();
+
 	_touch->update();
 
 	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)

@@ -214,7 +214,7 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 {
 }
 
-bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& mouse_last_y, bool vsync)
+bool Device::process_events(bool vsync)
 {
 	InputManager* im = _input_manager;
 	bool exit = false;
@@ -259,11 +259,6 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 				{
 				case InputDeviceType::MOUSE:
 					im->mouse()->set_axis(ev.axis_num, vector3(ev.axis_x, ev.axis_y, ev.axis_z));
-					if (ev.axis_num == MouseAxis::CURSOR)
-					{
-						mouse_x = (s16)ev.axis_x;
-						mouse_y = (s16)ev.axis_y;
-					}
 					break;
 
 				case InputDeviceType::JOYPAD:
@@ -311,12 +306,6 @@ bool Device::process_events(s16& mouse_x, s16& mouse_y, s16& mouse_last_x, s16& 
 			break;
 		}
 	}
-
-	const s16 dt_x = mouse_x - mouse_last_x;
-	const s16 dt_y = mouse_y - mouse_last_y;
-	im->mouse()->set_axis(MouseAxis::CURSOR_DELTA, vector3(dt_x, dt_y, 0.0f));
-	mouse_last_x = mouse_x;
-	mouse_last_y = mouse_y;
 
 	if (reset)
 		bgfx::reset(_width, _height, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
@@ -448,15 +437,10 @@ void Device::run()
 
 	logi(DEVICE, "Initialized");
 
-	s16 mouse_x = 0;
-	s16 mouse_y = 0;
-	s16 mouse_last_x = 0;
-	s16 mouse_last_y = 0;
-
 	s64 last_time = os::clocktime();
 	s64 curr_time;
 
-	while (!process_events(mouse_x, mouse_y, mouse_last_x, mouse_last_y, _boot_config.vsync) && !_quit)
+	while (!process_events(_boot_config.vsync) && !_quit)
 	{
 		curr_time = os::clocktime();
 		const s64 time = curr_time - last_time;
