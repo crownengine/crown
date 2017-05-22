@@ -564,7 +564,7 @@ end
 function PlaceTool:mouse_move(x, y)
 	if self:is_idle() then
 		local target = LevelEditor:find_spawn_point(x, y)
-		target = LevelEditor:snap(Matrix4x4.identity(target), target) or target
+		target = LevelEditor:snap(Matrix4x4.identity(), target) or target
 		self:set_position(target)
 	end
 
@@ -576,7 +576,7 @@ function PlaceTool:mouse_move(x, y)
 		local t = Math.ray_plane_intersection(pos, dir, point, normal)
 		if t ~= -1.0 then
 			local target = pos + dir * t
-			target = LevelEditor:snap(Matrix4x4.identity(target), target) or target
+			target = LevelEditor:snap(Matrix4x4.identity(), target) or target
 			self:set_position(target)
 		end
 	end
