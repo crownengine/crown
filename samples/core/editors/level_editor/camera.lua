@@ -63,18 +63,20 @@ function FPSCamera:update(dx, dy, keyboard)
 	local camera_rotation = Matrix4x4.rotation(camera_local_pose)
 	local view_dir = Matrix4x4.z(camera_local_pose)
 
-	-- Rotation
-	local rotation_around_world_up = Quaternion(Vector3(0, 1, 0), -dx * self._rotation_speed)
-	local rotation_around_camera_right = Quaternion(camera_right_vector, -dy * self._rotation_speed)
-	local rotation = Quaternion.multiply(rotation_around_world_up, rotation_around_camera_right)
+	if dx ~= 0 or dy ~= 0 then
+		-- Rotation
+		local rotation_around_world_up = Quaternion(Vector3(0, 1, 0), -dx * self._rotation_speed)
+		local rotation_around_camera_right = Quaternion(camera_right_vector, -dy * self._rotation_speed)
+		local rotation = Quaternion.multiply(rotation_around_world_up, rotation_around_camera_right)
 
-	local old_rotation = Matrix4x4.from_quaternion(camera_rotation)
-	local delta_rotation = Matrix4x4.from_quaternion(rotation)
-	local new_rotation = Matrix4x4.multiply(old_rotation, delta_rotation)
-	Matrix4x4.set_translation(new_rotation, camera_position)
+		local old_rotation = Matrix4x4.from_quaternion(camera_rotation)
+		local delta_rotation = Matrix4x4.from_quaternion(rotation)
+		local new_rotation = Matrix4x4.multiply(old_rotation, delta_rotation)
+		Matrix4x4.set_translation(new_rotation, camera_position)
 
-	-- Fixme
-	SceneGraph.set_local_pose(sg, self._unit, new_rotation)
+		-- Fixme
+		SceneGraph.set_local_pose(sg, self._unit, new_rotation)
+	end
 
 	-- Translation
 	local speed = self._translation_speed;
