@@ -25,7 +25,6 @@ struct World
 		UnitId unit;
 
 		ProjectionType::Enum projection_type;
-		Matrix4x4 projection;
 
 		Frustum frustum;
 		f32 fov;
@@ -43,8 +42,6 @@ struct World
 		u16 view_y;
 		u16 view_width;
 		u16 view_height;
-
-		void update_projection_matrix();
 	};
 
 	u32 _marker;
@@ -108,7 +105,7 @@ public:
 	ProjectionType::Enum camera_projection_type(UnitId unit);
 
 	/// Returns the projection matrix of the camera.
-	const Matrix4x4& camera_projection_matrix(UnitId unit);
+	Matrix4x4 camera_projection_matrix(UnitId unit);
 
 	/// Returns the view matrix of the camera.
 	Matrix4x4 camera_view_matrix(UnitId unit);

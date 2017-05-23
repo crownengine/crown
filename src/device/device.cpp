@@ -571,6 +571,13 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::setViewRect(1, 0, 0, _width, _height);
 	bgfx::setViewRect(2, 0, 0, _width, _height);
 
+	float aspect_ratio = (_boot_config.aspect_ratio == -1.0f
+		? (float)_width/(float)_height
+		: _boot_config.aspect_ratio
+		);
+	world.camera_set_aspect(camera_unit, aspect_ratio);
+	world.camera_set_viewport_metrics(camera_unit, 0, 0, _width, _height);
+
 	const Matrix4x4 view = world.camera_view_matrix(camera_unit);
 	const Matrix4x4 proj = world.camera_projection_matrix(camera_unit);
 
@@ -582,13 +589,6 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::touch(0);
 	bgfx::touch(1);
 	bgfx::touch(2);
-
-	float aspect_ratio = (_boot_config.aspect_ratio == -1.0f
-		? (float)_width/(float)_height
-		: _boot_config.aspect_ratio
-		);
-	world.camera_set_aspect(camera_unit, aspect_ratio);
-	world.camera_set_viewport_metrics(camera_unit, 0, 0, _width, _height);
 
 	world.render(view, proj);
 }

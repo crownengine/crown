@@ -239,7 +239,6 @@ void World::camera_set_projection_type(UnitId unit, ProjectionType::Enum type)
 {
 	CameraInstance i = camera_instances(unit);
 	_camera[i.i].projection_type = type;
-	_camera[i.i].update_projection_matrix();
 }
 
 ProjectionType::Enum World::camera_projection_type(UnitId unit)
@@ -248,10 +247,40 @@ ProjectionType::Enum World::camera_projection_type(UnitId unit)
 	return _camera[i.i].projection_type;
 }
 
-const Matrix4x4& World::camera_projection_matrix(UnitId unit)
+Matrix4x4 World::camera_projection_matrix(UnitId unit)
 {
 	CameraInstance i = camera_instances(unit);
-	return _camera[i.i].projection;
+	Camera& cam = _camera[i.i];
+	Matrix4x4 projection;
+
+	switch (cam.projection_type)
+	{
+	case ProjectionType::ORTHOGRAPHIC:
+		orthographic(projection
+			, cam.left
+			, cam.right
+			, cam.bottom
+			, cam.top
+			, cam.near_range
+			, cam.far_range
+			);
+		break;
+
+	case ProjectionType::PERSPECTIVE:
+		perspective(projection
+			, cam.fov
+			, cam.aspect
+			, cam.near_range
+			, cam.far_range
+			);
+		break;
+
+	default:
+		CE_FATAL("Unknown projection type");
+		break;
+	}
+
+	return projection;
 }
 
 Matrix4x4 World::camera_view_matrix(UnitId unit)
@@ -272,14 +301,12 @@ void World::camera_set_fov(UnitId unit, f32 fov)
 {
 	CameraInstance i = camera_instances(unit);
 	_camera[i.i].fov = fov;
-	_camera[i.i].update_projection_matrix();
 }
 
 void World::camera_set_aspect(UnitId unit, f32 aspect)
 {
 	CameraInstance i = camera_instances(unit);
 	_camera[i.i].aspect = aspect;
-	_camera[i.i].update_projection_matrix();
 }
 
 f32 World::camera_near_clip_distance(UnitId unit)
@@ -292,7 +319,6 @@ void World::camera_set_near_clip_distance(UnitId unit, f32 near)
 {
 	CameraInstance i = camera_instances(unit);
 	_camera[i.i].near_range = near;
-	_camera[i.i].update_projection_matrix();
 }
 
 f32 World::camera_far_clip_distance(UnitId unit)
@@ -305,7 +331,6 @@ void World::camera_set_far_clip_distance(UnitId unit, f32 far)
 {
 	CameraInstance i = camera_instances(unit);
 	_camera[i.i].far_range = far;
-	_camera[i.i].update_projection_matrix();
 }
 
 void World::camera_set_orthographic_metrics(UnitId unit, f32 left, f32 right, f32 bottom, f32 top)
@@ -316,7 +341,6 @@ void World::camera_set_orthographic_metrics(UnitId unit, f32 left, f32 right, f3
 	_camera[i.i].bottom = bottom;
 	_camera[i.i].top = top;
 
-	_camera[i.i].update_projection_matrix();
 }
 
 void World::camera_set_viewport_metrics(UnitId unit, u16 x, u16 y, u16 width, u16 height)
@@ -333,9 +357,10 @@ Vector3 World::camera_screen_to_world(UnitId unit, const Vector3& pos)
 	CameraInstance i = camera_instances(unit);
 	const Camera& c = _camera[i.i];
 
+	Matrix4x4 projection = camera_projection_matrix(unit);
 	Matrix4x4 world_inv = _scene_graph->world_pose(c.unit);
 	invert(world_inv);
-	Matrix4x4 mvp = world_inv * c.projection;
+	Matrix4x4 mvp = world_inv * projection;
 	invert(mvp);
 
 	Vector4 ndc;
@@ -355,6 +380,7 @@ Vector3 World::camera_world_to_screen(UnitId unit, const Vector3& pos)
 	CameraInstance i = camera_instances(unit);
 	const Camera& c = _camera[i.i];
 
+	Matrix4x4 projection = camera_projection_matrix(unit);
 	Matrix4x4 world_inv = _scene_graph->world_pose(c.unit);
 	invert(world_inv);
 
@@ -364,7 +390,7 @@ Vector3 World::camera_world_to_screen(UnitId unit, const Vector3& pos)
 	xyzw.z = pos.z;
 	xyzw.w = 1.0f;
 
-	Vector4 clip = xyzw * (world_inv * c.projection);
+	Vector4 clip = xyzw * (world_inv * projection);
 
 	Vector4 ndc;
 	ndc.x = clip.x / clip.w;
@@ -475,36 +501,6 @@ void World::post_level_loaded_event()
 {
 	LevelLoadedEvent ev;
 	event_stream::write(_events, EventType::LEVEL_LOADED, ev);
-}
-
-void World::Camera::update_projection_matrix()
-{
-	switch (projection_type)
-	{
-	case ProjectionType::ORTHOGRAPHIC:
-		orthographic(projection
-			, left
-			, right
-			, bottom
-			, top
-			, near_range
-			, far_range
-			);
-		break;
-
-	case ProjectionType::PERSPECTIVE:
-		perspective(projection
-			, fov
-			, aspect
-			, near_range
-			, far_range
-			);
-		break;
-
-	default:
-		CE_FATAL("Unknown projection type");
-		break;
-	}
 }
 
 void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const UnitId* unit_lookup)
