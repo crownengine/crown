@@ -257,10 +257,10 @@ Matrix4x4 World::camera_projection_matrix(UnitId unit)
 	{
 	case ProjectionType::ORTHOGRAPHIC:
 		orthographic(projection
-			, cam.left
-			, cam.right
-			, cam.bottom
-			, cam.top
+			, -cam.half_size * cam.aspect
+			, cam.half_size * cam.aspect
+			, -cam.half_size
+			, cam.half_size
 			, cam.near_range
 			, cam.far_range
 			);
@@ -333,14 +333,10 @@ void World::camera_set_far_clip_distance(UnitId unit, f32 far)
 	_camera[i.i].far_range = far;
 }
 
-void World::camera_set_orthographic_metrics(UnitId unit, f32 left, f32 right, f32 bottom, f32 top)
+void World::camera_set_orthographic_size(UnitId unit, f32 half_size)
 {
 	CameraInstance i = camera_instances(unit);
-	_camera[i.i].left = left;
-	_camera[i.i].right = right;
-	_camera[i.i].bottom = bottom;
-	_camera[i.i].top = top;
-
+	_camera[i.i].half_size = half_size;
 }
 
 void World::camera_set_viewport_metrics(UnitId unit, u16 x, u16 y, u16 width, u16 height)

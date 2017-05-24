@@ -1442,11 +1442,10 @@ static int world_camera_set_far_clip_distance(lua_State* L)
 	return 0;
 }
 
-static int world_camera_set_orthographic_metrics(lua_State* L)
+static int world_camera_set_orthographic_size(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.get_world(1)->camera_set_orthographic_metrics(stack.get_unit(2), stack.get_float(3), stack.get_float(4),
-		stack.get_float(5), stack.get_float(6));
+	stack.get_world(1)->camera_set_orthographic_size(stack.get_unit(2), stack.get_float(3));
 	return 0;
 }
 
@@ -3353,7 +3352,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "camera_set_near_clip_distance",   world_camera_set_near_clip_distance);
 	env.add_module_function("World", "camera_far_clip_distance",        world_camera_far_clip_distance);
 	env.add_module_function("World", "camera_set_far_clip_distance",    world_camera_set_far_clip_distance);
-	env.add_module_function("World", "camera_set_orthographic_metrics", world_camera_set_orthographic_metrics);
+	env.add_module_function("World", "camera_set_orthographic_size",    world_camera_set_orthographic_size);
 	env.add_module_function("World", "camera_screen_to_world",          world_camera_screen_to_world);
 	env.add_module_function("World", "camera_world_to_screen",          world_camera_world_to_screen);
 	env.add_module_function("World", "update_animations",               world_update_animations);

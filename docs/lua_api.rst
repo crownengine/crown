@@ -484,8 +484,9 @@ Camera
 **camera_set_far_clip_distance** (world, unit, far)
 	Sets the far clip distance of the camera.
 
-**camera_set_orthographic_metrics** (world, unit, left, right, bottom, top)
-	Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
+**camera_set_orthographic_size** (world, unit, half_size)
+	Sets the vertical *half_size* of the orthographic view volume.
+	The horizontal size is proportional to the viewport's aspect ratio.
 
 **camera_screen_to_world** (world, unit, pos) : Vector3
 	Returns *pos* from screen-space to world-space coordinates.

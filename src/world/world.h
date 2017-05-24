@@ -33,10 +33,7 @@ struct World
 		f32 far_range;
 
 		// Orthographic projection only
-		f32 left;
-		f32 right;
-		f32 bottom;
-		f32 top;
+		f32 half_size;
 
 		u16 view_x;
 		u16 view_y;
@@ -131,8 +128,9 @@ public:
 	/// Sets the far clip distance of the camera.
 	void camera_set_far_clip_distance(UnitId unit, f32 far);
 
-	/// Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
-	void camera_set_orthographic_metrics(UnitId unit, f32 left, f32 right, f32 bottom, f32 top);
+	/// Sets the vertical *half_size* of the orthographic view volume.
+	/// The horizontal size is proportional to the viewport's aspect ratio.
+	void camera_set_orthographic_size(UnitId unit, f32 half_size);
 
 	/// Sets the coordinates for the camera viewport in pixels.
 	void camera_set_viewport_metrics(UnitId unit, u16 x, u16 y, u16 width, u16 height);
