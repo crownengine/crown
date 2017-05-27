@@ -2509,13 +2509,6 @@ static int device_version(lua_State* L)
 	return 1;
 }
 
-static int device_last_delta_time(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_float(device()->last_delta_time());
-	return 1;
-}
-
 static int device_quit(lua_State* /*L*/)
 {
 	device()->quit();
@@ -3483,7 +3476,6 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Device", "platform",                 device_platform);
 	env.add_module_function("Device", "architecture",             device_architecture);
 	env.add_module_function("Device", "version",                  device_version);
-	env.add_module_function("Device", "last_delta_time",          device_last_delta_time);
 	env.add_module_function("Device", "quit",                     device_quit);
 	env.add_module_function("Device", "resolution",               device_resolution);
 	env.add_module_function("Device", "create_world",             device_create_world);

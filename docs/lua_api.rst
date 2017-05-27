@@ -872,9 +872,6 @@ Device
 	Returns a string identifying the engine version.
 	The form is "major.minor.micro".
 
-**last_delta_time** () : float
-	Returns the time in seconds needed to render the last frame
-
 **quit** ()
 	Quits the application.
 

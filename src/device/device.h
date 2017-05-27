@@ -62,7 +62,6 @@ struct Device
 	bool _paused;
 
 	u64 _frame_count;
-	f32 _last_delta_time;
 	f64 _time_since_start;
 
 	bool process_events(bool vsync);
@@ -82,9 +81,6 @@ public:
 
 	/// Return the number of frames rendered.
 	u64 frame_count() const;
-
-	/// Returns the time in seconds needed to render the last frame.
-	f32 last_delta_time() const;
 
 	/// Returns the time in seconds since the the application started.
 	f64 time_since_start() const;

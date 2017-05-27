@@ -209,7 +209,6 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	, _quit(false)
 	, _paused(false)
 	, _frame_count(0)
-	, _last_delta_time(0.0f)
 	, _time_since_start(0.0)
 {
 }
@@ -439,6 +438,7 @@ void Device::run()
 
 	s64 last_time = os::clocktime();
 	s64 curr_time;
+	f32 dt = 0.0f;
 
 	while (!process_events(_boot_config.vsync) && !_quit)
 	{
@@ -446,14 +446,14 @@ void Device::run()
 		const s64 time = curr_time - last_time;
 		last_time = curr_time;
 		const f64 freq = (f64)os::clockfrequency();
-		_last_delta_time = f32(time * (1.0 / freq));
-		_time_since_start += _last_delta_time;
+		dt = f32(time * (1.0 / freq));
+		_time_since_start += dt;
 
 		profiler_globals::clear();
 		_console_server->update();
 
-		RECORD_FLOAT("device.dt", _last_delta_time);
-		RECORD_FLOAT("device.fps", 1.0f/_last_delta_time);
+		RECORD_FLOAT("device.dt", dt);
+		RECORD_FLOAT("device.fps", 1.0f/dt);
 
 		if (!_paused)
 		{
@@ -461,13 +461,13 @@ void Device::run()
 
 			{
 				const s64 t0 = os::clocktime();
-				_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, last_delta_time());
+				_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, dt);
 				const s64 t1 = os::clocktime();
 				RECORD_FLOAT("lua.update", f32((t1 - t0)*(1.0 / freq)));
 			}
 			{
 				const s64 t0 = os::clocktime();
-				_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, last_delta_time());
+				_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, dt);
 				const s64 t1 = os::clocktime();
 				RECORD_FLOAT("lua.render", f32((t1 - t0)*(1.0 / freq)));
 			}
@@ -546,11 +546,6 @@ void Device::resolution(u16& width, u16& height)
 u64 Device::frame_count() const
 {
 	return _frame_count;
-}
-
-f32 Device::last_delta_time() const
-{
-	return _last_delta_time;
 }
 
 f64 Device::time_since_start() const
