@@ -595,7 +595,7 @@ namespace Crown
 				null
 			};
 
-			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE);
+			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.NONE);
 			sl.set_cwd(ENGINE_DIR);
 			try
 			{
@@ -661,7 +661,7 @@ namespace Crown
 				null
 			};
 
-			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE);
+			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.NONE);
 			sl.set_cwd(ENGINE_DIR);
 			try
 			{
