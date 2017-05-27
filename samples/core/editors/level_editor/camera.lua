@@ -5,8 +5,8 @@ FPSCamera = class(FPSCamera)
 function FPSCamera:init(world, unit)
 	self._world = world
 	self._unit = unit
-	self._translation_speed = 0.75
-	self._rotation_speed = 0.006
+	self._translation_speed = 47
+	self._rotation_speed = 0.38
 end
 
 function FPSCamera:unit()
@@ -54,7 +54,7 @@ function FPSCamera:screen_length_to_world_length(position, length)
 	return length / Vector3.distance(a, b)
 end
 
-function FPSCamera:update(dx, dy, keyboard)
+function FPSCamera:update(dt, dx, dy, keyboard)
 	local sg = World.scene_graph(self._world)
 
 	local camera_local_pose = SceneGraph.local_pose(sg, self._unit)
@@ -65,8 +65,9 @@ function FPSCamera:update(dx, dy, keyboard)
 
 	if dx ~= 0 or dy ~= 0 then
 		-- Rotation
-		local rotation_around_world_up = Quaternion(Vector3(0, 1, 0), -dx * self._rotation_speed)
-		local rotation_around_camera_right = Quaternion(camera_right_vector, -dy * self._rotation_speed)
+		local rotation_speed = self._rotation_speed * dt
+		local rotation_around_world_up = Quaternion(Vector3(0, 1, 0), -dx * rotation_speed)
+		local rotation_around_camera_right = Quaternion(camera_right_vector, -dy * rotation_speed)
 		local rotation = Quaternion.multiply(rotation_around_world_up, rotation_around_camera_right)
 
 		local old_rotation = Matrix4x4.from_quaternion(camera_rotation)
@@ -79,11 +80,11 @@ function FPSCamera:update(dx, dy, keyboard)
 	end
 
 	-- Translation
-	local speed = self._translation_speed;
-	if keyboard.wkey then camera_position = camera_position + view_dir * speed end
-	if keyboard.skey then camera_position = camera_position + view_dir * -1 * speed end
-	if keyboard.akey then camera_position = camera_position + camera_right_vector * -1 * speed end
-	if keyboard.dkey then camera_position = camera_position + camera_right_vector * speed end
+	local translation_speed = self._translation_speed * dt
+	if keyboard.wkey then camera_position = camera_position + view_dir * translation_speed end
+	if keyboard.skey then camera_position = camera_position + view_dir * -1 * translation_speed end
+	if keyboard.akey then camera_position = camera_position + camera_right_vector * -1 * translation_speed end
+	if keyboard.dkey then camera_position = camera_position + camera_right_vector * translation_speed end
 
 	SceneGraph.set_local_position(sg, self._unit, camera_position)
 end
