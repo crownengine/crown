@@ -711,10 +711,14 @@ function MoveTool:drag_start()
 	return self._drag_start:unbox()
 end
 
+function MoveTool:drag_axis()
+	if self._selected == "x"  then return self:x_axis() end
+	if self._selected == "y"  then return self:y_axis() end
+	if self._selected == "z"  then return self:z_axis() end
+	return nil
+end
+
 function MoveTool:drag_plane()
-	if self._selected == "x"  then return self:position(),  self:y_axis() end
-	if self._selected == "y"  then return self:position(),  self:x_axis() end
-	if self._selected == "z"  then return self:position(),  self:y_axis() end
 	if self._selected == "xy" then return self:position(),  Vector3.cross(self:x_axis(), self:y_axis()) end
 	if self._selected == "yz" then return self:position(),  Vector3.cross(self:y_axis(), self:z_axis()) end
 	if self._selected == "xz" then return self:position(), -Vector3.cross(self:x_axis(), self:z_axis()) end
@@ -782,16 +786,41 @@ function MoveTool:update(dt, x, y)
 end
 
 function MoveTool:drag_offset(x, y)
+	-- From Bitsquid's math.lua
+	function line_line(line_a_pt1, line_a_pt2, line_b_pt1, line_b_pt2)
+		local line_a_vector = line_a_pt2 - line_a_pt1
+		local line_b_vector = line_b_pt2 - line_b_pt1
+		local a = Vector3.dot(line_a_vector, line_a_vector)
+		local e = Vector3.dot(line_b_vector, line_b_vector)
+		local b = Vector3.dot(line_a_vector, line_b_vector)
+		local d = a * e - b * b
+
+		if d < 0.001 then
+			-- The lines are parallel. There is no intersection.
+			return nil, nil
+		end
+
+		local r = line_a_pt1 - line_b_pt1
+		local c = Vector3.dot(line_a_vector, r)
+		local f = Vector3.dot(line_b_vector, r)
+		local normalized_distance_along_line_a = (b * f - c * e) / d
+		local normalized_distance_along_line_b = (a * f - b * c) / d
+		return normalized_distance_along_line_a, normalized_distance_along_line_b
+	end
+
+	local pos, dir = LevelEditor:camera():camera_ray(x, y)
+	local drag_axis = self:drag_axis()
 	local drag_plane = self:drag_plane()
 
-	if (drag_plane ~= nil) then
-		local pos, dir = LevelEditor:camera():camera_ray(x, y)
+	if drag_axis ~= nil then
+		local _, delta = line_line(pos, pos + dir, self:drag_start(), self:drag_start() + drag_axis)
+		if delta ~= nil then
+			return drag_axis * delta
+		end
+	elseif drag_plane ~= nil then
 		local t = Math.ray_plane_intersection(pos, dir, self:drag_plane())
-
 		if t ~= -1.0 then
-			local point_on_plane = pos + dir*t
-			local offset = point_on_plane - self:drag_start()
-			return offset;
+			return pos + dir*t - self:drag_start()
 		end
 	end
 
