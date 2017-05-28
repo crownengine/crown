@@ -36,7 +36,7 @@ function UnitPreview:update(dt)
 		SceneGraph.set_local_position(self._sg, camera_unit, camera_pos)
 	end
 
-	self._fpscamera:update(0, 0, {})
+	self._fpscamera:update(dt, 0, 0, {})
 end
 
 function UnitPreview:render(dt)
