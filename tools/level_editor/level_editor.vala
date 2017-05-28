@@ -95,50 +95,58 @@ namespace Crown
 
 		const Gtk.ActionEntry[] action_entries =
 		{
-			{ "menu-file",            null,  "_File",              null,             null,         null                   },
-			{ "new",                  null,  "New",                "<ctrl>N",        null,         on_new                 },
-			{ "open",                 null,  "Open...",            "<ctrl>O",        null,         on_open                },
-			{ "save",                 null,  "Save",               "<ctrl>S",        null,         on_save                },
-			{ "save-as",              null,  "Save As...",         "<shift><ctrl>S", null,         on_save_as             },
-			{ "import",               null,  "Import",             null,             null,         null                   },
-			{ "import-sprites",       null,  "Sprites...",         null,             null,         on_import_sprites      },
-			{ "import-meshes",        null,  "Meshes...",          null,             null,         on_import_meshes       },
-			{ "import-sounds",        null,  "Sounds...",          null,             null,         on_import_sounds       },
-			{ "import-textures",      null,  "Textures...",        null,             null,         on_import_textures     },
-			{ "preferences",          null,  "Preferences",        null,             null,         on_preferences         },
-			{ "quit",                 null,  "Quit",               "<ctrl>Q",        null,         on_quit                },
-			{ "menu-edit",            null,  "_Edit",              null,             null,         null                   },
-			{ "undo",                 null,  "Undo",               "<ctrl>Z",        null,         on_undo                },
-			{ "redo",                 null,  "Redo",               "<shift><ctrl>Z", null,         on_redo                },
-			{ "duplicate",            null,  "Duplicate",          "<ctrl>D",        null,         on_duplicate           },
-			{ "delete",               null,  "Delete",             "<ctrl>K",        null,         on_delete              },
-			{ "menu-grid",            null,  "Grid",               null,             null,         null                   },
-			{ "grid-custom",          null,  "Custom",             "<ctrl>G",        null,         on_custom_grid	      },
-			{ "menu-rotation-snap",   null,  "Rotation Snap",      null,             null,         null                   },
-			{ "rotation-snap-custom", null,  "Custom",             "<ctrl>H",        null,         on_rotation_snap       },
-			{ "menu-create",          null,  "Create",             null,             null,         null                   },
-			{ "menu-primitives",      null,  "Primitives",         null,             null,         null                   },
-			{ "primitive-cube",       null,  "Cube",               null,             null,         on_create_cube         },
-			{ "primitive-sphere",     null,  "Sphere",             null,             null,         on_create_sphere       },
-			{ "primitive-cone",       null,  "Cone",               null,             null,         on_create_cone         },
-			{ "primitive-cylinder",   null,  "Cylinder",           null,             null,         on_create_cylinder     },
-			{ "primitive-plane",      null,  "Plane",              null,             null,         on_create_plane        },
-			{ "camera",               null,  "Camera",             null,             null,         on_create_camera       },
-			{ "light",                null,  "Light",              null,             null,         on_create_light        },
-			{ "sound-source",         null,  "Sound Source",       null,             null,         on_create_sound_source },
-			{ "menu-engine",          null,  "En_gine",            null,             null,         null                   },
-			{ "menu-view",            null,  "View",               null,             null,         null                   },
-			{ "resource-browser",     null,  "Resource Browser",   "<ctrl>P",        null,         on_resource_browser    },
-			{ "restart",              null,  "_Restart",           null,             null,         on_engine_restart      },
-			{ "reload-lua",           null,  "Reload Lua",         "F7",             null,         on_reload_lua          },
-			{ "menu-run",             null,  "_Run",               null,             null,         null                   },
-			{ "test-level",           "run", "Test Level",         "F5",             "Test Level", on_test_level          },
-			{ "run-game",             null,  "Run Game",           null,             null,         on_run_game            },
-			{ "menu-help",            null,  "Help",               null,             null,         null                   },
-			{ "manual",               null,  "Manual",             "F1",             null,         on_manual              },
-			{ "report-issue",         null,  "Report an Issue",    null,             null,         on_report_issue        },
-			{ "open-last-log",        null,  "Open last.log",      null,             null,         on_open_last_log       },
-			{ "about",                null,  "About",              null,             null,         on_about               }
+			{ "menu-file",            null,  "_File",              null,             null,         null                       },
+			{ "new",                  null,  "New",                "<ctrl>N",        null,         on_new                     },
+			{ "open",                 null,  "Open...",            "<ctrl>O",        null,         on_open                    },
+			{ "save",                 null,  "Save",               "<ctrl>S",        null,         on_save                    },
+			{ "save-as",              null,  "Save As...",         "<shift><ctrl>S", null,         on_save_as                 },
+			{ "import",               null,  "Import",             null,             null,         null                       },
+			{ "import-sprites",       null,  "Sprites...",         null,             null,         on_import_sprites          },
+			{ "import-meshes",        null,  "Meshes...",          null,             null,         on_import_meshes           },
+			{ "import-sounds",        null,  "Sounds...",          null,             null,         on_import_sounds           },
+			{ "import-textures",      null,  "Textures...",        null,             null,         on_import_textures         },
+			{ "preferences",          null,  "Preferences",        null,             null,         on_preferences             },
+			{ "quit",                 null,  "Quit",               "<ctrl>Q",        null,         on_quit                    },
+			{ "menu-edit",            null,  "_Edit",              null,             null,         null                       },
+			{ "undo",                 null,  "Undo",               "<ctrl>Z",        null,         on_undo                    },
+			{ "redo",                 null,  "Redo",               "<shift><ctrl>Z", null,         on_redo                    },
+			{ "duplicate",            null,  "Duplicate",          "<ctrl>D",        null,         on_duplicate               },
+			{ "delete",               null,  "Delete",             "<ctrl>K",        null,         on_delete                  },
+			{ "menu-grid",            null,  "Grid",               null,             null,         null                       },
+			{ "grid-custom",          null,  "Custom",             "<ctrl>G",        null,         on_custom_grid	          },
+			{ "menu-rotation-snap",   null,  "Rotation Snap",      null,             null,         null                       },
+			{ "rotation-snap-custom", null,  "Custom",             "<ctrl>H",        null,         on_rotation_snap           },
+			{ "menu-create",          null,  "Create",             null,             null,         null                       },
+			{ "menu-primitives",      null,  "Primitives",         null,             null,         null                       },
+			{ "primitive-cube",       null,  "Cube",               null,             null,         on_create_cube             },
+			{ "primitive-sphere",     null,  "Sphere",             null,             null,         on_create_sphere           },
+			{ "primitive-cone",       null,  "Cone",               null,             null,         on_create_cone             },
+			{ "primitive-cylinder",   null,  "Cylinder",           null,             null,         on_create_cylinder         },
+			{ "primitive-plane",      null,  "Plane",              null,             null,         on_create_plane            },
+			{ "camera",               null,  "Camera",             null,             null,         on_create_camera           },
+			{ "light",                null,  "Light",              null,             null,         on_create_light            },
+			{ "sound-source",         null,  "Sound Source",       null,             null,         on_create_sound_source     },
+			{ "menu-camera",          null,  "Camera",             null,             null,         null                       },
+			{ "camera-view-perspective", null,  "Perspective",     "KP_5",           null,         on_camera_view_perspective },
+			{ "camera-view-front",    null,  "View Front",         "KP_1",           null,         on_camera_view_front       },
+			{ "camera-view-back",     null,  "View Back",          "<ctrl>KP_1",     null,         on_camera_view_back        },
+			{ "camera-view-right",    null,  "View Right",         "KP_3",           null,         on_camera_view_right       },
+			{ "camera-view-left",     null,  "View Left",          "<ctrl>KP_3",     null,         on_camera_view_left        },
+			{ "camera-view-top",      null,  "View Top",           "KP_7",           null,         on_camera_view_top         },
+			{ "camera-view-bottom",   null,  "View Bottom",        "<ctrl>KP_7",     null,         on_camera_view_bottom      },
+			{ "menu-engine",          null,  "En_gine",            null,             null,         null                       },
+			{ "menu-view",            null,  "View",               null,             null,         null                       },
+			{ "resource-browser",     null,  "Resource Browser",   "<ctrl>P",        null,         on_resource_browser        },
+			{ "restart",              null,  "_Restart",           null,             null,         on_engine_restart          },
+			{ "reload-lua",           null,  "Reload Lua",         "F7",             null,         on_reload_lua              },
+			{ "menu-run",             null,  "_Run",               null,             null,         null                       },
+			{ "test-level",           "run", "Test Level",         "F5",             "Test Level", on_test_level              },
+			{ "run-game",             null,  "Run Game",           null,             null,         on_run_game                },
+			{ "menu-help",            null,  "Help",               null,             null,         null                       },
+			{ "manual",               null,  "Manual",             "F1",             null,         on_manual                  },
+			{ "report-issue",         null,  "Report an Issue",    null,             null,         on_report_issue            },
+			{ "open-last-log",        null,  "Open last.log",      null,             null,         on_open_last_log           },
+			{ "about",                null,  "About",              null,             null,         on_about                   }
 		};
 
 		const Gtk.RadioActionEntry[] grid_entries =
@@ -1205,6 +1213,41 @@ namespace Crown
 		{
 			_engine.send_script(LevelEditorApi.set_placeable("sound", ""));
 			_action_group.get_action("place").activate();
+		}
+
+		private void on_camera_view_perspective(Gtk.Action action)
+		{
+			_engine.send_script("LevelEditor:camera_view_perspective()");
+		}
+
+		private void on_camera_view_front(Gtk.Action action)
+		{
+			_engine.send_script("LevelEditor:camera_view_front()");
+		}
+
+		private void on_camera_view_back(Gtk.Action action)
+		{
+			_engine.send_script("LevelEditor:camera_view_back()");
+		}
+
+		private void on_camera_view_right(Gtk.Action action)
+		{
+			_engine.send_script("LevelEditor:camera_view_right()");
+		}
+
+		private void on_camera_view_left(Gtk.Action action)
+		{
+			_engine.send_script("LevelEditor:camera_view_left()");
+		}
+
+		private void on_camera_view_top(Gtk.Action action)
+		{
+			_engine.send_script("LevelEditor:camera_view_top()");
+		}
+
+		private void on_camera_view_bottom(Gtk.Action action)
+		{
+			_engine.send_script("LevelEditor:camera_view_bottom()");
 		}
 
 		private void on_resource_browser(Gtk.Action action)

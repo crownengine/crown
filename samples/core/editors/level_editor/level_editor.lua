@@ -1581,3 +1581,31 @@ function LevelEditor:destroy(id)
 	self._selection:remove(id)
 	self._selection:send()
 end
+
+function LevelEditor:camera_view_perspective()
+	self._fpscamera:set_perspective()
+end
+
+function LevelEditor:camera_view_front()
+	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 1), Vector3(0, 1, 0))
+end
+
+function LevelEditor:camera_view_back()
+	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 0, -1), Vector3(0, 1, 0))
+end
+
+function LevelEditor:camera_view_right()
+	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(-1, 0, 0), Vector3(0, 1, 0))
+end
+
+function LevelEditor:camera_view_left()
+	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
+end
+
+function LevelEditor:camera_view_top()
+	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, -1, 0), Vector3(0, 0, 1))
+end
+
+function LevelEditor:camera_view_bottom()
+	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 1))
+end

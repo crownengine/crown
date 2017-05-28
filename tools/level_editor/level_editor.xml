@@ -73,6 +73,16 @@
 			<menuitem action="light"></menuitem>
 			<menuitem action="sound-source"></menuitem>
 		</menu>
+		<menu action="menu-camera">
+			<menuitem action="camera-view-perspective"></menuitem>
+			<separator></separator>
+			<menuitem action="camera-view-front"></menuitem>
+			<menuitem action="camera-view-back"></menuitem>
+			<menuitem action="camera-view-right"></menuitem>
+			<menuitem action="camera-view-left"></menuitem>
+			<menuitem action="camera-view-top"></menuitem>
+			<menuitem action="camera-view-bottom"></menuitem>
+		</menu>
 		<menu action="menu-view">
 			<menuitem action="resource-browser"></menuitem>
 			<separator></separator>
