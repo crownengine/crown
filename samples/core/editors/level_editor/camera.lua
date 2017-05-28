@@ -57,7 +57,7 @@ function FPSCamera:set_orthographic(world_center, world_radius, dir, up)
 
 	local sg = World.scene_graph(self._world)
 	SceneGraph.set_local_rotation(sg, self._unit, Quaternion.look(dir, up))
-	SceneGraph.set_local_position(sg, self._unit, world_center - dir * Vector3.dot(dir, world_radius))
+	SceneGraph.set_local_position(sg, self._unit, world_center - dir * math.abs(Vector3.dot(dir, world_radius)))
 	World.camera_set_orthographic_size(self._world, self._unit, 10)
 	World.camera_set_projection_type(self._world, self._unit, "orthographic")
 end
