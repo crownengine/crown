@@ -51,8 +51,7 @@ struct LuaEnvironment
 	/// Adds the function with the given @a name and @a func to the table @a module.
 	void add_module_function(const char* module, const char* name, const char* func);
 
-	/// Sets the constructor for the table @a module to the given function.
-	void set_module_constructor(const char* module, const lua_CFunction func);
+	void add_module_metafunction(const char* module, const char* name, const lua_CFunction func);
 
 	/// Calls the global function @a func with @a argc argument number.
 	/// Each argument is a pair (type, value).

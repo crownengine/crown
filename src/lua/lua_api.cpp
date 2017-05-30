@@ -3141,17 +3141,17 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Vector3", "down",             vector3_down);
 	env.add_module_function("Vector3", "zero",             vector3_zero);
 	env.add_module_function("Vector3", "to_string",        vector3_to_string);
+	env.add_module_metafunction("Vector3", "__call", vector3_ctor);
 
-	env.set_module_constructor("Vector3", vector3_ctor);
+	env.add_module_metafunction("Vector2", "__call", vector2_ctor);
 
-	env.set_module_constructor("Vector2", vector2_ctor);
-
-	env.add_module_function("Vector3Box", "store",      vector3box_store);
-	env.add_module_function("Vector3Box", "unbox",      vector3box_unbox);
-	env.add_module_function("Vector3Box", "__index",    "Vector3Box");
-	env.add_module_function("Vector3Box", "__tostring", vector3box_tostring);
-
-	env.set_module_constructor("Vector3Box", vector3box_ctor);
+	env.add_module_function("Vector3Box", "store", vector3box_store);
+	env.add_module_function("Vector3Box", "unbox", vector3box_unbox);
+	env.add_module_metafunction("Vector3Box", "store",      vector3box_store);
+	env.add_module_metafunction("Vector3Box", "unbox",      vector3box_unbox);
+	env.add_module_metafunction("Vector3Box", "__index",    NULL);
+	env.add_module_metafunction("Vector3Box", "__tostring", vector3box_tostring);
+	env.add_module_metafunction("Vector3Box", "__call",     vector3box_ctor);
 
 	env.add_module_function("Matrix4x4", "from_quaternion",             matrix4x4_from_quaternion);
 	env.add_module_function("Matrix4x4", "from_translation",            matrix4x4_from_translation);
@@ -3177,15 +3177,15 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Matrix4x4", "identity",                    matrix4x4_identity);
 	env.add_module_function("Matrix4x4", "transform",                   matrix4x4_transform);
 	env.add_module_function("Matrix4x4", "to_string",                   matrix4x4_to_string);
+	env.add_module_metafunction("Matrix4x4", "__call", matrix4x4_ctor);
 
-	env.set_module_constructor("Matrix4x4", matrix4x4_ctor);
-
-	env.add_module_function("Matrix4x4Box", "store",      matrix4x4box_store);
-	env.add_module_function("Matrix4x4Box", "unbox",      matrix4x4box_unbox);
-	env.add_module_function("Matrix4x4Box", "__index",    "Matrix4x4Box");
-	env.add_module_function("Matrix4x4Box", "__tostring", matrix4x4box_tostring);
-
-	env.set_module_constructor("Matrix4x4Box", matrix4x4box_ctor);
+	env.add_module_function("Matrix4x4Box", "store", matrix4x4box_store);
+	env.add_module_function("Matrix4x4Box", "unbox", matrix4x4box_unbox);
+	env.add_module_metafunction("Matrix4x4Box", "store",      matrix4x4box_store);
+	env.add_module_metafunction("Matrix4x4Box", "unbox",      matrix4x4box_unbox);
+	env.add_module_metafunction("Matrix4x4Box", "__index",    NULL);
+	env.add_module_metafunction("Matrix4x4Box", "__tostring", matrix4x4box_tostring);
+	env.add_module_metafunction("Matrix4x4Box", "__call",     matrix4x4box_ctor);
 
 	env.add_module_function("Quaternion", "from_axis_angle",    quaternion_from_axis_angle);
 	env.add_module_function("Quaternion", "from_elements",      quaternion_from_elements);
@@ -3206,15 +3206,15 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Quaternion", "forward",            quaternion_forward);
 	env.add_module_function("Quaternion", "lerp",               quaternion_lerp);
 	env.add_module_function("Quaternion", "to_string",          quaternion_to_string);
+	env.add_module_metafunction("Quaternion", "__call", quaternion_ctor);
 
-	env.set_module_constructor("Quaternion", quaternion_ctor);
-
-	env.add_module_function("QuaternionBox", "store",      quaternionbox_store);
-	env.add_module_function("QuaternionBox", "unbox",      quaternionbox_unbox);
-	env.add_module_function("QuaternionBox", "__index",    "QuaternionBox");
-	env.add_module_function("QuaternionBox", "__tostring", quaternionbox_tostring);
-
-	env.set_module_constructor("QuaternionBox", quaternionbox_ctor);
+	env.add_module_function("QuaternionBox", "store", quaternionbox_store);
+	env.add_module_function("QuaternionBox", "unbox", quaternionbox_unbox);
+	env.add_module_metafunction("QuaternionBox", "store",      quaternionbox_store);
+	env.add_module_metafunction("QuaternionBox", "unbox",      quaternionbox_unbox);
+	env.add_module_metafunction("QuaternionBox", "__index",    NULL);
+	env.add_module_metafunction("QuaternionBox", "__tostring", quaternionbox_tostring);
+	env.add_module_metafunction("QuaternionBox", "__call",     quaternionbox_ctor);
 
 	env.add_module_function("Color4", "lerp",      color4_lerp);
 	env.add_module_function("Color4", "black",     color4_black);
@@ -3225,15 +3225,14 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Color4", "yellow",    color4_yellow);
 	env.add_module_function("Color4", "orange",    color4_orange);
 	env.add_module_function("Color4", "to_string", quaternion_to_string);
+	env.add_module_metafunction("Color4", "__call", color4_ctor);
 
-	env.set_module_constructor("Color4",     color4_ctor);
-
-	env.add_module_function("Lightuserdata_mt", "__add",      lightuserdata_add);
-	env.add_module_function("Lightuserdata_mt", "__sub",      lightuserdata_sub);
-	env.add_module_function("Lightuserdata_mt", "__mul",      lightuserdata_mul);
-	env.add_module_function("Lightuserdata_mt", "__unm",      lightuserdata_unm);
-	env.add_module_function("Lightuserdata_mt", "__index",    lightuserdata_index);
-	env.add_module_function("Lightuserdata_mt", "__newindex", lightuserdata_newindex);
+	env.add_module_metafunction("Lightuserdata_mt", "__add",      lightuserdata_add);
+	env.add_module_metafunction("Lightuserdata_mt", "__sub",      lightuserdata_sub);
+	env.add_module_metafunction("Lightuserdata_mt", "__mul",      lightuserdata_mul);
+	env.add_module_metafunction("Lightuserdata_mt", "__unm",      lightuserdata_unm);
+	env.add_module_metafunction("Lightuserdata_mt", "__index",    lightuserdata_index);
+	env.add_module_metafunction("Lightuserdata_mt", "__newindex", lightuserdata_newindex);
 
 	env.add_module_function("Keyboard", "name",         keyboard_name);
 	env.add_module_function("Keyboard", "connected",    keyboard_connected);
@@ -3367,8 +3366,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "render_world",                    world_render_world);
 	env.add_module_function("World", "physics_world",                   world_physics_world);
 	env.add_module_function("World", "sound_world",                     world_sound_world);
-	env.add_module_function("World", "__index",                         "World");
-	env.add_module_function("World", "__tostring",                      world_tostring);
+	env.add_module_metafunction("World", "__tostring", world_tostring);
 
 	env.add_module_function("SceneGraph", "create",             scene_graph_create);
 	env.add_module_function("SceneGraph", "destroy",            scene_graph_destroy);
@@ -3462,15 +3460,13 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("PhysicsWorld", "set_gravity",                   physics_world_set_gravity);
 	env.add_module_function("PhysicsWorld", "raycast",                       physics_world_raycast);
 	env.add_module_function("PhysicsWorld", "enable_debug_drawing",          physics_world_enable_debug_drawing);
-	env.add_module_function("PhysicsWorld", "__index",                       "PhysicsWorld");
-	env.add_module_function("PhysicsWorld", "__tostring",                    physics_world_tostring);
+	env.add_module_metafunction("PhysicsWorld", "__tostring", physics_world_tostring);
 
 	env.add_module_function("SoundWorld", "stop_all",   sound_world_stop_all);
 	env.add_module_function("SoundWorld", "pause_all",  sound_world_pause_all);
 	env.add_module_function("SoundWorld", "resume_all", sound_world_resume_all);
 	env.add_module_function("SoundWorld", "is_playing", sound_world_is_playing);
-	env.add_module_function("SoundWorld", "__index",    "SoundWorld");
-	env.add_module_function("SoundWorld", "__tostring", sound_world_tostring);
+	env.add_module_metafunction("SoundWorld", "__tostring", sound_world_tostring);
 
 	env.add_module_function("Device", "argv",                     device_argv);
 	env.add_module_function("Device", "platform",                 device_platform);
@@ -3504,15 +3500,13 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("DebugLine", "add_unit",    debug_line_add_unit);
 	env.add_module_function("DebugLine", "reset",       debug_line_reset);
 	env.add_module_function("DebugLine", "submit",      debug_line_submit);
-	env.add_module_function("DebugLine", "__index",     "DebugLine");
-	env.add_module_function("DebugLine", "__tostring",  debug_line_tostring);
+	env.add_module_metafunction("DebugLine", "__tostring", debug_line_tostring);
 
 	env.add_module_function("ResourcePackage", "load",       resource_package_load);
 	env.add_module_function("ResourcePackage", "unload",     resource_package_unload);
 	env.add_module_function("ResourcePackage", "flush",      resource_package_flush);
 	env.add_module_function("ResourcePackage", "has_loaded", resource_package_has_loaded);
-	env.add_module_function("ResourcePackage", "__index",    "ResourcePackage");
-	env.add_module_function("ResourcePackage", "__tostring", resource_package_tostring);
+	env.add_module_metafunction("ResourcePackage", "__tostring", resource_package_tostring);
 
 	env.add_module_function("Material", "set_float",   material_set_float);
 	env.add_module_function("Material", "set_vector2", material_set_vector2);

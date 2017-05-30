@@ -133,37 +133,59 @@ LuaStack LuaEnvironment::execute_string(const char* s)
 
 void LuaEnvironment::add_module_function(const char* module, const char* name, const lua_CFunction func)
 {
-	luaL_newmetatable(L, module);
 	luaL_Reg entry[2];
-
 	entry[0].name = name;
 	entry[0].func = func;
 	entry[1].name = NULL;
 	entry[1].func = NULL;
 
-	luaL_register(L, NULL, entry);
-	lua_setglobal(L, module);
-	lua_pop(L, -1);
+	luaL_register(L, module, entry);
+	lua_pop(L, 1);
 }
 
 void LuaEnvironment::add_module_function(const char* module, const char* name, const char* func)
 {
-	luaL_newmetatable(L, module);
+	// Create module if it does not exist
+	luaL_Reg entry;
+	entry.name = NULL;
+	entry.func = NULL;
+	luaL_register(L, module, &entry);
+	lua_pop(L, 1);
+
+	lua_getglobal(L, module);
 	lua_getglobal(L, func);
 	lua_setfield(L, -2, name);
 	lua_setglobal(L, module);
 }
 
-void LuaEnvironment::set_module_constructor(const char* module, const lua_CFunction func)
+void LuaEnvironment::add_module_metafunction(const char* module, const char* name, const lua_CFunction func)
 {
-	// Create dummy tables to be used as module's metatable
-	lua_createtable(L, 0, 1);
-	lua_pushstring(L, "__call");
-	lua_pushcfunction(L, func);
-	lua_settable(L, 1); // dummy.__call = func
+	// Create module if it does not exist
+	luaL_Reg entry[2];
+	entry[0].name = NULL;
+	entry[0].func = NULL;
+	luaL_register(L, module, entry);
+	lua_pop(L, 1);
+
+	luaL_newmetatable(L, module);
+	if (func)
+	{
+		entry[0].name = name;
+		entry[0].func = func;
+		entry[1].name = NULL;
+		entry[1].func = NULL;
+		luaL_register(L, NULL, entry);
+	}
+	else
+	{
+		lua_pushstring(L, name);
+		lua_pushvalue(L, -2);
+		lua_settable(L, -3);
+	}
+
 	lua_getglobal(L, module);
-	lua_pushvalue(L, -2); // Duplicate dummy metatable
-	lua_setmetatable(L, -2); // setmetatable(module, dummy)
+	lua_pushvalue(L, -2);
+	lua_setmetatable(L, -2);
 	lua_pop(L, -1);
 }
 
