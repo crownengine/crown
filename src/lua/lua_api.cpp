@@ -2779,6 +2779,23 @@ static int debug_line_add_axes(lua_State* L)
 	return 0;
 }
 
+static int debug_line_add_arc(lua_State* L)
+{
+	LuaStack stack(L);
+	const u32 segments = stack.num_args() >= 7
+		? stack.get_int(7)
+		: DebugLine::NUM_SEGMENTS
+		;
+	stack.get_debug_line(1)->add_arc(stack.get_vector3(2)
+		, stack.get_float(3)
+		, stack.get_vector3(4)
+		, stack.get_vector3(5)
+		, stack.get_color4(6)
+		, segments
+		);
+	return 0;
+}
+
 static int debug_line_add_circle(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3492,6 +3509,7 @@ void load_api(LuaEnvironment& env)
 
 	env.add_module_function("DebugLine", "add_line",    debug_line_add_line);
 	env.add_module_function("DebugLine", "add_axes",    debug_line_add_axes);
+	env.add_module_function("DebugLine", "add_arc",     debug_line_add_arc);
 	env.add_module_function("DebugLine", "add_circle",  debug_line_add_circle);
 	env.add_module_function("DebugLine", "add_cone",    debug_line_add_cone);
 	env.add_module_function("DebugLine", "add_sphere",  debug_line_add_sphere);

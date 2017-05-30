@@ -939,6 +939,9 @@ DebugLine
 **add_axes** (debug_line, tm, length)
 	Adds lines for each axis with the given *length*.
 
+**add_arc** (debug_line, center, radius, plane_normal, midpoint_normal, color, [circle_segments = 36]);
+	Adds an arc at *center* with the given *radius* and *plane_normal* and *midpoint_normal* vectors.
+
 **add_circle** (debug_line, center, radius, normal, color, [segments = 36])
 	Adds a circle at *center* with the given *radius* and *normal* vector.
 

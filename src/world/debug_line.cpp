@@ -57,57 +57,73 @@ void DebugLine::add_axes(const Matrix4x4& m, f32 length)
 	add_line(pos, pos + z(m)*length, COLOR4_BLUE);
 }
 
-void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& normal, const Color4& color, u32 segments)
+void DebugLine::add_arc(const Vector3& center, f32 radius, const Vector3& plane_normal, const Vector3& midpoint_normal, const Color4& color, u32 circle_segments)
 {
-	const Vector3 dir = normal;
-	const Vector3 arr[] =
+	const Vector3 x = midpoint_normal * radius;
+	const Vector3 y = cross(midpoint_normal, plane_normal) * radius;
+	const u32 segments = circle_segments / 2;
+	const f32 step = PI / (f32)(segments > 3 ? segments : 3);
+	Vector3 from = center - y;
+
+	for (u32 i = 0; i <= segments; ++i)
 	{
-		{ dir.z, dir.z, -dir.x -dir.y },
-		{ -dir.y -dir.z, dir.x, dir.x }
-	};
-	const int idx = ((dir.z != 0.0f) && (-dir.x != dir.y));
-	Vector3 right = arr[idx];
-	normalize(right);
-
-	const f32 incr = 360.0f / (f32)(segments >= 3 ? segments : 3);
-	f32 deg0 = 0.0f;
-	for (u32 ss = 0; ss < segments; ++ss, deg0 += incr)
-	{
-		const f32 rad0 = frad(deg0);
-		const f32 rad1 = frad(deg0 + incr);
-
-		const Vector3 from0 = right*cos(-rad0) + cross(dir, right)*sin(-rad0) + dir*dot(dir, right)*(1.0f-cos(-rad0));
-		const Vector3 from1 = right*cos(-rad1) + cross(dir, right)*sin(-rad1) + dir*dot(dir, right)*(1.0f-cos(-rad1));
-
-		add_line(center + radius*from0, center + radius*from1, color);
+		const f32 t = step * i - PI_HALF;
+		const Vector3 to = center + x*cosf(t) + y*sinf(t);
+		add_line(from, to, color);
+		from = to;
 	}
 }
 
-void DebugLine::add_cone(const Vector3& from, const Vector3& to, f32 radius, const Color4& color, u32 segments)
+void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& normal, const Color4& color, u32 segments)
 {
-	Vector3 dir = to - from;
-	normalize(dir);
 	const Vector3 arr[] =
 	{
-		{ dir.z, dir.z, -dir.x -dir.y },
-		{ -dir.y -dir.z, dir.x, dir.x }
+		{ normal.z, normal.z, -normal.x -normal.y },
+		{ -normal.y -normal.z, normal.x, normal.x }
 	};
-	const int idx = ((dir.z != 0.0f) && (-dir.x != dir.y));
+	const int idx = ((normal.z != 0.0f) && (-normal.x != normal.y));
 	Vector3 right = arr[idx];
 	normalize(right);
 
-	const f32 incr = 360.0f / (f32)(segments >= 3 ? segments : 3);
-	f32 deg0 = 0.0f;
-	for (u32 ss = 0; ss < segments; ++ss, deg0 += incr)
+	const Vector3 x = right * radius;
+	const Vector3 y = cross(right, normal) * radius;
+	const f32 step = PI_TWO / (f32)(segments > 3 ? segments : 3);
+	Vector3 from = center - y;
+
+	for (u32 i = 0; i <= segments; ++i)
 	{
-		const f32 rad0 = frad(deg0);
-		const f32 rad1 = frad(deg0 + incr);
+		const f32 t = step * i - PI_HALF;
+		const Vector3 to = center + x*cosf(t) + y*sinf(t);
+		add_line(from, to, color);
+		from = to;
+	}
+}
 
-		const Vector3 from0 = right*cos(-rad0) + cross(dir, right)*sin(-rad0) + dir*dot(dir, right)*(1.0f-cos(-rad0));
-		const Vector3 from1 = right*cos(-rad1) + cross(dir, right)*sin(-rad1) + dir*dot(dir, right)*(1.0f-cos(-rad1));
+void DebugLine::add_cone(const Vector3& base_center, const Vector3& tip, f32 radius, const Color4& color, u32 segments)
+{
+	Vector3 normal = tip - base_center;
+	normalize(normal);
+	const Vector3 arr[] =
+	{
+		{ normal.z, normal.z, -normal.x -normal.y },
+		{ -normal.y -normal.z, normal.x, normal.x }
+	};
+	const int idx = ((normal.z != 0.0f) && (-normal.x != normal.y));
+	Vector3 right = arr[idx];
+	normalize(right);
 
-		add_line(from + radius*from0, to, color);
-		add_line(from + radius*from0, from + radius*from1, color);
+	const Vector3 x = right * radius;
+	const Vector3 y = cross(right, normal) * radius;
+	const f32 step = PI_TWO / (f32)(segments > 3 ? segments : 3);
+	Vector3 from = base_center - y;
+
+	for (u32 i = 0; i <= segments; ++i)
+	{
+		const f32 t = step * i - PI_HALF;
+		const Vector3 to = base_center + x*cosf(t) + y*sinf(t);
+		add_line(from, to, color);
+		add_line(from, tip, color);
+		from = to;
 	}
 }
 

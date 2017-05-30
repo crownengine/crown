@@ -50,11 +50,14 @@ struct DebugLine
 	/// Adds lines for each axis with the given @a length.
 	void add_axes(const Matrix4x4& m, f32 length = 1.0f);
 
+	/// Adds an arc at @a center with the given @a radius and @a plane_normal and @a midpoint_normal vectors.
+	void add_arc(const Vector3& center, f32 radius, const Vector3& plane_normal, const Vector3& midpoint_normal, const Color4& color, u32 circle_segments = NUM_SEGMENTS);
+
 	/// Adds a circle at @a center with the given @a radius and @a normal vector.
 	void add_circle(const Vector3& center, f32 radius, const Vector3& normal, const Color4& color, u32 segments = NUM_SEGMENTS);
 
-	/// Adds a cone with the base centered at @a from and the tip at @a to.
-	void add_cone(const Vector3& from, const Vector3& to, f32 radius, const Color4& color, u32 segments = NUM_SEGMENTS);
+	/// Adds a cone with the base centered at @a base_center and the tip at @a tip.
+	void add_cone(const Vector3& base_center, const Vector3& tip, f32 radius, const Color4& color, u32 segments = NUM_SEGMENTS);
 
 	/// Adds a sphere at @a center with the given @a radius and @a color.
 	void add_sphere(const Vector3& center, const f32 radius, const Color4& color, u32 segments = NUM_SEGMENTS);
