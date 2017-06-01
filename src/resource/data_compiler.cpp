@@ -113,6 +113,7 @@ DataCompiler::DataCompiler(ConsoleServer& cs)
 	, _compilers(default_allocator())
 	, _files(default_allocator())
 	, _globs(default_allocator())
+	, _data_index(default_allocator())
 	, _file_monitor(default_allocator())
 {
 	cs.register_command("compile", console_command_compile, this);
@@ -198,18 +199,6 @@ void DataCompiler::remove_tree(const char* path)
 	}
 }
 
-bool DataCompiler::can_compile(StringId64 type)
-{
-	return hash_map::has(_compilers, type);
-}
-
-void DataCompiler::compile(StringId64 type, const char* path, CompileOptions& opts)
-{
-	CE_ASSERT(hash_map::has(_compilers, type), "Compiler not found");
-
-	hash_map::get(_compilers, type, ResourceTypeData()).compiler(path, opts);
-}
-
 void DataCompiler::scan_source_dir(const char* prefix, const char* cur_dir)
 {
 	Vector<DynamicString> my_files(default_allocator());
@@ -243,68 +232,6 @@ void DataCompiler::scan_source_dir(const char* prefix, const char* cur_dir)
 			add_file(resource_name.c_str());
 		}
 	}
-}
-
-bool DataCompiler::compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform)
-{
-	TempAllocator1024 ta;
-	DynamicString path(ta);
-	DynamicString src_path(ta);
-	DynamicString type_str(ta);
-	DynamicString name_str(ta);
-	DynamicString dst_path(ta);
-
-	StringId64 _type(type);
-	StringId64 _name(name);
-
-	// Build source file path
-	src_path += name;
-	src_path += '.';
-	src_path += type;
-
-	// Build compiled file path
-	_type.to_string(type_str);
-	_name.to_string(name_str);
-
-	// Build destination file path
-	dst_path += type_str;
-	dst_path += '-';
-	dst_path += name_str;
-
-	path::join(path, CROWN_DATA_DIRECTORY, dst_path.c_str());
-
-	logi(COMPILER, "%s <= %s", dst_path.c_str(), src_path.c_str());
-
-	if (!can_compile(_type))
-	{
-		loge(COMPILER, "Unknown resource type: '%s'", type);
-		return false;
-	}
-
-	bool success = true;
-
-	Buffer output(default_allocator());
-	array::reserve(output, 4*1024*1024);
-
-	if (!setjmp(_jmpbuf))
-	{
-		CompileOptions opts(*this, bundle_fs, output, platform);
-
-		compile(_type, src_path.c_str(), opts);
-
-		File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
-		u32 size = array::size(output);
-		u32 written = outf->write(array::begin(output), size);
-		bundle_fs.close(*outf);
-
-		success = size == written;
-	}
-	else
-	{
-		success = false;
-	}
-
-	return success;
 }
 
 void DataCompiler::map_source_dir(const char* name, const char* source_dir)
@@ -422,8 +349,91 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 		strncpy(name, filename, size);
 		name[size] = '\0';
 
-		if (!compile(bundle_fs, type, name, platform))
+		TempAllocator1024 ta;
+		DynamicString path(ta);
+		DynamicString src_path(ta);
+		DynamicString type_str(ta);
+		DynamicString name_str(ta);
+		DynamicString dst_path(ta);
+
+		StringId64 _type(type);
+		StringId64 _name(name);
+
+		// Build source file path
+		src_path += name;
+		src_path += '.';
+		src_path += type;
+
+		// Build compiled file path
+		_type.to_string(type_str);
+		_name.to_string(name_str);
+
+		// Build destination file path
+		dst_path += type_str;
+		dst_path += '-';
+		dst_path += name_str;
+
+		path::join(path, CROWN_DATA_DIRECTORY, dst_path.c_str());
+
+		logi(COMPILER, "%s", src_path.c_str());
+
+		if (!can_compile(_type))
+		{
+			loge(COMPILER, "Unknown resource type: '%s'", type);
+			break;
+		}
+
+		bool success = true;
+
+		Buffer output(default_allocator());
+		array::reserve(output, 4*1024*1024);
+
+		if (!setjmp(_jmpbuf))
+		{
+			CompileOptions opts(*this, bundle_fs, output, platform);
+
+			hash_map::get(_compilers, _type, ResourceTypeData()).compiler(src_path.c_str(), opts);
+
+			File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
+			u32 size = array::size(output);
+			u32 written = outf->write(array::begin(output), size);
+			bundle_fs.close(*outf);
+
+			success = size == written;
+		}
+		else
+		{
+			success = false;
+		}
+
+		if (!success)
+		{
+			loge(COMPILER, "Error");
+		}
+		else
+		{
+			if (!map::has(_data_index, dst_path))
+				map::set(_data_index, dst_path, src_path);
+		}
+	}
+
+	// Write index
+	{
+		File* file = bundle_fs.open("data_index.sjson", FileOpenMode::WRITE);
+		if (!file)
 			return false;
+
+		StringStream ss(default_allocator());
+
+		auto begin = map::begin(_data_index);
+		auto end = map::end(_data_index);
+		for (; begin != end; ++begin)
+		{
+			ss << "\"" << begin->pair.first.c_str() << "\" = \"" << begin->pair.second.c_str() << "\"\n";
+		}
+
+		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		bundle_fs.close(*file);
 	}
 
 	return true;
@@ -443,9 +453,16 @@ void DataCompiler::register_compiler(StringId64 type, u32 version, CompileFuncti
 
 u32 DataCompiler::version(StringId64 type)
 {
-	CE_ASSERT(hash_map::has(_compilers, type), "Compiler not found");
+	ResourceTypeData rtd;
+	rtd.version = COMPILER_NOT_FOUND;
+	rtd.compiler = NULL;
 
-	return hash_map::get(_compilers, type, ResourceTypeData()).version;
+	return hash_map::get(_compilers, type, rtd).version;
+}
+
+bool DataCompiler::can_compile(StringId64 type)
+{
+	return hash_map::has(_compilers, type);
 }
 
 void DataCompiler::error(const char* msg, va_list args)

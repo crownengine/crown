@@ -30,6 +30,7 @@ class DataCompiler
 	HashMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
+	Map<DynamicString, DynamicString> _data_index;
 	FileMonitor _file_monitor;
 	jmp_buf _jmpbuf;
 
@@ -37,12 +38,7 @@ class DataCompiler
 	void add_tree(const char* path);
 	void remove_file(const char* path);
 	void remove_tree(const char* path);
-
 	void scan_source_dir(const char* prefix, const char* path);
-
-	bool can_compile(StringId64 type);
-	void compile(StringId64 type, const char* path, CompileOptions& opts);
-	bool compile(FilesystemDisk& bundle_fs, const char* type, const char* name, const char* platform);
 
 	void filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed);
 	static void filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified);
@@ -55,22 +51,30 @@ public:
 	void map_source_dir(const char* name, const char* source_dir);
 	void source_dir(const char* resource_name, DynamicString& source_dir);
 
+	/// Adds a @a glob pattern to ignore when scanning the source directory.
 	void add_ignore_glob(const char* glob);
 
-	/// Scans source tree for resources.
+	/// Scans source directory for resources.
 	void scan();
 
-	/// Compiles all the resources found in the source tree and puts them in @a bundle_dir.
+	/// Compiles all the resources found in the source directory and puts them in @a bundle_dir.
 	/// Returns true on success, false otherwise.
 	bool compile(const char* bundle_dir, const char* platform);
 
 	/// Registers the resource @a compiler for the given resource @a type and @a version.
 	void register_compiler(StringId64 type, u32 version, CompileFunction compiler);
 
-	// Returns the version of the compiler for @a type.
+	/// Returns whether there is a compiler for the resource @a type.
+	bool can_compile(StringId64 type);
+
+	/// Returns the version of the compiler for @a type or COMPILER_NOT_FOUND if no compiler
+	/// is found.
 	u32 version(StringId64 type);
 
+	///
 	void error(const char* msg, va_list args);
+
+	static const u32 COMPILER_NOT_FOUND = UINT32_MAX;
 };
 
 int main_data_compiler(int argc, char** argv);
