@@ -48,7 +48,9 @@ namespace Crown
 		public static Hashtable load(string path)
 		{
 			FileStream fs = FileStream.open(path, "r");
-			assert(fs != null);
+			if (fs == null)
+				return new Hashtable();
+
 			// Get file size
 			fs.seek(0, FileSeek.END);
 			long size = fs.tell();
