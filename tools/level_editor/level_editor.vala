@@ -1465,7 +1465,7 @@ namespace Crown
 
 			for (int i = 0; i < toolchain_paths.length; ++i)
 			{
-				string path = Path.build_path(Path.DIR_SEPARATOR_S, toolchain_paths[i], "core");
+				string path = Path.build_filename(toolchain_paths[i], "core");
 
 				// Try to locate the toolchain directory
 				if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))

@@ -168,7 +168,7 @@ namespace Crown
 				material["shader"]   = "sprite";
 				material["textures"] = textures;
 				material["uniforms"] = uniforms;
-				SJSON.save(material, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".material");
+				SJSON.save(material, Path.build_filename(_source_dir.get_path(), resource_name) + ".material");
 
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 
@@ -176,7 +176,7 @@ namespace Crown
 				texture["source"]        = resource_filename;
 				texture["generate_mips"] = false;
 				texture["is_normalmap"]  = false;
-				SJSON.save(texture, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".texture");
+				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_name) + ".texture");
 
 				Hashtable sprite = new Hashtable();
 				sprite["width"]  = width;
@@ -210,7 +210,7 @@ namespace Crown
 				}
 				sprite["frames"] = frames;
 
-				SJSON.save(sprite, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".sprite");
+				SJSON.save(sprite, Path.build_filename(_source_dir.get_path(), resource_name) + ".sprite");
 
 				Hashtable data = new Hashtable();
 				data["position"] = VECTOR3_ZERO.to_array();
@@ -238,7 +238,7 @@ namespace Crown
 				Hashtable unit = new Hashtable();
 				unit["components"] = components;
 
-				SJSON.save(unit, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".unit");
+				SJSON.save(unit, Path.build_filename(_source_dir.get_path(), resource_name) + ".unit");
 			}
 		}
 
@@ -283,7 +283,7 @@ namespace Crown
 					material["shader"]   = "mesh+DIFFUSE_MAP";
 					material["textures"] = new Hashtable();
 					material["uniforms"] = new Hashtable();
-					SJSON.save(material, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".material");
+					SJSON.save(material, Path.build_filename(_source_dir.get_path(), resource_name) + ".material");
 				}
 				mtl.destroy();
 
@@ -323,7 +323,7 @@ namespace Crown
 				Hashtable unit = new Hashtable();
 				unit["components"] = components;
 
-				SJSON.save(unit, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".unit");
+				SJSON.save(unit, Path.build_filename(_source_dir.get_path(), resource_name) + ".unit");
 			}
 		}
 
@@ -345,7 +345,7 @@ namespace Crown
 				Hashtable sound = new Hashtable();
 				sound["source"] = resource_filename;
 
-				SJSON.save(sound, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".sound");
+				SJSON.save(sound, Path.build_filename(_source_dir.get_path(), resource_name) + ".sound");
 			}
 		}
 
@@ -369,7 +369,7 @@ namespace Crown
 				texture["generate_mips"] = true;
 				texture["is_normalmap"]  = false;
 
-				SJSON.save(texture, Path.build_path(Path.DIR_SEPARATOR_S, _source_dir.get_path(), resource_name) + ".texture");
+				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_name) + ".texture");
 			}
 		}
 	}
