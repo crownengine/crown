@@ -22,12 +22,11 @@ MaterialManager::MaterialManager(Allocator& a, ResourceManager& rm)
 
 MaterialManager::~MaterialManager()
 {
-	auto begin = sort_map::begin(_materials);
+	auto cur = sort_map::begin(_materials);
 	auto end = sort_map::end(_materials);
-
-	for (; begin != end; ++begin)
+	for (; cur != end; ++cur)
 	{
-		_allocator->deallocate(begin->pair.second);
+		_allocator->deallocate(cur->pair.second);
 	}
 }
 

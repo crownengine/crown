@@ -32,12 +32,12 @@ namespace level_resource_internal
 			JsonObject sounds_json(ta);
 			sjson::parse_object(object["sounds"], sounds_json);
 
-			auto begin = json_object::begin(sounds_json);
+			auto cur = json_object::begin(sounds_json);
 			auto end = json_object::end(sounds_json);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
 				JsonObject sound(ta);
-				sjson::parse_object(begin->pair.second, sound);
+				sjson::parse_object(cur->pair.second, sound);
 
 				DynamicString sound_name(ta);
 				sjson::parse_string(sound["name"], sound_name);

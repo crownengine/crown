@@ -425,11 +425,11 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 
 		StringStream ss(default_allocator());
 
-		auto begin = map::begin(_data_index);
+		auto cur = map::begin(_data_index);
 		auto end = map::end(_data_index);
-		for (; begin != end; ++begin)
+		for (; cur != end; ++cur)
 		{
-			ss << "\"" << begin->pair.first.c_str() << "\" = \"" << begin->pair.second.c_str() << "\"\n";
+			ss << "\"" << cur->pair.first.c_str() << "\" = \"" << cur->pair.second.c_str() << "\"\n";
 		}
 
 		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));

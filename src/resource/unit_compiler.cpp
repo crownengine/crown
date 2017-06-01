@@ -288,13 +288,13 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 			JsonObject modified_components(ta);
 			sjson::parse(prefab["modified_components"], modified_components);
 
-			auto begin = json_object::begin(modified_components);
+			auto cur = json_object::begin(modified_components);
 			auto end = json_object::end(modified_components);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
-				const FixedString key = begin->pair.first;
+				const FixedString key = cur->pair.first;
 				const FixedString id(&key.data()[1], key.length()-1);
-				const char* value = begin->pair.second;
+				const char* value = cur->pair.second;
 
 				// FIXME
 				map::remove(prefab_root_components._map, id);
@@ -305,11 +305,11 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 
 	if (json_object::size(prefab_root_components) > 0)
 	{
-		auto begin = json_object::begin(prefab_root_components);
+		auto cur = json_object::begin(prefab_root_components);
 		auto end = json_object::end(prefab_root_components);
-		for (; begin != end; ++begin)
+		for (; cur != end; ++cur)
 		{
-			const char* value = begin->pair.second;
+			const char* value = cur->pair.second;
 
 			TempAllocator512 ta;
 			JsonObject component(ta);
@@ -331,11 +331,10 @@ void UnitCompiler::compile_multiple_units(const char* json)
 	JsonObject obj(ta);
 	sjson::parse(json, obj);
 
-	auto begin = json_object::begin(obj);
+	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
-
-	for (; begin != end; ++begin)
-		compile_unit_from_json(begin->pair.second);
+	for (; cur != end; ++cur)
+		compile_unit_from_json(cur->pair.second);
 }
 
 Buffer UnitCompiler::blob()
@@ -345,12 +344,11 @@ Buffer UnitCompiler::blob()
 	ur.num_units = _num_units;
 	ur.num_component_types = 0;
 
-	auto begin = sort_map::begin(_component_data);
+	auto cur = sort_map::begin(_component_data);
 	auto end = sort_map::end(_component_data);
-
-	for (; begin != end; ++begin)
+	for (; cur != end; ++cur)
 	{
-		const u32 num = begin->pair.second._num;
+		const u32 num = cur->pair.second._num;
 
 		if (num > 0)
 			++ur.num_component_types;

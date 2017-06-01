@@ -25,15 +25,14 @@ ResourceManager::ResourceManager(ResourceLoader& rl)
 
 ResourceManager::~ResourceManager()
 {
-	const ResourceMap::Entry* begin = sort_map::begin(_rm);
-	const ResourceMap::Entry* end = sort_map::end(_rm);
-
-	for (; begin != end; begin++)
+	auto cur = sort_map::begin(_rm);
+	auto end = sort_map::end(_rm);
+	for (; cur != end; ++cur)
 	{
-		const StringId64 type = begin->pair.first.type;
-		const StringId64 name = begin->pair.first.name;
+		const StringId64 type = cur->pair.first.type;
+		const StringId64 name = cur->pair.first.name;
 		on_offline(type, name);
-		on_unload(type, begin->pair.second.data);
+		on_unload(type, cur->pair.second.data);
 	}
 }
 

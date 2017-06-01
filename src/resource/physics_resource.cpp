@@ -314,13 +314,12 @@ namespace physics_config_resource_internal
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		auto begin = json_object::begin(object);
+		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
-
-		for (; begin != end; ++begin)
+		for (; cur != end; ++cur)
 		{
-			const FixedString key = begin->pair.first;
-			const char* value     = begin->pair.second;
+			const FixedString key = cur->pair.first;
+			const char* value     = cur->pair.second;
 
 			JsonObject material(ta);
 			sjson::parse_object(value, material);
@@ -341,13 +340,12 @@ namespace physics_config_resource_internal
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		auto begin = json_object::begin(object);
+		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
-
-		for (; begin != end; ++begin)
+		for (; cur != end; ++cur)
 		{
-			const FixedString key = begin->pair.first;
-			const char* value     = begin->pair.second;
+			const FixedString key = cur->pair.first;
+			const char* value     = cur->pair.second;
 
 			JsonObject shape(ta);
 			sjson::parse_object(value, shape);
@@ -366,13 +364,12 @@ namespace physics_config_resource_internal
 		JsonObject object(ta);
 		sjson::parse(json, object);
 
-		auto begin = json_object::begin(object);
+		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
-
-		for (; begin != end; ++begin)
+		for (; cur != end; ++cur)
 		{
-			const FixedString key = begin->pair.first;
-			const char* value     = begin->pair.second;
+			const FixedString key = cur->pair.first;
+			const char* value     = cur->pair.second;
 
 			JsonObject actor(ta);
 			sjson::parse_object(value, actor);
@@ -435,22 +432,22 @@ namespace physics_config_resource_internal
 			JsonObject object(ta);
 			sjson::parse(json, object);
 
-			auto begin = json_object::begin(object);
+			auto cur = json_object::begin(object);
 			auto end = json_object::end(object);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
-				const FixedString key = begin->pair.first;
+				const FixedString key = cur->pair.first;
 				const StringId32 id   = StringId32(key.data(), key.length());
 
 				map::set(_filter_map, id, new_filter_mask());
 			}
 
-			begin = json_object::begin(object);
+			cur = json_object::begin(object);
 			end = json_object::end(object);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
-				const FixedString key = begin->pair.first;
-				const char* value     = begin->pair.second;
+				const FixedString key = cur->pair.first;
+				const char* value     = cur->pair.second;
 				const StringId32 id   = StringId32(key.data(), key.length());
 
 				TempAllocator4096 ta;

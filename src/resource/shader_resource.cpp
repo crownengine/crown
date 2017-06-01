@@ -706,12 +706,12 @@ namespace shader_resource_internal
 			JsonObject render_states(ta);
 			sjson::parse_object(json, render_states);
 
-			auto begin = json_object::begin(render_states);
+			auto cur = json_object::begin(render_states);
 			auto end = json_object::end(render_states);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
 				JsonObject obj(ta);
-				sjson::parse_object(begin->pair.second, obj);
+				sjson::parse_object(cur->pair.second, obj);
 
 				const bool rgb_write_enable   = sjson::parse_bool(obj["rgb_write_enable"]);
 				const bool alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
@@ -808,7 +808,7 @@ namespace shader_resource_internal
 				}
 
 				DynamicString key(ta);
-				key = begin->pair.first;
+				key = cur->pair.first;
 
 				DATA_COMPILER_ASSERT(!map::has(_render_states, key)
 					, _opts
@@ -825,12 +825,12 @@ namespace shader_resource_internal
 			JsonObject sampler_states(ta);
 			sjson::parse_object(json, sampler_states);
 
-			auto begin = json_object::begin(sampler_states);
+			auto cur = json_object::begin(sampler_states);
 			auto end = json_object::end(sampler_states);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
 				JsonObject obj(ta);
-				sjson::parse_object(begin->pair.second, obj);
+				sjson::parse_object(cur->pair.second, obj);
 
 				const bool has_filter_min = json_object::has(obj, "filter_min");
 				const bool has_filter_mag = json_object::has(obj, "filter_mag");
@@ -903,7 +903,7 @@ namespace shader_resource_internal
 				}
 
 				DynamicString key(ta);
-				key = begin->pair.first;
+				key = cur->pair.first;
 
 				DATA_COMPILER_ASSERT(!map::has(_sampler_states, key)
 					, _opts
@@ -920,12 +920,12 @@ namespace shader_resource_internal
 			JsonObject bgfx_shaders(ta);
 			sjson::parse_object(json, bgfx_shaders);
 
-			auto begin = json_object::begin(bgfx_shaders);
+			auto cur = json_object::begin(bgfx_shaders);
 			auto end = json_object::end(bgfx_shaders);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
 				JsonObject shader(ta);
-				sjson::parse_object(begin->pair.second, shader);
+				sjson::parse_object(cur->pair.second, shader);
 
 				BgfxShader bgfxshader(default_allocator());
 				if (json_object::has(shader, "includes"))
@@ -946,7 +946,7 @@ namespace shader_resource_internal
 					parse_bgfx_samplers(shader["samplers"], bgfxshader);
 
 				DynamicString key(ta);
-				key = begin->pair.first;
+				key = cur->pair.first;
 
 				DATA_COMPILER_ASSERT(!map::has(_bgfx_shaders, key)
 					, _opts
@@ -963,12 +963,12 @@ namespace shader_resource_internal
 			JsonObject bgfx_samplers(ta);
 			sjson::parse_object(json, bgfx_samplers);
 
-			auto begin = json_object::begin(bgfx_samplers);
+			auto cur = json_object::begin(bgfx_samplers);
 			auto end = json_object::end(bgfx_samplers);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
 				JsonObject sampler(ta);
-				sjson::parse_object(begin->pair.second, sampler);
+				sjson::parse_object(cur->pair.second, sampler);
 
 				DynamicString sampler_state(ta);
 				sjson::parse_string(sampler["sampler_state"], sampler_state);
@@ -980,7 +980,7 @@ namespace shader_resource_internal
 					);
 
 				DynamicString key(ta);
-				key = begin->pair.first;
+				key = cur->pair.first;
 
 				DATA_COMPILER_ASSERT(!map::has(bgfxshader._samplers, key)
 					, _opts
@@ -997,19 +997,19 @@ namespace shader_resource_internal
 			JsonObject shaders(ta);
 			sjson::parse_object(json, shaders);
 
-			auto begin = json_object::begin(shaders);
+			auto cur = json_object::begin(shaders);
 			auto end = json_object::end(shaders);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
 				JsonObject obj(ta);
-				sjson::parse_object(begin->pair.second, obj);
+				sjson::parse_object(cur->pair.second, obj);
 
 				ShaderPermutation shader(default_allocator());
 				sjson::parse_string(obj["bgfx_shader"], shader._bgfx_shader);
 				sjson::parse_string(obj["render_state"], shader._render_state);
 
 				DynamicString key(ta);
-				key = begin->pair.first;
+				key = cur->pair.first;
 
 				DATA_COMPILER_ASSERT(!map::has(_shaders, key)
 					, _opts
@@ -1129,12 +1129,12 @@ namespace shader_resource_internal
 
 			_opts.write(map::size(shader._samplers));
 
-			auto begin = map::begin(shader._samplers);
+			auto cur = map::begin(shader._samplers);
 			auto end = map::end(shader._samplers);
-			for (; begin != end; ++begin)
+			for (; cur != end; ++cur)
 			{
-				const DynamicString& name = begin->pair.first;
-				const DynamicString& sampler_state = begin->pair.second;
+				const DynamicString& name = cur->pair.first;
+				const DynamicString& sampler_state = cur->pair.second;
 				const SamplerState& ss = _sampler_states[sampler_state];
 
 				_opts.write(name.to_string_id());

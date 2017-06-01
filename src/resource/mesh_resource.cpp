@@ -277,12 +277,12 @@ namespace mesh_resource_internal
 
 		MeshCompiler mc(opts);
 
-		auto begin = json_object::begin(geometries);
+		auto cur = json_object::begin(geometries);
 		auto end = json_object::end(geometries);
-		for (; begin != end; ++begin)
+		for (; cur != end; ++cur)
 		{
-			const FixedString key = begin->pair.first;
-			const char* geometry = begin->pair.second;
+			const FixedString key = cur->pair.first;
+			const char* geometry = cur->pair.second;
 			const char* node = nodes[key];
 
 			const StringId32 name(key.data(), key.length());
