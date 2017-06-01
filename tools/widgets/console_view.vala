@@ -52,19 +52,21 @@ namespace Crown
 		// Data
 		private EntryHistory _entry_history;
 		private ConsoleClient _console_client;
+		private Project _project;
 
 		// Widgets
 		private Gtk.ScrolledWindow _scrolled_window;
 		private Gtk.TextView _text_view;
 		private Gtk.Entry _entry;
 
-		public ConsoleView(ConsoleClient client)
+		public ConsoleView(ConsoleClient client, Project project)
 		{
 			Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 			// Data
 			_entry_history = new EntryHistory(256);
 			_console_client = client;
+			_project = project;
 
 			// Widgets
 			Pango.FontDescription fd = new Pango.FontDescription();
@@ -156,7 +158,18 @@ namespace Crown
 
 		public void log(string system, string text, string severity)
 		{
-			string line = system + ": " + text + "\n";
+			string msg = text;
+
+			// Replace IDs with human-readable names
+			int id_index = text.index_of("#ID(");
+			if (id_index != -1)
+			{
+				string id = text.substring(id_index + 4, 33);
+				string name = _project.id_to_name(id);
+				msg = text.replace("#ID(%s)".printf(id), "'%s'".printf(name));
+			}
+
+			string line = system + ": " + msg + "\n";
 			Gtk.TextBuffer buffer = _text_view.buffer;
 			Gtk.TextIter end_iter;
 			buffer.get_end_iter(out end_iter);

@@ -242,7 +242,7 @@ namespace Crown
 			_resource_compiler = new ResourceCompiler(_compiler);
 
 			// Widgets
-			_console_view = new ConsoleView(_engine);
+			_console_view = new ConsoleView(_engine, _project);
 			_level_treeview = new LevelTreeView(_db, _level);
 			_level_layers_treeview = new LevelLayersTreeView(_db, _level);
 			_properties_view = new PropertiesView(_level);

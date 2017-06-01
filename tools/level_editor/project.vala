@@ -85,6 +85,13 @@ namespace Crown
 			}
 		}
 
+		public string id_to_name(string id)
+		{
+			Hashtable index = SJSON.load(Path.build_filename(_data_dir.get_path(), "data_index.sjson"));
+			Value? name = index[id];
+			return name != null ? (string)name : id;
+		}
+
 		public Database files()
 		{
 			return _files;
