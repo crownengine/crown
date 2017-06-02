@@ -14,6 +14,9 @@
 
 namespace crown
 {
+/// Compiles source data into binary.
+///
+/// @ingroup Resource
 class DataCompiler
 {
 	typedef void (*CompileFunction)(const char* path, CompileOptions& opts);
