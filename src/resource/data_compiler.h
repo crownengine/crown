@@ -57,9 +57,9 @@ public:
 	/// Scans source directory for resources.
 	void scan();
 
-	/// Compiles all the resources found in the source directory and puts them in @a bundle_dir.
+	/// Compiles all the resources found in the source directory and puts them in @a data_dir.
 	/// Returns true on success, false otherwise.
-	bool compile(const char* bundle_dir, const char* platform);
+	bool compile(const char* data_dir, const char* platform);
 
 	/// Registers the resource @a compiler for the given resource @a type and @a version.
 	void register_compiler(StringId64 type, u32 version, CompileFunction compiler);

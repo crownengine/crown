@@ -320,18 +320,17 @@ void DataCompiler::scan()
 	_file_monitor.start(map::begin(_source_dirs)->pair.second.c_str(), true, filemonitor_callback, this);
 }
 
-bool DataCompiler::compile(const char* bundle_dir, const char* platform)
+bool DataCompiler::compile(const char* data_dir, const char* platform)
 {
-	// Create bundle dir if necessary
-	FilesystemDisk bundle_fs(default_allocator());
-	bundle_fs.set_prefix(bundle_dir);
-	bundle_fs.create_directory("");
+	FilesystemDisk data_filesystem(default_allocator());
+	data_filesystem.set_prefix(data_dir);
+	data_filesystem.create_directory("");
 
-	if (!bundle_fs.exists(CROWN_DATA_DIRECTORY))
-		bundle_fs.create_directory(CROWN_DATA_DIRECTORY);
+	if (!data_filesystem.exists(CROWN_DATA_DIRECTORY))
+		data_filesystem.create_directory(CROWN_DATA_DIRECTORY);
 
-	if (!bundle_fs.exists(CROWN_TEMP_DIRECTORY))
-		bundle_fs.create_directory(CROWN_TEMP_DIRECTORY);
+	if (!data_filesystem.exists(CROWN_TEMP_DIRECTORY))
+		data_filesystem.create_directory(CROWN_TEMP_DIRECTORY);
 
 	std::sort(vector::begin(_files), vector::end(_files));
 
@@ -390,14 +389,14 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 
 		if (!setjmp(_jmpbuf))
 		{
-			CompileOptions opts(*this, bundle_fs, output, platform);
+			CompileOptions opts(*this, data_filesystem, output, platform);
 
 			hash_map::get(_compilers, _type, ResourceTypeData()).compiler(src_path.c_str(), opts);
 
-			File* outf = bundle_fs.open(path.c_str(), FileOpenMode::WRITE);
+			File* outf = data_filesystem.open(path.c_str(), FileOpenMode::WRITE);
 			u32 size = array::size(output);
 			u32 written = outf->write(array::begin(output), size);
-			bundle_fs.close(*outf);
+			data_filesystem.close(*outf);
 
 			success = size == written;
 		}
@@ -419,7 +418,7 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 
 	// Write index
 	{
-		File* file = bundle_fs.open("data_index.sjson", FileOpenMode::WRITE);
+		File* file = data_filesystem.open("data_index.sjson", FileOpenMode::WRITE);
 		if (!file)
 			return false;
 
@@ -433,7 +432,7 @@ bool DataCompiler::compile(const char* bundle_dir, const char* platform)
 		}
 
 		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
-		bundle_fs.close(*file);
+		data_filesystem.close(*file);
 	}
 
 	return true;

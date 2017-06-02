@@ -19,9 +19,9 @@
 
 namespace crown
 {
-CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform)
+CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, Buffer& output, const char* platform)
 	: _data_compiler(dc)
-	, _bundle_fs(bundle_fs)
+	, _data_filesystem(data_filesystem)
 	, _output(output)
 	, _platform(platform)
 	, _dependencies(default_allocator())
@@ -65,20 +65,20 @@ bool CompileOptions::resource_exists(const char* type, const char* name)
 
 Buffer CompileOptions::read_temporary(const char* path)
 {
-	File* file = _bundle_fs.open(path, FileOpenMode::READ);
+	File* file = _data_filesystem.open(path, FileOpenMode::READ);
 	u32 size = file->size();
 	Buffer buf(default_allocator());
 	array::resize(buf, size);
 	file->read(array::begin(buf), size);
-	_bundle_fs.close(*file);
+	_data_filesystem.close(*file);
 	return buf;
 }
 
 void CompileOptions::write_temporary(const char* path, const char* data, u32 size)
 {
-	File* file = _bundle_fs.open(path, FileOpenMode::WRITE);
+	File* file = _data_filesystem.open(path, FileOpenMode::WRITE);
 	file->write(data, size);
-	_bundle_fs.close(*file);
+	_data_filesystem.close(*file);
 }
 
 void CompileOptions::write_temporary(const char* path, const Buffer& data)
@@ -120,7 +120,7 @@ void CompileOptions::get_absolute_path(const char* path, DynamicString& abs)
 
 void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
 {
-	_bundle_fs.get_absolute_path(CROWN_TEMP_DIRECTORY, abs);
+	_data_filesystem.get_absolute_path(CROWN_TEMP_DIRECTORY, abs);
 
 	TempAllocator64 ta;
 	DynamicString prefix(ta);
@@ -134,7 +134,7 @@ void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
 
 void CompileOptions::delete_file(const char* path)
 {
-	_bundle_fs.delete_file(path);
+	_data_filesystem.delete_file(path);
 }
 
 void CompileOptions::write(const void* data, u32 size)

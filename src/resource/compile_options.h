@@ -38,14 +38,14 @@ namespace crown
 class CompileOptions
 {
 	DataCompiler& _data_compiler;
-	Filesystem& _bundle_fs;
+	Filesystem& _data_filesystem;
 	Buffer& _output;
 	const char* _platform;
 	Vector<DynamicString> _dependencies;
 
 public:
 
-	CompileOptions(DataCompiler& dc, Filesystem& bundle_fs, Buffer& output, const char* platform);
+	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, Buffer& output, const char* platform);
 
 	void error(const char* msg, va_list args);
 

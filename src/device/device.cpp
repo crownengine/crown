@@ -190,7 +190,7 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	, _device_options(opts)
 	, _boot_config(default_allocator())
 	, _console_server(&cs)
-	, _bundle_filesystem(NULL)
+	, _data_filesystem(NULL)
 	, _last_log(NULL)
 	, _resource_loader(NULL)
 	, _resource_manager(NULL)
@@ -336,7 +336,7 @@ void Device::run()
 	namespace utr = unit_resource_internal;
 
 #if CROWN_PLATFORM_ANDROID
-	_bundle_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
+	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
 	const char* data_dir = _device_options._data_dir.c_str();
 	if (!data_dir)
@@ -344,19 +344,19 @@ void Device::run()
 		char buf[1024];
 		data_dir = os::getcwd(buf, sizeof(buf));
 	}
-	_bundle_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
-	((FilesystemDisk*)_bundle_filesystem)->set_prefix(data_dir);
-	if (!_bundle_filesystem->exists(data_dir))
-		_bundle_filesystem->create_directory(data_dir);
+	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
+	((FilesystemDisk*)_data_filesystem)->set_prefix(data_dir);
+	if (!_data_filesystem->exists(data_dir))
+		_data_filesystem->create_directory(data_dir);
 
-	_last_log = _bundle_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
+	_last_log = _data_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
 	logi(DEVICE, "Initializing Crown Engine %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
 
 	profiler_globals::init();
 
-	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_bundle_filesystem);
+	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem);
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           lur::load, lur::unload, NULL,        NULL        );
 	_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
@@ -511,9 +511,9 @@ void Device::run()
 	CE_DELETE(_allocator, _bgfx_allocator);
 
 	if (_last_log)
-		_bundle_filesystem->close(*_last_log);
+		_data_filesystem->close(*_last_log);
 
-	CE_DELETE(_allocator, _bundle_filesystem);
+	CE_DELETE(_allocator, _data_filesystem);
 
 	profiler_globals::shutdown();
 

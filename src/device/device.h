@@ -40,7 +40,7 @@ struct Device
 	const DeviceOptions& _device_options;
 	BootConfig _boot_config;
 	ConsoleServer* _console_server;
-	Filesystem* _bundle_filesystem;
+	Filesystem* _data_filesystem;
 	File* _last_log;
 	ResourceLoader* _resource_loader;
 	ResourceManager* _resource_manager;
