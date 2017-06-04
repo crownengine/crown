@@ -334,6 +334,8 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 	std::sort(vector::begin(_files), vector::end(_files));
 
+	bool success = true;
+
 	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(_files); ++i)
 	{
@@ -382,8 +384,6 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			break;
 		}
 
-		bool success = true;
-
 		Buffer output(default_allocator());
 		array::reserve(output, 4*1024*1024);
 
@@ -408,6 +408,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		if (!success)
 		{
 			loge(COMPILER, "Error");
+			break;
 		}
 		else
 		{
@@ -435,7 +436,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		data_filesystem.close(*file);
 	}
 
-	return true;
+	return success;
 }
 
 void DataCompiler::register_compiler(StringId64 type, u32 version, CompileFunction compiler)
