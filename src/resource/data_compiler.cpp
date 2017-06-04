@@ -334,7 +334,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 	std::sort(vector::begin(_files), vector::end(_files));
 
-	bool success = true;
+	bool success = false;
 
 	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(_files); ++i)
@@ -381,6 +381,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		if (!can_compile(_type))
 		{
 			loge(COMPILER, "Unknown resource type: '%s'", type);
+			success = false;
 			break;
 		}
 
