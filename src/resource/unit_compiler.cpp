@@ -129,6 +129,9 @@ static Buffer compile_mesh_renderer(const char* json, CompileOptions& opts)
 	mrd.geometry_name     = sjson::parse_string_id  (obj["geometry_name"]);
 	mrd.material_resource = sjson::parse_resource_id(obj["material"]);
 	mrd.visible           = sjson::parse_bool       (obj["visible"]);
+	mrd._pad0[0]          = 0;
+	mrd._pad0[1]          = 0;
+	mrd._pad0[2]          = 0;
 
 	Buffer buf(default_allocator());
 	array::push(buf, (char*)&mrd, sizeof(mrd));
@@ -152,6 +155,13 @@ static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
 	srd.sprite_resource   = sjson::parse_resource_id(obj["sprite_resource"]);
 	srd.material_resource = sjson::parse_resource_id(obj["material"]);
 	srd.visible           = sjson::parse_bool       (obj["visible"]);
+	srd._pad0[0]          = 0;
+	srd._pad0[1]          = 0;
+	srd._pad0[2]          = 0;
+	srd._pad1[0]          = 0;
+	srd._pad1[1]          = 0;
+	srd._pad1[2]          = 0;
+	srd._pad1[3]          = 0;
 
 	Buffer buf(default_allocator());
 	array::push(buf, (char*)&srd, sizeof(srd));

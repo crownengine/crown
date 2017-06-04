@@ -139,6 +139,7 @@ namespace physics_resource_internal
 			);
 
 		ColliderDesc cd;
+		memset(&cd, 0, sizeof(cd));
 		cd.type        = st;
 		cd.shape_class = sjson::parse_string_id(obj["class"]);
 		cd.material    = sjson::parse_string_id(obj["material"]);

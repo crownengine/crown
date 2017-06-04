@@ -94,6 +94,8 @@ namespace mesh_resource_internal
 			array::clear(_index_buffer);
 
 			aabb::reset(_aabb);
+			memset(&_obb, 0, sizeof(_obb));
+			memset(&_decl, 0, sizeof(_decl));
 
 			_has_normal = false;
 			_has_uv = false;

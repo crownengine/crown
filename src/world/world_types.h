@@ -290,10 +290,10 @@ INSTANCE_ID(ScriptInstance);
 struct MeshRendererDesc
 {
 	StringId64 mesh_resource;     ///< Name of .mesh resource.
-	StringId32 geometry_name;     ///< Name of geometry inside .mesh resource.
 	StringId64 material_resource; ///< Name of .material resource.
+	StringId32 geometry_name;     ///< Name of geometry inside .mesh resource.
 	bool visible;                 ///< Whether mesh is visible.
-	char _pad[3];
+	char _pad0[3];
 };
 
 /// Sprite renderer description.
@@ -304,7 +304,7 @@ struct SpriteRendererDesc
 	StringId64 sprite_resource;   ///< Name of .sprite resource.
 	StringId64 material_resource; ///< Name of .material resource.
 	bool visible;                 ///< Whether sprite is visible.
-	char _pad[3];
+	char _pad0[3];
 	char _pad1[4];
 };
 
