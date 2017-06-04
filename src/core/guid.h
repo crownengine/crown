@@ -7,6 +7,7 @@
 
 #include "string_types.h"
 #include "types.h"
+#include <string.h> // memcmp
 
 namespace crown
 {
@@ -42,11 +43,13 @@ namespace guid
 /// Returns whether Guid @a and @b are equal.
 inline bool operator==(const Guid& a, const Guid& b)
 {
-	return a.data1 == b.data1
-		&& a.data2 == b.data2
-		&& a.data3 == b.data3
-		&& a.data4 == b.data4
-		;
+	return memcmp(&a, &b, sizeof(a)) == 0;
+}
+
+/// Returns whether Guid @a is lesser than @b.
+inline bool operator<(const Guid& a, const Guid& b)
+{
+	return memcmp(&a, &b, sizeof(a)) < 0;
 }
 
 static const Guid GUID_ZERO = { 0u, 0u, 0u, 0u };
