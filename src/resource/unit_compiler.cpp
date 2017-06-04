@@ -383,9 +383,16 @@ Buffer UnitCompiler::blob()
 			cd.num_instances = num;
 			cd.size = array::size(data) + sizeof(u32)*array::size(unit_index);
 
+			const u32 pad = cd.size % alignof(cd);
+			cd.size += pad;
+
 			array::push(buf, (char*)&cd, sizeof(cd));
 			array::push(buf, (char*)array::begin(unit_index), sizeof(u32)*array::size(unit_index));
 			array::push(buf, array::begin(data), array::size(data));
+
+			// Insert proper padding
+			for (u32 i = 0; i < pad; ++i)
+				array::push_back(buf, (char)0);
 		}
 	}
 
