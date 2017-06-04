@@ -41,7 +41,7 @@ static void help(const char* msg = NULL)
 	);
 
 	if (msg)
-		printf("Error: %s", msg);
+		printf("Error: %s\n", msg);
 }
 
 DeviceOptions::DeviceOptions(Allocator& a, int argc, const char** argv)
