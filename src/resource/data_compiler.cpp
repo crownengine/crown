@@ -583,18 +583,18 @@ int main_data_compiler(int argc, char** argv)
 	dc->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
 
 	// Add ignore globs
-	dc->add_ignore_glob("*.tmp");
-	dc->add_ignore_glob("*.wav");
-	dc->add_ignore_glob("*.ogg");
-	dc->add_ignore_glob("*.png");
-	dc->add_ignore_glob("*.tga");
+	dc->add_ignore_glob("*.bak");
 	dc->add_ignore_glob("*.dds");
 	dc->add_ignore_glob("*.ktx");
+	dc->add_ignore_glob("*.ogg");
+	dc->add_ignore_glob("*.png");
 	dc->add_ignore_glob("*.pvr");
 	dc->add_ignore_glob("*.swn"); // VIM swap file.
 	dc->add_ignore_glob("*.swo"); // VIM swap file.
 	dc->add_ignore_glob("*.swp"); // VIM swap file.
-	dc->add_ignore_glob("*.bak");
+	dc->add_ignore_glob("*.tga");
+	dc->add_ignore_glob("*.tmp");
+	dc->add_ignore_glob("*.wav");
 	dc->add_ignore_glob("*~");
 	dc->add_ignore_glob(".*");
 
