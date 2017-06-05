@@ -45,6 +45,7 @@ namespace display
 
 	/// Destroys the display @a d.
 	void destroy(Allocator& a, Display& d);
+
 } // namespace display
 
 } // namespace crown

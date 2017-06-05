@@ -83,6 +83,7 @@ namespace vector
 
 	/// Returns the last item of the vector @a v.
 	template <typename T> const T& back(const Vector<T>& v);
+
 } // namespace vector
 
 namespace vector
@@ -257,6 +258,7 @@ namespace vector
 		CE_ASSERT(v._size > 0, "The vector is empty");
 		return v._data[v._size - 1];
 	}
+
 } // namespace vector
 
 template <typename T>

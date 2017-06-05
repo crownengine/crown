@@ -38,6 +38,7 @@ namespace frustum
 
 	/// Returns the AABB enclosing the frustum @a f.
 	AABB to_aabb(const Frustum& f);
+
 } // namespace frustum
 
 namespace frustum
@@ -110,6 +111,7 @@ namespace frustum
 		aabb::add_points(r, 8, vertices);
 		return r;
 	}
+
 } // namespace frustum
 
 } // namespace crown

@@ -129,6 +129,7 @@ namespace script_world
 			stack.call(0);
 		}
 	}
+
 } // namespace script_world
 
 ScriptWorld::ScriptWorld(Allocator& a, UnitManager& um, ResourceManager& rm, LuaEnvironment& le, World& w)

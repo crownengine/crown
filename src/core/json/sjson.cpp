@@ -379,6 +379,7 @@ namespace sjson
 		array::pop_back(json);
 		parse(array::begin(json), object);
 	}
+
 } // namespace sjson
 
 namespace sjson
@@ -488,6 +489,7 @@ namespace sjson
 		sjson::parse_string(json, str);
 		return guid::parse(str.c_str());
 	}
+
 } // namespace json
 
 } // namespace crown

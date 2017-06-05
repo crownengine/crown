@@ -22,6 +22,7 @@ namespace physics_resource_internal
 	Buffer compile_collider(const char* json, CompileOptions& opts);
 	Buffer compile_actor(const char* json, CompileOptions& opts);
 	Buffer compile_joint(const char* json, CompileOptions& opts);
+
 } // namespace physics_resource_internal
 
 struct PhysicsConfigResource
@@ -77,6 +78,7 @@ struct PhysicsConfigActor
 namespace physics_config_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
+
 } // namespace physics_config_resource_internal
 
 namespace physics_config_resource
@@ -92,6 +94,7 @@ namespace physics_config_resource
 
 	/// Returns the collision filter @a name.
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name);
+
 } // namespace physics_config_resource
 
 } // namespace crown

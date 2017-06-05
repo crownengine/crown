@@ -66,6 +66,7 @@ namespace sound_world
 {
 	SoundWorld* create(Allocator& a);
 	void destroy(Allocator& a, SoundWorld* sw);
+
 } // namespace sound_world
 
 } // namespace crown

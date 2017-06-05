@@ -44,6 +44,7 @@ namespace sort_map
 	/// efficiently iterate over the elements.
 	template <typename TKey, typename TValue, typename Compare> const typename SortMap<TKey, TValue, Compare>::Entry* begin(const SortMap<TKey, TValue, Compare>& m);
 	template <typename TKey, typename TValue, typename Compare> const typename SortMap<TKey, TValue, Compare>::Entry* end(const SortMap<TKey, TValue, Compare>& m);
+
 } // namespace sort_map
 
 namespace sort_map_internal
@@ -90,6 +91,7 @@ namespace sort_map_internal
 
 		return result;
 	}
+
 } // namespace sort_map_internal
 
 namespace sort_map
@@ -192,6 +194,7 @@ namespace sort_map
 	{
 		return vector::end(m._data);
 	}
+
 } // namespace sort_map
 
 template <typename TKey, typename TValue, typename Compare>

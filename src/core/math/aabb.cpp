@@ -39,6 +39,7 @@ namespace aabb
 			b.max.z = fmax(b.max.z, bi.max.z);
 		}
 	}
+
 } // namespace aabb
 
 } // namespace crown

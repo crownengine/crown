@@ -180,6 +180,7 @@ namespace input_device
 	{
 		a.deallocate(&id);
 	}
+
 } // namespace input_device
 
 } // namespace crown

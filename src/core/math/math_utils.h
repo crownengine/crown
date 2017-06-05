@@ -117,4 +117,5 @@ inline f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f
 }
 
 /// @}
+
 } // namespace crown

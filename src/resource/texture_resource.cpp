@@ -120,6 +120,7 @@ namespace texture_resource_internal
 	{
 		a.deallocate(resource);
 	}
+
 } // namespace texture_resource_internal
 
 } // namespace crown

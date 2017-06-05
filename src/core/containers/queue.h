@@ -73,6 +73,7 @@ namespace queue
 	template<typename T> const T& front(const Queue<T>& q);
 	template<typename T> T& back(Queue<T>& q);
 	template<typename T> const T& back(const Queue<T>& q);
+
 } // namespace queue
 
 namespace queue

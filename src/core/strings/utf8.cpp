@@ -40,6 +40,7 @@ namespace utf8
 		*state = utf8d[256 + *state*16 + type];
 		return *state;
 	}
+
 } // namespace utf8
 
 } // namespace crown

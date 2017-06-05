@@ -63,6 +63,7 @@ namespace console_server_globals
 	void init();
 
 	void shutdown();
+
 } // namespace console_server_globals
 
 ConsoleServer* console_server();

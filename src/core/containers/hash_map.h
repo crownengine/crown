@@ -43,6 +43,7 @@ namespace hash_map
 	/// @note
 	/// Calls destructor on the items.
 	template <typename TKey, typename TValue, typename Hash> void clear(HashMap<TKey, TValue, Hash>& m);
+
 } // namespace hash_map
 
 namespace hash_map_internal
@@ -185,6 +186,7 @@ namespace hash_map_internal
 	{
 		return m._size >= m._capacity * 0.9f;
 	}
+
 } // namespace hash_map_internal
 
 namespace hash_map
@@ -262,6 +264,7 @@ namespace hash_map
 
 		m._size = 0;
 	}
+
 } // namespace hash_map
 
 template <typename TKey, typename TValue, typename Hash>

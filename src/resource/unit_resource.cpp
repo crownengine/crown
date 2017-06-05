@@ -24,6 +24,7 @@ namespace unit_resource_internal
 
 		opts.write(uc.blob());
 	}
+
 } // namespace unit_resource_internal
 
 } // namespace crown

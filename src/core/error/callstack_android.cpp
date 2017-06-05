@@ -17,6 +17,7 @@ namespace error
 	{
 		ss << "Not supported";
 	}
+
 } // namespace error
 
 } // namespace crown

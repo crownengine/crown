@@ -87,6 +87,7 @@ namespace error
 		}
 		free(messages);
 	}
+
 } // namespace error
 
 } // namespace crown

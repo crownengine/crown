@@ -27,6 +27,7 @@ namespace texture_resource_internal
 	void offline(StringId64 id, ResourceManager& rm);
 	void online(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* resource);
+
 } // namespace texture_resource_internal
 
 } // namespace crown

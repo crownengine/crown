@@ -658,6 +658,7 @@ namespace window
 	{
 		CE_DELETE(a, &w);
 	}
+
 } // namespace window
 
 struct DisplayWin : public Display
@@ -682,6 +683,7 @@ namespace display
 	{
 		CE_DELETE(a, &d);
 	}
+
 } // namespace display
 
 bool next_event(OsEvent& ev)

@@ -1256,6 +1256,7 @@ namespace shader_resource_internal
 	{
 		device()->_shader_manager->unload(a, res);
 	}
+
 } // namespace shader_resource_internal
 
 } // namespace crown

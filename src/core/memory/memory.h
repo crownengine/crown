@@ -42,6 +42,7 @@ namespace memory
 		ptr->~T();
 		a.deallocate(ptr);
 	}
+
 } // namespace memory
 
 #define ALLOCATOR_AWARE typedef int allocator_aware
@@ -85,7 +86,9 @@ namespace memory_globals
 	/// @note
 	/// Should be the last call of the program.
 	void shutdown();
+
 } // namespace memory_globals
+
 } // namespace crown
 
 /// Allocates memory with @a allocator for the given @a T type

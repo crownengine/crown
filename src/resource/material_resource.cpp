@@ -254,6 +254,7 @@ namespace material_resource_internal
 	{
 		device()->_material_manager->unload(a, res);
 	}
+
 } // namespace material_resource_internal
 
 namespace material_resource
@@ -310,6 +311,7 @@ namespace material_resource
 		TextureData* td = get_texture_data(mr, i);
 		return (TextureHandle*) (dynamic + td->data_offset);
 	}
+
 } // namespace material_resource
 
 } // namespace crown

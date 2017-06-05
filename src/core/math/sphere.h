@@ -33,6 +33,7 @@ namespace sphere
 
 	/// Returns whether point @a p is contained into the sphere.
 	bool contains_point(const Sphere& s, const Vector3& p);
+
 } // namespace sphere
 
 namespace sphere
@@ -58,6 +59,7 @@ namespace sphere
 		f32 dist = length_squared(p - s.c);
 		return dist < s.r*s.r;
 	}
+
 } // namespace sphere
 
 } // namespace crown

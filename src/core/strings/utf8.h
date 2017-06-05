@@ -21,4 +21,5 @@ namespace utf8
 	u32 decode(u32* state, u32* codep, u32 byte);
 
 } // namespace utf8
+
 } // namespace crown

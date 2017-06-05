@@ -20,6 +20,7 @@ namespace physics_globals
 	void shutdown()
 	{
 	}
+
 } // namespace physics_globals
 
 struct PhysicsWorldNoop : public PhysicsWorld

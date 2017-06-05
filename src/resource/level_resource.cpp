@@ -87,6 +87,7 @@ namespace level_resource_internal
 			opts.write(sounds[i]._pad[2]);
 		}
 	}
+
 } // namespace level_resource_internal
 
 namespace level_resource
@@ -107,6 +108,7 @@ namespace level_resource
 		const LevelSound* begin = (LevelSound*)((char*)lr + lr->sounds_offset);
 		return &begin[i];
 	}
+
 } // namespace level_resource
 
 } // namespace crown

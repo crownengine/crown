@@ -41,6 +41,7 @@ namespace map
 	/// efficiently iterate over the elements (in random order).
 	template <typename TKey, typename TValue> const typename Map<TKey, TValue>::Node* begin(const Map<TKey, TValue>& m);
 	template <typename TKey, typename TValue> const typename Map<TKey, TValue>::Node* end(const Map<TKey, TValue>& m);
+
 } // namespace map
 
 namespace map_internal
@@ -466,6 +467,7 @@ namespace map_internal
 		#endif
 		return n;
 	}
+
 } // namespace map_internal
 
 namespace map
@@ -709,6 +711,7 @@ namespace map
 	{
 		return vector::end(m._data);
 	}
+
 } // namespace map
 
 template <typename TKey, typename TValue>

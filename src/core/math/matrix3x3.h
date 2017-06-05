@@ -275,4 +275,5 @@ inline const f32* to_float_ptr(const Matrix3x3& m)
 }
 
 /// @}
+
 } // namespace crown

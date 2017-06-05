@@ -101,4 +101,5 @@ inline u32 to_abgr(const Color4& c)
 }
 
 /// @}
+
 } // namespace crown

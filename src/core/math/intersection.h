@@ -46,4 +46,5 @@ bool frustum_sphere_intersection(const Frustum& f, const Sphere& s);
 bool frustum_box_intersection(const Frustum& f, const AABB& b);
 
 /// @}
+
 } // namespace crown

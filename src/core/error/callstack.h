@@ -15,4 +15,5 @@ namespace error
 	void callstack(StringStream& ss);
 
 } // namespace error
+
 } // namespace crown

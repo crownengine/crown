@@ -38,6 +38,7 @@ namespace json_object
 	{
 		return map::end(jo._map);
 	}
+
 } // namespace json_object
 
 inline JsonObject::JsonObject(Allocator& a)

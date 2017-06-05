@@ -89,6 +89,7 @@ namespace input_device
 
 	/// Destroys the input device @a id.
 	void destroy(Allocator& a, InputDevice& id);
+
 } // namespace input_device
 
 } // namespace crown

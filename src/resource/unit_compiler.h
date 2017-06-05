@@ -67,7 +67,6 @@ public:
 	void compile_unit_from_json(const char* json);
 	void compile_multiple_units(const char* json);
 
-
 	Buffer blob();
 };
 

@@ -107,6 +107,7 @@ namespace error
 
 		SymCleanup(GetCurrentProcess());
 	}
+
 } // namespace error
 
 } // namespace crown

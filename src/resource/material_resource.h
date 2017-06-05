@@ -74,6 +74,7 @@ namespace material_resource_internal
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* res);
+
 } // namespace material_resource_internal
 
 namespace material_resource
@@ -86,6 +87,7 @@ namespace material_resource
 	UniformHandle* get_uniform_handle(const MaterialResource* mr, u32 i, char* dynamic);
 	UniformHandle* get_uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic);
 	TextureHandle* get_texture_handle(const MaterialResource* mr, u32 i, char* dynamic);
+
 } // namespace material_resource
 
 } // namespace crown

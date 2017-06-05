@@ -46,6 +46,7 @@ namespace event_stream
 	{
 		event_stream::write(s, type, sizeof(T), &event);
 	}
+
 } // namespace event_stream
 
 } // namespace crown

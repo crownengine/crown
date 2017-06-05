@@ -290,6 +290,7 @@ namespace window
 	{
 		CE_DELETE(a, &w);
 	}
+
 } // namespace window
 
 struct DisplayAndroid : public Display
@@ -314,6 +315,7 @@ namespace display
 	{
 		CE_DELETE(a, &d);
 	}
+
 } // namespace display
 
 static AndroidDevice s_advc;

@@ -105,6 +105,7 @@ namespace string_stream
 		snprintf(buf, sizeof(buf), format, val);
 		return s << buf;
 	}
+
 } // namespace string_stream
 
 } // namespace crown

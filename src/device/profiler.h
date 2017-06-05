@@ -90,6 +90,7 @@ namespace profiler
 
 	/// Records a memory deallocation of @a size with the given @a name.
 	void deallocate_memory(const char* name, u32 size);
+
 } // namespace profiler
 
 namespace profiler_globals
@@ -100,7 +101,9 @@ namespace profiler_globals
 	const char* buffer();
 	void flush();
 	void clear();
+
 } // namespace profiler_globals
+
 } // namespace crown
 
 #if CROWN_DEBUG

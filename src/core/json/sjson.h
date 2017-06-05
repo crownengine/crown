@@ -45,6 +45,7 @@ namespace sjson
 
 	/// Parses the SJSON-encoded @a json.
 	void parse(Buffer& json, JsonObject& object);
+
 } // namespace sjson
 
 namespace sjson
@@ -77,6 +78,7 @@ namespace sjson
 
 	/// Returns the string @a json as Guid.
 	Guid parse_guid(const char* json);
+
 } // namespace sjson
 
 } // namespace crown

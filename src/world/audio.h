@@ -18,5 +18,7 @@ namespace audio_globals
 
 	/// It should reverse the actions performed by audio_globals::init().
 	void shutdown();
+
 } // namespace audio_globals
+
 } // namespace crown

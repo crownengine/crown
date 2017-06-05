@@ -119,6 +119,7 @@ namespace package_resource_internal
 	{
 		CE_DELETE(a, (PackageResource*)resource);
 	}
+
 } // namespace package_resource_internal
 
 } // namespace crown

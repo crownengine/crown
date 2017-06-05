@@ -72,6 +72,7 @@ namespace physics_globals
 		CE_DELETE(a, _bt_dispatcher);
 		CE_DELETE(a, _bt_configuration);
 	}
+
 } // namespace physics_globals
 
 static btVector3 to_btVector3(const Vector3& v)
@@ -1113,6 +1114,7 @@ namespace physics_world
 	{
 		CE_DELETE(a, pw);
 	}
+
 } // namespace physics_world
 
 } // namespace crown

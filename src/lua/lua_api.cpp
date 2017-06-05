@@ -2237,7 +2237,6 @@ static int physics_world_actor_is_nonkinematic(lua_State* L)
 	return 1;
 }
 
-
 static int physics_world_actor_linear_damping(lua_State* L)
 {
 	LuaStack stack(L);

@@ -410,6 +410,7 @@ namespace sound_world
 	{
 		CE_DELETE(a, sw);
 	}
+
 } // namespace sound_world
 
 } // namespace crown

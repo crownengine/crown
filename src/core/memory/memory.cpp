@@ -301,6 +301,7 @@ namespace memory
 			return u32(_end - _begin);
 		}
 	};
+
 } // namespace memory
 
 namespace memory_globals
@@ -325,6 +326,7 @@ namespace memory_globals
 		_default_scratch_allocator->~ScratchAllocator();
 		_default_allocator->~HeapAllocator();
 	}
+
 } // namespace memory_globals
 
 Allocator& default_allocator()

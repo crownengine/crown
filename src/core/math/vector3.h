@@ -212,4 +212,5 @@ inline Vector2 to_vector2(const Vector3& a)
 }
 
 /// @}
+
 } // namespace crown

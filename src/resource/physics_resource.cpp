@@ -189,7 +189,6 @@ namespace physics_resource_internal
 		sjson::parse_array(indices["data"], indices_data);
 		sjson::parse_array(indices_data[0], position_indices);
 
-
 		Array<Vector3> points(default_allocator());
 		for (u32 i = 0; i < array::size(positions); i += 3)
 		{
@@ -305,6 +304,7 @@ namespace physics_resource_internal
 		array::push(buf, (char*)&jd, sizeof(jd));
 		return buf;
 	}
+
 } // namespace physics_resource_internal
 
 namespace physics_config_resource_internal
@@ -587,6 +587,7 @@ namespace physics_config_resource_internal
 			opts.write(cfc._filters[i].mask);
 		}
 	}
+
 } // namespace physics_config_resource_internal
 
 namespace physics_config_resource
@@ -642,6 +643,7 @@ namespace physics_config_resource
 		CE_FATAL("Filter not found");
 		return NULL;
 	}
+
 } // namespace physics_config_resource
 
 } // namespace crown

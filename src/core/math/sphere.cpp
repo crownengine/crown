@@ -38,6 +38,7 @@ namespace sphere
 			}
 		}
 	}
+
 } // namespace sphere
 
 } // namespace crown

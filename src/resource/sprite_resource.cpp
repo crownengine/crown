@@ -132,6 +132,7 @@ namespace sprite_resource_internal
 		for (u32 i = 0; i < array::size(vertices); i++)
 			opts.write(vertices[i]);
 	}
+
 } // namespace sprite_resource_internal
 
 namespace sprite_resource
@@ -177,6 +178,7 @@ namespace sprite_animation_resource_internal
 		for (u32 i = 0; i < array::size(frames); i++)
 			opts.write(frames[i]);
 	}
+
 } // namespace sprite_animation_resource_internal
 
 namespace sprite_animation_resource
@@ -185,6 +187,7 @@ namespace sprite_animation_resource
 	{
 		return (u32*)&sar[1];
 	}
+
 } // namespace sprite_animation_resource
 
 } // namespace crown

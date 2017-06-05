@@ -38,12 +38,14 @@ struct SoundResource
 namespace sound_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
+
 } // namespace	sound_resource_internal
 
 namespace sound_resource
 {
 	/// Returns the sound data.
 	const char* data(const SoundResource* sr);
+
 } // namespace sound_resource
 
 } // namespace crown

@@ -67,6 +67,7 @@ namespace lua_resource_internal
 		opts.write(lr.size);
 		opts.write(blob);
 	}
+
 } // namespace lua_resource_internal
 
 namespace lua_resource
@@ -75,6 +76,7 @@ namespace lua_resource
 	{
 		return (char*)&lr[1];
 	}
+
 } // namespace lua_resource
 
 } // namespace crown

@@ -53,6 +53,7 @@ namespace config_resource_internal
 	{
 		a.deallocate(resource);
 	}
+
 } // namespace config_resource_internal
 
 } // namespace crown

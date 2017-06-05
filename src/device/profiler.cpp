@@ -32,6 +32,7 @@ namespace profiler_globals
 	{
 		return array::begin(*_buffer);
 	}
+
 } // namespace profiler_globals
 
 namespace profiler
@@ -116,6 +117,7 @@ namespace profiler
 
 		push(ProfilerEventType::DEALLOCATE_MEMORY, ev);
 	}
+
 } // namespace profiler
 
 namespace profiler_globals
@@ -132,4 +134,5 @@ namespace profiler_globals
 		array::clear(*_buffer);
 	}
 }
+
 } // namespace crown

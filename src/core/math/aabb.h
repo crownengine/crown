@@ -182,6 +182,7 @@ namespace aabb
 		s.r = aabb::radius(b);
 		return s;
 	}
+
 } // namespace aabb
 
 } // namespace crown

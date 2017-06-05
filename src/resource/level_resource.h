@@ -35,6 +35,7 @@ struct LevelSound
 namespace level_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
+
 } // namespace level_resource_internal
 
 namespace level_resource
@@ -47,6 +48,7 @@ namespace level_resource
 
 	/// Returns the sound @a i.
 	const LevelSound* get_sound(const LevelResource* lr, u32 i);
+
 } // namespace level_resource
 
 } // namespace crown

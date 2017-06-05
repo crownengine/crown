@@ -208,4 +208,5 @@ inline Quaternion lerp(const Quaternion& a, const Quaternion& b, f32 t)
 }
 
 // @}
+
 } // namespace crown

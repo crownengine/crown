@@ -90,5 +90,7 @@ namespace log_internal
 		logx(sev, system, msg, args);
 		va_end(args);
 	}
+
 } // namespace log
+
 } // namespace crown

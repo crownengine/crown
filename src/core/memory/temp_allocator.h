@@ -110,4 +110,5 @@ namespace crown
 		_p += size;
 		return result;
 	}
+
 } // namespace crown

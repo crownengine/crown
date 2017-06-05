@@ -33,7 +33,9 @@ namespace log_internal
 
 	void logx(LogSeverity::Enum sev, System system, const char* msg, va_list args);
 	void logx(LogSeverity::Enum sev, System system, const char* msg, ...);
+
 } // namespace log_internal
+
 } // namespace crown
 
 #define logiv(system, msg, va_list) crown::log_internal::logx(crown::LogSeverity::LOG_INFO, system, msg, va_list)

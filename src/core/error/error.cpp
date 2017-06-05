@@ -35,5 +35,7 @@ namespace error
 		abort(format, args);
 		va_end(args);
 	}
+
 } // namespace error
+
 } // namespace crown

@@ -404,6 +404,7 @@ namespace mesh_resource_internal
 		}
 		CE_DELETE(a, (MeshResource*)res);
 	}
+
 } // namespace mesh_resource_internal
 
 } // namespace crown

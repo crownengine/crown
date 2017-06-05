@@ -183,4 +183,5 @@ inline const f32* to_float_ptr(const Vector2& a)
 }
 
 /// @}
+
 } // namespace crown

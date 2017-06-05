@@ -31,6 +31,7 @@ struct ComponentData
 namespace unit_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
+
 } // namespace unit_resource_internal
 
 } // namespace crown

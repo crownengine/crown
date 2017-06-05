@@ -670,4 +670,5 @@ inline const f32* to_float_ptr(const Matrix4x4& m)
 }
 
 /// @}
+
 } // namespace crown

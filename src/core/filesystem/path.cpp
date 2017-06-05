@@ -108,5 +108,7 @@ namespace path
 		if (has_trailing_separator(clean.c_str()))
 			array::pop_back(clean._data);
 	}
+
 } // namespace path
+
 } // namespace crown

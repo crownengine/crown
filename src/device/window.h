@@ -67,6 +67,7 @@ namespace window
 
 	/// Destroys the window @a w.
 	void destroy(Allocator& a, Window& w);
+
 } // namespace window
 
 } // namespace crown

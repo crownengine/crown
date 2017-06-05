@@ -70,6 +70,7 @@ namespace sound_resource_internal
 
 		opts.write(wavdata, wav->data_size);
 	}
+
 } // namespace sound_resource_internal
 
 namespace sound_resource
@@ -78,6 +79,7 @@ namespace sound_resource
 	{
 		return (char*)&sr[1];
 	}
+
 } // namespace sound_resource
 
 } // namespace crown

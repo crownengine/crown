@@ -280,7 +280,6 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 		sjson::parse(d, prefabs[i + 1]);
 	}
 
-
 	JsonObject& prefab_root = prefabs[num_prefabs - 1];
 	JsonObject prefab_root_components(ta);
 	sjson::parse(prefab_root["components"], prefab_root_components);

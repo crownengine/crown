@@ -43,6 +43,7 @@ namespace json
 
 	/// Parses the JSON-encoded @a json.
 	void parse(Buffer& json, JsonObject& object);
+
 } // namespace json
 
 } // namespace crown

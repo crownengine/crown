@@ -85,6 +85,7 @@ namespace array
 
 	/// Returns the last element of the array @a a.
 	template <typename T> const T& back(const Array<T>& a);
+
 } // namespace array
 
 namespace array
@@ -248,6 +249,7 @@ namespace array
 		CE_ASSERT(a._size > 0, "The array is empty");
 		return a._data[a._size - 1];
 	}
+
 } // namespace array
 
 template <typename T>

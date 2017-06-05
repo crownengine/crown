@@ -93,6 +93,7 @@ namespace font_resource_internal
 			opts.write(_glyphs[i].gd.x_advance);
 		}
 	}
+
 } // namespace font_resource_internal
 
 namespace font_resource
@@ -114,6 +115,7 @@ namespace font_resource
 		CE_FATAL("Glyph not found");
 		return NULL;
 	}
+
 } // namespace font_resource
 
 } // namespace crown

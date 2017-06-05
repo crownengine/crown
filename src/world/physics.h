@@ -20,5 +20,7 @@ namespace physics_globals
 
 	/// It should reverse the actions performed by physics_globals::init().
 	void shutdown(Allocator& a);
+
 } // namespace physics_globals
+
 } // namespace crown

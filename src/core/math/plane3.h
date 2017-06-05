@@ -56,6 +56,7 @@ namespace plane3
 	{
 		return dot(p.n, point) + p.d;
 	}
+
 } // namespace plane3
 
 } // namespace crown

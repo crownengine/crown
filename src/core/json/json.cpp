@@ -292,5 +292,7 @@ namespace json
 		array::pop_back(json);
 		parse(array::begin(json), object);
 	}
+
 } // namespace json
+
 } // namespace crown

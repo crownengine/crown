@@ -70,6 +70,7 @@ namespace mesh_resource_internal
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& a, void* res);
+
 } // namespace mesh_resource_internal
 
 } // namespace crown

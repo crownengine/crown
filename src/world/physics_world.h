@@ -194,6 +194,7 @@ namespace physics_world
 {
 	PhysicsWorld* create(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl);
 	void destroy(Allocator& a, PhysicsWorld* pw);
+
 } // namespace physics_world
 
 } // namespace crown
