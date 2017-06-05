@@ -26,8 +26,6 @@ struct SpriteResource
 namespace sprite_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void unload(Allocator& a, void* resource);
 } // namespace sprite_resource_internal
 
 namespace sprite_resource
@@ -46,10 +44,6 @@ struct SpriteAnimationResource
 namespace sprite_animation_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void online(StringId64 id, ResourceManager& rm);
-	void offline(StringId64 id, ResourceManager& rm);
-	void unload(Allocator& a, void* resource);
 } // namespace sprite_animation_resource_internal
 
 namespace sprite_animation_resource

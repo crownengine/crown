@@ -87,20 +87,6 @@ namespace level_resource_internal
 			opts.write(sounds[i]._pad[2]);
 		}
 	}
-
-	void* load(File& file, Allocator& a)
-	{
-		const u32 file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_LEVEL, "Wrong version");
-		return res;
-	}
-
-	void unload(Allocator& allocator, void* resource)
-	{
-		allocator.deallocate(resource);
-	}
 } // namespace level_resource_internal
 
 namespace level_resource

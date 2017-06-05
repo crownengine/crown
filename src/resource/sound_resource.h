@@ -38,8 +38,6 @@ struct SoundResource
 namespace sound_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void unload(Allocator& allocator, void* resource);
 } // namespace	sound_resource_internal
 
 namespace sound_resource

@@ -132,20 +132,6 @@ namespace sprite_resource_internal
 		for (u32 i = 0; i < array::size(vertices); i++)
 			opts.write(vertices[i]);
 	}
-
-	void* load(File& file, Allocator& a)
-	{
-		const u32 file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SPRITE, "Wrong version");
-		return res;
-	}
-
-	void unload(Allocator& a, void* resource)
-	{
-		a.deallocate(resource);
-	}
 } // namespace sprite_resource_internal
 
 namespace sprite_resource
@@ -190,20 +176,6 @@ namespace sprite_animation_resource_internal
 
 		for (u32 i = 0; i < array::size(frames); i++)
 			opts.write(frames[i]);
-	}
-
-	void* load(File& file, Allocator& a)
-	{
-		const u32 file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SPRITE_ANIMATION, "Wrong version");
-		return res;
-	}
-
-	void unload(Allocator& a, void* resource)
-	{
-		a.deallocate(resource);
 	}
 } // namespace sprite_animation_resource_internal
 

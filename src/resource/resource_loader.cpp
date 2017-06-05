@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "dynamic_string.h"
+#include "file.h"
 #include "filesystem.h"
 #include "memory.h"
 #include "os.h"
@@ -116,7 +117,20 @@ s32 ResourceLoader::run()
 		path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
 
 		File* file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
-		rr.data = rr.load_function(*file, *rr.allocator);
+
+		if (rr.load_function)
+		{
+			rr.data = rr.load_function(*file, *rr.allocator);
+		}
+		else
+		{
+			const u32 size = file->size();
+			void* data = rr.allocator->allocate(size);
+			file->read(data, size);
+			CE_ASSERT(*(u32*)data == rr.version, "Wrong version");
+			rr.data = data;
+		}
+
 		_data_filesystem.close(*file);
 
 		add_loaded(rr);

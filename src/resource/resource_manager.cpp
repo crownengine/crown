@@ -181,9 +181,6 @@ void ResourceManager::complete_request(StringId64 type, StringId64 name, void* d
 
 void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
 {
-	CE_ENSURE(NULL != load);
-	CE_ENSURE(NULL != unload);
-
 	ResourceTypeData rtd;
 	rtd.version = version;
 	rtd.load = load;
@@ -213,7 +210,12 @@ void ResourceManager::on_offline(StringId64 type, StringId64 name)
 
 void ResourceManager::on_unload(StringId64 type, void* data)
 {
-	sort_map::get(_type_data, type, ResourceTypeData()).unload(_resource_heap, data);
+	UnloadFunction func = sort_map::get(_type_data, type, ResourceTypeData()).unload;
+
+	if (func)
+		func(_resource_heap, data);
+	else
+		_resource_heap.deallocate(data);
 }
 
 } // namespace crown

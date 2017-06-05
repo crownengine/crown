@@ -70,20 +70,6 @@ namespace sound_resource_internal
 
 		opts.write(wavdata, wav->data_size);
 	}
-
-	void* load(File& file, Allocator& a)
-	{
-		const u32 file_size = file.size();
-		void* res = a.allocate(file_size);
-		file.read(res, file_size);
-		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_SOUND, "Wrong version");
-		return res;
-	}
-
-	void unload(Allocator& allocator, void* resource)
-	{
-		allocator.deallocate(resource);
-	}
 } // namespace sound_resource_internal
 
 namespace sound_resource

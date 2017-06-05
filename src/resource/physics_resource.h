@@ -18,8 +18,6 @@ namespace crown
 namespace physics_resource_internal
 {
 	inline void compile(const char* /*path*/, CompileOptions& /*opts*/) {}
-	inline void* load(File& /*file*/, Allocator& /*a*/) { return NULL; }
-	inline void unload(Allocator& /*a*/, void* /*res*/) {}
 	Buffer compile_controller(const char* json, CompileOptions& opts);
 	Buffer compile_collider(const char* json, CompileOptions& opts);
 	Buffer compile_actor(const char* json, CompileOptions& opts);
@@ -79,8 +77,6 @@ struct PhysicsConfigActor
 namespace physics_config_resource_internal
 {
 	void compile(const char* path, CompileOptions& opts);
-	void* load(File& file, Allocator& a);
-	void unload(Allocator& allocator, void* resource);
 } // namespace physics_config_resource_internal
 
 namespace physics_config_resource

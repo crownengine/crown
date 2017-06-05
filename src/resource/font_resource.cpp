@@ -93,20 +93,6 @@ namespace font_resource_internal
 			opts.write(_glyphs[i].gd.x_advance);
 		}
 	}
-
-	void* load(File& file, Allocator& a)
-	{
-		const u32 size = file.size();
-		void* res = a.allocate(size);
-		file.read(res, size);
-		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_FONT, "Wrong version");
-		return res;
-	}
-
-	void unload(Allocator& allocator, void* resource)
-	{
-		allocator.deallocate(resource);
-	}
 } // namespace font_resource_internal
 
 namespace font_resource

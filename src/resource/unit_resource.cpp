@@ -24,21 +24,6 @@ namespace unit_resource_internal
 
 		opts.write(uc.blob());
 	}
-
-	void* load(File& file, Allocator& a)
-	{
-		const u32 size = file.size();
-		void* res = a.allocate(size);
-		file.read(res, size);
-		CE_ASSERT(*(u32*)res == RESOURCE_VERSION_UNIT, "Wrong version");
-		return res;
-	}
-
-	void unload(Allocator& a, void* resource)
-	{
-		a.deallocate(resource);
-	}
-
 } // namespace unit_resource_internal
 
 } // namespace crown
