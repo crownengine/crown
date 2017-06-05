@@ -118,10 +118,7 @@ namespace hash_map_internal
 
 				std::swap(hash, m._index[hash_i].hash);
 				m._index[hash_i].index = 0x0123abcd;
-				PAIR(TKey, TValue) tmp(*m._allocator);
-				memcpy(&tmp, &m._data[hash_i].pair, sizeof(new_item));
-				memcpy(&m._data[hash_i].pair, &new_item, sizeof(new_item));
-				memcpy(&new_item, &tmp, sizeof(new_item));
+				swap(new_item, m._data[hash_i].pair);
 
 				dist = existing_elem_probe_dist;
 			}
