@@ -57,10 +57,19 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 		CE_UNUSED(type_str);
 		CE_UNUSED(name_str);
 
+		ResourceTypeData rtd;
+		rtd.version = UINT32_MAX;
+		rtd.load = NULL;
+		rtd.online = NULL;
+		rtd.offline = NULL;
+		rtd.unload = NULL;
+		rtd = sort_map::get(_type_data, type, rtd);
+
 		ResourceRequest rr;
 		rr.type = type;
 		rr.name = name;
-		rr.load_function = sort_map::get(_type_data, type, ResourceTypeData()).load;
+		rr.version = rtd.version;
+		rr.load_function = rtd.load;
 		rr.allocator = &_resource_heap;
 		rr.data = NULL;
 
@@ -170,18 +179,19 @@ void ResourceManager::complete_request(StringId64 type, StringId64 name, void* d
 	on_online(type, name);
 }
 
-void ResourceManager::register_type(StringId64 type, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
+void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
 {
 	CE_ENSURE(NULL != load);
 	CE_ENSURE(NULL != unload);
 
-	ResourceTypeData data;
-	data.load = load;
-	data.online = online;
-	data.offline = offline;
-	data.unload = unload;
+	ResourceTypeData rtd;
+	rtd.version = version;
+	rtd.load = load;
+	rtd.online = online;
+	rtd.offline = offline;
+	rtd.unload = unload;
 
-	sort_map::set(_type_data, type, data);
+	sort_map::set(_type_data, type, rtd);
 	sort_map::sort(_type_data);
 }
 

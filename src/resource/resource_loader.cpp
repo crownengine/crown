@@ -15,8 +15,8 @@
 
 namespace crown
 {
-ResourceLoader::ResourceLoader(Filesystem& fs)
-	: _fs(fs)
+ResourceLoader::ResourceLoader(Filesystem& data_filesystem)
+	: _data_filesystem(data_filesystem)
 	, _requests(default_allocator())
 	, _loaded(default_allocator())
 	, _exit(false)
@@ -46,7 +46,7 @@ bool ResourceLoader::can_load(StringId64 type, StringId64 name)
 	DynamicString path(ta);
 	path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
 
-	return _fs.exists(path.c_str());
+	return _data_filesystem.exists(path.c_str());
 }
 
 void ResourceLoader::add_request(const ResourceRequest& rr)
@@ -115,9 +115,9 @@ s32 ResourceLoader::run()
 		DynamicString path(ta);
 		path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
 
-		File* file = _fs.open(path.c_str(), FileOpenMode::READ);
+		File* file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
 		rr.data = rr.load_function(*file, *rr.allocator);
-		_fs.close(*file);
+		_data_filesystem.close(*file);
 
 		add_loaded(rr);
 		_mutex.lock();

@@ -50,6 +50,7 @@ class ResourceManager
 
 	struct ResourceTypeData
 	{
+		u32 version;
 		LoadFunction load;
 		OnlineFunction online;
 		OfflineFunction offline;
@@ -103,7 +104,7 @@ public:
 	void complete_requests();
 
 	/// Registers a new resource @a type into the resource manager.
-	void register_type(StringId64 type, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline);
+	void register_type(StringId64 type, u32 version, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline);
 };
 
 } // namespace crown

@@ -20,6 +20,7 @@ struct ResourceRequest
 
 	StringId64 type;
 	StringId64 name;
+	u32 version;
 	LoadFunction load_function;
 	Allocator* allocator;
 	void* data;
@@ -30,7 +31,7 @@ struct ResourceRequest
 /// @ingroup Resource
 class ResourceLoader
 {
-	Filesystem& _fs;
+	Filesystem& _data_filesystem;
 
 	Queue<ResourceRequest> _requests;
 	Queue<ResourceRequest> _loaded;
@@ -47,8 +48,8 @@ class ResourceLoader
 
 public:
 
-	/// Read resources from @a fs.
-	ResourceLoader(Filesystem& fs);
+	/// Read resources from @a data_filesystem.
+	ResourceLoader(Filesystem& data_filesystem);
 	~ResourceLoader();
 
 	/// Returns whether the resource (type, name) can be loaded.
