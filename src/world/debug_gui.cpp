@@ -138,7 +138,7 @@ void DebugGui::rect3d(const Vector3& pos, const Vector2& size, StringId64 materi
 	inds[4] = 2;
 	inds[5] = 3;
 
-	bgfx::setVertexBuffer(&tvb);
+	bgfx::setVertexBuffer(0, &tvb);
 	bgfx::setIndexBuffer(&tib);
 	bgfx::setTransform(to_float_ptr(_projection));
 	_material_manager->create_material(material);
@@ -194,7 +194,7 @@ void DebugGui::image3d_uv(const Vector3& pos, const Vector2& size, const Vector2
 	inds[4] = 2;
 	inds[5] = 3;
 
-	bgfx::setVertexBuffer(&tvb);
+	bgfx::setVertexBuffer(0, &tvb);
 	bgfx::setIndexBuffer(&tib);
 }
 
@@ -314,7 +314,7 @@ void DebugGui::text3d(const Vector3& pos, u32 font_size, const char* str, String
 		}
 	}
 
-	bgfx::setVertexBuffer(&tvb);
+	bgfx::setVertexBuffer(0, &tvb);
 	bgfx::setIndexBuffer(&tib);
 	bgfx::setTransform(to_float_ptr(_projection));
 	_material_manager->create_material(material);

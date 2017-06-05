@@ -269,7 +269,7 @@ void DebugLine::submit()
 	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, _vertex_decl);
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
-	bgfx::setVertexBuffer(&tvb, 0, _num * 2);
+	bgfx::setVertexBuffer(0, &tvb, 0, _num * 2);
 	_shader_manager->submit(_shader, 1);
 }
 

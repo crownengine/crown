@@ -371,7 +371,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 		for (u32 i = 0; i < mid.first_hidden; ++i)
 		{
 			bgfx::setTransform(to_float_ptr(mid.world[i]));
-			bgfx::setVertexBuffer(mid.mesh[i].vbh);
+			bgfx::setVertexBuffer(0, mid.mesh[i].vbh);
 			bgfx::setIndexBuffer(mid.mesh[i].ibh);
 
 			_material_manager->get(mid.material[i])->bind(*_resource_manager, *_shader_manager);
@@ -456,7 +456,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 			*idata++ = i*4+3;
 
 			bgfx::setTransform(to_float_ptr(sid.world[i]));
-			bgfx::setVertexBuffer(&tvb);
+			bgfx::setVertexBuffer(0, &tvb);
 			bgfx::setIndexBuffer(&tib, i*6, 6);
 
 			_material_manager->get(sid.material[i])->bind(*_resource_manager, *_shader_manager);
