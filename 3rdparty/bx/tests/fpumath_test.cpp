@@ -13,12 +13,24 @@ TEST_CASE("isFinite, isInfinite, isNan", "")
 	for (uint64_t ii = 0; ii < UINT32_MAX; ii += rand()%(1<<13)+1)
 	{
 		union { uint32_t ui; float f; } u = { uint32_t(ii) };
-		REQUIRE(std::isnan(u.f) == bx::isNan(u.f) );
+		REQUIRE(std::isnan(u.f)    == bx::isNan(u.f) );
 		REQUIRE(std::isfinite(u.f) == bx::isFinite(u.f) );
-		REQUIRE(std::isinf(u.f) == bx::isInfinite(u.f) );
+		REQUIRE(std::isinf(u.f)    == bx::isInfinite(u.f) );
 	}
 }
 #endif // !BX_COMPILER_MSVC || BX_COMPILER_MSVC >= 1800
+
+
+bool flog2_test(float _a)
+{
+	return bx::flog2(_a) == bx::flog(_a) * (1.0f / bx::flog(2.0f) );
+}
+
+TEST_CASE("flog2", "")
+{
+	flog2_test(0.0f);
+	flog2_test(256.0f);
+}
 
 TEST_CASE("ToBits", "")
 {

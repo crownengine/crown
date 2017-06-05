@@ -67,57 +67,10 @@ BX_PRAGMA_DIAGNOSTIC_POP();
 
 namespace bimg
 {
-#if !defined(BIMG_IMAGE_H_HEADER_GUARD)
-	struct ImageMip
+	static ImageContainer* imageParseLodePng(bx::AllocatorI* _allocator, const void* _data, uint32_t _size, bx::Error* _err)
 	{
-		TextureFormat::Enum m_format;
-		uint32_t m_width;
-		uint32_t m_height;
-		uint32_t m_blockSize;
-		uint32_t m_size;
-		uint8_t  m_bpp;
-		bool     m_hasAlpha;
-		const uint8_t* m_data;
-	};
-#endif // !defined(BIMG_IMAGE_H_HEADER_GUARD)
+		BX_ERROR_SCOPE(_err);
 
-	uint32_t imageGetSize(
-		  TextureInfo* _info
-		, uint16_t _width
-		, uint16_t _height
-		, uint16_t _depth
-		, bool _cubeMap
-		, bool _hasMips
-		, uint16_t _numLayers
-		, TextureFormat::Enum _format
-		);
-
-	///
-	ImageContainer* imageParseBgfx(bx::AllocatorI* _allocator, const void* _src, uint32_t _size);
-
-	///
-	bool imageConvert(
-		  void* _dst
-		, TextureFormat::Enum _dstFormat
-		, const void* _src
-		, TextureFormat::Enum _srcFormat
-		, uint32_t _width
-		, uint32_t _height
-		);
-
-	///
-	ImageContainer* imageConvert(
-		  bx::AllocatorI* _allocator
-		, TextureFormat::Enum _dstFormat
-		, const ImageContainer& _input
-		);
-
-} // namespace bimg
-
-namespace bimg
-{
-	static ImageContainer* imageParseLodePng(bx::AllocatorI* _allocator, const void* _data, uint32_t _size)
-	{
 		static uint8_t pngMagic[] = { 0x89, 0x50, 0x4E, 0x47, 0x0d, 0x0a };
 
 		if (0 != bx::memCmp(_data, pngMagic, sizeof(pngMagic) ) )
@@ -140,28 +93,44 @@ namespace bimg
 
 		if (0 == error)
 		{
+			bool palette   = false;
+			bool supported = false;
+
 			switch (state.info_raw.bitdepth)
 			{
+				case 1:
+					format    = bimg::TextureFormat::R1;
+					palette   = true;
+					supported = true;
+					break;
+
 				case 8:
 					switch (state.info_raw.colortype)
 					{
 						case LCT_GREY:
 							format = bimg::TextureFormat::R8;
+							supported = true;
 							break;
 
 						case LCT_GREY_ALPHA:
 							format = bimg::TextureFormat::RG8;
+							supported = true;
 							break;
 
 						case LCT_RGB:
 							format = bimg::TextureFormat::RGB8;
+							supported = true;
 							break;
 
 						case LCT_RGBA:
 							format = bimg::TextureFormat::RGBA8;
+							supported = true;
 							break;
 
 						case LCT_PALETTE:
+							format  = bimg::TextureFormat::RGBA8;
+							palette = true;
+							supported = true;
 							break;
 					}
 					break;
@@ -176,6 +145,7 @@ namespace bimg
 								rgba[0] = bx::toHostEndian(rgba[0], false);
 							}
 							format = bimg::TextureFormat::R16;
+							supported = true;
 							break;
 
 						case LCT_GREY_ALPHA:
@@ -186,6 +156,7 @@ namespace bimg
 								rgba[1] = bx::toHostEndian(rgba[1], false);
 							}
 							format = bimg::TextureFormat::RG16;
+							supported = true;
 							break;
 
 						case LCT_RGBA:
@@ -198,6 +169,7 @@ namespace bimg
 								rgba[3] = bx::toHostEndian(rgba[3], false);
 							}
 							format = bimg::TextureFormat::RGBA16;
+							supported = true;
 							break;
 
 						case LCT_RGB:
@@ -210,16 +182,43 @@ namespace bimg
 					break;
 			}
 
-			output = imageAlloc(_allocator
-				, format
-				, uint16_t(width)
-				, uint16_t(height)
-				, 0
-				, 1
-				, false
-				, false
-				, data
-				);
+			if (supported)
+			{
+				output = imageAlloc(_allocator
+					, bimg::TextureFormat::R1 == format ? bimg::TextureFormat::R8 : format
+					, uint16_t(width)
+					, uint16_t(height)
+					, 0
+					, 1
+					, false
+					, false
+					, palette ? NULL : data
+					);
+
+				if (bimg::TextureFormat::R1 == format)
+				{
+					for (uint32_t ii = 0, num = width*height/8; ii < num; ++ii)
+					{
+						uint8_t value = data[ii];
+						uint8_t* dst = (uint8_t*)output->m_data + ii * 8;
+						dst[0] = value & 0x01 ? 255 : 0;
+						dst[1] = value & 0x02 ? 255 : 0;
+						dst[2] = value & 0x04 ? 255 : 0;
+						dst[3] = value & 0x08 ? 255 : 0;
+						dst[4] = value & 0x10 ? 255 : 0;
+						dst[5] = value & 0x20 ? 255 : 0;
+						dst[6] = value & 0x40 ? 255 : 0;
+						dst[7] = value & 0x80 ? 255 : 0;
+					}
+				}
+				else if (palette)
+				{
+					for (uint32_t ii = 0, num = width*height; ii < num; ++ii)
+					{
+						bx::memCopy( (uint8_t*)output->m_data + ii*4, state.info_raw.palette + data[ii]*4, 4);
+					}
+				}
+			}
 		}
 
 		lodepng_state_cleanup(&state);
@@ -228,8 +227,10 @@ namespace bimg
 		return output;
 	}
 
-	static ImageContainer* imageParseTinyExr(bx::AllocatorI* _allocator, const void* _data, uint32_t _size)
+	static ImageContainer* imageParseTinyExr(bx::AllocatorI* _allocator, const void* _data, uint32_t _size, bx::Error* _err)
 	{
+		BX_ERROR_SCOPE(_err);
+
 		EXRVersion exrVersion;
 		int result = ParseEXRVersionFromMemory(&exrVersion, (uint8_t*)_data, _size);
 		if (TINYEXR_SUCCESS != result)
@@ -261,22 +262,22 @@ namespace bimg
 				{
 					const EXRChannelInfo& channel = exrHeader.channels[ii];
 					if (UINT8_MAX == idxR
-					&&  0 == bx::strncmp(channel.name, "R") )
+					&&  0 == bx::strCmp(channel.name, "R") )
 					{
 						idxR = ii;
 					}
 					else if (UINT8_MAX == idxG
-					&&  0 == bx::strncmp(channel.name, "G") )
+					&&  0 == bx::strCmp(channel.name, "G") )
 					{
 						idxG = ii;
 					}
 					else if (UINT8_MAX == idxB
-					&&  0 == bx::strncmp(channel.name, "B") )
+					&&  0 == bx::strCmp(channel.name, "B") )
 					{
 						idxB = ii;
 					}
 					else if (UINT8_MAX == idxA
-					&&  0 == bx::strncmp(channel.name, "A") )
+					&&  0 == bx::strCmp(channel.name, "A") )
 					{
 						idxA = ii;
 					}
@@ -365,8 +366,10 @@ namespace bimg
 		return output;
 	}
 
-	static ImageContainer* imageParseStbImage(bx::AllocatorI* _allocator, const void* _data, uint32_t _size)
+	static ImageContainer* imageParseStbImage(bx::AllocatorI* _allocator, const void* _data, uint32_t _size, bx::Error* _err)
 	{
+		BX_ERROR_SCOPE(_err);
+
 		const int isHdr = stbi_is_hdr_from_memory((const uint8_t*)_data, (int)_size);
 
 		void* data;
@@ -409,12 +412,16 @@ namespace bimg
 		return output;
 	}
 
-	ImageContainer* imageParse(bx::AllocatorI* _allocator, const void* _data, uint32_t _size, TextureFormat::Enum _dstFormat)
+	ImageContainer* imageParse(bx::AllocatorI* _allocator, const void* _data, uint32_t _size, TextureFormat::Enum _dstFormat, bx::Error* _err)
 	{
-		ImageContainer* input = imageParseBgfx    (_allocator, _data, _size)        ;
-		input = NULL == input ? imageParseLodePng (_allocator, _data, _size) : input;
-		input = NULL == input ? imageParseTinyExr (_allocator, _data, _size) : input;
-		input = NULL == input ? imageParseStbImage(_allocator, _data, _size) : input;
+		BX_ERROR_SCOPE(_err);
+
+		ImageContainer* input = imageParseDds     (_allocator, _data, _size, _err)        ;
+		input = NULL == input ? imageParseKtx     (_allocator, _data, _size, _err) : input;
+		input = NULL == input ? imageParsePvr3    (_allocator, _data, _size, _err) : input;
+		input = NULL == input ? imageParseLodePng (_allocator, _data, _size, _err) : input;
+		input = NULL == input ? imageParseTinyExr (_allocator, _data, _size, _err) : input;
+		input = NULL == input ? imageParseStbImage(_allocator, _data, _size, _err) : input;
 
 		if (NULL == input)
 		{

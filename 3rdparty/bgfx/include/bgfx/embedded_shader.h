@@ -34,7 +34,6 @@
 		|| BX_PLATFORM_EMSCRIPTEN       \
 		|| BX_PLATFORM_IOS              \
 		|| BX_PLATFORM_LINUX            \
-		|| BX_PLATFORM_NACL             \
 		|| BX_PLATFORM_OSX              \
 		|| BX_PLATFORM_QNX              \
 		|| BX_PLATFORM_RPI              \
@@ -75,22 +74,22 @@
 #if BGFX_PLATFORM_SUPPORTS_ESSL
 #	undef  BGFX_EMBEDDED_SHADER_ESSL
 #	define BGFX_EMBEDDED_SHADER_ESSL(_renderer, _name)  { _renderer, BX_CONCATENATE(_name, _glsl), sizeof(BX_CONCATENATE(_name, _glsl) ) },
-#endif // BGFX_PLATFORM_SUPPORTS_PSSL
+#endif // BGFX_PLATFORM_SUPPORTS_ESSL
 
 #if BGFX_PLATFORM_SUPPORTS_GLSL
 #	undef  BGFX_EMBEDDED_SHADER_GLSL
 #	define BGFX_EMBEDDED_SHADER_GLSL(_renderer, _name)  { _renderer, BX_CONCATENATE(_name, _glsl), sizeof(BX_CONCATENATE(_name, _glsl) ) },
-#endif // BGFX_PLATFORM_SUPPORTS_PSSL
+#endif // BGFX_PLATFORM_SUPPORTS_GLSL
 
-#if 0 // BGFX_PLATFORM_SUPPORTS_SPIRV
+#if BGFX_PLATFORM_SUPPORTS_SPIRV
 #	undef  BGFX_EMBEDDED_SHADER_SPIRV
 #	define BGFX_EMBEDDED_SHADER_SPIRV(_renderer, _name)  { _renderer, BX_CONCATENATE(_name, _spv), sizeof(BX_CONCATENATE(_name, _spv) ) },
-#endif // BGFX_PLATFORM_SUPPORTS_PSSL
+#endif // BGFX_PLATFORM_SUPPORTS_SPIRV
 
 #if BGFX_PLATFORM_SUPPORTS_METAL
 #	undef  BGFX_EMBEDDED_SHADER_METAL
 #	define BGFX_EMBEDDED_SHADER_METAL(_renderer, _name)  { _renderer, BX_CONCATENATE(_name, _mtl), sizeof(BX_CONCATENATE(_name, _mtl) ) },
-#endif // BGFX_PLATFORM_SUPPORTS_PSSL
+#endif // BGFX_PLATFORM_SUPPORTS_METAL
 
 #define BGFX_EMBEDDED_SHADER(_name)                                                                \
 			{                                                                                      \

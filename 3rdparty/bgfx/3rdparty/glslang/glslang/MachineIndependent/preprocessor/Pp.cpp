@@ -76,7 +76,9 @@ TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF
 NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 \****************************************************************************/
 
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #include <sstream>
 #include <cstdlib>
@@ -611,14 +613,14 @@ int TPpContext::CPPinclude(TPpToken* ppToken)
     TShader::Includer::IncludeResult* res = nullptr;
     if (startWithLocalSearch)
         res = includer.includeLocal(filename.c_str(), currentSourceFile.c_str(), includeStack.size() + 1);
-    if (! res || res->headerName.empty()) {
+    if (res == nullptr || res->headerName.empty()) {
         includer.releaseInclude(res);
         res = includer.includeSystem(filename.c_str(), currentSourceFile.c_str(), includeStack.size() + 1);
     }
 
     // Process the results
-    if (res && !res->headerName.empty()) {
-        if (res->headerData && res->headerLength) {
+    if (res != nullptr && !res->headerName.empty()) {
+        if (res->headerData != nullptr && res->headerLength > 0) {
             // path for processing one or more tokens from an included header, hand off 'res'
             const bool forNextLine = parseContext.lineDirectiveShouldSetNextLine();
             std::ostringstream prologue;
@@ -636,8 +638,8 @@ int TPpContext::CPPinclude(TPpToken* ppToken)
     } else {
         // error path, clean up
         std::string message =
-            res ? std::string(res->headerData, res->headerLength)
-                : std::string("Could not process include directive");
+            res != nullptr ? std::string(res->headerData, res->headerLength)
+                           : std::string("Could not process include directive");
         parseContext.ppError(directiveLoc, message.c_str(), "#include", "for header name: %s", filename.c_str());
         includer.releaseInclude(res);
     }
@@ -776,8 +778,12 @@ int TPpContext::CPPversion(TPpToken* ppToken)
 {
     int token = scanToken(ppToken);
 
-    if (errorOnVersion || versionSeen)
-        parseContext.ppError(ppToken->loc, "must occur first in shader", "#version", "");
+    if (errorOnVersion || versionSeen) {
+        if (parseContext.isReadingHLSL())
+            parseContext.ppError(ppToken->loc, "invalid preprocessor command", "#version", "");
+        else
+            parseContext.ppError(ppToken->loc, "must occur first in shader", "#version", "");
+    }
     versionSeen = true;
 
     if (token == '\n') {

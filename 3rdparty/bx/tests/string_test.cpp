@@ -23,110 +23,112 @@ TEST_CASE("chars", "")
 	}
 }
 
-TEST_CASE("strnlen", "")
+TEST_CASE("strLen", "")
 {
 	const char* test = "test";
 
-	REQUIRE(0 == bx::strnlen(test, 0) );
-	REQUIRE(2 == bx::strnlen(test, 2) );
-	REQUIRE(4 == bx::strnlen(test, INT32_MAX) );
+	REQUIRE(0 == bx::strLen(test, 0) );
+	REQUIRE(2 == bx::strLen(test, 2) );
+	REQUIRE(4 == bx::strLen(test, INT32_MAX) );
 }
 
-TEST_CASE("strlncpy", "")
+TEST_CASE("strCopy", "")
 {
 	char dst[128];
 	size_t num;
 
-	num = bx::strlncpy(dst, 1, "blah");
+	num = bx::strCopy(dst, 1, "blah");
 	REQUIRE(num == 0);
 
-	num = bx::strlncpy(dst, 3, "blah", 3);
-	REQUIRE(0 == bx::strncmp(dst, "bl") );
+	num = bx::strCopy(dst, 3, "blah", 3);
+	REQUIRE(0 == bx::strCmp(dst, "bl") );
 	REQUIRE(num == 2);
 
-	num = bx::strlncpy(dst, sizeof(dst), "blah", 3);
-	REQUIRE(0 == bx::strncmp(dst, "bla") );
+	num = bx::strCopy(dst, sizeof(dst), "blah", 3);
+	REQUIRE(0 == bx::strCmp(dst, "bla") );
 	REQUIRE(num == 3);
 
-	num = bx::strlncpy(dst, sizeof(dst), "blah");
-	REQUIRE(0 == bx::strncmp(dst, "blah") );
+	num = bx::strCopy(dst, sizeof(dst), "blah");
+	REQUIRE(0 == bx::strCmp(dst, "blah") );
 	REQUIRE(num == 4);
 }
 
-TEST_CASE("strlncat", "")
+TEST_CASE("strCat", "")
 {
 	char dst[128] = { '\0' };
 
-	REQUIRE(0 == bx::strlncat(dst, 1, "cat") );
+	REQUIRE(0 == bx::strCat(dst, 1, "cat") );
 
-	REQUIRE(4 == bx::strlncpy(dst, 5, "copy") );
-	REQUIRE(3 == bx::strlncat(dst, 8, "cat") );
-	REQUIRE(0 == bx::strncmp(dst, "copycat") );
+	REQUIRE(4 == bx::strCopy(dst, 5, "copy") );
+	REQUIRE(3 == bx::strCat(dst, 8, "cat") );
+	REQUIRE(0 == bx::strCmp(dst, "copycat") );
 
-	REQUIRE(1 == bx::strlncat(dst, BX_COUNTOF(dst), "------", 1) );
-	REQUIRE(3 == bx::strlncat(dst, BX_COUNTOF(dst), "cat") );
-	REQUIRE(0 == bx::strncmp(dst, "copycat-cat") );
+	REQUIRE(1 == bx::strCat(dst, BX_COUNTOF(dst), "------", 1) );
+	REQUIRE(3 == bx::strCat(dst, BX_COUNTOF(dst), "cat") );
+	REQUIRE(0 == bx::strCmp(dst, "copycat-cat") );
 }
 
-TEST_CASE("strincmp", "")
+TEST_CASE("strCmpI", "")
 {
-	REQUIRE(0 == bx::strincmp("test", "test") );
-	REQUIRE(0 == bx::strincmp("test", "testestes", 4) );
-	REQUIRE(0 == bx::strincmp("testestes", "test", 4) );
-	REQUIRE(0 != bx::strincmp("preprocess", "platform") );
+	REQUIRE(0 == bx::strCmpI("test", "test") );
+	REQUIRE(0 == bx::strCmpI("test", "testestes", 4) );
+	REQUIRE(0 == bx::strCmpI("testestes", "test", 4) );
+	REQUIRE(0 != bx::strCmpI("preprocess", "platform") );
 
 	const char* abvgd = "abvgd";
 	const char* abvgx = "abvgx";
 	const char* empty = "";
-	REQUIRE(0 == bx::strincmp(abvgd, abvgd) );
-	REQUIRE(0 == bx::strincmp(abvgd, abvgx, 4) );
+	REQUIRE(0 == bx::strCmpI(abvgd, abvgd) );
+	REQUIRE(0 == bx::strCmpI(abvgd, abvgx, 4) );
 
-	REQUIRE(0 >  bx::strincmp(abvgd, abvgx) );
-	REQUIRE(0 >  bx::strincmp(empty, abvgd) );
+	REQUIRE(0 >  bx::strCmpI(abvgd, abvgx) );
+	REQUIRE(0 >  bx::strCmpI(empty, abvgd) );
 
-	REQUIRE(0 <  bx::strincmp(abvgx, abvgd) );
-	REQUIRE(0 <  bx::strincmp(abvgd, empty) );
+	REQUIRE(0 <  bx::strCmpI(abvgx, abvgd) );
+	REQUIRE(0 <  bx::strCmpI(abvgd, empty) );
 }
 
-TEST_CASE("strnchr", "")
+TEST_CASE("strRFind", "")
 {
 	const char* test = "test";
-	REQUIRE(NULL == bx::strnchr(test, 's', 0) );
-	REQUIRE(NULL == bx::strnchr(test, 's', 2) );
-	REQUIRE(&test[2] == bx::strnchr(test, 's') );
+	REQUIRE(NULL == bx::strRFind(test, 's', 0) );
+	REQUIRE(NULL == bx::strRFind(test, 's', 1) );
+	REQUIRE(&test[2] == bx::strRFind(test, 's') );
 }
 
-TEST_CASE("strnrchr", "")
-{
-	const char* test = "test";
-	REQUIRE(NULL == bx::strnrchr(test, 's', 0) );
-	REQUIRE(NULL == bx::strnrchr(test, 's', 1) );
-	REQUIRE(&test[2] == bx::strnrchr(test, 's') );
-}
-
-TEST_CASE("stristr", "")
+TEST_CASE("strFindI", "")
 {
 	const char* test = "The Quick Brown Fox Jumps Over The Lazy Dog.";
 
-	REQUIRE(NULL == bx::stristr(test, "quick", 8) );
-	REQUIRE(NULL == bx::stristr(test, "quick1") );
-	REQUIRE(&test[4] == bx::stristr(test, "quick", 9) );
-	REQUIRE(&test[4] == bx::stristr(test, "quick") );
+	REQUIRE(NULL == bx::strFindI(test, "quick", 8) );
+	REQUIRE(NULL == bx::strFindI(test, "quick1") );
+	REQUIRE(&test[4] == bx::strFindI(test, "quick", 9) );
+	REQUIRE(&test[4] == bx::strFindI(test, "quick") );
 }
 
-TEST_CASE("strnstr", "")
+TEST_CASE("strFind", "")
 {
-	const char* test = "The Quick Brown Fox Jumps Over The Lazy Dog.";
+	{
+		const char* test = "test";
 
-	REQUIRE(NULL == bx::strnstr(test, "quick", 8) );
-	REQUIRE(NULL == bx::strnstr(test, "quick1") );
-	REQUIRE(NULL == bx::strnstr(test, "quick", 9) );
-	REQUIRE(NULL == bx::strnstr(test, "quick") );
+		REQUIRE(NULL == bx::strFind(test, 's', 0) );
+		REQUIRE(NULL == bx::strFind(test, 's', 2) );
+		REQUIRE(&test[2] == bx::strFind(test, 's') );
+	}
 
-	REQUIRE(NULL == bx::strnstr(test, "Quick", 8) );
-	REQUIRE(NULL == bx::strnstr(test, "Quick1") );
-	REQUIRE(&test[4] == bx::strnstr(test, "Quick", 9) );
-	REQUIRE(&test[4] == bx::strnstr(test, "Quick") );
+	{
+		const char* test = "The Quick Brown Fox Jumps Over The Lazy Dog.";
+
+		REQUIRE(NULL == bx::strFind(test, "quick", 8) );
+		REQUIRE(NULL == bx::strFind(test, "quick1") );
+		REQUIRE(NULL == bx::strFind(test, "quick", 9) );
+		REQUIRE(NULL == bx::strFind(test, "quick") );
+
+		REQUIRE(NULL == bx::strFind(test, "Quick", 8) );
+		REQUIRE(NULL == bx::strFind(test, "Quick1") );
+		REQUIRE(&test[4] == bx::strFind(test, "Quick", 9) );
+		REQUIRE(&test[4] == bx::strFind(test, "Quick") );
+	}
 }
 
 template<typename Ty>
@@ -134,8 +136,8 @@ static bool testToString(Ty _value, const char* _expected)
 {
 	char tmp[1024];
 	int32_t num = bx::toString(tmp, BX_COUNTOF(tmp), _value);
-	int32_t len = (int32_t)bx::strnlen(_expected);
-	if (0 == bx::strncmp(tmp, _expected)
+	int32_t len = (int32_t)bx::strLen(_expected);
+	if (0 == bx::strCmp(tmp, _expected)
 	&&  num == len)
 	{
 		return true;
@@ -199,7 +201,7 @@ TEST_CASE("StringView", "")
 	st.append("test", 2);
 	REQUIRE(10 == st.getLength() );
 
-	REQUIRE(0 == bx::strncmp(st.getPtr(), "testtestte") );
+	REQUIRE(0 == bx::strCmp(st.getPtr(), "testtestte") );
 
 	st.clear();
 	REQUIRE(0 == st.getLength() );

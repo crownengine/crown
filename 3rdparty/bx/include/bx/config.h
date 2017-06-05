@@ -18,7 +18,6 @@
 
 #ifndef BX_CONFIG_CRT_FILE_READER_WRITER
 #	define BX_CONFIG_CRT_FILE_READER_WRITER !(0 \
-			|| BX_PLATFORM_NACL                 \
 			|| BX_CRT_NONE                      \
 			)
 #endif // BX_CONFIG_CRT_FILE_READER_WRITER
@@ -27,7 +26,6 @@
 #	define BX_CONFIG_CRT_PROCESS !(0  \
 			|| BX_CRT_NONE            \
 			|| BX_PLATFORM_EMSCRIPTEN \
-			|| BX_PLATFORM_NACL       \
 			|| BX_PLATFORM_PS4        \
 			|| BX_PLATFORM_WINRT      \
 			|| BX_PLATFORM_XBOXONE    \

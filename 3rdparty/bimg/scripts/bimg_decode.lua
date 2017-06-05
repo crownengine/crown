@@ -15,6 +15,7 @@ project "bimg_decode"
 	}
 
 	files {
+		path.join(BIMG_DIR, "include/**"),
 		path.join(BIMG_DIR, "src/image_decode.*"),
 	}
 

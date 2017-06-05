@@ -245,11 +245,11 @@ namespace bx
 		const char* arg = findOption(_short, _long, 1);
 		if (NULL != arg)
 		{
-			if ('0' == *arg || (0 == strincmp(arg, "false") ) )
+			if ('0' == *arg || (0 == strCmpI(arg, "false") ) )
 			{
 				_value = false;
 			}
-			else if ('0' != *arg || (0 == strincmp(arg, "true") ) )
+			else if ('0' != *arg || (0 == strCmpI(arg, "true") ) )
 			{
 				_value = true;
 			}
@@ -270,7 +270,7 @@ namespace bx
 				++arg;
 				if (_short == *arg)
 				{
-					if (1 == strnlen(arg) )
+					if (1 == strLen(arg) )
 					{
 						if (0 == _skip)
 						{
@@ -293,7 +293,7 @@ namespace bx
 				}
 				else if (NULL != _long
 					 &&  '-'  == *arg
-					 &&  0 == strincmp(arg+1, _long) )
+					 &&  0 == strCmpI(arg+1, _long) )
 				{
 					if (0 == _skip)
 					{

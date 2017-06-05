@@ -139,6 +139,8 @@
 #   define NV_CPU_ARM 1
 #elif defined POSH_CPU_AARCH64
 #   define NV_CPU_AARCH64 1
+#elif defined POSH_CPU_EMSCRIPTEN
+#   define NV_CPU_EMSCRIPTEN 1
 #else
 #   error "Unsupported CPU"
 #endif
@@ -162,6 +164,10 @@
 #ifndef NV_CPU_AARCH64
 #	define NV_CPU_AARCH64 0
 #endif // NV_CPU_AARCH64
+
+#ifndef NV_CPU_EMSCRIPTEN
+#	define NV_CPU_EMSCRIPTEN 0
+#endif // NV_CPU_EMSCRIPTEN
 
 // Compiler:
 

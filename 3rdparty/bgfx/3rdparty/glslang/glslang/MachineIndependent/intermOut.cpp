@@ -45,11 +45,31 @@
 
 namespace {
 
-bool is_positive_infinity(double x) {
+bool IsInfinity(double x) {
 #ifdef _MSC_VER
-  return _fpclass(x) == _FPCLASS_PINF;
+    switch (_fpclass(x)) {
+    case _FPCLASS_NINF:
+    case _FPCLASS_PINF:
+        return true;
+    default:
+        return false;
+    }
 #else
-  return std::isinf(x) && (x >= 0);
+    return std::isinf(x);
+#endif
+}
+
+bool IsNan(double x) {
+#ifdef _MSC_VER
+    switch (_fpclass(x)) {
+    case _FPCLASS_SNAN:
+    case _FPCLASS_QNAN:
+        return true;
+    default:
+        return false;
+    }
+#else
+  return std::isnan(x);
 #endif
 }
 
@@ -485,6 +505,33 @@ bool TOutputTraverser::visitAggregate(TVisit /* visit */, TIntermAggregate* node
     case EOpConstructDMat4x2: out.debug << "Construct dmat4x2"; break;
     case EOpConstructDMat4x3: out.debug << "Construct dmat4x3"; break;
     case EOpConstructDMat4x4: out.debug << "Construct dmat4";   break;
+    case EOpConstructIMat2x2: out.debug << "Construct imat2";   break;
+    case EOpConstructIMat2x3: out.debug << "Construct imat2x3"; break;
+    case EOpConstructIMat2x4: out.debug << "Construct imat2x4"; break;
+    case EOpConstructIMat3x2: out.debug << "Construct imat3x2"; break;
+    case EOpConstructIMat3x3: out.debug << "Construct imat3";   break;
+    case EOpConstructIMat3x4: out.debug << "Construct imat3x4"; break;
+    case EOpConstructIMat4x2: out.debug << "Construct imat4x2"; break;
+    case EOpConstructIMat4x3: out.debug << "Construct imat4x3"; break;
+    case EOpConstructIMat4x4: out.debug << "Construct imat4";   break;
+    case EOpConstructUMat2x2: out.debug << "Construct umat2";   break;
+    case EOpConstructUMat2x3: out.debug << "Construct umat2x3"; break;
+    case EOpConstructUMat2x4: out.debug << "Construct umat2x4"; break;
+    case EOpConstructUMat3x2: out.debug << "Construct umat3x2"; break;
+    case EOpConstructUMat3x3: out.debug << "Construct umat3";   break;
+    case EOpConstructUMat3x4: out.debug << "Construct umat3x4"; break;
+    case EOpConstructUMat4x2: out.debug << "Construct umat4x2"; break;
+    case EOpConstructUMat4x3: out.debug << "Construct umat4x3"; break;
+    case EOpConstructUMat4x4: out.debug << "Construct umat4";   break;
+    case EOpConstructBMat2x2: out.debug << "Construct bmat2";   break;
+    case EOpConstructBMat2x3: out.debug << "Construct bmat2x3"; break;
+    case EOpConstructBMat2x4: out.debug << "Construct bmat2x4"; break;
+    case EOpConstructBMat3x2: out.debug << "Construct bmat3x2"; break;
+    case EOpConstructBMat3x3: out.debug << "Construct bmat3";   break;
+    case EOpConstructBMat3x4: out.debug << "Construct bmat3x4"; break;
+    case EOpConstructBMat4x2: out.debug << "Construct bmat4x2"; break;
+    case EOpConstructBMat4x3: out.debug << "Construct bmat4x3"; break;
+    case EOpConstructBMat4x4: out.debug << "Construct bmat4";   break;
 #ifdef AMD_EXTENSIONS
     case EOpConstructFloat16:   out.debug << "Construct float16_t"; break;
     case EOpConstructF16Vec2:   out.debug << "Construct f16vec2";   break;
@@ -694,11 +741,14 @@ static void OutputConstantUnion(TInfoSink& out, const TIntermTyped* node, const 
 #endif
             {
                 const double value = constUnion[i].getDConst();
-                // Print infinity in a portable way, for test stability.
-                // Other cases may be needed in the future: negative infinity,
-                // and NaNs.
-                if (is_positive_infinity(value))
-                    out.debug << "inf\n";
+                // Print infinities and NaNs in a portable way.
+                if (IsInfinity(value)) {
+                    if (value < 0)
+                        out.debug << "-1.#INF\n";
+                    else
+                        out.debug << "+1.#INF\n";
+                } else if (IsNan(value))
+                    out.debug << "1.#IND\n";
                 else {
                     const int maxSize = 300;
                     char buf[maxSize];

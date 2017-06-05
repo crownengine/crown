@@ -206,7 +206,7 @@ void simd_check_string(const char* _str, bx::simd128_t _a)
 
 	SIMD_DBG("%s %s", _str, test);
 
-	CHECK(0 == bx::strncmp(_str, test) );
+	CHECK(0 == bx::strCmp(_str, test) );
 }
 
 TEST_CASE("simd_swizzle", "")

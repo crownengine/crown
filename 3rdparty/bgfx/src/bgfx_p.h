@@ -1960,9 +1960,9 @@ namespace bgfx
 
 		void init()
 		{
-			bx::memSet(m_vertexDeclRef, 0, sizeof(m_vertexDeclRef) );
-			bx::memSet(m_vertexBufferRef, 0xff, sizeof(m_vertexBufferRef) );
-			bx::memSet(m_dynamicVertexBufferRef, 0xff, sizeof(m_vertexBufferRef) );
+			bx::memSet(m_vertexDeclRef,          0,    sizeof(m_vertexDeclRef)          );
+			bx::memSet(m_vertexBufferRef,        0xff, sizeof(m_vertexBufferRef)        );
+			bx::memSet(m_dynamicVertexBufferRef, 0xff, sizeof(m_dynamicVertexBufferRef) );
 		}
 
 		template <uint16_t MaxHandlesT>
@@ -3604,7 +3604,7 @@ namespace bgfx
 					cmdbuf.write(handle);
 					cmdbuf.write(uniform.m_type);
 					cmdbuf.write(uniform.m_num);
-					uint8_t len = (uint8_t)bx::strnlen(_name)+1;
+					uint8_t len = (uint8_t)bx::strLen(_name)+1;
 					cmdbuf.write(len);
 					cmdbuf.write(_name, len);
 				}
@@ -3632,7 +3632,7 @@ namespace bgfx
 				cmdbuf.write(handle);
 				cmdbuf.write(_type);
 				cmdbuf.write(_num);
-				uint8_t len = (uint8_t)bx::strnlen(_name)+1;
+				uint8_t len = (uint8_t)bx::strLen(_name)+1;
 				cmdbuf.write(len);
 				cmdbuf.write(_name, len);
 			}
@@ -3649,7 +3649,7 @@ namespace bgfx
 			BGFX_CHECK_HANDLE("getUniformInfo", m_uniformHandle, _handle);
 
 			UniformRef& uniform = m_uniformRef[_handle.idx];
-			bx::strlcpy(_info.name, uniform.m_name.getPtr(), sizeof(_info.name) );
+			bx::strCopy(_info.name, sizeof(_info.name), uniform.m_name.getPtr() );
 			_info.type = uniform.m_type;
 			_info.num  = uniform.m_num;
 		}
@@ -3730,7 +3730,7 @@ namespace bgfx
 			}
 
 			CommandBuffer& cmdbuf = getCommandBuffer(CommandBuffer::RequestScreenShot);
-			uint16_t len = (uint16_t)bx::strnlen(_filePath)+1;
+			uint16_t len = (uint16_t)bx::strLen(_filePath)+1;
 			cmdbuf.write(_handle);
 			cmdbuf.write(len);
 			cmdbuf.write(_filePath, len);
@@ -3750,7 +3750,7 @@ namespace bgfx
 		{
 			CommandBuffer& cmdbuf = getCommandBuffer(CommandBuffer::UpdateViewName);
 			cmdbuf.write(_id);
-			uint16_t len = (uint16_t)bx::strnlen(_name)+1;
+			uint16_t len = (uint16_t)bx::strLen(_name)+1;
 			cmdbuf.write(len);
 			cmdbuf.write(_name, len);
 		}
@@ -4096,6 +4096,7 @@ namespace bgfx
 
 		BGFX_API_FUNC(uint32_t dispatch(uint8_t _id, ProgramHandle _handle, uint16_t _numX, uint16_t _numY, uint16_t _numZ, uint8_t _flags) )
 		{
+			BGFX_CHECK_HANDLE_INVALID_OK("dispatch", m_programHandle, _handle);
 			if (BX_ENABLED(BGFX_CONFIG_DEBUG_UNIFORM) )
 			{
 				m_uniformSet.clear();
@@ -4105,6 +4106,8 @@ namespace bgfx
 
 		BGFX_API_FUNC(uint32_t dispatch(uint8_t _id, ProgramHandle _handle, IndirectBufferHandle _indirectHandle, uint16_t _start, uint16_t _num, uint8_t _flags) )
 		{
+			BGFX_CHECK_HANDLE_INVALID_OK("dispatch", m_programHandle, _handle);
+			BGFX_CHECK_HANDLE("dispatch", m_vertexBufferHandle, _indirectHandle);
 			if (BX_ENABLED(BGFX_CONFIG_DEBUG_UNIFORM) )
 			{
 				m_uniformSet.clear();

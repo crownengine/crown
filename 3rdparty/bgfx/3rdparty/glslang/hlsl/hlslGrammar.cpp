@@ -308,7 +308,7 @@ bool HlslGrammar::acceptSamplerDeclarationDX9(TType& /*type*/)
 
 // declaration
 //      : sampler_declaration_dx9 post_decls SEMICOLON
-//      | fully_specified_type declarator_list SEMICOLON
+//      | fully_specified_type declarator_list SEMICOLON(optional for cbuffer/tbuffer)
 //      | fully_specified_type identifier function_parameters post_decls compound_statement  // function definition
 //      | fully_specified_type identifier sampler_state post_decls compound_statement        // sampler definition
 //      | typedef declaration
@@ -475,9 +475,11 @@ bool HlslGrammar::acceptDeclaration(TIntermNode*& nodeList)
             if (variableType.getBasicType() != EbtString && parseContext.getAnnotationNestingLevel() == 0) {
                 if (typedefDecl)
                     parseContext.declareTypedef(idToken.loc, *fullName, variableType);
-                else if (variableType.getBasicType() == EbtBlock)
-                    parseContext.declareBlock(idToken.loc, variableType, fullName);
-                else {
+                else if (variableType.getBasicType() == EbtBlock) {
+                    parseContext.declareBlock(idToken.loc, variableType, fullName,
+                                              variableType.isArray() ? &variableType.getArraySizes() : nullptr);
+                    parseContext.declareStructBufferCounter(idToken.loc, variableType, *fullName);
+                } else {
                     if (variableType.getQualifier().storage == EvqUniform && ! variableType.containsOpaque()) {
                         // this isn't really an individual variable, but a member of the $Global buffer
                         parseContext.growGlobalUniformBlock(idToken.loc, variableType, *fullName);
@@ -509,18 +511,22 @@ bool HlslGrammar::acceptDeclaration(TIntermNode*& nodeList)
     else
         nodeList = initializers;
 
-    // SEMICOLON
+    // SEMICOLON(optional for cbuffer/tbuffer)
     if (! acceptTokenClass(EHTokSemicolon)) {
-        // This may have been a false detection of what appeared to be a declaration, but
-        // was actually an assignment such as "float = 4", where "float" is an identifier.
-        // We put the token back to let further parsing happen for cases where that may
-        // happen.  This errors on the side of caution, and mostly triggers the error.
-
-        if (peek() == EHTokAssign || peek() == EHTokLeftBracket || peek() == EHTokDot || peek() == EHTokComma)
+        if (peek() == EHTokAssign || peek() == EHTokLeftBracket || peek() == EHTokDot || peek() == EHTokComma) {
+            // This may have been a false detection of what appeared to be a declaration, but
+            // was actually an assignment such as "float = 4", where "float" is an identifier.
+            // We put the token back to let further parsing happen for cases where that may
+            // happen.  This errors on the side of caution, and mostly triggers the error.
             recedeToken();
-        else
+            return false;
+        } else if (declaredType.getBasicType() == EbtBlock) {
+            // cbuffer, et. al. (but not struct) don't have an ending semicolon
+            return true;
+        } else {
             expected(";");
-        return false;
+            return false;
+        }
     }
 
     return true;
@@ -601,7 +607,7 @@ bool HlslGrammar::acceptFullySpecifiedType(TType& type, TIntermNode*& nodeList)
         // the type was a block, which set some parts of the qualifier
         parseContext.mergeQualifiers(type.getQualifier(), qualifier);
         // further, it can create an anonymous instance of the block
-        if (peekTokenClass(EHTokSemicolon))
+        if (peek() != EHTokIdentifier)
             parseContext.declareBlock(loc, type);
     } else {
         // Some qualifiers are set when parsing the type.  Merge those with
@@ -1359,6 +1365,9 @@ bool HlslGrammar::acceptType(TType& type, TIntermNode*& nodeList)
         return acceptStructBufferType(type);
         break;
 
+    case EHTokConstantBuffer:
+        return acceptConstantBufferType(type);
+
     case EHTokClass:
     case EHTokStruct:
     case EHTokCBuffer:
@@ -1841,13 +1850,16 @@ bool HlslGrammar::acceptStruct(TType& type, TIntermNode*& nodeList)
     // This storage qualifier will tell us whether it's an AST
     // block type or just a generic structure type.
     TStorageQualifier storageQualifier = EvqTemporary;
+    bool readonly = false;
 
     // CBUFFER
-    if (acceptTokenClass(EHTokCBuffer))
+    if (acceptTokenClass(EHTokCBuffer)) {
         storageQualifier = EvqUniform;
     // TBUFFER
-    else if (acceptTokenClass(EHTokTBuffer))
+    } else if (acceptTokenClass(EHTokTBuffer)) {
         storageQualifier = EvqBuffer;
+        readonly = true;
+    }
     // CLASS
     // STRUCT
     else if (! acceptTokenClass(EHTokClass) && ! acceptTokenClass(EHTokStruct))
@@ -1903,6 +1915,7 @@ bool HlslGrammar::acceptStruct(TType& type, TIntermNode*& nodeList)
         new(&type) TType(typeList, structName);
     else {
         postDeclQualifier.storage = storageQualifier;
+        postDeclQualifier.readonly = readonly;
         new(&type) TType(typeList, structName, postDeclQualifier); // sets EbtBlock
     }
 
@@ -1920,7 +1933,7 @@ bool HlslGrammar::acceptStruct(TType& type, TIntermNode*& nodeList)
     // All member functions get parsed inside the class/struct namespace and with the
     // class/struct members in a symbol-table level.
     parseContext.pushNamespace(structName);
-    parseContext.pushThisScope(type);
+    parseContext.pushThisScope(type, functionDeclarators);
     bool deferredSuccess = true;
     for (int b = 0; b < (int)functionDeclarators.size() && deferredSuccess; ++b) {
         // parse body
@@ -1933,6 +1946,47 @@ bool HlslGrammar::acceptStruct(TType& type, TIntermNode*& nodeList)
     parseContext.popNamespace();
 
     return deferredSuccess;
+}
+
+// constantbuffer
+//    : CONSTANTBUFFER LEFT_ANGLE type RIGHT_ANGLE
+bool HlslGrammar::acceptConstantBufferType(TType& type)
+{
+    if (! acceptTokenClass(EHTokConstantBuffer))
+        return false;
+
+    if (! acceptTokenClass(EHTokLeftAngle)) {
+        expected("left angle bracket");
+        return false;
+    }
+    
+    TType templateType;
+    if (! acceptType(templateType)) {
+        expected("type");
+        return false;
+    }
+
+    if (! acceptTokenClass(EHTokRightAngle)) {
+        expected("right angle bracket");
+        return false;
+    }
+
+    TQualifier postDeclQualifier;
+    postDeclQualifier.clear();
+    postDeclQualifier.storage = EvqUniform;
+
+    if (templateType.isStruct()) {
+        // Make a block from the type parsed as the template argument
+        TTypeList* typeList = templateType.getWritableStruct();
+        new(&type) TType(typeList, "", postDeclQualifier); // sets EbtBlock
+
+        type.getQualifier().storage = EvqUniform;
+
+        return true;
+    } else {
+        parseContext.error(token.loc, "non-structure type in ConstantBuffer", "", "");
+        return false;
+    }
 }
 
 // struct_buffer
@@ -1951,24 +2005,29 @@ bool HlslGrammar::acceptStructBufferType(TType& type)
     bool readonly = false;
 
     TStorageQualifier storage = EvqBuffer;
+    TBuiltInVariable  builtinType = EbvNone;
 
     switch (structBuffType) {
     case EHTokAppendStructuredBuffer:
-        unimplemented("AppendStructuredBuffer");
-        return false;
+        builtinType = EbvAppendConsume;
+        break;
     case EHTokByteAddressBuffer:
         hasTemplateType = false;
         readonly = true;
+        builtinType = EbvByteAddressBuffer;
         break;
     case EHTokConsumeStructuredBuffer:
-        unimplemented("ConsumeStructuredBuffer");
-        return false;
+        builtinType = EbvAppendConsume;
+        break;
     case EHTokRWByteAddressBuffer:
         hasTemplateType = false;
+        builtinType = EbvRWByteAddressBuffer;
         break;
     case EHTokRWStructuredBuffer:
+        builtinType = EbvRWStructuredBuffer;
         break;
     case EHTokStructuredBuffer:
+        builtinType = EbvStructuredBuffer;
         readonly = true;
         break;
     default:
@@ -2010,8 +2069,6 @@ bool HlslGrammar::acceptStructBufferType(TType& type)
     // field name is canonical for all structbuffers
     templateType->setFieldName("@data");
 
-    // Create block type.  TODO: hidden internal uint member when needed
-
     TTypeList* blockStruct = new TTypeList;
     TTypeLoc  member = { templateType, token.loc };
     blockStruct->push_back(member);
@@ -2021,6 +2078,7 @@ bool HlslGrammar::acceptStructBufferType(TType& type)
 
     blockType.getQualifier().storage = storage;
     blockType.getQualifier().readonly = readonly;
+    blockType.getQualifier().builtIn = builtinType;
 
     // We may have created an equivalent type before, in which case we should use its
     // deep structure.
@@ -2532,7 +2590,7 @@ bool HlslGrammar::acceptConditionalExpression(TIntermTyped*& node)
     if (! acceptTokenClass(EHTokQuestion))
         return true;
 
-    node = parseContext.convertConditionalExpression(token.loc, node);
+    node = parseContext.convertConditionalExpression(token.loc, node, false);
     if (node == nullptr)
         return false;
 
@@ -2922,11 +2980,16 @@ bool HlslGrammar::acceptArguments(TFunction* function, TIntermTyped*& arguments)
     if (! acceptTokenClass(EHTokLeftParen))
         return false;
 
+    // RIGHT_PAREN
+    if (acceptTokenClass(EHTokRightParen))
+        return true;
+
+    // must now be at least one expression...
     do {
         // expression
         TIntermTyped* arg;
         if (! acceptAssignmentExpression(arg))
-            break;
+            return false;
 
         // hook it up
         parseContext.handleFunctionArgument(function, arguments, arg);
@@ -3064,7 +3127,7 @@ bool HlslGrammar::acceptStatement(TIntermNode*& statement)
     case EHTokFor:
     case EHTokDo:
     case EHTokWhile:
-        return acceptIterationStatement(statement);
+        return acceptIterationStatement(statement, attributes);
 
     case EHTokContinue:
     case EHTokBreak:
@@ -3273,7 +3336,7 @@ bool HlslGrammar::acceptSwitchStatement(TIntermNode*& statement)
 //      | FOR LEFT_PAREN for_init_statement for_rest_statement RIGHT_PAREN statement
 //
 // Non-speculative, only call if it needs to be found; WHILE or DO or FOR already seen.
-bool HlslGrammar::acceptIterationStatement(TIntermNode*& statement)
+bool HlslGrammar::acceptIterationStatement(TIntermNode*& statement, const TAttributeMap& attributes)
 {
     TSourceLoc loc = token.loc;
     TIntermTyped* condition = nullptr;
@@ -3283,6 +3346,8 @@ bool HlslGrammar::acceptIterationStatement(TIntermNode*& statement)
 
     //  WHILE or DO or FOR
     advanceToken();
+    
+    const TLoopControl control = parseContext.handleLoopControl(attributes);
 
     switch (loop) {
     case EHTokWhile:
@@ -3307,24 +3372,18 @@ bool HlslGrammar::acceptIterationStatement(TIntermNode*& statement)
         parseContext.unnestLooping();
         parseContext.popScope();
 
-        statement = intermediate.addLoop(statement, condition, nullptr, true, loc);
+        statement = intermediate.addLoop(statement, condition, nullptr, true, loc, control);
 
         return true;
 
     case EHTokDo:
         parseContext.nestLooping();
 
-        if (! acceptTokenClass(EHTokLeftBrace))
-            expected("{");
-
         // statement
-        if (! peekTokenClass(EHTokRightBrace) && ! acceptScopedStatement(statement)) {
+        if (! acceptScopedStatement(statement)) {
             expected("do sub-statement");
             return false;
         }
-
-        if (! acceptTokenClass(EHTokRightBrace))
-            expected("}");
 
         // WHILE
         if (! acceptTokenClass(EHTokWhile)) {
@@ -3345,7 +3404,7 @@ bool HlslGrammar::acceptIterationStatement(TIntermNode*& statement)
 
         parseContext.unnestLooping();
 
-        statement = intermediate.addLoop(statement, condition, 0, false, loc);
+        statement = intermediate.addLoop(statement, condition, 0, false, loc, control);
 
         return true;
 
@@ -3394,7 +3453,7 @@ bool HlslGrammar::acceptIterationStatement(TIntermNode*& statement)
             return false;
         }
 
-        statement = intermediate.addForLoop(statement, initNode, condition, iterator, true, loc);
+        statement = intermediate.addForLoop(statement, initNode, condition, iterator, true, loc, control);
 
         parseContext.popScope();
         parseContext.unnestLooping();

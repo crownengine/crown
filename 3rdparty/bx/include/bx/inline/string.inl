@@ -43,8 +43,8 @@ namespace bx
 	{
 		Ty str = _str;
 		typename Ty::size_type startPos = 0;
-		const typename Ty::size_type fromLen = strnlen(_from);
-		const typename Ty::size_type toLen   = strnlen(_to);
+		const typename Ty::size_type fromLen = strLen(_from);
+		const typename Ty::size_type toLen   = strLen(_to);
 		while ( (startPos = str.find(_from, startPos) ) != Ty::npos)
 		{
 			str.replace(startPos, fromLen, _to);
@@ -81,7 +81,7 @@ namespace bx
 
 		if (NULL != _ptr)
 		{
-			int32_t len = strnlen(_ptr, _len);
+			int32_t len = strLen(_ptr, _len);
 			if (0 != len)
 			{
 				m_len = len;
@@ -167,10 +167,10 @@ namespace bx
 		if (0 != _len)
 		{
 			int32_t old = m_len;
-			int32_t len = m_len + strnlen(_ptr, _len);
+			int32_t len = m_len + strLen(_ptr, _len);
 			char* ptr = (char*)BX_REALLOC(*AllocatorT, 0 != m_len ? const_cast<char*>(m_ptr) : NULL, len+1);
 			m_len = len;
-			strlncpy(ptr + old, len-old+1, _ptr, _len);
+			strCopy(ptr + old, len-old+1, _ptr, _len);
 
 			*const_cast<char**>(&m_ptr) = ptr;
 		}

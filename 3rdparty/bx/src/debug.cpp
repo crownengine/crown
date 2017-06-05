@@ -33,7 +33,7 @@ namespace bx
 #elif BX_CPU_ARM
 		__builtin_trap();
 //		asm("bkpt 0");
-#elif !BX_PLATFORM_NACL && BX_CPU_X86 && (BX_COMPILER_GCC || BX_COMPILER_CLANG)
+#elif BX_CPU_X86 && (BX_COMPILER_GCC || BX_COMPILER_CLANG)
 		// NaCl doesn't like int 3:
 		// NativeClient: NaCl module load failed: Validation failure. File violates Native Client safety rules.
 		__asm__ ("int $3");
@@ -125,7 +125,7 @@ namespace bx
 					ascii[asciiPos] = '\0';
 					debugPrintf("\t" DBG_ADDRESS "\t" HEX_DUMP_FORMAT "\t%s\n", data, hex, ascii);
 					data += asciiPos;
-					hexPos = 0;
+					hexPos   = 0;
 					asciiPos = 0;
 				}
 			}

@@ -39,50 +39,50 @@ extern "C" int32_t memcmp(const void* _lhs, const void* _rhs, size_t _numBytes)
 
 extern "C" size_t strlen(const char* _str)
 {
-	return bx::strnlen(_str);
+	return bx::strLen(_str);
 }
 
-extern "C" size_t strnlen(const char* _str, size_t _max)
+extern "C" size_t strLen(const char* _str, size_t _max)
 {
-	return bx::strnlen(_str, _max);
+	return bx::strLen(_str, _max);
 }
 
 extern "C" void* strcpy(char* _dst, const char* _src)
 {
-	bx::strlncpy(_dst, INT32_MAX, _src, INT32_MAX);
+	bx::strCopy(_dst, INT32_MAX, _src, INT32_MAX);
 	return _dst;
 }
 
 extern "C" void* strncpy(char* _dst, const char* _src, size_t _num)
 {
-	bx::strlncpy(_dst, INT32_MAX, _src, _num);
+	bx::strCopy(_dst, INT32_MAX, _src, _num);
 	return _dst;
 }
 
 extern "C" char* strcat(char* _dst, const char* _src)
 {
-	bx::strlncat(_dst, INT32_MAX, _src, INT32_MAX);
+	bx::strCat(_dst, INT32_MAX, _src, INT32_MAX);
 	return _dst;
 }
 
 extern "C" const char* strchr(const char* _str, int _ch)
 {
-	return bx::strnchr(_str, _ch);
+	return bx::strFind(_str, _ch);
 }
 
 extern "C" int32_t strcmp(const char* _lhs, const char* _rhs)
 {
-	return bx::strncmp(_lhs, _rhs);
+	return bx::strCmp(_lhs, _rhs);
 }
 
 extern "C" int32_t strncmp(const char* _lhs, const char* _rhs, size_t _max)
 {
-	return bx::strncmp(_lhs, _rhs, _max);
+	return bx::strCmp(_lhs, _rhs, _max);
 }
 
 extern "C" const char* strstr(const char* _str, const char* _find)
 {
-	return bx::strnstr(_str, _find);
+	return bx::strFind(_str, _find);
 }
 
 extern "C" void qsort(void* _base, size_t _num, size_t _size, bx::ComparisonFn _fn)

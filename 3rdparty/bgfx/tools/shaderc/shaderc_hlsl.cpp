@@ -190,7 +190,7 @@ namespace bgfx { namespace hlsl
 		for (uint32_t ii = 0; ii < bgfx::Attrib::Count; ++ii)
 		{
 			const RemapInputSemantic& ris = s_remapInputSemantic[ii];
-			if (0 == strcmp(ris.m_name, _name)
+			if (0 == bx::strCmp(ris.m_name, _name)
 			&&  ris.m_index == _index)
 			{
 				return ris;
@@ -520,7 +520,7 @@ namespace bgfx { namespace hlsl
 						, bindDesc.BindCount
 						);
 
-					const char * end = bx::strnstr(bindDesc.Name, "Sampler");
+					const char * end = bx::strFind(bindDesc.Name, "Sampler");
 					if (NULL != end)
 					{
 						Uniform un;
@@ -666,7 +666,7 @@ namespace bgfx { namespace hlsl
 			if (_firstPass
 			&&  unusedUniforms.size() > 0)
 			{
-				const size_t strLength = strlen("uniform");
+				const size_t strLength = bx::strLen("uniform");
 
 				// first time through, we just find unused uniforms and get rid of them
 				std::string output;

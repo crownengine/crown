@@ -16,7 +16,11 @@ namespace bx
 	extern const float invPi;
 	extern const float piHalf;
 	extern const float sqrt2;
+	extern const float invLogNat2;
 	extern const float huge;
+
+	///
+	typedef float (*LerpFn)(float _a, float _b, float _t);
 
 	///
 	struct Handness
@@ -184,6 +188,12 @@ namespace bx
 	float fgain(float _time, float _gain);
 
 	///
+	float angleDiff(float _a, float _b);
+
+	/// Shortest distance linear interpolation between two angles.
+	float angleLerp(float _a, float _b, float _t);
+
+	///
 	void vec3Move(float* _result, const float* _a);
 
 	///
@@ -312,7 +322,7 @@ namespace bx
 	void mtxQuatTranslationHMD(float* _result, const float* _quat, const float* _translation);
 
 	///
-	void mtxLookAtLh(float* _result, const float* _eye, const float* _at, const float* _up = NULL);;
+	void mtxLookAtLh(float* _result, const float* _eye, const float* _at, const float* _up = NULL);
 
 	///
 	void mtxLookAtRh(float* _result, const float* _eye, const float* _at, const float* _up = NULL);

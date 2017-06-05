@@ -12,6 +12,7 @@ project "bimg"
 	}
 
 	files {
+		path.join(BIMG_DIR, "include/**"),
 		path.join(BIMG_DIR, "src/image.*"),
 	}
 

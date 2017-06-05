@@ -436,17 +436,17 @@ namespace bx
 
 		if (isNan(_value) )
 		{
-			return (int32_t)strlncpy(_dst, _max, "nan") + sign;
+			return (int32_t)strCopy(_dst, _max, "nan") + sign;
 		}
 		else if (isInfinite(_value) )
 		{
-			return (int32_t)strlncpy(_dst, _max, "inf") + sign;
+			return (int32_t)strCopy(_dst, _max, "inf") + sign;
 		}
 
 		int32_t len;
 		if (0.0 == _value)
 		{
-			len = (int32_t)strlncpy(_dst, _max, "0.0");
+			len = (int32_t)strCopy(_dst, _max, "0.0");
 		}
 		else
 		{

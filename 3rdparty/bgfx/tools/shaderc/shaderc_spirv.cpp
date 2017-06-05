@@ -12,8 +12,7 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG_GCC("-Wshadow") // warning: declaration of 'u
 #include <ShaderLang.h>
 #include <ResourceLimits.h>
 #include <SPIRV/SPVRemapper.h>
-//#include <spirv-tools/libspirv.hpp>
-//#include <spirv-tools/optimizer.hpp>
+#include <SPIRV/GlslangToSpv.h>
 BX_PRAGMA_DIAGNOSTIC_POP()
 
 namespace bgfx
@@ -49,12 +48,6 @@ namespace bgfx
 namespace stl = tinystl;
 
 #include "../../src/shader_spirv.h"
-
-namespace glslang
-{
-	void GlslangToSpv(const glslang::TIntermediate& _intermediate, std::vector<uint32_t>& _spirv);
-
-} // namespace glslang
 
 namespace bgfx { namespace spirv
 {
@@ -475,6 +468,8 @@ namespace bgfx { namespace spirv
 		return true;
 	}
 
+#define DBG(...)
+
 	void disassemble(bx::WriterI* _writer, bx::ReaderSeekerI* _reader, bx::Error* _err)
 	{
 		BX_UNUSED(_writer);
@@ -495,26 +490,27 @@ namespace bgfx { namespace spirv
 				const SpvReflection::Id& id = it->second;
 				uint32_t num = uint32_t(id.members.size() );
 				if (0 < num
-				&&  0 != bx::strncmp(id.var.name.c_str(), "gl_PerVertex") )
+				&&  0 != bx::strCmp(id.var.name.c_str(), "gl_PerVertex") )
 				{
-					printf("%3d: %s %d %s\n"
+					DBG("%3d: %s %d %s\n"
 						, it->first
 						, id.var.name.c_str()
 						, id.var.location
 						, getName(id.var.storageClass)
 						);
-					printf("{\n");
+					DBG("{\n");
 					for (uint32_t ii = 0; ii < num; ++ii)
 					{
 						const SpvReflection::Id::Variable& var = id.members[ii];
-						printf("\t\t%s %s %d %s\n"
+						DBG("\t\t%s %s %d %s\n"
 							, spvx.getTypeName(var.type).c_str()
 							, var.name.c_str()
 							, var.offset
 							, getName(var.storageClass)
 							);
+						BX_UNUSED(var);
 					}
-					printf("}\n");
+					DBG("}\n");
 				}
 			}
 
@@ -526,7 +522,7 @@ namespace bgfx { namespace spirv
 		virtual int32_t write(const void* _data, int32_t _size, bx::Error*) BX_OVERRIDE
 		{
 			char* out = (char*)alloca(_size + 1);
-			memcpy(out, _data, _size);
+			bx::memCopy(out, _data, _size);
 			out[_size] = '\0';
 			printf("%s", out);
 			return _size;
@@ -606,7 +602,7 @@ namespace bgfx { namespace spirv
 				int32_t start   = 0;
 				int32_t end     = INT32_MAX;
 
-				const char* err = bx::strnstr(log, "ERROR:");
+				const char* err = bx::strFind(log, "ERROR:");
 
 				bool found = false;
 

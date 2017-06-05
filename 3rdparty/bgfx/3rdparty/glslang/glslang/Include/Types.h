@@ -400,6 +400,7 @@ public:
         invariant = false;
         noContraction = false;
         makeTemporary();
+        declaredBuiltIn = EbvNone;
     }
 
     // drop qualifiers that don't belong in a temporary variable
@@ -457,6 +458,7 @@ public:
     const char*         semanticName;
     TStorageQualifier   storage   : 6;
     TBuiltInVariable    builtIn   : 8;
+    TBuiltInVariable    declaredBuiltIn : 8;
     TPrecisionQualifier precision : 3;
     bool invariant    : 1; // require canonical treatment for cross-shader invariance
     bool noContraction: 1; // prevent contraction and reassociation, e.g., for 'precise' keyword, and expressions it affects
@@ -1308,6 +1310,7 @@ public:
 
     virtual TBasicType getBasicType() const { return basicType; }
     virtual const TSampler& getSampler() const { return sampler; }
+    virtual TSampler& getSampler() { return sampler; }
 
     virtual       TQualifier& getQualifier()       { return qualifier; }
     virtual const TQualifier& getQualifier() const { return qualifier; }

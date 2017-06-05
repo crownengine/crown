@@ -16,6 +16,7 @@ namespace bimg
 		, const void* _data
 		, uint32_t _size
 		, TextureFormat::Enum _dstFormat = TextureFormat::Count
+		, bx::Error* _err = NULL
 		);
 
 } // namespace bimg

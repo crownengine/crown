@@ -127,32 +127,32 @@ namespace bx
 	bool toBool(const char* _str);
 
 	/// String compare.
-	int32_t strncmp(const char* _lhs, const char* _rhs, int32_t _max = INT32_MAX);
+	int32_t strCmp(const char* _lhs, const char* _rhs, int32_t _max = INT32_MAX);
 
 	/// Case insensitive string compare.
-	int32_t strincmp(const char* _lhs, const char* _rhs, int32_t _max = INT32_MAX);
+	int32_t strCmpI(const char* _lhs, const char* _rhs, int32_t _max = INT32_MAX);
 
-	///
-	int32_t strnlen(const char* _str, int32_t _max = INT32_MAX);
+	/// Get string length.
+	int32_t strLen(const char* _str, int32_t _max = INT32_MAX);
 
 	/// Copy _num characters from string _src to _dst buffer of maximum _dstSize capacity
 	/// including zero terminator. Copy will be terminated with '\0'.
-	int32_t strlncpy(char* _dst, int32_t _dstSize, const char* _src, int32_t _num = INT32_MAX);
+	int32_t strCopy(char* _dst, int32_t _dstSize, const char* _src, int32_t _num = INT32_MAX);
 
-	///
-	int32_t strlncat(char* _dst, int32_t _dstSize, const char* _src, int32_t _num = INT32_MAX);
+	/// Concatinate string.
+	int32_t strCat(char* _dst, int32_t _dstSize, const char* _src, int32_t _num = INT32_MAX);
 
-	///
-	const char* strnchr(const char* _str, char _ch, int32_t _max = INT32_MAX);
+	/// Find character in string. Limit search to _max characters.
+	const char* strFind(const char* _str, char _ch, int32_t _max = INT32_MAX);
 
-	///
-	const char* strnrchr(const char* _str, char _ch, int32_t _max = INT32_MAX);
+	/// Find character in string in reverse. Limit search to _max characters.
+	const char* strRFind(const char* _str, char _ch, int32_t _max = INT32_MAX);
 
-	/// Find substring in string. Limit search to _size.
-	const char* strnstr(const char* _str, const char* _find, int32_t _max = INT32_MAX);
+	/// Find substring in string. Limit search to _max characters.
+	const char* strFind(const char* _str, const char* _find, int32_t _max = INT32_MAX);
 
-	/// Find substring in string. Case insensitive. Limit search to _max.
-	const char* stristr(const char* _str, const char* _find, int32_t _max = INT32_MAX);
+	/// Find substring in string. Case insensitive. Limit search to _max characters.
+	const char* strFindI(const char* _str, const char* _find, int32_t _max = INT32_MAX);
 
 	/// Find new line. Returns pointer after new line terminator.
 	const char* strnl(const char* _str);
@@ -214,18 +214,6 @@ namespace bx
 
 	/// Convert size in bytes to human readable string.
 	void prettify(char* _out, int32_t _count, uint64_t _size);
-
-	/// Copy src to string dst of size siz.  At most siz-1 characters
-	/// will be copied.  Always NUL terminates (unless siz == 0).
-	/// Returns strlen(src); if retval >= siz, truncation occurred.
-	int32_t strlcpy(char* _dst, const char* _src, int32_t _max);
-
-	/// Appends src to string dst of size siz (unlike strncat, siz is the
-	/// full size of dst, not space left).  At most siz-1 characters
-	/// will be copied.  Always NUL terminates (unless siz <= strlen(dst)).
-	/// Returns strlen(src) + MIN(siz, strlen(initial dst)).
-	/// If retval >= siz, truncation occurred.
-	int32_t strlcat(char* _dst, const char* _src, int32_t _max);
 
 	///
 	int32_t toString(char* _out, int32_t _max, double _value);

@@ -75,20 +75,6 @@ project "bx.test"
 			"-shared",
 		}
 
-	configuration { "nacl or nacl-arm" }
-		targetextension ".nexe"
-		links {
-			"ppapi",
-			"pthread",
-		}
-
-	configuration { "pnacl" }
-		targetextension ".pexe"
-		links {
-			"ppapi",
-			"pthread",
-		}
-
 	configuration { "linux-*" }
 		links {
 			"pthread",
@@ -132,20 +118,6 @@ project "bx.bench"
 		targetextension ".so"
 		linkoptions {
 			"-shared",
-		}
-
-	configuration { "nacl or nacl-arm" }
-		targetextension ".nexe"
-		links {
-			"ppapi",
-			"pthread",
-		}
-
-	configuration { "pnacl" }
-		targetextension ".pexe"
-		links {
-			"ppapi",
-			"pthread",
 		}
 
 	configuration { "linux-*" }

@@ -46,7 +46,7 @@ static bool test(const char* _input, int32_t _argc, ...)
 	for (int32_t ii = 0; ii < _argc; ++ii)
 	{
 		const char* arg = va_arg(argList, const char*);
-		if (0 != bx::strncmp(argv[ii], arg) )
+		if (0 != bx::strCmp(argv[ii], arg) )
 		{
 			return false;
 		}

@@ -51,7 +51,6 @@
 #define BX_PLATFORM_HURD       0
 #define BX_PLATFORM_IOS        0
 #define BX_PLATFORM_LINUX      0
-#define BX_PLATFORM_NACL       0
 #define BX_PLATFORM_OSX        0
 #define BX_PLATFORM_PS4        0
 #define BX_PLATFORM_QNX        0
@@ -181,11 +180,6 @@
 #	include <sys/cdefs.h> // Defines __BIONIC__ and includes android/api-level.h
 #	undef  BX_PLATFORM_ANDROID
 #	define BX_PLATFORM_ANDROID __ANDROID_API__
-#elif defined(__native_client__)
-// NaCl compiler defines __linux__
-#	include <ppapi/c/pp_macros.h>
-#	undef  BX_PLATFORM_NACL
-#	define BX_PLATFORM_NACL PPAPI_RELEASE
 #elif defined(__STEAMLINK__)
 // SteamLink compiler defines __linux__
 #	undef  BX_PLATFORM_STEAMLINK
@@ -263,7 +257,6 @@
 		|| BX_PLATFORM_HURD       \
 		|| BX_PLATFORM_IOS        \
 		|| BX_PLATFORM_LINUX      \
-		|| BX_PLATFORM_NACL       \
 		|| BX_PLATFORM_OSX        \
 		|| BX_PLATFORM_QNX        \
 		|| BX_PLATFORM_STEAMLINK  \
@@ -278,7 +271,6 @@
 		|| BX_PLATFORM_HURD       \
 		|| BX_PLATFORM_IOS        \
 		|| BX_PLATFORM_LINUX      \
-		|| BX_PLATFORM_NACL       \
 		|| BX_PLATFORM_OSX        \
 		|| BX_PLATFORM_PS4        \
 		|| BX_PLATFORM_QNX        \
@@ -334,9 +326,6 @@
 #	define BX_PLATFORM_NAME "iOS"
 #elif BX_PLATFORM_LINUX
 #	define BX_PLATFORM_NAME "Linux"
-#elif BX_PLATFORM_NACL
-#	define BX_PLATFORM_NAME "NaCl " \
-				BX_STRINGIZE(BX_PLATFORM_NACL)
 #elif BX_PLATFORM_OSX
 #	define BX_PLATFORM_NAME "OSX"
 #elif BX_PLATFORM_PS4

@@ -1,4 +1,4 @@
-// dear imgui, v1.50 WIP
+// dear imgui, v1.50
 // (drawing and font code)
 
 // Contains implementation for
@@ -825,7 +825,7 @@ void ImDrawList::AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, floa
     if (rounding > 0.0f)
     {
         PathRect(a, b, rounding, rounding_corners_flags);
-        PathFill(col);
+        PathFillConvex(col);
     }
     else
     {
@@ -870,7 +870,7 @@ void ImDrawList::AddQuadFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c
     PathLineTo(b);
     PathLineTo(c);
     PathLineTo(d);
-    PathFill(col);
+    PathFillConvex(col);
 }
 
 void ImDrawList::AddTriangle(const ImVec2& a, const ImVec2& b, const ImVec2& c, ImU32 col, float thickness)
@@ -892,7 +892,7 @@ void ImDrawList::AddTriangleFilled(const ImVec2& a, const ImVec2& b, const ImVec
     PathLineTo(a);
     PathLineTo(b);
     PathLineTo(c);
-    PathFill(col);
+    PathFillConvex(col);
 }
 
 void ImDrawList::AddCircle(const ImVec2& centre, float radius, ImU32 col, int num_segments, float thickness)
@@ -912,7 +912,7 @@ void ImDrawList::AddCircleFilled(const ImVec2& centre, float radius, ImU32 col, 
 
     const float a_max = IM_PI*2.0f * ((float)num_segments - 1.0f) / (float)num_segments;
     PathArcTo(centre, radius, 0.0f, a_max, num_segments);
-    PathFill(col);
+    PathFillConvex(col);
 }
 
 void ImDrawList::AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments)
@@ -960,7 +960,7 @@ void ImDrawList::AddText(const ImVec2& pos, ImU32 col, const char* text_begin, c
     AddText(GImGui->Font, GImGui->FontSize, pos, col, text_begin, text_end);
 }
 
-void ImDrawList::AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv0, const ImVec2& uv1, ImU32 col)
+void ImDrawList::AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col)
 {
     if ((col & IM_COL32_A_MASK) == 0)
         return;
@@ -971,7 +971,23 @@ void ImDrawList::AddImage(ImTextureID user_texture_id, const ImVec2& a, const Im
         PushTextureID(user_texture_id);
 
     PrimReserve(6, 4);
-    PrimRectUV(a, b, uv0, uv1, col);
+    PrimRectUV(a, b, uv_a, uv_b, col);
+
+    if (push_texture_id)
+        PopTextureID();
+}
+
+void ImDrawList::AddImageQuad(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a, const ImVec2& uv_b, const ImVec2& uv_c, const ImVec2& uv_d, ImU32 col)
+{
+    if ((col & IM_COL32_A_MASK) == 0)
+        return;
+
+    const bool push_texture_id = _TextureIdStack.empty() || user_texture_id != _TextureIdStack.back();
+    if (push_texture_id)
+        PushTextureID(user_texture_id);
+
+    PrimReserve(6, 4);
+    PrimQuadUV(a, b, c, d, uv_a, uv_b, uv_c, uv_d, col);
 
     if (push_texture_id)
         PopTextureID();
@@ -1029,9 +1045,9 @@ ImFontConfig::ImFontConfig()
     OversampleV = 1;
     PixelSnapH = false;
     GlyphExtraSpacing = ImVec2(0.0f, 0.0f);
+    GlyphOffset = ImVec2(0.0f, 0.0f);
     GlyphRanges = NULL;
     MergeMode = false;
-    MergeGlyphCenterV = false;
     DstFont = NULL;
     memset(Name, 0, sizeof(Name));
 }
@@ -1144,6 +1160,10 @@ ImFont* ImFontAtlas::AddFont(const ImFontConfig* font_cfg)
         ImFont* font = (ImFont*)ImGui::MemAlloc(sizeof(ImFont));
         IM_PLACEMENT_NEW(font) ImFont();
         Fonts.push_back(font);
+    }
+    else
+    {
+        IM_ASSERT(!Fonts.empty()); // When using MergeMode make sure that a font has already been added before. You can use ImGui::AddFontDefault() to add the default imgui font.
     }
 
     ConfigData.push_back(*font_cfg);
@@ -1408,7 +1428,8 @@ bool    ImFontAtlas::Build()
             dst_font->MetricsTotalSurface = 0;
         }
         dst_font->ConfigDataCount++;
-        float off_y = (cfg.MergeMode && cfg.MergeGlyphCenterV) ? (ascent - dst_font->Ascent) * 0.5f : 0.0f;
+        float off_x = cfg.GlyphOffset.x;
+        float off_y = cfg.GlyphOffset.y;
 
         dst_font->FallbackGlyph = NULL; // Always clear fallback so FindGlyph can return NULL. It will be set again in BuildLookupTable()
         for (int i = 0; i < tmp.RangesCount; i++)
@@ -1431,14 +1452,14 @@ bool    ImFontAtlas::Build()
                 dst_font->Glyphs.resize(dst_font->Glyphs.Size + 1);
                 ImFont::Glyph& glyph = dst_font->Glyphs.back();
                 glyph.Codepoint = (ImWchar)codepoint;
-                glyph.X0 = q.x0; glyph.Y0 = q.y0; glyph.X1 = q.x1; glyph.Y1 = q.y1;
+                glyph.X0 = q.x0 + off_x; glyph.Y0 = q.y0 + off_y; glyph.X1 = q.x1 + off_x; glyph.Y1 = q.y1 + off_y;
                 glyph.U0 = q.s0; glyph.V0 = q.t0; glyph.U1 = q.s1; glyph.V1 = q.t1;
-                glyph.Y0 += (float)(int)(dst_font->Ascent + off_y + 0.5f);
-                glyph.Y1 += (float)(int)(dst_font->Ascent + off_y + 0.5f);
+                glyph.Y0 += (float)(int)(dst_font->Ascent + 0.5f);
+                glyph.Y1 += (float)(int)(dst_font->Ascent + 0.5f);
                 glyph.XAdvance = (pc.xadvance + cfg.GlyphExtraSpacing.x);  // Bake spacing into XAdvance
                 if (cfg.PixelSnapH)
                     glyph.XAdvance = (float)(int)(glyph.XAdvance + 0.5f);
-                dst_font->MetricsTotalSurface += (int)(glyph.X1 - glyph.X0 + 1.99f) * (int)(glyph.Y1 - glyph.Y0 + 1.99f); // +1 to account for average padding, +0.99 to round
+                dst_font->MetricsTotalSurface += (int)((glyph.U1 - glyph.U0) * TexWidth + 1.99f) * (int)((glyph.V1 - glyph.V0) * TexHeight + 1.99f); // +1 to account for average padding, +0.99 to round
             }
         }
         cfg.DstFont->BuildLookupTable();

@@ -296,7 +296,7 @@ LLVM:
 ** Determine target operating system
 ** ----------------------------------------------------------------------------
 */
-#if defined linux || defined __linux__
+#if defined linux || defined __linux__ || defined EMSCRIPTEN
 #  define POSH_OS_LINUX 1 
 #  define POSH_OS_STRING "Linux"
 #endif
@@ -536,6 +536,11 @@ LLVM:
 #  define POSH_CPU_STRING "PA-RISC"
 #endif
 
+#if defined EMSCRIPTEN
+#  define POSH_CPU_EMSCRIPTEN 1
+#  define POSH_CPU_STRING "EMSCRIPTEN"
+#endif
+
 #if !defined POSH_CPU_STRING
 #  error POSH cannot determine target CPU
 #  define POSH_CPU_STRING "Unknown" /* this is here for Doxygen's benefit */
@@ -673,7 +678,7 @@ LLVM:
 ** the MIPS series, so we have to be careful about those.
 ** ----------------------------------------------------------------------------
 */
-#if defined POSH_CPU_X86 || defined POSH_CPU_AXP || defined POSH_CPU_STRONGARM || defined POSH_CPU_AARCH64 || defined POSH_OS_WIN32 || defined POSH_OS_WINCE || defined __MIPSEL__
+#if defined POSH_CPU_X86 || defined POSH_CPU_AXP || defined POSH_CPU_STRONGARM || defined POSH_CPU_AARCH64 || defined POSH_OS_WIN32 || defined POSH_OS_WINCE || defined __MIPSEL__ || defined POSH_CPU_EMSCRIPTEN
 #  define POSH_ENDIAN_STRING "little"
 #  define POSH_LITTLE_ENDIAN 1
 #else

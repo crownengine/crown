@@ -52,6 +52,28 @@ namespace bx
 
 #if BX_PLATFORM_POSIX
 
+	uint64_t toNs(const timespec& _ts)
+	{
+		return _ts.tv_sec*UINT64_C(1000000000) + _ts.tv_nsec;
+	}
+
+	void toTimespecNs(timespec& _ts, uint64_t _nsecs)
+	{
+		_ts.tv_sec  = _nsecs/UINT64_C(1000000000);
+		_ts.tv_nsec = _nsecs%UINT64_C(1000000000);
+	}
+
+	void toTimespecMs(timespec& _ts, int32_t _msecs)
+	{
+		toTimespecNs(_ts, _msecs*1000000);
+	}
+
+	void add(timespec& _ts, int32_t _msecs)
+	{
+		uint64_t ns = toNs(_ts);
+		toTimespecNs(_ts, ns + _msecs*1000000);
+	}
+
 #	if BX_CONFIG_SEMAPHORE_PTHREAD
 	Semaphore::Semaphore()
 	{
@@ -113,7 +135,7 @@ namespace bx
 		int result = pthread_mutex_lock(&si->m_mutex);
 		BX_CHECK(0 == result, "pthread_mutex_lock %d", result);
 
-#		if BX_PLATFORM_NACL || BX_PLATFORM_OSX
+#		if BX_PLATFORM_OSX
 		BX_UNUSED(_msecs);
 		BX_CHECK(-1 == _msecs, "NaCl and OSX don't support pthread_cond_timedwait at this moment.");
 		while (0 == result
@@ -133,8 +155,7 @@ namespace bx
 		else
 		{
 			timespec ts;
-			ts.tv_sec = _msecs/1000;
-			ts.tv_nsec = (_msecs%1000)*1000;
+			toTimespecMs(ts, _msecs);
 
 			while (0 == result
 			&&     0 >= si->m_count)
@@ -145,8 +166,7 @@ namespace bx
 #		else
 		timespec ts;
 		clock_gettime(CLOCK_REALTIME, &ts);
-		ts.tv_sec += _msecs/1000;
-		ts.tv_nsec += (_msecs%1000)*1000;
+		add(ts, _msecs);
 
 		while (0 == result
 		&&     0 >= si->m_count)
@@ -208,7 +228,7 @@ namespace bx
 	{
 		SemaphoreInternal* si = (SemaphoreInternal*)m_internal;
 
-#		if BX_PLATFORM_NACL || BX_PLATFORM_OSX
+#		if BX_PLATFORM_OSX
 		BX_CHECK(-1 == _msecs, "NaCl and OSX don't support sem_timedwait at this moment."); BX_UNUSED(_msecs);
 		return 0 == sem_wait(&si->m_handle);
 #		else
@@ -226,8 +246,7 @@ namespace bx
 
 		timespec ts;
 		clock_gettime(CLOCK_REALTIME, &ts);
-		ts.tv_sec += _msecs/1000;
-		ts.tv_nsec += (_msecs%1000)*1000;
+		add(ts, _msecs);
 		return 0 == sem_timedwait(&si->m_handle, &ts);
 #		endif // BX_PLATFORM_
 	}

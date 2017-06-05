@@ -37,7 +37,6 @@ Supported platforms:
  * iOS (iPhone, iPad, AppleTV)
  * Linux
  * MIPS Creator CI20
- * Native Client (PPAPI 37+, ARM, x86, x64, PNaCl)
  * OSX (10.9+)
  * RaspberryPi
  * SteamLink
@@ -147,7 +146,13 @@ C++ and using bgfx to support multiple rendering APIs.
 ## DLS
 
 http://makingartstudios.itch.io/dls - DLS the digital logic simulator game.  
-![dls-screenshot](https://img.itch.io/aW1hZ2UvMzk3MTgvMTc5MjQ4LnBuZw==/original/kA%2FQPb.png)
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=6o1-sQRNqcA
+" target="_blank"><img src="http://img.youtube.com/vi/6o1-sQRNqcA/0.jpg" 
+alt="DLS - Creating a 4-bit Register "
+width="640" height="480" border="0" /></a>
+
+http://dls.makingartstudios.com/sandbox/ - DLS: The Sandbox  
+![dls-sandbox-screenshot](https://pbs.twimg.com/media/DBaFwOKWAAEq0mp.jpg:large)
 
 ## MAME
 
@@ -159,7 +164,8 @@ https://github.com/mamedev/mame MAME - Multiple Arcade Machine Emulator
 
 https://blackshift.itch.io/blackshift - Blackshift is a grid-based, space-themed
 action puzzle game which isn't afraid of complexity — think Chip's Challenge on
-crack. 
+crack.
+
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=PUl8612Y-ds
 " target="_blank"><img src="http://img.youtube.com/vi/PUl8612Y-ds/0.jpg" 
 alt="Blackshift Trailer, May 2016"
@@ -170,6 +176,7 @@ width="640" height="480" border="0" /></a>
 https://eheitzresearch.wordpress.com/415-2/ - Real-Time Polygonal-Light Shading
 with Linearly Transformed Cosines, Eric Heitz, Jonathan Dupuy, Stephen Hill and
 David Neubelt, ACM SIGGRAPH 2016
+
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=ZLRgEN7AQgM
 " target="_blank"><img src="http://img.youtube.com/vi/ZLRgEN7AQgM/0.jpg" 
 alt="Real-Time Polygonal-Light Shading with Linearly Transformed Cosines"
@@ -180,6 +187,7 @@ width="640" height="480" border="0" /></a>
 http://www.dogbytegames.com/dead_venture.html - Dead Venture is a new Drive 'N
 Gun game where you help a handful of survivals reach the safe haven: a military
 base on a far island.
+
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=CgMr1g12yXw
 " target="_blank"><img src="http://img.youtube.com/vi/CgMr1g12yXw/0.jpg" 
 alt="Dead Venture - Gameplay Teaser (iOS / Android)"
@@ -230,17 +238,27 @@ game in development. It's a combination of FPS and stealth.
 https://github.com/VladSerhiienko/FbxPipeline - Yet another FBX exporter with
 flatbuffers serialization.
 
-## FRAG
+## FRAG - Framework for Rather Awesome Games
 
-https://github.com/fragworks/frag - FRAG is a game creation framework being
-developed using the Nim programming language, and is currently in pre-alpha
-status. The immediate development focus for FRAG is supporting the creation of
-2D desktop games.
+http://fragworks.io/ - FRAG is a cross-platform 2D game creation framework for
+the Nim programming language.
 
 ## vg-renderer
 
 https://github.com/jdryg/vg-renderer#vg-renderer - A vector graphics renderer
 for bgfx, based on ideas from both NanoVG and ImDrawList (Dear ImGUI)
+
+## Zombie Safari
+
+http://www.dogbytegames.com/zombie_safari.html - Do what you please in this
+Open-World Offroad Driving game: explore massive landscapes, complete challenges,
+smash zombies, find secret locations, unlock and upgrade cars and weapons, it's
+up to you!
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=LSiH0lRkw8g
+" target="_blank"><img src="http://img.youtube.com/vi/LSiH0lRkw8g/0.jpg" 
+alt="Zombie Safari - Official Gameplay Trailer (Android)"
+width="640" height="480" border="0" /></a>
 
 [License (BSD 2-clause)](https://bkaradzic.github.io/bgfx/license.html)
 -----------------------------------------------------------------------

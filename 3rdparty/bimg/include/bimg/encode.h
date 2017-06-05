@@ -10,17 +10,96 @@
 
 namespace bimg
 {
-	///
-	bool imageEncodeFromRgba8(void* _dst, const void* _src, uint32_t _width, uint32_t _height, TextureFormat::Enum _format);
+	struct Quality
+	{
+		enum Enum
+		{
+			Default,
+			Highest,
+			Fastest,
+
+			Count
+		};
+	};
 
 	///
-	bool imageEncodeFromRgba32f(bx::AllocatorI* _allocator, void* _dst, const void* _src, uint32_t _width, uint32_t _height, TextureFormat::Enum _format);
+	void imageEncodeFromRgba8(
+		  void* _dst
+		, const void* _src
+		, uint32_t _width
+		, uint32_t _height
+		, TextureFormat::Enum _format
+		, Quality::Enum _quality
+		, bx::Error* _err = NULL
+		);
 
 	///
-	void imageRgba32f11to01(void* _dst, uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _src);
+	void imageEncodeFromRgba32f(
+		  bx::AllocatorI* _allocator
+		, void* _dst
+		, const void* _src
+		, uint32_t _width
+		, uint32_t _height
+		, TextureFormat::Enum _format
+		, Quality::Enum _quality
+		, bx::Error* _err = NULL
+		);
 
 	///
-	void imageMakeDist(bx::AllocatorI* _allocator, void* _dst, uint32_t _width, uint32_t _height, uint32_t _pitch, float _edge, const void* _src);
+	void imageRgba32f11to01(
+		  void* _dst
+		, uint32_t _width
+		, uint32_t _height
+		, uint32_t _pitch
+		, const void* _src
+		);
+
+	///
+	void imageMakeDist(
+		  bx::AllocatorI* _allocator
+		, void* _dst
+		, uint32_t _width
+		, uint32_t _height
+		, uint32_t _srcPitch
+		, float _edge
+		, const void* _src
+		);
+
+	///
+	float imageQualityRgba8(
+		  const void* _reference
+		, const void* _data
+		, uint16_t _width
+		, uint16_t _height
+		);
+
+	///
+	bool imageResizeRgba32fLinear(
+		  ImageContainer* _dst
+		, const ImageContainer* _src
+		);
+
+	///
+	float imageAlphaTestCoverage(
+		  TextureFormat::Enum _format
+		, uint32_t _width
+		, uint32_t _height
+		, uint32_t _srcPitch
+		, const void* _src
+		, float _alphaRef
+		, float _scale = 1.0f
+		);
+
+	///
+	void imageScaleAlphaToCoverage(
+		  TextureFormat::Enum _format
+		, uint32_t _width
+		, uint32_t _height
+		, uint32_t _srcPitch
+		, void* _src
+		, float _coverage
+		, float _alphaRef
+		);
 
 } // namespace bimg
 
