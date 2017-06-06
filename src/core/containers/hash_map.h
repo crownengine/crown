@@ -87,7 +87,7 @@ namespace hash_map_internal
 				return END_OF_LIST;
 			else if (dist > probe_distance(m, m._index[hash_i].hash, hash_i))
 				return END_OF_LIST;
-			else if (!is_deleted(m._index[hash_i].index) && m._index[hash_i].hash == hash && m._data[hash_i].pair.first == key)
+			else if (!is_deleted(m._index[hash_i].index) && m._index[hash_i].hash == hash && m._data[hash_i].first == key)
 				return hash_i;
 
 			hash_i = (hash_i + 1) & m._mask;
@@ -119,7 +119,7 @@ namespace hash_map_internal
 
 				std::swap(hash, m._index[hash_i].hash);
 				m._index[hash_i].index = 0x0123abcd;
-				swap(new_item, m._data[hash_i].pair);
+				swap(new_item, m._data[hash_i]);
 
 				dist = existing_elem_probe_dist;
 			}
@@ -165,7 +165,7 @@ namespace hash_map_internal
 			const u32 index = m._index[i].index;
 
 			if (index != FREE && !is_deleted(index))
-				hash_map_internal::insert(nm, hash, e.pair.first, e.pair.second);
+				hash_map_internal::insert(nm, hash, e.first, e.second);
 		}
 
 		HashMap<TKey, TValue, Hash> empty(*m._allocator);
@@ -216,7 +216,7 @@ namespace hash_map
 		if (i == hash_map_internal::END_OF_LIST)
 			return deffault;
 		else
-			return m._data[i].pair.second;
+			return m._data[i].second;
 	}
 
 	template <typename TKey, typename TValue, typename Hash>
@@ -234,7 +234,7 @@ namespace hash_map
 		}
 		else
 		{
-			m._data[i].pair.second = value;
+			m._data[i].second = value;
 		}
 		if (hash_map_internal::full(m))
 			hash_map_internal::grow(m);
@@ -247,7 +247,7 @@ namespace hash_map
 		if (i == hash_map_internal::END_OF_LIST)
 			return;
 
-		m._data[i].~Entry();
+		m._data[i].~Pair();
 		m._index[i].index |= hash_map_internal::DELETED;
 		--m._size;
 	}
@@ -258,7 +258,7 @@ namespace hash_map
 		for (u32 i = 0; i < m._capacity; ++i)
 		{
 			if (m._index[i].index == 0x0123abcd)
-				m._data[i].~Entry();
+				m._data[i].~Pair();
 			m._index[i].index = hash_map_internal::FREE;
 		}
 
@@ -284,7 +284,7 @@ HashMap<TKey, TValue, Hash>::~HashMap()
 	for (u32 i = 0; i < _capacity; ++i)
 	{
 		if (_index[i].index == 0x0123abcd)
-			_data[i].~Entry();
+			_data[i].~Pair();
 	}
 
 	_allocator->deallocate(_index);

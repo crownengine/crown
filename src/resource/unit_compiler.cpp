@@ -357,7 +357,7 @@ Buffer UnitCompiler::blob()
 	auto end = sort_map::end(_component_data);
 	for (; cur != end; ++cur)
 	{
-		const u32 num = cur->pair.second._num;
+		const u32 num = cur->second._num;
 
 		if (num > 0)
 			++ur.num_component_types;

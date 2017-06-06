@@ -124,17 +124,7 @@ struct HashMap
 {
 	ALLOCATOR_AWARE;
 
-	struct Entry
-	{
-		ALLOCATOR_AWARE;
-
-		PAIR(TKey, TValue) pair;
-
-		Entry(Allocator& a)
-			: pair(a)
-		{
-		}
-	};
+	typedef PAIR(TKey, TValue) Entry;
 
 	struct Index
 	{
@@ -166,17 +156,7 @@ struct SortMap
 {
 	ALLOCATOR_AWARE;
 
-	struct Entry
-	{
-		ALLOCATOR_AWARE;
-
-		PAIR(TKey, TValue) pair;
-
-		Entry(Allocator& a)
-			: pair(a)
-		{
-		}
-	};
+	typedef PAIR(TKey, TValue) Entry;
 
 	Vector<Entry> _data;
 #if CROWN_DEBUG

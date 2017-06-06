@@ -18,6 +18,8 @@ struct Pair
 template <typename T1, typename T2>
 struct Pair<T1, T2, 0, 0>
 {
+	ALLOCATOR_AWARE;
+
 	Pair(T1& f, T2& s)
 		: first(f)
 		, second(s)
@@ -35,6 +37,8 @@ struct Pair<T1, T2, 0, 0>
 template <typename T1, typename T2>
 struct Pair<T1, T2, 1, 0>
 {
+	ALLOCATOR_AWARE;
+
 	Pair(T1& f, T2& s)
 		: first(f)
 		, second(s)
@@ -53,6 +57,8 @@ struct Pair<T1, T2, 1, 0>
 template <typename T1, typename T2>
 struct Pair<T1, T2, 0, 1>
 {
+	ALLOCATOR_AWARE;
+
 	Pair(T1& f, T2& s)
 		: first(f)
 		, second(s)
@@ -71,6 +77,8 @@ struct Pair<T1, T2, 0, 1>
 template <typename T1, typename T2>
 struct Pair<T1, T2, 1, 1>
 {
+	ALLOCATOR_AWARE;
+
 	Pair(T1& f, T2& s)
 		: first(f)
 		, second(s)

@@ -29,10 +29,10 @@ ResourceManager::~ResourceManager()
 	auto end = sort_map::end(_rm);
 	for (; cur != end; ++cur)
 	{
-		const StringId64 type = cur->pair.first.type;
-		const StringId64 name = cur->pair.first.name;
+		const StringId64 type = cur->first.type;
+		const StringId64 name = cur->first.name;
 		on_offline(type, name);
-		on_unload(type, cur->pair.second.data);
+		on_unload(type, cur->second.data);
 	}
 }
 

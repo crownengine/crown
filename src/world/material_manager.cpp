@@ -26,7 +26,7 @@ MaterialManager::~MaterialManager()
 	auto end = sort_map::end(_materials);
 	for (; cur != end; ++cur)
 	{
-		_allocator->deallocate(cur->pair.second);
+		_allocator->deallocate(cur->second);
 	}
 }
 
