@@ -22,7 +22,8 @@ namespace audio_globals
 	void shutdown()
 	{
 	}
-}
+
+} // namespace audio_globals
 
 class SoundWorldNoop : public SoundWorld
 {

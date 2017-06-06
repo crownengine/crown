@@ -52,7 +52,8 @@ namespace aabb
 
 	/// Returns the sphere enclosing the box @a b.
 	Sphere to_sphere(const AABB& b);
-}
+
+} // namespace aabb
 
 namespace aabb
 {

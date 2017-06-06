@@ -165,7 +165,8 @@ namespace console_server_globals
 		CE_DELETE(default_allocator(), _console_server);
 		_console_server = NULL;
 	}
-}
+
+} // namespace console_server_globals
 
 ConsoleServer* console_server()
 {

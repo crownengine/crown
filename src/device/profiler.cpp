@@ -133,6 +133,7 @@ namespace profiler_globals
 	{
 		array::clear(*_buffer);
 	}
-}
+
+} // namespace profiler_globals
 
 } // namespace crown

@@ -38,7 +38,8 @@ namespace guid
 
 	/// Fills @a str with the string representation of the @a guid.
 	void to_string(const Guid& guid, DynamicString& str);
-}
+
+} // namespace guid
 
 /// Returns whether Guid @a and @b are equal.
 inline bool operator==(const Guid& a, const Guid& b)

@@ -141,7 +141,8 @@ namespace sprite_resource
 	{
 		return ((f32*)&sr[1]) + 16*i;
 	}
-}
+
+} // namespace sprite_resource
 
 namespace sprite_animation_resource_internal
 {

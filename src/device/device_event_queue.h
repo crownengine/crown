@@ -69,14 +69,13 @@ union OsEvent
 	ResolutionEvent resolution;
 };
 
-#define MAX_OS_EVENTS 4096
-
 /// Single Producer Single Consumer event queue.
 /// Used only to pass events from os thread to main thread.
 struct DeviceEventQueue
 {
 	AtomicInt _tail;
 	AtomicInt _head;
+#define MAX_OS_EVENTS 4096
 	OsEvent _queue[MAX_OS_EVENTS];
 
 	DeviceEventQueue()

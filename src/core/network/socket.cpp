@@ -34,6 +34,7 @@ namespace
 		return WSAGetLastError();
 #endif
 	}
+
 }
 
 namespace socket_internal

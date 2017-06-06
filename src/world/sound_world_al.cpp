@@ -73,7 +73,8 @@ namespace audio_globals
 		alcDestroyContext(s_al_context);
 	    alcCloseDevice(s_al_device);
 	}
-}
+
+} // namespace audio_globals
 
 struct SoundInstance
 {

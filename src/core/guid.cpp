@@ -69,6 +69,7 @@ namespace guid
 			);
 		str.set(buf, sizeof(buf)-1);
 	}
-}
+
+} // namespace guid
 
 } // namespace crown
