@@ -61,15 +61,16 @@ representation. The result of the compilation process is stored in the data dire
 	|   ├── a14e8dfa2cd...  <- Compiled file
 	|   ├── 72e3cc03787...  <- Another compiled file
 	|   └── ...
-	├── temp                <- Temporary files from data compilers
-	└── last.log            <- Text log from the last engine execution
+	├── data_index.sjson    <- Used to convert resource IDs to human-readable names
+	├── last.log            <- Text log from the last engine execution
+	└── temp                <- Temporary files from data compilers
 
 The .dataignore file
 ----------------------
 
 The ``.dataignore`` file specifies files that Crown should ignore when compiling data.
 
-When Crown bumps into unknown files in the source directory, it reports and error and quits the
+When Crown bumps into unknown files in the source directory, it reports an error and quits the
 compilation.
 This is often desired behavior, since you do not want non-essential data in your source directory.
 
