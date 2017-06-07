@@ -25,82 +25,140 @@ namespace audio_globals
 
 } // namespace audio_globals
 
-class SoundWorldNoop : public SoundWorld
+struct SoundWorldImpl
 {
-public:
-
-	SoundWorldNoop()
+	SoundWorldImpl()
 	{
 	}
 
-	virtual ~SoundWorldNoop()
+	~SoundWorldImpl()
 	{
 	}
 
-	virtual SoundInstanceId play(const SoundResource& /*sr*/, bool /*loop*/, f32 /*volume*/, f32 /*range*/, const Vector3& /*pos*/)
+	SoundInstanceId play(const SoundResource& /*sr*/, bool /*loop*/, f32 /*volume*/, f32 /*range*/, const Vector3& /*pos*/)
 	{
 		return 0;
 	}
 
-	virtual void stop(SoundInstanceId /*id*/)
+	void stop(SoundInstanceId /*id*/)
 	{
 	}
 
-	virtual bool is_playing(SoundInstanceId /*id*/)
+	bool is_playing(SoundInstanceId /*id*/)
 	{
 		return false;
 	}
 
-	virtual void stop_all()
+	void stop_all()
 	{
 	}
 
-	virtual void pause_all()
+	void pause_all()
 	{
 	}
 
-	virtual void resume_all()
+	void resume_all()
 	{
 	}
 
-	virtual void set_sound_positions(u32 /*num*/, const SoundInstanceId* /*ids*/, const Vector3* /*positions*/)
+	void set_sound_positions(u32 /*num*/, const SoundInstanceId* /*ids*/, const Vector3* /*positions*/)
 	{
 	}
 
-	virtual void set_sound_ranges(u32 /*num*/, const SoundInstanceId* /*ids*/, const f32* /*ranges*/)
+	void set_sound_ranges(u32 /*num*/, const SoundInstanceId* /*ids*/, const f32* /*ranges*/)
 	{
 	}
 
-	virtual void set_sound_volumes(u32 /*num*/, const SoundInstanceId* /*ids*/, const f32* /*volumes*/)
+	void set_sound_volumes(u32 /*num*/, const SoundInstanceId* /*ids*/, const f32* /*volumes*/)
 	{
 	}
 
-	virtual void reload_sounds(const SoundResource& /*old_sr*/, const SoundResource& /*new_sr*/)
+	void reload_sounds(const SoundResource& /*old_sr*/, const SoundResource& /*new_sr*/)
 	{
 	}
 
-	virtual void set_listener_pose(const Matrix4x4& /*pose*/)
+	void set_listener_pose(const Matrix4x4& /*pose*/)
 	{
 	}
 
-	virtual void update()
+	void update()
 	{
 	}
 };
 
-namespace sound_world
+SoundWorld::SoundWorld(Allocator& a)
+	: _marker(SOUND_WORLD_MARKER)
+	, _allocator(&a)
+	, _impl(NULL)
 {
-	SoundWorld* create(Allocator& a)
-	{
-		return CE_NEW(a, SoundWorldNoop)();
-	}
+	_impl = CE_NEW(*_allocator, SoundWorldImpl)();
+}
 
-	void destroy(Allocator& a, SoundWorld* sw)
-	{
-		CE_DELETE(a, sw);
-	}
+SoundWorld::~SoundWorld()
+{
+	CE_DELETE(*_allocator, _impl);
+	_marker = 0;
+}
 
-} // namespace sound_world
+SoundInstanceId SoundWorld::play(const SoundResource& sr, bool loop, f32 volume, f32 range, const Vector3& pos)
+{
+	return _impl->play(sr, loop, volume, range, pos);
+}
+
+void SoundWorld::stop(SoundInstanceId id)
+{
+	_impl->stop(id);
+}
+
+bool SoundWorld::is_playing(SoundInstanceId id)
+{
+	return _impl->is_playing(id);
+}
+
+void SoundWorld::stop_all()
+{
+	_impl->stop_all();
+}
+
+void SoundWorld::pause_all()
+{
+	_impl->pause_all();
+}
+
+void SoundWorld::resume_all()
+{
+	_impl->resume_all();
+}
+
+void SoundWorld::set_sound_positions(u32 num, const SoundInstanceId* ids, const Vector3* positions)
+{
+	_impl->set_sound_positions(num, ids, positions);
+}
+
+void SoundWorld::set_sound_ranges(u32 num, const SoundInstanceId* ids, const f32* ranges)
+{
+	_impl->set_sound_ranges(num, ids, ranges);
+}
+
+void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId* ids, const f32* volumes)
+{
+	_impl->set_sound_volumes(num, ids, volumes);
+}
+
+void SoundWorld::reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
+{
+	_impl->reload_sounds(old_sr, new_sr);
+}
+
+void SoundWorld::set_listener_pose(const Matrix4x4& pose)
+{
+	_impl->set_listener_pose(pose);
+}
+
+void SoundWorld::update()
+{
+	_impl->update();
+}
 
 } // namespace crown
 

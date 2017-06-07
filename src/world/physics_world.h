@@ -12,189 +12,207 @@
 
 namespace crown
 {
+struct PhysicsWorldImpl;
+
 /// Manages physics objects in a World.
 ///
 /// @ingroup World
 struct PhysicsWorld
 {
-public:
+	u32 _marker;
+	Allocator* _allocator;
+	PhysicsWorldImpl* _impl;
 
-	PhysicsWorld() {}
-	virtual ~PhysicsWorld() {}
+	///
+	PhysicsWorld(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl);
 
-	virtual ColliderInstance collider_create(UnitId id, const ColliderDesc* sd) = 0;
-	virtual void collider_destroy(ColliderInstance i) = 0;
-	virtual ColliderInstance collider_first(UnitId id) = 0;
-	virtual ColliderInstance collider_next(ColliderInstance i) = 0;
+	///
+	~PhysicsWorld();
 
-	virtual ActorInstance actor_create(UnitId id, const ActorResource* ar, const Matrix4x4& tm) = 0;
-	virtual void actor_destroy(ActorInstance i) = 0;
-	virtual ActorInstance actor(UnitId id) = 0;
+	///
+	ColliderInstance collider_create(UnitId id, const ColliderDesc* sd);
+
+	///
+	void collider_destroy(ColliderInstance i);
+
+	///
+	ColliderInstance collider_first(UnitId id);
+
+	///
+	ColliderInstance collider_next(ColliderInstance i);
+
+	///
+	ActorInstance actor_create(UnitId id, const ActorResource* ar, const Matrix4x4& tm);
+
+	///
+	void actor_destroy(ActorInstance i);
+
+	///
+	ActorInstance actor(UnitId id);
 
 	/// Returns the world position of the actor.
-	virtual Vector3 actor_world_position(ActorInstance i) const = 0;
+	Vector3 actor_world_position(ActorInstance i) const;
 
 	/// Returns the world rotation of the actor.
-	virtual Quaternion actor_world_rotation(ActorInstance i) const = 0;
+	Quaternion actor_world_rotation(ActorInstance i) const;
 
 	/// Returns the world pose of the actor.
-	virtual Matrix4x4 actor_world_pose(ActorInstance i) const = 0;
+	Matrix4x4 actor_world_pose(ActorInstance i) const;
 
 	/// Teleports the actor to the given world position.
-	virtual void actor_teleport_world_position(ActorInstance i, const Vector3& p) = 0;
+	void actor_teleport_world_position(ActorInstance i, const Vector3& p);
 
 	/// Teleports the actor to the given world rotation.
-	virtual void actor_teleport_world_rotation(ActorInstance i, const Quaternion& r) = 0;
+	void actor_teleport_world_rotation(ActorInstance i, const Quaternion& r);
 
 	/// Teleports the actor to the given world pose.
-	virtual void actor_teleport_world_pose(ActorInstance i, const Matrix4x4& m) = 0;
+	void actor_teleport_world_pose(ActorInstance i, const Matrix4x4& m);
 
 	/// Returns the center of mass of the actor.
-	virtual Vector3 actor_center_of_mass(ActorInstance i) const = 0;
+	Vector3 actor_center_of_mass(ActorInstance i) const;
 
 	/// Enables gravity for the actor.
-	virtual void actor_enable_gravity(ActorInstance i) = 0;
+	void actor_enable_gravity(ActorInstance i);
 
 	/// Disables gravity for the actor.
-	virtual void actor_disable_gravity(ActorInstance i) = 0;
+	void actor_disable_gravity(ActorInstance i);
 
 	/// Enables collision detection for the actor.
-	virtual void actor_enable_collision(ActorInstance i) = 0;
+	void actor_enable_collision(ActorInstance i);
 
 	/// Disables collision detection for the actor.
-	virtual void actor_disable_collision(ActorInstance i) = 0;
+	void actor_disable_collision(ActorInstance i);
 
 	/// Sets the collision filter of the actor.
-	virtual void actor_set_collision_filter(ActorInstance i, StringId32 filter) = 0;
+	void actor_set_collision_filter(ActorInstance i, StringId32 filter);
 
 	/// Sets whether the actor is kinematic or not.
 	/// @note This call has no effect on static actors.
-	virtual void actor_set_kinematic(ActorInstance i, bool kinematic) = 0;
+	void actor_set_kinematic(ActorInstance i, bool kinematic);
 
 	/// Moves the actor to @a pos
 	/// @note This call only affects nonkinematic actors.
-	virtual void actor_move(ActorInstance i, const Vector3& pos) = 0;
+	void actor_move(ActorInstance i, const Vector3& pos);
 
 	/// Returns whether the actor is static.
-	virtual bool actor_is_static(ActorInstance i) const = 0;
+	bool actor_is_static(ActorInstance i) const;
 
 	/// Returns whether the actor is dynamic.
-	virtual bool actor_is_dynamic(ActorInstance i) const = 0;
+	bool actor_is_dynamic(ActorInstance i) const;
 
 	/// Returns whether the actor is kinematic (keyframed).
-	virtual bool actor_is_kinematic(ActorInstance i) const = 0;
+	bool actor_is_kinematic(ActorInstance i) const;
 
 	/// Returns whether the actor is nonkinematic (i.e. dynamic and not kinematic).
-	virtual bool actor_is_nonkinematic(ActorInstance i) const = 0;
+	bool actor_is_nonkinematic(ActorInstance i) const;
 
 	/// Returns the linear damping of the actor.
-	virtual f32 actor_linear_damping(ActorInstance i) const = 0;
+	f32 actor_linear_damping(ActorInstance i) const;
 
 	/// Sets the linear damping of the actor.
-	virtual void actor_set_linear_damping(ActorInstance i, f32 rate) = 0;
+	void actor_set_linear_damping(ActorInstance i, f32 rate);
 
 	/// Returns the angular damping of the actor.
-	virtual f32 actor_angular_damping(ActorInstance i) const = 0;
+	f32 actor_angular_damping(ActorInstance i) const;
 
 	/// Sets the angular damping of the actor.
-	virtual void actor_set_angular_damping(ActorInstance i, f32 rate) = 0;
+	void actor_set_angular_damping(ActorInstance i, f32 rate);
 
 	/// Returns the linear velocity of the actor.
-	virtual Vector3 actor_linear_velocity(ActorInstance i) const = 0;
+	Vector3 actor_linear_velocity(ActorInstance i) const;
 
 	/// Sets the linear velocity of the actor.
 	/// @note This call only affects nonkinematic actors.
-	virtual void actor_set_linear_velocity(ActorInstance i, const Vector3& vel) = 0;
+	void actor_set_linear_velocity(ActorInstance i, const Vector3& vel);
 
 	/// Returns the angular velocity of the actor.
-	virtual Vector3 actor_angular_velocity(ActorInstance i) const = 0;
+	Vector3 actor_angular_velocity(ActorInstance i) const;
 
 	/// Sets the angular velocity of the actor.
 	/// @note This call only affects nonkinematic actors.
-	virtual void actor_set_angular_velocity(ActorInstance i, const Vector3& vel) = 0;
+	void actor_set_angular_velocity(ActorInstance i, const Vector3& vel);
 
 	/// Adds a linear impulse (acting along the center of mass) to the actor.
 	/// @note This call only affects nonkinematic actors.
-	virtual void actor_add_impulse(ActorInstance i, const Vector3& impulse) = 0;
+	void actor_add_impulse(ActorInstance i, const Vector3& impulse);
 
 	/// Adds a linear impulse (acting along the world position @a pos) to the actor.
 	/// @note This call only affects nonkinematic actors.
-	virtual void actor_add_impulse_at(ActorInstance i, const Vector3& impulse, const Vector3& pos) = 0;
+	void actor_add_impulse_at(ActorInstance i, const Vector3& impulse, const Vector3& pos);
 
 	/// Adds a torque impulse to the actor.
-	virtual void actor_add_torque_impulse(ActorInstance i, const Vector3& imp) = 0;
+	void actor_add_torque_impulse(ActorInstance i, const Vector3& imp);
 
 	/// Pushes the actor as if it was hit by a point object with the given @a mass
 	/// travelling at the given @a velocity.
 	/// @note This call only affects nonkinematic actors.
-	virtual void actor_push(ActorInstance i, const Vector3& vel, f32 mass) = 0;
+	void actor_push(ActorInstance i, const Vector3& vel, f32 mass);
 
 	/// Like push() but applies the force at the world position @a pos.
 	/// @note This call only affects nonkinematic actors.
-	virtual void actor_push_at(ActorInstance i, const Vector3& vel, f32 mass, const Vector3& pos) = 0;
+	void actor_push_at(ActorInstance i, const Vector3& vel, f32 mass, const Vector3& pos);
 
 	/// Returns whether the actor is sleeping.
-	virtual bool actor_is_sleeping(ActorInstance i) = 0;
+	bool actor_is_sleeping(ActorInstance i);
 
 	/// Wakes the actor up.
-	virtual void actor_wake_up(ActorInstance i) = 0;
+	void actor_wake_up(ActorInstance i);
 
-	virtual ControllerInstance controller_create(UnitId id, const ControllerDesc& cd, const Matrix4x4& tm) = 0;
-	virtual void controller_destroy(ControllerInstance id) = 0;
-	virtual ControllerInstance controller(UnitId id) = 0;
+	///
+	ControllerInstance controller_create(UnitId id, const ControllerDesc& cd, const Matrix4x4& tm);
+
+	///
+	void controller_destroy(ControllerInstance id);
+
+	///
+	ControllerInstance controller(UnitId id);
 
 	/// Returns the position of the controller.
-	virtual Vector3 controller_position(ControllerInstance i) const = 0;
+	Vector3 controller_position(ControllerInstance i) const;
 
 	/// Moves the controller to @a pos.
-	virtual void controller_move(ControllerInstance i, const Vector3& pos) = 0;
+	void controller_move(ControllerInstance i, const Vector3& pos);
 
 	/// Sets the contoller height.
-	virtual void controller_set_height(ControllerInstance i, f32 height) = 0;
+	void controller_set_height(ControllerInstance i, f32 height);
 
 	/// Returns whether the contoller collides upwards.
-	virtual bool controller_collides_up(ControllerInstance i) const = 0;
+	bool controller_collides_up(ControllerInstance i) const;
 
 	/// Returns whether the controller collides downwards.
-	virtual bool controller_collides_down(ControllerInstance i) const = 0;
+	bool controller_collides_down(ControllerInstance i) const;
 
 	/// Returns whether the controller collides sidewards.
-	virtual bool controller_collides_sides(ControllerInstance i) const = 0;
+	bool controller_collides_sides(ControllerInstance i) const;
 
 	/// Creates joint
-	virtual JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd) = 0;
-	virtual void joint_destroy(JointInstance i) = 0;
+	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd);
+
+	///
+	void joint_destroy(JointInstance i);
 
 	/// Performs a raycast.
-	virtual void raycast(const Vector3& from, const Vector3& dir, f32 len, RaycastMode::Enum mode, Array<RaycastHit>& hits) = 0;
+	void raycast(const Vector3& from, const Vector3& dir, f32 len, RaycastMode::Enum mode, Array<RaycastHit>& hits);
 
 	/// Returns the gravity.
-	virtual Vector3 gravity() const = 0;
+	Vector3 gravity() const;
 
 	/// Sets the gravity.
-	virtual void set_gravity(const Vector3& g) = 0;
+	void set_gravity(const Vector3& g);
 
-	virtual void update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world) = 0;
+	void update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world);
 
 	/// Updates the physics simulation.
-	virtual void update(f32 dt) = 0;
+	void update(f32 dt);
 
-	virtual EventStream& events() = 0;
+	///
+	EventStream& events();
 
 	/// Draws debug lines.
-	virtual void debug_draw() = 0;
+	void debug_draw();
 
-	virtual void enable_debug_drawing(bool enable) = 0;
+	///
+	void enable_debug_drawing(bool enable);
 };
-
-/// Functions to manipulate PhysicsWorld.
-///
-/// @ingroup World
-namespace physics_world
-{
-	PhysicsWorld* create(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl);
-	void destroy(Allocator& a, PhysicsWorld* pw);
-
-} // namespace physics_world
 
 } // namespace crown

@@ -35,10 +35,16 @@ namespace crown
 		}
 	}
 
-	#define AL_CHECK(function)\
-		function;\
-		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\
-				"OpenAL error: %s", al_error_to_string(error)); } while (0)
+	#define AL_CHECK(function)                              \
+		function;                                           \
+		do                                                  \
+		{                                                   \
+			ALenum error;                                   \
+			CE_ASSERT((error = alGetError()) == AL_NO_ERROR \
+				, "alGetError: %s"                          \
+				, al_error_to_string(error)                 \
+				);                                          \
+		} while (0)
 #else
 	#define AL_CHECK(function) function
 #endif // CROWN_DEBUG
@@ -78,6 +84,11 @@ namespace audio_globals
 
 struct SoundInstance
 {
+	const SoundResource* _resource;
+	SoundInstanceId _id;
+	ALuint _buffer;
+	ALuint _source;
+
 	void create(const SoundResource& sr, const Vector3& pos, f32 range)
 	{
 		using namespace sound_resource;
@@ -194,25 +205,13 @@ struct SoundInstance
 	{
 		AL_CHECK(alSourcef(_source, AL_GAIN, volume));
 	}
-
-	const SoundResource* resource()
-	{
-		return _resource;
-	}
-
-public:
-
-	const SoundResource* _resource;
-	SoundInstanceId _id;
-	ALuint _buffer;
-	ALuint _source;
 };
 
 #define MAX_OBJECTS       1024
 #define INDEX_MASK        0xffff
 #define NEW_OBJECT_ID_ADD 0x10000
 
-class ALSoundWorld : public SoundWorld
+struct SoundWorldImpl
 {
 	struct Index
 	{
@@ -263,9 +262,7 @@ class ALSoundWorld : public SoundWorld
 		_freelist_enqueue = id & INDEX_MASK;
 	}
 
-public:
-
-	ALSoundWorld()
+	SoundWorldImpl()
 	{
 		_num_objects = 0;
 		for (u32 i = 0; i < MAX_OBJECTS; ++i)
@@ -279,11 +276,7 @@ public:
 		set_listener_pose(MATRIX4X4_IDENTITY);
 	}
 
-	virtual ~ALSoundWorld()
-	{
-	}
-
-	virtual SoundInstanceId play(const SoundResource& sr, bool loop, f32 volume, f32 range, const Vector3& pos)
+	SoundInstanceId play(const SoundResource& sr, bool loop, f32 volume, f32 range, const Vector3& pos)
 	{
 		SoundInstanceId id = add();
 		SoundInstance& si = lookup(id);
@@ -292,19 +285,19 @@ public:
 		return id;
 	}
 
-	virtual void stop(SoundInstanceId id)
+	void stop(SoundInstanceId id)
 	{
 		SoundInstance& si = lookup(id);
 		si.destroy();
 		remove(id);
 	}
 
-	virtual bool is_playing(SoundInstanceId id)
+	bool is_playing(SoundInstanceId id)
 	{
 		return has(id) && lookup(id).is_playing();
 	}
 
-	virtual void stop_all()
+	void stop_all()
 	{
 		for (u32 i = 0; i < _num_objects; ++i)
 		{
@@ -312,7 +305,7 @@ public:
 		}
 	}
 
-	virtual void pause_all()
+	void pause_all()
 	{
 		for (u32 i = 0; i < _num_objects; ++i)
 		{
@@ -320,7 +313,7 @@ public:
 		}
 	}
 
-	virtual void resume_all()
+	void resume_all()
 	{
 		for (u32 i = 0; i < _num_objects; ++i)
 		{
@@ -328,7 +321,7 @@ public:
 		}
 	}
 
-	virtual void set_sound_positions(u32 num, const SoundInstanceId* ids, const Vector3* positions)
+	void set_sound_positions(u32 num, const SoundInstanceId* ids, const Vector3* positions)
 	{
 		for (u32 i = 0; i < num; ++i)
 		{
@@ -336,7 +329,7 @@ public:
 		}
 	}
 
-	virtual void set_sound_ranges(u32 num, const SoundInstanceId* ids, const f32* ranges)
+	void set_sound_ranges(u32 num, const SoundInstanceId* ids, const f32* ranges)
 	{
 		for (u32 i = 0; i < num; ++i)
 		{
@@ -344,7 +337,7 @@ public:
 		}
 	}
 
-	virtual void set_sound_volumes(u32 num, const SoundInstanceId* ids, const f32* volumes)
+	void set_sound_volumes(u32 num, const SoundInstanceId* ids, const f32* volumes)
 	{
 		for (u32 i = 0; i < num; i++)
 		{
@@ -352,18 +345,18 @@ public:
 		}
 	}
 
-	virtual void reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
+	void reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
 	{
 		for (u32 i = 0; i < _num_objects; ++i)
 		{
-			if (_playing_sounds[i].resource() == &old_sr)
+			if (_playing_sounds[i]._resource == &old_sr)
 			{
 				_playing_sounds[i].reload(new_sr);
 			}
 		}
 	}
 
-	virtual void set_listener_pose(const Matrix4x4& pose)
+	void set_listener_pose(const Matrix4x4& pose)
 	{
 		const Vector3 pos = translation(pose);
 		const Vector3 up = y(pose);
@@ -377,7 +370,7 @@ public:
 		_listener_pose = pose;
 	}
 
-	virtual void update()
+	void update()
 	{
 		TempAllocator256 alloc;
 		Array<SoundInstanceId> to_delete(alloc);
@@ -400,19 +393,79 @@ public:
 	}
 };
 
-namespace sound_world
+SoundWorld::SoundWorld(Allocator& a)
+	: _marker(SOUND_WORLD_MARKER)
+	, _allocator(&a)
+	, _impl(NULL)
 {
-	SoundWorld* create(Allocator& a)
-	{
-		return CE_NEW(a, ALSoundWorld)();
-	}
+	_impl = CE_NEW(*_allocator, SoundWorldImpl)();
+}
 
-	void destroy(Allocator& a, SoundWorld* sw)
-	{
-		CE_DELETE(a, sw);
-	}
+SoundWorld::~SoundWorld()
+{
+	CE_DELETE(*_allocator, _impl);
+	_marker = 0;
+}
 
-} // namespace sound_world
+SoundInstanceId SoundWorld::play(const SoundResource& sr, bool loop, f32 volume, f32 range, const Vector3& pos)
+{
+	return _impl->play(sr, loop, volume, range, pos);
+}
+
+void SoundWorld::stop(SoundInstanceId id)
+{
+	_impl->stop(id);
+}
+
+bool SoundWorld::is_playing(SoundInstanceId id)
+{
+	return _impl->is_playing(id);
+}
+
+void SoundWorld::stop_all()
+{
+	_impl->stop_all();
+}
+
+void SoundWorld::pause_all()
+{
+	_impl->pause_all();
+}
+
+void SoundWorld::resume_all()
+{
+	_impl->resume_all();
+}
+
+void SoundWorld::set_sound_positions(u32 num, const SoundInstanceId* ids, const Vector3* positions)
+{
+	_impl->set_sound_positions(num, ids, positions);
+}
+
+void SoundWorld::set_sound_ranges(u32 num, const SoundInstanceId* ids, const f32* ranges)
+{
+	_impl->set_sound_ranges(num, ids, ranges);
+}
+
+void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId* ids, const f32* volumes)
+{
+	_impl->set_sound_volumes(num, ids, volumes);
+}
+
+void SoundWorld::reload_sounds(const SoundResource& old_sr, const SoundResource& new_sr)
+{
+	_impl->reload_sounds(old_sr, new_sr);
+}
+
+void SoundWorld::set_listener_pose(const Matrix4x4& pose)
+{
+	_impl->set_listener_pose(pose);
+}
+
+void SoundWorld::update()
+{
+	_impl->update();
+}
 
 } // namespace crown
 

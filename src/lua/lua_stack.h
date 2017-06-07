@@ -253,8 +253,7 @@ struct LuaStack
 	{
 		PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
 #if !CROWN_RELEASE
-//		if (*(u32*)p != PhysicsWorld::MARKER)
-//			luaL_typerror(L, i, "PhysicsWorld");
+		check_type(i, p);
 #endif // !CROWN_RELEASE
 		return p;
 	}
@@ -263,8 +262,7 @@ struct LuaStack
 	{
 		SoundWorld* p = (SoundWorld*)get_pointer(i);
 #if !CROWN_RELEASE
-//		if (*(u32*)p != SoundWorld::MARKER)
-//			luaL_typerror(L, i, "SoundWorld");
+		check_type(i, p);
 #endif // !CROWN_RELEASE
 		return p;
 	}
@@ -708,6 +706,18 @@ struct LuaStack
 	{
 		if (!is_pointer(i) || *(u32*)p != RENDER_WORLD_MARKER)
 			luaL_typerror(L, i, "RenderWorld");
+	}
+
+	void check_type(int i, const PhysicsWorld* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != PHYSICS_WORLD_MARKER)
+			luaL_typerror(L, i, "PhysicsWorld");
+	}
+
+	void check_type(int i, const SoundWorld* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != SOUND_WORLD_MARKER)
+			luaL_typerror(L, i, "SoundWorld");
 	}
 
 	void check_type(int i, const Level* p)

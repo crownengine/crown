@@ -37,6 +37,8 @@ typedef u32 SoundInstanceId;
 #define SCENE_GRAPH_MARKER      0x63a44dbf
 #define WORLD_MARKER            0xfb6ce2d3
 #define SCRIPT_WORLD_MARKER     0x78486cdc
+#define SOUND_WORLD_MARKER      0x44052b07
+#define PHYSICS_WORLD_MARKER    0x1cf49bae
 
 static const StringId32 COMPONENT_TYPE_ACTOR           = StringId32("actor");
 static const StringId32 COMPONENT_TYPE_CAMERA          = StringId32("camera");
