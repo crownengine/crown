@@ -7,7 +7,7 @@
 
 namespace crown
 {
-class DataCompiler;
-class CompileOptions;
+struct CompileOptions;
+struct DataCompiler;
 
 } // namespace crown

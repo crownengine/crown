@@ -40,23 +40,46 @@ struct DebugGui
 	Matrix4x4 _world;
 	bgfx::VertexDecl _pos_tex_col;
 
+	///
 	DebugGui(ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, u16 width, u16 height);
+
+	///
 	~DebugGui();
 
+	///
 	Vector2 resolution() const;
+
+	///
 	void move(const Vector2& pos);
 
+	///
 	Vector2 screen_to_gui(const Vector2& pos);
 
+	///
 	void triangle(const Vector3& a, const Vector3& b, const Vector3& c, StringId64 material, const Color4& color);
 
+	///
 	void rect3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color);
+
+	///
 	void rect(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color);
+
+	///
 	void image3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color);
+
+	///
 	void image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color);
+
+	///
 	void image3d_uv(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
+
+	///
 	void image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color);
+
+	///
 	void text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color);
+
+	///
 	void text(const Vector2& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color);
 };
 

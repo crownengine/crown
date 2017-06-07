@@ -65,9 +65,10 @@ struct World
 
 	CameraInstance camera_make_instance(u32 i) { CameraInstance inst = { i }; return inst; }
 
-public:
-
+	///
 	World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um, LuaEnvironment& env);
+
+	///
 	~World();
 
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.

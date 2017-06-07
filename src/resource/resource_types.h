@@ -8,8 +8,8 @@
 /// @defgroup Resource Resource
 namespace crown
 {
-class ResourceLoader;
-class ResourceManager;
+struct ResourceLoader;
+struct ResourceManager;
 struct ResourcePackage;
 
 struct ActorResource;

@@ -19,9 +19,10 @@ struct ResourcePackage
 	StringId64 _package_id;
 	const PackageResource* _package;
 
-public:
-
+	///
 	ResourcePackage(StringId64 id, ResourceManager& resman);
+
+	///
 	~ResourcePackage();
 
 	/// Loads all the resources in the package.

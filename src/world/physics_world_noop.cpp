@@ -25,6 +25,8 @@ namespace physics_globals
 
 struct PhysicsWorldImpl
 {
+	EventStream _events;
+
 	PhysicsWorldImpl(Allocator& a)
 		: _events(a)
 	{
@@ -297,14 +299,10 @@ struct PhysicsWorldImpl
 	{
 	}
 
-private:
-
 	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
 	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
 	ControllerInstance make_controller_instance(u32 i) { ControllerInstance inst = { i }; return inst; }
 	JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
-
-	EventStream _events;
 };
 
 PhysicsWorld::PhysicsWorld(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)

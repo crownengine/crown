@@ -11,7 +11,6 @@
 #include "resource_types.h"
 #include "string_id.h"
 #include "types.h"
-#include <bgfx/bgfx.h>
 
 namespace crown
 {

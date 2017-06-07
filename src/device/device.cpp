@@ -113,6 +113,8 @@ struct BgfxCallback : public bgfx::CallbackI
 
 struct BgfxAllocator : public bx::AllocatorI
 {
+	ProxyAllocator _allocator;
+
 	BgfxAllocator(Allocator& a)
 		: _allocator(a, "bgfx")
 	{
@@ -134,10 +136,6 @@ struct BgfxAllocator : public bx::AllocatorI
 		_allocator.deallocate(_ptr);
 		return p;
 	}
-
-private:
-
-	ProxyAllocator _allocator;
 };
 
 static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* user_data)

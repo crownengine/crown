@@ -20,9 +20,10 @@ namespace crown
 /// @ingroup World
 struct RenderWorld
 {
-public:
-
+	///
 	RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm, UnitManager& um);
+
+	///
 	~RenderWorld();
 
 	/// Creates a new mesh instance.

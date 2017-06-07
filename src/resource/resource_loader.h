@@ -29,7 +29,7 @@ struct ResourceRequest
 /// Loads resources in a background thread.
 ///
 /// @ingroup Resource
-class ResourceLoader
+struct ResourceLoader
 {
 	Filesystem& _data_filesystem;
 
@@ -46,10 +46,10 @@ class ResourceLoader
 	s32 run();
 	static s32 thread_proc(void* thiz);
 
-public:
-
 	/// Read resources from @a data_filesystem.
 	ResourceLoader(Filesystem& data_filesystem);
+
+	///
 	~ResourceLoader();
 
 	/// Returns whether the resource (type, name) can be loaded.

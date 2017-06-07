@@ -12,7 +12,7 @@
 
 namespace crown
 {
-class UnitCompiler
+struct UnitCompiler
 {
 	typedef Buffer (*CompileFunction)(const char* json, CompileOptions& opts);
 
@@ -58,8 +58,7 @@ class UnitCompiler
 	Buffer compile_component(StringId32 type, const char* json);
 	void add_component_data(StringId32 type, const Buffer& data, u32 unit_index);
 
-public:
-
+	///
 	UnitCompiler(CompileOptions& opts);
 
 	Buffer read_unit(const char* name);

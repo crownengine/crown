@@ -17,23 +17,22 @@ namespace crown
 /// @ingroup World
 struct UnitManager
 {
-	Array<u8> _generation;
-	Queue<u32> _free_indices;
-
-	typedef void (*DestroyFunction)(UnitId unit, void* user_ptr);
+	typedef void (*DestroyFunction)(UnitId unit, void* user_data);
 
 	struct DestroyData
 	{
 		DestroyFunction destroy;
-		void* user_ptr;
+		void* user_data;
 	};
 
+	Array<u8> _generation;
+	Queue<u32> _free_indices;
 	Array<DestroyData> _destroy_callbacks;
 
-public:
-
+	///
 	UnitManager(Allocator& a);
 
+	///
 	UnitId make_unit(u32 idx, u8 gen);
 
 	/// Creates a new empty unit.
@@ -48,9 +47,9 @@ public:
 	/// Destroys the unit @a id.
 	void destroy(UnitId id);
 
-	void register_destroy_function(DestroyFunction fn, void* user_ptr);
+	void register_destroy_function(DestroyFunction fn, void* user_data);
 
-	void unregister_destroy_function(void* user_ptr);
+	void unregister_destroy_function(void* user_data);
 
 	void trigger_destroy_callbacks(UnitId id);
 };

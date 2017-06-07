@@ -64,7 +64,10 @@ struct SceneGraph
 	InstanceData _data;
 	HashMap<UnitId, u32> _map;
 
+	///
 	SceneGraph(Allocator& a, UnitManager& um);
+
+	///
 	~SceneGraph();
 
 	/// Creates a new transform instance for unit @a id.

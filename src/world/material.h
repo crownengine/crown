@@ -19,6 +19,7 @@ struct Material
 	const MaterialResource* _resource;
 	char* _data;
 
+	///
 	void bind(ResourceManager& rm, ShaderManager& sm, u8 view = 0) const;
 
 	/// Sets the @a value of the variable @a name.

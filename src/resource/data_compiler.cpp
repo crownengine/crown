@@ -41,13 +41,11 @@ namespace { const crown::log_internal::System COMPILER = { "Compiler" }; }
 
 namespace crown
 {
-class LineReader
+struct LineReader
 {
 	const char* _str;
 	const u32 _len;
 	u32 _pos;
-
-public:
 
 	LineReader(const char* str)
 		: _str(str)

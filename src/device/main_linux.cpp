@@ -310,6 +310,13 @@ s32 func(void* data)
 
 struct LinuxDevice
 {
+	::Display* _x11_display;
+	Atom _wm_delete_message;
+	XRRScreenConfiguration* _screen_config;
+	bool _x11_detectable_autorepeat;
+	DeviceEventQueue _queue;
+	Joypad _joypad;
+
 	LinuxDevice()
 		: _x11_display(NULL)
 		, _screen_config(NULL)
@@ -478,15 +485,6 @@ struct LinuxDevice
 		XCloseDisplay(_x11_display);
 		return EXIT_SUCCESS;
 	}
-
-public:
-
-	::Display* _x11_display;
-	Atom _wm_delete_message;
-	XRRScreenConfiguration* _screen_config;
-	bool _x11_detectable_autorepeat;
-	DeviceEventQueue _queue;
-	Joypad _joypad;
 };
 
 static LinuxDevice s_ldvc;
@@ -496,8 +494,6 @@ struct WindowX11 : public Window
 	::Window _x11_window;
 	Cursor _x11_hidden_cursor;
 	Atom _wm_delete_message;
-
-public:
 
 	WindowX11()
 		: _x11_window(None)

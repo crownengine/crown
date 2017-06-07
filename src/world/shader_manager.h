@@ -30,14 +30,22 @@ struct ShaderManager
 
 	void add_shader(StringId32 name, u64 state, bgfx::ProgramHandle program);
 
-public:
-
+	///
 	ShaderManager(Allocator& a);
 
+	///
 	void* load(File& file, Allocator& a);
+
+	///
 	void online(StringId64 id, ResourceManager& rm);
+
+	///
 	void offline(StringId64 id, ResourceManager& rm);
+
+	///
 	void unload(Allocator& a, void* res);
+
+	///
 	void submit(StringId32 shader_id, u8 view_id);
 };
 

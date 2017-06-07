@@ -20,14 +20,22 @@ struct MaterialManager
 	ResourceManager* _resource_manager;
 	SortMap<StringId64, Material*> _materials;
 
-public:
-
+	///
 	MaterialManager(Allocator& a, ResourceManager& rm);
+
+	///
 	~MaterialManager();
 
+	///
 	void* load(File& file, Allocator& a);
+
+	///
 	void online(StringId64 id, ResourceManager& rm);
+
+	///
 	void offline(StringId64 id, ResourceManager& rm);
+
+	///
 	void unload(Allocator& a, void* res);
 
 	/// Creates the material @a id.

@@ -25,11 +25,13 @@ struct Level
 	const LevelResource* _resource;
 	Array<UnitId> _unit_lookup;
 
-public:
-
+	///
 	Level(Allocator& a, UnitManager& um, World& w, const LevelResource& lr);
+
+	///
 	~Level();
 
+	///
 	void load(const Vector3& pos, const Quaternion& rot);
 };
 

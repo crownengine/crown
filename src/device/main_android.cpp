@@ -41,6 +41,10 @@ s32 func(void* data)
 
 struct AndroidDevice
 {
+	DeviceEventQueue _queue;
+	Thread _main_thread;
+	MainThreadArgs _margs;
+
 	void run(struct android_app* app, DeviceOptions& opts)
 	{
 		_margs.opts = &opts;
@@ -206,12 +210,6 @@ struct AndroidDevice
 	{
 		((AndroidDevice*) app->userData)->process_command(app, cmd);
 	}
-
-public:
-
-	DeviceEventQueue _queue;
-	Thread _main_thread;
-	MainThreadArgs _margs;
 };
 
 struct WindowAndroid : public Window

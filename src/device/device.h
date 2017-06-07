@@ -66,8 +66,7 @@ struct Device
 
 	bool process_events(bool vsync);
 
-public:
-
+	///
 	Device(const DeviceOptions& opts, ConsoleServer& cs);
 
 	/// Runs the engine.

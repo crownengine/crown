@@ -105,9 +105,9 @@ static Quaternion to_quaternion(const btQuaternion& q)
 	return quaternion(q.x(), q.y(), q.z(), q.w());
 }
 
-class MyDebugDrawer : public btIDebugDraw
+struct MyDebugDrawer : public btIDebugDraw
 {
-public:
+	DebugLine* _lines;
 
 	MyDebugDrawer(DebugLine& dl)
 		: _lines(&dl)
@@ -148,13 +148,9 @@ public:
 			| DBG_FastWireframe
 			;
 	}
-
-public:
-
-	DebugLine* _lines;
 };
 
-class MyFilterCallback : public btOverlapFilterCallback
+struct MyFilterCallback : public btOverlapFilterCallback
 {
 	bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const
 	{
@@ -1019,8 +1015,6 @@ struct PhysicsWorldImpl
 	{
 		((PhysicsWorldImpl*)user_ptr)->unit_destroyed_callback(id);
 	}
-
-private:
 
 	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
 	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }

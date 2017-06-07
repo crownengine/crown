@@ -41,6 +41,8 @@ struct DebugLine
 
 	/// Whether to enable @a depth_test
 	DebugLine(ShaderManager& sm, bool depth_test);
+
+	///
 	~DebugLine();
 
 	/// Adds a line from @a start to @a end with the given @a color.

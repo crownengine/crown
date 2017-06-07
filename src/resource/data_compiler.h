@@ -17,7 +17,7 @@ namespace crown
 /// Compiles source data into binary.
 ///
 /// @ingroup Resource
-class DataCompiler
+struct DataCompiler
 {
 	typedef void (*CompileFunction)(const char* path, CompileOptions& opts);
 
@@ -46,12 +46,16 @@ class DataCompiler
 	void filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed);
 	static void filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified);
 
-public:
-
+	///
 	DataCompiler(ConsoleServer& cs);
+
+	///
 	~DataCompiler();
 
+	///
 	void map_source_dir(const char* name, const char* source_dir);
+
+	///
 	void source_dir(const char* resource_name, DynamicString& source_dir);
 
 	/// Adds a @a glob pattern to ignore when scanning the source directory.

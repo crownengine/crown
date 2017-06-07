@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "unit_manager.h"
 #include "array.h"
 #include "queue.h"
+#include "unit_manager.h"
 #include "world.h"
 
 #define MINIMUM_FREE_INDICES 1024
@@ -63,19 +63,19 @@ void UnitManager::destroy(UnitId id)
 	trigger_destroy_callbacks(id);
 }
 
-void UnitManager::register_destroy_function(DestroyFunction fn, void* user_ptr)
+void UnitManager::register_destroy_function(DestroyFunction fn, void* user_data)
 {
 	DestroyData dd;
 	dd.destroy = fn;
-	dd.user_ptr = user_ptr;
+	dd.user_data = user_data;
 	array::push_back(_destroy_callbacks, dd);
 }
 
-void UnitManager::unregister_destroy_function(void* user_ptr)
+void UnitManager::unregister_destroy_function(void* user_data)
 {
 	for (u32 i = 0, n = array::size(_destroy_callbacks); i < n; ++i)
 	{
-		if (_destroy_callbacks[i].user_ptr == user_ptr)
+		if (_destroy_callbacks[i].user_data == user_data)
 		{
 			_destroy_callbacks[i] = _destroy_callbacks[n - 1];
 			array::pop_back(_destroy_callbacks);
@@ -83,13 +83,13 @@ void UnitManager::unregister_destroy_function(void* user_ptr)
 		}
 	}
 
-	CE_FATAL("Bad destroy function");
+	CE_FATAL("Unknown destroy function");
 }
 
 void UnitManager::trigger_destroy_callbacks(UnitId id)
 {
 	for (u32 i = 0; i < array::size(_destroy_callbacks); ++i)
-		_destroy_callbacks[i].destroy(id, _destroy_callbacks[i].user_ptr);
+		_destroy_callbacks[i].destroy(id, _destroy_callbacks[i].user_data);
 }
 
 } // namespace crown

@@ -341,6 +341,10 @@ s32 func(void* data)
 
 struct WindowsDevice
 {
+	HWND _hwnd;
+	DeviceEventQueue _queue;
+	Joypad _joypad;
+
 	WindowsDevice()
 		: _hwnd(NULL)
 	{
@@ -532,12 +536,6 @@ struct WindowsDevice
 	}
 
 	static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam);
-
-public:
-
-	HWND _hwnd;
-	DeviceEventQueue _queue;
-	Joypad _joypad;
 };
 
 static WindowsDevice s_wdvc;

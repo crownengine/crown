@@ -17,7 +17,7 @@ namespace crown
 /// Keeps track and manages resources loaded by ResourceLoader.
 ///
 /// @ingroup Resource
-class ResourceManager
+struct ResourceManager
 {
 	typedef void* (*LoadFunction)(File& file, Allocator& a);
 	typedef void (*OnlineFunction)(StringId64 name, ResourceManager& rm);
@@ -71,10 +71,10 @@ class ResourceManager
 	void on_unload(StringId64 type, void* data);
 	void complete_request(StringId64 type, StringId64 name, void* data);
 
-public:
-
 	/// Uses @a rl to load resources.
 	ResourceManager(ResourceLoader& rl);
+
+	///
 	~ResourceManager();
 
 	/// Loads the resource (@a type, @a name).
