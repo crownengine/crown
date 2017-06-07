@@ -20,6 +20,9 @@ struct Pair<T1, T2, 0, 0>
 {
 	ALLOCATOR_AWARE;
 
+	T1 first;
+	T2 second;
+
 	Pair(T1& f, T2& s)
 		: first(f)
 		, second(s)
@@ -29,15 +32,15 @@ struct Pair<T1, T2, 0, 0>
 	Pair(Allocator& /*a*/)
 	{
 	}
-
-	T1 first;
-	T2 second;
 };
 
 template <typename T1, typename T2>
 struct Pair<T1, T2, 1, 0>
 {
 	ALLOCATOR_AWARE;
+
+	T1 first;
+	T2 second;
 
 	Pair(T1& f, T2& s)
 		: first(f)
@@ -49,15 +52,15 @@ struct Pair<T1, T2, 1, 0>
 		: first(a)
 	{
 	}
-
-	T1 first;
-	T2 second;
 };
 
 template <typename T1, typename T2>
 struct Pair<T1, T2, 0, 1>
 {
 	ALLOCATOR_AWARE;
+
+	T1 first;
+	T2 second;
 
 	Pair(T1& f, T2& s)
 		: first(f)
@@ -69,15 +72,15 @@ struct Pair<T1, T2, 0, 1>
 		: second(a)
 	{
 	}
-
-	T1 first;
-	T2 second;
 };
 
 template <typename T1, typename T2>
 struct Pair<T1, T2, 1, 1>
 {
 	ALLOCATOR_AWARE;
+
+	T1 first;
+	T2 second;
 
 	Pair(T1& f, T2& s)
 		: first(f)
@@ -90,21 +93,9 @@ struct Pair<T1, T2, 1, 1>
 		, second(a)
 	{
 	}
-
-	T1 first;
-	T2 second;
 };
 
 #define PAIR(first, second) Pair<first, second, IS_ALLOCATOR_AWARE(first), IS_ALLOCATOR_AWARE(second)>
-
-template <typename T1, typename T2>
-PAIR(T1, T2) make_pair(Allocator& a, T1 first, T2 second)
-{
-	PAIR(T1, T2) pair(a);
-	pair.first = first;
-	pair.second = second;
-	return pair;
-}
 
 template <typename T1, typename T2>
 inline void swap(Pair<T1, T2, 0, 0>& a, Pair<T1, T2, 0, 0>& b)
