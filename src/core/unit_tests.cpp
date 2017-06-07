@@ -42,7 +42,7 @@
 				, __FILE__                               \
 				, __LINE__                               \
 				);                                       \
-				exit(EXIT_FAILURE);                      \
+			exit(EXIT_FAILURE);                          \
 		}                                                \
 	}                                                    \
 	while (0)
