@@ -19,7 +19,6 @@ namespace crown
 struct Level
 {
 	u32 _marker;
-
 	Allocator* _allocator;
 	UnitManager* _unit_manager;
 	World* _world;

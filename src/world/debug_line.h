@@ -32,7 +32,6 @@ struct DebugLine
 	};
 
 	u32 _marker;
-
 	ShaderManager* _shader_manager;
 	StringId32 _shader;
 	bgfx::VertexDecl _vertex_decl;

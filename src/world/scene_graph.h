@@ -59,7 +59,6 @@ struct SceneGraph
 	};
 
 	u32 _marker;
-
 	Allocator* _allocator;
 	UnitManager* _unit_manager;
 	InstanceData _data;

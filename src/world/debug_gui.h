@@ -31,7 +31,6 @@ struct DebugGui
 	};
 
 	u32 _marker;
-
 	ResourceManager* _resource_manager;
 	ShaderManager* _shader_manager;
 	MaterialManager* _material_manager;
