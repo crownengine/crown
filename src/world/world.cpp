@@ -45,11 +45,11 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	, _events(a)
 {
 	_lines = create_debug_line(true);
-	_scene_graph = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
-	_render_world = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um);
+	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
+	_render_world  = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um);
 	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_lines);
-	_sound_world = CE_NEW(*_allocator, SoundWorld)(*_allocator);
-	_script_world = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
+	_sound_world   = CE_NEW(*_allocator, SoundWorld)(*_allocator);
+	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
 }
 
 World::~World()
@@ -60,12 +60,12 @@ World::~World()
 	for (u32 i = 0; i < array::size(_units); ++i)
 		_unit_manager->destroy(_units[i]);
 
-	destroy_debug_line(*_lines);
+	CE_DELETE(*_allocator, _script_world);
 	CE_DELETE(*_allocator, _sound_world);
 	CE_DELETE(*_allocator, _physics_world);
 	CE_DELETE(*_allocator, _render_world);
 	CE_DELETE(*_allocator, _scene_graph);
-	CE_DELETE(*_allocator, _script_world);
+	destroy_debug_line(*_lines);
 
 	_marker = 0;
 }
