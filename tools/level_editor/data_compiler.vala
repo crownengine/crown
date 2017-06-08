@@ -3,18 +3,16 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-using Gtk;
-
 namespace Crown
 {
-	public class ResourceCompiler
+	public class DataCompiler
 	{
 		private ConsoleClient _compiler;
 		private Guid _id;
 		private bool _success;
 		private SourceFunc _callback;
 
-		public ResourceCompiler(ConsoleClient client)
+		public DataCompiler(ConsoleClient client)
 		{
 			_compiler = client;
 			_id = GUID_ZERO;
@@ -30,7 +28,7 @@ namespace Crown
 
 			_id = Guid.new_guid();
 			_success = false;
-			_compiler.send(EngineApi.compile(_id, data_dir, platform));
+			_compiler.send(DataCompilerApi.compile(_id, data_dir, platform));
 			_callback = compile.callback;
 			yield;
 

@@ -62,7 +62,7 @@ namespace Crown
 		private Database _db;
 		private Level _level;
 		private string _level_filename;
-		private ResourceCompiler _resource_compiler;
+		private DataCompiler _data_compiler;
 
 		// Widgets
 		private ConsoleView _console_view;
@@ -239,7 +239,7 @@ namespace Crown
 			_db = new Database();
 			_level = new Level(_db, _engine, _project.source_dir(), _project.toolchain_dir());
 			_level_filename = null;
-			_resource_compiler = new ResourceCompiler(_compiler);
+			_data_compiler = new DataCompiler(_compiler);
 
 			// Widgets
 			_console_view = new ConsoleView(_engine, _project);
@@ -462,7 +462,7 @@ namespace Crown
 					}
 					else if (msg.has_key("success"))
 					{
-						_resource_compiler.finished((bool)msg["success"]);
+						_data_compiler.finished((bool)msg["success"]);
 					}
 				}
 				else if (msg_type == "unit_spawned")
@@ -620,8 +620,8 @@ namespace Crown
 				GLib.Thread.usleep(100*1000);
 			}
 
-			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				if (_resource_compiler.compile.end(res))
+			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				if (_data_compiler.compile.end(res))
 				{
 					if (_engine_view != null)
 						return;
@@ -712,8 +712,8 @@ namespace Crown
 			_level.save(_project.level_editor_test_level());
 			_db.touch();
 
-			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				if (_resource_compiler.compile.end(res))
+			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				if (_data_compiler.compile.end(res))
 				{
 					string args[] =
 					{
@@ -1030,8 +1030,8 @@ namespace Crown
 
 		private void on_import_end()
 		{
-			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				_resource_compiler.compile.end(res);
+			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
 			});
 		}
 
@@ -1262,12 +1262,12 @@ namespace Crown
 
 		private void on_reload_lua(Gtk.Action action)
 		{
-			_resource_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				if (_resource_compiler.compile.end(res))
+			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				if (_data_compiler.compile.end(res))
 				{
-					_engine.send(EngineApi.pause());
-					_engine.send(EngineApi.reload("lua", "core/editors/level_editor/level_editor"));
-					_engine.send(EngineApi.unpause());
+					_engine.send(DeviceApi.pause());
+					_engine.send(DeviceApi.reload("lua", "core/editors/level_editor/level_editor"));
+					_engine.send(DeviceApi.unpause());
 				}
 			});
 		}
