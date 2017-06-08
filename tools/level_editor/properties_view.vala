@@ -335,6 +335,34 @@ namespace Crown
 		}
 	}
 
+	public class UnitNameView : ComponentView
+	{
+		// Data
+		Level _level;
+
+		// Widgets
+		private Gtk.Entry _unit_name;
+
+		public UnitNameView(Level level)
+		{
+			// Data
+			_level = level;
+
+			// Widgets
+			_unit_name = new Gtk.Entry();
+			_unit_name.sensitive = false;
+
+			uint row = 0;
+			attach_row(row++, "Name", _unit_name);
+		}
+
+		public override void update()
+		{
+			Value? val = _level.get_property(_unit_id, "prefab");
+			_unit_name.text = val == null ? "<none>" : (string)val;
+		}
+	}
+
 	public class SoundTransformView : ComponentView
 	{
 		// Data
@@ -470,6 +498,7 @@ namespace Crown
 			_components_vbox.margin_right = 18;
 
 			// Unit
+			add_component_view("Unit",            "name",          0, new UnitNameView(_level));
 			add_component_view("Transform",       "transform",       0, new TransformComponentView(_level));
 			add_component_view("Light",           "light",           1, new LightComponentView(_level));
 			add_component_view("Camera",          "camera",          2, new CameraComponentView(_level));
@@ -551,7 +580,7 @@ namespace Crown
 					expander.hide();
 
 					Guid component_id = GUID_ZERO;
-					if (_level.has_component(id, entry.type, ref component_id))
+					if (_level.has_component(id, entry.type, ref component_id) || entry.type == "name")
 					{
 						cv._unit_id = id;
 						cv._component_id = component_id;
