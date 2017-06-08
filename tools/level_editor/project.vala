@@ -28,8 +28,11 @@ namespace Crown
 			_toolchain_dir = null;
 			_data_dir = null;
 			_level_editor_test = null;
+#if CROWN_PLATFORM_LINUX
 			_platform = "linux";
-
+#elif CROWN_PLATFORM_WINDOWS
+			_platform = "windows";
+#endif // CROWN_PLATFORM_LINUX
 			_files = new Database();
 			_map = new HashMap<string, Guid?>();
 		}
