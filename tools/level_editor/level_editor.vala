@@ -424,11 +424,6 @@ namespace Crown
 			_project.delete_level_editor_test_level();
 		}
 
-		private static int stringcmp(ref string a, ref string b)
-		{
-			return Posix.strcmp(a, b);
-		}
-
 		private void on_message_received(ConsoleClient client, uint8[] json)
 		{
 			try
@@ -508,15 +503,15 @@ namespace Crown
 					Hashtable new_rotations = (Hashtable)msg["new_rotations"];
 					Hashtable new_scales    = (Hashtable)msg["new_scales"];
 
-					string[] keys = ids.keys.to_array();
-					Posix.qsort(keys, keys.length, sizeof(string), (Posix.compar_fn_t)stringcmp);
+					ArrayList<string> keys = new ArrayList<string>.wrap(ids.keys.to_array());
+					keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
 
-					Guid[] n_ids             = new Guid[keys.length];
-					Vector3[] n_positions    = new Vector3[keys.length];
-					Quaternion[] n_rotations = new Quaternion[keys.length];
-					Vector3[] n_scales       = new Vector3[keys.length];
+					Guid[] n_ids             = new Guid[keys.size];
+					Vector3[] n_positions    = new Vector3[keys.size];
+					Quaternion[] n_rotations = new Quaternion[keys.size];
+					Vector3[] n_scales       = new Vector3[keys.size];
 
-					for (int i = 0; i < keys.length; ++i)
+					for (int i = 0; i < keys.size; ++i)
 					{
 						string k = keys[i];
 
@@ -532,12 +527,12 @@ namespace Crown
 				{
 					Hashtable objects = (Hashtable)msg["objects"];
 
-					string[] keys = objects.keys.to_array();
-					Posix.qsort(keys, keys.length, sizeof(string), (Posix.compar_fn_t)stringcmp);
+					ArrayList<string> keys = new ArrayList<string>.wrap(objects.keys.to_array());
+					keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
 
-					Guid[] ids = new Guid[keys.length];
+					Guid[] ids = new Guid[keys.size];
 
-					for (int i = 0; i < keys.length; ++i)
+					for (int i = 0; i < keys.size; ++i)
 					{
 						string k = keys[i];
 						ids[i] = Guid.parse((string)objects[k]);

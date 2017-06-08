@@ -10,7 +10,6 @@
 
 using Gee;
 using GLib;
-using Posix;
 
 namespace Crown
 {
@@ -86,15 +85,10 @@ namespace Crown
 		   write_object_fields(t, builder, 0);
 		}
 
-		static int cmpfn_key(ref string a, ref string b)
-		{
-			return Posix.strcmp(a, b);
-		}
-
 		static void write_object_fields(Hashtable t, StringBuilder builder, int indentation)
 		{
-			string[] keys = t.keys.to_array();
-			Posix.qsort(keys, keys.length, sizeof(string), (Posix.compar_fn_t)cmpfn_key);
+			ArrayList<string> keys = new ArrayList<string>.wrap(t.keys.to_array());
+			keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
 			foreach (string key in keys) {
 				write_new_line(builder, indentation);
 				builder.append(key);
