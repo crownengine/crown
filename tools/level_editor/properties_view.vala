@@ -20,17 +20,19 @@ namespace Crown
 	public class ComponentView : Gtk.Grid
 	{
 		// Data
-		public Guid _unit_id;
+		public Guid _id;
 		public Guid _component_id;
+		public int _rows;
 
 		public ComponentView()
 		{
 			// Data
-			_unit_id = GUID_ZERO;
+			_id = GUID_ZERO;
 			_component_id = GUID_ZERO;
+			_rows = 0;
 		}
 
-		public void attach_row(uint row, string label, Gtk.Widget w)
+		public void add_row(string label, Gtk.Widget w)
 		{
 			this.row_spacing = 6;
 			this.column_spacing = 12;
@@ -41,8 +43,9 @@ namespace Crown
 
 			PropertyRow r = new PropertyRow(w);
 
-			this.attach(l, 0, (int)row);
-			this.attach(r, 1, (int)row);
+			this.attach(l, 0, (int)_rows);
+			this.attach(r, 1, (int)_rows);
+			++_rows;
 		}
 
 		public virtual void update()
@@ -64,7 +67,7 @@ namespace Crown
 		{
 			// Data
 			_level = level;
-			_unit_id = GUID_ZERO;
+			_id = GUID_ZERO;
 			_component_id = GUID_ZERO;
 
 			// Widgets
@@ -76,10 +79,9 @@ namespace Crown
 			_rotation.value_changed.connect(on_value_changed);
 			_scale.value_changed.connect(on_value_changed);
 
-			uint row = 0;
-			attach_row(row++, "Position", _position);
-			attach_row(row++, "Rotation", _rotation);
-			attach_row(row++, "Scale", _scale);
+			add_row("Position", _position);
+			add_row("Rotation", _rotation);
+			add_row("Scale", _scale);
 		}
 
 		private void on_value_changed()
@@ -93,9 +95,9 @@ namespace Crown
 
 		public override void update()
 		{
-			Vector3 pos    = (Vector3)   _level.get_component_property(_unit_id, _component_id, "data.position");
-			Quaternion rot = (Quaternion)_level.get_component_property(_unit_id, _component_id, "data.rotation");
-			Vector3 scl    = (Vector3)   _level.get_component_property(_unit_id, _component_id, "data.scale");
+			Vector3 pos    = (Vector3)   _level.get_component_property(_id, _component_id, "data.position");
+			Quaternion rot = (Quaternion)_level.get_component_property(_id, _component_id, "data.rotation");
+			Vector3 scl    = (Vector3)   _level.get_component_property(_id, _component_id, "data.scale");
 
 			_position.value = pos;
 			_rotation.value = rot;
@@ -128,19 +130,18 @@ namespace Crown
 			_geometry.sensitive = false;
 			_material.sensitive = false;
 
-			uint row = 0;
-			attach_row(row++, "Mesh", _mesh_resource);
-			attach_row(row++, "Geometry", _geometry);
-			attach_row(row++, "Material", _material);
-			attach_row(row++, "Visible", _visible);
+			add_row("Mesh", _mesh_resource);
+			add_row("Geometry", _geometry);
+			add_row("Material", _material);
+			add_row("Visible", _visible);
 		}
 
 		public override void update()
 		{
-			_mesh_resource.text = (string)_level.get_component_property(_unit_id, _component_id, "data.mesh_resource");
-			_geometry.text      = (string)_level.get_component_property(_unit_id, _component_id, "data.geometry_name");
-			_material.text      = (string)_level.get_component_property(_unit_id, _component_id, "data.material");
-			_visible.active     = (bool)  _level.get_component_property(_unit_id, _component_id, "data.visible");
+			_mesh_resource.text = (string)_level.get_component_property(_id, _component_id, "data.mesh_resource");
+			_geometry.text      = (string)_level.get_component_property(_id, _component_id, "data.geometry_name");
+			_material.text      = (string)_level.get_component_property(_id, _component_id, "data.material");
+			_visible.active     = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
 		}
 	}
 
@@ -166,17 +167,16 @@ namespace Crown
 			_sprite_resource.sensitive = false;
 			_material.sensitive = false;
 
-			uint row = 0;
-			attach_row(row++, "Sprite", _sprite_resource);
-			attach_row(row++, "Material", _material);
-			attach_row(row++, "Visible", _visible);
+			add_row("Sprite", _sprite_resource);
+			add_row("Material", _material);
+			add_row("Visible", _visible);
 		}
 
 		public override void update()
 		{
-			_sprite_resource.text = (string)_level.get_component_property(_unit_id, _component_id, "data.sprite_resource");
-			_material.text        = (string)_level.get_component_property(_unit_id, _component_id, "data.material");
-			_visible.active       = (bool)  _level.get_component_property(_unit_id, _component_id, "data.visible");
+			_sprite_resource.text = (string)_level.get_component_property(_id, _component_id, "data.sprite_resource");
+			_material.text        = (string)_level.get_component_property(_id, _component_id, "data.material");
+			_visible.active       = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
 		}
 	}
 
@@ -213,17 +213,16 @@ namespace Crown
 			_spot_angle.value_changed.connect(on_value_changed);
 			_color.value_changed.connect(on_value_changed);
 
-			uint row = 0;
-			attach_row(row++, "Type", _type);
-			attach_row(row++, "Range", _range);
-			attach_row(row++, "Intensity", _intensity);
-			attach_row(row++, "Spot Angle", _spot_angle);
-			attach_row(row++, "Color", _color);
+			add_row("Type", _type);
+			add_row("Range", _range);
+			add_row("Intensity", _intensity);
+			add_row("Spot Angle", _spot_angle);
+			add_row("Color", _color);
 		}
 
 		private void on_value_changed()
 		{
-			_level.set_light(_unit_id
+			_level.set_light(_id
 				, _component_id
 				, _type.value
 				, _range.value
@@ -235,11 +234,11 @@ namespace Crown
 
 		public override void update()
 		{
-			string type       = (string) _level.get_component_property(_unit_id, _component_id, "data.type");
-			double range      = (double) _level.get_component_property(_unit_id, _component_id, "data.range");
-			double intensity  = (double) _level.get_component_property(_unit_id, _component_id, "data.intensity");
-			double spot_angle = (double) _level.get_component_property(_unit_id, _component_id, "data.spot_angle");
-			Vector3 color     = (Vector3)_level.get_component_property(_unit_id, _component_id, "data.color");
+			string type       = (string) _level.get_component_property(_id, _component_id, "data.type");
+			double range      = (double) _level.get_component_property(_id, _component_id, "data.range");
+			double intensity  = (double) _level.get_component_property(_id, _component_id, "data.intensity");
+			double spot_angle = (double) _level.get_component_property(_id, _component_id, "data.spot_angle");
+			Vector3 color     = (Vector3)_level.get_component_property(_id, _component_id, "data.color");
 
 			_type.value       = type;
 			_range.value      = range;
@@ -278,28 +277,27 @@ namespace Crown
 			_near_range.value_changed.connect(on_value_changed);
 			_far_range.value_changed.connect(on_value_changed);
 
-			uint row = 0;
-			attach_row(row++, "Projection", _projection);
-			attach_row(row++, "FOV", _fov);
-			attach_row(row++, "Near Range", _near_range);
-			attach_row(row++, "Far Range", _far_range);
+			add_row("Projection", _projection);
+			add_row("FOV", _fov);
+			add_row("Near Range", _near_range);
+			add_row("Far Range", _far_range);
 		}
 
 		private void on_value_changed()
 		{
-			_level.set_component_property(_unit_id, _component_id, "data.projection", _projection.value);
-			_level.set_component_property(_unit_id, _component_id, "data.fov",        _fov.value*(Math.PI/180.0));
-			_level.set_component_property(_unit_id, _component_id, "data.near_range", _near_range.value);
-			_level.set_component_property(_unit_id, _component_id, "data.far_range",  _far_range.value);
-			_level.set_component_property(_unit_id, _component_id, "type", "camera");
+			_level.set_component_property(_id, _component_id, "data.projection", _projection.value);
+			_level.set_component_property(_id, _component_id, "data.fov",        _fov.value*(Math.PI/180.0));
+			_level.set_component_property(_id, _component_id, "data.near_range", _near_range.value);
+			_level.set_component_property(_id, _component_id, "data.far_range",  _far_range.value);
+			_level.set_component_property(_id, _component_id, "type", "camera");
 		}
 
 		public override void update()
 		{
-			string type       = (string)_level.get_component_property(_unit_id, _component_id, "data.projection");
-			double fov        = (double)_level.get_component_property(_unit_id, _component_id, "data.fov");
-			double near_range = (double)_level.get_component_property(_unit_id, _component_id, "data.near_range");
-			double far_range  = (double)_level.get_component_property(_unit_id, _component_id, "data.far_range");
+			string type       = (string)_level.get_component_property(_id, _component_id, "data.projection");
+			double fov        = (double)_level.get_component_property(_id, _component_id, "data.fov");
+			double near_range = (double)_level.get_component_property(_id, _component_id, "data.near_range");
+			double far_range  = (double)_level.get_component_property(_id, _component_id, "data.far_range");
 
 			_projection.value = type;
 			_fov.value        = fov*(180.0/Math.PI);
@@ -325,17 +323,16 @@ namespace Crown
 			_script_resource = new Gtk.Entry();
 			_script_resource.sensitive = false;
 
-			uint row = 0;
-			attach_row(row++, "Script", _script_resource);
+			add_row("Script", _script_resource);
 		}
 
 		public override void update()
 		{
-			_script_resource.text = (string)_level.get_component_property(_unit_id, _component_id, "data.script_resource");
+			_script_resource.text = (string)_level.get_component_property(_id, _component_id, "data.script_resource");
 		}
 	}
 
-	public class UnitNameView : ComponentView
+	public class UnitView : ComponentView
 	{
 		// Data
 		Level _level;
@@ -343,7 +340,7 @@ namespace Crown
 		// Widgets
 		private Gtk.Entry _unit_name;
 
-		public UnitNameView(Level level)
+		public UnitView(Level level)
 		{
 			// Data
 			_level = level;
@@ -352,13 +349,12 @@ namespace Crown
 			_unit_name = new Gtk.Entry();
 			_unit_name.sensitive = false;
 
-			uint row = 0;
-			attach_row(row++, "Name", _unit_name);
+			add_row("Name", _unit_name);
 		}
 
 		public override void update()
 		{
-			Value? val = _level.get_property(_unit_id, "prefab");
+			Value? val = _level.get_property(_id, "prefab");
 			_unit_name.text = val == null ? "<none>" : (string)val;
 		}
 	}
@@ -376,8 +372,7 @@ namespace Crown
 		{
 			// Data
 			_level = level;
-			_unit_id = GUID_ZERO;
-			_component_id = GUID_ZERO;
+			_id = GUID_ZERO;
 
 			// Widgets
 			_position = new SpinButtonVector3(Vector3(0, 0, 0), Vector3(-9999.9, -9999.9, -9999.9), Vector3(9999.9, 9999.9, 9999.9));
@@ -386,9 +381,8 @@ namespace Crown
 			_position.value_changed.connect(on_value_changed);
 			_rotation.value_changed.connect(on_value_changed);
 
-			uint row = 0;
-			attach_row(row++, "Position", _position);
-			attach_row(row++, "Rotation", _rotation);
+			add_row("Position", _position);
+			add_row("Rotation", _rotation);
 		}
 
 		private void on_value_changed()
@@ -401,15 +395,15 @@ namespace Crown
 
 		public override void update()
 		{
-			Vector3 pos    = (Vector3)   _level.get_property(_component_id, "position");
-			Quaternion rot = (Quaternion)_level.get_property(_component_id, "rotation");
+			Vector3 pos    = (Vector3)   _level.get_property(_id, "position");
+			Quaternion rot = (Quaternion)_level.get_property(_id, "rotation");
 
 			_position.value = pos;
 			_rotation.value = rot;
 		}
 	}
 
-	public class SoundPropertiesView : ComponentView
+	public class SoundView : ComponentView
 	{
 		// Data
 		Level _level;
@@ -420,7 +414,7 @@ namespace Crown
 		private SpinButtonDouble _volume;
 		private Gtk.CheckButton _loop;
 
-		public SoundPropertiesView(Level level)
+		public SoundView(Level level)
 		{
 			// Data
 			_level = level;
@@ -436,16 +430,15 @@ namespace Crown
 			_volume.value_changed.connect(on_value_changed);
 			_loop.toggled.connect(on_value_changed);
 
-			uint row = 0;
-			attach_row(row++, "Name", _name);
-			attach_row(row++, "Range", _range);
-			attach_row(row++, "Volume", _volume);
-			attach_row(row++, "Loop", _loop);
+			add_row("Name", _name);
+			add_row("Range", _range);
+			add_row("Volume", _volume);
+			add_row("Loop", _loop);
 		}
 
 		private void on_value_changed()
 		{
-			_level.set_sound(_component_id
+			_level.set_sound(_id
 				, _name.text
 				, _range.value
 				, _volume.value
@@ -455,10 +448,10 @@ namespace Crown
 
 		public override void update()
 		{
-			_name.text    = (string)_level.get_property(_component_id, "name");
-			_range.value  = (double)_level.get_property(_component_id, "range");
-			_volume.value = (double)_level.get_property(_component_id, "volume");
-			_loop.active  = (bool)  _level.get_property(_component_id, "loop");
+			_name.text    = (string)_level.get_property(_id, "name");
+			_range.value  = (double)_level.get_property(_id, "range");
+			_volume.value = (double)_level.get_property(_id, "volume");
+			_loop.active  = (bool)  _level.get_property(_id, "loop");
 		}
 	}
 
@@ -498,7 +491,7 @@ namespace Crown
 			_components_vbox.margin_right = 18;
 
 			// Unit
-			add_component_view("Unit",            "name",          0, new UnitNameView(_level));
+			add_component_view("Unit",            "name",            0, new UnitView(_level));
 			add_component_view("Transform",       "transform",       0, new TransformComponentView(_level));
 			add_component_view("Light",           "light",           1, new LightComponentView(_level));
 			add_component_view("Camera",          "camera",          2, new CameraComponentView(_level));
@@ -507,8 +500,8 @@ namespace Crown
 			add_component_view("Script",          "script",          3, new ScriptComponentView(_level));
 
 			// Sound
-			add_component_view("Transform",        "sound_transform",  0, new SoundTransformView(_level));
-			add_component_view("Sound Properties", "sound_properties", 1, new SoundPropertiesView(_level));
+			add_component_view("Transform", "sound_transform",  0, new SoundTransformView(_level));
+			add_component_view("Sound",     "sound_properties", 1, new SoundView(_level));
 
 			_entries.sort((a, b) => { return (a.position < b.position ? -1 : 1); });
 			foreach (var entry in _entries)
@@ -576,13 +569,13 @@ namespace Crown
 				foreach (var entry in _entries)
 				{
 					Gtk.Expander expander = _expanders[entry.type];
-					ComponentView cv = _components[entry.type];
 					expander.hide();
 
 					Guid component_id = GUID_ZERO;
 					if (_level.has_component(id, entry.type, ref component_id) || entry.type == "name")
 					{
-						cv._unit_id = id;
+						ComponentView cv = _components[entry.type];
+						cv._id = id;
 						cv._component_id = component_id;
 						cv.update();
 						expander.show_all();
@@ -601,7 +594,7 @@ namespace Crown
 					if (entry.type == "sound_transform" || entry.type == "sound_properties")
 					{
 						ComponentView cv = _components[entry.type];
-						cv._component_id = id;
+						cv._id = id;
 						cv.update();
 						expander.show_all();
 					}
