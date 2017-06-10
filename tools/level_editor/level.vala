@@ -70,7 +70,6 @@ namespace Crown
 		{
 			reset();
 			_db.load(path);
-			send_level();
 		}
 
 		/// Saves the level to @a path.
@@ -372,7 +371,7 @@ namespace Crown
 			_client.send_script(sb.str);
 		}
 
-		private void send_level()
+		public void send_level()
 		{
 			HashSet<Guid?> units = _db.get_property(GUID_ZERO, "units") as HashSet<Guid?>;
 			HashSet<Guid?> sounds = _db.get_property(GUID_ZERO, "sounds") as HashSet<Guid?>;

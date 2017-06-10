@@ -37,8 +37,6 @@ namespace Crown
 
 	public class LevelEditor : Gtk.Window
 	{
-		private Project _project;
-
 		// Editor state
 		private double _grid_size;
 		private double _rotation_snap;
@@ -59,7 +57,8 @@ namespace Crown
 		private ConsoleClient _game;
 
 		// Level data
-		private Database _db;
+		private Project _project;
+		private Database _database;
 		private Level _level;
 		private string _level_filename;
 		private DataCompiler _data_compiler;
@@ -70,12 +69,8 @@ namespace Crown
 		private LevelTreeView _level_treeview;
 		private LevelLayersTreeView _level_layers_treeview;
 		private PropertiesView _properties_view;
-/*
-		private GraphStore _graph_store;
-		private GraphView _graph_view;
-*/
-
 		private PreferencesDialog _preferences_dialog;
+		private ResourceBrowser _resource_browser;
 
 		private Gtk.Alignment _alignment_engine;
 		private Gtk.Alignment _alignment_level_tree_view;
@@ -90,8 +85,6 @@ namespace Crown
 		private Gtk.Notebook _notebook_right;
 		private Gtk.Box _vbox;
 		private Gtk.FileFilter _file_filter;
-
-		private ResourceBrowser _resource_browser;
 
 		const Gtk.ActionEntry[] action_entries =
 		{
@@ -201,11 +194,9 @@ namespace Crown
 			{ "debug-physics-world", null, "Debug Physics World", null, null, on_debug_physics_world, false }
 		};
 
-		public LevelEditor(Project project)
+		public LevelEditor(Project project, Database database, Level level, ConsoleClient compiler, ConsoleClient engine, ConsoleClient game)
 		{
 			this.title = "Level Editor";
-
-			_project = project;
 
 			// Editor state
 			_grid_size = 1.0;
@@ -222,34 +213,31 @@ namespace Crown
 			_compiler_process = null;
 			_engine_process = null;
 			_game_process = null;
-			_compiler = new ConsoleClient();
+			_compiler = compiler;
 			_compiler.connected.connect(on_compiler_connected);
 			_compiler.disconnected.connect(on_compiler_disconnected);
 			_compiler.message_received.connect(on_message_received);
-			_engine = new ConsoleClient();
+			_engine = engine;
 			_engine.connected.connect(on_engine_connected);
 			_engine.disconnected.connect(on_engine_disconnected);
 			_engine.message_received.connect(on_message_received);
-			_game = new ConsoleClient();
+			_game = game;
 			_game.connected.connect(on_game_connected);
 			_game.disconnected.connect(on_game_disconnected);
 			_game.message_received.connect(on_message_received);
 
 			// Level data
-			_db = new Database();
-			_level = new Level(_db, _engine, _project.source_dir(), _project.toolchain_dir());
+			_project = project;
+			_database = database;
+			_level = level;
 			_level_filename = null;
 			_data_compiler = new DataCompiler(_compiler);
 
 			// Widgets
 			_console_view = new ConsoleView(_engine, _project);
-			_level_treeview = new LevelTreeView(_db, _level);
-			_level_layers_treeview = new LevelLayersTreeView(_db, _level);
+			_level_treeview = new LevelTreeView(_database, _level);
+			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 			_properties_view = new PropertiesView(_level);
-/*
-			_graph_store = new GraphStore();
-			_graph_view = new GraphView(_graph_store);
-*/
 
 			_alignment_engine = new Gtk.Alignment(0, 0, 1, 1);
 			_alignment_level_tree_view = new Gtk.Alignment(0, 0, 1, 1);
@@ -257,30 +245,6 @@ namespace Crown
 			_alignment_engine.add(new StartingCompiler());
 			_alignment_level_tree_view.add(new StartingCompiler());
 			_alignment_properties_view.add(new StartingCompiler());
-
-			start_compiler();
-
-			try
-			{
-				Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-place.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-move.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-rotate.png"));
-				Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-scale.png"));
-				Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/axis-local.png"));
-				Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/axis-world.png"));
-				Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/snap-to-grid.png"));
-				Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/reference-local.png"));
-				Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/reference-world.png"));
-				Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/run.png"));
-				Gtk.IconTheme.add_builtin_icon("level-tree",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/level-tree.png"));
-				Gtk.IconTheme.add_builtin_icon("level-layers",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/level-layers.png"));
-				Gtk.IconTheme.add_builtin_icon("layer-visible",   16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/layer-visible.png"));
-				Gtk.IconTheme.add_builtin_icon("layer-locked",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/layer-locked.png"));
-			}
-			catch (Error e)
-			{
-				stderr.printf(e.message);
-			}
 
 			_action_group = new Gtk.ActionGroup("group");
 			_action_group.add_actions(action_entries, this);
@@ -332,9 +296,6 @@ namespace Crown
 			_notebook_left = new Notebook();
 			_notebook_left.show_border = false;
 			_notebook_left.append_page(_pane_right, new Gtk.Label("Level"));
-/*
-			_notebook_left.append_page(_graph_view, new Gtk.Label("Nodes"));
-*/
 
 			MenuBar menu = (MenuBar)_ui_manager.get_widget("/menubar");
 			_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -362,6 +323,8 @@ namespace Crown
 			this.add(_vbox);
 			this.maximize();
 			this.show_all();
+
+			start_compiler();
 		}
 
 		private bool on_key_press(Gdk.EventKey ev)
@@ -681,7 +644,7 @@ namespace Crown
 				GLib.Thread.usleep(100*1000);
 			}
 
-			new_level();
+			_level.send_level();
 			send_state();
 		}
 
@@ -705,7 +668,7 @@ namespace Crown
 		private void start_game(StartGame sg)
 		{
 			_level.save(_project.level_editor_test_level());
-			_db.touch();
+			_database.touch();
 
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res))
@@ -796,6 +759,7 @@ namespace Crown
 		{
 			_level_filename = null;
 			_level.load_empty_level();
+			_level.send_level();
 		}
 
 		private void load()
@@ -818,6 +782,7 @@ namespace Crown
 				{
 					_level_filename = filename;
 					_level.load(_level_filename);
+					_level.send_level();
 					send_state();
 				}
 			}
@@ -894,7 +859,7 @@ namespace Crown
 
 		private void quit()
 		{
-			if (!_db.changed())
+			if (!_database.changed())
 			{
 				shutdown();
 				return;
@@ -919,7 +884,7 @@ namespace Crown
 
 		private void on_new()
 		{
-			if (!_db.changed())
+			if (!_database.changed())
 			{
 				new_level();
 				send_state();
@@ -948,7 +913,7 @@ namespace Crown
 
 		private void on_open(Gtk.Action action)
 		{
-			if (!_db.changed())
+			if (!_database.changed())
 			{
 				load();
 				return;
@@ -1300,12 +1265,12 @@ namespace Crown
 
 		private void on_undo(Gtk.Action action)
 		{
-			_db.undo();
+			_database.undo();
 		}
 
 		private void on_redo(Gtk.Action action)
 		{
-			_db.redo();
+			_database.redo();
 		}
 
 		private void on_duplicate(Gtk.Action action)
@@ -1419,6 +1384,28 @@ namespace Crown
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
 		provider.load_from_resource("/org/crown/ui/theme/style.css");
 
+		try
+		{
+			Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-place.png"));
+			Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-move.png"));
+			Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-rotate.png"));
+			Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-scale.png"));
+			Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/axis-local.png"));
+			Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/axis-world.png"));
+			Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/snap-to-grid.png"));
+			Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/reference-local.png"));
+			Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/reference-world.png"));
+			Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/run.png"));
+			Gtk.IconTheme.add_builtin_icon("level-tree",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/level-tree.png"));
+			Gtk.IconTheme.add_builtin_icon("level-layers",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/level-layers.png"));
+			Gtk.IconTheme.add_builtin_icon("layer-visible",   16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/layer-visible.png"));
+			Gtk.IconTheme.add_builtin_icon("layer-locked",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/layer-locked.png"));
+		}
+		catch (Error e)
+		{
+			stderr.printf(e.message);
+		}
+
 		string source_dir = "";
 		if (args.length > 1)
 		{
@@ -1481,7 +1468,16 @@ namespace Crown
 		Project project = new Project();
 		project.load(source_dir, toolchain_dir);
 
-		var editor = new LevelEditor(project);
+		Database database = new Database();
+		ConsoleClient compiler = new ConsoleClient();
+		ConsoleClient engine = new ConsoleClient();
+		ConsoleClient game = new ConsoleClient();
+
+		Level level = new Level(database, engine, project.source_dir(), project.toolchain_dir());
+		LevelEditor editor = new LevelEditor(project, database, level, compiler, engine, game);
+
+		level.load_empty_level();
+
 		editor.show_all();
 
 		Gtk.main();
