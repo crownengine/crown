@@ -871,9 +871,9 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("Quit without Saving", ResponseType.NO);
-			md.add_button("Cancel", ResponseType.CANCEL);
-			md.add_button("Save", ResponseType.YES);
+			md.add_button("Quit _without Saving", ResponseType.NO);
+			md.add_button("_Cancel", ResponseType.CANCEL);
+			md.add_button("_Save", ResponseType.YES);
 			md.set_default_response(ResponseType.YES);
 			int rt = md.run();
 			md.destroy();
@@ -897,9 +897,9 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("New without Saving", ResponseType.NO);
-			md.add_button("Cancel", ResponseType.CANCEL);
-			md.add_button("Save", ResponseType.YES);
+			md.add_button("New _without Saving", ResponseType.NO);
+			md.add_button("_Cancel", ResponseType.CANCEL);
+			md.add_button("_Save", ResponseType.YES);
 			md.set_default_response(ResponseType.YES);
 			int rt = md.run();
 			md.destroy();
@@ -925,9 +925,9 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("Open without Saving", ResponseType.NO);
-			md.add_button("Cancel", ResponseType.CANCEL);
-			md.add_button("Save", ResponseType.YES);
+			md.add_button("Open _without Saving", ResponseType.NO);
+			md.add_button("_Cancel", ResponseType.CANCEL);
+			md.add_button("_Save", ResponseType.YES);
 			md.set_default_response(ResponseType.YES);
 			int rt = md.run();
 			md.destroy();
