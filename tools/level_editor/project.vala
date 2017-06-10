@@ -41,13 +41,7 @@ namespace Crown
 		{
 			_source_dir        = File.new_for_path(source_dir);
 			_toolchain_dir     = File.new_for_path(toolchain_dir);
-			_data_dir          = File.new_for_path(_source_dir.get_path() +
-#if CROWN_PLATFORM_LINUX
-			"_linux"
-#elif CROWN_PLATFORM_WINDOWS
-			"_windows"
-#endif
-			);
+			_data_dir          = File.new_for_path(_source_dir.get_path() + "_" + _platform);
 			_level_editor_test = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.level");
 		}
 
