@@ -14,7 +14,7 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 ## Download (Stable)
 
 ### Linux (Tarball)
-[crown-0.0.26-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.26/crown-0.0.26-linux-x64.tar.gz)
+[crown-0.0.27-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.27/crown-0.0.27-linux-x64.tar.gz)
 
 ### ArchLinux
 
