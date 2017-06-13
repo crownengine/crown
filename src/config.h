@@ -7,7 +7,7 @@
 
 #include "platform.h"
 
-#define CROWN_VERSION "0.0.27"
+#define CROWN_VERSION "0.0.28"
 
 #ifndef CROWN_DEBUG
 	#define CROWN_DEBUG 0
