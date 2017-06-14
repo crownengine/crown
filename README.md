@@ -16,10 +16,6 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 ### Linux (Tarball)
 [crown-0.0.27-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.27/crown-0.0.27-linux-x64.tar.gz)
 
-### ArchLinux
-
-	$ yaourt -S pepper
-
 ## Screenshots
 
 ### [Level Editor](https://github.com/taylor001/crown/tree/master/tools/level_editor)
