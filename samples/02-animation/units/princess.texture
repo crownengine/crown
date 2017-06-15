@@ -1,0 +1,4 @@
+
+generate_mips = false
+is_normalmap = false
+source = "units/princess.png"

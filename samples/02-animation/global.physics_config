@@ -1,0 +1,27 @@
+materials = {
+	default = { static_friction = 0.2 dynamic_friction = 0.3 restitution = 0.81 }
+	asteroid = { static_friction = 1.0 dynamic_friction = 1.0 restitution = 0.3}
+	test = { static_friction = 0.2 dynamic_friction = 0.7 restitution = 0.5 }
+	light = { static_friction = 0.2 dynamic_friction = 0.2 restitution = 0.7}
+	fireball = { static_friction = 0.2 dynamic_friction = 0.2 restitution = 0.7}
+}
+
+collision_filters = {
+	no_collision = { collides_with = [] }
+	default = { collides_with = ["default" "sphere" "cube" "plane"] }
+	sphere = { collides_with = ["default"] }
+	cube = { collides_with = ["default"] }
+	plane = { collides_with = ["default"] }
+}
+
+shapes = {
+	character = { trigger = false }
+	asteroid = { trigger = false }
+	fireball = { trigger = false }
+}
+
+actors = {
+	static = { dynamic = false }
+	dynamic = { dynamic = true }
+	keyframed = { dynamic = true kinematic = true disable_gravity = true }
+}

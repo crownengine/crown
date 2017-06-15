@@ -1,0 +1,11 @@
+
+shader = "sprite"
+textures = {
+	u_albedo = "units/princess"
+}
+uniforms = {
+	u_color = {
+		type = "vector4"
+		value = [ 1 1 1 1 ]
+	}
+}
