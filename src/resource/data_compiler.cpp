@@ -31,6 +31,7 @@
 #include "sjson.h"
 #include "sound_resource.h"
 #include "sprite_resource.h"
+#include "state_machine_resource.h"
 #include "string_stream.h"
 #include "temp_allocator.h"
 #include "texture_resource.h"
@@ -561,6 +562,7 @@ int main_data_compiler(int argc, char** argv)
 	namespace sar = sprite_animation_resource_internal;
 	namespace sdr = sound_resource_internal;
 	namespace shr = shader_resource_internal;
+	namespace smr = state_machine_internal;
 	namespace spr = sprite_resource_internal;
 	namespace txr = texture_resource_internal;
 	namespace utr = unit_resource_internal;
@@ -579,6 +581,7 @@ int main_data_compiler(int argc, char** argv)
 	dc->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
 	dc->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
 	dc->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
+	dc->register_compiler(RESOURCE_TYPE_STATE_MACHINE,    RESOURCE_VERSION_STATE_MACHINE,    smr::compile);
 	dc->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
 	dc->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
 

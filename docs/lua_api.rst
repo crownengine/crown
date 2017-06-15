@@ -448,6 +448,9 @@ World
 **sound_world** (world) : SoundWorld
 	Returns the sound sub-world.
 
+**animation_state_machine** (world) : AnimationStateMachine
+	Returns the animation state machine.
+
 Camera
 ------
 
@@ -686,7 +689,7 @@ Light
 **light_set_intensity** (rw, unit, intensity)
 	Sets the *intensity* of the light.
 
-**light_set_spot_angle** (rw, unit, angle)v
+**light_set_spot_angle** (rw, unit, angle)
 	Sets the spot *angle* of the light.
 
 **light_debug_draw** (rw, unit, debug_line)
@@ -836,6 +839,21 @@ SoundWorld
 
 **is_playing** (sound_world, id) : bool
 	Returns whether the sound *id* is playing.
+
+AnimationStateMachine
+=====================
+
+**variable_id** (state_machine, unit, name) : Id
+	Returns the ID of the variable *name* in the *state_machine*.
+
+**variable** (state_machine, unit, variable_id) : number
+	Returns the value of the *variable_id* in the *state_machine*.
+
+**set_variable** (state_machine, unit, variable_id, value)
+	Sets the *value* of the *variable_id* in the *state_machine*.
+
+**trigger** (state_machine, unit, name)
+	Triggers the event *name* in the *state_machine*.
 
 ResourcePackage
 ================

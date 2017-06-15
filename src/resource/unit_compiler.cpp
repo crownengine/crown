@@ -217,22 +217,44 @@ static Buffer compile_script(const char* json, CompileOptions& opts)
 	return buf;
 }
 
+static Buffer compile_animation_state_machine(const char* json, CompileOptions& opts)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	sjson::parse(json, obj);
+
+	DynamicString state_machine_resource(ta);
+	sjson::parse_string(obj["state_machine_resource"], state_machine_resource);
+	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("state_machine"
+		, state_machine_resource.c_str()
+		, opts
+		);
+
+	AnimationStateMachineDesc asmd;
+	asmd.state_machine_resource = sjson::parse_resource_id(obj["state_machine_resource"]);
+
+	Buffer buf(default_allocator());
+	array::push(buf, (char*)&asmd, sizeof(asmd));
+	return buf;
+}
+
 UnitCompiler::UnitCompiler(CompileOptions& opts)
 	: _opts(opts)
 	, _num_units(0)
 	, _component_data(default_allocator())
 	, _component_info(default_allocator())
 {
-	register_component_compiler("transform",       &compile_transform,                             0.0f);
-	register_component_compiler("camera",          &compile_camera,                                1.0f);
-	register_component_compiler("mesh_renderer",   &compile_mesh_renderer,                         1.0f);
-	register_component_compiler("sprite_renderer", &compile_sprite_renderer,                       1.0f);
-	register_component_compiler("light",           &compile_light,                                 1.0f);
-	register_component_compiler("script",          &compile_script,                                1.0f);
-	register_component_compiler("controller",      &physics_resource_internal::compile_controller, 1.0f);
-	register_component_compiler("collider",        &physics_resource_internal::compile_collider,   1.0f);
-	register_component_compiler("actor",           &physics_resource_internal::compile_actor,      2.0f);
-	register_component_compiler("joint",           &physics_resource_internal::compile_joint,      3.0f);
+	register_component_compiler("transform",               &compile_transform,                             0.0f);
+	register_component_compiler("camera",                  &compile_camera,                                1.0f);
+	register_component_compiler("mesh_renderer",           &compile_mesh_renderer,                         1.0f);
+	register_component_compiler("sprite_renderer",         &compile_sprite_renderer,                       1.0f);
+	register_component_compiler("light",                   &compile_light,                                 1.0f);
+	register_component_compiler("script",                  &compile_script,                                1.0f);
+	register_component_compiler("controller",              &physics_resource_internal::compile_controller, 1.0f);
+	register_component_compiler("collider",                &physics_resource_internal::compile_collider,   1.0f);
+	register_component_compiler("actor",                   &physics_resource_internal::compile_actor,      2.0f);
+	register_component_compiler("joint",                   &physics_resource_internal::compile_joint,      3.0f);
+	register_component_compiler("animation_state_machine", &compile_animation_state_machine,               1.0f);
 }
 
 Buffer UnitCompiler::read_unit(const char* path)

@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "animation_state_machine.h"
 #include "color4.h"
 #include "console_server.h"
 #include "debug_gui.h"
@@ -1615,6 +1616,13 @@ static int world_sound_world(lua_State* L)
 	return 1;
 }
 
+static int world_animation_state_machine(lua_State *L)
+{
+	LuaStack stack(L);
+	stack.push_animation_state_machine(stack.get_world(1)->_animation_state_machine);
+	return 1;
+}
+
 static int world_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -2470,6 +2478,46 @@ static int sound_world_tostring(lua_State* L)
 	SoundWorld* sw = stack.get_sound_world(1);
 	stack.push_fstring("SoundWorld (%p)", sw);
 	return 1;
+}
+
+static int animation_state_machine_trigger(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_animation_state_machine(1)->trigger(stack.get_unit(2)
+		, stack.get_string_id_32(3)
+		);
+	return 0;
+}
+
+static int animation_state_machine_variable_id(lua_State* L)
+{
+	LuaStack stack(L);
+	u32 variable_id = stack.get_animation_state_machine(1)->variable_id(stack.get_unit(2)
+		, stack.get_string_id_32(3)
+		);
+	LUA_ASSERT(variable_id != UINT32_MAX, stack, "Variable does not exist");
+	stack.push_id(variable_id);
+	return 1;
+}
+
+static int animation_state_machine_variable(lua_State* L)
+{
+	LuaStack stack(L);
+	const float v = stack.get_animation_state_machine(1)->variable(stack.get_unit(2)
+		, stack.get_id(3)
+		);
+	stack.push_float(v);
+	return 1;
+}
+
+static int animation_state_machine_set_variable(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_animation_state_machine(1)->set_variable(stack.get_unit(2)
+		, stack.get_id(3)
+		, stack.get_float(4)
+		);
+	return 0;
 }
 
 static int device_argv(lua_State* L)
@@ -3382,6 +3430,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "render_world",                    world_render_world);
 	env.add_module_function("World", "physics_world",                   world_physics_world);
 	env.add_module_function("World", "sound_world",                     world_sound_world);
+	env.add_module_function("World", "animation_state_machine",         world_animation_state_machine);
 	env.add_module_metafunction("World", "__tostring", world_tostring);
 
 	env.add_module_function("SceneGraph", "create",             scene_graph_create);
@@ -3483,6 +3532,11 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("SoundWorld", "resume_all", sound_world_resume_all);
 	env.add_module_function("SoundWorld", "is_playing", sound_world_is_playing);
 	env.add_module_metafunction("SoundWorld", "__tostring", sound_world_tostring);
+
+	env.add_module_function("AnimationStateMachine", "trigger",      animation_state_machine_trigger);
+	env.add_module_function("AnimationStateMachine", "variable_id",  animation_state_machine_variable_id);
+	env.add_module_function("AnimationStateMachine", "variable",     animation_state_machine_variable);
+	env.add_module_function("AnimationStateMachine", "set_variable", animation_state_machine_set_variable);
 
 	env.add_module_function("Device", "argv",                     device_argv);
 	env.add_module_function("Device", "platform",                 device_platform);

@@ -276,6 +276,15 @@ struct LuaStack
 		return p;
 	}
 
+	AnimationStateMachine* get_animation_state_machine(int i)
+	{
+		AnimationStateMachine* p = (AnimationStateMachine*)get_pointer(i);
+#if !CROWN_RELEASE
+		check_type(i, p);
+#endif // !CROWN_RELEASE
+		return p;
+	}
+
 	UnitId get_unit(int i)
 	{
 		u32 enc = (u32)(uintptr_t)get_pointer(i);
@@ -563,6 +572,11 @@ struct LuaStack
 		push_pointer(world);
 	}
 
+	void push_animation_state_machine(AnimationStateMachine* sm)
+	{
+		push_pointer(sm);
+	}
+
 	void push_unit(UnitId id)
 	{
 		u32 encoded = (id._idx << 2) | UNIT_MARKER;
@@ -730,6 +744,12 @@ struct LuaStack
 	{
 		if (!is_pointer(i) || *(u32*)p != SCRIPT_WORLD_MARKER)
 			luaL_typerror(L, i, "ScriptWorld");
+	}
+
+	void check_type(int i, const AnimationStateMachine* p)
+	{
+		if (!is_pointer(i) || *(u32*)p != ANIMATION_STATE_MACHINE_MARKER)
+			luaL_typerror(L, i, "AnimationStateMachine");
 	}
 #endif // !CROWN_RELEASE
 };

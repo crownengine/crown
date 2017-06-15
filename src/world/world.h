@@ -55,6 +55,7 @@ struct World
 	PhysicsWorld* _physics_world;
 	SoundWorld* _sound_world;
 	ScriptWorld* _script_world;
+	AnimationStateMachine* _animation_state_machine;
 
 	Array<UnitId> _units;
 	Array<Level*> _levels;

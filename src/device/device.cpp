@@ -43,6 +43,7 @@
 #include "sjson.h"
 #include "sound_resource.h"
 #include "sprite_resource.h"
+#include "state_machine_resource.h"
 #include "string_stream.h"
 #include "string_utils.h"
 #include "temp_allocator.h"
@@ -338,6 +339,7 @@ void Device::run()
 
 	profiler_globals::init();
 
+	namespace smr = state_machine_internal;
 	namespace cor = config_resource_internal;
 	namespace ftr = font_resource_internal;
 	namespace lur = lua_resource_internal;
@@ -369,6 +371,7 @@ void Device::run()
 	_resource_manager->register_type(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            NULL,      NULL,        NULL,        NULL        );
 	_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           NULL,      NULL,        NULL,        NULL        );
 	_resource_manager->register_type(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, NULL,      NULL,        NULL,        NULL        );
+	_resource_manager->register_type(RESOURCE_TYPE_STATE_MACHINE,    RESOURCE_VERSION_STATE_MACHINE,    NULL,      NULL,        NULL,        NULL        );
 	_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::load, txr::unload, txr::online, txr::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             NULL,      NULL,        NULL,        NULL        );
 

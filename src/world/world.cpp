@@ -3,6 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
+#include "animation_state_machine.h"
 #include "debug_gui.h"
 #include "debug_line.h"
 #include "error.h"
@@ -38,6 +39,7 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	, _render_world(NULL)
 	, _physics_world(NULL)
 	, _sound_world(NULL)
+	, _animation_state_machine(NULL)
 	, _units(a)
 	, _levels(a)
 	, _camera(a)
@@ -50,6 +52,7 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_lines);
 	_sound_world   = CE_NEW(*_allocator, SoundWorld)(*_allocator);
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
+	_animation_state_machine = CE_NEW(*_allocator, AnimationStateMachine)(*_allocator, rm, um);
 }
 
 World::~World()
@@ -60,6 +63,7 @@ World::~World()
 	for (u32 i = 0; i < array::size(_units); ++i)
 		_unit_manager->destroy(_units[i]);
 
+	CE_DELETE(*_allocator, _animation_state_machine);
 	CE_DELETE(*_allocator, _script_world);
 	CE_DELETE(*_allocator, _sound_world);
 	CE_DELETE(*_allocator, _physics_world);
@@ -177,6 +181,35 @@ void World::update_scene(f32 dt)
 		, array::end(changed_units)
 		, array::begin(changed_world)
 		);
+
+	_animation_state_machine->update(dt);
+	EventStream& animation_events = _animation_state_machine->_events;
+	{
+		const u32 size = array::size(animation_events);
+		u32 read = 0;
+		while (read < size)
+		{
+			const EventHeader* eh = (EventHeader*)&animation_events[read];
+			const char* data = (char*)&eh[1];
+
+			read += sizeof(eh) + eh->size;
+
+			switch (eh->type)
+			{
+			case 0:
+				{
+					const SpriteFrameChangeEvent& ptev = *(SpriteFrameChangeEvent*)data;
+					_render_world->sprite_set_frame(ptev.unit, ptev.frame_num);
+				}
+				break;
+
+			default:
+				CE_FATAL("Unknown event type");
+				break;
+			}
+		}
+	}
+	array::clear(animation_events);
 
 	_sound_world->update();
 
@@ -505,6 +538,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 	RenderWorld* render_world = w._render_world;
 	PhysicsWorld* physics_world = w._physics_world;
 	ScriptWorld* script_world = w._script_world;
+	AnimationStateMachine* animation_state_machine = w._animation_state_machine;
 
 	// Start of components data
 	const char* components_begin = (const char*)(&ur + 1);
@@ -594,6 +628,14 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0; i < component->num_instances; ++i, ++sd)
 			{
 				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
+			}
+		}
+		else if (component->type == COMPONENT_TYPE_ANIMATION_STATE_MACHINE)
+		{
+			const AnimationStateMachineDesc* asmd = (const AnimationStateMachineDesc*)data;
+			for (u32 i = 0; i < component->num_instances; ++i, ++asmd)
+			{
+				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd);
 			}
 		}
 		else

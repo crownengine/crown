@@ -13,6 +13,7 @@ struct ResourceManager;
 struct ResourcePackage;
 
 struct ActorResource;
+struct StateMachineResource;
 struct ControllerResource;
 struct FontResource;
 struct JointResource;
@@ -35,6 +36,7 @@ struct UnitResource;
 
 /// @addtogroup Resource
 /// @{
+#define RESOURCE_TYPE_STATE_MACHINE    StringId64(0xa486d4045106165c)
 #define RESOURCE_TYPE_CONFIG           StringId64(0x82645835e6b73232)
 #define RESOURCE_TYPE_FONT             StringId64(0x9efe0a916aae7880)
 #define RESOURCE_TYPE_LEVEL            StringId64(0x2a690fd348fe9ac5)
@@ -51,6 +53,7 @@ struct UnitResource;
 #define RESOURCE_TYPE_TEXTURE          StringId64(0xcd4238c6a0c69e32)
 #define RESOURCE_TYPE_UNIT             StringId64(0xe0a48d0be9a7453f)
 
+#define RESOURCE_VERSION_STATE_MACHINE    u32(1)
 #define RESOURCE_VERSION_CONFIG           u32(1)
 #define RESOURCE_VERSION_FONT             u32(1)
 #define RESOURCE_VERSION_LEVEL            u32(1)
