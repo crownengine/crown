@@ -29,6 +29,9 @@ Engine initialization and shutdown.
 ### [01-physics](https://github.com/taylor001/crown/tree/master/samples/01-physics)
 ![01-physics](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/01-physics.png)
 
+### [02-animation](https://github.com/taylor001/crown/tree/master/samples/02-animation)
+![02-animation](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/02-animation.png)
+
 ## Building
 
 ### Prerequisites
