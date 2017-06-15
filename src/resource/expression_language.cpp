@@ -1,5 +1,6 @@
 #include "expression_language.h"
 
+#include <alloca.h>
 #include <math.h>
 #include <string.h>
 #include <limits.h>
