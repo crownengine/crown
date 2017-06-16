@@ -888,7 +888,8 @@ struct PhysicsWorldImpl
 
 	void update(f32 dt)
 	{
-		_scene->stepSimulation(dt);
+		// 12Hz to 120Hz
+		_scene->stepSimulation(dt, 7, 1.0f/60.0f);
 
 		const int num = _scene->getNumCollisionObjects();
 		const btCollisionObjectArray& collision_array = _scene->getCollisionObjectArray();
