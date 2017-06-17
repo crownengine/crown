@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "types.h"
-#include "platform.h"
+#include "core/platform.h"
+#include "core/types.h"
+#include <ctype.h> // isspace
+#include <stdarg.h>
 #include <stdio.h> // sscanf, vsnprintf
 #include <string.h>
-#include <stdarg.h>
-#include <ctype.h> // isspace
 
 namespace crown
 {

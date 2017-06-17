@@ -3,7 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "murmur.h"
+#include "core/murmur.h"
 
 namespace crown
 {

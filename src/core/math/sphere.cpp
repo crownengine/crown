@@ -3,7 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "sphere.h"
+#include "core/math/sphere.h"
 
 namespace crown
 {

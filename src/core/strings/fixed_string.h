@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "string_utils.h"
+#include "core/strings/string.h"
 #include <algorithm>
 
 namespace crown

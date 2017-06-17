@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "container_types.h"
-#include "event_stream.h"
-#include "resource_types.h"
-#include "state_machine_resource.h"
-#include "world_types.h"
+#include "core/containers/event_stream.h"
+#include "core/containers/types.h"
+#include "resource/state_machine_resource.h"
+#include "resource/types.h"
+#include "world/types.h"
 
 namespace crown
 {

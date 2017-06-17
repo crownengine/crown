@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "allocator.h"
-#include "memory.h"
+#include "core/memory/allocator.h"
+#include "core/memory/memory.h"
 
 namespace crown
 {

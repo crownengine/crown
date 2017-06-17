@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "error.h"
-#include "platform.h"
-#include "types.h"
+#include "core/error/error.h"
+#include "core/platform.h"
+#include "core/types.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>

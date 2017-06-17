@@ -3,8 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "stack_allocator.h"
-#include "memory.h"
+#include "core/memory/memory.h"
+#include "core/memory/stack_allocator.h"
 
 namespace crown
 {

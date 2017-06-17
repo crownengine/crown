@@ -3,12 +3,12 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "allocator.h"
-#include "error.h"
-#include "input_device.h"
-#include "memory.h"
-#include "string_id.h"
-#include "string_utils.h"
+#include "core/error/error.h"
+#include "core/memory/allocator.h"
+#include "core/memory/memory.h"
+#include "core/strings/string.h"
+#include "core/strings/string_id.h"
+#include "device/input_device.h"
 #include <string.h> // strcpy, memset
 
 namespace crown

@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "event_stream.h"
-#include "lua_types.h"
-#include "math_types.h"
-#include "resource_types.h"
-#include "string_id.h"
-#include "types.h"
-#include "world_types.h"
+#include "core/containers/event_stream.h"
+#include "core/math/types.h"
+#include "core/strings/string_id.h"
+#include "core/types.h"
+#include "lua/types.h"
+#include "resource/types.h"
+#include "world/types.h"
 
 namespace crown
 {

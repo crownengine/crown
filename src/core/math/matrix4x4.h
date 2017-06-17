@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "math_types.h"
-#include "math_utils.h"
-#include "matrix3x3.h"
-#include "quaternion.h"
-#include "vector4.h"
+#include "core/math/math.h"
+#include "core/math/matrix3x3.h"
+#include "core/math/quaternion.h"
+#include "core/math/types.h"
+#include "core/math/vector4.h"
 
 namespace crown
 {

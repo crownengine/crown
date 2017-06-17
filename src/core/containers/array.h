@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "allocator.h"
-#include "container_types.h"
-#include "error.h"
+#include "core/containers/types.h"
+#include "core/error/error.h"
+#include "core/memory/allocator.h"
 #include <string.h> // memcpy
 
 namespace crown

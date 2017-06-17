@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "device.h"
-#include "lua_environment.h"
-#include "lua_stack.h"
+#include "device/device.h"
+#include "lua/lua_environment.h"
+#include "lua/lua_stack.h"
 
 namespace crown
 {

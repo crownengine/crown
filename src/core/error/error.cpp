@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "callstack.h"
-#include "error.h"
-#include "log.h"
-#include "string_stream.h"
-#include "temp_allocator.h"
+#include "core/error/callstack.h"
+#include "core/error/error.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/string_stream.h"
+#include "device/log.h"
 #include <stdarg.h>
 #include <stdlib.h> // exit
 

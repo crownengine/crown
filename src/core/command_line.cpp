@@ -3,8 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "command_line.h"
-#include "string_utils.h"
+#include "core/command_line.h"
+#include "core/strings/string.h"
 
 namespace crown
 {

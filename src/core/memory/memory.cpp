@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "memory.h"
-#include "allocator.h"
-#include "mutex.h"
+#include "core/memory/allocator.h"
+#include "core/memory/memory.h"
+#include "core/thread/mutex.h"
 #include <stdlib.h> // malloc
 
 // void* operator new(size_t) throw (std::bad_alloc)

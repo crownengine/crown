@@ -3,7 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "aabb.h"
+#include "core/math/aabb.h"
 
 namespace crown
 {

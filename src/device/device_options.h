@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "dynamic_string.h"
-#include "platform.h"
-#include "types.h"
+#include "core/platform.h"
+#include "core/strings/dynamic_string.h"
+#include "core/types.h"
 
 namespace crown
 {

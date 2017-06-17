@@ -3,18 +3,18 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "color4.h"
-#include "debug_line.h"
-#include "frustum.h"
-#include "intersection.h"
-#include "math_utils.h"
-#include "matrix4x4.h"
-#include "mesh_resource.h"
-#include "resource_manager.h"
-#include "shader_manager.h"
-#include "sprite_resource.h"
-#include "unit_resource.h"
-#include "vector3.h"
+#include "core/math/color4.h"
+#include "core/math/frustum.h"
+#include "core/math/intersection.h"
+#include "core/math/math.h"
+#include "core/math/matrix4x4.h"
+#include "core/math/vector3.h"
+#include "resource/mesh_resource.h"
+#include "resource/resource_manager.h"
+#include "resource/sprite_resource.h"
+#include "resource/unit_resource.h"
+#include "world/debug_line.h"
+#include "world/shader_manager.h"
 #include <string.h> // memcpy
 
 namespace crown

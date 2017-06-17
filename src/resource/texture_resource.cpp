@@ -3,15 +3,15 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "compile_options.h"
-#include "dynamic_string.h"
-#include "json_object.h"
-#include "reader_writer.h"
-#include "resource_manager.h"
-#include "sjson.h"
-#include "string_stream.h"
-#include "temp_allocator.h"
-#include "texture_resource.h"
+#include "core/filesystem/reader_writer.h"
+#include "core/json/json_object.h"
+#include "core/json/sjson.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/dynamic_string.h"
+#include "core/strings/string_stream.h"
+#include "resource/compile_options.h"
+#include "resource/resource_manager.h"
+#include "resource/texture_resource.h"
 
 #if CROWN_DEVELOPMENT
 	#define TEXTUREC_NAME "texturec-development"

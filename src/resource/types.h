@@ -8,6 +8,8 @@
 /// @defgroup Resource Resource
 namespace crown
 {
+struct CompileOptions;
+struct DataCompiler;
 struct ResourceLoader;
 struct ResourceManager;
 struct ResourcePackage;

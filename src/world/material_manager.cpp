@@ -3,13 +3,13 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "file.h"
-#include "material_manager.h"
-#include "material_resource.h"
-#include "resource_manager.h"
-#include "sort_map.h"
-#include <string.h> // memcpy
+#include "core/containers/sort_map.h"
+#include "core/filesystem/file.h"
+#include "resource/material_resource.h"
+#include "resource/resource_manager.h"
+#include "world/material_manager.h"
 #include <bgfx/bgfx.h>
+#include <string.h> // memcpy
 
 namespace crown
 {

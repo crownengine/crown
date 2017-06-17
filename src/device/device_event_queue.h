@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "atomic_int.h"
-#include "types.h"
+#include "core/thread/atomic_int.h"
+#include "core/types.h"
 
 namespace crown
 {

@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "container_types.h"
-#include "hash_map.h"
-#include "socket.h"
-#include "string_types.h"
+#include "core/containers/hash_map.h"
+#include "core/containers/types.h"
+#include "core/network/socket.h"
+#include "core/strings/types.h"
 
 namespace crown
 {

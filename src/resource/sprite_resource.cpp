@@ -3,19 +3,19 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "aabb.h"
-#include "array.h"
-#include "compile_options.h"
 #include "config.h"
-#include "json_object.h"
-#include "reader_writer.h"
-#include "resource_manager.h"
-#include "sjson.h"
-#include "sprite_resource.h"
-#include "string_utils.h"
-#include "temp_allocator.h"
-#include "vector2.h"
-#include "vector4.h"
+#include "core/containers/array.h"
+#include "core/filesystem/reader_writer.h"
+#include "core/json/json_object.h"
+#include "core/json/sjson.h"
+#include "core/math/aabb.h"
+#include "core/math/vector2.h"
+#include "core/math/vector4.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/string.h"
+#include "resource/compile_options.h"
+#include "resource/resource_manager.h"
+#include "resource/sprite_resource.h"
 
 namespace crown
 {

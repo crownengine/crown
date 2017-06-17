@@ -6,9 +6,9 @@
 #pragma once
 
 #include "config.h"
-#include "input_types.h"
-#include "memory_types.h"
-#include "types.h"
+#include "core/memory/types.h"
+#include "core/types.h"
+#include "device/input_types.h"
 
 namespace crown
 {

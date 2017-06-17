@@ -3,7 +3,7 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "mutex.h"
+#include "core/thread/mutex.h"
 
 namespace crown
 {

@@ -7,7 +7,7 @@
 
 #if CROWN_PHYSICS_NOOP
 
-#include "physics_world.h"
+#include "world/physics_world.h"
 
 namespace crown
 {

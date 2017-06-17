@@ -3,10 +3,10 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "array.h"
-#include "queue.h"
-#include "unit_manager.h"
-#include "world.h"
+#include "core/containers/array.h"
+#include "core/containers/queue.h"
+#include "world/unit_manager.h"
+#include "world/world.h"
 
 #define MINIMUM_FREE_INDICES 1024
 

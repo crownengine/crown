@@ -3,19 +3,19 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "aabb.h"
-#include "color4.h"
-#include "debug_line.h"
-#include "hash_map.h"
-#include "intersection.h"
-#include "material.h"
-#include "material_manager.h"
-#include "matrix4x4.h"
-#include "mesh_resource.h"
-#include "render_world.h"
-#include "resource_manager.h"
-#include "sprite_resource.h"
-#include "unit_manager.h"
+#include "core/containers/hash_map.h"
+#include "core/math/aabb.h"
+#include "core/math/color4.h"
+#include "core/math/intersection.h"
+#include "core/math/matrix4x4.h"
+#include "resource/mesh_resource.h"
+#include "resource/resource_manager.h"
+#include "resource/sprite_resource.h"
+#include "world/debug_line.h"
+#include "world/material.h"
+#include "world/material_manager.h"
+#include "world/render_world.h"
+#include "world/unit_manager.h"
 #include <bgfx/bgfx.h>
 
 namespace crown

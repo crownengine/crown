@@ -3,13 +3,13 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "array.h"
-#include "hash_map.h"
-#include "lua_environment.h"
-#include "lua_stack.h"
-#include "resource_manager.h"
-#include "script_world.h"
-#include "unit_manager.h"
+#include "core/containers/array.h"
+#include "core/containers/hash_map.h"
+#include "lua/lua_environment.h"
+#include "lua/lua_stack.h"
+#include "resource/resource_manager.h"
+#include "world/script_world.h"
+#include "world/unit_manager.h"
 
 namespace crown
 {

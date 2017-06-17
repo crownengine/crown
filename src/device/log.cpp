@@ -3,15 +3,15 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "console_server.h"
-#include "device.h"
-#include "log.h"
-#include "mutex.h"
-#include "os.h"
-#include "platform.h"
-#include "string_stream.h"
-#include "string_utils.h"
-#include "temp_allocator.h"
+#include "core/memory/temp_allocator.h"
+#include "core/os.h"
+#include "core/platform.h"
+#include "core/strings/string.h"
+#include "core/strings/string_stream.h"
+#include "core/thread/mutex.h"
+#include "device/console_server.h"
+#include "device/device.h"
+#include "device/log.h"
 
 namespace crown
 {

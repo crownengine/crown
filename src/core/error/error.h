@@ -6,7 +6,7 @@
 #pragma once
 
 #include "config.h"
-#include "types.h"
+#include "core/types.h"
 
 /// @defgroup Error Error
 /// @ingroup Core

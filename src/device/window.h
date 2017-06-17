@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "memory_types.h"
-#include "types.h"
+#include "core/memory/types.h"
+#include "core/types.h"
 
 namespace crown
 {

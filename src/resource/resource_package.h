@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "resource_types.h"
-#include "string_id.h"
-#include "types.h"
+#include "core/strings/string_id.h"
+#include "core/types.h"
+#include "resource/types.h"
 
 namespace crown
 {

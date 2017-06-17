@@ -5,9 +5,10 @@
 
 #pragma once
 
+/// @defgroup Lua Lua
 namespace crown
 {
-struct CompileOptions;
-struct DataCompiler;
+struct LuaEnvironment;
+struct LuaStack;
 
 } // namespace crown

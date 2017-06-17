@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "error.h"
-#include "memory.h"
-#include "array.h"
-#include "string_id.h"
-#include "string_utils.h"
-#include "fixed_string.h"
+#include "core/containers/array.h"
+#include "core/error/error.h"
+#include "core/memory/memory.h"
+#include "core/strings/fixed_string.h"
+#include "core/strings/string.h"
+#include "core/strings/string_id.h"
 #include <string.h> // memmove
 
 namespace crown

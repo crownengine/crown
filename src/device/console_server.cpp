@@ -3,13 +3,13 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "console_server.h"
-#include "hash_map.h"
-#include "json_object.h"
-#include "sjson.h"
-#include "string_id.h"
-#include "string_stream.h"
-#include "temp_allocator.h"
+#include "core/containers/hash_map.h"
+#include "core/json/json_object.h"
+#include "core/json/sjson.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/string_id.h"
+#include "core/strings/string_stream.h"
+#include "device/console_server.h"
 
 namespace crown
 {

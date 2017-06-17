@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "json_types.h"
-#include "string_types.h"
+#include "core/json/types.h"
+#include "core/strings/types.h"
 
 namespace crown
 {

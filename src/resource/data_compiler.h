@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "compiler_types.h"
-#include "console_server.h"
-#include "container_types.h"
-#include "file_monitor.h"
-#include "filesystem_disk.h"
+#include "core/containers/types.h"
+#include "core/filesystem/file_monitor.h"
+#include "core/filesystem/filesystem_disk.h"
+#include "device/console_server.h"
+#include "resource/types.h"
 #include <setjmp.h>
 
 namespace crown

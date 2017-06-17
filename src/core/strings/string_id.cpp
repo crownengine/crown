@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "dynamic_string.h"
-#include "error.h"
-#include "murmur.h"
-#include "string_id.h"
-#include "string_utils.h"
+#include "core/error/error.h"
+#include "core/murmur.h"
+#include "core/strings/dynamic_string.h"
+#include "core/strings/string.h"
+#include "core/strings/string_id.h"
 #include <inttypes.h> // PRIx64
 
 namespace crown

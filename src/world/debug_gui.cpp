@@ -3,17 +3,17 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "color4.h"
-#include "debug_gui.h"
-#include "font_resource.h"
-#include "material_manager.h"
-#include "material_resource.h"
-#include "matrix4x4.h"
-#include "resource_manager.h"
-#include "string_utils.h"
-#include "utf8.h"
-#include "vector2.h"
-#include "vector3.h"
+#include "core/math/color4.h"
+#include "core/math/matrix4x4.h"
+#include "core/math/vector2.h"
+#include "core/math/vector3.h"
+#include "core/strings/string.h"
+#include "core/strings/utf8.h"
+#include "resource/font_resource.h"
+#include "resource/material_resource.h"
+#include "resource/resource_manager.h"
+#include "world/debug_gui.h"
+#include "world/material_manager.h"
 #include <bgfx/bgfx.h>
 
 namespace crown

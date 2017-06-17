@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "platform.h"
+#include "core/platform.h"
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "filesystem.h"
+#include "core/filesystem/filesystem.h"
 #include <sys/types.h> // off_t
 #include <android/asset_manager.h>
 

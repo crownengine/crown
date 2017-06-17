@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "compiler_types.h"
-#include "container_types.h"
-#include "filesystem_types.h"
-#include "string_types.h"
+#include "core/containers/types.h"
+#include "core/filesystem/types.h"
+#include "core/strings/types.h"
+#include "resource/types.h"
 #include <stdarg.h>
 
 #define DATA_COMPILER_ASSERT(condition, opts, msg, ...) \

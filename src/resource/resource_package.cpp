@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "array.h"
-#include "package_resource.h"
-#include "resource_manager.h"
-#include "resource_package.h"
-#include "world_types.h"
+#include "core/containers/array.h"
+#include "resource/package_resource.h"
+#include "resource/resource_manager.h"
+#include "resource/resource_package.h"
+#include "world/types.h"
 
 namespace crown
 {

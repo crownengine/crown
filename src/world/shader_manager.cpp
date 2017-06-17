@@ -3,13 +3,13 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "array.h"
-#include "hash_map.h"
-#include "reader_writer.h"
-#include "resource_manager.h"
-#include "shader_manager.h"
-#include "shader_resource.h"
-#include "string_utils.h"
+#include "core/containers/array.h"
+#include "core/containers/hash_map.h"
+#include "core/filesystem/reader_writer.h"
+#include "core/strings/string.h"
+#include "resource/resource_manager.h"
+#include "resource/shader_resource.h"
+#include "world/shader_manager.h"
 
 namespace crown
 {

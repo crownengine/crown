@@ -4,13 +4,13 @@
  */
 
 #include "config.h"
-#include "device.h"
-#include "error.h"
-#include "log.h"
-#include "lua_environment.h"
-#include "lua_resource.h"
-#include "lua_stack.h"
-#include "resource_manager.h"
+#include "core/error/error.h"
+#include "device/device.h"
+#include "device/log.h"
+#include "lua/lua_environment.h"
+#include "lua/lua_stack.h"
+#include "resource/lua_resource.h"
+#include "resource/resource_manager.h"
 #include <stdarg.h>
 
 namespace { const crown::log_internal::System LUA = { "Lua" }; }

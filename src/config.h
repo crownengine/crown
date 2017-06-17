@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "platform.h"
+#include "core/platform.h"
 
 #define CROWN_VERSION "0.0.28"
 

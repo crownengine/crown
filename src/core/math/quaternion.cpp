@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "types.h"
-#include "quaternion.h"
-#include "error.h"
+#include "core/error/error.h"
+#include "core/math/quaternion.h"
+#include "core/types.h"
 
 namespace crown
 {

@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "functional.h"
-#include "math_types.h"
-#include "string_id.h"
-#include "types.h"
+#include "core/functional.h"
+#include "core/math/types.h"
+#include "core/strings/string_id.h"
+#include "core/types.h"
 
 /// @defgroup World World
 namespace crown

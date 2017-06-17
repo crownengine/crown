@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "functional.h"
-#include "memory_types.h"
-#include "pair.h"
-#include "types.h"
+#include "core/functional.h"
+#include "core/memory/types.h"
+#include "core/pair.h"
+#include "core/types.h"
 
 /// @defgroup Containers Containers
 /// @ingroup Core

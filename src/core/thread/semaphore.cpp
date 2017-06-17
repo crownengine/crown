@@ -3,8 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "error.h"
-#include "semaphore.h"
+#include "core/error/error.h"
+#include "core/thread/semaphore.h"
 
 namespace crown
 {

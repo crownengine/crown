@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "container_types.h"
-#include "array.h"
-#include "error.h"
+#include "core/containers/array.h"
+#include "core/containers/types.h"
+#include "core/error/error.h"
 #include <string.h> // memcpy
 
 namespace crown

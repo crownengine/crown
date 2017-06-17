@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "math_types.h"
-#include "resource_types.h"
-#include "string_id.h"
-#include "types.h"
-#include "world_types.h"
+#include "core/math/types.h"
+#include "core/strings/string_id.h"
+#include "core/types.h"
+#include "resource/types.h"
+#include "world/types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown

@@ -7,20 +7,20 @@
 
 #if CROWN_PHYSICS_BULLET
 
-#include "array.h"
-#include "color4.h"
-#include "debug_line.h"
-#include "hash_map.h"
-#include "log.h"
-#include "matrix4x4.h"
-#include "physics.h"
-#include "physics_resource.h"
-#include "physics_world.h"
-#include "proxy_allocator.h"
-#include "quaternion.h"
-#include "resource_manager.h"
-#include "unit_manager.h"
-#include "vector3.h"
+#include "core/containers/array.h"
+#include "core/containers/hash_map.h"
+#include "core/math/color4.h"
+#include "core/math/matrix4x4.h"
+#include "core/math/quaternion.h"
+#include "core/math/vector3.h"
+#include "core/memory/proxy_allocator.h"
+#include "device/log.h"
+#include "resource/physics_resource.h"
+#include "resource/resource_manager.h"
+#include "world/debug_line.h"
+#include "world/physics.h"
+#include "world/physics_world.h"
+#include "world/unit_manager.h"
 #include <BulletCollision/BroadphaseCollision/btDbvtBroadphase.h>
 #include <BulletCollision/CollisionDispatch/btCollisionObject.h>
 #include <BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h>

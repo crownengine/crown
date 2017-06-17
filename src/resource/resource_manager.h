@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "container_types.h"
-#include "filesystem_types.h"
-#include "proxy_allocator.h"
-#include "resource_types.h"
-#include "string_id.h"
-#include "types.h"
+#include "core/containers/types.h"
+#include "core/filesystem/types.h"
+#include "core/memory/proxy_allocator.h"
+#include "core/strings/string_id.h"
+#include "core/types.h"
+#include "resource/types.h"
 
 namespace crown
 {

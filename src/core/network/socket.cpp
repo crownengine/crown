@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "error.h"
-#include "ip_address.h"
-#include "socket.h"
+#include "core/error/error.h"
+#include "core/network/ip_address.h"
+#include "core/network/socket.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <errno.h>

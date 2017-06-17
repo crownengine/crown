@@ -3,12 +3,12 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "platform.h"
+#include "core/platform.h"
 
 #if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
 
-#include "string_stream.h"
-#include "string_utils.h"
+#include "core/strings/string.h"
+#include "core/strings/string_stream.h"
 #include <cxxabi.h>
 #include <execinfo.h>
 #include <stdlib.h>

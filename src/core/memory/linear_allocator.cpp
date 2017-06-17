@@ -3,8 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "linear_allocator.h"
-#include "memory.h"
+#include "core/memory/linear_allocator.h"
+#include "core/memory/memory.h"
 
 namespace crown
 {

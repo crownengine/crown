@@ -3,14 +3,14 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "array.h"
-#include "compile_options.h"
 #include "config.h"
-#include "dynamic_string.h"
-#include "file.h"
-#include "lua_resource.h"
-#include "string_stream.h"
-#include "temp_allocator.h"
+#include "core/containers/array.h"
+#include "core/filesystem/file.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/dynamic_string.h"
+#include "core/strings/string_stream.h"
+#include "resource/compile_options.h"
+#include "resource/lua_resource.h"
 
 #define LUAJIT_NAME "./luajit"
 

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "container_types.h"
-#include "world_types.h"
+#include "core/containers/types.h"
+#include "world/types.h"
 
 namespace crown
 {

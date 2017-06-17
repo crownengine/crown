@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "compiler_types.h"
-#include "container_types.h"
-#include "filesystem_types.h"
-#include "memory_types.h"
-#include "resource_types.h"
-#include "string_id.h"
-#include "string_types.h"
+#include "core/containers/types.h"
+#include "core/filesystem/types.h"
+#include "core/memory/types.h"
+#include "core/strings/string_id.h"
+#include "core/strings/types.h"
+#include "resource/types.h"
+#include "resource/types.h"
 
 namespace crown
 {

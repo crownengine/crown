@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "dynamic_string.h"
-#include "json.h"
-#include "map.h"
-#include "string_utils.h"
-#include "temp_allocator.h"
+#include "core/containers/map.h"
+#include "core/json/json.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/dynamic_string.h"
+#include "core/strings/string.h"
 
 namespace crown
 {

@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "network_types.h"
-#include "platform.h"
-#include "types.h"
+#include "core/network/types.h"
+#include "core/platform.h"
+#include "core/types.h"
 
 #if CROWN_PLATFORM_POSIX
 	typedef int SOCKET;

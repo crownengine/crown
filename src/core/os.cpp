@@ -3,13 +3,13 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "dynamic_string.h"
-#include "error.h"
-#include "os.h"
-#include "platform.h"
-#include "string_stream.h"
-#include "temp_allocator.h"
-#include "vector.h"
+#include "core/containers/vector.h"
+#include "core/error/error.h"
+#include "core/memory/temp_allocator.h"
+#include "core/os.h"
+#include "core/platform.h"
+#include "core/strings/dynamic_string.h"
+#include "core/strings/string_stream.h"
 #include <string.h> // strcmp
 
 #if CROWN_PLATFORM_POSIX

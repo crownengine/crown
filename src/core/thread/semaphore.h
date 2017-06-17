@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "mutex.h"
-#include "platform.h"
+#include "core/platform.h"
+#include "core/thread/mutex.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>

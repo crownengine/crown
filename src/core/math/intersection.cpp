@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "aabb.h"
-#include "intersection.h"
-#include "plane3.h"
-#include "sphere.h"
-#include "vector3.h"
+#include "core/math/aabb.h"
+#include "core/math/intersection.h"
+#include "core/math/plane3.h"
+#include "core/math/sphere.h"
+#include "core/math/vector3.h"
 
 namespace crown
 {

@@ -3,10 +3,10 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "input_device.h"
-#include "input_manager.h"
-#include "memory.h"
-#include "vector3.h"
+#include "core/math/vector3.h"
+#include "core/memory/memory.h"
+#include "device/input_device.h"
+#include "device/input_manager.h"
 
 namespace crown
 {

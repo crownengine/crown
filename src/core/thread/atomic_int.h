@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "platform.h"
+#include "core/platform.h"
 
 #if CROWN_PLATFORM_WINDOWS
-	#include "types.h"
+	#include "core/types.h"
 	#include <windows.h>
 #endif
 

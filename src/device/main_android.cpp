@@ -7,9 +7,9 @@
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "device.h"
-#include "device_event_queue.h"
-#include "thread.h"
+#include "core/thread/thread.h"
+#include "device/device.h"
+#include "device/device_event_queue.h"
 #include <android/sensor.h>
 #include <android/window.h>
 #include <android_native_app_glue.h>

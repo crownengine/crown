@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "platform.h"
+#include "core/platform.h"
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "string_stream.h"
+#include "core/strings/string_stream.h"
 
 namespace crown
 {

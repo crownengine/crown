@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "proxy_allocator.h"
-#include "error.h"
-#include "profiler.h"
+#include "core/error/error.h"
+#include "core/memory/proxy_allocator.h"
+#include "device/profiler.h"
 
 namespace crown
 {

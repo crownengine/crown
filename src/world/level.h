@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "container_types.h"
-#include "math_types.h"
-#include "memory_types.h"
-#include "resource_types.h"
-#include "world_types.h"
+#include "core/containers/types.h"
+#include "core/math/types.h"
+#include "core/memory/types.h"
+#include "resource/types.h"
+#include "world/types.h"
 
 namespace crown
 {

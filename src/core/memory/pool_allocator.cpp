@@ -3,8 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "pool_allocator.h"
-#include "error.h"
+#include "core/error/error.h"
+#include "core/memory/pool_allocator.h"
 
 namespace crown
 {

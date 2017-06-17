@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "error.h"
-#include "array.h"
+#include "core/containers/array.h"
+#include "core/error/error.h"
 
 namespace crown
 {

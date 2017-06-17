@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "guid.h"
-#include "json_types.h"
-#include "math_types.h"
-#include "string_types.h"
+#include "core/guid.h"
+#include "core/json/types.h"
+#include "core/math/types.h"
+#include "core/strings/types.h"
 
 namespace crown
 {

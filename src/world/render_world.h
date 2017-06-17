@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "container_types.h"
-#include "math_types.h"
-#include "resource_types.h"
-#include "string_id.h"
-#include "world_types.h"
-#include "mesh_resource.h"
+#include "core/containers/types.h"
+#include "core/math/types.h"
+#include "core/strings/string_id.h"
+#include "resource/mesh_resource.h"
+#include "resource/types.h"
+#include "world/types.h"
 #include <bgfx/bgfx.h>
 
 namespace crown

@@ -3,8 +3,8 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "dynamic_string.h"
-#include "path.h"
+#include "core/filesystem/path.h"
+#include "core/strings/dynamic_string.h"
 #include <ctype.h> // isalpha
 #include <string.h> // strrchr
 

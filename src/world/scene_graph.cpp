@@ -3,15 +3,15 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "allocator.h"
-#include "array.h"
-#include "hash_map.h"
-#include "matrix3x3.h"
-#include "matrix4x4.h"
-#include "quaternion.h"
-#include "scene_graph.h"
-#include "unit_manager.h"
-#include "vector3.h"
+#include "core/containers/array.h"
+#include "core/containers/hash_map.h"
+#include "core/math/matrix3x3.h"
+#include "core/math/matrix4x4.h"
+#include "core/math/quaternion.h"
+#include "core/math/vector3.h"
+#include "core/memory/allocator.h"
+#include "world/scene_graph.h"
+#include "world/unit_manager.h"
 #include <stdint.h> // UINT_MAX
 #include <string.h> // memcpy
 

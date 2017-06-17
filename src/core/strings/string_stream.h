@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "array.h"
-#include "string_types.h"
-#include "string_utils.h"
+#include "core/containers/array.h"
+#include "core/strings/string.h"
+#include "core/strings/types.h"
 
 namespace crown
 {

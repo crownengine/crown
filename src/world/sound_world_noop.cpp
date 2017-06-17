@@ -7,9 +7,9 @@
 
 #if SOUND_WORLD_NOOP
 
-#include "sound_world.h"
-#include "audio.h"
-#include "memory.h"
+#include "core/memory/memory.h"
+#include "world/audio.h"
+#include "world/sound_world.h"
 
 namespace crown
 {

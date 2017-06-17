@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "level.h"
-#include "level_resource.h"
-#include "unit_manager.h"
-#include "unit_resource.h"
-#include "world.h"
+#include "resource/level_resource.h"
+#include "resource/unit_resource.h"
+#include "world/level.h"
+#include "world/unit_manager.h"
+#include "world/world.h"
 
 namespace crown
 {

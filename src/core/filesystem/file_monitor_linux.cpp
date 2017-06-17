@@ -3,16 +3,16 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "platform.h"
+#include "core/platform.h"
 
 #if CROWN_PLATFORM_LINUX
 
-#include "dynamic_string.h"
-#include "file_monitor.h"
-#include "hash_map.h"
-#include "path.h"
-#include "temp_allocator.h"
-#include "thread.h"
+#include "core/containers/hash_map.h"
+#include "core/filesystem/file_monitor.h"
+#include "core/filesystem/path.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/dynamic_string.h"
+#include "core/thread/thread.h"
 #include <dirent.h> // opendir, readdir
 #include <errno.h>
 #include <limits.h> // NAME_MAX

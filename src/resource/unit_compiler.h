@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "compile_options.h"
-#include "container_types.h"
-#include "json_types.h"
-#include "string_id.h"
+#include "core/containers/types.h"
+#include "core/json/types.h"
+#include "core/strings/string_id.h"
+#include "resource/compile_options.h"
 
 namespace crown
 {

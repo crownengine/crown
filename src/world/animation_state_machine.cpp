@@ -3,16 +3,16 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "animation_state_machine.h"
-#include "array.h"
-#include "container_types.h"
-#include "expression_language.h"
-#include "hash_map.h"
-#include "resource_manager.h"
-#include "sprite_resource.h"
-#include "state_machine_resource.h"
-#include "unit_manager.h"
-#include "world_types.h"
+#include "core/containers/array.h"
+#include "core/containers/hash_map.h"
+#include "core/containers/types.h"
+#include "resource/expression_language.h"
+#include "resource/resource_manager.h"
+#include "resource/sprite_resource.h"
+#include "resource/state_machine_resource.h"
+#include "world/animation_state_machine.h"
+#include "world/types.h"
+#include "world/unit_manager.h"
 
 namespace crown
 {

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "murmur.h"
-#include "types.h"
+#include "core/murmur.h"
+#include "core/types.h"
 
 namespace crown
 {

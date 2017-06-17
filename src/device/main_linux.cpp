@@ -7,26 +7,26 @@
 
 #if CROWN_PLATFORM_LINUX
 
-#include "array.h"
-#include "command_line.h"
-#include "data_compiler.h"
-#include "device.h"
-#include "device_event_queue.h"
-#include "display.h"
-#include "os.h"
-#include "thread.h"
-#include "unit_tests.h"
-#include "window.h"
-#include <X11/XKBlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/extensions/Xrandr.h>
+#include "core/command_line.h"
+#include "core/containers/array.h"
+#include "core/os.h"
+#include "core/thread/thread.h"
+#include "core/unit_tests.h"
+#include "device/device.h"
+#include "device/device_event_queue.h"
+#include "device/display.h"
+#include "device/window.h"
+#include "resource/data_compiler.h"
 #include <bgfx/platform.h>
 #include <fcntl.h>  // O_RDONLY, ...
 #include <stdlib.h>
 #include <string.h> // memset
 #include <unistd.h> // close
+#include <X11/extensions/Xrandr.h>
+#include <X11/Xatom.h>
+#include <X11/XKBlib.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 namespace crown
 {

@@ -3,12 +3,12 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "profiler.h"
-#include "os.h"
-#include "array.h"
-#include "mutex.h"
-#include "memory.h"
-#include "vector3.h"
+#include "core/containers/array.h"
+#include "core/math/vector3.h"
+#include "core/memory/memory.h"
+#include "core/os.h"
+#include "core/thread/mutex.h"
+#include "device/profiler.h"
 
 namespace crown
 {

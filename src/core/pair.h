@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "memory.h"
+#include "core/memory/memory.h"
 #include <string.h> // memcpy
 
 namespace crown

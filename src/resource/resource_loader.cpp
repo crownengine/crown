@@ -4,15 +4,15 @@
  */
 
 #include "config.h"
-#include "dynamic_string.h"
-#include "file.h"
-#include "filesystem.h"
-#include "memory.h"
-#include "os.h"
-#include "path.h"
-#include "queue.h"
-#include "resource_loader.h"
-#include "temp_allocator.h"
+#include "core/containers/queue.h"
+#include "core/filesystem/file.h"
+#include "core/filesystem/filesystem.h"
+#include "core/filesystem/path.h"
+#include "core/memory/memory.h"
+#include "core/memory/temp_allocator.h"
+#include "core/os.h"
+#include "core/strings/dynamic_string.h"
+#include "resource/resource_loader.h"
 
 namespace crown
 {

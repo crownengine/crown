@@ -3,18 +3,18 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "array.h"
-#include "compile_options.h"
-#include "dynamic_string.h"
-#include "file.h"
-#include "filesystem.h"
-#include "json_object.h"
-#include "level_resource.h"
-#include "map.h"
-#include "memory.h"
-#include "sjson.h"
-#include "temp_allocator.h"
-#include "unit_compiler.h"
+#include "core/containers/array.h"
+#include "core/containers/map.h"
+#include "core/filesystem/file.h"
+#include "core/filesystem/filesystem.h"
+#include "core/json/json_object.h"
+#include "core/json/sjson.h"
+#include "core/memory/memory.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/dynamic_string.h"
+#include "resource/compile_options.h"
+#include "resource/level_resource.h"
+#include "resource/unit_compiler.h"
 
 namespace crown
 {

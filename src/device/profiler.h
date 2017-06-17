@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "types.h"
-#include "math_types.h"
+#include "core/math/types.h"
+#include "core/types.h"
 
 namespace crown
 {

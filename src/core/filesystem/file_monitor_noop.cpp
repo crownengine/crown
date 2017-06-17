@@ -3,11 +3,11 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "platform.h"
+#include "core/platform.h"
 
 #if !CROWN_PLATFORM_LINUX
 
-#include "file_monitor.h"
+#include "core/filesystem/file_monitor.h"
 
 namespace crown
 {

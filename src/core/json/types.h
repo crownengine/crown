@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "container_types.h"
-#include "fixed_string.h"
+#include "core/containers/types.h"
+#include "core/strings/fixed_string.h"
 
 /// @defgroup JSON
 /// @ingroup Core

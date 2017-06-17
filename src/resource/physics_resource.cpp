@@ -3,20 +3,20 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "aabb.h"
-#include "compile_options.h"
-#include "dynamic_string.h"
-#include "file.h"
-#include "filesystem.h"
-#include "json_object.h"
-#include "map.h"
-#include "physics_resource.h"
-#include "quaternion.h"
-#include "sjson.h"
-#include "sphere.h"
-#include "string_utils.h"
-#include "temp_allocator.h"
-#include "world_types.h"
+#include "core/containers/map.h"
+#include "core/filesystem/file.h"
+#include "core/filesystem/filesystem.h"
+#include "core/json/json_object.h"
+#include "core/json/sjson.h"
+#include "core/math/aabb.h"
+#include "core/math/quaternion.h"
+#include "core/math/sphere.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/dynamic_string.h"
+#include "core/strings/string.h"
+#include "resource/compile_options.h"
+#include "resource/physics_resource.h"
+#include "world/types.h"
 
 namespace crown
 {

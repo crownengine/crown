@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "command_line.h"
-#include "device_options.h"
-#include "path.h"
+#include "core/command_line.h"
+#include "core/filesystem/path.h"
+#include "device/device_options.h"
 #include <stdlib.h>
 
 namespace crown

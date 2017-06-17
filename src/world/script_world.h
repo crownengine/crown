@@ -3,10 +3,10 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "container_types.h"
-#include "lua_types.h"
-#include "resource_types.h"
-#include "world_types.h"
+#include "core/containers/types.h"
+#include "lua/types.h"
+#include "resource/types.h"
+#include "world/types.h"
 
 namespace crown
 {

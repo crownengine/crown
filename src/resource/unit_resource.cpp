@@ -3,13 +3,13 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "allocator.h"
-#include "array.h"
-#include "file.h"
-#include "filesystem.h"
-#include "resource_types.h"
-#include "sort_map.h"
-#include "unit_compiler.h"
+#include "core/containers/array.h"
+#include "core/containers/sort_map.h"
+#include "core/filesystem/file.h"
+#include "core/filesystem/filesystem.h"
+#include "core/memory/allocator.h"
+#include "resource/types.h"
+#include "resource/unit_compiler.h"
 
 namespace crown
 {

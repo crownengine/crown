@@ -6,10 +6,10 @@
 #pragma once
 
 #include "config.h"
-#include "lua_stack.h"
-#include "math_types.h"
-#include "resource_types.h"
-#include "types.h"
+#include "core/math/types.h"
+#include "core/types.h"
+#include "lua/lua_stack.h"
+#include "resource/types.h"
 #include <lua.hpp>
 
 namespace crown

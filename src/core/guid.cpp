@@ -3,9 +3,9 @@
  * License: https://github.com/taylor001/crown/blob/master/LICENSE
  */
 
-#include "dynamic_string.h"
-#include "guid.h"
-#include "platform.h"
+#include "core/guid.h"
+#include "core/platform.h"
+#include "core/strings/dynamic_string.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <fcntl.h>

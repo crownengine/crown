@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "types.h"
-#include "error.h"
-#include "allocator.h"
+#include "core/error/error.h"
+#include "core/memory/allocator.h"
+#include "core/types.h"
 #include <new>
 
 namespace crown

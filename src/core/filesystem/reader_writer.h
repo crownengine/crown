@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "types.h"
-#include "file.h"
+#include "core/filesystem/file.h"
+#include "core/types.h"
 
 namespace crown
 {
