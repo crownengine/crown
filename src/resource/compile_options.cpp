@@ -104,17 +104,17 @@ Buffer CompileOptions::read(const char* path)
 
 	TempAllocator256 ta;
 	DynamicString source_dir(ta);
-	FilesystemDisk source_fs(ta);
-
 	_data_compiler.source_dir(path, source_dir);
-	source_fs.set_prefix(source_dir.c_str());
 
-	File* file = source_fs.open(path, FileOpenMode::READ);
-	u32 size = file->size();
+	FilesystemDisk source_filesystem(ta);
+	source_filesystem.set_prefix(source_dir.c_str());
+
+	File* file = source_filesystem.open(path, FileOpenMode::READ);
+	const u32 size = file->size();
 	Buffer buf(default_allocator());
 	array::resize(buf, size);
 	file->read(array::begin(buf), size);
-	source_fs.close(*file);
+	source_filesystem.close(*file);
 	return buf;
 }
 
@@ -122,12 +122,11 @@ void CompileOptions::get_absolute_path(const char* path, DynamicString& abs)
 {
 	TempAllocator256 ta;
 	DynamicString source_dir(ta);
-	FilesystemDisk source_fs(ta);
-
 	_data_compiler.source_dir(path, source_dir);
-	source_fs.set_prefix(source_dir.c_str());
 
-	source_fs.get_absolute_path(path, abs);
+	FilesystemDisk source_filesystem(ta);
+	source_filesystem.set_prefix(source_dir.c_str());
+	source_filesystem.get_absolute_path(path, abs);
 }
 
 void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
