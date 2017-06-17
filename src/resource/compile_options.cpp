@@ -19,9 +19,10 @@
 
 namespace crown
 {
-CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, Buffer& output, const char* platform)
+CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, DynamicString& source_path, Buffer& output, const char* platform)
 	: _data_compiler(dc)
 	, _data_filesystem(data_filesystem)
+	, _source_path(source_path)
 	, _output(output)
 	, _platform(platform)
 	, _dependencies(default_allocator())
@@ -39,6 +40,11 @@ void CompileOptions::error(const char* msg, ...)
 	va_start(args, msg);
 	error(msg, args);
 	va_end(args);
+}
+
+const char* CompileOptions::source_path()
+{
+	return _source_path.c_str();
 }
 
 bool CompileOptions::file_exists(const char* path)
@@ -84,6 +90,12 @@ void CompileOptions::write_temporary(const char* path, const char* data, u32 siz
 void CompileOptions::write_temporary(const char* path, const Buffer& data)
 {
 	write_temporary(path, array::begin(data), array::size(data));
+}
+
+///
+Buffer CompileOptions::read()
+{
+	return read(_source_path.c_str());
 }
 
 Buffer CompileOptions::read(const char* path)

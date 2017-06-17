@@ -7,6 +7,7 @@
 
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
+#include "core/strings/dynamic_string.h"
 #include "core/strings/types.h"
 #include "resource/types.h"
 #include <stdarg.h>
@@ -39,18 +40,22 @@ struct CompileOptions
 {
 	DataCompiler& _data_compiler;
 	Filesystem& _data_filesystem;
+	DynamicString _source_path;
 	Buffer& _output;
 	const char* _platform;
 	Vector<DynamicString> _dependencies;
 
 	///
-	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, Buffer& output, const char* platform);
+	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, DynamicString& source_path, Buffer& output, const char* platform);
 
 	///
 	void error(const char* msg, va_list args);
 
 	///
 	void error(const char* msg, ...);
+
+	///
+	const char* source_path();
 
 	///
 	bool file_exists(const char* path);
@@ -66,6 +71,9 @@ struct CompileOptions
 
 	///
 	void write_temporary(const char* path, const Buffer& data);
+
+	///
+	Buffer read();
 
 	///
 	Buffer read(const char* path);

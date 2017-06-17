@@ -25,7 +25,7 @@ struct SpriteResource
 
 namespace sprite_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts);
+	void compile(CompileOptions& opts);
 
 } // namespace sprite_resource_internal
 
@@ -45,7 +45,7 @@ struct SpriteAnimationResource
 
 namespace sprite_animation_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts);
+	void compile(CompileOptions& opts);
 
 } // namespace sprite_animation_resource_internal
 

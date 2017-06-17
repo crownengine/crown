@@ -37,9 +37,9 @@ namespace package_resource_internal
 		}
 	}
 
-	void compile(const char* path, CompileOptions& opts)
+	void compile(CompileOptions& opts)
 	{
-		Buffer buf = opts.read(path);
+		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);

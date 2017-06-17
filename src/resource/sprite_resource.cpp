@@ -39,9 +39,9 @@ namespace sprite_resource_internal
 		frame.pivot  = sjson::parse_vector2(obj["pivot"]);
 	}
 
-	void compile(const char* path, CompileOptions& opts)
+	void compile(CompileOptions& opts)
 	{
-		Buffer buf = opts.read(path);
+		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
@@ -146,9 +146,9 @@ namespace sprite_resource
 
 namespace sprite_animation_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts)
+	void compile(CompileOptions& opts)
 	{
-		Buffer buf = opts.read(path);
+		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);

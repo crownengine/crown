@@ -389,9 +389,9 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		if (!setjmp(_jmpbuf))
 		{
-			CompileOptions opts(*this, data_filesystem, output, platform);
+			CompileOptions opts(*this, data_filesystem, src_path, output, platform);
 
-			hash_map::get(_compilers, _type, ResourceTypeData()).compiler(src_path.c_str(), opts);
+			hash_map::get(_compilers, _type, ResourceTypeData()).compiler(opts);
 
 			File* outf = data_filesystem.open(path.c_str(), FileOpenMode::WRITE);
 			u32 size = array::size(output);

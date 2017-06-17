@@ -36,7 +36,7 @@ struct ShaderResource
 
 namespace shader_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts);
+	void compile(CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);

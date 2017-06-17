@@ -49,7 +49,7 @@ struct PackageResource
 
 namespace package_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts);
+	void compile(CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void unload(Allocator& allocator, void* resource);
 

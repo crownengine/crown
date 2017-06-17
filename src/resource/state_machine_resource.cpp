@@ -431,9 +431,9 @@ namespace state_machine_internal
 		}
 	};
 
-	void compile(const char* path, CompileOptions& opts)
+	void compile(CompileOptions& opts)
 	{
-		Buffer buf = opts.read(path);
+		Buffer buf = opts.read();
 
 		StateMachineCompiler smc(opts);
 		smc.parse(buf);

@@ -74,7 +74,7 @@ struct TransitionMode
 
 namespace state_machine_internal
 {
-	void compile(const char* path, CompileOptions& opts);
+	void compile(CompileOptions& opts);
 
 } // namespace state_machine_internal
 

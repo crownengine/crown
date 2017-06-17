@@ -15,12 +15,12 @@ namespace crown
 {
 namespace unit_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts)
+	void compile(CompileOptions& opts)
 	{
 		Buffer unit_data(default_allocator());
 
 		UnitCompiler uc(opts);
-		uc.compile_unit(path);
+		uc.compile_unit(opts.source_path());
 
 		opts.write(uc.blob());
 	}

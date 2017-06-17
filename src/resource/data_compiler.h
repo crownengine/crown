@@ -19,7 +19,7 @@ namespace crown
 /// @ingroup Resource
 struct DataCompiler
 {
-	typedef void (*CompileFunction)(const char* path, CompileOptions& opts);
+	typedef void (*CompileFunction)(CompileOptions& opts);
 
 	struct ResourceTypeData
 	{

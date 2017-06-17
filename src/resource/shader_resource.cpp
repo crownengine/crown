@@ -1230,10 +1230,10 @@ namespace shader_resource_internal
 		}
 	};
 
-	void compile(const char* path, CompileOptions& opts)
+	void compile(CompileOptions& opts)
 	{
 		ShaderCompiler sc(opts);
-		sc.parse(path);
+		sc.parse(opts.source_path());
 		sc.compile();
 	}
 

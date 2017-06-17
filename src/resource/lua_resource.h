@@ -21,7 +21,7 @@ struct LuaResource
 
 namespace lua_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts);
+	void compile(CompileOptions& opts);
 
 } // namespace lua_resource_internal
 

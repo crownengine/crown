@@ -32,12 +32,12 @@ namespace crown
 {
 namespace lua_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts)
+	void compile(CompileOptions& opts)
 	{
 		TempAllocator1024 ta;
 		DynamicString luasrc(ta);
 		DynamicString luabin(ta);
-		opts.get_absolute_path(path, luasrc);
+		opts.get_absolute_path(opts.source_path(), luasrc);
 		opts.get_temporary_path("lua.bin", luabin);
 
 		StringStream output(ta);

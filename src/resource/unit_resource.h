@@ -30,7 +30,7 @@ struct ComponentData
 
 namespace unit_resource_internal
 {
-	void compile(const char* path, CompileOptions& opts);
+	void compile(CompileOptions& opts);
 
 } // namespace unit_resource_internal
 
