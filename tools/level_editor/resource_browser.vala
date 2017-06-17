@@ -303,6 +303,9 @@ namespace Crown
 				Gtk.TreeIter resource_iter;
 				_tree_store.append(out resource_iter, null);
 				string name = (string)db.get_property(id, "name");
+				if (name.has_prefix("core/"))
+					return true;
+
 				string type = (string)db.get_property(id, "type");
 				_tree_store.set(resource_iter, 0, name, 1, type, -1);
 				return true;
