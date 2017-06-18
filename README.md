@@ -5,17 +5,6 @@ Crown is a general purpose data-driven game engine, written from scratch in [ort
 
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles; the current Lua API is similar to that of Bitsquid but this engine is *not* meant to be its clone *nor* to be API compatible with it.
 
-## Documentation
-
-  * [Manual](http://taylor001.github.io/crown/html)
-  * [Lua API](http://taylor001.github.io/crown/html/lua_api.html)
-  * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
-
-## Download
-
-### Linux
-[crown-0.0.27-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.27/crown-0.0.27-linux-x64.tar.gz)
-
 ## Screenshots
 
 ### [Level Editor](https://github.com/taylor001/crown/tree/master/tools/level_editor)
@@ -31,6 +20,17 @@ Engine initialization and shutdown.
 
 ### [02-animation](https://github.com/taylor001/crown/tree/master/samples/02-animation)
 ![02-animation](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/02-animation.png)
+
+## Download
+
+### Linux
+[crown-0.0.27-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.27/crown-0.0.27-linux-x64.tar.gz)
+
+## Documentation
+
+  * [Manual](http://taylor001.github.io/crown/html)
+  * [Lua API](http://taylor001.github.io/crown/html/lua_api.html)
+  * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
 
 ## Building
 
