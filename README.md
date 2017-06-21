@@ -62,7 +62,7 @@ MSYS2 (http://www.msys2.org)
 Contact
 -------
 
-Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
+Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))  
 Project page: https://github.com/dbartolini/crown
 
 Contributors
@@ -70,9 +70,9 @@ Contributors
 
 In chronological order.
 
-Daniele Bartolini ([@dbartolini](https://github.com/dbartolini))
-Simone Boscaratto ([@Xed89](https://github.com/Xed89))
-Michele Rossi ([@mikymod](https://github.com/mikymod))
+Daniele Bartolini ([@dbartolini](https://github.com/dbartolini))  
+Simone Boscaratto ([@Xed89](https://github.com/Xed89))  
+Michele Rossi ([@mikymod](https://github.com/mikymod))  
 Michela Iacchelli - Pepper logo.
 
 License
