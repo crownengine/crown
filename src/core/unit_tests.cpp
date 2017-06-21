@@ -503,14 +503,6 @@ static void test_matrix3x3()
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
-		const f32 det = determinant(a);
-		ENSURE(fequal(det, 111.834f, 0.00001f));
-	}
-	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
-			,  2.2f, -5.1f,  1.1f
-			,  3.2f,  3.3f, -3.8f
-			);
 		const Matrix3x3 b = get_inverted(a);
 		ENSURE(fequal(b.x.x,  0.140833f, 0.00001f));
 		ENSURE(fequal(b.x.y,  0.072339f, 0.00001f));
@@ -628,15 +620,6 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.y,  30.34f, 0.00001f));
 		ENSURE(fequal(c.t.z, -40.13f, 0.00001f));
 		ENSURE(fequal(c.t.w, -44.55f, 0.00001f));
-	}
-	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
-			,  2.2f, -5.1f,  1.1f, -7.4f
-			,  3.2f,  3.3f, -3.8f, -9.2f
-			, -6.8f, -2.9f,  1.0f,  4.9f
-			);
-		const f32 det = determinant(a);
-		ENSURE(fequal(det, -1379.14453f, 0.00001f));
 	}
 	{
 		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f

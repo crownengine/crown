@@ -273,9 +273,6 @@ Functions
 **transpose** (m) : Matrix4x4
 	Transposes the matrix *m* and returns the result.
 
-**determinant** (m) : float
-	Returns the determinant of the matrix *m*.
-
 **invert** (m) : Matrix4x4
 	Inverts the matrix *m* and returns the result.
 

@@ -563,13 +563,6 @@ static int matrix4x4_transpose(lua_State* L)
 	return 1;
 }
 
-static int matrix4x4_determinant(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.push_float(determinant(stack.get_matrix4x4(1)));
-	return 1;
-}
-
 static int matrix4x4_invert(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3226,7 +3219,6 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Matrix4x4", "subtract",                    matrix4x4_subtract);
 	env.add_module_function("Matrix4x4", "multiply",                    matrix4x4_multiply);
 	env.add_module_function("Matrix4x4", "transpose",                   matrix4x4_transpose);
-	env.add_module_function("Matrix4x4", "determinant",                 matrix4x4_determinant);
 	env.add_module_function("Matrix4x4", "invert",                      matrix4x4_invert);
 	env.add_module_function("Matrix4x4", "x",                           matrix4x4_x);
 	env.add_module_function("Matrix4x4", "y",                           matrix4x4_y);
