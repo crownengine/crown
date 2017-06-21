@@ -9,6 +9,7 @@ compiler:
 before_install:
   - sudo add-apt-repository ppa:vala-team -y
   - sudo apt-get -qq update
+  - sudo apt-get install -y libmesa-dev
   - sudo apt-get install -y libpulse-dev
   - sudo apt-get install -y libxrandr-dev
 
