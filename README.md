@@ -24,7 +24,7 @@ Engine initialization and shutdown.
 ## Download
 
 ### Linux
-[crown-0.0.27-linux-x64.tar.gz](https://github.com/dbartolini/crown/releases/download/v0.0.27/crown-0.0.27-linux-x64.tar.gz)
+[crown-0.0.28-linux-x64.tar.gz](https://github.com/dbartolini/crown/releases/download/v0.0.28/crown-0.0.28-linux-x64.tar.gz)
 
 ## Documentation
 
