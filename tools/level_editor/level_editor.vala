@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.
- * License: https://github.com/taylor001/crown/blob/master/LICENSE
+ * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 using Gdk; // Pixbuf
@@ -1287,7 +1287,7 @@ namespace Crown
 		{
 			try
 			{
-				AppInfo.launch_default_for_uri("https://taylor001.github.io/crown/html", null);
+				AppInfo.launch_default_for_uri("https://dbartolini.github.io/crown/html", null);
 			}
 			catch (Error e)
 			{
@@ -1299,7 +1299,7 @@ namespace Crown
 		{
 			try
 			{
-				AppInfo.launch_default_for_uri("https://github.com/taylor001/crown/issues", null);
+				AppInfo.launch_default_for_uri("https://github.com/dbartolini/crown/issues", null);
 			}
 			catch (Error e)
 			{
@@ -1338,7 +1338,7 @@ namespace Crown
 
 			dlg.program_name = "Crown Game Engine";
 			dlg.version = CROWN_VERSION;
-			dlg.website = "https://github.com/taylor001/crown";
+			dlg.website = "https://github.com/dbartolini/crown";
 			dlg.copyright = "Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.";
 			dlg.license = "Crown Game Engine.\n"
 				+ "Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.\n"

@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.
-# License: https://github.com/taylor001/crown/blob/master/LICENSE
+# License: https://github.com/dbartolini/crown/blob/master/LICENSE
 #
 
 bl_info = {
@@ -10,7 +10,7 @@ bl_info = {
 	"location"    : "File > Import-Export",
 	"description" : "Export Crown Engine .mesh models",
 	"warning"     : "",
-	"tracker_url" : "https://github.com/taylor001/crown",
+	"tracker_url" : "https://github.com/dbartolini/crown",
 	"support"     : 'OFFICIAL',
 	"category"    : "Import-Export"
 }

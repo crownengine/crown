@@ -1,4 +1,4 @@
-The flexible game engine. [![Build Status](https://travis-ci.org/taylor001/crown.svg?branch=master)](https://travis-ci.org/taylor001/crown) [![Build status](https://ci.appveyor.com/api/projects/status/dabkwdxjr456hl52?svg=true)](https://ci.appveyor.com/project/taylor001/crown) [![Join the chat at https://gitter.im/taylor001/crown](https://badges.gitter.im/taylor001/crown.svg)](https://gitter.im/taylor001/crown?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+The flexible game engine. [![Build Status](https://travis-ci.org/dbartolini/crown.svg?branch=master)](https://travis-ci.org/dbartolini/crown) [![Build status](https://ci.appveyor.com/api/projects/status/dabkwdxjr456hl52?svg=true)](https://ci.appveyor.com/project/dbartolini/crown) [![Join the chat at https://gitter.im/dbartolini/crown](https://badges.gitter.im/dbartolini/crown.svg)](https://gitter.im/dbartolini/crown?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 =====================================
 
 Crown is a general purpose data-driven game engine, written from scratch in [orthodox C++](https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b) with a minimalistic and data-oriented design philosophy in mind.
@@ -7,30 +7,30 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
 ## Screenshots
 
-### [Level Editor](https://github.com/taylor001/crown/tree/master/tools/level_editor)
+### [Level Editor](https://github.com/dbartolini/crown/tree/master/tools/level_editor)
 
-![level-editor](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/level-editor.png)
+![level-editor](https://raw.githubusercontent.com/dbartolini/crown/master/docs/shots/level-editor.png)
 
-### [00-empty](https://github.com/taylor001/crown/tree/master/samples/00-empty)
+### [00-empty](https://github.com/dbartolini/crown/tree/master/samples/00-empty)
 
 Engine initialization and shutdown.
 
-### [01-physics](https://github.com/taylor001/crown/tree/master/samples/01-physics)
-![01-physics](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/01-physics.png)
+### [01-physics](https://github.com/dbartolini/crown/tree/master/samples/01-physics)
+![01-physics](https://raw.githubusercontent.com/dbartolini/crown/master/docs/shots/01-physics.png)
 
-### [02-animation](https://github.com/taylor001/crown/tree/master/samples/02-animation)
-![02-animation](https://raw.githubusercontent.com/taylor001/crown/master/docs/shots/02-animation.png)
+### [02-animation](https://github.com/dbartolini/crown/tree/master/samples/02-animation)
+![02-animation](https://raw.githubusercontent.com/dbartolini/crown/master/docs/shots/02-animation.png)
 
 ## Download
 
 ### Linux
-[crown-0.0.27-linux-x64.tar.gz](https://github.com/taylor001/crown/releases/download/v0.0.27/crown-0.0.27-linux-x64.tar.gz)
+[crown-0.0.27-linux-x64.tar.gz](https://github.com/dbartolini/crown/releases/download/v0.0.27/crown-0.0.27-linux-x64.tar.gz)
 
 ## Documentation
 
-  * [Manual](http://taylor001.github.io/crown/html)
-  * [Lua API](http://taylor001.github.io/crown/html/lua_api.html)
-  * [C++ API](http://taylor001.github.io/crown/doxygen/modules)
+  * [Manual](http://dbartolini.github.io/crown/html)
+  * [Lua API](http://dbartolini.github.io/crown/html/lua_api.html)
+  * [C++ API](http://dbartolini.github.io/crown/doxygen/modules)
 
 ## Building
 
@@ -62,17 +62,17 @@ MSYS2 (http://www.msys2.org)
 Contact
 -------
 
-Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))  
-Project page: https://github.com/taylor001/crown
+Daniele Bartolini ([@aa_dani_bart](https://twitter.com/aa_dani_bart))
+Project page: https://github.com/dbartolini/crown
 
 Contributors
 ------------
 
 In chronological order.
 
-Daniele Bartolini ([@taylor001](https://github.com/taylor001))  
-Simone Boscaratto ([@Xed89](https://github.com/Xed89))  
-Michele Rossi ([@mikymod](https://github.com/mikymod))  
+Daniele Bartolini ([@dbartolini](https://github.com/dbartolini))
+Simone Boscaratto ([@Xed89](https://github.com/Xed89))
+Michele Rossi ([@mikymod](https://github.com/mikymod))
 Michela Iacchelli - Pepper logo.
 
 License

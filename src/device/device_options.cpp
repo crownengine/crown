@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.
- * License: https://github.com/taylor001/crown/blob/master/LICENSE
+ * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #include "core/command_line.h"
@@ -15,9 +15,9 @@ static void help(const char* msg = NULL)
 	printf(
 		"The Flexible Game Engine\n"
 		"Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.\n"
-		"License: https://github.com/taylor001/crown/blob/master/LICENSE\n"
+		"License: https://github.com/dbartolini/crown/blob/master/LICENSE\n"
 		"\n"
-		"Complete documentation available at https://taylor001.github.io/crown/html\n"
+		"Complete documentation available at https://dbartolini.github.io/crown/html\n"
 		"\n"
 		"Usage:\n"
 		"  crown [options]\n"

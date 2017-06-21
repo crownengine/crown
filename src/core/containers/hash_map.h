@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.
- * License: https://github.com/taylor001/crown/blob/master/LICENSE
+ * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 // http://sebastiansylvan.com/post/robin-hood-hashing-should-be-your-default-hash-table-implementation/
