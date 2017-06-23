@@ -66,13 +66,13 @@ Functions
 	Returns true whether the vectors *a* and *b* are equal.
 
 **length** (a) : float
-	Returns the lenght of *a*.
+	Returns the length of *a*.
 
 **length_squared** (a) : float
 	Returns the squared length of *a*.
 
 **set_length** (a, len)
-	Sets the lenght of *a* to *len*.
+	Sets the length of *a* to *len*.
 
 **normalize** (a) : Vector3
 	Normalizes *a* and returns the result.
