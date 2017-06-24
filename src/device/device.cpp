@@ -399,11 +399,15 @@ void Device::run()
 	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
 
 	_display = display::create(_allocator);
+
+	_width  = _boot_config.window_w;
+	_height = _boot_config.window_h;
+
 	_window = window::create(_allocator);
 	_window->open(_device_options._window_x
 		, _device_options._window_y
-		, _boot_config.window_w
-		, _boot_config.window_h
+		, _width
+		, _height
 		, _device_options._parent_window
 		);
 	_window->set_title(_boot_config.window_title.c_str());
@@ -416,6 +420,7 @@ void Device::run()
 		, _bgfx_callback
 		, _bgfx_allocator
 		);
+	bgfx::reset(_width, _height, _boot_config.vsync);
 
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
 	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
