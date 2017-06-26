@@ -420,7 +420,7 @@ void Device::run()
 		, _bgfx_callback
 		, _bgfx_allocator
 		);
-	bgfx::reset(_width, _height, _boot_config.vsync);
+	bgfx::reset(_width, _height, (_boot_config.vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
 
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
 	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);
