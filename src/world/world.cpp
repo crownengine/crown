@@ -116,80 +116,21 @@ void World::units(Array<UnitId>& units) const
 	array::push(units, array::begin(_units), array::size(_units));
 }
 
-void World::update_animations(f32 /*dt*/)
+void World::update_animations(f32 dt)
 {
+	_animation_state_machine->update(dt);
 }
 
 void World::update_scene(f32 dt)
 {
-	TempAllocator4096 ta;
-	Array<UnitId> changed_units(ta);
-	Array<Matrix4x4> changed_world(ta);
-
-	_scene_graph->get_changed(changed_units, changed_world);
-
-	_physics_world->update_actor_world_poses(array::begin(changed_units)
-		, array::end(changed_units)
-		, array::begin(changed_world)
-		);
-
-	_physics_world->update(dt);
-
-	// Process physics events
-	EventStream& physics_events = _physics_world->events();
-
-	const u32 size = array::size(physics_events);
-	u32 read = 0;
-	while (read < size)
+	// Process animation events
 	{
-		const EventHeader* esh = (EventHeader*)&physics_events[read];
-		const char* data = (char*)&esh[1];
-
-		read += sizeof(esh) + esh->size;
-
-		switch (esh->type)
-		{
-		case EventType::PHYSICS_TRANSFORM:
-			{
-				const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
-				const TransformInstance ti = _scene_graph->instances(ptev.unit_id);
-				const Matrix4x4 pose = matrix4x4(ptev.rotation, ptev.position);
-				_scene_graph->set_world_pose(ti, pose);
-			}
-			break;
-
-		case EventType::PHYSICS_COLLISION:
-			break;
-
-		case EventType::PHYSICS_TRIGGER:
-			break;
-
-		default:
-			CE_FATAL("Unknown event type");
-			break;
-		}
-	}
-	array::clear(physics_events);
-
-	array::clear(changed_units);
-	array::clear(changed_world);
-
-	_scene_graph->get_changed(changed_units, changed_world);
-	_scene_graph->clear_changed();
-
-	_render_world->update_transforms(array::begin(changed_units)
-		, array::end(changed_units)
-		, array::begin(changed_world)
-		);
-
-	_animation_state_machine->update(dt);
-	EventStream& animation_events = _animation_state_machine->_events;
-	{
-		const u32 size = array::size(animation_events);
+		EventStream& events = _animation_state_machine->_events;
+		const u32 size = array::size(events);
 		u32 read = 0;
 		while (read < size)
 		{
-			const EventHeader* eh = (EventHeader*)&animation_events[read];
+			const EventHeader* eh = (EventHeader*)&events[read];
 			const char* data = (char*)&eh[1];
 
 			read += sizeof(eh) + eh->size;
@@ -208,8 +149,68 @@ void World::update_scene(f32 dt)
 				break;
 			}
 		}
+		array::clear(events);
 	}
-	array::clear(animation_events);
+
+	TempAllocator4096 ta;
+	Array<UnitId> changed_units(ta);
+	Array<Matrix4x4> changed_world(ta);
+
+	_scene_graph->get_changed(changed_units, changed_world);
+
+	_physics_world->update_actor_world_poses(array::begin(changed_units)
+		, array::end(changed_units)
+		, array::begin(changed_world)
+		);
+
+	_physics_world->update(dt);
+
+	// Process physics events
+	{
+		EventStream& events = _physics_world->events();
+		const u32 size = array::size(events);
+		u32 read = 0;
+		while (read < size)
+		{
+			const EventHeader* eh = (EventHeader*)&events[read];
+			const char* data = (char*)&eh[1];
+
+			read += sizeof(eh) + eh->size;
+
+			switch (eh->type)
+			{
+			case EventType::PHYSICS_TRANSFORM:
+				{
+					const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
+					const TransformInstance ti = _scene_graph->instances(ptev.unit_id);
+					const Matrix4x4 pose = matrix4x4(ptev.rotation, ptev.position);
+					_scene_graph->set_world_pose(ti, pose);
+				}
+				break;
+
+			case EventType::PHYSICS_COLLISION:
+				break;
+
+			case EventType::PHYSICS_TRIGGER:
+				break;
+
+			default:
+				CE_FATAL("Unknown event type");
+				break;
+			}
+		}
+		array::clear(events);
+	}
+
+	array::clear(changed_units);
+	array::clear(changed_world);
+	_scene_graph->get_changed(changed_units, changed_world);
+	_scene_graph->clear_changed();
+
+	_render_world->update_transforms(array::begin(changed_units)
+		, array::end(changed_units)
+		, array::begin(changed_world)
+		);
 
 	_sound_world->update();
 
@@ -543,7 +544,6 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 	// Start of components data
 	const char* components_begin = (const char*)(&ur + 1);
 	const ComponentData* component = NULL;
-
 	for (u32 cc = 0; cc < ur.num_component_types; ++cc, components_begin += component->size + sizeof(ComponentData))
 	{
 		component = (const ComponentData*)components_begin;
