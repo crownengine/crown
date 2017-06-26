@@ -186,9 +186,9 @@ struct LuaStack
 		return StringId64(get_string(i));
 	}
 
-	DebugGui* get_debug_gui(int i)
+	Gui* get_gui(int i)
 	{
-		DebugGui* p = (DebugGui*)get_pointer(i);
+		Gui* p = (Gui*)get_pointer(i);
 #if !CROWN_RELEASE
 		check_type(i, p);
 #endif // !CROWN_RELEASE
@@ -522,7 +522,7 @@ struct LuaStack
 		return lua_next(L, i);
 	}
 
-	void push_debug_gui(DebugGui* dg)
+	void push_gui(Gui* dg)
 	{
 		push_pointer(dg);
 	}
@@ -686,10 +686,10 @@ struct LuaStack
 	void check_temporary(int i, const Quaternion* p);
 	void check_temporary(int i, const Matrix4x4* p);
 
-	void check_type(int i, const DebugGui* p)
+	void check_type(int i, const Gui* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != DEBUG_GUI_MARKER)
-			luaL_typerror(L, i, "DebugGui");
+			luaL_typerror(L, i, "Gui");
 	}
 
 	void check_type(int i, const DebugLine* p)

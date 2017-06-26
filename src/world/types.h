@@ -14,8 +14,8 @@
 namespace crown
 {
 struct AnimationStateMachine;
-struct DebugGui;
 struct DebugLine;
+struct Gui;
 struct Level;
 struct Material;
 struct MaterialManager;

@@ -582,9 +582,12 @@ void Device::render(World& world, UnitId camera_unit)
 	const Matrix4x4 view = world.camera_view_matrix(camera_unit);
 	const Matrix4x4 proj = world.camera_projection_matrix(camera_unit);
 
+	Matrix4x4 ortho_proj;
+	orthographic(ortho_proj, 0, _width, 0, _height, 0.01f, 1.0f);
+
 	bgfx::setViewTransform(0, to_float_ptr(view), to_float_ptr(proj));
 	bgfx::setViewTransform(1, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(2, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(MATRIX4X4_IDENTITY));
+	bgfx::setViewTransform(2, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
 	bgfx::setViewSeq(2, true);
 
 	bgfx::touch(0);
@@ -614,13 +617,13 @@ void Device::destroy_world(World& w)
 		if (&w == _worlds[i])
 		{
 			CE_DELETE(default_allocator(), &w);
-			_worlds[i] = _worlds[n - 1];
+			_worlds[i] = _worlds[n-1];
 			array::pop_back(_worlds);
 			return;
 		}
 	}
 
-	CE_FATAL("Bad world");
+	CE_FATAL("World not found");
 }
 
 ResourcePackage* Device::create_resource_package(StringId64 id)

@@ -13,8 +13,8 @@
 #include "resource/resource_manager.h"
 #include "resource/unit_resource.h"
 #include "world/animation_state_machine.h"
-#include "world/debug_gui.h"
 #include "world/debug_line.h"
+#include "world/gui.h"
 #include "world/level.h"
 #include "world/physics_world.h"
 #include "world/render_world.h"
@@ -45,6 +45,8 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	, _camera(a)
 	, _camera_map(a)
 	, _events(a)
+	, _gui_buffer(sm)
+	, _guis(a)
 {
 	_lines = create_debug_line(true);
 	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
@@ -53,6 +55,8 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	_sound_world   = CE_NEW(*_allocator, SoundWorld)(*_allocator);
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
 	_animation_state_machine = CE_NEW(*_allocator, AnimationStateMachine)(*_allocator, rm, um);
+
+	_gui_buffer.create();
 }
 
 World::~World()
@@ -215,6 +219,8 @@ void World::update_scene(f32 dt)
 	_sound_world->update();
 
 	script_world::update(*_script_world, dt);
+
+	_gui_buffer.reset();
 
 	array::clear(_events);
 }
@@ -485,19 +491,30 @@ void World::destroy_debug_line(DebugLine& line)
 	CE_DELETE(*_allocator, &line);
 }
 
-DebugGui* World::create_screen_debug_gui(f32 scale_w, f32 scale_h)
+Gui* World::create_screen_gui()
 {
-	return CE_NEW(*_allocator, DebugGui)(*_resource_manager
+	Gui* gui = CE_NEW(*_allocator, Gui)(_gui_buffer, *_resource_manager
 		, *_shader_manager
 		, *_material_manager
-		, 1280
-		, 720
 		);
+	array::push_back(_guis, gui);
+	return gui;
 }
 
-void World::destroy_gui(DebugGui& gui)
+void World::destroy_gui(Gui& gui)
 {
-	CE_DELETE(*_allocator, &gui);
+	for (u32 i = 0, n = array::size(_guis); i < n; ++i)
+	{
+		if (_guis[i] == &gui)
+		{
+			CE_DELETE(*_allocator, &gui);
+			_guis[i] = _guis[n-1];
+			array::pop_back(_guis);
+			return;
+		}
+	}
+
+	CE_FATAL("Gui not found");
 }
 
 Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& rot)

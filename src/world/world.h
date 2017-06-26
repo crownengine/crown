@@ -11,6 +11,7 @@
 #include "core/types.h"
 #include "lua/types.h"
 #include "resource/types.h"
+#include "world/gui.h"
 #include "world/types.h"
 
 namespace crown
@@ -63,6 +64,8 @@ struct World
 	HashMap<UnitId, u32> _camera_map;
 
 	EventStream _events;
+	GuiBuffer _gui_buffer;
+	Array<Gui*> _guis;
 
 	CameraInstance camera_make_instance(u32 i) { CameraInstance inst = { i }; return inst; }
 
@@ -187,10 +190,10 @@ struct World
 	void destroy_debug_line(DebugLine& line);
 
 	/// Creates a new screen-space Gui.
-	DebugGui* create_screen_debug_gui(f32 scale_w, f32 scale_h);
+	Gui* create_screen_gui();
 
 	/// Destroys the @a gui.
-	void destroy_gui(DebugGui& gui);
+	void destroy_gui(Gui& gui);
 
 	/// Loads the level @a name into the world.
 	Level* load_level(StringId64 name, const Vector3& pos, const Quaternion& rot);

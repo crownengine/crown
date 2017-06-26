@@ -433,6 +433,9 @@ World
 **destroy_debug_line** (world, line)
 	Destroys the debug *line*.
 
+**create_screen_gui** (world) : Gui
+	Creates a new Gui.
+
 **scene_graph** (world) : SceneGraph
 	Returns the scene graph.
 
@@ -930,10 +933,16 @@ Device
 **guid** () : string
 	Returns a new GUID.
 
-DebugGui
-========
+Gui
+===
 
-**rect** (pos, size, material_resource, color)
+**move** (pos)
+	Moves the Gui to *pos*.
+
+**triangle** (a, b, c, color)
+	Draws a triangle defined by vertices *a*, *b* and *c*.
+
+**rect** (pos, size, color)
 	Draws a rectangle.
 
 **image** (pos, size, material_resource, color)
