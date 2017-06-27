@@ -192,7 +192,6 @@ void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 
 
 	const FontResource* fr = (FontResource*)_resource_manager->get(RESOURCE_TYPE_FONT, font);
 	const f32 scale = (f32)font_size / (f32)fr->font_size;
-	const u32 len = strlen32(str);
 
 	f32 pen_x;
 	f32 pen_y;
@@ -202,6 +201,7 @@ void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 
 	VertexData* vd = (VertexData*)_buffer->vertex_buffer_end();
 	u16* id = (u16*)_buffer->index_buffer_end();
 
+	const u32 len = strlen32(str);
 	u32 num_vertices = 0;
 	u32 num_indices = 0;
 	for (u32 i = 0; i < len; ++i)
@@ -210,11 +210,11 @@ void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 
 		{
 		case '\n':
 			pen_advance_x = 0.0f;
-			pen_advance_y -= fr->font_size;
+			pen_advance_y -= scale*fr->font_size;
 			continue;
 
 		case '\t':
-			pen_advance_x += font_size * 4;
+			pen_advance_x += scale*font_size*4;
 			continue;
 		}
 
@@ -227,14 +227,14 @@ void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 
 			const f32 baseline = glyph->height - glyph->y_offset;
 
 			// Set pen position
-			pen_x = pos.x + glyph->x_offset;
-			pen_y = pos.y - baseline;
+			pen_x = pos.x + scale*glyph->x_offset;
+			pen_y = pos.y - scale*baseline;
 
 			// Position coords
 			const f32 x0 = (pen_x + pen_advance_x);
 			const f32 y0 = (pen_y + pen_advance_y);
-			const f32 x1 = (pen_x + pen_advance_x + glyph->width );
-			const f32 y1 = (pen_y + pen_advance_y + glyph->height);
+			const f32 x1 = (pen_x + pen_advance_x + scale*glyph->width );
+			const f32 y1 = (pen_y + pen_advance_y + scale*glyph->height);
 
 			// Texture coords
 			const f32 u0 = glyph->x / fr->texture_size;
@@ -280,7 +280,7 @@ void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 
 			id[5] = num_vertices + 3;
 
 			// Advance pen position
-			pen_advance_x += glyph->x_advance;
+			pen_advance_x += scale*glyph->x_advance;
 
 			vd += 4;
 			id += 6;
