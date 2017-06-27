@@ -179,7 +179,7 @@ namespace Crown
 				Hashtable texture = new Hashtable();
 				texture["source"]        = resource_filename;
 				texture["generate_mips"] = false;
-				texture["is_normalmap"]  = false;
+				texture["normal_map"]    = false;
 				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_name) + ".texture");
 
 				Hashtable sprite = new Hashtable();
@@ -371,7 +371,7 @@ namespace Crown
 				Hashtable texture = new Hashtable();
 				texture["source"]        = resource_filename;
 				texture["generate_mips"] = true;
-				texture["is_normalmap"]  = false;
+				texture["normal_map"]    = false;
 
 				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_name) + ".texture");
 			}
