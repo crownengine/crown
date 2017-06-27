@@ -46,7 +46,7 @@ namespace texture_resource_internal
 		DATA_COMPILER_ASSERT_FILE_EXISTS(name.c_str(), opts);
 
 		const bool generate_mips = sjson::parse_bool(object["generate_mips"]);
-		const bool is_normalmap  = sjson::parse_bool(object["is_normalmap"]);
+		const bool normal_map    = sjson::parse_bool(object["normal_map"]);
 
 		DynamicString texsrc(ta);
 		DynamicString texout(ta);
@@ -61,7 +61,7 @@ namespace texture_resource_internal
 			"-o",
 			texout.c_str(),
 			(generate_mips ? "-m" : ""),
-			(is_normalmap  ? "-n" : ""),
+			(normal_map    ? "-n" : ""),
 			NULL
 		};
 
