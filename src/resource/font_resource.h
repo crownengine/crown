@@ -15,9 +15,9 @@ namespace crown
 struct FontResource
 {
 	u32 version;
-	u32 num_glyphs;
 	u32 texture_size;
 	u32 font_size;
+	u32 num_glyphs;
 };
 
 struct GlyphData
@@ -42,7 +42,7 @@ namespace font_resource_internal
 namespace font_resource
 {
 	/// Returns the glyph for the code point @a cp.
-	const GlyphData* get_glyph(const FontResource* fr, CodePoint cp);
+	const GlyphData* glyph(const FontResource* fr, CodePoint cp);
 
 } // namespace font_resource
 

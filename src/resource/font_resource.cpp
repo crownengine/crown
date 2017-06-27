@@ -31,66 +31,62 @@ namespace font_resource_internal
 		}
 	};
 
-	void parse_glyph(const char* json, GlyphInfo& glyph)
-	{
-		TempAllocator512 ta;
-		JsonObject obj(ta);
-		sjson::parse(json, obj);
-
-		glyph.cp           = sjson::parse_int(obj["id"]);
-		glyph.gd.x         = sjson::parse_float(obj["x"]);
-		glyph.gd.y         = sjson::parse_float(obj["y"]);
-		glyph.gd.width     = sjson::parse_float(obj["width"]);
-		glyph.gd.height    = sjson::parse_float(obj["height"]);
-		glyph.gd.x_offset  = sjson::parse_float(obj["x_offset"]);
-		glyph.gd.y_offset  = sjson::parse_float(obj["y_offset"]);
-		glyph.gd.x_advance = sjson::parse_float(obj["x_advance"]);
-	}
-
 	void compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		JsonArray glyphs(ta);
+		JsonArray glyphs_json(ta);
 
 		sjson::parse(buf, object);
-		sjson::parse_array(object["glyphs"], glyphs);
+		sjson::parse_array(object["glyphs"], glyphs_json);
 
 		const u32 texture_size = sjson::parse_int(object["size"]);
 		const u32 font_size    = sjson::parse_int(object["font_size"]);
-		const u32 num_glyphs   = array::size(glyphs);
+		const u32 num_glyphs   = array::size(glyphs_json);
 
-		Array<GlyphInfo> _glyphs(default_allocator());
-		array::resize(_glyphs, num_glyphs);
+		DATA_COMPILER_ASSERT(font_size > 0
+			, opts
+			, "Font size must be > 0"
+			);
+
+		Array<GlyphInfo> glyphs(default_allocator());
+		array::resize(glyphs, num_glyphs);
+		for (u32 i = 0; i < num_glyphs; ++i)
+		{
+			TempAllocator512 ta;
+			JsonObject obj(ta);
+			sjson::parse(glyphs_json[i], obj);
+
+			glyphs[i].cp           = sjson::parse_int  (obj["id"]);
+			glyphs[i].gd.x         = sjson::parse_float(obj["x"]);
+			glyphs[i].gd.y         = sjson::parse_float(obj["y"]);
+			glyphs[i].gd.width     = sjson::parse_float(obj["width"]);
+			glyphs[i].gd.height    = sjson::parse_float(obj["height"]);
+			glyphs[i].gd.x_offset  = sjson::parse_float(obj["x_offset"]);
+			glyphs[i].gd.y_offset  = sjson::parse_float(obj["y_offset"]);
+			glyphs[i].gd.x_advance = sjson::parse_float(obj["x_advance"]);
+		}
+		std::sort(array::begin(glyphs), array::end(glyphs));
+
+		opts.write(RESOURCE_VERSION_FONT);
+		opts.write(texture_size);
+		opts.write(font_size);
+		opts.write(num_glyphs);
+
+		for (u32 i = 0; i < num_glyphs; ++i)
+			opts.write(glyphs[i].cp);
 
 		for (u32 i = 0; i < num_glyphs; ++i)
 		{
-			parse_glyph(glyphs[i], _glyphs[i]);
-		}
-
-		std::sort(array::begin(_glyphs), array::end(_glyphs));
-
-		opts.write(RESOURCE_VERSION_FONT);
-		opts.write(num_glyphs);
-		opts.write(texture_size);
-		opts.write(font_size);
-
-		for (u32 i = 0; i < array::size(_glyphs); ++i)
-		{
-			opts.write(_glyphs[i].cp);
-		}
-
-		for (u32 i = 0; i < array::size(_glyphs); ++i)
-		{
-			opts.write(_glyphs[i].gd.x);
-			opts.write(_glyphs[i].gd.y);
-			opts.write(_glyphs[i].gd.width);
-			opts.write(_glyphs[i].gd.height);
-			opts.write(_glyphs[i].gd.x_offset);
-			opts.write(_glyphs[i].gd.y_offset);
-			opts.write(_glyphs[i].gd.x_advance);
+			opts.write(glyphs[i].gd.x);
+			opts.write(glyphs[i].gd.y);
+			opts.write(glyphs[i].gd.width);
+			opts.write(glyphs[i].gd.height);
+			opts.write(glyphs[i].gd.x_offset);
+			opts.write(glyphs[i].gd.y_offset);
+			opts.write(glyphs[i].gd.x_advance);
 		}
 	}
 
@@ -98,7 +94,7 @@ namespace font_resource_internal
 
 namespace font_resource
 {
-	const GlyphData* get_glyph(const FontResource* fr, CodePoint cp)
+	const GlyphData* glyph(const FontResource* fr, CodePoint cp)
 	{
 		CE_ASSERT(cp < fr->num_glyphs, "Index out of bounds");
 
