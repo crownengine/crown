@@ -131,7 +131,7 @@ function toolchain(build_dir, lib_dir)
 			lib_dir .. "../build/linux64/bin",
 		}
 
-	configuration { "linux-*" }
+	configuration { "linux-gcc*" }
 		buildoptions {
 			"-Wall",
 			"-Wextra",
@@ -140,6 +140,9 @@ function toolchain(build_dir, lib_dir)
 		}
 		buildoptions_cpp {
 			"-std=c++0x",
+		}
+		links {
+			"dl",
 		}
 		linkoptions {
 			"-Wl,-rpath=\\$$ORIGIN",

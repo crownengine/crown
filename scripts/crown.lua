@@ -101,7 +101,6 @@ function crown_project(_name, _kind, _defines)
 				"X11",
 				"Xrandr",
 				"pthread",
-				"dl",
 				"GL",
 			}
 
