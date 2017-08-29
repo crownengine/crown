@@ -75,7 +75,7 @@ void MaterialManager::offline(StringId64 id, ResourceManager& rm)
 		TextureHandle* th = get_texture_handle(mr, i, base);
 		bgfx::UniformHandle sh;
 		sh.idx = th->sampler_handle;
-		bgfx::destroyUniform(sh);
+		bgfx::destroy(sh);
 	}
 
 	for (u32 i = 0; i < mr->num_uniforms; ++i)
@@ -83,7 +83,7 @@ void MaterialManager::offline(StringId64 id, ResourceManager& rm)
 		UniformHandle* uh = get_uniform_handle(mr, i, base);
 		bgfx::UniformHandle bgfx_uh;
 		bgfx_uh.idx = uh->uniform_handle;
-		bgfx::destroyUniform(bgfx_uh);
+		bgfx::destroy(bgfx_uh);
 	}
 }
 

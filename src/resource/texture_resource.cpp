@@ -99,7 +99,7 @@ namespace texture_resource_internal
 		br.read(data, size);
 
 		tr->mem        = bgfx::makeRef(data, size);
-		tr->handle.idx = bgfx::invalidHandle;
+		tr->handle.idx = BGFX_INVALID_HANDLE;
 
 		return tr;
 	}
@@ -113,7 +113,7 @@ namespace texture_resource_internal
 	void offline(StringId64 id, ResourceManager& rm)
 	{
 		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
-		bgfx::destroyTexture(tr->handle);
+		bgfx::destroy(tr->handle);
 	}
 
 	void unload(Allocator& a, void* resource)

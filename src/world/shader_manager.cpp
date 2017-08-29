@@ -90,7 +90,7 @@ void ShaderManager::offline(StringId64 id, ResourceManager& rm)
 		sd.program = BGFX_INVALID_HANDLE;
 		sd = hash_map::get(_shader_map, data.name, sd);
 
-		bgfx::destroyProgram(sd.program);
+		bgfx::destroy(sd.program);
 
 		hash_map::remove(_shader_map, data.name);
 	}

@@ -588,7 +588,7 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::setViewTransform(0, to_float_ptr(view), to_float_ptr(proj));
 	bgfx::setViewTransform(1, to_float_ptr(view), to_float_ptr(proj));
 	bgfx::setViewTransform(2, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
-	bgfx::setViewSeq(2, true);
+	bgfx::setViewMode(2, bgfx::ViewMode::Sequential);
 
 	bgfx::touch(0);
 	bgfx::touch(1);

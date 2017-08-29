@@ -389,8 +389,8 @@ namespace mesh_resource_internal
 		for (u32 i = 0; i < array::size(mr->geometries); ++i)
 		{
 			MeshGeometry& mg = *mr->geometries[i];
-			bgfx::destroyVertexBuffer(mg.vertex_buffer);
-			bgfx::destroyIndexBuffer(mg.index_buffer);
+			bgfx::destroy(mg.vertex_buffer);
+			bgfx::destroy(mg.index_buffer);
 		}
 	}
 

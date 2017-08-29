@@ -50,11 +50,11 @@ RenderWorld::~RenderWorld()
 {
 	_unit_manager->unregister_destroy_function(this);
 
-	bgfx::destroyUniform(_u_light_intensity);
-	bgfx::destroyUniform(_u_light_range);
-	bgfx::destroyUniform(_u_light_color);
-	bgfx::destroyUniform(_u_light_direction);
-	bgfx::destroyUniform(_u_light_position);
+	bgfx::destroy(_u_light_intensity);
+	bgfx::destroy(_u_light_range);
+	bgfx::destroy(_u_light_color);
+	bgfx::destroy(_u_light_direction);
+	bgfx::destroy(_u_light_position);
 
 	_mesh_manager.destroy();
 	_sprite_manager.destroy();
