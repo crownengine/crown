@@ -3,14 +3,13 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
+#include <bx/string.h>
 #include <bx/os.h>
 #include <bx/uint32_t.h>
-#include <bx/string.h>
 
 #if !BX_PLATFORM_NONE
 
 #include <stdio.h>
-#include <sys/stat.h>
 
 #if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
 #	include <windows.h>
@@ -66,9 +65,10 @@ namespace bx
 
 	void sleep(uint32_t _ms)
 	{
-#if BX_PLATFORM_WINDOWS || BX_PLATFORM_XBOX360
+#if BX_PLATFORM_WINDOWS
 		::Sleep(_ms);
-#elif BX_PLATFORM_XBOXONE || BX_PLATFORM_WINRT
+#elif  BX_PLATFORM_XBOXONE \
+	|| BX_PLATFORM_WINRT
 		BX_UNUSED(_ms);
 		debugOutput("sleep is not implemented"); debugBreak();
 #else
@@ -82,9 +82,8 @@ namespace bx
 	{
 #if BX_PLATFORM_WINDOWS
 		::SwitchToThread();
-#elif BX_PLATFORM_XBOX360
-		::Sleep(0);
-#elif BX_PLATFORM_XBOXONE || BX_PLATFORM_WINRT
+#elif  BX_PLATFORM_XBOXONE \
+	|| BX_PLATFORM_WINRT
 		debugOutput("yield is not implemented"); debugBreak();
 #else
 		::sched_yield();
@@ -296,97 +295,6 @@ namespace bx
 #else
 		return ::getcwd(_buffer, _size);
 #endif // BX_COMPILER_
-	}
-
-	bool getTempPath(char* _out, uint32_t* _inOutSize)
-	{
-#if BX_PLATFORM_WINDOWS
-		uint32_t len = ::GetTempPathA(*_inOutSize, _out);
-		bool result = len != 0 && len < *_inOutSize;
-		*_inOutSize = len;
-		return result;
-#else
-		static const char* s_tmp[] =
-		{
-			"TMPDIR",
-			"TMP",
-			"TEMP",
-			"TEMPDIR",
-
-			NULL
-		};
-
-		for (const char** tmp = s_tmp; *tmp != NULL; ++tmp)
-		{
-			uint32_t len = *_inOutSize;
-			*_out = '\0';
-			bool result = getenv(*tmp, _out, &len);
-
-			if (result
-			&&  len != 0
-			&&  len < *_inOutSize)
-			{
-				*_inOutSize = len;
-				return result;
-			}
-		}
-
-		FileInfo fi;
-		if (stat("/tmp", fi)
-		&&  FileInfo::Directory == fi.m_type)
-		{
-			strCopy(_out, *_inOutSize, "/tmp");
-			*_inOutSize = 4;
-			return true;
-		}
-
-		return false;
-#endif // BX_PLATFORM_*
-	}
-
-	bool stat(const char* _filePath, FileInfo& _fileInfo)
-	{
-		_fileInfo.m_size = 0;
-		_fileInfo.m_type = FileInfo::Count;
-
-#if BX_COMPILER_MSVC
-		struct ::_stat64 st;
-		int32_t result = ::_stat64(_filePath, &st);
-
-		if (0 != result)
-		{
-			return false;
-		}
-
-		if (0 != (st.st_mode & _S_IFREG) )
-		{
-			_fileInfo.m_type = FileInfo::Regular;
-		}
-		else if (0 != (st.st_mode & _S_IFDIR) )
-		{
-			_fileInfo.m_type = FileInfo::Directory;
-		}
-#else
-		struct ::stat st;
-		int32_t result = ::stat(_filePath, &st);
-		if (0 != result)
-		{
-			return false;
-		}
-
-		if (0 != (st.st_mode & S_IFREG) )
-		{
-			_fileInfo.m_type = FileInfo::Regular;
-		}
-		else if (0 != (st.st_mode & S_IFDIR) )
-		{
-			_fileInfo.m_type = FileInfo::Directory;
-		}
-#endif // BX_COMPILER_MSVC
-
-		_fileInfo.m_size = st.st_size;
-
-		return true;
 	}
 
 	void* exec(const char* const* _argv)

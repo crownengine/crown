@@ -111,7 +111,7 @@ namespace bx
 
 	inline float easeInSine(float _t)
 	{
-		return 1.0f - fcos(_t*piHalf);
+		return 1.0f - fcos(_t*kPiHalf);
 	}
 
 	inline float easeOutSine(float _t)
@@ -171,7 +171,7 @@ namespace bx
 
 	inline float easeOutElastic(float _t)
 	{
-		return fpow(2.0f, -10.0f*_t)*fsin( (_t-0.3f/4.0f)*(2.0f*pi)/0.3f) + 1.0f;
+		return fpow(2.0f, -10.0f*_t)*fsin( (_t-0.3f/4.0f)*(2.0f*kPi)/0.3f) + 1.0f;
 	}
 
 	inline float easeInElastic(float _t)
@@ -191,7 +191,7 @@ namespace bx
 
 	inline float easeInBack(float _t)
 	{
-		return easeInCubic(_t) - _t*fsin(_t*pi);
+		return easeInCubic(_t) - _t*fsin(_t*kPi);
 	}
 
 	inline float easeOutBack(float _t)

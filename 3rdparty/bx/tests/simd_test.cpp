@@ -5,7 +5,7 @@
 
 #include "test.h"
 #include <bx/simd_t.h>
-#include <bx/fpumath.h>
+#include <bx/math.h>
 #include <bx/string.h>
 
 #if 0

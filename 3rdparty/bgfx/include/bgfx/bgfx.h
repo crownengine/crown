@@ -15,9 +15,9 @@
 ///
 #define BGFX_HANDLE(_name) \
 			struct _name { uint16_t idx; }; \
-			inline bool isValid(_name _handle) { return bgfx::invalidHandle != _handle.idx; }
+			inline bool isValid(_name _handle) { return bgfx::kInvalidHandle != _handle.idx; }
 
-#define BGFX_INVALID_HANDLE { bgfx::invalidHandle }
+#define BGFX_INVALID_HANDLE { bgfx::kInvalidHandle }
 
 namespace bx { struct AllocatorI; }
 
@@ -97,6 +97,8 @@ namespace bgfx
 			Bitangent, //!< a_bitangent
 			Color0,    //!< a_color0
 			Color1,    //!< a_color1
+			Color2,    //!< a_color2
+			Color3,    //!< a_color3
 			Indices,   //!< a_indices
 			Weight,    //!< a_weight
 			TexCoord0, //!< a_texcoord0
@@ -340,7 +342,25 @@ namespace bgfx
 		};
 	};
 
-	static const uint16_t invalidHandle = UINT16_MAX;
+	/// View mode sets draw call sort order.
+	///
+	/// @attention C99 equivalent is `bgfx_view_mode_t`.
+	///
+	struct ViewMode
+	{
+		/// View modes:
+		enum Enum
+		{
+			Default,         //!< Default sort order.
+			Sequential,      //!< Sort in the same order in which submit calls were called.
+			DepthAscending,  //!< Sort draw call depth in ascending order.
+			DepthDescending, //!< Sort draw call depth in descending order.
+
+			Count
+		};
+	};
+
+	static const uint16_t kInvalidHandle = UINT16_MAX;
 
 	BGFX_HANDLE(DynamicIndexBufferHandle);
 	BGFX_HANDLE(DynamicVertexBufferHandle);
@@ -703,32 +723,47 @@ namespace bgfx
 		uint8_t  flags;        //!< Status flags.
 	};
 
+	/// View stats.
+	///
+	/// @attention C99 equivalent is `bgfx_view_stats_t`.
+	///
+	struct ViewStats
+	{
+		char     name[256];      //!< View name.
+		uint8_t  view;           //!< View id.
+		uint64_t cpuTimeElapsed; //!< CPU (submit) time elapsed.
+		uint64_t gpuTimeElapsed; //!< GPU time elapsed.
+	};
+
 	/// Renderer statistics data.
 	///
 	/// @attention C99 equivalent is `bgfx_stats_t`.
 	///
 	struct Stats
 	{
-		uint64_t cpuTimeBegin;  //!< CPU frame begin time.
-		uint64_t cpuTimeEnd;    //!< CPU frame end time.
-		uint64_t cpuTimerFreq;  //!< CPU timer frequency.
+		uint64_t cpuTimeBegin;    //!< CPU frame begin time.
+		uint64_t cpuTimeEnd;      //!< CPU frame end time.
+		uint64_t cpuTimerFreq;    //!< CPU timer frequency.
 
-		uint64_t gpuTimeBegin;  //!< GPU frame begin time.
-		uint64_t gpuTimeEnd;    //!< GPU frame end time.
-		uint64_t gpuTimerFreq;  //!< GPU timer frequency.
+		uint64_t gpuTimeBegin;    //!< GPU frame begin time.
+		uint64_t gpuTimeEnd;      //!< GPU frame end time.
+		uint64_t gpuTimerFreq;    //!< GPU timer frequency.
 
-		int64_t waitRender;     //!< Time spent waiting for render backend thread to finish issuing
-		                        //!  draw commands to underlying graphics API.
-		int64_t waitSubmit;     //!< Time spent waiting for submit thread to advance to next frame.
+		int64_t waitRender;       //!< Time spent waiting for render backend thread to finish issuing
+		                          //!  draw commands to underlying graphics API.
+		int64_t waitSubmit;       //!< Time spent waiting for submit thread to advance to next frame.
 
-		uint32_t numDraw;       //!< Number of draw calls submitted.
-		uint32_t numCompute;    //!< Number of compute calls submitted.
-		uint32_t maxGpuLatency; //!< GPU driver latency.
+		uint32_t numDraw;         //!< Number of draw calls submitted.
+		uint32_t numCompute;      //!< Number of compute calls submitted.
+		uint32_t maxGpuLatency;   //!< GPU driver latency.
 
-		uint16_t width;         //!< Backbuffer width in pixels.
-		uint16_t height;        //!< Backbuffer height in pixels.
-		uint16_t textWidth;     //!< Debug text width in characters.
-		uint16_t textHeight;    //!< Debug text height in characters.
+		uint16_t width;           //!< Backbuffer width in pixels.
+		uint16_t height;          //!< Backbuffer height in pixels.
+		uint16_t textWidth;       //!< Debug text width in characters.
+		uint16_t textHeight;      //!< Debug text height in characters.
+
+		uint16_t  numViews;       //!< Number of view stats.
+		ViewStats viewStats[256]; //!< View stats.
 	};
 
 	/// Vertex declaration.
@@ -813,7 +848,14 @@ namespace bgfx
 		uint16_t m_attributes[Attrib::Count];
 	};
 
-	/// Pack vec4 into vertex stream format.
+	/// Pack vertex attribute into vertex stream format.
+	///
+	/// @param[in] _input Value to be packed into vertex stream.
+	/// @param[in] _inputNormalized True if input value is already normalized.
+	/// @param[in] _attr Attribute to pack.
+	/// @param[in] _decl Vertex stream declaration.
+	/// @param[in] _data Destination vertex stream where data will be packed.
+	/// @param[in] _index Vertex index that will be modified.
 	///
 	/// @attention C99 equivalent is `bgfx_vertex_pack`.
 	///
@@ -826,7 +868,13 @@ namespace bgfx
 		, uint32_t _index = 0
 		);
 
-	/// Unpack vec4 from vertex stream format.
+	/// Unpack vertex attribute from vertex stream format.
+	///
+	/// @param[out] _output Result of unpacking.
+	/// @param[in]  _attr Attribute to unpack.
+	/// @param[in]  _decl Vertex stream declaration.
+	/// @param[in]  _data Source vertex stream from where data will be unpacked.
+	/// @param[in]  _index Vertex index that will be unpacked.
 	///
 	/// @attention C99 equivalent is `bgfx_vertex_unpack`.
 	///
@@ -1061,6 +1109,7 @@ namespace bgfx
 
 	/// Returns performance counters.
 	///
+	/// @attention Pointer returned is valid until `bgfx::frame` is called.
 	/// @attention C99 equivalent is `bgfx_get_stats`.
 	///
 	const Stats* getStats();
@@ -1084,6 +1133,7 @@ namespace bgfx
 	/// `bgfx::frame` calls. `ReleaseFn` function must be able to be called
 	/// from any thread.
 	///
+	/// @attention Data passed must be available for at least 2 `bgfx::frame` calls.
 	/// @attention C99 equivalent are `bgfx_make_ref`, `bgfx_make_ref_release`.
 	///
 	const Memory* makeRef(
@@ -1099,6 +1149,7 @@ namespace bgfx
 	///   - `BGFX_DEBUG_IFH` - Infinitely fast hardware. When this flag is set
 	///     all rendering calls will be skipped. It's useful when profiling
 	///     to quickly assess bottleneck between CPU and GPU.
+	///   - `BGFX_DEBUG_PROFILER` - Enabled profiler.
 	///   - `BGFX_DEBUG_STATS` - Display internal statistics.
 	///   - `BGFX_DEBUG_TEXT` - Display debug text.
 	///   - `BGFX_DEBUG_WIREFRAME` - Wireframe rendering. All rendering
@@ -1123,7 +1174,13 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_dbg_text_printf`.
 	///
-	void dbgTextPrintf(uint16_t _x, uint16_t _y, uint8_t _attr, const char* _format, ...);
+	void dbgTextPrintf(
+		  uint16_t _x
+		, uint16_t _y
+		, uint8_t _attr
+		, const char* _format
+		, ...
+		);
 
 	/// Print into internal debug text character-buffer (VGA-compatible text mode).
 	///
@@ -1135,7 +1192,13 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_dbg_text_vprintf`.
 	///
-	void dbgTextPrintfVargs(uint16_t _x, uint16_t _y, uint8_t _attr, const char* _format, va_list _argList);
+	void dbgTextPrintfVargs(
+		  uint16_t _x
+		, uint16_t _y
+		, uint8_t _attr
+		, const char* _format
+		, va_list _argList
+		);
 
 	/// Draw image into internal debug text buffer.
 	///
@@ -1181,7 +1244,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_destroy_index_buffer`.
 	///
-	void destroyIndexBuffer(IndexBufferHandle _handle);
+	void destroy(IndexBufferHandle _handle);
 
 	/// Create static vertex buffer.
 	///
@@ -1215,7 +1278,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_destroy_vertex_buffer`.
 	///
-	void destroyVertexBuffer(VertexBufferHandle _handle);
+	void destroy(VertexBufferHandle _handle);
 
 	/// Create empty dynamic index buffer.
 	///
@@ -1285,7 +1348,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_destroy_dynamic_index_buffer`.
 	///
-	void destroyDynamicIndexBuffer(DynamicIndexBufferHandle _handle);
+	void destroy(DynamicIndexBufferHandle _handle);
 
 	/// Create empty dynamic vertex buffer.
 	///
@@ -1359,7 +1422,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_destroy_dynamic_vertex_buffer`.
 	///
-	void destroyDynamicVertexBuffer(DynamicVertexBufferHandle _handle);
+	void destroy(DynamicVertexBufferHandle _handle);
 
 	/// Returns number of available indices.
 	///
@@ -1374,7 +1437,7 @@ namespace bgfx
 	/// @param[in] _num Number of required vertices.
 	/// @param[in] _decl Vertex declaration.
 	///
-	/// @attention C99 equivalent is `bgfx_check_avail_transient_vertex_buffer`.
+	/// @attention C99 equivalent is `bgfx_get_avail_transient_vertex_buffer`.
 	///
 	uint32_t getAvailTransientVertexBuffer(uint32_t _num, const VertexDecl& _decl);
 
@@ -1383,7 +1446,7 @@ namespace bgfx
 	/// @param[in] _num Number of required instances.
 	/// @param[in] _stride Stride per instance.
 	///
-	/// @attention C99 equivalent is `bgfx_check_avail_instance_data_buffer`.
+	/// @attention C99 equivalent is `bgfx_get_avail_instance_data_buffer`.
 	///
 	uint32_t getAvailInstanceDataBuffer(uint32_t _num, uint16_t _stride);
 
@@ -1463,7 +1526,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_destroy_indirect_buffer`.
 	///
-	void destroyIndirectBuffer(IndirectBufferHandle _handle);
+	void destroy(IndirectBufferHandle _handle);
 
 	/// Create shader from memory buffer.
 	///
@@ -1492,9 +1555,11 @@ namespace bgfx
 	/// Destroy shader. Once program is created with shader it is safe to
 	/// destroy shader.
 	///
+	/// @param[in] _handle Shader handle.
+	///
 	/// @attention C99 equivalent is `bgfx_destroy_shader`.
 	///
-	void destroyShader(ShaderHandle _handle);
+	void destroy(ShaderHandle _handle);
 
 	/// Create program with vertex and fragment shaders.
 	///
@@ -1529,9 +1594,11 @@ namespace bgfx
 
 	/// Destroy program.
 	///
+	/// @param[in] _handle Program handle.
+	///
 	/// @attention C99 equivalent is `bgfx_destroy_program`.
 	///
-	void destroyProgram(ProgramHandle _handle);
+	void destroy(ProgramHandle _handle);
 
 	/// Validate texture parameters.
 	///
@@ -1835,7 +1902,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_destroy_texture`.
 	///
-	void destroyTexture(TextureHandle _handle);
+	void destroy(TextureHandle _handle);
 
 	/// Create frame buffer (simple).
 	///
@@ -1951,9 +2018,11 @@ namespace bgfx
 
 	/// Destroy frame buffer.
 	///
+	/// @param[in] _handle Frame buffer handle.
+	///
 	/// @attention C99 equivalent is `bgfx_destroy_frame_buffer`.
 	///
-	void destroyFrameBuffer(FrameBufferHandle _handle);
+	void destroy(FrameBufferHandle _handle);
 
 	/// Create shader uniform parameter.
 	///
@@ -2006,7 +2075,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_destroy_uniform`.
 	///
-	void destroyUniform(UniformHandle _handle);
+	void destroy(UniformHandle _handle);
 
 	/// Create occlusion query.
 	///
@@ -2033,7 +2102,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_destroy_occlusion_query`.
 	///
-	void destroyOcclusionQuery(OcclusionQueryHandle _handle);
+	void destroy(OcclusionQueryHandle _handle);
 
 	/// Set palette color value.
 	///
@@ -2171,12 +2240,14 @@ namespace bgfx
 		, uint8_t _7 = UINT8_MAX
 		);
 
-	/// Set view into sequential mode. Draw calls will be sorted in the same
-	/// order in which submit calls were called.
+	/// Set view sorting mode.
 	///
-	/// @attention C99 equivalent is `bgfx_set_view_seq`.
+	/// @param[in] _id View id.
+	/// @param[in] _mode View sort mode. See `ViewMode::Enum`.
 	///
-	void setViewSeq(uint8_t _id, bool _enabled);
+	/// @attention C99 equivalent is `bgfx_set_view_mode`.
+	///
+	void setViewMode(uint8_t _id, ViewMode::Enum _mode = ViewMode::Default);
 
 	/// Set view frame buffer.
 	///
@@ -2258,8 +2329,13 @@ namespace bgfx
 	///   `BGFX_STATE_BLEND_INV_FACTOR` blend modes.
 	///
 	/// @remarks
-	///   1. Use `BGFX_STATE_ALPHA_REF`, `BGFX_STATE_POINT_SIZE` and
-	///      `BGFX_STATE_BLEND_FUNC` macros to setup more complex states.
+	///   1. To setup more complex states use:
+	///      `BGFX_STATE_ALPHA_REF(_ref)`,
+	///      `BGFX_STATE_POINT_SIZE(_size)`,
+	///      `BGFX_STATE_BLEND_FUNC(_src, _dst)`,
+	///      `BGFX_STATE_BLEND_FUNC_SEPARATE(_srcRGB, _dstRGB, _srcA, _dstA)`
+	///      `BGFX_STATE_BLEND_EQUATION(_equation)`
+	///      `BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)`
 	///   2. `BGFX_STATE_BLEND_EQUATION_ADD` is set when no other blend
 	///      equation is specified.
 	///
@@ -2320,13 +2396,13 @@ namespace bgfx
 	///
 	uint32_t setTransform(const void* _mtx, uint16_t _num = 1);
 
-	/// Reserve `_num` matrices in internal matrix cache. Pointer returned
-	/// can be modifed until `bgfx::frame` is called.
+	/// Reserve `_num` matrices in internal matrix cache.
 	///
 	/// @param[in] _transform Pointer to `Transform` structure.
 	/// @param[in] _num Number of matrices.
 	/// @returns index into matrix cache.
 	///
+	/// @attention Pointer returned can be modifed until `bgfx::frame` is called.
 	/// @attention C99 equivalent is `bgfx_alloc_transform`.
 	///
 	uint32_t allocTransform(Transform* _transform, uint16_t _num);
@@ -2700,9 +2776,9 @@ namespace bgfx
 	uint32_t dispatch(
 		  uint8_t _id
 		, ProgramHandle _handle
-		, uint16_t _numX = 1
-		, uint16_t _numY = 1
-		, uint16_t _numZ = 1
+		, uint32_t _numX = 1
+		, uint32_t _numY = 1
+		, uint32_t _numZ = 1
 		, uint8_t _flags = BGFX_SUBMIT_EYE_FIRST
 		);
 

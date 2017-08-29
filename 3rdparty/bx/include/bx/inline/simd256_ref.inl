@@ -3,10 +3,9 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
-#ifndef BX_SIMD256_REF_H_HEADER_GUARD
-#define BX_SIMD256_REF_H_HEADER_GUARD
-
-#include "simd_ni.inl"
+#ifndef BX_SIMD_T_H_HEADER_GUARD
+#	error "Must be included from bx/simd_t.h!"
+#endif // BX_SIMD_T_H_HEADER_GUARD
 
 namespace bx
 {
@@ -83,5 +82,3 @@ namespace bx
 	}
 
 } // namespace bx
-
-#endif // BX_SIMD256_REF_H_HEADER_GUARD

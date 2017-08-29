@@ -64,6 +64,12 @@ namespace bx
 		set(_rhs.m_ptr, _rhs.m_len);
 	}
 
+	inline StringView& StringView::operator=(const char* _rhs)
+	{
+		set(_rhs);
+		return *this;
+	}
+
 	inline StringView& StringView::operator=(const StringView& _rhs)
 	{
 		set(_rhs.m_ptr, _rhs.m_len);
@@ -73,6 +79,11 @@ namespace bx
 	inline StringView::StringView(const char* _ptr, int32_t _len)
 	{
 		set(_ptr, _len);
+	}
+
+	inline StringView::StringView(const char* _ptr, const char* _term)
+	{
+		set(_ptr, _term);
 	}
 
 	inline void StringView::set(const char* _ptr, int32_t _len)
@@ -88,6 +99,11 @@ namespace bx
 				m_ptr = _ptr;
 			}
 		}
+	}
+
+	inline void StringView::set(const char* _ptr, const char* _term)
+	{
+		set(_ptr, int32_t(_term-_ptr) );
 	}
 
 	inline void StringView::clear()

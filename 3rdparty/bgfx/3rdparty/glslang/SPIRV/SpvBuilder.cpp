@@ -402,6 +402,8 @@ Id Builder::makeFunctionType(Id returnType, const std::vector<Id>& paramTypes)
 
 Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, bool ms, unsigned sampled, ImageFormat format)
 {
+    assert(sampled == 1 || sampled == 2);
+
     // try to find it
     Instruction* type;
     for (int t = 0; t < (int)groupedTypes[OpTypeImage].size(); ++t) {
@@ -433,27 +435,27 @@ Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, boo
     // deal with capabilities
     switch (dim) {
     case DimBuffer:
-        if (sampled)
+        if (sampled == 1)
             addCapability(CapabilitySampledBuffer);
         else
             addCapability(CapabilityImageBuffer);
         break;
     case Dim1D:
-        if (sampled)
+        if (sampled == 1)
             addCapability(CapabilitySampled1D);
         else
             addCapability(CapabilityImage1D);
         break;
     case DimCube:
         if (arrayed) {
-            if (sampled)
+            if (sampled == 1)
                 addCapability(CapabilitySampledCubeArray);
             else
                 addCapability(CapabilityImageCubeArray);
         }
         break;
     case DimRect:
-        if (sampled)
+        if (sampled == 1)
             addCapability(CapabilitySampledRect);
         else
             addCapability(CapabilityImageRect);
@@ -466,10 +468,11 @@ Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, boo
     }
 
     if (ms) {
-        if (arrayed)
-            addCapability(CapabilityImageMSArray);
-        if (! sampled)
+        if (sampled == 2) {
             addCapability(CapabilityStorageImageMultisample);
+            if (arrayed)
+                addCapability(CapabilityImageMSArray);
+        }
     }
 
     return type->getResultId();
@@ -983,16 +986,16 @@ Function* Builder::makeEntryPoint(const char* entryPoint)
 
     Block* entry;
     std::vector<Id> params;
-    std::vector<Decoration> precisions;
+    std::vector<std::vector<Decoration>> decorations;
 
-    entryPointFunction = makeFunctionEntry(NoPrecision, makeVoidType(), entryPoint, params, precisions, &entry);
+    entryPointFunction = makeFunctionEntry(NoPrecision, makeVoidType(), entryPoint, params, decorations, &entry);
 
     return entryPointFunction;
 }
 
 // Comments in header
 Function* Builder::makeFunctionEntry(Decoration precision, Id returnType, const char* name,
-                                     const std::vector<Id>& paramTypes, const std::vector<Decoration>& precisions, Block **entry)
+                                     const std::vector<Id>& paramTypes, const std::vector<std::vector<Decoration>>& decorations, Block **entry)
 {
     // Make the function and initial instructions in it
     Id typeId = makeFunctionType(returnType, paramTypes);
@@ -1001,8 +1004,10 @@ Function* Builder::makeFunctionEntry(Decoration precision, Id returnType, const 
 
     // Set up the precisions
     setPrecision(function->getId(), precision);
-    for (unsigned p = 0; p < (unsigned)precisions.size(); ++p)
-        setPrecision(firstParamId + p, precisions[p]);
+    for (unsigned p = 0; p < (unsigned)decorations.size(); ++p) {
+        for (int d = 0; d < (int)decorations[p].size(); ++d)
+            addDecoration(firstParamId + p, decorations[p][d]);
+    }
 
     // CFG
     if (entry) {
@@ -2009,9 +2014,10 @@ Id Builder::createMatrixConstructor(Decoration precision, const std::vector<Id>&
 }
 
 // Comments in header
-Builder::If::If(Id cond, Builder& gb) :
+Builder::If::If(Id cond, unsigned int ctrl, Builder& gb) :
     builder(gb),
     condition(cond),
+    control(ctrl),
     elseBlock(0)
 {
     function = &builder.getBuildPoint()->getParent();
@@ -2052,7 +2058,7 @@ void Builder::If::makeEndIf()
 
     // Go back to the headerBlock and make the flow control split
     builder.setBuildPoint(headerBlock);
-    builder.createSelectionMerge(mergeBlock, SelectionControlMaskNone);
+    builder.createSelectionMerge(mergeBlock, control);
     if (elseBlock)
         builder.createConditionalBranch(condition, thenBlock, elseBlock);
     else
@@ -2064,7 +2070,7 @@ void Builder::If::makeEndIf()
 }
 
 // Comments in header
-void Builder::makeSwitch(Id selector, int numSegments, const std::vector<int>& caseValues,
+void Builder::makeSwitch(Id selector, unsigned int control, int numSegments, const std::vector<int>& caseValues,
                          const std::vector<int>& valueIndexToSegment, int defaultSegment,
                          std::vector<Block*>& segmentBlocks)
 {
@@ -2077,7 +2083,7 @@ void Builder::makeSwitch(Id selector, int numSegments, const std::vector<int>& c
     Block* mergeBlock = new Block(getUniqueId(), function);
 
     // make and insert the switch's selection-merge instruction
-    createSelectionMerge(mergeBlock, SelectionControlMaskNone);
+    createSelectionMerge(mergeBlock, control);
 
     // make the switch instruction
     Instruction* switchInst = new Instruction(NoResult, NoType, OpSwitch);
@@ -2424,6 +2430,7 @@ void Builder::dump(std::vector<unsigned int>& out) const
 
     // Debug instructions
     dumpInstructions(out, strings);
+    dumpModuleProcesses(out);
     dumpSourceInstructions(out);
     for (int e = 0; e < (int)sourceExtensions.size(); ++e) {
         Instruction sourceExtInst(0, 0, OpSourceExtension);
@@ -2628,6 +2635,17 @@ void Builder::dumpInstructions(std::vector<unsigned int>& out, const std::vector
 {
     for (int i = 0; i < (int)instructions.size(); ++i) {
         instructions[i]->dump(out);
+    }
+}
+
+void Builder::dumpModuleProcesses(std::vector<unsigned int>& out) const
+{
+    for (int i = 0; i < (int)moduleProcesses.size(); ++i) {
+        // TODO: switch this out for the 1.1 headers
+        const spv::Op OpModuleProcessed = (spv::Op)330;
+        Instruction moduleProcessed(OpModuleProcessed);
+        moduleProcessed.addStringOperand(moduleProcesses[i]);
+        moduleProcessed.dump(out);
     }
 }
 

@@ -42,7 +42,7 @@ extern "C" size_t strlen(const char* _str)
 	return bx::strLen(_str);
 }
 
-extern "C" size_t strLen(const char* _str, size_t _max)
+extern "C" size_t strnlen(const char* _str, size_t _max)
 {
 	return bx::strLen(_str, _max);
 }

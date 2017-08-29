@@ -58,7 +58,6 @@
 #define BX_PLATFORM_STEAMLINK  0
 #define BX_PLATFORM_WINDOWS    0
 #define BX_PLATFORM_WINRT      0
-#define BX_PLATFORM_XBOX360    0
 #define BX_PLATFORM_XBOXONE    0
 
 // http://sourceforge.net/apps/mediawiki/predef/index.php?title=Compilers
@@ -142,10 +141,7 @@
 #endif // BX_PLATFORM_
 
 // http://sourceforge.net/apps/mediawiki/predef/index.php?title=Operating_Systems
-#if defined(_XBOX_VER)
-#	undef  BX_PLATFORM_XBOX360
-#	define BX_PLATFORM_XBOX360 1
-#elif defined(_DURANGO) || defined(_XBOX_ONE)
+#if defined(_DURANGO) || defined(_XBOX_ONE)
 #	undef  BX_PLATFORM_XBOXONE
 #	define BX_PLATFORM_XBOXONE 1
 #elif defined(_WIN32) || defined(_WIN64)
@@ -278,7 +274,6 @@
 		|| BX_PLATFORM_STEAMLINK  \
 		|| BX_PLATFORM_WINDOWS    \
 		|| BX_PLATFORM_WINRT      \
-		|| BX_PLATFORM_XBOX360    \
 		|| BX_PLATFORM_XBOXONE    \
 		)
 
@@ -340,8 +335,6 @@
 #	define BX_PLATFORM_NAME "Windows"
 #elif BX_PLATFORM_WINRT
 #	define BX_PLATFORM_NAME "WinRT"
-#elif BX_PLATFORM_XBOX360
-#	define BX_PLATFORM_NAME "Xbox 360"
 #elif BX_PLATFORM_XBOXONE
 #	define BX_PLATFORM_NAME "Xbox One"
 #elif BX_PLATFORM_NONE

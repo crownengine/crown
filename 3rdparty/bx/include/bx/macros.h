@@ -68,10 +68,14 @@
 #	define BX_FUNCTION __PRETTY_FUNCTION__
 #	define BX_LIKELY(_x)   __builtin_expect(!!(_x), 1)
 #	define BX_UNLIKELY(_x) __builtin_expect(!!(_x), 0)
-#	define BX_NO_INLINE __attribute__( (noinline) )
-#	define BX_NO_RETURN __attribute__( (noreturn) )
+#	define BX_NO_INLINE   __attribute__( (noinline) )
+#	define BX_NO_RETURN   __attribute__( (noreturn) )
+#	if BX_COMPILER_GCC >= 70000
+#		define BX_FALLTHROUGH __attribute__( (fallthrough) )
+#	else
+#		define BX_FALLTHROUGH BX_NOOP()
+#	endif // BX_COMPILER_GCC >= 70000
 #	define BX_NO_VTABLE
-#	define BX_OVERRIDE
 #	define BX_PRINTF_ARGS(_format, _args) __attribute__( (format(__printf__, _format, _args) ) )
 #	if BX_CLANG_HAS_FEATURE(cxx_thread_local)
 #		define BX_THREAD_LOCAL __thread
@@ -92,8 +96,8 @@
 #	define BX_UNLIKELY(_x) (_x)
 #	define BX_NO_INLINE __declspec(noinline)
 #	define BX_NO_RETURN
+#	define BX_FALLTHROUGH BX_NOOP()
 #	define BX_NO_VTABLE __declspec(novtable)
-#	define BX_OVERRIDE override
 #	define BX_PRINTF_ARGS(_format, _args)
 #	define BX_THREAD_LOCAL __declspec(thread)
 #	define BX_ATTRIBUTE(_x)

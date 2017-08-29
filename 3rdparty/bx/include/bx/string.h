@@ -12,6 +12,15 @@
 
 namespace bx
 {
+	struct Units
+	{
+		enum Enum
+		{
+			Kilo,
+			Kibi,
+		};
+	};
+
 	/// Non-zero-terminated string view.
 	class StringView
 	{
@@ -23,13 +32,22 @@ namespace bx
 		StringView(const StringView& _rhs);
 
 		///
+		StringView& operator=(const char* _rhs);
+
+		///
 		StringView& operator=(const StringView& _rhs);
 
 		///
 		StringView(const char* _ptr, int32_t _len = INT32_MAX);
 
 		///
+		StringView(const char* _ptr, const char* _term);
+
+		///
 		void set(const char* _ptr, int32_t _len = INT32_MAX);
+
+		///
+		void set(const char* _ptr, const char* _term);
 
 		///
 		void clear();
@@ -129,8 +147,20 @@ namespace bx
 	/// String compare.
 	int32_t strCmp(const char* _lhs, const char* _rhs, int32_t _max = INT32_MAX);
 
+	/// String compare.
+	int32_t strCmp(const char* _lhs, const StringView& _rhs);
+
 	/// Case insensitive string compare.
 	int32_t strCmpI(const char* _lhs, const char* _rhs, int32_t _max = INT32_MAX);
+
+	/// Case insensitive string compare.
+	int32_t strCmpI(const char* _lhs, const StringView& _rhs);
+
+	// Compare as strings holding indices/version numbers.
+	int32_t strCmpV(const char* _lhs, const char* _rhs, int32_t _max = INT32_MAX);
+
+	// Compare as strings holding indices/version numbers.
+	int32_t strCmpV(const char* _lhs, const StringView& _rhs);
 
 	/// Get string length.
 	int32_t strLen(const char* _str, int32_t _max = INT32_MAX);
@@ -139,8 +169,14 @@ namespace bx
 	/// including zero terminator. Copy will be terminated with '\0'.
 	int32_t strCopy(char* _dst, int32_t _dstSize, const char* _src, int32_t _num = INT32_MAX);
 
+	///
+	int32_t strCopy(char* _dst, int32_t _dstSize, const StringView& _str);
+
 	/// Concatinate string.
 	int32_t strCat(char* _dst, int32_t _dstSize, const char* _src, int32_t _num = INT32_MAX);
+
+	///
+	int32_t strCat(char* _dst, int32_t _dstSize, const StringView& _str);
 
 	/// Find character in string. Limit search to _max characters.
 	const char* strFind(const char* _str, char _ch, int32_t _max = INT32_MAX);
@@ -209,11 +245,8 @@ namespace bx
 	template <typename Ty>
 	Ty replaceAll(const Ty& _str, const char* _from, const char* _to);
 
-	/// Extract base file name from file path.
-	const char* baseName(const char* _filePath);
-
-	/// Convert size in bytes to human readable string.
-	void prettify(char* _out, int32_t _count, uint64_t _size);
+	/// Convert size in bytes to human readable string kibi units.
+	int32_t prettify(char* _out, int32_t _count, uint64_t _size, Units::Enum _units = Units::Kibi);
 
 	///
 	int32_t toString(char* _out, int32_t _max, double _value);
@@ -229,6 +262,12 @@ namespace bx
 
 	///
 	int32_t toString(char* _out, int32_t _max, uint64_t _value, uint32_t _base = 10);
+
+	///
+	bool fromString(float* _out, const char* _str);
+
+	///
+	bool fromString(double* _out, const char* _str);
 
 } // namespace bx
 

@@ -7,7 +7,7 @@
 #define BX_RNG_H_HEADER_GUARD
 
 #include "bx.h"
-#include "fpumath.h"
+#include "math.h"
 #include "uint32_t.h"
 
 namespace bx

@@ -6,7 +6,7 @@
 #ifndef BX_PIXEL_FORMAT_H_HEADER_GUARD
 #define BX_PIXEL_FORMAT_H_HEADER_GUARD
 
-#include "fpumath.h"
+#include "math.h"
 #include "uint32_t.h"
 
 namespace bx

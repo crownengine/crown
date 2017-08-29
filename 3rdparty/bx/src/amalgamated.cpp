@@ -3,15 +3,18 @@
  *  License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
+#include "allocator.cpp"
 #include "bx.cpp"
 #include "commandline.cpp"
-#include "crtimpl.cpp"
 #include "crtnone.cpp"
 #include "debug.cpp"
 #include "dtoa.cpp"
-#include "fpumath.cpp"
+#include "file.cpp"
+#include "filepath.cpp"
+#include "math.cpp"
 #include "mutex.cpp"
 #include "os.cpp"
+#include "process.cpp"
 #include "semaphore.cpp"
 #include "sort.cpp"
 #include "string.cpp"

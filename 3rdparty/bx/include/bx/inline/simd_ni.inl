@@ -3,9 +3,6 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
-#ifndef BX_SIMD_NI_H_HEADER_GUARD
-#define BX_SIMD_NI_H_HEADER_GUARD
-
 namespace bx
 {
 	template<typename Ty>
@@ -554,5 +551,3 @@ namespace bx
 	}
 
 } // namespace bx
-
-#endif // BX_SIMD_NI_H_HEADER_GUARD

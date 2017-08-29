@@ -224,14 +224,8 @@ namespace bgfx { namespace mtl
 
 		id<MTLLibrary> newLibraryWithSource(const char* _source)
 		{
-			MTLCompileOptions* options = [MTLCompileOptions new];
-			//NOTE: turned of as 'When using the fast variants, math functions execute more quickly,
-			//      but operate over a **LIMITED RANGE** and their behavior when handling NaN values is not defined.'
-			if (BX_ENABLED(BX_PLATFORM_IOS))
-				options.fastMathEnabled = NO;
-
 			NSError* error;
-			id<MTLLibrary> lib = [m_obj newLibraryWithSource:@(_source) options:options error:&error];
+			id<MTLLibrary> lib = [m_obj newLibraryWithSource:@(_source) options:nil error:&error];
 			BX_WARN(NULL == error
 				, "Shader compilation failed: %s"
 				, [error.localizedDescription cStringUsingEncoding:NSASCIIStringEncoding]
@@ -818,7 +812,7 @@ namespace bgfx { namespace mtl
 			, m_pixelFormatHash(0)
 			, m_num(0)
 		{
-			m_depthHandle.idx = invalidHandle;
+			m_depthHandle.idx = kInvalidHandle;
 		}
 
 		void create(uint8_t _num, const Attachment* _attachment);

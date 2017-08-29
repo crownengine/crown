@@ -175,6 +175,7 @@ const char* ExecutionModeString(int mode)
     case 31: return "ContractionOff";
     case 32: return "Bad";
 
+    case 4446:  return "PostDepthCoverage";
     case ExecutionModeCeiling:
     default: return "Bad";
     }
@@ -330,6 +331,7 @@ const char* BuiltInString(int builtIn)
     case 4424: return "BaseVertex";
     case 4425: return "BaseInstance";
     case 4426: return "DrawIndex";
+    case 5014: return "FragStencilRefEXT";
 
 #ifdef AMD_EXTENSIONS
     case 4992: return "BaryCoordNoPerspAMD";
@@ -636,13 +638,15 @@ const char* SelectControlString(int cont)
     }
 }
 
-const int LoopControlCeiling = 2;
+const int LoopControlCeiling = 4;
 
 const char* LoopControlString(int cont)
 {
     switch (cont) {
     case 0:  return "Unroll";
     case 1:  return "DontUnroll";
+    case 2:  return "DependencyInfinite";
+    case 3:  return "DependencyLength";
 
     case LoopControlCeiling:
     default: return "Bad";
@@ -839,6 +843,16 @@ const char* CapabilityString(int info)
     case 4437: return "DeviceGroup";
     case 4439: return "MultiView";
 
+    case 5013: return "StencilExportEXT";
+
+#ifdef AMD_EXTENSIONS
+    case 5009: return "ImageGatherBiasLodAMD";
+    case 5015: return "ImageReadWriteLodAMD";
+#endif
+
+    case 4445: return "AtomicStorageOps";
+
+    case 4447: return "SampleMaskPostDepthCoverage";
 #ifdef NV_EXTENSIONS
     case 5251: return "GeometryShaderPassthroughNV";
     case 5254: return "ShaderViewportIndexLayerNV";

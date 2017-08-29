@@ -28,6 +28,7 @@ namespace bimg
 		, const void* _src
 		, uint32_t _width
 		, uint32_t _height
+		, uint32_t _depth
 		, TextureFormat::Enum _format
 		, Quality::Enum _quality
 		, bx::Error* _err = NULL
@@ -40,6 +41,7 @@ namespace bimg
 		, const void* _src
 		, uint32_t _width
 		, uint32_t _height
+		, uint32_t _depth
 		, TextureFormat::Enum _format
 		, Quality::Enum _quality
 		, bx::Error* _err = NULL
@@ -50,6 +52,7 @@ namespace bimg
 		  void* _dst
 		, uint32_t _width
 		, uint32_t _height
+		, uint32_t _depth
 		, uint32_t _pitch
 		, const void* _src
 		);

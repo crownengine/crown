@@ -6,7 +6,7 @@
 #ifndef BX_EASING_H_HEADER_GUARD
 #define BX_EASING_H_HEADER_GUARD
 
-#include "fpumath.h"
+#include "math.h"
 
 // Reference:
 // http://easings.net/

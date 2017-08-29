@@ -24,12 +24,6 @@ namespace bx
 		void add(const void* _data, int _len);
 
 		///
-		void addAligned(const void* _data, int _len);
-
-		///
-		void addUnaligned(const void* _data, int _len);
-
-		///
 		template<typename Ty>
 		void add(Ty _value);
 
@@ -37,6 +31,12 @@ namespace bx
 		uint32_t end();
 
 	private:
+		///
+		void addAligned(const void* _data, int _len);
+
+		///
+		void addUnaligned(const void* _data, int _len);
+
 		///
 		static void readUnaligned(const void* _data, uint32_t& _out);
 

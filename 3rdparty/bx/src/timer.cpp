@@ -19,7 +19,9 @@ namespace bx
 {
 	int64_t getHPCounter()
 	{
-#if BX_PLATFORM_WINDOWS || BX_PLATFORM_XBOX360 || BX_PLATFORM_XBOXONE || BX_PLATFORM_WINRT
+#if    BX_PLATFORM_WINDOWS \
+	|| BX_PLATFORM_XBOXONE \
+	|| BX_PLATFORM_WINRT
 		LARGE_INTEGER li;
 		// Performance counter value may unexpectedly leap forward
 		// http://support.microsoft.com/kb/274323
@@ -44,7 +46,9 @@ namespace bx
 
 	int64_t getHPFrequency()
 	{
-#if BX_PLATFORM_WINDOWS || BX_PLATFORM_XBOX360 || BX_PLATFORM_XBOXONE || BX_PLATFORM_WINRT
+#if    BX_PLATFORM_WINDOWS \
+	|| BX_PLATFORM_XBOXONE \
+	|| BX_PLATFORM_WINRT
 		LARGE_INTEGER li;
 		QueryPerformanceFrequency(&li);
 		return li.QuadPart;

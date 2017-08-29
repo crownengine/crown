@@ -11,21 +11,6 @@
 #if BX_PLATFORM_WINDOWS
 #	include <sal.h>
 #	include <d3d9.h>
-
-#elif BX_PLATFORM_XBOX360
-#	include <xgraphics.h>
-#	define D3DUSAGE_DYNAMIC 0 // not supported on X360
-#	define D3DLOCK_DISCARD 0 // not supported on X360
-#	define D3DERR_DEVICEHUNG D3DERR_DEVICELOST // not supported on X360
-#	define D3DERR_DEVICEREMOVED D3DERR_DEVICELOST // not supported on X360
-#	define D3DMULTISAMPLE_8_SAMPLES D3DMULTISAMPLE_4_SAMPLES
-#	define D3DMULTISAMPLE_16_SAMPLES D3DMULTISAMPLE_4_SAMPLES
-
-#	define D3DFMT_DF24 D3DFMT_D24FS8
-
-#	define _PIX_SETMARKER(_col, _name) BX_NOOP()
-#	define _PIX_BEGINEVENT(_col, _name) BX_NOOP()
-#	define _PIX_ENDEVENT() BX_NOOP
 #endif // BX_PLATFORM_
 
 #ifndef D3DSTREAMSOURCE_INDEXEDDATA
@@ -411,30 +396,45 @@ namespace bgfx { namespace d3d9
 	struct TimerQueryD3D9
 	{
 		TimerQueryD3D9()
-			: m_control(BX_COUNTOF(m_frame) )
+			: m_control(BX_COUNTOF(m_query) )
 		{
 		}
 
 		void postReset();
 		void preReset();
-		void begin();
-		void end();
-		bool get();
+		uint32_t begin(uint32_t _resultIdx);
+		void end(uint32_t _idx);
+		bool update();
 
-		struct Frame
+		struct Query
 		{
 			IDirect3DQuery9* m_disjoint;
 			IDirect3DQuery9* m_begin;
 			IDirect3DQuery9* m_end;
 			IDirect3DQuery9* m_freq;
+			uint32_t         m_resultIdx;
+			bool             m_ready;
 		};
 
-		uint64_t m_begin;
-		uint64_t m_end;
-		uint64_t m_elapsed;
-		uint64_t m_frequency;
+		struct Result
+		{
+			void reset()
+			{
+				m_begin     = 0;
+				m_end       = 0;
+				m_frequency = 1;
+				m_pending   = 0;
+			}
 
-		Frame m_frame[4];
+			uint64_t m_begin;
+			uint64_t m_end;
+			uint64_t m_frequency;
+			uint32_t m_pending;
+		};
+
+		Result m_result[BGFX_CONFIG_MAX_VIEWS+1];
+
+		Query m_query[BGFX_CONFIG_MAX_VIEWS*4];
 		bx::RingBufferControl m_control;
 	};
 

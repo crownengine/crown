@@ -27,7 +27,7 @@ namespace bx
 
 	inline bool isInRange(char _ch, char _from, char _to)
 	{
-		return unsigned(_ch - _from) < unsigned(_to-_from);
+		return unsigned(_ch - _from) <= unsigned(_to-_from);
 	}
 
 	bool isUpper(char _ch)
@@ -134,9 +134,88 @@ namespace bx
 		return strCmp<toNoop>(_lhs, _rhs, _max);
 	}
 
+	int32_t strCmp(const char* _lhs, const StringView& _rhs)
+	{
+		return strCmp(_lhs, _rhs.getPtr(), _rhs.getLength() );
+	}
+
 	int32_t strCmpI(const char* _lhs, const char* _rhs, int32_t _max)
 	{
 		return strCmp<toLower>(_lhs, _rhs, _max);
+	}
+
+	int32_t strCmpI(const char* _lhs, const StringView& _rhs)
+	{
+		return strCmpI(_lhs, _rhs.getPtr(), _rhs.getLength() );
+	}
+
+	int32_t strCmpV(const char* _lhs, const char* _rhs, int32_t _max)
+	{
+		int32_t ii   = 0;
+		int32_t idx  = 0;
+		bool    zero = true;
+
+		for (
+			; 0 < _max && _lhs[ii] == _rhs[ii]
+			; ++ii, --_max
+			)
+		{
+			const uint8_t ch = _lhs[ii];
+			if ('\0' == ch
+			||  '\0' == _rhs[ii])
+			{
+				break;
+			}
+
+			if (!isNumeric(ch) )
+			{
+				idx  = ii+1;
+				zero = true;
+			}
+			else if ('0' != ch)
+			{
+				zero = false;
+			}
+		}
+
+		if (0 == _max)
+		{
+			return 0;
+		}
+
+		if ('0' != _lhs[idx]
+		&&  '0' != _rhs[idx])
+		{
+			int32_t jj = 0;
+			for (jj = ii
+				; 0 < _max && isNumeric(_lhs[jj])
+				; ++jj, --_max
+				)
+			{
+				if (!isNumeric(_rhs[jj]) )
+				{
+					return 1;
+				}
+			}
+
+			if (isNumeric(_rhs[jj]))
+			{
+				return -1;
+			}
+		}
+		else if (zero
+			 &&  idx < ii
+			 && (isNumeric(_lhs[ii]) || isNumeric(_rhs[ii]) ) )
+		{
+			return (_lhs[ii] - '0') - (_rhs[ii] - '0');
+		}
+
+		return 0 == _max ? 0 : _lhs[ii] - _rhs[ii];
+	}
+
+	int32_t strCmpV(const char* _lhs, const StringView& _rhs)
+	{
+		return strCmpV(_lhs, _rhs.getPtr(), _rhs.getLength() );
 	}
 
 	int32_t strLen(const char* _str, int32_t _max)
@@ -166,6 +245,11 @@ namespace bx
 		return num;
 	}
 
+	int32_t strCopy(char* _dst, int32_t _dstSize, const StringView& _str)
+	{
+		return strCopy(_dst, _dstSize, _str.getPtr(), _str.getLength() );
+	}
+
 	int32_t strCat(char* _dst, int32_t _dstSize, const char* _src, int32_t _num)
 	{
 		BX_CHECK(NULL != _dst, "_dst can't be NULL!");
@@ -175,6 +259,11 @@ namespace bx
 		const int32_t max = _dstSize;
 		const int32_t len = strLen(_dst, max);
 		return strCopy(&_dst[len], max-len, _src, _num);
+	}
+
+	int32_t strCat(char* _dst, int32_t _dstSize, const StringView& _str)
+	{
+		return strCat(_dst, _dstSize, _str.getPtr(), _str.getLength() );
 	}
 
 	const char* strFind(const char* _str, char _ch, int32_t _max)
@@ -192,7 +281,7 @@ namespace bx
 
 	const char* strRFind(const char* _str, char _ch, int32_t _max)
 	{
-		for (int32_t ii = strLen(_str, _max); 0 < ii; --ii)
+		for (int32_t ii = strLen(_str, _max); 0 <= ii; --ii)
 		{
 			if (_str[ii] == _ch)
 			{
@@ -798,9 +887,9 @@ namespace bx
 	{
 		va_list argList;
 		va_start(argList, _format);
-		int32_t size = write(_writer, _format, argList, _err);
+		int32_t total = write(_writer, _format, argList, _err);
 		va_end(argList);
-		return size;
+		return total;
 	}
 
 	int32_t vsnprintfRef(char* _out, int32_t _max, const char* _format, va_list _argList)
@@ -834,8 +923,11 @@ namespace bx
 
 	int32_t vsnprintf(char* _out, int32_t _max, const char* _format, va_list _argList)
 	{
+		va_list argList;
+		va_copy(argList, _argList);
+		int32_t total = 0;
 #if BX_CRT_NONE
-		return vsnprintfRef(_out, _max, _format, _argList);
+		total = vsnprintfRef(_out, _max, _format, argList);
 #elif BX_CRT_MSVC
 		int32_t len = -1;
 		if (NULL != _out)
@@ -845,26 +937,30 @@ namespace bx
 			len = ::vsnprintf_s(_out, _max, size_t(-1), _format, argListCopy);
 			va_end(argListCopy);
 		}
-		return -1 == len ? ::_vscprintf(_format, _argList) : len;
+		total = -1 == len ? ::_vscprintf(_format, argList) : len;
 #else
-		return ::vsnprintf(_out, _max, _format, _argList);
+		total = ::vsnprintf(_out, _max, _format, argList);
 #endif // BX_COMPILER_MSVC
+		va_end(argList);
+		return total;
 	}
 
 	int32_t snprintf(char* _out, int32_t _max, const char* _format, ...)
 	{
 		va_list argList;
 		va_start(argList, _format);
-		int32_t len = vsnprintf(_out, _max, _format, argList);
+		int32_t total = vsnprintf(_out, _max, _format, argList);
 		va_end(argList);
-		return len;
+		return total;
 	}
 
 	int32_t vsnwprintf(wchar_t* _out, int32_t _max, const wchar_t* _format, va_list _argList)
 	{
+		va_list argList;
+		va_copy(argList, _argList);
+		int32_t total = 0;
 #if BX_CRT_NONE
-		BX_UNUSED(_out, _max, _format, _argList);
-		return 0;
+		BX_UNUSED(_out, _max, _format, argList);
 #elif BX_CRT_MSVC
 		int32_t len = -1;
 		if (NULL != _out)
@@ -874,12 +970,14 @@ namespace bx
 			len = ::_vsnwprintf_s(_out, _max, size_t(-1), _format, argListCopy);
 			va_end(argListCopy);
 		}
-		return -1 == len ? ::_vscwprintf(_format, _argList) : len;
+		total = -1 == len ? ::_vscwprintf(_format, _argList) : len;
 #elif BX_CRT_MINGW
-		return ::vsnwprintf(_out, _max, _format, _argList);
+		total = ::vsnwprintf(_out, _max, _format, argList);
 #else
-		return ::vswprintf(_out, _max, _format, _argList);
+		total = ::vswprintf(_out, _max, _format, argList);
 #endif // BX_COMPILER_MSVC
+		va_end(argList);
+		return total;
 	}
 
 	int32_t swnprintf(wchar_t* _out, int32_t _max, const wchar_t* _format, ...)
@@ -891,34 +989,36 @@ namespace bx
 		return len;
 	}
 
-	const char* baseName(const char* _filePath)
-	{
-		const char* bs       = strRFind(_filePath, '\\');
-		const char* fs       = strRFind(_filePath, '/');
-		const char* slash    = (bs > fs ? bs : fs);
-		const char* colon    = strRFind(_filePath, ':');
-		const char* basename = slash > colon ? slash : colon;
-		if (NULL != basename)
-		{
-			return basename+1;
-		}
+	static const char s_units[] = { 'B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' };
 
-		return _filePath;
-	}
-
-	void prettify(char* _out, int32_t _count, uint64_t _size)
+	template<uint32_t Kilo, char KiloCh0, char KiloCh1>
+	static int32_t prettify(char* _out, int32_t _count, uint64_t _size)
 	{
 		uint8_t idx = 0;
 		double size = double(_size);
 		while (_size != (_size&0x7ff)
-		&&     idx < 9)
+		&&     idx < BX_COUNTOF(s_units) )
 		{
-			_size >>= 10;
-			size *= 1.0/1024.0;
+			_size /= Kilo;
+			size  *= 1.0/double(Kilo);
 			++idx;
 		}
 
-		snprintf(_out, _count, "%0.2f %c%c", size, "BkMGTPEZY"[idx], idx > 0 ? 'B' : '\0');
+		return snprintf(_out, _count, "%0.2f %c%c%c", size
+			, s_units[idx]
+			, idx > 0 ? KiloCh0 : '\0'
+			, KiloCh1
+			);
+	}
+
+	int32_t prettify(char* _out, int32_t _count, uint64_t _size, Units::Enum _units)
+	{
+		if (Units::Kilo == _units)
+		{
+			return prettify<1000, 'B', '\0'>(_out, _count, _size);
+		}
+
+		return prettify<1024, 'i', 'B'>(_out, _count, _size);
 	}
 
 } // namespace bx
