@@ -34,6 +34,9 @@ project "level-editor"
 
 	configuration {}
 
+	removelinks {
+		"dl"
+	}
 	links {
 		"gdk-3.0",
 		"gee-0.8",
