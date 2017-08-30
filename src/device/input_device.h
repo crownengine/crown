@@ -70,9 +70,7 @@ struct InputDevice
 	/// Returns the id of the axis @a name of UINT8_MAX if no matching axis is found.
 	u8 axis_id(StringId32 name);
 
-	void set_connected(bool connected);
-
-	void set_button_state(u8 i, bool state);
+	void set_button(u8 i, bool state);
 
 	void set_axis(u8 i, const Vector3& value);
 

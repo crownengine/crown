@@ -208,9 +208,9 @@ InputManager::InputManager(Allocator& a)
 			);
 	}
 
-	_keyboard->set_connected(true);
-	_mouse->set_connected(true);
-	_touch->set_connected(true);
+	_keyboard->_connected = true;
+	_mouse->_connected = true;
+	_touch->_connected = true;
 }
 
 InputManager::~InputManager()

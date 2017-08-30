@@ -105,12 +105,7 @@ u8 InputDevice::axis_id(StringId32 name)
 	return UINT8_MAX;
 }
 
-void InputDevice::set_connected(bool connected)
-{
-	_connected = connected;
-}
-
-void InputDevice::set_button_state(u8 i, bool state)
+void InputDevice::set_button(u8 i, bool state)
 {
 	CE_ASSERT(i < _num_buttons, "Index out of bounds");
 	_last_button = i;

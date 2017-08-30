@@ -232,19 +232,19 @@ bool Device::process_events(bool vsync)
 				switch (ev.device_id)
 				{
 				case InputDeviceType::KEYBOARD:
-					im->keyboard()->set_button_state(ev.button_num, ev.pressed);
+					im->keyboard()->set_button(ev.button_num, ev.pressed);
 					break;
 
 				case InputDeviceType::MOUSE:
-					im->mouse()->set_button_state(ev.button_num, ev.pressed);
+					im->mouse()->set_button(ev.button_num, ev.pressed);
 					break;
 
 				case InputDeviceType::TOUCHSCREEN:
-					im->touch()->set_button_state(ev.button_num, ev.pressed);
+					im->touch()->set_button(ev.button_num, ev.pressed);
 					break;
 
 				case InputDeviceType::JOYPAD:
-					im->joypad(ev.device_num)->set_button_state(ev.button_num, ev.pressed);
+					im->joypad(ev.device_num)->set_button(ev.button_num, ev.pressed);
 					break;
 				}
 			}
@@ -272,7 +272,7 @@ bool Device::process_events(bool vsync)
 				switch (ev.device_id)
 				{
 				case InputDeviceType::JOYPAD:
-					im->joypad(ev.device_num)->set_connected(ev.connected);
+					im->joypad(ev.device_num)->_connected = ev.connected;
 					break;
 				}
 			}
