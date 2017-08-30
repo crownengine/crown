@@ -46,7 +46,7 @@ struct ShaderManager
 	void unload(Allocator& a, void* res);
 
 	///
-	void submit(StringId32 shader_id, u8 view_id);
+	void submit(StringId32 shader_id, u8 view_id, u64 state = UINT64_MAX);
 };
 
 } // namespace crown

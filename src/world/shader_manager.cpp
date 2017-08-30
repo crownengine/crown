@@ -109,7 +109,7 @@ void ShaderManager::add_shader(StringId32 name, u64 state, bgfx::ProgramHandle p
 	hash_map::set(_shader_map, name, sd);
 }
 
-void ShaderManager::submit(StringId32 shader_id, u8 view_id)
+void ShaderManager::submit(StringId32 shader_id, u8 view_id, u64 state)
 {
 	CE_ASSERT(hash_map::has(_shader_map, shader_id), "Shader not found");
 	ShaderData sd;
@@ -117,7 +117,7 @@ void ShaderManager::submit(StringId32 shader_id, u8 view_id)
 	sd.program = BGFX_INVALID_HANDLE;
 	sd = hash_map::get(_shader_map, shader_id, sd);
 
-	bgfx::setState(sd.state);
+	bgfx::setState(state != UINT64_MAX ? state : sd.state);
 	bgfx::submit(view_id, sd.program);
 }
 
