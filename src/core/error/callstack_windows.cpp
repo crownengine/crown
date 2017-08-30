@@ -85,7 +85,7 @@ namespace error
 			{
 				snprintf(buf
 					, sizeof(buf)
-					, "    [%2i] %s in %s:%d"
+					, "    [%2i] %s in %s:%d\n"
 					, num
 					, sym->Name
 					, line.FileName
@@ -96,7 +96,7 @@ namespace error
 			{
 				snprintf(buf
 					, sizeof(buf)
-					, "    [%2i] 0x%p"
+					, "    [%2i] 0x%p\n"
 					, num
 					, stack.AddrPC.Offset
 					);
