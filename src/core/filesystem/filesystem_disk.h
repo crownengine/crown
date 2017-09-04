@@ -56,9 +56,6 @@ public:
 	/// @copydoc Filesystem::delete_directory()
 	void delete_directory(const char* path);
 
-	/// @copydoc Filesystem::create_file()
-	void create_file(const char* path);
-
 	/// @copydoc Filesystem::delete_file()
 	void delete_file(const char* path);
 

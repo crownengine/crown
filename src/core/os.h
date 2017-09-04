@@ -12,6 +12,22 @@
 /// @ingroup Core
 namespace crown
 {
+/// Holds information about a file.
+///
+/// @ingroup OS
+struct Stat
+{
+	enum FileType
+	{
+		REGULAR,
+		DIRECTORY,
+		NO_ENTRY
+	} file_type;
+
+	u64 size;  ///< Size in bytes.
+	u64 mtime; ///< Last modified time.
+};
+
 /// Operating system functions.
 ///
 /// @ingroup OS
@@ -38,20 +54,8 @@ namespace os
 	/// Logs the message @a msg.
 	void log(const char* msg);
 
-	/// Returns whether the @a path exists.
-	bool exists(const char* path);
-
-	/// Returns whether @a path is a directory.
-	bool is_directory(const char* path);
-
-	/// Returns whether @a path is a regular file.
-	bool is_file(const char* path);
-
-	/// Returns the last modification time of @a path.
-	u64 mtime(const char* path);
-
-	/// Creates a regular file named @a path.
-	void create_file(const char* path);
+	/// Returns information about @a path.
+	void stat(Stat& info, const char* path);
 
 	/// Deletes the file at @a path.
 	void delete_file(const char* path);

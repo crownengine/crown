@@ -268,7 +268,9 @@ bool FilesystemDisk::exists(const char* path)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	return os::exists(abs_path.c_str());
+	Stat info;
+	os::stat(info, abs_path.c_str());
+	return info.file_type != Stat::NO_ENTRY;
 }
 
 bool FilesystemDisk::is_directory(const char* path)
@@ -279,7 +281,9 @@ bool FilesystemDisk::is_directory(const char* path)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	return os::is_directory(abs_path.c_str());
+	Stat info;
+	os::stat(info, abs_path.c_str());
+	return info.file_type == Stat::DIRECTORY;
 }
 
 bool FilesystemDisk::is_file(const char* path)
@@ -290,7 +294,9 @@ bool FilesystemDisk::is_file(const char* path)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	return os::is_file(abs_path.c_str());
+	Stat info;
+	os::stat(info, abs_path.c_str());
+	return info.file_type == Stat::REGULAR;
 }
 
 u64 FilesystemDisk::last_modified_time(const char* path)
@@ -301,7 +307,9 @@ u64 FilesystemDisk::last_modified_time(const char* path)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	return os::mtime(abs_path.c_str());
+	Stat info;
+	os::stat(info, abs_path.c_str());
+	return info.mtime;
 }
 
 void FilesystemDisk::create_directory(const char* path)
@@ -312,8 +320,12 @@ void FilesystemDisk::create_directory(const char* path)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	if (!os::exists(abs_path.c_str()))
-		os::create_directory(abs_path.c_str());
+	Stat info;
+	os::stat(info, abs_path.c_str());
+	if (info.file_type != Stat::NO_ENTRY)
+		return;
+
+	os::create_directory(abs_path.c_str());
 }
 
 void FilesystemDisk::delete_directory(const char* path)
@@ -325,17 +337,6 @@ void FilesystemDisk::delete_directory(const char* path)
 	get_absolute_path(path, abs_path);
 
 	os::delete_directory(abs_path.c_str());
-}
-
-void FilesystemDisk::create_file(const char* path)
-{
-	CE_ENSURE(NULL != path);
-
-	TempAllocator256 ta;
-	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
-
-	os::create_file(abs_path.c_str());
 }
 
 void FilesystemDisk::delete_file(const char* path)

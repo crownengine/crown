@@ -153,11 +153,6 @@ void FilesystemApk::delete_directory(const char* /*path*/)
 	CE_FATAL("Cannot delete directory in Android assets folder");
 }
 
-void FilesystemApk::create_file(const char* /*path*/)
-{
-	CE_FATAL("Cannot create file in Android assets folder");
-}
-
 void FilesystemApk::delete_file(const char* /*path*/)
 {
 	CE_FATAL("Cannot delete file in Android assets folder");

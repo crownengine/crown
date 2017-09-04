@@ -19,10 +19,10 @@
 	#include <stdio.h>    // fputs
 	#include <stdlib.h>   // getenv
 	#include <string.h>   // memset
-	#include <sys/stat.h> // lstat, mknod, mkdir
+	#include <sys/stat.h> // stat, mkdir
 	#include <sys/wait.h> // wait
 	#include <time.h>     // clock_gettime
-	#include <unistd.h>   // access, unlink, rmdir, getcwd, fork, execv
+	#include <unistd.h>   // unlink, rmdir, getcwd, fork, execv
 #elif CROWN_PLATFORM_WINDOWS
 	#include <io.h>
 	#include <stdio.h>
@@ -119,96 +119,37 @@ namespace os
 #endif
 	}
 
-	/// Returns whether the @a path exists.
-	bool exists(const char* path)
+	void stat(Stat& info, const char* path)
 	{
-#if CROWN_PLATFORM_POSIX
-		return access(path, F_OK) != -1;
-#elif CROWN_PLATFORM_WINDOWS
-		return _access(path, 0) != -1;
-#endif
-	}
+		info.file_type = Stat::NO_ENTRY;
+		info.size = 0;
+		info.mtime = 0;
 
-	/// Returns whether @a path is a directory.
-	bool is_directory(const char* path)
-	{
 #if CROWN_PLATFORM_POSIX
-		struct stat info;
-		memset(&info, 0, sizeof(info));
-		int err = lstat(path, &info);
-		CE_ASSERT(err == 0, "lstat: errno = %d", errno);
-		CE_UNUSED(err);
-		return ((S_ISDIR(info.st_mode) == 1) && (S_ISLNK(info.st_mode) == 0));
-#elif CROWN_PLATFORM_WINDOWS
-		DWORD fattr = GetFileAttributes(path);
-		return (fattr != INVALID_FILE_ATTRIBUTES && (fattr & FILE_ATTRIBUTE_DIRECTORY) != 0);
-#endif
-	}
+		struct stat buf;
+		memset(&buf, 0, sizeof(buf));
+		int err = ::stat(path, &buf);
+		if (err != 0)
+			return;
 
-	/// Returns whether @a path is a regular file.
-	bool is_file(const char* path)
-	{
-#if CROWN_PLATFORM_POSIX
-		struct stat info;
-		memset(&info, 0, sizeof(info));
-		int err = lstat(path, &info);
-		CE_ASSERT(err == 0, "lstat: errno = %d", errno);
-		CE_UNUSED(err);
-		return ((S_ISREG(info.st_mode) == 1) && (S_ISLNK(info.st_mode) == 0));
+		if (S_ISREG(buf.st_mode) == 1)
+			info.file_type = Stat::REGULAR;
+		else if (S_ISDIR(buf.st_mode) == 1)
+			info.file_type = Stat::DIRECTORY;
 #elif CROWN_PLATFORM_WINDOWS
-		DWORD fattr = GetFileAttributes(path);
-		return (fattr != INVALID_FILE_ATTRIBUTES && (fattr & FILE_ATTRIBUTE_DIRECTORY) == 0);
-#endif
-	}
+		struct _stat64 buf;
+		int err = ::_stat64(path, &buf);
+		if (err != 0)
+			return;
 
-	/// Returns the last modification time of @a path.
-	u64 mtime(const char* path)
-	{
-#if CROWN_PLATFORM_POSIX
-		struct stat info;
-		memset(&info, 0, sizeof(info));
-		int err = lstat(path, &info);
-		CE_ASSERT(err == 0, "lstat: errno = %d", errno);
-		CE_UNUSED(err);
-		return info.st_mtime;
-#elif CROWN_PLATFORM_WINDOWS
-		HANDLE hfile = CreateFile(path
-			, GENERIC_READ
-			, FILE_SHARE_READ
-			, NULL
-			, OPEN_EXISTING
-			, 0
-			, NULL
-			);
-		CE_ASSERT(hfile != INVALID_HANDLE_VALUE, "CreateFile: GetLastError = %d", GetLastError());
-		FILETIME ftwrite;
-		BOOL err = GetFileTime(hfile, NULL, NULL, &ftwrite);
-		CE_ASSERT(err != 0, "GetFileTime: GetLastError = %d", GetLastError());
-		CE_UNUSED(err);
-		CloseHandle(hfile);
-		return (u64)((u64(ftwrite.dwHighDateTime) << 32) | ftwrite.dwLowDateTime);
+		if ((buf.st_mode & _S_IFREG) != 0)
+			info.file_type = Stat::REGULAR;
+		else if ((buf.st_mode & _S_IFDIR) != 0)
+			info.file_type = Stat::DIRECTORY;
 #endif
-	}
 
-	/// Creates a regular file named @a path.
-	void create_file(const char* path)
-	{
-#if CROWN_PLATFORM_POSIX
-		int err = ::mknod(path, 0644 | S_IFREG , 0);
-		CE_ASSERT(err == 0, "mknod: errno = %d", errno);
-		CE_UNUSED(err);
-#elif CROWN_PLATFORM_WINDOWS
-		HANDLE hfile = CreateFile(path
-			, GENERIC_READ | GENERIC_WRITE
-			, 0
-			, NULL
-			, CREATE_ALWAYS
-			, FILE_ATTRIBUTE_NORMAL
-			, NULL
-			);
-		CE_ASSERT(hfile != INVALID_HANDLE_VALUE, "CreateFile: GetLastError = %d", GetLastError());
-		CloseHandle(hfile);
-#endif
+		info.size = buf.st_size;
+		info.mtime = buf.st_mtime;
 	}
 
 	/// Deletes the file at @a path.
