@@ -10,7 +10,8 @@
 #include "core/platform.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string_stream.h"
-#include <string.h> // strcmp
+#include <string.h>   // strcmp
+#include <sys/stat.h> // stat, mkdir
 
 #if CROWN_PLATFORM_POSIX
 	#include <dirent.h> // opendir, readdir
@@ -19,7 +20,6 @@
 	#include <stdio.h>    // fputs
 	#include <stdlib.h>   // getenv
 	#include <string.h>   // memset
-	#include <sys/stat.h> // stat, mkdir
 	#include <sys/wait.h> // wait
 	#include <time.h>     // clock_gettime
 	#include <unistd.h>   // unlink, rmdir, getcwd, fork, execv
