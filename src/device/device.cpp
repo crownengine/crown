@@ -207,8 +207,6 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	, _height(0)
 	, _quit(false)
 	, _paused(false)
-	, _frame_count(0)
-	, _time_since_start(0.0)
 {
 }
 
@@ -443,18 +441,14 @@ void Device::run()
 
 	_lua_environment->call_global("init", 0);
 
-	s64 last_time = os::clocktime();
-	s64 curr_time;
-	f32 dt = 0.0f;
+	s64 time_last = os::clocktime();
 
 	while (!process_events(_boot_config.vsync) && !_quit)
 	{
-		curr_time = os::clocktime();
-		const s64 time = curr_time - last_time;
-		last_time = curr_time;
+		const s64 time = os::clocktime();
 		const f64 freq = (f64)os::clockfrequency();
-		dt = f32(time * (1.0 / freq));
-		_time_since_start += dt;
+		const f32 dt   = f32(f64(time - time_last) / freq);
+		time_last = time;
 
 		profiler_globals::clear();
 		_console_server->update();
@@ -469,14 +463,12 @@ void Device::run()
 			{
 				const s64 t0 = os::clocktime();
 				_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, dt);
-				const s64 t1 = os::clocktime();
-				RECORD_FLOAT("lua.update", f32((t1 - t0)*(1.0 / freq)));
+				RECORD_FLOAT("lua.update", f32(f64(os::clocktime() - t0) / freq));
 			}
 			{
 				const s64 t0 = os::clocktime();
 				_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, dt);
-				const s64 t1 = os::clocktime();
-				RECORD_FLOAT("lua.render", f32((t1 - t0)*(1.0 / freq)));
+				RECORD_FLOAT("lua.render", f32(f64(os::clocktime() - t0) / freq));
 			}
 		}
 
@@ -487,7 +479,6 @@ void Device::run()
 		RECORD_FLOAT("bgfx.gpu_time", f32(f64(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq));
 		RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq));
 
-		_frame_count++;
 		profiler_globals::flush();
 
 		bgfx::frame();
@@ -547,16 +538,6 @@ void Device::resolution(u16& width, u16& height)
 {
 	width = _width;
 	height = _height;
-}
-
-u64 Device::frame_count() const
-{
-	return _frame_count;
-}
-
-f64 Device::time_since_start() const
-{
-	return _time_since_start;
 }
 
 void Device::render(World& world, UnitId camera_unit)

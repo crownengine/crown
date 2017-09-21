@@ -61,9 +61,6 @@ struct Device
 	bool _quit;
 	bool _paused;
 
-	u64 _frame_count;
-	f64 _time_since_start;
-
 	bool process_events(bool vsync);
 
 	///
@@ -77,12 +74,6 @@ struct Device
 
 	/// Returns command line parameters.
 	const char** argv() const { return (const char**)_device_options._argv; }
-
-	/// Return the number of frames rendered.
-	u64 frame_count() const;
-
-	/// Returns the time in seconds since the the application started.
-	f64 time_since_start() const;
 
 	/// Quits the application.
 	void quit();
