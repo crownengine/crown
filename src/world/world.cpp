@@ -218,11 +218,11 @@ void World::update_scene(f32 dt)
 
 	_sound_world->update();
 
-	script_world::update(*_script_world, dt);
-
 	_gui_buffer.reset();
 
 	array::clear(_events);
+
+	script_world::update(*_script_world, dt);
 }
 
 void World::update(f32 dt)
