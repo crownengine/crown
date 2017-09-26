@@ -51,9 +51,9 @@ u32 murmur32(const void* key, u32 len, u32 seed)
 	// Handle the last few bytes of the input array
 	switch(len)
 	{
-		case 3: h ^= data[2] << 16;
-		case 2: h ^= data[1] << 8;
-		case 1: h ^= data[0];
+		case 3: h ^= data[2] << 16; // Fallthrough
+		case 2: h ^= data[1] << 8;  // Fallthrough
+		case 1: h ^= data[0];       // Fallthrough
 			h *= m;
 	};
 
@@ -92,13 +92,13 @@ u64 murmur64(const void* key, u32 len, u64 seed)
 
 	switch(len & 7)
 	{
-		case 7: h ^= u64(data2[6]) << 48;
-		case 6: h ^= u64(data2[5]) << 40;
-		case 5: h ^= u64(data2[4]) << 32;
-		case 4: h ^= u64(data2[3]) << 24;
-		case 3: h ^= u64(data2[2]) << 16;
-		case 2: h ^= u64(data2[1]) << 8;
-		case 1: h ^= u64(data2[0]);
+		case 7: h ^= u64(data2[6]) << 48; // Fallthrough
+		case 6: h ^= u64(data2[5]) << 40; // Fallthrough
+		case 5: h ^= u64(data2[4]) << 32; // Fallthrough
+		case 4: h ^= u64(data2[3]) << 24; // Fallthrough
+		case 3: h ^= u64(data2[2]) << 16; // Fallthrough
+		case 2: h ^= u64(data2[1]) << 8;  // Fallthrough
+		case 1: h ^= u64(data2[0]);       // Fallthrough
 		h *= m;
 	};
 
