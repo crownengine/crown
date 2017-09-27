@@ -149,13 +149,13 @@ struct DeviceEventQueue
 
 	bool push_event(const OsEvent& ev)
 	{
-		int cur_tail = _tail.load();
-		int next_tail = increment(cur_tail);
+		const int tail = _tail.load();
+		const int tail_next = (tail + 1) % MAX_OS_EVENTS;
 
-		if (next_tail != _head.load())
+		if (tail_next != _head.load())
 		{
-			_queue[cur_tail] = ev;
-			_tail.store(next_tail);
+			_queue[tail] = ev;
+			_tail.store(tail_next);
 			return true;
 		}
 
@@ -164,20 +164,15 @@ struct DeviceEventQueue
 
 	bool pop_event(OsEvent& ev)
 	{
-		const int cur_head = _head.load();
+		const int head = _head.load();
 
-		if (cur_head == _tail.load())
+		if (head == _tail.load())
 			return false;
 
-		ev = _queue[cur_head];
-		_head.store(increment(cur_head));
+		ev = _queue[head];
+		_head.store((head + 1) % MAX_OS_EVENTS);
 
 		return true;
-	}
-
-	int increment(int idx) const
-	{
-		return (idx + 1) % MAX_OS_EVENTS;
 	}
 };
 
