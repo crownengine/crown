@@ -1331,8 +1331,12 @@ end
 function LevelEditor:update(dt)
 	World.update(self._world, dt)
 
-	DebugLine.reset(self._lines_no_depth)
 	DebugLine.reset(self._lines)
+	DebugLine.reset(self._lines_no_depth)
+
+	if self._show_grid then
+		draw_world_origin_grid(self._lines, 10, self._grid.size)
+	end
 
 	local delta = Vector3.zero();
 	if self._mouse.right then
@@ -1353,17 +1357,13 @@ function LevelEditor:update(dt)
 	local t = raycast(self._objects, pos, dir)
 	self._spawn_height = t and (pos + dir * t).y or 0
 
-	if self._show_grid then
-		draw_world_origin_grid(self._lines, 10, self._grid.size)
-	end
-
 	-- Draw level objects
 	for k, v in pairs(self._objects) do
 		self._objects[k]:draw()
 	end
 
-	DebugLine.submit(self._lines_no_depth)
 	DebugLine.submit(self._lines)
+	DebugLine.submit(self._lines_no_depth)
 end
 
 function LevelEditor:render(dt)
