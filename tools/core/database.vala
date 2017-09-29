@@ -799,6 +799,7 @@ namespace Crown
 
 			_undo.write_destroy_action(id);
 			_redo.clear();
+			_redo_points.clear();
 
 			create_internal(id);
 		}
@@ -833,6 +834,7 @@ namespace Crown
 
 			_undo.write_create_action(id);
 			_redo.clear();
+			_redo_points.clear();
 
 			destroy_internal(id);
 		}
@@ -846,6 +848,7 @@ namespace Crown
 			HashMap<string, Value?> ob = get_data(id);
 			_undo.write_set_property_action(id, key, ob.has_key(key) ? ob[key] : null);
 			_redo.clear();
+			_redo_points.clear();
 
 			set_property_internal(id, key, value);
 		}
@@ -859,6 +862,7 @@ namespace Crown
 
 			_undo.write_remove_from_set_action(id, key, item_id);
 			_redo.clear();
+			_redo_points.clear();
 
 			add_to_set_internal(id, key, item_id);
 		}
@@ -871,6 +875,7 @@ namespace Crown
 
 			_undo.write_add_to_set_action(id, key, item_id);
 			_redo.clear();
+			_redo_points.clear();
 
 			remove_from_set_internal(id, key, item_id);
 		}
