@@ -582,9 +582,7 @@ struct PhysicsWorldImpl
 
 	void actor_move(ActorInstance i, const Vector3& pos)
 	{
-		if (!actor_is_kinematic(i))
-			return;
-
+		_actor[i.i].actor->activate();
 		_actor[i.i].actor->setLinearVelocity(to_btVector3(pos));
 	}
 
