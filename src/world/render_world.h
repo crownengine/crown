@@ -72,6 +72,12 @@ struct RenderWorld
 	/// Sets whether to flip the sprite on the y-axis.
 	void sprite_flip_y(UnitId unit, bool flip);
 
+	/// Sets the layer of the sprite.
+	void sprite_set_layer(UnitId unit, u32 layer);
+
+	/// Sets the depth of the sprite.
+	void sprite_set_depth(UnitId unit, u32 depth);
+
 	/// Returns the OBB of the sprite.
 	OBB sprite_obb(UnitId unit);
 
@@ -204,6 +210,8 @@ struct RenderWorld
 			AABB* aabb;
 			bool* flip_x;
 			bool* flip_y;
+			u32* layer;
+			u32* depth;
 			SpriteInstance* next_instance;
 		};
 
@@ -218,7 +226,7 @@ struct RenderWorld
 			memset(&_data, 0, sizeof(_data));
 		}
 
-		SpriteInstance create(UnitId id, const SpriteResource* sr, StringId64 material, const Matrix4x4& tr);
+		SpriteInstance create(UnitId id, const SpriteResource* sr, StringId64 material, u32 layer, u32 depth, const Matrix4x4& tr);
 		void destroy(SpriteInstance i);
 		bool has(UnitId id);
 		SpriteInstance sprite(UnitId id);

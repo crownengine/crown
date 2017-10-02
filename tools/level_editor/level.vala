@@ -298,6 +298,14 @@ namespace Crown
 			_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		}
 
+		public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth)
+		{
+			set_component_property(unit_id, component_id, "data.layer", layer);
+			set_component_property(unit_id, component_id, "data.depth", depth);
+
+			_client.send_script(LevelEditorApi.set_sprite(unit_id, layer, depth));
+		}
+
 		public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
 		{
 			_db.set_property(sound_id, "name", name);
@@ -461,6 +469,8 @@ namespace Crown
 						, component_id
 						, (string)get_component_property(unit_id, component_id, "data.sprite_resource")
 						, (string)get_component_property(unit_id, component_id, "data.material")
+						, (double)get_component_property(unit_id, component_id, "data.layer")
+						, (double)get_component_property(unit_id, component_id, "data.depth")
 						, (bool)  get_component_property(unit_id, component_id, "data.visible")
 						);
 					sb.append(s);

@@ -308,6 +308,8 @@ struct SpriteRendererDesc
 {
 	StringId64 sprite_resource;   ///< Name of .sprite resource.
 	StringId64 material_resource; ///< Name of .material resource.
+	u32 layer;                    ///< Sort layer
+	u32 depth;                    ///< Depth in layer
 	bool visible;                 ///< Whether sprite is visible.
 	char _pad0[3];
 	char _pad1[4];

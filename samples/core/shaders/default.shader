@@ -42,7 +42,7 @@ render_states = {
 	sprite = {
 		rgb_write_enable = true
 		alpha_write_enable = true
-		depth_func = "lequal"
+		depth_func = "always"
 		depth_enable = true
 		depth_write_enable = true
 		blend_enable = true
@@ -164,7 +164,7 @@ bgfx_shaders = {
 		vs_code = "
 			void main()
 			{
-				gl_Position = mul(u_modelViewProj, vec4(a_position, 0.0, 1.0));
+				gl_Position = mul(u_modelViewProj, vec4(a_position.x, 0.0, a_position.y, 1.0));
 				v_texcoord0 = a_texcoord0;
 			}
 		"

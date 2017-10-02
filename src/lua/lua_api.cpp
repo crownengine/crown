@@ -1892,9 +1892,11 @@ static int render_world_sprite_create(lua_State* L)
 	SpriteRendererDesc desc;
 	desc.sprite_resource = stack.get_resource_id(3);
 	desc.material_resource = stack.get_resource_id(4);
-	desc.visible = stack.get_bool(5);
+	desc.layer = stack.get_int(5);
+	desc.depth = stack.get_int(6);
+	desc.visible = stack.get_bool(7);
 
-	Matrix4x4 pose = stack.get_matrix4x4(6);
+	Matrix4x4 pose = stack.get_matrix4x4(8);
 
 	stack.push_sprite_instance(rw->sprite_create(unit, desc, pose));
 	return 1;
@@ -1944,6 +1946,20 @@ static int render_world_sprite_flip_y(lua_State* L)
 {
 	LuaStack stack(L);
 	stack.get_render_world(1)->sprite_flip_y(stack.get_unit(2), stack.get_bool(3));
+	return 0;
+}
+
+static int render_world_sprite_set_layer(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_render_world(1)->sprite_set_layer(stack.get_unit(2), stack.get_int(3));
+	return 0;
+}
+
+static int render_world_sprite_set_depth(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_render_world(1)->sprite_set_depth(stack.get_unit(2), stack.get_int(3));
 	return 0;
 }
 
@@ -3452,6 +3468,8 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "sprite_set_visible",   render_world_sprite_set_visible);
 	env.add_module_function("RenderWorld", "sprite_flip_x",        render_world_sprite_flip_x);
 	env.add_module_function("RenderWorld", "sprite_flip_y",        render_world_sprite_flip_y);
+	env.add_module_function("RenderWorld", "sprite_set_layer",     render_world_sprite_set_layer);
+	env.add_module_function("RenderWorld", "sprite_set_depth",     render_world_sprite_set_depth);
 	env.add_module_function("RenderWorld", "sprite_obb",           render_world_sprite_obb);
 	env.add_module_function("RenderWorld", "sprite_raycast",       render_world_sprite_raycast);
 	env.add_module_function("RenderWorld", "light_create",         render_world_light_create);

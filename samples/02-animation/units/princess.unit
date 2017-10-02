@@ -10,6 +10,8 @@ components = {
 	}
 	4e0ca7f6-f789-44d8-bf6b-9fcb62e1abd9 = {
 		data = {
+			depth = 0
+			layer = 1
 			material = "units/princess"
 			sprite_resource = "units/princess"
 			visible = true

@@ -2,6 +2,8 @@
 components = {
 	6340ce8f-6380-4718-b827-83ebddb60e42 = {
 		data = {
+			depth = 0
+			layer = 1
 			material = "units/soldier"
 			sprite_resource = "units/soldier"
 			visible = true

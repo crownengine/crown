@@ -641,6 +641,12 @@ Sprite
 **sprite_flip_y** (rw, unit, flip)
 	Sets whether to flip the sprite on the y-axis.
 
+**sprite_set_layer** (rw, unit, layer)
+	Sets the layer of the sprite.
+
+**sprite_set_depth** (rw, unit, depth)
+	Sets the depth of the sprite.
+
 **sprite_obb** (rw, unit) : Matrix4x4, Vector3
 	Returns the OBB of the sprite as (pose, half_extents).
 

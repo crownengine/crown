@@ -221,12 +221,14 @@ namespace Crown
 				);
 		}
 
-		public string add_sprite_component(Guid id, Guid component_id, string sprite_resource, string material_resource, bool visible)
+		public string add_sprite_component(Guid id, Guid component_id, string sprite_resource, string material_resource, double layer, double depth, bool visible)
 		{
-			return "LevelEditor:add_sprite_component(\"%s\", \"%s\", \"%s\", \"%s\", %s)".printf(id.to_string()
+			return "LevelEditor:add_sprite_component(\"%s\", \"%s\", \"%s\", \"%s\", %f, %f, %s)".printf(id.to_string()
 				, component_id.to_string()
 				, sprite_resource
 				, material_resource
+				, layer
+				, depth
 				, Lua.bool(visible)
 				);
 		}
@@ -278,6 +280,14 @@ namespace Crown
 		{
 			return @"LevelEditor._objects[\"%s\"]:set_range(%f)".printf(id.to_string()
 				, range
+				);
+		}
+
+		public string set_sprite(Guid id, double layer, double depth)
+		{
+			return @"LevelEditor._objects[\"%s\"]:set_sprite(%f, %f)".printf(id.to_string()
+				, layer
+				, depth
 				);
 		}
 

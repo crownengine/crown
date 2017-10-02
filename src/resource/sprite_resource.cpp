@@ -106,10 +106,12 @@ namespace sprite_resource_internal
 		{
 			Vector3 v;
 			v.x = vertices[i + 0];
-			v.y = vertices[i + 1];
-			v.z = 0.0f;
+			v.y = 0.0f;
+			v.z = vertices[i + 1];
 			aabb::add_points(aabb, 1, &v);
 		}
+		aabb.min.y = -0.25f;
+		aabb.max.y =  0.25f;
 
 		OBB obb;
 		obb.tm = matrix4x4(QUATERNION_IDENTITY, aabb::center(aabb));

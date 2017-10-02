@@ -231,6 +231,8 @@ namespace Crown
 				data = new Hashtable();
 				data["material"]        = resource_name;
 				data["sprite_resource"] = resource_name;
+				data["layer"]           = 0;
+				data["depth"]           = 0;
 				data["visible"]         = true;
 
 				comp = new Hashtable();

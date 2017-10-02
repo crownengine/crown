@@ -12,7 +12,7 @@
 
 namespace crown
 {
-void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view) const
+void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view, s32 depth) const
 {
 	using namespace material_resource;
 
@@ -42,7 +42,7 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view) const
 		bgfx::setUniform(buh, (char*)uh + sizeof(uh->uniform_handle));
 	}
 
-	sm.submit(_resource->shader, view);
+	sm.submit(_resource->shader, view, depth);
 }
 
 void Material::set_float(StringId32 name, f32 value)

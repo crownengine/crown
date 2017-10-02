@@ -8,6 +8,7 @@
 #include "core/math/color4.h"
 #include "core/math/intersection.h"
 #include "core/math/matrix4x4.h"
+#include "device/pipeline.h"
 #include "resource/mesh_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.h"
@@ -132,7 +133,13 @@ SpriteInstance RenderWorld::sprite_create(UnitId unit, const SpriteRendererDesc&
 	const SpriteResource* sr = (const SpriteResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE, srd.sprite_resource);
 	_material_manager->create_material(srd.material_resource);
 
-	return _sprite_manager.create(unit, sr, srd.material_resource, tr);
+	return _sprite_manager.create(unit
+		, sr
+		, srd.material_resource
+		, srd.layer
+		, srd.depth
+		, tr
+		);
 }
 
 void RenderWorld::sprite_destroy(UnitId unit, SpriteInstance /*i*/)
@@ -181,6 +188,20 @@ void RenderWorld::sprite_flip_y(UnitId unit, bool flip)
 	_sprite_manager._data.flip_y[i.i] = flip;
 }
 
+void RenderWorld::sprite_set_layer(UnitId unit, u32 layer)
+{
+	SpriteInstance i = _sprite_manager.sprite(unit);
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.layer[i.i] = layer;
+}
+
+void RenderWorld::sprite_set_depth(UnitId unit, u32 depth)
+{
+	SpriteInstance i = _sprite_manager.sprite(unit);
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager._data.depth[i.i] = depth;
+}
+
 OBB RenderWorld::sprite_obb(UnitId unit)
 {
 	SpriteInstance i = _sprite_manager.sprite(unit);
@@ -206,10 +227,10 @@ f32 RenderWorld::sprite_raycast(UnitId unit, const Vector3& from, const Vector3&
 
 	const f32 vertices[] =
 	{
-		frame[ 0], frame[ 1], 0.0f,
-		frame[ 4], frame[ 5], 0.0f,
-		frame[ 8], frame[ 9], 0.0f,
-		frame[12], frame[13], 0.0f
+		frame[ 0], 0.0f, frame[ 1],
+		frame[ 4], 0.0f, frame[ 5],
+		frame[ 8], 0.0f, frame[ 9],
+		frame[12], 0.0f, frame[13]
 	};
 
 	const u16 indices[] =
@@ -374,7 +395,7 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 			bgfx::setVertexBuffer(0, mid.mesh[i].vbh);
 			bgfx::setIndexBuffer(mid.mesh[i].ibh);
 
-			_material_manager->get(mid.material[i])->bind(*_resource_manager, *_shader_manager);
+			_material_manager->get(mid.material[i])->bind(*_resource_manager, *_shader_manager, VIEW_MESH);
 		}
 	}
 
@@ -459,7 +480,11 @@ void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
 			bgfx::setVertexBuffer(0, &tvb);
 			bgfx::setIndexBuffer(&tib, i*6, 6);
 
-			_material_manager->get(sid.material[i])->bind(*_resource_manager, *_shader_manager);
+			_material_manager->get(sid.material[i])->bind(*_resource_manager
+				, *_shader_manager
+				, sid.layer[i] + VIEW_SPRITE_0
+				, sid.depth[i]
+				);
 		}
 	}
 }
@@ -727,6 +752,8 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 		+ num*sizeof(AABB) + alignof(AABB)
 		+ num*sizeof(bool) + alignof(bool)
 		+ num*sizeof(bool) + alignof(bool)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(SpriteInstance) + alignof(SpriteInstance)
 		;
 
@@ -744,7 +771,9 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.aabb          = (AABB*                 )memory::align_top(new_data.world + num,    alignof(AABB                 ));
 	new_data.flip_x        = (bool*                 )memory::align_top(new_data.aabb + num,     alignof(bool                 ));
 	new_data.flip_y        = (bool*                 )memory::align_top(new_data.flip_x + num,   alignof(bool                 ));
-	new_data.next_instance = (SpriteInstance*       )memory::align_top(new_data.flip_y + num,   alignof(SpriteInstance       ));
+	new_data.layer         = (u32*                  )memory::align_top(new_data.flip_y + num,   alignof(u32                  ));
+	new_data.depth         = (u32*                  )memory::align_top(new_data.layer + num,    alignof(u32                  ));
+	new_data.next_instance = (SpriteInstance*       )memory::align_top(new_data.depth + num,    alignof(SpriteInstance       ));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
@@ -754,6 +783,8 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	memcpy(new_data.aabb, _data.aabb, _data.size * sizeof(AABB));
 	memcpy(new_data.flip_x, _data.flip_x, _data.size * sizeof(bool));
 	memcpy(new_data.flip_y, _data.flip_y, _data.size * sizeof(bool));
+	memcpy(new_data.layer, _data.layer, _data.size * sizeof(u32));
+	memcpy(new_data.depth, _data.depth, _data.size * sizeof(u32));
 	memcpy(new_data.next_instance, _data.next_instance, _data.size * sizeof(SpriteInstance));
 
 	_allocator->deallocate(_data.buffer);
@@ -765,7 +796,7 @@ void RenderWorld::SpriteManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResource* sr, StringId64 mat, const Matrix4x4& tr)
+SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResource* sr, StringId64 mat, u32 layer, u32 depth, const Matrix4x4& tr)
 {
 	if (_data.size == _data.capacity)
 		grow();
@@ -780,6 +811,8 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResourc
 	_data.aabb[last]          = AABB();
 	_data.flip_x[last]        = false;
 	_data.flip_y[last]        = false;
+	_data.layer[last]         = layer;
+	_data.depth[last]         = depth;
 	_data.next_instance[last] = make_instance(UINT32_MAX);
 
 	++_data.size;
@@ -805,6 +838,8 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance i)
 	_data.aabb[i.i]          = _data.aabb[last];
 	_data.flip_x[i.i]        = _data.flip_x[last];
 	_data.flip_y[i.i]        = _data.flip_y[last];
+	_data.layer[i.i]         = _data.layer[last];
+	_data.depth[i.i]         = _data.depth[last];
 	_data.next_instance[i.i] = _data.next_instance[last];
 
 	--_data.size;

@@ -28,6 +28,7 @@
 #include "device/input_device.h"
 #include "device/input_manager.h"
 #include "device/log.h"
+#include "device/pipeline.h"
 #include "device/profiler.h"
 #include "lua/lua_environment.h"
 #include "resource/config_resource.h"
@@ -542,17 +543,6 @@ void Device::resolution(u16& width, u16& height)
 
 void Device::render(World& world, UnitId camera_unit)
 {
-	bgfx::setViewClear(0
-		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
-		, 0x353839ff
-		, 1.0f
-		, 0
-		);
-
-	bgfx::setViewRect(0, 0, 0, _width, _height);
-	bgfx::setViewRect(1, 0, 0, _width, _height);
-	bgfx::setViewRect(2, 0, 0, _width, _height);
-
 	float aspect_ratio = (_boot_config.aspect_ratio == -1.0f
 		? (float)_width/(float)_height
 		: _boot_config.aspect_ratio
@@ -566,14 +556,58 @@ void Device::render(World& world, UnitId camera_unit)
 	Matrix4x4 ortho_proj;
 	orthographic(ortho_proj, 0, _width, 0, _height, 0.01f, 1.0f);
 
-	bgfx::setViewTransform(0, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(1, to_float_ptr(view), to_float_ptr(proj));
-	bgfx::setViewTransform(2, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
-	bgfx::setViewMode(2, bgfx::ViewMode::Sequential);
+	bgfx::setViewClear(0
+		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
+		, 0x353839ff
+		, 1.0f
+		, 0
+		);
 
-	bgfx::touch(0);
-	bgfx::touch(1);
-	bgfx::touch(2);
+	bgfx::setViewTransform(VIEW_SPRITE_0, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_SPRITE_1, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_SPRITE_2, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_SPRITE_3, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_SPRITE_4, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_SPRITE_5, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_SPRITE_6, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_SPRITE_7, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_MESH, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_DEBUG, to_float_ptr(view), to_float_ptr(proj));
+	bgfx::setViewTransform(VIEW_GUI, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
+
+	bgfx::setViewRect(VIEW_SPRITE_0, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_SPRITE_1, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_SPRITE_2, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_SPRITE_3, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_SPRITE_4, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_SPRITE_5, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_SPRITE_6, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_SPRITE_7, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_MESH, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_DEBUG, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_GUI, 0, 0, _width, _height);
+
+	bgfx::setViewMode(VIEW_SPRITE_0, bgfx::ViewMode::DepthAscending);
+	bgfx::setViewMode(VIEW_SPRITE_1, bgfx::ViewMode::DepthAscending);
+	bgfx::setViewMode(VIEW_SPRITE_2, bgfx::ViewMode::DepthAscending);
+	bgfx::setViewMode(VIEW_SPRITE_3, bgfx::ViewMode::DepthAscending);
+	bgfx::setViewMode(VIEW_SPRITE_4, bgfx::ViewMode::DepthAscending);
+	bgfx::setViewMode(VIEW_SPRITE_5, bgfx::ViewMode::DepthAscending);
+	bgfx::setViewMode(VIEW_SPRITE_6, bgfx::ViewMode::DepthAscending);
+	bgfx::setViewMode(VIEW_SPRITE_7, bgfx::ViewMode::DepthAscending);
+	bgfx::setViewMode(VIEW_GUI, bgfx::ViewMode::Sequential);
+
+	bgfx::touch(VIEW_SPRITE_0);
+	bgfx::touch(VIEW_SPRITE_1);
+	bgfx::touch(VIEW_SPRITE_2);
+	bgfx::touch(VIEW_SPRITE_3);
+	bgfx::touch(VIEW_SPRITE_4);
+	bgfx::touch(VIEW_SPRITE_5);
+	bgfx::touch(VIEW_SPRITE_6);
+	bgfx::touch(VIEW_SPRITE_7);
+	bgfx::touch(VIEW_MESH);
+	bgfx::touch(VIEW_DEBUG);
+	bgfx::touch(VIEW_GUI);
 
 	world.render(view, proj);
 }

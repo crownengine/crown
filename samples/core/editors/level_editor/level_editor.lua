@@ -102,12 +102,12 @@ end
 function draw_mesh_obb(render_world, unit_id, lines)
 	local mesh_component = RenderWorld.mesh_instances(render_world, unit_id)
 	local tm, hext = RenderWorld.mesh_obb(render_world, mesh_component)
-	DebugLine.add_obb(lines, tm, hext, Color4.red())
+	DebugLine.add_obb(lines, tm, hext, Color4(0, 170, 0, 150))
 end
 
 function draw_sprite_obb(render_world, unit_id, lines)
 	local tm, hext = RenderWorld.sprite_obb(render_world, unit_id)
-	DebugLine.add_obb(lines, tm, hext, Color4.red())
+	DebugLine.add_obb(lines, tm, hext, Color4(0, 170, 0, 150))
 end
 
 function raycast(objects, pos, dir)
@@ -354,6 +354,11 @@ function UnitBox:set_light(type, range, intensity, angle, color)
 	RenderWorld.light_set_range(LevelEditor._rw, self._unit_id, range)
 	RenderWorld.light_set_intensity(LevelEditor._rw, self._unit_id, intensity)
 	RenderWorld.light_set_spot_angle(LevelEditor._rw, self._unit_id, angle)
+end
+
+function UnitBox:set_sprite(layer, depth)
+	RenderWorld.sprite_set_layer(LevelEditor._rw, self._unit_id, layer)
+	RenderWorld.sprite_set_depth(LevelEditor._rw, self._unit_id, depth)
 end
 
 SoundObject = class(SoundObject)
@@ -1546,10 +1551,10 @@ function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometr
 	RenderWorld.mesh_create(self._rw, unit_id, mesh_resource, geometry_name, material_resource, visible, unit_box:world_pose())
 end
 
-function LevelEditor:add_sprite_component(id, component_id, sprite_resource, material_resource, visible)
+function LevelEditor:add_sprite_component(id, component_id, sprite_resource, material_resource, layer, depth, visible)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id();
-	RenderWorld.sprite_create(self._rw, unit_id, sprite_resource, material_resource, visible, unit_box:world_pose())
+	RenderWorld.sprite_create(self._rw, unit_id, sprite_resource, material_resource, layer, depth, visible, unit_box:world_pose())
 end
 
 function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, color)

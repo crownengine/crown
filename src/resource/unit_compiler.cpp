@@ -154,6 +154,8 @@ static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
 	SpriteRendererDesc srd;
 	srd.sprite_resource   = sjson::parse_resource_id(obj["sprite_resource"]);
 	srd.material_resource = sjson::parse_resource_id(obj["material"]);
+	srd.layer             = sjson::parse_int        (obj["layer"]);
+	srd.depth             = sjson::parse_int        (obj["depth"]);
 	srd.visible           = sjson::parse_bool       (obj["visible"]);
 	srd._pad0[0]          = 0;
 	srd._pad0[1]          = 0;

@@ -153,6 +153,8 @@ namespace Crown
 		// Widgets
 		private Gtk.Entry _sprite_resource;
 		private Gtk.Entry _material;
+		private SpinButtonDouble _layer;
+		private SpinButtonDouble _depth;
 		private Gtk.CheckButton _visible;
 
 		public SpriteRendererComponentView(Level level)
@@ -163,19 +165,37 @@ namespace Crown
 			// Widgets
 			_sprite_resource = new Gtk.Entry();
 			_material = new Gtk.Entry();
+			_layer = new SpinButtonDouble(0.0, 0.0, 7.0);
+			_depth = new SpinButtonDouble(0.0, 0.0, 9999.0);
 			_visible = new Gtk.CheckButton();
 			_sprite_resource.sensitive = false;
 			_material.sensitive = false;
 
+			_layer.value_changed.connect(on_value_changed);
+			_depth.value_changed.connect(on_value_changed);
+
 			add_row("Sprite", _sprite_resource);
 			add_row("Material", _material);
+			add_row("Layer", _layer);
+			add_row("Depth", _depth);
 			add_row("Visible", _visible);
+		}
+
+		private void on_value_changed()
+		{
+			_level.set_sprite(_id
+				, _component_id
+				, _layer.value
+				, _depth.value
+				);
 		}
 
 		public override void update()
 		{
 			_sprite_resource.text = (string)_level.get_component_property(_id, _component_id, "data.sprite_resource");
 			_material.text        = (string)_level.get_component_property(_id, _component_id, "data.material");
+			_layer.value          = (double)_level.get_component_property(_id, _component_id, "data.layer");
+			_depth.value          = (double)_level.get_component_property(_id, _component_id, "data.depth");
 			_visible.active       = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
 		}
 	}

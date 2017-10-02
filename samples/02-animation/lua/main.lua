@@ -26,13 +26,12 @@ function Game.level_loaded()
 
 	-- Spawn camera
 	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
-	World.camera_set_orthographic_size(GameBase.world, camera_unit, 4)
+	World.camera_set_orthographic_size(GameBase.world, camera_unit, 11.25/2)
 	World.camera_set_projection_type(GameBase.world, camera_unit, "orthographic")
-	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 8, -6))
-	SceneGraph.set_local_rotation(Game.sg, camera_unit, Quaternion.from_axis_angle(Vector3.right(), 45*(math.pi/180.0)))
+	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 8, 0))
+	SceneGraph.set_local_rotation(Game.sg, camera_unit, Quaternion.from_axis_angle(Vector3.right(), 90*(math.pi/180.0)))
 
 	GameBase.game_camera = camera_unit
-	Game.camera = FPSCamera(GameBase.world, camera_unit)
 
 	-- Spawn characters
 	Game.players[1] = World.spawn_unit(GameBase.world, "units/soldier", Vector3(-2, 0, 0))
@@ -62,6 +61,13 @@ function Game.update(dt)
 	local pad_dir = Pad1.axis(Pad1.axis_id("left"))
 	local player_pos = SceneGraph.local_position(Game.sg, Game.player)
 	SceneGraph.set_local_position(Game.sg, Game.player, player_pos + swap_yz(pad_dir)*player_speed*dt)
+
+	-- Sprite depth is proportional to its Z position
+	for i=1, #Game.players do
+		local pos = SceneGraph.local_position(Game.sg, Game.players[i])
+		local depth = math.floor(1000 + (1000 - 32*pos.z))
+		RenderWorld.sprite_set_depth(Game.rw, Game.players[i], depth)
+	end
 
 	if pad_dir.x ~= 0.0 or pad_dir.y ~= 0.0 then
 		local speed_x = AnimationStateMachine.variable_id(Game.sm, Game.player, "speed_x")

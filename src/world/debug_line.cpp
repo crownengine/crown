@@ -9,6 +9,7 @@
 #include "core/math/math.h"
 #include "core/math/matrix4x4.h"
 #include "core/math/vector3.h"
+#include "device/pipeline.h"
 #include "resource/mesh_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.h"
@@ -270,7 +271,7 @@ void DebugLine::submit()
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
 	bgfx::setVertexBuffer(0, &tvb, 0, _num * 2);
-	_shader_manager->submit(_shader, 1);
+	_shader_manager->submit(_shader, VIEW_DEBUG);
 }
 
 } // namespace crown
