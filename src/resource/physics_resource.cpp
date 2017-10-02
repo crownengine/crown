@@ -255,12 +255,19 @@ namespace physics_resource_internal
 		ar.collision_filter = sjson::parse_string_id(obj["collision_filter"]);
 
 		ar.flags = 0;
-		ar.flags |= json_object::has(obj, "lock_translation_x") ? sjson::parse_bool(obj["lock_translation_x"]) : 0;
-		ar.flags |= json_object::has(obj, "lock_translation_y") ? sjson::parse_bool(obj["lock_translation_y"]) : 0;
-		ar.flags |= json_object::has(obj, "lock_translation_z") ? sjson::parse_bool(obj["lock_translation_z"]) : 0;
-		ar.flags |= json_object::has(obj, "lock_rotation_x") ? sjson::parse_bool(obj["lock_rotation_x"]) : 0;
-		ar.flags |= json_object::has(obj, "lock_rotation_y") ? sjson::parse_bool(obj["lock_rotation_y"]) : 0;
-		ar.flags |= json_object::has(obj, "lock_rotation_z") ? sjson::parse_bool(obj["lock_rotation_z"]) : 0;
+
+		if (json_object::has(obj, "lock_translation_x") && sjson::parse_bool(obj["lock_translation_x"]))
+			ar.flags |= ActorFlags::LOCK_TRANSLATION_X;
+		if (json_object::has(obj, "lock_translation_y") && sjson::parse_bool(obj["lock_translation_y"]))
+			ar.flags |= ActorFlags::LOCK_TRANSLATION_Y;
+		if (json_object::has(obj, "lock_translation_z") && sjson::parse_bool(obj["lock_translation_z"]))
+			ar.flags |= ActorFlags::LOCK_TRANSLATION_Z;
+		if (json_object::has(obj, "lock_rotation_x") && sjson::parse_bool(obj["lock_rotation_x"]))
+			ar.flags |= ActorFlags::LOCK_ROTATION_X;
+		if (json_object::has(obj, "lock_rotation_y") && sjson::parse_bool(obj["lock_rotation_y"]))
+			ar.flags |= ActorFlags::LOCK_ROTATION_Y;
+		if (json_object::has(obj, "lock_rotation_z") && sjson::parse_bool(obj["lock_rotation_z"]))
+			ar.flags |= ActorFlags::LOCK_ROTATION_Z;
 
 		Buffer buf(default_allocator());
 		array::push(buf, (char*)&ar, sizeof(ar));
