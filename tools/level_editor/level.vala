@@ -263,7 +263,7 @@ namespace Crown
 					_db.set_property(id, "rotation", rot);
 				}
 			}
-			// FIXME: Hack to force update the component view
+			// FIXME: Hack to force update the properties view
 			selection_changed(_selection);
 		}
 
@@ -288,6 +288,8 @@ namespace Crown
 
 		public void set_light(Guid unit_id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
 		{
+			_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid[] { unit_id });
+
 			set_component_property(unit_id, component_id, "data.type",       type);
 			set_component_property(unit_id, component_id, "data.range",      range);
 			set_component_property(unit_id, component_id, "data.intensity",  intensity);
@@ -300,6 +302,8 @@ namespace Crown
 
 		public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth)
 		{
+			_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid[] { unit_id });
+
 			set_component_property(unit_id, component_id, "data.layer", layer);
 			set_component_property(unit_id, component_id, "data.depth", depth);
 
@@ -308,6 +312,8 @@ namespace Crown
 
 		public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
 		{
+			_db.add_restore_point((int)ActionType.SET_SOUND, new Guid[] { sound_id });
+
 			_db.set_property(sound_id, "name", name);
 			_db.set_property(sound_id, "range", range);
 			_db.set_property(sound_id, "volume", volume);
@@ -599,7 +605,7 @@ namespace Crown
 					}
 
 					send_move_objects(ids, positions, rotations, scales);
-					// FIXME: Hack to force update the component view
+					// FIXME: Hack to force update the properties view
 					selection_changed(_selection);
 				}
 				break;
@@ -616,6 +622,53 @@ namespace Crown
 
 			case (int)ActionType.OBJECT_SET_EDITOR_NAME:
 				object_editor_name_changed(data[0], object_editor_name(data[0]));
+				break;
+
+			case (int)ActionType.SET_LIGHT:
+				{
+					Guid unit_id = data[0];
+					Guid component_id = GUID_ZERO;
+
+					has_component(unit_id, "light", ref component_id);
+
+					_client.send_script(LevelEditorApi.set_light(unit_id
+						, (string) get_component_property(unit_id, component_id, "data.type")
+						, (double) get_component_property(unit_id, component_id, "data.range")
+						, (double) get_component_property(unit_id, component_id, "data.intensity")
+						, (double) get_component_property(unit_id, component_id, "data.spot_angle")
+						, (Vector3)get_component_property(unit_id, component_id, "data.color")
+						));
+					// FIXME: Hack to force update the properties view
+					selection_changed(_selection);
+				}
+				break;
+
+			case (int)ActionType.SET_SPRITE:
+				{
+					Guid unit_id = data[0];
+					Guid component_id = GUID_ZERO;
+
+					has_component(unit_id, "sprite_renderer", ref component_id);
+
+					_client.send_script(LevelEditorApi.set_sprite(unit_id
+						, (double)get_component_property(unit_id, component_id, "data.layer")
+						, (double)get_component_property(unit_id, component_id, "data.depth")
+						));
+					// FIXME: Hack to force update the properties view
+					selection_changed(_selection);
+				}
+				break;
+
+			case (int)ActionType.SET_SOUND:
+				{
+					Guid sound_id = data[0];
+
+					_client.send_script(LevelEditorApi.set_sound_range(sound_id
+						, (double)_db.get_property(sound_id, "range")
+						));
+					// FIXME: Hack to force update the properties view
+					selection_changed(_selection);
+				}
 				break;
 
 			default:
