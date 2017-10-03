@@ -763,10 +763,6 @@ Actor
 	Sets whether the actor is kinematic or not.
 	Note that this call has no effect on static actors.
 
-**actor_move** (pw, actor, position)
-	Moves the actor to *pos*
-	Note that this call only affects nonkinematic actors.
-
 **actor_is_static** (pw, actor) : bool
 	Returns whether the actor is static.
 

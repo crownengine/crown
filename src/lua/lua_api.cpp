@@ -2219,13 +2219,6 @@ static int physics_world_actor_set_kinematic(lua_State* L)
 	return 0;
 }
 
-static int physics_world_actor_move(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_physics_world(1)->actor_move(stack.get_actor(2), stack.get_vector3(3));
-	return 0;
-}
-
 static int physics_world_actor_is_static(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3502,7 +3495,6 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("PhysicsWorld", "actor_disable_collision",       physics_world_actor_disable_collision);
 	env.add_module_function("PhysicsWorld", "actor_set_collision_filter",    physics_world_actor_set_collision_filter);
 	env.add_module_function("PhysicsWorld", "actor_set_kinematic",           physics_world_actor_set_kinematic);
-	env.add_module_function("PhysicsWorld", "actor_move",                    physics_world_actor_move);
 	env.add_module_function("PhysicsWorld", "actor_is_static",               physics_world_actor_is_static);
 	env.add_module_function("PhysicsWorld", "actor_is_dynamic",              physics_world_actor_is_dynamic);
 	env.add_module_function("PhysicsWorld", "actor_is_kinematic",            physics_world_actor_is_kinematic);

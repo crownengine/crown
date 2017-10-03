@@ -125,10 +125,6 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	void actor_move(ActorInstance /*i*/, const Vector3& /*pos*/)
-	{
-	}
-
 	bool actor_is_static(ActorInstance /*i*/) const
 	{
 		return false;
@@ -417,11 +413,6 @@ void PhysicsWorld::actor_set_collision_filter(ActorInstance i, StringId32 filter
 void PhysicsWorld::actor_set_kinematic(ActorInstance i, bool kinematic)
 {
 	_impl->actor_set_kinematic(i, kinematic);
-}
-
-void PhysicsWorld::actor_move(ActorInstance i, const Vector3& pos)
-{
-	_impl->actor_move(i, pos);
 }
 
 bool PhysicsWorld::actor_is_static(ActorInstance i) const

@@ -90,10 +90,6 @@ struct PhysicsWorld
 	/// @note This call has no effect on static actors.
 	void actor_set_kinematic(ActorInstance i, bool kinematic);
 
-	/// Moves the actor to @a pos
-	/// @note This call only affects nonkinematic actors.
-	void actor_move(ActorInstance i, const Vector3& pos);
-
 	/// Returns whether the actor is static.
 	bool actor_is_static(ActorInstance i) const;
 
