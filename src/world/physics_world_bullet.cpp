@@ -632,6 +632,7 @@ struct PhysicsWorldImpl
 
 	void actor_set_linear_velocity(ActorInstance i, const Vector3& vel)
 	{
+		_actor[i.i].actor->activate();
 		_actor[i.i].actor->setLinearVelocity(to_btVector3(vel));
 	}
 
@@ -643,6 +644,7 @@ struct PhysicsWorldImpl
 
 	void actor_set_angular_velocity(ActorInstance i, const Vector3& vel)
 	{
+		_actor[i.i].actor->activate();
 		_actor[i.i].actor->setAngularVelocity(to_btVector3(vel));
 	}
 
