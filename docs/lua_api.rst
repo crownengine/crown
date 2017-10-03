@@ -761,7 +761,9 @@ Actor
 
 **actor_set_kinematic** (pw, actor, kinematic)
 	Sets whether the actor is kinematic or not.
-	Note that this call has no effect on static actors.
+
+	.. note::
+		This call has no effect on static actors.
 
 **actor_is_static** (pw, actor) : bool
 	Returns whether the actor is static.
@@ -792,22 +794,30 @@ Actor
 
 **actor_set_linear_velocity** (pw, actor, velocity)
 	Sets the linear velocity of the actor.
-	Note that this call only affects nonkinematic actors.
+
+	.. note::
+		This call only affects nonkinematic actors.
 
 **actor_angular_velocity** (pw, actor) : Vector3
 	Returns the angular velocity of the actor.
 
 **actor_set_angular_velocity** (pw, actor, velocity)
 	Sets the angular velocity of the actor.
-	Note that this call only affects nonkinematic actors.
+
+	.. note::
+		This call only affects nonkinematic actors.
 
 **actor_add_impulse** (pw, actor, impulse)
 	Adds a linear impulse (acting along the center of mass) to the actor.
-	Note that this call only affects nonkinematic actors.
+
+	.. note::
+		This call only affects nonkinematic actors.
 
 **actor_add_impulse_at** (pw, actor, impulse, position)
 	Adds a linear impulse (acting along the world position *pos*) to the actor.
-	Note that this call only affects nonkinematic actors.
+
+	.. note::
+		This call only affects nonkinematic actors.
 
 **actor_add_torque_impulse** (pw, actor, impulse)
 	Adds a torque impulse to the actor.
@@ -815,11 +825,15 @@ Actor
 **actor_push** (pw, actor, velocity, mass)
 	Pushes the actor as if it was hit by a point object with the given *mass*
 	travelling at the given *velocity*.
-	Note that this call only affects nonkinematic actors.
+
+	.. note::
+		This call only affects nonkinematic actors.
 
 **actor_push_at** (pw, actor, velocity, mass, position)
 	Like push() but applies the force at the world position *pos*.
-	Note that this call only affects nonkinematic actors.
+
+	.. note::
+		This call only affects nonkinematic actors.
 
 **actor_is_sleeping** (pw, actor) : bool
 	Returns whether the actor is sleeping.
@@ -858,21 +872,23 @@ AnimationStateMachine
 	Triggers the event *name* in the *state_machine*.
 
 ResourcePackage
-================
+===============
 
 **load** (package)
-	Loads all the resources in the package.
-	Note that the resources are not immediately available after the call is made,
-	instead, you have to poll for completion with has_loaded().
+	Loads all the resources in the *package*.
+
+	.. note::
+		The resources are not immediately available after the call is made,
+		instead, you have to poll for completion with has_loaded().
 
 **unload** (package)
-	Unloads all the resources in the package.
+	Unloads all the resources in the *package*.
 
 **flush** (package)
-	Waits until the package has been loaded.
+	Waits until the *package* has been loaded.
 
 **has_loaded** (package) : bool
-	Returns whether the package has been loaded.
+	Returns whether the *package* has been loaded.
 
 Device
 ======
@@ -912,8 +928,10 @@ Device
 
 **destroy_resource_package** (package)
 	Destroy a previously created resource *package*.
-	Note that to unload the resources loaded by the package, you have to call
-	ResourcePackage.unload() first.
+
+	.. note::
+		To unload the resources loaded by the package, you have to call
+		ResourcePackage.unload() first.
 
 **console_send** (table)
 	Sends the given lua *table* to clients connected to the engine.
