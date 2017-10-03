@@ -114,7 +114,7 @@ namespace Crown
 		private Gtk.Entry _mesh_resource;
 		private Gtk.Entry _geometry;
 		private Gtk.Entry _material;
-		private Gtk.CheckButton _visible;
+		private CheckBox _visible;
 
 		public MeshRendererComponentView(Level level)
 		{
@@ -125,7 +125,7 @@ namespace Crown
 			_mesh_resource = new Gtk.Entry();
 			_geometry = new Gtk.Entry();
 			_material = new Gtk.Entry();
-			_visible = new Gtk.CheckButton();
+			_visible = new CheckBox();
 			_mesh_resource.sensitive = false;
 			_geometry.sensitive = false;
 			_material.sensitive = false;
@@ -141,7 +141,7 @@ namespace Crown
 			_mesh_resource.text = (string)_level.get_component_property(_id, _component_id, "data.mesh_resource");
 			_geometry.text      = (string)_level.get_component_property(_id, _component_id, "data.geometry_name");
 			_material.text      = (string)_level.get_component_property(_id, _component_id, "data.material");
-			_visible.active     = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
+			_visible.value      = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
 		}
 	}
 
@@ -155,7 +155,7 @@ namespace Crown
 		private Gtk.Entry _material;
 		private SpinButtonDouble _layer;
 		private SpinButtonDouble _depth;
-		private Gtk.CheckButton _visible;
+		private CheckBox _visible;
 
 		public SpriteRendererComponentView(Level level)
 		{
@@ -167,12 +167,13 @@ namespace Crown
 			_material = new Gtk.Entry();
 			_layer = new SpinButtonDouble(0.0, 0.0, 7.0);
 			_depth = new SpinButtonDouble(0.0, 0.0, 9999.0);
-			_visible = new Gtk.CheckButton();
+			_visible = new CheckBox();
 			_sprite_resource.sensitive = false;
 			_material.sensitive = false;
 
 			_layer.value_changed.connect(on_value_changed);
 			_depth.value_changed.connect(on_value_changed);
+			_visible.value_changed.connect(on_value_changed);
 
 			add_row("Sprite", _sprite_resource);
 			add_row("Material", _material);
@@ -196,7 +197,7 @@ namespace Crown
 			_material.text        = (string)_level.get_component_property(_id, _component_id, "data.material");
 			_layer.value          = (double)_level.get_component_property(_id, _component_id, "data.layer");
 			_depth.value          = (double)_level.get_component_property(_id, _component_id, "data.depth");
-			_visible.active       = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
+			_visible.value        = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
 		}
 	}
 
@@ -458,7 +459,7 @@ namespace Crown
 		private Gtk.Entry _name;
 		private SpinButtonDouble _range;
 		private SpinButtonDouble _volume;
-		private Gtk.CheckButton _loop;
+		private CheckBox _loop;
 
 		public SoundView(Level level)
 		{
@@ -469,12 +470,12 @@ namespace Crown
 			_name   = new Gtk.Entry();
 			_range  = new SpinButtonDouble(0.0, 0.0, 9999.0);
 			_volume = new SpinButtonDouble(0.0, 0.0,    1.0);
-			_loop   = new Gtk.CheckButton();
+			_loop   = new CheckBox();
 			_name.sensitive = false;
 
 			_range.value_changed.connect(on_value_changed);
 			_volume.value_changed.connect(on_value_changed);
-			_loop.toggled.connect(on_value_changed);
+			_loop.value_changed.connect(on_value_changed);
 
 			add_row("Name", _name);
 			add_row("Range", _range);
@@ -488,7 +489,7 @@ namespace Crown
 				, _name.text
 				, _range.value
 				, _volume.value
-				, _loop.active
+				, _loop.value
 				);
 		}
 
@@ -497,7 +498,7 @@ namespace Crown
 			_name.text    = (string)_level.get_property(_id, "name");
 			_range.value  = (double)_level.get_property(_id, "range");
 			_volume.value = (double)_level.get_property(_id, "volume");
-			_loop.active  = (bool)  _level.get_property(_id, "loop");
+			_loop.value   = (bool)  _level.get_property(_id, "loop");
 		}
 	}
 
