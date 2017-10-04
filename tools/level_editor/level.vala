@@ -300,12 +300,16 @@ namespace Crown
 			_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		}
 
-		public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth)
+		public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth, string material, string sprite_resource, bool visible)
 		{
 			_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid[] { unit_id });
 
 			set_component_property(unit_id, component_id, "data.layer", layer);
 			set_component_property(unit_id, component_id, "data.depth", depth);
+			set_component_property(unit_id, component_id, "data.material", material);
+			set_component_property(unit_id, component_id, "data.sprite_resource", sprite_resource);
+			set_component_property(unit_id, component_id, "data.visible", visible);
+			set_component_property(unit_id, component_id, "type", "sprite_renderer");
 
 			_client.send_script(LevelEditorApi.set_sprite(unit_id, layer, depth));
 		}

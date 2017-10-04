@@ -188,6 +188,9 @@ namespace Crown
 				, _component_id
 				, _layer.value
 				, _depth.value
+				, _material.text
+				, _sprite_resource.text
+				, _visible.value
 				);
 		}
 
