@@ -406,7 +406,7 @@ struct PhysicsWorldImpl
 		ColliderInstance ci = collider_first(id);
 		while (is_valid(ci))
 		{
-			shape->addChildShape(btTransform::getIdentity(), _collider[ci.i].shape);
+			shape->addChildShape(to_btTransform(_collider[ci.i].local_tm), _collider[ci.i].shape);
 			ci = collider_next(ci);
 		}
 

@@ -196,7 +196,7 @@ namespace physics_resource_internal
 			p.x = sjson::parse_float(positions[i + 0]);
 			p.y = sjson::parse_float(positions[i + 1]);
 			p.z = sjson::parse_float(positions[i + 2]);
-			array::push_back(points, p*matrix_local);
+			array::push_back(points, p);
 		}
 
 		Array<u16> point_indices(default_allocator());
