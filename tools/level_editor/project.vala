@@ -142,6 +142,8 @@ namespace Crown
 			int offset_y  = (int)sid.offset_y.value;
 			int spacing_x = (int)sid.spacing_x.value;
 			int spacing_y = (int)sid.spacing_y.value;
+			int layer     = (int)sid.layer.value;
+			int depth     = (int)sid.depth.value;
 
 			Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, sid.pivot.active);
 
@@ -231,8 +233,8 @@ namespace Crown
 				data = new Hashtable();
 				data["material"]        = resource_name;
 				data["sprite_resource"] = resource_name;
-				data["layer"]           = 0;
-				data["depth"]           = 0;
+				data["layer"]           = layer;
+				data["depth"]           = depth;
 				data["visible"]         = true;
 
 				comp = new Hashtable();

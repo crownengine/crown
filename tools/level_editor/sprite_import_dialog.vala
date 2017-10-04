@@ -114,6 +114,8 @@ public class SpriteImportDialog : Gtk.Dialog
 	public Gtk.SpinButton spacing_x;
 	public Gtk.SpinButton spacing_y;
 	public Gtk.ComboBoxText pivot;
+	public SpinButtonDouble layer;
+	public SpinButtonDouble depth;
 
 	// Widgets
 	public SpriteImportDialog(string png)
@@ -305,6 +307,9 @@ public class SpriteImportDialog : Gtk.Dialog
 			_drawing_area.queue_draw();
 		});
 
+		layer = new SpinButtonDouble(0.0, 0.0, 7.0);
+		depth = new SpinButtonDouble(0.0, 0.0, 9999.0);
+
 		Gtk.Grid grid = new Gtk.Grid();
 		grid.attach(label_with_alignment("Resolution", Gtk.Align.END),   0,  0, 1, 1);
 		grid.attach(label_with_alignment("Cells H", Gtk.Align.END),      0,  1, 1, 1);
@@ -317,6 +322,8 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.attach(label_with_alignment("Spacing X", Gtk.Align.END),    0,  8, 1, 1);
 		grid.attach(label_with_alignment("Spacing Y", Gtk.Align.END),    0,  9, 1, 1);
 		grid.attach(label_with_alignment("Pivot", Gtk.Align.END),        0, 10, 1, 1);
+		grid.attach(label_with_alignment("Layer", Gtk.Align.END),        0, 11, 1, 1);
+		grid.attach(label_with_alignment("Depth", Gtk.Align.END),        0, 12, 1, 1);
 
 		grid.attach(resolution,   1,  0, 1, 1);
 		grid.attach(cells_h,      1,  1, 1, 1);
@@ -329,6 +336,8 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.attach(spacing_x,    1,  8, 1, 1);
 		grid.attach(spacing_y,    1,  9, 1, 1);
 		grid.attach(pivot,        1, 10, 1, 1);
+		grid.attach(layer,        1, 11, 1, 1);
+		grid.attach(depth,        1, 12, 1, 1);
 		grid.row_spacing = 6;
 		grid.column_spacing = 12;
 
