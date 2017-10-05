@@ -424,8 +424,8 @@ struct PhysicsWorldImpl
 		rbinfo.m_restitution = 0.81f; // FIXME
 		rbinfo.m_friction = 0.8f; // FIXME
 		rbinfo.m_rollingFriction = 0.5f; // FIXME
-		rbinfo.m_linearSleepingThreshold = 0.01f; // FIXME
-		rbinfo.m_angularSleepingThreshold = 0.01f; // FIXME
+		rbinfo.m_linearSleepingThreshold  = 0.5f; // FIXME
+		rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
 
 		// Create rigid body
 		btRigidBody* actor = CE_NEW(*_allocator, btRigidBody)(rbinfo);
