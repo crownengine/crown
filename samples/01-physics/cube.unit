@@ -12,7 +12,7 @@ components = {
 		data = {
 			mesh_resource = "cube"
 			geometry_name = "Cube"
-			material = "cube"
+			material = "grid"
 			visible = true
 		}
 	}
