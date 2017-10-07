@@ -12,14 +12,14 @@ components = {
 		data = {
 			mesh_resource = "cube"
 			geometry_name = "Cube"
-			material = "grid"
+			material = "cube"
 			visible = true
 		}
 	}
 	"a122f56c-be01-46da-9459-c84bc7381221" = {
 		type = "collider"
 		data = {
-			class = "character"
+			class = "default"
 			shape = "box"
 			scene = "cube"
 			name = "Cube"
