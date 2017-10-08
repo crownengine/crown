@@ -298,8 +298,11 @@ bool Device::process_events(bool vsync)
 			unpause();
 			break;
 
+		case OsEventType::TEXT:
+			break;
+
 		default:
-			CE_FATAL("Unknown OS event");
+			CE_FATAL("OsEventType: unknown");
 			break;
 		}
 	}

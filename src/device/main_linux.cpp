@@ -348,6 +348,22 @@ struct LinuxDevice
 		Rotation rr_old_rot;
 		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_old_rot);
 
+		XIM im;
+		im = XOpenIM(_x11_display, NULL, NULL, NULL);
+		CE_ASSERT(im != NULL, "XOpenIM: error");
+
+		XIC ic;
+		ic = XCreateIC(im
+			, XNInputStyle
+			, 0
+			| XIMPreeditNothing
+			| XIMStatusNothing
+			, XNClientWindow
+			, root_window
+			, NULL
+			);
+		CE_ASSERT(ic != NULL, "XCreateIC: error");
+
 		// Start main thread
 		MainThreadArgs mta;
 		mta.opts = opts;
@@ -438,8 +454,27 @@ struct LinuxDevice
 				case KeyRelease:
 					{
 						KeySym keysym = XLookupKeysym(&event.xkey, 0);
-						KeyboardButton::Enum kb = x11_translate_key(keysym);
 
+						if (event.type == KeyPress)
+						{
+							Status status = 0;
+							u8 utf8[4] = { 0 };
+							int len = Xutf8LookupString(ic
+								, &event.xkey
+								, (char*)utf8
+								, sizeof(utf8)
+								, &keysym
+								, &status
+								);
+
+							if (status == XLookupChars || status == XLookupBoth)
+							{
+								if (len)
+									_queue.push_text_event(len, utf8);
+							}
+						}
+
+						KeyboardButton::Enum kb = x11_translate_key(keysym);
 						if (kb != KeyboardButton::COUNT)
 						{
 							_queue.push_button_event(InputDeviceType::KEYBOARD
@@ -465,6 +500,9 @@ struct LinuxDevice
 		_joypad.shutdown();
 
 		main_thread.stop();
+
+		XDestroyIC(ic);
+		XCloseIM(im);
 
 		// Restore previous screen configuration
 		Rotation rr_rot;

@@ -21,6 +21,7 @@ struct OsEventType
 		EXIT,
 		PAUSE,
 		RESUME,
+		TEXT,
 		NONE
 	};
 };
@@ -60,6 +61,13 @@ struct ResolutionEvent
 	u16 height;
 };
 
+struct TextEvent
+{
+	u16 type;
+	u8 len;
+	u8 utf8[4];
+};
+
 union OsEvent
 {
 	u16 type;
@@ -67,6 +75,7 @@ union OsEvent
 	AxisEvent axis;
 	StatusEvent status;
 	ResolutionEvent resolution;
+	TextEvent text;
 };
 
 /// Single Producer Single Consumer event queue.
@@ -135,6 +144,16 @@ struct DeviceEventQueue
 	{
 		OsEvent ev;
 		ev.type = OsEventType::EXIT;
+
+		push_event(ev);
+	}
+
+	void push_text_event(u8 len, u8 utf8[4])
+	{
+		OsEvent ev;
+		ev.text.type = OsEventType::TEXT;
+		ev.text.len = len;
+		memcpy(ev.text.utf8, utf8, sizeof(ev.text.utf8));
 
 		push_event(ev);
 	}
