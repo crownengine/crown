@@ -528,6 +528,24 @@ struct WindowsDevice
 			}
 			break;
 
+		case WM_CHAR:
+			{
+				uint8_t utf8[4] = { 0 };
+				uint8_t len = (uint8_t)WideCharToMultiByte(CP_UTF8
+					, 0
+					, (LPCWSTR)&wparam
+					, 1
+					, (LPSTR)utf8
+					, sizeof(utf8)
+					, NULL
+					, NULL
+					);
+
+				if (len)
+					_queue.push_text_event(len, utf8);
+			}
+			break;
+
 		default:
 			break;
 		}
