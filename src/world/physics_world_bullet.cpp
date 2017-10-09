@@ -393,10 +393,11 @@ struct PhysicsWorldImpl
 
 	ActorInstance actor_create(UnitId id, const ActorResource* ar, const Matrix4x4& tm)
 	{
-		const PhysicsConfigActor* actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
+		const PhysicsActor* actor_class = physics_config_resource::actor(_config_resource, ar->actor_class);
+		const PhysicsMaterial* material = physics_config_resource::material(_config_resource, ar->material);
 
-		const bool is_kinematic = (actor_class->flags & PhysicsConfigActor::KINEMATIC) != 0;
-		const bool is_dynamic   = (actor_class->flags & PhysicsConfigActor::DYNAMIC) != 0;
+		const bool is_kinematic = (actor_class->flags & PhysicsActor::KINEMATIC) != 0;
+		const bool is_dynamic   = (actor_class->flags & PhysicsActor::DYNAMIC) != 0;
 		const bool is_static    = !is_kinematic && !is_dynamic;
 		const f32  mass         = is_dynamic ? ar->mass : 0.0f;
 
@@ -419,11 +420,11 @@ struct PhysicsWorldImpl
 			shape->calculateLocalInertia(mass, inertia);
 
 		btRigidBody::btRigidBodyConstructionInfo rbinfo(mass, ms, shape, inertia);
-		rbinfo.m_linearDamping = actor_class->linear_damping;
-		rbinfo.m_angularDamping = actor_class->angular_damping;
-		rbinfo.m_restitution = 0.81f; // FIXME
-		rbinfo.m_friction = 0.8f; // FIXME
-		rbinfo.m_rollingFriction = 0.5f; // FIXME
+		rbinfo.m_linearDamping            = actor_class->linear_damping;
+		rbinfo.m_angularDamping           = actor_class->angular_damping;
+		rbinfo.m_restitution              = material->restitution;
+		rbinfo.m_friction                 = material->friction;
+		rbinfo.m_rollingFriction          = material->rolling_friction;
 		rbinfo.m_linearSleepingThreshold  = 0.5f; // FIXME
 		rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
 
@@ -451,7 +452,7 @@ struct PhysicsWorldImpl
 		actor->setUserPointer((void*)(uintptr_t)last);
 
 		// Set collision filters
-		const u32 me = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
+		const u32 me   = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
 		const u32 mask = physics_config_resource::filter(_config_resource, ar->collision_filter)->mask;
 
 		_scene->addRigidBody(actor, me, mask);

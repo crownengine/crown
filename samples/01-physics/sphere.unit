@@ -32,6 +32,7 @@ components = {
 			class = "dynamic"
 			mass = 15
 			collision_filter = "default"
+			material = "default"
 		}
 	}
 }

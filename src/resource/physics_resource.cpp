@@ -253,6 +253,7 @@ namespace physics_resource_internal
 		ar.actor_class      = sjson::parse_string_id(obj["class"]);
 		ar.mass             = sjson::parse_float    (obj["mass"]);
 		ar.collision_filter = sjson::parse_string_id(obj["collision_filter"]);
+		ar.material         = sjson::parse_string_id(obj["material"]);
 
 		ar.flags = 0;
 
@@ -316,7 +317,7 @@ namespace physics_resource_internal
 
 namespace physics_config_resource_internal
 {
-	void parse_materials(const char* json, Array<PhysicsConfigMaterial>& objects)
+	void parse_materials(const char* json, Array<PhysicsMaterial>& objects)
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
@@ -332,17 +333,17 @@ namespace physics_config_resource_internal
 			JsonObject material(ta);
 			sjson::parse_object(value, material);
 
-			PhysicsConfigMaterial mat;
+			PhysicsMaterial mat;
 			mat.name             = StringId32(key.data(), key.length());
-			mat.static_friction  = sjson::parse_float(material["static_friction"]);
-			mat.dynamic_friction = sjson::parse_float(material["dynamic_friction"]);
+			mat.friction         = sjson::parse_float(material["friction"]);
+			mat.rolling_friction = sjson::parse_float(material["rolling_friction"]);
 			mat.restitution      = sjson::parse_float(material["restitution"]);
 
 			array::push_back(objects, mat);
 		}
 	}
 
-	void parse_shapes(const char* json, Array<PhysicsConfigShape>& objects)
+	void parse_shapes(const char* json, Array<PhysicsShape>& objects)
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
@@ -358,15 +359,15 @@ namespace physics_config_resource_internal
 			JsonObject shape(ta);
 			sjson::parse_object(value, shape);
 
-			PhysicsConfigShape ps2;
-			ps2.name    = StringId32(key.data(), key.length());
-			ps2.trigger = sjson::parse_bool(shape["trigger"]);
+			PhysicsShape ps;
+			ps.name    = StringId32(key.data(), key.length());
+			ps.trigger = sjson::parse_bool(shape["trigger"]);
 
-			array::push_back(objects, ps2);
+			array::push_back(objects, ps);
 		}
 	}
 
-	void parse_actors(const char* json, Array<PhysicsConfigActor>& objects)
+	void parse_actors(const char* json, Array<PhysicsActor>& objects)
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
@@ -382,40 +383,45 @@ namespace physics_config_resource_internal
 			JsonObject actor(ta);
 			sjson::parse_object(value, actor);
 
-			PhysicsConfigActor pa2;
-			pa2.name            = StringId32(key.data(), key.length());
-			// pa2.linear_damping  = sjson::parse_float(actor["linear_damping"]);  // 0.0f;
-			// pa2.angular_damping = sjson::parse_float(actor["angular_damping"]); // 0.05f;
+			PhysicsActor pa;
+			pa.name = StringId32(key.data(), key.length());
+			pa.linear_damping  = 0.0f;
+			pa.angular_damping = 0.0f;
+
+			if (json_object::has(actor, "linear_damping"))
+				pa.linear_damping = sjson::parse_float(actor["linear_damping"]);
+			if (json_object::has(actor, "angular_damping"))
+				pa.angular_damping = sjson::parse_float(actor["angular_damping"]);
 
 			const bool has_dynamic         = json_object::has(actor, "dynamic");
 			const bool has_kinematic       = json_object::has(actor, "kinematic");
 			const bool has_disable_gravity = json_object::has(actor, "disable_gravity");
 
-			pa2.flags = 0;
+			pa.flags = 0;
 
 			if (has_dynamic)
 			{
-				pa2.flags |= (sjson::parse_bool(actor["dynamic"])
+				pa.flags |= (sjson::parse_bool(actor["dynamic"])
 					? 1
 					: 0
 					);
 			}
 			if (has_kinematic)
 			{
-				pa2.flags |= (sjson::parse_bool(actor["kinematic"])
-					? PhysicsConfigActor::KINEMATIC
+				pa.flags |= (sjson::parse_bool(actor["kinematic"])
+					? PhysicsActor::KINEMATIC
 					: 0
 					);
 			}
 			if (has_disable_gravity)
 			{
-				pa2.flags |= (sjson::parse_bool(actor["disable_gravity"])
-					? PhysicsConfigActor::DISABLE_GRAVITY
+				pa.flags |= (sjson::parse_bool(actor["disable_gravity"])
+					? PhysicsActor::DISABLE_GRAVITY
 					: 0
 					);
 			}
 
-			array::push_back(objects, pa2);
+			array::push_back(objects, pa);
 		}
 	}
 
@@ -512,9 +518,9 @@ namespace physics_config_resource_internal
 		JsonObject object(ta);
 		sjson::parse(buf, object);
 
-		Array<PhysicsConfigMaterial> materials(default_allocator());
-		Array<PhysicsConfigShape> shapes(default_allocator());
-		Array<PhysicsConfigActor> actors(default_allocator());
+		Array<PhysicsMaterial> materials(default_allocator());
+		Array<PhysicsShape> shapes(default_allocator());
+		Array<PhysicsActor> actors(default_allocator());
 		CollisionFilterCompiler cfc(opts);
 
 		// Parse materials
@@ -537,13 +543,13 @@ namespace physics_config_resource_internal
 
 		u32 offt = sizeof(PhysicsConfigResource);
 		pcr.materials_offset = offt;
-		offt += sizeof(PhysicsConfigMaterial) * pcr.num_materials;
+		offt += sizeof(PhysicsMaterial) * pcr.num_materials;
 
 		pcr.shapes_offset = offt;
-		offt += sizeof(PhysicsConfigShape) * pcr.num_shapes;
+		offt += sizeof(PhysicsShape) * pcr.num_shapes;
 
 		pcr.actors_offset = offt;
-		offt += sizeof(PhysicsConfigActor) * pcr.num_actors;
+		offt += sizeof(PhysicsActor) * pcr.num_actors;
 
 		pcr.filters_offset = offt;
 		offt += sizeof(PhysicsCollisionFilter) * pcr.num_filters;
@@ -559,16 +565,16 @@ namespace physics_config_resource_internal
 		opts.write(pcr.num_filters);
 		opts.write(pcr.filters_offset);
 
-		// Write material objects
+		// Write materials
 		for (u32 i = 0; i < pcr.num_materials; ++i)
 		{
 			opts.write(materials[i].name._id);
-			opts.write(materials[i].static_friction);
-			opts.write(materials[i].dynamic_friction);
+			opts.write(materials[i].friction);
+			opts.write(materials[i].rolling_friction);
 			opts.write(materials[i].restitution);
 		}
 
-		// Write material objects
+		// Write shapes
 		for (u32 i = 0; i < pcr.num_shapes; ++i)
 		{
 			opts.write(shapes[i].name._id);
@@ -578,7 +584,7 @@ namespace physics_config_resource_internal
 			opts.write(shapes[i]._pad[2]);
 		}
 
-		// Write actor objects
+		// Write actors
 		for (u32 i = 0; i < pcr.num_actors; ++i)
 		{
 			opts.write(actors[i].name._id);
@@ -587,6 +593,7 @@ namespace physics_config_resource_internal
 			opts.write(actors[i].flags);
 		}
 
+		// Write collision filters
 		for (u32 i = 0; i < array::size(cfc._filters); ++i)
 		{
 			opts.write(cfc._filters[i].name._id);
@@ -599,9 +606,9 @@ namespace physics_config_resource_internal
 
 namespace physics_config_resource
 {
-	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
 	{
-		const PhysicsConfigMaterial* begin = (PhysicsConfigMaterial*)((const char*)pcr + pcr->materials_offset);
+		const PhysicsMaterial* begin = (PhysicsMaterial*)((const char*)pcr + pcr->materials_offset);
 		for (u32 i = 0; i < pcr->num_materials; ++i)
 		{
 			if (begin[i].name == name)
@@ -612,9 +619,9 @@ namespace physics_config_resource
 		return NULL;
 	}
 
-	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsShape* shape(const PhysicsConfigResource* pcr, StringId32 name)
 	{
-		const PhysicsConfigShape* begin = (PhysicsConfigShape*)((const char*)pcr + pcr->shapes_offset);
+		const PhysicsShape* begin = (PhysicsShape*)((const char*)pcr + pcr->shapes_offset);
 		for (u32 i = 0; i < pcr->num_shapes; ++i)
 		{
 			if (begin[i].name == name)
@@ -625,9 +632,9 @@ namespace physics_config_resource
 		return NULL;
 	}
 
-	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
+	const PhysicsActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
 	{
-		const PhysicsConfigActor* begin = (PhysicsConfigActor*)((const char*)pcr + pcr->actors_offset);
+		const PhysicsActor* begin = (PhysicsActor*)((const char*)pcr + pcr->actors_offset);
 		for (u32 i = 0; i < pcr->num_actors; ++i)
 		{
 			if (begin[i].name == name)

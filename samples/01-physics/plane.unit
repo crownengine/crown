@@ -32,6 +32,7 @@ components = {
 			class = "static"
 			mass = 50
 			collision_filter = "default"
+			material = "default"
 		}
 	}
 }

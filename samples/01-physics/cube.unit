@@ -30,8 +30,9 @@ components = {
 		type = "actor"
 		data = {
 			class = "dynamic"
-			mass = 10
 			collision_filter = "default"
+			mass = 10
+			material = "default"
 		}
 	}
 }

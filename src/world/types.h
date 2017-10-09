@@ -382,10 +382,11 @@ struct ControllerDesc
 /// @ingroup World
 struct ActorResource
 {
-	StringId32 actor_class;      ///< Name of actor in global.physics resource.
+	StringId32 actor_class;      ///< Name of actor in global.physics_config resource.
 	f32 mass;                    ///< Mass of the actor.
 	u32 flags;                   ///< ActorFlags::Enum
 	StringId32 collision_filter; ///< Name of collision filter in global.physics_config resource.
+	StringId32 material;         ///< Name of material in global.physics_config resource.
 };
 
 struct SphereShape

@@ -38,11 +38,11 @@ struct PhysicsConfigResource
 	u32 filters_offset;
 };
 
-struct PhysicsConfigMaterial
+struct PhysicsMaterial
 {
 	StringId32 name;
-	f32 static_friction;
-	f32 dynamic_friction;
+	f32 friction;
+	f32 rolling_friction;
 	f32 restitution;
 };
 
@@ -53,14 +53,14 @@ struct PhysicsCollisionFilter
 	u32 mask;
 };
 
-struct PhysicsConfigShape
+struct PhysicsShape
 {
 	StringId32 name;
 	bool trigger;
 	char _pad[3];
 };
 
-struct PhysicsConfigActor
+struct PhysicsActor
 {
 	enum
 	{
@@ -84,13 +84,13 @@ namespace physics_config_resource_internal
 namespace physics_config_resource
 {
 	/// Returns the material @a name.
-	const PhysicsConfigMaterial* material(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name);
 
 	/// Returns the shape @a name.
-	const PhysicsConfigShape* shape(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsShape* shape(const PhysicsConfigResource* pcr, StringId32 name);
 
 	/// Returns the actor @a name.
-	const PhysicsConfigActor* actor(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsActor* actor(const PhysicsConfigResource* pcr, StringId32 name);
 
 	/// Returns the collision filter @a name.
 	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name);
