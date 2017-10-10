@@ -89,6 +89,9 @@ struct LuaEnvironment
 	/// Returns whether @a p is a temporary Matrix4x4.
 	bool is_matrix4x4(const Matrix4x4* p) const;
 
+	static int error(lua_State* L);
+	static int require(lua_State* L);
+
 private:
 
 	// Disable copying

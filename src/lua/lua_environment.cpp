@@ -19,44 +19,6 @@ namespace crown
 {
 extern void load_api(LuaEnvironment& env);
 
-// When an error occurs, logs the error message and pauses the engine.
-static int error_handler(lua_State* L)
-{
-	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
-	if (!lua_istable(L, -1))
-	{
-		lua_pop(L, 1);
-		return 0;
-	}
-
-	lua_getfield(L, -1, "traceback");
-	if (!lua_isfunction(L, -1))
-	{
-		lua_pop(L, 2);
-		return 0;
-	}
-
-	lua_pushvalue(L, 1); // Pass error message
-	lua_pushinteger(L, 2);
-	lua_call(L, 2, 1); // Call debug.traceback
-
-	loge(LUA, lua_tostring(L, -1)); // Print error message
-	lua_pop(L, 1); // Remove error message from stack
-	lua_pop(L, 1); // Remove debug.traceback from stack
-
-	device()->pause();
-	return 0;
-}
-
-// Redirects require to the resource manager.
-static int require(lua_State* L)
-{
-	LuaStack stack(L);
-	const LuaResource* lr = (LuaResource*)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, stack.get_resource_id(1));
-	luaL_loadbuffer(L, lua_resource::program(lr), lr->size, "");
-	return 1;
-}
-
 LuaEnvironment::LuaEnvironment()
 	: L(NULL)
 	, _vec3_used(0)
@@ -114,7 +76,7 @@ void LuaEnvironment::load_libs()
 LuaStack LuaEnvironment::execute(const LuaResource* lr)
 {
 	LuaStack stack(L);
-	lua_pushcfunction(L, error_handler);
+	lua_pushcfunction(L, LuaEnvironment::error);
 	luaL_loadbuffer(L, lua_resource::program(lr), lr->size, "<unknown>");
 	lua_pcall(L, 0, 1, -2);
 	lua_pop(L, 1);
@@ -124,7 +86,7 @@ LuaStack LuaEnvironment::execute(const LuaResource* lr)
 LuaStack LuaEnvironment::execute_string(const char* s)
 {
 	LuaStack stack(L);
-	lua_pushcfunction(L, error_handler);
+	lua_pushcfunction(L, LuaEnvironment::error);
 	luaL_loadstring(L, s);
 	lua_pcall(L, 0, 0, -2);
 	lua_pop(L, 1);
@@ -198,7 +160,7 @@ void LuaEnvironment::call_global(const char* func, u8 argc, ...)
 	va_list vl;
 	va_start(vl, argc);
 
-	lua_pushcfunction(L, error_handler);
+	lua_pushcfunction(L, LuaEnvironment::error);
 	lua_getglobal(L, func);
 
 	for (u8 i = 0; i < argc; i++)
@@ -285,6 +247,42 @@ void LuaEnvironment::reset_temporaries()
 	_vec3_used = 0;
 	_quat_used = 0;
 	_mat4_used = 0;
+}
+
+int LuaEnvironment::error(lua_State* L)
+{
+	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+	if (!lua_istable(L, -1))
+	{
+		lua_pop(L, 1);
+		return 0;
+	}
+
+	lua_getfield(L, -1, "traceback");
+	if (!lua_isfunction(L, -1))
+	{
+		lua_pop(L, 2);
+		return 0;
+	}
+
+	lua_pushvalue(L, 1); // Pass error message
+	lua_pushinteger(L, 2);
+	lua_call(L, 2, 1); // Call debug.traceback
+
+	loge(LUA, lua_tostring(L, -1)); // Print error message
+	lua_pop(L, 1); // Remove error message from stack
+	lua_pop(L, 1); // Remove debug.traceback from stack
+
+	device()->pause();
+	return 0;
+}
+
+int LuaEnvironment::require(lua_State* L)
+{
+	LuaStack stack(L);
+	const LuaResource* lr = (LuaResource*)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, stack.get_resource_id(1));
+	luaL_loadbuffer(L, lua_resource::program(lr), lr->size, "");
+	return 1;
 }
 
 } // namespace crown
