@@ -332,8 +332,9 @@ namespace Crown
 			{
 				foreach (Guid unit in (HashSet<Guid?>)units)
 				{
+					Unit u = new Unit(_level._db, unit, _level._prefabs);
 					Gtk.TreeIter iter;
-					_tree_store.append(out iter, _level.is_light(unit) ? light_iter : unit_iter);
+					_tree_store.append(out iter, u.is_light() ? light_iter : unit_iter);
 					_tree_store.set(iter
 						, Column.TYPE
 						, ItemType.UNIT

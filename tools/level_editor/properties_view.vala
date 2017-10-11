@@ -95,9 +95,10 @@ namespace Crown
 
 		public override void update()
 		{
-			Vector3 pos    = (Vector3)   _level.get_component_property(_id, _component_id, "data.position");
-			Quaternion rot = (Quaternion)_level.get_component_property(_id, _component_id, "data.rotation");
-			Vector3 scl    = (Vector3)   _level.get_component_property(_id, _component_id, "data.scale");
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			Vector3 pos    = (Vector3)   unit.get_component_property(_component_id, "data.position");
+			Quaternion rot = (Quaternion)unit.get_component_property(_component_id, "data.rotation");
+			Vector3 scl    = (Vector3)   unit.get_component_property(_component_id, "data.scale");
 
 			_position.value = pos;
 			_rotation.value = rot;
@@ -138,10 +139,11 @@ namespace Crown
 
 		public override void update()
 		{
-			_mesh_resource.text = (string)_level.get_component_property(_id, _component_id, "data.mesh_resource");
-			_geometry.text      = (string)_level.get_component_property(_id, _component_id, "data.geometry_name");
-			_material.text      = (string)_level.get_component_property(_id, _component_id, "data.material");
-			_visible.value      = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			_mesh_resource.text = (string)unit.get_component_property(_component_id, "data.mesh_resource");
+			_geometry.text      = (string)unit.get_component_property(_component_id, "data.geometry_name");
+			_material.text      = (string)unit.get_component_property(_component_id, "data.material");
+			_visible.value      = (bool)  unit.get_component_property(_component_id, "data.visible");
 		}
 	}
 
@@ -196,11 +198,12 @@ namespace Crown
 
 		public override void update()
 		{
-			_sprite_resource.text = (string)_level.get_component_property(_id, _component_id, "data.sprite_resource");
-			_material.text        = (string)_level.get_component_property(_id, _component_id, "data.material");
-			_layer.value          = (double)_level.get_component_property(_id, _component_id, "data.layer");
-			_depth.value          = (double)_level.get_component_property(_id, _component_id, "data.depth");
-			_visible.value        = (bool)  _level.get_component_property(_id, _component_id, "data.visible");
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			_sprite_resource.text = (string)unit.get_component_property(_component_id, "data.sprite_resource");
+			_material.text        = (string)unit.get_component_property(_component_id, "data.material");
+			_layer.value          = (double)unit.get_component_property(_component_id, "data.layer");
+			_depth.value          = (double)unit.get_component_property(_component_id, "data.depth");
+			_visible.value        = (bool)  unit.get_component_property(_component_id, "data.visible");
 		}
 	}
 
@@ -258,11 +261,12 @@ namespace Crown
 
 		public override void update()
 		{
-			string type       = (string) _level.get_component_property(_id, _component_id, "data.type");
-			double range      = (double) _level.get_component_property(_id, _component_id, "data.range");
-			double intensity  = (double) _level.get_component_property(_id, _component_id, "data.intensity");
-			double spot_angle = (double) _level.get_component_property(_id, _component_id, "data.spot_angle");
-			Vector3 color     = (Vector3)_level.get_component_property(_id, _component_id, "data.color");
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			string type       = (string) unit.get_component_property(_component_id, "data.type");
+			double range      = (double) unit.get_component_property(_component_id, "data.range");
+			double intensity  = (double) unit.get_component_property(_component_id, "data.intensity");
+			double spot_angle = (double) unit.get_component_property(_component_id, "data.spot_angle");
+			Vector3 color     = (Vector3)unit.get_component_property(_component_id, "data.color");
 
 			_type.value       = type;
 			_range.value      = range;
@@ -309,19 +313,21 @@ namespace Crown
 
 		private void on_value_changed()
 		{
-			_level.set_component_property(_id, _component_id, "data.projection", _projection.value);
-			_level.set_component_property(_id, _component_id, "data.fov",        _fov.value*(Math.PI/180.0));
-			_level.set_component_property(_id, _component_id, "data.near_range", _near_range.value);
-			_level.set_component_property(_id, _component_id, "data.far_range",  _far_range.value);
-			_level.set_component_property(_id, _component_id, "type", "camera");
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			unit.set_component_property(_component_id, "data.projection", _projection.value);
+			unit.set_component_property(_component_id, "data.fov",        _fov.value*(Math.PI/180.0));
+			unit.set_component_property(_component_id, "data.near_range", _near_range.value);
+			unit.set_component_property(_component_id, "data.far_range",  _far_range.value);
+			unit.set_component_property(_component_id, "type", "camera");
 		}
 
 		public override void update()
 		{
-			string type       = (string)_level.get_component_property(_id, _component_id, "data.projection");
-			double fov        = (double)_level.get_component_property(_id, _component_id, "data.fov");
-			double near_range = (double)_level.get_component_property(_id, _component_id, "data.near_range");
-			double far_range  = (double)_level.get_component_property(_id, _component_id, "data.far_range");
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			string type       = (string)unit.get_component_property(_component_id, "data.projection");
+			double fov        = (double)unit.get_component_property(_component_id, "data.fov");
+			double near_range = (double)unit.get_component_property(_component_id, "data.near_range");
+			double far_range  = (double)unit.get_component_property(_component_id, "data.far_range");
 
 			_projection.value = type;
 			_fov.value        = fov*(180.0/Math.PI);
@@ -352,7 +358,8 @@ namespace Crown
 
 		public override void update()
 		{
-			_script_resource.text = (string)_level.get_component_property(_id, _component_id, "data.script_resource");
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			_script_resource.text = (string)unit.get_component_property(_component_id, "data.script_resource");
 		}
 	}
 
@@ -378,7 +385,8 @@ namespace Crown
 
 		public override void update()
 		{
-			_state_machine_resource.text = (string)_level.get_component_property(_id, _component_id, "data.state_machine_resource");
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			_state_machine_resource.text = (string)unit.get_component_property(_component_id, "data.state_machine_resource");
 		}
 	}
 
@@ -623,7 +631,8 @@ namespace Crown
 					expander.hide();
 
 					Guid component_id = GUID_ZERO;
-					if (_level.has_component(id, entry.type, ref component_id) || entry.type == "name")
+					Unit unit = new Unit(_level._db, id, _level._prefabs);
+					if (unit.has_component(entry.type, ref component_id) || entry.type == "name")
 					{
 						ComponentView cv = _components[entry.type];
 						cv._id = id;

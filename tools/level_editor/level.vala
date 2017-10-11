@@ -12,20 +12,20 @@ namespace Crown
 	public class Level
 	{
 		// Project paths
-		private string _source_dir;
-		private string _toolchain_dir;
+		public string _source_dir;
+		public string _toolchain_dir;
 
 		// Engine connections
-		private ConsoleClient _client;
+		public ConsoleClient _client;
 
 		// Data
-		private Database _db;
-		private Database _prefabs;
-		private Gee.HashSet<string> _loaded_prefabs;
-		private Gee.ArrayList<Guid?> _selection;
+		public Database _db;
+		public Database _prefabs;
+		public Gee.HashSet<string> _loaded_prefabs;
+		public Gee.ArrayList<Guid?> _selection;
 
-		private uint _num_units;
-		private uint _num_sounds;
+		public uint _num_units;
+		public uint _num_sounds;
 
 		// Signals
 		public signal void selection_changed(Gee.ArrayList<Guid?> selection);
@@ -199,12 +199,13 @@ namespace Crown
 			_db.set_property(id, "prefab", name);
 
 			Guid transform_id = GUID_ZERO;
-			if (has_component(id, "transform", ref transform_id))
+			Unit unit = new Unit(_db, id, _prefabs);
+			if (unit.has_component("transform", ref transform_id))
 			{
-				set_component_property(id, transform_id, "data.position", pos);
-				set_component_property(id, transform_id, "data.rotation", rot);
-				set_component_property(id, transform_id, "data.scale", scl);
-				set_component_property(id, transform_id, "type", "transform");
+				unit.set_component_property(transform_id, "data.position", pos);
+				unit.set_component_property(transform_id, "data.rotation", rot);
+				unit.set_component_property(transform_id, "data.scale", scl);
+				unit.set_component_property(transform_id, "type", "transform");
 			}
 			else
 			{
@@ -243,12 +244,13 @@ namespace Crown
 				if (is_unit(id))
 				{
 					Guid transform_id = GUID_ZERO;
+					Unit unit = new Unit(_db, id, _prefabs);
 
-					if (has_component(id, "transform", ref transform_id))
+					if (unit.has_component("transform", ref transform_id))
 					{
-						set_component_property(id, transform_id, "data.position", pos);
-						set_component_property(id, transform_id, "data.rotation", rot);
-						set_component_property(id, transform_id, "data.scale", scl);
+						unit.set_component_property(transform_id, "data.position", pos);
+						unit.set_component_property(transform_id, "data.rotation", rot);
+						unit.set_component_property(transform_id, "data.scale", scl);
 					}
 					else
 					{
@@ -290,12 +292,13 @@ namespace Crown
 		{
 			_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid[] { unit_id });
 
-			set_component_property(unit_id, component_id, "data.type",       type);
-			set_component_property(unit_id, component_id, "data.range",      range);
-			set_component_property(unit_id, component_id, "data.intensity",  intensity);
-			set_component_property(unit_id, component_id, "data.spot_angle", spot_angle);
-			set_component_property(unit_id, component_id, "data.color",      color);
-			set_component_property(unit_id, component_id, "type", "light");
+			Unit unit = new Unit(_db, unit_id, _prefabs);
+			unit.set_component_property(component_id, "data.type",       type);
+			unit.set_component_property(component_id, "data.range",      range);
+			unit.set_component_property(component_id, "data.intensity",  intensity);
+			unit.set_component_property(component_id, "data.spot_angle", spot_angle);
+			unit.set_component_property(component_id, "data.color",      color);
+			unit.set_component_property(component_id, "type", "light");
 
 			_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		}
@@ -304,12 +307,13 @@ namespace Crown
 		{
 			_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid[] { unit_id });
 
-			set_component_property(unit_id, component_id, "data.layer", layer);
-			set_component_property(unit_id, component_id, "data.depth", depth);
-			set_component_property(unit_id, component_id, "data.material", material);
-			set_component_property(unit_id, component_id, "data.sprite_resource", sprite_resource);
-			set_component_property(unit_id, component_id, "data.visible", visible);
-			set_component_property(unit_id, component_id, "type", "sprite_renderer");
+			Unit unit = new Unit(_db, unit_id, _prefabs);
+			unit.set_component_property(component_id, "data.layer", layer);
+			unit.set_component_property(component_id, "data.depth", depth);
+			unit.set_component_property(component_id, "data.material", material);
+			unit.set_component_property(component_id, "data.sprite_resource", sprite_resource);
+			unit.set_component_property(component_id, "data.visible", visible);
+			unit.set_component_property(component_id, "type", "sprite_renderer");
 
 			_client.send_script(LevelEditorApi.set_sprite(unit_id, layer, depth));
 		}
@@ -445,66 +449,68 @@ namespace Crown
 		{
 			foreach (Guid unit_id in unit_ids)
 			{
-				if (has_prefab(unit_id))
+				Unit unit = new Unit(_db, unit_id, _prefabs);
+
+				if (unit.has_prefab())
 					load_prefab((string)_db.get_property(unit_id, "prefab"));
 
 				sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
 				Guid component_id = GUID_ZERO;
 
-				if (has_component(unit_id, "transform", ref component_id))
+				if (unit.has_component("transform", ref component_id))
 				{
 					string s = LevelEditorApi.add_tranform_component(unit_id
 						, component_id
-						, (Vector3)   get_component_property(unit_id, component_id, "data.position")
-						, (Quaternion)get_component_property(unit_id, component_id, "data.rotation")
-						, (Vector3)   get_component_property(unit_id, component_id, "data.scale")
+						, (Vector3)   unit.get_component_property(component_id, "data.position")
+						, (Quaternion)unit.get_component_property(component_id, "data.rotation")
+						, (Vector3)   unit.get_component_property(component_id, "data.scale")
 						);
 					sb.append(s);
 				}
-				if (has_component(unit_id, "mesh_renderer", ref component_id))
+				if (unit.has_component("mesh_renderer", ref component_id))
 				{
 					string s = LevelEditorApi.add_mesh_component(unit_id
 						, component_id
-						, (string)get_component_property(unit_id, component_id, "data.mesh_resource")
-						, (string)get_component_property(unit_id, component_id, "data.geometry_name")
-						, (string)get_component_property(unit_id, component_id, "data.material")
-						, (bool)  get_component_property(unit_id, component_id, "data.visible")
+						, (string)unit.get_component_property(component_id, "data.mesh_resource")
+						, (string)unit.get_component_property(component_id, "data.geometry_name")
+						, (string)unit.get_component_property(component_id, "data.material")
+						, (bool)  unit.get_component_property(component_id, "data.visible")
 						);
 					sb.append(s);
 				}
-				if (has_component(unit_id, "sprite_renderer", ref component_id))
+				if (unit.has_component("sprite_renderer", ref component_id))
 				{
 					string s = LevelEditorApi.add_sprite_component(unit_id
 						, component_id
-						, (string)get_component_property(unit_id, component_id, "data.sprite_resource")
-						, (string)get_component_property(unit_id, component_id, "data.material")
-						, (double)get_component_property(unit_id, component_id, "data.layer")
-						, (double)get_component_property(unit_id, component_id, "data.depth")
-						, (bool)  get_component_property(unit_id, component_id, "data.visible")
+						, (string)unit.get_component_property(component_id, "data.sprite_resource")
+						, (string)unit.get_component_property(component_id, "data.material")
+						, (double)unit.get_component_property(component_id, "data.layer")
+						, (double)unit.get_component_property(component_id, "data.depth")
+						, (bool)  unit.get_component_property(component_id, "data.visible")
 						);
 					sb.append(s);
 				}
-				if (has_component(unit_id, "light", ref component_id))
+				if (unit.has_component("light", ref component_id))
 				{
 					string s = LevelEditorApi.add_light_component(unit_id
 						, component_id
-						, (string) get_component_property(unit_id, component_id, "data.type")
-						, (double) get_component_property(unit_id, component_id, "data.range")
-						, (double) get_component_property(unit_id, component_id, "data.intensity")
-						, (double) get_component_property(unit_id, component_id, "data.spot_angle")
-						, (Vector3)get_component_property(unit_id, component_id, "data.color")
+						, (string) unit.get_component_property(component_id, "data.type")
+						, (double) unit.get_component_property(component_id, "data.range")
+						, (double) unit.get_component_property(component_id, "data.intensity")
+						, (double) unit.get_component_property(component_id, "data.spot_angle")
+						, (Vector3)unit.get_component_property(component_id, "data.color")
 						);
 					sb.append(s);
 				}
-				if (has_component(unit_id, "camera", ref component_id))
+				if (unit.has_component("camera", ref component_id))
 				{
 					string s = LevelEditorApi.add_camera_component(unit_id
 						, component_id
-						, (string)get_component_property(unit_id, component_id, "data.projection")
-						, (double)get_component_property(unit_id, component_id, "data.fov")
-						, (double)get_component_property(unit_id, component_id, "data.far_range")
-						, (double)get_component_property(unit_id, component_id, "data.near_range")
+						, (string)unit.get_component_property(component_id, "data.projection")
+						, (double)unit.get_component_property(component_id, "data.fov")
+						, (double)unit.get_component_property(component_id, "data.far_range")
+						, (double)unit.get_component_property(component_id, "data.near_range")
 						);
 					sb.append(s);
 				}
@@ -582,11 +588,13 @@ namespace Crown
 							Guid unit_id = ids[i];
 							Guid transform_id = GUID_ZERO;
 
-							if (has_component(unit_id, "transform", ref transform_id))
+							Unit unit = new Unit(_db, unit_id, _prefabs);
+
+							if (unit.has_component("transform", ref transform_id))
 							{
-								positions[i] = (Vector3)   get_component_property(unit_id, transform_id, "data.position");
-								rotations[i] = (Quaternion)get_component_property(unit_id, transform_id, "data.rotation");
-								scales[i]    = (Vector3)   get_component_property(unit_id, transform_id, "data.scale");
+								positions[i] = (Vector3)   unit.get_component_property(transform_id, "data.position");
+								rotations[i] = (Quaternion)unit.get_component_property(transform_id, "data.rotation");
+								scales[i]    = (Vector3)   unit.get_component_property(transform_id, "data.scale");
 							}
 							else
 							{
@@ -633,14 +641,15 @@ namespace Crown
 					Guid unit_id = data[0];
 					Guid component_id = GUID_ZERO;
 
-					has_component(unit_id, "light", ref component_id);
+					Unit unit = new Unit(_db, unit_id, _prefabs);
+					unit.has_component("light", ref component_id);
 
 					_client.send_script(LevelEditorApi.set_light(unit_id
-						, (string) get_component_property(unit_id, component_id, "data.type")
-						, (double) get_component_property(unit_id, component_id, "data.range")
-						, (double) get_component_property(unit_id, component_id, "data.intensity")
-						, (double) get_component_property(unit_id, component_id, "data.spot_angle")
-						, (Vector3)get_component_property(unit_id, component_id, "data.color")
+						, (string) unit.get_component_property(component_id, "data.type")
+						, (double) unit.get_component_property(component_id, "data.range")
+						, (double) unit.get_component_property(component_id, "data.intensity")
+						, (double) unit.get_component_property(component_id, "data.spot_angle")
+						, (Vector3)unit.get_component_property(component_id, "data.color")
 						));
 					// FIXME: Hack to force update the properties view
 					selection_changed(_selection);
@@ -652,11 +661,12 @@ namespace Crown
 					Guid unit_id = data[0];
 					Guid component_id = GUID_ZERO;
 
-					has_component(unit_id, "sprite_renderer", ref component_id);
+					Unit unit = new Unit(_db, unit_id, _prefabs);
+					unit.has_component("sprite_renderer", ref component_id);
 
 					_client.send_script(LevelEditorApi.set_sprite(unit_id
-						, (double)get_component_property(unit_id, component_id, "data.layer")
-						, (double)get_component_property(unit_id, component_id, "data.depth")
+						, (double)unit.get_component_property(component_id, "data.layer")
+						, (double)unit.get_component_property(component_id, "data.depth")
 						));
 					// FIXME: Hack to force update the properties view
 					selection_changed(_selection);
@@ -691,157 +701,9 @@ namespace Crown
 			_db.set_property(id, key, value);
 		}
 
-		public Value? get_component_property(Guid unit_id, Guid component_id, string key)
-		{
-			// Search in components
-			{
-				Value? components = _db.get_property(unit_id, "components");
-				if (components != null && ((HashSet<Guid?>)components).contains(component_id))
-					return _db.get_property(component_id, key);
-			}
-
-			// Search in modified components
-			{
-				Value? value = _db.get_property(unit_id, "modified_components.#" + component_id.to_string() + "." + key);
-				if (value != null)
-					return value;
-			}
-
-			// Search in prefab's components
-			{
-				Value? value = _db.get_property(unit_id, "prefab");
-				if (value != null)
-				{
-					string prefab = (string)value;
-					Value? pcvalue = _prefabs.get_property(GUID_ZERO, prefab + ".components");
-					if (pcvalue != null)
-					{
-						HashSet<Guid?> prefab_components = (HashSet<Guid?>)pcvalue;
-						if (prefab_components.contains(component_id))
-							return _prefabs.get_property(component_id, key);
-					}
-				}
-			}
-
-			assert(false);
-			return null;
-		}
-
-		public void set_component_property(Guid unit_id, Guid component_id, string key, Value? value)
-		{
-			// Search in components
-			{
-				Value? components = _db.get_property(unit_id, "components");
-				if (components != null && ((HashSet<Guid?>)components).contains(component_id))
-				{
-					_db.set_property(component_id, key, value);
-					return;
-				}
-			}
-
-			// Search in modified components
-			{
-				Value? val = _db.get_property(unit_id, "modified_components.#" + component_id.to_string() + "." + key);
-				if (val != null)
-				{
-					_db.set_property(unit_id, "modified_components.#" + component_id.to_string() + "." + key, value);
-					return;
-				}
-			}
-
-			// Create new entry
-			{
-				_db.set_property(unit_id, "modified_components.#" + component_id.to_string() + "." + key, value);
-				return;
-			}
-		}
-
-		private static bool has_component_static(Database db, Database prefabs_db, Guid unit_id, string component_type, ref Guid ref_component_id)
-		{
-			// Search in components
-			{
-				Value? value = db.get_property(unit_id, "components");
-				if (value != null)
-				{
-					HashSet<Guid?> components = (HashSet<Guid?>)value;
-					foreach (Guid component_id in components)
-					{
-						if((string)db.get_property(component_id, "type") == component_type)
-						{
-							ref_component_id = component_id;
-							return true;
-						}
-					}
-				}
-			}
-
-			{
-				string[] keys = db.get_keys(unit_id);
-				foreach (string m in keys)
-				{
-					if (!m.has_prefix("modified_components.#"))
-						continue;
-
-					// 0                   21                                   58  62
-					// |                    |                                    |   |
-					// modified_components.#f56420ad-7f9c-4cca-aca5-350f366e0dc0.type
-					string id = m[21:57];
-					string type_or_name = m[58:62];
-
-					if (!type_or_name.has_prefix("type"))
-						continue;
-
-					if ((string)db.get_property(unit_id, m) == component_type)
-					{
-						ref_component_id = Guid.parse(id);
-						return true;
-					}
-				}
-			}
-
-			{
-				Value? value = db.get_property(unit_id, "prefab");
-				if (value != null)
-				{
-					string prefab = (string)value;
-					Value? pcvalue = prefabs_db.get_property(GUID_ZERO, prefab + ".components");
-					if (pcvalue != null)
-					{
-						HashSet<Guid?> prefab_components = (HashSet<Guid?>)pcvalue;
-						foreach (Guid component_id in prefab_components)
-						{
-							if((string)prefabs_db.get_property(component_id, "type") == component_type)
-							{
-								ref_component_id = component_id;
-								return true;
-							}
-						}
-					}
-				}
-			}
-
-			return false;
-		}
-
-		public bool has_component(Guid unit_id, string component_type, ref Guid ref_component_id)
-		{
-			return Level.has_component_static(_db, _prefabs, unit_id, component_type, ref ref_component_id);
-		}
-
-		public bool has_prefab(Guid unit_id)
-		{
-			return _db.get_property(unit_id, "prefab") != null;
-		}
-
 		public bool is_unit(Guid id)
 		{
 			return (_db.get_property(GUID_ZERO, "units") as HashSet<Guid?>).contains(id);
-		}
-
-		public bool is_light(Guid id)
-		{
-			return has_prefab(id)
-				&& (string)_db.get_property(id, "prefab") == "core/units/light";
 		}
 
 		public bool is_sound(Guid id)
