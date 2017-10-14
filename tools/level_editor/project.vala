@@ -142,8 +142,8 @@ namespace Crown
 			int offset_y  = (int)sid.offset_y.value;
 			int spacing_x = (int)sid.spacing_x.value;
 			int spacing_y = (int)sid.spacing_y.value;
-			int layer     = (int)sid.layer.value;
-			int depth     = (int)sid.depth.value;
+			double layer  = sid.layer.value;
+			double depth  = sid.depth.value;
 
 			Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, sid.pivot.active);
 
@@ -218,35 +218,69 @@ namespace Crown
 
 				SJSON.save(sprite, Path.build_filename(_source_dir.get_path(), resource_name) + ".sprite");
 
-				Hashtable data = new Hashtable();
-				data["position"] = VECTOR3_ZERO.to_array();
-				data["rotation"] = QUATERNION_IDENTITY.to_array();
-				data["scale"]    = VECTOR3_ONE.to_array();
+				// Generate .unit
+				string unit_name = Path.build_filename(_source_dir.get_path(), resource_name) + ".unit";
+				File unit_file = File.new_for_path(unit_name);
 
-				Hashtable comp = new Hashtable();
-				comp["data"] = data;
-				comp["type"] = "transform";
+				Database db = new Database();
 
-				Hashtable components = new Hashtable();
-				components[Guid.new_guid().to_string()] = comp;
+				// Do not overwrite existing .unit
+				if (unit_file.query_exists())
+					db.load(unit_name);
 
-				data = new Hashtable();
-				data["material"]        = resource_name;
-				data["sprite_resource"] = resource_name;
-				data["layer"]           = layer;
-				data["depth"]           = depth;
-				data["visible"]         = true;
+				Unit unit = new Unit(db, GUID_ZERO, null);
 
-				comp = new Hashtable();
-				comp["data"] = data;
-				comp["type"] = "sprite_renderer";
+				// Create transform
+				{
+					Guid id = Guid.new_guid();
 
-				components[Guid.new_guid().to_string()] = comp;
+					if (!unit.has_component("transform", ref id))
+					{
+						db.create(id);
+						db.set_property(id, "data.position", VECTOR3_ZERO);
+						db.set_property(id, "data.rotation", QUATERNION_IDENTITY);
+						db.set_property(id, "data.scale", VECTOR3_ONE);
+						db.set_property(id, "type", "transform");
 
-				Hashtable unit = new Hashtable();
-				unit["components"] = components;
+						db.add_to_set(GUID_ZERO, "components", id);
+					}
+					else
+					{
+						unit.set_component_property(id, "data.position", VECTOR3_ZERO);
+						unit.set_component_property(id, "data.rotation", QUATERNION_IDENTITY);
+						unit.set_component_property(id, "data.scale", VECTOR3_ONE);
+						unit.set_component_property(id, "type", "transform");
+					}
+				}
 
-				SJSON.save(unit, Path.build_filename(_source_dir.get_path(), resource_name) + ".unit");
+				// Create sprite_renderer
+				{
+					Guid id = Guid.new_guid();
+
+					if (!unit.has_component("sprite_renderer", ref id))
+					{
+						db.create(id);
+						db.set_property(id, "data.material", resource_name);
+						db.set_property(id, "data.sprite_resource", resource_name);
+						db.set_property(id, "data.layer", layer);
+						db.set_property(id, "data.depth", depth);
+						db.set_property(id, "data.visible", true);
+						db.set_property(id, "type", "sprite_renderer");
+
+						db.add_to_set(GUID_ZERO, "components", id);
+					}
+					else
+					{
+						unit.set_component_property(id, "data.material", resource_name);
+						unit.set_component_property(id, "data.sprite_resource", resource_name);
+						unit.set_component_property(id, "data.layer", layer);
+						unit.set_component_property(id, "data.depth", depth);
+						unit.set_component_property(id, "data.visible", true);
+						unit.set_component_property(id, "type", "sprite_renderer");
+					}
+				}
+
+				db.save(unit_name);
 			}
 		}
 
@@ -297,41 +331,69 @@ namespace Crown
 
 				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
 
-				Hashtable data = new Hashtable();
-				data["position"] = VECTOR3_ZERO.to_array();
-				data["rotation"] = QUATERNION_IDENTITY.to_array();
-				data["scale"]    = VECTOR3_ONE.to_array();
+				// Generate .unit
+				string unit_name = Path.build_filename(_source_dir.get_path(), resource_name) + ".unit";
+				File unit_file = File.new_for_path(unit_name);
 
-				Hashtable comp = new Hashtable();
-				comp["data"] = data;
-				comp["type"] = "transform";
+				Database db = new Database();
 
-				Hashtable components = new Hashtable();
-				components[Guid.new_guid().to_string()] = comp;
+				// Do not overwrite existing .unit
+				if (unit_file.query_exists())
+					db.load(unit_name);
 
-				Hashtable mesh = SJSON.load(filename_i);
-				Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
-				foreach (var entry in mesh_nodes.entries)
+				Unit unit = new Unit(db, GUID_ZERO, null);
+
+				// Create transform
 				{
-					string node_name = (string)entry.key;
+					Guid id = Guid.new_guid();
 
-					data = new Hashtable();
-					data["geometry_name"] = node_name;
-					data["material"]      = material_name;
-					data["mesh_resource"] = resource_name;
-					data["visible"]       = true;
+					if (!unit.has_component("transform", ref id))
+					{
+						db.create(id);
+						db.set_property(id, "data.position", VECTOR3_ZERO);
+						db.set_property(id, "data.rotation", QUATERNION_IDENTITY);
+						db.set_property(id, "data.scale", VECTOR3_ONE);
+						db.set_property(id, "type", "transform");
 
-					comp = new Hashtable();
-					comp["data"] = data;
-					comp["type"] = "mesh_renderer";
-
-					components[Guid.new_guid().to_string()] = comp;
+						db.add_to_set(GUID_ZERO, "components", id);
+					}
+					else
+					{
+						unit.set_component_property(id, "data.position", VECTOR3_ZERO);
+						unit.set_component_property(id, "data.rotation", QUATERNION_IDENTITY);
+						unit.set_component_property(id, "data.scale", VECTOR3_ONE);
+						unit.set_component_property(id, "type", "transform");
+					}
 				}
 
-				Hashtable unit = new Hashtable();
-				unit["components"] = components;
+				// Remove all existing mesh_renderer components
+				{
+					Guid id = GUID_ZERO;
+					while (unit.has_component("mesh_renderer", ref id))
+						unit.remove_component(id);
+				}
 
-				SJSON.save(unit, Path.build_filename(_source_dir.get_path(), resource_name) + ".unit");
+				// Create mesh_renderer
+				{
+					Hashtable mesh = SJSON.load(filename_i);
+					Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
+					foreach (var entry in mesh_nodes.entries)
+					{
+						string node_name = (string)entry.key;
+
+						Guid id = Guid.new_guid();
+						db.create(id);
+						db.set_property(id, "data.geometry_name", node_name);
+						db.set_property(id, "data.material", material_name);
+						db.set_property(id, "data.mesh_resource", resource_name);
+						db.set_property(id, "data.visible", true);
+						db.set_property(id, "type", "mesh_renderer");
+
+						db.add_to_set(GUID_ZERO, "components", id);
+					}
+				}
+
+				db.save(unit_name);
 			}
 		}
 

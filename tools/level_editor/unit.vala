@@ -158,6 +158,11 @@ public class Unit
 		return Unit.has_component_static(_db, _prefabs, _unit, component_type, ref ref_component_id);
 	}
 
+	public void remove_component(Guid component_id)
+	{
+		_db.remove_from_set(GUID_ZERO, "components", component_id);
+	}
+
 	/// Returns whether the unit has a prefab.
 	public bool has_prefab()
 	{
