@@ -68,21 +68,7 @@ public class Unit
 			}
 		}
 
-		// Search in modified components
-		{
-			Value? val = _db.get_property(_unit, "modified_components.#" + component_id.to_string() + "." + key);
-			if (val != null)
-			{
-				_db.set_property(_unit, "modified_components.#" + component_id.to_string() + "." + key, value);
-				return;
-			}
-		}
-
-		// Create new entry
-		{
-			_db.set_property(_unit, "modified_components.#" + component_id.to_string() + "." + key, value);
-			return;
-		}
+		_db.set_property(_unit, "modified_components.#" + component_id.to_string() + "." + key, value);
 	}
 
 	public static bool has_component_static(Database db, Database prefabs_db, Guid unit_id, string component_type, ref Guid ref_component_id)
