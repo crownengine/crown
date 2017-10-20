@@ -111,18 +111,30 @@ function draw_sprite_obb(render_world, unit_id, lines)
 end
 
 function raycast(objects, pos, dir)
+	local object = nil
 	local nearest = math.huge
-	local hit = nil
+	local layer = 0
+	local depth = 0
 
 	for k, v in pairs(objects) do
-		local t = v:raycast(pos, dir)
-		if t ~= -1.0 and t < nearest then
-			nearest = t
-			hit = nearest
+		local t, l, d = v:raycast(pos, dir)
+		if t ~= -1.0 and t <= nearest then
+			-- If sprite
+			if l and d then
+				if l >= layer and d >= depth then
+					layer = l
+					depth = d
+					nearest = t
+					object = v
+				end
+			else
+				nearest = t
+				object = v
+			end
 		end
 	end
 
-	return hit
+	return object, nearest
 end
 
 Selection = class(Selection)
@@ -481,17 +493,7 @@ end
 function SelectTool:mouse_down(x, y)
 	local pos, dir = LevelEditor:camera():camera_ray(x, y)
 
-	-- raycast()
-	local nearest = math.huge
-	local selected_object = nil
-
-	for k, v in pairs(LevelEditor._objects) do
-		local t = v:raycast(pos, dir)
-		if t ~= -1.0 and t < nearest then
-			nearest = t
-			selected_object = v
-		end
-	end
+	local selected_object, t = raycast(LevelEditor._objects, pos, dir)
 
 	if selected_object ~= nil then
 		if not LevelEditor:multiple_selection_enabled() then
@@ -1359,7 +1361,7 @@ function LevelEditor:update(dt)
 	self._mouse.wheel.delta = 0
 
 	local pos, dir = self._fpscamera:camera_ray(self._mouse.x, self._mouse.y)
-	local t = raycast(self._objects, pos, dir)
+	local selected_object, t = raycast(self._objects, pos, dir)
 	self._spawn_height = t and (pos + dir * t).y or 0
 
 	-- Draw level objects

@@ -650,9 +650,9 @@ Sprite
 **sprite_obb** (rw, unit) : Matrix4x4, Vector3
 	Returns the OBB of the sprite as (pose, half_extents).
 
-**sprite_raycast** (rw, unit, from, dir) : float
-	Returns the distance along ray (from, dir) to intersection point with the sprite or -1.0 if no
-	intersection.
+**sprite_raycast** (rw, unit, from, dir) : float, int, int
+	Returns (t, layer, depth), where *t* is the distance along ray (from, dir) to
+	intersection point with the sprite or -1.0 if no intersection.
 
 Light
 -----

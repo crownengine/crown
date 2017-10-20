@@ -217,7 +217,7 @@ OBB RenderWorld::sprite_obb(UnitId unit)
 	return o;
 }
 
-f32 RenderWorld::sprite_raycast(UnitId unit, const Vector3& from, const Vector3& dir)
+f32 RenderWorld::sprite_raycast(UnitId unit, const Vector3& from, const Vector3& dir, u32& layer, u32& depth)
 {
 	SpriteInstance i = _sprite_manager.sprite(unit);
 	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
@@ -238,6 +238,9 @@ f32 RenderWorld::sprite_raycast(UnitId unit, const Vector3& from, const Vector3&
 		0, 1, 2,
 		0, 2, 3
 	};
+
+	layer = _sprite_manager._data.layer[i.i];
+	depth = _sprite_manager._data.depth[i.i];
 
 	return ray_mesh_intersection(from
 		, dir

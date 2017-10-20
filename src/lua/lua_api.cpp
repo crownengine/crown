@@ -1976,12 +1976,18 @@ static int render_world_sprite_raycast(lua_State* L)
 {
 	LuaStack stack(L);
 	RenderWorld* rw = stack.get_render_world(1);
+	u32 layer;
+	u32 depth;
 	float t = rw->sprite_raycast(stack.get_unit(2)
 		, stack.get_vector3(3)
 		, stack.get_vector3(4)
+		, layer
+		, depth
 		);
 	stack.push_float(t);
-	return 1;
+	stack.push_int(layer);
+	stack.push_int(depth);
+	return 3;
 }
 
 static int render_world_light_create(lua_State* L)
