@@ -118,7 +118,7 @@ function raycast(objects, pos, dir)
 
 	for k, v in pairs(objects) do
 		local t, l, d = v:raycast(pos, dir)
-		if t ~= -1.0 and t <= nearest then
+		if t ~= -1.0 then
 			-- If sprite
 			if l and d then
 				if l >= layer and d >= depth then
@@ -128,8 +128,10 @@ function raycast(objects, pos, dir)
 					object = v
 				end
 			else
-				nearest = t
-				object = v
+				if t <= nearest then
+					nearest = t
+					object = v
+				end
 			end
 		end
 	end
