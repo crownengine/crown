@@ -570,7 +570,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		if (component->type == COMPONENT_TYPE_TRANSFORM)
 		{
 			const TransformDesc* td = (const TransformDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++td)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td)
 			{
 				Matrix4x4 matrix = matrix4x4(rot, pos);
 				Matrix4x4 matrix_res = matrix4x4(td->rotation, td->position);
@@ -580,7 +580,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_CAMERA)
 		{
 			const CameraDesc* cd = (const CameraDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd)
 			{
 				w.camera_create(unit_lookup[unit_index[i]], *cd, MATRIX4X4_IDENTITY);
 			}
@@ -588,7 +588,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_COLLIDER)
 		{
 			const ColliderDesc* cd = (const ColliderDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i)
 			{
 				physics_world->collider_create(unit_lookup[unit_index[i]], cd);
 				cd = (ColliderDesc*)((char*)(cd + 1) + cd->size);
@@ -597,7 +597,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_ACTOR)
 		{
 			const ActorResource* ar = (const ActorResource*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++ar)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
 				physics_world->actor_create(unit_lookup[unit_index[i]], ar, tm);
@@ -606,7 +606,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_CONTROLLER)
 		{
 			const ControllerDesc* cd = (const ControllerDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++cd)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
 				physics_world->controller_create(unit_lookup[unit_index[i]], *cd, tm);
@@ -615,7 +615,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_MESH_RENDERER)
 		{
 			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++mrd)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++mrd)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
 				render_world->mesh_create(unit_lookup[unit_index[i]], *mrd, tm);
@@ -624,7 +624,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_SPRITE_RENDERER)
 		{
 			const SpriteRendererDesc* srd = (const SpriteRendererDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++srd)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++srd)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
 				render_world->sprite_create(unit_lookup[unit_index[i]], *srd, tm);
@@ -633,7 +633,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_LIGHT)
 		{
 			const LightDesc* ld = (const LightDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++ld)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ld)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
 				render_world->light_create(unit_lookup[unit_index[i]], *ld, tm);
@@ -642,7 +642,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_SCRIPT)
 		{
 			const ScriptDesc* sd = (const ScriptDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++sd)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++sd)
 			{
 				script_world::create(*script_world, unit_lookup[unit_index[i]], *sd);
 			}
@@ -650,7 +650,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 		else if (component->type == COMPONENT_TYPE_ANIMATION_STATE_MACHINE)
 		{
 			const AnimationStateMachineDesc* asmd = (const AnimationStateMachineDesc*)data;
-			for (u32 i = 0; i < component->num_instances; ++i, ++asmd)
+			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++asmd)
 			{
 				animation_state_machine->create(unit_lookup[unit_index[i]], *asmd);
 			}
