@@ -1377,6 +1377,7 @@ namespace Crown
 	{
 		Gtk.init(ref args);
 		Intl.setlocale(LocaleCategory.ALL, "C");
+		Gtk.Settings.get_default().gtk_theme_name = "Adwaita";
 		Gtk.Settings.get_default().gtk_application_prefer_dark_theme = true;
 
 		Gtk.CssProvider provider = new Gtk.CssProvider();
