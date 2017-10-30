@@ -818,11 +818,15 @@ struct PhysicsWorldImpl
 		case RaycastMode::CLOSEST:
 			{
 				btCollisionWorld::ClosestRayResultCallback cb(start, end);
+				// Collide with everything
+				cb.m_collisionFilterGroup = -1;
+				cb.m_collisionFilterMask = -1;
+
 				_scene->rayTest(start, end, cb);
 
-				array::resize(hits, 1);
 				if (cb.hasHit())
 				{
+					array::resize(hits, 1);
 					hits[0].position = to_vector3(cb.m_hitPointWorld);
 					hits[0].normal   = to_vector3(cb.m_hitNormalWorld);
 					hits[0].actor.i  = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
@@ -833,6 +837,10 @@ struct PhysicsWorldImpl
 		case RaycastMode::ALL:
 			{
 				btCollisionWorld::AllHitsRayResultCallback cb(start, end);
+				// Collide with everything
+				cb.m_collisionFilterGroup = -1;
+				cb.m_collisionFilterMask = -1;
+
 				_scene->rayTest(start, end, cb);
 
 				if (cb.hasHit())

@@ -65,19 +65,6 @@ static const ProjectionInfo s_projection[] =
 };
 CE_STATIC_ASSERT(countof(s_projection) == ProjectionType::COUNT);
 
-struct RaycastInfo
-{
-	const char* name;
-	RaycastMode::Enum mode;
-};
-
-static const RaycastInfo s_raycast[] =
-{
-	{ "closest", RaycastMode::CLOSEST },
-	{ "all",     RaycastMode::ALL     }
-};
-CE_STATIC_ASSERT(countof(s_raycast) == RaycastMode::COUNT);
-
 static LightType::Enum name_to_light_type(const char* name)
 {
 	for (u32 i = 0; i < countof(s_light); ++i)
@@ -98,17 +85,6 @@ static ProjectionType::Enum name_to_projection_type(const char* name)
 	}
 
 	return ProjectionType::COUNT;
-}
-
-static RaycastMode::Enum name_to_raycast_mode(const char* name)
-{
-	for (u32 i = 0; i < countof(s_raycast); ++i)
-	{
-		if (strcmp(s_raycast[i].name, name) == 0)
-			return s_raycast[i].mode;
-	}
-
-	return RaycastMode::COUNT;
 }
 
 static int math_ray_plane_intersection(lua_State* L)
@@ -2407,14 +2383,10 @@ static int physics_world_set_gravity(lua_State* L)
 	return 0;
 }
 
-static int physics_world_raycast(lua_State* L)
+static int physics_world_raycast_closest(lua_State* L)
 {
 	LuaStack stack(L);
 	PhysicsWorld* world = stack.get_physics_world(1);
-
-	const char* name = stack.get_string(5);
-	const RaycastMode::Enum mode = name_to_raycast_mode(name);
-	LUA_ASSERT(mode != RaycastMode::COUNT, stack, "Unknown raycast mode: '%s'", name);
 
 	TempAllocator1024 ta;
 	Array<RaycastHit> hits(ta);
@@ -2422,15 +2394,60 @@ static int physics_world_raycast(lua_State* L)
 	world->raycast(stack.get_vector3(2)
 		, stack.get_vector3(3)
 		, stack.get_float(4)
-		, mode
+		, RaycastMode::CLOSEST
 		, hits
 		);
 
-	stack.push_table();
-	for (u32 i = 0; i < array::size(hits); ++i)
+	if (array::size(hits))
+	{
+		stack.push_bool(true);
+		stack.push_vector3(hits[0].position);
+		stack.push_vector3(hits[0].normal);
+		stack.push_actor(hits[0].actor);
+		return 4;
+	}
+	else
+	{
+		stack.push_bool(false);
+		return 1;
+	}
+}
+
+static int physics_world_raycast_all(lua_State* L)
+{
+	LuaStack stack(L);
+	PhysicsWorld* world = stack.get_physics_world(1);
+
+	TempAllocator1024 ta;
+	Array<RaycastHit> hits(ta);
+
+	world->raycast(stack.get_vector3(2)
+		, stack.get_vector3(3)
+		, stack.get_float(4)
+		, RaycastMode::ALL
+		, hits
+		);
+
+	const u32 num_hits = array::size(hits);
+
+	stack.push_table(num_hits);
+	for (u32 i = 0; i < num_hits; ++i)
 	{
 		stack.push_key_begin(i+1);
-		stack.push_actor(hits[i].actor);
+		stack.push_table();
+		{
+			stack.push_key_begin(1);
+			stack.push_vector3(hits[i].position);
+			stack.push_key_end();
+
+			stack.push_key_begin(2);
+			stack.push_vector3(hits[i].normal);
+			stack.push_key_end();
+
+			stack.push_key_begin(3);
+			stack.push_actor(hits[i].actor);
+			stack.push_key_end();
+		}
 		stack.push_key_end();
 	}
 
@@ -3525,7 +3542,8 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("PhysicsWorld", "joint_create",                  physics_world_joint_create);
 	env.add_module_function("PhysicsWorld", "gravity",                       physics_world_gravity);
 	env.add_module_function("PhysicsWorld", "set_gravity",                   physics_world_set_gravity);
-	env.add_module_function("PhysicsWorld", "raycast",                       physics_world_raycast);
+	env.add_module_function("PhysicsWorld", "raycast_closest",               physics_world_raycast_closest);
+	env.add_module_function("PhysicsWorld", "raycast_all",                   physics_world_raycast_all);
 	env.add_module_function("PhysicsWorld", "enable_debug_drawing",          physics_world_enable_debug_drawing);
 	env.add_module_metafunction("PhysicsWorld", "__tostring", physics_world_tostring);
 

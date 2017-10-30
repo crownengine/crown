@@ -710,12 +710,28 @@ PhysicsWorld
 **set_gravity** (pw, gravity)
 	Sets the gravity.
 
-**raycast** (pw, from, dir, length, mode) : table
-	Returns the actors which intersects the raycast.
-	Mode can be either ``closest`` or ``all``.
+**raycast_closest** (pw, from, dir, length) : hit, collision_pos, normal, Actor
+	Casts a ray into the physics world and returns the closest
+	actor it intersects with.
+	If *hit* is true the following return values contain
+	the *collision_pos* in world space, the *normal* of
+	the surface that was hit and the *actor* that was hit.
+
+**raycast_all** (pw, from, dir, length) : table
+	Casts a ray into the physics world and returns all the
+	actors it intersects with as an array of `RaycastHit`_ tables.
 
 **enable_debug_drawing** (pw, enable)
 	Sets whether to *enable* debug drawing.
+
+RaycastHit
+----------
+
+RaycastHit is a lua table with 3 fields:
+
+* ``[1]``: The collision position in world space.
+* ``[2]``: The normal of the surface that was hit.
+* ``[3]``: The actor that was hit.
 
 Actor
 -----
@@ -1231,16 +1247,16 @@ Display
 =======
 
 **modes** () : table
-	Returns an array of display modes. See `Display Mode`_.
+	Returns an array of `DisplayMode`_ tables.
 
 **set_mode** (id)
 	Sets the display mode *id*.
 	The initial display mode is automatically reset when the program terminates.
 
-Display Mode
-------------
+DisplayMode
+-----------
 
-Display mode is a lua table with 3 fields:
+DisplayMode is a lua table with 3 fields:
 
 * ``id``: The id of the display mode.
 * ``width``: The width of the display mode.
