@@ -376,8 +376,13 @@ struct LinuxDevice
 		while (!s_exit)
 		{
 			_joypad.update(_queue);
+			int pending = XPending(_x11_display);
 
-			while (XPending(_x11_display))
+			if (!pending)
+			{
+				os::sleep(8);
+			}
+			else
 			{
 				XEvent event;
 				XNextEvent(_x11_display, &event);
@@ -493,8 +498,6 @@ struct LinuxDevice
 					break;
 				}
 			}
-
-			os::sleep(16);
 		}
 
 		_joypad.shutdown();
