@@ -51,7 +51,19 @@ namespace sjson
 
 		switch (*json)
 		{
-		case '"': json = skip_string(json); break;
+		case '"':
+			json = skip_string(json);
+			if (*json == '"')
+			{
+				++json;
+				json = strstr(json, "\"\"\"");
+				CE_ENSURE(json);
+				++json;
+				++json;
+				++json;
+			}
+			break;
+
 		case '[': json = skip_block(json, '[', ']'); break;
 		case '{': json = skip_block(json, '{', '}'); break;
 		default: for (; *json != '\0' && *json != ',' && *json != '\n' && *json != ' ' && *json != '}' && *json != ']'; ++json) ; break;
@@ -488,6 +500,20 @@ namespace sjson
 		DynamicString str(ta);
 		sjson::parse_string(json, str);
 		return guid::parse(str.c_str());
+	}
+
+	void parse_verbatim(const char* json, DynamicString& string)
+	{
+		CE_ENSURE(NULL != json);
+
+		json = next(json, '"');
+		json = next(json, '"');
+		json = next(json, '"');
+
+		const char* end = strstr(json, "\"\"\"");
+		CE_ASSERT(end, "Bad verbatim string");
+
+		string.set(json, u32(end - json));
 	}
 
 } // namespace json

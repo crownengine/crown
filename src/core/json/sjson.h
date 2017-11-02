@@ -79,6 +79,9 @@ namespace sjson
 	/// Returns the string @a json as Guid.
 	Guid parse_guid(const char* json);
 
+	/// Parses the SJSON verbatim string @a json and puts it into @a string.
+	void parse_verbatim(const char* json, DynamicString& string);
+
 } // namespace sjson
 
 } // namespace crown

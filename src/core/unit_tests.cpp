@@ -1115,6 +1115,12 @@ static void test_sjson()
 		const Guid parsed = sjson::parse_guid("\"0f6c3b1c-9cba-4282-9096-2a77ca047b1b\"");
 		ENSURE(guid == parsed);
 	}
+	{
+		TempAllocator128 ta;
+		DynamicString str(ta);
+		sjson::parse_verbatim("\"\"\"verbatim\"\"\"", str);
+		ENSURE(strcmp(str.c_str(), "verbatim") == 0);
+	}
 	memory_globals::shutdown();
 }
 
