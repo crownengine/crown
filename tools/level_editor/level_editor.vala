@@ -86,6 +86,8 @@ namespace Crown
 		private Gtk.Box _vbox;
 		private Gtk.FileFilter _file_filter;
 
+		private bool _fullscreen;
+
 		const Gtk.ActionEntry[] action_entries =
 		{
 			{ "menu-file",            null,  "_File",              null,             null,         null                       },
@@ -130,6 +132,7 @@ namespace Crown
 			{ "menu-engine",          null,  "En_gine",            null,             null,         null                       },
 			{ "menu-view",            null,  "View",               null,             null,         null                       },
 			{ "resource-browser",     null,  "Resource Browser",   "<ctrl>P",        null,         on_resource_browser        },
+			{ "fullscreen",           null,  "Fullscreen",         "F11",            null,         on_fullscreen              },
 			{ "restart",              null,  "_Restart",           null,             null,         on_engine_restart          },
 			{ "reload-lua",           null,  "Reload Lua",         "F7",             null,         on_reload_lua              },
 			{ "menu-run",             null,  "_Run",               null,             null,         null                       },
@@ -315,10 +318,13 @@ namespace Crown
 			// Save level once every 5 minutes.
 			GLib.Timeout.add_seconds(5*3600, save_timeout);
 
+			_fullscreen = false;
+
 			this.destroy.connect(this.on_destroy);
 			this.delete_event.connect(this.on_delete_event);
 			this.key_press_event.connect(this.on_key_press);
 			this.key_release_event.connect(this.on_key_release);
+			this.window_state_event.connect(this.on_window_state_event);
 
 			this.add(_vbox);
 			this.maximize();
@@ -345,6 +351,12 @@ namespace Crown
 				_engine.send_script(LevelEditorApi.key_up("left_shift"));
 
 			return false;
+		}
+
+		private bool on_window_state_event(EventWindowState ev)
+		{
+			_fullscreen = (ev.new_window_state & WindowState.FULLSCREEN) != 0;
+			return true;
 		}
 
 		private void on_resource_browser_resource_selected(string type, string name)
@@ -1213,6 +1225,14 @@ namespace Crown
 		private void on_resource_browser(Gtk.Action action)
 		{
 			_resource_browser.show_all();
+		}
+
+		private void on_fullscreen(Gtk.Action action)
+		{
+			if (_fullscreen)
+				this.unfullscreen();
+			else
+				this.fullscreen();
 		}
 
 		private void on_engine_restart(Gtk.Action action)

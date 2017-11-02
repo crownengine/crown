@@ -86,6 +86,8 @@
 		<menu action="menu-view">
 			<menuitem action="resource-browser"></menuitem>
 			<separator></separator>
+			<menuitem action="fullscreen"></menuitem>
+			<separator></separator>
 			<menuitem action="debug-render-world"></menuitem>
 			<menuitem action="debug-physics-world"></menuitem>
 		</menu>
