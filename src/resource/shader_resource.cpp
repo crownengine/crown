@@ -931,17 +931,17 @@ namespace shader_resource_internal
 				if (json_object::has(shader, "includes"))
 					sjson::parse_string(shader["includes"], bgfxshader._includes);
 				if (json_object::has(shader, "code"))
-					sjson::parse_string(shader["code"], bgfxshader._code);
+					sjson::parse_verbatim(shader["code"], bgfxshader._code);
 				if (json_object::has(shader, "vs_code"))
-					sjson::parse_string(shader["vs_code"], bgfxshader._vs_code);
+					sjson::parse_verbatim(shader["vs_code"], bgfxshader._vs_code);
 				if (json_object::has(shader, "fs_code"))
-					sjson::parse_string(shader["fs_code"], bgfxshader._fs_code);
+					sjson::parse_verbatim(shader["fs_code"], bgfxshader._fs_code);
 				if (json_object::has(shader, "varying"))
-					sjson::parse_string(shader["varying"], bgfxshader._varying);
+					sjson::parse_verbatim(shader["varying"], bgfxshader._varying);
 				if (json_object::has(shader, "vs_input_output"))
-					sjson::parse_string(shader["vs_input_output"], bgfxshader._vs_input_output);
+					sjson::parse_verbatim(shader["vs_input_output"], bgfxshader._vs_input_output);
 				if (json_object::has(shader, "fs_input_output"))
-					sjson::parse_string(shader["fs_input_output"], bgfxshader._fs_input_output);
+					sjson::parse_verbatim(shader["fs_input_output"], bgfxshader._fs_input_output);
 				if (json_object::has(shader, "samplers"))
 					parse_bgfx_samplers(shader["samplers"], bgfxshader);
 

@@ -66,56 +66,56 @@ bgfx_shaders = {
 	debug_line = {
 		includes = "common"
 
-		varying = "
+		varying = """
 			vec4 v_color0   : COLOR0 = vec4(0.0, 0.0, 0.0, 0.0);
 
 			vec3 a_position : POSITION;
 			vec4 a_color0   : COLOR0;
-		"
+		"""
 
-		vs_input_output = "
+		vs_input_output = """
 			$input a_position, a_color0
 			$output v_color0
-		"
+		"""
 
-		vs_code = "
+		vs_code = """
 			void main()
 			{
 				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
 				v_color0 = a_color0;
 			}
-		"
+		"""
 
-		fs_input_output = "
+		fs_input_output = """
 			$input v_color0
-		"
+		"""
 
-		fs_code = "
+		fs_code = """
 			void main()
 			{
 				gl_FragColor = v_color0;
 			}
-		"
+		"""
 	}
 
 	gui = {
 		includes = "common"
 
-		varying = "
+		varying = """
 			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
 			vec4 v_color0    : COLOR0 = vec4(0.0, 0.0, 0.0, 0.0);
 
 			vec3 a_position  : POSITION;
 			vec2 a_texcoord0 : TEXCOORD0;
 			vec4 a_color0    : COLOR0;
-		"
+		"""
 
-		vs_input_output = "
+		vs_input_output = """
 			$input a_position, a_texcoord0, a_color0
 			$output v_texcoord0, v_color0
-		"
+		"""
 
-		vs_code = "
+		vs_code = """
 			void main()
 			{
 				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
@@ -124,13 +124,13 @@ bgfx_shaders = {
 		#endif // DIFFUSE_MAP
 				v_color0 = a_color0;
 			}
-		"
+		"""
 
-		fs_input_output = "
+		fs_input_output = """
 			$input v_texcoord0, v_color0
-		"
+		"""
 
-		fs_code = "
+		fs_code = """
 		#ifdef DIFFUSE_MAP
 			SAMPLER2D(u_albedo, 0);
 		#endif // DIFFUSE_MAP
@@ -143,37 +143,37 @@ bgfx_shaders = {
 				gl_FragColor = v_color0;
 		#endif // DIFFUSE_MAP
 			}
-		"
+		"""
 	}
 
 	sprite = {
 		includes = "common"
 
-		varying = "
+		varying = """
 			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
 
 			vec2 a_position  : POSITION;
 			vec2 a_texcoord0 : TEXCOORD0;
-		"
+		"""
 
-		vs_input_output = "
+		vs_input_output = """
 			$input a_position, a_texcoord0
 			$output v_texcoord0
-		"
+		"""
 
-		vs_code = "
+		vs_code = """
 			void main()
 			{
 				gl_Position = mul(u_modelViewProj, vec4(a_position.x, 0.0, a_position.y, 1.0));
 				v_texcoord0 = a_texcoord0;
 			}
-		"
+		"""
 
-		fs_input_output = "
+		fs_input_output = """
 			$input v_texcoord0
-		"
+		"""
 
-		fs_code = "
+		fs_code = """
 			uniform vec4 u_color;
 			SAMPLER2D(u_albedo, 0);
 
@@ -185,14 +185,13 @@ bgfx_shaders = {
 
 				gl_FragColor = color * u_color;
 			}
-		"
+		"""
 	}
 
 	mesh = {
 		includes = "common"
 
-		varying =
-		"
+		varying = """
 			vec3 v_normal    : NORMAL    = vec3(0.0, 0.0, 0.0);
 			vec4 v_view      : TEXCOORD0 = vec4(0.0, 0.0, 0.0, 0.0);
 			vec2 v_texcoord0 : TEXCOORD1 = vec2(0.0, 0.0);
@@ -200,16 +199,14 @@ bgfx_shaders = {
 			vec3 a_position  : POSITION;
 			vec3 a_normal    : NORMAL;
 			vec2 a_texcoord0 : TEXCOORD0;
-		"
+		"""
 
-		vs_input_output =
-		"
+		vs_input_output = """
 			$input a_position, a_normal, a_texcoord0
 			$output v_normal, v_view, v_texcoord0
-		"
+		"""
 
-		vs_code =
-		"
+		vs_code = """
 			void main()
 			{
 				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
@@ -218,15 +215,13 @@ bgfx_shaders = {
 
 				v_texcoord0 = a_texcoord0;
 			}
-		"
+		"""
 
-		fs_input_output =
-		"
+		fs_input_output = """
 			$input v_normal, v_view, v_texcoord0
-		"
+		"""
 
-		fs_code =
-		"
+		fs_code = """
 		#if !defined(NO_LIGHT)
 			uniform vec4 u_light_position;  // In world-space
 			uniform vec4 u_light_direction; // In view-space
@@ -265,7 +260,7 @@ bgfx_shaders = {
 				gl_FragColor = color;
 		#endif // DIFFUSE_MAP
 			}
-		"
+		"""
 	}
 }
 
