@@ -401,132 +401,125 @@ namespace Crown
 
 		private void on_message_received(ConsoleClient client, uint8[] json)
 		{
-			try
+			Hashtable msg = JSON.decode(json) as Hashtable;
+			string msg_type = msg["type"] as string;
+
+			if (msg_type == "message")
 			{
-				Hashtable msg = JSON.decode(json) as Hashtable;
-				string msg_type = msg["type"] as string;
+				_console_view.log((string)msg["system"], (string)msg["message"], (string)msg["severity"]);
+			}
+			else if (msg_type == "add_file")
+			{
+				string path = (string)msg["path"];
 
-				if (msg_type == "message")
+				_project.add_file(path);
+			}
+			else if (msg_type == "remove_file")
+			{
+				string path = (string)msg["path"];
+
+				_project.remove_file(path);
+			}
+			else if (msg_type == "compile")
+			{
+				Guid id = Guid.parse((string)msg["id"]);
+
+				if (msg.has_key("start"))
 				{
-					_console_view.log((string)msg["system"], (string)msg["message"], (string)msg["severity"]);
+					// FIXME
 				}
-				else if (msg_type == "add_file")
+				else if (msg.has_key("success"))
 				{
-					string path = (string)msg["path"];
-
-					_project.add_file(path);
-				}
-				else if (msg_type == "remove_file")
-				{
-					string path = (string)msg["path"];
-
-					_project.remove_file(path);
-				}
-				else if (msg_type == "compile")
-				{
-					Guid id = Guid.parse((string)msg["id"]);
-
-					if (msg.has_key("start"))
-					{
-						// FIXME
-					}
-					else if (msg.has_key("success"))
-					{
-						_data_compiler.finished((bool)msg["success"]);
-					}
-				}
-				else if (msg_type == "unit_spawned")
-				{
-					string id             = (string)           msg["id"];
-					string name           = (string)           msg["name"];
-					ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
-					ArrayList<Value?> rot = (ArrayList<Value?>)msg["rotation"];
-					ArrayList<Value?> scl = (ArrayList<Value?>)msg["scale"];
-
-					_level.on_unit_spawned(Guid.parse(id)
-						, name
-						, Vector3.from_array(pos)
-						, Quaternion.from_array(rot)
-						, Vector3.from_array(scl)
-						);
-				}
-				else if (msg_type == "sound_spawned")
-				{
-					string id             = (string)           msg["id"];
-					string name           = (string)           msg["name"];
-					ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
-					ArrayList<Value?> rot = (ArrayList<Value?>)msg["rotation"];
-					ArrayList<Value?> scl = (ArrayList<Value?>)msg["scale"];
-					double range          = (double)           msg["range"];
-					double volume         = (double)           msg["volume"];
-					bool loop             = (bool)             msg["loop"];
-
-					_level.on_sound_spawned(Guid.parse(id)
-						, name
-						, Vector3.from_array(pos)
-						, Quaternion.from_array(rot)
-						, Vector3.from_array(scl)
-						, range
-						, volume
-						, loop
-						);
-				}
-				else if (msg_type == "move_objects")
-				{
-					Hashtable ids           = (Hashtable)msg["ids"];
-					Hashtable new_positions = (Hashtable)msg["new_positions"];
-					Hashtable new_rotations = (Hashtable)msg["new_rotations"];
-					Hashtable new_scales    = (Hashtable)msg["new_scales"];
-
-					ArrayList<string> keys = new ArrayList<string>.wrap(ids.keys.to_array());
-					keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
-
-					Guid[] n_ids             = new Guid[keys.size];
-					Vector3[] n_positions    = new Vector3[keys.size];
-					Quaternion[] n_rotations = new Quaternion[keys.size];
-					Vector3[] n_scales       = new Vector3[keys.size];
-
-					for (int i = 0; i < keys.size; ++i)
-					{
-						string k = keys[i];
-
-						n_ids[i]       = Guid.parse((string)ids[k]);
-						n_positions[i] = Vector3.from_array((ArrayList<Value?>)(new_positions[k]));
-						n_rotations[i] = Quaternion.from_array((ArrayList<Value?>)new_rotations[k]);
-						n_scales[i]    = Vector3.from_array((ArrayList<Value?>)new_scales[k]);
-					}
-
-					_level.on_move_objects(n_ids, n_positions, n_rotations, n_scales);
-				}
-				else if (msg_type == "selection")
-				{
-					Hashtable objects = (Hashtable)msg["objects"];
-
-					ArrayList<string> keys = new ArrayList<string>.wrap(objects.keys.to_array());
-					keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
-
-					Guid[] ids = new Guid[keys.size];
-
-					for (int i = 0; i < keys.size; ++i)
-					{
-						string k = keys[i];
-						ids[i] = Guid.parse((string)objects[k]);
-					}
-
-					_level.on_selection(ids);
-				}
-				else if (msg_type == "error")
-				{
-					_console_view.loge("Editor", "Error: " + (string)msg["message"]);
-				}
-				else
-				{
-					_console_view.loge("Editor", "Unknown message type: " + msg_type);
+					_data_compiler.finished((bool)msg["success"]);
 				}
 			}
-			catch (Error e)
+			else if (msg_type == "unit_spawned")
 			{
-				_console_view.loge("Editor", e.message);
+				string id             = (string)           msg["id"];
+				string name           = (string)           msg["name"];
+				ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
+				ArrayList<Value?> rot = (ArrayList<Value?>)msg["rotation"];
+				ArrayList<Value?> scl = (ArrayList<Value?>)msg["scale"];
+
+				_level.on_unit_spawned(Guid.parse(id)
+					, name
+					, Vector3.from_array(pos)
+					, Quaternion.from_array(rot)
+					, Vector3.from_array(scl)
+					);
+			}
+			else if (msg_type == "sound_spawned")
+			{
+				string id             = (string)           msg["id"];
+				string name           = (string)           msg["name"];
+				ArrayList<Value?> pos = (ArrayList<Value?>)msg["position"];
+				ArrayList<Value?> rot = (ArrayList<Value?>)msg["rotation"];
+				ArrayList<Value?> scl = (ArrayList<Value?>)msg["scale"];
+				double range          = (double)           msg["range"];
+				double volume         = (double)           msg["volume"];
+				bool loop             = (bool)             msg["loop"];
+
+				_level.on_sound_spawned(Guid.parse(id)
+					, name
+					, Vector3.from_array(pos)
+					, Quaternion.from_array(rot)
+					, Vector3.from_array(scl)
+					, range
+					, volume
+					, loop
+					);
+			}
+			else if (msg_type == "move_objects")
+			{
+				Hashtable ids           = (Hashtable)msg["ids"];
+				Hashtable new_positions = (Hashtable)msg["new_positions"];
+				Hashtable new_rotations = (Hashtable)msg["new_rotations"];
+				Hashtable new_scales    = (Hashtable)msg["new_scales"];
+
+				ArrayList<string> keys = new ArrayList<string>.wrap(ids.keys.to_array());
+				keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
+
+				Guid[] n_ids             = new Guid[keys.size];
+				Vector3[] n_positions    = new Vector3[keys.size];
+				Quaternion[] n_rotations = new Quaternion[keys.size];
+				Vector3[] n_scales       = new Vector3[keys.size];
+
+				for (int i = 0; i < keys.size; ++i)
+				{
+					string k = keys[i];
+
+					n_ids[i]       = Guid.parse((string)ids[k]);
+					n_positions[i] = Vector3.from_array((ArrayList<Value?>)(new_positions[k]));
+					n_rotations[i] = Quaternion.from_array((ArrayList<Value?>)new_rotations[k]);
+					n_scales[i]    = Vector3.from_array((ArrayList<Value?>)new_scales[k]);
+				}
+
+				_level.on_move_objects(n_ids, n_positions, n_rotations, n_scales);
+			}
+			else if (msg_type == "selection")
+			{
+				Hashtable objects = (Hashtable)msg["objects"];
+
+				ArrayList<string> keys = new ArrayList<string>.wrap(objects.keys.to_array());
+				keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
+
+				Guid[] ids = new Guid[keys.size];
+
+				for (int i = 0; i < keys.size; ++i)
+				{
+					string k = keys[i];
+					ids[i] = Guid.parse((string)objects[k]);
+				}
+
+				_level.on_selection(ids);
+			}
+			else if (msg_type == "error")
+			{
+				_console_view.loge("Editor", "Error: " + (string)msg["message"]);
+			}
+			else
+			{
+				_console_view.loge("Editor", "Unknown message type: " + msg_type);
 			}
 
 			// Receive next message
@@ -623,7 +616,14 @@ namespace Crown
 			if (_compiler_process != null)
 			{
 				_compiler_process.force_exit();
-				_compiler_process.wait();
+				try
+				{
+					_compiler_process.wait();
+				}
+				catch (Error e)
+				{
+					stderr.printf("Error: %s\n", e.message);
+				}
 			}
 		}
 
@@ -667,7 +667,14 @@ namespace Crown
 			if (_engine_process != null)
 			{
 				_engine_process.force_exit();
-				_engine_process.wait();
+				try
+				{
+					_engine_process.wait();
+				}
+				catch (Error e)
+				{
+					stderr.printf("Error: %s\n", e.message);
+				}
 			}
 		}
 
@@ -723,7 +730,14 @@ namespace Crown
 			if (_game_process != null)
 			{
 				_game_process.force_exit();
-				_game_process.wait();
+				try
+				{
+					_game_process.wait();
+				}
+				catch (Error e)
+				{
+					stderr.printf("Error: %s\n", e.message);
+				}
 			}
 		}
 
@@ -958,7 +972,8 @@ namespace Crown
 			save_as();
 		}
 
-		private void on_import_begin(Gtk.FileFilter ff, out SList<string> filenames, out string filename)
+		// If it returns true then filenames and out_dir are valid.
+		private bool on_import_begin(Gtk.FileFilter ff, ref SList<string> filenames, ref string out_dir)
 		{
 			FileChooserDialog fcd = new FileChooserDialog("Import..."
 				, this
@@ -974,7 +989,7 @@ namespace Crown
 			if (fcd.run() != (int)ResponseType.ACCEPT)
 			{
 				fcd.destroy();
-				return;
+				return false;
 			}
 
 			filenames = fcd.get_filenames();
@@ -993,11 +1008,12 @@ namespace Crown
 			if (dst.run() != (int)ResponseType.ACCEPT)
 			{
 				dst.destroy();
-				return;
+				return false;
 			}
 
-			filename = dst.get_filename();
+			out_dir = dst.get_filename();
 			dst.destroy();
+			return true;
 		}
 
 		private void on_import_end()
@@ -1013,13 +1029,13 @@ namespace Crown
 			ff.set_filter_name("Sprite (*.png)");
 			ff.add_pattern("*.png");
 
-			SList<string> filenames;
-			string filename;
-			on_import_begin(ff, out filenames, out filename);
-
-			_project.import_sprites(filenames, filename);
-
-			on_import_end();
+			SList<string> filenames = new SList<string>();
+			string out_dir = "";
+			if (on_import_begin(ff, ref filenames, ref out_dir))
+			{
+				_project.import_sprites(filenames, out_dir);
+				on_import_end();
+			}
 		}
 
 		private void on_import_meshes(Gtk.Action action)
@@ -1028,13 +1044,13 @@ namespace Crown
 			ff.set_filter_name("Mesh (*.mesh)");
 			ff.add_pattern("*.mesh");
 
-			SList<string> filenames;
-			string filename;
-			on_import_begin(ff, out filenames, out filename);
-
-			_project.import_meshes(filenames, filename);
-
-			on_import_end();
+			SList<string> filenames = new SList<string>();
+			string out_dir = "";
+			if (on_import_begin(ff, ref filenames, ref out_dir))
+			{
+				_project.import_meshes(filenames, out_dir);
+				on_import_end();
+			}
 		}
 
 		private void on_import_sounds(Gtk.Action action)
@@ -1043,13 +1059,13 @@ namespace Crown
 			ff.set_filter_name("Sound (*.wav)");
 			ff.add_pattern("*.wav");
 
-			SList<string> filenames;
-			string filename;
-			on_import_begin(ff, out filenames, out filename);
-
-			_project.import_sounds(filenames, filename);
-
-			on_import_end();
+			SList<string> filenames = new SList<string>();
+			string out_dir = "";
+			if (on_import_begin(ff, ref filenames, ref out_dir))
+			{
+				_project.import_sounds(filenames, out_dir);
+				on_import_end();
+			}
 		}
 
 		private void on_import_textures(Gtk.Action action)
@@ -1062,13 +1078,13 @@ namespace Crown
 			ff.add_pattern("*.ktx");
 			ff.add_pattern("*.pvr");
 
-			SList<string> filenames;
-			string filename;
-			on_import_begin(ff, out filenames, out filename);
-
-			_project.import_textures(filenames, filename);
-
-			on_import_end();
+			SList<string> filenames = new SList<string>();
+			string out_dir = "";
+			if (on_import_begin(ff, ref filenames, ref out_dir))
+			{
+				_project.import_textures(filenames, out_dir);
+				on_import_end();
+			}
 		}
 
 		private void on_preferences(Gtk.Action action)

@@ -176,7 +176,14 @@ namespace Crown
 				material["uniforms"] = uniforms;
 				SJSON.save(material, Path.build_filename(_source_dir.get_path(), resource_name) + ".material");
 
-				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
+				try
+				{
+					file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
+				}
+				catch (Error e)
+				{
+					stderr.printf("Error: %s\n", e.message);
+				}
 
 				Hashtable texture = new Hashtable();
 				texture["source"]        = resource_filename;
@@ -329,7 +336,14 @@ namespace Crown
 				}
 				mtl.destroy();
 
-				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
+				try
+				{
+					file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
+				}
+				catch (Error e)
+				{
+					stderr.printf("Error: %s\n", e.message);
+				}
 
 				// Generate .unit
 				string unit_name = Path.build_filename(_source_dir.get_path(), resource_name) + ".unit";
@@ -410,7 +424,14 @@ namespace Crown
 				string resource_filename = _source_dir.get_relative_path(file_dst);
 				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
-				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
+				try
+				{
+					file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
+				}
+				catch (Error e)
+				{
+					stderr.printf("Error: %s\n", e.message);
+				}
 
 				Hashtable sound = new Hashtable();
 				sound["source"] = resource_filename;
@@ -432,7 +453,14 @@ namespace Crown
 				string resource_filename = _source_dir.get_relative_path(file_dst);
 				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
-				file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
+				try
+				{
+					file_src.copy(file_dst, FileCopyFlags.OVERWRITE);
+				}
+				catch (Error e)
+				{
+					stderr.printf("Error: %s\n", e.message);
+				}
 
 				Hashtable texture = new Hashtable();
 				texture["source"]        = resource_filename;

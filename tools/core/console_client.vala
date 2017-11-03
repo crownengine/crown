@@ -92,14 +92,7 @@ namespace Crown
 
 		public void receive_async()
 		{
-			try
-			{
-				_connection.input_stream.read_bytes_async.begin(4, GLib.Priority.HIGH, null, on_read);
-			}
-			catch (Error e)
-			{
-				stderr.printf("%s\n", e.message);
-			}
+			_connection.input_stream.read_bytes_async.begin(4, GLib.Priority.HIGH, null, on_read);
 		}
 
 		private void on_read(Object? obj, AsyncResult ar)
