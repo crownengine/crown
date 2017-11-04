@@ -131,14 +131,14 @@ void CompileOptions::get_absolute_path(const char* path, DynamicString& abs)
 
 void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
 {
-	_data_filesystem.get_absolute_path(CROWN_TEMP_DIRECTORY, abs);
-
-	TempAllocator64 ta;
+	TempAllocator1024 ta;
+	DynamicString str(ta);
 	DynamicString prefix(ta);
 	guid::to_string(guid::new_guid(), prefix);
 
-	abs += '/';
-	abs += prefix;
+	_data_filesystem.get_absolute_path(CROWN_TEMP_DIRECTORY, str);
+
+	path::join(abs, str.c_str(), prefix.c_str());
 	abs += '.';
 	abs += suffix;
 }

@@ -51,7 +51,7 @@ namespace texture_resource_internal
 		DynamicString texsrc(ta);
 		DynamicString texout(ta);
 		opts.get_absolute_path(name.c_str(), texsrc);
-		opts.get_temporary_path("texture.ktx", texout);
+		opts.get_temporary_path("ktx", texout);
 
 		const char* argv[] =
 		{

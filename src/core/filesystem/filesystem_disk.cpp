@@ -369,7 +369,10 @@ void FilesystemDisk::get_absolute_path(const char* path, DynamicString& os_path)
 		return;
 	}
 
-	path::join(os_path, _prefix.c_str(), path);
+	TempAllocator1024 ta;
+	DynamicString str(ta);
+	path::join(str, _prefix.c_str(), path);
+	path::reduce(os_path, str.c_str());
 }
 
 } // namespace crown

@@ -38,7 +38,7 @@ namespace lua_resource_internal
 		DynamicString luasrc(ta);
 		DynamicString luabin(ta);
 		opts.get_absolute_path(opts.source_path(), luasrc);
-		opts.get_temporary_path("lua.bin", luabin);
+		opts.get_temporary_path("lua", luabin);
 
 		StringStream output(ta);
 		const char* argv[] =

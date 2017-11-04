@@ -280,9 +280,7 @@ void DataCompiler::scan()
 	for (; cur != end; ++cur)
 	{
 		DynamicString prefix(default_allocator());
-		prefix += cur->pair.second.c_str();
-		prefix += '/';
-		prefix += cur->pair.first.c_str();
+		path::join(prefix, cur->pair.second.c_str(), cur->pair.first.c_str());
 		_source_fs.set_prefix(prefix.c_str());
 
 		if (_source_fs.exists(CROWN_DATAIGNORE))
