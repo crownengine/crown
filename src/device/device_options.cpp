@@ -101,18 +101,18 @@ int DeviceOptions::parse()
 	if (_do_compile)
 	{
 		_platform = cl.get_parameter(0, "platform");
+
+		// Compile for platform the executable is built for.
 		if (!_platform)
-		{
-			help("Platform must be specified.");
-			return EXIT_FAILURE;
-		}
-		else if (true
+			_platform = CROWN_PLATFORM_NAME;
+
+		if (true
 			&& strcmp(_platform, "android") != 0
 			&& strcmp(_platform, "linux") != 0
 			&& strcmp(_platform, "windows") != 0
 			)
 		{
-			help("Unknown platform.");
+			help("Cannot compile for the given platform.");
 			return EXIT_FAILURE;
 		}
 
