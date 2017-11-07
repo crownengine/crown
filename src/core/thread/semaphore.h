@@ -34,18 +34,15 @@ struct Semaphore
 #endif
 
 	Semaphore();
-
 	~Semaphore();
+	Semaphore(const Semaphore&) = delete;
+	Semaphore& operator=(const Semaphore&) = delete;
 
+	///
 	void post(u32 count = 1);
 
+	///
 	void wait();
-
-private:
-
-	// Disable copying
-	Semaphore(const Semaphore& s);
-	Semaphore& operator=(const Semaphore& s);
 };
 
 } // namespace crown

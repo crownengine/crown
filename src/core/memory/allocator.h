@@ -18,6 +18,8 @@ public:
 
 	Allocator() {}
 	virtual	~Allocator() {}
+	Allocator(const Allocator&) = delete;
+	Allocator& operator=(const Allocator&) = delete;
 
 	/// Allocates @a size bytes of memory aligned to the specified
 	/// @a align byte and returns a pointer to the first allocated byte.
@@ -37,12 +39,6 @@ public:
 	/// Default memory alignment in bytes.
 	static const u32 DEFAULT_ALIGN = 4;
 	static const u32 SIZE_NOT_TRACKED = 0xffffffffu;
-
-private:
-
-	// Disable copying
-	Allocator(const Allocator&);
-	Allocator& operator=(const Allocator&);
 };
 
 } // namespace crown

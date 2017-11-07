@@ -65,6 +65,8 @@ struct Device
 
 	///
 	Device(const DeviceOptions& opts, ConsoleServer& cs);
+	Device(const Device&) = delete;
+	Device& operator=(const Device&) = delete;
 
 	/// Runs the engine.
 	void run();
@@ -110,12 +112,6 @@ struct Device
 
 	/// Logs @a msg to log file and console.
 	void log(const char* msg);
-
-private:
-
-	// Disable copying
-	Device(const Device&);
-	Device& operator=(const Device&);
 };
 
 /// Runs the engine.

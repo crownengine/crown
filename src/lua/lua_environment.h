@@ -35,6 +35,8 @@ struct LuaEnvironment
 
 	LuaEnvironment();
 	~LuaEnvironment();
+	LuaEnvironment(const LuaEnvironment&) = delete;
+	LuaEnvironment& operator=(const LuaEnvironment&) = delete;
 
 	/// Loads lua libraries.
 	void load_libs();
@@ -91,12 +93,6 @@ struct LuaEnvironment
 
 	static int error(lua_State* L);
 	static int require(lua_State* L);
-
-private:
-
-	// Disable copying
-	LuaEnvironment(const LuaEnvironment&);
-	LuaEnvironment& operator=(const LuaEnvironment&);
 };
 
 } // namespace crown

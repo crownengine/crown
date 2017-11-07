@@ -32,20 +32,15 @@ struct Mutex
 #endif
 
 	Mutex();
-
 	~Mutex();
+	Mutex(const Mutex&) = delete;
+	Mutex& operator=(const Mutex&) = delete;
 
 	/// Locks the mutex.
 	void lock();
 
 	/// Unlocks the mutex.
 	void unlock();
-
-private:
-
-	// Disable copying.
-	Mutex(const Mutex&);
-	Mutex& operator=(const Mutex&);
 };
 
 /// Automatically locks a mutex when created and unlocks when destroyed.
@@ -68,11 +63,8 @@ struct ScopedMutex
 		_mutex.unlock();
 	}
 
-private:
-
-	// Disable copying
-	ScopedMutex(const ScopedMutex&);
-	ScopedMutex& operator=(const ScopedMutex&);
+	ScopedMutex(const ScopedMutex&) = delete;
+	ScopedMutex& operator=(const ScopedMutex&) = delete;
 };
 
 } // namespace crown

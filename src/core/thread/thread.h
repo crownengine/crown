@@ -41,13 +41,17 @@ struct Thread
 #endif
 
 	Thread();
-
 	~Thread();
+	Thread(const Thread&) = delete;
+	Thread& operator=(const Thread&) = delete;
 
+	///
 	void start(ThreadFunction func, void* user_data = NULL, u32 stack_size = 0);
 
+	///
 	void stop();
 
+	///
 	bool is_running();
 
 private:
@@ -59,12 +63,6 @@ private:
 #elif CROWN_PLATFORM_WINDOWS
 	static DWORD WINAPI thread_proc(void* arg);
 #endif
-
-private:
-
-	// Disable copying
-	Thread(const Thread&);
-	Thread& operator=(const Thread&);
 };
 
 } // namespace crown

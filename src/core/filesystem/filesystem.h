@@ -21,6 +21,8 @@ public:
 
 	Filesystem() {};
 	virtual ~Filesystem() {};
+	Filesystem(const Filesystem&) = delete;
+	Filesystem& operator=(const Filesystem&) = delete;
 
 	/// Opens the file at the given @a path with the given @a mode.
 	virtual File* open(const char* path, FileOpenMode::Enum mode) = 0;
@@ -56,12 +58,6 @@ public:
 	/// the root path of the file source. If @a path is absolute,
 	/// the given path is returned.
 	virtual void get_absolute_path(const char* path, DynamicString& os_path) = 0;
-
-private:
-
-	// Disable copying
-	Filesystem(const Filesystem&);
-	Filesystem& operator=(const Filesystem&);
 };
 
 } // namespace crown
