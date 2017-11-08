@@ -23,10 +23,17 @@ struct ShaderResource
 	{
 	}
 
+	struct Sampler
+	{
+		u32 name;
+		u32 state;
+	};
+
 	struct Data
 	{
 		StringId32 name;
 		u64 state;
+		Sampler samplers[4];
 		const bgfx::Memory* vsmem;
 		const bgfx::Memory* fsmem;
 	};

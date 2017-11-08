@@ -1114,9 +1114,10 @@ namespace shader_resource_internal
 
 				const RenderState& rs = _render_states[render_state];
 
-				_opts.write(shader_name._id);  // Shader name
-				_opts.write(rs.encode());      // Render state
-				compile(bgfx_shader.c_str(), defines); // Shader code
+				_opts.write(shader_name._id);                // Shader name
+				_opts.write(rs.encode());                    // Render state
+				compile_sampler_states(bgfx_shader.c_str()); // Sampler states
+				compile(bgfx_shader.c_str(), defines);       // Shader code
 			}
 		}
 

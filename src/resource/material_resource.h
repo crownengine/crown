@@ -29,7 +29,7 @@ struct MaterialResource
 struct TextureData
 {
 	u32 sampler_name_offset; // Sampler uniform name
-	u32 _pad0;
+	StringId32 name;         // Sampler name
 	StringId64 id;           // Resource name
 	u32 data_offset;         // Offset into dynamic blob
 	u32 _pad1;

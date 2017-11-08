@@ -100,7 +100,7 @@ namespace material_resource_internal
 
 			TextureData td;
 			td.sampler_name_offset = sampler_name_offset;
-			td._pad0               = 0;
+			td.name                = StringId32(key.data(), key.length());
 			td.id                  = sjson::parse_resource_id(value);
 			td.data_offset         = reserve_dynamic_data(th, dynamic);
 			td._pad1               = 0;
@@ -217,7 +217,7 @@ namespace material_resource_internal
 		for (u32 i = 0; i < array::size(texdata); i++)
 		{
 			opts.write(texdata[i].sampler_name_offset);
-			opts.write(texdata[i]._pad0);
+			opts.write(texdata[i].name._id);
 			opts.write(texdata[i].id);
 			opts.write(texdata[i].data_offset);
 			opts.write(texdata[i]._pad1);

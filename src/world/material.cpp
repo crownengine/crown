@@ -29,7 +29,11 @@ void Material::bind(ResourceManager& rm, ShaderManager& sm, u8 view, s32 depth) 
 		sampler.idx = th->sampler_handle;
 		texture.idx = teximg->handle.idx;
 
-		bgfx::setTexture(i, sampler, texture);
+		bgfx::setTexture(i
+			, sampler
+			, texture
+			, sm.sampler_state(_resource->shader, td->name)
+			);
 	}
 
 	// Set uniforms
