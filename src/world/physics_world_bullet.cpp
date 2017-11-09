@@ -826,10 +826,13 @@ struct PhysicsWorldImpl
 
 				if (cb.hasHit())
 				{
+					const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
+
 					array::resize(hits, 1);
 					hits[0].position = to_vector3(cb.m_hitPointWorld);
 					hits[0].normal   = to_vector3(cb.m_hitNormalWorld);
-					hits[0].actor.i  = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
+					hits[0].unit     = _actor[actor].unit;
+					hits[0].actor.i  = actor;
 				}
 			}
 			break;
@@ -850,9 +853,12 @@ struct PhysicsWorldImpl
 					array::resize(hits, num);
 					for (int i = 0; i < num; ++i)
 					{
+						const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
+
 						hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
 						hits[i].normal   = to_vector3(cb.m_hitNormalWorld[i]);
-						hits[i].actor.i  = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
+						hits[i].unit     = _actor[actor].unit;
+						hits[i].actor.i  = actor;
 					}
 				}
 			}

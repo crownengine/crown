@@ -710,12 +710,12 @@ PhysicsWorld
 **set_gravity** (pw, gravity)
 	Sets the gravity.
 
-**raycast_closest** (pw, from, dir, length) : hit, collision_pos, normal, Actor
+**raycast_closest** (pw, from, dir, length) : hit, collision_pos, normal, UnitId, Actor
 	Casts a ray into the physics world and returns the closest
 	actor it intersects with.
 	If *hit* is true the following return values contain
 	the *collision_pos* in world space, the *normal* of
-	the surface that was hit and the *actor* that was hit.
+	the surface that was hit and the *unit* and the *actor* that was hit.
 
 **raycast_all** (pw, from, dir, length) : table
 	Casts a ray into the physics world and returns all the
@@ -731,7 +731,8 @@ RaycastHit is a lua table with 3 fields:
 
 * ``[1]``: The collision position in world space.
 * ``[2]``: The normal of the surface that was hit.
-* ``[3]``: The actor that was hit.
+* ``[3]``: The unit that was hit.
+* ``[4]``: The actor that was hit.
 
 Actor
 -----

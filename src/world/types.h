@@ -457,9 +457,10 @@ struct JointDesc
 
 struct RaycastHit
 {
-	ActorInstance actor;
 	Vector3 position;    ///< In world-space.
 	Vector3 normal;      ///< In world-space.
+	UnitId unit;         ///< The unit that was hit.
+	ActorInstance actor; ///< The actor that was hit.
 };
 
 struct UnitSpawnedEvent

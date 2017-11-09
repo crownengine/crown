@@ -2403,8 +2403,9 @@ static int physics_world_raycast_closest(lua_State* L)
 		stack.push_bool(true);
 		stack.push_vector3(hits[0].position);
 		stack.push_vector3(hits[0].normal);
+		stack.push_unit(hits[0].unit);
 		stack.push_actor(hits[0].actor);
-		return 4;
+		return 5;
 	}
 	else
 	{
@@ -2445,6 +2446,10 @@ static int physics_world_raycast_all(lua_State* L)
 			stack.push_key_end();
 
 			stack.push_key_begin(3);
+			stack.push_unit(hits[i].unit);
+			stack.push_key_end();
+
+			stack.push_key_begin(4);
 			stack.push_actor(hits[i].actor);
 			stack.push_key_end();
 		}
