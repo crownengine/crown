@@ -350,8 +350,6 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		TempAllocator1024 ta;
 		DynamicString path(ta);
 		DynamicString src_path(ta);
-		DynamicString type_str(ta);
-		DynamicString name_str(ta);
 		DynamicString dst_path(ta);
 
 		StringId64 _type(type);
@@ -362,14 +360,10 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		src_path += '.';
 		src_path += type;
 
-		// Build compiled file path
-		_type.to_string(type_str);
-		_name.to_string(name_str);
-
 		// Build destination file path
-		dst_path += type_str;
-		dst_path += '-';
-		dst_path += name_str;
+		StringId64 mix;
+		mix._id = _type._id ^ _name._id;
+		mix.to_string(dst_path);
 
 		path::join(path, CROWN_DATA_DIRECTORY, dst_path.c_str());
 
@@ -378,6 +372,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		if (!can_compile(_type))
 		{
 			loge(COMPILER, "Unknown resource type: '%s'", type);
+			loge(COMPILER, "Append extension to " CROWN_DATAIGNORE " to ignore the type");
 			success = false;
 			break;
 		}

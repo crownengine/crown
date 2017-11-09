@@ -33,16 +33,12 @@ ResourceLoader::~ResourceLoader()
 
 bool ResourceLoader::can_load(StringId64 type, StringId64 name)
 {
-	TempAllocator128 ta;
-	DynamicString type_str(ta);
-	DynamicString name_str(ta);
-	type.to_string(type_str);
-	name.to_string(name_str);
+	StringId64 mix;
+	mix._id = type._id ^ name._id;
 
+	TempAllocator128 ta;
 	DynamicString res_path(ta);
-	res_path += type_str;
-	res_path += '-';
-	res_path += name_str;
+	mix.to_string(res_path);
 
 	DynamicString path(ta);
 	path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
@@ -102,16 +98,12 @@ s32 ResourceLoader::run()
 		ResourceRequest rr = queue::front(_requests);
 		_mutex.unlock();
 
-		TempAllocator128 ta;
-		DynamicString type_str(ta);
-		DynamicString name_str(ta);
-		rr.type.to_string(type_str);
-		rr.name.to_string(name_str);
+		StringId64 mix;
+		mix._id = rr.type._id ^ rr.name._id;
 
+		TempAllocator128 ta;
 		DynamicString res_path(ta);
-		res_path += type_str;
-		res_path += '-';
-		res_path += name_str;
+		mix.to_string(res_path);
 
 		DynamicString path(ta);
 		path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
