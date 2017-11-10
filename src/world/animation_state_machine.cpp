@@ -149,8 +149,7 @@ void AnimationStateMachine::update(float dt)
 
 			skinny::expression_language::Stack stack(stack_data, countof(stack_data));
 			skinny::expression_language::run(&byte_code[animation->bytecode_entry], variables, stack);
-			CE_ENSURE(stack.size > 0);
-			const f32 cur = stack_data[stack.size-1];
+			const f32 cur = stack.size > 0 ? stack_data[stack.size-1] : 0.0f;
 			if (cur > max_v || max_i == UINT32_MAX)
 			{
 				max_v = cur;
@@ -160,11 +159,9 @@ void AnimationStateMachine::update(float dt)
 		}
 
 		// Evaluate speed
-		f32 speed = 1.0f;
 		skinny::expression_language::Stack stack(stack_data, countof(stack_data));
 		skinny::expression_language::run(&byte_code[anim_i.state->speed_bytecode], variables, stack);
-		CE_ENSURE(stack.size > 0);
-		speed = stack_data[stack.size-1];
+		const f32 speed = stack.size > 0 ? stack_data[stack.size-1] : 1.0f;
 
 		// Play animation
 		const SpriteAnimationResource* sar = (SpriteAnimationResource*)_resource_manager->get(RESOURCE_TYPE_SPRITE_ANIMATION, name);
