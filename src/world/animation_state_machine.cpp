@@ -182,7 +182,10 @@ void AnimationStateMachine::update(float dt)
 
 		anim_i.time += dt*speed;
 		if (anim_i.time > anim_i.time_total)
+		{
 			anim_i.time = anim_i.time - anim_i.time_total;
+			trigger(anim_i.unit, StringId32("animation_end"));
+		}
 
 		// Emit events
 		SpriteFrameChangeEvent ev;
