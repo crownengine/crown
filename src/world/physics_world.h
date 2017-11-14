@@ -154,33 +154,6 @@ struct PhysicsWorld
 	/// Wakes the actor up.
 	void actor_wake_up(ActorInstance i);
 
-	///
-	ControllerInstance controller_create(UnitId id, const ControllerDesc& cd, const Matrix4x4& tm);
-
-	///
-	void controller_destroy(ControllerInstance id);
-
-	///
-	ControllerInstance controller(UnitId id);
-
-	/// Returns the position of the controller.
-	Vector3 controller_position(ControllerInstance i) const;
-
-	/// Moves the controller to @a pos.
-	void controller_move(ControllerInstance i, const Vector3& pos);
-
-	/// Sets the contoller height.
-	void controller_set_height(ControllerInstance i, f32 height);
-
-	/// Returns whether the contoller collides upwards.
-	bool controller_collides_up(ControllerInstance i) const;
-
-	/// Returns whether the controller collides downwards.
-	bool controller_collides_down(ControllerInstance i) const;
-
-	/// Returns whether the controller collides sidewards.
-	bool controller_collides_sides(ControllerInstance i) const;
-
 	/// Creates joint
 	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd);
 

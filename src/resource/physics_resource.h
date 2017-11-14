@@ -18,7 +18,6 @@ namespace crown
 namespace physics_resource_internal
 {
 	inline void compile(CompileOptions& /*opts*/) {}
-	Buffer compile_controller(const char* json, CompileOptions& opts);
 	Buffer compile_collider(const char* json, CompileOptions& opts);
 	Buffer compile_actor(const char* json, CompileOptions& opts);
 	Buffer compile_joint(const char* json, CompileOptions& opts);

@@ -2334,25 +2334,6 @@ static int physics_world_actor_wake_up(lua_State* L)
 	return 0;
 }
 
-static int physics_world_controller_instances(lua_State* L)
-{
-	LuaStack stack(L);
-	ControllerInstance inst = stack.get_physics_world(1)->controller(stack.get_unit(2));
-
-	if (inst.i == UINT32_MAX)
-		return 0;
-
-	stack.push_controller(inst);
-	return 1;
-}
-
-static int physics_world_controller_move(lua_State* L)
-{
-	LuaStack stack(L);
-	stack.get_physics_world(1)->controller_move(stack.get_controller(2), stack.get_vector3(3));
-	return 0;
-}
-
 static int physics_world_joint_create(lua_State* L)
 {
 	LuaStack stack(L);
@@ -3542,8 +3523,6 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("PhysicsWorld", "actor_push_at",                 physics_world_actor_push_at);
 	env.add_module_function("PhysicsWorld", "actor_is_sleeping",             physics_world_actor_is_sleeping);
 	env.add_module_function("PhysicsWorld", "actor_wake_up",                 physics_world_actor_wake_up);
-	env.add_module_function("PhysicsWorld", "controller_instances",          physics_world_controller_instances);
-	env.add_module_function("PhysicsWorld", "controller_move",               physics_world_controller_move);
 	env.add_module_function("PhysicsWorld", "joint_create",                  physics_world_joint_create);
 	env.add_module_function("PhysicsWorld", "gravity",                       physics_world_gravity);
 	env.add_module_function("PhysicsWorld", "set_gravity",                   physics_world_set_gravity);

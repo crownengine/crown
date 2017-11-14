@@ -338,12 +338,6 @@ struct LuaStack
 		return inst;
 	}
 
-	ControllerInstance get_controller(int i)
-	{
-		ControllerInstance inst = { get_id(i) };
-		return inst;
-	}
-
 	SoundInstanceId get_sound_instance_id(int i)
 	{
 		return get_id(i);
@@ -614,11 +608,6 @@ struct LuaStack
 	}
 
 	void push_actor(ActorInstance i)
-	{
-		push_id(i.i);
-	}
-
-	void push_controller(ControllerInstance i)
 	{
 		push_id(i.i);
 	}

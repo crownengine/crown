@@ -210,48 +210,6 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	ControllerInstance controller_create(UnitId /*id*/, const ControllerDesc& /*cd*/, const Matrix4x4& /*tm*/)
-	{
-		return make_controller_instance(UINT32_MAX);
-	}
-
-	void controller_destroy(ControllerInstance /*id*/)
-	{
-	}
-
-	ControllerInstance controller(UnitId /*id*/)
-	{
-		return make_controller_instance(UINT32_MAX);
-	}
-
-	Vector3 controller_position(ControllerInstance /*i*/) const
-	{
-		return VECTOR3_ZERO;
-	}
-
-	void controller_move(ControllerInstance /*i*/, const Vector3& /*pos*/)
-	{
-	}
-
-	void controller_set_height(ControllerInstance /*i*/, f32 /*height*/)
-	{
-	}
-
-	bool controller_collides_up(ControllerInstance /*i*/) const
-	{
-		return false;
-	}
-
-	bool controller_collides_down(ControllerInstance /*i*/) const
-	{
-		return false;
-	}
-
-	bool controller_collides_sides(ControllerInstance /*i*/) const
-	{
-		return false;
-	}
-
 	JointInstance joint_create(ActorInstance /*a0*/, ActorInstance /*a1*/, const JointDesc& /*jd*/)
 	{
 		return make_joint_instance(UINT32_MAX);

@@ -75,25 +75,6 @@ namespace physics_resource_internal
 		return JointType::COUNT;
 	}
 
-	Buffer compile_controller(const char* json, CompileOptions& /*opts*/)
-	{
-		TempAllocator4096 ta;
-		JsonObject obj(ta);
-		sjson::parse(json, obj);
-
-		ControllerDesc cd;
-		cd.height           = sjson::parse_float    (obj["height"]);
-		cd.radius           = sjson::parse_float    (obj["radius"]);
-		cd.slope_limit      = sjson::parse_float    (obj["slope_limit"]);
-		cd.step_offset      = sjson::parse_float    (obj["step_offset"]);
-		cd.contact_offset   = sjson::parse_float    (obj["contact_offset"]);
-		cd.collision_filter = sjson::parse_string_id(obj["collision_filter"]);
-
-		Buffer buf(default_allocator());
-		array::push(buf, (char*)&cd, sizeof(cd));
-		return buf;
-	}
-
 	void compile_sphere(const Array<Vector3>& points, ColliderDesc& sd)
 	{
 		Sphere sphere;

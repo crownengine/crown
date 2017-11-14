@@ -252,7 +252,6 @@ UnitCompiler::UnitCompiler(CompileOptions& opts)
 	register_component_compiler("sprite_renderer",         &compile_sprite_renderer,                       1.0f);
 	register_component_compiler("light",                   &compile_light,                                 1.0f);
 	register_component_compiler("script",                  &compile_script,                                1.0f);
-	register_component_compiler("controller",              &physics_resource_internal::compile_controller, 1.0f);
 	register_component_compiler("collider",                &physics_resource_internal::compile_collider,   1.0f);
 	register_component_compiler("actor",                   &physics_resource_internal::compile_actor,      2.0f);
 	register_component_compiler("joint",                   &physics_resource_internal::compile_joint,      3.0f);

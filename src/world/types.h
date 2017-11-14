@@ -45,7 +45,6 @@ typedef u32 SoundInstanceId;
 static const StringId32 COMPONENT_TYPE_ACTOR                   = StringId32("actor");
 static const StringId32 COMPONENT_TYPE_CAMERA                  = StringId32("camera");
 static const StringId32 COMPONENT_TYPE_COLLIDER                = StringId32("collider");
-static const StringId32 COMPONENT_TYPE_CONTROLLER              = StringId32("controller");
 static const StringId32 COMPONENT_TYPE_LIGHT                   = StringId32("light");
 static const StringId32 COMPONENT_TYPE_MESH_RENDERER           = StringId32("mesh_renderer");
 static const StringId32 COMPONENT_TYPE_SPRITE_RENDERER         = StringId32("sprite_renderer");
@@ -283,7 +282,6 @@ INSTANCE_ID(SpriteInstance);
 INSTANCE_ID(LightInstance);
 INSTANCE_ID(ColliderInstance);
 INSTANCE_ID(ActorInstance);
-INSTANCE_ID(ControllerInstance);
 INSTANCE_ID(JointInstance);
 INSTANCE_ID(ScriptInstance);
 
@@ -362,19 +360,6 @@ struct CameraDesc
 	f32 fov;        ///< Vertical FOV
 	f32 near_range; ///< Near clipping plane distance
 	f32 far_range;  ///< Far clipping plane distance
-};
-
-/// Controller description.
-///
-/// @ingroup World
-struct ControllerDesc
-{
-	f32 height;                  ///< Height of the capsule
-	f32 radius;                  ///< Radius of the capsule
-	f32 slope_limit;             ///< The maximum slope which the character can walk up in radians.
-	f32 step_offset;             ///< Maximum height of an obstacle which the character can climb.
-	f32 contact_offset;          ///< Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
-	StringId32 collision_filter; ///< Collision filter from global.physics_config
 };
 
 /// Actor resource.

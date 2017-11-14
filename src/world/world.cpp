@@ -603,15 +603,6 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 				physics_world->actor_create(unit_lookup[unit_index[i]], ar, tm);
 			}
 		}
-		else if (component->type == COMPONENT_TYPE_CONTROLLER)
-		{
-			const ControllerDesc* cd = (const ControllerDesc*)data;
-			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++cd)
-			{
-				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
-				physics_world->controller_create(unit_lookup[unit_index[i]], *cd, tm);
-			}
-		}
 		else if (component->type == COMPONENT_TYPE_MESH_RENDERER)
 		{
 			const MeshRendererDesc* mrd = (const MeshRendererDesc*)data;

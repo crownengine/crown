@@ -35,7 +35,6 @@
 #include <BulletCollision/CollisionShapes/btSphereShape.h>
 #include <BulletCollision/CollisionShapes/btStaticPlaneShape.h>
 #include <BulletCollision/CollisionShapes/btTriangleMesh.h>
-#include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include <BulletDynamics/ConstraintSolver/btFixedConstraint.h>
 #include <BulletDynamics/ConstraintSolver/btHingeConstraint.h>
 #include <BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h>
@@ -168,10 +167,8 @@ struct PhysicsWorldImpl
 		, _unit_manager(&um)
 		, _collider_map(a)
 		, _actor_map(a)
-		, _controller_map(a)
 		, _collider(a)
 		, _actor(a)
-		, _controller(a)
 		, _joints(a)
 		, _scene(NULL)
 		, _debug_drawer(dl)
@@ -688,56 +685,6 @@ struct PhysicsWorldImpl
 		_actor[i.i].actor->activate(true);
 	}
 
-	ControllerInstance controller_create(UnitId /*id*/,	const ControllerDesc& /*cd*/, const Matrix4x4& /*tm*/)
-	{
-		CE_FATAL("Not implemented yet");
-		return make_controller_instance(UINT32_MAX);
-	}
-
-	void controller_destroy(ControllerInstance /*i*/)
-	{
-		CE_FATAL("Not implemented yet");
-	}
-
-	ControllerInstance controller(UnitId id)
-	{
-		return make_controller_instance(hash_map::get(_controller_map, id, UINT32_MAX));
-	}
-
-	void controller_move(ControllerInstance i, const Vector3& dir)
-	{
-		_controller[i.i].contr->setWalkDirection(to_btVector3(dir));
-	}
-
-	void controller_set_height(ControllerInstance /*i*/, f32 /*height*/)
-	{
-		CE_FATAL("Not implemented yet");
-	}
-
-	Vector3 controller_position(ControllerInstance /*i*/) const
-	{
-		CE_FATAL("Not implemented yet");
-		return VECTOR3_ZERO;
-	}
-
-	bool controller_collides_up(ControllerInstance /*i*/) const
-	{
-		CE_FATAL("Not implemented yet");
-		return false;
-	}
-
-	bool controller_collides_down(ControllerInstance /*i*/) const
-	{
-		CE_FATAL("Not implemented yet");
-		return false;
-	}
-
-	bool controller_collides_sides(ControllerInstance /*i*/) const
-	{
-		CE_FATAL("Not implemented yet");
-		return false;
-	}
-
 	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
 	{
 		const btVector3 anchor_0 = to_btVector3(jd.anchor_0);
@@ -1028,7 +975,6 @@ struct PhysicsWorldImpl
 
 	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
 	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
-	ControllerInstance make_controller_instance(u32 i) { ControllerInstance inst = { i }; return inst; }
 	JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
 
 	void post_collision_event(ActorInstance a0, ActorInstance a1, const Vector3& where, const Vector3& normal, PhysicsCollisionEvent::Type type)
@@ -1078,21 +1024,13 @@ struct PhysicsWorldImpl
 		btRigidBody* actor;
 	};
 
-	struct ControllerInstanceData
-	{
-		UnitId unit;
-		btKinematicCharacterController* contr;
-	};
-
 	Allocator* _allocator;
 	UnitManager* _unit_manager;
 
 	HashMap<UnitId, u32> _collider_map;
 	HashMap<UnitId, u32> _actor_map;
-	HashMap<UnitId, u32> _controller_map;
 	Array<ColliderInstanceData> _collider;
 	Array<ActorInstanceData> _actor;
-	Array<ControllerInstanceData> _controller;
 	Array<btTypedConstraint*> _joints;
 
 	MyFilterCallback _filter_cb;
@@ -1312,51 +1250,6 @@ bool PhysicsWorld::actor_is_sleeping(ActorInstance i)
 void PhysicsWorld::actor_wake_up(ActorInstance i)
 {
 	_impl->actor_wake_up(i);
-}
-
-ControllerInstance PhysicsWorld::controller_create(UnitId id, const ControllerDesc& cd, const Matrix4x4& tm)
-{
-	return _impl->controller_create(id, cd, tm);
-}
-
-void PhysicsWorld::controller_destroy(ControllerInstance id)
-{
-	_impl->controller_destroy(id);
-}
-
-ControllerInstance PhysicsWorld::controller(UnitId id)
-{
-	return _impl->controller(id);
-}
-
-Vector3 PhysicsWorld::controller_position(ControllerInstance i) const
-{
-	return _impl->controller_position(i);
-}
-
-void PhysicsWorld::controller_move(ControllerInstance i, const Vector3& pos)
-{
-	_impl->controller_move(i, pos);
-}
-
-void PhysicsWorld::controller_set_height(ControllerInstance i, f32 height)
-{
-	_impl->controller_set_height(i, height);
-}
-
-bool PhysicsWorld::controller_collides_up(ControllerInstance i) const
-{
-	return _impl->controller_collides_up(i);
-}
-
-bool PhysicsWorld::controller_collides_down(ControllerInstance i) const
-{
-	return _impl->controller_collides_down(i);
-}
-
-bool PhysicsWorld::controller_collides_sides(ControllerInstance i) const
-{
-	return _impl->controller_collides_sides(i);
 }
 
 JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
