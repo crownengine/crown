@@ -52,6 +52,7 @@ u32 AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc& 
 	anim.frames        = NULL;
 	anim.resource      = NULL;
 	anim.state         = state_machine::initial_state(smr);
+	anim.state_next    = NULL;
 	anim.state_machine = smr;
 	anim.variables     = (f32*)default_allocator().allocate(sizeof(*anim.variables)*smr->num_variables);
 
@@ -111,7 +112,15 @@ void AnimationStateMachine::set_variable(UnitId unit, u32 variable_id, f32 value
 void AnimationStateMachine::trigger(UnitId unit, StringId32 event)
 {
 	const u32 i = hash_map::get(_map, unit, UINT32_MAX);
-	_animations[i].state = state_machine::trigger(_animations[i].state_machine, _animations[i].state, event);
+
+	u32 transition_mode;
+	const State* s = state_machine::trigger(_animations[i].state_machine, _animations[i].state, event, &transition_mode);
+	if (transition_mode == TransitionMode::IMMEDIATE)
+		_animations[i].state = s;
+	else if (transition_mode == TransitionMode::WAIT_UNTIL_END)
+		_animations[i].state_next = s;
+	else
+		CE_FATAL("Unknown transition mode");
 }
 
 void AnimationStateMachine::update(float dt)
@@ -170,17 +179,29 @@ void AnimationStateMachine::update(float dt)
 		const u32 frame_index = u32(frame_time) % anim_i.num_frames;
 
 		anim_i.time += dt*speed;
+
+		// If animation finished playing
 		if (anim_i.time > anim_i.time_total)
 		{
-			if (!!anim_i.state->loop)
+			if (anim_i.state_next)
 			{
-				anim_i.time = anim_i.time - anim_i.time_total;
+				anim_i.state = anim_i.state_next;
+				anim_i.state_next = NULL;
+				anim_i.time = 0.0f;
 			}
 			else
 			{
-				const State* s = state_machine::trigger(anim_i.state_machine, anim_i.state, StringId32("animation_end"));
-				anim_i.time = anim_i.state != s ? 0.0f : anim_i.time_total;
-				anim_i.state = s;
+				if (!!anim_i.state->loop)
+				{
+					anim_i.time = anim_i.time - anim_i.time_total;
+				}
+				else
+				{
+					u32 transition_mode;
+					const State* s = state_machine::trigger(anim_i.state_machine, anim_i.state, StringId32("animation_end"), &transition_mode);
+					anim_i.time = anim_i.state != s ? 0.0f : anim_i.time_total;
+					anim_i.state = s;
+				}
 			}
 		}
 

@@ -40,8 +40,8 @@ namespace state_machine_internal
 
 	static TransitionModeInfo _transition_mode_map[] =
 	{
-		{ "immediate",     TransitionMode::IMMEDIATE     },
-		{ "animation_end", TransitionMode::ANIMATION_END },
+		{ "immediate",      TransitionMode::IMMEDIATE      },
+		{ "wait_until_end", TransitionMode::WAIT_UNTIL_END },
 	};
 	CE_STATIC_ASSERT(countof(_transition_mode_map) == TransitionMode::COUNT);
 
@@ -454,7 +454,7 @@ namespace state_machine
 		return (State*)((char*)smr + t->state_offset);
 	}
 
-	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event)
+	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event, u32* transition_mode)
 	{
 		const TransitionArray* ta = state_transitions(s);
 
@@ -463,9 +463,13 @@ namespace state_machine
 			const Transition* transition_i = transition(ta, i);
 
 			if (transition_i->event == event)
+			{
+				*transition_mode = transition_i->mode;
 				return state(smr, transition_i);
+			}
 		}
 
+		*transition_mode = TransitionMode::IMMEDIATE;
 		return s;
 	}
 

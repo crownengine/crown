@@ -30,6 +30,7 @@ struct AnimationStateMachine
 		const u32* frames;
 		const SpriteAnimationResource* resource;
 		const State* state;
+		const State* state_next;
 		const StateMachineResource* state_machine;
 		f32* variables;
 	};

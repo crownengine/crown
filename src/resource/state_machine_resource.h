@@ -66,7 +66,7 @@ struct TransitionMode
 	enum Enum
 	{
 		IMMEDIATE,
-		ANIMATION_END,
+		WAIT_UNTIL_END,
 
 		COUNT
 	};
@@ -88,7 +88,7 @@ namespace state_machine
 
 	/// Triggers the transition *event* in the state *s* and returns the resulting state.
 	/// If no transition with *event* is found it returns the state *s*.
-	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event);
+	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event, u32* transition_mode);
 
 	/// Returns the transitions for the state @a s.
 	const TransitionArray* state_transitions(const State* s);
