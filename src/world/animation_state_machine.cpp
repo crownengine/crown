@@ -166,14 +166,22 @@ void AnimationStateMachine::update(float dt)
 		if (!anim_i.resource)
 			continue;
 
-		f32 frame_time  = f32(anim_i.num_frames) * (anim_i.time/anim_i.time_total);
-		u32 frame_index = u32(frame_time) % anim_i.num_frames;
+		const f32 frame_time  = f32(anim_i.num_frames) * (anim_i.time/anim_i.time_total);
+		const u32 frame_index = u32(frame_time) % anim_i.num_frames;
 
 		anim_i.time += dt*speed;
 		if (anim_i.time > anim_i.time_total)
 		{
-			anim_i.time = anim_i.time - anim_i.time_total;
-			anim_i.state = state_machine::trigger(anim_i.state_machine, anim_i.state, StringId32("animation_end"));
+			if (!!anim_i.state->loop)
+			{
+				anim_i.time = anim_i.time - anim_i.time_total;
+			}
+			else
+			{
+				const State* s = state_machine::trigger(anim_i.state_machine, anim_i.state, StringId32("animation_end"));
+				anim_i.time = anim_i.state != s ? 0.0f : anim_i.time_total;
+				anim_i.state = s;
+			}
 		}
 
 		// Emit events
