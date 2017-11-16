@@ -86,6 +86,10 @@ namespace state_machine
 	/// Returns the state pointed to by transition @a t.
 	const State* state(const StateMachineResource* smr, const Transition* t);
 
+	/// Triggers the transition *event* in the state *s* and returns the resulting state.
+	/// If no transition with *event* is found it returns the state *s*.
+	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event);
+
 	/// Returns the transitions for the state @a s.
 	const TransitionArray* state_transitions(const State* s);
 

@@ -111,29 +111,18 @@ void AnimationStateMachine::set_variable(UnitId unit, u32 variable_id, f32 value
 void AnimationStateMachine::trigger(UnitId unit, StringId32 event)
 {
 	const u32 i = hash_map::get(_map, unit, UINT32_MAX);
-	Animation& anim = _animations[i];
-
-	const TransitionArray* ta = state_machine::state_transitions(anim.state);
-
-	for (u32 i = 0; i < ta->num; ++i)
-	{
-		const Transition* transition_i = state_machine::transition(ta, i);
-
-		if (transition_i->event == event)
-		{
-			anim.state = state_machine::state(anim.state_machine, transition_i);
-			return;
-		}
-	}
+	_animations[i].state = state_machine::trigger(_animations[i].state_machine, _animations[i].state, event);
 }
 
 void AnimationStateMachine::update(float dt)
 {
+	f32 stack_data[32];
+	skinny::expression_language::Stack stack(stack_data, countof(stack_data));
+
 	for (u32 i = 0; i < array::size(_animations); ++i)
 	{
 		Animation& anim_i = _animations[i];
 
-		f32 stack_data[32];
 		const f32* variables = anim_i.variables;
 		const u32* byte_code = state_machine::byte_code(anim_i.state_machine);
 
@@ -147,7 +136,7 @@ void AnimationStateMachine::update(float dt)
 		{
 			const crown::Animation* animation = state_machine::animation(aa, i);
 
-			skinny::expression_language::Stack stack(stack_data, countof(stack_data));
+			stack.size = 0;
 			skinny::expression_language::run(&byte_code[animation->bytecode_entry], variables, stack);
 			const f32 cur = stack.size > 0 ? stack_data[stack.size-1] : 0.0f;
 			if (cur > max_v || max_i == UINT32_MAX)
@@ -158,8 +147,8 @@ void AnimationStateMachine::update(float dt)
 			}
 		}
 
-		// Evaluate speed
-		skinny::expression_language::Stack stack(stack_data, countof(stack_data));
+		// Evaluate animation speed
+		stack.size = 0;
 		skinny::expression_language::run(&byte_code[anim_i.state->speed_bytecode], variables, stack);
 		const f32 speed = stack.size > 0 ? stack_data[stack.size-1] : 1.0f;
 
@@ -184,7 +173,7 @@ void AnimationStateMachine::update(float dt)
 		if (anim_i.time > anim_i.time_total)
 		{
 			anim_i.time = anim_i.time - anim_i.time_total;
-			trigger(anim_i.unit, StringId32("animation_end"));
+			anim_i.state = state_machine::trigger(anim_i.state_machine, anim_i.state, StringId32("animation_end"));
 		}
 
 		// Emit events

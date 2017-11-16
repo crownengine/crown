@@ -454,6 +454,21 @@ namespace state_machine
 		return (State*)((char*)smr + t->state_offset);
 	}
 
+	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event)
+	{
+		const TransitionArray* ta = state_transitions(s);
+
+		for (u32 i = 0; i < ta->num; ++i)
+		{
+			const Transition* transition_i = transition(ta, i);
+
+			if (transition_i->event == event)
+				return state(smr, transition_i);
+		}
+
+		return s;
+	}
+
 	const TransitionArray* state_transitions(const State* s)
 	{
 		return &s->ta;
