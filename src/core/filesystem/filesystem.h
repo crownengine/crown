@@ -15,10 +15,8 @@ namespace crown
 /// on the host filesystem.
 ///
 /// @ingroup Filesystem
-class Filesystem
+struct Filesystem
 {
-public:
-
 	Filesystem() {};
 	virtual ~Filesystem() {};
 	Filesystem(const Filesystem&) = delete;

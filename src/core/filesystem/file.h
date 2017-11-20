@@ -13,10 +13,8 @@ namespace crown
 /// An abstraction to access data files.
 ///
 /// @ingroup Filesystem
-class File
+struct File
 {
-public:
-
 	File() {}
 	virtual ~File() {}
 

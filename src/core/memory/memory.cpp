@@ -89,13 +89,11 @@ namespace memory
 	}
 
 	/// Allocator based on C malloc().
-	class HeapAllocator : public Allocator
+	struct HeapAllocator : public Allocator
 	{
 		Mutex _mutex;
 		u32 _allocated_size;
 		u32 _allocation_count;
-
-	public:
 
 		HeapAllocator()
 			: _allocated_size(0)
@@ -188,7 +186,7 @@ namespace memory
 	//
 	// If the ring buffer is exhausted, the scratch allocator will use its backing
 	// allocator to allocate memory instead.
-	class ScratchAllocator : public Allocator
+	struct ScratchAllocator : public Allocator
 	{
 		Mutex _mutex;
 		Allocator &_backing;
@@ -199,7 +197,6 @@ namespace memory
 		// Pointers to where to allocate memory and where to free memory.
 		char*_allocate, *_free;
 
-	public:
 		/// Creates a ScratchAllocator. The allocator will use the backing
 		/// allocator to create the ring buffer and to service any requests
 		/// that don't fit in the ring buffer.

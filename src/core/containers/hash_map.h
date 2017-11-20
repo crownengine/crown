@@ -52,7 +52,7 @@ namespace hash_map_internal
 	const u32 DELETED = 0x80000000u;
 	const u32 FREE = 0x00000000u;
 
-	template <typename TKey, class Hash>
+	template <typename TKey, typename Hash>
 	inline u32 hash_key(const TKey& key)
 	{
 		const Hash hash;

@@ -14,12 +14,10 @@ namespace crown
 /// so that it is possible to later visit that list for debugging purposes.
 ///
 /// @ingroup Memory
-class ProxyAllocator : public Allocator
+struct ProxyAllocator : public Allocator
 {
 	Allocator& _allocator;
 	const char* _name;
-
-public:
 
 	/// Tag all allocations made with @a allocator by the given @a name
 	ProxyAllocator(Allocator& allocator, const char* name);

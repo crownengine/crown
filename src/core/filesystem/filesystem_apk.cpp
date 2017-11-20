@@ -16,12 +16,10 @@
 
 namespace crown
 {
-class FileApk : public File
+struct FileApk : public File
 {
 	AAssetManager* _asset_manager;
 	AAsset* _asset;
-
-public:
 
 	FileApk(AAssetManager* asset_manager)
 		: _asset_manager(asset_manager)

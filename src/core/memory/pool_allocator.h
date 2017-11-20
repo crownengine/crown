@@ -13,7 +13,7 @@ namespace crown
 /// The backing allocator is used to allocate the memory pool.
 ///
 /// @ingroup Memory
-class PoolAllocator : public Allocator
+struct PoolAllocator : public Allocator
 {
 	Allocator&	_backing;
 
@@ -24,8 +24,6 @@ class PoolAllocator : public Allocator
 
 	u32 _num_allocations;
 	u32 _allocated_size;
-
-public:
 
 	/// Uses @a backing to allocate the memory pool for containing exactly
 	/// @a num_blocks blocks of @a block_size size each aligned to @a block_align.

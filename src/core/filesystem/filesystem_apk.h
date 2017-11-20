@@ -19,12 +19,10 @@ namespace crown
 /// The assets folder is read-only and all the paths are relative.
 ///
 /// @ingroup Filesystem
-class FilesystemApk : public Filesystem
+struct FilesystemApk : public Filesystem
 {
 	Allocator* _allocator;
 	AAssetManager* _asset_manager;
-
-public:
 
 	FilesystemApk(Allocator& a, AAssetManager* asset_manager);
 

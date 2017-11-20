@@ -13,14 +13,12 @@ namespace crown
 /// and frees all the allocations with a single call to clear().
 ///
 /// @ingroup Memory
-class LinearAllocator : public Allocator
+struct LinearAllocator : public Allocator
 {
 	Allocator* _backing;
 	void* _physical_start;
 	u32 _total_size;
 	u32 _offset;
-
-public:
 
 	/// Allocates @a size bytes from @a backing.
 	LinearAllocator(Allocator& backing, u32 size);

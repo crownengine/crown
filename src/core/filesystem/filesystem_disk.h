@@ -18,12 +18,10 @@ namespace crown
 /// but platform-specific and thus generally not recommended.
 ///
 /// @ingroup Filesystem
-class FilesystemDisk : public Filesystem
+struct FilesystemDisk : public Filesystem
 {
 	Allocator* _allocator;
 	DynamicString _prefix;
-
-public:
 
 	FilesystemDisk(Allocator& a);
 

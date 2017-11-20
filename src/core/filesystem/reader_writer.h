@@ -13,11 +13,9 @@ namespace crown
 /// A writer that offers a convenient way to write to a File
 ///
 /// @ingroup Filesystem
-class BinaryWriter
+struct BinaryWriter
 {
 	File& _file;
-
-public:
 
 	BinaryWriter(File& file)
 		: _file(file)
@@ -44,11 +42,9 @@ public:
 /// A reader that offers a convenient way to read from a File
 ///
 /// @ingroup Filesystem
-class BinaryReader
+struct BinaryReader
 {
 	File& _file;
-
-public:
 
 	BinaryReader(File& file)
 		: _file(file)

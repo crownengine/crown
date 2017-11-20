@@ -9,6 +9,6 @@
 /// @ingroup Core
 namespace crown
 {
-class Allocator;
+struct Allocator;
 
 }; // namespace crown

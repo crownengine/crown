@@ -9,9 +9,9 @@
 /// @ingroup Core
 namespace crown
 {
-class Filesystem;
-class File;
+struct File;
 struct FileMonitor;
+struct Filesystem;
 
 /// Enumerates file open modes.
 ///

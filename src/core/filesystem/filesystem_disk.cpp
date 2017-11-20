@@ -21,7 +21,7 @@
 
 namespace crown
 {
-class FileDisk : public File
+struct FileDisk : public File
 {
 #if CROWN_PLATFORM_POSIX
 	FILE* _file;
@@ -29,8 +29,6 @@ class FileDisk : public File
 	HANDLE _file;
 	bool _eof;
 #endif
-
-public:
 
 	/// Opens the file located at @a path with the given @a mode.
 	FileDisk()

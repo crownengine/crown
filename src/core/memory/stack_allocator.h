@@ -14,7 +14,7 @@ namespace crown
 /// order.
 ///
 /// @ingroup Memory
-class StackAllocator : public Allocator
+struct StackAllocator : public Allocator
 {
 	struct Header
 	{
@@ -26,8 +26,6 @@ class StackAllocator : public Allocator
 	char* _top;
 	u32 _total_size;
 	u32 _allocation_count;
-
-public:
 
 	StackAllocator(char* begin, u32 size);
 	~StackAllocator();

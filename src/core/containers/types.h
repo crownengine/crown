@@ -119,7 +119,7 @@ struct Map
 /// Hash map.
 ///
 /// @ingroup Containers
-template <typename TKey, typename TValue, class Hash = hash<TKey> >
+template <typename TKey, typename TValue, typename Hash = hash<TKey> >
 struct HashMap
 {
 	ALLOCATOR_AWARE;
@@ -151,7 +151,7 @@ struct HashMap
 /// whenever you are done inserting/removing items.
 ///
 /// @ingroup Containers.
-template <typename TKey, typename TValue, class Compare = less<TKey> >
+template <typename TKey, typename TValue, typename Compare = less<TKey> >
 struct SortMap
 {
 	ALLOCATOR_AWARE;

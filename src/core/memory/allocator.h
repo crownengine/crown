@@ -9,13 +9,11 @@
 
 namespace crown
 {
-/// Base class for memory allocators.
+/// Interface for memory allocators.
 ///
 /// @ingroup Memory
-class Allocator
+struct Allocator
 {
-public:
-
 	Allocator() {}
 	virtual	~Allocator() {}
 	Allocator(const Allocator&) = delete;

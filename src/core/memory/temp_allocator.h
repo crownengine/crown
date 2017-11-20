@@ -24,9 +24,14 @@ namespace crown
 	///
 	/// @ingroup Memory
 	template <int BUFFER_SIZE>
-	class TempAllocator : public Allocator
+	struct TempAllocator : public Allocator
 	{
-	public:
+		char _buffer[BUFFER_SIZE];	//< Local stack buffer for allocations.
+		Allocator &_backing;		//< Backing allocator if local memory is exhausted.
+		char *_start;				//< Start of current allocation region
+		char *_p;					//< Current allocation pointer.
+		char *_end;					//< End of current allocation region
+		unsigned _chunk_size;		//< Chunks to allocate from backing allocator
 
 		/// Creates a new temporary allocator using the specified backing allocator.
 		TempAllocator(Allocator &backing = default_scratch_allocator());
@@ -43,15 +48,6 @@ namespace crown
 
 		/// Returns SIZE_NOT_TRACKED.
 		virtual u32 total_allocated() {return SIZE_NOT_TRACKED;}
-
-	private:
-
-		char _buffer[BUFFER_SIZE];	//< Local stack buffer for allocations.
-		Allocator &_backing;		//< Backing allocator if local memory is exhausted.
-		char *_start;				//< Start of current allocation region
-		char *_p;					//< Current allocation pointer.
-		char *_end;					//< End of current allocation region
-		unsigned _chunk_size;		//< Chunks to allocate from backing allocator
 	};
 
 	// If possible, use one of these predefined sizes for the TempAllocator to avoid
