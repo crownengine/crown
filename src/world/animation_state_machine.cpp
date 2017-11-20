@@ -113,11 +113,19 @@ void AnimationStateMachine::trigger(UnitId unit, StringId32 event)
 {
 	const u32 i = hash_map::get(_map, unit, UINT32_MAX);
 
-	u32 transition_mode;
-	const State* s = state_machine::trigger(_animations[i].state_machine, _animations[i].state, event, &transition_mode);
-	if (transition_mode == TransitionMode::IMMEDIATE)
+	const Transition* transition;
+	const State* s = state_machine::trigger(_animations[i].state_machine
+		, _animations[i].state
+		, event
+		, &transition
+		);
+
+	if (!transition)
+		return;
+
+	if (transition->mode == TransitionMode::IMMEDIATE)
 		_animations[i].state = s;
-	else if (transition_mode == TransitionMode::WAIT_UNTIL_END)
+	else if (transition->mode == TransitionMode::WAIT_UNTIL_END)
 		_animations[i].state_next = s;
 	else
 		CE_FATAL("Unknown transition mode");
@@ -197,8 +205,12 @@ void AnimationStateMachine::update(float dt)
 				}
 				else
 				{
-					u32 transition_mode;
-					const State* s = state_machine::trigger(anim_i.state_machine, anim_i.state, StringId32("animation_end"), &transition_mode);
+					const Transition* dummy;
+					const State* s = state_machine::trigger(anim_i.state_machine
+						, anim_i.state
+						, StringId32("animation_end")
+						, &dummy
+						);
 					anim_i.time = anim_i.state != s ? 0.0f : anim_i.time_total;
 					anim_i.state = s;
 				}

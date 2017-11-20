@@ -454,7 +454,7 @@ namespace state_machine
 		return (State*)((char*)smr + t->state_offset);
 	}
 
-	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event, u32* transition_mode)
+	const State* trigger(const StateMachineResource* smr, const State* s, StringId32 event, const Transition** transition_out)
 	{
 		const TransitionArray* ta = state_transitions(s);
 
@@ -464,12 +464,12 @@ namespace state_machine
 
 			if (transition_i->event == event)
 			{
-				*transition_mode = transition_i->mode;
+				*transition_out = transition_i;
 				return state(smr, transition_i);
 			}
 		}
 
-		*transition_mode = TransitionMode::IMMEDIATE;
+		*transition_out = NULL;
 		return s;
 	}
 
