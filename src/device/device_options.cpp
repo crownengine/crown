@@ -125,8 +125,9 @@ int DeviceOptions::parse()
 
 		if (_data_dir.empty())
 		{
-			help("Data dir must be specified.");
-			return EXIT_FAILURE;
+			_data_dir += _source_dir;
+			_data_dir += '_';
+			_data_dir += _platform;
 		}
 	}
 
