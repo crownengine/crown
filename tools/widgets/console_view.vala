@@ -164,7 +164,7 @@ namespace Crown
 			int id_index = text.index_of("#ID(");
 			if (id_index != -1)
 			{
-				string id = text.substring(id_index + 4, 33);
+				string id = text.substring(id_index + 4, 16);
 				string name = _project.id_to_name(id);
 				msg = text.replace("#ID(%s)".printf(id), "'%s'".printf(name));
 			}

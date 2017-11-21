@@ -656,13 +656,14 @@ void Device::destroy_resource_package(ResourcePackage& rp)
 
 void Device::reload(StringId64 type, StringId64 name)
 {
-	TempAllocator64 ta;
-	DynamicString type_str(ta);
-	DynamicString name_str(ta);
-	type.to_string(type_str);
-	name.to_string(name_str);
+	StringId64 mix;
+	mix._id = type._id ^ name._id;
 
-	logi(DEVICE, "Reloading #ID(%s-%s)", type_str.c_str(), name_str.c_str());
+	TempAllocator128 ta;
+	DynamicString path(ta);
+	mix.to_string(path);
+
+	logi(DEVICE, "Reloading #ID(%s)", path.c_str());
 
 	_resource_manager->reload(type, name);
 	const void* new_resource = _resource_manager->get(type, name);
@@ -672,7 +673,7 @@ void Device::reload(StringId64 type, StringId64 name)
 		_lua_environment->execute((const LuaResource*)new_resource);
 	}
 
-	logi(DEVICE, "Reloaded #ID(%s-%s)", type_str.c_str(), name_str.c_str());
+	logi(DEVICE, "Reloaded #ID(%s)", path.c_str());
 }
 
 void Device::log(const char* msg)

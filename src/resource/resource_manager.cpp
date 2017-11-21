@@ -43,19 +43,14 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 
 	if (entry == ResourceEntry::NOT_FOUND)
 	{
-		TempAllocator64 ta;
-		DynamicString type_str(ta);
-		DynamicString name_str(ta);
-		type.to_string(type_str);
-		name.to_string(name_str);
+		StringId64 mix;
+		mix._id = type._id ^ name._id;
 
-		CE_ASSERT(_loader->can_load(type, name)
-			, "Can't load resource #ID(%s-%s)"
-			, type_str.c_str()
-			, name_str.c_str()
-			);
-		CE_UNUSED(type_str);
-		CE_UNUSED(name_str);
+		TempAllocator64 ta;
+		DynamicString path(ta);
+		mix.to_string(path);
+
+		CE_ASSERT(_loader->can_load(type, name), "Can't load resource #ID(%s)", path.c_str());
 
 		ResourceTypeData rtd;
 		rtd.version = UINT32_MAX;
@@ -120,19 +115,15 @@ bool ResourceManager::can_get(StringId64 type, StringId64 name)
 const void* ResourceManager::get(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
-	TempAllocator128 ta;
-	DynamicString type_str(ta);
-	DynamicString name_str(ta);
-	type.to_string(type_str);
-	name.to_string(name_str);
 
-	CE_ASSERT(can_get(type, name)
-		, "Resource not loaded #ID(%s-%s)"
-		, type_str.c_str()
-		, name_str.c_str()
-		);
-	CE_UNUSED(type_str);
-	CE_UNUSED(name_str);
+	StringId64 mix;
+	mix._id = type._id ^ name._id;
+
+	TempAllocator64 ta;
+	DynamicString path(ta);
+	mix.to_string(path);
+
+	CE_ASSERT(can_get(type, name), "Resource not loaded #ID(%s)", path.c_str());
 
 	if (_autoload && !sort_map::has(_rm, id))
 	{
