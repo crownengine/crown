@@ -686,8 +686,7 @@ namespace Crown
 
 		private void start_game(StartGame sg)
 		{
-			_level.save(_project.level_editor_test_level());
-			_database.touch();
+			_database.dump(_project.level_editor_test_level());
 
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res))

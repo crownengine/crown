@@ -429,17 +429,17 @@ namespace Crown
 			return _changed;
 		}
 
-		/// Marks the database as changed without modifiying any data.
-		public void touch()
+		/// Saves database to path without marking it as not changed.
+		public void dump(string path)
 		{
-			_changed = true;
+			Hashtable json = encode();
+			SJSON.save(json, path);
 		}
 
 		/// Saves database to path.
 		public void save(string path)
 		{
-			Hashtable json = encode();
-			SJSON.save(json, path);
+			dump(path);
 			_changed = false;
 		}
 
