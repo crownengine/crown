@@ -130,17 +130,19 @@ namespace state_machine_internal
 	{
 		ALLOCATOR_AWARE;
 
+		DynamicString name_string;
 		StringId32 name;
 		float value;
-		DynamicString name_string;
 
 		VariableInfo()
 			: name_string(default_allocator())
+			, value(0.0f)
 		{
 		}
 
 		VariableInfo(Allocator& a)
 			: name_string(a)
+			, value(0.0f)
 		{
 		}
 	};

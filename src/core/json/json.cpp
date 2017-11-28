@@ -147,7 +147,7 @@ namespace json
 			json = next(json, 't');
 			json = next(json, 'r');
 			json = next(json, 'u');
-			json = next(json, 'e');
+			next(json, 'e');
 			return true;
 
 		case 'f':
@@ -155,7 +155,7 @@ namespace json
 			json = next(json, 'a');
 			json = next(json, 'l');
 			json = next(json, 's');
-			json = next(json, 'e');
+			next(json, 'e');
 			return false;
 
 		default:
