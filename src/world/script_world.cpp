@@ -141,6 +141,59 @@ namespace script_world
 		stack.pop(1);
 	}
 
+	void collision(ScriptWorld& sw, const PhysicsCollisionEvent& ev)
+	{
+		for (u32 i = 0; i < array::size(sw._data); ++i)
+		{
+			if (sw._data[i].unit == ev.units[0] || sw._data[i].unit == ev.units[1])
+			{
+				int unit_index = sw._data[i].unit == ev.units[0] ? 0 : 1;
+
+				LuaStack stack(sw._lua_environment->L);
+				stack.push_function(LuaEnvironment::error);
+				lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[sw._data[i].script_i].module_ref);
+				switch (ev.type)
+				{
+				case PhysicsCollisionEvent::TOUCH_BEGIN:
+					lua_getfield(stack.L, -1, "collision_begin");
+					if (!lua_isnil(stack.L, -1))
+					{
+						stack.push_unit (ev.units[1-unit_index]);
+						stack.push_unit (ev.units[unit_index]);
+						stack.push_actor(ev.actors[unit_index]);
+						stack.push_vector3(ev.position);
+						stack.push_vector3(ev.normal);
+						stack.push_float(ev.distance);
+						lua_pcall(stack.L, 6, 0, -5);
+						stack.pop(2);
+					}
+					break;
+
+				case PhysicsCollisionEvent::TOUCHING:
+					lua_getfield(stack.L, -1, "collision");
+					if (!lua_isnil(stack.L, -1))
+					{
+						stack.push_unit (ev.units[1-unit_index]);
+						stack.push_unit (ev.units[unit_index]);
+						stack.push_actor(ev.actors[unit_index]);
+						stack.push_vector3(ev.position);
+						stack.push_vector3(ev.normal);
+						stack.push_float(ev.distance);
+						lua_pcall(stack.L, 6, 0, -5);
+						stack.pop(2);
+					}
+					break;
+
+				default:
+					CE_FATAL("Unknown physics collision event");
+					break;
+				}
+			}
+		}
+
+		// Unit not found
+	}
+
 } // namespace script_world
 
 ScriptWorld::ScriptWorld(Allocator& a, UnitManager& um, ResourceManager& rm, LuaEnvironment& le, World& w)

@@ -193,6 +193,10 @@ void World::update_scene(f32 dt)
 				break;
 
 			case EventType::PHYSICS_COLLISION:
+				{
+					const PhysicsCollisionEvent& pcev = *(PhysicsCollisionEvent*)data;
+					script_world::collision(*_script_world, pcev);
+				}
 				break;
 
 			case EventType::PHYSICS_TRIGGER:

@@ -464,15 +464,17 @@ struct LevelLoadedEvent
 
 struct PhysicsCollisionEvent
 {
-	enum Type { BEGIN_TOUCH, END_TOUCH } type;
+	enum Type { TOUCH_BEGIN, TOUCHING, TOUCH_END } type;
+	UnitId units[2];
 	ActorInstance actors[2];
-	Vector3 where;           ///< In world-space.
+	Vector3 position;        ///< In world-space.
 	Vector3 normal;          ///< In world-space.
+	float distance;          ///< Separation distance
 };
 
 struct PhysicsTriggerEvent
 {
-	enum Type { BEGIN_TOUCH, END_TOUCH } type;
+	enum Type { TOUCH_BEGIN, TOUCHING, TOUCH_END } type;
 	ActorInstance trigger;
 	ActorInstance other;
 };

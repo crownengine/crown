@@ -55,6 +55,9 @@ namespace script_world
 	/// Calls the update function on all scripts.
 	void update(ScriptWorld& sw, f32 dt);
 
+	///
+	void collision(ScriptWorld& sw, const PhysicsCollisionEvent& ev);
+
 } // namespace script_world
 
 } // namespace crown

@@ -162,6 +162,39 @@ struct MyFilterCallback : public btOverlapFilterCallback
 
 struct PhysicsWorldImpl
 {
+	struct ColliderInstanceData
+	{
+		UnitId unit;
+		Matrix4x4 local_tm;
+		btTriangleIndexVertexArray* vertex_array;
+		btCollisionShape* shape;
+		ColliderInstance next;
+	};
+
+	struct ActorInstanceData
+	{
+		UnitId unit;
+		btRigidBody* actor;
+	};
+
+	Allocator* _allocator;
+	UnitManager* _unit_manager;
+
+	HashMap<UnitId, u32> _collider_map;
+	HashMap<UnitId, u32> _actor_map;
+	Array<ColliderInstanceData> _collider;
+	Array<ActorInstanceData> _actor;
+	Array<btTypedConstraint*> _joints;
+
+	MyFilterCallback _filter_callback;
+	btDiscreteDynamicsWorld* _dynamics_world;
+	MyDebugDrawer _debug_drawer;
+
+	EventStream _events;
+
+	const PhysicsConfigResource* _config_resource;
+	bool _debug_drawing;
+
 	PhysicsWorldImpl(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)
 		: _allocator(&a)
 		, _unit_manager(&um)
@@ -170,20 +203,20 @@ struct PhysicsWorldImpl
 		, _collider(a)
 		, _actor(a)
 		, _joints(a)
-		, _scene(NULL)
+		, _dynamics_world(NULL)
 		, _debug_drawer(dl)
 		, _events(a)
 		, _debug_drawing(false)
 	{
-		_scene = CE_NEW(*_allocator, btDiscreteDynamicsWorld)(physics_globals::_bt_dispatcher
+		_dynamics_world = CE_NEW(*_allocator, btDiscreteDynamicsWorld)(physics_globals::_bt_dispatcher
 			, physics_globals::_bt_interface
 			, physics_globals::_bt_solver
 			, physics_globals::_bt_configuration
 			);
 
-		_scene->getCollisionWorld()->setDebugDrawer(&_debug_drawer);
-		_scene->setInternalTickCallback(tick_cb, this);
-		_scene->getPairCache()->setOverlapFilterCallback(&_filter_cb);
+		_dynamics_world->getCollisionWorld()->setDebugDrawer(&_debug_drawer);
+		_dynamics_world->setInternalTickCallback(tick_cb, this);
+		_dynamics_world->getPairCache()->setOverlapFilterCallback(&_filter_callback);
 
 		_config_resource = (const PhysicsConfigResource*)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, StringId64("global"));
 
@@ -198,7 +231,7 @@ struct PhysicsWorldImpl
 		{
 			btRigidBody* rb = _actor[i].actor;
 
-			_scene->removeRigidBody(rb);
+			_dynamics_world->removeRigidBody(rb);
 			CE_DELETE(*_allocator, rb->getMotionState());
 			CE_DELETE(*_allocator, rb->getCollisionShape());
 			CE_DELETE(*_allocator, rb);
@@ -210,7 +243,7 @@ struct PhysicsWorldImpl
 			CE_DELETE(*_allocator, _collider[i].shape);
 		}
 
-		CE_DELETE(*_allocator, _scene);
+		CE_DELETE(*_allocator, _dynamics_world);
 	}
 
 	ColliderInstance collider_create(UnitId id, const ColliderDesc* sd)
@@ -452,7 +485,7 @@ struct PhysicsWorldImpl
 		const u32 me   = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
 		const u32 mask = physics_config_resource::filter(_config_resource, ar->collision_filter)->mask;
 
-		_scene->addRigidBody(actor, me, mask);
+		_dynamics_world->addRigidBody(actor, me, mask);
 
 		ActorInstanceData aid;
 		aid.unit  = id;
@@ -470,7 +503,7 @@ struct PhysicsWorldImpl
 		const UnitId u      = _actor[i.i].unit;
 		const UnitId last_u = _actor[last].unit;
 
-		_scene->removeRigidBody(_actor[i.i].actor);
+		_dynamics_world->removeRigidBody(_actor[i.i].actor);
 		CE_DELETE(*_allocator, _actor[i.i].actor->getMotionState());
 		CE_DELETE(*_allocator, _actor[i.i].actor->getCollisionShape());
 		CE_DELETE(*_allocator, _actor[i.i].actor);
@@ -549,7 +582,7 @@ struct PhysicsWorldImpl
 
 	void actor_enable_gravity(ActorInstance i)
 	{
-		_actor[i.i].actor->setGravity(_scene->getGravity());
+		_actor[i.i].actor->setGravity(_dynamics_world->getGravity());
 	}
 
 	void actor_disable_gravity(ActorInstance i)
@@ -745,7 +778,7 @@ struct PhysicsWorldImpl
 		}
 
 		joint->setBreakingImpulseThreshold(jd.break_force);
-		_scene->addConstraint(joint);
+		_dynamics_world->addConstraint(joint);
 
 		return make_joint_instance(UINT32_MAX);
 	}
@@ -769,7 +802,7 @@ struct PhysicsWorldImpl
 				cb.m_collisionFilterGroup = -1;
 				cb.m_collisionFilterMask = -1;
 
-				_scene->rayTest(start, end, cb);
+				_dynamics_world->rayTest(start, end, cb);
 
 				if (cb.hasHit())
 				{
@@ -791,7 +824,7 @@ struct PhysicsWorldImpl
 				cb.m_collisionFilterGroup = -1;
 				cb.m_collisionFilterMask = -1;
 
-				_scene->rayTest(start, end, cb);
+				_dynamics_world->rayTest(start, end, cb);
 
 				if (cb.hasHit())
 				{
@@ -819,12 +852,12 @@ struct PhysicsWorldImpl
 
 	Vector3 gravity() const
 	{
-		return to_vector3(_scene->getGravity());
+		return to_vector3(_dynamics_world->getGravity());
 	}
 
 	void set_gravity(const Vector3& g)
 	{
-		_scene->setGravity(to_btVector3(g));
+		_dynamics_world->setGravity(to_btVector3(g));
 	}
 
 	void update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world)
@@ -845,10 +878,10 @@ struct PhysicsWorldImpl
 	void update(f32 dt)
 	{
 		// 12Hz to 120Hz
-		_scene->stepSimulation(dt, 7, 1.0f/60.0f);
+		_dynamics_world->stepSimulation(dt, 7, 1.0f/60.0f);
 
-		const int num = _scene->getNumCollisionObjects();
-		const btCollisionObjectArray& collision_array = _scene->getCollisionObjectArray();
+		const int num = _dynamics_world->getNumCollisionObjects();
+		const btCollisionObjectArray& collision_array = _dynamics_world->getCollisionObjectArray();
 	    // Update actors
 		for (int i = 0; i < num; ++i)
 		{
@@ -866,10 +899,14 @@ struct PhysicsWorldImpl
 				btTransform tr;
 				body->getMotionState()->getWorldTransform(tr);
 
-				post_transform_event(unit_id
-					, to_vector3(tr.getOrigin())
-					, to_quaternion(tr.getRotation())
-					);
+				// Post transform event
+				{
+					PhysicsTransformEvent ev;
+					ev.unit_id = unit_id;
+					ev.position = to_vector3(tr.getOrigin());
+					ev.rotation = to_quaternion(tr.getRotation());
+					event_stream::write(_events, EventType::PHYSICS_TRANSFORM, ev);
+				}
 			}
 		}
 	}
@@ -884,7 +921,7 @@ struct PhysicsWorldImpl
 		if (!_debug_drawing)
 			return;
 
-		_scene->debugDrawWorld();
+		_dynamics_world->debugDrawWorld();
 		_debug_drawer._lines->submit();
 		_debug_drawer._lines->reset();
 	}
@@ -911,31 +948,32 @@ struct PhysicsWorldImpl
 		int num_manifolds = world->getDispatcher()->getNumManifolds();
 		for (int i = 0; i < num_manifolds; ++i)
 		{
-			const btPersistentManifold* contact_manifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+			const btPersistentManifold* manifold = world->getDispatcher()->getManifoldByIndexInternal(i);
 
-			const btCollisionObject* actor_a = contact_manifold->getBody0();
-			const btCollisionObject* actor_b = contact_manifold->getBody1();
-			const ActorInstance a0 = make_actor_instance((u32)(uintptr_t)actor_a->getUserPointer());
-			const ActorInstance a1 = make_actor_instance((u32)(uintptr_t)actor_b->getUserPointer());
+			const btCollisionObject* obj_a = manifold->getBody0();
+			const btCollisionObject* obj_b = manifold->getBody1();
+			const ActorInstance a0 = make_actor_instance((u32)(uintptr_t)obj_a->getUserPointer());
+			const ActorInstance a1 = make_actor_instance((u32)(uintptr_t)obj_b->getUserPointer());
+			const UnitId u0 = _actor[a0.i].unit;
+			const UnitId u1 = _actor[a1.i].unit;
 
-			int num_contacts = contact_manifold->getNumContacts();
+			int num_contacts = manifold->getNumContacts();
 			for (int j = 0; j < num_contacts; ++j)
 			{
-				const btManifoldPoint& point = contact_manifold->getContactPoint(j);
-				if (point.getDistance() < 0.0f)
+				const btManifoldPoint& pt = manifold->getContactPoint(j);
+				if (pt.m_distance1 < 0.0f)
 				{
-					const btVector3& where_a = point.getPositionWorldOnA();
-					const btVector3& where_b = point.getPositionWorldOnB();
-					const btVector3& normal = point.m_normalWorldOnB;
-
-					post_collision_event(a0
-						, a1
-						, to_vector3(where_a)
-						, to_vector3(normal)
-						, point.getLifeTime() > 0
-							? PhysicsCollisionEvent::BEGIN_TOUCH
-							: PhysicsCollisionEvent::END_TOUCH   // FIXME
-						);
+					// Post collision event
+					PhysicsCollisionEvent ev;
+					ev.type = pt.m_lifeTime == 1 ? PhysicsCollisionEvent::TOUCH_BEGIN : PhysicsCollisionEvent::TOUCHING;
+					ev.units[0] = u0;
+					ev.units[1] = u1;
+					ev.actors[0] = a0;
+					ev.actors[1] = a1;
+					ev.position = to_vector3(pt.m_positionWorldOnB);
+					ev.normal = to_vector3(pt.m_normalWorldOnB);
+					ev.distance = pt.m_distance1;
+					event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
 				}
 			}
 		}
@@ -973,74 +1011,9 @@ struct PhysicsWorldImpl
 		((PhysicsWorldImpl*)user_ptr)->unit_destroyed_callback(id);
 	}
 
-	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
-	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
-	JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
-
-	void post_collision_event(ActorInstance a0, ActorInstance a1, const Vector3& where, const Vector3& normal, PhysicsCollisionEvent::Type type)
-	{
-		PhysicsCollisionEvent ev;
-		ev.type = type;
-		ev.actors[0] = a0;
-		ev.actors[1] = a1;
-		ev.where = where;
-		ev.normal = normal;
-
-		event_stream::write(_events, EventType::PHYSICS_COLLISION, ev);
-	}
-
-	void post_trigger_event(ActorInstance trigger, ActorInstance other, PhysicsTriggerEvent::Type type)
-	{
-		PhysicsTriggerEvent ev;
-		ev.type = type;
-		ev.trigger = trigger;
-		ev.other = other;
-
-		event_stream::write(_events, EventType::PHYSICS_TRIGGER, ev);
-	}
-
-	void post_transform_event(UnitId id, const Vector3& pos, const Quaternion& rot)
-	{
-		PhysicsTransformEvent ev;
-		ev.unit_id = id;
-		ev.position = pos;
-		ev.rotation = rot;
-
-		event_stream::write(_events, EventType::PHYSICS_TRANSFORM, ev);
-	}
-
-	struct ColliderInstanceData
-	{
-		UnitId unit;
-		Matrix4x4 local_tm;
-		btTriangleIndexVertexArray* vertex_array;
-		btCollisionShape* shape;
-		ColliderInstance next;
-	};
-
-	struct ActorInstanceData
-	{
-		UnitId unit;
-		btRigidBody* actor;
-	};
-
-	Allocator* _allocator;
-	UnitManager* _unit_manager;
-
-	HashMap<UnitId, u32> _collider_map;
-	HashMap<UnitId, u32> _actor_map;
-	Array<ColliderInstanceData> _collider;
-	Array<ActorInstanceData> _actor;
-	Array<btTypedConstraint*> _joints;
-
-	MyFilterCallback _filter_cb;
-	btDiscreteDynamicsWorld* _scene;
-	MyDebugDrawer _debug_drawer;
-
-	EventStream _events;
-
-	const PhysicsConfigResource* _config_resource;
-	bool _debug_drawing;
+	static ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
+	static ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
+	static JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
 };
 
 PhysicsWorld::PhysicsWorld(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)
