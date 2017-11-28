@@ -748,10 +748,8 @@ int main(int argc, char** argv)
 	InitMemoryGlobals m;
 	CE_UNUSED(m);
 
-	int ec = EXIT_SUCCESS;
-
 	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
-	ec = opts.parse();
+	int ec = opts.parse();
 
 	if (ec == EXIT_SUCCESS)
 		ec = s_wdvc.run(&opts);
