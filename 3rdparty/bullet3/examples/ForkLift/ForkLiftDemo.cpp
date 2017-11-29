@@ -46,6 +46,7 @@ class btCollisionShape;
 class ForkLiftDemo  : public CommonExampleInterface
 {
 	public:
+	GUIHelperInterface* m_guiHelper;
 
 		/* extra stuff*/
 	btVector3 m_cameraPosition;
@@ -57,7 +58,6 @@ class ForkLiftDemo  : public CommonExampleInterface
 	btRigidBody* m_carChassis;
 	btRigidBody* localCreateRigidBody(btScalar mass, const btTransform& worldTransform, btCollisionShape* colSape);
 
-	GUIHelperInterface* m_guiHelper;
 	int m_wheelInstances[4];
 
 //----------------------------
@@ -144,10 +144,10 @@ class ForkLiftDemo  : public CommonExampleInterface
 	virtual void resetCamera()
 	{
 		float dist = 8;
-		float pitch = -45;
-		float yaw = 32;
+		float pitch = -32;
+		float yaw = -45;
 		float targetPos[3]={-0.33,-0.72,4.5};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 	/*static DemoApplication* Create()
@@ -195,8 +195,6 @@ bool useMCLPSolver = true;
 #include "ForkLiftDemo.h"
 
 
-const int maxProxies = 32766;
-const int maxOverlap = 65535;
 
 ///btRaycastVehicle is the interface for the constraint that implements the raycast vehicle
 ///notice that for higher-quality slow-moving vehicles, another approach might be better
@@ -365,6 +363,7 @@ void ForkLiftDemo::initPhysics()
 	{
 		m_dynamicsWorld ->getSolverInfo().m_minimumSolverBatchSize = 128;//for direct solver, it is better to solve multiple objects together, small batches have high overhead
 	}
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = 0.00001;
 
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	

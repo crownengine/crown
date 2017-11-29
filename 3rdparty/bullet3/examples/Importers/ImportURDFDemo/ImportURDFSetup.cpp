@@ -1,7 +1,7 @@
 
 #include "ImportURDFSetup.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
-
+//#define TEST_MULTIBODY_SERIALIZATION 1
 
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "Bullet3Common/b3FileUtils.h"
@@ -11,9 +11,7 @@
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../../Utils/b3ResourcePath.h"
 
-#ifdef ENABLE_ROS_URDF
-#include "ROSURDFImporter.h"
-#endif
+
 #include "BulletUrdfImporter.h"
 
 
@@ -38,7 +36,8 @@ class ImportUrdfSetup : public CommonMultiBodyBase
     struct ImportUrdfInternalData* m_data;
 	bool m_useMultiBody;
 	btAlignedObjectArray<std::string* > m_nameMemory;
-
+	btScalar m_grav;
+	int m_upAxis;
 public:
     ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName);
     virtual ~ImportUrdfSetup();
@@ -51,10 +50,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 3.5;
-		float pitch = -136;
-		float yaw = 28;
+		float pitch = -28;
+		float yaw = -136;
 		float targetPos[3]={0.47,0,-0.64};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };
 
@@ -67,7 +66,8 @@ btAlignedObjectArray<std::string> gFileNameArray;
 struct ImportUrdfInternalData
 {
     ImportUrdfInternalData()
-    :m_numMotors(0)
+    :m_numMotors(0),
+    m_mb(0)
     {
 		for (int i=0;i<MAX_NUM_MOTORS;i++)
 		{
@@ -76,16 +76,21 @@ struct ImportUrdfInternalData
 		}
     }
 
+    
     btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
     btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
 	btGeneric6DofSpring2Constraint* m_generic6DofJointMotors [MAX_NUM_MOTORS];
     int m_numMotors;
+    btMultiBody* m_mb;
+    btRigidBody* m_rb;
 
 };
 
 
 ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
-	:CommonMultiBodyBase(helper)
+	:CommonMultiBodyBase(helper),
+	m_grav(-10),
+	m_upAxis(2)
 {
 	m_data = new ImportUrdfInternalData;
 
@@ -154,24 +159,7 @@ ImportUrdfSetup::~ImportUrdfSetup()
     delete m_data;
 }
 
-static btVector4 colors[4] =
-{
-	btVector4(1,0,0,1),
-	btVector4(0,1,0,1),
-	btVector4(0,1,1,1),
-	btVector4(1,1,0,1),
-};
 
-
-btVector3 selectColor()
-{
-
-	static int curColor = 0;
-	btVector4 color = colors[curColor];
-	curColor++;
-	curColor&=3;
-	return color;
-}
 
 void ImportUrdfSetup::setFileName(const char* urdfFileName)
 {
@@ -184,9 +172,9 @@ void ImportUrdfSetup::setFileName(const char* urdfFileName)
 void ImportUrdfSetup::initPhysics()
 {
 
-	int upAxis = 2;
-	m_guiHelper->setUpAxis(upAxis);
-
+	
+	m_guiHelper->setUpAxis(m_upAxis);
+	
 	this->createEmptyDynamicsWorld();
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
@@ -197,32 +185,19 @@ void ImportUrdfSetup::initPhysics()
         );//+btIDebugDraw::DBG_DrawConstraintLimits);
 
 
-	btVector3 gravity(0,0,0);
-	gravity[upAxis]=-9.8;
-
-	m_dynamicsWorld->setGravity(gravity);
-
+	if (m_guiHelper->getParameterInterface())
+	{
+		SliderParams slider("Gravity", &m_grav);
+		slider.m_minVal = -10;
+		slider.m_maxVal = 10;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+	}
 	
 
-    //now print the tree using the new interface
-    URDFImporterInterface* bla=0;
+	BulletURDFImporter u2b(m_guiHelper, 0,1);
 	
-    static bool newURDF = true;
-	if (newURDF)
-	{
-		b3Printf("using new URDF\n");
-		bla = new  BulletURDFImporter(m_guiHelper);
-	}
-#ifdef USE_ROS_URDF
- else
-	{
-		b3Printf("using ROS URDF\n");
-		bla = new ROSURDFImporter(m_guiHelper);
-	}
-  	newURDF = !newURDF;
-#endif//USE_ROS_URDF
-	URDFImporterInterface& u2b = *bla;
-	bool loadOk =  u2b.loadURDF(m_fileName);
+	
+	bool loadOk = u2b.loadURDF(m_fileName);
 
 #ifdef TEST_MULTIBODY_SERIALIZATION	
 	//test to serialize a multibody to disk or shared memory, with base, link and joint names
@@ -242,16 +217,21 @@ void ImportUrdfSetup::initPhysics()
 		{
 
 
-			btMultiBody* mb = 0;
 
 
 			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
-			int rootLinkIndex = u2b.getRootLinkIndex();
-			b3Printf("urdf root link index = %d\n",rootLinkIndex);
+			//int rootLinkIndex = u2b.getRootLinkIndex();
+			//b3Printf("urdf root link index = %d\n",rootLinkIndex);
 			MyMultiBodyCreator creation(m_guiHelper);
 
 			ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());
-			mb = creation.getBulletMultiBody();
+			m_data->m_rb = creation.getRigidBody();
+			m_data->m_mb = creation.getBulletMultiBody();
+			btMultiBody* mb = m_data->m_mb;
+			for (int i = 0; i < u2b.getNumAllocatedCollisionShapes(); i++)
+			{
+				m_collisionShapes.push_back(u2b.getAllocatedCollisionShape(i));
+			}
 
 			if (m_useMultiBody && mb )
 			{
@@ -360,14 +340,15 @@ void ImportUrdfSetup::initPhysics()
 		if (createGround)
 		{
 			btVector3 groundHalfExtents(20,20,20);
-			groundHalfExtents[upAxis]=1.f;
+			groundHalfExtents[m_upAxis]=1.f;
 			btBoxShape* box = new btBoxShape(groundHalfExtents);
+			m_collisionShapes.push_back(box);
 			box->initializePolyhedralFeatures();
 
 			m_guiHelper->createCollisionShapeGraphicsObject(box);
 			btTransform start; start.setIdentity();
 			btVector3 groundOrigin(0,0,0);
-			groundOrigin[upAxis]=-2.5;
+			groundOrigin[m_upAxis]=-2.5;
 			start.setOrigin(groundOrigin);
 			btRigidBody* body =  createRigidBody(0,start,box);
 			//m_dynamicsWorld->removeRigidBody(body);
@@ -376,9 +357,9 @@ void ImportUrdfSetup::initPhysics()
 			m_guiHelper->createRigidBodyGraphicsObject(body,color);
 		}
 
-		///this extra stepSimulation call makes sure that all the btMultibody transforms are properly propagates.
-		m_dynamicsWorld->stepSimulation(1. / 240., 0);// 1., 10, 1. / 240.);
+		
 	}
+
 
 #ifdef TEST_MULTIBODY_SERIALIZATION
 	m_dynamicsWorld->serialize(s);
@@ -398,6 +379,10 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 {
 	if (m_dynamicsWorld)
 	{
+		btVector3 gravity(0, 0, 0);
+		gravity[m_upAxis] = m_grav;
+		m_dynamicsWorld->setGravity(gravity);
+
         for (int i=0;i<m_data->m_numMotors;i++)
         {
 			if (m_data->m_jointMotors[i])

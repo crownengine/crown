@@ -110,7 +110,13 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 	
 	for (int row=0;row<getNumRows();row++)
 	{
-		
+		btScalar penetration = getPosition(row);
+
+		//todo: consider adding some safety threshold here
+		if (penetration>0)
+		{
+			continue;
+		}
 		btScalar direction = row? -1 : 1;
 
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
@@ -122,7 +128,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		const btScalar posError = 0;						//why assume it's zero?
 		const btVector3 dummy(0, 0, 0);
 
-		btScalar rel_vel = fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,0,m_maxAppliedImpulse);
+		btScalar rel_vel = fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,dummy,posError,infoGlobal,0,m_maxAppliedImpulse);
 
 		{
 			//expect either prismatic or revolute joint type for now
@@ -158,7 +164,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		}
 
 		{
-			btScalar penetration = getPosition(row);
+			
 			btScalar positionalError = 0.f;
 			btScalar	velocityError =  - rel_vel;// * damping;
 			btScalar erp = infoGlobal.m_erp2;

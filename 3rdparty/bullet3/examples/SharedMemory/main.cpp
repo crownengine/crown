@@ -14,8 +14,9 @@ subject to the following restrictions:
 */
 
 
-#include "PhysicsServerExample.h"
-#include "PhysicsClientExample.h"
+
+#include "PhysicsServerExampleBullet2.h"
+
 #include "Bullet3Common/b3CommandLineArgs.h"
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
@@ -72,17 +73,17 @@ int main(int argc, char* argv[])
 	CommonExampleOptions options(&noGfx);
 
 	args.GetCmdLineArgument("shared_memory_key", gSharedMemoryKey);
+	args.GetCmdLineArgument("sharedMemoryKey", gSharedMemoryKey);
 	
-  	if (args.CheckCmdLineFlag("client"))
-    {
-        example = (SharedMemoryCommon*)PhysicsClientCreateFunc(options);
-    }else
-    {
-        example = (SharedMemoryCommon*)PhysicsServerCreateFunc(options);
-    }
+// options.m_option |= PHYSICS_SERVER_ENABLE_COMMAND_LOGGING;
+// options.m_option |= PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG;
+        
+	example = (SharedMemoryCommon*)PhysicsServerCreateFuncBullet2(options);
 	
 	
 	example->initPhysics();
+
+	
 	while (example->isConnected() && !(example->wantsTermination() || interrupted))
 	{
 		example->stepSimulation(1.f/60.f);

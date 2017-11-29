@@ -27,10 +27,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 5;
-		float pitch = 270;
-		float yaw = 21;
+		float pitch = -21;
+		float yaw = 270;
 		float targetPos[3]={-1.34,3.4,-0.44};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 
@@ -294,8 +294,8 @@ void TestJointTorqueSetup::initPhysics()
                 col->setWorldTransform(tr);
 
 				bool isDynamic = (baseMass > 0 && floating);
-				short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-				short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+				int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+				int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 
                 world->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);//, 2,1+2);
@@ -347,8 +347,8 @@ void TestJointTorqueSetup::initPhysics()
             col->setWorldTransform(tr);
      //       col->setFriction(friction);
 			bool isDynamic = 1;//(linkMass > 0);
-			short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-			short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+			int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+			int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 			//if (i==0||i>numLinks-2)
 			{
@@ -367,9 +367,8 @@ void TestJointTorqueSetup::initPhysics()
 
 	btSerializer* s = new btDefaultSerializer;
 	m_dynamicsWorld->serialize(s);
-	b3ResourcePath p;
 	char resourcePath[1024];
-	if (p.findResourcePath("multibody.bullet",resourcePath,1024))
+	if (b3ResourcePath::findResourcePath("multibody.bullet",resourcePath,1024))
 	{
 		FILE* f = fopen(resourcePath,"wb");
 		fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);

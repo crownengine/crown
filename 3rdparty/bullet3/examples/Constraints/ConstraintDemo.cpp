@@ -50,13 +50,13 @@ class AllConstraintDemo : public  CommonRigidBodyBase
 	virtual void resetCamera()
 	{
 		float dist = 27;
-		float pitch = 720;
-		float yaw = 30;
+		float pitch = -30;
+		float yaw = 720;
 		float targetPos[3]={2,0,-10};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
-	virtual void keyboardCallback(unsigned char key, int x, int y);
+	virtual bool	keyboardCallback(int key, int state);
 
 	// for cone-twist motor driving
 	float m_Time;
@@ -66,7 +66,6 @@ class AllConstraintDemo : public  CommonRigidBodyBase
 
 
 
-const int numObjects = 3;
 
 #define ENABLE_ALL_DEMOS 1
 
@@ -839,10 +838,11 @@ void AllConstraintDemo::displayCallback(void) {
 }
 #endif
 
-void AllConstraintDemo::keyboardCallback(unsigned char key, int x, int y)
+bool	AllConstraintDemo::keyboardCallback(int key, int state)
 {
-	(void)x;
-	(void)y;
+	
+	bool handled = false;
+	
 	switch (key) 
 	{
 		case 'O' :
@@ -870,6 +870,7 @@ void AllConstraintDemo::keyboardCallback(unsigned char key, int x, int y)
 					printf("Slider6Dof %s frame offset\n", offectOnOff ? "uses" : "does not use");
 				}
 			}
+			handled = true;
 			break;
 		default : 
 			{
@@ -877,6 +878,8 @@ void AllConstraintDemo::keyboardCallback(unsigned char key, int x, int y)
 			}
 			break;
 	}
+	return handled;
+	
 }
 
 class CommonExampleInterface*    AllConstraintCreateFunc(struct CommonExampleOptions& options)

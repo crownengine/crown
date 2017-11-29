@@ -172,6 +172,8 @@ struct InternalData2
     XEvent                  m_xev;
     GLXFBConfig             m_bestFbc;
     int			    m_modifierFlags;
+    int			    m_glWidth;
+    int			    m_glHeight;
 
 #ifdef DYNAMIC_LOAD_X11_FUNCTIONS
 	//dynamically load stuff
@@ -207,6 +209,9 @@ struct InternalData2
 	InternalData2()
 	:m_dpy(0),
 	m_vi(0),
+	m_modifierFlags(0),
+	m_glWidth(-1),
+	m_glHeight(-1),
 	m_wheelCallback(0),
 	m_mouseMoveCallback(0),
 	m_mouseButtonCallback(0),
@@ -217,61 +222,62 @@ struct InternalData2
 		 m_x11_library = dlopen(X11_LIBRARY, RTLD_LOCAL | RTLD_NOW);
 		 if (!m_x11_library)
 		{
-			printf("Error opening X11 library %s\n", X11_LIBRARY);
-			exit(0);
+      // TODO: Properly handle this error.
+      fprintf(stderr, "Error opening X11 library %s\n", X11_LIBRARY);
+      exit(EXIT_FAILURE);
 		}
 
 		bool missingFunc = false;
 
 		missingFunc = ((m_x11_XFree = (PFNXFREE)  dlsym(m_x11_library, "XFree"))==NULL) | missingFunc;
 		assert(!missingFunc);
-		if (missingFunc)		{ printf("Error: missing func XFree in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XFree in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XSetErrorHandler = (PFNXSETERRORHANDLER) dlsym(m_x11_library,"XSetErrorHandler"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XSetErrorHandler in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XSetErrorHandler in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XSetErrorHandler = (PFNXSETERRORHANDLER) dlsym(m_x11_library,"XSetErrorHandler"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XSetErrorHandler in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XSetErrorHandler in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XSync = (PFNXSYNC) dlsym(m_x11_library,"XSync"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XSync in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XSync in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XOpenDisplay = (PFNXOPENDISPLAY) dlsym(m_x11_library,"XOpenDisplay"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XOpenDisplay in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XOpenDisplay in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XCreateColormap = (PFNXCREATECOLORMAP) dlsym(m_x11_library,"XCreateColormap"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XCreateColormap in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XCreateColormap in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XCreateWindow = (PFNXCREATEWINDOW) dlsym(m_x11_library,"XCreateWindow"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XCreateWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XCreateWindow in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XMapWindow = (PFNXMAPWINDOW) dlsym(m_x11_library,"XMapWindow"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XMapWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XMapWindow in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XStoreName = (PFNXSTORENAME) dlsym(m_x11_library,"XStoreName"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XStoreName in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XStoreName in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XCloseDisplay = (PFNXCLOSEDISPLAY) dlsym(m_x11_library,"XCloseDisplay"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XCloseDisplay in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XCloseDisplay in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XDestroyWindow = (PFNXDESTROYWINDOW) dlsym(m_x11_library,"XDestroyWindow"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XDestroyWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XDestroyWindow in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XRaiseWindow = (PFNXRAISEWINDOW) dlsym(m_x11_library,"XRaiseWindow"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XRaiseWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XRaiseWindow in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 
 		missingFunc = ((m_x11_XGetKeyboardMapping = (PFNXGETKEYBOARDMAPPING) dlsym(m_x11_library,"XGetKeyboardMapping"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XGetKeyboardMapping in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XGetKeyboardMapping in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XKeycodeToKeysym = (PFNXKEYCODETOKEYSYM) dlsym(m_x11_library,"XKeycodeToKeysym"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XKeycodeToKeysym in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XKeycodeToKeysym in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XConvertCase = (PFNXCONVERTCASE) dlsym(m_x11_library,"XConvertCase"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XConvertCase in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XConvertCase in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XPending = (PFNXPENDING) dlsym(m_x11_library,"XPending"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XPending in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XPending in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XNextEvent = (PFNXNEXTEVENT) dlsym(m_x11_library,"XNextEvent"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XNextEvent in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XNextEvent in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XEventsQueued = (PFNXEVENTSQUEUED) dlsym(m_x11_library,"XEventsQueued"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XEventsQueued in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XEventsQueued in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XPeekEvent = (PFNXPEEKEVENT) dlsym(m_x11_library,"XPeekEvent"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XPeekEvent in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XPeekEvent in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XLookupKeysym = (PFNXLOOKUPKEYSYM) dlsym(m_x11_library,"XLookupKeysym"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XLookupKeysym in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XLookupKeysym in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 		missingFunc = ((m_x11_XGetWindowAttributes = (PFNXGETWINDOWATTRIBUTES) dlsym(m_x11_library,"XGetWindowAttributes"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XGetWindowAttributes in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ fprintf(stderr, "Error: missing func XGetWindowAttributes in %s, exiting!\n", X11_LIBRARY);	exit(EXIT_FAILURE);}
 
 		if (missingFunc)
 		{
-			printf("Error: a missing func in %s, exiting!\n", X11_LIBRARY);
-			exit(0);
+			fprintf(stderr, "Error: a missing func in %s, exiting!\n", X11_LIBRARY);
+			exit(EXIT_FAILURE);
 		} else
 		{
 			printf("X11 functions dynamically loaded using dlopen/dlsym OK!\n");
@@ -440,7 +446,7 @@ void X11OpenGLWindow::enableOpenGL()
 
   if ( ctxErrorOccurred || !ctx )
   {
-    printf( "Failed to create an OpenGL context\n" );
+    fprintf(stderr,  "Failed to create an OpenGL context\n" );
     exit(1);
   }
 
@@ -456,6 +462,7 @@ void X11OpenGLWindow::enableOpenGL()
 
   printf( "Making context current\n" );
   glXMakeCurrent( m_data->m_dpy, m_data->m_win, ctx );
+  m_data->m_glc = ctx;
 
     } else
     {
@@ -471,8 +478,8 @@ void X11OpenGLWindow::enableOpenGL()
 			printf("glewOpenGL11Init OK!\n");
 		} else
 			{
-				printf("ERROR: glewOpenGL11Init failed, exiting!\n");
-				exit(0);
+				fprintf(stderr, "ERROR: glewOpenGL11Init failed, exiting!\n");
+				exit(EXIT_FAILURE);
 			}
 }
 
@@ -510,9 +517,12 @@ void    X11OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
     m_data->m_dpy = MyXOpenDisplay(NULL);
 
+    m_data->m_glWidth = ci.m_width;
+    m_data->m_glHeight = ci.m_height;
+
     if(m_data->m_dpy == NULL) {
-        printf("\n\tcannot connect to X server\n\n");
-            exit(0);
+        fprintf(stderr, "\n\tcannot connect to X server\n\n");
+            exit(EXIT_FAILURE);
      }
 
     m_data->m_root = DefaultRootWindow(m_data->m_dpy);
@@ -525,8 +535,8 @@ if (res==0)
 	printf("glewXInit OK\n");
 } else
 {
-	printf("glewXInit failed, exit\n");
-	exit(0);
+	fprintf(stderr, "glewXInit failed, exit\n");
+	exit(EXIT_FAILURE);
 }
 #endif //GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 
@@ -541,8 +551,8 @@ if (res==0)
         int glxMinor, glxMajor;
         if (!glXQueryVersion(m_data->m_dpy,&glxMajor,&glxMinor) || (((glxMajor==1)&&(glxMinor<3)) || (glxMajor<1)))
         {
-            printf("Invalid GLX version: major %d, minor %d\n",glxMajor,glxMinor);
-            exit(0);
+            fprintf(stderr, "Invalid GLX version: major %d, minor %d\n",glxMajor,glxMinor);
+            exit(EXIT_FAILURE);
         }
 
         static int visual_attribs[] =
@@ -564,7 +574,7 @@ if (res==0)
             GLXFBConfig* fbc = glXChooseFBConfig(m_data->m_dpy, DefaultScreen(m_data->m_dpy), visual_attribs, &fbcount);
             if (!fbc)
             {
-                printf( "Failed to retrieve a framebuffer config\n" );
+                fprintf(stderr,  "Failed to retrieve a framebuffer config\n" );
                 exit(1);
             }
 ///don't use highest samples, it is really slow on some NVIDIA Quadro cards
@@ -622,8 +632,8 @@ if (res==0)
 
             if (!m_data->m_win)
             {
-                printf("Cannot create window\n");
-                exit(0);
+                fprintf(stderr, "Cannot create window\n");
+                exit(EXIT_FAILURE);
             }
 
             MyXMapWindow(m_data->m_dpy, m_data->m_win);
@@ -637,8 +647,8 @@ if (res==0)
 				printf("4\n");
 
          if(m_data->m_vi == NULL) {
-            printf("\n\tno appropriate visual found\n\n");
-                exit(0);
+            fprintf(stderr, "\n\tno appropriate visual found\n\n");
+                exit(EXIT_FAILURE);
          }
          else {
             printf("\n\tvisual %p selected\n", (void *)m_data->m_vi->visualid); /* %p creates hexadecimal output like in glxinfo */
@@ -830,7 +840,7 @@ void X11OpenGLWindow::pumpMessage()
 
                 if (m_data->m_keyboardCallback)
                 {
-#if 0
+#if 1
                      unsigned short is_retriggered = 0;
 ///filter out keyboard repeat
 //see http://stackoverflow.com/questions/2100654/ignore-auto-repeat-in-x11-applications
@@ -842,8 +852,8 @@ void X11OpenGLWindow::pumpMessage()
                          if (nev.type == KeyPress && nev.xkey.time ==  m_data->m_xev.xkey.time &&
                              nev.xkey.keycode ==  m_data->m_xev.xkey.keycode)
                            {
-                             fprintf (stdout, "key #%ld was retriggered.\n",
-                               (long) MyXLookupKeysym(&nev.xkey, 0));
+                             //fprintf (stdout, "key #%ld was retriggered.\n",
+                              // (long) MyXLookupKeysym(&nev.xkey, 0));
 
                              // delete retriggered KeyPress event
                              MyXNextEvent(m_data->m_dpy, & m_data->m_xev);
@@ -852,6 +862,7 @@ void X11OpenGLWindow::pumpMessage()
                        }
 #endif
                     int state = 0;
+		    if (!is_retriggered)
                     (*m_data->m_keyboardCallback)(keycode,state);
                     }
 
@@ -929,6 +940,9 @@ void X11OpenGLWindow::pumpMessage()
             {
   //              printf("@");
   //              fflush(0);
+		m_data->m_glWidth = m_data->m_xev.xconfigure.width;
+		m_data->m_glHeight = m_data->m_xev.xconfigure.height;
+
                 if (m_data->m_resizeCallback)
                 {
                     (*m_data->m_resizeCallback)(m_data->m_xev.xconfigure.width,m_data->m_xev.xconfigure.height);
@@ -1031,6 +1045,10 @@ void X11OpenGLWindow::setMouseButtonCallback(b3MouseButtonCallback	mouseCallback
 
 void X11OpenGLWindow::setResizeCallback(b3ResizeCallback	resizeCallback)
 {
+	if (resizeCallback && m_data->m_glWidth>0 && m_data->m_glHeight > 0)
+	{
+		resizeCallback(m_data->m_glWidth, m_data->m_glHeight);
+	}
 	m_data->m_resizeCallback = resizeCallback;
 }
 
@@ -1063,12 +1081,26 @@ b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
 	return m_data->m_keyboardCallback;
 }
 
+int   X11OpenGLWindow::getWidth() const
+{
+    if (m_data)
+        return m_data->m_glWidth;
+    return 0;
+}
+int   X11OpenGLWindow::getHeight() const
+{
+    if (m_data)
+        return m_data->m_glHeight;
+    return 0;
+}
+
+
 #include <stdio.h>
 
 int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 {
 	int len = 0;
-	FILE * output = popen("zenity --file-selection --file-filter=\"*.urdf\" --file-filter=\"*.*\"","r");
+	FILE * output = popen("zenity --file-selection --file-filter=\"*.urdf\" --file-filter=\"*.sdf\"  --file-filter=\"*.obj\"  --file-filter=\"*.*\"","r");
 	if (output)
 	{
 		while( fgets(filename, maxNameLength-1, output) != NULL )
@@ -1078,7 +1110,7 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 			{
 				filename[len-1]=0;
 				printf("file open (length=%d) = %s\n", len,filename);
-			}	
+			}
 		}
 		pclose(output);
 	} else
@@ -1087,5 +1119,5 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 	}
 	MyXRaiseWindow(m_data->m_dpy, m_data->m_win);
 	return len;
-	
+
 }

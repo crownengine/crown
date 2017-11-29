@@ -76,16 +76,16 @@ struct RaytracerInternalData
 	RaytracerInternalData()
 		:m_canvasIndex(-1),
 		m_canvas(0),
-		m_roll(0),
-		m_pitch(0),
-		m_yaw(0),
 #ifdef _DEBUG
-		m_width(64),
-		m_height(64)
+	m_width(64),
+	m_height(64),
 #else
-		m_width(128),
-		m_height(128)
+	m_width(128),
+	m_height(128),
 #endif
+		m_pitch(0),
+	m_roll(0),
+	m_yaw(0)
 	{
 		btConeShape* cone = new btConeShape(1,1);
 		btSphereShape* sphere = new btSphereShape(1);
@@ -260,12 +260,22 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 
 	float fov = 2.0 * atanf (tanFov);
 
+    
 	btVector3 cameraPosition(5,0,0);
 	btVector3 cameraTargetPosition(0,0,0);
 
-	btVector3	rayFrom = cameraPosition;
-	btVector3 rayForward = cameraTargetPosition-cameraPosition;
-	rayForward.normalize();
+    
+    if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
+    {
+        m_app->m_renderer->getActiveCamera()->getCameraPosition(cameraPosition);
+        m_app->m_renderer->getActiveCamera()->getCameraTargetPosition(cameraTargetPosition);
+    }
+  
+    btVector3	rayFrom = cameraPosition;
+    btVector3 rayForward = cameraTargetPosition-cameraPosition;
+
+    
+    rayForward.normalize();
 	float farPlane = 600.f;
 	rayForward*= farPlane;
 
@@ -290,12 +300,12 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 	
 
 	
-	int	mode = 0;
+//	int	mode = 0;
 	int x,y;
 
 	for (x=0;x<m_internalData->m_width;x++)
 	{
-		for (int y=0;y<m_internalData->m_height;y++)
+		for (y=0;y<m_internalData->m_height;y++)
 		{
 			btVector4 rgba(0,0,0,0);
 			btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;

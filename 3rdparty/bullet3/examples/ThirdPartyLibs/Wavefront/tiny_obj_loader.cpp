@@ -30,6 +30,40 @@
 
 namespace tinyobj {
 
+//See http://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf
+std::istream& safeGetline(std::istream& is, std::string& t)
+{
+    t.clear();
+
+    // The characters in the stream are read one-by-one using a std::streambuf.
+    // That is faster than reading them one-by-one using the std::istream.
+    // Code that uses streambuf this way must be guarded by a sentry object.
+    // The sentry object performs various tasks,
+    // such as thread synchronization and updating the stream state.
+
+    std::istream::sentry se(is, true);
+    std::streambuf* sb = is.rdbuf();
+
+    for(;;) {
+        int c = sb->sbumpc();
+        switch (c) {
+        case '\n':
+            return is;
+        case '\r':
+            if(sb->sgetc() == '\n')
+                sb->sbumpc();
+            return is;
+        case EOF:
+            // Also handle the case when the last line has no line ending
+            if(t.empty())
+                is.setstate(std::ios::eofbit);
+            return is;
+        default:
+            t += (char)c;
+        }
+    }
+}
+
 struct vertex_index {
   int v_idx, vt_idx, vn_idx, dummy;
 };
@@ -177,15 +211,25 @@ updateVertex(
   positions.push_back(in_positions[3*i.v_idx+1]);
   positions.push_back(in_positions[3*i.v_idx+2]);
 
-  if (i.vn_idx >= 0) {
+  if (i.vn_idx >= 0 && ((3*i.vn_idx+2)<in_normals.size())) {
     normals.push_back(in_normals[3*i.vn_idx+0]);
     normals.push_back(in_normals[3*i.vn_idx+1]);
     normals.push_back(in_normals[3*i.vn_idx+2]);
   }
 
   if (i.vt_idx >= 0) {
-    texcoords.push_back(in_texcoords[2*i.vt_idx+0]);
-    texcoords.push_back(in_texcoords[2*i.vt_idx+1]);
+	int numTexCoords = in_texcoords.size();
+	int index0 = 2*i.vt_idx+0;
+	int index1 = 2*i.vt_idx+1;
+
+	if (index0>=0 && (index0)<numTexCoords)
+	{
+		texcoords.push_back(in_texcoords[index0]);
+	}
+	if (index1>=0 && (index1)<numTexCoords)
+	{
+		texcoords.push_back(in_texcoords[index1]);
+	}
   }
 
   unsigned int idx = positions.size() / 3 - 1;
@@ -313,9 +357,11 @@ std::string LoadMtl (
   int maxchars = 8192;  // Alloc enough size.
   std::vector<char> buf(maxchars);  // Alloc enough size.
   while (ifs.peek() != -1) {
-    ifs.getline(&buf[0], maxchars);
 
-    std::string linebuf(&buf[0]);
+    std::string linebuf;
+    safeGetline(ifs,linebuf);
+
+
 
     // Trim newline '\r\n' or '\r'
     if (linebuf.size() > 0) {
@@ -329,6 +375,8 @@ std::string LoadMtl (
     if (linebuf.empty()) {
       continue;
     }
+
+    linebuf = linebuf.substr(0, linebuf.find_last_not_of(" \t") + 1);
 
     // Skip leading space.
     const char* token = linebuf.c_str();
@@ -469,6 +517,16 @@ LoadObj(
   const char* filename,
   const char* mtl_basepath)
 {
+  std::string tmp = filename;
+  if (!mtl_basepath) {
+    int last_slash = 0;
+    for (int c=0; c<(int)tmp.size(); ++c)
+      if (tmp[c]=='/' || tmp[c]=='\\')
+        last_slash = c;
+    tmp = tmp.substr(0, last_slash);
+    mtl_basepath = tmp.c_str();
+    //fprintf(stderr, "MTL PATH '%s' orig '%s'\n", mtl_basepath, filename);
+  }
 
   shapes.resize(0);
   std::vector<vertex_index> allIndices;
@@ -498,13 +556,17 @@ LoadObj(
   // material
   std::map<std::string, material_t> material_map;
   material_t material;
+  InitMaterial(material);
 
   int maxchars = 8192;  // Alloc enough size.
   std::vector<char> buf(maxchars);  // Alloc enough size.
-  while (ifs.peek() != -1) {
-    ifs.getline(&buf[0], maxchars);
+  std::string linebuf;
+  linebuf.reserve(maxchars);
 
-    std::string linebuf(&buf[0]);
+  while (ifs.peek() != -1) {
+
+	linebuf.resize(0);
+    safeGetline(ifs,linebuf);
 
     // Trim newline '\r\n' or '\r'
     if (linebuf.size() > 0) {

@@ -15,10 +15,10 @@ struct DrawGridData
     int upAxis;
     float gridColor[4];
 
-    DrawGridData()
+    DrawGridData(int upAxis=1)
     :gridSize(10),
     upOffset(0.001f),
-    upAxis(1)
+    upAxis(upAxis)
     {
         gridColor[0] = 0.6f;
         gridColor[1] = 0.6f;
@@ -37,6 +37,12 @@ enum EnumSphereLevelOfDetail
 };
 struct CommonGraphicsApp
 {
+	enum drawText3DOption
+	{
+		eDrawText3D_OrtogonalFaceCamera=1,
+		eDrawText3D_TrueType=2,
+		eDrawText3D_TrackObject=4,
+	};
 	class CommonWindowInterface*	m_window;
 	struct CommonRenderInterface*	m_renderer;
 	struct CommonParameterInterface*	m_parameterInterface;
@@ -66,9 +72,9 @@ struct CommonGraphicsApp
 		m_mouseYpos(0.f),
 		m_mouseInitialized(false)
 	{
-		m_backgroundColorRGB[0] = 0.9;
-		m_backgroundColorRGB[1] = 0.9;
-		m_backgroundColorRGB[2] = 1;
+		m_backgroundColorRGB[0] = 0.7;
+		m_backgroundColorRGB[1] = 0.7;
+		m_backgroundColorRGB[2] = 0.8;
 	}
 	virtual ~CommonGraphicsApp()
 	{
@@ -76,6 +82,9 @@ struct CommonGraphicsApp
 
 	virtual void dumpNextFrameToPng(const char* pngFilename){}
     virtual void dumpFramesToVideo(const char* mp4Filename){}
+    
+    virtual void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes){}
+    
 	virtual void getBackgroundColor(float* red, float* green, float* blue) const
 	{
 		if (red)
@@ -117,10 +126,25 @@ struct CommonGraphicsApp
 	virtual int getUpAxis() const = 0;
 	
 	virtual void swapBuffer() = 0;
-	virtual void drawText( const char* txt, int posX, int posY) = 0;
-	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
+	virtual void drawText( const char* txt, int posX, int posY)
+	{
+		float size=1;
+		float colorRGBA[4]={0,0,0,1};
+		drawText(txt,posX,posY, size, colorRGBA);
+	}
+
+	virtual void drawText( const char* txt, int posX, int posY, float size)
+	{
+		float colorRGBA[4]={0,0,0,1};
+		drawText(txt,posX,posY,size,colorRGBA);
+	}
+	virtual void drawText( const char* txt, int posX, int posY, float size, float colorRGBA[4]) = 0;
+	virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size)=0;
+	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)=0;
+	virtual void drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA)=0;
 	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1)=0;
 	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1) = 0;
+	
 
 	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4])=0;
 
@@ -177,10 +201,10 @@ struct CommonGraphicsApp
 				{
 		//			if (b3Fabs(xDelta)>b3Fabs(yDelta))
 		//			{
-						pitch -= xDelta*m_mouseMoveMultiplier;
+						pitch -= yDelta*m_mouseMoveMultiplier;
 		//			} else
 		//			{
-						yaw += yDelta*m_mouseMoveMultiplier;
+						yaw -= xDelta*m_mouseMoveMultiplier;
 		//			}
 				}
 

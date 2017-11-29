@@ -55,10 +55,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 18;
-		float pitch = 129;
-		float yaw = 30;
+		float pitch = -30;
+		float yaw = 129;
 		float targetPos[3]={-4.6,-4.7,-5.75};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 	
 };
@@ -200,7 +200,6 @@ void	RaytestDemo::initPhysics()
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setRollingFriction(1);
 		body->setFriction(1);
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
@@ -269,6 +268,7 @@ void	RaytestDemo::initPhysics()
 			rbInfo.m_startWorldTransform = startTransform;
 			btRigidBody* body = new btRigidBody(rbInfo);
 			body->setRollingFriction(0.03);
+			body->setSpinningFriction(0.03);
 			body->setFriction(1);
 			body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 		

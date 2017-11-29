@@ -1,3 +1,4 @@
+#ifdef _WIN32
 /*
 Copyright (c) 2012 Advanced Micro Devices, Inc.  
 
@@ -64,10 +65,15 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 	{
 		return virtualKeyCode+32;//todo: fix the ascii A vs a input
 	}
+	if (virtualKeyCode >= '0' && virtualKeyCode <= '9')
+	{
+		return virtualKeyCode;
+	}
 
 	switch (virtualKeyCode)
 	{
 		case VK_RETURN: {keycode = B3G_RETURN; break; };
+		case VK_ESCAPE: {keycode = B3G_ESCAPE; break; };
 		case VK_F1: {keycode = B3G_F1; break;}
 		case VK_F2: {keycode = B3G_F2; break;}
 		case VK_F3: {keycode = B3G_F3; break;}
@@ -216,6 +222,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	case WM_CHAR:
 		{
+#if 0
 			//skip 'enter' key, it is processed in WM_KEYUP/WM_KEYDOWN 
 			int keycode = getAsciiCodeFromVirtualKeycode(wParam);
 			if (keycode < 0)
@@ -226,6 +233,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					(*sData->m_keyboardCallback)(wParam, state);
 				}
 			}
+#endif
 			return 0;
 		}
 	case WM_SYSKEYDOWN:
@@ -250,7 +258,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					break;
 				};
 			}
-			if (keycode>=0 && sData && sData->m_keyboardCallback)// && ((HIWORD(lParam) & KF_REPEAT) == 0))
+			if (keycode>=0 && sData && sData->m_keyboardCallback  && ((HIWORD(lParam) & KF_REPEAT) == 0))
 			{
 				int state = 1;
 				(*sData->m_keyboardCallback)(keycode,state);
@@ -434,11 +442,10 @@ void Win32Window::setWindowTitle(const char* titleChar)
 	wchar_t  windowTitle[1024];
 	swprintf(windowTitle, 1024, L"%hs", titleChar);
 
-	DWORD dwResult;
-
 #ifdef _WIN64
 		SetWindowTextW(m_data->m_hWnd, windowTitle);
 #else
+		DWORD dwResult;
 		SendMessageTimeoutW(m_data->m_hWnd, WM_SETTEXT, 0,
 				reinterpret_cast<LPARAM>(windowTitle),
 				SMTO_ABORTIFHUNG, 2000, &dwResult);
@@ -717,15 +724,6 @@ void Win32Window::runMainLoop()
 void	Win32Window::startRendering()
 {
 		pumpMessage();
-
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);	//clear buffers
-		
-		//glCullFace(GL_BACK);
-		//glFrontFace(GL_CCW);
-	//	glEnable(GL_DEPTH_TEST);
-
-
-
 }
 
 
@@ -805,5 +803,5 @@ b3WheelCallback Win32Window::getWheelCallback()
 {
 	return m_data->m_wheelCallback;
 }
-
+#endif
 	

@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include <stdio.h> //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <string>
-#include "tinyxml/tinyxml.h"
+#include "../../ThirdPartyLibs/tinyxml/tinyxml.h"
 
 #include "Bullet3Common/b3FileUtils.h"
 #include "LinearMath/btHashMap.h"
@@ -28,6 +28,7 @@ subject to the following restrictions:
 #include "btMatrix4x4.h"
 
 
+#define MAX_VISUAL_SHAPES 512
 
 
 struct VertexSource
@@ -288,51 +289,54 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 		}//for each mesh
 		
 		int shapeIndex = visualShapes.size();
-		GLInstanceGraphicsShape& visualShape = visualShapes.expand();
-		{
-			visualShape.m_vertices = new b3AlignedObjectArray<GLInstanceVertex>;
-			visualShape.m_indices = new b3AlignedObjectArray<int>;
-			int indexBase = 0;
+        if (shapeIndex<MAX_VISUAL_SHAPES)
+        {
+            GLInstanceGraphicsShape& visualShape = visualShapes.expand();
+            {
+                visualShape.m_vertices = new b3AlignedObjectArray<GLInstanceVertex>;
+                visualShape.m_indices = new b3AlignedObjectArray<int>;
+                int indexBase = 0;
 
-			btAssert(vertexNormals.size()==vertexPositions.size());
-			for (int v=0;v<vertexPositions.size();v++)
-			{
-				GLInstanceVertex vtx;
-				vtx.xyzw[0] = vertexPositions[v].x();
-				vtx.xyzw[1] = vertexPositions[v].y();
-				vtx.xyzw[2] = vertexPositions[v].z();
-				vtx.xyzw[3] = 1.f;
-				vtx.normal[0] = vertexNormals[v].x();
-				vtx.normal[1] = vertexNormals[v].y();
-				vtx.normal[2] = vertexNormals[v].z();
-				vtx.uv[0] = 0.5f;
-				vtx.uv[1] = 0.5f;
-				visualShape.m_vertices->push_back(vtx);
-			}
+                btAssert(vertexNormals.size()==vertexPositions.size());
+                for (int v=0;v<vertexPositions.size();v++)
+                {
+                    GLInstanceVertex vtx;
+                    vtx.xyzw[0] = vertexPositions[v].x();
+                    vtx.xyzw[1] = vertexPositions[v].y();
+                    vtx.xyzw[2] = vertexPositions[v].z();
+                    vtx.xyzw[3] = 1.f;
+                    vtx.normal[0] = vertexNormals[v].x();
+                    vtx.normal[1] = vertexNormals[v].y();
+                    vtx.normal[2] = vertexNormals[v].z();
+                    vtx.uv[0] = 0.5f;
+                    vtx.uv[1] = 0.5f;
+                    visualShape.m_vertices->push_back(vtx);
+                }
 
-			for (int index=0;index<indices.size();index++)
-			{
-				visualShape.m_indices->push_back(indices[index]+indexBase);
-			}
-			
-			
-			printf(" index_count =%dand vertexPositions.size=%d\n",indices.size(), vertexPositions.size());
-			indexBase=visualShape.m_vertices->size();
-			visualShape.m_numIndices = visualShape.m_indices->size();
-			visualShape.m_numvertices = visualShape.m_vertices->size();
-		}
-		printf("geometry name=%s\n",geometryName);
-		name2Shape.insert(geometryName,shapeIndex);
-		
+                for (int index=0;index<indices.size();index++)
+                {
+                    visualShape.m_indices->push_back(indices[index]+indexBase);
+                }
+                
+                
+                //b3Printf(" index_count =%dand vertexPositions.size=%d\n",indices.size(), vertexPositions.size());
+                indexBase=visualShape.m_vertices->size();
+                visualShape.m_numIndices = visualShape.m_indices->size();
+                visualShape.m_numvertices = visualShape.m_vertices->size();
+            }
+            //b3Printf("geometry name=%s\n",geometryName);
+            name2Shape.insert(geometryName,shapeIndex);
+        } else
+        {
+            b3Warning("DAE exceeds number of visual shapes (%d/%d)",shapeIndex, MAX_VISUAL_SHAPES);
+        }
 
 	}//for each geometry
 }
 
 void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,  const btMatrix4x4& parentTransMat)
 {
-	const char* nodeName = node->Attribute("id");
-	printf("processing node %s\n", nodeName);
-
+	
 	
 	btMatrix4x4 nodeTrans;
 	nodeTrans.setIdentity();
@@ -356,7 +360,7 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 					nodeTrans = nodeTrans*t;
 				} else
 				{
-					printf("Error: expected 16 elements in a <matrix> element, skipping\n");
+					b3Warning("Error: expected 16 elements in a <matrix> element, skipping\n");
 				}
 			}
 		}
@@ -412,19 +416,19 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 				instanceGeom=instanceGeom->NextSiblingElement("instance_geometry"))
 	{
 		const char* geomUrl = instanceGeom->Attribute("url");
-		printf("node referring to geom %s\n", geomUrl);
+		//printf("node referring to geom %s\n", geomUrl);
 		geomUrl++;
 		int* shapeIndexPtr = name2Shape[geomUrl];
 		if (shapeIndexPtr)
 		{
 		//	int index = *shapeIndexPtr;
-			printf("found geom with index %d\n", *shapeIndexPtr);
+			//printf("found geom with index %d\n", *shapeIndexPtr);
 			ColladaGraphicsInstance& instance = visualShapeInstances.expand();
 			instance.m_shapeIndex = *shapeIndexPtr;
 			instance.m_worldTransform = nodeTrans;
 		} else
 		{
-			printf("geom not found\n");
+			b3Warning("geom not found\n");
 		}
 	}
 
@@ -492,7 +496,7 @@ void getUnitMeterScalingAndUpAxisTransform(TiXmlDocument& doc, btTransform& tr, 
 	if (unitMeter)
 	{
 		const char* meterText = unitMeter->Attribute("meter");
-		printf("meterText=%s\n", meterText);
+	//printf("meterText=%s\n", meterText);
 		unitMeterScaling = atof(meterText);
 	}
 
@@ -557,7 +561,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 //	GLInstanceGraphicsShape* instance = 0;
 	
 	//usually COLLADA files don't have that many visual geometries/shapes
-	visualShapes.reserve(32);
+	visualShapes.reserve(MAX_VISUAL_SHAPES);
 
 	float extraScaling = 1;//0.01;
 	btHashMap<btHashString, int> name2ShapeIndex;
@@ -565,7 +569,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 	char filename[1024];
 	if (!f.findFile(relativeFileName,filename,1024))
 	{
-		printf("File not found: %s\n", filename);
+		b3Warning("File not found: %s\n", filename);
 		return;
 	}
 	 
@@ -703,12 +707,12 @@ void LoadMeshFromColladaAssimp(const char* relativeFileName, btAlignedObjectArra
 		int size=0;
 		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
 		{
-			printf("Error: Cannot access file to determine size of %s\n", relativeFileName);
+			b3Warning("Error: Cannot access file to determine size of %s\n", relativeFileName);
 		} else
 		{
 			if (size)
 			{
-				printf("Open DAE file of %d bytes\n",size);
+				//printf("Open DAE file of %d bytes\n",size);
 				
 				Assimp::Importer importer;
 				//importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS | aiComponent_COLORS);

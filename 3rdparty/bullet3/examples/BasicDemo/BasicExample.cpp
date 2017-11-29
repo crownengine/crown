@@ -14,7 +14,6 @@ subject to the following restrictions:
 */
 
 
-
 #include "BasicExample.h"
 
 #include "btBulletDynamicsCommon.h"
@@ -39,11 +38,11 @@ struct BasicExample : public CommonRigidBodyBase
 	virtual void renderScene();
 	void resetCamera()
 	{
-		float dist = 41;
-		float pitch = 52;
-		float yaw = 35;
-		float targetPos[3]={0,0.46,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		float dist = 4;
+		float pitch = -35;
+		float yaw = 52;
+		float targetPos[3]={0,0,0};
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };
 
@@ -52,7 +51,7 @@ void BasicExample::initPhysics()
 	m_guiHelper->setUpAxis(1);
 
 	createEmptyDynamicsWorld();
-	
+	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
 	if (m_dynamicsWorld->getDebugDrawer())
@@ -63,7 +62,7 @@ void BasicExample::initPhysics()
 	
 
 	//groundShape->initializePolyhedralFeatures();
-//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	//btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
 
@@ -81,7 +80,7 @@ void BasicExample::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = createBoxShape(btVector3(1,1,1));
+		btBoxShape* colShape = createBoxShape(btVector3(.1,.1,.1));
 		
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
@@ -108,9 +107,9 @@ void BasicExample::initPhysics()
 				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
 					startTransform.setOrigin(btVector3(
-										btScalar(2.0*i),
-										btScalar(20+2.0*k),
-										btScalar(2.0*j)));
+										btScalar(0.2*i),
+										btScalar(2+.2*k),
+										btScalar(0.2*j)));
 
 			
 					createRigidBody(mass,startTransform,colShape);
@@ -121,7 +120,9 @@ void BasicExample::initPhysics()
 		}
 	}
 
+	
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	
 }
 
 
@@ -140,7 +141,11 @@ void BasicExample::renderScene()
 CommonExampleInterface*    BasicExampleCreateFunc(CommonExampleOptions& options)
 {
 	return new BasicExample(options.m_guiHelper);
+
 }
+
+
+B3_STANDALONE_EXAMPLE(BasicExampleCreateFunc)
 
 
 

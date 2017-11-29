@@ -2,13 +2,22 @@
 
 #include "PhysicsDirect.h"
 
+#include "PhysicsServerCommandProcessor.h"
+
 
 
 //think more about naming. The b3ConnectPhysicsLoopback
-b3PhysicsClientHandle b3ConnectPhysicsDirect()
+B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsDirect()
 {
-	PhysicsDirect* direct = new PhysicsDirect();
-	bool connected = direct->connect();
+	PhysicsServerCommandProcessor* sdk = new PhysicsServerCommandProcessor;
+
+	PhysicsDirect* direct = new PhysicsDirect(sdk,true);
+	bool connected;
+	connected = direct->connect();
 	return (b3PhysicsClientHandle  )direct;
 }
+
+
+
+//
 

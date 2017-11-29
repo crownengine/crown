@@ -72,13 +72,14 @@ struct TimeSeriesInternalData
 
 TimeSeriesCanvas::TimeSeriesCanvas(struct Common2dCanvasInterface* canvasInterface, int width, int height, const char* windowTitle)
 {
-	btAssert(canvasInterface);
-
 	m_internalData = new TimeSeriesInternalData(width,height);
 	
 	m_internalData->m_canvasInterface = canvasInterface;
-	
-	m_internalData->m_canvasIndex = m_internalData->m_canvasInterface->createCanvas(windowTitle,m_internalData->m_width,m_internalData->m_height);
+
+	if (canvasInterface)
+	{
+		m_internalData->m_canvasIndex = m_internalData->m_canvasInterface->createCanvas(windowTitle,m_internalData->m_width,m_internalData->m_height);
+	}
 }
 
 void TimeSeriesCanvas::addDataSource(const char* dataSourceLabel, unsigned char red,unsigned char green,unsigned char blue)
@@ -103,25 +104,31 @@ void TimeSeriesCanvas::addDataSource(const char* dataSourceLabel, unsigned char 
 	m_internalData->m_dataSources.push_back(dataSource);
 
 }
-void TimeSeriesCanvas::setupTimeSeries(float yScale, int ticksPerSecond, int startTime)
+void TimeSeriesCanvas::setupTimeSeries(float yScale, int ticksPerSecond, int startTime, bool clearCanvas)
 {
+	if (0==m_internalData->m_canvasInterface)
+		return;
+
 	m_internalData->m_pixelsPerUnit = -(m_internalData->m_height/3.f)/yScale;
 	m_internalData->m_ticksPerSecond = ticksPerSecond;
 	m_internalData->m_yScale = yScale;
 	m_internalData->m_dataSources.clear();
-	for (int i=0;i<m_internalData->m_width;i++)
+	
+	if (clearCanvas)
 	{
-		for (int j=0;j<m_internalData->m_height;j++)
+		for (int i=0;i<m_internalData->m_width;i++)
 		{
+			for (int j=0;j<m_internalData->m_height;j++)
+			{
 			
-			m_internalData->m_canvasInterface->setPixel(m_internalData->m_canvasIndex,i,j,
-				m_internalData->m_backgroundRed,
-				m_internalData->m_backgroundGreen,
-				m_internalData->m_backgroundBlue,
-				m_internalData->m_backgroundAlpha);
+				m_internalData->m_canvasInterface->setPixel(m_internalData->m_canvasIndex,i,j,
+					m_internalData->m_backgroundRed,
+					m_internalData->m_backgroundGreen,
+					m_internalData->m_backgroundBlue,
+					m_internalData->m_backgroundAlpha);
+			}
 		}
 	}
-	
 	
 	float zeroPixelCoord = m_internalData->m_zero;
 	float pixelsPerUnit = m_internalData->m_pixelsPerUnit;
@@ -203,7 +210,7 @@ void TimeSeriesCanvas::shift1PixelToLeft()
 	int countdown = resetVal;
 
 	//shift pixture one pixel to the left
-	for (int j=0;j<m_internalData->m_height-48;j++)
+	for (int j=50;j<m_internalData->m_height-48;j++)
 	{
 		for (int i=40;i<this->m_internalData->m_width;i++)
 		{
@@ -282,13 +289,16 @@ void TimeSeriesCanvas::shift1PixelToLeft()
 
 void TimeSeriesCanvas::insertDataAtCurrentTime(float orgV, int dataSourceIndex, bool connectToPrevious)
 {
+	if (0==m_internalData->m_canvasInterface)
+		return;
+
 	btAssert(dataSourceIndex < m_internalData->m_dataSources.size());
 
 	float zero = m_internalData->m_zero;
 	float amp = m_internalData->m_pixelsPerUnit;
 	//insert some new value(s) in the right-most column
 	{
-		float time = m_internalData->getTime();
+	//	float time = m_internalData->getTime();
 		
 		float v = zero+amp*orgV;
 		

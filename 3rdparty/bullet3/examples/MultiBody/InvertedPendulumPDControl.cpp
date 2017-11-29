@@ -30,10 +30,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 5;
-		float pitch = 270;
-		float yaw = 21;
+		float pitch = -21;
+		float yaw = 270;
 		float targetPos[3]={-1.34,1.4,3.44};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 
@@ -211,11 +211,11 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
     local_origin.resize(pMultiBody->getNumLinks() + 1);
     world_to_local[0] = pMultiBody->getWorldToBaseRot();
     local_origin[0] = pMultiBody->getBasePos();
-    double friction = 1;
+  //  double friction = 1;
     {
 
     //	float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
-        float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+       // float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
 
 
         if (1)
@@ -238,13 +238,13 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
             col->setWorldTransform(tr);
 
 			bool isDynamic = (baseMass > 0 && !fixedBase);
-			short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-			short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+			int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+			int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 
             world->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);//, 2,1+2);
 
-            btVector3 color(0.0,0.0,0.5);
+            btVector4 color(0.0,0.0,0.5,1);
             guiHelper->createCollisionObjectGraphicsObject(col,color);
 
 //                col->setFriction(friction);
@@ -291,8 +291,8 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
         col->setWorldTransform(tr);
     //       col->setFriction(friction);
 		bool isDynamic = 1;//(linkMass > 0);
-		short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-		short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+		int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+		int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 		//if (i==0||i>numLinks-2)
 		{
@@ -450,7 +450,7 @@ void InvertedPendulumPDControl::stepSimulation(float deltaTime)
              m_multiBody->getBaseOmega()[2]
              );
     */
-    btScalar jointVel =m_multiBody->getJointVel(0);
+ //   btScalar jointVel =m_multiBody->getJointVel(0);
     
 //    b3Printf("child angvel = %f",jointVel);
     

@@ -12,7 +12,6 @@ SET(Bullet3OpenCL_clew_SRCS
 	NarrowphaseCollision/b3ContactCache.cpp
 	NarrowphaseCollision/b3ConvexHullContact.cpp
 	NarrowphaseCollision/b3GjkEpa.cpp
-	NarrowphaseCollision/b3GjkPairDetector.cpp
 	NarrowphaseCollision/b3OptimizedBvh.cpp
 	NarrowphaseCollision/b3QuantizedBvh.cpp
 	NarrowphaseCollision/b3StridingMeshInterface.cpp
@@ -45,7 +44,7 @@ ADD_LIBRARY(Bullet3OpenCL_clew ${Bullet3OpenCL_clew_SRCS} ${Bullet3OpenCL_clew_H
 SET_TARGET_PROPERTIES(Bullet3OpenCL_clew PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3OpenCL_clew PROPERTIES SOVERSION ${BULLET_VERSION})
 IF (BUILD_SHARED_LIBS)
-  TARGET_LINK_LIBRARIES(Bullet3OpenCL_clew LinearMath Bullet3Dynamics)
+  TARGET_LINK_LIBRARIES(Bullet3OpenCL_clew LinearMath Bullet3Dynamics ${CMAKE_DL_LIBS})
 ENDIF (BUILD_SHARED_LIBS)
 
 

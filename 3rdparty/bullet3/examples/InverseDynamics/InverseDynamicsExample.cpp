@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
+
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
 #include "btBulletDynamicsCommon.h"
@@ -85,11 +86,11 @@ public:
 
     virtual void resetCamera()
     {
-        float dist = 3.5;
-        float pitch = -136;
-        float yaw = 28;
-        float targetPos[3]={0.47,0,-0.64};
-        m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+        float dist = 1.5;
+        float pitch = -10;
+        float yaw = -80;
+        float targetPos[3]={0,0,0};
+        m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
     }
 };
 
@@ -104,7 +105,7 @@ InverseDynamicsExample::InverseDynamicsExample(struct GUIHelperInterface* helper
 
 InverseDynamicsExample::~InverseDynamicsExample()
 {
-    delete m_multiBody;
+	
     delete m_inverseModel;
     delete m_timeSeriesCanvas;
 }
@@ -129,13 +130,15 @@ void InverseDynamicsExample::initPhysics()
         SliderParams slider("Kp",&kp);
         slider.m_minVal=0;
         slider.m_maxVal=2000;
-        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		if (m_guiHelper->getParameterInterface())
+	        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     {
         SliderParams slider("Kd",&kd);
         slider.m_minVal=0;
         slider.m_maxVal=50;
-        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		if (m_guiHelper->getParameterInterface())
+	        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
 
     if (m_option == BT_ID_PROGRAMMATICALLY)
@@ -150,8 +153,11 @@ void InverseDynamicsExample::initPhysics()
     {
     case BT_ID_LOAD_URDF:
         {
-            BulletURDFImporter u2b(m_guiHelper);
-            bool loadOk =  u2b.loadURDF("kuka_lwr/kuka.urdf");
+
+
+			
+            BulletURDFImporter u2b(m_guiHelper,0,1);
+			bool loadOk = u2b.loadURDF("kuka_iiwa/model.urdf");// lwr / kuka.urdf");
             if (loadOk)
             {
                     int rootLinkIndex = u2b.getRootLinkIndex();
@@ -160,6 +166,10 @@ void InverseDynamicsExample::initPhysics()
                     btTransform identityTrans;
                     identityTrans.setIdentity();
                     ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,true,u2b.getPathPrefix());
+					for (int i = 0; i < u2b.getNumAllocatedCollisionShapes(); i++)
+					{
+						m_collisionShapes.push_back(u2b.getAllocatedCollisionShape(i));
+					}
                     m_multiBody = creation.getBulletMultiBody();
                     if (m_multiBody)
                     {
@@ -189,9 +199,11 @@ void InverseDynamicsExample::initPhysics()
 
     if(m_multiBody) {
         {
-            m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,512,230, "Joint Space Trajectory");
-            m_timeSeriesCanvas ->setupTimeSeries(3,100, 0);
-           
+			if (m_guiHelper->getAppInterface() && m_guiHelper->getParameterInterface())
+			{
+				m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,512,230, "Joint Space Trajectory");
+				m_timeSeriesCanvas ->setupTimeSeries(3,100, 0);
+			}           
         }
         
         // construct inverse model
@@ -203,27 +215,34 @@ void InverseDynamicsExample::initPhysics()
         }
         // add joint target controls
         qd.resize(m_multiBody->getNumDofs());
+		
         qd_name.resize(m_multiBody->getNumDofs());
        	q_name.resize(m_multiBody->getNumDofs()); 
-	for(std::size_t dof=0;dof<qd.size();dof++) {
-            qd[dof] = 0;
-            char tmp[25];
-            sprintf(tmp,"q_desired[%zu]",dof);
-            qd_name[dof] = tmp;
-            SliderParams slider(qd_name[dof].c_str(),&qd[dof]);
-            slider.m_minVal=-3.14;
-            slider.m_maxVal=3.14;
-         sprintf(tmp,"q[%zu]",dof); 
-		q_name[dof] = tmp;   
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-		btVector4 color = sJointCurveColors[dof&7];
-		m_timeSeriesCanvas->addDataSource(q_name[dof].c_str(), color[0]*255,color[1]*255,color[2]*255);
-         }
-        
+
+		if (m_timeSeriesCanvas && m_guiHelper->getParameterInterface())
+		{
+			for(std::size_t dof=0;dof<qd.size();dof++) 
+			{
+				qd[dof] = 0;
+				char tmp[25];
+				sprintf(tmp,"q_desired[%lu]",dof);
+				qd_name[dof] = tmp;
+				SliderParams slider(qd_name[dof].c_str(),&qd[dof]);
+				slider.m_minVal=-3.14;
+				slider.m_maxVal=3.14;
+				
+				sprintf(tmp,"q[%lu]",dof); 
+				q_name[dof] = tmp;   
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+				btVector4 color = sJointCurveColors[dof&7];
+				m_timeSeriesCanvas->addDataSource(q_name[dof].c_str(), color[0]*255,color[1]*255,color[2]*255);
+		
+			}
+		}
         
     }
     
-    
+    m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 
 }
 
@@ -246,7 +265,8 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
 
             const btScalar qd_dot=0;
             const btScalar qd_ddot=0;
-            m_timeSeriesCanvas->insertDataAtCurrentTime(q[dof],dof,true);
+			if (m_timeSeriesCanvas)
+	            m_timeSeriesCanvas->insertDataAtCurrentTime(q[dof],dof,true);
             
             // pd_control is either desired joint torque for pd control,
             // or the feedback contribution to nu
@@ -320,6 +340,23 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
         // todo(thomas) check that this is correct:
         // want to advance by 10ms, with 1ms timesteps
         m_dynamicsWorld->stepSimulation(1e-3,0);//,1e-3);
+		btAlignedObjectArray<btQuaternion> scratch_q;
+		btAlignedObjectArray<btVector3> scratch_m;
+		m_multiBody->forwardKinematics(scratch_q, scratch_m);
+#if 0
+		for (int i = 0; i < m_multiBody->getNumLinks(); i++)
+		{
+			//btVector3 pos = m_multiBody->getLink(i).m_cachedWorldTransform.getOrigin();
+			btTransform tr = m_multiBody->getLink(i).m_cachedWorldTransform;
+			btVector3 pos = tr.getOrigin() - quatRotate(tr.getRotation(), m_multiBody->getLink(i).m_dVector);
+			btVector3 localAxis = m_multiBody->getLink(i).m_axes[0].m_topVec;
+			//printf("link %d: %f,%f,%f, local axis:%f,%f,%f\n", i, pos.x(), pos.y(), pos.z(), localAxis.x(), localAxis.y(), localAxis.z());
+
+			
+
+
+		}
+#endif
     }
 }
 
@@ -330,3 +367,4 @@ CommonExampleInterface*    InverseDynamicsExampleCreateFunc(CommonExampleOptions
 
 
 
+B3_STANDALONE_EXAMPLE(InverseDynamicsExampleCreateFunc)

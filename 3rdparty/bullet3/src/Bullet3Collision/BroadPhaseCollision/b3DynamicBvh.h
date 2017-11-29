@@ -965,8 +965,6 @@ inline void		b3DynamicBvh::rayTestInternal(	const b3DbvtNode* root,
 	B3_DBVT_CHECKTYPE
 	if(root)
 	{
-		b3Vector3 resultNormal;
-
 		int								depth=1;
 		int								treshold=B3_DOUBLE_STACKSIZE-2;
 		b3AlignedObjectArray<const b3DbvtNode*>&	stack = m_rayTestStack;
@@ -1023,9 +1021,10 @@ inline void		b3DynamicBvh::rayTest(	const b3DbvtNode* root,
 			unsigned int signs[3] = { rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
 
 			b3Scalar lambda_max = rayDir.dot(rayTo-rayFrom);
-
+#ifdef COMPARE_BTRAY_AABB2
 			b3Vector3 resultNormal;
-
+#endif//COMPARE_BTRAY_AABB2
+			
 			b3AlignedObjectArray<const b3DbvtNode*>	stack;
 
 			int								depth=1;

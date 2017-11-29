@@ -6,10 +6,15 @@
    		osversion.majorversion, osversion.minorversion, osversion.revision,
    		osversion.description))
 
-
-	-- Multithreaded compiling
 	if _ACTION == "vs2010" or _ACTION=="vs2008" then
-		buildoptions { "/MP"  }
+		buildoptions
+		{
+			-- Multithreaded compiling
+			"/MP",
+			-- Disable a few useless warnings
+			"/wd4244",
+			"/wd4267"
+		}
 	end
 
 	act = ""
@@ -25,14 +30,19 @@
 
 	newoption
 	{
-		trigger = "force_dlopen_opengl",
-		description = "Dynamically load OpenGL (instead of static/dynamic linking)"
+		trigger = "enable_system_opengl",
+		description = "Try to link and use the system OpenGL headers version instead of dynamically loading OpenGL (dlopen is default)"
 	}
 
 	newoption
 	{
-		trigger = "force_dlopen_x11",
-		description = "Dynamically load OpenGL (instead of static/dynamic linking)"
+		trigger = "enable_openvr",
+		description = "Enable experimental Virtual Reality examples, using OpenVR for HTC Vive and Oculus Rift"
+	}
+	newoption
+	{
+		trigger = "enable_system_x11",
+		description = "Try to link and use system X11 headers instead of dynamically loading X11 (dlopen is default)"
 	}
 
 	newoption
@@ -47,7 +57,7 @@
 		description = "Use Midi controller to control parameters"
 	}
 
---	--_OPTIONS["midi"] = "1";
+-- _OPTIONS["midi"] = "1";
 
 	newoption
 	{
@@ -63,8 +73,21 @@
 
 	newoption
 	{
-		trigger = "enet",
-		description = "Enable enet NAT punchthrough test"
+		trigger = "standalone-examples",
+		description = "Build standalone examples with reduced dependencies."
+	}
+
+	newoption
+	{
+		trigger = "no-clsocket",
+		description = "Disable clsocket and clsocket tests (used for optional TCP networking in pybullet and shared memory C-API)"
+	}
+
+
+	newoption
+	{
+		trigger = "no-enet",
+		description = "Disable enet and enet tests (used for optional UDP networking in pybullet and shared memory C-API)"
 	}
 
 	newoption
@@ -73,6 +96,38 @@
 		description = "Enable Lua scipting support in Example Browser"
 	}
 
+	newoption
+        {
+                trigger = "enable_pybullet",
+                description = "Enable high-level Python scripting of Bullet with URDF/SDF import and synthetic camera."
+        }
+
+if os.is("Linux") then
+ 		default_python_include_dir = "/usr/include/python2.7"
+ 		default_python_lib_dir = "/usr/local/lib/"
+end
+
+		
+if os.is("Windows") then
+ 		default_python_include_dir = "C:/Python-3.5.2/include"
+ 		default_python_lib_dir = "C:/Python-3.5.2/libs"
+end
+
+		newoption
+    {
+			trigger     = "python_include_dir",
+			value       = default_python_include_dir,
+			description = "Python (2.x or 3.x) include directory"
+    }
+    
+    newoption
+    {
+			trigger     = "python_lib_dir",
+			value       = default_python_lib_dir,
+			description = "Python (2.x or 3.x) library directory "
+    }
+
+	
 	newoption {
 		trigger     = "targetdir",
 		value       = "path such as ../bin",
@@ -97,6 +152,27 @@
 		description = "Do not build bullet3 libs"
 	}
 
+	newoption
+	{
+		trigger = "double",
+		description = "Double precision version of Bullet"
+	}
+	
+	newoption
+	{
+		trigger = "serial",
+		description = "Enable serial, for testing the VR glove in C++"
+	}
+	
+	newoption
+	{
+		trigger = "audio",
+		description = "Enable audio"
+	}
+	if _OPTIONS["double"] then
+		defines {"BT_USE_DOUBLE_PRECISION"}
+	end
+
 	configurations {"Release", "Debug"}
 	configuration "Release"
 		flags { "Optimize", "EnableSSE2","StaticRuntime", "NoMinimalRebuild", "FloatFast"}
@@ -111,7 +187,7 @@
 			platforms {"x32"}
 		end
 	else
-		platforms {"x32", "x64"}
+		platforms {"x32","x64"}
 	end
 
 	configuration {"x32"}
@@ -162,63 +238,196 @@
 	targetdir( _OPTIONS["targetdir"] or "../bin" )
 	location("./" .. act .. postfix)
 
-
 	projectRootDir = os.getcwd() .. "/../"
 	print("Project root directory: " .. projectRootDir);
+	
+	if not _OPTIONS["python_include_dir"] then
+			_OPTIONS["python_include_dir"] = default_python_include_dir
+	end
+	
+	if not _OPTIONS["python_lib_dir"] then
+			_OPTIONS["python_lib_dir"] = default_python_lib_dir
+	end
+
+if os.is("Linux") then
+                default_glfw_include_dir = "usr/local/include/GLFW"
+                default_glfw_lib_dir = "/usr/local/lib/"
+		default_glfw_lib_name = "glfw3"
+end
+
+if os.is("macosx") then
+		default_glfw_include_dir = "/usr/local/Cellar/glfw/3.2.1/include"
+		default_glfw_lib_dir = "/usr/local/Cellar/glfw/3.2.1/lib"
+		default_glfw_lib_name = "glfw"
+end
+
+if os.is("Windows") then
+                default_glfw_include_dir = "c:/glfw/include"
+                default_glfw_lib_dir = "c:/glfw/lib"
+		default_glfw_lib_name = "glfw3"
+end
+
+	if not _OPTIONS["glfw_lib_dir"] then
+		_OPTIONS["glfw_lib_dir"] = default_glfw_lib_dir
+	end
+	if not _OPTIONS["glfw_include_dir"] then
+		_OPTIONS["glfw_include_dir"] = default_glfw_include_dir
+	end
+	if not _OPTIONS["glfw_lib_name"] then
+		_OPTIONS["glfw_lib_name"] = default_glfw_lib_name
+	end	
+	newoption
+    {
+			trigger     = "glfw_include_dir",
+			value       = default_glfw_include_dir,
+			description = "GLFW 3.x include directory"
+    }
+   
+	 newoption
+    {
+                        trigger     = "glfw_lib_name",
+                        value       = default_glfw_lib_name,
+                        description = "GLFW 3.x library name (glfw, glfw3)"
+    }
+ 
+    newoption
+    {
+			trigger     = "glfw_lib_dir",
+			value       = default_glfw_lib_dir,
+			description = "(optional) GLFW 3.x library directory "
+    }
+    
+    newoption
+    {
+			trigger     = "enable_glfw",
+			value       = false,
+			description = "(optional) use GLFW 3.x library"
+    }
+    
+	if _OPTIONS["enable_glfw"] then
+		defines {"B3_USE_GLFW"}
+		
+			
+		
+		function initOpenGL()
+		includedirs {
+					projectRootDir .. "examples/ThirdPartyLibs/glad"
+			}
+		
+			includedirs {
+				_OPTIONS["glfw_include_dir"],
+			}
+			
+			libdirs {
+				_OPTIONS["glfw_lib_dir"]
+			}
+			links { _OPTIONS["glfw_lib_name"]}
+			files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c" }
+		end
+		function findOpenGL3()
+			return true
+		end
+		function initGlew()
+		end
+		
+	else
+		dofile ("findOpenGLGlewGlut.lua")
+		if (not findOpenGL3()) then
+			defines {"NO_OPENGL3"}
+		end
+	end
+
+	
 
 	dofile ("findOpenCL.lua")
 	dofile ("findDirectX11.lua")
-	dofile ("findOpenGLGlewGlut.lua")
-
-	if (not findOpenGL3()) then
-		defines {"NO_OPENGL3"}
-	end
-
+	
+	
+	
 	language "C++"
 
-	if _OPTIONS["no-bullet3"] then
-		print "--no-bullet3 implies --no-demos"
-		_OPTIONS["no-demos"] = "1"
-	else
-		include "../src/Bullet3Common"
-		include "../src/Bullet3Geometry"
-		include "../src/Bullet3Collision"
-		include "../src/Bullet3Dynamics"
-		include "../src/Bullet3OpenCL"
-		include "../src/Bullet3Serialize/Bullet2FileLoader"
+
+	
+	
+	
+
+	if _OPTIONS["audio"] then
+		include "../examples/TinyAudio"
 	end
 
-	if _OPTIONS["no-extras"] then
-		print "--no-extras implies --no-demos"
-		_OPTIONS["no-demos"] = "1"
-	else
-		include "../Extras"
+	if _OPTIONS["serial"] then
+		include "../examples/ThirdPartyLibs/serial"
 	end
 
 	if not _OPTIONS["no-demos"] then
 		include "../examples/ExampleBrowser"
+		include "../examples/RobotSimulator"
 		include "../examples/OpenGLWindow"
 		include "../examples/ThirdPartyLibs/Gwen"
-
 		include "../examples/HelloWorld"
-		include "../examples/BasicDemo"
-
 		include "../examples/SharedMemory"
-		include "../examples/MultiThreading"
+		include "../examples/ThirdPartyLibs/BussIK"
 
 		if _OPTIONS["lua"] then
 		   include "../examples/ThirdPartyLibs/lua-5.2.3"
 		end
+		if _OPTIONS["enable_pybullet"] then
+		  include "../examples/pybullet"
+		end
+		include "../examples/SimpleOpenGL3"
+
+		if _OPTIONS["standalone-examples"] then
+			
+			include "../examples/TinyRenderer"
+			include "../examples/BasicDemo"
+			include "../examples/InverseDynamics"
+			include "../examples/ExtendedTutorials"
+			include "../examples/MultiThreading"
+		end
 
 		if not _OPTIONS["no-test"] then
 			include "../test/SharedMemory"
-			if _OPTIONS["enet"] then
-				include "../examples/ThirdPartyLibs/enet"
-				include "../test/enet/client"
-				include "../test/enet/server"
-			end
 		end
 	end
+
+	if _OPTIONS["midi"] then
+		include "../examples/ThirdPartyLibs/midi"
+	end
+	
+	if not _OPTIONS["no-clsocket"] then
+		defines {"BT_ENABLE_CLSOCKET"}
+		include "../examples/ThirdPartyLibs/clsocket"		
+		include "../test/clsocket"
+	end
+
+	if not _OPTIONS["no-enet"] then
+				defines {"BT_ENABLE_ENET"}
+
+				include "../examples/ThirdPartyLibs/enet"
+				include "../test/enet/nat_punchthrough/client"
+				include "../test/enet/nat_punchthrough/server"
+				include "../test/enet/chat/client"
+				include "../test/enet/chat/server"
+	end
+
+	 if _OPTIONS["no-bullet3"] then
+                print "--no-bullet3 implies --no-demos"
+                _OPTIONS["no-demos"] = "1"
+        else
+                include "../src/Bullet3Common"
+                include "../src/Bullet3Geometry"
+                include "../src/Bullet3Collision"
+                include "../src/Bullet3Dynamics"
+                include "../src/Bullet3OpenCL"
+                include "../src/Bullet3Serialize/Bullet2FileLoader"
+        end
+
+        if _OPTIONS["no-extras"] then
+                print "--no-extras implies --no-demos"
+                _OPTIONS["no-demos"] = "1"
+        else
+                include "../Extras"
+        end
 
 	if not _OPTIONS["no-test"] then
 		include "../test/Bullet2"

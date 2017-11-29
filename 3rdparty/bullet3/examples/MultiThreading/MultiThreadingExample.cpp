@@ -11,6 +11,7 @@
 #include "stb_image/stb_image.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Matrix3x3.h"
+#include "../Utils/b3Clock.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 #include "LinearMath/btAlignedObjectArray.h"
@@ -68,6 +69,8 @@ struct SampleJob1 : public  SampleJobInterface
     m_jobId(jobId)
     {
     }
+    virtual ~SampleJob1() {}
+
     virtual void executeJob(int threadIndex)
     {
         printf("start SampleJob1 %d using threadIndex %d\n",m_jobId,threadIndex);
@@ -117,7 +120,7 @@ struct SampleThreadLocalStorage
 
 void	SampleThreadFunc(void* userPtr,void* lsMemory)
 {
-	printf("thread started\n");
+	printf("SampleThreadFunc thread started\n");
 
 	SampleThreadLocalStorage* localStorage = (SampleThreadLocalStorage*) lsMemory;
 
@@ -132,6 +135,8 @@ void	SampleThreadFunc(void* userPtr,void* lsMemory)
             job->executeJob(localStorage->threadId);
         }
 		
+		b3Clock::usleep(250);
+
 		args->m_cs->lock();
 		int exitMagicNumber = args->m_cs->getSharedParam(1);
 		requestExit = (exitMagicNumber==MAGIC_RESET_NUMBER);
@@ -158,8 +163,6 @@ void*	SamplelsMemoryFunc()
 class MultiThreadingExample : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
-	GUIHelperInterface* m_guiHelper;
-    int m_exampleIndex;
     b3ThreadSupportInterface* m_threadSupport;
     btAlignedObjectArray<SampleJob1*> m_jobs;
     int m_numThreads;
@@ -167,22 +170,18 @@ public:
     
     MultiThreadingExample(GUIHelperInterface* guiHelper, int tutorialIndex)
     :m_app(guiHelper->getAppInterface()),
-	m_guiHelper(guiHelper),
-	m_exampleIndex(tutorialIndex),
 	m_threadSupport(0),
 	m_numThreads(8)
     {
-		int numBodies = 1;
+		//int numBodies = 1;
 		
 		m_app->setUpAxis(1);
-		m_app->m_renderer->enableBlend(true);
 		
     }
     virtual ~MultiThreadingExample()
     {
 
 
-		m_app->m_renderer->enableBlend(false);
     }
     
    
@@ -303,8 +302,8 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 10.5;
-		float pitch = 136;
-		float yaw = 32;
+		float pitch = -32;
+		float yaw = 136;
 		float targetPos[3]={0,0,0};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
 		{

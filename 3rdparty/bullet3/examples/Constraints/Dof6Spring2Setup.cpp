@@ -55,10 +55,10 @@ struct Dof6Spring2Setup : public CommonRigidBodyBase
 	virtual void resetCamera()
 	{
 		float dist = 5;
-		float pitch = 722;
-		float yaw = 35;
+		float pitch = -35;
+		float yaw = 722;
 		float targetPos[3]={4,2,-11};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };
 
@@ -443,8 +443,6 @@ void Dof6Spring2Setup::animate()
 /////// servo motor: flip its target periodically
 #ifdef USE_6DOF2
 		static float servoNextFrame = -1;
-		btScalar pos = m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_currentPosition;
-		btScalar target = m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_servoTarget;
 		if(servoNextFrame < 0)
 		{
 			m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_servoTarget *= -1;

@@ -172,7 +172,7 @@ cl_platform_id b3OpenCLUtils_getPlatform(int platformIndex0, cl_int* pErrNum)
 	cl_uint numPlatforms;
 	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
 
-	if (platformIndex>=0 && platformIndex<numPlatforms)
+	if (platformIndex<numPlatforms)
 	{
 		cl_platform_id* platforms = (cl_platform_id*) malloc (sizeof(cl_platform_id)*numPlatforms);
 		ciErrNum = clGetPlatformIDs(numPlatforms, platforms, NULL);
@@ -560,7 +560,7 @@ void b3OpenCLUtils_printDeviceInfo(cl_device_id device)
 	b3Printf("\t\t\t\t\t3D_MAX_WIDTH\t %u\n", info.m_image3dMaxWidth);
 	b3Printf("\t\t\t\t\t3D_MAX_HEIGHT\t %u\n", info.m_image3dMaxHeight);
 	b3Printf("\t\t\t\t\t3D_MAX_DEPTH\t %u\n", info.m_image3dMaxDepth);
-	if (info.m_deviceExtensions != 0)
+	if (*info.m_deviceExtensions != 0)
 	{
 		b3Printf("\n  CL_DEVICE_EXTENSIONS:%s\n",info.m_deviceExtensions);
 	}
@@ -583,7 +583,7 @@ static const char* strip2(const char* name, const char* pattern)
 	  const char * oriptr;
 	  const char * patloc;
 		// find how many times the pattern occurs in the original string
-	  for (oriptr = name; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
+	  for (oriptr = name; (patloc = strstr(oriptr, pattern)); oriptr = patloc + patlen)
 	  {
 		patcnt++;
 	  }
@@ -608,8 +608,9 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 	char driverVersion[256];
 	const char* strippedName;
 	int fileUpToDate = 0;
+#ifdef _WIN32
 	int binaryFileValid=0;
-	
+#endif	
 	if (!disableBinaryCaching && clFileNameForCaching)
 	{
 		clGetDeviceInfo(device, CL_DEVICE_NAME, 256, &deviceName, NULL);
@@ -636,10 +637,10 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 
 		FILETIME modtimeBinary;
-		CreateDirectory(sCachedBinaryPath,0);
+		CreateDirectoryA(sCachedBinaryPath,0);
 		{
 
-			HANDLE binaryFileHandle = CreateFile(binaryFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+			HANDLE binaryFileHandle = CreateFileA(binaryFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
 			if (binaryFileHandle ==INVALID_HANDLE_VALUE)
 			{
 				DWORD errorCode;
@@ -677,7 +678,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 			if (binaryFileValid)
 			{
-				HANDLE srcFileHandle = CreateFile(clFileNameForCaching,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+				HANDLE srcFileHandle = CreateFileA(clFileNameForCaching,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
 
 				if (srcFileHandle==INVALID_HANDLE_VALUE)
 				{
@@ -686,7 +687,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					{
 						char relativeFileName[1024];
 						sprintf(relativeFileName,"%s%s",prefix[i],clFileNameForCaching);
-						srcFileHandle = CreateFile(relativeFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+						srcFileHandle = CreateFileA(relativeFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
 					}
 
 				}
@@ -862,7 +863,8 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					int kernelSize = ftell( file );
 					rewind( file );
 					kernelSrc = (char*)malloc(kernelSize+1);
-					int readBytes = fread((void*)kernelSrc,1,kernelSize, file);
+					int readBytes;
+					readBytes = fread((void*)kernelSrc,1,kernelSize, file);
 					kernelSrc[kernelSize] = 0;
 					fclose(file);
 					kernelSource = kernelSrc;

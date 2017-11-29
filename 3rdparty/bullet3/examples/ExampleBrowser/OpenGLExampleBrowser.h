@@ -5,6 +5,9 @@
 
 class OpenGLExampleBrowser : public ExampleBrowserInterface
 {
+	
+	struct OpenGLExampleBrowserInternalData* m_internalData;
+
 public:
 
 	OpenGLExampleBrowser(class ExampleEntries* examples);
@@ -16,8 +19,13 @@ public:
 
 	virtual void update(float deltaTime);
 
+	virtual void updateGraphics();
+
 	virtual bool requestedExit();
+
+	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
 	
+	static void registerFileImporter(const char* extension, CommonExampleInterface::CreateFunc*		createFunc);
 };
 
 #endif //OPENGL_BROWSER_GUI_H

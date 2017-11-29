@@ -37,7 +37,8 @@
 
 
 
-        project "Test_InverseForwardDynamics"
+        project "Test_InverseDynamicsJacobian"
+
 
         kind "ConsoleApp"
 
@@ -50,10 +51,42 @@
                 ".",
                 "../../src",
                 "../../examples/InverseDynamics",
-                "../../examples/ThirdPartyLibs",
                 "../../Extras/InverseDynamics",
                 "../gtest-1.7.0/include"
 
+        }
+
+
+        if os.is("Windows") then
+                --see http://stackoverflow.com/questions/12558327/google-test-in-visual-studio-2012
+                defines {"_VARIADIC_MAX=10"}
+        end
+
+        links {"BulletInverseDynamicsUtils", "BulletInverseDynamics","Bullet3Common","LinearMath", "gtest"}
+
+        files {
+                "test_invdyn_jacobian.cpp",
+        }
+
+        if os.is("Linux") then
+                links {"pthread"}
+        end
+
+	project "Test_InverseForwardDynamics"
+	kind "ConsoleApp"
+--      defines {  }
+
+
+
+        includedirs
+        {
+                ".",
+                "../../src",
+                "../../examples/InverseDynamics",
+                "../../examples/ThirdPartyLibs",
+                "../../Extras/InverseDynamics",
+                "../gtest-1.7.0/include",
+                "../../examples/ThirdPartyLibs",
         }
 
 
@@ -73,14 +106,13 @@
         "../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.h",
         "../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp",
         "../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.h",
-        "../../examples/Importers/ImportURDFDemo/UrdfParser.cpp",
-        "../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp",
-        "../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.h",
         "../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp",
         "../../examples/Importers/ImportURDFDemo/UrdfParser.cpp",
         "../../examples/Importers/ImportURDFDemo/UrdfParser.h",
         "../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp",
         "../../examples/Importers/ImportURDFDemo/URDF2Bullet.h",
+	"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
+        "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
         "../../examples/Utils/b3Clock.cpp",
         "../../Extras/Serialize/BulletWorldImporter/*",
         "../../Extras/Serialize/BulletFileLoader/*",

@@ -79,6 +79,8 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	//moved to btCollisionObject
 	m_friction = constructionInfo.m_friction;
 	m_rollingFriction = constructionInfo.m_rollingFriction;
+    m_spinningFriction = constructionInfo.m_spinningFriction;
+    
 	m_restitution = constructionInfo.m_restitution;
 
 	setCollisionShape( constructionInfo.m_collisionShape );
@@ -504,6 +506,11 @@ const char*	btRigidBody::serialize(void* dataBuffer, class btSerializer* seriali
 	rbd->m_additionalAngularDampingFactor = m_additionalAngularDampingFactor;
 	rbd->m_linearSleepingThreshold=m_linearSleepingThreshold;
 	rbd->m_angularSleepingThreshold = m_angularSleepingThreshold;
+
+	// Fill padding with zeros to appease msan.
+#ifdef BT_USE_DOUBLE_PRECISION
+	memset(rbd->m_padding, 0, sizeof(rbd->m_padding));
+#endif
 
 	return btRigidBodyDataName;
 }

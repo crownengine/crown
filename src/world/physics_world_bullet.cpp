@@ -40,6 +40,7 @@
 #include <BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h>
 #include <BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h>
 #include <BulletDynamics/ConstraintSolver/btSliderConstraint.h>
+#define BT_THREADSAFE 0
 #include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <LinearMath/btDefaultMotionState.h>

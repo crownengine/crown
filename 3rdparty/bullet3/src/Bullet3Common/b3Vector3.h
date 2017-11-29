@@ -249,14 +249,16 @@ public:
 
 	B3_FORCE_INLINE b3Vector3& safeNormalize()
 	{
-		b3Vector3 absVec = this->absolute();
-		int maxIndex = absVec.maxAxis();
-		if (absVec[maxIndex]>0)
+		b3Scalar l2 = length2();
+		//triNormal.normalize();
+		if (l2 >= B3_EPSILON*B3_EPSILON)
 		{
-			*this /= absVec[maxIndex];
-			return *this /= length();
+			(*this) /= b3Sqrt(l2);
 		}
-		setValue(1,0,0);
+		else
+		{
+			setValue(1, 0, 0);
+		}
 		return *this;
 	}
 
@@ -1093,7 +1095,6 @@ public:
 		if (m_floats[3] > maxVal)
 		{
 			maxIndex = 3;
-			maxVal = m_floats[3];
 		}
 
 		return maxIndex;

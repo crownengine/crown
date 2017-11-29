@@ -59,10 +59,10 @@ public:
 	void resetCamera()
 	{
 		float dist = 35;
-		float pitch = 0;
-		float yaw = 14;
+		float pitch = -14;
+		float yaw = 0;
 		float targetPos[3]={0,0,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 	
 };
@@ -123,8 +123,8 @@ void	RollingFrictionDemo::initPhysics()
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setFriction(1);
-		body->setRollingFriction(1);
+		body->setFriction(.5);
+
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
 	}
@@ -153,8 +153,7 @@ void	RollingFrictionDemo::initPhysics()
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setFriction(1);
-		body->setRollingFriction(1);
+		body->setFriction(.1);
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
 	}
@@ -217,7 +216,8 @@ void	RollingFrictionDemo::initPhysics()
 						btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 						btRigidBody* body = new btRigidBody(rbInfo);
 						body->setFriction(1.f);
-						body->setRollingFriction(.3);
+						body->setRollingFriction(.1);
+						body->setSpinningFriction(0.1);
 						body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 
 
@@ -234,9 +234,8 @@ void	RollingFrictionDemo::initPhysics()
 	{	
 	btSerializer* s = new btDefaultSerializer;
 	m_dynamicsWorld->serialize(s);
-	b3ResourcePath p;
 	char resourcePath[1024];
-	if (p.findResourcePath("slope.bullet",resourcePath,1024))
+	if (b3ResourcePath::findResourcePath("slope.bullet",resourcePath,1024))
 	{
 		FILE* f = fopen(resourcePath,"wb");
 		fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);

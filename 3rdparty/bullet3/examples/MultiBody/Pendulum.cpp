@@ -40,10 +40,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 5;
-		float pitch = 270;
-		float yaw = 21;
+		float pitch = -21;
+		float yaw = 270;
 		float targetPos[3]={0,0,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 	
 	
@@ -150,8 +150,8 @@ void Pendulum::initPhysics()
 			btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, i);
 			col->setCollisionShape(shape);
 			bool isDynamic = 1;
-			short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-			short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+			int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+			int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 			world->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);//,2,1+2);
 			btVector4 color(1,0,0,1);
 			m_guiHelper->createCollisionObjectGraphicsObject(col,color);

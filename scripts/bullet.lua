@@ -13,6 +13,15 @@ project "bullet"
 		BULLET_DIR .. "src",
 	}
 
+	configuration {}
+
+	defines {
+		"BT_THREADSAFE=0",
+		"BT_USE_TBB=0",
+		"BT_USE_PPL=0",
+		"BT_USE_OPENMP=0",
+	}
+
 	configuration { "linux-*" }
 		buildoptions {
 			"-Wno-unused-parameter",
@@ -22,6 +31,7 @@ project "bullet"
 			"-Wno-sign-compare",
 			"-Wno-type-limits",
 			"-Wno-parentheses",
+			"-Wno-maybe-uninitialized",
 		}
 		buildoptions_cpp {
 			"-Wno-reorder",

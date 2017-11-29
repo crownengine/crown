@@ -10,12 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "stb_image/stb_image_write.h"
 
 
 static unsigned int s_indexData[INDEX_COUNT];
-GLuint s_indexArrayObject, s_indexBuffer;
-GLuint s_vertexArrayObject,s_vertexBuffer;
+static GLuint s_indexArrayObject, s_indexBuffer;
+static GLuint s_vertexArrayObject,s_vertexBuffer;
 
 OpenGL2RenderCallbacks::OpenGL2RenderCallbacks(GLPrimitiveRenderer* primRender)
 	:m_primRender2(primRender)
@@ -37,7 +37,6 @@ InternalOpenGL2RenderCallbacks::~InternalOpenGL2RenderCallbacks()
 
 void InternalOpenGL2RenderCallbacks::display2() 
 {
-    
     assert(glGetError()==GL_NO_ERROR);
    // glViewport(0,0,10,10);
     
@@ -55,7 +54,13 @@ void InternalOpenGL2RenderCallbacks::display2()
     
     
        assert(glGetError()==GL_NO_ERROR);
-  
+	 float identity[16]={1,0,0,0,
+						0,1,0,0,
+						0,0,1,0,
+						0,0,0,1};
+	glUniformMatrix4fv(data->m_viewmatUniform, 1, false, identity);
+	glUniformMatrix4fv(data->m_projMatUniform, 1, false, identity);
+
     vec2 p( 0.f,0.f);//?b?0.5f * sinf(timeValue), 0.5f * cosf(timeValue) );
     glUniform2fv(data->m_positionUniform, 1, (const GLfloat *)&p);
     
@@ -127,7 +132,7 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 			texture->m_texels = (unsigned char*)malloc(textureWidth*textureHeight);
 			memset(texture->m_texels,0,textureWidth*textureHeight);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, textureWidth, textureHeight, 0, GL_RED, GL_UNSIGNED_BYTE, texture->m_texels);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	    assert(glGetError()==GL_NO_ERROR);
 
@@ -188,7 +193,7 @@ void InternalOpenGL2RenderCallbacks::render(sth_texture* texture)
 	bool useFiltering = false;
 	if (useFiltering)
 	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	} else
 	{

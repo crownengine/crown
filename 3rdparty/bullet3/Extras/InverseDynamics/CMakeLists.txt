@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(
 BulletInverseDynamicsUtils
+CloneTreeCreator.cpp
 CoilCreator.cpp
 MultiBodyTreeCreator.cpp
 btMultiBodyTreeCreator.cpp
@@ -11,6 +12,7 @@ DillCreator.cpp
 MultiBodyTreeDebugGraph.cpp
 invdyn_bullet_comparison.cpp
 IDRandomUtil.cpp
+RandomTreeCreator.cpp
 SimpleTreeCreator.cpp
 MultiBodyNameMap.cpp
 User2InternalIndex.cpp
@@ -30,7 +32,10 @@ IF (INSTALL_EXTRA_LIBS)
 			IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 				INSTALL(TARGETS BulletInverseDynamicsUtils  DESTINATION .)
 			ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS BulletInverseDynamicsUtils DESTINATION lib${LIB_SUFFIX})
+				INSTALL(TARGETS BulletInverseDynamicsUtils
+                                        RUNTIME DESTINATION bin
+                                        LIBRARY DESTINATION lib${LIB_SUFFIX}
+                                        ARCHIVE DESTINATION lib${LIB_SUFFIX})
 				INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 DESTINATION ${INCLUDE_INSTALL_DIR} FILES_MATCHING PATTERN "*.h"  PATTERN
 ".svn" EXCLUDE PATTERN "CMakeFiles" EXCLUDE)

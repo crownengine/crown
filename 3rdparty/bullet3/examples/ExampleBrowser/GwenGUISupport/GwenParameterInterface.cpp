@@ -3,12 +3,14 @@
 
 struct MyButtonEventHandler : public Gwen::Event::Handler
 {
+    Gwen::Controls::Button* m_buttonControl;
 	ButtonParamChangedCallback m_callback;
 	void* m_userPointer;
 	int m_buttonId;
 
-	MyButtonEventHandler(ButtonParamChangedCallback callback, int buttonId, void* userPointer)
-		:m_callback(callback),
+	MyButtonEventHandler(Gwen::Controls::Button* buttonControl, ButtonParamChangedCallback callback, int buttonId, void* userPointer)
+		:m_buttonControl(buttonControl),
+        m_callback(callback),
 		m_userPointer(userPointer),
 		m_buttonId(buttonId)
 	{
@@ -18,7 +20,12 @@ struct MyButtonEventHandler : public Gwen::Event::Handler
 	{
 		if (m_callback)
 		{
-			(*m_callback)(m_buttonId, true, m_userPointer);
+            bool buttonState = true;
+            if (m_buttonControl->IsToggle())
+            {
+                buttonState = m_buttonControl->GetToggleState();
+            }
+            ( *m_callback )( m_buttonId, buttonState, m_userPointer );
 		}
 	}
 };
@@ -27,17 +34,22 @@ struct MyButtonEventHandler : public Gwen::Event::Handler
 template<typename T>
 struct MySliderEventHandler : public Gwen::Event::Handler
 {
+	SliderParamChangedCallback m_callback;
+	void* m_userPointer;
 	Gwen::Controls::TextBox* m_label;
 	Gwen::Controls::Slider* m_pSlider;
 	char m_variableName[1024];
 	T* m_targetValue;
     bool m_showValue;
 
-	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target)
-		:m_label(label),
+	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target, SliderParamChangedCallback callback, void* userPtr)
+	:	m_callback(callback),
+		m_userPointer(userPtr),
+		m_label(label),
 		m_pSlider(pSlider),
-		m_targetValue(target),
-        m_showValue(true)
+	m_targetValue(target),
+	m_showValue(true)
+
 	{
 		memcpy(m_variableName,varName,strlen(varName)+1);
 	}
@@ -50,6 +62,11 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		float bla = pSlider->GetValue();
 		T v = T(bla);
 		SetValue(v);
+
+		if (m_callback)
+		{
+			(*m_callback)(v, m_userPointer);
+		}
 
 	}
 
@@ -131,10 +148,12 @@ void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
 {
 	
 	Gwen::Controls::Button* button = new Gwen::Controls::Button(m_gwenInternalData->m_demoPage->GetPage());
-	MyButtonEventHandler* handler = new MyButtonEventHandler(params.m_callback,params.m_buttonId,params.m_userPointer);
+	MyButtonEventHandler* handler = new MyButtonEventHandler(button, params.m_callback,params.m_buttonId,params.m_userPointer);
 	button->SetText(params.m_name);
 	button->onPress.Add( handler, &MyButtonEventHandler::onButtonPress );
-
+    button->SetIsToggle(params.m_isTrigger);
+    button->SetToggleState(params.m_initialState);
+    
 	m_paramInternalData->m_buttons.push_back(button);
 	m_paramInternalData->m_buttonEventHandlers.push_back(handler);
 
@@ -183,8 +202,8 @@ void GwenParameterInterface::registerComboBox(ComboBoxParams& params)
 	combobox->onSelection.Add(handler,&MyComboBoxHander2::onSelect);
 	int ypos = m_gwenInternalData->m_curYposition;
 	m_gwenInternalData->m_curYposition+=22;
-	combobox->SetPos(10, ypos );
-	combobox->SetWidth( 100 );
+	combobox->SetPos(5, ypos );
+	combobox->SetWidth( 220 );
 	//box->SetPos(120,130);
 	for (int i=0;i<params.m_numItems;i++)
 	{
@@ -193,6 +212,7 @@ void GwenParameterInterface::registerComboBox(ComboBoxParams& params)
 			combobox->OnItemSelected(item);
 	}
 
+    
 	
 
 }
@@ -214,12 +234,20 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	pSlider->SetPos( 10, m_gwenInternalData->m_curYposition );
 	pSlider->SetSize( 200, 20 );
 	pSlider->SetRange( params.m_minVal, params.m_maxVal);
-	pSlider->SetNotchCount(16);//float(params.m_maxVal-params.m_minVal)/100.f);
-	pSlider->SetClampToNotches( params.m_clampToNotches );
+    if (params.m_clampToIntegers)
+    {
+        pSlider->SetNotchCount( int( params.m_maxVal - params.m_minVal ) );
+        pSlider->SetClampToNotches( true );
+    }
+    else
+    {
+        pSlider->SetNotchCount( 16 );//float(params.m_maxVal-params.m_minVal)/100.f);
+        pSlider->SetClampToNotches( params.m_clampToNotches );
+    }
 	pSlider->SetValue( *params.m_paramValuePointer);//dimensions[i] );
 	char labelName[1024];
 	sprintf(labelName,"%s",params.m_name);//axisNames[0]);
-	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName,label,pSlider,params.m_paramValuePointer);
+	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName,label,pSlider,params.m_paramValuePointer,params.m_callback, params.m_userPointer);
     handler->m_showValue = params.m_showValues;
 	m_paramInternalData->m_sliderEventHandlers.push_back(handler);
 
