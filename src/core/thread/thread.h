@@ -54,15 +54,8 @@ struct Thread
 	///
 	bool is_running();
 
-private:
-
+	/// Do not call explicitly.
 	s32 run();
-
-#if CROWN_PLATFORM_POSIX
-	static void* thread_proc(void* arg);
-#elif CROWN_PLATFORM_WINDOWS
-	static DWORD WINAPI thread_proc(void* arg);
-#endif
 };
 
 } // namespace crown

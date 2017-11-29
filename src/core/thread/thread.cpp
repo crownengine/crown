@@ -8,6 +8,21 @@
 
 namespace crown
 {
+#if CROWN_PLATFORM_POSIX
+static void* thread_proc(void* arg)
+{
+	static s32 result = -1;
+	result = ((Thread*)arg)->run();
+	return (void*)&result;
+}
+#elif CROWN_PLATFORM_WINDOWS
+static DWORD WINAPI thread_proc(void* arg)
+{
+	s32 result = ((Thread*)arg)->run();
+	return result;
+}
+#endif
+
 Thread::Thread()
 	: _function(NULL)
 	, _user_data(NULL)
@@ -52,7 +67,7 @@ void Thread::start(ThreadFunction func, void* user_data, u32 stack_size)
 	CE_ASSERT(err == 0, "pthread_attr_destroy: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	_handle = CreateThread(NULL, stack_size, Thread::thread_proc, this, 0, NULL);
+	_handle = CreateThread(NULL, stack_size, thread_proc, this, 0, NULL);
 	CE_ASSERT(_handle != NULL, "CreateThread: GetLastError = %d", GetLastError());
 #endif
 
@@ -89,21 +104,5 @@ s32 Thread::run()
 	_sem.post();
 	return _function(_user_data);
 }
-
-#if CROWN_PLATFORM_POSIX
-void* Thread::thread_proc(void* arg)
-{
-	static s32 result = -1;
-	result = ((Thread*)arg)->run();
-	return (void*)&result;
-}
-#elif CROWN_PLATFORM_WINDOWS
-DWORD WINAPI Thread::thread_proc(void* arg)
-{
-	Thread* thread = (Thread*)arg;
-	s32 result = thread->run();
-	return result;
-}
-#endif
 
 } // namespace crown
