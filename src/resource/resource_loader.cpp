@@ -16,13 +16,18 @@
 
 namespace crown
 {
+static s32 thread_proc(void* thiz)
+{
+	return ((ResourceLoader*)thiz)->run();
+}
+
 ResourceLoader::ResourceLoader(Filesystem& data_filesystem)
 	: _data_filesystem(data_filesystem)
 	, _requests(default_allocator())
 	, _loaded(default_allocator())
 	, _exit(false)
 {
-	_thread.start(ResourceLoader::thread_proc, this);
+	_thread.start(thread_proc, this);
 }
 
 ResourceLoader::~ResourceLoader()
@@ -132,11 +137,6 @@ s32 ResourceLoader::run()
 	}
 
 	return 0;
-}
-
-s32 ResourceLoader::thread_proc(void* thiz)
-{
-	return ((ResourceLoader*)thiz)->run();
 }
 
 } // namespace crown

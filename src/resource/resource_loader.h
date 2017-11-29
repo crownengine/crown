@@ -43,8 +43,9 @@ struct ResourceLoader
 
 	u32 num_requests();
 	void add_loaded(ResourceRequest rr);
+
+	/// Do not call explicitly.
 	s32 run();
-	static s32 thread_proc(void* thiz);
 
 	/// Read resources from @a data_filesystem.
 	ResourceLoader(Filesystem& data_filesystem);
