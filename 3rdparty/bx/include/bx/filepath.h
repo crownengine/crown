@@ -6,12 +6,28 @@
 #ifndef BX_FILEPATH_H_HEADER_GUARD
 #define BX_FILEPATH_H_HEADER_GUARD
 
+#include "error.h"
 #include "string.h"
+
+BX_ERROR_RESULT(BX_ERROR_ACCESS,        BX_MAKEFOURCC('b', 'x', 0, 0) );
+BX_ERROR_RESULT(BX_ERROR_NOT_DIRECTORY, BX_MAKEFOURCC('b', 'x', 0, 1) );
 
 namespace bx
 {
 	const int32_t kMaxFilePath = 1024;
-	struct TempDir { enum Enum { Tag }; };
+
+	///
+	struct Dir
+	{
+		enum Enum ///
+		{
+			Current,
+			Temp,
+			Home,
+
+			Count
+		};
+	};
 
 	/// FilePath parser and helper.
 	///
@@ -29,7 +45,7 @@ namespace bx
 		FilePath();
 
 		///
-		FilePath(TempDir::Enum);
+		FilePath(Dir::Enum _dir);
 
 		///
 		FilePath(const char* _str);
@@ -41,7 +57,7 @@ namespace bx
 		FilePath& operator=(const StringView& _rhs);
 
 		///
-		void set(TempDir::Enum);
+		void set(Dir::Enum _dir);
 
 		///
 		void set(const StringView& _str);
@@ -74,6 +90,18 @@ namespace bx
 	private:
 		char m_filePath[kMaxFilePath];
 	};
+
+	/// Creates a directory named `_filePath`.
+	bool make(const FilePath& _filePath, Error* _err = NULL);
+
+	/// Creates a directory named `_filePath` along with all necessary parents.
+	bool makeAll(const FilePath& _filePath, Error* _err = NULL);
+
+	/// Removes file or directory.
+	bool remove(const FilePath& _filePath, Error* _err = NULL);
+
+	/// Removes file or directory recursivelly.
+	bool removeAll(const FilePath& _filePath, Error* _err = NULL);
 
 } // namespace bx
 

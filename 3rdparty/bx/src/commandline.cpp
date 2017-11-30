@@ -3,6 +3,7 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
+#include "bx_p.h"
 #include <bx/commandline.h>
 #include <bx/string.h>
 
@@ -197,7 +198,7 @@ namespace bx
 		const char* arg = findOption(_short, _long, 1);
 		if (NULL != arg)
 		{
-			_value = atoi(arg);
+			fromString(&_value, arg);
 			return true;
 		}
 
@@ -209,7 +210,7 @@ namespace bx
 		const char* arg = findOption(_short, _long, 1);
 		if (NULL != arg)
 		{
-			_value = atoi(arg);
+			fromString(&_value, arg);
 			return true;
 		}
 
@@ -221,7 +222,7 @@ namespace bx
 		const char* arg = findOption(_short, _long, 1);
 		if (NULL != arg)
 		{
-			_value = float(atof(arg));
+			fromString(&_value, arg);
 			return true;
 		}
 
@@ -233,7 +234,7 @@ namespace bx
 		const char* arg = findOption(_short, _long, 1);
 		if (NULL != arg)
 		{
-			_value = atof(arg);
+			fromString(&_value, arg);
 			return true;
 		}
 
@@ -262,7 +263,7 @@ namespace bx
 
 	const char* CommandLine::find(int32_t _skip, const char _short, const char* _long, int32_t _numParams) const
 	{
-		for (int32_t ii = 0; ii < m_argc; ++ii)
+		for (int32_t ii = 0; ii < m_argc && 0 != strCmp(m_argv[ii], "--"); ++ii)
 		{
 			const char* arg = m_argv[ii];
 			if ('-' == *arg)
@@ -317,6 +318,16 @@ namespace bx
 		}
 
 		return NULL;
+	}
+
+	int32_t CommandLine::getNum() const
+	{
+		return m_argc;
+	}
+
+	char const* CommandLine::get(int32_t _idx) const
+	{
+		return m_argv[_idx];
 	}
 
 } // namespace bx

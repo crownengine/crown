@@ -8,9 +8,9 @@
 
 namespace bgfx { namespace glsl
 {
-	static bool compile(bx::CommandLine& _cmdLine, uint32_t _version, const std::string& _code, bx::WriterI* _writer)
+	static bool compile(const Options& _options, uint32_t _version, const std::string& _code, bx::WriterI* _writer)
 	{
-		char ch = char(tolower(_cmdLine.findOption('\0', "type")[0]) );
+		char ch = _options.shaderType;
 		const glslopt_shader_type type = ch == 'f'
 			? kGlslOptShaderFragment
 			: (ch == 'c' ? kGlslOptShaderCompute : kGlslOptShaderVertex);
@@ -126,6 +126,13 @@ namespace bgfx { namespace glsl
 						continue;
 					}
 
+					if (0 == bx::strCmp(parse, "tmpvar", 6) )
+					{
+						// skip temporaries
+						parse = eol + 1;
+						continue;
+					}
+
 					if (0 != bx::strCmp(qualifier, "uniform", 7) )
 					{
 						// end if there is no uniform keyword.
@@ -162,13 +169,13 @@ namespace bgfx { namespace glsl
 
 					char uniformName[256];
 					uint8_t num = 1;
-					const char* array = bx::strFind(name, "[", int32_t(eol-parse) );
+					const char* array = bx::strFind(bx::StringView(name, int32_t(eol-parse) ), "[");
 					if (NULL != array)
 					{
 						bx::strCopy(uniformName, int32_t(array-name+1), name);
 
 						char arraySize[32];
-						const char* end = bx::strFind(array, "]", int32_t(eol-array) );
+						const char* end = bx::strFind(bx::StringView(array, int32_t(eol-array) ), "]");
 						bx::strCopy(arraySize, int32_t(end-array), array+1);
 						num = uint8_t(atoi(arraySize) );
 					}
@@ -221,13 +228,13 @@ namespace bgfx { namespace glsl
 
 					char uniformName[256];
 					uint8_t num = 1;
-					const char* array = bx::strFind(name, "[", int32_t(eol-parse) );
+					const char* array = bx::strFind(bx::StringView(name, int32_t(eol-parse) ), "[");
 					if (NULL != array)
 					{
 						bx::strCopy(uniformName, int32_t(array-name+1), name);
 
 						char arraySize[32];
-						const char* arrayEnd = bx::strFind(array, "]", int32_t(eol-array) );
+						const char* arrayEnd = bx::strFind(bx::StringView(array, int32_t(eol-array) ), "]");
 						bx::strCopy(arraySize, int32_t(arrayEnd-array), array+1);
 						num = uint8_t(atoi(arraySize) );
 					}
@@ -285,10 +292,9 @@ namespace bgfx { namespace glsl
 		uint8_t nul = 0;
 		bx::write(_writer, nul);
 
-		if (_cmdLine.hasArg('\0', "disasm") )
+		if (_options.disasm )
 		{
-			std::string disasmfp = _cmdLine.findOption('o');
-			disasmfp += ".disasm";
+			std::string disasmfp = _options.outputFilePath + ".disasm";
 			writeFile(disasmfp.c_str(), optimizedShader, shaderSize);
 		}
 
@@ -299,9 +305,9 @@ namespace bgfx { namespace glsl
 
 } // namespace glsl
 
-	bool compileGLSLShader(bx::CommandLine& _cmdLine, uint32_t _version, const std::string& _code, bx::WriterI* _writer)
+	bool compileGLSLShader(const Options& _options, uint32_t _version, const std::string& _code, bx::WriterI* _writer)
 	{
-		return glsl::compile(_cmdLine, _version, _code, _writer);
+		return glsl::compile(_options, _version, _code, _writer);
 	}
 
 } // namespace bgfx

@@ -28,8 +28,8 @@ solution "bx"
 	language "C++"
 
 BX_DIR = path.getabsolute("..")
-local BX_BUILD_DIR = path.join(BX_DIR, ".build")
-local BX_THIRD_PARTY_DIR = path.join(BX_DIR, "3rdparty")
+BX_BUILD_DIR = path.join(BX_DIR, ".build")
+BX_THIRD_PARTY_DIR = path.join(BX_DIR, "3rdparty")
 
 dofile "toolchain.lua"
 toolchain(BX_BUILD_DIR, BX_THIRD_PARTY_DIR)

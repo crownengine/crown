@@ -3,19 +3,19 @@
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
+#include <stdio.h>
+
 #include <algorithm>
 #include <vector>
-#include <string>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
+#include <bx/string.h>
 #include <bgfx/bgfx.h>
 #include "../../src/vertexdecl.h"
 
 #include <tinystl/allocator.h>
 #include <tinystl/unordered_map.h>
 #include <tinystl/unordered_set.h>
+#include <tinystl/string.h>
 namespace stl = tinystl;
 
 #include <forsyth-too/forsythtriangleorderoptimizer.h>
@@ -90,8 +90,8 @@ struct Group
 {
 	uint32_t m_startTriangle;
 	uint32_t m_numTriangles;
-	std::string m_name;
-	std::string m_material;
+	stl::string m_name;
+	stl::string m_material;
 };
 
 typedef std::vector<Group> GroupArray;
@@ -102,7 +102,7 @@ struct Primitive
 	uint32_t m_startIndex;
 	uint32_t m_numVertices;
 	uint32_t m_numIndices;
-	std::string m_name;
+	stl::string m_name;
 };
 
 typedef std::vector<Primitive> PrimitiveArray;
@@ -295,7 +295,7 @@ void write(bx::WriterI* _writer
 		, uint32_t _numIndices
 		, const uint8_t* _compressedIndices
 		, uint32_t _compressedSize
-		, const std::string& _material
+		, const stl::string& _material
 		, const PrimitiveArray& _primitives
 		)
 {
@@ -357,7 +357,7 @@ struct GroupSortByMaterial
 {
 	bool operator()(const Group& _lhs, const Group& _rhs)
 	{
-		return _lhs.m_material < _rhs.m_material;
+		return 0 < bx::strCmp(_lhs.m_material.c_str(), _rhs.m_material.c_str() );
 	}
 };
 
@@ -540,7 +540,7 @@ int main(int _argc, const char* _argv[])
 						index.m_vbc = 0;
 					}
 
-					const char* vertex   = argv[edge+1];
+					const char* vertex = argv[edge+1];
 					char* texcoord = const_cast<char*>(bx::strFind(vertex, '/') );
 					if (NULL != texcoord)
 					{
@@ -550,19 +550,22 @@ int main(int _argc, const char* _argv[])
 						if (NULL != normal)
 						{
 							*normal++ = '\0';
-							const int nn = atoi(normal);
+							int32_t nn;
+							bx::fromString(&nn, normal);
 							index.m_normal = (nn < 0) ? nn+numNormals : nn-1;
 						}
 
 						// https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vertex_Normal_Indices_Without_Texture_Coordinate_Indices
 						if(*texcoord != '\0')
 						{
-							const int tex = atoi(texcoord);
+							int32_t tex;
+							bx::fromString(&tex, texcoord);
 							index.m_texcoord = (tex < 0) ? tex+numTexcoords : tex-1;
 						}
 					}
 
-					const int pos = atoi(vertex);
+					int32_t pos;
+					bx::fromString(&pos, vertex);
 					index.m_position = (pos < 0) ? pos+numPositions : pos-1;
 
 					uint64_t hash0 = index.m_position;
@@ -694,9 +697,9 @@ int main(int _argc, const char* _argv[])
 			}
 			else if (0 == bx::strCmp(argv[0], "usemtl") )
 			{
-				std::string material(argv[1]);
+				stl::string material(argv[1]);
 
-				if (material != group.m_material)
+				if (0 != bx::strCmp(material.c_str(), group.m_material.c_str() ) )
 				{
 					group.m_numTriangles = (uint32_t)(triangles.size() ) - group.m_startTriangle;
 					if (0 < group.m_numTriangles)
@@ -749,25 +752,35 @@ int main(int _argc, const char* _argv[])
 		hasNormal   = -1 != it->second.m_normal;
 		hasTexcoord = -1 != it->second.m_texcoord;
 
-		if (!hasTexcoord
-		&&  texcoords.size() == positions.size() )
+		if (!hasTexcoord)
 		{
-			hasTexcoord = true;
-
-			for (Index3Map::iterator jt = indexMap.begin(), jtEnd = indexMap.end(); jt != jtEnd; ++jt)
+			for (Index3Map::iterator jt = indexMap.begin(), jtEnd = indexMap.end(); jt != jtEnd && !hasTexcoord; ++jt)
 			{
-				jt->second.m_texcoord = jt->second.m_position;
+				hasTexcoord |= -1 != jt->second.m_texcoord;
+			}
+
+			if (hasTexcoord)
+			{
+				for (Index3Map::iterator jt = indexMap.begin(), jtEnd = indexMap.end(); jt != jtEnd; ++jt)
+				{
+					jt->second.m_texcoord = -1 == jt->second.m_texcoord ? 0 : jt->second.m_texcoord;
+				}
 			}
 		}
 
-		if (!hasNormal
-		&&  normals.size() == positions.size() )
+		if (!hasNormal)
 		{
-			hasNormal = true;
-
-			for (Index3Map::iterator jt = indexMap.begin(), jtEnd = indexMap.end(); jt != jtEnd; ++jt)
+			for (Index3Map::iterator jt = indexMap.begin(), jtEnd = indexMap.end(); jt != jtEnd && !hasNormal; ++jt)
 			{
-				jt->second.m_normal = jt->second.m_position;
+				hasNormal |= -1 != jt->second.m_normal;
+			}
+
+			if (hasNormal)
+			{
+				for (Index3Map::iterator jt = indexMap.begin(), jtEnd = indexMap.end(); jt != jtEnd; ++jt)
+				{
+					jt->second.m_normal = -1 == jt->second.m_normal ? 0 : jt->second.m_normal;
+				}
 			}
 		}
 	}
@@ -837,7 +850,7 @@ int main(int _argc, const char* _argv[])
 	uint8_t* vertices = vertexData;
 	uint16_t* indices = indexData;
 
-	std::string material = groups.begin()->m_material;
+	stl::string material = groups.begin()->m_material;
 
 	PrimitiveArray primitives;
 
@@ -863,7 +876,7 @@ int main(int _argc, const char* _argv[])
 	{
 		for (uint32_t tri = groupIt->m_startTriangle, end = tri + groupIt->m_numTriangles; tri < end; ++tri)
 		{
-			if (material != groupIt->m_material
+			if (0 != bx::strCmp(material.c_str(), groupIt->m_material.c_str() )
 			||  65533 < numVertices)
 			{
 				prim.m_numVertices = numVertices - prim.m_startVertex;

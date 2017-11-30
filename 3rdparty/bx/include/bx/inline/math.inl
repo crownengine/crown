@@ -45,6 +45,17 @@ namespace bx
 		return u.f;
 	}
 
+	inline uint32_t floatFlip(uint32_t _value)
+	{
+		// Reference:
+		// http://archive.fo/2012.12.08-212402/http://stereopsis.com/radix.html
+		const uint32_t tmp0   = uint32_sra(_value, 31);
+		const uint32_t tmp1   = uint32_neg(tmp0);
+		const uint32_t mask   = uint32_or(tmp1, 0x80000000);
+		const uint32_t result = uint32_xor(_value, mask);
+		return result;
+	}
+
 	inline bool isNan(float _f)
 	{
 		const uint32_t tmp = floatToBits(_f) & INT32_MAX;
@@ -154,8 +165,8 @@ namespace bx
 	inline bool fequal(float _a, float _b, float _epsilon)
 	{
 		// http://realtimecollisiondetection.net/blog/?p=89
-		const float lhs = fabsolute(_a - _b);
-		const float rhs = _epsilon * fmax3(1.0f, fabsolute(_a), fabsolute(_b) );
+		const float lhs = fabs(_a - _b);
+		const float rhs = _epsilon * fmax3(1.0f, fabs(_a), fabs(_b) );
 		return lhs <= rhs;
 	}
 
@@ -208,8 +219,8 @@ namespace bx
 
 	inline float angleDiff(float _a, float _b)
 	{
-		const float dist = fwrap(_b - _a, kPi*2.0f);
-		return fwrap(dist*2.0f, kPi*2.0f) - dist;
+		const float dist = fwrap(_b - _a, kPi2);
+		return fwrap(dist*2.0f, kPi2) - dist;
 	}
 
 	inline float angleLerp(float _a, float _b, float _t)
@@ -226,9 +237,9 @@ namespace bx
 
 	inline void vec3Abs(float* _result, const float* _a)
 	{
-		_result[0] = fabsolute(_a[0]);
-		_result[1] = fabsolute(_a[1]);
-		_result[2] = fabsolute(_a[2]);
+		_result[0] = fabs(_a[0]);
+		_result[1] = fabs(_a[1]);
+		_result[2] = fabs(_a[2]);
 	}
 
 	inline void vec3Neg(float* _result, const float* _a)
@@ -348,7 +359,7 @@ namespace bx
 		const float ny = _n[1];
 		const float nz = _n[2];
 
-		if (bx::fabsolute(nx) > bx::fabsolute(nz) )
+		if (bx::fabs(nx) > bx::fabs(nz) )
 		{
 			float invLen = 1.0f / bx::fsqrt(nx*nx + nz*nz);
 			_t[0] = -nz * invLen;
@@ -696,6 +707,13 @@ namespace bx
 		_result[0] = _vec[0] * _mat[ 0] + _vec[1] * _mat[4] + _vec[2] * _mat[ 8] + _mat[12];
 		_result[1] = _vec[0] * _mat[ 1] + _vec[1] * _mat[5] + _vec[2] * _mat[ 9] + _mat[13];
 		_result[2] = _vec[0] * _mat[ 2] + _vec[1] * _mat[6] + _vec[2] * _mat[10] + _mat[14];
+	}
+
+	inline void vec3MulMtxXyz0(float* _result, const float* _vec, const float* _mat)
+	{
+		_result[0] = _vec[0] * _mat[ 0] + _vec[1] * _mat[4] + _vec[2] * _mat[ 8];
+		_result[1] = _vec[0] * _mat[ 1] + _vec[1] * _mat[5] + _vec[2] * _mat[ 9];
+		_result[2] = _vec[0] * _mat[ 2] + _vec[1] * _mat[6] + _vec[2] * _mat[10];
 	}
 
 	inline void vec3MulMtxH(float* _result, const float* _vec, const float* _mat)

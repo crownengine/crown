@@ -101,7 +101,7 @@ BX_SIMD128_IMPLEMENT_TEST(xyzw);
 	Ty simd_shuf_xAyB(Ty _a, Ty _b);
 
 	template<typename Ty>
-	Ty simd_shuf_yBxA(Ty _a, Ty _b);
+	Ty simd_shuf_AxBy(Ty _a, Ty _b);
 
 	template<typename Ty>
 	Ty simd_shuf_zCwD(Ty _a, Ty _b);

@@ -82,6 +82,18 @@ struct BgfxCallback : public bgfx::CallbackI
 		logiv(DEVICE, buf, _argList);
 	}
 
+	virtual void profilerBegin(const char* /*_name*/, uint32_t /*_abgr*/, const char* /*_filePath*/, uint16_t /*_line*/)
+	{
+	}
+
+	virtual void profilerBeginLiteral(const char* /*_name*/, uint32_t /*_abgr*/, const char* /*_filePath*/, uint16_t /*_line*/)
+	{
+	}
+
+	virtual void profilerEnd()
+	{
+	}
+
 	virtual u32 cacheReadSize(u64 /*_id*/)
 	{
 		return 0;

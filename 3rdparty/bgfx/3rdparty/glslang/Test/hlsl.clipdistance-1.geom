@@ -1,21 +1,18 @@
 struct S {
-    float4 pos   : SV_Position;
-    float  clip  : SV_ClipDistance0;
-    float  cull  : SV_CullDistance0;
+    float4 pos     : SV_Position;
+    float2 clip    : SV_ClipDistance0;
 };
 
 [maxvertexcount(3)]
 void main(triangle in float4 pos[3] : SV_Position, 
           triangle in uint VertexID[3] : VertexID,
           inout LineStream<S> OutputStream,
-          triangle in float clip[3] : SV_ClipDistance,  // scalar float
-          triangle in float cull[3] : SV_CullDistance)  // scalar float
+          triangle in float4 clip[3] : SV_ClipDistance)   // externally: an array 3 of array 4 (not vec4!) of float.
 {
     S s;
 
     s.pos = pos[0];
-    s.clip = clip[0];
-    s.cull = cull[0];
+    s.clip = clip[0].xy;
 
     OutputStream.Append(s);
 }

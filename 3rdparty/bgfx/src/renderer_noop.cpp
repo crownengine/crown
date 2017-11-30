@@ -188,7 +188,7 @@ namespace bgfx { namespace noop
 		{
 		}
 
-		void updateViewName(uint8_t /*_id*/, const char* /*_name*/) override
+		void updateViewName(ViewId /*_id*/, const char* /*_name*/) override
 		{
 		}
 
@@ -201,6 +201,10 @@ namespace bgfx { namespace noop
 		}
 
 		void invalidateOcclusionQuery(OcclusionQueryHandle /*_handle*/) override
+		{
+		}
+
+		virtual void setName(Handle /*_handle*/, const char* /*_name*/) override
 		{
 		}
 

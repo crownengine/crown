@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -13,10 +13,10 @@ namespace bx
 #define ELEMy 1
 #define ELEMz 2
 #define ELEMw 3
-#define BX_SIMD128_IMPLEMENT_SWIZZLE(_x, _y, _z, _w) \
-			template<> \
-			BX_SIMD_FORCE_INLINE simd128_neon_t simd_swiz_##_x##_y##_z##_w(simd128_neon_t _a) \
-			{ \
+#define BX_SIMD128_IMPLEMENT_SWIZZLE(_x, _y, _z, _w)                                                  \
+			template<>                                                                                \
+			BX_SIMD_FORCE_INLINE simd128_neon_t simd_swiz_##_x##_y##_z##_w(simd128_neon_t _a)         \
+			{                                                                                         \
 				return __builtin_shuffle(_a, (uint32x4_t){ ELEM##_x, ELEM##_y, ELEM##_z, ELEM##_w }); \
 			}
 
@@ -28,19 +28,19 @@ namespace bx
 #undef ELEMy
 #undef ELEMx
 
-#define BX_SIMD128_IMPLEMENT_TEST(_xyzw, _swizzle) \
-			template<> \
+#define BX_SIMD128_IMPLEMENT_TEST(_xyzw, _swizzle)                                \
+			template<>                                                            \
 			BX_SIMD_FORCE_INLINE bool simd_test_any_##_xyzw(simd128_neon_t _test) \
-			{ \
-				const simd128_neon_t tmp0 = simd_swiz_##_swizzle(_test); \
-				return simd_test_any_ni(tmp0); \
-			} \
-			\
-			template<> \
+			{                                                                     \
+				const simd128_neon_t tmp0 = simd_swiz_##_swizzle(_test);          \
+				return simd_test_any_ni(tmp0);                                    \
+			}                                                                     \
+			                                                                      \
+			template<>                                                            \
 			BX_SIMD_FORCE_INLINE bool simd_test_all_##_xyzw(simd128_neon_t _test) \
-			{ \
-				const simd128_neon_t tmp0 = simd_swiz_##_swizzle(_test); \
-				return simd_test_all_ni(tmp0); \
+			{                                                                     \
+				const simd128_neon_t tmp0 = simd_swiz_##_swizzle(_test);          \
+				return simd_test_all_ni(tmp0);                                    \
 			}
 
 BX_SIMD128_IMPLEMENT_TEST(x,   xxxx);
@@ -102,7 +102,7 @@ BX_SIMD128_IMPLEMENT_TEST(yzw, yzww);
 	}
 
 	template<>
-	BX_SIMD_FORCE_INLINE simd128_neon_t simd_shuf_yBxA(simd128_neon_t _a, simd128_neon_t _b)
+	BX_SIMD_FORCE_INLINE simd128_neon_t simd_shuf_AxBy(simd128_neon_t _a, simd128_neon_t _b)
 	{
 		return __builtin_shuffle(_a, _b, (uint32x4_t){ 1, 5, 0, 4 });
 	}
@@ -425,18 +425,6 @@ BX_SIMD128_IMPLEMENT_TEST(yzw, yzww);
 	}
 
 	template<>
-	BX_SIMD_FORCE_INLINE simd128_neon_t simd_madd(simd128_neon_t _a, simd128_neon_t _b, simd128_neon_t _c)
-	{
-		return vmlaq_f32(_c, _a, _b);
-	}
-
-	template<>
-	BX_SIMD_FORCE_INLINE simd128_neon_t simd_nmsub(simd128_neon_t _a, simd128_neon_t _b, simd128_neon_t _c)
-	{
-		return vmlsq_f32(_c, _a, _b);
-	}
-
-	template<>
 	BX_SIMD_FORCE_INLINE simd128_neon_t simd_icmpeq(simd128_neon_t _a, simd128_neon_t _b)
 	{
 		const int32x4_t  tmp0   = vreinterpretq_s32_f32(_a);
@@ -526,6 +514,12 @@ BX_SIMD128_IMPLEMENT_TEST(yzw, yzww);
 	}
 
 	template<>
+	BX_SIMD_FORCE_INLINE simd128_neon_t simd_rcp(simd128_neon_t _a)
+	{
+		return simd_rcp_ni(_a);
+	}
+
+	template<>
 	BX_SIMD_FORCE_INLINE simd128_neon_t simd_orx(simd128_neon_t _a)
 	{
 		return simd_orx_ni(_a);
@@ -550,7 +544,7 @@ BX_SIMD128_IMPLEMENT_TEST(yzw, yzww);
 	}
 
 	template<>
-	BX_SIMD_FORCE_INLINE simd128_neon_t simd_nmsub(simd128_neon_t _a, simd128_neon_t _b, simd128_neon_t _b)
+	BX_SIMD_FORCE_INLINE simd128_neon_t simd_nmsub(simd128_neon_t _a, simd128_neon_t _b, simd128_neon_t _c)
 	{
 		return simd_nmsub_ni(_a, _b, _c);
 	}
@@ -610,19 +604,19 @@ BX_SIMD128_IMPLEMENT_TEST(yzw, yzww);
 	}
 
 	template<>
-	BX_SIMD_FORCE_INLINE simd128_neon_t simd_rsqrt_n(simd128_neon_t _a)
+	BX_SIMD_FORCE_INLINE simd128_neon_t simd_rsqrt_nr(simd128_neon_t _a)
 	{
 		return simd_rsqrt_nr_ni(_a);
 	}
 
 	template<>
-	BX_SIMD_FORCE_INLINE simd128_neon_t simd_rsqrt_carma(simd128_neon_t _a)
+	BX_SIMD_FORCE_INLINE simd128_neon_t simd_rsqrt_carmack(simd128_neon_t _a)
 	{
 		return simd_rsqrt_carmack_ni(_a);
 	}
 
 	template<>
-	BX_SIMD_FORCE_INLINE simd128_neon_t simd_sqrt_n(simd128_neon_t _a)
+	BX_SIMD_FORCE_INLINE simd128_neon_t simd_sqrt_nr(simd128_neon_t _a)
 	{
 		return simd_sqrt_nr_ni(_a);
 	}
@@ -658,9 +652,9 @@ BX_SIMD128_IMPLEMENT_TEST(yzw, yzww);
 	}
 
 	template<>
-	BX_SIMD_FORCE_INLINE simd128_neon_t simd_normalize3(simd128_neon_t _a, simd128_neon_t _b)
+	BX_SIMD_FORCE_INLINE simd128_neon_t simd_normalize3(simd128_neon_t _a)
 	{
-		return simd_normalize3_ni(_a, _b);
+		return simd_normalize3_ni(_a);
 	}
 
 	template<>

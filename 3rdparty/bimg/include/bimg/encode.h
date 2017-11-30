@@ -48,6 +48,28 @@ namespace bimg
 		);
 
 	///
+	void imageEncode(
+		  bx::AllocatorI* _allocator
+		, void* _dst
+		, const void* _src
+		, TextureFormat::Enum _srcFormat
+		, uint32_t _width
+		, uint32_t _height
+		, uint32_t _depth
+		, TextureFormat::Enum _dstFormat
+		, Quality::Enum _quality
+		, bx::Error* _err
+		);
+
+	///
+	ImageContainer* imageEncode(
+		  bx::AllocatorI* _allocator
+		, TextureFormat::Enum _dstFormat
+		, Quality::Enum _quality
+		, const ImageContainer& _input
+		);
+
+	///
 	void imageRgba32f11to01(
 		  void* _dst
 		, uint32_t _width

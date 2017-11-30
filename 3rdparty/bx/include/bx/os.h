@@ -52,9 +52,6 @@ namespace bx
 	int chdir(const char* _path);
 
 	///
-	char* pwd(char* _buffer, uint32_t _size);
-
-	///
 	void* exec(const char* const* _argv);
 
 } // namespace bx

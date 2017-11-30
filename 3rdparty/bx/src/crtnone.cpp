@@ -3,6 +3,7 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
+#include "bx_p.h"
 #include <bx/debug.h>
 #include <bx/sort.h>
 #include <bx/readerwriter.h>
@@ -244,14 +245,16 @@ extern "C" float fmodf(float _numer, float _denom)
 
 extern "C" int atoi(const char* _str)
 {
-	BX_UNUSED(_str);
-	return 0;
+	int32_t result = 0;
+	bx::fromString(&result, _str);
+	return result;
 }
 
 extern "C" double atof(const char* _str)
 {
-	BX_UNUSED(_str);
-	return 0.0;
+	double result = 0.0;
+	bx::fromString(&result, _str);
+	return result;
 }
 
 extern "C" struct DIR* opendir(const char* dirname)
@@ -300,6 +303,10 @@ extern "C" int printf(const char* _format, ...)
 	BX_UNUSED(_format);
 	return -1;
 }
+
+struct FILE
+{
+};
 
 extern "C" int fprintf(FILE* _stream, const char* _format, ...)
 {

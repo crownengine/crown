@@ -121,10 +121,10 @@ void simd_bench()
 	for (uint32_t ii = 0; ii < numVertices; ++ii)
 	{
 		float* ptr = (float*)&src[ii];
-		ptr[0] = bx::fabsolute(ptr[0]);
-		ptr[1] = bx::fabsolute(ptr[1]);
-		ptr[2] = bx::fabsolute(ptr[2]);
-		ptr[3] = bx::fabsolute(ptr[3]);
+		ptr[0] = bx::fabs(ptr[0]);
+		ptr[1] = bx::fabs(ptr[1]);
+		ptr[2] = bx::fabs(ptr[2]);
+		ptr[3] = bx::fabs(ptr[3]);
 	}
 
 	simd_bench_pass(dst, src, numVertices);

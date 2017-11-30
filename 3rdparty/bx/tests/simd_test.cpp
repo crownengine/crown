@@ -235,13 +235,14 @@ TEST_CASE("simd_shuffle", "")
 	const simd128_t ABCD = simd_ild(0x41414141, 0x42424242, 0x43434343, 0x44444444);
 	simd_check_string("xyAB", simd_shuf_xyAB(xyzw, ABCD) );
 	simd_check_string("ABxy", simd_shuf_ABxy(xyzw, ABCD) );
-	simd_check_string("zwCD", simd_shuf_zwCD(xyzw, ABCD) );
 	simd_check_string("CDzw", simd_shuf_CDzw(xyzw, ABCD) );
+	simd_check_string("zwCD", simd_shuf_zwCD(xyzw, ABCD) );
 	simd_check_string("xAyB", simd_shuf_xAyB(xyzw, ABCD) );
+	simd_check_string("AxBy", simd_shuf_AxBy(xyzw, ABCD) );
 	simd_check_string("zCwD", simd_shuf_zCwD(xyzw, ABCD) );
+	simd_check_string("CzDw", simd_shuf_CzDw(xyzw, ABCD) );
 	simd_check_string("xAzC", simd_shuf_xAzC(xyzw, ABCD) );
 	simd_check_string("yBwD", simd_shuf_yBwD(xyzw, ABCD) );
-	simd_check_string("CzDw", simd_shuf_CzDw(xyzw, ABCD) );
 }
 
 TEST_CASE("simd_compare", "")

@@ -11,9 +11,10 @@
 
 namespace bx
 {
+	///
 	struct EncodingType
 	{
-		enum Enum
+		enum Enum ///
 		{
 			Unorm,
 			Int,

@@ -14,7 +14,6 @@ TEST_CASE("getProcessMemoryUsed", "")
 //	DBG("bx::getProcessMemoryUsed %d", bx::getProcessMemoryUsed() );
 }
 
-#if !BX_PLATFORM_OSX
 TEST_CASE("semaphore_timeout", "")
 {
 	bx::Semaphore sem;
@@ -27,4 +26,3 @@ TEST_CASE("semaphore_timeout", "")
 	printf("%f\n", ms);
 	REQUIRE(!ok);
 }
-#endif // !BX_PLATFORM_OSX

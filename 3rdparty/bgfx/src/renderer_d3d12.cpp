@@ -10,7 +10,8 @@
 
 namespace bgfx { namespace d3d12
 {
-	static wchar_t s_viewNameW[BGFX_CONFIG_MAX_VIEWS][256];
+	static wchar_t s_viewNameW[BGFX_CONFIG_MAX_VIEWS][BGFX_CONFIG_MAX_VIEW_NAME];
+	static char s_viewName[BGFX_CONFIG_MAX_VIEWS][BGFX_CONFIG_MAX_VIEW_NAME];
 
 	struct PrimInfo
 	{
@@ -501,6 +502,42 @@ namespace bgfx { namespace d3d12
 	static PFN_CREATE_EVENT_EX_A CreateEventExA;
 #endif // USE_D3D12_DYNAMIC_LIB
 
+	inline D3D12_CPU_DESCRIPTOR_HANDLE getCPUHandleHeapStart(ID3D12DescriptorHeap* _heap)
+	{
+#if BX_COMPILER_MSVC
+		return _heap->GetCPUDescriptorHandleForHeapStart();
+#else
+		D3D12_CPU_DESCRIPTOR_HANDLE handle;
+		typedef void (WINAPI ID3D12DescriptorHeap::*PFN_GET_CPU_DESCRIPTOR_HANDLE_FOR_HEAP_START)(D3D12_CPU_DESCRIPTOR_HANDLE *);
+		(_heap->*(PFN_GET_CPU_DESCRIPTOR_HANDLE_FOR_HEAP_START)(&ID3D12DescriptorHeap::GetCPUDescriptorHandleForHeapStart) )(&handle);
+		return handle;
+#endif // BX_COMPILER_MSVC
+	}
+
+	inline D3D12_GPU_DESCRIPTOR_HANDLE getGPUHandleHeapStart(ID3D12DescriptorHeap* _heap)
+	{
+#if BX_COMPILER_MSVC
+		return _heap->GetGPUDescriptorHandleForHeapStart();
+#else
+		D3D12_GPU_DESCRIPTOR_HANDLE handle;
+		typedef void (WINAPI ID3D12DescriptorHeap::*PFN_GET_GPU_DESCRIPTOR_HANDLE_FOR_HEAP_START)(D3D12_GPU_DESCRIPTOR_HANDLE *);
+		(_heap->*(PFN_GET_GPU_DESCRIPTOR_HANDLE_FOR_HEAP_START)(&ID3D12DescriptorHeap::GetGPUDescriptorHandleForHeapStart) )(&handle);
+		return handle;
+#endif // BX_COMPILER_MSVC
+	}
+
+	inline D3D12_RESOURCE_DESC getResourceDesc(ID3D12Resource* _resource)
+	{
+#if BX_COMPILER_MSVC
+		return _resource->GetDesc();
+#else
+		typedef void (STDMETHODCALLTYPE ID3D12Resource::*PFN_GET_GET_DESC)(D3D12_RESOURCE_DESC*);
+		D3D12_RESOURCE_DESC desc;
+		(_resource->*(PFN_GET_GET_DESC)(&ID3D12Resource::GetDesc))(&desc);
+		return desc;
+#endif // BX_COMPILER_MSVC
+	}
+
 	struct RendererContextD3D12 : public RendererContextI
 	{
 		RendererContextD3D12()
@@ -730,7 +767,12 @@ namespace bgfx { namespace d3d12
 			if (NULL != m_factory)
 			{
 				bx::memSet(&m_adapterDesc, 0, sizeof(m_adapterDesc) );
-				luid = m_device->GetAdapterLuid();
+//	NOTICE:
+//		LUID STDMETHODCALLTYPE ID3D12Device::GetAdapterLuid() has a different behaviour in gcc ,
+//		because gcc64 returns small struct in RAX, but the microsoft implemention of ID3D12Device::GetAdapterLuid() in d3d12.dll
+//		pass the struct LUID's address as the second parameter.
+				typedef void (STDMETHODCALLTYPE ID3D12Device::*ID3D12Device_GetAdapterLuid_f)(LUID *);
+				(m_device->*(ID3D12Device_GetAdapterLuid_f)(&ID3D12Device::GetAdapterLuid))(&luid);
 #if BX_PLATFORM_WINDOWS
 				IDXGIAdapter3* adapter;
 #else
@@ -1199,6 +1241,13 @@ namespace bgfx { namespace d3d12
 					g_caps.formats[ii] = support;
 				}
 
+				// Init reserved part of view name.
+				for (uint32_t ii = 0; ii < BGFX_CONFIG_MAX_VIEWS; ++ii)
+				{
+					bx::snprintf(s_viewName[ii], BGFX_CONFIG_MAX_VIEW_NAME_RESERVED + 1, "%3d   ", ii);
+					mbstowcs(s_viewNameW[ii], s_viewName[ii], BGFX_CONFIG_MAX_VIEW_NAME_RESERVED);
+				}
+
 				postReset();
 
 				m_batch.create(4<<10);
@@ -1449,7 +1498,7 @@ namespace bgfx { namespace d3d12
 		{
 			const TextureD3D12& texture = m_textures[_handle.idx];
 
-			D3D12_RESOURCE_DESC desc = texture.m_ptr->GetDesc();
+			D3D12_RESOURCE_DESC desc = getResourceDesc(texture.m_ptr);
 
 			D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
 			uint32_t numRows;
@@ -1606,7 +1655,7 @@ namespace bgfx { namespace d3d12
 			m_cmd.finish(m_backBufferColorFence[idx]);
 			ID3D12Resource* backBuffer = m_backBufferColor[idx];
 
-			D3D12_RESOURCE_DESC desc = backBuffer->GetDesc();
+			D3D12_RESOURCE_DESC desc = getResourceDesc(backBuffer);
 
 			const uint32_t width  = (uint32_t)desc.Width;
 			const uint32_t height = (uint32_t)desc.Height;
@@ -1647,15 +1696,16 @@ namespace bgfx { namespace d3d12
 			readback->Map(0, NULL, (void**)&data);
 			bimg::imageSwizzleBgra8(
 				  data
+				, layout.Footprint.RowPitch
 				, width
 				, height
-				, (uint32_t)pitch
 				, data
+				, layout.Footprint.RowPitch
 				);
 			g_callback->screenShot(_filePath
 				, width
 				, height
-				, (uint32_t)pitch
+				, layout.Footprint.RowPitch
 				, data
 				, (uint32_t)total
 				, false
@@ -1665,8 +1715,20 @@ namespace bgfx { namespace d3d12
 			DX_RELEASE(readback, 0);
 		}
 
-		void updateViewName(uint8_t /*_id*/, const char* /*_name*/) override
+		void updateViewName(ViewId _id, const char* _name) override
 		{
+			if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
+			{
+				mbstowcs(&s_viewNameW[_id][BGFX_CONFIG_MAX_VIEW_NAME_RESERVED]
+					, _name
+					, BX_COUNTOF(s_viewNameW[0])-BGFX_CONFIG_MAX_VIEW_NAME_RESERVED
+					);
+			}
+
+			bx::strCopy(&s_viewName[_id][BGFX_CONFIG_MAX_VIEW_NAME_RESERVED]
+				, BX_COUNTOF(s_viewName[0]) - BGFX_CONFIG_MAX_VIEW_NAME_RESERVED
+				, _name
+				);
 		}
 
 		void updateUniform(uint16_t _loc, const void* _data, uint32_t _size) override
@@ -1681,6 +1743,24 @@ namespace bgfx { namespace d3d12
 		void invalidateOcclusionQuery(OcclusionQueryHandle _handle) override
 		{
 			m_occlusionQuery.invalidate(_handle);
+		}
+
+		virtual void setName(Handle _handle, const char* _name) override
+		{
+			switch (_handle.type)
+			{
+			case Handle::Shader:
+//				setDebugObjectName(m_shaders[_handle.idx].m_ptr, _name);
+				break;
+
+			case Handle::Texture:
+				setDebugObjectName(m_textures[_handle.idx].m_ptr, _name);
+				break;
+
+			default:
+				BX_CHECK(false, "Invalid handle type?! %d", _handle.type);
+				break;
+			}
 		}
 
 		void submitBlit(BlitState& _bs, uint16_t _view);
@@ -1816,7 +1896,7 @@ namespace bgfx { namespace d3d12
 
 			for (uint32_t ii = 0, num = m_scd.BufferCount; ii < num; ++ii)
 			{
-				D3D12_CPU_DESCRIPTOR_HANDLE handle = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				D3D12_CPU_DESCRIPTOR_HANDLE handle = getCPUHandleHeapStart(m_rtvDescriptorHeap);
 				handle.ptr += ii * rtvDescriptorSize;
 				DX_CHECK(m_swapChain->GetBuffer(ii
 						, IID_ID3D12Resource
@@ -1856,7 +1936,7 @@ namespace bgfx { namespace d3d12
 
 			m_device->CreateDepthStencilView(m_backBufferDepthStencil
 				, &dsvDesc
-				, m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
+				, getCPUHandleHeapStart(m_dsvDescriptorHeap)
 				);
 
 			for (uint32_t ii = 0; ii < BX_COUNTOF(m_frameBuffers); ++ii)
@@ -2067,10 +2147,10 @@ data.NumQualityLevels = 0;
 
 			if (!isValid(_fbh) )
 			{
-				m_rtvHandle = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				m_rtvHandle = getCPUHandleHeapStart(m_rtvDescriptorHeap);
 				uint32_t rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 				m_rtvHandle.ptr += m_backBufferColorIdx * rtvDescriptorSize;
-				m_dsvHandle = m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				m_dsvHandle = getCPUHandleHeapStart(m_dsvDescriptorHeap);
 
 				m_currentColor        = &m_rtvHandle;
 				m_currentDepthStencil = &m_dsvHandle;
@@ -2082,7 +2162,7 @@ data.NumQualityLevels = 0;
 
 				if (0 < frameBuffer.m_num)
 				{
-					D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+					D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = getCPUHandleHeapStart(m_rtvDescriptorHeap);
 					uint32_t rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 					m_rtvHandle.ptr = rtvDescriptor.ptr + (BX_COUNTOF(m_backBufferColor) + _fbh.idx * BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS) * rtvDescriptorSize;
 					m_currentColor  = &m_rtvHandle;
@@ -2094,7 +2174,7 @@ data.NumQualityLevels = 0;
 
 				if (isValid(frameBuffer.m_depth) )
 				{
-					D3D12_CPU_DESCRIPTOR_HANDLE dsvDescriptor = m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+					D3D12_CPU_DESCRIPTOR_HANDLE dsvDescriptor = getCPUHandleHeapStart(m_dsvDescriptorHeap);
 					uint32_t dsvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 					m_dsvHandle.ptr = dsvDescriptor.ptr + (1 + _fbh.idx) * dsvDescriptorSize;
 					m_currentDepthStencil = &m_dsvHandle;
@@ -2963,7 +3043,6 @@ data.NumQualityLevels = 0;
 		m_size = _size;
 
 		ID3D12Device* device = s_renderD3D12->m_device;
-
 		m_incrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		D3D12_DESCRIPTOR_HEAP_DESC desc;
@@ -2994,8 +3073,8 @@ data.NumQualityLevels = 0;
 	void ScratchBufferD3D12::reset(D3D12_GPU_DESCRIPTOR_HANDLE& _gpuHandle)
 	{
 		m_pos = 0;
-		m_cpuHandle = m_heap->GetCPUDescriptorHandleForHeapStart();
-		m_gpuHandle = m_heap->GetGPUDescriptorHandleForHeapStart();
+		m_cpuHandle = getCPUHandleHeapStart(m_heap);
+		m_gpuHandle = getGPUHandleHeapStart(m_heap);
 		_gpuHandle = m_gpuHandle;
 	}
 
@@ -3151,8 +3230,8 @@ data.NumQualityLevels = 0;
 				, (void**)&m_heap
 				) );
 
-		m_cpuHandle = m_heap->GetCPUDescriptorHandleForHeapStart();
-		m_gpuHandle = m_heap->GetGPUDescriptorHandleForHeapStart();
+		m_cpuHandle = getCPUHandleHeapStart(m_heap);
+		m_gpuHandle = getGPUHandleHeapStart(m_heap);
 	}
 
 	void DescriptorAllocatorD3D12::destroy()
@@ -4152,11 +4231,6 @@ data.NumQualityLevels = 0;
 							totalSize += slice;
 						}
 
- 						if (swizzle)
- 						{
-// 							imageSwizzleBgra8(temp, width, height, mip.m_width*4, data);
- 						}
-
 						srd[kk].SlicePitch = mip.m_height*srd[kk].RowPitch;
 						++kk;
 					}
@@ -4203,7 +4277,6 @@ data.NumQualityLevels = 0;
 			resourceDesc.Layout     = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 			resourceDesc.Flags      = D3D12_RESOURCE_FLAG_NONE;
 			resourceDesc.DepthOrArraySize = numSides;
-
 			D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
 			D3D12_CLEAR_VALUE* clearValue = NULL;
@@ -4411,7 +4484,7 @@ data.NumQualityLevels = 0;
 		const uint32_t rectpitch = _rect.m_width*bpp/8;
 		const uint32_t srcpitch  = UINT16_MAX == _pitch ? rectpitch : _pitch;
 
-		D3D12_RESOURCE_DESC desc = m_ptr->GetDesc();
+		D3D12_RESOURCE_DESC desc = getResourceDesc(m_ptr);
 
 		desc.Height = _rect.m_height;
 
@@ -4501,7 +4574,7 @@ data.NumQualityLevels = 0;
 		{
 			ID3D12Device* device = s_renderD3D12->m_device;
 
-			D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = s_renderD3D12->m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = getCPUHandleHeapStart(s_renderD3D12->m_rtvDescriptorHeap);
 			uint32_t rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 			uint32_t fbhIdx = (uint32_t)(this - s_renderD3D12->m_frameBuffers);
 			rtvDescriptor.ptr += (BX_COUNTOF(s_renderD3D12->m_backBufferColor) + fbhIdx * BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS) * rtvDescriptorSize;
@@ -4519,7 +4592,7 @@ data.NumQualityLevels = 0;
 
 					if (0 == m_width)
 					{
-						D3D12_RESOURCE_DESC desc = texture.m_ptr->GetDesc();
+						D3D12_RESOURCE_DESC desc = getResourceDesc(texture.m_ptr);
 						m_width  = uint32_t(desc.Width);
 						m_height = uint32_t(desc.Height);
 					}
@@ -4528,7 +4601,7 @@ data.NumQualityLevels = 0;
 					{
 						BX_CHECK(!isValid(m_depth), "");
 						m_depth = handle;
-						D3D12_CPU_DESCRIPTOR_HANDLE dsvDescriptor = s_renderD3D12->m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+						D3D12_CPU_DESCRIPTOR_HANDLE dsvDescriptor = getCPUHandleHeapStart(s_renderD3D12->m_dsvDescriptorHeap);
 						uint32_t dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 						dsvDescriptor.ptr += (1 + fbhIdx) * dsvDescriptorSize;
 
@@ -4588,7 +4661,7 @@ data.NumQualityLevels = 0;
 		if (BGFX_CLEAR_COLOR & _clear.m_flags
 		&&  0 != m_num)
 		{
-			D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = s_renderD3D12->m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = getCPUHandleHeapStart(s_renderD3D12->m_rtvDescriptorHeap);
 			uint32_t rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 			rtvDescriptor.ptr += (BX_COUNTOF(s_renderD3D12->m_backBufferColor) + fbhIdx * BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS) * rtvDescriptorSize;
 
@@ -4632,7 +4705,7 @@ data.NumQualityLevels = 0;
 		if (isValid(m_depth)
 		&& (BGFX_CLEAR_DEPTH|BGFX_CLEAR_STENCIL) & _clear.m_flags)
 		{
-			D3D12_CPU_DESCRIPTOR_HANDLE dsvDescriptor = s_renderD3D12->m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_CPU_DESCRIPTOR_HANDLE dsvDescriptor = getCPUHandleHeapStart(s_renderD3D12->m_dsvDescriptorHeap);
 			uint32_t dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 			dsvDescriptor.ptr += (1 + fbhIdx) * dsvDescriptorSize;
 
@@ -4657,20 +4730,28 @@ data.NumQualityLevels = 0;
 		queryHeapDesc.NodeMask = 1;
 		queryHeapDesc.Type     = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
 		DX_CHECK(s_renderD3D12->m_device->CreateQueryHeap(&queryHeapDesc
-				, IID_ID3D12QueryHeap
-				, (void**)&m_queryHeap
-				) );
+			, IID_ID3D12QueryHeap
+			, (void**)&m_queryHeap
+			) );
 
 		const uint32_t size = queryHeapDesc.Count*sizeof(uint64_t);
 		m_readback = createCommittedResource(s_renderD3D12->m_device
-						, HeapProperty::ReadBack
-						, size
-						);
+			, HeapProperty::ReadBack
+			, size
+			);
 
 		DX_CHECK(s_renderD3D12->m_cmd.m_commandQueue->GetTimestampFrequency(&m_frequency) );
 
 		D3D12_RANGE range = { 0, size };
-		m_readback->Map(0, &range, (void**)&m_result);
+		m_readback->Map(0, &range, (void**)&m_queryResult);
+
+		for (uint32_t ii = 0; ii < BX_COUNTOF(m_result); ++ii)
+		{
+			Result& result = m_result[ii];
+			result.reset();
+		}
+
+		m_control.reset();
 	}
 
 	void TimerQueryD3D12::shutdown()
@@ -4682,49 +4763,85 @@ data.NumQualityLevels = 0;
 		DX_RELEASE(m_readback, 0);
 	}
 
-	void TimerQueryD3D12::begin(ID3D12GraphicsCommandList* _commandList)
+	uint32_t TimerQueryD3D12::begin(uint32_t _resultIdx)
 	{
-		BX_UNUSED(_commandList);
 		while (0 == m_control.reserve(1) )
 		{
 			m_control.consume(1);
 		}
 
-		uint32_t offset = m_control.m_current * 2 + 0;
-		_commandList->EndQuery(m_queryHeap
+		Result& result = m_result[_resultIdx];
+		++result.m_pending;
+
+		const uint32_t idx = m_control.m_current;
+		Query& query = m_query[idx];
+		query.m_resultIdx = _resultIdx;
+		query.m_ready     = false;
+
+		ID3D12GraphicsCommandList* commandList = s_renderD3D12->m_commandList;
+
+		uint32_t offset = idx * 2 + 0;
+		commandList->EndQuery(m_queryHeap
 			, D3D12_QUERY_TYPE_TIMESTAMP
 			, offset
 			);
+
+		m_control.commit(1);
+
+		return idx;
 	}
 
-	void TimerQueryD3D12::end(ID3D12GraphicsCommandList* _commandList)
+	void TimerQueryD3D12::end(uint32_t _idx)
 	{
-		BX_UNUSED(_commandList);
-		uint32_t offset = m_control.m_current * 2;
-		_commandList->EndQuery(m_queryHeap
+		Query& query = m_query[_idx];
+		query.m_ready = true;
+		query.m_fence = s_renderD3D12->m_cmd.m_currentFence - 1;
+		uint32_t offset = _idx * 2;
+
+		ID3D12GraphicsCommandList* commandList = s_renderD3D12->m_commandList;
+
+		commandList->EndQuery(m_queryHeap
 			, D3D12_QUERY_TYPE_TIMESTAMP
 			, offset + 1
 			);
-		_commandList->ResolveQueryData(m_queryHeap
+		commandList->ResolveQueryData(m_queryHeap
 			, D3D12_QUERY_TYPE_TIMESTAMP
 			, offset
 			, 2
 			, m_readback
 			, offset * sizeof(uint64_t)
 			);
-		m_control.commit(1);
+
+		while (update() )
+		{
+		}
 	}
 
-	bool TimerQueryD3D12::get()
+	bool TimerQueryD3D12::update()
 	{
 		if (0 != m_control.available() )
 		{
-			uint32_t offset = m_control.m_read * 2;
-			m_begin = m_result[offset+0];
-			m_end   = m_result[offset+1];
-			m_elapsed = m_end - m_begin;
+			uint32_t idx = m_control.m_read;
+			Query& query = m_query[idx];
+
+			if (!query.m_ready)
+			{
+				return false;
+			}
+
+			if (query.m_fence > s_renderD3D12->m_cmd.m_completedFence)
+			{
+				return false;
+			}
 
 			m_control.consume(1);
+
+			Result& result = m_result[query.m_resultIdx];
+			--result.m_pending;
+
+			uint32_t offset = idx * 2;
+			result.m_begin  = m_queryResult[offset+0];
+			result.m_end    = m_queryResult[offset+1];
 
 			return true;
 		}
@@ -4907,10 +5024,10 @@ data.NumQualityLevels = 0;
 			return;
 		}
 
-		int64_t elapsed = -bx::getHPCounter();
+		int64_t timeBegin = bx::getHPCounter();
 		int64_t captureElapsed = 0;
 
-		m_gpuTimer.begin(m_commandList);
+		uint32_t frameQueryIdx = m_gpuTimer.begin(BGFX_CONFIG_MAX_VIEWS);
 
 		if (0 < _render->m_iboffset)
 		{
@@ -4973,6 +5090,12 @@ data.NumQualityLevels = 0;
 		uint32_t statsNumIndices = 0;
 		uint32_t statsKeyType[2] = {};
 
+		Profiler<TimerQueryD3D12> profiler(
+			  _render
+			, m_gpuTimer
+			, s_viewName
+			);
+
 #if BX_PLATFORM_WINDOWS
 		m_backBufferColorIdx = m_swapChain->GetCurrentBackBufferIndex();
 #endif // BX_PLATFORM_WINDOWS
@@ -5002,9 +5125,9 @@ data.NumQualityLevels = 0;
 
 // 			uint8_t eye = 0;
 // 			uint8_t restartState = 0;
-			viewState.m_rect = _render->m_rect[0];
+			viewState.m_rect = _render->m_view[0].m_rect;
 
-			int32_t numItems = _render->m_num;
+			int32_t numItems = _render->m_numRenderItems;
 			for (int32_t item = 0, restartItem = numItems; item < numItems || restartItem < numItems;)
 			{
 				const uint64_t encodedKey = _render->m_sortKeys[item];
@@ -5032,12 +5155,19 @@ data.NumQualityLevels = 0;
 					currentProgramIdx      = kInvalidHandle;
 					hasPredefined          = false;
 
-					fbh = _render->m_fb[view];
+					fbh = _render->m_view[view].m_fbh;
 					setFrameBuffer(fbh);
 
-					viewState.m_rect = _render->m_rect[view];
-					const Rect& rect        = _render->m_rect[view];
-					const Rect& scissorRect = _render->m_scissor[view];
+					if (item > 1)
+					{
+						profiler.end();
+					}
+
+					profiler.begin(view);
+
+					viewState.m_rect = _render->m_view[view].m_rect;
+					const Rect& rect        = _render->m_view[view].m_rect;
+					const Rect& scissorRect = _render->m_view[view].m_scissor;
 					viewHasScissor  = !scissorRect.isZero();
 					viewScissorRect = viewHasScissor ? scissorRect : rect;
 
@@ -5058,7 +5188,7 @@ data.NumQualityLevels = 0;
 					m_commandList->RSSetScissorRects(1, &rc);
 					restoreScissor = false;
 
-					Clear& clr = _render->m_clear[view];
+					Clear& clr = _render->m_view[view].m_clear;
 					if (BGFX_CLEAR_NONE != clr.m_flags)
 					{
 						Rect clearRect = rect;
@@ -5095,7 +5225,7 @@ data.NumQualityLevels = 0;
 						currentBindHash = 0;
 					}
 
-					uint32_t bindHash = bx::hashMurmur2A(renderBind.m_bind, sizeof(renderBind.m_bind) );
+					uint32_t bindHash = bx::hash<bx::HashMurmur2A>(renderBind.m_bind, sizeof(renderBind.m_bind) );
 					if (currentBindHash != bindHash)
 					{
 						currentBindHash  = bindHash;
@@ -5185,10 +5315,10 @@ data.NumQualityLevels = 0;
 					}
 
 					bool constantsChanged = false;
-					if (compute.m_constBegin < compute.m_constEnd
+					if (compute.m_uniformBegin < compute.m_uniformEnd
 					||  currentProgramIdx != key.m_program)
 					{
-						rendererUpdateUniforms(this, _render->m_uniformBuffer, compute.m_constBegin, compute.m_constEnd);
+						rendererUpdateUniforms(this, _render->m_uniformBuffer[compute.m_uniformIdx], compute.m_uniformBegin, compute.m_uniformEnd);
 
 						currentProgramIdx = key.m_program;
 						ProgramD3D12& program = m_program[currentProgramIdx];
@@ -5302,7 +5432,7 @@ data.NumQualityLevels = 0;
 					primIndex = uint8_t(pt>>BGFX_STATE_PT_SHIFT);
 				}
 
-				rendererUpdateUniforms(this, _render->m_uniformBuffer, draw.m_constBegin, draw.m_constEnd);
+				rendererUpdateUniforms(this, _render->m_uniformBuffer[draw.m_uniformIdx], draw.m_uniformBegin, draw.m_uniformEnd);
 
 				if (isValid(draw.m_stream[0].m_handle) )
 				{
@@ -5326,7 +5456,7 @@ data.NumQualityLevels = 0;
 							);
 
 					uint16_t scissor = draw.m_scissor;
-					uint32_t bindHash = bx::hashMurmur2A(renderBind.m_bind, sizeof(renderBind.m_bind) );
+					uint32_t bindHash = bx::hash<bx::HashMurmur2A>(renderBind.m_bind, sizeof(renderBind.m_bind) );
 					if (currentBindHash != bindHash
 					||  0 != changedStencil
 					|| (hasFactor && blendFactor != draw.m_rgba)
@@ -5482,7 +5612,7 @@ data.NumQualityLevels = 0;
 						{
 							restoreScissor = true;
 							Rect scissorRect;
-							scissorRect.setIntersect(viewScissorRect,_render->m_rectCache.m_cache[scissor]);
+							scissorRect.setIntersect(viewScissorRect, _render->m_frameCache.m_rectCache.m_cache[scissor]);
 							if (scissorRect.isZeroArea() )
 							{
 								continue;
@@ -5504,7 +5634,7 @@ data.NumQualityLevels = 0;
 					}
 
 					bool constantsChanged = false;
-					if (draw.m_constBegin < draw.m_constEnd
+					if (draw.m_uniformBegin < draw.m_uniformEnd
 					||  currentProgramIdx != key.m_program
 					||  BGFX_STATE_ALPHA_REF_MASK & changedFlags)
 					{
@@ -5559,18 +5689,24 @@ data.NumQualityLevels = 0;
 			kick();
 
 			submitBlit(bs, BGFX_CONFIG_MAX_VIEWS);
+
+			if (0 < _render->m_numRenderItems)
+			{
+				if (0 != (m_resolution.m_flags & BGFX_RESET_FLUSH_AFTER_RENDER) )
+				{
+//					deviceCtx->Flush();
+				}
+
+//				captureElapsed = -bx::getHPCounter();
+//				capture();
+//				captureElapsed += bx::getHPCounter();
+
+				profiler.end();
+			}
 		}
 
-		int64_t now = bx::getHPCounter();
-		elapsed += now;
-
-		static int64_t last = now;
-
-		Stats& perfStats = _render->m_perfStats;
-		perfStats.cpuTimeBegin = last;
-
-		int64_t frameTime = now - last;
-		last = now;
+		int64_t timeEnd   = bx::getHPCounter();
+		int64_t frameTime = timeEnd - timeBegin;
 
 		static int64_t min = frameTime;
 		static int64_t max = frameTime;
@@ -5586,28 +5722,44 @@ data.NumQualityLevels = 0;
 		presentMin = bx::int64_min(presentMin, m_presentElapsed);
 		presentMax = bx::int64_max(presentMax, m_presentElapsed);
 
-		m_gpuTimer.end(m_commandList);
-
-		do
+		if (UINT32_MAX != frameQueryIdx)
 		{
+			m_gpuTimer.end(frameQueryIdx);
+
+			const TimerQueryD3D12::Result& result = m_gpuTimer.m_result[BGFX_CONFIG_MAX_VIEWS];
 			double toGpuMs = 1000.0 / double(m_gpuTimer.m_frequency);
-			elapsedGpuMs   = m_gpuTimer.m_elapsed * toGpuMs;
+			elapsedGpuMs   = (result.m_end - result.m_begin) * toGpuMs;
 			maxGpuElapsed  = elapsedGpuMs > maxGpuElapsed ? elapsedGpuMs : maxGpuElapsed;
+
+			maxGpuLatency = bx::uint32_imax(maxGpuLatency, result.m_pending-1);
 		}
-		while (m_gpuTimer.get() );
 
 		maxGpuLatency = bx::uint32_imax(maxGpuLatency, m_gpuTimer.m_control.available()-1);
 
 		const int64_t timerFreq = bx::getHPFrequency();
 
-		perfStats.cpuTimeEnd    = now;
+		Stats& perfStats = _render->m_perfStats;
+		perfStats.cpuTimeBegin  = timeBegin;
+		perfStats.cpuTimeEnd    = timeEnd;
 		perfStats.cpuTimerFreq  = timerFreq;
-		perfStats.gpuTimeBegin  = m_gpuTimer.m_begin;
-		perfStats.gpuTimeEnd    = m_gpuTimer.m_end;
+		const TimerQueryD3D12::Result& result = m_gpuTimer.m_result[BGFX_CONFIG_MAX_VIEWS];
+		perfStats.gpuTimeBegin  = result.m_begin;
+		perfStats.gpuTimeEnd    = result.m_end;
 		perfStats.gpuTimerFreq  = m_gpuTimer.m_frequency;
 		perfStats.numDraw       = statsKeyType[0];
 		perfStats.numCompute    = statsKeyType[1];
 		perfStats.maxGpuLatency = maxGpuLatency;
+		perfStats.gpuMemoryMax  = -INT64_MAX;
+		perfStats.gpuMemoryUsed = -INT64_MAX;
+
+#if BX_PLATFORM_WINDOWS
+		DXGI_QUERY_VIDEO_MEMORY_INFO vmi[2];
+		DX_CHECK(m_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL,     &vmi[0]) );
+		DX_CHECK(m_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &vmi[1]) );
+
+		perfStats.gpuMemoryMax  = int64_t(vmi[0].Budget);
+		perfStats.gpuMemoryUsed = int64_t(vmi[0].CurrentUsage);
+#endif // BX_PLATFORM_WINDOWS
 
 		if (_render->m_debug & (BGFX_DEBUG_IFH|BGFX_DEBUG_STATS) )
 		{
@@ -5616,12 +5768,13 @@ data.NumQualityLevels = 0;
 //			m_needPresent = true;
 			TextVideoMem& tvm = m_textVideoMem;
 
-			static int64_t next = now;
+			static int64_t next = timeEnd;
 
-			if (now >= next)
+			if (timeEnd >= next)
 			{
-				next = now + bx::getHPFrequency();
-				double freq = double(bx::getHPFrequency() );
+				next = timeEnd + timerFreq;
+
+				double freq = double(timerFreq);
 				double toMs = 1000.0 / freq;
 
 				tvm.clear();
@@ -5658,10 +5811,6 @@ data.NumQualityLevels = 0;
 					);
 
 #if BX_PLATFORM_WINDOWS
-				DXGI_QUERY_VIDEO_MEMORY_INFO vmi[2];
-				DX_CHECK(m_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL,     &vmi[0]) );
-				DX_CHECK(m_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &vmi[1]) );
-
 				for (uint32_t ii = 0; ii < BX_COUNTOF(vmi); ++ii)
 				{
 					const DXGI_QUERY_VIDEO_MEMORY_INFO& memInfo = vmi[ii];
@@ -5713,9 +5862,9 @@ data.NumQualityLevels = 0;
 					, !!(m_resolution.m_flags&BGFX_RESET_MAXANISOTROPY) ? '\xfe' : ' '
 					);
 
-				double elapsedCpuMs = double(elapsed)*toMs;
+				double elapsedCpuMs = double(frameTime)*toMs;
 				tvm.printf(10, pos++, 0x8e, "   Submitted: %5d (draw %5d, compute %4d) / CPU %7.4f [ms] "
-					, _render->m_num
+					, _render->m_numRenderItems
 					, statsKeyType[0]
 					, statsKeyType[1]
 					, elapsedCpuMs
@@ -5749,7 +5898,7 @@ data.NumQualityLevels = 0;
 				}
 
 				tvm.printf(10, pos++, 0x8e, "      Indices: %7d ", statsNumIndices);
-				tvm.printf(10, pos++, 0x8e, " Uniform size: %7d, Max: %7d ", _render->m_uniformEnd, _render->m_uniformMax);
+//				tvm.printf(10, pos++, 0x8e, " Uniform size: %7d, Max: %7d ", _render->m_uniformEnd, _render->m_uniformMax);
 				tvm.printf(10, pos++, 0x8e, "     DVB size: %7d ", _render->m_vboffset);
 				tvm.printf(10, pos++, 0x8e, "     DIB size: %7d ", _render->m_iboffset);
 

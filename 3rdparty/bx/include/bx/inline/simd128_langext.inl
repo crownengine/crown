@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -13,13 +13,13 @@ namespace bx
 #define ELEMy 1
 #define ELEMz 2
 #define ELEMw 3
-#define BX_SIMD128_IMPLEMENT_SWIZZLE(_x, _y, _z, _w) \
-			template<> \
-			BX_SIMD_FORCE_INLINE simd128_langext_t simd_swiz_##_x##_y##_z##_w(simd128_langext_t _a) \
-			{ \
-				simd128_langext_t result; \
+#define BX_SIMD128_IMPLEMENT_SWIZZLE(_x, _y, _z, _w)                                                       \
+			template<>                                                                                     \
+			BX_SIMD_FORCE_INLINE simd128_langext_t simd_swiz_##_x##_y##_z##_w(simd128_langext_t _a)        \
+			{                                                                                              \
+				simd128_langext_t result;                                                                  \
 				result.vf = __builtin_shufflevector(_a.vf, _a.vf, ELEM##_x, ELEM##_y, ELEM##_z, ELEM##_w); \
-				return result; \
+				return result;                                                                             \
 			}
 
 #include "simd128_swizzle.inl"
@@ -30,27 +30,27 @@ namespace bx
 #undef ELEMy
 #undef ELEMx
 
-#define BX_SIMD128_IMPLEMENT_TEST(_xyzw, _mask) \
-			template<> \
+#define BX_SIMD128_IMPLEMENT_TEST(_xyzw, _mask)                                      \
+			template<>                                                               \
 			BX_SIMD_FORCE_INLINE bool simd_test_any_##_xyzw(simd128_langext_t _test) \
-			{ \
-				uint32_t tmp = ( (_test.uxyzw[3]>>31)<<3) \
-				             | ( (_test.uxyzw[2]>>31)<<2) \
-				             | ( (_test.uxyzw[1]>>31)<<1) \
-				             | (  _test.uxyzw[0]>>31)     \
-				             ; \
-				return 0 != (tmp&(_mask) ); \
-			} \
-			\
-			template<> \
+			{                                                                        \
+				uint32_t tmp = ( (_test.uxyzw[3]>>31)<<3)                            \
+				             | ( (_test.uxyzw[2]>>31)<<2)                            \
+				             | ( (_test.uxyzw[1]>>31)<<1)                            \
+				             | (  _test.uxyzw[0]>>31)                                \
+				             ;                                                       \
+				return 0 != (tmp&(_mask) );                                          \
+			}                                                                        \
+			                                                                         \
+			template<>                                                               \
 			BX_SIMD_FORCE_INLINE bool simd_test_all_##_xyzw(simd128_langext_t _test) \
-			{ \
-				uint32_t tmp = ( (_test.uxyzw[3]>>31)<<3) \
-				             | ( (_test.uxyzw[2]>>31)<<2) \
-				             | ( (_test.uxyzw[1]>>31)<<1) \
-				             | (  _test.uxyzw[0]>>31)     \
-				             ; \
-				return (_mask) == (tmp&(_mask) ); \
+			{                                                                        \
+				uint32_t tmp = ( (_test.uxyzw[3]>>31)<<3)                            \
+				             | ( (_test.uxyzw[2]>>31)<<2)                            \
+				             | ( (_test.uxyzw[1]>>31)<<1)                            \
+				             | (  _test.uxyzw[0]>>31)                                \
+				             ;                                                       \
+				return (_mask) == (tmp&(_mask) );                                    \
 			}
 
 BX_SIMD128_IMPLEMENT_TEST(x    , 0x1);
@@ -112,7 +112,7 @@ BX_SIMD128_IMPLEMENT_TEST(xyzw , 0xf);
 	}
 
 	template<>
-	BX_SIMD_FORCE_INLINE simd128_langext_t simd_shuf_yBxA(simd128_langext_t _a, simd128_langext_t _b)
+	BX_SIMD_FORCE_INLINE simd128_langext_t simd_shuf_AxBy(simd128_langext_t _a, simd128_langext_t _b)
 	{
 		simd128_langext_t result;
 		result.vf = __builtin_shufflevector(_a.vf, _b.vf, 1, 5, 0, 4);

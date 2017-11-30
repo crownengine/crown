@@ -3,7 +3,9 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
+#include "bx_p.h"
 #include <bx/math.h>
+
 #include <math.h>
 
 namespace bx
@@ -20,7 +22,7 @@ namespace bx
 	const float kHuge = HUGE_VALF;
 #endif // BX_COMPILER_MSVC
 
-	float fabsolute(float _a)
+	float fabs(float _a)
 	{
 		return ::fabsf(_a);
 	}
@@ -719,7 +721,7 @@ namespace bx
 		const float dd = qx - fmin(qw, qy);
 		const float ee = 1.0e-10f;
 
-		_hsv[0] = fabsolute(qz + (qw - qy) / (6.0f * dd + ee) );
+		_hsv[0] = fabs(qz + (qw - qy) / (6.0f * dd + ee) );
 		_hsv[1] = dd / (qx + ee);
 		_hsv[2] = qx;
 	}
@@ -730,9 +732,9 @@ namespace bx
 		const float ss = _hsv[1];
 		const float vv = _hsv[2];
 
-		const float px = fabsolute(ffract(hh + 1.0f     ) * 6.0f - 3.0f);
-		const float py = fabsolute(ffract(hh + 2.0f/3.0f) * 6.0f - 3.0f);
-		const float pz = fabsolute(ffract(hh + 1.0f/3.0f) * 6.0f - 3.0f);
+		const float px = fabs(ffract(hh + 1.0f     ) * 6.0f - 3.0f);
+		const float py = fabs(ffract(hh + 2.0f/3.0f) * 6.0f - 3.0f);
+		const float pz = fabs(ffract(hh + 1.0f/3.0f) * 6.0f - 3.0f);
 
 		_rgb[0] = vv * flerp(1.0f, fsaturate(px - 1.0f), ss);
 		_rgb[1] = vv * flerp(1.0f, fsaturate(py - 1.0f), ss);

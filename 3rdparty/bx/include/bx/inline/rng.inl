@@ -28,25 +28,6 @@ namespace bx
 		return (m_z<<16)+m_w;
 	}
 
-	inline RngFib::RngFib(uint32_t _a, uint32_t _b)
-		: m_a(_a)
-		, m_b(_b)
-	{
-	}
-
-	inline void RngFib::reset(uint32_t _a, uint32_t _b)
-	{
-		m_a = _a;
-		m_b = _b;
-	}
-
-	inline uint32_t RngFib::gen()
-	{
-		m_b = m_a+m_b;
-		m_a = m_b-m_a;
-		return m_a;
-	}
-
 	inline RngShr3::RngShr3(uint32_t _jsr)
 		: m_jsr(_jsr)
 	{

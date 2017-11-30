@@ -29,6 +29,16 @@ namespace bx
 		return _t;
 	}
 
+	inline float easeStep(float _t)
+	{
+		return _t < 0.5f ? 0.0f : 1.0f;
+	}
+
+	inline float easeSmoothStep(float _t)
+	{
+		return fsq(_t)*(3.0f - 2.0f*_t);
+	}
+
 	inline float easeInQuad(float _t)
 	{
 		return fsq(_t);

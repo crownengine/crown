@@ -4,13 +4,19 @@
  */
 
 #include "common.h"
+
 #include <bgfx/bgfx.h>
+
 #include <bx/commandline.h>
-#include <bx/os.h>
-#include <bx/filepath.h>
-#include <bx/uint32_t.h>
-#include <bx/math.h>
 #include <bx/easing.h>
+#include <bx/file.h>
+#include <bx/filepath.h>
+#include <bx/math.h>
+#include <bx/os.h>
+#include <bx/process.h>
+#include <bx/settings.h>
+#include <bx/uint32_t.h>
+
 #include <entry/entry.h>
 #include <entry/input.h>
 #include <entry/cmd.h>
@@ -18,9 +24,6 @@
 #include <bgfx_utils.h>
 
 #include <dirent.h>
-
-#include <bx/file.h>
-#include <bx/process.h>
 
 #include <tinystl/allocator.h>
 #include <tinystl/vector.h>
@@ -40,6 +43,7 @@ namespace stl = tinystl;
 #include "fs_texture_cube.bin.h"
 #include "fs_texture_cube2.bin.h"
 #include "fs_texture_sdf.bin.h"
+#include "fs_texture_msdf.bin.h"
 #include "fs_texture_3d.bin.h"
 
 #define BACKGROUND_VIEW_ID 0
@@ -47,6 +51,9 @@ namespace stl = tinystl;
 
 #define BGFX_TEXTUREV_VERSION_MAJOR 1
 #define BGFX_TEXTUREV_VERSION_MINOR 0
+
+const float kEvMin = -10.0f;
+const float kEvMax =  20.0f;
 
 static const bgfx::EmbeddedShader s_embeddedShaders[] =
 {
@@ -57,6 +64,7 @@ static const bgfx::EmbeddedShader s_embeddedShaders[] =
 	BGFX_EMBEDDED_SHADER(fs_texture_cube),
 	BGFX_EMBEDDED_SHADER(fs_texture_cube2),
 	BGFX_EMBEDDED_SHADER(fs_texture_sdf),
+	BGFX_EMBEDDED_SHADER(fs_texture_msdf),
 	BGFX_EMBEDDED_SHADER(fs_texture_3d),
 
 	BGFX_EMBEDDED_SHADER_END()
@@ -72,7 +80,9 @@ static const char* s_supportedExt[] =
 	"jpeg",
 	"hdr",
 	"ktx",
+	"pgm",
 	"png",
+	"ppm",
 	"psd",
 	"pvr",
 	"tga",
@@ -115,6 +125,7 @@ const char* s_resetCmd =
 	"view rotate 0\n"
 	"view cubemap\n"
 	"view pan\n"
+	"view ev\n"
 	;
 
 static const InputBinding s_bindingView[] =
@@ -154,6 +165,8 @@ static const InputBinding s_bindingView[] =
 	{ entry::Key::KeyG,      entry::Modifier::None,       1, NULL, "view rgb g"              },
 	{ entry::Key::KeyB,      entry::Modifier::None,       1, NULL, "view rgb b"              },
 	{ entry::Key::KeyA,      entry::Modifier::None,       1, NULL, "view rgb a"              },
+
+	{ entry::Key::KeyI,      entry::Modifier::None,       1, NULL, "view info"               },
 
 	{ entry::Key::KeyH,      entry::Modifier::None,       1, NULL, "view help"               },
 
@@ -199,6 +212,9 @@ struct View
 		, m_mip(0)
 		, m_layer(0)
 		, m_abgr(UINT32_MAX)
+		, m_ev(0.0f)
+		, m_evMin(kEvMin)
+		, m_evMax(kEvMax)
 		, m_posx(0.0f)
 		, m_posy(0.0f)
 		, m_angx(0.0f)
@@ -208,13 +224,16 @@ struct View
 		, m_orientation(0.0f)
 		, m_flipH(0.0f)
 		, m_flipV(0.0f)
+		, m_transitionTime(1.0f)
 		, m_filter(true)
 		, m_fit(true)
 		, m_alpha(false)
 		, m_help(false)
+		, m_info(false)
 		, m_files(false)
 		, m_sdf(false)
 	{
+		load();
 	}
 
 	~View()
@@ -243,17 +262,17 @@ struct View
 					}
 					else
 					{
-						mip = atoi(_argv[2]);
+						bx::fromString(&mip, _argv[2]);
 					}
 
-					m_mip = bx::uint32_iclamp(mip, 0, m_info.numMips-1);
+					m_mip = bx::uint32_iclamp(mip, 0, m_textureInfo.numMips-1);
 				}
 				else
 				{
 					m_mip = 0;
 				}
 			}
-			if (0 == bx::strCmp(_argv[1], "layer") )
+			else if (0 == bx::strCmp(_argv[1], "layer") )
 			{
 				if (_argc >= 3)
 				{
@@ -272,14 +291,28 @@ struct View
 					}
 					else
 					{
-						layer = atoi(_argv[2]);
+						bx::fromString(&layer, _argv[2]);
 					}
 
-					m_layer = bx::uint32_iclamp(layer, 0, m_info.numLayers-1);
+					m_layer = bx::uint32_iclamp(layer, 0, m_textureInfo.numLayers-1);
 				}
 				else
 				{
 					m_layer = 0;
+				}
+			}
+			else if (0 == bx::strCmp(_argv[1], "ev") )
+			{
+				if (_argc >= 3)
+				{
+					float ev = m_ev;
+					bx::fromString(&ev, _argv[2]);
+
+					m_ev = bx::fclamp(ev, kEvMin, kEvMax);
+				}
+				else
+				{
+					m_ev = 0.0f;
 				}
 			}
 			else if (0 == bx::strCmp(_argv[1], "pan") )
@@ -439,11 +472,24 @@ struct View
 					m_orientation = 0.0f;
 				}
 			}
+			else if (0 == bx::strCmp(_argv[1], "transition") )
+			{
+				if (_argc >= 3)
+				{
+					float time;
+					bx::fromString(&time, _argv[2]);
+					m_transitionTime = bx::fclamp(time, 0.0f, 5.0f);
+				}
+				else
+				{
+					m_transitionTime = 1.0f;
+				}
+			}
 			else if (0 == bx::strCmp(_argv[1], "filter") )
 			{
 				if (_argc >= 3)
 				{
-					m_filter = bx::toBool(_argv[2]);
+					bx::fromString(&m_filter, _argv[2]);
 				}
 				else
 				{
@@ -454,7 +500,7 @@ struct View
 			{
 				if (_argc >= 3)
 				{
-					m_fit = bx::toBool(_argv[2]);
+					bx::fromString(&m_fit, _argv[2]);
 				}
 				else
 				{
@@ -527,6 +573,14 @@ struct View
 			else if (0 == bx::strCmp(_argv[1], "help") )
 			{
 				m_help ^= true;
+			}
+			else if (0 == bx::strCmp(_argv[1], "save") )
+			{
+				save();
+			}
+			else if (0 == bx::strCmp(_argv[1], "info") )
+			{
+				m_info ^= true;
 			}
 			else if (0 == bx::strCmp(_argv[1], "files") )
 			{
@@ -608,18 +662,63 @@ struct View
 		}
 	}
 
+	void load()
+	{
+		bx::FilePath filePath(bx::Dir::Home);
+		filePath.join(".config/bgfx/texturev.ini");
+
+		bx::Settings settings(entry::getAllocator() );
+
+		bx::FileReader reader;
+		if (bx::open(&reader, filePath) )
+		{
+			bx::read(&reader, settings);
+			bx::close(&reader);
+
+			if (!bx::fromString(&m_transitionTime, settings.get("view/transition") ) )
+			{
+				m_transitionTime = 1.0f;
+			}
+		}
+	}
+
+	void save()
+	{
+		bx::FilePath filePath(bx::Dir::Home);
+		filePath.join(".config/bgfx/texturev.ini");
+
+		if (bx::makeAll(filePath.getPath() ) )
+		{
+			bx::Settings settings(entry::getAllocator() );
+
+			char tmp[256];
+			bx::toString(tmp, sizeof(tmp), m_transitionTime);
+			settings.set("view/transition", tmp);
+
+			bx::FileWriter writer;
+			if (bx::open(&writer, filePath) )
+			{
+				bx::write(&writer, settings);
+				bx::close(&writer);
+			}
+		}
+	}
+
 	bx::FilePath m_path;
 
 	typedef stl::vector<std::string> FileList;
 	FileList m_fileList;
 
-	bgfx::TextureInfo m_info;
+	bgfx::TextureInfo m_textureInfo;
 	Geometry::Enum m_cubeMapGeo;
 	uint32_t m_fileIndex;
 	uint32_t m_scaleFn;
 	uint32_t m_mip;
 	uint32_t m_layer;
 	uint32_t m_abgr;
+	float    m_ev;
+	float    m_evMin;
+	float    m_evMax;
 	float    m_posx;
 	float    m_posy;
 	float    m_angx;
@@ -629,10 +728,12 @@ struct View
 	float    m_orientation;
 	float    m_flipH;
 	float    m_flipV;
+	float    m_transitionTime;
 	bool     m_filter;
 	bool     m_fit;
 	bool     m_alpha;
 	bool     m_help;
+	bool     m_info;
 	bool     m_files;
 	bool     m_sdf;
 };
@@ -692,9 +793,9 @@ static uint32_t addQuad(uint16_t* _indices, uint16_t _idx0, uint16_t _idx1, uint
 
 void setGeometry(
 	  Geometry::Enum _type
-	, int32_t _x
-	, int32_t _y
-	, int32_t _width
+	, int32_t  _x
+	, int32_t  _y
+	, uint32_t _width
 	, uint32_t _height
 	, uint32_t _abgr
 	, float _maxu = 1.0f
@@ -872,6 +973,7 @@ struct InterpolatorT
 
 typedef InterpolatorT<bx::flerp,     bx::easeInOutQuad>  Interpolator;
 typedef InterpolatorT<bx::angleLerp, bx::easeInOutCubic> InterpolatorAngle;
+typedef InterpolatorT<bx::flerp,     bx::easeLinear>     InterpolatorLinear;
 
 void keyBindingHelp(const char* _bindings, const char* _description)
 {
@@ -912,7 +1014,7 @@ void associate()
 		bx::stringPrintf(str, "[HKEY_CURRENT_USER\\Software\\Classes\\.%s]\r\n@=\"texturev\"\r\n\r\n", ext);
 	}
 
-	bx::FilePath filePath(bx::TempDir::Tag);
+	bx::FilePath filePath(bx::Dir::Temp);
 	filePath.join("texture.reg");
 
 	bx::FileWriter writer;
@@ -1098,6 +1200,12 @@ int _main_(int _argc, char** _argv)
 		, true
 		);
 
+	bgfx::ProgramHandle textureMsdfProgram = bgfx::createProgram(
+		  vsTexture
+		, bgfx::createEmbeddedShader(s_embeddedShaders, type, "fs_texture_msdf")
+		, true
+		);
+
 	bgfx::ProgramHandle texture3DProgram = bgfx::createProgram(
 		  vsTexture
 		, bgfx::createEmbeddedShader(s_embeddedShaders, type, "fs_texture_3d")
@@ -1124,6 +1232,7 @@ int _main_(int _argc, char** _argv)
 
 	Interpolator mip(0.0f);
 	Interpolator layer(0.0f);
+	InterpolatorLinear ev(0.0f);
 	Interpolator zoom(1.0f);
 	Interpolator scale(1.0f);
 	Interpolator posx(0.0f);
@@ -1202,7 +1311,7 @@ int _main_(int _argc, char** _argv)
 
 			if (dragging)
 			{
-				if (view.m_info.cubeMap
+				if (view.m_textureInfo.cubeMap
 				&&  Geometry::Quad == view.m_cubeMapGeo)
 				{
 					char exec[64];
@@ -1226,6 +1335,11 @@ int _main_(int _argc, char** _argv)
 					cmdExec("view files");
 				}
 
+				if (ImGui::MenuItem("Info", NULL, view.m_info) )
+				{
+					cmdExec("view info");
+				}
+
 //				if (ImGui::MenuItem("Save As") )
 				{
 				}
@@ -1244,7 +1358,13 @@ int _main_(int _argc, char** _argv)
 						cmdExec("view filter");
 					}
 
-					if (ImGui::BeginMenu("Cubemap", view.m_info.cubeMap) )
+					bool animate = 0.0f < view.m_transitionTime;
+					if (ImGui::MenuItem("Animate", NULL, &animate) )
+					{
+						cmdExec("view transition %f", animate ? 1.0f : 0.0f);
+					}
+
+					if (ImGui::BeginMenu("Cubemap", view.m_textureInfo.cubeMap) )
 					{
 						if (ImGui::MenuItem("Quad", NULL, Geometry::Quad == view.m_cubeMapGeo) )
 						{
@@ -1262,6 +1382,12 @@ int _main_(int _argc, char** _argv)
 						}
 
 						ImGui::EndMenu();
+					}
+
+					bool sdf = view.m_sdf;
+					if (ImGui::MenuItem("SDF", NULL, &sdf) )
+					{
+						cmdExec("view sdf");
 					}
 
 					bool rr = 0 != (view.m_abgr & 0x000000ff);
@@ -1286,6 +1412,13 @@ int _main_(int _argc, char** _argv)
 					if (ImGui::MenuItem("Checkerboard", NULL, &alpha) )
 					{
 						cmdExec("view rgb a");
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::MenuItem("Save Options") )
+					{
+						cmdExec("view save");
 					}
 
 					ImGui::EndMenu();
@@ -1321,6 +1454,41 @@ int _main_(int _argc, char** _argv)
 				}
 
 				help = view.m_help;
+			}
+
+			if (view.m_info)
+			{
+				if (ImGui::Begin("Info", NULL, ImVec2(300.0f, 200.0f) ) )
+				{
+					if (ImGui::BeginChild("##info", ImVec2(0.0f, 0.0f) ) )
+					{
+						ImGui::Text("Dimensions: %d x %d"
+							, view.m_textureInfo.width
+							, view.m_textureInfo.height
+							);
+
+						ImGui::Text("Format: %s"
+							, bimg::getName(bimg::TextureFormat::Enum(view.m_textureInfo.format) )
+							);
+
+						ImGui::Text("Layers: %d / %d"
+							, view.m_layer
+							, view.m_textureInfo.numLayers - 1
+							);
+
+						ImGui::Text("Mips: %d / %d"
+							, view.m_mip
+							, view.m_textureInfo.numMips - 1
+							);
+
+						ImGui::RangeSliderFloat("EV range", &view.m_evMin, &view.m_evMax, kEvMin, kEvMax);
+						ImGui::SliderFloat("EV", &view.m_ev, view.m_evMin, view.m_evMax);
+
+						ImGui::EndChild();
+					}
+
+					ImGui::End();
+				}
 			}
 
 			if (view.m_files)
@@ -1471,7 +1639,7 @@ int _main_(int _argc, char** _argv)
 					| BGFX_TEXTURE_V_CLAMP
 					| BGFX_TEXTURE_W_CLAMP
 					, 0
-					, &view.m_info
+					, &view.m_textureInfo
 					, &orientation
 					);
 
@@ -1492,28 +1660,28 @@ int _main_(int _argc, char** _argv)
 				if (isValid(texture) )
 				{
 					const char* name = "";
-					if (view.m_info.cubeMap)
+					if (view.m_textureInfo.cubeMap)
 					{
 						name = " CubeMap";
 					}
-					else if (1 < view.m_info.depth)
+					else if (1 < view.m_textureInfo.depth)
 					{
 						name = " 3D";
-						view.m_info.numLayers = view.m_info.depth;
+						view.m_textureInfo.numLayers = view.m_textureInfo.depth;
 					}
-					else if (1 < view.m_info.numLayers)
+					else if (1 < view.m_textureInfo.numLayers)
 					{
 						name = " 2D Array";
 					}
 
 					bx::stringPrintf(title, "%s (%d x %d%s, mips: %d, layers %d, %s)"
 						, fp.get()
-						, view.m_info.width
-						, view.m_info.height
+						, view.m_textureInfo.width
+						, view.m_textureInfo.height
 						, name
-						, view.m_info.numMips
-						, view.m_info.numLayers
-						, bimg::getName(bimg::TextureFormat::Enum(view.m_info.format) )
+						, view.m_textureInfo.numMips
+						, view.m_textureInfo.numLayers
+						, bimg::getName(bimg::TextureFormat::Enum(view.m_textureInfo.format) )
 						);
 				}
 				else
@@ -1532,7 +1700,7 @@ int _main_(int _argc, char** _argv)
 
 			time += (float)(frameTime*speed/freq);
 
-			float transitionTime = dragging ? 0.0f : 0.25f;
+			float transitionTime = dragging ? 0.0f : 0.25f*view.m_transitionTime;
 
 			posx.set(view.m_posx, transitionTime);
 			posy.set(view.m_posy, transitionTime);
@@ -1597,20 +1765,20 @@ int _main_(int _argc, char** _argv)
 
 			if (view.m_fit)
 			{
-				float wh[3] = { float(view.m_info.width), float(view.m_info.height), 0.0f };
+				float wh[3] = { float(view.m_textureInfo.width), float(view.m_textureInfo.height), 0.0f };
 				float result[3];
 				bx::vec3MulMtx(result, wh, orientation);
-				result[0] = bx::fround(bx::fabsolute(result[0]) );
-				result[1] = bx::fround(bx::fabsolute(result[1]) );
+				result[0] = bx::fround(bx::fabs(result[0]) );
+				result[1] = bx::fround(bx::fabs(result[1]) );
 
 				scale.set(bx::fmin(float(width)  / result[0]
 					,              float(height) / result[1])
-					, 0.1f
+					, 0.1f*view.m_transitionTime
 					);
 			}
 			else
 			{
-				scale.set(1.0f, 0.1f);
+				scale.set(1.0f, 0.1f*view.m_transitionTime);
 			}
 
 			zoom.set(view.m_zoom, transitionTime);
@@ -1622,11 +1790,11 @@ int _main_(int _argc, char** _argv)
 				* zoom.getValue()
 				;
 
-			setGeometry(view.m_info.cubeMap ? view.m_cubeMapGeo : Geometry::Quad
-				, -int(view.m_info.width  * ss)/2
-				, -int(view.m_info.height * ss)/2
-				,  int(view.m_info.width  * ss)
-				,  int(view.m_info.height * ss)
+			setGeometry(view.m_textureInfo.cubeMap ? view.m_cubeMapGeo : Geometry::Quad
+				, -int(view.m_textureInfo.width  * ss)/2
+				, -int(view.m_textureInfo.height * ss)/2
+				,  int(view.m_textureInfo.width  * ss)
+				,  int(view.m_textureInfo.height * ss)
 				, view.m_abgr
 				);
 
@@ -1636,13 +1804,14 @@ int _main_(int _argc, char** _argv)
 			bx::mtxRotateXY(mtx, angx.getValue(), angy.getValue() );
 			bgfx::setUniform(u_mtx, mtx);
 
-			mip.set(float(view.m_mip), 0.5f);
-			layer.set(float(view.m_layer), 0.25f);
+			mip.set(float(view.m_mip), 0.5f*view.m_transitionTime);
+			layer.set(float(view.m_layer), 0.25f*view.m_transitionTime);
+			ev.set(view.m_ev, 0.5f*view.m_transitionTime);
 
-			float params[4] = { mip.getValue(), layer.getValue(), 0.0f, 0.0f };
-			if (1 < view.m_info.depth)
+			float params[4] = { mip.getValue(), layer.getValue(), 0.0f, ev.getValue() };
+			if (1 < view.m_textureInfo.depth)
 			{
-				params[1] = layer.getValue()/view.m_info.depth;
+				params[1] = layer.getValue()/view.m_textureInfo.depth;
 			}
 
 			bgfx::setUniform(u_params, params);
@@ -1670,24 +1839,31 @@ int _main_(int _argc, char** _argv)
 				);
 
 			bgfx:: ProgramHandle program = textureProgram;
-			if (1 < view.m_info.depth)
+			if (1 < view.m_textureInfo.depth)
 			{
 				program = texture3DProgram;
 			}
-			else if (view.m_info.cubeMap)
+			else if (view.m_textureInfo.cubeMap)
 			{
 				program = Geometry::Quad == view.m_cubeMapGeo
 					? textureCubeProgram
 					: textureCube2Program
 					;
 			}
-			else if (1 < view.m_info.numLayers)
+			else if (1 < view.m_textureInfo.numLayers)
 			{
 				program = textureArrayProgram;
 			}
 			else if (view.m_sdf)
 			{
-				program = textureSdfProgram;
+				if (8 < bimg::getBitsPerPixel(bimg::TextureFormat::Enum(view.m_textureInfo.format) ) )
+				{
+					program = textureMsdfProgram;
+				}
+				else
+				{
+					program = textureSdfProgram;
+				}
 			}
 
 			bgfx::submit(IMAGE_VIEW_ID, program);

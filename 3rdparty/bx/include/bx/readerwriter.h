@@ -150,7 +150,7 @@ namespace bx
 		uint32_t m_size;
 	};
 
-	///
+	/// Sizer writer. Dummy writter that only counts number of bytes written into it.
 	class SizerWriter : public WriterSeekerI
 	{
 	public:
@@ -226,7 +226,7 @@ namespace bx
 		int64_t m_size;
 	};
 
-	///
+	/// Static (fixed size) memory block writer.
 	class StaticMemoryBlockWriter : public MemoryWriter
 	{
 	public:
@@ -288,6 +288,9 @@ namespace bx
 	/// Returns size of file.
 	int64_t getSize(SeekerI* _seeker);
 
+	/// Returns remaining size from current offset of file.
+	int64_t getRemain(SeekerI* _seeker);
+
 	/// Peek data.
 	int32_t peek(ReaderSeekerI* _reader, void* _data, int32_t _size, Error* _err = NULL);
 
@@ -301,16 +304,16 @@ namespace bx
 	/// Align writer stream (pads stream with zeros).
 	int32_t align(WriterSeekerI* _writer, uint32_t _alignment, Error* _err = NULL);
 
-	///
+	/// Open for read.
 	bool open(ReaderOpenI* _reader, const FilePath& _filePath, Error* _err = NULL);
 
-	///
+	/// Open fro write.
 	bool open(WriterOpenI* _writer, const FilePath& _filePath, bool _append = false, Error* _err = NULL);
 
-	///
+	/// Open process.
 	bool open(ProcessOpenI* _process, const FilePath& _filePath, const StringView& _args, Error* _err = NULL);
 
-	///
+	/// Close.
 	void close(CloserI* _reader);
 
 } // namespace bx

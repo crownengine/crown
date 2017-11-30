@@ -26,21 +26,21 @@ FilePathTest s_filePathTest[] =
 	{"/abc", "/abc"},
 	{"/", "/"},
 
-	// Remove trailing slash
-	{"abc/", "abc"},
-	{"abc/def/", "abc/def"},
-	{"a/b/c/", "a/b/c"},
-	{"./", "."},
-	{"../", ".."},
-	{"../../", "../.."},
-	{"/abc/", "/abc"},
+	// Do not remove trailing slash
+	{"abc/", "abc/"},
+	{"abc/def/", "abc/def/"},
+	{"a/b/c/", "a/b/c/"},
+	{"./", "./"},
+	{"../", "../"},
+	{"../../", "../../"},
+	{"/abc/", "/abc/"},
 
 	// Remove doubled slash
 	{"abc//def//ghi", "abc/def/ghi"},
 	{"//abc", "/abc"},
 	{"///abc", "/abc"},
-	{"//abc//", "/abc"},
-	{"abc//", "abc"},
+	{"//abc//", "/abc/"},
+	{"abc//", "abc/"},
 
 	// Remove . elements
 	{"abc/./def", "abc/def"},
@@ -80,10 +80,12 @@ static const FilePathSplit s_filePathSplit[] =
 {
 	{ "\\abc/def\\../..\\../test.txt", true, "/", "test.txt", "test", ".txt" },
 	{ "/abv/gd/555/333/pod.mac", true, "/abv/gd/555/333/", "pod.mac", "pod", ".mac" },
-	{ "archive.tar.gz", false, "", "archive.tar.gz", "archive",  ".tar.gz" },
-	{ "tmp/archive.tar.gz", false, "tmp/", "archive.tar.gz", "archive",  ".tar.gz" },
-	{ "/tmp/archive.tar.gz", true, "/tmp/", "archive.tar.gz", "archive",  ".tar.gz" },
-	{ "d:/tmp/archive.tar.gz", true, "D:/tmp/", "archive.tar.gz", "archive",  ".tar.gz" },
+	{ "archive.tar.gz", false, "", "archive.tar.gz", "archive", ".tar.gz" },
+	{ "tmp/archive.tar.gz", false, "tmp/", "archive.tar.gz", "archive", ".tar.gz" },
+	{ "/tmp/archive.tar.gz", true, "/tmp/", "archive.tar.gz", "archive", ".tar.gz" },
+	{ "d:/tmp/archive.tar.gz", true, "D:/tmp/", "archive.tar.gz", "archive", ".tar.gz" },
+	{ "/tmp/abv/gd", true, "/tmp/abv/", "gd", "gd", "" },
+	{ "/tmp/abv/gd/", true, "/tmp/abv/gd/", "", "", "" },
 };
 
 TEST_CASE("FilePath", "")
@@ -119,6 +121,16 @@ TEST_CASE("FilePath", "")
 
 TEST_CASE("FilePath temp", "")
 {
-	bx::FilePath tmp(bx::TempDir::Tag);
+	bx::FilePath tmp(bx::Dir::Temp);
 	REQUIRE(0 != bx::strCmp(".", tmp.getPath().getPtr() ) );
+
+	bx::Error err;
+	tmp.join("test/abvgd/555333/test");
+	REQUIRE(bx::makeAll(tmp, &err) );
+	REQUIRE(err.isOk() );
+
+	tmp.set(bx::Dir::Temp);
+	tmp.join("test");
+	REQUIRE(bx::removeAll(tmp, &err) );
+	REQUIRE(err.isOk() );
 }

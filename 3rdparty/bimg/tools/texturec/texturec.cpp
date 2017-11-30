@@ -118,6 +118,11 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 			outputFormat = _options.format;
 		}
 
+		if (_options.sdf)
+		{
+			outputFormat = bimg::TextureFormat::R8;
+		}
+
 		const bimg::ImageBlockInfo&  inputBlockInfo  = bimg::getBlockInfo(inputFormat);
 		const bimg::ImageBlockInfo&  outputBlockInfo = bimg::getBlockInfo(outputFormat);
 		const uint32_t blockWidth  = outputBlockInfo.blockWidth;
@@ -148,7 +153,6 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 			;
 
 		const bool passThru = true
-			&& inputFormat == outputFormat
 			&& !needResize
 			&& (1 < input->m_numMips) == _options.mips
 			&& !_options.sdf
@@ -183,7 +187,16 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 
 		if (passThru)
 		{
-			output = bimg::imageConvert(_allocator, outputFormat, *input);
+			if (inputFormat != outputFormat
+			&&  bimg::isCompressed(outputFormat) )
+			{
+				output = bimg::imageEncode(_allocator, outputFormat, _options.quality, *input);
+			}
+			else
+			{
+				output = bimg::imageConvert(_allocator, outputFormat, *input);
+			}
+
 			bimg::imageFree(input);
 			return output;
 		}
@@ -315,8 +328,10 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 
 					BX_FREE(_allocator, rgbaDst);
 				}
-				else if (!bimg::isCompressed(input->m_format)
-					 &&  8 != inputBlockInfo.rBits)
+				else if ( (!bimg::isCompressed(input->m_format) && 8 != inputBlockInfo.rBits)
+					 || outputFormat == bimg::TextureFormat::BC6H
+					 || outputFormat == bimg::TextureFormat::BC7
+						)
 				{
 					uint32_t size = bimg::imageGetSize(
 						  NULL
@@ -399,6 +414,43 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 					}
 
 					BX_FREE(_allocator, rgbaDst);
+				}
+				else if (_options.sdf)
+				{
+					uint32_t size = bimg::imageGetSize(
+						  NULL
+						, uint16_t(dstMip.m_width)
+						, uint16_t(dstMip.m_height)
+						, uint16_t(dstMip.m_depth)
+						, false
+						, false
+						, 1
+						, bimg::TextureFormat::R8
+						);
+					temp = BX_ALLOC(_allocator, size);
+					uint8_t* rgba = (uint8_t*)temp;
+
+					bimg::imageDecodeToR8(_allocator
+						, rgba
+						, mip.m_data
+						, mip.m_width
+						, mip.m_height
+						, mip.m_depth
+						, mip.m_width
+						, mip.m_format
+						);
+
+					bimg::imageGetRawData(*output, side, 0, output->m_data, output->m_size, dstMip);
+					dstData = const_cast<uint8_t*>(dstMip.m_data);
+
+					bimg::imageMakeDist(_allocator
+						, dstData
+						, mip.m_width
+						, mip.m_height
+						, mip.m_width
+						, _options.edge
+						, rgba
+						);
 				}
 				else
 				{
@@ -656,7 +708,10 @@ int main(int _argc, const char* _argv[])
 	if (NULL != edgeOpt)
 	{
 		options.sdf  = true;
-		options.edge = (float)atof(edgeOpt);
+		if (!bx::fromString(&options.edge, edgeOpt) )
+		{
+			options.edge = 255.0f;
+		}
 	}
 	else
 	{
@@ -664,7 +719,10 @@ int main(int _argc, const char* _argv[])
 		if (NULL != alphaRef)
 		{
 			options.alphaTest = true;
-			options.edge      = (float)atof(alphaRef);
+			if (!bx::fromString(&options.edge, alphaRef))
+			{
+				options.edge = 0.5f;
+			}
 		}
 	}
 

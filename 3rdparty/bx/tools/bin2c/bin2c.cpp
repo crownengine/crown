@@ -59,7 +59,7 @@ public:
 					ascii[asciiPos] = '\0';
 					bx::writePrintf(m_writer, "\t" HEX_DUMP_FORMAT "// %s\n", hex, ascii);
 					data += asciiPos;
-					hexPos = 0;
+					hexPos   = 0;
 					asciiPos = 0;
 				}
 			}
@@ -80,7 +80,6 @@ public:
 	}
 
 	bx::WriterI* m_writer;
-	std::string m_filePath;
 	std::string m_name;
 	typedef std::vector<uint8_t> Buffer;
 	Buffer m_buffer;

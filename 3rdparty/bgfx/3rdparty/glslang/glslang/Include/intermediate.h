@@ -417,8 +417,8 @@ enum TOperator {
     EOpAtomicExchange,
     EOpAtomicCompSwap,
 
-    EOpAtomicCounterIncrement,
-    EOpAtomicCounterDecrement,
+    EOpAtomicCounterIncrement, // results in pre-increment value
+    EOpAtomicCounterDecrement, // results in post-decrement value
     EOpAtomicCounter,
     EOpAtomicCounterAdd,
     EOpAtomicCounterSubtract,
@@ -653,6 +653,8 @@ enum TOperator {
     EOpTextureGatherLod,
     EOpTextureGatherLodOffset,
     EOpTextureGatherLodOffsets,
+    EOpFragmentMaskFetch,
+    EOpFragmentFetch,
 #endif
 
     EOpSparseTextureGuardBegin,
@@ -788,6 +790,7 @@ class TIntermBranch;
 class TIntermTyped;
 class TIntermMethod;
 class TIntermSymbol;
+class TIntermLoop;
 
 } // end namespace glslang
 
@@ -815,6 +818,7 @@ public:
     virtual       glslang::TIntermMethod*        getAsMethodNode()          { return 0; }
     virtual       glslang::TIntermSymbol*        getAsSymbolNode()          { return 0; }
     virtual       glslang::TIntermBranch*        getAsBranchNode()          { return 0; }
+	virtual       glslang::TIntermLoop*          getAsLoopNode()            { return 0; }
 
     virtual const glslang::TIntermTyped*         getAsTyped()         const { return 0; }
     virtual const glslang::TIntermOperator*      getAsOperator()      const { return 0; }
@@ -827,6 +831,7 @@ public:
     virtual const glslang::TIntermMethod*        getAsMethodNode()    const { return 0; }
     virtual const glslang::TIntermSymbol*        getAsSymbolNode()    const { return 0; }
     virtual const glslang::TIntermBranch*        getAsBranchNode()    const { return 0; }
+	virtual const glslang::TIntermLoop*          getAsLoopNode()      const { return 0; }
     virtual ~TIntermNode() { }
 
 protected:
@@ -870,6 +875,8 @@ public:
     virtual bool isVector() const { return type.isVector(); }
     virtual bool isScalar() const { return type.isScalar(); }
     virtual bool isStruct() const { return type.isStruct(); }
+    virtual bool isFloatingDomain() const { return type.isFloatingDomain(); }
+    virtual bool isIntegerDomain() const { return type.isIntegerDomain(); }
     TString getCompleteString() const { return type.getCompleteString(); }
 
 protected:
@@ -908,6 +915,8 @@ public:
         control(ELoopControlNone)
     { }
 
+	virtual       TIntermLoop* getAsLoopNode() { return this; }
+	virtual const TIntermLoop* getAsLoopNode() const { return this; }
     virtual void traverse(TIntermTraverser*);
     TIntermNode*  getBody() const { return body; }
     TIntermTyped* getTest() const { return test; }
@@ -990,6 +999,10 @@ public:
     int getFlattenSubset() const { return flattenSubset; } // -1 means full object
 #endif
 
+    // This is meant for cases where a node has already been constructed, and
+    // later on, it becomes necessary to switch to a different symbol.
+    virtual void switchId(int newId) { id = newId; }
+
 protected:
     int id;                      // the unique id of the symbol this node represents
 #ifdef ENABLE_HLSL
@@ -1032,6 +1045,9 @@ struct TCrackedTextureOp {
     bool grad;
     bool subpass;
     bool lodClamp;
+#ifdef AMD_EXTENSIONS
+    bool fragMask;
+#endif
 };
 
 //
@@ -1079,6 +1095,9 @@ public:
         cracked.grad = false;
         cracked.subpass = false;
         cracked.lodClamp = false;
+#ifdef AMD_EXTENSIONS
+        cracked.fragMask = false;
+#endif
 
         switch (op) {
         case EOpImageQuerySize:
@@ -1210,6 +1229,14 @@ public:
         case EOpSparseImageLoadLod:
             cracked.lod = true;
             break;
+        case EOpFragmentMaskFetch:
+            cracked.subpass = sampler.dim == EsdSubpass;
+            cracked.fragMask = true;
+            break;
+        case EOpFragmentFetch:
+            cracked.subpass = sampler.dim == EsdSubpass;
+            cracked.fragMask = true;
+            break;
 #endif
         case EOpSubpassLoad:
         case EOpSubpassLoadMS:
@@ -1270,14 +1297,14 @@ protected:
 };
 
 typedef TVector<TIntermNode*> TIntermSequence;
-typedef TVector<int> TQualifierList;
+typedef TVector<TStorageQualifier> TQualifierList;
 //
 // Nodes that operate on an arbitrary sized set of children.
 //
 class TIntermAggregate : public TIntermOperator {
 public:
-    TIntermAggregate() : TIntermOperator(EOpNull), userDefined(false), pragmaTable(0) { }
-    TIntermAggregate(TOperator o) : TIntermOperator(o), pragmaTable(0) { }
+    TIntermAggregate() : TIntermOperator(EOpNull), userDefined(false), pragmaTable(nullptr) { }
+    TIntermAggregate(TOperator o) : TIntermOperator(o), pragmaTable(nullptr) { }
     ~TIntermAggregate() { delete pragmaTable; }
     virtual       TIntermAggregate* getAsAggregate()       { return this; }
     virtual const TIntermAggregate* getAsAggregate() const { return this; }
@@ -1295,7 +1322,7 @@ public:
     void setDebug(bool d) { debug = d; }
     bool getOptimize() const { return optimize; }
     bool getDebug() const { return debug; }
-    void addToPragmaTable(const TPragmaTable& pTable);
+    void setPragmaTable(const TPragmaTable& pTable);
     const TPragmaTable& getPragmaTable() const { return *pragmaTable; }
 protected:
     TIntermAggregate(const TIntermAggregate&); // disallow copy constructor

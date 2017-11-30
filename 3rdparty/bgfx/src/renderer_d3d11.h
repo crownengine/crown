@@ -6,7 +6,8 @@
 #ifndef BGFX_RENDERER_D3D11_H_HEADER_GUARD
 #define BGFX_RENDERER_D3D11_H_HEADER_GUARD
 
-#define USE_D3D11_DYNAMIC_LIB BX_PLATFORM_WINDOWS
+#define USE_D3D11_DYNAMIC_LIB    BX_PLATFORM_WINDOWS
+#define USE_D3D11_STAGING_BUFFER 0
 
 #if !USE_D3D11_DYNAMIC_LIB
 #	undef  BGFX_CONFIG_DEBUG_PIX
@@ -35,6 +36,7 @@ BX_PRAGMA_DIAGNOSTIC_POP()
 #include "hmd.h"
 #include "hmd_openvr.h"
 #include "debug_renderdoc.h"
+#include "nvapi.h"
 
 #ifndef D3DCOLOR_ARGB
 #	define D3DCOLOR_ARGB(_a, _r, _g, _b) ( (DWORD)( ( ( (_a)&0xff)<<24)|( ( (_r)&0xff)<<16)|( ( (_g)&0xff)<<8)|( (_b)&0xff) ) )
@@ -64,6 +66,9 @@ namespace bgfx { namespace d3d11
 	{
 		BufferD3D11()
 			: m_ptr(NULL)
+#if USE_D3D11_STAGING_BUFFER
+			, m_staging(NULL)
+#endif // USE_D3D11_STAGING_BUFFER
 			, m_srv(NULL)
 			, m_uav(NULL)
 			, m_flags(BGFX_BUFFER_NONE)
@@ -82,11 +87,18 @@ namespace bgfx { namespace d3d11
 				m_dynamic = false;
 			}
 
+#if USE_D3D11_STAGING_BUFFER
+			DX_RELEASE(m_staging, 0);
+#endif // USE_D3D11_STAGING_BUFFER
+
 			DX_RELEASE(m_srv, 0);
 			DX_RELEASE(m_uav, 0);
 		}
 
 		ID3D11Buffer* m_ptr;
+#if USE_D3D11_STAGING_BUFFER
+		ID3D11Buffer* m_staging;
+#endif // USE_D3D11_STAGING_BUFFER
 		ID3D11ShaderResourceView*  m_srv;
 		ID3D11UnorderedAccessView* m_uav;
 		uint32_t m_size;
@@ -154,7 +166,7 @@ namespace bgfx { namespace d3d11
 			ID3D11ComputeShader* m_computeShader;
 			ID3D11PixelShader*   m_pixelShader;
 			ID3D11VertexShader*  m_vertexShader;
-			IUnknown*            m_ptr;
+			ID3D11DeviceChild*   m_ptr;
 		};
 		const Memory* m_code;
 		ID3D11Buffer* m_buffer;
@@ -233,6 +245,7 @@ namespace bgfx { namespace d3d11
 		void commit(uint8_t _stage, uint32_t _flags, const float _palette[][4]);
 		void resolve() const;
 		TextureHandle getHandle() const;
+		DXGI_FORMAT getSrvFormat() const;
 
 		union
 		{

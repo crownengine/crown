@@ -326,6 +326,14 @@ namespace bgfx { namespace mtl
 
 	MTL_CLASS(Function)
 		NSArray* vertexAttributes() { return m_obj.vertexAttributes; }
+
+		void setLabel(const char* _label)
+		{
+			if ([m_obj respondsToSelector:@selector(setLabel:)])
+			{
+				[m_obj setLabel:@(_label)];
+			}
+		}
 	MTL_CLASS_END
 
 	MTL_CLASS(Library)
@@ -497,6 +505,11 @@ namespace bgfx { namespace mtl
 		MTLTextureType textureType() const
 		{
 			return m_obj.textureType;
+		}
+
+		void setLabel(const char* _label)
+		{
+			[m_obj setLabel:@(_label)];
 		}
 	MTL_CLASS_END
 
@@ -726,8 +739,7 @@ namespace bgfx { namespace mtl
 			, m_vshConstantBufferAlignmentMask(0)
 			, m_fshConstantBufferSize(0)
 			, m_fshConstantBufferAlignmentMask(0)
-			, m_usedVertexSamplerStages(0)
-			, m_usedFragmentSamplerStages(0)
+			, m_samplerCount(0)
 			, m_numPredefined(0)
 			, m_processedUniforms(false)
 		{
@@ -753,8 +765,16 @@ namespace bgfx { namespace mtl
 		uint32_t m_vshConstantBufferAlignmentMask;
 		uint32_t m_fshConstantBufferSize;
 		uint32_t m_fshConstantBufferAlignmentMask;
-		uint32_t m_usedVertexSamplerStages;
-		uint32_t m_usedFragmentSamplerStages;
+
+		struct SamplerInfo
+		{
+			uint32_t			m_index;
+			bgfx::UniformHandle m_uniform;
+			bool				m_fragment;
+		};
+		SamplerInfo m_samplers[BGFX_CONFIG_MAX_TEXTURE_SAMPLERS];
+		uint32_t	m_samplerCount;
+
 		PredefinedUniform m_predefined[PredefinedUniform::Count*2];
 		uint8_t m_numPredefined;
 		bool m_processedUniforms;

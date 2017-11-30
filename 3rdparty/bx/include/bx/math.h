@@ -9,6 +9,7 @@
 #define BX_FPU_MATH_H_HEADER_GUARD
 
 #include "bx.h"
+#include "uint32_t.h"
 
 namespace bx
 {
@@ -62,6 +63,9 @@ namespace bx
 	double bitsToDouble(uint64_t _a);
 
 	///
+	uint32_t floatFlip(uint32_t _value);
+
+	///
 	bool isNan(float _f);
 
 	///
@@ -113,7 +117,7 @@ namespace bx
 	float fsign(float _a);
 
 	///
-	float fabsolute(float _a);
+	float fabs(float _a);
 
 	///
 	float fsq(float _a);
@@ -441,6 +445,9 @@ namespace bx
 
 	///
 	void vec3MulMtx(float* _result, const float* _vec, const float* _mat);
+
+	///
+	void vec3MulMtxXyz0(float* _result, const float* _vec, const float* _mat);
 
 	///
 	void vec3MulMtxH(float* _result, const float* _vec, const float* _mat);

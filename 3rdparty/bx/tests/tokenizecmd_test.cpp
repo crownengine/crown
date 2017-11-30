@@ -15,12 +15,24 @@ TEST_CASE("commandLine", "")
 		"--long",
 		"--platform",
 		"x",
+		"--num", "1389",
+		"--foo",
+		"--", // it should not parse arguments after argument terminator
+		"--bar",
 	};
 
 	bx::CommandLine cmdLine(BX_COUNTOF(args), args);
 
-	REQUIRE(cmdLine.hasArg("long") );
-	REQUIRE(cmdLine.hasArg('s') );
+	REQUIRE( cmdLine.hasArg("long") );
+	REQUIRE( cmdLine.hasArg('s') );
+
+	int32_t num;
+	REQUIRE(cmdLine.hasArg(num, '\0', "num") );
+	REQUIRE(1389 == num);
+
+	// test argument terminator
+	REQUIRE( cmdLine.hasArg("foo") );
+	REQUIRE(!cmdLine.hasArg("bar") );
 
 	// non-existing argument
 	REQUIRE(!cmdLine.hasArg('x') );

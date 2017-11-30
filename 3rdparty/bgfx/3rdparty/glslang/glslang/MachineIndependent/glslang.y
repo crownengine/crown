@@ -860,6 +860,11 @@ function_header
         // Add the function as a prototype after parsing it (we do not support recursion)
         TFunction *function;
         TType type($1);
+
+        // Potentially rename shader entry point function.  No-op most of the time.
+        parseContext.renameShaderFunction($2.string);
+
+        // Make the function
         function = new TFunction($2.string, type);
         $$ = function;
     }
@@ -2911,7 +2916,7 @@ function_definition
         // information. This information can be queried from the parse tree
         $$->getAsAggregate()->setOptimize(parseContext.contextPragma.optimize);
         $$->getAsAggregate()->setDebug(parseContext.contextPragma.debug);
-        $$->getAsAggregate()->addToPragmaTable(parseContext.contextPragma.pragmaTable);
+        $$->getAsAggregate()->setPragmaTable(parseContext.contextPragma.pragmaTable);
     }
     ;
 

@@ -3,6 +3,7 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
+#include "bx_p.h"
 #include <bx/string.h>
 #include <bx/os.h>
 #include <bx/uint32_t.h>
@@ -10,6 +11,12 @@
 #if !BX_PLATFORM_NONE
 
 #include <stdio.h>
+
+#if BX_CRT_MSVC
+#	include <direct.h>
+#else
+#	include <unistd.h>
+#endif // BX_CRT_MSVC
 
 #if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
 #	include <windows.h>
@@ -23,7 +30,8 @@
 	|| BX_PLATFORM_OSX        \
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_RPI        \
-	|| BX_PLATFORM_STEAMLINK
+	|| BX_PLATFORM_STEAMLINK  \
+	|| BX_PLATFORM_NX
 #	include <sched.h> // sched_yield
 #	if BX_PLATFORM_BSD  \
 	|| BX_PLATFORM_IOS  \
@@ -53,12 +61,6 @@
 #		include "debug.h" // getTid is not implemented...
 #	endif // BX_PLATFORM_ANDROID
 #endif // BX_PLATFORM_
-
-#if BX_CRT_MSVC
-#	include <direct.h> // _getcwd
-#else
-#	include <unistd.h> // getcwd
-#endif // BX_CRT_MSVC
 
 namespace bx
 {
@@ -94,20 +96,21 @@ namespace bx
 	{
 #if BX_PLATFORM_WINDOWS
 		return ::GetCurrentThreadId();
-#elif BX_PLATFORM_LINUX || BX_PLATFORM_RPI || BX_PLATFORM_STEAMLINK
+#elif  BX_PLATFORM_LINUX \
+	|| BX_PLATFORM_RPI   \
+	|| BX_PLATFORM_STEAMLINK
 		return (pid_t)::syscall(SYS_gettid);
-#elif BX_PLATFORM_IOS || BX_PLATFORM_OSX
+#elif  BX_PLATFORM_IOS \
+	|| BX_PLATFORM_OSX
 		return (mach_port_t)::pthread_mach_thread_np(pthread_self() );
 #elif BX_PLATFORM_BSD
-		// Casting __nc_basic_thread_data*... need better way to do this.
 		return *(uint32_t*)::pthread_self();
 #elif BX_PLATFORM_HURD
 		return (pthread_t)::pthread_self();
 #else
-//#	pragma message "not implemented."
 		debugOutput("getTid is not implemented"); debugBreak();
 		return 0;
-#endif //
+#endif // BX_PLATFORM_
 	}
 
 	size_t getProcessMemoryUsed()
@@ -115,7 +118,8 @@ namespace bx
 #if BX_PLATFORM_ANDROID
 		struct mallinfo mi = mallinfo();
 		return mi.uordblks;
-#elif BX_PLATFORM_LINUX || BX_PLATFORM_HURD
+#elif  BX_PLATFORM_LINUX \
+	|| BX_PLATFORM_HURD
 		FILE* file = fopen("/proc/self/statm", "r");
 		if (NULL == file)
 		{
@@ -139,7 +143,7 @@ namespace bx
 				, (task_info_t)&info
 				, &infoCount
 				);
-#	else // MACH_TASK_BASIC_INFO
+#	else
 		task_basic_info info;
 		mach_msg_type_number_t infoCount = TASK_BASIC_INFO_COUNT;
 
@@ -148,7 +152,7 @@ namespace bx
 				, (task_info_t)&info
 				, &infoCount
 				);
-#	endif // MACH_TASK_BASIC_INFO
+#	endif // defined(MACH_TASK_BASIC_INFO)
 		if (KERN_SUCCESS != result)
 		{
 			return 0;
@@ -234,7 +238,7 @@ namespace bx
 			result = len != 0 && len < *_inOutSize;
 			if (len < *_inOutSize)
 			{
-				strCopy(_out, len, ptr);
+				strCopy(_out, *_inOutSize, ptr);
 			}
 		}
 
@@ -283,23 +287,10 @@ namespace bx
 #endif // BX_COMPILER_
 	}
 
-	char* pwd(char* _buffer, uint32_t _size)
-	{
-#if BX_PLATFORM_PS4     \
- || BX_PLATFORM_XBOXONE \
- || BX_PLATFORM_WINRT
-		BX_UNUSED(_buffer, _size);
-		return NULL;
-#elif BX_CRT_MSVC
-		return ::_getcwd(_buffer, (int)_size);
-#else
-		return ::getcwd(_buffer, _size);
-#endif // BX_COMPILER_
-	}
-
 	void* exec(const char* const* _argv)
 	{
-#if BX_PLATFORM_LINUX || BX_PLATFORM_HURD
+#if BX_PLATFORM_LINUX \
+ || BX_PLATFORM_HURD
 		pid_t pid = fork();
 
 		if (0 == pid)
@@ -329,9 +320,9 @@ namespace bx
 		for(uint32_t ii = 0; NULL != _argv[ii]; ++ii)
 		{
 			len += snprintf(&temp[len], bx::uint32_imax(0, total-len)
-						, "%s "
-						, _argv[ii]
-						);
+				, "%s "
+				, _argv[ii]
+				);
 		}
 
 		bool ok = !!CreateProcessA(_argv[0]

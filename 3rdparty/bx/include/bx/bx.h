@@ -15,6 +15,7 @@
 #include "platform.h"
 #include "config.h"
 #include "macros.h"
+#include "debug.h"
 
 ///
 #define BX_COUNTOF(_x) sizeof(bx::COUNTOF_REQUIRES_ARRAY_ARGUMENT(_x) )
@@ -34,15 +35,36 @@ namespace bx
 	template<bool>
 	bool isEnabled();
 
-	///
-	bool ignoreC4127(bool _x);
-
-	///
+	/// Exchange two values.
 	template<typename Ty>
 	void xchg(Ty& _a, Ty& _b);
 
-	///
+	/// Exchange memory.
 	void xchg(void* _a, void* _b, size_t _numBytes);
+
+	/// Returns minimum of two values.
+	template<typename Ty>
+	Ty min(const Ty& _a, const Ty& _b);
+
+	/// Returns maximum of two values.
+	template<typename Ty>
+	Ty max(const Ty& _a, const Ty& _b);
+
+	/// Returns minimum of three values.
+	template<typename Ty>
+	Ty min(const Ty& _a, const Ty& _b, const Ty& _c);
+
+	/// Returns maximum of three values.
+	template<typename Ty>
+	Ty max(const Ty& _a, const Ty& _b, const Ty& _c);
+
+	/// Returns middle of three values.
+	template<typename Ty>
+	Ty mid(const Ty& _a, const Ty& _b, const Ty& _c);
+
+	/// Returns clamped value between min/max.
+	template<typename Ty>
+	Ty clamp(const Ty& _a, const Ty& _min, const Ty& _max);
 
 	// http://cnicholson.net/2011/01/stupid-c-tricks-a-better-sizeof_array/
 	template<typename T, size_t N>

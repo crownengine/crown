@@ -47,7 +47,7 @@ Supported compilers:
 
  * Clang 3.3 and above
  * GCC 4.6 and above
- * VS2012 and above
+ * VS2015 and above
 
 Languages:
 
@@ -57,7 +57,8 @@ Languages:
  * [Go language API bindings](https://github.com/james4k/go-bgfx)
  * [Haskell language API bindings](https://github.com/haskell-game/bgfx)
  * [Lightweight Java Game Library 3 bindings](https://github.com/LWJGL/lwjgl3)
- * [Lua language API bindings](https://github.com/excessive/lua-bgfx)
+ * [Lua language API bindings 1](https://github.com/excessive/lua-bgfx)
+ * [Lua language API bindings 2](https://github.com/cloudwu/lua-bgfx)
  * [Nim language API bindings](https://github.com/Halsys/nim-bgfx)
  * [Python language API bindings](https://github.com/jnadro/pybgfx#pybgf)
  * [Rust language API bindings](https://github.com/rhoot/bgfx-rs)
@@ -270,6 +271,17 @@ and Metroid style discovery.
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=Mr_L7KuiByU" 
 target="_blank"><img src="http://img.youtube.com/vi/Mr_L7KuiByU/0.jpg" 
 alt="Smith and Winston: Gameplay Video"
+width="640" height="480" border="0" /></a>
+
+## Football Manager 2018
+
+http://www.footballmanager.com/ - Football Manager 2018 is a 2017 football
+management simulation video game developed by Sports Interactive and published
+by Sega.
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=1Woak1Bl_KI" 
+target="_blank"><img src="http://img.youtube.com/vi/1Woak1Bl_KI/0.jpg" 
+alt="Match Engine | Football Manager 2018"
 width="640" height="480" border="0" /></a>
 
 [License (BSD 2-clause)](https://bkaradzic.github.io/bgfx/license.html)

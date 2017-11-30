@@ -200,10 +200,10 @@ namespace bx
 
 	inline MemoryWriter::MemoryWriter(MemoryBlockI* _memBlock)
 		: m_memBlock(_memBlock)
-		  , m_data(NULL)
-		  , m_pos(0)
-		  , m_top(0)
-		  , m_size(0)
+		, m_data(NULL)
+		, m_pos(0)
+		, m_top(0)
+		, m_size(0)
 	{
 	}
 
@@ -391,9 +391,17 @@ namespace bx
 	inline int64_t getSize(SeekerI* _seeker)
 	{
 		int64_t offset = _seeker->seek();
-		int64_t size = _seeker->seek(0, Whence::End);
+		int64_t size   = _seeker->seek(0, Whence::End);
 		_seeker->seek(offset, Whence::Begin);
 		return size;
+	}
+
+	inline int64_t getRemain(SeekerI* _seeker)
+	{
+		int64_t offset = _seeker->seek();
+		int64_t size   = _seeker->seek(0, Whence::End);
+		_seeker->seek(offset, Whence::Begin);
+		return size-offset;
 	}
 
 	inline int32_t peek(ReaderSeekerI* _reader, void* _data, int32_t _size, Error* _err)

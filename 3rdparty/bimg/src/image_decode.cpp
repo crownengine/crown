@@ -28,7 +28,6 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_MSVC(4127) // warning C4127: conditional expression
 #define LODEPNG_NO_COMPILE_ENCODER
 #define LODEPNG_NO_COMPILE_DISK
 #define LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
-#define LODEPNG_NO_COMPILE_ERROR_TEXT
 #define LODEPNG_NO_COMPILE_ALLOCATORS
 #define LODEPNG_NO_COMPILE_CPP
 #include <lodepng/lodepng.cpp>
@@ -93,7 +92,11 @@ namespace bimg
 		uint8_t* data = NULL;
 		error = lodepng_decode(&data, &width, &height, &state, (uint8_t*)_data, _size);
 
-		if (0 == error)
+		if (0 != error)
+		{
+			_err->setError(BIMG_ERROR, lodepng_error_text(error) );
+		}
+		else
 		{
 			bool palette   = false;
 			bool supported = false;

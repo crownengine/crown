@@ -21,6 +21,9 @@ namespace bx
 	WriterI* getStdErr();
 
 	///
+	WriterI* getNullOut();
+
+	///
 	class FileReader : public FileReaderI
 	{
 	public:
@@ -88,7 +91,7 @@ namespace bx
 	};
 
 	///
-	bool stat(const char* _filePath, FileInfo& _fileInfo);
+	bool stat(const FilePath& _filePath, FileInfo& _outFileInfo);
 
 } // namespace bx
 

@@ -55,6 +55,7 @@
 #include <cctype>
 #include <cmath>
 #include <array>
+#include <map>
 #include <memory>
 #include <thread>
 
@@ -94,6 +95,9 @@ enum TOptions {
     EOptionHlslIoMapping        = (1 << 24),
     EOptionAutoMapLocations     = (1 << 25),
     EOptionDebug                = (1 << 26),
+    EOptionStdin                = (1 << 27),
+    EOptionOptimizeDisable      = (1 << 28),
+    EOptionOptimizeSize         = (1 << 29),
 };
 
 //
@@ -122,6 +126,9 @@ void InfoLogMsg(const char* msg, const char* name, const int num);
 // Globally track if any compile or link failure.
 bool CompileFailed = false;
 bool LinkFailed = false;
+
+// array of unique places to leave the shader names and infologs for the asynchronous compiles
+std::vector<std::unique_ptr<glslang::TWorkItem>> WorkItems;
 
 TBuiltInResource Resources;
 std::string ConfigFile;
@@ -154,12 +161,11 @@ int OpenGLClientVersion = 450;           // doesn't influence anything yet, but 
 unsigned int TargetVersion = 0x00001000; // maps to, say, SPIR-V 1.0
 std::vector<std::string> Processes;      // what should be recorded by OpModuleProcessed, or equivalent
 
-std::array<unsigned int, EShLangCount> baseSamplerBinding;
-std::array<unsigned int, EShLangCount> baseTextureBinding;
-std::array<unsigned int, EShLangCount> baseImageBinding;
-std::array<unsigned int, EShLangCount> baseUboBinding;
-std::array<unsigned int, EShLangCount> baseSsboBinding;
-std::array<unsigned int, EShLangCount> baseUavBinding;
+// Per descriptor-set binding base data
+typedef std::map<unsigned int, unsigned int> TPerSetBaseBinding;
+
+std::array<std::array<unsigned int, EShLangCount>, glslang::EResCount> baseBinding;
+std::array<std::array<TPerSetBaseBinding, EShLangCount>, glslang::EResCount> baseBindingForSet;
 std::array<std::vector<std::string>, EShLangCount> baseResourceSetBinding;
 
 // Add things like "#define ..." to a preamble to use in the beginning of the shader.
@@ -258,36 +264,59 @@ bool SetConfigFile(const std::string& name)
 //
 void Error(const char* message)
 {
-    printf("%s: Error %s (use -h for usage)\n", ExecutableName, message);
+    fprintf(stderr, "%s: Error %s (use -h for usage)\n", ExecutableName, message);
     exit(EFailUsage);
 }
 
 //
-// Process an optional binding base of the form:
-//   --argname [stage] base
+// Process an optional binding base of one the forms:
+//   --argname [stage] base            // base for stage (if given) or all stages (if not)
+//   --argname [stage] [base set]...   // set/base pairs: set the base for given binding set.
+
 // Where stage is one of the forms accepted by FindLanguage, and base is an integer
 //
-void ProcessBindingBase(int& argc, char**& argv, std::array<unsigned int, EShLangCount>& base)
+void ProcessBindingBase(int& argc, char**& argv, glslang::TResourceType res)
 {
     if (argc < 2)
         usage();
 
-    if (!isdigit(argv[1][0])) {
+    EShLanguage lang = EShLangCount;
+    int singleBase = 0;
+    TPerSetBaseBinding perSetBase;
+    int arg = 1;
+
+    // Parse stage, if given
+    if (!isdigit(argv[arg][0])) {
         if (argc < 3) // this form needs one more argument
             usage();
 
-        // Parse form: --argname stage base
-        const EShLanguage lang = FindLanguage(argv[1], false);
-        base[lang] = atoi(argv[2]);
-        argc-= 2;
-        argv+= 2;
-    } else {
-        // Parse form: --argname base
-        for (int lang=0; lang<EShLangCount; ++lang)
-            base[lang] = atoi(argv[1]);
+        lang = FindLanguage(argv[arg++], false);
+    }
 
-        argc--;
-        argv++;
+    if ((argc - arg) > 2 && isdigit(argv[arg+0][0]) && isdigit(argv[arg+1][0])) {
+        // Parse a per-set binding base
+        while ((argc - arg) > 2 && isdigit(argv[arg+0][0]) && isdigit(argv[arg+1][0])) {
+            const int baseNum = atoi(argv[arg++]);
+            const int setNum = atoi(argv[arg++]);
+            perSetBase[setNum] = baseNum;
+        }
+    } else {
+        // Parse single binding base
+        singleBase = atoi(argv[arg++]);
+    }
+
+    argc -= (arg-1);
+    argv += (arg-1);
+
+    // Set one or all languages
+    const int langMin = (lang < EShLangCount) ? lang+0 : 0;
+    const int langMax = (lang < EShLangCount) ? lang+1 : EShLangCount;
+
+    for (int lang = langMin; lang < langMax; ++lang) {
+        if (!perSetBase.empty())
+            baseBindingForSet[res][lang] = perSetBase;
+        else
+            baseBinding[res][lang] = singleBase;
     }
 }
 
@@ -336,12 +365,8 @@ void ProcessResourceSetBindingBase(int& argc, char**& argv, std::array<std::vect
 //
 void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItems, int argc, char* argv[])
 {
-    baseSamplerBinding.fill(0);
-    baseTextureBinding.fill(0);
-    baseImageBinding.fill(0);
-    baseUboBinding.fill(0);
-    baseSsboBinding.fill(0);
-    baseUavBinding.fill(0);
+    for (int res = 0; res < glslang::EResCount; ++res)
+        baseBinding[res].fill(0);
 
     ExecutableName = argv[0];
     workItems.reserve(argc);
@@ -438,30 +463,30 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
                     } else if (lowerword == "shift-image-bindings" ||  // synonyms
                                lowerword == "shift-image-binding"  ||
                                lowerword == "sib") {
-                        ProcessBindingBase(argc, argv, baseImageBinding);
+                        ProcessBindingBase(argc, argv, glslang::EResImage);
                     } else if (lowerword == "shift-sampler-bindings" || // synonyms
                         lowerword == "shift-sampler-binding"  ||
                         lowerword == "ssb") {
-                        ProcessBindingBase(argc, argv, baseSamplerBinding);
+                        ProcessBindingBase(argc, argv, glslang::EResSampler);
                     } else if (lowerword == "shift-uav-bindings" ||  // synonyms
                                lowerword == "shift-uav-binding"  ||
                                lowerword == "suavb") {
-                        ProcessBindingBase(argc, argv, baseUavBinding);
+                        ProcessBindingBase(argc, argv, glslang::EResUav);
                     } else if (lowerword == "shift-texture-bindings" ||  // synonyms
                                lowerword == "shift-texture-binding"  ||
                                lowerword == "stb") {
-                        ProcessBindingBase(argc, argv, baseTextureBinding);
+                        ProcessBindingBase(argc, argv, glslang::EResTexture);
                     } else if (lowerword == "shift-ubo-bindings" ||  // synonyms
                                lowerword == "shift-ubo-binding"  ||
                                lowerword == "shift-cbuffer-bindings" ||
                                lowerword == "shift-cbuffer-binding"  ||
                                lowerword == "sub" ||
                                lowerword == "scb") {
-                        ProcessBindingBase(argc, argv, baseUboBinding);
+                        ProcessBindingBase(argc, argv, glslang::EResUbo);
                     } else if (lowerword == "shift-ssbo-bindings" ||  // synonyms
                                lowerword == "shift-ssbo-binding"  ||
                                lowerword == "sbb") {
-                        ProcessBindingBase(argc, argv, baseSsboBinding);
+                        ProcessBindingBase(argc, argv, glslang::EResSsbo);
                     } else if (lowerword == "source-entrypoint" || // synonyms
                                lowerword == "sep") {
                         if (argc <= 1)
@@ -469,6 +494,9 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
                         sourceEntryPointName = argv[1];
                         bumpArg();
                         break;
+                    } else if (lowerword == "stdin") {
+                        Options |= EOptionStdin;
+                        shaderStageName = argv[1];
                     } else if (lowerword == "suppress-warnings") {
                         Options |= EOptionSuppressWarnings;
                     } else if (lowerword == "target-env") {
@@ -524,6 +552,18 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
             case 'I':
                 IncludeDirectoryList.push_back(getStringOperand("-I<dir> include path"));
                 break;
+            case 'O':
+                if (argv[0][2] == 'd')
+                    Options |= EOptionOptimizeDisable;
+                else if (argv[0][2] == 's')
+#ifdef ENABLE_OPT
+                    Options |= EOptionOptimizeSize;
+#else
+                    Error("-Os not available; optimizer not linked");
+#endif
+                else
+                    Error("unknown -O option");
+                break;
             case 'S':
                 if (argc <= 1)
                     Error("no <stage> specified for -S");
@@ -549,7 +589,7 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
                 // This is okay for one compilation unit with one entry point.
                 entryPointName = argv[1];
                 if (argc <= 1)
-                    Error("no <entry-point> provided for -e");
+                    Error("no <name> provided for -e");
                 bumpArg();
                 break;
             case 'g':
@@ -606,6 +646,10 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
         }
     }
 
+    // Make sure that -S is always specified if --stdin is specified
+    if ((Options & EOptionStdin) && shaderStageName == nullptr)
+        Error("must provide -S when --stdin is given");
+
     // Make sure that -E is not specified alongside linking (which includes SPV generation)
     if ((Options & EOptionOutputPreprocessed) && (Options & EOptionLinkProgram))
         Error("can't use -E when linking is selected");
@@ -654,17 +698,31 @@ void SetMessageOptions(EShMessages& messages)
 void CompileShaders(glslang::TWorklist& worklist)
 {
     glslang::TWorkItem* workItem;
-    while (worklist.remove(workItem)) {
-        ShHandle compiler = ShConstructCompiler(FindLanguage(workItem->name), Options);
+    if (Options & EOptionStdin) {
+        worklist.remove(workItem);
+        ShHandle compiler = ShConstructCompiler(FindLanguage("stdin"), Options);
         if (compiler == 0)
             return;
 
-        CompileFile(workItem->name.c_str(), compiler);
+        CompileFile("stdin", compiler);
 
-        if (! (Options & EOptionSuppressInfolog))
-            workItem->results = ShGetInfoLog(compiler);
+            if (! (Options & EOptionSuppressInfolog))
+                workItem->results = ShGetInfoLog(compiler);
 
         ShDestruct(compiler);
+    } else {
+        while (worklist.remove(workItem)) {
+            ShHandle compiler = ShConstructCompiler(FindLanguage(workItem->name), Options);
+            if (compiler == 0)
+                return;
+
+            CompileFile(workItem->name.c_str(), compiler);
+
+            if (! (Options & EOptionSuppressInfolog))
+                workItem->results = ShGetInfoLog(compiler);
+
+            ShDestruct(compiler);
+        }
     }
 }
 
@@ -745,18 +803,30 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
         shader->setStringsWithLengthsAndNames(compUnit.text, NULL, compUnit.fileNameList, compUnit.count);
         if (entryPointName) // HLSL todo: this needs to be tracked per compUnits
             shader->setEntryPoint(entryPointName);
-        if (sourceEntryPointName)
+        if (sourceEntryPointName) {
+            if (entryPointName == nullptr)
+                printf("Warning: Changing source entry point name without setting an entry-point name.\n"
+                       "Use '-e <name>'.\n");
             shader->setSourceEntryPoint(sourceEntryPointName);
+        }
         if (UserPreamble.isSet())
             shader->setPreamble(UserPreamble.get());
         shader->addProcesses(Processes);
 
-        shader->setShiftSamplerBinding(baseSamplerBinding[compUnit.stage]);
-        shader->setShiftTextureBinding(baseTextureBinding[compUnit.stage]);
-        shader->setShiftImageBinding(baseImageBinding[compUnit.stage]);
-        shader->setShiftUboBinding(baseUboBinding[compUnit.stage]);
-        shader->setShiftSsboBinding(baseSsboBinding[compUnit.stage]);
-        shader->setShiftUavBinding(baseUavBinding[compUnit.stage]);
+        // Set IO mapper binding shift values
+        for (int r = 0; r < glslang::EResCount; ++r) {
+            const glslang::TResourceType res = glslang::TResourceType(r);
+
+            // Set base bindings
+            shader->setShiftBinding(res, baseBinding[res][compUnit.stage]);
+            
+            // Set bindings for particular resource sets
+            // TODO: use a range based for loop here, when available in all environments.
+            for (auto i = baseBindingForSet[res][compUnit.stage].begin();
+                 i != baseBindingForSet[res][compUnit.stage].end(); ++i)
+                shader->setShiftBindingForSet(res, i->second, i->first);
+        }
+
         shader->setFlattenUniformArrays((Options & EOptionFlattenUniformArrays) != 0);
         shader->setNoStorageFormat((Options & EOptionNoStorageFormat) != 0);
         shader->setResourceSetBinding(baseResourceSetBinding[compUnit.stage]);
@@ -860,6 +930,8 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
                     glslang::SpvOptions spvOptions;
                     if (Options & EOptionDebug)
                         spvOptions.generateDebugInfo = true;
+                    spvOptions.disableOptimizer = (Options & EOptionOptimizeDisable) != 0;
+                    spvOptions.optimizeSize = (Options & EOptionOptimizeSize) != 0;
                     glslang::GlslangToSpv(*program.getIntermediate((EShLanguage)stage), spirv, &logger, &spvOptions);
 
                     // Dump the spv to a file or stdout, etc., but only if not doing
@@ -908,19 +980,32 @@ void CompileAndLinkShaderFiles(glslang::TWorklist& Worklist)
 {
     std::vector<ShaderCompUnit> compUnits;
 
-    // Transfer all the work items from to a simple list of
-    // of compilation units.  (We don't care about the thread
-    // work-item distribution properties in this path, which
-    // is okay due to the limited number of shaders, know since
-    // they are all getting linked together.)
-    glslang::TWorkItem* workItem;
-    while (Worklist.remove(workItem)) {
-        ShaderCompUnit compUnit(FindLanguage(workItem->name));
-        char* fileText = ReadFileData(workItem->name.c_str());
-        if (fileText == nullptr)
-            usage();
-        compUnit.addString(workItem->name, fileText);
+    // If this is using stdin, we can't really detect multiple different file
+    // units by input type. We need to assume that we're just being given one
+    // file of a certain type.
+    if ((Options & EOptionStdin) != 0) {
+        ShaderCompUnit compUnit(FindLanguage("stdin"));
+        std::istreambuf_iterator<char> begin(std::cin), end;
+        std::string tempString(begin, end);
+        char* fileText = strdup(tempString.c_str());
+        std::string fileName = "stdin";
+        compUnit.addString(fileName, fileText);
         compUnits.push_back(compUnit);
+    } else {
+        // Transfer all the work items from to a simple list of
+        // of compilation units.  (We don't care about the thread
+        // work-item distribution properties in this path, which
+        // is okay due to the limited number of shaders, know since
+        // they are all getting linked together.)
+        glslang::TWorkItem* workItem;
+        while (Worklist.remove(workItem)) {
+            ShaderCompUnit compUnit(FindLanguage(workItem->name));
+            char* fileText = ReadFileData(workItem->name.c_str());
+            if (fileText == nullptr)
+                usage();
+            compUnit.addString(workItem->name, fileText);
+            compUnits.push_back(compUnit);
+        }
     }
 
     // Actual call to programmatic processing of compile and link,
@@ -940,14 +1025,10 @@ void CompileAndLinkShaderFiles(glslang::TWorklist& Worklist)
         FreeFileData(const_cast<char*>(it->text[0]));
 }
 
-int C_DECL main(int argc, char* argv[])
+int singleMain()
 {
-    // array of unique places to leave the shader names and infologs for the asynchronous compiles
-    std::vector<std::unique_ptr<glslang::TWorkItem>> workItems;
-    ProcessArguments(workItems, argc, argv);
-
     glslang::TWorklist workList;
-    std::for_each(workItems.begin(), workItems.end(), [&workList](std::unique_ptr<glslang::TWorkItem>& item) {
+    std::for_each(WorkItems.begin(), WorkItems.end(), [&workList](std::unique_ptr<glslang::TWorkItem>& item) {
         assert(item);
         workList.add(item.get());
     });
@@ -967,14 +1048,20 @@ int C_DECL main(int argc, char* argv[])
         printf("SPIR-V Version %s\n", spirvVersion.c_str());
         printf("GLSL.std.450 Version %d, Revision %d\n", GLSLstd450Version, GLSLstd450Revision);
         printf("Khronos Tool ID %d\n", glslang::GetKhronosToolId());
+        printf("SPIR-V Generator Version %d\n", glslang::GetSpirvGeneratorVersion());
         printf("GL_KHR_vulkan_glsl version %d\n", 100);
         printf("ARB_GL_gl_spirv version %d\n", 100);
         if (workList.empty())
             return ESuccess;
     }
 
-    if (workList.empty()) {
+    if (workList.empty() && ((Options & EOptionStdin) == 0)) {
         usage();
+    }
+
+    if (Options & EOptionStdin) {
+        WorkItems.push_back(std::unique_ptr<glslang::TWorkItem>{new glslang::TWorkItem("stdin")});
+        workList.add(WorkItems.back().get());
     }
 
     ProcessConfigFile();
@@ -987,22 +1074,25 @@ int C_DECL main(int argc, char* argv[])
     if (Options & EOptionLinkProgram ||
         Options & EOptionOutputPreprocessed) {
         glslang::InitializeProcess();
+        glslang::InitializeProcess();  // also test reference counting of users
+        glslang::InitializeProcess();  // also test reference counting of users
+        glslang::FinalizeProcess();    // also test reference counting of users
+        glslang::FinalizeProcess();    // also test reference counting of users
         CompileAndLinkShaderFiles(workList);
         glslang::FinalizeProcess();
     } else {
         ShInitialize();
+        ShInitialize();  // also test reference counting of users
+        ShFinalize();    // also test reference counting of users
 
         bool printShaderNames = workList.size() > 1;
 
-        if (Options & EOptionMultiThreaded)
-        {
+        if (Options & EOptionMultiThreaded) {
             std::array<std::thread, 16> threads;
-            for (unsigned int t = 0; t < threads.size(); ++t)
-            {
+            for (unsigned int t = 0; t < threads.size(); ++t) {
                 threads[t] = std::thread(CompileShaders, std::ref(workList));
-                if (threads[t].get_id() == std::thread::id())
-                {
-                    printf("Failed to create thread\n");
+                if (threads[t].get_id() == std::thread::id()) {
+                    fprintf(stderr, "Failed to create thread\n");
                     return EFailThreadCreate;
                 }
             }
@@ -1012,11 +1102,11 @@ int C_DECL main(int argc, char* argv[])
             CompileShaders(workList);
 
         // Print out all the resulting infologs
-        for (size_t w = 0; w < workItems.size(); ++w) {
-            if (workItems[w]) {
-                if (printShaderNames || workItems[w]->results.size() > 0)
-                    PutsIfNonEmpty(workItems[w]->name.c_str());
-                PutsIfNonEmpty(workItems[w]->results.c_str());
+        for (size_t w = 0; w < WorkItems.size(); ++w) {
+            if (WorkItems[w]) {
+                if (printShaderNames || WorkItems[w]->results.size() > 0)
+                    PutsIfNonEmpty(WorkItems[w]->name.c_str());
+                PutsIfNonEmpty(WorkItems[w]->results.c_str());
             }
         }
 
@@ -1029,6 +1119,25 @@ int C_DECL main(int argc, char* argv[])
         return EFailLink;
 
     return 0;
+}
+
+int C_DECL main(int argc, char* argv[])
+{
+    ProcessArguments(WorkItems, argc, argv);
+
+    int ret = 0;
+
+    // Loop over the entire init/finalize cycle to watch memory changes
+    const int iterations = 1;
+    if (iterations > 1)
+        glslang::OS_DumpMemoryCounters();
+    for (int i = 0; i < iterations; ++i) {
+        ret = singleMain();
+        if (iterations > 1)
+            glslang::OS_DumpMemoryCounters();
+    }
+
+    return ret;
 }
 
 //
@@ -1087,7 +1196,14 @@ EShLanguage FindLanguage(const std::string& name, bool parseSuffix)
 void CompileFile(const char* fileName, ShHandle compiler)
 {
     int ret = 0;
-    char* shaderString = ReadFileData(fileName);
+    char* shaderString;
+    if ((Options & EOptionStdin) != 0) {
+        std::istreambuf_iterator<char> begin(std::cin), end;
+        std::string tempString(begin, end);
+        shaderString = strdup(tempString.c_str());
+    } else {
+        shaderString = ReadFileData(fileName);
+    }
 
     // move to length-based strings, rather than null-terminated strings
     int* lengths = new int[1];
@@ -1154,6 +1270,8 @@ void usage()
            "  -H          print human readable form of SPIR-V; turns on -V\n"
            "  -I<dir>     add dir to the include search path; includer's directory\n"
            "              is searched first, followed by left-to-right order of -I\n"
+           "  -Od         disables optimization. May cause illegal SPIR-V for HLSL.\n"
+           "  -Os         optimizes SPIR-V to minimize size.\n"
            "  -S <stage>  uses specified stage rather than parsing the file extension\n"
            "              choices for <stage> are vert, tesc, tese, geom, frag, or comp\n"
            "  -U<macro>   undefine a pre-processor macro\n"
@@ -1167,16 +1285,16 @@ void usage()
            "              creates the default configuration file (redirect to a .conf file)\n"
            "  -d          default to desktop (#version 110) when there is no shader #version\n"
            "              (default is ES version 100)\n"
-           "  -e          specify entry-point name\n"
+           "  -e <name>   specify <name> as the entry-point name\n"
            "  -g          generate debug information\n"
            "  -h          print this usage message\n"
            "  -i          intermediate tree (glslang AST) is printed out\n"
            "  -l          link all input files together to form a single module\n"
            "  -m          memory leak mode\n"
-           "  -o  <file>  save binary to <file>, requires a binary option (e.g., -V)\n"
+           "  -o <file>   save binary to <file>, requires a binary option (e.g., -V)\n"
            "  -q          dump reflection query database\n"
            "  -r          synonym for --relaxed-errors\n"
-           "  -s          silent mode\n"
+           "  -s          silence syntax and semantic error reporting\n"
            "  -t          multi-threaded mode\n"
            "  -v          print version strings\n"
            "  -w          synonym for --suppress-warnings\n"
@@ -1205,21 +1323,31 @@ void usage()
            "              Set descriptor set for all resources\n"
            "  --rsb [stage] type set binding       synonym for --resource-set-binding\n"
            "  --shift-image-binding [stage] num    base binding number for images (uav)\n"
+           "  --shift-image-binding [stage] [num set]... per-descriptor-set shift values\n"
            "  --sib [stage] num                    synonym for --shift-image-binding\n"
            "  --shift-sampler-binding [stage] num  base binding number for samplers\n"
+           "  --shift-sampler-binding [stage] [num set]... per-descriptor-set shift values\n"
            "  --ssb [stage] num                    synonym for --shift-sampler-binding\n"
            "  --shift-ssbo-binding [stage] num     base binding number for SSBOs\n"
+           "  --shift-ssbo-binding [stage] [num set]... per-descriptor-set shift values\n"
            "  --sbb [stage] num                    synonym for --shift-ssbo-binding\n"
            "  --shift-texture-binding [stage] num  base binding number for textures\n"
+           "  --shift-texture-binding [stage] [num set]... per-descriptor-set shift values\n"
            "  --stb [stage] num                    synonym for --shift-texture-binding\n"
            "  --shift-uav-binding [stage] num      base binding number for UAVs\n"
+           "  --shift-uav-binding [stage] [num set]... per-descriptor-set shift values\n"
            "  --suavb [stage] num                  synonym for --shift-uav-binding\n"
            "  --shift-UBO-binding [stage] num      base binding number for UBOs\n"
+           "  --shift-UBO-binding [stage] [num set]... per-descriptor-set shift values\n"
            "  --shift-cbuffer-binding [stage] num  synonym for --shift-UBO-binding\n"
+           "  --shift-cbuffer-binding [stage] [num set]... per-descriptor-set shift values\n"
            "  --sub [stage] num                    synonym for --shift-UBO-binding\n"
-           "  --source-entrypoint name             the given shader source function is\n"
-           "                                       renamed to be the entry point given in -e\n"
+           "  --source-entrypoint <name>           the given shader source function is\n"
+           "                                       renamed to be the <name> given in -e\n"
            "  --sep                                synonym for --source-entrypoint\n"
+           "  --stdin                              Read from stdin instead of from a file.\n"
+           "                                       You'll have to provide the shader stage\n"
+           "                                       using -S.\n"
            "  --suppress-warnings                  suppress GLSL warnings\n"
            "                                       (except as required by #extension : warn)\n"
            "  --target-env {vulkan1.0|opengl}      set the execution environment code will\n"
