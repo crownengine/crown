@@ -119,7 +119,6 @@ function openal_project(_kind)
 				"restrict=",
 				"SIZEOF_LONG=4",
 				"SIZEOF_LONG_LONG=8",
-				"snprintf=_snprintf",
 				"strcasecmp=_stricmp",
 				"strncasecmp=_strnicmp",
 			}
