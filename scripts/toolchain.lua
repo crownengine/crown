@@ -256,7 +256,7 @@ function toolchain(build_dir, lib_dir)
 		buildoptions { "-m64" }
 
 	configuration { "vs*" }
-		includedirs { CROWN_DIR .. "src/core/compat/msvc" }
+		includedirs { CROWN_DIR .. "3rdparty/bx/include/compat/msvc" }
 		defines {
 			"WIN32",
 			"_WIN32",
