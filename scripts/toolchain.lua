@@ -69,7 +69,7 @@ function toolchain(build_dir, lib_dir)
 			location(build_dir .. "projects/" .. "mingw")
 
 		end
-	elseif _ACTION == "vs2013" then
+	elseif _ACTION == "vs2017" then
 
 		if not os.is("windows") then
 			print("Action not valid in current OS.")
