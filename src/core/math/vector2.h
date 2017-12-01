@@ -140,7 +140,7 @@ inline f32 distance(const Vector2& a, const Vector2& b)
 /// Returns the angle between the vectors @a a and @a b.
 inline f32 angle(const Vector2& a, const Vector2& b)
 {
-	return acos(dot(a, b) / (length(a) * length(b)));
+	return facos(dot(a, b) / (length(a) * length(b)));
 }
 
 /// Returns a vector that contains the largest value for each element from @a a and @a b.

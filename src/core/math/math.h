@@ -53,7 +53,13 @@ inline f32 ffract(f32 a)
 /// Returns the absolute value of @a a.
 inline f32 fabs(f32 a)
 {
-	return ::fabs(a);
+	return ::fabsf(a);
+}
+
+/// Returns the arc cosine of @a a.
+inline f32 facos(f32 a)
+{
+	return ::acosf(a);
 }
 
 /// Returns @a deg in radians.

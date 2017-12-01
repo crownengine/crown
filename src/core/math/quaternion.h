@@ -133,7 +133,7 @@ inline Quaternion power(const Quaternion& q, f32 exp)
 {
 	if (fabs(q.w) < 0.9999)
 	{
-		const f32 alpha = acos(q.w); // alpha = theta/2
+		const f32 alpha = facos(q.w); // alpha = theta/2
 		const f32 new_alpha = alpha * exp;
 		const f32 mult = sinf(new_alpha) / sinf(alpha);
 
