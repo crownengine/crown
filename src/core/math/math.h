@@ -50,6 +50,12 @@ inline f32 ffract(f32 a)
 	return a - floorf(a);
 }
 
+/// Returns the absolute value of @a a.
+inline f32 fabs(f32 a)
+{
+	return ::fabs(a);
+}
+
 /// Returns @a deg in radians.
 inline f32 frad(f32 deg)
 {
