@@ -1,26 +1,10 @@
+#include "core/error/error.h"
 #include "core/math/math.h"
 #include "resource/expression_language.h"
-
 #include <alloca.h>
 #include <string.h>
 #include <limits.h>
 #include <stdlib.h>
-
-#ifndef XASSERT
-	#ifdef _DEBUG
-		#define ASSERTS_ENABLED
-	#endif
-
-	#ifdef ASSERTS_ENABLED
-		#include <stdio.h>
-		#include <assert.h>
-		#define XASSERT(cond, s, ...) do { if (!(cond)) {fprintf(stderr, s "\n", ##__VA_ARGS__); assert(cond);} } while (false)
-		#define XERROR(s, ...) do { fprintf(stderr, s "\n", ##__VA_ARGS__); assert(false); } while (false)
-	#else
-		#define XASSERT(...) do {} while(false)
-		#define XERROR(...) do {} while(false)
-	#endif
-#endif
 
 namespace skinny { namespace expression_language {
 
@@ -46,8 +30,8 @@ namespace skinny { namespace expression_language {
 	/// Opcodes for functions
 	enum OpCode {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_UNARY_MINUS, OP_NOP, OP_SIN, OP_COS, OP_ABS, OP_MATCH, OP_MATCH2D};
 
-	static inline float pop(Stack &stack) 			{XASSERT(stack.size > 0, "Stack underflow"); return stack.data[--stack.size];}
-	static inline void push(Stack &stack, float f)	{XASSERT(stack.size < stack.capacity, "Stack overflow"); stack.data[stack.size++] = f;}
+	static inline float pop(Stack &stack) 			{CE_ASSERT(stack.size > 0, "Stack underflow"); return stack.data[--stack.size];}
+	static inline void push(Stack &stack, float f)	{CE_ASSERT(stack.size < stack.capacity, "Stack overflow"); stack.data[stack.size++] = f;}
 
 	inline float fmax(float a, float b)
 	{
@@ -90,7 +74,7 @@ namespace skinny { namespace expression_language {
 			case OP_MATCH2D: d=POP(); c=POP(); b=POP(); a=POP(); PUSH(match2d(a,b,c,d)); break;
 			case OP_NOP: break;
 			default:
-				XERROR("Unknown opcode");
+				CE_FATAL("Unknown opcode");
 		}
 
 		#undef POP
@@ -179,7 +163,7 @@ namespace skinny { namespace expression_language {
 			else if ( (i=find_string(identifier, len, num_functions, function_names)) != UINT_MAX)
 				return Token(Token::FUNCTION, i);
 			else {
-				XERROR("Unknown identifier: %s", identifier);
+				CE_FATAL("Unknown identifier: %s", identifier);
 				return Token();
 			}
 		}
@@ -279,8 +263,8 @@ namespace skinny { namespace expression_language {
 			bool constant_arguments = true;
 			Function f = env.function_values[rpl[i].id];
 			unsigned arity = f.arity;
-			XASSERT(arity <= MAX_ARITY, "MAX_ARITY too small");
-			XASSERT(i >= arity, "Too few arguments to function");
+			CE_ASSERT(arity <= MAX_ARITY, "MAX_ARITY too small");
+			CE_ASSERT(i >= arity, "Too few arguments to function");
 			unsigned arg_start = i - arity;
 			for (unsigned j=0; j<arity && constant_arguments; ++j) {
 				constant_arguments = constant_arguments && rpl[i-j-1].type == Token::NUMBER;
@@ -327,7 +311,7 @@ namespace skinny { namespace expression_language {
 					op = BC_FUNCTION + f.op_code;
 					break;
 				default:
-					XERROR("Unknown token");
+					CE_FATAL("Unknown token");
 					break;
 			}
 			if (size < capacity)
@@ -371,7 +355,7 @@ namespace skinny { namespace expression_language {
 	/// Sets up the functions that should be usable in the language.
 	static unsigned setup_functions(const char **names, Function *functions, unsigned capacity)
 	{
-		XASSERT(capacity >= NUM_DEFAULT_FUNCTIONS, "Not enough space for default functions");
+		CE_ASSERT(capacity >= NUM_DEFAULT_FUNCTIONS, "Not enough space for default functions");
 		names[0] = ","; functions[0] = Function(OP_NOP, 1, 0);
 		names[1] = "+"; functions[1] = Function(OP_ADD, 12, 2);
 		names[2] = "-"; functions[2] = Function(OP_SUB, 12, 2);
@@ -438,6 +422,9 @@ namespace skinny { namespace expression_language {
 					function_stack[num_function_stack++] = f;
 					break;
 				}
+				default:
+					CE_FATAL("Unknown token");
+					break;
 			}
 		}
 
@@ -465,7 +452,7 @@ namespace skinny { namespace expression_language {
 		if (is_bc_push_float(bc))
 			return unsigned_to_float(bc);
 		else {
-			XERROR("Not a static expression");
+			CE_FATAL("Not a static expression");
 			return 0;
 		}
 	}
