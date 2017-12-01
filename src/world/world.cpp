@@ -562,12 +562,9 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 	ScriptWorld* script_world = w._script_world;
 	AnimationStateMachine* animation_state_machine = w._animation_state_machine;
 
-	// Start of components data
-	const char* components_begin = (const char*)(&ur + 1);
-	const ComponentData* component = NULL;
-	for (u32 cc = 0; cc < ur.num_component_types; ++cc, components_begin += component->size + sizeof(ComponentData))
+	const ComponentData* component = (ComponentData*)(&ur + 1);
+	for (u32 cc = 0; cc < ur.num_component_types; ++cc, component = (ComponentData*)((char*)component + component->size + sizeof(ComponentData)))
 	{
-		component = (const ComponentData*)components_begin;
 		const u32* unit_index = (const u32*)(component + 1);
 		const char* data = (const char*)(unit_index + component->num_instances);
 
