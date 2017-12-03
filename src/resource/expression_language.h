@@ -28,6 +28,8 @@
 /// If you compile offline you can exclude this code in the runtime version.
 #define CAN_COMPILE
 
+namespace crown
+{
 namespace skinny { namespace expression_language {
 	#ifdef CAN_COMPILE
 		/// Compiles the @a source and stores the result in the @a byte_code.
@@ -69,3 +71,4 @@ namespace skinny { namespace expression_language {
 	/// They should match the list of variable names supplied to the compile function.
 	bool run(const unsigned *byte_code, const float *variables, Stack &stack);
 } } // skinny::expression_language
+} // namespace crown

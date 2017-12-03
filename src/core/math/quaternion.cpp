@@ -37,7 +37,7 @@ Quaternion quaternion(const Matrix3x3& m)
 		index = 3;
 	}
 
-	const f32 biggest = sqrtf(max + 1.0f) * 0.5f;
+	const f32 biggest = fsqrt(max + 1.0f) * 0.5f;
 	const f32 mult = 0.25f / biggest;
 
 	Quaternion tmp;

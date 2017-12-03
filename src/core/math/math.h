@@ -6,7 +6,6 @@
 #pragma once
 
 #include "core/types.h"
-#include <math.h>
 
 namespace crown
 {
@@ -19,115 +18,58 @@ static const f32 PI_HALF       = 1.57079632679489661923f;
 static const f32 FLOAT_EPSILON = 1.0e-7f;
 
 /// Returns whether @a a and @a b are equal according to @a epsilon.
-inline bool fequal(f32 a, f32 b, f32 epsilon = FLOAT_EPSILON)
-{
-	return b <= (a + epsilon)
-		&& b >= (a - epsilon)
-		;
-}
+bool fequal(f32 a, f32 b, f32 epsilon = FLOAT_EPSILON);
 
 /// Returns the minimum of @a a and @a b.
-inline f32 fmin(f32 a, f32 b)
-{
-	return a < b ? a : b;
-}
+f32 fmin(f32 a, f32 b);
 
 /// Returns the maximum of @a a and @a b.
-inline f32 fmax(f32 a, f32 b)
-{
-	return a < b ? b : a;
-}
+f32 fmax(f32 a, f32 b);
 
 /// Clamps @a val to @a min and @a max.
-inline f32 fclamp(f32 min, f32 max, f32 val)
-{
-	return fmin(fmax(min, val), max);
-}
+f32 fclamp(f32 min, f32 max, f32 val);
 
 /// Returns the fractional part of @a a.
-inline f32 ffract(f32 a)
-{
-	return a - floorf(a);
-}
+f32 ffract(f32 a);
 
 /// Returns the absolute value of @a a.
-inline f32 fabs(f32 a)
-{
-	return ::fabsf(a);
-}
+f32 fabs(f32 a);
+
+/// Returns the sine of @a a.
+f32 fsin(f32 a);
+
+/// Returns the cosine of @a a.
+f32 fcos(f32 a);
 
 /// Returns the arc cosine of @a a.
-inline f32 facos(f32 a)
-{
-	return ::acosf(a);
-}
+f32 facos(f32 a);
+
+/// Returns the tangent of @a a.
+f32 ftan(f32 a);
+
+/// Returns the nonnegative square root of @a a.
+f32 fsqrt(f32 a);
 
 /// Returns @a deg in radians.
-inline f32 frad(f32 deg)
-{
-	return deg * PI / 180.0f;
-}
+f32 frad(f32 deg);
 
 /// Returns @a rad in degrees.
-inline f32 fdeg(f32 rad)
-{
-	return rad * 180.0f / PI;
-}
+f32 fdeg(f32 rad);
 
 /// Returns the linear interpolated value between @a p0 and @a p1 at time @a t
-inline f32 lerp(const f32 p0, const f32 p1, f32 t)
-{
-	return (1.0f - t) * p0 + t * p1;
-}
+f32 lerp(const f32 p0, const f32 p1, f32 t);
 
 /// Returns the cosine interpolated value between @a p0 and @a p1 at time @a t
-inline f32 cosine(const f32 p0, const f32 p1, f32 t)
-{
-	const f32 f = t * PI;
-	const f32 g = (1.0f - cosf(f)) * 0.5f;
-
-	return p0 + g * (p1 - p0);
-}
+f32 cosine(const f32 p0, const f32 p1, f32 t);
 
 /// Returns the cubic interpolated value between @a p0 and @a p1 at time @a t
-inline f32 cubic(const f32 p0, const f32 p1, f32 t)
-{
-	const f32 tt  = t * t;
-	const f32 ttt = tt * t;
-
-	return p0 * (2.0f * ttt - 3.0f * tt + 1.0f) + p1 * (3.0f * tt  - 2.0f * ttt);
-}
+f32 cubic(const f32 p0, const f32 p1, f32 t);
 
 /// Bezier interpolation
-inline f32 bezier(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t)
-{
-	const f32 u   = 1.0f - t;
-	const f32 tt  = t * t ;
-	const f32 uu  = u * u;
-	const f32 uuu = uu * u;
-	const f32 ttt = tt * t;
-
-	const f32 tmp = (uuu * p0)
-		+ (3.0f * uu * t * p1)
-		+ (3.0f * u * tt * p2)
-		+ (ttt * p3);
-
-	return tmp;
-}
+f32 bezier(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t);
 
 /// Catmull-Rom interpolation
-inline f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t)
-{
-	const f32 tt  = t * t;
-	const f32 ttt = tt * t;
-
-	const f32 tmp = (2.0f * p1)
-		+ (-p0 + p2) * t
-		+ ((2.0f * p0) - (5.0f * p1) + (4.0f * p2) - p3) * tt
-		+ (-p0 + (3.0f * p1) + (-3.0f * p2) + p3) * ttt;
-
-	return tmp * 0.5f;
-}
+f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t);
 
 /// @}
 

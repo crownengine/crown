@@ -6,6 +6,8 @@
 #include <limits.h>
 #include <stdlib.h>
 
+namespace crown
+{
 namespace skinny { namespace expression_language {
 
 	/// Byte code constants.
@@ -40,7 +42,7 @@ namespace skinny { namespace expression_language {
 
 	inline float length(float a, float b)
 	{
-		return sqrtf((b - a) * (b - a));
+		return fsqrt((b - a) * (b - a));
 	}
 
 	inline float match(float a, float b)
@@ -67,8 +69,8 @@ namespace skinny { namespace expression_language {
 			case OP_MUL: b=POP(); a=POP(); PUSH(a*b); break;
 			case OP_DIV: b=POP(); a=POP(); PUSH(a/b); break;
 			case OP_UNARY_MINUS: PUSH(-POP()); break;
-			case OP_SIN: PUSH(sinf(POP())); break;
-			case OP_COS: PUSH(cosf(POP())); break;
+			case OP_SIN: PUSH(fsin(POP())); break;
+			case OP_COS: PUSH(fcos(POP())); break;
 			case OP_ABS: a = POP(); PUSH(fabs(a)); break;
 			case OP_MATCH: b=POP(); a=POP(); PUSH(match(a, b)); break;
 			case OP_MATCH2D: d=POP(); c=POP(); b=POP(); a=POP(); PUSH(match2d(a,b,c,d)); break;
@@ -484,3 +486,4 @@ namespace skinny { namespace expression_language {
 	}
 
 }} // skinny::expression_langauge
+} // namespace crown

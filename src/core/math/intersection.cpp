@@ -48,7 +48,7 @@ f32 ray_sphere_intersection(const Vector3& from, const Vector3& dir, const Spher
 	if (det < 0.0f || b < s.r)
 		return -1.0f;
 
-	return b - sqrtf(det);
+	return b - fsqrt(det);
 }
 
 // http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/

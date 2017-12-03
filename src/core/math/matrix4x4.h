@@ -294,7 +294,7 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 /// Sets the matrix @a m to perspective.
 inline void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 nnear, f32 ffar)
 {
-	const f32 height = 1.0f / tanf(fovy * 0.5f);
+	const f32 height = 1.0f / ftan(fovy * 0.5f);
 	const f32 width = height * 1.0f / aspect;
 	const f32 aa = ffar / (ffar - nnear);
 	const f32 bb = -nnear * aa;

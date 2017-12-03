@@ -69,7 +69,7 @@ void DebugLine::add_arc(const Vector3& center, f32 radius, const Vector3& plane_
 	for (u32 i = 0; i <= segments; ++i)
 	{
 		const f32 t = step * i - PI_HALF;
-		const Vector3 to = center + x*cosf(t) + y*sinf(t);
+		const Vector3 to = center + x*fcos(t) + y*fsin(t);
 		add_line(from, to, color);
 		from = to;
 	}
@@ -94,7 +94,7 @@ void DebugLine::add_circle(const Vector3& center, f32 radius, const Vector3& nor
 	for (u32 i = 0; i <= segments; ++i)
 	{
 		const f32 t = step * i - PI_HALF;
-		const Vector3 to = center + x*cosf(t) + y*sinf(t);
+		const Vector3 to = center + x*fcos(t) + y*fsin(t);
 		add_line(from, to, color);
 		from = to;
 	}
@@ -121,7 +121,7 @@ void DebugLine::add_cone(const Vector3& base_center, const Vector3& tip, f32 rad
 	for (u32 i = 0; i <= segments; ++i)
 	{
 		const f32 t = step * i - PI_HALF;
-		const Vector3 to = base_center + x*cosf(t) + y*sinf(t);
+		const Vector3 to = base_center + x*fcos(t) + y*fsin(t);
 		add_line(from, to, color);
 		add_line(from, tip, color);
 		from = to;

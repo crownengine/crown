@@ -21,7 +21,7 @@ namespace sphere
 			rr = fmax(rr, length_squared(pi - s.c));
 		}
 
-		s.r = sqrtf(rr);
+		s.r = fsqrt(rr);
 	}
 
 	void add_spheres(Sphere& s, u32 num, const Sphere* spheres)
@@ -34,7 +34,7 @@ namespace sphere
 			if (dist < (si.r + s.r) * (si.r + s.r))
 			{
 				if (si.r*si.r > s.r*s.r)
-					s.r = sqrtf(dist + si.r*si.r);
+					s.r = fsqrt(dist + si.r*si.r);
 			}
 		}
 	}

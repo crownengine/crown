@@ -119,7 +119,7 @@ inline f32 length_squared(const Vector3& a)
 /// Returns the length of @a a.
 inline f32 length(const Vector3& a)
 {
-	return sqrtf(length_squared(a));
+	return fsqrt(length_squared(a));
 }
 
 /// Normalizes @a a and returns the result.
