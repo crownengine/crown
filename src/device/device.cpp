@@ -213,6 +213,7 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	, _input_manager(NULL)
 	, _unit_manager(NULL)
 	, _lua_environment(NULL)
+	, _pipeline(NULL)
 	, _display(NULL)
 	, _window(NULL)
 	, _worlds(default_allocator())
@@ -230,7 +231,7 @@ bool Device::process_events(bool vsync)
 	bool reset = false;
 
 	OsEvent event;
-	while(next_event(event))
+	while (next_event(event))
 	{
 		if (event.type == OsEventType::NONE)
 			continue;
@@ -453,11 +454,16 @@ void Device::run()
 	_lua_environment->execute_string(_device_options._lua_string.c_str());
 	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
 
+	_pipeline = CE_NEW(_allocator, Pipeline)();
+	_pipeline->create(_width, _height);
+
 	logi(DEVICE, "Initialized");
 
 	_lua_environment->call_global("init", 0);
 
 	s64 time_last = os::clocktime();
+	u16 old_width = 0;
+	u16 old_height = 0;
 
 	while (!process_events(_boot_config.vsync) && !_quit)
 	{
@@ -471,6 +477,13 @@ void Device::run()
 
 		RECORD_FLOAT("device.dt", dt);
 		RECORD_FLOAT("device.fps", 1.0f/dt);
+
+		if (_width != old_width || _height != old_height)
+		{
+			old_width = _width;
+			old_height = _height;
+			_pipeline->reset(_width, _height);
+		}
 
 		if (!_paused)
 		{
@@ -508,6 +521,7 @@ void Device::run()
 	physics_globals::shutdown(_allocator);
 	audio_globals::shutdown();
 
+	CE_DELETE(_allocator, _pipeline);
 	CE_DELETE(_allocator, _lua_environment);
 	CE_DELETE(_allocator, _unit_manager);
 	CE_DELETE(_allocator, _input_manager);
@@ -515,6 +529,8 @@ void Device::run()
 	CE_DELETE(_allocator, _shader_manager);
 	CE_DELETE(_allocator, _resource_manager);
 	CE_DELETE(_allocator, _resource_loader);
+
+	_pipeline->destroy();
 
 	bgfx::shutdown();
 	_window->close();
@@ -571,12 +587,7 @@ void Device::render(World& world, UnitId camera_unit)
 	Matrix4x4 ortho_proj;
 	orthographic(ortho_proj, 0, _width, 0, _height, 0.01f, 1.0f);
 
-	bgfx::setViewClear(0
-		, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
-		, 0x353839ff
-		, 1.0f
-		, 0
-		);
+	bgfx::setViewClear(VIEW_SPRITE_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x353839ff, 1.0f, 0);
 
 	bgfx::setViewTransform(VIEW_SPRITE_0, to_float_ptr(view), to_float_ptr(proj));
 	bgfx::setViewTransform(VIEW_SPRITE_1, to_float_ptr(view), to_float_ptr(proj));
@@ -612,6 +623,18 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::setViewMode(VIEW_SPRITE_7, bgfx::ViewMode::DepthAscending);
 	bgfx::setViewMode(VIEW_GUI, bgfx::ViewMode::Sequential);
 
+	bgfx::setViewFrameBuffer(VIEW_SPRITE_0, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_SPRITE_1, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_SPRITE_2, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_SPRITE_3, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_SPRITE_4, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_SPRITE_5, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_SPRITE_6, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_SPRITE_7, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_MESH, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_DEBUG, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_GUI, _pipeline->_frame_buffer);
+
 	bgfx::touch(VIEW_SPRITE_0);
 	bgfx::touch(VIEW_SPRITE_1);
 	bgfx::touch(VIEW_SPRITE_2);
@@ -625,6 +648,8 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::touch(VIEW_GUI);
 
 	world.render(view, proj);
+
+	_pipeline->render(*_shader_manager, StringId32("blit"), 0, _width, _height);
 }
 
 World* Device::create_world()

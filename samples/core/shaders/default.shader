@@ -274,6 +274,44 @@ bgfx_shaders = {
 			}
 		"""
 	}
+
+	blit = {
+		includes = "common"
+
+		varying = """
+			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
+
+			vec3 a_position  : POSITION;
+			vec2 a_texcoord0 : TEXCOORD0;
+		"""
+
+		vs_input_output = """
+			$input a_position, a_texcoord0
+			$output v_texcoord0
+		"""
+
+		vs_code = """
+			void main()
+			{
+				gl_Position = mul(u_viewProj, vec4(a_position.xy, 0.0, 1.0) );
+				v_texcoord0 = a_texcoord0;
+			}
+		"""
+
+		fs_input_output = """
+			$input v_texcoord0
+		"""
+
+		fs_code = """
+			SAMPLER2D(s_texColor, 0);
+
+			void main()
+			{
+				gl_FragColor = texture2D(s_texColor, v_texcoord0);
+			}
+		"""
+	}
+
 }
 
 shaders = {
@@ -301,6 +339,12 @@ shaders = {
 		bgfx_shader = "mesh"
 		render_state = "mesh"
 	}
+
+	blit = {
+		bgfx_shader = "blit"
+		render_state = "gui"
+	}
+
 }
 
 static_compile = [
@@ -312,4 +356,6 @@ static_compile = [
 	{ shader = "mesh" defines = [] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
+	{ shader = "blit" defines = [] }
+
 ]

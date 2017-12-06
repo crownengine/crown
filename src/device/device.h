@@ -17,6 +17,7 @@
 #include "device/device_options.h"
 #include "device/display.h"
 #include "device/input_types.h"
+#include "device/pipeline.h"
 #include "device/window.h"
 #include "lua/types.h"
 #include "resource/types.h"
@@ -51,6 +52,7 @@ struct Device
 	InputManager* _input_manager;
 	UnitManager* _unit_manager;
 	LuaEnvironment* _lua_environment;
+	Pipeline* _pipeline;
 	Display* _display;
 	Window* _window;
 	Array<World*> _worlds;
