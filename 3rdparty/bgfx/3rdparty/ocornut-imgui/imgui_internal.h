@@ -176,12 +176,12 @@ enum ImGuiButtonFlags_
     ImGuiButtonFlags_PressedOnClick         = 1 << 2,   // return true on click (default requires click+release)
     ImGuiButtonFlags_PressedOnRelease       = 1 << 3,   // return true on release (default requires click+release)
     ImGuiButtonFlags_PressedOnDoubleClick   = 1 << 4,   // return true on double-click (default requires click+release)
-    ImGuiButtonFlags_FlattenChilds          = 1 << 5,   // allow interactions even if a child window is overlapping
-    ImGuiButtonFlags_DontClosePopups        = 1 << 6,   // disable automatically closing parent popup on press // [UNUSED]
-    ImGuiButtonFlags_Disabled               = 1 << 7,   // disable interactions
-    ImGuiButtonFlags_AlignTextBaseLine      = 1 << 8,   // vertically align button to match text baseline (ButtonEx() only)
-    ImGuiButtonFlags_NoKeyModifiers         = 1 << 9,   // disable interaction if a key modifier is held
-    ImGuiButtonFlags_AllowOverlapMode       = 1 << 10,  // require previous frame HoveredId to either match id or be null before being usable
+    ImGuiButtonFlags_FlattenChildren        = 1 << 5,   // allow interactions even if a child window is overlapping
+    ImGuiButtonFlags_AllowItemOverlap       = 1 << 6,   // require previous frame HoveredId to either match id or be null before being usable, use along with SetItemAllowOverlap()
+    ImGuiButtonFlags_DontClosePopups        = 1 << 7,   // disable automatically closing parent popup on press // [UNUSED]
+    ImGuiButtonFlags_Disabled               = 1 << 8,   // disable interactions
+    ImGuiButtonFlags_AlignTextBaseLine      = 1 << 9,   // vertically align button to match text baseline (ButtonEx() only)
+    ImGuiButtonFlags_NoKeyModifiers         = 1 << 10,  // disable interaction if a key modifier is held
     ImGuiButtonFlags_NoHoldingActiveID      = 1 << 11   // don't set ActiveId while holding the mouse (ImGuiButtonFlags_PressedOnClick only)
 };
 
@@ -248,7 +248,8 @@ enum ImGuiDir
     ImGuiDir_Left    = 0,
     ImGuiDir_Right   = 1,
     ImGuiDir_Up      = 2,
-    ImGuiDir_Down    = 3
+    ImGuiDir_Down    = 3,
+    ImGuiDir_Count_
 };
 
 // 2D axis aligned bounding-box
@@ -281,6 +282,8 @@ struct IMGUI_API ImRect
     void        Translate(const ImVec2& v)      { Min.x += v.x; Min.y += v.y; Max.x += v.x; Max.y += v.y; }
     void        ClipWith(const ImRect& clip)    { if (Min.x < clip.Min.x) Min.x = clip.Min.x; if (Min.y < clip.Min.y) Min.y = clip.Min.y; if (Max.x > clip.Max.x) Max.x = clip.Max.x; if (Max.y > clip.Max.y) Max.y = clip.Max.y; }
     void        Floor()                         { Min.x = (float)(int)Min.x; Min.y = (float)(int)Min.y; Max.x = (float)(int)Max.x; Max.y = (float)(int)Max.y; }
+    void        FixInverted()                   { if (Min.x > Max.x) ImSwap(Min.x, Max.x); if (Min.y > Max.y) ImSwap(Min.y, Max.y); }
+    bool        IsFinite() const                { return Min.x != FLT_MAX; }
     ImVec2      GetClosestPoint(ImVec2 p, bool on_edge) const
     {
         if (!on_edge && Contains(p))
@@ -614,7 +617,7 @@ struct IMGUI_API ImGuiDrawContext
     ImVec2                  CursorPos;
     ImVec2                  CursorPosPrevLine;
     ImVec2                  CursorStartPos;
-    ImVec2                  CursorMaxPos;           // Implicitly calculate the size of our contents, always extending. Saved into window->SizeContents at the end of the frame
+    ImVec2                  CursorMaxPos;           // Used to implicitly calculate the size of our contents, always growing during the frame. Turned into window->SizeContents at the beginning of next frame
     float                   CurrentLineHeight;
     float                   CurrentLineTextBaseOffset;
     float                   PrevLineHeight;
@@ -699,7 +702,8 @@ struct IMGUI_API ImGuiWindow
     ImVec2                  Pos;                                // Position rounded-up to nearest pixel
     ImVec2                  Size;                               // Current size (==SizeFull or collapsed title bar size)
     ImVec2                  SizeFull;                           // Size when non collapsed
-    ImVec2                  SizeContents;                       // Size of contents (== extents reach of the drawing cursor) from previous frame
+    ImVec2                  SizeFullAtLastBegin;                // Copy of SizeFull at the end of Begin. This is the reference value we'll use on the next frame to decide if we need scrollbars.
+    ImVec2                  SizeContents;                       // Size of contents (== extents reach of the drawing cursor) from previous frame. Include decoration, window title, border, menu, etc.
     ImVec2                  SizeContentsExplicit;               // Size of contents explicitly set by the user via SetNextWindowContentSize()
     ImRect                  ContentsRegionRect;                 // Maximum visible content position in window coordinates. ~~ (SizeContentsExplicit ? SizeContentsExplicit : Size - ScrollbarSizes) - CursorStartPos, per axis
     ImVec2                  WindowPadding;                      // Window padding at the time of begin.
@@ -723,7 +727,7 @@ struct IMGUI_API ImGuiWindow
     int                     AutoFitFramesX, AutoFitFramesY;
     bool                    AutoFitOnlyGrows;
     int                     AutoFitChildAxises;
-    int                     AutoPosLastDirection;
+    ImGuiDir                AutoPosLastDirection;
     int                     HiddenFrames;
     ImGuiCond               SetWindowPosAllowFlags;             // store condition flags for next SetWindowPos() call.
     ImGuiCond               SetWindowSizeAllowFlags;            // store condition flags for next SetWindowSize() call.
@@ -742,7 +746,7 @@ struct IMGUI_API ImGuiWindow
     ImGuiStorage            StateStorage;
     float                   FontWindowScale;                    // Scale multiplier per-window
     ImDrawList*             DrawList;
-    ImGuiWindow*            ParentWindow;                       // Immediate parent in the window stack *regardless* of whether this window is a child window or not)
+    ImGuiWindow*            ParentWindow;                       // If we are a child window, this is pointing to our parent.
     ImGuiWindow*            RootWindow;                         // Generally point to ourself. If we are a child window, this is pointing to the first non-child parent window.
     ImGuiWindow*            RootNonPopupWindow;                 // Generally point to ourself. Used to display TitleBgActive color and for selecting which window to use for NavWindowing
 
@@ -795,11 +799,11 @@ namespace ImGui
     // - You are calling ImGui functions after ImGui::Render() and before the next ImGui::NewFrame(), which is also illegal.
     inline    ImGuiWindow*  GetCurrentWindowRead()      { ImGuiContext& g = *GImGui; return g.CurrentWindow; }
     inline    ImGuiWindow*  GetCurrentWindow()          { ImGuiContext& g = *GImGui; g.CurrentWindow->WriteAccessed = true; return g.CurrentWindow; }
-    IMGUI_API ImGuiWindow*  GetParentWindow();
     IMGUI_API ImGuiWindow*  FindWindowByName(const char* name);
     IMGUI_API void          FocusWindow(ImGuiWindow* window);
     IMGUI_API void          BringWindowToFront(ImGuiWindow* window);
     IMGUI_API void          BringWindowToBack(ImGuiWindow* window);
+    IMGUI_API bool          IsWindowChildOf(ImGuiWindow* window, ImGuiWindow* potential_parent);
 
     IMGUI_API void          Initialize();
 
@@ -841,10 +845,6 @@ namespace ImGui
     IMGUI_API void          BeginColumns(const char* id, int count, ImGuiColumnsFlags flags = 0); // setup number of columns. use an identifier to distinguish multiple column sets. close with EndColumns().
     IMGUI_API void          EndColumns();                                                         // close columns
     IMGUI_API void          PushColumnClipRect(int column_index = -1);
-
-    // FIXME-WIP: New Combo API
-    IMGUI_API bool          BeginCombo(const char* label, const char* preview_value, ImVec2 popup_size = ImVec2(0.0f,0.0f));
-    IMGUI_API void          EndCombo();
 
     // NB: All position are in absolute pixels coordinates (never using window coordinates internally)
     // AVOID USING OUTSIDE OF IMGUI.CPP! NOT FOR PUBLIC CONSUMPTION. THOSE FUNCTIONS ARE A MESS. THEIR SIGNATURE AND BEHAVIOR WILL CHANGE, THEY NEED TO BE REFACTORED INTO SOMETHING DECENT.

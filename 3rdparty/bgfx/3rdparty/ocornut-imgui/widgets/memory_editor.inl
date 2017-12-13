@@ -16,7 +16,7 @@ namespace ImGui
 
         unsigned char* mem_data = (unsigned char*)mem_data_void;
 
-        BeginChild("##scrolling", ImVec2(0, -GetItemsLineHeightWithSpacing()));
+        BeginChild("##scrolling", ImVec2(0, -GetFrameHeight()));
 
         if (ImGui::BeginPopupContextWindow() )
         {
@@ -202,7 +202,7 @@ namespace ImGui
 
         Separator();
 
-        AlignFirstTextHeightToWidgets();
+        AlignTextToFramePadding();
         PushItemWidth(50);
         PushAllowKeyboardFocus(false);
         int rows_backup = Rows;

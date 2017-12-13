@@ -26,7 +26,7 @@ namespace bimg
 		{   8, 4, 4, 16, 1, 1,  0, 0,  0,  0,  0,  0, uint8_t(bx::EncodingType::Unorm) }, // BC3
 		{   4, 4, 4,  8, 1, 1,  0, 0,  0,  0,  0,  0, uint8_t(bx::EncodingType::Unorm) }, // BC4
 		{   8, 4, 4, 16, 1, 1,  0, 0,  0,  0,  0,  0, uint8_t(bx::EncodingType::Unorm) }, // BC5
-		{   8, 4, 4, 16, 1, 1,  0, 0,  0,  0,  0,  0, uint8_t(bx::EncodingType::Unorm) }, // BC6H
+		{   8, 4, 4, 16, 1, 1,  0, 0,  0,  0,  0,  0, uint8_t(bx::EncodingType::Float) }, // BC6H
 		{   8, 4, 4, 16, 1, 1,  0, 0,  0,  0,  0,  0, uint8_t(bx::EncodingType::Unorm) }, // BC7
 		{   4, 4, 4,  8, 1, 1,  0, 0,  0,  0,  0,  0, uint8_t(bx::EncodingType::Unorm) }, // ETC1
 		{   4, 4, 4,  8, 1, 1,  0, 0,  0,  0,  0,  0, uint8_t(bx::EncodingType::Unorm) }, // ETC2
@@ -206,6 +206,11 @@ namespace bimg
 			&& _format != TextureFormat::UnknownDepth
 			&& _format != TextureFormat::Count
 			;
+	}
+
+	bool isFloat(TextureFormat::Enum _format)
+	{
+		return uint8_t(bx::EncodingType::Float) == s_imageBlockInfo[_format].encoding;
 	}
 
 	uint8_t getBitsPerPixel(TextureFormat::Enum _format)
@@ -2727,6 +2732,10 @@ namespace bimg
 		else if (PVR3_MAGIC == magic)
 		{
 			return imageParsePvr3(_imageContainer, _reader, _err);
+		}
+		else if (BIMG_CHUNK_MAGIC_GNF == magic)
+		{
+			return imageParseGnf(_imageContainer, _reader, _err);
 		}
 		else if (BIMG_CHUNK_MAGIC_TEX == magic)
 		{

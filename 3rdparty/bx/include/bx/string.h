@@ -215,8 +215,11 @@ namespace bx
 	/// Skip non-whitespace.
 	const char* strnws(const char* _str);
 
-	/// Skip word.
-	const char* strword(const char* _str);
+	/// Returns pointer to first character after word.
+	const char* strSkipWord(const char* _str, int32_t _max = INT32_MAX);
+
+	/// Returns StringView of word or empty.
+	StringView strWord(const StringView& _str);
 
 	/// Find matching block.
 	const char* strmb(const char* _str, char _open, char _close);

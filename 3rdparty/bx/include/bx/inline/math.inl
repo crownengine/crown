@@ -97,36 +97,6 @@ namespace bx
 		return ffloor(_f + 0.5f);
 	}
 
-	inline float fmin(float _a, float _b)
-	{
-		return _a < _b ? _a : _b;
-	}
-
-	inline float fmax(float _a, float _b)
-	{
-		return _a > _b ? _a : _b;
-	}
-
-	inline float fmin3(float _a, float _b, float _c)
-	{
-		return fmin(_a, fmin(_b, _c) );
-	}
-
-	inline float fmax3(float _a, float _b, float _c)
-	{
-		return fmax(_a, fmax(_b, _c) );
-	}
-
-	inline float fclamp(float _a, float _min, float _max)
-	{
-		return fmin(fmax(_a, _min), _max);
-	}
-
-	inline float fsaturate(float _a)
-	{
-		return fclamp(_a, 0.0f, 1.0f);
-	}
-
 	inline float flerp(float _a, float _b, float _t)
 	{
 		return _a + (_b - _a) * _t;
@@ -166,7 +136,7 @@ namespace bx
 	{
 		// http://realtimecollisiondetection.net/blog/?p=89
 		const float lhs = fabs(_a - _b);
-		const float rhs = _epsilon * fmax3(1.0f, fabs(_a), fabs(_b) );
+		const float rhs = _epsilon * max(1.0f, fabs(_a), fabs(_b) );
 		return lhs <= rhs;
 	}
 
@@ -334,16 +304,16 @@ namespace bx
 
 	inline void vec3Min(float* _result, const float* _a, const float* _b)
 	{
-		_result[0] = fmin(_a[0], _b[0]);
-		_result[1] = fmin(_a[1], _b[1]);
-		_result[2] = fmin(_a[2], _b[2]);
+		_result[0] = min(_a[0], _b[0]);
+		_result[1] = min(_a[1], _b[1]);
+		_result[2] = min(_a[2], _b[2]);
 	}
 
 	inline void vec3Max(float* _result, const float* _a, const float* _b)
 	{
-		_result[0] = fmax(_a[0], _b[0]);
-		_result[1] = fmax(_a[1], _b[1]);
-		_result[2] = fmax(_a[2], _b[2]);
+		_result[0] = max(_a[0], _b[0]);
+		_result[1] = max(_a[1], _b[1]);
+		_result[2] = max(_a[2], _b[2]);
 	}
 
 	inline void vec3Rcp(float* _result, const float* _a)

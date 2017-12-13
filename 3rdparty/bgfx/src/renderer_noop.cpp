@@ -127,8 +127,9 @@ namespace bgfx { namespace noop
 		{
 		}
 
-		void createTexture(TextureHandle /*_handle*/, Memory* /*_mem*/, uint32_t /*_flags*/, uint8_t /*_skip*/) override
+		void* createTexture(TextureHandle /*_handle*/, Memory* /*_mem*/, uint32_t /*_flags*/, uint8_t /*_skip*/) override
 		{
+			return NULL;
 		}
 
 		void updateTextureBegin(TextureHandle /*_handle*/, uint8_t /*_side*/, uint8_t /*_mip*/) override
@@ -223,8 +224,9 @@ namespace bgfx { namespace noop
 
 	static RendererContextNOOP* s_renderNOOP;
 
-	RendererContextI* rendererCreate()
+	RendererContextI* rendererCreate(const Init& _init)
 	{
+		BX_UNUSED(_init);
 		s_renderNOOP = BX_NEW(g_allocator, RendererContextNOOP);
 		return s_renderNOOP;
 	}

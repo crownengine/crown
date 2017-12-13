@@ -176,9 +176,6 @@ namespace stl = std;
 #	include <windows.h>
 #endif // BX_PLATFORM_*
 
-#define BGFX_DEFAULT_WIDTH  1280
-#define BGFX_DEFAULT_HEIGHT 720
-
 #define BGFX_MAX_COMPUTE_BINDINGS 8
 
 #define BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER  UINT32_C(0x10000000)
@@ -473,7 +470,7 @@ namespace bgfx
 			, m_height(0)
 			, m_small(false)
 		{
-			resize();
+			resize(false, 1, 1);
 			clear();
 		}
 
@@ -482,7 +479,7 @@ namespace bgfx
 			BX_FREE(g_allocator, m_mem);
 		}
 
-		void resize(bool _small = false, uint32_t _width = BGFX_DEFAULT_WIDTH, uint32_t _height = BGFX_DEFAULT_HEIGHT)
+		void resize(bool _small, uint32_t _width, uint32_t _height)
 		{
 			uint32_t width  = bx::uint32_imax(1, _width/8);
 			uint32_t height = bx::uint32_imax(1, _height/(_small ? 8 : 16) );
@@ -1560,8 +1557,8 @@ namespace bgfx
 	struct Resolution
 	{
 		Resolution()
-			: m_width(BGFX_DEFAULT_WIDTH)
-			, m_height(BGFX_DEFAULT_HEIGHT)
+			: m_width(1280)
+			, m_height(720)
 			, m_flags(BGFX_RESET_NONE)
 		{
 		}
@@ -1569,6 +1566,11 @@ namespace bgfx
 		uint32_t m_width;
 		uint32_t m_height;
 		uint32_t m_flags;
+	};
+
+	struct Init
+	{
+		Resolution resolution;
 	};
 
 	struct VertexBuffer
@@ -2547,7 +2549,7 @@ namespace bgfx
 		virtual void destroyShader(ShaderHandle _handle) = 0;
 		virtual void createProgram(ProgramHandle _handle, ShaderHandle _vsh, ShaderHandle _fsh) = 0;
 		virtual void destroyProgram(ProgramHandle _handle) = 0;
-		virtual void createTexture(TextureHandle _handle, Memory* _mem, uint32_t _flags, uint8_t _skip) = 0;
+		virtual void* createTexture(TextureHandle _handle, Memory* _mem, uint32_t _flags, uint8_t _skip) = 0;
 		virtual void updateTextureBegin(TextureHandle _handle, uint8_t _side, uint8_t _mip) = 0;
 		virtual void updateTexture(TextureHandle _handle, uint8_t _side, uint8_t _mip, const Rect& _rect, uint16_t _z, uint16_t _depth, uint16_t _pitch, const Memory* _mem) = 0;
 		virtual void updateTextureEnd() = 0;
@@ -2722,6 +2724,19 @@ namespace bgfx
 			stats.textWidth  = tvm->m_width;
 			stats.textHeight = tvm->m_height;
 			stats.encoderStats = m_encoderStats;
+
+			stats.numDynamicIndexBuffers  = m_dynamicIndexBufferHandle.getNumHandles();
+			stats.numDynamicVertexBuffers = m_dynamicVertexBufferHandle.getNumHandles();
+			stats.numFrameBuffers         = m_frameBufferHandle.getNumHandles();
+			stats.numIndexBuffers         = m_indexBufferHandle.getNumHandles();
+			stats.numOcclusionQueries     = m_occlusionQueryHandle.getNumHandles();
+			stats.numPrograms             = m_programHandle.getNumHandles();
+			stats.numShaders              = m_shaderHandle.getNumHandles();
+			stats.numTextures             = m_textureHandle.getNumHandles();
+			stats.numUniforms             = m_uniformHandle.getNumHandles();
+			stats.numVertexBuffers        = m_vertexBufferHandle.getNumHandles();
+			stats.numVertexDecls          = m_vertexDeclHandle.getNumHandles();
+
 			return &stats;
 		}
 
@@ -2874,7 +2889,7 @@ namespace bgfx
 			uint32_t size = BX_ALIGN_16(_num*indexSize);
 
 			uint64_t ptr = 0;
-			if (0 != (_flags & BGFX_BUFFER_COMPUTE_WRITE) )
+			if (0 != (_flags & BGFX_BUFFER_COMPUTE_READ_WRITE) )
 			{
 				IndexBufferHandle indexBufferHandle = { m_indexBufferHandle.alloc() };
 				if (!isValid(indexBufferHandle) )
@@ -2942,7 +2957,7 @@ namespace bgfx
 			BGFX_CHECK_HANDLE("updateDynamicIndexBuffer", m_dynamicIndexBufferHandle, _handle);
 
 			DynamicIndexBuffer& dib = m_dynamicIndexBuffers[_handle.idx];
-			BX_CHECK(0 == (dib.m_flags &  BGFX_BUFFER_COMPUTE_READ_WRITE), "Can't update GPU buffer from CPU.");
+			BX_CHECK(0 == (dib.m_flags &  BGFX_BUFFER_COMPUTE_WRITE), "Can't update GPU buffer from CPU.");
 			const uint32_t indexSize = 0 == (dib.m_flags & BGFX_BUFFER_INDEX32) ? 2 : 4;
 
 			if (dib.m_size < _mem->size
@@ -2987,7 +3002,7 @@ namespace bgfx
 		{
 			DynamicIndexBuffer& dib = m_dynamicIndexBuffers[_handle.idx];
 
-			if (0 != (dib.m_flags & BGFX_BUFFER_COMPUTE_WRITE) )
+			if (0 != (dib.m_flags & BGFX_BUFFER_COMPUTE_READ_WRITE) )
 			{
 				destroyIndexBuffer(dib.m_handle);
 			}
@@ -3768,11 +3783,7 @@ namespace bgfx
 			if (isValid(handle) )
 			{
 				TextureRef& ref = m_textureRef[handle.idx];
-				ref.m_refCount = 1;
-				ref.m_bbRatio  = uint8_t(_ratio);
-				ref.m_format   = uint8_t(_info->format);
-				ref.m_numMips  = imageContainer.m_numMips;
-				ref.m_owned    = false;
+				ref.init(_ratio, _info->format, imageContainer.m_numMips, 0 != (g_caps.supported & BGFX_CAPS_TEXTURE_DIRECT_ACCESS) );
 
 				CommandBuffer& cmdbuf = getCommandBuffer(CommandBuffer::CreateTexture);
 				cmdbuf.write(handle);
@@ -3791,13 +3802,27 @@ namespace bgfx
 		BGFX_API_FUNC(void setName(TextureHandle _handle, const char* _name) )
 		{
 			BGFX_MUTEX_SCOPE(m_resourceApiLock);
-
 			BGFX_CHECK_HANDLE("setName", m_textureHandle, _handle);
 
 			TextureRef& ref = m_textureRef[_handle.idx];
 			ref.m_name.set(_name);
 
 			setName(convert(_handle), _name);
+		}
+
+		void setDirectAccessPtr(TextureHandle _handle, void* _ptr)
+		{
+			TextureRef& ref = m_textureRef[_handle.idx];
+			ref.m_ptr = _ptr;
+		}
+
+		BGFX_API_FUNC(void* getDirectAccessPtr(TextureHandle _handle) )
+		{
+			BGFX_MUTEX_SCOPE(m_resourceApiLock);
+			BGFX_CHECK_HANDLE("getDirectAccessPtr", m_textureHandle, _handle);
+
+			TextureRef& ref = m_textureRef[_handle.idx];
+			return ref.m_ptr;
 		}
 
 		BGFX_API_FUNC(void destroyTexture(TextureHandle _handle) )
@@ -4272,7 +4297,7 @@ namespace bgfx
 
 		BGFX_API_FUNC(void setViewClear(ViewId _id, uint16_t _flags, uint32_t _rgba, float _depth, uint8_t _stencil) )
 		{
-			BX_CHECK(bx::fequal(_depth, bx::fclamp(_depth, 0.0f, 1.0f), 0.0001f)
+			BX_CHECK(bx::fequal(_depth, bx::clamp(_depth, 0.0f, 1.0f), 0.0001f)
 				, "Clear depth value must be between 0.0 and 1.0 (_depth %f)."
 				, _depth
 				);
@@ -4282,7 +4307,7 @@ namespace bgfx
 
 		BGFX_API_FUNC(void setViewClear(ViewId _id, uint16_t _flags, float _depth, uint8_t _stencil, uint8_t _0, uint8_t _1, uint8_t _2, uint8_t _3, uint8_t _4, uint8_t _5, uint8_t _6, uint8_t _7) )
 		{
-			BX_CHECK(bx::fequal(_depth, bx::fclamp(_depth, 0.0f, 1.0f), 0.0001f)
+			BX_CHECK(bx::fequal(_depth, bx::clamp(_depth, 0.0f, 1.0f), 0.0001f)
 				, "Clear depth value must be between 0.0 and 1.0 (_depth %f)."
 				, _depth
 				);
@@ -4524,7 +4549,18 @@ namespace bgfx
 
 		struct TextureRef
 		{
+			void init(BackbufferRatio::Enum _ratio, TextureFormat::Enum _format, uint8_t _numMips, bool _ptrPending)
+			{
+				m_ptr      = _ptrPending ? (void*)UINTPTR_MAX : NULL;
+				m_refCount = 1;
+				m_bbRatio  = uint8_t(_ratio);
+				m_format   = uint8_t(_format);
+				m_numMips  = _numMips;
+				m_owned    = false;
+			}
+
 			String  m_name;
+			void*   m_ptr;
 			int16_t m_refCount;
 			uint8_t m_bbRatio;
 			uint8_t m_format;

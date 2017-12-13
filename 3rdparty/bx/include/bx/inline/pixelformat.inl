@@ -11,7 +11,7 @@ namespace bx
 {
 	inline uint32_t toUnorm(float _value, float _scale)
 	{
-		return uint32_t(fround(fsaturate(_value) * _scale) );
+		return uint32_t(fround(clamp(_value, 0.0f, 1.0f) * _scale) );
 	}
 
 	inline float fromUnorm(uint32_t _value, float _scale)
@@ -22,13 +22,13 @@ namespace bx
 	inline int32_t toSnorm(float _value, float _scale)
 	{
 		return int32_t(fround(
-					fclamp(_value, -1.0f, 1.0f) * _scale)
+					clamp(_value, -1.0f, 1.0f) * _scale)
 					);
 	}
 
 	inline float fromSnorm(int32_t _value, float _scale)
 	{
-		return fmax(-1.0f, float(_value) / _scale);
+		return max(-1.0f, float(_value) / _scale);
 	}
 
 	// R8
@@ -713,15 +713,15 @@ namespace bx
 		const int32_t expBias = (1<<(ExpBits - 1) ) - 1;
 		const float   sharedExpMax = float(expMax) / float(expMax + 1) * float(1 << (expMax - expBias) );
 
-		const float rr  = fclamp(_src[0], 0.0f, sharedExpMax);
-		const float gg  = fclamp(_src[1], 0.0f, sharedExpMax);
-		const float bb  = fclamp(_src[2], 0.0f, sharedExpMax);
-		const float max = fmax3(rr, gg, bb);
-		union { float ff; uint32_t ui; } cast = { max };
+		const float rr = clamp(_src[0], 0.0f, sharedExpMax);
+		const float gg = clamp(_src[1], 0.0f, sharedExpMax);
+		const float bb = clamp(_src[2], 0.0f, sharedExpMax);
+		const float mm = max(rr, gg, bb);
+		union { float ff; uint32_t ui; } cast = { mm };
 		int32_t expShared = int32_t(uint32_imax(uint32_t(-expBias-1), ( ( (cast.ui>>23) & 0xff) - 127) ) ) + 1 + expBias;
 		float denom = fpow(2.0f, float(expShared - expBias - MantissaBits) );
 
-		if ( (1<<MantissaBits) == int32_t(fround(max/denom) ) )
+		if ( (1<<MantissaBits) == int32_t(fround(mm/denom) ) )
 		{
 			denom *= 2.0f;
 			++expShared;

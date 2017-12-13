@@ -531,10 +531,17 @@ namespace bx
 		return _str;
 	}
 
-	const char* strword(const char* _str)
+	const char* strSkipWord(const char* _str, int32_t _max)
 	{
-		for (char ch = *_str++; isAlphaNum(ch) || '_' == ch; ch = *_str++) {};
+		for (char ch = *_str++; 0 < _max && (isAlphaNum(ch) || '_' == ch); ch = *_str++, --_max) {};
 		return _str-1;
+	}
+
+	StringView strWord(const StringView& _str)
+	{
+		const char* ptr  = _str.getPtr();
+		const char* term = strSkipWord(ptr, _str.getLength() );
+		return StringView(ptr, term);
 	}
 
 	const char* strmb(const char* _str, char _open, char _close)

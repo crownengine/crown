@@ -389,3 +389,9 @@ TEST_CASE("Trim", "")
 	bx::FilePath uri("/555333/podmac/");
 	REQUIRE(0 == bx::strCmp(bx::strTrim(uri.getPath(), "/"), "555333/podmac") );
 }
+
+TEST_CASE("strWord", "")
+{
+	REQUIRE(bx::strWord(" abvgd-1389.0").isEmpty() );
+	REQUIRE(0 == bx::strCmp(bx::strWord("abvgd-1389.0"), "abvgd") );
+}

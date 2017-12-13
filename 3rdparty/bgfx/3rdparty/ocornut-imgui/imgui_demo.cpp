@@ -80,7 +80,7 @@ static void ShowExampleAppLongText(bool* p_open);
 static void ShowExampleAppAutoResize(bool* p_open);
 static void ShowExampleAppConstrainedResize(bool* p_open);
 static void ShowExampleAppFixedOverlay(bool* p_open);
-static void ShowExampleAppManipulatingWindowTitle(bool* p_open);
+static void ShowExampleAppWindowTitles(bool* p_open);
 static void ShowExampleAppCustomRendering(bool* p_open);
 static void ShowExampleAppMainMenuBar();
 static void ShowExampleMenuFile();
@@ -133,34 +133,34 @@ void ImGui::ShowTestWindow(bool* p_open)
     static bool show_app_auto_resize = false;
     static bool show_app_constrained_resize = false;
     static bool show_app_fixed_overlay = false;
-    static bool show_app_manipulating_window_title = false;
+    static bool show_app_window_titles = false;
     static bool show_app_custom_rendering = false;
     static bool show_app_style_editor = false;
 
     static bool show_app_metrics = false;
     static bool show_app_about = false;
 
-    if (show_app_main_menu_bar) ShowExampleAppMainMenuBar();
-    if (show_app_console) ShowExampleAppConsole(&show_app_console);
-    if (show_app_log) ShowExampleAppLog(&show_app_log);
-    if (show_app_layout) ShowExampleAppLayout(&show_app_layout);
-    if (show_app_property_editor) ShowExampleAppPropertyEditor(&show_app_property_editor);
-    if (show_app_long_text) ShowExampleAppLongText(&show_app_long_text);
-    if (show_app_auto_resize) ShowExampleAppAutoResize(&show_app_auto_resize);
-    if (show_app_constrained_resize) ShowExampleAppConstrainedResize(&show_app_constrained_resize);
-    if (show_app_fixed_overlay) ShowExampleAppFixedOverlay(&show_app_fixed_overlay);
-    if (show_app_manipulating_window_title) ShowExampleAppManipulatingWindowTitle(&show_app_manipulating_window_title);
-    if (show_app_custom_rendering) ShowExampleAppCustomRendering(&show_app_custom_rendering);
+    if (show_app_main_menu_bar)       ShowExampleAppMainMenuBar();
+    if (show_app_console)             ShowExampleAppConsole(&show_app_console);
+    if (show_app_log)                 ShowExampleAppLog(&show_app_log);
+    if (show_app_layout)              ShowExampleAppLayout(&show_app_layout);
+    if (show_app_property_editor)     ShowExampleAppPropertyEditor(&show_app_property_editor);
+    if (show_app_long_text)           ShowExampleAppLongText(&show_app_long_text);
+    if (show_app_auto_resize)         ShowExampleAppAutoResize(&show_app_auto_resize);
+    if (show_app_constrained_resize)  ShowExampleAppConstrainedResize(&show_app_constrained_resize);
+    if (show_app_fixed_overlay)       ShowExampleAppFixedOverlay(&show_app_fixed_overlay);
+    if (show_app_window_titles)       ShowExampleAppWindowTitles(&show_app_window_titles);
+    if (show_app_custom_rendering)    ShowExampleAppCustomRendering(&show_app_custom_rendering);
 
-    if (show_app_metrics) ImGui::ShowMetricsWindow(&show_app_metrics);
-    if (show_app_style_editor) { ImGui::Begin("Style Editor", &show_app_style_editor); ImGui::ShowStyleEditor(); ImGui::End(); }
+    if (show_app_metrics)             { ImGui::ShowMetricsWindow(&show_app_metrics); }
+    if (show_app_style_editor)        { ImGui::Begin("Style Editor", &show_app_style_editor); ImGui::ShowStyleEditor(); ImGui::End(); }
     if (show_app_about)
     {
-        ImGui::Begin("About ImGui", &show_app_about, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("About Dear ImGui", &show_app_about, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::Text("dear imgui, %s", ImGui::GetVersion());
         ImGui::Separator();
-        ImGui::Text("By Omar Cornut and all github contributors.");
-        ImGui::Text("ImGui is licensed under the MIT License, see LICENSE for more information.");
+        ImGui::Text("By Omar Cornut and all dear imgui contributors.");
+        ImGui::Text("Dear ImGui is licensed under the MIT License, see LICENSE for more information.");
         ImGui::End();
     }
 
@@ -170,6 +170,7 @@ void ImGui::ShowTestWindow(bool* p_open)
     static bool no_move = false;
     static bool no_resize = false;
     static bool no_collapse = false;
+    static bool no_close = false;
 
     // Demonstrate the various window flags. Typically you would just use the default.
     ImGuiWindowFlags window_flags = 0;
@@ -179,6 +180,8 @@ void ImGui::ShowTestWindow(bool* p_open)
     if (no_move)      window_flags |= ImGuiWindowFlags_NoMove;
     if (no_resize)    window_flags |= ImGuiWindowFlags_NoResize;
     if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
+    if (no_close)     p_open = NULL; // Don't pass our bool* to Begin
+
     ImGui::SetNextWindowSize(ImVec2(550,680), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("ImGui Demo", p_open, window_flags))
     {
@@ -211,7 +214,7 @@ void ImGui::ShowTestWindow(bool* p_open)
             ImGui::MenuItem("Auto-resizing window", NULL, &show_app_auto_resize);
             ImGui::MenuItem("Constrained-resizing window", NULL, &show_app_constrained_resize);
             ImGui::MenuItem("Simple overlay", NULL, &show_app_fixed_overlay);
-            ImGui::MenuItem("Manipulating window title", NULL, &show_app_manipulating_window_title);
+            ImGui::MenuItem("Manipulating window titles", NULL, &show_app_window_titles);
             ImGui::MenuItem("Custom rendering", NULL, &show_app_custom_rendering);
             ImGui::EndMenu();
         }
@@ -219,7 +222,7 @@ void ImGui::ShowTestWindow(bool* p_open)
         {
             ImGui::MenuItem("Metrics", NULL, &show_app_metrics);
             ImGui::MenuItem("Style Editor", NULL, &show_app_style_editor);
-            ImGui::MenuItem("About ImGui", NULL, &show_app_about);
+            ImGui::MenuItem("About Dear ImGui", NULL, &show_app_about);
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
@@ -241,6 +244,7 @@ void ImGui::ShowTestWindow(bool* p_open)
         ImGui::Checkbox("No move", &no_move); ImGui::SameLine(150);
         ImGui::Checkbox("No resize", &no_resize); ImGui::SameLine(300);
         ImGui::Checkbox("No collapse", &no_collapse);
+        ImGui::Checkbox("No close", &no_close);
 
         if (ImGui::TreeNode("Style"))
         {
@@ -248,7 +252,7 @@ void ImGui::ShowTestWindow(bool* p_open)
             ImGui::TreePop();
         }
 
-        if (ImGui::TreeNode("Logging"))
+        if (ImGui::TreeNode("Capture/Logging"))
         {
             ImGui::TextWrapped("The logging API redirects all text output so you can easily capture the content of a window or a block. Tree nodes can be automatically expanded. You can also call ImGui::LogText() to output directly to the log without a visual output.");
             ImGui::LogButtons();
@@ -318,7 +322,7 @@ void ImGui::ShowTestWindow(bool* p_open)
             static int item = 1;
             ImGui::Combo("combo", &item, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");   // Combo using values packed in a single constant string (for really quick combo)
 
-            const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK" };
+            const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO", "PPPP", "QQQQQQQQQQ", "RRR", "SSSS" };
             static int item2 = -1;
             ImGui::Combo("combo scroll", &item2, items, IM_ARRAYSIZE(items));   // Combo using proper array. You can also pass a callback to retrieve array value, no need to create/copy an array just for that.
 
@@ -1268,7 +1272,7 @@ void ImGui::ShowTestWindow(bool* p_open)
             ImGui::SliderInt("Lines", &lines, 1, 15);
             ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.0f, 1.0f));
-            ImGui::BeginChild("scrolling", ImVec2(0, ImGui::GetItemsLineHeightWithSpacing()*7 + 30), true, ImGuiWindowFlags_HorizontalScrollbar);
+            ImGui::BeginChild("scrolling", ImVec2(0, ImGui::GetFrameHeightWithSpacing()*7 + 30), true, ImGuiWindowFlags_HorizontalScrollbar);
             for (int line = 0; line < lines; line++)
             {
                 // Display random stuff (for the sake of this trivial demo we are using basic Button+SameLine. If you want to create your own time line for a real application you may be better off 
@@ -1647,7 +1651,7 @@ void ImGui::ShowTestWindow(bool* p_open)
 
         if (ImGui::TreeNode("Horizontal Scrolling"))
         {
-            ImGui::SetNextWindowContentWidth(1500);
+            ImGui::SetNextWindowContentSize(ImVec2(1500.0f, 0.0f));
             ImGui::BeginChild("##ScrollingRegion", ImVec2(0, ImGui::GetFontSize() * 20), false, ImGuiWindowFlags_HorizontalScrollbar);
             ImGui::Columns(10);
             int ITEMS_COUNT = 2000;
@@ -1700,7 +1704,7 @@ void ImGui::ShowTestWindow(bool* p_open)
     {
         ImGuiIO& io = ImGui::GetIO();
         ImGui::Checkbox("io.MouseDrawCursor", &io.MouseDrawCursor);
-        ImGui::SameLine(); ShowHelpMarker("Request ImGui to render a mouse cursor for you in software. Note that a mouse cursor rendered via regular GPU rendering will feel more laggy than hardware cursor, but will be more in sync with your other visuals.");
+        ImGui::SameLine(); ShowHelpMarker("Request ImGui to render a mouse cursor for you in software. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
 
         ImGui::Text("WantCaptureMouse: %d", io.WantCaptureMouse);
         ImGui::Text("WantCaptureKeyboard: %d", io.WantCaptureKeyboard);
@@ -1777,18 +1781,38 @@ void ImGui::ShowTestWindow(bool* p_open)
             ImGui::TreePop();
         }
 
-        if (ImGui::TreeNode("Hovering"))
+        if (ImGui::TreeNode("Focused & Hovered Test"))
         {
+            static bool embed_all_inside_a_child_window = false;
+            ImGui::Checkbox("Embed everything inside a child window (for additional testing)", &embed_all_inside_a_child_window);
+            if (embed_all_inside_a_child_window)
+                ImGui::BeginChild("embeddingchild", ImVec2(0, ImGui::GetFontSize() * 25), true);
+
+            // Testing IsWindowFocused() function with its various flags (note that the flags can be combined)
+            ImGui::BulletText(
+                "IsWindowFocused() = %d\n"
+                "IsWindowFocused(_ChildWindows) = %d\n"
+                "IsWindowFocused(_ChildWindows|_RootWindow) = %d\n"
+                "IsWindowFocused(_RootWindow) = %d\n",
+                ImGui::IsWindowFocused(),
+                ImGui::IsWindowFocused(ImGuiHoveredFlags_ChildWindows),
+                ImGui::IsWindowFocused(ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_RootWindow),
+                ImGui::IsWindowFocused(ImGuiHoveredFlags_RootWindow));
+
             // Testing IsWindowHovered() function with its various flags (note that the flags can be combined)
             ImGui::BulletText(
                 "IsWindowHovered() = %d\n"
                 "IsWindowHovered(_AllowWhenBlockedByPopup) = %d\n"
                 "IsWindowHovered(_AllowWhenBlockedByActiveItem) = %d\n"
-                "IsWindowHovered(_FlattenChilds) = %d\n",
+                "IsWindowHovered(_ChildWindows) = %d\n"
+                "IsWindowHovered(_ChildWindows|_RootWindow) = %d\n"
+                "IsWindowHovered(_RootWindow) = %d\n",
                 ImGui::IsWindowHovered(),
                 ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup),
                 ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem),
-                ImGui::IsWindowHovered(ImGuiHoveredFlags_FlattenChilds));
+                ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows),
+                ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_RootWindow),
+                ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow));
 
             // Testing IsItemHovered() function (because BulletText is an item itself and that would affect the output of IsItemHovered, we pass all lines in a single items to shorten the code)
             ImGui::Button("ITEM");
@@ -1804,12 +1828,22 @@ void ImGui::ShowTestWindow(bool* p_open)
                 ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenOverlapped),
                 ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly));
 
+            ImGui::BeginChild("child", ImVec2(0,50), true);
+            ImGui::Text("This is another child window for testing IsWindowHovered() flags.");
+            ImGui::EndChild();
+
+            if (embed_all_inside_a_child_window)
+                EndChild();
+
             ImGui::TreePop();
         }
 
         if (ImGui::TreeNode("Dragging"))
         {
             ImGui::TextWrapped("You can use ImGui::GetMouseDragDelta(0) to query for the dragged amount on any widget.");
+            for (int button = 0; button < 3; button++)
+                ImGui::Text("IsMouseDragging(%d):\n  w/ default threshold: %d,\n  w/ zero threshold: %d\n  w/ large threshold: %d", 
+                    button, ImGui::IsMouseDragging(button), ImGui::IsMouseDragging(button, 0.0f), ImGui::IsMouseDragging(button, 20.0f));
             ImGui::Button("Drag Me");
             if (ImGui::IsItemActive())
             {
@@ -1818,6 +1852,9 @@ void ImGui::ShowTestWindow(bool* p_open)
                 draw_list->PushClipRectFullScreen();
                 draw_list->AddLine(ImGui::CalcItemRectClosestPoint(io.MousePos, true, -2.0f), io.MousePos, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), 4.0f);
                 draw_list->PopClipRect();
+
+                // Drag operations gets "unlocked" when the mouse has moved past a certain threshold (the default threshold is stored in io.MouseDragThreshold)
+                // You can request a lower or higher threshold using the second parameter of IsMouseDragging() and GetMouseDragDelta()
                 ImVec2 value_raw = ImGui::GetMouseDragDelta(0, 0.0f);
                 ImVec2 value_with_lock_threshold = ImGui::GetMouseDragDelta(0);
                 ImVec2 mouse_delta = io.MouseDelta;
@@ -1828,12 +1865,16 @@ void ImGui::ShowTestWindow(bool* p_open)
 
         if (ImGui::TreeNode("Mouse cursors"))
         {
+            const char* mouse_cursors_names[] = { "Arrow", "TextInput", "Move", "ResizeNS", "ResizeEW", "ResizeNESW", "ResizeNWSE" };
+            IM_ASSERT(IM_ARRAYSIZE(mouse_cursors_names) == ImGuiMouseCursor_Count_);
+
+            ImGui::Text("Current mouse cursor = %d: %s", ImGui::GetMouseCursor(), mouse_cursors_names[ImGui::GetMouseCursor()]);
             ImGui::Text("Hover to see mouse cursors:");
             ImGui::SameLine(); ShowHelpMarker("Your application can render a different mouse cursor based on what ImGui::GetMouseCursor() returns. If software cursor rendering (io.MouseDrawCursor) is set ImGui will draw the right cursor for you, otherwise your backend needs to handle it.");
             for (int i = 0; i < ImGuiMouseCursor_Count_; i++)
             {
                 char label[32];
-                sprintf(label, "Mouse cursor %d", i);
+                sprintf(label, "Mouse cursor %d: %s", i, mouse_cursors_names[i]);
                 ImGui::Bullet(); ImGui::Selectable(label, false);
                 if (ImGui::IsItemHovered())
                     ImGui::SetMouseCursor(i);
@@ -2259,8 +2300,8 @@ static void ShowExampleAppFixedOverlay(bool* p_open)
 }
 
 // Demonstrate using "##" and "###" in identifiers to manipulate ID generation.
-// Read section "How can I have multiple widgets with the same label? Can I have widget without a label? (Yes). A primer on the purpose of labels/IDs." about ID.
-static void ShowExampleAppManipulatingWindowTitle(bool*)
+// This apply to regular items as well. Read FAQ section "How can I have multiple widgets with the same label? Can I have widget without a label? (Yes). A primer on the purpose of labels/IDs." for details.
+static void ShowExampleAppWindowTitles(bool*)
 {
     // By default, Windows are uniquely identified by their title.
     // You can use the "##" and "###" markers to manipulate the display/ID.
@@ -2278,7 +2319,7 @@ static void ShowExampleAppManipulatingWindowTitle(bool*)
 
     // Using "###" to display a changing title but keep a static identifier "AnimatedTitle"
     char buf[128];
-    sprintf(buf, "Animated title %c %d###AnimatedTitle", "|/-\\"[(int)(ImGui::GetTime()/0.25f)&3], rand());
+    sprintf(buf, "Animated title %c %d###AnimatedTitle", "|/-\\"[(int)(ImGui::GetTime()/0.25f)&3], ImGui::GetFrameCount());
     ImGui::SetNextWindowPos(ImVec2(100,300), ImGuiCond_FirstUseEver);
     ImGui::Begin(buf);
     ImGui::Text("This window has a changing title.");
@@ -2480,7 +2521,7 @@ struct ExampleAppConsole
         ImGui::PopStyleVar();
         ImGui::Separator();
 
-        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetStyle().ItemSpacing.y - ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
+        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetStyle().ItemSpacing.y - ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
         if (ImGui::BeginPopupContextWindow())
         {
             if (ImGui::Selectable("Clear")) ClearLog();
@@ -2533,7 +2574,7 @@ struct ExampleAppConsole
         }
 
         // Demonstrate keeping auto focus on the input box
-        if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+        if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
             ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 
         ImGui::End();
@@ -2764,7 +2805,7 @@ static void ShowExampleAppLog(bool* p_open)
     if (time - last_time >= 0.20f && !ImGui::GetIO().KeyCtrl)
     {
         const char* random_words[] = { "system", "info", "warning", "error", "fatal", "notice", "log" };
-        log.AddLog("[%s] Hello, time is %.1f, rand() %d\n", random_words[rand() % IM_ARRAYSIZE(random_words)], time, (int)rand());
+        log.AddLog("[%s] Hello, time is %.1f, frame count is %d\n", random_words[rand() % IM_ARRAYSIZE(random_words)], time, ImGui::GetFrameCount());
         last_time = time;
     }
 
@@ -2802,7 +2843,7 @@ static void ShowExampleAppLayout(bool* p_open)
 
         // right
         ImGui::BeginGroup();
-            ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing())); // Leave room for 1 line below us
+            ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
                 ImGui::Text("MyObject: %d", selected);
                 ImGui::Separator();
                 ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");

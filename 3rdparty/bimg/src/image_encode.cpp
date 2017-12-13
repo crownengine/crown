@@ -175,10 +175,10 @@ namespace bimg
 								const uint32_t offset = yoffset + xx;
 								const float* input = (const float*)&src[offset * 16];
 								uint8_t* output    = &temp[offset * 4];
-								output[0] = uint8_t(bx::fsaturate(input[0])*255.0f + 0.5f);
-								output[1] = uint8_t(bx::fsaturate(input[1])*255.0f + 0.5f);
-								output[2] = uint8_t(bx::fsaturate(input[2])*255.0f + 0.5f);
-								output[3] = uint8_t(bx::fsaturate(input[3])*255.0f + 0.5f);
+								output[0] = uint8_t(bx::clamp(input[0], 0.0f, 1.0f)*255.0f + 0.5f);
+								output[1] = uint8_t(bx::clamp(input[1], 0.0f, 1.0f)*255.0f + 0.5f);
+								output[2] = uint8_t(bx::clamp(input[2], 0.0f, 1.0f)*255.0f + 0.5f);
+								output[3] = uint8_t(bx::clamp(input[3], 0.0f, 1.0f)*255.0f + 0.5f);
 							}
 						}
 					}
@@ -545,7 +545,7 @@ namespace bimg
 			{
 				float rgba[4];
 				unpack(rgba, data);
-				rgba[3] = bx::fsaturate(rgba[3]*scale);
+				rgba[3] = bx::clamp(rgba[3]*scale, 0.0f, 1.0f);
 				pack(data, rgba);
 			}
 		}

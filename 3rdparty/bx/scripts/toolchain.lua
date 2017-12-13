@@ -123,6 +123,12 @@ function toolchain(_buildDir, _libDir)
 	}
 
 	newoption {
+		trigger     = "with-macos",
+		value       = "#",
+		description = "Set macOS target version (default 10.9).",
+	}
+
+	newoption {
 		trigger     = "with-tvos",
 		value       = "#",
 		description = "Set tvOS target version (default: 9.0).",
@@ -168,6 +174,11 @@ function toolchain(_buildDir, _libDir)
 	local iosPlatform = ""
 	if _OPTIONS["with-ios"] then
 		iosPlatform = _OPTIONS["with-ios"]
+	end
+
+	local macosPlatform = ""
+	if _OPTIONS["with-macos"] then
+		macosPlatform = _OPTIONS["with-macos"]
 	end
 
 	local tvosPlatform = ""
@@ -478,16 +489,23 @@ function toolchain(_buildDir, _libDir)
 		end
 
 	elseif _ACTION == "xcode4" then
+		local action = premake.action.current()
+		local str_or = function(str, def)
+			return #str > 0 and str or def
+		end
 
 		if "osx" == _OPTIONS["xcode"] then
+			action.xcode.macOSTargetPlatformVersion = str_or(macosPlatform, "10.9")
 			premake.xcode.toolset = "macosx"
 			location (path.join(_buildDir, "projects", _ACTION .. "-osx"))
 
 		elseif "ios" == _OPTIONS["xcode"] then
+			action.xcode.iOSTargetPlatformVersion = str_or(iosPlatform, "8.0")
 			premake.xcode.toolset = "iphoneos"
 			location (path.join(_buildDir, "projects", _ACTION .. "-ios"))
 
 		elseif "tvos" == _OPTIONS["xcode"] then
+			action.xcode.tvOSTargetPlatformVersion = str_or(tvosPlatform, "9.0")
 			premake.xcode.toolset = "appletvos"
 			location (path.join(_buildDir, "projects", _ACTION .. "-tvos"))
 		end

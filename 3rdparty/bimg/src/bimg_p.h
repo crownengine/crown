@@ -12,6 +12,7 @@
 #include <bx/simd_t.h>
 
 #define BIMG_CHUNK_MAGIC_TEX BX_MAKEFOURCC('T', 'E', 'X', 0x0)
+#define BIMG_CHUNK_MAGIC_GNF BX_MAKEFOURCC('G', 'N', 'F', ' ')
 
 BX_ERROR_RESULT(BIMG_ERROR, BX_MAKEFOURCC('b', 'i', 'm', 'g') );
 
@@ -69,6 +70,13 @@ namespace bimg
 		, uint32_t _width
 		, uint32_t _height
 		, uint32_t _srcPitch
+		);
+
+	///
+	bool imageParseGnf(
+		  ImageContainer& _imageContainer
+		, bx::ReaderSeekerI* _reader
+		, bx::Error* _err
 		);
 
 } // namespace bimg

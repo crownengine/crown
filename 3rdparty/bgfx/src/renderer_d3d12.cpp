@@ -360,6 +360,7 @@ namespace bgfx { namespace d3d12
 	static const GUID IID_ID3D12CommandQueue        = { 0x0ec870a6, 0x5d7e, 0x4c22, { 0x8c, 0xfc, 0x5b, 0xaa, 0xe0, 0x76, 0x16, 0xed } };
 	static const GUID IID_ID3D12CommandSignature    = { 0xc36a797c, 0xec80, 0x4f0a, { 0x89, 0x85, 0xa7, 0xb2, 0x47, 0x50, 0x82, 0xd1 } };
 	static const GUID IID_ID3D12Debug               = { 0x344488b7, 0x6846, 0x474b, { 0xb9, 0x89, 0xf0, 0x27, 0x44, 0x82, 0x45, 0xe0 } };
+	static const GUID IID_ID3D12Debug1              = { 0xaffaa4ca, 0x63fe, 0x4d8e, { 0xb8, 0xad, 0x15, 0x90, 0x00, 0xaf, 0x43, 0x04 } };
 	static const GUID IID_ID3D12DescriptorHeap      = { 0x8efb471d, 0x616c, 0x4f49, { 0x90, 0xf7, 0x12, 0x7b, 0xb7, 0x63, 0xfa, 0x51 } };
 	static const GUID IID_ID3D12Device              = { 0x189819f1, 0x1db6, 0x4b57, { 0xbe, 0x54, 0x18, 0x21, 0x33, 0x9b, 0x85, 0xf7 } };
 	static const GUID IID_ID3D12Fence               = { 0x0a753dcf, 0xc4d8, 0x4b91, { 0xad, 0xf6, 0xbe, 0x5a, 0x60, 0xd9, 0x5a, 0x76 } };
@@ -380,6 +381,7 @@ namespace bgfx { namespace d3d12
 		enum Enum
 		{
 			Default,
+			Texture,
 			Upload,
 			ReadBack,
 
@@ -390,13 +392,30 @@ namespace bgfx { namespace d3d12
 		D3D12_RESOURCE_STATES m_state;
 	};
 
-	static const HeapProperty s_heapProperties[] =
+	static HeapProperty s_heapProperties[] =
 	{
-		{ { D3D12_HEAP_TYPE_DEFAULT,  D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 1, 1 }, D3D12_RESOURCE_STATE_COMMON       },
-		{ { D3D12_HEAP_TYPE_UPLOAD,   D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 1, 1 }, D3D12_RESOURCE_STATE_GENERIC_READ },
-		{ { D3D12_HEAP_TYPE_READBACK, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 1, 1 }, D3D12_RESOURCE_STATE_COPY_DEST    },
+		{ { D3D12_HEAP_TYPE_DEFAULT,  D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 }, D3D12_RESOURCE_STATE_COMMON       },
+		{ { D3D12_HEAP_TYPE_DEFAULT,  D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 }, D3D12_RESOURCE_STATE_COMMON       },
+		{ { D3D12_HEAP_TYPE_UPLOAD,   D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 }, D3D12_RESOURCE_STATE_GENERIC_READ },
+		{ { D3D12_HEAP_TYPE_READBACK, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 }, D3D12_RESOURCE_STATE_COPY_DEST    },
 	};
 	BX_STATIC_ASSERT(BX_COUNTOF(s_heapProperties) == HeapProperty::Count);
+
+	static void initHeapProperties(ID3D12Device* _device, D3D12_HEAP_PROPERTIES& _properties)
+	{
+		if (D3D12_HEAP_TYPE_CUSTOM != _properties.Type)
+		{
+			_properties = _device->GetCustomHeapProperties(1, _properties.Type);
+		}
+	}
+
+	static void initHeapProperties(ID3D12Device* _device)
+	{
+		initHeapProperties(_device, s_heapProperties[HeapProperty::Default ].m_properties);
+		initHeapProperties(_device, s_heapProperties[HeapProperty::Texture ].m_properties);
+		initHeapProperties(_device, s_heapProperties[HeapProperty::Upload  ].m_properties);
+		initHeapProperties(_device, s_heapProperties[HeapProperty::ReadBack].m_properties);
+	}
 
 	ID3D12Resource* createCommittedResource(ID3D12Device* _device, HeapProperty::Enum _heapProperty, D3D12_RESOURCE_DESC* _resourceDesc, D3D12_CLEAR_VALUE* _clearValue)
 	{
@@ -560,7 +579,7 @@ namespace bgfx { namespace d3d12
 		{
 		}
 
-		bool init()
+		bool init(const Init& _init)
 		{
 			struct ErrorState
 			{
@@ -724,12 +743,24 @@ namespace bgfx { namespace d3d12
 
 			if (BX_ENABLED(BGFX_CONFIG_DEBUG) )
 			{
-				ID3D12Debug* debug;
-				hr = D3D12GetDebugInterface(IID_ID3D12Debug, (void**)&debug);
+				ID3D12Debug* debug0;
+				hr = D3D12GetDebugInterface(IID_ID3D12Debug, (void**)&debug0);
 
 				if (SUCCEEDED(hr) )
 				{
-					debug->EnableDebugLayer();
+					debug0->EnableDebugLayer();
+
+#if BX_PLATFORM_WINDOWS
+					{
+						ID3D12Debug1* debug1;
+						hr = debug0->QueryInterface(IID_ID3D12Debug1, (void**)&debug1);
+
+						if (SUCCEEDED(hr) )
+						{
+//							debug1->SetEnableGPUBasedValidation(true);
+						}
+					}
+#endif // BX_PLATFORM_WINDOWS
 				}
 			}
 
@@ -861,6 +892,8 @@ namespace bgfx { namespace d3d12
 			BX_TRACE("\tCrossNodeSharingTier %d", m_options.CrossNodeSharingTier);
 			BX_TRACE("\tResourceHeapTier %d", m_options.ResourceHeapTier);
 
+			initHeapProperties(m_device);
+
 			m_cmd.init(m_device);
 			errorState = ErrorState::CreatedCommandQueue;
 
@@ -875,8 +908,8 @@ namespace bgfx { namespace d3d12
 					goto error;
 				}
 
-				m_scd.Width  = BGFX_DEFAULT_WIDTH;
-				m_scd.Height = BGFX_DEFAULT_HEIGHT;
+				m_scd.Width  = _init.resolution.m_width;
+				m_scd.Height = _init.resolution.m_height;
 				m_scd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				m_scd.Stereo  = false;
 				m_scd.SampleDesc.Count   = 1;
@@ -924,8 +957,8 @@ namespace bgfx { namespace d3d12
 #	endif // BX_PLATFORM_WINRT
 				}
 #else
-				m_scd.BufferDesc.Width  = BGFX_DEFAULT_WIDTH;
-				m_scd.BufferDesc.Height = BGFX_DEFAULT_HEIGHT;
+				m_scd.BufferDesc.Width  = _init.resolution.m_width;
+				m_scd.BufferDesc.Height = _init.resolution.m_height;
 				m_scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				m_scd.BufferDesc.Scaling                 = DXGI_MODE_SCALING_STRETCHED;
 				m_scd.BufferDesc.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -959,8 +992,8 @@ namespace bgfx { namespace d3d12
 			m_presentElapsed = 0;
 
 			{
-				m_resolution.m_width  = BGFX_DEFAULT_WIDTH;
-				m_resolution.m_height = BGFX_DEFAULT_HEIGHT;
+				m_resolution.m_width  = _init.resolution.m_width;
+				m_resolution.m_height = _init.resolution.m_height;
 
 				m_numWindows = 1;
 
@@ -1086,6 +1119,7 @@ namespace bgfx { namespace d3d12
 									| BGFX_CAPS_BLEND_INDEPENDENT
 									| BGFX_CAPS_COMPUTE
 									| (m_options.ROVsSupported ? BGFX_CAPS_FRAGMENT_ORDERING : 0)
+//									| (m_architecture.UMA ? BGFX_CAPS_TEXTURE_DIRECT_ACCESS : 0)
 //									| BGFX_CAPS_SWAP_CHAIN
 									| BGFX_CAPS_TEXTURE_BLIT
 									| BGFX_CAPS_TEXTURE_READ_BACK
@@ -1476,9 +1510,9 @@ namespace bgfx { namespace d3d12
 			m_program[_handle.idx].destroy();
 		}
 
-		void createTexture(TextureHandle _handle, Memory* _mem, uint32_t _flags, uint8_t _skip) override
+		void* createTexture(TextureHandle _handle, Memory* _mem, uint32_t _flags, uint8_t _skip) override
 		{
-			m_textures[_handle.idx].create(_mem, _flags, _skip);
+			return m_textures[_handle.idx].create(_mem, _flags, _skip);
 		}
 
 		void updateTextureBegin(TextureHandle /*_handle*/, uint8_t /*_side*/, uint8_t /*_mip*/) override
@@ -3020,10 +3054,10 @@ data.NumQualityLevels = 0;
 
 	static RendererContextD3D12* s_renderD3D12;
 
-	RendererContextI* rendererCreate()
+	RendererContextI* rendererCreate(const Init& _init)
 	{
 		s_renderD3D12 = BX_NEW(g_allocator, RendererContextD3D12);
-		if (!s_renderD3D12->init() )
+		if (!s_renderD3D12->init(_init) )
 		{
 			BX_DELETE(g_allocator, s_renderD3D12);
 			s_renderD3D12 = NULL;
@@ -4088,7 +4122,7 @@ data.NumQualityLevels = 0;
 		bx::read(&reader, m_size);
 	}
 
-	void TextureD3D12::create(const Memory* _mem, uint32_t _flags, uint8_t _skip)
+	void* TextureD3D12::create(const Memory* _mem, uint32_t _flags, uint8_t _skip)
 	{
 		bimg::ImageContainer imageContainer;
 
@@ -4400,7 +4434,13 @@ data.NumQualityLevels = 0;
 				break;
 			}
 
-			m_ptr = createCommittedResource(device, HeapProperty::Default, &resourceDesc, clearValue);
+			m_ptr = createCommittedResource(device, HeapProperty::Texture, &resourceDesc, clearValue);
+
+			if (kk != 0)
+			{
+//				void* directAccessPtr;
+//				DX_CHECK(m_ptr->Map(0, NULL, &directAccessPtr) );
+			}
 
 			{
 				uint64_t uploadBufferSize;
@@ -4464,12 +4504,20 @@ data.NumQualityLevels = 0;
 				}
 			}
 		}
+
+		return m_directAccessPtr;
 	}
 
 	void TextureD3D12::destroy()
 	{
 		if (NULL != m_ptr)
 		{
+			if (NULL != m_directAccessPtr)
+			{
+				m_ptr->Unmap(0, NULL);
+				m_directAccessPtr = NULL;
+			}
+
 			s_renderD3D12->m_cmd.release(m_ptr);
 			m_ptr = NULL;
 		}
@@ -4964,8 +5012,8 @@ data.NumQualityLevels = 0;
  				box.bottom = blit.m_srcY + height;;
  				box.back   = blit.m_srcZ + bx::uint32_imax(1, depth);
 
-				D3D12_TEXTURE_COPY_LOCATION dstLocation = { dst.m_ptr, D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, {{}} };
-				D3D12_TEXTURE_COPY_LOCATION srcLocation = { src.m_ptr, D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, {{}} };
+				D3D12_TEXTURE_COPY_LOCATION dstLocation = { dst.m_ptr, D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, {{0,{DXGI_FORMAT_UNKNOWN,0,0,0,0}}} };
+				D3D12_TEXTURE_COPY_LOCATION srcLocation = { src.m_ptr, D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, {{0,{DXGI_FORMAT_UNKNOWN,0,0,0,0}}} };
 				m_commandList->CopyTextureRegion(&dstLocation
 					, blit.m_dstX
 					, blit.m_dstY
@@ -5955,8 +6003,9 @@ data.NumQualityLevels = 0;
 
 namespace bgfx { namespace d3d12
 {
-	RendererContextI* rendererCreate()
+	RendererContextI* rendererCreate(const Init& _init)
 	{
+		BX_UNUSED(_init);
 		return NULL;
 	}
 

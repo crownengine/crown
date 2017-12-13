@@ -1052,7 +1052,7 @@ namespace bgfx
 				||  0 == bx::strCmp(typen, "highp", 5) )
 				{
 					precision = typen;
-					typen = parse = bx::strws(bx::strword(parse) );
+					typen = parse = bx::strws(bx::strSkipWord(parse) );
 				}
 
 				if (0 == bx::strCmp(typen, "flat", 4)
@@ -1061,13 +1061,13 @@ namespace bgfx
 				||  0 == bx::strCmp(typen, "centroid", 8) )
 				{
 					interpolation = typen;
-					typen = parse = bx::strws(bx::strword(parse) );
+					typen = parse = bx::strws(bx::strSkipWord(parse) );
 				}
 
-				const char* name      = parse = bx::strws(bx::strword(parse) );
-				const char* column    = parse = bx::strws(bx::strword(parse) );
+				const char* name      = parse = bx::strws(bx::strSkipWord(parse) );
+				const char* column    = parse = bx::strws(bx::strSkipWord(parse) );
 				const char* semantics = parse = bx::strws( (*parse == ':' ? ++parse : parse) );
-				const char* assign    = parse = bx::strws(bx::strword(parse) );
+				const char* assign    = parse = bx::strws(bx::strSkipWord(parse) );
 				const char* init      = parse = bx::strws( (*parse == '=' ? ++parse : parse) );
 
 				if (typen < eol
@@ -1079,17 +1079,17 @@ namespace bgfx
 					Varying var;
 					if (NULL != precision)
 					{
-						var.m_precision.assign(precision, bx::strword(precision)-precision);
+						var.m_precision.assign(precision, bx::strSkipWord(precision)-precision);
 					}
 
 					if (NULL != interpolation)
 					{
-						var.m_interpolation.assign(interpolation, bx::strword(interpolation)-interpolation);
+						var.m_interpolation.assign(interpolation, bx::strSkipWord(interpolation)-interpolation);
 					}
 
-					var.m_type.assign(typen, bx::strword(typen)-typen);
-					var.m_name.assign(name, bx::strword(name)-name);
-					var.m_semantics.assign(semantics, bx::strword(semantics)-semantics);
+					var.m_type.assign(typen, bx::strSkipWord(typen)-typen);
+					var.m_name.assign(name, bx::strSkipWord(name)-name);
+					var.m_semantics.assign(semantics, bx::strSkipWord(semantics)-semantics);
 
 					if (d3d == 9
 					&&  var.m_semantics == "BITANGENT")
@@ -1637,8 +1637,18 @@ namespace bgfx
 							if (varyingIt != varyingMap.end() )
 							{
 								const Varying& var = varyingIt->second;
-								preprocessor.writef("\t%s %s : %s;\n", var.m_type.c_str(), var.m_name.c_str(), var.m_semantics.c_str() );
-								preprocessor.writef("#define %s _varying_.%s\n", var.m_name.c_str(), var.m_name.c_str() );
+								preprocessor.writef(
+									  "\t%s %s %s : %s;\n"
+									, interpolationDx11(var.m_interpolation.c_str() )
+									, var.m_type.c_str()
+									, var.m_name.c_str()
+									, var.m_semantics.c_str()
+									);
+								preprocessor.writef(
+									  "#define %s _varying_.%s\n"
+									, var.m_name.c_str()
+									, var.m_name.c_str()
+									);
 							}
 						}
 						preprocessor.writef(

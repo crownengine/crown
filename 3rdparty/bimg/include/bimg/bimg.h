@@ -231,6 +231,9 @@ namespace bimg
 	/// Returns true if texture format is valid.
 	bool isValid(TextureFormat::Enum _format);
 
+	/// returns true if texture format encoding is float.
+	bool isFloat(TextureFormat::Enum _format);
+
 	/// Returns bits per pixel.
 	uint8_t getBitsPerPixel(TextureFormat::Enum _format);
 
@@ -527,6 +530,14 @@ namespace bimg
 
 	///
 	ImageContainer* imageParsePvr3(
+		  bx::AllocatorI* _allocator
+		, const void* _src
+		, uint32_t _size
+		, bx::Error* _err
+		);
+
+	///
+	ImageContainer* imageParseGnf(
 		  bx::AllocatorI* _allocator
 		, const void* _src
 		, uint32_t _size
