@@ -17,3 +17,15 @@ shader = [
 	"core/shaders/common"
 	"core/shaders/default"
 ]
+
+texture = [
+	"core/editors/gui/axis-local"
+	"core/editors/gui/axis-world"
+	"core/editors/gui/reference-local"
+	"core/editors/gui/reference-world"
+	"core/editors/gui/snap-to-grid"
+	"core/editors/gui/tool-move"
+	"core/editors/gui/tool-place"
+	"core/editors/gui/tool-rotate"
+	"core/editors/gui/tool-scale"
+]

@@ -63,6 +63,13 @@ namespace { const crown::log_internal::System DEVICE = { "Device" }; }
 
 namespace crown
 {
+#if CROWN_TOOLS
+extern void tool_init(void);
+extern void tool_update(float);
+extern void tool_shutdown(void);
+extern bool tool_process_events();
+#endif
+
 extern bool next_event(OsEvent& ev);
 
 struct BgfxCallback : public bgfx::CallbackI
@@ -226,6 +233,10 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 
 bool Device::process_events(bool vsync)
 {
+#if CROWN_TOOLS
+	return tool_process_events();
+#endif
+
 	InputManager* im = _input_manager;
 	bool exit = false;
 	bool reset = false;
@@ -457,6 +468,10 @@ void Device::run()
 	_pipeline = CE_NEW(_allocator, Pipeline)();
 	_pipeline->create(_width, _height);
 
+#if CROWN_TOOLS
+	tool_init();
+#endif
+
 	logi(DEVICE, "Initialized");
 
 	_lua_environment->call_global("init", 0);
@@ -485,6 +500,10 @@ void Device::run()
 			_pipeline->reset(_width, _height);
 		}
 
+#if CROWN_TOOLS
+		tool_update(dt);
+#endif
+
 		if (!_paused)
 		{
 			_resource_manager->complete_requests();
@@ -512,6 +531,10 @@ void Device::run()
 
 		bgfx::frame();
 	}
+
+#if CROWN_TOOLS
+	tool_shutdown();
+#endif
 
 	_lua_environment->call_global("shutdown", 0);
 
@@ -649,7 +672,9 @@ void Device::render(World& world, UnitId camera_unit)
 
 	world.render(view, proj);
 
+#if !CROWN_TOOLS
 	_pipeline->render(*_shader_manager, StringId32("blit"), 0, _width, _height);
+#endif // CROWN_TOOLS
 }
 
 World* Device::create_world()

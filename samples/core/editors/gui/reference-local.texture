@@ -1,0 +1,3 @@
+generate_mips = false
+normal_map = false
+source = "core/editors/gui/reference-local.png"

@@ -19,6 +19,7 @@
 #define VIEW_MESH      16
 #define VIEW_DEBUG     17
 #define VIEW_GUI      128
+#define VIEW_IMGUI    129
 
 namespace crown
 {
