@@ -86,6 +86,7 @@ if _OPTIONS["with-tools"] then
 	dofile (BGFX_DIR .. "scripts/texturec.lua")
 
 	if not _OPTIONS["no-level-editor"] then
+		dofile ("level-editor-imgui.lua")
 		dofile ("level-editor.lua")
 	end
 end

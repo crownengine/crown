@@ -117,6 +117,20 @@ tools-mingw-debug64: mingw-development64
 tools-mingw-release64: mingw-development64
 	make -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=release
 
+tools-imgui-linux-debug64: linux-debug64
+	make -j$(MAKE_JOBS) -R -C build/projects/linux level-editor-imgui config=debug64
+tools-imgui-linux-development64: linux-development64
+	make -j$(MAKE_JOBS) -R -C build/projects/linux level-editor-imgui config=development64
+tools-imgui-linux-release64: linux-development64
+	make -j$(MAKE_JOBS) -R -C build/projects/linux level-editor-imgui config=release64
+
+tools-imgui-mingw-debug64: mingw-debug64
+	make -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor-imgui config=debug64
+tools-imgui-mingw-development64: mingw-development64
+	make -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor-imgui config=development64
+tools-imgui-mingw-release64: mingw-development64
+	make -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor-imgui config=release64
+
 .PHONY: docs
 docs:
 	make -C docs/ html
