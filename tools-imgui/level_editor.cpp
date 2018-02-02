@@ -16,7 +16,6 @@
 #include "core/json/json.h"
 #include "core/json/sjson.h"
 #include "core/json/json_object.h"
-#include "core/network/ip_address.h"
 #include "core/network/socket.h"
 #include "core/strings/dynamic_string.h"
 #include "device/device.h"
@@ -35,62 +34,12 @@
 
 #include <sys/time.h>
 
-#define MAIN_MENU_HEIGHT 24
-#define TOOLBAR_HEIGHT 24
-
-#define Y_OFFSET (MAIN_MENU_HEIGHT + TOOLBAR_HEIGHT)
-
-#define SCENE_VIEW_WIDTH 640 /*1280*/
-#define SCENE_VIEW_HEIGHT 480 /*720*/
-
-#define FILE_BROWSER_WIDTH 640
-#define FILE_BROWSER_HEIGHT 480
-
-#define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
-
 namespace { const crown::log_internal::System LEVEL_EDITOR = { "LevelEditor" }; }
 
 namespace crown
 {
 static u16 _width = 1280;
 static u16 _height = 720;
-
-//-----------------------------------------------------------------------------
-struct Console
-{
-	// Console
-	TCPSocket _client;
-	Vector<ImGui::ConsoleLog> _console_items;
-	Vector<DynamicString> _console_history;
-	Vector<DynamicString> _console_commands;
-	bool _console_open;
-
-	Console() : _console_items(default_allocator())
-		, _console_history(default_allocator())
-		, _console_commands(default_allocator())
-		, _console_open(true)
-	{
-		_client.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_CONSOLE_PORT);
-	}
-
-	~Console()
-	{
-		_client.close();
-	}
-
-	void draw()
-	{
-		if (ImGui::BeginDock("Console", &_console_open))
-		{
-			ImGui::console_draw(_client
-				, _console_items
-				, _console_history
-				, _console_commands
-				);
-		}
-		ImGui::EndDock();
-	}
-};
 
 //-----------------------------------------------------------------------------
 struct Inspector
@@ -106,26 +55,28 @@ struct Inspector
 	char _state_machine[1024];
 	bool _open;
 
-	Inspector() : _visible(true)
-		, _open(false)
+	Inspector()
+		: _visible(true)
+		, _open(true)
 	{
-		memset(_name, 0, 1024);
-		memset(_sprite, 0, 1024);
-		memset(_material, 0, 1024);
-		memset(_position, 0, 3);
-		memset(_rotation, 0, 3);
-		memset(_scale, 0, 3);
-		memset(_state_machine, 0, 1024);
+		memset(_name, 0, sizeof(_name));
+		memset(_sprite, 0, sizeof(_sprite));
+		memset(_material, 0, sizeof(_material));
+		memset(_position, 0, sizeof(_position));
+		memset(_rotation, 0, sizeof(_rotation));
+		memset(_scale, 0, sizeof(_scale));
+		memset(_state_machine, 0, sizeof(_state_machine));
 	}
 
 	void draw()
 	{
+		if (!_open) return;
 		if (ImGui::BeginDock("Inspector", &_open))
 		{
 			ImGui::SetNextTreeNodeOpen(true);
 			if (ImGui::TreeNode("Unit"))
 			{
-				ImGui::InputText("Name", _name, 1024);
+				ImGui::InputText("Name", _name, sizeof(_name));
 				ImGui::TreePop();
 			}
 
@@ -142,8 +93,8 @@ struct Inspector
 			ImGui::SetNextTreeNodeOpen(true);
 			if (ImGui::TreeNode("Renderer"))
 			{
-				ImGui::InputText("Sprite", _sprite, 1024);
-				ImGui::InputText("Material", _material, 1024);
+				ImGui::InputText("Sprite", _sprite, sizeof(_sprite));
+				ImGui::InputText("Material", _material, sizeof(_material));
 				ImGui::Checkbox("Visible", &_visible);
 				ImGui::TreePop();
 			}
@@ -151,7 +102,7 @@ struct Inspector
 			ImGui::SetNextTreeNodeOpen(true);
 			if (ImGui::TreeNode("Animation"))
 			{
-				ImGui::InputText("State Machine", _state_machine, 1024);
+				ImGui::InputText("State Machine", _state_machine, sizeof(_state_machine));
 				ImGui::TreePop();
 			}
 		}
@@ -164,17 +115,26 @@ struct SceneView
 {
 	ImVec2 _pos;
 	ImVec2 _size;
+	ImVec2 _mouse_curr;
+	ImVec2 _mouse_last;
 	bool _open;
 
-	SceneView() : _open(true) {}
+	SceneView()
+		: _open(true)
+	{
+	}
 
 	void draw()
 	{
+		if (!_open) return;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::SetNextWindowPos(ImVec2(0, 25));
 		if (ImGui::BeginDock("Scene View"
 			, &_open
 			, ImGuiWindowFlags_NoScrollbar
-			| ImGuiWindowFlags_NoScrollWithMouse))
+			| ImGuiWindowFlags_NoScrollWithMouse
+			| ImGuiWindowFlags_NoTitleBar))
 		{
 			uint16_t w, h;
 			device()->resolution(w, h);
@@ -214,6 +174,7 @@ struct SceneView
 		_size = ImGui::GetWindowSize();
 
 		ImGui::EndDock();
+		ImGui::PopStyleVar();
 	}
 };
 
@@ -222,13 +183,15 @@ struct UnitList
 {
 	bool _open;
 
-	UnitList() : _open(true)
+	UnitList()
+		: _open(true)
 	{
-
 	}
 
 	void draw()
 	{
+		if (!_open) return;
+
 		if (ImGui::BeginDock("Unit List", &_open))
 		{
 			ImGui::SetNextTreeNodeOpen(true);
@@ -308,7 +271,7 @@ struct SpriteAnimator
 {
 	bool _open;
 	bool _add_animation_popup_open;
-	// int value = 0;
+
 	Array<const char*> _entities;
 	s32 _cur_entity;
 	TextureResource* _texture;
@@ -353,7 +316,7 @@ struct SpriteAnimator
 		, current(0)
 		, file_list_sprites(default_allocator())
 	{
-		memset(_anim_name, 0, 512);
+		memset(_anim_name, 0, sizeof(_anim_name));
 
 		_fs = CE_NEW(default_allocator(), FilesystemDisk)(default_allocator());
 		_fs->set_prefix(src_dir.c_str());
@@ -445,37 +408,21 @@ struct SpriteAnimator
 
 	void draw()
 	{
-		if (ImGui::Begin("Animator", &_open))
+		if (!_open) return;
+
+		if (ImGui::BeginDock("Animator", &_open))
 		{
-			// if (_texture)
-			// {
-			// 	ImGui::Image((void*)(uintptr_t) _texture->handle.idx, ImVec2(_texture_width, _texture_height));
-
-			// 	ImVec2 win = ImGui::GetWindowPos();
-			// 	ImVec2 pad = ImGui::GetStyle().WindowPadding;
-			// 	ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-			// 	for (uint32_t i = 0; i < array::size(_frames); i++)
-			// 	{
-			// 		const ImVec4& v = _frames[i].region;
-			// 		ImVec2 start(v.x + win.x + pad.x, v.y + win.y + pad.y + 24);
-			// 		ImVec2 end(v.x + v.z + win.x + pad.x, v.y + v.w + win.y + pad.y + 24);
-			// 		drawList->AddRect(start, end, IM_COL32(255,0,0,255));
-			// 	}
-			// }
-
 			if (_texture)
 			{
 				Frame f = _frames[0];
 				ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
 				ImVec2 end = pixel_to_uv(_texture_width, _texture_height, f.region.x+f.region.z, f.region.y+f.region.w);
-				ImGui::Image(
-					  (void*)(uintptr_t) _texture->handle.idx
+				ImGui::Image((void*)(uintptr_t) _texture->handle.idx
 					, ImVec2(f.region.z, f.region.w)
 					, start
 					, end
 					, ImColor(255, 255, 255, 55)
-					);
+				);
 			}
 
 			if (ImGui::Combo("Entities", &_cur_entity, (const char* const*) array::begin(_entities), array::size(_entities)))
@@ -541,7 +488,7 @@ struct SpriteAnimator
 
 			if (ImGui::BeginPopup("Add animation"))
 			{
-				ImGui::InputText("Name", _anim_name, 512);
+				ImGui::InputText("Name", _anim_name, sizeof(_anim_name));
 				ImGui::InputFloat("Time", &_anim_time, 0.1f, 0.1f, 1);
 				ImGui::ListBox("Animation Frames", &_listbox_item_current, (const char* const*)array::begin(_listbox_items), array::size(_listbox_items));
 				if (ImGui::Button("Clear Frames", ImVec2(100.0f, 25.0f)))
@@ -617,9 +564,8 @@ struct SpriteAnimator
 
 				ImGui::EndPopup();
 			}
-
-			ImGui::End();
 		}
+		ImGui::EndDock();
 	}
 };
 
@@ -627,12 +573,6 @@ struct SpriteAnimator
 struct LevelEditor
 {
 	DynamicString _source_dir;
-
-	// File Browser
-	FilesystemDisk* _fs;
-	DynamicString* _prefix;
-	DynamicString* _cur_dir;
-	Vector<DynamicString>* _cur_dir_files;
 
 	// FX
 	TextureResource* tex_move;
@@ -662,10 +602,6 @@ struct LevelEditor
 	ImVec2 _toolbar_pos;
 	ImVec2 _toolbar_size;
 
-	// Workaround https://github.com/ocornut/imgui/issues/331
-	bool _open_new_popup;
-	bool _open_open_popup;
-
 	Console _console;
 	Inspector _inspector;
 	SceneView _scene_view;
@@ -686,13 +622,10 @@ struct LevelEditor
 
 		, _main_menu_pos(0, 0)
 		, _main_menu_size(0, 0)
-		, _open_new_popup(false)
-		, _open_open_popup(false)
-
-		, _animator(source_dir)
 
 		, _toolbar_pos(0, 0)
 		, _toolbar_size(0, 0)
+		, _animator(source_dir)
 	{
 		ResourceManager* resman = device()->_resource_manager;
 		tex_move = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-move"));
@@ -707,35 +640,20 @@ struct LevelEditor
 
 		imgui_create();
 
-		// _prefix = CE_NEW(default_allocator(), DynamicString)(default_allocator());
-		// _cur_dir = CE_NEW(default_allocator(), DynamicString)(default_allocator());
-		// _cur_dir_files = CE_NEW(default_allocator(), Vector<DynamicString>)(default_allocator());
-
-		// *_prefix = "/";
-		// *_cur_dir = "";
-
-		_fs = CE_NEW(default_allocator(), FilesystemDisk)(default_allocator());
-		_fs->set_prefix(source_dir.c_str());
-		// _fs->list_files(_cur_dir->c_str(), *_cur_dir_files);
-
 		ImGui::LoadDock();
 	}
 
 	~LevelEditor()
 	{
-		CE_DELETE(default_allocator(), _fs);
-
-		// CE_DELETE(default_allocator(), _cur_dir_files);
-		// CE_DELETE(default_allocator(), _cur_dir);
-		// CE_DELETE(default_allocator(), _prefix);
-
 		ImGui::SaveDock();
 
 		imgui_destroy();
 	}
 
-	void update()
+	void update(float dt)
 	{
+		CE_UNUSED(dt);
+
 		static f32 last_w = 0.0f;
 		static f32 last_h = 0.0f;
 		if (last_w != _scene_view._size.x || last_h != _scene_view._size.y)
@@ -747,6 +665,8 @@ struct LevelEditor
 		}
 
 		TempAllocator4096 ta;
+
+		u32 message_count = 0;
 
 		// Receive response from engine
 		for (;;)
@@ -762,31 +682,43 @@ struct LevelEditor
 				char msg[8192];
 				rr = _console._client.read(msg, msg_len);
 				msg[msg_len] = '\0';
-
+				message_count++;
+				// logi(LEVEL_EDITOR, "count: %d", message_count);
 				if (ReadResult::SUCCESS == rr.error)
 				{
 					JsonObject obj(ta);
-					DynamicString severity(ta);
-					DynamicString message(ta);
-
+					DynamicString type(ta);
 					json::parse(msg, obj);
-					json::parse_string(obj["severity"], severity);
-					json::parse_string(obj["message"], message);
+					json::parse_string(obj["type"], type);
 
-					LogSeverity::Enum ls = LogSeverity::COUNT;
-					if (strcmp("info", severity.c_str()) == 0)
-						ls = LogSeverity::LOG_INFO;
-					else if (strcmp("warning", severity.c_str()) == 0)
-						ls = LogSeverity::LOG_WARN;
-					else if (strcmp("error", severity.c_str()) == 0)
-						ls = LogSeverity::LOG_ERROR;
+					if (type == "message")
+					{
+						DynamicString severity(ta);
+						DynamicString message(ta);
+
+						json::parse_string(obj["severity"], severity);
+						json::parse_string(obj["message"], message);
+
+						LogSeverity::Enum ls = LogSeverity::COUNT;
+						if (strcmp("info", severity.c_str()) == 0)
+							ls = LogSeverity::LOG_INFO;
+						else if (strcmp("warning", severity.c_str()) == 0)
+							ls = LogSeverity::LOG_WARN;
+						else if (strcmp("error", severity.c_str()) == 0)
+							ls = LogSeverity::LOG_ERROR;
+						else
+							CE_FATAL("Unknown severity");
+
+						ConsoleLog log(ls, message.c_str());
+						vector::push_back(_console._console_items, log);
+					}
 					else
-						CE_FATAL("Unknown severity");
+					{
+						ConsoleLog log(LogSeverity::LOG_ERROR, "Unknown message type");
+						vector::push_back(_console._console_items, log);
+					}
 
-					ImGui::ConsoleLog log(ls, message.c_str());
-					vector::push_back(_console._console_items, log);
-
-					// printf("msg_len: %d, msg: %s\n", msg_len, msg);
+					console_scroll_to_bottom();
 				}
 			}
 		}
@@ -799,7 +731,7 @@ struct LevelEditor
 		main_menu_bar();
 		// toolbar();
 		_scene_view.draw();
-		_console.draw();
+		console_draw(_console);
 		_unit_list.draw();
 		_inspector.draw();
 		_animator.draw();
@@ -855,98 +787,6 @@ struct LevelEditor
 #endif
 	}
 
-	// void new_popup()
-	// {
-	// 	ImGui::OpenPopup("New project");
-	// 	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f)
-	// 		, 0
-	// 		, ImVec2(0.5f, 0.5f)
-	// 		);
-	// 	if (ImGui::BeginPopup("New project"))
-	// 	{
-	// 		ImGui::Text("Lorem ipsum");
-
-	// 		if (ImGui::Button("Ok"))
-	// 		{
-	// 			ImGui::CloseCurrentPopup();
-	// 			_open_new_popup = false;
-	// 		}
-	// 		ImGui::EndPopup();
-	// 	}
-	// }
-
-	// static bool list_getter(void* data, int idx, const char** out_text)
-	// {
-	// 	Vector<DynamicString>* files = (Vector<DynamicString>*) data;
-	// 	DynamicString str_idx = (*files)[idx];
-
-	// 	if (out_text)
-	// 		*out_text = str_idx.c_str();
-
-	// 	return true;
-	// }
-
-	// void file_browser()
-	// {
-	// 	ImGui::OpenPopup("File Selector");
-	// 	if (ImGui::BeginPopupModal("File Selector"))
-	// 	{
-	// 		TempAllocator4096 ta;
-	// 		DynamicString join(ta), path(ta);
-	// 		path::join(join, _prefix->c_str(), _cur_dir->c_str());
-	// 		path::reduce(path, join.c_str());
-
-	// 		ImGui::Text(path.c_str());
-
-	// 		int current_index;
-	// 		ImGui::ListBox("asd", &current_index, list_getter, (void*) _cur_dir_files, vector::size(*_cur_dir_files));
-
-	// 		for (u32 i = 0; i < vector::size(*_cur_dir_files); i++)
-	// 		{
-	// 			DynamicString file(ta);
-
-	// 			if (*_cur_dir != "")
-	// 			{
-	// 				file += *_cur_dir;
-	// 				file += '/';
-	// 			}
-	// 			file += (*_cur_dir_files)[i];
-
-	// 			DynamicString file_row(ta);
-	// 			if (_fs->is_directory(file.c_str()))
-	// 			{
-	// 				file_row += ICON_FA_FOLDER;
-	// 				file_row += " ";
-	// 				file_row += file;
-
-
-
-	// 			}
-	// 			else
-	// 			{
-	// 				// file_row += ICON_FA_FILE;
-	// 				// file_row += " ";
-	// 				// file_row += file;
-
-	// 				// ImGui::Selectable(file_row.c_str());
-	// 			}
-
-	// 			char buff[80];
-	// 			u64 time_mod = _fs->last_modified_time(file.c_str());
-	// 			format_time(time_mod, buff, 80);
-	// 			ImGui::SameLine(FILE_BROWSER_WIDTH - 150);
-	// 			ImGui::Text(buff);
-	// 		}
-
-	// 		if (ImGui::Button("Ok"))
-	// 		{
-	// 			ImGui::CloseCurrentPopup();
-	// 			_open_open_popup = false;
-	// 		}
-	// 		ImGui::EndPopup();
-	// 	}
-	// }
-
 	void main_menu_bar()
 	{
 		// Main Menu
@@ -956,11 +796,11 @@ struct LevelEditor
 			{
 				if (ImGui::MenuItem("New"))
 				{
-					// _open_new_popup = true;
+
 				}
 				if (ImGui::MenuItem("Open", "Ctrl+O"))
 				{
-					// _open_open_popup = true;
+
 				}
 				if (ImGui::MenuItem("Save", "Ctrl+S"))
 				{
@@ -993,26 +833,36 @@ struct LevelEditor
 				{
 					if (ImGui::MenuItem("Cube", NULL, false, true))
 					{
+						_tool_type = tool::ToolType::PLACE;
+						tool_send_state();
 						tool::set_placeable(ss, "unit", "core/units/primitives/cube");
 						send_command(ss);
 					}
 					if (ImGui::MenuItem("Sphere"))
 					{
+						_tool_type = tool::ToolType::PLACE;
+						tool_send_state();
 						tool::set_placeable(ss, "unit", "core/units/primitives/sphere");
 						send_command(ss);
 					}
 					if (ImGui::MenuItem("Cone"))
 					{
+						_tool_type = tool::ToolType::PLACE;
+						tool_send_state();
 						tool::set_placeable(ss, "unit", "core/units/primitives/cone");
 						send_command(ss);
 					}
 					if (ImGui::MenuItem("Cylinder"))
 					{
+						_tool_type = tool::ToolType::PLACE;
+						tool_send_state();
 						tool::set_placeable(ss, "unit", "core/units/primitives/cylinder");
 						send_command(ss);
 					}
 					if (ImGui::MenuItem("Plane"))
 					{
+						_tool_type = tool::ToolType::PLACE;
+						tool_send_state();
 						tool::set_placeable(ss, "unit", "core/units/primitives/plane");
 						send_command(ss);
 					}
@@ -1021,16 +871,22 @@ struct LevelEditor
 
 				if (ImGui::MenuItem("Camera"))
 				{
+					_tool_type = tool::ToolType::PLACE;
+					tool_send_state();
 					tool::set_placeable(ss, "unit", "core/units/camera");
 					send_command(ss);
 				}
 				if (ImGui::MenuItem("Light"))
 				{
+					_tool_type = tool::ToolType::PLACE;
+					tool_send_state();
 					tool::set_placeable(ss, "unit", "core/units/light");
 					send_command(ss);
 				}
 				if (ImGui::MenuItem("Sound"))
 				{
+					_tool_type = tool::ToolType::PLACE;
+					tool_send_state();
 					tool::set_placeable(ss, "sound", "core/units/camera");
 					send_command(ss);
 				}
@@ -1098,7 +954,11 @@ struct LevelEditor
 			}
 			if (ImGui::BeginMenu("Windows"))
 			{
-				if (ImGui::MenuItem("Objects List"))
+				if (ImGui::MenuItem("Scene"))
+				{
+					_scene_view._open = true;
+				}
+				if (ImGui::MenuItem("Unit List"))
 				{
 					_unit_list._open = true;
 				}
@@ -1106,6 +966,15 @@ struct LevelEditor
 				{
 					_inspector._open = true;
 				}
+				if (ImGui::MenuItem("Console"))
+				{
+					_console._open = true;
+				}
+				if (ImGui::MenuItem("Animator"))
+				{
+					_animator._open = true;
+				}
+
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Help"))
@@ -1118,11 +987,6 @@ struct LevelEditor
 			_main_menu_size = ImGui::GetWindowSize();
 
 			ImGui::EndMainMenuBar();
-
-			// if (_open_new_popup)
-			// 	new_popup();
-			// if (_open_open_popup)
-			// 	file_browser();
 		}
 	}
 
@@ -1196,7 +1060,7 @@ void tool_init()
 
 void tool_update(float dt)
 {
-	s_editor->update();
+	s_editor->update(dt);
 }
 
 void tool_shutdown()
@@ -1209,6 +1073,7 @@ extern bool next_event(OsEvent& ev);
 bool tool_process_events()
 {
 	ImGuiIO& io = ImGui::GetIO();
+
 	bool exit = false;
 	bool reset = false;
 
@@ -1293,18 +1158,25 @@ bool tool_process_events()
 
 					if (!io.WantCaptureMouse)
 					{
-						if (ev.pressed)
-							tool::mouse_down(ss, io.MousePos.x, io.MousePos.y);
-						else
-							tool::mouse_up(ss, io.MousePos.x, io.MousePos.y);
+						ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
+						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._pos.x;
+						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._pos.y;
 
 						tool::set_mouse_state(ss
-							, io.MousePos.x
-							, io.MousePos.y
+							, mouse_curr.x
+							, mouse_curr.y
 							, io.MouseDown[0]
 							, io.MouseDown[2]
 							, io.MouseDown[1]
 							);
+
+						if (ev.button_num == crown::MouseButton::LEFT)
+						{
+							if (ev.pressed)
+								tool::mouse_down(ss, mouse_curr.x, mouse_curr.y);
+							else
+								tool::mouse_up(ss, mouse_curr.x, mouse_curr.y);
+						}
 					}
 
 					break;
@@ -1326,20 +1198,18 @@ bool tool_process_events()
 
 							if (!io.WantCaptureMouse)
 							{
-								tool::mouse_move(ss
-									, io.MousePos.x
-									, io.MousePos.y
-									, io.MousePos.x - io.MousePosPrev.x
-									, io.MousePos.y - io.MousePosPrev.y
-									);
+								ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
+								ImVec2& mouse_last = s_editor->_scene_view._mouse_last;
 
-								tool::set_mouse_state(ss
-									, io.MousePos.x
-									, io.MousePos.y
-									, io.MouseDown[0]
-									, io.MouseDown[2]
-									, io.MouseDown[1]
-									);
+								mouse_curr.x = io.MousePos.x - s_editor->_scene_view._pos.x;
+								mouse_curr.y = io.MousePos.y - s_editor->_scene_view._pos.y;
+
+								float delta_x = mouse_curr.x - mouse_last.x;
+								float delta_y = mouse_curr.y - mouse_last.y;
+
+								tool::mouse_move(ss, mouse_curr.x, mouse_curr.y, delta_x, delta_y);
+
+								mouse_last = mouse_curr;
 							}
 
 							break;
