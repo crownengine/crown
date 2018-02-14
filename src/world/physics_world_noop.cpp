@@ -255,11 +255,10 @@ struct PhysicsWorldImpl
 
 	ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }
 	ActorInstance make_actor_instance(u32 i) { ActorInstance inst = { i }; return inst; }
-	ControllerInstance make_controller_instance(u32 i) { ControllerInstance inst = { i }; return inst; }
 	JointInstance make_joint_instance(u32 i) { JointInstance inst = { i }; return inst; }
 };
 
-PhysicsWorld::PhysicsWorld(Allocator& a, ResourceManager& rm, UnitManager& um, DebugLine& dl)
+PhysicsWorld::PhysicsWorld(Allocator& a, ResourceManager& /*rm*/, UnitManager& /*um*/, DebugLine& /*dl*/)
 	: _marker(PHYSICS_WORLD_MARKER)
 	, _allocator(&a)
 	, _impl(NULL)
@@ -466,51 +465,6 @@ bool PhysicsWorld::actor_is_sleeping(ActorInstance i)
 void PhysicsWorld::actor_wake_up(ActorInstance i)
 {
 	_impl->actor_wake_up(i);
-}
-
-ControllerInstance PhysicsWorld::controller_create(UnitId id, const ControllerDesc& cd, const Matrix4x4& tm)
-{
-	return _impl->controller_create(id, cd, tm);
-}
-
-void PhysicsWorld::controller_destroy(ControllerInstance id)
-{
-	_impl->controller_destroy(id);
-}
-
-ControllerInstance PhysicsWorld::controller(UnitId id)
-{
-	return _impl->controller(id);
-}
-
-Vector3 PhysicsWorld::controller_position(ControllerInstance i) const
-{
-	return _impl->controller_position(i);
-}
-
-void PhysicsWorld::controller_move(ControllerInstance i, const Vector3& pos)
-{
-	_impl->controller_move(i, pos);
-}
-
-void PhysicsWorld::controller_set_height(ControllerInstance i, f32 height)
-{
-	_impl->controller_set_height(i, height);
-}
-
-bool PhysicsWorld::controller_collides_up(ControllerInstance i) const
-{
-	return _impl->controller_collides_up(i);
-}
-
-bool PhysicsWorld::controller_collides_down(ControllerInstance i) const
-{
-	return _impl->controller_collides_down(i);
-}
-
-bool PhysicsWorld::controller_collides_sides(ControllerInstance i) const
-{
-	return _impl->controller_collides_sides(i);
 }
 
 JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
