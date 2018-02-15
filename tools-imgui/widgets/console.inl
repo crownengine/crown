@@ -90,11 +90,12 @@ void console_draw(Console& console)
 		ImGui::Separator();
 
 		if (ImGui::InputText("Input"
-		, input_text_buffer
-		, IM_ARRAYSIZE(input_text_buffer)
-		, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory
-		, console_inputtext_callback
-		, &console))
+			, input_text_buffer
+			, IM_ARRAYSIZE(input_text_buffer)
+			, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory
+			, console_inputtext_callback
+			, &console
+			))
 		{
 			char* input_end = input_text_buffer + strlen(input_text_buffer);
 			while (input_end > input_text_buffer && input_end[-1] == ' ')
@@ -161,14 +162,22 @@ void console_execute_command(Console& console, ConsoleLog& command_line)
 	}
 	else
 	{
-		// Send command to engine
+		// Sanitize command line
 		TempAllocator1024 ta;
-		StringStream out(ta);
-		out << "{\"type\":\"script\",\"script\":\"";
-		out << command_line._message.c_str();
-		out << "\"}";
+		StringStream json(ta);
 
-		const char* cmd = string_stream::c_str(out);
+		json << "{\"type\":\"script\",\"script\":\"";
+		const char* ch = command_line._message.c_str();
+		for (; *ch; ch++)
+		{
+			if (*ch == '"' || *ch == '\\')
+				json << "\\";
+			json << *ch;
+		}
+		json << "\"}";
+
+		// Send command to engine
+		const char* cmd = string_stream::c_str(json);
 		const uint32_t size = strlen32(cmd);
 		client.write(&size, sizeof(uint32_t));
 		client.write(cmd, size);
