@@ -22,6 +22,7 @@ project "level-editor-imgui"
 
 	defines {
 		"CROWN_TOOLS=1",
+		"CROWN_PHYSICS_NOOP=1",
 	}
 
 	links {
