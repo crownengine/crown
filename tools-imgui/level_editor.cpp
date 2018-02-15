@@ -324,6 +324,11 @@ struct SpriteAnimator
 		get_sprites_list();
 	}
 
+	~SpriteAnimator()
+	{
+		CE_DELETE(default_allocator(), _fs);
+	}
+
 	ImVec2 pixel_to_uv(uint32_t tex_w, uint32_t tex_h, float x, float y)
 	{
 		ImVec2 uv;
