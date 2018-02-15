@@ -1060,13 +1060,13 @@ namespace ImGui
 		void save_dock()
 		{
 			char cwdbuf[1024];
-			const char* bin_dir = os::getcwd(cwdbuf, sizeof(cwdbuf));
+			const char* bin_dir = crown::os::getcwd(cwdbuf, sizeof(cwdbuf));
 			crown::TempAllocator4096 ta;
 			crown::FilesystemDisk fs(ta);
 			fs.set_prefix(bin_dir);
-			crown::File* file = fs.open("docks.config", FileOpenMode::WRITE);
+			crown::File* file = fs.open("docks.config", crown::FileOpenMode::WRITE);
 
-			StringStream ss(ta);
+			crown::StringStream ss(ta);
 			for (uint32_t i = 0; i < m_docks.size(); i++)
 			{
 				Dock& dock = *m_docks[i];
@@ -1090,9 +1090,9 @@ namespace ImGui
 				ss << "},\n";
 			}
 
-			const char* buf = string_stream::c_str(ss);
+			const char* buf = crown::string_stream::c_str(ss);
 			file->write(buf, strlen(buf));
-			file->close();
+			fs.close(*file);
 		}
 
 		void load_dock()
@@ -1105,7 +1105,7 @@ namespace ImGui
 			m_docks.clear();
 
 			char cwdbuf[1024];
-			const char* bin_dir = os::getcwd(cwdbuf, sizeof(cwdbuf));
+			const char* bin_dir = crown::os::getcwd(cwdbuf, sizeof(cwdbuf));
 			crown::TempAllocator4096 ta;
 			crown::FilesystemDisk fs(ta);
 			fs.set_prefix(bin_dir);
@@ -1116,18 +1116,17 @@ namespace ImGui
 				return;
 			}
 
-			crown::File& file = *fs.open("docks.config", FileOpenMode::READ);
-			uint32_t size = file.size();
+			crown::File* file = fs.open("docks.config", crown::FileOpenMode::READ);
+			uint32_t size = file->size();
 			char buf[4096];
-			file.read(buf, size);
+			file->read(buf, size);
 			buf[size] = '\0';
 
 			crown::JsonObject obj(ta);
-			sjson::parse(buf, obj);
+			crown::sjson::parse(buf, obj);
 
-			auto cur = json_object::begin(obj);
-			auto end = json_object::end(obj);
-
+			auto cur = crown::json_object::begin(obj);
+			auto end = crown::json_object::end(obj);
 			for (uint32_t i = 0; i < end-cur; i++)
 			{
 				Dock* dock = (Dock*) MemAlloc(sizeof(Dock));
@@ -1136,33 +1135,35 @@ namespace ImGui
 
 			for (; cur != end; ++cur)
 			{
-				FixedString key = cur->pair.first;
+				crown::FixedString key = cur->pair.first;
 				const char* value = cur->pair.second;
-				JsonObject item(ta);
-				sjson::parse_object(value, item);
+				crown::JsonObject item(ta);
+				crown::sjson::parse_object(value, item);
 
-				DynamicString label(ta), loc(ta);
-				uint32_t id = sjson::parse_int(item["index"]);
-				sjson::parse_string(item["label"], label);
-				sjson::parse_string(item["location"], loc);
+				crown::DynamicString label(ta), loc(ta);
+				uint32_t id = crown::sjson::parse_int(item["index"]);
+				crown::sjson::parse_string(item["label"], label);
+				crown::sjson::parse_string(item["location"], loc);
 				m_docks[id]->id = ImHash(label.c_str(), 0);
 				m_docks[id]->label = strdup(label.c_str());
-				m_docks[id]->pos.x = sjson::parse_int(item["x"]);
-				m_docks[id]->pos.y = sjson::parse_int(item["y"]);
-				m_docks[id]->size.x = sjson::parse_int(item["size_x"]);
-				m_docks[id]->size.y = sjson::parse_int(item["size_y"]);
-				m_docks[id]->status = (Status_)sjson::parse_int(item["status"]);
-				m_docks[id]->active = sjson::parse_int(item["active"]);
-				m_docks[id]->opened = sjson::parse_int(item["opened"]);
-				m_docks[id]->prev_tab = getDockByIndex(sjson::parse_int(item["prev"]));
-				m_docks[id]->next_tab = getDockByIndex(sjson::parse_int(item["next"]));
-				m_docks[id]->children[0] = getDockByIndex(sjson::parse_int(item["child_0"]));
-				m_docks[id]->children[1] = getDockByIndex(sjson::parse_int(item["child_1"]));
-				m_docks[id]->parent = getDockByIndex(sjson::parse_int(item["parent"]));
+				m_docks[id]->pos.x = crown::sjson::parse_int(item["x"]);
+				m_docks[id]->pos.y = crown::sjson::parse_int(item["y"]);
+				m_docks[id]->size.x = crown::sjson::parse_int(item["size_x"]);
+				m_docks[id]->size.y = crown::sjson::parse_int(item["size_y"]);
+				m_docks[id]->status = (Status_)crown::sjson::parse_int(item["status"]);
+				m_docks[id]->active = crown::sjson::parse_int(item["active"]);
+				m_docks[id]->opened = crown::sjson::parse_int(item["opened"]);
+				m_docks[id]->prev_tab = getDockByIndex(crown::sjson::parse_int(item["prev"]));
+				m_docks[id]->next_tab = getDockByIndex(crown::sjson::parse_int(item["next"]));
+				m_docks[id]->children[0] = getDockByIndex(crown::sjson::parse_int(item["child_0"]));
+				m_docks[id]->children[1] = getDockByIndex(crown::sjson::parse_int(item["child_1"]));
+				m_docks[id]->parent = getDockByIndex(crown::sjson::parse_int(item["parent"]));
 				strcpy(m_docks[id]->location, loc.c_str());
 
 				tryDockToStoredLocation(*m_docks[id]);
 			}
+
+			fs.close(*file);
 		}
 
 		void load_default()
