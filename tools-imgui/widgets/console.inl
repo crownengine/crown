@@ -26,8 +26,10 @@ int console_inputtext_callback(ImGuiTextEditCallbackData* data)
 		else if (ImGuiKey_DownArrow == data->EventKey)
 		{
 			if (history_pos != -1)
-				if (++history_pos >= vector::size(history))
+			{
+				if (++history_pos >= (int)vector::size(history))
 					history_pos = -1;
+			}
 		}
 
 		if (prev_history_pos != history_pos)
@@ -47,10 +49,7 @@ void console_draw(Console& console)
 
 	if (ImGui::BeginDock("Console", &console._open, ImGuiWindowFlags_NoScrollbar))
 	{
-		TCPSocket& client = console._client;
 		Vector<ConsoleLog>& items = console._console_items;
-		Vector<DynamicString>& history = console._console_history;
-		Vector<DynamicString>& commands = console._console_commands;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
 		static ImGuiTextFilter filter;

@@ -1067,7 +1067,7 @@ namespace ImGui
 			crown::File* file = fs.open("docks.config", crown::FileOpenMode::WRITE);
 
 			crown::StringStream ss(ta);
-			for (uint32_t i = 0; i < m_docks.size(); i++)
+			for (int i = 0; i < m_docks.size(); ++i)
 			{
 				Dock& dock = *m_docks[i];
 
@@ -1097,7 +1097,7 @@ namespace ImGui
 
 		void load_dock()
 		{
-			for (uint32_t i = 0; i < m_docks.size(); i++)
+			for (int i = 0; i < m_docks.size(); ++i)
 			{
 				m_docks[i]->~Dock();
 				MemFree(m_docks[i]);
@@ -1135,7 +1135,6 @@ namespace ImGui
 
 			for (; cur != end; ++cur)
 			{
-				crown::FixedString key = cur->pair.first;
 				const char* value = cur->pair.second;
 				crown::JsonObject item(ta);
 				crown::sjson::parse_object(value, item);
