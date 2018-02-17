@@ -88,7 +88,8 @@ void console_draw(Console& console)
 		ImGui::EndChild();
 		ImGui::Separator();
 
-		if (ImGui::InputText("Input"
+		ImGui::PushItemWidth(-1);
+		if (ImGui::InputText("##label"
 			, input_text_buffer
 			, IM_ARRAYSIZE(input_text_buffer)
 			, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory
@@ -116,6 +117,7 @@ void console_draw(Console& console)
 			ImGui::SetKeyboardFocusHere(-1);
 			scroll_to_bottom = true;
 		}
+		ImGui::PopItemWidth();
 	}
 	ImGui::EndDock();
 }
