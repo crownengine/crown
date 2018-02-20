@@ -448,7 +448,7 @@ namespace shader_resource_internal
 		if (strcmp("windows", platform) == 0)
 		{
 			argv[11] = "--profile";
-			argv[12] = ((strcmp(type, "vertex") == 0) ? "vs_3_0" : "ps_3_0");
+			argv[12] = ((strcmp(type, "vertex") == 0) ? "vs_4_0" : "ps_4_0");
 		}
 
 		return opts.run_external_compiler(argv, output);

@@ -60,6 +60,7 @@ project "level-editor-imgui"
 			"psapi",
 			"ws2_32",
 			"ole32",
+			"gdi32",
 			"luajit"
 		}
 

@@ -64,7 +64,7 @@ crown_project("", "ConsoleApp", {})
 
 group "libs"
 dofile (BGFX_DIR .. "scripts/bgfx.lua")
-bgfxProject("", "StaticLib", os.is("windows") and { "BGFX_CONFIG_RENDERER_DIRECT3D9=1" } or {})
+bgfxProject("", "StaticLib")
 
 dofile (BX_DIR .. "scripts/bx.lua")
 dofile (BIMG_DIR .. "scripts/bimg.lua")
