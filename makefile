@@ -46,6 +46,13 @@ build/mingw64/bin/luajit.exe:
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/mingw64/bin
 	make -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
+build/win32/bin/luajit.exe:
+	mkdir build\win32\bin
+	cp -r 3rdparty\luajit\src\jit 3rdparty\luajit\pre\win_x32\luajit.exe 3rdparty\luajit\pre\win_x32\lua51.dll build/win32/bin
+build/win64/bin/luajit.exe:
+	mkdir build\win64\bin
+	cp -r 3rdparty\luajit\src\jit 3rdparty\luajit\pre\win_x64\luajit.exe 3rdparty\luajit\pre\win_x64\lua51.dll build/win64/bin
+
 build/projects/android:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --compiler=android-arm gmake
 android-arm-debug: build/projects/android build/android-arm/bin/libluajit.a
@@ -90,17 +97,17 @@ mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-dev
 
 build/projects/vs2017:
 	$(GENIE) --file=scripts\genie.lua --with-luajit --with-openal --with-bullet --with-tools --no-level-editor vs2017
-windows-debug32: build/projects/vs2017
+windows-debug32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|Win32"
-windows-development32: build/projects/vs2017
+windows-development32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|Win32"
-windows-release32: build/projects/vs2017
+windows-release32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|Win32"
-windows-debug64: build/projects/vs2017
+windows-debug64: build/projects/vs2017 build/win64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|x64"
-windows-development64: build/projects/vs2017
+windows-development64: build/projects/vs2017 build/win64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|x64"
-windows-release64: build/projects/vs2017
+windows-release64: build/projects/vs2017 build/win64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|x64"
 
 .PHONY: rebuild-glib-resources
