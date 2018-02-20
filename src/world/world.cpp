@@ -137,7 +137,7 @@ void World::update_scene(f32 dt)
 			const EventHeader* eh = (EventHeader*)&events[read];
 			const char* data = (char*)&eh[1];
 
-			read += sizeof(eh) + eh->size;
+			read += sizeof(*eh) + eh->size;
 
 			switch (eh->type)
 			{
