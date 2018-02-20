@@ -111,6 +111,7 @@ function crown_project(_name, _kind, _defines)
 				"psapi",
 				"ws2_32",
 				"ole32",
+				"gdi32",
 			}
 
 		configuration {}
