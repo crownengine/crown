@@ -41,7 +41,7 @@ function crown_project(_name, _kind, _defines)
 				}
 			configuration { "x32", "vs*" }
 				libdirs {
-					CROWN_DIR .. "3rdparty/luajit/pre/win_x86"
+					CROWN_DIR .. "3rdparty/luajit/pre/win_x32"
 				}
 			configuration { "x64", "vs*" }
 				libdirs {
