@@ -298,7 +298,12 @@ struct ImGuiContext
 			ImGui::StyleColorsLight(&style);
 		}
 
-		style.FrameRounding = 4.0f;
+		style.FrameRounding = 2.0f;
+		style.ScrollbarRounding = 2.0f;
+		style.ScrollbarSize = 13.0f;
+		style.WindowPadding = ImVec2(4.0f, 4.0f);
+		style.WindowRounding = 2.0f;
+		style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
 	}
 
 	void beginFrame(uint8_t view_id, uint16_t width, uint16_t height)
