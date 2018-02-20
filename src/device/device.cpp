@@ -347,16 +347,15 @@ void Device::run()
 #if CROWN_PLATFORM_ANDROID
 	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
 #else
-	const char* data_dir = _device_options._data_dir.c_str();
-	if (!data_dir)
-	{
-		char buf[1024];
-		data_dir = os::getcwd(buf, sizeof(buf));
-	}
 	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
-	((FilesystemDisk*)_data_filesystem)->set_prefix(data_dir);
-	if (!_data_filesystem->exists(data_dir))
-		_data_filesystem->create_directory(data_dir);
+	{
+		char cwd[1024];
+		const char* data_dir = !_device_options._data_dir.empty()
+			? _device_options._data_dir.c_str()
+			: os::getcwd(cwd, sizeof(cwd))
+			;
+		((FilesystemDisk*)_data_filesystem)->set_prefix(data_dir);
+	}
 
 	_last_log = _data_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
