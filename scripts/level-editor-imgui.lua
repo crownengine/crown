@@ -53,7 +53,7 @@ project "level-editor-imgui"
 			"luajit",
 		}
 
-	configuration { "mingw*" }
+	configuration { "vs* or mingw*" }
 		links {
 			"dbghelp",
 			"xinput",
@@ -61,7 +61,22 @@ project "level-editor-imgui"
 			"ws2_32",
 			"ole32",
 			"gdi32",
+		}
+	configuration { "not vs*" }
+		links {
 			"luajit"
+		}
+	configuration { "vs*"}
+		links {
+			"lua51"
+		}
+	configuration { "x32", "vs*" }
+		libdirs {
+			CROWN_DIR .. "3rdparty/luajit/pre/win_x32"
+		}
+	configuration { "x64", "vs*" }
+		libdirs {
+			CROWN_DIR .. "3rdparty/luajit/pre/win_x64"
 		}
 
 	configuration {}

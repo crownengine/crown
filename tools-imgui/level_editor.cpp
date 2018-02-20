@@ -32,7 +32,9 @@
 #include "imgui_context.h"
 #include "tool_api.h"
 
-#include <sys/time.h>
+#if CROWN_PLATFORM_POSIX
+	#include <sys/time.h>
+#endif
 
 namespace { const crown::log_internal::System LEVEL_EDITOR = { "LevelEditor" }; }
 

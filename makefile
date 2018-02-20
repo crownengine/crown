@@ -138,6 +138,13 @@ tools-imgui-mingw-development64: mingw-development64
 tools-imgui-mingw-release64: mingw-development64
 	make -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor-imgui config=release64
 
+tools-imgui-windows-debug64: windows-debug64
+	make -j$(MAKE_JOBS) -R -C build/projects/vs2017 level-editor-imgui config=debug64
+tools-imgui-windows-development64: windows-development64
+	make -j$(MAKE_JOBS) -R -C build/projects/vs2017 level-editor-imgui config=development64
+tools-imgui-windows-release64: windows-development64
+	make -j$(MAKE_JOBS) -R -C build/projects/vs2017 level-editor-imgui config=release64
+
 .PHONY: docs
 docs:
 	make -C docs/ html
