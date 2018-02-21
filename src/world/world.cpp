@@ -563,7 +563,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 	AnimationStateMachine* animation_state_machine = w._animation_state_machine;
 
 	const ComponentData* component = (ComponentData*)(&ur + 1);
-	for (u32 cc = 0; cc < ur.num_component_types; ++cc, component = (ComponentData*)((char*)component + component->size + sizeof(ComponentData)))
+	for (u32 cc = 0; cc < ur.num_component_types; ++cc, component = (ComponentData*)((char*)component + component->size + sizeof(*component)))
 	{
 		const u32* unit_index = (const u32*)(component + 1);
 		const char* data = (const char*)(unit_index + component->num_instances);
