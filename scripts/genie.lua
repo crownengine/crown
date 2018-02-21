@@ -60,7 +60,7 @@ toolchain(CROWN_BUILD_DIR, CROWN_THIRD_DIR)
 
 dofile ("crown.lua")
 group "engine"
-crown_project("", "ConsoleApp", {})
+crown_project("", "WindowedApp", {})
 
 group "libs"
 dofile (BGFX_DIR .. "scripts/bgfx.lua")

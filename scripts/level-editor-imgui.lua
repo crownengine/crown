@@ -4,7 +4,7 @@
 --
 
 project "level-editor-imgui"
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	language "C++"
 
 	includedirs {
