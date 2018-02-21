@@ -313,7 +313,7 @@ namespace os
 			, NULL
 			, NULL
 			, FALSE
-			, 0
+			, CREATE_NO_WINDOW
 			, NULL
 			, NULL
 			, &info
