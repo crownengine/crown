@@ -312,7 +312,7 @@ namespace os
 			, (LPSTR)string_stream::c_str(path)
 			, NULL
 			, NULL
-			, TRUE
+			, FALSE
 			, 0
 			, NULL
 			, NULL
