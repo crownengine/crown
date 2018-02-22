@@ -130,7 +130,6 @@ struct SceneView
 	{
 		if (!_open) return;
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::SetNextWindowPos(ImVec2(0, 25));
 		if (ImGui::BeginDock("Scene View"
 			, &_open
@@ -141,22 +140,17 @@ struct SceneView
 			uint16_t w, h;
 			device()->resolution(w, h);
 			bgfx::TextureHandle txh = device()->_pipeline->_buffers[0];
-			if (bgfx::isValid(txh))
-			{
-				ImTextureID tex_id = (void*)(uintptr_t)txh.idx;
-				ImGui::Image(tex_id
-					, ImVec2(w, h)
+			CE_ENSURE(bgfx::isValid(txh));
+			ImGui::Image((void*)(uintptr_t)txh.idx
+				, ImVec2(w, h)
 #if CROWN_PLATFORM_WINDOWS
-					, ImVec2(0, 0)
-					, ImVec2(1, 1)
+				, ImVec2(0, 0)
+				, ImVec2(1, 1)
 #else
-					, ImVec2(0, 1)
-					, ImVec2(1, 0)
+				, ImVec2(0, 1)
+				, ImVec2(1, 0)
 #endif // CROWN_PLATFORM_WINDOWS
-					, ImColor(255,255,255,255)
-					, ImColor(255,255,255,128)
-				);
-			}
+			);
 
 			if (ImGui::IsWindowHovered())
 			{
@@ -176,7 +170,6 @@ struct SceneView
 		_size = ImGui::GetWindowSize();
 
 		ImGui::EndDock();
-		ImGui::PopStyleVar();
 	}
 };
 
