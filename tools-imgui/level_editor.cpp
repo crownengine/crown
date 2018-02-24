@@ -174,11 +174,11 @@ struct SceneView
 };
 
 //-----------------------------------------------------------------------------
-struct UnitList
+struct SceneTree
 {
 	bool _open;
 
-	UnitList()
+	SceneTree()
 		: _open(true)
 	{
 	}
@@ -187,7 +187,7 @@ struct UnitList
 	{
 		if (!_open) return;
 
-		if (ImGui::BeginDock("Unit List", &_open))
+		if (ImGui::BeginDock("Scene Tree", &_open))
 		{
 			ImGui::SetNextTreeNodeOpen(true);
 			if (ImGui::TreeNode("Units"))
@@ -605,7 +605,7 @@ struct LevelEditor
 	Console _console;
 	Inspector _inspector;
 	SceneView _scene_view;
-	UnitList _unit_list;
+	SceneTree _scene_tree;
 	SpriteAnimator _animator;
 
 	LevelEditor(const DynamicString& source_dir)
@@ -731,9 +731,9 @@ struct LevelEditor
 		main_menu_bar();
 		// toolbar();
 		_scene_view.draw();
-		console_draw(_console);
-		_unit_list.draw();
+		_scene_tree.draw();
 		_inspector.draw();
+		console_draw(_console);
 		_animator.draw();
 
 		imgui_end_frame();
@@ -958,9 +958,9 @@ struct LevelEditor
 				{
 					_scene_view._open = true;
 				}
-				if (ImGui::MenuItem("Unit List"))
+				if (ImGui::MenuItem("Scene Tree"))
 				{
-					_unit_list._open = true;
+					_scene_tree._open = true;
 				}
 				if (ImGui::MenuItem("Inspector"))
 				{
