@@ -75,15 +75,13 @@ struct Inspector
 		if (!_open) return;
 		if (ImGui::BeginDock("Inspector", &_open))
 		{
-			ImGui::SetNextTreeNodeOpen(true);
-			if (ImGui::TreeNode("Unit"))
+			if (ImGui::TreeNodeEx("Unit", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::InputText("Name", _name, sizeof(_name));
 				ImGui::TreePop();
 			}
 
-			ImGui::SetNextTreeNodeOpen(true);
-			if (ImGui::TreeNode("Transform"))
+			if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::InputFloat3("Position", _position, ImGuiInputTextFlags_CharsDecimal);
 				ImGui::InputFloat3("Rotation", _rotation, ImGuiInputTextFlags_CharsDecimal);
@@ -92,8 +90,7 @@ struct Inspector
 				ImGui::TreePop();
 			}
 
-			ImGui::SetNextTreeNodeOpen(true);
-			if (ImGui::TreeNode("Renderer"))
+			if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::InputText("Sprite", _sprite, sizeof(_sprite));
 				ImGui::InputText("Material", _material, sizeof(_material));
@@ -101,8 +98,7 @@ struct Inspector
 				ImGui::TreePop();
 			}
 
-			ImGui::SetNextTreeNodeOpen(true);
-			if (ImGui::TreeNode("Animation"))
+			if (ImGui::TreeNodeEx("Animation", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::InputText("State Machine", _state_machine, sizeof(_state_machine));
 				ImGui::TreePop();
@@ -189,10 +185,9 @@ struct SceneTree
 
 		if (ImGui::BeginDock("Scene Tree", &_open))
 		{
-			ImGui::SetNextTreeNodeOpen(true);
-			if (ImGui::TreeNode("Units"))
+			if (ImGui::TreeNodeEx("Units", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				if (ImGui::TreeNode("Objects"))
+				if (ImGui::TreeNodeEx("Objects", ImGuiTreeNodeFlags_DefaultOpen))
 				{
 					for (int i = 0; i < 5; i++)
 						if (ImGui::TreeNode((void*)(intptr_t)i, "Child %d", i))
@@ -205,7 +200,7 @@ struct SceneTree
 					ImGui::TreePop();
 				}
 
-				if (ImGui::TreeNode("Lights"))
+				if (ImGui::TreeNodeEx("Lights", ImGuiTreeNodeFlags_DefaultOpen))
 				{
 					// ShowHelpMarker("This is a more standard looking tree with selectable nodes.\nClick to select, Ctrl+Click to toggle, click on arrows or double-click to open.");
 					static bool align_label_with_current_x_position = false;
