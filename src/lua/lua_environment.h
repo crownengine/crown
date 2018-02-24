@@ -26,12 +26,21 @@ struct LuaEnvironment
 {
 	lua_State* L;
 
-	u32 _vec3_used;
-	Vector3 _vec3_buffer[CROWN_MAX_LUA_VECTOR3];
-	u32 _quat_used;
-	Quaternion _quat_buffer[CROWN_MAX_LUA_QUATERNION];
-	u32 _mat4_used;
-	Matrix4x4 _mat4_buffer[CROWN_MAX_LUA_MATRIX4X4];
+#define LUA_MAX_VECTOR3 (CROWN_LUA_MAX_VECTOR3_SIZE / sizeof(Vector3))
+CE_STATIC_ASSERT(CROWN_LUA_MAX_VECTOR3_SIZE % sizeof(Vector3) == 0);
+
+#define LUA_MAX_QUATERNION (CROWN_LUA_MAX_QUATERNION_SIZE / sizeof(Quaternion))
+CE_STATIC_ASSERT(CROWN_LUA_MAX_QUATERNION_SIZE % sizeof(Quaternion) == 0);
+
+#define LUA_MAX_MATRIX4X4 (CROWN_LUA_MAX_MATRIX4X4_SIZE / sizeof(Matrix4x4))
+CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
+
+	u32 _num_vec3;
+	Vector3 _vec3[LUA_MAX_VECTOR3];
+	u32 _num_quat;
+	Quaternion _quat[LUA_MAX_QUATERNION];
+	u32 _num_mat4;
+	Matrix4x4 _mat4[LUA_MAX_MATRIX4X4];
 
 	LuaEnvironment();
 	~LuaEnvironment();

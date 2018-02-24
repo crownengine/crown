@@ -21,9 +21,9 @@ extern void load_api(LuaEnvironment& env);
 
 LuaEnvironment::LuaEnvironment()
 	: L(NULL)
-	, _vec3_used(0)
-	, _quat_used(0)
-	, _mat4_used(0)
+	, _num_vec3(0)
+	, _num_quat(0)
+	, _num_mat4(0)
 {
 	L = luaL_newstate();
 	CE_ASSERT(L, "Unable to create lua state");
@@ -194,59 +194,59 @@ LuaStack LuaEnvironment::get_global(const char* global)
 
 Vector3* LuaEnvironment::next_vector3(const Vector3& v)
 {
-	CE_ASSERT(_vec3_used < CROWN_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
-	return &(_vec3_buffer[_vec3_used++] = v);
+	CE_ASSERT(_num_vec3 < LUA_MAX_VECTOR3, "Maximum number of Vector3 reached");
+	return &(_vec3[_num_vec3++] = v);
 }
 
 Quaternion* LuaEnvironment::next_quaternion(const Quaternion& q)
 {
-	CE_ASSERT(_quat_used < CROWN_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
-	return &(_quat_buffer[_quat_used++] = q);
+	CE_ASSERT(_num_quat < LUA_MAX_QUATERNION, "Maximum number of Quaternion reached");
+	return &(_quat[_num_quat++] = q);
 }
 
 Matrix4x4* LuaEnvironment::next_matrix4x4(const Matrix4x4& m)
 {
-	CE_ASSERT(_mat4_used < CROWN_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
-	return &(_mat4_buffer[_mat4_used++] = m);
+	CE_ASSERT(_num_mat4 < LUA_MAX_MATRIX4X4, "Maximum number of Matrix4x4 reached");
+	return &(_mat4[_num_mat4++] = m);
 }
 
 bool LuaEnvironment::is_vector3(const Vector3* p) const
 {
-	return p >= &_vec3_buffer[0]
-		&& p <= &_vec3_buffer[CROWN_MAX_LUA_VECTOR3 - 1];
+	return p >= &_vec3[0]
+		&& p <= &_vec3[LUA_MAX_VECTOR3 - 1];
 }
 
 bool LuaEnvironment::is_quaternion(const Quaternion* p) const
 {
-	return p >= &_quat_buffer[0]
-		&& p <= &_quat_buffer[CROWN_MAX_LUA_QUATERNION - 1];
+	return p >= &_quat[0]
+		&& p <= &_quat[LUA_MAX_QUATERNION - 1];
 }
 
 bool LuaEnvironment::is_matrix4x4(const Matrix4x4* p) const
 {
-	return p >= &_mat4_buffer[0]
-		&& p <= &_mat4_buffer[CROWN_MAX_LUA_MATRIX4X4 - 1];
+	return p >= &_mat4[0]
+		&& p <= &_mat4[LUA_MAX_MATRIX4X4 - 1];
 }
 
 void LuaEnvironment::temp_count(u32& num_vec3, u32& num_quat, u32& num_mat4)
 {
-	num_vec3 = _vec3_used;
-	num_quat = _quat_used;
-	num_mat4 = _mat4_used;
+	num_vec3 = _num_vec3;
+	num_quat = _num_quat;
+	num_mat4 = _num_mat4;
 }
 
 void LuaEnvironment::set_temp_count(u32 num_vec3, u32 num_quat, u32 num_mat4)
 {
-	_vec3_used = num_vec3;
-	_quat_used = num_quat;
-	_mat4_used = num_mat4;
+	_num_vec3 = num_vec3;
+	_num_quat = num_quat;
+	_num_mat4 = num_mat4;
 }
 
 void LuaEnvironment::reset_temporaries()
 {
-	_vec3_used = 0;
-	_quat_used = 0;
-	_mat4_used = 0;
+	_num_vec3 = 0;
+	_num_quat = 0;
+	_num_mat4 = 0;
 }
 
 int LuaEnvironment::error(lua_State* L)
