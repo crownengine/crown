@@ -1192,10 +1192,10 @@ namespace ImGui
 			strcpy(m_docks[id]->location, "");
 			tryDockToStoredLocation(*m_docks[id]);
 
-			// Unit List
+			// Scene Tree
 			id = 1;
-			m_docks[id]->id = ImHash("Unit List", 0);
-			m_docks[id]->label = ImStrdup("Unit List");
+			m_docks[id]->id = ImHash("Scene Tree", 0);
+			m_docks[id]->label = ImStrdup("Scene Tree");
 			m_docks[id]->pos.x = 1029;
 			m_docks[id]->pos.y = 24;
 			m_docks[id]->size.x = 251;
