@@ -135,7 +135,7 @@ struct SceneView
 			, &_open
 			, ImGuiWindowFlags_NoScrollbar
 			| ImGuiWindowFlags_NoScrollWithMouse
-			| ImGuiWindowFlags_NoTitleBar))
+			))
 		{
 			uint16_t w, h;
 			device()->resolution(w, h);
