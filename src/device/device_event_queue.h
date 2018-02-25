@@ -84,7 +84,7 @@ struct DeviceEventQueue
 {
 	AtomicInt _tail;
 	AtomicInt _head;
-#define MAX_OS_EVENTS 4096
+#define MAX_OS_EVENTS 128
 	OsEvent _queue[MAX_OS_EVENTS];
 
 	DeviceEventQueue()
