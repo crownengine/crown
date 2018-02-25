@@ -57,7 +57,12 @@ void console_draw(Console& console)
 		ImGui::PopStyleVar();
 		ImGui::Separator();
 
-		ImGui::BeginChild("ScrollingRegion", ImVec2(0,-ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
+		const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); // 1 separator, 1 input text
+		ImGui::BeginChild("ScrollingRegion"
+			, ImVec2(0.0f, -footer_height_to_reserve)
+			, false
+			, ImGuiWindowFlags_HorizontalScrollbar
+			);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
 		for (uint32_t i = 0; i < vector::size(items); i++)
