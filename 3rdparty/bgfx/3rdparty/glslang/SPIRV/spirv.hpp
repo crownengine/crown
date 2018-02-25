@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017 The Khronos Group Inc.
+// Copyright (c) 2014-2018 The Khronos Group Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and/or associated documentation files (the "Materials"),
@@ -46,12 +46,12 @@ namespace spv {
 
 typedef unsigned int Id;
 
-#define SPV_VERSION 0x10000
-#define SPV_REVISION 12
+#define SPV_VERSION 0x10200
+#define SPV_REVISION 3
 
 static const unsigned int MagicNumber = 0x07230203;
-static const unsigned int Version = 0x00010000;
-static const unsigned int Revision = 12;
+static const unsigned int Version = 0x00010200;
+static const unsigned int Revision = 3;
 static const unsigned int OpCodeMask = 0xffff;
 static const unsigned int WordCountShift = 16;
 
@@ -122,7 +122,15 @@ enum ExecutionMode {
     ExecutionModeOutputTriangleStrip = 29,
     ExecutionModeVecTypeHint = 30,
     ExecutionModeContractionOff = 31,
+    ExecutionModeInitializer = 33,
+    ExecutionModeFinalizer = 34,
+    ExecutionModeSubgroupSize = 35,
+    ExecutionModeSubgroupsPerWorkgroup = 36,
+    ExecutionModeSubgroupsPerWorkgroupId = 37,
+    ExecutionModeLocalSizeId = 38,
+    ExecutionModeLocalSizeHintId = 39,
     ExecutionModePostDepthCoverage = 4446,
+    ExecutionModeStencilRefReplacingEXT = 5027,
     ExecutionModeMax = 0x7fffffff,
 };
 
@@ -377,6 +385,9 @@ enum Decoration {
     DecorationNoContraction = 42,
     DecorationInputAttachmentIndex = 43,
     DecorationAlignment = 44,
+    DecorationMaxByteOffset = 45,
+    DecorationAlignmentId = 46,
+    DecorationMaxByteOffsetId = 47,
     DecorationExplicitInterpAMD = 4999,
     DecorationOverrideCoverageNV = 5248,
     DecorationPassthroughNV = 5250,
@@ -450,6 +461,7 @@ enum BuiltIn {
     BuiltInSecondaryViewportMaskNV = 5258,
     BuiltInPositionPerViewNV = 5261,
     BuiltInViewportMaskPerViewNV = 5262,
+    BuiltInFullyCoveredEXT = 5264,
     BuiltInMax = 0x7fffffff,
 };
 
@@ -468,6 +480,8 @@ enum SelectionControlMask {
 enum LoopControlShift {
     LoopControlUnrollShift = 0,
     LoopControlDontUnrollShift = 1,
+    LoopControlDependencyInfiniteShift = 2,
+    LoopControlDependencyLengthShift = 3,
     LoopControlMax = 0x7fffffff,
 };
 
@@ -475,6 +489,8 @@ enum LoopControlMask {
     LoopControlMaskNone = 0,
     LoopControlUnrollMask = 0x00000001,
     LoopControlDontUnrollMask = 0x00000002,
+    LoopControlDependencyInfiniteMask = 0x00000004,
+    LoopControlDependencyLengthMask = 0x00000008,
 };
 
 enum FunctionControlShift {
@@ -625,6 +641,9 @@ enum Capability {
     CapabilityStorageImageReadWithoutFormat = 55,
     CapabilityStorageImageWriteWithoutFormat = 56,
     CapabilityMultiViewport = 57,
+    CapabilitySubgroupDispatch = 58,
+    CapabilityNamedBarrier = 59,
+    CapabilityPipeStorage = 60,
     CapabilitySubgroupBallotKHR = 4423,
     CapabilityDrawParameters = 4427,
     CapabilitySubgroupVoteKHR = 4431,
@@ -641,7 +660,9 @@ enum Capability {
     CapabilityAtomicStorageOps = 4445,
     CapabilitySampleMaskPostDepthCoverage = 4447,
     CapabilityImageGatherBiasLodAMD = 5009,
+    CapabilityFragmentMaskAMD = 5010,
     CapabilityStencilExportEXT = 5013,
+    CapabilityImageReadWriteLodAMD = 5015,
     CapabilitySampleMaskOverrideCoverageNV = 5249,
     CapabilityGeometryShaderPassthroughNV = 5251,
     CapabilityShaderViewportIndexLayerEXT = 5254,
@@ -649,6 +670,10 @@ enum Capability {
     CapabilityShaderViewportMaskNV = 5255,
     CapabilityShaderStereoViewNV = 5259,
     CapabilityPerViewAttributesNV = 5260,
+    CapabilityFragmentFullyCoveredEXT = 5265,
+    CapabilitySubgroupShuffleINTEL = 5568,
+    CapabilitySubgroupBufferBlockIOINTEL = 5569,
+    CapabilitySubgroupImageBlockIOINTEL = 5570,
     CapabilityMax = 0x7fffffff,
 };
 
@@ -947,6 +972,18 @@ enum Op {
     OpAtomicFlagTestAndSet = 318,
     OpAtomicFlagClear = 319,
     OpImageSparseRead = 320,
+    OpSizeOf = 321,
+    OpTypePipeStorage = 322,
+    OpConstantPipeStorage = 323,
+    OpCreatePipeFromPipeStorage = 324,
+    OpGetKernelLocalSizeForSubgroupCount = 325,
+    OpGetKernelMaxNumSubgroups = 326,
+    OpTypeNamedBarrier = 327,
+    OpNamedBarrierInitialize = 328,
+    OpMemoryNamedBarrier = 329,
+    OpModuleProcessed = 330,
+    OpExecutionModeId = 331,
+    OpDecorateId = 332,
     OpSubgroupBallotKHR = 4421,
     OpSubgroupFirstInvocationKHR = 4422,
     OpSubgroupAllKHR = 4428,
@@ -961,6 +998,16 @@ enum Op {
     OpGroupFMaxNonUniformAMD = 5005,
     OpGroupUMaxNonUniformAMD = 5006,
     OpGroupSMaxNonUniformAMD = 5007,
+    OpFragmentMaskFetchAMD = 5011,
+    OpFragmentFetchAMD = 5012,
+    OpSubgroupShuffleINTEL = 5571,
+    OpSubgroupShuffleDownINTEL = 5572,
+    OpSubgroupShuffleUpINTEL = 5573,
+    OpSubgroupShuffleXorINTEL = 5574,
+    OpSubgroupBlockReadINTEL = 5575,
+    OpSubgroupBlockWriteINTEL = 5576,
+    OpSubgroupImageBlockReadINTEL = 5577,
+    OpSubgroupImageBlockWriteINTEL = 5578,
     OpMax = 0x7fffffff,
 };
 

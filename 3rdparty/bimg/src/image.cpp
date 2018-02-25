@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
 #include "bimg_p.h"
@@ -361,30 +361,30 @@ namespace bimg
 				const uint8_t* rgba = src;
 				for (uint32_t xx = 0; xx < dstWidth; ++xx, rgba += 8, dst += 4)
 				{
-					float rr = bx::fpow(rgba[          0], 2.2f);
-					float gg = bx::fpow(rgba[          1], 2.2f);
-					float bb = bx::fpow(rgba[          2], 2.2f);
+					float rr = bx::pow(rgba[          0], 2.2f);
+					float gg = bx::pow(rgba[          1], 2.2f);
+					float bb = bx::pow(rgba[          2], 2.2f);
 					float aa =          rgba[          3];
-					rr      += bx::fpow(rgba[          4], 2.2f);
-					gg      += bx::fpow(rgba[          5], 2.2f);
-					bb      += bx::fpow(rgba[          6], 2.2f);
+					rr      += bx::pow(rgba[          4], 2.2f);
+					gg      += bx::pow(rgba[          5], 2.2f);
+					bb      += bx::pow(rgba[          6], 2.2f);
 					aa      +=          rgba[          7];
-					rr      += bx::fpow(rgba[_srcPitch+0], 2.2f);
-					gg      += bx::fpow(rgba[_srcPitch+1], 2.2f);
-					bb      += bx::fpow(rgba[_srcPitch+2], 2.2f);
+					rr      += bx::pow(rgba[_srcPitch+0], 2.2f);
+					gg      += bx::pow(rgba[_srcPitch+1], 2.2f);
+					bb      += bx::pow(rgba[_srcPitch+2], 2.2f);
 					aa      +=          rgba[_srcPitch+3];
-					rr      += bx::fpow(rgba[_srcPitch+4], 2.2f);
-					gg      += bx::fpow(rgba[_srcPitch+5], 2.2f);
-					bb      += bx::fpow(rgba[_srcPitch+6], 2.2f);
+					rr      += bx::pow(rgba[_srcPitch+4], 2.2f);
+					gg      += bx::pow(rgba[_srcPitch+5], 2.2f);
+					bb      += bx::pow(rgba[_srcPitch+6], 2.2f);
 					aa      +=          rgba[_srcPitch+7];
 
 					rr *= 0.25f;
 					gg *= 0.25f;
 					bb *= 0.25f;
 					aa *= 0.25f;
-					rr = bx::fpow(rr, 1.0f/2.2f);
-					gg = bx::fpow(gg, 1.0f/2.2f);
-					bb = bx::fpow(bb, 1.0f/2.2f);
+					rr = bx::pow(rr, 1.0f/2.2f);
+					gg = bx::pow(gg, 1.0f/2.2f);
+					bb = bx::pow(bb, 1.0f/2.2f);
 					dst[0] = (uint8_t)rr;
 					dst[1] = (uint8_t)gg;
 					dst[2] = (uint8_t)bb;
@@ -493,10 +493,10 @@ namespace bimg
 						  float* fd = (      float*)(dst + offset);
 					const float* fs = (const float*)(src + offset);
 
-					fd[0] = bx::fpow(fs[0], 1.0f/2.2f);
-					fd[1] = bx::fpow(fs[1], 1.0f/2.2f);
-					fd[2] = bx::fpow(fs[2], 1.0f/2.2f);
-					fd[3] =          fs[3];
+					fd[0] = bx::pow(fs[0], 1.0f/2.2f);
+					fd[1] = bx::pow(fs[1], 1.0f/2.2f);
+					fd[2] = bx::pow(fs[2], 1.0f/2.2f);
+					fd[3] =         fs[3];
 				}
 			}
 		}
@@ -517,10 +517,10 @@ namespace bimg
 						  float* fd = (      float*)(dst + offset);
 					const float* fs = (const float*)(src + offset);
 
-					fd[0] = bx::fpow(fs[0], 2.2f);
-					fd[1] = bx::fpow(fs[1], 2.2f);
-					fd[2] = bx::fpow(fs[2], 2.2f);
-					fd[3] =          fs[3];
+					fd[0] = bx::pow(fs[0], 2.2f);
+					fd[1] = bx::pow(fs[1], 2.2f);
+					fd[2] = bx::pow(fs[2], 2.2f);
+					fd[3] =         fs[3];
 				}
 			}
 		}
@@ -702,19 +702,22 @@ namespace bimg
 		}
 	}
 
-	void imageCopy(void* _dst, uint32_t _height, uint32_t _srcPitch, const void* _src, uint32_t _dstPitch)
+	void imageCopy(void* _dst, uint32_t _height, uint32_t _srcPitch, uint32_t _depth, const void* _src, uint32_t _dstPitch)
 	{
 		const uint32_t pitch = bx::uint32_min(_srcPitch, _dstPitch);
 		const uint8_t* src = (uint8_t*)_src;
 		uint8_t* dst = (uint8_t*)_dst;
 
-		bx::memCopy(dst, src, pitch, _height, _srcPitch, _dstPitch);
+		for (uint32_t zz = 0; zz < _depth; ++zz, src += _srcPitch*_height, dst += _dstPitch*_height)
+		{
+			bx::memCopy(dst, src, pitch, _height, _srcPitch, _dstPitch);
+		}
 	}
 
-	void imageCopy(void* _dst, uint32_t _width, uint32_t _height, uint32_t _bpp, uint32_t _srcPitch, const void* _src)
+	void imageCopy(void* _dst, uint32_t _width, uint32_t _height, uint32_t _depth, uint32_t _bpp, uint32_t _srcPitch, const void* _src)
 	{
 		const uint32_t dstPitch = _width*_bpp/8;
-		imageCopy(_dst, _height, _srcPitch, _src, dstPitch);
+		imageCopy(_dst, _height, _srcPitch, _depth, _src, dstPitch);
 	}
 
 	struct PackUnpack
@@ -2907,7 +2910,7 @@ namespace bimg
 					{
 						float nx = temp[ii*4+2]*2.0f/255.0f - 1.0f;
 						float ny = temp[ii*4+1]*2.0f/255.0f - 1.0f;
-						float nz = bx::fsqrt(1.0f - nx*nx - ny*ny);
+						float nz = bx::sqrt(1.0f - nx*nx - ny*ny);
 						temp[ii*4+0] = uint8_t( (nz + 1.0f)*255.0f/2.0f);
 						temp[ii*4+3] = 0;
 					}
@@ -3078,10 +3081,10 @@ namespace bimg
 			const uint8_t* rgba = src;
 			for (uint32_t xx = 0; xx < dstWidth; ++xx, rgba += 4, dst += 4)
 			{
-				dst[0] = bx::fpow(rgba[0], 2.2f);
-				dst[1] = bx::fpow(rgba[1], 2.2f);
-				dst[2] = bx::fpow(rgba[2], 2.2f);
-				dst[3] =          rgba[3];
+				dst[0] = bx::pow(rgba[0], 2.2f);
+				dst[1] = bx::pow(rgba[1], 2.2f);
+				dst[2] = bx::pow(rgba[2], 2.2f);
+				dst[3] =         rgba[3];
 			}
 		}
 	}
@@ -3157,7 +3160,7 @@ namespace bimg
 							{
 								float nx = temp[ii*4+2]*2.0f/255.0f - 1.0f;
 								float ny = temp[ii*4+1]*2.0f/255.0f - 1.0f;
-								float nz = bx::fsqrt(1.0f - nx*nx - ny*ny);
+								float nz = bx::sqrt(1.0f - nx*nx - ny*ny);
 
 								const uint32_t offset = (yy*4 + ii/4)*_width*16 + (xx*4 + ii%4)*16;
 								float* block = (float*)&dst[offset];
@@ -3754,6 +3757,187 @@ namespace bimg
 		}
 
 		return total;
+	}
+
+	//                  +----------+
+	//                  |-z       2|
+	//                  | ^  +y    |
+	//                  | |        |
+	//                  | +---->+x |
+	//       +----------+----------+----------+----------+
+	//       |+y       1|+y       4|+y       0|+y       5|
+	//       | ^  -x    | ^  +z    | ^  +x    | ^  -z    |
+	//       | |        | |        | |        | |        |
+	//       | +---->+z | +---->+x | +---->-z | +---->-x |
+	//       +----------+----------+----------+----------+
+	//                  |+z       3|
+	//                  | ^  -y    |
+	//                  | |        |
+	//                  | +---->+x |
+	//                  +----------+
+	//
+	struct CubeMapFace
+	{
+		float uv[3][3];
+	};
+
+	static const CubeMapFace s_cubeMapFace[] =
+	{
+		{{ // +x face
+			{  0.0f,  0.0f, -1.0f }, // u -> -z
+			{  0.0f, -1.0f,  0.0f }, // v -> -y
+			{  1.0f,  0.0f,  0.0f }, // +x face
+		}},
+		{{ // -x face
+			{  0.0f,  0.0f,  1.0f }, // u -> +z
+			{  0.0f, -1.0f,  0.0f }, // v -> -y
+			{ -1.0f,  0.0f,  0.0f }, // -x face
+		}},
+		{{ // +y face
+			{  1.0f,  0.0f,  0.0f }, // u -> +x
+			{  0.0f,  0.0f,  1.0f }, // v -> +z
+			{  0.0f,  1.0f,  0.0f }, // +y face
+		}},
+		{{ // -y face
+			{  1.0f,  0.0f,  0.0f }, // u -> +x
+			{  0.0f,  0.0f, -1.0f }, // v -> -z
+			{  0.0f, -1.0f,  0.0f }, // -y face
+		}},
+		{{ // +z face
+			{  1.0f,  0.0f,  0.0f }, // u -> +x
+			{  0.0f, -1.0f,  0.0f }, // v -> -y
+			{  0.0f,  0.0f,  1.0f }, // +z face
+		}},
+		{{ // -z face
+			{ -1.0f,  0.0f,  0.0f }, // u -> -x
+			{  0.0f, -1.0f,  0.0f }, // v -> -y
+			{  0.0f,  0.0f, -1.0f }, // -z face
+		}},
+	};
+
+	/// _u and _v should be center addressing and in [-1.0+invSize..1.0-invSize] range.
+	void texelUvToDir(float* _result, uint8_t _side, float _u, float _v)
+	{
+		const CubeMapFace& face = s_cubeMapFace[_side];
+
+		float tmp[3];
+		tmp[0] = face.uv[0][0] * _u + face.uv[1][0] * _v + face.uv[2][0];
+		tmp[1] = face.uv[0][1] * _u + face.uv[1][1] * _v + face.uv[2][1];
+		tmp[2] = face.uv[0][2] * _u + face.uv[1][2] * _v + face.uv[2][2];
+		bx::vec3Norm(_result, tmp);
+	}
+
+	ImageContainer* imageCubemapFromLatLongRgba32F(bx::AllocatorI* _allocator, const ImageContainer& _input, bool _useBilinearInterpolation, bx::Error* _err)
+	{
+		BX_ERROR_SCOPE(_err);
+
+		if (_input.m_depth     != 1
+		&&  _input.m_numLayers != 1
+		&&  _input.m_format    != TextureFormat::RGBA32F
+		&&  _input.m_width/2   != _input.m_height)
+		{
+			BX_ERROR_SET(_err, BIMG_ERROR, "Input image format is not equirectangular projection.");
+			return NULL;
+		}
+
+		const uint32_t srcWidthMinusOne  = _input.m_width-1;
+		const uint32_t srcHeightMinusOne = _input.m_height-1;
+		const uint32_t srcPitch = _input.m_width*16;
+		const uint32_t dstWidth = _input.m_height/2;
+		const uint32_t dstPitch = dstWidth*16;
+		const float invDstWidth = 1.0f / float(dstWidth);
+
+		ImageContainer* output = imageAlloc(_allocator
+			, _input.m_format
+			, uint16_t(dstWidth)
+			, uint16_t(dstWidth)
+			, uint16_t(1)
+			, 1
+			, true
+			, false
+			);
+
+		const uint8_t* srcData = (const uint8_t*)_input.m_data;
+
+		for (uint8_t side = 0; side < 6 && _err->isOk(); ++side)
+		{
+			ImageMip mip;
+			imageGetRawData(*output, side, 0, output->m_data, output->m_size, mip);
+
+			for (uint32_t yy = 0; yy < dstWidth; ++yy)
+			{
+				for (uint32_t xx = 0; xx < dstWidth; ++xx)
+				{
+					float* dstData = (float*)&mip.m_data[yy*dstPitch+xx*16];
+
+					const float uu = 2.0f*xx*invDstWidth - 1.0f;
+					const float vv = 2.0f*yy*invDstWidth - 1.0f;
+
+					float dir[3];
+					texelUvToDir(dir, side, uu, vv);
+
+					float srcU, srcV;
+					bx::vec3ToLatLong(&srcU, &srcV, dir);
+
+					srcU *= srcWidthMinusOne;
+					srcV *= srcHeightMinusOne;
+
+					if (_useBilinearInterpolation)
+					{
+						const uint32_t x0 = uint32_t(srcU);
+						const uint32_t y0 = uint32_t(srcV);
+						const uint32_t x1 = bx::min(x0 + 1, srcWidthMinusOne);
+						const uint32_t y1 = bx::min(y0 + 1, srcHeightMinusOne);
+
+						const float* src0 = (const float*)&srcData[y0*srcPitch + x0*16];
+						const float* src1 = (const float*)&srcData[y0*srcPitch + x1*16];
+						const float* src2 = (const float*)&srcData[y1*srcPitch + x0*16];
+						const float* src3 = (const float*)&srcData[y1*srcPitch + x1*16];
+
+						const float tx   = srcU - float(int32_t(x0) );
+						const float ty   = srcV - float(int32_t(y0) );
+						const float omtx = 1.0f - tx;
+						const float omty = 1.0f - ty;
+
+						float p0[4];
+						bx::vec4Mul(p0, src0, omtx*omty);
+
+						float p1[4];
+						bx::vec4Mul(p1, src1, tx*omty);
+
+						float p2[4];
+						bx::vec4Mul(p2, src2, omtx*ty);
+
+						float p3[4];
+						bx::vec4Mul(p3, src3, tx*ty);
+
+						const float rr = p0[0] + p1[0] + p2[0] + p3[0];
+						const float gg = p0[1] + p1[1] + p2[1] + p3[1];
+						const float bb = p0[2] + p1[2] + p2[2] + p3[2];
+						const float aa = p0[3] + p1[3] + p2[3] + p3[3];
+
+						dstData[0] = rr;
+						dstData[1] = gg;
+						dstData[2] = bb;
+						dstData[3] = aa;
+					}
+					else
+					{
+						const uint32_t x0 = uint32_t(srcU);
+						const uint32_t y0 = uint32_t(srcV);
+						const float* src0 = (const float*)&srcData[y0*srcPitch + x0*16];
+
+						dstData[0] = src0[0];
+						dstData[1] = src0[1];
+						dstData[2] = src0[2];
+						dstData[3] = src0[3];
+					}
+
+				}
+			}
+		}
+
+		return output;
 	}
 
 } // namespace bimg

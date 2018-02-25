@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -70,20 +70,27 @@
 #	define BX_UNLIKELY(_x) __builtin_expect(!!(_x), 0)
 #	define BX_NO_INLINE   __attribute__( (noinline) )
 #	define BX_NO_RETURN   __attribute__( (noreturn) )
+#	define BX_CONST_FUNC  __attribute__( (const) )
+
 #	if BX_COMPILER_GCC >= 70000
 #		define BX_FALLTHROUGH __attribute__( (fallthrough) )
 #	else
 #		define BX_FALLTHROUGH BX_NOOP()
 #	endif // BX_COMPILER_GCC >= 70000
+
 #	define BX_NO_VTABLE
 #	define BX_PRINTF_ARGS(_format, _args) __attribute__( (format(__printf__, _format, _args) ) )
+
 #	if BX_CLANG_HAS_FEATURE(cxx_thread_local)
 #		define BX_THREAD_LOCAL __thread
 #	endif // BX_COMPILER_CLANG
+
 #	if (!BX_PLATFORM_OSX && (BX_COMPILER_GCC >= 40200)) || (BX_COMPILER_GCC >= 40500)
 #		define BX_THREAD_LOCAL __thread
 #	endif // BX_COMPILER_GCC
+
 #	define BX_ATTRIBUTE(_x) __attribute__( (_x) )
+
 #	if BX_CRT_MSVC
 #		define __stdcall
 #	endif // BX_CRT_MSVC
@@ -96,6 +103,7 @@
 #	define BX_UNLIKELY(_x) (_x)
 #	define BX_NO_INLINE __declspec(noinline)
 #	define BX_NO_RETURN
+#	define BX_CONST_FUNC  __declspec(noalias)
 #	define BX_FALLTHROUGH BX_NOOP()
 #	define BX_NO_VTABLE __declspec(novtable)
 #	define BX_PRINTF_ARGS(_format, _args)

@@ -1,10 +1,11 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
 #include "bx_p.h"
 #include <bx/debug.h>
+#include <bx/math.h>
 #include <bx/sort.h>
 #include <bx/readerwriter.h>
 
@@ -125,32 +126,29 @@ extern "C" int abs(int _value)
 	return _value >= 0 ? _value : -_value;
 }
 
-extern "C" float fabsf(float _value)
+extern "C" float fabsf(float _x)
 {
-	return _value >= 0.0f ? _value : -_value;
+	return bx::abs(_x);
 }
 
-extern "C" double fabs(double _value)
+extern "C" double fabs(double _x)
 {
-	return _value >= 0.0 ? _value : -_value;
+	return bx::abs(_x);
 }
 
 extern "C" double ldexp(double _x, int _exp)
 {
-	BX_UNUSED(_x, _exp);
-	return 0.0;
+	return bx::ldexp(float(_x), _exp);
 }
 
 extern "C" float expf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::exp(_x);
 }
 
 extern "C" float logf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::log(_x);
 }
 
 extern "C" float log10f(float _x)
@@ -159,88 +157,74 @@ extern "C" float log10f(float _x)
 	return 0.0f;
 }
 
-extern "C" float powf(float _x)
+extern "C" float powf(float _x, float _y)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::pow(_x, _y);
 }
 
-extern "C" double pow(double _x)
+extern "C" double pow(double _x, float _y)
 {
-	BX_UNUSED(_x);
-	return 0.0;
+	return bx::pow(_x, _y);
 }
 
 extern "C" float sinf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::sin(_x);
 }
 
 extern "C" float cosf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::cos(_x);
 }
 
 extern "C" float tanf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::tan(_x);
 }
 
 extern "C" float atan2f(float _y, float _x)
 {
-	BX_UNUSED(_y, _x);
-	return 0.0f;
+	return bx::atan2(_y, _x);
 }
 
 extern "C" float sqrtf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::sqrt(_x);
 }
 
 extern "C" double sqrt(double _x)
 {
-	BX_UNUSED(_x);
-	return 0.0;
+	return bx::sqrt(_x);
 }
 
 extern "C" float ceilf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::ceil(_x);
 }
 
 extern "C" double ceil(double _x)
 {
-	BX_UNUSED(_x);
-	return 0.0;
+	return bx::ceil(_x);
 }
 
 extern "C" float floorf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::floor(_x);
 }
 
 extern "C" double floor(double _x)
 {
-	BX_UNUSED(_x);
-	return 0.0;
+	return bx::floor(_x);
 }
 
 extern "C" float acosf(float _x)
 {
-	BX_UNUSED(_x);
-	return 0.0f;
+	return bx::acos(_x);
 }
 
 extern "C" float fmodf(float _numer, float _denom)
 {
-	BX_UNUSED(_numer, _denom);
-	return 0.0f;
+	return bx::mod(_numer, _denom);
 }
 
 extern "C" int atoi(const char* _str)
@@ -257,21 +241,21 @@ extern "C" double atof(const char* _str)
 	return result;
 }
 
-extern "C" struct DIR* opendir(const char* dirname)
+extern "C" struct DIR* opendir(const char* _dirname)
 {
-	BX_UNUSED(dirname);
+	BX_UNUSED(_dirname);
 	return NULL;
 }
 
-extern "C" struct dirent* readdir(struct DIR* dirp)
+extern "C" struct dirent* readdir(struct DIR* _dirp)
 {
-	BX_UNUSED(dirp);
+	BX_UNUSED(_dirp);
 	return NULL;
 }
 
-extern "C" int closedir (struct DIR* dirp)
+extern "C" int closedir(struct DIR* _dirp)
 {
-	BX_UNUSED(dirp);
+	BX_UNUSED(_dirp);
 	return 0;
 }
 
@@ -469,6 +453,8 @@ extern "C" int unsetenv(const char* _name)
 	BX_UNUSED(_name);
 	return -1;
 }
+
+typedef int64_t time_t;
 
 extern "C" time_t time(time_t* _arg)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -10,12 +10,13 @@
 
 namespace bx
 {
+	/// Units
 	struct Units
 	{
-		enum Enum
+		enum Enum //!< Units:
 		{
-			Kilo,
-			Kibi,
+			Kilo, //!< SI units
+			Kibi, //!< IEC prefix
 		};
 	};
 
@@ -42,6 +43,10 @@ namespace bx
 		StringView(const char* _ptr, const char* _term);
 
 		///
+		template<typename Ty>
+		explicit StringView(const Ty& _container);
+
+		///
 		void set(const char* _ptr, int32_t _len = INT32_MAX);
 
 		///
@@ -49,6 +54,10 @@ namespace bx
 
 		///
 		void set(const StringView& _str);
+
+		///
+		template<typename Ty>
+		void set(const Ty& _container);
 
 		///
 		void clear();
@@ -100,64 +109,70 @@ namespace bx
 		void clear();
 	};
 
-	///
+	/// Retruns true if character is part of space set.
 	bool isSpace(char _ch);
 
-	///
+	/// Returns true if string view contains only space characters.
 	bool isSpace(const StringView& _str);
 
-	///
+	/// Retruns true if character is uppercase.
 	bool isUpper(char _ch);
 
-	///
+	/// Returns true if string view contains only uppercase characters.
 	bool isUpper(const StringView& _str);
 
-	///
+	/// Retruns true if character is lowercase.
 	bool isLower(char _ch);
 
-	///
+	/// Returns true if string view contains only lowercase characters.
 	bool isLower(const StringView& _str);
 
-	///
+	/// Returns true if character is part of alphabet set.
 	bool isAlpha(char _ch);
 
-	///
+	/// Retruns true if string view contains only alphabet characters.
 	bool isAlpha(const StringView& _str);
 
-	///
+	/// Returns true if character is part of numeric set.
 	bool isNumeric(char _ch);
 
-	///
+	/// Retruns true if string view contains only numeric characters.
 	bool isNumeric(const StringView& _str);
 
-	///
+	/// Returns true if character is part of alpha numeric set.
 	bool isAlphaNum(char _ch);
 
-	///
+	/// Returns true if string view contains only alpha-numeric characters.
 	bool isAlphaNum(const StringView& _str);
 
-	///
+	/// Returns true if character is part of hexadecimal set.
+	bool isHexNum(char _ch);
+
+	/// Returns true if string view contains only hexadecimal characters.
+	bool isHexNum(const StringView& _str);
+
+	/// Returns true if character is printable.
 	bool isPrint(char _ch);
 
-	///
+	/// Returns true if string vieww contains only printable characters.
 	bool isPrint(const StringView& _str);
 
-	///
+	/// Retruns lower case character representing _ch.
 	char toLower(char _ch);
 
-	///
+	/// Lower case string in place assuming length passed is valid.
 	void toLowerUnsafe(char* _inOutStr, int32_t _len);
 
-	///
+	/// Lower case string in place.
 	void toLower(char* _inOutStr, int32_t _max = INT32_MAX);
 
-	///
+	/// Returns upper case character representing _ch.
 	char toUpper(char _ch);
 
-	///
+	/// Upper case string in place assuming length passed is valid.
 	void toUpperUnsafe(char* _inOutStr, int32_t _len);
 
-	///
+	/// Uppre case string in place.
 	void toUpper(char* _inOutStr, int32_t _max = INT32_MAX);
 
 	/// String compare.
@@ -194,13 +209,13 @@ namespace bx
 	/// Find substring in string. Case insensitive. Limit search to _max characters.
 	const char* strFindI(const StringView& _str, const StringView& _find, int32_t _num = INT32_MAX);
 
-	///
+	/// Returns string view with characters _chars trimmed from left.
 	StringView strLTrim(const StringView& _str, const StringView& _chars);
 
-	///
+	/// Returns string view with characters _chars trimmed from right.
 	StringView strRTrim(const StringView& _str, const StringView& _chars);
 
-	///
+	/// Returns string view with characters _chars trimmed from left and right.
 	StringView strTrim(const StringView& _str, const StringView& _chars);
 
 	/// Find new line. Returns pointer after new line terminator.
@@ -238,22 +253,16 @@ namespace bx
 	/// enough space had been available.
 	int32_t vsnprintf(char* _out, int32_t _max, const char* _format, va_list _argList);
 
-	/// Cross platform implementation of vsnwprintf that returns number of
+	/// Cross platform implementation of snprintf that returns number of
 	/// characters which would have been written to the final string if
 	/// enough space had been available.
-	int32_t vsnwprintf(wchar_t* _out, int32_t _max, const wchar_t* _format, va_list _argList);
-
-	///
 	int32_t snprintf(char* _out, int32_t _max, const char* _format, ...);
 
-	///
-	int32_t swnprintf(wchar_t* _out, int32_t _max, const wchar_t* _format, ...);
-
-	///
+	/// Templatized snprintf.
 	template <typename Ty>
 	void stringPrintfVargs(Ty& _out, const char* _format, va_list _argList);
 
-	///
+	/// Templatized snprintf.
 	template <typename Ty>
 	void stringPrintf(Ty& _out, const char* _format, ...);
 
@@ -264,37 +273,37 @@ namespace bx
 	/// Convert size in bytes to human readable string kibi units.
 	int32_t prettify(char* _out, int32_t _count, uint64_t _value, Units::Enum _units = Units::Kibi);
 
-	///
+	/// Converts bool value to string.
 	int32_t toString(char* _out, int32_t _max, bool _value);
 
-	///
+	/// Converts double value to string.
 	int32_t toString(char* _out, int32_t _max, double _value);
 
-	///
+	/// Converts 32-bit integer value to string.
 	int32_t toString(char* _out, int32_t _max, int32_t _value, uint32_t _base = 10);
 
-	///
+	/// Converts 64-bit integer value to string.
 	int32_t toString(char* _out, int32_t _max, int64_t _value, uint32_t _base = 10);
 
-	///
+	/// Converts 32-bit unsigned integer value to string.
 	int32_t toString(char* _out, int32_t _max, uint32_t _value, uint32_t _base = 10);
 
-	///
+	/// Converts 64-bit unsigned integer value to string.
 	int32_t toString(char* _out, int32_t _max, uint64_t _value, uint32_t _base = 10);
 
-	///
+	/// Converts string to bool value.
 	bool fromString(bool* _out, const StringView& _str);
 
-	///
+	/// Converts string to float value.
 	bool fromString(float* _out, const StringView& _str);
 
-	///
+	/// Converts string to double value.
 	bool fromString(double* _out, const StringView& _str);
 
-	///
+	/// Converts string to 32-bit integer value.
 	bool fromString(int32_t* _out, const StringView& _str);
 
-	///
+	/// Converts string to 32-bit unsigned integer value.
 	bool fromString(uint32_t* _out, const StringView& _str);
 
 } // namespace bx

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -9,10 +9,14 @@
 #define USE_D3D12_DYNAMIC_LIB BX_PLATFORM_WINDOWS
 
 #include <sal.h>
-#if BX_PLATFORM_XBOXONE
-#	include <d3d12_x.h>
+#if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
+#   include <d3d12.h>
+#   include <dxgi1_6.h>
 #else
-#	include <d3d12.h>
+#   if !BGFX_CONFIG_DEBUG
+#      define D3DCOMPILE_NO_DEBUG 1
+#   endif // !BGFX_CONFIG_DEBUG
+#   include <d3d12_x.h>
 #endif // BX_PLATFORM_XBOXONE
 
 #if defined(__MINGW32__) // BK - temp workaround for MinGW until I nuke d3dx12 usage.
@@ -51,8 +55,58 @@ BX_PRAGMA_DIAGNOSTIC_POP();
 #include "shader_dxbc.h"
 #include "debug_renderdoc.h"
 
+#if BGFX_CONFIG_DEBUG_PIX
+#	if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
+typedef struct PIXEventsThreadInfo* (WINAPI* PFN_PIX_GET_THREAD_INFO)();
+typedef uint64_t                    (WINAPI* PFN_PIX_EVENTS_REPLACE_BLOCK)(bool _getEarliestTime);
+
+extern PFN_PIX_GET_THREAD_INFO      bgfx_PIXGetThreadInfo;
+extern PFN_PIX_EVENTS_REPLACE_BLOCK bgfx_PIXEventsReplaceBlock;
+
+#		define PIXGetThreadInfo      bgfx_PIXGetThreadInfo
+#		define PIXEventsReplaceBlock bgfx_PIXEventsReplaceBlock
+#	else
+extern "C" struct PIXEventsThreadInfo* WINAPI bgfx_PIXGetThreadInfo();
+extern "C" uint64_t                    WINAPI bgfx_PIXEventsReplaceBlock(bool _getEarliestTime);
+#	endif // BX_PLATFORM_WINDOWS
+
+#	include <pix3.h>
+
+#	define _PIX3_BEGINEVENT(_commandList, _color, _name) PIXBeginEvent(_commandList, _color, _name)
+#	define _PIX3_SETMARKER(_commandList, _color, _name)  PIXSetMarker(_commandList, _color, _name)
+#	define _PIX3_ENDEVENT(_commandList)                  PIXEndEvent(_commandList)
+
+#	define PIX3_BEGINEVENT(_commandList, _color, _name) _PIX3_BEGINEVENT(_commandList, _color, _name)
+#	define PIX3_SETMARKER(_commandList, _color, _name)  _PIX3_SETMARKER(_commandList, _color, _name)
+#	define PIX3_ENDEVENT(_commandList)                  _PIX3_ENDEVENT(_commandList)
+#else
+#	define PIX3_BEGINEVENT(_commandList, _color, _name) BX_UNUSED(_commandList, _color, _name)
+#	define PIX3_SETMARKER(_commandList, _color, _name)  BX_UNUSED(_commandList, _color, _name)
+#	define PIX3_ENDEVENT(_commandList)                  BX_UNUSED(_commandList)
+#endif // BGFX_CONFIG_DEBUG_PIX
+
 namespace bgfx { namespace d3d12
 {
+#if BX_PLATFORM_WINDOWS
+	typedef ::DXGI_SWAP_CHAIN_DESC  DXGI_SWAP_CHAIN_DESC;
+#else
+	typedef ::DXGI_SWAP_CHAIN_DESC1 DXGI_SWAP_CHAIN_DESC;
+#endif // BX_PLATFORM_WINDOWS
+
+#if BX_PLATFORM_WINDOWS
+	typedef ::IDXGIAdapter3   AdapterI;
+	typedef ::IDXGIFactory4   FactoryI;
+	typedef ::IDXGISwapChain3 SwapChainI;
+#elif BX_PLATFORM_WINRT
+	typedef ::IDXGIAdapter    AdapterI;
+	typedef ::IDXGIFactory2   FactoryI;
+	typedef ::IDXGISwapChain1 SwapChainI;
+#else
+	typedef ::IDXGIAdapter    AdapterI;
+	typedef ::IDXGIFactory2   FactoryI;
+	typedef ::IDXGISwapChain1 SwapChainI;
+#endif // BX_PLATFORM_WINDOWS
+
 	struct Rdt
 	{
 		enum Enum
@@ -80,6 +134,8 @@ namespace bgfx { namespace d3d12
 		void create(uint32_t _size, uint32_t _maxDescriptors);
 		void destroy();
 		void reset(D3D12_GPU_DESCRIPTOR_HANDLE& _gpuHandle);
+
+		void  allocEmpty(D3D12_GPU_DESCRIPTOR_HANDLE& _gpuHandle);
 
 		void* allocCbv(D3D12_GPU_VIRTUAL_ADDRESS& _gpuAddress, uint32_t _size);
 
@@ -307,6 +363,8 @@ namespace bgfx { namespace d3d12
 			, m_denseIdx(UINT16_MAX)
 			, m_num(0)
 			, m_numTh(0)
+			, m_state(D3D12_RESOURCE_STATE_PRESENT)
+			, m_needPresent(false)
 		{
 			m_depth.idx = bgfx::kInvalidHandle;
 		}
@@ -314,20 +372,24 @@ namespace bgfx { namespace d3d12
 		void create(uint8_t _num, const Attachment* _attachment);
 		void create(uint16_t _denseIdx, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _depthFormat);
 		uint16_t destroy();
+		HRESULT present(uint32_t _syncInterval, uint32_t _flags);
 		void preReset();
 		void postReset();
 		void resolve();
 		void clear(ID3D12GraphicsCommandList* _commandList, const Clear& _clear, const float _palette[][4], const D3D12_RECT* _rect = NULL, uint32_t _num = 0);
+		D3D12_RESOURCE_STATES setState(ID3D12GraphicsCommandList* _commandList, uint8_t _idx, D3D12_RESOURCE_STATES _state);
 
 		TextureHandle m_texture[BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS];
 		TextureHandle m_depth;
-		IDXGISwapChain* m_swapChain;
+		SwapChainI* m_swapChain;
 		uint32_t m_width;
 		uint32_t m_height;
 		uint16_t m_denseIdx;
 		uint8_t m_num;
 		uint8_t m_numTh;
 		Attachment m_attachment[BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS];
+		D3D12_RESOURCE_STATES m_state;
+		bool m_needPresent;
 	};
 
 	struct CommandQueueD3D12
@@ -419,16 +481,16 @@ namespace bgfx { namespace d3d12
 
 		struct DrawIndirectCommand
 		{
+			D3D12_VERTEX_BUFFER_VIEW vbv[BGFX_CONFIG_MAX_VERTEX_STREAMS+1];
 			D3D12_GPU_VIRTUAL_ADDRESS cbv;
-			D3D12_VERTEX_BUFFER_VIEW vbv[2];
 			D3D12_DRAW_ARGUMENTS draw;
 		};
 
 		struct DrawIndexedIndirectCommand
 		{
-			D3D12_GPU_VIRTUAL_ADDRESS cbv;
-			D3D12_VERTEX_BUFFER_VIEW vbv[2];
+			D3D12_VERTEX_BUFFER_VIEW vbv[BGFX_CONFIG_MAX_VERTEX_STREAMS+1];
 			D3D12_INDEX_BUFFER_VIEW ibv;
+			D3D12_GPU_VIRTUAL_ADDRESS cbv;
 			D3D12_DRAW_INDEXED_ARGUMENTS drawIndexed;
 		};
 

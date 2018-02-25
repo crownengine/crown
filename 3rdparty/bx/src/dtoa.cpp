@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -314,7 +314,8 @@ namespace bx
 			if (p2 < delta)
 			{
 				*K += kappa;
-				GrisuRound(buffer, *len, delta, p2, one.f, wp_w.f * s_kPow10[-kappa]);
+				const int index = -static_cast<int>(kappa);
+				GrisuRound(buffer, *len, delta, p2, one.f, wp_w.f * (index < 9 ? s_kPow10[-static_cast<int>(kappa)] : 0));
 				return;
 			}
 		}

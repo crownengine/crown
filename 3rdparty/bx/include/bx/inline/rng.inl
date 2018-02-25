@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -64,9 +64,9 @@ namespace bx
 	{
 		const float angle = frnd(_rng) * kPi2;
 
-		_result[0] = fcos(angle);
+		_result[0] = cos(angle);
 		_result[1] = 0.0f;
-		_result[2] = fsin(angle);
+		_result[2] = sin(angle);
 	}
 
 	template <typename Rng>
@@ -74,10 +74,10 @@ namespace bx
 	{
 		const float rand0  = frnd(_rng) * 2.0f - 1.0f;
 		const float rand1  = frnd(_rng) * kPi2;
-		const float sqrtf1 = fsqrt(1.0f - rand0*rand0);
+		const float sqrtf1 = sqrt(1.0f - rand0*rand0);
 
-		_result[0] = sqrtf1 * fcos(rand1);
-		_result[1] = sqrtf1 * fsin(rand1);
+		_result[0] = sqrtf1 * cos(rand1);
+		_result[1] = sqrtf1 * sin(rand1);
 		_result[2] = rand0;
 	}
 
@@ -122,13 +122,13 @@ namespace bx
 
 			const float phi    = (ii + 0.5f) / _num;
 			const float phirad =  phi * kPi2;
-			const float st     = fsqrt(1.0f-tt*tt) * _scale;
+			const float st     = sqrt(1.0f-tt*tt) * _scale;
 
 			float* xyz = (float*)data;
 			data += _stride;
 
-			xyz[0] = st * fcos(phirad);
-			xyz[1] = st * fsin(phirad);
+			xyz[0] = st * cos(phirad);
+			xyz[1] = st * sin(phirad);
 			xyz[2] = tt * _scale;
 		}
 	}

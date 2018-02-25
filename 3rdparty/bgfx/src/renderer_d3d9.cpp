@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -869,6 +869,7 @@ namespace bgfx { namespace d3d9
 				{
 					DX_RELEASE(m_device, 0);
 				}
+				BX_FALLTHROUGH;
 
 			case ErrorState::CreatedD3D9:
 				if (NULL != m_d3d9ex)
@@ -880,10 +881,12 @@ namespace bgfx { namespace d3d9
 				{
 					DX_RELEASE(m_d3d9, 0);
 				}
+				BX_FALLTHROUGH;
 
 			case ErrorState::LoadedD3D9:
 				m_nvapi.shutdown();
 				bx::dlclose(m_d3d9dll);
+				BX_FALLTHROUGH;
 
 			case ErrorState::Default:
 				break;
@@ -3952,10 +3955,10 @@ namespace bgfx { namespace d3d9
 
 				if ( (0
 					 | BGFX_STATE_CULL_MASK
-					 | BGFX_STATE_DEPTH_WRITE
+					 | BGFX_STATE_WRITE_Z
 					 | BGFX_STATE_DEPTH_TEST_MASK
-					 | BGFX_STATE_RGB_WRITE
-					 | BGFX_STATE_ALPHA_WRITE
+					 | BGFX_STATE_WRITE_RGB
+					 | BGFX_STATE_WRITE_A
 					 | BGFX_STATE_BLEND_MASK
 					 | BGFX_STATE_BLEND_EQUATION_MASK
 					 | BGFX_STATE_ALPHA_REF_MASK
@@ -3970,9 +3973,9 @@ namespace bgfx { namespace d3d9
 						DX_CHECK(device->SetRenderState(D3DRS_CULLMODE, s_cullMode[cull]) );
 					}
 
-					if (BGFX_STATE_DEPTH_WRITE & changedFlags)
+					if (BGFX_STATE_WRITE_Z & changedFlags)
 					{
-						DX_CHECK(device->SetRenderState(D3DRS_ZWRITEENABLE, !!(BGFX_STATE_DEPTH_WRITE & newFlags) ) );
+						DX_CHECK(device->SetRenderState(D3DRS_ZWRITEENABLE, !!(BGFX_STATE_WRITE_Z & newFlags) ) );
 					}
 
 					if (BGFX_STATE_DEPTH_TEST_MASK & changedFlags)
@@ -4007,10 +4010,13 @@ namespace bgfx { namespace d3d9
 						DX_CHECK(m_device->SetRenderState(D3DRS_ANTIALIASEDLINEENABLE, !!(newFlags&BGFX_STATE_LINEAA) ) );
 					}
 
-					if ( (BGFX_STATE_ALPHA_WRITE|BGFX_STATE_RGB_WRITE) & changedFlags)
+					if ( (BGFX_STATE_WRITE_A|BGFX_STATE_WRITE_RGB) & changedFlags)
 					{
-						uint32_t writeEnable = (newFlags&BGFX_STATE_ALPHA_WRITE) ? D3DCOLORWRITEENABLE_ALPHA : 0;
- 						writeEnable |= (newFlags&BGFX_STATE_RGB_WRITE) ? D3DCOLORWRITEENABLE_RED|D3DCOLORWRITEENABLE_GREEN|D3DCOLORWRITEENABLE_BLUE : 0;
+						uint32_t writeEnable = 0;
+ 						writeEnable |= (newFlags&BGFX_STATE_WRITE_R) ? D3DCOLORWRITEENABLE_RED   : 0;
+ 						writeEnable |= (newFlags&BGFX_STATE_WRITE_G) ? D3DCOLORWRITEENABLE_GREEN : 0;
+ 						writeEnable |= (newFlags&BGFX_STATE_WRITE_B) ? D3DCOLORWRITEENABLE_BLUE  : 0;
+						writeEnable |= (newFlags&BGFX_STATE_WRITE_A) ? D3DCOLORWRITEENABLE_ALPHA : 0;
 						DX_CHECK(device->SetRenderState(D3DRS_COLORWRITEENABLE, writeEnable) );
 					}
 
@@ -4394,19 +4400,20 @@ namespace bgfx { namespace d3d9
 
 				tvm.clear();
 				uint16_t pos = 0;
-				tvm.printf(0, pos++, BGFX_CONFIG_DEBUG ? 0x89 : 0x8f, " %s / " BX_COMPILER_NAME " / " BX_CPU_NAME " / " BX_ARCH_NAME " / " BX_PLATFORM_NAME " "
+				tvm.printf(0, pos++, BGFX_CONFIG_DEBUG ? 0x8c : 0x8f
+					, " %s / " BX_COMPILER_NAME " / " BX_CPU_NAME " / " BX_ARCH_NAME " / " BX_PLATFORM_NAME " "
 					, getRendererName()
 					);
 
 				const D3DADAPTER_IDENTIFIER9& identifier = m_identifier;
-				tvm.printf(0, pos++, 0x8f, " Device: %s (%s)", identifier.Description, identifier.Driver);
+				tvm.printf(0, pos++, 0x8b, " Device: %s (%s)", identifier.Description, identifier.Driver);
 
 				char processMemoryUsed[16];
 				bx::prettify(processMemoryUsed, BX_COUNTOF(processMemoryUsed), bx::getProcessMemoryUsed() );
-				tvm.printf(0, pos++, 0x8f, " Memory: %s (process) ", processMemoryUsed);
+				tvm.printf(0, pos++, 0x8b, " Memory: %s (process) ", processMemoryUsed);
 
 				pos = 10;
-				tvm.printf(10, pos++, 0x8e, "        Frame: %7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] / % 6.2f FPS "
+				tvm.printf(10, pos++, 0x8b, "        Frame: %7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] / % 6.2f FPS "
 					, double(frameTime)*toMs
 					, double(min)*toMs
 					, double(max)*toMs
@@ -4414,7 +4421,7 @@ namespace bgfx { namespace d3d9
 					);
 
 				const uint32_t msaa = (m_resolution.m_flags&BGFX_RESET_MSAA_MASK)>>BGFX_RESET_MSAA_SHIFT;
-				tvm.printf(10, pos++, 0x8e, "  Reset flags: [%c] vsync, [%c] MSAAx%d, [%c] MaxAnisotropy "
+				tvm.printf(10, pos++, 0x8b, "  Reset flags: [%c] vsync, [%c] MSAAx%d, [%c] MaxAnisotropy "
 					, !!(m_resolution.m_flags&BGFX_RESET_VSYNC) ? '\xfe' : ' '
 					, 0 != msaa ? '\xfe' : ' '
 					, 1<<msaa
@@ -4422,7 +4429,7 @@ namespace bgfx { namespace d3d9
 					);
 
 				double elapsedCpuMs = double(frameTime)*toMs;
-				tvm.printf(10, pos++, 0x8e, "    Submitted: %5d (draw %5d, compute %4d) / CPU %7.4f [ms] %c GPU %7.4f [ms] (latency %d)"
+				tvm.printf(10, pos++, 0x8b, "    Submitted: %5d (draw %5d, compute %4d) / CPU %7.4f [ms] %c GPU %7.4f [ms] (latency %d)"
 					, _render->m_numRenderItems
 					, statsKeyType[0]
 					, statsKeyType[1]
@@ -4436,7 +4443,7 @@ namespace bgfx { namespace d3d9
 
 				for (uint32_t ii = 0; ii < BX_COUNTOF(s_primName); ++ii)
 				{
-					tvm.printf(10, pos++, 0x8e, "   %10s: %7d (#inst: %5d), submitted: %7d"
+					tvm.printf(10, pos++, 0x8b, "   %10s: %7d (#inst: %5d), submitted: %7d"
 						, s_primName[ii]
 						, statsNumPrimsRendered[ii]
 						, statsNumInstances[ii]
@@ -4444,26 +4451,26 @@ namespace bgfx { namespace d3d9
 						);
 				}
 
-				tvm.printf(10, pos++, 0x8e, "      Indices: %7d ", statsNumIndices);
-//				tvm.printf(10, pos++, 0x8e, " Uniform size: %7d, Max: %7d ", _render->m_uniformEnd, _render->m_uniformMax);
-				tvm.printf(10, pos++, 0x8e, "     DVB size: %7d ", _render->m_vboffset);
-				tvm.printf(10, pos++, 0x8e, "     DIB size: %7d ", _render->m_iboffset);
+				tvm.printf(10, pos++, 0x8b, "      Indices: %7d ", statsNumIndices);
+//				tvm.printf(10, pos++, 0x8b, " Uniform size: %7d, Max: %7d ", _render->m_uniformEnd, _render->m_uniformMax);
+				tvm.printf(10, pos++, 0x8b, "     DVB size: %7d ", _render->m_vboffset);
+				tvm.printf(10, pos++, 0x8b, "     DIB size: %7d ", _render->m_iboffset);
 
 				pos++;
-				tvm.printf(10, pos++, 0x8e, " Occlusion queries: %3d ", m_occlusionQuery.m_control.available() );
+				tvm.printf(10, pos++, 0x8b, " Occlusion queries: %3d ", m_occlusionQuery.m_control.available() );
 
 				pos++;
-				tvm.printf(10, pos++, 0x8e, " State cache: ");
-				tvm.printf(10, pos++, 0x8e, " Input  ");
-				tvm.printf(10, pos++, 0x8e, " %6d "
+				tvm.printf(10, pos++, 0x8b, " State cache: ");
+				tvm.printf(10, pos++, 0x8b, " Input  ");
+				tvm.printf(10, pos++, 0x8b, " %6d "
 					, m_inputLayoutCache.getCount()
 					);
 				pos++;
 
 				double captureMs = double(captureElapsed)*toMs;
-				tvm.printf(10, pos++, 0x8e, "     Capture: %7.4f [ms]", captureMs);
+				tvm.printf(10, pos++, 0x8b, "     Capture: %7.4f [ms]", captureMs);
 
-				uint8_t attr[2] = { 0x89, 0x8a };
+				uint8_t attr[2] = { 0x8c, 0x8a };
 				uint8_t attrIndex = _render->m_waitSubmit < _render->m_waitRender;
 
 				tvm.printf(10, pos++, attr[attrIndex&1], " Submit wait: %7.4f [ms]", _render->m_waitSubmit*toMs);

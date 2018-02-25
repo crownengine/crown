@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+# Copyright 2011-2018 Branimir Karadzic. All rights reserved.
 # License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
 #
 
@@ -49,17 +49,15 @@ projgen: ## Generate project files for all configurations.
 	$(GENIE) --with-tools --xcode=osx         xcode4
 	$(GENIE) --with-tools --xcode=ios         xcode4
 	$(GENIE)              --gcc=freebsd       gmake
-	$(GENIE)                                --gcc=android-arm   gmake
-	$(GENIE)                                --gcc=android-mips  gmake
-	$(GENIE)                                --gcc=android-x86   gmake
-	$(GENIE)                                --gcc=asmjs         gmake
-	$(GENIE)                                --gcc=ios-arm       gmake
-	$(GENIE)                                --gcc=ios-arm64     gmake
-	$(GENIE)                                --gcc=ios-simulator gmake
-	$(GENIE)                                --gcc=nacl          gmake
-	$(GENIE)                                --gcc=nacl-arm      gmake
-	$(GENIE)                                --gcc=pnacl         gmake
-	$(GENIE)                                --gcc=rpi           gmake
+	$(GENIE)                                --gcc=android-arm     gmake
+	$(GENIE)                                --gcc=android-mips    gmake
+	$(GENIE)                                --gcc=android-x86     gmake
+	$(GENIE)                                --gcc=asmjs           gmake
+	$(GENIE)                                --gcc=ios-arm         gmake
+	$(GENIE)                                --gcc=ios-arm64       gmake
+	$(GENIE)                                --gcc=ios-simulator   gmake
+	$(GENIE)                                --gcc=ios-simulator64 gmake
+	$(GENIE)                                --gcc=rpi             gmake
 
 .build/projects/gmake-android-arm:
 	$(GENIE) --gcc=android-arm gmake
@@ -189,34 +187,6 @@ vs2017-release64: .build/projects/vs2017 ## Build - vs2017 x64 Release
 	devenv .build/projects/vs2017/bimg.sln /Build "Release|x64"
 vs2017: vs2017-debug32 vs2017-release32 vs2017-debug64 vs2017-release64 ## Build - vs2017 x86/x64 Debug and Release
 
-.build/projects/gmake-nacl:
-	$(GENIE) --gcc=nacl gmake
-nacl-debug32: .build/projects/gmake-nacl ## Build - Native Client x86 Debug
-	$(MAKE) -R -C .build/projects/gmake-nacl config=debug32
-nacl-release32: .build/projects/gmake-nacl ## Build - Native Client x86 Release
-	$(MAKE) -R -C .build/projects/gmake-nacl config=release32
-nacl-debug64: .build/projects/gmake-nacl ## Build - Native Client x64 Debug
-	$(MAKE) -R -C .build/projects/gmake-nacl config=debug64
-nacl-release64: .build/projects/gmake-nacl ## Build - Native Client x64 Release
-	$(MAKE) -R -C .build/projects/gmake-nacl config=release64
-nacl: nacl-debug32 nacl-release32 nacl-debug64 nacl-release64 ## Build - Native Client x86/x64 Debug and Release
-
-.build/projects/gmake-nacl-arm:
-	$(GENIE) --gcc=nacl-arm gmake
-nacl-arm-debug: .build/projects/gmake-nacl-arm ## Build - Native Client ARM Debug
-	$(MAKE) -R -C .build/projects/gmake-nacl-arm config=debug
-nacl-arm-release: .build/projects/gmake-nacl-arm ## Build - Native Client ARM Release
-	$(MAKE) -R -C .build/projects/gmake-nacl-arm config=release
-nacl-arm: nacl-arm-debug32 nacl-arm-release32 ## Build - Native Client ARM Debug and Release
-
-.build/projects/gmake-pnacl:
-	$(GENIE) --gcc=pnacl gmake
-pnacl-debug: .build/projects/gmake-pnacl ## Build - Portable Native Client Debug
-	$(MAKE) -R -C .build/projects/gmake-pnacl config=debug
-pnacl-release: .build/projects/gmake-pnacl ## Build - Portable Native Client Release
-	$(MAKE) -R -C .build/projects/gmake-pnacl config=release
-pnacl: pnacl-debug pnacl-release ## Build - Portable Native Client Debug and Release
-
 .build/projects/gmake-osx:
 	$(GENIE) --with-tools --gcc=osx gmake
 osx-debug32: .build/projects/gmake-osx ## Build - OSX x86 Debug
@@ -252,6 +222,14 @@ ios-simulator-debug: .build/projects/gmake-ios-simulator ## Build - iOS Simulato
 ios-simulator-release: .build/projects/gmake-ios-simulator ## Build - iOS Simulator Release
 	$(MAKE) -R -C .build/projects/gmake-ios-simulator config=release
 ios-simulator: ios-simulator-debug ios-simulator-release ## Build - iOS Simulator Debug and Release
+
+.build/projects/gmake-ios-simulator64:
+	$(GENIE) --gcc=ios-simulator64 gmake
+ios-simulator64-debug: .build/projects/gmake-ios-simulator64 ## Build - iOS Simulator 64 Debug
+	$(MAKE) -R -C .build/projects/gmake-ios-simulator64 config=debug
+ios-simulator64-release: .build/projects/gmake-ios-simulator64 ## Build - iOS Simulator 64 Release
+	$(MAKE) -R -C .build/projects/gmake-ios-simulator64 config=release
+ios-simulator64: ios-simulator64-debug ios-simulator64-release ## Build - iOS Simulator 64 Debug and Release
 
 .build/projects/gmake-rpi:
 	$(GENIE) --gcc=rpi gmake

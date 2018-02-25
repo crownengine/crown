@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -126,7 +126,7 @@ long int fsize(FILE* _file)
 void triangleReorder(uint16_t* _indices, uint32_t _numIndices, uint32_t _numVertices, uint16_t _cacheSize)
 {
 	uint16_t* newIndexList = new uint16_t[_numIndices];
-	Forsyth::OptimizeFaces(_indices, _numIndices, _numVertices, newIndexList, _cacheSize);
+	Forsyth::OptimizeFaces(_indices, _numIndices, _numVertices, 0, newIndexList, _cacheSize);
 	bx::memCopy(_indices, newIndexList, _numIndices*2);
 	delete [] newIndexList;
 }
@@ -370,7 +370,7 @@ void help(const char* _error = NULL)
 
 	fprintf(stderr
 		, "geometryc, bgfx geometry compiler tool, version %d.%d.%d.\n"
-		  "Copyright 2011-2017 Branimir Karadzic. All rights reserved.\n"
+		  "Copyright 2011-2018 Branimir Karadzic. All rights reserved.\n"
 		  "License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause\n\n"
 		, BGFX_GEOMETRYC_VERSION_MAJOR
 		, BGFX_GEOMETRYC_VERSION_MINOR

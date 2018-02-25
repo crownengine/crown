@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -432,7 +432,7 @@ struct View
 						m_angle = bx::toRad(angle);
 					}
 
-					m_angle = bx::fwrap(m_angle, bx::kPi*2.0f);
+					m_angle = bx::wrap(m_angle, bx::kPi*2.0f);
 				}
 				else
 				{
@@ -974,9 +974,9 @@ struct InterpolatorT
 	}
 };
 
-typedef InterpolatorT<bx::flerp,     bx::easeInOutQuad>  Interpolator;
+typedef InterpolatorT<bx::lerp,      bx::easeInOutQuad>  Interpolator;
 typedef InterpolatorT<bx::angleLerp, bx::easeInOutCubic> InterpolatorAngle;
-typedef InterpolatorT<bx::flerp,     bx::easeLinear>     InterpolatorLinear;
+typedef InterpolatorT<bx::lerp,      bx::easeLinear>     InterpolatorLinear;
 
 void keyBindingHelp(const char* _bindings, const char* _description)
 {
@@ -1079,7 +1079,7 @@ void help(const char* _error = NULL)
 
 	fprintf(stderr
 		, "texturev, bgfx texture viewer tool, version %d.%d.%d.\n"
-		  "Copyright 2011-2017 Branimir Karadzic. All rights reserved.\n"
+		  "Copyright 2011-2018 Branimir Karadzic. All rights reserved.\n"
 		  "License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause\n\n"
 		, BGFX_TEXTUREV_VERSION_MAJOR
 		, BGFX_TEXTUREV_VERSION_MINOR
@@ -1144,6 +1144,8 @@ int _main_(int _argc, char** _argv)
 
 	View view;
 	cmdAdd("view", cmdView, &view);
+
+	entry::setWindowFlags(entry::WindowHandle{0}, ENTRY_WINDOW_FLAG_ASPECT_RATIO, false);
 
 	bgfx::init();
 	bgfx::reset(width, height, reset);
@@ -1255,27 +1257,24 @@ int _main_(int _argc, char** _argv)
 	int exitcode = bx::kExitSuccess;
 	bgfx::TextureHandle texture = BGFX_INVALID_HANDLE;
 
-	if (view.m_fileList.empty() )
-	{
-		exitcode = bx::kExitFailure;
-		if (2 > _argc)
-		{
-			help("File path is not specified.");
-		}
-		else
-		{
-			fprintf(stderr, "Unable to load '%s' texture.\n", filePath);
-		}
-	}
-	else
 	{
 		uint32_t fileIndex = 0;
 		bool dragging = false;
 
+		entry::WindowState windowState;
 		entry::MouseState mouseStatePrev;
-		entry::MouseState mouseState;
-		while (!entry::processEvents(width, height, debug, reset, &mouseState) )
+		while (!entry::processWindowEvents(windowState, debug, reset) )
 		{
+			const entry::MouseState& mouseState = windowState.m_mouse;
+			width  = windowState.m_width;
+			height = windowState.m_height;
+
+			if (!windowState.m_dropFile.isEmpty() )
+			{
+				view.updateFileList(windowState.m_dropFile);
+				windowState.m_dropFile.clear();
+			}
+
 			imguiBeginFrame(mouseState.m_mx
 				,  mouseState.m_my
 				, (mouseState.m_buttons[entry::MouseButton::Left  ] ? IMGUI_MBUT_LEFT   : 0)
@@ -1462,7 +1461,7 @@ int _main_(int _argc, char** _argv)
 			if (view.m_info)
 			{
 				ImGui::SetNextWindowSize(
-					  ImVec2(300.0f, 240.0f)
+					  ImVec2(300.0f, 300.0f)
 					, ImGuiCond_FirstUseEver
 					);
 
@@ -1470,28 +1469,35 @@ int _main_(int _argc, char** _argv)
 				{
 					if (ImGui::BeginChild("##info", ImVec2(0.0f, 0.0f) ) )
 					{
-						ImGui::Text("Dimensions: %d x %d"
-							, view.m_textureInfo.width
-							, view.m_textureInfo.height
-							);
+						if (!bgfx::isValid(texture) )
+						{
+							ImGui::Text("Texture is not loaded.");
+						}
+						else
+						{
+							ImGui::Text("Dimensions: %d x %d"
+								, view.m_textureInfo.width
+								, view.m_textureInfo.height
+								);
 
-						ImGui::Text("Format: %s"
-							, bimg::getName(bimg::TextureFormat::Enum(view.m_textureInfo.format) )
-							);
+							ImGui::Text("Format: %s"
+								, bimg::getName(bimg::TextureFormat::Enum(view.m_textureInfo.format) )
+								);
 
-						ImGui::Text("Layers: %d / %d"
-							, view.m_layer
-							, view.m_textureInfo.numLayers - 1
-							);
+							ImGui::SliderInt("Layer", (int32_t*)&view.m_layer, 0, view.m_textureInfo.numLayers - 1);
+							ImGui::SliderInt("Mip",   (int32_t*)&view.m_mip,   0, view.m_textureInfo.numMips   - 1);
 
-						ImGui::Text("Mips: %d / %d"
-							, view.m_mip
-							, view.m_textureInfo.numMips - 1
-							);
+							ImGui::Separator();
 
-						ImGui::Checkbox("Input linear", &view.m_inLinear);
-						ImGui::RangeSliderFloat("EV range", &view.m_evMin, &view.m_evMax, kEvMin, kEvMax);
-						ImGui::SliderFloat("EV", &view.m_ev, view.m_evMin, view.m_evMax);
+							ImGui::Checkbox("Input linear", &view.m_inLinear);
+							ImGui::RangeSliderFloat("EV range", &view.m_evMin, &view.m_evMax, kEvMin, kEvMax);
+							ImGui::SliderFloat("EV", &view.m_ev, view.m_evMin, view.m_evMax);
+
+							ImGui::Separator();
+
+							ImGui::Checkbox("Fit to window", &view.m_fit);
+							ImGui::SliderFloat("Scale", &view.m_zoom, 0.01f, 10.0f);
+						}
 
 						ImGui::EndChild();
 					}
@@ -1517,7 +1523,7 @@ int _main_(int _argc, char** _argv)
 						ImGui::PushFont(ImGui::Font::Mono);
 						const float itemHeight = ImGui::GetTextLineHeightWithSpacing();
 						const float listHeight =
-							std::max(1.0f, bx::ffloor(ImGui::GetWindowHeight()/itemHeight) )
+							  bx::max(1.0f, bx::floor(ImGui::GetWindowHeight()/itemHeight) )
 							* itemHeight
 							;
 
@@ -1573,7 +1579,7 @@ int _main_(int _argc, char** _argv)
 
 				ImGui::Text(
 					"texturev, bgfx texture viewer tool " ICON_KI_WRENCH ", version %d.%d.%d.\n"
-					"Copyright 2011-2017 Branimir Karadzic. All rights reserved.\n"
+					"Copyright 2011-2018 Branimir Karadzic. All rights reserved.\n"
 					"License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause\n"
 					, BGFX_TEXTUREV_VERSION_MAJOR
 					, BGFX_TEXTUREV_VERSION_MINOR
@@ -1634,8 +1640,8 @@ int _main_(int _argc, char** _argv)
 
 			imguiEndFrame();
 
-			if (!bgfx::isValid(texture)
-			||  view.m_fileIndex != fileIndex)
+			if ( (!bgfx::isValid(texture) || view.m_fileIndex != fileIndex)
+			&&  0 != view.m_fileList.size() )
 			{
 				if (bgfx::isValid(texture) )
 				{
@@ -1743,7 +1749,7 @@ int _main_(int _argc, char** _argv)
 				, 0
 				, width
 				, height
-				, view.m_alpha ? UINT32_MAX : 0
+				, view.m_alpha || !bgfx::isValid(texture) ? UINT32_MAX : 0
 				, float(width )/float(checkerBoardSize)
 				, float(height)/float(checkerBoardSize)
 				);
@@ -1752,8 +1758,8 @@ int _main_(int _argc, char** _argv)
 				, checkerBoard
 				);
 			bgfx::setState(0
-				| BGFX_STATE_RGB_WRITE
-				| BGFX_STATE_ALPHA_WRITE
+				| BGFX_STATE_WRITE_RGB
+				| BGFX_STATE_WRITE_A
 				);
 			bgfx::submit(BACKGROUND_VIEW_ID
 				, textureProgram
@@ -1785,8 +1791,8 @@ int _main_(int _argc, char** _argv)
 				float wh[3] = { float(view.m_textureInfo.width), float(view.m_textureInfo.height), 0.0f };
 				float result[3];
 				bx::vec3MulMtx(result, wh, orientation);
-				result[0] = bx::fround(bx::fabs(result[0]) );
-				result[1] = bx::fround(bx::fabs(result[1]) );
+				result[0] = bx::round(bx::abs(result[0]) );
+				result[1] = bx::round(bx::abs(result[1]) );
 
 				scale.set(bx::min(float(width)  / result[0]
 					,             float(height) / result[1])
@@ -1850,8 +1856,8 @@ int _main_(int _argc, char** _argv)
 				, textureFlags
 				);
 			bgfx::setState(0
-				| BGFX_STATE_RGB_WRITE
-				| BGFX_STATE_ALPHA_WRITE
+				| BGFX_STATE_WRITE_RGB
+				| BGFX_STATE_WRITE_A
 				| (view.m_alpha ? BGFX_STATE_BLEND_ALPHA : BGFX_STATE_NONE)
 				);
 
@@ -1883,7 +1889,14 @@ int _main_(int _argc, char** _argv)
 				}
 			}
 
-			bgfx::submit(IMAGE_VIEW_ID, program);
+			if (bgfx::isValid(texture) )
+			{
+				bgfx::submit(IMAGE_VIEW_ID, program);
+			}
+			else
+			{
+				bgfx::discard();
+			}
 
 			bgfx::frame();
 		}
@@ -1903,6 +1916,7 @@ int _main_(int _argc, char** _argv)
 	bgfx::destroy(textureCubeProgram);
 	bgfx::destroy(textureCube2Program);
 	bgfx::destroy(textureSdfProgram);
+	bgfx::destroy(textureMsdfProgram);
 	bgfx::destroy(texture3DProgram);
 
 	imguiDestroy();

@@ -16,7 +16,7 @@ Supported rendering backends:
 
  * Direct3D 9
  * Direct3D 11
- * Direct3D 12 (WIP)
+ * Direct3D 12
  * Metal (WIP)
  * OpenGL 2.1
  * OpenGL 3.1+
@@ -41,7 +41,7 @@ Supported platforms:
  * RaspberryPi
  * SteamLink
  * Windows (XP, Vista, 7, 8, 10)
- * WinRT (WinPhone 8.0+)
+ * UWP (Universal Windows, Xbox One)
 
 Supported compilers:
 
@@ -210,7 +210,7 @@ width="640" height="480" border="0" /></a>
 
 https://github.com/volcoma/EtherealEngine EtherealEngine C++ Game Engine and
 WYSIWYG Editor  
-![EtherealEngine screenshot](https://cloud.githubusercontent.com/assets/1499411/19988985/2a302204-a22c-11e6-98af-5f446d0c79ac.png)
+![EtherealEngine screenshot](https://user-images.githubusercontent.com/1499411/29488403-ff3c3df6-8512-11e7-869f-32a783530cc3.png)
 
 ## Go Rally
 
@@ -228,11 +228,15 @@ https://github.com/s1ddok/Fiber2D#fiber2d - Fiber2D - Cross-platform 2D Game
 Engine in pure Swift  
 ![Fiber2D Demo Gif](http://imgur.com/CP6d9kT.gif)
 
-## On the Hunt
+## On the Hunt / Lumix Engine
 
 http://www.indiedb.com/games/on-the-hunt - On the Hunt is an open world hunting
-game in development. It's a combination of FPS and stealth.  
-![On the Hunt](http://media.indiedb.com/images/downloads/1/120/119448/img.png)
+game in development. It's a combination of FPS and stealth.
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=cAsqLbqSDBg" 
+target="_blank"><img src="http://img.youtube.com/vi/cAsqLbqSDBg/0.jpg" 
+alt="Lumix Engine - new features v0.29 & v0.30"
+width="640" height="480" border="0" /></a>
 
 ## FbxPipeline
 
@@ -284,6 +288,17 @@ target="_blank"><img src="http://img.youtube.com/vi/1Woak1Bl_KI/0.jpg"
 alt="Match Engine | Football Manager 2018"
 width="640" height="480" border="0" /></a>
 
+## WonderWorlds
+
+http://wonderworlds.me/ - WonderWorlds is a place to play thousands
+of user-created levels and stories, make your own using the extensive in-game
+tools and share them with whomever you want.
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=nY8y_dFolKo" 
+target="_blank"><img src="http://img.youtube.com/vi/nY8y_dFolKo/0.jpg" 
+alt="WonderWorlds"
+width="640" height="480" border="0" /></a>
+
 [License (BSD 2-clause)](https://bkaradzic.github.io/bgfx/license.html)
 -----------------------------------------------------------------------
 
@@ -291,7 +306,7 @@ width="640" height="480" border="0" /></a>
 <img align="right" src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png">
 </a>
 
-	Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+	Copyright 2010-2018 Branimir Karadzic. All rights reserved.
 	
 	https://github.com/bkaradzic/bgfx
 	

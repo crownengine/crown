@@ -1,3 +1,9 @@
+#if defined(__has_warning)
+#	if __has_warning("-Wcomma")
+#		pragma GCC diagnostic ignored "-Wcomma" // Possible misuse of comma operator here
+#	endif
+#endif
+
 /*
 Copyright (c) 2014 - 2016, Syoyo Fujita
 All rights reserved.

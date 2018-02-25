@@ -126,8 +126,8 @@ struct ImGuiContext
 				else if (0 != cmd->ElemCount)
 				{
 					uint64_t state = 0
-						| BGFX_STATE_RGB_WRITE
-						| BGFX_STATE_ALPHA_WRITE
+						| BGFX_STATE_WRITE_RGB
+						| BGFX_STATE_WRITE_A
 						| BGFX_STATE_MSAA
 						;
 

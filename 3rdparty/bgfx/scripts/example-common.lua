@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2018 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 --
 
@@ -90,7 +90,7 @@ project ("example-common")
 			path.join(BGFX_DIR, "examples/common/**.mm"),
 		}
 
-	configuration { "winphone8* or winstore8* or durango"}
+	configuration { "winstore* or durango"}
 		files {
 			path.join(BGFX_DIR, "examples/common/**.cx"),
 		}

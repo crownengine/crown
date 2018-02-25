@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -8,8 +8,26 @@
 #include <bx/string.h>
 #include <bx/handlealloc.h>
 #include <bx/sort.h>
+#include <string>
 
 bx::AllocatorI* g_allocator;
+
+TEST_CASE("stringPrintfTy", "")
+{
+	std::string test;
+	bx::stringPrintf(test, "printf into std::string.");
+	REQUIRE(0 == bx::strCmp(bx::StringView(test), "printf into std::string.") );
+}
+
+TEST_CASE("prettify", "")
+{
+	char tmp[1024];
+	prettify(tmp, BX_COUNTOF(tmp), 4000, bx::Units::Kilo);
+	REQUIRE(0 == bx::strCmp(tmp, "4.00 kB") );
+
+	prettify(tmp, BX_COUNTOF(tmp), 4096, bx::Units::Kibi);
+	REQUIRE(0 == bx::strCmp(tmp, "4.00 KiB") );
+}
 
 TEST_CASE("chars", "")
 {
@@ -255,6 +273,8 @@ TEST_CASE("toString double", "")
 	REQUIRE(testToString(0.000000000123123,       "1.23123e-10") );
 	REQUIRE(testToString(0.0000000001,            "1e-10") );
 	REQUIRE(testToString(-270.000000,             "-270.0") );
+	REQUIRE(testToString(2.225073858507201e-308,  "2.225073858507201e-308") );
+	REQUIRE(testToString(-79.39773355813419,      "-79.39773355813419") );
 }
 
 static bool testFromString(double _value, const char* _input)
@@ -303,6 +323,7 @@ TEST_CASE("fromString double", "")
 	REQUIRE(testFromString(0.000000000123123,       "1.23123e-10") );
 	REQUIRE(testFromString(0.0000000001,            "1e-10") );
 	REQUIRE(testFromString(-270.000000,             "-270.0") );
+	REQUIRE(testFromString(2.2250738585072011e-308, "2.2250738585072011e-308") );
 }
 
 static bool testFromString(int32_t _value, const char* _input)

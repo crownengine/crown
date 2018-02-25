@@ -580,8 +580,8 @@ void TBuiltInParseablesHlsl::initialize(int /*version*/, EProfile /*profile*/, c
         { "asdouble",                         "V2",    "D",       "V2,",            "UI,",           EShLangAll,    false },
         { "asfloat",                          nullptr, "F",       "SVM",            "BFIU",          EShLangAll,    false },
         { "asin",                             nullptr, nullptr,   "SVM",            "F",             EShLangAll,    false },
-        { "asint",                            nullptr, "I",       "SVM",            "FU",            EShLangAll,    false },
-        { "asuint",                           nullptr, "U",       "SVM",            "FU",            EShLangAll,    false },
+        { "asint",                            nullptr, "I",       "SVM",            "FIU",           EShLangAll,    false },
+        { "asuint",                           nullptr, "U",       "SVM",            "FIU",           EShLangAll,    false },
         { "atan",                             nullptr, nullptr,   "SVM",            "F",             EShLangAll,    false },
         { "atan2",                            nullptr, nullptr,   "SVM,",           "F,",            EShLangAll,    false },
         { "ceil",                             nullptr, nullptr,   "SVM",            "F",             EShLangAll,    false },
@@ -1087,8 +1087,8 @@ void TBuiltInParseablesHlsl::identifyBuiltIns(int /*version*/, EProfile /*profil
     symbolTable.relateToOperator("ddy_fine",                    EOpDPdyFine);
     symbolTable.relateToOperator("degrees",                     EOpDegrees);
     symbolTable.relateToOperator("determinant",                 EOpDeterminant);
-    symbolTable.relateToOperator("DeviceMemoryBarrier",         EOpGroupMemoryBarrier);
-    symbolTable.relateToOperator("DeviceMemoryBarrierWithGroupSync", EOpGroupMemoryBarrierWithGroupSync); // ...
+    symbolTable.relateToOperator("DeviceMemoryBarrier",         EOpDeviceMemoryBarrier);
+    symbolTable.relateToOperator("DeviceMemoryBarrierWithGroupSync", EOpDeviceMemoryBarrierWithGroupSync);
     symbolTable.relateToOperator("distance",                    EOpDistance);
     symbolTable.relateToOperator("dot",                         EOpDot);
     symbolTable.relateToOperator("dst",                         EOpDst);

@@ -175,7 +175,7 @@ void Pipeline::render(ShaderManager& sm, StringId32 program, uint8_t view, uint1
 		;
 	bgfx::setTexture(0, _tex_color, _buffers[0], samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	sm.submit(program, view, 0, BGFX_STATE_RGB_WRITE | BGFX_STATE_ALPHA_WRITE);
+	sm.submit(program, view, 0, BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
 }
 
 } // namespace crown

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -18,7 +18,7 @@ extern "C"
 #define BGFX_CHUNK_MAGIC_VSH BX_MAKEFOURCC('V', 'S', 'H', 0x5)
 
 #define BGFX_SHADERC_VERSION_MAJOR 1
-#define BGFX_SHADERC_VERSION_MINOR 6
+#define BGFX_SHADERC_VERSION_MINOR 8
 
 namespace bgfx
 {
@@ -816,7 +816,7 @@ namespace bgfx
 
 		fprintf(stderr
 			, "shaderc, bgfx shader compiler tool, version %d.%d.%d.\n"
-			  "Copyright 2011-2017 Branimir Karadzic. All rights reserved.\n"
+			  "Copyright 2011-2018 Branimir Karadzic. All rights reserved.\n"
 			  "License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause\n\n"
 			, BGFX_SHADERC_VERSION_MAJOR
 			, BGFX_SHADERC_VERSION_MINOR
@@ -1031,8 +1031,10 @@ namespace bgfx
 		VaryingMap varyingMap;
 		const char* parse = _varying;
 
-		while (NULL != parse
-			&&  *parse != '\0')
+		bool usesInterpolationQualifiers = false;
+
+		while (NULL !=  parse
+		&&     '\0' != *parse)
 		{
 			parse = bx::strws(parse);
 			const char* eol = bx::strFind(parse, ';');
@@ -1062,6 +1064,7 @@ namespace bgfx
 				{
 					interpolation = typen;
 					typen = parse = bx::strws(bx::strSkipWord(parse) );
+					usesInterpolationQualifiers = true;
 				}
 
 				const char* name      = parse = bx::strws(bx::strSkipWord(parse) );
@@ -1792,6 +1795,11 @@ namespace bgfx
 						{
 							std::string code;
 
+							if (NULL != bx::strFind(preprocessor.m_preprocessed.c_str(), "layout(std430") )
+							{
+								glsl = 430;
+							}
+
 							if (glsl < 400)
 							{
 								const bool usesTextureLod   = false
@@ -1810,6 +1818,7 @@ namespace bgfx
 								{
 									const bool need130 = 120 == glsl && (false
 										|| bx::findIdentifierMatch(input, s_130)
+										|| usesInterpolationQualifiers
 										|| usesTexelFetch
 										);
 
@@ -1821,6 +1830,13 @@ namespace bgfx
 									{
 										bx::stringPrintf(code, "#version %s\n", need130 ? "130" : _options.profile.c_str());
 										glsl = 130;
+									}
+
+									if (need130)
+									{
+										bx::stringPrintf(code, "#define varying %s\n"
+											, 'f' == _options.shaderType ? "in" : "out"
+											);
 									}
 
 									if (usesInstanceID)
@@ -1918,7 +1934,7 @@ namespace bgfx
 									{
 										bx::stringPrintf(code
 											, "#define bgfxShadow2D(_sampler, _coord)     vec4_splat(texture(_sampler, _coord))\n"
-												"#define bgfxShadow2DProj(_sampler, _coord) vec4_splat(textureProj(_sampler, _coord))\n"
+											  "#define bgfxShadow2DProj(_sampler, _coord) vec4_splat(textureProj(_sampler, _coord))\n"
 											);
 									}
 									else
@@ -1931,18 +1947,27 @@ namespace bgfx
 								}
 								else
 								{
+									if (usesInterpolationQualifiers)
+									{
+										bx::stringPrintf(code, "#version 300 es\n");
+										bx::stringPrintf(code, "#define attribute in\n");
+										bx::stringPrintf(code, "#define varying %s\n"
+											, 'f' == _options.shaderType ? "in" : "out"
+											);
+									}
+
 									// Pretend that all extensions are available.
 									// This will be stripped later.
 									if (usesTextureLod)
 									{
 										bx::stringPrintf(code
 											, "#extension GL_EXT_shader_texture_lod : enable\n"
-												"#define texture2DLod      texture2DLodEXT\n"
-												"#define texture2DGrad     texture2DGradEXT\n"
-												"#define texture2DProjLod  texture2DProjLodEXT\n"
-												"#define texture2DProjGrad texture2DProjGradEXT\n"
-												"#define textureCubeLod    textureCubeLodEXT\n"
-												"#define textureCubeGrad   textureCubeGradEXT\n"
+											  "#define texture2DLod      texture2DLodEXT\n"
+											  "#define texture2DGrad     texture2DGradEXT\n"
+											  "#define texture2DProjLod  texture2DProjLodEXT\n"
+											  "#define texture2DProjGrad texture2DProjGradEXT\n"
+											  "#define textureCubeLod    textureCubeLodEXT\n"
+											  "#define textureCubeGrad   textureCubeGradEXT\n"
 											);
 									}
 
@@ -1960,8 +1985,8 @@ namespace bgfx
 									{
 										bx::stringPrintf(code
 											, "#extension GL_EXT_shadow_samplers : enable\n"
-												"#define shadow2D shadow2DEXT\n"
-												"#define shadow2DProj shadow2DProjEXT\n"
+											  "#define shadow2D shadow2DEXT\n"
+											  "#define shadow2DProj shadow2DProjEXT\n"
 											);
 									}
 
@@ -1983,7 +2008,7 @@ namespace bgfx
 									{
 										bx::stringPrintf(code
 											, "#extension GL_EXT_frag_depth : enable\n"
-												"#define gl_FragDepth gl_FragDepthEXT\n"
+											  "#define gl_FragDepth gl_FragDepthEXT\n"
 											);
 									}
 
@@ -1994,16 +2019,25 @@ namespace bgfx
 											);
 									}
 
-									bx::stringPrintf(code,
-											"#define ivec2 vec2\n"
-											"#define ivec3 vec3\n"
-											"#define ivec4 vec4\n"
-											);
+									bx::stringPrintf(code
+										, "#define ivec2 vec2\n"
+										  "#define ivec3 vec3\n"
+										  "#define ivec4 vec4\n"
+										);
 								}
 							}
 							else
 							{
 								bx::stringPrintf(code, "#version %d\n", glsl);
+
+								bx::stringPrintf(code
+									, "#define texture2DLod      textureLod\n"
+									  "#define texture2DGrad     textureGrad\n"
+									  "#define texture2DProjLod  textureProjLod\n"
+									  "#define texture2DProjGrad textureProjGrad\n"
+									  "#define textureCubeLod    textureLod\n"
+									  "#define textureCubeGrad   textureGrad\n"
+									);
 							}
 
 							code += preprocessor.m_preprocessed;
@@ -2188,11 +2222,11 @@ namespace bgfx
 			}
 		}
 
-		bool depends = cmdLine.hasArg("depends");
+		options.depends = cmdLine.hasArg("depends");
 		options.preprocessOnly = cmdLine.hasArg("preprocess");
 		const char* includeDir = cmdLine.findOption('i');
 
-		BX_TRACE("depends: %d", depends);
+		BX_TRACE("depends: %d", options.depends);
 		BX_TRACE("preprocessOnly: %d", options.preprocessOnly);
 		BX_TRACE("includeDir: %s", includeDir);
 

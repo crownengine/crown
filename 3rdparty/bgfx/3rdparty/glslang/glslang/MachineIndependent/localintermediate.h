@@ -224,6 +224,7 @@ public:
 #endif
         autoMapBindings(false),
         autoMapLocations(false),
+        invertY(false),
         flattenUniformArrays(false),
         useUnknownFormat(false),
         hlslOffsets(false),
@@ -317,6 +318,14 @@ public:
             processes.addProcess("auto-map-locations");
     }
     bool getAutoMapLocations() const { return autoMapLocations; }
+    void setInvertY(bool invert)
+    {
+        invertY = invert;
+        if (invertY)
+            processes.addProcess("invert-y");
+    }
+    bool getInvertY() const { return invertY; }
+
     void setFlattenUniformArrays(bool flatten)
     {
         flattenUniformArrays = flatten;
@@ -411,8 +420,8 @@ public:
     TIntermAggregate* makeAggregate(const TSourceLoc&);
     TIntermTyped* setAggregateOperator(TIntermNode*, TOperator, const TType& type, TSourceLoc);
     bool areAllChildConst(TIntermAggregate* aggrNode);
-    TIntermTyped* addSelection(TIntermTyped* cond, TIntermNodePair code, const TSourceLoc&, TSelectionControl = ESelectionControlNone);
-    TIntermTyped* addSelection(TIntermTyped* cond, TIntermTyped* trueBlock, TIntermTyped* falseBlock, const TSourceLoc&, TSelectionControl = ESelectionControlNone);
+    TIntermSelection* addSelection(TIntermTyped* cond, TIntermNodePair code, const TSourceLoc&);
+    TIntermTyped* addSelection(TIntermTyped* cond, TIntermTyped* trueBlock, TIntermTyped* falseBlock, const TSourceLoc&);
     TIntermTyped* addComma(TIntermTyped* left, TIntermTyped* right, const TSourceLoc&);
     TIntermTyped* addMethod(TIntermTyped*, const TType&, const TString*, const TSourceLoc&);
     TIntermConstantUnion* addConstantUnion(const TConstUnionArray&, const TType&, const TSourceLoc&, bool literal = false) const;
@@ -430,8 +439,9 @@ public:
     TIntermConstantUnion* addConstantUnion(const TString*, const TSourceLoc&, bool literal = false) const;
     TIntermTyped* promoteConstantUnion(TBasicType, TIntermConstantUnion*) const;
     bool parseConstTree(TIntermNode*, TConstUnionArray, TOperator, const TType&, bool singleConstantParam = false);
-    TIntermLoop* addLoop(TIntermNode*, TIntermTyped*, TIntermTyped*, bool testFirst, const TSourceLoc&, TLoopControl = ELoopControlNone);
-    TIntermAggregate* addForLoop(TIntermNode*, TIntermNode*, TIntermTyped*, TIntermTyped*, bool testFirst, const TSourceLoc&, TLoopControl = ELoopControlNone);
+    TIntermLoop* addLoop(TIntermNode*, TIntermTyped*, TIntermTyped*, bool testFirst, const TSourceLoc&);
+    TIntermAggregate* addForLoop(TIntermNode*, TIntermNode*, TIntermTyped*, TIntermTyped*, bool testFirst,
+        const TSourceLoc&, TIntermLoop*&);
     TIntermBranch* addBranch(TOperator, const TSourceLoc&);
     TIntermBranch* addBranch(TOperator, TIntermTyped*, const TSourceLoc&);
     template<typename selectorType> TIntermTyped* addSwizzle(TSwizzleSelectors<selectorType>&, const TSourceLoc&);
@@ -574,6 +584,7 @@ public:
         xfbBuffers[buffer].stride = stride;
         return true;
     }
+    unsigned getXfbStride(int buffer) const { return xfbBuffers[buffer].stride; }
     int addXfbBufferOffset(const TType&);
     unsigned int computeTypeXfbSize(const TType&, bool& containsDouble) const;
     static int getBaseAlignmentScalar(const TType&, int& size);
@@ -682,6 +693,7 @@ protected:
     std::vector<std::string> resourceSetBinding;
     bool autoMapBindings;
     bool autoMapLocations;
+    bool invertY;
     bool flattenUniformArrays;
     bool useUnknownFormat;
     bool hlslOffsets;

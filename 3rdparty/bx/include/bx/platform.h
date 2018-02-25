@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -54,7 +54,6 @@
 #define BX_PLATFORM_NX         0
 #define BX_PLATFORM_OSX        0
 #define BX_PLATFORM_PS4        0
-#define BX_PLATFORM_QNX        0
 #define BX_PLATFORM_RPI        0
 #define BX_PLATFORM_STEAMLINK  0
 #define BX_PLATFORM_WINDOWS    0
@@ -201,9 +200,6 @@
 #elif defined(__ORBIS__)
 #	undef  BX_PLATFORM_PS4
 #	define BX_PLATFORM_PS4 1
-#elif defined(__QNX__)
-#	undef  BX_PLATFORM_QNX
-#	define BX_PLATFORM_QNX 1
 #elif  defined(__FreeBSD__)        \
 	|| defined(__FreeBSD_kernel__) \
 	|| defined(__NetBSD__)         \
@@ -260,7 +256,6 @@
 		|| BX_PLATFORM_NX         \
 		|| BX_PLATFORM_OSX        \
 		|| BX_PLATFORM_PS4        \
-		|| BX_PLATFORM_QNX        \
 		|| BX_PLATFORM_RPI        \
 		|| BX_PLATFORM_STEAMLINK  \
 		)
@@ -275,7 +270,6 @@
 		|| BX_PLATFORM_NX         \
 		|| BX_PLATFORM_OSX        \
 		|| BX_PLATFORM_PS4        \
-		|| BX_PLATFORM_QNX        \
 		|| BX_PLATFORM_RPI        \
 		|| BX_PLATFORM_STEAMLINK  \
 		|| BX_PLATFORM_WINDOWS    \
@@ -335,8 +329,6 @@
 #	define BX_PLATFORM_NAME "OSX"
 #elif BX_PLATFORM_PS4
 #	define BX_PLATFORM_NAME "PlayStation 4"
-#elif BX_PLATFORM_QNX
-#	define BX_PLATFORM_NAME "QNX"
 #elif BX_PLATFORM_RPI
 #	define BX_PLATFORM_NAME "RaspberryPi"
 #elif BX_PLATFORM_STEAMLINK

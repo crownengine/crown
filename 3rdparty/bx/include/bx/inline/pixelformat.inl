@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -11,7 +11,7 @@ namespace bx
 {
 	inline uint32_t toUnorm(float _value, float _scale)
 	{
-		return uint32_t(fround(clamp(_value, 0.0f, 1.0f) * _scale) );
+		return uint32_t(round(clamp(_value, 0.0f, 1.0f) * _scale) );
 	}
 
 	inline float fromUnorm(uint32_t _value, float _scale)
@@ -21,7 +21,7 @@ namespace bx
 
 	inline int32_t toSnorm(float _value, float _scale)
 	{
-		return int32_t(fround(
+		return int32_t(round(
 					clamp(_value, -1.0f, 1.0f) * _scale)
 					);
 	}
@@ -719,18 +719,18 @@ namespace bx
 		const float mm = max(rr, gg, bb);
 		union { float ff; uint32_t ui; } cast = { mm };
 		int32_t expShared = int32_t(uint32_imax(uint32_t(-expBias-1), ( ( (cast.ui>>23) & 0xff) - 127) ) ) + 1 + expBias;
-		float denom = fpow(2.0f, float(expShared - expBias - MantissaBits) );
+		float denom = pow(2.0f, float(expShared - expBias - MantissaBits) );
 
-		if ( (1<<MantissaBits) == int32_t(fround(mm/denom) ) )
+		if ( (1<<MantissaBits) == int32_t(round(mm/denom) ) )
 		{
 			denom *= 2.0f;
 			++expShared;
 		}
 
 		const float invDenom = 1.0f/denom;
-		_dst[0] = fround(rr * invDenom);
-		_dst[1] = fround(gg * invDenom);
-		_dst[2] = fround(bb * invDenom);
+		_dst[0] = round(rr * invDenom);
+		_dst[1] = round(gg * invDenom);
+		_dst[2] = round(bb * invDenom);
 		_dst[3] = float(expShared);
 	}
 
@@ -739,7 +739,7 @@ namespace bx
 	{
 		const int32_t expBias = (1<<(ExpBits - 1) ) - 1;
 		const float exponent  = _src[3]-float(expBias-MantissaBits);
-		const float scale     = fpow(2.0f, exponent);
+		const float scale     = pow(2.0f, exponent);
 		_dst[0] = _src[0] * scale;
 		_dst[1] = _src[1] * scale;
 		_dst[2] = _src[2] * scale;

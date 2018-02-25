@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -10,8 +10,8 @@
 #define USE_D3D11_STAGING_BUFFER 0
 
 #if !USE_D3D11_DYNAMIC_LIB
-#	undef  BGFX_CONFIG_DEBUG_PIX
-#	define BGFX_CONFIG_DEBUG_PIX 0
+#   undef  BGFX_CONFIG_DEBUG_PIX
+#   define BGFX_CONFIG_DEBUG_PIX 0
 #endif // !USE_D3D11_DYNAMIC_LIB
 
 BX_PRAGMA_DIAGNOSTIC_PUSH();
@@ -21,12 +21,16 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_MSVC(4005) // warning C4005: '' : macro redefinitio
 #include <sal.h>
 #define D3D11_NO_HELPERS
 #if BX_PLATFORM_WINDOWS
-#	include <d3d11_3.h>
-#	include <dxgi1_6.h>
+#   include <d3d11_3.h>
+#   include <dxgi1_6.h>
 #elif BX_PLATFORM_WINRT
-#	include <d3d11_3.h>
+#   define __D3D10_1SHADER_H__ // BK - not used keep quiet!
+#   include <d3d11_3.h>
 #else
-#	include <d3d11_x.h>
+#   if !BGFX_CONFIG_DEBUG
+#      define D3DCOMPILE_NO_DEBUG_AND_ALL_FAST_SEMANTICS 1
+#   endif // !BGFX_CONFIG_DEBUG
+#   include <d3d11_x.h>
 #endif // BX_PLATFORM_*
 BX_PRAGMA_DIAGNOSTIC_POP()
 
@@ -38,25 +42,17 @@ BX_PRAGMA_DIAGNOSTIC_POP()
 #include "debug_renderdoc.h"
 #include "nvapi.h"
 
-#ifndef D3DCOLOR_ARGB
-#	define D3DCOLOR_ARGB(_a, _r, _g, _b) ( (DWORD)( ( ( (_a)&0xff)<<24)|( ( (_r)&0xff)<<16)|( ( (_g)&0xff)<<8)|( (_b)&0xff) ) )
-#endif // D3DCOLOR_ARGB
-
-#ifndef D3DCOLOR_RGBA
-#	define D3DCOLOR_RGBA(_r, _g, _b, _a) D3DCOLOR_ARGB(_a, _r, _g, _b)
-#endif // D3DCOLOR_RGBA
-
 #define BGFX_D3D11_BLEND_STATE_MASK (0 \
 			| BGFX_STATE_BLEND_MASK \
 			| BGFX_STATE_BLEND_EQUATION_MASK \
 			| BGFX_STATE_BLEND_INDEPENDENT \
 			| BGFX_STATE_BLEND_ALPHA_TO_COVERAGE \
-			| BGFX_STATE_ALPHA_WRITE \
-			| BGFX_STATE_RGB_WRITE \
+			| BGFX_STATE_WRITE_A \
+			| BGFX_STATE_WRITE_RGB \
 			)
 
 #define BGFX_D3D11_DEPTH_STENCIL_MASK (0 \
-			| BGFX_STATE_DEPTH_WRITE \
+			| BGFX_STATE_WRITE_Z \
 			| BGFX_STATE_DEPTH_TEST_MASK \
 			)
 

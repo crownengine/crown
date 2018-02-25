@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
 #include <bimg/encode.h>
@@ -426,7 +426,7 @@ namespace bimg
 				, 4, 3
 				, STBIR_FLAG_ALPHA_PREMULTIPLIED
 				, STBIR_EDGE_CLAMP
-				, STBIR_FILTER_DEFAULT
+				, STBIR_FILTER_CUBICBSPLINE
 				, STBIR_COLORSPACE_LINEAR
 				, NULL
 				);

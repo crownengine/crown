@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -1766,11 +1766,13 @@ VK_IMPORT_DEVICE
 				vkDestroy(m_pipelineLayout);
 				vkDestroy(m_descriptorSetLayout);
 				vkDestroy(m_descriptorPool);
+				BX_FALLTHROUGH;
 
 			case ErrorState::CommandBuffersCreated:
 				vkFreeCommandBuffers(m_device, m_commandPool, BX_COUNTOF(m_commandBuffers), m_commandBuffers);
 				vkDestroy(m_commandPool);
 				vkDestroy(m_fence);
+				BX_FALLTHROUGH;
 
 			case ErrorState::SwapchainCreated:
 				for (uint32_t ii = 0; ii < BX_COUNTOF(m_backBufferColorImageView); ++ii)
@@ -1791,15 +1793,19 @@ VK_IMPORT_DEVICE
 					}
 				}
 				vkDestroy(m_swapchain);
+				BX_FALLTHROUGH;
 
 			case ErrorState::SurfaceCreated:
 				vkDestroySurfaceKHR(m_instance, m_surface, m_allocatorCb);
+				BX_FALLTHROUGH;
 
 			case ErrorState::RenderPassCreated:
 				vkDestroy(m_renderPass);
+				BX_FALLTHROUGH;
 
 			case ErrorState::DeviceCreated:
 				vkDestroyDevice(m_device, m_allocatorCb);
+				BX_FALLTHROUGH;
 
 			case ErrorState::InstanceCreated:
 				if (VK_NULL_HANDLE != m_debugReportCallback)
@@ -1808,12 +1814,14 @@ VK_IMPORT_DEVICE
 				}
 
 				vkDestroyInstance(m_instance, m_allocatorCb);
+				BX_FALLTHROUGH;
 
 			case ErrorState::LoadedVulkan1:
 				bx::dlclose(m_vulkan1dll);
 				m_vulkan1dll  = NULL;
 				m_allocatorCb = NULL;
 				unloadRenderDoc(m_renderdocdll);
+				BX_FALLTHROUGH;
 
 			case ErrorState::Default:
 				break;
@@ -2377,16 +2385,11 @@ VK_IMPORT_DEVICE
 		{
 			VkPipelineColorBlendAttachmentState* bas = const_cast<VkPipelineColorBlendAttachmentState*>(_desc.pAttachments);
 
-			uint8_t writeMask = (_state & BGFX_STATE_ALPHA_WRITE)
-					? VK_COLOR_COMPONENT_A_BIT
-					: 0
-					;
-			writeMask |= (_state & BGFX_STATE_RGB_WRITE)
-					? VK_COLOR_COMPONENT_R_BIT
-					| VK_COLOR_COMPONENT_G_BIT
-					| VK_COLOR_COMPONENT_B_BIT
-					: 0
-					;
+			uint8_t writeMask = 0;
+			writeMask |= (_state & BGFX_STATE_WRITE_R) ? VK_COLOR_COMPONENT_R_BIT : 0;
+			writeMask |= (_state & BGFX_STATE_WRITE_G) ? VK_COLOR_COMPONENT_G_BIT : 0;
+			writeMask |= (_state & BGFX_STATE_WRITE_B) ? VK_COLOR_COMPONENT_B_BIT : 0;
+			writeMask |= (_state & BGFX_STATE_WRITE_A) ? VK_COLOR_COMPONENT_A_BIT : 0;
 
 			bas->blendEnable = !!(BGFX_STATE_BLEND_MASK & _state);
 
@@ -2493,7 +2496,7 @@ VK_IMPORT_DEVICE
 			_desc.pNext = NULL;
 			_desc.flags = 0;
 			_desc.depthTestEnable  = 0 != func;
-			_desc.depthWriteEnable = !!(BGFX_STATE_DEPTH_WRITE & _state);
+			_desc.depthWriteEnable = !!(BGFX_STATE_WRITE_Z & _state);
 			_desc.depthCompareOp   = s_cmpFunc[func];
 			_desc.depthBoundsTestEnable = VK_FALSE;
 
@@ -2573,9 +2576,9 @@ VK_IMPORT_DEVICE
 			ProgramVK& program = m_program[_programIdx];
 
 			_state &= 0
-				| BGFX_STATE_RGB_WRITE
-				| BGFX_STATE_ALPHA_WRITE
-				| BGFX_STATE_DEPTH_WRITE
+				| BGFX_STATE_WRITE_RGB
+				| BGFX_STATE_WRITE_A
+				| BGFX_STATE_WRITE_Z
 				| BGFX_STATE_DEPTH_TEST_MASK
 				| BGFX_STATE_BLEND_MASK
 				| BGFX_STATE_BLEND_EQUATION_MASK
@@ -2968,27 +2971,28 @@ VK_IMPORT_DEVICE
 //			VK_CHECK(vkWaitForFences(m_device, 1, &m_fence, true, INT64_MAX) );
 		}
 
-		uint32_t selectMemoryType(uint32_t memoryTypeBits, uint32_t propertyFlags)
+		uint32_t selectMemoryType(uint32_t _memoryTypeBits, uint32_t _propertyFlags) const
 		{
-			for (uint32_t ii = 0; ii < m_memoryProperties.memoryTypeCount; ++ii)
+			for (uint32_t ii = 0, num = m_memoryProperties.memoryTypeCount; ii < num; ++ii)
 			{
-				if ( ( ((1<<ii) & memoryTypeBits) != 0)
-				&& ( (m_memoryProperties.memoryTypes[ii].propertyFlags & propertyFlags) == propertyFlags) )
+				const VkMemoryType& memType = m_memoryProperties.memoryTypes[ii];
+				if ( (0 != ( (1<<ii) & _memoryTypeBits) )
+				&& ( (memType.propertyFlags & _propertyFlags) == _propertyFlags) )
 				{
 					return ii;
 				}
 			}
 
-			BX_TRACE("failed to find memory that supports flags 0x%08x", propertyFlags);
+			BX_TRACE("Failed to find memory that supports flags 0x%08x.", _propertyFlags);
 			return 0;
 		}
 
-		VkAllocationCallbacks* m_allocatorCb;
+		VkAllocationCallbacks*   m_allocatorCb;
 		VkDebugReportCallbackEXT m_debugReportCallback;
 		VkInstance       m_instance;
 		VkPhysicalDevice m_physicalDevice;
 
-		VkPhysicalDeviceProperties m_deviceProperties;
+		VkPhysicalDeviceProperties       m_deviceProperties;
 		VkPhysicalDeviceMemoryProperties m_memoryProperties;
 
 		VkSwapchainCreateInfoKHR m_sci;
@@ -4418,7 +4422,7 @@ BX_UNUSED(presentMin, presentMax);
 
 				tvm.clear();
 				uint16_t pos = 0;
-				tvm.printf(0, pos++, BGFX_CONFIG_DEBUG ? 0x89 : 0x8f
+				tvm.printf(0, pos++, BGFX_CONFIG_DEBUG ? 0x8c : 0x8f
 					, " %s / " BX_COMPILER_NAME " / " BX_CPU_NAME " / " BX_ARCH_NAME " / " BX_PLATFORM_NAME " "
 					, getRendererName()
 					);
@@ -4470,13 +4474,13 @@ BX_UNUSED(presentMin, presentMax);
 //					);
 
 				pos = 10;
-				tvm.printf(10, pos++, 0x8e, "       Frame: % 7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] / % 6.2f FPS "
+				tvm.printf(10, pos++, 0x8b, "       Frame: % 7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] / % 6.2f FPS "
 					, double(frameTime)*toMs
 					, double(min)*toMs
 					, double(max)*toMs
 					, freq/frameTime
 					);
-//				tvm.printf(10, pos++, 0x8e, "     Present: % 7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] "
+//				tvm.printf(10, pos++, 0x8b, "     Present: % 7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] "
 //					, double(m_presentElapsed)*toMs
 //					, double(presentMin)*toMs
 //					, double(presentMax)*toMs
@@ -4486,7 +4490,7 @@ BX_UNUSED(presentMin, presentMax);
 				bx::snprintf(hmd, BX_COUNTOF(hmd), ", [%c] HMD ", hmdEnabled ? '\xfe' : ' ');
 
 				const uint32_t msaa = (m_resolution.m_flags&BGFX_RESET_MSAA_MASK)>>BGFX_RESET_MSAA_SHIFT;
-				tvm.printf(10, pos++, 0x8e, " Reset flags: [%c] vsync, [%c] MSAAx%d%s, [%c] MaxAnisotropy "
+				tvm.printf(10, pos++, 0x8b, " Reset flags: [%c] vsync, [%c] MSAAx%d%s, [%c] MaxAnisotropy "
 					, !!(m_resolution.m_flags&BGFX_RESET_VSYNC) ? '\xfe' : ' '
 					, 0 != msaa ? '\xfe' : ' '
 					, 1<<msaa
@@ -4495,7 +4499,7 @@ BX_UNUSED(presentMin, presentMax);
 					);
 
 				double elapsedCpuMs = double(frameTime)*toMs;
-				tvm.printf(10, pos++, 0x8e, "   Submitted: %5d (draw %5d, compute %4d) / CPU %7.4f [ms] "
+				tvm.printf(10, pos++, 0x8b, "   Submitted: %5d (draw %5d, compute %4d) / CPU %7.4f [ms] "
 					, _render->m_numRenderItems
 					, statsKeyType[0]
 					, statsKeyType[1]
@@ -4504,7 +4508,7 @@ BX_UNUSED(presentMin, presentMax);
 
 				for (uint32_t ii = 0; ii < BX_COUNTOF(s_primName); ++ii)
 				{
-					tvm.printf(10, pos++, 0x8e, "   %9s: %7d (#inst: %5d), submitted: %7d "
+					tvm.printf(10, pos++, 0x8b, "   %9s: %7d (#inst: %5d), submitted: %7d "
 						, s_primName[ii]
 						, statsNumPrimsRendered[ii]
 						, statsNumInstances[ii]
@@ -4512,13 +4516,13 @@ BX_UNUSED(presentMin, presentMax);
 						);
 				}
 
-//				tvm.printf(10, pos++, 0x8e, "       Batch: %7dx%d indirect, %7d immediate "
+//				tvm.printf(10, pos++, 0x8b, "       Batch: %7dx%d indirect, %7d immediate "
 //					, m_batch.m_stats.m_numIndirect[BatchD3D12::Draw]
 //					, m_batch.m_maxDrawPerBatch
 //					, m_batch.m_stats.m_numImmediate[BatchD3D12::Draw]
 //					);
 
-//				tvm.printf(10, pos++, 0x8e, "              %7dx%d indirect, %7d immediate "
+//				tvm.printf(10, pos++, 0x8b, "              %7dx%d indirect, %7d immediate "
 //					, m_batch.m_stats.m_numIndirect[BatchD3D12::DrawIndexed]
 //					, m_batch.m_maxDrawPerBatch
 //					, m_batch.m_stats.m_numImmediate[BatchD3D12::DrawIndexed]
@@ -4529,15 +4533,15 @@ BX_UNUSED(presentMin, presentMax);
  					tvm.printf(tvm.m_width-27, 0, 0x1f, " [F11 - RenderDoc capture] ");
  				}
 
-				tvm.printf(10, pos++, 0x8e, "      Indices: %7d ", statsNumIndices);
-//				tvm.printf(10, pos++, 0x8e, " Uniform size: %7d, Max: %7d ", _render->m_uniformEnd, _render->m_uniformMax);
-				tvm.printf(10, pos++, 0x8e, "     DVB size: %7d ", _render->m_vboffset);
-				tvm.printf(10, pos++, 0x8e, "     DIB size: %7d ", _render->m_iboffset);
+				tvm.printf(10, pos++, 0x8b, "      Indices: %7d ", statsNumIndices);
+//				tvm.printf(10, pos++, 0x8b, " Uniform size: %7d, Max: %7d ", _render->m_uniformEnd, _render->m_uniformMax);
+				tvm.printf(10, pos++, 0x8b, "     DVB size: %7d ", _render->m_vboffset);
+				tvm.printf(10, pos++, 0x8b, "     DIB size: %7d ", _render->m_iboffset);
 
 				pos++;
-				tvm.printf(10, pos++, 0x8e, " State cache:                        ");
-				tvm.printf(10, pos++, 0x8e, " PSO    | Sampler | Bind   | Queued  ");
-				tvm.printf(10, pos++, 0x8e, " %6d " //|  %6d | %6d | %6d  "
+				tvm.printf(10, pos++, 0x8b, " State cache:                        ");
+				tvm.printf(10, pos++, 0x8b, " PSO    | Sampler | Bind   | Queued  ");
+				tvm.printf(10, pos++, 0x8b, " %6d " //|  %6d | %6d | %6d  "
 					, m_pipelineStateCache.getCount()
 //					, m_samplerStateCache.getCount()
 //					, bindLru.getCount()
@@ -4546,9 +4550,9 @@ BX_UNUSED(presentMin, presentMax);
 				pos++;
 
 				double captureMs = double(captureElapsed)*toMs;
-				tvm.printf(10, pos++, 0x8e, "     Capture: %7.4f [ms] ", captureMs);
+				tvm.printf(10, pos++, 0x8b, "     Capture: %7.4f [ms] ", captureMs);
 
-				uint8_t attr[2] = { 0x89, 0x8a };
+				uint8_t attr[2] = { 0x8c, 0x8a };
 				uint8_t attrIndex = _render->m_waitSubmit < _render->m_waitRender;
 
 				tvm.printf(10, pos++, attr[attrIndex&1], " Submit wait: %7.4f [ms] ", _render->m_waitSubmit*toMs);

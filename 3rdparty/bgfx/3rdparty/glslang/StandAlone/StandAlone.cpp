@@ -98,6 +98,7 @@ enum TOptions {
     EOptionStdin                = (1 << 27),
     EOptionOptimizeDisable      = (1 << 28),
     EOptionOptimizeSize         = (1 << 29),
+    EOptionInvertY              = (1 << 30),
 };
 
 //
@@ -158,7 +159,7 @@ std::vector<std::string> IncludeDirectoryList;
 int ClientInputSemanticsVersion = 100;   // maps to, say, #define VULKAN 100
 int VulkanClientVersion = 100;           // would map to, say, Vulkan 1.0
 int OpenGLClientVersion = 450;           // doesn't influence anything yet, but maps to OpenGL 4.50
-unsigned int TargetVersion = 0x00001000; // maps to, say, SPIR-V 1.0
+unsigned int TargetVersion = 0x00010000; // maps to, say, SPIR-V 1.0
 std::vector<std::string> Processes;      // what should be recorded by OpModuleProcessed, or equivalent
 
 // Per descriptor-set binding base data
@@ -519,6 +520,9 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
                         variableName = argv[1];
                         bumpArg();
                         break;
+                    } else if (lowerword == "invert-y" ||  // synonyms
+                               lowerword == "iy") {
+                        Options |= EOptionInvertY;
                     } else {
                         usage();
                     }
@@ -840,6 +844,9 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
         if (Options & EOptionAutoMapLocations)
             shader->setAutoMapLocations(true);
 
+        if (Options & EOptionInvertY)
+            shader->setInvertY(true);
+
         // Set up the environment, some subsettings take precedence over earlier
         // ways of setting things.
         if (Options & EOptionSpv) {
@@ -848,7 +855,7 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
                                                                 : glslang::EShSourceGlsl,
                                         compUnit.stage, glslang::EShClientVulkan, ClientInputSemanticsVersion);
                 shader->setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
-                shader->setEnvTarget(glslang::EshTargetSpv, TargetVersion);
+                shader->setEnvTarget(glslang::EShTargetSpv, TargetVersion);
             } else {
                 shader->setEnvInput((Options & EOptionReadHlsl) ? glslang::EShSourceHlsl
                                                                 : glslang::EShSourceGlsl,
@@ -1359,6 +1366,7 @@ void usage()
            "                                       uint32_t array named <name>\n"
            "                                       initialized with the shader binary code.\n"
            "  --vn <name>                          synonym for --variable-name <name>\n"
+           "  --invert-y | --iy                    invert position.Y output in vertex shader\n"
            );
 
     exit(EFailUsage);

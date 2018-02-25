@@ -1,7 +1,10 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
+
+#ifndef BIMG_P_H_HEADER_GUARD
+#define BIMG_P_H_HEADER_GUARD
 
 #include <bimg/bimg.h>
 #include <bx/allocator.h>
@@ -41,7 +44,7 @@ namespace bimg
 		if (_hasMips)
 		{
 			const uint32_t max = bx::uint32_max(bx::uint32_max(_width, _height), _depth);
-			const uint32_t num = 1 + uint32_t(bx::flog2(float(max) ) );
+			const uint32_t num = 1 + uint32_t(bx::log2(float(max) ) );
 
 			return uint8_t(num);
 		}
@@ -80,3 +83,5 @@ namespace bimg
 		);
 
 } // namespace bimg
+
+#endif // BIMG_P_H_HEADER_GUARD

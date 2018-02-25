@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2018 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 --
 
@@ -232,7 +232,7 @@ function exampleProjectDefaults()
 			"kernelx",
 		}
 
-	configuration { "winphone8* or winstore8*" }
+	configuration { "winstore*" }
 		removelinks {
 			"DelayImp",
 			"gdi32",
@@ -240,6 +240,7 @@ function exampleProjectDefaults()
 		}
 		links {
 			"d3d11",
+			"d3d12",
 			"dxgi"
 		}
 		linkoptions {
@@ -247,15 +248,15 @@ function exampleProjectDefaults()
 		}
 
 	-- WinRT targets need their own output directories or build files stomp over each other
-	configuration { "x32", "winphone8* or winstore8*" }
+	configuration { "x32", "winstore*" }
 		targetdir (path.join(BGFX_BUILD_DIR, "win32_" .. _ACTION, "bin", _name))
 		objdir (path.join(BGFX_BUILD_DIR, "win32_" .. _ACTION, "obj", _name))
 
-	configuration { "x64", "winphone8* or winstore8*" }
+	configuration { "x64", "winstore*" }
 		targetdir (path.join(BGFX_BUILD_DIR, "win64_" .. _ACTION, "bin", _name))
 		objdir (path.join(BGFX_BUILD_DIR, "win64_" .. _ACTION, "obj", _name))
 
-	configuration { "ARM", "winphone8* or winstore8*" }
+	configuration { "ARM", "winstore*" }
 		targetdir (path.join(BGFX_BUILD_DIR, "arm_" .. _ACTION, "bin", _name))
 		objdir (path.join(BGFX_BUILD_DIR, "arm_" .. _ACTION, "obj", _name))
 
@@ -271,24 +272,6 @@ function exampleProjectDefaults()
 		links {
 			"EGL",
 			"GLESv2",
-		}
-
-	configuration { "nacl*" }
-		kind "ConsoleApp"
-		targetextension ".nexe"
-		links {
-			"ppapi",
-			"ppapi_gles2",
-			"pthread",
-		}
-
-	configuration { "pnacl" }
-		kind "ConsoleApp"
-		targetextension ".pexe"
-		links {
-			"ppapi",
-			"ppapi_gles2",
-			"pthread",
 		}
 
 	configuration { "asmjs" }

@@ -44,6 +44,7 @@
 namespace spv {
     #include "GLSL.std.450.h"
     #include "GLSL.ext.KHR.h"
+    #include "GLSL.ext.EXT.h"
 #ifdef AMD_EXTENSIONS
     #include "GLSL.ext.AMD.h"
 #endif
@@ -106,7 +107,8 @@ private:
 //
 class TGlslangToSpvTraverser : public glslang::TIntermTraverser {
 public:
-    TGlslangToSpvTraverser(const glslang::TIntermediate*, spv::SpvBuildLogger* logger, glslang::SpvOptions& options);
+    TGlslangToSpvTraverser(unsigned int spvVersion, const glslang::TIntermediate*, spv::SpvBuildLogger* logger,
+        glslang::SpvOptions& options);
     virtual ~TGlslangToSpvTraverser() { }
 
     bool visitAggregate(glslang::TVisit, glslang::TIntermAggregate*);
@@ -127,8 +129,9 @@ protected:
     spv::Decoration TranslateAuxiliaryStorageDecoration(const glslang::TQualifier& qualifier);
     spv::BuiltIn TranslateBuiltInDecoration(glslang::TBuiltInVariable, bool memberDeclaration);
     spv::ImageFormat TranslateImageFormat(const glslang::TType& type);
-    spv::SelectionControlMask TranslateSelectionControl(glslang::TSelectionControl) const;
-    spv::LoopControlMask TranslateLoopControl(glslang::TLoopControl) const;
+    spv::SelectionControlMask TranslateSelectionControl(const glslang::TIntermSelection&) const;
+    spv::SelectionControlMask TranslateSwitchControl(const glslang::TIntermSwitch&) const;
+    spv::LoopControlMask TranslateLoopControl(const glslang::TIntermLoop&, unsigned int& dependencyLength) const;
     spv::StorageClass TranslateStorageClass(const glslang::TType&);
     spv::Id createSpvVariable(const glslang::TIntermSymbol*);
     spv::Id getSampledType(const glslang::TSampler&);
@@ -185,7 +188,9 @@ protected:
     bool isTrivialLeaf(const glslang::TIntermTyped* node);
     bool isTrivial(const glslang::TIntermTyped* node);
     spv::Id createShortCircuit(glslang::TOperator, glslang::TIntermTyped& left, glslang::TIntermTyped& right);
+#ifdef AMD_EXTENSIONS
     spv::Id getExtBuiltins(const char* name);
+#endif
 
     glslang::SpvOptions& options;
     spv::Function* shaderEntry;
@@ -646,6 +651,10 @@ spv::BuiltIn TGlslangToSpvTraverser::TranslateBuiltInDecoration(glslang::TBuiltI
             builder.addCapability(spv::CapabilityPerViewAttributesNV);
         }
         return spv::BuiltInViewportMaskPerViewNV;
+    case glslang::EbvFragFullyCoveredNV:
+        builder.addExtension(spv::E_SPV_EXT_fragment_fully_covered);
+        builder.addCapability(spv::CapabilityFragmentFullyCoveredEXT);
+        return spv::BuiltInFullyCoveredEXT;
 #endif 
     default:
         return spv::BuiltInMax;
@@ -740,26 +749,42 @@ spv::ImageFormat TGlslangToSpvTraverser::TranslateImageFormat(const glslang::TTy
     }
 }
 
-spv::SelectionControlMask TGlslangToSpvTraverser::TranslateSelectionControl(glslang::TSelectionControl selectionControl) const
+spv::SelectionControlMask TGlslangToSpvTraverser::TranslateSelectionControl(const glslang::TIntermSelection& selectionNode) const
 {
-    switch (selectionControl) {
-    case glslang::ESelectionControlNone:        return spv::SelectionControlMaskNone;
-    case glslang::ESelectionControlFlatten:     return spv::SelectionControlFlattenMask;
-    case glslang::ESelectionControlDontFlatten: return spv::SelectionControlDontFlattenMask;
-    default:                                    return spv::SelectionControlMaskNone;
-    }
+    if (selectionNode.getFlatten())
+        return spv::SelectionControlFlattenMask;
+    if (selectionNode.getDontFlatten())
+        return spv::SelectionControlDontFlattenMask;
+    return spv::SelectionControlMaskNone;
 }
 
-spv::LoopControlMask TGlslangToSpvTraverser::TranslateLoopControl(glslang::TLoopControl loopControl) const
+spv::SelectionControlMask TGlslangToSpvTraverser::TranslateSwitchControl(const glslang::TIntermSwitch& switchNode) const
 {
-    switch (loopControl) {
-    case glslang::ELoopControlNone:       return spv::LoopControlMaskNone;
-    case glslang::ELoopControlUnroll:     return spv::LoopControlUnrollMask;
-    case glslang::ELoopControlDontUnroll: return spv::LoopControlDontUnrollMask;
-    // TODO: DependencyInfinite
-    // TODO: DependencyLength
-    default:                              return spv::LoopControlMaskNone;
+    if (switchNode.getFlatten())
+        return spv::SelectionControlFlattenMask;
+    if (switchNode.getDontFlatten())
+        return spv::SelectionControlDontFlattenMask;
+    return spv::SelectionControlMaskNone;
+}
+
+// return a non-0 dependency if the dependency argument must be set
+spv::LoopControlMask TGlslangToSpvTraverser::TranslateLoopControl(const glslang::TIntermLoop& loopNode,
+    unsigned int& dependencyLength) const
+{
+    spv::LoopControlMask control = spv::LoopControlMaskNone;
+
+    if (loopNode.getDontUnroll())
+        control = control | spv::LoopControlDontUnrollMask;
+    if (loopNode.getUnroll())
+        control = control | spv::LoopControlUnrollMask;
+    if (loopNode.getLoopDependency() == glslang::TIntermLoop::dependencyInfinite)
+        control = control | spv::LoopControlDependencyInfiniteMask;
+    else if (loopNode.getLoopDependency() > 0) {
+        control = control | spv::LoopControlDependencyLengthMask;
+        dependencyLength = loopNode.getLoopDependency();
     }
+
+    return control;
 }
 
 // Translate glslang type to SPIR-V storage class.
@@ -873,13 +898,13 @@ bool HasNonLayoutQualifiers(const glslang::TType& type, const glslang::TQualifie
 // Implement the TGlslangToSpvTraverser class.
 //
 
-TGlslangToSpvTraverser::TGlslangToSpvTraverser(const glslang::TIntermediate* glslangIntermediate,
+TGlslangToSpvTraverser::TGlslangToSpvTraverser(unsigned int spvVersion, const glslang::TIntermediate* glslangIntermediate,
                                                spv::SpvBuildLogger* buildLogger, glslang::SpvOptions& options)
     : TIntermTraverser(true, false, true),
       options(options),
       shaderEntry(nullptr), currentFunction(nullptr),
       sequenceDepth(0), logger(buildLogger),
-      builder((glslang::GetKhronosToolId() << 16) | glslang::GetSpirvGeneratorVersion(), logger),
+      builder(spvVersion, (glslang::GetKhronosToolId() << 16) | glslang::GetSpirvGeneratorVersion(), logger),
       inEntryPoint(false), entryPointTerminated(false), linkageOnly(false),
       glslangIntermediate(glslangIntermediate)
 {
@@ -1757,8 +1782,9 @@ bool TGlslangToSpvTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
     case glslang::EOpMemoryBarrierImage:
     case glslang::EOpMemoryBarrierShared:
     case glslang::EOpGroupMemoryBarrier:
+    case glslang::EOpDeviceMemoryBarrier:
     case glslang::EOpAllMemoryBarrierWithGroupSync:
-    case glslang::EOpGroupMemoryBarrierWithGroupSync:
+    case glslang::EOpDeviceMemoryBarrierWithGroupSync:
     case glslang::EOpWorkgroupMemoryBarrier:
     case glslang::EOpWorkgroupMemoryBarrierWithGroupSync:
         noReturnValue = true;
@@ -2017,7 +2043,7 @@ bool TGlslangToSpvTraverser::visitSelection(glslang::TVisit /* visit */, glslang
     node->getCondition()->traverse(this);
 
     // Selection control:
-    const spv::SelectionControlMask control = TranslateSelectionControl(node->getSelectionControl());
+    const spv::SelectionControlMask control = TranslateSelectionControl(*node);
 
     // make an "if" based on the value created by the condition
     spv::Builder::If ifBuilder(accessChainLoad(node->getCondition()->getType()), control, builder);
@@ -2059,7 +2085,7 @@ bool TGlslangToSpvTraverser::visitSwitch(glslang::TVisit /* visit */, glslang::T
     spv::Id selector = accessChainLoad(node->getCondition()->getAsTyped()->getType());
 
     // Selection control:
-    const spv::SelectionControlMask control = TranslateSelectionControl(node->getSelectionControl());
+    const spv::SelectionControlMask control = TranslateSwitchControl(*node);
 
     // browse the children to sort out code segments
     int defaultSegment = -1;
@@ -2119,9 +2145,8 @@ bool TGlslangToSpvTraverser::visitLoop(glslang::TVisit /* visit */, glslang::TIn
     builder.createBranch(&blocks.head);
 
     // Loop control:
-    const spv::LoopControlMask control = TranslateLoopControl(node->getLoopControl());
-
-    // TODO: dependency length
+    unsigned int dependencyLength = glslang::TIntermLoop::dependencyInfinite;
+    const spv::LoopControlMask control = TranslateLoopControl(*node, dependencyLength);
 
     // Spec requires back edges to target header blocks, and every header block
     // must dominate its merge block.  Make a header block first to ensure these
@@ -2131,7 +2156,7 @@ bool TGlslangToSpvTraverser::visitLoop(glslang::TVisit /* visit */, glslang::TIn
     // including merges of its own.
     builder.setLine(node->getLoc().line);
     builder.setBuildPoint(&blocks.head);
-    builder.createLoopMerge(&blocks.merge, &blocks.continue_target, control);
+    builder.createLoopMerge(&blocks.merge, &blocks.continue_target, control, dependencyLength);
     if (node->testFirst() && node->getTest()) {
         spv::Block& test = builder.makeNewBlock();
         builder.createBranch(&test);
@@ -2655,13 +2680,6 @@ void TGlslangToSpvTraverser::decorateStructType(const glslang::TType& type,
     if (type.getQualifier().hasStream() && glslangIntermediate->isMultiStream()) {
         builder.addCapability(spv::CapabilityGeometryStreams);
         builder.addDecoration(spvType, spv::DecorationStream, type.getQualifier().layoutStream);
-    }
-    if (glslangIntermediate->getXfbMode()) {
-        builder.addCapability(spv::CapabilityTransformFeedback);
-        if (type.getQualifier().hasXfbStride())
-            builder.addDecoration(spvType, spv::DecorationXfbStride, type.getQualifier().layoutXfbStride);
-        if (type.getQualifier().hasXfbBuffer())
-            builder.addDecoration(spvType, spv::DecorationXfbBuffer, type.getQualifier().layoutXfbBuffer);
     }
 }
 
@@ -5431,40 +5449,65 @@ spv::Id TGlslangToSpvTraverser::createNoArgOperation(glslang::TOperator op, spv:
         builder.createNoResultOp(spv::OpEndPrimitive);
         return 0;
     case glslang::EOpBarrier:
-        builder.createControlBarrier(spv::ScopeWorkgroup, spv::ScopeDevice, spv::MemorySemanticsMaskNone);
+        if (glslangIntermediate->getStage() == EShLangTessControl) {
+            builder.createControlBarrier(spv::ScopeWorkgroup, spv::ScopeInvocation, spv::MemorySemanticsMaskNone);
+            // TODO: prefer the following, when available:
+            // builder.createControlBarrier(spv::ScopePatch, spv::ScopePatch,
+            //                                 spv::MemorySemanticsPatchMask |
+            //                                 spv::MemorySemanticsAcquireReleaseMask);
+        } else {
+            builder.createControlBarrier(spv::ScopeWorkgroup, spv::ScopeWorkgroup,
+                                            spv::MemorySemanticsWorkgroupMemoryMask |
+                                            spv::MemorySemanticsAcquireReleaseMask);
+        }
         return 0;
     case glslang::EOpMemoryBarrier:
-        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsAllMemory);
+        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsAllMemory |
+                                                      spv::MemorySemanticsAcquireReleaseMask);
         return 0;
     case glslang::EOpMemoryBarrierAtomicCounter:
-        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsAtomicCounterMemoryMask);
+        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsAtomicCounterMemoryMask |
+                                                      spv::MemorySemanticsAcquireReleaseMask);
         return 0;
     case glslang::EOpMemoryBarrierBuffer:
-        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsUniformMemoryMask);
+        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsUniformMemoryMask |
+                                                      spv::MemorySemanticsAcquireReleaseMask);
         return 0;
     case glslang::EOpMemoryBarrierImage:
-        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsImageMemoryMask);
+        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsImageMemoryMask |
+                                                      spv::MemorySemanticsAcquireReleaseMask);
         return 0;
     case glslang::EOpMemoryBarrierShared:
-        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsWorkgroupMemoryMask);
+        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsWorkgroupMemoryMask |
+                                                      spv::MemorySemanticsAcquireReleaseMask);
         return 0;
     case glslang::EOpGroupMemoryBarrier:
-        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsCrossWorkgroupMemoryMask);
+        builder.createMemoryBarrier(spv::ScopeWorkgroup, spv::MemorySemanticsAllMemory |
+                                                         spv::MemorySemanticsAcquireReleaseMask);
         return 0;
     case glslang::EOpAllMemoryBarrierWithGroupSync:
-        // Control barrier with non-"None" semantic is also a memory barrier.
-        builder.createControlBarrier(spv::ScopeDevice, spv::ScopeDevice, spv::MemorySemanticsAllMemory);
+        builder.createControlBarrier(spv::ScopeWorkgroup, spv::ScopeDevice,
+                                        spv::MemorySemanticsAllMemory |
+                                        spv::MemorySemanticsAcquireReleaseMask);
         return 0;
-    case glslang::EOpGroupMemoryBarrierWithGroupSync:
-        // Control barrier with non-"None" semantic is also a memory barrier.
-        builder.createControlBarrier(spv::ScopeDevice, spv::ScopeDevice, spv::MemorySemanticsCrossWorkgroupMemoryMask);
+    case glslang::EOpDeviceMemoryBarrier:
+        builder.createMemoryBarrier(spv::ScopeDevice, spv::MemorySemanticsUniformMemoryMask |
+                                                      spv::MemorySemanticsImageMemoryMask |
+                                                      spv::MemorySemanticsAcquireReleaseMask);
+        return 0;
+    case glslang::EOpDeviceMemoryBarrierWithGroupSync:
+        builder.createControlBarrier(spv::ScopeWorkgroup, spv::ScopeDevice, spv::MemorySemanticsUniformMemoryMask |
+                                                                            spv::MemorySemanticsImageMemoryMask |
+                                                                            spv::MemorySemanticsAcquireReleaseMask);
         return 0;
     case glslang::EOpWorkgroupMemoryBarrier:
-        builder.createMemoryBarrier(spv::ScopeWorkgroup, spv::MemorySemanticsWorkgroupMemoryMask);
+        builder.createMemoryBarrier(spv::ScopeWorkgroup, spv::MemorySemanticsWorkgroupMemoryMask |
+                                                         spv::MemorySemanticsAcquireReleaseMask);
         return 0;
     case glslang::EOpWorkgroupMemoryBarrierWithGroupSync:
-        // Control barrier with non-"None" semantic is also a memory barrier.
-        builder.createControlBarrier(spv::ScopeWorkgroup, spv::ScopeWorkgroup, spv::MemorySemanticsWorkgroupMemoryMask);
+        builder.createControlBarrier(spv::ScopeWorkgroup, spv::ScopeWorkgroup,
+                                        spv::MemorySemanticsWorkgroupMemoryMask |
+                                        spv::MemorySemanticsAcquireReleaseMask);
         return 0;
 #ifdef AMD_EXTENSIONS
     case glslang::EOpTime:
@@ -5503,15 +5546,6 @@ spv::Id TGlslangToSpvTraverser::getSymbolId(const glslang::TIntermSymbol* symbol
             builder.addDecoration(id, spv::DecorationIndex, symbol->getQualifier().layoutIndex);
         if (symbol->getQualifier().hasComponent())
             builder.addDecoration(id, spv::DecorationComponent, symbol->getQualifier().layoutComponent);
-        if (glslangIntermediate->getXfbMode()) {
-            builder.addCapability(spv::CapabilityTransformFeedback);
-            if (symbol->getQualifier().hasXfbStride())
-                builder.addDecoration(id, spv::DecorationXfbStride, symbol->getQualifier().layoutXfbStride);
-            if (symbol->getQualifier().hasXfbBuffer())
-                builder.addDecoration(id, spv::DecorationXfbBuffer, symbol->getQualifier().layoutXfbBuffer);
-            if (symbol->getQualifier().hasXfbOffset())
-                builder.addDecoration(id, spv::DecorationOffset, symbol->getQualifier().layoutXfbOffset);
-        }
         // atomic counters use this:
         if (symbol->getQualifier().hasOffset())
             builder.addDecoration(id, spv::DecorationOffset, symbol->getQualifier().layoutOffset);
@@ -5538,8 +5572,14 @@ spv::Id TGlslangToSpvTraverser::getSymbolId(const glslang::TIntermSymbol* symbol
         builder.addCapability(spv::CapabilityTransformFeedback);
         if (symbol->getQualifier().hasXfbStride())
             builder.addDecoration(id, spv::DecorationXfbStride, symbol->getQualifier().layoutXfbStride);
-        if (symbol->getQualifier().hasXfbBuffer())
+        if (symbol->getQualifier().hasXfbBuffer()) {
             builder.addDecoration(id, spv::DecorationXfbBuffer, symbol->getQualifier().layoutXfbBuffer);
+            unsigned stride = glslangIntermediate->getXfbStride(symbol->getQualifier().layoutXfbBuffer);
+            if (stride != glslang::TQualifier::layoutXfbStrideEnd)
+                builder.addDecoration(id, spv::DecorationXfbStride, stride);
+        }
+        if (symbol->getQualifier().hasXfbOffset())
+            builder.addDecoration(id, spv::DecorationOffset, symbol->getQualifier().layoutXfbOffset);
     }
 
     if (symbol->getType().isImage()) {
@@ -5933,6 +5973,7 @@ spv::Id TGlslangToSpvTraverser::createShortCircuit(glslang::TOperator op, glslan
     return builder.createOp(spv::OpPhi, boolTypeId, phiOperands);
 }
 
+#ifdef AMD_EXTENSIONS
 // Return type Id of the imported set of extended instructions corresponds to the name.
 // Import this set if it has not been imported yet.
 spv::Id TGlslangToSpvTraverser::getExtBuiltins(const char* name)
@@ -5946,6 +5987,7 @@ spv::Id TGlslangToSpvTraverser::getExtBuiltins(const char* name)
         return extBuiltins;
     }
 }
+#endif
 
 };  // end anonymous namespace
 
@@ -5964,7 +6006,10 @@ void GetSpirvVersion(std::string& version)
 // or a different instruction sequence to do something gets used).
 int GetSpirvGeneratorVersion()
 {
-    return 2;
+    // return 1; // start
+    // return 2; // EOpAtomicCounterDecrement gets a post decrement, to map between GLSL -> SPIR-V
+    // return 3; // change/correct barrier-instruction operands, to match memory model group decisions
+       return 4; // some deeper access chains: for dynamic vector component, and local Boolean component
 }
 
 // Write SPIR-V out to a binary file
@@ -6040,7 +6085,7 @@ void GlslangToSpv(const glslang::TIntermediate& intermediate, std::vector<unsign
 
     glslang::GetThreadPoolAllocator().push();
 
-    TGlslangToSpvTraverser it(&intermediate, logger, *options);
+    TGlslangToSpvTraverser it(intermediate.getSpv().spv, &intermediate, logger, *options);
     root->traverse(&it);
     it.finishSpv();
     it.dumpSpv(spirv);
@@ -6063,20 +6108,26 @@ void GlslangToSpv(const glslang::TIntermediate& intermediate, std::vector<unsign
         });
 
         optimizer.RegisterPass(CreateInlineExhaustivePass());
+        optimizer.RegisterPass(CreateEliminateDeadFunctionsPass());
+        optimizer.RegisterPass(CreateScalarReplacementPass());
         optimizer.RegisterPass(CreateLocalAccessChainConvertPass());
         optimizer.RegisterPass(CreateLocalSingleBlockLoadStoreElimPass());
         optimizer.RegisterPass(CreateLocalSingleStoreElimPass());
         optimizer.RegisterPass(CreateInsertExtractElimPass());
+        optimizer.RegisterPass(CreateDeadInsertElimPass());
         optimizer.RegisterPass(CreateAggressiveDCEPass());
         optimizer.RegisterPass(CreateDeadBranchElimPass());
         optimizer.RegisterPass(CreateCFGCleanupPass());
         optimizer.RegisterPass(CreateBlockMergePass());
         optimizer.RegisterPass(CreateLocalMultiStoreElimPass());
         optimizer.RegisterPass(CreateInsertExtractElimPass());
+        optimizer.RegisterPass(CreateDeadInsertElimPass());
+        if (options->optimizeSize) {
+            optimizer.RegisterPass(CreateRedundancyEliminationPass());
+            // TODO(greg-lunarg): Add this when AMD driver issues are resolved
+            // optimizer.RegisterPass(CreateCommonUniformElimPass());
+        }
         optimizer.RegisterPass(CreateAggressiveDCEPass());
-        // TODO(greg-lunarg): Add this when AMD driver issues are resolved
-        // if (options->optimizeSize)
-        //     optimizer.RegisterPass(CreateCommonUniformElimPass());
 
         if (!optimizer.Run(spirv.data(), spirv.size(), &spirv))
             return;

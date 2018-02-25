@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -15,7 +15,6 @@
 #include "platform.h"
 #include "config.h"
 #include "macros.h"
-#include "debug.h"
 
 ///
 #define BX_COUNTOF(_x) sizeof(bx::COUNTOF_REQUIRES_ARRAY_ARGUMENT(_x) )
@@ -33,7 +32,7 @@ namespace bx
 
 	/// Template for avoiding MSVC: C4127: conditional expression is constant
 	template<bool>
-	bool isEnabled();
+	constexpr bool isEnabled();
 
 	/// Exchange two values.
 	template<typename Ty>
@@ -44,27 +43,31 @@ namespace bx
 
 	/// Returns minimum of two values.
 	template<typename Ty>
-	Ty min(const Ty& _a, const Ty& _b);
+	constexpr Ty min(const Ty& _a, const Ty& _b);
 
 	/// Returns maximum of two values.
 	template<typename Ty>
-	Ty max(const Ty& _a, const Ty& _b);
+	constexpr Ty max(const Ty& _a, const Ty& _b);
 
 	/// Returns minimum of three values.
 	template<typename Ty>
-	Ty min(const Ty& _a, const Ty& _b, const Ty& _c);
+	constexpr Ty min(const Ty& _a, const Ty& _b, const Ty& _c);
 
 	/// Returns maximum of three values.
 	template<typename Ty>
-	Ty max(const Ty& _a, const Ty& _b, const Ty& _c);
+	constexpr Ty max(const Ty& _a, const Ty& _b, const Ty& _c);
 
 	/// Returns middle of three values.
 	template<typename Ty>
-	Ty mid(const Ty& _a, const Ty& _b, const Ty& _c);
+	constexpr Ty mid(const Ty& _a, const Ty& _b, const Ty& _c);
 
 	/// Returns clamped value between min/max.
 	template<typename Ty>
-	Ty clamp(const Ty& _a, const Ty& _min, const Ty& _max);
+	constexpr Ty clamp(const Ty& _a, const Ty& _min, const Ty& _max);
+
+	/// Returns true if value is power of 2.
+	template<typename Ty>
+	constexpr bool isPowerOf2(Ty _a);
 
 	// http://cnicholson.net/2011/01/stupid-c-tricks-a-better-sizeof_array/
 	template<typename T, size_t N>

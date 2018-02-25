@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -8,15 +8,17 @@
 #include <bx/os.h>
 #include <bx/readerwriter.h>
 
-#include <stdio.h>  // remove
-#include <dirent.h> // opendir
+#if !BX_CRT_NONE
+#	include <stdio.h>  // remove
+#	include <dirent.h> // opendir
 
-#if BX_CRT_MSVC
-#	include <direct.h>   // _getcwd
-#else
-#	include <sys/stat.h> // mkdir
-#	include <unistd.h>   // getcwd
-#endif // BX_CRT_MSVC
+#	if BX_CRT_MSVC
+#		include <direct.h>   // _getcwd
+#	else
+#		include <sys/stat.h> // mkdir
+#		include <unistd.h>   // getcwd
+#	endif // BX_CRT_MSVC
+#endif // 0
 
 #if BX_PLATFORM_WINDOWS
 extern "C" __declspec(dllimport) unsigned long __stdcall GetTempPathA(unsigned long _max, char* _ptr);
@@ -118,7 +120,6 @@ namespace bx
 
 					break;
 				}
-
 				BX_FALLTHROUGH;
 
 			default:
@@ -175,7 +176,8 @@ namespace bx
 	{
 #if BX_PLATFORM_PS4     \
  || BX_PLATFORM_XBOXONE \
- || BX_PLATFORM_WINRT
+ || BX_PLATFORM_WINRT   \
+ || BX_CRT_NONE
 		BX_UNUSED(_buffer, _size);
 		return NULL;
 #elif BX_CRT_MSVC
@@ -273,6 +275,14 @@ namespace bx
 	{
 		set(_rhs);
 		return *this;
+	}
+
+	void FilePath::clear()
+	{
+		if (!isEmpty() )
+		{
+			set("");
+		}
 	}
 
 	void FilePath::set(Dir::Enum _dir)
@@ -384,6 +394,11 @@ namespace bx
 			;
 	}
 
+	bool FilePath::isEmpty() const
+	{
+		return 0 == strCmp(m_filePath, ".");
+	}
+
 	bool make(const FilePath& _filePath, Error* _err)
 	{
 		BX_ERROR_SCOPE(_err);
@@ -397,6 +412,9 @@ namespace bx
 		int32_t result = ::_mkdir(_filePath.get() );
 #elif BX_CRT_MINGW
 		int32_t result = ::mkdir(_filePath.get());
+#elif BX_CRT_NONE
+		BX_UNUSED(_filePath);
+		int32_t result = -1;
 #else
 		int32_t result = ::mkdir(_filePath.get(), 0700);
 #endif // BX_CRT_MSVC
@@ -471,6 +489,9 @@ namespace bx
 				result = ::remove(_filePath.get() );
 			}
 		}
+#elif BX_CRT_NONE
+		BX_UNUSED(_filePath);
+		int32_t result = -1;
 #else
 		int32_t result = ::remove(_filePath.get() );
 #endif // BX_CRT_MSVC
@@ -509,7 +530,12 @@ namespace bx
 			return false;
 		}
 
-#if BX_PLATFORM_WINDOWS || BX_PLATFORM_LINUX || BX_PLATFORM_OSX
+#if BX_CRT_NONE
+		BX_UNUSED(_filePath);
+		return false;
+#elif  BX_PLATFORM_WINDOWS \
+	|| BX_PLATFORM_LINUX   \
+	|| BX_PLATFORM_OSX
 		DIR* dir = opendir(_filePath.get() );
 		if (NULL == dir)
 		{
@@ -535,7 +561,7 @@ namespace bx
 		}
 
 		closedir(dir);
-#endif // BX_PLATFORM_WINDOWS || BX_PLATFORM_LINUX || BX_PLATFORM_OSX
+#endif // !BX_CRT_NONE
 
 		return remove(_filePath, _err);
 	}

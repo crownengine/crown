@@ -507,9 +507,9 @@ namespace shader_resource_internal
 				);
 
 			u64 state = 0;
-			state |= (_rgb_write_enable   ? BGFX_STATE_RGB_WRITE   : 0);
-			state |= (_alpha_write_enable ? BGFX_STATE_ALPHA_WRITE : 0);
-			state |= (_depth_write_enable ? BGFX_STATE_DEPTH_WRITE : 0);
+			state |= (_rgb_write_enable   ? BGFX_STATE_WRITE_RGB : 0);
+			state |= (_alpha_write_enable ? BGFX_STATE_WRITE_A   : 0);
+			state |= (_depth_write_enable ? BGFX_STATE_WRITE_Z   : 0);
 			state |= depth_func;
 			state |= blend_func;
 			state |= blend_eq;

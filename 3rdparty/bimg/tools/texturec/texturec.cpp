@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
 #include <stdio.h>
@@ -26,7 +26,7 @@
 #include <string>
 
 #define BIMG_TEXTUREC_VERSION_MAJOR 1
-#define BIMG_TEXTUREC_VERSION_MINOR 10
+#define BIMG_TEXTUREC_VERSION_MINOR 11
 
 struct Options
 {
@@ -37,6 +37,7 @@ struct Options
 		, quality(bimg::Quality::Default)
 		, mips(false)
 		, normalMap(false)
+		, equirect(false)
 		, iqa(false)
 		, sdf(false)
 		, alphaTest(false)
@@ -69,6 +70,7 @@ struct Options
 	bimg::Quality::Enum quality;
 	bool mips;
 	bool normalMap;
+	bool equirect;
 	bool iqa;
 	bool sdf;
 	bool alphaTest;
@@ -158,6 +160,7 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 			&& !_options.sdf
 			&& !_options.alphaTest
 			&& !_options.normalMap
+			&& !_options.equirect
 			&& !_options.iqa
 			;
 
@@ -199,6 +202,23 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 
 			bimg::imageFree(input);
 			return output;
+		}
+
+		if (_options.equirect)
+		{
+			bimg::ImageContainer* src = bimg::imageConvert(_allocator, bimg::TextureFormat::RGBA32F, *input);
+			bimg::imageFree(input);
+
+			bimg::ImageContainer* dst = bimg::imageCubemapFromLatLongRgba32F(_allocator, *src, true, _err);
+			bimg::imageFree(src);
+
+			if (!_err->isOk() )
+			{
+				return NULL;
+			}
+
+			input = bimg::imageConvert(_allocator, inputFormat, *dst);
+			bimg::imageFree(dst);
 		}
 
 		output = bimg::imageAlloc(
@@ -596,8 +616,8 @@ void help(const char* _error = NULL, bool _showHelp = true)
 
 	fprintf(stderr
 		, "texturec, bgfx texture compiler tool, version %d.%d.%d.\n"
-		  "Copyright 2011-2017 Branimir Karadzic. All rights reserved.\n"
-		  "License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause\n\n"
+		  "Copyright 2011-2018 Branimir Karadzic. All rights reserved.\n"
+		  "License: https://github.com/bkaradzic/bimg#license-bsd-2-clause\n\n"
 		, BIMG_TEXTUREC_VERSION_MAJOR
 		, BIMG_TEXTUREC_VERSION_MINOR
 		, BIMG_API_VERSION
@@ -615,7 +635,7 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "    *.jpg (input)          JPEG Interchange Format.\n"
 		  "    *.hdr (input)          Radiance RGBE.\n"
 		  "    *.ktx (input, output)  Khronos Texture.\n"
-		  "    *.png (input)          Portable Network Graphics.\n"
+		  "    *.png (input, output)  Portable Network Graphics.\n"
 		  "    *.psd (input)          Photoshop Document.\n"
 		  "    *.pvr (input)          PowerVR.\n"
 		  "    *.tga (input)          Targa.\n"
@@ -630,6 +650,7 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "  -q <quality>             Encoding quality (default, fastest, highest).\n"
 		  "  -m, --mips               Generate mip-maps.\n"
 		  "  -n, --normalmap          Input texture is normal map.\n"
+		  "      --equirect           Input texture equirectangular projection of cubemap.\n"
 		  "      --sdf <edge>         Compute SDF texture.\n"
 		  "      --ref <alpha>        Alpha reference value.\n"
 		  "      --iqa                Image Quality Assessment\n"
@@ -696,6 +717,7 @@ int main(int _argc, const char* _argv[])
 	const char* saveAs = cmdLine.findOption("as");
 	saveAs = NULL == saveAs ? bx::strFindI(outputFileName, ".ktx") : saveAs;
 	saveAs = NULL == saveAs ? bx::strFindI(outputFileName, ".dds") : saveAs;
+	saveAs = NULL == saveAs ? bx::strFindI(outputFileName, ".png") : saveAs;
 	if (NULL == saveAs)
 	{
 		help("Output file format must be specified.");
@@ -728,7 +750,8 @@ int main(int _argc, const char* _argv[])
 
 	options.mips      = cmdLine.hasArg('m',  "mips");
 	options.normalMap = cmdLine.hasArg('n',  "normalmap");
-	options.iqa       = cmdLine.hasArg('\0', "iqa");
+	options.equirect  = cmdLine.hasArg("equirect");
+	options.iqa       = cmdLine.hasArg("iqa");
 
 	const char* maxSize = cmdLine.findOption("max");
 	if (NULL != maxSize)
@@ -745,6 +768,19 @@ int main(int _argc, const char* _argv[])
 		if (!bimg::isValid(options.format) )
 		{
 			help("Invalid format specified.");
+			return bx::kExitFailure;
+		}
+	}
+
+	if (NULL != bx::strFindI(saveAs, "png") )
+	{
+		if (options.format == bimg::TextureFormat::Count)
+		{
+			options.format = bimg::TextureFormat::RGBA8;
+		}
+		else if (options.format != bimg::TextureFormat::RGBA8)
+		{
+			help("Ouput PNG format must be RGBA8.");
 			return bx::kExitFailure;
 		}
 	}
@@ -808,6 +844,19 @@ int main(int _argc, const char* _argv[])
 			else if (NULL != bx::strFindI(saveAs, "dds") )
 			{
 				bimg::imageWriteDds(&writer, *output, output->m_data, output->m_size, &err);
+			}
+			else if (NULL != bx::strFindI(saveAs, "png") )
+			{
+				bimg::ImageMip mip;
+				bimg::imageGetRawData(*output, 0, 0, output->m_data, output->m_size, mip);
+				bimg::imageWritePng(&writer
+					, mip.m_width
+					, mip.m_height
+					, mip.m_width*4
+					, mip.m_data
+					, false
+					, false
+					, &err);
 			}
 
 			bx::close(&writer);

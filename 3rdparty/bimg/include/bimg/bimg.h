@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
 #ifndef BIMG_IMAGE_H_HEADER_GUARD
@@ -348,6 +348,7 @@ namespace bimg
 		  void* _dst
 		, uint32_t _height
 		, uint32_t _srcPitch
+		, uint32_t _depth
 		, const void* _src
 		, uint32_t _dstPitch
 		);
@@ -357,6 +358,7 @@ namespace bimg
 		  void* _dst
 		, uint32_t _width
 		, uint32_t _height
+		, uint32_t _depth
 		, uint32_t _bpp
 		, uint32_t _srcPitch
 		, const void* _src
@@ -484,6 +486,7 @@ namespace bimg
 		, uint32_t _height
 		, uint32_t _depth
 		, uint8_t _numMips
+		, uint32_t _numLayers
 		, const void* _src
 		, bx::Error* _err = NULL
 		);
@@ -596,6 +599,14 @@ namespace bimg
 		, const void* _data
 		, uint32_t _size
 		, ImageMip& _mip
+		);
+
+	///
+	ImageContainer* imageCubemapFromLatLongRgba32F(
+		  bx::AllocatorI* _allocator
+		, const ImageContainer& _input
+		, bool _useBilinearInterpolation
+		, bx::Error* _err
 		);
 
 } // namespace bimg

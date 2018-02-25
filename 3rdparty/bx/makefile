@@ -1,6 +1,6 @@
 #
-# Copyright 2011-2017 Branimir Karadzic. All rights reserved.
-# License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
+# Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+# License: https://github.com/bkaradzic/bx#license-bsd-2-clause
 #
 
 GENIE=../bx/tools/bin/$(OS)/genie
@@ -16,6 +16,7 @@ all:
 	$(GENIE) --gcc=osx gmake
 	$(GENIE) --gcc=ios-arm gmake
 	$(GENIE) --gcc=ios-simulator gmake
+	$(GENIE) --gcc=ios-simulator64 gmake
 	$(GENIE) xcode4
 
 .build/projects/gmake-android-arm:
@@ -112,6 +113,14 @@ ios-simulator-release: .build/projects/gmake-ios-simulator
 	make -R -C .build/projects/gmake-ios-simulator config=release
 ios-simulator: ios-simulator-debug ios-simulator-release
 
+.build/projects/gmake-ios-simulator64:
+	$(GENIE) --gcc=ios-simulator64 gmake
+ios-simulator64-debug: .build/projects/gmake-ios-simulator64
+	make -R -C .build/projects/gmake-ios-simulator64 config=debug
+ios-simulator64-release: .build/projects/gmake-ios-simulator64
+	make -R -C .build/projects/gmake-ios-simulator64 config=release
+ios-simulator64: ios-simulator64-debug ios-simulator64-release
+
 rebuild-shaders:
 	make -R -C examples rebuild
 
@@ -151,10 +160,11 @@ else
 OS=windows
 BUILD_PROJECT_DIR=gmake-mingw-gcc
 BUILD_OUTPUT_DIR=win32_mingw-gcc
-BUILD_TOOLS_CONFIG=release32
+BUILD_TOOLS_CONFIG=release64
 EXE=.exe
 endif
 
+# bin2c
 .build/osx64_clang/bin/bin2cRelease: .build/projects/gmake-osx
 	$(SILENT) make -C .build/projects/gmake-osx bin2c config=$(BUILD_TOOLS_CONFIG)
 
@@ -170,10 +180,36 @@ tools/bin/linux/bin2c: .build/linux64_gcc/bin/bin2cRelease
 .build/win64_mingw-gcc/bin/bin2cRelease.exe: .build/projects/gmake-mingw-gcc
 	$(SILENT) make -C .build/projects/gmake-mingw-gcc bin2c config=$(BUILD_TOOLS_CONFIG)
 
-tools/bin/windows/bin2c.exe: .build/win64_mingw-gcc/bin/bin2cRelease
+tools/bin/windows/bin2c.exe: .build/win64_mingw-gcc/bin/bin2cRelease.exe
 	$(SILENT) cp $(<) $(@)
 
-tools: tools/bin/$(OS)/bin2c$(EXE)
+bin2c: tools/bin/$(OS)/bin2c$(EXE)
+
+# lemon
+.build/osx64_clang/bin/lemonRelease: .build/projects/gmake-osx
+	$(SILENT) make -C .build/projects/gmake-osx lemon config=$(BUILD_TOOLS_CONFIG)
+
+tools/bin/darwin/lemon: .build/osx64_clang/bin/lemonRelease
+	$(SILENT) cp $(<) $(@)
+
+.build/linux64_gcc/bin/lemonRelease: .build/projects/gmake-linux
+	$(SILENT) make -C .build/projects/gmake-linux lemon config=$(BUILD_TOOLS_CONFIG)
+
+tools/bin/linux/lemon: .build/linux64_gcc/bin/lemonRelease
+	$(SILENT) cp $(<) $(@)
+
+.build/win64_mingw-gcc/bin/lemonRelease.exe: .build/projects/gmake-mingw-gcc
+	$(SILENT) make -C .build/projects/gmake-mingw-gcc lemon config=$(BUILD_TOOLS_CONFIG)
+
+tools/bin/windows/lemon.exe: .build/win64_mingw-gcc/bin/lemonRelease.exe
+	$(SILENT) cp $(<) $(@)
+
+tools/bin/$(OS)/lempar.c: tools/lemon/lempar.c
+	$(SILENT) cp $(<) $(@)
+
+lemon: tools/bin/$(OS)/lemon$(EXE) tools/bin/$(OS)/lempar.c
+
+tools: bin2c lemon
 
 dist: tools/bin/darwin/bin2c tools/bin/linux/bin2c tools/bin/windows/bin2c.exe
 

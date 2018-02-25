@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+# Copyright 2011-2018 Branimir Karadzic. All rights reserved.
 # License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 #
 
@@ -39,24 +39,24 @@ clean: ## Clean all intermediate files.
 	@mkdir .build
 
 projgen: ## Generate project files for all configurations.
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                     vs2012
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                     vs2013
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                     vs2015
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                     vs2017
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=mingw-gcc     gmake
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=linux-gcc     gmake
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=osx           gmake
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --xcode=osx         xcode4
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --xcode=ios         xcode4
-	$(GENIE)              --with-combined-examples --with-shared-lib --gcc=freebsd       gmake
-	$(GENIE)              --with-combined-examples                   --gcc=android-arm   gmake
-	$(GENIE)              --with-combined-examples                   --gcc=android-mips  gmake
-	$(GENIE)              --with-combined-examples                   --gcc=android-x86   gmake
-	$(GENIE)              --with-combined-examples                   --gcc=asmjs         gmake
-	$(GENIE)              --with-combined-examples                   --gcc=ios-arm       gmake
-	$(GENIE)              --with-combined-examples                   --gcc=ios-arm64     gmake
-	$(GENIE)              --with-combined-examples                   --gcc=ios-simulator gmake
-	$(GENIE)              --with-combined-examples                   --gcc=rpi           gmake
+	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                       vs2015
+	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                       vs2017
+	$(GENIE) --with-tools --with-combined-examples                   --vs=winstore100      vs2017
+	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=mingw-gcc       gmake
+	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=linux-gcc       gmake
+	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=osx             gmake
+	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --xcode=osx           xcode4
+	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --xcode=ios           xcode4
+	$(GENIE)              --with-combined-examples --with-shared-lib --gcc=freebsd         gmake
+	$(GENIE)              --with-combined-examples                   --gcc=android-arm     gmake
+	$(GENIE)              --with-combined-examples                   --gcc=android-mips    gmake
+	$(GENIE)              --with-combined-examples                   --gcc=android-x86     gmake
+	$(GENIE)              --with-combined-examples                   --gcc=asmjs           gmake
+	$(GENIE)              --with-combined-examples                   --gcc=ios-arm         gmake
+	$(GENIE)              --with-combined-examples                   --gcc=ios-arm64       gmake
+	$(GENIE)              --with-combined-examples                   --gcc=ios-simulator   gmake
+	$(GENIE)              --with-combined-examples                   --gcc=ios-simulator64 gmake
+	$(GENIE)              --with-combined-examples                   --gcc=rpi             gmake
 
 .build/projects/gmake-android-arm:
 	$(GENIE) --gcc=android-arm gmake
@@ -138,30 +138,6 @@ mingw-clang-release64: .build/projects/gmake-mingw-clang ## Build - MinGW Clang 
 	$(MAKE) -R -C .build/projects/gmake-mingw-clang config=release64
 mingw-clang: mingw-clang-debug32 mingw-clang-release32 mingw-clang-debug64 mingw-clang-release64 ## Build - MinGW Clang x86/x64 Debug and Release
 
-.build/projects/vs2012:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib vs2012
-vs2012-debug32: .build/projects/vs2012 ## Build - VS2012 x86 Debug
-	devenv .build/projects/vs2012/bgfx.sln /Build "Debug|Win32"
-vs2012-release32: .build/projects/vs2012 ## Build - VS2012 x86 Release
-	devenv .build/projects/vs2012/bgfx.sln /Build "Release|Win32"
-vs2012-debug64: .build/projects/vs2012 ## Build - VS2012 x64 Debug
-	devenv .build/projects/vs2012/bgfx.sln /Build "Debug|x64"
-vs2012-release64: .build/projects/vs2012 ## Build - VS2012 x64 Release
-	devenv .build/projects/vs2012/bgfx.sln /Build "Release|x64"
-vs2012: vs2012-debug32 vs2012-release32 vs2012-debug64 vs2012-release64 ## Build - VS2012 x86/x64 Debug and Release
-
-.build/projects/vs2013:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib vs2013
-vs2013-debug32: .build/projects/vs2013 ## Build - VS2013 x86 Debug
-	devenv .build/projects/vs2013/bgfx.sln /Build "Debug|Win32"
-vs2013-release32: .build/projects/vs2013 ## Build - VS2013 x86 Release
-	devenv .build/projects/vs2013/bgfx.sln /Build "Release|Win32"
-vs2013-debug64: .build/projects/vs2013 ## Build - VS2013 x64 Debug
-	devenv .build/projects/vs2013/bgfx.sln /Build "Debug|x64"
-vs2013-release64: .build/projects/vs2013 ## Build - VS2013 x64 Release
-	devenv .build/projects/vs2013/bgfx.sln /Build "Release|x64"
-vs2013: vs2013-debug32 vs2013-release32 vs2013-debug64 vs2013-release64 ## Build - VS2013 x86/x64 Debug and Release
-
 .build/projects/vs2015:
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib vs2015
 vs2015-debug32: .build/projects/vs2015 ## Build - VS2015 x86 Debug
@@ -185,6 +161,18 @@ vs2017-debug64: .build/projects/vs2017 ## Build - vs2017 x64 Debug
 vs2017-release64: .build/projects/vs2017 ## Build - vs2017 x64 Release
 	devenv .build/projects/vs2017/bgfx.sln /Build "Release|x64"
 vs2017: vs2017-debug32 vs2017-release32 vs2017-debug64 vs2017-release64 ## Build - vs2017 x86/x64 Debug and Release
+
+.build/projects/vs2017-winstore100:
+	$(GENIE) --with-combined-examples --vs=winstore100 vs2017
+vs2017-winstore100-debug32: .build/projects/vs2017-winstore100 ## Build - vs2017-winstore100 x86 Debug
+	devenv .build/projects/vs2017-winstore100/bgfx.sln /Build "Debug|Win32"
+vs2017-winstore100-release32: .build/projects/vs2017-winstore100 ## Build - vs2017-winstore100 x86 Release
+	devenv .build/projects/vs2017-winstore100/bgfx.sln /Build "Release|Win32"
+vs2017-winstore100-debug64: .build/projects/vs2017-winstore100 ## Build - vs2017-winstore100 x64 Debug
+	devenv .build/projects/vs2017-winstore100/bgfx.sln /Build "Debug|x64"
+vs2017-winstore100-release64: .build/projects/vs2017-winstore100 ## Build - vs2017-winstore100 x64 Release
+	devenv .build/projects/vs2017-winstore100/bgfx.sln /Build "Release|x64"
+vs2017-winstore100: vs2017-winstore100-debug32 vs2017-winstore100-release32 vs2017-winstore100-debug64 vs2017-winstore100-release64 ## Build - vs2017-winstore100 x86/x64 Debug and Release
 
 .build/projects/gmake-osx:
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=osx gmake
@@ -221,6 +209,14 @@ ios-simulator-debug: .build/projects/gmake-ios-simulator ## Build - iOS Simulato
 ios-simulator-release: .build/projects/gmake-ios-simulator ## Build - iOS Simulator Release
 	$(MAKE) -R -C .build/projects/gmake-ios-simulator config=release
 ios-simulator: ios-simulator-debug ios-simulator-release ## Build - iOS Simulator Debug and Release
+
+.build/projects/gmake-ios-simulator64:
+	$(GENIE) --gcc=ios-simulator64 gmake
+ios-simulator64-debug: .build/projects/gmake-ios-simulator64 ## Build - iOS Simulator Debug
+	$(MAKE) -R -C .build/projects/gmake-ios-simulator64 config=debug
+ios-simulator64-release: .build/projects/gmake-ios-simulator64 ## Build - iOS Simulator Release
+	$(MAKE) -R -C .build/projects/gmake-ios-simulator64 config=release
+ios-simulator64: ios-simulator64-debug ios-simulator64-release ## Build - iOS Simulator Debug and Release
 
 .build/projects/gmake-rpi:
 	$(GENIE) --gcc=rpi gmake

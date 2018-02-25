@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -11,6 +11,9 @@
 #	if BGFX_USE_GLX
 #		define GLX_GLXEXT_PROTOTYPES
 #		include <glx/glxext.h>
+
+// will include X11 which #defines None...
+#undef None
 
 namespace bgfx { namespace gl
 {
@@ -107,7 +110,7 @@ namespace bgfx { namespace gl
 				{
 					BX_TRACE("---");
 					bool valid = true;
-					for (uint32_t attr = 6; attr < BX_COUNTOF(attrsGlx)-1 && attrsGlx[attr] != None; attr += 2)
+					for (uint32_t attr = 6; attr < BX_COUNTOF(attrsGlx)-1 && attrsGlx[attr] != 0; attr += 2)
 					{
 						int value;
 						glXGetFBConfigAttrib( (::Display*)g_platformData.ndt, configs[ii], attrsGlx[attr], &value);

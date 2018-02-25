@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -12,7 +12,6 @@
 			|| BX_PLATFORM_EMSCRIPTEN                     \
 			|| BX_PLATFORM_LINUX                          \
 			|| BX_PLATFORM_NX                             \
-			|| BX_PLATFORM_QNX                            \
 			|| BX_PLATFORM_RPI                            \
 			|| BX_PLATFORM_STEAMLINK                      \
 			|| BX_PLATFORM_WINDOWS                        \
@@ -525,6 +524,10 @@ typedef uint64_t GLuint64;
 #ifndef GL_MAX_DRAW_BUFFERS
 #	define GL_MAX_DRAW_BUFFERS 0x8824
 #endif // GL_MAX_DRAW_BUFFERS
+
+#ifndef GL_MAX_ARRAY_TEXTURE_LAYERS
+#	define GL_MAX_ARRAY_TEXTURE_LAYERS 0x88FF
+#endif // GL_MAX_ARRAY_TEXTURE_LAYERS
 
 #ifndef GL_QUERY_RESULT
 #	define GL_QUERY_RESULT 0x8866

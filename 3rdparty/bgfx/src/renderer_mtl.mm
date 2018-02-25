@@ -525,6 +525,7 @@ namespace bgfx { namespace mtl
 				g_caps.limits.maxFBAttachments = 8;
 				g_caps.supported |= BGFX_CAPS_TEXTURE_CUBE_ARRAY;
 			}
+			g_caps.limits.maxTextureLayers = 2048;
 
 			//todo: vendor id, device id, gpu enum
 
@@ -1050,8 +1051,8 @@ namespace bgfx { namespace mtl
 			rce.setCullMode(MTLCullModeNone);
 
 			uint64_t state = 0
-				| BGFX_STATE_RGB_WRITE
-				| BGFX_STATE_ALPHA_WRITE
+				| BGFX_STATE_WRITE_RGB
+				| BGFX_STATE_WRITE_A
 				| BGFX_STATE_DEPTH_TEST_ALWAYS
 				;
 
@@ -1454,8 +1455,8 @@ namespace bgfx { namespace mtl
 
 
 			uint64_t state = 0;
-			state |= _clear.m_flags & BGFX_CLEAR_COLOR ? BGFX_STATE_RGB_WRITE|BGFX_STATE_ALPHA_WRITE : 0;
-			state |= _clear.m_flags & BGFX_CLEAR_DEPTH ? BGFX_STATE_DEPTH_TEST_ALWAYS|BGFX_STATE_DEPTH_WRITE : 0;
+			state |= _clear.m_flags & BGFX_CLEAR_COLOR ? BGFX_STATE_WRITE_RGB|BGFX_STATE_WRITE_A         : 0;
+			state |= _clear.m_flags & BGFX_CLEAR_DEPTH ? BGFX_STATE_DEPTH_TEST_ALWAYS|BGFX_STATE_WRITE_Z : 0;
 
 			uint64_t stencil = 0;
 			stencil |= _clear.m_flags & BGFX_CLEAR_STENCIL ? 0
@@ -1642,7 +1643,7 @@ namespace bgfx { namespace mtl
 
 		void setDepthStencilState(uint64_t _state, uint64_t _stencil = 0)
 		{
-			_state &= BGFX_STATE_DEPTH_WRITE|BGFX_STATE_DEPTH_TEST_MASK;
+			_state &= BGFX_STATE_WRITE_Z|BGFX_STATE_DEPTH_TEST_MASK;
 
 			uint32_t fstencil = unpackStencil(0, _stencil);
 			uint32_t ref      = (fstencil&BGFX_STENCIL_FUNC_REF_MASK)>>BGFX_STENCIL_FUNC_REF_SHIFT;
@@ -1660,7 +1661,7 @@ namespace bgfx { namespace mtl
 			{
 				DepthStencilDescriptor desc = m_depthStencilDescriptor;
 				uint32_t func = (_state&BGFX_STATE_DEPTH_TEST_MASK)>>BGFX_STATE_DEPTH_TEST_SHIFT;
-				desc.depthWriteEnabled = !!(BGFX_STATE_DEPTH_WRITE & _state);
+				desc.depthWriteEnabled = !!(BGFX_STATE_WRITE_Z & _state);
 				desc.depthCompareFunction = s_cmpFunc[func];
 
 				uint32_t bstencil = unpackStencil(1, _stencil);
@@ -2054,7 +2055,15 @@ namespace bgfx { namespace mtl
 
 	RenderPipelineState ProgramMtl::getRenderPipelineState(uint64_t _state, uint32_t _rgba, FrameBufferHandle _fbHandle, VertexDeclHandle _declHandle,  uint16_t _numInstanceData)
 	{
-		_state &= (BGFX_STATE_BLEND_MASK|BGFX_STATE_BLEND_EQUATION_MASK|BGFX_STATE_ALPHA_WRITE|BGFX_STATE_RGB_WRITE|BGFX_STATE_BLEND_INDEPENDENT|BGFX_STATE_MSAA|BGFX_STATE_BLEND_ALPHA_TO_COVERAGE);
+		_state &= (0
+			| BGFX_STATE_BLEND_MASK
+			| BGFX_STATE_BLEND_EQUATION_MASK
+			| BGFX_STATE_WRITE_RGB
+			| BGFX_STATE_WRITE_A
+			| BGFX_STATE_BLEND_INDEPENDENT
+			| BGFX_STATE_MSAA
+			| BGFX_STATE_BLEND_ALPHA_TO_COVERAGE
+			);
 
 		bool independentBlendEnable = !!(BGFX_STATE_BLEND_INDEPENDENT & _state);
 
@@ -2136,8 +2145,11 @@ namespace bgfx { namespace mtl
 			const uint32_t equRGB = (equation   )&0x7;
 			const uint32_t equA   = (equation>>3)&0x7;
 
-			uint8_t writeMask = (_state&BGFX_STATE_ALPHA_WRITE) ? MTLColorWriteMaskAlpha : 0;
-			writeMask |= (_state&BGFX_STATE_RGB_WRITE) ? MTLColorWriteMaskRed|MTLColorWriteMaskGreen|MTLColorWriteMaskBlue : 0;
+			uint8_t writeMask = 0;
+			writeMask |= (_state&BGFX_STATE_WRITE_R) ? MTLColorWriteMaskRed   : 0;
+			writeMask |= (_state&BGFX_STATE_WRITE_G) ? MTLColorWriteMaskGreen : 0;
+			writeMask |= (_state&BGFX_STATE_WRITE_B) ? MTLColorWriteMaskBlue  : 0;
+			writeMask |= (_state&BGFX_STATE_WRITE_A) ? MTLColorWriteMaskAlpha : 0;
 
 			for (uint32_t ii = 0; ii < (independentBlendEnable ? 1 : frameBufferAttachment); ++ii)
 			{
@@ -3595,7 +3607,7 @@ namespace bgfx { namespace mtl
 					rce.setScissorRect(rc);
 				}
 
-				if ( (BGFX_STATE_DEPTH_WRITE|BGFX_STATE_DEPTH_TEST_MASK) & changedFlags
+				if ( (BGFX_STATE_WRITE_Z|BGFX_STATE_DEPTH_TEST_MASK) & changedFlags
 				|| 0 != changedStencil)
 				{
 					setDepthStencilState(newFlags,newStencil);
@@ -3646,7 +3658,15 @@ namespace bgfx { namespace mtl
 				rendererUpdateUniforms(this, _render->m_uniformBuffer[draw.m_uniformIdx], draw.m_uniformBegin, draw.m_uniformEnd);
 
 				if (key.m_program != programIdx
-				|| (BGFX_STATE_BLEND_MASK|BGFX_STATE_BLEND_EQUATION_MASK|BGFX_STATE_ALPHA_WRITE|BGFX_STATE_RGB_WRITE|BGFX_STATE_BLEND_INDEPENDENT|BGFX_STATE_MSAA|BGFX_STATE_BLEND_ALPHA_TO_COVERAGE) & changedFlags
+				|| (0
+				   | BGFX_STATE_BLEND_MASK
+				   | BGFX_STATE_BLEND_EQUATION_MASK
+				   | BGFX_STATE_WRITE_RGB
+				   | BGFX_STATE_WRITE_A
+				   | BGFX_STATE_BLEND_INDEPENDENT
+				   | BGFX_STATE_MSAA
+				   | BGFX_STATE_BLEND_ALPHA_TO_COVERAGE
+				   ) & changedFlags
 				||  currentState.m_streamMask             != draw.m_streamMask
 				||  currentState.m_stream[0].m_handle.idx != draw.m_stream[0].m_handle.idx
 				||  currentState.m_stream[0].m_decl.idx   != draw.m_stream[0].m_decl.idx
@@ -3954,12 +3974,13 @@ namespace bgfx { namespace mtl
 
 				tvm.clear();
 				uint16_t pos = 0;
-				tvm.printf(0, pos++, BGFX_CONFIG_DEBUG ? 0x89 : 0x8f, " %s / " BX_COMPILER_NAME " / " BX_CPU_NAME " / " BX_ARCH_NAME " / " BX_PLATFORM_NAME " "
+				tvm.printf(0, pos++, BGFX_CONFIG_DEBUG ? 0x8c : 0x8f
+						, " %s / " BX_COMPILER_NAME " / " BX_CPU_NAME " / " BX_ARCH_NAME " / " BX_PLATFORM_NAME " "
 						, getRendererName()
 						);
 
 				pos = 10;
-				tvm.printf(10, pos++, 0x8e, "        Frame: %7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] / % 6.2f FPS "
+				tvm.printf(10, pos++, 0x8b, "        Frame: %7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] / % 6.2f FPS "
 						, double(frameTime)*toMs
 						, double(min)*toMs
 						, double(max)*toMs
@@ -3967,7 +3988,7 @@ namespace bgfx { namespace mtl
 						);
 
 				const uint32_t msaa = (m_resolution.m_flags&BGFX_RESET_MSAA_MASK)>>BGFX_RESET_MSAA_SHIFT;
-				tvm.printf(10, pos++, 0x8e, "  Reset flags: [%c] vsync, [%c] MSAAx%d, [%c] MaxAnisotropy "
+				tvm.printf(10, pos++, 0x8b, "  Reset flags: [%c] vsync, [%c] MSAAx%d, [%c] MaxAnisotropy "
 						, !!(m_resolution.m_flags&BGFX_RESET_VSYNC) ? '\xfe' : ' '
 						, 0 != msaa ? '\xfe' : ' '
 						, 1<<msaa
@@ -3975,7 +3996,7 @@ namespace bgfx { namespace mtl
 						);
 
 				double elapsedCpuMs = double(frameTime)*toMs;
-				tvm.printf(10, pos++, 0x8e, "    Submitted: %4d (draw %4d, compute %4d) / CPU %3.4f [ms] %c GPU %3.4f [ms] (latency %d)"
+				tvm.printf(10, pos++, 0x8b, "    Submitted: %4d (draw %4d, compute %4d) / CPU %3.4f [ms] %c GPU %3.4f [ms] (latency %d)"
 						, _render->m_numRenderItems
 						, statsKeyType[0]
 						, statsKeyType[1]
@@ -3989,7 +4010,7 @@ namespace bgfx { namespace mtl
 
 				for (uint32_t ii = 0; ii < BX_COUNTOF(s_primName); ++ii)
 				{
-					tvm.printf(10, pos++, 0x8e, "   %10s: %7d (#inst: %5d), submitted: %7d"
+					tvm.printf(10, pos++, 0x8b, "   %10s: %7d (#inst: %5d), submitted: %7d"
 							, s_primName[ii]
 							, statsNumPrimsRendered[ii]
 							, statsNumInstances[ii]
@@ -3997,16 +4018,16 @@ namespace bgfx { namespace mtl
 							);
 				}
 
-				tvm.printf(10, pos++, 0x8e, "      Indices: %7d ", statsNumIndices);
-//				tvm.printf(10, pos++, 0x8e, " Uniform size: %7d, Max: %7d ", _render->m_uniformEnd, _render->m_uniformMax);
-				tvm.printf(10, pos++, 0x8e, "     DVB size: %7d ", _render->m_vboffset);
-				tvm.printf(10, pos++, 0x8e, "     DIB size: %7d ", _render->m_iboffset);
+				tvm.printf(10, pos++, 0x8b, "      Indices: %7d ", statsNumIndices);
+//				tvm.printf(10, pos++, 0x8b, " Uniform size: %7d, Max: %7d ", _render->m_uniformEnd, _render->m_uniformMax);
+				tvm.printf(10, pos++, 0x8b, "     DVB size: %7d ", _render->m_vboffset);
+				tvm.printf(10, pos++, 0x8b, "     DIB size: %7d ", _render->m_iboffset);
 
 				pos++;
 				double captureMs = double(captureElapsed)*toMs;
-				tvm.printf(10, pos++, 0x8e, "     Capture: %3.4f [ms]", captureMs);
+				tvm.printf(10, pos++, 0x8b, "     Capture: %3.4f [ms]", captureMs);
 
-				uint8_t attr[2] = { 0x89, 0x8a };
+				uint8_t attr[2] = { 0x8c, 0x8a };
 				uint8_t attrIndex = _render->m_waitSubmit < _render->m_waitRender;
 
 				tvm.printf(10, pos++, attr[attrIndex&1], " Submit wait: %3.4f [ms]", _render->m_waitSubmit*toMs);
