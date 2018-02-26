@@ -19,7 +19,7 @@ namespace log_internal
 {
 	static Mutex s_mutex;
 
-	void logx(LogSeverity::Enum sev, System system, const char* msg, va_list args)
+	void logxv(LogSeverity::Enum sev, System system, const char* msg, va_list args)
 	{
 		ScopedMutex sm(s_mutex);
 
@@ -87,7 +87,7 @@ namespace log_internal
 	{
 		va_list args;
 		va_start(args, msg);
-		logx(sev, system, msg, args);
+		logxv(sev, system, msg, args);
 		va_end(args);
 	}
 
