@@ -659,8 +659,6 @@ struct LevelEditor
 			device()->_height = _scene_view._size.y != 0.0f ? _scene_view._size.y : 128.0f;
 		}
 
-		TempAllocator4096 ta;
-
 		u32 message_count = 0;
 
 		// Receive response from engine
@@ -681,6 +679,7 @@ struct LevelEditor
 				// logi(LEVEL_EDITOR, "count: %d", message_count);
 				if (ReadResult::SUCCESS == rr.error)
 				{
+					TempAllocator4096 ta;
 					JsonObject obj(ta);
 					DynamicString type(ta);
 					json::parse(msg, obj);
