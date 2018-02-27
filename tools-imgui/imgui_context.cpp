@@ -213,8 +213,6 @@ struct ImGuiContext
 		io.KeyMap[ImGuiKey_Y]          = (int)crown::KeyboardButton::Y;
 		io.KeyMap[ImGuiKey_Z]          = (int)crown::KeyboardButton::Z;
 
-		bgfx::RendererType::Enum type = bgfx::getRendererType();
-
 		u_imageLodEnabled = bgfx::createUniform("u_imageLodEnabled", bgfx::UniformType::Vec4);
 
 		m_decl
