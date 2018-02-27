@@ -195,23 +195,23 @@ namespace Crown
 
 			_db.add_restore_point((int)ActionType.SPAWN_UNIT, new Guid[] { id });
 			_db.create(id);
-			_db.set_property(id, "editor.name", "unit_%04u".printf(_num_units++));
-			_db.set_property(id, "prefab", name);
+			_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
+			_db.set_property_string(id, "prefab", name);
 
 			Guid transform_id = GUID_ZERO;
 			Unit unit = new Unit(_db, id, _prefabs);
 			if (unit.has_component("transform", ref transform_id))
 			{
-				unit.set_component_property(transform_id, "data.position", pos);
-				unit.set_component_property(transform_id, "data.rotation", rot);
-				unit.set_component_property(transform_id, "data.scale", scl);
-				unit.set_component_property(transform_id, "type", "transform");
+				unit.set_component_property_vector3   (transform_id, "data.position", pos);
+				unit.set_component_property_quaternion(transform_id, "data.rotation", rot);
+				unit.set_component_property_vector3   (transform_id, "data.scale", scl);
+				unit.set_component_property_string    (transform_id, "type", "transform");
 			}
 			else
 			{
-				_db.set_property(id, "position", pos);
-				_db.set_property(id, "rotation", rot);
-				_db.set_property(id, "scale", scl);
+				_db.set_property_vector3   (id, "position", pos);
+				_db.set_property_quaternion(id, "rotation", rot);
+				_db.set_property_vector3   (id, "scale", scl);
 			}
 			_db.add_to_set(GUID_ZERO, "units", id);
 		}
@@ -220,13 +220,13 @@ namespace Crown
 		{
 			_db.add_restore_point((int)ActionType.SPAWN_SOUND, new Guid[] { id });
 			_db.create(id);
-			_db.set_property(id, "editor.name", "sound_%04u".printf(_num_sounds++));
-			_db.set_property(id, "position", pos);
-			_db.set_property(id, "rotation", rot);
-			_db.set_property(id, "name", name);
-			_db.set_property(id, "range", range);
-			_db.set_property(id, "volume", volume);
-			_db.set_property(id, "loop", loop);
+			_db.set_property_string    (id, "editor.name", "sound_%04u".printf(_num_sounds++));
+			_db.set_property_vector3   (id, "position", pos);
+			_db.set_property_quaternion(id, "rotation", rot);
+			_db.set_property_string    (id, "name", name);
+			_db.set_property_double    (id, "range", range);
+			_db.set_property_double    (id, "volume", volume);
+			_db.set_property_bool      (id, "loop", loop);
 			_db.add_to_set(GUID_ZERO, "sounds", id);
 		}
 
@@ -248,21 +248,21 @@ namespace Crown
 
 					if (unit.has_component("transform", ref transform_id))
 					{
-						unit.set_component_property(transform_id, "data.position", pos);
-						unit.set_component_property(transform_id, "data.rotation", rot);
-						unit.set_component_property(transform_id, "data.scale", scl);
+						unit.set_component_property_vector3   (transform_id, "data.position", pos);
+						unit.set_component_property_quaternion(transform_id, "data.rotation", rot);
+						unit.set_component_property_vector3   (transform_id, "data.scale", scl);
 					}
 					else
 					{
-						_db.set_property(id, "position", pos);
-						_db.set_property(id, "rotation", rot);
-						_db.set_property(id, "scale", scl);
+						_db.set_property_vector3   (id, "position", pos);
+						_db.set_property_quaternion(id, "rotation", rot);
+						_db.set_property_vector3   (id, "scale", scl);
 					}
 				}
 				else if (is_sound(id))
 				{
-					_db.set_property(id, "position", pos);
-					_db.set_property(id, "rotation", rot);
+					_db.set_property_vector3   (id, "position", pos);
+					_db.set_property_quaternion(id, "rotation", rot);
 				}
 			}
 			// FIXME: Hack to force update the properties view
@@ -293,12 +293,12 @@ namespace Crown
 			_db.add_restore_point((int)ActionType.SET_LIGHT, new Guid[] { unit_id });
 
 			Unit unit = new Unit(_db, unit_id, _prefabs);
-			unit.set_component_property(component_id, "data.type",       type);
-			unit.set_component_property(component_id, "data.range",      range);
-			unit.set_component_property(component_id, "data.intensity",  intensity);
-			unit.set_component_property(component_id, "data.spot_angle", spot_angle);
-			unit.set_component_property(component_id, "data.color",      color);
-			unit.set_component_property(component_id, "type", "light");
+			unit.set_component_property_string (component_id, "data.type",       type);
+			unit.set_component_property_double (component_id, "data.range",      range);
+			unit.set_component_property_double (component_id, "data.intensity",  intensity);
+			unit.set_component_property_double (component_id, "data.spot_angle", spot_angle);
+			unit.set_component_property_vector3(component_id, "data.color",      color);
+			unit.set_component_property_string (component_id, "type", "light");
 
 			_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		}
@@ -308,12 +308,12 @@ namespace Crown
 			_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid[] { unit_id });
 
 			Unit unit = new Unit(_db, unit_id, _prefabs);
-			unit.set_component_property(component_id, "data.layer", layer);
-			unit.set_component_property(component_id, "data.depth", depth);
-			unit.set_component_property(component_id, "data.material", material);
-			unit.set_component_property(component_id, "data.sprite_resource", sprite_resource);
-			unit.set_component_property(component_id, "data.visible", visible);
-			unit.set_component_property(component_id, "type", "sprite_renderer");
+			unit.set_component_property_double(component_id, "data.layer", layer);
+			unit.set_component_property_double(component_id, "data.depth", depth);
+			unit.set_component_property_string(component_id, "data.material", material);
+			unit.set_component_property_string(component_id, "data.sprite_resource", sprite_resource);
+			unit.set_component_property_bool  (component_id, "data.visible", visible);
+			unit.set_component_property_string(component_id, "type", "sprite_renderer");
 
 			_client.send_script(LevelEditorApi.set_sprite(unit_id, layer, depth));
 		}
@@ -322,24 +322,26 @@ namespace Crown
 		{
 			_db.add_restore_point((int)ActionType.SET_SOUND, new Guid[] { sound_id });
 
-			_db.set_property(sound_id, "name", name);
-			_db.set_property(sound_id, "range", range);
-			_db.set_property(sound_id, "volume", volume);
-			_db.set_property(sound_id, "loop", loop);
+			_db.set_property_string(sound_id, "name", name);
+			_db.set_property_double(sound_id, "range", range);
+			_db.set_property_double(sound_id, "volume", volume);
+			_db.set_property_bool  (sound_id, "loop", loop);
 
 			_client.send_script(LevelEditorApi.set_sound_range(sound_id, range));
 		}
 
 		public string object_editor_name(Guid object_id)
 		{
-			Value? name = _db.get_property(object_id, "editor.name");
-			return name != null ? (string)name : "<unnamed>";
+			if (_db.has_property(object_id, "editor.name"))
+				return _db.get_property_string(object_id, "editor.name");
+			else
+				return "<unnamed>";
 		}
 
 		public void object_set_editor_name(Guid object_id, string name)
 		{
 			_db.add_restore_point((int)ActionType.OBJECT_SET_EDITOR_NAME, new Guid[] { object_id });
-			_db.set_property(object_id, "editor.name", name);
+			_db.set_property_string(object_id, "editor.name", name);
 
 			object_editor_name_changed(object_id, name);
 		}
@@ -395,8 +397,8 @@ namespace Crown
 
 		public void send_level()
 		{
-			HashSet<Guid?> units = _db.get_property(GUID_ZERO, "units") as HashSet<Guid?>;
-			HashSet<Guid?> sounds = _db.get_property(GUID_ZERO, "sounds") as HashSet<Guid?>;
+			HashSet<Guid?> units  = _db.get_property_set(GUID_ZERO, "units", new HashSet<Guid?>());
+			HashSet<Guid?> sounds = _db.get_property_set(GUID_ZERO, "sounds", new HashSet<Guid?>());
 
 			Guid[] unit_ids = new Guid[units.size];
 			Guid[] sound_ids = new Guid[sounds.size];
@@ -437,9 +439,8 @@ namespace Crown
 			else
 				prefab_db.load(_source_dir + "/" + name + ".unit");
 
-			Value? prefab = prefab_db.get_property(GUID_ZERO, "prefab");
-			if (prefab != null)
-				load_prefab((string)prefab);
+			if (prefab_db.has_property(GUID_ZERO, "prefab"))
+				load_prefab((prefab_db.get_property_string(GUID_ZERO, "prefab")));
 
 			prefab_db.copy_to(_prefabs, name);
 			_loaded_prefabs.add(name);
@@ -452,7 +453,7 @@ namespace Crown
 				Unit unit = new Unit(_db, unit_id, _prefabs);
 
 				if (unit.has_prefab())
-					load_prefab((string)_db.get_property(unit_id, "prefab"));
+					load_prefab(_db.get_property_string(unit_id, "prefab"));
 
 				sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
@@ -462,9 +463,9 @@ namespace Crown
 				{
 					string s = LevelEditorApi.add_tranform_component(unit_id
 						, component_id
-						, (Vector3)   unit.get_component_property(component_id, "data.position")
-						, (Quaternion)unit.get_component_property(component_id, "data.rotation")
-						, (Vector3)   unit.get_component_property(component_id, "data.scale")
+						, unit.get_component_property_vector3   (component_id, "data.position")
+						, unit.get_component_property_quaternion(component_id, "data.rotation")
+						, unit.get_component_property_vector3   (component_id, "data.scale")
 						);
 					sb.append(s);
 				}
@@ -472,10 +473,10 @@ namespace Crown
 				{
 					string s = LevelEditorApi.add_mesh_component(unit_id
 						, component_id
-						, (string)unit.get_component_property(component_id, "data.mesh_resource")
-						, (string)unit.get_component_property(component_id, "data.geometry_name")
-						, (string)unit.get_component_property(component_id, "data.material")
-						, (bool)  unit.get_component_property(component_id, "data.visible")
+						, unit.get_component_property_string(component_id, "data.mesh_resource")
+						, unit.get_component_property_string(component_id, "data.geometry_name")
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_bool  (component_id, "data.visible")
 						);
 					sb.append(s);
 				}
@@ -483,11 +484,11 @@ namespace Crown
 				{
 					string s = LevelEditorApi.add_sprite_component(unit_id
 						, component_id
-						, (string)unit.get_component_property(component_id, "data.sprite_resource")
-						, (string)unit.get_component_property(component_id, "data.material")
-						, (double)unit.get_component_property(component_id, "data.layer")
-						, (double)unit.get_component_property(component_id, "data.depth")
-						, (bool)  unit.get_component_property(component_id, "data.visible")
+						, unit.get_component_property_string(component_id, "data.sprite_resource")
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_double(component_id, "data.layer")
+						, unit.get_component_property_double(component_id, "data.depth")
+						, unit.get_component_property_bool  (component_id, "data.visible")
 						);
 					sb.append(s);
 				}
@@ -495,11 +496,11 @@ namespace Crown
 				{
 					string s = LevelEditorApi.add_light_component(unit_id
 						, component_id
-						, (string) unit.get_component_property(component_id, "data.type")
-						, (double) unit.get_component_property(component_id, "data.range")
-						, (double) unit.get_component_property(component_id, "data.intensity")
-						, (double) unit.get_component_property(component_id, "data.spot_angle")
-						, (Vector3)unit.get_component_property(component_id, "data.color")
+						, unit.get_component_property_string (component_id, "data.type")
+						, unit.get_component_property_double (component_id, "data.range")
+						, unit.get_component_property_double (component_id, "data.intensity")
+						, unit.get_component_property_double (component_id, "data.spot_angle")
+						, unit.get_component_property_vector3(component_id, "data.color")
 						);
 					sb.append(s);
 				}
@@ -507,10 +508,10 @@ namespace Crown
 				{
 					string s = LevelEditorApi.add_camera_component(unit_id
 						, component_id
-						, (string)unit.get_component_property(component_id, "data.projection")
-						, (double)unit.get_component_property(component_id, "data.fov")
-						, (double)unit.get_component_property(component_id, "data.far_range")
-						, (double)unit.get_component_property(component_id, "data.near_range")
+						, unit.get_component_property_string(component_id, "data.projection")
+						, unit.get_component_property_double(component_id, "data.fov")
+						, unit.get_component_property_double(component_id, "data.far_range")
+						, unit.get_component_property_double(component_id, "data.near_range")
 						);
 					sb.append(s);
 				}
@@ -522,12 +523,12 @@ namespace Crown
 			foreach (Guid sound_id in sound_ids)
 			{
 				string s = LevelEditorApi.spawn_sound(sound_id
-					, (string)    _db.get_property(sound_id, "name")
-					, (Vector3)   _db.get_property(sound_id, "position")
-					, (Quaternion)_db.get_property(sound_id, "rotation")
-					, (double)    _db.get_property(sound_id, "range")
-					, (double)    _db.get_property(sound_id, "volume")
-					, (bool)      _db.get_property(sound_id, "loop")
+					, _db.get_property_string    (sound_id, "name")
+					, _db.get_property_vector3   (sound_id, "position")
+					, _db.get_property_quaternion(sound_id, "rotation")
+					, _db.get_property_double    (sound_id, "range")
+					, _db.get_property_double    (sound_id, "volume")
+					, _db.get_property_bool      (sound_id, "loop")
 					);
 				sb.append(s);
 			}
@@ -592,22 +593,22 @@ namespace Crown
 
 							if (unit.has_component("transform", ref transform_id))
 							{
-								positions[i] = (Vector3)   unit.get_component_property(transform_id, "data.position");
-								rotations[i] = (Quaternion)unit.get_component_property(transform_id, "data.rotation");
-								scales[i]    = (Vector3)   unit.get_component_property(transform_id, "data.scale");
+								positions[i] = unit.get_component_property_vector3   (transform_id, "data.position");
+								rotations[i] = unit.get_component_property_quaternion(transform_id, "data.rotation");
+								scales[i]    = unit.get_component_property_vector3   (transform_id, "data.scale");
 							}
 							else
 							{
-								positions[i] = (Vector3)   _db.get_property(unit_id, "position");
-								rotations[i] = (Quaternion)_db.get_property(unit_id, "rotation");
-								scales[i]    = (Vector3)   _db.get_property(unit_id, "scale");
+								positions[i] = _db.get_property_vector3   (unit_id, "position");
+								rotations[i] = _db.get_property_quaternion(unit_id, "rotation");
+								scales[i]    = _db.get_property_vector3   (unit_id, "scale");
 							}
 						}
 						else if (is_sound(ids[i]))
 						{
 							Guid sound_id = ids[i];
-							positions[i] = (Vector3)   _db.get_property(sound_id, "position");
-							rotations[i] = (Quaternion)_db.get_property(sound_id, "rotation");
+							positions[i] = _db.get_property_vector3   (sound_id, "position");
+							rotations[i] = _db.get_property_quaternion(sound_id, "rotation");
 							scales[i]    = Vector3(1.0, 1.0, 1.0);
 						}
 						else
@@ -645,11 +646,11 @@ namespace Crown
 					unit.has_component("light", ref component_id);
 
 					_client.send_script(LevelEditorApi.set_light(unit_id
-						, (string) unit.get_component_property(component_id, "data.type")
-						, (double) unit.get_component_property(component_id, "data.range")
-						, (double) unit.get_component_property(component_id, "data.intensity")
-						, (double) unit.get_component_property(component_id, "data.spot_angle")
-						, (Vector3)unit.get_component_property(component_id, "data.color")
+						, unit.get_component_property_string (component_id, "data.type")
+						, unit.get_component_property_double (component_id, "data.range")
+						, unit.get_component_property_double (component_id, "data.intensity")
+						, unit.get_component_property_double (component_id, "data.spot_angle")
+						, unit.get_component_property_vector3(component_id, "data.color")
 						));
 					// FIXME: Hack to force update the properties view
 					selection_changed(_selection);
@@ -665,8 +666,8 @@ namespace Crown
 					unit.has_component("sprite_renderer", ref component_id);
 
 					_client.send_script(LevelEditorApi.set_sprite(unit_id
-						, (double)unit.get_component_property(component_id, "data.layer")
-						, (double)unit.get_component_property(component_id, "data.depth")
+						, unit.get_component_property_double(component_id, "data.layer")
+						, unit.get_component_property_double(component_id, "data.depth")
 						));
 					// FIXME: Hack to force update the properties view
 					selection_changed(_selection);
@@ -678,7 +679,7 @@ namespace Crown
 					Guid sound_id = data[0];
 
 					_client.send_script(LevelEditorApi.set_sound_range(sound_id
-						, (double)_db.get_property(sound_id, "range")
+						, _db.get_property_double(sound_id, "range")
 						));
 					// FIXME: Hack to force update the properties view
 					selection_changed(_selection);
@@ -691,24 +692,14 @@ namespace Crown
 			}
 		}
 
-		public Value? get_property(Guid id, string key)
-		{
-			return _db.get_property(id, key);
-		}
-
-		public void set_property(Guid id, string key, Value? value)
-		{
-			_db.set_property(id, key, value);
-		}
-
 		public bool is_unit(Guid id)
 		{
-			return (_db.get_property(GUID_ZERO, "units") as HashSet<Guid?>).contains(id);
+			return _db.get_property_set(GUID_ZERO, "units", new HashSet<Guid?>()).contains(id);
 		}
 
 		public bool is_sound(Guid id)
 		{
-			return (_db.get_property(GUID_ZERO, "sounds") as HashSet<Guid?>).contains(id);
+			return _db.get_property_set(GUID_ZERO, "sounds", new HashSet<Guid?>()).contains(id);
 		}
 	}
 }

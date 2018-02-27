@@ -9,56 +9,20 @@ namespace Crown
 {
 	public class Database
 	{
-		private enum ActionType
+		private enum Action
 		{
 			CREATE,
 			DESTROY,
-			SET_PROPERTY,
+			SET_PROPERTY_NULL,
+			SET_PROPERTY_BOOL,
+			SET_PROPERTY_DOUBLE,
+			SET_PROPERTY_STRING,
+			SET_PROPERTY_GUID,
+			SET_PROPERTY_VECTOR3,
+			SET_PROPERTY_QUATERNION,
 			ADD_TO_SET,
 			REMOVE_FROM_SET,
 			RESTORE_POINT
-		}
-
-		private enum ValueType
-		{
-			NULL,
-			BOOL,
-			DOUBLE,
-			STRING,
-			GUID,
-			VECTOR3,
-			QUATERNION
-		}
-
-		private struct CreateAction
-		{
-			public Guid id;
-		}
-
-		private struct DestroyAction
-		{
-			public Guid id;
-		}
-
-		private struct SetPropertyAction
-		{
-			public Guid id;
-			public string key;
-			public Value? val;
-		}
-
-		private struct AddToSetAction
-		{
-			public Guid id;
-			public string key;
-			public Guid item_id;
-		}
-
-		private struct RemoveFromSetAction
-		{
-			public Guid id;
-			public string key;
-			public Guid item_id;
 		}
 
 		private struct RestorePoint
@@ -138,21 +102,16 @@ namespace Crown
 				write_data(&a, sizeof(Quaternion));
 			}
 
-			public void write_action_type(ActionType t)
+			public void write_action(Action t)
 			{
 				write_uint32((uint32)t);
 			}
 
-			public void write_value_type(ValueType t)
-			{
-				write_uint32((uint32)t);
-			}
-
-			public ActionType read_action_type()
+			public Action read_action()
 			{
 				_read -= (uint32)sizeof(uint32);
 				uint32 a = *(uint32*)(&_data[_read]);
-				return (ActionType)a;
+				return (Action)a;
 			}
 
 			public bool read_bool()
@@ -216,66 +175,72 @@ namespace Crown
 				return (string)str;
 			}
 
-			public ValueType read_value_type()
-			{
-				_read -= (uint32)sizeof(uint32);
-				uint32 a = *(uint32*)(&_data[_read]);
-				return (ValueType)a;
-			}
-
 			public void write_create_action(Guid id)
 			{
 				write_guid(id);
-				write_action_type(ActionType.CREATE);
+				write_action(Action.CREATE);
 			}
 
 			public void write_destroy_action(Guid id)
 			{
 				write_guid(id);
-				write_action_type(ActionType.DESTROY);
+				write_action(Action.DESTROY);
 			}
 
-			public void write_set_property_action(Guid id, string key, Value? val)
+			public void write_set_property_null_action(Guid id, string key)
 			{
-				if (val == null)
-				{
-					// Push nothing
-					write_value_type(ValueType.NULL);
-				}
-				else if (val.holds(typeof(bool)))
-				{
-					write_bool((bool)val);
-					write_value_type(ValueType.BOOL);
-				}
-				else if (val.holds(typeof(double)))
-				{
-					write_double((double)val);
-					write_value_type(ValueType.DOUBLE);
-				}
-				else if (val.holds(typeof(string)))
-				{
-					write_string((string)val);
-					write_value_type(ValueType.STRING);
-				}
-				else if (val.holds(typeof(Guid)))
-				{
-					write_guid((Guid)val);
-					write_value_type(ValueType.GUID);
-				}
-				else if (val.holds(typeof(Vector3)))
-				{
-					write_vector3((Vector3)val);
-					write_value_type(ValueType.VECTOR3);
-				}
-				else if (val.holds(typeof(Quaternion)))
-				{
-					write_quaternion((Quaternion)val);
-					write_value_type(ValueType.QUATERNION);
-				}
-
+				// No value to push
 				write_string(key);
 				write_guid(id);
-				write_action_type(ActionType.SET_PROPERTY);
+				write_action(Action.SET_PROPERTY_NULL);
+			}
+
+			public void write_set_property_bool_action(Guid id, string key, bool val)
+			{
+				write_bool(val);
+				write_string(key);
+				write_guid(id);
+				write_action(Action.SET_PROPERTY_BOOL);
+			}
+
+			public void write_set_property_double_action(Guid id, string key, double val)
+			{
+				write_double(val);
+				write_string(key);
+				write_guid(id);
+				write_action(Action.SET_PROPERTY_DOUBLE);
+			}
+
+			public void write_set_property_string_action(Guid id, string key, string val)
+			{
+				write_string(val);
+				write_string(key);
+				write_guid(id);
+				write_action(Action.SET_PROPERTY_STRING);
+			}
+
+			public void write_set_property_guid_action(Guid id, string key, Guid val)
+			{
+				write_guid(val);
+				write_string(key);
+				write_guid(id);
+				write_action(Action.SET_PROPERTY_GUID);
+			}
+
+			public void write_set_property_vector3_action(Guid id, string key, Vector3 val)
+			{
+				write_vector3(val);
+				write_string(key);
+				write_guid(id);
+				write_action(Action.SET_PROPERTY_VECTOR3);
+			}
+
+			public void write_set_property_quaternion_action(Guid id, string key, Quaternion val)
+			{
+				write_quaternion(val);
+				write_string(key);
+				write_guid(id);
+				write_action(Action.SET_PROPERTY_QUATERNION);
 			}
 
 			public void write_add_to_set_action(Guid id, string key, Guid item_id)
@@ -283,7 +248,7 @@ namespace Crown
 				write_guid(item_id);
 				write_string(key);
 				write_guid(id);
-				write_action_type(ActionType.ADD_TO_SET);
+				write_action(Action.ADD_TO_SET);
 			}
 
 			public void write_remove_from_set_action(Guid id, string key, Guid item_id)
@@ -291,7 +256,7 @@ namespace Crown
 				write_guid(item_id);
 				write_string(key);
 				write_guid(id);
-				write_action_type(ActionType.REMOVE_FROM_SET);
+				write_action(Action.REMOVE_FROM_SET);
 			}
 
 			public void write_restore_point(int id, uint32 size, Guid[] data)
@@ -302,7 +267,7 @@ namespace Crown
 				write_uint32(num_guids);
 				write_uint32(size);
 				write_int(id);
-				write_action_type(ActionType.RESTORE_POINT);
+				write_action(Action.RESTORE_POINT);
 			}
 
 			public uint32 peek_type()
@@ -310,71 +275,10 @@ namespace Crown
 				return *(uint32*)(&_data[_read - (uint32)sizeof(uint32)]);
 			}
 
-			public CreateAction read_create_action()
-			{
-				ActionType t = read_action_type();
-				assert(t == ActionType.CREATE);
-				return { read_guid() };
-			}
-
-			public DestroyAction read_destroy_action()
-			{
-				ActionType t = read_action_type();
-				assert(t == ActionType.DESTROY);
-				return { read_guid() };
-			}
-
-			public SetPropertyAction read_set_property_action()
-			{
-				ActionType t = read_action_type();
-				assert(t == ActionType.SET_PROPERTY);
-
-				Guid id = read_guid();
-				string key = read_string();
-				ValueType type = read_value_type();
-
-				Value? val = null;
-
-				if (type == ValueType.NULL)
-				{
-					// Pop nothing
-				}
-				else if (type == ValueType.BOOL)
-					val = read_bool();
-				else if (type == ValueType.DOUBLE)
-					val = read_double();
-				else if (type == ValueType.STRING)
-					val = read_string();
-				else if (type == ValueType.GUID)
-					val = read_guid();
-				else if (type == ValueType.VECTOR3)
-					val = read_vector3();
-				else if (type == ValueType.QUATERNION)
-					val = read_quaternion();
-				else
-					assert(false);
-
-				return { id, key, val };
-			}
-
-			public AddToSetAction read_add_to_set_action()
-			{
-				ActionType t = read_action_type();
-				assert(t == ActionType.ADD_TO_SET);
-				return { read_guid(), read_string(), read_guid() };
-			}
-
-			public RemoveFromSetAction read_remove_from_set_action()
-			{
-				ActionType t = read_action_type();
-				assert(t == ActionType.REMOVE_FROM_SET);
-				return { read_guid(), read_string(), read_guid() };
-			}
-
 			public RestorePoint read_restore_point()
 			{
-				ActionType t = read_action_type();
-				assert(t == ActionType.RESTORE_POINT);
+				Action t = read_action();
+				assert(t == Action.RESTORE_POINT);
 				int id = read_int();
 				uint32 size = read_uint32();
 				uint32 num_guids = read_uint32();
@@ -828,7 +732,7 @@ namespace Crown
 				}
 				else
 				{
-					set_property(id, key, null);
+					set_property_null(id, key);
 				}
 			}
 
@@ -839,18 +743,145 @@ namespace Crown
 			destroy_internal(id);
 		}
 
-		public void set_property(Guid id, string key, Value? value)
+		public void set_property_null(Guid id, string key)
 		{
 			assert(has_object(id));
 			assert(is_valid_key(key));
-			assert(is_valid_value(value));
+			assert(is_valid_value(null));
 
 			HashMap<string, Value?> ob = get_data(id);
-			_undo.write_set_property_action(id, key, ob.has_key(key) ? ob[key] : null);
+			if (ob.has_key(key) && ob[key] != null)
+			{
+				if (ob[key].holds(typeof(bool)))
+					_undo.write_set_property_bool_action(id, key, (bool)ob[key]);
+				if (ob[key].holds(typeof(double)))
+					_undo.write_set_property_double_action(id, key, (double)ob[key]);
+				if (ob[key].holds(typeof(string)))
+					_undo.write_set_property_string_action(id, key, (string)ob[key]);
+				if (ob[key].holds(typeof(Guid)))
+					_undo.write_set_property_guid_action(id, key, (Guid)ob[key]);
+				if (ob[key].holds(typeof(Vector3)))
+					_undo.write_set_property_vector3_action(id, key, (Vector3)ob[key]);
+				if (ob[key].holds(typeof(Quaternion)))
+					_undo.write_set_property_quaternion_action(id, key, (Quaternion)ob[key]);
+			}
+			else
+			{
+				_undo.write_set_property_null_action(id, key);
+			}
+
 			_redo.clear();
 			_redo_points.clear();
 
-			set_property_internal(id, key, value);
+			set_property_internal(id, key, null);
+		}
+
+		public void set_property_bool(Guid id, string key, bool val)
+		{
+			assert(has_object(id));
+			assert(is_valid_key(key));
+			assert(is_valid_value(val));
+
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo.write_set_property_bool_action(id, key, (bool)ob[key]);
+			else
+				_undo.write_set_property_null_action(id, key);
+
+			_redo.clear();
+			_redo_points.clear();
+
+			set_property_internal(id, key, val);
+		}
+
+		public void set_property_double(Guid id, string key, double val)
+		{
+			assert(has_object(id));
+			assert(is_valid_key(key));
+			assert(is_valid_value(val));
+
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo.write_set_property_double_action(id, key, (double)ob[key]);
+			else
+				_undo.write_set_property_null_action(id, key);
+
+			_redo.clear();
+			_redo_points.clear();
+
+			set_property_internal(id, key, val);
+		}
+
+		public void set_property_string(Guid id, string key, string val)
+		{
+			assert(has_object(id));
+			assert(is_valid_key(key));
+			assert(is_valid_value(val));
+
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo.write_set_property_string_action(id, key, (string)ob[key]);
+			else
+				_undo.write_set_property_null_action(id, key);
+
+			_redo.clear();
+			_redo_points.clear();
+
+			set_property_internal(id, key, val);
+		}
+
+		public void set_property_guid(Guid id, string key, Guid val)
+		{
+			assert(has_object(id));
+			assert(is_valid_key(key));
+			assert(is_valid_value(val));
+
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo.write_set_property_guid_action(id, key, (Guid)ob[key]);
+			else
+				_undo.write_set_property_null_action(id, key);
+
+			_redo.clear();
+			_redo_points.clear();
+
+			set_property_internal(id, key, val);
+		}
+
+		public void set_property_vector3(Guid id, string key, Vector3 val)
+		{
+			assert(has_object(id));
+			assert(is_valid_key(key));
+			assert(is_valid_value(val));
+
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo.write_set_property_vector3_action(id, key, (Vector3)ob[key]);
+			else
+				_undo.write_set_property_null_action(id, key);
+
+			_redo.clear();
+			_redo_points.clear();
+
+			set_property_internal(id, key, val);
+		}
+
+		public void set_property_quaternion(Guid id, string key, Quaternion val)
+		{
+			assert(has_object(id));
+			assert(is_valid_key(key));
+			assert(is_valid_value(val));
+
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key) && ob[key] != null)
+				_undo.write_set_property_quaternion_action(id, key, (Quaternion)ob[key]);
+			else
+				_undo.write_set_property_null_action(id, key);
+
+			_redo.clear();
+			_redo_points.clear();
+
+			set_property_internal(id, key, val);
 		}
 
 		public void add_to_set(Guid id, string key, Guid item_id)
@@ -911,6 +942,55 @@ namespace Crown
 			return value;
 		}
 
+		public bool get_property_bool(Guid id, string key)
+		{
+			return (bool)get_property(id, key);
+		}
+
+		public double get_property_double(Guid id, string key)
+		{
+			return (double)get_property(id, key);
+		}
+
+		public string get_property_string(Guid id, string key)
+		{
+			return (string)get_property(id, key);
+		}
+
+		public Guid get_property_guid(Guid id, string key)
+		{
+			return (Guid)get_property(id, key);
+		}
+
+		public Vector3 get_property_vector3(Guid id, string key)
+		{
+			return (Vector3)get_property(id, key);
+		}
+
+		public Quaternion get_property_quaternion(Guid id, string key)
+		{
+			return (Quaternion)get_property(id, key);
+		}
+
+		public HashSet<Guid?> get_property_set(Guid id, string key, HashSet<Guid?> deffault)
+		{
+			assert(has_object(id));
+			assert(is_valid_key(key));
+
+			HashMap<string, Value?> ob = get_data(id);
+			if (ob.has_key(key))
+				return ob[key] as HashSet<Guid?>;
+			else
+				return deffault;
+#if 0
+			// stdout.printf("get_property %s %s %s\n"
+			// 	, id.to_string()
+			// 	, key
+			// 	, (value == null) ? "null" : value_to_string(value)
+			// 	);
+#endif // CROWN_DEBUG
+		}
+
 		public HashMap<string, Value?> get_object(Guid id)
 		{
 			return (HashMap<string, Value?>)get_data(GUID_ZERO)[id.to_string()];
@@ -943,11 +1023,11 @@ namespace Crown
 
 			create(new_id);
 
-			HashMap<string, Value?> o = get_data(id);
-			string[] keys = o.keys.to_array();
+			HashMap<string, Value?> ob = get_data(id);
+			string[] keys = ob.keys.to_array();
 			foreach (string key in keys)
 			{
-				Value? val = o[key];
+				Value? val = ob[key];
 				if (val.holds(typeof(HashSet)))
 				{
 					HashSet<Guid?> hs = (HashSet<Guid?>)val;
@@ -960,7 +1040,20 @@ namespace Crown
 				}
 				else
 				{
-					set_property(new_id, key, o[key]);
+					if (ob[key] == null)
+						set_property_null(new_id, key);
+					if (ob[key].holds(typeof(bool)))
+						set_property_bool(new_id, key, (bool)ob[key]);
+					if (ob[key].holds(typeof(double)))
+						set_property_double(new_id, key, (double)ob[key]);
+					if (ob[key].holds(typeof(string)))
+						set_property_string(new_id, key, (string)ob[key]);
+					if (ob[key].holds(typeof(Guid)))
+						set_property_guid(new_id, key, (Guid)ob[key]);
+					if (ob[key].holds(typeof(Vector3)))
+						set_property_vector3(new_id, key, (Vector3)ob[key]);
+					if (ob[key].holds(typeof(Quaternion)))
+						set_property_quaternion(new_id, key, (Quaternion)ob[key]);
 				}
 			}
 		}
@@ -976,14 +1069,14 @@ namespace Crown
 
 		public void copy_deep(Database db, Guid id, string new_key)
 		{
-			HashMap<string, Value?> o = get_data(id);
-			string[] keys = o.keys.to_array();
+			HashMap<string, Value?> ob = get_data(id);
+			string[] keys = ob.keys.to_array();
 			foreach (string key in keys)
 			{
 				if (key == "_objects")
 					continue;
 
-				Value? value = o[key];
+				Value? value = ob[key];
 				if (value.holds(typeof(HashSet)))
 				{
 					HashSet<Guid?> hs = (HashSet<Guid?>)value;
@@ -996,7 +1089,22 @@ namespace Crown
 				}
 				else
 				{
-					db.set_property(id, new_key + (new_key == "" ? "" : ".") + key, o[key]);
+					string kk = new_key + (new_key == "" ? "" : ".") + key;
+
+					if (ob[key] == null)
+						db.set_property_null(id, kk);
+					if (ob[key].holds(typeof(bool)))
+						db.set_property_bool(id, kk, (bool)ob[key]);
+					if (ob[key].holds(typeof(double)))
+						db.set_property_double(id, kk, (double)ob[key]);
+					if (ob[key].holds(typeof(string)))
+						db.set_property_string(id, kk, (string)ob[key]);
+					if (ob[key].holds(typeof(Guid)))
+						db.set_property_guid(id, kk, (Guid)ob[key]);
+					if (ob[key].holds(typeof(Vector3)))
+						db.set_property_vector3(id, kk, (Vector3)ob[key]);
+					if (ob[key].holds(typeof(Quaternion)))
+						db.set_property_quaternion(id, kk, (Quaternion)ob[key]);
 				}
 			}
 		}
@@ -1025,76 +1133,181 @@ namespace Crown
 
 		private void undo_until(uint32 size)
 		{
-			while (_undo.size() != size)
-			{
-				uint32 type = _undo.peek_type();
-				if (type == ActionType.CREATE)
-				{
-					CreateAction a = _undo.read_create_action();
-					_redo.write_destroy_action(a.id);
-					create_internal(a.id);
-				}
-				else if (type == ActionType.DESTROY)
-				{
-					DestroyAction a = _undo.read_destroy_action();
-					_redo.write_create_action(a.id);
-					destroy_internal(a.id);
-				}
-				else if (type == ActionType.SET_PROPERTY)
-				{
-					SetPropertyAction a = _undo.read_set_property_action();
-					_redo.write_set_property_action(a.id, a.key, get_data(a.id).has_key(a.key) ? get_data(a.id)[a.key] : null);
-					set_property_internal(a.id, a.key, a.val);
-				}
-				else if (type == ActionType.ADD_TO_SET)
-				{
-					AddToSetAction a = _undo.read_add_to_set_action();
-					_redo.write_remove_from_set_action(a.id, a.key, a.item_id);
-					add_to_set_internal(a.id, a.key, a.item_id);
-				}
-				else if (type == ActionType.REMOVE_FROM_SET)
-				{
-					RemoveFromSetAction a = _undo.read_remove_from_set_action();
-					_redo.write_add_to_set_action(a.id, a.key, a.item_id);
-					remove_from_set_internal(a.id, a.key, a.item_id);
-				}
-			}
+			undo_redo_until(size, _undo, _redo);
 		}
 
 		private void redo_until(uint32 size)
 		{
-			while (_redo.size() != size)
+			undo_redo_until(size, _redo, _undo);
+		}
+
+		private void undo_redo_until(uint32 size, Stack undo, Stack redo)
+		{
+			while (undo.size() != size)
 			{
-				uint32 type = _redo.peek_type();
-				if (type == ActionType.CREATE)
+				uint32 type = undo.peek_type();
+				if (type == Action.CREATE)
 				{
-					CreateAction a = _redo.read_create_action();
-					_undo.write_destroy_action(a.id);
-					create_internal(a.id);
+					Action t = undo.read_action();
+					assert(t == Action.CREATE);
+
+					Guid id = undo.read_guid();
+
+					redo.write_destroy_action(id);
+					create_internal(id);
 				}
-				else if (type == ActionType.DESTROY)
+				else if (type == Action.DESTROY)
 				{
-					DestroyAction a = _redo.read_destroy_action();
-					_undo.write_create_action(a.id);
-					destroy_internal(a.id);
+					Action t = undo.read_action();
+					assert(t == Action.DESTROY);
+
+					Guid id = undo.read_guid();
+
+					redo.write_create_action(id);
+					destroy_internal(id);
 				}
-				else if (type == ActionType.SET_PROPERTY)
+				else if (type == Action.SET_PROPERTY_NULL)
 				{
-					SetPropertyAction a = _redo.read_set_property_action();
-					_undo.write_set_property_action(a.id, a.key, get_data(a.id).has_key(a.key) ? get_data(a.id)[a.key] : null);
-					set_property_internal(a.id, a.key, a.val);
+					Action t = undo.read_action();
+					assert(t == Action.SET_PROPERTY_NULL);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+
+					if (get_data(id).has_key(key))
+					{
+						if (get_data(id)[key].holds(typeof(bool)))
+							redo.write_set_property_bool_action(id, key, (bool)get_data(id)[key]);
+						if (get_data(id)[key].holds(typeof(double)))
+							redo.write_set_property_double_action(id, key, (double)get_data(id)[key]);
+						if (get_data(id)[key].holds(typeof(string)))
+							redo.write_set_property_string_action(id, key, (string)get_data(id)[key]);
+						if (get_data(id)[key].holds(typeof(Guid)))
+							redo.write_set_property_guid_action(id, key, (Guid)get_data(id)[key]);
+						if (get_data(id)[key].holds(typeof(Vector3)))
+							redo.write_set_property_vector3_action(id, key, (Vector3)get_data(id)[key]);
+						if (get_data(id)[key].holds(typeof(Quaternion)))
+							redo.write_set_property_quaternion_action(id, key, (Quaternion)get_data(id)[key]);
+					}
+					else
+					{
+						redo.write_set_property_null_action(id, key);
+					}
+					set_property_internal(id, key, null);
 				}
-				else if (type == ActionType.ADD_TO_SET)
+				else if (type == Action.SET_PROPERTY_BOOL)
 				{
-					AddToSetAction a = _redo.read_add_to_set_action();
-					_undo.write_remove_from_set_action(a.id, a.key, a.item_id);
-					add_to_set_internal(a.id, a.key, a.item_id);
+					Action t = undo.read_action();
+					assert(t == Action.SET_PROPERTY_BOOL);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+					bool val = undo.read_bool();
+
+					if (get_data(id).has_key(key))
+						redo.write_set_property_bool_action(id, key, (bool)get_data(id)[key]);
+					else
+						redo.write_set_property_null_action(id, key);
+					set_property_internal(id, key, val);
 				}
-				else if (type == ActionType.REMOVE_FROM_SET)
+				else if (type == Action.SET_PROPERTY_DOUBLE)
 				{
-					RemoveFromSetAction a = _redo.read_remove_from_set_action();
-					_undo.write_add_to_set_action(a.id, a.key, a.item_id);
-					remove_from_set_internal(a.id, a.key, a.item_id);
+					Action t = undo.read_action();
+					assert(t == Action.SET_PROPERTY_DOUBLE);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+					double val = undo.read_double();
+
+					if (get_data(id).has_key(key))
+						redo.write_set_property_double_action(id, key, (double)get_data(id)[key]);
+					else
+						redo.write_set_property_null_action(id, key);
+					set_property_internal(id, key, val);
+				}
+				else if (type == Action.SET_PROPERTY_STRING)
+				{
+					Action t = undo.read_action();
+					assert(t == Action.SET_PROPERTY_STRING);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+					string val = undo.read_string();
+
+					if (get_data(id).has_key(key))
+						redo.write_set_property_string_action(id, key, (string)get_data(id)[key]);
+					else
+						redo.write_set_property_null_action(id, key);
+					set_property_internal(id, key, val);
+				}
+				else if (type == Action.SET_PROPERTY_GUID)
+				{
+					Action t = undo.read_action();
+					assert(t == Action.SET_PROPERTY_GUID);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+					Guid val = undo.read_guid();
+
+					if (get_data(id).has_key(key))
+						redo.write_set_property_guid_action(id, key, (Guid)get_data(id)[key]);
+					else
+						redo.write_set_property_null_action(id, key);
+					set_property_internal(id, key, val);
+				}
+				else if (type == Action.SET_PROPERTY_VECTOR3)
+				{
+					Action t = undo.read_action();
+					assert(t == Action.SET_PROPERTY_VECTOR3);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+					Vector3 val = undo.read_vector3();
+
+					if (get_data(id).has_key(key))
+						redo.write_set_property_vector3_action(id, key, (Vector3)get_data(id)[key]);
+					else
+						redo.write_set_property_null_action(id, key);
+					set_property_internal(id, key, val);
+				}
+				else if (type == Action.SET_PROPERTY_QUATERNION)
+				{
+					Action t = undo.read_action();
+					assert(t == Action.SET_PROPERTY_QUATERNION);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+					Quaternion val = undo.read_quaternion();
+
+					if (get_data(id).has_key(key))
+						redo.write_set_property_quaternion_action(id, key, (Quaternion)get_data(id)[key]);
+					else
+						redo.write_set_property_null_action(id, key);
+					set_property_internal(id, key, val);
+				}
+				else if (type == Action.ADD_TO_SET)
+				{
+					Action t = undo.read_action();
+					assert(t == Action.ADD_TO_SET);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+					Guid item_id = undo.read_guid();
+
+					redo.write_remove_from_set_action(id, key, item_id);
+					add_to_set_internal(id, key, item_id);
+				}
+				else if (type == Action.REMOVE_FROM_SET)
+				{
+					Action t = undo.read_action();
+					assert(t == Action.REMOVE_FROM_SET);
+
+					Guid id = undo.read_guid();
+					string key = undo.read_string();
+					Guid item_id = undo.read_guid();
+
+					redo.write_add_to_set_action(id, key, item_id);
+					remove_from_set_internal(id, key, item_id);
 				}
 			}
 		}

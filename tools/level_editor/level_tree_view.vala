@@ -325,43 +325,37 @@ namespace Crown
 				, -1
 				);
 
-			Value? units  = _db.get_property(GUID_ZERO, "units");
-			Value? sounds = _db.get_property(GUID_ZERO, "sounds");
+			HashSet<Guid?> units  = _db.get_property_set(GUID_ZERO, "units", new HashSet<Guid?>());
+			HashSet<Guid?> sounds = _db.get_property_set(GUID_ZERO, "sounds", new HashSet<Guid?>());
 
-			if (units != null)
+			foreach (Guid unit in units)
 			{
-				foreach (Guid unit in (HashSet<Guid?>)units)
-				{
-					Unit u = new Unit(_level._db, unit, _level._prefabs);
-					Gtk.TreeIter iter;
-					_tree_store.append(out iter, u.is_light() ? light_iter : unit_iter);
-					_tree_store.set(iter
-						, Column.TYPE
-						, ItemType.UNIT
-						, Column.GUID
-						, unit
-						, Column.NAME
-						, _level.object_editor_name(unit)
-						, -1
-						);
-				}
+				Unit u = new Unit(_level._db, unit, _level._prefabs);
+				Gtk.TreeIter iter;
+				_tree_store.append(out iter, u.is_light() ? light_iter : unit_iter);
+				_tree_store.set(iter
+					, Column.TYPE
+					, ItemType.UNIT
+					, Column.GUID
+					, unit
+					, Column.NAME
+					, _level.object_editor_name(unit)
+					, -1
+					);
 			}
-			if (sounds != null)
+			foreach (Guid sound in sounds)
 			{
-				foreach (Guid sound in (HashSet<Guid?>)sounds)
-				{
-					Gtk.TreeIter iter;
-					_tree_store.append(out iter, sound_iter);
-					_tree_store.set(iter
-						, Column.TYPE
-						, ItemType.SOUND
-						, Column.GUID
-						, sound
-						, Column.NAME
-						, _level.object_editor_name(sound)
-						, -1
-						);
-				}
+				Gtk.TreeIter iter;
+				_tree_store.append(out iter, sound_iter);
+				_tree_store.set(iter
+					, Column.TYPE
+					, ItemType.SOUND
+					, Column.GUID
+					, sound
+					, Column.NAME
+					, _level.object_editor_name(sound)
+					, -1
+					);
 			}
 
 			_tree_view.model = _tree_sort;

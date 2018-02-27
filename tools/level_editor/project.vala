@@ -101,9 +101,9 @@ namespace Crown
 
 			Guid id = Guid.new_guid();
 			_files.create(id);
-			_files.set_property(id, "path", path);
-			_files.set_property(id, "type", type);
-			_files.set_property(id, "name", name);
+			_files.set_property_string(id, "path", path);
+			_files.set_property_string(id, "type", type);
+			_files.set_property_string(id, "name", name);
 			_files.add_to_set(GUID_ZERO, "data", id);
 
 			_map[path] = id;
@@ -244,19 +244,19 @@ namespace Crown
 					if (!unit.has_component("transform", ref id))
 					{
 						db.create(id);
-						db.set_property(id, "data.position", VECTOR3_ZERO);
-						db.set_property(id, "data.rotation", QUATERNION_IDENTITY);
-						db.set_property(id, "data.scale", VECTOR3_ONE);
-						db.set_property(id, "type", "transform");
+						db.set_property_vector3   (id, "data.position", VECTOR3_ZERO);
+						db.set_property_quaternion(id, "data.rotation", QUATERNION_IDENTITY);
+						db.set_property_vector3   (id, "data.scale", VECTOR3_ONE);
+						db.set_property_string    (id, "type", "transform");
 
 						db.add_to_set(GUID_ZERO, "components", id);
 					}
 					else
 					{
-						unit.set_component_property(id, "data.position", VECTOR3_ZERO);
-						unit.set_component_property(id, "data.rotation", QUATERNION_IDENTITY);
-						unit.set_component_property(id, "data.scale", VECTOR3_ONE);
-						unit.set_component_property(id, "type", "transform");
+						unit.set_component_property_vector3   (id, "data.position", VECTOR3_ZERO);
+						unit.set_component_property_quaternion(id, "data.rotation", QUATERNION_IDENTITY);
+						unit.set_component_property_vector3   (id, "data.scale", VECTOR3_ONE);
+						unit.set_component_property_string    (id, "type", "transform");
 					}
 				}
 
@@ -267,23 +267,23 @@ namespace Crown
 					if (!unit.has_component("sprite_renderer", ref id))
 					{
 						db.create(id);
-						db.set_property(id, "data.material", resource_name);
-						db.set_property(id, "data.sprite_resource", resource_name);
-						db.set_property(id, "data.layer", layer);
-						db.set_property(id, "data.depth", depth);
-						db.set_property(id, "data.visible", true);
-						db.set_property(id, "type", "sprite_renderer");
+						db.set_property_string(id, "data.material", resource_name);
+						db.set_property_string(id, "data.sprite_resource", resource_name);
+						db.set_property_double(id, "data.layer", layer);
+						db.set_property_double(id, "data.depth", depth);
+						db.set_property_bool  (id, "data.visible", true);
+						db.set_property_string(id, "type", "sprite_renderer");
 
 						db.add_to_set(GUID_ZERO, "components", id);
 					}
 					else
 					{
-						unit.set_component_property(id, "data.material", resource_name);
-						unit.set_component_property(id, "data.sprite_resource", resource_name);
-						unit.set_component_property(id, "data.layer", layer);
-						unit.set_component_property(id, "data.depth", depth);
-						unit.set_component_property(id, "data.visible", true);
-						unit.set_component_property(id, "type", "sprite_renderer");
+						unit.set_component_property_string(id, "data.material", resource_name);
+						unit.set_component_property_string(id, "data.sprite_resource", resource_name);
+						unit.set_component_property_double(id, "data.layer", layer);
+						unit.set_component_property_double(id, "data.depth", depth);
+						unit.set_component_property_bool  (id, "data.visible", true);
+						unit.set_component_property_string(id, "type", "sprite_renderer");
 					}
 				}
 
@@ -364,19 +364,19 @@ namespace Crown
 					if (!unit.has_component("transform", ref id))
 					{
 						db.create(id);
-						db.set_property(id, "data.position", VECTOR3_ZERO);
-						db.set_property(id, "data.rotation", QUATERNION_IDENTITY);
-						db.set_property(id, "data.scale", VECTOR3_ONE);
-						db.set_property(id, "type", "transform");
+						db.set_property_vector3   (id, "data.position", VECTOR3_ZERO);
+						db.set_property_quaternion(id, "data.rotation", QUATERNION_IDENTITY);
+						db.set_property_vector3   (id, "data.scale", VECTOR3_ONE);
+						db.set_property_string    (id, "type", "transform");
 
 						db.add_to_set(GUID_ZERO, "components", id);
 					}
 					else
 					{
-						unit.set_component_property(id, "data.position", VECTOR3_ZERO);
-						unit.set_component_property(id, "data.rotation", QUATERNION_IDENTITY);
-						unit.set_component_property(id, "data.scale", VECTOR3_ONE);
-						unit.set_component_property(id, "type", "transform");
+						unit.set_component_property_vector3   (id, "data.position", VECTOR3_ZERO);
+						unit.set_component_property_quaternion(id, "data.rotation", QUATERNION_IDENTITY);
+						unit.set_component_property_vector3   (id, "data.scale", VECTOR3_ONE);
+						unit.set_component_property_string    (id, "type", "transform");
 					}
 				}
 
@@ -397,11 +397,11 @@ namespace Crown
 
 						Guid id = Guid.new_guid();
 						db.create(id);
-						db.set_property(id, "data.geometry_name", node_name);
-						db.set_property(id, "data.material", material_name);
-						db.set_property(id, "data.mesh_resource", resource_name);
-						db.set_property(id, "data.visible", true);
-						db.set_property(id, "type", "mesh_renderer");
+						db.set_property_string(id, "data.geometry_name", node_name);
+						db.set_property_string(id, "data.material", material_name);
+						db.set_property_string(id, "data.mesh_resource", resource_name);
+						db.set_property_bool  (id, "data.visible", true);
+						db.set_property_string(id, "type", "mesh_renderer");
 
 						db.add_to_set(GUID_ZERO, "components", id);
 					}

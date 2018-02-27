@@ -298,15 +298,15 @@ namespace Crown
 			_tree_store.clear();
 
 			Database db = _project.files();
-			HashSet<Guid?> files = db.get_property(GUID_ZERO, "data") as HashSet<Guid?>;
+			HashSet<Guid?> files = db.get_property_set(GUID_ZERO, "data", new Gee.HashSet<Guid?>());
 			files.foreach((id) => {
 				Gtk.TreeIter resource_iter;
 				_tree_store.append(out resource_iter, null);
-				string name = (string)db.get_property(id, "name");
+				string name = db.get_property_string(id, "name");
 				if (name.has_prefix("core/"))
 					return true;
 
-				string type = (string)db.get_property(id, "type");
+				string type = db.get_property_string(id, "type");
 				_tree_store.set(resource_iter, 0, name, 1, type, -1);
 				return true;
 			});
