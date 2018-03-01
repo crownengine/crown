@@ -1322,7 +1322,7 @@ namespace Crown
 		{
 			try
 			{
-				AppInfo.launch_default_for_uri("https://dbartolini.github.io/crown/html", null);
+				AppInfo.launch_default_for_uri("https://dbartolini.github.io/crown/html/v" + CROWN_VERSION, null);
 			}
 			catch (Error e)
 			{

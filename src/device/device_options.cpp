@@ -38,7 +38,7 @@ static void help(const char* msg = NULL)
 		"  --parent-window <handle>        Set the parent window <handle> of the main window.\n"
 		"  --server                        Run the engine in server mode.\n"
 		"\n"
-		"Complete documentation available at https://dbartolini.github.io/crown/html\n"
+		"Complete documentation available at https://dbartolini.github.io/crown/html/v" CROWN_VERSION "\n"
 	);
 
 	if (msg)
