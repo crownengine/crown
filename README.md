@@ -28,8 +28,8 @@ Engine initialization and shutdown.
 
 ## Documentation
 
-  * [Manual](http://dbartolini.github.io/crown/html)
-  * [Lua API](http://dbartolini.github.io/crown/html/lua_api.html)
+  * [Manual](http://dbartolini.github.io/crown/html/latest)
+  * [Lua API](http://dbartolini.github.io/crown/html/latest/lua_api.html)
   * [C++ API](http://dbartolini.github.io/crown/doxygen/modules)
 
 ## Building
