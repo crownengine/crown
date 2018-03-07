@@ -13,7 +13,7 @@
 #include "world/shader_manager.h"
 #include "core/math/matrix4x4.h"
 #include "world/material.h"
-#include <stdio.h>
+#include "device/pipeline.h"
 
 namespace crown
 {
@@ -68,7 +68,7 @@ struct GuiBuffer
 		bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
 		bgfx::setTransform(to_float_ptr(world));
 
-		_shader_manager->submit(StringId32("gui"), 2);
+		_shader_manager->submit(StringId32("gui"), VIEW_GUI);
 
 		_num_vertices += num_vertices;
 		_num_indices += num_indices;
@@ -80,7 +80,7 @@ struct GuiBuffer
 		bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
 		bgfx::setTransform(to_float_ptr(world));
 
-		material->bind(rm, *_shader_manager, 2);
+		material->bind(rm, *_shader_manager, VIEW_GUI);
 
 		_num_vertices += num_vertices;
 		_num_indices += num_indices;

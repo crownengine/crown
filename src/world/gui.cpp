@@ -129,29 +129,29 @@ void Gui::image3d_uv(const Vector3& pos, const Vector2& size, const Vector2& uv0
 	vd[0].pos.x = pos.x;
 	vd[0].pos.y = pos.y;
 	vd[0].pos.z = pos.z;
-	vd[0].uv.x  = 0.0f;
-	vd[0].uv.y  = 1.0f;
+	vd[0].uv.x  = uv0.x;
+	vd[0].uv.y  = uv1.y;
 	vd[0].col   = to_abgr(color);
 
 	vd[1].pos.x = pos.x + size.x;
 	vd[1].pos.y = pos.y;
 	vd[1].pos.z = pos.z;
-	vd[1].uv.x  = 1.0f;
-	vd[1].uv.y  = 1.0f;
+	vd[1].uv.x  = uv1.x;
+	vd[1].uv.y  = uv1.y;
 	vd[1].col   = to_abgr(color);
 
 	vd[2].pos.x = pos.x + size.x;
 	vd[2].pos.y = pos.y + size.y;
 	vd[2].pos.z = pos.z;
-	vd[2].uv.x  = 1.0f;
-	vd[2].uv.y  = 0.0f;
+	vd[2].uv.x  = uv1.x;
+	vd[2].uv.y  = uv0.y;
 	vd[2].col   = to_abgr(color);
 
 	vd[3].pos.x = pos.x;
 	vd[3].pos.y = pos.y + size.y;
 	vd[3].pos.z = pos.z;
-	vd[3].uv.x  = 0.0f;
-	vd[3].uv.y  = 0.0f;
+	vd[3].uv.x  = uv0.x;
+	vd[3].uv.y  = uv0.y;
 	vd[3].col   = to_abgr(color);
 
 	u16* inds = (u16*)_buffer->index_buffer_end();
