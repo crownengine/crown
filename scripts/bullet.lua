@@ -58,4 +58,9 @@ project "bullet"
 		BULLET_DIR .. "src/Bullet3Geometry/**.cpp",
 	}
 
+	removefiles {
+		BULLET_DIR .. "src/BulletCollision/Gimpact/**.h",
+		BULLET_DIR .. "src/BulletCollision/Gimpact/**.cpp",
+	}
+
 	configuration {}
