@@ -362,10 +362,10 @@ struct WindowsDevice
 		wnd.style = CS_HREDRAW | CS_VREDRAW;
 		wnd.lpfnWndProc = window_proc;
 		wnd.hInstance = instance;
-		wnd.hIcon = LoadIcon(instance, IDI_APPLICATION);
-		wnd.hCursor = LoadCursor(instance, IDC_ARROW);
+		wnd.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+		wnd.hCursor = LoadCursor(NULL, IDC_ARROW);
 		wnd.lpszClassName = "crown";
-		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
+		wnd.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 		RegisterClassExA(&wnd);
 
 		_hwnd = CreateWindowA("crown"
