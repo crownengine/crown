@@ -374,7 +374,7 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 	}
 }
 
-void RenderWorld::render(const Matrix4x4& view, const Matrix4x4& projection)
+void RenderWorld::render(const Matrix4x4& view)
 {
 	MeshManager::MeshInstanceData& mid = _mesh_manager._data;
 	SpriteManager::SpriteInstanceData& sid = _sprite_manager._data;

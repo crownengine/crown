@@ -669,7 +669,7 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::touch(VIEW_DEBUG);
 	bgfx::touch(VIEW_GUI);
 
-	world.render(view, proj);
+	world.render(view);
 
 #if !CROWN_TOOLS
 	_pipeline->render(*_shader_manager, StringId32("blit"), 0, _width, _height);

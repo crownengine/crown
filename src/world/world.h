@@ -154,8 +154,8 @@ struct World
 	/// Updates all units and sub-systems with the given @a dt delta time.
 	void update(f32 dt);
 
-	/// Renders the world using @a view and @a projection.
-	void render(const Matrix4x4& view, const Matrix4x4& projection);
+	/// Renders the world using @a view.
+	void render(const Matrix4x4& view);
 
 	SoundInstanceId play_sound(const SoundResource& sr, bool loop = false, f32 volume = 1.0f, const Vector3& position = VECTOR3_ZERO, f32 range = 50.0f);
 
