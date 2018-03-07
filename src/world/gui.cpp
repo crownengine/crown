@@ -39,7 +39,7 @@ void Gui::move(const Vector2& pos)
 	set_translation(_world, vector3(pos.x, pos.y, 0));
 }
 
-void Gui::triangle3d(const Vector3& a, const Vector3& b, const Vector3& c, const Color4& color)
+void Gui::triangle_3d(const Vector3& a, const Vector3& b, const Vector3& c, const Color4& color)
 {
 	VertexData* vd = (VertexData*)_buffer->vertex_buffer_end();
 	vd[0].pos.x = a.x;
@@ -73,10 +73,10 @@ void Gui::triangle3d(const Vector3& a, const Vector3& b, const Vector3& c, const
 
 void Gui::triangle(const Vector2& a, const Vector2& b, const Vector2& c, const Color4& color)
 {
-	triangle3d(vector3(a.x, a.y, 0.0f), vector3(b.x, b.y, 0.0f), vector3(c.x, c.y, 0.0f), color);
+	triangle_3d(vector3(a.x, a.y, 0.0f), vector3(b.x, b.y, 0.0f), vector3(c.x, c.y, 0.0f), color);
 }
 
-void Gui::rect3d(const Vector3& pos, const Vector2& size, const Color4& color)
+void Gui::rect_3d(const Vector3& pos, const Vector2& size, const Color4& color)
 {
 	VertexData* vd = (VertexData*)_buffer->vertex_buffer_end();
 	vd[0].pos.x = pos.x;
@@ -120,10 +120,10 @@ void Gui::rect3d(const Vector3& pos, const Vector2& size, const Color4& color)
 
 void Gui::rect(const Vector2& pos, const Vector2& size, const Color4& color)
 {
-	rect3d(vector3(pos.x, pos.y, 0.0f), size, color);
+	rect_3d(vector3(pos.x, pos.y, 0.0f), size, color);
 }
 
-void Gui::image3d_uv(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
+void Gui::image_uv_3d(const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
 {
 	VertexData* vd = (VertexData*)_buffer->vertex_buffer_end();
 	vd[0].pos.x = pos.x;
@@ -173,20 +173,20 @@ void Gui::image3d_uv(const Vector3& pos, const Vector2& size, const Vector2& uv0
 
 void Gui::image_uv(const Vector2& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, StringId64 material, const Color4& color)
 {
-	image3d_uv(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color);
+	image_uv_3d(vector3(pos.x, pos.y, 0.0f), size, uv0, uv1, material, color);
 }
 
-void Gui::image3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
+void Gui::image_3d(const Vector3& pos, const Vector2& size, StringId64 material, const Color4& color)
 {
-	image3d_uv(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color);
+	image_uv_3d(pos, size, VECTOR2_ZERO, VECTOR2_ONE, material, color);
 }
 
 void Gui::image(const Vector2& pos, const Vector2& size, StringId64 material, const Color4& color)
 {
-	image3d(vector3(pos.x, pos.y, 0.0f), size, material, color);
+	image_3d(vector3(pos.x, pos.y, 0.0f), size, material, color);
 }
 
-void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
+void Gui::text_3d(const Vector3& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
 {
 	_material_manager->create_material(material);
 
@@ -299,7 +299,7 @@ void Gui::text3d(const Vector3& pos, u32 font_size, const char* str, StringId64 
 
 void Gui::text(const Vector2& pos, u32 font_size, const char* str, StringId64 font, StringId64 material, const Color4& color)
 {
-	text3d(vector3(pos.x, pos.y, 0.0f), font_size, str, font, material, color);
+	text_3d(vector3(pos.x, pos.y, 0.0f), font_size, str, font, material, color);
 }
 
 } // namespace crown
