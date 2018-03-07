@@ -50,7 +50,9 @@ PoolAllocator::~PoolAllocator()
 void* PoolAllocator::allocate(u32 size, u32 align)
 {
 	CE_ASSERT(size == _block_size, "Size must match block size");
+	CE_UNUSED(size);
 	CE_ASSERT(align == _block_align, "Align must match block align");
+	CE_UNUSED(align);
 	CE_ASSERT(_freelist != NULL, "Out of memory");
 
 	uintptr_t next_free = *((uintptr_t*) _freelist);

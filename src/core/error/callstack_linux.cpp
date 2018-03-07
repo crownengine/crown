@@ -26,7 +26,8 @@ namespace error
 		FILE* f = popen(buf, "r");
 		if (f)
 		{
-			fgets(line, len, f);
+			char* ret = fgets(line, len, f);
+			CE_UNUSED(ret);
 			line[strlen32(line) - 1] = '\0';
 			pclose(f);
 			return line;
