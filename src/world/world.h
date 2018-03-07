@@ -94,7 +94,7 @@ struct World
 	CameraInstance camera_create(UnitId id, const CameraDesc& cd, const Matrix4x4& tr);
 
 	/// Destroys the camera @a id.
-	void camera_destroy(UnitId unit, CameraInstance i);
+	void camera_destroy(UnitId unit, CameraInstance ci);
 
 	/// Returns the camera owned by unit @a id.
 	CameraInstance camera_instances(UnitId id);

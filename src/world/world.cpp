@@ -262,8 +262,10 @@ CameraInstance World::camera_create(UnitId id, const CameraDesc& cd, const Matri
 	return camera_make_instance(last);
 }
 
-void World::camera_destroy(UnitId unit, CameraInstance i)
+void World::camera_destroy(UnitId unit, CameraInstance /*ci*/)
 {
+	CameraInstance i = camera_instances(unit);
+
 	const u32 last = array::size(_camera) - 1;
 	const UnitId u = _camera[i.i].unit;
 	const UnitId last_u = _camera[last].unit;
