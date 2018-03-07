@@ -973,22 +973,22 @@ Device
 Gui
 ===
 
-**move** (pos)
+**move** (gui, pos)
 	Moves the Gui to *pos*.
 
-**triangle** (a, b, c, color)
+**triangle** (gui, a, b, c, color)
 	Draws a triangle defined by vertices *a*, *b* and *c*.
 
-**rect** (pos, size, color)
+**rect** (gui, pos, size, color)
 	Draws a rectangle.
 
-**image** (pos, size, material_resource, color)
+**image** (gui, pos, size, material_resource, color)
 	Draws an image.
 
-**image_uv** (pos, size, uv0, uv1, material_resource, color)
+**image_uv** (gui, pos, size, uv0, uv1, material_resource, color)
 	Draws an image with explicit UV coordinates.
 
-**text** (pos, font_size, str, font_resource, material_resource, color)
+**text** (gui, pos, font_size, str, font_resource, material_resource, color)
 	Draws text.
 
 DebugLine
