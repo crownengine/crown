@@ -8,8 +8,10 @@
 
 namespace crown
 {
-namespace skinny { namespace expression_language {
-
+namespace skinny
+{
+namespace expression_language
+{
 	/// Byte code constants.
 	///
 	/// If the upper 12 bits of the byte code do not match one of these values, the operation is
@@ -30,7 +32,20 @@ namespace skinny { namespace expression_language {
 	static inline bool is_bc_push_float(unsigned i) {return (i & 0x7f80000) != 0x7f8;}
 
 	/// Opcodes for functions
-	enum OpCode {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_UNARY_MINUS, OP_NOP, OP_SIN, OP_COS, OP_ABS, OP_MATCH, OP_MATCH2D};
+	enum OpCode
+	{
+		OP_ADD,
+		OP_SUB,
+		OP_MUL,
+		OP_DIV,
+		OP_UNARY_MINUS,
+		OP_NOP,
+		OP_SIN,
+		OP_COS,
+		OP_ABS,
+		OP_MATCH,
+		OP_MATCH_2D
+	};
 
 	static inline float pop(Stack &stack) 			{CE_ASSERT(stack.size > 0, "Stack underflow"); return stack.data[--stack.size];}
 	static inline void push(Stack &stack, float f)	{CE_ASSERT(stack.size < stack.capacity, "Stack overflow"); stack.data[stack.size++] = f;}
@@ -52,7 +67,7 @@ namespace skinny { namespace expression_language {
 
 	inline float match2d(float a, float b, float c, float d)
 	{
-		return fmax(1.0f-length(a, b), 0.0f);
+		return match(a, b) * match(c, d);
 	}
 
 	/// Computes the function specified by @a op_code on the @a stack.
@@ -73,7 +88,7 @@ namespace skinny { namespace expression_language {
 			case OP_COS: PUSH(fcos(POP())); break;
 			case OP_ABS: a = POP(); PUSH(fabs(a)); break;
 			case OP_MATCH: b=POP(); a=POP(); PUSH(match(a, b)); break;
-			case OP_MATCH2D: d=POP(); c=POP(); b=POP(); a=POP(); PUSH(match2d(a,b,c,d)); break;
+			case OP_MATCH_2D: d=POP(); c=POP(); b=POP(); a=POP(); PUSH(match2d(a,b,c,d)); break;
 			case OP_NOP: break;
 			default:
 				CE_FATAL("Unknown opcode");
@@ -313,6 +328,7 @@ namespace skinny { namespace expression_language {
 					op = BC_FUNCTION + f.op_code;
 					break;
 				default:
+					op = 0xdeadbeef;
 					CE_FATAL("Unknown token");
 					break;
 			}
@@ -358,6 +374,7 @@ namespace skinny { namespace expression_language {
 	static unsigned setup_functions(const char **names, Function *functions, unsigned capacity)
 	{
 		CE_ASSERT(capacity >= NUM_DEFAULT_FUNCTIONS, "Not enough space for default functions");
+		CE_UNUSED(capacity);
 		names[0] = ","; functions[0] = Function(OP_NOP, 1, 0);
 		names[1] = "+"; functions[1] = Function(OP_ADD, 12, 2);
 		names[2] = "-"; functions[2] = Function(OP_SUB, 12, 2);
@@ -369,7 +386,7 @@ namespace skinny { namespace expression_language {
 		names[8] = "cos"; functions[8] = Function(OP_COS, 17, 1);
 		names[9] = "abs"; functions[9] = Function(OP_ABS, 17, 1);
 		names[10] = "match"; functions[10] = Function(OP_MATCH, 17, 2);
-		names[11] = "match2d"; functions[11] = Function(OP_MATCH2D, 17, 4);
+		names[11] = "match_2d"; functions[11] = Function(OP_MATCH_2D, 17, 4);
 		return NUM_DEFAULT_FUNCTIONS;
 	}
 
@@ -485,5 +502,8 @@ namespace skinny { namespace expression_language {
 		}
 	}
 
-}} // skinny::expression_langauge
+} // namespace expression_language
+
+} // namespace skinny
+
 } // namespace crown

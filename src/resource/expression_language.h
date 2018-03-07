@@ -30,8 +30,11 @@
 
 namespace crown
 {
-namespace skinny { namespace expression_language {
-	#ifdef CAN_COMPILE
+namespace skinny
+{
+namespace expression_language
+{
+#ifdef CAN_COMPILE
 		/// Compiles the @a source and stores the result in the @a byte_code.
 		/// @a variables is a list of variable names. The position of the variable in
 		/// the list should match the position when @a variables is sent to the run
@@ -44,11 +47,16 @@ namespace skinny { namespace expression_language {
 		/// Returns the number of compiled unsigned words. If the returned number is
 		/// greater than @a byte_code_capacity, only the first @a byte_code_capacity
 		/// words of the byte code are written to @a byte_code.
-		unsigned compile(const char *source,
-						 unsigned num_variables, const char **variables,
-						 unsigned num_constants, const char **constants, const float *constant_values,
-						 unsigned *byte_code, unsigned byte_code_capacity);
-	#endif
+		unsigned compile(const char *source
+			, unsigned num_variables
+			, const char **variables
+			, unsigned num_constants
+			, const char **constants
+			, const float *constant_values
+			, unsigned *byte_code
+			, unsigned byte_code_capacity
+			);
+#endif
 
 	/// Returns true if the byte code is constant. I. e., it always produces the same float value.
 	bool is_constant(const unsigned *byte_code);
@@ -63,12 +71,21 @@ namespace skinny { namespace expression_language {
 		unsigned size;
 		unsigned capacity;
 
-		Stack(float *data, unsigned capacity) : data(data), size(0), capacity(capacity) {}
+		Stack(float *data, unsigned capacity)
+			: data(data)
+			, size(0)
+			, capacity(capacity)
+		{
+		}
 	};
 
 	/// Runs the @a byte_code using the @a stack as execution stack.
 	/// @a variables is a list of variable values to use for the execution.
 	/// They should match the list of variable names supplied to the compile function.
 	bool run(const unsigned *byte_code, const float *variables, Stack &stack);
-} } // skinny::expression_language
+
+} // namespace expression_language
+
+} // namespace skinny
+
 } // namespace crown
