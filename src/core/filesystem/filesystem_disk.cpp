@@ -50,7 +50,6 @@ struct FileDisk : public File
 	{
 #if CROWN_PLATFORM_POSIX
 		_file = fopen(path, (mode == FileOpenMode::READ) ? "rb" : "wb");
-		CE_ASSERT(_file != NULL, "fopen: errno = %d, path = '%s'", errno, path);
 #elif CROWN_PLATFORM_WINDOWS
 		_file = CreateFile(path
 			, (mode == FileOpenMode::READ) ? GENERIC_READ : GENERIC_WRITE
@@ -59,11 +58,6 @@ struct FileDisk : public File
 			, OPEN_ALWAYS
 			, FILE_ATTRIBUTE_NORMAL
 			, NULL
-			);
-		CE_ASSERT(_file != INVALID_HANDLE_VALUE
-			, "CreateFile: GetLastError = %d, path = '%s'"
-			, GetLastError()
-			, path
 			);
 #endif
 	}
@@ -82,7 +76,7 @@ struct FileDisk : public File
 		}
 	}
 
-	bool is_open() const
+	bool is_open()
 	{
 #if CROWN_PLATFORM_POSIX
 		return _file != NULL;
@@ -93,6 +87,7 @@ struct FileDisk : public File
 
 	u32 size()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_POSIX
 		long pos = ftell(_file);
 		CE_ASSERT(pos != -1, "ftell: errno = %d", errno);
@@ -111,6 +106,7 @@ struct FileDisk : public File
 
 	u32 position()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_POSIX
 		long pos = ftell(_file);
 		CE_ASSERT(pos != -1, "ftell: errno = %d", errno);
@@ -127,6 +123,7 @@ struct FileDisk : public File
 
 	bool end_of_file()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_POSIX
 		return feof(_file) != 0;
 #elif CROWN_PLATFORM_WINDOWS
@@ -136,6 +133,7 @@ struct FileDisk : public File
 
 	void seek(u32 position)
 	{
+		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_POSIX
 		int err = fseek(_file, (long)position, SEEK_SET);
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
@@ -151,6 +149,7 @@ struct FileDisk : public File
 
 	void seek_to_end()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_POSIX
 		int err = fseek(_file, 0, SEEK_END);
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
@@ -166,6 +165,7 @@ struct FileDisk : public File
 
 	void skip(u32 bytes)
 	{
+		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_POSIX
 		int err = fseek(_file, bytes, SEEK_CUR);
 		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
@@ -181,6 +181,7 @@ struct FileDisk : public File
 
 	u32 read(void* data, u32 size)
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
 #if CROWN_PLATFORM_POSIX
 		size_t bytes_read = fread(data, 1, size, _file);
@@ -197,6 +198,7 @@ struct FileDisk : public File
 
 	u32 write(const void* data, u32 size)
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
 #if CROWN_PLATFORM_POSIX
 		size_t bytes_written = fwrite(data, 1, size, _file);
@@ -215,6 +217,7 @@ struct FileDisk : public File
 
 	void flush()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_POSIX
 		int err = fflush(_file);
 		CE_ASSERT(err == 0, "fflush: errno = %d", errno);

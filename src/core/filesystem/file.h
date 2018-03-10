@@ -24,6 +24,9 @@ struct File
 	/// Closes the file.
 	virtual void close() = 0;
 
+	/// Returns whether the file is open.
+	virtual bool is_open() = 0;
+
 	/// Returns the size of file in bytes.
 	virtual u32 size() = 0;
 

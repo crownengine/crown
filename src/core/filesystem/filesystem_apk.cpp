@@ -35,7 +35,6 @@ struct FileApk : public File
 	void open(const char* path, FileOpenMode::Enum /*mode*/)
 	{
 		_asset = AAssetManager_open(_asset_manager, path, AASSET_MODE_RANDOM);
-		CE_ASSERT(_asset != NULL, "AAssetManager_open: failed to open %s", path);
 	}
 
 	void close()
@@ -47,23 +46,32 @@ struct FileApk : public File
 		}
 	}
 
+	bool is_open()
+	{
+		return _asset != NULL;
+	}
+
 	u32 size()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		return AAsset_getLength(_asset);
 	}
 
 	u32 position()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		return u32(AAsset_getLength(_asset) - AAsset_getRemainingLength(_asset));
 	}
 
 	bool end_of_file()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		return AAsset_getRemainingLength(_asset) == 0;
 	}
 
 	void seek(u32 position)
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		off_t seek_result = AAsset_seek(_asset, (off_t)position, SEEK_SET);
 		CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
 		CE_UNUSED(seek_result);
@@ -71,6 +79,7 @@ struct FileApk : public File
 
 	void seek_to_end()
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		off_t seek_result = AAsset_seek(_asset, 0, SEEK_END);
 		CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
 		CE_UNUSED(seek_result);
@@ -78,6 +87,7 @@ struct FileApk : public File
 
 	void skip(u32 bytes)
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		off_t seek_result = AAsset_seek(_asset, (off_t)bytes, SEEK_CUR);
 		CE_ASSERT(seek_result != (off_t)-1, "AAsset_seek: error");
 		CE_UNUSED(seek_result);
@@ -85,12 +95,14 @@ struct FileApk : public File
 
 	u32 read(void* data, u32 size)
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		CE_ENSURE(NULL != data);
 		return (u32)AAsset_read(_asset, data, size);
 	}
 
 	u32 write(const void* /*data*/, u32 /*size*/)
 	{
+		CE_ASSERT(is_open(), "File is not open");
 		CE_FATAL("Apk files are read only!");
 		return 0;
 	}
