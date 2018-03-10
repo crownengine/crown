@@ -1150,6 +1150,8 @@ static void test_path()
 		DynamicString path(ta);
 		path::join(path, "/home", "foo");
 		ENSURE(path == "/home/foo");
+		path::join(path, "/home", "bar");
+		ENSURE(path == "/home/bar");
 	}
 	{
 		ENSURE(path::has_trailing_separator("/home/foo/"));
@@ -1191,6 +1193,8 @@ static void test_path()
 		DynamicString path(ta);
 		path::join(path, "C:\\Users", "foo");
 		ENSURE(path == "C:\\Users\\foo");
+		path::join(path, "C:\\Users", "bar");
+		ENSURE(path == "C:\\Users\\bar");
 	}
 	{
 		ENSURE(path::has_trailing_separator("C:\\Users\\foo\\"));
