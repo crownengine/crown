@@ -53,9 +53,6 @@ struct ResourceLoader
 	///
 	~ResourceLoader();
 
-	/// Returns whether the resource (type, name) can be loaded.
-	bool can_load(StringId64 type, StringId64 name);
-
 	/// Adds a request for loading the resource described by @a rr.
 	void add_request(const ResourceRequest& rr);
 

@@ -43,15 +43,6 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 
 	if (entry == ResourceEntry::NOT_FOUND)
 	{
-		StringId64 mix;
-		mix._id = type._id ^ name._id;
-
-		TempAllocator64 ta;
-		DynamicString path(ta);
-		mix.to_string(path);
-
-		CE_ASSERT(_loader->can_load(type, name), "Can't load resource #ID(%s)", path.c_str());
-
 		ResourceTypeData rtd;
 		rtd.version = UINT32_MAX;
 		rtd.load = NULL;

@@ -36,21 +36,6 @@ ResourceLoader::~ResourceLoader()
 	_thread.stop();
 }
 
-bool ResourceLoader::can_load(StringId64 type, StringId64 name)
-{
-	StringId64 mix;
-	mix._id = type._id ^ name._id;
-
-	TempAllocator128 ta;
-	DynamicString res_path(ta);
-	mix.to_string(res_path);
-
-	DynamicString path(ta);
-	path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
-
-	return _data_filesystem.exists(path.c_str());
-}
-
 void ResourceLoader::add_request(const ResourceRequest& rr)
 {
 	ScopedMutex sm(_mutex);
@@ -114,6 +99,7 @@ s32 ResourceLoader::run()
 		path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
 
 		File* file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+		CE_ASSERT(file->is_open(), "Can't load resource #ID(%s)", res_path.c_str());
 
 		if (rr.load_function)
 		{
