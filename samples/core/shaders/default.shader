@@ -403,6 +403,35 @@ bgfx_shaders = {
 		"""
 	}
 
+	fallback = {
+		includes = "common"
+
+		varying = """
+			vec3 a_position  : POSITION;
+		"""
+
+		vs_input_output = """
+			$input a_position
+		"""
+
+		vs_code = """
+			void main()
+			{
+				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
+			}
+		"""
+
+		fs_input_output = """
+		"""
+
+		fs_code = """
+			void main()
+			{
+				gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+			}
+		"""
+	}
+
 }
 
 shaders = {
@@ -446,6 +475,11 @@ shaders = {
 		render_state = "gui"
 	}
 
+	fallback = {
+		bgfx_shader = "fallback"
+		render_state = "mesh"
+	}
+
 }
 
 static_compile = [
@@ -460,5 +494,6 @@ static_compile = [
 	{ shader = "ocornut_imgui" defines = [] }
 	{ shader = "imgui_image" defines = [] }
 	{ shader = "blit" defines = [] }
+	{ shader = "fallback" defines = [] }
 
 ]

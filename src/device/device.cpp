@@ -382,6 +382,10 @@ void Device::run()
 	namespace utr = unit_resource_internal;
 
 	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem);
+	_resource_loader->register_fallback(RESOURCE_TYPE_TEXTURE,  StringId64("core/fallback/fallback"));
+	_resource_loader->register_fallback(RESOURCE_TYPE_MATERIAL, StringId64("core/fallback/fallback"));
+	_resource_loader->register_fallback(RESOURCE_TYPE_UNIT,     StringId64("core/fallback/fallback"));
+
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 	_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
 	_resource_manager->register_type(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             NULL,      NULL,        NULL,        NULL        );

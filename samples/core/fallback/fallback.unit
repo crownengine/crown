@@ -1,0 +1,10 @@
+components = {
+	"8c9fa813-e963-468e-859d-02fb0438ca04" = {
+		type = "transform"
+		data = {
+			position = [0 0 0]
+			rotation = [ 0 0 0 1 ]
+			scale = [1 1 1]
+		}
+	}
+}

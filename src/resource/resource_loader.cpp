@@ -4,6 +4,7 @@
  */
 
 #include "config.h"
+#include "core/containers/hash_map.h"
 #include "core/containers/queue.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
@@ -12,7 +13,10 @@
 #include "core/memory/temp_allocator.h"
 #include "core/os.h"
 #include "core/strings/dynamic_string.h"
+#include "device/log.h"
 #include "resource/resource_loader.h"
+
+namespace { const crown::log_internal::System RESOURCE_LOADER = { "ResourceLoader" }; }
 
 namespace crown
 {
@@ -25,6 +29,7 @@ ResourceLoader::ResourceLoader(Filesystem& data_filesystem)
 	: _data_filesystem(data_filesystem)
 	, _requests(default_allocator())
 	, _loaded(default_allocator())
+	, _fallback(default_allocator())
 	, _exit(false)
 {
 	_thread.start(thread_proc, this);
@@ -73,6 +78,11 @@ void ResourceLoader::get_loaded(Array<ResourceRequest>& loaded)
 	}
 }
 
+void ResourceLoader::register_fallback(StringId64 type, StringId64 name)
+{
+	hash_map::set(_fallback, type, name);
+}
+
 s32 ResourceLoader::run()
 {
 	while (!_exit)
@@ -99,6 +109,21 @@ s32 ResourceLoader::run()
 		path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
 
 		File* file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+		if (!file->is_open())
+		{
+			logw(RESOURCE_LOADER, "Can't load resource #ID(%s). Falling back...", res_path.c_str());
+
+			StringId64 fallback_name;
+			fallback_name = hash_map::get(_fallback, rr.type, fallback_name);
+			CE_ENSURE(fallback_name._id != 0);
+
+			mix._id = rr.type._id ^ fallback_name._id;
+			mix.to_string(res_path);
+			path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
+
+			_data_filesystem.close(*file);
+			file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+		}
 		CE_ASSERT(file->is_open(), "Can't load resource #ID(%s)", res_path.c_str());
 
 		if (rr.load_function)
@@ -108,10 +133,9 @@ s32 ResourceLoader::run()
 		else
 		{
 			const u32 size = file->size();
-			void* data = rr.allocator->allocate(size);
-			file->read(data, size);
-			CE_ASSERT(*(u32*)data == rr.version, "Wrong version");
-			rr.data = data;
+			rr.data = rr.allocator->allocate(size);
+			file->read(rr.data, size);
+			CE_ASSERT(*(u32*)rr.data == rr.version, "Wrong version");
 		}
 
 		_data_filesystem.close(*file);

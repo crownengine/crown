@@ -35,6 +35,7 @@ struct ResourceLoader
 
 	Queue<ResourceRequest> _requests;
 	Queue<ResourceRequest> _loaded;
+	HashMap<StringId64, StringId64> _fallback;
 
 	Thread _thread;
 	Mutex _mutex;
@@ -61,6 +62,9 @@ struct ResourceLoader
 
 	/// Returns all the resources that have been loaded.
 	void get_loaded(Array<ResourceRequest>& loaded);
+
+	/// Registers a fallback resource @a name for the given resource @a type.
+	void register_fallback(StringId64 type, StringId64 name);
 };
 
 } // namespace crown

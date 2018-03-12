@@ -1,0 +1,4 @@
+
+generate_mips = true
+normal_map = false
+source = "core/fallback/fallback.png"
