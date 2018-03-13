@@ -503,10 +503,6 @@ void Device::run()
 			_pipeline->reset(_width, _height);
 		}
 
-#if CROWN_TOOLS
-		tool_update(dt);
-#endif
-
 		if (!_paused)
 		{
 			_resource_manager->complete_requests();
@@ -531,6 +527,10 @@ void Device::run()
 		RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq));
 
 		profiler_globals::flush();
+
+#if CROWN_TOOLS
+		tool_update(dt);
+#endif
 
 		bgfx::frame();
 	}
