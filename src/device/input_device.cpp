@@ -59,6 +59,14 @@ bool InputDevice::any_released() const
 	return released(_last_button);
 }
 
+f32 InputDevice::button(u8 id) const
+{
+	return id < _num_buttons
+		? f32(_state[id])
+		: 0.0f
+		;
+}
+
 Vector3 InputDevice::axis(u8 id) const
 {
 	return id < _num_axes

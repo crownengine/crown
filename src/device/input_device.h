@@ -55,6 +55,9 @@ struct InputDevice
 	/// Returns whether any button is released in the current frame.
 	bool any_released() const;
 
+	/// Returns the value of the button @a id in the range [0..1].
+	f32 button(u8 id) const;
+
 	/// Returns the value of the axis @a id.
 	Vector3 axis(u8 id) const;
 

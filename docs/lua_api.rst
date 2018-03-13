@@ -1058,6 +1058,9 @@ Keyboard
 **any_released** () : bool
 	Returns whether any button is released in the current frame.
 
+**button** (id) : float
+	Returns the value of the button *id* in the range [0..1].
+
 **button_name** (id) : string
 	Returns the name of the button *id*.
 
@@ -1106,6 +1109,9 @@ Mouse
 
 **any_released** () : bool
 	Returns whether any button is released in the current frame.
+
+**button** (id) : float
+	Returns the value of the button *id* in the range [0..1].
 
 **axis** (id) : Vector3
 	Returns the value of the axis *id*.
@@ -1161,6 +1167,9 @@ Touch
 **any_released** () : bool
 	Returns whether any button is released in the current frame.
 
+**button** (id) : float
+	Returns the value of the button *id* in the range [0..1].
+
 **axis** (id) : Vector3
 	Returns the value of the axis *id*.
 
@@ -1202,6 +1211,9 @@ Pad1, Pad2, Pad3, Pad4
 
 **any_released** () : bool
 	Returns whether any button is released in the current frame.
+
+**button** (id) : float
+	Returns the value of the button *id* in the range [0..1].
 
 **axis** (id) : Vector3
 	Returns the value of the axis *id*.
