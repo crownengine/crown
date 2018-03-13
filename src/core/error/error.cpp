@@ -19,12 +19,16 @@ namespace error
 {
 	static void abort(const char* format, va_list args)
 	{
-		logev(ERROR, format, args);
+		char buf[1024];
+		vsnprintf(buf, sizeof(buf), format, args);
 
 		TempAllocator4096 ta;
 		StringStream ss(ta);
+		ss << buf;
+		ss << "Stacktrace:\n";
 		callstack(ss);
-		loge(ERROR, "Stacktrace:\n%s", string_stream::c_str(ss));
+
+		loge(ERROR, string_stream::c_str(ss));
 		exit(EXIT_FAILURE);
 	}
 
