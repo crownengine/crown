@@ -4,8 +4,8 @@ Bullet Continuous Collision Detection and Physics Library
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -40,13 +40,13 @@ m_manifoldPtr(mf)
 
 btBox2dBox2dCollisionAlgorithm::~btBox2dBox2dCollisionAlgorithm()
 {
-	
+
 	if (m_ownManifold)
 	{
 		if (m_manifoldPtr)
 			m_dispatcher->releaseManifold(m_manifoldPtr);
 	}
-	
+
 }
 
 
@@ -58,7 +58,7 @@ void btBox2dBox2dCollisionAlgorithm::processCollision (const btCollisionObjectWr
 	if (!m_manifoldPtr)
 		return;
 
-	
+
 	const btBox2dShape* box0 = (const btBox2dShape*)body0Wrap->getCollisionShape();
 	const btBox2dShape* box1 = (const btBox2dShape*)body1Wrap->getCollisionShape();
 
@@ -151,8 +151,8 @@ static btScalar EdgeSeparation(const btBox2dShape* poly1, const btTransform& xf1
 	int index = 0;
 	btScalar minDot = BT_LARGE_FLOAT;
 
-    if( count2 > 0 )
-        index = (int) normal1.minDot( vertices2, count2, minDot);
+	if( count2 > 0 )
+		index = (int) normal1.minDot( vertices2, count2, minDot);
 
 	btVector3 v1 = b2Mul(xf1, vertices1[edge1]);
 	btVector3 v2 = b2Mul(xf2, vertices2[index]);
@@ -175,8 +175,8 @@ static btScalar FindMaxSeparation(int* edgeIndex,
 	// Find edge normal on poly1 that has the largest projection onto d.
 	int edge = 0;
     btScalar maxDot;
-    if( count1 > 0 )
-        edge = (int) dLocal1.maxDot( normals1, count1, maxDot);
+	if( count1 > 0 )
+		edge = (int) dLocal1.maxDot( normals1, count1, maxDot);
 
 	// Get the separation for the edge normal.
 	btScalar s = EdgeSeparation(poly1, xf1, edge, poly2, xf2);
@@ -358,8 +358,8 @@ void b2CollidePolygons(btManifoldResult* manifold,
 	btVector3 sideNormal = b2Mul(xf1.getBasis(), v12 - v11);
 	sideNormal.normalize();
 	btVector3 frontNormal = btCrossS(sideNormal, 1.0f);
-	
-	
+
+
 	v11 = b2Mul(xf1, v11);
 	v12 = b2Mul(xf1, v12);
 
@@ -403,7 +403,7 @@ void b2CollidePolygons(btManifoldResult* manifold,
 
 		if (separation <= 0.0f)
 		{
-			
+
 			//b2ManifoldPoint* cp = manifold->points + pointCount;
 			//btScalar separation = separation;
 			//cp->localPoint1 = b2MulT(xfA, clipPoints2[i].v);

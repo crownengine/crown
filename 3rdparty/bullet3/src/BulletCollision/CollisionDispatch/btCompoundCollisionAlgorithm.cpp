@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -34,11 +34,11 @@ m_sharedManifold(ci.m_manifold)
 
 	const btCollisionObjectWrapper* colObjWrap = m_isSwapped? body1Wrap : body0Wrap;
 	btAssert (colObjWrap->getCollisionShape()->isCompound());
-	
+
 	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(colObjWrap->getCollisionShape());
 	m_compoundShapeRevision = compoundShape->getUpdateRevision();
-	
-	
+
+
 	preallocateChildAlgorithms(body0Wrap,body1Wrap);
 }
 
@@ -47,12 +47,12 @@ void	btCompoundCollisionAlgorithm::preallocateChildAlgorithms(const btCollisionO
 	const btCollisionObjectWrapper* colObjWrap = m_isSwapped? body1Wrap : body0Wrap;
 	const btCollisionObjectWrapper* otherObjWrap = m_isSwapped? body0Wrap : body1Wrap;
 	btAssert (colObjWrap->getCollisionShape()->isCompound());
-	
+
 	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(colObjWrap->getCollisionShape());
 
 	int numChildren = compoundShape->getNumChildShapes();
 	int i;
-	
+
 	m_childCollisionAlgorithms.resize(numChildren);
 	for (i=0;i<numChildren;i++)
 	{
@@ -61,7 +61,7 @@ void	btCompoundCollisionAlgorithm::preallocateChildAlgorithms(const btCollisionO
 			m_childCollisionAlgorithms[i] = 0;
 		} else
 		{
-			
+
 			const btCollisionShape* childShape = compoundShape->getChildShape(i);
 
 			btCollisionObjectWrapper childWrap(colObjWrap,childShape,colObjWrap->getCollisionObject(),colObjWrap->getWorldTransform(),-1,i);//wrong child trans, but unused (hopefully)
@@ -110,7 +110,7 @@ public:
 	btManifoldResult*	m_resultOut;
 	btCollisionAlgorithm**	m_childCollisionAlgorithms;
 	btPersistentManifold*	m_sharedManifold;
-	
+
 	btCompoundLeafCallback (const btCollisionObjectWrapper* compoundObjWrap,const btCollisionObjectWrapper* otherObjWrap,btDispatcher* dispatcher,const btDispatcherInfo& dispatchInfo,btManifoldResult*	resultOut,btCollisionAlgorithm**	childCollisionAlgorithms,btPersistentManifold*	sharedManifold)
 		:m_compoundColObjWrap(compoundObjWrap),m_otherObjWrap(otherObjWrap),m_dispatcher(dispatcher),m_dispatchInfo(dispatchInfo),m_resultOut(resultOut),
 		m_childCollisionAlgorithms(childCollisionAlgorithms),
@@ -129,7 +129,7 @@ public:
 
 		//backup
 		btTransform	orgTrans = m_compoundColObjWrap->getWorldTransform();
-		
+
 		const btTransform& childTrans = compoundShape->getChildTransform(index);
 		btTransform	newChildWorldTrans = orgTrans*childTrans ;
 
@@ -154,7 +154,7 @@ public:
 		{
 
 			btCollisionObjectWrapper compoundWrap(this->m_compoundColObjWrap,childShape,m_compoundColObjWrap->getCollisionObject(),newChildWorldTrans,-1,index);
-			
+
 			btCollisionAlgorithm* algo = 0;
 
 			if (m_resultOut->m_closestPointDistanceThreshold > 0)
@@ -170,7 +170,7 @@ public:
 				}
 				algo = m_childCollisionAlgorithms[index];
 			}
-			
+
 			const btCollisionObjectWrapper* tmpWrap = 0;
 
 			///detect swapping case
@@ -204,7 +204,7 @@ public:
 			{
 				m_resultOut->setBody1Wrap(tmpWrap);
 			}
-			
+
 		}
 	}
 	void		Process(const btDbvtNode* leaf)
@@ -248,14 +248,14 @@ void btCompoundCollisionAlgorithm::processCollision (const btCollisionObjectWrap
 	{
 		///clear and update all
 		removeChildAlgorithms();
-		
+
 		preallocateChildAlgorithms(body0Wrap,body1Wrap);
 		m_compoundShapeRevision = compoundShape->getUpdateRevision();
 	}
 
-    if (m_childCollisionAlgorithms.size()==0)
-        return;
-    
+	if (m_childCollisionAlgorithms.size()==0)
+		return;
+
 	const btDbvt* tree = compoundShape->getDynamicAabbTree();
 	//use a dynamic aabb tree to cull potential child-overlaps
 	btCompoundLeafCallback  callback(colObjWrap,otherObjWrap,m_dispatcher,dispatchInfo,resultOut,&m_childCollisionAlgorithms[0],m_sharedManifold);
@@ -318,10 +318,10 @@ void btCompoundCollisionAlgorithm::processCollision (const btCollisionObjectWrap
 		manifoldArray.resize(0);
         const btCollisionShape* childShape = 0;
         btTransform	orgTrans;
-        
+
         btTransform	newChildWorldTrans;
-        btVector3 aabbMin0,aabbMax0,aabbMin1,aabbMax1;        
-        
+        btVector3 aabbMin0,aabbMax0,aabbMin1,aabbMax1;
+
 		for (i=0;i<numChildren;i++)
 		{
 			if (m_childCollisionAlgorithms[i])
@@ -329,7 +329,7 @@ void btCompoundCollisionAlgorithm::processCollision (const btCollisionObjectWrap
 				childShape = compoundShape->getChildShape(i);
 			//if not longer overlapping, remove the algorithm
 				orgTrans = colObjWrap->getWorldTransform();
-                
+
 				const btTransform& childTrans = compoundShape->getChildTransform(i);
                 newChildWorldTrans = orgTrans*childTrans ;
 
@@ -356,7 +356,7 @@ btScalar	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 	btCollisionObject* otherObj = m_isSwapped? body0 : body1;
 
 	btAssert (colObj->getCollisionShape()->isCompound());
-	
+
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->getCollisionShape());
 
 	//We will use the OptimizedBVH, AABB tree to cull potential child-overlaps
@@ -378,7 +378,7 @@ btScalar	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 
 		//backup
         orgTrans = colObj->getWorldTransform();
-	
+
 		const btTransform& childTrans = compoundShape->getChildTransform(i);
 		//btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->setWorldTransform( orgTrans*childTrans );
