@@ -3,7 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "config.h"
+#include "core/platform.h"
 
 #if CROWN_PLATFORM_ANDROID
 

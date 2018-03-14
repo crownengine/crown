@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/filesystem/reader_writer.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"

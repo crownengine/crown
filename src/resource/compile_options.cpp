@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/containers/array.h"
 #include "core/containers/vector.h"
 #include "core/filesystem/file.h"

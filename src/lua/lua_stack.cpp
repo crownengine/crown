@@ -24,7 +24,7 @@ bool LuaStack::is_matrix4x4(int i)
 	return device()->_lua_environment->is_matrix4x4((Matrix4x4*)lua_touserdata(L, i));
 }
 
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 void LuaStack::check_temporary(int i, const Vector3* p)
 {
 	LuaEnvironment* env = device()->_lua_environment;
@@ -45,7 +45,7 @@ void LuaStack::check_temporary(int i, const Matrix4x4* p)
 	if (!is_pointer(i) || !env->is_matrix4x4(p))
 		luaL_typerror(L, i, "Matrix4x4");
 }
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 
 void LuaStack::push_vector2(const Vector2& v)
 {

@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "config.h"
 #include "core/types.h"
 
 /// @defgroup Error Error

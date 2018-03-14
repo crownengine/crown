@@ -127,7 +127,7 @@ struct LuaStack
 
 	int get_int(int i)
 	{
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		return (int)luaL_checknumber(L, i);
 #else
 		return (int)lua_tonumber(L, i);
@@ -136,7 +136,7 @@ struct LuaStack
 
 	f32 get_float(int i)
 	{
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		return (f32)luaL_checknumber(L, i);
 #else
 		return (f32)lua_tonumber(L, i);
@@ -145,7 +145,7 @@ struct LuaStack
 
 	const char* get_string(int i)
 	{
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		return luaL_checkstring(L, i);
 #else
 		return lua_tostring(L, i);
@@ -164,7 +164,7 @@ struct LuaStack
 
 	u32 get_id(int i)
 	{
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		return (u32)luaL_checknumber(L, i);
 #else
 		return (u32)lua_tonumber(L, i);
@@ -189,109 +189,109 @@ struct LuaStack
 	Gui* get_gui(int i)
 	{
 		Gui* p = (Gui*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	DebugLine* get_debug_line(int i)
 	{
 		DebugLine* p = (DebugLine*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	ResourcePackage* get_resource_package(int i)
 	{
 		ResourcePackage* p = (ResourcePackage*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	World* get_world(int i)
 	{
 		World* p = (World*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	SceneGraph* get_scene_graph(int i)
 	{
 		SceneGraph* p = (SceneGraph*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	Level* get_level(int i)
 	{
 		Level* p = (Level*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	RenderWorld* get_render_world(int i)
 	{
 		RenderWorld* p = (RenderWorld*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	PhysicsWorld* get_physics_world(int i)
 	{
 		PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	SoundWorld* get_sound_world(int i)
 	{
 		SoundWorld* p = (SoundWorld*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	ScriptWorld* get_script_world(int i)
 	{
 		ScriptWorld* p = (ScriptWorld*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	AnimationStateMachine* get_animation_state_machine(int i)
 	{
 		AnimationStateMachine* p = (AnimationStateMachine*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_type(i, p);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return p;
 	}
 
 	UnitId get_unit(int i)
 	{
 		u32 enc = (u32)(uintptr_t)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		if ((enc & LIGHTDATA_TYPE_MASK) != UNIT_MARKER)
 			luaL_typerror(L, i, "UnitId");
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		UnitId id;
 		id._idx = enc >> 2;
 		return id;
@@ -361,27 +361,27 @@ struct LuaStack
 	Vector3& get_vector3(int i)
 	{
 		Vector3* v = (Vector3*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_temporary(i, v);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return *v;
 	}
 
 	Quaternion& get_quaternion(int i)
 	{
 		Quaternion* q = (Quaternion*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_temporary(i, q);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return *q;
 	}
 
 	Matrix4x4& get_matrix4x4(int i)
 	{
 		Matrix4x4* m = (Matrix4x4*)get_pointer(i);
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 		check_temporary(i, m);
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 		return *m;
 	}
 
@@ -670,7 +670,7 @@ struct LuaStack
 		lua_pcall(L, 2, nresults, 0);
 	}
 
-#if !CROWN_RELEASE
+#if CROWN_DEBUG
 	void check_temporary(int i, const Vector3* p);
 	void check_temporary(int i, const Quaternion* p);
 	void check_temporary(int i, const Matrix4x4* p);
@@ -740,7 +740,7 @@ struct LuaStack
 		if (!is_pointer(i) || *(u32*)p != ANIMATION_STATE_MACHINE_MARKER)
 			luaL_typerror(L, i, "AnimationStateMachine");
 	}
-#endif // !CROWN_RELEASE
+#endif // CROWN_DEBUG
 };
 
 } // namespace crown

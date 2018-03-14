@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/command_line.h"
 #include "core/filesystem/path.h"
 #include "device/device_options.h"

@@ -7,6 +7,14 @@
 
 #include <stdint.h>
 
+#ifndef CROWN_DEBUG
+	#define CROWN_DEBUG 0
+#endif // CROWN_DEBUG
+
+#ifndef CROWN_DEVELOPMENT
+	#define CROWN_DEVELOPMENT 0
+#endif // CROWN_DEVELOPMENT
+
 /// @defgroup Core Core
 
 namespace crown
