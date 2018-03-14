@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#if SOUND_WORLD_NOOP
+#if CROWN_SOUND_NOOP
 
 #include "core/memory/memory.h"
 #include "world/audio.h"
@@ -162,4 +162,4 @@ void SoundWorld::update()
 
 } // namespace crown
 
-#endif // SOUND_WORLD_NOOP
+#endif // CROWN_SOUND_NOOP
