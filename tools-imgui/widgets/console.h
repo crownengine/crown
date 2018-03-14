@@ -1,9 +1,12 @@
+#pragma once
+
+#include "config.h"
 #include "core/containers/vector.h"
+#include "core/memory/temp_allocator.h"
+#include "core/network/ip_address.h"
 #include "core/network/socket.h"
 #include "core/strings/dynamic_string.h"
 #include "device/log.h"
-#include "core/network/ip_address.h"
-#include "core/memory/temp_allocator.h"
 
 namespace crown
 {
