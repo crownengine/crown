@@ -15,22 +15,20 @@ project "level-editor-imgui"
 		CROWN_DIR .. "3rdparty/bx/include",
 		CROWN_DIR .. "3rdparty/stb",
 		CROWN_DIR .. "3rdparty/luajit/src",
-		CROWN_DIR .. "3rdparty/openal/include",
-		CROWN_DIR .. "3rdparty/bullet3/src",
 		CROWN_DIR .. "3rdparty/ocornut-imgui",
 	}
 
 	defines {
 		"CROWN_TOOLS=1",
 		"CROWN_PHYSICS_NOOP=1",
+		"CROWN_SOUND_NOOP=1",
 	}
 
 	links {
+		"core",
 		"bgfx",
 		"bimg",
 		"bx",
-		"openal",
-		"bullet",
 	}
 
 	configuration { "debug or development" }
