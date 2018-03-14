@@ -25,7 +25,6 @@ project "level-editor-imgui"
 	}
 
 	links {
-		"core",
 		"bgfx",
 		"bimg",
 		"bx",
