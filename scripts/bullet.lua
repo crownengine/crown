@@ -21,6 +21,7 @@ project "bullet"
 		"BT_USE_PPL=0",
 		"BT_USE_OPENMP=0",
 		"B3_DBVT_BP_SORTPAIRS=0",
+		"DBVT_BP_SORTPAIRS=0",
 	}
 
 	configuration { "linux-*" }
