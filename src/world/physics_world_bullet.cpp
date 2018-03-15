@@ -434,7 +434,6 @@ struct PhysicsWorldImpl
 
 		// Create compound shape
 		btCompoundShape* shape = CE_NEW(*_allocator, btCompoundShape)(true);
-
 		ColliderInstance ci = collider_first(id);
 		while (is_valid(ci))
 		{
@@ -443,7 +442,11 @@ struct PhysicsWorldImpl
 		}
 
 		// Create motion state
-		btDefaultMotionState* ms = CE_NEW(*_allocator, btDefaultMotionState)(to_btTransform(tm));
+		const btTransform tr = to_btTransform(tm);
+		btDefaultMotionState* ms = is_static
+			? NULL
+			: CE_NEW(*_allocator, btDefaultMotionState)(tr)
+			;
 
 		// If dynamic, calculate inertia
 		btVector3 inertia;
@@ -451,6 +454,7 @@ struct PhysicsWorldImpl
 			shape->calculateLocalInertia(mass, inertia);
 
 		btRigidBody::btRigidBodyConstructionInfo rbinfo(mass, ms, shape, inertia);
+		rbinfo.m_startWorldTransform      = tr;
 		rbinfo.m_linearDamping            = actor_class->linear_damping;
 		rbinfo.m_angularDamping           = actor_class->angular_damping;
 		rbinfo.m_restitution              = material->restitution;
@@ -479,7 +483,6 @@ struct PhysicsWorldImpl
 		);
 
 		const u32 last = array::size(_actor);
-
 		actor->setUserPointer((void*)(uintptr_t)last);
 
 		// Set collision filters
