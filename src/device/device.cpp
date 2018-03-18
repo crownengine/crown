@@ -302,12 +302,9 @@ bool Device::process_events(bool vsync)
 			break;
 
 		case OsEventType::RESOLUTION:
-			{
-				const ResolutionEvent& ev = event.resolution;
-				_width  = ev.width;
-				_height = ev.height;
-				reset   = true;
-			}
+			_width  = event.resolution.width;
+			_height = event.resolution.height;
+			reset   = true;
 			break;
 
 		case OsEventType::EXIT:
