@@ -8,6 +8,7 @@
 #include "config.h"
 #include "core/memory/types.h"
 #include "core/types.h"
+#include "device/device_event_queue.h"
 #include "device/input_types.h"
 
 namespace crown
@@ -45,6 +46,9 @@ struct InputManager
 
 	/// Returns the joypad @a i.
 	InputDevice* joypad(u8 i);
+
+	///
+	void read(const OsEvent& ev);
 
 	/// Updates the input devices.
 	void update();

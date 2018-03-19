@@ -237,7 +237,6 @@ bool Device::process_events(bool vsync)
 	return tool_process_events();
 #endif
 
-	InputManager* im = _input_manager;
 	bool exit = false;
 	bool reset = false;
 
@@ -250,55 +249,9 @@ bool Device::process_events(bool vsync)
 		switch (event.type)
 		{
 		case OsEventType::BUTTON:
-			{
-				const ButtonEvent ev = event.button;
-				switch (ev.device_id)
-				{
-				case InputDeviceType::KEYBOARD:
-					im->keyboard()->set_button(ev.button_num, ev.pressed);
-					break;
-
-				case InputDeviceType::MOUSE:
-					im->mouse()->set_button(ev.button_num, ev.pressed);
-					break;
-
-				case InputDeviceType::TOUCHSCREEN:
-					im->touch()->set_button(ev.button_num, ev.pressed);
-					break;
-
-				case InputDeviceType::JOYPAD:
-					im->joypad(ev.device_num)->set_button(ev.button_num, ev.pressed);
-					break;
-				}
-			}
-			break;
-
 		case OsEventType::AXIS:
-			{
-				const AxisEvent ev = event.axis;
-				switch (ev.device_id)
-				{
-				case InputDeviceType::MOUSE:
-					im->mouse()->set_axis(ev.axis_num, vector3(ev.axis_x, ev.axis_y, ev.axis_z));
-					break;
-
-				case InputDeviceType::JOYPAD:
-					im->joypad(ev.device_num)->set_axis(ev.axis_num, vector3(ev.axis_x, ev.axis_y, ev.axis_z));
-					break;
-				}
-			}
-			break;
-
 		case OsEventType::STATUS:
-			{
-				const StatusEvent ev = event.status;
-				switch (ev.device_id)
-				{
-				case InputDeviceType::JOYPAD:
-					im->joypad(ev.device_num)->_connected = ev.connected;
-					break;
-				}
-			}
+			_input_manager->read(event);
 			break;
 
 		case OsEventType::RESOLUTION:

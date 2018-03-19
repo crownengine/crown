@@ -41,9 +41,9 @@ struct AxisEvent
 	u16 device_id  : 3;
 	u16 device_num : 2;
 	u16 axis_num   : 4;
-	f32 axis_x;
-	f32 axis_y;
-	f32 axis_z;
+	s16 axis_x;
+	s16 axis_y;
+	s16 axis_z;
 };
 
 struct StatusEvent
@@ -105,7 +105,7 @@ struct DeviceEventQueue
 		push_event(ev);
 	}
 
-	void push_axis_event(u16 device_id, u16 device_num, u16 axis_id, f32 axis_x, f32 axis_y, f32 axis_z)
+	void push_axis_event(u16 device_id, u16 device_num, u16 axis_id, s16 axis_x, s16 axis_y, s16 axis_z)
 	{
 		OsEvent ev;
 		ev.axis.type = OsEventType::AXIS;

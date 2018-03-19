@@ -232,6 +232,22 @@ struct JoypadAxis
 	{
 		LEFT,
 		RIGHT,
+		TRIGGER_LEFT,
+		TRIGGER_RIGHT,
+		COUNT
+	};
+};
+
+/// Enumerates deadzone modes.
+///
+/// @ingroup Input
+struct DeadzoneMode
+{
+	enum Enum
+	{
+		RAW,         ///< No deadzone.
+		INDEPENDENT, ///< The deadzone is applied on each axis independently.
+		CIRCULAR,    ///< The deadzone value is interpreted as the radius of a circle.
 		COUNT
 	};
 };

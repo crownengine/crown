@@ -1230,6 +1230,12 @@ Pad1, Pad2, Pad3, Pad4
 **axis_id** (name) : int
 	Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
+**deadzone** (id) : deadzone_mode, deadzone_size
+	Returns the deadzone mode and size for the axis *id*.
+
+**set_deadzone** (id, deadzone_mode, deadzone_size)
+	Sets the *deadzone_mode* and *deadzone_size* for the axis *id*.
+
 Pad Button Names
 ~~~~~~~~~~~~~~~~
 
@@ -1242,7 +1248,8 @@ Pad Button Names
 Pad Axis Names
 ~~~~~~~~~~~~~~
 
-* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1]. The z element represents the left or right trigger [0; +1].
+* ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1].
+* ``trigger_left``, ``trigger_right``: The z element represents the left or right trigger [0; +1].
 
 Profiler
 ========

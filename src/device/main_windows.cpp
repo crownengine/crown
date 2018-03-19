@@ -146,6 +146,16 @@ static XinputToJoypad s_xinput_to_joypad[] =
 
 struct Joypad
 {
+	struct Axis
+	{
+		s16 lx, ly, lz;
+		s16 rx, ry, rz;
+	};
+
+	XINPUT_STATE _state[CROWN_MAX_JOYPADS];
+	Axis _axis[CROWN_MAX_JOYPADS];
+	bool _connected[CROWN_MAX_JOYPADS];
+
 	void init()
 	{
 		memset(&_state, 0, sizeof(_state));
@@ -194,134 +204,84 @@ struct Joypad
 
 			if (state.Gamepad.sThumbLX != gamepad.sThumbLX)
 			{
-				SHORT value = state.Gamepad.sThumbLX;
-				value = value > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
-					? value : 0;
-
-				_axis[0].lx = value != 0
-					? f32(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-					: 0.0f
-					;
+				_axis[i].lx = state.Gamepad.sThumbLX;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
 					, JoypadAxis::LEFT
-					, _axis[0].lx
-					, _axis[0].ly
-					, _axis[0].lz
+					, _axis[i].lx
+					, _axis[i].ly
+					, 0
 					);
 
 				gamepad.sThumbLX = state.Gamepad.sThumbLX;
 			}
 			if (state.Gamepad.sThumbLY != gamepad.sThumbLY)
 			{
-				SHORT value = state.Gamepad.sThumbLY;
-				value = value > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
-					? value : 0;
-
-				_axis[0].ly = value != 0
-					? f32(value + (value < 0 ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-					: 0.0f
-					;
+				_axis[i].ly = state.Gamepad.sThumbLY;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
 					, JoypadAxis::LEFT
-					, _axis[0].lx
-					, _axis[0].ly
-					, _axis[0].lz
+					, _axis[i].lx
+					, _axis[i].ly
+					, 0
 					);
 
 				gamepad.sThumbLY = state.Gamepad.sThumbLY;
 			}
-			if (state.Gamepad.bLeftTrigger != gamepad.bLeftTrigger)
-			{
-				BYTE value = state.Gamepad.bLeftTrigger;
-				value = value > XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
-
-				_axis[0].lz = value != 0
-					? f32(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / f32(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-					: 0.0f
-					;
-				queue.push_axis_event(InputDeviceType::JOYPAD
-					, i
-					, JoypadAxis::LEFT
-					, _axis[0].lx
-					, _axis[0].ly
-					, _axis[0].lz
-					);
-
-				gamepad.bLeftTrigger = state.Gamepad.bLeftTrigger;
-			}
 			if (state.Gamepad.sThumbRX != gamepad.sThumbRX)
 			{
-				SHORT value = state.Gamepad.sThumbRX;
-				value = value > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
-					? value : 0;
-
-				_axis[0].rx = value != 0
-					? f32(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
-					: 0.0f
-					;
+				_axis[i].rx = state.Gamepad.sThumbRX;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
 					, JoypadAxis::RIGHT
-					, _axis[0].rx
-					, _axis[0].ry
-					, _axis[0].rz
+					, _axis[i].rx
+					, _axis[i].ry
+					, 0
 					);
 
 				gamepad.sThumbRX = state.Gamepad.sThumbRX;
 			}
 			if (state.Gamepad.sThumbRY != gamepad.sThumbRY)
 			{
-				SHORT value = state.Gamepad.sThumbRY;
-				value = value > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || value < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
-					? value : 0;
-
-				_axis[0].ry = value != 0
-					? f32(value + (value < 0 ? XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE : -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) / f32(INT16_MAX - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
-					: 0.0f
-					;
+				_axis[i].ry = state.Gamepad.sThumbRY;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
 					, JoypadAxis::RIGHT
-					, _axis[0].rx
-					, _axis[0].ry
-					, _axis[0].rz
+					, _axis[i].rx
+					, _axis[i].ry
+					, 0
 					);
 
 				gamepad.sThumbRY = state.Gamepad.sThumbRY;
 			}
-			if (state.Gamepad.bRightTrigger != gamepad.bRightTrigger)
+			if (state.Gamepad.bLeftTrigger != gamepad.bLeftTrigger)
 			{
-				BYTE value = state.Gamepad.bRightTrigger;
-				value = value > XINPUT_GAMEPAD_TRIGGER_THRESHOLD ? value : 0;
-
-				_axis[0].rz = value != 0
-					? f32(value + (value < 0 ? XINPUT_GAMEPAD_TRIGGER_THRESHOLD : -XINPUT_GAMEPAD_TRIGGER_THRESHOLD)) / f32(UINT8_MAX - XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-					: 0.0f
-					;
+				_axis[i].lz = state.Gamepad.bLeftTrigger;
 				queue.push_axis_event(InputDeviceType::JOYPAD
 					, i
-					, JoypadAxis::RIGHT
-					, _axis[0].rx
-					, _axis[0].ry
-					, _axis[0].rz
+					, JoypadAxis::TRIGGER_LEFT
+					, 0
+					, 0
+					, _axis[i].lz
+					);
+
+				gamepad.bLeftTrigger = state.Gamepad.bLeftTrigger;
+			}
+			if (state.Gamepad.bRightTrigger != gamepad.bRightTrigger)
+			{
+				_axis[i].rz = state.Gamepad.bRightTrigger;
+				queue.push_axis_event(InputDeviceType::JOYPAD
+					, i
+					, JoypadAxis::TRIGGER_RIGHT
+					, 0
+					, 0
+					, _axis[i].rz
 					);
 
 				gamepad.bRightTrigger = state.Gamepad.bRightTrigger;
 			}
 		}
 	}
-
-	struct Axis
-	{
-		f32 lx, ly, lz;
-		f32 rx, ry, rz;
-	};
-
-	XINPUT_STATE _state[CROWN_MAX_JOYPADS];
-	Axis _axis[CROWN_MAX_JOYPADS];
-	bool _connected[CROWN_MAX_JOYPADS];
 };
 
 static bool s_exit = false;
@@ -450,9 +410,9 @@ struct WindowsDevice
 				_queue.push_axis_event(InputDeviceType::MOUSE
 					, 0
 					, MouseAxis::WHEEL
-					, 0.0f
-					, (f32)(delta/WHEEL_DELTA)
-					, 0.0f
+					, 0
+					, delta / WHEEL_DELTA
+					, 0
 					);
 			}
 			break;
@@ -464,9 +424,9 @@ struct WindowsDevice
 				_queue.push_axis_event(InputDeviceType::MOUSE
 					, 0
 					, MouseAxis::CURSOR
-					, (f32)mx
-					, (f32)my
-					, 0.0f
+					, (s16)mx
+					, (s16)my
+					, 0
 					);
 			}
 			break;

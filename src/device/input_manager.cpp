@@ -162,8 +162,10 @@ CE_STATIC_ASSERT(countof(s_pad_button_names) == JoypadButton::COUNT);
 
 static const char* s_pad_axis_names[] =
 {
-	"left",  // JoypadAxis::LEFT
-	"right"  // JoypadAxis::RIGHT
+	"left",         // JoypadAxis::LEFT
+	"right",        // JoypadAxis::RIGHT
+	"trigger_left", // JoypadAxis::TRIGGER_LEFT
+	"trigger_right" // JoypadAxis::TRIGGER_RIGHT
 };
 CE_STATIC_ASSERT(countof(s_pad_axis_names) == JoypadAxis::COUNT);
 
@@ -206,6 +208,10 @@ InputManager::InputManager(Allocator& a)
 			, s_pad_button_names
 			, s_pad_axis_names
 			);
+		_joypad[i]->set_deadzone(JoypadAxis::LEFT, DeadzoneMode::CIRCULAR, 0.24f);
+		_joypad[i]->set_deadzone(JoypadAxis::RIGHT, DeadzoneMode::CIRCULAR, 0.27f);
+		_joypad[i]->set_deadzone(JoypadAxis::TRIGGER_LEFT, DeadzoneMode::CIRCULAR, 0.12f);
+		_joypad[i]->set_deadzone(JoypadAxis::TRIGGER_RIGHT, DeadzoneMode::CIRCULAR, 0.12f);
 	}
 
 	_keyboard->_connected = true;
@@ -249,12 +255,82 @@ InputDevice* InputManager::joypad(u8 i)
 	return _joypad[i];
 }
 
+void InputManager::read(const OsEvent& event)
+{
+	switch (event.type)
+	{
+	case OsEventType::BUTTON:
+		{
+			const ButtonEvent ev = event.button;
+			switch (ev.device_id)
+			{
+			case InputDeviceType::KEYBOARD:
+				_keyboard->set_button(ev.button_num, ev.pressed);
+				break;
+
+			case InputDeviceType::MOUSE:
+				_mouse->set_button(ev.button_num, ev.pressed);
+				break;
+
+			case InputDeviceType::TOUCHSCREEN:
+				_touch->set_button(ev.button_num, ev.pressed);
+				break;
+
+			case InputDeviceType::JOYPAD:
+				_joypad[ev.device_num]->set_button(ev.button_num, ev.pressed);
+				break;
+			}
+		}
+		break;
+
+	case OsEventType::AXIS:
+		{
+			const AxisEvent ev = event.axis;
+			switch (ev.device_id)
+			{
+			case InputDeviceType::MOUSE:
+				_mouse->set_axis(ev.axis_num, ev.axis_x, ev.axis_y, ev.axis_z);
+				break;
+
+			case InputDeviceType::JOYPAD:
+				_joypad[ev.device_num]->set_axis(ev.axis_num
+					, (f32)ev.axis_x / (f32)INT16_MAX
+					, (f32)ev.axis_y / (f32)INT16_MAX
+					, (f32)ev.axis_z / (f32)INT16_MAX
+					);
+				break;
+			}
+		}
+		break;
+
+	case OsEventType::STATUS:
+		{
+			const StatusEvent ev = event.status;
+			switch (ev.device_id)
+			{
+			case InputDeviceType::JOYPAD:
+				_joypad[ev.device_num]->_connected = ev.connected;
+				break;
+			}
+		}
+		break;
+
+	default:
+		CE_FATAL("Unknown input event type");
+		break;
+	}
+}
+
 void InputManager::update()
 {
 	_keyboard->update();
 
 	const Vector3 cursor = _mouse->axis(MouseAxis::CURSOR);
-	_mouse->set_axis(MouseAxis::CURSOR_DELTA, vector3((s16)cursor.x - _mouse_last_x, (s16)cursor.y - _mouse_last_y, 0.0f));
+	_mouse->set_axis(MouseAxis::CURSOR_DELTA
+		, (s16)cursor.x - _mouse_last_x
+		, (s16)cursor.y - _mouse_last_y
+		, 0
+		);
 	_mouse_last_x = (s16)cursor.x;
 	_mouse_last_y = (s16)cursor.y;
 	_mouse->update();

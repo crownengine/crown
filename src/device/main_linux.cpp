@@ -141,10 +141,6 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 #define JS_EVENT_AXIS   0x02 /* joystick moved */
 #define JS_EVENT_INIT   0x80 /* initial state of device */
 
-#define XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  7849
-#define XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE 8689
-#define XINPUT_GAMEPAD_THRESHOLD            30
-
 static u8 s_button[] =
 {
 	JoypadButton::A,
@@ -164,16 +160,6 @@ static u8 s_button[] =
 	JoypadButton::RIGHT
 };
 
-static u16 s_deadzone[] =
-{
-	XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,
-	XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,
-	XINPUT_GAMEPAD_THRESHOLD,
-	XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,
-	XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,
-	XINPUT_GAMEPAD_THRESHOLD
-};
-
 struct JoypadEvent
 {
 	u32 time;  /* event timestamp in milliseconds */
@@ -184,6 +170,17 @@ struct JoypadEvent
 
 struct Joypad
 {
+	int _fd[CROWN_MAX_JOYPADS];
+	bool _connected[CROWN_MAX_JOYPADS];
+
+	struct AxisData
+	{
+		s16 left[3];
+		s16 right[3];
+	};
+
+	AxisData _axis[CROWN_MAX_JOYPADS];
+
 	void init()
 	{
 		char jspath[] = "/dev/input/jsX";
@@ -228,38 +225,51 @@ struct Joypad
 
 			while(read(fd, &ev, sizeof(ev)) != -1)
 			{
-				const u8 num = ev.number;
-				const s16 val = ev.value;
+				s16 val = ev.value;
 
 				switch (ev.type &= ~JS_EVENT_INIT)
 				{
 				case JS_EVENT_AXIS:
 					{
-						AxisData& axis = _axis[i];
 						// Indices into axis.left/right respectively
 						const u8 axis_idx[] = { 0, 1, 2, 0, 1, 2 };
-						const s16 deadzone = s_deadzone[num];
-
-						s16 value = val > deadzone || val < -deadzone ? val : 0;
+						const u8 axis_map[] =
+						{
+							JoypadAxis::LEFT,
+							JoypadAxis::LEFT,
+							JoypadAxis::TRIGGER_LEFT,
+							JoypadAxis::RIGHT,
+							JoypadAxis::RIGHT,
+							JoypadAxis::TRIGGER_RIGHT
+						};
 
 						// Remap triggers to [0, INT16_MAX]
-						if (num == 2 || num == 5)
-							value = (value + INT16_MAX) >> 1;
+						if (ev.number == 2 || ev.number == 5)
+							val = (val + INT16_MAX) >> 1;
 
-						f32* values = num > 2 ? axis.right : axis.left;
+						s16* values = ev.number > 2 ? _axis[i].right : _axis[i].left;
+						values[axis_idx[ev.number]] = val;
 
-						values[axis_idx[num]] = value != 0
-							? f32(value + (value < 0 ? deadzone : -deadzone)) / f32(INT16_MAX - deadzone)
-							: 0.0f
-							;
-
-						queue.push_axis_event(InputDeviceType::JOYPAD
-							, i
-							, num > 2 ? 1 : 0
-							, values[0]
-							, -values[1]
-							, values[2]
-							);
+						if (ev.number == 2 || ev.number == 5)
+						{
+							queue.push_axis_event(InputDeviceType::JOYPAD
+								, i
+								, axis_map[ev.number]
+								, 0
+								, 0
+								, values[2]
+								);
+						}
+						else if (ev.number < countof(axis_map))
+						{
+							queue.push_axis_event(InputDeviceType::JOYPAD
+								, i
+								, axis_map[ev.number]
+								, values[0]
+								, -values[1]
+								, 0
+								);
+						}
 					}
 					break;
 
@@ -280,17 +290,6 @@ struct Joypad
 			}
 		}
 	}
-
-	int _fd[CROWN_MAX_JOYPADS];
-	bool _connected[CROWN_MAX_JOYPADS];
-
-	struct AxisData
-	{
-		f32 left[3];
-		f32 right[3];
-	};
-
-	AxisData _axis[CROWN_MAX_JOYPADS];
 };
 
 static bool s_exit = false;
@@ -395,7 +394,7 @@ struct LinuxDevice
 						, MouseAxis::CURSOR
 						, event.xcrossing.x
 						, event.xcrossing.y
-						, 0.0f
+						, 0
 						);
 					break;
 
@@ -418,9 +417,9 @@ struct LinuxDevice
 							_queue.push_axis_event(InputDeviceType::MOUSE
 								, 0
 								, MouseAxis::WHEEL
-								, 0.0f
-								, event.xbutton.button == Button4 ? 1.0f : -1.0f
-								, 0.0f
+								, 0
+								, event.xbutton.button == Button4 ? 1 : -1
+								, 0
 								);
 							break;
 						}
@@ -451,7 +450,7 @@ struct LinuxDevice
 						, MouseAxis::CURSOR
 						, event.xmotion.x
 						, event.xmotion.y
-						, 0.0f
+						, 0
 						);
 					break;
 

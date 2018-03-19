@@ -173,7 +173,7 @@ struct AndroidDevice
 						, id
 						, xx
 						, yy
-						, 0.0f
+						, 0
 						);
 				}
 				break;
