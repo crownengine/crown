@@ -22,17 +22,17 @@ struct InputDevice
 	u8 _num_buttons;
 	u8 _num_axes;
 	u8 _last_button;
+	const char** _button_name;
+	const char** _axis_name;
 
-	u8* _last_state;           // num_buttons
-	u8* _state;                // num_buttons
-	Vector3* _axis;            // num_axes
-	u32* _deadzone_mode;       // num_axes
-	f32* _deadzone_size;       // num_axes
-	const char** _button_name; // num_buttons
-	const char** _axis_name;   // num_axes
-	StringId32* _button_hash;  // num_buttons
-	StringId32* _axis_hash;    // num_axes
-	char* _name;               // strlen32(name) + 1
+	u8* _last_state;          // num_buttons
+	u8* _state;               // num_buttons
+	Vector3* _axis;           // num_axes
+	u32* _deadzone_mode;      // num_axes
+	f32* _deadzone_size;      // num_axes
+	StringId32* _button_hash; // num_buttons
+	StringId32* _axis_hash;   // num_axes
+	char* _name;              // strlen32(name) + 1
 
 	void set_button(u8 id, bool state);
 	void set_axis(u8 id, f32 x, f32 y, f32 z);

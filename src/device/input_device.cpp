@@ -200,8 +200,6 @@ namespace input_device
 			+ sizeof(Vector3)*num_axes + alignof(Vector3)
 			+ sizeof(u32)*num_axes + alignof(u32)
 			+ sizeof(f32)*num_axes + alignof(f32)
-			+ sizeof(char*)*num_buttons + alignof(char*)
-			+ sizeof(char*)*num_axes + alignof(char*)
 			+ sizeof(StringId32)*num_buttons + alignof(StringId32)
 			+ sizeof(StringId32)*num_axes + alignof(StringId32)
 			+ strlen32(name) + 1 + alignof(char)
@@ -213,15 +211,15 @@ namespace input_device
 		id->_num_buttons = num_buttons;
 		id->_num_axes    = num_axes;
 		id->_last_button = 0;
+		id->_button_name = button_names;
+		id->_axis_name = axis_names;
 
 		id->_last_state    = (u8*         )&id[1];
 		id->_state         = (u8*         )memory::align_top(id->_last_state + num_buttons,  alignof(u8         ));
 		id->_axis          = (Vector3*    )memory::align_top(id->_state + num_buttons,       alignof(Vector3    ));
 		id->_deadzone_mode = (u32*        )memory::align_top(id->_axis + num_axes,           alignof(u32        ));
 		id->_deadzone_size = (f32*        )memory::align_top(id->_deadzone_mode + num_axes,  alignof(f32        ));
-		id->_button_name   = (const char**)memory::align_top(id->_deadzone_size + num_axes,  alignof(const char*));
-		id->_axis_name     = (const char**)memory::align_top(id->_button_name + num_buttons, alignof(const char*));
-		id->_button_hash   = (StringId32* )memory::align_top(id->_axis_name + num_axes,      alignof(StringId32 ));
+		id->_button_hash   = (StringId32* )memory::align_top(id->_deadzone_size + num_axes,  alignof(StringId32 ));
 		id->_axis_hash     = (StringId32* )memory::align_top(id->_button_hash + num_buttons, alignof(StringId32 ));
 		id->_name          = (char*       )memory::align_top(id->_axis_hash + num_axes,      alignof(char       ));
 
@@ -230,8 +228,6 @@ namespace input_device
 		memset(id->_axis, 0, sizeof(Vector3)*num_axes);
 		memset(id->_deadzone_mode, 0, sizeof(*id->_deadzone_mode)*num_axes);
 		memset(id->_deadzone_size, 0, sizeof(*id->_deadzone_size)*num_axes);
-		memcpy(id->_button_name, button_names, sizeof(const char*)*num_buttons);
-		memcpy(id->_axis_name, axis_names, sizeof(const char*)*num_axes);
 
 		for (u32 i = 0; i < num_buttons; ++i)
 			id->_button_hash[i] = StringId32(button_names[i]);
