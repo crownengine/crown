@@ -195,23 +195,23 @@ struct ImGuiContext
 
 		setupStyle(true);
 
-		io.KeyMap[ImGuiKey_Tab]        = (int)crown::KeyboardButton::TAB;
-		io.KeyMap[ImGuiKey_LeftArrow]  = (int)crown::KeyboardButton::LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = (int)crown::KeyboardButton::RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow]    = (int)crown::KeyboardButton::UP;
-		io.KeyMap[ImGuiKey_DownArrow]  = (int)crown::KeyboardButton::DOWN;
-		io.KeyMap[ImGuiKey_Home]       = (int)crown::KeyboardButton::HOME;
-		io.KeyMap[ImGuiKey_End]        = (int)crown::KeyboardButton::END;
-		io.KeyMap[ImGuiKey_Delete]     = (int)crown::KeyboardButton::DEL;
-		io.KeyMap[ImGuiKey_Backspace]  = (int)crown::KeyboardButton::BACKSPACE;
-		io.KeyMap[ImGuiKey_Enter]      = (int)crown::KeyboardButton::ENTER;
-		io.KeyMap[ImGuiKey_Escape]     = (int)crown::KeyboardButton::ESCAPE;
-		io.KeyMap[ImGuiKey_A]          = (int)crown::KeyboardButton::A;
-		io.KeyMap[ImGuiKey_C]          = (int)crown::KeyboardButton::C;
-		io.KeyMap[ImGuiKey_V]          = (int)crown::KeyboardButton::V;
-		io.KeyMap[ImGuiKey_X]          = (int)crown::KeyboardButton::X;
-		io.KeyMap[ImGuiKey_Y]          = (int)crown::KeyboardButton::Y;
-		io.KeyMap[ImGuiKey_Z]          = (int)crown::KeyboardButton::Z;
+		io.KeyMap[ImGuiKey_Tab]        = crown::KeyboardButton::TAB;
+		io.KeyMap[ImGuiKey_LeftArrow]  = crown::KeyboardButton::LEFT;
+		io.KeyMap[ImGuiKey_RightArrow] = crown::KeyboardButton::RIGHT;
+		io.KeyMap[ImGuiKey_UpArrow]    = crown::KeyboardButton::UP;
+		io.KeyMap[ImGuiKey_DownArrow]  = crown::KeyboardButton::DOWN;
+		io.KeyMap[ImGuiKey_Home]       = crown::KeyboardButton::HOME;
+		io.KeyMap[ImGuiKey_End]        = crown::KeyboardButton::END;
+		io.KeyMap[ImGuiKey_Delete]     = crown::KeyboardButton::DEL;
+		io.KeyMap[ImGuiKey_Backspace]  = crown::KeyboardButton::BACKSPACE;
+		io.KeyMap[ImGuiKey_Enter]      = crown::KeyboardButton::ENTER;
+		io.KeyMap[ImGuiKey_Escape]     = crown::KeyboardButton::ESCAPE;
+		io.KeyMap[ImGuiKey_A]          = crown::KeyboardButton::A;
+		io.KeyMap[ImGuiKey_C]          = crown::KeyboardButton::C;
+		io.KeyMap[ImGuiKey_V]          = crown::KeyboardButton::V;
+		io.KeyMap[ImGuiKey_X]          = crown::KeyboardButton::X;
+		io.KeyMap[ImGuiKey_Y]          = crown::KeyboardButton::Y;
+		io.KeyMap[ImGuiKey_Z]          = crown::KeyboardButton::Z;
 
 		u_imageLodEnabled = bgfx::createUniform("u_imageLodEnabled", bgfx::UniformType::Vec4);
 

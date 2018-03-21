@@ -1083,160 +1083,122 @@ bool tool_process_events()
 		switch (event.type)
 		{
 		case OsEventType::BUTTON:
+			switch (event.button.device_id)
 			{
-				const ButtonEvent& ev = event.button;
-				switch (ev.device_id)
+			case crown::InputDeviceType::KEYBOARD:
+				io.KeyCtrl = ((event.button.button_num == crown::KeyboardButton::CTRL_LEFT)
+					|| (event.button.button_num == crown::KeyboardButton::CTRL_RIGHT)) && event.button.pressed;
+				io.KeyShift = ((event.button.button_num == crown::KeyboardButton::SHIFT_LEFT)
+					|| (event.button.button_num == crown::KeyboardButton::SHIFT_RIGHT)) && event.button.pressed;
+				io.KeyAlt = ((event.button.button_num == crown::KeyboardButton::ALT_LEFT)
+					|| (event.button.button_num == crown::KeyboardButton::ALT_RIGHT)) && event.button.pressed;
+				io.KeySuper = ((event.button.button_num == crown::KeyboardButton::SUPER_LEFT)
+					|| (event.button.button_num == crown::KeyboardButton::SUPER_RIGHT)) && event.button.pressed;
+
+				io.KeysDown[event.button.button_num] = event.button.pressed;
+
+				if (!io.WantCaptureKeyboard)
 				{
-				case crown::InputDeviceType::KEYBOARD:
-					io.KeyCtrl = ((ev.button_num == crown::KeyboardButton::CTRL_LEFT)
-						|| (ev.button_num == crown::KeyboardButton::CTRL_RIGHT)) && ev.pressed;
-					io.KeyShift = ((ev.button_num == crown::KeyboardButton::SHIFT_LEFT)
-						|| (ev.button_num == crown::KeyboardButton::SHIFT_RIGHT)) && ev.pressed;
-					io.KeyAlt = ((ev.button_num == crown::KeyboardButton::ALT_LEFT)
-						|| (ev.button_num == crown::KeyboardButton::ALT_RIGHT)) && ev.pressed;
-					io.KeySuper = ((ev.button_num == crown::KeyboardButton::SUPER_LEFT)
-						|| (ev.button_num == crown::KeyboardButton::SUPER_RIGHT)) && ev.pressed;
-
-					io.KeysDown[crown::KeyboardButton::TAB] = (ev.button_num == crown::KeyboardButton::TAB) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::LEFT] = (ev.button_num == crown::KeyboardButton::LEFT) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::RIGHT] = (ev.button_num == crown::KeyboardButton::RIGHT) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::UP] = (ev.button_num == crown::KeyboardButton::UP) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::DOWN] = (ev.button_num == crown::KeyboardButton::DOWN) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::PAGE_UP] = (ev.button_num == crown::KeyboardButton::PAGE_UP) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::PAGE_DOWN] = (ev.button_num == crown::KeyboardButton::PAGE_DOWN) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::HOME] = (ev.button_num == crown::KeyboardButton::HOME) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::END] = (ev.button_num == crown::KeyboardButton::END) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::DEL] = (ev.button_num == crown::KeyboardButton::DEL) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::BACKSPACE] = (ev.button_num == crown::KeyboardButton::BACKSPACE) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::ENTER] = (ev.button_num == crown::KeyboardButton::ENTER) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::ESCAPE] = (ev.button_num == crown::KeyboardButton::ESCAPE) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::A] = (ev.button_num == crown::KeyboardButton::A) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::C] = (ev.button_num == crown::KeyboardButton::C) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::V] = (ev.button_num == crown::KeyboardButton::V) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::X] = (ev.button_num == crown::KeyboardButton::X) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::Y] = (ev.button_num == crown::KeyboardButton::Y) && ev.pressed;
-					io.KeysDown[crown::KeyboardButton::Z] = (ev.button_num == crown::KeyboardButton::Z) && ev.pressed;
-
-					if (!io.WantCaptureKeyboard)
+					if (event.button.pressed)
 					{
-						if (ev.pressed)
-						{
-							if (ev.button_num == crown::KeyboardButton::W)
-								tool::keyboard_pressed(ss, 'w');
-							if (ev.button_num == crown::KeyboardButton::A)
-								tool::keyboard_pressed(ss, 'a');
-							if (ev.button_num == crown::KeyboardButton::S)
-								tool::keyboard_pressed(ss, 's');
-							if (ev.button_num == crown::KeyboardButton::D)
-								tool::keyboard_pressed(ss, 'd');
-						}
-						else
-						{
-							if (ev.button_num == crown::KeyboardButton::W)
-								tool::keyboard_released(ss, 'w');
-							if (ev.button_num == crown::KeyboardButton::A)
-								tool::keyboard_released(ss, 'a');
-							if (ev.button_num == crown::KeyboardButton::S)
-								tool::keyboard_released(ss, 's');
-							if (ev.button_num == crown::KeyboardButton::D)
-								tool::keyboard_released(ss, 'd');
-						}
+						if (event.button.button_num == crown::KeyboardButton::W)
+							tool::keyboard_pressed(ss, 'w');
+						if (event.button.button_num == crown::KeyboardButton::A)
+							tool::keyboard_pressed(ss, 'a');
+						if (event.button.button_num == crown::KeyboardButton::S)
+							tool::keyboard_pressed(ss, 's');
+						if (event.button.button_num == crown::KeyboardButton::D)
+							tool::keyboard_pressed(ss, 'd');
 					}
-
-					break;
-
-				case crown::InputDeviceType::MOUSE:
-					io.MouseDown[0] = (ev.button_num == crown::MouseButton::LEFT) && ev.pressed;
-					io.MouseDown[1] = (ev.button_num == crown::MouseButton::RIGHT) && ev.pressed;
-					io.MouseDown[2] = (ev.button_num == crown::MouseButton::MIDDLE) && ev.pressed;
-
-					if (!io.WantCaptureMouse)
+					else
 					{
-						ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
-						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._pos.x;
-						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._pos.y;
-
-						tool::set_mouse_state(ss
-							, mouse_curr.x
-							, mouse_curr.y
-							, io.MouseDown[0]
-							, io.MouseDown[2]
-							, io.MouseDown[1]
-							);
-
-						if (ev.button_num == crown::MouseButton::LEFT)
-						{
-							if (ev.pressed)
-								tool::mouse_down(ss, mouse_curr.x, mouse_curr.y);
-							else
-								tool::mouse_up(ss, mouse_curr.x, mouse_curr.y);
-						}
+						if (event.button.button_num == crown::KeyboardButton::W)
+							tool::keyboard_released(ss, 'w');
+						if (event.button.button_num == crown::KeyboardButton::A)
+							tool::keyboard_released(ss, 'a');
+						if (event.button.button_num == crown::KeyboardButton::S)
+							tool::keyboard_released(ss, 's');
+						if (event.button.button_num == crown::KeyboardButton::D)
+							tool::keyboard_released(ss, 'd');
 					}
-
-					break;
 				}
+				break;
+
+			case crown::InputDeviceType::MOUSE:
+				io.MouseDown[0] = (event.button.button_num == crown::MouseButton::LEFT) && event.button.pressed;
+				io.MouseDown[1] = (event.button.button_num == crown::MouseButton::RIGHT) && event.button.pressed;
+				io.MouseDown[2] = (event.button.button_num == crown::MouseButton::MIDDLE) && event.button.pressed;
+
+				if (!io.WantCaptureMouse)
+				{
+					ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
+					mouse_curr.x = io.MousePos.x - s_editor->_scene_view._pos.x;
+					mouse_curr.y = io.MousePos.y - s_editor->_scene_view._pos.y;
+
+					tool::set_mouse_state(ss
+						, mouse_curr.x
+						, mouse_curr.y
+						, io.MouseDown[0]
+						, io.MouseDown[2]
+						, io.MouseDown[1]
+						);
+
+					if (event.button.button_num == crown::MouseButton::LEFT)
+					{
+						if (event.button.pressed)
+							tool::mouse_down(ss, mouse_curr.x, mouse_curr.y);
+						else
+							tool::mouse_up(ss, mouse_curr.x, mouse_curr.y);
+					}
+				}
+				break;
 			}
 			break;
 
 		case OsEventType::AXIS:
+			switch(event.axis.device_id)
 			{
-				const AxisEvent& ev = event.axis;
-				switch(ev.device_id)
+			case InputDeviceType::MOUSE:
+				switch(event.axis.axis_num)
 				{
-				case InputDeviceType::MOUSE:
+				case crown::MouseAxis::CURSOR:
+					io.MousePos = ImVec2(event.axis.axis_x, event.axis.axis_y);
+
+					if (!io.WantCaptureMouse)
 					{
-						switch(ev.axis_num)
-						{
-						case crown::MouseAxis::CURSOR:
-							io.MousePos = ImVec2(ev.axis_x, ev.axis_y);
+						ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
+						ImVec2& mouse_last = s_editor->_scene_view._mouse_last;
 
-							if (!io.WantCaptureMouse)
-							{
-								ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
-								ImVec2& mouse_last = s_editor->_scene_view._mouse_last;
+						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._pos.x;
+						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._pos.y;
 
-								mouse_curr.x = io.MousePos.x - s_editor->_scene_view._pos.x;
-								mouse_curr.y = io.MousePos.y - s_editor->_scene_view._pos.y;
+						float delta_x = mouse_curr.x - mouse_last.x;
+						float delta_y = mouse_curr.y - mouse_last.y;
 
-								float delta_x = mouse_curr.x - mouse_last.x;
-								float delta_y = mouse_curr.y - mouse_last.y;
+						tool::mouse_move(ss, mouse_curr.x, mouse_curr.y, delta_x, delta_y);
 
-								tool::mouse_move(ss, mouse_curr.x, mouse_curr.y, delta_x, delta_y);
-
-								mouse_last = mouse_curr;
-							}
-
-							break;
-
-						case crown::MouseAxis::WHEEL:
-							io.MouseWheel += ev.axis_y;
-
-							if (!io.WantCaptureMouse)
-							{
-								tool::mouse_wheel(ss, io.MouseWheel);
-							}
-
-							break;
-						}
+						mouse_last = mouse_curr;
 					}
+					break;
+
+				case crown::MouseAxis::WHEEL:
+					io.MouseWheel += event.axis.axis_y;
+
+					if (!io.WantCaptureMouse)
+						tool::mouse_wheel(ss, io.MouseWheel);
+					break;
 				}
 			}
 			break;
 
 		case OsEventType::TEXT:
-			{
-				const TextEvent& ev = event.text;
-				io.AddInputCharactersUTF8((const char*) ev.utf8);
-			}
+			io.AddInputCharactersUTF8((const char*) event.text.utf8);
 			break;
 
 		case OsEventType::RESOLUTION:
-			{
-				const ResolutionEvent& ev = event.resolution;
-				_width  = ev.width;
-				_height = ev.height;
-				reset   = true;
-			}
+			_width  = event.resolution.width;
+			_height = event.resolution.height;
+			reset   = true;
 			break;
 
 		case OsEventType::EXIT:
