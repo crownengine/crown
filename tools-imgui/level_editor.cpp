@@ -28,6 +28,7 @@
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"
 #include "device/pipeline.h"
+#include "core/math/vector2.h"
 
 #include "imgui_context.h"
 #include "tool_api.h"
@@ -42,6 +43,239 @@ namespace crown
 {
 static u16 _width = 1280;
 static u16 _height = 720;
+
+struct Pivot
+{
+	enum Enum
+	{
+		TOP_LEFT,
+		TOP_CENTER,
+		TOP_RIGHT,
+		LEFT,
+		CENTER,
+		RIGHT,
+		BOTTOM_LEFT,
+		BOTTOM_CENTER,
+		BOTTOM_RIGHT,
+		COUNT
+	};
+};
+
+static const char* pivot_names[] =
+{
+	"Top Left",      // Pivot::TOP_LEFT
+	"Top Right",     // Pivot::TOP_CENTER
+	"Top Center",    // Pivot::TOP_RIGHT
+	"Left",          // Pivot::LEFT
+	"Center",        // Pivot::CENTER
+	"Right",         // Pivot::RIGHT
+	"Bottom Left",   // Pivot::BOTTOM_LEFT
+	"Bottom Center", // Pivot::BOTTOM_CENTER
+	"Bottom Right"   // Pivot::BOTTOM_RIGHT
+};
+CE_STATIC_ASSERT(countof(pivot_names) == Pivot::COUNT);
+
+Vector2 sprite_cell_xy(int r, int c, int offset_x, int offset_y, int cell_w, int cell_h, int spacing_x, int spacing_y)
+{
+	int x0 = offset_x + c*cell_w + c*spacing_x;
+	int y0 = offset_y + r*cell_h + r*spacing_y;
+	return vector2(x0, y0);
+}
+
+Vector2 sprite_cell_pivot_xy(int cell_w, int cell_h, int pivot)
+{
+	int pivot_x = 0;
+	int pivot_y = 0;
+
+	switch (pivot)
+	{
+	case Pivot::TOP_LEFT:
+		pivot_x = 0;
+		pivot_y = 0;
+		break;
+
+	case Pivot::TOP_CENTER:
+		pivot_x = cell_w / 2;
+		pivot_y = 0;
+		break;
+
+	case Pivot::TOP_RIGHT:
+		pivot_x = cell_w;
+		pivot_y = 0;
+		break;
+
+	case Pivot::BOTTOM_LEFT:
+		pivot_x = 0;
+		pivot_y = cell_h;
+		break;
+
+	case Pivot::BOTTOM_CENTER:
+		pivot_x = cell_w / 2;
+		pivot_y = cell_h;
+		break;
+
+	case Pivot::BOTTOM_RIGHT:
+		pivot_x = cell_w;
+		pivot_y = cell_h;
+		break;
+
+	case Pivot::LEFT:
+		pivot_x = 0;
+		pivot_y = cell_h / 2;
+		break;
+
+	case Pivot::CENTER:
+		pivot_x = cell_w / 2;
+		pivot_y = cell_h / 2;
+		break;
+
+	case Pivot::RIGHT:
+		pivot_x = cell_w;
+		pivot_y = cell_h / 2;
+		break;
+
+	default:
+		CE_FATAL("Unknown pivot");
+		break;
+	}
+
+	return vector2(pivot_x, pivot_y);
+}
+
+struct SpriteImporter
+{
+	int width;
+	int height;
+	int cells_h;
+	int cells_v;
+	bool cell_wh_auto;
+	int cell_w;
+	int cell_h;
+	int offset_x;
+	int offset_y;
+	int spacing_x;
+	int spacing_y;
+	int pivot;
+	int layer;
+	int depth;
+
+	SpriteImporter()
+		: width(128)
+		, height(128)
+		, cells_h(4)
+		, cells_v(4)
+		, cell_wh_auto(false)
+		, cell_w(16)
+		, cell_h(16)
+		, offset_x(0)
+		, offset_y(0)
+		, spacing_x(0)
+		, spacing_y(0)
+		, pivot(Pivot::CENTER)
+		, layer(0)
+		, depth(0)
+	{
+	}
+
+	void draw()
+	{
+		ImGui::Columns(2);
+#if 1
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+		{
+			// Here we are using InvisibleButton() as a convenience to 1) advance the cursor and 2) allows us to use IsItemHovered()
+			// However you can draw directly and poll mouse/keyboard by yourself. You can manipulate the cursor using GetCursorPos() and SetCursorPos().
+			// If you only use the ImDrawList API, you can notify the owner window of its extends by using SetCursorPos(max).
+			ImVec2 canvas_pos = ImGui::GetCursorScreenPos();            // ImDrawList API uses screen coordinates!
+			ImVec2 canvas_size = ImGui::GetContentRegionAvail();        // Resize canvas to what's available
+			if (canvas_size.x < 50.0f) canvas_size.x = 10.0f;
+			if (canvas_size.y < 50.0f) canvas_size.y = 50.0f;
+			draw_list->AddRectFilledMultiColor(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), ImColor(50,50,50), ImColor(50,50,60), ImColor(60,60,70), ImColor(50,50,60));
+
+			// Pivot is relative to the top-left corner of the cell
+			Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w
+				, cell_h
+				, pivot
+				);
+
+			int num_v = cells_v;
+			int num_h = cells_h;
+			for (int h = 0; h < num_v; ++h)
+			{
+				for (int w = 0; w < num_h; ++w)
+				{
+					Vector2 cell = sprite_cell_xy(h
+						, w
+						, offset_x
+						, offset_y
+						, cell_w
+						, cell_h
+						, spacing_x
+						, spacing_y
+						);
+
+					const int x0 = (int)cell.x;
+					const int y0 = (int)cell.y;
+					const int x1 = x0+(int)cell_w;
+					const int y1 = y0+(int)cell_h;
+					draw_list->AddRect(ImVec2(canvas_pos.x + x0, canvas_pos.y + y0)
+						, ImVec2(canvas_pos.x + x1, canvas_pos.y + y1)
+						, ImColor(230, 26, 26, 153)
+						);
+
+					draw_list->AddCircleFilled(ImVec2(x0 + canvas_pos.x + pivot_xy.x, y0 + canvas_pos.y + pivot_xy.y)
+						, 5.0f
+						, ImColor(26, 26, 230, 153)
+						);
+				}
+			}
+
+			ImGui::InvisibleButton("canvas", canvas_size);
+			ImVec2 mouse_pos_in_canvas = ImVec2(ImGui::GetIO().MousePos.x - canvas_pos.x, ImGui::GetIO().MousePos.y - canvas_pos.y);
+			draw_list->PushClipRect(canvas_pos, ImVec2(canvas_pos.x+canvas_size.x, canvas_pos.y+canvas_size.y));      // clip lines within the canvas (if we resize it, etc.)
+		}
+#endif
+		ImGui::NextColumn();
+
+		ImGui::BeginGroup();
+		ImGui::LabelText("Resolution", "%d x %d", width, height);
+
+		// FIXME: replace fclamp
+		ImGui::InputInt("Cells H", &cells_h);
+		cells_h = (int)fclamp(cells_h, 1, 256);
+
+		ImGui::InputInt("Cells V", &cells_v);
+		cells_v = (int)fclamp(cells_v, 1, 256);
+
+		ImGui::Checkbox("Cell WH auto", &cell_wh_auto);
+		ImGui::InputInt("Cell W", &cell_w);
+		cell_w = (int)fclamp(cell_w, 1, 4096);
+
+		ImGui::InputInt("Cell H", &cell_h);
+		cell_h = (int)fclamp(cell_h, 1, 4096);
+
+		ImGui::InputInt("Offset X", &offset_x);
+		offset_x = (int)fclamp(offset_x, 0, 128);
+
+		ImGui::InputInt("Offset Y", &offset_y);
+		offset_y = (int)fclamp(offset_y, 0, 128);
+
+		ImGui::InputInt("Spacing X", &spacing_x);
+		spacing_x = (int)fclamp(spacing_x, 0, 128);
+
+		ImGui::InputInt("Spacing Y", &spacing_y);
+		spacing_y = (int)fclamp(spacing_y, 0, 128);
+
+		ImGui::Combo("Pivot", &pivot, pivot_names, Pivot::COUNT);
+		ImGui::InputInt("Layer", &layer);
+		layer = (int)fclamp(layer, 0, 7);
+
+		ImGui::InputInt("Depth", &depth);
+		depth = (int)fclamp(depth, 0, 9999);
+
+		ImGui::EndGroup();
+	}
+};
 
 //-----------------------------------------------------------------------------
 struct Inspector
@@ -596,6 +830,7 @@ struct LevelEditor
 	SceneView _scene_view;
 	SceneTree _scene_tree;
 	SpriteAnimator _animator;
+	SpriteImporter _sprite_importer;
 
 	LevelEditor(const DynamicString& source_dir)
 		: _source_dir(default_allocator())
