@@ -8,6 +8,7 @@
 #include <imgui.h>
 #include <iconfontheaders/icons_material_design.h>
 #include <time.h>
+#include <nfd.h>
 
 #include "core/containers/vector.h"
 #include "core/filesystem/filesystem_disk.h"
@@ -1103,7 +1104,23 @@ struct LevelEditor
 				}
 				if (ImGui::MenuItem("Open", "Ctrl+O"))
 				{
+					nfdchar_t *out_path = NULL;
+					nfdresult_t result = NFD_OpenDialog(NULL, NULL, &out_path);
 
+					if ( result == NFD_OKAY )
+					{
+						logi(LEVEL_EDITOR, "Success!");
+						logi(LEVEL_EDITOR, out_path);
+						free(out_path);
+					}
+					else if ( result == NFD_CANCEL )
+					{
+						logi(LEVEL_EDITOR, "User pressed cancel.");
+					}
+					else
+					{
+						loge(LEVEL_EDITOR, "Error: %s\n", NFD_GetError());
+					}
 				}
 				if (ImGui::MenuItem("Save", "Ctrl+S"))
 				{

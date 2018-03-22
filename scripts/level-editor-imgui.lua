@@ -16,6 +16,7 @@ project "level-editor-imgui"
 		CROWN_DIR .. "3rdparty/stb",
 		CROWN_DIR .. "3rdparty/luajit/src",
 		CROWN_DIR .. "3rdparty/ocornut-imgui",
+		CROWN_DIR .. "3rdparty/nativefiledialog/src/include",
 	}
 
 	defines {
@@ -49,6 +50,11 @@ project "level-editor-imgui"
 			"GL",
 			"luajit",
 		}
+		linkoptions { "`pkg-config --libs gtk+-3.0`" }
+		buildoptions { "`pkg-config --cflags gtk+-3.0`" }
+		files {
+			CROWN_DIR .. "3rdparty/nativefiledialog/src/nfd_gtk.c",
+		}
 
 	configuration { "vs* or mingw*" }
 		links {
@@ -58,6 +64,10 @@ project "level-editor-imgui"
 			"ws2_32",
 			"ole32",
 			"gdi32",
+			"uuid",
+		}
+		files {
+			CROWN_DIR .. "3rdparty/nativefiledialog/src/nfd_win.cpp",
 		}
 	configuration { "not vs*" }
 		links {
@@ -85,6 +95,7 @@ project "level-editor-imgui"
 		CROWN_DIR .. "tools-imgui/**.cpp",
 		CROWN_DIR .. "3rdparty/ocornut-imgui/*.h",
 		CROWN_DIR .. "3rdparty/ocornut-imgui/*.cpp",
+		CROWN_DIR .. "3rdparty/nativefiledialog/src/nfd_common.c",
 	}
 
 	configuration {} -- reset configuration
