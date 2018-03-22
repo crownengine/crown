@@ -287,7 +287,7 @@ struct SpriteAnimator
 	FilesystemDisk* _fs;
 
 	SpriteAnimator(const DynamicString& src_dir)
-		: _open(true)
+		: _open(false)
 		, _add_animation_popup_open(false)
 		, _entities(default_allocator())
 		, _cur_entity(0)
