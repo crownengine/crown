@@ -26,7 +26,7 @@ f32 fmax(f32 a, f32 b)
 	return a < b ? b : a;
 }
 
-f32 fclamp(f32 min, f32 max, f32 val)
+f32 fclamp(f32 val, f32 min, f32 max)
 {
 	return fmin(fmax(min, val), max);
 }

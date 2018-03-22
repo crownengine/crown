@@ -27,7 +27,7 @@ f32 fmin(f32 a, f32 b);
 f32 fmax(f32 a, f32 b);
 
 /// Clamps @a val to @a min and @a max.
-f32 fclamp(f32 min, f32 max, f32 val);
+f32 fclamp(f32 val, f32 min, f32 max);
 
 /// Returns the fractional part of @a a.
 f32 ffract(f32 a);
