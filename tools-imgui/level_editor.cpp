@@ -72,47 +72,45 @@ struct Inspector
 
 	void draw()
 	{
-		if (!_open) return;
-		if (ImGui::BeginDock("Inspector", &_open))
+		if (!_open)
+			return;
+
+		if (ImGui::TreeNodeEx("Unit", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			if (ImGui::TreeNodeEx("Unit", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::InputText("Name", _name, sizeof(_name));
-				ImGui::TreePop();
-			}
-
-			if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::InputFloat3("Position", _position, ImGuiInputTextFlags_CharsDecimal);
-				ImGui::InputFloat3("Rotation", _rotation, ImGuiInputTextFlags_CharsDecimal);
-				ImGui::InputFloat3("Scale", _scale, ImGuiInputTextFlags_CharsDecimal);
-
-				ImGui::TreePop();
-			}
-
-			if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::InputText("Sprite", _sprite, sizeof(_sprite));
-				ImGui::InputText("Material", _material, sizeof(_material));
-				ImGui::Checkbox("Visible", &_visible);
-				ImGui::TreePop();
-			}
-
-			if (ImGui::TreeNodeEx("Animation", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::InputText("State Machine", _state_machine, sizeof(_state_machine));
-				ImGui::TreePop();
-			}
+			ImGui::InputText("Name", _name, sizeof(_name));
+			ImGui::TreePop();
 		}
-		ImGui::EndDock();
+
+		if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::InputFloat3("Position", _position, ImGuiInputTextFlags_CharsDecimal);
+			ImGui::InputFloat3("Rotation", _rotation, ImGuiInputTextFlags_CharsDecimal);
+			ImGui::InputFloat3("Scale", _scale, ImGuiInputTextFlags_CharsDecimal);
+
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::InputText("Sprite", _sprite, sizeof(_sprite));
+			ImGui::InputText("Material", _material, sizeof(_material));
+			ImGui::Checkbox("Visible", &_visible);
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNodeEx("Animation", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::InputText("State Machine", _state_machine, sizeof(_state_machine));
+			ImGui::TreePop();
+		}
 	}
 };
 
 //-----------------------------------------------------------------------------
 struct SceneView
 {
-	ImVec2 _pos;
-	ImVec2 _size;
+	ImVec2 _view_origin;
+	ImVec2 _view_size;
 	ImVec2 _mouse_curr;
 	ImVec2 _mouse_last;
 	bool _open;
@@ -124,48 +122,50 @@ struct SceneView
 
 	void draw()
 	{
-		if (!_open) return;
+		if (!_open)
+			return;
 
-		ImGui::SetNextWindowPos(ImVec2(0, 25));
-		if (ImGui::BeginDock("Scene View"
-			, &_open
-			, ImGuiWindowFlags_NoScrollbar
-			| ImGuiWindowFlags_NoScrollWithMouse
-			))
-		{
-			uint16_t w, h;
-			device()->resolution(w, h);
-			bgfx::TextureHandle txh = device()->_pipeline->_buffers[0];
-			CE_ENSURE(bgfx::isValid(txh));
-			ImGui::Image((void*)(uintptr_t)txh.idx
-				, ImVec2(w, h)
+		_view_origin = ImGui::GetCursorScreenPos();
+
+		uint16_t w, h;
+		device()->resolution(w, h);
+		bgfx::TextureHandle txh = device()->_pipeline->_buffers[0];
+		CE_ENSURE(bgfx::isValid(txh));
+		ImGui::Image((void*)(uintptr_t)txh.idx
+			, ImVec2(w, h)
 #if CROWN_PLATFORM_WINDOWS
-				, ImVec2(0, 0)
-				, ImVec2(1, 1)
+			, ImVec2(0, 0)
+			, ImVec2(1, 1)
 #else
-				, ImVec2(0, 1)
-				, ImVec2(1, 0)
+			, ImVec2(0, 1)
+			, ImVec2(1, 0)
 #endif // CROWN_PLATFORM_WINDOWS
+		);
+
+		ImVec2 mouse_pos_in_view = ImVec2(ImGui::GetIO().MousePos.x - _view_origin.x
+			, ImGui::GetIO().MousePos.y - _view_origin.y
 			);
 
-			if (ImGui::IsWindowHovered())
-			{
-				// send all input to engine
-				ImGui::CaptureMouseFromApp(false);
-				ImGui::CaptureKeyboardFromApp(false);
-			}
-			else
-			{
-				// send all input to imgui
-				ImGui::CaptureMouseFromApp(true);
-				ImGui::CaptureKeyboardFromApp(true);
-			}
+		if (ImGui::IsWindowHovered()
+			&& mouse_pos_in_view.x > 0
+			&& mouse_pos_in_view.x < w
+			&& mouse_pos_in_view.y > 0
+			&& mouse_pos_in_view.y < h
+			)
+		{
+			// Send all input to engine
+			ImGui::CaptureMouseFromApp(false);
+			ImGui::CaptureKeyboardFromApp(false);
+		}
+		else
+		{
+			// Send all input to imgui
+			ImGui::CaptureMouseFromApp(true);
+			ImGui::CaptureKeyboardFromApp(true);
 		}
 
-		_pos = ImGui::GetWindowPos();
-		_size = ImGui::GetWindowSize();
-
-		ImGui::EndDock();
+		_view_size = ImGui::GetWindowSize();
+		_view_size.x -= _view_origin.x;
 	}
 };
 
@@ -181,78 +181,75 @@ struct SceneTree
 
 	void draw()
 	{
-		if (!_open) return;
+		if (!_open)
+			return;
 
-		if (ImGui::BeginDock("Scene Tree", &_open))
+		if (ImGui::TreeNodeEx("Units", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			if (ImGui::TreeNodeEx("Units", ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::TreeNodeEx("Objects", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				if (ImGui::TreeNodeEx("Objects", ImGuiTreeNodeFlags_DefaultOpen))
-				{
-					for (int i = 0; i < 5; i++)
-						if (ImGui::TreeNode((void*)(intptr_t)i, "Child %d", i))
-						{
-							ImGui::Text("blah blah");
-							ImGui::SameLine();
-							if (ImGui::SmallButton("print")) printf("Child %d pressed", i);
-							ImGui::TreePop();
-						}
-					ImGui::TreePop();
-				}
-
-				if (ImGui::TreeNodeEx("Lights", ImGuiTreeNodeFlags_DefaultOpen))
-				{
-					// ShowHelpMarker("This is a more standard looking tree with selectable nodes.\nClick to select, Ctrl+Click to toggle, click on arrows or double-click to open.");
-					static bool align_label_with_current_x_position = false;
-					ImGui::Checkbox("Align label with current X position)", &align_label_with_current_x_position);
-					ImGui::Text("Hello!");
-					if (align_label_with_current_x_position)
-						ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
-
-					static int selection_mask = (1 << 2); // Dumb representation of what may be user-side selection state. You may carry selection state inside or outside your objects in whatever format you see fit.
-					int node_clicked = -1;                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be a pointer to your own node type, etc.
-					ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize()*3); // Increase spacing to differentiate leaves from expanded contents.
-					for (int i = 0; i < 6; i++)
+				for (int i = 0; i < 5; i++)
+					if (ImGui::TreeNode((void*)(intptr_t)i, "Child %d", i))
 					{
-						// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
-						ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ((selection_mask & (1 << i)) ? ImGuiTreeNodeFlags_Selected : 0);
-						if (i < 3)
-						{
-							// Node
-							bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "Selectable Node %d", i);
-							if (ImGui::IsItemClicked())
-								node_clicked = i;
-							if (node_open)
-							{
-								ImGui::Text("Blah blah\nBlah Blah");
-								ImGui::TreePop();
-							}
-						}
-						else
-						{
-							// Leaf: The only reason we have a TreeNode at all is to allow selection of the leaf. Otherwise we can use BulletText() or TreeAdvanceToLabelPos()+Text().
-							ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, "Selectable Leaf %d", i);
-							if (ImGui::IsItemClicked())
-								node_clicked = i;
-						}
+						ImGui::Text("blah blah");
+						ImGui::SameLine();
+						if (ImGui::SmallButton("print")) printf("Child %d pressed", i);
+						ImGui::TreePop();
 					}
-					if (node_clicked != -1)
-					{
-						// Update selection state. Process outside of tree loop to avoid visual inconsistencies during the clicking-frame.
-						if (ImGui::GetIO().KeyCtrl)
-							selection_mask ^= (1 << node_clicked);          // Ctrl+click to toggle
-						else //if (!(selection_mask & (1 << node_clicked))) // Depending on selection behavior you want, this commented bit preserve selection when clicking on item that is part of the selection
-							selection_mask = (1 << node_clicked);           // Click to single-select
-					}
-					ImGui::PopStyleVar();
-					if (align_label_with_current_x_position)
-						ImGui::Indent(ImGui::GetTreeNodeToLabelSpacing());
-					ImGui::TreePop();
-				}
 				ImGui::TreePop();
 			}
+
+			if (ImGui::TreeNodeEx("Lights", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				// ShowHelpMarker("This is a more standard looking tree with selectable nodes.\nClick to select, Ctrl+Click to toggle, click on arrows or double-click to open.");
+				static bool align_label_with_current_x_position = false;
+				ImGui::Checkbox("Align label with current X position)", &align_label_with_current_x_position);
+				ImGui::Text("Hello!");
+				if (align_label_with_current_x_position)
+					ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
+
+				static int selection_mask = (1 << 2); // Dumb representation of what may be user-side selection state. You may carry selection state inside or outside your objects in whatever format you see fit.
+				int node_clicked = -1;                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be a pointer to your own node type, etc.
+				ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize()*3); // Increase spacing to differentiate leaves from expanded contents.
+				for (int i = 0; i < 6; i++)
+				{
+					// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
+					ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ((selection_mask & (1 << i)) ? ImGuiTreeNodeFlags_Selected : 0);
+					if (i < 3)
+					{
+						// Node
+						bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "Selectable Node %d", i);
+						if (ImGui::IsItemClicked())
+							node_clicked = i;
+						if (node_open)
+						{
+							ImGui::Text("Blah blah\nBlah Blah");
+							ImGui::TreePop();
+						}
+					}
+					else
+					{
+						// Leaf: The only reason we have a TreeNode at all is to allow selection of the leaf. Otherwise we can use BulletText() or TreeAdvanceToLabelPos()+Text().
+						ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, "Selectable Leaf %d", i);
+						if (ImGui::IsItemClicked())
+							node_clicked = i;
+					}
+				}
+				if (node_clicked != -1)
+				{
+					// Update selection state. Process outside of tree loop to avoid visual inconsistencies during the clicking-frame.
+					if (ImGui::GetIO().KeyCtrl)
+						selection_mask ^= (1 << node_clicked);          // Ctrl+click to toggle
+					else //if (!(selection_mask & (1 << node_clicked))) // Depending on selection behavior you want, this commented bit preserve selection when clicking on item that is part of the selection
+						selection_mask = (1 << node_clicked);           // Click to single-select
+				}
+				ImGui::PopStyleVar();
+				if (align_label_with_current_x_position)
+					ImGui::Indent(ImGui::GetTreeNodeToLabelSpacing());
+				ImGui::TreePop();
+			}
+			ImGui::TreePop();
 		}
-		ImGui::EndDock();	// End Object List
 	}
 };
 
@@ -403,164 +400,161 @@ struct SpriteAnimator
 
 	void draw()
 	{
-		if (!_open) return;
+		if (!_open)
+			return;
 
-		if (ImGui::BeginDock("Animator", &_open))
+		if (_texture)
 		{
-			if (_texture)
+			Frame f = _frames[0];
+			ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
+			ImVec2 end = pixel_to_uv(_texture_width, _texture_height, f.region.x+f.region.z, f.region.y+f.region.w);
+			ImGui::Image((void*)(uintptr_t) _texture->handle.idx
+				, ImVec2(f.region.z, f.region.w)
+				, start
+				, end
+				, ImColor(255, 255, 255, 55)
+			);
+		}
+
+		if (ImGui::Combo("Entities", &_cur_entity, (const char* const*) array::begin(_entities), array::size(_entities)))
+		{
+			array::clear(_frames);
+
+			const char* sprite = _entities[_cur_entity];
+			u32 sprite_len = strlen(sprite);
+			char entity[1024];
+			strncpy(entity, sprite, strlen(sprite));
+			entity[sprite_len-7] = '\0';	// remove ".sprite"
+
+			ResourceManager* resman = device()->_resource_manager;
+			_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64(entity));
+
+			File* file = _fs->open(sprite, FileOpenMode::READ);
+			const u32 size = file->size();
+			Buffer buf(default_allocator());
+			array::resize(buf, size);
+			file->read(array::begin(buf), size);
+			_fs->close(*file);
+
+			JsonObject obj(default_allocator());
+			JsonArray list(default_allocator());
+			sjson::parse(buf, obj);
+			sjson::parse_array(obj["frames"], list);
+			_texture_width = sjson::parse_int(obj["width"]);
+			_texture_height = sjson::parse_int(obj["height"]);
+			for (uint32_t i = 0; i < array::size(list); i++)
 			{
-				Frame f = _frames[0];
+				JsonObject frame(default_allocator());
+				DynamicString name(default_allocator());
+				JsonArray pivot(default_allocator());
+				JsonArray region(default_allocator());
+				sjson::parse_object(list[i], frame);
+				sjson::parse_array(frame["pivot"], pivot);
+				sjson::parse_array(frame["region"], region);
+
+				Frame f;
+				sjson::parse_string(frame["name"], name);
+				strncpy(f.name, name.c_str(), name.length());
+				f.name[name.length()] = '\0';
+				f.pivot.x = sjson::parse_float(pivot[0]);
+				f.pivot.y = sjson::parse_float(pivot[1]);
+				f.region.x = sjson::parse_float(region[0]);
+				f.region.y = sjson::parse_float(region[1]);
+				f.region.z = sjson::parse_float(region[2]);
+				f.region.w = sjson::parse_float(region[3]);
+
+				array::push_back(_frames, f);
+			}
+		}
+
+		if (ImGui::Button("Add animation", ImVec2(100, 25)))
+		{
+			_add_animation_popup_open = true;
+		}
+
+		if (_add_animation_popup_open)
+		{
+			ImGui::OpenPopup("Add animation");
+		}
+
+		if (ImGui::BeginPopup("Add animation"))
+		{
+			ImGui::InputText("Name", _anim_name, sizeof(_anim_name));
+			ImGui::InputFloat("Time", &_anim_time, 0.1f, 0.1f, 1);
+			ImGui::ListBox("Animation Frames", &_listbox_item_current, (const char* const*)array::begin(_listbox_items), array::size(_listbox_items));
+			if (ImGui::Button("Clear Frames", ImVec2(100.0f, 25.0f)))
+			{
+				array::clear(_listbox_items);
+				array::clear(_anim_preview_frames);
+				_delta = 0.0f;
+				current = 0;
+			}
+
+			if (array::size(_anim_preview_frames) > 0)
+			{
+				_delta += 1.0f/60.0f;
+				if (_delta >= _anim_time/array::size(_anim_preview_frames))
+				{
+					_delta = 0;
+					current++;
+					if (current >= array::size(_anim_preview_frames))
+						current = 0;
+				}
+
+				Frame f = _anim_preview_frames[current];
 				ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
 				ImVec2 end = pixel_to_uv(_texture_width, _texture_height, f.region.x+f.region.z, f.region.y+f.region.w);
-				ImGui::Image((void*)(uintptr_t) _texture->handle.idx
+				ImGui::Image(
+					  (void*)(uintptr_t) _texture->handle.idx
 					, ImVec2(f.region.z, f.region.w)
 					, start
 					, end
 					, ImColor(255, 255, 255, 55)
-				);
+					);
 			}
 
-			if (ImGui::Combo("Entities", &_cur_entity, (const char* const*) array::begin(_entities), array::size(_entities)))
+			ImGui::Separator();
+
+			for (uint32_t i = 0; i < array::size(_frames); i++)
 			{
-				array::clear(_frames);
+				Frame f = _frames[i];
+				ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
+				ImVec2 end = pixel_to_uv(_texture_width, _texture_height, f.region.x+f.region.z, f.region.y+f.region.w);
 
-				const char* sprite = _entities[_cur_entity];
-				u32 sprite_len = strlen(sprite);
-				char entity[1024];
-				strncpy(entity, sprite, strlen(sprite));
-				entity[sprite_len-7] = '\0';	// remove ".sprite"
-
-				ResourceManager* resman = device()->_resource_manager;
-				_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64(entity));
-
-				File* file = _fs->open(sprite, FileOpenMode::READ);
-				const u32 size = file->size();
-				Buffer buf(default_allocator());
-				array::resize(buf, size);
-				file->read(array::begin(buf), size);
-				_fs->close(*file);
-
-				JsonObject obj(default_allocator());
-				JsonArray list(default_allocator());
-				sjson::parse(buf, obj);
-				sjson::parse_array(obj["frames"], list);
-				_texture_width = sjson::parse_int(obj["width"]);
-				_texture_height = sjson::parse_int(obj["height"]);
-				for (uint32_t i = 0; i < array::size(list); i++)
-				{
-					JsonObject frame(default_allocator());
-					DynamicString name(default_allocator());
-					JsonArray pivot(default_allocator());
-					JsonArray region(default_allocator());
-					sjson::parse_object(list[i], frame);
-					sjson::parse_array(frame["pivot"], pivot);
-					sjson::parse_array(frame["region"], region);
-
-					Frame f;
-					sjson::parse_string(frame["name"], name);
-					strncpy(f.name, name.c_str(), name.length());
-					f.name[name.length()] = '\0';
-					f.pivot.x = sjson::parse_float(pivot[0]);
-					f.pivot.y = sjson::parse_float(pivot[1]);
-					f.region.x = sjson::parse_float(region[0]);
-					f.region.y = sjson::parse_float(region[1]);
-					f.region.z = sjson::parse_float(region[2]);
-					f.region.w = sjson::parse_float(region[3]);
-
-					array::push_back(_frames, f);
-				}
-			}
-
-			if (ImGui::Button("Add animation", ImVec2(100, 25)))
-			{
-				_add_animation_popup_open = true;
-			}
-
-			if (_add_animation_popup_open)
-			{
-				ImGui::OpenPopup("Add animation");
-			}
-
-			if (ImGui::BeginPopup("Add animation"))
-			{
-				ImGui::InputText("Name", _anim_name, sizeof(_anim_name));
-				ImGui::InputFloat("Time", &_anim_time, 0.1f, 0.1f, 1);
-				ImGui::ListBox("Animation Frames", &_listbox_item_current, (const char* const*)array::begin(_listbox_items), array::size(_listbox_items));
-				if (ImGui::Button("Clear Frames", ImVec2(100.0f, 25.0f)))
-				{
-					array::clear(_listbox_items);
-					array::clear(_anim_preview_frames);
-					_delta = 0.0f;
-					current = 0;
-				}
-
-				if (array::size(_anim_preview_frames) > 0)
-				{
-					_delta += 1.0f/60.0f;
-					if (_delta >= _anim_time/array::size(_anim_preview_frames))
-					{
-						_delta = 0;
-						current++;
-						if (current >= array::size(_anim_preview_frames))
-							current = 0;
-					}
-
-					Frame f = _anim_preview_frames[current];
-					ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
-					ImVec2 end = pixel_to_uv(_texture_width, _texture_height, f.region.x+f.region.z, f.region.y+f.region.w);
-					ImGui::Image(
-						  (void*)(uintptr_t) _texture->handle.idx
-						, ImVec2(f.region.z, f.region.w)
-						, start
-						, end
-						, ImColor(255, 255, 255, 55)
-						);
-				}
-
-				ImGui::Separator();
-
-				for (uint32_t i = 0; i < array::size(_frames); i++)
-				{
-					Frame f = _frames[i];
-					ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
-					ImVec2 end = pixel_to_uv(_texture_width, _texture_height, f.region.x+f.region.z, f.region.y+f.region.w);
-
-					ImGui::SameLine();
-					if (i % 9 == 0) ImGui::NewLine();
-					ImGui::BeginGroup();
-					ImGui::Image(
-						  (void*)(uintptr_t) _texture->handle.idx
-						, ImVec2(f.region.z, f.region.w)
-						, start
-						, end
-						, ImColor(255, 255, 255, 55)
-						);
-					ImGui::NewLine();
-					if (ImGui::Button(_frames[i].name, ImVec2(100.0f, 25.0f)))
-					{
-						array::push_back(_listbox_items, (const char*) strdup(_frames[i].name));
-						array::push_back(_anim_preview_frames, _frames[i]);
-					}
-					ImGui::EndGroup();
-				}
-
-				if (ImGui::Button("Save", ImVec2(100, 25)))
-				{
-					save_sprite_animation();
-					ImGui::CloseCurrentPopup();
-					_add_animation_popup_open = false;
-				}
 				ImGui::SameLine();
-				if (ImGui::Button("Cancel", ImVec2(100, 25)))
+				if (i % 9 == 0) ImGui::NewLine();
+				ImGui::BeginGroup();
+				ImGui::Image(
+					  (void*)(uintptr_t) _texture->handle.idx
+					, ImVec2(f.region.z, f.region.w)
+					, start
+					, end
+					, ImColor(255, 255, 255, 55)
+					);
+				ImGui::NewLine();
+				if (ImGui::Button(_frames[i].name, ImVec2(100.0f, 25.0f)))
 				{
-					ImGui::CloseCurrentPopup();
-					_add_animation_popup_open = false;
+					array::push_back(_listbox_items, (const char*) strdup(_frames[i].name));
+					array::push_back(_anim_preview_frames, _frames[i]);
 				}
-
-				ImGui::EndPopup();
+				ImGui::EndGroup();
 			}
+
+			if (ImGui::Button("Save", ImVec2(100, 25)))
+			{
+				save_sprite_animation();
+				ImGui::CloseCurrentPopup();
+				_add_animation_popup_open = false;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(100, 25)))
+			{
+				ImGui::CloseCurrentPopup();
+				_add_animation_popup_open = false;
+			}
+
+			ImGui::EndPopup();
 		}
-		ImGui::EndDock();
 	}
 };
 
@@ -651,12 +645,12 @@ struct LevelEditor
 
 		static f32 last_w = 0.0f;
 		static f32 last_h = 0.0f;
-		if (last_w != _scene_view._size.x || last_h != _scene_view._size.y)
+		if (last_w != _scene_view._view_size.x || last_h != _scene_view._view_size.y)
 		{
-			last_w = _scene_view._size.x;
-			last_h = _scene_view._size.y;
-			device()->_width  = _scene_view._size.x != 0.0f ? _scene_view._size.x : 128.0f;
-			device()->_height = _scene_view._size.y != 0.0f ? _scene_view._size.y : 128.0f;
+			last_w = _scene_view._view_size.x;
+			last_h = _scene_view._view_size.y;
+			device()->_width  = _scene_view._view_size.x != 0.0f ? _scene_view._view_size.x : 128.0f;
+			device()->_height = _scene_view._view_size.y != 0.0f ? _scene_view._view_size.y : 128.0f;
 		}
 
 		u32 message_count = 0;
@@ -723,12 +717,92 @@ struct LevelEditor
 		ImGui::RootDock(ImVec2(0, offset_y), ImVec2(_width, _height-offset_y));
 
 		main_menu_bar();
-		// toolbar();
-		_scene_view.draw();
-		_scene_tree.draw();
-		_inspector.draw();
-		console_draw(_console);
-		_animator.draw();
+
+		if (ImGui::BeginDock("Scene View"
+			, &_scene_view._open
+			, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)
+			)
+		{
+			// Draw toolbar
+			ImGui::BeginGroup();
+			if (ImGui::Button("P"))
+			{
+				_tool_type = tool::ToolType::PLACE;
+				tool_send_state();
+			}
+
+			if (ImGui::Button("M"))
+			{
+				_tool_type = tool::ToolType::MOVE;
+				tool_send_state();
+			}
+
+			if (ImGui::Button("R"))
+			{
+				_tool_type = tool::ToolType::ROTATE;
+				tool_send_state();
+			}
+
+			if (ImGui::Button("S"))
+			{
+				_tool_type = tool::ToolType::SCALE;
+				tool_send_state();
+			}
+
+			if (ImGui::Button("L"))
+			{
+				_reference_system = tool::ReferenceSystem::LOCAL;
+				tool_send_state();
+			}
+
+			if (ImGui::Button("W"))
+			{
+				_reference_system = tool::ReferenceSystem::WORLD;
+				tool_send_state();
+			}
+
+			if (ImGui::Button("#R"))
+			{
+				_snap_mode = tool::SnapMode::RELATIVE;
+				tool_send_state();
+			}
+
+			if (ImGui::Button("#A"))
+			{
+				_snap_mode = tool::SnapMode::ABSOLUTE;
+				tool_send_state();
+			}
+			ImGui::EndGroup();
+
+			// Draw scene view
+			ImGui::SameLine();
+			_scene_view.draw();
+		}
+		ImGui::EndDock();
+
+		if (ImGui::BeginDock("Scene Tree", &_scene_tree._open))
+		{
+			_scene_tree.draw();
+		}
+		ImGui::EndDock();
+
+		if (ImGui::BeginDock("Inspector", &_inspector._open))
+		{
+			_inspector.draw();
+		}
+		ImGui::EndDock();
+
+		if (ImGui::BeginDock("Console", &_console._open, ImGuiWindowFlags_NoScrollbar))
+		{
+			console_draw(_console);
+		}
+		ImGui::EndDock();
+
+		if (ImGui::BeginDock("Animator", &_animator._open))
+		{
+			_animator.draw();
+		}
+		ImGui::EndDock();
 
 		imgui_end_frame();
 	}
@@ -1132,8 +1206,8 @@ bool tool_process_events()
 				if (!io.WantCaptureMouse)
 				{
 					ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
-					mouse_curr.x = io.MousePos.x - s_editor->_scene_view._pos.x;
-					mouse_curr.y = io.MousePos.y - s_editor->_scene_view._pos.y;
+					mouse_curr.x = io.MousePos.x - s_editor->_scene_view._view_origin.x;
+					mouse_curr.y = io.MousePos.y - s_editor->_scene_view._view_origin.y;
 
 					tool::set_mouse_state(ss
 						, mouse_curr.x
@@ -1169,8 +1243,8 @@ bool tool_process_events()
 						ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
 						ImVec2& mouse_last = s_editor->_scene_view._mouse_last;
 
-						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._pos.x;
-						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._pos.y;
+						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._view_origin.x;
+						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._view_origin.y;
 
 						float delta_x = mouse_curr.x - mouse_last.x;
 						float delta_y = mouse_curr.y - mouse_last.y;

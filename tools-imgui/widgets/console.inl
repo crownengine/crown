@@ -45,86 +45,83 @@ int console_inputtext_callback(ImGuiTextEditCallbackData* data)
 
 void console_draw(Console& console)
 {
-	if (!console._open) return;
+	if (!console._open)
+		return;
 
-	if (ImGui::BeginDock("Console", &console._open, ImGuiWindowFlags_NoScrollbar))
+	Vector<ConsoleLog>& items = console._console_items;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+	static ImGuiTextFilter filter;
+	filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
+	ImGui::PopStyleVar();
+	ImGui::Separator();
+
+	const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); // 1 separator, 1 input text
+	ImGui::BeginChild("ScrollingRegion"
+		, ImVec2(0.0f, -footer_height_to_reserve)
+		, false
+		, ImGuiWindowFlags_HorizontalScrollbar
+		);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
+	for (uint32_t i = 0; i < vector::size(items); i++)
 	{
-		Vector<ConsoleLog>& items = console._console_items;
+		ConsoleLog item = items[i];
+		if (!filter.PassFilter(item._message.c_str()))
+			continue;
 
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
-		static ImGuiTextFilter filter;
-		filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
-		ImGui::PopStyleVar();
-		ImGui::Separator();
+		ImVec4 col = ImVec4(1.0f,1.0f,1.0f,1.0f);
 
-		const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); // 1 separator, 1 input text
-		ImGui::BeginChild("ScrollingRegion"
-			, ImVec2(0.0f, -footer_height_to_reserve)
-			, false
-			, ImGuiWindowFlags_HorizontalScrollbar
-			);
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
-		for (uint32_t i = 0; i < vector::size(items); i++)
+		switch (item._severity)
 		{
-			ConsoleLog item = items[i];
-			if (!filter.PassFilter(item._message.c_str()))
-				continue;
-
-			ImVec4 col = ImVec4(1.0f,1.0f,1.0f,1.0f);
-
-			switch (item._severity)
-			{
-				case LogSeverity::LOG_INFO: col = ImColor(0.7f, 0.7f, 0.7f, 1.0f); break;
-				case LogSeverity::LOG_WARN: col = ImColor(1.0f, 1.0f, 0.4f, 1.0f); break;
-				case LogSeverity::LOG_ERROR: col = ImColor(1.0f, 0.4f, 0.4f, 1.0f); break;
-				default: CE_FATAL("Unknown Severity"); break;
-			}
-			ImGui::PushStyleColor(ImGuiCol_Text, col);
-			ImGui::TextUnformatted(item._message.c_str());
-			ImGui::PopStyleColor();
+			case LogSeverity::LOG_INFO: col = ImColor(0.7f, 0.7f, 0.7f, 1.0f); break;
+			case LogSeverity::LOG_WARN: col = ImColor(1.0f, 1.0f, 0.4f, 1.0f); break;
+			case LogSeverity::LOG_ERROR: col = ImColor(1.0f, 0.4f, 0.4f, 1.0f); break;
+			default: CE_FATAL("Unknown Severity"); break;
 		}
-
-		if (scroll_to_bottom)
-			ImGui::SetScrollHere();
-
-		scroll_to_bottom = false;
-		ImGui::PopStyleVar();
-		ImGui::EndChild();
-		ImGui::Separator();
-
-		ImGui::PushItemWidth(-1);
-		if (ImGui::InputText("##label"
-			, input_text_buffer
-			, IM_ARRAYSIZE(input_text_buffer)
-			, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory
-			, console_inputtext_callback
-			, &console
-			))
-		{
-			char* input_end = input_text_buffer + strlen(input_text_buffer);
-			while (input_end > input_text_buffer && input_end[-1] == ' ')
-			{
-				input_end--;
-			}
-
-			*input_end = 0;
-
-			if (input_text_buffer[0])
-			{
-				ConsoleLog log(LogSeverity::LOG_INFO, input_text_buffer);
-				console_execute_command(console, log);
-			}
-
-			strcpy(input_text_buffer, "");
-			console._history_pos = -1;
-
-			ImGui::SetKeyboardFocusHere(-1);
-			scroll_to_bottom = true;
-		}
-		ImGui::PopItemWidth();
+		ImGui::PushStyleColor(ImGuiCol_Text, col);
+		ImGui::TextUnformatted(item._message.c_str());
+		ImGui::PopStyleColor();
 	}
-	ImGui::EndDock();
+
+	if (scroll_to_bottom)
+		ImGui::SetScrollHere();
+
+	scroll_to_bottom = false;
+	ImGui::PopStyleVar();
+	ImGui::EndChild();
+	ImGui::Separator();
+
+	ImGui::PushItemWidth(-1);
+	if (ImGui::InputText("##label"
+		, input_text_buffer
+		, IM_ARRAYSIZE(input_text_buffer)
+		, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory
+		, console_inputtext_callback
+		, &console
+		))
+	{
+		char* input_end = input_text_buffer + strlen(input_text_buffer);
+		while (input_end > input_text_buffer && input_end[-1] == ' ')
+		{
+			input_end--;
+		}
+
+		*input_end = 0;
+
+		if (input_text_buffer[0])
+		{
+			ConsoleLog log(LogSeverity::LOG_INFO, input_text_buffer);
+			console_execute_command(console, log);
+		}
+
+		strcpy(input_text_buffer, "");
+		console._history_pos = -1;
+
+		ImGui::SetKeyboardFocusHere(-1);
+		scroll_to_bottom = true;
+	}
+	ImGui::PopItemWidth();
 }
 
 void console_execute_command(Console& console, ConsoleLog& command_line)
