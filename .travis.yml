@@ -7,11 +7,7 @@ compiler:
   - gcc
 
 before_install:
-  - sudo add-apt-repository ppa:vala-team -y
-  - sudo apt-get -qq update
-  - sudo apt-get install -y libgl1-mesa-dev
-  - sudo apt-get install -y libpulse-dev
-  - sudo apt-get install -y libxrandr-dev
+  - sudo apt-get install -y libgl1-mesa-dev libpulse-dev libxrandr-dev libgtk-3-dev
 
 script:
   - make linux-debug64       && ./build/linux64/bin/crown-debug --run-unit-tests
