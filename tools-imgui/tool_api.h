@@ -147,10 +147,10 @@ void set_grid_size(StringStream& out, f32 size)
 	out << size << ")";
 }
 
-void set_rotation_snap(StringStream& out, u32 snap)
+void set_rotation_snap(StringStream& out, f32 degrees)
 {
 	out << "LevelEditor:set_rotation_snap(";
-	out << snap << ")";
+	out << frad(degrees) << ")";
 }
 
 void enable_show_grid(StringStream& out, bool enable)
