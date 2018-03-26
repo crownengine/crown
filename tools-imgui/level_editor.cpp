@@ -799,15 +799,15 @@ struct LevelEditor
 	DynamicString _source_dir;
 
 	// FX
-	TextureResource* tex_move;
-	TextureResource* tex_place;
-	TextureResource* tex_rotate;
-	TextureResource* tex_scale;
-	TextureResource* tex_ref_world;
-	TextureResource* tex_ref_local;
-	TextureResource* tex_axis_local;
-	TextureResource* tex_axis_world;
-	TextureResource* tex_snap_grid;
+	TextureResource* tool_move_texture;
+	TextureResource* tool_place_texture;
+	TextureResource* tool_rotate_texture;
+	TextureResource* tool_scale_texture;
+	TextureResource* reference_world_texture;
+	TextureResource* reference_local_texture;
+	TextureResource* axis_local_texture;
+	TextureResource* axis_world_texture;
+	TextureResource* snap_to_grid_texture;
 
 	// State
 	float _grid_size;
@@ -853,15 +853,15 @@ struct LevelEditor
 		, _animator(source_dir)
 	{
 		ResourceManager* resman = device()->_resource_manager;
-		tex_move = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-move"));
-		tex_place = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-place"));
-		tex_rotate = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-rotate"));
-		tex_scale = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-scale"));
-		tex_ref_world = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/reference-world"));
-		tex_ref_local = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/reference-local"));
-		tex_axis_local = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/axis-local"));
-		tex_axis_world = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/axis-world"));
-		tex_snap_grid = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/snap-to-grid"));
+		tool_move_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-move"));
+		tool_place_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-place"));
+		tool_rotate_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-rotate"));
+		tool_scale_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-scale"));
+		reference_world_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/reference-world"));
+		reference_local_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/reference-local"));
+		axis_local_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/axis-local"));
+		axis_world_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/axis-world"));
+		snap_to_grid_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/snap-to-grid"));
 
 		imgui_create();
 
@@ -961,49 +961,49 @@ struct LevelEditor
 		{
 			// Draw toolbar
 			ImGui::BeginGroup();
-			if (ImGui::Button("P"))
+			if (ImGui::ImageButton((void*)(uintptr_t)tool_place_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_tool_type = tool::ToolType::PLACE;
 				tool_send_state();
 			}
 
-			if (ImGui::Button("M"))
+			if (ImGui::ImageButton((void*)(uintptr_t)tool_move_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_tool_type = tool::ToolType::MOVE;
 				tool_send_state();
 			}
 
-			if (ImGui::Button("R"))
+			if (ImGui::ImageButton((void*)(uintptr_t)tool_rotate_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_tool_type = tool::ToolType::ROTATE;
 				tool_send_state();
 			}
 
-			if (ImGui::Button("S"))
+			if (ImGui::ImageButton((void*)(uintptr_t)tool_scale_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_tool_type = tool::ToolType::SCALE;
 				tool_send_state();
 			}
 
-			if (ImGui::Button("L"))
+			if (ImGui::ImageButton((void*)(uintptr_t)axis_local_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_reference_system = tool::ReferenceSystem::LOCAL;
 				tool_send_state();
 			}
 
-			if (ImGui::Button("W"))
+			if (ImGui::ImageButton((void*)(uintptr_t)axis_world_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_reference_system = tool::ReferenceSystem::WORLD;
 				tool_send_state();
 			}
 
-			if (ImGui::Button("#R"))
+			if (ImGui::ImageButton((void*)(uintptr_t)reference_world_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_snap_mode = tool::SnapMode::RELATIVE;
 				tool_send_state();
 			}
 
-			if (ImGui::Button("#A"))
+			if (ImGui::ImageButton((void*)(uintptr_t)reference_local_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_snap_mode = tool::SnapMode::ABSOLUTE;
 				tool_send_state();
@@ -1314,49 +1314,49 @@ struct LevelEditor
 	{
 		if (ImGui::BeginToolbar("Toolbar", _toolbar_pos, _toolbar_size))
 		{
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tex_place->handle.idx, ImVec4(0, 0, 0, 0), "Place"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t) tool_place_texture->handle.idx, ImVec4(0, 0, 0, 0), "Place"))
 			{
 				_tool_type = tool::ToolType::PLACE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tex_move->handle.idx, ImVec4(0, 0, 0, 0), "Move"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t) tool_move_texture->handle.idx, ImVec4(0, 0, 0, 0), "Move"))
 			{
 				_tool_type = tool::ToolType::MOVE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tex_rotate->handle.idx, ImVec4(0, 0, 0, 0), "Rotate"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t) tool_rotate_texture->handle.idx, ImVec4(0, 0, 0, 0), "Rotate"))
 			{
 				_tool_type = tool::ToolType::ROTATE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tex_scale->handle.idx, ImVec4(0, 0, 0, 0), "Scale"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t) tool_scale_texture->handle.idx, ImVec4(0, 0, 0, 0), "Scale"))
 			{
 				_tool_type = tool::ToolType::SCALE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tex_axis_local->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: Local"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t) axis_local_texture->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: Local"))
 			{
 				_reference_system = tool::ReferenceSystem::LOCAL;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tex_axis_world->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: World"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t) axis_world_texture->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: World"))
 			{
 				_reference_system = tool::ReferenceSystem::WORLD;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tex_axis_local->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Relative"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t) axis_local_texture->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Relative"))
 			{
 				_snap_mode = tool::SnapMode::RELATIVE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tex_ref_world->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Absolute"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t) reference_world_texture->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Absolute"))
 			{
 				_snap_mode = tool::SnapMode::ABSOLUTE;
 				tool_send_state();
