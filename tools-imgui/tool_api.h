@@ -56,9 +56,6 @@ struct GameType
 	};
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// Lua Types
-///////////////////////////////////////////////////////////////////////////////
 const char* lua_bool(const bool b)
 {
 	return b ? "true" : "false";
@@ -88,19 +85,12 @@ void lua_quaternion(StringStream& out, const Quaternion& q)
 	out << q.w << ",";
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Device
-///////////////////////////////////////////////////////////////////////////////
-
 void device_quit(StringStream& out)
 {
 	out << "Device.quit()";
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Input
-///////////////////////////////////////////////////////////////////////////////
-void set_mouse_state(StringStream& out, float x, float y, bool left, bool middle, bool right)
+void set_mouse_state(StringStream& out, f32 x, f32 y, bool left, bool middle, bool right)
 {
 	out << "LevelEditor:set_mouse_state(";
 	out << x << ",";
@@ -110,27 +100,27 @@ void set_mouse_state(StringStream& out, float x, float y, bool left, bool middle
 	out << lua_bool(right) << ")";
 }
 
-void mouse_down(StringStream& out, float x, float y)
+void mouse_down(StringStream& out, f32 x, f32 y)
 {
 	out << "LevelEditor:mouse_down(";
 	out << x << ",";
 	out << y << ")";
 }
 
-void mouse_up(StringStream& out, float x, float y)
+void mouse_up(StringStream& out, f32 x, f32 y)
 {
 	out << "LevelEditor:mouse_up(";
 	out << x << ",";
 	out << y << ")";
 }
 
-void mouse_wheel(StringStream& out, float delta)
+void mouse_wheel(StringStream& out, f32 delta)
 {
 	out << "LevelEditor:mouse_wheel(";
 	out << delta << ")";
 }
 
-void mouse_move(StringStream& out, float x, float y, float dx, float dy)
+void mouse_move(StringStream& out, f32 x, f32 y, f32 dx, f32 dy)
 {
 	out << "LevelEditor:mouse_move(";
 	out << x << ",";
@@ -151,17 +141,13 @@ void keyboard_released(StringStream& out, char c)
 	out << "\\\"" << c << "\\\"" << ")";
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Tool
-///////////////////////////////////////////////////////////////////////////////
-
-void set_grid_size(StringStream& out, float size)
+void set_grid_size(StringStream& out, f32 size)
 {
 	out << "LevelEditor:set_grid_size(";
 	out << size << ")";
 }
 
-void set_rotation_snap(StringStream& out, uint32_t snap)
+void set_rotation_snap(StringStream& out, u32 snap)
 {
 	out << "LevelEditor:set_rotation_snap(";
 	out << snap << ")";
@@ -219,9 +205,6 @@ void set_reference_system(StringStream& out, const ReferenceSystem::Enum rs)
 	out << "\\\")";
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Units
-///////////////////////////////////////////////////////////////////////////////
 void spawn_unit(StringStream& out
 	, const Guid& id
 	, const char* name
@@ -251,7 +234,7 @@ void spawn_sound(StringStream& /*out*/
 	, const char* /*name*/
 	, const Vector3& /*pos*/
 	, const Quaternion& /*rot*/
-	, const double /*vol*/
+	, const f64 /*vol*/
 	, const bool /*loop*/)
 {
 
@@ -292,9 +275,9 @@ void add_camera_content(StringStream& /*out*/
 	, const Guid& /*id*/
 	, const Guid& /*component_id*/
 	, const ProjectionType::Enum /*projection*/
-	, const double /*fov*/
-	, const double /*far_range*/
-	, const double /*near_range*/)
+	, const f64 /*fov*/
+	, const f64 /*far_range*/
+	, const f64 /*near_range*/)
 {
 
 }
@@ -303,9 +286,9 @@ void add_light_component(StringStream& /*out*/
 	, const Guid& /*id*/
 	, const Guid& /*component_id*/
 	, const LightType::Enum /*type*/
-	, const double /*range*/
-	, const double /*intensity*/
-	, const double /*spot_angle*/
+	, const f64 /*range*/
+	, const f64 /*intensity*/
+	, const f64 /*spot_angle*/
 	, const Vector3& /*color*/)
 {
 
@@ -323,9 +306,9 @@ void move_object(StringStream& /*out*/
 void set_light(StringStream& /*out*/
 	, const Guid& /*id*/
 	, const LightType::Enum /*type*/
-	, const double /*range*/
-	, const double /*intensity*/
-	, const double /*spot_angle*/
+	, const f64 /*range*/
+	, const f64 /*intensity*/
+	, const f64 /*spot_angle*/
 	, const Vector3& /*color*/)
 {
 
@@ -333,7 +316,7 @@ void set_light(StringStream& /*out*/
 
 void set_sound_range(StringStream& /*out*/
 	, const Guid& /*id*/
-	, double /*range*/)
+	, f64 /*range*/)
 {
 
 }
@@ -351,10 +334,6 @@ void selection_set(StringStream& /*out*/, const Array<Guid>& /*ids*/)
 {
 
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// Camera
-///////////////////////////////////////////////////////////////////////////////
 
 void camera_view_perspective(StringStream& out)
 {
@@ -392,4 +371,5 @@ void camera_view_bottom(StringStream& out)
 }
 
 } // namespace tool
+
 } // namespace crown

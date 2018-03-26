@@ -5,35 +5,32 @@
 
 #if CROWN_TOOLS
 
-#include <imgui.h>
-#include <iconfontheaders/icons_material_design.h>
-#include <time.h>
-#include <nfd.h>
-
 #include "core/containers/vector.h"
+#include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
-#include "core/filesystem/file.h"
 #include "core/json/json.h"
-#include "core/json/sjson.h"
 #include "core/json/json_object.h"
+#include "core/json/sjson.h"
+#include "core/math/vector2.h"
 #include "core/network/socket.h"
 #include "core/strings/dynamic_string.h"
 #include "device/device.h"
 #include "device/device_event_queue.h"
+#include "device/device_options.h"
 #include "device/input_device.h"
 #include "device/input_manager.h"
 #include "device/input_types.h"
-#include "device/device_options.h"
 #include "device/log.h"
+#include "device/pipeline.h"
+#include "imgui_context.h"
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"
-#include "device/pipeline.h"
-#include "core/math/vector2.h"
-
-#include "imgui_context.h"
 #include "tool_api.h"
-
+#include <iconfontheaders/icons_material_design.h>
+#include <imgui.h>
+#include <nfd.h>
+#include <time.h>
 #if CROWN_PLATFORM_POSIX
 	#include <sys/time.h>
 #endif
@@ -283,9 +280,9 @@ struct Inspector
 {
 	// Inspector
 	char _name[1024];
-	float _position[3];
-	float _rotation[3];
-	float _scale[3];
+	f32 _position[3];
+	f32 _rotation[3];
+	f32 _scale[3];
 	char _sprite[1024];
 	char _material[1024];
 	bool _visible;
@@ -551,11 +548,11 @@ struct SpriteAnimator
 		CE_DELETE(default_allocator(), _fs);
 	}
 
-	ImVec2 pixel_to_uv(uint32_t tex_w, uint32_t tex_h, float x, float y)
+	ImVec2 pixel_to_uv(u32 tex_w, u32 tex_h, f32 x, f32 y)
 	{
 		ImVec2 uv;
-		uv.x = (float)x / (float)tex_w;
-		uv.y = (float)y / (float)tex_h;
+		uv.x = (f32)x / (f32)tex_w;
+		uv.y = (f32)y / (f32)tex_h;
 		return uv;
 	}
 
@@ -643,7 +640,7 @@ struct SpriteAnimator
 			Frame f = _frames[0];
 			ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
 			ImVec2 end = pixel_to_uv(_texture_width, _texture_height, f.region.x+f.region.z, f.region.y+f.region.w);
-			ImGui::Image((void*)(uintptr_t) _texture->handle.idx
+			ImGui::Image((void*)(uintptr_t)_texture->handle.idx
 				, ImVec2(f.region.z, f.region.w)
 				, start
 				, end
@@ -677,7 +674,7 @@ struct SpriteAnimator
 			sjson::parse_array(obj["frames"], list);
 			_texture_width = sjson::parse_int(obj["width"]);
 			_texture_height = sjson::parse_int(obj["height"]);
-			for (uint32_t i = 0; i < array::size(list); i++)
+			for (u32 i = 0; i < array::size(list); i++)
 			{
 				JsonObject frame(default_allocator());
 				DynamicString name(default_allocator());
@@ -740,7 +737,7 @@ struct SpriteAnimator
 				ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
 				ImVec2 end = pixel_to_uv(_texture_width, _texture_height, f.region.x+f.region.z, f.region.y+f.region.w);
 				ImGui::Image(
-					  (void*)(uintptr_t) _texture->handle.idx
+					  (void*)(uintptr_t)_texture->handle.idx
 					, ImVec2(f.region.z, f.region.w)
 					, start
 					, end
@@ -750,7 +747,7 @@ struct SpriteAnimator
 
 			ImGui::Separator();
 
-			for (uint32_t i = 0; i < array::size(_frames); i++)
+			for (u32 i = 0; i < array::size(_frames); i++)
 			{
 				Frame f = _frames[i];
 				ImVec2 start = pixel_to_uv(_texture_width, _texture_height, f.region.x, f.region.y);
@@ -760,7 +757,7 @@ struct SpriteAnimator
 				if (i % 9 == 0) ImGui::NewLine();
 				ImGui::BeginGroup();
 				ImGui::Image(
-					  (void*)(uintptr_t) _texture->handle.idx
+					  (void*)(uintptr_t)_texture->handle.idx
 					, ImVec2(f.region.z, f.region.w)
 					, start
 					, end
@@ -810,8 +807,8 @@ struct LevelEditor
 	TextureResource* snap_to_grid_texture;
 
 	// State
-	float _grid_size;
-	int32_t _rotation_snap;
+	f32 _grid_size;
+	s32 _rotation_snap;
 	bool _show_grid;
 	bool _snap_to_grid;
 	bool _debug_render_world;
@@ -875,7 +872,7 @@ struct LevelEditor
 		imgui_destroy();
 	}
 
-	void update(float dt)
+	void update(f32 dt)
 	{
 		CE_UNUSED(dt);
 
@@ -894,7 +891,7 @@ struct LevelEditor
 		// Receive response from engine
 		for (;;)
 		{
-			uint32_t msg_len = 0;
+			u32 msg_len = 0;
 			ReadResult rr = _console._client.read_nonblock(&msg_len, sizeof(msg_len));
 
 			if (rr.error == ReadResult::WOULDBLOCK)
@@ -949,7 +946,7 @@ struct LevelEditor
 
 		imgui_begin_frame(VIEW_IMGUI, _width, _height);
 
-		float offset_y = _main_menu_size.y;
+		f32 offset_y = _main_menu_size.y;
 		ImGui::RootDock(ImVec2(0, offset_y), ImVec2(_width, _height-offset_y));
 
 		main_menu_bar();
@@ -1052,8 +1049,8 @@ struct LevelEditor
 		out << "\"}";
 
 		const char* cmd = string_stream::c_str(out);
-		const uint32_t size = strlen32(cmd);
-		_console._client.write(&size, sizeof(uint32_t));
+		const u32 size = strlen32(cmd);
+		_console._client.write(&size, sizeof(u32));
 		_console._client.write(cmd, size);
 	}
 
@@ -1314,49 +1311,49 @@ struct LevelEditor
 	{
 		if (ImGui::BeginToolbar("Toolbar", _toolbar_pos, _toolbar_size))
 		{
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tool_place_texture->handle.idx, ImVec4(0, 0, 0, 0), "Place"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t)tool_place_texture->handle.idx, ImVec4(0, 0, 0, 0), "Place"))
 			{
 				_tool_type = tool::ToolType::PLACE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tool_move_texture->handle.idx, ImVec4(0, 0, 0, 0), "Move"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t)tool_move_texture->handle.idx, ImVec4(0, 0, 0, 0), "Move"))
 			{
 				_tool_type = tool::ToolType::MOVE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tool_rotate_texture->handle.idx, ImVec4(0, 0, 0, 0), "Rotate"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t)tool_rotate_texture->handle.idx, ImVec4(0, 0, 0, 0), "Rotate"))
 			{
 				_tool_type = tool::ToolType::ROTATE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) tool_scale_texture->handle.idx, ImVec4(0, 0, 0, 0), "Scale"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t)tool_scale_texture->handle.idx, ImVec4(0, 0, 0, 0), "Scale"))
 			{
 				_tool_type = tool::ToolType::SCALE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) axis_local_texture->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: Local"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t)axis_local_texture->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: Local"))
 			{
 				_reference_system = tool::ReferenceSystem::LOCAL;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) axis_world_texture->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: World"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t)axis_world_texture->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: World"))
 			{
 				_reference_system = tool::ReferenceSystem::WORLD;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) axis_local_texture->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Relative"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t)axis_local_texture->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Relative"))
 			{
 				_snap_mode = tool::SnapMode::RELATIVE;
 				tool_send_state();
 			}
 
-			if (ImGui::ToolbarButton((void*)(uintptr_t) reference_world_texture->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Absolute"))
+			if (ImGui::ToolbarButton((void*)(uintptr_t)reference_world_texture->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Absolute"))
 			{
 				_snap_mode = tool::SnapMode::ABSOLUTE;
 				tool_send_state();
@@ -1378,7 +1375,7 @@ void tool_init()
 	s_editor = CE_NEW(default_allocator(), LevelEditor)(opt._source_dir);
 }
 
-void tool_update(float dt)
+void tool_update(f32 dt)
 {
 	s_editor->update(dt);
 }
@@ -1498,8 +1495,8 @@ bool tool_process_events()
 						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._view_origin.x;
 						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._view_origin.y;
 
-						float delta_x = mouse_curr.x - mouse_last.x;
-						float delta_y = mouse_curr.y - mouse_last.y;
+						f32 delta_x = mouse_curr.x - mouse_last.x;
+						f32 delta_y = mouse_curr.y - mouse_last.y;
 
 						tool::mouse_move(ss, mouse_curr.x, mouse_curr.y, delta_x, delta_y);
 
