@@ -19,7 +19,6 @@ components = {
 	"37ac9624-1d8c-4612-85da-d74654f48177" = {
 		type = "collider"
 		data = {
-			class = "default"
 			shape = "convex_hull"
 			scene = "core/units/primitives/sphere"
 			name = "Sphere"

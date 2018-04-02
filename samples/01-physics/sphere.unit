@@ -19,7 +19,6 @@ components = {
 	"9e94f3a3-4113-4af8-bc64-c78c2e82bcd4" = {
 		type = "collider"
 		data = {
-			class = "default"
 			material = "default"
 			shape = "sphere"
 			scene = "sphere"

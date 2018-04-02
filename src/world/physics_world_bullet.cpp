@@ -430,6 +430,7 @@ struct PhysicsWorldImpl
 		const bool is_kinematic = (actor_class->flags & PhysicsActor::KINEMATIC) != 0;
 		const bool is_dynamic   = (actor_class->flags & PhysicsActor::DYNAMIC) != 0;
 		const bool is_static    = !is_kinematic && !is_dynamic;
+		const bool is_trigger   = (actor_class->flags & PhysicsActor::TRIGGER) != 0;
 		const f32  mass         = is_dynamic ? ar->mass : 0.0f;
 
 		// Create compound shape
@@ -469,6 +470,7 @@ struct PhysicsWorldImpl
 		int cflags = actor->getCollisionFlags();
 		cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT : 0;
 		cflags |= is_static ? btCollisionObject::CF_STATIC_OBJECT : 0;
+		cflags |= is_trigger ? btCollisionObject::CF_NO_CONTACT_RESPONSE : 0;
 		actor->setCollisionFlags(cflags);
 
 		actor->setLinearFactor(btVector3(

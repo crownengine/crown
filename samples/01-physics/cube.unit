@@ -19,7 +19,6 @@ components = {
 	"a122f56c-be01-46da-9459-c84bc7381221" = {
 		type = "collider"
 		data = {
-			class = "default"
 			shape = "box"
 			scene = "cube"
 			name = "Cube"

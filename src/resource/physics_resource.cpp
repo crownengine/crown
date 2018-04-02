@@ -122,7 +122,6 @@ namespace physics_resource_internal
 		ColliderDesc cd;
 		memset(&cd, 0, sizeof(cd));
 		cd.type        = st;
-		cd.shape_class = sjson::parse_string_id(obj["class"]);
 		cd.material    = sjson::parse_string_id(obj["material"]);
 		cd.local_tm    = MATRIX4X4_IDENTITY;
 		cd.size        = 0;
@@ -324,30 +323,6 @@ namespace physics_config_resource_internal
 		}
 	}
 
-	void parse_shapes(const char* json, Array<PhysicsShape>& objects)
-	{
-		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(json, object);
-
-		auto cur = json_object::begin(object);
-		auto end = json_object::end(object);
-		for (; cur != end; ++cur)
-		{
-			const FixedString key = cur->pair.first;
-			const char* value     = cur->pair.second;
-
-			JsonObject shape(ta);
-			sjson::parse_object(value, shape);
-
-			PhysicsShape ps;
-			ps.name    = StringId32(key.data(), key.length());
-			ps.trigger = sjson::parse_bool(shape["trigger"]);
-
-			array::push_back(objects, ps);
-		}
-	}
-
 	void parse_actors(const char* json, Array<PhysicsActor>& objects)
 	{
 		TempAllocator4096 ta;
@@ -377,6 +352,7 @@ namespace physics_config_resource_internal
 			const bool has_dynamic         = json_object::has(actor, "dynamic");
 			const bool has_kinematic       = json_object::has(actor, "kinematic");
 			const bool has_disable_gravity = json_object::has(actor, "disable_gravity");
+			const bool has_trigger         = json_object::has(actor, "trigger");
 
 			pa.flags = 0;
 
@@ -398,6 +374,13 @@ namespace physics_config_resource_internal
 			{
 				pa.flags |= (sjson::parse_bool(actor["disable_gravity"])
 					? PhysicsActor::DISABLE_GRAVITY
+					: 0
+					);
+			}
+			if (has_trigger)
+			{
+				pa.flags |= (sjson::parse_bool(actor["trigger"])
+					? PhysicsActor::TRIGGER
 					: 0
 					);
 			}
@@ -500,7 +483,6 @@ namespace physics_config_resource_internal
 		sjson::parse(buf, object);
 
 		Array<PhysicsMaterial> materials(default_allocator());
-		Array<PhysicsShape> shapes(default_allocator());
 		Array<PhysicsActor> actors(default_allocator());
 		CollisionFilterCompiler cfc(opts);
 
@@ -509,8 +491,6 @@ namespace physics_config_resource_internal
 			cfc.parse(object["collision_filters"]);
 		if (json_object::has(object, "materials"))
 			parse_materials(object["materials"], materials);
-		if (json_object::has(object, "shapes"))
-			parse_shapes(object["shapes"], shapes);
 		if (json_object::has(object, "actors"))
 			parse_actors(object["actors"], actors);
 
@@ -518,16 +498,12 @@ namespace physics_config_resource_internal
 		PhysicsConfigResource pcr;
 		pcr.version       = RESOURCE_VERSION_PHYSICS_CONFIG;
 		pcr.num_materials = array::size(materials);
-		pcr.num_shapes    = array::size(shapes);
 		pcr.num_actors    = array::size(actors);
 		pcr.num_filters   = array::size(cfc._filters);
 
 		u32 offt = sizeof(PhysicsConfigResource);
 		pcr.materials_offset = offt;
 		offt += sizeof(PhysicsMaterial) * pcr.num_materials;
-
-		pcr.shapes_offset = offt;
-		offt += sizeof(PhysicsShape) * pcr.num_shapes;
 
 		pcr.actors_offset = offt;
 		offt += sizeof(PhysicsActor) * pcr.num_actors;
@@ -539,8 +515,6 @@ namespace physics_config_resource_internal
 		opts.write(pcr.version);
 		opts.write(pcr.num_materials);
 		opts.write(pcr.materials_offset);
-		opts.write(pcr.num_shapes);
-		opts.write(pcr.shapes_offset);
 		opts.write(pcr.num_actors);
 		opts.write(pcr.actors_offset);
 		opts.write(pcr.num_filters);
@@ -553,16 +527,6 @@ namespace physics_config_resource_internal
 			opts.write(materials[i].friction);
 			opts.write(materials[i].rolling_friction);
 			opts.write(materials[i].restitution);
-		}
-
-		// Write shapes
-		for (u32 i = 0; i < pcr.num_shapes; ++i)
-		{
-			opts.write(shapes[i].name._id);
-			opts.write(shapes[i].trigger);
-			opts.write(shapes[i]._pad[0]);
-			opts.write(shapes[i]._pad[1]);
-			opts.write(shapes[i]._pad[2]);
 		}
 
 		// Write actors
@@ -597,19 +561,6 @@ namespace physics_config_resource
 		}
 
 		CE_FATAL("Material not found");
-		return NULL;
-	}
-
-	const PhysicsShape* shape(const PhysicsConfigResource* pcr, StringId32 name)
-	{
-		const PhysicsShape* begin = (PhysicsShape*)((const char*)pcr + pcr->shapes_offset);
-		for (u32 i = 0; i < pcr->num_shapes; ++i)
-		{
-			if (begin[i].name == name)
-				return &begin[i];
-		}
-
-		CE_FATAL("Shape not found");
 		return NULL;
 	}
 

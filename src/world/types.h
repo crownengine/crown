@@ -402,7 +402,6 @@ struct HeightfieldShape
 struct ColliderDesc
 {
 	u32 type;                     ///< ShapeType::Enum
-	StringId32 shape_class;       ///< Name of shape in global.physics_config resource.
 	StringId32 material;          ///< Name of material in global.physics_config resource.
 	Matrix4x4 local_tm;           ///< In actor-space
 	SphereShape sphere;

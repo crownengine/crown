@@ -7,11 +7,6 @@ collision_filters = {
 	default = { collides_with = [ "default" ] }
 }
 
-shapes = {
-	default = { trigger = false }
-	trigger = { trigger = true }
-}
-
 actors = {
 	static = { dynamic = false }
 	dynamic = { dynamic = true }

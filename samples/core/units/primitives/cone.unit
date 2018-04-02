@@ -19,7 +19,6 @@ components = {
 	"157bdce7-ab63-4478-9550-65610918343e" = {
 		type = "collider"
 		data = {
-			class = "default"
 			shape = "convex_hull"
 			scene = "core/units/primitives/cone"
 			name = "Cone"

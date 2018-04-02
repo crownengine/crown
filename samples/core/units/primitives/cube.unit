@@ -19,7 +19,6 @@ components = {
 	"08b8b97a-c894-409f-8f57-e7508ff8d3cf" = {
 		type = "collider"
 		data = {
-			class = "default"
 			shape = "convex_hull"
 			scene = "core/units/primitives/cube"
 			name = "Cube"

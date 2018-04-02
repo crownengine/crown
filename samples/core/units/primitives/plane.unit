@@ -19,7 +19,6 @@ components = {
 	"9217e10e-9b45-46d0-9c02-7c95531f4e80" = {
 		type = "collider"
 		data = {
-			class = "default"
 			shape = "convex_hull"
 			scene = "core/units/primitives/plane"
 			name = "Plane"

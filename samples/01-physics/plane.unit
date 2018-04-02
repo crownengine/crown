@@ -19,7 +19,6 @@ components = {
 	"114ece38-a553-4a49-8fa7-07b49e061a66" = {
 		type = "collider"
 		data = {
-			class = "default"
 			material = "default"
 			shape = "convex_hull"
 			scene = "plane"

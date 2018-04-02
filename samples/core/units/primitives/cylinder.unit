@@ -19,7 +19,6 @@ components = {
 	"67639086-1c54-4ef8-bf59-1a60d2ca6adb" = {
 		type = "collider"
 		data = {
-			class = "default"
 			shape = "convex_hull"
 			scene = "core/units/primitives/cylinder"
 			name = "Cylinder"
