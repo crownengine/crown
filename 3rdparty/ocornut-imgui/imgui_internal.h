@@ -1,4 +1,4 @@
-// dear imgui, v1.60 WIP
+// dear imgui, v1.60
 // (internals)
 
 // You may use this file to debug, understand or extend ImGui features but we don't provide any guarantee of forward compatibility!
@@ -98,7 +98,7 @@ IMGUI_API int           ImTextCountUtf8BytesFromStr(const ImWchar* in_text, cons
 IMGUI_API ImU32         ImHash(const void* data, int data_size, ImU32 seed = 0);    // Pass data_size==0 for zero-terminated strings
 IMGUI_API void*         ImFileLoadToMemory(const char* filename, const char* file_open_mode, int* out_file_size = NULL, int padding_bytes = 0);
 IMGUI_API FILE*         ImFileOpen(const char* filename, const char* file_open_mode);
-static inline bool      ImCharIsSpace(int c)            { return c == ' ' || c == '\t' || c == 0x3000; }
+static inline bool      ImCharIsSpace(unsigned int c)   { return c == ' ' || c == '\t' || c == 0x3000; }
 static inline bool      ImIsPowerOfTwo(int v)           { return v != 0 && (v & (v - 1)) == 0; }
 static inline int       ImUpperPowerOfTwo(int v)        { v--; v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16; v++; return v; }
 
@@ -113,7 +113,7 @@ IMGUI_API int           ImStricmp(const char* str1, const char* str2);
 IMGUI_API int           ImStrnicmp(const char* str1, const char* str2, size_t count);
 IMGUI_API void          ImStrncpy(char* dst, const char* src, size_t count);
 IMGUI_API char*         ImStrdup(const char* str);
-IMGUI_API char*         ImStrchrRange(const char* str_begin, const char* str_end, char c);
+IMGUI_API const char*   ImStrchrRange(const char* str_begin, const char* str_end, char c);
 IMGUI_API int           ImStrlenW(const ImWchar* str);
 IMGUI_API const ImWchar*ImStrbolW(const ImWchar* buf_mid_line, const ImWchar* buf_begin); // Find beginning-of-line
 IMGUI_API const char*   ImStristr(const char* haystack, const char* haystack_end, const char* needle, const char* needle_end);
@@ -164,15 +164,6 @@ static inline float  ImDot(const ImVec2& a, const ImVec2& b)                    
 static inline ImVec2 ImRotate(const ImVec2& v, float cos_a, float sin_a)        { return ImVec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a); }
 static inline float  ImLinearSweep(float current, float target, float speed)    { if (current < target) return ImMin(current + speed, target); if (current > target) return ImMax(current - speed, target); return current; }
 static inline ImVec2 ImMul(const ImVec2& lhs, const ImVec2& rhs)                { return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y); }
-
-// We call C++ constructor on own allocated memory via the placement "new(ptr) Type()" syntax.
-// Defining a custom placement new() with a dummy parameter allows us to bypass including <new> which on some platforms complains when user has disabled exceptions.
-struct ImNewPlacementDummy {};
-inline void* operator   new(size_t, ImNewPlacementDummy, void* ptr) { return ptr; }
-inline void  operator   delete(void*, ImNewPlacementDummy, void*)   {} // This is only required so we can use the symetrical new()
-#define IM_PLACEMENT_NEW(_PTR)              new(ImNewPlacementDummy(), _PTR)
-#define IM_NEW(_TYPE)                       new(ImNewPlacementDummy(), ImGui::MemAlloc(sizeof(_TYPE))) _TYPE
-template <typename T> void IM_DELETE(T*& p) { if (p) { p->~T(); ImGui::MemFree(p); p = NULL; } }
 
 //-----------------------------------------------------------------------------
 // Types
@@ -257,7 +248,8 @@ enum ImGuiDataType
 {
     ImGuiDataType_Int,
     ImGuiDataType_Float,
-    ImGuiDataType_Float2
+    ImGuiDataType_Double,
+    ImGuiDataType_COUNT
 };
 
 enum ImGuiInputSource
@@ -267,7 +259,7 @@ enum ImGuiInputSource
     ImGuiInputSource_Nav,
     ImGuiInputSource_NavKeyboard,   // Only used occasionally for storage, not tested/handled by most code
     ImGuiInputSource_NavGamepad,    // "
-    ImGuiInputSource_COUNT,
+    ImGuiInputSource_COUNT
 };
 
 // FIXME-NAV: Clarify/expose various repeat delay/rate
@@ -462,9 +454,9 @@ struct ImGuiColumnsSet
     int                 Current;
     int                 Count;
     float               MinX, MaxX;
-    float               StartPosY;
-    float               StartMaxPosX;       // Backup of CursorMaxPos
-    float               CellMinY, CellMaxY;
+    float               LineMinY, LineMaxY;
+    float               StartPosY;          // Copy of CursorPos
+    float               StartMaxPosX;       // Copy of CursorMaxPos
     ImVector<ImGuiColumnData> Columns;
 
     ImGuiColumnsSet()   { Clear(); }
@@ -477,9 +469,9 @@ struct ImGuiColumnsSet
         Current = 0;
         Count = 1;
         MinX = MaxX = 0.0f;
+        LineMinY = LineMaxY = 0.0f;
         StartPosY = 0.0f;
         StartMaxPosX = 0.0f;
-        CellMinY = CellMaxY = 0.0f;
         Columns.clear();
     }
 };
@@ -616,19 +608,19 @@ struct ImGuiContext
     ImGuiID                 NavActivatePressedId;               // ~~ IsNavInputPressed(ImGuiNavInput_Activate) ? NavId : 0
     ImGuiID                 NavInputId;                         // ~~ IsNavInputPressed(ImGuiNavInput_Input) ? NavId : 0
     ImGuiID                 NavJustTabbedId;                    // Just tabbed to this id.
-    ImGuiID                 NavNextActivateId;                  // Set by ActivateItem(), queued until next frame
     ImGuiID                 NavJustMovedToId;                   // Just navigated to this id (result of a successfully MoveRequest)
+    ImGuiID                 NavNextActivateId;                  // Set by ActivateItem(), queued until next frame
+    ImGuiInputSource        NavInputSource;                     // Keyboard or Gamepad mode?
     ImRect                  NavScoringRectScreen;               // Rectangle used for scoring, in screen space. Based of window->DC.NavRefRectRel[], modified for directional navigation scoring.
     int                     NavScoringCount;                    // Metrics for debugging
     ImGuiWindow*            NavWindowingTarget;                 // When selecting a window (holding Menu+FocusPrev/Next, or equivalent of CTRL-TAB) this window is temporarily displayed front-most. 
     float                   NavWindowingHighlightTimer;
     float                   NavWindowingHighlightAlpha;
     bool                    NavWindowingToggleLayer;
-    ImGuiInputSource        NavWindowingInputSource;            // Gamepad or keyboard mode
     int                     NavLayer;                           // Layer we are navigating on. For now the system is hard-coded for 0=main contents and 1=menu/title bar, may expose layers later.
     int                     NavIdTabCounter;                    // == NavWindow->DC.FocusIdxTabCounter at time of NavId processing
     bool                    NavIdIsAlive;                       // Nav widget has been seen this frame ~~ NavRefRectRel is valid
-    bool                    NavMousePosDirty;                   // When set we will update mouse position if (io.ConfigFlags & ImGuiConfigFlags_NavMoveMouse) if set (NB: this not enabled by default)
+    bool                    NavMousePosDirty;                   // When set we will update mouse position if (io.ConfigFlags & ImGuiConfigFlags_NavEnableSetMousePos) if set (NB: this not enabled by default)
     bool                    NavDisableHighlight;                // When user starts using mouse, we hide gamepad/keyboard highlight (NB: but they are still available, which is why NavDisableHighlight isn't always != NavDisableMouseHover)
     bool                    NavDisableMouseHover;               // When user starts using gamepad/keyboard, we hide mouse hovering highlight until mouse is touched again.
     bool                    NavAnyRequest;                      // ~~ NavMoveRequest || NavInitRequest
@@ -738,12 +730,12 @@ struct ImGuiContext
         NavWindow = NULL;
         NavId = NavActivateId = NavActivateDownId = NavActivatePressedId = NavInputId = 0;
         NavJustTabbedId = NavJustMovedToId = NavNextActivateId = 0;
+        NavInputSource = ImGuiInputSource_None;
         NavScoringRectScreen = ImRect();
         NavScoringCount = 0;
         NavWindowingTarget = NULL;
         NavWindowingHighlightTimer = NavWindowingHighlightAlpha = 0.0f;
         NavWindowingToggleLayer = false;
-        NavWindowingInputSource = ImGuiInputSource_None;
         NavLayer = 0;
         NavIdTabCounter = INT_MAX;
         NavIdIsAlive = false;
@@ -1025,6 +1017,8 @@ namespace ImGui
     IMGUI_API void          Initialize(ImGuiContext* context);
     IMGUI_API void          Shutdown(ImGuiContext* context);    // Since 1.60 this is a _private_ function. You can call DestroyContext() to destroy the context created by CreateContext().
 
+    IMGUI_API void          NewFrameUpdateHoveredWindowAndCaptureFlags();
+
     IMGUI_API void                  MarkIniSettingsDirty();
     IMGUI_API ImGuiSettingsHandler* FindSettingsHandler(const char* type_name);
     IMGUI_API ImGuiWindowSettings*  FindWindowSettings(ImGuiID id);
@@ -1098,7 +1092,6 @@ namespace ImGui
     IMGUI_API bool          ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool* out_held, ImGuiButtonFlags flags = 0);
     IMGUI_API bool          ButtonEx(const char* label, const ImVec2& size_arg = ImVec2(0,0), ImGuiButtonFlags flags = 0);
     IMGUI_API bool          CloseButton(ImGuiID id, const ImVec2& pos, float radius);
-    IMGUI_API bool          ArrowButton(ImGuiID id, ImGuiDir dir, ImVec2 padding, ImGuiButtonFlags flags = 0);
 
     IMGUI_API bool          SliderBehavior(const ImRect& frame_bb, ImGuiID id, float* v, float v_min, float v_max, float power, int decimal_precision, ImGuiSliderFlags flags = 0);
     IMGUI_API bool          SliderFloatN(const char* label, float* v, int components, float v_min, float v_max, const char* display_format, float power);
@@ -1126,7 +1119,7 @@ namespace ImGui
     IMGUI_API int           ParseFormatPrecision(const char* fmt, int default_value);
     IMGUI_API float         RoundScalar(float value, int decimal_precision);
 
-    // Shade functions
+    // Shade functions (write over already created vertices)
     IMGUI_API void          ShadeVertsLinearColorGradientKeepAlpha(ImDrawVert* vert_start, ImDrawVert* vert_end, ImVec2 gradient_p0, ImVec2 gradient_p1, ImU32 col0, ImU32 col1);
     IMGUI_API void          ShadeVertsLinearAlphaGradientForLeftToRightText(ImDrawVert* vert_start, ImDrawVert* vert_end, float gradient_p0_x, float gradient_p1_x);
     IMGUI_API void          ShadeVertsLinearUV(ImDrawVert* vert_start, ImDrawVert* vert_end, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, bool clamp);
