@@ -78,7 +78,7 @@ Michela Iacchelli - Pepper logo.
 License
 -------
 
-	Copyright (c) 2012-2017 Daniele Bartolini and individual contributors.
+	Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
 
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
