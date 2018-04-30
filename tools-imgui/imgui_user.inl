@@ -74,6 +74,5 @@ namespace ImGui
 #include "widgets/color_picker.inl"
 #include "widgets/color_wheel.inl"
 #include "widgets/dock.inl"
-#include "widgets/range_slider.inl"
 #include "widgets/toolbar.inl"
 #include "widgets/console.inl"

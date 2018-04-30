@@ -315,9 +315,9 @@ struct Inspector
 
 		if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::InputFloat3("Position", _position, ImGuiInputTextFlags_CharsDecimal);
-			ImGui::InputFloat3("Rotation", _rotation, ImGuiInputTextFlags_CharsDecimal);
-			ImGui::InputFloat3("Scale", _scale, ImGuiInputTextFlags_CharsDecimal);
+			ImGui::InputFloat3("Position", _position);
+			ImGui::InputFloat3("Rotation", _rotation);
+			ImGui::InputFloat3("Scale", _scale);
 
 			ImGui::TreePop();
 		}
@@ -712,7 +712,7 @@ struct SpriteAnimator
 		if (ImGui::BeginPopup("Add animation"))
 		{
 			ImGui::InputText("Name", _anim_name, sizeof(_anim_name));
-			ImGui::InputFloat("Time", &_anim_time, 0.1f, 0.1f, 1);
+			ImGui::InputFloat("Time", &_anim_time, 0.1f, 0.1f);
 			ImGui::ListBox("Animation Frames", &_listbox_item_current, (const char* const*)array::begin(_listbox_items), array::size(_listbox_items));
 			if (ImGui::Button("Clear Frames", ImVec2(100.0f, 25.0f)))
 			{
