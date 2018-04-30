@@ -144,6 +144,8 @@ TEST_CASE("libm", "")
 			REQUIRE(bx::equal(bx::atan2(yy, xx), ::atan2f(yy, xx), 0.00001f) );
 		}
 	}
+
+	REQUIRE(bx::equal(bx::atan2(0.0f, 0.0f), ::atan2f(0.0f, 0.0f), 0.00001f) );
 }
 
 TEST_CASE("ToBits", "")

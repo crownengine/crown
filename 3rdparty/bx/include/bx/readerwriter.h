@@ -281,6 +281,9 @@ namespace bx
 	int32_t writeBE(WriterI* _writer, const Ty& _value, Error* _err = NULL);
 
 	/// Write formated string.
+	int32_t writePrintfVargs(WriterI* _writer, const char* _format, va_list _argList);
+
+	/// Write formated string.
 	int32_t writePrintf(WriterI* _writer, const char* _format, ...);
 
 	/// Skip _offset bytes forward.

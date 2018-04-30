@@ -10,7 +10,6 @@
 
 #define BX_ERROR_SET(_ptr, _result, _msg) \
 			BX_MACRO_BLOCK_BEGIN \
-				BX_TRACE("Error %d: %s", _result.code, "" _msg); \
 				(_ptr)->setError(_result,  "" _msg); \
 			BX_MACRO_BLOCK_END
 

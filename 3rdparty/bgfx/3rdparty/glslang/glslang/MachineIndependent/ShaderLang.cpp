@@ -578,7 +578,7 @@ bool DeduceVersionProfile(TInfoSink& infoSink, EShLanguage stage, bool versionNo
     if (spvVersion.spv != 0) {
         switch (profile) {
         case  EEsProfile:
-            if (spvVersion.vulkan >= 100 && version < 310) {
+            if (spvVersion.vulkan > 0 && version < 310) {
                 correct = false;
                 infoSink.info.message(EPrefixError, "#version: ES shaders for Vulkan SPIR-V require version 310 or higher");
                 version = 310;
@@ -593,7 +593,7 @@ bool DeduceVersionProfile(TInfoSink& infoSink, EShLanguage stage, bool versionNo
             infoSink.info.message(EPrefixError, "#version: compilation for SPIR-V does not support the compatibility profile");
             break;
         default:
-            if (spvVersion.vulkan >= 100 && version < 140) {
+            if (spvVersion.vulkan > 0 && version < 140) {
                 correct = false;
                 infoSink.info.message(EPrefixError, "#version: Desktop shaders for Vulkan SPIR-V require version 140 or higher");
                 version = 140;
@@ -619,9 +619,9 @@ void TranslateEnvironment(const TEnvironment* environment, EShMessages& messages
 {
     // Set up environmental defaults, first ignoring 'environment'.
     if (messages & EShMsgSpvRules)
-        spvVersion.spv = 0x00010000;
+        spvVersion.spv = EShTargetSpv_1_0;
     if (messages & EShMsgVulkanRules) {
-        spvVersion.vulkan = 100;
+        spvVersion.vulkan = EShTargetVulkan_1_0;
         spvVersion.vulkanGlsl = 100;
     } else if (spvVersion.spv != 0)
         spvVersion.openGl = 100;
@@ -744,9 +744,9 @@ bool ProcessDeferred(
     const int numPre = 2;
     const int numPost = requireNonempty? 1 : 0;
     const int numTotal = numPre + numStrings + numPost;
-    size_t* lengths = new size_t[numTotal];
-    const char** strings = new const char*[numTotal];
-    const char** names = new const char*[numTotal];
+    std::unique_ptr<size_t[]> lengths(new size_t[numTotal]);
+    std::unique_ptr<const char*[]> strings(new const char*[numTotal]);
+    std::unique_ptr<const char*[]> names(new const char*[numTotal]);
     for (int s = 0; s < numStrings; ++s) {
         strings[s + numPre] = shaderStrings[s];
         if (inputLengths == nullptr || inputLengths[s] < 0)
@@ -768,6 +768,8 @@ bool ProcessDeferred(
     SpvVersion spvVersion;
     EShLanguage stage = compiler->getLanguage();
     TranslateEnvironment(environment, messages, source, stage, spvVersion);
+    if (environment != nullptr && environment->target.hlslFunctionality1)
+        intermediate.setHlslFunctionality1();
 
     // First, without using the preprocessor or parser, find the #version, so we know what
     // symbol tables, processing rules, etc. to set up.  This does not need the extra strings
@@ -814,7 +816,7 @@ bool ProcessDeferred(
     intermediate.setProfile(profile);
     intermediate.setSpv(spvVersion);
     RecordProcesses(intermediate, messages, sourceEntryPointName);
-    if (spvVersion.vulkan >= 100)
+    if (spvVersion.vulkan > 0)
         intermediate.setOriginUpperLeft();
     if ((messages & EShMsgHlslOffsets) || source == EShSourceHlsl)
         intermediate.setHlslOffsets();
@@ -832,25 +834,24 @@ bool ProcessDeferred(
                                                   [stage];
 
     // Dynamically allocate the symbol table so we can control when it is deallocated WRT the pool.
-    TSymbolTable* symbolTableMemory = new TSymbolTable;
-    TSymbolTable& symbolTable = *symbolTableMemory;
+    std::unique_ptr<TSymbolTable> symbolTable(new TSymbolTable);
     if (cachedTable)
-        symbolTable.adoptLevels(*cachedTable);
+        symbolTable->adoptLevels(*cachedTable);
 
     // Add built-in symbols that are potentially context dependent;
     // they get popped again further down.
-    if (! AddContextSpecificSymbols(resources, compiler->infoSink, symbolTable, version, profile, spvVersion,
-                                    stage, source))
+    if (! AddContextSpecificSymbols(resources, compiler->infoSink, *symbolTable, version, profile, spvVersion,
+                                    stage, source)) {
         return false;
+    }
 
     //
     // Now we can process the full shader under proper symbols and rules.
     //
 
-    TParseContextBase* parseContext = CreateParseContext(symbolTable, intermediate, version, profile, source,
-                                                         stage, compiler->infoSink,
-                                                         spvVersion, forwardCompatible, messages, false, sourceEntryPointName);
-
+    std::unique_ptr<TParseContextBase> parseContext(CreateParseContext(*symbolTable, intermediate, version, profile, source,
+                                                    stage, compiler->infoSink,
+                                                    spvVersion, forwardCompatible, messages, false, sourceEntryPointName));
     TPpContext ppContext(*parseContext, names[numPre] ? names[numPre] : "", includer);
 
     // only GLSL (bison triggered, really) needs an externally set scan context
@@ -886,23 +887,14 @@ bool ProcessDeferred(
         lengths[postIndex] = strlen(strings[numStrings + numPre]);
         names[postIndex] = nullptr;
     }
-    TInputScanner fullInput(numStrings + numPre + numPost, strings, lengths, names, numPre, numPost);
+    TInputScanner fullInput(numStrings + numPre + numPost, strings.get(), lengths.get(), names.get(), numPre, numPost);
 
     // Push a new symbol allocation scope that will get used for the shader's globals.
-    symbolTable.push();
+    symbolTable->push();
 
     bool success = processingContext(*parseContext, ppContext, fullInput,
-                                     versionWillBeError, symbolTable,
+                                     versionWillBeError, *symbolTable,
                                      intermediate, optLevel, messages);
-
-    // Clean up the symbol table. The AST is self-sufficient now.
-    delete symbolTableMemory;
-
-    delete parseContext;
-    delete [] lengths;
-    delete [] strings;
-    delete [] names;
-
     return success;
 }
 
@@ -1577,14 +1569,17 @@ namespace glslang {
 
 #include "../Include/revision.h"
 
+#define QUOTE(s) #s
+#define STR(n) QUOTE(n)
+
 const char* GetEsslVersionString()
 {
-    return "OpenGL ES GLSL 3.20 glslang Khronos." GLSLANG_REVISION " " GLSLANG_DATE;
+    return "OpenGL ES GLSL 3.20 glslang Khronos. " STR(GLSLANG_MINOR_VERSION) "." STR(GLSLANG_PATCH_LEVEL);
 }
 
 const char* GetGlslVersionString()
 {
-    return "4.60 glslang Khronos." GLSLANG_REVISION " " GLSLANG_DATE;
+    return "4.60 glslang Khronos. " STR(GLSLANG_MINOR_VERSION) "." STR(GLSLANG_PATCH_LEVEL);
 }
 
 int GetKhronosToolId()
@@ -1621,6 +1616,7 @@ TShader::TShader(EShLanguage s)
     environment.input.dialect = EShClientNone;
     environment.client.client = EShClientNone;
     environment.target.language = EShTargetNone;
+    environment.target.hlslFunctionality1 = false;
 }
 
 TShader::~TShader()
@@ -1914,6 +1910,7 @@ const char* TProgram::getUniformBlockName(int index) const   { return reflection
 int TProgram::getUniformBlockSize(int index) const           { return reflection->getUniformBlock(index).size; }
 int TProgram::getUniformIndex(const char* name) const        { return reflection->getIndex(name); }
 int TProgram::getUniformBinding(int index) const             { return reflection->getUniform(index).getBinding(); }
+int TProgram::getUniformBlockBinding(int index) const        { return reflection->getUniformBlock(index).getBinding(); }
 int TProgram::getUniformBlockIndex(int index) const          { return reflection->getUniform(index).index; }
 int TProgram::getUniformBlockCounterIndex(int index) const   { return reflection->getUniformBlock(index).counterIndex; }
 int TProgram::getUniformType(int index) const                { return reflection->getUniform(index).glDefineType; }

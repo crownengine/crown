@@ -291,6 +291,7 @@ namespace bimg
 		, uint32_t _height
 		, uint32_t _depth
 		, uint32_t _srcPitch
+		, uint32_t _dstPitch
 		, const void* _src
 		);
 
@@ -330,6 +331,7 @@ namespace bimg
 		, uint32_t _width
 		, uint32_t _height
 		, uint32_t _srcPitch
+		, uint32_t _dstPitch
 		, const void* _src
 		);
 
@@ -463,9 +465,21 @@ namespace bimg
 		, uint32_t _height
 		, uint32_t _srcPitch
 		, const void* _src
-		, bool _grayscale
+		, TextureFormat::Enum _format
 		, bool _yflip
 		, bx::Error* _err = NULL
+		);
+
+	///
+	int32_t imageWriteExr(
+		  bx::WriterI* _writer
+		, uint32_t _width
+		, uint32_t _height
+		, uint32_t _srcPitch
+		, const void* _src
+		, TextureFormat::Enum _format
+		, bool _yflip
+		, bx::Error* _err
 		);
 
 	///

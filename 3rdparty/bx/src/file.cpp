@@ -6,7 +6,9 @@
 #include "bx_p.h"
 #include <bx/file.h>
 
-#if !BX_CRT_NONE
+#if BX_CRT_NONE
+#	include "crt0.h"
+#else
 #	include <stdio.h>
 #	include <sys/stat.h>
 #endif // !BX_CRT_NONE
@@ -239,6 +241,178 @@ namespace bx
 	WriterI* getStdErr()
 	{
 		static FileWriterImpl s_stdOut(stderr);
+		return &s_stdOut;
+	}
+
+#elif BX_CRT_NONE
+	class FileReaderImpl : public FileReaderI
+	{
+	public:
+		FileReaderImpl(void* _file)
+			: m_fd(int32_t(intptr_t(_file) ) )
+			, m_open(false)
+		{
+		}
+
+		virtual ~FileReaderImpl()
+		{
+			close();
+		}
+
+		virtual bool open(const FilePath& _filePath, Error* _err) override
+		{
+			BX_CHECK(NULL != _err, "Reader/Writer interface calling functions must handle errors.");
+
+			if (0 != m_fd)
+			{
+				BX_ERROR_SET(_err, BX_ERROR_READERWRITER_ALREADY_OPEN, "FileReader: File is already open.");
+				return false;
+			}
+
+			m_fd = crt0::open(_filePath.get(), crt0::Open::Read, 0);
+
+			if (0 >= m_fd)
+			{
+				BX_ERROR_SET(_err, BX_ERROR_READERWRITER_OPEN, "FileReader: Failed to open file.");
+				return false;
+			}
+
+			m_open = true;
+			return true;
+		}
+
+		virtual void close() override
+		{
+			if (m_open
+			&&  0 != m_fd)
+			{
+				crt0::close(m_fd);
+				m_fd = 0;
+			}
+		}
+
+		virtual int64_t seek(int64_t _offset, Whence::Enum _whence) override
+		{
+			BX_CHECK(0 != m_fd, "Reader/Writer file is not open.");
+			return crt0::seek(m_fd, _offset, crt0::Whence::Enum(_whence) );
+		}
+
+		virtual int32_t read(void* _data, int32_t _size, Error* _err) override
+		{
+			BX_CHECK(0 != m_fd, "Reader/Writer file is not open.");
+			BX_CHECK(NULL != _err, "Reader/Writer interface calling functions must handle errors.");
+
+			int32_t size = crt0::read(m_fd, _data, _size);
+			if (size != _size)
+			{
+				BX_UNUSED(_err);
+//				if (0 != feof(m_file) )
+//				{
+//					BX_ERROR_SET(_err, BX_ERROR_READERWRITER_EOF, "FileReader: EOF.");
+//				}
+//				else if (0 != ferror(m_file) )
+//				{
+//					BX_ERROR_SET(_err, BX_ERROR_READERWRITER_READ, "FileReader: read error.");
+//				}
+
+				return size >= 0 ? size : 0;
+			}
+
+			return size;
+		}
+
+	private:
+		int32_t m_fd;
+		bool    m_open;
+	};
+
+	class FileWriterImpl : public FileWriterI
+	{
+	public:
+		FileWriterImpl(void* _file)
+			: m_fd(int32_t(intptr_t(_file) ) )
+			, m_open(false)
+		{
+		}
+
+		virtual ~FileWriterImpl()
+		{
+			close();
+		}
+
+		virtual bool open(const FilePath& _filePath, bool _append, Error* _err) override
+		{
+			BX_CHECK(NULL != _err, "Reader/Writer interface calling functions must handle errors.");
+
+			if (0 != m_fd)
+			{
+				BX_ERROR_SET(_err, BX_ERROR_READERWRITER_ALREADY_OPEN, "FileReader: File is already open.");
+				return false;
+			}
+
+			m_fd = crt0::open(_filePath.get(), _append ? crt0::Open::Append : crt0::Open::Write, 0600);
+
+			if (0 >= m_fd)
+			{
+				BX_ERROR_SET(_err, BX_ERROR_READERWRITER_OPEN, "FileWriter: Failed to open file.");
+				return false;
+			}
+
+			m_open = true;
+			return true;
+		}
+
+		virtual void close() override
+		{
+			if (m_open
+			&&  0 != m_fd)
+			{
+				crt0::close(m_fd);
+				m_fd = 0;
+			}
+		}
+
+		virtual int64_t seek(int64_t _offset, Whence::Enum _whence) override
+		{
+			BX_CHECK(0 != m_fd, "Reader/Writer file is not open.");
+			return crt0::seek(m_fd, _offset, crt0::Whence::Enum(_whence) );
+		}
+
+		virtual int32_t write(const void* _data, int32_t _size, Error* _err) override
+		{
+			BX_CHECK(0 != m_fd, "Reader/Writer file is not open.");
+			BX_CHECK(NULL != _err, "Reader/Writer interface calling functions must handle errors.");
+
+			int32_t size = crt0::write(m_fd, _data, _size);
+			if (size != _size)
+			{
+				BX_ERROR_SET(_err, BX_ERROR_READERWRITER_WRITE, "FileWriter: write failed.");
+				return size >= 0 ? size : 0;
+			}
+
+			return size;
+		}
+
+	private:
+		int32_t m_fd;
+		bool    m_open;
+	};
+
+	ReaderI* getStdIn()
+	{
+		static FileReaderImpl s_stdIn( (void*)intptr_t(crt0::Io::In) );
+		return &s_stdIn;
+	}
+
+	WriterI* getStdOut()
+	{
+		static FileWriterImpl s_stdOut( (void*)intptr_t(crt0::Io::Out) );
+		return &s_stdOut;
+	}
+
+	WriterI* getStdErr()
+	{
+		static FileWriterImpl s_stdOut( (void*)intptr_t(crt0::Io::Err) );
 		return &s_stdOut;
 	}
 

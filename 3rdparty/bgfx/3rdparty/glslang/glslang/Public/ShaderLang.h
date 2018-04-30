@@ -67,6 +67,11 @@
     extern "C" {
 #endif
 
+// This should always increase, as some paths to do not consume
+// a more major number.
+// It should increment by one when new functionality is added.
+#define GLSLANG_MINOR_VERSION 6
+
 //
 // Call before doing any other compiler/linker operations.
 //
@@ -123,6 +128,19 @@ typedef enum {
     EshTargetSpv = EShTargetSpv,  // legacy spelling
 } EShTargetLanguage;
 
+typedef enum {
+    EShTargetVulkan_1_0 = (1 << 22),
+    EShTargetVulkan_1_1 = (1 << 22) | (1 << 12),
+    EShTargetOpenGL_450 = 450,
+} EShTargetClientVersion;
+
+typedef EShTargetClientVersion EshTargetClientVersion;
+
+typedef enum {
+    EShTargetSpv_1_0 = (1 << 16),
+    EShTargetSpv_1_3 = (1 << 16) | (3 << 8),
+} EShTargetLanguageVersion;
+
 struct TInputLanguage {
     EShSource languageFamily; // redundant information with other input, this one overrides when not EShSourceNone
     EShLanguage stage;        // redundant information with other input, this one overrides when not EShSourceNone
@@ -132,12 +150,13 @@ struct TInputLanguage {
 
 struct TClient {
     EShClient client;
-    int version;              // version of client itself (not the client's input dialect)
+    EShTargetClientVersion version;   // version of client itself (not the client's input dialect)
 };
 
 struct TTarget {
     EShTargetLanguage language;
-    unsigned int version;     // the version to target, if SPIR-V, defined by "word 1" of the SPIR-V binary header
+    EShTargetLanguageVersion version; // version to target, if SPIR-V, defined by "word 1" of the SPIR-V header
+    bool hlslFunctionality1;          // can target hlsl_functionality1 extension(s)
 };
 
 // All source/client/target versions and settings.
@@ -195,6 +214,8 @@ enum EShMessages {
     EShMsgKeepUncalled     = (1 << 8),  // for testing, don't eliminate uncalled functions
     EShMsgHlslOffsets      = (1 << 9),  // allow block offsets to follow HLSL rules instead of GLSL rules
     EShMsgDebugInfo        = (1 << 10), // save debug information
+    EShMsgHlslEnable16BitTypes  = (1 << 11), // enable use of 16-bit types in SPIR-V for HLSL
+    EShMsgHlslLegalization  = (1 << 12), // enable HLSL Legalization messages
 };
 
 //
@@ -393,16 +414,18 @@ public:
         environment.input.dialect = client;
         environment.input.dialectVersion = version;
     }
-    void setEnvClient(EShClient client, int version)
+    void setEnvClient(EShClient client, EShTargetClientVersion version)
     {
         environment.client.client = client;
         environment.client.version = version;
     }
-    void setEnvTarget(EShTargetLanguage lang, unsigned int version)
+    void setEnvTarget(EShTargetLanguage lang, EShTargetLanguageVersion version)
     {
         environment.target.language = lang;
         environment.target.version = version;
     }
+    void setEnvTargetHlslFunctionality1() { environment.target.hlslFunctionality1 = true; }
+    bool getEnvTargetHlslFunctionality1() const { return environment.target.hlslFunctionality1; }
 
     // Interface to #include handlers.
     //
@@ -648,6 +671,7 @@ public:
     int getUniformBlockSize(int blockIndex) const;         // can be used for glGetActiveUniformBlockiv(UNIFORM_BLOCK_DATA_SIZE)
     int getUniformIndex(const char* name) const;           // can be used for glGetUniformIndices()
     int getUniformBinding(int index) const;                // returns the binding number
+    int getUniformBlockBinding(int index) const;           // returns the block binding number
     int getUniformBlockIndex(int index) const;             // can be used for glGetActiveUniformsiv(GL_UNIFORM_BLOCK_INDEX)
     int getUniformBlockCounterIndex(int index) const;      // returns block index of associated counter.
     int getUniformType(int index) const;                   // can be used for glGetActiveUniformsiv(GL_UNIFORM_TYPE)

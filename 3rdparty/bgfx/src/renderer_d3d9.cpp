@@ -422,8 +422,8 @@ namespace bgfx { namespace d3d9
 
 			// http://msdn.microsoft.com/en-us/library/windows/desktop/bb172588%28v=vs.85%29.aspx
 			bx::memSet(&m_params, 0, sizeof(m_params) );
-			m_params.BackBufferWidth  = _init.resolution.m_width;
-			m_params.BackBufferHeight = _init.resolution.m_height;
+			m_params.BackBufferWidth  = _init.resolution.width;
+			m_params.BackBufferHeight = _init.resolution.height;
 			m_params.BackBufferFormat = adapterFormat;
 			m_params.BackBufferCount = 1;
 			m_params.MultiSampleType = D3DMULTISAMPLE_NONE;
@@ -953,7 +953,7 @@ namespace bgfx { namespace d3d9
 			return BGFX_RENDERER_DIRECT3D9_NAME;
 		}
 
-		void createIndexBuffer(IndexBufferHandle _handle, Memory* _mem, uint16_t _flags) override
+		void createIndexBuffer(IndexBufferHandle _handle, const Memory* _mem, uint16_t _flags) override
 		{
 			m_indexBuffers[_handle.idx].create(_mem->size, _mem->data, _flags);
 		}
@@ -974,7 +974,7 @@ namespace bgfx { namespace d3d9
 		{
 		}
 
-		void createVertexBuffer(VertexBufferHandle _handle, Memory* _mem, VertexDeclHandle _declHandle, uint16_t /*_flags*/) override
+		void createVertexBuffer(VertexBufferHandle _handle, const Memory* _mem, VertexDeclHandle _declHandle, uint16_t /*_flags*/) override
 		{
 			m_vertexBuffers[_handle.idx].create(_mem->size, _mem->data, _declHandle);
 		}
@@ -989,7 +989,7 @@ namespace bgfx { namespace d3d9
 			m_indexBuffers[_handle.idx].create(_size, NULL, _flags);
 		}
 
-		void updateDynamicIndexBuffer(IndexBufferHandle _handle, uint32_t _offset, uint32_t _size, Memory* _mem) override
+		void updateDynamicIndexBuffer(IndexBufferHandle _handle, uint32_t _offset, uint32_t _size, const Memory* _mem) override
 		{
 			m_indexBuffers[_handle.idx].update(_offset, bx::uint32_min(_size, _mem->size), _mem->data);
 		}
@@ -1005,7 +1005,7 @@ namespace bgfx { namespace d3d9
 			m_vertexBuffers[_handle.idx].create(_size, NULL, decl);
 		}
 
-		void updateDynamicVertexBuffer(VertexBufferHandle _handle, uint32_t _offset, uint32_t _size, Memory* _mem) override
+		void updateDynamicVertexBuffer(VertexBufferHandle _handle, uint32_t _offset, uint32_t _size, const Memory* _mem) override
 		{
 			m_vertexBuffers[_handle.idx].update(_offset, bx::uint32_min(_size, _mem->size), _mem->data);
 		}
@@ -1015,7 +1015,7 @@ namespace bgfx { namespace d3d9
 			m_vertexBuffers[_handle.idx].destroy();
 		}
 
-		void createShader(ShaderHandle _handle, Memory* _mem) override
+		void createShader(ShaderHandle _handle, const Memory* _mem) override
 		{
 			m_shaders[_handle.idx].create(_mem);
 		}
@@ -1027,7 +1027,7 @@ namespace bgfx { namespace d3d9
 
 		void createProgram(ProgramHandle _handle, ShaderHandle _vsh, ShaderHandle _fsh) override
 		{
-			m_program[_handle.idx].create(m_shaders[_vsh.idx], m_shaders[_fsh.idx]);
+			m_program[_handle.idx].create(&m_shaders[_vsh.idx], isValid(_fsh) ? &m_shaders[_fsh.idx] : NULL);
 		}
 
 		void destroyProgram(ProgramHandle _handle) override
@@ -1035,7 +1035,7 @@ namespace bgfx { namespace d3d9
 			m_program[_handle.idx].destroy();
 		}
 
-		void* createTexture(TextureHandle _handle, Memory* _mem, uint32_t _flags, uint8_t _skip) override
+		void* createTexture(TextureHandle _handle, const Memory* _mem, uint32_t _flags, uint8_t _skip) override
 		{
 			m_textures[_handle.idx].create(_mem, _flags, _skip);
 			return NULL;
@@ -1398,7 +1398,7 @@ namespace bgfx { namespace d3d9
 
 		void updateResolution(const Resolution& _resolution)
 		{
-			m_maxAnisotropy = !!(_resolution.m_flags & BGFX_RESET_MAXANISOTROPY)
+			m_maxAnisotropy = !!(_resolution.reset & BGFX_RESET_MAXANISOTROPY)
 				? m_caps.MaxAnisotropy
 				: 1
 				;
@@ -1409,16 +1409,16 @@ namespace bgfx { namespace d3d9
 				| BGFX_RESET_SUSPEND
 				);
 
-			if (m_resolution.m_width            !=  _resolution.m_width
-			||  m_resolution.m_height           !=  _resolution.m_height
-			|| (m_resolution.m_flags&maskFlags) != (_resolution.m_flags&maskFlags) )
+			if (m_resolution.width            !=  _resolution.width
+			||  m_resolution.height           !=  _resolution.height
+			|| (m_resolution.reset&maskFlags) != (_resolution.reset&maskFlags) )
 			{
-				uint32_t flags = _resolution.m_flags & (~BGFX_RESET_INTERNAL_FORCE);
+				uint32_t flags = _resolution.reset & (~BGFX_RESET_INTERNAL_FORCE);
 
 				m_resolution = _resolution;
-				m_resolution.m_flags = flags;
+				m_resolution.reset = flags;
 
-				m_textVideoMem.resize(false, _resolution.m_width, _resolution.m_height);
+				m_textVideoMem.resize(false, _resolution.width, _resolution.height);
 				m_textVideoMem.clear();
 
 				D3DDEVICE_CREATION_PARAMETERS dcp;
@@ -1429,14 +1429,14 @@ namespace bgfx { namespace d3d9
 
 				m_params.BackBufferFormat = dm.Format;
 
-				m_params.BackBufferWidth  = _resolution.m_width;
-				m_params.BackBufferHeight = _resolution.m_height;
-				m_params.FullScreen_RefreshRateInHz = BGFX_RESET_FULLSCREEN == (m_resolution.m_flags&BGFX_RESET_FULLSCREEN_MASK) ? 60 : 0;
-				m_params.PresentationInterval = !!(m_resolution.m_flags&BGFX_RESET_VSYNC) ? D3DPRESENT_INTERVAL_ONE : D3DPRESENT_INTERVAL_IMMEDIATE;
+				m_params.BackBufferWidth  = _resolution.width;
+				m_params.BackBufferHeight = _resolution.height;
+				m_params.FullScreen_RefreshRateInHz = BGFX_RESET_FULLSCREEN == (m_resolution.reset&BGFX_RESET_FULLSCREEN_MASK) ? 60 : 0;
+				m_params.PresentationInterval = !!(m_resolution.reset&BGFX_RESET_VSYNC) ? D3DPRESENT_INTERVAL_ONE : D3DPRESENT_INTERVAL_IMMEDIATE;
 
 				updateMsaa();
 
-				Msaa& msaa = s_msaa[(m_resolution.m_flags&BGFX_RESET_MSAA_MASK)>>BGFX_RESET_MSAA_SHIFT];
+				Msaa& msaa = s_msaa[(m_resolution.reset&BGFX_RESET_MSAA_MASK)>>BGFX_RESET_MSAA_SHIFT];
 				m_params.MultiSampleType    = msaa.m_type;
 				m_params.MultiSampleQuality = msaa.m_quality;
 
@@ -1465,7 +1465,7 @@ namespace bgfx { namespace d3d9
 				}
 				DX_CHECK(m_device->SetDepthStencilSurface(m_backBufferDepthStencil) );
 
-				DX_CHECK(m_device->SetRenderState(D3DRS_SRGBWRITEENABLE, 0 != (m_resolution.m_flags & BGFX_RESET_SRGB_BACKBUFFER) ) );
+				DX_CHECK(m_device->SetRenderState(D3DRS_SRGBWRITEENABLE, 0 != (m_resolution.reset & BGFX_RESET_SRGB_BACKBUFFER) ) );
 			}
 			else
 			{
@@ -1752,7 +1752,7 @@ namespace bgfx { namespace d3d9
 
 		void capturePostReset()
 		{
-			if (m_resolution.m_flags&BGFX_RESET_CAPTURE)
+			if (m_resolution.reset&BGFX_RESET_CAPTURE)
 			{
 				uint32_t width  = m_params.BackBufferWidth;
 				uint32_t height = m_params.BackBufferHeight;
@@ -1964,7 +1964,7 @@ namespace bgfx { namespace d3d9
 					}
 					else
 					{
-						color = D3DCOLOR_RGBA(_clear.m_index[0], _clear.m_index[1], _clear.m_index[2], _clear.m_index[3]);
+						color = toRgba8(_clear.m_index[0], _clear.m_index[1], _clear.m_index[2], _clear.m_index[3]);
 					}
 
 					flags |= D3DCLEAR_TARGET;
@@ -3788,11 +3788,18 @@ namespace bgfx { namespace d3d9
 				const RenderBind& renderBind = _render->m_renderItemBind[itemIdx];
 
 				const bool hasOcclusionQuery = 0 != (draw.m_stateFlags & BGFX_STATE_INTERNAL_OCCLUSION_QUERY);
-				if (isValid(draw.m_occlusionQuery)
-				&&  !hasOcclusionQuery
-				&&  !isVisible(_render, draw.m_occlusionQuery, 0 != (draw.m_submitFlags&BGFX_SUBMIT_INTERNAL_OCCLUSION_VISIBLE) ) )
 				{
-					continue;
+					const bool occluded = true
+						&& isValid(draw.m_occlusionQuery)
+						&& !hasOcclusionQuery
+						&& !isVisible(_render, draw.m_occlusionQuery, 0 != (draw.m_submitFlags&BGFX_SUBMIT_INTERNAL_OCCLUSION_VISIBLE) )
+						;
+
+					if (occluded
+					||  _render->m_frameCache.isZeroArea(viewScissorRect, draw.m_scissor) )
+					{
+						continue;
+					}
 				}
 
 				const uint64_t newFlags = draw.m_stateFlags;
@@ -3883,10 +3890,6 @@ namespace bgfx { namespace d3d9
 					{
 						Rect scissorRect;
 						scissorRect.setIntersect(viewScissorRect, _render->m_frameCache.m_rectCache.m_cache[scissor]);
-						if (scissorRect.isZeroArea() )
-						{
-							continue;
-						}
 
 						DX_CHECK(device->SetRenderState(D3DRS_SCISSORTESTENABLE, true) );
 						RECT rc;
@@ -4071,11 +4074,12 @@ namespace bgfx { namespace d3d9
 							&&  blendFactor != draw.m_rgba)
 							{
 								const uint32_t rgba = draw.m_rgba;
-								D3DCOLOR color = D3DCOLOR_RGBA(rgba>>24
-															, (rgba>>16)&0xff
-															, (rgba>> 8)&0xff
-															, (rgba    )&0xff
-															);
+								D3DCOLOR color = toRgba8(
+									   rgba>>24
+									, (rgba>>16)&0xff
+									, (rgba>> 8)&0xff
+									, (rgba    )&0xff
+									);
 								DX_CHECK(device->SetRenderState(D3DRS_BLENDFACTOR, color) );
 							}
 						}
@@ -4105,7 +4109,10 @@ namespace bgfx { namespace d3d9
 					{
 						ProgramD3D9& program = m_program[programIdx];
 						device->SetVertexShader(program.m_vsh->m_vertexShader);
-						device->SetPixelShader(program.m_fsh->m_pixelShader);
+						device->SetPixelShader(NULL == program.m_fsh
+							? NULL
+							: program.m_fsh->m_pixelShader
+							);
 					}
 
 					programChanged =
@@ -4124,10 +4131,13 @@ namespace bgfx { namespace d3d9
 							commit(*vcb);
 						}
 
-						UniformBuffer* fcb = program.m_fsh->m_constantBuffer;
-						if (NULL != fcb)
+						if (NULL != program.m_fsh)
 						{
-							commit(*fcb);
+							UniformBuffer* fcb = program.m_fsh->m_constantBuffer;
+							if (NULL != fcb)
+							{
+								commit(*fcb);
+							}
 						}
 					}
 
@@ -4328,7 +4338,7 @@ namespace bgfx { namespace d3d9
 
 			if (0 < _render->m_numRenderItems)
 			{
-				if (0 != (m_resolution.m_flags & BGFX_RESET_FLUSH_AFTER_RENDER) )
+				if (0 != (m_resolution.reset & BGFX_RESET_FLUSH_AFTER_RENDER) )
 				{
 					flush();
 				}
@@ -4406,11 +4416,11 @@ namespace bgfx { namespace d3d9
 					);
 
 				const D3DADAPTER_IDENTIFIER9& identifier = m_identifier;
-				tvm.printf(0, pos++, 0x8b, " Device: %s (%s)", identifier.Description, identifier.Driver);
+				tvm.printf(0, pos++, 0x8f, " Device: %s (%s)", identifier.Description, identifier.Driver);
 
 				char processMemoryUsed[16];
 				bx::prettify(processMemoryUsed, BX_COUNTOF(processMemoryUsed), bx::getProcessMemoryUsed() );
-				tvm.printf(0, pos++, 0x8b, " Memory: %s (process) ", processMemoryUsed);
+				tvm.printf(0, pos++, 0x8f, " Memory: %s (process) ", processMemoryUsed);
 
 				pos = 10;
 				tvm.printf(10, pos++, 0x8b, "        Frame: %7.3f, % 7.3f \x1f, % 7.3f \x1e [ms] / % 6.2f FPS "
@@ -4420,12 +4430,12 @@ namespace bgfx { namespace d3d9
 					, freq/frameTime
 					);
 
-				const uint32_t msaa = (m_resolution.m_flags&BGFX_RESET_MSAA_MASK)>>BGFX_RESET_MSAA_SHIFT;
+				const uint32_t msaa = (m_resolution.reset&BGFX_RESET_MSAA_MASK)>>BGFX_RESET_MSAA_SHIFT;
 				tvm.printf(10, pos++, 0x8b, "  Reset flags: [%c] vsync, [%c] MSAAx%d, [%c] MaxAnisotropy "
-					, !!(m_resolution.m_flags&BGFX_RESET_VSYNC) ? '\xfe' : ' '
+					, !!(m_resolution.reset&BGFX_RESET_VSYNC) ? '\xfe' : ' '
 					, 0 != msaa ? '\xfe' : ' '
 					, 1<<msaa
-					, !!(m_resolution.m_flags&BGFX_RESET_MAXANISOTROPY) ? '\xfe' : ' '
+					, !!(m_resolution.reset&BGFX_RESET_MAXANISOTROPY) ? '\xfe' : ' '
 					);
 
 				double elapsedCpuMs = double(frameTime)*toMs;

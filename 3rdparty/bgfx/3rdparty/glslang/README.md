@@ -57,7 +57,8 @@ branch.
 
 ### Dependencies
 
-* A C++11 compiler
+* A C++11 compiler.
+  (For MSVS: 2015 is recommended, 2013 is fully supported/tested, and 2010 support is attempted, but not tested.)
 * [CMake][cmake]: for generating compilation targets.
 * make: _Linux_, ninja is an alternative, if configured.
 * [Python 2.7][python]: for executing SPIRV-Tools scripts. (Optional if not using SPIRV-Tools.)
@@ -240,8 +241,11 @@ bool InitializeProcess();
 void FinalizeProcess();
 
 class TShader
+    setStrings(...);
+    setEnvInput(EShSourceHlsl or EShSourceGlsl, stage,  EShClientVulkan or EShClientOpenGL, 100);
+    setEnvClient(EShClientVulkan or EShClientOpenGL, EShTargetVulkan_1_0 or EShTargetVulkan_1_1 or EShTargetOpenGL_450);
+    setEnvTarget(EShTargetSpv, EShTargetSpv_1_0 or EShTargetSpv_1_3);
     bool parse(...);
-    void setStrings(...);
     const char* getInfoLog();
 
 class TProgram

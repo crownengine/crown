@@ -1065,7 +1065,7 @@ namespace bx
 
 			if (err.isOk() )
 			{
-				return size;
+				return size - 1 /* size without '\0' terminator */;
 			}
 		}
 

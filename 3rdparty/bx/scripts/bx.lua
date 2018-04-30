@@ -15,6 +15,7 @@ project "bx"
 		path.join(BX_DIR, "include/**.h"),
 		path.join(BX_DIR, "include/**.inl"),
 		path.join(BX_DIR, "src/**.cpp"),
+		path.join(BX_DIR, "scripts/**.natvis"),
 	}
 
 	configuration { "Debug" }

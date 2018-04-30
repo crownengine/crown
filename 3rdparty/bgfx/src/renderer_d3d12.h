@@ -11,7 +11,6 @@
 #include <sal.h>
 #if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
 #   include <d3d12.h>
-#   include <dxgi1_6.h>
 #else
 #   if !BGFX_CONFIG_DEBUG
 #      define D3DCOMPILE_NO_DEBUG 1
@@ -42,10 +41,6 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG_GCC("-Wmissing-field-initializers");
 #endif // BX_PLATFORM_XBOXONE
 BX_PRAGMA_DIAGNOSTIC_POP();
 
-#if BX_PLATFORM_WINDOWS
-#	include <dxgi1_6.h>
-#endif // BX_PLATFORM_WINDOWS
-
 #ifndef D3D12_TEXTURE_DATA_PITCH_ALIGNMENT
 #	define D3D12_TEXTURE_DATA_PITCH_ALIGNMENT 1024
 #endif // D3D12_TEXTURE_DATA_PITCH_ALIGNMENT
@@ -54,6 +49,8 @@ BX_PRAGMA_DIAGNOSTIC_POP();
 #include "renderer_d3d.h"
 #include "shader_dxbc.h"
 #include "debug_renderdoc.h"
+#include "nvapi.h"
+#include "dxgi.h"
 
 #if BGFX_CONFIG_DEBUG_PIX
 #	if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
@@ -87,25 +84,7 @@ extern "C" uint64_t                    WINAPI bgfx_PIXEventsReplaceBlock(bool _g
 
 namespace bgfx { namespace d3d12
 {
-#if BX_PLATFORM_WINDOWS
-	typedef ::DXGI_SWAP_CHAIN_DESC  DXGI_SWAP_CHAIN_DESC;
-#else
-	typedef ::DXGI_SWAP_CHAIN_DESC1 DXGI_SWAP_CHAIN_DESC;
-#endif // BX_PLATFORM_WINDOWS
-
-#if BX_PLATFORM_WINDOWS
-	typedef ::IDXGIAdapter3   AdapterI;
-	typedef ::IDXGIFactory4   FactoryI;
-	typedef ::IDXGISwapChain3 SwapChainI;
-#elif BX_PLATFORM_WINRT
-	typedef ::IDXGIAdapter    AdapterI;
-	typedef ::IDXGIFactory2   FactoryI;
-	typedef ::IDXGISwapChain1 SwapChainI;
-#else
-	typedef ::IDXGIAdapter    AdapterI;
-	typedef ::IDXGIFactory2   FactoryI;
-	typedef ::IDXGISwapChain1 SwapChainI;
-#endif // BX_PLATFORM_WINDOWS
+	typedef HRESULT (WINAPI* PFN_D3D12_ENABLE_EXPERIMENTAL_FEATURES)(uint32_t _numFeatures, const IID* _iids, void* _configurationStructs, uint32_t* _configurationStructSizes);
 
 	struct Rdt
 	{
@@ -381,7 +360,7 @@ namespace bgfx { namespace d3d12
 
 		TextureHandle m_texture[BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS];
 		TextureHandle m_depth;
-		SwapChainI* m_swapChain;
+		Dxgi::SwapChainI* m_swapChain;
 		uint32_t m_width;
 		uint32_t m_height;
 		uint16_t m_denseIdx;
@@ -481,17 +460,17 @@ namespace bgfx { namespace d3d12
 
 		struct DrawIndirectCommand
 		{
-			D3D12_VERTEX_BUFFER_VIEW vbv[BGFX_CONFIG_MAX_VERTEX_STREAMS+1];
+			D3D12_VERTEX_BUFFER_VIEW vbv[BGFX_CONFIG_MAX_VERTEX_STREAMS + 1 /* instanced buffer */];
 			D3D12_GPU_VIRTUAL_ADDRESS cbv;
-			D3D12_DRAW_ARGUMENTS draw;
+			D3D12_DRAW_ARGUMENTS args;
 		};
 
 		struct DrawIndexedIndirectCommand
 		{
-			D3D12_VERTEX_BUFFER_VIEW vbv[BGFX_CONFIG_MAX_VERTEX_STREAMS+1];
+			D3D12_VERTEX_BUFFER_VIEW vbv[BGFX_CONFIG_MAX_VERTEX_STREAMS + 1 /* instanced buffer */];
 			D3D12_INDEX_BUFFER_VIEW ibv;
 			D3D12_GPU_VIRTUAL_ADDRESS cbv;
-			D3D12_DRAW_INDEXED_ARGUMENTS drawIndexed;
+			D3D12_DRAW_INDEXED_ARGUMENTS args;
 		};
 
 		struct Stats

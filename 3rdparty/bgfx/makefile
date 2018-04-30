@@ -92,15 +92,11 @@ asmjs: asmjs-debug asmjs-release ## Build - Emscripten Debug and Release
 
 .build/projects/gmake-linux:
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=linux-gcc gmake
-linux-debug32: .build/projects/gmake-linux ## Build - Linux x86 Debug
-	$(MAKE) -R -C .build/projects/gmake-linux config=debug32
-linux-release32: .build/projects/gmake-linux ## Build - Linux x86 Release
-	$(MAKE) -R -C .build/projects/gmake-linux config=release32
 linux-debug64: .build/projects/gmake-linux ## Build - Linux x64 Debug
 	$(MAKE) -R -C .build/projects/gmake-linux config=debug64
 linux-release64: .build/projects/gmake-linux ## Build - Linux x64 Release
 	$(MAKE) -R -C .build/projects/gmake-linux config=release64
-linux: linux-debug32 linux-release32 linux-debug64 linux-release64 ## Build - Linux x86/x64 Debug and Release
+linux: linux-debug64 linux-release64 ## Build - Linux x86/x64 Debug and Release
 
 .build/projects/gmake-freebsd:
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=freebsd gmake
@@ -176,15 +172,11 @@ vs2017-winstore100: vs2017-winstore100-debug32 vs2017-winstore100-release32 vs20
 
 .build/projects/gmake-osx:
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=osx gmake
-osx-debug32: .build/projects/gmake-osx ## Build - OSX x86 Debug
-	$(MAKE) -C .build/projects/gmake-osx config=debug32
-osx-release32: .build/projects/gmake-osx ## Build - OSX x86 Release
-	$(MAKE) -C .build/projects/gmake-osx config=release32
 osx-debug64: .build/projects/gmake-osx ## Build - OSX x64 Debug
 	$(MAKE) -C .build/projects/gmake-osx config=debug64
 osx-release64: .build/projects/gmake-osx ## Build - OSX x64 Release
 	$(MAKE) -C .build/projects/gmake-osx config=release64
-osx: osx-debug32 osx-release32 osx-debug64 osx-release64 ## Build - OSX x86/x64 Debug and Release
+osx: osx-debug64 osx-release64 ## Build - OSX x86/x64 Debug and Release
 
 .build/projects/gmake-ios-arm:
 	$(GENIE) --gcc=ios-arm gmake

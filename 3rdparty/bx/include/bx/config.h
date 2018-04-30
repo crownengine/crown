@@ -15,7 +15,6 @@
 #ifndef BX_CONFIG_SUPPORTS_THREADING
 #	define BX_CONFIG_SUPPORTS_THREADING !(0 \
 			|| BX_PLATFORM_EMSCRIPTEN       \
-			|| BX_CRT_NONE                  \
 			)
 #endif // BX_CONFIG_SUPPORTS_THREADING
 

@@ -228,6 +228,7 @@ void TParseContextBase::rValueErrorCheck(const TSourceLoc& loc, const char* op, 
 // must still be valid.
 // It is okay if the symbol's type will be subsequently edited;
 // the modifications will be tracked.
+// Order is preserved, to avoid creating novel forward references.
 void TParseContextBase::trackLinkage(TSymbol& symbol)
 {
     if (!parsingBuiltins)
@@ -242,7 +243,7 @@ void TParseContextBase::checkIndex(const TSourceLoc& loc, const TType& type, int
         error(loc, "", "[", "index out of range '%d'", index);
         index = 0;
     } else if (type.isArray()) {
-        if (type.isExplicitlySizedArray() && index >= type.getOuterArraySize()) {
+        if (type.isSizedArray() && index >= type.getOuterArraySize()) {
             error(loc, "", "[", "array index out of range '%d'", index);
             index = type.getOuterArraySize() - 1;
         }
@@ -602,7 +603,7 @@ void TParseContextBase::finish()
     if (parsingBuiltins)
         return;
 
-    // Transfer the linkage symbols to AST nodes
+    // Transfer the linkage symbols to AST nodes, preserving order.
     TIntermAggregate* linkage = new TIntermAggregate;
     for (auto i = linkageSymbols.begin(); i != linkageSymbols.end(); ++i)
         intermediate.addSymbolLinkageNode(linkage, **i);

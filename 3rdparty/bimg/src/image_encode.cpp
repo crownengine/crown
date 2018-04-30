@@ -414,27 +414,38 @@ namespace bimg
 		{
 			bimg::ImageMip srcMip;
 			bimg::imageGetRawData(*_src, side, 0, _src->m_data, _src->m_size, srcMip);
-			const float* srcData = (const float*)(srcMip.m_data);
 
 			bimg::ImageMip dstMip;
 			bimg::imageGetRawData(*_dst, side, 0, _dst->m_data, _dst->m_size, dstMip);
-			float* dstData = (float*)(dstMip.m_data);
+			uint8_t* dstData = const_cast<uint8_t*>(dstMip.m_data);
 
-			int result = stbir_resize_float_generic(
-				  (const float*)srcData, _src->m_width, _src->m_height, _src->m_width*16
-				, (      float*)dstData, _dst->m_width, _dst->m_height, _dst->m_width*16
-				, 4, 3
-				, STBIR_FLAG_ALPHA_PREMULTIPLIED
-				, STBIR_EDGE_CLAMP
-				, STBIR_FILTER_CUBICBSPLINE
-				, STBIR_COLORSPACE_LINEAR
-				, NULL
-				);
+			const uint32_t srcPitch = _src->m_width*16;
+			const uint32_t srcSlice = _src->m_height*srcPitch;
+			const uint32_t dstPitch = _dst->m_width*16;
+			const uint32_t dstSlice = _dst->m_height*dstPitch;
 
-			if (1 != result)
+			for (uint32_t zz = 0, depth = _dst->m_depth; zz < depth; ++zz, dstData += dstSlice)
 			{
-				return false;
+				const uint32_t srcDataStep = uint32_t(bx::floor(zz * _src->m_depth / float(_dst->m_depth) ) );
+				const uint8_t* srcData = &srcMip.m_data[srcDataStep*srcSlice];
+
+				int result = stbir_resize_float_generic(
+					  (const float*)srcData, _src->m_width, _src->m_height, srcPitch
+					, (      float*)dstData, _dst->m_width, _dst->m_height, dstPitch
+					, 4, 3
+					, STBIR_FLAG_ALPHA_PREMULTIPLIED
+					, STBIR_EDGE_CLAMP
+					, STBIR_FILTER_CUBICBSPLINE
+					, STBIR_COLORSPACE_LINEAR
+					, NULL
+					);
+
+				if (1 != result)
+				{
+					return false;
+				}
 			}
+
 		}
 
 		return true;

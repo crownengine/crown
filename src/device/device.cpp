@@ -393,13 +393,15 @@ void Device::run()
 	_window->set_fullscreen(_boot_config.fullscreen);
 	_window->bgfx_setup();
 
-	bgfx::init(bgfx::RendererType::Count
-		, BGFX_PCI_ID_NONE
-		, 0
-		, _bgfx_callback
-		, _bgfx_allocator
-		);
-	bgfx::reset(_width, _height, (_boot_config.vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
+	bgfx::Init init;
+	init.type     = bgfx::RendererType::Count;
+	init.vendorId = BGFX_PCI_ID_NONE;
+	init.resolution.width  = _width;
+	init.resolution.height = _height;
+	init.resolution.reset  = _boot_config.vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;
+	init.callback  = _bgfx_callback;
+	init.allocator = _bgfx_allocator;
+	bgfx::init(init);
 
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
 	_material_manager = CE_NEW(_allocator, MaterialManager)(default_allocator(), *_resource_manager);

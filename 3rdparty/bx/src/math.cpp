@@ -124,6 +124,12 @@ namespace bx
 		const float ay     = abs(_y);
 		const float maxaxy = max(ax, ay);
 		const float minaxy = min(ax, ay);
+
+		if (maxaxy == 0.0f)
+		{
+			return 0.0f*sign(_y);
+		}
+
 		const float mxy    = minaxy / maxaxy;
 		const float mxysq  = square(mxy);
 		const float tmp0   = mad(kAtan2C0, mxysq, kAtan2C1);

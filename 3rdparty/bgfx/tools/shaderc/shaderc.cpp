@@ -18,7 +18,7 @@ extern "C"
 #define BGFX_CHUNK_MAGIC_VSH BX_MAKEFOURCC('V', 'S', 'H', 0x5)
 
 #define BGFX_SHADERC_VERSION_MAJOR 1
-#define BGFX_SHADERC_VERSION_MINOR 8
+#define BGFX_SHADERC_VERSION_MINOR 12
 
 namespace bgfx
 {
@@ -211,14 +211,20 @@ namespace bgfx
 			, optimizationLevel
 			);
 
-		for(size_t i=0; i<includeDirs.size(); ++i)
-			BX_TRACE("\t  include :%s\n", includeDirs[i].c_str());
+		for (size_t ii = 0; ii < includeDirs.size(); ++ii)
+		{
+			BX_TRACE("\t  include :%s\n", includeDirs[ii].c_str());
+		}
 
-		for(size_t i=0; i<defines.size(); ++i)
-			BX_TRACE("\t  define :%s\n", defines[i].c_str());
+		for (size_t ii = 0; ii < defines.size(); ++ii)
+		{
+			BX_TRACE("\t  define :%s\n", defines[ii].c_str());
+		}
 
-		for(size_t i=0; i<dependencies.size(); ++i)
-			BX_TRACE("\t  dependency :%s\n", dependencies[i].c_str());
+		for (size_t ii = 0; ii < dependencies.size(); ++ii)
+		{
+			BX_TRACE("\t  dependency :%s\n", dependencies[ii].c_str());
+		}
 	}
 
 	const char* interpolationDx11(const char* _glsl)
@@ -552,7 +558,7 @@ namespace bgfx
 			m_tagptr->data = (void*)fppError;
 			m_tagptr++;
 
-			m_tagptr->tag = FPPTAG_IGNOREVERSION;
+			m_tagptr->tag = FPPTAG_SHOWVERSION;
 			m_tagptr->data = (void*)0;
 			m_tagptr++;
 
@@ -759,12 +765,12 @@ namespace bgfx
 		bx::snprintf(find, sizeof(find), "gl_FragData[%d]", _idx);
 
 		char replace[32];
-		bx::snprintf(replace, sizeof(replace), "gl_FragData_%d_", _idx);
+		bx::snprintf(replace, sizeof(replace), "bgfx_FragData%d", _idx);
 
 		strReplace(_data, find, replace);
 
 		_preprocessor.writef(
-			" \\\n\t%sout vec4 gl_FragData_%d_ : SV_TARGET%d"
+			" \\\n\t%sout vec4 bgfx_FragData%d : SV_TARGET%d"
 			, _comma ? ", " : "  "
 			, _idx
 			, _idx
@@ -865,8 +871,7 @@ namespace bgfx
 			);
 	}
 
-
-	bool compileShader(const char* _varying, char* _shader, uint32_t _shaderLen, Options& _options, bx::FileWriter* _writer)
+	bool compileShader(const char* _varying, const char* _comment, char* _shader, uint32_t _shaderLen, Options& _options, bx::FileWriter* _writer)
 	{
 		uint32_t glsl  = 0;
 		uint32_t essl  = 0;
@@ -919,14 +924,20 @@ namespace bgfx
 
 		Preprocessor preprocessor(_options.inputFilePath.c_str(), 0 != essl);
 
-		for(size_t i=0; i<_options.includeDirs.size(); ++i)
-			preprocessor.addInclude(_options.includeDirs[i].c_str());
+		for (size_t ii = 0; ii < _options.includeDirs.size(); ++ii)
+		{
+			preprocessor.addInclude(_options.includeDirs[ii].c_str() );
+		}
 
-		for(size_t i=0; i<_options.defines.size(); ++i)
-			preprocessor.setDefine(_options.defines[i].c_str());
+		for (size_t ii = 0; ii < _options.defines.size(); ++ii)
+		{
+			preprocessor.setDefine(_options.defines[ii].c_str() );
+		}
 
-		for(size_t i=0; i<_options.dependencies.size(); ++i)
-			preprocessor.addDependency(_options.dependencies[i].c_str());
+		for (size_t ii = 0; ii < _options.dependencies.size(); ++ii)
+		{
+			preprocessor.addDependency(_options.dependencies[ii].c_str() );
+		}
 
 		preprocessor.setDefaultDefine("BX_PLATFORM_ANDROID");
 		preprocessor.setDefaultDefine("BX_PLATFORM_EMSCRIPTEN");
@@ -1127,7 +1138,7 @@ namespace bgfx
 			data = _shader;
 			uint32_t size = _shaderLen;
 
-			const size_t padding = 4096;
+			const size_t padding = 16384;
 
 			if (!raw)
 			{
@@ -1231,6 +1242,11 @@ namespace bgfx
 				}
 				else
 				{
+					if (0 != pssl)
+					{
+						preprocessor.writef(getPsslPreamble() );
+					}
+
 					preprocessor.writef(
 						"#define lowp\n"
 						"#define mediump\n"
@@ -1300,9 +1316,6 @@ namespace bgfx
 
 				if (preprocessor.run(input) )
 				{
-					//BX_TRACE("Input file: %s", filePath);
-					//BX_TRACE("Output file: %s", outFilePath);
-
 					if (_options.preprocessOnly)
 					{
 						bx::write(_writer, preprocessor.m_preprocessed.c_str(), (int32_t)preprocessor.m_preprocessed.size() );
@@ -1311,14 +1324,14 @@ namespace bgfx
 					}
 
 					{
+						std::string code;
+
 						bx::write(_writer, BGFX_CHUNK_MAGIC_CSH);
 						bx::write(_writer, outputHash);
 
 						if (0 != glsl
 						||  0 != essl)
 						{
-							std::string code;
-
 							if (essl)
 							{
 								bx::stringPrintf(code, "#version 310 es\n");
@@ -1328,8 +1341,9 @@ namespace bgfx
 								bx::stringPrintf(code, "#version %d\n", glsl == 0 ? 430 : glsl);
 							}
 
-							code += preprocessor.m_preprocessed;
 #if 1
+							code += preprocessor.m_preprocessed;
+
 							bx::write(_writer, uint16_t(0) );
 
 							uint32_t shaderSize = (uint32_t)code.size();
@@ -1339,20 +1353,29 @@ namespace bgfx
 
 							compiled = true;
 #else
+							code += _comment;
+							code += preprocessor.m_preprocessed;
+
 							compiled = compileGLSLShader(cmdLine, essl, code, writer);
 #endif // 0
 						}
-						else if (0 != spirv)
-						{
-							compiled = compileSPIRVShader(_options, 0, preprocessor.m_preprocessed, _writer);
-						}
-						else if (0 != pssl)
-						{
-							compiled = compilePSSLShader(_options, 0, preprocessor.m_preprocessed, _writer);
-						}
 						else
 						{
-							compiled = compileHLSLShader(_options, d3d, preprocessor.m_preprocessed, _writer);
+							code += _comment;
+							code += preprocessor.m_preprocessed;
+
+							if (0 != spirv)
+							{
+								compiled = compileSPIRVShader(_options, 0, code, _writer);
+							}
+							else if (0 != pssl)
+							{
+								compiled = compilePSSLShader(_options, 0, code, _writer);
+							}
+							else
+							{
+								compiled = compileHLSLShader(_options, d3d, code, _writer);
+							}
 						}
 					}
 
@@ -1442,6 +1465,11 @@ namespace bgfx
 				}
 				else
 				{
+					if (0 != pssl)
+					{
+						preprocessor.writef(getPsslPreamble() );
+					}
+
 					preprocessor.writef(
 						"#define lowp\n"
 						"#define mediump\n"
@@ -1501,7 +1529,7 @@ namespace bgfx
 						{
 							// GL errors when both gl_FragColor and gl_FragData is used.
 							// This will trigger the same error with HLSL compiler too.
-							preprocessor.writef("#define gl_FragColor gl_FragData_0_\n");
+							preprocessor.writef("#define gl_FragColor bgfx_FragData0\n");
 
 							// If it has gl_FragData or gl_FragColor, color target at
 							// index 0 exists, otherwise shader is not modifying color
@@ -1743,6 +1771,13 @@ namespace bgfx
 //									);
 						}
 
+						if (0 != spirv)
+						{
+							preprocessor.writef(
+								"\tgl_Position.y = -gl_Position.y; \\\n"
+								);
+						}
+
 						preprocessor.writef(
 							"\treturn _varying_"
 							);
@@ -1773,6 +1808,8 @@ namespace bgfx
 					}
 
 					{
+						std::string code;
+
 						if ('f' == _options.shaderType)
 						{
 							bx::write(_writer, BGFX_CHUNK_MAGIC_FSH);
@@ -1793,8 +1830,6 @@ namespace bgfx
 						||  0 != essl
 						||  0 != metal)
 						{
-							std::string code;
-
 							if (NULL != bx::strFind(preprocessor.m_preprocessed.c_str(), "layout(std430") )
 							{
 								glsl = 430;
@@ -1955,6 +1990,49 @@ namespace bgfx
 											, 'f' == _options.shaderType ? "in" : "out"
 											);
 									}
+									else if (essl == 2)
+									{
+										code +=
+											"mat2 transpose(mat2 _mtx)\n"
+											"{\n"
+											"	vec2 v0 = _mtx[0];\n"
+											"	vec2 v1 = _mtx[1];\n"
+											"\n"
+											"	return mat2(\n"
+											"		  vec2(v0.x, v1.x)\n"
+											"		, vec2(v0.y, v1.y)\n"
+											"		);\n"
+											"}\n"
+											"\n"
+											"mat3 transpose(mat3 _mtx)\n"
+											"{\n"
+											"	vec3 v0 = _mtx[0];\n"
+											"	vec3 v1 = _mtx[1];\n"
+											"	vec3 v2 = _mtx[2];\n"
+											"\n"
+											"	return mat3(\n"
+											"		  vec3(v0.x, v1.x, v2.x)\n"
+											"		, vec3(v0.y, v1.y, v2.y)\n"
+											"		, vec3(v0.z, v1.z, v2.z)\n"
+											"		);\n"
+											"}\n"
+											"\n"
+											"mat4 transpose(mat4 _mtx)\n"
+											"{\n"
+											"	vec4 v0 = _mtx[0];\n"
+											"	vec4 v1 = _mtx[1];\n"
+											"	vec4 v2 = _mtx[2];\n"
+											"	vec4 v3 = _mtx[3];\n"
+											"\n"
+											"	return mat4(\n"
+											"		  vec4(v0.x, v1.x, v2.x, v3.x)\n"
+											"		, vec4(v0.y, v1.y, v2.y, v3.y)\n"
+											"		, vec4(v0.z, v1.z, v2.z, v3.z)\n"
+											"		, vec4(v0.w, v1.w, v2.w, v3.w)\n"
+											"		);\n"
+											"}\n"
+											;
+									}
 
 									// Pretend that all extensions are available.
 									// This will be stripped later.
@@ -2037,13 +2115,24 @@ namespace bgfx
 									  "#define texture2DProjGrad textureProjGrad\n"
 									  "#define textureCubeLod    textureLod\n"
 									  "#define textureCubeGrad   textureGrad\n"
+									  "#define texture3D         texture\n"
+									);
+
+								bx::stringPrintf(code, "#define attribute in\n");
+								bx::stringPrintf(code, "#define varying %s\n"
+									, 'f' == _options.shaderType ? "in" : "out"
+									);
+
+								bx::stringPrintf(code
+									, "#define bgfxShadow2D(_sampler, _coord)     vec4_splat(texture(_sampler, _coord))\n"
+									  "#define bgfxShadow2DProj(_sampler, _coord) vec4_splat(textureProj(_sampler, _coord))\n"
 									);
 							}
 
-							code += preprocessor.m_preprocessed;
-
 							if (glsl > 400)
 							{
+								code += preprocessor.m_preprocessed;
+
 								bx::write(_writer, uint16_t(0) );
 
 								uint32_t shaderSize = (uint32_t)code.size();
@@ -2055,36 +2144,29 @@ namespace bgfx
 							}
 							else
 							{
-								compiled = compileGLSLShader(_options
-									, metal ? BX_MAKEFOURCC('M', 'T', 'L', 0) : essl
-									, code
-									, _writer
-									);
+								code += _comment;
+								code += preprocessor.m_preprocessed;
+
+								compiled = compileGLSLShader(_options, metal ? BX_MAKEFOURCC('M', 'T', 'L', 0) : essl, code, _writer);
 							}
-						}
-						else if (0 != spirv)
-						{
-							compiled = compileSPIRVShader(_options
-								, 0
-								, preprocessor.m_preprocessed
-								, _writer
-								);
-						}
-						else if (0 != pssl)
-						{
-							compiled = compilePSSLShader(_options
-								, 0
-								, preprocessor.m_preprocessed
-								, _writer
-								);
 						}
 						else
 						{
-							compiled = compileHLSLShader(_options
-								, d3d
-								, preprocessor.m_preprocessed
-								, _writer
-								);
+							code += _comment;
+							code += preprocessor.m_preprocessed;
+
+							if (0 != spirv)
+							{
+								compiled = compileSPIRVShader(_options, 0, code, _writer);
+							}
+							else if (0 != pssl)
+							{
+								compiled = compilePSSLShader(_options, 0, code, _writer);
+							}
+							else
+							{
+								compiled = compileHLSLShader(_options, d3d, code, _writer);
+							}
 						}
 					}
 
@@ -2262,6 +2344,14 @@ namespace bgfx
 			defines = ';' == *eol ? eol+1 : eol;
 		}
 
+		std::string commandLineComment = "// shaderc command line:\n//";
+		for (int32_t ii = 0, num = cmdLine.getNum(); ii < num; ++ii)
+		{
+			commandLineComment += " ";
+			commandLineComment += cmdLine.get(ii);
+		}
+		commandLineComment += "\n\n";
+
 		bool compiled = false;
 
 		bx::FileReader reader;
@@ -2285,7 +2375,7 @@ namespace bgfx
 				fprintf(stderr, "ERROR: Failed to parse varying def file: \"%s\" No input/output semantics will be generated in the code!\n", varyingdef);
 			}
 
-			const size_t padding = 4096;
+			const size_t padding    = 16384;
 			uint32_t size = (uint32_t)bx::getSize(&reader);
 			char* data = new char[size+padding+1];
 			size = (uint32_t)bx::read(&reader, data, size);
@@ -2321,8 +2411,7 @@ namespace bgfx
 				return bx::kExitFailure;
 			}
 
-			if ( compileShader(attribdef.getData(), data, size, options, writer) )
-				compiled = true;
+			compiled = compileShader(attribdef.getData(), commandLineComment.c_str(), data, size, options, writer);
 
 			bx::close(writer);
 			delete writer;

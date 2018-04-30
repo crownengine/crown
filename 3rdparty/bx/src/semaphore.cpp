@@ -8,8 +8,9 @@
 
 #if BX_CONFIG_SUPPORTS_THREADING
 
-#if BX_PLATFORM_OSX \
-||  BX_PLATFORM_IOS
+#if BX_CRT_NONE
+#elif  BX_PLATFORM_OSX \
+	|| BX_PLATFORM_IOS
 #	include <dispatch/dispatch.h>
 #elif BX_PLATFORM_POSIX
 #	include <errno.h>
@@ -30,8 +31,10 @@ namespace bx
 {
 	struct SemaphoreInternal
 	{
-#if BX_PLATFORM_OSX \
-||  BX_PLATFORM_IOS
+#if BX_CRT_NONE
+
+#elif  BX_PLATFORM_OSX \
+	|| BX_PLATFORM_IOS
 		dispatch_semaphore_t m_handle;
 #elif BX_PLATFORM_POSIX
 		pthread_mutex_t m_mutex;
@@ -44,8 +47,28 @@ namespace bx
 #endif // BX_PLATFORM_
 	};
 
-#if BX_PLATFORM_OSX \
-||  BX_PLATFORM_IOS
+#if BX_CRT_NONE
+	Semaphore::Semaphore()
+	{
+		BX_STATIC_ASSERT(sizeof(SemaphoreInternal) <= sizeof(m_internal) );
+	}
+
+	Semaphore::~Semaphore()
+	{
+	}
+
+	void Semaphore::post(uint32_t _count)
+	{
+		BX_UNUSED(_count);
+	}
+
+	bool Semaphore::wait(int32_t _msecs)
+	{
+		BX_UNUSED(_msecs);
+		return false;
+	}
+#elif  BX_PLATFORM_OSX \
+	|| BX_PLATFORM_IOS
 
 	Semaphore::Semaphore()
 	{

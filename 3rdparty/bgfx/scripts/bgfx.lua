@@ -173,6 +173,7 @@ function bgfxProjectBase(_kind, _defines)
 			path.join(BGFX_DIR, "include/**.h"),
 			path.join(BGFX_DIR, "src/**.cpp"),
 			path.join(BGFX_DIR, "src/**.h"),
+			path.join(BGFX_DIR, "scripts/**.natvis"),
 		}
 
 		removefiles {
@@ -188,9 +189,11 @@ function bgfxProjectBase(_kind, _defines)
 			excludes {
 				path.join(BGFX_DIR, "src/bgfx.cpp"),
 				path.join(BGFX_DIR, "src/debug_**.cpp"),
+				path.join(BGFX_DIR, "src/dxgi.cpp"),
 				path.join(BGFX_DIR, "src/glcontext_**.cpp"),
-				path.join(BGFX_DIR, "src/image.cpp"),
 				path.join(BGFX_DIR, "src/hmd**.cpp"),
+				path.join(BGFX_DIR, "src/image.cpp"),
+				path.join(BGFX_DIR, "src/nvapi.cpp"),
 				path.join(BGFX_DIR, "src/renderer_**.cpp"),
 				path.join(BGFX_DIR, "src/shader**.cpp"),
 				path.join(BGFX_DIR, "src/topology.cpp"),

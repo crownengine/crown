@@ -19,21 +19,23 @@
 #	define DX_CHECK_EXTRA_ARGS
 #endif // BGFX_CONFIG_DEBUG && BGFX_CONFIG_RENDERER_DIRECT3D9
 
-#ifndef D3DCOLOR_ARGB
-#	define D3DCOLOR_ARGB(_a, _r, _g, _b) ( (DWORD)( ( ( (_a)&0xff)<<24)|( ( (_r)&0xff)<<16)|( ( (_g)&0xff)<<8)|( (_b)&0xff) ) )
-#endif // D3DCOLOR_ARGB
-
-#ifndef D3DCOLOR_RGBA
-#	define D3DCOLOR_RGBA(_r, _g, _b, _a) D3DCOLOR_ARGB(_a, _r, _g, _b)
-#endif // D3DCOLOR_RGBA
-
 namespace bgfx
 {
-#if BX_PLATFORM_XBOXONE
-	typedef ::IGraphicsUnknown IUnknown;
-#else
+	constexpr uint32_t toRgba8(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
+	{
+		return 0
+			| (uint32_t(_r)<<24)
+			| (uint32_t(_g)<<16)
+			| (uint32_t(_b)<< 8)
+			| (uint32_t(_a)    )
+			;
+	}
+
+#if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
 	typedef ::IUnknown IUnknown;
-#endif // BX_PLATFORM_XBOXONE
+#else
+	typedef ::IGraphicsUnknown IUnknown;
+#endif // BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
 
 #define _DX_CHECK(_call) \
 			BX_MACRO_BLOCK_BEGIN \
@@ -86,9 +88,6 @@ namespace bgfx
 	typedef BOOL    (WINAPI* PFN_D3DPERF_QUERY_REPEAT_FRAME)();
 	typedef void    (WINAPI* PFN_D3DPERF_SET_OPTIONS)(DWORD _options);
 	typedef DWORD   (WINAPI* PFN_D3DPERF_GET_STATUS)();
-	typedef HRESULT (WINAPI* PFN_CREATE_DXGI_FACTORY)(REFIID _riid, void** _factory);
-	typedef HRESULT (WINAPI* PFN_GET_DEBUG_INTERFACE)(REFIID _riid, void** _debug);
-	typedef HRESULT (WINAPI* PFN_GET_DEBUG_INTERFACE1)(UINT _flags, REFIID _riid, void** _debug);
 
 #define _PIX_SETMARKER(_col, _name)  D3DPERF_SetMarker(_col, _name)
 #define _PIX_BEGINEVENT(_col, _name) D3DPERF_BeginEvent(_col, _name)
@@ -104,13 +103,13 @@ namespace bgfx
 #	define PIX_ENDEVENT()
 #endif // BGFX_CONFIG_DEBUG_PIX
 
-#define D3DCOLOR_FRAME   D3DCOLOR_RGBA(0xff, 0xd7, 0xc9, 0xff)
-#define D3DCOLOR_VIEW    D3DCOLOR_RGBA(0xe4, 0xb4, 0x8e, 0xff)
-#define D3DCOLOR_VIEW_L  D3DCOLOR_RGBA(0xf9, 0xee, 0xe5, 0xff)
-#define D3DCOLOR_VIEW_R  D3DCOLOR_RGBA(0xe8, 0xd3, 0xc0, 0xff)
-#define D3DCOLOR_DRAW    D3DCOLOR_RGBA(0xc6, 0xe5, 0xb9, 0xff)
-#define D3DCOLOR_COMPUTE D3DCOLOR_RGBA(0xa7, 0xdb, 0xd8, 0xff)
-#define D3DCOLOR_MARKER  D3DCOLOR_RGBA(0xff, 0x00, 0x00, 0xff)
+#define D3DCOLOR_FRAME   toRgba8(0xff, 0xd7, 0xc9, 0xff)
+#define D3DCOLOR_VIEW    toRgba8(0xe4, 0xb4, 0x8e, 0xff)
+#define D3DCOLOR_VIEW_L  toRgba8(0xf9, 0xee, 0xe5, 0xff)
+#define D3DCOLOR_VIEW_R  toRgba8(0xe8, 0xd3, 0xc0, 0xff)
+#define D3DCOLOR_DRAW    toRgba8(0xc6, 0xe5, 0xb9, 0xff)
+#define D3DCOLOR_COMPUTE toRgba8(0xa7, 0xdb, 0xd8, 0xff)
+#define D3DCOLOR_MARKER  toRgba8(0xff, 0x00, 0x00, 0xff)
 
 	inline int getRefCount(IUnknown* _interface)
 	{

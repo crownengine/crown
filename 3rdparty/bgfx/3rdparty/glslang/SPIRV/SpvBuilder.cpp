@@ -46,9 +46,7 @@
 
 #include "SpvBuilder.h"
 
-#ifdef AMD_EXTENSIONS
-    #include "hex_float.h"
-#endif
+#include "hex_float.h"
 
 #ifndef _WIN32
     #include <cstdio>
@@ -194,6 +192,9 @@ Id Builder::makeIntegerType(int width, bool hasSign)
 
     // deal with capabilities
     switch (width) {
+    case 8:
+        addCapability(CapabilityInt8);
+        break;
     case 16:
         addCapability(CapabilityInt16);
         break;
@@ -622,7 +623,7 @@ Id Builder::getContainedTypeId(Id typeId) const
 
 // See if a scalar constant of this type has already been created, so it
 // can be reused rather than duplicated.  (Required by the specification).
-Id Builder::findScalarConstant(Op typeClass, Op opcode, Id typeId, unsigned value) const
+Id Builder::findScalarConstant(Op typeClass, Op opcode, Id typeId, unsigned value)
 {
     Instruction* constant;
     for (int i = 0; i < (int)groupedConstants[typeClass].size(); ++i) {
@@ -637,7 +638,7 @@ Id Builder::findScalarConstant(Op typeClass, Op opcode, Id typeId, unsigned valu
 }
 
 // Version of findScalarConstant (see above) for scalars that take two operands (e.g. a 'double' or 'int64').
-Id Builder::findScalarConstant(Op typeClass, Op opcode, Id typeId, unsigned v1, unsigned v2) const
+Id Builder::findScalarConstant(Op typeClass, Op opcode, Id typeId, unsigned v1, unsigned v2)
 {
     Instruction* constant;
     for (int i = 0; i < (int)groupedConstants[typeClass].size(); ++i) {
@@ -819,7 +820,6 @@ Id Builder::makeDoubleConstant(double d, bool specConstant)
     return c->getResultId();
 }
 
-#ifdef AMD_EXTENSIONS
 Id Builder::makeFloat16Constant(float f16, bool specConstant)
 {
     Op opcode = specConstant ? OpSpecConstant : OpConstant;
@@ -847,9 +847,27 @@ Id Builder::makeFloat16Constant(float f16, bool specConstant)
 
     return c->getResultId();
 }
-#endif
 
-Id Builder::findCompositeConstant(Op typeClass, const std::vector<Id>& comps) const
+Id Builder::makeFpConstant(Id type, double d, bool specConstant)
+{
+        assert(isFloatType(type));
+
+        switch (getScalarTypeWidth(type)) {
+        case 16:
+                return makeFloat16Constant((float)d, specConstant);
+        case 32:
+                return makeFloatConstant((float)d, specConstant);
+        case 64:
+                return makeDoubleConstant(d, specConstant);
+        default:
+                break;
+        }
+
+        assert(false);
+        return NoResult;
+}
+
+Id Builder::findCompositeConstant(Op typeClass, const std::vector<Id>& comps)
 {
     Instruction* constant = 0;
     bool found = false;
@@ -859,6 +877,30 @@ Id Builder::findCompositeConstant(Op typeClass, const std::vector<Id>& comps) co
         // same shape?
         if (constant->getNumOperands() != (int)comps.size())
             continue;
+
+        // same contents?
+        bool mismatch = false;
+        for (int op = 0; op < constant->getNumOperands(); ++op) {
+            if (constant->getIdOperand(op) != comps[op]) {
+                mismatch = true;
+                break;
+            }
+        }
+        if (! mismatch) {
+            found = true;
+            break;
+        }
+    }
+
+    return found ? constant->getResultId() : NoResult;
+}
+
+Id Builder::findStructConstant(Id typeId, const std::vector<Id>& comps)
+{
+    Instruction* constant = 0;
+    bool found = false;
+    for (int i = 0; i < (int)groupedStructConstants[typeId].size(); ++i) {
+        constant = groupedStructConstants[typeId][i];
 
         // same contents?
         bool mismatch = false;
@@ -887,25 +929,33 @@ Id Builder::makeCompositeConstant(Id typeId, const std::vector<Id>& members, boo
     switch (typeClass) {
     case OpTypeVector:
     case OpTypeArray:
-    case OpTypeStruct:
     case OpTypeMatrix:
+        if (! specConstant) {
+            Id existing = findCompositeConstant(typeClass, members);
+            if (existing)
+                return existing;
+        }
+        break;
+    case OpTypeStruct:
+        if (! specConstant) {
+            Id existing = findStructConstant(typeId, members);
+            if (existing)
+                return existing;
+        }
         break;
     default:
         assert(0);
         return makeFloatConstant(0.0);
     }
 
-    if (! specConstant) {
-        Id existing = findCompositeConstant(typeClass, members);
-        if (existing)
-            return existing;
-    }
-
     Instruction* c = new Instruction(getUniqueId(), typeId, opcode);
     for (int op = 0; op < (int)members.size(); ++op)
         c->addIdOperand(members[op]);
     constantsTypesGlobals.push_back(std::unique_ptr<Instruction>(c));
-    groupedConstants[typeClass].push_back(c);
+    if (typeClass == OpTypeStruct)
+        groupedStructConstants[typeId].push_back(c);
+    else
+        groupedConstants[typeClass].push_back(c);
     module.mapInstruction(c);
 
     return c->getResultId();
@@ -962,6 +1012,7 @@ void Builder::addDecoration(Id id, Decoration decoration, int num)
 {
     if (decoration == spv::DecorationMax)
         return;
+
     Instruction* dec = new Instruction(OpDecorate);
     dec->addIdOperand(id);
     dec->addImmediateOperand(decoration);
@@ -971,14 +1022,57 @@ void Builder::addDecoration(Id id, Decoration decoration, int num)
     decorations.push_back(std::unique_ptr<Instruction>(dec));
 }
 
+void Builder::addDecoration(Id id, Decoration decoration, const char* s)
+{
+    if (decoration == spv::DecorationMax)
+        return;
+
+    Instruction* dec = new Instruction(OpDecorateStringGOOGLE);
+    dec->addIdOperand(id);
+    dec->addImmediateOperand(decoration);
+    dec->addStringOperand(s);
+
+    decorations.push_back(std::unique_ptr<Instruction>(dec));
+}
+
+void Builder::addDecorationId(Id id, Decoration decoration, Id idDecoration)
+{
+    if (decoration == spv::DecorationMax)
+        return;
+
+    Instruction* dec = new Instruction(OpDecorateId);
+    dec->addIdOperand(id);
+    dec->addImmediateOperand(decoration);
+    dec->addIdOperand(idDecoration);
+
+    decorations.push_back(std::unique_ptr<Instruction>(dec));
+}
+
 void Builder::addMemberDecoration(Id id, unsigned int member, Decoration decoration, int num)
 {
+    if (decoration == spv::DecorationMax)
+        return;
+
     Instruction* dec = new Instruction(OpMemberDecorate);
     dec->addIdOperand(id);
     dec->addImmediateOperand(member);
     dec->addImmediateOperand(decoration);
     if (num >= 0)
         dec->addImmediateOperand(num);
+
+    decorations.push_back(std::unique_ptr<Instruction>(dec));
+}
+
+void Builder::addMemberDecoration(Id id, unsigned int member, Decoration decoration, const char *s)
+{
+    if (decoration == spv::DecorationMax)
+        return;
+
+    Instruction* dec = new Instruction(OpMemberDecorateStringGOOGLE);
+    dec->addIdOperand(id);
+    dec->addImmediateOperand(member);
+    dec->addImmediateOperand(decoration);
+    dec->addStringOperand(s);
 
     decorations.push_back(std::unique_ptr<Instruction>(dec));
 }
@@ -1719,7 +1813,11 @@ Id Builder::createTextureQueryCall(Op opCode, const TextureParameters& parameter
         break;
     }
     case OpImageQueryLod:
+#ifdef AMD_EXTENSIONS
+        resultType = makeVectorType(getScalarTypeId(getTypeId(parameters.coords)), 2);
+#else
         resultType = makeVectorType(makeFloatType(32), 2);
+#endif
         break;
     case OpImageQueryLevels:
     case OpImageQuerySamples:
@@ -2233,7 +2331,7 @@ void Builder::accessChainStore(Id rvalue)
 }
 
 // Comments in header
-Id Builder::accessChainLoad(Decoration precision, Id resultType)
+Id Builder::accessChainLoad(Decoration precision, Decoration nonUniform, Id resultType)
 {
     Id id;
 
@@ -2279,6 +2377,7 @@ Id Builder::accessChainLoad(Decoration precision, Id resultType)
         // load through the access chain
         id = createLoad(collapseAccessChain());
         setPrecision(id, precision);
+        addDecoration(id, nonUniform);
     }
 
     // Done, unless there are swizzles to do
@@ -2299,6 +2398,7 @@ Id Builder::accessChainLoad(Decoration precision, Id resultType)
     if (accessChain.component != NoResult)
         id = setPrecision(createVectorExtractDynamic(id, resultType, accessChain.component), precision);
 
+    addDecoration(id, nonUniform);
     return id;
 }
 
@@ -2421,7 +2521,6 @@ void Builder::dump(std::vector<unsigned int>& out) const
 
     // Debug instructions
     dumpInstructions(out, strings);
-    dumpModuleProcesses(out);
     dumpSourceInstructions(out);
     for (int e = 0; e < (int)sourceExtensions.size(); ++e) {
         Instruction sourceExtInst(0, 0, OpSourceExtension);
@@ -2429,7 +2528,7 @@ void Builder::dump(std::vector<unsigned int>& out) const
         sourceExtInst.dump(out);
     }
     dumpInstructions(out, names);
-    dumpInstructions(out, lines);
+    dumpModuleProcesses(out);
 
     // Annotation instructions
     dumpInstructions(out, decorations);
@@ -2496,7 +2595,7 @@ void Builder::remapDynamicSwizzle()
     if (accessChain.component != NoResult && accessChain.swizzle.size() > 1) {
         // build a vector of the swizzle for the component to map into
         std::vector<Id> components;
-        for (int c = 0; c < accessChain.swizzle.size(); ++c)
+        for (int c = 0; c < (int)accessChain.swizzle.size(); ++c)
             components.push_back(makeUintConstant(accessChain.swizzle[c]));
         Id mapType = makeVectorType(makeUintType(32), (int)accessChain.swizzle.size());
         Id map = makeCompositeConstant(mapType, components);

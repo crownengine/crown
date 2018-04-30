@@ -1,6 +1,7 @@
 //
 // Copyright (C) 2002-2005  3Dlabs Inc. Ltd.
 // Copyright (C) 2016 LunarG, Inc.
+// Copyright (C) 2017 ARM Limited.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -78,7 +79,7 @@ public:
         assert(i < MaxSwizzleSelectors);
         return components[i];
     }
-    
+
 private:
     int size_;
     selectorType components[MaxSwizzleSelectors];
@@ -209,7 +210,7 @@ class TVariable;
 class TIntermediate {
 public:
     explicit TIntermediate(EShLanguage l, int v = 0, EProfile p = ENoProfile) :
-        implicitThisName("@this"),
+        implicitThisName("@this"), implicitCounterName("@count"),
         language(l), source(EShSourceNone), profile(p), version(v), treeRoot(0),
         numEntryPoints(0), numErrors(0), numPushConstants(0), recursive(false),
         invocations(TQualifier::layoutNotSet), vertices(TQualifier::layoutNotSet),
@@ -217,6 +218,7 @@ public:
         pixelCenterInteger(false), originUpperLeft(false),
         vertexSpacing(EvsNone), vertexOrder(EvoNone), pointMode(false), earlyFragmentTests(false),
         postDepthCoverage(false), depthLayout(EldNone), depthReplacing(false),
+        hlslFunctionality1(false),
         blendEquations(0), xfbMode(false), multiStream(false),
 #ifdef NV_EXTENSIONS
         layoutOverrideCoverage(false),
@@ -361,6 +363,13 @@ public:
     }
     bool usingHlslIoMapping() { return hlslIoMapping; }
 
+    template<class T> T addCounterBufferName(const T& name) const { return name + implicitCounterName; }
+    bool hasCounterBufferName(const TString& name) const {
+        size_t len = strlen(implicitCounterName);
+        return name.size() > len &&
+               name.compare(name.size() - len, len, implicitCounterName) == 0;
+    }
+
     void setTextureSamplerTransformMode(EShTextureSamplerTransformMode mode) { textureSamplerTransformMode = mode; }
 
     void setVersion(int v) { version = v; }
@@ -378,7 +387,7 @@ public:
             processes.addProcess("client opengl100");
 
         // target-environment processes
-        if (spvVersion.vulkan == 100)
+        if (spvVersion.vulkan > 0)
             processes.addProcess("target-env vulkan1.0");
         else if (spvVersion.vulkan > 0)
             processes.addProcess("target-env vulkanUnknown");
@@ -403,6 +412,7 @@ public:
     TIntermSymbol* addSymbol(const TType&, const TSourceLoc&);
     TIntermSymbol* addSymbol(const TIntermSymbol&);
     TIntermTyped* addConversion(TOperator, const TType&, TIntermTyped*) const;
+    std::tuple<TIntermTyped*, TIntermTyped*> addConversion(TOperator op, TIntermTyped* node0, TIntermTyped* node1) const;
     TIntermTyped* addUniShapeConversion(TOperator, const TType&, TIntermTyped*);
     void addBiShapeConversion(TOperator, TIntermTyped*& lhsNode, TIntermTyped*& rhsNode);
     TIntermTyped* addShapeConversion(const TType&, TIntermTyped*);
@@ -412,6 +422,11 @@ public:
     TIntermTyped* addUnaryMath(TOperator, TIntermTyped* child, TSourceLoc);
     TIntermTyped* addBuiltInFunctionCall(const TSourceLoc& line, TOperator, bool unary, TIntermNode*, const TType& returnType);
     bool canImplicitlyPromote(TBasicType from, TBasicType to, TOperator op = EOpNull) const;
+    bool isIntegralPromotion(TBasicType from, TBasicType to) const;
+    bool isFPPromotion(TBasicType from, TBasicType to) const;
+    bool isIntegralConversion(TBasicType from, TBasicType to) const;
+    bool isFPConversion(TBasicType from, TBasicType to) const;
+    bool isFPIntegralConversion(TBasicType from, TBasicType to) const;
     TOperator mapTypeToConstructorOp(const TType&) const;
     TIntermAggregate* growAggregate(TIntermNode* left, TIntermNode* right);
     TIntermAggregate* growAggregate(TIntermNode* left, TIntermNode* right, const TSourceLoc&);
@@ -425,15 +440,14 @@ public:
     TIntermTyped* addComma(TIntermTyped* left, TIntermTyped* right, const TSourceLoc&);
     TIntermTyped* addMethod(TIntermTyped*, const TType&, const TString*, const TSourceLoc&);
     TIntermConstantUnion* addConstantUnion(const TConstUnionArray&, const TType&, const TSourceLoc&, bool literal = false) const;
+    TIntermConstantUnion* addConstantUnion(signed char, const TSourceLoc&, bool literal = false) const;
+    TIntermConstantUnion* addConstantUnion(unsigned char, const TSourceLoc&, bool literal = false) const;
+    TIntermConstantUnion* addConstantUnion(signed short, const TSourceLoc&, bool literal = false) const;
+    TIntermConstantUnion* addConstantUnion(unsigned short, const TSourceLoc&, bool literal = false) const;
     TIntermConstantUnion* addConstantUnion(int, const TSourceLoc&, bool literal = false) const;
     TIntermConstantUnion* addConstantUnion(unsigned int, const TSourceLoc&, bool literal = false) const;
     TIntermConstantUnion* addConstantUnion(long long, const TSourceLoc&, bool literal = false) const;
     TIntermConstantUnion* addConstantUnion(unsigned long long, const TSourceLoc&, bool literal = false) const;
-#ifdef AMD_EXTENSIONS
-    TIntermConstantUnion* addConstantUnion(short, const TSourceLoc&, bool literal = false) const;
-    TIntermConstantUnion* addConstantUnion(unsigned short, const TSourceLoc&, bool literal = false) const;
-    
-#endif
     TIntermConstantUnion* addConstantUnion(bool, const TSourceLoc&, bool literal = false) const;
     TIntermConstantUnion* addConstantUnion(double, TBasicType, const TSourceLoc&, bool literal = false) const;
     TIntermConstantUnion* addConstantUnion(const TString*, const TSourceLoc&, bool literal = false) const;
@@ -452,9 +466,6 @@ public:
     TIntermBinary* addBinaryNode(TOperator op, TIntermTyped* left, TIntermTyped* right, TSourceLoc, const TType&) const;
     TIntermUnary* addUnaryNode(TOperator op, TIntermTyped* child, TSourceLoc) const;
     TIntermUnary* addUnaryNode(TOperator op, TIntermTyped* child, TSourceLoc, const TType&) const;
-
-    // Add conversion from node's type to given basic type.
-    TIntermTyped* convertToBasicType(TOperator op, TBasicType basicType, TIntermTyped* node) const;
 
     // Constant folding (in Constant.cpp)
     TIntermTyped* fold(TIntermAggregate* aggrNode);
@@ -561,6 +572,9 @@ public:
     void setDepthReplacing() { depthReplacing = true; }
     bool isDepthReplacing() const { return depthReplacing; }
 
+    void setHlslFunctionality1() { hlslFunctionality1 = true; }
+    bool getHlslFunctionality1() const { return hlslFunctionality1; }
+
     void addBlendEquation(TBlendEquationShift b) { blendEquations |= (1 << b); }
     unsigned int getBlendEquations() const { return blendEquations; }
 
@@ -575,7 +589,8 @@ public:
     int checkLocationRange(int set, const TIoRange& range, const TType&, bool& typeCollision);
     int addUsedOffsets(int binding, int offset, int numOffsets);
     bool addUsedConstantId(int id);
-    int computeTypeLocationSize(const TType&) const;
+    static int computeTypeLocationSize(const TType&, EShLanguage);
+    static int computeTypeUniformLocationSize(const TType&);
 
     bool setXfbBufferStride(int buffer, unsigned stride)
     {
@@ -604,7 +619,7 @@ public:
         return semanticNameSet.insert(name).first->c_str();
     }
 
-    void setSourceFile(const char* file) { sourceFile = file; }
+    void setSourceFile(const char* file) { if (file != nullptr) sourceFile = file; }
     const std::string& getSourceFile() const { return sourceFile; }
     void addSourceText(const char* text) { sourceText = sourceText + text; }
     const std::string& getSourceText() const { return sourceText; }
@@ -620,6 +635,7 @@ public:
     bool needsLegalization() const { return needToLegalize; }
 
     const char* const implicitThisName;
+    const char* const implicitCounterName;
 
 protected:
     TIntermSymbol* addSymbol(int Id, const TString&, const TType&, const TConstUnionArray&, TIntermTyped* subtree, const TSourceLoc&);
@@ -635,6 +651,7 @@ protected:
     TIntermSequence& findLinkerObjects() const;
     bool userOutputUsed() const;
     bool isSpecializationOperation(const TIntermOperator&) const;
+    bool isNonuniformPropagating(TOperator) const;
     bool promoteUnary(TIntermUnary&);
     bool promoteBinary(TIntermBinary&);
     void addSymbolLinkageNode(TIntermAggregate*& linkage, TSymbolTable&, const TString&);
@@ -643,6 +660,10 @@ protected:
     void pushSelector(TIntermSequence&, const TMatrixSelector&, const TSourceLoc&);
     bool specConstantPropagates(const TIntermTyped&, const TIntermTyped&);
     void performTextureUpgradeAndSamplerRemovalTransformation(TIntermNode* root);
+    bool isConversionAllowed(TOperator op, TIntermTyped* node) const;
+    TIntermUnary* createConversion(TBasicType convertTo, TIntermTyped* node) const;
+    std::tuple<TBasicType, TBasicType> getConversionDestinatonType(TBasicType type0, TBasicType type1, TOperator op) const;
+    bool extensionRequested(const char *extension) const {return requestedExtensions.find(extension) != requestedExtensions.end();}
     static const char* getResourceName(TResourceType);
 
     const EShLanguage language;  // stage, known at construction time
@@ -650,8 +671,8 @@ protected:
     std::string entryPointName;
     std::string entryPointMangledName;
 
-    EProfile profile;
-    int version;
+    EProfile profile;                           // source profile
+    int version;                                // source version
     SpvVersion spvVersion;
     TIntermNode* treeRoot;
     std::set<std::string> requestedExtensions;  // cumulation of all enabled or required extensions; not connected to what subset of the shader used them
@@ -675,6 +696,7 @@ protected:
     bool postDepthCoverage;
     TLayoutDepth depthLayout;
     bool depthReplacing;
+    bool hlslFunctionality1;
     int blendEquations;        // an 'or'ing of masks of shifts of TBlendEquationShift
     bool xfbMode;
     bool multiStream;

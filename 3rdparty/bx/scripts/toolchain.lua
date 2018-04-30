@@ -1309,15 +1309,18 @@ function strip()
 		postbuildcommands {
 			"$(SILENT) echo Running asmjs finalize.",
 			"$(SILENT) \"$(EMSCRIPTEN)/emcc\" -O2 "
+
+--				.. "-s ALLOW_MEMORY_GROWTH=1 "
+--				.. "-s ASSERTIONS=2 "
 --				.. "-s EMTERPRETIFY=1 "
 --				.. "-s EMTERPRETIFY_ASYNC=1 "
+				.. "-s PRECISE_F32=1 "
 				.. "-s TOTAL_MEMORY=268435456 "
---				.. "-s ALLOW_MEMORY_GROWTH=1 "
 --				.. "-s USE_WEBGL2=1 "
+
 				.. "--memory-init-file 1 "
 				.. "\"$(TARGET)\" -o \"$(TARGET)\".html "
 --				.. "--preload-file ../../../examples/runtime@/ "
-				.. "-s PRECISE_F32=1"
 		}
 
 	configuration { "riscv" }

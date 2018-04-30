@@ -942,4 +942,20 @@ namespace bx
 		_result[3] = -vec3Dot(normal, _va);
 	}
 
+	inline BX_CONST_FUNC float toLinear(float _a)
+	{
+		const float lo     = _a / 12.92f;
+		const float hi     = pow( (_a + 0.055f) / 1.055f, 2.4f);
+		const float result = lerp(hi, lo, _a <= 0.04045f);
+		return result;
+	}
+
+	inline BX_CONST_FUNC float toGamma(float _a)
+	{
+		const float lo     = _a * 12.92f;
+		const float hi     = pow(abs(_a), 1.0f/2.4f) * 1.055f - 0.055f;
+		const float result = lerp(hi, lo, _a <= 0.0031308f);
+		return result;
+	}
+
 } // namespace bx
