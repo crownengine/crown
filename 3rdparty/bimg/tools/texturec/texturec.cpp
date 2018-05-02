@@ -879,7 +879,7 @@ int main(int _argc, const char* _argv[])
 		}
 		else if (options.format != bimg::TextureFormat::RGBA8)
 		{
-			help("Ouput PNG format must be RGBA8.");
+			help("Output PNG format must be RGBA8.");
 			return bx::kExitFailure;
 		}
 	}
@@ -891,7 +891,7 @@ int main(int _argc, const char* _argv[])
 		}
 		else if (options.format != bimg::TextureFormat::RGBA16F)
 		{
-			help("Ouput EXR format must be RGBA16F.");
+			help("Output EXR format must be RGBA16F.");
 			return bx::kExitFailure;
 		}
 	}
@@ -958,6 +958,12 @@ int main(int _argc, const char* _argv[])
 			}
 			else if (NULL != bx::strFindI(saveAs, "png") )
 			{
+				if (output->m_format != bimg::TextureFormat::RGBA8)
+				{
+					help("Incompatible output texture format. Output PNG format must be RGBA8.", err);
+					return bx::kExitFailure;
+				}
+
 				bimg::ImageMip mip;
 				bimg::imageGetRawData(*output, 0, 0, output->m_data, output->m_size, mip);
 				bimg::imageWritePng(&writer
