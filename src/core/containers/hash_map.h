@@ -130,11 +130,11 @@ namespace hash_map_internal
 
 	INSERT_AND_RETURN:
 		new (m._data + hash_i) typename HashMap<TKey, TValue, Hash>::Entry(*m._allocator);
-		memcpy(m._data + hash_i, &new_item, sizeof(new_item));
+		memcpy((void*)(m._data + hash_i), &new_item, sizeof(new_item));
 		m._index[hash_i].hash = hash;
 		m._index[hash_i].index = 0x0123abcd;
 		PAIR(TKey, TValue) empty(*m._allocator);
-		memcpy(&new_item, &empty, sizeof(new_item));
+		memcpy((void*)&new_item, &empty, sizeof(new_item));
 	}
 
 	template <typename TKey, typename TValue, typename Hash>
@@ -170,8 +170,8 @@ namespace hash_map_internal
 
 		HashMap<TKey, TValue, Hash> empty(*m._allocator);
 		m.~HashMap<TKey, TValue, Hash>();
-		memcpy(&m, &nm, sizeof(HashMap<TKey, TValue, Hash>));
-		memcpy(&nm, &empty, sizeof(HashMap<TKey, TValue, Hash>));
+		memcpy((void*)&m, (void*)&nm, sizeof(HashMap<TKey, TValue, Hash>));
+		memcpy((void*)&nm, (void*)&empty, sizeof(HashMap<TKey, TValue, Hash>));
 	}
 
 	template <typename TKey, typename TValue, typename Hash>
