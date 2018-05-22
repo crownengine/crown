@@ -891,21 +891,21 @@ static void test_dynamic_string()
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		str.set("   \tSushi\t   ", 15);
+		str.set("   \tSushi\t   ", 13);
 		str.ltrim();
 		ENSURE(strcmp(str.c_str(), "Sushi\t   ") == 0);
 	}
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		str.set("   \tSushi\t   ", 15);
+		str.set("   \tSushi\t   ", 13);
 		str.rtrim();
 		ENSURE(strcmp(str.c_str(), "   \tSushi") == 0);
 	}
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		str.set("   \tSushi\t   ", 15);
+		str.set("   \tSushi\t   ", 13);
 		str.trim();
 		ENSURE(strcmp(str.c_str(), "Sushi") == 0);
 	}
