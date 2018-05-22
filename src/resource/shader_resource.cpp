@@ -468,6 +468,11 @@ namespace shader_resource_internal
 		CullMode::Enum _cull_mode;
 		PrimitiveType::Enum _primitive_type;
 
+		RenderState()
+		{
+			reset();
+		}
+
 		void reset()
 		{
 			_rgb_write_enable = false;
@@ -527,6 +532,11 @@ namespace shader_resource_internal
 		SamplerWrap::Enum _wrap_u;
 		SamplerWrap::Enum _wrap_v;
 		SamplerWrap::Enum _wrap_w;
+
+		SamplerState()
+		{
+			reset();
+		}
 
 		void reset()
 		{
