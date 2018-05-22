@@ -1363,6 +1363,21 @@ namespace bgfx
 		return s_ctx->m_uniformRef[_handle.idx].m_name.getPtr();
 	}
 
+	static const char* s_topologyName[] =
+	{
+		"TriList",
+		"TriStrip",
+		"Line",
+		"LineStrip",
+		"Point",
+	};
+	BX_STATIC_ASSERT(Topology::Count == BX_COUNTOF(s_topologyName) );
+
+	const char* getName(Topology::Enum _topology)
+	{
+		return s_topologyName[_topology];
+	}
+
 	static TextureFormat::Enum s_emulatedFormats[] =
 	{
 		TextureFormat::BC1,
@@ -2128,12 +2143,17 @@ namespace bgfx
 				}
 				else if (BX_ENABLED(BX_PLATFORM_OSX) )
 				{
-					score += RendererType::OpenGL   == renderer ? 20 : 0;
+					score += RendererType::Metal    == renderer ? 20 : 0;
+					score += RendererType::OpenGL   == renderer ? 10 : 0;
+				}
+				else if (BX_ENABLED(BX_PLATFORM_IOS) )
+				{
+					score += RendererType::Metal    == renderer ? 20 : 0;
+					score += RendererType::OpenGLES == renderer ? 10 : 0;
 				}
 				else if (BX_ENABLED(0
 					 ||  BX_PLATFORM_ANDROID
 					 ||  BX_PLATFORM_EMSCRIPTEN
-					 ||  BX_PLATFORM_IOS
 					 ||  BX_PLATFORM_RPI
 					 ) )
 				{
@@ -4561,6 +4581,7 @@ BGFX_C99_ENUM_CHECK(bgfx::TextureFormat,        BGFX_TEXTURE_FORMAT_COUNT);
 BGFX_C99_ENUM_CHECK(bgfx::UniformType,          BGFX_UNIFORM_TYPE_COUNT);
 BGFX_C99_ENUM_CHECK(bgfx::BackbufferRatio,      BGFX_BACKBUFFER_RATIO_COUNT);
 BGFX_C99_ENUM_CHECK(bgfx::OcclusionQueryResult, BGFX_OCCLUSION_QUERY_RESULT_COUNT);
+BGFX_C99_ENUM_CHECK(bgfx::Topology,             BGFX_TOPOLOGY_COUNT);
 BGFX_C99_ENUM_CHECK(bgfx::TopologyConvert,      BGFX_TOPOLOGY_CONVERT_COUNT);
 BGFX_C99_ENUM_CHECK(bgfx::RenderFrame,          BGFX_RENDER_FRAME_COUNT);
 #undef BGFX_C99_ENUM_CHECK
@@ -4756,7 +4777,23 @@ BGFX_C_API void bgfx_init_ctor(bgfx_init_t* _init)
 
 BGFX_C_API bool bgfx_init(const bgfx_init_t* _init)
 {
-	return bgfx::init(*reinterpret_cast<const bgfx::Init*>(_init) );
+	bgfx_init_t init = *_init;
+
+	if (init.callback != NULL)
+	{
+		static bgfx::CallbackC99 s_callback;
+		s_callback.m_interface = init.callback;
+		init.callback = reinterpret_cast<bgfx_callback_interface_t *>(&s_callback);
+	}
+
+	if (init.allocator != NULL)
+	{
+		static bgfx::AllocatorC99 s_allocator;
+		s_allocator.m_interface = init.allocator;
+		init.allocator = reinterpret_cast<bgfx_allocator_interface_t *>(&s_allocator);
+	}
+
+	return bgfx::init(*reinterpret_cast<const bgfx::Init*>(&init) );
 }
 
 BGFX_C_API void bgfx_shutdown(void)

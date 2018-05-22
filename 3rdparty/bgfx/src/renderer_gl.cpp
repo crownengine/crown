@@ -30,16 +30,9 @@ namespace bgfx { namespace gl
 		{ GL_LINES,          2, 2, 0 },
 		{ GL_LINE_STRIP,     2, 1, 1 },
 		{ GL_POINTS,         1, 1, 0 },
+		{ GL_ZERO,           0, 0, 0 },
 	};
-
-	static const char* s_primName[] =
-	{
-		"TriList",
-		"TriStrip",
-		"Line",
-		"LineStrip",
-		"Point",
-	};
+	BX_STATIC_ASSERT(Topology::Count == BX_COUNTOF(s_primInfo)-1);
 
 	static const char* s_attribName[] =
 	{
@@ -2325,6 +2318,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 				g_caps.limits.maxTextureSize   = uint16_t(glGet(GL_MAX_TEXTURE_SIZE) );
 				g_caps.limits.maxTextureLayers = uint16_t(bx::max(glGet(GL_MAX_ARRAY_TEXTURE_LAYERS), 1) );
+				g_caps.limits.maxVertexStreams = BGFX_CONFIG_MAX_VERTEX_STREAMS;
 
 				if (BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGL)
 				||  BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGLES >= 30)
@@ -2369,11 +2363,12 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					|| s_extension[Extension::EXT_shadow_samplers].m_supported
 					;
 
-				m_programBinarySupport = !!(BGFX_CONFIG_RENDERER_OPENGLES >= 30)
-					|| s_extension[Extension::ARB_get_program_binary].m_supported
-					|| s_extension[Extension::OES_get_program_binary].m_supported
-					|| s_extension[Extension::IMG_shader_binary     ].m_supported
-					;
+				m_programBinarySupport = !BX_ENABLED(BX_PLATFORM_EMSCRIPTEN)
+					&& (!!(BGFX_CONFIG_RENDERER_OPENGLES >= 30)
+						|| s_extension[Extension::ARB_get_program_binary].m_supported
+						|| s_extension[Extension::OES_get_program_binary].m_supported
+						|| s_extension[Extension::IMG_shader_binary     ].m_supported
+						);
 
 				m_textureSwizzleSupport = false
 					|| s_extension[Extension::ARB_texture_swizzle].m_supported
@@ -2911,7 +2906,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			void* data = BX_ALLOC(g_allocator, size);
 			bx::memSet(data, 0, size);
 			m_uniforms[_handle.idx] = data;
-			m_uniformReg.add(_handle, _name, m_uniforms[_handle.idx]);
+			m_uniformReg.add(_handle, _name);
 		}
 
 		void destroyUniform(UniformHandle _handle) override
@@ -3492,10 +3487,10 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		void ovrPostReset()
 		{
 #if BGFX_CONFIG_USE_OVR
-			if (m_resolution.m_flags & (BGFX_RESET_HMD|BGFX_RESET_HMD_DEBUG) )
+			if (m_resolution.reset & (BGFX_RESET_HMD|BGFX_RESET_HMD_DEBUG) )
 			{
-				const uint32_t msaaSamples = 1 << ( (m_resolution.m_flags&BGFX_RESET_MSAA_MASK) >> BGFX_RESET_MSAA_SHIFT);
-				m_ovr.postReset(msaaSamples, m_resolution.m_width, m_resolution.m_height);
+				const uint32_t msaaSamples = 1 << ( (m_resolution.reset&BGFX_RESET_MSAA_MASK) >> BGFX_RESET_MSAA_SHIFT);
+				m_ovr.postReset(msaaSamples, m_resolution.width, m_resolution.height);
 			}
 #endif // BGFX_CONFIG_USE_OVR
 		}
@@ -4006,7 +4001,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		if (NULL == m_textureSwapChain)
 		{
 			const GLsizei width = _desc.m_eyeSize[0].m_w + _desc.m_eyeSize[1].m_w;
-			const GLsizei height = bx::uint16_max(_desc.m_eyeSize[0].m_h, _desc.m_eyeSize[1].m_h);
+			const GLsizei height = bx::uint32_max(_desc.m_eyeSize[0].m_h, _desc.m_eyeSize[1].m_h);
 
 			ovrTextureSwapChainDesc swapchainDesc = {};
 			swapchainDesc.Type = ovrTexture_2D;
@@ -4800,7 +4795,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					GL_CHECK(glVertexAttribDivisor(loc, 0) );
 
 					uint32_t baseVertex = _baseVertex*_vertexDecl.m_stride + _vertexDecl.m_offset[attr];
-					if ( (BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGL >= 30) ||  BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGLES >= 31) )
+					if (NULL != glVertexAttribIPointer
 					&& (AttribType::Uint8 == type || AttribType::Int16 == type)
 					&&  !normalized)
 					{
@@ -6342,35 +6337,49 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 	{
 		if (0 != m_fbo[1])
 		{
-			GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo[0]) );
-			GL_CHECK(glReadBuffer(GL_COLOR_ATTACHMENT0) );
-			GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo[1]) );
-			GL_CHECK(glBlitFramebuffer(0
-				, 0
-				, m_width
-				, m_height
-				, 0
-				, 0
-				, m_width
-				, m_height
-				, GL_COLOR_BUFFER_BIT
-				, GL_LINEAR
-				) );
-			GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo[0]) );
-			GL_CHECK(glReadBuffer(GL_NONE) );
-			GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, s_renderGL->m_msaaBackBufferFbo) );
-		}
-
-		if (0 < m_numTh)
-		{
+			uint32_t colorIdx = 0;
 			for (uint32_t ii = 0; ii < m_numTh; ++ii)
 			{
 				TextureHandle handle = m_attachment[ii].handle;
 				if (isValid(handle) )
 				{
 					const TextureGL& texture = s_renderGL->m_textures[handle.idx];
-					texture.resolve();
+
+					bimg::TextureFormat::Enum format = bimg::TextureFormat::Enum(texture.m_textureFormat);
+					if (!bimg::isDepth(format) )
+					{
+						GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo[0]) );
+						GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo[1]) );
+						GL_CHECK(glReadBuffer(GL_COLOR_ATTACHMENT0 + colorIdx) );
+						GL_CHECK(glDrawBuffer(GL_COLOR_ATTACHMENT0 + colorIdx) );
+						colorIdx++;
+						GL_CHECK(glBlitFramebuffer(0
+							, 0
+							, m_width
+							, m_height
+							, 0
+							, 0
+							, m_width
+							, m_height
+							, GL_COLOR_BUFFER_BIT
+							, GL_LINEAR
+							) );
+					}
 				}
+			}
+
+			GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo[0]) );
+			GL_CHECK(glReadBuffer(GL_NONE) );
+			GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, s_renderGL->m_msaaBackBufferFbo) );
+		}
+
+		for (uint32_t ii = 0; ii < m_numTh; ++ii)
+		{
+			TextureHandle handle = m_attachment[ii].handle;
+			if (isValid(handle) )
+			{
+				const TextureGL& texture = s_renderGL->m_textures[handle.idx];
+				texture.resolve();
 			}
 		}
 	}
@@ -7686,6 +7695,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		perfStats.numDraw       = statsKeyType[0];
 		perfStats.numCompute    = statsKeyType[1];
 		perfStats.maxGpuLatency = maxGpuLatency;
+		bx::memCopy(perfStats.numPrims, statsNumPrimsRendered, sizeof(perfStats.numPrims) );
 		perfStats.gpuMemoryMax  = -INT64_MAX;
 		perfStats.gpuMemoryUsed = -INT64_MAX;
 
@@ -7753,7 +7763,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				for (uint32_t ii = 0; ii < BX_COUNTOF(s_primInfo); ++ii)
 				{
 					tvm.printf(10, pos++, 0x8b, "   %10s: %7d (#inst: %5d), submitted: %7d "
-						, s_primName[ii]
+						, getName(Topology::Enum(ii) )
 						, statsNumPrimsRendered[ii]
 						, statsNumInstances[ii]
 						, statsNumPrimsSubmitted[ii]

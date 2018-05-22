@@ -132,7 +132,7 @@ public:
             target = &inputList;
         else if (base->getQualifier().storage == EvqVaryingOut)
             target = &outputList;
-        else if (base->getQualifier().isUniformOrBuffer())
+        else if (base->getQualifier().isUniformOrBuffer() && !base->getQualifier().layoutPushConstant)
             target = &uniformList;
 
         if (target) {
@@ -478,7 +478,16 @@ struct TDefaultIoResolverBase : public glslang::TIoMapResolver
         // Placeholder. This does not do proper cross-stage lining up, nor
         // work with mixed location/no-location declarations.
         int location = nextLocation;
-        nextLocation += TIntermediate::computeTypeLocationSize(type, stage);
+        int typeLocationSize;
+        // Don’t take into account the outer-most array if the stage’s
+        // interface is automatically an array.
+        if (type.getQualifier().isArrayedIo(stage)) {
+                TType elementType(type, 0);
+                typeLocationSize = TIntermediate::computeTypeLocationSize(elementType, stage);
+        } else {
+                typeLocationSize = TIntermediate::computeTypeLocationSize(type, stage);
+        }
+        nextLocation += typeLocationSize;
 
         return location;
     }
