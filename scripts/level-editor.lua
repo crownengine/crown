@@ -57,6 +57,7 @@ project "level-editor"
 		"-Wno-unused-variable",
 		"-Wno-unused-parameter",
 		"-Wno-unused-but-set-variable",
+		"-Wno-cast-function-type",
 	}
 
 	buildoptions_vala {
