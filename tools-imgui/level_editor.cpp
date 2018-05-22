@@ -655,8 +655,8 @@ struct SpriteAnimator
 			const char* sprite = _entities[_cur_entity];
 			u32 sprite_len = strlen(sprite);
 			char entity[1024];
-			strncpy(entity, sprite, strlen(sprite));
-			entity[sprite_len-7] = '\0';	// remove ".sprite"
+			strncpy(entity, sprite, sizeof(entity)-1);
+			entity[sprite_len-7] = '\0'; // remove ".sprite"
 
 			ResourceManager* resman = device()->_resource_manager;
 			_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64(entity));
@@ -1036,6 +1036,8 @@ struct LevelEditor
 			_animator.draw();
 		}
 		ImGui::EndDock();
+
+		_sprite_importer.draw();
 
 		imgui_end_frame();
 	}

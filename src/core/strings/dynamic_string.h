@@ -73,7 +73,7 @@ inline DynamicString::DynamicString(Allocator& a)
 inline void DynamicString::set(const char* str, u32 len)
 {
 	array::resize(_data, len);
-	strncpy(array::begin(_data), str, len);
+	memcpy(array::begin(_data), str, len);
 }
 
 /// Appends the string @a b to @a a.
