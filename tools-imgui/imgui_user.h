@@ -45,5 +45,4 @@ namespace ImGui
 #include "widgets/color_picker.h"
 #include "widgets/color_wheel.h"
 #include "widgets/dock.h"
-#include "widgets/toolbar.h"
 #include "widgets/console.h"

@@ -820,9 +820,6 @@ struct LevelEditor
 	ImVec2 _main_menu_pos;
 	ImVec2 _main_menu_size;
 
-	ImVec2 _toolbar_pos;
-	ImVec2 _toolbar_size;
-
 	Console _console;
 	Inspector _inspector;
 	SceneView _scene_view;
@@ -845,8 +842,6 @@ struct LevelEditor
 		, _main_menu_pos(0, 0)
 		, _main_menu_size(0, 0)
 
-		, _toolbar_pos(0, 0)
-		, _toolbar_size(0, 0)
 		, _animator(source_dir)
 	{
 		ResourceManager* resman = device()->_resource_manager;
@@ -1037,7 +1032,7 @@ struct LevelEditor
 		}
 		ImGui::EndDock();
 
-		_sprite_importer.draw();
+		// _sprite_importer.draw();
 
 		imgui_end_frame();
 	}
@@ -1306,65 +1301,6 @@ struct LevelEditor
 			_main_menu_size = ImGui::GetWindowSize();
 
 			ImGui::EndMainMenuBar();
-		}
-	}
-
-	void toolbar()
-	{
-		if (ImGui::BeginToolbar("Toolbar", _toolbar_pos, _toolbar_size))
-		{
-			if (ImGui::ToolbarButton((void*)(uintptr_t)tool_place_texture->handle.idx, ImVec4(0, 0, 0, 0), "Place"))
-			{
-				_tool_type = tool::ToolType::PLACE;
-				tool_send_state();
-			}
-
-			if (ImGui::ToolbarButton((void*)(uintptr_t)tool_move_texture->handle.idx, ImVec4(0, 0, 0, 0), "Move"))
-			{
-				_tool_type = tool::ToolType::MOVE;
-				tool_send_state();
-			}
-
-			if (ImGui::ToolbarButton((void*)(uintptr_t)tool_rotate_texture->handle.idx, ImVec4(0, 0, 0, 0), "Rotate"))
-			{
-				_tool_type = tool::ToolType::ROTATE;
-				tool_send_state();
-			}
-
-			if (ImGui::ToolbarButton((void*)(uintptr_t)tool_scale_texture->handle.idx, ImVec4(0, 0, 0, 0), "Scale"))
-			{
-				_tool_type = tool::ToolType::SCALE;
-				tool_send_state();
-			}
-
-			if (ImGui::ToolbarButton((void*)(uintptr_t)axis_local_texture->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: Local"))
-			{
-				_reference_system = tool::ReferenceSystem::LOCAL;
-				tool_send_state();
-			}
-
-			if (ImGui::ToolbarButton((void*)(uintptr_t)axis_world_texture->handle.idx, ImVec4(0, 0, 0, 0), "Reference System: World"))
-			{
-				_reference_system = tool::ReferenceSystem::WORLD;
-				tool_send_state();
-			}
-
-			if (ImGui::ToolbarButton((void*)(uintptr_t)axis_local_texture->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Relative"))
-			{
-				_snap_mode = tool::SnapMode::RELATIVE;
-				tool_send_state();
-			}
-
-			if (ImGui::ToolbarButton((void*)(uintptr_t)reference_world_texture->handle.idx, ImVec4(0, 0, 0, 0), "Snap Mode: Absolute"))
-			{
-				_snap_mode = tool::SnapMode::ABSOLUTE;
-				tool_send_state();
-			}
-
-			_toolbar_pos = ImGui::GetWindowPos();
-			_toolbar_size = ImGui::GetWindowSize();
-
-			ImGui::EndToolbar();
 		}
 	}
 };
