@@ -144,7 +144,7 @@ struct BgfxAllocator : public bx::AllocatorI
 	virtual void* realloc(void* _ptr, size_t _size, size_t _align, const char* /*_file*/, u32 /*_line*/)
 	{
 		if (!_ptr)
-			return _allocator.allocate((u32)_size, (u32)_align == 0 ? 1 : (u32)_align);
+			return _allocator.allocate((u32)_size, (u32)_align == 0 ? 16 : (u32)_align);
 
 		if (_size == 0)
 		{
@@ -153,7 +153,7 @@ struct BgfxAllocator : public bx::AllocatorI
 		}
 
 		// Realloc
-		void* p = _allocator.allocate((u32)_size, (u32)_align == 0 ? 1 : (u32)_align);
+		void* p = _allocator.allocate((u32)_size, (u32)_align == 0 ? 16 : (u32)_align);
 		_allocator.deallocate(_ptr);
 		return p;
 	}
