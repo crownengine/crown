@@ -12,61 +12,39 @@ namespace crown
 {
 	struct ConsoleLog
 	{
-		LogSeverity::Enum _severity;
-		crown::DynamicString _message;
-
-		ConsoleLog(LogSeverity::Enum severity = LogSeverity::LOG_INFO, const char* message="")
-			: _severity(severity)
-			, _message(default_allocator())
-		{
-			_message = message;
-		}
+		LogSeverity::Enum severity;
+		char message[128];
 	};
 
-	//-----------------------------------------------------------------------------
 	struct Console
 	{
 		TCPSocket _client;
-		Vector<ConsoleLog> _console_items;
-		Vector<DynamicString> _console_history;
-		Vector<DynamicString> _console_commands;
+		ConsoleLog _items[1024];
+		u32 _num_items;
+		Vector<DynamicString> _history;
+		Vector<DynamicString> _commands;
 		bool _open;
 
 		bool _has_focus;
-		s32 _history_pos;	// -1: new line, 0 -> (history.size - 1): navigation
+		s32 _history_pos; // -1: new line, 0 -> (history.size - 1): navigation
 
-		Console()
-			: _console_items(default_allocator())
-			, _console_history(default_allocator())
-			, _console_commands(default_allocator())
-			, _open(true)
-			, _has_focus(false)
-			, _history_pos(-1)
-		{
-			_client.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_CONSOLE_PORT);
+		///
+		Console();
 
-			// FIXME: clear tmp commands
-			TempAllocator128 a;
-			DynamicString str(a);
-			str = "help - Show this";
-			vector::push_back(_console_commands, str);
-			str = "clear - Clear console";
-			vector::push_back(_console_commands, str);
-			str = "history - Show recent commands";
-			vector::push_back(_console_commands, str);
-		}
+		///
+		~Console();
 
-		~Console()
-		{
-			_client.close();
-		}
+		///
+		void add_log(LogSeverity::Enum severity, const char* message);
 	};
 
+	// Draws the console
 	void console_draw(Console& client);
 
 	// Helpers
-	void console_execute_command(Console& console, ConsoleLog& command_line);
+	void console_execute_command(Console& console, const char* command);
 
+	// Scroll the console to the latest log message
 	void console_scroll_to_bottom();
 
 } // namespace crown

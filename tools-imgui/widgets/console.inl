@@ -7,12 +7,48 @@ namespace crown
 static bool scroll_to_bottom = false;
 static char input_text_buffer[1024] = "";
 
+Console::Console()
+	: _num_items(0)
+	, _history(default_allocator())
+	, _commands(default_allocator())
+	, _open(true)
+	, _has_focus(false)
+	, _history_pos(-1)
+{
+	_client.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_CONSOLE_PORT);
+
+	for (u32 i = 0; i < countof(_items); ++i)
+		_items[i].severity = LogSeverity::COUNT;
+
+	// FIXME: clear tmp commands
+	TempAllocator128 a;
+	DynamicString str(a);
+	str = "help - Show this";
+	vector::push_back(_commands, str);
+	str = "clear - Clear console";
+	vector::push_back(_commands, str);
+	str = "history - Show recent commands";
+	vector::push_back(_commands, str);
+}
+
+Console::~Console()
+{
+	_client.close();
+}
+
+void Console::add_log(LogSeverity::Enum severity, const char* message)
+{
+	_items[_num_items].severity = severity;
+	strncpy(_items[_num_items].message, message, sizeof(_items[_num_items].message)-1);
+	_num_items = (_num_items + 1) % countof(_items);
+}
+
 int console_inputtext_callback(ImGuiTextEditCallbackData* data)
 {
 	if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
 	{
 		Console* console = (Console*) data->UserData;
-		const Vector<DynamicString>& history = console->_console_history;
+		const Vector<DynamicString>& history = console->_history;
 		s32& history_pos = console->_history_pos;
 		const s32 prev_history_pos = history_pos;
 
@@ -48,8 +84,6 @@ void console_draw(Console& console)
 	if (!console._open)
 		return;
 
-	Vector<ConsoleLog>& items = console._console_items;
-
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
 	static ImGuiTextFilter filter;
 	filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
@@ -64,15 +98,18 @@ void console_draw(Console& console)
 		);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
-	for (uint32_t i = 0; i < vector::size(items); i++)
+	for (u32 i = console._num_items, n = 0; n < countof(console._items); i = (i + 1) % countof(console._items), ++n)
 	{
-		ConsoleLog item = items[i];
-		if (!filter.PassFilter(item._message.c_str()))
+		ConsoleLog& item = console._items[i];
+		if (item.severity == LogSeverity::COUNT)
+			continue;
+
+		if (!filter.PassFilter(item.message))
 			continue;
 
 		ImVec4 col = ImVec4(1.0f,1.0f,1.0f,1.0f);
 
-		switch (item._severity)
+		switch (item.severity)
 		{
 			case LogSeverity::LOG_INFO: col = ImColor(0.7f, 0.7f, 0.7f, 1.0f); break;
 			case LogSeverity::LOG_WARN: col = ImColor(1.0f, 1.0f, 0.4f, 1.0f); break;
@@ -80,7 +117,7 @@ void console_draw(Console& console)
 			default: CE_FATAL("Unknown Severity"); break;
 		}
 		ImGui::PushStyleColor(ImGuiCol_Text, col);
-		ImGui::TextUnformatted(item._message.c_str());
+		ImGui::TextUnformatted(item.message);
 		ImGui::PopStyleColor();
 	}
 
@@ -111,8 +148,8 @@ void console_draw(Console& console)
 
 		if (input_text_buffer[0])
 		{
-			ConsoleLog log(LogSeverity::LOG_INFO, input_text_buffer);
-			console_execute_command(console, log);
+			console.add_log(LogSeverity::LOG_INFO, input_text_buffer);
+			console_execute_command(console, input_text_buffer);
 		}
 
 		strcpy(input_text_buffer, "");
@@ -124,44 +161,39 @@ void console_draw(Console& console)
 	ImGui::PopItemWidth();
 }
 
-void console_execute_command(Console& console, ConsoleLog& command_line)
+void console_execute_command(Console& console, const char* command)
 {
 	TCPSocket& client = console._client;
-	Vector<ConsoleLog>& items = console._console_items;
-	Vector<DynamicString>& history = console._console_history;
-	Vector<DynamicString>& commands = console._console_commands;
+	Vector<DynamicString>& history = console._history;
+	Vector<DynamicString>& commands = console._commands;
 
-	vector::push_back(items, command_line);
-	vector::push_back(history, command_line._message);
+	{
+		TempAllocator512 ta;
+		DynamicString str(ta);
+		str = command;
+		vector::push_back(history, str);
+	}
 
 	// Process command
-	if (strcmp(command_line._message.c_str(), "clear") == 0)
+	if (strcmp(command, "clear") == 0)
 	{
-		vector::clear(items);
+		console._num_items = 0;
 	}
-	else if (strcmp(command_line._message.c_str(), "history") == 0)
+	else if (strcmp(command, "history") == 0)
 	{
 		int first = vector::size(history)-10;
 		for (uint32_t i = first > 0 ? first : 0; i < vector::size(history); i++)
 		{
 			char buffer[1024] = "";
 			sprintf(buffer, "%3d: %s\n", i, history[i].c_str());
-			ConsoleLog log(LogSeverity::LOG_INFO, buffer);
-			vector::push_back(items, log);
+			console.add_log(LogSeverity::LOG_INFO, buffer);
 		}
 	}
-	else if (strcmp(command_line._message.c_str(), "help") == 0)
+	else if (strcmp(command, "help") == 0)
 	{
-		ConsoleLog log;
-		log._severity = LogSeverity::LOG_INFO;
-		log._message = "commands: ";
-		vector::push_back(items, log);
+		console.add_log(LogSeverity::LOG_INFO, "commands: ");
 		for (uint32_t i = 0; i < vector::size(commands); i++)
-		{
-			log._severity = LogSeverity::LOG_INFO;
-			log._message = commands[i].c_str();
-			vector::push_back(items, log);
-		}
+			console.add_log(LogSeverity::LOG_INFO, commands[i].c_str());
 	}
 	else
 	{
@@ -170,7 +202,7 @@ void console_execute_command(Console& console, ConsoleLog& command_line)
 		StringStream json(ta);
 
 		json << "{\"type\":\"script\",\"script\":\"";
-		const char* ch = command_line._message.c_str();
+		const char* ch = command;
 		for (; *ch; ch++)
 		{
 			if (*ch == '"' || *ch == '\\')

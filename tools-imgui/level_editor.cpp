@@ -925,13 +925,11 @@ struct LevelEditor
 						else
 							CE_FATAL("Unknown severity");
 
-						ConsoleLog log(ls, message.c_str());
-						vector::push_back(_console._console_items, log);
+						_console.add_log(ls, message.c_str());
 					}
 					else
 					{
-						ConsoleLog log(LogSeverity::LOG_ERROR, "Unknown message type");
-						vector::push_back(_console._console_items, log);
+						_console.add_log(LogSeverity::LOG_ERROR, "Unknown message type");
 					}
 
 					console_scroll_to_bottom();
