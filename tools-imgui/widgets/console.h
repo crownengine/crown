@@ -27,6 +27,8 @@ namespace crown
 
 		bool _has_focus;
 		s32 _history_pos; // -1: new line, 0 -> (history.size - 1): navigation
+		bool _scroll_to_bottom;
+		char _input_text[1024];
 
 		///
 		Console();
@@ -45,6 +47,6 @@ namespace crown
 	void console_execute_command(Console& console, const char* command);
 
 	// Scroll the console to the latest log message
-	void console_scroll_to_bottom();
+	void console_scroll_to_bottom(Console& console);
 
 } // namespace crown

@@ -932,7 +932,7 @@ struct LevelEditor
 						_console.add_log(LogSeverity::LOG_ERROR, "Unknown message type");
 					}
 
-					console_scroll_to_bottom();
+					console_scroll_to_bottom(_console);
 				}
 			}
 		}

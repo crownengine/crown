@@ -4,9 +4,6 @@
 namespace crown
 {
 
-static bool scroll_to_bottom = false;
-static char input_text_buffer[1024] = "";
-
 Console::Console()
 	: _num_items(0)
 	, _history(default_allocator())
@@ -14,6 +11,7 @@ Console::Console()
 	, _open(true)
 	, _has_focus(false)
 	, _history_pos(-1)
+	, _scroll_to_bottom(true)
 {
 	_client.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_CONSOLE_PORT);
 
@@ -40,6 +38,7 @@ void Console::add_log(LogSeverity::Enum severity, const char* message)
 {
 	_items[_num_items].severity = severity;
 	strncpy(_items[_num_items].message, message, sizeof(_items[_num_items].message)-1);
+	_items[_num_items].message[sizeof(_items[_num_items].message)-1] = '\0';
 	_num_items = (_num_items + 1) % countof(_items);
 }
 
@@ -121,42 +120,42 @@ void console_draw(Console& console)
 		ImGui::PopStyleColor();
 	}
 
-	if (scroll_to_bottom)
+	if (console._scroll_to_bottom)
 		ImGui::SetScrollHere();
 
-	scroll_to_bottom = false;
+	console._scroll_to_bottom = false;
 	ImGui::PopStyleVar();
 	ImGui::EndChild();
 	ImGui::Separator();
 
 	ImGui::PushItemWidth(-1);
 	if (ImGui::InputText("##label"
-		, input_text_buffer
-		, IM_ARRAYSIZE(input_text_buffer)
+		, console._input_text
+		, IM_ARRAYSIZE(console._input_text)
 		, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory
 		, console_inputtext_callback
 		, &console
 		))
 	{
-		char* input_end = input_text_buffer + strlen(input_text_buffer);
-		while (input_end > input_text_buffer && input_end[-1] == ' ')
+		char* input_end = console._input_text + strlen(console._input_text);
+		while (input_end > console._input_text && input_end[-1] == ' ')
 		{
 			input_end--;
 		}
 
 		*input_end = 0;
 
-		if (input_text_buffer[0])
+		if (console._input_text[0])
 		{
-			console.add_log(LogSeverity::LOG_INFO, input_text_buffer);
-			console_execute_command(console, input_text_buffer);
+			console.add_log(LogSeverity::LOG_INFO, console._input_text);
+			console_execute_command(console, console._input_text);
 		}
 
-		strcpy(input_text_buffer, "");
+		strcpy(console._input_text, "");
 		console._history_pos = -1;
 
 		ImGui::SetKeyboardFocusHere(-1);
-		scroll_to_bottom = true;
+		console._scroll_to_bottom = true;
 	}
 	ImGui::PopItemWidth();
 }
@@ -184,9 +183,9 @@ void console_execute_command(Console& console, const char* command)
 		int first = vector::size(history)-10;
 		for (uint32_t i = first > 0 ? first : 0; i < vector::size(history); i++)
 		{
-			char buffer[1024] = "";
-			sprintf(buffer, "%3d: %s\n", i, history[i].c_str());
-			console.add_log(LogSeverity::LOG_INFO, buffer);
+			char buf[64];
+			sprintf(buf, "%3d: %s\n", i, history[i].c_str());
+			console.add_log(LogSeverity::LOG_INFO, buf);
 		}
 	}
 	else if (strcmp(command, "help") == 0)
@@ -218,12 +217,12 @@ void console_execute_command(Console& console, const char* command)
 		client.write(cmd, size);
 	}
 
-	scroll_to_bottom = true;
+	console._scroll_to_bottom = true;
 }
 
-void console_scroll_to_bottom()
+void console_scroll_to_bottom(Console& console)
 {
-	scroll_to_bottom = true;
+	console._scroll_to_bottom = true;
 }
 
 } // namespace crown
