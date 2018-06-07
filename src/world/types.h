@@ -187,20 +187,6 @@ struct CollisionGroup
 	};
 };
 
-/// Enumerates raycast modes.
-///
-/// @ingroup World
-struct RaycastMode
-{
-	enum Enum
-	{
-		CLOSEST,
-		ALL,
-
-		COUNT
-	};
-};
-
 /// Enumerates world event types.
 ///
 /// @ingroup World
@@ -443,6 +429,7 @@ struct RaycastHit
 {
 	Vector3 position;    ///< In world-space.
 	Vector3 normal;      ///< In world-space.
+	f32 time;            ///< Time of impact in [0..1].
 	UnitId unit;         ///< The unit that was hit.
 	ActorInstance actor; ///< The actor that was hit.
 };

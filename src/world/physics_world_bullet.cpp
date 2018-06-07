@@ -794,66 +794,103 @@ struct PhysicsWorldImpl
 		CE_FATAL("Not implemented yet");
 	}
 
-	void raycast(const Vector3& from, const Vector3& dir, f32 len, RaycastMode::Enum mode, Array<RaycastHit>& hits)
+	bool cast_ray(RaycastHit& hit, const Vector3& from, const Vector3& dir, f32 len)
 	{
-		const btVector3 start = to_btVector3(from);
-		const btVector3 end = to_btVector3(from + dir*len);
+		const btVector3 aa = to_btVector3(from);
+		const btVector3 bb = to_btVector3(from + dir*len);
 
-		switch (mode)
+		btCollisionWorld::ClosestRayResultCallback cb(aa, bb);
+		// Collide with everything
+		cb.m_collisionFilterGroup = -1;
+		cb.m_collisionFilterMask = -1;
+
+		_dynamics_world->rayTest(aa, bb, cb);
+
+		if (cb.hasHit())
 		{
-		case RaycastMode::CLOSEST:
-			{
-				btCollisionWorld::ClosestRayResultCallback cb(start, end);
-				// Collide with everything
-				cb.m_collisionFilterGroup = -1;
-				cb.m_collisionFilterMask = -1;
+			const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
 
-				_dynamics_world->rayTest(start, end, cb);
-
-				if (cb.hasHit())
-				{
-					const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
-
-					array::resize(hits, 1);
-					hits[0].position = to_vector3(cb.m_hitPointWorld);
-					hits[0].normal   = to_vector3(cb.m_hitNormalWorld);
-					hits[0].unit     = _actor[actor].unit;
-					hits[0].actor.i  = actor;
-				}
-			}
-			break;
-
-		case RaycastMode::ALL:
-			{
-				btCollisionWorld::AllHitsRayResultCallback cb(start, end);
-				// Collide with everything
-				cb.m_collisionFilterGroup = -1;
-				cb.m_collisionFilterMask = -1;
-
-				_dynamics_world->rayTest(start, end, cb);
-
-				if (cb.hasHit())
-				{
-					const int num = cb.m_hitPointWorld.size();
-
-					array::resize(hits, num);
-					for (int i = 0; i < num; ++i)
-					{
-						const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
-
-						hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
-						hits[i].normal   = to_vector3(cb.m_hitNormalWorld[i]);
-						hits[i].unit     = _actor[actor].unit;
-						hits[i].actor.i  = actor;
-					}
-				}
-			}
-			break;
-
-		default:
-			CE_FATAL("Unknown raycast mode");
-			break;
+			hit.position = to_vector3(cb.m_hitPointWorld);
+			hit.normal   = to_vector3(cb.m_hitNormalWorld);
+			hit.time     = (f32)cb.m_closestHitFraction;
+			hit.unit     = _actor[actor].unit;
+			hit.actor.i  = actor;
+			return true;
 		}
+
+		return false;
+	}
+
+	bool cast_ray_all(Array<RaycastHit>& hits, const Vector3& from, const Vector3& dir, f32 len)
+	{
+		const btVector3 aa = to_btVector3(from);
+		const btVector3 bb = to_btVector3(from + dir*len);
+
+		btCollisionWorld::AllHitsRayResultCallback cb(aa, bb);
+		// Collide with everything
+		cb.m_collisionFilterGroup = -1;
+		cb.m_collisionFilterMask = -1;
+
+		_dynamics_world->rayTest(aa, bb, cb);
+
+		if (cb.hasHit())
+		{
+			const int num = cb.m_hitPointWorld.size();
+			array::resize(hits, num);
+
+			for (int i = 0; i < num; ++i)
+			{
+				const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
+
+				hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
+				hits[i].normal   = to_vector3(cb.m_hitNormalWorld[i]);
+				hits[i].time     = (f32)cb.m_closestHitFraction;
+				hits[i].unit     = _actor[actor].unit;
+				hits[i].actor.i  = actor;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool cast(RaycastHit& hit, const btConvexShape* shape, const Vector3& from, const Vector3& dir, f32 len)
+	{
+		const btTransform aa(btQuaternion::getIdentity(), to_btVector3(from));
+		const btTransform bb(btQuaternion::getIdentity(), to_btVector3(from + dir*len));
+
+		btCollisionWorld::ClosestConvexResultCallback cb(btVector3(0, 0, 0), btVector3(0, 0, 0));
+		// Collide with everything
+		cb.m_collisionFilterGroup = -1;
+		cb.m_collisionFilterMask = -1;
+		_dynamics_world->convexSweepTest(shape, aa, bb, cb);
+
+		if (cb.hasHit())
+		{
+			const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_hitCollisionObject)->getUserPointer();
+
+			hit.position = to_vector3(cb.m_hitPointWorld);
+			hit.normal   = to_vector3(cb.m_hitNormalWorld);
+			hit.time     = (f32)cb.m_closestHitFraction;
+			hit.unit     = _actor[actor].unit;
+			hit.actor.i  = actor;
+			return true;
+		}
+
+		return false;
+	}
+
+	bool cast_sphere(RaycastHit& hit, const Vector3& from, f32 radius, const Vector3& dir, f32 len)
+	{
+		btSphereShape shape(radius);
+		return cast(hit, &shape, from, dir, len);
+	}
+
+	bool cast_box(RaycastHit& hit, const Vector3& from, const Vector3& half_extents, const Vector3& dir, f32 len)
+	{
+		btBoxShape shape(to_btVector3(half_extents));
+		return cast(hit, &shape, from, dir, len);
 	}
 
 	Vector3 gravity() const
@@ -1243,9 +1280,24 @@ void PhysicsWorld::joint_destroy(JointInstance i)
 	_impl->joint_destroy(i);
 }
 
-void PhysicsWorld::raycast(const Vector3& from, const Vector3& dir, f32 len, RaycastMode::Enum mode, Array<RaycastHit>& hits)
+bool PhysicsWorld::cast_ray(RaycastHit& hit, const Vector3& from, const Vector3& dir, f32 len)
 {
-	_impl->raycast(from, dir, len, mode, hits);
+	return _impl->cast_ray(hit, from, dir, len);
+}
+
+bool PhysicsWorld::cast_ray_all(Array<RaycastHit>& hits, const Vector3& from, const Vector3& dir, f32 len)
+{
+	return _impl->cast_ray_all(hits, from, dir, len);
+}
+
+bool PhysicsWorld::cast_sphere(RaycastHit& hit, const Vector3& from, f32 radius, const Vector3& dir, f32 len)
+{
+	return _impl->cast_sphere(hit, from, radius, dir, len);
+}
+
+bool PhysicsWorld::cast_box(RaycastHit& hit, const Vector3& from, const Vector3& half_extents, const Vector3& dir, f32 len)
+{
+	return _impl->cast_box(hit, from, half_extents, dir, len);
 }
 
 Vector3 PhysicsWorld::gravity() const

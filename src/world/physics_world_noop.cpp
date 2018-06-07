@@ -219,8 +219,24 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	void raycast(const Vector3& /*from*/, const Vector3& /*dir*/, f32 /*len*/, RaycastMode::Enum /*mode*/, Array<RaycastHit>& /*hits*/)
+	bool cast_ray(RaycastHit& /*hit*/, const Vector3& /*from*/, const Vector3& /*dir*/, f32 /*len*/)
 	{
+		return false;
+	}
+
+	bool cast_ray_all(Array<RaycastHit>& /*hits*/, const Vector3& /*from*/, const Vector3& /*dir*/, f32 /*len*/)
+	{
+		return false;
+	}
+
+	bool cast_sphere(RaycastHit& /*hit*/, const Vector3& /*from*/, f32 /*radius*/, const Vector3& /*dir*/, f32 /*len*/)
+	{
+		return false;
+	}
+
+	bool cast_box(RaycastHit& /*hit*/, const Vector3& /*from*/, const Vector3& /*half_extents*/, const Vector3& /*dir*/, f32 /*len*/)
+	{
+		return false;
 	}
 
 	Vector3 gravity() const
@@ -477,9 +493,24 @@ void PhysicsWorld::joint_destroy(JointInstance i)
 	_impl->joint_destroy(i);
 }
 
-void PhysicsWorld::raycast(const Vector3& from, const Vector3& dir, f32 len, RaycastMode::Enum mode, Array<RaycastHit>& hits)
+bool PhysicsWorld::cast_ray(RaycastHit& hit, const Vector3& from, const Vector3& dir, f32 len)
 {
-	_impl->raycast(from, dir, len, mode, hits);
+	return _impl->cast_ray(hit, from, dir, len);
+}
+
+bool PhysicsWorld::cast_ray_all(Array<RaycastHit>& hits, const Vector3& from, const Vector3& dir, f32 len)
+{
+	return _impl->cast_ray_all(hits, from, dir, len);
+}
+
+bool PhysicsWorld::cast_sphere(RaycastHit& hit, const Vector3& from, f32 radius, const Vector3& dir, f32 len)
+{
+	return _impl->cast_sphere(hit, from, radius, dir, len);
+}
+
+bool PhysicsWorld::cast_box(RaycastHit& hit, const Vector3& from, const Vector3& half_extents, const Vector3& dir, f32 len)
+{
+	return _impl->cast_box(hit, from, half_extents, dir, len);
 }
 
 Vector3 PhysicsWorld::gravity() const
