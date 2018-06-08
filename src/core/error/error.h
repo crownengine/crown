@@ -28,7 +28,7 @@ namespace error
 	#define CE_ASSERT(condition, msg, ...)                   \
 		do                                                   \
 		{                                                    \
-			if (!(condition))                                \
+			if (CE_UNLIKELY(!(condition)))                   \
 			{                                                \
 				crown::error::abort("Assertion failed: %s\n" \
 					"    In: %s:%d\n"                        \

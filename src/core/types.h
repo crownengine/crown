@@ -58,6 +58,13 @@ typedef double   f64;
 #define CE_STATIC_ASSERT(condition, ...) static_assert(condition, "" # __VA_ARGS__)
 
 #if defined(__GNUC__)
+	#define CE_LIKELY(x) __builtin_expect((x), 1)
+	#define CE_UNLIKELY(x) __builtin_expect((x), 0)
+#else
+	#define CE_LIKELY(x) (x)
+	#define CE_UNLIKELY(x) (x)
+#endif
+#if defined(__GNUC__)
 	#define CE_THREAD __thread
 #elif defined(_MSC_VER)
 	#define CE_THREAD __declspec(thread)
