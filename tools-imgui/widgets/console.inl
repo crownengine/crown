@@ -27,6 +27,8 @@ Console::Console()
 	vector::push_back(_commands, str);
 	str = "history - Show recent commands";
 	vector::push_back(_commands, str);
+
+	memset(_input_text, 0, sizeof(_input_text));
 }
 
 Console::~Console()
