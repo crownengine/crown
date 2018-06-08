@@ -312,6 +312,7 @@ struct LinuxDevice
 	::Display* _x11_display;
 	Atom _wm_delete_message;
 	XRRScreenConfiguration* _screen_config;
+	Cursor _x11_hidden_cursor;
 	bool _x11_detectable_autorepeat;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
@@ -319,6 +320,7 @@ struct LinuxDevice
 	LinuxDevice()
 		: _x11_display(NULL)
 		, _screen_config(NULL)
+		, _x11_hidden_cursor(None)
 		, _x11_detectable_autorepeat(false)
 	{
 	}
@@ -362,6 +364,13 @@ struct LinuxDevice
 			, NULL
 			);
 		CE_ASSERT(ic != NULL, "XCreateIC: error");
+
+		// Build hidden cursor
+		Pixmap bitmap;
+		const char data[8] = { 0 };
+		XColor dummy;
+		bitmap = XCreateBitmapFromData(_x11_display, root_window, data, 8, 8);
+		_x11_hidden_cursor = XCreatePixmapCursor(_x11_display, bitmap, bitmap, &dummy, &dummy, 0, 0);
 
 		// Start main thread
 		MainThreadArgs mta;
@@ -503,6 +512,9 @@ struct LinuxDevice
 
 		main_thread.stop();
 
+		XFreeCursor(_x11_display, _x11_hidden_cursor);
+		XFreePixmap(_x11_display, bitmap);
+
 		XDestroyIC(ic);
 		XCloseIM(im);
 
@@ -532,12 +544,10 @@ static LinuxDevice s_ldvc;
 struct WindowX11 : public Window
 {
 	::Window _x11_window;
-	Cursor _x11_hidden_cursor;
 	Atom _wm_delete_message;
 
 	WindowX11()
 		: _x11_window(None)
-		, _x11_hidden_cursor(None)
 	{
 	}
 
@@ -590,17 +600,6 @@ struct WindowX11 : public Window
 			, &win_attribs
 			);
 		CE_ASSERT(_x11_window != None, "XCreateWindow: error");
-
-		// Build hidden cursor
-		Pixmap bm_no;
-		XColor black, dummy;
-		Colormap colormap;
-		static char no_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-		colormap = XDefaultColormap(s_ldvc._x11_display, screen);
-		XAllocNamedColor(s_ldvc._x11_display, colormap, "black", &black, &dummy);
-		bm_no = XCreateBitmapFromData(s_ldvc._x11_display, _x11_window, no_data, 8, 8);
-		_x11_hidden_cursor = XCreatePixmapCursor(s_ldvc._x11_display, bm_no, bm_no, &black, &black, 0, 0);
 
 		_wm_delete_message = XInternAtom(s_ldvc._x11_display, "WM_DELETE_WINDOW", False);
 		XSetWMProtocols(s_ldvc._x11_display, _x11_window, &_wm_delete_message, 1);
@@ -677,7 +676,7 @@ struct WindowX11 : public Window
 	{
 		XDefineCursor(s_ldvc._x11_display
 			, _x11_window
-			, show ? None : _x11_hidden_cursor
+			, show ? None : s_ldvc._x11_hidden_cursor
 			);
 	}
 
