@@ -35,7 +35,7 @@ namespace bimg
 	};
 	BX_STATIC_ASSERT(Quality::Count == BX_COUNTOF(s_squishQuality) );
 
-	void imageEncodeFromRgba8(void* _dst, const void* _src, uint32_t _width, uint32_t _height, uint32_t _depth, TextureFormat::Enum _format, Quality::Enum _quality, bx::Error* _err)
+	void imageEncodeFromRgba8(bx::AllocatorI* _allocator, void* _dst, const void* _src, uint32_t _width, uint32_t _height, uint32_t _depth, TextureFormat::Enum _format, Quality::Enum _quality, bx::Error* _err)
 	{
 		const uint8_t* src = (const uint8_t*)_src;
 		uint8_t* dst = (uint8_t*)_dst;
@@ -131,7 +131,7 @@ namespace bimg
 				break;
 
 			default:
-				if (!imageConvert(dst, _format, src, TextureFormat::RGBA8, _width, _height, 1) )
+				if (!imageConvert(_allocator, dst, _format, src, TextureFormat::RGBA8, _width, _height, 1) )
 				{
 					BX_ERROR_SET(_err, BIMG_ERROR, "Unable to convert between input/output formats!");
 				}
@@ -157,10 +157,10 @@ namespace bimg
 			break;
 
 		default:
-			if (!imageConvert(_dst, _dstFormat, _src, TextureFormat::RGBA32F, _width, _height, _depth) )
+			if (!imageConvert(_allocator, _dst, _dstFormat, _src, TextureFormat::RGBA32F, _width, _height, _depth) )
 			{
 				uint8_t* temp = (uint8_t*)BX_ALLOC(_allocator, _width*_height*_depth*4);
-				if (imageConvert(temp, TextureFormat::RGBA8, _src, TextureFormat::RGBA32F, _width, _height, _depth) )
+				if (imageConvert(_allocator, temp, TextureFormat::RGBA8, _src, TextureFormat::RGBA32F, _width, _height, _depth) )
 				{
 					for (uint32_t zz = 0; zz < _depth; ++zz)
 					{
@@ -183,7 +183,7 @@ namespace bimg
 						}
 					}
 
-					imageEncodeFromRgba8(_dst, temp, _width, _height, _depth, _dstFormat, _quality, _err);
+					imageEncodeFromRgba8(_allocator, _dst, temp, _width, _height, _depth, _dstFormat, _quality, _err);
 				}
 				else
 				{
@@ -211,8 +211,8 @@ namespace bimg
 			case bimg::TextureFormat::PTC14A:
 				{
 					uint8_t* temp = (uint8_t*)BX_ALLOC(_allocator, _width*_height*_depth*4);
-					imageDecodeToRgba8(temp, _src, _width, _height, _width*4, _srcFormat);
-					imageEncodeFromRgba8(_dst, temp, _width, _height, _depth, _dstFormat, _quality, _err);
+					imageDecodeToRgba8(_allocator, temp, _src, _width, _height, _width*4, _srcFormat);
+					imageEncodeFromRgba8(_allocator, _dst, temp, _width, _height, _depth, _dstFormat, _quality, _err);
 					BX_FREE(_allocator, temp);
 				}
 				break;
@@ -228,7 +228,10 @@ namespace bimg
 				break;
 
 			default:
-				BX_ERROR_SET(_err, BIMG_ERROR, "Unable to convert between input/output formats!");
+				if (!imageConvert(_allocator, _dst, _dstFormat, _src, _srcFormat, _width, _height, 1) )
+				{
+					BX_ERROR_SET(_err, BIMG_ERROR, "Unable to convert between input/output formats!");
+				}
 				break;
 		}
 	}
@@ -260,17 +263,18 @@ namespace bimg
 					imageGetRawData(*output, side, lod, output->m_data, output->m_size, dstMip);
 					uint8_t* dstData = const_cast<uint8_t*>(dstMip.m_data);
 
-					imageEncode(_allocator
-							, dstData
-							, mip.m_data
-							, mip.m_format
-							, mip.m_width
-							, mip.m_height
-							, mip.m_depth
-							, _dstFormat
-							, _quality
-							, &err
-							);
+					imageEncode(
+						  _allocator
+						, dstData
+						, mip.m_data
+						, mip.m_format
+						, mip.m_width
+						, mip.m_height
+						, mip.m_depth
+						, _dstFormat
+						, _quality
+						, &err
+						);
 				}
 			}
 		}

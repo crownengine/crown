@@ -69,3 +69,17 @@ TEST_CASE("halfTo/FromFloat", "")
 		REQUIRE(orig == hff);
 	}
 }
+
+TEST_CASE("uint32_testpow2", "")
+{
+	uint32_t shift = 0;
+
+	for (uint32_t ii = 0; ii < UINT32_MAX; ++ii)
+	{
+		if (bx::uint32_testpow2(ii) )
+		{
+			REQUIRE(ii == 1 << shift);
+			++shift;
+		}
+	}
+}

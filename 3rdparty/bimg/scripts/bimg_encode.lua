@@ -17,6 +17,7 @@ project "bimg_encode"
 	files {
 		path.join(BIMG_DIR, "include/**"),
 		path.join(BIMG_DIR, "src/image_encode.*"),
+		path.join(BIMG_DIR, "src/image_cubemap_filter.*"),
 		path.join(BIMG_DIR, "3rdparty/libsquish/**.cpp"),
 		path.join(BIMG_DIR, "3rdparty/libsquish/**.h"),
 		path.join(BIMG_DIR, "3rdparty/edtaa3/**.cpp"),

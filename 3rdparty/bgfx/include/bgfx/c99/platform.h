@@ -73,6 +73,8 @@ typedef struct bgfx_interface_vtbl
     uintptr_t (*override_internal_texture)(bgfx_texture_handle_t _handle, uint16_t _width, uint16_t _height, uint8_t _numMips, bgfx_texture_format_t _format, uint32_t _flags);
     void (*vertex_decl_begin)(bgfx_vertex_decl_t* _decl, bgfx_renderer_type_t _renderer);
     void (*vertex_decl_add)(bgfx_vertex_decl_t* _decl, bgfx_attrib_t _attrib, uint8_t _num, bgfx_attrib_type_t _type, bool _normalized, bool _asInt);
+    void (*vertex_decl_decode)(const bgfx_vertex_decl_t* _decl, bgfx_attrib_t _attrib, uint8_t* _num, bgfx_attrib_type_t* _type, bool* _normalized, bool* _asInt);
+    bool (*vertex_decl_has)(const bgfx_vertex_decl_t* _decl, bgfx_attrib_t _attrib);
     void (*vertex_decl_skip)(bgfx_vertex_decl_t* _decl, uint8_t _num);
     void (*vertex_decl_end)(bgfx_vertex_decl_t* _decl);
     void (*vertex_pack)(const float _input[4], bool _inputNormalized, bgfx_attrib_t _attr, const bgfx_vertex_decl_t* _decl, void* _data, uint32_t _index);
@@ -124,7 +126,7 @@ typedef struct bgfx_interface_vtbl
     void (*destroy_indirect_buffer)(bgfx_indirect_buffer_handle_t _handle);
     bgfx_shader_handle_t (*create_shader)(const bgfx_memory_t* _mem);
     uint16_t (*get_shader_uniforms)(bgfx_shader_handle_t _handle, bgfx_uniform_handle_t* _uniforms, uint16_t _max);
-    void (*set_shader_name)(bgfx_shader_handle_t _handle, const char* _name);
+    void (*set_shader_name)(bgfx_shader_handle_t _handle, const char* _name, int32_t _len);
     void (*destroy_shader)(bgfx_shader_handle_t _handle);
     bgfx_program_handle_t (*create_program)(bgfx_shader_handle_t _vsh, bgfx_shader_handle_t _fsh, bool _destroyShaders);
     bgfx_program_handle_t (*create_compute_program)(bgfx_shader_handle_t _csh, bool _destroyShaders);
@@ -140,7 +142,7 @@ typedef struct bgfx_interface_vtbl
     void (*update_texture_3d)(bgfx_texture_handle_t _handle, uint8_t _mip, uint16_t _x, uint16_t _y, uint16_t _z, uint16_t _width, uint16_t _height, uint16_t _depth, const bgfx_memory_t* _mem);
     void (*update_texture_cube)(bgfx_texture_handle_t _handle, uint16_t _layer, uint8_t _side, uint8_t _mip, uint16_t _x, uint16_t _y, uint16_t _width, uint16_t _height, const bgfx_memory_t* _mem, uint16_t _pitch);
     uint32_t (*read_texture)(bgfx_texture_handle_t _handle, void* _data, uint8_t _mip);
-    void (*set_texture_name)(bgfx_texture_handle_t _handle, const char* _name);
+    void (*set_texture_name)(bgfx_texture_handle_t _handle, const char* _name, int32_t _len);
     void* (*get_direct_access_ptr)(bgfx_texture_handle_t _handle);
     void (*destroy_texture)(bgfx_texture_handle_t _handle);
     bgfx_frame_buffer_handle_t (*create_frame_buffer)(uint16_t _width, uint16_t _height, bgfx_texture_format_t _format, uint32_t _textureFlags);
@@ -182,6 +184,7 @@ typedef struct bgfx_interface_vtbl
     void (*encoder_set_vertex_buffer)(struct bgfx_encoder_s* _encoder, uint8_t _stream, bgfx_vertex_buffer_handle_t _handle, uint32_t _startVertex, uint32_t _numVertices);
     void (*encoder_set_dynamic_vertex_buffer)(struct bgfx_encoder_s* _encoder, uint8_t _stream, bgfx_dynamic_vertex_buffer_handle_t _handle, uint32_t _startVertex, uint32_t _numVertices);
     void (*encoder_set_transient_vertex_buffer)(struct bgfx_encoder_s* _encoder, uint8_t _stream, const bgfx_transient_vertex_buffer_t* _tvb, uint32_t _startVertex, uint32_t _numVertices);
+    void (*encoder_set_vertex_count)(struct bgfx_encoder_s* _encoder, uint32_t _numVertices);
     void (*encoder_set_instance_data_buffer)(struct bgfx_encoder_s* _encoder, const bgfx_instance_data_buffer_t* _idb, uint32_t _start, uint32_t _num);
     void (*encoder_set_instance_data_from_vertex_buffer)(struct bgfx_encoder_s* _encoder, bgfx_vertex_buffer_handle_t _handle, uint32_t _startVertex, uint32_t _num);
     void (*encoder_set_instance_data_from_dynamic_vertex_buffer)(struct bgfx_encoder_s* _encoder, bgfx_dynamic_vertex_buffer_handle_t _handle, uint32_t _startVertex, uint32_t _num);

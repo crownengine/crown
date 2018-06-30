@@ -188,7 +188,7 @@ namespace bx
 	template<typename HashT, typename Ty>
 	inline uint32_t hash(const Ty& _data)
 	{
-		BX_STATIC_ASSERT(BX_TYPE_IS_POD(Ty) );
+		BX_STATIC_ASSERT(isTriviallyCopyable<Ty>() );
 		return hash<HashT>(&_data, sizeof(Ty) );
 	}
 

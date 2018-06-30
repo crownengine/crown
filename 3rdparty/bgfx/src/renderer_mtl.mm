@@ -262,6 +262,24 @@ namespace bgfx { namespace mtl
 		{ MTLPixelFormat(166/*PVRTC_RGBA_4BPP*/),       MTLPixelFormat(167/*PVRTC_RGBA_4BPP_sRGB*/) }, // PTC14A
 		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // PTC22
 		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // PTC24
+		{ MTLPixelFormatInvalid,						MTLPixelFormatInvalid                       }, // ATC
+		{ MTLPixelFormatInvalid,						MTLPixelFormatInvalid                       }, // ATCE
+		{ MTLPixelFormatInvalid,						MTLPixelFormatInvalid                       }, // ATCI
+#if BX_PLATFORM_IOS
+		{ MTLPixelFormatASTC_4x4_LDR,					MTLPixelFormatASTC_4x4_sRGB                 }, // ASTC4x4
+		{ MTLPixelFormatASTC_5x5_LDR,					MTLPixelFormatASTC_5x5_sRGB                 }, // ASTC5x5
+		{ MTLPixelFormatASTC_6x6_LDR,					MTLPixelFormatASTC_6x6_sRGB                 }, // ASTC6x6
+		{ MTLPixelFormatASTC_8x5_LDR,					MTLPixelFormatASTC_8x5_sRGB                 }, // ASTC8x5
+		{ MTLPixelFormatASTC_8x6_LDR,					MTLPixelFormatASTC_8x6_sRGB                 }, // ASTC8x6
+		{ MTLPixelFormatASTC_10x5_LDR,					MTLPixelFormatASTC_10x5_sRGB                }, // ASTC10x5
+#else
+		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // ASTC4x4
+		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // ASTC5x5
+		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // ASTC6x6
+		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // ASTC8x5
+		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // ASTC8x6
+		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // ASTC10x5
+#endif
 		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // Unknown
 		{ MTLPixelFormatInvalid,                        MTLPixelFormatInvalid                       }, // R1
 		{ MTLPixelFormatA8Unorm,                        MTLPixelFormatInvalid                       }, // A8
@@ -2707,7 +2725,9 @@ namespace bgfx { namespace mtl
 
 						if (convert)
 						{
-							bimg::imageDecodeToBgra8(temp
+							bimg::imageDecodeToBgra8(
+								  g_allocator
+								, temp
 								, mip.m_data
 								, mip.m_width
 								, mip.m_height
@@ -2780,7 +2800,9 @@ namespace bgfx { namespace mtl
 		if (convert)
 		{
 			temp = (uint8_t*)BX_ALLOC(g_allocator, rectpitch*_rect.m_height);
-			bimg::imageDecodeToBgra8(temp
+			bimg::imageDecodeToBgra8(
+				  g_allocator
+				, temp
 				, data
 				, _rect.m_width
 				, _rect.m_height
@@ -4037,8 +4059,8 @@ namespace bgfx { namespace mtl
 
 		static int64_t min = frameTime;
 		static int64_t max = frameTime;
-		min = bx::int64_min(min, frameTime);
-		max = bx::int64_max(max, frameTime);
+		min = bx::min<int64_t>(min, frameTime);
+		max = bx::max<int64_t>(max, frameTime);
 
 		static uint32_t maxGpuLatency = 0;
 		static double   maxGpuElapsed = 0.0f;

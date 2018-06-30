@@ -201,6 +201,15 @@ namespace bgfx { namespace gl
 		{ GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG,         GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV1_EXT,     GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG,         GL_ZERO,                         false }, // PTC14A
 		{ GL_COMPRESSED_RGBA_PVRTC_2BPPV2_IMG,         GL_ZERO,                                       GL_COMPRESSED_RGBA_PVRTC_2BPPV2_IMG,         GL_ZERO,                         false }, // PTC22
 		{ GL_COMPRESSED_RGBA_PVRTC_4BPPV2_IMG,         GL_ZERO,                                       GL_COMPRESSED_RGBA_PVRTC_4BPPV2_IMG,         GL_ZERO,                         false }, // PTC24
+		{ GL_ATC_RGB_AMD,                              GL_ZERO,                                       GL_ATC_RGB_AMD,                              GL_ZERO,                         false }, // ATC
+		{ GL_ATC_RGBA_EXPLICIT_ALPHA_AMD,              GL_ZERO,                                       GL_ATC_RGBA_EXPLICIT_ALPHA_AMD,              GL_ZERO,                         false }, // ATCE
+		{ GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD,          GL_ZERO,                                       GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD,          GL_ZERO,                         false }, // ATCI
+		{ GL_COMPRESSED_RGBA_ASTC_4x4_KHR,             GL_COMPRESSED_SRGB8_ASTC_4x4_KHR,              GL_COMPRESSED_RGBA_ASTC_4x4_KHR,             GL_ZERO,                         false }, // ASTC4x4
+		{ GL_COMPRESSED_RGBA_ASTC_5x5_KHR,             GL_COMPRESSED_SRGB8_ASTC_5x5_KHR,              GL_COMPRESSED_RGBA_ASTC_5x5_KHR,             GL_ZERO,                         false }, // ASTC5x5
+		{ GL_COMPRESSED_RGBA_ASTC_6x6_KHR,             GL_COMPRESSED_SRGB8_ASTC_6x6_KHR,              GL_COMPRESSED_RGBA_ASTC_6x6_KHR,             GL_ZERO,                         false }, // ASTC6x6
+		{ GL_COMPRESSED_RGBA_ASTC_8x5_KHR,             GL_COMPRESSED_SRGB8_ASTC_8x5_KHR,              GL_COMPRESSED_RGBA_ASTC_8x5_KHR,             GL_ZERO,                         false }, // ASTC8x5
+		{ GL_COMPRESSED_RGBA_ASTC_8x6_KHR,             GL_COMPRESSED_SRGB8_ASTC_8x6_KHR,              GL_COMPRESSED_RGBA_ASTC_8x6_KHR,             GL_ZERO,                         false }, // ASTC8x6
+		{ GL_COMPRESSED_RGBA_ASTC_10x5_KHR,            GL_COMPRESSED_SRGB8_ASTC_10x5_KHR,             GL_COMPRESSED_RGBA_ASTC_10x5_KHR,            GL_ZERO,                         false }, // ASTC10x5
 		{ GL_ZERO,                                     GL_ZERO,                                       GL_ZERO,                                     GL_ZERO,                         false }, // Unknown
 		{ GL_ZERO,                                     GL_ZERO,                                       GL_ZERO,                                     GL_ZERO,                         false }, // R1
 		{ GL_ALPHA,                                    GL_ZERO,                                       GL_ALPHA,                                    GL_UNSIGNED_BYTE,                false }, // A8
@@ -284,6 +293,15 @@ namespace bgfx { namespace gl
 		GL_ZERO,               // PTC14A
 		GL_ZERO,               // PTC22
 		GL_ZERO,               // PTC24
+		GL_ZERO,               // ATC
+		GL_ZERO,               // ATCE
+		GL_ZERO,               // ATCI
+		GL_ZERO,               // ASTC4x4
+		GL_ZERO,               // ASTC5x5
+		GL_ZERO,               // ASTC6x6
+		GL_ZERO,               // ASTC8x5
+		GL_ZERO,               // ASTC8x6
+		GL_ZERO,               // ASTC10x5
 		GL_ZERO,               // Unknown
 		GL_ZERO,               // R1
 		GL_ALPHA,              // A8
@@ -365,6 +383,15 @@ namespace bgfx { namespace gl
 		GL_ZERO,           // PTC14A
 		GL_ZERO,           // PTC22
 		GL_ZERO,           // PTC24
+		GL_ZERO,           // ATC
+		GL_ZERO,           // ATCE
+		GL_ZERO,           // ATCI
+		GL_ZERO,           // ASTC4x4
+		GL_ZERO,           // ASTC5x5
+		GL_ZERO,           // ASTC6x6
+		GL_ZERO,           // ASTC8x5
+		GL_ZERO,           // ASTC8x6
+		GL_ZERO,           // ASTC10x5
 		GL_ZERO,           // Unknown
 		GL_ZERO,           // R1
 		GL_ALPHA,          // A8
@@ -1696,6 +1723,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		{ "NVIDIA Corporation",           BGFX_PCI_ID_NVIDIA },
 		{ "Advanced Micro Devices, Inc.", BGFX_PCI_ID_AMD    },
 		{ "Intel",                        BGFX_PCI_ID_INTEL  },
+		{ "ATI Technologies Inc.",        BGFX_PCI_ID_AMD    },
 	};
 
 	struct Workaround
@@ -1758,7 +1786,11 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 			ErrorState::Enum errorState = ErrorState::Default;
 
-			m_renderdocdll = loadRenderDoc();
+			if (_init.debug
+			||  _init.profile)
+			{
+				m_renderdocdll = loadRenderDoc();
+			}
 
 			m_fbh.idx = kInvalidHandle;
 			bx::memSet(m_uniforms, 0, sizeof(m_uniforms) );
@@ -2306,6 +2338,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					|| s_extension[Extension::EXT_gpu_shader4].m_supported
 					|| (!!(BGFX_CONFIG_RENDERER_OPENGLES >= 30) && !BX_ENABLED(BX_PLATFORM_EMSCRIPTEN) )
 					? BGFX_CAPS_TEXTURE_2D_ARRAY
+					: 0
+					;
+
+				g_caps.supported |= false
+					|| s_extension[Extension::EXT_gpu_shader4].m_supported
+					|| (!!(BGFX_CONFIG_RENDERER_OPENGLES >= 30) && !BX_ENABLED(BX_PLATFORM_EMSCRIPTEN) )
+					? BGFX_CAPS_VERTEX_ID
 					: 0
 					;
 
@@ -4795,7 +4834,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					GL_CHECK(glVertexAttribDivisor(loc, 0) );
 
 					uint32_t baseVertex = _baseVertex*_vertexDecl.m_stride + _vertexDecl.m_offset[attr];
-					if (NULL != glVertexAttribIPointer
+					if ( (BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGL >= 30) ||  BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGLES >= 31) )
 					&& (AttribType::Uint8 == type || AttribType::Int16 == type)
 					&&  !normalized)
 					{
@@ -5151,7 +5190,9 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 							if (convert)
 							{
-								imageDecodeToRgba8(temp
+								imageDecodeToRgba8(
+									  g_allocator
+									, temp
 									, mip.m_data
 									, mip.m_width
 									, mip.m_height
@@ -5320,7 +5361,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 			if (convert)
 			{
-				bimg::imageDecodeToRgba8(temp, data, width, height, srcpitch, bimg::TextureFormat::Enum(m_requestedFormat) );
+				bimg::imageDecodeToRgba8(g_allocator, temp, data, width, height, srcpitch, bimg::TextureFormat::Enum(m_requestedFormat) );
 				data = temp;
 				srcpitch = rectpitch;
 			}
@@ -6565,6 +6606,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		}
 
 		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_backBufferFbo) );
+		GL_CHECK(glFrontFace(GL_CW) );
 
 		updateResolution(_render->m_resolution);
 
@@ -7084,12 +7126,12 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				{
 					if (BGFX_STATE_CULL_MASK & changedFlags)
 					{
-						if (BGFX_STATE_CULL_CW & newFlags)
+						if (BGFX_STATE_CULL_CCW & newFlags)
 						{
 							GL_CHECK(glEnable(GL_CULL_FACE) );
 							GL_CHECK(glCullFace(GL_BACK) );
 						}
-						else if (BGFX_STATE_CULL_CCW & newFlags)
+						else if (BGFX_STATE_CULL_CW & newFlags)
 						{
 							GL_CHECK(glEnable(GL_CULL_FACE) );
 							GL_CHECK(glCullFace(GL_FRONT) );
@@ -7456,21 +7498,26 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 							if (bindAttribs || diffStartVertex)
 							{
 								program.bindAttributesBegin();
-								for (uint32_t idx = 0, streamMask = draw.m_streamMask, ntz = bx::uint32_cnttz(streamMask)
-									; 0 != streamMask
-									; streamMask >>= 1, idx += 1, ntz = bx::uint32_cnttz(streamMask)
-									)
+
+								if (UINT8_MAX != draw.m_streamMask)
 								{
-									streamMask >>= ntz;
-									idx         += ntz;
+									for (uint32_t idx = 0, streamMask = draw.m_streamMask, ntz = bx::uint32_cnttz(streamMask)
+										; 0 != streamMask
+										; streamMask >>= 1, idx += 1, ntz = bx::uint32_cnttz(streamMask)
+										)
+									{
+										streamMask >>= ntz;
+										idx         += ntz;
 
-									currentState.m_stream[idx].m_startVertex = draw.m_stream[idx].m_startVertex;
+										currentState.m_stream[idx].m_startVertex = draw.m_stream[idx].m_startVertex;
 
-									const VertexBufferGL& vb = m_vertexBuffers[draw.m_stream[idx].m_handle.idx];
-									uint16_t decl = !isValid(vb.m_decl) ? draw.m_stream[idx].m_decl.idx : vb.m_decl.idx;
-									GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vb.m_id) );
-									program.bindAttributes(m_vertexDecls[decl], draw.m_stream[idx].m_startVertex);
+										const VertexBufferGL& vb = m_vertexBuffers[draw.m_stream[idx].m_handle.idx];
+										uint16_t decl = !isValid(vb.m_decl) ? draw.m_stream[idx].m_decl.idx : vb.m_decl.idx;
+										GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vb.m_id) );
+										program.bindAttributes(m_vertexDecls[decl], draw.m_stream[idx].m_startVertex);
+									}
 								}
+
 								program.bindAttributesEnd();
 
 								if (isValid(draw.m_instanceDataBuffer) )

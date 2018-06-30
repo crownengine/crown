@@ -9,7 +9,7 @@
 
 namespace bx
 {
-	BX_CONST_FUNC float sqrt(float);
+	BX_CONST_FUNC float sqrtRef(float);
 
 #define ELEMx 0
 #define ELEMy 1
@@ -320,10 +320,10 @@ BX_SIMD128_IMPLEMENT_TEST(xyzw , 0xf);
 	BX_SIMD_FORCE_INLINE simd128_langext_t simd_sqrt(simd128_langext_t _a)
 	{
 		simd128_langext_t result;
-		result.vf[0] = sqrt(_a.vf[0]);
-		result.vf[1] = sqrt(_a.vf[1]);
-		result.vf[2] = sqrt(_a.vf[2]);
-		result.vf[3] = sqrt(_a.vf[3]);
+		result.vf[0] = sqrtRef(_a.vf[0]);
+		result.vf[1] = sqrtRef(_a.vf[1]);
+		result.vf[2] = sqrtRef(_a.vf[2]);
+		result.vf[3] = sqrtRef(_a.vf[3]);
 		return result;
 	}
 
@@ -331,10 +331,10 @@ BX_SIMD128_IMPLEMENT_TEST(xyzw , 0xf);
 	BX_SIMD_FORCE_INLINE simd128_langext_t simd_rsqrt_est(simd128_langext_t _a)
 	{
 		simd128_langext_t result;
-		result.vf[0] = 1.0f / sqrt(_a.vf[0]);
-		result.vf[1] = 1.0f / sqrt(_a.vf[1]);
-		result.vf[2] = 1.0f / sqrt(_a.vf[2]);
-		result.vf[3] = 1.0f / sqrt(_a.vf[3]);
+		result.vf[0] = 1.0f / sqrtRef(_a.vf[0]);
+		result.vf[1] = 1.0f / sqrtRef(_a.vf[1]);
+		result.vf[2] = 1.0f / sqrtRef(_a.vf[2]);
+		result.vf[3] = 1.0f / sqrtRef(_a.vf[3]);
 		return result;
 	}
 

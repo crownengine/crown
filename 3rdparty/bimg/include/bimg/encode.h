@@ -24,7 +24,8 @@ namespace bimg
 
 	///
 	void imageEncodeFromRgba8(
-		  void* _dst
+		  bx::AllocatorI* _allocator
+		, void* _dst
 		, const void* _src
 		, uint32_t _width
 		, uint32_t _height
@@ -124,6 +125,41 @@ namespace bimg
 		, void* _src
 		, float _coverage
 		, float _alphaRef
+		);
+
+	///
+	ImageContainer* imageCubemapFromLatLongRgba32F(
+		  bx::AllocatorI* _allocator
+		, const ImageContainer& _input
+		, bool _useBilinearInterpolation
+		, bx::Error* _err
+		);
+
+	///
+	ImageContainer* imageGenerateMips(
+		  bx::AllocatorI* _allocator
+		, const ImageContainer& _image
+		);
+
+	struct LightingModel
+	{
+		enum Enum
+		{
+			Phong,
+			PhongBrdf,
+			Blinn,
+			BlinnBrdf,
+			Ggx,
+
+			Count
+		};
+	};
+
+	///
+	ImageContainer* imageCubemapRadianceFilter(
+		  bx::AllocatorI* _allocator
+		, const ImageContainer& _image
+		, LightingModel::Enum _lightingModel
 		);
 
 } // namespace bimg

@@ -3,12 +3,33 @@
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
-#include <string>
-#include <vector>
-
+#include <bx/allocator.h>
 #include <bx/commandline.h>
 #include <bx/file.h>
 #include <bx/string.h>
+
+bx::DefaultAllocator g_allocator;
+
+struct TinyStlAllocator
+{
+	static void* static_allocate(size_t _bytes)
+	{
+		return BX_ALLOC(&g_allocator, _bytes);
+	}
+
+	static void static_deallocate(void* _ptr, size_t /*_bytes*/)
+	{
+		if (NULL != _ptr)
+		{
+			BX_FREE(&g_allocator, _ptr);
+		}
+	}
+};
+
+#define TINYSTL_ALLOCATOR TinyStlAllocator
+#include <tinystl/string.h>
+#include <tinystl/vector.h>
+namespace stl = tinystl;
 
 class Bin2cWriter : public bx::WriterI
 {
@@ -35,7 +56,7 @@ public:
 #define HEX_DUMP_WIDTH 16
 #define HEX_DUMP_SPACE_WIDTH 96
 #define HEX_DUMP_FORMAT "%-" BX_STRINGIZE(HEX_DUMP_SPACE_WIDTH) "." BX_STRINGIZE(HEX_DUMP_SPACE_WIDTH) "s"
-		const uint8_t* data = &m_buffer[0];
+		const char* data = &m_buffer[0];
 		uint32_t size = (uint32_t)m_buffer.size();
 
 		bx::writePrintf(m_writer, "static const uint8_t %s[%d] =\n{\n", m_name.c_str(), size);
@@ -51,7 +72,7 @@ public:
 				bx::snprintf(&hex[hexPos], sizeof(hex)-hexPos, "0x%02x, ", data[asciiPos]);
 				hexPos += 6;
 
-				ascii[asciiPos] = isprint(data[asciiPos]) && data[asciiPos] != '\\' ? data[asciiPos] : '.';
+				ascii[asciiPos] = bx::isPrint(data[asciiPos]) && data[asciiPos] != '\\' ? data[asciiPos] : '.';
 				asciiPos++;
 
 				if (HEX_DUMP_WIDTH == asciiPos)
@@ -80,8 +101,8 @@ public:
 	}
 
 	bx::WriterI* m_writer;
-	std::string m_name;
-	typedef std::vector<uint8_t> Buffer;
+	stl::string m_name;
+	typedef stl::vector<char> Buffer;
 	Buffer m_buffer;
 };
 

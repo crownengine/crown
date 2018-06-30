@@ -7,7 +7,6 @@
 #define BX_MACROS_H_HEADER_GUARD
 
 #include "bx.h"
-#include <type_traits>
 
 ///
 #if BX_COMPILER_MSVC
@@ -198,12 +197,6 @@
 #	define BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG_GCC(_x)
 #endif // BX_COMPILER_
 
-///
-#if BX_COMPILER_MSVC
-#	define BX_TYPE_IS_POD(t) (!__is_class(t) || __is_pod(t))
-#else
-#	define BX_TYPE_IS_POD(t) std::is_pod<t>::value
-#endif
 ///
 #define BX_CLASS_NO_DEFAULT_CTOR(_class) \
 			private: _class()

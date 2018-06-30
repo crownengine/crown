@@ -28,8 +28,6 @@ namespace bx
 	|| BX_PLATFORM_XBOXONE \
 	|| BX_PLATFORM_WINRT
 		LARGE_INTEGER li;
-		// Performance counter value may unexpectedly leap forward
-		// http://support.microsoft.com/kb/274323
 		QueryPerformanceCounter(&li);
 		int64_t i64 = li.QuadPart;
 #elif BX_PLATFORM_ANDROID

@@ -34,6 +34,10 @@ namespace bx
 	template<bool>
 	constexpr bool isEnabled();
 
+	///
+	template<class Ty>
+	constexpr bool isTriviallyCopyable();
+
 	/// Exchange two values.
 	template<typename Ty>
 	void xchg(Ty& _a, Ty& _b);

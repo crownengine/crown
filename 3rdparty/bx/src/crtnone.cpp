@@ -430,12 +430,51 @@ extern "C" int execvp(const char* _file, char* const _argv[])
 	return -1;
 }
 
+typedef int32_t clockid_t;
+
+inline void toTimespecNs(timespec& _ts, int64_t _nsecs)
+{
+	_ts.tv_sec  = _nsecs/INT64_C(1000000000);
+	_ts.tv_nsec = _nsecs%INT64_C(1000000000);
+}
+
+extern "C" int clock_gettime(clockid_t _clock, struct timespec* _ts)
+{
+	BX_UNUSED(_clock);
+	int64_t now = crt0::getHPCounter();
+	toTimespecNs(*_ts, now);
+	return 0;
+}
+
 extern "C" long syscall(long _num, ...)
 {
-	BX_UNUSED(_num);
-	bx::debugPrintf("syscall %d\n", _num);
-//	NOT_IMPLEMENTED();
-	return -1;
+	va_list argList;
+	va_start(argList, _num);
+
+	long result = -1;
+
+	switch (_num)
+	{
+	case 39:
+		result = crt0::processGetId();
+		break;
+
+	case 228:
+		{
+			clockid_t arg0 = va_arg(argList, clockid_t);
+			timespec* arg1 = va_arg(argList, timespec*);
+			result = clock_gettime(arg0, arg1);
+		}
+		break;
+
+	default:
+		bx::debugPrintf("? syscall %d\n", _num);
+		break;
+	}
+
+	va_end(argList);
+
+	return result;
 }
 
 extern "C" long sysconf(int name)
@@ -512,22 +551,6 @@ struct timespec
 	long tv_nsec;
 };
 #endif //
-
-typedef int32_t clockid_t;
-
-inline void toTimespecNs(timespec& _ts, int64_t _nsecs)
-{
-	_ts.tv_sec  = _nsecs/INT64_C(1000000000);
-	_ts.tv_nsec = _nsecs%INT64_C(1000000000);
-}
-
-extern "C" int clock_gettime(clockid_t _clock, struct timespec* _ts)
-{
-	BX_UNUSED(_clock);
-	int64_t now = crt0::getHPCounter();
-	toTimespecNs(*_ts, now);
-	return 0;
-}
 
 extern "C" int gettimeofday(struct timeval* _tv, struct timezone* _tz)
 {

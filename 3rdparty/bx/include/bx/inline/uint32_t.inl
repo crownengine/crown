@@ -453,12 +453,10 @@ namespace bx
 
 	inline uint32_t uint32_testpow2(uint32_t _a)
 	{
-		const uint32_t tmp0   = uint32_not(_a);
-		const uint32_t tmp1   = uint32_inc(tmp0);
-		const uint32_t tmp2   = uint32_and(_a, tmp1);
-		const uint32_t tmp3   = uint32_cmpeq(tmp2, _a);
-		const uint32_t tmp4   = uint32_cmpneq(_a, 0);
-		const uint32_t result = uint32_and(tmp3, tmp4);
+		const uint32_t tmp0   = uint32_dec(_a);
+		const uint32_t tmp1   = uint32_xor(_a, tmp0);
+		const uint32_t tmp2   = uint32_srl(tmp1, 1);
+		const uint32_t result = uint32_cmpeq(tmp2, tmp0);
 
 		return result;
 	}
@@ -595,34 +593,6 @@ namespace bx
 		union { uint32_t ui; float flt;	} utof;
 		utof.ui = f_result;
 		return utof.flt;
-	}
-
-	inline uint16_t uint16_min(uint16_t _a, uint16_t _b)
-	{
-		return _a > _b ? _b : _a;
-	}
-
-	inline uint16_t uint16_max(uint16_t _a, uint16_t _b)
-	{
-		return _a < _b ? _b : _a;
-	}
-
-	inline int64_t int64_min(int64_t _a, int64_t _b)
-	{
-		return _a < _b ? _a : _b;
-	}
-
-	inline int64_t int64_max(int64_t _a, int64_t _b)
-	{
-		return _a > _b ? _a : _b;
-	}
-
-	inline int64_t int64_clamp(int64_t _a, int64_t _min, int64_t _max)
-	{
-		const int64_t min    = int64_min(_a, _max);
-		const int64_t result = int64_max(_min, min);
-
-		return result;
 	}
 
 	inline uint32_t uint64_cntbits_ref(uint64_t _val)

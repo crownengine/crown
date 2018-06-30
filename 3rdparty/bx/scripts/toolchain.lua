@@ -464,7 +464,9 @@ function toolchain(_buildDir, _libDir)
 
 		end
 
-	elseif _ACTION == "xcode4" then
+	elseif _ACTION == "xcode4"
+		or _ACTION == "xcode8"
+		or _ACTION == "xcode9" then
 		local action = premake.action.current()
 		local str_or = function(str, def)
 			return #str > 0 and str or def
@@ -1072,7 +1074,7 @@ function toolchain(_buildDir, _libDir)
 		}
 		includedirs { path.join(bxDir, "include/compat/ios") }
 
-	configuration { "xcode4", "ios*" }
+	configuration { "xcode*", "ios*" }
 		targetdir (path.join(_buildDir, "ios-arm/bin"))
 		objdir (path.join(_buildDir, "ios-arm/obj"))
 
@@ -1158,7 +1160,7 @@ function toolchain(_buildDir, _libDir)
 		}
 		includedirs { path.join(bxDir, "include/compat/ios") }
 
-	configuration { "xcode4", "tvos*" }
+	configuration { "xcode*", "tvos*" }
 		targetdir (path.join(_buildDir, "tvos-arm64/bin"))
 		objdir (path.join(_buildDir, "tvos-arm64/obj"))
 

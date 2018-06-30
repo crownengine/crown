@@ -10,7 +10,8 @@
 namespace bx
 {
 	// Reference:
-	// http://msdn.microsoft.com/en-us/library/a1y7w461.aspx
+	// - https://web.archive.org/web/20180629044234/https://msdn.microsoft.com/en-us/library/a1y7w461.aspx
+	//
 	const char* tokenizeCommandLine(const char* _commandLine, char* _buffer, uint32_t& _bufferSize, int32_t& _argc, char* _argv[], int32_t _maxArgvs, char _term)
 	{
 		int32_t argc = 0;

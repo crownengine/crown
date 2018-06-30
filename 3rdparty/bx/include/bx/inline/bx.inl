@@ -15,6 +15,12 @@ namespace bx
 		return true;
 	}
 
+	template<class Ty>
+	inline constexpr bool isTriviallyCopyable()
+	{
+		return __is_trivially_copyable(Ty);
+	}
+
 	template<>
 	inline constexpr bool isEnabled<false>()
 	{

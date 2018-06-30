@@ -37,7 +37,7 @@ namespace bx
 	static int32_t normalizeFilePath(char* _dst, int32_t _dstSize, const char* _src, int32_t _num)
 	{
 		// Reference: Lexical File Names in Plan 9 or Getting Dot-Dot Right
-		// https://9p.io/sys/doc/lexnames.html
+		// - https://web.archive.org/web/20180629044444/https://9p.io/sys/doc/lexnames.html
 
 		const int32_t num = strLen(_src, _num);
 
