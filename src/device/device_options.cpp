@@ -81,7 +81,7 @@ int DeviceOptions::parse()
 
 	if (cl.has_option("version", 'v'))
 	{
-		printf(CROWN_VERSION);
+		printf("Crown " CROWN_VERSION "\n");
 		return EXIT_FAILURE;
 	}
 
