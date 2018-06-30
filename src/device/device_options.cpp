@@ -69,20 +69,22 @@ DeviceOptions::DeviceOptions(Allocator& a, int argc, const char** argv)
 {
 }
 
-int DeviceOptions::parse()
+int DeviceOptions::parse(bool* quit)
 {
 	CommandLine cl(_argc, _argv);
 
 	if (cl.has_option("help", 'h'))
 	{
 		help();
-		return EXIT_FAILURE;
+		*quit = true;
+		return EXIT_SUCCESS;
 	}
 
 	if (cl.has_option("version", 'v'))
 	{
 		printf("Crown " CROWN_VERSION "\n");
-		return EXIT_FAILURE;
+		*quit = true;
+		return EXIT_SUCCESS;
 	}
 
 	path::reduce(_source_dir, cl.get_parameter(0, "source-dir"));

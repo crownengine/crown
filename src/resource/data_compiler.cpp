@@ -537,7 +537,10 @@ int main_data_compiler(int argc, char** argv)
 	CE_UNUSED(m);
 
 	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
-	if (opts.parse() == EXIT_FAILURE)
+	bool quit = false;
+	CE_UNUSED(quit);
+	int ec = opts.parse(&quit);
+	if (ec == EXIT_FAILURE)
 		return EXIT_FAILURE;
 
 	console_server_globals::init();

@@ -799,9 +799,10 @@ int main(int argc, char** argv)
 	CE_UNUSED(m);
 
 	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
-	int ec = opts.parse();
+	bool quit = false;
+	int ec = opts.parse(&quit);
 
-	if (ec == EXIT_SUCCESS)
+	if (ec == EXIT_SUCCESS && !quit)
 		ec = s_ldvc.run(&opts);
 
 	return ec;

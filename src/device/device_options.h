@@ -44,7 +44,7 @@ struct DeviceOptions
 
 	/// Parses the command line and returns
 	/// EXIT_SUCCESS if no error is found.
-	int parse();
+	int parse(bool* quit);
 };
 
 } // namespace crown
