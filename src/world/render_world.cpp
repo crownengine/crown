@@ -757,7 +757,6 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 		+ num*sizeof(bool) + alignof(bool)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
-		+ num*sizeof(SpriteInstance) + alignof(SpriteInstance)
 		;
 
 	SpriteInstanceData new_data;
@@ -766,17 +765,16 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.buffer = _allocator->allocate(bytes);
 	new_data.first_hidden = _data.first_hidden;
 
-	new_data.unit          = (UnitId*               )new_data.buffer;
-	new_data.resource      = (const SpriteResource**)memory::align_top(new_data.unit + num,     alignof(const SpriteResource*));
-	new_data.material      = (StringId64*           )memory::align_top(new_data.resource + num, alignof(StringId64           ));
-	new_data.frame         = (u32*                  )memory::align_top(new_data.material + num, alignof(u32                  ));
-	new_data.world         = (Matrix4x4*            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4            ));
-	new_data.aabb          = (AABB*                 )memory::align_top(new_data.world + num,    alignof(AABB                 ));
-	new_data.flip_x        = (bool*                 )memory::align_top(new_data.aabb + num,     alignof(bool                 ));
-	new_data.flip_y        = (bool*                 )memory::align_top(new_data.flip_x + num,   alignof(bool                 ));
-	new_data.layer         = (u32*                  )memory::align_top(new_data.flip_y + num,   alignof(u32                  ));
-	new_data.depth         = (u32*                  )memory::align_top(new_data.layer + num,    alignof(u32                  ));
-	new_data.next_instance = (SpriteInstance*       )memory::align_top(new_data.depth + num,    alignof(SpriteInstance       ));
+	new_data.unit     = (UnitId*               )new_data.buffer;
+	new_data.resource = (const SpriteResource**)memory::align_top(new_data.unit + num,     alignof(const SpriteResource*));
+	new_data.material = (StringId64*           )memory::align_top(new_data.resource + num, alignof(StringId64           ));
+	new_data.frame    = (u32*                  )memory::align_top(new_data.material + num, alignof(u32                  ));
+	new_data.world    = (Matrix4x4*            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4            ));
+	new_data.aabb     = (AABB*                 )memory::align_top(new_data.world + num,    alignof(AABB                 ));
+	new_data.flip_x   = (bool*                 )memory::align_top(new_data.aabb + num,     alignof(bool                 ));
+	new_data.flip_y   = (bool*                 )memory::align_top(new_data.flip_x + num,   alignof(bool                 ));
+	new_data.layer    = (u32*                  )memory::align_top(new_data.flip_y + num,   alignof(u32                  ));
+	new_data.depth    = (u32*                  )memory::align_top(new_data.layer + num,    alignof(u32                  ));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(SpriteResource**));
@@ -788,7 +786,6 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	memcpy(new_data.flip_y, _data.flip_y, _data.size * sizeof(bool));
 	memcpy(new_data.layer, _data.layer, _data.size * sizeof(u32));
 	memcpy(new_data.depth, _data.depth, _data.size * sizeof(u32));
-	memcpy(new_data.next_instance, _data.next_instance, _data.size * sizeof(SpriteInstance));
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -806,17 +803,16 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResourc
 
 	const u32 last = _data.size;
 
-	_data.unit[last]          = id;
-	_data.resource[last]      = sr;
-	_data.material[last]      = mat;
-	_data.frame[last]         = 0;
-	_data.world[last]         = tr;
-	_data.aabb[last]          = AABB();
-	_data.flip_x[last]        = false;
-	_data.flip_y[last]        = false;
-	_data.layer[last]         = layer;
-	_data.depth[last]         = depth;
-	_data.next_instance[last] = make_instance(UINT32_MAX);
+	_data.unit[last]     = id;
+	_data.resource[last] = sr;
+	_data.material[last] = mat;
+	_data.frame[last]    = 0;
+	_data.world[last]    = tr;
+	_data.aabb[last]     = AABB();
+	_data.flip_x[last]   = false;
+	_data.flip_y[last]   = false;
+	_data.layer[last]    = layer;
+	_data.depth[last]    = depth;
 
 	++_data.size;
 	++_data.first_hidden;
@@ -833,17 +829,16 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance i)
 	const UnitId u      = _data.unit[i.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[i.i]          = _data.unit[last];
-	_data.resource[i.i]      = _data.resource[last];
-	_data.material[i.i]      = _data.material[last];
-	_data.frame[i.i]         = _data.frame[last];
-	_data.world[i.i]         = _data.world[last];
-	_data.aabb[i.i]          = _data.aabb[last];
-	_data.flip_x[i.i]        = _data.flip_x[last];
-	_data.flip_y[i.i]        = _data.flip_y[last];
-	_data.layer[i.i]         = _data.layer[last];
-	_data.depth[i.i]         = _data.depth[last];
-	_data.next_instance[i.i] = _data.next_instance[last];
+	_data.unit[i.i]     = _data.unit[last];
+	_data.resource[i.i] = _data.resource[last];
+	_data.material[i.i] = _data.material[last];
+	_data.frame[i.i]    = _data.frame[last];
+	_data.world[i.i]    = _data.world[last];
+	_data.aabb[i.i]     = _data.aabb[last];
+	_data.flip_x[i.i]   = _data.flip_x[last];
+	_data.flip_y[i.i]   = _data.flip_y[last];
+	_data.layer[i.i]    = _data.layer[last];
+	_data.depth[i.i]    = _data.depth[last];
 
 	--_data.size;
 	--_data.first_hidden;

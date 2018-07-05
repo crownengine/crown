@@ -212,7 +212,6 @@ struct RenderWorld
 			bool* flip_y;
 			u32* layer;
 			u32* depth;
-			SpriteInstance* next_instance;
 		};
 
 		Allocator* _allocator;
