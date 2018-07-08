@@ -228,6 +228,7 @@ struct RenderWorld
 		SpriteInstance create(UnitId id, const SpriteResource* sr, StringId64 material, u32 layer, u32 depth, const Matrix4x4& tr);
 		void destroy(SpriteInstance i);
 		bool has(UnitId id);
+		void set_visible(SpriteInstance i, bool visible);
 		SpriteInstance sprite(UnitId id);
 		void allocate(u32 num);
 		void grow();

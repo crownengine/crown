@@ -172,6 +172,7 @@ void RenderWorld::sprite_set_visible(UnitId unit, bool visible)
 {
 	SpriteInstance i = _sprite_manager.sprite(unit);
 	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	_sprite_manager.set_visible(i, visible);
 }
 
 void RenderWorld::sprite_flip_x(UnitId unit, bool flip)
@@ -850,6 +851,45 @@ void RenderWorld::SpriteManager::destroy(SpriteInstance i)
 bool RenderWorld::SpriteManager::has(UnitId id)
 {
 	return is_valid(sprite(id));
+}
+
+void RenderWorld::SpriteManager::set_visible(SpriteInstance i, bool visible)
+{
+	u32 swap_index = UINT32_MAX;
+	const UnitId unit = _data.unit[i.i];
+
+	if (visible && i.i >= _data.first_hidden)
+	{
+		const u32 first_hidden = _data.first_hidden;
+		const UnitId first_hidden_unit = _data.unit[first_hidden];
+		hash_map::set(_map, unit, first_hidden);
+		hash_map::set(_map, first_hidden_unit, i.i);
+		swap_index = first_hidden;
+		++_data.first_hidden;
+	}
+	else if (!visible && i.i < _data.first_hidden)
+	{
+		const u32 last_visible = _data.first_hidden - 1;
+		const UnitId last_visible_unit = _data.unit[last_visible];
+		hash_map::set(_map, unit, last_visible);
+		hash_map::set(_map, last_visible_unit, i.i);
+		swap_index = last_visible;
+		--_data.first_hidden;
+	}
+
+	if (swap_index != UINT32_MAX)
+	{
+		std::swap(_data.unit[i.i], _data.unit[swap_index]);
+		std::swap(_data.resource[i.i], _data.resource[swap_index]);
+		std::swap(_data.material[i.i], _data.material[swap_index]);
+		std::swap(_data.frame[i.i], _data.frame[swap_index]);
+		std::swap(_data.world[i.i], _data.world[swap_index]);
+		std::swap(_data.aabb[i.i], _data.aabb[swap_index]);
+		std::swap(_data.flip_x[i.i], _data.flip_x[swap_index]);
+		std::swap(_data.flip_y[i.i], _data.flip_y[swap_index]);
+		std::swap(_data.layer[i.i], _data.layer[swap_index]);
+		std::swap(_data.depth[i.i], _data.depth[swap_index]);
+	}
 }
 
 SpriteInstance RenderWorld::SpriteManager::sprite(UnitId id)
