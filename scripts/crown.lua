@@ -13,6 +13,8 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "3rdparty/bgfx/include",
 			CROWN_DIR .. "3rdparty/bx/include",
 			CROWN_DIR .. "3rdparty/stb",
+			CROWN_DIR .. "3rdparty/bullet3/src",
+			CROWN_DIR .. "3rdparty/openal/include",
 		}
 
 		defines {
@@ -23,6 +25,8 @@ function crown_project(_name, _kind, _defines)
 			"bgfx",
 			"bimg",
 			"bx",
+			"bullet",
+			"openal",
 		}
 
 		if _OPTIONS["with-luajit"] then
@@ -47,29 +51,6 @@ function crown_project(_name, _kind, _defines)
 				libdirs {
 					CROWN_DIR .. "3rdparty/luajit/pre/win_x64"
 				}
-
-			configuration {}
-		end
-
-		if _OPTIONS["with-openal"] then
-			includedirs {
-				CROWN_DIR .. "3rdparty/openal/include"
-			}
-
-			configuration {}
-				links { "openal", }
-
-			configuration {}
-		end
-
-		if _OPTIONS["with-bullet"] then
-			includedirs {
-				CROWN_DIR .. "3rdparty/bullet3/src",
-			}
-
-			links {
-				"bullet",
-			}
 
 			configuration {}
 		end

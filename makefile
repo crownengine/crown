@@ -54,7 +54,7 @@ build/win64/bin/luajit.exe:
 	cp -r 3rdparty\luajit\src\jit 3rdparty\luajit\pre\win_x64\luajit.exe 3rdparty\luajit\pre\win_x64\lua51.dll build/win64/bin
 
 build/projects/android:
-	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --compiler=android-arm gmake
+	$(GENIE) --file=scripts/genie.lua --with-luajit --compiler=android-arm gmake
 android-arm-debug: build/projects/android build/android-arm/bin/libluajit.a
 	make -j$(MAKE_JOBS) -R -C build/projects/android config=debug
 android-arm-development: build/projects/android build/android-arm/bin/libluajit.a
@@ -64,7 +64,7 @@ android-arm-release: build/projects/android build/android-arm/bin/libluajit.a
 android-arm: android-arm-debug android-arm-development android-arm-release
 
 build/projects/linux:
-	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --with-tools --compiler=linux-gcc gmake
+	$(GENIE) --file=scripts/genie.lua --with-luajit --with-tools --compiler=linux-gcc gmake
 linux-debug32: build/projects/linux build/linux32/bin/luajit
 	make -j$(MAKE_JOBS) -R -C build/projects/linux config=debug32
 linux-development32: build/projects/linux build/linux32/bin/luajit
@@ -80,7 +80,7 @@ linux-release64: build/projects/linux build/linux64/bin/luajit
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
 build/projects/mingw:
-	$(GENIE) --file=scripts/genie.lua --with-luajit --with-openal --with-bullet --with-tools --compiler=mingw-gcc gmake
+	$(GENIE) --file=scripts/genie.lua --with-luajit --with-tools --compiler=mingw-gcc gmake
 mingw-debug32: build/projects/mingw build/mingw32/bin/luajit.exe
 	make -j$(MAKE_JOBS) -R -C build/projects/mingw config=debug32
 mingw-development32: build/projects/mingw build/mingw32/bin/luajit.exe
@@ -96,7 +96,7 @@ mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
 
 build/projects/vs2017:
-	$(GENIE) --file=scripts\genie.lua --with-luajit --with-openal --with-bullet --with-tools --no-level-editor vs2017
+	$(GENIE) --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
 windows-debug32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|Win32"
 windows-development32: build/projects/vs2017 build/win32/bin/luajit.exe
