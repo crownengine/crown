@@ -425,28 +425,28 @@ void RenderWorld::render(const Matrix4x4& view)
 		{
 			const f32* frame = sprite_resource::frame_data(sid.resource[i], sid.frame[i]);
 
-			float u0 = frame[ 2]; // u
-			float v0 = frame[ 3]; // v
+			f32 u0 = frame[ 2]; // u
+			f32 v0 = frame[ 3]; // v
 
-			float u1 = frame[ 6]; // u
-			float v1 = frame[ 7]; // v
+			f32 u1 = frame[ 6]; // u
+			f32 v1 = frame[ 7]; // v
 
-			float u2 = frame[10]; // u
-			float v2 = frame[11]; // v
+			f32 u2 = frame[10]; // u
+			f32 v2 = frame[11]; // v
 
-			float u3 = frame[14]; // u
-			float v3 = frame[15]; // v
+			f32 u3 = frame[14]; // u
+			f32 v3 = frame[15]; // v
 
 			if (sid.flip_x[i])
 			{
-				float u;
+				f32 u;
 				u = u0; u0 = u1; u1 = u;
 				u = u2; u2 = u3; u3 = u;
 			}
 
 			if (sid.flip_y[i])
 			{
-				float v;
+				f32 v;
 				v = v0; v0 = v2; v2 = v;
 				v = v1; v1 = v3; v3 = v;
 			}
