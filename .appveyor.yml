@@ -2,7 +2,7 @@ os:
   - Visual Studio 2017
 
 install:
-  - 3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-openal --with-bullet --with-tools --no-level-editor vs2017
+  - 3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
 
 platform:
   - Win32
