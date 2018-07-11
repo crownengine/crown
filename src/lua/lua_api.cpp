@@ -3247,6 +3247,12 @@ static int window_minimize(lua_State* /*L*/)
 	return 0;
 }
 
+static int window_maximize(lua_State* /*L*/)
+{
+	device()->_window->maximize();
+	return 0;
+}
+
 static int window_restore(lua_State* /*L*/)
 {
 	device()->_window->restore();
@@ -3722,6 +3728,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Window", "resize",      window_resize);
 	env.add_module_function("Window", "move",        window_move);
 	env.add_module_function("Window", "minimize",    window_minimize);
+	env.add_module_function("Window", "maximize",    window_maximize);
 	env.add_module_function("Window", "restore",     window_restore);
 	env.add_module_function("Window", "title",       window_title);
 	env.add_module_function("Window", "set_title",   window_set_title);

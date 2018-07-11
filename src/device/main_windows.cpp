@@ -590,6 +590,11 @@ struct WindowWin : public Window
 		ShowWindow(_hwnd, SW_MINIMIZE);
 	}
 
+	void maximize()
+	{
+		ShowWindow(_hwnd, SW_MAXIMIZE);
+	}
+
 	void restore()
 	{
 		ShowWindow(_hwnd, SW_RESTORE);

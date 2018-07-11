@@ -1312,6 +1312,9 @@ Window
 **minimize** ()
 	Minimizes the window.
 
+**maximize** ()
+	Maximizes the window.
+
 **restore** ()
 	Restores the window.
 

@@ -250,6 +250,10 @@ struct WindowAndroid : public Window
 	{
 	}
 
+	void maximize()
+	{
+	}
+
 	void restore()
 	{
 	}

@@ -36,6 +36,9 @@ struct Window
 	/// Minimizes the window.
 	virtual void minimize() = 0;
 
+	/// Maximizes the window.
+	virtual void maximize() = 0;
+
 	/// Restores the window.
 	virtual void restore() = 0;
 

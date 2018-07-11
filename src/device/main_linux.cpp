@@ -643,12 +643,32 @@ struct WindowX11 : public Window
 		XMoveWindow(s_ldvc._x11_display, _x11_window, x, y);
 	}
 
+	void maximize_or_restore(bool maximize)
+	{
+		XEvent xev;
+		xev.type = ClientMessage;
+		xev.xclient.window = _x11_window;
+		xev.xclient.message_type = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE", False);
+		xev.xclient.format = 32;
+		xev.xclient.data.l[0] = maximize ? 1 : 0; // 0 = remove property, 1 = set property
+		xev.xclient.data.l[1] = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+		xev.xclient.data.l[2] = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask, &xev);
+	}
+
 	void minimize()
 	{
+		XIconifyWindow(s_ldvc._x11_display, _x11_window, DefaultScreen(s_ldvc._x11_display));
+	}
+
+	void maximize()
+	{
+		maximize_or_restore(true);
 	}
 
 	void restore()
 	{
+		maximize_or_restore(false);
 	}
 
 	const char* title()
@@ -682,14 +702,14 @@ struct WindowX11 : public Window
 
 	void set_fullscreen(bool full)
 	{
-		XEvent e;
-		e.xclient.type = ClientMessage;
-		e.xclient.window = _x11_window;
-		e.xclient.message_type = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE", False);
-		e.xclient.format = 32;
-		e.xclient.data.l[0] = full ? 1 : 0;
-		e.xclient.data.l[1] = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE_FULLSCREEN", False);
-		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask, &e);
+		XEvent xev;
+		xev.xclient.type = ClientMessage;
+		xev.xclient.window = _x11_window;
+		xev.xclient.message_type = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE", False);
+		xev.xclient.format = 32;
+		xev.xclient.data.l[0] = full ? 1 : 0;
+		xev.xclient.data.l[1] = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask, &xev);
 	}
 };
 
