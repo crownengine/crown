@@ -310,18 +310,27 @@ s32 func(void* data)
 struct LinuxDevice
 {
 	::Display* _x11_display;
-	Atom _wm_delete_message;
-	XRRScreenConfiguration* _screen_config;
+	Atom _wm_delete_window;
+	Atom _net_wm_state;
+	Atom _net_wm_state_maximized_horz;
+	Atom _net_wm_state_maximized_vert;
+	Atom _net_wm_state_fullscreen;
 	Cursor _x11_hidden_cursor;
 	bool _x11_detectable_autorepeat;
+	XRRScreenConfiguration* _screen_config;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 
 	LinuxDevice()
 		: _x11_display(NULL)
-		, _screen_config(NULL)
+		, _wm_delete_window(None)
+		, _net_wm_state(None)
+		, _net_wm_state_maximized_horz(None)
+		, _net_wm_state_maximized_vert(None)
+		, _net_wm_state_fullscreen(None)
 		, _x11_hidden_cursor(None)
 		, _x11_detectable_autorepeat(false)
+		, _screen_config(NULL)
 	{
 	}
 
@@ -341,7 +350,11 @@ struct LinuxDevice
 		Bool detectable;
 		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
 
-		_wm_delete_message = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
+		_wm_delete_window = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
+		_net_wm_state = XInternAtom(_x11_display, "_NET_WM_STATE", False);
+		_net_wm_state_maximized_horz = XInternAtom(_x11_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+		_net_wm_state_maximized_vert = XInternAtom(_x11_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+		_net_wm_state_fullscreen = XInternAtom(_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
 
 		// Save screen configuration
 		_screen_config = XRRGetScreenInfo(_x11_display, root_window);
@@ -408,7 +421,7 @@ struct LinuxDevice
 					break;
 
 				case ClientMessage:
-					if ((Atom)event.xclient.data.l[0] == _wm_delete_message)
+					if ((Atom)event.xclient.data.l[0] == _wm_delete_window)
 						_queue.push_exit_event();
 					break;
 
@@ -544,7 +557,6 @@ static LinuxDevice s_ldvc;
 struct WindowX11 : public Window
 {
 	::Window _x11_window;
-	Atom _wm_delete_message;
 
 	WindowX11()
 		: _x11_window(None)
@@ -601,8 +613,7 @@ struct WindowX11 : public Window
 			);
 		CE_ASSERT(_x11_window != None, "XCreateWindow: error");
 
-		_wm_delete_message = XInternAtom(s_ldvc._x11_display, "WM_DELETE_WINDOW", False);
-		XSetWMProtocols(s_ldvc._x11_display, _x11_window, &_wm_delete_message, 1);
+		XSetWMProtocols(s_ldvc._x11_display, _x11_window, &s_ldvc._wm_delete_window, 1);
 
 		XMapRaised(s_ldvc._x11_display, _x11_window);
 	}
@@ -648,12 +659,12 @@ struct WindowX11 : public Window
 		XEvent xev;
 		xev.type = ClientMessage;
 		xev.xclient.window = _x11_window;
-		xev.xclient.message_type = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE", False);
+		xev.xclient.message_type = s_ldvc._net_wm_state;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = maximize ? 1 : 0; // 0 = remove property, 1 = set property
-		xev.xclient.data.l[1] = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-		xev.xclient.data.l[2] = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask, &xev);
+		xev.xclient.data.l[1] = s_ldvc._net_wm_state_maximized_horz;
+		xev.xclient.data.l[2] = s_ldvc._net_wm_state_maximized_vert;
+		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	}
 
 	void minimize()
@@ -705,11 +716,11 @@ struct WindowX11 : public Window
 		XEvent xev;
 		xev.xclient.type = ClientMessage;
 		xev.xclient.window = _x11_window;
-		xev.xclient.message_type = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE", False);
+		xev.xclient.message_type = s_ldvc._net_wm_state;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = full ? 1 : 0;
-		xev.xclient.data.l[1] = XInternAtom(s_ldvc._x11_display, "_NET_WM_STATE_FULLSCREEN", False);
-		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask, &xev);
+		xev.xclient.data.l[1] = s_ldvc._net_wm_state_fullscreen;
+		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	}
 };
 
