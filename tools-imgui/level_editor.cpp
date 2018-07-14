@@ -975,6 +975,8 @@ struct LevelEditor
 				tool_send_state();
 			}
 
+			ImGui::Separator();
+
 			if (ImGui::ImageButton((void*)(uintptr_t)axis_local_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_reference_system = tool::ReferenceSystem::LOCAL;
@@ -987,6 +989,8 @@ struct LevelEditor
 				tool_send_state();
 			}
 
+			ImGui::Separator();
+
 			if (ImGui::ImageButton((void*)(uintptr_t)reference_world_texture->handle.idx, ImVec2(16, 16)))
 			{
 				_snap_mode = tool::SnapMode::RELATIVE;
@@ -998,6 +1002,15 @@ struct LevelEditor
 				_snap_mode = tool::SnapMode::ABSOLUTE;
 				tool_send_state();
 			}
+
+			ImGui::Separator();
+
+			if (ImGui::ImageButton((void*)(uintptr_t)snap_to_grid_texture->handle.idx, ImVec2(16, 16)))
+			{
+				_snap_to_grid = !_snap_to_grid;
+				tool_send_state();
+			}
+
 			ImGui::EndGroup();
 
 			// Draw scene view
