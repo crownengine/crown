@@ -118,22 +118,24 @@ function raycast(objects, pos, dir)
 
 	for k, v in pairs(objects) do
 		local t, l, d = v:raycast(pos, dir)
-		if t ~= -1.0 then
-			-- If sprite
-			if l and d then
-				if l >= layer and d >= depth then
-					layer = l
-					depth = d
-					nearest = t
-					object = v
-				end
-			else
-				if t <= nearest then
-					nearest = t
-					object = v
-				end
+		if t == -1.0 then
+			goto continue
+		end
+		-- If sprite
+		if l and d then
+			if l >= layer and d >= depth then
+				layer = l
+				depth = d
+				nearest = t
+				object = v
+			end
+		else
+			if t <= nearest then
+				nearest = t
+				object = v
 			end
 		end
+		::continue::
 	end
 
 	return object, nearest
