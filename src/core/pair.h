@@ -30,6 +30,8 @@ struct Pair<T1, T2, 0, 0>
 	}
 
 	Pair(Allocator& /*a*/)
+		: first()
+		, second()
 	{
 	}
 };
@@ -50,6 +52,7 @@ struct Pair<T1, T2, 1, 0>
 
 	Pair(Allocator& a)
 		: first(a)
+		, second()
 	{
 	}
 };
@@ -69,7 +72,8 @@ struct Pair<T1, T2, 0, 1>
 	}
 
 	Pair(Allocator& a)
-		: second(a)
+		: first()
+		, second(a)
 	{
 	}
 };
