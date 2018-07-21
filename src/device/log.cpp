@@ -19,7 +19,7 @@ namespace log_internal
 {
 	static Mutex s_mutex;
 
-	void logxv(LogSeverity::Enum sev, System system, const char* msg, va_list args)
+	void vlogx(LogSeverity::Enum sev, System system, const char* msg, va_list args)
 	{
 		ScopedMutex sm(s_mutex);
 
@@ -36,9 +36,9 @@ namespace log_internal
 		{
 			ANSI_RESET,
 			ANSI_YELLOW,
-			ANSI_RED,
-			ANSI_RESET
+			ANSI_RED
 		};
+		CE_STATIC_ASSERT(countof(stt) == LogSeverity::COUNT);
 
 		os::log(stt[sev]);
 		os::log(buf);
@@ -87,7 +87,7 @@ namespace log_internal
 	{
 		va_list args;
 		va_start(args, msg);
-		logxv(sev, system, msg, args);
+		vlogx(sev, system, msg, args);
 		va_end(args);
 	}
 

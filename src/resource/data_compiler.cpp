@@ -392,16 +392,15 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			success = false;
 		}
 
-		if (!success)
+		if (success)
 		{
-			loge(DATA_COMPILER, "Failed to compile data");
-			break;
+			if (!map::has(_data_index, dst_path))
+				map::set(_data_index, dst_path, src_path);
 		}
 		else
 		{
-			loge(DATA_COMPILER, "Data compiled");
-			if (!map::has(_data_index, dst_path))
-				map::set(_data_index, dst_path, src_path);
+			loge(DATA_COMPILER, "Failed to compile data");
+			break;
 		}
 	}
 
@@ -423,6 +422,9 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			data_filesystem.close(*file);
 		}
 	}
+
+	if (success)
+		logi(DATA_COMPILER, "Data compiled");
 
 	return success;
 }
@@ -455,7 +457,7 @@ bool DataCompiler::can_compile(StringId64 type)
 
 void DataCompiler::error(const char* msg, va_list args)
 {
-	logev(DATA_COMPILER, msg, args);
+	vloge(DATA_COMPILER, msg, args);
 	longjmp(_jmpbuf, 1);
 }
 
