@@ -59,7 +59,7 @@
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
-namespace { const crown::log_internal::System DEVICE = { "Device" }; }
+namespace { const crown::log_internal::System DEVICE = { "device" }; }
 
 namespace crown
 {

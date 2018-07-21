@@ -38,7 +38,7 @@
 #include "resource/types.h"
 #include "resource/unit_resource.h"
 
-namespace { const crown::log_internal::System COMPILER = { "Compiler" }; }
+namespace { const crown::log_internal::System DATA_COMPILER = { "data_compiler" }; }
 
 namespace crown
 {
@@ -89,13 +89,7 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 		cs.send(client, string_stream::c_str(ss));
 	}
 
-	logi(COMPILER, "Compiling '%s'", id.c_str());
 	bool succ = ((DataCompiler*)user_data)->compile(data_dir.c_str(), platform.c_str());
-
-	if (succ)
-		logi(COMPILER, "Compiled '%s'", id.c_str());
-	else
-		loge(COMPILER, "Failed to compile '%s'", id.c_str());
 
 	{
 		TempAllocator512 ta;
@@ -367,12 +361,12 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		path::join(path, CROWN_DATA_DIRECTORY, dst_path.c_str());
 
-		logi(COMPILER, "%s", src_path.c_str());
+		logi(DATA_COMPILER, "%s", src_path.c_str());
 
 		if (!can_compile(_type))
 		{
-			loge(COMPILER, "Unknown resource type: '%s'", type);
-			loge(COMPILER, "Append extension to " CROWN_DATAIGNORE " to ignore the type");
+			loge(DATA_COMPILER, "Unknown resource type: '%s'", type);
+			loge(DATA_COMPILER, "Append extension to " CROWN_DATAIGNORE " to ignore the type");
 			success = false;
 			break;
 		}
@@ -400,33 +394,34 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		if (!success)
 		{
-			loge(COMPILER, "Error");
+			loge(DATA_COMPILER, "Failed to compile data");
 			break;
 		}
 		else
 		{
+			loge(DATA_COMPILER, "Data compiled");
 			if (!map::has(_data_index, dst_path))
 				map::set(_data_index, dst_path, src_path);
 		}
 	}
 
-	// Write index
+	// Write data index
 	{
 		File* file = data_filesystem.open("data_index.sjson", FileOpenMode::WRITE);
-		if (!file)
-			return false;
-
-		StringStream ss(default_allocator());
-
-		auto cur = map::begin(_data_index);
-		auto end = map::end(_data_index);
-		for (; cur != end; ++cur)
+		if (file)
 		{
-			ss << "\"" << cur->pair.first.c_str() << "\" = \"" << cur->pair.second.c_str() << "\"\n";
-		}
+			StringStream ss(default_allocator());
 
-		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
-		data_filesystem.close(*file);
+			auto cur = map::begin(_data_index);
+			auto end = map::end(_data_index);
+			for (; cur != end; ++cur)
+			{
+				ss << "\"" << cur->pair.first.c_str() << "\" = \"" << cur->pair.second.c_str() << "\"\n";
+			}
+
+			file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+			data_filesystem.close(*file);
+		}
 	}
 
 	return success;
@@ -460,7 +455,7 @@ bool DataCompiler::can_compile(StringId64 type)
 
 void DataCompiler::error(const char* msg, va_list args)
 {
-	logev(COMPILER, msg, args);
+	logev(DATA_COMPILER, msg, args);
 	longjmp(_jmpbuf, 1);
 }
 

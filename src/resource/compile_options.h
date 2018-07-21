@@ -22,7 +22,7 @@
 #define DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts) \
 	DATA_COMPILER_ASSERT(opts.resource_exists(type, name)      \
 		, opts                                                 \
-		, "Resource does not exist: '%s.%s'"                   \
+		, "Resource not found: '%s.%s'"                        \
 		, name                                                 \
 		, type                                                 \
 		)
@@ -30,7 +30,7 @@
 #define DATA_COMPILER_ASSERT_FILE_EXISTS(name, opts) \
 	DATA_COMPILER_ASSERT(opts.file_exists(name)      \
 		, opts                                       \
-		, "File does not exist: '%s'"                \
+		, "File not found: '%s'"                     \
 		, name                                       \
 		)
 

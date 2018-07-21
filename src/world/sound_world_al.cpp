@@ -18,7 +18,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-namespace { const crown::log_internal::System SOUND = { "Sound" }; }
+namespace { const crown::log_internal::System SOUND = { "sound" }; }
 
 namespace crown
 {
