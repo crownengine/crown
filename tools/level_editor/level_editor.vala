@@ -367,35 +367,35 @@ namespace Crown
 
 		private void on_compiler_connected()
 		{
-			_console_view.logi("Editor", "Compiler connected");
+			_console_view.logi("editor", "Compiler connected");
 			_compiler.receive_async();
 		}
 
 		private void on_compiler_disconnected()
 		{
-			_console_view.logi("Editor", "Compiler disconnected");
+			_console_view.logi("editor", "Compiler disconnected");
 		}
 
 		private void on_engine_connected()
 		{
-			_console_view.logi("Editor", "Engine connected");
+			_console_view.logi("editor", "Engine connected");
 			_engine.receive_async();
 		}
 
 		private void on_engine_disconnected()
 		{
-			_console_view.logi("Editor", "Engine disconnected");
+			_console_view.logi("editor", "Engine disconnected");
 		}
 
 		private void on_game_connected()
 		{
-			_console_view.logi("Editor", "Game connected");
+			_console_view.logi("editor", "Game connected");
 			_game.receive_async();
 		}
 
 		private void on_game_disconnected()
 		{
-			_console_view.logi("Editor", "Game disconnected");
+			_console_view.logi("editor", "Game disconnected");
 			_project.delete_level_editor_test_level();
 		}
 
@@ -515,11 +515,11 @@ namespace Crown
 			}
 			else if (msg_type == "error")
 			{
-				_console_view.loge("Editor", "Error: " + (string)msg["message"]);
+				_console_view.loge("editor", "Error: " + (string)msg["message"]);
 			}
 			else
 			{
-				_console_view.loge("Editor", "Unknown message type: " + msg_type);
+				_console_view.loge("editor", "Unknown message type: " + msg_type);
 			}
 
 			// Receive next message
@@ -574,7 +574,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("Editor", e.message);
+				_console_view.loge("editor", e.message);
 			}
 
 			for (int tries = 0; !_compiler.is_connected() && tries < 5; ++tries)
@@ -647,7 +647,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("Editor", e.message);
+				_console_view.loge("editor", e.message);
 			}
 
 			for (int tries = 0; !_engine.is_connected() && tries < 5; ++tries)
@@ -710,7 +710,7 @@ namespace Crown
 					}
 					catch (Error e)
 					{
-						_console_view.loge("Editor", e.message);
+						_console_view.loge("editor", e.message);
 					}
 
 					for (int tries = 0; !_game.is_connected() && tries < 5; ++tries)
@@ -1326,7 +1326,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("Editor", e.message);
+				_console_view.loge("editor", e.message);
 			}
 		}
 
@@ -1338,7 +1338,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("Editor", e.message);
+				_console_view.loge("editor", e.message);
 			}
 		}
 
@@ -1351,7 +1351,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("Editor", e.message);
+				_console_view.loge("editor", e.message);
 			}
 		}
 
