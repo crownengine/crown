@@ -267,6 +267,8 @@ void DataCompiler::add_ignore_glob(const char* glob)
 
 void DataCompiler::scan()
 {
+	const s64 time_start = os::clocktime();
+
 	// Scan all source directories
 	auto cur = map::begin(_source_dirs);
 	auto end = map::end(_source_dirs);
@@ -308,11 +310,14 @@ void DataCompiler::scan()
 		scan_source_dir(cur->pair.first.c_str(), "");
 	}
 
+	logi(DATA_COMPILER, "Scanned data in %.2fs", f64(os::clocktime() - time_start)/f64(os::clockfrequency()));
 	_file_monitor.start(map::begin(_source_dirs)->pair.second.c_str(), true, filemonitor_callback, this);
 }
 
 bool DataCompiler::compile(const char* data_dir, const char* platform)
 {
+	const s64 time_start = os::clocktime();
+
 	FilesystemDisk data_filesystem(default_allocator());
 	data_filesystem.set_prefix(data_dir);
 	data_filesystem.create_directory("");
@@ -424,7 +429,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	}
 
 	if (success)
-		logi(DATA_COMPILER, "Data compiled");
+		logi(DATA_COMPILER, "Compiled data in %.2fs", f64(os::clocktime() - time_start)/f64(os::clockfrequency()));
 
 	return success;
 }
