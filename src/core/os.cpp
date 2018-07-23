@@ -14,7 +14,7 @@
 #include <sys/stat.h> // stat, mkdir
 
 #if CROWN_PLATFORM_POSIX
-	#include <dirent.h> // opendir, readdir
+	#include <dirent.h>   // opendir, readdir
 	#include <dlfcn.h>    // dlopen, dlclose, dlsym
 	#include <errno.h>
 	#include <stdio.h>    // fputs
@@ -66,7 +66,6 @@ namespace os
 #endif
 	}
 
-	/// Suspends execution for @a ms milliseconds.
 	void sleep(u32 ms)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -76,7 +75,6 @@ namespace os
 #endif
 	}
 
-	/// Opens the library at @a path.
 	void* library_open(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -86,7 +84,6 @@ namespace os
 #endif
 	}
 
-	/// Closes a @a library previously opened by library_open.
 	void library_close(void* library)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -96,7 +93,6 @@ namespace os
 #endif
 	}
 
-	/// Returns a pointer to the symbol @a name in the given @a library.
 	void* library_symbol(void* library, const char* name)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -106,7 +102,6 @@ namespace os
 #endif
 	}
 
-	/// Logs the message @a msg.
 	void log(const char* msg)
 	{
 #if CROWN_PLATFORM_ANDROID
@@ -152,7 +147,6 @@ namespace os
 		info.mtime = buf.st_mtime;
 	}
 
-	/// Deletes the file at @a path.
 	void delete_file(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -166,7 +160,6 @@ namespace os
 #endif
 	}
 
-	/// Creates a directory named @a path.
 	void create_directory(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -180,7 +173,6 @@ namespace os
 #endif
 	}
 
-	/// Deletes the directory at @a path.
 	void delete_directory(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -194,10 +186,6 @@ namespace os
 #endif
 	}
 
-	/// Returns the list of @a files at the given @a path.
-	void list_files(const char* path, Vector<DynamicString>& files);
-
-	/// Returns the current working directory.
 	const char* getcwd(char* buf, u32 size)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -208,7 +196,6 @@ namespace os
 #endif
 	}
 
-	/// Returns the value of the environment variable @a name.
 	const char* getenv(const char* name)
 	{
 #if CROWN_PLATFORM_POSIX
