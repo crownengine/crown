@@ -4,9 +4,6 @@
  */
 
 #include "core/thread/condition_variable.h"
-#if CROWN_PLATFORM_WINDOWS
-	#include <synchapi.h>
-#endif
 
 namespace crown
 {
