@@ -36,7 +36,7 @@ void ConditionVariable::wait(Mutex& mutex)
 	CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	SleepConditionVariableCS(&_cv, &mutex._cs);
+	SleepConditionVariableCS(&_cv, &mutex._cs, INFINITE);
 #endif
 }
 
