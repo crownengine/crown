@@ -49,9 +49,9 @@
 	#undef CROWN_PLATFORM_WINDOWS
 // http://msdn.microsoft.com/en-us/library/6sehtctf.aspx
 	#if !defined(WINVER) && !defined(_WIN32_WINNT)
-// Windows Vista and above
-		#define WINVER 0x0600
-		#define _WIN32_WINNT 0x0600
+// Windows Server 2003 with SP1, Windows XP with SP2 and above
+		#define WINVER 0x0501
+		#define _WIN32_WINNT 0x0501
 	#endif // !defined(WINVER) && !defined(_WIN32_WINNT)
 	#define CROWN_PLATFORM_WINDOWS 1
 #elif defined(__ANDROID__)
