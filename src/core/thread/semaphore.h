@@ -33,9 +33,16 @@ struct Semaphore
 	HANDLE _handle;
 #endif
 
+	///
 	Semaphore();
+
+	///
 	~Semaphore();
+
+	///
 	Semaphore(const Semaphore&) = delete;
+
+	///
 	Semaphore& operator=(const Semaphore&) = delete;
 
 	///

@@ -59,4 +59,3 @@ void Mutex::unlock()
 }
 
 } // namespace crown
-

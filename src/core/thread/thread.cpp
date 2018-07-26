@@ -12,13 +12,17 @@ namespace crown
 static void* thread_proc(void* arg)
 {
 	static s32 result = -1;
-	result = ((Thread*)arg)->run();
+	Thread* thread = (Thread*)arg;
+	thread->_sem.post();
+	result = thread->_function(thread->_user_data);
 	return (void*)&result;
 }
 #elif CROWN_PLATFORM_WINDOWS
 static DWORD WINAPI thread_proc(void* arg)
 {
-	s32 result = ((Thread*)arg)->run();
+	Thread* thread = (Thread*)arg;
+	thread->_sem.post();
+	s32 result = thread->_function(thread->_user_data);
 	return result;
 }
 #endif
@@ -97,12 +101,6 @@ void Thread::stop()
 bool Thread::is_running()
 {
 	return _is_running;
-}
-
-s32 Thread::run()
-{
-	_sem.post();
-	return _function(_user_data);
 }
 
 } // namespace crown

@@ -31,9 +31,16 @@ struct Mutex
 	CRITICAL_SECTION _cs;
 #endif
 
+	///
 	Mutex();
+
+	///
 	~Mutex();
+
+	///
 	Mutex(const Mutex&) = delete;
+
+	///
 	Mutex& operator=(const Mutex&) = delete;
 
 	/// Locks the mutex.
@@ -63,7 +70,10 @@ struct ScopedMutex
 		_mutex.unlock();
 	}
 
+	///
 	ScopedMutex(const ScopedMutex&) = delete;
+
+	///
 	ScopedMutex& operator=(const ScopedMutex&) = delete;
 };
 

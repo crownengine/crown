@@ -40,9 +40,16 @@ struct Thread
 	HANDLE _handle;
 #endif
 
+	///
 	Thread();
+
+	///
 	~Thread();
+
+	///
 	Thread(const Thread&) = delete;
+
+	///
 	Thread& operator=(const Thread&) = delete;
 
 	///
@@ -53,9 +60,6 @@ struct Thread
 
 	///
 	bool is_running();
-
-	/// Do not call explicitly.
-	s32 run();
 };
 
 } // namespace crown
