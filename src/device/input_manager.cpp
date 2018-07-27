@@ -327,8 +327,8 @@ void InputManager::update()
 
 	const Vector3 cursor = _mouse->axis(MouseAxis::CURSOR);
 	_mouse->set_axis(MouseAxis::CURSOR_DELTA
-		, (s16)cursor.x - _mouse_last_x
-		, (s16)cursor.y - _mouse_last_y
+		, cursor.x - _mouse_last_x
+		, cursor.y - _mouse_last_y
 		, 0
 		);
 	_mouse_last_x = (s16)cursor.x;
