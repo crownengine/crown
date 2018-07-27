@@ -328,13 +328,21 @@ struct WindowsDevice
 		wnd.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 		RegisterClassExA(&wnd);
 
+		DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+		RECT rect;
+		rect.left   = 0;
+		rect.top    = 0;
+		rect.right  = opts->_window_width;
+		rect.bottom = opts->_window_height;
+		AdjustWindowRect(&rect, style, FALSE);
+
 		_hwnd = CreateWindowA("crown"
 			, "Crown"
-			, WS_OVERLAPPEDWINDOW | WS_VISIBLE
+			, style
 			, opts->_window_x
 			, opts->_window_y
-			, opts->_window_width
-			, opts->_window_height
+			, rect.right - rect.left
+			, rect.bottom - rect.top
 			, 0
 			, NULL
 			, instance
