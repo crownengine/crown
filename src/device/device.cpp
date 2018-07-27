@@ -432,8 +432,8 @@ void Device::run()
 	_lua_environment->call_global("init", 0);
 
 	s64 time_last = os::clocktime();
-	u16 old_width = 0;
-	u16 old_height = 0;
+	u16 old_width = _width;
+	u16 old_height = _height;
 
 	while (!process_events(_boot_config.vsync) && !_quit)
 	{
