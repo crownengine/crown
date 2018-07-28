@@ -15,6 +15,10 @@
 
 #include <bx/platform.h>
 
+#if !defined(BGFX_INVALID_HANDLE)
+#   define BGFX_INVALID_HANDLE { UINT16_MAX }
+#endif // !defined(BGFX_INVALID_HANDLE)
+
 #ifndef BGFX_SHARED_LIB_BUILD
 #    define BGFX_SHARED_LIB_BUILD 0
 #endif // BGFX_SHARED_LIB_BUILD
@@ -332,30 +336,6 @@ typedef struct bgfx_transform_s
     uint16_t num;
 
 } bgfx_transform_t;
-
-/**/
-typedef struct bgfx_hmd_eye_s
-{
-    float rotation[4];
-    float translation[3];
-    float fov[4];
-    float viewOffset[3];
-    float projection[16];
-    float pixelsPerTanAngle[2];
-
-} bgfx_hmd_eye_t;
-
-/**/
-typedef struct bgfx_hmd_s
-{
-    bgfx_hmd_eye_t eye[2];
-    uint16_t width;
-    uint16_t height;
-    uint32_t deviceWidth;
-    uint32_t deviceHeight;
-    uint8_t flags;
-
-} bgfx_hmd_t;
 
 /**/
 typedef uint16_t bgfx_view_id_t;
@@ -718,9 +698,6 @@ BGFX_C_API bgfx_renderer_type_t bgfx_get_renderer_type(void);
 
 /**/
 BGFX_C_API const bgfx_caps_t* bgfx_get_caps(void);
-
-/**/
-BGFX_C_API const bgfx_hmd_t* bgfx_get_hmd(void);
 
 /**/
 BGFX_C_API const bgfx_stats_t* bgfx_get_stats(void);

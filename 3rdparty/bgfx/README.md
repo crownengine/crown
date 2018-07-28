@@ -25,10 +25,6 @@ Supported rendering backends:
  * WebGL 1.0
  * WebGL 2.0
 
-Supported HMD:
-
- * OculusVR (1.3.0)
-
 Supported platforms:
 
  * Android (14+, ARM, x86, MIPS)
@@ -299,6 +295,24 @@ mobile devices.
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=eNSI45zDEo0" 
 target="_blank"><img src="http://img.youtube.com/vi/eNSI45zDEo0/0.jpg" 
 alt="Talking Tom Pool"
+width="640" height="480" border="0" /></a>
+
+## GPlayEngine
+
+https://github.com/fredakilla/GPlayEngine#gplayengine - GPlayEngine is C++ 
+cross-platform game engine for creating 2D/3D games based on the GamePlay 3D 
+engine v3.0.
+
+![](https://camo.githubusercontent.com/d89a364fb306f208ca14a58267c8303f60f0f0cf/68747470733a2f2f692e696d6775722e636f6d2f306569395932382e706e67)
+
+## Off The Road
+
+http://www.dogbytegames.com/off_the_road.html - Sandbox off-road driving
+simulator.
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=IUmxqAWdXvk" 
+target="_blank"><img src="http://img.youtube.com/vi/IUmxqAWdXvk/0.jpg" 
+alt="Off The Road"
 width="640" height="480" border="0" /></a>
 
 [License (BSD 2-clause)](https://bkaradzic.github.io/bgfx/license.html)

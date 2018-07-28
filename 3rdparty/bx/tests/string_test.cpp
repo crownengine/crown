@@ -224,6 +224,39 @@ TEST_CASE("strFind", "")
 }
 
 template<typename Ty>
+static bool testToStringS(Ty _value, const char* _expected, char _separator = '\0')
+{
+	char tmp[1024];
+	int32_t num = bx::toString(tmp, BX_COUNTOF(tmp), _value, 10, _separator);
+	int32_t len = (int32_t)bx::strLen(_expected);
+	if (0 == bx::strCmp(tmp, _expected)
+	&&  num == len)
+	{
+		return true;
+	}
+
+	printf("result '%s' (%d), expected '%s' (%d)\n", tmp, num, _expected, len);
+	return false;
+}
+
+TEST_CASE("toString intXX_t/uintXX_t", "")
+{
+	REQUIRE(testToStringS(0,          "0") );
+	REQUIRE(testToStringS(-256,       "-256") );
+	REQUIRE(testToStringS(INT32_MAX,  "2147483647") );
+	REQUIRE(testToStringS(UINT32_MAX, "4294967295") );
+	REQUIRE(testToStringS(INT64_MAX,  "9223372036854775807") );
+	REQUIRE(testToStringS(UINT64_MAX, "18446744073709551615") );
+
+	REQUIRE(testToStringS(0,          "0", ',') );
+	REQUIRE(testToStringS(-256,       "-256", ',') );
+	REQUIRE(testToStringS(INT32_MAX,  "2,147,483,647", ',') );
+	REQUIRE(testToStringS(UINT32_MAX, "4,294,967,295", ',') );
+	REQUIRE(testToStringS(INT64_MAX,  "9,223,372,036,854,775,807", ',') );
+	REQUIRE(testToStringS(UINT64_MAX, "18,446,744,073,709,551,615", ',') );
+}
+
+template<typename Ty>
 static bool testToString(Ty _value, const char* _expected)
 {
 	char tmp[1024];
@@ -237,14 +270,6 @@ static bool testToString(Ty _value, const char* _expected)
 
 	printf("result '%s' (%d), expected '%s' (%d)\n", tmp, num, _expected, len);
 	return false;
-}
-
-TEST_CASE("toString int32_t/uint32_t", "")
-{
-	REQUIRE(testToString(0,          "0") );
-	REQUIRE(testToString(-256,       "-256") );
-	REQUIRE(testToString(INT32_MAX,  "2147483647") );
-	REQUIRE(testToString(UINT32_MAX, "4294967295") );
 }
 
 TEST_CASE("toString double", "")

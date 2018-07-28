@@ -911,6 +911,7 @@ void TGlslangToSpvTraverser::addIndirectionIndexCapabilities(const glslang::TTyp
 {
     if (indexType.getQualifier().isNonUniform()) {
         // deal with an asserted non-uniform index
+        // SPV_EXT_descriptor_indexing already added in TranslateNonUniformDecoration
         if (baseType.getBasicType() == glslang::EbtSampler) {
             if (baseType.getQualifier().hasAttachment())
                 builder.addCapability(spv::CapabilityInputAttachmentArrayNonUniformIndexingEXT);
@@ -931,12 +932,16 @@ void TGlslangToSpvTraverser::addIndirectionIndexCapabilities(const glslang::TTyp
     } else {
         // assume a dynamically uniform index
         if (baseType.getBasicType() == glslang::EbtSampler) {
-            if (baseType.getQualifier().hasAttachment())
+            if (baseType.getQualifier().hasAttachment()) {
+                builder.addExtension("SPV_EXT_descriptor_indexing");
                 builder.addCapability(spv::CapabilityInputAttachmentArrayDynamicIndexingEXT);
-            else if (baseType.isImage() && baseType.getSampler().dim == glslang::EsdBuffer)
+            } else if (baseType.isImage() && baseType.getSampler().dim == glslang::EsdBuffer) {
+                builder.addExtension("SPV_EXT_descriptor_indexing");
                 builder.addCapability(spv::CapabilityStorageTexelBufferArrayDynamicIndexingEXT);
-            else if (baseType.isTexture() && baseType.getSampler().dim == glslang::EsdBuffer)
+            } else if (baseType.isTexture() && baseType.getSampler().dim == glslang::EsdBuffer) {
+                builder.addExtension("SPV_EXT_descriptor_indexing");
                 builder.addCapability(spv::CapabilityUniformTexelBufferArrayDynamicIndexingEXT);
+            }
         }
     }
 }
@@ -2504,6 +2509,20 @@ spv::Id TGlslangToSpvTraverser::createSpvVariable(const glslang::TIntermSymbol* 
             break;
         default:
             break;
+        }
+    }
+
+    const bool contains8BitType = node->getType().containsBasicType(glslang::EbtInt8)   ||
+                                  node->getType().containsBasicType(glslang::EbtUint8);
+    if (contains8BitType) {
+        if (storageClass == spv::StorageClassPushConstant) {
+            builder.addExtension(spv::E_SPV_KHR_8bit_storage);
+            builder.addCapability(spv::CapabilityStoragePushConstant8);
+        } else if (storageClass == spv::StorageClassUniform) {
+            builder.addExtension(spv::E_SPV_KHR_8bit_storage);
+            builder.addCapability(spv::CapabilityUniformAndStorageBuffer8BitAccess);
+            if (node->getType().getQualifier().storage == glslang::EvqBuffer)
+                builder.addCapability(spv::CapabilityStorageBuffer8BitAccess);
         }
     }
 

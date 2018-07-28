@@ -280,16 +280,16 @@ namespace bx
 	int32_t toString(char* _out, int32_t _max, double _value);
 
 	/// Converts 32-bit integer value to string.
-	int32_t toString(char* _out, int32_t _max, int32_t _value, uint32_t _base = 10);
+	int32_t toString(char* _out, int32_t _max, int32_t _value, uint32_t _base = 10, char _separator = '\0');
 
 	/// Converts 64-bit integer value to string.
-	int32_t toString(char* _out, int32_t _max, int64_t _value, uint32_t _base = 10);
+	int32_t toString(char* _out, int32_t _max, int64_t _value, uint32_t _base = 10, char _separator = '\0');
 
 	/// Converts 32-bit unsigned integer value to string.
-	int32_t toString(char* _out, int32_t _max, uint32_t _value, uint32_t _base = 10);
+	int32_t toString(char* _out, int32_t _max, uint32_t _value, uint32_t _base = 10, char _separator = '\0');
 
 	/// Converts 64-bit unsigned integer value to string.
-	int32_t toString(char* _out, int32_t _max, uint64_t _value, uint32_t _base = 10);
+	int32_t toString(char* _out, int32_t _max, uint64_t _value, uint32_t _base = 10, char _separator = '\0');
 
 	/// Converts string to bool value.
 	bool fromString(bool* _out, const StringView& _str);

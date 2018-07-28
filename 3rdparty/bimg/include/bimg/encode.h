@@ -136,6 +136,13 @@ namespace bimg
 		);
 
 	///
+	ImageContainer* imageCubemapFromStripRgba32F(
+		  bx::AllocatorI* _allocator
+		, const ImageContainer& _input
+		, bx::Error* _err
+		);
+
+	///
 	ImageContainer* imageGenerateMips(
 		  bx::AllocatorI* _allocator
 		, const ImageContainer& _image
@@ -160,6 +167,7 @@ namespace bimg
 		  bx::AllocatorI* _allocator
 		, const ImageContainer& _image
 		, LightingModel::Enum _lightingModel
+		, bx::Error* _err
 		);
 
 } // namespace bimg

@@ -6,6 +6,10 @@
 #include "bimg_p.h"
 #include <bx/hash.h>
 
+#if BIMG_CONFIG_ASTC_DECODE
+#	include "../3rdparty/astc/astc_lib.h"
+#endif // BIMG_CONFIG_ASTC_DECODE
+
 namespace bimg
 {
 	static const ImageBlockInfo s_imageBlockInfo[] =
@@ -293,6 +297,7 @@ namespace bimg
 		const uint16_t blockHeight = blockInfo.blockHeight;
 		const uint16_t minBlockX   = blockInfo.minBlockX;
 		const uint16_t minBlockY   = blockInfo.minBlockY;
+		const uint8_t  blockSize   = blockInfo.blockSize;
 
 		_width  = bx::max<uint16_t>(blockWidth  * minBlockX, ( (_width  + blockWidth  - 1) / blockWidth)*blockWidth);
 		_height = bx::max<uint16_t>(blockHeight * minBlockY, ( (_height + blockHeight - 1) / blockHeight)*blockHeight);
@@ -307,11 +312,11 @@ namespace bimg
 
 		for (uint32_t lod = 0; lod < numMips; ++lod)
 		{
-			width  = bx::uint32_max(blockWidth  * minBlockX, ( (width  + blockWidth  - 1) / blockWidth )*blockWidth);
-			height = bx::uint32_max(blockHeight * minBlockY, ( (height + blockHeight - 1) / blockHeight)*blockHeight);
-			depth  = bx::uint32_max(1, depth);
+			width  = bx::max<uint32_t>(blockWidth  * minBlockX, ( (width  + blockWidth  - 1) / blockWidth )*blockWidth);
+			height = bx::max<uint32_t>(blockHeight * minBlockY, ( (height + blockHeight - 1) / blockHeight)*blockHeight);
+			depth  = bx::max<uint32_t>(1, depth);
 
-			size += uint32_t(uint64_t(width*height*depth)*bpp/8 * sides);
+			size += uint32_t(uint64_t(width/blockWidth * height/blockHeight * depth)*blockSize * sides);
 
 			width  >>= 1;
 			height >>= 1;
@@ -3912,8 +3917,8 @@ namespace bimg
 		_imageContainer.m_depth       = depth;
 		_imageContainer.m_format      = format;
 		_imageContainer.m_orientation = Orientation::R0;
-		_imageContainer.m_numLayers   = uint16_t(bx::uint32_max(numberOfArrayElements, 1) );
-		_imageContainer.m_numMips     = uint8_t(bx::uint32_max(numMips, 1) );
+		_imageContainer.m_numLayers   = uint16_t(bx::max<uint32_t>(numberOfArrayElements, 1) );
+		_imageContainer.m_numMips     = uint8_t(bx::max<uint32_t>(numMips, 1) );
 		_imageContainer.m_hasAlpha    = hasAlpha;
 		_imageContainer.m_cubeMap     = numFaces > 1;
 		_imageContainer.m_ktx         = true;
@@ -4078,7 +4083,7 @@ namespace bimg
 		_imageContainer.m_format      = format;
 		_imageContainer.m_orientation = Orientation::R0;
 		_imageContainer.m_numLayers   = 1;
-		_imageContainer.m_numMips     = uint8_t(bx::uint32_max(numMips, 1) );
+		_imageContainer.m_numMips     = uint8_t(bx::max<uint32_t>(numMips, 1) );
 		_imageContainer.m_hasAlpha    = hasAlpha;
 		_imageContainer.m_cubeMap     = numFaces > 1;
 		_imageContainer.m_ktx         = false;
@@ -4475,8 +4480,24 @@ namespace bimg
 		case TextureFormat::ASTC8x5:
 		case TextureFormat::ASTC8x6:
 		case TextureFormat::ASTC10x5:
+#if BIMG_CONFIG_ASTC_DECODE
+			astc_decompress
+				(
+				 (const uint8_t*) _src,
+				 s_imageBlockInfo[_srcFormat].blockWidth,
+				 s_imageBlockInfo[_srcFormat].blockHeight,
+				 ASTC_DECODE_LDR_LINEAR,
+
+				 _width,
+				 _height,
+				 (uint8_t*) _dst,
+				 ASTC_BGRA,
+				 _dstPitch
+				);
+#else
 			BX_WARN(false, "ASTC decoder is not implemented.");
 			imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xffffff00) );
+#endif
 			break;
 
 		case TextureFormat::RGBA8:
@@ -4737,7 +4758,11 @@ namespace bimg
 				height = bx::max<uint32_t>(blockHeight * minBlockY, ( (height + blockHeight - 1) / blockHeight)*blockHeight);
 				depth  = bx::max<uint32_t>(1, depth);
 
-				const uint32_t mipSize = width*height*depth*bpp/8;
+				const uint32_t mipSize = width/blockWidth * height/blockHeight * depth * blockSize;
+				if (mipSize != width*height*depth*bpp/8)
+				{
+					BX_TRACE("x");
+				}
 
 				const uint32_t size = mipSize*numSides;
 				uint32_t imageSize = bx::toHostEndian(*(const uint32_t*)&data[offset], _imageContainer.m_ktxLE);
@@ -4791,7 +4816,7 @@ namespace bimg
 					height = bx::max<uint32_t>(blockHeight * minBlockY, ( (height + blockHeight - 1) / blockHeight)*blockHeight);
 					depth  = bx::max<uint32_t>(1, depth);
 
-					uint32_t mipSize = width*height*depth*bpp/8;
+					uint32_t mipSize = width/blockWidth * height/blockHeight * depth * blockSize;
 
 					if (side == _side
 					&&  lod  == _lod)
@@ -5174,8 +5199,9 @@ namespace bimg
 	{
 		BX_ERROR_SCOPE(_err);
 
-		uint32_t ddspf      = UINT32_MAX;
-		uint32_t dxgiFormat = UINT32_MAX;
+		uint32_t ddspf        = UINT32_MAX;
+		uint32_t dxgiFormat   = UINT32_MAX;
+        uint32_t fourccFormat = UINT32_MAX;
 
 		for (uint32_t ii = 0; ii < BX_COUNTOF(s_translateDdsPixelFormat); ++ii)
 		{
@@ -5196,13 +5222,25 @@ namespace bimg
 					break;
 				}
 			}
-
-			if (UINT32_MAX == dxgiFormat)
-			{
-				BX_ERROR_SET(_err, BIMG_ERROR, "DDS: DXGI format not supported.");
-				return 0;
-			}
 		}
+
+        if (UINT32_MAX == ddspf && UINT32_MAX == dxgiFormat)
+        {
+            for (uint32_t ii = 0; ii < BX_COUNTOF(s_translateDdsFourccFormat); ++ii)
+            {
+                if (s_translateDdsFourccFormat[ii].m_textureFormat == _format)
+                {
+                    fourccFormat = s_translateDdsFourccFormat[ii].m_format;
+                    break;
+                }
+            }
+        }
+
+        if (UINT32_MAX == ddspf && UINT32_MAX == dxgiFormat && UINT32_MAX == fourccFormat)
+        {
+            BX_ERROR_SET(_err, BIMG_ERROR, "DDS: output format not supported.");
+            return 0;
+        }
 
 		const uint32_t bpp = getBitsPerPixel(_format);
 
@@ -5249,9 +5287,14 @@ namespace bimg
 		{
 			total += bx::write(_writer, uint32_t(8*sizeof(uint32_t) ), _err); // pixelFormatSize
 			total += bx::write(_writer, uint32_t(DDPF_FOURCC), _err);
-			total += bx::write(_writer, uint32_t(DDS_DX10), _err);
-			total += bx::write(_writer, uint32_t(0), _err); // bitCount
-			total += bx::writeRep(_writer, 0, 4*sizeof(uint32_t), _err); // bitmask
+
+            if (UINT32_MAX != fourccFormat)
+                total += bx::write(_writer, fourccFormat, _err);
+            else
+                total += bx::write(_writer, uint32_t(DDS_DX10), _err);
+
+            total += bx::write(_writer, uint32_t(0), _err); // bitCount
+            total += bx::writeRep(_writer, 0, 4*sizeof(uint32_t), _err); // bitmask
 		}
 
 		uint32_t caps[4] =
@@ -5364,15 +5407,15 @@ namespace bimg
 		}
 
 		const ImageBlockInfo& blockInfo = s_imageBlockInfo[_format];
-		const uint8_t  bpp         = blockInfo.bitsPerPixel;
 		const uint32_t blockWidth  = blockInfo.blockWidth;
 		const uint32_t blockHeight = blockInfo.blockHeight;
 		const uint32_t minBlockX   = blockInfo.minBlockX;
 		const uint32_t minBlockY   = blockInfo.minBlockY;
+		const uint8_t  blockSize   = blockInfo.blockSize;
 
 		const uint8_t* src = (const uint8_t*)_src;
 
-		const uint32_t numLayers = bx::uint32_max(_numLayers, 1);
+		const uint32_t numLayers = bx::max<uint32_t>(_numLayers, 1);
 		const uint32_t numSides = _cubeMap ? 6 : 1;
 
 		uint32_t width  = _width;
@@ -5381,12 +5424,12 @@ namespace bimg
 
 		for (uint8_t lod = 0; lod < _numMips && _err->isOk(); ++lod)
 		{
-			width  = bx::uint32_max(blockWidth  * minBlockX, ( (width  + blockWidth  - 1) / blockWidth )*blockWidth);
-			height = bx::uint32_max(blockHeight * minBlockY, ( (height + blockHeight - 1) / blockHeight)*blockHeight);
-			depth  = bx::uint32_max(1, depth);
+			width  = bx::max<uint32_t>(blockWidth  * minBlockX, ( (width  + blockWidth  - 1) / blockWidth )*blockWidth);
+			height = bx::max<uint32_t>(blockHeight * minBlockY, ( (height + blockHeight - 1) / blockHeight)*blockHeight);
+			depth  = bx::max<uint32_t>(1, depth);
 
-			const uint32_t mipSize = width*height*depth*bpp/8;
-			const uint32_t size = mipSize*numLayers*numSides;
+			const uint32_t mipSize = width/blockWidth * height/blockHeight * depth * blockSize;
+			const uint32_t size    = mipSize * numLayers * numSides;
 			total += bx::write(_writer, size, _err);
 
 			for (uint32_t layer = 0; layer < numLayers && _err->isOk(); ++layer)
@@ -5428,7 +5471,7 @@ namespace bimg
 		}
 
 		const uint32_t numMips   = _imageContainer.m_numMips;
-		const uint32_t numLayers = bx::uint32_max(_imageContainer.m_numLayers, 1);
+		const uint32_t numLayers = bx::max<uint32_t>(_imageContainer.m_numLayers, 1);
 		const uint32_t numSides  = _imageContainer.m_cubeMap ? 6 : 1;
 
 		for (uint8_t lod = 0; lod < numMips && _err->isOk(); ++lod)

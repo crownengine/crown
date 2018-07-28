@@ -44,6 +44,8 @@ struct Options
 			"\t      pma: %s\n"
 			"\t      sdf: %s\n"
 			"\t radiance: %s\n"
+			"\t equirect: %s\n"
+			"\t    strip: %s\n"
 			, maxSize
 			, edge
 			, bimg::getName(format)
@@ -53,6 +55,8 @@ struct Options
 			, pma       ? "true" : "false"
 			, sdf       ? "true" : "false"
 			, radiance  ? "true" : "false"
+			, equirect  ? "true" : "false"
+			, strip     ? "true" : "false"
 			);
 	}
 
@@ -64,6 +68,7 @@ struct Options
 	bool mips      = false;
 	bool normalMap = false;
 	bool equirect  = false;
+	bool strip     = false;
 	bool iqa       = false;
 	bool pma       = false;
 	bool sdf       = false;
@@ -151,12 +156,12 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 		const bimg::ImageBlockInfo&  inputBlockInfo  = bimg::getBlockInfo(inputFormat);
 		const bimg::ImageBlockInfo&  outputBlockInfo = bimg::getBlockInfo(outputFormat);
 		const uint32_t blockWidth  = outputBlockInfo.blockWidth;
-		const uint32_t blockHeight = outputBlockInfo.blockHeight;
-		const uint32_t minBlockX   = outputBlockInfo.minBlockX;
-		const uint32_t minBlockY   = outputBlockInfo.minBlockY;
-		uint32_t outputWidth  = bx::uint32_max(blockWidth  * minBlockX, ( (input->m_width  + blockWidth  - 1) / blockWidth )*blockWidth);
-		uint32_t outputHeight = bx::uint32_max(blockHeight * minBlockY, ( (input->m_height + blockHeight - 1) / blockHeight)*blockHeight);
-		uint32_t outputDepth  = input->m_depth;
+        const uint32_t blockHeight = outputBlockInfo.blockHeight;
+        const uint32_t minBlockX   = outputBlockInfo.minBlockX;
+        const uint32_t minBlockY   = outputBlockInfo.minBlockY;
+        uint32_t outputWidth  = bx::uint32_max(blockWidth  * minBlockX, ( (input->m_width  + blockWidth  - 1) / blockWidth )*blockWidth);
+        uint32_t outputHeight = bx::uint32_max(blockHeight * minBlockY, ( (input->m_height + blockHeight - 1) / blockHeight)*blockHeight);
+        uint32_t outputDepth  = input->m_depth;
 
 		if (_options.equirect)
 		{
@@ -174,6 +179,25 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 				bimg::imageFree(input);
 
 				BX_ERROR_SET(_err, TEXTRUREC_ERROR, "Input image format is not equirectangular projection.");
+				return NULL;
+			}
+		}
+		else if (_options.strip)
+		{
+			if (outputDepth   == 1
+			&&  outputWidth/6 == outputHeight)
+			{
+				if (outputWidth/6 > _options.maxSize)
+				{
+					outputWidth  = _options.maxSize*6;
+					outputHeight = _options.maxSize;
+				}
+			}
+			else
+			{
+				bimg::imageFree(input);
+
+				BX_ERROR_SET(_err, TEXTRUREC_ERROR, "Input image format is not horizontal strip.");
 				return NULL;
 			}
 		}
@@ -213,7 +237,7 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 			&& !_options.sdf
 			&& !_options.alphaTest
 			&& !_options.normalMap
-			&& !_options.equirect
+			&& !(_options.equirect || _options.strip)
 			&& !_options.iqa
 			&& !_options.pma
 			&& (bimg::LightingModel::Count == _options.radiance)
@@ -271,13 +295,24 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 			return output;
 		}
 
-		if (_options.equirect)
+		if (_options.equirect
+		||  _options.strip)
 		{
 			bimg::ImageContainer* src = bimg::imageConvert(_allocator, bimg::TextureFormat::RGBA32F, *input);
 			bimg::imageFree(input);
 
-			bimg::ImageContainer* dst = bimg::imageCubemapFromLatLongRgba32F(_allocator, *src, true, _err);
-			bimg::imageFree(src);
+			bimg::ImageContainer* dst;
+
+			if (outputWidth/2 == outputHeight)
+			{
+				dst = bimg::imageCubemapFromLatLongRgba32F(_allocator, *src, true, _err);
+				bimg::imageFree(src);
+			}
+			else
+			{
+				dst = bimg::imageCubemapFromStripRgba32F(_allocator, *src, _err);
+				bimg::imageFree(src);
+			}
 
 			if (!_err->isOk() )
 			{
@@ -290,7 +325,12 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 
 		if (bimg::LightingModel::Count != _options.radiance)
 		{
-			output = bimg::imageCubemapRadianceFilter(_allocator, *input, _options.radiance);
+			output = bimg::imageCubemapRadianceFilter(_allocator, *input, _options.radiance, _err);
+
+			if (!_err->isOk() )
+			{
+				return NULL;
+			}
 
 			if (bimg::TextureFormat::RGBA32F != outputFormat)
 			{
@@ -792,7 +832,8 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "  -q <quality>             Encoding quality (default, fastest, highest).\n"
 		  "  -m, --mips               Generate mip-maps.\n"
 		  "  -n, --normalmap          Input texture is normal map.\n"
-		  "      --equirect           Input texture equirectangular projection of cubemap.\n"
+		  "      --equirect           Input texture is equirectangular projection of cubemap.\n"
+		  "      --strip              Input texture is horizontal strip of cubemap.\n"
 		  "      --sdf <edge>         Compute SDF texture.\n"
 		  "      --ref <alpha>        Alpha reference value.\n"
 		  "      --iqa                Image Quality Assessment\n"
@@ -801,10 +842,11 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "                           aspect ratio will be preserved.\n"
 		  "      --radiance <model>   Radiance cubemap filter. (Lighting model: Phong, PhongBrdf, Blinn, BlinnBrdf, GGX)\n"
 		  "      --as <extension>     Save as.\n"
+          "      --formats            List all supported formats.\n"
 		  "      --validate           *DEBUG* Validate that output image produced matches after loading.\n"
 
 		  "\n"
-		  "For additional information, see https://github.com/bkaradzic/bgfx\n"
+		  "For additional information, see https://github.com/bkaradzic/bimg\n"
 		);
 }
 
@@ -868,6 +910,24 @@ int main(int _argc, const char* _argv[])
 		return bx::kExitFailure;
 	}
 
+    if (cmdLine.hasArg("formats"))
+    {
+        printf("Uncompressed formats:\n");
+
+        for (int format = bimg::TextureFormat::Unknown + 1; format < bimg::TextureFormat::UnknownDepth; format++)
+            printf("  %s\n", bimg::getName((bimg::TextureFormat::Enum) format));
+
+        for (int format = bimg::TextureFormat::UnknownDepth + 1; format < bimg::TextureFormat::Count; format++)
+            printf("  %s\n", bimg::getName((bimg::TextureFormat::Enum) format));
+
+        printf("Compressed formats:\n");
+
+        for (int format = 0; format < bimg::TextureFormat::Unknown; format++)
+            printf("  %s\n", bimg::getName((bimg::TextureFormat::Enum) format));
+
+        return bx::kExitSuccess;
+    }
+
 	const char* inputFileName = cmdLine.findOption('f');
 	if (NULL == inputFileName)
 	{
@@ -921,8 +981,16 @@ int main(int _argc, const char* _argv[])
 	options.mips      = cmdLine.hasArg('m', "mips");
 	options.normalMap = cmdLine.hasArg('n', "normalmap");
 	options.equirect  = cmdLine.hasArg("equirect");
+	options.strip     = cmdLine.hasArg("strip");
 	options.iqa       = cmdLine.hasArg("iqa");
 	options.pma       = cmdLine.hasArg("pma");
+
+	if (options.equirect
+	&&  options.strip)
+	{
+		help("Image can't be equirect and strip at the same time.");
+		return bx::kExitFailure;
+	}
 
 	const char* maxSize = cmdLine.findOption("max");
 	if (NULL != maxSize)

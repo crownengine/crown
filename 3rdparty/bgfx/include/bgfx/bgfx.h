@@ -723,8 +723,8 @@ namespace bgfx
 			uint32_t maxUniforms;             //!< Maximum number of uniform handles.
 			uint32_t maxOcclusionQueries;     //!< Maximum number of occlusion query handles.
 			uint32_t maxEncoders;             //!< Maximum number of encoder threads.
-			uint32_t transientVbSize;         //!<
-			uint32_t transientIbSize;         //!<
+			uint32_t transientVbSize;         //!< Maximum transient vertex buffer size.
+			uint32_t transientIbSize;         //!< Maximum transient index buffer size.
 		};
 
 		Limits limits;
@@ -840,34 +840,6 @@ namespace bgfx
 	{
 		float* data;  //!< Pointer to first 4x4 matrix.
 		uint16_t num; //!< Number of matrices.
-	};
-
-	/// HMD info.
-	///
-	/// @attention C99 equivalent is `bgfx_hmd_t`.
-	///
-	struct HMD
-	{
-		/// Eye
-		///
-		/// @attention C99 equivalent is `bgfx_hmd_eye_t`.
-		///
-		struct Eye
-		{
-			float rotation[4];          //!< Eye rotation represented as quaternion.
-			float translation[3];       //!< Eye translation.
-			float fov[4];               //!< Field of view (up, down, left, right).
-			float viewOffset[3];        //!< Eye view matrix translation adjustment.
-			float projection[16];       //!< Eye projection matrix.
-			float pixelsPerTanAngle[2]; //!< Number of pixels that fit in tan(angle) = 1.
-		};
-
-		Eye eye[2];
-		uint16_t width;        //!< Frame buffer width.
-		uint16_t height;       //!< Frame buffer height.
-		uint32_t deviceWidth;  //!< Device resolution width.
-		uint32_t deviceHeight; //!< Device resolution height.
-		uint8_t  flags;        //!< Status flags.
 	};
 
 	///
@@ -1887,9 +1859,6 @@ namespace bgfx
 	///   - `BGFX_RESET_VSYNC` - Enable V-Sync.
 	///   - `BGFX_RESET_MAXANISOTROPY` - Turn on/off max anisotropy.
 	///   - `BGFX_RESET_CAPTURE` - Begin screen capture.
-	///   - `BGFX_RESET_HMD` - HMD stereo rendering.
-	///   - `BGFX_RESET_HMD_DEBUG` - HMD stereo rendering debug mode.
-	///   - `BGFX_RESET_HMD_RECENTER` - HMD calibration.
 	///   - `BGFX_RESET_FLUSH_AFTER_RENDER` - Flush rendering after submitting to GPU.
 	///   - `BGFX_RESET_FLIP_AFTER_RENDER` - This flag  specifies where flip
 	///     occurs. Default behavior is that flip occurs before rendering new
@@ -1949,12 +1918,6 @@ namespace bgfx
 	///
 	const Caps* getCaps();
 
-	/// Returns HMD info.
-	///
-	/// @attention C99 equivalent is `bgfx_get_hmd`.
-	///
-	const HMD* getHMD();
-
 	/// Returns performance counters.
 	///
 	/// @attention Pointer returned is valid until `bgfx::frame` is called.
@@ -1963,6 +1926,8 @@ namespace bgfx
 	const Stats* getStats();
 
 	/// Allocate buffer to pass to bgfx calls. Data will be freed inside bgfx.
+	///
+	/// @param[in] _size Size to allocate.
 	///
 	/// @attention C99 equivalent is `bgfx_alloc`.
 	///
@@ -1986,6 +1951,11 @@ namespace bgfx
 	/// consumed, otherwise you must make sure _data is available for at least 2
 	/// `bgfx::frame` calls. `ReleaseFn` function must be able to be called
 	/// from any thread.
+	///
+	/// @param[in] _data Pointer to data.
+	/// @param[in] _size Size of data.
+	/// @param[in] _releaseFn Callback function to release memory after use.
+	/// @param[in] _userData User data to be passed to callback function.
 	///
 	/// @attention Data passed must be available for at least 2 `bgfx::frame` calls.
 	/// @attention C99 equivalent are `bgfx_make_ref`, `bgfx_make_ref_release`.
@@ -2014,6 +1984,9 @@ namespace bgfx
 	void setDebug(uint32_t _debug);
 
 	/// Clear internal debug text buffer.
+	///
+	/// @param[in] _attr Background color.
+	/// @param[in] _small Default or 8x8 font.
 	///
 	/// @attention C99 equivalent is `bgfx_dbg_text_clear`.
 	///
@@ -2434,7 +2407,7 @@ namespace bgfx
 	///
 	void setName(
 		  ShaderHandle _handle
-		, const char* _ptr
+		, const char* _name
 		, int32_t _len = INT32_MAX
 		);
 
@@ -2797,7 +2770,7 @@ namespace bgfx
 	///
 	void setName(
 		  TextureHandle _handle
-		, const char* _ptr
+		, const char* _name
 		, int32_t _len = INT32_MAX
 		);
 

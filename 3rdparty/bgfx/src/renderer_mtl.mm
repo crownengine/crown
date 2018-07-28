@@ -1163,7 +1163,7 @@ namespace bgfx { namespace mtl
 			return false;
 		}
 
-		void flip(HMD& /*_hmd*/) override
+		void flip() override
 		{
 			if (NULL == m_commandBuffer)
 			{
@@ -1188,7 +1188,6 @@ namespace bgfx { namespace mtl
 				;
 
 			const uint32_t maskFlags = ~(0
-				| BGFX_RESET_HMD_RECENTER
 				| BGFX_RESET_MAXANISOTROPY
 				| BGFX_RESET_DEPTH_CLAMP
 				| BGFX_RESET_SUSPEND
@@ -3348,8 +3347,6 @@ namespace bgfx { namespace mtl
 
 		RenderBind currentBind;
 		currentBind.clear();
-
-		_render->m_hmdInitialized = false;
 
 		const bool hmdEnabled = false;
 		static ViewState viewState;

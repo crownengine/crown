@@ -677,12 +677,12 @@ namespace bx
 
 	inline uint64_t uint64_rol(uint64_t _a, int _sa)
 	{
-		return ( _a << _sa) | (_a >> (32-_sa) );
+		return ( _a << _sa) | (_a >> (64-_sa) );
 	}
 
 	inline uint64_t uint64_ror(uint64_t _a, int _sa)
 	{
-		return ( _a >> _sa) | (_a << (32-_sa) );
+		return ( _a >> _sa) | (_a << (64-_sa) );
 	}
 
 	inline uint64_t uint64_add(uint64_t _a, uint64_t _b)
