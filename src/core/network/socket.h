@@ -6,14 +6,7 @@
 #pragma once
 
 #include "core/network/types.h"
-#include "core/platform.h"
 #include "core/types.h"
-
-#if CROWN_PLATFORM_POSIX
-	typedef int SOCKET;
-#elif CROWN_PLATFORM_WINDOWS
-	#include <winsock2.h>
-#endif
 
 namespace crown
 {
@@ -79,8 +72,9 @@ struct WriteResult
 /// @ingroup Network
 struct TCPSocket
 {
-	SOCKET _socket;
+	CE_ALIGN_DECL(16, u8 _data[8]);
 
+	///
 	TCPSocket();
 
 	/// Closes the socket.

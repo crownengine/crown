@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/platform.h"
 #include <stdint.h>
 
 #ifndef CROWN_DEBUG
@@ -70,4 +71,10 @@ typedef double   f64;
 	#define CE_THREAD __declspec(thread)
 #else
 	#error "Compiler not supported"
+#endif
+
+#if CROWN_PLATFORM_LINUX
+	#define CE_ALIGN_DECL(align, decl) decl __attribute__ ((aligned (align)))
+#elif CROWN_PLATFORM_WINDOWS
+	#define CE_ALIGN_DECL(align_, decl) __declspec (align(align_)) decl
 #endif

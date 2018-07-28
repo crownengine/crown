@@ -3,27 +3,45 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#define WINVER 0x0601
-#define _WIN32_WINNT 0x0601
 #include "core/thread/condition_variable.h"
+
+#if CROWN_PLATFORM_POSIX
+	#include <pthread.h>
+#elif CROWN_PLATFORM_WINDOWS
+	#include <windows.h>
+#endif
 
 namespace crown
 {
-ConditionVariable::ConditionVariable()
+struct Private
 {
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_init(&_cond, NULL);
+	pthread_cond_t cond;
+#elif CROWN_PLATFORM_WINDOWS
+	CONDITION_VARIABLE cv;
+#endif
+};
+
+ConditionVariable::ConditionVariable()
+{
+	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(Private));
+	Private* priv = (Private*)_data;
+
+#if CROWN_PLATFORM_POSIX
+	int err = pthread_cond_init(&priv->cond, NULL);
 	CE_ASSERT(err == 0, "pthread_cond_init: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	InitializeConditionVariable(&_cv);
+	InitializeConditionVariable(&priv->cv);
 #endif
 }
 
 ConditionVariable::~ConditionVariable()
 {
+	Private* priv = (Private*)_data;
+
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_destroy(&_cond);
+	int err = pthread_cond_destroy(&priv->cond);
 	CE_ASSERT(err == 0, "pthread_cond_destroy: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
@@ -33,23 +51,27 @@ ConditionVariable::~ConditionVariable()
 
 void ConditionVariable::wait(Mutex& mutex)
 {
+	Private* priv = (Private*)_data;
+
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_wait(&_cond, &mutex._mutex);
+	int err = pthread_cond_wait(&priv->cond, (pthread_mutex_t*)mutex.native_handle());
 	CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	SleepConditionVariableCS(&_cv, &mutex._cs, INFINITE);
+	SleepConditionVariableCS(&priv->cv, (CRITICAL_SECTION*)mutex.native_handle(), INFINITE);
 #endif
 }
 
 void ConditionVariable::signal()
 {
+	Private* priv = (Private*)_data;
+
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_signal(&_cond);
+	int err = pthread_cond_signal(&priv->cond);
 	CE_ASSERT(err == 0, "pthread_cond_signal: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	WakeConditionVariable(&_cv);
+	WakeConditionVariable(&priv->cv);
 #endif
 }
 

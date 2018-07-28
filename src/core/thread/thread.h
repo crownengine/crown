@@ -9,16 +9,6 @@
 #include "core/thread/semaphore.h"
 #include "core/types.h"
 
-#if CROWN_PLATFORM_POSIX
-	#include <pthread.h>
-#elif CROWN_PLATFORM_WINDOWS
-	#ifndef WIN32_LEAN_AND_MEAN
-	#define WIN32_LEAN_AND_MEAN
-	#endif
-	#include <windows.h>
-	#include <process.h>
-#endif
-
 /// @defgroup Thread Thread
 /// @ingroup Core
 namespace crown
@@ -34,11 +24,7 @@ struct Thread
 	void* _user_data;
 	Semaphore _sem;
 	bool _is_running;
-#if CROWN_PLATFORM_POSIX
-	pthread_t _handle;
-#elif CROWN_PLATFORM_WINDOWS
-	HANDLE _handle;
-#endif
+	CE_ALIGN_DECL(16, u8 _data[32]);
 
 	///
 	Thread();

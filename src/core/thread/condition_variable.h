@@ -14,11 +14,7 @@ namespace crown
 /// @ingroup Thread
 struct ConditionVariable
 {
-#if CROWN_PLATFORM_POSIX
-	pthread_cond_t _cond;
-#elif CROWN_PLATFORM_WINDOWS
-	CONDITION_VARIABLE _cv;
-#endif
+	CE_ALIGN_DECL(16, u8 _data[64]);
 
 	///
 	ConditionVariable();
