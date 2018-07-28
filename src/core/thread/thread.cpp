@@ -112,7 +112,7 @@ void Thread::stop()
 	priv->handle = 0;
 #elif CROWN_PLATFORM_WINDOWS
 	WaitForSingleObject(priv->handle, INFINITE);
-	GetExitCodeThread(_handle, (DWORD*)&_exit_code);
+	GetExitCodeThread(priv->handle, (DWORD*)&_exit_code);
 	CloseHandle(priv->handle);
 	priv->handle = INVALID_HANDLE_VALUE;
 #endif
