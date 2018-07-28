@@ -738,7 +738,7 @@ PhysicsWorld
 RaycastHit
 ----------
 
-RaycastHit is a lua table with 3 fields:
+RaycastHit is a lua table with 5 fields:
 
 * ``[1]``: The collision position in world space.
 * ``[2]``: The normal of the surface that was hit.
