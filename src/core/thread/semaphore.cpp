@@ -18,7 +18,7 @@ namespace crown
 struct Private
 {
 #if CROWN_PLATFORM_POSIX
-	Mutex mutex;
+	pthread_mutex_t mutex;
 	pthread_cond_t cond;
 	s32 count;
 #elif CROWN_PLATFORM_WINDOWS
@@ -32,15 +32,13 @@ Semaphore::Semaphore()
 	Private* priv = (Private*)_data;
 
 #if CROWN_PLATFORM_POSIX
-	priv->count = 0;
-#elif CROWN_PLATFORM_WINDOWS
-	priv->handle = INVALID_HANDLE_VALUE;
-#endif
-
-#if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_init(&priv->cond, NULL);
+	int err = 0;
+	err = pthread_mutex_init(&priv->mutex, NULL);
+	CE_ASSERT(err == 0, "pthread_mutex_init: errno = %d", err);
+	err = pthread_cond_init(&priv->cond, NULL);
 	CE_ASSERT(err == 0, "pthread_cond_init: errno = %d", err);
 	CE_UNUSED(err);
+	priv->count = 0;
 #elif CROWN_PLATFORM_WINDOWS
 	priv->handle = CreateSemaphore(NULL, 0, LONG_MAX, NULL);
 	CE_ASSERT(priv->handle != NULL, "CreateSemaphore: GetLastError = %d", GetLastError());
@@ -68,8 +66,7 @@ void Semaphore::post(u32 count)
 	Private* priv = (Private*)_data;
 
 #if CROWN_PLATFORM_POSIX
-	ScopedMutex sm(priv->mutex);
-
+	pthread_mutex_lock(&priv->mutex);
 	for (u32 i = 0; i < count; ++i)
 	{
 		int err = pthread_cond_signal(&priv->cond);
@@ -78,6 +75,7 @@ void Semaphore::post(u32 count)
 	}
 
 	priv->count += count;
+	pthread_mutex_unlock(&priv->mutex);
 #elif CROWN_PLATFORM_WINDOWS
 	BOOL err = ReleaseSemaphore(priv->handle, count, NULL);
 	CE_ASSERT(err != 0, "ReleaseSemaphore: GetLastError = %d", GetLastError());
@@ -90,16 +88,15 @@ void Semaphore::wait()
 	Private* priv = (Private*)_data;
 
 #if CROWN_PLATFORM_POSIX
-	ScopedMutex sm(priv->mutex);
-
+	pthread_mutex_lock(&priv->mutex);
 	while (priv->count <= 0)
 	{
-		int err = pthread_cond_wait(&priv->cond, (pthread_mutex_t*)priv->mutex.native_handle());
+		int err = pthread_cond_wait(&priv->cond, &priv->mutex);
 		CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
 		CE_UNUSED(err);
 	}
-
 	priv->count--;
+	pthread_mutex_unlock(&priv->mutex);
 #elif CROWN_PLATFORM_WINDOWS
 	DWORD err = WaitForSingleObject(priv->handle, INFINITE);
 	CE_ASSERT(err == WAIT_OBJECT_0, "WaitForSingleObject: GetLastError = %d", GetLastError());

@@ -6,7 +6,6 @@
 #pragma once
 
 #include "core/platform.h"
-#include "core/thread/mutex.h"
 
 namespace crown
 {
