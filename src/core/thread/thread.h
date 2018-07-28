@@ -24,6 +24,7 @@ struct Thread
 	void* _user_data;
 	Semaphore _sem;
 	bool _is_running;
+	s32 _exit_code;
 	CE_ALIGN_DECL(16, u8 _data[32]);
 
 	///
@@ -46,6 +47,9 @@ struct Thread
 
 	///
 	bool is_running();
+
+	///
+	s32 exit_code();
 };
 
 } // namespace crown

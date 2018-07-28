@@ -31,6 +31,7 @@
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string.h"
 #include "core/strings/string_id.h"
+#include "core/thread/thread.h"
 
 #define ENSURE(condition)                                \
 	do                                                   \
@@ -1252,6 +1253,20 @@ static void test_command_line()
 	ENSURE(orange != NULL && strcmp(orange, "orange") == 0);
 }
 
+static void test_thread()
+{
+	Thread thread;
+	ENSURE(!thread.is_running());
+
+	thread.start([](void*) { return 0; }, NULL);
+	thread.stop();
+	ENSURE(thread.exit_code() == 0);
+
+	thread.start([](void*) { return -1; }, NULL);
+	thread.stop();
+	ENSURE(thread.exit_code() == -1);
+}
+
 int main_unit_tests()
 {
 	test_memory();
@@ -1275,6 +1290,7 @@ int main_unit_tests()
 	test_sjson();
 	test_path();
 	test_command_line();
+	test_thread();
 
 	return EXIT_SUCCESS;
 }
