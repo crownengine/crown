@@ -77,7 +77,7 @@ Vector2 sprite_cell_xy(int r, int c, int offset_x, int offset_y, int cell_w, int
 {
 	int x0 = offset_x + c*cell_w + c*spacing_x;
 	int y0 = offset_y + r*cell_h + r*spacing_y;
-	return vector2(x0, y0);
+	return vector2((f32)x0, (f32)y0);
 }
 
 Vector2 sprite_cell_pivot_xy(int cell_w, int cell_h, int pivot)
@@ -137,7 +137,7 @@ Vector2 sprite_cell_pivot_xy(int cell_w, int cell_h, int pivot)
 		break;
 	}
 
-	return vector2(pivot_x, pivot_y);
+	return vector2((f32)pivot_x, (f32)pivot_y);
 }
 
 struct SpriteImporter
@@ -240,36 +240,36 @@ struct SpriteImporter
 
 		// FIXME: replace fclamp
 		ImGui::InputInt("Cells H", &cells_h);
-		cells_h = (int)fclamp(cells_h, 1, 256);
+		cells_h = (int)fclamp((f32)cells_h, 1.0f, 256.0f);
 
 		ImGui::InputInt("Cells V", &cells_v);
-		cells_v = (int)fclamp(cells_v, 1, 256);
+		cells_v = (int)fclamp((f32)cells_v, 1.0f, 256.0f);
 
 		ImGui::Checkbox("Cell WH auto", &cell_wh_auto);
 		ImGui::InputInt("Cell W", &cell_w);
-		cell_w = (int)fclamp(cell_w, 1, 4096);
+		cell_w = (int)fclamp((f32)cell_w, 1.0f, 4096.0f);
 
 		ImGui::InputInt("Cell H", &cell_h);
-		cell_h = (int)fclamp(cell_h, 1, 4096);
+		cell_h = (int)fclamp((f32)cell_h, 1.0f, 4096.0f);
 
 		ImGui::InputInt("Offset X", &offset_x);
-		offset_x = (int)fclamp(offset_x, 0, 128);
+		offset_x = (int)fclamp((f32)offset_x, 0.0f, 128.0f);
 
 		ImGui::InputInt("Offset Y", &offset_y);
-		offset_y = (int)fclamp(offset_y, 0, 128);
+		offset_y = (int)fclamp((f32)offset_y, 0.0f, 128.0f);
 
 		ImGui::InputInt("Spacing X", &spacing_x);
-		spacing_x = (int)fclamp(spacing_x, 0, 128);
+		spacing_x = (int)fclamp((f32)spacing_x, 0.0f, 128.0f);
 
 		ImGui::InputInt("Spacing Y", &spacing_y);
-		spacing_y = (int)fclamp(spacing_y, 0, 128);
+		spacing_y = (int)fclamp((f32)spacing_y, 0.0f, 128.0f);
 
 		ImGui::Combo("Pivot", &pivot, pivot_names, Pivot::COUNT);
 		ImGui::InputInt("Layer", &layer);
-		layer = (int)fclamp(layer, 0, 7);
+		layer = (int)fclamp((f32)layer, 0.0f, 7.0f);
 
 		ImGui::InputInt("Depth", &depth);
-		depth = (int)fclamp(depth, 0, 9999);
+		depth = (int)fclamp((f32)depth, 0.0f, 9999.0f);
 
 		ImGui::EndGroup();
 	}
@@ -341,9 +341,9 @@ struct Inspector
 //-----------------------------------------------------------------------------
 struct SceneView
 {
-	ImVec2 _view_origin;
-	ImVec2 _view_size;
-	ImVec2 _mouse_curr;
+	ImVec2 _origin;
+	ImVec2 _size;
+	ImVec2 _mouse;
 	ImVec2 _mouse_last;
 	bool _open;
 
@@ -357,7 +357,7 @@ struct SceneView
 		if (!_open)
 			return;
 
-		_view_origin = ImGui::GetCursorScreenPos();
+		_origin = ImGui::GetCursorScreenPos();
 
 		uint16_t w, h;
 		device()->resolution(w, h);
@@ -374,8 +374,8 @@ struct SceneView
 #endif // CROWN_PLATFORM_WINDOWS
 		);
 
-		ImVec2 mouse_pos_in_view = ImVec2(ImGui::GetIO().MousePos.x - _view_origin.x
-			, ImGui::GetIO().MousePos.y - _view_origin.y
+		ImVec2 mouse_pos_in_view = ImVec2(ImGui::GetIO().MousePos.x - _origin.x
+			, ImGui::GetIO().MousePos.y - _origin.y
 			);
 
 		if (ImGui::IsWindowHovered()
@@ -396,8 +396,8 @@ struct SceneView
 			ImGui::CaptureKeyboardFromApp(true);
 		}
 
-		_view_size = ImGui::GetWindowSize();
-		_view_size.x -= _view_origin.x;
+		_size = ImGui::GetWindowSize();
+		_size.x -= _origin.x;
 	}
 };
 
@@ -561,8 +561,8 @@ struct SpriteAnimator
 		CE_ENSURE(NULL != path);
 
 		const char* ls = strrchr(path, '/');
-		u32 file_len = strlen(ls+1);
-		u32 dir_len = strlen(path) - file_len;
+		u32 file_len = strlen32(ls+1);
+		u32 dir_len = strlen32(path) - file_len;
 
 		char buff[1024];
 		memcpy(buff, path, dir_len);
@@ -591,7 +591,7 @@ struct SpriteAnimator
 		path::join(file_name, dir.c_str(), _anim_name);
 		file_name += ".sprite_animation";
 		File* f = _fs->open(file_name.c_str(), FileOpenMode::WRITE);
-		f->write(string_stream::c_str(ss), strlen(string_stream::c_str(ss)));
+		f->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
 		f->close();
 	}
 
@@ -653,7 +653,7 @@ struct SpriteAnimator
 			array::clear(_frames);
 
 			const char* sprite = _entities[_cur_entity];
-			u32 sprite_len = strlen(sprite);
+			u32 sprite_len = strlen32(sprite);
 			char entity[1024];
 			strncpy(entity, sprite, sizeof(entity)-1);
 			entity[sprite_len-7] = '\0'; // remove ".sprite"
@@ -808,7 +808,7 @@ struct LevelEditor
 
 	// State
 	f32 _grid_size;
-	s32 _rotation_snap;
+	f32 _rotation_snap;
 	bool _show_grid;
 	bool _snap_to_grid;
 	bool _debug_render_world;
@@ -873,12 +873,12 @@ struct LevelEditor
 
 		static f32 last_w = 0.0f;
 		static f32 last_h = 0.0f;
-		if (last_w != _scene_view._view_size.x || last_h != _scene_view._view_size.y)
+		if (last_w != _scene_view._size.x || last_h != _scene_view._size.y)
 		{
-			last_w = _scene_view._view_size.x;
-			last_h = _scene_view._view_size.y;
-			device()->_width  = _scene_view._view_size.x != 0.0f ? _scene_view._view_size.x : 128.0f;
-			device()->_height = _scene_view._view_size.y != 0.0f ? _scene_view._view_size.y : 128.0f;
+			last_w = _scene_view._size.x;
+			last_h = _scene_view._size.y;
+			device()->_width  = u16(_scene_view._size.x != 0.0f ? _scene_view._size.x : 128.0f);
+			device()->_height = u16(_scene_view._size.y != 0.0f ? _scene_view._size.y : 128.0f);
 		}
 
 		u32 message_count = 0;
@@ -1271,7 +1271,7 @@ struct LevelEditor
 				{
 					tool_send_state();
 				}
-				if (ImGui::SliderInt("Snap Rot", &_rotation_snap, 1, 180))
+				if (ImGui::SliderFloat("Snap Rot", &_rotation_snap, 1, 180))
 				{
 					tool_send_state();
 				}
@@ -1403,9 +1403,9 @@ bool tool_process_events()
 
 				if (!io.WantCaptureMouse)
 				{
-					ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
-					mouse_curr.x = io.MousePos.x - s_editor->_scene_view._view_origin.x;
-					mouse_curr.y = io.MousePos.y - s_editor->_scene_view._view_origin.y;
+					ImVec2& mouse_curr = s_editor->_scene_view._mouse;
+					mouse_curr.x = io.MousePos.x - s_editor->_scene_view._origin.x;
+					mouse_curr.y = io.MousePos.y - s_editor->_scene_view._origin.y;
 
 					tool::set_mouse_state(ss
 						, mouse_curr.x
@@ -1438,11 +1438,11 @@ bool tool_process_events()
 
 					if (!io.WantCaptureMouse)
 					{
-						ImVec2& mouse_curr = s_editor->_scene_view._mouse_curr;
+						ImVec2& mouse_curr = s_editor->_scene_view._mouse;
 						ImVec2& mouse_last = s_editor->_scene_view._mouse_last;
 
-						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._view_origin.x;
-						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._view_origin.y;
+						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._origin.x;
+						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._origin.y;
 
 						f32 delta_x = mouse_curr.x - mouse_last.x;
 						f32 delta_y = mouse_curr.y - mouse_last.y;
