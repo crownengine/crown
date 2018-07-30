@@ -4,8 +4,9 @@
  */
 
 #include "core/filesystem/path.h"
+#include "core/platform.h"
 #include "core/strings/dynamic_string.h"
-#include <ctype.h> // isalpha
+#include <ctype.h>  // isalpha
 #include <string.h> // strrchr
 
 namespace crown

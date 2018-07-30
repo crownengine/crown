@@ -16,7 +16,7 @@ struct AtomicInt
 {
 	s32 _val;
 
-	///
+	/// Initialization is not atomic.
 	AtomicInt(s32 val);
 
 	///

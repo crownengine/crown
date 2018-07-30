@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "core/error/error.h"
-#include "core/platform.h"
 #include "core/types.h"
 
 namespace crown

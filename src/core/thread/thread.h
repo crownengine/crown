@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "core/platform.h"
 #include "core/thread/semaphore.h"
 #include "core/types.h"
 

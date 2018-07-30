@@ -3,6 +3,8 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "core/error/error.h"
+#include "core/platform.h"
 #include "core/thread/condition_variable.h"
 
 #if CROWN_PLATFORM_POSIX

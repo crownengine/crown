@@ -13,8 +13,8 @@
 namespace crown
 {
 AtomicInt::AtomicInt(s32 val)
+	: _val(val)
 {
-	store(val);
 }
 
 s32 AtomicInt::load()
