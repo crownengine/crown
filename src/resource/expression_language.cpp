@@ -1,10 +1,11 @@
 #include "core/error/error.h"
 #include "core/math/math.h"
+#include "core/strings/string.h"
 #include "resource/expression_language.h"
 #include <alloca.h>
-#include <string.h>
-#include <limits.h>
-#include <stdlib.h>
+#include <limits.h> // UINT_MAX
+#include <stdlib.h> // strtof
+#include <string.h> // memmove
 
 namespace crown
 {
@@ -164,7 +165,7 @@ namespace expression_language
 		static unsigned find_string(const char *s, unsigned len, unsigned num_strings, const char **strings)
 		{
 			for (unsigned i=0; i<num_strings; ++i)
-				if (strncmp(s, strings[i], len) == 0 && strlen(strings[i]) == len)
+				if (strncmp(s, strings[i], len) == 0 && strlen32(strings[i]) == len)
 					return i;
 			return UINT_MAX;
 		}
