@@ -29,9 +29,6 @@ namespace expression_language
 	/// Returns the id part of the byte code word.
 	static inline unsigned id_mask(unsigned i) {return i & 0x000fffff;}
 
-	/// Returns true if the byte code word is a BC_PUSH_FLOAT operation.
-	static inline bool is_bc_push_float(unsigned i) {return (i & 0x7f80000) != 0x7f8;}
-
 	/// Opcodes for functions
 	enum OpCode
 	{
@@ -456,26 +453,6 @@ namespace expression_language
 	}
 
 	#endif // CAN_COMPILE
-
-	bool is_constant(const unsigned *byte_code)
-	{
-		unsigned bc = *byte_code++;
-		if (!is_bc_push_float(bc))
-			return false;
-		bc = *byte_code;
-		return bc_mask(bc) == BC_END;
-	}
-
-	float constant_value(const unsigned *byte_code)
-	{
-		unsigned bc = *byte_code;
-		if (is_bc_push_float(bc))
-			return unsigned_to_float(bc);
-		else {
-			CE_FATAL("Not a static expression");
-			return 0;
-		}
-	}
 
 	bool run(const unsigned *byte_code, const float *variables, Stack &stack)
 	{

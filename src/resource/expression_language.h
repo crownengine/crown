@@ -58,12 +58,6 @@ namespace expression_language
 			);
 #endif
 
-	/// Returns true if the byte code is constant. I. e., it always produces the same float value.
-	bool is_constant(const unsigned *byte_code);
-
-	/// Returns the constant value produced by the byte code.
-	float constant_value(const unsigned *byte_code);
-
 	/// Represents the working stack.
 	struct Stack
 	{
