@@ -169,7 +169,7 @@ void LuaEnvironment::call_global(const char* func, u8 argc, ...)
 		switch (type)
 		{
 		case ARGUMENT_FLOAT:
-			stack.push_float(va_arg(vl, f64));
+			stack.push_float(f32(va_arg(vl, f64)));
 			break;
 
 		default:
