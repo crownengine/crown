@@ -188,13 +188,13 @@ namespace expression_language
 		/// Finds a token representing the identifier in the environment.
 		Token token_for_identifier(const char *identifier) const
 		{
-			return token_for_identifier(identifier, strlen(identifier));
+			return token_for_identifier(identifier, strlen32(identifier));
 		}
 
 		/// True if there is a function matching the specified identifier.
 		bool has_function(char * identifier) const
 		{
-			return find_string(identifier, strlen(identifier), num_functions, function_names) != UINT_MAX;
+			return find_string(identifier, strlen32(identifier), num_functions, function_names) != UINT_MAX;
 		}
 	};
 
@@ -224,7 +224,7 @@ namespace expression_language
 				const char *identifier = p;
 				while ( (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p == '_') || (*p >= '0' && *p <= '9'))
 					p++;
-				token = env.token_for_identifier(identifier, p-identifier);
+				token = env.token_for_identifier(identifier, u32(p-identifier));
 				binary = true;
 			// Operators
 			} else {
