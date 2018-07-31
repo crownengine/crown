@@ -614,7 +614,7 @@ Mesh
 **mesh_obb** (rw, id) : Matrix4x4, Vector3
 	Returns the OBB of the mesh *id* as (pose, half_extents).
 
-**mesh_raycast** (rw, id, from, dir) : float
+**mesh_cast_ray** (rw, id, from, dir) : float
 	Returns the distance along ray (from, dir) to intersection point with the mesh *id* or -1.0 if no intersection.
 
 Sprite
@@ -650,7 +650,7 @@ Sprite
 **sprite_obb** (rw, unit) : Matrix4x4, Vector3
 	Returns the OBB of the sprite as (pose, half_extents).
 
-**sprite_raycast** (rw, unit, from, dir) : float, int, int
+**sprite_cast_ray** (rw, unit, from, dir) : float, int, int
 	Returns (t, layer, depth), where *t* is the distance along ray (from, dir) to
 	intersection point with the sprite or -1.0 if no intersection.
 

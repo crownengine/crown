@@ -46,7 +46,7 @@ struct RenderWorld
 
 	/// Returns the distance along ray (from, dir) to intersection point with mesh @a i
 	/// or -1.0 if no intersection.
-	f32 mesh_raycast(MeshInstance i, const Vector3& from, const Vector3& dir);
+	f32 mesh_cast_ray(MeshInstance i, const Vector3& from, const Vector3& dir);
 
 	/// Creates a new sprite instance.
 	SpriteInstance sprite_create(UnitId id, const SpriteRendererDesc& srd, const Matrix4x4& tr);
@@ -83,7 +83,7 @@ struct RenderWorld
 
 	/// Returns the distance along ray (from, dir) to intersection point with sprite
 	/// or -1.0 if no intersection.
-	f32 sprite_raycast(UnitId unit, const Vector3& from, const Vector3& dir, u32& layer, u32& depth);
+	f32 sprite_cast_ray(UnitId unit, const Vector3& from, const Vector3& dir, u32& layer, u32& depth);
 
 	/// Creates a new light instance.
 	LightInstance light_create(UnitId unit, const LightDesc& ld, const Matrix4x4& tr);

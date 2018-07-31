@@ -333,12 +333,12 @@ function UnitBox:raycast(pos, dir)
 	local rw = LevelEditor._rw
 	local mesh_component = RenderWorld.mesh_instances(rw, self._unit_id)
 	if mesh_component then
-		return RenderWorld.mesh_raycast(rw, mesh_component, pos, dir)
+		return RenderWorld.mesh_cast_ray(rw, mesh_component, pos, dir)
 	end
 
 	local sprite_component = RenderWorld.sprite_instances(rw, self._unit_id)
 	if sprite_component then
-		return RenderWorld.sprite_raycast(rw, self._unit_id, pos, dir)
+		return RenderWorld.sprite_cast_ray(rw, self._unit_id, pos, dir)
 	end
 
 	return -1.0
@@ -465,7 +465,7 @@ function SoundObject:raycast(pos, dir)
 	local rw = LevelEditor._rw
 	local mesh_component = RenderWorld.mesh_instances(rw, self._unit_id)
 	local tm, hext = RenderWorld.mesh_obb(rw, mesh_component)
-	return RenderWorld.mesh_raycast(rw, mesh_component, pos, dir)
+	return RenderWorld.mesh_cast_ray(rw, mesh_component, pos, dir)
 end
 
 function SoundObject:draw()

@@ -1898,11 +1898,11 @@ static int render_world_mesh_obb(lua_State* L)
 	return 2;
 }
 
-static int render_world_mesh_raycast(lua_State* L)
+static int render_world_mesh_cast_ray(lua_State* L)
 {
 	LuaStack stack(L);
 	RenderWorld* rw = stack.get_render_world(1);
-	float t = rw->mesh_raycast(stack.get_mesh_instance(2)
+	float t = rw->mesh_cast_ray(stack.get_mesh_instance(2)
 		, stack.get_vector3(3)
 		, stack.get_vector3(4)
 		);
@@ -2006,13 +2006,13 @@ static int render_world_sprite_obb(lua_State* L)
 	return 2;
 }
 
-static int render_world_sprite_raycast(lua_State* L)
+static int render_world_sprite_cast_ray(lua_State* L)
 {
 	LuaStack stack(L);
 	RenderWorld* rw = stack.get_render_world(1);
 	u32 layer;
 	u32 depth;
-	float t = rw->sprite_raycast(stack.get_unit(2)
+	float t = rw->sprite_cast_ray(stack.get_unit(2)
 		, stack.get_vector3(3)
 		, stack.get_vector3(4)
 		, layer
@@ -3585,7 +3585,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "mesh_destroy",         render_world_mesh_destroy);
 	env.add_module_function("RenderWorld", "mesh_instances",       render_world_mesh_instances);
 	env.add_module_function("RenderWorld", "mesh_obb",             render_world_mesh_obb);
-	env.add_module_function("RenderWorld", "mesh_raycast",         render_world_mesh_raycast);
+	env.add_module_function("RenderWorld", "mesh_cast_ray",        render_world_mesh_cast_ray);
 	env.add_module_function("RenderWorld", "mesh_set_visible",     render_world_mesh_set_visible);
 	env.add_module_function("RenderWorld", "sprite_create",        render_world_sprite_create);
 	env.add_module_function("RenderWorld", "sprite_destroy",       render_world_sprite_destroy);
@@ -3597,7 +3597,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "sprite_set_layer",     render_world_sprite_set_layer);
 	env.add_module_function("RenderWorld", "sprite_set_depth",     render_world_sprite_set_depth);
 	env.add_module_function("RenderWorld", "sprite_obb",           render_world_sprite_obb);
-	env.add_module_function("RenderWorld", "sprite_raycast",       render_world_sprite_raycast);
+	env.add_module_function("RenderWorld", "sprite_cast_ray",      render_world_sprite_cast_ray);
 	env.add_module_function("RenderWorld", "light_create",         render_world_light_create);
 	env.add_module_function("RenderWorld", "light_destroy",        render_world_light_destroy);
 	env.add_module_function("RenderWorld", "light_instances",      render_world_light_instances);
