@@ -292,57 +292,10 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 }
 
 /// Sets the matrix @a m to perspective.
-inline void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 nnear, f32 ffar)
-{
-	const f32 height = 1.0f / ftan(fovy * 0.5f);
-	const f32 width = height * 1.0f / aspect;
-	const f32 aa = ffar / (ffar - nnear);
-	const f32 bb = -nnear * aa;
-
-	m.x.x = width;
-	m.x.y = 0.0f;
-	m.x.z = 0.0f;
-	m.x.w = 0.0f;
-
-	m.y.x = 0.0f;
-	m.y.y = height;
-	m.y.z = 0.0f;
-	m.y.w = 0.0f;
-
-	m.z.x = 0.0f;
-	m.z.y = 0.0f;
-	m.z.z = aa;
-	m.z.w = 1.0f;
-
-	m.t.x = 0.0f;
-	m.t.y = 0.0f;
-	m.t.z = bb;
-	m.t.w = 0.0f;
-}
+void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 nnear, f32 ffar);
 
 /// Sets the matrix @a m to orthographic.
-inline void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top, f32 nnear, f32 ffar)
-{
-	m.x.x = 2.0f / (right - left);
-	m.x.y = 0.0f;
-	m.x.z = 0.0f;
-	m.x.w = 0.0f;
-
-	m.y.x = 0.0f;
-	m.y.y = 2.0f / (top - bottom);
-	m.y.z = 0.0f;
-	m.y.w = 0.0f;
-
-	m.z.x = 0.0f;
-	m.z.y = 0.0f;
-	m.z.z = 1.0f / (ffar - nnear);
-	m.z.w = 0.0f;
-
-	m.t.x = (left + right) / (left - right);
-	m.t.y = (top + bottom) / (bottom - top);
-	m.t.z = nnear / (nnear - ffar);
-	m.t.w = 1.0f;
-}
+void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top, f32 nnear, f32 ffar);
 
 /// Transposes the matrix @a m and returns the result.
 inline Matrix4x4& transpose(Matrix4x4& m)
@@ -384,33 +337,7 @@ inline Matrix4x4 get_transposed(Matrix4x4 m)
 }
 
 /// Sets the matrix @a m to look.
-inline void look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
-{
-	Vector3 zaxis = pos - target;
-	normalize(zaxis);
-	const Vector3 xaxis = cross(up, zaxis);
-	const Vector3 yaxis = cross(zaxis, xaxis);
-
-	m.x.x = xaxis.x;
-	m.x.y = yaxis.x;
-	m.x.z = zaxis.x;
-	m.x.w = 0.0f;
-
-	m.y.x = xaxis.y;
-	m.y.y = yaxis.y;
-	m.y.z = zaxis.y;
-	m.y.w = 0.0f;
-
-	m.z.x = xaxis.z;
-	m.z.y = yaxis.z;
-	m.z.z = zaxis.z;
-	m.z.w = 0.0f;
-
-	m.t.x = -dot(pos, xaxis);
-	m.t.y = -dot(pos, yaxis);
-	m.t.z = -dot(pos, zaxis);
-	m.t.w = 1.0f;
-}
+void look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up);
 
 /// Inverts the matrix @a m and returns the result.
 Matrix4x4& invert(Matrix4x4& m);
