@@ -80,46 +80,45 @@ namespace sprite_resource_internal
 			y1 = y1 == 0.0f ? y1 : -y1;
 
 			array::push_back(vertices, x0);
+			array::push_back(vertices, 0.0f);
 			array::push_back(vertices, y0);
 			array::push_back(vertices, u0);
 			array::push_back(vertices, v0);
 
 			array::push_back(vertices, x1);
+			array::push_back(vertices, 0.0f);
 			array::push_back(vertices, y0);
 			array::push_back(vertices, u1);
 			array::push_back(vertices, v0);
 
 			array::push_back(vertices, x1);
+			array::push_back(vertices, 0.0f);
 			array::push_back(vertices, y1);
 			array::push_back(vertices, u1);
 			array::push_back(vertices, v1);
 
 			array::push_back(vertices, x0);
+			array::push_back(vertices, 0.0f);
 			array::push_back(vertices, y1);
 			array::push_back(vertices, u0);
 			array::push_back(vertices, v1);
 		}
 
+		const u32 num_vertices = array::size(vertices) / 5; // 5 components per vertex
+
 		AABB aabb;
-		aabb::reset(aabb);
-		for (u32 i = 0; i < array::size(vertices); i += 4)
-		{
-			Vector3 v;
-			v.x = vertices[i + 0];
-			v.y = 0.0f;
-			v.z = vertices[i + 1];
-			aabb::add_points(aabb, 1, &v);
-		}
+		aabb::from_points(aabb
+			, num_vertices
+			, sizeof(vertices[0])*5
+			, array::begin(vertices)
+			);
+		// Enforce some thickness
 		aabb.min.y = -0.25f;
 		aabb.max.y =  0.25f;
 
 		OBB obb;
 		obb.tm = matrix4x4(QUATERNION_IDENTITY, aabb::center(aabb));
-		obb.half_extents.x = (aabb.max.x - aabb.min.x) * 0.5f;
-		obb.half_extents.y = (aabb.max.y - aabb.min.y) * 0.5f;
-		obb.half_extents.z = (aabb.max.z - aabb.min.z) * 0.5f;
-
-		const u32 num_vertices = array::size(vertices) / 4; // 4 components per vertex
+		obb.half_extents = (aabb.max - aabb.min) * 0.5f;
 
 		// Write
 		SpriteResource sr;
@@ -141,7 +140,7 @@ namespace sprite_resource
 {
 	const f32* frame_data(const SpriteResource* sr, u32 i)
 	{
-		return ((f32*)&sr[1]) + 16*i;
+		return ((f32*)&sr[1]) + 20*i;
 	}
 
 } // namespace sprite_resource

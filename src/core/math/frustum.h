@@ -107,8 +107,7 @@ namespace frustum
 		vertices[7] = vertex(f, 7);
 
 		AABB r;
-		aabb::reset(r);
-		aabb::add_points(r, 8, vertices);
+		aabb::from_points(r, countof(vertices), vertices);
 		return r;
 	}
 

@@ -233,18 +233,14 @@ namespace mesh_resource_internal
 			_decl.end();
 
 			// Bounds
-			aabb::reset(_aabb);
-			aabb::add_points(_aabb
+			aabb::from_points(_aabb
 				, array::size(_positions) / 3
-				, sizeof(f32) * 3
+				, sizeof(_positions[0]) * 3
 				, array::begin(_positions)
 				);
-			_aabb = aabb::transformed(_aabb, _matrix_local);
 
-			_obb.tm = matrix4x4(QUATERNION_IDENTITY, aabb::center(_aabb));
-			_obb.half_extents.x = (_aabb.max.x - _aabb.min.x) * 0.5f;
-			_obb.half_extents.y = (_aabb.max.y - _aabb.min.y) * 0.5f;
-			_obb.half_extents.z = (_aabb.max.z - _aabb.min.z) * 0.5f;
+			_obb.tm = matrix4x4(QUATERNION_IDENTITY, aabb::center(_aabb) * _matrix_local);
+			_obb.half_extents = (_aabb.max - _aabb.min) * 0.5f;
 		}
 
 		void write()

@@ -20,6 +20,15 @@ namespace aabb
 	/// Resets the AABB @a b.
 	void reset(AABB& b);
 
+	/// Creates the AABB @a a from @a num @a points.
+	void from_points(AABB& a, u32 num, u32 stride, const void* points);
+
+	/// Creates the AABB @a a from @a num @a points.
+	void from_points(AABB& b, u32 num, const Vector3* points);
+
+	/// Creates the AABB @a a from @a num @a boxes.
+	void from_boxes(AABB& b, u32 num, const AABB* boxes);
+
 	/// Returns the center of the box @a b.
 	Vector3 center(const AABB& b);
 
@@ -28,15 +37,6 @@ namespace aabb
 
 	/// Returns the volume of the box @a b.
 	f32 volume(const AABB& b);
-
-	/// Adds @a num @a points to the box @a b, expanding its bounds if necessary.
-	void add_points(AABB& a, u32 num, u32 stride, const void* points);
-
-	/// Adds @a num @a points to the box @a b, expanding its bounds if necessary.
-	void add_points(AABB& b, u32 num, const Vector3* points);
-
-	/// Adds @a num @a boxes to the box @a b, expanding its bounds if necessary.
-	void add_boxes(AABB& b, u32 num, const AABB* boxes);
 
 	/// Returns whether point @a p is contained in the box @a b.
 	bool contains_point(const AABB& b, const Vector3& p);
@@ -63,6 +63,11 @@ namespace aabb
 		b.max = VECTOR3_ZERO;
 	}
 
+	inline void from_points(AABB& b, u32 num, const Vector3* points)
+	{
+		aabb::from_points(b, num, sizeof(Vector3), points);
+	}
+
 	inline Vector3 center(const AABB& b)
 	{
 		return (b.min + b.max) * 0.5f;
@@ -76,11 +81,6 @@ namespace aabb
 	inline f32 volume(const AABB& b)
 	{
 		return (b.max.x - b.min.x) * (b.max.y - b.min.y) * (b.max.z - b.min.z);
-	}
-
-	inline void add_points(AABB& b, u32 num, const Vector3* points)
-	{
-		aabb::add_points(b, num, sizeof(Vector3), points);
 	}
 
 	inline bool contains_point(const AABB& b, const Vector3& p)
@@ -127,8 +127,7 @@ namespace aabb
 		vertices[7] = vertices[7] * m;
 
 		AABB r;
-		aabb::reset(r);
-		aabb::add_points(r, 8, vertices);
+		aabb::from_points(r, countof(vertices), vertices);
 		return r;
 	}
 

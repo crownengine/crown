@@ -228,10 +228,10 @@ f32 RenderWorld::sprite_cast_ray(UnitId unit, const Vector3& from, const Vector3
 
 	const f32 vertices[] =
 	{
-		frame[ 0], 0.0f, frame[ 1],
-		frame[ 4], 0.0f, frame[ 5],
-		frame[ 8], 0.0f, frame[ 9],
-		frame[12], 0.0f, frame[13]
+		frame[ 0], frame[ 1], frame[ 2],
+		frame[ 5], frame[ 6], frame[ 7],
+		frame[10], frame[11], frame[12],
+		frame[15], frame[16], frame[17]
 	};
 
 	const u16 indices[] =
@@ -408,7 +408,7 @@ void RenderWorld::render(const Matrix4x4& view)
 	{
 		bgfx::VertexDecl decl;
 		decl.begin()
-			.add(bgfx::Attrib::Position,  2, bgfx::AttribType::Float)
+			.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
 			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false)
 			.end()
 			;
@@ -425,17 +425,17 @@ void RenderWorld::render(const Matrix4x4& view)
 		{
 			const f32* frame = sprite_resource::frame_data(sid.resource[i], sid.frame[i]);
 
-			f32 u0 = frame[ 2]; // u
-			f32 v0 = frame[ 3]; // v
+			f32 u0 = frame[ 3]; // u
+			f32 v0 = frame[ 4]; // v
 
-			f32 u1 = frame[ 6]; // u
-			f32 v1 = frame[ 7]; // v
+			f32 u1 = frame[ 8]; // u
+			f32 v1 = frame[ 9]; // v
 
-			f32 u2 = frame[10]; // u
-			f32 v2 = frame[11]; // v
+			f32 u2 = frame[13]; // u
+			f32 v2 = frame[14]; // v
 
-			f32 u3 = frame[14]; // u
-			f32 v3 = frame[15]; // v
+			f32 u3 = frame[18]; // u
+			f32 v3 = frame[19]; // v
 
 			if (sid.flip_x[i])
 			{
@@ -453,25 +453,29 @@ void RenderWorld::render(const Matrix4x4& view)
 
 			vdata[ 0] = frame[ 0]; // x
 			vdata[ 1] = frame[ 1]; // y
-			vdata[ 2] = u0;
-			vdata[ 3] = v0;
+			vdata[ 2] = frame[ 2]; // z
+			vdata[ 3] = u0;
+			vdata[ 4] = v0;
 
-			vdata[ 4] = frame[ 4]; // x
-			vdata[ 5] = frame[ 5]; // y
-			vdata[ 6] = u1;
-			vdata[ 7] = v1;
+			vdata[ 5] = frame[ 5]; // x
+			vdata[ 6] = frame[ 6]; // y
+			vdata[ 7] = frame[ 7]; // z
+			vdata[ 8] = u1;
+			vdata[ 9] = v1;
 
-			vdata[ 8] = frame[ 8]; // x
-			vdata[ 9] = frame[ 9]; // y
-			vdata[10] = u2;
-			vdata[11] = v2;
+			vdata[10] = frame[10]; // x
+			vdata[11] = frame[11]; // y
+			vdata[12] = frame[12]; // z
+			vdata[13] = u2;
+			vdata[14] = v2;
 
-			vdata[12] = frame[12]; // x
-			vdata[13] = frame[13]; // y
-			vdata[14] = u3;
-			vdata[15] = v3;
+			vdata[15] = frame[15]; // x
+			vdata[16] = frame[16]; // y
+			vdata[17] = frame[17]; // z
+			vdata[18] = u3;
+			vdata[19] = v3;
 
-			vdata += 16;
+			vdata += 20;
 
 			*idata++ = i*4+0;
 			*idata++ = i*4+1;

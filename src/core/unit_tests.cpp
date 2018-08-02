@@ -697,16 +697,14 @@ static void test_aabb()
 		ENSURE(fequal(c, 39.36f, 0.00001f));
 	}
 	{
-		AABB a;
-		aabb::reset(a);
-
 		const Vector3 points[] =
 		{
 			{ -1.2f,  3.4f,  5.5f },
 			{  8.2f, -2.4f, -1.5f },
 			{ -5.9f,  9.2f,  6.0f }
 		};
-		aabb::add_points(a, countof(points), points);
+		AABB a;
+		aabb::from_points(a, countof(points), points);
 		ENSURE(fequal(a.min.x, -5.9f, 0.00001f));
 		ENSURE(fequal(a.min.y, -2.4f, 0.00001f));
 		ENSURE(fequal(a.min.z, -1.5f, 0.00001f));
@@ -715,11 +713,6 @@ static void test_aabb()
 		ENSURE(fequal(a.max.z,  6.0f, 0.00001f));
 	}
 	{
-		AABB boxes[3];
-		aabb::reset(boxes[0]);
-		aabb::reset(boxes[1]);
-		aabb::reset(boxes[2]);
-
 		const Vector3 points[] =
 		{
 			{ -1.2f,  3.4f,  5.5f },
@@ -734,13 +727,13 @@ static void test_aabb()
 			{ -8.6f, -4.8f,  2.8f },
 			{  4.1f,  4.7f, -0.4f }
 		};
-		aabb::add_points(boxes[0], countof(points)/3, &points[0]);
-		aabb::add_points(boxes[1], countof(points)/3, &points[3]);
-		aabb::add_points(boxes[2], countof(points)/3, &points[6]);
+		AABB boxes[3];
+		aabb::from_points(boxes[0], countof(points)/3, &points[0]);
+		aabb::from_points(boxes[1], countof(points)/3, &points[3]);
+		aabb::from_points(boxes[2], countof(points)/3, &points[6]);
 
 		AABB d;
-		aabb::reset(d);
-		aabb::add_boxes(d, countof(boxes), boxes);
+		aabb::from_boxes(d, countof(boxes), boxes);
 		ENSURE(fequal(d.min.x, -8.6f, 0.00001f));
 		ENSURE(fequal(d.min.y, -4.8f, 0.00001f));
 		ENSURE(fequal(d.min.z, -2.2f, 0.00001f));

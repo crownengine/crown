@@ -160,7 +160,7 @@ bgfx_shaders = {
 		varying = """
 			vec2 v_texcoord0 : TEXCOORD0 = vec2(0.0, 0.0);
 
-			vec2 a_position  : POSITION;
+			vec3 a_position  : POSITION;
 			vec2 a_texcoord0 : TEXCOORD0;
 		"""
 
@@ -172,7 +172,7 @@ bgfx_shaders = {
 		vs_code = """
 			void main()
 			{
-				gl_Position = mul(u_modelViewProj, vec4(a_position.x, 0.0, a_position.y, 1.0));
+				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
 				v_texcoord0 = a_texcoord0;
 			}
 		"""
