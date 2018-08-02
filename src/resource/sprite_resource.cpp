@@ -64,20 +64,20 @@ namespace sprite_resource_internal
 			const SpriteFrame& fd = frame;
 
 			// Compute uv coords
-			const f32 u0 = fd.region.x / width;
-			const f32 v0 = (fd.region.y + fd.region.w) / height;
-			const f32 u1 = (fd.region.x + fd.region.z) / width;
-			const f32 v1 = fd.region.y / height;
+			const f32 u0 = (              fd.region.x) / width;
+			const f32 v0 = (fd.region.w + fd.region.y) / height;
+			const f32 u1 = (fd.region.z + fd.region.x) / width;
+			const f32 v1 = (              fd.region.y) / height;
 
 			// Compute positions
-			f32 x0 = fd.region.x - fd.pivot.x;
-			f32 y0 = -(fd.region.y + fd.region.w - fd.pivot.y);
-			f32 x1 = fd.region.x + fd.region.z - fd.pivot.x;
-			f32 y1 = -(fd.region.y - fd.pivot.y);
-			x0 /= CROWN_DEFAULT_PIXELS_PER_METER;
-			y0 /= CROWN_DEFAULT_PIXELS_PER_METER;
-			x1 /= CROWN_DEFAULT_PIXELS_PER_METER;
-			y1 /= CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 x0 = (              fd.region.x - fd.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 y0 = (fd.region.w + fd.region.y - fd.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 x1 = (fd.region.z + fd.region.x - fd.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 y1 = (              fd.region.y - fd.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
+
+			// Invert Y axis
+			y0 = y0 == 0.0f ? y0 : -y0;
+			y1 = y1 == 0.0f ? y1 : -y1;
 
 			array::push_back(vertices, x0);
 			array::push_back(vertices, y0);
