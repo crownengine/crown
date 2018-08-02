@@ -87,9 +87,10 @@ namespace physics_resource_internal
 	void compile_capsule(const Array<Vector3>& points, ColliderDesc& sd)
 	{
 		AABB aabb;
-		aabb::reset(aabb);
-		aabb::add_points(aabb, array::size(points), array::begin(points));
+		aabb::from_points(aabb, array::size(points), array::begin(points));
 
+		const Vector3 origin = aabb::center(aabb) * sd.local_tm;
+		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
 		sd.capsule.radius = aabb::radius(aabb) / 2.0f;
 		sd.capsule.height = (aabb.max.y - aabb.min.y) / 2.0f;
 	}
@@ -97,9 +98,10 @@ namespace physics_resource_internal
 	void compile_box(const Array<Vector3>& points, ColliderDesc& sd)
 	{
 		AABB aabb;
-		aabb::reset(aabb);
-		aabb::add_points(aabb, array::size(points), array::begin(points));
+		aabb::from_points(aabb, array::size(points), array::begin(points));
 
+		const Vector3 origin = aabb::center(aabb) * sd.local_tm;
+		sd.local_tm.t = vector4(origin.x, origin.y, origin.z, 1.0f);
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
