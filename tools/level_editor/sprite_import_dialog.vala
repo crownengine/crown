@@ -102,6 +102,7 @@ public class SpriteImportDialog : Gtk.Dialog
 	public Gdk.Pixbuf _pixbuf;
 	public Gtk.DrawingArea _drawing_area;
 	public Gtk.ScrolledWindow _scrolled_window;
+	public Gtk.DrawingArea _preview;
 
 	public Gtk.Label resolution;
 	public Gtk.SpinButton cells_h;
@@ -116,6 +117,11 @@ public class SpriteImportDialog : Gtk.Dialog
 	public Gtk.ComboBoxText pivot;
 	public SpinButtonDouble layer;
 	public SpinButtonDouble depth;
+
+	public Gtk.SpinButton collision_x;
+	public Gtk.SpinButton collision_y;
+	public Gtk.SpinButton collision_w;
+	public Gtk.SpinButton collision_h;
 
 	// Widgets
 	public SpriteImportDialog(string png)
@@ -223,6 +229,57 @@ public class SpriteImportDialog : Gtk.Dialog
 		_scrolled_window.min_content_height = 640;
 		_scrolled_window.add(_drawing_area);
 
+		_preview = new Gtk.DrawingArea();
+		_preview.set_size_request(128, 128);
+
+		_preview.draw.connect((cr) => {
+				cr.set_source_rgb(0.1, 0.1, 0.1);
+				cr.paint();
+
+				Vector2 cell = sprite_cell_xy(0
+					, 0
+					, (int)offset_x.value
+					, (int)offset_y.value
+					, (int)cell_w.value
+					, (int)cell_h.value
+					, (int)spacing_x.value
+					, (int)spacing_y.value
+					);
+
+				int x0 = (int)cell.x;
+				int y0 = (int)cell.y;
+				int x1 = x0+(int)cell_w.value;
+				int y2 = y0+(int)cell_h.value;
+
+				// Draw checkered background
+				cr.save();
+				cr.set_source_surface(_checker, 0, 0);
+				Cairo.Pattern pattern = cr.get_source();
+				pattern.set_filter(Cairo.Filter.NEAREST);
+				pattern.set_extend(Cairo.Extend.REPEAT);
+				cr.rectangle(x0, y0, x1, y2);
+				cr.clip();
+				cr.new_path(); // path not consumed by clip()
+				cr.paint();
+				cr.restore();
+
+				// Draw sprite
+				cr.save();
+				Gdk.cairo_set_source_pixbuf(cr, _pixbuf, 0, 0);
+				cr.rectangle(x0, y0, x1, y2);
+				cr.clip();
+				cr.new_path(); // path not consumed by clip()
+				cr.paint();
+				cr.restore();
+
+				// Draw collision
+				cr.rectangle(collision_x.value, collision_y.value, collision_w.value, collision_h.value);
+				cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
+				cr.fill();
+
+				return true;
+			});
+
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());
 		resolution.halign = Gtk.Align.START;
 
@@ -243,6 +300,15 @@ public class SpriteImportDialog : Gtk.Dialog
 		spacing_x = new Gtk.SpinButton.with_range(0, 128.0, 1.0);
 		spacing_y = new Gtk.SpinButton.with_range(0, 128.0, 1.0);
 
+		collision_x = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
+		collision_x.value = 0;
+		collision_y = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
+		collision_y.value = 0;
+		collision_w = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
+		collision_w.value = 32;
+		collision_h = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
+		collision_h.value = 32;
+
 		cells_h.value_changed.connect (() => {
 			if (cell_wh_auto.active)
 			{
@@ -250,6 +316,7 @@ public class SpriteImportDialog : Gtk.Dialog
 				cell_h.value = _pixbuf.height / cells_v.value;
 			}
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		cells_v.value_changed.connect(() => {
@@ -259,6 +326,7 @@ public class SpriteImportDialog : Gtk.Dialog
 				cell_h.value = _pixbuf.height / cells_v.value;
 			}
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		cell_wh_auto.toggled.connect(() => {
@@ -267,30 +335,53 @@ public class SpriteImportDialog : Gtk.Dialog
 			cell_w.value = _pixbuf.width / cells_h.value;
 			cell_h.value = _pixbuf.height / cells_v.value;
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		cell_w.value_changed.connect (() => {
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		cell_h.value_changed.connect(() => {
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		offset_x.value_changed.connect(() => {
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		offset_y.value_changed.connect(() => {
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		spacing_x.value_changed.connect(() => {
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		spacing_y.value_changed.connect(() => {
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
+		});
+
+		collision_x.value_changed.connect(() => {
+			_preview.queue_draw();
+		});
+
+		collision_y.value_changed.connect(() => {
+			_preview.queue_draw();
+		});
+
+		collision_w.value_changed.connect(() => {
+			_preview.queue_draw();
+		});
+
+		collision_h.value_changed.connect(() => {
+			_preview.queue_draw();
 		});
 
 		pivot = new Gtk.ComboBoxText();
@@ -307,6 +398,7 @@ public class SpriteImportDialog : Gtk.Dialog
 
 		pivot.changed.connect(() => {
 			_drawing_area.queue_draw();
+			_preview.queue_draw();
 		});
 
 		layer = new SpinButtonDouble(0.0, 0.0, 7.0);
@@ -327,6 +419,11 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.attach(label_with_alignment("Layer", Gtk.Align.END),        0, 11, 1, 1);
 		grid.attach(label_with_alignment("Depth", Gtk.Align.END),        0, 12, 1, 1);
 
+		grid.attach(label_with_alignment("Collision X", Gtk.Align.END),  0, 13, 1, 1);
+		grid.attach(label_with_alignment("Collision Y", Gtk.Align.END),  0, 14, 1, 1);
+		grid.attach(label_with_alignment("Collision W", Gtk.Align.END),  0, 15, 1, 1);
+		grid.attach(label_with_alignment("Collision H", Gtk.Align.END),  0, 16, 1, 1);
+
 		grid.attach(resolution,   1,  0, 1, 1);
 		grid.attach(cells_h,      1,  1, 1, 1);
 		grid.attach(cells_v,      1,  2, 1, 1);
@@ -340,11 +437,18 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.attach(pivot,        1, 10, 1, 1);
 		grid.attach(layer,        1, 11, 1, 1);
 		grid.attach(depth,        1, 12, 1, 1);
+
+		grid.attach(collision_x,  1, 13, 1, 1);
+		grid.attach(collision_y,  1, 14, 1, 1);
+		grid.attach(collision_w,  1, 15, 1, 1);
+		grid.attach(collision_h,  1, 16, 1, 1);
+
 		grid.row_spacing = 6;
 		grid.column_spacing = 12;
 
 		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 12);
 		box.pack_start(_scrolled_window, true, true);
+		box.pack_start(_preview, true, true);
 		box.pack_end(grid, false, false);
 		box.margin_bottom = 18;
 
