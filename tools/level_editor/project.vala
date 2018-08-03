@@ -387,10 +387,10 @@ namespace Crown
 						unit.remove_component(id);
 				}
 
+				Hashtable mesh = SJSON.load(filename_i);
+				Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
 				// Create mesh_renderer
 				{
-					Hashtable mesh = SJSON.load(filename_i);
-					Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
 					foreach (var entry in mesh_nodes.entries)
 					{
 						string node_name = (string)entry.key;
@@ -404,6 +404,56 @@ namespace Crown
 						db.set_property_string(id, "type", "mesh_renderer");
 
 						db.add_to_set(GUID_ZERO, "components", id);
+					}
+				}
+
+				// Create collider
+				{
+					Guid id = Guid.new_guid();
+
+					if (!unit.has_component("collider", ref id))
+					{
+						db.create(id);
+						db.set_property_string(id, "data.shape", "mesh");
+						db.set_property_string(id, "data.scene", resource_name);
+						db.set_property_string(id, "data.name", mesh_nodes.entries.to_array()[0].key);
+						db.set_property_string(id, "data.material", "default");
+						db.set_property_string(id, "type", "collider");
+
+						db.add_to_set(GUID_ZERO, "components", id);
+					}
+					else
+					{
+						unit.set_component_property_string(id, "data.shape", "mesh");
+						unit.set_component_property_string(id, "data.scene", resource_name);
+						unit.set_component_property_string(id, "data.name", mesh_nodes.entries.to_array()[0].key);
+						unit.set_component_property_string(id, "data.material", "default");
+						unit.set_component_property_string(id, "type", "collider");
+					}
+				}
+
+				// Create actor
+				{
+					Guid id = Guid.new_guid();
+
+					if (!unit.has_component("actor", ref id))
+					{
+						db.create(id);
+						db.set_property_string(id, "data.class", "static");
+						db.set_property_string(id, "data.collision_filter", "default");
+						db.set_property_double(id, "data.mass", 10);
+						db.set_property_string(id, "data.material", "default");
+						db.set_property_string(id, "type", "actor");
+
+						db.add_to_set(GUID_ZERO, "components", id);
+					}
+					else
+					{
+						unit.set_component_property_string(id, "data.class", "static");
+						unit.set_component_property_string(id, "data.collision_filter", "default");
+						unit.set_component_property_double(id, "data.mass", 10);
+						unit.set_component_property_string(id, "data.material", "default");
+						unit.set_component_property_string(id, "type", "actor");
 					}
 				}
 
