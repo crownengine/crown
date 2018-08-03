@@ -136,9 +136,9 @@ public class SpriteImportDialog : Gtk.Dialog
 			_checker = new Cairo.ImageSurface(Cairo.Format.RGB24, width, height);
 
 			Cairo.Context cr = new Cairo.Context(_checker);
-			cr.set_source_rgb(0.8, 0.8, 0.8);
+			cr.set_source_rgb(0.9, 0.9, 0.9);
 			cr.paint();
-			cr.set_source_rgb(0.5, 0.5, 0.5);
+			cr.set_source_rgb(0.7, 0.7, 0.7);
 			cr.rectangle(width / 2, 0, width / 2, height / 2);
 			cr.rectangle(0, height / 2, width / 2, height / 2);
 			cr.fill();
@@ -195,16 +195,18 @@ public class SpriteImportDialog : Gtk.Dialog
 						int y2 = y0+(int)cell_h.value;
 						int x3 = x0;
 						int y3 = y2;
-						cr.move_to(x0, y0);
-						cr.line_to(x1, y1);
-						cr.move_to(x1, y1);
-						cr.line_to(x2, y2);
-						cr.move_to(x2, y2);
-						cr.line_to(x3, y3);
-						cr.move_to(x3, y3);
-						cr.line_to(x0, y0);
+						// https://www.cairographics.org/FAQ/#sharp_lines
+						cr.move_to((double)x0,       (double)y0 + 0.5);
+						cr.line_to((double)x1,       (double)y1 + 0.5);
+						cr.move_to((double)x1 + 0.5, (double)y1      );
+						cr.line_to((double)x2 + 0.5, (double)y2      );
+						cr.move_to((double)x2,       (double)y2 + 0.5);
+						cr.line_to((double)x3,       (double)y3 + 0.5);
+						cr.move_to((double)x3 + 0.5, (double)y3      );
+						cr.line_to((double)x0 + 0.5, (double)y0      );
 
-						cr.set_source_rgba(0.9, 0.1, 0.1, 0.6);
+						cr.set_line_width(1);
+						cr.set_source_rgba(0.9, 0.1, 0.1, 0.9);
 						cr.stroke();
 
 						cr.arc(x0 + pivot.x, y0 + pivot.y, 5.0, 0, 2*Math.PI);
