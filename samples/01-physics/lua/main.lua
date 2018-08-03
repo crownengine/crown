@@ -65,9 +65,9 @@ function Game.update(dt)
 	if Mouse.pressed(Mouse.button_id("middle")) then
 		local pos = SceneGraph.local_position(Game.sg, Game.camera:unit())
 		local dir = Matrix4x4.z(SceneGraph.local_pose(Game.sg, Game.camera:unit()))
-		local hits = PhysicsWorld.raycast(Game.pw, pos, dir, 100, "closest")
-		if #hits > 0 then
-			PhysicsWorld.actor_add_impulse(Game.pw, hits[1], dir * 400.0)
+		local hit, pos, normal, time, unit, actor = PhysicsWorld.cast_ray(Game.pw, pos, dir, 100)
+		if hit then
+			PhysicsWorld.actor_add_impulse(Game.pw, actor, dir * 400.0)
 		end
 	end
 
