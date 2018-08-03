@@ -34,16 +34,21 @@ namespace aabb
 
 	void from_boxes(AABB& b, u32 num, const AABB* boxes)
 	{
-		for (u32 i = 0; i < num; ++i)
-		{
-			const AABB& bi = boxes[i];
+		b.min.x = boxes[0].min.x;
+		b.min.y = boxes[0].min.y;
+		b.min.z = boxes[0].min.z;
+		b.max.x = boxes[0].max.x;
+		b.max.y = boxes[0].max.y;
+		b.max.z = boxes[0].max.z;
 
-			b.min.x = fmin(b.min.x, bi.min.x);
-			b.min.y = fmin(b.min.y, bi.min.y);
-			b.min.z = fmin(b.min.z, bi.min.z);
-			b.max.x = fmax(b.max.x, bi.max.x);
-			b.max.y = fmax(b.max.y, bi.max.y);
-			b.max.z = fmax(b.max.z, bi.max.z);
+		for (u32 i = 1; i < num; ++i)
+		{
+			b.min.x = fmin(b.min.x, boxes[i].min.x);
+			b.min.y = fmin(b.min.y, boxes[i].min.y);
+			b.min.z = fmin(b.min.z, boxes[i].min.z);
+			b.max.x = fmax(b.max.x, boxes[i].max.x);
+			b.max.y = fmax(b.max.y, boxes[i].max.y);
+			b.max.z = fmax(b.max.z, boxes[i].max.z);
 		}
 	}
 
