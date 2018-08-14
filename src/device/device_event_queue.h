@@ -82,8 +82,8 @@ union OsEvent
 /// Used only to pass events from os thread to main thread.
 struct DeviceEventQueue
 {
-	AtomicInt _tail;
-	AtomicInt _head;
+	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, AtomicInt _tail);
+	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, AtomicInt _head);
 #define MAX_OS_EVENTS 128
 	OsEvent _queue[MAX_OS_EVENTS];
 
