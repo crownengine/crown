@@ -336,6 +336,101 @@ namespace Crown
 		}
 	}
 
+	public class ColliderComponentView : ComponentView
+	{
+		// Data
+		Level _level;
+
+		// Widgets
+		private Gtk.Entry _shape;
+		private Gtk.Entry _scene;
+		private Gtk.Entry _name;
+		private Gtk.Entry _material;
+
+		public ColliderComponentView(Level level)
+		{
+			// Data
+			_level = level;
+
+			// Widgets
+			_shape = new Gtk.Entry();
+			_scene = new Gtk.Entry();
+			_name = new Gtk.Entry();
+			_material = new Gtk.Entry();
+			_shape.sensitive = false;
+			_scene.sensitive = false;
+			_name.sensitive = false;
+			_material.sensitive = false;
+
+			add_row("Shape", _shape);
+			add_row("Scene", _scene);
+			add_row("Name", _name);
+			add_row("Material", _material);
+		}
+
+		public override void update()
+		{
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			_shape.text    = unit.get_component_property_string(_component_id, "data.shape");
+			_scene.text    = unit.get_component_property_string(_component_id, "data.scene");
+			_name.text     = unit.get_component_property_string(_component_id, "data.name");
+			_material.text = unit.get_component_property_string(_component_id, "data.material");
+		}
+	}
+
+	public class ActorComponentView : ComponentView
+	{
+		// Data
+		Level _level;
+
+		// Widgets
+		private Gtk.Entry _class;
+		private Gtk.Entry _collision_filter;
+		private SpinButtonDouble _mass;
+		private Gtk.Entry _material;
+
+		public ActorComponentView(Level level)
+		{
+			// Data
+			_level = level;
+
+			// Widgets
+			_class = new Gtk.Entry();
+			_collision_filter = new Gtk.Entry();
+			_material = new Gtk.Entry();
+			_mass = new SpinButtonDouble(1.0, 0.0, 9999.0);
+			_class.sensitive = false;
+			_collision_filter.sensitive = false;
+			_material.sensitive = false;
+
+			_mass.value_changed.connect(on_value_changed);
+
+			add_row("Class", _class);
+			add_row("Collision Filter", _collision_filter);
+			add_row("Material", _material);
+			add_row("Mass", _mass);
+		}
+
+		private void on_value_changed()
+		{
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			unit.set_component_property_string(_component_id, "data.class", _class.text);
+			unit.set_component_property_string(_component_id, "data.collision_filter", _collision_filter.text);
+			unit.set_component_property_string(_component_id, "data.material", _material.text);
+			unit.set_component_property_double(_component_id, "data.mass", _mass.value);
+			unit.set_component_property_string(_component_id, "type", "actor");
+		}
+
+		public override void update()
+		{
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			_class.text            = unit.get_component_property_string(_component_id, "data.class");
+			_collision_filter.text = unit.get_component_property_string(_component_id, "data.collision_filter");
+			_material.text         = unit.get_component_property_string(_component_id, "data.material");
+			_mass.value            = unit.get_component_property_double(_component_id, "data.mass");
+		}
+	}
+
 	public class ScriptComponentView : ComponentView
 	{
 		// Data
@@ -557,6 +652,8 @@ namespace Crown
 			add_component_view("Camera",                  "camera",                  2, new CameraComponentView(_level));
 			add_component_view("Mesh Renderer",           "mesh_renderer",           3, new MeshRendererComponentView(_level));
 			add_component_view("Sprite Renderer",         "sprite_renderer",         3, new SpriteRendererComponentView(_level));
+			add_component_view("Collider",                "collider",                3, new ColliderComponentView(_level));
+			add_component_view("Actor",                   "actor",                   3, new ActorComponentView(_level));
 			add_component_view("Script",                  "script",                  3, new ScriptComponentView(_level));
 			add_component_view("Animation State Machine", "animation_state_machine", 3, new AnimationStateMachine(_level));
 
