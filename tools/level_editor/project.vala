@@ -45,6 +45,141 @@ namespace Crown
 			_level_editor_test = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.level");
 		}
 
+		public void create_initial_files()
+		{
+			// Write boot.config
+			{
+				string text = """// Lua script to launch on boot
+boot_script = "core/game/boot"
+
+// Package to load on boot
+boot_package = "boot"
+
+window_title = "New Poject"
+
+// Linux-only configs
+linux = {
+	renderer = {
+		resolution = [ 1280 720 ]
+	}
+}
+
+// Windows-only configs
+windows = {
+	renderer = {
+		resolution = [ 1280 720 ]
+	}
+}
+""";
+				string path = Path.build_filename(_source_dir.get_path(), "boot.config");
+				FileStream fs = FileStream.open(path, "w");
+				GLib.assert(fs != null);
+				fs.write(text.data);
+			}
+
+			// Write boot.package
+			{
+				string text = """lua = [
+	"core/game/boot"
+	"core/game/camera"
+	"core/game/game"
+	"core/lua/class"
+	"main"
+]
+shader = [
+	"core/shaders/common"
+	"core/shaders/default"
+]
+physics_config = [
+	"global"
+]
+""";
+				string path = Path.build_filename(_source_dir.get_path(), "boot.package");
+				FileStream fs = FileStream.open(path, "w");
+				GLib.assert(fs != null);
+				fs.write(text.data);
+			}
+
+			// Write global.physics_config
+			{
+				string text = """materials = {
+	default = { friction = 0.8 rolling_friction = 0.5 restitution = 0.81 }
+}
+
+collision_filters = {
+	no_collision = { collides_with = [] }
+	default = { collides_with = [ "default" ] }
+}
+
+actors = {
+	static = { dynamic = false }
+	dynamic = { dynamic = true }
+	keyframed = { dynamic = true kinematic = true disable_gravity = true }
+}
+""";
+				string path = Path.build_filename(_source_dir.get_path(), "global.physics_config");
+				FileStream fs = FileStream.open(path, "w");
+				GLib.assert(fs != null);
+				fs.write(text.data);
+			}
+
+			// Write main.lua
+			{
+				string text = """require "core/game/camera"
+
+Game = Game or {}
+
+Game = {
+	sg = nil,
+	pw = nil,
+	rw = nil,
+	camera = nil,
+}
+
+GameBase.game = Game
+GameBase.game_level = nil
+
+function Game.level_loaded()
+	Device.enable_resource_autoload(true)
+
+	Game.sg = World.scene_graph(GameBase.world)
+	Game.pw = World.physics_world(GameBase.world)
+	Game.rw = World.render_world(GameBase.world)
+
+	-- Spawn camera
+	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
+	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 6.5, -30))
+	GameBase.game_camera = camera_unit
+	Game.camera = FPSCamera(GameBase.world, camera_unit)
+end
+
+function Game.update(dt)
+	-- Stop the engine when the 'ESC' key is released
+	if Keyboard.released(Keyboard.button_id("escape")) then
+		Device.quit()
+	end
+
+	-- Update camera
+	local delta = Vector3.zero()
+	if Mouse.pressed(Mouse.button_id("right")) then move = true end
+	if Mouse.released(Mouse.button_id("right")) then move = false end
+	if move then delta = Mouse.axis(Mouse.axis_id("cursor_delta")) end
+	Game.camera:update(-delta.x, -delta.y)
+end
+
+function Game.render(dt)
+end
+
+function Game.shutdown()
+end
+""";
+				string path = Path.build_filename(_source_dir.get_path(), "main.lua");
+				FileStream fs = FileStream.open(path, "w");
+				GLib.assert(fs != null);
+				fs.write(text.data);
+			}
+		}
+
 		public string source_dir()
 		{
 			return _source_dir.get_path();

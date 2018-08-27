@@ -1442,6 +1442,7 @@ namespace Crown
 			stderr.printf(e.message);
 		}
 
+		bool create_initial_files = false;
 		string source_dir = "";
 		if (args.length > 1)
 		{
@@ -1455,8 +1456,40 @@ namespace Crown
 		}
 		else
 		{
-			stdout.printf("You must specify a source directory\n");
-			return -1;
+			FileChooserDialog fcd = new FileChooserDialog("Create new project..."
+				, null
+				, FileChooserAction.SAVE
+				, "Cancel"
+				, ResponseType.CANCEL
+				, "Save"
+				, ResponseType.ACCEPT
+				);
+
+			if (fcd.run() != (int)ResponseType.ACCEPT)
+			{
+				fcd.destroy();
+				return -1;
+			}
+
+			string dir = fcd.get_filename();
+			fcd.destroy();
+
+			if (GLib.FileUtils.test(dir, FileTest.EXISTS) || GLib.FileUtils.test(dir, FileTest.IS_REGULAR))
+			{
+				stdout.printf("Source directory can't be a regular file\n");
+				return -1;
+			}
+
+			source_dir = dir;
+			create_initial_files = true;
+			try
+			{
+				File.new_for_path(source_dir).make_directory();
+			}
+			catch (Error e)
+			{
+				stderr.printf("Error: %s\n", e.message);
+			}
 		}
 
 		string toolchain_dir = "";
@@ -1503,6 +1536,8 @@ namespace Crown
 
 		Project project = new Project();
 		project.load(source_dir, toolchain_dir);
+		if (create_initial_files)
+			project.create_initial_files();
 
 		Database database = new Database();
 		ConsoleClient compiler = new ConsoleClient();
