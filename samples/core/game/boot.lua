@@ -1,5 +1,5 @@
 require "core/game/game"
-require "lua/main"
+require "main"
 
 if not init then
 	init = GameBase.init

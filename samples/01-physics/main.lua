@@ -8,7 +8,6 @@ Game = {
 	sg = nil,
 	debug_graphics = false,
 	debug_physics = false,
-	mode = false,
 	camera = nil,
 }
 
