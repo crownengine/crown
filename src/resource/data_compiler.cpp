@@ -533,18 +533,8 @@ struct InitMemoryGlobals
 	}
 };
 
-int main_data_compiler(int argc, char** argv)
+int main_data_compiler(const DeviceOptions& opts)
 {
-	InitMemoryGlobals m;
-	CE_UNUSED(m);
-
-	DeviceOptions opts(default_allocator(), argc, (const char**)argv);
-	bool quit = false;
-	CE_UNUSED(quit);
-	int ec = opts.parse(&quit);
-	if (ec == EXIT_FAILURE)
-		return EXIT_FAILURE;
-
 	console_server_globals::init();
 	console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
 

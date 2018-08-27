@@ -9,6 +9,7 @@
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "device/console_server.h"
+#include "device/device_options.h"
 #include "resource/types.h"
 #include <setjmp.h>
 
@@ -84,6 +85,6 @@ struct DataCompiler
 	static const u32 COMPILER_NOT_FOUND = UINT32_MAX;
 };
 
-int main_data_compiler(int argc, char** argv);
+int main_data_compiler(const DeviceOptions& opts);
 
 } // namespace crown

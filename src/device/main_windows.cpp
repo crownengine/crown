@@ -709,11 +709,6 @@ int main(int argc, char** argv)
 		return main_unit_tests();
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
-	if (cl.has_option("compile") || cl.has_option("server"))
-	{
-		if (main_data_compiler(argc, argv) != EXIT_SUCCESS || !cl.has_option("continue"))
-			return EXIT_FAILURE;
-	}
 
 	InitMemoryGlobals m;
 	CE_UNUSED(m);
@@ -722,7 +717,17 @@ int main(int argc, char** argv)
 	bool quit = false;
 	int ec = opts.parse(&quit);
 
-	if (ec == EXIT_SUCCESS && !quit)
+	if (quit)
+		return ec;
+
+	if (ec == EXIT_SUCCESS && (opts._do_compile || opts._server))
+	{
+		ec = main_data_compiler(opts);
+		if (!opts._do_continue)
+			return ec;
+	}
+
+	if (ec == EXIT_SUCCESS)
 		ec = s_wdvc.run(&opts);
 
 	WSACleanup();
