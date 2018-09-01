@@ -1,4 +1,4 @@
-// dear imgui, v1.63 WIP
+// dear imgui, v1.63
 // (drawing and font code)
 
 // Contains implementation for
@@ -6,6 +6,7 @@
 // - ImDrawList
 // - ImDrawData
 // - ImFontAtlas
+// - Internal Render Helpers
 // - ImFont
 // - Default font data
 
@@ -33,11 +34,13 @@
 #endif
 #endif
 
+// Visual Studio warnings
 #ifdef _MSC_VER
 #pragma warning (disable: 4505) // unreferenced local function has been removed (stb stuff)
 #pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
 #endif
 
+// Clang/GCC warnings with -Weverything
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wold-style-cast"         // warning : use of old-style cast                              // yes, they are more terse.
 #pragma clang diagnostic ignored "-Wfloat-equal"            // warning : comparing floating point with == or != is unsafe   // storing and comparing against same constants ok.
@@ -1210,7 +1213,7 @@ void ImDrawList::AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, c
     PathRect(a, b, rounding, rounding_corners);
     PathFillConvex(col);
     int vert_end_idx = VtxBuffer.Size;
-    ImGui::ShadeVertsLinearUV(VtxBuffer.Data + vert_start_idx, VtxBuffer.Data + vert_end_idx, a, b, uv_a, uv_b, true);
+    ImGui::ShadeVertsLinearUV(this, vert_start_idx, vert_end_idx, a, b, uv_a, uv_b, true);
 
     if (push_texture_id)
         PopTextureID();
@@ -1258,10 +1261,12 @@ void ImDrawData::ScaleClipRects(const ImVec2& scale)
 //-----------------------------------------------------------------------------
 
 // Generic linear color gradient, write to RGB fields, leave A untouched.
-void ImGui::ShadeVertsLinearColorGradientKeepAlpha(ImDrawVert* vert_start, ImDrawVert* vert_end, ImVec2 gradient_p0, ImVec2 gradient_p1, ImU32 col0, ImU32 col1)
+void ImGui::ShadeVertsLinearColorGradientKeepAlpha(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, ImVec2 gradient_p0, ImVec2 gradient_p1, ImU32 col0, ImU32 col1)
 {
     ImVec2 gradient_extent = gradient_p1 - gradient_p0;
     float gradient_inv_length2 = 1.0f / ImLengthSqr(gradient_extent);
+    ImDrawVert* vert_start = draw_list->VtxBuffer.Data + vert_start_idx;
+    ImDrawVert* vert_end = draw_list->VtxBuffer.Data + vert_end_idx;
     for (ImDrawVert* vert = vert_start; vert < vert_end; vert++)
     {
         float d = ImDot(vert->pos - gradient_p0, gradient_extent);
@@ -1274,7 +1279,7 @@ void ImGui::ShadeVertsLinearColorGradientKeepAlpha(ImDrawVert* vert_start, ImDra
 }
 
 // Distribute UV over (a, b) rectangle
-void ImGui::ShadeVertsLinearUV(ImDrawVert* vert_start, ImDrawVert* vert_end, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, bool clamp)
+void ImGui::ShadeVertsLinearUV(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, bool clamp)
 {
     const ImVec2 size = b - a;
     const ImVec2 uv_size = uv_b - uv_a;
@@ -1282,11 +1287,12 @@ void ImGui::ShadeVertsLinearUV(ImDrawVert* vert_start, ImDrawVert* vert_end, con
         size.x != 0.0f ? (uv_size.x / size.x) : 0.0f,
         size.y != 0.0f ? (uv_size.y / size.y) : 0.0f);
 
+    ImDrawVert* vert_start = draw_list->VtxBuffer.Data + vert_start_idx;
+    ImDrawVert* vert_end = draw_list->VtxBuffer.Data + vert_end_idx;
     if (clamp)
     {
         const ImVec2 min = ImMin(uv_a, uv_b);
         const ImVec2 max = ImMax(uv_a, uv_b);
-
         for (ImDrawVert* vertex = vert_start; vertex < vert_end; ++vertex)
             vertex->uv = ImClamp(uv_a + ImMul(ImVec2(vertex->pos.x, vertex->pos.y) - a, scale), min, max);
     }
@@ -1379,7 +1385,7 @@ static const ImVec2 FONT_ATLAS_DEFAULT_TEX_CURSOR_DATA[ImGuiMouseCursor_COUNT][3
 ImFontAtlas::ImFontAtlas()
 {
     Locked = false;
-    Flags = 0x00;
+    Flags = ImFontAtlasFlags_None;
     TexID = NULL;
     TexDesiredWidth = 0;
     TexGlyphPadding = 1;
@@ -1545,7 +1551,8 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
     if (font_cfg.SizePixels <= 0.0f) font_cfg.SizePixels = 13.0f;
 
     const char* ttf_compressed_base85 = GetDefaultCompressedFontDataTTFBase85();
-    ImFont* font = AddFontFromMemoryCompressedBase85TTF(ttf_compressed_base85, font_cfg.SizePixels, &font_cfg, GetGlyphRangesDefault());
+    const ImWchar* glyph_ranges = font_cfg.GlyphRanges != NULL ? font_cfg.GlyphRanges : GetGlyphRangesDefault();
+    ImFont* font = AddFontFromMemoryCompressedBase85TTF(ttf_compressed_base85, font_cfg.SizePixels, &font_cfg, glyph_ranges);
     font->DisplayOffset.y = 1.0f;
     return font;
 }
@@ -2342,6 +2349,8 @@ void ImFont::GrowIndex(int new_size)
     IndexLookup.resize(new_size, (unsigned short)-1);
 }
 
+// x0/y0/x1/y1 are offset from the character upper-left layout position, in pixels. Therefore x0/y0 are often fairly close to zero.
+// Not to be mistaken with texture coordinates, which are held by u0/v0/u1/v1 in normalized format (0.0..1.0 on each texture axis).
 void ImFont::AddGlyph(ImWchar codepoint, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float advance_x)
 {
     Glyphs.resize(Glyphs.Size + 1);
@@ -2625,11 +2634,32 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
     const bool word_wrap_enabled = (wrap_width > 0.0f);
     const char* word_wrap_eol = NULL;
 
-    // Skip non-visible lines
+    // Fast-forward to first visible line
     const char* s = text_begin;
-    if (!word_wrap_enabled && y + line_height < clip_rect.y)
-        while (s < text_end && *s != '\n')  // Fast-forward to next line
-            s++;
+    if (y + line_height < clip_rect.y && !word_wrap_enabled)
+        while (y + line_height < clip_rect.y)
+        {
+            while (s < text_end)
+                if (*s++ == '\n')
+                    break;
+            y += line_height;
+        }
+
+    // For large text, scan for the last visible line in order to avoid over-reserving in the call to PrimReserve()
+    // Note that very large horizontal line will still be affected by the issue (e.g. a one megabyte string buffer without a newline will likely crash atm)
+    if (text_end - s > 10000 && !word_wrap_enabled)
+    {
+        const char* s_end = s;
+        float y_end = y;
+        while (y_end < clip_rect.w)
+        {
+            while (s_end < text_end)
+                if (*s_end++ == '\n')
+                    break;
+            y_end += line_height;
+        }
+        text_end = s_end;
+    }
 
     // Reserve vertices for remaining worse case (over-reserving is useful and easily amortized)
     const int vtx_count_max = (int)(text_end - s) * 4;
@@ -2688,12 +2718,8 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
             {
                 x = pos.x;
                 y += line_height;
-
                 if (y > clip_rect.w)
-                    break;
-                if (!word_wrap_enabled && y + line_height < clip_rect.y)
-                    while (s < text_end && *s != '\n')  // Fast-forward to next line
-                        s++;
+                    break; // break out of main loop
                 continue;
             }
             if (c == '\r')
@@ -2780,8 +2806,51 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 }
 
 //-----------------------------------------------------------------------------
-// Internals Drawing Helpers
+// Internals Render Helpers
+// (progressively moved from imgui.cpp to here when they are redesigned to stop accessing ImGui global state)
 //-----------------------------------------------------------------------------
+// RenderMouseCursor()
+// RenderArrowPointingAt()
+// RenderRectFilledRangeH()
+//-----------------------------------------------------------------------------
+
+void ImGui::RenderMouseCursor(ImDrawList* draw_list, ImVec2 pos, float scale, ImGuiMouseCursor mouse_cursor)
+{
+    if (mouse_cursor == ImGuiMouseCursor_None)
+        return;
+    IM_ASSERT(mouse_cursor > ImGuiMouseCursor_None && mouse_cursor < ImGuiMouseCursor_COUNT);
+
+    const ImU32 col_shadow = IM_COL32(0, 0, 0, 48);
+    const ImU32 col_border = IM_COL32(0, 0, 0, 255);          // Black
+    const ImU32 col_fill   = IM_COL32(255, 255, 255, 255);    // White
+
+    ImFontAtlas* font_atlas = draw_list->_Data->Font->ContainerAtlas;
+    ImVec2 offset, size, uv[4];
+    if (font_atlas->GetMouseCursorTexData(mouse_cursor, &offset, &size, &uv[0], &uv[2]))
+    {
+        pos -= offset;
+        const ImTextureID tex_id = font_atlas->TexID;
+        draw_list->PushTextureID(tex_id);
+        draw_list->AddImage(tex_id, pos + ImVec2(1,0)*scale, pos + ImVec2(1,0)*scale + size*scale, uv[2], uv[3], col_shadow);
+        draw_list->AddImage(tex_id, pos + ImVec2(2,0)*scale, pos + ImVec2(2,0)*scale + size*scale, uv[2], uv[3], col_shadow);
+        draw_list->AddImage(tex_id, pos,                     pos + size*scale,                     uv[2], uv[3], col_border);
+        draw_list->AddImage(tex_id, pos,                     pos + size*scale,                     uv[0], uv[1], col_fill);
+        draw_list->PopTextureID();
+    }
+}
+
+// Render an arrow. 'pos' is position of the arrow tip. half_sz.x is length from base to tip. half_sz.y is length on each side.
+void ImGui::RenderArrowPointingAt(ImDrawList* draw_list, ImVec2 pos, ImVec2 half_sz, ImGuiDir direction, ImU32 col)
+{
+    switch (direction)
+    {
+    case ImGuiDir_Left:  draw_list->AddTriangleFilled(ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), ImVec2(pos.x + half_sz.x, pos.y + half_sz.y), pos, col); return;
+    case ImGuiDir_Right: draw_list->AddTriangleFilled(ImVec2(pos.x - half_sz.x, pos.y + half_sz.y), ImVec2(pos.x - half_sz.x, pos.y - half_sz.y), pos, col); return;
+    case ImGuiDir_Up:    draw_list->AddTriangleFilled(ImVec2(pos.x + half_sz.x, pos.y + half_sz.y), ImVec2(pos.x - half_sz.x, pos.y + half_sz.y), pos, col); return;
+    case ImGuiDir_Down:  draw_list->AddTriangleFilled(ImVec2(pos.x - half_sz.x, pos.y - half_sz.y), ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), pos, col); return;
+    case ImGuiDir_None: case ImGuiDir_COUNT: break; // Fix warnings
+    }
+}
 
 static inline float ImAcos01(float x)
 {

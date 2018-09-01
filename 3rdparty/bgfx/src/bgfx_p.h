@@ -209,13 +209,13 @@ namespace stl = std;
 
 #define BGFX_MAX_COMPUTE_BINDINGS BGFX_CONFIG_MAX_TEXTURE_SAMPLERS
 
-#define BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER  UINT32_C(0x10000000)
-#define BGFX_TEXTURE_INTERNAL_SHARED           UINT32_C(0x20000000)
+#define BGFX_SAMPLER_INTERNAL_DEFAULT       UINT32_C(0x10000000)
+#define BGFX_SAMPLER_INTERNAL_SHARED        UINT32_C(0x20000000)
 
-#define BGFX_RESET_INTERNAL_FORCE              UINT32_C(0x80000000)
+#define BGFX_RESET_INTERNAL_FORCE           UINT32_C(0x80000000)
 
-#define BGFX_STATE_INTERNAL_SCISSOR            UINT64_C(0x2000000000000000)
-#define BGFX_STATE_INTERNAL_OCCLUSION_QUERY    UINT64_C(0x4000000000000000)
+#define BGFX_STATE_INTERNAL_SCISSOR         UINT64_C(0x2000000000000000)
+#define BGFX_STATE_INTERNAL_OCCLUSION_QUERY UINT64_C(0x4000000000000000)
 
 #define BGFX_SUBMIT_INTERNAL_OCCLUSION_VISIBLE UINT8_C(0x80)
 
@@ -493,9 +493,9 @@ namespace bgfx
 
 	inline bool needBorderColor(uint32_t _flags)
 	{
-		return BGFX_TEXTURE_U_BORDER == (_flags & BGFX_TEXTURE_U_BORDER)
-			|| BGFX_TEXTURE_V_BORDER == (_flags & BGFX_TEXTURE_V_BORDER)
-			|| BGFX_TEXTURE_W_BORDER == (_flags & BGFX_TEXTURE_W_BORDER)
+		return BGFX_SAMPLER_U_BORDER == (_flags & BGFX_SAMPLER_U_BORDER)
+			|| BGFX_SAMPLER_V_BORDER == (_flags & BGFX_SAMPLER_V_BORDER)
+			|| BGFX_SAMPLER_W_BORDER == (_flags & BGFX_SAMPLER_W_BORDER)
 			;
 	}
 
@@ -2295,8 +2295,8 @@ namespace bgfx
 			Binding& bind = m_bind.m_bind[_stage];
 			bind.m_idx    = _handle.idx;
 			bind.m_type   = uint8_t(Binding::Texture);
-			bind.m_un.m_draw.m_textureFlags = (_flags&BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER)
-				? BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER
+			bind.m_un.m_draw.m_textureFlags = (_flags&BGFX_SAMPLER_INTERNAL_DEFAULT)
+				? BGFX_SAMPLER_INTERNAL_DEFAULT
 				: _flags
 				;
 
@@ -2643,7 +2643,7 @@ namespace bgfx
 		virtual void destroyShader(ShaderHandle _handle) = 0;
 		virtual void createProgram(ProgramHandle _handle, ShaderHandle _vsh, ShaderHandle _fsh) = 0;
 		virtual void destroyProgram(ProgramHandle _handle) = 0;
-		virtual void* createTexture(TextureHandle _handle, const Memory* _mem, uint32_t _flags, uint8_t _skip) = 0;
+		virtual void* createTexture(TextureHandle _handle, const Memory* _mem, uint64_t _flags, uint8_t _skip) = 0;
 		virtual void updateTextureBegin(TextureHandle _handle, uint8_t _side, uint8_t _mip) = 0;
 		virtual void updateTexture(TextureHandle _handle, uint8_t _side, uint8_t _mip, const Rect& _rect, uint16_t _z, uint16_t _depth, uint16_t _pitch, const Memory* _mem) = 0;
 		virtual void updateTextureEnd() = 0;
@@ -2653,7 +2653,7 @@ namespace bgfx
 		virtual uintptr_t getInternal(TextureHandle _handle) = 0;
 		virtual void destroyTexture(TextureHandle _handle) = 0;
 		virtual void createFrameBuffer(FrameBufferHandle _handle, uint8_t _num, const Attachment* _attachment) = 0;
-		virtual void createFrameBuffer(FrameBufferHandle _handle, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _depthFormat) = 0;
+		virtual void createFrameBuffer(FrameBufferHandle _handle, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _format, TextureFormat::Enum _depthFormat) = 0;
 		virtual void destroyFrameBuffer(FrameBufferHandle _handle) = 0;
 		virtual void createUniform(UniformHandle _handle, UniformType::Enum _type, uint16_t _num, const char* _name) = 0;
 		virtual void destroyUniform(UniformHandle _handle) = 0;
@@ -2728,7 +2728,7 @@ namespace bgfx
 			return cmdbuf;
 		}
 
-		BGFX_API_FUNC(void reset(uint32_t _width, uint32_t _height, uint32_t _flags) )
+		BGFX_API_FUNC(void reset(uint32_t _width, uint32_t _height, uint32_t _flags, TextureFormat::Enum _format) )
 		{
 			BX_WARN(g_caps.limits.maxTextureSize >= _width
 				&&  g_caps.limits.maxTextureSize >= _height
@@ -2737,6 +2737,7 @@ namespace bgfx
 				, _width
 				, _height
 				);
+			m_init.resolution.format = TextureFormat::Count != _format ? _format : m_init.resolution.format;
 			m_init.resolution.width  = bx::clamp(_width,  1u, g_caps.limits.maxTextureSize);
 			m_init.resolution.height = bx::clamp(_height, 1u, g_caps.limits.maxTextureSize);
 			m_init.resolution.reset  = 0
@@ -3853,7 +3854,7 @@ namespace bgfx
 			}
 		}
 
-		BGFX_API_FUNC(TextureHandle createTexture(const Memory* _mem, uint32_t _flags, uint8_t _skip, TextureInfo* _info, BackbufferRatio::Enum _ratio, bool _immutable) )
+		BGFX_API_FUNC(TextureHandle createTexture(const Memory* _mem, uint64_t _flags, uint8_t _skip, TextureInfo* _info, BackbufferRatio::Enum _ratio, bool _immutable) )
 		{
 			BGFX_MUTEX_SCOPE(m_resourceApiLock);
 
@@ -4160,7 +4161,7 @@ namespace bgfx
 			return handle;
 		}
 
-		BGFX_API_FUNC(FrameBufferHandle createFrameBuffer(void* _nwh, uint16_t _width, uint16_t _height, TextureFormat::Enum _depthFormat) )
+		BGFX_API_FUNC(FrameBufferHandle createFrameBuffer(void* _nwh, uint16_t _width, uint16_t _height, TextureFormat::Enum _format, TextureFormat::Enum _depthFormat) )
 		{
 			BGFX_MUTEX_SCOPE(m_resourceApiLock);
 
@@ -4175,6 +4176,7 @@ namespace bgfx
 				cmdbuf.write(_nwh);
 				cmdbuf.write(_width);
 				cmdbuf.write(_height);
+				cmdbuf.write(_format);
 				cmdbuf.write(_depthFormat);
 
 				FrameBufferRef& ref = m_frameBufferRef[handle.idx];

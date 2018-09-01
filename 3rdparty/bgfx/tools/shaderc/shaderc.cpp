@@ -112,8 +112,12 @@ namespace bgfx
 		"uint2",
 		"uint3",
 		"uint4",
+		"isampler2D",
+		"usampler2D",
 		"isampler3D",
 		"usampler3D",
+		"isamplerCube",
+		"usamplerCube",
 		NULL
 	};
 
@@ -336,7 +340,7 @@ namespace bgfx
 					bx::snprintf(&hex[hexPos], sizeof(hex)-hexPos, "0x%02x, ", data[asciiPos]);
 					hexPos += 6;
 
-					ascii[asciiPos] = isprint(data[asciiPos]) && data[asciiPos] != '\\' ? data[asciiPos] : '.';
+					ascii[asciiPos] = isprint(data[asciiPos]) && data[asciiPos] != '\\'  && data[asciiPos] != '\t' ? data[asciiPos] : '.';
 					asciiPos++;
 
 					if (HEX_DUMP_WIDTH == asciiPos)

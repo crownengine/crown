@@ -312,39 +312,39 @@ namespace shader_resource_internal
 
 	static const u32 _bgfx_sampler_filter_min_map[] =
 	{
-		BGFX_TEXTURE_MIN_POINT,       // SamplerFilter::POINT
-		BGFX_TEXTURE_MIN_ANISOTROPIC  // SamplerFilter::ANISOTROPIC
+		BGFX_SAMPLER_MIN_POINT,       // SamplerFilter::POINT
+		BGFX_SAMPLER_MIN_ANISOTROPIC  // SamplerFilter::ANISOTROPIC
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_filter_min_map) == SamplerFilter::COUNT);
 
 	static const u32 _bgfx_sampler_filter_mag_map[] =
 	{
-		BGFX_TEXTURE_MAG_POINT,      // SamplerFilter::POINT
-		BGFX_TEXTURE_MAG_ANISOTROPIC // SamplerFilter::ANISOTROPIC
+		BGFX_SAMPLER_MAG_POINT,      // SamplerFilter::POINT
+		BGFX_SAMPLER_MAG_ANISOTROPIC // SamplerFilter::ANISOTROPIC
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_filter_mag_map) == SamplerFilter::COUNT);
 
 	static const u32 _bgfx_sampler_wrap_u_map[] =
 	{
-		BGFX_TEXTURE_U_MIRROR, // SamplerWrap::MIRROR
-		BGFX_TEXTURE_U_CLAMP,  // SamplerWrap::CLAMP
-		BGFX_TEXTURE_U_BORDER  // SamplerWrap::BORDER
+		BGFX_SAMPLER_U_MIRROR, // SamplerWrap::MIRROR
+		BGFX_SAMPLER_U_CLAMP,  // SamplerWrap::CLAMP
+		BGFX_SAMPLER_U_BORDER  // SamplerWrap::BORDER
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_wrap_u_map) == SamplerWrap::COUNT);
 
 	static const u32 _bgfx_sampler_wrap_v_map[] =
 	{
-		BGFX_TEXTURE_V_MIRROR, // SamplerWrap::MIRROR
-		BGFX_TEXTURE_V_CLAMP,  // SamplerWrap::CLAMP
-		BGFX_TEXTURE_V_BORDER  // SamplerWrap::BORDER
+		BGFX_SAMPLER_V_MIRROR, // SamplerWrap::MIRROR
+		BGFX_SAMPLER_V_CLAMP,  // SamplerWrap::CLAMP
+		BGFX_SAMPLER_V_BORDER  // SamplerWrap::BORDER
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_wrap_v_map) == SamplerWrap::COUNT);
 
 	static const u32 _bgfx_sampler_wrap_w_map[] =
 	{
-		BGFX_TEXTURE_W_MIRROR, // SamplerWrap::MIRROR
-		BGFX_TEXTURE_W_CLAMP,  // SamplerWrap::CLAMP
-		BGFX_TEXTURE_W_BORDER  // SamplerWrap::BORDER
+		BGFX_SAMPLER_W_MIRROR, // SamplerWrap::MIRROR
+		BGFX_SAMPLER_W_CLAMP,  // SamplerWrap::CLAMP
+		BGFX_SAMPLER_W_BORDER  // SamplerWrap::BORDER
 	};
 	CE_STATIC_ASSERT(countof(_bgfx_sampler_wrap_w_map) == SamplerWrap::COUNT);
 

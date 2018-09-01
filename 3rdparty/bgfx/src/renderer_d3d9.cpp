@@ -443,9 +443,9 @@ namespace bgfx { namespace d3d9
 			m_params.BackBufferWidth  = rect.right-rect.left;
 			m_params.BackBufferHeight = rect.bottom-rect.top;
 
-			m_d3d9dll = bx::dlopen("d3d9.dll");
+			m_d3d9Dll = bx::dlopen("d3d9.dll");
 
-			if (NULL == m_d3d9dll)
+			if (NULL == m_d3d9Dll)
 			{
 				BX_TRACE("Init error: Failed to load d3d9.dll.");
 				goto error;
@@ -457,9 +457,9 @@ namespace bgfx { namespace d3d9
 
 			if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
 			{
-				D3DPERF_SetMarker  = (PFN_D3DPERF_SET_MARKER )bx::dlsym(m_d3d9dll, "D3DPERF_SetMarker");
-				D3DPERF_BeginEvent = (PFN_D3DPERF_BEGIN_EVENT)bx::dlsym(m_d3d9dll, "D3DPERF_BeginEvent");
-				D3DPERF_EndEvent   = (PFN_D3DPERF_END_EVENT  )bx::dlsym(m_d3d9dll, "D3DPERF_EndEvent");
+				D3DPERF_SetMarker  = (PFN_D3DPERF_SET_MARKER )bx::dlsym(m_d3d9Dll, "D3DPERF_SetMarker");
+				D3DPERF_BeginEvent = (PFN_D3DPERF_BEGIN_EVENT)bx::dlsym(m_d3d9Dll, "D3DPERF_BeginEvent");
+				D3DPERF_EndEvent   = (PFN_D3DPERF_END_EVENT  )bx::dlsym(m_d3d9Dll, "D3DPERF_EndEvent");
 
 				BX_CHECK(NULL != D3DPERF_SetMarker
 					  && NULL != D3DPERF_BeginEvent
@@ -471,7 +471,7 @@ namespace bgfx { namespace d3d9
 			m_d3d9ex   = NULL;
 			m_deviceEx = NULL;
 
-			Direct3DCreate9Ex = (Direct3DCreate9ExFn)bx::dlsym(m_d3d9dll, "Direct3DCreate9Ex");
+			Direct3DCreate9Ex = (Direct3DCreate9ExFn)bx::dlsym(m_d3d9Dll, "Direct3DCreate9Ex");
 			if (BX_ENABLED(BGFX_CONFIG_RENDERER_DIRECT3D9EX)
 			&&  NULL != Direct3DCreate9Ex)
 			{
@@ -493,7 +493,7 @@ namespace bgfx { namespace d3d9
 
 			if (NULL == m_d3d9)
 			{
-				Direct3DCreate9 = (Direct3DCreate9Fn)bx::dlsym(m_d3d9dll, "Direct3DCreate9");
+				Direct3DCreate9 = (Direct3DCreate9Fn)bx::dlsym(m_d3d9Dll, "Direct3DCreate9");
 
 				if (NULL == Direct3DCreate9)
 				{
@@ -885,7 +885,7 @@ namespace bgfx { namespace d3d9
 
 			case ErrorState::LoadedD3D9:
 				m_nvapi.shutdown();
-				bx::dlclose(m_d3d9dll);
+				bx::dlclose(m_d3d9Dll);
 				BX_FALLTHROUGH;
 
 			case ErrorState::Default:
@@ -933,7 +933,7 @@ namespace bgfx { namespace d3d9
 			}
 
 			m_nvapi.shutdown();
-			bx::dlclose(m_d3d9dll);
+			bx::dlclose(m_d3d9Dll);
 
 			m_initialized = false;
 		}
@@ -1035,7 +1035,7 @@ namespace bgfx { namespace d3d9
 			m_program[_handle.idx].destroy();
 		}
 
-		void* createTexture(TextureHandle _handle, const Memory* _mem, uint32_t _flags, uint8_t _skip) override
+		void* createTexture(TextureHandle _handle, const Memory* _mem, uint64_t _flags, uint8_t _skip) override
 		{
 			m_textures[_handle.idx].create(_mem, _flags, _skip);
 			return NULL;
@@ -1145,11 +1145,11 @@ namespace bgfx { namespace d3d9
 			m_frameBuffers[_handle.idx].create(_num, _attachment);
 		}
 
-		void createFrameBuffer(FrameBufferHandle _handle, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _depthFormat) override
+		void createFrameBuffer(FrameBufferHandle _handle, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _format, TextureFormat::Enum _depthFormat) override
 		{
 			uint16_t denseIdx = m_numWindows++;
 			m_windows[denseIdx] = _handle;
-			m_frameBuffers[_handle.idx].create(denseIdx, _nwh, _width, _height, _depthFormat);
+			m_frameBuffers[_handle.idx].create(denseIdx, _nwh, _width, _height, _format, _depthFormat);
 		}
 
 		void destroyFrameBuffer(FrameBufferHandle _handle) override
@@ -1161,8 +1161,12 @@ namespace bgfx { namespace d3d9
 				if (m_numWindows > 1)
 				{
 					FrameBufferHandle handle = m_windows[m_numWindows];
-					m_windows[denseIdx] = handle;
-					m_frameBuffers[handle.idx].m_denseIdx = denseIdx;
+					m_windows[m_numWindows]  = {kInvalidHandle};
+					if (m_numWindows != denseIdx)
+					{
+						m_windows[denseIdx] = handle;
+						m_frameBuffers[handle.idx].m_denseIdx = denseIdx;
+					}
 				}
 			}
 		}
@@ -1347,7 +1351,7 @@ namespace bgfx { namespace d3d9
 			uint8_t flags = predefined.m_type;
 			setShaderUniform(flags, predefined.m_loc, proj, 4);
 
-			m_textures[_blitter.m_texture.idx].commit(0, BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER, NULL);
+			m_textures[_blitter.m_texture.idx].commit(0, BGFX_SAMPLER_INTERNAL_DEFAULT, NULL);
 		}
 
 		void blitRender(TextVideoMemBlitter& _blitter, uint32_t _numIndices) override
@@ -1696,18 +1700,18 @@ namespace bgfx { namespace d3d9
 
 		void setSamplerState(uint8_t _stage, uint32_t _flags, const float _rgba[4])
 		{
-			const uint32_t flags = _flags&( (~BGFX_TEXTURE_RESERVED_MASK) | BGFX_TEXTURE_SAMPLER_BITS_MASK | BGFX_TEXTURE_SRGB);
+			const uint32_t flags = _flags&( (~BGFX_SAMPLER_RESERVED_MASK) | BGFX_SAMPLER_BITS_MASK | BGFX_TEXTURE_SRGB);
 			BX_CHECK(_stage < BX_COUNTOF(m_samplerFlags), "");
 			if (m_samplerFlags[_stage] != flags)
 			{
 				m_samplerFlags[_stage] = flags;
 				IDirect3DDevice9* device = m_device;
-				D3DTEXTUREADDRESS tau = s_textureAddress[(_flags&BGFX_TEXTURE_U_MASK)>>BGFX_TEXTURE_U_SHIFT];
-				D3DTEXTUREADDRESS tav = s_textureAddress[(_flags&BGFX_TEXTURE_V_MASK)>>BGFX_TEXTURE_V_SHIFT];
-				D3DTEXTUREADDRESS taw = s_textureAddress[(_flags&BGFX_TEXTURE_W_MASK)>>BGFX_TEXTURE_W_SHIFT];
-				D3DTEXTUREFILTERTYPE minFilter = s_textureFilter[(_flags&BGFX_TEXTURE_MIN_MASK)>>BGFX_TEXTURE_MIN_SHIFT];
-				D3DTEXTUREFILTERTYPE magFilter = s_textureFilter[(_flags&BGFX_TEXTURE_MAG_MASK)>>BGFX_TEXTURE_MAG_SHIFT];
-				D3DTEXTUREFILTERTYPE mipFilter = s_textureFilter[(_flags&BGFX_TEXTURE_MIP_MASK)>>BGFX_TEXTURE_MIP_SHIFT];
+				D3DTEXTUREADDRESS tau = s_textureAddress[(_flags&BGFX_SAMPLER_U_MASK)>>BGFX_SAMPLER_U_SHIFT];
+				D3DTEXTUREADDRESS tav = s_textureAddress[(_flags&BGFX_SAMPLER_V_MASK)>>BGFX_SAMPLER_V_SHIFT];
+				D3DTEXTUREADDRESS taw = s_textureAddress[(_flags&BGFX_SAMPLER_W_MASK)>>BGFX_SAMPLER_W_SHIFT];
+				D3DTEXTUREFILTERTYPE minFilter = s_textureFilter[(_flags&BGFX_SAMPLER_MIN_MASK)>>BGFX_SAMPLER_MIN_SHIFT];
+				D3DTEXTUREFILTERTYPE magFilter = s_textureFilter[(_flags&BGFX_SAMPLER_MAG_MASK)>>BGFX_SAMPLER_MAG_SHIFT];
+				D3DTEXTUREFILTERTYPE mipFilter = s_textureFilter[(_flags&BGFX_SAMPLER_MIP_MASK)>>BGFX_SAMPLER_MIP_SHIFT];
 
 				setSamplerState(device, _stage, D3DSAMP_ADDRESSU,  tau);
 				setSamplerState(device, _stage, D3DSAMP_ADDRESSV,  tav);
@@ -2202,7 +2206,7 @@ namespace bgfx { namespace d3d9
 
 		IDirect3DVertexDeclaration9* m_instanceDataDecls[BGFX_CONFIG_MAX_INSTANCE_DATA_COUNT];
 
-		void* m_d3d9dll;
+		void* m_d3d9Dll;
 		NvApi m_nvapi;
 		uint32_t m_adapter;
 		D3DDEVTYPE m_deviceType;
@@ -2894,7 +2898,7 @@ namespace bgfx { namespace d3d9
 		return surface;
 	}
 
-	void TextureD3D9::create(const Memory* _mem, uint32_t _flags, uint8_t _skip)
+	void TextureD3D9::create(const Memory* _mem, uint64_t _flags, uint8_t _skip)
 	{
 		bimg::ImageContainer imageContainer;
 
@@ -3107,11 +3111,11 @@ namespace bgfx { namespace d3d9
 
 	void TextureD3D9::commit(uint8_t _stage, uint32_t _flags, const float _palette[][4])
 	{
-		uint32_t flags = 0 == (BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER & _flags)
+		const uint32_t flags = 0 == (BGFX_SAMPLER_INTERNAL_DEFAULT & _flags)
 			? _flags
-			: m_flags
+			: uint32_t(m_flags)
 			;
-		uint32_t index = (flags & BGFX_TEXTURE_BORDER_COLOR_MASK) >> BGFX_TEXTURE_BORDER_COLOR_SHIFT;
+		uint32_t index = (flags & BGFX_SAMPLER_BORDER_COLOR_MASK) >> BGFX_SAMPLER_BORDER_COLOR_SHIFT;
 		s_renderD3D9->setSamplerState(_stage, flags, _palette[index]);
 
 		IDirect3DDevice9* device = s_renderD3D9->m_device;
@@ -3235,7 +3239,7 @@ namespace bgfx { namespace d3d9
 		}
 	}
 
-	void FrameBufferD3D9::create(uint16_t _denseIdx, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _depthFormat)
+	void FrameBufferD3D9::create(uint16_t _denseIdx, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _format, TextureFormat::Enum _depthFormat)
 	{
 		BX_UNUSED(_depthFormat);
 
@@ -3246,6 +3250,7 @@ namespace bgfx { namespace d3d9
 
 		D3DPRESENT_PARAMETERS params;
 		bx::memCopy(&params, &s_renderD3D9->m_params, sizeof(D3DPRESENT_PARAMETERS) );
+		params.BackBufferFormat = TextureFormat::Count == _format ? params.BackBufferFormat : s_textureFormat[_format].m_fmt;
 		params.BackBufferWidth  = m_width;
 		params.BackBufferHeight = m_height;
 

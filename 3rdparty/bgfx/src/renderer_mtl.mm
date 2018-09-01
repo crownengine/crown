@@ -831,7 +831,7 @@ namespace bgfx { namespace mtl
 			m_program[_handle.idx].destroy();
 		}
 
-		void* createTexture(TextureHandle _handle, const Memory* _mem, uint32_t _flags, uint8_t _skip) override
+		void* createTexture(TextureHandle _handle, const Memory* _mem, uint64_t _flags, uint8_t _skip) override
 		{
 			m_textures[_handle.idx].create(_mem, _flags, _skip);
 			return NULL;
@@ -921,11 +921,11 @@ namespace bgfx { namespace mtl
 			m_frameBuffers[_handle.idx].create(_num, _attachment);
 		}
 
-		void createFrameBuffer(FrameBufferHandle _handle, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _depthFormat) override
+		void createFrameBuffer(FrameBufferHandle _handle, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _format, TextureFormat::Enum _depthFormat) override
 		{
 			uint16_t denseIdx = m_numWindows++;
 			m_windows[denseIdx] = _handle;
-			m_frameBuffers[_handle.idx].create(denseIdx, _nwh, _width, _height, _depthFormat);
+			m_frameBuffers[_handle.idx].create(denseIdx, _nwh, _width, _height, _format, _depthFormat);
 		}
 
 		void destroyFrameBuffer(FrameBufferHandle _handle) override
@@ -937,8 +937,12 @@ namespace bgfx { namespace mtl
 				if (m_numWindows > 1)
 				{
 					FrameBufferHandle handle = m_windows[m_numWindows];
-					m_windows[denseIdx] = handle;
-					m_frameBuffers[handle.idx].m_denseIdx = denseIdx;
+					m_windows[m_numWindows]  = {kInvalidHandle};
+					if (m_numWindows != denseIdx)
+					{
+						m_windows[denseIdx] = handle;
+						m_frameBuffers[handle.idx].m_denseIdx = denseIdx;
+					}
 				}
 			}
 		}
@@ -2164,28 +2168,31 @@ namespace bgfx { namespace mtl
 
 		SamplerState getSamplerState(uint32_t _flags)
 		{
-			_flags &= BGFX_TEXTURE_SAMPLER_BITS_MASK;
+			_flags &= BGFX_SAMPLER_BITS_MASK;
 			SamplerState sampler = m_samplerStateCache.find(_flags);
 
 			if (NULL == sampler)
 			{
 
-				m_samplerDescriptor.sAddressMode = s_textureAddress[(_flags&BGFX_TEXTURE_U_MASK)>>BGFX_TEXTURE_U_SHIFT];
-				m_samplerDescriptor.tAddressMode = s_textureAddress[(_flags&BGFX_TEXTURE_V_MASK)>>BGFX_TEXTURE_V_SHIFT];
-				m_samplerDescriptor.rAddressMode = s_textureAddress[(_flags&BGFX_TEXTURE_W_MASK)>>BGFX_TEXTURE_W_SHIFT];
-				m_samplerDescriptor.minFilter = s_textureFilterMinMag[(_flags&BGFX_TEXTURE_MIN_MASK)>>BGFX_TEXTURE_MIN_SHIFT];
-				m_samplerDescriptor.magFilter = s_textureFilterMinMag[(_flags&BGFX_TEXTURE_MAG_MASK)>>BGFX_TEXTURE_MAG_SHIFT];
-				m_samplerDescriptor.mipFilter = s_textureFilterMip[(_flags&BGFX_TEXTURE_MIP_MASK)>>BGFX_TEXTURE_MIP_SHIFT];
+				m_samplerDescriptor.sAddressMode = s_textureAddress[(_flags&BGFX_SAMPLER_U_MASK)>>BGFX_SAMPLER_U_SHIFT];
+				m_samplerDescriptor.tAddressMode = s_textureAddress[(_flags&BGFX_SAMPLER_V_MASK)>>BGFX_SAMPLER_V_SHIFT];
+				m_samplerDescriptor.rAddressMode = s_textureAddress[(_flags&BGFX_SAMPLER_W_MASK)>>BGFX_SAMPLER_W_SHIFT];
+				m_samplerDescriptor.minFilter = s_textureFilterMinMag[(_flags&BGFX_SAMPLER_MIN_MASK)>>BGFX_SAMPLER_MIN_SHIFT];
+				m_samplerDescriptor.magFilter = s_textureFilterMinMag[(_flags&BGFX_SAMPLER_MAG_MASK)>>BGFX_SAMPLER_MAG_SHIFT];
+				m_samplerDescriptor.mipFilter = s_textureFilterMip[(_flags&BGFX_SAMPLER_MIP_MASK)>>BGFX_SAMPLER_MIP_SHIFT];
 				m_samplerDescriptor.lodMinClamp = 0;
 				m_samplerDescriptor.lodMaxClamp = FLT_MAX;
 				m_samplerDescriptor.normalizedCoordinates = TRUE;
-				m_samplerDescriptor.maxAnisotropy =  (0 != (_flags & (BGFX_TEXTURE_MIN_ANISOTROPIC|BGFX_TEXTURE_MAG_ANISOTROPIC) ) ) ? m_maxAnisotropy : 1;
+				m_samplerDescriptor.maxAnisotropy =  (0 != (_flags & (BGFX_SAMPLER_MIN_ANISOTROPIC|BGFX_SAMPLER_MAG_ANISOTROPIC) ) ) ? m_maxAnisotropy : 1;
 
 				if (m_macOS11Runtime
 				||  [m_device supportsFeatureSet:(MTLFeatureSet)4 /*MTLFeatureSet_iOS_GPUFamily3_v1*/])
 				{
-					const uint32_t cmpFunc = (_flags&BGFX_TEXTURE_COMPARE_MASK)>>BGFX_TEXTURE_COMPARE_SHIFT;
-					m_samplerDescriptor.compareFunction = 0 == cmpFunc ? MTLCompareFunctionNever : s_cmpFunc[cmpFunc];
+					const uint32_t cmpFunc = (_flags&BGFX_SAMPLER_COMPARE_MASK)>>BGFX_SAMPLER_COMPARE_SHIFT;
+					m_samplerDescriptor.compareFunction = 0 == cmpFunc
+						? MTLCompareFunctionNever
+						: s_cmpFunc[cmpFunc]
+						;
 				}
 
 				sampler = m_device.newSamplerStateWithDescriptor(m_samplerDescriptor);
@@ -2548,9 +2555,9 @@ namespace bgfx { namespace mtl
 		BufferMtl::create(_size, _data, _flags, stride, true);
 	}
 
-	void TextureMtl::create(const Memory* _mem, uint32_t _flags, uint8_t _skip)
+	void TextureMtl::create(const Memory* _mem, uint64_t _flags, uint8_t _skip)
 	{
-		m_sampler = s_renderMtl->getSamplerState(_flags);
+		m_sampler = s_renderMtl->getSamplerState(uint32_t(_flags) );
 
 		bimg::ImageContainer imageContainer;
 
@@ -2865,7 +2872,7 @@ namespace bgfx { namespace mtl
 		{
 			s_renderMtl->m_renderCommandEncoder.setVertexTexture(m_ptr, _stage);
 			s_renderMtl->m_renderCommandEncoder.setVertexSamplerState(
-				  0 == (BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER & _flags)
+				  0 == (BGFX_SAMPLER_INTERNAL_DEFAULT & _flags)
 					? s_renderMtl->getSamplerState(_flags)
 					: m_sampler
 				, _stage
@@ -2876,7 +2883,7 @@ namespace bgfx { namespace mtl
 		{
 			s_renderMtl->m_renderCommandEncoder.setFragmentTexture(m_ptr, _stage);
 			s_renderMtl->m_renderCommandEncoder.setFragmentSamplerState(
-				  0 == (BGFX_TEXTURE_INTERNAL_DEFAULT_SAMPLER & _flags)
+				  0 == (BGFX_SAMPLER_INTERNAL_DEFAULT & _flags)
 					? s_renderMtl->getSamplerState(_flags)
 					: m_sampler
 				, _stage
@@ -2947,9 +2954,9 @@ namespace bgfx { namespace mtl
 		m_pixelFormatHash = murmur.end();
 	}
 
-	void FrameBufferMtl::create(uint16_t _denseIdx, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _depthFormat)
+	void FrameBufferMtl::create(uint16_t _denseIdx, void* _nwh, uint32_t _width, uint32_t _height, TextureFormat::Enum _format, TextureFormat::Enum _depthFormat)
 	{
-		BX_UNUSED(_denseIdx, _nwh, _width, _height, _depthFormat);
+		BX_UNUSED(_denseIdx, _nwh, _width, _height, _format, _depthFormat);
 	}
 
 	void FrameBufferMtl::postReset()
@@ -4201,7 +4208,7 @@ namespace bgfx { namespace mtl
 
 			rce.setRenderPipelineState(m_screenshotBlitRenderPipelineState);
 
-			rce.setFragmentSamplerState(getSamplerState(BGFX_TEXTURE_U_CLAMP|BGFX_TEXTURE_V_CLAMP|BGFX_TEXTURE_MIN_POINT|BGFX_TEXTURE_MAG_POINT|BGFX_TEXTURE_MIP_POINT), 0);
+			rce.setFragmentSamplerState(getSamplerState(BGFX_SAMPLER_U_CLAMP|BGFX_SAMPLER_V_CLAMP|BGFX_SAMPLER_MIN_POINT|BGFX_SAMPLER_MAG_POINT|BGFX_SAMPLER_MIP_POINT), 0);
 			rce.setFragmentTexture(m_screenshotTarget, 0);
 
 			rce.drawPrimitives(MTLPrimitiveTypeTriangle, 0, 3, 1);
