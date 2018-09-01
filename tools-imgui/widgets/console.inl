@@ -44,7 +44,7 @@ void Console::add_log(LogSeverity::Enum severity, const char* message)
 	_num_items = (_num_items + 1) % countof(_items);
 }
 
-int console_inputtext_callback(ImGuiTextEditCallbackData* data)
+int console_inputtext_callback(ImGuiInputTextCallbackData* data)
 {
 	if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
 	{
