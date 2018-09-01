@@ -165,8 +165,7 @@ void Pipeline::render(ShaderManager& sm, StringId32 program, uint8_t view, uint1
 	bgfx::setViewRect(view, 0, 0, width, height);
 	bgfx::setViewTransform(view, NULL, ortho);
 
-	const uint32_t samplerFlags = 0
-		| BGFX_TEXTURE_RT
+	const u32 samplerFlags = 0
 		| BGFX_SAMPLER_MIN_POINT
 		| BGFX_SAMPLER_MAG_POINT
 		| BGFX_SAMPLER_MIP_POINT
