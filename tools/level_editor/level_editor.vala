@@ -81,7 +81,6 @@ namespace Crown
 		private Gtk.Toolbar _toolbar;
 		private Gtk.Paned _pane_left;
 		private Gtk.Paned _pane_right;
-		private Gtk.Notebook _notebook_left;
 		private Gtk.Notebook _notebook_right;
 		private Gtk.Box _vbox;
 		private Gtk.FileFilter _file_filter;
@@ -296,14 +295,10 @@ namespace Crown
 			_pane_right.pack1(vb, true, false);
 			_pane_right.pack2(rb, true, false);
 
-			_notebook_left = new Notebook();
-			_notebook_left.show_border = false;
-			_notebook_left.append_page(_pane_right, new Gtk.Label("Level"));
-
 			MenuBar menu = (MenuBar)_ui_manager.get_widget("/menubar");
 			_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_vbox.pack_start(menu, false, false, 0);
-			_vbox.pack_start(_notebook_left, true, true, 0);
+			_vbox.pack_start(_pane_right, true, true, 0);
 
 			_file_filter = new FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
