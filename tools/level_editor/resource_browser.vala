@@ -169,15 +169,14 @@ namespace Crown
 
 		private void on_destroy()
 		{
-			if (_console_client.is_connected())
-				_console_client.close();
-
-			if (_engine_process != null)
-				_engine_process.force_exit();
+			stop_engine();
 		}
 
 		private void start_engine(uint window_xid)
 		{
+			if (window_xid == 0)
+				return;
+
 			string args[] =
 			{
 				ENGINE_EXE,
@@ -207,6 +206,30 @@ namespace Crown
 			}
 
 			_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
+		}
+
+		private void stop_engine()
+		{
+			_console_client.close();
+
+			if (_engine_process != null)
+			{
+				_engine_process.force_exit();
+				try
+				{
+					_engine_process.wait();
+				}
+				catch (Error e)
+				{
+					stderr.printf("Error: %s\n", e.message);
+				}
+			}
+		}
+
+		public void restart_engine()
+		{
+			stop_engine();
+			start_engine(_engine_view.window_id);
 		}
 
 		private void on_engine_view_realized()
