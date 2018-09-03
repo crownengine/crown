@@ -1539,7 +1539,7 @@ namespace Crown
 		ConsoleClient engine = new ConsoleClient();
 		ConsoleClient game = new ConsoleClient();
 
-		Level level = new Level(database, engine, project.source_dir(), project.toolchain_dir());
+		Level level = new Level(database, engine, project);
 		LevelEditor editor = new LevelEditor(project, database, level, compiler, engine, game);
 
 		level.load_empty_level();
