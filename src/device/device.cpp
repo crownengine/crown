@@ -21,6 +21,7 @@
 #include "core/os.h"
 #include "core/strings/string.h"
 #include "core/strings/string_stream.h"
+#include "core/time.h"
 #include "core/types.h"
 #include "device/console_server.h"
 #include "device/device.h"
@@ -431,15 +432,14 @@ void Device::run()
 
 	_lua_environment->call_global("init", 0);
 
-	s64 time_last = os::clocktime();
 	u16 old_width = _width;
 	u16 old_height = _height;
+	s64 time_last = time::now();
 
 	while (!process_events(_boot_config.vsync) && !_quit)
 	{
-		const s64 time = os::clocktime();
-		const f64 freq = (f64)os::clockfrequency();
-		const f32 dt   = f32(f64(time - time_last) / freq);
+		const s64 time = time::now();
+		const f32 dt   = time::seconds(time - time_last);
 		time_last = time;
 
 		profiler_globals::clear();
@@ -460,14 +460,14 @@ void Device::run()
 			_resource_manager->complete_requests();
 
 			{
-				const s64 t0 = os::clocktime();
+				const s64 t0 = time::now();
 				_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, dt);
-				RECORD_FLOAT("lua.update", f32(f64(os::clocktime() - t0) / freq));
+				RECORD_FLOAT("lua.update", f32(time::seconds(time::now() - t0)));
 			}
 			{
-				const s64 t0 = os::clocktime();
+				const s64 t0 = time::now();
 				_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, dt);
-				RECORD_FLOAT("lua.render", f32(f64(os::clocktime() - t0) / freq));
+				RECORD_FLOAT("lua.render", f32(time::seconds(time::now() - t0)));
 			}
 		}
 

@@ -17,6 +17,7 @@
 #include "core/os.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string_stream.h"
+#include "core/time.h"
 #include "device/console_server.h"
 #include "device/device_options.h"
 #include "device/log.h"
@@ -267,7 +268,7 @@ void DataCompiler::add_ignore_glob(const char* glob)
 
 void DataCompiler::scan()
 {
-	const s64 time_start = os::clocktime();
+	const s64 time_start = time::now();
 
 	// Scan all source directories
 	auto cur = map::begin(_source_dirs);
@@ -310,13 +311,13 @@ void DataCompiler::scan()
 		scan_source_dir(cur->pair.first.c_str(), "");
 	}
 
-	logi(DATA_COMPILER, "Scanned data in %.2fs", f64(os::clocktime() - time_start)/f64(os::clockfrequency()));
+	logi(DATA_COMPILER, "Scanned data in %.2fs", time::seconds(time::now() - time_start));
 	_file_monitor.start(map::begin(_source_dirs)->pair.second.c_str(), true, filemonitor_callback, this);
 }
 
 bool DataCompiler::compile(const char* data_dir, const char* platform)
 {
-	const s64 time_start = os::clocktime();
+	const s64 time_start = time::now();
 
 	FilesystemDisk data_filesystem(default_allocator());
 	data_filesystem.set_prefix(data_dir);
@@ -429,7 +430,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	}
 
 	if (success)
-		logi(DATA_COMPILER, "Compiled data in %.2fs", f64(os::clocktime() - time_start)/f64(os::clockfrequency()));
+		logi(DATA_COMPILER, "Compiled data in %.2fs", time::seconds(time::now() - time_start));
 
 	return success;
 }

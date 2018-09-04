@@ -33,12 +33,6 @@ struct Stat
 /// @ingroup OS
 namespace os
 {
-	/// Returns the clock time.
-	s64 clocktime();
-
-	/// Returns che clock frequency.
-	s64 clockfrequency();
-
 	/// Suspends execution for @a ms milliseconds.
 	void sleep(u32 ms);
 
