@@ -1415,27 +1415,7 @@ namespace Crown
 		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
 		provider.load_from_resource("/org/crown/ui/theme/style.css");
 
-		try
-		{
-			Gtk.IconTheme.add_builtin_icon("tool-place",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-place.png"));
-			Gtk.IconTheme.add_builtin_icon("tool-move",       16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-move.png"));
-			Gtk.IconTheme.add_builtin_icon("tool-rotate",     16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-rotate.png"));
-			Gtk.IconTheme.add_builtin_icon("tool-scale",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/tool-scale.png"));
-			Gtk.IconTheme.add_builtin_icon("axis-local",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/axis-local.png"));
-			Gtk.IconTheme.add_builtin_icon("axis-world",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/axis-world.png"));
-			Gtk.IconTheme.add_builtin_icon("snap-to-grid",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/snap-to-grid.png"));
-			Gtk.IconTheme.add_builtin_icon("reference-local", 16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/reference-local.png"));
-			Gtk.IconTheme.add_builtin_icon("reference-world", 16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/reference-world.png"));
-			Gtk.IconTheme.add_builtin_icon("run",             16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/run.png"));
-			Gtk.IconTheme.add_builtin_icon("level-tree",      16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/level-tree.png"));
-			Gtk.IconTheme.add_builtin_icon("level-layers",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/level-layers.png"));
-			Gtk.IconTheme.add_builtin_icon("layer-visible",   16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/layer-visible.png"));
-			Gtk.IconTheme.add_builtin_icon("layer-locked",    16, new Pixbuf.from_resource("/org/crown/ui/icons/theme/layer-locked.png"));
-		}
-		catch (Error e)
-		{
-			stderr.printf(e.message);
-		}
+		Gtk.IconTheme.get_default().add_resource_path("/org/crown/ui/icons/theme");
 
 		bool create_initial_files = false;
 		string source_dir = "";

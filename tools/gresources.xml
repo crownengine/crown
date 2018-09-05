@@ -12,20 +12,20 @@
 		<file>ui/icons/32x32/pepper.png</file>
 		<file>ui/icons/64x64/pepper.png</file>
 
-		<file>ui/icons/theme/axis-local.png</file>
-		<file>ui/icons/theme/axis-world.png</file>
-		<file>ui/icons/theme/layer-locked.png</file>
-		<file>ui/icons/theme/layer-visible.png</file>
-		<file>ui/icons/theme/level-layers.png</file>
-		<file>ui/icons/theme/level-tree.png</file>
-		<file>ui/icons/theme/reference-local.png</file>
-		<file>ui/icons/theme/reference-world.png</file>
-		<file>ui/icons/theme/run.png</file>
-		<file>ui/icons/theme/snap-to-grid.png</file>
-		<file>ui/icons/theme/tool-move.png</file>
-		<file>ui/icons/theme/tool-place.png</file>
-		<file>ui/icons/theme/tool-rotate.png</file>
-		<file>ui/icons/theme/tool-scale.png</file>
+		<file>ui/icons/theme/16x16/actions/axis-local.png</file>
+		<file>ui/icons/theme/16x16/actions/axis-world.png</file>
+		<file>ui/icons/theme/16x16/actions/layer-locked.png</file>
+		<file>ui/icons/theme/16x16/actions/layer-visible.png</file>
+		<file>ui/icons/theme/16x16/actions/level-layers.png</file>
+		<file>ui/icons/theme/16x16/actions/level-tree.png</file>
+		<file>ui/icons/theme/16x16/actions/reference-local.png</file>
+		<file>ui/icons/theme/16x16/actions/reference-world.png</file>
+		<file>ui/icons/theme/16x16/actions/run.png</file>
+		<file>ui/icons/theme/16x16/actions/snap-to-grid.png</file>
+		<file>ui/icons/theme/16x16/actions/tool-move.png</file>
+		<file>ui/icons/theme/16x16/actions/tool-place.png</file>
+		<file>ui/icons/theme/16x16/actions/tool-rotate.png</file>
+		<file>ui/icons/theme/16x16/actions/tool-scale.png</file>
 
 		<file compressed="true">ui/theme/style.css</file>
 	</gresource>
