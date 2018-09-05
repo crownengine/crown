@@ -72,9 +72,9 @@ namespace Crown
 		private PreferencesDialog _preferences_dialog;
 		private ResourceBrowser _resource_browser;
 
-		private Gtk.Alignment _alignment_engine;
-		private Gtk.Alignment _alignment_level_tree_view;
-		private Gtk.Alignment _alignment_properties_view;
+		private Slide _engine_view_slide;
+		private Slide _level_tree_view_slide;
+		private Slide _properties_view_slide;
 
 		private Gtk.ActionGroup _action_group;
 		private Gtk.UIManager _ui_manager;
@@ -241,12 +241,12 @@ namespace Crown
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 			_properties_view = new PropertiesView(_level);
 
-			_alignment_engine = new Gtk.Alignment(0, 0, 1, 1);
-			_alignment_level_tree_view = new Gtk.Alignment(0, 0, 1, 1);
-			_alignment_properties_view = new Gtk.Alignment(0, 0, 1, 1);
-			_alignment_engine.add(new StartingCompiler());
-			_alignment_level_tree_view.add(new StartingCompiler());
-			_alignment_properties_view.add(new StartingCompiler());
+			_engine_view_slide = new Slide();
+			_level_tree_view_slide = new Slide();
+			_properties_view_slide = new Slide();
+			_engine_view_slide.show_widget(new StartingCompiler());
+			_level_tree_view_slide.show_widget(new StartingCompiler());
+			_properties_view_slide.show_widget(new StartingCompiler());
 
 			_action_group = new Gtk.ActionGroup("group");
 			_action_group.add_actions(action_entries, this);
@@ -275,7 +275,7 @@ namespace Crown
 			_toolbar.set_style(Gtk.ToolbarStyle.ICONS);
 
 			_pane_left = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			_pane_left.pack1(_alignment_engine, true, true);
+			_pane_left.pack1(_engine_view_slide, true, true);
 			_pane_left.pack2(_console_view, true, true);
 
 			Gtk.Box vb = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -288,8 +288,8 @@ namespace Crown
 			_notebook_right.append_page(_level_layers_treeview, new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
 
 			Gtk.Paned rb = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			rb.pack1(_alignment_level_tree_view, true, true);
-			rb.pack2(_alignment_properties_view, true, true);
+			rb.pack1(_level_tree_view_slide, true, true);
+			rb.pack2(_properties_view_slide, true, true);
 
 			_pane_right = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_pane_right.pack1(vb, true, false);
@@ -589,17 +589,9 @@ namespace Crown
 					_engine_view.button_press_event.connect(on_button_press);
 					_engine_view.button_release_event.connect(on_button_release);
 
-					_alignment_engine.remove(_alignment_engine.get_child());
-					_alignment_level_tree_view.remove(_alignment_level_tree_view.get_child());
-					_alignment_properties_view.remove(_alignment_properties_view.get_child());
-
-					_alignment_engine.add(_engine_view);
-					_alignment_level_tree_view.add(_notebook_right);
-					_alignment_properties_view.add(_properties_view);
-
-					_alignment_engine.show_all();
-					_alignment_level_tree_view.show_all();
-					_alignment_properties_view.show_all();
+					_engine_view_slide.show_widget(_engine_view);
+					_level_tree_view_slide.show_widget(_notebook_right);
+					_properties_view_slide.show_widget(_properties_view);
 				}
 			});
 		}
