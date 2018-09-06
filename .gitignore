@@ -4,3 +4,6 @@
 # Ignore Python stuff
 __pycache__
 
+/samples/*_android
+/samples/*_linux
+/samples/*_windows
