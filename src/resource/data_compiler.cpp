@@ -329,7 +329,16 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	if (!data_filesystem.exists(CROWN_TEMP_DIRECTORY))
 		data_filesystem.create_directory(CROWN_TEMP_DIRECTORY);
 
-	std::sort(vector::begin(_files), vector::end(_files));
+	std::sort(vector::begin(_files), vector::end(_files), [](const DynamicString& resource_a, const DynamicString& resource_b)
+		{
+#define PACKAGE ".package"
+			if ( resource_a.has_suffix(PACKAGE) && !resource_b.has_suffix(PACKAGE))
+				return false;
+			if (!resource_a.has_suffix(PACKAGE) &&  resource_b.has_suffix(PACKAGE))
+				return true;
+			return resource_a < resource_b;
+#undef PACKAGE
+		});
 
 	bool success = false;
 
