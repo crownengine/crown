@@ -638,7 +638,7 @@ namespace Crown
 
 			// Widgets
 			_components_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-			_components_vbox.margin_right = 18;
+			_components_vbox.margin_bottom = 18;
 
 			// Unit
 			add_component_view("Unit",                    "name",                    0, new UnitView(_level));
