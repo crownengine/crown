@@ -38,7 +38,7 @@ namespace Crown
 			this.column_spacing = 12;
 
 			Gtk.Label l = new Label(label);
-			l.width_chars = 10;
+			l.width_chars = 13;
 			l.set_alignment(1.0f, 0.5f);
 
 			PropertyRow r = new PropertyRow(w);
