@@ -2,8 +2,9 @@
 <ui>
 	<menubar name="menubar">
 		<menu action="menu-file">
-			<menuitem action="new"></menuitem>
-			<menuitem action="open"></menuitem>
+			<menuitem action="new-level"></menuitem>
+			<menuitem action="open-level"></menuitem>
+			<menuitem action="open-project"></menuitem>
 			<menuitem action="save"></menuitem>
 			<menuitem action="save-as"></menuitem>
 			<separator></separator>

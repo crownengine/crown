@@ -90,8 +90,9 @@ namespace Crown
 		const Gtk.ActionEntry[] action_entries =
 		{
 			{ "menu-file",            null,  "_File",              null,             null,         null                       },
-			{ "new",                  null,  "New",                "<ctrl>N",        null,         on_new                     },
-			{ "open",                 null,  "Open...",            "<ctrl>O",        null,         on_open                    },
+			{ "new-level",            null,  "New Level",          "<ctrl>N",        null,         on_new_level               },
+			{ "open-level",           null,  "Open Level...",      "<ctrl>O",        null,         on_open_level              },
+			{ "open-project",         null,  "Open Project...",    null,             null,         on_open_project            },
 			{ "save",                 null,  "Save",               "<ctrl>S",        null,         on_save                    },
 			{ "save-as",              null,  "Save As...",         "<shift><ctrl>S", null,         on_save_as                 },
 			{ "import",               null,  "Import",             null,             null,         null                       },
@@ -616,6 +617,9 @@ namespace Crown
 
 		private void start_engine(uint window_xid)
 		{
+			if (window_xid == 0)
+				return;
+
 			string args[] =
 			{
 				ENGINE_EXE,
@@ -774,9 +778,9 @@ namespace Crown
 			_level.send_level();
 		}
 
-		private void load()
+		private void load_level()
 		{
-			FileChooserDialog fcd = new FileChooserDialog("Open..."
+			FileChooserDialog fcd = new FileChooserDialog("Open Level..."
 				, this
 				, FileChooserAction.OPEN
 				, "Cancel"
@@ -797,6 +801,34 @@ namespace Crown
 					_level.send_level();
 					send_state();
 				}
+			}
+
+			fcd.destroy();
+		}
+
+		private void load_project()
+		{
+			FileChooserDialog fcd = new FileChooserDialog("Open Project..."
+				, this
+				, FileChooserAction.SELECT_FOLDER
+				, "Cancel"
+				, ResponseType.CANCEL
+				, "Open"
+				, ResponseType.ACCEPT
+				);
+
+			if (fcd.run() == (int)ResponseType.ACCEPT)
+			{
+				string filename = fcd.get_filename();
+				_console_view.logi("editor", "Loading project `%s`...".printf(filename));
+				_project.load(filename, _project.toolchain_dir());
+
+				_level_filename = null;
+				_level.load_empty_level();
+				stop_compiler();
+				start_compiler();
+				restart_engine();
+				_resource_browser.restart_engine();
 			}
 
 			fcd.destroy();
@@ -894,7 +926,7 @@ namespace Crown
 				shutdown();
 		}
 
-		private void on_new()
+		private void on_new_level()
 		{
 			if (!_database.changed())
 			{
@@ -923,11 +955,11 @@ namespace Crown
 			}
 		}
 
-		private void on_open(Gtk.Action action)
+		private void on_open_level(Gtk.Action action)
 		{
 			if (!_database.changed())
 			{
-				load();
+				load_level();
 				return;
 			}
 
@@ -945,7 +977,32 @@ namespace Crown
 			md.destroy();
 
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
-				load();
+				load_level();
+		}
+
+		private void on_open_project(Gtk.Action action)
+		{
+			if (!_database.changed())
+			{
+				load_project();
+				return;
+			}
+
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.WARNING
+				, Gtk.ButtonsType.NONE
+				, "File changed, save?"
+				);
+			md.add_button("Open _without Saving", ResponseType.NO);
+			md.add_button("_Cancel", ResponseType.CANCEL);
+			md.add_button("_Save", ResponseType.YES);
+			md.set_default_response(ResponseType.YES);
+			int rt = md.run();
+			md.destroy();
+
+			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
+				load_project();
 		}
 
 		private void on_save(Gtk.Action action)

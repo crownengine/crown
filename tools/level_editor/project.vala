@@ -37,8 +37,15 @@ namespace Crown
 			_map = new HashMap<string, Guid?>();
 		}
 
+		public void reset()
+		{
+			_files.reset();
+			_map.clear();
+		}
+
 		public void load(string source_dir, string toolchain_dir)
 		{
+			reset();
 			_source_dir        = File.new_for_path(source_dir);
 			_toolchain_dir     = File.new_for_path(toolchain_dir);
 			_data_dir          = File.new_for_path(_source_dir.get_path() + "_" + _platform);
