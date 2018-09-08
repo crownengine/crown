@@ -72,10 +72,10 @@ function Game.update(dt)
 
 	-- Update camera
 	local delta = Vector3.zero()
-	if Mouse.pressed(Mouse.button_id("right")) then move = true end
-	if Mouse.released(Mouse.button_id("right")) then move = false end
-	if move then delta = Mouse.axis(Mouse.axis_id("cursor_delta")) end
-	Game.camera:update(-delta.x, -delta.y)
+	if Mouse.button(Mouse.button_id("right")) > 0 then
+		delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
+	end
+	Game.camera:update(dt, delta.x, delta.y)
 end
 
 function Game.render(dt)

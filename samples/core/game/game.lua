@@ -50,7 +50,7 @@ function GameBase.update(dt)
 		if Mouse.pressed(Mouse.button_id("right")) then move = true end
 		if Mouse.released(Mouse.button_id("right")) then move = false end
 		if move then delta = Mouse.axis(Mouse.axis_id("cursor_delta")) end
-		GameBase.camera:update(-delta.x, -delta.y)
+		GameBase.camera:update(dt, delta.x, delta.y)
 	end
 
 	if GameBase.game and GameBase.game.update then
