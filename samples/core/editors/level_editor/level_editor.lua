@@ -1357,7 +1357,7 @@ function LevelEditor:update(dt)
 	end
 
 	self._fpscamera:mouse_wheel(self._mouse.wheel.delta)
-	self._fpscamera:update(dt, -delta.x, -delta.y, self._keyboard)
+	self._fpscamera:update(dt, delta.x, delta.y, self._keyboard)
 
 	self.tool:update(dt, self._mouse.x, self._mouse.y)
 
