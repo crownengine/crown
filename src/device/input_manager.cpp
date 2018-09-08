@@ -174,8 +174,8 @@ InputManager::InputManager(Allocator& a)
 	, _keyboard(NULL)
 	, _mouse(NULL)
 	, _touch(NULL)
-	, _mouse_last_x(0)
-	, _mouse_last_y(0)
+	, _mouse_last_x(INT16_MAX)
+	, _mouse_last_y(INT16_MAX)
 {
 	_keyboard = input_device::create(*_allocator
 		, "Keyboard"
@@ -327,8 +327,8 @@ void InputManager::update()
 
 	const Vector3 cursor = _mouse->axis(MouseAxis::CURSOR);
 	_mouse->set_axis(MouseAxis::CURSOR_DELTA
-		, cursor.x - _mouse_last_x
-		, cursor.y - _mouse_last_y
+		, cursor.x - (_mouse_last_x == INT16_MAX ? cursor.x : _mouse_last_x)
+		, cursor.y - (_mouse_last_y == INT16_MAX ? cursor.y : _mouse_last_y)
 		, 0
 		);
 	_mouse_last_x = (s16)cursor.x;
