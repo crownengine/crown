@@ -5,8 +5,8 @@ FPSCamera = class(FPSCamera)
 function FPSCamera:init(world, unit)
 	self._world = world
 	self._unit = unit
-	self._translation_speed = 47
-	self._rotation_speed = 0.38
+	self._translation_speed = 20
+	self._rotation_speed = 0.14
 	self._perspective_local_pose = Matrix4x4Box(Matrix4x4.identity())
 end
 
@@ -69,7 +69,7 @@ function FPSCamera:screen_length_to_world_length(position, length)
 	return length / Vector3.distance(a, b)
 end
 
-function FPSCamera:update(dt, dx, dy, keyboard)
+function FPSCamera:update(dt, dx, dy, keyboard, mouse)
 	local sg = World.scene_graph(self._world)
 
 	local camera_local_pose = SceneGraph.local_pose(sg, self._unit)
@@ -81,7 +81,7 @@ function FPSCamera:update(dt, dx, dy, keyboard)
 
 	-- Rotation
 	if dx ~= 0 or dy ~= 0 then
-		if not self:is_orthographic() then
+		if not self:is_orthographic() and mouse.right then
 			local rotation_speed = self._rotation_speed * dt
 			local rotation_around_world_up = Quaternion(Vector3(0, 1, 0), dx * rotation_speed)
 			local rotation_around_camera_right = Quaternion(camera_right_vector, dy * rotation_speed)

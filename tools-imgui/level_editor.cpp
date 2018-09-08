@@ -343,7 +343,6 @@ struct SceneView
 	ImVec2 _origin;
 	ImVec2 _size;
 	ImVec2 _mouse;
-	ImVec2 _mouse_last;
 	bool _open;
 
 	SceneView()
@@ -1438,17 +1437,11 @@ bool tool_process_events()
 					if (!io.WantCaptureMouse)
 					{
 						ImVec2& mouse_curr = s_editor->_scene_view._mouse;
-						ImVec2& mouse_last = s_editor->_scene_view._mouse_last;
 
 						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._origin.x;
 						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._origin.y;
 
-						f32 delta_x = mouse_curr.x - mouse_last.x;
-						f32 delta_y = mouse_curr.y - mouse_last.y;
-
-						tool::mouse_move(ss, mouse_curr.x, mouse_curr.y, delta_x, delta_y);
-
-						mouse_last = mouse_curr;
+						tool::mouse_move(ss, mouse_curr.x, mouse_curr.y);
 					}
 					break;
 

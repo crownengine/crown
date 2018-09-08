@@ -120,13 +120,11 @@ void mouse_wheel(StringStream& out, f32 delta)
 	out << delta << ")";
 }
 
-void mouse_move(StringStream& out, f32 x, f32 y, f32 dx, f32 dy)
+void mouse_move(StringStream& out, f32 x, f32 y)
 {
 	out << "LevelEditor:mouse_move(";
 	out << x << ",";
-	out << y << ",";
-	out << dx << ",";
-	out << dy << ")";
+	out << y << ")";
 }
 
 void keyboard_pressed(StringStream& out, char c)

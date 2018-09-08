@@ -16,8 +16,6 @@ namespace Crown
 
 		private int _mouse_curr_x;
 		private int _mouse_curr_y;
-		private int _mouse_last_x;
-		private int _mouse_last_y;
 
 		private bool _mouse_left;
 		private bool _mouse_middle;
@@ -63,8 +61,6 @@ namespace Crown
 
 			_mouse_curr_x = 0;
 			_mouse_curr_y = 0;
-			_mouse_last_x = 0;
-			_mouse_last_y = 0;
 
 			_mouse_left   = false;
 			_mouse_middle = false;
@@ -194,17 +190,8 @@ namespace Crown
 		{
 			_mouse_curr_x = (int)ev.x;
 			_mouse_curr_y = (int)ev.y;
-			int _mouse_delta_x = _mouse_curr_x - _mouse_last_x;
-			int _mouse_delta_y = _mouse_curr_y - _mouse_last_y;
 
-			_client.send_script(LevelEditorApi.mouse_move(_mouse_curr_x
-				, _mouse_curr_y
-				, _mouse_delta_x
-				, _mouse_delta_y
-				));
-
-			_mouse_last_x = _mouse_curr_x;
-			_mouse_last_y = _mouse_curr_y;
+			_client.send_script(LevelEditorApi.mouse_move(_mouse_curr_x, _mouse_curr_y));
 
 			return false;
 		}

@@ -90,9 +90,9 @@ namespace Crown
 				);
 		}
 
-		public string mouse_move(int x, int y, int dx, int dy)
+		public string mouse_move(int x, int y)
 		{
-			return "LevelEditor:mouse_move(%d,%d,%d,%d)".printf(x, y, dx, dy);
+			return "LevelEditor:mouse_move(%d,%d)".printf(x, y);
 		}
 
 		public string mouse_wheel(double delta)

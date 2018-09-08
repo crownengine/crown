@@ -1314,7 +1314,7 @@ function LevelEditor:init()
 	self._lines_no_depth = World.create_debug_line(self._world, false)
 	self._lines = World.create_debug_line(self._world, true)
 	self._fpscamera = FPSCamera(self._world, World.spawn_unit(self._world, "core/units/camera"))
-	self._mouse = { x = 0, y = 0, dx = 0, dy = 0, button = { left = false, middle = false, right = false }, wheel = { delta = 0 }}
+	self._mouse = { x = 0, y = 0, x_last = 0, y_last = 0, button = { left = false, middle = false, right = false }, wheel = { delta = 0 }}
 	self._keyboard = { ctrl = false, shift = false, alt = false }
 	self._grid = { size = 1 }
 	self._rotation_snap = 15.0 * math.pi / 180.0
@@ -1350,14 +1350,13 @@ function LevelEditor:update(dt)
 		draw_world_origin_grid(self._lines, 10, self._grid.size)
 	end
 
-	local delta = Vector3.zero();
-	if self._mouse.right then
-		delta.x = self._mouse.dx;
-		delta.y = self._mouse.dy;
-	end
+	self._mouse.dx = self._mouse.x - self._mouse.x_last
+	self._mouse.dy = self._mouse.y - self._mouse.y_last
+	self._mouse.x_last = self._mouse.x
+	self._mouse.y_last = self._mouse.y
 
 	self._fpscamera:mouse_wheel(self._mouse.wheel.delta)
-	self._fpscamera:update(dt, delta.x, delta.y, self._keyboard)
+	self._fpscamera:update(dt, self._mouse.dx, self._mouse.dy, self._keyboard, self._mouse)
 
 	self.tool:update(dt, self._mouse.x, self._mouse.y)
 
@@ -1401,11 +1400,9 @@ function LevelEditor:set_mouse_state(x, y, left, middle, right)
 	self._mouse.right = right
 end
 
-function LevelEditor:mouse_move(x, y, dx, dy)
+function LevelEditor:mouse_move(x, y)
 	self._mouse.x = x
 	self._mouse.y = y
-	self._mouse.dx = dx
-	self._mouse.dy = dy
 
 	self.tool:mouse_move(x, y)
 end
