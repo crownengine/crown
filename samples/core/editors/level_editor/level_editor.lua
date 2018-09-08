@@ -1315,7 +1315,7 @@ function LevelEditor:init()
 	self._lines = World.create_debug_line(self._world, true)
 	self._fpscamera = FPSCamera(self._world, World.spawn_unit(self._world, "core/units/camera"))
 	self._mouse = { x = 0, y = 0, dx = 0, dy = 0, button = { left = false, middle = false, right = false }, wheel = { delta = 0 }}
-	self._keyboard = { ctrl = false, shift = false }
+	self._keyboard = { ctrl = false, shift = false, alt = false }
 	self._grid = { size = 1 }
 	self._rotation_snap = 15.0 * math.pi / 180.0
 	self._objects = {}
@@ -1427,8 +1427,9 @@ function LevelEditor:key_down(key)
 	if (key == "a") then self._keyboard.akey = true end
 	if (key == "s") then self._keyboard.skey = true end
 	if (key == "d") then self._keyboard.dkey = true end
-	if (key == "left_ctrl") then self._keyboard.ctrl = true end
-	if (key == "left_shift") then self._keyboard.shift = true end
+	if (key == "ctrl_left") then self._keyboard.ctrl = true end
+	if (key == "shift_left") then self._keyboard.shift = true end
+	if (key == "alt_left") then self._keyboard.alt = true end
 end
 
 function LevelEditor:key_up(key)
@@ -1436,8 +1437,9 @@ function LevelEditor:key_up(key)
 	if (key == "a") then self._keyboard.akey = false end
 	if (key == "s") then self._keyboard.skey = false end
 	if (key == "d") then self._keyboard.dkey = false end
-	if (key == "left_ctrl") then self._keyboard.ctrl = false end
-	if (key == "left_shift") then self._keyboard.shift = false end
+	if (key == "ctrl_left") then self._keyboard.ctrl = false end
+	if (key == "shift_left") then self._keyboard.shift = false end
+	if (key == "alt_left") then self._keyboard.alt = false end
 end
 
 function LevelEditor:camera()

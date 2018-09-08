@@ -332,9 +332,11 @@ namespace Crown
 		private bool on_key_press(Gdk.EventKey ev)
 		{
 			if (ev.keyval == Gdk.Key.Control_L)
-				_engine.send_script(LevelEditorApi.key_down("left_ctrl"));
+				_engine.send_script(LevelEditorApi.key_down("ctrl_left"));
 			else if (ev.keyval == Gdk.Key.Shift_L)
-				_engine.send_script(LevelEditorApi.key_down("left_shift"));
+				_engine.send_script(LevelEditorApi.key_down("shift_left"));
+			else if (ev.keyval == Gdk.Key.Alt_L)
+				_engine.send_script(LevelEditorApi.key_down("alt_left"));
 
 			return false;
 		}
@@ -342,9 +344,11 @@ namespace Crown
 		private bool on_key_release(Gdk.EventKey ev)
 		{
 			if (ev.keyval == Gdk.Key.Control_L)
-				_engine.send_script(LevelEditorApi.key_up("left_ctrl"));
+				_engine.send_script(LevelEditorApi.key_up("ctrl_left"));
 			else if (ev.keyval == Gdk.Key.Shift_L)
-				_engine.send_script(LevelEditorApi.key_up("left_shift"));
+				_engine.send_script(LevelEditorApi.key_up("shift_left"));
+			else if (ev.keyval == Gdk.Key.Alt_L)
+				_engine.send_script(LevelEditorApi.key_up("alt_left"));
 
 			return false;
 		}
