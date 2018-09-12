@@ -5,6 +5,8 @@
 
 #include "config.h"
 #include "core/error/error.h"
+#include "core/memory/temp_allocator.h"
+#include "core/strings/string_stream.h"
 #include "device/device.h"
 #include "device/log.h"
 #include "lua/lua_environment.h"
@@ -18,6 +20,33 @@ namespace { const crown::log_internal::System LUA = { "lua" }; }
 namespace crown
 {
 extern void load_api(LuaEnvironment& env);
+
+static int luaB_print(lua_State* L)
+{
+	TempAllocator2048 ta;
+	StringStream ss(ta);
+
+	int n = lua_gettop(L); /* number of arguments */
+	lua_getglobal(L, "tostring");
+	for (int i = 1; i <= n; ++i)
+	{
+		const char *s;
+		lua_pushvalue(L, -1); /* function to be called */
+		lua_pushvalue(L, i);  /* value to print */
+		lua_call(L, 1, 1);
+		s = lua_tostring(L, -1); /* get result */
+		if (s == NULL)
+			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+
+		if (i > 1)
+			ss << "\t";
+		ss << s;
+		lua_pop(L, 1); /* pop result */
+	}
+
+	logi(LUA, string_stream::c_str(ss));
+	return 0;
+}
 
 LuaEnvironment::LuaEnvironment()
 	: L(NULL)
@@ -43,6 +72,9 @@ void LuaEnvironment::load_libs()
 
 	// Register crown libraries
 	load_api(*this);
+
+	// Override print to redirect output to logging system
+	add_module_function("_G", "print", luaB_print);
 
 	// Register custom loader
 	lua_getfield(L, LUA_GLOBALSINDEX, "package");
