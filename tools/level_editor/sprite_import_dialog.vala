@@ -118,6 +118,7 @@ public class SpriteImportDialog : Gtk.Dialog
 	public SpinButtonDouble layer;
 	public SpinButtonDouble depth;
 
+	public Gtk.CheckButton collision_enabled;
 	public Gtk.SpinButton collision_x;
 	public Gtk.SpinButton collision_y;
 	public Gtk.SpinButton collision_w;
@@ -300,6 +301,8 @@ public class SpriteImportDialog : Gtk.Dialog
 		spacing_x = new Gtk.SpinButton.with_range(0, 128.0, 1.0);
 		spacing_y = new Gtk.SpinButton.with_range(0, 128.0, 1.0);
 
+		collision_enabled = new Gtk.CheckButton();
+		collision_enabled.active = true;
 		collision_x = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
 		collision_x.value = 0;
 		collision_y = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
@@ -368,6 +371,13 @@ public class SpriteImportDialog : Gtk.Dialog
 			_preview.queue_draw();
 		});
 
+		collision_enabled.toggled.connect(() => {
+			collision_x.sensitive = !collision_x.sensitive;
+			collision_y.sensitive = !collision_y.sensitive;
+			collision_w.sensitive = !collision_w.sensitive;
+			collision_h.sensitive = !collision_h.sensitive;
+		});
+
 		collision_x.value_changed.connect(() => {
 			_preview.queue_draw();
 		});
@@ -419,10 +429,11 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.attach(label_with_alignment("Layer", Gtk.Align.END),        0, 11, 1, 1);
 		grid.attach(label_with_alignment("Depth", Gtk.Align.END),        0, 12, 1, 1);
 
-		grid.attach(label_with_alignment("Collision X", Gtk.Align.END),  0, 13, 1, 1);
-		grid.attach(label_with_alignment("Collision Y", Gtk.Align.END),  0, 14, 1, 1);
-		grid.attach(label_with_alignment("Collision W", Gtk.Align.END),  0, 15, 1, 1);
-		grid.attach(label_with_alignment("Collision H", Gtk.Align.END),  0, 16, 1, 1);
+		grid.attach(label_with_alignment("Collision", Gtk.Align.END),    0, 13, 1, 1);
+		grid.attach(label_with_alignment("Collision X", Gtk.Align.END),  0, 14, 1, 1);
+		grid.attach(label_with_alignment("Collision Y", Gtk.Align.END),  0, 15, 1, 1);
+		grid.attach(label_with_alignment("Collision W", Gtk.Align.END),  0, 16, 1, 1);
+		grid.attach(label_with_alignment("Collision H", Gtk.Align.END),  0, 17, 1, 1);
 
 		grid.attach(resolution,   1,  0, 1, 1);
 		grid.attach(cells_h,      1,  1, 1, 1);
@@ -438,10 +449,11 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.attach(layer,        1, 11, 1, 1);
 		grid.attach(depth,        1, 12, 1, 1);
 
-		grid.attach(collision_x,  1, 13, 1, 1);
-		grid.attach(collision_y,  1, 14, 1, 1);
-		grid.attach(collision_w,  1, 15, 1, 1);
-		grid.attach(collision_h,  1, 16, 1, 1);
+		grid.attach(collision_enabled, 1, 13, 1, 1);
+		grid.attach(collision_x,       1, 14, 1, 1);
+		grid.attach(collision_y,       1, 15, 1, 1);
+		grid.attach(collision_w,       1, 16, 1, 1);
+		grid.attach(collision_h,       1, 17, 1, 1);
 
 		grid.row_spacing = 6;
 		grid.column_spacing = 12;

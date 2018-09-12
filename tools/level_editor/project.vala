@@ -289,6 +289,7 @@ end
 
 			Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, sid.pivot.active);
 
+			bool collision_enabled = sid.collision_enabled.active;
 			int collision_x = (int)sid.collision_x.value;
 			int collision_y = (int)sid.collision_y.value;
 			int collision_w = (int)sid.collision_w.value;
@@ -434,155 +435,158 @@ end
 					}
 				}
 
-				// Create collider (geometry)
+				if (collision_enabled)
 				{
-					// d-----a
-					// |     |
-					// |     |
-					// c-----b
-					Vector2 a = {};
-					Vector2 b = {};
-					Vector2 c = {};
-					Vector2 d = {};
-
-					double PIXELS_PER_METER = 32.0;
-
-					a.x = (collision_w + collision_x - pivot_xy.x) / PIXELS_PER_METER;
-					a.y = (              collision_y - pivot_xy.y) / PIXELS_PER_METER;
-
-					b.x = (collision_w + collision_x - pivot_xy.x) / PIXELS_PER_METER;
-					b.y = (collision_h + collision_y - pivot_xy.y) / PIXELS_PER_METER;
-
-					c.x = (              collision_x - pivot_xy.x) / PIXELS_PER_METER;
-					c.y = (collision_h + collision_y - pivot_xy.y) / PIXELS_PER_METER;
-
-					d.x = (              collision_x - pivot_xy.x) / PIXELS_PER_METER;
-					d.y = (              collision_y - pivot_xy.y) / PIXELS_PER_METER;
-
-					// Invert Y axis
-					a.y = a.y == 0.0f ? a.y : -a.y;
-					b.y = b.y == 0.0f ? b.y : -b.y;
-					c.y = c.y == 0.0f ? c.y : -c.y;
-					d.y = d.y == 0.0f ? d.y : -d.y;
-
-					ArrayList<Value?> position = new ArrayList<Value?>();
-					// Up face
-					position.add(a.x); position.add( 0.25); position.add(a.y);
-					position.add(b.x); position.add( 0.25); position.add(b.y);
-					position.add(c.x); position.add( 0.25); position.add(c.y);
-					position.add(d.x); position.add( 0.25); position.add(d.y);
-					// Bottom face
-					position.add(a.x); position.add(-0.25); position.add(a.y);
-					position.add(b.x); position.add(-0.25); position.add(b.y);
-					position.add(c.x); position.add(-0.25); position.add(c.y);
-					position.add(d.x); position.add(-0.25); position.add(d.y);
-
-					ArrayList<Value?> indices_data = new ArrayList<Value?>();
-					indices_data.add(0); indices_data.add(2); indices_data.add(3);
-					indices_data.add(7); indices_data.add(5); indices_data.add(4);
-					indices_data.add(4); indices_data.add(1); indices_data.add(0);
-					indices_data.add(5); indices_data.add(2); indices_data.add(1);
-					indices_data.add(6); indices_data.add(3); indices_data.add(2);
-					indices_data.add(0); indices_data.add(7); indices_data.add(4);
-					indices_data.add(0); indices_data.add(1); indices_data.add(2);
-					indices_data.add(7); indices_data.add(6); indices_data.add(5);
-					indices_data.add(4); indices_data.add(5); indices_data.add(1);
-					indices_data.add(5); indices_data.add(6); indices_data.add(2);
-					indices_data.add(6); indices_data.add(7); indices_data.add(3);
-					indices_data.add(0); indices_data.add(3); indices_data.add(7);
-
-					ArrayList<Value?> data = new ArrayList<Value?>();
-					data.add(indices_data);
-
-					Hashtable indices = new Hashtable();
-					indices["size"] = indices_data.size;
-					indices["data"] = data;
-
-					Hashtable geometries_collider = new Hashtable();
-					geometries_collider["position"] = position;
-					geometries_collider["indices"] = indices;
-
-					Hashtable geometries = new Hashtable();
-					geometries["collider"] = geometries_collider;
-
-					ArrayList<Value?> matrix_local = new ArrayList<Value?>();
-					matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0);
-					matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0);
-					matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0);
-					matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0);
-
-					Hashtable nodes_collider = new Hashtable();
-					nodes_collider["matrix_local"] = matrix_local;
-
-					Hashtable nodes = new Hashtable();
-					nodes["collider"] = nodes_collider;
-
-					Hashtable mesh = new Hashtable();
-					mesh["geometries"] = geometries;
-					mesh["nodes"] = nodes;
-
-					SJSON.save(mesh, Path.build_filename(_source_dir.get_path(), resource_name) + ".mesh");
-				}
-
-				// Create collider
-				{
-					Guid id = Guid.new_guid();
-
-					if (!unit.has_component("collider", ref id))
+					// Create collider (geometry)
 					{
-						db.create(id);
-						db.set_property_string(id, "data.shape", "box");
-						db.set_property_string(id, "data.scene", resource_name);
-						db.set_property_string(id, "data.name", "collider");
-						db.set_property_string(id, "data.material", "default");
-						db.set_property_string(id, "type", "collider");
+						// d-----a
+						// |     |
+						// |     |
+						// c-----b
+						Vector2 a = {};
+						Vector2 b = {};
+						Vector2 c = {};
+						Vector2 d = {};
 
-						db.add_to_set(GUID_ZERO, "components", id);
+						double PIXELS_PER_METER = 32.0;
+
+						a.x = (collision_w + collision_x - pivot_xy.x) / PIXELS_PER_METER;
+						a.y = (              collision_y - pivot_xy.y) / PIXELS_PER_METER;
+
+						b.x = (collision_w + collision_x - pivot_xy.x) / PIXELS_PER_METER;
+						b.y = (collision_h + collision_y - pivot_xy.y) / PIXELS_PER_METER;
+
+						c.x = (              collision_x - pivot_xy.x) / PIXELS_PER_METER;
+						c.y = (collision_h + collision_y - pivot_xy.y) / PIXELS_PER_METER;
+
+						d.x = (              collision_x - pivot_xy.x) / PIXELS_PER_METER;
+						d.y = (              collision_y - pivot_xy.y) / PIXELS_PER_METER;
+
+						// Invert Y axis
+						a.y = a.y == 0.0f ? a.y : -a.y;
+						b.y = b.y == 0.0f ? b.y : -b.y;
+						c.y = c.y == 0.0f ? c.y : -c.y;
+						d.y = d.y == 0.0f ? d.y : -d.y;
+
+						ArrayList<Value?> position = new ArrayList<Value?>();
+						// Up face
+						position.add(a.x); position.add( 0.25); position.add(a.y);
+						position.add(b.x); position.add( 0.25); position.add(b.y);
+						position.add(c.x); position.add( 0.25); position.add(c.y);
+						position.add(d.x); position.add( 0.25); position.add(d.y);
+						// Bottom face
+						position.add(a.x); position.add(-0.25); position.add(a.y);
+						position.add(b.x); position.add(-0.25); position.add(b.y);
+						position.add(c.x); position.add(-0.25); position.add(c.y);
+						position.add(d.x); position.add(-0.25); position.add(d.y);
+
+						ArrayList<Value?> indices_data = new ArrayList<Value?>();
+						indices_data.add(0); indices_data.add(2); indices_data.add(3);
+						indices_data.add(7); indices_data.add(5); indices_data.add(4);
+						indices_data.add(4); indices_data.add(1); indices_data.add(0);
+						indices_data.add(5); indices_data.add(2); indices_data.add(1);
+						indices_data.add(6); indices_data.add(3); indices_data.add(2);
+						indices_data.add(0); indices_data.add(7); indices_data.add(4);
+						indices_data.add(0); indices_data.add(1); indices_data.add(2);
+						indices_data.add(7); indices_data.add(6); indices_data.add(5);
+						indices_data.add(4); indices_data.add(5); indices_data.add(1);
+						indices_data.add(5); indices_data.add(6); indices_data.add(2);
+						indices_data.add(6); indices_data.add(7); indices_data.add(3);
+						indices_data.add(0); indices_data.add(3); indices_data.add(7);
+
+						ArrayList<Value?> data = new ArrayList<Value?>();
+						data.add(indices_data);
+
+						Hashtable indices = new Hashtable();
+						indices["size"] = indices_data.size;
+						indices["data"] = data;
+
+						Hashtable geometries_collider = new Hashtable();
+						geometries_collider["position"] = position;
+						geometries_collider["indices"] = indices;
+
+						Hashtable geometries = new Hashtable();
+						geometries["collider"] = geometries_collider;
+
+						ArrayList<Value?> matrix_local = new ArrayList<Value?>();
+						matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0);
+						matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0);
+						matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0);
+						matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0);
+
+						Hashtable nodes_collider = new Hashtable();
+						nodes_collider["matrix_local"] = matrix_local;
+
+						Hashtable nodes = new Hashtable();
+						nodes["collider"] = nodes_collider;
+
+						Hashtable mesh = new Hashtable();
+						mesh["geometries"] = geometries;
+						mesh["nodes"] = nodes;
+
+						SJSON.save(mesh, Path.build_filename(_source_dir.get_path(), resource_name) + ".mesh");
 					}
-					else
+
+					// Create collider
 					{
-						unit.set_component_property_string(id, "data.shape", "box");
-						unit.set_component_property_string(id, "data.scene", resource_name);
-						unit.set_component_property_string(id, "data.name", "collider");
-						unit.set_component_property_string(id, "data.material", "default");
-						unit.set_component_property_string(id, "type", "collider");
+						Guid id = Guid.new_guid();
+
+						if (!unit.has_component("collider", ref id))
+						{
+							db.create(id);
+							db.set_property_string(id, "data.shape", "box");
+							db.set_property_string(id, "data.scene", resource_name);
+							db.set_property_string(id, "data.name", "collider");
+							db.set_property_string(id, "data.material", "default");
+							db.set_property_string(id, "type", "collider");
+
+							db.add_to_set(GUID_ZERO, "components", id);
+						}
+						else
+						{
+							unit.set_component_property_string(id, "data.shape", "box");
+							unit.set_component_property_string(id, "data.scene", resource_name);
+							unit.set_component_property_string(id, "data.name", "collider");
+							unit.set_component_property_string(id, "data.material", "default");
+							unit.set_component_property_string(id, "type", "collider");
+						}
 					}
-				}
 
-				// Create actor
-				{
-					Guid id = Guid.new_guid();
-
-					if (!unit.has_component("actor", ref id))
+					// Create actor
 					{
-						db.create(id);
-						db.set_property_string(id, "data.class", "static");
-						db.set_property_string(id, "data.collision_filter", "default");
-						db.set_property_bool  (id, "data.lock_rotation_x", true);
-						db.set_property_bool  (id, "data.lock_rotation_y", true);
-						db.set_property_bool  (id, "data.lock_rotation_z", true);
-						db.set_property_bool  (id, "data.lock_translation_x", false);
-						db.set_property_bool  (id, "data.lock_translation_y", true);
-						db.set_property_bool  (id, "data.lock_translation_z", false);
-						db.set_property_double(id, "data.mass", 10);
-						db.set_property_string(id, "data.material", "default");
-						db.set_property_string(id, "type", "actor");
+						Guid id = Guid.new_guid();
 
-						db.add_to_set(GUID_ZERO, "components", id);
-					}
-					else
-					{
-						unit.set_component_property_string(id, "data.class", "static");
-						unit.set_component_property_string(id, "data.collision_filter", "default");
-						unit.set_component_property_bool  (id, "data.lock_rotation_x", true);
-						unit.set_component_property_bool  (id, "data.lock_rotation_y", true);
-						unit.set_component_property_bool  (id, "data.lock_rotation_z", true);
-						unit.set_component_property_bool  (id, "data.lock_translation_x", false);
-						unit.set_component_property_bool  (id, "data.lock_translation_y", true);
-						unit.set_component_property_bool  (id, "data.lock_translation_z", false);
-						unit.set_component_property_double(id, "data.mass", 10);
-						unit.set_component_property_string(id, "data.material", "default");
-						unit.set_component_property_string(id, "type", "actor");
+						if (!unit.has_component("actor", ref id))
+						{
+							db.create(id);
+							db.set_property_string(id, "data.class", "static");
+							db.set_property_string(id, "data.collision_filter", "default");
+							db.set_property_bool  (id, "data.lock_rotation_x", true);
+							db.set_property_bool  (id, "data.lock_rotation_y", true);
+							db.set_property_bool  (id, "data.lock_rotation_z", true);
+							db.set_property_bool  (id, "data.lock_translation_x", false);
+							db.set_property_bool  (id, "data.lock_translation_y", true);
+							db.set_property_bool  (id, "data.lock_translation_z", false);
+							db.set_property_double(id, "data.mass", 10);
+							db.set_property_string(id, "data.material", "default");
+							db.set_property_string(id, "type", "actor");
+
+							db.add_to_set(GUID_ZERO, "components", id);
+						}
+						else
+						{
+							unit.set_component_property_string(id, "data.class", "static");
+							unit.set_component_property_string(id, "data.collision_filter", "default");
+							unit.set_component_property_bool  (id, "data.lock_rotation_x", true);
+							unit.set_component_property_bool  (id, "data.lock_rotation_y", true);
+							unit.set_component_property_bool  (id, "data.lock_rotation_z", true);
+							unit.set_component_property_bool  (id, "data.lock_translation_x", false);
+							unit.set_component_property_bool  (id, "data.lock_translation_y", true);
+							unit.set_component_property_bool  (id, "data.lock_translation_z", false);
+							unit.set_component_property_double(id, "data.mass", 10);
+							unit.set_component_property_string(id, "data.material", "default");
+							unit.set_component_property_string(id, "type", "actor");
+						}
 					}
 				}
 
