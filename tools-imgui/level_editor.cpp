@@ -342,7 +342,7 @@ struct SceneView
 {
 	ImVec2 _origin;
 	ImVec2 _size;
-	ImVec2 _mouse;
+	ImVec2 _cursor;
 	bool _open;
 
 	SceneView()
@@ -1372,24 +1372,36 @@ bool tool_process_events()
 					if (event.button.pressed)
 					{
 						if (event.button.button_num == crown::KeyboardButton::W)
-							tool::keyboard_pressed(ss, 'w');
+							tool::key_down(ss, "w");
 						if (event.button.button_num == crown::KeyboardButton::A)
-							tool::keyboard_pressed(ss, 'a');
+							tool::key_down(ss, "a");
 						if (event.button.button_num == crown::KeyboardButton::S)
-							tool::keyboard_pressed(ss, 's');
+							tool::key_down(ss, "s");
 						if (event.button.button_num == crown::KeyboardButton::D)
-							tool::keyboard_pressed(ss, 'd');
+							tool::key_down(ss, "d");
+						if (event.button.button_num == crown::KeyboardButton::CTRL_LEFT)
+							tool::key_down(ss, "ctrl_left");
+						if (event.button.button_num == crown::KeyboardButton::SHIFT_LEFT)
+							tool::key_down(ss, "shift_left");
+						if (event.button.button_num == crown::KeyboardButton::ALT_LEFT)
+							tool::key_down(ss, "alt_left");
 					}
 					else
 					{
 						if (event.button.button_num == crown::KeyboardButton::W)
-							tool::keyboard_released(ss, 'w');
+							tool::key_up(ss, "w");
 						if (event.button.button_num == crown::KeyboardButton::A)
-							tool::keyboard_released(ss, 'a');
+							tool::key_up(ss, "a");
 						if (event.button.button_num == crown::KeyboardButton::S)
-							tool::keyboard_released(ss, 's');
+							tool::key_up(ss, "s");
 						if (event.button.button_num == crown::KeyboardButton::D)
-							tool::keyboard_released(ss, 'd');
+							tool::key_up(ss, "d");
+						if (event.button.button_num == crown::KeyboardButton::CTRL_LEFT)
+							tool::key_up(ss, "ctrl_left");
+						if (event.button.button_num == crown::KeyboardButton::SHIFT_LEFT)
+							tool::key_up(ss, "shift_left");
+						if (event.button.button_num == crown::KeyboardButton::ALT_LEFT)
+							tool::key_up(ss, "alt_left");
 					}
 				}
 				break;
@@ -1401,13 +1413,13 @@ bool tool_process_events()
 
 				if (!io.WantCaptureMouse)
 				{
-					ImVec2& mouse_curr = s_editor->_scene_view._mouse;
-					mouse_curr.x = io.MousePos.x - s_editor->_scene_view._origin.x;
-					mouse_curr.y = io.MousePos.y - s_editor->_scene_view._origin.y;
+					ImVec2& cursor = s_editor->_scene_view._cursor;
+					cursor.x = io.MousePos.x - s_editor->_scene_view._origin.x;
+					cursor.y = io.MousePos.y - s_editor->_scene_view._origin.y;
 
 					tool::set_mouse_state(ss
-						, mouse_curr.x
-						, mouse_curr.y
+						, cursor.x
+						, cursor.y
 						, io.MouseDown[0]
 						, io.MouseDown[2]
 						, io.MouseDown[1]
@@ -1416,9 +1428,9 @@ bool tool_process_events()
 					if (event.button.button_num == crown::MouseButton::LEFT)
 					{
 						if (event.button.pressed)
-							tool::mouse_down(ss, mouse_curr.x, mouse_curr.y);
+							tool::mouse_down(ss, cursor.x, cursor.y);
 						else
-							tool::mouse_up(ss, mouse_curr.x, mouse_curr.y);
+							tool::mouse_up(ss, cursor.x, cursor.y);
 					}
 				}
 				break;
@@ -1436,12 +1448,12 @@ bool tool_process_events()
 
 					if (!io.WantCaptureMouse)
 					{
-						ImVec2& mouse_curr = s_editor->_scene_view._mouse;
+						ImVec2& cursor = s_editor->_scene_view._cursor;
 
-						mouse_curr.x = io.MousePos.x - s_editor->_scene_view._origin.x;
-						mouse_curr.y = io.MousePos.y - s_editor->_scene_view._origin.y;
+						cursor.x = io.MousePos.x - s_editor->_scene_view._origin.x;
+						cursor.y = io.MousePos.y - s_editor->_scene_view._origin.y;
 
-						tool::mouse_move(ss, mouse_curr.x, mouse_curr.y);
+						tool::mouse_move(ss, cursor.x, cursor.y);
 					}
 					break;
 

@@ -127,16 +127,16 @@ void mouse_move(StringStream& out, f32 x, f32 y)
 	out << y << ")";
 }
 
-void keyboard_pressed(StringStream& out, char c)
+void key_down(StringStream& out, const char* key)
 {
 	out << "LevelEditor:key_down(";
-	out << "\\\"" << c << "\\\"" << ")";
+	out << "\\\"" << key << "\\\"" << ")";
 }
 
-void keyboard_released(StringStream& out, char c)
+void key_up(StringStream& out, const char* key)
 {
 	out << "LevelEditor:key_up(";
-	out << "\\\"" << c << "\\\"" << ")";
+	out << "\\\"" << key << "\\\"" << ")";
 }
 
 void set_grid_size(StringStream& out, f32 size)
