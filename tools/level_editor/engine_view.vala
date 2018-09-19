@@ -40,7 +40,7 @@ namespace Crown
 
 		private string key_to_string(int k)
 		{
-			switch (k)
+			switch ((uint)k)
 			{
 			case Gdk.Key.w: return "w";
 			case Gdk.Key.a: return "a";
@@ -71,10 +71,10 @@ namespace Crown
 			_window_id = 0;
 
 			_keys = new HashMap<int, bool>();
-			_keys[Gdk.Key.w] = false;
-			_keys[Gdk.Key.a] = false;
-			_keys[Gdk.Key.s] = false;
-			_keys[Gdk.Key.d] = false;
+			_keys[(int)Gdk.Key.w] = false;
+			_keys[(int)Gdk.Key.a] = false;
+			_keys[(int)Gdk.Key.s] = false;
+			_keys[(int)Gdk.Key.d] = false;
 
 			// Widgets
 			_socket = new Gtk.Socket();
