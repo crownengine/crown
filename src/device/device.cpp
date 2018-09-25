@@ -75,9 +75,11 @@ extern bool next_event(OsEvent& ev);
 
 struct BgfxCallback : public bgfx::CallbackI
 {
-	virtual void fatal(bgfx::Fatal::Enum _code, const char* _str)
+	virtual void fatal(const char* _filePath, uint16_t _line, bgfx::Fatal::Enum _code, const char* _str)
 	{
 		CE_ASSERT(false, "Fatal error: 0x%08x: %s", _code, _str);
+		CE_UNUSED(_filePath);
+		CE_UNUSED(_line);
 		CE_UNUSED(_code);
 		CE_UNUSED(_str);
 	}
