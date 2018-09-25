@@ -503,6 +503,21 @@ Id Builder::makeSampledImageType(Id imageType)
     return type->getResultId();
 }
 
+#ifdef NV_EXTENSIONS
+Id Builder::makeAccelerationStructureNVType()
+{
+    Instruction *type;
+    if (groupedTypes[OpTypeAccelerationStructureNVX].size() == 0) {
+        type = new Instruction(getUniqueId(), NoType, OpTypeAccelerationStructureNVX);
+        constantsTypesGlobals.push_back(std::unique_ptr<Instruction>(type));
+        module.mapInstruction(type);
+    } else {
+        type = groupedTypes[OpTypeAccelerationStructureNVX].back();
+    }
+
+    return type->getResultId();
+}
+#endif
 Id Builder::getDerefTypeId(Id resultId) const
 {
     Id typeId = getTypeId(resultId);
@@ -1216,19 +1231,35 @@ Id Builder::createUndefined(Id type)
 }
 
 // Comments in header
-void Builder::createStore(Id rValue, Id lValue)
+void Builder::createStore(Id rValue, Id lValue, spv::MemoryAccessMask memoryAccess, spv::Scope scope)
 {
     Instruction* store = new Instruction(OpStore);
     store->addIdOperand(lValue);
     store->addIdOperand(rValue);
+
+    if (memoryAccess != MemoryAccessMaskNone) {
+        store->addImmediateOperand(memoryAccess);
+        if (memoryAccess & spv::MemoryAccessMakePointerAvailableKHRMask) {
+            store->addIdOperand(makeUintConstant(scope));
+        }
+    }
+
     buildPoint->addInstruction(std::unique_ptr<Instruction>(store));
 }
 
 // Comments in header
-Id Builder::createLoad(Id lValue)
+Id Builder::createLoad(Id lValue, spv::MemoryAccessMask memoryAccess, spv::Scope scope)
 {
     Instruction* load = new Instruction(getUniqueId(), getDerefTypeId(lValue), OpLoad);
     load->addIdOperand(lValue);
+
+    if (memoryAccess != MemoryAccessMaskNone) {
+        load->addImmediateOperand(memoryAccess);
+        if (memoryAccess & spv::MemoryAccessMakePointerVisibleKHRMask) {
+            load->addIdOperand(makeUintConstant(scope));
+        }
+    }
+
     buildPoint->addInstruction(std::unique_ptr<Instruction>(load));
 
     return load->getResultId();
@@ -1358,6 +1389,16 @@ void Builder::createNoResultOp(Op opCode, Id operand)
 {
     Instruction* op = new Instruction(opCode);
     op->addIdOperand(operand);
+    buildPoint->addInstruction(std::unique_ptr<Instruction>(op));
+}
+
+// An opcode that has one or more operands, no result id, and no type
+void Builder::createNoResultOp(Op opCode, const std::vector<Id>& operands)
+{
+    Instruction* op = new Instruction(opCode);
+    for (auto it = operands.cbegin(); it != operands.cend(); ++it) {
+        op->addIdOperand(*it);
+    }
     buildPoint->addInstruction(std::unique_ptr<Instruction>(op));
 }
 
@@ -1628,6 +1669,13 @@ Id Builder::createTextureCall(Decoration precision, Id resultType, bool sparse, 
     if (parameters.component != NoResult)
         texArgs[numArgs++] = parameters.component;
 
+#ifdef NV_EXTENSIONS
+    if (parameters.granularity != NoResult)
+        texArgs[numArgs++] = parameters.granularity;
+    if (parameters.coarse != NoResult)
+        texArgs[numArgs++] = parameters.coarse;
+#endif 
+
     //
     // Set up the optional arguments
     //
@@ -1679,6 +1727,12 @@ Id Builder::createTextureCall(Decoration precision, Id resultType, bool sparse, 
         mask = (ImageOperandsMask)(mask | ImageOperandsMinLodMask);
         texArgs[numArgs++] = parameters.lodClamp;
     }
+    if (parameters.nonprivate) {
+        mask = mask | ImageOperandsNonPrivateTexelKHRMask;
+    }
+    if (parameters.volatil) {
+        mask = mask | ImageOperandsVolatileTexelKHRMask;
+    }
     if (mask == ImageOperandsMaskNone)
         --numArgs;  // undo speculative reservation for the mask argument
     else
@@ -1693,6 +1747,10 @@ Id Builder::createTextureCall(Decoration precision, Id resultType, bool sparse, 
             opCode = OpImageSparseFetch;
         else
             opCode = OpImageFetch;
+#ifdef NV_EXTENSIONS
+    } else if (parameters.granularity && parameters.coarse) {
+        opCode = OpImageSampleFootprintNV;
+#endif
     } else if (gather) {
         if (parameters.Dref)
             if (sparse)
@@ -2352,6 +2410,7 @@ void Builder::clearAccessChain()
     accessChain.component = NoResult;
     accessChain.preSwizzleBaseType = NoType;
     accessChain.isRValue = false;
+    accessChain.coherentFlags.clear();
 }
 
 // Comments in header
@@ -2378,7 +2437,7 @@ void Builder::accessChainPushSwizzle(std::vector<unsigned>& swizzle, Id preSwizz
 }
 
 // Comments in header
-void Builder::accessChainStore(Id rvalue)
+void Builder::accessChainStore(Id rvalue, spv::MemoryAccessMask memoryAccess, spv::Scope scope)
 {
     assert(accessChain.isRValue == false);
 
@@ -2396,11 +2455,11 @@ void Builder::accessChainStore(Id rvalue)
         source = createLvalueSwizzle(getTypeId(tempBaseId), tempBaseId, source, accessChain.swizzle);
     }
 
-    createStore(source, base);
+    createStore(source, base, memoryAccess, scope);
 }
 
 // Comments in header
-Id Builder::accessChainLoad(Decoration precision, Decoration nonUniform, Id resultType)
+Id Builder::accessChainLoad(Decoration precision, Decoration nonUniform, Id resultType, spv::MemoryAccessMask memoryAccess, spv::Scope scope)
 {
     Id id;
 
@@ -2444,7 +2503,7 @@ Id Builder::accessChainLoad(Decoration precision, Decoration nonUniform, Id resu
     } else {
         transferAccessChainSwizzle(true);
         // load through the access chain
-        id = createLoad(collapseAccessChain());
+        id = createLoad(collapseAccessChain(), memoryAccess, scope);
         setPrecision(id, precision);
         addDecoration(id, nonUniform);
     }

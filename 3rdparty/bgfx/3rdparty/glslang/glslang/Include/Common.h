@@ -37,9 +37,9 @@
 #ifndef _COMMON_INCLUDED_
 #define _COMMON_INCLUDED_
 
-
-#if defined(__ANDROID__) || _MSC_VER < 1700
 #include <sstream>
+
+#if defined(__ANDROID__)
 namespace std {
 template<typename T>
 std::string to_string(const T& val) {

@@ -103,6 +103,7 @@ enum TOptions {
 };
 bool targetHlslFunctionality1 = false;
 bool SpvToolsDisassembler = false;
+bool SpvToolsValidate = false;
 
 //
 // Return codes from main/exit().
@@ -243,6 +244,16 @@ const char* GetBinaryName(EShLanguage stage)
         case EShLangGeometry:        name = "geom.spv";    break;
         case EShLangFragment:        name = "frag.spv";    break;
         case EShLangCompute:         name = "comp.spv";    break;
+#ifdef NV_EXTENSIONS
+        case EShLangRayGenNV:        name = "rgen.spv";    break;
+        case EShLangIntersectNV:     name = "rint.spv";    break;
+        case EShLangAnyHitNV:        name = "rahit.spv";   break;
+        case EShLangClosestHitNV:    name = "rchit.spv";   break;
+        case EShLangMissNV:          name = "rmiss.spv";   break;
+        case EShLangCallableNV:      name = "rcall.spv";   break;
+        case EShLangMeshNV:          name = "mesh.spv";    break;
+        case EShLangTaskNV:          name = "task.spv";    break;
+#endif
         default:                     name = "unknown";     break;
         }
     } else
@@ -514,6 +525,8 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
                         break;
                     } else if (lowerword == "spirv-dis") {
                         SpvToolsDisassembler = true;
+                    } else if (lowerword == "spirv-val") {
+                        SpvToolsValidate = true;
                     } else if (lowerword == "stdin") {
                         Options |= EOptionStdin;
                         shaderStageName = argv[1];
@@ -978,6 +991,8 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
                         spvOptions.generateDebugInfo = true;
                     spvOptions.disableOptimizer = (Options & EOptionOptimizeDisable) != 0;
                     spvOptions.optimizeSize = (Options & EOptionOptimizeSize) != 0;
+                    spvOptions.disassemble = SpvToolsDisassembler;
+                    spvOptions.validate = SpvToolsValidate;
                     glslang::GlslangToSpv(*program.getIntermediate((EShLanguage)stage), spirv, &logger, &spvOptions);
 
                     // Dump the spv to a file or stdout, etc., but only if not doing
@@ -989,13 +1004,6 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
                         } else {
                             glslang::OutputSpvBin(spirv, GetBinaryName((EShLanguage)stage));
                         }
-#if ENABLE_OPT
-                        if (SpvToolsDisassembler)
-                            spv::SpirvToolsDisassemble(std::cout, spirv);
-#else
-                        if (SpvToolsDisassembler)
-                            printf("SPIRV-Tools is not enabled; use -H for human readable SPIR-V\n");
-#endif
                         if (!SpvToolsDisassembler && (Options & EOptionHumanReadableSpv))
                             spv::Disassemble(std::cout, spirv);
                     }
@@ -1208,7 +1216,12 @@ int C_DECL main(int argc, char* argv[])
 //   .geom = geometry
 //   .frag = fragment
 //   .comp = compute
-//
+//   .rgen = ray generation
+//   .rint = ray intersection
+//   .rahit = ray any hit
+//   .rchit = ray closest hit
+//   .rmiss = ray miss
+//   .rcall = ray callable
 //   Additionally, the file names may end in .<stage>.glsl and .<stage>.hlsl
 //   where <stage> is one of the stages listed above.
 //
@@ -1252,6 +1265,24 @@ EShLanguage FindLanguage(const std::string& name, bool parseStageName)
         return EShLangFragment;
     else if (stageName == "comp")
         return EShLangCompute;
+#ifdef NV_EXTENSIONS
+    else if (stageName == "rgen")
+        return EShLangRayGenNV;
+    else if (stageName == "rint")
+        return EShLangIntersectNV;
+    else if (stageName == "rahit")
+        return EShLangAnyHitNV;
+    else if (stageName == "rchit")
+        return EShLangClosestHitNV;
+    else if (stageName == "rmiss")
+        return EShLangMissNV;
+    else if (stageName == "rcall")
+        return EShLangCallableNV;
+    else if (stageName == "mesh")
+        return EShLangMeshNV;
+    else if (stageName == "task")
+        return EShLangTaskNV;
+#endif
 
     usage();
     return EShLangVertex;
@@ -1321,6 +1352,16 @@ void usage()
            "    .geom   for a geometry shader\n"
            "    .frag   for a fragment shader\n"
            "    .comp   for a compute shader\n"
+#ifdef NV_EXTENSIONS
+           "    .mesh   for a mesh shader\n"
+           "    .task   for a task shader\n"
+           "    .rgen    for a ray generation shader\n"
+           "    .rint    for a ray intersection shader\n"
+           "    .rahit   for a ray any hit shader\n"
+           "    .rchit   for a ray closest hit shader\n"
+           "    .rmiss   for a ray miss shader\n"
+           "    .rcall   for a ray callable shader"
+#endif
            "    .glsl   for .vert.glsl, .tesc.glsl, ..., .comp.glsl compound suffixes\n"
            "    .hlsl   for .vert.hlsl, .tesc.hlsl, ..., .comp.hlsl compound suffixes\n"
            "\n"
@@ -1427,6 +1468,7 @@ void usage()
            "  --shift-cbuffer-binding | --scb   synonyms for --shift-UBO-binding\n"
            "  --spirv-dis                       output standard-form disassembly; works only\n"
            "                                    when a SPIR-V generation option is also used\n"
+           "  --spirv-val                       execute the SPIRV-Tools validator\n"
            "  --source-entrypoint <name>        the given shader source function is\n"
            "                                    renamed to be the <name> given in -e\n"
            "  --sep                             synonym for --source-entrypoint\n"

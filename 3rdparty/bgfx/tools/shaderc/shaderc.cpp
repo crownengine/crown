@@ -841,7 +841,7 @@ namespace bgfx
 			  "  -h, --help                    Help.\n"
 			  "  -v, --version                 Version information only.\n"
 			  "  -f <file path>                Input file path.\n"
-			  "  -i <include path>             Include path (for multiple paths use use -i multiple times).\n"
+			  "  -i <include path>             Include path (for multiple paths use -i multiple times).\n"
 			  "  -o <file path>                Output file path.\n"
 			  "      --bin2c <file path>       Generate C header file.\n"
 			  "      --depends                 Generate makefile style depends file.\n"
@@ -1149,8 +1149,13 @@ namespace bgfx
 				// To avoid commented code being recognized as used feature,
 				// first preprocess pass is used to strip all comments before
 				// substituting code.
-				preprocessor.run(data);
+				bool ok = preprocessor.run(data);
 				delete [] data;
+
+				if (!ok)
+				{
+					return false;
+				}
 
 				size = (uint32_t)preprocessor.m_preprocessed.size();
 				data = new char[size+padding+1];

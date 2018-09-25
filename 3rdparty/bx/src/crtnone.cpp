@@ -109,7 +109,7 @@ extern "C" int isprint(int _ch)
 	return bx::isPrint(_ch);
 }
 
-extern "C" int toupper (int _ch)
+extern "C" int toupper(int _ch)
 {
 	return bx::toUpper(_ch);
 }
@@ -122,8 +122,10 @@ extern "C" size_t mbstowcs(wchar_t* _dst, const char* _src, size_t _max)
 
 extern "C" char* strdup(const char* _src)
 {
-	uint32_t size = bx::strLen(_src);
-	return (char*)malloc(size);
+	uint32_t size = bx::strLen(_src)+1;
+	char* dup = (char*)malloc(size);
+	bx::strCopy(dup, size, _src);
+	return dup;
 }
 
 extern "C" long int strtol(const char* _str, char** _end, int _base)
@@ -519,9 +521,7 @@ extern "C" char* getcwd(char* _buf, size_t _size)
 
 extern "C" char* getenv(const char* _name)
 {
-	BX_UNUSED(_name);
-	bx::debugPrintf("getenv(%s) not implemented!\n", _name);
-	return NULL;
+	return const_cast<char*>(crt0::getEnv(_name) );
 }
 
 extern "C" int setenv(const char* _name, const char* _value, int _overwrite)

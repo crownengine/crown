@@ -8,10 +8,6 @@
 #include <bx/os.h>
 #include <bx/uint32_t.h>
 
-#if !BX_PLATFORM_NONE
-
-#include <stdio.h>
-
 #if BX_CRT_MSVC
 #	include <direct.h>
 #else
@@ -51,11 +47,13 @@
 #	elif   BX_PLATFORM_LINUX     \
 		|| BX_PLATFORM_RPI       \
 		|| BX_PLATFORM_STEAMLINK
+#		include <stdio.h>  // fopen
 #		include <unistd.h> // syscall
 #		include <sys/syscall.h>
 #	elif BX_PLATFORM_OSX
 #		include <mach/mach.h> // mach_task_basic_info
 #	elif BX_PLATFORM_HURD
+#		include <stdio.h>           // fopen
 #		include <pthread/pthread.h> // pthread_self
 #	elif BX_PLATFORM_ANDROID
 #		include "debug.h" // getTid is not implemented...
@@ -180,7 +178,8 @@ namespace bx
 #elif  BX_PLATFORM_EMSCRIPTEN \
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
-	|| BX_PLATFORM_WINRT
+	|| BX_PLATFORM_WINRT      \
+	|| BX_CRT_NONE
 		BX_UNUSED(_filePath);
 		return NULL;
 #else
@@ -195,7 +194,8 @@ namespace bx
 #elif  BX_PLATFORM_EMSCRIPTEN \
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
-	|| BX_PLATFORM_WINRT
+	|| BX_PLATFORM_WINRT      \
+	|| BX_CRT_NONE
 		BX_UNUSED(_handle);
 #else
 		::dlclose(_handle);
@@ -209,7 +209,8 @@ namespace bx
 #elif  BX_PLATFORM_EMSCRIPTEN \
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
-	|| BX_PLATFORM_WINRT
+	|| BX_PLATFORM_WINRT      \
+	|| BX_CRT_NONE
 		BX_UNUSED(_handle, _symbol);
 		return NULL;
 #else
@@ -355,5 +356,3 @@ namespace bx
 	}
 
 } // namespace bx
-
-#endif // !BX_PLATFORM_NONE

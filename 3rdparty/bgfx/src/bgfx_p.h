@@ -67,7 +67,7 @@ namespace bgfx
 #if BX_COMPILER_CLANG_ANALYZER
 	void __attribute__( (analyzer_noreturn) ) fatal(Fatal::Enum _code, const char* _format, ...);
 #else
-	void fatal(Fatal::Enum _code, const char* _format, ...);
+	void fatal(const char* _filePath, uint16_t _line, Fatal::Enum _code, const char* _format, ...);
 #endif // BX_COMPILER_CLANG_ANALYZER
 
 	void trace(const char* _filePath, uint16_t _line, const char* _format, ...);
@@ -89,21 +89,21 @@ namespace bgfx
 					}                                             \
 				BX_MACRO_BLOCK_END
 
-#define _BX_CHECK(_condition, _format, ...)                                           \
-				BX_MACRO_BLOCK_BEGIN                                                  \
-					if (!BX_IGNORE_C4127(_condition) )                                \
-					{                                                                 \
-						BX_TRACE("CHECK " _format, ##__VA_ARGS__);                    \
-						bgfx::fatal(bgfx::Fatal::DebugCheck, _format, ##__VA_ARGS__); \
-					}                                                                 \
+#define _BX_CHECK(_condition, _format, ...)                                                                         \
+				BX_MACRO_BLOCK_BEGIN                                                                                \
+					if (!BX_IGNORE_C4127(_condition) )                                                              \
+					{                                                                                               \
+						BX_TRACE("CHECK " _format, ##__VA_ARGS__);                                                  \
+						bgfx::fatal(__FILE__, uint16_t(__LINE__), bgfx::Fatal::DebugCheck, _format, ##__VA_ARGS__); \
+					}                                                                                               \
 				BX_MACRO_BLOCK_END
 
-#define BGFX_FATAL(_condition, _err, _format, ...)       \
-			BX_MACRO_BLOCK_BEGIN                         \
-				if (!BX_IGNORE_C4127(_condition) )       \
-				{                                        \
-					fatal(_err, _format, ##__VA_ARGS__); \
-				}                                        \
+#define BGFX_FATAL(_condition, _err, _format, ...)                                     \
+			BX_MACRO_BLOCK_BEGIN                                                       \
+				if (!BX_IGNORE_C4127(_condition) )                                     \
+				{                                                                      \
+					fatal(__FILE__, uint16_t(__LINE__), _err, _format, ##__VA_ARGS__); \
+				}                                                                      \
 			BX_MACRO_BLOCK_END
 
 #include <bx/allocator.h>
@@ -857,9 +857,9 @@ namespace bgfx
 	};
 
 //
-#define SORK_KEY_NUM_BITS_VIEW         10
+#define SORT_KEY_NUM_BITS_VIEW         10
 
-#define SORT_KEY_VIEW_SHIFT            (64-SORK_KEY_NUM_BITS_VIEW)
+#define SORT_KEY_VIEW_SHIFT            (64-SORT_KEY_NUM_BITS_VIEW)
 #define SORT_KEY_VIEW_MASK             ( (uint64_t(BGFX_CONFIG_MAX_VIEWS-1) )<<SORT_KEY_VIEW_SHIFT)
 
 #define SORT_KEY_DRAW_BIT_SHIFT        (SORT_KEY_VIEW_SHIFT - 1)
@@ -914,7 +914,7 @@ namespace bgfx
 #define SORT_KEY_COMPUTE_PROGRAM_SHIFT (SORT_KEY_COMPUTE_SEQ_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM)
 #define SORT_KEY_COMPUTE_PROGRAM_MASK  ( (uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1) )<<SORT_KEY_COMPUTE_PROGRAM_SHIFT)
 
-	BX_STATIC_ASSERT(BGFX_CONFIG_MAX_VIEWS <= (1<<SORK_KEY_NUM_BITS_VIEW) );
+	BX_STATIC_ASSERT(BGFX_CONFIG_MAX_VIEWS <= (1<<SORT_KEY_NUM_BITS_VIEW) );
 	BX_STATIC_ASSERT( (BGFX_CONFIG_MAX_PROGRAMS & (BGFX_CONFIG_MAX_PROGRAMS-1) ) == 0); // Must be power of 2.
 	BX_STATIC_ASSERT( (0 // Render key mask shouldn't overlap.
 		| SORT_KEY_VIEW_MASK
@@ -2290,6 +2290,12 @@ namespace bgfx
 			m_draw.m_instanceDataBuffer = _handle;
 		}
 
+		void setInstanceCount(uint32_t _numInstances)
+		{
+			BX_CHECK(!isValid(m_draw.m_instanceDataBuffer), "Instance buffer already set.");
+			m_draw.m_numInstances = _numInstances;
+		}
+
 		void setTexture(uint8_t _stage, UniformHandle _sampler, TextureHandle _handle, uint32_t _flags)
 		{
 			Binding& bind = m_bind.m_bind[_stage];
@@ -2648,7 +2654,7 @@ namespace bgfx
 		virtual void updateTexture(TextureHandle _handle, uint8_t _side, uint8_t _mip, const Rect& _rect, uint16_t _z, uint16_t _depth, uint16_t _pitch, const Memory* _mem) = 0;
 		virtual void updateTextureEnd() = 0;
 		virtual void readTexture(TextureHandle _handle, void* _data, uint8_t _mip) = 0;
-		virtual void resizeTexture(TextureHandle _handle, uint16_t _width, uint16_t _height, uint8_t _numMips) = 0;
+		virtual void resizeTexture(TextureHandle _handle, uint16_t _width, uint16_t _height, uint8_t _numMips, uint16_t _numLayers) = 0;
 		virtual void overrideInternal(TextureHandle _handle, uintptr_t _ptr) = 0;
 		virtual uintptr_t getInternal(TextureHandle _handle) = 0;
 		virtual void destroyTexture(TextureHandle _handle) = 0;
@@ -2764,6 +2770,7 @@ namespace bgfx
 						, uint16_t(m_init.resolution.width)
 						, uint16_t(m_init.resolution.height)
 						, textureRef.m_numMips
+						, textureRef.m_numLayers
 						);
 					m_init.resolution.reset |= BGFX_RESET_INTERNAL_FORCE;
 				}
@@ -3906,6 +3913,7 @@ namespace bgfx
 				, _info->format
 				, _info->storageSize
 				, imageContainer.m_numMips
+				, imageContainer.m_numLayers
 				, 0 != (g_caps.supported & BGFX_CAPS_TEXTURE_DIRECT_ACCESS)
 				, _immutable
 				, 0 != (_flags & BGFX_TEXTURE_RT_MASK)
@@ -3986,7 +3994,7 @@ namespace bgfx
 			return m_frames + 2;
 		}
 
-		void resizeTexture(TextureHandle _handle, uint16_t _width, uint16_t _height, uint8_t _numMips)
+		void resizeTexture(TextureHandle _handle, uint16_t _width, uint16_t _height, uint8_t _numMips, uint16_t _numLayers)
 		{
 			const TextureRef& textureRef = m_textureRef[_handle.idx];
 			BX_CHECK(BackbufferRatio::Count != textureRef.m_bbRatio, "");
@@ -4006,6 +4014,7 @@ namespace bgfx
 			cmdbuf.write(_width);
 			cmdbuf.write(_height);
 			cmdbuf.write(_numMips);
+			cmdbuf.write(_numLayers);
 		}
 
 		void textureTakeOwnership(TextureHandle _handle)
@@ -4498,7 +4507,7 @@ namespace bgfx
 			}
 		}
 
-		BGFX_API_FUNC(Encoder* begin() );
+		BGFX_API_FUNC(Encoder* begin(bool _forThread) );
 
 		BGFX_API_FUNC(void end(Encoder* _encoder) );
 
@@ -4700,6 +4709,7 @@ namespace bgfx
 				, TextureFormat::Enum _format
 				, uint32_t _storageSize
 				, uint8_t _numMips
+				, uint16_t _numLayers
 				, bool _ptrPending
 				, bool _immutable
 				, bool _rt
@@ -4711,6 +4721,7 @@ namespace bgfx
 				m_bbRatio     = uint8_t(_ratio);
 				m_format      = uint8_t(_format);
 				m_numMips     = _numMips;
+				m_numLayers   = _numLayers;
 				m_owned       = false;
 				m_immutable   = _immutable;
 				m_rt          = _rt;
@@ -4723,6 +4734,7 @@ namespace bgfx
 			uint8_t  m_bbRatio;
 			uint8_t  m_format;
 			uint8_t  m_numMips;
+			uint16_t m_numLayers;
 			bool     m_owned;
 			bool     m_immutable;
 			bool     m_rt;

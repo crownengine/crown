@@ -430,7 +430,12 @@ namespace bgfx
 		///
 		/// @attention C99 equivalent is `bgfx_callback_vtbl.fatal`.
 		///
-		virtual void fatal(Fatal::Enum _code, const char* _str) = 0;
+		virtual void fatal(
+			  const char* _filePath
+			, uint16_t _line
+			, Fatal::Enum _code
+			, const char* _str
+			) = 0;
 
 		/// Print debug message.
 		///
@@ -605,6 +610,7 @@ namespace bgfx
 		uint32_t width;             //!< Backbuffer width.
 		uint32_t height;            //!< Backbuffer height.
 		uint32_t reset;	            //!< Reset parameters.
+		uint8_t  maxFrameLatency;   //!< Maximum frame latency.
 	};
 
 	/// Initialization parameters used by `bgfx::init`.
@@ -666,7 +672,9 @@ namespace bgfx
 	///
 	typedef void (*ReleaseFn)(void* _ptr, void* _userData);
 
-	/// Memory obtained by calling `bgfx::alloc`, `bgfx::copy`, or `bgfx::makeRef`.
+	/// Memory must be obtained by calling `bgfx::alloc`, `bgfx::copy`, or `bgfx::makeRef`.
+	///
+	/// @attention It is illegal to create this structure on stack and pass it to any bgfx API.
 	///
 	/// @attention C99 equivalent is `bgfx_memory_t`.
 	///
@@ -722,6 +730,7 @@ namespace bgfx
 			uint32_t maxShaders;              //!< Maximum number of shader handles.
 			uint32_t maxTextures;             //!< Maximum number of texture handles.
 			uint32_t maxTextureSamplers;      //!< Maximum number of texture samplers.
+			uint32_t maxComputeBindings;      //!< Maximum number of compute bindings.
 			uint32_t maxVertexDecls;          //!< Maximum number of vertex format declarations.
 			uint32_t maxVertexStreams;        //!< Maximum number of vertex streams.
 			uint32_t maxIndexBuffers;         //!< Maximum number of index buffer handles.
@@ -1299,6 +1308,16 @@ namespace bgfx
 			, uint32_t _start
 			, uint32_t _num
 			);
+
+		/// Set number of instances for auto generated instances use in conjuction
+		/// with gl_InstanceID.
+		///
+		/// @param[in] _numInstances Number of instances.
+		///
+		/// @attention Availability depends on: `BGFX_CAPS_VERTEX_ID`.
+		/// @attention C99 equivalent is `bgfx_set_instance_count`.
+		///
+		void setInstanceCount(uint32_t _numInstances);
 
 		/// Set texture stage for draw primitive.
 		///
@@ -1888,7 +1907,9 @@ namespace bgfx
 
 	/// Begin submitting draw calls from thread.
 	///
-	Encoder* begin();
+	/// @param[in] _forThread Explicitly request an encoder for a worker thread.
+	///
+	Encoder* begin(bool _forThread = false);
 
 	/// End submitting draw calls from thread.
 	///
@@ -3629,6 +3650,16 @@ namespace bgfx
 		, uint32_t _start
 		, uint32_t _num
 		);
+
+	/// Set number of instances for auto generated instances use in conjuction
+	/// with gl_InstanceID.
+	///
+	/// @param[in] _numInstances Number of instances.
+	///
+	/// @attention Availability depends on: `BGFX_CAPS_VERTEX_ID`.
+	/// @attention C99 equivalent is `bgfx_set_instance_count`.
+	///
+	void setInstanceCount(uint32_t _numInstances);
 
 	/// Set texture stage for draw primitive.
 	///
