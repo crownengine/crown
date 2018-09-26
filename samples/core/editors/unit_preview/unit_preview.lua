@@ -7,7 +7,7 @@ function UnitPreview:init()
 	self._sg = World.scene_graph(self._world)
 	self._rw = World.render_world(self._world)
 	self._pw = World.physics_world(self._world)
-	self._fpscamera = FPSCamera(self._world, World.spawn_unit(self._world, "core/units/camera"))
+	self._camera = Camera(self._world, World.spawn_unit(self._world, "core/units/camera"))
 	self._unit_name = nil
 	self._unit_id = nil
 
@@ -28,7 +28,7 @@ function UnitPreview:update(dt)
 		radius = radius <   1 and   1 or radius
 		radius = radius > 100 and 100 or radius
 
-		local camera_unit = self._fpscamera:unit()
+		local camera_unit = self._camera:unit()
 		local pos = Vector3(radius, radius, -radius) * 2
 		local camera_pos = Matrix4x4.translation(tm) + pos
 		local target_pos = Matrix4x4.translation(tm)
@@ -36,11 +36,11 @@ function UnitPreview:update(dt)
 		SceneGraph.set_local_position(self._sg, camera_unit, camera_pos)
 	end
 
-	self._fpscamera:update(dt, 0, 0, {})
+	self._camera:update(dt, 0, 0, {})
 end
 
 function UnitPreview:render(dt)
-	Device.render(self._world, self._fpscamera:unit())
+	Device.render(self._world, self._camera:unit())
 end
 
 function UnitPreview:shutdown()

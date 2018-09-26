@@ -1,5 +1,5 @@
 require "core/editors/level_editor/camera"
-require "core/editors/level_editor/class"
+require "core/lua/class"
 
 Colors = {
 	grid          = function() return Color4(102, 102, 102, 255) end,
@@ -1313,7 +1313,7 @@ function LevelEditor:init()
 	self._sg = World.scene_graph(self._world)
 	self._lines_no_depth = World.create_debug_line(self._world, false)
 	self._lines = World.create_debug_line(self._world, true)
-	self._fpscamera = FPSCamera(self._world, World.spawn_unit(self._world, "core/units/camera"))
+	self._camera = Camera(self._world, World.spawn_unit(self._world, "core/units/camera"))
 	self._mouse = { x = 0, y = 0, x_last = 0, y_last = 0, button = { left = false, middle = false, right = false }, wheel = { delta = 0 }}
 	self._keyboard = { ctrl = false, shift = false, alt = false }
 	self._grid = { size = 1 }
@@ -1336,8 +1336,8 @@ function LevelEditor:init()
 	-- Spawn camera
 	local pos = Vector3(20, 20, -20)
 	local dir = Vector3.normalize(Vector3.zero() - pos)
-	SceneGraph.set_local_rotation(self._sg, self._fpscamera:unit(), Quaternion.look(dir))
-	SceneGraph.set_local_position(self._sg, self._fpscamera:unit(), pos)
+	SceneGraph.set_local_rotation(self._sg, self._camera:unit(), Quaternion.look(dir))
+	SceneGraph.set_local_position(self._sg, self._camera:unit(), pos)
 end
 
 function LevelEditor:update(dt)
@@ -1355,8 +1355,8 @@ function LevelEditor:update(dt)
 	self._mouse.x_last = self._mouse.x
 	self._mouse.y_last = self._mouse.y
 
-	self._fpscamera:mouse_wheel(self._mouse.wheel.delta)
-	self._fpscamera:update(dt, self._mouse.dx, self._mouse.dy, self._keyboard, self._mouse)
+	self._camera:mouse_wheel(self._mouse.wheel.delta)
+	self._camera:update(dt, self._mouse.dx, self._mouse.dy, self._keyboard, self._mouse)
 
 	self.tool:update(dt, self._mouse.x, self._mouse.y)
 
@@ -1364,7 +1364,7 @@ function LevelEditor:update(dt)
 	self._mouse.dy = 0
 	self._mouse.wheel.delta = 0
 
-	local pos, dir = self._fpscamera:camera_ray(self._mouse.x, self._mouse.y)
+	local pos, dir = self._camera:camera_ray(self._mouse.x, self._mouse.y)
 	local selected_object, t = raycast(self._objects, pos, dir)
 	self._spawn_height = selected_object and (pos + dir * t).y or 0
 
@@ -1378,7 +1378,7 @@ function LevelEditor:update(dt)
 end
 
 function LevelEditor:render(dt)
-	Device.render(self._world, self._fpscamera:unit())
+	Device.render(self._world, self._camera:unit())
 end
 
 function LevelEditor:shutdown()
@@ -1440,7 +1440,7 @@ function LevelEditor:key_up(key)
 end
 
 function LevelEditor:camera()
-	return self._fpscamera
+	return self._camera
 end
 
 function LevelEditor:set_tool(tool)
@@ -1512,7 +1512,7 @@ function LevelEditor:snap(grid_tm, pos)
 end
 
 function LevelEditor:find_spawn_point(x, y)
-	local pos, dir = self._fpscamera:camera_ray(x, y)
+	local pos, dir = self._camera:camera_ray(x, y)
 	local spawn_height = LevelEditor._spawn_height
 	local point = Vector3(0, spawn_height, 0)
 	local normal = Vector3.up()
@@ -1594,29 +1594,29 @@ function LevelEditor:destroy(id)
 end
 
 function LevelEditor:camera_view_perspective()
-	self._fpscamera:set_perspective()
+	self._camera:set_perspective()
 end
 
 function LevelEditor:camera_view_front()
-	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 1), Vector3(0, 1, 0))
+	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 1), Vector3(0, 1, 0))
 end
 
 function LevelEditor:camera_view_back()
-	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 0, -1), Vector3(0, 1, 0))
+	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 0, -1), Vector3(0, 1, 0))
 end
 
 function LevelEditor:camera_view_right()
-	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(-1, 0, 0), Vector3(0, 1, 0))
+	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(-1, 0, 0), Vector3(0, 1, 0))
 end
 
 function LevelEditor:camera_view_left()
-	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
+	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
 end
 
 function LevelEditor:camera_view_top()
-	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, -1, 0), Vector3(0, 0, 1))
+	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, -1, 0), Vector3(0, 0, 1))
 end
 
 function LevelEditor:camera_view_bottom()
-	self._fpscamera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 1))
+	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 1))
 end

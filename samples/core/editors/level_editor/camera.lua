@@ -1,8 +1,8 @@
-require "core/editors/level_editor/class"
+require "core/lua/class"
 
-FPSCamera = class(FPSCamera)
+Camera = class(Camera)
 
-function FPSCamera:init(world, unit)
+function Camera:init(world, unit)
 	self._world = world
 	self._unit = unit
 	self._translation_speed = 20
@@ -10,28 +10,28 @@ function FPSCamera:init(world, unit)
 	self._perspective_local_pose = Matrix4x4Box(Matrix4x4.identity())
 end
 
-function FPSCamera:unit()
+function Camera:unit()
 	return self._unit;
 end
 
-function FPSCamera:camera()
+function Camera:camera()
 	return World.camera_instances(self._world, self._unit)
 end
 
-function FPSCamera:local_pose()
+function Camera:local_pose()
 	local sg = World.scene_graph(self._world)
 	return SceneGraph.local_pose(sg, self._unit)
 end
 
-function FPSCamera:is_orthographic()
+function Camera:is_orthographic()
 	return World.camera_projection_type(self._world, self._unit) == "orthographic"
 end
 
-function FPSCamera:mouse_wheel(delta)
+function Camera:mouse_wheel(delta)
 	self._translation_speed = math.max(0.001, self._translation_speed + delta * 0.2)
 end
 
-function FPSCamera:camera_ray(x, y)
+function Camera:camera_ray(x, y)
 	local near = World.camera_screen_to_world(self._world, self._unit, Vector3(x, y, 0))
 	local far = World.camera_screen_to_world(self._world, self._unit, Vector3(x, y, 1))
 	local dir = World.camera_projection_type(self._world, self._unit) == "orthographic"
@@ -40,7 +40,7 @@ function FPSCamera:camera_ray(x, y)
 	return near, dir
 end
 
-function FPSCamera:set_perspective()
+function Camera:set_perspective()
 	if not self:is_orthographic() then
 		return
 	end
@@ -50,7 +50,7 @@ function FPSCamera:set_perspective()
 	World.camera_set_projection_type(self._world, self._unit, "perspective")
 end
 
-function FPSCamera:set_orthographic(world_center, world_radius, dir, up)
+function Camera:set_orthographic(world_center, world_radius, dir, up)
 	if not self:is_orthographic() then
 		self._perspective_local_pose:store(self:local_pose())
 	end
@@ -62,14 +62,14 @@ function FPSCamera:set_orthographic(world_center, world_radius, dir, up)
 	World.camera_set_projection_type(self._world, self._unit, "orthographic")
 end
 
-function FPSCamera:screen_length_to_world_length(position, length)
+function Camera:screen_length_to_world_length(position, length)
 	local right = Matrix4x4.x(self:local_pose())
 	local a = World.camera_world_to_screen(self._world, self._unit, position)
 	local b = World.camera_world_to_screen(self._world, self._unit, position + right)
 	return length / Vector3.distance(a, b)
 end
 
-function FPSCamera:update(dt, dx, dy, keyboard, mouse)
+function Camera:update(dt, dx, dy, keyboard, mouse)
 	local sg = World.scene_graph(self._world)
 
 	local camera_local_pose = SceneGraph.local_pose(sg, self._unit)

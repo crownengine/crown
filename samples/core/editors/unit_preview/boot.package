@@ -1,8 +1,8 @@
 lua = [
 	"core/editors/level_editor/camera"
-	"core/editors/level_editor/class"
 	"core/editors/unit_preview/boot"
 	"core/editors/unit_preview/unit_preview"
+	"core/lua/class"
 ]
 
 physics_config = [
