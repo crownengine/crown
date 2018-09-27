@@ -799,12 +799,19 @@ namespace Crown
 			if (fcd.run() == (int)ResponseType.ACCEPT)
 			{
 				string filename = fcd.get_filename();
-				if (filename.has_suffix(".level"))
+				if (filename.has_prefix(_project.source_dir()))
 				{
-					_level_filename = filename;
-					_level.load(_level_filename);
-					_level.send_level();
-					send_state();
+					if (filename.has_suffix(".level") && filename != _level_filename)
+					{
+						_level_filename = filename;
+						_level.load(_level_filename);
+						_level.send_level();
+						send_state();
+					}
+				}
+				else
+				{
+					_console_view.loge("editor", "Level not loaded: file must be within `%s`".printf(_project.source_dir()));
 				}
 			}
 
@@ -856,11 +863,19 @@ namespace Crown
 
 			if (fcd.run() == (int)ResponseType.ACCEPT)
 			{
-				_level_filename = fcd.get_filename();
-				if (!_level_filename.has_suffix(".level"))
-					_level_filename += ".level";
-				_level.save(_level_filename);
-				saved = true;
+				string filename = fcd.get_filename();
+				if (filename.has_prefix(_project.source_dir()))
+				{
+					_level_filename = filename;
+					if (!_level_filename.has_suffix(".level"))
+						_level_filename += ".level";
+					_level.save(_level_filename);
+					saved = true;
+				}
+				else
+				{
+					_console_view.loge("editor", "Level not saved: file must be within `%s`".printf(_project.source_dir()));
+				}
 			}
 
 			fcd.destroy();
