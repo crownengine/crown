@@ -670,9 +670,9 @@ namespace Crown
 
 			_current_widget = null;
 
-			set_current_widget(_nothing_to_show);
-
-			set_size_request(300, 200);
+			this.get_style_context().add_class("properties-view");
+			this.set_current_widget(_nothing_to_show);
+			this.set_size_request(300, 200);
 		}
 
 		private void add_component_view(string label, string component_type, int position, ComponentView cv)

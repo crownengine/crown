@@ -69,13 +69,9 @@ namespace Crown
 			_project = project;
 
 			// Widgets
-			Pango.FontDescription fd = new Pango.FontDescription();
-			fd.set_family("Monospace");
-
 			_text_view = new Gtk.TextView();
 			_text_view.editable = false;
 			_text_view.can_focus = false;
-			_text_view.override_font(fd);
 
 			// // Create tags for color-formatted text
 			Gtk.TextTag tag_info = new Gtk.TextTag("info");
@@ -97,11 +93,12 @@ namespace Crown
 			_entry.key_press_event.connect(on_entry_key_pressed);
 			_entry.activate.connect(on_entry_activated);
 
-			pack_start(_scrolled_window, true, true, 0);
-			pack_start(_entry, false, true, 0);
+			this.pack_start(_scrolled_window, true, true, 0);
+			this.pack_start(_entry, false, true, 0);
 
-			set_size_request(700, 150);
-			show_all();
+			this.get_style_context().add_class("console-view");
+			this.set_size_request(700, 150);
+			this.show_all();
 		}
 
 		private void on_entry_activated()

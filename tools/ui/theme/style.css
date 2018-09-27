@@ -1,1 +1,17 @@
 /* style.css */
+
+.console-view {
+	font: 12px "Monospace";
+}
+
+.level-tree-view {
+	font: 12px "Sans";
+}
+
+.level-layers-view {
+	font: 12px "Sans";
+}
+
+.properties-view {
+	font: 12px "Sans";
+}
