@@ -92,7 +92,6 @@ namespace Crown
 
 			_scrolled_window = new Gtk.ScrolledWindow(null, null);
 			_scrolled_window.add(_tree_view);
-			_scrolled_window.set_size_request(300, 400);
 
 			read_project();
 
@@ -105,7 +104,6 @@ namespace Crown
 			_box.pack_start(_scrolled_window, false, false, 0);
 
 			add(_box);
-			set_size_request(300, 400);
 		}
 
 		private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)

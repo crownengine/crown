@@ -12,7 +12,6 @@ namespace Crown
 		public StartingCompiler()
 		{
 			add(new Gtk.Label("Compiling resources, please wait..."));
-			set_size_request(300, 300);
 			show_all();
 		}
 	}

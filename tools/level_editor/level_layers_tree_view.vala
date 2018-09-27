@@ -81,7 +81,6 @@ namespace Crown
 			this.add(_vbox);
 
 			this.get_style_context().add_class("level-layers-view");
-			this.set_size_request(300, 250);
 			this.show_all();
 		}
 

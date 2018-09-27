@@ -97,7 +97,6 @@ namespace Crown
 			this.pack_start(_entry, false, true, 0);
 
 			this.get_style_context().add_class("console-view");
-			this.set_size_request(700, 150);
 			this.show_all();
 		}
 

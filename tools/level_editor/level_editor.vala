@@ -295,6 +295,7 @@ namespace Crown
 			_pane_right = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_pane_right.pack1(vb, true, false);
 			_pane_right.pack2(rb, true, false);
+			_pane_right.set_position(1000);
 
 			MenuBar menu = (MenuBar)_ui_manager.get_widget("/menubar");
 			_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);

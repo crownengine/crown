@@ -78,7 +78,7 @@ namespace Crown
 			_socket.set_visual(Gdk.Visual.get_best_with_type(VisualType.TRUE_COLOR));
 			_socket.realize.connect(on_socket_realized);
 			_socket.plug_removed.connect(on_socket_plug_removed);
-			_socket.set_size_request(300, 300);
+			_socket.set_size_request(128, 128);
 
 			_event_box = new Gtk.EventBox();
 			_event_box.can_focus = true;
