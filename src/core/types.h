@@ -53,6 +53,7 @@ typedef double   f64;
 #endif
 
 #define countof(arr) (sizeof(arr)/sizeof(arr[0]))
+#define container_of(ptr, type, member) ((char*)ptr - offsetof(type, member))
 
 #define CE_NOOP(...) do { (void)0; } while (0)
 #define CE_UNUSED(x) do { (void)(x); } while (0)

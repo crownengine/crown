@@ -226,12 +226,13 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	, _pipeline(NULL)
 	, _display(NULL)
 	, _window(NULL)
-	, _worlds(default_allocator())
 	, _width(0)
 	, _height(0)
 	, _quit(false)
 	, _paused(false)
 {
+	_worlds.next = &_worlds;
+	_worlds.prev = &_worlds;
 }
 
 bool Device::process_events(bool vsync)
@@ -636,31 +637,36 @@ void Device::render(World& world, UnitId camera_unit)
 
 World* Device::create_world()
 {
-	World* w = CE_NEW(default_allocator(), World)(default_allocator()
+	World* world = CE_NEW(default_allocator(), World)(default_allocator()
 		, *_resource_manager
 		, *_shader_manager
 		, *_material_manager
 		, *_unit_manager
 		, *_lua_environment
 		);
-	array::push_back(_worlds, w);
-	return w;
+
+	ListNode* node = &world->_node;
+	ListNode* prev = &_worlds;
+	ListNode* next = _worlds.next;
+
+	node->next = next;
+	node->prev = prev;
+	next->prev = node;
+	prev->next = node;
+
+	return world;
 }
 
-void Device::destroy_world(World& w)
+void Device::destroy_world(World& world)
 {
-	for (u32 i = 0, n = array::size(_worlds); i < n; ++i)
-	{
-		if (&w == _worlds[i])
-		{
-			CE_DELETE(default_allocator(), &w);
-			_worlds[i] = _worlds[n-1];
-			array::pop_back(_worlds);
-			return;
-		}
-	}
+	ListNode* node = &world._node;
 
-	CE_FATAL("World not found");
+	node->next->prev = node->prev;
+	node->prev->next = node->next;
+	node->next = NULL;
+	node->prev = NULL;
+
+	CE_DELETE(default_allocator(), &world);
 }
 
 ResourcePackage* Device::create_resource_package(StringId64 id)

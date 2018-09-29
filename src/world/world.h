@@ -59,13 +59,16 @@ struct World
 	AnimationStateMachine* _animation_state_machine;
 
 	Array<UnitId> _units;
-	Array<Level*> _levels;
 	Array<Camera> _camera;
 	HashMap<UnitId, u32> _camera_map;
 
 	EventStream _events;
 	GuiBuffer _gui_buffer;
-	Array<Gui*> _guis;
+
+	ListNode _guis;
+	ListNode _levels;
+
+	ListNode _node;
 
 	CameraInstance camera_make_instance(u32 i) { CameraInstance inst = { i }; return inst; }
 

@@ -41,12 +41,10 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	, _sound_world(NULL)
 	, _animation_state_machine(NULL)
 	, _units(a)
-	, _levels(a)
 	, _camera(a)
 	, _camera_map(a)
 	, _events(a)
 	, _gui_buffer(sm)
-	, _guis(a)
 {
 	_lines = create_debug_line(true);
 	_scene_graph   = CE_NEW(*_allocator, SceneGraph)(*_allocator, um);
@@ -57,16 +55,32 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 	_animation_state_machine = CE_NEW(*_allocator, AnimationStateMachine)(*_allocator, rm, um);
 
 	_gui_buffer.create();
+
+	_guis.next = &_guis;
+	_guis.prev = &_guis;
+	_levels.next = &_levels;
+	_levels.prev = &_levels;
+
+	_node.next = NULL;
+	_node.prev = NULL;
 }
 
 World::~World()
 {
-	for (u32 i = 0; i < array::size(_levels); ++i)
-		CE_DELETE(*_allocator, _levels[i]);
+	// Destroy loaded levels
+	ListNode* cur = _levels.next;
+	while (cur != &_levels)
+	{
+		Level* level = (Level*)container_of(cur, Level, _node);
+		cur = cur->next;
+		CE_DELETE(*_allocator, level);
+	}
 
+	// Destroy units
 	for (u32 i = 0; i < array::size(_units); ++i)
 		_unit_manager->destroy(_units[i]);
 
+	// Destroy subsystems
 	CE_DELETE(*_allocator, _animation_state_machine);
 	CE_DELETE(*_allocator, _script_world);
 	CE_DELETE(*_allocator, _sound_world);
@@ -503,24 +517,29 @@ Gui* World::create_screen_gui()
 		, *_shader_manager
 		, *_material_manager
 		);
-	array::push_back(_guis, gui);
+
+	ListNode* node = &gui->_node;
+	ListNode* prev = &_guis;
+	ListNode* next = _guis.next;
+
+	node->next = next;
+	node->prev = prev;
+	next->prev = node;
+	prev->next = node;
+
 	return gui;
 }
 
 void World::destroy_gui(Gui& gui)
 {
-	for (u32 i = 0, n = array::size(_guis); i < n; ++i)
-	{
-		if (_guis[i] == &gui)
-		{
-			CE_DELETE(*_allocator, &gui);
-			_guis[i] = _guis[n-1];
-			array::pop_back(_guis);
-			return;
-		}
-	}
+	ListNode* node = &gui._node;
 
-	CE_FATAL("Gui not found");
+	node->next->prev = node->prev;
+	node->prev->next = node->next;
+	node->next = NULL;
+	node->prev = NULL;
+
+	CE_DELETE(*_allocator, &gui);
 }
 
 Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& rot)
@@ -530,9 +549,16 @@ Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& 
 	Level* level = CE_NEW(*_allocator, Level)(*_allocator, *_unit_manager, *this, *lr);
 	level->load(pos, rot);
 
-	array::push_back(_levels, level);
-	post_level_loaded_event();
+	ListNode* node = &level->_node;
+	ListNode* prev = &_levels;
+	ListNode* next = _levels.next;
 
+	node->next = next;
+	node->prev = prev;
+	next->prev = node;
+	prev->next = node;
+
+	post_level_loaded_event();
 	return level;
 }
 

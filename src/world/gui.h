@@ -111,6 +111,7 @@ struct Gui
 	ShaderManager* _shader_manager;
 	MaterialManager* _material_manager;
 	Matrix4x4 _world;
+	ListNode _node;
 
 	///
 	Gui(GuiBuffer& gb, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm);

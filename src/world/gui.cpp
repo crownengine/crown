@@ -27,6 +27,8 @@ Gui::Gui(GuiBuffer& gb, ResourceManager& rm, ShaderManager& sm, MaterialManager&
 	, _material_manager(&mm)
 	, _world(MATRIX4X4_IDENTITY)
 {
+	_node.next = NULL;
+	_node.prev = NULL;
 }
 
 Gui::~Gui()

@@ -24,6 +24,7 @@ struct Level
 	World* _world;
 	const LevelResource* _resource;
 	Array<UnitId> _unit_lookup;
+	ListNode _node;
 
 	///
 	Level(Allocator& a, UnitManager& um, World& w, const LevelResource& lr);
