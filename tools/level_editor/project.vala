@@ -373,14 +373,13 @@ end
 
 				SJSON.save(sprite, Path.build_filename(_source_dir.get_path(), resource_name) + ".sprite");
 
-				// Generate .unit
-				string unit_name = Path.build_filename(_source_dir.get_path(), resource_name) + ".unit";
-				File unit_file = File.new_for_path(unit_name);
 
+				// Generate .unit
 				Database db = new Database();
 
 				// Do not overwrite existing .unit
-				if (unit_file.query_exists())
+				string unit_name = Path.build_filename(_source_dir.get_path(), resource_name) + ".unit";
+				if (File.new_for_path(unit_name).query_exists())
 					db.load(unit_name);
 
 				Unit unit = new Unit(db, GUID_ZERO, null);
@@ -649,13 +648,11 @@ end
 				}
 
 				// Generate .unit
-				string unit_name = Path.build_filename(_source_dir.get_path(), resource_name) + ".unit";
-				File unit_file = File.new_for_path(unit_name);
-
 				Database db = new Database();
 
 				// Do not overwrite existing .unit
-				if (unit_file.query_exists())
+				string unit_name = Path.build_filename(_source_dir.get_path(), resource_name) + ".unit";
+				if (File.new_for_path(unit_name).query_exists())
 					db.load(unit_name);
 
 				Unit unit = new Unit(db, GUID_ZERO, null);
