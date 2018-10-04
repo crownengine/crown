@@ -586,6 +586,7 @@ int main_data_compiler(const DeviceOptions& opts)
 	// Add ignore globs
 	dc->add_ignore_glob("*.bak");
 	dc->add_ignore_glob("*.dds");
+	dc->add_ignore_glob("*.importer_settings");
 	dc->add_ignore_glob("*.ktx");
 	dc->add_ignore_glob("*.ogg");
 	dc->add_ignore_glob("*.png");

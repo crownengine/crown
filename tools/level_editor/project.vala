@@ -266,13 +266,37 @@ end
 
 		public void import_sprites(SList<string> filenames, string destination_dir)
 		{
+			Hashtable importer_settings = null;
+			string importer_settings_path = null;
+			{
+				GLib.File file_src = File.new_for_path(filenames.nth_data(0));
+				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
+
+				string resource_filename = _source_dir.get_relative_path(file_dst);
+				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+
+				importer_settings_path = Path.build_filename(_source_dir.get_path(), resource_name) + ".importer_settings";
+			}
+
 			SpriteImportDialog sid = new SpriteImportDialog(filenames.nth_data(0));
+
+			if (File.new_for_path(importer_settings_path).query_exists())
+			{
+				importer_settings = SJSON.load(importer_settings_path);
+				sid.load(importer_settings);
+			}
+			else
+			{
+				importer_settings = new Hashtable();
+			}
 
 			if (sid.run() != Gtk.ResponseType.OK)
 			{
 				sid.destroy();
 				return;
 			}
+
+			sid.save(importer_settings);
 
 			int width     = (int)sid._pixbuf.width;
 			int height    = (int)sid._pixbuf.height;
@@ -307,6 +331,8 @@ end
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
 				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+
+				SJSON.save(importer_settings, Path.build_filename(_source_dir.get_path(), resource_name) + ".importer_settings");
 
 				Hashtable textures = new Hashtable();
 				textures["u_albedo"] = resource_name;

@@ -485,6 +485,47 @@ public class SpriteImportDialog : Gtk.Dialog
 			break;
 		}
 	}
+
+	public void load(Hashtable importer_settings)
+	{
+		// Load settings
+		cells_h.value            = (double)importer_settings["num_h"];
+		cells_v.value            = (double)importer_settings["num_v"];
+		cell_w.value             = (double)importer_settings["cell_w"];
+		cell_h.value             = (double)importer_settings["cell_h"];
+		offset_x.value           = (double)importer_settings["offset_x"];
+		offset_y.value           = (double)importer_settings["offset_y"];
+		spacing_x.value          = (double)importer_settings["spacing_x"];
+		spacing_y.value          = (double)importer_settings["spacing_y"];
+		layer.value              = (double)importer_settings["layer"];
+		depth.value              = (double)importer_settings["depth"];
+		pivot.active             = (int)(double)importer_settings["pivot"];
+		collision_enabled.active = (bool)importer_settings["collision_enabled"];
+		collision_x.value        = (double)importer_settings["collision_x"];
+		collision_y.value        = (double)importer_settings["collision_y"];
+		collision_w.value        = (double)importer_settings["collision_w"];
+		collision_h.value        = (double)importer_settings["collision_h"];
+	}
+
+	public void save(Hashtable importer_settings)
+	{
+		importer_settings["num_h"]             = cells_h.value;
+		importer_settings["num_v"]             = cells_v.value;
+		importer_settings["cell_w"]            = cell_w.value;
+		importer_settings["cell_h"]            = cell_h.value;
+		importer_settings["offset_x"]          = offset_x.value;
+		importer_settings["offset_y"]          = offset_y.value;
+		importer_settings["spacing_x"]         = spacing_x.value;
+		importer_settings["spacing_y"]         = spacing_y.value;
+		importer_settings["layer"]             = layer.value;
+		importer_settings["depth"]             = depth.value;
+		importer_settings["pivot"]             = pivot.active;
+		importer_settings["collision_enabled"] = collision_enabled.active;
+		importer_settings["collision_x"]       = collision_x.value;
+		importer_settings["collision_y"]       = collision_y.value;
+		importer_settings["collision_w"]       = collision_w.value;
+		importer_settings["collision_h"]       = collision_h.value;
+	}
 }
 
 }
