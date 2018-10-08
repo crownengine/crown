@@ -170,27 +170,23 @@ namespace state_machine_internal
 		{
 			TempAllocator4096 ta;
 			JsonObject object(ta);
-			JsonObject states(ta);
-			JsonObject variables(ta);
+			JsonArray states(ta);
+			JsonArray variables(ta);
 
 			sjson::parse(buf, object);
-			sjson::parse_object(object["states"], states);
-			sjson::parse_object(object["variables"], variables);
+			sjson::parse_array(object["states"], states);
+			sjson::parse_array(object["variables"], variables);
 
 			// Parse states
-			auto cur = json_object::begin(states);
-			auto end = json_object::end(states);
-			for (; cur != end; ++cur)
+			for (u32 i = 0; i < array::size(states); ++i)
 			{
-				const FixedString key = cur->pair.first;
-
 				TempAllocator4096 ta;
 				JsonObject state(ta);
-				JsonObject animations(ta);
-				JsonObject transitions(ta);
-				sjson::parse_object(states[key], state);
-				sjson::parse_object(state["animations"], animations);
-				sjson::parse_object(state["transitions"], transitions);
+				JsonArray animations(ta);
+				JsonArray transitions(ta);
+				sjson::parse_object(states[i], state);
+				sjson::parse_array(state["animations"], animations);
+				sjson::parse_array(state["transitions"], transitions);
 
 				StateInfo si;
 
@@ -199,14 +195,10 @@ namespace state_machine_internal
 
 				// Parse transitions
 				{
-					auto cur = json_object::begin(transitions);
-					auto end = json_object::end(transitions);
-					for (; cur != end; ++cur)
+					for (u32 i = 0; i < array::size(transitions); ++i)
 					{
-						const FixedString key = cur->pair.first;
-
 						JsonObject transition(ta);
-						sjson::parse_object(transitions[key], transition);
+						sjson::parse_object(transitions[i], transition);
 
 						DynamicString mode_str(ta);
 						sjson::parse_string(transition["mode"], mode_str);
@@ -229,14 +221,10 @@ namespace state_machine_internal
 
 				// Parse animations
 				{
-					auto cur = json_object::begin(animations);
-					auto end = json_object::end(animations);
-					for (; cur != end; ++cur)
+					for (u32 i = 0; i < array::size(animations); ++i)
 					{
-						const FixedString key = cur->pair.first;
-
 						JsonObject animation(ta);
-						sjson::parse_object(animations[key], animation);
+						sjson::parse_object(animations[i], animation);
 
 						DynamicString animation_resource(ta);
 						sjson::parse_string(animation["name"], animation_resource);
@@ -257,7 +245,7 @@ namespace state_machine_internal
 						);
 				}
 
-				Guid guid = guid::parse(key._data);
+				Guid guid = sjson::parse_guid(state["id"]);
 				DATA_COMPILER_ASSERT(!map::has(_states, guid)
 					, _opts
 					, "State GUID duplicated"
@@ -277,12 +265,10 @@ namespace state_machine_internal
 
 			// Parse variables
 			{
-				auto cur = json_object::begin(variables);
-				auto end = json_object::end(variables);
-				for (; cur != end; ++cur)
+				for (u32 i = 0; i < array::size(variables); ++i)
 				{
 					JsonObject variable(ta);
-					sjson::parse_object(variables[cur->pair.first], variable);
+					sjson::parse_object(variables[i], variable);
 
 					VariableInfo vi;
 					vi.name  = sjson::parse_string_id(variable["name"]);
@@ -354,6 +340,9 @@ namespace state_machine_internal
 					const_cast<StateInfo&>(si).speed_bytecode = num > 0 ? written : UINT32_MAX;
 					written += num;
 				}
+
+				// Resize to total amount of written bytecode
+				array::resize(_byte_code, written);
 
 				default_allocator().deallocate(variables);
 			}

@@ -1,37 +1,55 @@
-components = {
-	"238ae946-75d4-4c4e-b326-ff4c6562fba4" = {
-		type = "transform"
+
+components = [
+	{
 		data = {
-			position = [ 0 0 0 ]
-			rotation = [ 0 0 0 1 ]
-			scale = [ 1 1 1 ]
+			material = "default"
+			name = "Plane"
+			scene = "core/units/primitives/plane"
+			shape = "convex_hull"
 		}
+		id = "9217e10e-9b45-46d0-9c02-7c95531f4e80"
+		type = "collider"
 	}
-	"add86f5b-267a-4aa8-954c-385d2fcda2be" = {
-		type = "mesh_renderer"
+	{
 		data = {
-			mesh_resource = "core/units/primitives/plane"
 			geometry_name = "Plane"
 			material = "core/units/primitives/primitive"
+			mesh_resource = "core/units/primitives/plane"
 			visible = true
 		}
+		id = "add86f5b-267a-4aa8-954c-385d2fcda2be"
+		type = "mesh_renderer"
 	}
-	"9217e10e-9b45-46d0-9c02-7c95531f4e80" = {
-		type = "collider"
+	{
 		data = {
-			shape = "convex_hull"
-			scene = "core/units/primitives/plane"
-			name = "Plane"
-			material = "default"
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
 		}
+		id = "238ae946-75d4-4c4e-b326-ff4c6562fba4"
+		type = "transform"
 	}
-	"b5f0e7bd-e78b-4447-acd3-37ca73020177" = {
-		type = "actor"
+	{
 		data = {
 			class = "static"
 			collision_filter = "default"
 			mass = 1
 			material = "default"
 		}
+		id = "b5f0e7bd-e78b-4447-acd3-37ca73020177"
+		type = "actor"
 	}
-}
+]

@@ -1,37 +1,55 @@
-components = {
-	"f56420ad-7f9c-4cca-aca5-350f366e0dc0" = {
-		type = "transform"
+
+components = [
+	{
 		data = {
-			position = [0 0 0]
-			rotation = [ 0 0 0 1 ]
-			scale = [1 1 1]
+			material = "default"
+			name = "Cube"
+			scene = "cube"
+			shape = "box"
 		}
+		id = "a122f56c-be01-46da-9459-c84bc7381221"
+		type = "collider"
 	}
-	"49576e7e-2eed-42a7-8ce1-785f519d9655" = {
-		type = "mesh_renderer"
+	{
 		data = {
-			mesh_resource = "cube"
 			geometry_name = "Cube"
 			material = "grid"
+			mesh_resource = "cube"
 			visible = true
 		}
+		id = "49576e7e-2eed-42a7-8ce1-785f519d9655"
+		type = "mesh_renderer"
 	}
-	"a122f56c-be01-46da-9459-c84bc7381221" = {
-		type = "collider"
-		data = {
-			shape = "box"
-			scene = "cube"
-			name = "Cube"
-			material = "default"
-		}
-	}
-	"171eb351-61a4-4f6d-a069-f52ca7b0dc55" = {
-		type = "actor"
+	{
 		data = {
 			class = "dynamic"
 			collision_filter = "default"
 			mass = 10
 			material = "default"
 		}
+		id = "171eb351-61a4-4f6d-a069-f52ca7b0dc55"
+		type = "actor"
 	}
-}
+	{
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		id = "f56420ad-7f9c-4cca-aca5-350f366e0dc0"
+		type = "transform"
+	}
+]

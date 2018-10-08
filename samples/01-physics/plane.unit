@@ -1,37 +1,55 @@
-components = {
-	"805e9323-578b-4d22-8414-b15b1a5ff7bc" = {
-		type = "transform"
+
+components = [
+	{
 		data = {
-			position = [0 0 0]
-			rotation = [ 0 0 0 1 ]
-			scale = [1 1 1]
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
 		}
+		id = "805e9323-578b-4d22-8414-b15b1a5ff7bc"
+		type = "transform"
 	}
-	"445eb72e-e80d-4549-95db-2438f3401168" = {
-		type = "mesh_renderer"
+	{
 		data = {
-			mesh_resource = "plane"
+			material = "default"
+			name = "Plane"
+			scene = "plane"
+			shape = "convex_hull"
+		}
+		id = "114ece38-a553-4a49-8fa7-07b49e061a66"
+		type = "collider"
+	}
+	{
+		data = {
 			geometry_name = "Plane"
 			material = "grid"
+			mesh_resource = "plane"
 			visible = true
 		}
+		id = "445eb72e-e80d-4549-95db-2438f3401168"
+		type = "mesh_renderer"
 	}
-	"114ece38-a553-4a49-8fa7-07b49e061a66" = {
-		type = "collider"
-		data = {
-			material = "default"
-			shape = "convex_hull"
-			scene = "plane"
-			name = "Plane"
-		}
-	}
-	"52cec360-697d-4493-a369-1674bcb1d236" = {
-		type = "actor"
+	{
 		data = {
 			class = "static"
-			mass = 50
 			collision_filter = "default"
+			mass = 50
 			material = "default"
 		}
+		id = "52cec360-697d-4493-a369-1674bcb1d236"
+		type = "actor"
 	}
-}
+]

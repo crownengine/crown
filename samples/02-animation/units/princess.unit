@@ -1,14 +1,35 @@
 
-components = {
-	0082c760-6b5e-41b2-a32a-279ddf593fb2 = {
+components = [
+	{
 		data = {
-			position = [ 0 0 0 ]
-			rotation = [ 0 0 0 1 ]
-			scale = [ 1 1 1 ]
+			state_machine_resource = "units/humanoid"
 		}
+		id = "ff3f598d-0f34-467b-bf98-14feb0997bfe"
+		type = "animation_state_machine"
+	}
+	{
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		id = "0082c760-6b5e-41b2-a32a-279ddf593fb2"
 		type = "transform"
 	}
-	4e0ca7f6-f789-44d8-bf6b-9fcb62e1abd9 = {
+	{
 		data = {
 			depth = 0
 			layer = 1
@@ -16,12 +37,7 @@ components = {
 			sprite_resource = "units/princess"
 			visible = true
 		}
+		id = "4e0ca7f6-f789-44d8-bf6b-9fcb62e1abd9"
 		type = "sprite_renderer"
 	}
-	ff3f598d-0f34-467b-bf98-14feb0997bfe = {
-		data = {
-			state_machine_resource = "units/humanoid"
-		}
-		type = "animation_state_machine"
-	}
-}
+]

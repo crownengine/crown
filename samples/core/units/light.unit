@@ -1,29 +1,50 @@
-components = {
-	"3f6f6b7c-b4cf-4173-aab0-288a63d7c73a" = {
-		type = "transform"
+
+components = [
+	{
 		data = {
-			position = [ 0 0 0 ]
-			rotation = [ 0 0.991665 0 -0.128845 ]
-			scale = [ 1 1 1 ]
-		}
-	}
-	"45e54fbe-018c-4ee2-917d-398c13bd3e7e" = {
-		type = "light"
-		data = {
-			type = "directional"
-			range = 1
+			color = [
+				1
+				1
+				1
+			]
 			intensity = 1
-			spot_angle = 0.523599
-			color = [ 1 1 1 ]
+			range = 1
+			spot_angle = 0.52359900000000004
+			type = "directional"
 		}
+		id = "45e54fbe-018c-4ee2-917d-398c13bd3e7e"
+		type = "light"
 	}
-	"65f81abd-43ea-4c15-8d96-b82fec868bcd" = {
-		type = "mesh_renderer"
+	{
 		data = {
-			mesh_resource = "core/units/light"
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0.99166500000000002
+				0
+				-0.12884499999999999
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		id = "3f6f6b7c-b4cf-4173-aab0-288a63d7c73a"
+		type = "transform"
+	}
+	{
+		data = {
 			geometry_name = "Icosphere"
 			material = "core/units/light"
+			mesh_resource = "core/units/light"
 			visible = true
 		}
+		id = "65f81abd-43ea-4c15-8d96-b82fec868bcd"
+		type = "mesh_renderer"
 	}
-}
+]

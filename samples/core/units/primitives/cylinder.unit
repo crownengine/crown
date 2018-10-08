@@ -1,37 +1,55 @@
-components = {
-	"4e97adb8-f875-4cd4-a6e3-59f3fd93c64f" = {
-		type = "transform"
+
+components = [
+	{
 		data = {
-			position = [ 0 0 0 ]
-			rotation = [ 0 0 0 1 ]
-			scale = [ 1 1 1 ]
-		}
-	}
-	"fca524d9-aaa4-4db7-b594-c39049e394b4" = {
-		type = "mesh_renderer"
-		data = {
-			mesh_resource = "core/units/primitives/cylinder"
 			geometry_name = "Cylinder"
 			material = "core/units/primitives/primitive"
+			mesh_resource = "core/units/primitives/cylinder"
 			visible = true
 		}
+		id = "fca524d9-aaa4-4db7-b594-c39049e394b4"
+		type = "mesh_renderer"
 	}
-	"67639086-1c54-4ef8-bf59-1a60d2ca6adb" = {
-		type = "collider"
+	{
 		data = {
-			shape = "convex_hull"
-			scene = "core/units/primitives/cylinder"
-			name = "Cylinder"
 			material = "default"
+			name = "Cylinder"
+			scene = "core/units/primitives/cylinder"
+			shape = "convex_hull"
 		}
+		id = "67639086-1c54-4ef8-bf59-1a60d2ca6adb"
+		type = "collider"
 	}
-	"f1539903-68cd-4d86-bada-501be048c1c7" = {
-		type = "actor"
+	{
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		id = "4e97adb8-f875-4cd4-a6e3-59f3fd93c64f"
+		type = "transform"
+	}
+	{
 		data = {
 			class = "static"
 			collision_filter = "default"
 			mass = 1
 			material = "default"
 		}
+		id = "f1539903-68cd-4d86-bada-501be048c1c7"
+		type = "actor"
 	}
-}
+]

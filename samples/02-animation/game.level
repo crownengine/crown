@@ -1,21 +1,35 @@
 
-sounds = {
-}
-units = {
-	20e3d0f7-28a0-4ceb-8232-c977b858c97d = {
+sounds = [
+]
+units = [
+	{
 		editor = {
 			name = "light_0001"
 		}
+		id = "20e3d0f7-28a0-4ceb-8232-c977b858c97d"
 		modified_components = {
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
 				data = {
-					position = [ -9.9999999999999995e-07 27 -10 ]
-					rotation = [ 0.14644599999999999 0.85355300000000001 0.35355300000000001 0.35355399999999998 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-9.9999999999999995e-07
+						27
+						-10
+					]
+					rotation = [
+						0.14644599999999999
+						0.85355300000000001
+						0.35355300000000001
+						0.35355399999999998
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "core/units/light"
 	}
-}
+]

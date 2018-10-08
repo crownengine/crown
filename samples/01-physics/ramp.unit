@@ -1,37 +1,55 @@
-components = {
-	"1089a8ef-c51f-417d-9160-3716b5b441d7" = {
-		type = "transform"
+
+components = [
+	{
 		data = {
-			position = [0 0 0]
-			rotation = [ 0 0 0 1 ]
-			scale = [1 1 1]
-		}
-	}
-	"e8d9961f-d868-4b26-a4d7-7d2891cead99" = {
-		type = "mesh_renderer"
-		data = {
-			mesh_resource = "ramp"
 			geometry_name = "Cube"
 			material = "grid"
+			mesh_resource = "ramp"
 			visible = true
 		}
+		id = "e8d9961f-d868-4b26-a4d7-7d2891cead99"
+		type = "mesh_renderer"
 	}
-	"d79ef8c9-b2c1-4a67-adc9-07154f7352d7" = {
-		type = "collider"
+	{
 		data = {
-			shape = "convex_hull"
-			scene = "ramp"
-			name = "Cube"
-			material = "default"
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
 		}
+		id = "1089a8ef-c51f-417d-9160-3716b5b441d7"
+		type = "transform"
 	}
-	"3d3bbab0-2fca-4932-a38f-41e7cb339216" = {
-		type = "actor"
+	{
 		data = {
 			class = "static"
-			mass = 10
 			collision_filter = "default"
+			mass = 10
 			material = "default"
 		}
+		id = "3d3bbab0-2fca-4932-a38f-41e7cb339216"
+		type = "actor"
 	}
-}
+	{
+		data = {
+			material = "default"
+			name = "Cube"
+			scene = "ramp"
+			shape = "convex_hull"
+		}
+		id = "d79ef8c9-b2c1-4a67-adc9-07154f7352d7"
+		type = "collider"
+	}
+]

@@ -1,19 +1,35 @@
-components = {
-	"2de2052d-8256-4627-a7db-de8764afcab4" = {
-		type = "transform"
+
+components = [
+	{
 		data = {
-			position = [ 0 0 0 ]
-			rotation = [ 0 0 0 1 ]
-			scale = [ 1 1 1 ]
-		}
-	}
-	"c3c601b0-1a96-42f1-8801-d95a75d8d184" = {
-		type = "camera"
-		data = {
-			projection = "perspective"
-			fov = 1.0472
+			far_range = 1000
+			fov = 1.0471999999999999
 			near_range = 0.01
-			far_range = 1000.0
+			projection = "perspective"
 		}
+		id = "c3c601b0-1a96-42f1-8801-d95a75d8d184"
+		type = "camera"
 	}
-}
+	{
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		id = "2de2052d-8256-4627-a7db-de8764afcab4"
+		type = "transform"
+	}
+]

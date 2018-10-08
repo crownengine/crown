@@ -146,10 +146,11 @@ namespace Crown
 		{
 			builder.append_c('[');
 			foreach (Value? item in a) {
-				builder.append_c(' ');
+				write_new_line(builder, indentation+1);
 				write(item, builder, indentation+1);
 			}
-			builder.append(" ]");
+			write_new_line(builder, indentation);
+			builder.append_c(']');
 		}
 
 		static void write_object(Hashtable t, StringBuilder builder, int indentation)

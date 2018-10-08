@@ -270,6 +270,25 @@ void UnitCompiler::compile_unit(const char* path)
 	compile_unit_from_json(array::begin(read_unit(path)));
 }
 
+u32 component_index(const JsonArray& components, const FixedString& id)
+{
+	char guid[37];
+	strncpy(guid, id.data(), sizeof(guid) - 1);
+	guid[36] = '\0';
+	Guid idd = guid::parse(guid);
+
+	for (u32 i = 0; i < array::size(components); ++i)
+	{
+		TempAllocator512 ta;
+		JsonObject obj(ta);
+		sjson::parse(components[i], obj);
+		if (sjson::parse_guid(obj["id"]) == idd)
+			return i;
+	}
+
+	return UINT32_MAX;
+}
+
 void UnitCompiler::compile_unit_from_json(const char* json)
 {
 	Buffer data(default_allocator());
@@ -304,8 +323,10 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 	}
 
 	JsonObject& prefab_root = prefabs[num_prefabs - 1];
-	JsonObject prefab_root_components(ta);
-	sjson::parse(prefab_root["components"], prefab_root_components);
+	JsonArray prefab_root_components_original(ta);
+	sjson::parse_array(prefab_root["components"], prefab_root_components_original);
+	JsonArray prefab_root_components(ta);
+	sjson::parse_array(prefab_root["components"], prefab_root_components);
 
 	if (num_prefabs > 1)
 	{
@@ -328,20 +349,18 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 				const FixedString id(&key.data()[1], key.length()-1);
 				const char* value = cur->pair.second;
 
-				// FIXME
-				map::remove(prefab_root_components._map, id);
-				map::set(prefab_root_components._map, id, value);
+				u32 comp_index = component_index(prefab_root_components_original, id);
+				if (comp_index != UINT32_MAX)
+					prefab_root_components[comp_index] = value;
 			}
 		}
 	}
 
-	if (json_object::size(prefab_root_components) > 0)
+	if (array::size(prefab_root_components) > 0)
 	{
-		auto cur = json_object::begin(prefab_root_components);
-		auto end = json_object::end(prefab_root_components);
-		for (; cur != end; ++cur)
+		for (u32 i = 0; i < array::size(prefab_root_components); ++i)
 		{
-			const char* value = cur->pair.second;
+			const char* value = prefab_root_components[i];
 
 			TempAllocator512 ta;
 			JsonObject component(ta);
@@ -360,13 +379,11 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 void UnitCompiler::compile_multiple_units(const char* json)
 {
 	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	JsonArray units(ta);
+	sjson::parse_array(json, units);
 
-	auto cur = json_object::begin(obj);
-	auto end = json_object::end(obj);
-	for (; cur != end; ++cur)
-		compile_unit_from_json(cur->pair.second);
+	for (u32 i = 0; i < array::size(units); ++i)
+		compile_unit_from_json(units[i]);
 }
 
 Buffer UnitCompiler::blob()

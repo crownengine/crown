@@ -1,709 +1,1325 @@
 
-sounds = {
-}
-units = {
-	0365e3df-a7ac-4f49-87de-f1b9bdf3f958 = {
+sounds = [
+]
+units = [
+	{
 		editor = {
-			name = "unit_0008"
+			name = "unit_0037"
 		}
+		id = "d52ad0e5-5798-4037-8494-ca23a013fdab"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 4 7.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						0
+						9.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	04f23df8-d4fc-4ebc-811b-42f843499c79 = {
+	{
 		editor = {
-			name = "unit_0001"
+			name = "unit_0023"
 		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 2 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	05757636-12a1-48b0-9ade-59cc3d9bb19c = {
-		editor = {
-			name = "unit_0002"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ -2 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	0bd39883-476e-4193-b750-1484ecedd959 = {
-		editor = {
-			name = "unit_0000"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 8 1.0491999999999999 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	0c8b1474-8e72-44ee-9189-86c84a3dcfda = {
-		editor = {
-			name = "unit_0003"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ -4 5.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	0cae3b7c-23a1-454c-802d-5fce8b84093f = {
-		editor = {
-			name = "unit_0004"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 6 5.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	0e164588-c310-4c41-9e04-e9c9a2044c6b = {
-		editor = {
-			name = "unit_0005"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ -8 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	0f234f5f-7ac3-4fb5-809d-54e83e849253 = {
-		editor = {
-			name = "unit_0006"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 4 5.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	1f04201a-debf-4320-964f-de8d8764d37d = {
-		editor = {
-			name = "unit_0007"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ -6 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	29f29073-bd6d-457e-8912-de80e0994ffc = {
-		editor = {
-			name = "unit_0009"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ -2 5.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	2a450c56-45db-4226-8ddc-bf26b04dd5d5 = {
-		editor = {
-			name = "skydome"
-		}
-		modified_components = {
-			#6ef7e034-8519-4189-9527-04dfe17aebca = {
-				data = {
-					position = [ 0 0 0 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "skydome"
-	}
-	3282fd34-1c42-49cc-8014-4a1e941de86a = {
-		editor = {
-			name = "unit_0011"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 2 5.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	37e02b71-55d3-4913-86ea-dc80b19c024c = {
-		editor = {
-			name = "unit_0012"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 4 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	3ce1462b-dd86-4c6c-b26d-114154aed730 = {
-		editor = {
-			name = "unit_0013"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ -4 7.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	5fe4cf4f-1f5c-4af4-816f-c563f316fd44 = {
-		editor = {
-			name = "unit_0014"
-		}
+		id = "9ab38fec-f03e-475f-a07c-98c618fab522"
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
-					position = [ -256 -230 0 ]
-					rotation = [ 0 0 -0.70710680000000004 0.70710680000000004 ]
-					scale = [ 1 1 1 ]
+					position = [
+						256
+						-230
+						0
+					]
+					rotation = [
+						0.70710680000000004
+						-0.70710680000000004
+						3.090862e-08
+						-3.090862e-08
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "plane"
 	}
-	663ef523-b073-424b-9cd4-546680541377 = {
+	{
 		editor = {
-			name = "unit_0015"
+			name = "unit_0036"
 		}
+		id = "d508c0b1-3e22-4fa4-af59-fbdbeb1a68e8"
 		modified_components = {
-			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 0 -230 256 ]
-					rotation = [ 0.5 -0.5 0.5 -0.5 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-6
+						5.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
-		prefab = "plane"
+		prefab = "cube"
 	}
-	683c5131-06e1-4dad-96cd-3ef6d573d9bf = {
+	{
 		editor = {
 			name = "light_0000"
 		}
+		id = "683c5131-06e1-4dad-96cd-3ef6d573d9bf"
 		modified_components = {
 			#3f6f6b7c-b4cf-4173-aab0-288a63d7c73a = {
 				data = {
-					position = [ -50 50 -50 ]
-					rotation = [ 0 -0.99144489999999996 0 0.130526 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-50
+						50
+						-50
+					]
+					rotation = [
+						0
+						-0.99144489999999996
+						0
+						0.130526
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "core/units/light"
 	}
-	70d2d5c4-e1ee-4458-aaff-9950341162cf = {
-		editor = {
-			name = "unit_0016"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 0 7.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	747d5b75-f1b4-476d-af74-8fabaf475cd6 = {
-		editor = {
-			name = "unit_0017"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 2 7.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	764eb24e-9947-4d94-a814-2c26c1477892 = {
-		editor = {
-			name = "unit_0018"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 6 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	7af7b904-9f6f-4d23-a202-03ece3887bb5 = {
+	{
 		editor = {
 			name = "unit_0019"
 		}
+		id = "7af7b904-9f6f-4d23-a202-03ece3887bb5"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ -2 9.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-2
+						9.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	809dc860-5b63-4850-8637-9da2d0cae323 = {
+	{
 		editor = {
-			name = "unit_0020"
+			name = "unit_0038"
 		}
+		id = "d95eca3d-21f9-40fa-b218-e0c52b2327c7"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 4 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						0
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	8537c3c6-dfc6-4c8d-a91c-e7f4ec4fa3e5 = {
+	{
 		editor = {
-			name = "unit_0021"
+			name = "unit_0009"
 		}
+		id = "29f29073-bd6d-457e-8912-de80e0994ffc"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ -10 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-2
+						5.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	88d290eb-62ea-44e2-860f-16a18e428a65 = {
+	{
 		editor = {
-			name = "unit_0022"
+			name = "skydome"
 		}
+		id = "2a450c56-45db-4226-8ddc-bf26b04dd5d5"
+		modified_components = {
+			#6ef7e034-8519-4189-9527-04dfe17aebca = {
+				data = {
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "skydome"
+	}
+	{
+		editor = {
+			name = "unit_0004"
+		}
+		id = "0cae3b7c-23a1-454c-802d-5fce8b84093f"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 8 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						6
+						5.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	9ab38fec-f03e-475f-a07c-98c618fab522 = {
+	{
 		editor = {
-			name = "unit_0023"
+			name = "unit_0005"
 		}
-		modified_components = {
-			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
-				data = {
-					position = [ 256 -230 0 ]
-					rotation = [ 0.70710680000000004 -0.70710680000000004 3.090862e-08 -3.090862e-08 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "plane"
-	}
-	9c35713a-b50a-4c4d-9338-44eb2913d61c = {
-		editor = {
-			name = "unit_0024"
-		}
+		id = "0e164588-c310-4c41-9e04-e9c9a2044c6b"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ -8 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-8
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	a29ecd27-9cb5-4f2f-a417-d32b93cfb615 = {
+	{
+		editor = {
+			name = "unit_0007"
+		}
+		id = "1f04201a-debf-4320-964f-de8d8764d37d"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						-6
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0018"
+		}
+		id = "764eb24e-9947-4d94-a814-2c26c1477892"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						6
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0042"
+		}
+		id = "ea7b8639-190b-42aa-b581-004ae990434a"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						6
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0016"
+		}
+		id = "70d2d5c4-e1ee-4458-aaff-9950341162cf"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						0
+						7.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
 		editor = {
 			name = "unit_0025"
 		}
+		id = "a29ecd27-9cb5-4f2f-a417-d32b93cfb615"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ -4 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-4
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	ab4b8ed6-780a-4d3a-86fe-d8345bdd2226 = {
+	{
 		editor = {
-			name = "unit_0026"
+			name = "unit_0039"
 		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 0 11.049200000000001 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	b1827eaa-4222-450c-866c-d719354e0b0b = {
-		editor = {
-			name = "unit_0027"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 2 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	b38e2246-4aa1-4fea-954b-71c21b39415f = {
-		editor = {
-			name = "unit_0028"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ -4 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	ba450bf1-ab65-4ccb-8889-1d8b20bad417 = {
-		editor = {
-			name = "unit_0029"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ -2 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	ba8d7ab5-8d00-46bf-9740-c6bfd6f1a95d = {
-		editor = {
-			name = "ground"
-		}
+		id = "e0398eaa-22ee-453f-a016-b768d95a8785"
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
-					position = [ 0 0 0 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-2.5272399999999999e-05
+						-230
+						-256
+					]
+					rotation = [
+						-0.5
+						0.5
+						0.5
+						-0.5
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "plane"
 	}
-	c100421b-79c1-43b8-8790-dd71960bafa9 = {
+	{
 		editor = {
-			name = "unit_0031"
+			name = "unit_0017"
 		}
+		id = "747d5b75-f1b4-476d-af74-8fabaf475cd6"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 10 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						2
+						7.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	c48604c3-e761-415b-b83c-4a1eaa1a42f8 = {
+	{
 		editor = {
-			name = "unit_0032"
+			name = "unit_0001"
 		}
+		id = "04f23df8-d4fc-4ebc-811b-42f843499c79"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 2 9.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						2
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	cb332d1a-6b79-4204-b288-d3b059138e57 = {
+	{
+		editor = {
+			name = "unit_0012"
+		}
+		id = "37e02b71-55d3-4913-86ea-dc80b19c024c"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						4
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0011"
+		}
+		id = "3282fd34-1c42-49cc-8014-4a1e941de86a"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						2
+						5.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0021"
+		}
+		id = "8537c3c6-dfc6-4c8d-a91c-e7f4ec4fa3e5"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						-10
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
 		editor = {
 			name = "unit_0033"
 		}
+		id = "cb332d1a-6b79-4204-b288-d3b059138e57"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 0 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						0
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	ce46276d-06fe-4b1f-b400-452965e66d49 = {
+	{
+		editor = {
+			name = "unit_0020"
+		}
+		id = "809dc860-5b63-4850-8637-9da2d0cae323"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						4
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0027"
+		}
+		id = "b1827eaa-4222-450c-866c-d719354e0b0b"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						2
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0040"
+		}
+		id = "e31c8dde-f80b-4bba-80fb-6d263df32ab8"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						0
+						5.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0015"
+		}
+		id = "663ef523-b073-424b-9cd4-546680541377"
+		modified_components = {
+			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
+				data = {
+					position = [
+						0
+						-230
+						256
+					]
+					rotation = [
+						0.5
+						-0.5
+						0.5
+						-0.5
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "plane"
+	}
+	{
+		editor = {
+			name = "unit_0008"
+		}
+		id = "0365e3df-a7ac-4f49-87de-f1b9bdf3f958"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						4
+						7.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0026"
+		}
+		id = "ab4b8ed6-780a-4d3a-86fe-d8345bdd2226"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						0
+						11.049200000000001
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0024"
+		}
+		id = "9c35713a-b50a-4c4d-9338-44eb2913d61c"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						-8
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0032"
+		}
+		id = "c48604c3-e761-415b-b83c-4a1eaa1a42f8"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						2
+						9.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0000"
+		}
+		id = "0bd39883-476e-4193-b750-1484ecedd959"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						8
+						1.0491999999999999
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0003"
+		}
+		id = "0c8b1474-8e72-44ee-9189-86c84a3dcfda"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						-4
+						5.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0006"
+		}
+		id = "0f234f5f-7ac3-4fb5-809d-54e83e849253"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						4
+						5.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0028"
+		}
+		id = "b38e2246-4aa1-4fea-954b-71c21b39415f"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						-4
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
 		editor = {
 			name = "ramp"
 		}
+		id = "ce46276d-06fe-4b1f-b400-452965e66d49"
 		modified_components = {
 			#1089a8ef-c51f-417d-9160-3716b5b441d7 = {
 				data = {
-					position = [ 0 0 20 ]
-					rotation = [ 0 0.70710700000000004 0 0.70710700000000004 ]
-					scale = [ 1 1 1 ]
+					position = [
+						0
+						0
+						20
+					]
+					rotation = [
+						0
+						0.70710700000000004
+						0
+						0.70710700000000004
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "ramp"
 	}
-	cf5c2f17-d515-4e05-b9b3-a6297d050544 = {
+	{
+		editor = {
+			name = "unit_0002"
+		}
+		id = "05757636-12a1-48b0-9ade-59cc3d9bb19c"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						-2
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
+		editor = {
+			name = "unit_0041"
+		}
+		id = "e53ca129-4bc4-4cd3-9627-8962f4acc1e1"
+		modified_components = {
+			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
+				data = {
+					position = [
+						-6
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "cube"
+	}
+	{
 		editor = {
 			name = "unit_0035"
 		}
+		id = "cf5c2f17-d515-4e05-b9b3-a6297d050544"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ -2 7.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-2
+						7.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	d508c0b1-3e22-4fa4-af59-fbdbeb1a68e8 = {
+	{
 		editor = {
-			name = "unit_0036"
+			name = "unit_0013"
 		}
+		id = "3ce1462b-dd86-4c6c-b26d-114154aed730"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ -6 5.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-4
+						7.0492100000000004
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	d52ad0e5-5798-4037-8494-ca23a013fdab = {
+	{
 		editor = {
-			name = "unit_0037"
+			name = "unit_0014"
 		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 0 9.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	d95eca3d-21f9-40fa-b218-e0c52b2327c7 = {
-		editor = {
-			name = "unit_0038"
-		}
-		modified_components = {
-			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
-				data = {
-					position = [ 0 1.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
-				}
-				type = "transform"
-			}
-		}
-		prefab = "cube"
-	}
-	e0398eaa-22ee-453f-a016-b768d95a8785 = {
-		editor = {
-			name = "unit_0039"
-		}
+		id = "5fe4cf4f-1f5c-4af4-816f-c563f316fd44"
 		modified_components = {
 			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
 				data = {
-					position = [ -2.5272399999999999e-05 -230 -256 ]
-					rotation = [ -0.5 0.5 0.5 -0.5 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-256
+						-230
+						0
+					]
+					rotation = [
+						0
+						0
+						-0.70710680000000004
+						0.70710680000000004
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "plane"
 	}
-	e31c8dde-f80b-4bba-80fb-6d263df32ab8 = {
+	{
 		editor = {
-			name = "unit_0040"
+			name = "unit_0022"
 		}
+		id = "88d290eb-62ea-44e2-860f-16a18e428a65"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 0 5.0492100000000004 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						8
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	e53ca129-4bc4-4cd3-9627-8962f4acc1e1 = {
+	{
 		editor = {
-			name = "unit_0041"
+			name = "unit_0029"
 		}
+		id = "ba450bf1-ab65-4ccb-8889-1d8b20bad417"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ -6 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						-2
+						3.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-	ea7b8639-190b-42aa-b581-004ae990434a = {
+	{
 		editor = {
-			name = "unit_0042"
+			name = "unit_0031"
 		}
+		id = "c100421b-79c1-43b8-8790-dd71960bafa9"
 		modified_components = {
 			#f56420ad-7f9c-4cca-aca5-350f366e0dc0 = {
 				data = {
-					position = [ 6 3.04921 -4 ]
-					rotation = [ 0 0 0 1 ]
-					scale = [ 1 1 1 ]
+					position = [
+						10
+						1.04921
+						-4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
 				}
 				type = "transform"
 			}
 		}
 		prefab = "cube"
 	}
-}
+	{
+		editor = {
+			name = "ground"
+		}
+		id = "ba8d7ab5-8d00-46bf-9740-c6bfd6f1a95d"
+		modified_components = {
+			#805e9323-578b-4d22-8414-b15b1a5ff7bc = {
+				data = {
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "plane"
+	}
+]

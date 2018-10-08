@@ -357,7 +357,7 @@ namespace Crown
 
 		private Hashtable encode()
 		{
-			return encode_object(_data);
+			return encode_object(GUID_ZERO, _data);
 		}
 
 		private static bool is_valid_value(Value? value)
@@ -405,14 +405,9 @@ namespace Crown
 		}
 #endif // CROWN_DEBUG
 
-		private void decode(Hashtable json)
+		public void decode(Hashtable json)
 		{
 			reset();
-			decode_root_object(json);
-		}
-
-		private void decode_root_object(Hashtable json)
-		{
 			decode_object(GUID_ZERO, "", json);
 		}
 
@@ -425,6 +420,8 @@ namespace Crown
 			foreach (string key in keys)
 			{
 				assert(key != "_objects");
+				if (key == "id")
+					continue;
 
 				Value? val = json[key];
 
@@ -433,10 +430,15 @@ namespace Crown
 				if (val.holds(typeof(Hashtable)))
 				{
 					Hashtable ht = (Hashtable)val;
-					if (is_set(ht))
-						decode_set(id, key, ht);
+					decode_object(id, k, ht);
+				}
+				else if (val.holds(typeof(ArrayList)))
+				{
+					ArrayList<Value?> arr = (ArrayList<Value?>)val;
+					if (arr.size > 0 && arr[0].holds(typeof(double)))
+						set_property_internal(id, k, decode_value(val));
 					else
-						decode_object(id, k, ht);
+						decode_set(id, key, arr);
 				}
 				else
 				{
@@ -447,29 +449,17 @@ namespace Crown
 			}
 		}
 
-		private bool is_set(Hashtable json)
+		private void decode_set(Guid id, string key, ArrayList<Value?> json)
 		{
-			string[] keys = json.keys.to_array();
-			foreach (string k in keys)
-			{
-				Guid guid;
-				if (!Guid.try_parse(k, out guid))
-					return false;
-			}
-
-			return true;
-		}
-
-		private void decode_set(Guid id, string key, Hashtable json)
-		{
+			// Set should be created even if it is empty.
 			create_empty_set(id, key);
 
-			string[] keys = json.keys.to_array();
-			foreach (string k in keys)
+			for (int i = 0; i < json.size; ++i)
 			{
-				Guid item_id = Guid.parse(k);
+				Hashtable obj = (Hashtable)json[i];
+				Guid item_id = Guid.parse((string)obj["id"]);
 				create_internal(item_id);
-				decode_object(item_id, "", (Hashtable)json[k]);
+				decode_object(item_id, "", obj);
 				add_to_set_internal(id, key, item_id);
 			}
 		}
@@ -505,9 +495,11 @@ namespace Crown
 			return null;
 		}
 
-		private Hashtable encode_object(HashMap<string, Value?> db)
+		private Hashtable encode_object(Guid id, HashMap<string, Value?> db)
 		{
 			Hashtable obj = new Hashtable();
+			if (id != GUID_ZERO)
+				obj["id"] = id.to_string();
 
 			string[] keys = db.keys.to_array();
 			foreach (string key in keys)
@@ -566,18 +558,18 @@ namespace Crown
 			else if (value.holds(typeof(Guid)))
 			{
 				Guid id = (Guid)value;
-				return "\"%s\"".printf(id.to_string());
+				return id.to_string();
 			}
 			else if (value.holds(typeof(HashSet)))
 			{
 				HashSet<Guid?> hs = (HashSet<Guid?>)value;
-				Hashtable ht = new Hashtable();
+				ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
 				foreach (Guid id in hs)
 				{
 					HashMap<string, Value?> objs = (HashMap<string, Value?>)_data["_objects"];
-					ht.set(id.to_string(), encode_object((HashMap<string, Value?>)objs[id.to_string()]));
+					arr.add(encode_object(id, (HashMap<string, Value?>)objs[id.to_string()]));
 				}
-				return ht;
+				return arr;
 			}
 			else
 			{

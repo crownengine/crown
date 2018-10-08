@@ -1,75 +1,91 @@
+
 initial_state = "42d8083d-f42b-48b8-92e2-1fb3a5bb3d8b"
-states = {
-	"42d8083d-f42b-48b8-92e2-1fb3a5bb3d8b" = {
-		animations = {
-			1dd6f580-3c86-4699-9139-2d1fcd4f9bc5 = {
-				name = "units/humanoid_idle_dx"
-				weight = "match(speed_x, 1)"
-			}
-			ca2509e1-fee9-44a8-b5f8-07c10034a6b3 = {
-				name = "units/humanoid_idle_sx"
-				weight = "match(speed_x, -1)"
-			}
-			00921d69-e419-4cd7-9f45-8236053e1e25 = {
-				name = "units/humanoid_idle_dn"
-				weight = "match(speed_y, -1)"
-			}
-			7fea4f46-89a6-4ae5-93df-74990834240f = {
-				name = "units/humanoid_idle_up"
-				weight = "match(speed_y, 1)"
-			}
-		}
-		transitions = {
-			"06cef18c-83ea-498d-815c-c764b2c6bcee" = {
-				to = "03001f3e-8b7f-481c-bce4-b0ad9393182a"
-				event = "run"
-				mode = "immediate"
-			}
-		}
-		speed = "1"
-		loop = true
-	}
-	"03001f3e-8b7f-481c-bce4-b0ad9393182a" = {
-		animations = {
-			c723b25c-3bd1-4c10-ae78-2aa5fcdbb699 = {
-				name = "units/humanoid_run_dx"
-				weight = "match(speed_x, 1)"
-			}
-			a7ec104b-1add-4700-80da-73f7c0aa261e = {
-				name = "units/humanoid_run_sx"
-				weight = "match(speed_x, -1)"
-			}
-			8cc273ec-9eb8-4f85-ac6f-dccd1c908847 = {
-				name = "units/humanoid_run_dn"
-				weight = "match(speed_y, -1)"
-			}
-			2463a8ec-6735-496b-9558-338e655a2e4f = {
+states = [
+	{
+		animations = [
+			{
+				id = "2463a8ec-6735-496b-9558-338e655a2e4f"
 				name = "units/humanoid_run_up"
 				weight = "match(speed_y, 1)"
 			}
-		}
-		transitions = {
-			"13e14fa3-2cf9-474b-9c8a-fc7c7b227641" = {
-				to = "42d8083d-f42b-48b8-92e2-1fb3a5bb3d8b"
-				event = "idle"
-				mode = "immediate"
+			{
+				id = "c723b25c-3bd1-4c10-ae78-2aa5fcdbb699"
+				name = "units/humanoid_run_dx"
+				weight = "match(speed_x, 1)"
 			}
-		}
-		speed = "speed"
+			{
+				id = "8cc273ec-9eb8-4f85-ac6f-dccd1c908847"
+				name = "units/humanoid_run_dn"
+				weight = "match(speed_y, -1)"
+			}
+			{
+				id = "a7ec104b-1add-4700-80da-73f7c0aa261e"
+				name = "units/humanoid_run_sx"
+				weight = "match(speed_x, -1)"
+			}
+		]
+		id = "03001f3e-8b7f-481c-bce4-b0ad9393182a"
 		loop = true
+		speed = "speed"
+		transitions = [
+			{
+				event = "idle"
+				id = "13e14fa3-2cf9-474b-9c8a-fc7c7b227641"
+				mode = "immediate"
+				to = "42d8083d-f42b-48b8-92e2-1fb3a5bb3d8b"
+			}
+		]
 	}
-}
-variables = {
-	29015d56-f6d9-478d-baba-73f234bbdf2d = {
+	{
+		animations = [
+			{
+				id = "ca2509e1-fee9-44a8-b5f8-07c10034a6b3"
+				name = "units/humanoid_idle_sx"
+				weight = "match(speed_x, -1)"
+			}
+			{
+				id = "00921d69-e419-4cd7-9f45-8236053e1e25"
+				name = "units/humanoid_idle_dn"
+				weight = "match(speed_y, -1)"
+			}
+			{
+				id = "1dd6f580-3c86-4699-9139-2d1fcd4f9bc5"
+				name = "units/humanoid_idle_dx"
+				weight = "match(speed_x, 1)"
+			}
+			{
+				id = "7fea4f46-89a6-4ae5-93df-74990834240f"
+				name = "units/humanoid_idle_up"
+				weight = "match(speed_y, 1)"
+			}
+		]
+		id = "42d8083d-f42b-48b8-92e2-1fb3a5bb3d8b"
+		loop = true
+		speed = "1"
+		transitions = [
+			{
+				event = "run"
+				id = "06cef18c-83ea-498d-815c-c764b2c6bcee"
+				mode = "immediate"
+				to = "03001f3e-8b7f-481c-bce4-b0ad9393182a"
+			}
+		]
+	}
+]
+variables = [
+	{
+		id = "29015d56-f6d9-478d-baba-73f234bbdf2d"
 		name = "speed_x"
 		value = 0
 	}
-	2050d2ca-3906-4577-b44f-4d7e9705a6e2 = {
-		name = "speed_y"
-		value = 0
-	}
-	86fcf50c-6daf-432d-b4d9-60b87b879505 = {
+	{
+		id = "86fcf50c-6daf-432d-b4d9-60b87b879505"
 		name = "speed"
 		value = 0
 	}
-}
+	{
+		id = "2050d2ca-3906-4577-b44f-4d7e9705a6e2"
+		name = "speed_y"
+		value = 0
+	}
+]
