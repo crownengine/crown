@@ -10,10 +10,6 @@ Colors = {
 	axis_selected = function() return Color4(217, 217,   0, 255) end,
 }
 
-function log(msg)
-	Device.console_send { type = "message", message = msg, severity = "info" }
-end
-
 -- From Bitsquid's grid_plane.lua
 function snap_vector(tm, vector, size)
 	if size == 0 then return vector end
@@ -1247,9 +1243,9 @@ function ScaleTool:mouse_move(x, y)
 
 			local selected = LevelEditor._selection:last_selected_object()
 			local pos = Vector3(1, 1, 1) + drag_vector
-			-- log(Vector3.to_string(self:drag_start()))
-			-- log(Vector3.to_string(pos))
-			-- log(Matrix4x4.to_string(selected:world_pose()) .. "\n")
+			-- print(Vector3.to_string(self:drag_start()))
+			-- print(Vector3.to_string(pos))
+			-- print(Matrix4x4.to_string(selected:world_pose()) .. "\n")
 			-- selected:set_local_scale(LevelEditor:snap(self:world_pose(), pos) or pos)
 	end
 end
