@@ -119,7 +119,7 @@ struct Map
 /// Hash map.
 ///
 /// @ingroup Containers
-template <typename TKey, typename TValue, typename Hash = hash<TKey> >
+template <typename TKey, typename TValue, typename Hash = hash<TKey>, typename KeyEqual = equal_to<TKey> >
 struct HashMap
 {
 	ALLOCATOR_AWARE;
