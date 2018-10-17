@@ -144,6 +144,32 @@ struct HashMap
 	~HashMap();
 };
 
+/// Hash set.
+///
+/// @ingroup Containers
+template <typename TKey, typename Hash = hash<TKey>, typename KeyEqual = equal_to<TKey> >
+struct HashSet
+{
+	ALLOCATOR_AWARE;
+
+	struct Index
+	{
+		u32 hash;
+		u32 index;
+	};
+
+	Allocator* _allocator;
+	u32 _capacity;
+	u32 _size;
+	u32 _mask;
+	Index* _index;
+	TKey* _data;
+	char* _buffer;
+
+	HashSet(Allocator& a);
+	~HashSet();
+};
+
 /// Vector of sorted items.
 ///
 /// @note

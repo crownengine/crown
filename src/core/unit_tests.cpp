@@ -10,6 +10,7 @@
 #include "core/command_line.h"
 #include "core/containers/array.h"
 #include "core/containers/hash_map.h"
+#include "core/containers/hash_set.h"
 #include "core/containers/vector.h"
 #include "core/filesystem/path.h"
 #include "core/guid.h"
@@ -139,6 +140,38 @@ static void test_hash_map()
 			ENSURE(hash_map::has(m, i));
 			hash_map::remove(m, i);
 		}
+	}
+	memory_globals::shutdown();
+}
+
+static void test_hash_set()
+{
+	memory_globals::init();
+	Allocator& a = default_allocator();
+	{
+		HashSet<s32> m(a);
+
+		ENSURE(hash_set::size(m) == 0);
+		ENSURE(!hash_set::has(m, 10));
+
+		for (s32 i = 0; i < 100; ++i)
+			hash_set::insert(m, i*i);
+		for (s32 i = 0; i < 100; ++i)
+			ENSURE(hash_set::has(m, i*i));
+
+		hash_set::remove(m, 5*5);
+		ENSURE(!hash_set::has(m, 5*5));
+
+		hash_set::remove(m, 80*80);
+		ENSURE(!hash_set::has(m, 80*80));
+
+		hash_set::remove(m, 40*40);
+		ENSURE(!hash_set::has(m, 40*40));
+
+		hash_set::clear(m);
+
+		for (s32 i = 0; i < 100; ++i)
+			ENSURE(!hash_set::has(m, i*i));
 	}
 	memory_globals::shutdown();
 }
@@ -1266,6 +1299,7 @@ int main_unit_tests()
 	test_array();
 	test_vector();
 	test_hash_map();
+	test_hash_set();
 	test_vector2();
 	test_vector3();
 	test_vector4();
