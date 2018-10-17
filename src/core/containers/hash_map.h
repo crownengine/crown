@@ -9,7 +9,6 @@
 
 #include "core/containers/types.h"
 #include <algorithm> // std::swap
-#include <new>
 #include <string.h>  // memcpy
 
 namespace crown
@@ -136,7 +135,6 @@ namespace hash_map_internal
 		}
 
 	INSERT_AND_RETURN:
-		new (m._data + hash_i) typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry(*m._allocator);
 		memcpy((void*)(m._data + hash_i), &new_item, sizeof(new_item));
 		m._index[hash_i].hash = hash;
 		m._index[hash_i].index = 0x0123abcd;
