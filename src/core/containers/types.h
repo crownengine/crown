@@ -141,7 +141,6 @@ struct HashMap
 
 	HashMap(Allocator& a);
 	~HashMap();
-	const TValue& operator[](const TKey& key) const;
 };
 
 /// Vector of sorted items.

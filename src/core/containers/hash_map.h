@@ -20,29 +20,29 @@ namespace crown
 namespace hash_map
 {
 	/// Returns the number of items in the map @a m.
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual > u32 size(const HashMap<TKey, TValue, Hash, KeyEqual>& m);
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> u32 size(const HashMap<TKey, TValue, Hash, KeyEqual>& m);
 
 	/// Returns the maximum number of items the map @a m can hold.
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual > u32 capacity(const HashMap<TKey, TValue, Hash, KeyEqual>& m);
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> u32 capacity(const HashMap<TKey, TValue, Hash, KeyEqual>& m);
 
 	/// Returns whether the given @a key exists in the map @a m.
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual > bool has(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key);
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> bool has(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key);
 
 	/// Returns the value for the given @a key or @a deffault if
 	/// the key does not exist in the map.
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual > const TValue& get(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& deffault);
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> const TValue& get(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& deffault);
 
 	/// Sets the @a value for the @a key in the map.
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual > void set(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& value);
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> void set(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& value);
 
 	/// Removes the @a key from the map if it exists.
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual > void remove(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key);
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> void remove(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key);
 
 	/// Removes all the items in the map.
 	///
 	/// @note
 	/// Calls destructor on the items.
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual > void clear(HashMap<TKey, TValue, Hash, KeyEqual>& m);
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> void clear(HashMap<TKey, TValue, Hash, KeyEqual>& m);
 
 } // namespace hash_map
 
@@ -72,14 +72,14 @@ namespace hash_map_internal
 		return (index >> 31) != 0;
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	inline u32 probe_distance(const HashMap<TKey, TValue, Hash, KeyEqual>& m, u32 hash, u32 slot_index)
 	{
 		const u32 hash_i = hash & m._mask;
 		return (slot_index + m._capacity - hash_i) & m._mask;
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	u32 find(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key)
 	{
 		if (m._size == 0)
@@ -102,7 +102,7 @@ namespace hash_map_internal
 		}
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	void insert(HashMap<TKey, TValue, Hash, KeyEqual>& m, u32 hash, const TKey& key, const TValue& value)
 	{
 		PAIR(TKey, TValue) new_item(*m._allocator);
@@ -144,7 +144,7 @@ namespace hash_map_internal
 		memcpy((void*)&new_item, &empty, sizeof(new_item));
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	void rehash(HashMap<TKey, TValue, Hash, KeyEqual>& m, u32 new_capacity)
 	{
 		typedef typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry Entry;
@@ -181,14 +181,14 @@ namespace hash_map_internal
 		memcpy((void*)&nm, (void*)&empty, sizeof(HashMap<TKey, TValue, Hash, KeyEqual>));
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	void grow(HashMap<TKey, TValue, Hash, KeyEqual>& m)
 	{
 		const u32 new_capacity = (m._capacity == 0 ? 16 : m._capacity * 2);
 		rehash(m, new_capacity);
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	bool full(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
 	{
 		return m._size >= m._capacity * 0.9f;
@@ -198,25 +198,25 @@ namespace hash_map_internal
 
 namespace hash_map
 {
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	u32 size(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
 	{
 		return m._size;
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	u32 capacity(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
 	{
 		return m._capacity;
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	bool has(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key)
 	{
 		return hash_map_internal::find(m, key) != hash_map_internal::END_OF_LIST;
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	const TValue& get(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& deffault)
 	{
 		const u32 i = hash_map_internal::find(m, key);
@@ -226,7 +226,7 @@ namespace hash_map
 			return m._data[i].second;
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	void set(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& value)
 	{
 		if (m._capacity == 0)
@@ -247,7 +247,7 @@ namespace hash_map
 			hash_map_internal::grow(m);
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	void remove(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key)
 	{
 		const u32 i = hash_map_internal::find(m, key);
@@ -259,7 +259,7 @@ namespace hash_map
 		--m._size;
 	}
 
-	template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 	void clear(HashMap<TKey, TValue, Hash, KeyEqual>& m)
 	{
 		for (u32 i = 0; i < m._capacity; ++i)
@@ -274,7 +274,7 @@ namespace hash_map
 
 } // namespace hash_map
 
-template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(Allocator& a)
 	: _allocator(&a)
 	, _capacity(0)
@@ -285,7 +285,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(Allocator& a)
 {
 }
 
-template <typename TKey, typename TValue, typename Hash, typename KeyEqual >
+template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 {
 	for (u32 i = 0; i < _capacity; ++i)
