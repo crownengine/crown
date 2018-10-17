@@ -138,6 +138,7 @@ struct HashMap
 	u32 _mask;
 	Index* _index;
 	Entry* _data;
+	char* _buffer;
 
 	HashMap(Allocator& a);
 	~HashMap();

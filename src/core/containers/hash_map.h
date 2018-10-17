@@ -149,8 +149,10 @@ namespace hash_map_internal
 		typedef typename HashMap<TKey, TValue, Hash, KeyEqual>::Index Index;
 
 		HashMap<TKey, TValue, Hash, KeyEqual> nm(*m._allocator);
-		nm._index = (Index*)nm._allocator->allocate(new_capacity*sizeof(Index), alignof(Index));
-		nm._data = (Entry*)nm._allocator->allocate(new_capacity*sizeof(Entry), alignof(Entry));
+		const u32 size = new_capacity*(sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);
+		nm._buffer = (char*)nm._allocator->allocate(size);
+		nm._index = (Index*)memory::align_top(nm._buffer, alignof(Index));
+		nm._data = (Entry*)memory::align_top(nm._index + new_capacity, alignof(Entry));
 
 		// Flag all elements as free
 		for (u32 i = 0; i < new_capacity; ++i)
@@ -280,6 +282,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(Allocator& a)
 	, _mask(0)
 	, _index(NULL)
 	, _data(NULL)
+	, _buffer(NULL)
 {
 }
 
@@ -292,8 +295,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 			_data[i].~Pair();
 	}
 
-	_allocator->deallocate(_index);
-	_allocator->deallocate(_data);
+	_allocator->deallocate(_buffer);
 }
 
 } // namespace crown
