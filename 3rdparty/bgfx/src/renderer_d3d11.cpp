@@ -967,13 +967,15 @@ namespace bgfx { namespace d3d11
 				{
 					HRESULT hr = S_OK;
 
+					m_swapEffect =
 #if BX_PLATFORM_WINDOWS
-					m_swapEffect      = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-					m_swapBufferCount = 2;
+						DXGI_SWAP_EFFECT_FLIP_DISCARD
 #else
-					m_swapEffect      = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-					m_swapBufferCount = 2;
+						DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
 #endif // !BX_PLATFORM_WINDOWS
+						;
+
+					m_swapBufferCount = bx::clamp<uint8_t>(_init.resolution.numBackBuffers, 2, BGFX_CONFIG_MAX_BACK_BUFFERS);
 
 					bx::memSet(&m_scd, 0, sizeof(m_scd) );
 					m_scd.width  = _init.resolution.width;
@@ -3034,12 +3036,26 @@ namespace bgfx { namespace d3d11
 				switch (texture.m_type)
 				{
 				case TextureD3D11::Texture2D:
-					desc.ViewDimension = msaaSample
-						? D3D11_SRV_DIMENSION_TEXTURE2DMS
-						: D3D11_SRV_DIMENSION_TEXTURE2D
-						;
-					desc.Texture2D.MostDetailedMip = _mip;
-					desc.Texture2D.MipLevels       = 1;
+					if (1 < texture.m_depth)
+					{
+						desc.ViewDimension = msaaSample
+							? D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY
+							: D3D11_SRV_DIMENSION_TEXTURE2DARRAY
+							;
+						desc.Texture2DArray.MostDetailedMip = _mip;
+						desc.Texture2DArray.MipLevels = 1;
+						desc.Texture2DArray.FirstArraySlice = 0;
+						desc.Texture2DArray.ArraySize = texture.m_depth;
+					}
+					else
+					{
+						desc.ViewDimension = msaaSample
+							? D3D11_SRV_DIMENSION_TEXTURE2DMS
+							: D3D11_SRV_DIMENSION_TEXTURE2D
+							;
+						desc.Texture2D.MostDetailedMip = _mip;
+						desc.Texture2D.MipLevels = 1;
+					}
 					break;
 
 				case TextureD3D11::TextureCube:
@@ -3839,22 +3855,21 @@ namespace bgfx { namespace d3d11
 		uint32_t magic;
 		bx::read(&reader, magic);
 
-		switch (magic)
+		const bool fragment = isShaderType(magic, 'F');
+
+		uint32_t hashIn;
+		bx::read(&reader, hashIn);
+
+		uint32_t hashOut;
+
+		if (isShaderVerLess(magic, 6) )
 		{
-		case BGFX_CHUNK_MAGIC_CSH:
-		case BGFX_CHUNK_MAGIC_FSH:
-		case BGFX_CHUNK_MAGIC_VSH:
-			break;
-
-		default:
-			BGFX_FATAL(false, Fatal::InvalidShader, "Unknown shader format %x.", magic);
-			break;
+			hashOut = hashIn;
 		}
-
-		bool fragment = BGFX_CHUNK_MAGIC_FSH == magic;
-
-		uint32_t iohash;
-		bx::read(&reader, iohash);
+		else
+		{
+			bx::read(&reader, hashOut);
+		}
 
 		uint16_t count;
 		bx::read(&reader, count);
@@ -3863,11 +3878,11 @@ namespace bgfx { namespace d3d11
 		m_numUniforms = count;
 
 		BX_TRACE("%s Shader consts %d"
-			, BGFX_CHUNK_MAGIC_FSH == magic ? "Fragment" : BGFX_CHUNK_MAGIC_VSH == magic ? "Vertex" : "Compute"
+			, getShaderTypeName(magic)
 			, count
 			);
 
-		uint8_t fragmentBit = fragment ? BGFX_UNIFORM_FRAGMENTBIT : 0;
+		const uint8_t fragmentBit = fragment ? BGFX_UNIFORM_FRAGMENTBIT : 0;
 
 		if (0 < count)
 		{
@@ -3947,13 +3962,13 @@ namespace bgfx { namespace d3d11
 		const void* code = reader.getDataPtr();
 		bx::skip(&reader, shaderSize+1);
 
-		if (BGFX_CHUNK_MAGIC_FSH == magic)
+		if (isShaderType(magic, 'F') )
 		{
 			m_hasDepthOp = hasDepthOp(code, shaderSize);
 			DX_CHECK(s_renderD3D11->m_device->CreatePixelShader(code, shaderSize, NULL, &m_pixelShader) );
 			BGFX_FATAL(NULL != m_ptr, bgfx::Fatal::InvalidShader, "Failed to create fragment shader.");
 		}
-		else if (BGFX_CHUNK_MAGIC_VSH == magic)
+		else if (isShaderType(magic, 'V') )
 		{
 			m_hash = bx::hash<bx::HashMurmur2A>(code, shaderSize);
 			m_code = copy(code, shaderSize);
@@ -3961,7 +3976,7 @@ namespace bgfx { namespace d3d11
 			DX_CHECK(s_renderD3D11->m_device->CreateVertexShader(code, shaderSize, NULL, &m_vertexShader) );
 			BGFX_FATAL(NULL != m_ptr, bgfx::Fatal::InvalidShader, "Failed to create vertex shader.");
 		}
-		else
+		else if (isShaderType(magic, 'C') )
 		{
 			DX_CHECK(s_renderD3D11->m_device->CreateComputeShader(code, shaderSize, NULL, &m_computeShader) );
 			BGFX_FATAL(NULL != m_ptr, bgfx::Fatal::InvalidShader, "Failed to create compute shader.");
@@ -4504,7 +4519,7 @@ namespace bgfx { namespace d3d11
 									;
 	}
 
-	void TextureD3D11::resolve() const
+	void TextureD3D11::resolve(uint8_t _resolve) const
 	{
 		ID3D11DeviceContext* deviceCtx = s_renderD3D11->m_deviceCtx;
 
@@ -4516,7 +4531,8 @@ namespace bgfx { namespace d3d11
 
 		const bool renderTarget = 0 != (m_flags&BGFX_TEXTURE_RT_MASK);
 		if (renderTarget
-		&&  1 < m_numMips)
+		&&  1 < m_numMips
+		&&  0 != (_resolve & BGFX_RESOLVE_AUTO_GEN_MIPS) )
 		{
 			deviceCtx->GenerateMips(m_srv);
 		}
@@ -4815,11 +4831,11 @@ namespace bgfx { namespace d3d11
 		{
 			for (uint32_t ii = 0; ii < m_numTh; ++ii)
 			{
-				TextureHandle handle = m_attachment[ii].handle;
-				if (isValid(handle) )
+				const Attachment& at = m_attachment[ii];
+				if (isValid(at.handle) )
 				{
-					const TextureD3D11& texture = s_renderD3D11->m_textures[handle.idx];
-					texture.resolve();
+					const TextureD3D11& texture = s_renderD3D11->m_textures[at.handle.idx];
+					texture.resolve(at.resolve);
 				}
 			}
 		}
@@ -6145,6 +6161,7 @@ namespace bgfx { namespace d3d11
 		perfStats.gpuTimerFreq  = result.m_frequency;
 		perfStats.numDraw       = statsKeyType[0];
 		perfStats.numCompute    = statsKeyType[1];
+		perfStats.numBlit       = _render->m_numBlitItems;
 		perfStats.maxGpuLatency = maxGpuLatency;
 		bx::memCopy(perfStats.numPrims, statsNumPrimsRendered, sizeof(perfStats.numPrims) );
 		m_nvapi.getMemoryInfo(perfStats.gpuMemoryUsed, perfStats.gpuMemoryMax);

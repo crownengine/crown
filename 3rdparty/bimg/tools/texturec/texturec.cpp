@@ -21,7 +21,6 @@
 #include <bx/bx.h>
 #include <bx/commandline.h>
 #include <bx/file.h>
-#include <bx/uint32_t.h>
 
 #include <string>
 
@@ -36,6 +35,7 @@ struct Options
 	{
 		DBG("Options:\n"
 			"\t  maxSize: %d\n"
+			"\t  mipSkip: %d\n"
 			"\t     edge: %f\n"
 			"\t   format: %s\n"
 			"\t     mips: %s\n"
@@ -47,6 +47,7 @@ struct Options
 			"\t equirect: %s\n"
 			"\t    strip: %s\n"
 			, maxSize
+			, mipSkip
 			, edge
 			, bimg::getName(format)
 			, mips      ? "true" : "false"
@@ -61,6 +62,7 @@ struct Options
 	}
 
 	uint32_t maxSize = UINT32_MAX;
+	uint32_t mipSkip = 0;
 	float edge       = 0.0f;
 	bimg::TextureFormat::Enum format   = bimg::TextureFormat::Count;
 	bimg::Quality::Enum quality        = bimg::Quality::Default;
@@ -159,9 +161,20 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
         const uint32_t blockHeight = outputBlockInfo.blockHeight;
         const uint32_t minBlockX   = outputBlockInfo.minBlockX;
         const uint32_t minBlockY   = outputBlockInfo.minBlockY;
-        uint32_t outputWidth  = bx::uint32_max(blockWidth  * minBlockX, ( (input->m_width  + blockWidth  - 1) / blockWidth )*blockWidth);
-        uint32_t outputHeight = bx::uint32_max(blockHeight * minBlockY, ( (input->m_height + blockHeight - 1) / blockHeight)*blockHeight);
+        uint32_t outputWidth  = bx::max(blockWidth  * minBlockX, ( (input->m_width  + blockWidth  - 1) / blockWidth )*blockWidth);
+        uint32_t outputHeight = bx::max(blockHeight * minBlockY, ( (input->m_height + blockHeight - 1) / blockHeight)*blockHeight);
         uint32_t outputDepth  = input->m_depth;
+
+		if (_options.mips
+		&&  _options.mipSkip != 0)
+		{
+			for (uint32_t ii = 0; ii < _options.mipSkip; ++ii)
+			{
+				outputWidth  = bx::max(blockWidth  * minBlockX, ( ( (outputWidth>>1)  + blockWidth  - 1) / blockWidth )*blockWidth);
+				outputHeight = bx::max(blockHeight * minBlockY, ( ( (outputHeight>>1) + blockHeight - 1) / blockHeight)*blockHeight);
+				outputDepth  = bx::max(outputDepth>>1, 1u);
+			}
+		}
 
 		if (_options.equirect)
 		{
@@ -831,6 +844,7 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "  -t <format>              Output format type (BC1/2/3/4/5, ETC1, PVR14, etc.).\n"
 		  "  -q <quality>             Encoding quality (default, fastest, highest).\n"
 		  "  -m, --mips               Generate mip-maps.\n"
+		  "      --mipskip <N>        Skip <N> number of mips.\n"
 		  "  -n, --normalmap          Input texture is normal map.\n"
 		  "      --equirect           Input texture is equirectangular projection of cubemap.\n"
 		  "      --strip              Input texture is horizontal strip of cubemap.\n"
@@ -942,13 +956,13 @@ int main(int _argc, const char* _argv[])
 		return bx::kExitFailure;
 	}
 
-	const char* saveAs = cmdLine.findOption("as");
-	saveAs = NULL == saveAs ? bx::strFindI(outputFileName, ".ktx") : saveAs;
-	saveAs = NULL == saveAs ? bx::strFindI(outputFileName, ".dds") : saveAs;
-	saveAs = NULL == saveAs ? bx::strFindI(outputFileName, ".png") : saveAs;
-	saveAs = NULL == saveAs ? bx::strFindI(outputFileName, ".exr") : saveAs;
-	saveAs = NULL == saveAs ? bx::strFindI(outputFileName, ".hdr") : saveAs;
-	if (NULL == saveAs)
+	bx::StringView saveAs = cmdLine.findOption("as");
+	saveAs = saveAs.isEmpty() ? bx::strFindI(outputFileName, ".ktx") : saveAs;
+	saveAs = saveAs.isEmpty() ? bx::strFindI(outputFileName, ".dds") : saveAs;
+	saveAs = saveAs.isEmpty() ? bx::strFindI(outputFileName, ".png") : saveAs;
+	saveAs = saveAs.isEmpty() ? bx::strFindI(outputFileName, ".exr") : saveAs;
+	saveAs = saveAs.isEmpty() ? bx::strFindI(outputFileName, ".hdr") : saveAs;
+	if (saveAs.isEmpty() )
 	{
 		help("Output file format must be specified.");
 		return bx::kExitFailure;
@@ -997,7 +1011,17 @@ int main(int _argc, const char* _argv[])
 	{
 		if (!bx::fromString(&options.maxSize, maxSize) )
 		{
-			help("Parsing max size failed.");
+			help("Parsing `--max` failed.");
+			return bx::kExitFailure;
+		}
+	}
+
+	const char* mipSkip = cmdLine.findOption("mipskip");
+	if (NULL != mipSkip)
+	{
+		if (!bx::fromString(&options.mipSkip, mipSkip) )
+		{
+			help("Parsing `--mipskip` failed.");
 			return bx::kExitFailure;
 		}
 	}
@@ -1015,7 +1039,7 @@ int main(int _argc, const char* _argv[])
 		}
 	}
 
-	if (NULL != bx::strFindI(saveAs, "png") )
+	if (!bx::strFindI(saveAs, "png").isEmpty() )
 	{
 		if (options.format == bimg::TextureFormat::Count)
 		{
@@ -1027,7 +1051,7 @@ int main(int _argc, const char* _argv[])
 			return bx::kExitFailure;
 		}
 	}
-	else if (NULL != bx::strFindI(saveAs, "exr") )
+	else if (!bx::strFindI(saveAs, "exr").isEmpty() )
 	{
 		if (options.format == bimg::TextureFormat::Count)
 		{
@@ -1109,15 +1133,15 @@ int main(int _argc, const char* _argv[])
 		bx::FileWriter writer;
 		if (bx::open(&writer, outputFileName, false, &err) )
 		{
-			if (NULL != bx::strFindI(saveAs, "ktx") )
+			if (!bx::strFindI(saveAs, "ktx").isEmpty() )
 			{
 				bimg::imageWriteKtx(&writer, *output, output->m_data, output->m_size, &err);
 			}
-			else if (NULL != bx::strFindI(saveAs, "dds") )
+			else if (!bx::strFindI(saveAs, "dds").isEmpty() )
 			{
 				bimg::imageWriteDds(&writer, *output, output->m_data, output->m_size, &err);
 			}
-			else if (NULL != bx::strFindI(saveAs, "png") )
+			else if (!bx::strFindI(saveAs, "png").isEmpty() )
 			{
 				if (output->m_format != bimg::TextureFormat::RGBA8)
 				{
@@ -1137,7 +1161,7 @@ int main(int _argc, const char* _argv[])
 					, &err
 					);
 			}
-			else if (NULL != bx::strFindI(saveAs, "exr") )
+			else if (!bx::strFindI(saveAs, "exr").isEmpty() )
 			{
 				bimg::ImageMip mip;
 				bimg::imageGetRawData(*output, 0, 0, output->m_data, output->m_size, mip);
@@ -1151,7 +1175,7 @@ int main(int _argc, const char* _argv[])
 					, &err
 					);
 			}
-			else if (NULL != bx::strFindI(saveAs, "hdr") )
+			else if (!bx::strFindI(saveAs, "hdr").isEmpty() )
 			{
 				bimg::ImageMip mip;
 				bimg::imageGetRawData(*output, 0, 0, output->m_data, output->m_size, mip);

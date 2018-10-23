@@ -422,6 +422,8 @@ namespace bgfx
 		/// It's not safe to continue (Exluding _code `Fatal::DebugCheck`),
 		/// inform the user and terminate the application.
 		///
+		/// @param[in] _filePath File path where fatal message was generated.
+		/// @param[in] _line Line where fatal message was generated.
 		/// @param[in] _code Fatal error code.
 		/// @param[in] _str More information about error.
 		///
@@ -598,6 +600,21 @@ namespace bgfx
 	{
 	}
 
+	/// Platform data.
+	///
+	/// @attention C99 equivalent is `bgfx_platform_data_t`.
+	///
+	struct PlatformData
+	{
+		PlatformData();
+
+		void* ndt;          //!< Native display type.
+		void* nwh;          //!< Native window handle.
+		void* context;      //!< GL context, or D3D device.
+		void* backBuffer;   //!< GL backbuffer, or D3D render target view.
+		void* backBufferDS; //!< Backbuffer depth/stencil.
+	};
+
 	/// Backbuffer resolution and reset parameters.
 	///
 	/// @attention C99 equivalent is `bgfx_resolution_t`.
@@ -610,6 +627,7 @@ namespace bgfx
 		uint32_t width;             //!< Backbuffer width.
 		uint32_t height;            //!< Backbuffer height.
 		uint32_t reset;	            //!< Reset parameters.
+		uint8_t  numBackBuffers;    //!< Number of back buffers.
 		uint8_t  maxFrameLatency;   //!< Maximum frame latency.
 	};
 
@@ -642,7 +660,11 @@ namespace bgfx
 		bool debug;   //!< Enable device for debuging.
 		bool profile; //!< Enable device for profiling.
 
-		Resolution resolution; //!< Backbuffer resolution and reset parameters.
+		/// Platform data.
+		PlatformData platformData;
+
+		/// Backbuffer resolution and reset parameters. See: `bgfx::Resolution`.
+		Resolution resolution;
 
 		struct Limits
 		{
@@ -847,6 +869,7 @@ namespace bgfx
 		TextureHandle handle; //!< Texture handle.
 		uint16_t mip;         //!< Mip level.
 		uint16_t layer;       //!< Cubemap side or depth layer/slice.
+		uint8_t  resolve;     //!< Resolve flags. See: `BGFX_RESOLVE_*`
 	};
 
 	/// Transform data.
@@ -907,6 +930,7 @@ namespace bgfx
 
 		uint32_t numDraw;                   //!< Number of draw calls submitted.
 		uint32_t numCompute;                //!< Number of compute calls submitted.
+		uint32_t numBlit;                   //!< Number of blit calls submitted.
 		uint32_t maxGpuLatency;             //!< GPU driver latency.
 
 		uint16_t numDynamicIndexBuffers;    //!< Number of used dynamic index buffers.
@@ -1362,7 +1386,7 @@ namespace bgfx
 		void submit(
 			  ViewId _id
 			, ProgramHandle _program
-			, int32_t _depth = 0
+			, uint32_t _depth = 0
 			, bool _preserveState = false
 			);
 
@@ -1381,7 +1405,7 @@ namespace bgfx
 			  ViewId _id
 			, ProgramHandle _program
 			, OcclusionQueryHandle _occlusionQuery
-			, int32_t _depth = 0
+			, uint32_t _depth = 0
 			, bool _preserveState = false
 			);
 
@@ -1405,7 +1429,7 @@ namespace bgfx
 			, IndirectBufferHandle _indirectHandle
 			, uint16_t _start = 0
 			, uint16_t _num = 1
-			, int32_t _depth = 0
+			, uint32_t _depth = 0
 			, bool _preserveState = false
 			);
 
@@ -2511,7 +2535,7 @@ namespace bgfx
 
 	/// Calculate amount of memory required for texture.
 	///
-	/// @param[out] _info Resulting texture info structure.
+	/// @param[out] _info Resulting texture info structure. See: `TextureInfo`.
 	/// @param[in] _width Width.
 	/// @param[in] _height Height.
 	/// @param[in] _depth Depth dimension of volume texture.
@@ -2896,7 +2920,7 @@ namespace bgfx
 	/// mip level.
 	///
 	/// @param[in] _num Number of texture attachments.
-	/// @param[in] _attachment Attachment texture info. See: `Attachment`.
+	/// @param[in] _attachment Attachment texture info. See: `bgfx::Attachment`.
 	/// @param[in] _destroyTextures If true, textures will be destroyed when
 	///   frame buffer is destroyed.
 	///
@@ -3704,7 +3728,7 @@ namespace bgfx
 	void submit(
 		  ViewId _id
 		, ProgramHandle _program
-		, int32_t _depth = 0
+		, uint32_t _depth = 0
 		, bool _preserveState = false
 		);
 
@@ -3723,7 +3747,7 @@ namespace bgfx
 		  ViewId _id
 		, ProgramHandle _program
 		, OcclusionQueryHandle _occlusionQuery
-		, int32_t _depth = 0
+		, uint32_t _depth = 0
 		, bool _preserveState = false
 		);
 
@@ -3747,7 +3771,7 @@ namespace bgfx
 		, IndirectBufferHandle _indirectHandle
 		, uint16_t _start = 0
 		, uint16_t _num = 1
-		, int32_t _depth = 0
+		, uint32_t _depth = 0
 		, bool _preserveState = false
 		);
 

@@ -181,19 +181,19 @@ TEST_CASE("strCmpV sort", "")
 TEST_CASE("strRFind", "")
 {
 	const char* test = "test";
-	REQUIRE(NULL == bx::strRFind(bx::StringView(test, 0), 's') );
-	REQUIRE(NULL == bx::strRFind(bx::StringView(test, 1), 's') );
-	REQUIRE(&test[2] == bx::strRFind(test, 's') );
+	REQUIRE(bx::strRFind(bx::StringView(test, 0), 's').isEmpty() );
+	REQUIRE(bx::strRFind(bx::StringView(test, 1), 's').isEmpty() );
+	REQUIRE(&test[2] == bx::strRFind(test, 's').getPtr() );
 }
 
 TEST_CASE("strFindI", "")
 {
 	const char* test = "The Quick Brown Fox Jumps Over The Lazy Dog.";
 
-	REQUIRE(NULL == bx::strFindI(bx::StringView(test, 8), "quick") );
-	REQUIRE(NULL == bx::strFindI(test, "quick1") );
-	REQUIRE(&test[4] == bx::strFindI(bx::StringView(test, 9), "quick") );
-	REQUIRE(&test[4] == bx::strFindI(test, "quick") );
+	REQUIRE(bx::strFindI(bx::StringView(test, 8), "quick").isEmpty() );
+	REQUIRE(bx::strFindI(test, "quick1").isEmpty() );
+	REQUIRE(&test[4] == bx::strFindI(bx::StringView(test, 9), "quick").getPtr() );
+	REQUIRE(&test[4] == bx::strFindI(test, "quick").getPtr() );
 }
 
 TEST_CASE("strFind", "")
@@ -201,26 +201,42 @@ TEST_CASE("strFind", "")
 	{
 		const char* test = "test";
 
-		REQUIRE(NULL == bx::strFind(bx::StringView(test, 0), 's') );
-		REQUIRE(NULL == bx::strFind(bx::StringView(test, 2), 's') );
-		REQUIRE(&test[2] == bx::strFind(test, 's') );
+		REQUIRE(bx::strFind(bx::StringView(test, 0), 's').isEmpty() );
+		REQUIRE(bx::strFind(bx::StringView(test, 2), 's').isEmpty() );
+		REQUIRE(&test[2] == bx::strFind(test, 's').getPtr() );
 	}
 
 	{
 		const char* test = "The Quick Brown Fox Jumps Over The Lazy Dog.";
 
-		REQUIRE(NULL == bx::strFind(bx::StringView(test, 8), "quick") );
-		REQUIRE(NULL == bx::strFind(test, "quick1") );
-		REQUIRE(NULL == bx::strFind(bx::StringView(test, 9), "quick") );
-		REQUIRE(NULL == bx::strFind(test, "quick") );
+		REQUIRE(bx::strFind(bx::StringView(test, 8), "quick").isEmpty() );
+		REQUIRE(bx::strFind(test, "quick1").isEmpty() );
+		REQUIRE(bx::strFind(bx::StringView(test, 9), "quick").isEmpty() );
+		REQUIRE(bx::strFind(test, "quick").isEmpty() );
 
-		REQUIRE(NULL == bx::strFind(bx::StringView(test, 8), "Quick") );
-		REQUIRE(NULL == bx::strFind(test, "Quick1") );
-		REQUIRE(&test[4] == bx::strFind(bx::StringView(test, 9), "Quick") );
-		REQUIRE(&test[4] == bx::strFind(test, "Quick") );
+		REQUIRE(bx::strFind(bx::StringView(test, 8), "Quick").isEmpty() );
+		REQUIRE(bx::strFind(test, "Quick1").isEmpty() );
+		REQUIRE(&test[4] == bx::strFind(bx::StringView(test, 9), "Quick").getPtr() );
+		REQUIRE(&test[4] == bx::strFind(test, "Quick").getPtr() );
 
-		REQUIRE(NULL == bx::strFind("vgd", 'a') );
+		REQUIRE(bx::strFind("vgd", 'a').isEmpty() );
 	}
+}
+
+TEST_CASE("strSkip", "")
+{
+	const bx::StringView t0("   test X");
+
+	const bx::StringView t1 = bx::strLTrimSpace(t0);
+	REQUIRE(0 == bx::strCmp(t1, "test", 4) );
+
+	const bx::StringView t2 = bx::strLTrimNonSpace(t1);
+	REQUIRE(0 == bx::strCmp(t2, " X", 2) );
+
+	const bx::StringView t3("test");
+
+	const bx::StringView t4 = bx::strLTrimNonSpace(t3);
+	REQUIRE(t4.getTerm() == t4.getPtr() );
 }
 
 template<typename Ty>
@@ -417,11 +433,11 @@ TEST_CASE("StringView", "")
 TEST_CASE("Trim", "")
 {
 	REQUIRE(0 == bx::strCmp(bx::strLTrim("abvgd", "ab"), "vgd") );
-	REQUIRE(0 == bx::strCmp(bx::strLTrim("abvgd", "vagbd"), "") );
+	REQUIRE(0 == bx::strCmp(bx::strLTrim("abvgd", "vagbd"), "abvgd") );
 	REQUIRE(0 == bx::strCmp(bx::strLTrim("abvgd", "vgd"), "abvgd") );
 	REQUIRE(0 == bx::strCmp(bx::strLTrim("/555333/podmac/", "/"), "555333/podmac/") );
 
-	REQUIRE(0 == bx::strCmp(bx::strRTrim("abvgd", "vagbd"), "") );
+	REQUIRE(0 == bx::strCmp(bx::strRTrim("abvgd", "vagbd"), "abvgd") );
 	REQUIRE(0 == bx::strCmp(bx::strRTrim("abvgd", "abv"), "abvgd") );
 	REQUIRE(0 == bx::strCmp(bx::strRTrim("/555333/podmac/", "/"), "/555333/podmac") );
 

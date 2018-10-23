@@ -78,7 +78,7 @@ TEST_CASE("uint32_testpow2", "")
 	{
 		if (bx::uint32_testpow2(ii) )
 		{
-			REQUIRE(ii == 1 << shift);
+			REQUIRE(ii == 1u << shift);
 			++shift;
 		}
 	}

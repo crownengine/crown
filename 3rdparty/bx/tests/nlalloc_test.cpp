@@ -100,6 +100,7 @@ namespace bx
 	public:
 		NonLocalAllocator()
 		{
+			reset();
 		}
 
 		~NonLocalAllocator()

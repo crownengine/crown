@@ -361,9 +361,15 @@ namespace bx
 		return strFindUnsafe(_str, strLen(_str, _max), _ch);
 	}
 
-	const char* strFind(const StringView& _str, char _ch)
+	StringView strFind(const StringView& _str, char _ch)
 	{
-		return strFind(_str.getPtr(), _str.getLength(), _ch);
+		const char* ptr = strFindUnsafe(_str.getPtr(), _str.getLength(), _ch);
+		if (NULL == ptr)
+		{
+			return StringView(_str.getTerm(), _str.getTerm() );
+		}
+
+		return StringView(ptr, ptr+1);
 	}
 
 	inline const char* strRFindUnsafe(const char* _str, int32_t _len, char _ch)
@@ -379,14 +385,15 @@ namespace bx
 		return NULL;
 	}
 
-	inline const char* strRFind(const char* _str, int32_t _max, char _ch)
+	StringView strRFind(const StringView& _str, char _ch)
 	{
-		return strRFindUnsafe(_str, strLen(_str, _max), _ch);
-	}
+		const char* ptr = strRFindUnsafe(_str.getPtr(), _str.getLength(), _ch);
+		if (NULL == ptr)
+		{
+			return StringView(_str.getTerm(), _str.getTerm() );
+		}
 
-	const char* strRFind(const StringView& _str, char _ch)
-	{
-		return strRFind(_str.getPtr(), _str.getLength(), _ch);
+		return StringView(ptr, ptr+1);
 	}
 
 	template<CharFn fn>
@@ -430,24 +437,42 @@ namespace bx
 		return NULL;
 	}
 
-	const char* strFind(const StringView& _str, const StringView& _find, int32_t _num)
+	StringView strFind(const StringView& _str, const StringView& _find, int32_t _num)
 	{
-		return strFind<toNoop>(
+		int32_t len = min(_find.getLength(), _num);
+
+		const char* ptr = strFind<toNoop>(
 			  _str.getPtr()
 			, _str.getLength()
 			, _find.getPtr()
-			, min(_find.getLength(), _num)
+			, len
 			);
+
+		if (NULL == ptr)
+		{
+			return StringView(_str.getTerm(), _str.getTerm() );
+		}
+
+		return StringView(ptr, len);
 	}
 
-	const char* strFindI(const StringView& _str, const StringView& _find, int32_t _num)
+	StringView strFindI(const StringView& _str, const StringView& _find, int32_t _num)
 	{
-		return strFind<toLower>(
+		int32_t len = min(_find.getLength(), _num);
+
+		const char* ptr = strFind<toLower>(
 			  _str.getPtr()
 			, _str.getLength()
 			, _find.getPtr()
-			, min(_find.getLength(), _num)
+			, len
 			);
+
+		if (NULL == ptr)
+		{
+			return StringView(_str.getTerm(), _str.getTerm() );
+		}
+
+		return StringView(ptr, len);
 	}
 
 	StringView strLTrim(const StringView& _str, const StringView& _chars)
@@ -464,29 +489,53 @@ namespace bx
 			}
 		}
 
-		return StringView();
+		return _str;
+	}
+
+	StringView strLTrimSpace(const StringView& _str)
+	{
+		for (const char* ptr = _str.getPtr(), *term = _str.getTerm(); ptr != term; ++ptr)
+		{
+			if (!isSpace(*ptr) )
+			{
+				return StringView(ptr, term);
+			}
+		}
+
+		return StringView(_str.getTerm(), _str.getTerm() );
+	}
+
+	StringView strLTrimNonSpace(const StringView& _str)
+	{
+		for (const char* ptr = _str.getPtr(), *term = _str.getTerm(); ptr != term; ++ptr)
+		{
+			if (isSpace(*ptr) )
+			{
+				return StringView(ptr, term);
+			}
+		}
+
+		return StringView(_str.getTerm(), _str.getTerm() );
 	}
 
 	StringView strRTrim(const StringView& _str, const StringView& _chars)
 	{
-		if (_str.isEmpty() )
+		if (!_str.isEmpty() )
 		{
-			return StringView();
-		}
+			const char* ptr = _str.getPtr();
+			const char* chars = _chars.getPtr();
+			const uint32_t charsLen = _chars.getLength();
 
-		const char* ptr   = _str.getPtr();
-		const char* chars = _chars.getPtr();
-		const uint32_t charsLen = _chars.getLength();
-
-		for (int32_t len = _str.getLength(), ii = len-1; 0 <= ii; --ii)
-		{
-			if (NULL == strFindUnsafe(chars, charsLen, ptr[ii]) )
+			for (int32_t len = _str.getLength(), ii = len - 1; 0 <= ii; --ii)
 			{
-				return StringView(ptr, ii+1);
+				if (NULL == strFindUnsafe(chars, charsLen, ptr[ii]))
+				{
+					return StringView(ptr, ii + 1);
+				}
 			}
 		}
 
-		return StringView();
+		return _str;
 	}
 
 	StringView strTrim(const StringView& _str, const StringView& _chars)
@@ -494,56 +543,52 @@ namespace bx
 		return strLTrim(strRTrim(_str, _chars), _chars);
 	}
 
-	const char* strnl(const char* _str)
+	StringView strFindNl(const StringView& _str)
 	{
-		for (; '\0' != *_str; _str += strLen(_str, 1024) )
+		StringView str(_str);
+
+		for (; str.getPtr() != _str.getTerm()
+			; str = StringView(str.getPtr() + 1024, min(str.getPtr() + 1024, _str.getTerm()))
+			)
 		{
-			const char* eol = strFind(StringView(_str, 1024), "\r\n");
-			if (NULL != eol)
+			StringView eol = strFind(str, "\r\n");
+			if (!eol.isEmpty() )
 			{
-				return eol + 2;
+				return StringView(eol.getTerm(), _str.getTerm() );
 			}
 
-			eol = strFind(StringView(_str, 1024), "\n");
-			if (NULL != eol)
+			eol = strFind(str, "\n");
+			if (!eol.isEmpty() )
 			{
-				return eol + 1;
+				return StringView(eol.getTerm(), _str.getTerm() );
 			}
 		}
 
-		return _str;
+		return StringView(_str.getTerm(), _str.getTerm() );
 	}
 
-	const char* streol(const char* _str)
+	StringView strFindEol(const StringView& _str)
 	{
-		for (; '\0' != *_str; _str += strLen(_str, 1024) )
+		StringView str(_str);
+
+		for (; str.getPtr() != _str.getTerm()
+			 ; str = StringView(str.getPtr()+1024, min(str.getPtr()+1024, _str.getTerm() ) )
+			)
 		{
-			const char* eol = strFind(StringView(_str, 1024), "\r\n");
-			if (NULL != eol)
+			StringView eol = strFind(str, "\r\n");
+			if (!eol.isEmpty() )
 			{
-				return eol;
+				return StringView(eol.getPtr(), _str.getTerm() );
 			}
 
-			eol = strFind(StringView(_str, 1024), "\n");
-			if (NULL != eol)
+			eol = strFind(str, "\n");
+			if (!eol.isEmpty() )
 			{
-				return eol;
+				return StringView(eol.getPtr(), _str.getTerm() );
 			}
 		}
 
-		return _str;
-	}
-
-	const char* strws(const char* _str)
-	{
-		for (; isSpace(*_str); ++_str) {};
-		return _str;
-	}
-
-	const char* strnws(const char* _str)
-	{
-		for (; !isSpace(*_str); ++_str) {};
-		return _str;
+		return StringView(_str.getTerm(), _str.getTerm() );
 	}
 
 	const char* strSkipWord(const char* _str, int32_t _max)
@@ -598,22 +643,19 @@ namespace bx
 		}
 	}
 
-	const char* findIdentifierMatch(const char* _str, const char* _word)
+	StringView findIdentifierMatch(const StringView& _str, const StringView& _word)
 	{
-		int32_t len = strLen(_word);
-		const char* ptr = strFind(_str, _word);
-		for (; NULL != ptr; ptr = strFind(ptr + len, _word) )
+		const int32_t len = _word.getLength();
+		StringView ptr = strFind(_str, _word);
+		for (; !ptr.isEmpty(); ptr = strFind(StringView(ptr.getPtr() + len, _str.getTerm() ), _word) )
 		{
-			if (ptr != _str)
+			char ch = *(ptr.getPtr() - 1);
+			if (isAlphaNum(ch) || '_' == ch)
 			{
-				char ch = *(ptr - 1);
-				if (isAlphaNum(ch) || '_' == ch)
-				{
-					continue;
-				}
+				continue;
 			}
 
-			char ch = ptr[len];
+			ch = *(ptr.getPtr() + len);
 			if (isAlphaNum(ch) || '_' == ch)
 			{
 				continue;
@@ -622,21 +664,21 @@ namespace bx
 			return ptr;
 		}
 
-		return ptr;
+		return StringView(_str.getTerm(), _str.getTerm() );
 	}
 
-	const char* findIdentifierMatch(const char* _str, const char* _words[])
+	StringView findIdentifierMatch(const StringView& _str, const char** _words)
 	{
-		for (const char* word = *_words; NULL != word; ++_words, word = *_words)
+		for (StringView word = *_words; !word.isEmpty(); ++_words, word = *_words)
 		{
-			const char* match = findIdentifierMatch(_str, word);
-			if (NULL != match)
+			StringView match = findIdentifierMatch(_str, word);
+			if (!match.isEmpty() )
 			{
 				return match;
 			}
 		}
 
-		return NULL;
+		return StringView(_str.getTerm(), _str.getTerm() );
 	}
 
 	namespace

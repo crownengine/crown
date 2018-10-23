@@ -425,8 +425,8 @@ namespace bgfx { namespace d3d9
 			m_params.BackBufferWidth  = _init.resolution.width;
 			m_params.BackBufferHeight = _init.resolution.height;
 			m_params.BackBufferFormat = adapterFormat;
-			m_params.BackBufferCount = 1;
-			m_params.MultiSampleType = D3DMULTISAMPLE_NONE;
+			m_params.BackBufferCount  = bx::clamp<uint8_t>(_init.resolution.numBackBuffers, 2, BGFX_CONFIG_MAX_BACK_BUFFERS);
+			m_params.MultiSampleType  = D3DMULTISAMPLE_NONE;
 			m_params.MultiSampleQuality = 0;
 			m_params.EnableAutoDepthStencil = TRUE;
 			m_params.AutoDepthStencilFormat = D3DFMT_D24S8;
@@ -551,7 +551,7 @@ namespace bgfx { namespace d3d9
 							}
 
 							if (BX_ENABLED(BGFX_CONFIG_DEBUG_PERFHUD)
-							&&  0 != bx::strFind(desc.Description, "PerfHUD") )
+							&&  !bx::strFind(desc.Description, "PerfHUD").isEmpty() )
 							{
 								m_adapter = ii;
 								m_deviceType = D3DDEVTYPE_REF;
@@ -2394,21 +2394,21 @@ namespace bgfx { namespace d3d9
 		uint32_t magic;
 		bx::read(&reader, magic);
 
-		switch (magic)
+		const bool fragment = isShaderType(magic, 'F');
+
+		uint32_t hashIn;
+		bx::read(&reader, hashIn);
+
+		uint32_t hashOut;
+
+		if (isShaderVerLess(magic, 6) )
 		{
-		case BGFX_CHUNK_MAGIC_FSH:
-		case BGFX_CHUNK_MAGIC_VSH:
-			break;
-
-		default:
-			BGFX_FATAL(false, Fatal::InvalidShader, "Unknown shader format %x.", magic);
-			break;
+			hashOut = hashIn;
 		}
-
-		bool fragment = BGFX_CHUNK_MAGIC_FSH == magic;
-
-		uint32_t iohash;
-		bx::read(&reader, iohash);
+		else
+		{
+			bx::read(&reader, hashOut);
+		}
 
 		uint16_t count;
 		bx::read(&reader, count);
@@ -3126,7 +3126,7 @@ namespace bgfx { namespace d3d9
 		}
 	}
 
-	void TextureD3D9::resolve() const
+	void TextureD3D9::resolve(uint8_t _resolve) const
 	{
 		if (NULL != m_surface
 		&&  NULL != m_ptr)
@@ -3140,7 +3140,8 @@ namespace bgfx { namespace d3d9
 				) );
 			DX_RELEASE(surface, 1);
 
-			if (1 < m_numMips)
+			if (1 < m_numMips
+			&&  0 != (_resolve & BGFX_RESOLVE_AUTO_GEN_MIPS) )
 			{
 				m_ptr->GenerateMipSubLevels();
 			}
@@ -3328,8 +3329,13 @@ namespace bgfx { namespace d3d9
 		{
 			for (uint32_t ii = 0, num = m_numTh; ii < num; ++ii)
 			{
-				const TextureD3D9& texture = s_renderD3D9->m_textures[m_attachment[ii].handle.idx];
-				texture.resolve();
+				const Attachment& at = m_attachment[ii];
+
+				if (isValid(at.handle) )
+				{
+					const TextureD3D9& texture = s_renderD3D9->m_textures[at.handle.idx];
+					texture.resolve(at.resolve);
+				}
 			}
 		}
 	}
@@ -4395,6 +4401,7 @@ namespace bgfx { namespace d3d9
 		perfStats.gpuTimerFreq  = result.m_frequency;
 		perfStats.numDraw       = statsKeyType[0];
 		perfStats.numCompute    = statsKeyType[1];
+		perfStats.numBlit       = _render->m_numBlitItems;
 		perfStats.maxGpuLatency = maxGpuLatency;
 		bx::memCopy(perfStats.numPrims, statsNumPrimsRendered, sizeof(perfStats.numPrims) );
 		m_nvapi.getMemoryInfo(perfStats.gpuMemoryUsed, perfStats.gpuMemoryMax);

@@ -45,9 +45,7 @@ namespace bgfx
 #endif // SHADERC_CONFIG_HLSL
 
 #include <alloca.h>
-#include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 #include <algorithm>
 #include <string>
@@ -89,7 +87,7 @@ namespace bgfx
 
 			uint32_t pos = m_pos;
 			const char* str = &m_str[pos];
-			const char* nl = bx::strnl(str);
+			const char* nl = bx::strFindNl(str).getPtr();
 			pos += (uint32_t)(nl - str);
 
 			const char* eol = &m_str[pos];
@@ -152,6 +150,7 @@ namespace bgfx
 		bool preferFlowControl;
 		bool backwardsCompatibility;
 		bool warningsAreErrors;
+		bool keepIntermediate;
 
 		bool optimize;
 		uint32_t optimizationLevel;

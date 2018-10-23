@@ -336,37 +336,37 @@ namespace bx
 		return m_filePath;
 	}
 
-	const StringView FilePath::getPath() const
+	StringView FilePath::getPath() const
 	{
-		const char* end = strRFind(m_filePath, '/');
-		if (NULL != end)
+		StringView end = strRFind(m_filePath, '/');
+		if (!end.isEmpty() )
 		{
-			return StringView(m_filePath, end+1);
+			return StringView(m_filePath, end.getPtr()+1);
 		}
 
 		return StringView();
 	}
 
-	const StringView FilePath::getFileName() const
+	StringView FilePath::getFileName() const
 	{
-		const char* fileName = strRFind(m_filePath, '/');
-		if (NULL != fileName)
+		StringView fileName = strRFind(m_filePath, '/');
+		if (!fileName.isEmpty() )
 		{
-			return StringView(fileName+1);
+			return StringView(fileName.getPtr()+1);
 		}
 
 		return get();
 	}
 
-	const StringView FilePath::getBaseName() const
+	StringView FilePath::getBaseName() const
 	{
 		const StringView fileName = getFileName();
 		if (!fileName.isEmpty() )
 		{
-			const char* ext = strFind(fileName, '.');
-			if (ext != NULL)
+			StringView ext = strFind(fileName, '.');
+			if (!ext.isEmpty() )
 			{
-				return StringView(fileName.getPtr(), ext);
+				return StringView(fileName.getPtr(), ext.getPtr() );
 			}
 
 			return fileName;
@@ -375,13 +375,12 @@ namespace bx
 		return StringView();
 	}
 
-	const StringView FilePath::getExt() const
+	StringView FilePath::getExt() const
 	{
 		const StringView fileName = getFileName();
 		if (!fileName.isEmpty() )
 		{
-			const char* ext = strFind(fileName, '.');
-			return StringView(ext);
+			return strFind(fileName, '.');
 		}
 
 		return StringView();
@@ -450,13 +449,13 @@ namespace bx
 			return false;
 		}
 
-		const StringView dir = strRTrim(_filePath.get(), "/");
-		const char* slash = strRFind(dir, '/');
+		const StringView dir   = strRTrim(_filePath.get(), "/");
+		const StringView slash = strRFind(dir, '/');
 
-		if (NULL != slash
-		&&  slash - dir.getPtr() > 1)
+		if (!slash.isEmpty()
+		&&  slash.getPtr() - dir.getPtr() > 1)
 		{
-			if (!makeAll(StringView(dir.getPtr(), slash), _err) )
+			if (!makeAll(StringView(dir.getPtr(), slash.getPtr() ), _err) )
 			{
 				return false;
 			}

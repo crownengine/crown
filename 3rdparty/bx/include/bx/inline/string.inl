@@ -75,6 +75,21 @@ namespace bx
 		return *this;
 	}
 
+	inline StringView::StringView(char* _ptr)
+	{
+		set(_ptr, INT32_MAX);
+	}
+
+	inline StringView::StringView(const char* _ptr)
+	{
+		set(_ptr, INT32_MAX);
+	}
+
+	inline StringView::StringView(char* _ptr, int32_t _len)
+	{
+		set(_ptr, _len);
+	}
+
 	inline StringView::StringView(const char* _ptr, int32_t _len)
 	{
 		set(_ptr, _len);
@@ -91,18 +106,24 @@ namespace bx
 		set(_container);
 	}
 
+	inline void StringView::set(char* _ptr)
+	{
+		set(_ptr, INT32_MAX);
+	}
+
+	inline void StringView::set(const char* _ptr)
+	{
+		set(_ptr, INT32_MAX);
+	}
+
 	inline void StringView::set(const char* _ptr, int32_t _len)
 	{
 		clear();
 
 		if (NULL != _ptr)
 		{
-			int32_t len = strLen(_ptr, _len);
-			if (0 != len)
-			{
-				m_len = len;
-				m_ptr = _ptr;
-			}
+			m_len = INT32_MAX == _len ? strLen(_ptr) : _len;
+			m_ptr = _ptr;
 		}
 	}
 

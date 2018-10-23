@@ -132,15 +132,11 @@ namespace bgfx
 
 #define BGFX_CHUNK_MAGIC_TEX BX_MAKEFOURCC('T', 'E', 'X', 0x0)
 
-#define BGFX_CHUNK_MAGIC_CSH BX_MAKEFOURCC('C', 'S', 'H', 0x3)
-#define BGFX_CHUNK_MAGIC_FSH BX_MAKEFOURCC('F', 'S', 'H', 0x5)
-#define BGFX_CHUNK_MAGIC_VSH BX_MAKEFOURCC('V', 'S', 'H', 0x5)
-
 #define BGFX_CLEAR_COLOR_USE_PALETTE UINT16_C(0x8000)
-#define BGFX_CLEAR_MASK (0 \
-			| BGFX_CLEAR_COLOR \
-			| BGFX_CLEAR_DEPTH \
-			| BGFX_CLEAR_STENCIL \
+#define BGFX_CLEAR_MASK (0                 \
+			| BGFX_CLEAR_COLOR             \
+			| BGFX_CLEAR_DEPTH             \
+			| BGFX_CLEAR_STENCIL           \
 			| BGFX_CLEAR_COLOR_USE_PALETTE \
 			)
 
@@ -319,6 +315,25 @@ namespace bgfx
 
 	bool windowsVersionIs(Condition::Enum _op, uint32_t _version);
 
+	constexpr bool isShaderType(uint32_t _magic, char _type)
+	{
+		return uint32_t(_type) == (_magic & BX_MAKEFOURCC(0xff, 0, 0, 0) );
+	}
+
+	inline bool isShaderBin(uint32_t _magic)
+	{
+		return BX_MAKEFOURCC(0, 'S', 'H', 0) == (_magic & BX_MAKEFOURCC(0, 0xff, 0xff, 0) )
+			&& (isShaderType(_magic, 'C') || isShaderType(_magic, 'F') || isShaderType(_magic, 'V') )
+			;
+	}
+
+	inline bool isShaderVerLess(uint32_t _magic, uint8_t _version)
+	{
+		return (_magic & BX_MAKEFOURCC(0, 0, 0, 0xff) ) < BX_MAKEFOURCC(0, 0, 0, _version);
+	}
+
+	const char* getShaderTypeName(uint32_t _magic);
+
 	struct Clear
 	{
 		void set(uint16_t _flags, uint32_t _rgba, float _depth, uint8_t _stencil)
@@ -457,6 +472,7 @@ namespace bgfx
 	bool isGraphicsDebuggerPresent();
 	void release(const Memory* _mem);
 	const char* getAttribName(Attrib::Enum _attr);
+	const char* getAttribNameShort(Attrib::Enum _attr);
 	void getTextureSizeFromRatio(BackbufferRatio::Enum _ratio, uint16_t& _width, uint16_t& _height);
 	TextureFormat::Enum getViableTextureFormat(const bimg::ImageContainer& _imageContainer);
 	const char* getName(TextureFormat::Enum _fmt);
@@ -1149,6 +1165,15 @@ namespace bgfx
 
 		uint16_t m_item;
 		ViewId   m_view;
+	};
+
+	BX_ALIGN_DECL_16(struct) Srt
+	{
+		float rotate[4];
+		float translate[3];
+		float pad0;
+		float scale[3];
+		float pad1;
 	};
 
 	BX_ALIGN_DECL_16(struct) Matrix4
@@ -2356,9 +2381,9 @@ namespace bgfx
 			m_bind.clear();
 		}
 
-		void submit(ViewId _id, ProgramHandle _program, OcclusionQueryHandle _occlusionQuery, int32_t _depth, bool _preserveState);
+		void submit(ViewId _id, ProgramHandle _program, OcclusionQueryHandle _occlusionQuery, uint32_t _depth, bool _preserveState);
 
-		void submit(ViewId _id, ProgramHandle _program, IndirectBufferHandle _indirectHandle, uint16_t _start, uint16_t _num, int32_t _depth, bool _preserveState)
+		void submit(ViewId _id, ProgramHandle _program, IndirectBufferHandle _indirectHandle, uint16_t _start, uint16_t _num, uint32_t _depth, bool _preserveState)
 		{
 			m_draw.m_startIndirect  = _start;
 			m_draw.m_numIndirect    = _num;
@@ -3526,16 +3551,31 @@ namespace bgfx
 				return BGFX_INVALID_HANDLE;
 			}
 
-			if (BGFX_CHUNK_MAGIC_CSH != magic
-			&&  BGFX_CHUNK_MAGIC_FSH != magic
-			&&  BGFX_CHUNK_MAGIC_VSH != magic)
+			if (!isShaderBin(magic) )
 			{
-				BX_WARN(false, "Invalid shader signature! %c%c%c%d."
+				BX_TRACE("Invalid shader signature! %c%c%c%d."
 					, ( (uint8_t*)&magic)[0]
 					, ( (uint8_t*)&magic)[1]
 					, ( (uint8_t*)&magic)[2]
 					, ( (uint8_t*)&magic)[3]
 					);
+				release(_mem);
+				return BGFX_INVALID_HANDLE;
+			}
+
+			if (isShaderType(magic, 'C')
+			&&  0 == (g_caps.supported & BGFX_CAPS_COMPUTE) )
+			{
+				BX_TRACE("Creating compute shader but compute is not supported!");
+				release(_mem);
+				return BGFX_INVALID_HANDLE;
+			}
+
+			if ( (isShaderType(magic, 'C') && isShaderVerLess(magic, 3) )
+			||   (isShaderType(magic, 'F') && isShaderVerLess(magic, 5) )
+			||   (isShaderType(magic, 'V') && isShaderVerLess(magic, 5) ) )
+			{
+				BX_TRACE("Unsupported shader binary version.");
 				release(_mem);
 				return BGFX_INVALID_HANDLE;
 			}
@@ -3550,8 +3590,19 @@ namespace bgfx
 				return handle;
 			}
 
-			uint32_t iohash;
-			bx::read(&reader, iohash, &err);
+			uint32_t hashIn;
+			bx::read(&reader, hashIn, &err);
+
+			uint32_t hashOut;
+
+			if (isShaderVerLess(magic, 6) )
+			{
+				hashOut = hashIn;
+			}
+			else
+			{
+				bx::read(&reader, hashOut, &err);
+			}
 
 			uint16_t count;
 			bx::read(&reader, count, &err);
@@ -3577,7 +3628,8 @@ namespace bgfx
 
 			ShaderRef& sr = m_shaderRef[handle.idx];
 			sr.m_refCount = 1;
-			sr.m_hash     = iohash;
+			sr.m_hashIn   = hashIn;
+			sr.m_hashOut  = hashOut;
 			sr.m_num      = 0;
 			sr.m_uniforms = NULL;
 
@@ -3745,7 +3797,7 @@ namespace bgfx
 			{
 				const ShaderRef& vsr = m_shaderRef[_vsh.idx];
 				const ShaderRef& fsr = m_shaderRef[_fsh.idx];
-				if (vsr.m_hash != fsr.m_hash)
+				if (vsr.m_hashOut != fsr.m_hashIn)
 				{
 					BX_TRACE("Vertex shader output doesn't match fragment shader input.");
 					return BGFX_INVALID_HANDLE;
@@ -4682,7 +4734,8 @@ namespace bgfx
 		{
 			UniformHandle* m_uniforms;
 			String   m_name;
-			uint32_t m_hash;
+			uint32_t m_hashIn;
+			uint32_t m_hashOut;
 			int16_t  m_refCount;
 			uint16_t m_num;
 		};

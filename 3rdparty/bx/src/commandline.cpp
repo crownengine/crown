@@ -12,7 +12,7 @@ namespace bx
 	// Reference:
 	// - https://web.archive.org/web/20180629044234/https://msdn.microsoft.com/en-us/library/a1y7w461.aspx
 	//
-	const char* tokenizeCommandLine(const StringView& _commandLine, char* _buffer, uint32_t& _bufferSize, int32_t& _argc, char* _argv[], int32_t _maxArgvs, char _term)
+	StringView tokenizeCommandLine(const StringView& _commandLine, char* _buffer, uint32_t& _bufferSize, int32_t& _argc, char* _argv[], int32_t _maxArgvs, char _term)
 	{
 		int32_t argc = 0;
 		const char* curr = _commandLine.getPtr();
@@ -66,7 +66,7 @@ namespace bx
 						state = Escape;
 					}
 					else if ('"' == *curr
-						&&  '"' != term)
+					     &&  '"' != term)
 					{
 						sub = !sub;
 					}
@@ -137,7 +137,7 @@ namespace bx
 			++curr;
 		}
 
-		return curr;
+		return StringView(curr, _commandLine.getTerm() );
 	}
 
 	CommandLine::CommandLine(int32_t _argc, char const* const* _argv)

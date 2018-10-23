@@ -85,19 +85,19 @@ namespace bx
 
 		/// If path is `/abv/gd/555/333/pod.mac` returns `/abv/gd/555/333/`.
 		///
-		const StringView getPath() const;
+		StringView getPath() const;
 
 		/// If path is `/abv/gd/555/333/pod.mac` returns `pod.mac`.
 		///
-		const StringView getFileName() const;
+		StringView getFileName() const;
 
 		/// If path is `/abv/gd/555/333/pod.mac` returns `pod`.
 		///
-		const StringView getBaseName() const;
+		StringView getBaseName() const;
 
 		/// If path is `/abv/gd/555/333/pod.mac` returns `.mac`.
 		///
-		const StringView getExt() const;
+		StringView getExt() const;
 
 		/// Returns true if file path is absolute.
 		///

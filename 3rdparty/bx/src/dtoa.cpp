@@ -1120,11 +1120,12 @@ namespace bx
 
 	bool fromString(int32_t* _out, const StringView& _str)
 	{
-		const char* str  = _str.getPtr();
-		const char* term = _str.getTerm();
+		StringView str = bx::strLTrimSpace(_str);
 
-		str = strws(str);
-		char ch = *str++;
+		const char* ptr  = str.getPtr();
+		const char* term = str.getTerm();
+
+		char ch = *ptr++;
 		bool neg = false;
 		switch (ch)
 		{
@@ -1133,13 +1134,13 @@ namespace bx
 			break;
 
 		default:
-			--str;
+			--ptr;
 			break;
 		}
 
 		int32_t result = 0;
 
-		for (ch = *str++; isNumeric(ch) && str <= term; ch = *str++)
+		for (ch = *ptr++; isNumeric(ch) && ptr <= term; ch = *ptr++)
 		{
 			result = 10*result - (ch - '0');
 		}

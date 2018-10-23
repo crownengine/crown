@@ -37,7 +37,16 @@ namespace bx
 		StringView& operator=(const StringView& _rhs);
 
 		///
-		StringView(const char* _ptr, int32_t _len = INT32_MAX);
+		StringView(char* _ptr);
+
+		///
+		StringView(const char* _ptr);
+
+		///
+		StringView(char* _ptr, int32_t _len);
+
+		///
+		StringView(const char* _ptr, int32_t _len);
 
 		///
 		StringView(const char* _ptr, const char* _term);
@@ -47,7 +56,13 @@ namespace bx
 		explicit StringView(const Ty& _container);
 
 		///
-		void set(const char* _ptr, int32_t _len = INT32_MAX);
+		void set(char* _ptr);
+
+		///
+		void set(const char* _ptr);
+
+		///
+		void set(const char* _ptr, int32_t _len);
 
 		///
 		void set(const char* _ptr, const char* _term);
@@ -198,19 +213,25 @@ namespace bx
 	int32_t strCat(char* _dst, int32_t _dstSize, const StringView& _str, int32_t _num = INT32_MAX);
 
 	/// Find character in string. Limit search to _max characters.
-	const char* strFind(const StringView& _str, char _ch);
+	StringView strFind(const StringView& _str, char _ch);
 
 	/// Find character in string in reverse. Limit search to _max characters.
-	const char* strRFind(const StringView& _str, char _ch);
+	StringView strRFind(const StringView& _str, char _ch);
 
 	/// Find substring in string. Limit search to _max characters.
-	const char* strFind(const StringView& _str, const StringView& _find, int32_t _num = INT32_MAX);
+	StringView strFind(const StringView& _str, const StringView& _find, int32_t _num = INT32_MAX);
 
 	/// Find substring in string. Case insensitive. Limit search to _max characters.
-	const char* strFindI(const StringView& _str, const StringView& _find, int32_t _num = INT32_MAX);
+	StringView strFindI(const StringView& _str, const StringView& _find, int32_t _num = INT32_MAX);
 
 	/// Returns string view with characters _chars trimmed from left.
 	StringView strLTrim(const StringView& _str, const StringView& _chars);
+
+	/// Returns string view with whitespace characters trimmed from left.
+	StringView strLTrimSpace(const StringView& _str);
+
+	/// Returns string view with non-whitespace characters trimmed from left.
+	StringView strLTrimNonSpace(const StringView& _str);
 
 	/// Returns string view with characters _chars trimmed from right.
 	StringView strRTrim(const StringView& _str, const StringView& _chars);
@@ -219,16 +240,10 @@ namespace bx
 	StringView strTrim(const StringView& _str, const StringView& _chars);
 
 	/// Find new line. Returns pointer after new line terminator.
-	const char* strnl(const char* _str);
+	StringView strFindNl(const StringView& _str);
 
 	/// Find end of line. Retuns pointer to new line terminator.
-	const char* streol(const char* _str);
-
-	/// Skip whitespace.
-	const char* strws(const char* _str);
-
-	/// Skip non-whitespace.
-	const char* strnws(const char* _str);
+	StringView strFindEol(const StringView& _str);
 
 	/// Returns pointer to first character after word.
 	const char* strSkipWord(const char* _str, int32_t _max = INT32_MAX);
@@ -243,10 +258,10 @@ namespace bx
 	void eolLF(char* _out, int32_t _size, const char* _str);
 
 	// Finds identifier.
-	const char* findIdentifierMatch(const char* _str, const char* _word);
+	StringView findIdentifierMatch(const StringView& _str, const StringView& _word);
 
 	/// Finds any identifier from NULL terminated array of identifiers.
-	const char* findIdentifierMatch(const char* _str, const char* _words[]);
+	StringView findIdentifierMatch(const StringView& _str, const char** _words);
 
 	/// Cross platform implementation of vsnprintf that returns number of
 	/// characters which would have been written to the final string if

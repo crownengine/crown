@@ -12,7 +12,7 @@ namespace bx
 {
 	/// Reference:
 	/// http://msdn.microsoft.com/en-us/library/a1y7w461.aspx
-	const char* tokenizeCommandLine(const StringView& _commandLine, char* _buffer, uint32_t& _bufferSize, int32_t& _argc, char* _argv[], int32_t _maxArgvs, char _term = '\0');
+	StringView tokenizeCommandLine(const StringView& _commandLine, char* _buffer, uint32_t& _bufferSize, int32_t& _argc, char* _argv[], int32_t _maxArgvs, char _term = '\0');
 
 	///
 	class CommandLine
