@@ -123,7 +123,7 @@ void console_draw(Console& console)
 	}
 
 	if (console._scroll_to_bottom)
-		ImGui::SetScrollHere();
+		ImGui::SetScrollHereY();
 
 	console._scroll_to_bottom = false;
 	ImGui::PopStyleVar();
