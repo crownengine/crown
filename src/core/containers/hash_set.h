@@ -6,8 +6,7 @@
 #pragma once
 
 #include "core/containers/types.h"
-#include <algorithm> // std::swap
-#include <string.h>  // memcpy
+#include <string.h> // memcpy
 
 namespace crown
 {
@@ -117,7 +116,7 @@ namespace hash_set_internal
 				if (is_deleted(m._index[hash_i].index))
 					goto INSERT_AND_RETURN;
 
-				std::swap(hash, m._index[hash_i].hash);
+				exchange(hash, m._index[hash_i].hash);
 				m._index[hash_i].index = 0x0123abcd;
 				// swap
 				{

@@ -34,6 +34,14 @@ typedef float    f32;
 typedef double   f64;
 /// @}
 
+template <typename T>
+inline void exchange(T& a, T& b)
+{
+	T c = a;
+	a = b;
+	b = c;
+}
+
 } // namespace crown
 
 #if defined(_MSC_VER)

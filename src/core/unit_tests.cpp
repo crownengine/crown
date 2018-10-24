@@ -33,6 +33,7 @@
 #include "core/strings/string.h"
 #include "core/strings/string_id.h"
 #include "core/thread/thread.h"
+#include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 
 #define ENSURE(condition)                                \
 	do                                                   \

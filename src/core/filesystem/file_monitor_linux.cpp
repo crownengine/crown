@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <limits.h> // NAME_MAX
 #include <sys/inotify.h>
+#include <sys/select.h>
 #include <unistd.h> // read
 
 namespace crown
