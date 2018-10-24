@@ -42,6 +42,24 @@ inline void exchange(T& a, T& b)
 	b = c;
 }
 
+template <typename T>
+inline T min(const T& a, const T& b)
+{
+	return a < b ? a : b;
+}
+
+template <typename T>
+inline T max(const T& a, const T& b)
+{
+	return a > b ? a : b;
+}
+
+template <typename T>
+inline T clamp(T val, T mmin, T mmax)
+{
+	return min(max(mmin, val), mmax);
+}
+
 } // namespace crown
 
 #if defined(_MSC_VER)

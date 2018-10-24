@@ -210,7 +210,7 @@ f32 ray_mesh_intersection(const Vector3& from, const Vector3& dir, const Matrix4
 		if (t > FLOAT_EPSILON)
 		{
 			hit = true;
-			tmin = fmin(t, tmin);
+			tmin = min(t, tmin);
 		}
 	}
 

@@ -147,8 +147,8 @@ inline f32 angle(const Vector2& a, const Vector2& b)
 inline Vector2 max(const Vector2& a, const Vector2& b)
 {
 	Vector2 v;
-	v.x = fmax(a.x, b.x);
-	v.y = fmax(a.y, b.y);
+	v.x = max(a.x, b.x);
+	v.y = max(a.y, b.y);
 	return v;
 }
 
@@ -156,8 +156,8 @@ inline Vector2 max(const Vector2& a, const Vector2& b)
 inline Vector2 min(const Vector2& a, const Vector2& b)
 {
 	Vector2 v;
-	v.x = fmin(a.x, b.x);
-	v.y = fmin(a.y, b.y);
+	v.x = min(a.x, b.x);
+	v.y = min(a.y, b.y);
 	return v;
 }
 

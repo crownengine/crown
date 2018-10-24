@@ -23,12 +23,12 @@ namespace aabb
 		{
 			point = (f32*)pts;
 
-			b.min.x = fmin(b.min.x, point[0]);
-			b.min.y = fmin(b.min.y, point[1]);
-			b.min.z = fmin(b.min.z, point[2]);
-			b.max.x = fmax(b.max.x, point[0]);
-			b.max.y = fmax(b.max.y, point[1]);
-			b.max.z = fmax(b.max.z, point[2]);
+			b.min.x = min(b.min.x, point[0]);
+			b.min.y = min(b.min.y, point[1]);
+			b.min.z = min(b.min.z, point[2]);
+			b.max.x = max(b.max.x, point[0]);
+			b.max.y = max(b.max.y, point[1]);
+			b.max.z = max(b.max.z, point[2]);
 		}
 	}
 
@@ -43,12 +43,12 @@ namespace aabb
 
 		for (u32 i = 1; i < num; ++i)
 		{
-			b.min.x = fmin(b.min.x, boxes[i].min.x);
-			b.min.y = fmin(b.min.y, boxes[i].min.y);
-			b.min.z = fmin(b.min.z, boxes[i].min.z);
-			b.max.x = fmax(b.max.x, boxes[i].max.x);
-			b.max.y = fmax(b.max.y, boxes[i].max.y);
-			b.max.z = fmax(b.max.z, boxes[i].max.z);
+			b.min.x = min(b.min.x, boxes[i].min.x);
+			b.min.y = min(b.min.y, boxes[i].min.y);
+			b.min.z = min(b.min.z, boxes[i].min.z);
+			b.max.x = max(b.max.x, boxes[i].max.x);
+			b.max.y = max(b.max.y, boxes[i].max.y);
+			b.max.z = max(b.max.z, boxes[i].max.z);
 		}
 	}
 

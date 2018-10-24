@@ -237,38 +237,37 @@ struct SpriteImporter
 		ImGui::BeginGroup();
 		ImGui::LabelText("Resolution", "%d x %d", width, height);
 
-		// FIXME: replace fclamp
 		ImGui::InputInt("Cells H", &cells_h);
-		cells_h = (int)fclamp((f32)cells_h, 1.0f, 256.0f);
+		cells_h = clamp(cells_h, 1, 256);
 
 		ImGui::InputInt("Cells V", &cells_v);
-		cells_v = (int)fclamp((f32)cells_v, 1.0f, 256.0f);
+		cells_v = clamp(cells_v, 1, 256);
 
 		ImGui::Checkbox("Cell WH auto", &cell_wh_auto);
 		ImGui::InputInt("Cell W", &cell_w);
-		cell_w = (int)fclamp((f32)cell_w, 1.0f, 4096.0f);
+		cell_w = clamp(cell_w, 1, 4096);
 
 		ImGui::InputInt("Cell H", &cell_h);
-		cell_h = (int)fclamp((f32)cell_h, 1.0f, 4096.0f);
+		cell_h = clamp(cell_h, 1, 4096);
 
 		ImGui::InputInt("Offset X", &offset_x);
-		offset_x = (int)fclamp((f32)offset_x, 0.0f, 128.0f);
+		offset_x = clamp(offset_x, 0, 128);
 
 		ImGui::InputInt("Offset Y", &offset_y);
-		offset_y = (int)fclamp((f32)offset_y, 0.0f, 128.0f);
+		offset_y = clamp(offset_y, 0, 128);
 
 		ImGui::InputInt("Spacing X", &spacing_x);
-		spacing_x = (int)fclamp((f32)spacing_x, 0.0f, 128.0f);
+		spacing_x = clamp(spacing_x, 0, 128);
 
 		ImGui::InputInt("Spacing Y", &spacing_y);
-		spacing_y = (int)fclamp((f32)spacing_y, 0.0f, 128.0f);
+		spacing_y = clamp(spacing_y, 0, 128);
 
 		ImGui::Combo("Pivot", &pivot, pivot_names, Pivot::COUNT);
 		ImGui::InputInt("Layer", &layer);
-		layer = (int)fclamp((f32)layer, 0.0f, 7.0f);
+		layer = clamp(layer, 0, 7);
 
 		ImGui::InputInt("Depth", &depth);
-		depth = (int)fclamp((f32)depth, 0.0f, 9999.0f);
+		depth = clamp(depth, 0, 9999);
 
 		ImGui::EndGroup();
 	}

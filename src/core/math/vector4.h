@@ -165,10 +165,10 @@ inline f32 angle(const Vector4& a, const Vector4& b)
 inline Vector4 max(const Vector4& a, const Vector4& b)
 {
 	Vector4 v;
-	v.x = fmax(a.x, b.x);
-	v.y = fmax(a.y, b.y);
-	v.z = fmax(a.z, b.z);
-	v.w = fmax(a.w, b.w);
+	v.x = max(a.x, b.x);
+	v.y = max(a.y, b.y);
+	v.z = max(a.z, b.z);
+	v.w = max(a.w, b.w);
 	return v;
 }
 
@@ -176,10 +176,10 @@ inline Vector4 max(const Vector4& a, const Vector4& b)
 inline Vector4 min(const Vector4& a, const Vector4& b)
 {
 	Vector4 v;
-	v.x = fmin(a.x, b.x);
-	v.y = fmin(a.y, b.y);
-	v.z = fmin(a.z, b.z);
-	v.w = fmin(a.w, b.w);
+	v.x = min(a.x, b.x);
+	v.y = min(a.y, b.y);
+	v.z = min(a.z, b.z);
+	v.w = min(a.w, b.w);
 	return v;
 }
 

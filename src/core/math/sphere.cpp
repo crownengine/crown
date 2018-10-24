@@ -18,7 +18,7 @@ namespace sphere
 		{
 			const Vector3& pi = *(const Vector3*)pts;
 
-			rr = fmax(rr, length_squared(pi - s.c));
+			rr = max(rr, length_squared(pi - s.c));
 		}
 
 		s.r = fsqrt(rr);
