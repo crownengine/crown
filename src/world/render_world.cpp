@@ -883,16 +883,16 @@ void RenderWorld::SpriteManager::set_visible(SpriteInstance i, bool visible)
 
 	if (swap_index != UINT32_MAX)
 	{
-		std::swap(_data.unit[i.i], _data.unit[swap_index]);
-		std::swap(_data.resource[i.i], _data.resource[swap_index]);
-		std::swap(_data.material[i.i], _data.material[swap_index]);
-		std::swap(_data.frame[i.i], _data.frame[swap_index]);
-		std::swap(_data.world[i.i], _data.world[swap_index]);
-		std::swap(_data.aabb[i.i], _data.aabb[swap_index]);
-		std::swap(_data.flip_x[i.i], _data.flip_x[swap_index]);
-		std::swap(_data.flip_y[i.i], _data.flip_y[swap_index]);
-		std::swap(_data.layer[i.i], _data.layer[swap_index]);
-		std::swap(_data.depth[i.i], _data.depth[swap_index]);
+		exchange(_data.unit[i.i], _data.unit[swap_index]);
+		exchange(_data.resource[i.i], _data.resource[swap_index]);
+		exchange(_data.material[i.i], _data.material[swap_index]);
+		exchange(_data.frame[i.i], _data.frame[swap_index]);
+		exchange(_data.world[i.i], _data.world[swap_index]);
+		exchange(_data.aabb[i.i], _data.aabb[swap_index]);
+		exchange(_data.flip_x[i.i], _data.flip_x[swap_index]);
+		exchange(_data.flip_y[i.i], _data.flip_y[swap_index]);
+		exchange(_data.layer[i.i], _data.layer[swap_index]);
+		exchange(_data.depth[i.i], _data.depth[swap_index]);
 	}
 }
 
