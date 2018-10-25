@@ -16,7 +16,7 @@
 #include "device/log.h"
 #include "resource/resource_loader.h"
 
-namespace { const crown::log_internal::System RESOURCE_LOADER = { "resource_loader" }; }
+LOG_SYSTEM(RESOURCE_LOADER, "resource_loader")
 
 namespace crown
 {

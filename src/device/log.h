@@ -44,3 +44,5 @@ namespace log_internal
 #define logi(system, msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_INFO, system, msg, ## __VA_ARGS__)
 #define loge(system, msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_ERROR, system, msg, ## __VA_ARGS__)
 #define logw(system, msg, ...) crown::log_internal::logx(crown::LogSeverity::LOG_WARN, system, msg, ## __VA_ARGS__)
+
+#define LOG_SYSTEM(ident, name) namespace { const crown::log_internal::System ident = { name }; }

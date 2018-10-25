@@ -305,12 +305,9 @@ namespace memory_globals
 {
 	using namespace memory;
 
-	static const u32 SIZE = sizeof(HeapAllocator)
-		+ sizeof(ScratchAllocator)
-		;
-	char _buffer[SIZE];
-	HeapAllocator* _default_allocator = NULL;
-	ScratchAllocator* _default_scratch_allocator = NULL;
+	static char _buffer[sizeof(HeapAllocator) + sizeof(ScratchAllocator)];
+	static HeapAllocator* _default_allocator;
+	static ScratchAllocator* _default_scratch_allocator;
 
 	void init()
 	{

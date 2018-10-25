@@ -11,7 +11,7 @@
 #include <stdarg.h>
 #include <stdlib.h> // exit
 
-namespace { const crown::log_internal::System ERROR = { "error" }; }
+LOG_SYSTEM(ERROR, "error")
 
 namespace crown
 {

@@ -46,7 +46,7 @@
 #include <LinearMath/btDefaultMotionState.h>
 #include <LinearMath/btIDebugDraw.h>
 
-namespace { const crown::log_internal::System PHYSICS = { "physics" }; }
+LOG_SYSTEM(PHYSICS, "physics")
 
 namespace crown
 {

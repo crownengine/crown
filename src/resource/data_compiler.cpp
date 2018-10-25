@@ -40,7 +40,7 @@
 #include "resource/unit_resource.h"
 #include <algorithm>
 
-namespace { const crown::log_internal::System DATA_COMPILER = { "data_compiler" }; }
+LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
 namespace crown
 {

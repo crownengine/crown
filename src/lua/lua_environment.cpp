@@ -15,7 +15,7 @@
 #include "resource/resource_manager.h"
 #include <stdarg.h>
 
-namespace { const crown::log_internal::System LUA = { "lua" }; }
+LOG_SYSTEM(LUA, "lua")
 
 namespace crown
 {
