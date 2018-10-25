@@ -182,9 +182,9 @@ namespace socket_internal
 		tv.tv_sec  = ms / 1000;
 		tv.tv_usec = ms % 1000 * 1000;
 
-		int err = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+		int err = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
 		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
-		err = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+		err = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
 		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
 		CE_UNUSED(err);
 	}
