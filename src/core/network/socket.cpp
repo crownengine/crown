@@ -155,6 +155,40 @@ namespace socket_internal
 		return wr;
 	}
 
+	void set_blocking(SOCKET socket, bool blocking)
+	{
+#if CROWN_PLATFORM_POSIX
+		int flags = fcntl(socket, F_GETFL, 0);
+		fcntl(socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
+#elif CROWN_PLATFORM_WINDOWS
+		u_long non_blocking = blocking ? 0 : 1;
+		int err = ioctlsocket(socket, FIONBIO, &non_blocking);
+		CE_ASSERT(err == 0, "ioctlsocket: last_error() = %d", last_error());
+		CE_UNUSED(err);
+#endif
+	}
+
+	void set_reuse_address(SOCKET socket, bool reuse)
+	{
+		int optval = (int)reuse;
+		int err = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
+		CE_ASSERT(err == 0, "setsockopt: last_error() = %d", last_error());
+		CE_UNUSED(err);
+	}
+
+	void set_timeout(SOCKET socket, u32 ms)
+	{
+		struct timeval tv;
+		tv.tv_sec  = ms / 1000;
+		tv.tv_usec = ms % 1000 * 1000;
+
+		int err = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
+		err = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+		CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
+		CE_UNUSED(err);
+	}
+
 } // namespace socket_internal
 
 TCPSocket::TCPSocket()
@@ -211,7 +245,7 @@ BindResult TCPSocket::bind(u16 port)
 
 	close();
 	priv->socket = socket_internal::open();
-	set_reuse_address(true);
+	socket_internal::set_reuse_address(priv->socket, true);
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;
@@ -247,7 +281,7 @@ AcceptResult TCPSocket::accept(TCPSocket& c)
 {
 	Private* priv = (Private*)_data;
 
-	set_blocking(true);
+	socket_internal::set_blocking(priv->socket, true);
 	return socket_internal::accept(priv->socket, c);
 }
 
@@ -255,7 +289,7 @@ AcceptResult TCPSocket::accept_nonblock(TCPSocket& c)
 {
 	Private* priv = (Private*)_data;
 
-	set_blocking(false);
+	socket_internal::set_blocking(priv->socket, false);
 	return socket_internal::accept(priv->socket, c);
 }
 
@@ -263,7 +297,7 @@ ReadResult TCPSocket::read(void* data, u32 size)
 {
 	Private* priv = (Private*)_data;
 
-	set_blocking(true);
+	socket_internal::set_blocking(priv->socket, true);
 	return socket_internal::read(priv->socket, data, size);
 }
 
@@ -271,7 +305,7 @@ ReadResult TCPSocket::read_nonblock(void* data, u32 size)
 {
 	Private* priv = (Private*)_data;
 
-	set_blocking(false);
+	socket_internal::set_blocking(priv->socket, false);
 	return socket_internal::read(priv->socket, data, size);
 }
 
@@ -279,7 +313,7 @@ WriteResult TCPSocket::write(const void* data, u32 size)
 {
 	Private* priv = (Private*)_data;
 
-	set_blocking(true);
+	socket_internal::set_blocking(priv->socket, true);
 	return socket_internal::write(priv->socket, data, size);
 }
 
@@ -287,48 +321,8 @@ WriteResult TCPSocket::write_nonblock(const void* data, u32 size)
 {
 	Private* priv = (Private*)_data;
 
-	set_blocking(false);
+	socket_internal::set_blocking(priv->socket, false);
 	return socket_internal::write(priv->socket, data, size);
-}
-
-void TCPSocket::set_blocking(bool blocking)
-{
-	Private* priv = (Private*)_data;
-
-#if CROWN_PLATFORM_POSIX
-	int flags = fcntl(priv->socket, F_GETFL, 0);
-	fcntl(priv->socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
-#elif CROWN_PLATFORM_WINDOWS
-	u_long non_blocking = blocking ? 0 : 1;
-	int err = ioctlsocket(priv->socket, FIONBIO, &non_blocking);
-	CE_ASSERT(err == 0, "ioctlsocket: last_error() = %d", last_error());
-	CE_UNUSED(err);
-#endif
-}
-
-void TCPSocket::set_reuse_address(bool reuse)
-{
-	Private* priv = (Private*)_data;
-
-	int optval = (int)reuse;
-	int err = setsockopt(priv->socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
-	CE_ASSERT(err == 0, "setsockopt: last_error() = %d", last_error());
-	CE_UNUSED(err);
-}
-
-void TCPSocket::set_timeout(u32 seconds)
-{
-	Private* priv = (Private*)_data;
-
-	struct timeval timeout;
-	timeout.tv_sec = seconds;
-	timeout.tv_usec = 0;
-
-	int err = setsockopt(priv->socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-	CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
-	err = setsockopt(priv->socket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
-	CE_ASSERT(err == 0, "setsockopt: last_error(): %d", last_error());
-	CE_UNUSED(err);
 }
 
 } // namespace crown

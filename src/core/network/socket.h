@@ -106,15 +106,6 @@ struct TCPSocket
 
 	/// Writes @a size bytes and returns the result.
 	WriteResult write_nonblock(const void* data, u32 size);
-
-	/// Sets whether the socket is @a blocking.
-	void set_blocking(bool blocking);
-
-	/// Sets whether the socket should @a reuse a busy port.
-	void set_reuse_address(bool reuse);
-
-	/// Sets the timeout to the given @a seconds.
-	void set_timeout(u32 seconds);
 };
 
 } // namespace crown
