@@ -88,9 +88,11 @@ inline T clamp(T val, T mmin, T mmax)
 #if defined(__GNUC__)
 	#define CE_LIKELY(x) __builtin_expect((x), 1)
 	#define CE_UNLIKELY(x) __builtin_expect((x), 0)
+	#define CE_UNREACHABLE() __builtin_unreachable()
 #else
 	#define CE_LIKELY(x) (x)
 	#define CE_UNLIKELY(x) (x)
+	#define CE_UNREACHABLE()
 #endif
 #if defined(__GNUC__)
 	#define CE_THREAD __thread

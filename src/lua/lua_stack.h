@@ -17,13 +17,14 @@
 	#define LUA_ASSERT(condition, stack, msg, ...)                       \
 		do                                                               \
 		{                                                                \
-			if (!(condition))                                            \
+			if (CE_UNLIKELY(!(condition)))                               \
 			{                                                            \
 				stack.push_fstring("Assertion failed: %s\n    " msg "\n" \
 					, # condition                                        \
 					, ## __VA_ARGS__                                     \
 					);                                                   \
 				lua_error(stack.L);                                      \
+				CE_UNREACHABLE();                                        \
 			}                                                            \
 		}                                                                \
 		while (0)
@@ -155,7 +156,10 @@ struct LuaStack
 	void* get_pointer(int i)
 	{
 		if (!lua_isuserdata(L, i))
+		{
 			luaL_typerror(L, i, "lightuserdata");
+			CE_UNREACHABLE();
+		}
 
 		void* p = lua_touserdata(L, i);
 		CE_ENSURE(NULL != p);
@@ -290,7 +294,10 @@ struct LuaStack
 		u32 enc = (u32)(uintptr_t)get_pointer(i);
 #if CROWN_DEBUG
 		if ((enc & LIGHTDATA_TYPE_MASK) != UNIT_MARKER)
+		{
 			luaL_typerror(L, i, "UnitId");
+			CE_UNREACHABLE();
+		}
 #endif // CROWN_DEBUG
 		UnitId id;
 		id._idx = enc >> 2;
@@ -678,67 +685,100 @@ struct LuaStack
 	void check_type(int i, const Gui* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != DEBUG_GUI_MARKER)
+		{
 			luaL_typerror(L, i, "Gui");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const DebugLine* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != DEBUG_LINE_MARKER)
+		{
 			luaL_typerror(L, i, "DebugLine");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const ResourcePackage* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != RESOURCE_PACKAGE_MARKER)
+		{
 			luaL_typerror(L, i, "ResourcePackage");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const World* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != WORLD_MARKER)
+		{
 			luaL_typerror(L, i, "World");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const SceneGraph* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != SCENE_GRAPH_MARKER)
+		{
 			luaL_typerror(L, i, "SceneGraph");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const RenderWorld* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != RENDER_WORLD_MARKER)
+		{
 			luaL_typerror(L, i, "RenderWorld");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const PhysicsWorld* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != PHYSICS_WORLD_MARKER)
+		{
 			luaL_typerror(L, i, "PhysicsWorld");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const SoundWorld* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != SOUND_WORLD_MARKER)
+		{
 			luaL_typerror(L, i, "SoundWorld");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const Level* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != LEVEL_MARKER)
+		{
 			luaL_typerror(L, i, "Level");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const ScriptWorld* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != SCRIPT_WORLD_MARKER)
+		{
 			luaL_typerror(L, i, "ScriptWorld");
+			CE_UNREACHABLE();
+		}
 	}
 
 	void check_type(int i, const AnimationStateMachine* p)
 	{
 		if (!is_pointer(i) || *(u32*)p != ANIMATION_STATE_MACHINE_MARKER)
+		{
 			luaL_typerror(L, i, "AnimationStateMachine");
+			CE_UNREACHABLE();
+		}
 	}
 #endif // CROWN_DEBUG
 };

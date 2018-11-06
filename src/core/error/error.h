@@ -38,6 +38,7 @@ namespace error
 					, __LINE__                               \
 					, ## __VA_ARGS__                         \
 					);                                       \
+				CE_UNREACHABLE();                            \
 			}                                                \
 		} while (0)
 #else
