@@ -560,6 +560,28 @@ namespace bimg
 		}
 	}
 
+	void imageRgba32fToLinear(ImageContainer* _imageContainer)
+	{
+		const uint16_t numSides = _imageContainer->m_numLayers * (_imageContainer->m_cubeMap ? 6 : 1);
+
+		for (uint16_t side = 0; side < numSides; ++side)
+		{
+			bimg::ImageMip mip;
+			bimg::imageGetRawData(*_imageContainer, side, 0, _imageContainer->m_data, _imageContainer->m_size, mip);
+
+			const uint32_t pitch = _imageContainer->m_width*16;
+			const uint32_t slice = _imageContainer->m_height*pitch;
+
+			for (uint32_t zz = 0, depth = _imageContainer->m_depth; zz < depth; ++zz)
+			{
+				const uint32_t srcDataStep = uint32_t(bx::floor(zz * _imageContainer->m_depth / float(depth) ) );
+				const uint8_t* srcData = &mip.m_data[srcDataStep*slice];
+
+				imageRgba32fToLinear(const_cast<uint8_t*>(srcData), mip.m_width, mip.m_height, 1, pitch, srcData);
+			}
+		}
+	}
+
 	void imageRgba32fToGamma(void* _dst, uint32_t _width, uint32_t _height, uint32_t _depth, uint32_t _srcPitch, const void* _src)
 	{
 		      uint8_t* dst = (      uint8_t*)_dst;
@@ -580,6 +602,28 @@ namespace bimg
 					fd[2] = bx::toGamma(fs[2]);
 					fd[3] =             fs[3];
 				}
+			}
+		}
+	}
+
+	void imageRgba32fToGamma(ImageContainer* _imageContainer)
+	{
+		const uint16_t numSides = _imageContainer->m_numLayers * (_imageContainer->m_cubeMap ? 6 : 1);
+
+		for (uint16_t side = 0; side < numSides; ++side)
+		{
+			bimg::ImageMip mip;
+			bimg::imageGetRawData(*_imageContainer, side, 0, _imageContainer->m_data, _imageContainer->m_size, mip);
+
+			const uint32_t pitch = _imageContainer->m_width*16;
+			const uint32_t slice = _imageContainer->m_height*pitch;
+
+			for (uint32_t zz = 0, depth = _imageContainer->m_depth; zz < depth; ++zz)
+			{
+				const uint32_t srcDataStep = uint32_t(bx::floor(zz * _imageContainer->m_depth / float(depth) ) );
+				const uint8_t* srcData = &mip.m_data[srcDataStep*slice];
+
+				imageRgba32fToGamma(const_cast<uint8_t*>(srcData), mip.m_width, mip.m_height, 1, pitch, srcData);
 			}
 		}
 	}

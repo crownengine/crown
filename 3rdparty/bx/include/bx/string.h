@@ -28,7 +28,7 @@ namespace bx
 		StringView();
 
 		///
-		StringView(const StringView& _rhs);
+		StringView(const StringView& _rhs, int32_t _start = 0, int32_t _len = INT32_MAX);
 
 		///
 		StringView& operator=(const char* _rhs);
@@ -68,7 +68,7 @@ namespace bx
 		void set(const char* _ptr, const char* _term);
 
 		///
-		void set(const StringView& _str);
+		void set(const StringView& _str, int32_t _start = 0, int32_t _len = INT32_MAX);
 
 		///
 		template<typename Ty>
@@ -245,17 +245,17 @@ namespace bx
 	/// Find end of line. Retuns pointer to new line terminator.
 	StringView strFindEol(const StringView& _str);
 
-	/// Returns pointer to first character after word.
-	const char* strSkipWord(const char* _str, int32_t _max = INT32_MAX);
-
 	/// Returns StringView of word or empty.
 	StringView strWord(const StringView& _str);
 
+	/// Returns substring in string.
+	StringView strSubstr(const StringView& _str, int32_t _start, int32_t _len = INT32_MAX);
+
 	/// Find matching block.
-	const char* strmb(const char* _str, char _open, char _close);
+	StringView strFindBlock(const StringView& _str, char _open, char _close);
 
 	// Normalize string to sane line endings.
-	void eolLF(char* _out, int32_t _size, const char* _str);
+	StringView normalizeEolLf(char* _out, int32_t _size, const StringView& _str);
 
 	// Finds identifier.
 	StringView findIdentifierMatch(const StringView& _str, const StringView& _word);

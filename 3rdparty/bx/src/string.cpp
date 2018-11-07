@@ -401,8 +401,8 @@ namespace bx
 	{
 		const char* ptr = _str;
 
-		int32_t       stringLen = strLen(_str,  _strMax);
-		const int32_t findLen   = strLen(_find, _findMax);
+		int32_t       stringLen = _strMax;
+		const int32_t findLen   = _findMax;
 
 		for (; stringLen >= findLen; ++ptr, --stringLen)
 		{
@@ -543,12 +543,14 @@ namespace bx
 		return strLTrim(strRTrim(_str, _chars), _chars);
 	}
 
+	constexpr uint32_t kFindStep = 1024;
+
 	StringView strFindNl(const StringView& _str)
 	{
 		StringView str(_str);
 
 		for (; str.getPtr() != _str.getTerm()
-			; str = StringView(str.getPtr() + 1024, min(str.getPtr() + 1024, _str.getTerm()))
+			; str = StringView(min(str.getPtr() + kFindStep, _str.getTerm() ), min(str.getPtr() + kFindStep*2, _str.getTerm() ) )
 			)
 		{
 			StringView eol = strFind(str, "\r\n");
@@ -557,7 +559,7 @@ namespace bx
 				return StringView(eol.getTerm(), _str.getTerm() );
 			}
 
-			eol = strFind(str, "\n");
+			eol = strFind(str, '\n');
 			if (!eol.isEmpty() )
 			{
 				return StringView(eol.getTerm(), _str.getTerm() );
@@ -572,7 +574,7 @@ namespace bx
 		StringView str(_str);
 
 		for (; str.getPtr() != _str.getTerm()
-			 ; str = StringView(str.getPtr()+1024, min(str.getPtr()+1024, _str.getTerm() ) )
+			 ; str = StringView(min(str.getPtr() + kFindStep, _str.getTerm() ), min(str.getPtr() + kFindStep*2, _str.getTerm() ) )
 			)
 		{
 			StringView eol = strFind(str, "\r\n");
@@ -581,7 +583,7 @@ namespace bx
 				return StringView(eol.getPtr(), _str.getTerm() );
 			}
 
-			eol = strFind(str, "\n");
+			eol = strFind(str, '\n');
 			if (!eol.isEmpty() )
 			{
 				return StringView(eol.getPtr(), _str.getTerm() );
@@ -591,7 +593,7 @@ namespace bx
 		return StringView(_str.getTerm(), _str.getTerm() );
 	}
 
-	const char* strSkipWord(const char* _str, int32_t _max)
+	static const char* strSkipWord(const char* _str, int32_t _max)
 	{
 		for (char ch = *_str++; 0 < _max && (isAlphaNum(ch) || '_' == ch); ch = *_str++, --_max) {};
 		return _str-1;
@@ -604,34 +606,54 @@ namespace bx
 		return StringView(ptr, term);
 	}
 
-	const char* strmb(const char* _str, char _open, char _close)
+	StringView strFindBlock(const StringView& _str, char _open, char _close)
 	{
-		int count = 0;
-		for (char ch = *_str++; ch != '\0' && count >= 0; ch = *_str++)
+		const char* curr  = _str.getPtr();
+		const char* term  = _str.getTerm();
+		const char* start = NULL;
+
+		int32_t count = 0;
+		for (char ch = *curr; curr != term && count >= 0; ch = *(++curr) )
 		{
 			if (ch == _open)
 			{
-				count++;
+				if (0 == count)
+				{
+					start = curr;
+				}
+
+				++count;
 			}
 			else if (ch == _close)
 			{
-				count--;
+				--count;
+
+				if (NULL == start)
+				{
+					break;
+				}
+
 				if (0 == count)
 				{
-					return _str-1;
+					return StringView(start, curr+1);
 				}
 			}
 		}
 
-		return NULL;
+		return StringView(term, term);
 	}
 
-	void eolLF(char* _out, int32_t _size, const char* _str)
+	StringView normalizeEolLf(char* _out, int32_t _size, const StringView& _str)
 	{
+		const char* start = _out;
+		const char* end   = _out;
+
 		if (0 < _size)
 		{
-			char* end = _out + _size - 1;
-			for (char ch = *_str++; ch != '\0' && _out < end; ch = *_str++)
+			const char* curr = _str.getPtr();
+			const char* term = _str.getTerm();
+			end  = _out + _size;
+			for (char ch = *curr; curr != term && _out < end; ch = *(++curr) )
 			{
 				if ('\r' != ch)
 				{
@@ -639,8 +661,10 @@ namespace bx
 				}
 			}
 
-			*_out = '\0';
+			end = _out;
 		}
+
+		return StringView(start, end);
 	}
 
 	StringView findIdentifierMatch(const StringView& _str, const StringView& _word)
@@ -688,7 +712,7 @@ namespace bx
 			Param()
 				: width(0)
 				, base(10)
-				, prec(6)
+				, prec(INT32_MAX)
 				, fill(' ')
 				, bits(0)
 				, left(false)
@@ -699,8 +723,8 @@ namespace bx
 			}
 
 			int32_t width;
-			uint32_t base;
-			uint32_t prec;
+			int32_t base;
+			int32_t prec;
 			char fill;
 			uint8_t bits;
 			bool left;
@@ -758,7 +782,7 @@ namespace bx
 
 		static int32_t write(WriterI* _writer, const char* _str, const Param& _param, Error* _err)
 		{
-			return write(_writer, _str, INT32_MAX, _param, _err);
+			return write(_writer, _str, _param.prec, _param, _err);
 		}
 
 		static int32_t write(WriterI* _writer, int32_t _i, const Param& _param, Error* _err)
@@ -831,10 +855,11 @@ namespace bx
 			const char* dot = strFind(str, INT32_MAX, '.');
 			if (NULL != dot)
 			{
+				const int32_t prec = INT32_MAX == _param.prec ? 6 : _param.prec;
 				const int32_t precLen = int32_t(
 						dot
-						+ uint32_min(_param.prec + _param.spec, 1)
-						+ _param.prec
+						+ uint32_min(prec + _param.spec, 1)
+						+ prec
 						- str
 						);
 				if (precLen > len)

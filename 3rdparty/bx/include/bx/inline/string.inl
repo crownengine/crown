@@ -58,9 +58,9 @@ namespace bx
 		clear();
 	}
 
-	inline StringView::StringView(const StringView& _rhs)
+	inline StringView::StringView(const StringView& _rhs, int32_t _start, int32_t _len)
 	{
-		set(_rhs.m_ptr, _rhs.m_len);
+		set(_rhs, _start, _len);
 	}
 
 	inline StringView& StringView::operator=(const char* _rhs)
@@ -71,7 +71,7 @@ namespace bx
 
 	inline StringView& StringView::operator=(const StringView& _rhs)
 	{
-		set(_rhs.m_ptr, _rhs.m_len);
+		set(_rhs);
 		return *this;
 	}
 
@@ -135,12 +135,14 @@ namespace bx
 	template<typename Ty>
 	inline void StringView::set(const Ty& _container)
 	{
-		set(_container.data(), _container.length() );
+		set(_container.data(), int32_t(_container.length() ) );
 	}
 
-	inline void StringView::set(const StringView& _str)
+	inline void StringView::set(const StringView& _str, int32_t _start, int32_t _len)
 	{
-		set(_str.m_ptr, _str.m_len);
+		const int32_t start = min(_start, _str.m_len);
+		const int32_t len   = clamp(_str.m_len - start, 0, min(_len, _str.m_len) );
+		set(_str.m_ptr + start, len);
 	}
 
 	inline void StringView::clear()
@@ -232,6 +234,11 @@ namespace bx
 
 			StringView::clear();
 		}
+	}
+
+	inline StringView strSubstr(const StringView& _str, int32_t _start, int32_t _len)
+	{
+		return StringView(_str, _start, _len);
 	}
 
 } // namespace bx

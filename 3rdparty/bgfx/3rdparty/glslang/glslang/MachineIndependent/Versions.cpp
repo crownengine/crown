@@ -236,7 +236,7 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_NV_shader_noperspective_interpolation]    = EBhDisable;
     extensionBehavior[E_GL_NV_shader_subgroup_partitioned]           = EBhDisable;
     extensionBehavior[E_GL_NV_shading_rate_image]                    = EBhDisable;
-    extensionBehavior[E_GL_NVX_raytracing]                           = EBhDisable;
+    extensionBehavior[E_GL_NV_ray_tracing]                           = EBhDisable;
     extensionBehavior[E_GL_NV_fragment_shader_barycentric]           = EBhDisable;
     extensionBehavior[E_GL_NV_compute_shader_derivatives]            = EBhDisable;
     extensionBehavior[E_GL_NV_shader_texture_footprint]              = EBhDisable;
@@ -412,7 +412,7 @@ void TParseVersions::getPreamble(std::string& preamble)
             "#define GL_NV_conservative_raster_underestimation 1\n"
             "#define GL_NV_shader_subgroup_partitioned 1\n"
             "#define GL_NV_shading_rate_image 1\n"
-            "#define GL_NVX_raytracing 1\n"
+            "#define GL_NV_ray_tracing 1\n"
             "#define GL_NV_fragment_shader_barycentric 1\n"
             "#define GL_NV_compute_shader_derivatives 1\n"
             "#define GL_NV_shader_texture_footprint 1\n"
@@ -842,9 +842,12 @@ void TParseVersions::checkExtensionStage(const TSourceLoc& loc, const char * con
 {
 #ifdef NV_EXTENSIONS
     // GL_NV_mesh_shader extension is only allowed in task/mesh shaders
-    if (strcmp(extension, "GL_NV_mesh_shader") == 0)
-        requireStage(loc, (EShLanguageMask)(EShLangTaskNVMask | EShLangMeshNVMask),
+    if (strcmp(extension, "GL_NV_mesh_shader") == 0) {
+        requireStage(loc, (EShLanguageMask)(EShLangTaskNVMask | EShLangMeshNVMask | EShLangFragmentMask),
                      "#extension GL_NV_mesh_shader");
+        profileRequires(loc, ECoreProfile, 450, 0, "#extension GL_NV_mesh_shader");
+        profileRequires(loc, EEsProfile, 320, 0, "#extension GL_NV_mesh_shader");
+    }
 #endif
 }
 

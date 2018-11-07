@@ -27,12 +27,12 @@ TEST_CASE("Settings", "")
 		bx::close(&writer);
 	}
 
-	REQUIRE(NULL == settings.get("meh") );
+	REQUIRE(settings.get("meh").isEmpty() );
 	REQUIRE(0 == bx::strCmp(settings.get("meh/podmac"), "true") );
 	REQUIRE(0 == bx::strCmp(settings.get("test/foo/bar/abvgd"), "1389") );
 
 	settings.remove("meh/podmac");
-	REQUIRE(NULL == settings.get("meh/podmac") );
+	REQUIRE(settings.get("meh/podmac").isEmpty() );
 
 	settings.clear();
 
@@ -43,7 +43,7 @@ TEST_CASE("Settings", "")
 		bx::close(&reader);
 	}
 
-	REQUIRE(NULL == settings.get("meh") );
+	REQUIRE(settings.get("meh").isEmpty() );
 	REQUIRE(0 == bx::strCmp(settings.get("meh/podmac"), "true") );
 	REQUIRE(0 == bx::strCmp(settings.get("test/foo/bar/abvgd"), "1389") );
 }

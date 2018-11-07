@@ -29,7 +29,7 @@ namespace bx
 		void load(const void* _data, uint32_t _len);
 
 		///
-		const char* get(const StringView& _name) const;
+		StringView get(const StringView& _name) const;
 
 		///
 		void set(const StringView& _name, const StringView& _value = "");

@@ -12,6 +12,7 @@ project "lemon"
 
 	configuration { "not vs*" }
 		buildoptions {
+			"-Wno-implicit-fallthrough",
 			"-Wno-sign-compare",
 			"-Wno-unused-parameter",
 		}

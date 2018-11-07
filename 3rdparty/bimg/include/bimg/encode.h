@@ -87,7 +87,6 @@ namespace bimg
 		, uint32_t _width
 		, uint32_t _height
 		, uint32_t _srcPitch
-		, float _edge
 		, const void* _src
 		);
 

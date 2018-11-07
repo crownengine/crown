@@ -457,3 +457,13 @@ TEST_CASE("strWord", "")
 	REQUIRE(bx::strWord(" abvgd-1389.0").isEmpty() );
 	REQUIRE(0 == bx::strCmp(bx::strWord("abvgd-1389.0"), "abvgd") );
 }
+
+TEST_CASE("strFindBlock", "")
+{
+	const bx::StringView test0("{ { {} {} abvgd; {} } }");
+	const bx::StringView test1(test0, 1);
+
+	bx::StringView result = bx::strFindBlock(test1, '{', '}');
+	printf("%.*s", result.getLength(), result.getPtr() );
+	REQUIRE(19 == result.getLength() );
+}

@@ -300,7 +300,7 @@ namespace bgfx
 	class Bin2cWriter : public bx::FileWriter
 	{
 	public:
-		Bin2cWriter(const char* _name)
+		Bin2cWriter(const bx::StringView& _name)
 			: m_name(_name)
 		{
 		}
@@ -331,7 +331,7 @@ namespace bgfx
 			const uint8_t* data = &m_buffer[0];
 			uint32_t size = (uint32_t)m_buffer.size();
 
-			outf("static const uint8_t %s[%d] =\n{\n", m_name.c_str(), size);
+			outf("static const uint8_t %.*s[%d] =\n{\n", m_name.getLength(), m_name.getPtr(), size);
 
 			if (NULL != data)
 			{
@@ -394,7 +394,7 @@ namespace bgfx
 		}
 
 		std::string m_filePath;
-		std::string m_name;
+		bx::StringView m_name;
 		typedef std::vector<uint8_t> Buffer;
 		Buffer m_buffer;
 	};
@@ -652,8 +652,10 @@ namespace bgfx
 
 			int32_t len = bx::strLen(_input)+1;
 			char* temp = new char[len];
-			bx::eolLF(temp, len, _input);
-			m_input += temp;
+			bx::StringView normalized = bx::normalizeEolLf(temp, len, _input);
+			std::string str;
+			str.assign(normalized.getPtr(), normalized.getTerm() );
+			m_input += str;
 			delete [] temp;
 
 			fppTag* tagptr = m_tagptr;
@@ -793,13 +795,10 @@ namespace bgfx
 		strReplace(_data, find, "bgfx_VoidFrag");
 	}
 
-	const char* baseName(const char* _filePath)
+	bx::StringView baseName(const bx::StringView& _filePath)
 	{
 		bx::FilePath fp(_filePath);
-		char tmp[bx::kMaxFilePath];
-		bx::strCopy(tmp, BX_COUNTOF(tmp), fp.getFileName() );
-		bx::StringView base = bx::strFind(_filePath, tmp);
-		return base.isEmpty() ? NULL : base.getPtr();
+		return bx::strFind(_filePath, fp.getBaseName() );
 	}
 
 	// c - compute
@@ -847,7 +846,7 @@ namespace bgfx
 			  "  -f <file path>                Input file path.\n"
 			  "  -i <include path>             Include path (for multiple paths use -i multiple times).\n"
 			  "  -o <file path>                Output file path.\n"
-			  "      --bin2c <file path>       Generate C header file.\n"
+			  "      --bin2c [array name]      Generate C header file. If array name is not specified base file name will be used as name.\n"
 			  "      --depends                 Generate makefile style depends file.\n"
 			  "      --platform <platform>     Target platform.\n"
 			  "           android\n"
@@ -877,6 +876,13 @@ namespace bgfx
 			  "\n"
 			  "For additional information, see https://github.com/bkaradzic/bgfx\n"
 			);
+	}
+
+	bx::StringView nextWord(bx::StringView& _parse)
+	{
+		bx::StringView word = bx::strWord(bx::strLTrimSpace(_parse) );
+		_parse = bx::strLTrimSpace(bx::StringView(word.getTerm(), _parse.getTerm() ) );
+		return word;
 	}
 
 	bool compileShader(const char* _varying, const char* _comment, char* _shader, uint32_t _shaderLen, Options& _options, bx::FileWriter* _writer)
@@ -1048,37 +1054,34 @@ namespace bgfx
 		bool compiled = false;
 
 		VaryingMap varyingMap;
-		const char* parse = _varying;
+		bx::StringView parse(_varying);
 		bx::StringView term(parse);
 
 		bool usesInterpolationQualifiers = false;
 
-		while (NULL !=  parse
-		&&     '\0' != *parse)
+		while (!parse.isEmpty() )
 		{
-			parse = bx::strLTrimSpace(parse).getPtr();
+			parse = bx::strLTrimSpace(parse);
 			bx::StringView eol = bx::strFind(parse, ';');
 			if (eol.isEmpty() )
 			{
-				eol = bx::strFindEol(bx::StringView(parse, term.getTerm() ) );
-			}
-			else
-			{
-				eol.set(eol.getPtr(), term.getTerm() );
+				eol = bx::strFindEol(parse);
 			}
 
 			if (!eol.isEmpty() )
 			{
-				const char* precision = NULL;
-				const char* interpolation = NULL;
-				const char* typen = parse;
+				eol.set(eol.getPtr() + 1, parse.getTerm() );
+
+				bx::StringView precision;
+				bx::StringView interpolation;
+				bx::StringView typen = nextWord(parse);
 
 				if (0 == bx::strCmp(typen, "lowp", 4)
 				||  0 == bx::strCmp(typen, "mediump", 7)
 				||  0 == bx::strCmp(typen, "highp", 5) )
 				{
 					precision = typen;
-					typen = parse = bx::strLTrimSpace(bx::strSkipWord(parse) ).getPtr();
+					typen = nextWord(parse);
 				}
 
 				if (0 == bx::strCmp(typen, "flat", 4)
@@ -1087,36 +1090,45 @@ namespace bgfx
 				||  0 == bx::strCmp(typen, "centroid", 8) )
 				{
 					interpolation = typen;
-					typen = parse = bx::strLTrimSpace(bx::strSkipWord(parse) ).getPtr();
+					typen = nextWord(parse);
 					usesInterpolationQualifiers = true;
 				}
 
-				const char* name      = parse = bx::strLTrimSpace(bx::strSkipWord(parse) ).getPtr();
-				const char* column    = parse = bx::strLTrimSpace(bx::strSkipWord(parse) ).getPtr();
-				const char* semantics = parse = bx::strLTrimSpace( (*parse == ':' ? ++parse : parse) ).getPtr();
-				const char* assign    = parse = bx::strLTrimSpace(bx::strSkipWord(parse) ).getPtr();
-				const char* init      = parse = bx::strLTrimSpace( (*parse == '=' ? ++parse : parse) ).getPtr();
+				bx::StringView name   = nextWord(parse);
+				bx::StringView column = bx::strSubstr(parse, 0, 1);
+				bx::StringView semantics;
+				if (0 == bx::strCmp(column, ":", 1) )
+				{
+					parse = bx::strLTrimSpace(bx::StringView(parse.getPtr() + 1, parse.getTerm() ) );
+					semantics = nextWord(parse);
+				}
 
-				if (typen < eol.getPtr()
-				&&  name < eol.getPtr()
-				&&  column < eol.getPtr()
-				&&  ':' == *column
-				&&  semantics < eol.getPtr() )
+				bx::StringView assign = bx::strSubstr(parse, 0, 1);
+				bx::StringView init;
+				if (0 == bx::strCmp(assign, "=", 1))
+				{
+					parse = bx::strLTrimSpace(bx::StringView(parse.getPtr() + 1, parse.getTerm() ) );
+					init.set(parse.getPtr(), eol.getPtr() );
+				}
+
+				if (!typen.isEmpty()
+				&&  !name.isEmpty()
+				&&  !semantics.isEmpty() )
 				{
 					Varying var;
-					if (NULL != precision)
+					if (!precision.isEmpty() )
 					{
-						var.m_precision.assign(precision, bx::strSkipWord(precision)-precision);
+						var.m_precision.assign(precision.getPtr(), precision.getTerm() );
 					}
 
-					if (NULL != interpolation)
+					if (!interpolation.isEmpty() )
 					{
-						var.m_interpolation.assign(interpolation, bx::strSkipWord(interpolation)-interpolation);
+						var.m_interpolation.assign(interpolation.getPtr(), interpolation.getTerm() );
 					}
 
-					var.m_type.assign(typen, bx::strSkipWord(typen)-typen);
-					var.m_name.assign(name, bx::strSkipWord(name)-name);
-					var.m_semantics.assign(semantics, bx::strSkipWord(semantics)-semantics);
+					var.m_type.assign(typen.getPtr(), typen.getTerm() );
+					var.m_name.assign(name.getPtr(), name.getTerm() );
+					var.m_semantics.assign(semantics.getPtr(), semantics.getTerm() );
 
 					if (d3d == 9
 					&&  var.m_semantics == "BITANGENT")
@@ -1124,17 +1136,15 @@ namespace bgfx
 						var.m_semantics = "BINORMAL";
 					}
 
-					if (assign < eol.getPtr()
-					&&  '=' == *assign
-					&&  init < eol.getPtr() )
+					if (!init.isEmpty() )
 					{
-						var.m_init.assign(init, eol.getPtr()-init);
+						var.m_init.assign(init.getPtr(), init.getTerm() );
 					}
 
 					varyingMap.insert(std::make_pair(var.m_name, var) );
 				}
 
-				parse = bx::strLTrimSpace(bx::strFindNl(bx::StringView(eol.getPtr(), term.getTerm() ) ) ).getPtr();
+				parse = bx::strLTrimSpace(bx::strFindNl(bx::StringView(eol.getPtr(), term.getTerm() ) ) );
 			}
 		}
 
@@ -1675,10 +1685,10 @@ namespace bgfx
 						bx::StringView brace = bx::strFind(bx::StringView(entry.getPtr(), shader.getTerm() ), "{");
 						if (!brace.isEmpty() )
 						{
-							const char* end = bx::strmb(brace.getPtr(), '{', '}');
-							if (NULL != end)
+							bx::StringView block = bx::strFindBlock(bx::StringView(brace.getPtr(), shader.getTerm() ), '{', '}');
+							if (!block.isEmpty() )
 							{
-								strInsert(const_cast<char*>(end), "__RETURN__;\n");
+								strInsert(const_cast<char*>(block.getTerm()-1), "__RETURN__;\n");
 							}
 						}
 
@@ -2307,30 +2317,37 @@ namespace bgfx
 			}
 		}
 
-		const char* bin2c = NULL;
+		bx::StringView bin2c;
 		if (cmdLine.hasArg("bin2c") )
 		{
-			bin2c = cmdLine.findOption("bin2c");
-			if (NULL == bin2c)
+			const char* bin2cArg = cmdLine.findOption("bin2c");
+			if (NULL != bin2cArg)
+			{
+				bin2c.set(bin2cArg);
+			}
+			else
 			{
 				bin2c = baseName(outFilePath);
-				uint32_t len = (uint32_t)bx::strLen(bin2c);
-				char* temp = (char*)alloca(len+1);
-				for (char *out = temp; *bin2c != '\0';)
+				if (!bin2c.isEmpty() )
 				{
-					char ch = *bin2c++;
-					if (isalnum(ch) )
+					char* temp = (char*)alloca(bin2c.getLength()+1);
+					for (uint32_t ii = 0, num = bin2c.getLength(); ii < num; ++ii)
 					{
-						*out++ = ch;
+						char ch = bin2c.getPtr()[ii];
+						if (bx::isAlphaNum(ch) )
+						{
+							temp[ii] = ch;
+						}
+						else
+						{
+							temp[ii] = '_';
+						}
 					}
-					else
-					{
-						*out++ = '_';
-					}
-				}
-				temp[len] = '\0';
 
-				bin2c = temp;
+					temp[bin2c.getLength()] = '\0';
+
+					bin2c = temp;
+				}
 			}
 		}
 
@@ -2350,13 +2367,11 @@ namespace bgfx
 
 		std::string dir;
 		{
-			const char* base = baseName(filePath);
+			bx::FilePath fp(filePath);
+			bx::StringView path(fp.getPath() );
 
-			if (base != filePath)
-			{
-				dir.assign(filePath, base-filePath);
-				options.includeDirs.push_back(dir.c_str());
-			}
+			dir.assign(path.getPtr(), path.getTerm() );
+			options.includeDirs.push_back(dir);
 		}
 
 		const char* defines = cmdLine.findOption("define");
@@ -2422,7 +2437,7 @@ namespace bgfx
 
 			bx::FileWriter* writer = NULL;
 
-			if (NULL != bin2c)
+			if (!bin2c.isEmpty() )
 			{
 				writer = new Bin2cWriter(bin2c);
 			}

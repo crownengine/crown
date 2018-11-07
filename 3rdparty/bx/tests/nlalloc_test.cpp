@@ -28,38 +28,6 @@ struct TinyStlAllocator
 #define TINYSTL_ALLOCATOR ::TinyStlAllocator
 #include <tinystl/vector.h>
 
-namespace tinystl
-{
-	template<typename T, typename Alloc = TINYSTL_ALLOCATOR>
-	class list : public vector<T, Alloc>
-	{
-	public:
-		void push_front(const T& _value)
-		{
-			this->insert(this->begin(), _value);
-		}
-
-		void pop_front()
-		{
-			this->erase(this->begin() );
-		}
-
-		void sort()
-		{
-			bx::quickSort(
-				  this->begin()
-				, uint32_t(this->end() - this->begin() )
-				, sizeof(T)
-				, [](const void* _a, const void* _b) -> int32_t {
-					const T& lhs = *(const T*)(_a);
-					const T& rhs = *(const T*)(_b);
-					return lhs < rhs ? -1 : 1;
-				});
-		}
-	};
-
-} // namespace tinystl
-
 namespace stl = tinystl;
 
 namespace bx
@@ -124,8 +92,8 @@ namespace bx
 
 			if (0 < m_free.size() )
 			{
-				Blk freeBlock = m_free.front();
-				m_free.pop_front();
+				Blk freeBlock = m_free.back();
+				m_free.pop_back();
 				return freeBlock;
 			}
 
@@ -164,12 +132,21 @@ namespace bx
 		void free(const Blk& _blk)
 		{
 			m_used -= _blk.size;
-			m_free.push_front(_blk);
+			m_free.push_back(_blk);
+			compact();
 		}
 
 		bool compact()
 		{
-			m_free.sort();
+			bx::quickSort(
+				  m_free.begin()
+				, uint32_t(m_free.end() - m_free.begin() )
+				, sizeof(Blk)
+				, [](const void* _a, const void* _b) -> int32_t {
+					const Blk& lhs = *(const Blk*)(_a);
+					const Blk& rhs = *(const Blk*)(_b);
+					return lhs < rhs ? -1 : 1;
+				});
 
 			for (FreeList::iterator it = m_free.begin(), next = it, itEnd = m_free.end(); next != itEnd;)
 			{
@@ -194,7 +171,7 @@ namespace bx
 		}
 
 	private:
-		typedef stl::list<Blk> FreeList;
+		typedef stl::vector<Blk> FreeList;
 		FreeList m_free;
 		uint32_t m_used;
 	};

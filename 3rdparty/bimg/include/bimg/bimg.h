@@ -315,6 +315,9 @@ namespace bimg
 		);
 
 	///
+	void imageRgba32fToLinear(ImageContainer* _imageContainer);
+
+	///
 	void imageRgba32fToGamma(
 		  void* _dst
 		, uint32_t _width
@@ -323,6 +326,9 @@ namespace bimg
 		, uint32_t _srcPitch
 		, const void* _src
 		);
+
+	///
+	void imageRgba32fToGamma(ImageContainer* _imageContainer);
 
 	///
 	void imageRgba32fLinearDownsample2x2(

@@ -25,7 +25,7 @@
 #include <string>
 
 #define BIMG_TEXTUREC_VERSION_MAJOR 1
-#define BIMG_TEXTUREC_VERSION_MINOR 17
+#define BIMG_TEXTUREC_VERSION_MINOR 18
 
 BX_ERROR_RESULT(TEXTRUREC_ERROR, BX_MAKEFOURCC('t', 'c', 0, 0) );
 
@@ -46,6 +46,7 @@ struct Options
 			"\t radiance: %s\n"
 			"\t equirect: %s\n"
 			"\t    strip: %s\n"
+			"\t   linear: %s\n"
 			, maxSize
 			, mipSkip
 			, edge
@@ -58,6 +59,7 @@ struct Options
 			, radiance  ? "true" : "false"
 			, equirect  ? "true" : "false"
 			, strip     ? "true" : "false"
+			, linear    ? "true" : "false"
 			);
 	}
 
@@ -75,6 +77,7 @@ struct Options
 	bool pma       = false;
 	bool sdf       = false;
 	bool alphaTest = false;
+	bool linear    = false;
 };
 
 void imageRgba32fNormalize(void* _dst, uint32_t _width, uint32_t _height, uint32_t _srcPitch, const void* _src)
@@ -256,7 +259,8 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 			&& (bimg::LightingModel::Count == _options.radiance)
 			;
 
-		if (needResize)
+		if (!_options.sdf
+		&&  needResize)
 		{
 			bimg::ImageContainer* src = bimg::imageConvert(_allocator, bimg::TextureFormat::RGBA32F, *input, false);
 
@@ -271,7 +275,17 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 				, false
 				);
 
+			if (!_options.linear)
+			{
+				bimg::imageRgba32fToLinear(src);
+			}
+
 			bimg::imageResizeRgba32fLinear(dst, src);
+
+			if (!_options.linear)
+			{
+				bimg::imageRgba32fToGamma(dst);
+			}
 
 			bimg::imageFree(src);
 			bimg::imageFree(input);
@@ -630,7 +644,6 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 						, mip.m_width
 						, mip.m_height
 						, mip.m_width
-						, _options.edge
 						, rgba
 						);
 				}
@@ -848,10 +861,11 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "  -n, --normalmap          Input texture is normal map.\n"
 		  "      --equirect           Input texture is equirectangular projection of cubemap.\n"
 		  "      --strip              Input texture is horizontal strip of cubemap.\n"
-		  "      --sdf <edge>         Compute SDF texture.\n"
+		  "      --sdf                Compute SDF texture.\n"
 		  "      --ref <alpha>        Alpha reference value.\n"
 		  "      --iqa                Image Quality Assessment\n"
 		  "      --pma                Premultiply alpha into RGB channel.\n"
+		  "      --linear             Input and output texture is linear color space (gamma correction won't be applied).\n"
 		  "      --max <max size>     Maximum width/height (image will be scaled down and\n"
 		  "                           aspect ratio will be preserved.\n"
 		  "      --radiance <model>   Radiance cubemap filter. (Lighting model: Phong, PhongBrdf, Blinn, BlinnBrdf, GGX)\n"
@@ -970,34 +984,24 @@ int main(int _argc, const char* _argv[])
 
 	Options options;
 
-	const char* edgeOpt = cmdLine.findOption("sdf");
-	if (NULL != edgeOpt)
+	const char* alphaRef = cmdLine.findOption("ref");
+	if (NULL != alphaRef)
 	{
-		options.sdf  = true;
-		if (!bx::fromString(&options.edge, edgeOpt) )
+		options.alphaTest = true;
+		if (!bx::fromString(&options.edge, alphaRef))
 		{
-			options.edge = 255.0f;
-		}
-	}
-	else
-	{
-		const char* alphaRef = cmdLine.findOption("ref");
-		if (NULL != alphaRef)
-		{
-			options.alphaTest = true;
-			if (!bx::fromString(&options.edge, alphaRef))
-			{
-				options.edge = 0.5f;
-			}
+			options.edge = 0.5f;
 		}
 	}
 
+	options.sdf       = cmdLine.hasArg("sdf");
 	options.mips      = cmdLine.hasArg('m', "mips");
 	options.normalMap = cmdLine.hasArg('n', "normalmap");
 	options.equirect  = cmdLine.hasArg("equirect");
 	options.strip     = cmdLine.hasArg("strip");
 	options.iqa       = cmdLine.hasArg("iqa");
 	options.pma       = cmdLine.hasArg("pma");
+	options.linear    = cmdLine.hasArg("linear");
 
 	if (options.equirect
 	&&  options.strip)
