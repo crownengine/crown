@@ -92,18 +92,20 @@ namespace Crown
 
 			_scrolled_window = new Gtk.ScrolledWindow(null, null);
 			_scrolled_window.add(_tree_view);
+			_scrolled_window.set_size_request(300, 400);
 
 			read_project();
 
 			_engine_view = new EngineView(_console_client, false);
 			_engine_view.realized.connect(on_engine_view_realized);
+			_engine_view.set_size_request(300, 300);
 
 			_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_box.pack_start(_filter_entry, false, false, 0);
 			_box.pack_start(_engine_view, true, true, 0);
 			_box.pack_start(_scrolled_window, false, false, 0);
 
-			add(_box);
+			this.add(_box);
 		}
 
 		private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
