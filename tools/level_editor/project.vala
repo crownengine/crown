@@ -171,7 +171,7 @@ function Game.update(dt)
 	if Mouse.pressed(Mouse.button_id("right")) then move = true end
 	if Mouse.released(Mouse.button_id("right")) then move = false end
 	if move then delta = Mouse.axis(Mouse.axis_id("cursor_delta")) end
-	Game.camera:update(-delta.x, -delta.y)
+	Game.camera:update(dt, delta.x, delta.y)
 end
 
 function Game.render(dt)
