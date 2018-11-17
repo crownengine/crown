@@ -17,6 +17,8 @@
 			<separator></separator>
 			<menuitem action="preferences"></menuitem>
 			<separator></separator>
+			<menuitem action="deploy"></menuitem>
+			<separator></separator>
 			<menuitem action="quit"></menuitem>
 		</menu>
 		<menu action="menu-edit">

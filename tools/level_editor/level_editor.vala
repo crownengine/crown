@@ -101,6 +101,7 @@ namespace Crown
 			{ "import-sounds",        null,  "Sounds...",          null,             null,         on_import_sounds           },
 			{ "import-textures",      null,  "Textures...",        null,             null,         on_import_textures         },
 			{ "preferences",          null,  "Preferences",        null,             null,         on_preferences             },
+			{ "deploy",               null,  "Deploy...",          null,             null,         on_deploy                  },
 			{ "quit",                 null,  "Quit",               "<ctrl>Q",        null,         on_quit                    },
 			{ "menu-edit",            null,  "_Edit",              null,             null,         null                       },
 			{ "undo",                 null,  "Undo",               "<ctrl>Z",        null,         on_undo                    },
@@ -736,6 +737,56 @@ namespace Crown
 			}
 		}
 
+		private void deploy_game()
+		{
+			FileChooserDialog fcd = new FileChooserDialog("Select destination directory..."
+				, null
+				, FileChooserAction.SELECT_FOLDER
+				, "Cancel"
+				, ResponseType.CANCEL
+				, "Open"
+				, ResponseType.ACCEPT
+				);
+
+			if (fcd.run() == (int)ResponseType.ACCEPT)
+			{
+				GLib.File data_dir = File.new_for_path(fcd.get_filename());
+
+				string args[] =
+				{
+					ENGINE_EXE,
+					"--source-dir", _project.source_dir(),
+					"--map-source-dir", "core", _project.toolchain_dir(),
+					"--data-dir", data_dir.get_path(),
+					"--compile",
+					null
+				};
+
+				GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.NONE);
+				sl.set_cwd(ENGINE_DIR);
+				try
+				{
+					GLib.Subprocess compiler = sl.spawnv(args);
+					compiler.wait();
+					if (compiler.get_exit_status() == 0)
+					{
+						GLib.File engine_exe = File.new_for_path(ENGINE_EXE);
+						GLib.File engine_exe_dest = File.new_for_path(data_dir.get_path() + "/" + ENGINE_EXE);
+						engine_exe.copy(engine_exe_dest, FileCopyFlags.OVERWRITE);
+
+						_console_view.logi("editor", "Project deployed to `%s`".printf(data_dir.get_path()));
+					}
+				}
+				catch (Error e)
+				{
+					_console_view.logi("editor", "%s".printf(e.message));
+					_console_view.logi("editor", "Failed to deploy project");
+				}
+			}
+
+			fcd.destroy();
+		}
+
 		private void on_engine_view_realized()
 		{
 			start_engine(_engine_view.window_id);
@@ -1160,6 +1211,11 @@ namespace Crown
 			}
 
 			_preferences_dialog.show_all();
+		}
+
+		private void on_deploy(Gtk.Action action)
+		{
+			deploy_game();
 		}
 
 		private void on_quit(Gtk.Action action)
