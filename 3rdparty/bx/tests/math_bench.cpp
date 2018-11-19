@@ -25,8 +25,10 @@ float mathTest(const char* _name)
 		result += mfn(xx);
 	}
 
+	bx::Error err;
+
 	elapsed += bx::getHPCounter();
-	bx::writePrintf(writer, "%-20s: %15f\n", _name, double(elapsed) );
+	bx::write(writer, &err, "%-20s: %15f\n", _name, double(elapsed) );
 
 	return result;
 }
@@ -39,40 +41,41 @@ float rsqrt(float _a)
 void math_bench()
 {
 	bx::WriterI* writer = bx::getStdOut();
-	bx::writePrintf(writer, "Math bench\n\n");
+	bx::Error err;
+	bx::write(writer, &err, "Math bench\n\n");
 
 	mathTest<  ::sqrtf    >("  ::sqrtf");
 	mathTest<bx::sqrtRef  >("bx::sqrtRef");
 	mathTest<bx::sqrtSimd >("bx::sqrtSimd");
 	mathTest<bx::sqrt     >("bx::sqrt");
 
-	bx::writePrintf(writer, "\n");
+	bx::write(writer, &err, "\n");
 	mathTest<  ::rsqrt    >("  ::rsqrtf");
 	mathTest<bx::rsqrtRef >("bx::rsqrtRef");
 	mathTest<bx::rsqrtSimd>("bx::rsqrtSimd");
 	mathTest<bx::rsqrt    >("bx::rsqrt");
 
-	bx::writePrintf(writer, "\n");
+	bx::write(writer, &err, "\n");
 	mathTest<  ::sinf >("  ::sinf");
 	mathTest<bx::sin  >("bx::sin");
 
-	bx::writePrintf(writer, "\n");
+	bx::write(writer, &err, "\n");
 	mathTest<  ::asinf>("  ::asinf");
 	mathTest<bx::asin >("bx::asin");
 
-	bx::writePrintf(writer, "\n");
+	bx::write(writer, &err, "\n");
 	mathTest<  ::cosf >("  ::cosf");
 	mathTest<bx::cos  >("bx::cos");
 
-	bx::writePrintf(writer, "\n");
+	bx::write(writer, &err, "\n");
 	mathTest<  ::acosf>("  ::acosf");
 	mathTest<bx::acos >("bx::acos");
 
-	bx::writePrintf(writer, "\n");
+	bx::write(writer, &err, "\n");
 	mathTest<  ::tanf >("  ::tanf");
 	mathTest<bx::tan  >("bx::tan");
 
-	bx::writePrintf(writer, "\n");
+	bx::write(writer, &err, "\n");
 	mathTest<  ::atanf>("  ::atanf");
 	mathTest<bx::atan >("bx::atan");
 }

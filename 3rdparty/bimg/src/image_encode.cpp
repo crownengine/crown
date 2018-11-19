@@ -98,7 +98,7 @@ namespace bimg
 							for (uint32_t ii = 0; ii < 16; ++ii)
 							{ // BGRx
 								bx::memCopy(&block[ii*4], &ptr[(ii%4)*srcPitch + (ii&~3)], 4);
-								bx::xchg(block[ii*4+0], block[ii*4+2]);
+								bx::swap(block[ii*4+0], block[ii*4+2]);
 							}
 
 							*dstBlock++ = ProcessRGB_ETC2(block);

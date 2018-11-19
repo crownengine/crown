@@ -14,7 +14,7 @@ BX_ERROR_RESULT(BX_ERROR_NOT_DIRECTORY, BX_MAKEFOURCC('b', 'x', 0, 1) );
 
 namespace bx
 {
-	const int32_t kMaxFilePath = 1024;
+	constexpr int32_t kMaxFilePath = 1024;
 
 	/// Special predefined OS directories.
 	///

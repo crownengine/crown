@@ -9,10 +9,6 @@
 #include <bx/readerwriter.h>
 #include <bx/string.h>
 
-#if !BX_CRT_NONE
-#	include <stdio.h> // vsnprintf
-#endif // !BX_CRT_NONE
-
 namespace bx
 {
 	inline bool isInRange(char _ch, char _from, char _to)
@@ -891,9 +887,9 @@ namespace bx
 		}
 	} // anonymous namespace
 
-	int32_t write(WriterI* _writer, const char* _format, va_list _argList, Error* _err)
+	int32_t write(WriterI* _writer, const StringView& _format, va_list _argList, Error* _err)
 	{
-		MemoryReader reader(_format, uint32_t(strLen(_format) ) );
+		MemoryReader reader(_format.getPtr(), _format.getLength() );
 
 		int32_t size = 0;
 
@@ -1103,9 +1099,16 @@ namespace bx
 			}
 		}
 
-		size += write(_writer, '\0', _err);
-
 		return size;
+	}
+
+	int32_t write(WriterI* _writer, Error* _err, const StringView* _format, ...)
+	{
+		va_list argList;
+		va_start(argList, _format);
+		int32_t total = write(_writer, *_format, argList, _err);
+		va_end(argList);
+		return total;
 	}
 
 	int32_t write(WriterI* _writer, Error* _err, const char* _format, ...)
@@ -1117,7 +1120,7 @@ namespace bx
 		return total;
 	}
 
-	int32_t vsnprintfRef(char* _out, int32_t _max, const char* _format, va_list _argList)
+	int32_t vsnprintf(char* _out, int32_t _max, const char* _format, va_list _argList)
 	{
 		if (1 < _max)
 		{
@@ -1132,6 +1135,7 @@ namespace bx
 
 			if (err.isOk() )
 			{
+				size += write(&writer, '\0', &err);
 				return size - 1 /* size without '\0' terminator */;
 			}
 		}
@@ -1143,31 +1147,7 @@ namespace bx
 		int32_t size = write(&sizer, _format, argListCopy, &err);
 		va_end(argListCopy);
 
-		return size - 1 /* size without '\0' terminator */;
-	}
-
-	int32_t vsnprintf(char* _out, int32_t _max, const char* _format, va_list _argList)
-	{
-		va_list argList;
-		va_copy(argList, _argList);
-		int32_t total = 0;
-#if BX_CRT_NONE
-		total = vsnprintfRef(_out, _max, _format, argList);
-#elif BX_CRT_MSVC
-		int32_t len = -1;
-		if (NULL != _out)
-		{
-			va_list argListCopy;
-			va_copy(argListCopy, _argList);
-			len = ::vsnprintf_s(_out, _max, size_t(-1), _format, argListCopy);
-			va_end(argListCopy);
-		}
-		total = -1 == len ? ::_vscprintf(_format, argList) : len;
-#else
-		total = ::vsnprintf(_out, _max, _format, argList);
-#endif // BX_COMPILER_MSVC
-		va_end(argList);
-		return total;
+		return size;
 	}
 
 	int32_t snprintf(char* _out, int32_t _max, const char* _format, ...)

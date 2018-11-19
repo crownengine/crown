@@ -17,7 +17,7 @@
 #include "macros.h"
 
 ///
-#define BX_COUNTOF(_x) sizeof(bx::COUNTOF_REQUIRES_ARRAY_ARGUMENT(_x) )
+#define BX_COUNTOF(_x) sizeof(bx::CountOfRequireArrayArgumentT(_x) )
 
 ///
 #define BX_IGNORE_C4127(_x) bx::ignoreC4127(!!(_x) )
@@ -27,8 +27,8 @@
 
 namespace bx
 {
-	const int32_t kExitSuccess = 0;
-	const int32_t kExitFailure = 1;
+	constexpr int32_t kExitSuccess = 0;
+	constexpr int32_t kExitFailure = 1;
 
 	/// Template for avoiding MSVC: C4127: conditional expression is constant
 	template<bool>
@@ -38,12 +38,12 @@ namespace bx
 	template<class Ty>
 	constexpr bool isTriviallyCopyable();
 
-	/// Exchange two values.
+	/// Swap two values.
 	template<typename Ty>
-	void xchg(Ty& _a, Ty& _b);
+	void swap(Ty& _a, Ty& _b);
 
-	/// Exchange memory.
-	void xchg(void* _a, void* _b, size_t _numBytes);
+	/// Swap memory.
+	void swap(void* _a, void* _b, size_t _numBytes);
 
 	/// Returns minimum of two values.
 	template<typename Ty>
@@ -72,10 +72,6 @@ namespace bx
 	/// Returns true if value is power of 2.
 	template<typename Ty>
 	constexpr bool isPowerOf2(Ty _a);
-
-	// http://cnicholson.net/2011/01/stupid-c-tricks-a-better-sizeof_array/
-	template<typename T, size_t N>
-	char (&COUNTOF_REQUIRES_ARRAY_ARGUMENT(const T(&)[N]) )[N];
 
 	///
 	void memCopy(void* _dst, const void* _src, size_t _numBytes);

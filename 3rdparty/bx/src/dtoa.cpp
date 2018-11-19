@@ -467,7 +467,7 @@ namespace bx
 	{
 		for (int32_t ii = 0, jj = _len - 1; ii < jj; ++ii, --jj)
 		{
-			xchg(_dst[ii], _dst[jj]);
+			swap(_dst[ii], _dst[jj]);
 		}
 	}
 

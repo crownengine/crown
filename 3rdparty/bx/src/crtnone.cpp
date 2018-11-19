@@ -304,7 +304,8 @@ extern "C" int printf(const char* _format, ...)
 	va_list argList;
 	va_start(argList, _format);
 	bx::WriterI* writer = bx::getStdOut();
-	int32_t len = bx::writePrintfVargs(writer, _format, argList);
+	bx::Error err;
+	int32_t len = bx::write(writer, &err, _format, argList);
 	va_end(argList);
 	return len;
 }

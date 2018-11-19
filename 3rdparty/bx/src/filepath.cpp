@@ -158,7 +158,7 @@ namespace bx
 		uint32_t len = *_inOutSize;
 		*_out = '\0';
 
-		if (getenv(_name, _out, &len) )
+		if (getEnv(_name, _out, &len) )
 		{
 			FileInfo fi;
 			if (stat(_out, fi)
@@ -190,9 +190,13 @@ namespace bx
 	static bool getCurrentPath(char* _out, uint32_t* _inOutSize)
 	{
 		uint32_t len = *_inOutSize;
-		pwd(_out, len);
-		*_inOutSize = strLen(_out);
-		return true;
+		if (NULL != pwd(_out, len))
+		{
+			*_inOutSize = strLen(_out);
+			return true;
+		}
+
+		return false;
 	}
 
 	static bool getHomePath(char* _out, uint32_t* _inOutSize)

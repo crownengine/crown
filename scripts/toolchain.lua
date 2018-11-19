@@ -139,7 +139,7 @@ function toolchain(build_dir, lib_dir)
 			"-msse2",
 		}
 		buildoptions_cpp {
-			"-std=c++0x",
+			"-std=c++14",
 		}
 		links {
 			"dl",
@@ -180,7 +180,7 @@ function toolchain(build_dir, lib_dir)
 			"-Wunused-value",
 		}
 		buildoptions_cpp {
-			"-std=c++0x",
+			"-std=c++14",
 		}
 		linkoptions {
 			"-no-canonical-prefixes",
@@ -227,7 +227,7 @@ function toolchain(build_dir, lib_dir)
 			"-Wundef",
 		}
 		buildoptions_cpp {
-			"-std=c++0x",
+			"-std=c++14",
 		}
 		linkoptions {
 			"-Wl,--gc-sections",

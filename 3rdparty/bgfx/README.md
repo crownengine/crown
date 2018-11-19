@@ -43,7 +43,7 @@ Supported compilers:
 
  * Clang 3.3 and above
  * GCC 5 and above
- * VS2015 and above
+ * VS2017 and above
 
 Languages:
 
@@ -314,6 +314,11 @@ simulator.
 target="_blank"><img src="http://img.youtube.com/vi/IUmxqAWdXvk/0.jpg" 
 alt="Off The Road"
 width="640" height="480" border="0" /></a>
+
+## Coal Burnout
+
+https://beardsvibe.com/ - Multiplayer PVP rhythm game.
+![coal-burnout](https://beardsvibe.com/scr/0l.png)
 
 [License (BSD 2-clause)](https://bkaradzic.github.io/bgfx/license.html)
 -----------------------------------------------------------------------

@@ -35,8 +35,11 @@ public:
 		const char* data = (const char*)m_mb.more(0);
 		uint32_t size = uint32_t(bx::seek(&m_mw) );
 
-		bx::writePrintf(
+		bx::Error err;
+
+		bx::write(
 			  m_writer
+			, &err
 			, "static const uint8_t %.*s[%d] =\n{\n"
 			, m_name.getLength()
 			, m_name.getPtr()
@@ -60,7 +63,7 @@ public:
 				if (HEX_DUMP_WIDTH == asciiPos)
 				{
 					ascii[asciiPos] = '\0';
-					bx::writePrintf(m_writer, "\t" HEX_DUMP_FORMAT "// %s\n", hex, ascii);
+					bx::write(m_writer, &err, "\t" HEX_DUMP_FORMAT "// %s\n", hex, ascii);
 					data += asciiPos;
 					hexPos   = 0;
 					asciiPos = 0;
@@ -70,11 +73,11 @@ public:
 			if (0 != asciiPos)
 			{
 				ascii[asciiPos] = '\0';
-				bx::writePrintf(m_writer, "\t" HEX_DUMP_FORMAT "// %s\n", hex, ascii);
+				bx::write(m_writer, &err, "\t" HEX_DUMP_FORMAT "// %s\n", hex, ascii);
 			}
 		}
 
-		bx::writePrintf(m_writer, "};\n");
+		bx::write(m_writer, &err, "};\n");
 #undef HEX_DUMP_WIDTH
 #undef HEX_DUMP_SPACE_WIDTH
 #undef HEX_DUMP_FORMAT
@@ -88,19 +91,20 @@ public:
 void help(const char* _error = NULL)
 {
 	bx::WriterI* stdOut = bx::getStdOut();
+	bx::Error err;
 
 	if (NULL != _error)
 	{
-		bx::writePrintf(stdOut, "Error:\n%s\n\n", _error);
+		bx::write(stdOut, &err, "Error:\n%s\n\n", _error);
 	}
 
-	bx::writePrintf(stdOut
+	bx::write(stdOut, &err
 		, "bin2c, binary to C\n"
 		  "Copyright 2011-2018 Branimir Karadzic. All rights reserved.\n"
 		  "License: https://github.com/bkaradzic/bx#license-bsd-2-clause\n\n"
 		);
 
-	bx::writePrintf(stdOut
+	bx::write(stdOut, &err
 		, "Usage: bin2c -f <in> -o <out> -n <name>\n"
 		  "\n"
 		  "Options:\n"

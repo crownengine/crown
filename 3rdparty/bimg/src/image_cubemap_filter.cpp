@@ -77,7 +77,7 @@ namespace bimg
 			uint8_t m_faceEdge;
 		};
 
-		float uv[3][3];
+		bx::Vec3 uv[3];
 	};
 
 	static const CubeMapFace s_cubeMapFace[] =
@@ -155,42 +155,42 @@ namespace bimg
 	};
 
 	/// _u and _v should be center addressing and in [-1.0+invSize..1.0-invSize] range.
-	void texelUvToDir(float* _outDir, uint8_t _side, float _u, float _v)
+	bx::Vec3 texelUvToDir(uint8_t _side, float _u, float _v)
 	{
 		const CubeMapFace& face = s_cubeMapFace[_side];
 
-		float tmp[3];
-		tmp[0] = face.uv[0][0] * _u + face.uv[1][0] * _v + face.uv[2][0];
-		tmp[1] = face.uv[0][1] * _u + face.uv[1][1] * _v + face.uv[2][1];
-		tmp[2] = face.uv[0][2] * _u + face.uv[1][2] * _v + face.uv[2][2];
-		bx::vec3Norm(_outDir, tmp);
+		const bx::Vec3 tmp =
+		{
+			face.uv[0].x * _u + face.uv[1].x * _v + face.uv[2].x,
+			face.uv[0].y * _u + face.uv[1].y * _v + face.uv[2].y,
+			face.uv[0].z * _u + face.uv[1].z * _v + face.uv[2].z,
+		};
+
+		return bx::normalize(tmp);
 	}
 
-	void dirToTexelUv(float& _outU, float& _outV, uint8_t& _outSide, const float* _dir)
+	void dirToTexelUv(float& _outU, float& _outV, uint8_t& _outSide, const bx::Vec3& _dir)
 	{
-		float absVec[3];
-		bx::vec3Abs(absVec, _dir);
+		const bx::Vec3 absVec = bx::abs(_dir);
+		const float max = bx::max(absVec.x, absVec.y, absVec.z);
 
-		const float max = bx::max(absVec[0], absVec[1], absVec[2]);
-
-		if (max == absVec[0])
+		if (max == absVec.x)
 		{
-			_outSide = (_dir[0] >= 0.0f) ? uint8_t(CubeMapFace::PositiveX) : uint8_t(CubeMapFace::NegativeX);
+			_outSide = _dir.x >= 0.0f ? uint8_t(CubeMapFace::PositiveX) : uint8_t(CubeMapFace::NegativeX);
 		}
-		else if (max == absVec[1])
+		else if (max == absVec.y)
 		{
-			_outSide = (_dir[1] >= 0.0f) ? uint8_t(CubeMapFace::PositiveY) : uint8_t(CubeMapFace::NegativeY);
+			_outSide = _dir.y >= 0.0f ? uint8_t(CubeMapFace::PositiveY) : uint8_t(CubeMapFace::NegativeY);
 		}
 		else
 		{
-			_outSide = (_dir[2] >= 0.0f) ? uint8_t(CubeMapFace::PositiveZ) : uint8_t(CubeMapFace::NegativeZ);
+			_outSide = _dir.z >= 0.0f ? uint8_t(CubeMapFace::PositiveZ) : uint8_t(CubeMapFace::NegativeZ);
 		}
 
-		float faceVec[3];
-		bx::vec3Mul(faceVec, _dir, 1.0f/max);
+		const bx::Vec3 faceVec = bx::mul(_dir, 1.0f/max);
 
-		_outU = (bx::vec3Dot(s_cubeMapFace[_outSide].uv[0], faceVec) + 1.0f) * 0.5f;
-		_outV = (bx::vec3Dot(s_cubeMapFace[_outSide].uv[1], faceVec) + 1.0f) * 0.5f;
+		_outU = (bx::dot(s_cubeMapFace[_outSide].uv[0], faceVec) + 1.0f) * 0.5f;
+		_outV = (bx::dot(s_cubeMapFace[_outSide].uv[1], faceVec) + 1.0f) * 0.5f;
 	}
 
 	ImageContainer* imageCubemapFromLatLongRgba32F(bx::AllocatorI* _allocator, const ImageContainer& _input, bool _useBilinearInterpolation, bx::Error* _err)
@@ -239,11 +239,10 @@ namespace bimg
 					const float uu = 2.0f*xx*invDstWidth - 1.0f;
 					const float vv = 2.0f*yy*invDstWidth - 1.0f;
 
-					float dir[3];
-					texelUvToDir(dir, side, uu, vv);
+					const bx::Vec3 dir = texelUvToDir(side, uu, vv);
 
 					float srcU, srcV;
-					bx::vec3ToLatLong(&srcU, &srcV, dir);
+					bx::toLatLong(&srcU, &srcV, dir);
 
 					srcU *= srcWidthMinusOne;
 					srcV *= srcHeightMinusOne;
@@ -392,7 +391,7 @@ namespace bimg
 					const float uu = float(xx)*texelSize*2.0f - 1.0f;
 					const float vv = float(yy)*texelSize*2.0f - 1.0f;
 
-					texelUvToDir(dstData, side, uu, vv);
+					bx::store(dstData, texelUvToDir(side, uu, vv) );
 					dstData[3] = texelSolidAngle(uu, vv, texelSize);
 				}
 			}
@@ -441,7 +440,7 @@ namespace bimg
 		float m_max[2];
 	};
 
-	void calcFilterArea(Aabb* _outFilterArea, const float* _dir, float _filterSize)
+	void calcFilterArea(Aabb* _outFilterArea, const bx::Vec3& _dir, float _filterSize)
 	{
 		///   ______
 		///  |      |
@@ -690,7 +689,7 @@ namespace bimg
 		unpack(_rgba, texel);
 	}
 
-	void sampleCubeMap(float* _rgba, const ImageContainer& _image, const float* _dir, float _lod)
+	void sampleCubeMap(float* _rgba, const ImageContainer& _image, const bx::Vec3& _dir, float _lod)
 	{
 		float uu, vv;
 		uint8_t side;
@@ -762,7 +761,7 @@ namespace bimg
 		_rgba[3] = bx::lerp(rgbaA[3], rgbaB[3], fl);
 	}
 
-	void importanceSampleGgx(float* _result, float _u, float _v, float _roughness, const float* _normal, const float* _tangentX, const float* _tangentY)
+	bx::Vec3 importanceSampleGgx(float _u, float _v, float _roughness, const bx::Vec3& _normal, const bx::Vec3& _tangentX, const bx::Vec3& _tangentY)
 	{
 		const float aa  = bx::square(_roughness);
 		const float phi = bx::kPi2 * _u;
@@ -776,9 +775,12 @@ namespace bimg
 			cosTheta,
 		};
 
-		_result[0] = _tangentX[0] * hh[0] + _tangentY[0] * hh[1] + _normal[0] * hh[2];
-		_result[1] = _tangentX[1] * hh[0] + _tangentY[1] * hh[1] + _normal[1] * hh[2];
-		_result[2] = _tangentX[2] * hh[0] + _tangentY[2] * hh[1] + _normal[2] * hh[2];
+		return
+		{
+			_tangentX.x * hh[0] + _tangentY.x * hh[1] + _normal.x * hh[2],
+			_tangentX.y * hh[0] + _tangentY.y * hh[1] + _normal.y * hh[2],
+			_tangentX.z * hh[0] + _tangentY.z * hh[1] + _normal.z * hh[2],
+		};
 	}
 
 	float normalDistributionGgx(float _ndoth, float _roughness)
@@ -794,7 +796,7 @@ namespace bimg
 		  float* _result
 		, const ImageContainer& _image
 		, uint8_t _lod
-		, const float* _dir
+		, const bx::Vec3& _dir
 		, float _roughness
 		)
 	{
@@ -821,30 +823,24 @@ namespace bimg
 		const float kGoldenSection = 0.61803398875f;
 		float offset = kGoldenSection;
 
-		float tangentX[3];
-		float tangentY[3];
-		bx::vec3TangentFrame(_dir, tangentX, tangentY);
+		bx::Vec3 tangentX;
+		bx::Vec3 tangentY;
+		bx::calcTangentFrame(tangentX, tangentY, _dir);
 
 		for (uint32_t ii = 0; ii < kNumSamples; ++ii)
 		{
 			offset += kGoldenSection;
 			const float vv = ii/float(kNumSamples);
 
-			float hh[3];
-			importanceSampleGgx(hh, offset, vv, _roughness, _dir, tangentX, tangentY);
+			const bx::Vec3 hh  = importanceSampleGgx(offset, vv, _roughness, _dir, tangentX, tangentY);
+			const float ddoth2 = 2.0f * bx::dot(_dir, hh);
+			const bx::Vec3 ll  = bx::sub(bx::mul(hh, ddoth2), _dir);
 
-			const float ddoth2 = 2.0f * bx::vec3Dot(_dir, hh);
-
-			float ll[3];
-			ll[0] = ddoth2 * hh[0] - _dir[0];
-			ll[1] = ddoth2 * hh[1] - _dir[1];
-			ll[2] = ddoth2 * hh[2] - _dir[2];
-
-			const float ndotl = bx::clamp(bx::vec3Dot(_dir, ll), 0.0f, 1.0f);
+			const float ndotl = bx::clamp(bx::dot(_dir, ll), 0.0f, 1.0f);
 
 			if (ndotl > 0.0f)
 			{
-				const float ndoth = bx::clamp(bx::vec3Dot(_dir, hh), 0.0f, 1.0f);
+				const float ndoth = bx::clamp(bx::dot(_dir, hh), 0.0f, 1.0f);
 				const float vdoth = ndoth;
 
 				// Chapter 20. GPU-Based Importance Sampling
@@ -914,7 +910,7 @@ namespace bimg
 		, const ImageContainer& _nsa
 		, uint8_t _lod
 		, const Aabb* _aabb
-		, const float* _dir
+		, const bx::Vec3& _dir
 		, float _specularPower
 		, float _specularAngle
 		)
@@ -958,7 +954,7 @@ namespace bimg
 					{
 						const float* normal = (const float*)&nsaMip.m_data[(yy*nsaMip.m_width+xx)*(nsaMip.m_bpp/8)];
 						const float solidAngle = normal[3];
-						const float ndotl = bx::clamp(bx::vec3Dot(normal, _dir), 0.0f, 1.0f);
+						const float ndotl = bx::clamp(bx::dot(bx::load(normal), _dir), 0.0f, 1.0f);
 
 						if (ndotl >= _specularAngle)
 						{
@@ -1177,8 +1173,7 @@ namespace bimg
 						const float uu = float(xx)*texelSize*2.0f - 1.0f;
 						const float vv = float(yy)*texelSize*2.0f - 1.0f;
 
-						float dir[3];
-						texelUvToDir(dir, side, uu, vv);
+						bx::Vec3 dir = texelUvToDir(side, uu, vv);
 
 						if (LightingModel::Ggx == _lightingModel)
 						{

@@ -318,15 +318,16 @@ TEST_CASE("toString double", "")
 	REQUIRE(testToString(-79.39773355813419,      "-79.39773355813419") );
 }
 
-static bool testFromString(double _value, const char* _input)
+template<typename Ty>
+static bool testFromString(Ty _value, const char* _input)
 {
 	char tmp[1024];
 	bx::toString(tmp, BX_COUNTOF(tmp), _value);
 
-	double lhs;
+	Ty lhs;
 	bx::fromString(&lhs, tmp);
 
-	double rhs;
+	Ty rhs;
 	bx::fromString(&rhs, _input);
 
 	if (lhs == rhs)
@@ -338,33 +339,57 @@ static bool testFromString(double _value, const char* _input)
 	return false;
 }
 
+TEST_CASE("fromString float", "")
+{
+	REQUIRE(testFromString<float>(std::numeric_limits<float>::min(),    "1.175494351e-38") );
+	REQUIRE(testFromString<float>(std::numeric_limits<float>::lowest(), "-3.402823466e+38") );
+	REQUIRE(testFromString<float>(std::numeric_limits<float>::max(),    "3.402823466e+38") );
+}
+
 TEST_CASE("fromString double", "")
 {
-	REQUIRE(testFromString(0.0,                     "0.0") );
-	REQUIRE(testFromString(-0.0,                    "-0.0") );
-	REQUIRE(testFromString(1.0,                     "1.0") );
-	REQUIRE(testFromString(-1.0,                    "-1.0") );
-	REQUIRE(testFromString(1.2345,                  "1.2345") );
-	REQUIRE(testFromString(1.2345678,               "1.2345678") );
-	REQUIRE(testFromString(0.123456789012,          "0.123456789012") );
-	REQUIRE(testFromString(1234567.8,               "1234567.8") );
-	REQUIRE(testFromString(-79.39773355813419,      "-79.39773355813419") );
-	REQUIRE(testFromString(0.000001,                "0.000001") );
-	REQUIRE(testFromString(0.0000001,               "1e-7") );
-	REQUIRE(testFromString(1e30,                    "1e30") );
-	REQUIRE(testFromString(1.234567890123456e30,    "1.234567890123456e30") );
-	REQUIRE(testFromString(-5e-324,                 "-5e-324") );
-	REQUIRE(testFromString(2.225073858507201e-308,  "2.225073858507201e-308") );
-	REQUIRE(testFromString(2.2250738585072014e-308, "2.2250738585072014e-308") );
-	REQUIRE(testFromString(1.7976931348623157e308,  "1.7976931348623157e308") );
-	REQUIRE(testFromString(0.00000123123123,        "0.00000123123123") );
-	REQUIRE(testFromString(0.000000123123123,       "1.23123123e-7") );
-	REQUIRE(testFromString(123123.123,              "123123.123") );
-	REQUIRE(testFromString(1231231.23,              "1231231.23") );
-	REQUIRE(testFromString(0.000000000123123,       "1.23123e-10") );
-	REQUIRE(testFromString(0.0000000001,            "1e-10") );
-	REQUIRE(testFromString(-270.000000,             "-270.0") );
-	REQUIRE(testFromString(2.2250738585072011e-308, "2.2250738585072011e-308") );
+	REQUIRE(testFromString<double>(0.0,                     "0.0") );
+	REQUIRE(testFromString<double>(-0.0,                    "-0.0") );
+	REQUIRE(testFromString<double>(1.0,                     "1.0") );
+	REQUIRE(testFromString<double>(-1.0,                    "-1.0") );
+	REQUIRE(testFromString<double>(1.2345,                  "1.2345") );
+	REQUIRE(testFromString<double>(1.2345678,               "1.2345678") );
+	REQUIRE(testFromString<double>(0.123456789012,          "0.123456789012") );
+	REQUIRE(testFromString<double>(123456.789,              "123456.789") );
+	REQUIRE(testFromString<double>(1234567.8,               "1234567.8") );
+	REQUIRE(testFromString<double>(-79.39773355813419,      "-79.39773355813419") );
+	REQUIRE(testFromString<double>(0.000001,                "0.000001") );
+	REQUIRE(testFromString<double>(0.0000001,               "1e-7") );
+	REQUIRE(testFromString<double>(1e30,                    "1e30") );
+	REQUIRE(testFromString<double>(1.234567890123456e30,    "1.234567890123456e30") );
+	REQUIRE(testFromString<double>(-5e-324,                 "-5e-324") );
+	REQUIRE(testFromString<double>(2.225073858507201e-308,  "2.225073858507201e-308") );
+	REQUIRE(testFromString<double>(2.2250738585072014e-308, "2.2250738585072014e-308") );
+	REQUIRE(testFromString<double>(1.7976931348623157e308,  "1.7976931348623157e308") );
+	REQUIRE(testFromString<double>(0.00000123123123,        "0.00000123123123") );
+	REQUIRE(testFromString<double>(0.000000123123123,       "1.23123123e-7") );
+	REQUIRE(testFromString<double>(123123.123,              "123123.123") );
+	REQUIRE(testFromString<double>(1231231.23,              "1231231.23") );
+	REQUIRE(testFromString<double>(0.000000000123123,       "1.23123e-10") );
+	REQUIRE(testFromString<double>(0.0000000001,            "1e-10") );
+	REQUIRE(testFromString<double>(-270.000000,             "-270.0") );
+	REQUIRE(testFromString<double>(2.2250738585072011e-308, "2.2250738585072011e-308") ); // https://web.archive.org/web/20181112222123/https://www.exploringbinary.com/php-hangs-on-numeric-value-2-2250738585072011e-308/
+	REQUIRE(testFromString<double>(2.2250738585072009e-308, "2.2250738585072009e-308") ); // Max subnormal double
+	REQUIRE(testFromString<double>(4.9406564584124654e-324, "4.9406564584124654e-324") ); // Min denormal
+	REQUIRE(testFromString<double>(1.7976931348623157e+308, "1.7976931348623157e+308") ); // Max double
+
+//  warning: magnitude of floating-point constant too small for type 'double'; minimum is 4.9406564584124654E-324
+//	REQUIRE(testFromString<double>(1e-10000,                "0.0") );                     // Must underflow
+//	integer literal is too large to be represented in any integer type
+//	REQUIRE(testFromString<double>(18446744073709551616,    "18446744073709551616.0") );  // 2^64 (max of uint64_t + 1, force to use double)
+//	REQUIRE(testFromString<double>(-9223372036854775809,    "-9223372036854775809.0") );  // -2^63 - 1(min of int64_t + 1, force to use double)
+
+	REQUIRE(testFromString<double>(0.9868011474609375,      "0.9868011474609375") );      // https://github.com/miloyip/rapidjson/issues/120
+	REQUIRE(testFromString<double>(123e34,                  "123e34") );
+	REQUIRE(testFromString<double>(45913141877270640000.0,  "45913141877270640000.0") );
+	REQUIRE(testFromString<double>(std::numeric_limits<double>::min(),    "2.2250738585072014e-308") );
+	REQUIRE(testFromString<double>(std::numeric_limits<double>::lowest(), "-1.7976931348623158e+308") );
+	REQUIRE(testFromString<double>(std::numeric_limits<double>::max(),    "1.7976931348623158e+308") );
 }
 
 static bool testFromString(int32_t _value, const char* _input)
@@ -464,6 +489,5 @@ TEST_CASE("strFindBlock", "")
 	const bx::StringView test1(test0, 1);
 
 	bx::StringView result = bx::strFindBlock(test1, '{', '}');
-	printf("%.*s", result.getLength(), result.getPtr() );
 	REQUIRE(19 == result.getLength() );
 }

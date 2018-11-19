@@ -7,6 +7,7 @@
 #define BX_OS_H_HEADER_GUARD
 
 #include "debug.h"
+#include "filepath.h"
 
 #if BX_PLATFORM_OSX
 #	define BX_DL_EXT "dylib"
@@ -31,7 +32,7 @@ namespace bx
 	size_t getProcessMemoryUsed();
 
 	///
-	void* dlopen(const char* _filePath);
+	void* dlopen(const FilePath& _filePath);
 
 	///
 	void dlclose(void* _handle);
@@ -40,13 +41,10 @@ namespace bx
 	void* dlsym(void* _handle, const char* _symbol);
 
 	///
-	bool getenv(const char* _name, char* _out, uint32_t* _inOutSize);
+	bool getEnv(const char* _name, char* _out, uint32_t* _inOutSize);
 
 	///
-	void setenv(const char* _name, const char* _value);
-
-	///
-	void unsetenv(const char* _name);
+	void setEnv(const char* _name, const char* _value);
 
 	///
 	int chdir(const char* _path);

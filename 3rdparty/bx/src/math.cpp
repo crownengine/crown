@@ -9,35 +9,21 @@
 
 namespace bx
 {
-	const float kPi         = 3.1415926535897932384626433832795f;
-	const float kPi2        = 6.2831853071795864769252867665590f;
-	const float kInvPi      = 1.0f/kPi;
-	const float kPiHalf     = 1.5707963267948966192313216916398f;
-	const float kPiQuarter  = 0.7853981633974483096156608458199f;
-	const float kSqrt2      = 1.4142135623730950488016887242097f;
-	const float kLogNat10   = 2.3025850929940456840179914546844f;
-	const float kInvLogNat2 = 1.4426950408889634073599246810019f;
-	const float kLogNat2Hi  = 0.6931471805599453094172321214582f;
-	const float kLogNat2Lo  = 1.90821492927058770002e-10f;
-	const float kE          = 2.7182818284590452353602874713527f;
-	const float kNearZero   = 1.0f/float(1 << 28);
-	const float kFloatMin   = 1.175494e-38f;
-	const float kFloatMax   = 3.402823e+38f;
-	const float kInfinity   = bitsToFloat(UINT32_C(0x7f800000) );
+	const float kInfinity = bitsToFloat(UINT32_C(0x7f800000) );
 
 	namespace
 	{
-		static const float kSinC2  = -0.16666667163372039794921875f;
-		static const float kSinC4  =  8.333347737789154052734375e-3f;
-		static const float kSinC6  = -1.9842604524455964565277099609375e-4f;
-		static const float kSinC8  =  2.760012648650445044040679931640625e-6f;
-		static const float kSinC10 = -2.50293279435709337121807038784027099609375e-8f;
+		constexpr float kSinC2  = -0.16666667163372039794921875f;
+		constexpr float kSinC4  =  8.333347737789154052734375e-3f;
+		constexpr float kSinC6  = -1.9842604524455964565277099609375e-4f;
+		constexpr float kSinC8  =  2.760012648650445044040679931640625e-6f;
+		constexpr float kSinC10 = -2.50293279435709337121807038784027099609375e-8f;
 
-		static const float kCosC2  = -0.5f;
-		static const float kCosC4  =  4.166664183139801025390625e-2f;
-		static const float kCosC6  = -1.388833043165504932403564453125e-3f;
-		static const float kCosC8  =  2.47562347794882953166961669921875e-5f;
-		static const float kCosC10 = -2.59630184018533327616751194000244140625e-7f;
+		constexpr float kCosC2  = -0.5f;
+		constexpr float kCosC4  =  4.166664183139801025390625e-2f;
+		constexpr float kCosC6  = -1.388833043165504932403564453125e-3f;
+		constexpr float kCosC8  =  2.47562347794882953166961669921875e-5f;
+		constexpr float kCosC10 = -2.59630184018533327616751194000244140625e-7f;
 
 	} // namespace
 
@@ -86,10 +72,10 @@ namespace bx
 
 	namespace
 	{
-		static const float kAcosC0 =  1.5707288f;
-		static const float kAcosC1 = -0.2121144f;
-		static const float kAcosC2 =  0.0742610f;
-		static const float kAcosC3 = -0.0187293f;
+		constexpr float kAcosC0 =  1.5707288f;
+		constexpr float kAcosC1 = -0.2121144f;
+		constexpr float kAcosC2 =  0.0742610f;
+		constexpr float kAcosC3 = -0.0187293f;
 
 	} // namespace
 
@@ -109,12 +95,12 @@ namespace bx
 
 	namespace
 	{
-		static const float kAtan2C0 = -0.013480470f;
-		static const float kAtan2C1 =  0.057477314f;
-		static const float kAtan2C2 = -0.121239071f;
-		static const float kAtan2C3 =  0.195635925f;
-		static const float kAtan2C4 = -0.332994597f;
-		static const float kAtan2C5 =  0.999995630f;
+		constexpr float kAtan2C0 = -0.013480470f;
+		constexpr float kAtan2C1 =  0.057477314f;
+		constexpr float kAtan2C2 = -0.121239071f;
+		constexpr float kAtan2C3 =  0.195635925f;
+		constexpr float kAtan2C4 = -0.332994597f;
+		constexpr float kAtan2C5 =  0.999995630f;
 
 	} // namespace
 
@@ -175,11 +161,11 @@ namespace bx
 
 	namespace
 	{
-		static const float kExpC0  =  1.66666666666666019037e-01f;
-		static const float kExpC1  = -2.77777777770155933842e-03f;
-		static const float kExpC2  =  6.61375632143793436117e-05f;
-		static const float kExpC3  = -1.65339022054652515390e-06f;
-		static const float kExpC4  =  4.13813679705723846039e-08f;
+		constexpr float kExpC0  =  1.66666666666666019037e-01f;
+		constexpr float kExpC1  = -2.77777777770155933842e-03f;
+		constexpr float kExpC2  =  6.61375632143793436117e-05f;
+		constexpr float kExpC3  = -1.65339022054652515390e-06f;
+		constexpr float kExpC4  =  4.13813679705723846039e-08f;
 
 	} // namespace
 
@@ -209,13 +195,13 @@ namespace bx
 
 	namespace
 	{
-		static const float kLogC0 = 6.666666666666735130e-01f;
-		static const float kLogC1 = 3.999999999940941908e-01f;
-		static const float kLogC2 = 2.857142874366239149e-01f;
-		static const float kLogC3 = 2.222219843214978396e-01f;
-		static const float kLogC4 = 1.818357216161805012e-01f;
-		static const float kLogC5 = 1.531383769920937332e-01f;
-		static const float kLogC6 = 1.479819860511658591e-01f;
+		constexpr float kLogC0 = 6.666666666666735130e-01f;
+		constexpr float kLogC1 = 3.999999999940941908e-01f;
+		constexpr float kLogC2 = 2.857142874366239149e-01f;
+		constexpr float kLogC3 = 2.222219843214978396e-01f;
+		constexpr float kLogC4 = 1.818357216161805012e-01f;
+		constexpr float kLogC5 = 1.531383769920937332e-01f;
+		constexpr float kLogC6 = 1.479819860511658591e-01f;
 
 	} // namespace
 
@@ -269,66 +255,48 @@ namespace bx
 		return _a - fract(_a);
 	}
 
-	void mtxLookAtImpl(float* _result, const float* _eye, const float* _view, const float* _up)
+	static void mtxLookAtImpl(float* _result, const Vec3& _eye, const Vec3& _view, const Vec3& _up)
 	{
-		float up[3] = { 0.0f, 1.0f, 0.0f };
-		if (NULL != _up)
-		{
-			up[0] = _up[0];
-			up[1] = _up[1];
-			up[2] = _up[2];
-		}
-
-		float tmp[4];
-		vec3Cross(tmp, up, _view);
-
-		float right[4];
-		vec3Norm(right, tmp);
-
-		vec3Cross(up, _view, right);
+		const Vec3 uxv   = cross(_up, _view);
+		const Vec3 right = normalize(uxv);
+		const Vec3 up    = cross(_view, right);
 
 		memSet(_result, 0, sizeof(float)*16);
-		_result[ 0] = right[0];
-		_result[ 1] = up[0];
-		_result[ 2] = _view[0];
+		_result[ 0] = right.x;
+		_result[ 1] = up.x;
+		_result[ 2] = _view.x;
 
-		_result[ 4] = right[1];
-		_result[ 5] = up[1];
-		_result[ 6] = _view[1];
+		_result[ 4] = right.y;
+		_result[ 5] = up.y;
+		_result[ 6] = _view.y;
 
-		_result[ 8] = right[2];
-		_result[ 9] = up[2];
-		_result[10] = _view[2];
+		_result[ 8] = right.z;
+		_result[ 9] = up.z;
+		_result[10] = _view.z;
 
-		_result[12] = -vec3Dot(right, _eye);
-		_result[13] = -vec3Dot(up, _eye);
-		_result[14] = -vec3Dot(_view, _eye);
+		_result[12] = -dot(right, _eye);
+		_result[13] = -dot(up, _eye);
+		_result[14] = -dot(_view, _eye);
 		_result[15] = 1.0f;
 	}
 
-	void mtxLookAtLh(float* _result, const float* _eye, const float* _at, const float* _up)
+	void mtxLookAtLh(float* _result, const Vec3& _eye, const Vec3& _at, const Vec3& _up)
 	{
-		float tmp[4];
-		vec3Sub(tmp, _at, _eye);
-
-		float view[4];
-		vec3Norm(view, tmp);
+		const Vec3 tmp  = sub(_at, _eye);
+		const Vec3 view = normalize(tmp);
 
 		mtxLookAtImpl(_result, _eye, view, _up);
 	}
 
-	void mtxLookAtRh(float* _result, const float* _eye, const float* _at, const float* _up)
+	void mtxLookAtRh(float* _result, const Vec3& _eye, const Vec3& _at, const Vec3& _up)
 	{
-		float tmp[4];
-		vec3Sub(tmp, _eye, _at);
-
-		float view[4];
-		vec3Norm(view, tmp);
+		const Vec3 tmp = sub(_eye, _at);
+		const Vec3 view = normalize(tmp);
 
 		mtxLookAtImpl(_result, _eye, view, _up);
 	}
 
-	void mtxLookAt(float* _result, const float* _eye, const float* _at, const float* _up)
+	void mtxLookAt(float* _result, const Vec3& _eye, const Vec3& _at, const Vec3& _up)
 	{
 		mtxLookAtLh(_result, _eye, _at, _up);
 	}

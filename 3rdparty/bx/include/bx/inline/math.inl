@@ -23,25 +23,25 @@ namespace bx
 		return _rad * 180.0f / kPi;
 	}
 
-	inline BX_CONST_FUNC uint32_t floatToBits(float _a)
+	inline constexpr BX_CONST_FUNC uint32_t floatToBits(float _a)
 	{
 		union { float f; uint32_t ui; } u = { _a };
 		return u.ui;
 	}
 
-	inline BX_CONST_FUNC float bitsToFloat(uint32_t _a)
+	inline constexpr BX_CONST_FUNC float bitsToFloat(uint32_t _a)
 	{
 		union { uint32_t ui; float f; } u = { _a };
 		return u.f;
 	}
 
-	inline BX_CONST_FUNC uint64_t doubleToBits(double _a)
+	inline constexpr BX_CONST_FUNC uint64_t doubleToBits(double _a)
 	{
 		union { double f; uint64_t ui; } u = { _a };
 		return u.ui;
 	}
 
-	inline BX_CONST_FUNC double bitsToDouble(uint64_t _a)
+	inline constexpr BX_CONST_FUNC double bitsToDouble(uint64_t _a)
 	{
 		union { uint64_t ui; double f; } u = { _a };
 		return u.f;
@@ -58,37 +58,37 @@ namespace bx
 		return result;
 	}
 
-	inline BX_CONST_FUNC bool isNan(float _f)
+	inline constexpr BX_CONST_FUNC bool isNan(float _f)
 	{
 		const uint32_t tmp = floatToBits(_f) & INT32_MAX;
 		return tmp > UINT32_C(0x7f800000);
 	}
 
-	inline BX_CONST_FUNC bool isNan(double _f)
+	inline constexpr BX_CONST_FUNC bool isNan(double _f)
 	{
 		const uint64_t tmp = doubleToBits(_f) & INT64_MAX;
 		return tmp > UINT64_C(0x7ff0000000000000);
 	}
 
-	inline BX_CONST_FUNC bool isFinite(float _f)
+	inline constexpr BX_CONST_FUNC bool isFinite(float _f)
 	{
 		const uint32_t tmp = floatToBits(_f) & INT32_MAX;
 		return tmp < UINT32_C(0x7f800000);
 	}
 
-	inline BX_CONST_FUNC bool isFinite(double _f)
+	inline constexpr BX_CONST_FUNC bool isFinite(double _f)
 	{
 		const uint64_t tmp = doubleToBits(_f) & INT64_MAX;
 		return tmp < UINT64_C(0x7ff0000000000000);
 	}
 
-	inline BX_CONST_FUNC bool isInfinite(float _f)
+	inline constexpr BX_CONST_FUNC bool isInfinite(float _f)
 	{
 		const uint32_t tmp = floatToBits(_f) & INT32_MAX;
 		return tmp == UINT32_C(0x7f800000);
 	}
 
-	inline BX_CONST_FUNC bool isInfinite(double _f)
+	inline constexpr BX_CONST_FUNC bool isInfinite(double _f)
 	{
 		const uint64_t tmp = doubleToBits(_f) & INT64_MAX;
 		return tmp == UINT64_C(0x7ff0000000000000);
@@ -104,22 +104,22 @@ namespace bx
 		return -floor(-_a);
 	}
 
-	inline BX_CONST_FUNC float lerp(float _a, float _b, float _t)
+	inline constexpr BX_CONST_FUNC float lerp(float _a, float _b, float _t)
 	{
 		return _a + (_b - _a) * _t;
 	}
 
-	inline BX_CONST_FUNC float abs(float _a)
-	{
-		return _a < 0.0f ? -_a : _a;
-	}
-
-	inline BX_CONST_FUNC float sign(float _a)
+	inline constexpr BX_CONST_FUNC float sign(float _a)
 	{
 		return _a < 0.0f ? -1.0f : 1.0f;
 	}
 
-	inline BX_CONST_FUNC float square(float _a)
+	inline constexpr BX_CONST_FUNC float abs(float _a)
+	{
+		return _a < 0.0f ? -_a : _a;
+	}
+
+	inline constexpr BX_CONST_FUNC float square(float _a)
 	{
 		return _a * _a;
 	}
@@ -237,17 +237,17 @@ namespace bx
 #endif // BX_CONFIG_SUPPORTS_SIMD
 	}
 
-	inline BX_CONST_FUNC float trunc(float _a)
+	inline constexpr BX_CONST_FUNC float trunc(float _a)
 	{
 		return float(int(_a) );
 	}
 
-	inline BX_CONST_FUNC float fract(float _a)
+	inline constexpr BX_CONST_FUNC float fract(float _a)
 	{
 		return _a - trunc(_a);
 	}
 
-	inline BX_CONST_FUNC float mad(float _a, float _b, float _c)
+	inline constexpr BX_CONST_FUNC float mad(float _a, float _b, float _c)
 	{
 		return _a * _b + _c;
 	}
@@ -257,7 +257,7 @@ namespace bx
 		return _a - _b * floor(_a / _b);
 	}
 
-	inline BX_CONST_FUNC bool equal(float _a, float _b, float _epsilon)
+	inline constexpr BX_CONST_FUNC bool equal(float _a, float _b, float _epsilon)
 	{
 		// Reference:
 		// https://web.archive.org/web/20181103180318/http://realtimecollisiondetection.net/blog/?p=89
@@ -283,27 +283,27 @@ namespace bx
 		return result;
 	}
 
-	inline BX_CONST_FUNC float step(float _edge, float _a)
+	inline constexpr BX_CONST_FUNC float step(float _edge, float _a)
 	{
 		return _a < _edge ? 0.0f : 1.0f;
 	}
 
-	inline BX_CONST_FUNC float pulse(float _a, float _start, float _end)
+	inline constexpr BX_CONST_FUNC float pulse(float _a, float _start, float _end)
 	{
 		return step(_a, _start) - step(_a, _end);
 	}
 
-	inline BX_CONST_FUNC float smoothStep(float _a)
+	inline constexpr BX_CONST_FUNC float smoothStep(float _a)
 	{
 		return square(_a)*(3.0f - 2.0f*_a);
 	}
 
-	inline BX_CONST_FUNC float bias(float _time, float _bias)
+	inline constexpr BX_CONST_FUNC float bias(float _time, float _bias)
 	{
 		return _time / ( ( (1.0f/_bias - 2.0f)*(1.0f - _time) ) + 1.0f);
 	}
 
-	inline BX_CONST_FUNC float gain(float _time, float _gain)
+	inline constexpr BX_CONST_FUNC float gain(float _time, float _gain)
 	{
 		if (_time < 0.5f)
 		{
@@ -324,11 +324,249 @@ namespace bx
 		return _a + angleDiff(_a, _b) * _t;
 	}
 
-	inline void vec3Move(float* _result, const float* _a)
+	inline Vec3 load(const void* _ptr)
 	{
-		_result[0] = _a[0];
-		_result[1] = _a[1];
-		_result[2] = _a[2];
+		const float* ptr = reinterpret_cast<const float*>(_ptr);
+		return
+		{
+			ptr[0],
+			ptr[1],
+			ptr[2],
+		};
+	}
+
+	inline void store(void* _ptr, const Vec3& _a)
+	{
+		float* ptr = reinterpret_cast<float*>(_ptr);
+		ptr[0] = _a.x;
+		ptr[1] = _a.y;
+		ptr[2] = _a.z;
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 abs(const Vec3&  _a)
+	{
+		return
+		{
+			abs(_a.x),
+			abs(_a.y),
+			abs(_a.z),
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 neg(const Vec3&  _a)
+	{
+		return
+		{
+			-_a.x,
+			-_a.y,
+			-_a.z,
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 add(const Vec3&  _a, const Vec3&  _b)
+	{
+		return
+		{
+			_a.x + _b.x,
+			_a.y + _b.y,
+			_a.z + _b.z,
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 add(const Vec3&  _a, float _b)
+	{
+		return
+		{
+			_a.x + _b,
+			_a.y + _b,
+			_a.z + _b,
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 sub(const Vec3&  _a, const Vec3&  _b)
+	{
+		return
+		{
+			_a.x - _b.x,
+			_a.y - _b.y,
+			_a.z - _b.z,
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 sub(const Vec3&  _a, float _b)
+	{
+		return
+		{
+			_a.x - _b,
+			_a.y - _b,
+			_a.z - _b,
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 mul(const Vec3&  _a, const Vec3&  _b)
+	{
+		return
+		{
+			_a.x * _b.x,
+			_a.y * _b.y,
+			_a.z * _b.z,
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 mul(const Vec3&  _a, float _b)
+	{
+		return
+		{
+			_a.x * _b,
+			_a.y * _b,
+			_a.z * _b,
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 mad(const Vec3& _a, const Vec3& _b, const Vec3& _c)
+	{
+		return add(mul(_a, _b), _c);
+	}
+
+	inline constexpr BX_CONST_FUNC float dot(const Vec3&  _a, const Vec3&  _b)
+	{
+		return _a.x*_b.x + _a.y*_b.y + _a.z*_b.z;
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 cross(const Vec3&  _a, const Vec3&  _b)
+	{
+		return
+		{
+			_a.y*_b.z - _a.z*_b.y,
+			_a.z*_b.x - _a.x*_b.z,
+			_a.x*_b.y - _a.y*_b.x,
+		};
+	}
+
+	inline BX_CONST_FUNC float length(const Vec3&  _a)
+	{
+		return sqrt(dot(_a, _a) );
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 lerp(const Vec3&  _a, const Vec3&  _b, float _t)
+	{
+		return
+		{
+			lerp(_a.x, _b.x, _t),
+			lerp(_a.y, _b.y, _t),
+			lerp(_a.z, _b.z, _t),
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 lerp(const Vec3&  _a, const Vec3&  _b, const Vec3&  _t)
+	{
+		return
+		{
+			lerp(_a.x, _b.x, _t.x),
+			lerp(_a.y, _b.y, _t.y),
+			lerp(_a.z, _b.z, _t.z),
+		};
+	}
+
+	inline BX_CONST_FUNC Vec3 normalize(const Vec3&  _a)
+	{
+		const float invLen = 1.0f/length(_a);
+		const Vec3  result = mul(_a, invLen);
+		return result;
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 min(const Vec3&  _a, const Vec3&  _b)
+	{
+		return
+		{
+			min(_a.x, _b.x),
+			min(_a.y, _b.y),
+			min(_a.z, _b.z),
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 max(const Vec3&  _a, const Vec3&  _b)
+	{
+		return
+		{
+			max(_a.x, _b.x),
+			max(_a.y, _b.y),
+			max(_a.z, _b.z),
+		};
+	}
+
+	inline constexpr BX_CONST_FUNC Vec3 rcp(const Vec3&  _a)
+	{
+		return
+		{
+			1.0f / _a.x,
+			1.0f / _a.y,
+			1.0f / _a.z,
+		};
+	}
+
+	inline void calcTangentFrame(Vec3& _outT, Vec3& _outB, const Vec3& _n)
+	{
+		const float nx = _n.x;
+		const float ny = _n.y;
+		const float nz = _n.z;
+
+		if (abs(nx) > abs(nz) )
+		{
+			float invLen = 1.0f / sqrt(nx*nx + nz*nz);
+			_outT.x = -nz * invLen;
+			_outT.y =  0.0f;
+			_outT.z =  nx * invLen;
+		}
+		else
+		{
+			float invLen = 1.0f / sqrt(ny*ny + nz*nz);
+			_outT.x =  0.0f;
+			_outT.y =  nz * invLen;
+			_outT.z = -ny * invLen;
+		}
+
+		_outB = cross(_n, _outT);
+	}
+
+	inline void calcTangentFrame(Vec3& _outT, Vec3& _outB, const Vec3& _n, float _angle)
+	{
+		calcTangentFrame(_outT, _outB, _n);
+
+		const float sa = sin(_angle);
+		const float ca = cos(_angle);
+
+		_outT.x = -sa * _outB.x + ca * _outT.x;
+		_outT.y = -sa * _outB.y + ca * _outT.y;
+		_outT.z = -sa * _outB.z + ca * _outT.z;
+
+		_outB = cross(_n, _outT);
+	}
+
+	inline BX_CONST_FUNC Vec3 fromLatLong(float _u, float _v)
+	{
+		Vec3 result;
+		const float phi   = _u * kPi2;
+		const float theta = _v * kPi;
+
+		const float st = sin(theta);
+		const float sp = sin(phi);
+		const float ct = cos(theta);
+		const float cp = cos(phi);
+
+		result.x = -st*sp;
+		result.y =  ct;
+		result.z = -st*cp;
+		return result;
+	}
+
+	inline void toLatLong(float* _outU, float* _outV, const Vec3&  _dir)
+	{
+		const float phi   = atan2(_dir.x, _dir.z);
+		const float theta = acos(_dir.y);
+
+		*_outU = (bx::kPi + phi)/bx::kPi2;
+		*_outV = theta*bx::kInvPi;
 	}
 
 	inline void vec3Abs(float* _result, const float* _a)
@@ -336,13 +574,6 @@ namespace bx
 		_result[0] = abs(_a[0]);
 		_result[1] = abs(_a[1]);
 		_result[2] = abs(_a[2]);
-	}
-
-	inline void vec3Neg(float* _result, const float* _a)
-	{
-		_result[0] = -_a[0];
-		_result[1] = -_a[1];
-		_result[2] = -_a[2];
 	}
 
 	inline void vec3Add(float* _result, const float* _a, const float* _b)
@@ -426,27 +657,6 @@ namespace bx
 		_result[1] = _a[1] * invLen;
 		_result[2] = _a[2] * invLen;
 		return len;
-	}
-
-	inline void vec3Min(float* _result, const float* _a, const float* _b)
-	{
-		_result[0] = min(_a[0], _b[0]);
-		_result[1] = min(_a[1], _b[1]);
-		_result[2] = min(_a[2], _b[2]);
-	}
-
-	inline void vec3Max(float* _result, const float* _a, const float* _b)
-	{
-		_result[0] = max(_a[0], _b[0]);
-		_result[1] = max(_a[1], _b[1]);
-		_result[2] = max(_a[2], _b[2]);
-	}
-
-	inline void vec3Rcp(float* _result, const float* _a)
-	{
-		_result[0] = 1.0f / _a[0];
-		_result[1] = 1.0f / _a[1];
-		_result[2] = 1.0f / _a[2];
 	}
 
 	inline void vec3TangentFrame(const float* _n, float* _t, float* _b)
@@ -798,6 +1008,42 @@ namespace bx
 		mtxQuatTranslation(_result, quat, _translation);
 	}
 
+	inline Vec3 mul(const Vec3& _vec, const float* _mat)
+	{
+		Vec3 result;
+		result.x = _vec.x * _mat[0] + _vec.y * _mat[4] + _vec.z * _mat[ 8] + _mat[12];
+		result.y = _vec.x * _mat[1] + _vec.y * _mat[5] + _vec.z * _mat[ 9] + _mat[13];
+		result.z = _vec.x * _mat[2] + _vec.y * _mat[6] + _vec.z * _mat[10] + _mat[14];
+		return result;
+	}
+
+	inline Vec3 mulXyz0(const Vec3& _vec, const float* _mat)
+	{
+		Vec3 result;
+		result.x = _vec.x * _mat[0] + _vec.y * _mat[4] + _vec.z * _mat[ 8];
+		result.y = _vec.x * _mat[1] + _vec.y * _mat[5] + _vec.z * _mat[ 9];
+		result.z = _vec.x * _mat[2] + _vec.y * _mat[6] + _vec.z * _mat[10];
+		return result;
+	}
+
+	inline Vec3 mulH(const Vec3& _vec, const float* _mat)
+	{
+		const float xx   = _vec.x * _mat[0] + _vec.y * _mat[4] + _vec.z * _mat[ 8] + _mat[12];
+		const float yy   = _vec.x * _mat[1] + _vec.y * _mat[5] + _vec.z * _mat[ 9] + _mat[13];
+		const float zz   = _vec.x * _mat[2] + _vec.y * _mat[6] + _vec.z * _mat[10] + _mat[14];
+		const float ww   = _vec.x * _mat[3] + _vec.y * _mat[7] + _vec.z * _mat[11] + _mat[15];
+		const float invW = sign(ww) / ww;
+
+		Vec3 result =
+		{
+			xx * invW,
+			yy * invW,
+			zz * invW,
+		};
+
+		return result;
+	}
+
 	inline void vec3MulMtx(float* _result, const float* _vec, const float* _mat)
 	{
 		_result[0] = _vec[0] * _mat[ 0] + _vec[1] * _mat[4] + _vec[2] * _mat[ 8] + _mat[12];
@@ -936,11 +1182,15 @@ namespace bx
 	{
 		float normal[3];
 		calcNormal(normal, _va, _vb, _vc);
+		calcPlane(_result, normal, _va);
+	}
 
-		_result[0] = normal[0];
-		_result[1] = normal[1];
-		_result[2] = normal[2];
-		_result[3] = -vec3Dot(normal, _va);
+	inline void calcPlane(float _result[4], const float _normal[3], const float _pos[3])
+	{
+		_result[0] = _normal[0];
+		_result[1] = _normal[1];
+		_result[2] = _normal[2];
+		_result[3] = -vec3Dot(_normal, _pos);
 	}
 
 	inline BX_CONST_FUNC float toLinear(float _a)

@@ -171,10 +171,10 @@ namespace bx
 #endif // BX_PLATFORM_*
 	}
 
-	void* dlopen(const char* _filePath)
+	void* dlopen(const FilePath& _filePath)
 	{
 #if BX_PLATFORM_WINDOWS
-		return (void*)::LoadLibraryA(_filePath);
+		return (void*)::LoadLibraryA(_filePath.get() );
 #elif  BX_PLATFORM_EMSCRIPTEN \
 	|| BX_PLATFORM_PS4        \
 	|| BX_PLATFORM_XBOXONE    \
@@ -183,7 +183,7 @@ namespace bx
 		BX_UNUSED(_filePath);
 		return NULL;
 #else
-		return ::dlopen(_filePath, RTLD_LOCAL|RTLD_LAZY);
+		return ::dlopen(_filePath.get(), RTLD_LOCAL|RTLD_LAZY);
 #endif // BX_PLATFORM_
 	}
 
@@ -218,7 +218,7 @@ namespace bx
 #endif // BX_PLATFORM_
 	}
 
-	bool getenv(const char* _name, char* _out, uint32_t* _inOutSize)
+	bool getEnv(const char* _name, char* _out, uint32_t* _inOutSize)
 	{
 #if BX_PLATFORM_WINDOWS
 		DWORD len = ::GetEnvironmentVariableA(_name, _out, *_inOutSize);
@@ -251,7 +251,7 @@ namespace bx
 #endif // BX_PLATFORM_
 	}
 
-	void setenv(const char* _name, const char* _value)
+	void setEnv(const char* _name, const char* _value)
 	{
 #if BX_PLATFORM_WINDOWS
 		::SetEnvironmentVariableA(_name, _value);
@@ -261,21 +261,14 @@ namespace bx
 	|| BX_CRT_NONE
 		BX_UNUSED(_name, _value);
 #else
-		::setenv(_name, _value, 1);
-#endif // BX_PLATFORM_
-	}
-
-	void unsetenv(const char* _name)
-	{
-#if BX_PLATFORM_WINDOWS
-		::SetEnvironmentVariableA(_name, NULL);
-#elif  BX_PLATFORM_PS4     \
-	|| BX_PLATFORM_XBOXONE \
-	|| BX_PLATFORM_WINRT   \
-	|| BX_CRT_NONE
-		BX_UNUSED(_name);
-#else
-		::unsetenv(_name);
+		if (NULL != _value)
+		{
+			::setenv(_name, _value, 1);
+		}
+		else
+		{
+			::unsetenv(_name);
+		}
 #endif // BX_PLATFORM_
 	}
 

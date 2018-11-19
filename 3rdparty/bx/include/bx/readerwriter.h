@@ -262,7 +262,13 @@ namespace bx
 	/// Write string view.
 	int32_t write(WriterI* _writer, const StringView& _str, Error* _err = NULL);
 
-	///
+	/// Write formated string.
+	int32_t write(WriterI* _writer, const StringView& _format, va_list _argList, Error* _err);
+
+	/// Write formated string.
+	int32_t write(WriterI* _writer, Error* _err, const StringView* _format, ...);
+
+	/// Write formated string.
 	int32_t write(WriterI* _writer, Error* _err, const char* _format, ...);
 
 	/// Write repeat the same value.
@@ -279,12 +285,6 @@ namespace bx
 	/// Write value as big endian.
 	template<typename Ty>
 	int32_t writeBE(WriterI* _writer, const Ty& _value, Error* _err = NULL);
-
-	/// Write formated string.
-	int32_t writePrintfVargs(WriterI* _writer, const char* _format, va_list _argList);
-
-	/// Write formated string.
-	int32_t writePrintf(WriterI* _writer, const char* _format, ...);
 
 	/// Skip _offset bytes forward.
 	int64_t skip(SeekerI* _seeker, int64_t _offset);

@@ -111,7 +111,7 @@ void simd_bench()
 	for (uint32_t ii = 0; ii < numVertices; ++ii)
 	{
 		float* ptr = (float*)&src[ii];
-		randUnitSphere(ptr, &rng);
+		bx::store(ptr, bx::randUnitSphere(&rng) );
 		ptr[3] = 1.0f;
 	}
 

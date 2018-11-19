@@ -356,43 +356,6 @@ namespace bx
 		return result;
 	}
 
-	inline int32_t writePrintfVargs(WriterI* _writer, const char* _format, va_list _argList)
-	{
-		va_list argListCopy;
-		va_copy(argListCopy, _argList);
-
-		char temp[2048];
-		char*   out = temp;
-		int32_t max = sizeof(temp);
-		int32_t len = vsnprintf(out, max, _format, argListCopy);
-
-		va_end(argListCopy);
-
-		if (len > max)
-		{
-			va_copy(argListCopy, _argList);
-
-			out = (char*)alloca(len);
-			len = vsnprintf(out, len, _format, argListCopy);
-
-			va_end(argListCopy);
-		}
-
-		int32_t size = write(_writer, out, len);
-
-		return size;
-	}
-
-	inline int32_t writePrintf(WriterI* _writer, const char* _format, ...)
-	{
-		va_list argList;
-		va_start(argList, _format);
-		int32_t size = writePrintfVargs(_writer, _format, argList);
-		va_end(argList);
-
-		return size;
-	}
-
 	inline int64_t skip(SeekerI* _seeker, int64_t _offset)
 	{
 		return _seeker->seek(_offset, Whence::Current);

@@ -39,7 +39,6 @@ clean: ## Clean all intermediate files.
 	@mkdir .build
 
 projgen: ## Generate project files for all configurations.
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                       vs2015
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                       vs2017
 	$(GENIE) --with-tools --with-combined-examples                   --vs=winstore100      vs2017
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=mingw-gcc       gmake
@@ -49,7 +48,6 @@ projgen: ## Generate project files for all configurations.
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --xcode=ios           xcode8
 	$(GENIE)              --with-combined-examples --with-shared-lib --gcc=freebsd         gmake
 	$(GENIE)              --with-combined-examples                   --gcc=android-arm     gmake
-	$(GENIE)              --with-combined-examples                   --gcc=android-mips    gmake
 	$(GENIE)              --with-combined-examples                   --gcc=android-x86     gmake
 	$(GENIE)              --with-combined-examples                   --gcc=asmjs           gmake
 	$(GENIE)              --with-combined-examples                   --gcc=ios-arm         gmake
@@ -65,14 +63,6 @@ android-arm-debug: .build/projects/gmake-android-arm ## Build - Android ARM Debu
 android-arm-release: .build/projects/gmake-android-arm ## Build - Android ARM Release
 	$(MAKE) -R -C .build/projects/gmake-android-arm config=release
 android-arm: android-arm-debug android-arm-release ## Build - Android ARM Debug and Release
-
-.build/projects/gmake-android-mips:
-	$(GENIE) --gcc=android-mips gmake
-android-mips-debug: .build/projects/gmake-android-mips ## Build - Android MIPS Debug
-	$(MAKE) -R -C .build/projects/gmake-android-mips config=debug
-android-mips-release: .build/projects/gmake-android-mips ## Build - Android MIPS Release
-	$(MAKE) -R -C .build/projects/gmake-android-mips config=release
-android-mips: android-mips-debug android-mips-release ## Build - Android MIPS Debug and Release
 
 .build/projects/gmake-android-x86:
 	$(GENIE) --gcc=android-x86 gmake
@@ -133,18 +123,6 @@ mingw-clang-debug64: .build/projects/gmake-mingw-clang ## Build - MinGW Clang x6
 mingw-clang-release64: .build/projects/gmake-mingw-clang ## Build - MinGW Clang x64 Release
 	$(MAKE) -R -C .build/projects/gmake-mingw-clang config=release64
 mingw-clang: mingw-clang-debug32 mingw-clang-release32 mingw-clang-debug64 mingw-clang-release64 ## Build - MinGW Clang x86/x64 Debug and Release
-
-.build/projects/vs2015:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib vs2015
-vs2015-debug32: .build/projects/vs2015 ## Build - VS2015 x86 Debug
-	devenv .build/projects/vs2015/bgfx.sln /Build "Debug|Win32"
-vs2015-release32: .build/projects/vs2015 ## Build - VS2015 x86 Release
-	devenv .build/projects/vs2015/bgfx.sln /Build "Release|Win32"
-vs2015-debug64: .build/projects/vs2015 ## Build - VS2015 x64 Debug
-	devenv .build/projects/vs2015/bgfx.sln /Build "Debug|x64"
-vs2015-release64: .build/projects/vs2015 ## Build - VS2015 x64 Release
-	devenv .build/projects/vs2015/bgfx.sln /Build "Release|x64"
-vs2015: vs2015-debug32 vs2015-release32 vs2015-debug64 vs2015-release64 ## Build - VS2015 x86/x64 Debug and Release
 
 .build/projects/vs2017:
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib vs2017

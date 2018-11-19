@@ -2276,7 +2276,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					: 0
 					;
 
-				if (NULL == glPolygonMode)
+				if (BX_ENABLED(BX_PLATFORM_EMSCRIPTEN)
+				||  NULL == glPolygonMode)
 				{
 					glPolygonMode = stubPolygonMode;
 				}
@@ -2337,12 +2338,12 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 							);
 				}
 
-	//			if (s_extension[Extension::ARB_clip_control].m_supported)
-	//			{
-	//				GL_CHECK(glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE) );
-	//				g_caps.originBottomLeft = true;
-	//			}
-	//			else
+//				if (s_extension[Extension::ARB_clip_control].m_supported)
+//				{
+//					GL_CHECK(glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE) );
+//					g_caps.originBottomLeft = true;
+//				}
+//				else
 				{
 					g_caps.homogeneousDepth = true;
 					g_caps.originBottomLeft = true;
@@ -5305,6 +5306,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				char* temp = (char*)alloca(tempLen);
 				bx::StaticMemoryBlockWriter writer(temp, tempLen);
 
+				bx::Error err;
+
 				if (BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGLES)
 				&&  BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGLES < 30) )
 				{
@@ -5445,7 +5448,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 						}
 					}
 
-					bx::writePrintf(&writer, "precision %s float;\n"
+					bx::write(&writer, &err, "precision %s float;\n"
 						, m_type == GL_FRAGMENT_SHADER ? "mediump" : "highp"
 						);
 
@@ -5514,7 +5517,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 					if (0 != version)
 					{
-						bx::writePrintf(&writer, "#version %d\n", version);
+						bx::write(&writer, &err, "#version %d\n", version);
 					}
 
 					if (usesTextureLod)
@@ -5606,7 +5609,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 						if (0 != fragData)
 						{
-							bx::writePrintf(&writer, "out vec4 bgfx_FragData[%d];\n", fragData);
+							bx::write(&writer, &err, "out vec4 bgfx_FragData[%d];\n", fragData);
 							bx::write(&writer, "#define gl_FragData bgfx_FragData\n");
 						}
 						else
@@ -5654,7 +5657,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				{
 					if (BX_ENABLED(BGFX_CONFIG_RENDERER_OPENGLES >= 30) )
 					{
-						bx::writePrintf(&writer
+						bx::write(&writer, &err
 							, "#version 300 es\n"
 							  "precision %s float;\n"
 							, m_type == GL_FRAGMENT_SHADER ? "mediump" : "highp"
@@ -5729,7 +5732,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 						if (0 != fragData)
 						{
-							bx::writePrintf(&writer, "out vec4 bgfx_FragData[%d];\n", fragData);
+							bx::write(&writer, &err, "out vec4 bgfx_FragData[%d];\n", fragData);
 							bx::write(&writer, "#define gl_FragData bgfx_FragData\n");
 						}
 						else
@@ -5872,15 +5875,16 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			uint32_t colorIdx = 0;
 			for (uint32_t ii = 0; ii < m_numTh; ++ii)
 			{
-				TextureHandle handle = m_attachment[ii].handle;
-				if (isValid(handle) )
+				const Attachment& at = m_attachment[ii];
+
+				if (isValid(at.handle) )
 				{
-					const TextureGL& texture = s_renderGL->m_textures[handle.idx];
+					const TextureGL& texture = s_renderGL->m_textures[at.handle.idx];
 
 					if (0 == colorIdx)
 					{
-						m_width  = bx::uint32_max(texture.m_width  >> m_attachment[ii].mip, 1);
-						m_height = bx::uint32_max(texture.m_height >> m_attachment[ii].mip, 1);
+						m_width  = bx::uint32_max(texture.m_width  >> at.mip, 1);
+						m_height = bx::uint32_max(texture.m_height >> at.mip, 1);
 					}
 
 					GLenum attachment = GL_COLOR_ATTACHMENT0 + colorIdx;
@@ -5925,13 +5929,15 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 						}
 						else
 #endif
+						{
 							GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER
 								, attachment
 								, GL_RENDERBUFFER
 								, texture.m_rbo
 								) );
+						}
 					}
-					else
+					else if (Access::Write == at.access)
 					{
 						if (1 < texture.m_depth
 						&&  !texture.isCubeMap())
@@ -5939,14 +5945,14 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 							GL_CHECK(glFramebufferTextureLayer(GL_FRAMEBUFFER
 								, attachment
 								, texture.m_id
-								, m_attachment[ii].mip
-								, m_attachment[ii].layer
-							) );
+								, at.mip
+								, at.layer
+								) );
 						}
 						else
 						{
 							GLenum target = texture.isCubeMap()
-								? GL_TEXTURE_CUBE_MAP_POSITIVE_X + m_attachment[ii].layer
+								? GL_TEXTURE_CUBE_MAP_POSITIVE_X + at.layer
 								: texture.m_target
 								;
 
@@ -5954,9 +5960,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 								, attachment
 								, target
 								, texture.m_id
-								, m_attachment[ii].mip
-							) );
+								, at.mip
+								) );
 						}
+					}
+					else
+					{
+						BX_CHECK(false, "");
 					}
 
 					needResolve |= (0 != texture.m_rbo) && (0 != texture.m_id);
@@ -5995,10 +6005,11 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				colorIdx = 0;
 				for (uint32_t ii = 0; ii < m_numTh; ++ii)
 				{
-					TextureHandle handle = m_attachment[ii].handle;
-					if (isValid(handle) )
+					const Attachment& at = m_attachment[ii];
+
+					if (isValid(at.handle) )
 					{
-						const TextureGL& texture = s_renderGL->m_textures[handle.idx];
+						const TextureGL& texture = s_renderGL->m_textures[at.handle.idx];
 
 						if (0 != texture.m_id)
 						{
@@ -6008,7 +6019,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 								++colorIdx;
 
 								GLenum target = texture.isCubeMap()
-									? GL_TEXTURE_CUBE_MAP_POSITIVE_X + m_attachment[ii].layer
+									? GL_TEXTURE_CUBE_MAP_POSITIVE_X + at.layer
 									: texture.m_target
 									;
 
@@ -6016,7 +6027,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 									, attachment
 									, target
 									, texture.m_id
-									, m_attachment[ii].mip
+									, at.mip
 									) );
 							}
 						}
@@ -6071,10 +6082,11 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			uint32_t colorIdx = 0;
 			for (uint32_t ii = 0; ii < m_numTh; ++ii)
 			{
-				TextureHandle handle = m_attachment[ii].handle;
-				if (isValid(handle) )
+				const Attachment& at = m_attachment[ii];
+
+				if (isValid(at.handle) )
 				{
-					const TextureGL& texture = s_renderGL->m_textures[handle.idx];
+					const TextureGL& texture = s_renderGL->m_textures[at.handle.idx];
 
 					bimg::TextureFormat::Enum format = bimg::TextureFormat::Enum(texture.m_textureFormat);
 					if (!bimg::isDepth(format) )
@@ -6107,6 +6119,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		for (uint32_t ii = 0; ii < m_numTh; ++ii)
 		{
 			const Attachment& at = m_attachment[ii];
+
 			if (isValid(at.handle) )
 			{
 				const TextureGL& texture = s_renderGL->m_textures[at.handle.idx];
@@ -6549,13 +6562,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 								case Binding::Texture:
 									{
 										TextureGL& texture = m_textures[bind.m_idx];
-										texture.commit(ii, bind.m_un.m_draw.m_textureFlags, _render->m_colorPalette);
+										texture.commit(ii, bind.m_samplerFlags, _render->m_colorPalette);
 									}
 									break;
 
 								case Binding::Image:
 									{
-										if (Access::Read == bind.m_un.m_compute.m_access)
+										if (Access::Read == bind.m_access)
 										{
 											TextureGL& texture = m_textures[bind.m_idx];
 											texture.commit(ii, uint32_t(texture.m_flags), _render->m_colorPalette);
@@ -6565,11 +6578,11 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 											const TextureGL& texture = m_textures[bind.m_idx];
 											GL_CHECK(glBindImageTexture(ii
 												, texture.m_id
-												, bind.m_un.m_compute.m_mip
+												, bind.m_mip
 												, texture.isCubeMap() ? GL_TRUE : GL_FALSE
 												, 0
-												, s_access[bind.m_un.m_compute.m_access]
-												, s_imageFormat[bind.m_un.m_compute.m_format])
+												, s_access[bind.m_access]
+												, s_imageFormat[bind.m_format])
 												);
 											barrier |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
 										}
@@ -7058,9 +7071,9 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 						{
 							const Binding& bind = renderBind.m_bind[stage];
 							Binding& current = currentBind.m_bind[stage];
-							if (current.m_idx != bind.m_idx
-							||  current.m_type != bind.m_type
-							||  current.m_un.m_draw.m_textureFlags != bind.m_un.m_draw.m_textureFlags
+							if (current.m_idx          != bind.m_idx
+							||  current.m_type         != bind.m_type
+							||  current.m_samplerFlags != bind.m_samplerFlags
 							||  programChanged)
 							{
 								if (kInvalidHandle != bind.m_idx)
@@ -7070,7 +7083,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 									case Binding::Texture:
 										{
 											TextureGL& texture = m_textures[bind.m_idx];
-											texture.commit(stage, bind.m_un.m_draw.m_textureFlags, _render->m_colorPalette);
+											texture.commit(stage, bind.m_samplerFlags, _render->m_colorPalette);
 										}
 										break;
 

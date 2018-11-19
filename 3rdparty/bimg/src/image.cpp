@@ -928,7 +928,7 @@ namespace bimg
 				xyz[1] += rgba1[5];
 				xyz[2] += rgba1[6];
 
-				bx::vec3Norm( (float*)dst, xyz);
+				bx::store(dst, bx::normalize(bx::load(xyz) ) );
 			}
 		}
 	}
@@ -2429,9 +2429,9 @@ namespace bimg
 
 				switch (rotationMode)
 				{
-				case 1: bx::xchg(aa, rr); break;
-				case 2: bx::xchg(aa, gg); break;
-				case 3: bx::xchg(aa, bb); break;
+				case 1: bx::swap(aa, rr); break;
+				case 2: bx::swap(aa, gg); break;
+				case 3: bx::swap(aa, bb); break;
 				default:                  break;
 				};
 
@@ -5207,7 +5207,7 @@ namespace bimg
 		total += bx::write(_writer, "FORMAT=32-bit_rle_rgbe\n" , _err);
 		total += bx::write(_writer, '\n' , _err);
 
-		total += bx::writePrintf(_writer, "%cY %d +X %d\n", _yflip ? '+' : '-', _height, _width);
+		total += bx::write(_writer, _err, "%cY %d +X %d\n", _yflip ? '+' : '-', _height, _width);
 
 		UnpackFn unpack = getUnpack(_format);
 		const uint32_t bpp  = getBitsPerPixel(_format);
