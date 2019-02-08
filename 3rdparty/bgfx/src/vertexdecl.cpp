@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -10,7 +10,6 @@
 #include <bx/string.h>
 #include <bx/uint32_t.h>
 
-#include "config.h"
 #include "vertexdecl.h"
 
 namespace bgfx
@@ -151,40 +150,6 @@ namespace bgfx
 	const char* getAttribName(Attrib::Enum _attr)
 	{
 		return s_attrName[_attr*2+1];
-	}
-
-	void dump(const VertexDecl& _decl)
-	{
-		if (BX_ENABLED(BGFX_CONFIG_DEBUG) )
-		{
-			bx::debugPrintf("vertexdecl %08x (%08x), stride %d\n"
-				, _decl.m_hash
-				, bx::hash<bx::HashMurmur2A>(_decl.m_attributes)
-				, _decl.m_stride
-				);
-
-			for (uint32_t attr = 0; attr < Attrib::Count; ++attr)
-			{
-				if (UINT16_MAX != _decl.m_attributes[attr])
-				{
-					uint8_t num;
-					AttribType::Enum type;
-					bool normalized;
-					bool asInt;
-					_decl.decode(Attrib::Enum(attr), num, type, normalized, asInt);
-
-					bx::debugPrintf("\tattr %d - %s, num %d, type %d, norm %d, asint %d, offset %d\n"
-						, attr
-						, getAttribName(Attrib::Enum(attr) )
-						, num
-						, type
-						, normalized
-						, asInt
-						, _decl.m_offset[attr]
-					);
-				}
-			}
-		}
 	}
 
 	struct AttribToId

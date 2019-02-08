@@ -411,6 +411,21 @@ bool spvIsIdType(spv_operand_type_t type) {
   }
 }
 
+bool spvIsInIdType(spv_operand_type_t type) {
+  if (!spvIsIdType(type)) {
+    // If it is not an ID it cannot be an input ID.
+    return false;
+  }
+  switch (type) {
+    // Blacklist non-input IDs.
+    case SPV_OPERAND_TYPE_TYPE_ID:
+    case SPV_OPERAND_TYPE_RESULT_ID:
+      return false;
+    default:
+      return true;
+  }
+}
+
 std::function<bool(unsigned)> spvOperandCanBeForwardDeclaredFunction(
     SpvOp opcode) {
   std::function<bool(unsigned index)> out;
@@ -465,6 +480,9 @@ std::function<bool(unsigned)> spvOperandCanBeForwardDeclaredFunction(
       break;
     case SpvOpTypeForwardPointer:
       out = [](unsigned index) { return index == 0; };
+      break;
+    case SpvOpTypeArray:
+      out = [](unsigned index) { return index == 1; };
       break;
     default:
       out = [](unsigned) { return false; };

@@ -22,16 +22,14 @@
 #include <utility>
 #include <vector>
 
+#include "effcee/effcee.h"
 #include "gtest/gtest.h"
 #include "source/opt/build_module.h"
 #include "source/opt/pass_manager.h"
 #include "source/opt/passes.h"
+#include "source/spirv_validator_options.h"
 #include "source/util/make_unique.h"
 #include "spirv-tools/libspirv.hpp"
-
-#ifdef SPIRV_EFFCEE
-#include "effcee/effcee.h"
-#endif
 
 namespace spvtools {
 namespace opt {
@@ -47,9 +45,11 @@ template <typename TestT>
 class PassTest : public TestT {
  public:
   PassTest()
-      : consumer_(nullptr),
+      : consumer_(
+            [](spv_message_level_t, const char*, const spv_position_t&,
+               const char* message) { std::cerr << message << std::endl; }),
         context_(nullptr),
-        tools_(SPV_ENV_UNIVERSAL_1_1),
+        tools_(SPV_ENV_UNIVERSAL_1_3),
         manager_(new PassManager()),
         assemble_options_(SpirvTools::kDefaultAssembleOption),
         disassemble_options_(SpirvTools::kDefaultDisassembleOption) {}
@@ -59,7 +59,7 @@ class PassTest : public TestT {
   // from pass Process() function.
   std::tuple<std::vector<uint32_t>, Pass::Status> OptimizeToBinary(
       Pass* pass, const std::string& original, bool skip_nop) {
-    context_ = std::move(BuildModule(SPV_ENV_UNIVERSAL_1_1, consumer_, original,
+    context_ = std::move(BuildModule(SPV_ENV_UNIVERSAL_1_3, consumer_, original,
                                      assemble_options_));
     EXPECT_NE(nullptr, context()) << "Assembling failed for shader:\n"
                                   << original << std::endl;
@@ -97,11 +97,12 @@ class PassTest : public TestT {
     std::tie(optimized_bin, status) = SinglePassRunToBinary<PassT>(
         assembly, skip_nop, std::forward<Args>(args)...);
     if (do_validation) {
-      spv_target_env target_env = SPV_ENV_UNIVERSAL_1_1;
+      spv_target_env target_env = SPV_ENV_UNIVERSAL_1_3;
       spv_context spvContext = spvContextCreate(target_env);
       spv_diagnostic diagnostic = nullptr;
       spv_const_binary_t binary = {optimized_bin.data(), optimized_bin.size()};
-      spv_result_t error = spvValidate(spvContext, &binary, &diagnostic);
+      spv_result_t error = spvValidateWithOptions(
+          spvContext, ValidatorOptions(), &binary, &diagnostic);
       EXPECT_EQ(error, 0);
       if (error != 0) spvDiagnosticPrint(diagnostic);
       spvDiagnosticDestroy(diagnostic);
@@ -133,11 +134,12 @@ class PassTest : public TestT {
     EXPECT_EQ(original == expected,
               status == Pass::Status::SuccessWithoutChange);
     if (do_validation) {
-      spv_target_env target_env = SPV_ENV_UNIVERSAL_1_1;
+      spv_target_env target_env = SPV_ENV_UNIVERSAL_1_3;
       spv_context spvContext = spvContextCreate(target_env);
       spv_diagnostic diagnostic = nullptr;
       spv_const_binary_t binary = {optimized_bin.data(), optimized_bin.size()};
-      spv_result_t error = spvValidate(spvContext, &binary, &diagnostic);
+      spv_result_t error = spvValidateWithOptions(
+          spvContext, ValidatorOptions(), &binary, &diagnostic);
       EXPECT_EQ(error, 0);
       if (error != 0) spvDiagnosticPrint(diagnostic);
       spvDiagnosticDestroy(diagnostic);
@@ -163,7 +165,6 @@ class PassTest : public TestT {
                                  std::forward<Args>(args)...);
   }
 
-#ifdef SPIRV_EFFCEE
   // Runs a single pass of class |PassT| on the binary assembled from the
   // |original| assembly, then runs an Effcee matcher over the disassembled
   // result, using checks parsed from |original|.  Always skips OpNop.
@@ -181,7 +182,6 @@ class PassTest : public TestT {
         << match_result.message() << "\nChecking result:\n"
         << disassembly;
   }
-#endif
 
   // Adds a pass to be run.
   template <typename PassT, typename... Args>
@@ -202,7 +202,7 @@ class PassTest : public TestT {
   void RunAndCheck(const std::string& original, const std::string& expected) {
     assert(manager_->NumPasses());
 
-    context_ = std::move(BuildModule(SPV_ENV_UNIVERSAL_1_1, nullptr, original,
+    context_ = std::move(BuildModule(SPV_ENV_UNIVERSAL_1_3, nullptr, original,
                                      assemble_options_));
     ASSERT_NE(nullptr, context());
 
@@ -231,13 +231,16 @@ class PassTest : public TestT {
     consumer_ = msg_consumer;
   }
 
+  spv_validator_options ValidatorOptions() { return &validator_options_; }
+
  private:
-  MessageConsumer consumer_;                // Message consumer.
-  std::unique_ptr<IRContext> context_;      // IR context
+  MessageConsumer consumer_;            // Message consumer.
+  std::unique_ptr<IRContext> context_;  // IR context
   SpirvTools tools_;  // An instance for calling SPIRV-Tools functionalities.
   std::unique_ptr<PassManager> manager_;  // The pass manager.
   uint32_t assemble_options_;
   uint32_t disassemble_options_;
+  spv_validator_options_t validator_options_;
 };
 
 }  // namespace opt

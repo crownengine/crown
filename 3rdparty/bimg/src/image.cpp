@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
@@ -928,7 +928,7 @@ namespace bimg
 				xyz[1] += rgba1[5];
 				xyz[2] += rgba1[6];
 
-				bx::store(dst, bx::normalize(bx::load(xyz) ) );
+				bx::store(dst, bx::normalize(bx::load<bx::Vec3>(xyz) ) );
 			}
 		}
 	}
@@ -1060,7 +1060,7 @@ namespace bimg
 		{ NULL,               NULL                 }, // ASTC10x5
 		{ NULL,               NULL                 }, // Unknown
 		{ NULL,               NULL                 }, // R1
-		{ bx::packR8,         bx::unpackR8         }, // A8
+		{ bx::packA8,         bx::unpackA8         }, // A8
 		{ bx::packR8,         bx::unpackR8         }, // R8
 		{ bx::packR8I,        bx::unpackR8I        }, // R8I
 		{ bx::packR8U,        bx::unpackR8U        }, // R8U
@@ -1154,16 +1154,14 @@ namespace bimg
 		}
 	}
 
-	void imageConvert(void* _dst, uint32_t _dstBpp, PackFn _pack, const void* _src, uint32_t _srcBpp, UnpackFn _unpack, uint32_t _width, uint32_t _height, uint32_t _depth, uint32_t _srcPitch)
+	void imageConvert(void* _dst, uint32_t _dstBpp, PackFn _pack, const void* _src, uint32_t _srcBpp, UnpackFn _unpack, uint32_t _width, uint32_t _height, uint32_t _depth, uint32_t _srcPitch, uint32_t _dstPitch)
 	{
 		const uint8_t* src = (uint8_t*)_src;
 		uint8_t* dst = (uint8_t*)_dst;
 
-		const uint32_t dstPitch = _width * _dstBpp / 8;
-
 		for (uint32_t zz = 0; zz < _depth; ++zz)
 		{
-			for (uint32_t yy = 0; yy < _height; ++yy, src += _srcPitch, dst += dstPitch)
+			for (uint32_t yy = 0; yy < _height; ++yy, src += _srcPitch, dst += _dstPitch)
 			{
 				for (uint32_t xx = 0; xx < _width; ++xx)
 				{
@@ -1175,7 +1173,7 @@ namespace bimg
 		}
 	}
 
-	bool imageConvert(bx::AllocatorI* _allocator, void* _dst, TextureFormat::Enum _dstFormat, const void* _src, TextureFormat::Enum _srcFormat, uint32_t _width, uint32_t _height, uint32_t _depth, uint32_t _srcPitch)
+	bool imageConvert(bx::AllocatorI* _allocator, void* _dst, TextureFormat::Enum _dstFormat, const void* _src, TextureFormat::Enum _srcFormat, uint32_t _width, uint32_t _height, uint32_t _depth, uint32_t _srcPitch, uint32_t _dstPitch)
 	{
 		UnpackFn unpack = s_packUnpack[_srcFormat].unpack;
 		PackFn   pack   = s_packUnpack[_dstFormat].pack;
@@ -1205,7 +1203,7 @@ namespace bimg
 
 		const uint32_t srcBpp = s_imageBlockInfo[_srcFormat].bitsPerPixel;
 		const uint32_t dstBpp = s_imageBlockInfo[_dstFormat].bitsPerPixel;
-		imageConvert(_dst, dstBpp, pack, _src, srcBpp, unpack, _width, _height, _depth, _srcPitch);
+		imageConvert(_dst, dstBpp, pack, _src, srcBpp, unpack, _width, _height, _depth, _srcPitch, _dstPitch);
 
 		return true;
 	}
@@ -1220,7 +1218,10 @@ namespace bimg
 			return true;
 		}
 
-		return imageConvert(_allocator, _dst, _dstFormat, _src, _srcFormat, _width, _height, _depth, _width*srcBpp/8);
+		const uint32_t dstBpp   = s_imageBlockInfo[_dstFormat].bitsPerPixel;
+		const uint32_t dstPitch = _width * dstBpp / 8;
+
+		return imageConvert(_allocator, _dst, _dstFormat, _src, _srcFormat, _width, _height, _depth, _width*srcBpp/8, dstPitch);
 	}
 
 	ImageContainer* imageConvert(bx::AllocatorI* _allocator, TextureFormat::Enum _dstFormat, const ImageContainer& _input, bool _convertMips)
@@ -1468,11 +1469,10 @@ namespace bimg
 
 	// BC6H, BC7
 	//
-	// Reference:
+	// Reference(s):
+	// - https://web.archive.org/web/20181126035446/https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_compression_bptc.txt
+	// - https://web.archive.org/web/20181126035538/https://docs.microsoft.com/en-us/windows/desktop/direct3d11/bc6h-format
 	//
-	// https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_compression_bptc.txt
-	// https://msdn.microsoft.com/en-us/library/windows/desktop/hh308952(v=vs.85).aspx
-
 	static const uint16_t s_bptcP2[] =
 	{ //  3210     0000000000   1111111111   2222222222   3333333333
 		0xcccc, // 0, 0, 1, 1,  0, 0, 1, 1,  0, 0, 1, 1,  0, 0, 1, 1
@@ -4227,12 +4227,12 @@ namespace bimg
 				uint32_t size = imageGetSize(NULL, uint16_t(_width), uint16_t(_height), 0, false, false, 1, TextureFormat::RGBA8);
 				void* temp = BX_ALLOC(_allocator, size);
 				imageDecodeToRgba8(_allocator, temp, _src, _width, _height, _width*4, _srcFormat);
-				imageConvert(_allocator, dst, TextureFormat::R8, temp, TextureFormat::RGBA8, _width, _height, 1, _width*4);
+				imageConvert(_allocator, dst, TextureFormat::R8, temp, TextureFormat::RGBA8, _width, _height, 1, _width*4, _dstPitch);
 				BX_FREE(_allocator, temp);
 			}
 			else
 			{
-				imageConvert(_allocator, dst, TextureFormat::R8, src, _srcFormat, _width, _height, 1, srcPitch);
+				imageConvert(_allocator, dst, TextureFormat::R8, src, _srcFormat, _width, _height, 1, srcPitch, _dstPitch);
 			}
 		}
 	}
@@ -4361,7 +4361,7 @@ namespace bimg
 					, false
 					);
 				imageDecodeToRgba32f(_allocator, rgba32f->m_data, _src, _width, _height, 1, _width*16, _srcFormat);
-				imageConvert(_allocator, _dst, TextureFormat::BGRA8, rgba32f->m_data, TextureFormat::RGBA32F, _width, _height, 1, _width*16);
+				imageConvert(_allocator, _dst, TextureFormat::BGRA8, rgba32f->m_data, TextureFormat::RGBA32F, _width, _height, 1, _width*16, _dstPitch);
 				imageFree(rgba32f);
 			}
 			break;
@@ -4563,7 +4563,7 @@ namespace bimg
 			{
 				const uint32_t srcBpp   = s_imageBlockInfo[_srcFormat].bitsPerPixel;
 				const uint32_t srcPitch = _width * srcBpp / 8;
-				if (!imageConvert(_allocator, _dst, TextureFormat::BGRA8, _src, _srcFormat, _width, _height, 1, srcPitch) )
+				if (!imageConvert(_allocator, _dst, TextureFormat::BGRA8, _src, _srcFormat, _width, _height, 1, srcPitch, _dstPitch) )
 				{
 					// Failed to convert, just make ugly red-yellow checkerboard texture.
 					imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xffff0000), UINT32_C(0xffffff00) );
@@ -4754,7 +4754,7 @@ namespace bimg
 				}
 				else
 				{
-					imageConvert(_allocator, dst, TextureFormat::RGBA32F, src, _srcFormat, _width, _height, 1, srcPitch);
+					imageConvert(_allocator, dst, TextureFormat::RGBA32F, src, _srcFormat, _width, _height, 1, srcPitch, _dstPitch);
 				}
 				break;
 			}
@@ -4803,12 +4803,7 @@ namespace bimg
 				depth  = bx::max<uint32_t>(1, depth);
 
 				const uint32_t mipSize = width/blockWidth * height/blockHeight * depth * blockSize;
-				if (mipSize != width*height*depth*bpp/8)
-				{
-					BX_TRACE("x");
-				}
-
-				const uint32_t size = mipSize*numSides;
+				const uint32_t size    = mipSize*numSides;
 				uint32_t imageSize = bx::toHostEndian(*(const uint32_t*)&data[offset], _imageContainer.m_ktxLE);
 				BX_CHECK(size == imageSize, "KTX: Image size mismatch %d (expected %d).", size, imageSize);
 				BX_UNUSED(size, imageSize);

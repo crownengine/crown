@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -224,6 +224,61 @@ VK_IMPORT_DEVICE
 	};
 	BX_STATIC_ASSERT(TextureFormat::Count == BX_COUNTOF(s_textureFormat) );
 
+	struct Extension
+	{
+		enum Enum
+		{
+			EXT_debug_utils,
+			EXT_debug_report,
+
+			Count
+		};
+
+		const char* m_name;
+		uint32_t m_minVersion;
+		bool m_supported;
+		bool m_initialize;
+	};
+
+	// Extension registry
+	//
+	static Extension s_extension[] =
+	{
+		{ "VK_EXT_debug_utils",  1, false, BGFX_CONFIG_DEBUG_OBJECT_NAME },
+		{ "VK_EXT_debug_report", 1, false, BGFX_CONFIG_DEBUG             },
+	};
+	BX_STATIC_ASSERT(Extension::Count == BX_COUNTOF(s_extension) );
+
+	void updateExtension(const char* _name, uint32_t _version)
+	{
+		bx::StringView ext(_name);
+
+		bool supported = false;
+		for (uint32_t ii = 0; ii < Extension::Count; ++ii)
+		{
+			Extension& extension = s_extension[ii];
+			if (!extension.m_supported
+			&&   extension.m_initialize)
+			{
+				if (       0 == bx::strCmp(ext, extension.m_name)
+				&&  _version >= extension.m_minVersion)
+				{
+					extension.m_supported = true;
+					supported = true;
+					break;
+				}
+			}
+		}
+
+		BX_TRACE("\tv%-3d %s%s"
+			, _version
+			, _name
+			, supported ? " (supported)" : "", _name
+			);
+
+		BX_UNUSED(supported);
+	}
+
 	static const VkFormat s_attribType[][4][2] =
 	{
 		{ // Uint8
@@ -357,6 +412,27 @@ VK_IMPORT_DEVICE
 		internalFreeNotification,
 	};
 
+	VkResult VKAPI_PTR stubSetDebugUtilsObjectNameEXT(VkDevice _device, const VkDebugUtilsObjectNameInfoEXT* _nameInfo)
+	{
+		BX_UNUSED(_device, _nameInfo);
+		return VK_SUCCESS;
+	}
+
+	void VKAPI_PTR stubCmdInsertDebugUtilsLabelEXT(VkCommandBuffer _commandBuffer, const VkDebugUtilsLabelEXT* _labelInfo)
+	{
+		BX_UNUSED(_commandBuffer, _labelInfo);
+	}
+
+	void VKAPI_PTR stubCmdBeginDebugUtilsLabelEXT(VkCommandBuffer _commandBuffer, const VkDebugUtilsLabelEXT* _labelInfo)
+	{
+		BX_UNUSED(_commandBuffer, _labelInfo);
+	}
+
+	void VKAPI_PTR stubCmdEndDebugUtilsLabelEXT(VkCommandBuffer _commandBuffer)
+	{
+		BX_UNUSED(_commandBuffer);
+	}
+
 	static const char* s_debugReportObjectType[] =
 	{
 		"Unknown",
@@ -455,21 +531,21 @@ VK_IMPORT_DEVICE
 			&&  0 < numExtensionProperties)
 			{
 				VkExtensionProperties extensionProperties[64];
-				numExtensionProperties = bx::uint32_min(numExtensionProperties, BX_COUNTOF(extensionProperties) );
+				numExtensionProperties = bx::min<uint32_t>(numExtensionProperties, BX_COUNTOF(extensionProperties) );
 				result = enumerateExtensionProperties(_physicalDevice
 					, NULL
 					, &numExtensionProperties
 					, extensionProperties
 					);
 
-				BX_TRACE("\tGlobal extensions (%d):"
+				BX_TRACE("Global extensions (%d):"
 					, numExtensionProperties
 					);
 
 				for (uint32_t extension = 0; extension < numExtensionProperties; ++extension)
 				{
-					BX_TRACE("\t\t%s (s: 0x%08x)"
-						, extensionProperties[extension].extensionName
+					updateExtension(
+						  extensionProperties[extension].extensionName
 						, extensionProperties[extension].specVersion
 						);
 				}
@@ -484,10 +560,10 @@ VK_IMPORT_DEVICE
 		&&  0 < numLayerProperties)
 		{
 			VkLayerProperties layerProperties[64];
-			numLayerProperties = bx::uint32_min(numLayerProperties, BX_COUNTOF(layerProperties) );
+			numLayerProperties = bx::min<uint32_t>(numLayerProperties, BX_COUNTOF(layerProperties) );
 			result = enumerateLayerProperties(_physicalDevice, &numLayerProperties, layerProperties);
 
-			char indent = VK_NULL_HANDLE == _physicalDevice ? ' ' : '\t';
+			char indent = VK_NULL_HANDLE == _physicalDevice ? '\0' : '\t';
 			BX_UNUSED(indent);
 
 			BX_TRACE("%cLayer extensions (%d):"
@@ -514,7 +590,7 @@ VK_IMPORT_DEVICE
 				&&  0 < numExtensionProperties)
 				{
 					VkExtensionProperties extensionProperties[64];
-					numExtensionProperties = bx::uint32_min(numExtensionProperties, BX_COUNTOF(extensionProperties) );
+					numExtensionProperties = bx::min<uint32_t>(numExtensionProperties, BX_COUNTOF(extensionProperties) );
 					result = enumerateExtensionProperties(_physicalDevice
 						, layerProperties[layer].layerName
 						, &numExtensionProperties
@@ -568,6 +644,35 @@ VK_IMPORT_DEVICE
 
 		BX_WARN(false, "Unknown VkResult? %x", _result);
 		return "<VkResult?>";
+	}
+
+	template<typename Ty>
+	VkObjectType getType();
+
+	template<> VkObjectType getType<VkBuffer      >() { return VK_OBJECT_TYPE_BUFFER;        }
+	template<> VkObjectType getType<VkShaderModule>() { return VK_OBJECT_TYPE_SHADER_MODULE; }
+
+	template<typename Ty>
+	static BX_NO_INLINE void setDebugObjectName(VkDevice _device, Ty _object, const char* _format, ...)
+	{
+		if (BX_ENABLED(BGFX_CONFIG_DEBUG_OBJECT_NAME) )
+		{
+			char temp[2048];
+			va_list argList;
+			va_start(argList, _format);
+			int32_t size = bx::min<int32_t>(sizeof(temp)-1, bx::vsnprintf(temp, sizeof(temp), _format, argList) );
+			va_end(argList);
+			temp[size] = '\0';
+
+			VkDebugUtilsObjectNameInfoEXT ni;
+			ni.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+			ni.pNext = NULL;
+			ni.objectType   = getType<Ty>();
+			ni.objectHandle = uint64_t(_object.vk);
+			ni.pObjectName  = temp;
+
+			VK_CHECK(vkSetDebugUtilsObjectNameEXT(_device, &ni) );
+		}
 	}
 
 	void setImageMemoryBarrier(VkCommandBuffer _commandBuffer, VkImage _image, VkImageLayout _oldLayout, VkImageLayout _newLayout)
@@ -811,15 +916,26 @@ VK_IMPORT
 					/*not used*/ ""
 				};
 
-				const char* enabledExtension[] =
+				uint32_t numEnabledExtensions = 2;
+
+				const char* enabledExtension[Extension::Count + 2] =
 				{
 					VK_KHR_SURFACE_EXTENSION_NAME,
 					KHR_SURFACE_EXTENSION_NAME,
-#if BGFX_CONFIG_DEBUG
-					VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
-#endif // BGFX_CONFIG_DEBUG
-					/*not used*/ ""
 				};
+
+				for (uint32_t ii = 0; ii < Extension::Count; ++ii)
+				{
+					const Extension& extension = s_extension[ii];
+
+					if (extension.m_supported
+					&&  extension.m_initialize)
+					{
+						enabledExtension[numEnabledExtensions++] = extension.m_name;
+				BX_TRACE("%d: %s", numEnabledExtensions, extension.m_name);
+					}
+				}
+
 
 				VkInstanceCreateInfo ici;
 				ici.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -828,7 +944,7 @@ VK_IMPORT
 				ici.pApplicationInfo = &appInfo;
 				ici.enabledLayerCount   = BX_COUNTOF(enabledLayerNames) - 1;
 				ici.ppEnabledLayerNames = enabledLayerNames;
-				ici.enabledExtensionCount   = BX_COUNTOF(enabledExtension) - 1;
+				ici.enabledExtensionCount   = numEnabledExtensions;
 				ici.ppEnabledExtensionNames = enabledExtension;
 
 				if (BX_ENABLED(BGFX_CONFIG_DEBUG) )
@@ -868,7 +984,7 @@ VK_IMPORT_INSTANCE
 
 			m_debugReportCallback = VK_NULL_HANDLE;
 
-			if (BX_ENABLED(BGFX_CONFIG_DEBUG) )
+			if (s_extension[Extension::EXT_debug_report].m_supported)
 			{
 				VkDebugReportCallbackCreateInfoEXT drcb;
 				drcb.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
@@ -903,7 +1019,7 @@ VK_IMPORT_INSTANCE
 				}
 
 				VkPhysicalDevice physicalDevices[4];
-				numPhysicalDevices = bx::uint32_min(numPhysicalDevices, BX_COUNTOF(physicalDevices) );
+				numPhysicalDevices = bx::min<uint32_t>(numPhysicalDevices, BX_COUNTOF(physicalDevices) );
 				result = vkEnumeratePhysicalDevices(m_instance
 					, &numPhysicalDevices
 					, physicalDevices
@@ -978,7 +1094,7 @@ VK_IMPORT_INSTANCE
 				g_caps.deviceId = uint16_t(m_deviceProperties.deviceID);
 
 				g_caps.limits.maxTextureSize     = m_deviceProperties.limits.maxImageDimension2D;
-				g_caps.limits.maxFBAttachments   = uint8_t(bx::uint32_min(m_deviceProperties.limits.maxFragmentOutputAttachments, BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS) );
+				g_caps.limits.maxFBAttachments   = bx::min(uint8_t(m_deviceProperties.limits.maxFragmentOutputAttachments), uint8_t(BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS) );
 				g_caps.limits.maxComputeBindings = BGFX_MAX_COMPUTE_BINDINGS;
 
 				{
@@ -1060,7 +1176,7 @@ VK_IMPORT_INSTANCE
 					);
 
 				VkQueueFamilyProperties queueFamilyPropertices[10] = {};
-				queueFamilyPropertyCount = bx::uint32_min(queueFamilyPropertyCount, BX_COUNTOF(queueFamilyPropertices) );
+				queueFamilyPropertyCount = bx::min<uint32_t>(queueFamilyPropertyCount, BX_COUNTOF(queueFamilyPropertices) );
 				vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice
 					, &queueFamilyPropertyCount
 					, queueFamilyPropertices
@@ -1359,7 +1475,7 @@ VK_IMPORT_DEVICE
 				}
 
 				VkSurfaceFormatKHR surfaceFormats[10];
-				numSurfaceFormats = bx::uint32_min(numSurfaceFormats, BX_COUNTOF(surfaceFormats) );
+				numSurfaceFormats = bx::min<uint32_t>(numSurfaceFormats, BX_COUNTOF(surfaceFormats) );
 				vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, &numSurfaceFormats, surfaceFormats);
 
 				// find the best match...
@@ -1374,7 +1490,7 @@ VK_IMPORT_DEVICE
 				}
 
 				VkPresentModeKHR presentModes[10];
-				numPresentModes = bx::uint32_min(numPresentModes, BX_COUNTOF(presentModes) );
+				numPresentModes = bx::min<uint32_t>(numPresentModes, BX_COUNTOF(presentModes) );
 				vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_surface, &numPresentModes, presentModes);
 
 				// find the best match...
@@ -1706,9 +1822,10 @@ VK_IMPORT_DEVICE
 
 				VkDescriptorSetLayoutBinding dslb[] =
 				{
-//					{ DslBinding::CombinedImageSampler, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, BGFX_CONFIG_MAX_TEXTURE_SAMPLERS, VK_SHADER_STAGE_ALL, NULL },
-					{ DslBinding::UniformBuffer,        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         1,                                VK_SHADER_STAGE_ALL, NULL },
-//					{ DslBinding::StorageBuffer,        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         BGFX_CONFIG_MAX_TEXTURE_SAMPLERS, VK_SHADER_STAGE_ALL, NULL },
+//					{ DslBinding::CombinedImageSampler,  VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, BGFX_CONFIG_MAX_TEXTURE_SAMPLERS, VK_SHADER_STAGE_ALL,          NULL },
+					{ DslBinding::VertexUniformBuffer,   VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         1,                                VK_SHADER_STAGE_ALL,          NULL },
+					{ DslBinding::FragmentUniformBuffer, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         1,                                VK_SHADER_STAGE_FRAGMENT_BIT, NULL },
+//					{ DslBinding::StorageBuffer,         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         BGFX_CONFIG_MAX_TEXTURE_SAMPLERS, VK_SHADER_STAGE_ALL,          NULL },
 				};
 
 				VkDescriptorPoolCreateInfo dpci;
@@ -1780,6 +1897,29 @@ VK_IMPORT_DEVICE
 			}
 
 			errorState = ErrorState::DescriptorCreated;
+
+			if (NULL == vkSetDebugUtilsObjectNameEXT)
+			{
+				vkSetDebugUtilsObjectNameEXT = stubSetDebugUtilsObjectNameEXT;
+			}
+
+			if (NULL == vkCmdBeginDebugUtilsLabelEXT
+			||  NULL == vkCmdEndDebugUtilsLabelEXT)
+			{
+				vkCmdBeginDebugUtilsLabelEXT = stubCmdBeginDebugUtilsLabelEXT;
+				vkCmdEndDebugUtilsLabelEXT   = stubCmdEndDebugUtilsLabelEXT;
+			}
+
+			if (NULL == vkCmdInsertDebugUtilsLabelEXT)
+			{
+				vkCmdInsertDebugUtilsLabelEXT = stubCmdInsertDebugUtilsLabelEXT;
+			}
+
+			// Init reserved part of view name.
+			for (uint32_t ii = 0; ii < BGFX_CONFIG_MAX_VIEWS; ++ii)
+			{
+				bx::snprintf(s_viewName[ii], BGFX_CONFIG_MAX_VIEW_NAME_RESERVED+1, "%3d   ", ii);
+			}
 
 			return true;
 
@@ -2016,7 +2156,7 @@ VK_IMPORT_DEVICE
 		void updateDynamicIndexBuffer(IndexBufferHandle _handle, uint32_t _offset, uint32_t _size, const Memory* _mem) override
 		{
 			BX_UNUSED(_handle, _offset, _size, _mem);
-//			m_indexBuffers[_handle.idx].update(m_commandBuffer, _offset, bx::uint32_min(_size, _mem->size), _mem->data);
+//			m_indexBuffers[_handle.idx].update(m_commandBuffer, _offset, bx::min<uint32_t>(_size, _mem->size), _mem->data);
 		}
 
 		void destroyDynamicIndexBuffer(IndexBufferHandle _handle) override
@@ -2033,7 +2173,7 @@ VK_IMPORT_DEVICE
 		void updateDynamicVertexBuffer(VertexBufferHandle _handle, uint32_t _offset, uint32_t _size, const Memory* _mem) override
 		{
 			BX_UNUSED(_handle, _offset, _size, _mem);
-//			m_vertexBuffers[_handle.idx].update(m_commandBuffer, _offset, bx::uint32_min(_size, _mem->size), _mem->data);
+//			m_vertexBuffers[_handle.idx].update(m_commandBuffer, _offset, bx::min<uint32_t>(_size, _mem->size), _mem->data);
 		}
 
 		void destroyDynamicVertexBuffer(VertexBufferHandle _handle) override
@@ -2148,18 +2288,53 @@ VK_IMPORT_DEVICE
 			bx::memCopy(m_uniforms[_loc], _data, _size);
 		}
 
-		void setMarker(const char* /*_marker*/, uint32_t /*_size*/) override
-		{
-		}
-
 		void invalidateOcclusionQuery(OcclusionQueryHandle _handle) override
 		{
 			BX_UNUSED(_handle);
 		}
 
-		virtual void setName(Handle _handle, const char* _name) override
+		void setMarker(const char* _marker, uint16_t _len) override
 		{
-			BX_UNUSED(_handle, _name)
+			if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
+			{
+				BX_UNUSED(_len);
+
+				VkDebugUtilsLabelEXT dul;
+				dul.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+				dul.pNext = NULL;
+				dul.pLabelName = _marker;
+				dul.color[0] = 1.0f;
+				dul.color[1] = 0.0f;
+				dul.color[2] = 0.0f;
+				dul.color[3] = 1.0f;
+				vkCmdInsertDebugUtilsLabelEXT(m_commandBuffer, &dul);
+			}
+		}
+
+		virtual void setName(Handle _handle, const char* _name, uint16_t _len) override
+		{
+			switch (_handle.type)
+			{
+			case Handle::IndexBuffer:
+				setDebugObjectName(m_device, m_indexBuffers[_handle.idx].m_buffer, "%.*s", _len, _name);
+				break;
+
+			case Handle::Shader:
+				setDebugObjectName(m_device, m_shaders[_handle.idx].m_module, "%.*s", _len, _name);
+				break;
+
+			case Handle::Texture:
+//				setDebugObjectName(m_device, m_textures[_handle.idx].m_ptr, "%.*s", _len, _name);
+				break;
+
+			case Handle::VertexBuffer:
+				setDebugObjectName(m_device, m_vertexBuffers[_handle.idx].m_buffer, "%.*s", _len, _name);
+				break;
+
+			default:
+				BX_CHECK(false, "Invalid handle type?! %d", _handle.type);
+				break;
+			}
 		}
 
 		void submitBlit(BlitState& _bs, uint16_t _view);
@@ -2278,23 +2453,25 @@ VK_IMPORT_DEVICE
 			setShaderUniform(_flags, _regIndex, _val, _numRegs);
 		}
 
-		void commitShaderUniforms(VkCommandBuffer _commandBuffer, uint16_t _programIdx)
+		void commitShaderUniforms(VkCommandBuffer _commandBuffer, ProgramHandle _program)
 		{
-			const ProgramVK& program = m_program[_programIdx];
-			VkDescriptorBufferInfo descriptorBufferInfo;
-			uint32_t total = 0
-				+ program.m_vsh->m_size
-				+ (NULL != program.m_fsh ? program.m_fsh->m_size : 0)
-				;
+			const ProgramVK& program = m_program[_program.idx];
+
+			const uint32_t align = uint32_t(m_deviceProperties.limits.minUniformBufferOffsetAlignment);
+			const uint32_t vsize = bx::strideAlign(program.m_vsh->m_size, align);
+			const uint32_t fsize = bx::strideAlign( (NULL != program.m_fsh ? program.m_fsh->m_size : 0), align);
+			const uint32_t total = vsize + fsize;
+
 			if (0 < total)
 			{
-				uint8_t* data = (uint8_t*)m_scratchBuffer[m_backBufferColorIdx].allocUbv(descriptorBufferInfo, total);
+				ScratchBufferVK& sb = m_scratchBuffer[m_backBufferColorIdx];
 
-				uint32_t size = program.m_vsh->m_size;
-				bx::memCopy(data, m_vsScratch, size);
-				data += size;
+				uint8_t* data = (uint8_t*)sb.allocUbv(vsize, fsize);
 
-				if (NULL != program.m_fsh)
+				bx::memCopy(data, m_vsScratch, program.m_vsh->m_size);
+				data += vsize;
+
+				if (0 != fsize)
 				{
 					bx::memCopy(data, m_fsScratch, program.m_fsh->m_size);
 				}
@@ -2304,8 +2481,7 @@ VK_IMPORT_DEVICE
 					, m_pipelineLayout
 					, 0
 					, 1
-					, &m_scratchBuffer[m_backBufferColorIdx].m_descriptorSet
-						[m_scratchBuffer[m_backBufferColorIdx].m_currentDs - 1]
+					, &sb.m_descriptorSet[sb.m_currentDs - 1]
 					, 0
 					, NULL
 					);
@@ -2590,16 +2766,16 @@ VK_IMPORT_DEVICE
 			return num;
 		}
 
-		VkPipeline getPipeline(uint16_t _programIdx)
+		VkPipeline getPipeline(ProgramHandle _program)
 		{
-			BX_UNUSED(_programIdx);
+			BX_UNUSED(_program);
 			// vkCreateComputePipelines
 			return VK_NULL_HANDLE;
 		}
 
-		VkPipeline getPipeline(uint64_t _state, uint64_t _stencil, uint16_t _declIdx, uint16_t _programIdx, uint8_t _numInstanceData)
+		VkPipeline getPipeline(uint64_t _state, uint64_t _stencil, uint16_t _declIdx, ProgramHandle _program, uint8_t _numInstanceData)
 		{
-			ProgramVK& program = m_program[_programIdx];
+			ProgramVK& program = m_program[_program.idx];
 
 			_state &= 0
 				| BGFX_STATE_WRITE_RGB
@@ -2873,9 +3049,9 @@ VK_IMPORT_DEVICE
 					}
 					break;
 
-				CASE_IMPLEMENT_UNIFORM(Int1, I, int);
-				CASE_IMPLEMENT_UNIFORM(Vec4, F, float);
-				CASE_IMPLEMENT_UNIFORM(Mat4, F, float);
+				CASE_IMPLEMENT_UNIFORM(Sampler, I, int);
+				CASE_IMPLEMENT_UNIFORM(Vec4,    F, float);
+				CASE_IMPLEMENT_UNIFORM(Mat4,    F, float);
 
 				case UniformType::End:
 					break;
@@ -2903,7 +3079,7 @@ VK_IMPORT_DEVICE
 //			if (isValid(fbh) )
 //			{
 //				const FrameBufferVK& fb = m_frameBuffers[fbh.idx];
-//				numMrt = bx::uint32_max(1, fb.m_num);
+//				numMrt = bx::max(1, fb.m_num);
 //			}
 
 			VkClearAttachment attachments[BGFX_CONFIG_MAX_FRAME_BUFFERS];
@@ -2918,7 +3094,7 @@ VK_IMPORT_DEVICE
 					{
 						attachments[mrt].colorAttachment = mrt;
 						attachments[mrt].aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-						uint8_t index = (uint8_t)bx::uint32_min(BGFX_CONFIG_MAX_COLOR_PALETTE-1, _clear.m_index[ii]);
+						uint8_t index = bx::min<uint8_t>(BGFX_CONFIG_MAX_COLOR_PALETTE-1, _clear.m_index[ii]);
 						bx::memCopy(&attachments[mrt].clearValue.color.float32, _palette[index], 16);
 						++mrt;
 					}
@@ -3205,30 +3381,54 @@ VK_DESTROY
 		m_currentDs = 0;
 	}
 
-	void* ScratchBufferVK::allocUbv(VkDescriptorBufferInfo& _descriptorBufferInfo, uint32_t _size)
+	void* ScratchBufferVK::allocUbv(uint32_t _vsize, uint32_t _fsize)
 	{
-		uint32_t total = bx::strideAlign(_size
-			, uint32_t(s_renderVK->m_deviceProperties.limits.minUniformBufferOffsetAlignment)
-			);
-		_descriptorBufferInfo.buffer = m_buffer;
-		_descriptorBufferInfo.offset = m_pos;
-		_descriptorBufferInfo.range  = total;
+		VkDescriptorBufferInfo dbi[2];
 
-		VkWriteDescriptorSet wds[1];
+		dbi[0].buffer = m_buffer;
+		dbi[0].offset = m_pos;
+		dbi[0].range  = _vsize;
+
+		VkWriteDescriptorSet wds[2];
+
 		wds[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		wds[0].pNext = NULL;
 		wds[0].dstSet     = m_descriptorSet[m_currentDs];
-		wds[0].dstBinding = DslBinding::UniformBuffer;
+		wds[0].dstBinding = DslBinding::VertexUniformBuffer;
 		wds[0].dstArrayElement  = 0;
 		wds[0].descriptorCount  = 1;
 		wds[0].descriptorType   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		wds[0].pImageInfo       = NULL;
-		wds[0].pBufferInfo      = &_descriptorBufferInfo;
+		wds[0].pBufferInfo      = &dbi[0];
 		wds[0].pTexelBufferView = NULL;
-		vkUpdateDescriptorSets(s_renderVK->m_device, BX_COUNTOF(wds), wds, 0, NULL);
+
+		uint32_t numWds = 1;
+
+		if (0 != _fsize)
+		{
+			dbi[1].buffer = m_buffer;
+			dbi[1].offset = m_pos + _vsize;
+			dbi[1].range  = _fsize;
+
+			wds[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			wds[1].pNext = NULL;
+			wds[1].dstSet     = m_descriptorSet[m_currentDs];
+			wds[1].dstBinding = DslBinding::FragmentUniformBuffer;
+			wds[1].dstArrayElement  = 0;
+			wds[1].descriptorCount  = 1;
+			wds[1].descriptorType   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			wds[1].pImageInfo       = NULL;
+			wds[1].pBufferInfo      = &dbi[1];
+			wds[1].pTexelBufferView = NULL;
+
+			++numWds;
+		}
+
+		vkUpdateDescriptorSets(s_renderVK->m_device, numWds, wds, 0, NULL);
 
 		void* data = &m_data[m_pos];
-		m_pos += total;
+
+		m_pos += _vsize + _fsize;
 		++m_currentDs;
 
 		return data;
@@ -3570,6 +3770,9 @@ VK_DESTROY
 		smci.flags = 0;
 		smci.codeSize = m_code->size;
 		smci.pCode    = (const uint32_t*)m_code->data;
+
+//		disassemble(bx::getDebugOut(), m_code->data, m_code->size);
+
 		VK_CHECK(vkCreateShaderModule(
 			  s_renderVK->m_device
 			, &smci
@@ -3679,15 +3882,14 @@ VK_DESTROY
 		currentState.m_stateFlags = BGFX_STATE_NONE;
 		currentState.m_stencil    = packStencil(BGFX_STENCIL_NONE, BGFX_STENCIL_NONE);
 
-		const bool hmdEnabled = false;
-		ViewState viewState(_render, hmdEnabled);
-		viewState.reset(_render, hmdEnabled);
+		static ViewState viewState;
+		viewState.reset(_render);
 
 // 		bool wireframe = !!(_render->m_debug&BGFX_DEBUG_WIREFRAME);
 // 		setDebugWireframe(wireframe);
 
 		uint16_t currentSamplerStateIdx = kInvalidHandle;
-		uint16_t currentProgramIdx      = kInvalidHandle;
+		ProgramHandle currentProgram    = BGFX_INVALID_HANDLE;
 		uint32_t currentBindHash        = 0;
 		bool     hasPredefined          = false;
 		bool     commandListChanged     = false;
@@ -3771,12 +3973,10 @@ VK_DESTROY
 		{
 //			m_batch.begin();
 
-// 			uint8_t eye = 0;
-// 			uint8_t restartState = 0;
 			viewState.m_rect = _render->m_view[0].m_rect;
 
 			int32_t numItems = _render->m_numRenderItems;
-			for (int32_t item = 0, restartItem = numItems; item < numItems || restartItem < numItems;)
+			for (int32_t item = 0; item < numItems;)
 			{
 				const uint64_t encodedKey = _render->m_sortKeys[item];
 				const bool isCompute = key.decode(encodedKey, _render->m_viewRemap);
@@ -3798,6 +3998,11 @@ VK_DESTROY
 					{
 						vkCmdEndRenderPass(m_commandBuffer);
 						beginRenderPass = false;
+
+						if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
+						{
+							vkCmdEndDebugUtilsLabelEXT(m_commandBuffer);
+						}
 					}
 
 					VK_CHECK(vkEndCommandBuffer(m_commandBuffer) );
@@ -3811,7 +4016,7 @@ finishAll();
 					currentPipeline = VK_NULL_HANDLE;
 					currentSamplerStateIdx = kInvalidHandle;
 BX_UNUSED(currentSamplerStateIdx);
-					currentProgramIdx      = kInvalidHandle;
+					currentProgram         = BGFX_INVALID_HANDLE;
 					hasPredefined          = false;
 
 					fbh = _render->m_view[view].m_fbh;
@@ -3828,6 +4033,20 @@ BX_UNUSED(currentSamplerStateIdx);
 					rpbi.renderArea.extent.width  = rect.m_width;
 					rpbi.renderArea.extent.height = rect.m_height;
 					VK_CHECK(vkBeginCommandBuffer(m_commandBuffer, &cbbi) );
+
+					if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
+					{
+						VkDebugUtilsLabelEXT dul;
+						dul.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+						dul.pNext = NULL;
+						dul.pLabelName = s_viewName[view];
+						dul.color[0] = 1.0f;
+						dul.color[1] = 1.0f;
+						dul.color[2] = 1.0f;
+						dul.color[3] = 1.0f;
+						vkCmdBeginDebugUtilsLabelEXT(m_commandBuffer, &dul);
+					}
+
 					vkCmdBeginRenderPass(m_commandBuffer, &rpbi, VK_SUBPASS_CONTENTS_INLINE);
 					beginRenderPass = true;
 
@@ -3976,12 +4195,12 @@ BX_UNUSED(currentSamplerStateIdx);
 
 					bool constantsChanged = false;
 					if (compute.m_uniformBegin < compute.m_uniformEnd
-					||  currentProgramIdx != key.m_program)
+					||  currentProgram.idx != key.m_program.idx)
 					{
 						rendererUpdateUniforms(this, _render->m_uniformBuffer[compute.m_uniformIdx], compute.m_uniformBegin, compute.m_uniformEnd);
 
-						currentProgramIdx = key.m_program;
-						ProgramVK& program = m_program[currentProgramIdx];
+						currentProgram = key.m_program;
+						ProgramVK& program = m_program[currentProgram.idx];
 
 						UniformBuffer* vcb = program.m_vsh->m_constantBuffer;
 						if (NULL != vcb)
@@ -3996,8 +4215,8 @@ BX_UNUSED(currentSamplerStateIdx);
 					if (constantsChanged
 					||  hasPredefined)
 					{
-						ProgramVK& program = m_program[currentProgramIdx];
-						viewState.setPredefined<4>(this, view, 0, program, _render, compute);
+						ProgramVK& program = m_program[currentProgram.idx];
+						viewState.setPredefined<4>(this, view, program, _render, compute);
 //						commitShaderConstants(key.m_program, gpuAddress);
 //						m_commandList->SetComputeRootConstantBufferView(Rdt::CBV, gpuAddress);
 					}
@@ -4092,7 +4311,7 @@ BX_UNUSED(currentSamplerStateIdx);
 					currentPipeline        = VK_NULL_HANDLE;
 					currentBindHash        = 0;
 					currentSamplerStateIdx = kInvalidHandle;
-					currentProgramIdx      = kInvalidHandle;
+					currentProgram         = BGFX_INVALID_HANDLE;
 					currentState.clear();
 					currentState.m_scissor = !draw.m_scissor;
 					changedFlags = BGFX_STATE_MASK;
@@ -4272,11 +4491,11 @@ BX_UNUSED(currentSamplerStateIdx);
 
 					bool constantsChanged = false;
 					if (draw.m_uniformBegin < draw.m_uniformEnd
-					||  currentProgramIdx != key.m_program
+					||  currentProgram.idx != key.m_program.idx
 					||  BGFX_STATE_ALPHA_REF_MASK & changedFlags)
 					{
-						currentProgramIdx = key.m_program;
-						ProgramVK& program = m_program[currentProgramIdx];
+						currentProgram = key.m_program;
+						ProgramVK& program = m_program[currentProgram.idx];
 
 						UniformBuffer* vcb = program.m_vsh->m_constantBuffer;
 						if (NULL != vcb)
@@ -4297,10 +4516,10 @@ BX_UNUSED(currentSamplerStateIdx);
 					if (constantsChanged
 					||  hasPredefined)
 					{
-						ProgramVK& program = m_program[currentProgramIdx];
+						ProgramVK& program = m_program[currentProgram.idx];
 						uint32_t ref = (newFlags&BGFX_STATE_ALPHA_REF_MASK)>>BGFX_STATE_ALPHA_REF_SHIFT;
 						viewState.m_alphaRef = ref/255.0f;
-						viewState.setPredefined<4>(this, view, 0, program, _render, draw);
+						viewState.setPredefined<4>(this, view, program, _render, draw);
 						commitShaderUniforms(m_commandBuffer, key.m_program); //, gpuAddress);
 					}
 
@@ -4601,6 +4820,11 @@ BX_UNUSED(presentMin, presentMax);
 		{
 			vkCmdEndRenderPass(m_commandBuffer);
 			beginRenderPass = false;
+
+			if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
+			{
+				vkCmdEndDebugUtilsLabelEXT(m_commandBuffer);
+			}
 		}
 
 		setImageMemoryBarrier(m_commandBuffer

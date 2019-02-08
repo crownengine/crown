@@ -105,7 +105,7 @@ Pipeline::Pipeline()
 void Pipeline::create(uint16_t width, uint16_t height)
 {
 	PosTexCoord0Vertex::init();
-	_tex_color = bgfx::createUniform("s_texColor",  bgfx::UniformType::Int1);
+	_tex_color = bgfx::createUniform("s_texColor",  bgfx::UniformType::Sampler);
 
 	reset(width, height);
 }

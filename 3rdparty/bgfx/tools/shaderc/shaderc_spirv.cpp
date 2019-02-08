@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -14,6 +14,9 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG_GCC("-Wshadow") // warning: declaration of 'u
 #include <ResourceLimits.h>
 #include <SPIRV/SPVRemapper.h>
 #include <SPIRV/GlslangToSpv.h>
+#define SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
+#include <spirv_msl.hpp>
+#include <spirv-tools/optimizer.hpp>
 BX_PRAGMA_DIAGNOSTIC_POP()
 
 namespace bgfx
@@ -677,8 +680,6 @@ namespace bgfx { namespace spirv
 
 				if (_firstPass)
 				{
-					const size_t strLength = bx::strLen("uniform");
-
 					// first time through, we just find unused uniforms and get rid of them
 					std::string output;
 					bx::Error err;
@@ -696,23 +697,31 @@ namespace bgfx { namespace spirv
 							{
 								bool found = false;
 
-								for (int32_t ii = 0, num = program->getNumLiveUniformVariables(); ii < num; ++ii)
+								if (!bx::findIdentifierMatch(strLine.c_str(), "SamplerState").isEmpty() ||
+									!bx::findIdentifierMatch(strLine.c_str(), "SamplerComparisonState").isEmpty())
 								{
-									// matching lines like:  uniform u_name;
-									// we want to replace "uniform" with "static" so that it's no longer
-									// included in the uniform blob that the application must upload
-									// we can't just remove them, because unused functions might still reference
-									// them and cause a compile error when they're gone
-									if (!bx::findIdentifierMatch(strLine.c_str(), program->getUniformName(ii) ).isEmpty() )
+									found = true;
+								}
+								else
+								{
+									for (int32_t ii = 0, num = program->getNumLiveUniformVariables(); ii < num; ++ii)
 									{
-										found = true;
-										break;
+										// matching lines like:  uniform u_name;
+										// we want to replace "uniform" with "static" so that it's no longer
+										// included in the uniform blob that the application must upload
+										// we can't just remove them, because unused functions might still reference
+										// them and cause a compile error when they're gone
+										if (!bx::findIdentifierMatch(strLine.c_str(), program->getUniformName(ii)).isEmpty())
+										{
+											found = true;
+											break;
+										}
 									}
 								}
 
 								if (!found)
 								{
-									strLine = strLine.replace(index, strLength, "static");
+									strLine = strLine.replace(index, 7 /* uniform */, "static");
 								}
 							}
 
@@ -742,7 +751,7 @@ namespace bgfx { namespace spirv
 						switch (program->getUniformType(ii))
 						{
 						case 0x1404: // GL_INT:
-							un.type = UniformType::Int1;
+							un.type = UniformType::Sampler;
 							break;
 						case 0x8B52: // GL_FLOAT_VEC4:
 							un.type = UniformType::Vec4;
@@ -794,35 +803,102 @@ namespace bgfx { namespace spirv
 
 				glslang::GlslangToSpv(*intermediate, spirv, &options);
 
-				bx::Error err;
-				bx::WriterI* writer = bx::getDebugOut();
-				bx::MemoryReader reader(spirv.data(), uint32_t(spirv.size()*4) );
-				disassemble(writer, &reader, &err);
+				spvtools::Optimizer opt(SPV_ENV_VULKAN_1_0);
 
-				uint32_t shaderSize = (uint32_t)spirv.size()*sizeof(uint32_t);
-				bx::write(_writer, shaderSize);
-				bx::write(_writer, spirv.data(), shaderSize);
-				uint8_t nul = 0;
-				bx::write(_writer, nul);
+				auto print_msg_to_stderr = [](spv_message_level_t, const char*,
+											  const spv_position_t&, const char* m) {
+					fprintf(stderr, "error:%s\n", m);
+				};
+				opt.SetMessageConsumer(print_msg_to_stderr);
 
-				//
-				const uint8_t numAttr = (uint8_t)program->getNumLiveAttributes();
-				bx::write(_writer, numAttr);
-
-				for (uint8_t ii = 0; ii < numAttr; ++ii)
+				opt.RegisterLegalizationPasses();
+				if (!opt.Run(spirv.data(), spirv.size(), &spirv))
 				{
-					bgfx::Attrib::Enum attr = toAttribEnum(program->getAttributeName(ii) );
-					if (bgfx::Attrib::Count != attr)
+					compiled = false;
+				}
+				else
+				{
+					bx::Error err;
+					bx::WriterI* writer = bx::getDebugOut();
+					bx::MemoryReader reader(spirv.data(), uint32_t(spirv.size()*4) );
+					disassemble(writer, &reader, &err);
+
+					if (_version == BX_MAKEFOURCC('M', 'T', 'L', 0))
 					{
-						bx::write(_writer, bgfx::attribToId(attr) );
+						if (g_verbose)
+						{
+							glslang::SpirvToolsDisassemble(std::cout, spirv);
+						}
+
+						spirv_cross::CompilerMSL msl(std::move(spirv));
+
+						spirv_cross::ShaderResources resources = msl.get_shader_resources();
+
+						std::vector<spirv_cross::EntryPoint> entryPoints = msl.get_entry_points_and_stages();
+						if (!entryPoints.empty())
+							msl.rename_entry_point(entryPoints[0].name, "xlatMtlMain", entryPoints[0].execution_model);
+
+						for (auto &resource : resources.uniform_buffers)
+						{
+							msl.set_name(resource.id, "_mtl_u");
+						}
+
+						for (auto &resource : resources.storage_buffers)
+						{
+							unsigned binding = msl.get_decoration(resource.id, spv::DecorationBinding);
+							msl.set_decoration(resource.id, spv::DecorationBinding, binding + 1);
+						}
+
+						for (auto &resource : resources.separate_images)
+						{
+							std::string name = msl.get_name(resource.id);
+							if (name.size() > 7 && 0 == bx::strCmp(name.c_str() + name.length() - 7, "Texture") )
+								msl.set_name(resource.id, name.substr(0, name.length() - 7));
+						}
+						std::string source = msl.compile();
+
+						if ('c' == _options.shaderType)
+						{
+							for (int i = 0; i < 3; ++i)
+							{
+								uint16_t dim = (uint16_t)msl.get_execution_mode_argument(spv::ExecutionMode::ExecutionModeLocalSize, i);
+								bx::write(_writer, dim);
+							}
+						}
+
+						uint32_t shaderSize = (uint32_t)source.size();
+						bx::write(_writer, shaderSize);
+						bx::write(_writer, source.c_str(), shaderSize);
+						uint8_t nul = 0;
+						bx::write(_writer, nul);
 					}
 					else
 					{
-						bx::write(_writer, uint16_t(UINT16_MAX) );
+						uint32_t shaderSize = (uint32_t)spirv.size() * sizeof(uint32_t);
+						bx::write(_writer, shaderSize);
+						bx::write(_writer, spirv.data(), shaderSize);
+						uint8_t nul = 0;
+						bx::write(_writer, nul);
 					}
-				}
+					//
+					const uint8_t numAttr = (uint8_t)program->getNumLiveAttributes();
+					bx::write(_writer, numAttr);
 
-				bx::write(_writer, size);
+					for (uint8_t ii = 0; ii < numAttr; ++ii)
+					{
+						bgfx::Attrib::Enum attr = toAttribEnum(program->getAttributeName(ii) );
+						if (bgfx::Attrib::Count != attr)
+						{
+							bx::write(_writer, bgfx::attribToId(attr) );
+						}
+						else
+						{
+							bx::write(_writer, uint16_t(UINT16_MAX) );
+						}
+					}
+
+					bx::write(_writer, size);
+				}
 			}
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -587,6 +587,10 @@ typedef uint64_t GLuint64;
 #	define GL_MAX_ARRAY_TEXTURE_LAYERS 0x88FF
 #endif // GL_MAX_ARRAY_TEXTURE_LAYERS
 
+#ifndef GL_MAX_LABEL_LENGTH
+#	define GL_MAX_LABEL_LENGTH 0x82E8
+#endif // GL_MAX_LABEL_LENGTH
+
 #ifndef GL_QUERY_RESULT
 #	define GL_QUERY_RESULT 0x8866
 #endif // GL_QUERY_RESULT
@@ -915,6 +919,10 @@ typedef uint64_t GLuint64;
 #ifndef GL_TEXTURE
 #	define GL_TEXTURE 0x1702
 #endif // GL_TEXTURE
+
+#ifndef GL_BUFFER
+#	define GL_BUFFER 0x82E0
+#endif // GL_BUFFER
 
 // _KHR or _ARB...
 #define GL_DEBUG_OUTPUT_SYNCHRONOUS         0x8242

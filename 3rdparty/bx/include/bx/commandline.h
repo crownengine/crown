@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -10,8 +10,7 @@
 
 namespace bx
 {
-	/// Reference:
-	/// http://msdn.microsoft.com/en-us/library/a1y7w461.aspx
+	///
 	StringView tokenizeCommandLine(const StringView& _commandLine, char* _buffer, uint32_t& _bufferSize, int32_t& _argc, char* _argv[], int32_t _maxArgvs, char _term = '\0');
 
 	///

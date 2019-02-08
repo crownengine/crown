@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
@@ -90,12 +90,8 @@ void imageRgba32fNormalize(void* _dst, uint32_t _width, uint32_t _height, uint32
 		const float* rgba = (const float*)&src[0];
 		for (uint32_t xx = 0; xx < _width; ++xx, rgba += 4, dst += 16)
 		{
-			float xyz[3];
-
-			xyz[0] = rgba[0];
-			xyz[1] = rgba[1];
-			xyz[2] = rgba[2];
-			bx::vec3Norm( (float*)dst, xyz);
+			const bx::Vec3 xyz = bx::load<bx::Vec3>(rgba);
+			bx::store(dst, bx::normalize(xyz) );
 		}
 	}
 }
@@ -624,10 +620,10 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 						, bimg::TextureFormat::R8
 						);
 					temp = BX_ALLOC(_allocator, size);
-					uint8_t* rgba = (uint8_t*)temp;
+					uint8_t* r8 = (uint8_t*)temp;
 
 					bimg::imageDecodeToR8(_allocator
-						, rgba
+						, r8
 						, mip.m_data
 						, mip.m_width
 						, mip.m_height
@@ -644,8 +640,85 @@ bimg::ImageContainer* convert(bx::AllocatorI* _allocator, const void* _inputData
 						, mip.m_width
 						, mip.m_height
 						, mip.m_width
-						, rgba
+						, r8
 						);
+
+					if (_options.mips) {
+						const float alphaRef = 0.5f;
+						float coverage = bimg::imageAlphaTestCoverage(bimg::TextureFormat::A8
+							, mip.m_width
+							, mip.m_height
+							, mip.m_width
+							, r8
+							, alphaRef
+						);
+
+						size = bimg::imageGetSize(
+							NULL
+							, uint16_t(dstMip.m_width)
+							, uint16_t(dstMip.m_height)
+							, uint16_t(dstMip.m_depth)
+							, false
+							, false
+							, 1
+							, bimg::TextureFormat::RGBA8
+						);
+						void* rgbaTemp = BX_ALLOC(_allocator, size);
+						uint8_t* rgba = (uint8_t*)rgbaTemp;
+
+						bimg::imageDecodeToRgba8(
+							_allocator
+							, rgba
+							, dstMip.m_data
+							, dstMip.m_width
+							, dstMip.m_height
+							, dstMip.m_width * 4
+							, bimg::TextureFormat::A8
+						);
+
+						for (uint8_t lod = 1; lod < numMips && _err->isOk(); ++lod) {
+							bimg::imageRgba8Downsample2x2(rgba
+								, dstMip.m_width
+								, dstMip.m_height
+								, dstMip.m_depth
+								, dstMip.m_width * 4
+								, bx::strideAlign(dstMip.m_width / 2, blockWidth) * 4
+								, rgba
+							);
+
+							// For each mip, upscale to original size,
+							// scale image alpha to get same coverage as mip0
+							uint32_t upsample   = 1 << lod;
+							uint32_t destWidth  = dstMip.m_width / 2;
+							uint32_t destHeight = dstMip.m_height / 2;
+							bimg::imageScaleAlphaToCoverage(bimg::TextureFormat::RGBA8
+								, destWidth
+								, destHeight
+								, destWidth * 4
+								, rgba
+								, coverage
+								, alphaRef
+								, upsample
+							);
+
+							bimg::imageGetRawData(*output, side, lod, output->m_data, output->m_size, dstMip);
+							dstData = const_cast<uint8_t*>(dstMip.m_data);
+
+							bimg::imageEncodeFromRgba8(
+								_allocator
+								, dstData
+								, rgba
+								, dstMip.m_width
+								, dstMip.m_height
+								, dstMip.m_depth
+								, bimg::TextureFormat::A8
+								, _options.quality
+								, _err
+							);
+						}
+
+						BX_FREE(_allocator, rgbaTemp);
+					}
 				}
 				// RGBA8
 				else
@@ -824,7 +897,7 @@ void help(const char* _error = NULL, bool _showHelp = true)
 
 	fprintf(stderr
 		, "texturec, bgfx texture compiler tool, version %d.%d.%d.\n"
-		  "Copyright 2011-2018 Branimir Karadzic. All rights reserved.\n"
+		  "Copyright 2011-2019 Branimir Karadzic. All rights reserved.\n"
 		  "License: https://github.com/bkaradzic/bimg#license-bsd-2-clause\n\n"
 		, BIMG_TEXTUREC_VERSION_MAJOR
 		, BIMG_TEXTUREC_VERSION_MINOR

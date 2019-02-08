@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
@@ -473,7 +473,22 @@ namespace bimg
 			}
 			else
 			{
-				BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image.");
+				switch (result)
+				{
+				case TINYEXR_ERROR_INVALID_MAGIC_NUMBER: BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Invalid magic number."); break;
+				case TINYEXR_ERROR_INVALID_EXR_VERSION:	 BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Invalid EXR version.");  break;
+				case TINYEXR_ERROR_INVALID_ARGUMENT:     BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Invalid argument.");     break;
+				case TINYEXR_ERROR_INVALID_DATA:         BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Invalid data.");         break;
+				case TINYEXR_ERROR_INVALID_FILE:         BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Invalid file.");         break;
+//				case TINYEXR_ERROR_INVALID_PARAMETER:    BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Invalid parameter.");    break;
+				case TINYEXR_ERROR_CANT_OPEN_FILE:       BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Can't open file.");      break;
+				case TINYEXR_ERROR_UNSUPPORTED_FORMAT:   BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Unsupported format.");   break;
+				case TINYEXR_ERROR_INVALID_HEADER:       BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Invalid header.");       break;
+				case TINYEXR_ERROR_UNSUPPORTED_FEATURE:  BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Unsupported feature.");  break;
+				case TINYEXR_ERROR_CANT_WRITE_FILE:      BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Can't write file.");     break;
+				case TINYEXR_ERROR_SERIALZATION_FAILED:  BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image. Serialization failed."); break;
+				default:                                 BX_ERROR_SET(_err, BIMG_ERROR, "EXR: Failed to parse image.");                       break;
+				}
 			}
 
 			FreeEXRHeader(&exrHeader);

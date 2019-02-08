@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -14,35 +14,35 @@ TEST_CASE("StrideAlign")
 		REQUIRE(12 == bx::strideAlign(ii+1, 12) );
 	}
 
-	REQUIRE(0  == bx::strideAlign16(0, 12) );
+	REQUIRE(0  == bx::strideAlign<16>(0, 12) );
 	for (uint32_t ii = 0; ii < 12; ++ii)
 	{
-		REQUIRE(48 == bx::strideAlign16(ii+1, 12) );
+		REQUIRE(48 == bx::strideAlign<16>(ii+1, 12) );
 	}
+
+	uint32_t offset = 11;
+	offset = bx::strideAlign(offset, 32);
+	REQUIRE(offset == 32);
+
+	offset = bx::strideAlign(offset, 24);
+	REQUIRE(offset == 48);
 }
 
 TEST_CASE("uint32_cnt")
 {
 	REQUIRE( 0 == bx::uint32_cnttz(UINT32_C(1) ) );
-	REQUIRE( 0 == bx::uint32_cnttz_ref(UINT32_C(1) ) );
 
 	REQUIRE(31 == bx::uint32_cntlz(UINT32_C(1) ) );
-	REQUIRE(31 == bx::uint32_cntlz_ref(UINT32_C(1) ) );
 
 	REQUIRE( 0 == bx::uint64_cnttz(UINT64_C(1) ) );
-	REQUIRE( 0 == bx::uint64_cnttz_ref(UINT64_C(1) ) );
 
 	REQUIRE(63 == bx::uint64_cntlz(UINT64_C(1) ) );
-	REQUIRE(63 == bx::uint64_cntlz_ref(UINT64_C(1) ) );
 
 	REQUIRE( 1 == bx::uint32_cntbits(1) );
-	REQUIRE( 1 == bx::uint32_cntbits_ref(1) );
 
 	REQUIRE(16 == bx::uint32_cntbits(UINT16_MAX) );
-	REQUIRE(16 == bx::uint32_cntbits_ref(UINT16_MAX) );
 
 	REQUIRE(32 == bx::uint32_cntbits(UINT32_MAX) );
-	REQUIRE(32 == bx::uint32_cntbits_ref(UINT32_MAX) );
 }
 
 TEST_CASE("uint32_part")

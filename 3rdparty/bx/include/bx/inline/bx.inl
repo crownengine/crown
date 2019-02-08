@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -9,8 +9,9 @@
 
 namespace bx
 {
-	// Reference:
-	// https://web.archive.org/web/20181115035420/http://cnicholson.net/2011/01/stupid-c-tricks-a-better-sizeof_array/
+	// Reference(S):
+	// - https://web.archive.org/web/20181115035420/http://cnicholson.net/2011/01/stupid-c-tricks-a-better-sizeof_array/
+	//
 	template<typename Ty, size_t Num>
 	char(&CountOfRequireArrayArgumentT(const Ty(&)[Num]))[Num];
 

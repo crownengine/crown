@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
@@ -113,6 +113,7 @@ namespace bimg
 		, const void* _src
 		, float _alphaRef
 		, float _scale = 1.0f
+		, uint32_t _upscale = 1
 		);
 
 	///
@@ -124,6 +125,7 @@ namespace bimg
 		, void* _src
 		, float _coverage
 		, float _alphaRef
+		, uint32_t _upscale = 1
 		);
 
 	///

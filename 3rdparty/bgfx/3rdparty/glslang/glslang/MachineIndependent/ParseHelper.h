@@ -1,6 +1,7 @@
 //
 // Copyright (C) 2002-2005  3Dlabs Inc. Ltd.
 // Copyright (C) 2012-2013 LunarG, Inc.
+// Copyright (C) 2015-2018 Google, Inc.
 //
 // All rights reserved.
 //
@@ -305,7 +306,7 @@ public:
     TIntermTyped* handleBinaryMath(const TSourceLoc&, const char* str, TOperator op, TIntermTyped* left, TIntermTyped* right);
     TIntermTyped* handleUnaryMath(const TSourceLoc&, const char* str, TOperator op, TIntermTyped* childNode);
     TIntermTyped* handleDotDereference(const TSourceLoc&, TIntermTyped* base, const TString& field);
-    void blockMemberExtensionCheck(const TSourceLoc&, const TIntermTyped* base, const TString& field);
+    void blockMemberExtensionCheck(const TSourceLoc&, const TIntermTyped* base, int member, const TString& memberName);
     TFunction* handleFunctionDeclarator(const TSourceLoc&, TFunction& function, bool prototype);
     TIntermAggregate* handleFunctionDefinition(const TSourceLoc&, TFunction&);
     TIntermTyped* handleFunctionCall(const TSourceLoc&, TFunction*, TIntermNode*);

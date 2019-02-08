@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -46,6 +46,9 @@ namespace bgfx
 	/// @warning This call should be only used on platforms that don't
 	///   allow creating separate rendering thread. If it is called before
 	///   to bgfx::init, render thread won't be created by bgfx::init call.
+	///
+	/// @attention C99 equivalent is `bgfx_render_frame`.
+	///
 	RenderFrame::Enum renderFrame(int32_t _msecs = -1);
 
 	/// Set platform data.

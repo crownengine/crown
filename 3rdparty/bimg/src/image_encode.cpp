@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bimg#license-bsd-2-clause
  */
 
@@ -490,7 +490,7 @@ namespace bimg
 		return rgba[3];
 	}
 
-	float imageAlphaTestCoverage(TextureFormat::Enum _format, uint32_t _width, uint32_t _height, uint32_t _srcPitch, const void* _src, float _alphaRef, float _scale)
+	float imageAlphaTestCoverage(TextureFormat::Enum _format, uint32_t _width, uint32_t _height, uint32_t _srcPitch, const void* _src, float _alphaRef, float _scale, uint32_t _upscale)
 	{
 		UnpackFn unpack = getUnpack(_format);
 		if (NULL == unpack)
@@ -501,7 +501,8 @@ namespace bimg
 		float coverage = 0.0f;
 		const uint8_t* src = (const uint8_t*)_src;
 		const uint32_t xstep = getBitsPerPixel(_format) / 8;
-		const float numSamples = 8.0f;
+		const uint32_t numSamples = _upscale;
+		const float sampleStep = 1.0f / numSamples;
 
 		for (uint32_t yy = 0, ystep = _srcPitch; yy < _height-1; ++yy, src += ystep)
 		{
@@ -513,9 +514,9 @@ namespace bimg
 				float alpha01 = _scale * getAlpha(unpack, data+ystep);
 				float alpha11 = _scale * getAlpha(unpack, data+ystep+xstep);
 
-				for (float fy = 0.5f/numSamples; fy < 1.0f; fy += 1.0f)
+				for (float fy = 0.0f; fy < 1.0f; fy += sampleStep)
 				{
-					for (float fx = 0.5f/numSamples; fx < 1.0f; fx += 1.0f)
+					for (float fx = 0.0f; fx < 1.0f; fx += sampleStep)
 					{
 						float alpha = 0.0f
 							+ alpha00 * (1.0f - fx) * (1.0f - fy)
@@ -536,7 +537,7 @@ namespace bimg
 		return coverage / float(_width*_height*numSamples*numSamples);
 	}
 
-	void imageScaleAlphaToCoverage(TextureFormat::Enum _format, uint32_t _width, uint32_t _height, uint32_t _srcPitch, void* _src, float _desiredCoverage, float _alphaRef)
+	void imageScaleAlphaToCoverage(TextureFormat::Enum _format, uint32_t _width, uint32_t _height, uint32_t _srcPitch, void* _src, float _desiredCoverage, float _alphaRef, uint32_t _upscale)
 	{
 		PackFn   pack   = getPack(_format);
 		UnpackFn unpack = getUnpack(_format);
@@ -550,7 +551,7 @@ namespace bimg
 		float max   = 4.0f;
 		float scale = 1.0f;
 
-		for (uint32_t ii = 0; ii < 8; ++ii)
+		for (uint32_t ii = 0; ii < 10; ++ii)
 		{
 			float coverage = imageAlphaTestCoverage(
 				  _format
@@ -560,6 +561,7 @@ namespace bimg
 				, _src
 				, _alphaRef
 				, scale
+				, _upscale
 				);
 
 			if (coverage < _desiredCoverage)

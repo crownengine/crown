@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -10,6 +10,7 @@
 #include "endian.h"
 #include "error.h"
 #include "filepath.h"
+#include "math.h"
 #include "string.h"
 #include "uint32_t.h"
 

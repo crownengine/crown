@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -261,7 +261,7 @@ namespace bx
 	StringView findIdentifierMatch(const StringView& _str, const StringView& _word);
 
 	/// Finds any identifier from NULL terminated array of identifiers.
-	StringView findIdentifierMatch(const StringView& _str, const char** _words);
+	StringView findIdentifierMatch(const StringView& _str, const char** _words, int32_t _num = INT32_MAX);
 
 	/// Cross platform implementation of vsnprintf that returns number of
 	/// characters which would have been written to the final string if

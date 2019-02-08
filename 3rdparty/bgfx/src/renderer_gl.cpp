@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -1656,8 +1656,14 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		_minFilter = s_textureFilterMin[min][_hasMips ? mip+1 : 0];
 	}
 
-	void updateExtension(const char* _name)
+	void updateExtension(const bx::StringView& _name)
 	{
+		bx::StringView ext(_name);
+		if (0 == bx::strCmp(ext, "GL_", 3) ) // skip GL_
+		{
+			ext.set(ext.getPtr()+3, ext.getTerm() );
+		}
+
 		bool supported = false;
 		for (uint32_t ii = 0; ii < Extension::Count; ++ii)
 		{
@@ -1665,12 +1671,6 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			if (!extension.m_supported
 			&&  extension.m_initialize)
 			{
-				const char* ext = _name;
-				if (0 == bx::strCmp(ext, "GL_", 3) ) // skip GL_
-				{
-					ext += 3;
-				}
-
 				if (0 == bx::strCmp(ext, extension.m_name) )
 				{
 					extension.m_supported = true;
@@ -1680,7 +1680,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			}
 		}
 
-		BX_TRACE("GL_EXTENSION %s: %s", supported ? " (supported)" : "", _name);
+		BX_TRACE("GL_EXTENSION %s: %.*s", supported ? " (supported)" : "", _name.getLength(), _name.getPtr() );
 		BX_UNUSED(supported);
 	}
 
@@ -1738,6 +1738,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			, m_hash( (BX_PLATFORM_WINDOWS<<1) | BX_ARCH_64BIT)
 			, m_backBufferFbo(0)
 			, m_msaaBackBufferFbo(0)
+			, m_clearQuadColor(BGFX_INVALID_HANDLE)
+			, m_clearQuadDepth(BGFX_INVALID_HANDLE)
 		{
 			bx::memSet(m_msaaBackBufferRbos, 0, sizeof(m_msaaBackBufferRbos) );
 		}
@@ -1838,6 +1840,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				GL_GET(GL_MAX_RENDERBUFFER_SIZE, 1);
 				GL_GET(GL_MAX_COLOR_ATTACHMENTS, 1);
 				GL_GET(GL_MAX_DRAW_BUFFERS, 1);
+				GL_GET(GL_MAX_LABEL_LENGTH, 0);
+
 #undef GL_GET
 
 				BX_TRACE("      Vendor: %s", m_vendor);
@@ -1875,29 +1879,16 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				glGetError(); // ignore error if glGetString returns NULL.
 				if (NULL != extensions)
 				{
-					char name[1024];
-					const char* pos = extensions;
-					const char* end = extensions + bx::strLen(extensions);
+					bx::StringView ext(extensions);
 					uint32_t index = 0;
-					while (pos < end)
+					while (!ext.isEmpty() )
 					{
-						uint32_t len;
-						const bx::StringView space = bx::strFind(pos, ' ');
-						if (!space.isEmpty() )
-						{
-							len = bx::uint32_min(sizeof(name), (uint32_t)(space.getPtr() - pos) );
-						}
-						else
-						{
-							len = bx::uint32_min(sizeof(name), (uint32_t)bx::strLen(pos) );
-						}
+						const bx::StringView space = bx::strFind(ext, ' ');
+						const bx::StringView token = bx::StringView(ext.getPtr(), space.getPtr() );
+						updateExtension(token);
 
-						bx::strCopy(name, BX_COUNTOF(name), pos, len);
-						name[len] = '\0';
+						ext.set(space.getPtr() + (space.isEmpty() ? 0 : 1), ext.getTerm() );
 
-						updateExtension(name);
-
-						pos += len+1;
 						++index;
 					}
 				}
@@ -2089,10 +2080,11 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					// EXT_texture_format_BGRA8888 wants both format and internal
 					// format to be BGRA.
 					//
-					// Reference:
-					// https://www.khronos.org/registry/gles/extensions/EXT/EXT_texture_format_BGRA8888.txt
-					// https://www.opengl.org/registry/specs/EXT/bgra.txt
-					// https://www.khronos.org/registry/gles/extensions/APPLE/APPLE_texture_format_BGRA8888.txt
+					// Reference(s):
+					// - https://web.archive.org/web/20181126035829/https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_format_BGRA8888.txt
+					// - https://web.archive.org/web/20181126035841/https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_bgra.txt
+					// - https://web.archive.org/web/20181126035851/https://www.khronos.org/registry/OpenGL/extensions/APPLE/APPLE_texture_format_BGRA8888.txt
+					//
 					if (!s_extension[Extension::EXT_bgra                     ].m_supported
 					&&  !s_extension[Extension::APPLE_texture_format_BGRA8888].m_supported)
 					{
@@ -2147,6 +2139,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 				for (uint32_t ii = 0; ii < TextureFormat::Count; ++ii)
 				{
+					const TextureFormat::Enum fmt = TextureFormat::Enum(ii);
+
 					uint16_t supported = BGFX_CAPS_FORMAT_TEXTURE_NONE;
 					supported |= s_textureFormat[ii].m_supported
 						? BGFX_CAPS_FORMAT_TEXTURE_2D
@@ -2155,30 +2149,33 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 						: BGFX_CAPS_FORMAT_TEXTURE_NONE
 						;
 
-					supported |= isTextureFormatValid(TextureFormat::Enum(ii), true)
+					supported |= isTextureFormatValid(fmt, true)
 						? BGFX_CAPS_FORMAT_TEXTURE_2D_SRGB
 						| BGFX_CAPS_FORMAT_TEXTURE_3D_SRGB
 						| BGFX_CAPS_FORMAT_TEXTURE_CUBE_SRGB
 						: BGFX_CAPS_FORMAT_TEXTURE_NONE
 						;
 
-					supported |= isTextureFormatValid(TextureFormat::Enum(ii), false, true)
-						? BGFX_CAPS_FORMAT_TEXTURE_MIP_AUTOGEN
-						: BGFX_CAPS_FORMAT_TEXTURE_NONE
-						;
+					if (!bimg::isCompressed(bimg::TextureFormat::Enum(fmt) ) )
+					{
+						supported |= isTextureFormatValid(fmt, false, true)
+							? BGFX_CAPS_FORMAT_TEXTURE_MIP_AUTOGEN
+							: BGFX_CAPS_FORMAT_TEXTURE_NONE
+							;
+					}
 
 					supported |= computeSupport
-						&& isImageFormatValid(TextureFormat::Enum(ii) )
+						&& isImageFormatValid(fmt)
 						? BGFX_CAPS_FORMAT_TEXTURE_IMAGE
 						: BGFX_CAPS_FORMAT_TEXTURE_NONE
 						;
 
-					supported |= isFramebufferFormatValid(TextureFormat::Enum(ii) )
+					supported |= isFramebufferFormatValid(fmt)
 						? BGFX_CAPS_FORMAT_TEXTURE_FRAMEBUFFER
 						: BGFX_CAPS_FORMAT_TEXTURE_NONE
 						;
 
-					supported |= isFramebufferFormatValid(TextureFormat::Enum(ii), false, true)
+					supported |= isFramebufferFormatValid(fmt, false, true)
 						? BGFX_CAPS_FORMAT_TEXTURE_FRAMEBUFFER
 						: BGFX_CAPS_FORMAT_TEXTURE_NONE
 						;
@@ -2518,6 +2515,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				{
 					glInsertEventMarker = stubInsertEventMarker;
 				}
+
+				m_maxLabelLen = uint16_t(glGet(GL_MAX_LABEL_LENGTH) );
 
 				setGraphicsDebuggerPresent(s_extension[Extension::EXT_debug_tool].m_supported);
 
@@ -2926,6 +2925,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				width  = frameBuffer.m_width;
 				height = frameBuffer.m_height;
 			}
+
 			m_glctx.makeCurrent(swapChain);
 
 			uint32_t length = width*height*4;
@@ -2969,26 +2969,46 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			bx::memCopy(m_uniforms[_loc], _data, _size);
 		}
 
-		void setMarker(const char* _marker, uint32_t _size) override
-		{
-			GL_CHECK(glInsertEventMarker(_size, _marker) );
-		}
-
 		void invalidateOcclusionQuery(OcclusionQueryHandle _handle) override
 		{
 			m_occlusionQuery.invalidate(_handle);
 		}
 
-		virtual void setName(Handle _handle, const char* _name) override
+		void setMarker(const char* _marker, uint16_t _len) override
 		{
+			GL_CHECK(glInsertEventMarker(_len, _marker) );
+		}
+
+		virtual void setName(Handle _handle, const char* _name, uint16_t _len) override
+		{
+			uint16_t len = bx::min(_len, m_maxLabelLen);
+
 			switch (_handle.type)
 			{
+			case Handle::IndexBuffer:
+				GL_CHECK(glObjectLabel(GL_BUFFER, m_indexBuffers[_handle.idx].m_id, len, _name) );
+				break;
+
 			case Handle::Shader:
-				GL_CHECK(glObjectLabel(GL_SHADER, m_shaders[_handle.idx].m_id, -1, _name) );
+				GL_CHECK(glObjectLabel(GL_SHADER, m_shaders[_handle.idx].m_id, len, _name) );
 				break;
 
 			case Handle::Texture:
-				GL_CHECK(glObjectLabel(GL_TEXTURE, m_textures[_handle.idx].m_id, -1, _name) );
+				{
+					GLint id = m_textures[_handle.idx].m_id;
+					if (0 != id)
+					{
+						GL_CHECK(glObjectLabel(GL_TEXTURE, id, len, _name) );
+					}
+					else
+					{
+						GL_CHECK(glObjectLabel(GL_RENDERBUFFER, m_textures[_handle.idx].m_rbo, len, _name) );
+					}
+				}
+				break;
+
+			case Handle::VertexBuffer:
+				GL_CHECK(glObjectLabel(GL_BUFFER, m_vertexBuffers[_handle.idx].m_id, len, _name) );
 				break;
 
 			default:
@@ -3191,6 +3211,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				if (UINT16_MAX != frameBuffer.m_denseIdx)
 				{
 					m_glctx.makeCurrent(frameBuffer.m_swapChain);
+					GL_CHECK(glFrontFace(GL_CW) );
+
 					frameBuffer.m_needPresent = true;
 					m_currentFbo = 0;
 				}
@@ -3615,16 +3637,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 				switch (type)
 				{
-//				case ConstantType::Int1:
-//					{
-//						int* value = (int*)data;
-//						BX_TRACE("Int1 sampler %d, loc %d (num %d, copy %d)", *value, loc, num, copy);
-//						GL_CHECK(glUniform1iv(loc, num, value) );
-//					}
-//					break;
-
-				CASE_IMPLEMENT_UNIFORM(Int1, 1iv, I, int);
-				CASE_IMPLEMENT_UNIFORM(Vec4, 4fv, F, float);
+				CASE_IMPLEMENT_UNIFORM(Sampler, 1iv, I, int);
+				CASE_IMPLEMENT_UNIFORM(Vec4,    4fv, F, float);
 				CASE_IMPLEMENT_UNIFORM_T(Mat3, Matrix3fv, F, float);
 				CASE_IMPLEMENT_UNIFORM_T(Mat4, Matrix4fv, F, float);
 
@@ -3738,40 +3752,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					GL_CHECK(glDisable(GL_STENCIL_TEST) );
 				}
 
-				VertexBufferGL& vb = m_vertexBuffers[_clearQuad.m_vb->handle.idx];
-				VertexDecl& vertexDecl = m_vertexDecls[_clearQuad.m_vb->decl.idx];
-
-				{
-					struct Vertex
-					{
-						float m_x;
-						float m_y;
-						float m_z;
-					};
-
-					Vertex* vertex = (Vertex*)_clearQuad.m_vb->data;
-					BX_CHECK(vertexDecl.m_stride == sizeof(Vertex), "Stride/Vertex mismatch (stride %d, sizeof(Vertex) %d)", vertexDecl.m_stride, sizeof(Vertex) );
-
-					const float depth = _clear.m_depth * 2.0f - 1.0f;
-
-					vertex->m_x = -1.0f;
-					vertex->m_y = -1.0f;
-					vertex->m_z = depth;
-					vertex++;
-					vertex->m_x =  1.0f;
-					vertex->m_y = -1.0f;
-					vertex->m_z = depth;
-					vertex++;
-					vertex->m_x = -1.0f;
-					vertex->m_y =  1.0f;
-					vertex->m_z = depth;
-					vertex++;
-					vertex->m_x =  1.0f;
-					vertex->m_y =  1.0f;
-					vertex->m_z = depth;
-				}
-
-				vb.update(0, 4*_clearQuad.m_decl.m_stride, _clearQuad.m_vb->data);
+				VertexBufferGL& vb = m_vertexBuffers[_clearQuad.m_vb.idx];
+				VertexDecl& vertexDecl = _clearQuad.m_decl;
 
 				GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vb.m_id) );
 
@@ -3781,14 +3763,31 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				program.bindAttributes(vertexDecl, 0);
 				program.bindAttributesEnd();
 
-				float mrtClear[BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS][4];
+				if (m_clearQuadColor.idx == kInvalidHandle)
+				{
+					const UniformRegInfo* infoClearColor = m_uniformReg.find("bgfx_clear_color");
+					if (NULL != infoClearColor)
+						m_clearQuadColor = infoClearColor->m_handle;
+				}
+
+				if (m_clearQuadDepth.idx == kInvalidHandle)
+				{
+					const UniformRegInfo* infoClearDepth = m_uniformReg.find("bgfx_clear_depth");
+					if (NULL != infoClearDepth)
+						m_clearQuadDepth = infoClearDepth->m_handle;
+				}
+
+				float mrtClearDepth[4] = { _clear.m_depth * 2.0f - 1.0f };
+				updateUniform(m_clearQuadDepth.idx, mrtClearDepth, sizeof(float)*4);
+
+				float mrtClearColor[BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS][4];
 
 				if (BGFX_CLEAR_COLOR_USE_PALETTE & _clear.m_flags)
 				{
 					for (uint32_t ii = 0; ii < numMrt; ++ii)
 					{
 						uint8_t index = (uint8_t)bx::uint32_min(BGFX_CONFIG_MAX_COLOR_PALETTE-1, _clear.m_index[ii]);
-						bx::memCopy(mrtClear[ii], _palette[index], 16);
+						bx::memCopy(mrtClearColor[ii], _palette[index], 16);
 					}
 				}
 				else
@@ -3803,11 +3802,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 					for (uint32_t ii = 0; ii < numMrt; ++ii)
 					{
-						bx::memCopy(mrtClear[ii], rgba, 16);
+						bx::memCopy(mrtClearColor[ii], rgba, 16);
 					}
 				}
 
-				GL_CHECK(glUniform4fv(0, numMrt, mrtClear[0]) );
+				updateUniform(m_clearQuadColor.idx, mrtClearColor[0], numMrt * sizeof(float) * 4);
+
+				commit(*program.m_constantBuffer);
 
 				GL_CHECK(glDrawArrays(GL_TRIANGLE_STRIP
 					, 0
@@ -3849,6 +3850,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		float m_maxAnisotropyDefault;
 		int32_t m_maxMsaa;
 		GLuint m_vao;
+		uint16_t m_maxLabelLen;
 		bool m_blitSupported;
 		bool m_readBackSupported;
 		bool m_vaoSupport;
@@ -3873,6 +3875,9 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		GLuint m_msaaBackBufferRbos[2];
 		GlContext m_glctx;
 		bool m_needPresent;
+
+		UniformHandle m_clearQuadColor;
+		UniformHandle m_clearQuadDepth;
 
 		const char* m_vendor;
 		const char* m_renderer;
@@ -4019,7 +4024,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		{
 		case GL_INT:
 		case GL_UNSIGNED_INT:
-			return UniformType::Int1;
+			return UniformType::Sampler;
 
 		case GL_FLOAT:
 		case GL_FLOAT_VEC2:
@@ -4075,7 +4080,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		case GL_IMAGE_CUBE:
 		case GL_INT_IMAGE_CUBE:
 		case GL_UNSIGNED_INT_IMAGE_CUBE:
-			return UniformType::Int1;
+			return UniformType::Sampler;
 		};
 
 		BX_CHECK(false, "Unrecognized GL type 0x%04x.", _type);
@@ -4553,7 +4558,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 	void VertexBufferGL::destroy()
 	{
-		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0) );
+		GL_CHECK(glBindBuffer(m_target, 0) );
 		GL_CHECK(glDeleteBuffers(1, &m_id) );
 	}
 
@@ -4708,22 +4713,20 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 		if (bimg::imageParse(imageContainer, _mem->data, _mem->size) )
 		{
-			uint8_t numMips = imageContainer.m_numMips;
-			const uint8_t startLod = uint8_t(bx::uint32_min(_skip, numMips-1) );
-			numMips -= startLod;
-			const uint16_t numLayers = imageContainer.m_numLayers;
-			uint32_t textureWidth;
-			uint32_t textureHeight;
-			uint32_t textureDepth;
-			{
-				const bimg::ImageBlockInfo& ibi = bimg::getBlockInfo(bimg::TextureFormat::Enum(imageContainer.m_format) );
-				textureWidth  = bx::uint32_max(ibi.blockWidth,  imageContainer.m_width >>startLod);
-				textureHeight = bx::uint32_max(ibi.blockHeight, imageContainer.m_height>>startLod);
-				textureDepth  = 1 < imageContainer.m_depth
-					? imageContainer.m_depth
-					: imageContainer.m_numLayers
-					;
-			}
+			const uint8_t startLod = bx::min<uint8_t>(_skip, imageContainer.m_numMips-1);
+
+			bimg::TextureInfo ti;
+			bimg::imageGetSize(
+				  &ti
+				, uint16_t(imageContainer.m_width >>startLod)
+				, uint16_t(imageContainer.m_height>>startLod)
+				, uint16_t(imageContainer.m_depth >>startLod)
+				, imageContainer.m_cubeMap
+				, 1 < imageContainer.m_numMips
+				, imageContainer.m_numLayers
+				, imageContainer.m_format
+				);
+			ti.numMips = bx::min<uint8_t>(imageContainer.m_numMips-startLod, ti.numMips);
 
 			m_requestedFormat  = uint8_t(imageContainer.m_format);
 			m_textureFormat    = uint8_t(getViableTextureFormat(imageContainer) );
@@ -4745,7 +4748,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				target = GL_TEXTURE_3D;
 			}
 
-			const bool textureArray = 1 < numLayers;
+			const bool textureArray = 1 < ti.numLayers;
 			if (textureArray)
 			{
 				switch (target)
@@ -4757,12 +4760,12 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			}
 
 			if (!init(target
-					, textureWidth
-					, textureHeight
-					, textureDepth
-					, numMips
-					, _flags
-					) )
+				, ti.width
+				, ti.height
+				, ti.depth
+				, ti.numMips
+				, _flags
+				) )
 			{
 				return;
 			}
@@ -4794,9 +4797,9 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				, getName( (TextureFormat::Enum)m_textureFormat)
 				, srgb ? "+sRGB " : ""
 				, getName( (TextureFormat::Enum)m_requestedFormat)
-				, numLayers
-				, textureWidth
-				, textureHeight
+				, ti.numLayers
+				, ti.width
+				, ti.height
 				, imageContainer.m_cubeMap ? 6 : (1 < imageContainer.m_depth ? imageContainer.m_depth : 0)
 				, 0 != (m_flags&BGFX_TEXTURE_RT_MASK) ? " (render target)" : ""
 				);
@@ -4812,22 +4815,22 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			uint8_t* temp = NULL;
 			if (convert)
 			{
-				temp = (uint8_t*)BX_ALLOC(g_allocator, textureWidth*textureHeight*4);
+				temp = (uint8_t*)BX_ALLOC(g_allocator, ti.width*ti.height*4);
 			}
 
-			const uint16_t numSides = numLayers * (imageContainer.m_cubeMap ? 6 : 1);
+			const uint16_t numSides = ti.numLayers * (imageContainer.m_cubeMap ? 6 : 1);
 
 			for (uint16_t side = 0; side < numSides; ++side)
 			{
-				uint32_t width  = textureWidth;
-				uint32_t height = textureHeight;
-				uint32_t depth  = imageContainer.m_depth;
+				uint32_t width  = ti.width;
+				uint32_t height = ti.height;
+				uint32_t depth  = ti.depth;
 				GLenum imageTarget = imageContainer.m_cubeMap && !textureArray
 					? target+side
 					: target
 					;
 
-				for (uint8_t lod = 0, num = numMips; lod < num; ++lod)
+				for (uint8_t lod = 0, num = ti.numMips; lod < num; ++lod)
 				{
 					width  = bx::uint32_max(1, width);
 					height = bx::uint32_max(1, height);
@@ -4889,8 +4892,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					{
 						if (compressed)
 						{
-							uint32_t size = bx::uint32_max(1, (width  + 3)>>2)
-										  * bx::uint32_max(1, (height + 3)>>2)
+							uint32_t size = bx::max<uint32_t>(1, (width  + 3)>>2)
+										  * bx::max<uint32_t>(1, (height + 3)>>2)
 										  * 4*4* bimg::getBitsPerPixel(bimg::TextureFormat::Enum(m_textureFormat) )/8
 										  ;
 
@@ -5775,12 +5778,15 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 				bx::write(&writer
 					, "#version 430\n"
-					  "#define texture2DLod    textureLod\n"
-					  "#define texture3DLod    textureLod\n"
-					  "#define textureCubeLod  textureLod\n"
-					  "#define texture2DGrad   textureGrad\n"
-					  "#define texture3DGrad   textureGrad\n"
-					  "#define textureCubeGrad textureGrad\n"
+					  "#define texture2DLod             textureLod\n"
+					  "#define texture2DLodOffset       textureLodOffset\n"
+					  "#define texture2DArrayLod        textureLod\n"
+					  "#define texture2DArrayLodOffset  textureLodOffset\n"
+					  "#define texture3DLod             textureLod\n"
+					  "#define textureCubeLod           textureLod\n"
+					  "#define texture2DGrad            textureGrad\n"
+					  "#define texture3DGrad            textureGrad\n"
+					  "#define textureCubeGrad          textureGrad\n"
 					);
 
 				bx::write(&writer, code.getPtr()+bx::strLen("#version 430"), codeLen);
@@ -6346,12 +6352,11 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		RenderBind currentBind;
 		currentBind.clear();
 
-		const bool hmdEnabled = false;
 		static ViewState viewState;
-		viewState.reset(_render, hmdEnabled);
+		viewState.reset(_render);
 
-		uint16_t programIdx = kInvalidHandle;
-		uint16_t boundProgramIdx = kInvalidHandle;
+		ProgramHandle currentProgram = BGFX_INVALID_HANDLE;
+		ProgramHandle boundProgram   = BGFX_INVALID_HANDLE;
 		SortKey key;
 		uint16_t view = UINT16_MAX;
 		FrameBufferHandle fbh = { BGFX_CONFIG_MAX_FRAME_BUFFERS };
@@ -6405,18 +6410,14 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			m_occlusionQuery.resolve(_render);
 		}
 
-		uint8_t eye = 0;
-
 		if (0 == (_render->m_debug&BGFX_DEBUG_IFH) )
 		{
 			GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_msaaBackBufferFbo) );
 
-			bool viewRestart = false;
-			uint8_t restartState = 0;
 			viewState.m_rect = _render->m_view[0].m_rect;
-
 			int32_t numItems = _render->m_numRenderItems;
-			for (int32_t item = 0, restartItem = numItems; item < numItems || restartItem < numItems;)
+
+			for (int32_t item = 0; item < numItems;)
 			{
 				const uint64_t encodedKey = _render->m_sortKeys[item];
 				const bool isCompute = key.decode(encodedKey, _render->m_viewRemap);
@@ -6434,41 +6435,14 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 				if (viewChanged)
 				{
-					if (1 == restartState)
-					{
-						restartState = 2;
-						item = restartItem;
-						restartItem = numItems;
-						view = UINT16_MAX;
-						continue;
-					}
-
 					view = key.m_view;
-					programIdx = kInvalidHandle;
+					currentProgram = BGFX_INVALID_HANDLE;
 
 					if (_render->m_view[view].m_fbh.idx != fbh.idx)
 					{
 						fbh = _render->m_view[view].m_fbh;
 						resolutionHeight = _render->m_resolution.height;
 						resolutionHeight = setFrameBuffer(fbh, resolutionHeight, discardFlags);
-					}
-
-					viewRestart = ( (BGFX_VIEW_STEREO == (_render->m_view[view].m_flags & BGFX_VIEW_STEREO) ) );
-					viewRestart &= hmdEnabled;
-					if (viewRestart)
-					{
-						if (0 == restartState)
-						{
-							restartState = 1;
-							restartItem  = item - 1;
-						}
-
-						eye = (restartState - 1) & 1;
-						restartState &= 1;
-					}
-					else
-					{
-						eye = 0;
 					}
 
 					if (item > 1)
@@ -6479,28 +6453,12 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					profiler.begin(view);
 
 					viewState.m_rect = _render->m_view[view].m_rect;
-					if (viewRestart)
+					if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
 					{
-						if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
-						{
-							char* viewName = s_viewName[view];
-							viewName[3] = ' ';
-							viewName[4] = eye ? 'R' : 'L';
-							GL_CHECK(glInsertEventMarker(0, viewName) );
-						}
-
-						viewState.m_rect.m_x = eye * (viewState.m_rect.m_width+1)/2;
-						viewState.m_rect.m_width /= 2;
-					}
-					else
-					{
-						if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
-						{
-							char* viewName = s_viewName[view];
-							viewName[3] = ' ';
-							viewName[4] = ' ';
-							GL_CHECK(glInsertEventMarker(0, viewName) );
-						}
+						char* viewName = s_viewName[view];
+						viewName[3] = ' ';
+						viewName[4] = ' ';
+						GL_CHECK(glInsertEventMarker(0, viewName) );
 					}
 
 					const Rect& scissorRect = _render->m_view[view].m_scissor;
@@ -6548,7 +6506,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					{
 						const RenderCompute& compute = renderItem.compute;
 
-						ProgramGL& program = m_program[key.m_program];
+						ProgramGL& program = m_program[key.m_program.idx];
 						GL_CHECK(glUseProgram(program.m_id) );
 
 						GLbitfield barrier = 0;
@@ -6568,24 +6526,16 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 								case Binding::Image:
 									{
-										if (Access::Read == bind.m_access)
-										{
-											TextureGL& texture = m_textures[bind.m_idx];
-											texture.commit(ii, uint32_t(texture.m_flags), _render->m_colorPalette);
-										}
-										else
-										{
-											const TextureGL& texture = m_textures[bind.m_idx];
-											GL_CHECK(glBindImageTexture(ii
-												, texture.m_id
-												, bind.m_mip
-												, texture.isCubeMap() ? GL_TRUE : GL_FALSE
-												, 0
-												, s_access[bind.m_access]
-												, s_imageFormat[bind.m_format])
-												);
-											barrier |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
-										}
+										const TextureGL& texture = m_textures[bind.m_idx];
+										GL_CHECK(glBindImageTexture(ii
+											, texture.m_id
+											, bind.m_mip
+											, texture.isCubeMap() || texture.m_target == GL_TEXTURE_2D_ARRAY ? GL_TRUE : GL_FALSE
+											, 0
+											, s_access[bind.m_access]
+											, s_imageFormat[bind.m_format])
+											);
+										barrier |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
 									}
 									break;
 
@@ -6619,7 +6569,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 								commit(*program.m_constantBuffer);
 							}
 
-							viewState.setPredefined<1>(this, view, eye, program, _render, compute);
+							viewState.setPredefined<1>(this, view, program, _render, compute);
 
 							if (isValid(compute.m_indirectBuffer) )
 							{
@@ -7040,13 +6990,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				bool bindAttribs = false;
 				rendererUpdateUniforms(this, _render->m_uniformBuffer[draw.m_uniformIdx], draw.m_uniformBegin, draw.m_uniformEnd);
 
-				if (key.m_program != programIdx)
+				if (key.m_program.idx != currentProgram.idx)
 				{
-					programIdx = key.m_program;
-					GLuint id = kInvalidHandle == programIdx ? 0 : m_program[programIdx].m_id;
+					currentProgram = key.m_program;
+					GLuint id = isValid(currentProgram) ? m_program[currentProgram.idx].m_id : 0;
 
 					// Skip rendering if program index is valid, but program is invalid.
-					programIdx = 0 == id ? kInvalidHandle : programIdx;
+					currentProgram = 0 == id ? ProgramHandle{kInvalidHandle} : currentProgram;
 
 					GL_CHECK(glUseProgram(id) );
 					programChanged =
@@ -7054,9 +7004,9 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 						bindAttribs = true;
 				}
 
-				if (kInvalidHandle != programIdx)
+				if (isValid(currentProgram) )
 				{
-					ProgramGL& program = m_program[programIdx];
+					ProgramGL& program = m_program[currentProgram.idx];
 
 					if (constantsChanged
 					&&  NULL != program.m_constantBuffer)
@@ -7064,7 +7014,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 						commit(*program.m_constantBuffer);
 					}
 
-					viewState.setPredefined<1>(this, view, eye, program, _render, draw);
+					viewState.setPredefined<1>(this, view, program, _render, draw);
 
 					{
 						for (uint32_t stage = 0; stage < BGFX_CONFIG_MAX_TEXTURE_SAMPLERS; ++stage)
@@ -7187,13 +7137,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 							if (bindAttribs || diffStartVertex)
 							{
-								if(kInvalidHandle != boundProgramIdx)
+								if (isValid(boundProgram) )
 								{
-									ProgramGL& boundProgram = m_program[boundProgramIdx];
-									boundProgram.unbindAttributes();
+									m_program[boundProgram.idx].unbindAttributes();
+									boundProgram = BGFX_INVALID_HANDLE;
 								}
 
-								boundProgramIdx = programIdx;
+								boundProgram = currentProgram;
 
 								program.bindAttributesBegin();
 
@@ -7383,10 +7333,10 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				}
 			}
 
-			if(kInvalidHandle != boundProgramIdx)
+			if (isValid(boundProgram) )
 			{
-				ProgramGL& boundProgram = m_program[boundProgramIdx];
-				boundProgram.unbindAttributes();
+				m_program[boundProgram.idx].unbindAttributes();
+				boundProgram = BGFX_INVALID_HANDLE;
 			}
 
 			submitBlit(bs, BGFX_CONFIG_MAX_VIEWS);

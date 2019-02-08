@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+# Copyright 2011-2019 Branimir Karadzic. All rights reserved.
 # License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 #
 
@@ -116,22 +116,25 @@ CS_BIN = $(addprefix $(BUILD_INTERMEDIATE_DIR)/, $(addsuffix .bin, $(basename $(
 BIN = $(VS_BIN) $(FS_BIN)
 ASM = $(VS_ASM) $(FS_ASM)
 
-ifeq ($(TARGET), $(filter $(TARGET),1 3 4 6))
+ifeq ($(TARGET), $(filter $(TARGET),1 3 4 5 6))
 BIN += $(CS_BIN)
 ASM += $(CS_ASM)
 endif
 
-$(BUILD_INTERMEDIATE_DIR)/vs_%.bin : $(SHADERS_DIR)vs_%.sc
+$(BUILD_INTERMEDIATE_DIR):
+	mkdir -p $@
+
+$(BUILD_INTERMEDIATE_DIR)/vs_%.bin : $(SHADERS_DIR)vs_%.sc	| $(BUILD_INTERMEDIATE_DIR)
 	@echo [$(<)]
 	$(SILENT) $(SHADERC) $(VS_FLAGS) --type vertex --depends -o $(@) -f $(<) --disasm
 	$(SILENT) cp $(@) $(BUILD_OUTPUT_DIR)/$(@F)
 
-$(BUILD_INTERMEDIATE_DIR)/fs_%.bin : $(SHADERS_DIR)fs_%.sc
+$(BUILD_INTERMEDIATE_DIR)/fs_%.bin : $(SHADERS_DIR)fs_%.sc | $(BUILD_INTERMEDIATE_DIR)
 	@echo [$(<)]
 	$(SILENT) $(SHADERC) $(FS_FLAGS) --type fragment --depends -o $(@) -f $(<) --disasm
 	$(SILENT) cp $(@) $(BUILD_OUTPUT_DIR)/$(@F)
 
-$(BUILD_INTERMEDIATE_DIR)/cs_%.bin : $(SHADERS_DIR)cs_%.sc
+$(BUILD_INTERMEDIATE_DIR)/cs_%.bin : $(SHADERS_DIR)cs_%.sc | $(BUILD_INTERMEDIATE_DIR)
 	@echo [$(<)]
 	$(SILENT) $(SHADERC) $(CS_FLAGS) --type compute --depends -o $(@) -f $(<) --disasm
 	$(SILENT) cp $(@) $(BUILD_OUTPUT_DIR)/$(@F)

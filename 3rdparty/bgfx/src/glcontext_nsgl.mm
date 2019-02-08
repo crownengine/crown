@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -10,6 +10,8 @@
 #	include <AvailabilityMacros.h>
 #	include <Cocoa/Cocoa.h>
 #	include <bx/os.h>
+
+BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG("-Wdeprecated-declarations")
 
 namespace bgfx { namespace gl
 {

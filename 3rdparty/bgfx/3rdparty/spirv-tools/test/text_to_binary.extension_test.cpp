@@ -135,7 +135,7 @@ TEST_P(ExtensionRoundTripTest, Samples) {
 
 // SPV_KHR_shader_ballot
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_shader_ballot, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -164,9 +164,9 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpDecorate %1 BuiltIn SubgroupLtMask\n",
                  MakeInstruction(SpvOpDecorate, {1, SpvDecorationBuiltIn,
                                                  SpvBuiltInSubgroupLtMaskKHR})},
-            })), );
+            })));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_shader_ballot_vulkan_1_1, ExtensionRoundTripTest,
     // In SPIR-V 1.3 and Vulkan 1.1 we can drop the KHR suffix on the
     // builtin enums.
@@ -194,11 +194,11 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpDecorate %1 BuiltIn SubgroupLtMask\n",
                  MakeInstruction(SpvOpDecorate, {1, SpvDecorationBuiltIn,
                                                  SpvBuiltInSubgroupLtMask})},
-            })), );
+            })));
 
 // The old builtin names (with KHR suffix) still work in the assmebler, and
 // map to the enums without the KHR.
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_shader_ballot_vulkan_1_1_alias_check, ExtensionAssemblyTest,
     // In SPIR-V 1.3 and Vulkan 1.1 we can drop the KHR suffix on the
     // builtin enums.
@@ -219,11 +219,11 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpDecorate %1 BuiltIn SubgroupLtMaskKHR\n",
                  MakeInstruction(SpvOpDecorate, {1, SpvDecorationBuiltIn,
                                                  SpvBuiltInSubgroupLtMask})},
-            })), );
+            })));
 
 // SPV_KHR_shader_draw_parameters
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_shader_draw_parameters, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -241,11 +241,11 @@ INSTANTIATE_TEST_CASE_P(
             {"OpDecorate %1 BuiltIn DrawIndex\n",
              MakeInstruction(SpvOpDecorate,
                              {1, SpvDecorationBuiltIn, SpvBuiltInDrawIndex})},
-        })), );
+        })));
 
 // SPV_KHR_subgroup_vote
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_subgroup_vote, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -260,11 +260,11 @@ INSTANTIATE_TEST_CASE_P(
                  MakeInstruction(SpvOpSubgroupAllKHR, {1, 2, 3})},
                 {"%2 = OpSubgroupAllEqualKHR %1 %3\n",
                  MakeInstruction(SpvOpSubgroupAllEqualKHR, {1, 2, 3})},
-            })), );
+            })));
 
 // SPV_KHR_16bit_storage
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_16bit_storage, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -289,9 +289,9 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpCapability StorageInputOutput16\n",
                  MakeInstruction(SpvOpCapability,
                                  {SpvCapabilityStorageInputOutput16})},
-            })), );
+            })));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_16bit_storage_alias_check, ExtensionAssemblyTest,
     Combine(ValuesIn(CommonVulkanEnvs()),
             ValuesIn(std::vector<AssemblyCase>{
@@ -303,11 +303,11 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpCapability UniformAndStorageBuffer16BitAccess\n",
                  MakeInstruction(SpvOpCapability,
                                  {SpvCapabilityStorageUniform16})},
-            })), );
+            })));
 
 // SPV_KHR_device_group
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_device_group, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -318,11 +318,11 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpDecorate %1 BuiltIn DeviceIndex\n",
                  MakeInstruction(SpvOpDecorate, {1, SpvDecorationBuiltIn,
                                                  SpvBuiltInDeviceIndex})},
-            })), );
+            })));
 
 // SPV_KHR_8bit_storage
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_8bit_storage, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -338,11 +338,11 @@ INSTANTIATE_TEST_CASE_P(
             {"OpCapability StoragePushConstant8\n",
              MakeInstruction(SpvOpCapability,
                              {SpvCapabilityStoragePushConstant8})},
-        })), );
+        })));
 
 // SPV_KHR_multiview
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_multiview, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -354,13 +354,13 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpDecorate %1 BuiltIn ViewIndex\n",
                  MakeInstruction(SpvOpDecorate, {1, SpvDecorationBuiltIn,
                                                  SpvBuiltInViewIndex})},
-            })), );
+            })));
 
 // SPV_AMD_shader_explicit_vertex_parameter
 
 #define PREAMBLE \
   "%1 = OpExtInstImport \"SPV_AMD_shader_explicit_vertex_parameter\"\n"
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_AMD_shader_explicit_vertex_parameter, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -374,13 +374,13 @@ INSTANTIATE_TEST_CASE_P(
                       SpvOpExtInstImport, {1},
                       MakeVector("SPV_AMD_shader_explicit_vertex_parameter")),
                   MakeInstruction(SpvOpExtInst, {2, 3, 1, 1, 4, 5})})},
-        })), );
+        })));
 #undef PREAMBLE
 
 // SPV_AMD_shader_trinary_minmax
 
 #define PREAMBLE "%1 = OpExtInstImport \"SPV_AMD_shader_trinary_minmax\"\n"
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_AMD_shader_trinary_minmax, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -433,13 +433,13 @@ INSTANTIATE_TEST_CASE_P(
                  {MakeInstruction(SpvOpExtInstImport, {1},
                                   MakeVector("SPV_AMD_shader_trinary_minmax")),
                   MakeInstruction(SpvOpExtInst, {2, 3, 1, 9, 4, 5, 6})})},
-        })), );
+        })));
 #undef PREAMBLE
 
 // SPV_AMD_gcn_shader
 
 #define PREAMBLE "%1 = OpExtInstImport \"SPV_AMD_gcn_shader\"\n"
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_AMD_gcn_shader, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -458,13 +458,13 @@ INSTANTIATE_TEST_CASE_P(
                  Concatenate({MakeInstruction(SpvOpExtInstImport, {1},
                                               MakeVector("SPV_AMD_gcn_shader")),
                               MakeInstruction(SpvOpExtInst, {2, 3, 1, 3})})},
-            })), );
+            })));
 #undef PREAMBLE
 
 // SPV_AMD_shader_ballot
 
 #define PREAMBLE "%1 = OpExtInstImport \"SPV_AMD_shader_ballot\"\n"
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_AMD_shader_ballot, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -490,12 +490,12 @@ INSTANTIATE_TEST_CASE_P(
              Concatenate({MakeInstruction(SpvOpExtInstImport, {1},
                                           MakeVector("SPV_AMD_shader_ballot")),
                           MakeInstruction(SpvOpExtInst, {2, 3, 1, 4, 4})})},
-        })), );
+        })));
 #undef PREAMBLE
 
 // SPV_KHR_variable_pointers
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_KHR_variable_pointers, ExtensionRoundTripTest,
     // We'll get coverage over operand tables by trying the universal
     // environments, and at least one specific environment.
@@ -508,11 +508,155 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpCapability VariablePointersStorageBuffer\n",
                  MakeInstruction(SpvOpCapability,
                                  {SpvCapabilityVariablePointersStorageBuffer})},
-            })), );
+            })));
+
+// SPV_KHR_vulkan_memory_model
+
+INSTANTIATE_TEST_SUITE_P(
+    SPV_KHR_vulkan_memory_model, ExtensionRoundTripTest,
+    // We'll get coverage over operand tables by trying the universal
+    // environments, and at least one specific environment.
+    //
+    // Note: SPV_KHR_vulkan_memory_model adds scope enum value QueueFamilyKHR.
+    // Scope enums are used in ID definitions elsewhere, that don't know they
+    // are using particular enums.  So the assembler doesn't support assembling
+    // those enums names into the corresponding values.  So there is no asm/dis
+    // tests for those enums.
+    Combine(
+        Values(SPV_ENV_UNIVERSAL_1_0, SPV_ENV_UNIVERSAL_1_1,
+               SPV_ENV_UNIVERSAL_1_3, SPV_ENV_VULKAN_1_0, SPV_ENV_VULKAN_1_1),
+        ValuesIn(std::vector<AssemblyCase>{
+            {"OpCapability VulkanMemoryModelKHR\n",
+             MakeInstruction(SpvOpCapability,
+                             {SpvCapabilityVulkanMemoryModelKHR})},
+            {"OpCapability VulkanMemoryModelDeviceScopeKHR\n",
+             MakeInstruction(SpvOpCapability,
+                             {SpvCapabilityVulkanMemoryModelDeviceScopeKHR})},
+            {"OpMemoryModel Logical VulkanKHR\n",
+             MakeInstruction(SpvOpMemoryModel, {SpvAddressingModelLogical,
+                                                SpvMemoryModelVulkanKHR})},
+            {"OpStore %1 %2 MakePointerAvailableKHR %3\n",
+             MakeInstruction(SpvOpStore,
+                             {1, 2, SpvMemoryAccessMakePointerAvailableKHRMask,
+                              3})},
+            {"OpStore %1 %2 Volatile|MakePointerAvailableKHR %3\n",
+             MakeInstruction(SpvOpStore,
+                             {1, 2,
+                              int(SpvMemoryAccessMakePointerAvailableKHRMask) |
+                                  int(SpvMemoryAccessVolatileMask),
+                              3})},
+            {"OpStore %1 %2 Aligned|MakePointerAvailableKHR 4 %3\n",
+             MakeInstruction(SpvOpStore,
+                             {1, 2,
+                              int(SpvMemoryAccessMakePointerAvailableKHRMask) |
+                                  int(SpvMemoryAccessAlignedMask),
+                              4, 3})},
+            {"OpStore %1 %2 MakePointerAvailableKHR|NonPrivatePointerKHR %3\n",
+             MakeInstruction(SpvOpStore,
+                             {1, 2,
+                              int(SpvMemoryAccessMakePointerAvailableKHRMask) |
+                                  int(SpvMemoryAccessNonPrivatePointerKHRMask),
+                              3})},
+            {"%2 = OpLoad %1 %3 MakePointerVisibleKHR %4\n",
+             MakeInstruction(SpvOpLoad,
+                             {1, 2, 3, SpvMemoryAccessMakePointerVisibleKHRMask,
+                              4})},
+            {"%2 = OpLoad %1 %3 Volatile|MakePointerVisibleKHR %4\n",
+             MakeInstruction(SpvOpLoad,
+                             {1, 2, 3,
+                              int(SpvMemoryAccessMakePointerVisibleKHRMask) |
+                                  int(SpvMemoryAccessVolatileMask),
+                              4})},
+            {"%2 = OpLoad %1 %3 Aligned|MakePointerVisibleKHR 8 %4\n",
+             MakeInstruction(SpvOpLoad,
+                             {1, 2, 3,
+                              int(SpvMemoryAccessMakePointerVisibleKHRMask) |
+                                  int(SpvMemoryAccessAlignedMask),
+                              8, 4})},
+            {"%2 = OpLoad %1 %3 MakePointerVisibleKHR|NonPrivatePointerKHR "
+             "%4\n",
+             MakeInstruction(SpvOpLoad,
+                             {1, 2, 3,
+                              int(SpvMemoryAccessMakePointerVisibleKHRMask) |
+                                  int(SpvMemoryAccessNonPrivatePointerKHRMask),
+                              4})},
+            {"OpCopyMemory %1 %2 "
+             "MakePointerAvailableKHR|"
+             "MakePointerVisibleKHR|"
+             "NonPrivatePointerKHR "
+             "%3 %4\n",
+             MakeInstruction(SpvOpCopyMemory,
+                             {1, 2,
+                              (int(SpvMemoryAccessMakePointerVisibleKHRMask) |
+                               int(SpvMemoryAccessMakePointerAvailableKHRMask) |
+                               int(SpvMemoryAccessNonPrivatePointerKHRMask)),
+                              3, 4})},
+            {"OpCopyMemorySized %1 %2 %3 "
+             "MakePointerAvailableKHR|"
+             "MakePointerVisibleKHR|"
+             "NonPrivatePointerKHR "
+             "%4 %5\n",
+             MakeInstruction(SpvOpCopyMemorySized,
+                             {1, 2, 3,
+                              (int(SpvMemoryAccessMakePointerVisibleKHRMask) |
+                               int(SpvMemoryAccessMakePointerAvailableKHRMask) |
+                               int(SpvMemoryAccessNonPrivatePointerKHRMask)),
+                              4, 5})},
+            // Image operands
+            {"OpImageWrite %1 %2 %3 MakeTexelAvailableKHR "
+             "%4\n",
+             MakeInstruction(
+                 SpvOpImageWrite,
+                 {1, 2, 3, int(SpvImageOperandsMakeTexelAvailableKHRMask), 4})},
+            {"OpImageWrite %1 %2 %3 MakeTexelAvailableKHR|NonPrivateTexelKHR "
+             "%4\n",
+             MakeInstruction(SpvOpImageWrite,
+                             {1, 2, 3,
+                              int(SpvImageOperandsMakeTexelAvailableKHRMask) |
+                                  int(SpvImageOperandsNonPrivateTexelKHRMask),
+                              4})},
+            {"OpImageWrite %1 %2 %3 "
+             "MakeTexelAvailableKHR|NonPrivateTexelKHR|VolatileTexelKHR "
+             "%4\n",
+             MakeInstruction(SpvOpImageWrite,
+                             {1, 2, 3,
+                              int(SpvImageOperandsMakeTexelAvailableKHRMask) |
+                                  int(SpvImageOperandsNonPrivateTexelKHRMask) |
+                                  int(SpvImageOperandsVolatileTexelKHRMask),
+                              4})},
+            {"%2 = OpImageRead %1 %3 %4 MakeTexelVisibleKHR "
+             "%5\n",
+             MakeInstruction(SpvOpImageRead,
+                             {1, 2, 3, 4,
+                              int(SpvImageOperandsMakeTexelVisibleKHRMask),
+                              5})},
+            {"%2 = OpImageRead %1 %3 %4 "
+             "MakeTexelVisibleKHR|NonPrivateTexelKHR "
+             "%5\n",
+             MakeInstruction(SpvOpImageRead,
+                             {1, 2, 3, 4,
+                              int(SpvImageOperandsMakeTexelVisibleKHRMask) |
+                                  int(SpvImageOperandsNonPrivateTexelKHRMask),
+                              5})},
+            {"%2 = OpImageRead %1 %3 %4 "
+             "MakeTexelVisibleKHR|NonPrivateTexelKHR|VolatileTexelKHR "
+             "%5\n",
+             MakeInstruction(SpvOpImageRead,
+                             {1, 2, 3, 4,
+                              int(SpvImageOperandsMakeTexelVisibleKHRMask) |
+                                  int(SpvImageOperandsNonPrivateTexelKHRMask) |
+                                  int(SpvImageOperandsVolatileTexelKHRMask),
+                              5})},
+
+            // Memory semantics ID values are numbers put into a SPIR-V
+            // constant integer referenced by Id. There is no token for
+            // them, and so no assembler or disassembler support required.
+            // Similar for Scope ID.
+        })));
 
 // SPV_GOOGLE_decorate_string
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_GOOGLE_decorate_string, ExtensionRoundTripTest,
     Combine(
         // We'll get coverage over operand tables by trying the universal
@@ -528,11 +672,11 @@ INSTANTIATE_TEST_CASE_P(
              MakeInstruction(SpvOpMemberDecorateStringGOOGLE,
                              {1, 3, SpvDecorationHlslSemanticGOOGLE},
                              MakeVector("DEF"))},
-        })), );
+        })));
 
 // SPV_GOOGLE_hlsl_functionality1
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_GOOGLE_hlsl_functionality1, ExtensionRoundTripTest,
     Combine(
         // We'll get coverage over operand tables by trying the universal
@@ -545,11 +689,11 @@ INSTANTIATE_TEST_CASE_P(
             {"OpDecorateId %1 HlslCounterBufferGOOGLE %2\n",
              MakeInstruction(SpvOpDecorateId,
                              {1, SpvDecorationHlslCounterBufferGOOGLE, 2})},
-        })), );
+        })));
 
 // SPV_NV_viewport_array2
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_NV_viewport_array2, ExtensionRoundTripTest,
     Combine(Values(SPV_ENV_UNIVERSAL_1_0, SPV_ENV_UNIVERSAL_1_1,
                    SPV_ENV_UNIVERSAL_1_2, SPV_ENV_UNIVERSAL_1_3,
@@ -573,11 +717,11 @@ INSTANTIATE_TEST_CASE_P(
                 {"OpDecorate %1 BuiltIn ViewportMaskNV\n",
                  MakeInstruction(SpvOpDecorate, {1, SpvDecorationBuiltIn,
                                                  SpvBuiltInViewportMaskNV})},
-            })), );
+            })));
 
 // SPV_NV_shader_subgroup_partitioned
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_NV_shader_subgroup_partitioned, ExtensionRoundTripTest,
     Combine(
         Values(SPV_ENV_UNIVERSAL_1_3, SPV_ENV_VULKAN_1_1),
@@ -615,11 +759,11 @@ INSTANTIATE_TEST_CASE_P(
                               SpvGroupOperationPartitionedExclusiveScanNV, 4})},
             {"%2 = OpGroupIAdd %1 %3 PartitionedExclusiveScanNV %4\n",
              MakeInstruction(SpvOpGroupIAdd, {1, 2, 3, 8, 4})},
-        })), );
+        })));
 
 // SPV_EXT_descriptor_indexing
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     SPV_EXT_descriptor_indexing, ExtensionRoundTripTest,
     Combine(
         Values(SPV_ENV_UNIVERSAL_1_0, SPV_ENV_UNIVERSAL_1_1,
@@ -707,7 +851,7 @@ INSTANTIATE_TEST_CASE_P(
              MakeInstruction(SpvOpDecorate, {1, SpvDecorationNonUniformEXT})},
             {"OpDecorate %1 NonUniformEXT\n",
              MakeInstruction(SpvOpDecorate, {1, 5300})},
-        })), );
+        })));
 
 }  // namespace
 }  // namespace spvtools

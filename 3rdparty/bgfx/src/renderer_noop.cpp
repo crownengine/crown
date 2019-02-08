@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
@@ -226,15 +226,15 @@ namespace bgfx { namespace noop
 		{
 		}
 
-		void setMarker(const char* /*_marker*/, uint32_t /*_size*/) override
-		{
-		}
-
 		void invalidateOcclusionQuery(OcclusionQueryHandle /*_handle*/) override
 		{
 		}
 
-		virtual void setName(Handle /*_handle*/, const char* /*_name*/) override
+		void setMarker(const char* /*_marker*/, uint16_t /*_len*/) override
+		{
+		}
+
+		virtual void setName(Handle /*_handle*/, const char* /*_name*/, uint16_t /*_len*/) override
 		{
 		}
 

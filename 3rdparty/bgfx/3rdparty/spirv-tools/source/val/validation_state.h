@@ -15,6 +15,7 @@
 #ifndef SOURCE_VAL_VALIDATION_STATE_H_
 #define SOURCE_VAL_VALIDATION_STATE_H_
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <string>
@@ -28,6 +29,7 @@
 #include "source/disassemble.h"
 #include "source/enum_set.h"
 #include "source/latest_version_spirv_header.h"
+#include "source/name_mapper.h"
 #include "source/spirv_definition.h"
 #include "source/spirv_validator_options.h"
 #include "source/val/decoration.h"
@@ -86,11 +88,33 @@ class ValidationState_t {
     // Target environment uses relaxed block layout.
     // This is true for Vulkan 1.1 or later.
     bool env_relaxed_block_layout = false;
+
+    // Allow an OpTypeInt with 8 bit width to be used in more than just int
+    // conversion opcodes
+    bool use_int8_type = false;
+
+    // Use scalar block layout. See VK_EXT_scalar_block_layout:
+    // Defines scalar alignment:
+    // - scalar alignment equals the scalar size in bytes
+    // - array alignment is same as its element alignment
+    // - array alignment is max alignment of any of its members
+    // - vector alignment is same as component alignment
+    // - matrix alignment is same as component alignment
+    // For struct in Uniform, StorageBuffer, PushConstant:
+    // - Offset of a member is multiple of scalar alignment of that member
+    // - ArrayStride and MatrixStride are multiples of scalar alignment
+    // Members need not be listed in offset order
+    bool scalar_block_layout = false;
+
+    // Permit UConvert as an OpSpecConstantOp operation.
+    // The Kernel capability already enables it, separately from this flag.
+    bool uconvert_spec_constant_op = false;
   };
 
   ValidationState_t(const spv_const_context context,
                     const spv_const_validator_options opt,
-                    const uint32_t* words, const size_t num_words);
+                    const uint32_t* words, const size_t num_words,
+                    const uint32_t max_warnings);
 
   /// Returns the context
   spv_const_context context() const { return context_; }
@@ -136,9 +160,6 @@ class ValidationState_t {
   /// Mutator function for ID bound.
   void setIdBound(uint32_t bound);
 
-  /// Like getIdName but does not display the id if the \p id has a name
-  std::string getIdOrName(uint32_t id) const;
-
   /// Returns the number of ID which have been forward referenced but not
   /// defined
   size_t unresolved_forward_id_count() const;
@@ -169,7 +190,7 @@ class ValidationState_t {
   /// Determines if the op instruction is part of the current section
   bool IsOpcodeInCurrentLayoutSection(SpvOp op);
 
-  DiagnosticStream diag(spv_result_t error_code, const Instruction* inst) const;
+  DiagnosticStream diag(spv_result_t error_code, const Instruction* inst);
 
   /// Returns the function states
   std::vector<Function>& functions();
@@ -205,6 +226,12 @@ class ValidationState_t {
 
   /// Returns a list of entry point function ids
   const std::vector<uint32_t>& entry_points() const { return entry_points_; }
+
+  /// Returns the set of entry points that root call graphs that contain
+  /// recursion.
+  const std::set<uint32_t>& recursive_entry_points() const {
+    return recursive_entry_points_;
+  }
 
   /// Registers execution mode for the given entry point.
   void RegisterExecutionModeForEntryPoint(uint32_t entry_point,
@@ -245,8 +272,18 @@ class ValidationState_t {
   /// Note: called after fully parsing the binary.
   void ComputeFunctionToEntryPointMapping();
 
+  /// Traverse call tree and computes recursive_entry_points_.
+  /// Note: called after fully parsing the binary and calling
+  /// ComputeFunctionToEntryPointMapping.
+  void ComputeRecursiveEntryPoints();
+
   /// Returns all the entry points that can call |func|.
   const std::vector<uint32_t>& FunctionEntryPoints(uint32_t func) const;
+
+  /// Returns all the entry points that statically use |id|.
+  ///
+  /// Note: requires ComputeFunctionToEntryPointMapping to have been called.
+  std::set<uint32_t> EntryPointReferences(uint32_t id) const;
 
   /// Inserts an <id> to the set of functions that are target of OpFunctionCall.
   void AddFunctionCallTarget(const uint32_t id) {
@@ -259,6 +296,9 @@ class ValidationState_t {
     return (function_call_targets_.find(id) != function_call_targets_.end());
   }
 
+  bool IsFunctionCallDefined(const uint32_t id) {
+    return (id_to_function_.find(id) != id_to_function_.end());
+  }
   /// Registers the capability and its dependent capabilities
   void RegisterCapability(SpvCapability cap);
 
@@ -303,6 +343,11 @@ class ValidationState_t {
 
   /// Returns the addressing model of this module, or Logical if uninitialized.
   SpvAddressingModel addressing_model() const;
+
+  /// Returns the addressing model of this module, or Logical if uninitialized.
+  uint32_t pointer_size_and_alignment() const {
+    return pointer_size_and_alignment_;
+  }
 
   /// Sets the memory model of this module.
   void set_memory_model(SpvMemoryModel mm);
@@ -352,15 +397,21 @@ class ValidationState_t {
   std::vector<Decoration>& id_decorations(uint32_t id) {
     return id_decorations_[id];
   }
-  const std::vector<Decoration>& id_decorations(uint32_t id) const {
-    // TODO: This would throw or generate SIGABRT if id has no
-    // decorations. Remove/refactor this function.
-    return id_decorations_.at(id);
-  }
 
   // Returns const pointer to the internal decoration container.
   const std::map<uint32_t, std::vector<Decoration>>& id_decorations() const {
     return id_decorations_;
+  }
+
+  /// Returns true if the given id <id> has the given decoration <dec>,
+  /// otherwise returns false.
+  bool HasDecoration(uint32_t id, SpvDecoration dec) {
+    const auto& decorations = id_decorations_.find(id);
+    if (decorations == id_decorations_.end()) return false;
+
+    return std::any_of(
+        decorations->second.begin(), decorations->second.end(),
+        [dec](const Decoration& d) { return dec == d.dec_type(); });
   }
 
   /// Finds id's def, if it exists.  If found, returns the definition otherwise
@@ -511,8 +562,67 @@ class ValidationState_t {
   bool GetPointerTypeInfo(uint32_t id, uint32_t* data_type,
                           uint32_t* storage_class) const;
 
+  // Is the ID the type of a pointer to a uniform block: Block-decorated struct
+  // in uniform storage class? The result is only valid after internal method
+  // CheckDecorationsOfBuffers has been called.
+  bool IsPointerToUniformBlock(uint32_t type_id) const {
+    return pointer_to_uniform_block_.find(type_id) !=
+           pointer_to_uniform_block_.cend();
+  }
+  // Save the ID of a pointer to uniform block.
+  void RegisterPointerToUniformBlock(uint32_t type_id) {
+    pointer_to_uniform_block_.insert(type_id);
+  }
+  // Is the ID the type of a struct used as a uniform block?
+  // The result is only valid after internal method CheckDecorationsOfBuffers
+  // has been called.
+  bool IsStructForUniformBlock(uint32_t type_id) const {
+    return struct_for_uniform_block_.find(type_id) !=
+           struct_for_uniform_block_.cend();
+  }
+  // Save the ID of a struct of a uniform block.
+  void RegisterStructForUniformBlock(uint32_t type_id) {
+    struct_for_uniform_block_.insert(type_id);
+  }
+  // Is the ID the type of a pointer to a storage buffer: BufferBlock-decorated
+  // struct in uniform storage class, or Block-decorated struct in StorageBuffer
+  // storage class? The result is only valid after internal method
+  // CheckDecorationsOfBuffers has been called.
+  bool IsPointerToStorageBuffer(uint32_t type_id) const {
+    return pointer_to_storage_buffer_.find(type_id) !=
+           pointer_to_storage_buffer_.cend();
+  }
+  // Save the ID of a pointer to a storage buffer.
+  void RegisterPointerToStorageBuffer(uint32_t type_id) {
+    pointer_to_storage_buffer_.insert(type_id);
+  }
+  // Is the ID the type of a struct for storage buffer?
+  // The result is only valid after internal method CheckDecorationsOfBuffers
+  // has been called.
+  bool IsStructForStorageBuffer(uint32_t type_id) const {
+    return struct_for_storage_buffer_.find(type_id) !=
+           struct_for_storage_buffer_.cend();
+  }
+  // Save the ID of a struct of a storage buffer.
+  void RegisterStructForStorageBuffer(uint32_t type_id) {
+    struct_for_storage_buffer_.insert(type_id);
+  }
+
+  // Is the ID the type of a pointer to a storage image?  That is, the pointee
+  // type is an image type which is known to not use a sampler.
+  bool IsPointerToStorageImage(uint32_t type_id) const {
+    return pointer_to_storage_image_.find(type_id) !=
+           pointer_to_storage_image_.cend();
+  }
+  // Save the ID of a pointer to a storage image.
+  void RegisterPointerToStorageImage(uint32_t type_id) {
+    pointer_to_storage_image_.insert(type_id);
+  }
+
   // Tries to evaluate a 32-bit signed or unsigned scalar integer constant.
   // Returns tuple <is_int32, is_const_int32, value>.
+  // OpSpecConstant* return |is_const_int32| as false since their values cannot
+  // be relied upon during validation.
   std::tuple<bool, bool, uint32_t> EvalInt32IfConst(uint32_t id);
 
   // Returns the disassembly string for the given instruction.
@@ -584,6 +694,10 @@ class ValidationState_t {
   std::unordered_map<uint32_t, std::vector<EntryPointDescription>>
       entry_point_descriptions_;
 
+  /// IDs that are entry points, ie, arguments to OpEntryPoint, and root a call
+  /// graph that recurses.
+  std::set<uint32_t> recursive_entry_points_;
+
   /// Functions IDs that are target of OpFunctionCall.
   std::unordered_set<uint32_t> function_call_targets_;
 
@@ -615,6 +729,9 @@ class ValidationState_t {
 
   SpvAddressingModel addressing_model_;
   SpvMemoryModel memory_model_;
+  // pointer size derived from addressing model. Assumes all storage classes
+  // have the same pointer size (for physical pointer types).
+  uint32_t pointer_size_and_alignment_;
 
   /// NOTE: See correspoding getter functions
   bool in_function_;
@@ -640,6 +757,31 @@ class ValidationState_t {
   /// module which can (indirectly) call the function.
   std::unordered_map<uint32_t, std::vector<uint32_t>> function_to_entry_points_;
   const std::vector<uint32_t> empty_ids_;
+
+  // The IDs of types of pointers to Block-decorated structs in Uniform storage
+  // class. This is populated at the start of ValidateDecorations.
+  std::unordered_set<uint32_t> pointer_to_uniform_block_;
+  // The IDs of struct types for uniform blocks.
+  // This is populated at the start of ValidateDecorations.
+  std::unordered_set<uint32_t> struct_for_uniform_block_;
+  // The IDs of types of pointers to BufferBlock-decorated structs in Uniform
+  // storage class, or Block-decorated structs in StorageBuffer storage class.
+  // This is populated at the start of ValidateDecorations.
+  std::unordered_set<uint32_t> pointer_to_storage_buffer_;
+  // The IDs of struct types for storage buffers.
+  // This is populated at the start of ValidateDecorations.
+  std::unordered_set<uint32_t> struct_for_storage_buffer_;
+  // The IDs of types of pointers to storage images.  This is populated in the
+  // TypePass.
+  std::unordered_set<uint32_t> pointer_to_storage_image_;
+
+  /// Maps ids to friendly names.
+  std::unique_ptr<spvtools::FriendlyNameMapper> friendly_mapper_;
+  spvtools::NameMapper name_mapper_;
+
+  /// Variables used to reduce the number of diagnostic messages.
+  uint32_t num_of_warnings_;
+  uint32_t max_num_of_warnings_;
 };
 
 }  // namespace val

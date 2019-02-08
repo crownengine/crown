@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -38,13 +38,13 @@ namespace bx
 	void dlclose(void* _handle);
 
 	///
-	void* dlsym(void* _handle, const char* _symbol);
+	void* dlsym(void* _handle, const StringView& _symbol);
 
 	///
-	bool getEnv(const char* _name, char* _out, uint32_t* _inOutSize);
+	bool getEnv(char* _out, uint32_t* _inOutSize, const StringView& _name);
 
 	///
-	void setEnv(const char* _name, const char* _value);
+	void setEnv(const StringView& _name, const StringView& _value);
 
 	///
 	int chdir(const char* _path);

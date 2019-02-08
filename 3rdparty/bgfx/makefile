@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+# Copyright 2011-2019 Branimir Karadzic. All rights reserved.
 # License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 #
 
@@ -154,7 +154,7 @@ osx-debug64: .build/projects/gmake-osx ## Build - OSX x64 Debug
 	$(MAKE) -C .build/projects/gmake-osx config=debug64
 osx-release64: .build/projects/gmake-osx ## Build - OSX x64 Release
 	$(MAKE) -C .build/projects/gmake-osx config=release64
-osx: osx-debug64 osx-release64 ## Build - OSX x86/x64 Debug and Release
+osx: osx-debug64 osx-release64 ## Build - OSX x64 Debug and Release
 
 .build/projects/gmake-ios-arm:
 	$(GENIE) --gcc=ios-arm gmake

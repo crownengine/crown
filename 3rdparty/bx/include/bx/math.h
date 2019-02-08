@@ -1,9 +1,7 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
-
-// FPU math lib
 
 #ifndef BX_MATH_H_HEADER_GUARD
 #define BX_MATH_H_HEADER_GUARD
@@ -55,7 +53,29 @@ namespace bx
 	///
 	struct Vec3
 	{
+		///
+		Vec3();
+
+		///
+		constexpr Vec3(float _v);
+
+		///
+		constexpr Vec3(float _x, float _y, float _z);
+
 		float x, y, z;
+	};
+
+	///
+	struct Plane
+	{
+		Vec3  normal;
+		float dist;
+	};
+
+	///
+	struct Quaternion
+	{
+		float x, y, z, w;
 	};
 
 	/// Returns converted the argument _deg to radians.
@@ -68,19 +88,19 @@ namespace bx
 
 	/// Reinterprets the bit pattern of _a as uint32_t.
 	///
-	constexpr BX_CONST_FUNC uint32_t floatToBits(float _a);
+	BX_CONST_FUNC uint32_t floatToBits(float _a);
 
 	/// Reinterprets the bit pattern of _a as float.
 	///
-	constexpr BX_CONST_FUNC float bitsToFloat(uint32_t _a);
+	BX_CONST_FUNC float bitsToFloat(uint32_t _a);
 
 	/// Reinterprets the bit pattern of _a as uint64_t.
 	///
-	constexpr BX_CONST_FUNC uint64_t doubleToBits(double _a);
+	BX_CONST_FUNC uint64_t doubleToBits(double _a);
 
 	/// Reinterprets the bit pattern of _a as double.
 	///
-	constexpr BX_CONST_FUNC double bitsToDouble(uint64_t _a);
+	BX_CONST_FUNC double bitsToDouble(uint64_t _a);
 
 	/// Returns sortable floating point value.
 	///
@@ -88,55 +108,55 @@ namespace bx
 
 	/// Returns true if _f is a number that is NaN.
 	///
-	constexpr BX_CONST_FUNC bool isNan(float _f);
+	BX_CONST_FUNC bool isNan(float _f);
 
 	/// Returns true if _f is a number that is NaN.
 	///
-	constexpr BX_CONST_FUNC bool isNan(double _f);
+	BX_CONST_FUNC bool isNan(double _f);
 
 	/// Returns true if _f is not infinite and is not a NaN.
 	///
-	constexpr BX_CONST_FUNC bool isFinite(float _f);
+	BX_CONST_FUNC bool isFinite(float _f);
 
 	/// Returns true if _f is not infinite and is not a NaN.
 	///
-	constexpr BX_CONST_FUNC bool isFinite(double _f);
+	BX_CONST_FUNC bool isFinite(double _f);
 
 	/// Returns true if _f is infinite and is not a NaN.
 	///
-	constexpr BX_CONST_FUNC bool isInfinite(float _f);
+	BX_CONST_FUNC bool isInfinite(float _f);
 
 	/// Returns true if _f is infinite and is not a NaN.
 	///
-	constexpr BX_CONST_FUNC bool isInfinite(double _f);
+	BX_CONST_FUNC bool isInfinite(double _f);
 
 	/// Returns the largest integer value not greater than _f.
 	///
-	BX_CONST_FUNC float floor(float _f);
+	BX_CONSTEXPR_FUNC float floor(float _f);
 
 	/// Returns the smallest integer value not less than _f.
 	///
-	BX_CONST_FUNC float ceil(float _f);
+	BX_CONSTEXPR_FUNC float ceil(float _f);
 
 	/// Returns the nearest integer value to _f, rounding halfway cases away from zero,
 	///
-	BX_CONST_FUNC float round(float _f);
+	BX_CONSTEXPR_FUNC float round(float _f);
 
 	/// Returns linear interpolation between two values _a and _b.
 	///
-	constexpr BX_CONST_FUNC float lerp(float _a, float _b, float _t);
+	BX_CONSTEXPR_FUNC float lerp(float _a, float _b, float _t);
 
 	/// Returns the sign of _a.
 	///
-	constexpr BX_CONST_FUNC float sign(float _a);
+	BX_CONSTEXPR_FUNC float sign(float _a);
 
 	/// Returns the absolute of _a.
 	///
-	constexpr BX_CONST_FUNC float abs(float _a);
+	BX_CONSTEXPR_FUNC float abs(float _a);
 
 	/// Returns the square of _a.
 	///
-	constexpr BX_CONST_FUNC float square(float _a);
+	BX_CONSTEXPR_FUNC float square(float _a);
 
 	/// Returns the cosine of the argument _a.
 	///
@@ -217,23 +237,23 @@ namespace bx
 
 	/// Returns the nearest integer not greater in magnitude than _a.
 	///
-	constexpr BX_CONST_FUNC float trunc(float _a);
+	BX_CONSTEXPR_FUNC float trunc(float _a);
 
 	/// Returns the fractional (or decimal) part of _a, which is greater than or equal to 0
 	/// and less than 1.
 	///
-	constexpr BX_CONST_FUNC float fract(float _a);
+	BX_CONSTEXPR_FUNC float fract(float _a);
 
 	/// Returns result of multipla and add (_a * _b + _c).
 	///
-	constexpr BX_CONST_FUNC float mad(float _a, float _b, float _c);
+	BX_CONSTEXPR_FUNC float mad(float _a, float _b, float _c);
 
 	/// Returns the floating-point remainder of the division operation _a/_b.
 	///
 	BX_CONST_FUNC float mod(float _a, float _b);
 
 	///
-	constexpr BX_CONST_FUNC bool equal(float _a, float _b, float _epsilon);
+	BX_CONSTEXPR_FUNC bool equal(float _a, float _b, float _epsilon);
 
 	///
 	BX_CONST_FUNC bool equal(const float* _a, const float* _b, uint32_t _num, float _epsilon);
@@ -242,23 +262,19 @@ namespace bx
 	BX_CONST_FUNC float wrap(float _a, float _wrap);
 
 	///
-	constexpr BX_CONST_FUNC float step(float _edge, float _a);
+	BX_CONSTEXPR_FUNC float step(float _edge, float _a);
 
 	///
-	constexpr BX_CONST_FUNC float pulse(float _a, float _start, float _end);
+	BX_CONSTEXPR_FUNC float pulse(float _a, float _start, float _end);
 
 	///
-	constexpr BX_CONST_FUNC float smoothStep(float _a);
-
-	// References:
-	//  - Bias And Gain Are Your Friend
-	//    http://blog.demofox.org/2012/09/24/bias-and-gain-are-your-friend/
-	//  - http://demofox.org/biasgain.html
-	///
-	constexpr BX_CONST_FUNC float bias(float _time, float _bias);
+	BX_CONSTEXPR_FUNC float smoothStep(float _a);
 
 	///
-	constexpr BX_CONST_FUNC float gain(float _time, float _gain);
+	BX_CONSTEXPR_FUNC float bias(float _time, float _bias);
+
+	///
+	BX_CONSTEXPR_FUNC float gain(float _time, float _gain);
 
 	///
 	BX_CONST_FUNC float angleDiff(float _a, float _b);
@@ -268,173 +284,117 @@ namespace bx
 	BX_CONST_FUNC float angleLerp(float _a, float _b, float _t);
 
 	///
-	Vec3 load(const void* _ptr);
+	template<typename Ty>
+	Ty load(const void* _ptr);
 
 	///
-	void store(void* _ptr, const Vec3& _a);
+	template<typename Ty>
+	void store(void* _ptr, const Ty& _a);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 abs(const Vec3&  _a);
+	BX_CONSTEXPR_FUNC Vec3 round(const Vec3 _a);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 neg(const Vec3&  _a);
+	BX_CONSTEXPR_FUNC Vec3 abs(const Vec3 _a);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 add(const Vec3&  _a, const Vec3&  _b);
+	BX_CONSTEXPR_FUNC Vec3 neg(const Vec3 _a);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 add(const Vec3&  _a, float _b);
+	BX_CONSTEXPR_FUNC Vec3 add(const Vec3 _a, const Vec3 _b);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 sub(const Vec3&  _a, const Vec3&  _b);
+	BX_CONSTEXPR_FUNC Vec3 add(const Vec3 _a, float _b);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 sub(const Vec3&  _a, float _b);
+	BX_CONSTEXPR_FUNC Vec3 sub(const Vec3 _a, const Vec3 _b);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 mul(const Vec3&  _a, const Vec3&  _b);
+	BX_CONSTEXPR_FUNC Vec3 sub(const Vec3 _a, float _b);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 mul(const Vec3&  _a, float _b);
+	BX_CONSTEXPR_FUNC Vec3 mul(const Vec3 _a, const Vec3 _b);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 mad(const Vec3& _a, const Vec3& _b, const Vec3& _c);
+	BX_CONSTEXPR_FUNC Vec3 mul(const Vec3 _a, float _b);
 
 	///
-	constexpr BX_CONST_FUNC float dot(const Vec3&  _a, const Vec3&  _b);
+	BX_CONSTEXPR_FUNC Vec3 mad(const Vec3 _a, const float _b, const Vec3 _c);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 cross(const Vec3&  _a, const Vec3&  _b);
+	BX_CONSTEXPR_FUNC Vec3 mad(const Vec3 _a, const Vec3 _b, const Vec3 _c);
 
 	///
-	BX_CONST_FUNC float length(const Vec3&  _a);
+	BX_CONSTEXPR_FUNC float dot(const Vec3 _a, const Vec3 _b);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 lerp(const Vec3&  _a, const Vec3&  _b, float _t);
+	BX_CONSTEXPR_FUNC Vec3 cross(const Vec3 _a, const Vec3 _b);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 lerp(const Vec3&  _a, const Vec3&  _b, const Vec3&  _t);
+	BX_CONST_FUNC float length(const Vec3 _a);
 
 	///
-	BX_CONST_FUNC Vec3 normalize(const Vec3&  _a);
+	BX_CONSTEXPR_FUNC Vec3 lerp(const Vec3 _a, const Vec3 _b, float _t);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 min(const Vec3&  _a, const Vec3&  _b);
+	BX_CONSTEXPR_FUNC Vec3 lerp(const Vec3 _a, const Vec3 _b, const Vec3 _t);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 max(const Vec3&  _a, const Vec3&  _b);
+	BX_CONST_FUNC Vec3 normalize(const Vec3 _a);
 
 	///
-	constexpr BX_CONST_FUNC Vec3 rcp(const Vec3&  _a);
+	BX_CONSTEXPR_FUNC Vec3 min(const Vec3 _a, const Vec3 _b);
 
 	///
-	void calcTangentFrame(Vec3& _outT, Vec3& _outB, const Vec3& _n);
+	BX_CONSTEXPR_FUNC Vec3 max(const Vec3 _a, const Vec3 _b);
 
 	///
-	void calcTangentFrame(Vec3& _outT, Vec3& _outB, const Vec3& _n, float _angle);
+	BX_CONSTEXPR_FUNC Vec3 rcp(const Vec3 _a);
+
+	///
+	void calcTangentFrame(Vec3& _outT, Vec3& _outB, const Vec3 _n);
+
+	///
+	void calcTangentFrame(Vec3& _outT, Vec3& _outB, const Vec3 _n, float _angle);
 
 	///
 	BX_CONST_FUNC Vec3 fromLatLong(float _u, float _v);
 
 	///
-	void toLatLong(float* _outU, float* _outV, const Vec3&  _dir);
+	void toLatLong(float* _outU, float* _outV, const Vec3 _dir);
 
 	///
-	void vec3Abs(float* _result, const float* _a);
+	BX_CONSTEXPR_FUNC Quaternion invert(const Quaternion _a);
 
 	///
-	void vec3Add(float* _result, const float* _a, const float* _b);
+	BX_CONSTEXPR_FUNC Vec3 mulXyz(const Quaternion _a, const Quaternion _b);
 
 	///
-	void vec3Add(float* _result, const float* _a, float _b);
+	BX_CONSTEXPR_FUNC Quaternion mul(const Quaternion _a, const Quaternion _b);
 
 	///
-	void vec3Sub(float* _result, const float* _a, const float* _b);
+	BX_CONSTEXPR_FUNC Vec3 mul(const Vec3 _v, const Quaternion _q);
 
 	///
-	void vec3Sub(float* _result, const float* _a, float _b);
+	BX_CONSTEXPR_FUNC float dot(const Quaternion _a, const Quaternion _b);
 
 	///
-	void vec3Mul(float* _result, const float* _a, const float* _b);
+	BX_CONSTEXPR_FUNC Quaternion normalize(const Quaternion _a);
 
 	///
-	void vec3Mul(float* _result, const float* _a, float _b);
+	BX_CONST_FUNC Vec3 toEuler(const Quaternion _a);
 
 	///
-	float vec3Dot(const float* _a, const float* _b);
+	BX_CONST_FUNC Quaternion rotateAxis(const Vec3 _axis, float _angle);
 
 	///
-	void vec3Cross(float* _result, const float* _a, const float* _b);
+	BX_CONST_FUNC Quaternion rotateX(float _ax);
 
 	///
-	float vec3Length(const float* _a);
+	BX_CONST_FUNC Quaternion rotateY(float _ay);
 
 	///
-	void vec3Lerp(float* _result, const float* _a, const float* _b, float _t);
-
-	///
-	void vec3Lerp(float* _result, const float* _a, const float* _b, const float* _c);
-
-	///
-	float vec3Norm(float* _result, const float* _a);
-
-	/// Calculate tangent frame from normal.
-	///
-	void vec3TangentFrame(const float* _n, float* _t, float* _b);
-
-	/// Calculate tangent frame from normal and angle.
-	///
-	void vec3TangentFrame(const float* _n, float* _t, float* _b, float _angle);
-
-	///
-	void vec3FromLatLong(float* _vec, float _u, float _v);
-
-	/// Convert direction to 2D latitude and longitude.
-	///
-	/// @param[out] _outU U-coordinate.
-	/// @param[out] _outV V-coordinate.
-	/// @param[in]  _dir Normalized direction vector.
-	///
-	void vec3ToLatLong(float* _outU, float* _outV, const float* _dir);
-
-	///
-	void quatIdentity(float* _result);
-
-	///
-	void quatMove(float* _result, const float* _a);
-
-	///
-	void quatMulXYZ(float* _result, const float* _qa, const float* _qb);
-
-	///
-	void quatMul(float* _result, const float* _qa, const float* _qb);
-
-	///
-	void quatInvert(float* _result, const float* _quat);
-
-	///
-	float quatDot(const float* _a, const float* _b);
-
-	///
-	void quatNorm(float* _result, const float* _quat);
-
-	///
-	void quatToEuler(float* _result, const float* _quat);
-
-	///
-	void quatRotateAxis(float* _result, const float* _axis, float _angle);
-
-	///
-	void quatRotateX(float* _result, float _ax);
-
-	///
-	void quatRotateY(float* _result, float _ay);
-
-	///
-	void quatRotateZ(float* _result, float _az);
-
-	///
-	void vec3MulQuat(float* _result, const float* _vec, const float* _quat);
+	BX_CONST_FUNC Quaternion rotateZ(float _az);
 
 	///
 	void mtxIdentity(float* _result);
@@ -449,109 +409,121 @@ namespace bx
 	void mtxScale(float* _result, float _scale);
 
 	///
-	void mtxFromNormal(float* _result, const float* _normal, float _scale, const float* _pos);
+	void mtxFromNormal(
+		  float* _result
+		, const Vec3& _normal
+		, float _scale
+		, const Vec3& _pos
+		);
 
 	///
-	void mtxFromNormal(float* _result, const float* _normal, float _scale, const float* _pos, float _angle);
+	void mtxFromNormal(
+		  float* _result
+		, const Vec3& _normal
+		, float _scale
+		, const Vec3& _pos
+		, float _angle
+		);
 
 	///
-	void mtxQuat(float* _result, const float* _quat);
+	void mtxQuat(float* _result, const Quaternion& _quat);
 
 	///
-	void mtxQuatTranslation(float* _result, const float* _quat, const float* _translation);
+	void mtxQuatTranslation(float* _result, const Quaternion& _quat, const Vec3& _translation);
 
 	///
-	void mtxQuatTranslationHMD(float* _result, const float* _quat, const float* _translation);
+	void mtxQuatTranslationHMD(float* _result, const Quaternion& _quat, const Vec3& _translation);
 
 	///
-	void mtxLookAtLh(float* _result, const Vec3& _eye, const Vec3& _at, const Vec3& _up = { 0.0f, 1.0f, 0.0f });
+	void mtxLookAt(
+		  float* _result
+		, const Vec3& _eye
+		, const Vec3& _at
+		, const Vec3& _up = { 0.0f, 1.0f, 0.0f }
+		, Handness::Enum _handness = Handness::Left
+		);
 
 	///
-	void mtxLookAtRh(float* _result, const Vec3& _eye, const Vec3& _at, const Vec3& _up = { 0.0f, 1.0f, 0.0f });
+	void mtxProj(
+		  float* _result
+		, float _ut
+		, float _dt
+		, float _lt
+		, float _rt
+		, float _near
+		, float _far
+		, bool _homogeneousNdc
+		, Handness::Enum _handness = Handness::Left
+		);
 
 	///
-	void mtxLookAt(float* _result, const Vec3& _eye, const Vec3& _at, const Vec3& _up = { 0.0f, 1.0f, 0.0f });
+	void mtxProj(
+		  float* _result
+		, const float _fov[4]
+		, float _near
+		, float _far
+		, bool _homogeneousNdc
+		, Handness::Enum _handness = Handness::Left
+		);
 
 	///
-	void mtxProj(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, float _far, bool _oglNdc);
+	void mtxProj(
+		  float* _result
+		, float _fovy
+		, float _aspect
+		, float _near
+		, float _far
+		, bool _homogeneousNdc
+		, Handness::Enum _handness = Handness::Left
+		);
 
 	///
-	void mtxProj(float* _result, const float _fov[4], float _near, float _far, bool _oglNdc);
+	void mtxProjInf(
+		  float* _result
+		, const float _fov[4]
+		, float _near
+		, bool _homogeneousNdc
+		, Handness::Enum _handness = Handness::Left
+		, NearFar::Enum _nearFar = NearFar::Default
+		);
 
 	///
-	void mtxProj(float* _result, float _fovy, float _aspect, float _near, float _far, bool _oglNdc);
+	void mtxProjInf(
+		  float* _result
+		, float _ut
+		, float _dt
+		, float _lt
+		, float _rt
+		, float _near
+		, bool _homogeneousNdc
+		, Handness::Enum _handness = Handness::Left
+		, NearFar::Enum _nearFar = NearFar::Default
+		);
 
 	///
-	void mtxProjLh(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, float _far, bool _oglNdc);
+	void mtxProjInf(
+		  float* _result
+		, float _fovy
+		, float _aspect
+		, float _near
+		, bool _homogeneousNdc
+		, Handness::Enum _handness = Handness::Left
+		, NearFar::Enum _nearFar = NearFar::Default
+		);
 
 	///
-	void mtxProjLh(float* _result, const float _fov[4], float _near, float _far, bool _oglNdc);
-
-	///
-	void mtxProjLh(float* _result, float _fovy, float _aspect, float _near, float _far, bool _oglNdc);
-
-	///
-	void mtxProjRh(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, float _far, bool _oglNdc);
-
-	///
-	void mtxProjRh(float* _result, const float _fov[4], float _near, float _far, bool _oglNdc);
-
-	///
-	void mtxProjRh(float* _result, float _fovy, float _aspect, float _near, float _far, bool _oglNdc);
-
-	///
-	void mtxProjInf(float* _result, const float _fov[4], float _near, bool _oglNdc);
-
-	///
-	void mtxProjInf(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, bool _oglNdc);
-
-	///
-	void mtxProjInf(float* _result, float _fovy, float _aspect, float _near, bool _oglNdc);
-
-	///
-	void mtxProjInfLh(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, bool _oglNdc);
-
-	///
-	void mtxProjInfLh(float* _result, const float _fov[4], float _near, bool _oglNdc);
-
-	///
-	void mtxProjInfLh(float* _result, float _fovy, float _aspect, float _near, bool _oglNdc);
-
-	///
-	void mtxProjInfRh(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, bool _oglNdc);
-
-	///
-	void mtxProjInfRh(float* _result, const float _fov[4], float _near, bool _oglNdc);
-
-	///
-	void mtxProjInfRh(float* _result, float _fovy, float _aspect, float _near, bool _oglNdc);
-
-	///
-	void mtxProjRevInfLh(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, bool _oglNdc);
-
-	///
-	void mtxProjRevInfLh(float* _result, const float _fov[4], float _near, bool _oglNdc);
-
-	///
-	void mtxProjRevInfLh(float* _result, float _fovy, float _aspect, float _near, bool _oglNdc);
-
-	///
-	void mtxProjRevInfRh(float* _result, float _ut, float _dt, float _lt, float _rt, float _near, bool _oglNdc);
-
-	///
-	void mtxProjRevInfRh(float* _result, const float _fov[4], float _near, bool _oglNdc);
-
-	///
-	void mtxProjRevInfRh(float* _result, float _fovy, float _aspect, float _near, bool _oglNdc);
-
-	///
-	void mtxOrtho(float* _result, float _left, float _right, float _bottom, float _top, float _near, float _far, float _offset, bool _oglNdc);
-
-	///
-	void mtxOrthoLh(float* _result, float _left, float _right, float _bottom, float _top, float _near, float _far, float _offset, bool _oglNdc);
-
-	///
-	void mtxOrthoRh(float* _result, float _left, float _right, float _bottom, float _top, float _near, float _far, float _offset, bool _oglNdc);
+	void mtxOrtho(
+		  float* _result
+		, float _left
+		, float _right
+		, float _bottom
+		, float _top
+		, float _near
+		, float _far
+		, float _offset
+		, bool _homogeneousNdc
+		, Handness::Enum _handness = Handness::Left
+		);
 
 	///
 	void mtxRotateX(float* _result, float _ax);
@@ -572,22 +544,27 @@ namespace bx
 	void mtxRotateZYX(float* _result, float _ax, float _ay, float _az);
 
 	///
-	void mtxSRT(float* _result, float _sx, float _sy, float _sz, float _ax, float _ay, float _az, float _tx, float _ty, float _tz);
+	void mtxSRT(
+		  float* _result
+		, float _sx
+		, float _sy
+		, float _sz
+		, float _ax
+		, float _ay
+		, float _az
+		, float _tx
+		, float _ty
+		, float _tz
+		);
 
 	///
-	void vec3MulMtx(float* _result, const float* _vec, const float* _mat);
+	Vec3 mul(const Vec3& _vec, const float* _mat);
 
 	///
-	void vec3MulMtxXyz0(float* _result, const float* _vec, const float* _mat);
+	Vec3 mulXyz0(const Vec3& _vec, const float* _mat);
 
 	///
-	void vec3MulMtxH(float* _result, const float* _vec, const float* _mat);
-
-	///
-	void vec4Mul(float* _result, const float* _a, const float* _b);
-
-	///
-	void vec4Mul(float* _result, const float* _a, float _b);
+	Vec3 mulH(const Vec3& _vec, const float* _mat);
 
 	///
 	void vec4MulMtx(float* _result, const float* _vec, const float* _mat);
@@ -604,22 +581,17 @@ namespace bx
 	///
 	void mtxInverse(float* _result, const float* _a);
 
-	/// Convert LH to RH projection matrix and vice versa.
 	///
-	void mtxProjFlipHandedness(float* _dst, const float* _src);
-
-	/// Convert LH to RH view matrix and vice versa.
-	///
-	void mtxViewFlipHandedness(float* _dst, const float* _src);
+	Vec3 calcNormal(const Vec3& _va, const Vec3& _vb, const Vec3& _vc);
 
 	///
-	void calcNormal(float _result[3], const float _va[3], const float _vb[3], const float _vc[3]);
+	void calcPlane(Plane& _outPlane, const Vec3& _va, const Vec3& _vb, const Vec3& _vc);
 
 	///
-	void calcPlane(float _result[4], const float _va[3], const float _vb[3], const float _vc[3]);
+	void calcPlane(Plane& _outPlane, const Vec3& _normal, const Vec3& _pos);
 
 	///
-	void calcPlane(float _result[4], const float _normal[3], const float _pos[3]);
+	float distance(const Plane& _plane, const Vec3& _pos);
 
 	///
 	void calcLinearFit2D(float _result[2], const void* _points, uint32_t _stride, uint32_t _numPoints);

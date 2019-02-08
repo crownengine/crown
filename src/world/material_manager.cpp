@@ -51,7 +51,7 @@ void MaterialManager::online(StringId64 id, ResourceManager& rm)
 	{
 		TextureData* td    = get_texture_data(mr, i);
 		TextureHandle* th  = get_texture_handle(mr, i, base);
-		th->sampler_handle = bgfx::createUniform(get_texture_name(mr, td), bgfx::UniformType::Int1).idx;
+		th->sampler_handle = bgfx::createUniform(get_texture_name(mr, td), bgfx::UniformType::Sampler).idx;
 	}
 
 	for (u32 i = 0; i < mr->num_uniforms; ++i)

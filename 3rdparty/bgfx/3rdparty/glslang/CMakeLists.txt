@@ -46,12 +46,8 @@ endif()
 
 # Precompiled header macro. Parameters are source file list and filename for pch cpp file.
 macro(glslang_pch SRCS PCHCPP)
-  if(MSVC)
-    if (CMAKE_GENERATOR MATCHES "^Visual Studio")
-      set(PCH_NAME "$(IntDir)\\pch.pch")
-    else()
-      set(PCH_NAME "${CMAKE_CURRENT_BINARY_DIR}/pch.pch")
-    endif()
+  if(MSVC AND CMAKE_GENERATOR MATCHES "^Visual Studio")
+    set(PCH_NAME "$(IntDir)\\pch.pch")
     # make source files use/depend on PCH_NAME
     set_source_files_properties(${${SRCS}} PROPERTIES COMPILE_FLAGS "/Yupch.h /FIpch.h /Fp${PCH_NAME} /Zm300" OBJECT_DEPENDS "${PCH_NAME}")
     # make PCHCPP file compile and generate PCH_NAME
@@ -77,7 +73,7 @@ if(ENABLE_HLSL)
 endif(ENABLE_HLSL)
 
 if(WIN32)
-    set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Adds a postfix for debug-built libraries.")
+    set(CMAKE_DEBUG_POSTFIX "d")
     if(MSVC)
         include(ChooseMSVCCRT.cmake)
     endif(MSVC)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -7,10 +7,6 @@
 #define BX_EASING_H_HEADER_GUARD
 
 #include "math.h"
-
-// Reference:
-// http://easings.net/
-// http://robertpenner.com/easing/
 
 namespace bx
 {

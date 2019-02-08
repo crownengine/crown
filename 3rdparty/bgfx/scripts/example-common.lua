@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2019 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 --
 
@@ -36,6 +36,14 @@ project ("example-common")
 		path.join(BGFX_DIR, "examples/common/**.cpp"),
 		path.join(BGFX_DIR, "examples/common/**.h"),
 	}
+
+	if filesexist(BGFX_DIR, path.join(BGFX_DIR, "../bgfx-ext"),
+		{ path.join(BGFX_DIR, "../bgfx-ext/examples/common/entry/entry_orbis.cpp") }) then
+
+		files {
+			path.join(BGFX_DIR, "../bgfx-ext/examples/common/entry/entry_orbis.cpp"),
+		}
+	end
 
 	removefiles {
 		path.join(BGFX_DIR, "examples/common/example-glue.cpp"),

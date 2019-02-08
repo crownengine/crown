@@ -66,6 +66,8 @@ enum TBasicType {
     EbtAccStructNV,
 #endif
 
+    EbtReference,
+
     // HLSL types that live only temporarily.
     EbtString,
 
@@ -231,6 +233,9 @@ enum TBuiltInVariable {
 
     EbvViewIndex,
     EbvDeviceIndex,
+
+    EbvFragSizeEXT,
+    EbvFragInvocationCountEXT,
 
 #ifdef NV_EXTENSIONS
     EbvViewportMaskNV,
@@ -403,6 +408,9 @@ __inline const char* GetBuiltInVariableString(TBuiltInVariable v)
 
     case EbvViewIndex:                  return "ViewIndex";
     case EbvDeviceIndex:                return "DeviceIndex";
+
+    case EbvFragSizeEXT:                return "FragSizeEXT";
+    case EbvFragInvocationCountEXT:     return "FragInvocationCountEXT";
 
 #ifdef NV_EXTENSIONS
     case EbvViewportMaskNV:             return "ViewportMaskNV";
