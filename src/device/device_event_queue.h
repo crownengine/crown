@@ -171,21 +171,19 @@ struct DeviceEventQueue
 		const int tail = _tail.load();
 		const int tail_next = (tail + 1) % MAX_OS_EVENTS;
 
-		if (tail_next != _head.load())
-		{
-			_queue[tail] = ev;
-			_tail.store(tail_next);
-			return true;
-		}
+		if (CE_UNLIKELY(tail_next == _head.load()))
+			return false;
 
-		return false;
+		_queue[tail] = ev;
+		_tail.store(tail_next);
+		return true;
 	}
 
 	bool pop_event(OsEvent& ev)
 	{
 		const int head = _head.load();
 
-		if (head == _tail.load())
+		if (CE_UNLIKELY(head == _tail.load()))
 			return false;
 
 		ev = _queue[head];
