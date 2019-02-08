@@ -239,7 +239,7 @@ namespace ImGui
 
 		Dock& getDock(const char* label, bool opened)
 		{
-			ImU32 id = ImHash(label, 0);
+			ImU32 id = ImHashStr(label, 0);
 			for (int i = 0; i < m_docks.size(); ++i)
 			{
         if (m_docks[i]->id == id)
@@ -1143,7 +1143,7 @@ namespace ImGui
 				uint32_t id = crown::sjson::parse_int(item["index"]);
 				crown::sjson::parse_string(item["label"], label);
 				crown::sjson::parse_string(item["location"], loc);
-				m_docks[id]->id = ImHash(label.c_str(), 0);
+				m_docks[id]->id = ImHashStr(label.c_str(), 0);
 				m_docks[id]->label = strdup(label.c_str());
 				m_docks[id]->pos.x = crown::sjson::parse_int(item["x"]);
 				m_docks[id]->pos.y = crown::sjson::parse_int(item["y"]);
@@ -1175,7 +1175,7 @@ namespace ImGui
 
 			// Scene View
 			uint32_t id = 0;
-			m_docks[id]->id = ImHash("Scene View", 0);
+			m_docks[id]->id = ImHashStr("Scene View", 0);
 			m_docks[id]->label = ImStrdup("Scene View");
 			m_docks[id]->pos.x = 0;
 			m_docks[id]->pos.y = 24;
@@ -1194,7 +1194,7 @@ namespace ImGui
 
 			// Scene Tree
 			id = 1;
-			m_docks[id]->id = ImHash("Scene Tree", 0);
+			m_docks[id]->id = ImHashStr("Scene Tree", 0);
 			m_docks[id]->label = ImStrdup("Scene Tree");
 			m_docks[id]->pos.x = 1029;
 			m_docks[id]->pos.y = 24;
@@ -1213,7 +1213,7 @@ namespace ImGui
 
 			// Inspector
 			id = 2;
-			m_docks[id]->id = ImHash("Inspector", 0);
+			m_docks[id]->id = ImHashStr("Inspector", 0);
 			m_docks[id]->label = ImStrdup("Inspector");
 			m_docks[id]->pos.x = 1029;
 			m_docks[id]->pos.y = 372;
@@ -1232,7 +1232,7 @@ namespace ImGui
 
 			// Console
 			id = 3;
-			m_docks[id]->id = ImHash("Console", 0);
+			m_docks[id]->id = ImHashStr("Console", 0);
 			m_docks[id]->label = ImStrdup("Console");
 			m_docks[id]->pos.x = 0;
 			m_docks[id]->pos.y = 487;
@@ -1251,7 +1251,7 @@ namespace ImGui
 
 			// Internals
 			id = 4;
-			m_docks[id]->id = ImHash("", 0);
+			m_docks[id]->id = ImHashStr("", 0);
 			m_docks[id]->label = ImStrdup("");
 			m_docks[id]->pos.x = 0;
 			m_docks[id]->pos.y = 24;
@@ -1269,7 +1269,7 @@ namespace ImGui
 			tryDockToStoredLocation(*m_docks[id]);
 
 			id = 5;
-			m_docks[id]->id = ImHash("", 0);
+			m_docks[id]->id = ImHashStr("", 0);
 			m_docks[id]->label = ImStrdup("");
 			m_docks[id]->pos.x = 0;
 			m_docks[id]->pos.y = 24;
@@ -1287,7 +1287,7 @@ namespace ImGui
 			tryDockToStoredLocation(*m_docks[id]);
 
 			id = 6;
-			m_docks[id]->id = ImHash("", 0);
+			m_docks[id]->id = ImHashStr("", 0);
 			m_docks[id]->label = ImStrdup("");
 			m_docks[id]->pos.x = 1029;
 			m_docks[id]->pos.y = 24;
