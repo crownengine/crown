@@ -1065,10 +1065,12 @@ Keyboard
 	Returns whether the button *id* is released in the current frame.
 
 **any_pressed** () : bool
-	Returns whether any button is pressed in the current frame.
+	Returns the *id* of the first button that was pressed in the current frame
+	or ``nil`` if no buttons were pressed at all.
 
 **any_released** () : bool
-	Returns whether any button is released in the current frame.
+	Returns the *id* of the first button that was released in the current frame
+	or ``nil`` if no buttons were released at all.
 
 **button** (id) : float
 	Returns the value of the button *id* in the range [0..1].
@@ -1117,10 +1119,12 @@ Mouse
 	Returns whether the button *id* is released in the current frame.
 
 **any_pressed** () : bool
-	Returns whether any button is pressed in the current frame.
+	Returns the *id* of the first button that was pressed in the current frame
+	or ``nil`` if no buttons were pressed at all.
 
 **any_released** () : bool
-	Returns whether any button is released in the current frame.
+	Returns the *id* of the first button that was released in the current frame
+	or ``nil`` if no buttons were released at all.
 
 **button** (id) : float
 	Returns the value of the button *id* in the range [0..1].
@@ -1174,10 +1178,12 @@ Touch
 	Returns whether the button *id* is released in the current frame.
 
 **any_pressed** () : bool
-	Returns whether any button is pressed in the current frame.
+	Returns the *id* of the first button that was pressed in the current frame
+	or ``nil`` if no buttons were pressed at all.
 
 **any_released** () : bool
-	Returns whether any button is released in the current frame.
+	Returns the *id* of the first button that was released in the current frame
+	or ``nil`` if no buttons were released at all.
 
 **button** (id) : float
 	Returns the value of the button *id* in the range [0..1].
@@ -1219,10 +1225,12 @@ Pad1, Pad2, Pad3, Pad4
 	Returns whether the button *id* is released in the current frame.
 
 **any_pressed** () : bool
-	Returns whether any button is pressed in the current frame.
+	Returns the *id* of the first button that was pressed in the current frame
+	or ``nil`` if no buttons were pressed at all.
 
 **any_released** () : bool
-	Returns whether any button is released in the current frame.
+	Returns the *id* of the first button that was released in the current frame
+	or ``nil`` if no buttons were released at all.
 
 **button** (id) : float
 	Returns the value of the button *id* in the range [0..1].

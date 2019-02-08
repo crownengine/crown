@@ -21,7 +21,7 @@ struct InputDevice
 	bool _connected;
 	u8 _num_buttons;
 	u8 _num_axes;
-	u8 _last_button;
+	u8 _first_button[2];
 	const char** _button_name;
 	const char** _axis_name;
 
@@ -34,7 +34,7 @@ struct InputDevice
 	StringId32* _axis_hash;   // num_axes
 	char* _name;              // strlen32(name) + 1
 
-	void set_button(u8 id, bool state);
+	void set_button(u8 id, u8 state);
 	void set_axis(u8 id, f32 x, f32 y, f32 z);
 	void update();
 
@@ -56,11 +56,13 @@ struct InputDevice
 	/// Returns whether the button @a id is released in the current frame.
 	bool released(u8 id) const;
 
-	/// Returns whether any button is pressed in the current frame.
-	bool any_pressed() const;
+	/// Returns the id of the first button that was pressed in the current frame
+	/// or UINT8_MAX if no buttons were pressed at all.
+	u8 any_pressed() const;
 
-	/// Returns whether any button is released in the current frame.
-	bool any_released() const;
+	/// Returns the id of the first button that was released in the current frame
+	/// or UINT8_MAX if no buttons were released at all.
+	u8 any_released() const;
 
 	/// Returns the value of the button @a id in the range [0..1].
 	f32 button(u8 id) const;

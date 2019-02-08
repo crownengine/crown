@@ -1071,14 +1071,22 @@ static int input_device_released(lua_State* L, InputDevice& dev)
 static int input_device_any_pressed(lua_State* L, InputDevice& dev)
 {
 	LuaStack stack(L);
-	stack.push_bool(dev.any_pressed());
+	const u8 button = dev.any_pressed();
+	if (button != UINT8_MAX)
+		stack.push_int(button);
+	else
+		stack.push_nil();
 	return 1;
 }
 
 static int input_device_any_released(lua_State* L, InputDevice& dev)
 {
 	LuaStack stack(L);
-	stack.push_bool(dev.any_released());
+	const u8 button = dev.any_released();
+	if (button != UINT8_MAX)
+		stack.push_int(button);
+	else
+		stack.push_nil();
 	return 1;
 }
 

@@ -51,14 +51,14 @@ bool InputDevice::released(u8 id) const
 		;
 }
 
-bool InputDevice::any_pressed() const
+u8 InputDevice::any_pressed() const
 {
-	return pressed(_last_button);
+	return pressed(_first_button[1]) ? _first_button[1] : UINT8_MAX;
 }
 
-bool InputDevice::any_released() const
+u8 InputDevice::any_released() const
 {
-	return released(_last_button);
+	return released(_first_button[0]) ? _first_button[0] : UINT8_MAX;
 }
 
 f32 InputDevice::button(u8 id) const
@@ -170,11 +170,13 @@ void InputDevice::set_deadzone(u8 id, DeadzoneMode::Enum deadzone_mode, f32 dead
 	}
 }
 
-void InputDevice::set_button(u8 id, bool state)
+void InputDevice::set_button(u8 id, u8 state)
 {
 	CE_ASSERT(id < _num_buttons, "Index out of bounds");
-	_last_button = id;
 	_state[id] = state;
+
+	if (_first_button[state % countof(_first_button)] == UINT8_MAX)
+		_first_button[state % countof(_first_button)] = id;
 }
 
 void InputDevice::set_axis(u8 id, f32 x, f32 y, f32 z)
@@ -188,6 +190,8 @@ void InputDevice::set_axis(u8 id, f32 x, f32 y, f32 z)
 void InputDevice::update()
 {
 	memcpy(_last_state, _state, sizeof(u8)*_num_buttons);
+	_first_button[0] = UINT8_MAX;
+	_first_button[1] = UINT8_MAX;
 }
 
 namespace input_device
@@ -207,12 +211,13 @@ namespace input_device
 
 		InputDevice* id = (InputDevice*)a.allocate(size);
 
-		id->_connected   = false;
-		id->_num_buttons = num_buttons;
-		id->_num_axes    = num_axes;
-		id->_last_button = 0;
-		id->_button_name = button_names;
-		id->_axis_name = axis_names;
+		id->_connected       = false;
+		id->_num_buttons     = num_buttons;
+		id->_num_axes        = num_axes;
+		id->_first_button[0] = UINT8_MAX;
+		id->_first_button[1] = UINT8_MAX;
+		id->_button_name     = button_names;
+		id->_axis_name       = axis_names;
 
 		id->_last_state    = (u8*         )&id[1];
 		id->_state         = (u8*         )memory::align_top(id->_last_state + num_buttons,  alignof(u8         ));
