@@ -56,10 +56,8 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 
 	_gui_buffer.create();
 
-	_guis.next = &_guis;
-	_guis.prev = &_guis;
-	_levels.next = &_levels;
-	_levels.prev = &_levels;
+	list::init_head(_guis);
+	list::init_head(_levels);
 
 	_node.next = NULL;
 	_node.prev = NULL;
@@ -518,27 +516,13 @@ Gui* World::create_screen_gui()
 		, *_material_manager
 		);
 
-	ListNode* node = &gui->_node;
-	ListNode* prev = &_guis;
-	ListNode* next = _guis.next;
-
-	node->next = next;
-	node->prev = prev;
-	next->prev = node;
-	prev->next = node;
-
+	list::add(gui->_node, _guis);
 	return gui;
 }
 
 void World::destroy_gui(Gui& gui)
 {
-	ListNode* node = &gui._node;
-
-	node->next->prev = node->prev;
-	node->prev->next = node->next;
-	node->next = NULL;
-	node->prev = NULL;
-
+	list::remove(gui._node);
 	CE_DELETE(*_allocator, &gui);
 }
 
@@ -549,14 +533,7 @@ Level* World::load_level(StringId64 name, const Vector3& pos, const Quaternion& 
 	Level* level = CE_NEW(*_allocator, Level)(*_allocator, *_unit_manager, *this, *lr);
 	level->load(pos, rot);
 
-	ListNode* node = &level->_node;
-	ListNode* prev = &_levels;
-	ListNode* next = _levels.next;
-
-	node->next = next;
-	node->prev = prev;
-	next->prev = node;
-	prev->next = node;
+	list::add(level->_node, _levels);
 
 	post_level_loaded_event();
 	return level;

@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/functional.h"
+#include "core/list.h"
 #include "core/math/types.h"
 #include "core/strings/string_id.h"
 #include "core/types.h"

@@ -231,8 +231,7 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	, _quit(false)
 	, _paused(false)
 {
-	_worlds.next = &_worlds;
-	_worlds.prev = &_worlds;
+	list::init_head(_worlds);
 }
 
 bool Device::process_events(bool vsync)
@@ -645,27 +644,13 @@ World* Device::create_world()
 		, *_lua_environment
 		);
 
-	ListNode* node = &world->_node;
-	ListNode* prev = &_worlds;
-	ListNode* next = _worlds.next;
-
-	node->next = next;
-	node->prev = prev;
-	next->prev = node;
-	prev->next = node;
-
+	list::add(world->_node, _worlds);
 	return world;
 }
 
 void Device::destroy_world(World& world)
 {
-	ListNode* node = &world._node;
-
-	node->next->prev = node->prev;
-	node->prev->next = node->next;
-	node->next = NULL;
-	node->prev = NULL;
-
+	list::remove(world._node);
 	CE_DELETE(default_allocator(), &world);
 }
 

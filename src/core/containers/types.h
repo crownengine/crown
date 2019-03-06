@@ -192,13 +192,4 @@ struct SortMap
 	SortMap(Allocator& a);
 };
 
-/// Node in an intrusive linked list.
-///
-/// @ingroup Containers
-struct ListNode
-{
-	ListNode* next;
-	ListNode* prev;
-};
-
 } // namespace crown

@@ -6,8 +6,8 @@
 #pragma once
 
 #include "config.h"
-#include "core/containers/types.h"
 #include "core/filesystem/types.h"
+#include "core/list.h"
 #include "core/memory/allocator.h"
 #include "core/memory/linear_allocator.h"
 #include "core/strings/string_id.h"
