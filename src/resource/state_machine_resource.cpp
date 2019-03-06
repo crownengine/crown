@@ -149,7 +149,7 @@ namespace state_machine_internal
 
 	struct StateMachineCompiler
 	{
-		CompileOptions _opts;
+		CompileOptions& _opts;
 		Guid _initial_state;
 		Map<Guid, StateInfo> _states;
 		OffsetAccumulator _offset_accumulator;
@@ -157,7 +157,7 @@ namespace state_machine_internal
 		Vector<VariableInfo> _variables;
 		Array<u32> _byte_code;
 
-		StateMachineCompiler(CompileOptions opts)
+		StateMachineCompiler(CompileOptions& opts)
 			: _opts(opts)
 			, _states(default_allocator())
 			, _offsets(default_allocator())
@@ -348,7 +348,7 @@ namespace state_machine_internal
 			}
 		}
 
-		void write(CompileOptions& opts)
+		void write()
 		{
 			StateMachineResource smr;
 			smr.version = RESOURCE_VERSION_STATE_MACHINE;
@@ -357,12 +357,12 @@ namespace state_machine_internal
 			smr.variables_offset = _offset_accumulator._offset; // Offset of last state + 1
 			smr.bytecode_size = array::size(_byte_code)*4;
 			smr.bytecode_offset = smr.variables_offset + smr.num_variables*4*2;
-			opts.write(smr.version);
-			opts.write(smr.initial_state_offset);
-			opts.write(smr.num_variables);
-			opts.write(smr.variables_offset);
-			opts.write(smr.bytecode_size);
-			opts.write(smr.bytecode_offset);
+			_opts.write(smr.version);
+			_opts.write(smr.initial_state_offset);
+			_opts.write(smr.num_variables);
+			_opts.write(smr.variables_offset);
+			_opts.write(smr.bytecode_size);
+			_opts.write(smr.bytecode_offset);
 
 			// Write states
 			auto cur = map::begin(_states);
@@ -374,29 +374,29 @@ namespace state_machine_internal
 				const u32 num_transitions = vector::size(si.transitions);
 
 				// Write speed
-				opts.write(si.speed_bytecode);
+				_opts.write(si.speed_bytecode);
 
 				// Write loop
-				opts.write(si.loop);
+				_opts.write(si.loop);
 
 				// Write transitions
 				TransitionArray ta;
 				ta.num = num_transitions;
-				opts.write(ta.num);
+				_opts.write(ta.num);
 				for (u32 i = 0; i < num_transitions; ++i)
 				{
 					Transition t = si.transitions[i].transition;
 					t.state_offset = hash_map::get(_offsets, si.transitions[i].state, UINT32_MAX);
 
-					opts.write(t.event);
-					opts.write(t.state_offset);
-					opts.write(t.mode);
+					_opts.write(t.event);
+					_opts.write(t.state_offset);
+					_opts.write(t.mode);
 				}
 
 				// Write animations
 				AnimationArray aa;
 				aa.num = num_animations;
-				opts.write(aa.num);
+				_opts.write(aa.num);
 				for (u32 i = 0; i < num_animations; ++i)
 				{
 					Animation a;
@@ -404,21 +404,21 @@ namespace state_machine_internal
 					a.bytecode_entry = si.animations[i].bytecode_entry;
 					a.pad = 0;
 
-					opts.write(a.name);
-					opts.write(a.bytecode_entry);
-					opts.write(a.pad);
+					_opts.write(a.name);
+					_opts.write(a.bytecode_entry);
+					_opts.write(a.pad);
 				}
 			}
 
 			// Write variables
 			for (u32 i = 0; i < vector::size(_variables); ++i)
-				opts.write(_variables[i].name);
+				_opts.write(_variables[i].name);
 			for (u32 i = 0; i < vector::size(_variables); ++i)
-				opts.write(_variables[i].value);
+				_opts.write(_variables[i].value);
 
 			// Write bytecode
 			for (u32 i = 0; i < array::size(_byte_code); ++i)
-				opts.write(_byte_code[i]);
+				_opts.write(_byte_code[i]);
 		}
 	};
 
@@ -428,7 +428,7 @@ namespace state_machine_internal
 
 		StateMachineCompiler smc(opts);
 		smc.parse(buf);
-		smc.write(opts);
+		smc.write();
 	}
 
 } // namespace state_machine_internal

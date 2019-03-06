@@ -49,6 +49,12 @@ struct CompileOptions
 	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, DynamicString& source_path, Buffer& output, const char* platform);
 
 	///
+	CompileOptions(const CompileOptions&) = delete;
+
+	///
+	CompileOptions& operator=(const CompileOptions&) = delete;
+
+	///
 	void error(const char* msg, va_list args);
 
 	///
