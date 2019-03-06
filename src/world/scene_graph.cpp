@@ -41,12 +41,16 @@ SceneGraph::SceneGraph(Allocator& a, UnitManager& um)
 	, _unit_manager(&um)
 	, _map(a)
 {
-	um.register_destroy_function(unit_destroyed_callback_bridge, this);
+	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
+	_unit_destroy_callback.user_data = this;
+	_unit_destroy_callback.node.next = NULL;
+	_unit_destroy_callback.node.prev = NULL;
+	um.register_destroy_callback(&_unit_destroy_callback);
 }
 
 SceneGraph::~SceneGraph()
 {
-	_unit_manager->unregister_destroy_function(this);
+	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
 	_allocator->deallocate(_data.buffer);
 

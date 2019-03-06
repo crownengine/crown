@@ -207,12 +207,16 @@ ScriptWorld::ScriptWorld(Allocator& a, UnitManager& um, ResourceManager& rm, Lua
 	, _lua_environment(&le)
 	, _world(&w)
 {
-	um.register_destroy_function(script_world_internal::unit_destroyed_callback_bridge, this);
+	_unit_destroy_callback.destroy = script_world_internal::unit_destroyed_callback_bridge;
+	_unit_destroy_callback.user_data = this;
+	_unit_destroy_callback.node.next = NULL;
+	_unit_destroy_callback.node.prev = NULL;
+	um.register_destroy_callback(&_unit_destroy_callback);
 }
 
 ScriptWorld::~ScriptWorld()
 {
-	_unit_manager->unregister_destroy_function(this);
+	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 	_marker = 0;
 }
 

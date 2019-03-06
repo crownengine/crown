@@ -192,6 +192,7 @@ struct PhysicsWorldImpl
 	MyDebugDrawer _debug_drawer;
 
 	EventStream _events;
+	UnitDestroyCallback _unit_destroy_callback;
 
 	const PhysicsConfigResource* _config_resource;
 	bool _debug_drawing;
@@ -221,12 +222,16 @@ struct PhysicsWorldImpl
 
 		_config_resource = (const PhysicsConfigResource*)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, StringId64("global"));
 
-		um.register_destroy_function(PhysicsWorldImpl::unit_destroyed_callback, this);
+		_unit_destroy_callback.destroy = PhysicsWorldImpl::unit_destroyed_callback;
+		_unit_destroy_callback.user_data = this;
+		_unit_destroy_callback.node.next = NULL;
+		_unit_destroy_callback.node.prev = NULL;
+		um.register_destroy_callback(&_unit_destroy_callback);
 	}
 
 	~PhysicsWorldImpl()
 	{
-		_unit_manager->unregister_destroy_function(this);
+		_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
 		for (u32 i = 0; i < array::size(_actor); ++i)
 		{

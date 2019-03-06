@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/containers/types.h"
+#include "core/list.h"
 #include "core/math/types.h"
 #include "core/memory/types.h"
 #include "resource/types.h"

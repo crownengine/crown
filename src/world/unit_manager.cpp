@@ -15,8 +15,8 @@ namespace crown
 UnitManager::UnitManager(Allocator& a)
 	: _generation(a)
 	, _free_indices(a)
-	, _destroy_callbacks(a)
 {
+	list::init_head(_callbacks.node);
 }
 
 UnitId UnitManager::make_unit(u32 idx, u8 gen)
@@ -63,33 +63,25 @@ void UnitManager::destroy(UnitId id)
 	trigger_destroy_callbacks(id);
 }
 
-void UnitManager::register_destroy_function(DestroyFunction fn, void* user_data)
+void UnitManager::register_destroy_callback(UnitDestroyCallback* udc)
 {
-	DestroyData dd;
-	dd.destroy = fn;
-	dd.user_data = user_data;
-	array::push_back(_destroy_callbacks, dd);
+	list::add(udc->node, _callbacks.node);
 }
 
-void UnitManager::unregister_destroy_function(void* user_data)
+void UnitManager::unregister_destroy_callback(UnitDestroyCallback* udc)
 {
-	for (u32 i = 0, n = array::size(_destroy_callbacks); i < n; ++i)
-	{
-		if (_destroy_callbacks[i].user_data == user_data)
-		{
-			_destroy_callbacks[i] = _destroy_callbacks[n - 1];
-			array::pop_back(_destroy_callbacks);
-			return;
-		}
-	}
-
-	CE_FATAL("Unknown destroy function");
+	list::remove(udc->node);
 }
 
 void UnitManager::trigger_destroy_callbacks(UnitId id)
 {
-	for (u32 i = 0; i < array::size(_destroy_callbacks); ++i)
-		_destroy_callbacks[i].destroy(id, _destroy_callbacks[i].user_data);
+	ListNode* cur = _callbacks.node.next;
+	while (cur != &_callbacks.node)
+	{
+		UnitDestroyCallback* udc = (UnitDestroyCallback*)container_of(cur, UnitDestroyCallback, node);
+		udc->destroy(id, udc->user_data);
+		cur = cur->next;
+	}
 }
 
 } // namespace crown

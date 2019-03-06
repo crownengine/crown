@@ -63,6 +63,7 @@ struct SceneGraph
 	UnitManager* _unit_manager;
 	InstanceData _data;
 	HashMap<UnitId, u32> _map;
+	UnitDestroyCallback _unit_destroy_callback;
 
 	///
 	SceneGraph(Allocator& a, UnitManager& um);

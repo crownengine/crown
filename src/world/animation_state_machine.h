@@ -41,6 +41,7 @@ struct AnimationStateMachine
 	HashMap<UnitId, u32> _map;
 	Array<Animation> _animations;
 	EventStream _events;
+	UnitDestroyCallback _unit_destroy_callback;
 
 	///
 	AnimationStateMachine(Allocator& a, ResourceManager& rm, UnitManager& um);

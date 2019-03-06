@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/list.h"
 #include "core/math/types.h"
 #include "resource/types.h"
 #include "world/types.h"

@@ -295,6 +295,8 @@ struct RenderWorld
 	MeshManager _mesh_manager;
 	SpriteManager _sprite_manager;
 	LightManager _light_manager;
+
+	UnitDestroyCallback _unit_destroy_callback;
 };
 
 } // namespace crown

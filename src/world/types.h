@@ -252,6 +252,15 @@ struct hash<UnitId>
 	}
 };
 
+typedef void (*UnitDestroyFunction)(UnitId unit, void* user_data);
+
+struct UnitDestroyCallback
+{
+	UnitDestroyFunction destroy;
+	void* user_data;
+	ListNode node;
+};
+
 #define INSTANCE_ID(name)            \
 	struct name                      \
 	{                                \

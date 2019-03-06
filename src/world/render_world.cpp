@@ -38,7 +38,11 @@ RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, M
 	, _sprite_manager(a)
 	, _light_manager(a)
 {
-	um.register_destroy_function(unit_destroyed_callback_bridge, this);
+	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
+	_unit_destroy_callback.user_data = this;
+	_unit_destroy_callback.node.next = NULL;
+	_unit_destroy_callback.node.prev = NULL;
+	um.register_destroy_callback(&_unit_destroy_callback);
 
 	_u_light_position  = bgfx::createUniform("u_light_position", bgfx::UniformType::Vec4);
 	_u_light_direction = bgfx::createUniform("u_light_direction", bgfx::UniformType::Vec4);
@@ -49,7 +53,7 @@ RenderWorld::RenderWorld(Allocator& a, ResourceManager& rm, ShaderManager& sm, M
 
 RenderWorld::~RenderWorld()
 {
-	_unit_manager->unregister_destroy_function(this);
+	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
 	bgfx::destroy(_u_light_intensity);
 	bgfx::destroy(_u_light_range);

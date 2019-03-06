@@ -17,17 +17,9 @@ namespace crown
 /// @ingroup World
 struct UnitManager
 {
-	typedef void (*DestroyFunction)(UnitId unit, void* user_data);
-
-	struct DestroyData
-	{
-		DestroyFunction destroy;
-		void* user_data;
-	};
-
 	Array<u8> _generation;
 	Queue<u32> _free_indices;
-	Array<DestroyData> _destroy_callbacks;
+	UnitDestroyCallback _callbacks;
 
 	///
 	UnitManager(Allocator& a);
@@ -47,10 +39,13 @@ struct UnitManager
 	/// Destroys the unit @a id.
 	void destroy(UnitId id);
 
-	void register_destroy_function(DestroyFunction fn, void* user_data);
+	///
+	void register_destroy_callback(UnitDestroyCallback* udc);
 
-	void unregister_destroy_function(void* user_data);
+	///
+	void unregister_destroy_callback(UnitDestroyCallback* udc);
 
+	///
 	void trigger_destroy_callbacks(UnitId id);
 };
 
