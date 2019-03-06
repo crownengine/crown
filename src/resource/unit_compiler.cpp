@@ -124,6 +124,13 @@ static Buffer compile_mesh_renderer(const char* json, CompileOptions& opts)
 		, opts
 		);
 
+	DynamicString material(ta);
+	sjson::parse_string(obj["material"], material);
+	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("material"
+		, material.c_str()
+		, opts
+		);
+
 	MeshRendererDesc mrd;
 	mrd.mesh_resource     = sjson::parse_resource_id(obj["mesh_resource"]);
 	mrd.geometry_name     = sjson::parse_string_id  (obj["geometry_name"]);
@@ -148,6 +155,13 @@ static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
 	sjson::parse_string(obj["sprite_resource"], sprite_resource);
 	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sprite"
 		, sprite_resource.c_str()
+		, opts
+		);
+
+	DynamicString material(ta);
+	sjson::parse_string(obj["material"], material);
+	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("material"
+		, material.c_str()
 		, opts
 		);
 
