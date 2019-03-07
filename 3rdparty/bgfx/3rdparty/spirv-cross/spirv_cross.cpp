@@ -64,8 +64,6 @@ void Compiler::set_ir(const ParsedIR &ir_)
 
 string Compiler::compile()
 {
-	// Force a classic "C" locale, reverts when function returns
-	ClassicLocale classic_locale;
 	return "";
 }
 
@@ -1094,6 +1092,22 @@ const SPIRType &Compiler::get_variable_data_type(const SPIRVariable &var) const
 	return get<SPIRType>(get_variable_data_type_id(var));
 }
 
+SPIRType &Compiler::get_variable_element_type(const SPIRVariable &var)
+{
+	SPIRType *type = &get_variable_data_type(var);
+	if (is_array(*type))
+		type = &get<SPIRType>(type->parent_type);
+	return *type;
+}
+
+const SPIRType &Compiler::get_variable_element_type(const SPIRVariable &var) const
+{
+	const SPIRType *type = &get_variable_data_type(var);
+	if (is_array(*type))
+		type = &get<SPIRType>(type->parent_type);
+	return *type;
+}
+
 bool Compiler::is_sampled_image_type(const SPIRType &type)
 {
 	return (type.basetype == SPIRType::Image || type.basetype == SPIRType::SampledImage) && type.image.sampled == 1 &&
@@ -1183,6 +1197,14 @@ void Compiler::set_extended_decoration(uint32_t id, ExtendedDecorations decorati
 	case SPIRVCrossDecorationPackedType:
 		dec.extended.packed_type = value;
 		break;
+
+	case SPIRVCrossDecorationInterfaceMemberIndex:
+		dec.extended.ib_member_index = value;
+		break;
+
+	case SPIRVCrossDecorationInterfaceOrigID:
+		dec.extended.ib_orig_id = value;
+		break;
 	}
 }
 
@@ -1201,6 +1223,14 @@ void Compiler::set_extended_member_decoration(uint32_t type, uint32_t index, Ext
 	case SPIRVCrossDecorationPackedType:
 		dec.extended.packed_type = value;
 		break;
+
+	case SPIRVCrossDecorationInterfaceMemberIndex:
+		dec.extended.ib_member_index = value;
+		break;
+
+	case SPIRVCrossDecorationInterfaceOrigID:
+		dec.extended.ib_orig_id = value;
+		break;
 	}
 }
 
@@ -1218,6 +1248,12 @@ uint32_t Compiler::get_extended_decoration(uint32_t id, ExtendedDecorations deco
 
 	case SPIRVCrossDecorationPackedType:
 		return dec.extended.packed_type;
+
+	case SPIRVCrossDecorationInterfaceMemberIndex:
+		return dec.extended.ib_member_index;
+
+	case SPIRVCrossDecorationInterfaceOrigID:
+		return dec.extended.ib_orig_id;
 	}
 
 	return 0;
@@ -1240,6 +1276,12 @@ uint32_t Compiler::get_extended_member_decoration(uint32_t type, uint32_t index,
 
 	case SPIRVCrossDecorationPackedType:
 		return dec.extended.packed_type;
+
+	case SPIRVCrossDecorationInterfaceMemberIndex:
+		return dec.extended.ib_member_index;
+
+	case SPIRVCrossDecorationInterfaceOrigID:
+		return dec.extended.ib_orig_id;
 	}
 
 	return 0;
@@ -1259,6 +1301,12 @@ bool Compiler::has_extended_decoration(uint32_t id, ExtendedDecorations decorati
 
 	case SPIRVCrossDecorationPackedType:
 		return dec.extended.packed_type != 0;
+
+	case SPIRVCrossDecorationInterfaceMemberIndex:
+		return dec.extended.ib_member_index != uint32_t(-1);
+
+	case SPIRVCrossDecorationInterfaceOrigID:
+		return dec.extended.ib_orig_id != 0;
 	}
 
 	return false;
@@ -1281,6 +1329,12 @@ bool Compiler::has_extended_member_decoration(uint32_t type, uint32_t index, Ext
 
 	case SPIRVCrossDecorationPackedType:
 		return dec.extended.packed_type != 0;
+
+	case SPIRVCrossDecorationInterfaceMemberIndex:
+		return dec.extended.ib_member_index != uint32_t(-1);
+
+	case SPIRVCrossDecorationInterfaceOrigID:
+		return dec.extended.ib_orig_id != 0;
 	}
 
 	return false;
@@ -1298,6 +1352,14 @@ void Compiler::unset_extended_decoration(uint32_t id, ExtendedDecorations decora
 	case SPIRVCrossDecorationPackedType:
 		dec.extended.packed_type = 0;
 		break;
+
+	case SPIRVCrossDecorationInterfaceMemberIndex:
+		dec.extended.ib_member_index = -1;
+		break;
+
+	case SPIRVCrossDecorationInterfaceOrigID:
+		dec.extended.ib_orig_id = 0;
+		break;
 	}
 }
 
@@ -1314,6 +1376,14 @@ void Compiler::unset_extended_member_decoration(uint32_t type, uint32_t index, E
 
 	case SPIRVCrossDecorationPackedType:
 		dec.extended.packed_type = 0;
+		break;
+
+	case SPIRVCrossDecorationInterfaceMemberIndex:
+		dec.extended.ib_member_index = -1;
+		break;
+
+	case SPIRVCrossDecorationInterfaceOrigID:
+		dec.extended.ib_orig_id = 0;
 		break;
 	}
 }
@@ -1943,6 +2013,16 @@ ExecutionModel Compiler::get_execution_model() const
 {
 	auto &execution = get_entry_point();
 	return execution.model;
+}
+
+bool Compiler::is_tessellation_shader(ExecutionModel model)
+{
+	return model == ExecutionModelTessellationControl || model == ExecutionModelTessellationEvaluation;
+}
+
+bool Compiler::is_tessellation_shader() const
+{
+	return is_tessellation_shader(get_execution_model());
 }
 
 void Compiler::set_remapped_variable_state(uint32_t id, bool remap_enable)
@@ -2971,7 +3051,7 @@ bool Compiler::AnalyzeVariableScopeAccessHandler::handle(spv::Op op, const uint3
 	}
 
 	case OpArrayLength:
-		// Uses literals, but cannot be a phi variable, so ignore.
+		// Uses literals, but cannot be a phi variable or temporary, so ignore.
 		break;
 
 		// Atomics shouldn't be able to access function-local variables.
@@ -2988,6 +3068,55 @@ bool Compiler::AnalyzeVariableScopeAccessHandler::handle(spv::Op op, const uint3
 		// Specialize for opcode which contains literals.
 		for (uint32_t i = 1; i < 3; i++)
 			notify_variable_access(args[i], current_block->self);
+		break;
+
+	case OpImageWrite:
+		for (uint32_t i = 0; i < length; i++)
+		{
+			// Argument 3 is a literal.
+			if (i != 3)
+				notify_variable_access(args[i], current_block->self);
+		}
+		break;
+
+	case OpImageSampleImplicitLod:
+	case OpImageSampleExplicitLod:
+	case OpImageSparseSampleImplicitLod:
+	case OpImageSparseSampleExplicitLod:
+	case OpImageSampleProjImplicitLod:
+	case OpImageSampleProjExplicitLod:
+	case OpImageSparseSampleProjImplicitLod:
+	case OpImageSparseSampleProjExplicitLod:
+	case OpImageFetch:
+	case OpImageSparseFetch:
+	case OpImageRead:
+	case OpImageSparseRead:
+		for (uint32_t i = 1; i < length; i++)
+		{
+			// Argument 4 is a literal.
+			if (i != 4)
+				notify_variable_access(args[i], current_block->self);
+		}
+		break;
+
+	case OpImageSampleDrefImplicitLod:
+	case OpImageSampleDrefExplicitLod:
+	case OpImageSparseSampleDrefImplicitLod:
+	case OpImageSparseSampleDrefExplicitLod:
+	case OpImageSampleProjDrefImplicitLod:
+	case OpImageSampleProjDrefExplicitLod:
+	case OpImageSparseSampleProjDrefImplicitLod:
+	case OpImageSparseSampleProjDrefExplicitLod:
+	case OpImageGather:
+	case OpImageSparseGather:
+	case OpImageDrefGather:
+	case OpImageSparseDrefGather:
+		for (uint32_t i = 1; i < length; i++)
+		{
+			// Argument 5 is a literal.
+			if (i != 5)
+				notify_variable_access(args[i], current_block->self);
+		}
 		break;
 
 	default:
@@ -3054,7 +3183,8 @@ bool Compiler::StaticExpressionAccessHandler::handle(spv::Op op, const uint32_t 
 	return true;
 }
 
-void Compiler::find_function_local_luts(SPIRFunction &entry, const AnalyzeVariableScopeAccessHandler &handler)
+void Compiler::find_function_local_luts(SPIRFunction &entry, const AnalyzeVariableScopeAccessHandler &handler,
+                                        bool single_function)
 {
 	auto &cfg = *function_cfgs.find(entry.self)->second;
 
@@ -3066,7 +3196,10 @@ void Compiler::find_function_local_luts(SPIRFunction &entry, const AnalyzeVariab
 		auto &type = expression_type(accessed_var.first);
 
 		// Only consider function local variables here.
-		if (var.storage != StorageClassFunction)
+		// If we only have a single function in our CFG, private storage is also fine,
+		// since it behaves like a function local variable.
+		bool allow_lut = var.storage == StorageClassFunction || (single_function && var.storage == StorageClassPrivate);
+		if (!allow_lut)
 			continue;
 
 		// We cannot be a phi variable.
@@ -3223,6 +3356,11 @@ void Compiler::analyze_variable_scope(SPIRFunction &entry, AnalyzeVariableScopeA
 			// This should probably be an assert.
 			continue;
 		}
+
+		// There is no point in doing domination analysis for opaque types.
+		auto &type = get<SPIRType>(itr->second);
+		if (type_is_opaque_value(type))
+			continue;
 
 		DominatorBuilder builder(cfg);
 		bool force_temporary = false;
@@ -3523,7 +3661,7 @@ bool Compiler::ActiveBuiltinHandler::handle(spv::Op opcode, const uint32_t *args
 		auto *type = &compiler.get_variable_data_type(*var);
 
 		auto &flags =
-		    type->storage == StorageClassInput ? compiler.active_input_builtins : compiler.active_output_builtins;
+		    var->storage == StorageClassInput ? compiler.active_input_builtins : compiler.active_output_builtins;
 
 		uint32_t count = length - 3;
 		args += 3;
@@ -3651,13 +3789,14 @@ void Compiler::build_function_control_flow_graphs_and_analyze()
 	handler.function_cfgs[ir.default_entry_point].reset(new CFG(*this, get<SPIRFunction>(ir.default_entry_point)));
 	traverse_all_reachable_opcodes(get<SPIRFunction>(ir.default_entry_point), handler);
 	function_cfgs = move(handler.function_cfgs);
+	bool single_function = function_cfgs.size() <= 1;
 
 	for (auto &f : function_cfgs)
 	{
 		auto &func = get<SPIRFunction>(f.first);
 		AnalyzeVariableScopeAccessHandler scope_handler(*this, func);
 		analyze_variable_scope(func, scope_handler);
-		find_function_local_luts(func, scope_handler);
+		find_function_local_luts(func, scope_handler, single_function);
 
 		// Check if we can actually use the loop variables we found in analyze_variable_scope.
 		// To use multiple initializers, we need the same type and qualifiers.
@@ -3909,7 +4048,7 @@ bool Compiler::instruction_to_result_type(uint32_t &result_type, uint32_t &resul
 		return false;
 
 	default:
-		if (length > 1)
+		if (length > 1 && maybe_get<SPIRType>(args[0]) != nullptr)
 		{
 			result_type = args[0];
 			result_id = args[1];
@@ -3977,4 +4116,10 @@ bool Compiler::is_desktop_only_format(spv::ImageFormat format)
 bool Compiler::image_is_comparison(const spirv_cross::SPIRType &type, uint32_t id) const
 {
 	return type.image.depth || (comparison_ids.count(id) != 0);
+}
+
+bool Compiler::type_is_opaque_value(const spirv_cross::SPIRType &type) const
+{
+	return !type.pointer && (type.basetype == SPIRType::SampledImage || type.basetype == SPIRType::Image ||
+	                         type.basetype == SPIRType::Sampler);
 }

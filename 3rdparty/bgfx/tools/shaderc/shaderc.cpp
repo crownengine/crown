@@ -1135,7 +1135,9 @@ namespace bgfx
 				||  0 == bx::strCmp(typen, "noperspective", 13)
 				||  0 == bx::strCmp(typen, "centroid", 8) )
 				{
-					if ('f' == _options.shaderType)
+					if ('f' == _options.shaderType
+					||    0 != glsl
+					||    0 != essl)
 					{
 						interpolation = typen;
 						usesInterpolationQualifiers = true;
@@ -1941,7 +1943,10 @@ namespace bgfx
 						if (0 != glsl
 						||  0 != essl)
 						{
-							if (!bx::strFind(preprocessor.m_preprocessed.c_str(), "layout(std430").isEmpty() )
+							const bx::StringView preprocessedInput(preprocessor.m_preprocessed.c_str() );
+
+							if (!bx::strFind(preprocessedInput, "layout(std430").isEmpty()
+							||  !bx::strFind(preprocessedInput, "image2D").isEmpty() )
 							{
 								glsl = 430;
 							}

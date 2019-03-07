@@ -222,6 +222,132 @@ TEST(Optimizer, CanRegisterPassesFromFlags) {
   EXPECT_EQ(msg_level, SPV_MSG_ERROR);
 }
 
+TEST(Optimizer, WebGPUModeSetsCorrectPasses) {
+  Optimizer opt(SPV_ENV_WEBGPU_0);
+  opt.RegisterWebGPUPasses();
+  std::vector<const char*> pass_names = opt.GetPassNames();
+
+  std::vector<std::string> registered_passes;
+  for (auto name = pass_names.begin(); name != pass_names.end(); ++name)
+    registered_passes.push_back(*name);
+
+  std::vector<std::string> expected_passes = {
+      "eliminate-dead-branches", "eliminate-dead-code-aggressive",
+      "flatten-decorations", "strip-debug"};
+  std::sort(registered_passes.begin(), registered_passes.end());
+  std::sort(expected_passes.begin(), expected_passes.end());
+
+  ASSERT_EQ(registered_passes.size(), expected_passes.size());
+  for (size_t i = 0; i < registered_passes.size(); i++)
+    EXPECT_EQ(registered_passes[i], expected_passes[i]);
+}
+
+struct WebGPUPassCase {
+  // Input SPIR-V
+  std::string input;
+  // Expected result SPIR-V
+  std::string expected;
+  // Specific pass under test, used for logging messages.
+  std::string pass;
+};
+
+using WebGPUPassTest = PassTest<::testing::TestWithParam<WebGPUPassCase>>;
+
+TEST_P(WebGPUPassTest, Ran) {
+  SpirvTools tools(SPV_ENV_WEBGPU_0);
+  std::vector<uint32_t> binary;
+  tools.Assemble(GetParam().input, &binary);
+
+  Optimizer opt(SPV_ENV_WEBGPU_0);
+  opt.RegisterWebGPUPasses();
+
+  std::vector<uint32_t> optimized;
+  class ValidatorOptions validator_options;
+  ASSERT_TRUE(opt.Run(binary.data(), binary.size(), &optimized,
+                      validator_options, true));
+
+  std::string disassembly;
+  tools.Disassemble(optimized.data(), optimized.size(), &disassembly);
+
+  EXPECT_EQ(GetParam().expected, disassembly)
+      << "Was expecting pass '" << GetParam().pass << "' to have been run.\n";
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    WebGPU, WebGPUPassTest,
+    ::testing::ValuesIn(std::vector<WebGPUPassCase>{
+        // FlattenDecorations
+        {// input
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Fragment %main \"main\" %hue %saturation %value\n"
+         "OpExecutionMode %main OriginUpperLeft\n"
+         "OpDecorate %group Flat\n"
+         "OpDecorate %group NoPerspective\n"
+         "%group = OpDecorationGroup\n"
+         "%void = OpTypeVoid\n"
+         "%void_fn = OpTypeFunction %void\n"
+         "%float = OpTypeFloat 32\n"
+         "%_ptr_Input_float = OpTypePointer Input %float\n"
+         "%hue = OpVariable %_ptr_Input_float Input\n"
+         "%saturation = OpVariable %_ptr_Input_float Input\n"
+         "%value = OpVariable %_ptr_Input_float Input\n"
+         "%main = OpFunction %void None %void_fn\n"
+         "%entry = OpLabel\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // expected
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Fragment %1 \"main\" %2 %3 %4\n"
+         "OpExecutionMode %1 OriginUpperLeft\n"
+         "%void = OpTypeVoid\n"
+         "%7 = OpTypeFunction %void\n"
+         "%float = OpTypeFloat 32\n"
+         "%_ptr_Input_float = OpTypePointer Input %float\n"
+         "%2 = OpVariable %_ptr_Input_float Input\n"
+         "%3 = OpVariable %_ptr_Input_float Input\n"
+         "%4 = OpVariable %_ptr_Input_float Input\n"
+         "%1 = OpFunction %void None %7\n"
+         "%10 = OpLabel\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // pass
+         "flatten-decorations"},
+        // Strip Debug
+        {// input
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %func \"shader\"\n"
+         "OpName %main \"main\"\n"
+         "OpName %void_fn \"void_fn\"\n"
+         "%void = OpTypeVoid\n"
+         "%void_f = OpTypeFunction %void\n"
+         "%func = OpFunction %void None %void_f\n"
+         "%label = OpLabel\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // expected
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %1 \"shader\"\n"
+         "%void = OpTypeVoid\n"
+         "%5 = OpTypeFunction %void\n"
+         "%1 = OpFunction %void None %5\n"
+         "%6 = OpLabel\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // pass
+         "strip-debug"}}));
+
 }  // namespace
 }  // namespace opt
 }  // namespace spvtools

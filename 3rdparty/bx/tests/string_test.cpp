@@ -91,6 +91,10 @@ TEST_CASE("strCat", "")
 
 TEST_CASE("strCmp", "")
 {
+	REQUIRE(0  < bx::strCmp("abvgd", "abv") );
+	REQUIRE(0  < bx::strCmp("abvgd", "") );
+	REQUIRE(0  > bx::strCmp("", "abvgd") );
+	REQUIRE(0 != bx::strCmp(".tar.gz", ".") );
 	REQUIRE(0 != bx::strCmp("meh", "meh/") );
 }
 

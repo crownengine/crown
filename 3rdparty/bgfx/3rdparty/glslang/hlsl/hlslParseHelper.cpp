@@ -3255,8 +3255,8 @@ void HlslParseContext::decomposeStructBufferMethods(const TSourceLoc& loc, TInte
     if (argAggregate) {
         if (argAggregate->getSequence().empty())
             return;
-		if (argAggregate->getSequence()[0])
-	        bufferObj = argAggregate->getSequence()[0]->getAsTyped();
+        if (argAggregate->getSequence()[0])
+            bufferObj = argAggregate->getSequence()[0]->getAsTyped();
     } else {
         bufferObj = arguments->getAsSymbolNode();
     }
@@ -3756,7 +3756,7 @@ void HlslParseContext::decomposeSampleMethods(const TSourceLoc& loc, TIntermType
                 return;
         } else {
             if (argAggregate->getSequence().size() == 0 || 
-				argAggregate->getSequence()[0] == nullptr ||
+                argAggregate->getSequence()[0] == nullptr ||
                 argAggregate->getSequence()[0]->getAsTyped()->getBasicType() != EbtSampler)
                 return;
         }
@@ -4607,7 +4607,7 @@ void HlslParseContext::decomposeIntrinsic(const TSourceLoc& loc, TIntermTyped*& 
         if (nullptr == symbol) {
             type.getQualifier().builtIn = builtin;
 
-            TVariable* variable = new TVariable(new TString(name), type);
+            TVariable* variable = new TVariable(NewPoolTString(name), type);
 
             symbolTable.insert(*variable);
 
@@ -8695,12 +8695,25 @@ void HlslParseContext::fixXfbOffsets(TQualifier& qualifier, TTypeList& typeList)
     for (unsigned int member = 0; member < typeList.size(); ++member) {
         TQualifier& memberQualifier = typeList[member].type->getQualifier();
         bool contains64BitType = false;
+#ifdef AMD_EXTENSIONS
+        bool contains32BitType = false;
+        bool contains16BitType = false;
+        int memberSize = intermediate.computeTypeXfbSize(*typeList[member].type, contains64BitType, contains32BitType, contains16BitType);
+#else
         int memberSize = intermediate.computeTypeXfbSize(*typeList[member].type, contains64BitType);
+#endif
         // see if we need to auto-assign an offset to this member
         if (! memberQualifier.hasXfbOffset()) {
             // "if applied to an aggregate containing a double or 64-bit integer, the offset must also be a multiple of 8"
             if (contains64BitType)
                 RoundToPow2(nextOffset, 8);
+#ifdef AMD_EXTENSIONS
+            else if (contains32BitType)
+                RoundToPow2(nextOffset, 4);
+            // "if applied to an aggregate containing a half float or 16-bit integer, the offset must also be a multiple of 2"
+            else if (contains16BitType)
+                RoundToPow2(nextOffset, 2);
+#endif
             memberQualifier.layoutXfbOffset = nextOffset;
         } else
             nextOffset = memberQualifier.layoutXfbOffset;

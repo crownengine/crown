@@ -237,6 +237,29 @@ spv_result_t ValidateTypeStruct(ValidationState_t& _, const Instruction* inst) {
     }
   }
 
+  bool has_nested_blockOrBufferBlock_struct = false;
+  // Struct members start at word 2 of OpTypeStruct instruction.
+  for (size_t word_i = 2; word_i < inst->words().size(); ++word_i) {
+    auto member = inst->word(word_i);
+    auto memberTypeInstr = _.FindDef(member);
+    if (memberTypeInstr && SpvOpTypeStruct == memberTypeInstr->opcode()) {
+      if (_.HasDecoration(memberTypeInstr->id(), SpvDecorationBlock) ||
+          _.HasDecoration(memberTypeInstr->id(), SpvDecorationBufferBlock) ||
+          _.GetHasNestedBlockOrBufferBlockStruct(memberTypeInstr->id()))
+        has_nested_blockOrBufferBlock_struct = true;
+    }
+  }
+
+  _.SetHasNestedBlockOrBufferBlockStruct(inst->id(),
+                                         has_nested_blockOrBufferBlock_struct);
+  if (_.GetHasNestedBlockOrBufferBlockStruct(inst->id()) &&
+      (_.HasDecoration(inst->id(), SpvDecorationBufferBlock) ||
+       _.HasDecoration(inst->id(), SpvDecorationBlock))) {
+    return _.diag(SPV_ERROR_INVALID_ID, inst)
+           << "rules: A Block or BufferBlock cannot be nested within another "
+              "Block or BufferBlock. ";
+  }
+
   std::unordered_set<uint32_t> built_in_members;
   for (auto decoration : _.id_decorations(struct_id)) {
     if (decoration.dec_type() == SpvDecorationBuiltIn &&
@@ -262,17 +285,23 @@ spv_result_t ValidateTypeStruct(ValidationState_t& _, const Instruction* inst) {
 
 spv_result_t ValidateTypePointer(ValidationState_t& _,
                                  const Instruction* inst) {
-  const auto type_id = inst->GetOperandAs<uint32_t>(2);
-  const auto type = _.FindDef(type_id);
+  auto type_id = inst->GetOperandAs<uint32_t>(2);
+  auto type = _.FindDef(type_id);
   if (!type || !spvOpcodeGeneratesType(type->opcode())) {
     return _.diag(SPV_ERROR_INVALID_ID, inst)
            << "OpTypePointer Type <id> '" << _.getIdName(type_id)
            << "' is not a type.";
   }
   // See if this points to a storage image.
-  if (type->opcode() == SpvOpTypeImage) {
-    const auto storage_class = inst->GetOperandAs<uint32_t>(1);
-    if (storage_class == SpvStorageClassUniformConstant) {
+  const auto storage_class = inst->GetOperandAs<SpvStorageClass>(1);
+  if (storage_class == SpvStorageClassUniformConstant) {
+    // Unpack an optional level of arraying.
+    if (type->opcode() == SpvOpTypeArray ||
+        type->opcode() == SpvOpTypeRuntimeArray) {
+      type_id = type->GetOperandAs<uint32_t>(1);
+      type = _.FindDef(type_id);
+    }
+    if (type->opcode() == SpvOpTypeImage) {
       const auto sampled = type->GetOperandAs<uint32_t>(6);
       // 2 indicates this image is known to be be used without a sampler, i.e.
       // a storage image.
@@ -318,10 +347,12 @@ spv_result_t ValidateTypeFunction(ValidationState_t& _,
            << num_args << " arguments.";
   }
 
-  // The only valid uses of OpTypeFunction are in an OpFunction instruction.
+  // The only valid uses of OpTypeFunction are in an OpFunction, debugging, or
+  // decoration instruction.
   for (auto& pair : inst->uses()) {
     const auto* use = pair.first;
-    if (use->opcode() != SpvOpFunction) {
+    if (use->opcode() != SpvOpFunction && !spvOpcodeIsDebug(use->opcode()) &&
+        !spvOpcodeIsDecoration(use->opcode())) {
       return _.diag(SPV_ERROR_INVALID_ID, use)
              << "Invalid use of function type result id "
              << _.getIdName(inst->id()) << ".";
@@ -345,6 +376,53 @@ spv_result_t ValidateTypeForwardPointer(ValidationState_t& _,
     return _.diag(SPV_ERROR_INVALID_ID, inst)
            << "Storage class in OpTypeForwardPointer does not match the "
            << "pointer definition.";
+  }
+
+  return SPV_SUCCESS;
+}
+
+spv_result_t ValidateTypeCooperativeMatrixNV(ValidationState_t& _,
+                                             const Instruction* inst) {
+  const auto component_type_index = 1;
+  const auto component_type_id =
+      inst->GetOperandAs<uint32_t>(component_type_index);
+  const auto component_type = _.FindDef(component_type_id);
+  if (!component_type || (SpvOpTypeFloat != component_type->opcode() &&
+                          SpvOpTypeInt != component_type->opcode())) {
+    return _.diag(SPV_ERROR_INVALID_ID, inst)
+           << "OpTypeCooperativeMatrixNV Component Type <id> '"
+           << _.getIdName(component_type_id)
+           << "' is not a scalar numerical type.";
+  }
+
+  const auto scope_index = 2;
+  const auto scope_id = inst->GetOperandAs<uint32_t>(scope_index);
+  const auto scope = _.FindDef(scope_id);
+  if (!scope || !_.IsIntScalarType(scope->type_id()) ||
+      !spvOpcodeIsConstant(scope->opcode())) {
+    return _.diag(SPV_ERROR_INVALID_ID, inst)
+           << "OpTypeCooperativeMatrixNV Scope <id> '" << _.getIdName(scope_id)
+           << "' is not a constant instruction with scalar integer type.";
+  }
+
+  const auto rows_index = 3;
+  const auto rows_id = inst->GetOperandAs<uint32_t>(rows_index);
+  const auto rows = _.FindDef(rows_id);
+  if (!rows || !_.IsIntScalarType(rows->type_id()) ||
+      !spvOpcodeIsConstant(rows->opcode())) {
+    return _.diag(SPV_ERROR_INVALID_ID, inst)
+           << "OpTypeCooperativeMatrixNV Rows <id> '" << _.getIdName(rows_id)
+           << "' is not a constant instruction with scalar integer type.";
+  }
+
+  const auto cols_index = 4;
+  const auto cols_id = inst->GetOperandAs<uint32_t>(cols_index);
+  const auto cols = _.FindDef(cols_id);
+  if (!cols || !_.IsIntScalarType(cols->type_id()) ||
+      !spvOpcodeIsConstant(cols->opcode())) {
+    return _.diag(SPV_ERROR_INVALID_ID, inst)
+           << "OpTypeCooperativeMatrixNV Cols <id> '" << _.getIdName(rows_id)
+           << "' is not a constant instruction with scalar integer type.";
   }
 
   return SPV_SUCCESS;
@@ -384,6 +462,9 @@ spv_result_t TypePass(ValidationState_t& _, const Instruction* inst) {
       break;
     case SpvOpTypeForwardPointer:
       if (auto error = ValidateTypeForwardPointer(_, inst)) return error;
+      break;
+    case SpvOpTypeCooperativeMatrixNV:
+      if (auto error = ValidateTypeCooperativeMatrixNV(_, inst)) return error;
       break;
     default:
       break;

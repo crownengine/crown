@@ -1327,21 +1327,24 @@ void CompilerHLSL::emit_resources()
 		auto &var = get<SPIRVariable>(global);
 		if (var.storage != StorageClassOutput)
 		{
-			add_resource_name(var.self);
-
-			const char *storage = nullptr;
-			switch (var.storage)
+			if (!variable_is_lut(var))
 			{
-			case StorageClassWorkgroup:
-				storage = "groupshared";
-				break;
+				add_resource_name(var.self);
 
-			default:
-				storage = "static";
-				break;
+				const char *storage = nullptr;
+				switch (var.storage)
+				{
+				case StorageClassWorkgroup:
+					storage = "groupshared";
+					break;
+
+				default:
+					storage = "static";
+					break;
+				}
+				statement(storage, " ", variable_decl(var), ";");
+				emitted = true;
 			}
-			statement(storage, " ", variable_decl(var), ";");
-			emitted = true;
 		}
 	}
 
@@ -1835,6 +1838,10 @@ void CompilerHLSL::emit_buffer_block(const SPIRVariable &var)
 			declared_block_names[var.self] = buffer_name;
 
 			type.member_name_cache.clear();
+			// var.self can be used as a backup name for the block name,
+			// so we need to make sure we don't disturb the name here on a recompile.
+			// It will need to be reset if we have to recompile.
+			preserve_alias_on_reset(var.self);
 			add_resource_name(var.self);
 			statement("cbuffer ", buffer_name, to_resource_binding(var));
 			begin_scope();
@@ -4611,7 +4618,6 @@ string CompilerHLSL::compile()
 	options.vulkan_semantics = true;
 	backend.float_literal_suffix = true;
 	backend.double_literal_suffix = false;
-	backend.half_literal_suffix = nullptr;
 	backend.long_long_literal_suffix = true;
 	backend.uint32_t_literal_suffix = true;
 	backend.int16_t_literal_suffix = nullptr;

@@ -286,6 +286,8 @@ INSTANTIATE_TEST_CASE_P(
         "spv.constStruct.vert",
         "spv.controlFlowAttributes.frag",
         "spv.conversion.frag",
+        "spv.coopmat.comp",
+        "spv.coopmat_Error.comp",
         "spv.dataOut.frag",
         "spv.dataOutIndirect.frag",
         "spv.dataOutIndirect.vert",
@@ -410,6 +412,7 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(std::vector<std::string>({
         "spv.1.3.8bitstorage-ubo.vert",
         "spv.1.3.8bitstorage-ssbo.vert",
+        "spv.1.3.coopmat.comp",
         "spv.deviceGroup.frag",
         "spv.drawParams.vert",
         "spv.int8.frag",
@@ -528,6 +531,7 @@ INSTANTIATE_TEST_CASE_P(
 INSTANTIATE_TEST_CASE_P(
     Glsl, CompileVulkanToSpirvTestAMD,
     ::testing::ValuesIn(std::vector<std::string>({
+        "spv.16bitxfb.vert",
         "spv.float16.frag",
         "spv.float16Fetch.frag",
         "spv.imageLoadStoreLod.frag",

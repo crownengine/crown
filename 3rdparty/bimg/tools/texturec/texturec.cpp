@@ -919,7 +919,7 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "    *.png (input, output)  Portable Network Graphics.\n"
 		  "    *.psd (input)          Photoshop Document.\n"
 		  "    *.pvr (input)          PowerVR.\n"
-		  "    *.tga (input)          Targa.\n"
+		  "    *.tga (input)          Truevision TGA.\n"
 
 		  "\n"
 		  "Options:\n"

@@ -79,9 +79,13 @@ namespace bx
 		///
 		void join(const StringView& _str);
 
-		/// Returns C string to file path.
+		/// Implicitly converts FilePath to StringView.
 		///
-		const char* get() const;
+		operator StringView() const;
+
+		/// Returns zero-terminated C string pointer to file path.
+		///
+		const char* getCPtr() const;
 
 		/// If path is `/abv/gd/555/333/pod.mac` returns `/abv/gd/555/333/`.
 		///
@@ -110,22 +114,6 @@ namespace bx
 	private:
 		char m_filePath[kMaxFilePath];
 	};
-
-	/// Creates a directory named `_filePath`.
-	///
-	bool make(const FilePath& _filePath, Error* _err = NULL);
-
-	/// Creates a directory named `_filePath` along with all necessary parents.
-	///
-	bool makeAll(const FilePath& _filePath, Error* _err = NULL);
-
-	/// Removes file or directory.
-	///
-	bool remove(const FilePath& _filePath, Error* _err = NULL);
-
-	/// Removes file or directory recursivelly.
-	///
-	bool removeAll(const FilePath& _filePath, Error* _err = NULL);
 
 } // namespace bx
 

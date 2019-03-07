@@ -277,7 +277,8 @@ namespace bx
 	inline BX_CONSTEXPR_FUNC bool equal(float _a, float _b, float _epsilon)
 	{
 		// Reference(s):
-		// - https://web.archive.org/web/20181103180318/http://realtimecollisiondetection.net/blog/?p=89
+		// - Floating-point tolerances revisited
+		//   https://web.archive.org/web/20181103180318/http://realtimecollisiondetection.net/blog/?p=89
 		//
 		const float lhs = abs(_a - _b);
 		const float rhs = _epsilon * max(1.0f, abs(_a), abs(_b) );
@@ -497,6 +498,17 @@ namespace bx
 	inline BX_CONST_FUNC float length(const Vec3 _a)
 	{
 		return sqrt(dot(_a, _a) );
+	}
+
+	inline BX_CONST_FUNC float distanceSq(const Vec3 _a, const Vec3 _b)
+	{
+		const Vec3 ba = sub(_b, _a);
+		return dot(ba, ba);
+	}
+
+	inline BX_CONST_FUNC float distance(const Vec3 _a, const Vec3 _b)
+	{
+		return length(sub(_b, _a) );
 	}
 
 	inline BX_CONSTEXPR_FUNC Vec3 lerp(const Vec3 _a, const Vec3 _b, float _t)

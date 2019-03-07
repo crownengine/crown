@@ -48,7 +48,7 @@ namespace bx
 		}
 
 		char tmp[kMaxFilePath*2] = "\"";
-		strCat(tmp, BX_COUNTOF(tmp), _filePath.get() );
+		strCat(tmp, BX_COUNTOF(tmp), _filePath);
 		strCat(tmp, BX_COUNTOF(tmp), "\" ");
 		strCat(tmp, BX_COUNTOF(tmp), _args);
 
@@ -119,7 +119,7 @@ namespace bx
 		}
 
 		char tmp[kMaxFilePath*2] = "\"";
-		strCat(tmp, BX_COUNTOF(tmp), _filePath.get() );
+		strCat(tmp, BX_COUNTOF(tmp), _filePath);
 		strCat(tmp, BX_COUNTOF(tmp), "\" ");
 		strCat(tmp, BX_COUNTOF(tmp), _args);
 

@@ -358,6 +358,9 @@ protected:
 	std::unordered_set<std::string> block_ssbo_names;
 	std::unordered_set<std::string> block_names; // A union of all block_*_names.
 	std::unordered_map<std::string, std::unordered_set<uint64_t>> function_overloads;
+	std::unordered_map<uint32_t, std::string> preserved_aliases;
+	void preserve_alias_on_reset(uint32_t id);
+	void reset_name_caches();
 
 	bool processing_entry_point = false;
 
@@ -377,7 +380,6 @@ protected:
 		const char *basic_uint8_type = "uint8_t";
 		const char *basic_int16_type = "int16_t";
 		const char *basic_uint16_type = "uint16_t";
-		const char *half_literal_suffix = "hf";
 		const char *int16_t_literal_suffix = "s";
 		const char *uint16_t_literal_suffix = "us";
 		bool swizzle_is_function = false;
@@ -399,6 +401,7 @@ protected:
 		bool supports_extensions = false;
 		bool supports_empty_struct = false;
 		bool array_is_value_type = true;
+		bool comparison_image_samples_scalar = false;
 	} backend;
 
 	void emit_struct(SPIRType &type);
@@ -638,15 +641,12 @@ protected:
 
 	uint32_t get_integer_width_for_instruction(const Instruction &instr) const;
 
+	bool variable_is_lut(const SPIRVariable &var) const;
+
+	char current_locale_radix_character = '.';
+
 private:
-	void init()
-	{
-		if (ir.source.known)
-		{
-			options.es = ir.source.es;
-			options.version = ir.source.version;
-		}
-	}
+	void init();
 };
 } // namespace spirv_cross
 

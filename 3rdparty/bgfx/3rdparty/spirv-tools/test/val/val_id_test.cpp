@@ -2178,6 +2178,47 @@ OpFunctionEnd
   EXPECT_EQ(SPV_SUCCESS, ValidateInstructions());
 }
 
+TEST_F(ValidateIdWithMessage, OpFunctionWithNonMemoryObject) {
+  // DXC generates code that looks like when given something like:
+  //   T t;
+  //   t.s.fn_1();
+  // This needs to be accepted before legalization takes place, so we
+  // will include it with the relaxed logical pointer.
+
+  const std::string spirv = R"(
+               OpCapability Shader
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %1 "main"
+               OpSource HLSL 600
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+       %void = OpTypeVoid
+          %9 = OpTypeFunction %void
+  %_struct_5 = OpTypeStruct
+  %_struct_6 = OpTypeStruct %_struct_5
+%_ptr_Function__struct_6 = OpTypePointer Function %_struct_6
+%_ptr_Function__struct_5 = OpTypePointer Function %_struct_5
+         %23 = OpTypeFunction %void %_ptr_Function__struct_5
+          %1 = OpFunction %void None %9
+         %10 = OpLabel
+         %11 = OpVariable %_ptr_Function__struct_6 Function
+         %20 = OpAccessChain %_ptr_Function__struct_5 %11 %int_0
+         %21 = OpFunctionCall %void %12 %20
+               OpReturn
+               OpFunctionEnd
+         %12 = OpFunction %void None %23
+         %13 = OpFunctionParameter %_ptr_Function__struct_5
+         %14 = OpLabel
+               OpReturn
+               OpFunctionEnd
+)";
+
+  auto options = getValidatorOptions();
+  options->relax_logical_pointer = true;
+  CompileSuccessfully(spirv);
+  EXPECT_EQ(SPV_SUCCESS, ValidateInstructions());
+}
+
 TEST_F(ValidateIdWithMessage,
        OpVariablePointerVariablePointersStorageBufferGood) {
   const std::string spirv = R"(
@@ -2274,6 +2315,7 @@ void createVariablePointerSpirvProgram(std::ostringstream* spirv,
     *spirv << "OpCapability VariablePointers ";
     *spirv << "OpExtension \"SPV_KHR_variable_pointers\" ";
   }
+  *spirv << "OpExtension \"SPV_KHR_storage_buffer_storage_class\" ";
   *spirv << R"(
     OpMemoryModel Logical GLSL450
     OpEntryPoint GLCompute %main "main"
@@ -2282,12 +2324,12 @@ void createVariablePointerSpirvProgram(std::ostringstream* spirv,
     %bool      = OpTypeBool
     %i32       = OpTypeInt 32 1
     %f32       = OpTypeFloat 32
-    %f32ptr    = OpTypePointer Uniform %f32
+    %f32ptr    = OpTypePointer StorageBuffer %f32
     %i         = OpConstant %i32 1
     %zero      = OpConstant %i32 0
     %float_1   = OpConstant %f32 1.0
-    %ptr1      = OpVariable %f32ptr Uniform
-    %ptr2      = OpVariable %f32ptr Uniform
+    %ptr1      = OpVariable %f32ptr StorageBuffer
+    %ptr2      = OpVariable %f32ptr StorageBuffer
   )";
   if (add_helper_function) {
     *spirv << R"(

@@ -4,7 +4,7 @@
  */
 
 #include "test.h"
-#include <bx/filepath.h>
+#include <bx/file.h>
 
 struct FilePathTest
 {
@@ -96,9 +96,8 @@ TEST_CASE("FilePath", "")
 		const FilePathTest& test = s_filePathTest[ii];
 
 		fp.set(test.filePath);
-		const bx::StringView result = fp.get();
 
-		REQUIRE(0 == bx::strCmp(test.expected, result) );
+		REQUIRE(0 == bx::strCmp(test.expected, fp) );
 	}
 
 	for (uint32_t ii = 0; ii < BX_COUNTOF(s_filePathSplit); ++ii)

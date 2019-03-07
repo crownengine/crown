@@ -490,9 +490,11 @@ struct CLIArguments
 	bool yflip = false;
 	bool sso = false;
 	bool support_nonzero_baseinstance = true;
+	bool msl_capture_output_to_buffer = false;
 	bool msl_swizzle_texture_samples = false;
 	bool msl_ios = false;
 	bool msl_pad_fragment_output = false;
+	bool msl_domain_lower_left = false;
 	vector<PLSArg> pls_in;
 	vector<PLSArg> pls_out;
 	vector<Remap> remaps;
@@ -545,9 +547,11 @@ static void print_help()
 	                "\t[--cpp-interface-name <name>]\n"
 	                "\t[--msl]\n"
 	                "\t[--msl-version <MMmmpp>]\n"
+	                "\t[--msl-capture-output]\n"
 	                "\t[--msl-swizzle-texture-samples]\n"
 	                "\t[--msl-ios]\n"
 	                "\t[--msl-pad-fragment-output]\n"
+	                "\t[--msl-domain-lower-left]\n"
 	                "\t[--hlsl]\n"
 	                "\t[--reflect]\n"
 	                "\t[--shader-model]\n"
@@ -714,9 +718,11 @@ static int main_inner(int argc, char *argv[])
 	cbs.add("--vulkan-semantics", [&args](CLIParser &) { args.vulkan_semantics = true; });
 	cbs.add("--flatten-multidimensional-arrays", [&args](CLIParser &) { args.flatten_multidimensional_arrays = true; });
 	cbs.add("--no-420pack-extension", [&args](CLIParser &) { args.use_420pack_extension = false; });
+	cbs.add("--msl-capture-output", [&args](CLIParser &) { args.msl_capture_output_to_buffer = true; });
 	cbs.add("--msl-swizzle-texture-samples", [&args](CLIParser &) { args.msl_swizzle_texture_samples = true; });
 	cbs.add("--msl-ios", [&args](CLIParser &) { args.msl_ios = true; });
 	cbs.add("--msl-pad-fragment-output", [&args](CLIParser &) { args.msl_pad_fragment_output = true; });
+	cbs.add("--msl-domain-lower-left", [&args](CLIParser &) { args.msl_domain_lower_left = true; });
 	cbs.add("--extension", [&args](CLIParser &parser) { args.extensions.push_back(parser.next_string()); });
 	cbs.add("--rename-entry-point", [&args](CLIParser &parser) {
 		auto old_name = parser.next_string();
@@ -843,10 +849,12 @@ static int main_inner(int argc, char *argv[])
 		auto msl_opts = msl_comp->get_msl_options();
 		if (args.set_msl_version)
 			msl_opts.msl_version = args.msl_version;
+		msl_opts.capture_output_to_buffer = args.msl_capture_output_to_buffer;
 		msl_opts.swizzle_texture_samples = args.msl_swizzle_texture_samples;
 		if (args.msl_ios)
 			msl_opts.platform = CompilerMSL::Options::iOS;
 		msl_opts.pad_fragment_output_components = args.msl_pad_fragment_output;
+		msl_opts.tess_domain_origin_lower_left = args.msl_domain_lower_left;
 		msl_comp->set_msl_options(msl_opts);
 	}
 	else if (args.hlsl)

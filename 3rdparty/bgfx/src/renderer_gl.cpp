@@ -14,6 +14,14 @@ namespace bgfx { namespace gl
 {
 	static char s_viewName[BGFX_CONFIG_MAX_VIEWS][BGFX_CONFIG_MAX_VIEW_NAME];
 
+	inline void setViewType(ViewId _view, const bx::StringView _str)
+	{
+		if (BX_ENABLED(BGFX_CONFIG_DEBUG_ANNOTATION || BGFX_CONFIG_PROFILER) )
+		{
+			bx::memCopy(&s_viewName[_view][3], _str.getPtr(), _str.getLength() );
+		}
+	}
+
 	struct PrimInfo
 	{
 		GLenum m_type;
@@ -1002,6 +1010,14 @@ namespace bgfx { namespace gl
 	}
 
 	static void GL_APIENTRY stubInsertEventMarker(GLsizei /*_length*/, const char* /*_marker*/)
+	{
+	}
+
+	static void GL_APIENTRY stubPushDebugGroup(GLenum /*_source*/, GLuint /*_id*/, GLsizei /*_length*/, const char* /*_message*/)
+	{
+	}
+
+	static void GL_APIENTRY stubPopDebugGroup()
 	{
 	}
 
@@ -2418,12 +2434,18 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				m_atocSupport = s_extension[Extension::ARB_multisample].m_supported;
 				m_conservativeRasterSupport = s_extension[Extension::NV_conservative_raster].m_supported;
 
+				m_imageLoadStoreSupport = false
+					|| s_extension[Extension::ARB_shader_image_load_store].m_supported
+					|| s_extension[Extension::EXT_shader_image_load_store].m_supported
+					;
+
 				g_caps.supported |= 0
 					| (m_atocSupport               ? BGFX_CAPS_ALPHA_TO_COVERAGE      : 0)
 					| (m_conservativeRasterSupport ? BGFX_CAPS_CONSERVATIVE_RASTER    : 0)
 					| (m_occlusionQuerySupport     ? BGFX_CAPS_OCCLUSION_QUERY        : 0)
 					| (m_depthTextureSupport       ? BGFX_CAPS_TEXTURE_COMPARE_LEQUAL : 0)
 					| (computeSupport              ? BGFX_CAPS_COMPUTE                : 0)
+					| (m_imageLoadStoreSupport     ? BGFX_CAPS_FRAMEBUFFER_RW         : 0)
 					;
 
 				g_caps.supported |= m_glctx.getCaps();
@@ -2503,6 +2525,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 							, GL_TRUE
 							) );
 					}
+				}
+
+				if (NULL == glPushDebugGroup
+				||  NULL == glPopDebugGroup)
+				{
+					glPushDebugGroup = stubPushDebugGroup;
+					glPopDebugGroup  = stubPopDebugGroup;
 				}
 
 				if (s_extension[Extension::ARB_seamless_cube_map].m_supported)
@@ -2775,26 +2804,24 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				const TextureGL& texture = m_textures[_handle.idx];
 				const bool compressed    = bimg::isCompressed(bimg::TextureFormat::Enum(texture.m_textureFormat) );
 
-				if(!compressed)
+				if (!compressed)
 				{
-					Attachment attachment[1];
-					attachment[0].handle = _handle;
-					attachment[0].mip = 0;
-					attachment[0].layer = 0;
+					Attachment at[1];
+					at[0].init(_handle);
 
 					FrameBufferGL frameBuffer;
-					frameBuffer.create(1, attachment);
+					frameBuffer.create(BX_COUNTOF(at), at);
 					GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.m_fbo[0]) );
 					GL_CHECK(glFramebufferTexture2D(
 						  GL_FRAMEBUFFER
 						, GL_COLOR_ATTACHMENT0
 						, GL_TEXTURE_2D
 						, texture.m_id
-						, attachment[0].mip
+						, at[0].mip
 						) );
 
 					if (!BX_ENABLED(BX_PLATFORM_EMSCRIPTEN)
-					&&  !BX_ENABLED(BX_PLATFORM_IOS))
+					&&  !BX_ENABLED(BX_PLATFORM_IOS) )
 					{
 						GL_CHECK(glReadBuffer(GL_COLOR_ATTACHMENT0) );
 					}
@@ -3221,6 +3248,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					m_glctx.makeCurrent(NULL);
 					m_currentFbo = frameBuffer.m_fbo[0];
 				}
+
+				frameBuffer.set();
 			}
 
 			GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_currentFbo) );
@@ -3865,6 +3894,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		bool m_occlusionQuerySupport;
 		bool m_atocSupport;
 		bool m_conservativeRasterSupport;
+		bool m_imageLoadStoreSupport;
 		bool m_flip;
 
 		uint64_t m_hash;
@@ -4769,6 +4799,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			{
 				return;
 			}
+
+			m_numLayers = ti.numLayers;
 
 			target = isCubeMap()
 				? GL_TEXTURE_CUBE_MAP_POSITIVE_X
@@ -5911,7 +5943,7 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 							attachment = GL_DEPTH_ATTACHMENT;
 						}
 					}
-					else
+					else if (Access::Write == at.access)
 					{
 						buffers[colorIdx] = attachment;
 						++colorIdx;
@@ -5943,9 +5975,9 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 								) );
 						}
 					}
-					else if (Access::Write == at.access)
+					else
 					{
-						if (1 < texture.m_depth
+						if (1 < texture.m_numLayers
 						&&  !texture.isCubeMap())
 						{
 							GL_CHECK(glFramebufferTextureLayer(GL_FRAMEBUFFER
@@ -5969,10 +6001,6 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 								, at.mip
 								) );
 						}
-					}
-					else
-					{
-						BX_CHECK(false, "");
 					}
 
 					needResolve |= (0 != texture.m_rbo) && (0 != texture.m_id);
@@ -6171,6 +6199,36 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 		GL_CHECK(glInvalidateFramebuffer(GL_FRAMEBUFFER, idx, buffers) );
 	}
 
+	void FrameBufferGL::set()
+	{
+		for(uint32_t ii = 0; ii < m_numTh; ++ii)
+		{
+			const Attachment& at = m_attachment[ii];
+
+			if (at.access == Access::Write)
+			{
+				continue;
+			}
+
+			if (isValid(at.handle) )
+			{
+				const TextureGL& texture = s_renderGL->m_textures[at.handle.idx];
+
+				if(0 != (texture.m_flags&BGFX_TEXTURE_COMPUTE_WRITE))
+				{
+					GL_CHECK(glBindImageTexture(ii
+						, texture.m_id
+						, at.mip
+						, GL_FALSE //texture.isLayered() ? GL_TRUE : GL_FALSE
+						, at.layer
+						, s_access[Access::ReadWrite]
+						, s_imageFormat[texture.m_textureFormat])
+						);
+				}
+			}
+		}
+	}
+
 	void OcclusionQueryGL::create()
 	{
 		for (uint32_t ii = 0; ii < BX_COUNTOF(m_query); ++ii)
@@ -6297,6 +6355,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			renderDocTriggerCapture();
 		}
 
+		BGFX_GL_PROFILER_BEGIN_LITERAL("rendererSubmit", kColorView);
+
 		if (1 < m_numWindows
 		&&  m_vaoSupport)
 		{
@@ -6332,12 +6392,14 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 		if (0 < _render->m_iboffset)
 		{
+			BGFX_PROFILER_SCOPE("bgfx/Update transient index buffer", kColorResource);
 			TransientIndexBuffer* ib = _render->m_transientIb;
 			m_indexBuffers[ib->handle.idx].update(0, _render->m_iboffset, ib->data, true);
 		}
 
 		if (0 < _render->m_vboffset)
 		{
+			BGFX_PROFILER_SCOPE("bgfx/Update transient vertex buffer", kColorResource);
 			TransientVertexBuffer* vb = _render->m_transientVb;
 			m_vertexBuffers[vb->handle.idx].update(0, _render->m_vboffset, vb->data, true);
 		}
@@ -6450,16 +6512,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 						profiler.end();
 					}
 
+					BGFX_GL_PROFILER_END();
+					setViewType(view, "  ");
+					BGFX_GL_PROFILER_BEGIN(view, kColorView);
+
 					profiler.begin(view);
 
 					viewState.m_rect = _render->m_view[view].m_rect;
-					if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
-					{
-						char* viewName = s_viewName[view];
-						viewName[3] = ' ';
-						viewName[4] = ' ';
-						GL_CHECK(glInsertEventMarker(0, viewName) );
-					}
 
 					const Rect& scissorRect = _render->m_view[view].m_scissor;
 					viewHasScissor  = !scissorRect.isZero();
@@ -6494,12 +6553,9 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 					{
 						wasCompute = true;
 
-						if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
-						{
-							char* viewName = s_viewName[view];
-							viewName[3] = 'C';
-							GL_CHECK(glInsertEventMarker(0, viewName) );
-						}
+						setViewType(view, "C");
+						BGFX_GL_PROFILER_END();
+						BGFX_GL_PROFILER_BEGIN(view, kColorCompute);
 					}
 
 					if (computeSupported)
@@ -6616,12 +6672,9 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				{
 					wasCompute = false;
 
-					if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
-					{
-						char* viewName = s_viewName[view];
-						viewName[3] = ' ';
-						GL_CHECK(glInsertEventMarker(0, viewName) );
-					}
+					setViewType(view, " ");
+					BGFX_GL_PROFILER_END();
+					BGFX_GL_PROFILER_BEGIN(view, kColorDraw);
 				}
 
 				const RenderDraw& draw = renderItem.draw;
@@ -7339,6 +7392,13 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				boundProgram = BGFX_INVALID_HANDLE;
 			}
 
+			if (wasCompute)
+			{
+				setViewType(view, "C");
+				BGFX_GL_PROFILER_END();
+				BGFX_GL_PROFILER_BEGIN(view, kColorCompute);
+			}
+
 			submitBlit(bs, BGFX_CONFIG_MAX_VIEWS);
 
 			blitMsaaFbo();
@@ -7362,6 +7422,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 				profiler.end();
 			}
 		}
+
+		BGFX_GL_PROFILER_END();
 
 		m_glctx.makeCurrent(NULL);
 		int64_t timeEnd = bx::getHPCounter();
@@ -7408,6 +7470,8 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 
 		if (_render->m_debug & (BGFX_DEBUG_IFH|BGFX_DEBUG_STATS) )
 		{
+			BGFX_GL_PROFILER_BEGIN_LITERAL("debugstats", kColorFrame);
+
 			m_needPresent = true;
 			TextVideoMem& tvm = m_textVideoMem;
 
@@ -7576,10 +7640,16 @@ BX_TRACE("%d, %d, %d, %s", _array, _srgb, _mipAutogen, getName(_format) );
 			}
 
 			blit(this, _textVideoMemBlitter, tvm);
+
+			BGFX_GL_PROFILER_END();
 		}
 		else if (_render->m_debug & BGFX_DEBUG_TEXT)
 		{
+			BGFX_GL_PROFILER_BEGIN_LITERAL("debugtext", kColorFrame);
+
 			blit(this, _textVideoMemBlitter, _render->m_textVideoMem);
+
+			BGFX_GL_PROFILER_END();
 		}
 	}
 } } // namespace bgfx

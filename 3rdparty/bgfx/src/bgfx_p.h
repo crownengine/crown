@@ -25,24 +25,24 @@
 #include <inttypes.h>
 
 // Check handle, cannot be bgfx::kInvalidHandle and must be valid.
-#define BGFX_CHECK_HANDLE(_desc, _handleAlloc, _handle)    \
-			BX_CHECK(isValid(_handle)                      \
-				&& _handleAlloc.isValid(_handle.idx)       \
-				, "Invalid handle. %s handle: %d (max %d)" \
-				, _desc                                    \
-				, _handle.idx                              \
-				, _handleAlloc.getMaxHandles()             \
-				)
+#define BGFX_CHECK_HANDLE(_desc, _handleAlloc, _handle) \
+	BX_CHECK(isValid(_handle)                           \
+		&& _handleAlloc.isValid(_handle.idx)            \
+		, "Invalid handle. %s handle: %d (max %d)"      \
+		, _desc                                         \
+		, _handle.idx                                   \
+		, _handleAlloc.getMaxHandles()                  \
+		)
 
 // Check handle, it's ok to be bgfx::kInvalidHandle or must be valid.
 #define BGFX_CHECK_HANDLE_INVALID_OK(_desc, _handleAlloc, _handle) \
-			BX_CHECK(!isValid(_handle)                             \
-				|| _handleAlloc.isValid(_handle.idx)               \
-				, "Invalid handle. %s handle: %d (max %d)"         \
-				, _desc                                            \
-				, _handle.idx                                      \
-				, _handleAlloc.getMaxHandles()                     \
-				)
+	BX_CHECK(!isValid(_handle)                                     \
+		|| _handleAlloc.isValid(_handle.idx)                       \
+		, "Invalid handle. %s handle: %d (max %d)"                 \
+		, _desc                                                    \
+		, _handle.idx                                              \
+		, _handleAlloc.getMaxHandles()                             \
+		)
 
 #if BGFX_CONFIG_MULTITHREADED
 #	define BGFX_MUTEX_SCOPE(_mutex) bx::MutexScope BX_CONCATENATE(mutexScope, __LINE__)(_mutex)
@@ -51,14 +51,16 @@
 #endif // BGFX_CONFIG_MULTITHREADED
 
 #if BGFX_CONFIG_PROFILER
-#	define BGFX_PROFILER_SCOPE(_name, _abgr) ProfilerScope BX_CONCATENATE(profilerScope, __LINE__)(_name, _abgr, __FILE__, uint16_t(__LINE__) )
-#	define BGFX_PROFILER_BEGIN(_name, _abgr) g_callback->profilerBeginLiteral(_name, _abgr, __FILE__, uint16_t(__LINE__) )
-#	define BGFX_PROFILER_END() g_callback->profilerEnd()
+#	define BGFX_PROFILER_SCOPE(_name, _abgr)            ProfilerScope BX_CONCATENATE(profilerScope, __LINE__)(_name, _abgr, __FILE__, uint16_t(__LINE__) )
+#	define BGFX_PROFILER_BEGIN(_name, _abgr)            g_callback->profilerBegin(_name, _abgr, __FILE__, uint16_t(__LINE__) )
+#	define BGFX_PROFILER_BEGIN_LITERAL(_name, _abgr)    g_callback->profilerBeginLiteral(_name, _abgr, __FILE__, uint16_t(__LINE__) )
+#	define BGFX_PROFILER_END()                          g_callback->profilerEnd()
 #	define BGFX_PROFILER_SET_CURRENT_THREAD_NAME(_name) BX_NOOP()
 #else
-#	define BGFX_PROFILER_SCOPE(_name, _abgr) BX_NOOP()
-#	define BGFX_PROFILER_BEGIN(_name, _abgr) BX_NOOP()
-#	define BGFX_PROFILER_END() BX_NOOP()
+#	define BGFX_PROFILER_SCOPE(_name, _abgr)            BX_NOOP()
+#	define BGFX_PROFILER_BEGIN(_name, _abgr)            BX_NOOP()
+#	define BGFX_PROFILER_BEGIN_LITERAL(_name, _abgr)    BX_NOOP()
+#	define BGFX_PROFILER_END()                          BX_NOOP()
 #	define BGFX_PROFILER_SET_CURRENT_THREAD_NAME(_name) BX_NOOP()
 #endif // BGFX_PROFILER_SCOPE
 
@@ -885,120 +887,118 @@ namespace bgfx
 	};
 
 //
-#define SORT_KEY_NUM_BITS_VIEW         10
+constexpr uint8_t  kSortKeyViewNumBits         = 10;
+constexpr uint8_t  kSortKeyViewBitShift        = 64-kSortKeyViewNumBits;
+constexpr uint64_t kSortKeyViewMask            = uint64_t(BGFX_CONFIG_MAX_VIEWS-1)<<kSortKeyViewBitShift;
 
-#define SORT_KEY_VIEW_SHIFT            (64-SORT_KEY_NUM_BITS_VIEW)
-#define SORT_KEY_VIEW_MASK             ( (uint64_t(BGFX_CONFIG_MAX_VIEWS-1) )<<SORT_KEY_VIEW_SHIFT)
-
-#define SORT_KEY_DRAW_BIT_SHIFT        (SORT_KEY_VIEW_SHIFT - 1)
-#define SORT_KEY_DRAW_BIT              (UINT64_C(1)<<SORT_KEY_DRAW_BIT_SHIFT)
-
-//
-#define SORT_KEY_NUM_BITS_DRAW_TYPE    2
-
-#define SORT_KEY_DRAW_TYPE_BIT_SHIFT   (SORT_KEY_DRAW_BIT_SHIFT - SORT_KEY_NUM_BITS_DRAW_TYPE)
-#define SORT_KEY_DRAW_TYPE_MASK        (UINT64_C(3)<<SORT_KEY_DRAW_TYPE_BIT_SHIFT)
-
-#define SORT_KEY_DRAW_TYPE_PROGRAM     (UINT64_C(0)<<SORT_KEY_DRAW_TYPE_BIT_SHIFT)
-#define SORT_KEY_DRAW_TYPE_DEPTH       (UINT64_C(1)<<SORT_KEY_DRAW_TYPE_BIT_SHIFT)
-#define SORT_KEY_DRAW_TYPE_SEQUENCE    (UINT64_C(2)<<SORT_KEY_DRAW_TYPE_BIT_SHIFT)
+constexpr uint8_t  kSortKeyDrawBitShift        = kSortKeyViewBitShift - 1;
+constexpr uint64_t kSortKeyDrawBit             = uint64_t(1)<<kSortKeyDrawBitShift;
 
 //
-#define SORT_KEY_NUM_BITS_TRANS        2
+constexpr uint8_t  kSortKeyDrawTypeNumBits     = 2;
+constexpr uint8_t  kSortKeyDrawTypeBitShift    = kSortKeyDrawBitShift - kSortKeyDrawTypeNumBits;
+constexpr uint64_t kSortKeyDrawTypeMask        = uint64_t(3)<<kSortKeyDrawTypeBitShift;
 
-#define SORT_KEY_DRAW_0_TRANS_SHIFT    (SORT_KEY_DRAW_TYPE_BIT_SHIFT - SORT_KEY_NUM_BITS_TRANS)
-#define SORT_KEY_DRAW_0_TRANS_MASK     (UINT64_C(0x3)<<SORT_KEY_DRAW_0_TRANS_SHIFT)
-
-#define SORT_KEY_DRAW_0_PROGRAM_SHIFT  (SORT_KEY_DRAW_0_TRANS_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM)
-#define SORT_KEY_DRAW_0_PROGRAM_MASK   ( (uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1) )<<SORT_KEY_DRAW_0_PROGRAM_SHIFT)
-
-#define SORT_KEY_DRAW_0_DEPTH_SHIFT    (SORT_KEY_DRAW_0_PROGRAM_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_DEPTH)
-#define SORT_KEY_DRAW_0_DEPTH_MASK     ( ( (UINT64_C(1)<<BGFX_CONFIG_SORT_KEY_NUM_BITS_DEPTH)-1)<<SORT_KEY_DRAW_0_DEPTH_SHIFT)
+constexpr uint64_t kSortKeyDrawTypeProgram     = uint64_t(0)<<kSortKeyDrawTypeBitShift;
+constexpr uint64_t kSortKeyDrawTypeDepth       = uint64_t(1)<<kSortKeyDrawTypeBitShift;
+constexpr uint64_t kSortKeyDrawTypeSequence    = uint64_t(2)<<kSortKeyDrawTypeBitShift;
 
 //
-#define SORT_KEY_DRAW_1_DEPTH_SHIFT    (SORT_KEY_DRAW_TYPE_BIT_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_DEPTH)
-#define SORT_KEY_DRAW_1_DEPTH_MASK     ( ( (UINT64_C(1)<<BGFX_CONFIG_SORT_KEY_NUM_BITS_DEPTH)-1)<<SORT_KEY_DRAW_1_DEPTH_SHIFT)
+constexpr uint8_t  kSortKeyTransNumBits        = 2;
 
-#define SORT_KEY_DRAW_1_TRANS_SHIFT    (SORT_KEY_DRAW_1_DEPTH_SHIFT - SORT_KEY_NUM_BITS_TRANS)
-#define SORT_KEY_DRAW_1_TRANS_MASK     (UINT64_C(0x3)<<SORT_KEY_DRAW_1_TRANS_SHIFT)
+constexpr uint8_t  kSortKeyDraw0TransShift     = kSortKeyDrawTypeBitShift - kSortKeyTransNumBits;
+constexpr uint64_t kSortKeyDraw0TransMask      = uint64_t(0x3)<<kSortKeyDraw0TransShift;
 
-#define SORT_KEY_DRAW_1_PROGRAM_SHIFT  (SORT_KEY_DRAW_1_TRANS_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM)
-#define SORT_KEY_DRAW_1_PROGRAM_MASK   ( (uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1) )<<SORT_KEY_DRAW_1_PROGRAM_SHIFT)
+constexpr uint8_t  kSortKeyDraw0ProgramShift   = kSortKeyDraw0TransShift - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM;
+constexpr uint64_t kSortKeyDraw0ProgramMask    = uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1)<<kSortKeyDraw0ProgramShift;
 
-//
-#define SORT_KEY_DRAW_2_SEQ_SHIFT      (SORT_KEY_DRAW_TYPE_BIT_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_SEQ)
-#define SORT_KEY_DRAW_2_SEQ_MASK       ( ( (UINT64_C(1)<<BGFX_CONFIG_SORT_KEY_NUM_BITS_SEQ)-1)<<SORT_KEY_DRAW_2_SEQ_SHIFT)
-
-#define SORT_KEY_DRAW_2_TRANS_SHIFT    (SORT_KEY_DRAW_2_SEQ_SHIFT - SORT_KEY_NUM_BITS_TRANS)
-#define SORT_KEY_DRAW_2_TRANS_MASK     (UINT64_C(0x3)<<SORT_KEY_DRAW_2_TRANS_SHIFT)
-
-#define SORT_KEY_DRAW_2_PROGRAM_SHIFT  (SORT_KEY_DRAW_2_TRANS_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM)
-#define SORT_KEY_DRAW_2_PROGRAM_MASK   ( (uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1) )<<SORT_KEY_DRAW_2_PROGRAM_SHIFT)
+constexpr uint8_t  kSortKeyDraw0DepthShift     = kSortKeyDraw0ProgramShift - BGFX_CONFIG_SORT_KEY_NUM_BITS_DEPTH;
+constexpr uint64_t kSortKeyDraw0DepthMask      = ( (uint64_t(1)<<BGFX_CONFIG_SORT_KEY_NUM_BITS_DEPTH)-1)<<kSortKeyDraw0DepthShift;
 
 //
-#define SORT_KEY_COMPUTE_SEQ_SHIFT     (SORT_KEY_DRAW_BIT_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_SEQ)
-#define SORT_KEY_COMPUTE_SEQ_MASK      ( ( (UINT64_C(1)<<BGFX_CONFIG_SORT_KEY_NUM_BITS_SEQ)-1)<<SORT_KEY_COMPUTE_SEQ_SHIFT)
+constexpr uint8_t  kSortKeyDraw1DepthShift     = kSortKeyDrawTypeBitShift - BGFX_CONFIG_SORT_KEY_NUM_BITS_DEPTH;
+constexpr uint64_t kSortKeyDraw1DepthMask      = ( (uint64_t(1)<<BGFX_CONFIG_SORT_KEY_NUM_BITS_DEPTH)-1)<<kSortKeyDraw1DepthShift;
 
-#define SORT_KEY_COMPUTE_PROGRAM_SHIFT (SORT_KEY_COMPUTE_SEQ_SHIFT - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM)
-#define SORT_KEY_COMPUTE_PROGRAM_MASK  ( (uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1) )<<SORT_KEY_COMPUTE_PROGRAM_SHIFT)
+constexpr uint8_t  kSortKeyDraw1TransShift     = kSortKeyDraw1DepthShift - kSortKeyTransNumBits;
+constexpr uint64_t kSortKeyDraw1TransMask      = uint64_t(0x3)<<kSortKeyDraw1TransShift;
 
-	BX_STATIC_ASSERT(BGFX_CONFIG_MAX_VIEWS <= (1<<SORT_KEY_NUM_BITS_VIEW) );
+constexpr uint8_t  kSortKeyDraw1ProgramShift   = kSortKeyDraw1TransShift - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM;
+constexpr uint64_t kSortKeyDraw1ProgramMask    = uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1)<<kSortKeyDraw1ProgramShift;
+
+//
+constexpr uint8_t  kSortKeyDraw2SeqShift       = kSortKeyDrawTypeBitShift - BGFX_CONFIG_SORT_KEY_NUM_BITS_SEQ;
+constexpr uint64_t kSortKeyDraw2SeqMask        = ( (uint64_t(1)<<BGFX_CONFIG_SORT_KEY_NUM_BITS_SEQ)-1)<<kSortKeyDraw2SeqShift;
+
+constexpr uint8_t  kSortKeyDraw2TransShift     = kSortKeyDraw2SeqShift - kSortKeyTransNumBits;
+constexpr uint64_t kSortKeyDraw2TransMask      = uint64_t(0x3)<<kSortKeyDraw2TransShift;
+
+constexpr uint8_t  kSortKeyDraw2ProgramShift   = kSortKeyDraw2TransShift - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM;
+constexpr uint64_t kSortKeyDraw2ProgramMask    = uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1)<<kSortKeyDraw2ProgramShift;
+
+//
+constexpr uint8_t  kSortKeyComputeSeqShift     = kSortKeyDrawBitShift - BGFX_CONFIG_SORT_KEY_NUM_BITS_SEQ;
+constexpr uint64_t kSortKeyComputeSeqMask      = ( (uint64_t(1)<<BGFX_CONFIG_SORT_KEY_NUM_BITS_SEQ)-1)<<kSortKeyComputeSeqShift;
+
+constexpr uint8_t  kSortKeyComputeProgramShift = kSortKeyComputeSeqShift - BGFX_CONFIG_SORT_KEY_NUM_BITS_PROGRAM;
+constexpr uint64_t kSortKeyComputeProgramMask  = uint64_t(BGFX_CONFIG_MAX_PROGRAMS-1)<<kSortKeyComputeProgramShift;
+
+	BX_STATIC_ASSERT(BGFX_CONFIG_MAX_VIEWS <= (1<<kSortKeyViewNumBits) );
 	BX_STATIC_ASSERT( (BGFX_CONFIG_MAX_PROGRAMS & (BGFX_CONFIG_MAX_PROGRAMS-1) ) == 0); // Must be power of 2.
 	BX_STATIC_ASSERT( (0 // Render key mask shouldn't overlap.
-		| SORT_KEY_VIEW_MASK
-		| SORT_KEY_DRAW_BIT
-		| SORT_KEY_DRAW_TYPE_MASK
-		| SORT_KEY_DRAW_0_TRANS_MASK
-		| SORT_KEY_DRAW_0_PROGRAM_MASK
-		| SORT_KEY_DRAW_0_DEPTH_MASK
+		| kSortKeyViewMask
+		| kSortKeyDrawBit
+		| kSortKeyDrawTypeMask
+		| kSortKeyDraw0TransMask
+		| kSortKeyDraw0ProgramMask
+		| kSortKeyDraw0DepthMask
 		) == (0
-		^ SORT_KEY_VIEW_MASK
-		^ SORT_KEY_DRAW_BIT
-		^ SORT_KEY_DRAW_TYPE_MASK
-		^ SORT_KEY_DRAW_0_TRANS_MASK
-		^ SORT_KEY_DRAW_0_PROGRAM_MASK
-		^ SORT_KEY_DRAW_0_DEPTH_MASK
+		^ kSortKeyViewMask
+		^ kSortKeyDrawBit
+		^ kSortKeyDrawTypeMask
+		^ kSortKeyDraw0TransMask
+		^ kSortKeyDraw0ProgramMask
+		^ kSortKeyDraw0DepthMask
 		) );
 	BX_STATIC_ASSERT( (0 // Render key mask shouldn't overlap.
-		| SORT_KEY_VIEW_MASK
-		| SORT_KEY_DRAW_BIT
-		| SORT_KEY_DRAW_TYPE_MASK
-		| SORT_KEY_DRAW_1_DEPTH_MASK
-		| SORT_KEY_DRAW_1_TRANS_MASK
-		| SORT_KEY_DRAW_1_PROGRAM_MASK
+		| kSortKeyViewMask
+		| kSortKeyDrawBit
+		| kSortKeyDrawTypeMask
+		| kSortKeyDraw1DepthMask
+		| kSortKeyDraw1TransMask
+		| kSortKeyDraw1ProgramMask
 		) == (0
-		^ SORT_KEY_VIEW_MASK
-		^ SORT_KEY_DRAW_BIT
-		^ SORT_KEY_DRAW_TYPE_MASK
-		^ SORT_KEY_DRAW_1_DEPTH_MASK
-		^ SORT_KEY_DRAW_1_TRANS_MASK
-		^ SORT_KEY_DRAW_1_PROGRAM_MASK
+		^ kSortKeyViewMask
+		^ kSortKeyDrawBit
+		^ kSortKeyDrawTypeMask
+		^ kSortKeyDraw1DepthMask
+		^ kSortKeyDraw1TransMask
+		^ kSortKeyDraw1ProgramMask
 		) );
 	BX_STATIC_ASSERT( (0 // Render key mask shouldn't overlap.
-		| SORT_KEY_VIEW_MASK
-		| SORT_KEY_DRAW_BIT
-		| SORT_KEY_DRAW_TYPE_MASK
-		| SORT_KEY_DRAW_2_SEQ_MASK
-		| SORT_KEY_DRAW_2_TRANS_MASK
-		| SORT_KEY_DRAW_2_PROGRAM_MASK
+		| kSortKeyViewMask
+		| kSortKeyDrawBit
+		| kSortKeyDrawTypeMask
+		| kSortKeyDraw2SeqMask
+		| kSortKeyDraw2TransMask
+		| kSortKeyDraw2ProgramMask
 		) == (0
-		^ SORT_KEY_VIEW_MASK
-		^ SORT_KEY_DRAW_BIT
-		^ SORT_KEY_DRAW_TYPE_MASK
-		^ SORT_KEY_DRAW_2_SEQ_MASK
-		^ SORT_KEY_DRAW_2_TRANS_MASK
-		^ SORT_KEY_DRAW_2_PROGRAM_MASK
+		^ kSortKeyViewMask
+		^ kSortKeyDrawBit
+		^ kSortKeyDrawTypeMask
+		^ kSortKeyDraw2SeqMask
+		^ kSortKeyDraw2TransMask
+		^ kSortKeyDraw2ProgramMask
 		) );
 	BX_STATIC_ASSERT( (0 // Compute key mask shouldn't overlap.
-		| SORT_KEY_VIEW_MASK
-		| SORT_KEY_DRAW_BIT
-		| SORT_KEY_COMPUTE_SEQ_SHIFT
-		| SORT_KEY_COMPUTE_PROGRAM_MASK
+		| kSortKeyViewMask
+		| kSortKeyDrawBit
+		| kSortKeyComputeSeqShift
+		| kSortKeyComputeProgramMask
 		) == (0
-		^ SORT_KEY_VIEW_MASK
-		^ SORT_KEY_DRAW_BIT
-		^ SORT_KEY_COMPUTE_SEQ_SHIFT
-		^ SORT_KEY_COMPUTE_PROGRAM_MASK
+		^ kSortKeyViewMask
+		^ kSortKeyDrawBit
+		^ kSortKeyComputeSeqShift
+		^ kSortKeyComputeProgramMask
 		) );
 
 	// |               3               2               1               0|
@@ -1049,11 +1049,11 @@ namespace bgfx
 			{
 			case SortProgram:
 				{
-					const uint64_t depth   = (uint64_t(m_depth      ) << SORT_KEY_DRAW_0_DEPTH_SHIFT  ) & SORT_KEY_DRAW_0_DEPTH_MASK;
-					const uint64_t program = (uint64_t(m_program.idx) << SORT_KEY_DRAW_0_PROGRAM_SHIFT) & SORT_KEY_DRAW_0_PROGRAM_MASK;
-					const uint64_t trans   = (uint64_t(m_trans      ) << SORT_KEY_DRAW_0_TRANS_SHIFT  ) & SORT_KEY_DRAW_0_TRANS_MASK;
-					const uint64_t view    = (uint64_t(m_view       ) << SORT_KEY_VIEW_SHIFT          ) & SORT_KEY_VIEW_MASK;
-					const uint64_t key     = view|SORT_KEY_DRAW_BIT|SORT_KEY_DRAW_TYPE_PROGRAM|trans|program|depth;
+					const uint64_t depth   = (uint64_t(m_depth      ) << kSortKeyDraw0DepthShift  ) & kSortKeyDraw0DepthMask;
+					const uint64_t program = (uint64_t(m_program.idx) << kSortKeyDraw0ProgramShift) & kSortKeyDraw0ProgramMask;
+					const uint64_t trans   = (uint64_t(m_trans      ) << kSortKeyDraw0TransShift  ) & kSortKeyDraw0TransMask;
+					const uint64_t view    = (uint64_t(m_view       ) << kSortKeyViewBitShift     ) & kSortKeyViewMask;
+					const uint64_t key     = view|kSortKeyDrawBit|kSortKeyDrawTypeProgram|trans|program|depth;
 
 					return key;
 				}
@@ -1061,24 +1061,24 @@ namespace bgfx
 
 			case SortDepth:
 				{
-					const uint64_t depth   = (uint64_t(m_depth      ) << SORT_KEY_DRAW_1_DEPTH_SHIFT  ) & SORT_KEY_DRAW_1_DEPTH_MASK;
-					const uint64_t program = (uint64_t(m_program.idx) << SORT_KEY_DRAW_1_PROGRAM_SHIFT) & SORT_KEY_DRAW_1_PROGRAM_MASK;
-					const uint64_t trans   = (uint64_t(m_trans      ) << SORT_KEY_DRAW_1_TRANS_SHIFT  ) & SORT_KEY_DRAW_1_TRANS_MASK;
-					const uint64_t view    = (uint64_t(m_view       ) << SORT_KEY_VIEW_SHIFT          ) & SORT_KEY_VIEW_MASK;
-					const uint64_t key     = view|SORT_KEY_DRAW_BIT|SORT_KEY_DRAW_TYPE_DEPTH|depth|trans|program;
+					const uint64_t depth   = (uint64_t(m_depth      ) << kSortKeyDraw1DepthShift  ) & kSortKeyDraw1DepthMask;
+					const uint64_t program = (uint64_t(m_program.idx) << kSortKeyDraw1ProgramShift) & kSortKeyDraw1ProgramMask;
+					const uint64_t trans   = (uint64_t(m_trans      ) << kSortKeyDraw1TransShift) & kSortKeyDraw1TransMask;
+					const uint64_t view    = (uint64_t(m_view       ) << kSortKeyViewBitShift     ) & kSortKeyViewMask;
+					const uint64_t key     = view|kSortKeyDrawBit|kSortKeyDrawTypeDepth|depth|trans|program;
 					return key;
 				}
 				break;
 
 			case SortSequence:
 				{
-					const uint64_t seq     = (uint64_t(m_seq        ) << SORT_KEY_DRAW_2_SEQ_SHIFT    ) & SORT_KEY_DRAW_2_SEQ_MASK;
-					const uint64_t program = (uint64_t(m_program.idx) << SORT_KEY_DRAW_2_PROGRAM_SHIFT) & SORT_KEY_DRAW_2_PROGRAM_MASK;
-					const uint64_t trans   = (uint64_t(m_trans      ) << SORT_KEY_DRAW_2_TRANS_SHIFT  ) & SORT_KEY_DRAW_2_TRANS_MASK;
-					const uint64_t view    = (uint64_t(m_view       ) << SORT_KEY_VIEW_SHIFT          ) & SORT_KEY_VIEW_MASK;
-					const uint64_t key     = view|SORT_KEY_DRAW_BIT|SORT_KEY_DRAW_TYPE_SEQUENCE|seq|trans|program;
+					const uint64_t seq     = (uint64_t(m_seq        ) << kSortKeyDraw2SeqShift    ) & kSortKeyDraw2SeqMask;
+					const uint64_t program = (uint64_t(m_program.idx) << kSortKeyDraw2ProgramShift) & kSortKeyDraw2ProgramMask;
+					const uint64_t trans   = (uint64_t(m_trans      ) << kSortKeyDraw2TransShift  ) & kSortKeyDraw2TransMask;
+					const uint64_t view    = (uint64_t(m_view       ) << kSortKeyViewBitShift     ) & kSortKeyViewMask;
+					const uint64_t key     = view|kSortKeyDrawBit|kSortKeyDrawTypeSequence|seq|trans|program;
 
-					BX_CHECK(seq == (uint64_t(m_seq) << SORT_KEY_DRAW_2_SEQ_SHIFT)
+					BX_CHECK(seq == (uint64_t(m_seq) << kSortKeyDraw2SeqShift)
 						, "SortKey error, sequence is truncated (m_seq: %d)."
 						, m_seq
 						);
@@ -1094,12 +1094,12 @@ namespace bgfx
 
 		uint64_t encodeCompute()
 		{
-			const uint64_t program = (uint64_t(m_program.idx) << SORT_KEY_COMPUTE_PROGRAM_SHIFT) & SORT_KEY_COMPUTE_PROGRAM_MASK;
-			const uint64_t seq     = (uint64_t(m_seq        ) << SORT_KEY_COMPUTE_SEQ_SHIFT    ) & SORT_KEY_COMPUTE_SEQ_MASK;
-			const uint64_t view    = (uint64_t(m_view       ) << SORT_KEY_VIEW_SHIFT           ) & SORT_KEY_VIEW_MASK;
+			const uint64_t program = (uint64_t(m_program.idx) << kSortKeyComputeProgramShift) & kSortKeyComputeProgramMask;
+			const uint64_t seq     = (uint64_t(m_seq        ) << kSortKeyComputeSeqShift    ) & kSortKeyComputeSeqMask;
+			const uint64_t view    = (uint64_t(m_view       ) << kSortKeyViewBitShift       ) & kSortKeyViewMask;
 			const uint64_t key     = program|seq|view;
 
-			BX_CHECK(seq == (uint64_t(m_seq) << SORT_KEY_COMPUTE_SEQ_SHIFT)
+			BX_CHECK(seq == (uint64_t(m_seq) << kSortKeyComputeSeqShift)
 				, "SortKey error, sequence is truncated (m_seq: %d)."
 				, m_seq
 				);
@@ -1110,39 +1110,39 @@ namespace bgfx
 		/// Returns true if item is compute command.
 		bool decode(uint64_t _key, ViewId _viewRemap[BGFX_CONFIG_MAX_VIEWS])
 		{
-			m_view = _viewRemap[(_key & SORT_KEY_VIEW_MASK) >> SORT_KEY_VIEW_SHIFT];
-			if (_key & SORT_KEY_DRAW_BIT)
+			m_view = _viewRemap[(_key & kSortKeyViewMask) >> kSortKeyViewBitShift];
+			if (_key & kSortKeyDrawBit)
 			{
-				uint64_t type = _key & SORT_KEY_DRAW_TYPE_MASK;
-				if (type == SORT_KEY_DRAW_TYPE_DEPTH)
+				uint64_t type = _key & kSortKeyDrawTypeMask;
+				if (type == kSortKeyDrawTypeDepth)
 				{
-					m_program.idx = uint16_t( (_key & SORT_KEY_DRAW_1_PROGRAM_MASK) >> SORT_KEY_DRAW_1_PROGRAM_SHIFT);
+					m_program.idx = uint16_t( (_key & kSortKeyDraw1ProgramMask) >> kSortKeyDraw1ProgramShift);
 					return false;
 				}
-				else if (type == SORT_KEY_DRAW_TYPE_SEQUENCE)
+				else if (type == kSortKeyDrawTypeSequence)
 				{
-					m_program.idx = uint16_t( (_key & SORT_KEY_DRAW_2_PROGRAM_MASK) >> SORT_KEY_DRAW_2_PROGRAM_SHIFT);
+					m_program.idx = uint16_t( (_key & kSortKeyDraw2ProgramMask) >> kSortKeyDraw2ProgramShift);
 					return false;
 				}
 
-				m_program.idx = uint16_t( (_key & SORT_KEY_DRAW_0_PROGRAM_MASK) >> SORT_KEY_DRAW_0_PROGRAM_SHIFT);
+				m_program.idx = uint16_t( (_key & kSortKeyDraw0ProgramMask) >> kSortKeyDraw0ProgramShift);
 				return false; // draw
 			}
 
-			m_program.idx = uint16_t( (_key & SORT_KEY_COMPUTE_PROGRAM_MASK) >> SORT_KEY_COMPUTE_PROGRAM_SHIFT);
+			m_program.idx = uint16_t( (_key & kSortKeyComputeProgramMask) >> kSortKeyComputeProgramShift);
 			return true; // compute
 		}
 
 		static ViewId decodeView(uint64_t _key)
 		{
-			return ViewId( (_key & SORT_KEY_VIEW_MASK) >> SORT_KEY_VIEW_SHIFT);
+			return ViewId( (_key & kSortKeyViewMask) >> kSortKeyViewBitShift);
 		}
 
 		static uint64_t remapView(uint64_t _key, ViewId _viewRemap[BGFX_CONFIG_MAX_VIEWS])
 		{
 			const ViewId   oldView = decodeView(_key);
-			const uint64_t view    = uint64_t(_viewRemap[oldView]) << SORT_KEY_VIEW_SHIFT;
-			const uint64_t key     = (_key & ~SORT_KEY_VIEW_MASK) | view;
+			const uint64_t view    = uint64_t(_viewRemap[oldView]) << kSortKeyViewBitShift;
+			const uint64_t key     = (_key & ~kSortKeyViewMask) | view;
 			return key;
 		}
 
@@ -3315,7 +3315,7 @@ namespace bgfx
 				return BGFX_INVALID_HANDLE;
 			}
 
-			uint32_t size = bx::strideAlign<16>(_num*_decl.m_stride, _decl.m_stride);
+			const uint32_t size = bx::strideAlign<16>(_num*_decl.m_stride, _decl.m_stride)+_decl.m_stride;
 
 			uint64_t ptr = 0;
 			if (0 != (_flags & BGFX_BUFFER_COMPUTE_READ_WRITE) )
@@ -3398,11 +3398,13 @@ namespace bgfx
 				m_dynVertexBufferAllocator.free(uint64_t(dvb.m_handle.idx)<<32 | dvb.m_offset);
 				m_dynVertexBufferAllocator.compact();
 
-				uint64_t ptr = allocDynamicVertexBuffer(_mem->size, dvb.m_flags);
+				const uint32_t size = bx::strideAlign<16>(_mem->size, dvb.m_stride)+dvb.m_stride;
+				const uint64_t ptr  = allocDynamicVertexBuffer(size, dvb.m_flags);
+
 				dvb.m_handle.idx  = uint16_t(ptr>>32);
 				dvb.m_offset      = uint32_t(ptr);
-				dvb.m_size        = _mem->size;
-				dvb.m_numVertices = dvb.m_size / dvb.m_stride;
+				dvb.m_size        = size;
+				dvb.m_numVertices = _mem->size / dvb.m_stride;
 				dvb.m_startVertex = bx::strideAlign(dvb.m_offset, dvb.m_stride)/dvb.m_stride;
 			}
 

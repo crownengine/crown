@@ -1,4 +1,4 @@
-// dear imgui, v1.68 WIP
+// dear imgui, v1.69 WIP
 // (drawing and font code)
 
 /*
@@ -83,7 +83,7 @@ Index of this file:
 //-------------------------------------------------------------------------
 
 // Compile time options:
-//#define IMGUI_STB_NAMESPACE           ImGuiStb
+//#define IMGUI_STB_NAMESPACE           ImStb
 //#define IMGUI_STB_TRUETYPE_FILENAME   "my_folder/stb_truetype.h"
 //#define IMGUI_STB_RECT_PACK_FILENAME  "my_folder/stb_rect_pack.h"
 //#define IMGUI_DISABLE_STB_TRUETYPE_IMPLEMENTATION
@@ -163,7 +163,7 @@ namespace IMGUI_STB_NAMESPACE
 #endif
 
 #ifdef IMGUI_STB_NAMESPACE
-} // namespace ImGuiStb
+} // namespace ImStb
 using namespace IMGUI_STB_NAMESPACE;
 #endif
 
@@ -407,7 +407,7 @@ ImDrawList* ImDrawList::CloneOutput() const
 
 // Using macros because C++ is a terrible language, we want guaranteed inline, no code in header, and no overhead in Debug builds
 #define GetCurrentClipRect()    (_ClipRectStack.Size ? _ClipRectStack.Data[_ClipRectStack.Size-1]  : _Data->ClipRectFullscreen)
-#define GetCurrentTextureId()   (_TextureIdStack.Size ? _TextureIdStack.Data[_TextureIdStack.Size-1] : NULL)
+#define GetCurrentTextureId()   (_TextureIdStack.Size ? _TextureIdStack.Data[_TextureIdStack.Size-1] : (ImTextureID)NULL)
 
 void ImDrawList::AddDrawCmd()
 {
@@ -1287,8 +1287,10 @@ void ImDrawData::DeIndexAllBuffers()
     }
 }
 
-// Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
-void ImDrawData::ScaleClipRects(const ImVec2& scale)
+// Helper to scale the ClipRect field of each ImDrawCmd. 
+// Use if your final output buffer is at a different scale than draw_data->DisplaySize, 
+// or if there is a difference between your window resolution and framebuffer resolution.
+void ImDrawData::ScaleClipRects(const ImVec2& fb_scale)
 {
     for (int i = 0; i < CmdListsCount; i++)
     {
@@ -1296,7 +1298,7 @@ void ImDrawData::ScaleClipRects(const ImVec2& scale)
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
         {
             ImDrawCmd* cmd = &cmd_list->CmdBuffer[cmd_i];
-            cmd->ClipRect = ImVec4(cmd->ClipRect.x * scale.x, cmd->ClipRect.y * scale.y, cmd->ClipRect.z * scale.x, cmd->ClipRect.w * scale.y);
+            cmd->ClipRect = ImVec4(cmd->ClipRect.x * fb_scale.x, cmd->ClipRect.y * fb_scale.y, cmd->ClipRect.z * fb_scale.x, cmd->ClipRect.w * fb_scale.y);
         }
     }
 }
@@ -1359,7 +1361,7 @@ ImFontConfig::ImFontConfig()
     FontDataOwnedByAtlas = true;
     FontNo = 0;
     SizePixels = 0.0f;
-    OversampleH = 3;
+    OversampleH = 3; // FIXME: 2 may be a better default?
     OversampleV = 1;
     PixelSnapH = false;
     GlyphExtraSpacing = ImVec2(0.0f, 0.0f);
@@ -1838,15 +1840,14 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
     {
         ImFontBuildSrcData& src_tmp = src_tmp_array[src_i];
         ImFontBuildDstData& dst_tmp = dst_tmp_array[src_tmp.DstIndex];
-        ImFontConfig& cfg = atlas->ConfigData[src_i];
         src_tmp.GlyphsSet.Resize(src_tmp.GlyphsHighest + 1);
-        if (dst_tmp.SrcCount > 1 && dst_tmp.GlyphsSet.Storage.empty())
+        if (dst_tmp.GlyphsSet.Storage.empty())
             dst_tmp.GlyphsSet.Resize(dst_tmp.GlyphsHighest + 1);
 
         for (const ImWchar* src_range = src_tmp.SrcRanges; src_range[0] && src_range[1]; src_range += 2)
             for (int codepoint = src_range[0]; codepoint <= src_range[1]; codepoint++)
             {
-                if (cfg.MergeMode && dst_tmp.GlyphsSet.GetBit(codepoint))   // Don't overwrite existing glyphs. We could make this an option (e.g. MergeOverwrite)
+                if (dst_tmp.GlyphsSet.GetBit(codepoint))    // Don't overwrite existing glyphs. We could make this an option for MergeMode (e.g. MergeOverwrite==true)
                     continue;
                 if (!stbtt_FindGlyphIndex(&src_tmp.FontInfo, codepoint))    // It is actually in the font?
                     continue;
@@ -1855,8 +1856,7 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
                 src_tmp.GlyphsCount++;
                 dst_tmp.GlyphsCount++;
                 src_tmp.GlyphsSet.SetBit(codepoint, true);
-                if (dst_tmp.SrcCount > 1)
-                    dst_tmp.GlyphsSet.SetBit(codepoint, true);
+                dst_tmp.GlyphsSet.SetBit(codepoint, true);
                 total_glyphs_count++;
             }
     }
@@ -2390,38 +2390,36 @@ void ImFontGlyphRangesBuilder::BuildRanges(ImVector<ImWchar>* out_ranges)
 
 ImFont::ImFont()
 {
-    Scale = 1.0f;
+    FontSize = 0.0f;
+    FallbackAdvanceX = 0.0f;
     FallbackChar = (ImWchar)'?';
     DisplayOffset = ImVec2(0.0f, 0.0f);
-    ClearOutputData();
+    FallbackGlyph = NULL;
+    ContainerAtlas = NULL;
+    ConfigData = NULL;
+    ConfigDataCount = 0;
+    DirtyLookupTables = false;
+    Scale = 1.0f;
+    Ascent = Descent = 0.0f;
+    MetricsTotalSurface = 0;
 }
 
 ImFont::~ImFont()
 {
-    // Invalidate active font so that the user gets a clear crash instead of a dangling pointer.
-    // If you want to delete fonts you need to do it between Render() and NewFrame().
-    // FIXME-CLEANUP
-    /*
-    ImGuiContext& g = *GImGui;
-    if (g.Font == this)
-        g.Font = NULL;
-    */
     ClearOutputData();
 }
 
 void    ImFont::ClearOutputData()
 {
     FontSize = 0.0f;
+    FallbackAdvanceX = 0.0f;
     Glyphs.clear();
     IndexAdvanceX.clear();
     IndexLookup.clear();
     FallbackGlyph = NULL;
-    FallbackAdvanceX = 0.0f;
-    ConfigDataCount = 0;
-    ConfigData = NULL;
     ContainerAtlas = NULL;
-    Ascent = Descent = 0.0f;
     DirtyLookupTables = true;
+    Ascent = Descent = 0.0f;
     MetricsTotalSurface = 0;
 }
 

@@ -41,18 +41,22 @@ spv_result_t ValidateFunction(ValidationState_t& _, const Instruction* inst) {
            << _.getIdName(return_id) << "'.";
   }
 
+  const std::vector<SpvOp> acceptable = {
+      SpvOpDecorate,
+      SpvOpEnqueueKernel,
+      SpvOpEntryPoint,
+      SpvOpExecutionMode,
+      SpvOpExecutionModeId,
+      SpvOpFunctionCall,
+      SpvOpGetKernelNDrangeSubGroupCount,
+      SpvOpGetKernelNDrangeMaxSubGroupSize,
+      SpvOpGetKernelWorkGroupSize,
+      SpvOpGetKernelPreferredWorkGroupSizeMultiple,
+      SpvOpGetKernelLocalSizeForSubgroupCount,
+      SpvOpGetKernelMaxNumSubgroups,
+      SpvOpName};
   for (auto& pair : inst->uses()) {
     const auto* use = pair.first;
-    const std::vector<SpvOp> acceptable = {
-        SpvOpFunctionCall,
-        SpvOpEntryPoint,
-        SpvOpEnqueueKernel,
-        SpvOpGetKernelNDrangeSubGroupCount,
-        SpvOpGetKernelNDrangeMaxSubGroupSize,
-        SpvOpGetKernelWorkGroupSize,
-        SpvOpGetKernelPreferredWorkGroupSizeMultiple,
-        SpvOpGetKernelLocalSizeForSubgroupCount,
-        SpvOpGetKernelMaxNumSubgroups};
     if (std::find(acceptable.begin(), acceptable.end(), use->opcode()) ==
         acceptable.end()) {
       return _.diag(SPV_ERROR_INVALID_ID, use)
@@ -246,6 +250,50 @@ spv_result_t ValidateFunctionCall(ValidationState_t& _,
              << "OpFunctionCall Argument <id> '" << _.getIdName(argument_id)
              << "'s type does not match Function <id> '"
              << _.getIdName(parameter_type_id) << "'s parameter type.";
+    }
+
+    if (_.addressing_model() == SpvAddressingModelLogical) {
+      if (parameter_type->opcode() == SpvOpTypePointer &&
+          !_.options()->relax_logical_pointer) {
+        SpvStorageClass sc = parameter_type->GetOperandAs<SpvStorageClass>(1u);
+        // Validate which storage classes can be pointer operands.
+        switch (sc) {
+          case SpvStorageClassUniformConstant:
+          case SpvStorageClassFunction:
+          case SpvStorageClassPrivate:
+          case SpvStorageClassWorkgroup:
+          case SpvStorageClassAtomicCounter:
+            // These are always allowed.
+            break;
+          case SpvStorageClassStorageBuffer:
+            if (!_.features().variable_pointers_storage_buffer) {
+              return _.diag(SPV_ERROR_INVALID_ID, inst)
+                     << "StorageBuffer pointer operand "
+                     << _.getIdName(argument_id)
+                     << " requires a variable pointers capability";
+            }
+            break;
+          default:
+            return _.diag(SPV_ERROR_INVALID_ID, inst)
+                   << "Invalid storage class for pointer operand "
+                   << _.getIdName(argument_id);
+        }
+
+        // Validate memory object declaration requirements.
+        if (argument->opcode() != SpvOpVariable &&
+            argument->opcode() != SpvOpFunctionParameter) {
+          const bool ssbo_vptr =
+              _.features().variable_pointers_storage_buffer &&
+              sc == SpvStorageClassStorageBuffer;
+          const bool wg_vptr =
+              _.features().variable_pointers && sc == SpvStorageClassWorkgroup;
+          if (!ssbo_vptr && !wg_vptr) {
+            return _.diag(SPV_ERROR_INVALID_ID, inst)
+                   << "Pointer operand " << _.getIdName(argument_id)
+                   << " must be a memory object declaration";
+          }
+        }
+      }
     }
   }
   return SPV_SUCCESS;

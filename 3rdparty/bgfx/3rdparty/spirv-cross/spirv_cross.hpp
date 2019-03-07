@@ -117,7 +117,9 @@ struct EntryPoint
 enum ExtendedDecorations
 {
 	SPIRVCrossDecorationPacked,
-	SPIRVCrossDecorationPackedType
+	SPIRVCrossDecorationPackedType,
+	SPIRVCrossDecorationInterfaceMemberIndex,
+	SPIRVCrossDecorationInterfaceOrigID,
 };
 
 class Compiler
@@ -182,27 +184,6 @@ public:
 
 	// Gets the SPIR-V type of a variable.
 	const SPIRType &get_type_from_variable(uint32_t id) const;
-
-	// Gets the id of SPIR-V type underlying the given type_id, which might be a pointer.
-	uint32_t get_pointee_type_id(uint32_t type_id) const;
-
-	// Gets the SPIR-V type underlying the given type, which might be a pointer.
-	const SPIRType &get_pointee_type(const SPIRType &type) const;
-
-	// Gets the SPIR-V type underlying the given type_id, which might be a pointer.
-	const SPIRType &get_pointee_type(uint32_t type_id) const;
-
-	// Gets the ID of the SPIR-V type underlying a variable.
-	uint32_t get_variable_data_type_id(const SPIRVariable &var) const;
-
-	// Gets the SPIR-V type underlying a variable.
-	SPIRType &get_variable_data_type(const SPIRVariable &var);
-
-	// Gets the SPIR-V type underlying a variable.
-	const SPIRType &get_variable_data_type(const SPIRVariable &var) const;
-
-	// Returns if the given type refers to a sampled image.
-	bool is_sampled_image_type(const SPIRType &type);
 
 	// Gets the underlying storage class for an OpVariable.
 	spv::StorageClass get_storage_class(uint32_t id) const;
@@ -378,6 +359,8 @@ public:
 	// For execution modes which do not have arguments, 0 is returned.
 	uint32_t get_execution_mode_argument(spv::ExecutionMode mode, uint32_t index = 0) const;
 	spv::ExecutionModel get_execution_model() const;
+
+	bool is_tessellation_shader() const;
 
 	// In SPIR-V, the compute work group size can be represented by a constant vector, in which case
 	// the LocalSize execution mode is ignored.
@@ -582,7 +565,9 @@ protected:
 	template <typename T>
 	T *maybe_get(uint32_t id)
 	{
-		if (ir.ids[id].get_type() == static_cast<Types>(T::type))
+		if (id >= ir.ids.size())
+			return nullptr;
+		else if (ir.ids[id].get_type() == static_cast<Types>(T::type))
 			return &get<T>(id);
 		else
 			return nullptr;
@@ -603,8 +588,36 @@ protected:
 			return nullptr;
 	}
 
+	// Gets the id of SPIR-V type underlying the given type_id, which might be a pointer.
+	uint32_t get_pointee_type_id(uint32_t type_id) const;
+
+	// Gets the SPIR-V type underlying the given type, which might be a pointer.
+	const SPIRType &get_pointee_type(const SPIRType &type) const;
+
+	// Gets the SPIR-V type underlying the given type_id, which might be a pointer.
+	const SPIRType &get_pointee_type(uint32_t type_id) const;
+
+	// Gets the ID of the SPIR-V type underlying a variable.
+	uint32_t get_variable_data_type_id(const SPIRVariable &var) const;
+
+	// Gets the SPIR-V type underlying a variable.
+	SPIRType &get_variable_data_type(const SPIRVariable &var);
+
+	// Gets the SPIR-V type underlying a variable.
+	const SPIRType &get_variable_data_type(const SPIRVariable &var) const;
+
+	// Gets the SPIR-V element type underlying an array variable.
+	SPIRType &get_variable_element_type(const SPIRVariable &var);
+
+	// Gets the SPIR-V element type underlying an array variable.
+	const SPIRType &get_variable_element_type(const SPIRVariable &var) const;
+
+	// Returns if the given type refers to a sampled image.
+	bool is_sampled_image_type(const SPIRType &type);
+
 	const SPIREntryPoint &get_entry_point() const;
 	SPIREntryPoint &get_entry_point();
+	static bool is_tessellation_shader(spv::ExecutionModel model);
 
 	virtual std::string to_name(uint32_t id, bool allow_alias = true) const;
 	bool is_builtin_variable(const SPIRVariable &var) const;
@@ -938,7 +951,8 @@ protected:
 	};
 
 	void analyze_variable_scope(SPIRFunction &function, AnalyzeVariableScopeAccessHandler &handler);
-	void find_function_local_luts(SPIRFunction &function, const AnalyzeVariableScopeAccessHandler &handler);
+	void find_function_local_luts(SPIRFunction &function, const AnalyzeVariableScopeAccessHandler &handler,
+	                              bool single_function);
 
 	void make_constant_null(uint32_t id, uint32_t type);
 
@@ -970,6 +984,7 @@ private:
 
 	void fixup_type_alias();
 	bool type_is_block_like(const SPIRType &type) const;
+	bool type_is_opaque_value(const SPIRType &type) const;
 };
 } // namespace spirv_cross
 

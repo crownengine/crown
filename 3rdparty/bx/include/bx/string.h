@@ -21,6 +21,7 @@ namespace bx
 	};
 
 	/// Non-zero-terminated string view.
+	///
 	class StringView
 	{
 	public:
@@ -77,9 +78,16 @@ namespace bx
 		///
 		void clear();
 
+		/// Returns pointer to non-terminated string.
+		///
+		/// @attention Use of this pointer in standard C/C++ functions is not safe. You must use it
+		///   in conjunction with `getTerm()` or getLength()`.
 		///
 		const char* getPtr() const;
 
+		/// Returns pointer past last character in string view.
+		///
+		/// @attention Dereferencing this pointer is not safe.
 		///
 		const char* getTerm() const;
 
@@ -320,6 +328,31 @@ namespace bx
 
 	/// Converts string to 32-bit unsigned integer value.
 	bool fromString(uint32_t* _out, const StringView& _str);
+
+	///
+	class LineReader
+	{
+	public:
+		///
+		LineReader(const bx::StringView& _str);
+
+		///
+		void reset();
+
+		///
+		StringView next();
+
+		///
+		bool isDone() const;
+
+		///
+		uint32_t getLine() const;
+
+	private:
+		const bx::StringView m_str;
+		bx::StringView m_curr;
+		uint32_t m_line;
+	};
 
 } // namespace bx
 

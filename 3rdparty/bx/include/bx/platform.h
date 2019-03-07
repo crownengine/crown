@@ -252,6 +252,7 @@
 #	endif // BX_CRT_*
 #endif // !BX_CRT_NONE
 
+///
 #define BX_PLATFORM_POSIX (0   \
 	||  BX_PLATFORM_ANDROID    \
 	||  BX_PLATFORM_BSD        \
@@ -266,6 +267,7 @@
 	||  BX_PLATFORM_STEAMLINK  \
 	)
 
+///
 #define BX_PLATFORM_NONE !(0   \
 	||  BX_PLATFORM_ANDROID    \
 	||  BX_PLATFORM_BSD        \
@@ -283,6 +285,41 @@
 	||  BX_PLATFORM_XBOXONE    \
 	)
 
+///
+#define BX_PLATFORM_OS_CONSOLE  (0 \
+	||  BX_PLATFORM_NX             \
+	||  BX_PLATFORM_PS4            \
+	||  BX_PLATFORM_WINRT          \
+	||  BX_PLATFORM_XBOXONE        \
+	)
+
+///
+#define BX_PLATFORM_OS_DESKTOP  (0 \
+	||  BX_PLATFORM_BSD            \
+	||  BX_PLATFORM_HURD           \
+	||  BX_PLATFORM_LINUX          \
+	||  BX_PLATFORM_OSX            \
+	||  BX_PLATFORM_WINDOWS        \
+	)
+
+///
+#define BX_PLATFORM_OS_EMBEDDED (0 \
+	||  BX_PLATFORM_RPI            \
+	||  BX_PLATFORM_STEAMLINK      \
+	)
+
+///
+#define BX_PLATFORM_OS_MOBILE   (0 \
+	||  BX_PLATFORM_ANDROID        \
+	||  BX_PLATFORM_IOS            \
+	)
+
+///
+#define BX_PLATFORM_OS_WEB      (0 \
+	||  BX_PLATFORM_EMSCRIPTEN     \
+	)
+
+///
 #if BX_COMPILER_GCC
 #	define BX_COMPILER_NAME "GCC "       \
 		BX_STRINGIZE(__GNUC__) "."       \

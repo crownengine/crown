@@ -149,11 +149,20 @@ struct TOffsetRange {
 
 // Things that need to be tracked per xfb buffer.
 struct TXfbBuffer {
+#ifdef AMD_EXTENSIONS
+    TXfbBuffer() : stride(TQualifier::layoutXfbStrideEnd), implicitStride(0), contains64BitType(false),
+                   contains32BitType(false), contains16BitType(false) { }
+#else
     TXfbBuffer() : stride(TQualifier::layoutXfbStrideEnd), implicitStride(0), contains64BitType(false) { }
+#endif
     std::vector<TRange> ranges;  // byte offsets that have already been assigned
     unsigned int stride;
     unsigned int implicitStride;
     bool contains64BitType;
+#ifdef AMD_EXTENSIONS
+    bool contains32BitType;
+    bool contains16BitType;
+#endif
 };
 
 // Track a set of strings describing how the module was processed.
@@ -252,6 +261,7 @@ public:
         useStorageBuffer(false),
         useVulkanMemoryModel(false),
         hlslIoMapping(false),
+        useVariablePointers(false),
         textureSamplerTransformMode(EShTexSampTransKeep),
         needToLegalize(false),
         binaryDoubleOutput(false),
@@ -396,6 +406,12 @@ public:
         usePhysicalStorageBuffer = true;
     }
     bool usingPhysicalStorageBuffer() const { return usePhysicalStorageBuffer; }
+    void setUseVariablePointers()
+    {
+        useVariablePointers = true;
+        processes.addProcess("use-variable-pointers");
+    }
+    bool usingVariablePointers() const { return useVariablePointers; }
 
     template<class T> T addCounterBufferName(const T& name) const { return name + implicitCounterName; }
     bool hasCounterBufferName(const TString& name) const {
@@ -482,6 +498,7 @@ public:
     TIntermTyped* addConversion(TOperator, const TType&, TIntermTyped*) const;
     std::tuple<TIntermTyped*, TIntermTyped*> addConversion(TOperator op, TIntermTyped* node0, TIntermTyped* node1) const;
     TIntermTyped* addUniShapeConversion(TOperator, const TType&, TIntermTyped*);
+    TIntermTyped* addConversion(TBasicType convertTo, TIntermTyped* node) const;
     void addBiShapeConversion(TOperator, TIntermTyped*& lhsNode, TIntermTyped*& rhsNode);
     TIntermTyped* addShapeConversion(const TType&, TIntermTyped*);
     TIntermTyped* addBinaryMath(TOperator, TIntermTyped* left, TIntermTyped* right, TSourceLoc);
@@ -669,7 +686,11 @@ public:
     }
     unsigned getXfbStride(int buffer) const { return xfbBuffers[buffer].stride; }
     int addXfbBufferOffset(const TType&);
+#ifdef AMD_EXTENSIONS
+    unsigned int computeTypeXfbSize(const TType&, bool& contains64BitType, bool& contains32BitType, bool& contains16BitType) const;
+#else
     unsigned int computeTypeXfbSize(const TType&, bool& contains64BitType) const;
+#endif
     static int getBaseAlignmentScalar(const TType&, int& size);
     static int getBaseAlignment(const TType&, int& size, int& stride, TLayoutPacking layoutPacking, bool rowMajor);
     static int getScalarAlignment(const TType&, int& size, int& stride, bool rowMajor);
@@ -839,6 +860,7 @@ protected:
     bool useStorageBuffer;
     bool useVulkanMemoryModel;
     bool hlslIoMapping;
+    bool useVariablePointers;
 
     std::set<TString> ioAccessed;           // set of names of statically read/written I/O that might need extra checking
     std::vector<TIoRange> usedIo[4];        // sets of used locations, one for each of in, out, uniform, and buffers

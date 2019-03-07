@@ -188,7 +188,12 @@ namespace bx
 			}
 		}
 
-		return 0 == max && _lhsMax == _rhsMax ? 0 : fn(*_lhs) - fn(*_rhs);
+		if (0 == max)
+		{
+			return _lhsMax == _rhsMax ? 0 : _lhsMax > _rhsMax ? 1 : -1;
+		}
+
+		return fn(*_lhs) - fn(*_rhs);
 	}
 
 	int32_t strCmp(const StringView& _lhs, const StringView& _rhs, int32_t _max)

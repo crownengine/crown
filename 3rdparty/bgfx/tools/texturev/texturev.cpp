@@ -23,8 +23,6 @@
 #include <imgui/imgui.h>
 #include <bgfx_utils.h>
 
-#include <dirent.h>
-
 #include <tinystl/allocator.h>
 #include <tinystl/vector.h>
 namespace stl = tinystl;
@@ -224,6 +222,225 @@ static const InputBinding* s_binding[] =
 	s_bindingAbout,
 };
 BX_STATIC_ASSERT(Binding::Count == BX_COUNTOF(s_binding) );
+
+static const char* s_filter = ""
+	"All Image Formats (bmp, dds, exr, gif, gnf, jpg, jpeg, hdr, ktx, pgm, png, ppm, psd, pvr, tga) | *.bmp *.dds *.exr *.gif *.gnf *.jpg *.jpeg *.hdr *.ktx *.pgm *.png *.ppm *.psd *.pvr *.tga\n"
+	"Windows Bitmap (bmp) | *.bmp\n"
+	"Direct Draw Surface (dds) | *.dds\n"
+	"OpenEXR (exr) | *.exr\n"
+	"Graphics Interchange Format (gif) | *.gif\n"
+	"JPEG Interchange Format (jpg, jpeg) | *.jpg *.jpeg\n"
+	"Radiance RGBE (hdr) | *.hdr\n"
+	"Khronos Texture (ktx) | *.ktx\n"
+	"Portable Graymap/Pixmap Format (pgm, ppm) | *.pgm *.ppm\n"
+	"Portable Network Graphics (png) | *.png\n"
+	"Photoshop Document (psd) | *.psd\n"
+	"PowerVR (pvr) | *.pvr\n"
+	"Truevision TGA (tga) | *.tga\n"
+	;
+
+struct FileSelectionDialogType
+{
+	enum Enum
+	{
+		Open,
+		Save,
+
+		Count
+	};
+};
+
+#if BX_PLATFORM_WINDOWS
+extern "C" void*    __stdcall GetModuleHandleA(const char* _moduleName);
+extern "C" uint32_t __stdcall GetModuleFileNameA(void* _module, char* _outFilePath, uint32_t _size);
+
+typedef uintptr_t (__stdcall *LPOFNHOOKPROC)(void*, uint32_t, uintptr_t, uint64_t);
+
+struct OPENFILENAMEA
+{
+	uint32_t      structSize;
+	void*         hwndOwner;
+	void*         hinstance;
+	const char*   filter;
+	const char*   customFilter;
+	uint32_t      maxCustomFilter;
+	uint32_t      filterIndex;
+	const char*   file;
+	uint32_t      maxFile;
+	const char*   fileTitle;
+	uint32_t      maxFileTitle;
+	const char*   initialDir;
+	const char*   title;
+	uint32_t      flags;
+	uint16_t      fileOffset;
+	uint16_t      fileExtension;
+	const char*   defExt;
+	uint64_t      customData;
+	LPOFNHOOKPROC hook;
+	const char*   templateName;
+	void*         reserved0;
+	uint32_t      reserved1;
+	uint32_t      flagsEx;
+};
+
+extern "C" bool __stdcall GetOpenFileNameA(OPENFILENAMEA* _ofn);
+
+#endif // BX_PLATFORM_WINDOWS
+
+class Split
+{
+public:
+	Split(const bx::StringView& _str, char _ch)
+		: m_str(_str)
+		, m_token(_str.getPtr(), bx::strFind(_str, _ch).getPtr() )
+		, m_ch(_ch)
+	{
+	}
+
+	bx::StringView next()
+	{
+		bx::StringView result = m_token;
+		m_token = bx::strTrim(
+			  bx::StringView(m_token.getTerm()+1
+			, bx::strFind(bx::StringView(m_token.getTerm()+1, m_str.getTerm() ), m_ch).getPtr() )
+			, " \t\n"
+			);
+		return result;
+	}
+
+	bool isDone() const
+	{
+		return m_token.isEmpty();
+	}
+
+private:
+	const bx::StringView& m_str;
+	bx::StringView m_token;
+	char m_ch;
+}; 
+
+bool openFileSelectionDialog(
+	  bx::FilePath& _inOutFilePath
+	, FileSelectionDialogType::Enum _type
+	, const bx::StringView& _title
+	, const bx::StringView& _filter = "All Files | *"
+	)
+{
+#if BX_PLATFORM_LINUX || BX_PLATFORM_OSX
+	char tmp[4096];
+	bx::StaticMemoryBlockWriter writer(tmp, sizeof(tmp) );
+
+	bx::Error err;
+	bx::write(&writer, &err
+		, "--file-selection%s --title \"%.*s\" --filename \"%s\""
+		, FileSelectionDialogType::Save == _type ? " --save" : ""
+		, _title.getLength(),  _title.getPtr()
+		, _inOutFilePath.getCPtr()
+		);
+
+	for (bx::LineReader lr(_filter); !lr.isDone();)
+	{
+		const bx::StringView line = lr.next();
+
+		bx::write(&writer, &err
+			, " --file-filter \"%.*s\""
+			, line.getLength(), line.getPtr()
+			);
+	}
+
+	if (err.isOk() )
+	{
+		bx::ProcessReader pr;
+
+		if (bx::open(&pr, "zenity", tmp, &err) )
+		{
+			char buffer[1024];
+			int32_t total = bx::read(&pr, buffer, sizeof(buffer), &err);
+			bx::close(&pr);
+
+			if (0 == pr.getExitCode() )
+			{
+				_inOutFilePath.set(bx::strRTrim(bx::StringView(buffer, total), "\n\r") );
+				return true;
+			}
+		}
+	}
+#elif BX_PLATFORM_WINDOWS
+	BX_UNUSED(_type);
+
+	char out[bx::kMaxFilePath] = { '\0' };
+
+	OPENFILENAMEA ofn;
+	bx::memSet(&ofn, 0, sizeof(ofn) );
+	ofn.structSize = sizeof(OPENFILENAMEA);
+	ofn.initialDir = _inOutFilePath.getCPtr();
+	ofn.file       = out;
+	ofn.maxFile    = sizeof(out);
+	ofn.flags      = 0
+		| /* OFN_EXPLORER        */ 0x00080000
+		| /* OFN_FILEMUSTEXIST   */ 0x00001000
+		| /* OFN_DONTADDTORECENT */ 0x02000000
+		;
+
+	char tmp[4096];
+	bx::StaticMemoryBlockWriter writer(tmp, sizeof(tmp) );
+
+	bx::Error err;
+
+	ofn.title = tmp;
+	bx::write(&writer, &err, "%.*s", _title.getLength(),  _title.getPtr() );
+	bx::write(&writer, '\0', &err);
+
+	ofn.filter = tmp + uint32_t(bx::seek(&writer) );
+
+	for (bx::LineReader lr(_filter); !lr.isDone() && err.isOk();)
+	{
+		const bx::StringView line = lr.next();
+		const bx::StringView sep  = bx::strFind(line, '|');
+
+		if (!sep.isEmpty() )
+		{
+			bx::write(&writer, bx::strTrim(bx::StringView(line.getPtr(), sep.getPtr() ), " "), &err);
+			bx::write(&writer, '\0', &err);
+
+			bool first = true;
+
+			for (Split split(bx::strTrim(bx::StringView(sep.getPtr()+1, line.getTerm() ), " "), ' '); !split.isDone() && err.isOk();)
+			{
+				const bx::StringView token = split.next();
+				if (!first)
+				{
+					bx::write(&writer, ';', &err);
+				}
+
+				first = false;
+				bx::write(&writer, token, &err);
+			}
+
+			bx::write(&writer, '\0', &err);
+		}
+		else
+		{
+			bx::write(&writer, line, &err);
+			bx::write(&writer, '\0', &err);
+			bx::write(&writer, '\0', &err);
+		}	
+	}
+
+	bx::write(&writer, '\0', &err);
+
+	if (err.isOk()
+	&&  GetOpenFileNameA(&ofn) )
+	{
+		_inOutFilePath.set(ofn.file);
+		return true;
+	}
+#else
+	BX_UNUSED(_inOutFilePath, _type, _title, _filter);
+#endif // BX_PLATFORM_LINUX || BX_PLATFORM_OSX
+
+	return false;
+}
 
 struct View
 {
@@ -671,68 +888,82 @@ struct View
 
 	void updateFileList(const bx::FilePath& _filePath)
 	{
-		DIR* dir = opendir(_filePath.get() );
+		bx::DirectoryReader dr;
 
-		if (NULL == dir)
-		{
-			m_path = _filePath.getPath();
-			dir = opendir(m_path.get() );
-		}
-		else
+		if (bx::open(&dr, _filePath) )
 		{
 			m_path = _filePath;
 		}
-
-		if (NULL != dir)
+		else if (bx::open(&dr, _filePath.getPath() ) )
 		{
-			for (dirent* item = readdir(dir); NULL != item; item = readdir(dir) )
-			{
-				if (0 == (item->d_type & DT_DIR) )
-				{
-					const bx::StringView fileName(item->d_name);
-					bx::StringView ext = bx::strRFind(fileName, '.');
-					if (!ext.isEmpty() )
-					{
-						ext.set(ext.getPtr()+1, fileName.getTerm() );
-						bool supported = false;
-						for (uint32_t ii = 0; ii < BX_COUNTOF(s_supportedExt); ++ii)
-						{
-							if (0 == bx::strCmpI(ext, s_supportedExt[ii]) )
-							{
-								supported = true;
-								break;
-							}
-						}
+			m_path = _filePath.getPath();
+		}
+		else
+		{
+			DBG("File path `%s` not found.", _filePath.getCPtr() );
+			return;
+		}
 
-						if (supported)
+		bx::Error err;
+
+		m_fileList.clear();
+
+		while (err.isOk() )
+		{
+			bx::FileInfo fi;
+			bx::read(&dr, fi, &err);
+
+			if (err.isOk()
+			&&  bx::FileType::File == fi.type)
+			{
+				bx::StringView ext = fi.filePath.getExt();
+
+				if (!ext.isEmpty() )
+				{
+					ext.set(ext.getPtr()+1, ext.getTerm() );
+
+					bool supported = false;
+					for (uint32_t ii = 0; ii < BX_COUNTOF(s_supportedExt); ++ii)
+					{
+						if (0 == bx::strCmpI(ext, s_supportedExt[ii]) )
 						{
-							m_fileList.push_back(item->d_name);
+							supported = true;
+							break;
 						}
+					}
+
+					if (supported)
+					{
+						const bx::StringView fileName = fi.filePath.getFileName();
+						m_fileList.push_back(std::string(fileName.getPtr(), fileName.getTerm() ) );
 					}
 				}
 			}
+		}
 
-			std::sort(m_fileList.begin(), m_fileList.end(), sortNameAscending);
+		bx::close(&dr);
 
-			m_fileIndex = 0;
-			uint32_t idx = 0;
-			for (FileList::const_iterator it = m_fileList.begin(); it != m_fileList.end(); ++it, ++idx)
+		std::sort(m_fileList.begin(), m_fileList.end(), sortNameAscending);
+
+		m_fileIndex = 0;
+		uint32_t idx = 0;
+
+		const bx::StringView fileName = _filePath.getFileName();
+
+		for (FileList::const_iterator it = m_fileList.begin(); it != m_fileList.end(); ++it, ++idx)
+		{
+			if (0 == bx::strCmpI(it->c_str(), fileName) )
 			{
-				if (0 == bx::strCmpI(it->c_str(), _filePath.getFileName() ) )
-				{
-					// If it is case-insensitive match then might be correct one, but keep
-					// searching.
-					m_fileIndex = idx;
+				// If it is case-insensitive match then might be correct one, but keep
+				// searching.
+				m_fileIndex = idx;
 
-					if (0 == bx::strCmp(it->c_str(), _filePath.getFileName() ) )
-					{
-						// If it is exact match we're done.
-						break;
-					}
+				if (0 == bx::strCmp(it->c_str(), fileName) )
+				{
+					// If it is exact match we're done.
+					break;
 				}
 			}
-
-			closedir(dir);
 		}
 	}
 
@@ -1090,8 +1321,8 @@ void associate()
 #if BX_PLATFORM_WINDOWS
 	std::string str;
 
-	char exec[MAX_PATH];
-	GetModuleFileNameA(GetModuleHandleA(NULL), exec, MAX_PATH);
+	char exec[bx::kMaxFilePath];
+	GetModuleFileNameA(GetModuleHandleA(NULL), exec, sizeof(exec) );
 
 	std::string strExec = bx::replaceAll<std::string>(exec, "\\", "\\\\");
 
@@ -1130,7 +1361,7 @@ void associate()
 		if (err.isOk() )
 		{
 			std::string cmd;
-			bx::stringPrintf(cmd, "/s %s", filePath.get() );
+			bx::stringPrintf(cmd, "/s %s", filePath.getCPtr() );
 
 			bx::ProcessReader reader;
 			if (bx::open(&reader, "regedit.exe", cmd.c_str(), &err) )
@@ -1436,6 +1667,20 @@ int _main_(int _argc, char** _argv)
 			{
 				if (ImGui::BeginMenu("File"))
 				{
+					if (ImGui::MenuItem("Open File") )
+					{
+						bx::FilePath tmp = view.m_path;
+						if (openFileSelectionDialog(
+							  tmp
+							, FileSelectionDialogType::Open
+							, "texturev: Open File"
+							, s_filter
+							) )
+						{
+							view.updateFileList(tmp);
+						}
+					}
+
 					if (ImGui::MenuItem("Show File List", NULL, view.m_files) )
 					{
 						cmdExec("view files");
@@ -1755,7 +2000,7 @@ int _main_(int _argc, char** _argv)
 			if (view.m_files)
 			{
 				char temp[bx::kMaxFilePath];
-				bx::snprintf(temp, BX_COUNTOF(temp), "%s##File", view.m_path.get() );
+				bx::snprintf(temp, BX_COUNTOF(temp), "%s##File", view.m_path.getCPtr() );
 
 				ImGui::SetNextWindowSize(
 					  ImVec2(400.0f, 400.0f)
@@ -1914,7 +2159,7 @@ int _main_(int _argc, char** _argv)
 				fp.join(view.m_fileList[view.m_fileIndex].c_str() );
 
 				bimg::Orientation::Enum orientation;
-				texture = loadTexture(fp.get()
+				texture = loadTexture(fp.getCPtr()
 					, 0
 					| BGFX_SAMPLER_U_CLAMP
 					| BGFX_SAMPLER_V_CLAMP
@@ -1963,7 +2208,7 @@ int _main_(int _argc, char** _argv)
 					}
 
 					bx::stringPrintf(title, "%s (%d x %d%s, mips: %d, layers %d, %s)"
-						, fp.get()
+						, fp.getCPtr()
 						, view.m_textureInfo.width
 						, view.m_textureInfo.height
 						, name

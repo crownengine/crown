@@ -241,4 +241,43 @@ namespace bx
 		return StringView(_str, _start, _len);
 	}
 
+	inline LineReader::LineReader(const bx::StringView& _str)
+		: m_str(_str)
+	{
+		reset();
+	}
+
+	inline void LineReader::reset()
+	{
+		m_curr = m_str;
+		m_line = 0;
+	}
+
+	inline StringView LineReader::next()
+	{
+		if (m_curr.getPtr() != m_str.getTerm() )
+		{
+			++m_line;
+
+			StringView curr(m_curr);
+			m_curr = bx::strFindNl(m_curr);
+
+			StringView line(curr.getPtr(), m_curr.getPtr() );
+
+			return strRTrim(line, "\n\r");
+		}
+
+		return m_curr;
+	}
+
+	inline bool LineReader::isDone() const
+	{
+		return m_curr.getPtr() == m_str.getTerm();
+	}
+
+	inline uint32_t LineReader::getLine() const
+	{
+		return m_line;
+	}
+
 } // namespace bx

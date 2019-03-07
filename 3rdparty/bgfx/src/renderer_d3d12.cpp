@@ -15,14 +15,22 @@
 #	endif // BX_PLATFORM_WINRT
 #endif // !BX_PLATFORM_WINDOWS
 
-#if BGFX_CONFIG_DEBUG_PIX && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
+#if BGFX_CONFIG_DEBUG_ANNOTATION && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
 PFN_PIX_GET_THREAD_INFO      bgfx_PIXGetThreadInfo;
 PFN_PIX_EVENTS_REPLACE_BLOCK bgfx_PIXEventsReplaceBlock;
-#endif // BGFX_CONFIG_DEBUG_PIX && BX_PLATFORM_WINDOWS
+#endif // BGFX_CONFIG_DEBUG_ANNOTATION && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
 
 namespace bgfx { namespace d3d12
 {
 	static char s_viewName[BGFX_CONFIG_MAX_VIEWS][BGFX_CONFIG_MAX_VIEW_NAME];
+
+	inline void setViewType(ViewId _view, const bx::StringView _str)
+	{
+		if (BX_ENABLED(BGFX_CONFIG_DEBUG_ANNOTATION || BGFX_CONFIG_PROFILER) )
+		{
+			bx::memCopy(&s_viewName[_view][3], _str.getPtr(), _str.getLength() );
+		}
+	}
 
 	struct PrimInfo
 	{
@@ -623,7 +631,7 @@ namespace bgfx { namespace d3d12
 #endif // BX_COMPILER_MSVC
 	}
 
-#if BGFX_CONFIG_DEBUG_PIX && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
+#if BGFX_CONFIG_DEBUG_ANNOTATION && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
 	static PIXEventsThreadInfo s_pixEventsThreadInfo;
 
 	PIXEventsThreadInfo* WINAPI stubPIXGetThreadInfo()
@@ -636,7 +644,7 @@ namespace bgfx { namespace d3d12
 		BX_UNUSED(_getEarliestTime);
 		return 0;
 	}
-#endif // BGFX_CONFIG_DEBUG_PIX && BX_PLATFORM_WINDOWS
+#endif // BGFX_CONFIG_DEBUG_ANNOTATION && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
 
 	struct RendererContextD3D12 : public RendererContextI
 	{
@@ -680,7 +688,7 @@ namespace bgfx { namespace d3d12
 			ErrorState::Enum errorState = ErrorState::Default;
 //			LUID luid;
 
-#if BGFX_CONFIG_DEBUG_PIX && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
+#if BGFX_CONFIG_DEBUG_ANNOTATION && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
 			m_winPixEvent = bx::dlopen("WinPixEventRuntime.dll");
 
 			if (NULL != m_winPixEvent)
@@ -695,7 +703,7 @@ namespace bgfx { namespace d3d12
 				bgfx_PIXGetThreadInfo      = stubPIXGetThreadInfo;
 				bgfx_PIXEventsReplaceBlock = stubPIXEventsReplaceBlock;
 			}
-#endif // BGFX_CONFIG_DEBUG_PIX && BX_PLATFORM_WINDOWS
+#endif // BGFX_CONFIG_DEBUG_ANNOTATION && (BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT)
 
 			if (_init.debug
 			||  _init.profile)
@@ -767,54 +775,40 @@ namespace bgfx { namespace d3d12
 
 			HRESULT hr;
 
-			if (_init.debug
-			||  _init.profile)
 			{
-				ID3D12Debug* debug0;
-				hr = D3D12GetDebugInterface(IID_ID3D12Debug, (void**)&debug0);
-
-				if (SUCCEEDED(hr) )
+#if BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
+				if (_init.debug
+				||  _init.profile)
 				{
-					uint32_t debugFlags = 0;
+					ID3D12Debug* debug0;
+					hr = D3D12GetDebugInterface(IID_ID3D12Debug, (void**)&debug0);
 
-					if (_init.debug)
+					if (SUCCEEDED(hr) )
 					{
-#if BX_PLATFORM_WINDOWS
-						debug0->EnableDebugLayer();
-
+						if (_init.debug)
 						{
-							ID3D12Debug1* debug1;
-							hr = debug0->QueryInterface(IID_ID3D12Debug1, (void**)&debug1);
+#if BX_PLATFORM_WINDOWS
+							debug0->EnableDebugLayer();
 
-							if (SUCCEEDED(hr) )
 							{
-//								debug1->SetEnableGPUBasedValidation(true);
-//								debug1->SetEnableSynchronizedCommandQueueValidation(true);
+								ID3D12Debug1* debug1;
+								hr = debug0->QueryInterface(IID_ID3D12Debug1, (void**)&debug1);
+
+								if (SUCCEEDED(hr))
+								{
+//									debug1->SetEnableGPUBasedValidation(true);
+//									debug1->SetEnableSynchronizedCommandQueueValidation(true);
+								}
+
+								DX_RELEASE(debug1, 1);
 							}
-
-							DX_RELEASE(debug1, 1);
-						}
-#elif BX_PLATFORM_XBOXONE
-						debugFlags |= D3D12_PROCESS_DEBUG_FLAG_DEBUG_LAYER_ENABLED;
 #endif // BX_PLATFORM_WINDOWS
+						}
+
+						DX_RELEASE(debug0, 0);
 					}
-
-#if BX_PLATFORM_XBOXONE
-					// https://github.com/Microsoft/Xbox-ATG-Samples/blob/76d236e3bd372aceec18b2ad0556a7879dbd9628/XDKSamples/IntroGraphics/SimpleTriangle12/DeviceResources.cpp#L67
-					debugFlags |= _init.profile ? D3D12XBOX_PROCESS_DEBUG_FLAG_INSTRUMENTED : 0;
-
-					if (0 != debugFlags)
-					{
-						debug0->SetProcessDebugFlags(D3D12XBOX_PROCESS_DEBUG_FLAGS(debugFlags) );
-					}
-#endif // BX_PLATFORM_XBOXONE
-					BX_UNUSED(debugFlags);
-
-					DX_RELEASE(debug0, 0);
 				}
-			}
 
-			{
 				D3D_FEATURE_LEVEL featureLevel[] =
 				{
 					D3D_FEATURE_LEVEL_12_1,
@@ -837,6 +831,35 @@ namespace bgfx { namespace d3d12
 						);
 					m_featureLevel = featureLevel[ii];
 				}
+#else
+				// Reference(s):
+				//  - https://github.com/Microsoft/Xbox-ATG-Samples/blob/1271bfd61b4883c775f395b6f13aeabea70290ca/XDKSamples/Graphics/AdvancedESRAM12/DeviceResources.cpp#L64
+				D3D12XBOX_CREATE_DEVICE_PARAMETERS params = {};
+				params.Version = D3D12_SDK_VERSION;
+				params.ProcessDebugFlags = D3D12XBOX_PROCESS_DEBUG_FLAGS(0
+					| (_init.debug   ? D3D12XBOX_PROCESS_DEBUG_FLAG_DEBUG        : 0)
+					| (_init.profile ? D3D12XBOX_PROCESS_DEBUG_FLAG_INSTRUMENTED : 0)
+					);
+				params.GraphicsCommandQueueRingSizeBytes = UINT32_MAX;
+				params.GraphicsScratchMemorySizeBytes    = UINT32_MAX;
+				params.ComputeScratchMemorySizeBytes     = UINT32_MAX;
+				params.DisableGeometryShaderAllocations     = true;
+				params.DisableTessellationShaderAllocations = true;
+
+				hr = D3D12XboxCreateDevice(
+						  m_dxgi.m_adapter
+						, &params
+						, IID_ID3D12Device
+						, (void**)&m_device
+						);
+				m_featureLevel = D3D_FEATURE_LEVEL_12_1;
+
+				if (SUCCEEDED(hr) )
+				{
+					m_device->SetDebugErrorFilterX(0x73EC9EAF, D3D12XBOX_DEBUG_FILTER_FLAG_DISABLE_BREAKS);
+					m_device->SetDebugErrorFilterX(0x8EC9B15C, D3D12XBOX_DEBUG_FILTER_FLAG_DISABLE_OUTPUT);
+				}
+#endif // BX_PLATFORM_WINDOWS || BX_PLATFORM_WINRT
 			}
 
 			if (FAILED(hr) )
@@ -865,11 +888,6 @@ namespace bgfx { namespace d3d12
 					}
 				}
 			}
-
-#if BX_PLATFORM_XBOXONE
-			m_device->SetDebugErrorFilterX(0x73EC9EAF, D3D12XBOX_DEBUG_FILTER_FLAG_DISABLE_BREAKS);
-			m_device->SetDebugErrorFilterX(0x8EC9B15C, D3D12XBOX_DEBUG_FILTER_FLAG_DISABLE_OUTPUT);
-#endif // BX_PLATFORM_XBOXONE
 
 			if (BGFX_PCI_ID_NVIDIA != m_dxgi.m_adapterDesc.VendorId)
 			{
@@ -1868,9 +1886,9 @@ namespace bgfx { namespace d3d12
 		{
 			BX_UNUSED(_len);
 
-			if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
+			if (BX_ENABLED(BGFX_CONFIG_DEBUG_ANNOTATION) )
 			{
-				PIX3_SETMARKER(m_commandList, D3DCOLOR_MARKER, _marker);
+				PIX3_SETMARKER(m_commandList, kColorMarker, _marker);
 			}
 		}
 
@@ -4594,10 +4612,11 @@ namespace bgfx { namespace d3d12
 				);
 			ti.numMips = bx::min<uint8_t>(imageContainer.m_numMips-startLod, ti.numMips);
 
-			m_flags  = _flags;
-			m_width  = ti.width;
-			m_height = ti.height;
-			m_depth  = ti.depth;
+			m_flags     = _flags;
+			m_width     = ti.width;
+			m_height    = ti.height;
+			m_depth     = ti.depth;
+			m_numLayers = ti.numLayers;
 			m_requestedFormat  = uint8_t(imageContainer.m_format);
 			m_textureFormat    = uint8_t(getViableTextureFormat(imageContainer) );
 			const bool convert = m_textureFormat != m_requestedFormat;
@@ -4798,49 +4817,31 @@ namespace bgfx { namespace d3d12
 			switch (m_type)
 			{
 			case Texture2D:
-			case TextureCube:
 				resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-				if (imageContainer.m_cubeMap)
+
+				if (1 < ti.numLayers)
 				{
-					if (1 < ti.numLayers)
-					{
-						m_srvd.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-						m_srvd.TextureCubeArray.MostDetailedMip     = 0;
-						m_srvd.TextureCubeArray.MipLevels           = ti.numMips;
-						m_srvd.TextureCubeArray.ResourceMinLODClamp = 0.0f;
-						m_srvd.TextureCubeArray.NumCubes            = ti.numLayers;
-					}
-					else
-					{
-						m_srvd.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-						m_srvd.TextureCube.MostDetailedMip     = 0;
-						m_srvd.TextureCube.MipLevels           = ti.numMips;
-						m_srvd.TextureCube.ResourceMinLODClamp = 0.0f;
-					}
+					m_srvd.ViewDimension = 1 < msaa.Count
+						? D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY
+						: D3D12_SRV_DIMENSION_TEXTURE2DARRAY
+						;
+					m_srvd.Texture2DArray.MostDetailedMip     = 0;
+					m_srvd.Texture2DArray.MipLevels           = ti.numMips;
+					m_srvd.Texture2DArray.FirstArraySlice     = 0;
+					m_srvd.Texture2DArray.ArraySize           = ti.numLayers;
+					m_srvd.Texture2DArray.PlaneSlice          = 0;
+					m_srvd.Texture2DArray.ResourceMinLODClamp = 0.0f;
 				}
 				else
 				{
-					if (1 < ti.numLayers)
-					{
-						m_srvd.ViewDimension = 1 < msaa.Count
-							? D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY
-							: D3D12_SRV_DIMENSION_TEXTURE2DARRAY
-							;
-						m_srvd.Texture2DArray.MostDetailedMip     = 0;
-						m_srvd.Texture2DArray.MipLevels           = ti.numMips;
-						m_srvd.Texture2DArray.ResourceMinLODClamp = 0.0f;
-						m_srvd.Texture2DArray.ArraySize           = ti.numLayers;
-					}
-					else
-					{
-						m_srvd.ViewDimension = 1 < msaa.Count
-							? D3D12_SRV_DIMENSION_TEXTURE2DMS
-							: D3D12_SRV_DIMENSION_TEXTURE2D
-							;
-						m_srvd.Texture2D.MostDetailedMip     = 0;
-						m_srvd.Texture2D.MipLevels           = ti.numMips;
-						m_srvd.Texture2D.ResourceMinLODClamp = 0.0f;
-					}
+					m_srvd.ViewDimension = 1 < msaa.Count
+						? D3D12_SRV_DIMENSION_TEXTURE2DMS
+						: D3D12_SRV_DIMENSION_TEXTURE2D
+						;
+					m_srvd.Texture2D.MostDetailedMip     = 0;
+					m_srvd.Texture2D.MipLevels           = ti.numMips;
+					m_srvd.Texture2D.PlaneSlice          = 0;
+					m_srvd.Texture2D.ResourceMinLODClamp = 0.0f;
 				}
 
 				if (1 < ti.numLayers)
@@ -4848,8 +4849,8 @@ namespace bgfx { namespace d3d12
 					m_uavd.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
 					m_uavd.Texture2DArray.MipSlice        = 0;
 					m_uavd.Texture2DArray.FirstArraySlice = 0;
-					m_uavd.Texture2DArray.PlaneSlice      = 0;
 					m_uavd.Texture2DArray.ArraySize       = ti.numLayers;
+					m_uavd.Texture2DArray.PlaneSlice      = 0;
 				}
 				else
 				{
@@ -4857,14 +4858,6 @@ namespace bgfx { namespace d3d12
 					m_uavd.Texture2D.MipSlice   = 0;
 					m_uavd.Texture2D.PlaneSlice = 0;
 				}
-
-				if (TextureCube == m_type)
-				{
-					m_uavd.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
-					m_uavd.Texture2DArray.MipSlice  = 0;
-					m_uavd.Texture2DArray.ArraySize = 6;
-				}
-
 				break;
 
 			case Texture3D:
@@ -4879,6 +4872,32 @@ namespace bgfx { namespace d3d12
 				m_uavd.Texture3D.MipSlice    = 0;
 				m_uavd.Texture3D.FirstWSlice = 0;
 				m_uavd.Texture3D.WSize       = m_depth;
+				break;
+
+			case TextureCube:
+				resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+
+				if (1 < ti.numLayers)
+				{
+					m_srvd.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+					m_srvd.TextureCubeArray.MostDetailedMip     = 0;
+					m_srvd.TextureCubeArray.MipLevels           = ti.numMips;
+					m_srvd.TextureCubeArray.ResourceMinLODClamp = 0.0f;
+					m_srvd.TextureCubeArray.NumCubes            = ti.numLayers;
+				}
+				else
+				{
+					m_srvd.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+					m_srvd.TextureCube.MostDetailedMip     = 0;
+					m_srvd.TextureCube.MipLevels           = ti.numMips;
+					m_srvd.TextureCube.ResourceMinLODClamp = 0.0f;
+				}
+
+				m_uavd.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+				m_uavd.Texture2DArray.MipSlice        = 0;
+				m_uavd.Texture2DArray.FirstArraySlice = 0;
+				m_uavd.Texture2DArray.ArraySize       = 6;
+				m_uavd.Texture2DArray.PlaneSlice      = 0;
 				break;
 			}
 
@@ -5206,9 +5225,20 @@ namespace bgfx { namespace d3d12
 //							}
 //							else
 							{
-								desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-								desc.Texture2D.MipSlice   = at.mip;
-								desc.Texture2D.PlaneSlice = 0;
+								if (1 < texture.m_numLayers)
+								{
+									desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+									desc.Texture2DArray.FirstArraySlice = at.layer;
+									desc.Texture2DArray.ArraySize       = 1;
+									desc.Texture2DArray.MipSlice        = at.mip;
+									desc.Texture2DArray.PlaneSlice      = 0;
+								}
+								else
+								{
+									desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+									desc.Texture2D.MipSlice   = at.mip;
+									desc.Texture2D.PlaneSlice = 0;
+								}
 							}
 							break;
 
@@ -5684,8 +5714,6 @@ namespace bgfx { namespace d3d12
 
 	void RendererContextD3D12::submit(Frame* _render, ClearQuad& /*_clearQuad*/, TextVideoMemBlitter& _textVideoMemBlitter)
 	{
-		PIX3_BEGINEVENT(m_commandList, D3DCOLOR_FRAME, "rendererSubmit");
-
 		if (m_lost
 		||  updateResolution(_render->m_resolution) )
 		{
@@ -5697,6 +5725,8 @@ namespace bgfx { namespace d3d12
 			renderDocTriggerCapture();
 		}
 
+		BGFX_D3D12_PROFILER_BEGIN_LITERAL("rendererSubmit", kColorFrame);
+
 		int64_t timeBegin = bx::getHPCounter();
 		int64_t captureElapsed = 0;
 
@@ -5704,12 +5734,14 @@ namespace bgfx { namespace d3d12
 
 		if (0 < _render->m_iboffset)
 		{
+			BGFX_PROFILER_SCOPE("bgfx/Update transient index buffer", kColorResource);
 			TransientIndexBuffer* ib = _render->m_transientIb;
 			m_indexBuffers[ib->handle.idx].update(m_commandList, 0, _render->m_iboffset, ib->data);
 		}
 
 		if (0 < _render->m_vboffset)
 		{
+			BGFX_PROFILER_SCOPE("bgfx/Update transient vertex buffer", kColorResource);
 			TransientVertexBuffer* vb = _render->m_transientVb;
 			m_vertexBuffers[vb->handle.idx].update(m_commandList, 0, _render->m_vboffset, vb->data);
 		}
@@ -5855,15 +5887,19 @@ namespace bgfx { namespace d3d12
 					currentProgram         = BGFX_INVALID_HANDLE;
 					hasPredefined          = false;
 
-					fbh = _render->m_view[view].m_fbh;
-					setFrameBuffer(fbh);
-
 					if (item > 1)
 					{
 						profiler.end();
 					}
 
+					BGFX_D3D12_PROFILER_END();
+					setViewType(view, "  ");
+					BGFX_D3D12_PROFILER_BEGIN(view, kColorView);
+
 					profiler.begin(view);
+
+					fbh = _render->m_view[view].m_fbh;
+					setFrameBuffer(fbh);
 
 					viewState.m_rect = _render->m_view[view].m_rect;
 					const Rect& rect        = _render->m_view[view].m_rect;
@@ -5907,13 +5943,9 @@ namespace bgfx { namespace d3d12
 					{
 						wasCompute = true;
 
-						if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
-						{
-							char* viewName = s_viewName[view];
-							viewName[3] = L'C';
-							PIX3_ENDEVENT(m_commandList);
-							PIX3_BEGINEVENT(m_commandList, D3DCOLOR_COMPUTE, viewName);
-						}
+						setViewType(view, "C");
+						BGFX_D3D12_PROFILER_END();
+						BGFX_D3D12_PROFILER_BEGIN(view, kColorCompute);
 
 						commandListChanged = true;
 					}
@@ -6116,14 +6148,9 @@ namespace bgfx { namespace d3d12
 				{
 					wasCompute = false;
 
-					if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
-					{
-						BX_UNUSED(s_viewName);
- 						char* viewName = s_viewName[view];
- 						viewName[3] = ' ';
- 						PIX3_ENDEVENT(m_commandList);
- 						PIX3_BEGINEVENT(m_commandList, D3DCOLOR_DRAW, viewName);
-					}
+					setViewType(view, " ");
+					BGFX_D3D12_PROFILER_END();
+					BGFX_D3D12_PROFILER_BEGIN(view, kColorDraw);
 
 					commandListChanged = true;
 				}
@@ -6502,13 +6529,9 @@ namespace bgfx { namespace d3d12
 
 			if (wasCompute)
 			{
-				if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
-				{
-					char* viewName = s_viewName[view];
-					viewName[3] = L'C';
-					PIX3_ENDEVENT(m_commandList);
-					PIX3_BEGINEVENT(m_commandList, D3DCOLOR_DRAW, viewName);
-				}
+				setViewType(view, "C");
+				BGFX_D3D12_PROFILER_END();
+				BGFX_D3D12_PROFILER_BEGIN(view, kColorCompute);
 			}
 
 			submitBlit(bs, BGFX_CONFIG_MAX_VIEWS);
@@ -6528,7 +6551,7 @@ namespace bgfx { namespace d3d12
 			}
 		}
 
-		PIX3_ENDEVENT(m_commandList);
+		BGFX_D3D12_PROFILER_END();
 
 		int64_t timeEnd   = bx::getHPCounter();
 		int64_t frameTime = timeEnd - timeBegin;
@@ -6590,7 +6613,7 @@ namespace bgfx { namespace d3d12
 
 		if (_render->m_debug & (BGFX_DEBUG_IFH|BGFX_DEBUG_STATS) )
 		{
-			PIX3_BEGINEVENT(m_commandList, D3DCOLOR_FRAME, "debugstats");
+			BGFX_D3D12_PROFILER_BEGIN_LITERAL("debugstats", kColorFrame);
 
 //			m_needPresent = true;
 			TextVideoMem& tvm = m_textVideoMem;
@@ -6754,15 +6777,15 @@ namespace bgfx { namespace d3d12
 
 			blit(this, _textVideoMemBlitter, tvm);
 
-			PIX3_ENDEVENT(m_commandList);
+			BGFX_D3D12_PROFILER_END();
 		}
 		else if (_render->m_debug & BGFX_DEBUG_TEXT)
 		{
-			PIX3_BEGINEVENT(m_commandList, D3DCOLOR_FRAME, "debugtext");
+			BGFX_D3D12_PROFILER_BEGIN_LITERAL("debugtext", kColorFrame);
 
 			blit(this, _textVideoMemBlitter, _render->m_textVideoMem);
 
-			PIX3_ENDEVENT(m_commandList);
+			BGFX_D3D12_PROFILER_END();
 		}
 
 		m_commandList->OMSetRenderTargets(0, NULL, false, NULL);

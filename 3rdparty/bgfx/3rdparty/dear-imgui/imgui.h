@@ -1,9 +1,9 @@
-// dear imgui, v1.68 WIP
+// dear imgui, v1.69 WIP
 // (headers)
 
 // See imgui.cpp file for documentation.
 // Call and read ImGui::ShowDemoWindow() in imgui_demo.cpp for demo code.
-// Newcomers, read 'Programmer guide' below for notes on how to setup Dear ImGui in your codebase.
+// Newcomers, read 'Programmer guide' in imgui.cpp for notes on how to setup Dear ImGui in your codebase.
 // Get latest version at https://github.com/ocornut/imgui
 
 /*
@@ -26,7 +26,7 @@ Index of this file:
 
 #pragma once
 
-// Configuration file (edit imconfig.h or define IMGUI_USER_CONFIG to your own filename)
+// Configuration file with compile-time options (edit imconfig.h or define IMGUI_USER_CONFIG to your own filename)
 #ifdef IMGUI_USER_CONFIG
 #include IMGUI_USER_CONFIG
 #endif
@@ -44,9 +44,9 @@ Index of this file:
 #include <string.h>                 // memset, memmove, memcpy, strlen, strchr, strcpy, strcmp
 
 // Version
-// (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY00 then bounced up to XYY01 when release tagging happens)
-#define IMGUI_VERSION               "1.68 WIP"
-#define IMGUI_VERSION_NUM           16800
+// (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY99 then bounce up to XYY00, XYY01 etc. when release tagging happens)
+#define IMGUI_VERSION               "1.69 WIP"
+#define IMGUI_VERSION_NUM           16899
 #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
 
 // Define attributes of all API symbols declarations (e.g. for DLL under Windows)
@@ -151,6 +151,10 @@ typedef int (*ImGuiInputTextCallback)(ImGuiInputTextCallbackData *data);
 typedef void (*ImGuiSizeCallback)(ImGuiSizeCallbackData* data);
 
 // Scalar data types
+typedef signed char         ImS8;   // 8-bit signed integer == char
+typedef unsigned char       ImU8;   // 8-bit unsigned integer
+typedef signed short        ImS16;  // 16-bit signed integer
+typedef unsigned short      ImU16;  // 16-bit unsigned integer
 typedef signed int          ImS32;  // 32-bit signed integer == int
 typedef unsigned int        ImU32;  // 32-bit unsigned integer (often used to store packed colors)
 #if defined(_MSC_VER) && !defined(__clang__)
@@ -216,12 +220,12 @@ namespace ImGui
     // Demo, Debug, Information
     IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
     IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create about window. display Dear ImGui version, credits and build/system information.
-    IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create metrics window. display Dear ImGui internals: draw commands (with individual draw calls and vertices), window list, basic internal state, etc.
+    IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create metrics/debug window. display Dear ImGui internals: draw commands (with individual draw calls and vertices), window list, basic internal state, etc.
     IMGUI_API void          ShowStyleEditor(ImGuiStyle* ref = NULL);    // add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style)
     IMGUI_API bool          ShowStyleSelector(const char* label);       // add style selector block (not a window), essentially a combo listing the default styles.
     IMGUI_API void          ShowFontSelector(const char* label);        // add font selector block (not a window), essentially a combo listing the loaded fonts.
     IMGUI_API void          ShowUserGuide();                            // add basic help/info block (not a window): how to manipulate ImGui as a end-user (mouse/keyboard controls).
-    IMGUI_API const char*   GetVersion();                               // get the compiled version string e.g. "1.23"
+    IMGUI_API const char*   GetVersion();                               // get the compiled version string e.g. "1.23" (essentially the compiled value for IMGUI_VERSION)
 
     // Styles
     IMGUI_API void          StyleColorsDark(ImGuiStyle* dst = NULL);    // new, recommended style (default)
@@ -264,7 +268,7 @@ namespace ImGui
     IMGUI_API float         GetWindowHeight();                          // get current window height (shortcut for GetWindowSize().y)
     IMGUI_API ImVec2        GetContentRegionMax();                      // current content boundaries (typically window boundaries including scrolling, or current column boundaries), in windows coordinates
     IMGUI_API ImVec2        GetContentRegionAvail();                    // == GetContentRegionMax() - GetCursorPos()
-    IMGUI_API float         GetContentRegionAvailWidth();               //
+    IMGUI_API float         GetContentRegionAvailWidth();               // == GetContentRegionAvail().x
     IMGUI_API ImVec2        GetWindowContentRegionMin();                // content boundaries min (roughly (0,0)-Scroll), in window coordinates
     IMGUI_API ImVec2        GetWindowContentRegionMax();                // content boundaries max (roughly (0,0)+Size-Scroll) where Size can be override with SetNextWindowContentSize(), in window coordinates
     IMGUI_API float         GetWindowContentRegionWidth();              //
@@ -294,7 +298,7 @@ namespace ImGui
     IMGUI_API void          SetScrollX(float scroll_x);                                     // set scrolling amount [0..GetScrollMaxX()]
     IMGUI_API void          SetScrollY(float scroll_y);                                     // set scrolling amount [0..GetScrollMaxY()]
     IMGUI_API void          SetScrollHereY(float center_y_ratio = 0.5f);                    // adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
-    IMGUI_API void          SetScrollFromPosY(float local_y, float center_y_ratio = 0.5f);  // adjust scrolling amount to make given position valid. use GetCursorPos() or GetCursorStartPos()+offset to get valid positions.
+    IMGUI_API void          SetScrollFromPosY(float local_y, float center_y_ratio = 0.5f);  // adjust scrolling amount to make given position visible. Generally GetCursorStartPos() + offset to compute a valid position.
 
     // Parameters stacks (shared)
     IMGUI_API void          PushFont(ImFont* font);                                         // use NULL as a shortcut to push default font
@@ -386,7 +390,7 @@ namespace ImGui
     // - Most widgets return true when the value has been changed or when pressed/selected
     IMGUI_API bool          Button(const char* label, const ImVec2& size = ImVec2(0,0));    // button
     IMGUI_API bool          SmallButton(const char* label);                                 // button with FramePadding=(0,0) to easily embed within text
-    IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size);        // button behavior without the visuals, useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
+    IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size);        // button behavior without the visuals, frequently useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
     IMGUI_API bool          ArrowButton(const char* str_id, ImGuiDir dir);                  // square button with an arrow shape
     IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
     IMGUI_API bool          ImageButton(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0),  const ImVec2& uv1 = ImVec2(1,1), int frame_padding = -1, const ImVec4& bg_col = ImVec4(0,0,0,0), const ImVec4& tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
@@ -447,6 +451,7 @@ namespace ImGui
     // - Most of the ImGuiInputTextFlags flags are only useful for InputText() and not for InputFloatX, InputIntX, InputDouble etc.
     IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
     IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+    IMGUI_API bool          InputTextWithHint(const char* label, const char* hint, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
     IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags flags = 0);
     IMGUI_API bool          InputFloat2(const char* label, float v[2], const char* format = "%.3f", ImGuiInputTextFlags flags = 0);
     IMGUI_API bool          InputFloat3(const char* label, float v[3], const char* format = "%.3f", ImGuiInputTextFlags flags = 0);
@@ -573,9 +578,9 @@ namespace ImGui
 
     // Logging/Capture
     // - All text output from the interface can be captured into tty/file/clipboard. By default, tree nodes are automatically opened during logging.
-    IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty (stdout)
-    IMGUI_API void          LogToFile(int max_depth = -1, const char* filename = NULL);         // start logging to file
-    IMGUI_API void          LogToClipboard(int max_depth = -1);                                 // start logging to OS clipboard
+    IMGUI_API void          LogToTTY(int auto_open_depth = -1);                                 // start logging to tty (stdout)
+    IMGUI_API void          LogToFile(int auto_open_depth = -1, const char* filename = NULL);   // start logging to file
+    IMGUI_API void          LogToClipboard(int auto_open_depth = -1);                           // start logging to OS clipboard
     IMGUI_API void          LogFinish();                                                        // stop logging (close file, etc.)
     IMGUI_API void          LogButtons();                                                       // helper to display buttons for logging to tty/file/clipboard
     IMGUI_API void          LogText(const char* fmt, ...) IM_FMTARGS(1);                        // pass text data straight to log (without being displayed)
@@ -583,7 +588,7 @@ namespace ImGui
     // Drag and Drop
     // [BETA API] API may evolve!
     IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0);                                      // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
-    IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t size, ImGuiCond cond = 0);// type is a user defined string of maximum 32 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
+    IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t sz, ImGuiCond cond = 0);  // type is a user defined string of maximum 32 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
     IMGUI_API void          EndDragDropSource();                                                                    // only call EndDragDropSource() if BeginDragDropSource() returns true!
     IMGUI_API bool                  BeginDragDropTarget();                                                          // call after submitting an item that may receive a payload. If this returns true, you can call AcceptDragDropPayload() + EndDragDropTarget()
     IMGUI_API const ImGuiPayload*   AcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags = 0);          // accept contents of a given type. If ImGuiDragDropFlags_AcceptBeforeDelivery is set you can peek into the payload before the mouse button is released.
@@ -611,9 +616,9 @@ namespace ImGui
     IMGUI_API bool          IsItemActivated();                                                  // was the last item just made active (item was previously inactive).
     IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
     IMGUI_API bool          IsItemDeactivatedAfterEdit();                                       // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
-    IMGUI_API bool          IsAnyItemHovered();
-    IMGUI_API bool          IsAnyItemActive();
-    IMGUI_API bool          IsAnyItemFocused();
+    IMGUI_API bool          IsAnyItemHovered();                                                 // is any item hovered?
+    IMGUI_API bool          IsAnyItemActive();                                                  // is any item active?
+    IMGUI_API bool          IsAnyItemFocused();                                                 // is any item focused?
     IMGUI_API ImVec2        GetItemRectMin();                                                   // get upper-left bounding rectangle of the last item (screen space)
     IMGUI_API ImVec2        GetItemRectMax();                                                   // get lower-right bounding rectangle of the last item (screen space)
     IMGUI_API ImVec2        GetItemRectSize();                                                  // get size of last item
@@ -624,9 +629,10 @@ namespace ImGui
     IMGUI_API bool          IsRectVisible(const ImVec2& rect_min, const ImVec2& rect_max);      // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
     IMGUI_API double        GetTime();                                                          // get global imgui time. incremented by io.DeltaTime every frame.
     IMGUI_API int           GetFrameCount();                                                    // get global imgui frame count. incremented by 1 every frame.
-    IMGUI_API ImDrawList*   GetOverlayDrawList();                                               // this draw list will be the last rendered one, useful to quickly draw overlays shapes/text
-    IMGUI_API ImDrawListSharedData* GetDrawListSharedData();                                    // you may use this when creating your own ImDrawList instances
-    IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
+    IMGUI_API ImDrawList*   GetBackgroundDrawList();                                            // this draw list will be the first rendering one. Useful to quickly draw shapes/text behind dear imgui contents.
+    IMGUI_API ImDrawList*   GetForegroundDrawList();                                            // this draw list will be the last rendered one. Useful to quickly draw shapes/text over dear imgui contents.
+    IMGUI_API ImDrawListSharedData* GetDrawListSharedData();                                    // you may use this when creating your own ImDrawList instances.
+    IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);                                    // get a string corresponding to the enum value (for display, saving, etc.).
     IMGUI_API void          SetStateStorage(ImGuiStorage* storage);                             // replace current window storage with our own (if you want to manipulate it yourself, typically clear subsection of it)
     IMGUI_API ImGuiStorage* GetStateStorage();
     IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
@@ -653,7 +659,7 @@ namespace ImGui
     IMGUI_API bool          IsMouseReleased(int button);                                        // did mouse button released (went from Down to !Down)
     IMGUI_API bool          IsMouseDragging(int button = 0, float lock_threshold = -1.0f);      // is mouse dragging. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
     IMGUI_API bool          IsMouseHoveringRect(const ImVec2& r_min, const ImVec2& r_max, bool clip = true);  // is mouse hovering given bounding rect (in screen space). clipped by current clipping settings, but disregarding of other consideration of focus/window ordering/popup-block.
-    IMGUI_API bool          IsMousePosValid(const ImVec2* mouse_pos = NULL);                    //
+    IMGUI_API bool          IsMousePosValid(const ImVec2* mouse_pos = NULL);                    // by convention we use (-FLT_MAX,-FLT_MAX) to denote that there is no mouse
     IMGUI_API ImVec2        GetMousePos();                                                      // shortcut to ImGui::GetIO().MousePos provided by user, to be consistent with other calls
     IMGUI_API ImVec2        GetMousePosOnOpeningCurrentPopup();                                 // retrieve backup of mouse position at the time of opening popup we have BeginPopup() into
     IMGUI_API ImVec2        GetMouseDragDelta(int button = 0, float lock_threshold = -1.0f);    // return the delta from the initial clicking position. This is locked and return 0.0f until the mouse moves past a distance threshold at least once. If lock_threshold < -1.0f uses io.MouseDraggingThreshold
@@ -672,12 +678,12 @@ namespace ImGui
     // - Set io.IniFilename to NULL to load/save manually. Read io.WantSaveIniSettings description about handling .ini saving manually.
     IMGUI_API void          LoadIniSettingsFromDisk(const char* ini_filename);                  // call after CreateContext() and before the first call to NewFrame(). NewFrame() automatically calls LoadIniSettingsFromDisk(io.IniFilename).
     IMGUI_API void          LoadIniSettingsFromMemory(const char* ini_data, size_t ini_size=0); // call after CreateContext() and before the first call to NewFrame() to provide .ini data from your own data source.
-    IMGUI_API void          SaveIniSettingsToDisk(const char* ini_filename);
+    IMGUI_API void          SaveIniSettingsToDisk(const char* ini_filename);                    // this is automatically called (if io.IniFilename is not empty) a few seconds after any modification that should be reflected in the .ini file (and also by DestroyContext). 
     IMGUI_API const char*   SaveIniSettingsToMemory(size_t* out_ini_size = NULL);               // return a zero-terminated string with the .ini data which you can save by your own mean. call when io.WantSaveIniSettings is set, then save data by your own mean and clear io.WantSaveIniSettings.
 
-    // Memory Utilities
+    // Memory Allocators
     // - All those functions are not reliant on the current context.
-    // - If you reload the contents of imgui.cpp at runtime, you may need to call SetCurrentContext() + SetAllocatorFunctions() again.
+    // - If you reload the contents of imgui.cpp at runtime, you may need to call SetCurrentContext() + SetAllocatorFunctions() again because we use global storage for those.
     IMGUI_API void          SetAllocatorFunctions(void* (*alloc_func)(size_t sz, void* user_data), void (*free_func)(void* ptr, void* user_data), void* user_data = NULL);
     IMGUI_API void*         MemAlloc(size_t size);
     IMGUI_API void          MemFree(void* ptr);
@@ -738,7 +744,7 @@ enum ImGuiInputTextFlags_
     ImGuiInputTextFlags_CharsUppercase      = 1 << 2,   // Turn a..z into A..Z
     ImGuiInputTextFlags_CharsNoBlank        = 1 << 3,   // Filter out spaces, tabs
     ImGuiInputTextFlags_AutoSelectAll       = 1 << 4,   // Select entire text when first taking mouse focus
-    ImGuiInputTextFlags_EnterReturnsTrue    = 1 << 5,   // Return 'true' when Enter is pressed (as opposed to when the value was modified)
+    ImGuiInputTextFlags_EnterReturnsTrue    = 1 << 5,   // Return 'true' when Enter is pressed (as opposed to every time the value was modified). Consider looking at the IsItemDeactivatedAfterEdit() function.
     ImGuiInputTextFlags_CallbackCompletion  = 1 << 6,   // Callback on pressing TAB (for completion handling)
     ImGuiInputTextFlags_CallbackHistory     = 1 << 7,   // Callback on pressing Up/Down arrows (for history handling)
     ImGuiInputTextFlags_CallbackAlways      = 1 << 8,   // Callback on each iteration. User code may query cursor position, modify text buffer.
@@ -885,10 +891,14 @@ enum ImGuiDragDropFlags_
 // A primary data type
 enum ImGuiDataType_
 {
+    ImGuiDataType_S8,       // char
+    ImGuiDataType_U8,       // unsigned char
+    ImGuiDataType_S16,      // short
+    ImGuiDataType_U16,      // unsigned short
     ImGuiDataType_S32,      // int
     ImGuiDataType_U32,      // unsigned int
-    ImGuiDataType_S64,      // long long, __int64
-    ImGuiDataType_U64,      // unsigned long long, unsigned __int64
+    ImGuiDataType_S64,      // long long / __int64
+    ImGuiDataType_U64,      // unsigned long long / unsigned __int64
     ImGuiDataType_Float,    // float
     ImGuiDataType_Double,   // double
     ImGuiDataType_COUNT
@@ -959,6 +969,7 @@ enum ImGuiNavInput_
     // [Internal] Don't use directly! This is used internally to differentiate keyboard from gamepad inputs for behaviors that require to differentiate them.
     // Keyboard behavior that have no corresponding gamepad mapping (e.g. CTRL+TAB) will be directly reading from io.KeysDown[] instead of io.NavInputs[].
     ImGuiNavInput_KeyMenu_,      // toggle menu                                  // = io.KeyAlt
+    ImGuiNavInput_KeyTab_,       // tab                                          // = Tab key
     ImGuiNavInput_KeyLeft_,      // move left                                    // = Arrow keys
     ImGuiNavInput_KeyRight_,     // move right
     ImGuiNavInput_KeyUp_,        // move up
@@ -1060,7 +1071,7 @@ enum ImGuiCol_
 // NB: if changing this enum, you need to update the associated internal table GStyleVarInfo[] accordingly. This is where we link enum values to members offset/type.
 enum ImGuiStyleVar_
 {
-    // Enum name ......................// Member in ImGuiStyle structure (see ImGuiStyle for descriptions)
+    // Enum name --------------------- // Member in ImGuiStyle structure (see ImGuiStyle for descriptions)
     ImGuiStyleVar_Alpha,               // float     Alpha
     ImGuiStyleVar_WindowPadding,       // ImVec2    WindowPadding
     ImGuiStyleVar_WindowRounding,      // float     WindowRounding
@@ -1083,6 +1094,7 @@ enum ImGuiStyleVar_
     ImGuiStyleVar_GrabRounding,        // float     GrabRounding
     ImGuiStyleVar_TabRounding,         // float     TabRounding
     ImGuiStyleVar_ButtonTextAlign,     // ImVec2    ButtonTextAlign
+    ImGuiStyleVar_SelectableTextAlign, // ImVec2    SelectableTextAlign
     ImGuiStyleVar_COUNT
 
     // Obsolete names (will be removed)
@@ -1095,7 +1107,7 @@ enum ImGuiStyleVar_
 enum ImGuiColorEditFlags_
 {
     ImGuiColorEditFlags_None            = 0,
-    ImGuiColorEditFlags_NoAlpha         = 1 << 1,   //              // ColorEdit, ColorPicker, ColorButton: ignore Alpha component (read 3 components from the input pointer).
+    ImGuiColorEditFlags_NoAlpha         = 1 << 1,   //              // ColorEdit, ColorPicker, ColorButton: ignore Alpha component (will only read 3 components from the input pointer).
     ImGuiColorEditFlags_NoPicker        = 1 << 2,   //              // ColorEdit: disable picker when clicking on colored square.
     ImGuiColorEditFlags_NoOptions       = 1 << 3,   //              // ColorEdit: disable toggling options menu when right-clicking on inputs/small preview.
     ImGuiColorEditFlags_NoSmallPreview  = 1 << 4,   //              // ColorEdit, ColorPicker: disable colored square preview next to the inputs. (e.g. to show only the inputs)
@@ -1105,24 +1117,30 @@ enum ImGuiColorEditFlags_
     ImGuiColorEditFlags_NoSidePreview   = 1 << 8,   //              // ColorPicker: disable bigger color preview on right side of the picker, use small colored square preview instead.
     ImGuiColorEditFlags_NoDragDrop      = 1 << 9,   //              // ColorEdit: disable drag and drop target. ColorButton: disable drag and drop source.
 
-    // User Options (right-click on widget to change some of them). You can set application defaults using SetColorEditOptions(). The idea is that you probably don't want to override them in most of your calls, let the user choose and/or call SetColorEditOptions() during startup.
+    // User Options (right-click on widget to change some of them). You can set application defaults using SetColorEditOptions(). 
+    // The intent is that you probably don't want to override them in most of your calls, let the user choose via the option menu and/or call SetColorEditOptions() during startup.
     ImGuiColorEditFlags_AlphaBar        = 1 << 16,  //              // ColorEdit, ColorPicker: show vertical alpha bar/gradient in picker.
     ImGuiColorEditFlags_AlphaPreview    = 1 << 17,  //              // ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a checkerboard, instead of opaque.
     ImGuiColorEditFlags_AlphaPreviewHalf= 1 << 18,  //              // ColorEdit, ColorPicker, ColorButton: display half opaque / half checkerboard, instead of opaque.
     ImGuiColorEditFlags_HDR             = 1 << 19,  //              // (WIP) ColorEdit: Currently only disable 0.0f..1.0f limits in RGBA edition (note: you probably want to use ImGuiColorEditFlags_Float flag as well).
-    ImGuiColorEditFlags_RGB             = 1 << 20,  // [Inputs]     // ColorEdit: choose one among RGB/HSV/HEX. ColorPicker: choose any combination using RGB/HSV/HEX.
-    ImGuiColorEditFlags_HSV             = 1 << 21,  // [Inputs]     // "
-    ImGuiColorEditFlags_HEX             = 1 << 22,  // [Inputs]     // "
+    ImGuiColorEditFlags_DisplayRGB      = 1 << 20,  // [Display]    // ColorEdit: override _display_ type among RGB/HSV/Hex. ColorPicker: select any combination using one or more of RGB/HSV/Hex.
+    ImGuiColorEditFlags_DisplayHSV      = 1 << 21,  // [Display]    // "
+    ImGuiColorEditFlags_DisplayHex      = 1 << 22,  // [Display]    // "
     ImGuiColorEditFlags_Uint8           = 1 << 23,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0..255.
     ImGuiColorEditFlags_Float           = 1 << 24,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0.0f..1.0f floats instead of 0..255 integers. No round-trip of value via integers.
     ImGuiColorEditFlags_PickerHueBar    = 1 << 25,  // [PickerMode] // ColorPicker: bar for Hue, rectangle for Sat/Value.
     ImGuiColorEditFlags_PickerHueWheel  = 1 << 26,  // [PickerMode] // ColorPicker: wheel for Hue, triangle for Sat/Value.
 
     // [Internal] Masks
-    ImGuiColorEditFlags__InputsMask     = ImGuiColorEditFlags_RGB|ImGuiColorEditFlags_HSV|ImGuiColorEditFlags_HEX,
+    ImGuiColorEditFlags__DisplayMask    = ImGuiColorEditFlags_DisplayRGB|ImGuiColorEditFlags_DisplayHSV|ImGuiColorEditFlags_DisplayHex,
     ImGuiColorEditFlags__DataTypeMask   = ImGuiColorEditFlags_Uint8|ImGuiColorEditFlags_Float,
     ImGuiColorEditFlags__PickerMask     = ImGuiColorEditFlags_PickerHueWheel|ImGuiColorEditFlags_PickerHueBar,
-    ImGuiColorEditFlags__OptionsDefault = ImGuiColorEditFlags_Uint8|ImGuiColorEditFlags_RGB|ImGuiColorEditFlags_PickerHueBar    // Change application default using SetColorEditOptions()
+    ImGuiColorEditFlags__OptionsDefault = ImGuiColorEditFlags_Uint8|ImGuiColorEditFlags_DisplayRGB|ImGuiColorEditFlags_PickerHueBar    // Change application default using SetColorEditOptions()
+
+    // Obsolete names (will be removed)
+#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+    , ImGuiColorEditFlags_RGB = ImGuiColorEditFlags_DisplayRGB, ImGuiColorEditFlags_HSV = ImGuiColorEditFlags_DisplayHSV, ImGuiColorEditFlags_HEX = ImGuiColorEditFlags_DisplayHex
+#endif
 };
 
 // Enumeration for GetMouseCursor()
@@ -1257,7 +1275,8 @@ struct ImGuiStyle
     float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
     float       TabRounding;                // Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs.
     float       TabBorderSize;              // Thickness of border around tabs.
-    ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
+    ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f, 0.5f) (centered).
+    ImVec2      SelectableTextAlign;        // Alignment of selectable text when selectable is larger than text. Defaults to (0.0f, 0.0f) (top-left aligned).
     ImVec2      DisplayWindowPadding;       // Window position are clamped to be visible within the display area by at least this amount. Only applies to regular windows.
     ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edges of your screen (e.g. on a TV) increase the safe area padding. Apply to popups/tooltips as well regular windows. NB: Prefer configuring your TV sets correctly!
     float       MouseCursorScale;           // Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). May be removed later.
@@ -1301,7 +1320,7 @@ struct ImGuiIO
     float       FontGlobalScale;                // = 1.0f           // Global scale all fonts
     bool        FontAllowUserScaling;           // = false          // Allow user scaling text of individual window with CTRL+Wheel.
     ImFont*     FontDefault;                    // = NULL           // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
-    ImVec2      DisplayFramebufferScale;        // = (1.0f,1.0f)    // For hi-dpi/retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
+    ImVec2      DisplayFramebufferScale;        // = (1, 1)         // For retina display or other situations where window coordinates are different from framebuffer coordinates. This generally ends up in ImDrawData::FramebufferScale.
 
     // Miscellaneous options
     bool        MouseDrawCursor;                // = false          // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor). Cannot be easily renamed to 'io.ConfigXXX' because this is frequently used by back-end implementations.
@@ -1484,6 +1503,8 @@ struct ImGuiPayload
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 namespace ImGui
 {
+    // OBSOLETED in 1.69 (from Mar 2019)
+    static inline ImDrawList* GetOverlayDrawList()            { return GetForegroundDrawList(); }
     // OBSOLETED in 1.66 (from Sep 2018)
     static inline void  SetScrollHere(float center_ratio=0.5f){ SetScrollHereY(center_ratio); }
     // OBSOLETED in 1.63 (between Aug 2018 and Sept 2018)
@@ -1894,13 +1915,14 @@ struct ImDrawData
     int             TotalVtxCount;          // For convenience, sum of all ImDrawList's VtxBuffer.Size
     ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
     ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
+    ImVec2          FramebufferScale;       // Amount of pixels for each unit of DisplaySize. Based on io.DisplayFramebufferScale. Generally (1,1) on normal display, (2,2) on OSX with Retina display.
 
     // Functions
     ImDrawData()    { Valid = false; Clear(); }
     ~ImDrawData()   { Clear(); }
-    void Clear()    { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; DisplayPos = DisplaySize = ImVec2(0.f, 0.f); } // The ImDrawList are owned by ImGuiContext!
-    IMGUI_API void  DeIndexAllBuffers();                // Helper to convert all buffers from indexed to non-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
-    IMGUI_API void  ScaleClipRects(const ImVec2& sc);   // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
+    void Clear()    { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; DisplayPos = DisplaySize = FramebufferScale = ImVec2(0.f, 0.f); } // The ImDrawList are owned by ImGuiContext!
+    IMGUI_API void  DeIndexAllBuffers();                    // Helper to convert all buffers from indexed to non-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
+    IMGUI_API void  ScaleClipRects(const ImVec2& fb_scale); // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
 };
 
 //-----------------------------------------------------------------------------
@@ -1914,8 +1936,8 @@ struct ImFontConfig
     bool            FontDataOwnedByAtlas;   // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     int             FontNo;                 // 0        // Index of font within TTF/OTF file
     float           SizePixels;             //          // Size in pixels for rasterizer (more or less maps to the resulting font height).
-    int             OversampleH;            // 3        // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
-    int             OversampleV;            // 1        // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+    int             OversampleH;            // 3        // Rasterize at higher quality for sub-pixel positioning. Read https://github.com/nothings/stb/blob/master/tests/oversample/README.md for details.
+    int             OversampleV;            // 1        // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis. 
     bool            PixelSnapH;             // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     ImVec2          GlyphExtraSpacing;      // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
     ImVec2          GlyphOffset;            // 0, 0     // Offset all glyphs from this font input.
@@ -1948,12 +1970,12 @@ struct ImFontGlyphRangesBuilder
     ImVector<int> UsedChars;            // Store 1-bit per Unicode code point (0=unused, 1=used)
 
     ImFontGlyphRangesBuilder()          { UsedChars.resize(0x10000 / sizeof(int)); memset(UsedChars.Data, 0, 0x10000 / sizeof(int)); }
-    bool           GetBit(int n) const  { int off = (n >> 5); int mask = 1 << (n & 31); return (UsedChars[off] & mask) != 0; } // Get bit n in the array
-    void           SetBit(int n)        { int off = (n >> 5); int mask = 1 << (n & 31); UsedChars[off] |= mask; }              // Set bit n in the array
-    void           AddChar(ImWchar c)   { SetBit(c); }                          // Add character
-    IMGUI_API void AddText(const char* text, const char* text_end = NULL);      // Add string (each character of the UTF-8 string are added)
-    IMGUI_API void AddRanges(const ImWchar* ranges);                            // Add ranges, e.g. builder.AddRanges(ImFontAtlas::GetGlyphRangesDefault()) to force add all of ASCII/Latin+Ext
-    IMGUI_API void BuildRanges(ImVector<ImWchar>* out_ranges);                  // Output new ranges
+    bool            GetBit(int n) const { int off = (n >> 5); int mask = 1 << (n & 31); return (UsedChars[off] & mask) != 0; }  // Get bit n in the array
+    void            SetBit(int n)       { int off = (n >> 5); int mask = 1 << (n & 31); UsedChars[off] |= mask; }               // Set bit n in the array
+    void            AddChar(ImWchar c)  { SetBit(c); }                          // Add character
+    IMGUI_API void  AddText(const char* text, const char* text_end = NULL);     // Add string (each character of the UTF-8 string are added)
+    IMGUI_API void  AddRanges(const ImWchar* ranges);                           // Add ranges, e.g. builder.AddRanges(ImFontAtlas::GetGlyphRangesDefault()) to force add all of ASCII/Latin+Ext
+    IMGUI_API void  BuildRanges(ImVector<ImWchar>* out_ranges);                 // Output new ranges
 };
 
 enum ImFontAtlasFlags_
@@ -2079,33 +2101,32 @@ struct ImFontAtlas
 // ImFontAtlas automatically loads a default embedded font for you when you call GetTexDataAsAlpha8() or GetTexDataAsRGBA32().
 struct ImFont
 {
-    // Members: Hot ~62/78 bytes
-    float                       FontSize;           // <user set>   // Height of characters, set during loading (don't change after loading)
-    float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetWindowFontScale()
-    ImVec2                      DisplayOffset;      // = (0.f,0.f)  // Offset font rendering by xx pixels
-    ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
-    ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
-    ImVector<ImWchar>           IndexLookup;        //              // Sparse. Index glyphs by Unicode code-point.
-    const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
-    float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
-    ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
+    // Members: Hot ~20/24 bytes (for CalcTextSize)
+    ImVector<float>             IndexAdvanceX;      // 12-16 // out //            // Sparse. Glyphs->AdvanceX in a directly indexable way (cache-friendly for CalcTextSize functions which only this this info, and are often bottleneck in large UI).
+    float                       FallbackAdvanceX;   // 4     // out // = FallbackGlyph->AdvanceX
+    float                       FontSize;           // 4     // in  //            // Height of characters/line, set during loading (don't change after loading)
 
-    // Members: Cold ~18/26 bytes
-    short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
-    ImFontConfig*               ConfigData;         //              // Pointer within ContainerAtlas->ConfigData
-    ImFontAtlas*                ContainerAtlas;     //              // What we has been loaded into
-    float                       Ascent, Descent;    //              // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
-    bool                        DirtyLookupTables;
-    int                         MetricsTotalSurface;//              // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
+    // Members: Hot ~36/48 bytes (for CalcTextSize + render loop)
+    ImVector<ImWchar>           IndexLookup;        // 12-16 // out //            // Sparse. Index glyphs by Unicode code-point.
+    ImVector<ImFontGlyph>       Glyphs;             // 12-16 // out //            // All glyphs.
+    const ImFontGlyph*          FallbackGlyph;      // 4-8   // out // = FindGlyph(FontFallbackChar)
+    ImVec2                      DisplayOffset;      // 8     // in  // = (0,0)    // Offset font rendering by xx pixels
+
+    // Members: Cold ~32/40 bytes
+    ImFontAtlas*                ContainerAtlas;     // 4-8   // out //            // What we has been loaded into
+    const ImFontConfig*         ConfigData;         // 4-8   // in  //            // Pointer within ContainerAtlas->ConfigData
+    short                       ConfigDataCount;    // 2     // in  // ~ 1        // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
+    ImWchar                     FallbackChar;       // 2     // in  // = '?'      // Replacement glyph if one isn't found. Only set via SetFallbackChar()
+    float                       Scale;              // 4     // in  // = 1.f      // Base font scale, multiplied by the per-window font scale which you can adjust with SetWindowFontScale()
+    float                       Ascent, Descent;    // 4+4   // out //            // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
+    int                         MetricsTotalSurface;// 4     // out //            // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
+    bool                        DirtyLookupTables;  // 1     // out //
 
     // Methods
     IMGUI_API ImFont();
     IMGUI_API ~ImFont();
-    IMGUI_API void              ClearOutputData();
-    IMGUI_API void              BuildLookupTable();
     IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
     IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
-    IMGUI_API void              SetFallbackChar(ImWchar c);
     float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
     bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
     const char*                 GetDebugName() const                { return ConfigData ? ConfigData->Name : "<unknown>"; }
@@ -2117,10 +2138,13 @@ struct ImFont
     IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, ImWchar c) const;
     IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
-    // [Internal]
+    // [Internal] Don't use!
+    IMGUI_API void              BuildLookupTable();
+    IMGUI_API void              ClearOutputData();
     IMGUI_API void              GrowIndex(int new_size);
     IMGUI_API void              AddGlyph(ImWchar c, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float advance_x);
     IMGUI_API void              AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst = true); // Makes 'dst' character/glyph points to 'src' character/glyph. Currently needs to be called AFTER fonts have been built.
+    IMGUI_API void              SetFallbackChar(ImWchar c);
 
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     typedef ImFontGlyph Glyph; // OBSOLETE 1.52+
