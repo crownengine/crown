@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "core/thread/mutex.h"
+#include "core/thread/types.h"
 
 namespace crown
 {
