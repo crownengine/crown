@@ -7,6 +7,7 @@
 
 #include "core/platform.h"
 #include <stdint.h>
+#include <stddef.h>
 
 #ifndef CROWN_DEBUG
 	#define CROWN_DEBUG 0
@@ -72,10 +73,6 @@ inline T clamp(T val, T mmin, T mmax)
 
 #if !defined(__va_copy)
 	#define __va_copy(dest, src) (dest = src)
-#endif
-
-#ifndef NULL
-	#define NULL 0
 #endif
 
 #define countof(arr) (sizeof(arr)/sizeof(arr[0]))
