@@ -1,1 +1,0 @@
-Premake-generated build systems are already checked in, in build subdirectories.  Use one of them before attempting to run premake.  See docs/build.md for more.
