@@ -1556,12 +1556,12 @@ namespace Crown
 		}
 		else
 		{
-			FileChooserDialog fcd = new FileChooserDialog("Create new project..."
+			FileChooserDialog fcd = new FileChooserDialog("Select folder where to create new project..."
 				, null
-				, FileChooserAction.SAVE
+				, FileChooserAction.SELECT_FOLDER
 				, "Cancel"
 				, ResponseType.CANCEL
-				, "Save"
+				, "Select"
 				, ResponseType.ACCEPT
 				);
 
@@ -1574,7 +1574,7 @@ namespace Crown
 			string dir = fcd.get_filename();
 			fcd.destroy();
 
-			if (GLib.FileUtils.test(dir, FileTest.EXISTS) || GLib.FileUtils.test(dir, FileTest.IS_REGULAR))
+			if (GLib.FileUtils.test(dir, FileTest.IS_REGULAR))
 			{
 				stdout.printf("Source directory can't be a regular file\n");
 				return -1;
@@ -1582,14 +1582,6 @@ namespace Crown
 
 			source_dir = dir;
 			create_initial_files = true;
-			try
-			{
-				File.new_for_path(source_dir).make_directory();
-			}
-			catch (Error e)
-			{
-				stderr.printf("Error: %s\n", e.message);
-			}
 		}
 
 		string toolchain_dir = "";
