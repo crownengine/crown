@@ -1,5 +1,6 @@
 #include "core/memory/temp_allocator.h"
 #include "core/strings/string_stream.h"
+#include <string.h> // strtok_r
 
 namespace crown
 {
