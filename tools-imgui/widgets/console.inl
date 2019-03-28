@@ -3,6 +3,57 @@
 
 namespace crown
 {
+static void console_send(TCPSocket& client, const char* json)
+{
+	const u32 size = strlen32(json);
+	client.write(&size, sizeof(u32));
+	client.write(json, size);
+}
+
+static void console_sanitize_json_string(StringStream& json, const char* str)
+{
+	const char* ch = str;
+	for (; *ch; ch++)
+	{
+		if (*ch == '"' || *ch == '\\')
+			json << "\\";
+		json << *ch;
+	}
+}
+
+static void console_send_script(TCPSocket& client, const char* lua)
+{
+	TempAllocator1024 ta;
+	StringStream json(ta);
+
+	json << "{\"type\":\"script\",\"script\":\"";
+	console_sanitize_json_string(json, lua);
+	json << "\"}";
+
+	console_send(client, string_stream::c_str(json));
+}
+
+static void console_send_command(TCPSocket& client, char* cmd)
+{
+	TempAllocator1024 ta;
+	StringStream json(ta);
+
+	char* saveptr;
+	const char* delim = " ";
+	const char* token = strtok_r(cmd, delim, &saveptr);
+
+	json << "{\"type\":\"command\",\"args\":[";
+	while (token != NULL)
+	{
+		json << "\"";
+		console_sanitize_json_string(json, token);
+		json << "\",";
+		token = strtok_r(NULL, delim, &saveptr);
+	}
+	json << "]}";
+
+	console_send(client, string_stream::c_str(json));
+}
 
 Console::Console()
 	: _num_items(0)
@@ -196,27 +247,13 @@ void console_execute_command(Console& console, const char* command)
 		for (uint32_t i = 0; i < vector::size(commands); i++)
 			console.add_log(LogSeverity::LOG_INFO, commands[i].c_str());
 	}
+	else if (command[0] == ':')
+	{
+		console_send_command(client, (char*)&command[1]);
+	}
 	else
 	{
-		// Sanitize command line
-		TempAllocator1024 ta;
-		StringStream json(ta);
-
-		json << "{\"type\":\"script\",\"script\":\"";
-		const char* ch = command;
-		for (; *ch; ch++)
-		{
-			if (*ch == '"' || *ch == '\\')
-				json << "\\";
-			json << *ch;
-		}
-		json << "\"}";
-
-		// Send command to engine
-		const char* cmd = string_stream::c_str(json);
-		const uint32_t size = strlen32(cmd);
-		client.write(&size, sizeof(uint32_t));
-		client.write(cmd, size);
+		console_send_script(client, command);
 	}
 
 	console._scroll_to_bottom = true;
