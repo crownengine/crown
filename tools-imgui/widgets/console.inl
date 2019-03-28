@@ -238,7 +238,7 @@ void console_execute_command(Console& console, const char* command)
 	else if (strcmp(command, "history") == 0)
 	{
 		int first = vector::size(history)-10;
-		for (uint32_t i = first > 0 ? first : 0; i < vector::size(history); i++)
+		for (u32 i = first > 0 ? first : 0; i < vector::size(history); i++)
 		{
 			char buf[64];
 			sprintf(buf, "%3d: %s\n", i, history[i].c_str());
@@ -248,7 +248,7 @@ void console_execute_command(Console& console, const char* command)
 	else if (strcmp(command, "help") == 0)
 	{
 		console.add_log(LogSeverity::LOG_INFO, "commands: ");
-		for (uint32_t i = 0; i < vector::size(commands); i++)
+		for (u32 i = 0; i < vector::size(commands); i++)
 			console.add_log(LogSeverity::LOG_INFO, commands[i].c_str());
 	}
 	else if (command[0] == ':')
