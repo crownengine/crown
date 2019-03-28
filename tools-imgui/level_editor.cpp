@@ -908,7 +908,6 @@ struct LevelEditor
 					{
 						DynamicString severity(ta);
 						DynamicString message(ta);
-
 						json::parse_string(obj["severity"], severity);
 						json::parse_string(obj["message"], message);
 
@@ -923,6 +922,13 @@ struct LevelEditor
 							CE_FATAL("Unknown severity");
 
 						_console.add_log(ls, message.c_str());
+					}
+					else if (type == "error")
+					{
+						DynamicString message(ta);
+						json::parse_string(obj["message"], message);
+
+						_console.add_log(LogSeverity::LOG_ERROR, message.c_str());
 					}
 					else
 					{
