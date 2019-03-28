@@ -8,7 +8,7 @@
 #include "core/platform.h"
 #include "core/strings/string.h"
 #include "core/strings/string_stream.h"
-#include "core/thread/mutex.h"
+#include "core/thread/scoped_mutex.h"
 #include "device/console_server.h"
 #include "device/device.h"
 #include "device/log.h"

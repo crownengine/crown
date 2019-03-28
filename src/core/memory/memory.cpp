@@ -5,7 +5,7 @@
 
 #include "core/memory/allocator.h"
 #include "core/memory/memory.h"
-#include "core/thread/mutex.h"
+#include "core/thread/scoped_mutex.h"
 #include <stdlib.h> // malloc
 
 // void* operator new(size_t) throw (std::bad_alloc)

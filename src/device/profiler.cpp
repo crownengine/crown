@@ -6,7 +6,7 @@
 #include "core/containers/array.h"
 #include "core/math/vector3.h"
 #include "core/memory/memory.h"
-#include "core/thread/mutex.h"
+#include "core/thread/scoped_mutex.h"
 #include "core/time.h"
 #include "device/profiler.h"
 

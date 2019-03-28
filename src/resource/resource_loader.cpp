@@ -13,6 +13,7 @@
 #include "core/memory/temp_allocator.h"
 #include "core/os.h"
 #include "core/strings/dynamic_string.h"
+#include "core/thread/scoped_mutex.h"
 #include "device/log.h"
 #include "resource/resource_loader.h"
 
