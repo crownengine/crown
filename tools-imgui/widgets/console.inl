@@ -169,7 +169,9 @@ void console_draw(Console& console)
 			default: CE_FATAL("Unknown Severity"); break;
 		}
 		ImGui::PushStyleColor(ImGuiCol_Text, col);
+		ImGui::PushFont(ImGui::Font::Mono);
 		ImGui::TextUnformatted(item.message);
+		ImGui::PopFont();
 		ImGui::PopStyleColor();
 	}
 
@@ -182,6 +184,7 @@ void console_draw(Console& console)
 	ImGui::Separator();
 
 	ImGui::PushItemWidth(-1);
+	ImGui::PushFont(ImGui::Font::Mono);
 	if (ImGui::InputText("##label"
 		, console._input_text
 		, IM_ARRAYSIZE(console._input_text)
@@ -210,6 +213,7 @@ void console_draw(Console& console)
 		ImGui::SetKeyboardFocusHere(-1);
 		console._scroll_to_bottom = true;
 	}
+	ImGui::PopFont();
 	ImGui::PopItemWidth();
 }
 
