@@ -8,6 +8,7 @@
 #include "core/math/types.h"
 #include "core/strings/string_id.h"
 #include "core/types.h"
+#include "device/pipeline.h"
 #include "resource/types.h"
 #include "world/types.h"
 #include <bgfx/bgfx.h>
@@ -80,7 +81,7 @@ struct DebugLine
 	void reset();
 
 	/// Submits the lines to renderer for drawing.
-	void submit();
+	void submit(u8 view_id = VIEW_DEBUG);
 };
 
 } // namespace crown

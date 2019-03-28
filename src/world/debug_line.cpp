@@ -258,7 +258,7 @@ void DebugLine::reset()
 	_num = 0;
 }
 
-void DebugLine::submit()
+void DebugLine::submit(u8 view_id)
 {
 	if (!_num)
 		return;
@@ -271,7 +271,7 @@ void DebugLine::submit()
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
 	bgfx::setVertexBuffer(0, &tvb, 0, _num * 2);
-	_shader_manager->submit(_shader, VIEW_DEBUG);
+	_shader_manager->submit(_shader, view_id);
 }
 
 } // namespace crown
