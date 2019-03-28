@@ -554,8 +554,8 @@ void Device::resolution(u16& width, u16& height)
 
 void Device::render(World& world, UnitId camera_unit)
 {
-	float aspect_ratio = (_boot_config.aspect_ratio == -1.0f
-		? (float)_width/(float)_height
+	const f32 aspect_ratio = (_boot_config.aspect_ratio == -1.0f
+		? (f32)_width/(f32)_height
 		: _boot_config.aspect_ratio
 		);
 	world.camera_set_aspect(camera_unit, aspect_ratio);
