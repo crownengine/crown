@@ -441,7 +441,7 @@ void Device::run()
 	while (!process_events(_boot_config.vsync) && !_quit)
 	{
 		const s64 time = time::now();
-		const f32 dt   = time::seconds(time - time_last);
+		const f32 dt   = f32(time::seconds(time - time_last));
 		time_last = time;
 
 		profiler_globals::clear();
