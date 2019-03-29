@@ -1361,16 +1361,12 @@ bool tool_process_events()
 			switch (event.button.device_id)
 			{
 			case crown::InputDeviceType::KEYBOARD:
-				io.KeyCtrl = ((event.button.button_num == crown::KeyboardButton::CTRL_LEFT)
-					|| (event.button.button_num == crown::KeyboardButton::CTRL_RIGHT)) && event.button.pressed;
-				io.KeyShift = ((event.button.button_num == crown::KeyboardButton::SHIFT_LEFT)
-					|| (event.button.button_num == crown::KeyboardButton::SHIFT_RIGHT)) && event.button.pressed;
-				io.KeyAlt = ((event.button.button_num == crown::KeyboardButton::ALT_LEFT)
-					|| (event.button.button_num == crown::KeyboardButton::ALT_RIGHT)) && event.button.pressed;
-				io.KeySuper = ((event.button.button_num == crown::KeyboardButton::SUPER_LEFT)
-					|| (event.button.button_num == crown::KeyboardButton::SUPER_RIGHT)) && event.button.pressed;
-
 				io.KeysDown[event.button.button_num] = event.button.pressed;
+
+				io.KeyCtrl = io.KeysDown[crown::KeyboardButton::CTRL_LEFT] || io.KeysDown[crown::KeyboardButton::CTRL_RIGHT];
+				io.KeyShift = io.KeysDown[crown::KeyboardButton::SHIFT_LEFT] || io.KeysDown[crown::KeyboardButton::SHIFT_RIGHT];
+				io.KeyAlt = io.KeysDown[crown::KeyboardButton::ALT_LEFT] || io.KeysDown[crown::KeyboardButton::ALT_RIGHT];
+				io.KeySuper = io.KeysDown[crown::KeyboardButton::SUPER_LEFT] || io.KeysDown[crown::KeyboardButton::SUPER_RIGHT];
 
 				if (!io.WantCaptureKeyboard)
 				{
