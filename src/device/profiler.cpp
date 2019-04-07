@@ -28,9 +28,14 @@ namespace profiler_globals
 		_buffer = NULL;
 	}
 
-	const char* buffer()
+	const char* buffer_begin()
 	{
 		return array::begin(*_buffer);
+	}
+
+	const char* buffer_end()
+	{
+		return array::end(*_buffer);
 	}
 
 } // namespace profiler_globals

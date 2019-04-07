@@ -98,7 +98,8 @@ namespace profiler_globals
 	void init();
 	void shutdown();
 
-	const char* buffer();
+	const char* buffer_begin();
+	const char* buffer_end();
 	void flush();
 	void clear();
 
