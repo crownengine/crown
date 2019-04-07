@@ -75,12 +75,11 @@ void UnitManager::unregister_destroy_callback(UnitDestroyCallback* udc)
 
 void UnitManager::trigger_destroy_callbacks(UnitId id)
 {
-	ListNode* cur = _callbacks.node.next;
-	while (cur != &_callbacks.node)
+	ListNode* cur;
+	list_for_each(cur != &_callbacks.node)
 	{
 		UnitDestroyCallback* udc = (UnitDestroyCallback*)container_of(cur, UnitDestroyCallback, node);
 		udc->destroy(id, udc->user_data);
-		cur = cur->next;
 	}
 }
 

@@ -46,4 +46,7 @@ namespace list
 
 } // namespace list
 
+#define list_for_each(cur, head)                             \
+	for (cur = (head)->next; cur != (head); cur = cur->next)
+
 } // namespace crown

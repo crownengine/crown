@@ -66,11 +66,10 @@ World::World(Allocator& a, ResourceManager& rm, ShaderManager& sm, MaterialManag
 World::~World()
 {
 	// Destroy loaded levels
-	ListNode* cur = _levels.next;
-	while (cur != &_levels)
+	ListNode* cur;
+	list_for_each(cur != &_levels)
 	{
 		Level* level = (Level*)container_of(cur, Level, _node);
-		cur = cur->next;
 		CE_DELETE(*_allocator, level);
 	}
 
