@@ -146,7 +146,8 @@ void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
 
 void CompileOptions::delete_file(const char* path)
 {
-	_data_filesystem.delete_file(path);
+	if (_data_filesystem.exists(path))
+		_data_filesystem.delete_file(path);
 }
 
 void CompileOptions::write(const void* data, u32 size)

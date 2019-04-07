@@ -1059,26 +1059,11 @@ namespace shader_resource_internal
 
 		void delete_temp_files()
 		{
-			const char* vs_source_path   = _vs_source_path.c_str();
-			const char* fs_source_path   = _fs_source_path.c_str();
-			const char* varying_path     = _varying_path.c_str();
-			const char* vs_compiled_path = _vs_compiled_path.c_str();
-			const char* fs_compiled_path = _fs_compiled_path.c_str();
-
-			if (_opts.file_exists(vs_source_path))
-				_opts.delete_file(vs_source_path);
-
-			if (_opts.file_exists(fs_source_path))
-				_opts.delete_file(fs_source_path);
-
-			if (_opts.file_exists(varying_path))
-				_opts.delete_file(varying_path);
-
-			if (_opts.file_exists(vs_compiled_path))
-				_opts.delete_file(vs_compiled_path);
-
-			if (_opts.file_exists(fs_compiled_path))
-				_opts.delete_file(fs_compiled_path);
+			_opts.delete_file(_vs_source_path.c_str());
+			_opts.delete_file(_fs_source_path.c_str());
+			_opts.delete_file(_varying_path.c_str());
+			_opts.delete_file(_vs_compiled_path.c_str());
+			_opts.delete_file(_fs_compiled_path.c_str());
 		}
 
 		void compile()
