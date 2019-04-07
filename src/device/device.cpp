@@ -592,6 +592,7 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::setViewRect(VIEW_MESH, 0, 0, _width, _height);
 	bgfx::setViewRect(VIEW_DEBUG, 0, 0, _width, _height);
 	bgfx::setViewRect(VIEW_GUI, 0, 0, _width, _height);
+	bgfx::setViewRect(VIEW_GRAPH, 0, 0, _width, _height);
 
 	bgfx::setViewMode(VIEW_SPRITE_0, bgfx::ViewMode::DepthAscending);
 	bgfx::setViewMode(VIEW_SPRITE_1, bgfx::ViewMode::DepthAscending);
@@ -614,6 +615,7 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::setViewFrameBuffer(VIEW_MESH, _pipeline->_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_DEBUG, _pipeline->_frame_buffer);
 	bgfx::setViewFrameBuffer(VIEW_GUI, _pipeline->_frame_buffer);
+	bgfx::setViewFrameBuffer(VIEW_GRAPH, _pipeline->_frame_buffer);
 
 	bgfx::touch(VIEW_SPRITE_0);
 	bgfx::touch(VIEW_SPRITE_1);
@@ -626,6 +628,7 @@ void Device::render(World& world, UnitId camera_unit)
 	bgfx::touch(VIEW_MESH);
 	bgfx::touch(VIEW_DEBUG);
 	bgfx::touch(VIEW_GUI);
+	bgfx::touch(VIEW_GRAPH);
 
 	world.render(view);
 
