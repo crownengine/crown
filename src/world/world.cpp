@@ -67,7 +67,7 @@ World::~World()
 {
 	// Destroy loaded levels
 	ListNode* cur;
-	list_for_each(cur != &_levels)
+	list_for_each(cur, &_levels)
 	{
 		Level* level = (Level*)container_of(cur, Level, _node);
 		CE_DELETE(*_allocator, level);
