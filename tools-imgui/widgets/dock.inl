@@ -1127,7 +1127,7 @@ namespace ImGui
 
 			auto cur = crown::json_object::begin(obj);
 			auto end = crown::json_object::end(obj);
-			for (uint32_t i = 0; i < end-cur; i++)
+			for (uint32_t i = 0; i < crown::json_object::size(obj); ++i)
 			{
 				Dock* dock = (Dock*) MemAlloc(sizeof(Dock));
 				m_docks.push_back(dock);
@@ -1135,7 +1135,10 @@ namespace ImGui
 
 			for (; cur != end; ++cur)
 			{
-				const char* value = cur->pair.second;
+				if (crown::json_object::is_hole(obj, cur))
+					continue;
+
+				const char* value = cur->second;
 				crown::JsonObject item(ta);
 				crown::sjson::parse_object(value, item);
 

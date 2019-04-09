@@ -3,7 +3,8 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/map.h"
+#include "core/containers/hash_map.h"
+#include "core/json/json_object.h"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.h"
 #include "core/strings/dynamic_string.h"
@@ -326,7 +327,7 @@ namespace sjson
 			json = next(json, (*json == '=') ? '=' : ':');
 			json = skip_spaces(json);
 
-			map::set(object._map, fs_key, json);
+			hash_map::set(object._map, fs_key, json);
 
 			json = skip_value(json);
 			json = skip_spaces(json);
@@ -358,7 +359,7 @@ namespace sjson
 				json = next(json, (*json == '=') ? '=' : ':');
 				json = skip_spaces(json);
 
-				map::set(object._map, fs_key, json);
+				hash_map::set(object._map, fs_key, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);

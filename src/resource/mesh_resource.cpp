@@ -279,8 +279,11 @@ namespace mesh_resource_internal
 		auto end = json_object::end(geometries);
 		for (; cur != end; ++cur)
 		{
-			const FixedString key = cur->pair.first;
-			const char* geometry = cur->pair.second;
+			if (json_object::is_hole(geometries, cur))
+				continue;
+
+			const FixedString key = cur->first;
+			const char* geometry = cur->second;
 			const char* node = nodes[key];
 
 			const StringId32 name(key.data(), key.length());

@@ -309,8 +309,11 @@ namespace physics_config_resource_internal
 		auto end = json_object::end(object);
 		for (; cur != end; ++cur)
 		{
-			const FixedString key = cur->pair.first;
-			const char* value     = cur->pair.second;
+			if (json_object::is_hole(object, cur))
+				continue;
+
+			const FixedString key = cur->first;
+			const char* value     = cur->second;
 
 			JsonObject material(ta);
 			sjson::parse_object(value, material);
@@ -335,8 +338,11 @@ namespace physics_config_resource_internal
 		auto end = json_object::end(object);
 		for (; cur != end; ++cur)
 		{
-			const FixedString key = cur->pair.first;
-			const char* value     = cur->pair.second;
+			if (json_object::is_hole(object, cur))
+				continue;
+
+			const FixedString key = cur->first;
+			const char* value     = cur->second;
 
 			JsonObject actor(ta);
 			sjson::parse_object(value, actor);
@@ -416,7 +422,10 @@ namespace physics_config_resource_internal
 			auto end = json_object::end(object);
 			for (; cur != end; ++cur)
 			{
-				const FixedString key = cur->pair.first;
+				if (json_object::is_hole(object, cur))
+					continue;
+
+				const FixedString key = cur->first;
 				const StringId32 id   = StringId32(key.data(), key.length());
 
 				map::set(_filter_map, id, new_filter_mask());
@@ -426,8 +435,11 @@ namespace physics_config_resource_internal
 			end = json_object::end(object);
 			for (; cur != end; ++cur)
 			{
-				const FixedString key = cur->pair.first;
-				const char* value     = cur->pair.second;
+				if (json_object::is_hole(object, cur))
+					continue;
+
+				const FixedString key = cur->first;
+				const char* value     = cur->second;
 				const StringId32 id   = StringId32(key.data(), key.length());
 
 				TempAllocator4096 ta;

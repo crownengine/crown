@@ -80,11 +80,13 @@ namespace material_resource_internal
 
 		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
-
 		for (; cur != end; ++cur)
 		{
-			const FixedString key = cur->pair.first;
-			const char* value     = cur->pair.second;
+			if (json_object::is_hole(object, cur))
+				continue;
+
+			const FixedString key = cur->first;
+			const char* value     = cur->second;
 
 			DynamicString texture(ta);
 			sjson::parse_string(value, texture);
@@ -117,11 +119,13 @@ namespace material_resource_internal
 
 		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
-
 		for (; cur != end; ++cur)
 		{
-			const FixedString key = cur->pair.first;
-			const char* value     = cur->pair.second;
+			if (json_object::is_hole(object, cur))
+				continue;
+
+			const FixedString key = cur->first;
+			const char* value     = cur->second;
 
 			UniformHandle uh;
 			uh.uniform_handle = 0;

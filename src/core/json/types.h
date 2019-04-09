@@ -38,7 +38,7 @@ typedef Array<const char*> JsonArray;
 /// @ingroup JSON
 struct JsonObject
 {
-	Map<FixedString, const char*> _map;
+	HashMap<FixedString, const char*> _map;
 
 	JsonObject(Allocator& a);
 

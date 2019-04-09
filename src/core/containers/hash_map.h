@@ -42,6 +42,17 @@ namespace hash_map
 	/// Calls destructor on the items.
 	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> void clear(HashMap<TKey, TValue, Hash, KeyEqual>& m);
 
+	/// Returns whether the @a entry in the map @a m contains data or is a hole.
+	/// If the entry is a hole you should not touch data in the entry.
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> bool is_hole(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* entry);
+
+	/// Returns a pointer to the first item in the map, can be used to
+	/// efficiently iterate over the elements (in random order).
+	/// @note
+	/// You should check whether the item is valid with hash_map::is_hole().
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* begin(const HashMap<TKey, TValue, Hash, KeyEqual>& m);
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* end(const HashMap<TKey, TValue, Hash, KeyEqual>& m);
+
 } // namespace hash_map
 
 namespace hash_map_internal
@@ -269,6 +280,27 @@ namespace hash_map
 		}
 
 		m._size = 0;
+	}
+
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
+	bool is_hole(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* entry)
+	{
+		const u32 ii = u32(entry - m._data);
+		const u32 index = m._index[ii].index;
+
+		return index == hash_map_internal::FREE || hash_map_internal::is_deleted(index);
+	}
+
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
+	const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* begin(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
+	{
+		return m._data;
+	}
+
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
+	const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* end(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
+	{
+		return m._data + m._capacity;
 	}
 
 } // namespace hash_map

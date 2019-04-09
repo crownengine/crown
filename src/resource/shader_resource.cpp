@@ -720,8 +720,11 @@ namespace shader_resource_internal
 			auto end = json_object::end(render_states);
 			for (; cur != end; ++cur)
 			{
+				if (json_object::is_hole(render_states, cur))
+					continue;
+
 				JsonObject obj(ta);
-				sjson::parse_object(cur->pair.second, obj);
+				sjson::parse_object(cur->second, obj);
 
 				const bool rgb_write_enable   = sjson::parse_bool(obj["rgb_write_enable"]);
 				const bool alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
@@ -818,7 +821,7 @@ namespace shader_resource_internal
 				}
 
 				DynamicString key(ta);
-				key = cur->pair.first;
+				key = cur->first;
 
 				DATA_COMPILER_ASSERT(!map::has(_render_states, key)
 					, _opts
@@ -839,8 +842,11 @@ namespace shader_resource_internal
 			auto end = json_object::end(sampler_states);
 			for (; cur != end; ++cur)
 			{
+				if (json_object::is_hole(sampler_states, cur))
+					continue;
+
 				JsonObject obj(ta);
-				sjson::parse_object(cur->pair.second, obj);
+				sjson::parse_object(cur->second, obj);
 
 				const bool has_filter_min = json_object::has(obj, "filter_min");
 				const bool has_filter_mag = json_object::has(obj, "filter_mag");
@@ -913,7 +919,7 @@ namespace shader_resource_internal
 				}
 
 				DynamicString key(ta);
-				key = cur->pair.first;
+				key = cur->first;
 
 				DATA_COMPILER_ASSERT(!map::has(_sampler_states, key)
 					, _opts
@@ -934,8 +940,11 @@ namespace shader_resource_internal
 			auto end = json_object::end(bgfx_shaders);
 			for (; cur != end; ++cur)
 			{
+				if (json_object::is_hole(bgfx_shaders, cur))
+					continue;
+
 				JsonObject shader(ta);
-				sjson::parse_object(cur->pair.second, shader);
+				sjson::parse_object(cur->second, shader);
 
 				BgfxShader bgfxshader(default_allocator());
 				if (json_object::has(shader, "includes"))
@@ -956,7 +965,7 @@ namespace shader_resource_internal
 					parse_bgfx_samplers(shader["samplers"], bgfxshader);
 
 				DynamicString key(ta);
-				key = cur->pair.first;
+				key = cur->first;
 
 				DATA_COMPILER_ASSERT(!map::has(_bgfx_shaders, key)
 					, _opts
@@ -977,8 +986,11 @@ namespace shader_resource_internal
 			auto end = json_object::end(bgfx_samplers);
 			for (; cur != end; ++cur)
 			{
+				if (json_object::is_hole(bgfx_samplers, cur))
+					continue;
+
 				JsonObject sampler(ta);
-				sjson::parse_object(cur->pair.second, sampler);
+				sjson::parse_object(cur->second, sampler);
 
 				DynamicString sampler_state(ta);
 				sjson::parse_string(sampler["sampler_state"], sampler_state);
@@ -990,7 +1002,7 @@ namespace shader_resource_internal
 					);
 
 				DynamicString key(ta);
-				key = cur->pair.first;
+				key = cur->first;
 
 				DATA_COMPILER_ASSERT(!map::has(bgfxshader._samplers, key)
 					, _opts
@@ -1011,15 +1023,18 @@ namespace shader_resource_internal
 			auto end = json_object::end(shaders);
 			for (; cur != end; ++cur)
 			{
+				if (json_object::is_hole(shaders, cur))
+					continue;
+
 				JsonObject obj(ta);
-				sjson::parse_object(cur->pair.second, obj);
+				sjson::parse_object(cur->second, obj);
 
 				ShaderPermutation shader(default_allocator());
 				sjson::parse_string(obj["bgfx_shader"], shader._bgfx_shader);
 				sjson::parse_string(obj["render_state"], shader._render_state);
 
 				DynamicString key(ta);
-				key = cur->pair.first;
+				key = cur->first;
 
 				DATA_COMPILER_ASSERT(!map::has(_shaders, key)
 					, _opts

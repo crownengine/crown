@@ -359,9 +359,12 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 			auto end = json_object::end(modified_components);
 			for (; cur != end; ++cur)
 			{
-				const FixedString key = cur->pair.first;
+				if (json_object::is_hole(modified_components, cur))
+					continue;
+
+				const FixedString key = cur->first;
 				const FixedString id(&key.data()[1], key.length()-1);
-				const char* value = cur->pair.second;
+				const char* value = cur->second;
 
 				u32 comp_index = component_index(prefab_root_components_original, id);
 				if (comp_index != UINT32_MAX)
