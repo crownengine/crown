@@ -5,7 +5,7 @@
 
 #include "core/containers/array.h"
 #include "core/containers/hash_map.h"
-#include "core/containers/map.h"
+#include "core/containers/vector.h"
 #include "core/error/error.h"
 #include "core/filesystem/file.h"
 #include "core/guid.h"
@@ -151,7 +151,7 @@ namespace state_machine_internal
 	{
 		CompileOptions& _opts;
 		Guid _initial_state;
-		Map<Guid, StateInfo> _states;
+		HashMap<Guid, StateInfo> _states;
 		OffsetAccumulator _offset_accumulator;
 		HashMap<Guid, u32> _offsets;
 		Vector<VariableInfo> _variables;
@@ -246,19 +246,19 @@ namespace state_machine_internal
 				}
 
 				Guid guid = sjson::parse_guid(state["id"]);
-				DATA_COMPILER_ASSERT(!map::has(_states, guid)
+				DATA_COMPILER_ASSERT(!hash_map::has(_states, guid)
 					, _opts
 					, "State GUID duplicated"
 					);
-				map::set(_states, guid, si);
+				hash_map::set(_states, guid, si);
 			}
-			DATA_COMPILER_ASSERT(map::size(_states) > 0
+			DATA_COMPILER_ASSERT(hash_map::size(_states) > 0
 				, _opts
 				, "State machine must contain one state at least"
 				);
 
 			_initial_state = sjson::parse_guid(object["initial_state"]);
-			DATA_COMPILER_ASSERT(map::has(_states, _initial_state)
+			DATA_COMPILER_ASSERT(hash_map::has(_states, _initial_state)
 				, _opts
 				, "Initial state references non-existing state"
 				);
@@ -301,12 +301,15 @@ namespace state_machine_internal
 					PI
 				};
 
-				auto cur = map::begin(_states);
-				auto end = map::end(_states);
+				auto cur = hash_map::begin(_states);
+				auto end = hash_map::end(_states);
 				for (; cur != end; ++cur)
 				{
-					const Guid& guid    = cur->pair.first;
-					const StateInfo& si = cur->pair.second;
+					if (hash_map::is_hole(_states, cur))
+						continue;
+
+					const Guid& guid    = cur->first;
+					const StateInfo& si = cur->second;
 
 					const u32 offset = _offset_accumulator.offset(vector::size(si.animations), vector::size(si.transitions));
 					hash_map::set(_offsets, guid, offset);
@@ -365,11 +368,14 @@ namespace state_machine_internal
 			_opts.write(smr.bytecode_offset);
 
 			// Write states
-			auto cur = map::begin(_states);
-			auto end = map::end(_states);
+			auto cur = hash_map::begin(_states);
+			auto end = hash_map::end(_states);
 			for (; cur != end; ++cur)
 			{
-				const StateInfo& si = cur->pair.second;
+				if (hash_map::is_hole(_states, cur))
+					continue;
+
+				const StateInfo& si = cur->second;
 				const u32 num_animations  = vector::size(si.animations);
 				const u32 num_transitions = vector::size(si.transitions);
 

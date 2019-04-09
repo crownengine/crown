@@ -4,7 +4,8 @@
  */
 
 #include "config.h"
-#include "core/containers/map.h"
+#include "core/containers/hash_map.h"
+#include "core/containers/vector.h"
 #include "core/filesystem/filesystem.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
@@ -34,6 +35,15 @@
 
 namespace crown
 {
+template <>
+struct hash<DynamicString>
+{
+	u32 operator()(const DynamicString& val) const
+	{
+		return val.to_string_id()._id;
+	}
+};
+
 namespace shader_resource_internal
 {
 	struct DepthFunction
@@ -570,19 +580,7 @@ namespace shader_resource_internal
 		DynamicString _varying;
 		DynamicString _vs_input_output;
 		DynamicString _fs_input_output;
-		Map<DynamicString, DynamicString> _samplers;
-
-		BgfxShader()
-			: _includes(default_allocator())
-			, _code(default_allocator())
-			, _vs_code(default_allocator())
-			, _fs_code(default_allocator())
-			, _varying(default_allocator())
-			, _vs_input_output(default_allocator())
-			, _fs_input_output(default_allocator())
-			, _samplers(default_allocator())
-		{
-		}
+		HashMap<DynamicString, DynamicString> _samplers;
 
 		BgfxShader(Allocator& a)
 			: _includes(a)
@@ -604,12 +602,6 @@ namespace shader_resource_internal
 		DynamicString _bgfx_shader;
 		DynamicString _render_state;
 
-		ShaderPermutation()
-			: _bgfx_shader(default_allocator())
-			, _render_state(default_allocator())
-		{
-		}
-
 		ShaderPermutation(Allocator& a)
 			: _bgfx_shader(a)
 			, _render_state(a)
@@ -619,14 +611,10 @@ namespace shader_resource_internal
 
 	struct StaticCompile
 	{
+		ALLOCATOR_AWARE;
+
 		DynamicString _shader;
 		Vector<DynamicString> _defines;
-
-		StaticCompile()
-			: _shader(default_allocator())
-			, _defines(default_allocator())
-		{
-		}
 
 		StaticCompile(Allocator& a)
 			: _shader(a)
@@ -638,10 +626,10 @@ namespace shader_resource_internal
 	struct ShaderCompiler
 	{
 		CompileOptions& _opts;
-		Map<DynamicString, RenderState> _render_states;
-		Map<DynamicString, SamplerState> _sampler_states;
-		Map<DynamicString, BgfxShader> _bgfx_shaders;
-		Map<DynamicString, ShaderPermutation> _shaders;
+		HashMap<DynamicString, RenderState> _render_states;
+		HashMap<DynamicString, SamplerState> _sampler_states;
+		HashMap<DynamicString, BgfxShader> _bgfx_shaders;
+		HashMap<DynamicString, ShaderPermutation> _shaders;
 		Vector<StaticCompile> _static_compile;
 
 		DynamicString _vs_source_path;
@@ -823,12 +811,12 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = cur->first;
 
-				DATA_COMPILER_ASSERT(!map::has(_render_states, key)
+				DATA_COMPILER_ASSERT(!hash_map::has(_render_states, key)
 					, _opts
 					, "Render state redefined: '%s'"
 					, key.c_str()
 					);
-				map::set(_render_states, key, rs);
+				hash_map::set(_render_states, key, rs);
 			}
 		}
 
@@ -921,12 +909,12 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = cur->first;
 
-				DATA_COMPILER_ASSERT(!map::has(_sampler_states, key)
+				DATA_COMPILER_ASSERT(!hash_map::has(_sampler_states, key)
 					, _opts
 					, "Sampler state redefined: '%s'"
 					, key.c_str()
 					);
-				map::set(_sampler_states, key, ss);
+				hash_map::set(_sampler_states, key, ss);
 			}
 		}
 
@@ -967,12 +955,12 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = cur->first;
 
-				DATA_COMPILER_ASSERT(!map::has(_bgfx_shaders, key)
+				DATA_COMPILER_ASSERT(!hash_map::has(_bgfx_shaders, key)
 					, _opts
 					, "Bgfx shader redefined: '%s'"
 					, key.c_str()
 					);
-				map::set(_bgfx_shaders, key, bgfxshader);
+				hash_map::set(_bgfx_shaders, key, bgfxshader);
 			}
 		}
 
@@ -995,7 +983,7 @@ namespace shader_resource_internal
 				DynamicString sampler_state(ta);
 				sjson::parse_string(sampler["sampler_state"], sampler_state);
 
-				DATA_COMPILER_ASSERT(map::has(_sampler_states, sampler_state)
+				DATA_COMPILER_ASSERT(hash_map::has(_sampler_states, sampler_state)
 					, _opts
 					, "Unknown sampler state: '%s'"
 					, sampler_state.c_str()
@@ -1004,12 +992,12 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = cur->first;
 
-				DATA_COMPILER_ASSERT(!map::has(bgfxshader._samplers, key)
+				DATA_COMPILER_ASSERT(!hash_map::has(bgfxshader._samplers, key)
 					, _opts
 					, "Bgfx sampler redefined: '%s'"
 					, key.c_str()
 					);
-				map::set(bgfxshader._samplers, key, sampler_state);
+				hash_map::set(bgfxshader._samplers, key, sampler_state);
 			}
 		}
 
@@ -1036,12 +1024,12 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = cur->first;
 
-				DATA_COMPILER_ASSERT(!map::has(_shaders, key)
+				DATA_COMPILER_ASSERT(!hash_map::has(_shaders, key)
 					, _opts
 					, "Shader redefined: '%s'"
 					, key.c_str()
 					);
-				map::set(_shaders, key, shader);
+				hash_map::set(_shaders, key, shader);
 			}
 		}
 
@@ -1102,27 +1090,29 @@ namespace shader_resource_internal
 				}
 				const StringId32 shader_name(str.c_str());
 
-				DATA_COMPILER_ASSERT(map::has(_shaders, sc._shader)
+				DATA_COMPILER_ASSERT(hash_map::has(_shaders, sc._shader)
 					, _opts
 					, "Unknown shader: '%s'"
 					, shader.c_str()
 					);
-				const ShaderPermutation& sp       = _shaders[shader];
+				const ShaderPermutation sp_default(default_allocator());
+				const ShaderPermutation& sp       = hash_map::get(_shaders, shader, sp_default);
 				const DynamicString& bgfx_shader  = sp._bgfx_shader;
 				const DynamicString& render_state = sp._render_state;
 
-				DATA_COMPILER_ASSERT(map::has(_bgfx_shaders, sp._bgfx_shader)
+				DATA_COMPILER_ASSERT(hash_map::has(_bgfx_shaders, sp._bgfx_shader)
 					, _opts
 					, "Unknown bgfx shader: '%s'"
 					, bgfx_shader.c_str()
 					);
-				DATA_COMPILER_ASSERT(map::has(_render_states, sp._render_state)
+				DATA_COMPILER_ASSERT(hash_map::has(_render_states, sp._render_state)
 					, _opts
 					, "Unknown render state: '%s'"
 					, render_state.c_str()
 					);
 
-				const RenderState& rs = _render_states[render_state];
+				const RenderState rs_default;
+				const RenderState& rs = hash_map::get(_render_states, render_state, rs_default);
 
 				_opts.write(shader_name._id);                // Shader name
 				_opts.write(rs.encode());                    // Render state
@@ -1136,17 +1126,22 @@ namespace shader_resource_internal
 			TempAllocator512 ta;
 			DynamicString key(ta);
 			key = bgfx_shader;
-			const BgfxShader& shader = _bgfx_shaders[key];
+			const BgfxShader shader_default(default_allocator());
+			const BgfxShader& shader = hash_map::get(_bgfx_shaders, key, shader_default);
 
-			_opts.write(map::size(shader._samplers));
+			_opts.write(hash_map::size(shader._samplers));
 
-			auto cur = map::begin(shader._samplers);
-			auto end = map::end(shader._samplers);
+			auto cur = hash_map::begin(shader._samplers);
+			auto end = hash_map::end(shader._samplers);
 			for (; cur != end; ++cur)
 			{
-				const DynamicString& name = cur->pair.first;
-				const DynamicString& sampler_state = cur->pair.second;
-				const SamplerState& ss = _sampler_states[sampler_state];
+				if (hash_map::is_hole(shader._samplers, cur))
+					continue;
+
+				const DynamicString& name = cur->first;
+				const DynamicString& sampler_state = cur->second;
+				const SamplerState ss_default;
+				const SamplerState& ss = hash_map::get(_sampler_states, sampler_state, ss_default);
 
 				_opts.write(name.to_string_id());
 				_opts.write(ss.encode());
@@ -1158,12 +1153,14 @@ namespace shader_resource_internal
 			TempAllocator512 taa;
 			DynamicString key(taa);
 			key = bgfx_shader;
-			const BgfxShader& shader = _bgfx_shaders[key];
+			const BgfxShader shader_default(default_allocator());
+			const BgfxShader& shader = hash_map::get(_bgfx_shaders, key, shader_default);
 
 			DynamicString included_code(default_allocator());
 			if (!(shader._includes == ""))
 			{
-				const BgfxShader& included = _bgfx_shaders[shader._includes];
+				const BgfxShader included_default(default_allocator());
+				const BgfxShader& included = hash_map::get(_bgfx_shaders, shader._includes, included_default);
 				included_code = included._code;
 			}
 

@@ -3,7 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/map.h"
+#include "core/containers/hash_map.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
 #include "core/json/json_object.h"
@@ -400,7 +400,7 @@ namespace physics_config_resource_internal
 	struct CollisionFilterCompiler
 	{
 		CompileOptions& _opts;
-		Map<StringId32, u32> _filter_map;
+		HashMap<StringId32, u32> _filter_map;
 		Array<PhysicsCollisionFilter> _filters;
 		u32 _filter;
 
@@ -428,7 +428,7 @@ namespace physics_config_resource_internal
 				const FixedString key = cur->first;
 				const StringId32 id   = StringId32(key.data(), key.length());
 
-				map::set(_filter_map, id, new_filter_mask());
+				hash_map::set(_filter_map, id, new_filter_mask());
 			}
 
 			cur = json_object::begin(object);
@@ -480,12 +480,12 @@ namespace physics_config_resource_internal
 
 		u32 filter_to_mask(StringId32 filter)
 		{
-			DATA_COMPILER_ASSERT(map::has(_filter_map, filter)
+			DATA_COMPILER_ASSERT(hash_map::has(_filter_map, filter)
 				, _opts
 				, "Filter not found"
 				);
 
-			return map::get(_filter_map, filter, 0u);
+			return hash_map::get(_filter_map, filter, 0u);
 		}
 	};
 
