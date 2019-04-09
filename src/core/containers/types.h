@@ -141,7 +141,9 @@ struct HashMap
 	char* _buffer;
 
 	HashMap(Allocator& a);
+	HashMap(const HashMap& other);
 	~HashMap();
+	HashMap<TKey, TValue, Hash, KeyEqual>& operator=(const HashMap<TKey, TValue, Hash, KeyEqual>& other);
 };
 
 /// Hash set.
@@ -167,7 +169,9 @@ struct HashSet
 	char* _buffer;
 
 	HashSet(Allocator& a);
+	HashSet(const HashSet& other);
 	~HashSet();
+	HashSet<TKey, Hash, KeyEqual>& operator=(const HashSet<TKey, Hash, KeyEqual>& other);
 };
 
 /// Vector of sorted items.

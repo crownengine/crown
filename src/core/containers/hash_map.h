@@ -318,6 +318,38 @@ HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(Allocator& a)
 }
 
 template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
+HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(const HashMap<TKey, TValue, Hash, KeyEqual>& other)
+	: _allocator(other._allocator)
+	, _capacity(0)
+	, _size(0)
+	, _mask(0)
+	, _index(NULL)
+	, _data(NULL)
+	, _buffer(NULL)
+{
+	_capacity = other._capacity;
+	_size = other._size;
+	_mask = other._mask;
+
+	_allocator->deallocate(_buffer);
+	if (other._capacity > 0)
+	{
+		const u32 size = other._capacity * (sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);
+		_buffer = (char*)_allocator->allocate(size);
+		_index = (Index*)memory::align_top(_buffer, alignof(Index));
+		_data = (Entry*)memory::align_top(_index + _capacity, alignof(Entry));
+
+		memcpy(_index, other._index, sizeof(Index)*other._capacity);
+		for (u32 i = 0; i < other._capacity; ++i)
+		{
+			const u32 index = other._index[i].index;
+			if (index != hash_map_internal::FREE && !hash_map_internal::is_deleted(index))
+				new (&_data[i]) Entry(other._data[i]);
+		}
+	}
+}
+
+template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
 HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 {
 	for (u32 i = 0; i < _capacity; ++i)
@@ -327,6 +359,32 @@ HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 	}
 
 	_allocator->deallocate(_buffer);
+}
+
+template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
+HashMap<TKey, TValue, Hash, KeyEqual>& HashMap<TKey, TValue, Hash, KeyEqual>::operator=(const HashMap<TKey, TValue, Hash, KeyEqual>& other)
+{
+	_capacity = other._capacity;
+	_size = other._size;
+	_mask = other._mask;
+
+	_allocator->deallocate(_buffer);
+	if (other._capacity > 0)
+	{
+		const u32 size = other._capacity * (sizeof(Index) + sizeof(Entry)) + alignof(Index) + alignof(Entry);
+		_buffer = (char*)_allocator->allocate(size);
+		_index = (Index*)memory::align_top(_buffer, alignof(Index));
+		_data = (Entry*)memory::align_top(_index + _capacity, alignof(Entry));
+
+		memcpy(_index, other._index, sizeof(Index)*other._capacity);
+		for (u32 i = 0; i < other._capacity; ++i)
+		{
+			const u32 index = other._index[i].index;
+			if (index != hash_map_internal::FREE && !hash_map_internal::is_deleted(index))
+				new (&_data[i]) Entry(other._data[i]);
+		}
+	}
+	return *this;
 }
 
 } // namespace crown

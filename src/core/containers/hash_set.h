@@ -274,6 +274,38 @@ HashSet<TKey, Hash, KeyEqual>::HashSet(Allocator& a)
 }
 
 template <typename TKey, typename Hash, typename KeyEqual>
+HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet& other)
+	: _allocator(other._allocator)
+	, _capacity(0)
+	, _size(0)
+	, _mask(0)
+	, _index(NULL)
+	, _data(NULL)
+	, _buffer(NULL)
+{
+	_capacity = other._capacity;
+	_size = other._size;
+	_mask = other._mask;
+
+	_allocator->deallocate(_buffer);
+	if (other._capacity > 0)
+	{
+		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
+		_buffer = (char*)_allocator->allocate(size);
+		_index = (Index*)memory::align_top(_buffer, alignof(Index));
+		_data = (TKey*)memory::align_top(_index + _capacity, alignof(TKey));
+
+		memcpy(_index, other._index, sizeof(Index)*other._capacity);
+		for (u32 i = 0; i < other._capacity; ++i)
+		{
+			const u32 index = other._index[i].index;
+			if (index != hash_set_internal::FREE && !hash_set_internal::is_deleted(index))
+				new (&_data[i]) TKey(other._data[i]);
+		}
+	}
+}
+
+template <typename TKey, typename Hash, typename KeyEqual>
 HashSet<TKey, Hash, KeyEqual>::~HashSet()
 {
 	for (u32 i = 0; i < _capacity; ++i)
@@ -283,6 +315,32 @@ HashSet<TKey, Hash, KeyEqual>::~HashSet()
 	}
 
 	_allocator->deallocate(_buffer);
+}
+
+template <typename TKey, typename Hash, typename KeyEqual>
+HashSet<TKey, Hash, KeyEqual>& HashSet<TKey, Hash, KeyEqual>::operator=(const HashSet<TKey, Hash, KeyEqual>& other)
+{
+	_capacity = other._capacity;
+	_size = other._size;
+	_mask = other._mask;
+
+	_allocator->deallocate(_buffer);
+	if (other._capacity > 0)
+	{
+		const u32 size = other._capacity * (sizeof(Index) + sizeof(TKey)) + alignof(Index) + alignof(TKey);
+		_buffer = (char*)_allocator->allocate(size);
+		_index = (Index*)memory::align_top(_buffer, alignof(Index));
+		_data = (TKey*)memory::align_top(_index + _capacity, alignof(TKey));
+
+		memcpy(_index, other._index, sizeof(Index)*other._capacity);
+		for (u32 i = 0; i < other._capacity; ++i)
+		{
+			const u32 index = other._index[i].index;
+			if (index != hash_set_internal::FREE && !hash_set_internal::is_deleted(index))
+				new (&_data[i]) TKey(other._data[i]);
+		}
+	}
+	return *this;
 }
 
 } // namespace crown
