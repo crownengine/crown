@@ -83,39 +83,6 @@ struct Queue
 	const T& operator[](u32 index) const;
 };
 
-/// Map from key to value. Uses a Vector internally, so, definitely
-/// not suited to performance-critical stuff.
-///
-/// @ingroup Containers
-template <typename TKey, typename TValue>
-struct Map
-{
-	ALLOCATOR_AWARE;
-
-	struct Node
-	{
-		ALLOCATOR_AWARE;
-
-		PAIR(TKey, TValue) pair;
-		u32 left;
-		u32 right;
-		u32 parent;
-		u32 color;
-
-		Node(Allocator& a)
-			: pair(a)
-		{
-		}
-	};
-
-	u32 _root;
-	u32 _sentinel;
-	Vector<Node> _data;
-
-	Map(Allocator& a);
-	const TValue& operator[](const TKey& key) const;
-};
-
 /// Hash map.
 ///
 /// @ingroup Containers

@@ -3,7 +3,6 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/map.h"
 #include "core/containers/vector.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/reader_writer.h"

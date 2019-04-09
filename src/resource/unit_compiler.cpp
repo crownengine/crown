@@ -4,7 +4,6 @@
  */
 
 #include "core/containers/array.h"
-#include "core/containers/map.h"
 #include "core/containers/sort_map.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"

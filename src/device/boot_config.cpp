@@ -4,7 +4,6 @@
  */
 
 #include "config.h"
-#include "core/containers/map.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.h"
