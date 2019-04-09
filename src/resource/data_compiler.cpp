@@ -5,7 +5,6 @@
 
 #include "config.h"
 #include "core/containers/hash_map.h"
-#include "core/containers/map.h"
 #include "core/containers/vector.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_disk.h"
@@ -141,7 +140,7 @@ void DataCompiler::add_tree(const char* path)
 {
 	TempAllocator512 ta;
 	DynamicString source_dir(ta);
-	source_dir = map::get(_source_dirs, source_dir, source_dir);
+	source_dir = hash_map::get(_source_dirs, source_dir, source_dir);
 
 	_source_fs.set_prefix(source_dir.c_str());
 	DataCompiler::scan_source_dir(source_dir.c_str(), path);
@@ -236,7 +235,7 @@ void DataCompiler::map_source_dir(const char* name, const char* source_dir)
 	DynamicString sdir(ta);
 	sname.set(name, strlen32(name));
 	sdir.set(source_dir, strlen32(source_dir));
-	map::set(_source_dirs, sname, sdir);
+	hash_map::set(_source_dirs, sname, sdir);
 }
 
 void DataCompiler::source_dir(const char* resource_name, DynamicString& source_dir)
@@ -255,8 +254,8 @@ void DataCompiler::source_dir(const char* resource_name, DynamicString& source_d
 	DynamicString empty(ta);
 	empty = "";
 
-	deffault   = map::get(_source_dirs, empty, empty);
-	source_dir = map::get(_source_dirs, source_name, deffault);
+	deffault   = hash_map::get(_source_dirs, empty, empty);
+	source_dir = hash_map::get(_source_dirs, source_name, deffault);
 }
 
 void DataCompiler::add_ignore_glob(const char* glob)
@@ -272,11 +271,13 @@ void DataCompiler::scan()
 	const s64 time_start = time::now();
 
 	// Scan all source directories
-	auto cur = map::begin(_source_dirs);
-	auto end = map::end(_source_dirs);
-
+	auto cur = hash_map::begin(_source_dirs);
+	auto end = hash_map::end(_source_dirs);
 	for (; cur != end; ++cur)
 	{
+		if (hash_map::is_hole(_source_dirs, cur))
+			continue;
+
 		DynamicString prefix(default_allocator());
 		path::join(prefix, cur->pair.second.c_str(), cur->pair.first.c_str());
 		_source_fs.set_prefix(prefix.c_str());
@@ -313,7 +314,7 @@ void DataCompiler::scan()
 	}
 
 	logi(DATA_COMPILER, "Scanned data in %.2fs", time::seconds(time::now() - time_start));
-	_file_monitor.start(map::begin(_source_dirs)->pair.second.c_str(), true, filemonitor_callback, this);
+	_file_monitor.start(hash_map::begin(_source_dirs)->pair.second.c_str(), true, filemonitor_callback, this);
 }
 
 bool DataCompiler::compile(const char* data_dir, const char* platform)
@@ -410,8 +411,8 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		if (success)
 		{
-			if (!map::has(_data_index, dst_path))
-				map::set(_data_index, dst_path, src_path);
+			if (!hash_map::has(_data_index, dst_path))
+				hash_map::set(_data_index, dst_path, src_path);
 		}
 		else
 		{
@@ -427,10 +428,13 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		{
 			StringStream ss(default_allocator());
 
-			auto cur = map::begin(_data_index);
-			auto end = map::end(_data_index);
+			auto cur = hash_map::begin(_data_index);
+			auto end = hash_map::end(_data_index);
 			for (; cur != end; ++cur)
 			{
+				if (hash_map::is_hole(_data_index, cur))
+					continue;
+
 				ss << "\"" << cur->pair.first.c_str() << "\" = \"" << cur->pair.second.c_str() << "\"\n";
 			}
 
@@ -484,7 +488,7 @@ void DataCompiler::filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir,
 	DynamicString resource_name_renamed(ta);
 	DynamicString source_dir(ta);
 
-	source_dir            = map::get(_source_dirs, source_dir, source_dir);
+	source_dir            = hash_map::get(_source_dirs, source_dir, source_dir);
 	resource_name         = &path[source_dir.length()+1]; // FIXME: add path::relative()
 	resource_name_renamed = path_renamed ? &path_renamed[source_dir.length()+1] : "";
 

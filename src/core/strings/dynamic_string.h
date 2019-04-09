@@ -220,4 +220,13 @@ inline const char* DynamicString::c_str() const
 	return array::begin(_data);
 }
 
+template <>
+struct hash<DynamicString>
+{
+	u32 operator()(const DynamicString& val) const
+	{
+		return val.to_string_id()._id;
+	}
+};
+
 } // namespace crown

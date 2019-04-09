@@ -22,15 +22,6 @@
 
 namespace crown
 {
-template <>
-struct hash<DynamicString>
-{
-	u32 operator()(const DynamicString& str) const
-	{
-		return str.to_string_id()._id;
-	}
-};
-
 struct FileMonitorImpl
 {
 	Allocator* _allocator;

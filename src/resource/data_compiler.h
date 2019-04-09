@@ -30,11 +30,11 @@ struct DataCompiler
 
 	ConsoleServer* _console_server;
 	FilesystemDisk _source_fs;
-	Map<DynamicString, DynamicString> _source_dirs;
+	HashMap<DynamicString, DynamicString> _source_dirs;
 	HashMap<StringId64, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
-	Map<DynamicString, DynamicString> _data_index;
+	HashMap<DynamicString, DynamicString> _data_index;
 	FileMonitor _file_monitor;
 	jmp_buf _jmpbuf;
 

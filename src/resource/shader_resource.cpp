@@ -35,15 +35,6 @@
 
 namespace crown
 {
-template <>
-struct hash<DynamicString>
-{
-	u32 operator()(const DynamicString& val) const
-	{
-		return val.to_string_id()._id;
-	}
-};
-
 namespace shader_resource_internal
 {
 	struct DepthFunction
