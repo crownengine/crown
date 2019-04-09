@@ -279,7 +279,7 @@ void DataCompiler::scan()
 			continue;
 
 		DynamicString prefix(default_allocator());
-		path::join(prefix, cur->pair.second.c_str(), cur->pair.first.c_str());
+		path::join(prefix, cur->second.c_str(), cur->first.c_str());
 		_source_fs.set_prefix(prefix.c_str());
 
 		if (_source_fs.exists(CROWN_DATAIGNORE))
@@ -310,7 +310,7 @@ void DataCompiler::scan()
 			default_allocator().deallocate(data);
 		}
 
-		scan_source_dir(cur->pair.first.c_str(), "");
+		scan_source_dir(cur->first.c_str(), "");
 	}
 
 	logi(DATA_COMPILER, "Scanned data in %.2fs", time::seconds(time::now() - time_start));
@@ -435,7 +435,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 				if (hash_map::is_hole(_data_index, cur))
 					continue;
 
-				ss << "\"" << cur->pair.first.c_str() << "\" = \"" << cur->pair.second.c_str() << "\"\n";
+				ss << "\"" << cur->first.c_str() << "\" = \"" << cur->second.c_str() << "\"\n";
 			}
 
 			file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
