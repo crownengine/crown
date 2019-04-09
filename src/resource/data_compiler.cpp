@@ -314,7 +314,7 @@ void DataCompiler::scan()
 	}
 
 	logi(DATA_COMPILER, "Scanned data in %.2fs", time::seconds(time::now() - time_start));
-	_file_monitor.start(hash_map::begin(_source_dirs)->pair.second.c_str(), true, filemonitor_callback, this);
+	_file_monitor.start(hash_map::begin(_source_dirs)->second.c_str(), true, filemonitor_callback, this);
 }
 
 bool DataCompiler::compile(const char* data_dir, const char* platform)
