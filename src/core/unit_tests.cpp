@@ -1295,31 +1295,37 @@ static void test_thread()
 	ENSURE(thread.exit_code() == -1);
 }
 
+#define RUN_TEST(name)      \
+	do {                    \
+		printf(#name "\n"); \
+		name();             \
+	} while (0)
+
 int main_unit_tests()
 {
-	test_memory();
-	test_array();
-	test_vector();
-	test_hash_map();
-	test_hash_set();
-	test_vector2();
-	test_vector3();
-	test_vector4();
-	test_quaternion();
-	test_color4();
-	test_matrix3x3();
-	test_matrix4x4();
-	test_aabb();
-	test_sphere();
-	test_murmur();
-	test_string_id();
-	test_dynamic_string();
-	test_guid();
-	test_json();
-	test_sjson();
-	test_path();
-	test_command_line();
-	test_thread();
+	RUN_TEST(test_memory);
+	RUN_TEST(test_array);
+	RUN_TEST(test_vector);
+	RUN_TEST(test_hash_map);
+	RUN_TEST(test_hash_set);
+	RUN_TEST(test_vector2);
+	RUN_TEST(test_vector3);
+	RUN_TEST(test_vector4);
+	RUN_TEST(test_quaternion);
+	RUN_TEST(test_color4);
+	RUN_TEST(test_matrix3x3);
+	RUN_TEST(test_matrix4x4);
+	RUN_TEST(test_aabb);
+	RUN_TEST(test_sphere);
+	RUN_TEST(test_murmur);
+	RUN_TEST(test_string_id);
+	RUN_TEST(test_dynamic_string);
+	RUN_TEST(test_guid);
+	RUN_TEST(test_json);
+	RUN_TEST(test_sjson);
+	RUN_TEST(test_path);
+	RUN_TEST(test_command_line);
+	RUN_TEST(test_thread);
 
 	return EXIT_SUCCESS;
 }
