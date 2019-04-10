@@ -262,7 +262,7 @@ namespace hash_set
 } // namespace hash_set
 
 template <typename TKey, typename Hash, typename KeyEqual>
-HashSet<TKey, Hash, KeyEqual>::HashSet(Allocator& a)
+inline HashSet<TKey, Hash, KeyEqual>::HashSet(Allocator& a)
 	: _allocator(&a)
 	, _capacity(0)
 	, _size(0)
@@ -306,7 +306,7 @@ HashSet<TKey, Hash, KeyEqual>::HashSet(const HashSet& other)
 }
 
 template <typename TKey, typename Hash, typename KeyEqual>
-HashSet<TKey, Hash, KeyEqual>::~HashSet()
+inline HashSet<TKey, Hash, KeyEqual>::~HashSet()
 {
 	for (u32 i = 0; i < _capacity; ++i)
 	{

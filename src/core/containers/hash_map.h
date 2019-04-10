@@ -316,7 +316,7 @@ namespace hash_map
 } // namespace hash_map
 
 template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
-HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(Allocator& a)
+inline HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(Allocator& a)
 	: _allocator(&a)
 	, _capacity(0)
 	, _size(0)
@@ -360,7 +360,7 @@ HashMap<TKey, TValue, Hash, KeyEqual>::HashMap(const HashMap<TKey, TValue, Hash,
 }
 
 template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
-HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
+inline HashMap<TKey, TValue, Hash, KeyEqual>::~HashMap()
 {
 	for (u32 i = 0; i < _capacity; ++i)
 	{
