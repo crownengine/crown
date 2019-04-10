@@ -1,6 +1,9 @@
 #include "core/memory/temp_allocator.h"
 #include "core/strings/string_stream.h"
 #include <string.h> // strtok_r
+#if CROWN_COMPILER_MSVC
+	#define strtok_r strtok_s
+#endif
 
 namespace crown
 {
