@@ -141,26 +141,4 @@ struct HashSet
 	HashSet<TKey, Hash, KeyEqual>& operator=(const HashSet<TKey, Hash, KeyEqual>& other);
 };
 
-/// Vector of sorted items.
-///
-/// @note
-/// Items are not automatically sorted, you have to call sort_map::sort()
-/// whenever you are done inserting/removing items.
-///
-/// @ingroup Containers.
-template <typename TKey, typename TValue, typename Compare = less<TKey> >
-struct SortMap
-{
-	ALLOCATOR_AWARE;
-
-	typedef PAIR(TKey, TValue) Entry;
-
-	Vector<Entry> _data;
-#if CROWN_DEBUG
-	bool _is_sorted;
-#endif
-
-	SortMap(Allocator& a);
-};
-
 } // namespace crown

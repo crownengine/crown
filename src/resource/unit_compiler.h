@@ -45,7 +45,7 @@ struct UnitCompiler
 		}
 	};
 
-	typedef SortMap<StringId32, ComponentTypeData> ComponentTypeMap;
+	typedef HashMap<StringId32, ComponentTypeData> ComponentTypeMap;
 	typedef Array<ComponentTypeInfo> ComponentTypeArray;
 
 	CompileOptions& _opts;

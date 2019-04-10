@@ -4,7 +4,7 @@
  */
 
 #include "core/containers/array.h"
-#include "core/containers/sort_map.h"
+#include "core/containers/hash_map.h"
 #include "core/memory/temp_allocator.h"
 #include "core/strings/dynamic_string.h"
 #include "resource/resource_loader.h"
@@ -13,6 +13,15 @@
 namespace crown
 {
 const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL };
+
+template<>
+struct hash<ResourceManager::ResourcePair>
+{
+	u32 operator()(const ResourceManager::ResourcePair& val) const
+	{
+		return u32(val.type._id ^ val.name._id);
+	}
+};
 
 ResourceManager::ResourceManager(ResourceLoader& rl)
 	: _resource_heap(default_allocator(), "resource")
@@ -25,10 +34,13 @@ ResourceManager::ResourceManager(ResourceLoader& rl)
 
 ResourceManager::~ResourceManager()
 {
-	auto cur = sort_map::begin(_rm);
-	auto end = sort_map::end(_rm);
+	auto cur = hash_map::begin(_rm);
+	auto end = hash_map::end(_rm);
 	for (; cur != end; ++cur)
 	{
+		if (hash_map::is_hole(_rm, cur))
+			continue;
+
 		const StringId64 type = cur->first.type;
 		const StringId64 name = cur->first.name;
 		on_offline(type, name);
@@ -39,7 +51,7 @@ ResourceManager::~ResourceManager()
 void ResourceManager::load(StringId64 type, StringId64 name)
 {
 	ResourcePair id = { type, name };
-	ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (entry == ResourceEntry::NOT_FOUND)
 	{
@@ -49,7 +61,7 @@ void ResourceManager::load(StringId64 type, StringId64 name)
 		rtd.online = NULL;
 		rtd.offline = NULL;
 		rtd.unload = NULL;
-		rtd = sort_map::get(_type_data, type, rtd);
+		rtd = hash_map::get(_type_data, type, rtd);
 
 		ResourceRequest rr;
 		rr.type = type;
@@ -71,36 +83,35 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 	flush();
 
 	ResourcePair id = { type, name };
-	ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 
 	if (--entry.references == 0)
 	{
 		on_offline(type, name);
 		on_unload(type, entry.data);
 
-		sort_map::remove(_rm, id);
-		sort_map::sort(_rm);
+		hash_map::remove(_rm, id);
 	}
 }
 
 void ResourceManager::reload(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
-	const ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	const ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	const u32 old_refs = entry.references;
 
 	unload(type, name);
 	load(type, name);
 	flush();
 
-	ResourceEntry& new_entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	ResourceEntry& new_entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	new_entry.references = old_refs;
 }
 
 bool ResourceManager::can_get(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
-	return _autoload ? true : sort_map::has(_rm, id);
+	return _autoload ? true : hash_map::has(_rm, id);
 }
 
 const void* ResourceManager::get(StringId64 type, StringId64 name)
@@ -116,13 +127,13 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 
 	CE_ASSERT(can_get(type, name), "Resource not loaded #ID(%s)", path.c_str());
 
-	if (_autoload && !sort_map::has(_rm, id))
+	if (_autoload && !hash_map::has(_rm, id))
 	{
 		load(type, name);
 		flush();
 	}
 
-	const ResourceEntry& entry = sort_map::get(_rm, id, ResourceEntry::NOT_FOUND);
+	const ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	return entry.data;
 }
 
@@ -155,8 +166,7 @@ void ResourceManager::complete_request(StringId64 type, StringId64 name, void* d
 
 	ResourcePair id = { type, name };
 
-	sort_map::set(_rm, id, entry);
-	sort_map::sort(_rm);
+	hash_map::set(_rm, id, entry);
 
 	on_online(type, name);
 }
@@ -170,13 +180,12 @@ void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction l
 	rtd.offline = offline;
 	rtd.unload = unload;
 
-	sort_map::set(_type_data, type, rtd);
-	sort_map::sort(_type_data);
+	hash_map::set(_type_data, type, rtd);
 }
 
 void ResourceManager::on_online(StringId64 type, StringId64 name)
 {
-	OnlineFunction func = sort_map::get(_type_data, type, ResourceTypeData()).online;
+	OnlineFunction func = hash_map::get(_type_data, type, ResourceTypeData()).online;
 
 	if (func)
 		func(name, *this);
@@ -184,7 +193,7 @@ void ResourceManager::on_online(StringId64 type, StringId64 name)
 
 void ResourceManager::on_offline(StringId64 type, StringId64 name)
 {
-	OfflineFunction func = sort_map::get(_type_data, type, ResourceTypeData()).offline;
+	OfflineFunction func = hash_map::get(_type_data, type, ResourceTypeData()).offline;
 
 	if (func)
 		func(name, *this);
@@ -192,7 +201,7 @@ void ResourceManager::on_offline(StringId64 type, StringId64 name)
 
 void ResourceManager::on_unload(StringId64 type, void* data)
 {
-	UnloadFunction func = sort_map::get(_type_data, type, ResourceTypeData()).unload;
+	UnloadFunction func = hash_map::get(_type_data, type, ResourceTypeData()).unload;
 
 	if (func)
 		func(_resource_heap, data);

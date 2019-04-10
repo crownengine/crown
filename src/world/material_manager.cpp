@@ -3,7 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/sort_map.h"
+#include "core/containers/hash_map.h"
 #include "core/filesystem/file.h"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
@@ -22,10 +22,13 @@ MaterialManager::MaterialManager(Allocator& a, ResourceManager& rm)
 
 MaterialManager::~MaterialManager()
 {
-	auto cur = sort_map::begin(_materials);
-	auto end = sort_map::end(_materials);
+	auto cur = hash_map::begin(_materials);
+	auto end = hash_map::end(_materials);
 	for (; cur != end; ++cur)
 	{
+		if (hash_map::is_hole(_materials, cur))
+			continue;
+
 		_allocator->deallocate(cur->second);
 	}
 }
@@ -94,7 +97,7 @@ void MaterialManager::unload(Allocator& a, void* res)
 
 void MaterialManager::create_material(StringId64 id)
 {
-	if (sort_map::has(_materials, id))
+	if (hash_map::has(_materials, id))
 		return;
 
 	const MaterialResource* mr = (MaterialResource*)_resource_manager->get(RESOURCE_TYPE_MATERIAL, id);
@@ -107,23 +110,21 @@ void MaterialManager::create_material(StringId64 id)
 	const char* data = (char*)mr + mr->dynamic_data_offset;
 	memcpy(mat->_data, data, mr->dynamic_data_size);
 
-	sort_map::set(_materials, id, mat);
-	sort_map::sort(_materials);
+	hash_map::set(_materials, id, mat);
 }
 
 void MaterialManager::destroy_material(StringId64 id)
 {
-	Material* mat = sort_map::get(_materials, id, (Material*)NULL);
+	Material* mat = hash_map::get(_materials, id, (Material*)NULL);
 	_allocator->deallocate(mat);
 
-	sort_map::remove(_materials, id);
-	sort_map::sort(_materials);
+	hash_map::remove(_materials, id);
 }
 
 Material* MaterialManager::get(StringId64 id)
 {
-	CE_ASSERT(sort_map::has(_materials, id), "Material not found");
-	return sort_map::get(_materials, id, (Material*)NULL);
+	CE_ASSERT(hash_map::has(_materials, id), "Material not found");
+	return hash_map::get(_materials, id, (Material*)NULL);
 }
 
 } // namespace crown

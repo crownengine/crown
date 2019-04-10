@@ -4,7 +4,7 @@
  */
 
 #include "core/containers/array.h"
-#include "core/containers/sort_map.h"
+#include "core/containers/hash_map.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
 #include "core/math/math.h"
@@ -15,6 +15,7 @@
 #include "resource/unit_compiler.h"
 #include "resource/unit_resource.h"
 #include "world/types.h"
+#include <algorithm>
 
 namespace crown
 {
@@ -409,10 +410,13 @@ Buffer UnitCompiler::blob()
 	ur.num_units = _num_units;
 	ur.num_component_types = 0;
 
-	auto cur = sort_map::begin(_component_data);
-	auto end = sort_map::end(_component_data);
+	auto cur = hash_map::begin(_component_data);
+	auto end = hash_map::end(_component_data);
 	for (; cur != end; ++cur)
 	{
+		if (hash_map::is_hole(_component_data, cur))
+			continue;
+
 		const u32 num = cur->second._num;
 
 		if (num > 0)
@@ -425,7 +429,7 @@ Buffer UnitCompiler::blob()
 	for (u32 i = 0; i < array::size(_component_info); ++i)
 	{
 		const StringId32 type        = _component_info[i]._type;
-		const ComponentTypeData& ctd = sort_map::get(_component_data, type, ComponentTypeData(default_allocator()));
+		const ComponentTypeData& ctd = hash_map::get(_component_data, type, ComponentTypeData(default_allocator()));
 
 		const Buffer& data           = ctd._data;
 		const Array<u32>& unit_index = ctd._unit_index;
@@ -456,7 +460,7 @@ Buffer UnitCompiler::blob()
 
 void UnitCompiler::add_component_data(StringId32 type, const Buffer& data, u32 unit_index)
 {
-	ComponentTypeData& ctd = const_cast<ComponentTypeData&>(sort_map::get(_component_data, type, ComponentTypeData(default_allocator())));
+	ComponentTypeData& ctd = const_cast<ComponentTypeData&>(hash_map::get(_component_data, type, ComponentTypeData(default_allocator())));
 
 	array::push(ctd._data, array::begin(data), array::size(data));
 	array::push_back(ctd._unit_index, unit_index);
@@ -477,8 +481,7 @@ void UnitCompiler::register_component_compiler(StringId32 type, CompileFunction 
 	cti._type = type;
 	cti._spawn_order = spawn_order;
 
-	sort_map::set(_component_data, type, ctd);
-	sort_map::sort(_component_data);
+	hash_map::set(_component_data, type, ctd);
 
 	array::push_back(_component_info, cti);
 	std::sort(array::begin(_component_info), array::end(_component_info));
@@ -486,9 +489,9 @@ void UnitCompiler::register_component_compiler(StringId32 type, CompileFunction 
 
 Buffer UnitCompiler::compile_component(StringId32 type, const char* json)
 {
-	DATA_COMPILER_ASSERT(sort_map::has(_component_data, type), _opts, "Unknown component");
+	DATA_COMPILER_ASSERT(hash_map::has(_component_data, type), _opts, "Unknown component");
 
-	return sort_map::get(_component_data, type, ComponentTypeData(default_allocator()))._compiler(json, _opts);
+	return hash_map::get(_component_data, type, ComponentTypeData(default_allocator()))._compiler(json, _opts);
 }
 
 } // namespace crown

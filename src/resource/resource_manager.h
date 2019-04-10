@@ -33,6 +33,11 @@ struct ResourceManager
 		{
 			return type < a.type || (type == a.type && name < a.name);
 		}
+
+		bool operator==(const ResourcePair& a) const
+		{
+			return type == a.type && name == a.name;
+		}
 	};
 
 	struct ResourceEntry
@@ -57,8 +62,8 @@ struct ResourceManager
 		UnloadFunction unload;
 	};
 
-	typedef SortMap<StringId64, ResourceTypeData> TypeMap;
-	typedef SortMap<ResourcePair, ResourceEntry> ResourceMap;
+	typedef HashMap<StringId64, ResourceTypeData> TypeMap;
+	typedef HashMap<ResourcePair, ResourceEntry> ResourceMap;
 
 	ProxyAllocator _resource_heap;
 	ResourceLoader* _loader;

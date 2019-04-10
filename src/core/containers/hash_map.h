@@ -30,6 +30,10 @@ namespace hash_map
 	/// the key does not exist in the map.
 	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> const TValue& get(const HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& deffault);
 
+	/// Returns the value for the given @a key or @a deffault if
+	/// the key does not exist in the map.
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> TValue& get(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& deffault);
+
 	/// Sets the @a value for the @a key in the map.
 	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> void set(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& value);
 
@@ -234,6 +238,12 @@ namespace hash_map
 			return deffault;
 		else
 			return m._data[i].second;
+	}
+
+	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
+	TValue& get(HashMap<TKey, TValue, Hash, KeyEqual>& m, const TKey& key, const TValue& deffault)
+	{
+		return const_cast<TValue&>(hash_map::get((const HashMap<TKey, TValue, Hash, KeyEqual>&)m, key, deffault));
 	}
 
 	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>

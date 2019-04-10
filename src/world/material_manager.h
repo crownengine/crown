@@ -18,7 +18,7 @@ struct MaterialManager
 {
 	Allocator* _allocator;
 	ResourceManager* _resource_manager;
-	SortMap<StringId64, Material*> _materials;
+	HashMap<StringId64, Material*> _materials;
 
 	///
 	MaterialManager(Allocator& a, ResourceManager& rm);
