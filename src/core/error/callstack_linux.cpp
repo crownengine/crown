@@ -22,7 +22,7 @@ namespace error
 	static const char* addr2line(const char* addr, char* line, int len)
 	{
 		char buf[256];
-		snprintf(buf, sizeof(buf), "addr2line -e /proc/%u/exe %s", getpid(), addr);
+		snprintf(buf, sizeof(buf), "addr2line -s -e /proc/%u/exe %s", getpid(), addr);
 		FILE* f = popen(buf, "r");
 		if (f)
 		{
