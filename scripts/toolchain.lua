@@ -147,6 +147,7 @@ function toolchain(build_dir, lib_dir)
 		linkoptions {
 			"-Wl,-rpath=\\$$ORIGIN",
 			"-Wl,--no-as-needed",
+			"-no-pie",
 		}
 
 	configuration { "android-*" }
