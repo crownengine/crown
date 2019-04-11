@@ -28,6 +28,20 @@ struct Stat
 	u64 mtime; ///< Last modified time.
 };
 
+/// File access flags to be used with os::access().
+///
+/// @ingroup OS
+struct AccessFlags
+{
+	enum Enum
+	{
+		EXISTS  = 0x0,
+		EXECUTE = 0x1,
+		WRITE   = 0x2,
+		READ    = 0x4
+	};
+};
+
 /// Operating system functions.
 ///
 /// @ingroup OS
@@ -68,6 +82,9 @@ namespace os
 
 	/// Returns the value of the environment variable @a name.
 	const char* getenv(const char* name);
+
+	///
+	s32 access(const char* path, u32 flags);
 
 	/// Executes the process described by @a argv and returns its exit code.
 	/// It fills @a output with stdout and stderr.

@@ -22,9 +22,9 @@
 	#include <string.h>   // memset
 	#include <sys/wait.h> // wait
 	#include <time.h>     // clock_gettime
-	#include <unistd.h>   // unlink, rmdir, getcwd, fork, execv
+	#include <unistd.h>   // unlink, rmdir, getcwd, fork, execv, access
 #elif CROWN_PLATFORM_WINDOWS
-	#include <io.h>
+	#include <io.h>       // _access
 	#include <stdio.h>
 	#include <windows.h>
 #endif
@@ -225,6 +225,16 @@ namespace os
 		while (FindNextFile(file, &ffd) != 0);
 
 		FindClose(file);
+#endif
+	}
+
+	///
+	s32 access(const char* path, u32 flags)
+	{
+#if CROWN_PLATFORM_POSIX
+		return ::access(path, flags);
+#elif CROWN_PLATFORM_WINDOWS
+		return ::_access(path, flags);
 #endif
 	}
 
