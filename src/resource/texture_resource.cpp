@@ -14,24 +14,20 @@
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"
 
-#if CROWN_DEVELOPMENT
-	#define TEXTUREC_NAME "texturec-development"
-#elif CROWN_DEBUG
-	#define TEXTUREC_NAME "texturec-debug"
-#else
-	#define TEXTUREC_NAME "texturec-release"
-#endif  // CROWN_DEBUG
-
-#if CROWN_PLATFORM_LINUX
-	#define TEXTUREC_PATH "./" TEXTUREC_NAME ""
-#elif CROWN_PLATFORM_WINDOWS
-	#define TEXTUREC_PATH TEXTUREC_NAME ".exe"
-#else
-	#define TEXTUREC_PATH ""
-#endif // CROWN_PLATFORM_LINUX
-
 namespace crown
 {
+static const char* texturec_paths[] =
+{
+	EXE_PATH("texturec"),
+#if CROWN_DEBUG
+	EXE_PATH("texturec-debug")
+#elif CROWN_DEVELOPMENT
+	EXE_PATH("texturec-development")
+#else
+	EXE_PATH("texturec-release")
+#endif
+};
+
 namespace texture_resource_internal
 {
 	void compile(CompileOptions& opts)
@@ -54,9 +50,15 @@ namespace texture_resource_internal
 		opts.get_absolute_path(name.c_str(), texsrc);
 		opts.get_temporary_path("ktx", texout);
 
+		const char* texturec = opts.exe_path(texturec_paths, countof(texturec_paths));
+		DATA_COMPILER_ASSERT(texturec != NULL
+			, opts
+			, "texturec not found"
+			);
+
 		const char* argv[] =
 		{
-			TEXTUREC_PATH,
+			texturec,
 			"-f",
 			texsrc.c_str(),
 			"-o",

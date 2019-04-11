@@ -17,24 +17,20 @@
 #include "resource/shader_resource.h"
 #include "world/shader_manager.h"
 
-#if CROWN_DEVELOPMENT
-	#define SHADERC_NAME "shaderc-development"
-#elif CROWN_DEBUG
-	#define SHADERC_NAME "shaderc-debug"
-#else
-	#define SHADERC_NAME "shaderc-release"
-#endif  // CROWN_DEBUG
-
-#if CROWN_PLATFORM_LINUX
-	#define SHADERC_PATH "./" SHADERC_NAME ""
-#elif CROWN_PLATFORM_WINDOWS
-	#define SHADERC_PATH SHADERC_NAME ".exe"
-#else
-	#define SHADERC_PATH ""
-#endif // CROWN_PLATFORM_LINUX
-
 namespace crown
 {
+static const char* shaderc_paths[] =
+{
+	EXE_PATH("shaderc"),
+#if CROWN_DEBUG
+	EXE_PATH("shaderc-debug")
+#elif CROWN_DEVELOPMENT
+	EXE_PATH("shaderc-development")
+#else
+	EXE_PATH("shaderc-release")
+#endif
+};
+
 namespace shader_resource_internal
 {
 	struct DepthFunction
@@ -426,11 +422,11 @@ namespace shader_resource_internal
 		return SamplerWrap::COUNT;
 	}
 
-	static int run_external_compiler(CompileOptions& opts, const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
+	static int run_external_compiler(CompileOptions& opts, const char* shaderc, const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
 	{
 		const char* argv[] =
 		{
-			SHADERC_PATH,
+			shaderc,
 			"-f",
 			infile,
 			"-o",
@@ -1105,10 +1101,10 @@ namespace shader_resource_internal
 				const RenderState rs_default;
 				const RenderState& rs = hash_map::get(_render_states, render_state, rs_default);
 
-				_opts.write(shader_name._id);                // Shader name
-				_opts.write(rs.encode());                    // Render state
-				compile_sampler_states(bgfx_shader.c_str()); // Sampler states
-				compile(bgfx_shader.c_str(), defines);       // Shader code
+				_opts.write(shader_name._id);                      // Shader name
+				_opts.write(rs.encode());                          // Render state
+				compile_sampler_states(bgfx_shader.c_str());       // Sampler states
+				compile_bgfx_shader(bgfx_shader.c_str(), defines); // Shader code
 			}
 		}
 
@@ -1139,7 +1135,7 @@ namespace shader_resource_internal
 			}
 		}
 
-		void compile(const char* bgfx_shader, const Vector<DynamicString>& defines)
+		void compile_bgfx_shader(const char* bgfx_shader, const Vector<DynamicString>& defines)
 		{
 			TempAllocator512 taa;
 			DynamicString key(taa);
@@ -1181,7 +1177,13 @@ namespace shader_resource_internal
 			TempAllocator4096 ta;
 			StringStream output(ta);
 
-			int ec = run_external_compiler(_opts, _vs_source_path.c_str()
+			const char* shaderc = _opts.exe_path(shaderc_paths, countof(shaderc_paths));
+			DATA_COMPILER_ASSERT(shaderc != NULL
+				, _opts
+				, "shaderc not found"
+				);
+
+			int ec = run_external_compiler(_opts, shaderc, _vs_source_path.c_str()
 				, _vs_compiled_path.c_str()
 				, _varying_path.c_str()
 				, "vertex"
@@ -1199,7 +1201,7 @@ namespace shader_resource_internal
 			}
 
 			array::clear(output);
-			ec = run_external_compiler(_opts, _fs_source_path.c_str()
+			ec = run_external_compiler(_opts, shaderc, _fs_source_path.c_str()
 				, _fs_compiled_path.c_str()
 				, _varying_path.c_str()
 				, "fragment"

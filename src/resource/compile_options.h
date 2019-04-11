@@ -34,6 +34,18 @@
 		, name                                       \
 		)
 
+#if CROWN_PLATFORM_LINUX
+	#define EXE_PREFIX "./"
+	#define EXE_SUFFIX ""
+#elif CROWN_PLATFORM_WINDOWS
+	#define EXE_PREFIX ""
+	#define EXE_SUFFIX ".exe"
+#else
+	#error "Unknown platform"
+#endif // CROWN_PLATFORM_LINUX
+
+#define EXE_PATH(exe) EXE_PREFIX exe EXE_SUFFIX
+
 namespace crown
 {
 struct CompileOptions
@@ -114,6 +126,9 @@ struct CompileOptions
 
 	///
 	void add_dependency(const char* path);
+
+	/// Returns the first path with executable permissions or NULL if none found.
+	const char* exe_path(const char* const* paths, u32 num);
 
 	///
 	int run_external_compiler(const char* const* argv, StringStream& output);

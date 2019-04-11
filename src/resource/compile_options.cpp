@@ -178,6 +178,17 @@ void CompileOptions::add_dependency(const char* path)
 	vector::push_back(_dependencies, dep);
 }
 
+const char* CompileOptions::exe_path(const char* const* paths, u32 num)
+{
+	for (u32 ii = 0; ii < num; ++ii)
+	{
+		if (os::access(paths[ii], AccessFlags::EXECUTE) == 0)
+			return paths[ii];
+	}
+
+	return NULL;
+}
+
 int CompileOptions::run_external_compiler(const char* const* argv, StringStream& output)
 {
 	return os::execute_process(argv, output);

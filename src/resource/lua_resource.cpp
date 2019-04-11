@@ -12,16 +12,6 @@
 #include "resource/compile_options.h"
 #include "resource/lua_resource.h"
 
-#define LUAJIT_NAME "./luajit"
-
-#if CROWN_PLATFORM_WINDOWS
-	#define EXE ".exe"
-#else
- 	#define EXE ""
-#endif // CROWN_PLATFORM_WINDOWS
-
-#define LUAJIT_EXE LUAJIT_NAME EXE
-
 #if CROWN_DEBUG
 	#define LUAJIT_FLAGS "-bg" // Keep debug info
 #else
@@ -43,7 +33,7 @@ namespace lua_resource_internal
 		StringStream output(ta);
 		const char* argv[] =
 		{
-			LUAJIT_EXE,
+			EXE_PATH("luajit"),
 			LUAJIT_FLAGS,
 			luasrc.c_str(),
 			luabin.c_str(),
