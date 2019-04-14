@@ -27,10 +27,10 @@ struct ProxyAllocator : public Allocator
 	void deallocate(void* data);
 
 	/// @copydoc Allocator::allocated_size()
-	u32 allocated_size(const void* /*ptr*/) { return SIZE_NOT_TRACKED; }
+	u32 allocated_size(const void* ptr) { return _allocator.allocated_size(ptr); }
 
 	/// @copydoc Allocator::total_allocated()
-	u32 total_allocated() { return SIZE_NOT_TRACKED; }
+	u32 total_allocated() { return _allocator.total_allocated(); }
 
 	/// Returns the name of the proxy allocator
 	const char* name() const;
