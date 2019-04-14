@@ -19,68 +19,39 @@ namespace log_internal
 {
 	static Mutex s_mutex;
 
-	void vlogx(LogSeverity::Enum sev, System system, const char* msg, va_list args)
+	static void stdout_log(LogSeverity::Enum sev, System system, const char* msg)
 	{
-		ScopedMutex sm(s_mutex);
-
-		char buf[8192];
-		int len = vsnprintf(buf, sizeof(buf), msg, args);
-		buf[len] = '\0';
-
+		char buf[2048];
 #if CROWN_PLATFORM_POSIX
 		#define ANSI_RESET  "\x1b[0m"
 		#define ANSI_YELLOW "\x1b[33m"
 		#define ANSI_RED    "\x1b[31m"
 
-		static const char* stt[] =
-		{
-			ANSI_RESET,
-			ANSI_YELLOW,
-			ANSI_RED
-		};
+		const char* stt[] = { ANSI_RESET, ANSI_YELLOW, ANSI_RED };
 		CE_STATIC_ASSERT(countof(stt) == LogSeverity::COUNT);
 
-		os::log(stt[sev]);
-		os::log(buf);
-		os::log(ANSI_RESET);
+		snprintf(buf, sizeof(buf), "%s%s: %s\n" ANSI_RESET, stt[sev], system.name, msg);
 #else
-		os::log(buf);
+		snprintf(buf, sizeof(buf), "%s: %s\n", system.name, msg);
 #endif
-		os::log("\n");
+		os::log(buf);
+	}
 
-		if (console_server())
-		{
-			static const char* s_severity_map[] = { "info", "warning", "error" };
-			CE_STATIC_ASSERT(countof(s_severity_map) == LogSeverity::COUNT);
+	void vlogx(LogSeverity::Enum sev, System system, const char* msg, va_list args)
+	{
+		ScopedMutex sm(s_mutex);
 
-			TempAllocator4096 ta;
-			StringStream json(ta);
+		char buf[2048];
+		int len = vsnprintf(buf, sizeof(buf), msg, args);
+		buf[len] = '\0';
 
-			json << "{\"type\":\"message\",";
-			json << "\"severity\":\"";
-			json << s_severity_map[sev];
-			json << "\",";
-			json << "\"system\":\"";
-			json << system.name;
-			json << "\",";
-			json << "\"message\":\"";
-
-			// Sanitize buf
-			const char* ch = buf;
-			for (; *ch; ch++)
-			{
-				if (*ch == '"' || *ch == '\\')
-					json << "\\";
-				json << *ch;
-			}
-
-			json << "\"}";
-
-			console_server()->send(string_stream::c_str(json));
-		}
+		stdout_log(sev, system, buf);
 
 		if (device())
 			device()->log(buf);
+
+		if (console_server())
+			console_server()->log(sev, system.name, buf);
 	}
 
 	void logx(LogSeverity::Enum sev, System system, const char* msg, ...)

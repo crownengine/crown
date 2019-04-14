@@ -9,6 +9,7 @@
 #include "core/containers/types.h"
 #include "core/network/socket.h"
 #include "core/strings/types.h"
+#include "device/log.h"
 
 namespace crown
 {
@@ -51,8 +52,8 @@ struct ConsoleServer
 	/// Sends an error message to @a client.
 	void error(TCPSocket client, const char* msg);
 
-	/// Sends a success message to @a client.
-	void success(TCPSocket client, const char* msg);
+	/// Sends a log message to all clients.
+	void log(LogSeverity::Enum sev, const char* system, const char* msg);
 
 	/// Registers the command @a type.
 	void register_command(const char* type, CommandFunction cmd, void* user_data);

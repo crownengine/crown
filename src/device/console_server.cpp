@@ -61,6 +61,33 @@ void ConsoleServer::error(TCPSocket client, const char* msg)
 	send(client, string_stream::c_str(ss));
 }
 
+void ConsoleServer::log(LogSeverity::Enum sev, const char* system, const char* msg)
+{
+	const char* severity_map[] = { "info", "warning", "error" };
+	CE_STATIC_ASSERT(countof(severity_map) == LogSeverity::COUNT);
+
+	TempAllocator4096 ta;
+	StringStream ss(ta);
+
+	ss << "{\"type\":\"message\",\"severity\":\"";
+	ss << severity_map[sev];
+	ss << "\",\"system\":\"";
+	ss << system;
+	ss << "\",\"message\":\"";
+
+	// Sanitize msg
+	const char* ch = msg;
+	for (; *ch; ch++)
+	{
+		if (*ch == '"' || *ch == '\\')
+			ss << "\\";
+		ss << *ch;
+	}
+	ss << "\"}";
+
+	send(string_stream::c_str(ss));
+}
+
 void ConsoleServer::send(const char* json)
 {
 	for (u32 i = 0; i < array::size(_clients); ++i)
