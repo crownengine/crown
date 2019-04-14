@@ -31,7 +31,7 @@ LinearAllocator::~LinearAllocator()
 		_backing->deallocate(_physical_start);
 
 	CE_ASSERT(_offset == 0
-		, "Memory leak of %d bytes, maybe you forgot to call clear()?"
+		, "Memory leak of %u bytes, maybe you forgot to call clear()?"
 		, _offset
 		);
 }

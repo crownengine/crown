@@ -104,7 +104,7 @@ namespace memory
 		~HeapAllocator()
 		{
 			CE_ASSERT(_allocation_count == 0 && total_allocated() == 0
-				, "Missing %d deallocations causing a leak of %d bytes"
+				, "Missing %u deallocations causing a leak of %u bytes"
 				, _allocation_count
 				, total_allocated()
 				);
