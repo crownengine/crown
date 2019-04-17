@@ -17,7 +17,7 @@
 #include "spirv_cpp.hpp"
 
 using namespace spv;
-using namespace spirv_cross;
+using namespace SPIRV_CROSS_NAMESPACE;
 using namespace std;
 
 void CompilerCPP::emit_buffer_block(const SPIRVariable &var)
@@ -334,7 +334,7 @@ string CompilerCPP::compile()
 		reset();
 
 		// Move constructor for this type is broken on GCC 4.9 ...
-		buffer = unique_ptr<ostringstream>(new ostringstream());
+		buffer.reset();
 
 		emit_header();
 		emit_resources();
@@ -342,7 +342,7 @@ string CompilerCPP::compile()
 		emit_function(get<SPIRFunction>(ir.default_entry_point), Bitset());
 
 		pass_count++;
-	} while (force_recompile);
+	} while (is_forcing_recompilation());
 
 	// Match opening scope of emit_header().
 	end_scope_decl();
@@ -355,7 +355,7 @@ string CompilerCPP::compile()
 	// Entry point in CPP is always main() for the time being.
 	get_entry_point().name = "main";
 
-	return buffer->str();
+	return buffer.str();
 }
 
 void CompilerCPP::emit_c_linkage()

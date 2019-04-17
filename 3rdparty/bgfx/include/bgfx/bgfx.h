@@ -57,6 +57,7 @@ namespace bgfx
 			Direct3D12,   //!< Direct3D 12.0
 			Gnm,          //!< GNM
 			Metal,        //!< Metal
+			Nvn,          //!< NVN
 			OpenGLES,     //!< OpenGL ES 2.0+
 			OpenGL,       //!< OpenGL 2.1+
 			Vulkan,       //!< Vulkan
@@ -1224,6 +1225,7 @@ namespace bgfx
 		/// @param[in] _handle Vertex buffer.
 		/// @param[in] _startVertex First vertex to render.
 		/// @param[in] _numVertices Number of vertices to render.
+		/// @param[in] _declHandle VertexDecl handle for aliasing vertex buffer.
 		///
 		/// @attention C99 equivalent is `bgfx_encoder_set_vertex_buffer`.
 		///
@@ -1232,6 +1234,7 @@ namespace bgfx
 			, VertexBufferHandle _handle
 			, uint32_t _startVertex
 			, uint32_t _numVertices
+			, VertexDeclHandle _declHandle = BGFX_INVALID_HANDLE
 			);
 
 		/// Set vertex buffer for draw primitive.
@@ -1252,6 +1255,7 @@ namespace bgfx
 		/// @param[in] _handle Dynamic vertex buffer.
 		/// @param[in] _startVertex First vertex to render.
 		/// @param[in] _numVertices Number of vertices to render.
+		/// @param[in] _declHandle VertexDecl handle for aliasing vertex buffer.
 		///
 		/// @attention C99 equivalent is `bgfx_encoder_set_dynamic_vertex_buffer`.
 		///
@@ -1260,6 +1264,7 @@ namespace bgfx
 			, DynamicVertexBufferHandle _handle
 			, uint32_t _startVertex
 			, uint32_t _numVertices
+			, VertexDeclHandle _declHandle = BGFX_INVALID_HANDLE
 			);
 
 		/// Set vertex buffer for draw primitive.
@@ -1280,6 +1285,7 @@ namespace bgfx
 		/// @param[in] _tvb Transient vertex buffer.
 		/// @param[in] _startVertex First vertex to render.
 		/// @param[in] _numVertices Number of vertices to render.
+		/// @param[in] _declHandle VertexDecl handle for aliasing vertex buffer.
 		///
 		/// @attention C99 equivalent is `bgfx_encoder_set_transient_vertex_buffer`.
 		///
@@ -1288,6 +1294,7 @@ namespace bgfx
 			, const TransientVertexBuffer* _tvb
 			, uint32_t _startVertex
 			, uint32_t _numVertices
+			, VertexDeclHandle _declHandle = BGFX_INVALID_HANDLE
 			);
 
 		/// Set number of vertices for auto generated vertices use in conjuction
@@ -2051,7 +2058,7 @@ namespace bgfx
 	/// Clear internal debug text buffer.
 	///
 	/// @param[in] _attr Background color.
-	/// @param[in] _small Default or 8x8 font.
+	/// @param[in] _small Default 8x16 or 8x8 font.
 	///
 	/// @attention C99 equivalent is `bgfx_dbg_text_clear`.
 	///
@@ -2158,6 +2165,12 @@ namespace bgfx
 	/// @attention C99 equivalent is `bgfx_destroy_index_buffer`.
 	///
 	void destroy(IndexBufferHandle _handle);
+
+	///
+	VertexDeclHandle createVertexDecl(const VertexDecl& _decl);
+
+	///
+	void destroy(VertexDeclHandle _handle);
 
 	/// Create static vertex buffer.
 	///
@@ -2651,7 +2664,7 @@ namespace bgfx
 		, const Memory* _mem = NULL
 		);
 
-	/// Create frame buffer with size based on backbuffer ratio. Frame buffer will maintain ratio
+	/// Create texture with size based on backbuffer ratio. Texture will maintain ratio
 	/// if back buffer resolution changes.
 	///
 	/// @param[in] _ratio Frame buffer size in respect to back-buffer size. See:
@@ -2748,6 +2761,8 @@ namespace bgfx
 	/// @param[in] _pitch Pitch of input image (bytes). When _pitch is set to
 	///   UINT16_MAX, it will be calculated internally based on _width.
 	///
+	/// @attention It's valid to update only mutable texture. See `bgfx::createTexture2D` for more info.
+	///
 	/// @attention C99 equivalent is `bgfx_update_texture_2d`.
 	///
 	void updateTexture2D(
@@ -2773,6 +2788,8 @@ namespace bgfx
 	/// @param[in] _height Height of texture block.
 	/// @param[in] _depth Depth of texture block.
 	/// @param[in] _mem Texture update data.
+	///
+	/// @attention It's valid to update only mutable texture. See `bgfx::createTexture3D` for more info.
 	///
 	/// @attention C99 equivalent is `bgfx_update_texture_3d`.
 	///
@@ -2820,6 +2837,8 @@ namespace bgfx
 	/// @param[in] _mem Texture update data.
 	/// @param[in] _pitch Pitch of input image (bytes). When _pitch is set to
 	///   UINT16_MAX, it will be calculated internally based on _width.
+	///
+	/// @attention It's valid to update only mutable texture. See `bgfx::createTextureCube` for more info.
 	///
 	/// @attention C99 equivalent is `bgfx_update_texture_cube`.
 	///
@@ -3261,7 +3280,7 @@ namespace bgfx
 		);
 
 	/// Set view clear flags with different clear color for each
-	/// frame buffer texture. Must use setClearColor to setup clear color
+	/// frame buffer texture. Must use `bgfx::setPaletteColor` to setup clear color
 	/// palette.
 	///
 	/// @param[in] _id View id.
@@ -3596,6 +3615,7 @@ namespace bgfx
 	/// @param[in] _handle Vertex buffer.
 	/// @param[in] _startVertex First vertex to render.
 	/// @param[in] _numVertices Number of vertices to render.
+	/// @param[in] _declHandle VertexDecl handle for aliasing vertex buffer.
 	///
 	/// @attention C99 equivalent is `bgfx_set_vertex_buffer`.
 	///
@@ -3604,6 +3624,7 @@ namespace bgfx
 		, VertexBufferHandle _handle
 		, uint32_t _startVertex
 		, uint32_t _numVertices
+		, VertexDeclHandle _declHandle = BGFX_INVALID_HANDLE
 		);
 
 	/// Set vertex buffer for draw primitive.
@@ -3624,6 +3645,7 @@ namespace bgfx
 	/// @param[in] _handle Dynamic vertex buffer.
 	/// @param[in] _startVertex First vertex to render.
 	/// @param[in] _numVertices Number of vertices to render.
+	/// @param[in] _declHandle VertexDecl handle for aliasing vertex buffer.
 	///
 	/// @attention C99 equivalent is `bgfx_set_dynamic_vertex_buffer`.
 	///
@@ -3632,6 +3654,7 @@ namespace bgfx
 		, DynamicVertexBufferHandle _handle
 		, uint32_t _startVertex
 		, uint32_t _numVertices
+		, VertexDeclHandle _declHandle = BGFX_INVALID_HANDLE
 		);
 
 	/// Set vertex buffer for draw primitive.
@@ -3652,6 +3675,7 @@ namespace bgfx
 	/// @param[in] _tvb Transient vertex buffer.
 	/// @param[in] _startVertex First vertex to render.
 	/// @param[in] _numVertices Number of vertices to render.
+	/// @param[in] _declHandle VertexDecl handle for aliasing vertex buffer.
 	///
 	/// @attention C99 equivalent is `bgfx_set_transient_vertex_buffer`.
 	///
@@ -3660,6 +3684,7 @@ namespace bgfx
 		, const TransientVertexBuffer* _tvb
 		, uint32_t _startVertex
 		, uint32_t _numVertices
+		, VertexDeclHandle _declHandle = BGFX_INVALID_HANDLE
 		);
 
 	/// Set number of vertices for auto generated vertices use in conjuction

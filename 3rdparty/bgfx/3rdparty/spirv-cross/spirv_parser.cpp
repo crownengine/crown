@@ -20,9 +20,9 @@
 using namespace std;
 using namespace spv;
 
-namespace spirv_cross
+namespace SPIRV_CROSS_NAMESPACE
 {
-Parser::Parser(std::vector<uint32_t> spirv)
+Parser::Parser(vector<uint32_t> spirv)
 {
 	ir.spirv = move(spirv);
 }
@@ -88,7 +88,7 @@ void Parser::parse()
 
 	uint32_t offset = 5;
 
-	vector<Instruction> instructions;
+	SmallVector<Instruction> instructions;
 	while (offset < len)
 	{
 		Instruction instr = {};
@@ -207,6 +207,8 @@ void Parser::parse(const Instruction &instruction)
 		uint32_t result_type = ops[0];
 		uint32_t id = ops[1];
 		set<SPIRUndef>(id, result_type);
+		if (current_block)
+			current_block->ops.push_back(instruction);
 		break;
 	}
 
@@ -645,6 +647,14 @@ void Parser::parse(const Instruction &instruction)
 		break;
 	}
 
+	case OpTypeAccelerationStructureNV:
+	{
+		uint32_t id = ops[0];
+		auto &type = set<SPIRType>(id);
+		type.basetype = SPIRType::AccelerationStructureNV;
+		break;
+	}
+
 	// Variable declaration
 	// All variables are essentially pointers with a storage qualifier.
 	case OpVariable:
@@ -767,6 +777,7 @@ void Parser::parse(const Instruction &instruction)
 				// We do not know their value, so any attempt to query SPIRConstant later
 				// will fail. We can only propagate the ID of the expression and use to_expression on it.
 				auto *constant_op = maybe_get<SPIRConstantOp>(ops[2 + i]);
+				auto *undef_op = maybe_get<SPIRUndef>(ops[2 + i]);
 				if (constant_op)
 				{
 					if (op == OpConstantComposite)
@@ -776,6 +787,13 @@ void Parser::parse(const Instruction &instruction)
 					remapped_constant_ops[i].self = constant_op->self;
 					remapped_constant_ops[i].constant_type = constant_op->basetype;
 					remapped_constant_ops[i].specialization = true;
+					c[i] = &remapped_constant_ops[i];
+				}
+				else if (undef_op)
+				{
+					// Undefined, just pick 0.
+					remapped_constant_ops[i].make_null(get<SPIRType>(undef_op->basetype));
+					remapped_constant_ops[i].constant_type = undef_op->basetype;
 					c[i] = &remapped_constant_ops[i];
 				}
 				else
@@ -878,9 +896,6 @@ void Parser::parse(const Instruction &instruction)
 	{
 		if (!current_block)
 			SPIRV_CROSS_THROW("Trying to end a non-existing block.");
-
-		if (current_block->merge == SPIRBlock::MergeNone)
-			SPIRV_CROSS_THROW("Switch statement is not structured");
 
 		current_block->terminator = SPIRBlock::MultiSelect;
 
@@ -1082,7 +1097,7 @@ void Parser::make_constant_null(uint32_t id, uint32_t type)
 		if (!constant_type.array_size_literal.back())
 			SPIRV_CROSS_THROW("Array size of OpConstantNull must be a literal.");
 
-		vector<uint32_t> elements(constant_type.array.back());
+		SmallVector<uint32_t> elements(constant_type.array.back());
 		for (uint32_t i = 0; i < constant_type.array.back(); i++)
 			elements[i] = parent_id;
 		set<SPIRConstant>(id, type, elements.data(), uint32_t(elements.size()), false);
@@ -1090,7 +1105,7 @@ void Parser::make_constant_null(uint32_t id, uint32_t type)
 	else if (!constant_type.member_types.empty())
 	{
 		uint32_t member_ids = ir.increase_bound_by(uint32_t(constant_type.member_types.size()));
-		vector<uint32_t> elements(constant_type.member_types.size());
+		SmallVector<uint32_t> elements(constant_type.member_types.size());
 		for (uint32_t i = 0; i < constant_type.member_types.size(); i++)
 		{
 			make_constant_null(member_ids + i, constant_type.member_types[i]);
@@ -1105,4 +1120,4 @@ void Parser::make_constant_null(uint32_t id, uint32_t type)
 	}
 }
 
-} // namespace spirv_cross
+} // namespace SPIRV_CROSS_NAMESPACE

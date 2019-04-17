@@ -18,12 +18,12 @@
 #include "spirv_common.hpp"
 
 using namespace spv;
-using namespace spirv_cross;
+using namespace SPIRV_CROSS_NAMESPACE;
 
 namespace spirv_cross_util
 {
-void rename_interface_variable(spirv_cross::Compiler &compiler, const std::vector<spirv_cross::Resource> &resources,
-                               uint32_t location, const std::string &name)
+void rename_interface_variable(Compiler &compiler, const SmallVector<Resource> &resources, uint32_t location,
+                               const std::string &name)
 {
 	for (auto &v : resources)
 	{
@@ -49,7 +49,7 @@ void rename_interface_variable(spirv_cross::Compiler &compiler, const std::vecto
 	}
 }
 
-void inherit_combined_sampler_bindings(spirv_cross::Compiler &compiler)
+void inherit_combined_sampler_bindings(Compiler &compiler)
 {
 	auto &samplers = compiler.get_combined_image_samplers();
 	for (auto &s : samplers)

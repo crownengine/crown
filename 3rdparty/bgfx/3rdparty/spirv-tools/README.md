@@ -269,6 +269,31 @@ cmake [-G <platform-generator>] <spirv-dir>
 Once the build files have been generated, build using your preferred
 development environment.
 
+### Tools you'll need
+
+For building and testing SPIRV-Tools, the following tools should be
+installed regardless of your OS:
+
+- [CMake](http://www.cmake.org/): for generating compilation targets.  Version
+  2.8.12 or later.
+- [Python 3](http://www.python.org/): for utility scripts and running the test
+suite.
+
+SPIRV-Tools is regularly tested with the the following compilers:
+
+On Linux
+- GCC version 4.8.5
+- Clang version 3.8
+
+On MacOS
+- AppleClang 10.0
+
+On Windows
+- Visual Studio 2015
+- Visual Studio 2017
+
+Other compilers or later versions may work, but they are not tested.
+
 ### CMake options
 
 The following CMake options are supported:

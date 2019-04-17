@@ -332,6 +332,18 @@ target="_blank"><img src="http://img.youtube.com/vi/I0U7EQKKDjw/0.jpg"
 alt="My Talking Tom 2"
 width="640" height="480" border="0" /></a>
 
+## NeoAxis Engine
+
+https://www.neoaxis.com/ - Versatile 3D project development environment.
+
+![neoaxis-engine](https://www.neoaxis.com/files/NeoAxisEngine04.jpg)
+
+## xatlas
+
+https://github.com/jpcy/xatlas#xatlas - Mesh parameterization library 
+
+![xatlas](https://user-images.githubusercontent.com/3744372/43034066-53a62dee-8d18-11e8-9767-0b38ed3fa2d3.png)
+
 [License (BSD 2-clause)](https://bkaradzic.github.io/bgfx/license.html)
 -----------------------------------------------------------------------
 

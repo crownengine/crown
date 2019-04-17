@@ -221,9 +221,10 @@ namespace stl = std;
 #define BGFX_RENDERER_DIRECT3D9_NAME  "Direct3D 9"
 #define BGFX_RENDERER_DIRECT3D11_NAME "Direct3D 11"
 #define BGFX_RENDERER_DIRECT3D12_NAME "Direct3D 12"
-#define BGFX_RENDERER_METAL_NAME      "Metal"
-#define BGFX_RENDERER_VULKAN_NAME     "Vulkan"
 #define BGFX_RENDERER_GNM_NAME        "GNM"
+#define BGFX_RENDERER_METAL_NAME      "Metal"
+#define BGFX_RENDERER_NVN_NAME        "NVN"
+#define BGFX_RENDERER_VULKAN_NAME     "Vulkan"
 #define BGFX_RENDERER_NOOP_NAME       "Noop"
 
 #if BGFX_CONFIG_RENDERER_OPENGL
@@ -520,7 +521,7 @@ namespace bgfx
 		return uint32_t( (_stencil >> (32*_0or1) ) );
 	}
 
-	inline bool needBorderColor(uint32_t _flags)
+	inline bool needBorderColor(uint64_t _flags)
 	{
 		return BGFX_SAMPLER_U_BORDER == (_flags & BGFX_SAMPLER_U_BORDER)
 			|| BGFX_SAMPLER_V_BORDER == (_flags & BGFX_SAMPLER_V_BORDER)
@@ -2318,7 +2319,13 @@ constexpr uint64_t kSortKeyComputeProgramMask  = uint64_t(BGFX_CONFIG_MAX_PROGRA
 			m_discard = 0 == numIndices;
 		}
 
-		void setVertexBuffer(uint8_t _stream, VertexBufferHandle _handle, uint32_t _startVertex, uint32_t _numVertices)
+		void setVertexBuffer(
+			  uint8_t _stream
+			, VertexBufferHandle _handle
+			, uint32_t _startVertex
+			, uint32_t _numVertices
+			, VertexDeclHandle _declHandle
+			)
 		{
 			BX_CHECK(UINT8_MAX != m_draw.m_streamMask, "");
 			BX_CHECK(_stream < BGFX_CONFIG_MAX_VERTEX_STREAMS, "Invalid stream %d (max %d).", _stream, BGFX_CONFIG_MAX_VERTEX_STREAMS);
@@ -2327,12 +2334,18 @@ constexpr uint64_t kSortKeyComputeProgramMask  = uint64_t(BGFX_CONFIG_MAX_PROGRA
 				Stream& stream = m_draw.m_stream[_stream];
 				stream.m_startVertex   = _startVertex;
 				stream.m_handle        = _handle;
-				stream.m_decl.idx      = kInvalidHandle;
+				stream.m_decl          = _declHandle;
 				m_numVertices[_stream] = _numVertices;
 			}
 		}
 
-		void setVertexBuffer(uint8_t _stream, const DynamicVertexBuffer& _dvb, uint32_t _startVertex, uint32_t _numVertices)
+		void setVertexBuffer(
+			  uint8_t _stream
+			, const DynamicVertexBuffer& _dvb
+			, uint32_t _startVertex
+			, uint32_t _numVertices
+			, VertexDeclHandle _declHandle
+			)
 		{
 			BX_CHECK(UINT8_MAX != m_draw.m_streamMask, "");
 			BX_CHECK(_stream < BGFX_CONFIG_MAX_VERTEX_STREAMS, "Invalid stream %d (max %d).", _stream, BGFX_CONFIG_MAX_VERTEX_STREAMS);
@@ -2341,14 +2354,20 @@ constexpr uint64_t kSortKeyComputeProgramMask  = uint64_t(BGFX_CONFIG_MAX_PROGRA
 				Stream& stream = m_draw.m_stream[_stream];
 				stream.m_startVertex   = _dvb.m_startVertex + _startVertex;
 				stream.m_handle        = _dvb.m_handle;
-				stream.m_decl          = _dvb.m_decl;
+				stream.m_decl          = isValid(_declHandle) ? _declHandle : _dvb.m_decl;
 				m_numVertices[_stream] =
 					bx::min(bx::uint32_imax(0, _dvb.m_numVertices - _startVertex), _numVertices)
 					;
 			}
 		}
 
-		void setVertexBuffer(uint8_t _stream, const TransientVertexBuffer* _tvb, uint32_t _startVertex, uint32_t _numVertices)
+		void setVertexBuffer(
+			  uint8_t _stream
+			, const TransientVertexBuffer* _tvb
+			, uint32_t _startVertex
+			, uint32_t _numVertices
+			, VertexDeclHandle _declHandle
+			)
 		{
 			BX_CHECK(UINT8_MAX != m_draw.m_streamMask, "");
 			BX_CHECK(_stream < BGFX_CONFIG_MAX_VERTEX_STREAMS, "Invalid stream %d (max %d).", _stream, BGFX_CONFIG_MAX_VERTEX_STREAMS);
@@ -2357,7 +2376,7 @@ constexpr uint64_t kSortKeyComputeProgramMask  = uint64_t(BGFX_CONFIG_MAX_PROGRA
 				Stream& stream = m_draw.m_stream[_stream];
 				stream.m_startVertex   = _tvb->startVertex + _startVertex;
 				stream.m_handle        = _tvb->handle;
-				stream.m_decl          = _tvb->decl;
+				stream.m_decl          = isValid(_declHandle) ? _declHandle : _tvb->decl;
 				m_numVertices[_stream] =
 					bx::min(bx::uint32_imax(0, _tvb->size/_tvb->stride - _startVertex), _numVertices)
 					;
@@ -3010,6 +3029,28 @@ constexpr uint64_t kSortKeyComputeProgramMask  = uint64_t(BGFX_CONFIG_MAX_PROGRA
 			}
 
 			return declHandle;
+		}
+
+		BGFX_API_FUNC(VertexDeclHandle createVertexDecl(const VertexDecl& _decl) )
+		{
+			BGFX_MUTEX_SCOPE(m_resourceApiLock);
+
+			VertexDeclHandle handle = findVertexDecl(_decl);
+			if (!isValid(handle) )
+			{
+				BX_TRACE("WARNING: Failed to allocate vertex decl handle (BGFX_CONFIG_MAX_VERTEX_DECLS, max: %d).", BGFX_CONFIG_MAX_VERTEX_DECLS);
+				return BGFX_INVALID_HANDLE;
+			}
+
+			m_declRef.add(handle, _decl.m_hash);
+
+			return handle;
+		}
+
+		BGFX_API_FUNC(void destroyVertexDecl(VertexDeclHandle _handle) )
+		{
+			BGFX_MUTEX_SCOPE(m_resourceApiLock);
+			m_declRef.release(_handle);
 		}
 
 		BGFX_API_FUNC(VertexBufferHandle createVertexBuffer(const Memory* _mem, const VertexDecl& _decl, uint16_t _flags) )

@@ -222,18 +222,23 @@ TEST(Optimizer, CanRegisterPassesFromFlags) {
   EXPECT_EQ(msg_level, SPV_MSG_ERROR);
 }
 
-TEST(Optimizer, WebGPUModeSetsCorrectPasses) {
+TEST(Optimizer, VulkanToWebGPUModeSetsCorrectPasses) {
   Optimizer opt(SPV_ENV_WEBGPU_0);
-  opt.RegisterWebGPUPasses();
+  opt.RegisterVulkanToWebGPUPasses();
   std::vector<const char*> pass_names = opt.GetPassNames();
 
   std::vector<std::string> registered_passes;
   for (auto name = pass_names.begin(); name != pass_names.end(); ++name)
     registered_passes.push_back(*name);
 
-  std::vector<std::string> expected_passes = {
-      "eliminate-dead-branches", "eliminate-dead-code-aggressive",
-      "flatten-decorations", "strip-debug"};
+  std::vector<std::string> expected_passes = {"eliminate-dead-branches",
+                                              "eliminate-dead-code-aggressive",
+                                              "eliminate-dead-const",
+                                              "flatten-decorations",
+                                              "strip-debug",
+                                              "strip-atomic-counter-memory",
+                                              "generate-webgpu-initializers",
+                                              "legalize-vector-shuffle"};
   std::sort(registered_passes.begin(), registered_passes.end());
   std::sort(expected_passes.begin(), expected_passes.end());
 
@@ -242,7 +247,7 @@ TEST(Optimizer, WebGPUModeSetsCorrectPasses) {
     EXPECT_EQ(registered_passes[i], expected_passes[i]);
 }
 
-struct WebGPUPassCase {
+struct VulkanToWebGPUPassCase {
   // Input SPIR-V
   std::string input;
   // Expected result SPIR-V
@@ -251,21 +256,21 @@ struct WebGPUPassCase {
   std::string pass;
 };
 
-using WebGPUPassTest = PassTest<::testing::TestWithParam<WebGPUPassCase>>;
+using VulkanToWebGPUPassTest =
+    PassTest<::testing::TestWithParam<VulkanToWebGPUPassCase>>;
 
-TEST_P(WebGPUPassTest, Ran) {
+TEST_P(VulkanToWebGPUPassTest, Ran) {
   SpirvTools tools(SPV_ENV_WEBGPU_0);
   std::vector<uint32_t> binary;
   tools.Assemble(GetParam().input, &binary);
 
   Optimizer opt(SPV_ENV_WEBGPU_0);
-  opt.RegisterWebGPUPasses();
+  opt.RegisterVulkanToWebGPUPasses();
 
   std::vector<uint32_t> optimized;
   class ValidatorOptions validator_options;
   ASSERT_TRUE(opt.Run(binary.data(), binary.size(), &optimized,
                       validator_options, true));
-
   std::string disassembly;
   tools.Disassemble(optimized.data(), optimized.size(), &disassembly);
 
@@ -274,8 +279,8 @@ TEST_P(WebGPUPassTest, Ran) {
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    WebGPU, WebGPUPassTest,
-    ::testing::ValuesIn(std::vector<WebGPUPassCase>{
+    Optimizer, VulkanToWebGPUPassTest,
+    ::testing::ValuesIn(std::vector<VulkanToWebGPUPassCase>{
         // FlattenDecorations
         {// input
          "OpCapability Shader\n"
@@ -346,7 +351,175 @@ INSTANTIATE_TEST_SUITE_P(
          "OpReturn\n"
          "OpFunctionEnd\n",
          // pass
-         "strip-debug"}}));
+         "strip-debug"},
+        // Eliminate Dead Constants
+        {// input
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %func \"shader\"\n"
+         "%u32 = OpTypeInt 32 0\n"
+         "%u32_ptr = OpTypePointer Workgroup %u32\n"
+         "%u32_var = OpVariable %u32_ptr Workgroup\n"
+         "%u32_1 = OpConstant %u32 1\n"
+         "%cross_device = OpConstant %u32 0\n"
+         "%relaxed = OpConstant %u32 0\n"
+         "%acquire_release_atomic_counter_workgroup = OpConstant %u32 1288\n"
+         "%void = OpTypeVoid\n"
+         "%void_f = OpTypeFunction %void\n"
+         "%func = OpFunction %void None %void_f\n"
+         "%label = OpLabel\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // expected
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %1 \"shader\"\n"
+         "%uint = OpTypeInt 32 0\n"
+         "%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint\n"
+         "%4 = OpVariable %_ptr_Workgroup_uint Workgroup\n"
+         "%void = OpTypeVoid\n"
+         "%10 = OpTypeFunction %void\n"
+         "%1 = OpFunction %void None %10\n"
+         "%11 = OpLabel\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         "eliminate-dead-const"},
+        // Strip Atomic Counter Memory
+        {// input
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %func \"shader\"\n"
+         "%u32 = OpTypeInt 32 0\n"
+         "%u32_ptr = OpTypePointer Workgroup %u32\n"
+         "%u32_var = OpVariable %u32_ptr Workgroup\n"
+         "%u32_0 = OpConstant %u32 0\n"
+         "%u32_1 = OpConstant %u32 1\n"
+         "%cross_device = OpConstant %u32 0\n"
+         "%acquire_release_atomic_counter_workgroup = OpConstant %u32 1288\n"
+         "%void = OpTypeVoid\n"
+         "%void_f = OpTypeFunction %void\n"
+         "%func = OpFunction %void None %void_f\n"
+         "%label = OpLabel\n"
+         "%val0 = OpAtomicStore %u32_var %cross_device "
+         "%acquire_release_atomic_counter_workgroup %u32_1\n"
+         "%val1 = OpAtomicIIncrement %u32 %u32_var %cross_device "
+         "%acquire_release_atomic_counter_workgroup\n"
+         "%val2 = OpAtomicCompareExchange %u32 %u32_var %cross_device "
+         "%acquire_release_atomic_counter_workgroup "
+         "%acquire_release_atomic_counter_workgroup %u32_0 %u32_0\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // expected
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %1 \"shader\"\n"
+         "%uint = OpTypeInt 32 0\n"
+         "%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint\n"
+         "%4 = OpVariable %_ptr_Workgroup_uint Workgroup\n"
+         "%uint_0 = OpConstant %uint 0\n"
+         "%uint_1 = OpConstant %uint 1\n"
+         "%uint_0_0 = OpConstant %uint 0\n"
+         "%void = OpTypeVoid\n"
+         "%10 = OpTypeFunction %void\n"
+         "%uint_264 = OpConstant %uint 264\n"
+         "%1 = OpFunction %void None %10\n"
+         "%11 = OpLabel\n"
+         "OpAtomicStore %4 %uint_0_0 %uint_264 %uint_1\n"
+         "%12 = OpAtomicIIncrement %uint %4 %uint_0_0 %uint_264\n"
+         "%13 = OpAtomicCompareExchange %uint %4 %uint_0_0 %uint_264 %uint_264 "
+         "%uint_0 %uint_0\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // pass
+         "strip-atomic-counter-memory"},
+        // Generate WebGPU Initializers
+        {// input
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %func \"shader\"\n"
+         "%u32 = OpTypeInt 32 0\n"
+         "%u32_ptr = OpTypePointer Private %u32\n"
+         "%u32_var = OpVariable %u32_ptr Private\n"
+         "%u32_0 = OpConstant %u32 0\n"
+         "%void = OpTypeVoid\n"
+         "%void_f = OpTypeFunction %void\n"
+         "%func = OpFunction %void None %void_f\n"
+         "%label = OpLabel\n"
+         "OpStore %u32_var %u32_0\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // expected
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %1 \"shader\"\n"
+         "%uint = OpTypeInt 32 0\n"
+         "%_ptr_Private_uint = OpTypePointer Private %uint\n"
+         "%9 = OpConstantNull %uint\n"
+         "%4 = OpVariable %_ptr_Private_uint Private %9\n"
+         "%uint_0 = OpConstant %uint 0\n"
+         "%void = OpTypeVoid\n"
+         "%7 = OpTypeFunction %void\n"
+         "%1 = OpFunction %void None %7\n"
+         "%8 = OpLabel\n"
+         "OpStore %4 %uint_0\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // pass
+         "generate-webgpu-initializers"},
+        // Legalize Vector Shuffle
+        {// input
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %1 \"shader\"\n"
+         "%uint = OpTypeInt 32 0\n"
+         "%v3uint = OpTypeVector %uint 3\n"
+         "%_ptr_Function_v3uint = OpTypePointer Function %v3uint\n"
+         "%void = OpTypeVoid\n"
+         "%6 = OpTypeFunction %void\n"
+         "%1 = OpFunction %void None %6\n"
+         "%7 = OpLabel\n"
+         "%8 = OpVariable %_ptr_Function_v3uint Function\n"
+         "%9 = OpLoad %v3uint %8\n"
+         "%10 = OpLoad %v3uint %8\n"
+         "%11 = OpVectorShuffle %v3uint %9 %10 2 1 0xFFFFFFFF\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // expected
+         "OpCapability Shader\n"
+         "OpCapability VulkanMemoryModelKHR\n"
+         "OpExtension \"SPV_KHR_vulkan_memory_model\"\n"
+         "OpMemoryModel Logical VulkanKHR\n"
+         "OpEntryPoint Vertex %1 \"shader\"\n"
+         "%uint = OpTypeInt 32 0\n"
+         "%v3uint = OpTypeVector %uint 3\n"
+         "%_ptr_Function_v3uint = OpTypePointer Function %v3uint\n"
+         "%void = OpTypeVoid\n"
+         "%6 = OpTypeFunction %void\n"
+         "%12 = OpConstantNull %v3uint\n"
+         "%1 = OpFunction %void None %6\n"
+         "%7 = OpLabel\n"
+         "%8 = OpVariable %_ptr_Function_v3uint Function %12\n"
+         "%9 = OpLoad %v3uint %8\n"
+         "%10 = OpLoad %v3uint %8\n"
+         "%11 = OpVectorShuffle %v3uint %9 %10 2 1 0\n"
+         "OpReturn\n"
+         "OpFunctionEnd\n",
+         // pass
+         "legalize-vector-shuffle"}}));
 
 }  // namespace
 }  // namespace opt

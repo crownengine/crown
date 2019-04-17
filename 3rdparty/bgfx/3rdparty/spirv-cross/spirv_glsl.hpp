@@ -17,13 +17,13 @@
 #ifndef SPIRV_CROSS_GLSL_HPP
 #define SPIRV_CROSS_GLSL_HPP
 
+#include "GLSL.std.450.h"
 #include "spirv_cross.hpp"
-#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 
-namespace spirv_cross
+namespace SPIRV_CROSS_NAMESPACE
 {
 enum PlsFormat
 {
@@ -96,6 +96,9 @@ public:
 		// If disabled on older targets, binding decorations will be stripped.
 		bool enable_420pack_extension = true;
 
+		// In non-Vulkan GLSL, emit push constant blocks as UBOs rather than plain uniforms.
+		bool emit_push_constant_as_uniform_buffer = false;
+
 		enum Precision
 		{
 			DontCare,
@@ -138,7 +141,7 @@ public:
 	}
 
 	explicit CompilerGLSL(std::vector<uint32_t> spirv_)
-	    : Compiler(move(spirv_))
+	    : Compiler(std::move(spirv_))
 	{
 		init();
 	}
@@ -161,25 +164,9 @@ public:
 		init();
 	}
 
-	// Deprecate this interface because it doesn't overload properly with subclasses.
-	// Requires awkward static casting, which was a mistake.
-	SPIRV_CROSS_DEPRECATED("get_options() is obsolete, use get_common_options() instead.")
-	const Options &get_options() const
-	{
-		return options;
-	}
-
 	const Options &get_common_options() const
 	{
 		return options;
-	}
-
-	// Deprecate this interface because it doesn't overload properly with subclasses.
-	// Requires awkward static casting, which was a mistake.
-	SPIRV_CROSS_DEPRECATED("set_options() is obsolete, use set_common_options() instead.")
-	void set_options(Options &opts)
-	{
-		options = opts;
 	}
 
 	void set_common_options(const Options &opts)
@@ -242,7 +229,7 @@ protected:
 	virtual void emit_spv_amd_gcn_shader_op(uint32_t result_type, uint32_t result_id, uint32_t op, const uint32_t *args,
 	                                        uint32_t count);
 	virtual void emit_header();
-	void build_workgroup_size(std::vector<std::string> &arguments, const SpecializationConstant &x,
+	void build_workgroup_size(SmallVector<std::string> &arguments, const SpecializationConstant &x,
 	                          const SpecializationConstant &y, const SpecializationConstant &z);
 
 	virtual void emit_sampled_image_op(uint32_t result_type, uint32_t result_id, uint32_t image_id, uint32_t samp_id);
@@ -272,19 +259,19 @@ protected:
 	virtual void emit_uniform(const SPIRVariable &var);
 	virtual std::string unpack_expression_type(std::string expr_str, const SPIRType &type, uint32_t packed_type_id);
 
-	std::unique_ptr<std::ostringstream> buffer;
+	StringStream<> buffer;
 
 	template <typename T>
 	inline void statement_inner(T &&t)
 	{
-		(*buffer) << std::forward<T>(t);
+		buffer << std::forward<T>(t);
 		statement_count++;
 	}
 
 	template <typename T, typename... Ts>
 	inline void statement_inner(T &&t, Ts &&... ts)
 	{
-		(*buffer) << std::forward<T>(t);
+		buffer << std::forward<T>(t);
 		statement_count++;
 		statement_inner(std::forward<Ts>(ts)...);
 	}
@@ -292,7 +279,7 @@ protected:
 	template <typename... Ts>
 	inline void statement(Ts &&... ts)
 	{
-		if (force_recompile)
+		if (is_forcing_recompilation())
 		{
 			// Do not bother emitting code while force_recompile is active.
 			// We will compile again.
@@ -301,13 +288,16 @@ protected:
 		}
 
 		if (redirect_statement)
+		{
 			redirect_statement->push_back(join(std::forward<Ts>(ts)...));
+			statement_count++;
+		}
 		else
 		{
 			for (uint32_t i = 0; i < indent; i++)
-				(*buffer) << "    ";
+				buffer << "    ";
 			statement_inner(std::forward<Ts>(ts)...);
-			(*buffer) << '\n';
+			buffer << '\n';
 		}
 	}
 
@@ -323,7 +313,7 @@ protected:
 	// Used for implementing continue blocks where
 	// we want to obtain a list of statements we can merge
 	// on a single line separated by comma.
-	std::vector<std::string> *redirect_statement = nullptr;
+	SmallVector<std::string> *redirect_statement = nullptr;
 	const SPIRBlock *current_continue_block = nullptr;
 
 	void begin_scope();
@@ -415,11 +405,11 @@ protected:
 	void emit_interface_block(const SPIRVariable &type);
 	void emit_flattened_io_block(const SPIRVariable &var, const char *qual);
 	void emit_block_chain(SPIRBlock &block);
-	void emit_hoisted_temporaries(std::vector<std::pair<uint32_t, uint32_t>> &temporaries);
+	void emit_hoisted_temporaries(SmallVector<std::pair<uint32_t, uint32_t>> &temporaries);
 	std::string constant_value_macro_name(uint32_t id);
 	void emit_constant(const SPIRConstant &constant);
 	void emit_specialization_constant_op(const SPIRConstantOp &constant);
-	std::string emit_continue_block(uint32_t continue_block);
+	std::string emit_continue_block(uint32_t continue_block, bool follow_true_block, bool follow_false_block);
 	bool attempt_emit_loop_header(SPIRBlock &block, SPIRBlock::Method method);
 	void propagate_loop_dominators(const SPIRBlock &block);
 
@@ -434,14 +424,21 @@ protected:
 	bool should_dereference(uint32_t id);
 	bool should_forward(uint32_t id);
 	void emit_mix_op(uint32_t result_type, uint32_t id, uint32_t left, uint32_t right, uint32_t lerp);
+	void emit_nminmax_op(uint32_t result_type, uint32_t id, uint32_t op0, uint32_t op1, GLSLstd450 op);
 	bool to_trivial_mix_op(const SPIRType &type, std::string &op, uint32_t left, uint32_t right, uint32_t lerp);
 	void emit_quaternary_func_op(uint32_t result_type, uint32_t result_id, uint32_t op0, uint32_t op1, uint32_t op2,
 	                             uint32_t op3, const char *op);
 	void emit_trinary_func_op(uint32_t result_type, uint32_t result_id, uint32_t op0, uint32_t op1, uint32_t op2,
 	                          const char *op);
 	void emit_binary_func_op(uint32_t result_type, uint32_t result_id, uint32_t op0, uint32_t op1, const char *op);
+
+	void emit_unary_func_op_cast(uint32_t result_type, uint32_t result_id, uint32_t op0, const char *op,
+	                             SPIRType::BaseType input_type, SPIRType::BaseType expected_result_type);
 	void emit_binary_func_op_cast(uint32_t result_type, uint32_t result_id, uint32_t op0, uint32_t op1, const char *op,
 	                              SPIRType::BaseType input_type, bool skip_cast_if_equal_type);
+	void emit_trinary_func_op_cast(uint32_t result_type, uint32_t result_id, uint32_t op0, uint32_t op1, uint32_t op2,
+	                               const char *op, SPIRType::BaseType input_type);
+
 	void emit_unary_func_op(uint32_t result_type, uint32_t result_id, uint32_t op0, const char *op);
 	void emit_unrolled_unary_op(uint32_t result_type, uint32_t result_id, uint32_t operand, const char *op);
 	void emit_binary_op(uint32_t result_type, uint32_t result_id, uint32_t op0, uint32_t op1, const char *op);
@@ -486,7 +483,9 @@ protected:
 	const char *index_to_swizzle(uint32_t index);
 	std::string remap_swizzle(const SPIRType &result_type, uint32_t input_components, const std::string &expr);
 	std::string declare_temporary(uint32_t type, uint32_t id);
-	void append_global_func_args(const SPIRFunction &func, uint32_t index, std::vector<std::string> &arglist);
+	void emit_uninitialized_temporary(uint32_t type, uint32_t id);
+	SPIRExpression &emit_uninitialized_temporary_expression(uint32_t type, uint32_t id);
+	void append_global_func_args(const SPIRFunction &func, uint32_t index, SmallVector<std::string> &arglist);
 	std::string to_expression(uint32_t id, bool register_expression_read = true);
 	std::string to_enclosed_expression(uint32_t id, bool register_expression_read = true);
 	std::string to_unpacked_expression(uint32_t id, bool register_expression_read = true);
@@ -562,10 +561,15 @@ protected:
 	std::unordered_map<uint32_t, uint32_t> expression_usage_counts;
 	void track_expression_read(uint32_t id);
 
-	std::vector<std::string> forced_extensions;
-	std::vector<std::string> header_lines;
+	SmallVector<std::string> forced_extensions;
+	SmallVector<std::string> header_lines;
 
-	uint32_t statement_count;
+	// Used when expressions emit extra opcodes with their own unique IDs,
+	// and we need to reuse the IDs across recompilation loops.
+	// Currently used by NMin/Max/Clamp implementations.
+	std::unordered_map<uint32_t, uint32_t> extra_sub_expressions;
+
+	uint32_t statement_count = 0;
 
 	inline bool is_legacy() const
 	{
@@ -632,6 +636,7 @@ protected:
 	// Sometimes we will need to automatically perform bitcasts on load and store to make this work.
 	virtual void bitcast_to_builtin_store(uint32_t target_id, std::string &expr, const SPIRType &expr_type);
 	virtual void bitcast_from_builtin_load(uint32_t source_id, std::string &expr, const SPIRType &expr_type);
+	void unroll_array_from_complex_load(uint32_t target_id, uint32_t source_id, std::string &expr);
 
 	void handle_store_to_invariant_variable(uint32_t store_id, uint32_t value_id);
 	void disallow_forwarding_in_expression_chain(const SPIRExpression &expr);
@@ -640,6 +645,7 @@ protected:
 	virtual void emit_store_statement(uint32_t lhs_expression, uint32_t rhs_expression);
 
 	uint32_t get_integer_width_for_instruction(const Instruction &instr) const;
+	uint32_t get_integer_width_for_glsl_instruction(GLSLstd450 op, const uint32_t *arguments, uint32_t length) const;
 
 	bool variable_is_lut(const SPIRVariable &var) const;
 
@@ -648,6 +654,6 @@ protected:
 private:
 	void init();
 };
-} // namespace spirv_cross
+} // namespace SPIRV_CROSS_NAMESPACE
 
 #endif

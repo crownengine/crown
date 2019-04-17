@@ -22,6 +22,14 @@ namespace bgfx { namespace mtl
 {
 	static char s_viewName[BGFX_CONFIG_MAX_VIEWS][BGFX_CONFIG_MAX_VIEW_NAME];
 
+	inline void setViewType(ViewId _view, const bx::StringView _str)
+	{
+		if (BX_ENABLED(BGFX_CONFIG_DEBUG_ANNOTATION || BGFX_CONFIG_PROFILER) )
+		{
+			bx::memCopy(&s_viewName[_view][3], _str.getPtr(), _str.getLength() );
+		}
+	}
+
 	struct PrimInfo
 	{
 		MTLPrimitiveType m_type;
@@ -358,6 +366,7 @@ namespace bgfx { namespace mtl
 			, m_captureSize(0)
 			, m_saveScreenshot(false)
 		{
+			bx::memSet(&m_windows, 0xff, sizeof(m_windows) );
 		}
 
 		~RendererContextMtl()
@@ -449,16 +458,17 @@ namespace bgfx { namespace mtl
 			if (NULL != lib)
 			{
 				m_screenshotBlitProgramVsh.m_function = lib.newFunctionWithName(SHADER_FUNCTION_NAME);
+				release(lib);
 			}
 
 			lib = m_device.newLibraryWithSource(fshSource);
 			if (NULL != lib)
 			{
 				m_screenshotBlitProgramFsh.m_function = lib.newFunctionWithName(SHADER_FUNCTION_NAME);
+				release(lib);
 			}
 
 			m_screenshotBlitProgram.create(&m_screenshotBlitProgramVsh, &m_screenshotBlitProgramFsh);
-			release(lib);
 
 			reset(m_renderPipelineDescriptor);
 			m_renderPipelineDescriptor.colorAttachments[0].pixelFormat = m_mainFrameBuffer.m_swapChain->m_metalLayer.pixelFormat;
@@ -497,12 +507,12 @@ namespace bgfx { namespace mtl
 				}
 
 				g_caps.limits.maxFBAttachments = uint8_t(bx::uint32_min(m_device.supportsFeatureSet( (MTLFeatureSet)1 /* MTLFeatureSet_iOS_GPUFamily2_v1 */) ? 8 : 4, BGFX_CONFIG_MAX_FRAME_BUFFER_ATTACHMENTS) );
-				
+
 				if ( m_device.supportsFeatureSet( (MTLFeatureSet)4 /* MTLFeatureSet_iOS_GPUFamily3_v1 */ ))
 				{
 					g_caps.supported |= BGFX_CAPS_DRAW_INDIRECT;
 				}
-				
+
 				if ( m_device.supportsFeatureSet( (MTLFeatureSet)11 /* MTLFeatureSet_iOS_GPUFamily4_v1 */ ))
 				{
 					g_caps.supported |= BGFX_CAPS_TEXTURE_CUBE_ARRAY;
@@ -513,7 +523,7 @@ namespace bgfx { namespace mtl
 				g_caps.limits.maxTextureSize   = 16384;
 				g_caps.limits.maxFBAttachments = 8;
 				g_caps.supported |= BGFX_CAPS_TEXTURE_CUBE_ARRAY;
-				
+
 				if ( m_device.supportsFeatureSet( (MTLFeatureSet)10001 /* MTLFeatureSet_macOS_GPUFamily1_v2 */ ))
 				{
 					g_caps.supported |= BGFX_CAPS_DRAW_INDIRECT;
@@ -664,6 +674,9 @@ namespace bgfx { namespace mtl
 			m_pipelineStateCache.invalidate();
 			m_pipelineProgram.clear();
 
+			m_depthStencilStateCache.invalidate();
+			m_samplerStateCache.invalidate();
+
 			for (uint32_t ii = 0; ii < BX_COUNTOF(m_shaders); ++ii)
 			{
 				m_shaders[ii].destroy();
@@ -783,7 +796,7 @@ namespace bgfx { namespace mtl
 
 		void createProgram(ProgramHandle _handle, ShaderHandle _vsh, ShaderHandle _fsh) override
 		{
-			m_program[_handle.idx].create(&m_shaders[_vsh.idx], &m_shaders[_fsh.idx]);
+			m_program[_handle.idx].create(&m_shaders[_vsh.idx], isValid(_fsh) ? &m_shaders[_fsh.idx] : NULL);
 		}
 
 		void destroyProgram(ProgramHandle _handle) override
@@ -1186,10 +1199,15 @@ namespace bgfx { namespace mtl
 			{
 				FrameBufferMtl& frameBuffer = ii == 0 ? m_mainFrameBuffer : m_frameBuffers[m_windows[ii].idx];
 				if (NULL != frameBuffer.m_swapChain
-				&&  frameBuffer.m_swapChain->m_drawable)
+				&&  frameBuffer.m_swapChain->m_drawableTexture)
 				{
-					m_commandBuffer.presentDrawable(frameBuffer.m_swapChain->m_drawable);
-					MTL_RELEASE(frameBuffer.m_swapChain->m_drawable);
+					MTL_RELEASE(frameBuffer.m_swapChain->m_drawableTexture);
+
+					if ( NULL != frameBuffer.m_swapChain->m_drawable)
+					{
+						m_commandBuffer.presentDrawable(frameBuffer.m_swapChain->m_drawable);
+						MTL_RELEASE(frameBuffer.m_swapChain->m_drawable);
+					}
 				}
 			}
 
@@ -1600,14 +1618,14 @@ namespace bgfx { namespace mtl
 					_renderPassDescriptor.colorAttachments[0].texture        = swapChain->m_backBufferColorMsaa;
 					_renderPassDescriptor.colorAttachments[0].resolveTexture = NULL != m_screenshotTarget
 						? m_screenshotTarget.m_obj
-						: swapChain->currentDrawable().texture
+						: swapChain->currentDrawableTexture()
 						;
 				}
 				else
 				{
 					_renderPassDescriptor.colorAttachments[0].texture = NULL != m_screenshotTarget
 						? m_screenshotTarget.m_obj
-						: swapChain->currentDrawable().texture
+						: swapChain->currentDrawableTexture()
 						;
 				}
 
@@ -1941,7 +1959,7 @@ namespace bgfx { namespace mtl
 						? swapChain->m_backBufferColorMsaa.sampleCount()
 						: 1
 						;
-					pd.colorAttachments[0].pixelFormat = swapChain->currentDrawable().texture.pixelFormat;
+					pd.colorAttachments[0].pixelFormat = swapChain->currentDrawableTexture().pixelFormat;
 					pd.depthAttachmentPixelFormat      = swapChain->m_backBufferDepth.m_obj.pixelFormat;
 					pd.stencilAttachmentPixelFormat    = swapChain->m_backBufferStencil.m_obj.pixelFormat;
 				}
@@ -2308,7 +2326,6 @@ namespace bgfx { namespace mtl
 		SamplerDescriptor        m_samplerDescriptor;
 
 		// currently active objects data
-		id <CAMetalDrawable> m_drawable;
 		bool                 m_saveScreenshot;
 		Texture              m_screenshotTarget;
 		ShaderMtl            m_screenshotBlitProgramVsh;
@@ -2932,11 +2949,9 @@ namespace bgfx { namespace mtl
 
 	SwapChainMtl::~SwapChainMtl()
 	{
-		if (NULL != m_drawable)
-		{
-			release(m_drawable);
-			m_drawable = NULL;
-		}
+		MTL_RELEASE(m_metalLayer);
+		MTL_RELEASE(m_drawable);
+		MTL_RELEASE(m_drawableTexture);
 
 		MTL_RELEASE(m_backBufferDepth);
 		MTL_RELEASE(m_backBufferStencil);
@@ -2984,17 +2999,33 @@ namespace bgfx { namespace mtl
 				}
 				else
 				{
-					NSWindow* nsWindow = (NSWindow*)_nwh;
-					CALayer* layer = nsWindow.contentView.layer;
+					NSView *contentView;
+
+					if ([nvh isKindOfClass:[NSView class]])
+					{
+						contentView = (NSView*)nvh;
+					}
+					else if ([nvh isKindOfClass:[NSWindow class]])
+					{
+						NSWindow* nsWindow = (NSWindow*)nvh;
+						contentView = [nsWindow contentView];
+					}
+					else
+					{
+						BX_WARN(0, "Unable to create Metal device. Please set platform data window to an NSWindow, NSView, or CAMetalLayer");
+						return;
+					}
+
+					CALayer* layer = contentView.layer;
 					if(NULL != layer && [layer isKindOfClass:NSClassFromString(@"CAMetalLayer")])
 					{
 						m_metalLayer = (CAMetalLayer*)layer;
 					}
 					else
 					{
-						[nsWindow.contentView setWantsLayer:YES];
+						[contentView setWantsLayer:YES];
 						m_metalLayer = [CAMetalLayer layer];
-						[nsWindow.contentView setLayer:m_metalLayer];
+						[contentView setLayer:m_metalLayer];
 					}
 				}
 			}
@@ -3010,6 +3041,8 @@ namespace bgfx { namespace mtl
 		m_metalLayer.device      = s_renderMtl->m_device;
 		m_metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 		m_metalLayer.magnificationFilter = kCAFilterNearest;
+
+		retain(m_metalLayer);
 	}
 
 	void SwapChainMtl::resize(FrameBufferMtl &_frameBuffer, uint32_t _width, uint32_t _height, uint32_t _flags)
@@ -3098,15 +3131,46 @@ namespace bgfx { namespace mtl
 		_frameBuffer.m_pixelFormatHash = murmur.end();
 	}
 
-	id<CAMetalDrawable> SwapChainMtl::currentDrawable()
+	id <MTLTexture> SwapChainMtl::currentDrawableTexture()
 	{
-		if (NULL == m_drawable)
+		if (NULL == m_drawableTexture)
 		{
 			m_drawable = m_metalLayer.nextDrawable;
-			retain(m_drawable); // keep alive to be useable at 'flip'
+			if (m_drawable != NULL)
+			{
+				m_drawableTexture = m_drawable.texture;
+				retain(m_drawableTexture);
+				retain(m_drawable); // keep alive to be useable at 'flip'
+			}
+			else
+			{
+				TextureDescriptor desc = s_renderMtl->m_textureDescriptor;
+				desc.textureType = MTLTextureType2D;
+				desc.pixelFormat = m_metalLayer.pixelFormat;
+				desc.width  = m_metalLayer.drawableSize.width;
+				desc.height = m_metalLayer.drawableSize.height;
+				desc.depth  = 1;
+				desc.mipmapLevelCount = 1;
+				desc.sampleCount = 1;
+				desc.arrayLength = 1;
+
+				if (s_renderMtl->m_iOS9Runtime
+					||  s_renderMtl->m_macOS11Runtime)
+				{
+					desc.cpuCacheMode = MTLCPUCacheModeDefaultCache;
+					desc.storageMode = BX_ENABLED(BX_PLATFORM_IOS)
+					? (MTLStorageMode)0 // MTLStorageModeShared
+					: (MTLStorageMode)1 // MTLStorageModeManaged
+					;
+
+					desc.usage = MTLTextureUsageRenderTarget;
+				}
+
+				m_drawableTexture = s_renderMtl->m_device.newTextureWithDescriptor(desc);
+			}
 		}
 
-		return m_drawable;
+		return m_drawableTexture;
 	}
 
 	void FrameBufferMtl::create(uint8_t _num, const Attachment* _attachment)
@@ -3312,6 +3376,17 @@ namespace bgfx { namespace mtl
 	{
 	}
 
+	uint32_t TimerQueryMtl::begin(uint32_t _resultIdx)
+	{
+		BX_UNUSED(_resultIdx);
+		return 0;
+	}
+
+	void TimerQueryMtl::end(uint32_t _idx)
+	{
+		BX_UNUSED(_idx);
+	}
+
 	static void setTimestamp(void* _data)
 	{
 		*( (int64_t*)_data) = bx::getHPCounter();
@@ -3324,10 +3399,10 @@ namespace bgfx { namespace mtl
 			m_control.consume(1);
 		}
 
-		uint32_t offset = m_control.m_current * 2 + 0;
+		uint32_t offset = m_control.m_current;
 
-		_commandBuffer.addScheduledHandler(setTimestamp, &m_result[offset]);
-		_commandBuffer.addCompletedHandler(setTimestamp, &m_result[offset+1]);
+		_commandBuffer.addScheduledHandler(setTimestamp, &m_result[offset].m_begin);
+		_commandBuffer.addCompletedHandler(setTimestamp, &m_result[offset].m_end);
 		m_control.commit(1);
 	}
 
@@ -3335,9 +3410,9 @@ namespace bgfx { namespace mtl
 	{
 		if (0 != m_control.available() )
 		{
-			uint32_t offset = m_control.m_read * 2;
-			m_begin = m_result[offset+0];
-			m_end   = m_result[offset+1];
+			uint32_t offset = m_control.m_read;
+			m_begin = m_result[offset].m_begin;
+			m_end   = m_result[offset].m_end;
 			m_elapsed = m_end - m_begin;
 
 			m_control.consume(1);
@@ -3497,10 +3572,12 @@ namespace bgfx { namespace mtl
 	{
 		m_cmd.finish(false);
 
-		if (m_commandBuffer == NULL)
+		if (NULL == m_commandBuffer)
 		{
 			m_commandBuffer = m_cmd.alloc();
 		}
+
+		BGFX_MTL_PROFILER_BEGIN_LITERAL("rendererSubmit", kColorFrame);
 
 		int64_t timeBegin = bx::getHPCounter();
 		int64_t captureElapsed = 0;
@@ -3570,12 +3647,14 @@ namespace bgfx { namespace mtl
 
 		if (0 < _render->m_iboffset)
 		{
+			BGFX_PROFILER_SCOPE("bgfx/Update transient index buffer", kColorResource);
 			TransientIndexBuffer* ib = _render->m_transientIb;
 			m_indexBuffers[ib->handle.idx].update(0, bx::strideAlign(_render->m_iboffset,4), ib->data, true);
 		}
 
 		if (0 < _render->m_vboffset)
 		{
+			BGFX_PROFILER_SCOPE("bgfx/Update transient vertex buffer", kColorResource);
 			TransientVertexBuffer* vb = _render->m_transientVb;
 			m_vertexBuffers[vb->handle.idx].update(0, bx::strideAlign(_render->m_vboffset,4), vb->data, true);
 		}
@@ -3623,6 +3702,12 @@ namespace bgfx { namespace mtl
 		uint32_t statsNumIndices = 0;
 		uint32_t statsKeyType[2] = {};
 
+		Profiler<TimerQueryMtl> profiler(
+			  _render
+			, m_gpuTimer
+			, s_viewName
+			);
+
 		m_occlusionQuery.resolve(_render);
 
 		if (0 == (_render->m_debug&BGFX_DEBUG_IFH) )
@@ -3646,17 +3731,28 @@ namespace bgfx { namespace mtl
 				const RenderBind& renderBind = _render->m_renderItemBind[itemIdx];
 				++item;
 
-				if ( viewChanged ||
-					(!isCompute && wasCompute))
+				if (viewChanged
+				|| (!isCompute && wasCompute) )
 				{
 					view = key.m_view;
 					currentProgram = BGFX_INVALID_HANDLE;
+
+					if (item > 1)
+					{
+						profiler.end();
+					}
+
+					BGFX_MTL_PROFILER_END();
+					setViewType(view, "  ");
+					BGFX_MTL_PROFILER_BEGIN(view, kColorView);
+
+					profiler.begin(view);
 
 					viewState.m_rect = _render->m_view[view].m_rect;
 
 					submitBlit(bs, view);
 
-					if ( !isCompute )
+					if (!isCompute)
 					{
 						const Rect& scissorRect = _render->m_view[view].m_scissor;
 						viewHasScissor = !scissorRect.isZero();
@@ -3836,6 +3932,10 @@ namespace bgfx { namespace mtl
 						endEncoding();
 						rce = NULL;
 
+						setViewType(view, "C");
+						BGFX_MTL_PROFILER_END();
+						BGFX_MTL_PROFILER_BEGIN(view, kColorCompute);
+
 						m_computeCommandEncoder = m_commandBuffer.computeCommandEncoder();
 					}
 					else if (viewChanged && BX_ENABLED(BGFX_CONFIG_DEBUG_ANNOTATION) )
@@ -3986,6 +4086,10 @@ namespace bgfx { namespace mtl
 				{
 					wasCompute = false;
 					currentProgram = BGFX_INVALID_HANDLE;
+
+					setViewType(view, " ");
+					BGFX_MTL_PROFILER_END();
+					BGFX_MTL_PROFILER_BEGIN(view, kColorDraw);
 				}
 
 				const RenderDraw& draw = renderItem.draw;
@@ -4159,11 +4263,12 @@ namespace bgfx { namespace mtl
 
 					uint32_t numVertices = draw.m_numVertices;
 					uint8_t  numStreams  = 0;
-					for (uint32_t idx = 0, streamMask = draw.m_streamMask, ntz = bx::uint32_cnttz(streamMask)
+					for (uint32_t idx = 0, streamMask = draw.m_streamMask
 						; 0 != streamMask
-						; streamMask >>= 1, idx += 1, ntz = bx::uint32_cnttz(streamMask), ++numStreams
+						; streamMask >>= 1, idx += 1, ++numStreams
 						)
 					{
+						const uint32_t ntz = bx::uint32_cnttz(streamMask);
 						streamMask >>= ntz;
 						idx         += ntz;
 
@@ -4173,7 +4278,9 @@ namespace bgfx { namespace mtl
 
 						const uint16_t handle = draw.m_stream[idx].m_handle.idx;
 						const VertexBufferMtl& vb = m_vertexBuffers[handle];
-						const uint16_t decl = !isValid(vb.m_decl) ? draw.m_stream[idx].m_decl.idx : vb.m_decl.idx;
+						const uint16_t decl = isValid(draw.m_stream[idx].m_decl)
+							? draw.m_stream[idx].m_decl.idx
+							: vb.m_decl.idx;
 						const VertexDecl& vertexDecl = m_vertexDecls[decl];
 						const uint32_t stride = vertexDecl.m_stride;
 
@@ -4408,6 +4515,10 @@ namespace bgfx { namespace mtl
 			if (wasCompute)
 			{
 				invalidateCompute();
+
+				setViewType(view, "C");
+				BGFX_MTL_PROFILER_END();
+				BGFX_MTL_PROFILER_BEGIN(view, kColorCompute);
 			}
 
 			submitBlit(bs, BGFX_CONFIG_MAX_VIEWS);
@@ -4418,6 +4529,8 @@ namespace bgfx { namespace mtl
 				capture();
 				rce = m_renderCommandEncoder;
 				captureElapsed += bx::getHPCounter();
+
+				profiler.end();
 			}
 		}
 
@@ -4428,6 +4541,8 @@ namespace bgfx { namespace mtl
 				rce.popDebugGroup();
 			}
 		}
+
+		BGFX_MTL_PROFILER_END();
 
 		int64_t timeEnd = bx::getHPCounter();
 		int64_t frameTime = timeEnd - timeBegin;
@@ -4570,10 +4685,12 @@ namespace bgfx { namespace mtl
 		if (m_screenshotTarget)
 		{
 			RenderPassDescriptor renderPassDescriptor = newRenderPassDescriptor();
-			renderPassDescriptor.colorAttachments[0].texture = m_mainFrameBuffer.m_swapChain->currentDrawable().texture;
+			renderPassDescriptor.colorAttachments[0].texture = m_mainFrameBuffer.m_swapChain->currentDrawableTexture();
 			renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 
 			rce =  m_commandBuffer.renderCommandEncoderWithDescriptor(renderPassDescriptor);
+
+			MTL_RELEASE(renderPassDescriptor);
 
 			rce.setCullMode(MTLCullModeNone);
 

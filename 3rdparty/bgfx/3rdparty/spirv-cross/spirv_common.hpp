@@ -18,87 +18,37 @@
 #define SPIRV_CROSS_COMMON_HPP
 
 #include "spirv.hpp"
+#include "spirv_cross_containers.hpp"
+#include "spirv_cross_error_handling.hpp"
 
-#include <algorithm>
-#include <cstdio>
-#include <cstring>
-#include <functional>
-#include <memory>
-#include <sstream>
-#include <stack>
-#include <stdexcept>
-#include <stdint.h>
-#include <string>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+// A bit crude, but allows projects which embed SPIRV-Cross statically to
+// effectively hide all the symbols from other projects.
+// There is a case where we have:
+// - Project A links against SPIRV-Cross statically.
+// - Project A links against Project B statically.
+// - Project B links against SPIRV-Cross statically (might be a different version).
+// This leads to a conflict with extremely bizarre results.
+// By overriding the namespace in one of the project builds, we can work around this.
+// If SPIRV-Cross is embedded in dynamic libraries,
+// prefer using -fvisibility=hidden on GCC/Clang instead.
+#ifdef SPIRV_CROSS_NAMESPACE_OVERRIDE
+#define SPIRV_CROSS_NAMESPACE SPIRV_CROSS_NAMESPACE_OVERRIDE
+#else
+#define SPIRV_CROSS_NAMESPACE spirv_cross
+#endif
 
-namespace spirv_cross
+namespace SPIRV_CROSS_NAMESPACE
 {
-
-#ifdef SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
-#ifndef _MSC_VER
-[[noreturn]]
-#endif
-inline void
-report_and_abort(const std::string &msg)
-{
-#ifdef NDEBUG
-	(void)msg;
-#else
-	fprintf(stderr, "There was a compiler error: %s\n", msg.c_str());
-#endif
-	fflush(stderr);
-	abort();
-}
-
-#define SPIRV_CROSS_THROW(x) report_and_abort(x)
-#else
-class CompilerError : public std::runtime_error
-{
-public:
-	CompilerError(const std::string &str)
-	    : std::runtime_error(str)
-	{
-	}
-};
-
-#define SPIRV_CROSS_THROW(x) throw CompilerError(x)
-#endif
-
-//#define SPIRV_CROSS_COPY_CONSTRUCTOR_SANITIZE
-
-// MSVC 2013 does not have noexcept. We need this for Variant to get move constructor to work correctly
-// instead of copy constructor.
-// MSVC 2013 ignores that move constructors cannot throw in std::vector, so just don't define it.
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#define SPIRV_CROSS_NOEXCEPT
-#else
-#define SPIRV_CROSS_NOEXCEPT noexcept
-#endif
-
-#if __cplusplus >= 201402l
-#define SPIRV_CROSS_DEPRECATED(reason) [[deprecated(reason)]]
-#elif defined(__GNUC__)
-#define SPIRV_CROSS_DEPRECATED(reason) __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define SPIRV_CROSS_DEPRECATED(reason) __declspec(deprecated(reason))
-#else
-#define SPIRV_CROSS_DEPRECATED(reason)
-#endif
-
 namespace inner
 {
 template <typename T>
-void join_helper(std::ostringstream &stream, T &&t)
+void join_helper(StringStream<> &stream, T &&t)
 {
 	stream << std::forward<T>(t);
 }
 
 template <typename T, typename... Ts>
-void join_helper(std::ostringstream &stream, T &&t, Ts &&... ts)
+void join_helper(StringStream<> &stream, T &&t, Ts &&... ts)
 {
 	stream << std::forward<T>(t);
 	join_helper(stream, std::forward<Ts>(ts)...);
@@ -201,7 +151,7 @@ public:
 
 		// Need to enforce an order here for reproducible results,
 		// but hitting this path should happen extremely rarely, so having this slow path is fine.
-		std::vector<uint32_t> bits;
+		SmallVector<uint32_t> bits;
 		bits.reserve(higher.size());
 		for (auto &v : higher)
 			bits.push_back(v);
@@ -228,21 +178,21 @@ private:
 template <typename... Ts>
 std::string join(Ts &&... ts)
 {
-	std::ostringstream stream;
+	StringStream<> stream;
 	inner::join_helper(stream, std::forward<Ts>(ts)...);
 	return stream.str();
 }
 
-inline std::string merge(const std::vector<std::string> &list)
+inline std::string merge(const SmallVector<std::string> &list)
 {
-	std::string s;
+	StringStream<> stream;
 	for (auto &elem : list)
 	{
-		s += elem;
+		stream << elem;
 		if (&elem != &list.back())
-			s += ", ";
+			stream << ", ";
 	}
-	return s;
+	return stream.str();
 }
 
 // Make sure we don't accidentally call this with float or doubles with SFINAE.
@@ -324,15 +274,14 @@ struct Instruction
 struct IVariant
 {
 	virtual ~IVariant() = default;
-	virtual std::unique_ptr<IVariant> clone() = 0;
-
+	virtual IVariant *clone(ObjectPoolBase *pool) = 0;
 	uint32_t self = 0;
 };
 
-#define SPIRV_CROSS_DECLARE_CLONE(T)                    \
-	std::unique_ptr<IVariant> clone() override          \
-	{                                                   \
-		return std::unique_ptr<IVariant>(new T(*this)); \
+#define SPIRV_CROSS_DECLARE_CLONE(T)                                \
+	IVariant *clone(ObjectPoolBase *pool) override                  \
+	{                                                               \
+		return static_cast<ObjectPool<T> *>(pool)->allocate(*this); \
 	}
 
 enum Types
@@ -359,7 +308,8 @@ struct SPIRUndef : IVariant
 	{
 		type = TypeUndef
 	};
-	SPIRUndef(uint32_t basetype_)
+
+	explicit SPIRUndef(uint32_t basetype_)
 	    : basetype(basetype_)
 	{
 	}
@@ -404,7 +354,7 @@ struct SPIRConstantOp : IVariant
 	}
 
 	spv::Op opcode;
-	std::vector<uint32_t> arguments;
+	SmallVector<uint32_t> arguments;
 	uint32_t basetype;
 
 	SPIRV_CROSS_DECLARE_CLONE(SPIRConstantOp)
@@ -422,7 +372,6 @@ struct SPIRType : IVariant
 		Unknown,
 		Void,
 		Boolean,
-		Char,
 		SByte,
 		UByte,
 		Short,
@@ -439,7 +388,11 @@ struct SPIRType : IVariant
 		Image,
 		SampledImage,
 		Sampler,
-		ControlPointArray
+		AccelerationStructureNV,
+
+		// Keep internal types at the end.
+		ControlPointArray,
+		Char
 	};
 
 	// Scalar/vector/matrix support.
@@ -449,14 +402,14 @@ struct SPIRType : IVariant
 	uint32_t columns = 1;
 
 	// Arrays, support array of arrays by having a vector of array sizes.
-	std::vector<uint32_t> array;
+	SmallVector<uint32_t> array;
 
 	// Array elements can be either specialization constants or specialization ops.
 	// This array determines how to interpret the array size.
 	// If an element is true, the element is a literal,
 	// otherwise, it's an expression, which must be resolved on demand.
 	// The actual size is not really known until runtime.
-	std::vector<bool> array_size_literal;
+	SmallVector<bool> array_size_literal;
 
 	// Pointers
 	// Keep track of how many pointer layers we have.
@@ -465,7 +418,7 @@ struct SPIRType : IVariant
 
 	spv::StorageClass storage = spv::StorageClassGeneric;
 
-	std::vector<uint32_t> member_types;
+	SmallVector<uint32_t> member_types;
 
 	struct ImageType
 	{
@@ -511,7 +464,7 @@ struct SPIRExtension : IVariant
 		SPV_AMD_gcn_shader
 	};
 
-	SPIRExtension(Extension ext_)
+	explicit SPIRExtension(Extension ext_)
 	    : ext(ext_)
 	{
 	}
@@ -536,7 +489,7 @@ struct SPIREntryPoint
 	uint32_t self = 0;
 	std::string name;
 	std::string orig_name;
-	std::vector<uint32_t> interface_variables;
+	SmallVector<uint32_t> interface_variables;
 
 	Bitset flags;
 	struct
@@ -546,7 +499,7 @@ struct SPIREntryPoint
 	} workgroup_size;
 	uint32_t invocations = 0;
 	uint32_t output_vertices = 0;
-	spv::ExecutionModel model;
+	spv::ExecutionModel model = spv::ExecutionModelMax;
 };
 
 struct SPIRExpression : IVariant
@@ -590,11 +543,11 @@ struct SPIRExpression : IVariant
 	bool access_chain = false;
 
 	// A list of expressions which this expression depends on.
-	std::vector<uint32_t> expression_dependencies;
+	SmallVector<uint32_t> expression_dependencies;
 
 	// By reading this expression, we implicitly read these expressions as well.
 	// Used by access chain Store and Load since we read multiple expressions in this case.
-	std::vector<uint32_t> implied_read_expressions;
+	SmallVector<uint32_t> implied_read_expressions;
 
 	SPIRV_CROSS_DECLARE_CLONE(SPIRExpression)
 };
@@ -606,13 +559,13 @@ struct SPIRFunctionPrototype : IVariant
 		type = TypeFunctionPrototype
 	};
 
-	SPIRFunctionPrototype(uint32_t return_type_)
+	explicit SPIRFunctionPrototype(uint32_t return_type_)
 	    : return_type(return_type_)
 	{
 	}
 
 	uint32_t return_type;
-	std::vector<uint32_t> parameter_types;
+	SmallVector<uint32_t> parameter_types;
 
 	SPIRV_CROSS_DECLARE_CLONE(SPIRFunctionPrototype)
 };
@@ -696,7 +649,7 @@ struct SPIRBlock : IVariant
 	uint32_t false_block = 0;
 	uint32_t default_block = 0;
 
-	std::vector<Instruction> ops;
+	SmallVector<Instruction> ops;
 
 	struct Phi
 	{
@@ -706,22 +659,22 @@ struct SPIRBlock : IVariant
 	};
 
 	// Before entering this block flush out local variables to magical "phi" variables.
-	std::vector<Phi> phi_variables;
+	SmallVector<Phi> phi_variables;
 
 	// Declare these temporaries before beginning the block.
 	// Used for handling complex continue blocks which have side effects.
-	std::vector<std::pair<uint32_t, uint32_t>> declare_temporary;
+	SmallVector<std::pair<uint32_t, uint32_t>> declare_temporary;
 
 	// Declare these temporaries, but only conditionally if this block turns out to be
 	// a complex loop header.
-	std::vector<std::pair<uint32_t, uint32_t>> potential_declare_temporary;
+	SmallVector<std::pair<uint32_t, uint32_t>> potential_declare_temporary;
 
 	struct Case
 	{
 		uint32_t value;
 		uint32_t block;
 	};
-	std::vector<Case> cases;
+	SmallVector<Case> cases;
 
 	// If we have tried to optimize code for this block but failed,
 	// keep track of this.
@@ -739,17 +692,17 @@ struct SPIRBlock : IVariant
 
 	// All access to these variables are dominated by this block,
 	// so before branching anywhere we need to make sure that we declare these variables.
-	std::vector<uint32_t> dominated_variables;
+	SmallVector<uint32_t> dominated_variables;
 
 	// These are variables which should be declared in a for loop header, if we
 	// fail to use a classic for-loop,
 	// we remove these variables, and fall back to regular variables outside the loop.
-	std::vector<uint32_t> loop_variables;
+	SmallVector<uint32_t> loop_variables;
 
 	// Some expressions are control-flow dependent, i.e. any instruction which relies on derivatives or
 	// sub-group-like operations.
 	// Make sure that we only use these expressions in the original block.
-	std::vector<uint32_t> invalidate_expressions;
+	SmallVector<uint32_t> invalidate_expressions;
 
 	SPIRV_CROSS_DECLARE_CLONE(SPIRBlock)
 };
@@ -802,16 +755,16 @@ struct SPIRFunction : IVariant
 
 	uint32_t return_type;
 	uint32_t function_type;
-	std::vector<Parameter> arguments;
+	SmallVector<Parameter> arguments;
 
 	// Can be used by backends to add magic arguments.
 	// Currently used by combined image/sampler implementation.
 
-	std::vector<Parameter> shadow_arguments;
-	std::vector<uint32_t> local_variables;
+	SmallVector<Parameter> shadow_arguments;
+	SmallVector<uint32_t> local_variables;
 	uint32_t entry_block = 0;
-	std::vector<uint32_t> blocks;
-	std::vector<CombinedImageSamplerParameter> combined_parameters;
+	SmallVector<uint32_t> blocks;
+	SmallVector<CombinedImageSamplerParameter> combined_parameters;
 
 	void add_local_variable(uint32_t id)
 	{
@@ -827,17 +780,19 @@ struct SPIRFunction : IVariant
 	// Hooks to be run when the function returns.
 	// Mostly used for lowering internal data structures onto flattened structures.
 	// Need to defer this, because they might rely on things which change during compilation.
-	std::vector<std::function<void()>> fixup_hooks_out;
+	// Intentionally not a small vector, this one is rare, and std::function can be large.
+	Vector<std::function<void()>> fixup_hooks_out;
 
 	// Hooks to be run when the function begins.
 	// Mostly used for populating internal data structures from flattened structures.
 	// Need to defer this, because they might rely on things which change during compilation.
-	std::vector<std::function<void()>> fixup_hooks_in;
+	// Intentionally not a small vector, this one is rare, and std::function can be large.
+	Vector<std::function<void()>> fixup_hooks_in;
 
 	// On function entry, make sure to copy a constant array into thread addr space to work around
 	// the case where we are passing a constant array by value to a function on backends which do not
 	// consider arrays value types.
-	std::vector<uint32_t> constant_arrays_needed_on_stack;
+	SmallVector<uint32_t> constant_arrays_needed_on_stack;
 
 	bool active = false;
 	bool flush_undeclared = true;
@@ -857,7 +812,7 @@ struct SPIRAccessChain : IVariant
 	                int32_t static_index_)
 	    : basetype(basetype_)
 	    , storage(storage_)
-	    , base(base_)
+	    , base(std::move(base_))
 	    , dynamic_index(std::move(dynamic_index_))
 	    , static_index(static_index_)
 	{
@@ -881,7 +836,7 @@ struct SPIRAccessChain : IVariant
 
 	// By reading this expression, we implicitly read these expressions as well.
 	// Used by access chain Store and Load since we read multiple expressions in this case.
-	std::vector<uint32_t> implied_read_expressions;
+	SmallVector<uint32_t> implied_read_expressions;
 
 	SPIRV_CROSS_DECLARE_CLONE(SPIRAccessChain)
 };
@@ -908,7 +863,7 @@ struct SPIRVariable : IVariant
 	uint32_t initializer = 0;
 	uint32_t basevariable = 0;
 
-	std::vector<uint32_t> dereference_chain;
+	SmallVector<uint32_t> dereference_chain;
 	bool compat_builtin = false;
 
 	// If a variable is shadowed, we only statically assign to it
@@ -919,7 +874,7 @@ struct SPIRVariable : IVariant
 	uint32_t static_expression = 0;
 
 	// Temporaries which can remain forwarded as long as this variable is not modified.
-	std::vector<uint32_t> dependees;
+	SmallVector<uint32_t> dependees;
 	bool forwardable = true;
 
 	bool deferred_declaration = false;
@@ -1158,7 +1113,7 @@ struct SPIRConstant : IVariant
 	    : constant_type(constant_type_)
 	    , specialization(specialized)
 	{
-		subconstants.insert(end(subconstants), elements, elements + num_elements);
+		subconstants.insert(std::end(subconstants), elements, elements + num_elements);
 		specialization = specialized;
 	}
 
@@ -1215,7 +1170,7 @@ struct SPIRConstant : IVariant
 		}
 	}
 
-	uint32_t constant_type;
+	uint32_t constant_type = 0;
 	ConstantMatrix m;
 
 	// If this constant is a specialization constant (i.e. created with OpSpecConstant*).
@@ -1227,7 +1182,7 @@ struct SPIRConstant : IVariant
 	bool is_used_as_lut = false;
 
 	// For composites which are constant arrays, etc.
-	std::vector<uint32_t> subconstants;
+	SmallVector<uint32_t> subconstants;
 
 	// Non-Vulkan GLSL, HLSL and sometimes MSL emits defines for each specialization constant,
 	// and uses them to initialize the constant. This allows the user
@@ -1238,11 +1193,25 @@ struct SPIRConstant : IVariant
 	SPIRV_CROSS_DECLARE_CLONE(SPIRConstant)
 };
 
+// Variants have a very specific allocation scheme.
+struct ObjectPoolGroup
+{
+	std::unique_ptr<ObjectPoolBase> pools[TypeCount];
+};
+
 class Variant
 {
 public:
-	// MSVC 2013 workaround, we shouldn't need these constructors.
-	Variant() = default;
+	explicit Variant(ObjectPoolGroup *group_)
+	    : group(group_)
+	{
+	}
+
+	~Variant()
+	{
+		if (holder)
+			group->pools[type]->free_opaque(holder);
+	}
 
 	// Marking custom move constructor as noexcept is important.
 	Variant(Variant &&other) SPIRV_CROSS_NOEXCEPT
@@ -1250,19 +1219,23 @@ public:
 		*this = std::move(other);
 	}
 
-	Variant(const Variant &variant)
-	{
-		*this = variant;
-	}
+	// We cannot copy from other variant without our own pool group.
+	// Have to explicitly copy.
+	Variant(const Variant &variant) = delete;
 
 	// Marking custom move constructor as noexcept is important.
 	Variant &operator=(Variant &&other) SPIRV_CROSS_NOEXCEPT
 	{
 		if (this != &other)
 		{
-			holder = std::move(other.holder);
+			if (holder)
+				group->pools[type]->free_opaque(holder);
+			holder = other.holder;
+			group = other.group;
 			type = other.type;
 			allow_type_rewrite = other.allow_type_rewrite;
+
+			other.holder = nullptr;
 			other.type = TypeNone;
 		}
 		return *this;
@@ -1273,27 +1246,50 @@ public:
 	// This should never happen.
 	Variant &operator=(const Variant &other)
 	{
+//#define SPIRV_CROSS_COPY_CONSTRUCTOR_SANITIZE
 #ifdef SPIRV_CROSS_COPY_CONSTRUCTOR_SANITIZE
 		abort();
 #endif
 		if (this != &other)
 		{
-			holder.reset();
+			if (holder)
+				group->pools[type]->free_opaque(holder);
+
 			if (other.holder)
-				holder = other.holder->clone();
+				holder = other.holder->clone(group->pools[other.type].get());
+			else
+				holder = nullptr;
+
 			type = other.type;
 			allow_type_rewrite = other.allow_type_rewrite;
 		}
 		return *this;
 	}
 
-	void set(std::unique_ptr<IVariant> val, Types new_type)
+	void set(IVariant *val, Types new_type)
 	{
-		holder = std::move(val);
+		if (holder)
+			group->pools[type]->free_opaque(holder);
+		holder = nullptr;
+
 		if (!allow_type_rewrite && type != TypeNone && type != new_type)
+		{
+			if (val)
+				group->pools[new_type]->free_opaque(val);
 			SPIRV_CROSS_THROW("Overwriting a variant with new type.");
+		}
+
+		holder = val;
 		type = new_type;
 		allow_type_rewrite = false;
+	}
+
+	template <typename T, typename... Ts>
+	T *allocate_and_set(Types new_type, Ts &&... ts)
+	{
+		T *val = static_cast<ObjectPool<T> &>(*group->pools[new_type]).allocate(std::forward<Ts>(ts)...);
+		set(val, new_type);
+		return val;
 	}
 
 	template <typename T>
@@ -1303,7 +1299,7 @@ public:
 			SPIRV_CROSS_THROW("nullptr");
 		if (static_cast<Types>(T::type) != type)
 			SPIRV_CROSS_THROW("Bad cast");
-		return *static_cast<T *>(holder.get());
+		return *static_cast<T *>(holder);
 	}
 
 	template <typename T>
@@ -1313,7 +1309,7 @@ public:
 			SPIRV_CROSS_THROW("nullptr");
 		if (static_cast<Types>(T::type) != type)
 			SPIRV_CROSS_THROW("Bad cast");
-		return *static_cast<const T *>(holder.get());
+		return *static_cast<const T *>(holder);
 	}
 
 	Types get_type() const
@@ -1333,7 +1329,9 @@ public:
 
 	void reset()
 	{
-		holder.reset();
+		if (holder)
+			group->pools[type]->free_opaque(holder);
+		holder = nullptr;
 		type = TypeNone;
 	}
 
@@ -1343,7 +1341,8 @@ public:
 	}
 
 private:
-	std::unique_ptr<IVariant> holder;
+	ObjectPoolGroup *group = nullptr;
+	IVariant *holder = nullptr;
 	Types type = TypeNone;
 	bool allow_type_rewrite = false;
 };
@@ -1363,9 +1362,7 @@ const T &variant_get(const Variant &var)
 template <typename T, typename... P>
 T &variant_set(Variant &var, P &&... args)
 {
-	auto uptr = std::unique_ptr<T>(new T(std::forward<P>(args)...));
-	auto ptr = uptr.get();
-	var.set(std::move(uptr), static_cast<Types>(T::type));
+	auto *ptr = var.allocate_and_set<T>(static_cast<Types>(T::type), std::forward<P>(args)...);
 	return *ptr;
 }
 
@@ -1403,13 +1400,16 @@ struct Meta
 		{
 			uint32_t packed_type = 0;
 			bool packed = false;
-			uint32_t ib_member_index = static_cast<uint32_t>(-1);
+			uint32_t ib_member_index = ~(0u);
 			uint32_t ib_orig_id = 0;
+			uint32_t argument_buffer_id = ~(0u);
 		} extended;
 	};
 
 	Decoration decoration;
-	std::vector<Decoration> members;
+
+	// Intentionally not a SmallVector. Decoration is large and somewhat rare.
+	Vector<Decoration> members;
 
 	std::unordered_map<uint32_t, uint32_t> decoration_word_offset;
 
@@ -1508,6 +1508,6 @@ static inline bool opcode_is_sign_invariant(spv::Op opcode)
 		return false;
 	}
 }
-} // namespace spirv_cross
+} // namespace SPIRV_CROSS_NAMESPACE
 
 #endif

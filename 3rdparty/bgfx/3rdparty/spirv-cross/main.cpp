@@ -36,7 +36,7 @@
 #endif
 
 using namespace spv;
-using namespace spirv_cross;
+using namespace SPIRV_CROSS_NAMESPACE;
 using namespace std;
 
 #ifdef SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
@@ -221,7 +221,7 @@ static bool write_string_to_file(const char *path, const char *string)
 	return true;
 }
 
-static void print_resources(const Compiler &compiler, const char *tag, const vector<Resource> &resources)
+static void print_resources(const Compiler &compiler, const char *tag, const SmallVector<Resource> &resources)
 {
 	fprintf(stderr, "%s\n", tag);
 	fprintf(stderr, "=============\n\n");
@@ -310,6 +310,18 @@ static const char *execution_model_to_str(spv::ExecutionModel model)
 		return "fragment";
 	case ExecutionModelGLCompute:
 		return "compute";
+	case ExecutionModelRayGenerationNV:
+		return "raygenNV";
+	case ExecutionModelIntersectionNV:
+		return "intersectionNV";
+	case ExecutionModelCallableNV:
+		return "callableNV";
+	case ExecutionModelAnyHitNV:
+		return "anyhitNV";
+	case ExecutionModelClosestHitNV:
+		return "closesthitNV";
+	case ExecutionModelMissNV:
+		return "missNV";
 	default:
 		return "???";
 	}
@@ -396,9 +408,10 @@ static void print_resources(const Compiler &compiler, const ShaderResources &res
 	print_resources(compiler, "ubos", res.uniform_buffers);
 	print_resources(compiler, "push", res.push_constant_buffers);
 	print_resources(compiler, "counters", res.atomic_counters);
+	print_resources(compiler, "acceleration structures", res.acceleration_structures);
 }
 
-static void print_push_constant_resources(const Compiler &compiler, const vector<Resource> &res)
+static void print_push_constant_resources(const Compiler &compiler, const SmallVector<Resource> &res)
 {
 	for (auto &block : res)
 	{
@@ -495,13 +508,16 @@ struct CLIArguments
 	bool msl_ios = false;
 	bool msl_pad_fragment_output = false;
 	bool msl_domain_lower_left = false;
-	vector<PLSArg> pls_in;
-	vector<PLSArg> pls_out;
-	vector<Remap> remaps;
-	vector<string> extensions;
-	vector<VariableTypeRemap> variable_type_remaps;
-	vector<InterfaceVariableRename> interface_variable_renames;
-	vector<HLSLVertexAttributeRemap> hlsl_attr_remap;
+	bool msl_argument_buffers = false;
+	bool glsl_emit_push_constant_as_ubo = false;
+	SmallVector<uint32_t> msl_discrete_descriptor_sets;
+	SmallVector<PLSArg> pls_in;
+	SmallVector<PLSArg> pls_out;
+	SmallVector<Remap> remaps;
+	SmallVector<string> extensions;
+	SmallVector<VariableTypeRemap> variable_type_remaps;
+	SmallVector<InterfaceVariableRename> interface_variable_renames;
+	SmallVector<HLSLVertexAttributeRemap> hlsl_attr_remap;
 	string entry;
 	string entry_stage;
 
@@ -511,7 +527,7 @@ struct CLIArguments
 		string new_name;
 		ExecutionModel execution_model;
 	};
-	vector<Rename> entry_point_rename;
+	SmallVector<Rename> entry_point_rename;
 
 	uint32_t iterations = 1;
 	bool cpp = false;
@@ -545,6 +561,7 @@ static void print_help()
 	                "\t[--iterations iter]\n"
 	                "\t[--cpp]\n"
 	                "\t[--cpp-interface-name <name>]\n"
+	                "\t[--glsl-emit-push-constant-as-ubo]\n"
 	                "\t[--msl]\n"
 	                "\t[--msl-version <MMmmpp>]\n"
 	                "\t[--msl-capture-output]\n"
@@ -552,6 +569,8 @@ static void print_help()
 	                "\t[--msl-ios]\n"
 	                "\t[--msl-pad-fragment-output]\n"
 	                "\t[--msl-domain-lower-left]\n"
+	                "\t[--msl-argument-buffers]\n"
+	                "\t[--msl-discrete-descriptor-set <index>]\n"
 	                "\t[--hlsl]\n"
 	                "\t[--reflect]\n"
 	                "\t[--shader-model]\n"
@@ -576,7 +595,7 @@ static void print_help()
 	                "\n");
 }
 
-static bool remap_generic(Compiler &compiler, const vector<Resource> &resources, const Remap &remap)
+static bool remap_generic(Compiler &compiler, const SmallVector<Resource> &resources, const Remap &remap)
 {
 	auto itr =
 	    find_if(begin(resources), end(resources), [&remap](const Resource &res) { return res.name == remap.src_name; });
@@ -592,8 +611,8 @@ static bool remap_generic(Compiler &compiler, const vector<Resource> &resources,
 		return false;
 }
 
-static vector<PlsRemap> remap_pls(const vector<PLSArg> &pls_variables, const vector<Resource> &resources,
-                                  const vector<Resource> *secondary_resources)
+static vector<PlsRemap> remap_pls(const SmallVector<PLSArg> &pls_variables, const SmallVector<Resource> &resources,
+                                  const SmallVector<Resource> *secondary_resources)
 {
 	vector<PlsRemap> ret;
 
@@ -678,158 +697,10 @@ static ExecutionModel stage_to_execution_model(const std::string &stage)
 		SPIRV_CROSS_THROW("Invalid stage.");
 }
 
-static int main_inner(int argc, char *argv[])
+static string compile_iteration(const CLIArguments &args, std::vector<uint32_t> spirv_file)
 {
-	CLIArguments args;
-	CLICallbacks cbs;
-
-	cbs.add("--help", [](CLIParser &parser) {
-		print_help();
-		parser.end();
-	});
-	cbs.add("--output", [&args](CLIParser &parser) { args.output = parser.next_string(); });
-	cbs.add("--es", [&args](CLIParser &) {
-		args.es = true;
-		args.set_es = true;
-	});
-	cbs.add("--no-es", [&args](CLIParser &) {
-		args.es = false;
-		args.set_es = true;
-	});
-	cbs.add("--version", [&args](CLIParser &parser) {
-		args.version = parser.next_uint();
-		args.set_version = true;
-	});
-	cbs.add("--dump-resources", [&args](CLIParser &) { args.dump_resources = true; });
-	cbs.add("--force-temporary", [&args](CLIParser &) { args.force_temporary = true; });
-	cbs.add("--flatten-ubo", [&args](CLIParser &) { args.flatten_ubo = true; });
-	cbs.add("--fixup-clipspace", [&args](CLIParser &) { args.fixup = true; });
-	cbs.add("--flip-vert-y", [&args](CLIParser &) { args.yflip = true; });
-	cbs.add("--iterations", [&args](CLIParser &parser) { args.iterations = parser.next_uint(); });
-	cbs.add("--cpp", [&args](CLIParser &) { args.cpp = true; });
-	cbs.add("--reflect", [&args](CLIParser &parser) { args.reflect = parser.next_value_string("json"); });
-	cbs.add("--cpp-interface-name", [&args](CLIParser &parser) { args.cpp_interface_name = parser.next_string(); });
-	cbs.add("--metal", [&args](CLIParser &) { args.msl = true; }); // Legacy compatibility
-	cbs.add("--msl", [&args](CLIParser &) { args.msl = true; });
-	cbs.add("--hlsl", [&args](CLIParser &) { args.hlsl = true; });
-	cbs.add("--hlsl-enable-compat", [&args](CLIParser &) { args.hlsl_compat = true; });
-	cbs.add("--hlsl-support-nonzero-basevertex-baseinstance",
-	        [&args](CLIParser &) { args.hlsl_support_nonzero_base = true; });
-	cbs.add("--vulkan-semantics", [&args](CLIParser &) { args.vulkan_semantics = true; });
-	cbs.add("--flatten-multidimensional-arrays", [&args](CLIParser &) { args.flatten_multidimensional_arrays = true; });
-	cbs.add("--no-420pack-extension", [&args](CLIParser &) { args.use_420pack_extension = false; });
-	cbs.add("--msl-capture-output", [&args](CLIParser &) { args.msl_capture_output_to_buffer = true; });
-	cbs.add("--msl-swizzle-texture-samples", [&args](CLIParser &) { args.msl_swizzle_texture_samples = true; });
-	cbs.add("--msl-ios", [&args](CLIParser &) { args.msl_ios = true; });
-	cbs.add("--msl-pad-fragment-output", [&args](CLIParser &) { args.msl_pad_fragment_output = true; });
-	cbs.add("--msl-domain-lower-left", [&args](CLIParser &) { args.msl_domain_lower_left = true; });
-	cbs.add("--extension", [&args](CLIParser &parser) { args.extensions.push_back(parser.next_string()); });
-	cbs.add("--rename-entry-point", [&args](CLIParser &parser) {
-		auto old_name = parser.next_string();
-		auto new_name = parser.next_string();
-		auto model = stage_to_execution_model(parser.next_string());
-		args.entry_point_rename.push_back({ old_name, new_name, move(model) });
-	});
-	cbs.add("--entry", [&args](CLIParser &parser) { args.entry = parser.next_string(); });
-	cbs.add("--stage", [&args](CLIParser &parser) { args.entry_stage = parser.next_string(); });
-	cbs.add("--separate-shader-objects", [&args](CLIParser &) { args.sso = true; });
-	cbs.add("--set-hlsl-vertex-input-semantic", [&args](CLIParser &parser) {
-		HLSLVertexAttributeRemap remap;
-		remap.location = parser.next_uint();
-		remap.semantic = parser.next_string();
-		args.hlsl_attr_remap.push_back(move(remap));
-	});
-
-	cbs.add("--remap", [&args](CLIParser &parser) {
-		string src = parser.next_string();
-		string dst = parser.next_string();
-		uint32_t components = parser.next_uint();
-		args.remaps.push_back({ move(src), move(dst), components });
-	});
-
-	cbs.add("--remap-variable-type", [&args](CLIParser &parser) {
-		string var_name = parser.next_string();
-		string new_type = parser.next_string();
-		args.variable_type_remaps.push_back({ move(var_name), move(new_type) });
-	});
-
-	cbs.add("--rename-interface-variable", [&args](CLIParser &parser) {
-		StorageClass cls = StorageClassMax;
-		string clsStr = parser.next_string();
-		if (clsStr == "in")
-			cls = StorageClassInput;
-		else if (clsStr == "out")
-			cls = StorageClassOutput;
-
-		uint32_t loc = parser.next_uint();
-		string var_name = parser.next_string();
-		args.interface_variable_renames.push_back({ cls, loc, move(var_name) });
-	});
-
-	cbs.add("--pls-in", [&args](CLIParser &parser) {
-		auto fmt = pls_format(parser.next_string());
-		auto name = parser.next_string();
-		args.pls_in.push_back({ move(fmt), move(name) });
-	});
-	cbs.add("--pls-out", [&args](CLIParser &parser) {
-		auto fmt = pls_format(parser.next_string());
-		auto name = parser.next_string();
-		args.pls_out.push_back({ move(fmt), move(name) });
-	});
-	cbs.add("--shader-model", [&args](CLIParser &parser) {
-		args.shader_model = parser.next_uint();
-		args.set_shader_model = true;
-	});
-	cbs.add("--msl-version", [&args](CLIParser &parser) {
-		args.msl_version = parser.next_uint();
-		args.set_msl_version = true;
-	});
-
-	cbs.add("--remove-unused-variables", [&args](CLIParser &) { args.remove_unused = true; });
-	cbs.add("--combined-samplers-inherit-bindings",
-	        [&args](CLIParser &) { args.combined_samplers_inherit_bindings = true; });
-
-	cbs.add("--no-support-nonzero-baseinstance", [&](CLIParser &) { args.support_nonzero_baseinstance = false; });
-
-	cbs.default_handler = [&args](const char *value) { args.input = value; };
-	cbs.error_handler = [] { print_help(); };
-
-	CLIParser parser{ move(cbs), argc - 1, argv + 1 };
-	if (!parser.parse())
-	{
-		return EXIT_FAILURE;
-	}
-	else if (parser.ended_state)
-	{
-		return EXIT_SUCCESS;
-	}
-
-	if (!args.input)
-	{
-		fprintf(stderr, "Didn't specify input file.\n");
-		print_help();
-		return EXIT_FAILURE;
-	}
-
-	auto spirv_file = read_spirv_file(args.input);
-	if (spirv_file.empty())
-		return EXIT_FAILURE;
 	Parser spirv_parser(move(spirv_file));
-
 	spirv_parser.parse();
-
-	// Special case reflection because it has little to do with the path followed by code-outputting compilers
-	if (!args.reflect.empty())
-	{
-		CompilerReflection compiler(move(spirv_parser.get_parsed_ir()));
-		compiler.set_format(args.reflect);
-		auto json = compiler.compile();
-		if (args.output)
-			write_string_to_file(args.output, json.c_str());
-		else
-			printf("%s", json.c_str());
-		return EXIT_SUCCESS;
-	}
 
 	unique_ptr<CompilerGLSL> compiler;
 	bool combined_image_samplers = false;
@@ -855,7 +726,10 @@ static int main_inner(int argc, char *argv[])
 			msl_opts.platform = CompilerMSL::Options::iOS;
 		msl_opts.pad_fragment_output_components = args.msl_pad_fragment_output;
 		msl_opts.tess_domain_origin_lower_left = args.msl_domain_lower_left;
+		msl_opts.argument_buffers = args.msl_argument_buffers;
 		msl_comp->set_msl_options(msl_opts);
+		for (auto &v : args.msl_discrete_descriptor_sets)
+			msl_comp->add_discrete_descriptor_set(v);
 	}
 	else if (args.hlsl)
 		compiler.reset(new CompilerHLSL(move(spirv_parser.get_parsed_ir())));
@@ -903,7 +777,7 @@ static int main_inner(int argc, char *argv[])
 			if (entry_point.empty())
 			{
 				fprintf(stderr, "Could not find an entry point with stage: %s\n", args.entry_stage.c_str());
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 		}
 		else
@@ -923,7 +797,7 @@ static int main_inner(int argc, char *argv[])
 			{
 				fprintf(stderr, "Could not find an entry point %s with stage: %s\n", entry_point.c_str(),
 				        args.entry_stage.c_str());
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 		}
 	}
@@ -944,12 +818,12 @@ static int main_inner(int argc, char *argv[])
 		if (stage_count == 0)
 		{
 			fprintf(stderr, "There is no entry point with name: %s\n", entry_point.c_str());
-			return EXIT_FAILURE;
+			exit(EXIT_FAILURE);
 		}
 		else if (stage_count > 1)
 		{
 			fprintf(stderr, "There is more than one entry point with name: %s. Use --stage.\n", entry_point.c_str());
-			return EXIT_FAILURE;
+			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -960,7 +834,7 @@ static int main_inner(int argc, char *argv[])
 	{
 		fprintf(stderr, "Didn't specify GLSL version and SPIR-V did not specify language.\n");
 		print_help();
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 
 	CompilerGLSL::Options opts = compiler->get_common_options();
@@ -976,6 +850,7 @@ static int main_inner(int argc, char *argv[])
 	opts.vertex.fixup_clipspace = args.fixup;
 	opts.vertex.flip_vert_y = args.yflip;
 	opts.vertex.support_nonzero_base_instance = args.support_nonzero_baseinstance;
+	opts.emit_push_constant_as_uniform_buffer = args.glsl_emit_push_constant_as_ubo;
 	compiler->set_common_options(opts);
 
 	// Set HLSL specific options.
@@ -988,7 +863,7 @@ static int main_inner(int argc, char *argv[])
 			if (args.shader_model < 30)
 			{
 				fprintf(stderr, "Shader model earlier than 30 (3.0) not supported.\n");
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 
 			hlsl_opts.shader_model = args.shader_model;
@@ -1068,7 +943,7 @@ static int main_inner(int argc, char *argv[])
 		else
 		{
 			fprintf(stderr, "error at --rename-interface-variable <in|out> ...\n");
-			return EXIT_FAILURE;
+			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -1105,19 +980,182 @@ static int main_inner(int argc, char *argv[])
 		}
 	}
 
-	string glsl;
-	for (uint32_t i = 0; i < args.iterations; i++)
+	if (args.hlsl)
 	{
-		if (args.hlsl)
-			glsl = static_cast<CompilerHLSL *>(compiler.get())->compile(move(args.hlsl_attr_remap));
+		for (auto &remap : args.hlsl_attr_remap)
+			static_cast<CompilerHLSL *>(compiler.get())->add_vertex_attribute_remap(remap);
+	}
+
+	return compiler->compile();
+}
+
+static int main_inner(int argc, char *argv[])
+{
+	CLIArguments args;
+	CLICallbacks cbs;
+
+	cbs.add("--help", [](CLIParser &parser) {
+		print_help();
+		parser.end();
+	});
+	cbs.add("--output", [&args](CLIParser &parser) { args.output = parser.next_string(); });
+	cbs.add("--es", [&args](CLIParser &) {
+		args.es = true;
+		args.set_es = true;
+	});
+	cbs.add("--no-es", [&args](CLIParser &) {
+		args.es = false;
+		args.set_es = true;
+	});
+	cbs.add("--version", [&args](CLIParser &parser) {
+		args.version = parser.next_uint();
+		args.set_version = true;
+	});
+	cbs.add("--dump-resources", [&args](CLIParser &) { args.dump_resources = true; });
+	cbs.add("--force-temporary", [&args](CLIParser &) { args.force_temporary = true; });
+	cbs.add("--flatten-ubo", [&args](CLIParser &) { args.flatten_ubo = true; });
+	cbs.add("--fixup-clipspace", [&args](CLIParser &) { args.fixup = true; });
+	cbs.add("--flip-vert-y", [&args](CLIParser &) { args.yflip = true; });
+	cbs.add("--iterations", [&args](CLIParser &parser) { args.iterations = parser.next_uint(); });
+	cbs.add("--cpp", [&args](CLIParser &) { args.cpp = true; });
+	cbs.add("--reflect", [&args](CLIParser &parser) { args.reflect = parser.next_value_string("json"); });
+	cbs.add("--cpp-interface-name", [&args](CLIParser &parser) { args.cpp_interface_name = parser.next_string(); });
+	cbs.add("--metal", [&args](CLIParser &) { args.msl = true; }); // Legacy compatibility
+	cbs.add("--glsl-emit-push-constant-as-ubo", [&args](CLIParser &) { args.glsl_emit_push_constant_as_ubo = true; });
+	cbs.add("--msl", [&args](CLIParser &) { args.msl = true; });
+	cbs.add("--hlsl", [&args](CLIParser &) { args.hlsl = true; });
+	cbs.add("--hlsl-enable-compat", [&args](CLIParser &) { args.hlsl_compat = true; });
+	cbs.add("--hlsl-support-nonzero-basevertex-baseinstance",
+	        [&args](CLIParser &) { args.hlsl_support_nonzero_base = true; });
+	cbs.add("--vulkan-semantics", [&args](CLIParser &) { args.vulkan_semantics = true; });
+	cbs.add("--flatten-multidimensional-arrays", [&args](CLIParser &) { args.flatten_multidimensional_arrays = true; });
+	cbs.add("--no-420pack-extension", [&args](CLIParser &) { args.use_420pack_extension = false; });
+	cbs.add("--msl-capture-output", [&args](CLIParser &) { args.msl_capture_output_to_buffer = true; });
+	cbs.add("--msl-swizzle-texture-samples", [&args](CLIParser &) { args.msl_swizzle_texture_samples = true; });
+	cbs.add("--msl-ios", [&args](CLIParser &) { args.msl_ios = true; });
+	cbs.add("--msl-pad-fragment-output", [&args](CLIParser &) { args.msl_pad_fragment_output = true; });
+	cbs.add("--msl-domain-lower-left", [&args](CLIParser &) { args.msl_domain_lower_left = true; });
+	cbs.add("--msl-argument-buffers", [&args](CLIParser &) { args.msl_argument_buffers = true; });
+	cbs.add("--msl-discrete-descriptor-set",
+	        [&args](CLIParser &parser) { args.msl_discrete_descriptor_sets.push_back(parser.next_uint()); });
+	cbs.add("--extension", [&args](CLIParser &parser) { args.extensions.push_back(parser.next_string()); });
+	cbs.add("--rename-entry-point", [&args](CLIParser &parser) {
+		auto old_name = parser.next_string();
+		auto new_name = parser.next_string();
+		auto model = stage_to_execution_model(parser.next_string());
+		args.entry_point_rename.push_back({ old_name, new_name, move(model) });
+	});
+	cbs.add("--entry", [&args](CLIParser &parser) { args.entry = parser.next_string(); });
+	cbs.add("--stage", [&args](CLIParser &parser) { args.entry_stage = parser.next_string(); });
+	cbs.add("--separate-shader-objects", [&args](CLIParser &) { args.sso = true; });
+	cbs.add("--set-hlsl-vertex-input-semantic", [&args](CLIParser &parser) {
+		HLSLVertexAttributeRemap remap;
+		remap.location = parser.next_uint();
+		remap.semantic = parser.next_string();
+		args.hlsl_attr_remap.push_back(move(remap));
+	});
+
+	cbs.add("--remap", [&args](CLIParser &parser) {
+		string src = parser.next_string();
+		string dst = parser.next_string();
+		uint32_t components = parser.next_uint();
+		args.remaps.push_back({ move(src), move(dst), components });
+	});
+
+	cbs.add("--remap-variable-type", [&args](CLIParser &parser) {
+		string var_name = parser.next_string();
+		string new_type = parser.next_string();
+		args.variable_type_remaps.push_back({ move(var_name), move(new_type) });
+	});
+
+	cbs.add("--rename-interface-variable", [&args](CLIParser &parser) {
+		StorageClass cls = StorageClassMax;
+		string clsStr = parser.next_string();
+		if (clsStr == "in")
+			cls = StorageClassInput;
+		else if (clsStr == "out")
+			cls = StorageClassOutput;
+
+		uint32_t loc = parser.next_uint();
+		string var_name = parser.next_string();
+		args.interface_variable_renames.push_back({ cls, loc, move(var_name) });
+	});
+
+	cbs.add("--pls-in", [&args](CLIParser &parser) {
+		auto fmt = pls_format(parser.next_string());
+		auto name = parser.next_string();
+		args.pls_in.push_back({ move(fmt), move(name) });
+	});
+	cbs.add("--pls-out", [&args](CLIParser &parser) {
+		auto fmt = pls_format(parser.next_string());
+		auto name = parser.next_string();
+		args.pls_out.push_back({ move(fmt), move(name) });
+	});
+	cbs.add("--shader-model", [&args](CLIParser &parser) {
+		args.shader_model = parser.next_uint();
+		args.set_shader_model = true;
+	});
+	cbs.add("--msl-version", [&args](CLIParser &parser) {
+		args.msl_version = parser.next_uint();
+		args.set_msl_version = true;
+	});
+
+	cbs.add("--remove-unused-variables", [&args](CLIParser &) { args.remove_unused = true; });
+	cbs.add("--combined-samplers-inherit-bindings",
+	        [&args](CLIParser &) { args.combined_samplers_inherit_bindings = true; });
+
+	cbs.add("--no-support-nonzero-baseinstance", [&](CLIParser &) { args.support_nonzero_baseinstance = false; });
+
+	cbs.default_handler = [&args](const char *value) { args.input = value; };
+	cbs.error_handler = [] { print_help(); };
+
+	CLIParser parser{ move(cbs), argc - 1, argv + 1 };
+	if (!parser.parse())
+		return EXIT_FAILURE;
+	else if (parser.ended_state)
+		return EXIT_SUCCESS;
+
+	if (!args.input)
+	{
+		fprintf(stderr, "Didn't specify input file.\n");
+		print_help();
+		return EXIT_FAILURE;
+	}
+
+	auto spirv_file = read_spirv_file(args.input);
+	if (spirv_file.empty())
+		return EXIT_FAILURE;
+
+	// Special case reflection because it has little to do with the path followed by code-outputting compilers
+	if (!args.reflect.empty())
+	{
+		Parser spirv_parser(move(spirv_file));
+		spirv_parser.parse();
+
+		CompilerReflection compiler(move(spirv_parser.get_parsed_ir()));
+		compiler.set_format(args.reflect);
+		auto json = compiler.compile();
+		if (args.output)
+			write_string_to_file(args.output, json.c_str());
 		else
-			glsl = compiler->compile();
+			printf("%s", json.c_str());
+		return EXIT_SUCCESS;
+	}
+
+	string compiled_output;
+
+	if (args.iterations == 1)
+		compiled_output = compile_iteration(args, move(spirv_file));
+	else
+	{
+		for (unsigned i = 0; i < args.iterations; i++)
+			compiled_output = compile_iteration(args, spirv_file);
 	}
 
 	if (args.output)
-		write_string_to_file(args.output, glsl.c_str());
+		write_string_to_file(args.output, compiled_output.c_str());
 	else
-		printf("%s", glsl.c_str());
+		printf("%s", compiled_output.c_str());
 
 	return EXIT_SUCCESS;
 }

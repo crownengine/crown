@@ -19,13 +19,13 @@ newoption {
 }
 
 newoption {
-	trigger = "with-profiler",
-	description = "Enable build with intrusive profiler.",
+	trigger = "with-wayland",
+	description = "Use Wayland backend.",
 }
 
 newoption {
-	trigger = "with-scintilla",
-	description = "Enable building with Scintilla editor.",
+	trigger = "with-profiler",
+	description = "Enable build with intrusive profiler.",
 }
 
 newoption {
@@ -48,12 +48,25 @@ newoption {
 	description = "Enable building examples.",
 }
 
-dofile "bgfx-idl.lua"
-
 newaction {
 	trigger = "idl",
 	description = "Generate bgfx interface source code",
-	execute = doIdl
+	execute = function ()
+
+		local gen = require "bgfx-codegen"
+
+		local function generate(tempfile, outputfile, indent)
+			local codes = gen.apply(tempfile)
+			codes = gen.format(codes, {indent = indent})
+			gen.write(codes, outputfile)
+			print("Generating: " .. outputfile)
+		end
+
+		generate("temp.bgfx.h" ,      "../include/bgfx/c99/bgfx.h", "    ")
+		generate("temp.bgfx.idl.inl", "../src/bgfx.idl.inl",        "\t")
+
+		os.exit()
+	end
 }
 
 solution "bgfx"
@@ -115,6 +128,10 @@ end
 function copyLib()
 end
 
+if _OPTIONS["with-wayland"] then
+	defines { "WL_EGL_PLATFORM=1" }
+end
+
 if _OPTIONS["with-sdl"] then
 	if os.is("windows") then
 		if not os.getenv("SDL2_DIR") then
@@ -159,6 +176,13 @@ function exampleProjectDefaults()
 		defines { "ENTRY_CONFIG_USE_SDL=1" }
 		links   { "SDL2" }
 
+		configuration { "linux or freebsd" }
+			if _OPTIONS["with-wayland"]  then
+				links {
+					"wayland-egl",
+				}
+			end
+
 		configuration { "osx" }
 			libdirs { "$(SDL2_DIR)/lib" }
 
@@ -170,13 +194,19 @@ function exampleProjectDefaults()
 		links   { "glfw3" }
 
 		configuration { "linux or freebsd" }
-			links {
-				"Xrandr",
-				"Xinerama",
-				"Xi",
-				"Xxf86vm",
-				"Xcursor",
-			}
+			if _OPTIONS["with-wayland"] then
+				links {
+					"wayland-egl",
+				}
+			else
+				links {
+					"Xrandr",
+					"Xinerama",
+					"Xi",
+					"Xxf86vm",
+					"Xcursor",
+				}
+			end
 
 		configuration { "osx" }
 			linkoptions {

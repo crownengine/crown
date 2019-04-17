@@ -18,9 +18,8 @@
 #include <functional>
 #include <string>
 
+#include "source/reduce/reduction_pass.h"
 #include "spirv-tools/libspirv.hpp"
-
-#include "reduction_pass.h"
 
 namespace spvtools {
 namespace reduce {
@@ -33,7 +32,12 @@ class Reducer {
   enum ReductionResultStatus {
     kInitialStateNotInteresting,
     kReachedStepLimit,
-    kComplete
+    kComplete,
+    kInitialStateInvalid,
+
+    // Returned when the fail-on-validation-error option is set and a
+    // reduction step yields a state that fails validation.
+    kStateInvalid,
   };
 
   // The type for a function that will take a binary and return true if and
@@ -75,6 +79,9 @@ class Reducer {
   void SetInterestingnessFunction(
       InterestingnessFunction interestingness_function);
 
+  // Adds all default reduction passes.
+  void AddDefaultReductionPasses();
+
   // Adds a reduction pass based on the given finder to the sequence of passes
   // that will be iterated over.
   void AddReductionPass(std::unique_ptr<ReductionOpportunityFinder>&& finder);
@@ -84,7 +91,8 @@ class Reducer {
   // A status is returned.
   ReductionResultStatus Run(std::vector<uint32_t>&& binary_in,
                             std::vector<uint32_t>* binary_out,
-                            spv_const_reducer_options options) const;
+                            spv_const_reducer_options options,
+                            spv_validator_options validator_options) const;
 
  private:
   struct Impl;                  // Opaque struct for holding internal data.

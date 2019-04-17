@@ -20,23 +20,11 @@
 #include "source/opt/build_module.h"
 #include "source/opt/ir_context.h"
 #include "source/opt/log.h"
-#include "source/reduce/merge_blocks_reduction_opportunity_finder.h"
-#include "source/reduce/operand_to_const_reduction_opportunity_finder.h"
-#include "source/reduce/operand_to_dominating_id_reduction_opportunity_finder.h"
-#include "source/reduce/operand_to_undef_reduction_opportunity_finder.h"
 #include "source/reduce/reducer.h"
-#include "source/reduce/remove_function_reduction_opportunity_finder.h"
-#include "source/reduce/remove_opname_instruction_reduction_opportunity_finder.h"
-#include "source/reduce/remove_unreferenced_instruction_reduction_opportunity_finder.h"
-#include "source/reduce/structured_loop_to_selection_reduction_opportunity_finder.h"
 #include "source/spirv_reducer_options.h"
-#include "source/util/make_unique.h"
 #include "source/util/string_utils.h"
-#include "spirv-tools/libspirv.hpp"
 #include "tools/io.h"
 #include "tools/util/cli_consumer.h"
-
-using namespace spvtools::reduce;
 
 namespace {
 
@@ -103,6 +91,10 @@ should be the path to a script.
 NOTE: The reducer is a work in progress.
 
 Options (in lexicographical order):
+
+  --fail-on-validation-error
+               Stop reduction with an error if any reduction step produces a
+               SPIR-V module that fails to validate.
   -h, --help
                Print this help.
   --step-limit
@@ -110,6 +102,13 @@ Options (in lexicographical order):
                reducer will take before giving up.
   --version
                Display reducer version information.
+
+Supported validator options are as follows. See `spirv-val --help` for details.
+  --relax-logical-pointer
+  --relax-block-layout
+  --scalar-block-layout
+  --skip-block-layout
+  --relax-struct-store
 )",
       program, program);
 }
@@ -127,7 +126,8 @@ void ReduceDiagnostic(spv_message_level_t level, const char* /*source*/,
 
 ReduceStatus ParseFlags(int argc, const char** argv, const char** in_file,
                         const char** interestingness_test,
-                        spvtools::ReducerOptions* reducer_options) {
+                        spvtools::ReducerOptions* reducer_options,
+                        spvtools::ValidatorOptions* validator_options) {
   uint32_t positional_arg_index = 0;
 
   for (int argi = 1; argi < argc; ++argi) {
@@ -164,6 +164,18 @@ ReduceStatus ParseFlags(int argc, const char** argv, const char** in_file,
       assert(!*interestingness_test);
       *interestingness_test = cur_arg;
       positional_arg_index++;
+    } else if (0 == strcmp(cur_arg, "--fail-on-validation-error")) {
+      reducer_options->set_fail_on_validation_error(true);
+    } else if (0 == strcmp(cur_arg, "--relax-logical-pointer")) {
+      validator_options->SetRelaxLogicalPointer(true);
+    } else if (0 == strcmp(cur_arg, "--relax-block-layout")) {
+      validator_options->SetRelaxBlockLayout(true);
+    } else if (0 == strcmp(cur_arg, "--scalar-block-layout")) {
+      validator_options->SetScalarBlockLayout(true);
+    } else if (0 == strcmp(cur_arg, "--skip-block-layout")) {
+      validator_options->SetSkipBlockLayout(true);
+    } else if (0 == strcmp(cur_arg, "--relax-struct-store")) {
+      validator_options->SetRelaxStructStore(true);
     } else {
       spvtools::Error(ReduceDiagnostic, nullptr, {},
                       "Too many positional arguments specified");
@@ -187,6 +199,23 @@ ReduceStatus ParseFlags(int argc, const char** argv, const char** in_file,
 
 }  // namespace
 
+// Dumps |binary| to file |filename|. Useful for interactive debugging.
+void DumpShader(const std::vector<uint32_t>& binary, const char* filename) {
+  auto write_file_succeeded =
+      WriteFile(filename, "wb", &binary[0], binary.size());
+  if (!write_file_succeeded) {
+    std::cerr << "Failed to dump shader" << std::endl;
+  }
+}
+
+// Dumps the SPIRV-V module in |context| to file |filename|. Useful for
+// interactive debugging.
+void DumpShader(spvtools::opt::IRContext* context, const char* filename) {
+  std::vector<uint32_t> binary;
+  context->module()->ToBinary(&binary, false);
+  DumpShader(binary, filename);
+}
+
 const auto kDefaultEnvironment = SPV_ENV_UNIVERSAL_1_3;
 
 int main(int argc, const char** argv) {
@@ -195,9 +224,10 @@ int main(int argc, const char** argv) {
 
   spv_target_env target_env = kDefaultEnvironment;
   spvtools::ReducerOptions reducer_options;
+  spvtools::ValidatorOptions validator_options;
 
-  ReduceStatus status =
-      ParseFlags(argc, argv, &in_file, &interestingness_test, &reducer_options);
+  ReduceStatus status = ParseFlags(argc, argv, &in_file, &interestingness_test,
+                                   &reducer_options, &validator_options);
 
   if (status.action == REDUCE_STOP) {
     return status.code;
@@ -209,7 +239,7 @@ int main(int argc, const char** argv) {
     return 2;
   }
 
-  Reducer reducer(target_env);
+  spvtools::reduce::Reducer reducer(target_env);
 
   reducer.SetInterestingnessFunction(
       [interestingness_test](std::vector<uint32_t> binary,
@@ -227,25 +257,7 @@ int main(int argc, const char** argv) {
         return ExecuteCommand(command);
       });
 
-  reducer.AddReductionPass(
-      spvtools::MakeUnique<
-          RemoveOpNameInstructionReductionOpportunityFinder>());
-  reducer.AddReductionPass(
-      spvtools::MakeUnique<OperandToUndefReductionOpportunityFinder>());
-  reducer.AddReductionPass(
-      spvtools::MakeUnique<OperandToConstReductionOpportunityFinder>());
-  reducer.AddReductionPass(
-      spvtools::MakeUnique<OperandToDominatingIdReductionOpportunityFinder>());
-  reducer.AddReductionPass(
-      spvtools::MakeUnique<
-          RemoveUnreferencedInstructionReductionOpportunityFinder>());
-  reducer.AddReductionPass(
-      spvtools::MakeUnique<
-          StructuredLoopToSelectionReductionOpportunityFinder>());
-  reducer.AddReductionPass(
-      spvtools::MakeUnique<MergeBlocksReductionOpportunityFinder>());
-  reducer.AddReductionPass(
-      spvtools::MakeUnique<RemoveFunctionReductionOpportunityFinder>());
+  reducer.AddDefaultReductionPasses();
 
   reducer.SetMessageConsumer(spvtools::utils::CLIMessageConsumer);
 
@@ -255,11 +267,11 @@ int main(int argc, const char** argv) {
   }
 
   std::vector<uint32_t> binary_out;
-  const auto reduction_status =
-      reducer.Run(std::move(binary_in), &binary_out, reducer_options);
+  const auto reduction_status = reducer.Run(std::move(binary_in), &binary_out,
+                                            reducer_options, validator_options);
 
-  if (reduction_status ==
-          Reducer::ReductionResultStatus::kInitialStateNotInteresting ||
+  if (reduction_status == spvtools::reduce::Reducer::ReductionResultStatus::
+                              kInitialStateNotInteresting ||
       !WriteFile<uint32_t>("_reduced_final.spv", "wb", binary_out.data(),
                            binary_out.size())) {
     return 1;

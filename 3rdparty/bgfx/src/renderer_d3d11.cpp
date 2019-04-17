@@ -5881,11 +5881,12 @@ namespace bgfx { namespace d3d11
 
 					if (UINT8_MAX != draw.m_streamMask)
 					{
-						for (uint32_t idx = 0, streamMask = draw.m_streamMask, ntz = bx::uint32_cnttz(streamMask)
+						for (uint32_t idx = 0, streamMask = draw.m_streamMask
 							; 0 != streamMask
-							; streamMask >>= 1, idx += 1, ntz = bx::uint32_cnttz(streamMask), ++numStreams
+							; streamMask >>= 1, idx += 1, ++numStreams
 							)
 						{
+							const uint32_t ntz = bx::uint32_cnttz(streamMask);
 							streamMask >>= ntz;
 							idx         += ntz;
 
@@ -5895,7 +5896,9 @@ namespace bgfx { namespace d3d11
 
 							const uint16_t handle = draw.m_stream[idx].m_handle.idx;
 							const VertexBufferD3D11& vb = m_vertexBuffers[handle];
-							const uint16_t decl = !isValid(vb.m_decl) ? draw.m_stream[idx].m_decl.idx : vb.m_decl.idx;
+							const uint16_t decl = isValid(draw.m_stream[idx].m_decl)
+								? draw.m_stream[idx].m_decl.idx
+								: vb.m_decl.idx;
 							const VertexDecl& vertexDecl = m_vertexDecls[decl];
 							const uint32_t stride = vertexDecl.m_stride;
 
