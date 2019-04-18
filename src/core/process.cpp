@@ -124,7 +124,7 @@ s32 Process::wait(StringStream* output)
 	GetExitCodeProcess(priv->process.hProcess, &exitcode);
 	CloseHandle(priv->process.hProcess);
 	CloseHandle(priv->process.hThread);
-	memset(priv->process, 0, sizeof(priv->process));
+	memset(&priv->process, 0, sizeof(priv->process));
 	return (s32)exitcode;
 #endif
 }
