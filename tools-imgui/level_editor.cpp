@@ -1403,9 +1403,7 @@ bool tool_process_events()
 				break;
 
 			case crown::InputDeviceType::MOUSE:
-				io.MouseDown[0] = (event.button.button_num == crown::MouseButton::LEFT) && event.button.pressed;
-				io.MouseDown[1] = (event.button.button_num == crown::MouseButton::RIGHT) && event.button.pressed;
-				io.MouseDown[2] = (event.button.button_num == crown::MouseButton::MIDDLE) && event.button.pressed;
+				io.MouseDown[event.button.button_num] = event.button.pressed;
 
 				if (!io.WantCaptureMouse)
 				{
@@ -1416,9 +1414,9 @@ bool tool_process_events()
 					tool::set_mouse_state(ss
 						, cursor.x
 						, cursor.y
-						, io.MouseDown[0]
-						, io.MouseDown[2]
-						, io.MouseDown[1]
+						, io.MouseDown[MouseButton::LEFT]
+						, io.MouseDown[MouseButton::MIDDLE]
+						, io.MouseDown[MouseButton::RIGHT]
 						);
 
 					if (event.button.button_num == crown::MouseButton::LEFT)
