@@ -5,7 +5,6 @@ install:
   - 3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
 
 platform:
-  - Win32
   - x64
 
 configuration:
