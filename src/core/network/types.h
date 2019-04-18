@@ -9,7 +9,7 @@
 /// @ingroup Core
 namespace crown
 {
-struct Socket;
 struct IPAddress;
+struct TCPSocket;
 
 } // namespace crown
