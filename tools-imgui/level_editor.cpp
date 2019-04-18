@@ -35,7 +35,7 @@
 	#include <sys/time.h>
 #endif
 
-namespace { const crown::log_internal::System LEVEL_EDITOR = { "LevelEditor" }; }
+LOG_SYSTEM(LEVEL_EDITOR, "level_editor")
 
 namespace crown
 {
