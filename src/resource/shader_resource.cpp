@@ -10,6 +10,7 @@
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.h"
+#include "core/process.h"
 #include "core/strings/string_stream.h"
 #include "device/device.h"
 #include "resource/compile_options.h"
@@ -422,7 +423,14 @@ namespace shader_resource_internal
 		return SamplerWrap::COUNT;
 	}
 
-	static int run_external_compiler(CompileOptions& opts, const char* shaderc, const char* infile, const char* outfile, const char* varying, const char* type, const char* platform, StringStream& output)
+	static s32 run_external_compiler(Process& pr
+		, const char* shaderc
+		, const char* infile
+		, const char* outfile
+		, const char* varying
+		, const char* type
+		, const char* platform
+		)
 	{
 		const char* argv[] =
 		{
@@ -448,7 +456,7 @@ namespace shader_resource_internal
 			argv[12] = ((strcmp(type, "vertex") == 0) ? "vs_4_0" : "ps_4_0");
 		}
 
-		return opts.run_external_compiler(argv, output);
+		return pr.spawn(argv);
 	}
 
 	struct RenderState
@@ -1174,47 +1182,78 @@ namespace shader_resource_internal
 			_opts.write_temporary(_fs_source_path.c_str(), fs_code);
 			_opts.write_temporary(_varying_path.c_str(), shader._varying.c_str(), shader._varying.length());
 
-			TempAllocator4096 ta;
-			StringStream output(ta);
-
 			const char* shaderc = _opts.exe_path(shaderc_paths, countof(shaderc_paths));
 			DATA_COMPILER_ASSERT(shaderc != NULL
 				, _opts
 				, "shaderc not found"
 				);
 
-			int ec = run_external_compiler(_opts, shaderc, _vs_source_path.c_str()
+			// Invoke shaderc
+			Process pr_vert;
+			Process pr_frag;
+			s32 sc;
+
+			sc = run_external_compiler(pr_vert
+				, shaderc
+				, _vs_source_path.c_str()
 				, _vs_compiled_path.c_str()
 				, _varying_path.c_str()
 				, "vertex"
 				, _opts.platform()
-				, output
 				);
-			if (ec)
+			if (sc != 0)
+			{
+				delete_temp_files();
+				DATA_COMPILER_ASSERT(sc == 0
+					, _opts
+					, "Failed to spawn `%s`"
+					, shaderc
+					);
+			}
+
+			sc = run_external_compiler(pr_frag
+				, shaderc
+				, _fs_source_path.c_str()
+				, _fs_compiled_path.c_str()
+				, _varying_path.c_str()
+				, "fragment"
+				, _opts.platform()
+				);
+			if (sc != 0)
+			{
+				delete_temp_files();
+				DATA_COMPILER_ASSERT(sc == 0
+					, _opts
+					, "Failed to spawn `%s`"
+					, shaderc
+					);
+			}
+
+			// Check shaderc exit code
+			s32 ec;
+			TempAllocator4096 ta;
+			StringStream output_vert(ta);
+			StringStream output_frag(ta);
+
+			ec = pr_vert.wait(&output_vert);
+			if (ec != 0)
 			{
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(false
 					, _opts
 					, "Failed to compile vertex shader:\n%s"
-					, string_stream::c_str(output)
+					, string_stream::c_str(output_vert)
 					);
 			}
 
-			array::clear(output);
-			ec = run_external_compiler(_opts, shaderc, _fs_source_path.c_str()
-				, _fs_compiled_path.c_str()
-				, _varying_path.c_str()
-				, "fragment"
-				, _opts.platform()
-				, output
-				);
-			if (ec)
+			ec = pr_frag.wait(&output_frag);
+			if (ec != 0)
 			{
 				delete_temp_files();
 				DATA_COMPILER_ASSERT(false
 					, _opts
 					, "Failed to compile fragment shader:\n%s"
-					, string_stream::c_str(output)
+					, string_stream::c_str(output_frag)
 					);
 			}
 

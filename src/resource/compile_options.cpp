@@ -12,6 +12,7 @@
 #include "core/guid.h"
 #include "core/memory/temp_allocator.h"
 #include "core/os.h"
+#include "core/process.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string_stream.h"
 #include "device/log.h"
@@ -187,11 +188,6 @@ const char* CompileOptions::exe_path(const char* const* paths, u32 num)
 	}
 
 	return NULL;
-}
-
-int CompileOptions::run_external_compiler(const char* const* argv, StringStream& output)
-{
-	return os::execute_process(argv, output);
 }
 
 } // namespace crown

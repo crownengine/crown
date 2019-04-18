@@ -129,9 +129,6 @@ struct CompileOptions
 
 	/// Returns the first path with executable permissions or NULL if none found.
 	const char* exe_path(const char* const* paths, u32 num);
-
-	///
-	int run_external_compiler(const char* const* argv, StringStream& output);
 };
 
 } // namespace crown

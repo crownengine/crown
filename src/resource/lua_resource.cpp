@@ -7,6 +7,7 @@
 #include "core/containers/array.h"
 #include "core/filesystem/file.h"
 #include "core/memory/temp_allocator.h"
+#include "core/process.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string_stream.h"
 #include "resource/compile_options.h"
@@ -30,7 +31,6 @@ namespace lua_resource_internal
 		opts.get_absolute_path(opts.source_path(), luasrc);
 		opts.get_temporary_path("lua", luabin);
 
-		StringStream output(ta);
 		const char* argv[] =
 		{
 			EXE_PATH("luajit"),
@@ -39,7 +39,15 @@ namespace lua_resource_internal
 			luabin.c_str(),
 			NULL
 		};
-		int ec = opts.run_external_compiler(argv, output);
+		Process pr;
+		s32 sc = pr.spawn(argv);
+		DATA_COMPILER_ASSERT(sc == 0
+			, opts
+			, "Failed to spawn `%s`"
+			, argv[0]
+			);
+		StringStream output(ta);
+		s32 ec = pr.wait(&output);
 		DATA_COMPILER_ASSERT(ec == 0
 			, opts
 			, "Failed to compile lua:\n%s"

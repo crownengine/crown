@@ -11,6 +11,8 @@
 #include "core/strings/string_id.h"
 #include "core/types.h"
 #include "resource/types.h"
+#include "core/json/types.h"
+#include "device/console_server.h"
 
 namespace crown
 {

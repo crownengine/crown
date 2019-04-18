@@ -8,6 +8,7 @@
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.h"
+#include "core/process.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string_stream.h"
 #include "resource/compile_options.h"
@@ -67,9 +68,15 @@ namespace texture_resource_internal
 			(normal_map    ? "-n" : ""),
 			NULL
 		};
-
+		Process pr;
+		s32 sc = pr.spawn(argv);
+		DATA_COMPILER_ASSERT(sc == 0
+			, opts
+			, "Failed to spawn `%s`"
+			, argv[0]
+			);
 		StringStream output(ta);
-		int ec = opts.run_external_compiler(argv, output);
+		s32 ec = pr.wait(&output);
 		DATA_COMPILER_ASSERT(ec == 0
 			, opts
 			, "Failed to compile texture:\n%s"

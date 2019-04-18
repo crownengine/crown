@@ -86,10 +86,6 @@ namespace os
 	///
 	s32 access(const char* path, u32 flags);
 
-	/// Executes the process described by @a argv and returns its exit code.
-	/// It fills @a output with stdout and stderr.
-	int execute_process(const char* const* argv, StringStream& output);
-
 } // namespace os
 
 } // namespace crown

@@ -22,7 +22,7 @@
 	#include <string.h>   // memset
 	#include <sys/wait.h> // wait
 	#include <time.h>     // clock_gettime
-	#include <unistd.h>   // unlink, rmdir, getcwd, fork, execv, access
+	#include <unistd.h>   // unlink, rmdir, getcwd, access
 #elif CROWN_PLATFORM_WINDOWS
 	#include <io.h>       // _access
 	#include <stdio.h>
@@ -235,66 +235,6 @@ namespace os
 		return ::access(path, flags);
 #elif CROWN_PLATFORM_WINDOWS
 		return ::_access(path, flags);
-#endif
-	}
-
-	int execute_process(const char* const* argv, StringStream& output)
-	{
-		TempAllocator512 ta;
-		StringStream path(ta);
-
-		path << argv[0];
-		path << ' ';
-#if CROWN_PLATFORM_POSIX
-		path << "2>&1 ";
-#endif
-		for (s32 i = 1; argv[i] != NULL; ++i)
-		{
-			const char* arg = argv[i];
-			for (; *arg; ++arg)
-			{
-				if (*arg == ' ')
-					path << '\\';
-				path << *arg;
-			}
-			path << ' ';
-		}
-#if CROWN_PLATFORM_POSIX
-		FILE* file = popen(string_stream::c_str(path), "r");
-
-		char buf[1024];
-		while (fgets(buf, sizeof(buf), file) != NULL)
-			output << buf;
-
-		return pclose(file);
-#elif CROWN_PLATFORM_WINDOWS
-		STARTUPINFO info;
-		memset(&info, 0, sizeof(info));
-		info.cb = sizeof(info);
-
-		PROCESS_INFORMATION process;
-		memset(&process, 0, sizeof(process));
-
-		int err = CreateProcess(argv[0]
-			, (LPSTR)string_stream::c_str(path)
-			, NULL
-			, NULL
-			, FALSE
-			, CREATE_NO_WINDOW
-			, NULL
-			, NULL
-			, &info
-			, &process
-			);
-		CE_ASSERT(err != 0, "CreateProcess: GetLastError = %d", GetLastError());
-		CE_UNUSED(err);
-
-		DWORD exitcode = 1;
-		::WaitForSingleObject(process.hProcess, INFINITE);
-		GetExitCodeProcess(process.hProcess, &exitcode);
-		CloseHandle(process.hProcess);
-		CloseHandle(process.hThread);
-		return (int)exitcode;
 #endif
 	}
 
