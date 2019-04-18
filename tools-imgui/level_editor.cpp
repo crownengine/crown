@@ -13,6 +13,7 @@
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
 #include "core/math/vector2.h"
+#include "core/network/ip_address.h"
 #include "core/network/socket.h"
 #include "core/strings/dynamic_string.h"
 #include "device/device.h"
@@ -41,6 +42,9 @@ namespace crown
 {
 static u16 _width = 1280;
 static u16 _height = 720;
+
+static struct LevelEditor* s_editor;
+static TCPSocket _client;
 
 struct Pivot
 {
@@ -884,7 +888,7 @@ struct LevelEditor
 		for (;;)
 		{
 			u32 msg_len = 0;
-			ReadResult rr = _console._client.read_nonblock(&msg_len, sizeof(msg_len));
+			ReadResult rr = _client.read_nonblock(&msg_len, sizeof(msg_len));
 
 			if (rr.error == ReadResult::WOULDBLOCK)
 				break;
@@ -892,7 +896,7 @@ struct LevelEditor
 			if (ReadResult::SUCCESS == rr.error)
 			{
 				char msg[8192];
-				rr = _console._client.read(msg, msg_len);
+				rr = _client.read(msg, msg_len);
 				msg[msg_len] = '\0';
 				message_count++;
 				// logi(LEVEL_EDITOR, "count: %d", message_count);
@@ -1036,7 +1040,7 @@ struct LevelEditor
 
 		if (ImGui::BeginDock("Console", &_console._open, ImGuiWindowFlags_NoScrollbar))
 		{
-			console_draw(_console);
+			console_draw(_console, _client);
 		}
 		ImGui::EndDock();
 
@@ -1053,16 +1057,7 @@ struct LevelEditor
 
 	void send_command(StringStream& ss)
 	{
-		TempAllocator4096 ta;
-		StringStream out(ta);
-		out << "{\"type\":\"script\",\"script\":\"";
-		out << string_stream::c_str(ss);
-		out << "\"}";
-
-		const char* cmd = string_stream::c_str(out);
-		const u32 size = strlen32(cmd);
-		_console._client.write(&size, sizeof(u32));
-		_console._client.write(cmd, size);
+		console_send_script(_client, string_stream::c_str(ss));
 	}
 
 	void tool_send_state()
@@ -1319,12 +1314,11 @@ struct LevelEditor
 	}
 };
 
-LevelEditor* s_editor;
-
 void tool_init()
 {
 	const DeviceOptions& opt = device()->_device_options;
 	s_editor = CE_NEW(default_allocator(), LevelEditor)(opt._source_dir);
+	_client.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_CONSOLE_PORT);
 }
 
 void tool_update(f32 dt)
@@ -1334,6 +1328,7 @@ void tool_update(f32 dt)
 
 void tool_shutdown()
 {
+	_client.close();
 	CE_DELETE(default_allocator(), s_editor);
 }
 

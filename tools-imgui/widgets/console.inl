@@ -1,4 +1,11 @@
+/*
+ * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * License: https://github.com/dbartolini/crown/blob/master/LICENSE
+ */
+
 #include "core/memory/temp_allocator.h"
+#include "core/network/ip_address.h"
+#include "core/network/socket.h"
 #include "core/strings/string_stream.h"
 #include <string.h> // strtok_r
 #if CROWN_COMPILER_MSVC
@@ -25,7 +32,7 @@ static void console_sanitize_json_string(StringStream& json, const char* str)
 	}
 }
 
-static void console_send_script(TCPSocket& client, const char* lua)
+void console_send_script(TCPSocket& client, const char* lua)
 {
 	TempAllocator1024 ta;
 	StringStream json(ta);
@@ -37,7 +44,7 @@ static void console_send_script(TCPSocket& client, const char* lua)
 	console_send(client, string_stream::c_str(json));
 }
 
-static void console_send_command(TCPSocket& client, char* cmd)
+void console_send_command(TCPSocket& client, char* cmd)
 {
 	TempAllocator1024 ta;
 	StringStream json(ta);
@@ -68,8 +75,6 @@ Console::Console()
 	, _history_pos(-1)
 	, _scroll_to_bottom(true)
 {
-	_client.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_CONSOLE_PORT);
-
 	for (u32 i = 0; i < countof(_items); ++i)
 		_items[i].severity = LogSeverity::COUNT;
 
@@ -84,11 +89,6 @@ Console::Console()
 	vector::push_back(_commands, str);
 
 	memset(_input_text, 0, sizeof(_input_text));
-}
-
-Console::~Console()
-{
-	_client.close();
 }
 
 void Console::add_log(LogSeverity::Enum severity, const char* message)
@@ -135,7 +135,7 @@ int console_inputtext_callback(ImGuiInputTextCallbackData* data)
 	return 0;
 }
 
-void console_draw(Console& console)
+void console_draw(Console& console, TCPSocket& client)
 {
 	if (!console._open)
 		return;
@@ -208,7 +208,7 @@ void console_draw(Console& console)
 		if (console._input_text[0])
 		{
 			console.add_log(LogSeverity::LOG_INFO, console._input_text);
-			console_execute_command(console, console._input_text);
+			console_execute_command(console, client, console._input_text);
 		}
 
 		strcpy(console._input_text, "");
@@ -221,9 +221,8 @@ void console_draw(Console& console)
 	ImGui::PopItemWidth();
 }
 
-void console_execute_command(Console& console, const char* command)
+void console_execute_command(Console& console, TCPSocket& client, const char* command)
 {
-	TCPSocket& client = console._client;
 	Vector<DynamicString>& history = console._history;
 	Vector<DynamicString>& commands = console._commands;
 

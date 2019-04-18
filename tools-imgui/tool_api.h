@@ -130,13 +130,13 @@ void mouse_move(StringStream& out, f32 x, f32 y)
 void key_down(StringStream& out, const char* key)
 {
 	out << "LevelEditor:key_down(";
-	out << "\\\"" << key << "\\\"" << ")";
+	out << "'" << key << "'" << ")";
 }
 
 void key_up(StringStream& out, const char* key)
 {
 	out << "LevelEditor:key_up(";
-	out << "\\\"" << key << "\\\"" << ")";
+	out << "'" << key << "'" << ")";
 }
 
 void set_grid_size(StringStream& out, f32 size)
@@ -188,19 +188,18 @@ void set_tool_type(StringStream& out, const ToolType::Enum tt)
 	out << ")";
 }
 
-void set_snap_mode(StringStream& out
-	, const SnapMode::Enum sm)
+void set_snap_mode(StringStream& out, const SnapMode::Enum sm)
 {
-	out << "LevelEditor:set_snap_mode(\\\"";
+	out << "LevelEditor:set_snap_mode('";
 	out << (sm == SnapMode::RELATIVE ? "relative" : "absolute");
-	out << "\\\")";
+	out << "')";
 }
 
 void set_reference_system(StringStream& out, const ReferenceSystem::Enum rs)
 {
-	out << "LevelEditor:set_reference_system(\\\"";
+	out << "LevelEditor:set_reference_system('";
 	out << (rs == ReferenceSystem::LOCAL ? "local" : "world");
-	out << "\\\")";
+	out << "')";
 }
 
 void spawn_unit(StringStream& out
@@ -324,8 +323,8 @@ void set_placeable(StringStream& out
 	, const char* name)
 {
 	out << "LevelEditor:set_placeable(";
-	out << "\\\"" << type << "\\\"" << ",";
-	out << "\\\"" << name << "\\\"" << ")";
+	out << "'" << type << "'" << ",";
+	out << "'" << name << "'" << ")";
 }
 
 void selection_set(StringStream& /*out*/, const Array<Guid>& /*ids*/)

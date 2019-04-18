@@ -1,10 +1,12 @@
+/*
+ * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * License: https://github.com/dbartolini/crown/blob/master/LICENSE
+ */
+
 #pragma once
 
-#include "config.h"
 #include "core/containers/vector.h"
-#include "core/memory/temp_allocator.h"
-#include "core/network/ip_address.h"
-#include "core/network/socket.h"
+#include "core/network/types.h"
 #include "core/strings/dynamic_string.h"
 #include "device/log.h"
 
@@ -18,7 +20,6 @@ namespace crown
 
 	struct Console
 	{
-		TCPSocket _client;
 		ConsoleLog _items[1024];
 		u32 _num_items;
 		Vector<DynamicString> _history;
@@ -34,19 +35,22 @@ namespace crown
 		Console();
 
 		///
-		~Console();
-
-		///
 		void add_log(LogSeverity::Enum severity, const char* message);
 	};
 
 	// Draws the console
-	void console_draw(Console& client);
+	void console_draw(Console& console, TCPSocket& client);
 
 	// Helpers
-	void console_execute_command(Console& console, const char* command);
+	void console_execute_command(Console& console, TCPSocket& client, const char* command);
 
 	// Scroll the console to the latest log message
 	void console_scroll_to_bottom(Console& console);
+
+	///
+	void console_send_script(TCPSocket& client, const char* lua);
+
+	///
+	void console_send_command(TCPSocket& client, char* cmd);
 
 } // namespace crown
