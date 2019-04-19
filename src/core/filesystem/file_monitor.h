@@ -37,13 +37,16 @@ struct FileMonitor
 {
 	FileMonitorImpl* _impl;
 
+	///
 	FileMonitor(Allocator& a);
+
+	///
 	~FileMonitor();
 
-	// Starts monitoring the @a path.
+	/// Starts monitoring the @a path.
 	void start(const char* path, bool recursive, FileMonitorFunction fmf, void* user_data);
 
-	// Stops monitoring.
+	/// Stops monitoring.
 	void stop();
 };
 
