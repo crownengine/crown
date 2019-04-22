@@ -11,6 +11,7 @@
 #include "core/strings/fixed_string.h"
 #include "core/strings/string.h"
 #include "core/strings/string_id.h"
+#include "core/strings/types.h"
 #include <string.h> // memmove
 
 namespace crown
@@ -33,6 +34,15 @@ struct DynamicString
 
 	/// Sets the string to @a str.
 	void set(const char* str, u32 len);
+
+	///
+	void from_guid(const Guid& guid);
+
+	///
+	void from_string_id(const StringId32& id);
+
+	///
+	void from_string_id(const StringId64& id);
 
 	/// Reserves space for at least @a n characters.
 	void reserve(u32 n);

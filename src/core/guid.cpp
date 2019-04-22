@@ -3,9 +3,10 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "core/error/error.h"
 #include "core/guid.h"
 #include "core/platform.h"
-#include "core/strings/dynamic_string.h"
+#include <stdio.h> // sscanf
 
 #if CROWN_PLATFORM_POSIX
 	#include <fcntl.h>
@@ -58,10 +59,9 @@ namespace guid
 		return num == 6;
 	}
 
-	void to_string(const Guid& guid, DynamicString& str)
+	void to_string(char* buf, u32 len, const Guid& guid)
 	{
-		char buf[36+1];
-		snprintf(buf, sizeof(buf), "%.8x-%.4x-%.4x-%.4x-%.4x%.8x"
+		snprintf(buf, len, "%.8x-%.4x-%.4x-%.4x-%.4x%.8x"
 			, guid.data1
 			, guid.data2
 			, guid.data3
@@ -69,7 +69,6 @@ namespace guid
 			, (u16)((guid.data4 & 0x0000ffff00000000u) >> 32)
 			, (u32)((guid.data4 & 0x00000000ffffffffu) >>  0)
 			);
-		str.set(buf, sizeof(buf)-1);
 	}
 
 } // namespace guid

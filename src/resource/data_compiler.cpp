@@ -374,7 +374,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		// Build destination file path
 		StringId64 mix;
 		mix._id = _type._id ^ _name._id;
-		mix.to_string(dst_path);
+		dst_path.from_string_id(mix);
 
 		path::join(path, CROWN_DATA_DIRECTORY, dst_path.c_str());
 

@@ -878,7 +878,7 @@ static void test_string_id()
 
 		TempAllocator64 ta;
 		DynamicString str(ta);
-		a.to_string(str);
+		str.from_string_id(a);
 		ENSURE(strcmp(str.c_str(), "7c2365db") == 0);
 	}
 	{
@@ -890,7 +890,7 @@ static void test_string_id()
 
 		TempAllocator64 ta;
 		DynamicString str(ta);
-		a.to_string(str);
+		str.from_string_id(a);
 		ENSURE(strcmp(str.c_str(), "90631502d1a3432b") == 0);
 	}
 	memory_globals::shutdown();
@@ -959,7 +959,7 @@ static void test_guid()
 		Guid guid = guid::new_guid();
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		guid::to_string(guid, str);
+		str.from_guid(guid);
 		Guid parsed = guid::parse(str.c_str());
 		ENSURE(guid == parsed);
 	}

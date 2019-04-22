@@ -673,7 +673,7 @@ void Device::reload(StringId64 type, StringId64 name)
 
 	TempAllocator128 ta;
 	DynamicString path(ta);
-	mix.to_string(path);
+	path.from_string_id(mix);
 
 	logi(DEVICE, "Reloading #ID(%s)", path.c_str());
 

@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "core/strings/types.h"
 #include "core/types.h"
 #include <string.h> // memcmp
 
@@ -36,8 +35,8 @@ namespace guid
 	/// Parses the @a guid from @a str and returns true if success.
 	bool try_parse(Guid& guid, const char* str);
 
-	/// Fills @a str with the string representation of the @a guid.
-	void to_string(const Guid& guid, DynamicString& str);
+	/// Fills @a buf with the string representation of the @a guid.
+	void to_string(char* buf, u32 len, const Guid& guid);
 
 } // namespace guid
 

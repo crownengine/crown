@@ -105,7 +105,7 @@ s32 ResourceLoader::run()
 
 		TempAllocator128 ta;
 		DynamicString res_path(ta);
-		mix.to_string(res_path);
+		res_path.from_string_id(mix);
 
 		DynamicString path(ta);
 		path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
@@ -120,7 +120,7 @@ s32 ResourceLoader::run()
 			CE_ENSURE(fallback_name._id != 0);
 
 			mix._id = rr.type._id ^ fallback_name._id;
-			mix.to_string(res_path);
+			res_path.from_string_id(mix);
 			path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
 
 			_data_filesystem.close(*file);

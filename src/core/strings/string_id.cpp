@@ -5,7 +5,6 @@
 
 #include "core/error/error.h"
 #include "core/murmur.h"
-#include "core/strings/dynamic_string.h"
 #include "core/strings/string.h"
 #include "core/strings/string_id.h"
 #include <inttypes.h> // PRIx64
@@ -28,11 +27,9 @@ void StringId32::hash(const char* str, u32 len)
 	_id = murmur32(str, len, 0);
 }
 
-void StringId32::to_string(DynamicString& s)
+void StringId32::to_string(char* buf, u32 len) const
 {
-	char buf[8+1];
-	snprintf(buf, sizeof(buf), "%.8x", _id);
-	s.set(buf, sizeof(buf)-1);
+	snprintf(buf, len, "%.8x", _id);
 }
 
 StringId64::StringId64(const char* str)
@@ -51,11 +48,9 @@ void StringId64::hash(const char* str, u32 len)
 	_id = murmur64(str, len, 0);
 }
 
-void StringId64::to_string(DynamicString& s)
+void StringId64::to_string(char* buf, u32 len) const
 {
-	char buf[16+1];
-	snprintf(buf, sizeof(buf), "%.16" PRIx64, _id);
-	s.set(buf, sizeof(buf)-1);
+	snprintf(buf, len, "%.16" PRIx64, _id);
 }
 
 } // namespace crown

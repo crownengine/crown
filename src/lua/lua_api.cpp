@@ -2891,11 +2891,11 @@ static int device_set_temp_count(lua_State* L)
 static int device_guid(lua_State* L)
 {
 	LuaStack stack(L);
-	TempAllocator64 ta;
-	DynamicString str(ta);
 	Guid guid = guid::new_guid();
-	guid::to_string(guid, str);
-	stack.push_string(str.c_str());
+	char buf[36+1];
+	guid::to_string(buf, sizeof(buf), guid);
+	buf[sizeof(buf)-1] = '\0';
+	stack.push_string(buf);
 	return 1;
 }
 

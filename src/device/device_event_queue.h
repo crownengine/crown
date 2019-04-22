@@ -7,6 +7,7 @@
 
 #include "core/thread/atomic_int.h"
 #include "core/types.h"
+#include <string.h> // memcpy
 
 namespace crown
 {

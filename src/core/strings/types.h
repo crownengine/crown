@@ -15,6 +15,7 @@ struct DynamicString;
 struct FixedString;
 struct StringId32;
 struct StringId64;
+struct Guid;
 
 typedef StringId64 ResourceId;
 

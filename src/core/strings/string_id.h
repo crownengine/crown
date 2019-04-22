@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "core/strings/types.h"
 #include "core/types.h"
+#include "core/functional.h"
 
 namespace crown
 {
@@ -24,8 +24,8 @@ struct StringId32
 
 	void hash(const char* str, u32 len);
 
-	/// Fills @a s with the string representation of the id.
-	void to_string(DynamicString& s);
+	/// Fills @a buf with the string representation of this id.
+	void to_string(char* buf, u32 len) const;
 };
 
 /// Hashed string.
@@ -42,8 +42,8 @@ struct StringId64
 
 	void hash(const char* str, u32 len);
 
-	/// Fills @a s with the string representation of the id.
-	void to_string(DynamicString& s);
+	/// Fills @a buf with the string representation of this id.
+	void to_string(char* buf, u32 len) const;
 };
 
 /// @addtogroup String

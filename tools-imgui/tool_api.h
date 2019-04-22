@@ -211,7 +211,7 @@ void spawn_unit(StringStream& out
 {
 	TempAllocator128 ta;
 	DynamicString ds(ta);
-	guid::to_string(id, ds);
+	ds.from_guid(id);
 
 	out << "LevelEditor:spawn_unit(";
 	out << "\"" << ds.c_str() << "\",";

@@ -123,7 +123,7 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 
 	TempAllocator64 ta;
 	DynamicString path(ta);
-	mix.to_string(path);
+	path.from_string_id(mix);
 
 	CE_ASSERT(can_get(type, name), "Resource not loaded #ID(%s)", path.c_str());
 

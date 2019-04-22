@@ -136,7 +136,7 @@ void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
 	TempAllocator1024 ta;
 	DynamicString str(ta);
 	DynamicString prefix(ta);
-	guid::to_string(guid::new_guid(), prefix);
+	prefix.from_guid(guid::new_guid());
 
 	_data_filesystem.get_absolute_path(CROWN_TEMP_DIRECTORY, str);
 
