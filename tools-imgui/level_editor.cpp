@@ -398,7 +398,6 @@ struct SceneView
 		}
 
 		_size = ImGui::GetWindowSize();
-		_size.x -= _origin.x;
 	}
 };
 
@@ -953,76 +952,91 @@ struct LevelEditor
 
 		if (ImGui::BeginDock("Scene View"
 			, &_scene_view._open
-			, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)
-			)
+			, ImGuiWindowFlags_NoScrollbar
+			| ImGuiWindowFlags_NoScrollWithMouse
+			))
 		{
-			// Draw toolbar
-			ImGui::BeginGroup();
-			if (ImGui::ImageButton((void*)(uintptr_t)tool_place_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_tool_type = tool::ToolType::PLACE;
-				tool_send_state();
-			}
-
-			if (ImGui::ImageButton((void*)(uintptr_t)tool_move_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_tool_type = tool::ToolType::MOVE;
-				tool_send_state();
-			}
-
-			if (ImGui::ImageButton((void*)(uintptr_t)tool_rotate_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_tool_type = tool::ToolType::ROTATE;
-				tool_send_state();
-			}
-
-			if (ImGui::ImageButton((void*)(uintptr_t)tool_scale_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_tool_type = tool::ToolType::SCALE;
-				tool_send_state();
-			}
-
-			ImGui::Separator();
-
-			if (ImGui::ImageButton((void*)(uintptr_t)axis_local_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_reference_system = tool::ReferenceSystem::LOCAL;
-				tool_send_state();
-			}
-
-			if (ImGui::ImageButton((void*)(uintptr_t)axis_world_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_reference_system = tool::ReferenceSystem::WORLD;
-				tool_send_state();
-			}
-
-			ImGui::Separator();
-
-			if (ImGui::ImageButton((void*)(uintptr_t)reference_world_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_snap_mode = tool::SnapMode::RELATIVE;
-				tool_send_state();
-			}
-
-			if (ImGui::ImageButton((void*)(uintptr_t)reference_local_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_snap_mode = tool::SnapMode::ABSOLUTE;
-				tool_send_state();
-			}
-
-			ImGui::Separator();
-
-			if (ImGui::ImageButton((void*)(uintptr_t)snap_to_grid_texture->handle.idx, ImVec2(16, 16)))
-			{
-				_snap_to_grid = !_snap_to_grid;
-				tool_send_state();
-			}
-
-			ImGui::EndGroup();
-
-			// Draw scene view
-			ImGui::SameLine();
 			_scene_view.draw();
+
+			ImVec2 window_pos;
+			window_pos.x = _scene_view._origin.x + 4.0f;
+			window_pos.y = _scene_view._origin.y + 4.0f;
+			ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always);
+			ImGui::SetNextWindowBgAlpha(0.35f);
+			if (ImGui::Begin("Toobar Overlay"
+				, NULL
+				, ImGuiWindowFlags_NoMove
+				| ImGuiWindowFlags_NoDecoration
+				| ImGuiWindowFlags_AlwaysAutoResize
+				| ImGuiWindowFlags_NoSavedSettings
+				| ImGuiWindowFlags_NoFocusOnAppearing
+				| ImGuiWindowFlags_NoNav
+				))
+			{
+				ImGui::BeginGroup();
+				if (ImGui::ImageButton(tool_place_texture->handle, ImVec2(16, 16)))
+				{
+					_tool_type = tool::ToolType::PLACE;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(tool_move_texture->handle, ImVec2(16, 16)))
+				{
+					_tool_type = tool::ToolType::MOVE;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(tool_rotate_texture->handle, ImVec2(16, 16)))
+				{
+					_tool_type = tool::ToolType::ROTATE;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(tool_scale_texture->handle, ImVec2(16, 16)))
+				{
+					_tool_type = tool::ToolType::SCALE;
+					tool_send_state();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::ImageButton(axis_local_texture->handle, ImVec2(16, 16)))
+				{
+					_reference_system = tool::ReferenceSystem::LOCAL;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(axis_world_texture->handle, ImVec2(16, 16)))
+				{
+					_reference_system = tool::ReferenceSystem::WORLD;
+					tool_send_state();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::ImageButton(reference_world_texture->handle, ImVec2(16, 16)))
+				{
+					_snap_mode = tool::SnapMode::RELATIVE;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(reference_local_texture->handle, ImVec2(16, 16)))
+				{
+					_snap_mode = tool::SnapMode::ABSOLUTE;
+					tool_send_state();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::ImageButton(snap_to_grid_texture->handle, ImVec2(16, 16)))
+				{
+					_snap_to_grid = !_snap_to_grid;
+					tool_send_state();
+				}
+
+				ImGui::EndGroup();
+			}
+			ImGui::End();
 		}
 		ImGui::EndDock();
 
