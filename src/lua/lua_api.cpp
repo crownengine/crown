@@ -2892,9 +2892,8 @@ static int device_guid(lua_State* L)
 {
 	LuaStack stack(L);
 	Guid guid = guid::new_guid();
-	char buf[36+1];
+	char buf[37];
 	guid::to_string(buf, sizeof(buf), guid);
-	buf[sizeof(buf)-1] = '\0';
 	stack.push_string(buf);
 	return 1;
 }

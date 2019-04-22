@@ -878,7 +878,6 @@ static void test_string_id()
 
 		char str[9];
 		a.to_string(str, sizeof(str));
-		str[sizeof(str)-1] = '\0';
 		ENSURE(strcmp(str, "7c2365db") == 0);
 	}
 	{
@@ -890,7 +889,6 @@ static void test_string_id()
 
 		char str[17];
 		a.to_string(str, sizeof(str));
-		str[sizeof(str)-1] = '\0';
 		ENSURE(strcmp(str, "90631502d1a3432b") == 0);
 	}
 	memory_globals::shutdown();
@@ -1301,8 +1299,6 @@ static void test_thread()
 		name();             \
 	} while (0)
 
-extern void test_database();
-
 int main_unit_tests()
 {
 	RUN_TEST(test_memory);
@@ -1328,7 +1324,6 @@ int main_unit_tests()
 	RUN_TEST(test_path);
 	RUN_TEST(test_command_line);
 	RUN_TEST(test_thread);
-	RUN_TEST(test_database);
 
 	return EXIT_SUCCESS;
 }
