@@ -947,6 +947,33 @@ static void test_dynamic_string()
 		ENSURE(!str.has_prefix("Hello everyone!!!"));
 		ENSURE(!str.has_suffix("Hello everyone!!!"));
 	}
+	{
+		Guid guid = guid::parse("dd733419-bbd0-4248-bc84-e0e8363d7165");
+
+		TempAllocator128 ta;
+		DynamicString str(ta);
+		str.from_guid(guid);
+		ENSURE(str.length() == 36);
+		ENSURE(strcmp(str.c_str(), "dd733419-bbd0-4248-bc84-e0e8363d7165") == 0);
+	}
+	{
+		StringId32 id = StringId32("test");
+
+		TempAllocator128 ta;
+		DynamicString str(ta);
+		str.from_string_id(id);
+		ENSURE(str.length() == 8);
+		ENSURE(strcmp(str.c_str(), "1812752e") == 0);
+	}
+	{
+		StringId64 id = StringId64("test");
+
+		TempAllocator128 ta;
+		DynamicString str(ta);
+		str.from_string_id(id);
+		ENSURE(str.length() == 16);
+		ENSURE(strcmp(str.c_str(), "2f4a8724618f4c63") == 0);
+	}
 	memory_globals::shutdown();
 }
 
@@ -955,10 +982,9 @@ static void test_guid()
 	memory_globals::init();
 	{
 		Guid guid = guid::new_guid();
-		TempAllocator1024 ta;
-		DynamicString str(ta);
-		str.from_guid(guid);
-		Guid parsed = guid::parse(str.c_str());
+		char str[37];
+		guid::to_string(str, sizeof(str), guid);
+		Guid parsed = guid::parse(str);
 		ENSURE(guid == parsed);
 	}
 	{
