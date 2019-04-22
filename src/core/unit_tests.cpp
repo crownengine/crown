@@ -876,10 +876,10 @@ static void test_string_id()
 		StringId32 b("murmur32", 8);
 		ENSURE(a._id == 0x7c2365dbu);
 
-		TempAllocator64 ta;
-		DynamicString str(ta);
-		str.from_string_id(a);
-		ENSURE(strcmp(str.c_str(), "7c2365db") == 0);
+		char str[9];
+		a.to_string(str, sizeof(str));
+		str[sizeof(str)-1] = '\0';
+		ENSURE(strcmp(str, "7c2365db") == 0);
 	}
 	{
 		StringId64 a("murmur64");
@@ -888,9 +888,9 @@ static void test_string_id()
 		StringId64 b("murmur64", 8);
 		ENSURE(a._id == 0x90631502d1a3432bu);
 
-		TempAllocator64 ta;
-		DynamicString str(ta);
-		str.from_string_id(a);
+		char str[17];
+		a.to_string(str, sizeof(str));
+		str[sizeof(str)-1] = '\0';
 		ENSURE(strcmp(str.c_str(), "90631502d1a3432b") == 0);
 	}
 	memory_globals::shutdown();
