@@ -15,6 +15,7 @@
 #include "core/math/vector2.h"
 #include "core/network/ip_address.h"
 #include "core/network/socket.h"
+#include "core/process.h"
 #include "core/strings/dynamic_string.h"
 #include "device/device.h"
 #include "device/device_event_queue.h"
@@ -40,11 +41,58 @@ LOG_SYSTEM(LEVEL_EDITOR, "level_editor")
 
 namespace crown
 {
+struct Project
+{
+	DynamicString _data_dir;
+
+	Project(Allocator& a)
+		: _data_dir(a)
+	{
+	}
+};
+
 static u16 _width = 1280;
 static u16 _height = 720;
 
-static struct LevelEditor* s_editor;
+static struct LevelEditor* _editor;
+static struct Project* _project;
 static TCPSocket _client;
+static Process _game_process;
+
+struct StartGame
+{
+	enum Enum
+	{
+		NORMAL,
+		TEST
+	};
+};
+
+static void stop_game()
+{
+	if (_game_process.spawned())
+	{
+		_game_process.force_exit();
+		_game_process.wait();
+	}
+}
+
+static void start_game(StartGame::Enum sg, const char* data_dir)
+{
+	// Stop any previously launched game
+	stop_game();
+
+	const char* argv[] =
+	{
+		"./crown-debug",
+		"--data-dir", data_dir,
+		"--console-port", "12345",
+		// "--wait-console",
+		"--lua-string", sg == StartGame::TEST ? "TEST=true" : "",
+		NULL
+	};
+	_game_process.spawn(argv);
+}
 
 struct Pivot
 {
@@ -1329,6 +1377,17 @@ struct LevelEditor
 
 				ImGui::EndMenu();
 			}
+			if (ImGui::BeginMenu("Test"))
+			{
+				if (ImGui::MenuItem("Test Level"))
+					start_game(StartGame::TEST, _project->_data_dir.c_str());
+				if (ImGui::MenuItem("Test Game"))
+					start_game(StartGame::NORMAL, _project->_data_dir.c_str());
+				if (ImGui::MenuItem("Stop"))
+					stop_game();
+
+				ImGui::EndMenu();
+			}
 			if (ImGui::BeginMenu("Help"))
 			{
 				ImGui::MenuItem("About", "");
@@ -1346,19 +1405,24 @@ struct LevelEditor
 void tool_init()
 {
 	const DeviceOptions& opt = device()->_device_options;
-	s_editor = CE_NEW(default_allocator(), LevelEditor)(opt._source_dir);
+	_project = CE_NEW(default_allocator(), Project)(default_allocator());
+	_project->_data_dir = opt._data_dir;
+	_editor = CE_NEW(default_allocator(), LevelEditor)(opt._source_dir);
 	_client.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_CONSOLE_PORT);
 }
 
 void tool_update(f32 dt)
 {
-	s_editor->update(dt);
+	_editor->update(dt);
 }
 
 void tool_shutdown()
 {
 	_client.close();
-	CE_DELETE(default_allocator(), s_editor);
+	CE_DELETE(default_allocator(), _editor);
+	CE_DELETE(default_allocator(), _project);
+
+	stop_game();
 }
 
 extern bool next_event(OsEvent& ev);
@@ -1436,9 +1500,9 @@ bool tool_process_events()
 
 				if (!io.WantCaptureMouse)
 				{
-					ImVec2& cursor = s_editor->_scene_view._cursor;
-					cursor.x = io.MousePos.x - s_editor->_scene_view._origin.x;
-					cursor.y = io.MousePos.y - s_editor->_scene_view._origin.y;
+					ImVec2& cursor = _editor->_scene_view._cursor;
+					cursor.x = io.MousePos.x - _editor->_scene_view._origin.x;
+					cursor.y = io.MousePos.y - _editor->_scene_view._origin.y;
 
 					tool::set_mouse_state(ss
 						, cursor.x
@@ -1471,10 +1535,10 @@ bool tool_process_events()
 
 					if (!io.WantCaptureMouse)
 					{
-						ImVec2& cursor = s_editor->_scene_view._cursor;
+						ImVec2& cursor = _editor->_scene_view._cursor;
 
-						cursor.x = io.MousePos.x - s_editor->_scene_view._origin.x;
-						cursor.y = io.MousePos.y - s_editor->_scene_view._origin.y;
+						cursor.x = io.MousePos.x - _editor->_scene_view._origin.x;
+						cursor.y = io.MousePos.y - _editor->_scene_view._origin.y;
 
 						tool::mouse_move(ss, cursor.x, cursor.y);
 					}
@@ -1510,7 +1574,7 @@ bool tool_process_events()
 
 	}
 
-	s_editor->send_command(ss);
+	_editor->send_command(ss);
 
 	bool vsync = true;
 	if (reset)

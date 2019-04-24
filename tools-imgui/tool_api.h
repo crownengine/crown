@@ -47,15 +47,6 @@ struct ReferenceSystem
 	};
 };
 
-struct GameType
-{
-	enum Enum
-	{
-		NORMAL,
-		TEST
-	};
-};
-
 const char* lua_bool(const bool b)
 {
 	return b ? "true" : "false";
