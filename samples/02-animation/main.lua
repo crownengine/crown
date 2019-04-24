@@ -46,7 +46,7 @@ function Game.update(dt)
 	end
 
 	-- Cycle through characters
-	if Pad1.pressed(Pad1.button_id("shoulder_right")) then
+	if Pad1.pressed(Pad1.button_id("shoulder_right")) or Keyboard.pressed(Keyboard.button_id("j")) then
 		AnimationStateMachine.trigger(Game.sm, Game.player, "idle")
 		Game.player_i = Game.player_i % #Game.players + 1
 		Game.player = Game.players[Game.player_i]
@@ -57,10 +57,17 @@ function Game.update(dt)
 		return Vector3(vector3_xy.x, 0, vector3_xy.y)
 	end
 
-	local player_speed = 4
+	-- Read direction from joypad
 	local pad_dir = Pad1.axis(Pad1.axis_id("left"))
-	local player_pos = SceneGraph.local_position(Game.sg, Game.player)
-	SceneGraph.set_local_position(Game.sg, Game.player, player_pos + swap_yz(pad_dir)*player_speed*dt)
+	-- Add keyboard contribution
+	if pad_dir.x == 0.0 and pad_dir.y == 0.0 then
+		pad_dir.x = pad_dir.x + Keyboard.button(Keyboard.button_id("d")) - Keyboard.button(Keyboard.button_id("a"))
+		pad_dir.y = pad_dir.y + Keyboard.button(Keyboard.button_id("w")) - Keyboard.button(Keyboard.button_id("s"))
+	end
+	-- Compute new player position
+	local player_speed = 4
+	local player_position = SceneGraph.local_position(Game.sg, Game.player)
+	SceneGraph.set_local_position(Game.sg, Game.player, player_position + swap_yz(pad_dir)*player_speed*dt)
 
 	-- Sprite depth is proportional to its Z position
 	for i=1, #Game.players do
