@@ -11,6 +11,7 @@ Game = {
 	player = nil,
 	players = {},
 	player_i = 1,
+	fullscreen = false
 }
 
 GameBase.game = Game
@@ -26,7 +27,7 @@ function Game.level_loaded()
 
 	-- Spawn camera
 	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
-	World.camera_set_orthographic_size(GameBase.world, camera_unit, 11.25/2)
+	World.camera_set_orthographic_size(GameBase.world, camera_unit, 540/2/32)
 	World.camera_set_projection_type(GameBase.world, camera_unit, "orthographic")
 	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 8, 0))
 	SceneGraph.set_local_rotation(Game.sg, camera_unit, Quaternion.from_axis_angle(Vector3.right(), 90*(math.pi/180.0)))
@@ -43,6 +44,12 @@ function Game.update(dt)
 	-- Stop the engine when the 'ESC' key is released
 	if Keyboard.released(Keyboard.button_id("escape")) then
 		Device.quit()
+	end
+
+	-- Toggle fullscreen
+	if Keyboard.released(Keyboard.button_id("0")) then
+		Game.fullscreen = not Game.fullscreen
+		Window.set_fullscreen(Game.fullscreen)
 	end
 
 	-- Cycle through characters
