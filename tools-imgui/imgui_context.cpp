@@ -189,6 +189,9 @@ struct ImGuiContext
 		io.KeyMap[ImGuiKey_Y]          = crown::KeyboardButton::Y;
 		io.KeyMap[ImGuiKey_Z]          = crown::KeyboardButton::Z;
 
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.IniFilename = "imgui.ini";
+
 		u_imageLodEnabled = bgfx::createUniform("u_imageLodEnabled", bgfx::UniformType::Vec4);
 
 		m_decl
@@ -240,13 +243,10 @@ struct ImGuiContext
 			, 0
 			, bgfx::copy(data, width*height*4)
 			);
-
-		ImGui::InitDockContext();
 	}
 
 	void destroy()
 	{
-		ImGui::ShutdownDockContext();
 		ImGui::DestroyContext(m_imgui);
 
 		bgfx::destroy(s_tex);

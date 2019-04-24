@@ -306,8 +306,7 @@ struct Inspector
 
 	void draw()
 	{
-		if (!_open)
-			return;
+		ImGui::Begin("Inspector", &_open);
 
 		if (ImGui::TreeNodeEx("Unit", ImGuiTreeNodeFlags_DefaultOpen))
 		{
@@ -337,6 +336,8 @@ struct Inspector
 			ImGui::InputText("State Machine", _state_machine, sizeof(_state_machine));
 			ImGui::TreePop();
 		}
+
+		ImGui::End();
 	}
 };
 
@@ -355,9 +356,6 @@ struct SceneView
 
 	void draw()
 	{
-		if (!_open)
-			return;
-
 		_origin = ImGui::GetCursorScreenPos();
 
 		uint16_t w, h;
@@ -413,8 +411,7 @@ struct SceneTree
 
 	void draw()
 	{
-		if (!_open)
-			return;
+		ImGui::Begin("Scene Tree", &_open);
 
 		if (ImGui::TreeNodeEx("Units", ImGuiTreeNodeFlags_DefaultOpen))
 		{
@@ -482,6 +479,8 @@ struct SceneTree
 			}
 			ImGui::TreePop();
 		}
+
+		ImGui::End();
 	}
 };
 
@@ -632,8 +631,7 @@ struct SpriteAnimator
 
 	void draw()
 	{
-		if (!_open)
-			return;
+		ImGui::Begin("Animator", &_open);
 
 		if (_texture)
 		{
@@ -787,6 +785,8 @@ struct SpriteAnimator
 
 			ImGui::EndPopup();
 		}
+
+		ImGui::End();
 	}
 };
 
@@ -856,14 +856,10 @@ struct LevelEditor
 		snap_to_grid_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/snap-to-grid"));
 
 		imgui_create();
-
-		ImGui::LoadDock();
 	}
 
 	~LevelEditor()
 	{
-		ImGui::SaveDock();
-
 		imgui_destroy();
 	}
 
@@ -945,124 +941,143 @@ struct LevelEditor
 
 		imgui_begin_frame(VIEW_IMGUI, _width, _height);
 
-		f32 offset_y = _main_menu_size.y;
-		ImGui::RootDock(ImVec2(0, offset_y), ImVec2(_width, _height-offset_y));
+		ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->Pos);
+		ImGui::SetNextWindowSize(viewport->Size);
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+		    window_flags |= ImGuiWindowFlags_NoBackground;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace Demo", NULL, window_flags);
+		ImGui::PopStyleVar(3);
+
+		// DockSpace
+		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
 		main_menu_bar();
+		ImGui::End();
 
-		if (ImGui::BeginDock("Scene View"
-			, &_scene_view._open
-			, ImGuiWindowFlags_NoScrollbar
-			| ImGuiWindowFlags_NoScrollWithMouse
-			))
+		if (_scene_view._open)
 		{
-			_scene_view.draw();
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-			ImVec2 window_pos;
-			window_pos.x = _scene_view._origin.x + 4.0f;
-			window_pos.y = _scene_view._origin.y + 4.0f;
-			ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always);
-			ImGui::SetNextWindowBgAlpha(0.35f);
-			if (ImGui::Begin("Toobar Overlay"
-				, NULL
-				, ImGuiWindowFlags_NoMove
-				| ImGuiWindowFlags_NoDecoration
-				| ImGuiWindowFlags_AlwaysAutoResize
-				| ImGuiWindowFlags_NoSavedSettings
-				| ImGuiWindowFlags_NoFocusOnAppearing
-				| ImGuiWindowFlags_NoNav
+			if (ImGui::Begin("Scene View"
+				, &_scene_view._open
+				, ImGuiWindowFlags_NoScrollbar
+				| ImGuiWindowFlags_NoScrollWithMouse
 				))
 			{
-				ImGui::BeginGroup();
-				if (ImGui::ImageButton(tool_place_texture->handle, ImVec2(16, 16)))
+				_scene_view.draw();
+				ImGui::PopStyleVar(2);
+
+				// Draw toolbar overlay
+				ImVec2 window_pos;
+				window_pos.x = _scene_view._origin.x + 6.0f;
+				window_pos.y = _scene_view._origin.y + 6.0f;
+				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always);
+				ImGui::SetNextWindowBgAlpha(0.35f);
+				if (ImGui::Begin("Toobar Overlay"
+					, NULL
+					, ImGuiWindowFlags_NoMove
+					| ImGuiWindowFlags_NoDecoration
+					| ImGuiWindowFlags_AlwaysAutoResize
+					| ImGuiWindowFlags_NoSavedSettings
+					| ImGuiWindowFlags_NoFocusOnAppearing
+					| ImGuiWindowFlags_NoNav
+					))
 				{
-					_tool_type = tool::ToolType::PLACE;
-					tool_send_state();
+					ImGui::BeginGroup();
+					if (ImGui::ImageButton(tool_place_texture->handle, ImVec2(16, 16)))
+					{
+						_tool_type = tool::ToolType::PLACE;
+						tool_send_state();
+					}
+
+					if (ImGui::ImageButton(tool_move_texture->handle, ImVec2(16, 16)))
+					{
+						_tool_type = tool::ToolType::MOVE;
+						tool_send_state();
+					}
+
+					if (ImGui::ImageButton(tool_rotate_texture->handle, ImVec2(16, 16)))
+					{
+						_tool_type = tool::ToolType::ROTATE;
+						tool_send_state();
+					}
+
+					if (ImGui::ImageButton(tool_scale_texture->handle, ImVec2(16, 16)))
+					{
+						_tool_type = tool::ToolType::SCALE;
+						tool_send_state();
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::ImageButton(axis_local_texture->handle, ImVec2(16, 16)))
+					{
+						_reference_system = tool::ReferenceSystem::LOCAL;
+						tool_send_state();
+					}
+
+					if (ImGui::ImageButton(axis_world_texture->handle, ImVec2(16, 16)))
+					{
+						_reference_system = tool::ReferenceSystem::WORLD;
+						tool_send_state();
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::ImageButton(reference_world_texture->handle, ImVec2(16, 16)))
+					{
+						_snap_mode = tool::SnapMode::RELATIVE;
+						tool_send_state();
+					}
+
+					if (ImGui::ImageButton(reference_local_texture->handle, ImVec2(16, 16)))
+					{
+						_snap_mode = tool::SnapMode::ABSOLUTE;
+						tool_send_state();
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::ImageButton(snap_to_grid_texture->handle, ImVec2(16, 16)))
+					{
+						_snap_to_grid = !_snap_to_grid;
+						tool_send_state();
+					}
+
+					ImGui::EndGroup();
 				}
-
-				if (ImGui::ImageButton(tool_move_texture->handle, ImVec2(16, 16)))
-				{
-					_tool_type = tool::ToolType::MOVE;
-					tool_send_state();
-				}
-
-				if (ImGui::ImageButton(tool_rotate_texture->handle, ImVec2(16, 16)))
-				{
-					_tool_type = tool::ToolType::ROTATE;
-					tool_send_state();
-				}
-
-				if (ImGui::ImageButton(tool_scale_texture->handle, ImVec2(16, 16)))
-				{
-					_tool_type = tool::ToolType::SCALE;
-					tool_send_state();
-				}
-
-				ImGui::Separator();
-
-				if (ImGui::ImageButton(axis_local_texture->handle, ImVec2(16, 16)))
-				{
-					_reference_system = tool::ReferenceSystem::LOCAL;
-					tool_send_state();
-				}
-
-				if (ImGui::ImageButton(axis_world_texture->handle, ImVec2(16, 16)))
-				{
-					_reference_system = tool::ReferenceSystem::WORLD;
-					tool_send_state();
-				}
-
-				ImGui::Separator();
-
-				if (ImGui::ImageButton(reference_world_texture->handle, ImVec2(16, 16)))
-				{
-					_snap_mode = tool::SnapMode::RELATIVE;
-					tool_send_state();
-				}
-
-				if (ImGui::ImageButton(reference_local_texture->handle, ImVec2(16, 16)))
-				{
-					_snap_mode = tool::SnapMode::ABSOLUTE;
-					tool_send_state();
-				}
-
-				ImGui::Separator();
-
-				if (ImGui::ImageButton(snap_to_grid_texture->handle, ImVec2(16, 16)))
-				{
-					_snap_to_grid = !_snap_to_grid;
-					tool_send_state();
-				}
-
-				ImGui::EndGroup();
+				ImGui::End();
 			}
 			ImGui::End();
 		}
-		ImGui::EndDock();
 
-		if (ImGui::BeginDock("Scene Tree", &_scene_tree._open))
-		{
+		if (_scene_tree._open)
 			_scene_tree.draw();
-		}
-		ImGui::EndDock();
 
-		if (ImGui::BeginDock("Inspector", &_inspector._open))
-		{
+		if (_inspector._open)
 			_inspector.draw();
-		}
-		ImGui::EndDock();
 
-		if (ImGui::BeginDock("Console", &_console._open, ImGuiWindowFlags_NoScrollbar))
-		{
+		if (_console._open)
 			console_draw(_console, _client);
-		}
-		ImGui::EndDock();
 
-		if (ImGui::BeginDock("Animator", &_animator._open))
-		{
+		if (_animator._open)
 			_animator.draw();
-		}
-		ImGui::EndDock();
 
 		// _sprite_importer.draw();
 

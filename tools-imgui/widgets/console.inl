@@ -137,8 +137,7 @@ int console_inputtext_callback(ImGuiInputTextCallbackData* data)
 
 void console_draw(Console& console, TCPSocket& client)
 {
-	if (!console._open)
-		return;
+	ImGui::Begin("Console", &console._open, ImGuiWindowFlags_NoScrollbar);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
 	static ImGuiTextFilter filter;
@@ -219,6 +218,8 @@ void console_draw(Console& console, TCPSocket& client)
 	}
 	ImGui::PopFont();
 	ImGui::PopItemWidth();
+
+	ImGui::End();
 }
 
 void console_execute_command(Console& console, TCPSocket& client, const char* command)
