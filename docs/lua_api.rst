@@ -1334,3 +1334,6 @@ Window
 
 **show_cursor** (show)
 	Sets whether to *show* the cursor.
+
+**set_fullscreen** (fullscreen)
+	Sets whether the window is *fullscreen*.

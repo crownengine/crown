@@ -3287,6 +3287,13 @@ static int window_show_cursor(lua_State* L)
 	return 0;
 }
 
+static int window_set_fullscreen(lua_State* L)
+{
+	LuaStack stack(L);
+	device()->_window->set_fullscreen(stack.get_bool(1));
+	return 0;
+}
+
 void load_api(LuaEnvironment& env)
 {
 	env.add_module_function("Math", "ray_plane_intersection",    math_ray_plane_intersection);
@@ -3730,16 +3737,17 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Display", "modes",    display_modes);
 	env.add_module_function("Display", "set_mode", display_set_mode);
 
-	env.add_module_function("Window", "show",        window_show);
-	env.add_module_function("Window", "hide",        window_hide);
-	env.add_module_function("Window", "resize",      window_resize);
-	env.add_module_function("Window", "move",        window_move);
-	env.add_module_function("Window", "minimize",    window_minimize);
-	env.add_module_function("Window", "maximize",    window_maximize);
-	env.add_module_function("Window", "restore",     window_restore);
-	env.add_module_function("Window", "title",       window_title);
-	env.add_module_function("Window", "set_title",   window_set_title);
-	env.add_module_function("Window", "show_cursor", window_show_cursor);
+	env.add_module_function("Window", "show",           window_show);
+	env.add_module_function("Window", "hide",           window_hide);
+	env.add_module_function("Window", "resize",         window_resize);
+	env.add_module_function("Window", "move",           window_move);
+	env.add_module_function("Window", "minimize",       window_minimize);
+	env.add_module_function("Window", "maximize",       window_maximize);
+	env.add_module_function("Window", "restore",        window_restore);
+	env.add_module_function("Window", "title",          window_title);
+	env.add_module_function("Window", "set_title",      window_set_title);
+	env.add_module_function("Window", "show_cursor",    window_show_cursor);
+	env.add_module_function("Window", "set_fullscreen", window_set_fullscreen);
 }
 
 } // namespace crown
