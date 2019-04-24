@@ -227,17 +227,9 @@ char* Process::fgets(char* data, u32 len)
 #if CROWN_PLATFORM_POSIX
 	CE_ENSURE(priv->file != NULL);
 	char* ret = ::fgets(data, len, priv->file);
-	if (ret == NULL)
-	{
-#if 0
-		if (feof(priv->file))
-			printf("EOF\n");
-		else
-			printf("Error\n");
-#endif
-	}
 	return ret;
 #elif CROWN_PLATFORM_WINDOWS
+	return NULL;
 #endif
 }
 
