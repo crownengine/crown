@@ -29,6 +29,7 @@
 #include "core/memory/memory.h"
 #include "core/memory/temp_allocator.h"
 #include "core/murmur.h"
+#include "core/process.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string.h"
 #include "core/strings/string_id.h"
@@ -1319,6 +1320,33 @@ static void test_thread()
 	ENSURE(thread.exit_code() == -1);
 }
 
+static void test_process()
+{
+#if CROWN_PLATFORM_POSIX
+	{
+		char buf[128] = {0};
+		const char* argv[] = {"printf", "Hello,\\nworld.\\n", NULL};
+
+		Process pr;
+		if (pr.spawn(argv, ProcessFlags::STDOUT_PIPE) == 0)
+		{
+			pr.fgets(buf, sizeof(buf));
+			ENSURE(strcmp(buf, "Hello,\n") == 0);
+			pr.fgets(buf, sizeof(buf));
+			ENSURE(strcmp(buf, "world.\n") == 0);
+			pr.wait();
+		}
+	}
+	{
+		const char* argv[] = {"false", NULL};
+
+		Process pr;
+		if (pr.spawn(argv) == 0)
+			ENSURE(pr.wait() == 1);
+	}
+#endif
+}
+
 #define RUN_TEST(name)      \
 	do {                    \
 		printf(#name "\n"); \
@@ -1350,6 +1378,7 @@ int main_unit_tests()
 	RUN_TEST(test_path);
 	RUN_TEST(test_command_line);
 	RUN_TEST(test_thread);
+	RUN_TEST(test_process);
 
 	return EXIT_SUCCESS;
 }

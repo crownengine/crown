@@ -9,6 +9,19 @@
 
 namespace crown
 {
+/// ProcessFlags
+///
+/// @ingroup Core
+struct ProcessFlags
+{
+	enum Enum
+	{
+		STDIN_PIPE   = 1 << 0, ///< Create stdin pipe.
+		STDOUT_PIPE  = 1 << 1, ///< Create stdout pipe.
+		STDERR_MERGE = 1 << 2  ///< Merge stderr with stdout.
+	};
+};
+
 /// Process.
 ///
 /// @ingroup Core
@@ -22,14 +35,23 @@ struct Process
 	///
 	~Process();
 
-	/// Spawns the process described by @a argv.
+	/// Spawns the process described by @a argv with the given @a flags.
 	/// Returns 0 on success, non-zero otherwise.
-	s32 spawn(const char* const* argv);
+	s32 spawn(const char* const* argv, u32 flags = 0);
 
-	/// Waits for the process to terminate and returns its exit code.
-	/// If @a output is not NULL it reads stdout and stderr into
-	/// the StringStream.
-	s32 wait(StringStream* output);
+	/// Returns whether the process has been spawned
+	/// due to a previous successful call to spawn().
+	bool spawned();
+
+	/// Focefully terminates the process.
+	/// On Linux, this function sends SIGKILL.
+	void force_exit();
+
+	/// Waits synchronously for the process to terminate and returns its exit code.
+	s32 wait();
+
+	///
+	char* fgets(char* data, u32 len);
 };
 
 } // namespace crown

@@ -40,14 +40,20 @@ namespace lua_resource_internal
 			NULL
 		};
 		Process pr;
-		s32 sc = pr.spawn(argv);
+		s32 sc = pr.spawn(argv, ProcessFlags::STDOUT_PIPE | ProcessFlags::STDERR_MERGE);
 		DATA_COMPILER_ASSERT(sc == 0
 			, opts
 			, "Failed to spawn `%s`"
 			, argv[0]
 			);
 		StringStream output(ta);
-		s32 ec = pr.wait(&output);
+		// Read error messages if any
+		{
+			char err[512];
+			while (pr.fgets(err, sizeof(err)) != NULL)
+				output << err;
+		}
+		s32 ec = pr.wait();
 		DATA_COMPILER_ASSERT(ec == 0
 			, opts
 			, "Failed to compile lua:\n%s"
