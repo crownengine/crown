@@ -5,6 +5,18 @@ Crown is a general purpose data-driven game engine, written from scratch in [ort
 
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles; the current Lua API is similar to that of Bitsquid but this engine is *not* meant to be its clone *nor* to be API compatible with it.
 
+## Download
+
+### Linux
+[crown-0.1.1-linux-x64.tar.gz](https://github.com/dbartolini/crown/releases/download/v0.1.1/crown-0.1.1-linux-x64.tar.gz)
+
+## Support
+
+  * [Manual](http://dbartolini.github.io/crown/html/latest)
+  * [Lua API](http://dbartolini.github.io/crown/html/latest/lua_api.html)
+  * [C++ API](http://dbartolini.github.io/crown/doxygen/modules)
+  * [Discord](https://discord.gg/CeXVWCT): [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
+
 ## Screenshots
 
 ### [Level Editor](https://github.com/dbartolini/crown/tree/master/tools/level_editor)
@@ -20,17 +32,6 @@ Engine initialization and shutdown.
 
 ### [02-animation](https://github.com/dbartolini/crown/tree/master/samples/02-animation)
 ![02-animation](https://raw.githubusercontent.com/dbartolini/crown/master/docs/shots/02-animation.png)
-
-## Download
-
-### Linux
-[crown-0.1.1-linux-x64.tar.gz](https://github.com/dbartolini/crown/releases/download/v0.1.1/crown-0.1.1-linux-x64.tar.gz)
-
-## Documentation
-
-  * [Manual](http://dbartolini.github.io/crown/html/latest)
-  * [Lua API](http://dbartolini.github.io/crown/html/latest/lua_api.html)
-  * [C++ API](http://dbartolini.github.io/crown/doxygen/modules)
 
 ## Building
 
