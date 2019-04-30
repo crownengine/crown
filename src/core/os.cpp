@@ -234,7 +234,7 @@ namespace os
 #if CROWN_PLATFORM_POSIX
 		return ::access(path, flags);
 #elif CROWN_PLATFORM_WINDOWS
-		return ::_access(path, flags);
+		return ::_access(path, flags == AccessFlags::EXECUTE ? AccessFlags::EXISTS : flags);
 #endif
 	}
 
