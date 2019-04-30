@@ -1337,3 +1337,6 @@ Window
 
 **set_fullscreen** (fullscreen)
 	Sets whether the window is *fullscreen*.
+
+**set_cursor** (cursor)
+	Sets the mouse *cursor* on this window.

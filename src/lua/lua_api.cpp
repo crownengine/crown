@@ -65,6 +65,27 @@ static const ProjectionInfo s_projection[] =
 };
 CE_STATIC_ASSERT(countof(s_projection) == ProjectionType::COUNT);
 
+struct MouseCursorInfo
+{
+	const char* name;
+	MouseCursor::Enum type;
+};
+
+static const MouseCursorInfo s_cursor[] =
+{
+	{ "arrow",              MouseCursor::ARROW               },
+	{ "hand",               MouseCursor::HAND                },
+	{ "text_input",         MouseCursor::TEXT_INPUT          },
+	{ "corner_top_left",    MouseCursor::CORNER_TOP_LEFT     },
+	{ "corner_top_right",   MouseCursor::CORNER_TOP_RIGHT    },
+	{ "corner_bottom_left", MouseCursor::CORNER_BOTTOM_LEFT  },
+	{ "corner_bottom_right",MouseCursor::CORNER_BOTTOM_RIGHT },
+	{ "size_horizontal",    MouseCursor::SIZE_HORIZONTAL     },
+	{ "size_vertical",      MouseCursor::SIZE_VERTICAL       },
+	{ "wait",               MouseCursor::WAIT                }
+};
+CE_STATIC_ASSERT(countof(s_cursor) == MouseCursor::COUNT);
+
 static LightType::Enum name_to_light_type(const char* name)
 {
 	for (u32 i = 0; i < countof(s_light); ++i)
@@ -85,6 +106,17 @@ static ProjectionType::Enum name_to_projection_type(const char* name)
 	}
 
 	return ProjectionType::COUNT;
+}
+
+static MouseCursor::Enum name_to_mouse_cursor(const char* name)
+{
+	for (u32 i = 0; i < countof(s_cursor); ++i)
+	{
+		if (strcmp(s_cursor[i].name, name) == 0)
+			return s_cursor[i].type;
+	}
+
+	return MouseCursor::COUNT;
 }
 
 static int math_ray_plane_intersection(lua_State* L)
@@ -3294,6 +3326,16 @@ static int window_set_fullscreen(lua_State* L)
 	return 0;
 }
 
+static int window_set_cursor(lua_State* L)
+{
+	LuaStack stack(L);
+	const char* name = stack.get_string(1);
+	const MouseCursor::Enum mc = name_to_mouse_cursor(name);
+	LUA_ASSERT(mc != MouseCursor::COUNT, stack, "Unknown mouse cursor: '%s'", name);
+	device()->_window->set_cursor(mc);
+	return 0;
+}
+
 void load_api(LuaEnvironment& env)
 {
 	env.add_module_function("Math", "ray_plane_intersection",    math_ray_plane_intersection);
@@ -3748,6 +3790,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Window", "set_title",      window_set_title);
 	env.add_module_function("Window", "show_cursor",    window_show_cursor);
 	env.add_module_function("Window", "set_fullscreen", window_set_fullscreen);
+	env.add_module_function("Window", "set_cursor",     window_set_cursor);
 }
 
 } // namespace crown

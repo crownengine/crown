@@ -296,14 +296,18 @@ s32 func(void* data)
 	return EXIT_SUCCESS;
 }
 
+static HCURSOR _win_cursors[MouseCursor::COUNT];
+
 struct WindowsDevice
 {
 	HWND _hwnd;
+	HCURSOR _hcursor;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 
 	WindowsDevice()
 		: _hwnd(NULL)
+		, _hcursor(NULL)
 	{
 	}
 
@@ -347,6 +351,20 @@ struct WindowsDevice
 			);
 		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
 
+		_hcursor = LoadCursorA(NULL, IDC_ARROW);
+
+		// Create standard cursors
+		_win_cursors[MouseCursor::ARROW]               = LoadCursorA(NULL, IDC_ARROW);
+		_win_cursors[MouseCursor::HAND]                = LoadCursorA(NULL, IDC_HAND);
+		_win_cursors[MouseCursor::TEXT_INPUT]          = LoadCursorA(NULL, IDC_IBEAM);
+		_win_cursors[MouseCursor::CORNER_TOP_LEFT]     = LoadCursorA(NULL, IDC_SIZENESW);
+		_win_cursors[MouseCursor::CORNER_TOP_RIGHT]    = LoadCursorA(NULL, IDC_SIZENWSE);
+		_win_cursors[MouseCursor::CORNER_BOTTOM_LEFT]  = LoadCursorA(NULL, IDC_SIZENWSE);
+		_win_cursors[MouseCursor::CORNER_BOTTOM_RIGHT] = LoadCursorA(NULL, IDC_SIZENESW);
+		_win_cursors[MouseCursor::SIZE_HORIZONTAL]     = LoadCursorA(NULL, IDC_SIZEWE);
+		_win_cursors[MouseCursor::SIZE_VERTICAL]       = LoadCursorA(NULL, IDC_SIZENS);
+		_win_cursors[MouseCursor::WAIT]                = LoadCursorA(NULL, IDC_WAIT);
+
 		Thread main_thread;
 		main_thread.start(func, &mta);
 
@@ -365,6 +383,19 @@ struct WindowsDevice
 		}
 
 		main_thread.stop();
+
+		// Destroy standard cursors
+		DestroyIcon((HICON)_win_cursors[MouseCursor::WAIT]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::SIZE_VERTICAL]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::SIZE_HORIZONTAL]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::CORNER_BOTTOM_RIGHT]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::CORNER_BOTTOM_LEFT]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::CORNER_TOP_RIGHT]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::CORNER_TOP_LEFT]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::TEXT_INPUT]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::HAND]);
+		DestroyIcon((HICON)_win_cursors[MouseCursor::ARROW]);
+
 		DestroyWindow(_hwnd);
 
 		return EXIT_SUCCESS;
@@ -409,8 +440,6 @@ struct WindowsDevice
 
 		case WM_MOUSEWHEEL:
 			{
-				s32 mx = GET_X_LPARAM(lparam);
-				s32 my = GET_Y_LPARAM(lparam);
 				short delta = GET_WHEEL_DELTA_WPARAM(wparam);
 				_queue.push_axis_event(InputDeviceType::MOUSE
 					, 0
@@ -438,39 +467,28 @@ struct WindowsDevice
 
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:
-			{
-				s32 mx = GET_X_LPARAM(lparam);
-				s32 my = GET_Y_LPARAM(lparam);
-				_queue.push_button_event(InputDeviceType::MOUSE
-					, 0
-					, MouseButton::LEFT
-					, id == WM_LBUTTONDOWN
-					);
-			}
-			break;
-
-		case WM_RBUTTONUP:
 		case WM_RBUTTONDOWN:
-			{
-				s32 mx = GET_X_LPARAM(lparam);
-				s32 my = GET_Y_LPARAM(lparam);
-				_queue.push_button_event(InputDeviceType::MOUSE
-					, 0
-					, MouseButton::RIGHT
-					, id == WM_RBUTTONDOWN
-					);
-			}
-			break;
-
+		case WM_RBUTTONUP:
 		case WM_MBUTTONDOWN:
 		case WM_MBUTTONUP:
 			{
-				s32 mx = GET_X_LPARAM(lparam);
-				s32 my = GET_Y_LPARAM(lparam);
+				MouseButton::Enum mb;
+				if (id == WM_LBUTTONDOWN || id == WM_LBUTTONUP)
+					mb = MouseButton::LEFT;
+				else if (id == WM_RBUTTONDOWN || id == WM_RBUTTONUP)
+					mb = MouseButton::RIGHT;
+				else /* if  (id == WM_MBUTTONDOWN || id == WM_MBUTTONUP) */
+					mb = MouseButton::MIDDLE;
+
+				bool down = id == WM_LBUTTONDOWN
+					|| id == WM_RBUTTONDOWN
+					|| id == WM_MBUTTONDOWN
+					;
+
 				_queue.push_button_event(InputDeviceType::MOUSE
 					, 0
-					, MouseButton::MIDDLE
-					, id == WM_MBUTTONDOWN
+					, mb
+					, down
 					);
 			}
 			break;
@@ -510,6 +528,16 @@ struct WindowsDevice
 					_queue.push_text_event(len, utf8);
 			}
 			break;
+
+		case WM_SETCURSOR:
+			if (LOWORD(lparam) == HTCLIENT)
+			{
+				if (_hcursor != NULL)
+					SetCursor(_hcursor);
+				else
+					SetCursor(NULL);
+				return TRUE;
+			}
 
 		default:
 			break;
@@ -620,11 +648,18 @@ struct WindowWin : public Window
 
 	void show_cursor(bool show)
 	{
-		ShowCursor(show);
+		s_wdvc._hcursor = show ? LoadCursorA(NULL, IDC_ARROW) : NULL;
+		SetCursor(s_wdvc._hcursor);
 	}
 
 	void set_fullscreen(bool /*fullscreen*/)
 	{
+	}
+
+	void set_cursor(MouseCursor::Enum cursor)
+	{
+		s_wdvc._hcursor = _win_cursors[cursor];
+		SetCursor(s_wdvc._hcursor);
 	}
 
 	void* handle()

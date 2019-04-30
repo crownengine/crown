@@ -10,6 +10,28 @@
 
 namespace crown
 {
+/// Mouse cursor.
+///
+/// @ingroup Device
+struct MouseCursor
+{
+	enum Enum
+	{
+		ARROW,
+		HAND,
+		TEXT_INPUT,
+		CORNER_TOP_LEFT,
+		CORNER_TOP_RIGHT,
+		CORNER_BOTTOM_LEFT,
+		CORNER_BOTTOM_RIGHT,
+		SIZE_HORIZONTAL,
+		SIZE_VERTICAL,
+		WAIT,
+
+		COUNT
+	};
+};
+
 /// Window interface.
 ///
 /// @ingroup Device
@@ -56,6 +78,9 @@ struct Window
 
 	/// Sets whether the window is @a fullscreen.
 	virtual void set_fullscreen(bool fullscreen) = 0;
+
+	/// Sets the mouse @a cursor on this window.
+	virtual void set_cursor(MouseCursor::Enum cursor) = 0;
 
 	virtual void bgfx_setup() = 0;
 };

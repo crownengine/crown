@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h> // memset
 #include <unistd.h> // close
+#include <X11/cursorfont.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/Xatom.h>
 #include <X11/XKBlib.h>
@@ -307,6 +308,8 @@ s32 func(void* data)
 	return EXIT_SUCCESS;
 }
 
+static Cursor _x11_cursors[MouseCursor::COUNT];
+
 struct LinuxDevice
 {
 	::Display* _x11_display;
@@ -378,12 +381,24 @@ struct LinuxDevice
 			);
 		CE_ASSERT(ic != NULL, "XCreateIC: error");
 
-		// Build hidden cursor
+		// Create hidden cursor
 		Pixmap bitmap;
 		const char data[8] = { 0 };
 		XColor dummy;
 		bitmap = XCreateBitmapFromData(_x11_display, root_window, data, 8, 8);
 		_x11_hidden_cursor = XCreatePixmapCursor(_x11_display, bitmap, bitmap, &dummy, &dummy, 0, 0);
+
+		// Create standard cursors
+		_x11_cursors[MouseCursor::ARROW]               = XCreateFontCursor(_x11_display, XC_top_left_arrow);
+		_x11_cursors[MouseCursor::HAND]                = XCreateFontCursor(_x11_display, XC_hand2);
+		_x11_cursors[MouseCursor::TEXT_INPUT]          = XCreateFontCursor(_x11_display, XC_xterm);
+		_x11_cursors[MouseCursor::CORNER_TOP_LEFT]     = XCreateFontCursor(_x11_display, XC_top_left_corner);
+		_x11_cursors[MouseCursor::CORNER_TOP_RIGHT]    = XCreateFontCursor(_x11_display, XC_top_right_corner);
+		_x11_cursors[MouseCursor::CORNER_BOTTOM_LEFT]  = XCreateFontCursor(_x11_display, XC_bottom_left_corner);
+		_x11_cursors[MouseCursor::CORNER_BOTTOM_RIGHT] = XCreateFontCursor(_x11_display, XC_bottom_right_corner);
+		_x11_cursors[MouseCursor::SIZE_HORIZONTAL]     = XCreateFontCursor(_x11_display, XC_sb_v_double_arrow);
+		_x11_cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(_x11_display, XC_sb_h_double_arrow);
+		_x11_cursors[MouseCursor::WAIT]                = XCreateFontCursor(_x11_display, XC_watch);
 
 		// Start main thread
 		MainThreadArgs mta;
@@ -525,6 +540,19 @@ struct LinuxDevice
 
 		main_thread.stop();
 
+		// Free standard cursors
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::WAIT]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::SIZE_VERTICAL]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::SIZE_HORIZONTAL]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::CORNER_BOTTOM_RIGHT]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::CORNER_BOTTOM_LEFT]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::CORNER_TOP_RIGHT]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::CORNER_TOP_LEFT]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::TEXT_INPUT]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::HAND]);
+		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::ARROW]);
+
+		// Free hidden cursor
 		XFreeCursor(_x11_display, _x11_hidden_cursor);
 		XFreePixmap(_x11_display, bitmap);
 
@@ -721,6 +749,11 @@ struct WindowX11 : public Window
 		xev.xclient.data.l[0] = full ? 1 : 0;
 		xev.xclient.data.l[1] = s_ldvc._net_wm_state_fullscreen;
 		XSendEvent(s_ldvc._x11_display, DefaultRootWindow(s_ldvc._x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
+	}
+
+	void set_cursor(MouseCursor::Enum cursor)
+	{
+		XDefineCursor(s_ldvc._x11_display, _x11_window, _x11_cursors[cursor]);
 	}
 };
 
