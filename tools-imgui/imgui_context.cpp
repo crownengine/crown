@@ -15,13 +15,14 @@
 #include "data/icons_kenney.ttf.h"
 #include "data/icons_font_awesome.ttf.h"
 
-#include "imgui_context.h"
-#include "device/device.h"
-#include "device/pipeline.h"
-#include "device/input_types.h"
-#include "device/input_device.h"
-#include "world/shader_manager.h"
 #include "core/strings/string_id.h"
+#include "device/device.h"
+#include "device/input_device.h"
+#include "device/input_types.h"
+#include "device/pipeline.h"
+#include "device/window.h"
+#include "imgui_context.h"
+#include "world/shader_manager.h"
 
 // From bgfx_utils.h
 inline bool checkAvailTransientBuffers(uint32_t _numVertices, const bgfx::VertexDecl& _decl, uint32_t _numIndices)
@@ -43,6 +44,8 @@ static FontRangeMerge s_fontRangeMerge[] =
 	{ s_iconsKenneyTtf,      sizeof(s_iconsKenneyTtf),      { ICON_MIN_KI, ICON_MAX_KI, 0 } },
 	{ s_iconsFontAwesomeTtf, sizeof(s_iconsFontAwesomeTtf), { ICON_MIN_FA, ICON_MAX_FA, 0 } },
 };
+
+static int g_MouseCursors[ImGuiMouseCursor_COUNT] = { crown::MouseCursor::ARROW /* Which is == 0 */ };
 
 static void* memAlloc(size_t _size, void* _userData);
 static void memFree(void* _ptr, void* _userData);
@@ -278,6 +281,38 @@ struct ImGuiContext
 		style.WindowPadding = ImVec2(4.0f, 4.0f);
 		style.WindowRounding = 2.0f;
 		style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
+
+		g_MouseCursors[ImGuiMouseCursor_Arrow] = crown::MouseCursor::ARROW;
+		g_MouseCursors[ImGuiMouseCursor_TextInput] = crown::MouseCursor::TEXT_INPUT;
+		g_MouseCursors[ImGuiMouseCursor_ResizeAll] = crown::MouseCursor::ARROW;
+		g_MouseCursors[ImGuiMouseCursor_ResizeNS] = crown::MouseCursor::SIZE_VERTICAL;
+		g_MouseCursors[ImGuiMouseCursor_ResizeEW] = crown::MouseCursor::SIZE_HORIZONTAL;
+		g_MouseCursors[ImGuiMouseCursor_ResizeNESW] = crown::MouseCursor::CORNER_TOP_RIGHT;
+		g_MouseCursors[ImGuiMouseCursor_ResizeNWSE] = crown::MouseCursor::CORNER_TOP_LEFT;
+		g_MouseCursors[ImGuiMouseCursor_Hand] = crown::MouseCursor::HAND;
+	}
+
+	void updateMouseCursor()
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
+			return;
+
+		ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+		ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+		for (int n = 0; n < platform_io.Viewports.Size; n++)
+		{
+			if (imgui_cursor == ImGuiMouseCursor_None || io.MouseDrawCursor)
+			{
+				// Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
+				crown::device()->_window->show_cursor(false);
+			}
+			else
+			{
+				// Show OS mouse cursor
+				crown::device()->_window->set_cursor((crown::MouseCursor::Enum)g_MouseCursors[imgui_cursor]);
+			}
+		}
 	}
 
 	void beginFrame(uint8_t view_id, uint16_t width, uint16_t height)
@@ -288,6 +323,7 @@ struct ImGuiContext
 		io.DisplaySize = ImVec2(width, height);
 		io.DeltaTime   = 1.0f / 60.0f;
 
+		updateMouseCursor();
 		ImGui::NewFrame();
 	}
 
