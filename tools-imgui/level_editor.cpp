@@ -444,6 +444,7 @@ struct SceneView
 		}
 
 		_size = ImGui::GetWindowSize();
+		_size.y -= ImGui::GetFrameHeight();
 	}
 };
 
