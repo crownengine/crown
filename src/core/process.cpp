@@ -162,7 +162,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 		, &info
 		, &priv->process
 		);
-	return (s32)err;
+	return (s32)(err != 0 ? 0 : -err);
 #endif
 }
 
