@@ -88,7 +88,7 @@ Console::Console()
 	str = "history - Show recent commands";
 	vector::push_back(_commands, str);
 
-	memset(_input_text, 0, sizeof(_input_text));
+	strcpy(_input_text, "> ");
 }
 
 void Console::add_log(LogSeverity::Enum severity, const char* message)
@@ -189,28 +189,24 @@ void console_draw(Console& console, TCPSocket& client)
 	ImGui::PushItemWidth(-1);
 	ImGui::PushFont(ImGui::Font::Mono);
 	if (ImGui::InputText("##label"
-		, console._input_text
-		, IM_ARRAYSIZE(console._input_text)
+		, console._input_text + 2
+		, IM_ARRAYSIZE(console._input_text) - 2
 		, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory
 		, console_inputtext_callback
 		, &console
 		))
 	{
+		// FIXME: use rtrim()
 		char* input_end = console._input_text + strlen(console._input_text);
-		while (input_end > console._input_text && input_end[-1] == ' ')
-		{
-			input_end--;
-		}
-
+		while (input_end > console._input_text && input_end[-1] == ' ') input_end--;
 		*input_end = 0;
 
-		if (console._input_text[0])
-		{
-			console.add_log(LogSeverity::LOG_INFO, console._input_text);
-			console_execute_command(console, client, console._input_text);
-		}
+		console.add_log(LogSeverity::LOG_INFO, console._input_text);
 
-		strcpy(console._input_text, "");
+		if (console._input_text[2] != 0)
+			console_execute_command(console, client, console._input_text + 2);
+
+		strcpy(console._input_text, "> ");
 		console._history_pos = -1;
 
 		ImGui::SetKeyboardFocusHere(-1);
