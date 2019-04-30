@@ -396,8 +396,8 @@ struct LinuxDevice
 		_x11_cursors[MouseCursor::CORNER_TOP_RIGHT]    = XCreateFontCursor(_x11_display, XC_top_right_corner);
 		_x11_cursors[MouseCursor::CORNER_BOTTOM_LEFT]  = XCreateFontCursor(_x11_display, XC_bottom_left_corner);
 		_x11_cursors[MouseCursor::CORNER_BOTTOM_RIGHT] = XCreateFontCursor(_x11_display, XC_bottom_right_corner);
-		_x11_cursors[MouseCursor::SIZE_HORIZONTAL]     = XCreateFontCursor(_x11_display, XC_sb_v_double_arrow);
-		_x11_cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(_x11_display, XC_sb_h_double_arrow);
+		_x11_cursors[MouseCursor::SIZE_HORIZONTAL]     = XCreateFontCursor(_x11_display, XC_sb_h_double_arrow);
+		_x11_cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(_x11_display, XC_sb_v_double_arrow);
 		_x11_cursors[MouseCursor::WAIT]                = XCreateFontCursor(_x11_display, XC_watch);
 
 		// Start main thread
