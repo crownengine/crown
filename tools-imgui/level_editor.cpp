@@ -404,6 +404,14 @@ struct SceneView
 
 	void draw()
 	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("Scene View"
+			, &_open
+			, ImGuiWindowFlags_NoScrollbar
+			| ImGuiWindowFlags_NoScrollWithMouse
+			);
+
 		_origin = ImGui::GetCursorScreenPos();
 
 		uint16_t w, h;
@@ -445,6 +453,9 @@ struct SceneView
 
 		_size = ImGui::GetWindowSize();
 		_size.y -= ImGui::GetFrameHeight();
+
+		ImGui::End();
+		ImGui::PopStyleVar(2);
 	}
 };
 
@@ -1020,98 +1031,86 @@ struct LevelEditor
 
 		if (_scene_view._open)
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			_scene_view.draw();
 
-			if (ImGui::Begin("Scene View"
-				, &_scene_view._open
-				, ImGuiWindowFlags_NoScrollbar
-				| ImGuiWindowFlags_NoScrollWithMouse
+			// Draw toolbar overlay
+			ImVec2 window_pos;
+			window_pos.x = _scene_view._origin.x + 6.0f;
+			window_pos.y = _scene_view._origin.y + 6.0f;
+			ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always);
+			ImGui::SetNextWindowBgAlpha(0.35f);
+			if (ImGui::Begin("Toobar Overlay"
+				, NULL
+				, ImGuiWindowFlags_NoMove
+				| ImGuiWindowFlags_NoDecoration
+				| ImGuiWindowFlags_AlwaysAutoResize
+				| ImGuiWindowFlags_NoSavedSettings
+				| ImGuiWindowFlags_NoFocusOnAppearing
+				| ImGuiWindowFlags_NoNav
 				))
 			{
-				_scene_view.draw();
-				ImGui::PopStyleVar(2);
-
-				// Draw toolbar overlay
-				ImVec2 window_pos;
-				window_pos.x = _scene_view._origin.x + 6.0f;
-				window_pos.y = _scene_view._origin.y + 6.0f;
-				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always);
-				ImGui::SetNextWindowBgAlpha(0.35f);
-				if (ImGui::Begin("Toobar Overlay"
-					, NULL
-					, ImGuiWindowFlags_NoMove
-					| ImGuiWindowFlags_NoDecoration
-					| ImGuiWindowFlags_AlwaysAutoResize
-					| ImGuiWindowFlags_NoSavedSettings
-					| ImGuiWindowFlags_NoFocusOnAppearing
-					| ImGuiWindowFlags_NoNav
-					))
+				ImGui::BeginGroup();
+				if (ImGui::ImageButton(tool_place_texture->handle, ImVec2(16, 16)))
 				{
-					ImGui::BeginGroup();
-					if (ImGui::ImageButton(tool_place_texture->handle, ImVec2(16, 16)))
-					{
-						_tool_type = tool::ToolType::PLACE;
-						tool_send_state();
-					}
-
-					if (ImGui::ImageButton(tool_move_texture->handle, ImVec2(16, 16)))
-					{
-						_tool_type = tool::ToolType::MOVE;
-						tool_send_state();
-					}
-
-					if (ImGui::ImageButton(tool_rotate_texture->handle, ImVec2(16, 16)))
-					{
-						_tool_type = tool::ToolType::ROTATE;
-						tool_send_state();
-					}
-
-					if (ImGui::ImageButton(tool_scale_texture->handle, ImVec2(16, 16)))
-					{
-						_tool_type = tool::ToolType::SCALE;
-						tool_send_state();
-					}
-
-					ImGui::Separator();
-
-					if (ImGui::ImageButton(axis_local_texture->handle, ImVec2(16, 16)))
-					{
-						_reference_system = tool::ReferenceSystem::LOCAL;
-						tool_send_state();
-					}
-
-					if (ImGui::ImageButton(axis_world_texture->handle, ImVec2(16, 16)))
-					{
-						_reference_system = tool::ReferenceSystem::WORLD;
-						tool_send_state();
-					}
-
-					ImGui::Separator();
-
-					if (ImGui::ImageButton(reference_world_texture->handle, ImVec2(16, 16)))
-					{
-						_snap_mode = tool::SnapMode::RELATIVE;
-						tool_send_state();
-					}
-
-					if (ImGui::ImageButton(reference_local_texture->handle, ImVec2(16, 16)))
-					{
-						_snap_mode = tool::SnapMode::ABSOLUTE;
-						tool_send_state();
-					}
-
-					ImGui::Separator();
-
-					if (ImGui::ImageButton(snap_to_grid_texture->handle, ImVec2(16, 16)))
-					{
-						_snap_to_grid = !_snap_to_grid;
-						tool_send_state();
-					}
-
-					ImGui::EndGroup();
+					_tool_type = tool::ToolType::PLACE;
+					tool_send_state();
 				}
-				ImGui::End();
+
+				if (ImGui::ImageButton(tool_move_texture->handle, ImVec2(16, 16)))
+				{
+					_tool_type = tool::ToolType::MOVE;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(tool_rotate_texture->handle, ImVec2(16, 16)))
+				{
+					_tool_type = tool::ToolType::ROTATE;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(tool_scale_texture->handle, ImVec2(16, 16)))
+				{
+					_tool_type = tool::ToolType::SCALE;
+					tool_send_state();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::ImageButton(axis_local_texture->handle, ImVec2(16, 16)))
+				{
+					_reference_system = tool::ReferenceSystem::LOCAL;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(axis_world_texture->handle, ImVec2(16, 16)))
+				{
+					_reference_system = tool::ReferenceSystem::WORLD;
+					tool_send_state();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::ImageButton(reference_world_texture->handle, ImVec2(16, 16)))
+				{
+					_snap_mode = tool::SnapMode::RELATIVE;
+					tool_send_state();
+				}
+
+				if (ImGui::ImageButton(reference_local_texture->handle, ImVec2(16, 16)))
+				{
+					_snap_mode = tool::SnapMode::ABSOLUTE;
+					tool_send_state();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::ImageButton(snap_to_grid_texture->handle, ImVec2(16, 16)))
+				{
+					_snap_to_grid = !_snap_to_grid;
+					tool_send_state();
+				}
+
+				ImGui::EndGroup();
 			}
 			ImGui::End();
 		}
