@@ -887,6 +887,8 @@ struct LevelEditor
 	SpriteAnimator _animator;
 	SpriteImporter _sprite_importer;
 
+	bool _fullscreen;
+
 	LevelEditor(const DynamicString& source_dir)
 		: _source_dir(default_allocator())
 		, _grid_size(1.0f)
@@ -903,6 +905,8 @@ struct LevelEditor
 		, _main_menu_size(0, 0)
 
 		, _animator(source_dir)
+
+		, _fullscreen(false)
 	{
 		ResourceManager* resman = device()->_resource_manager;
 		tool_move_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-move"));
@@ -1349,6 +1353,12 @@ struct LevelEditor
 				if (ImGui::SliderFloat("Snap Rot", &_rotation_snap, 1, 180))
 				{
 					tool_send_state();
+				}
+				ImGui::Separator();
+				if (ImGui::MenuItem("Toggle Full Screen", "F11"))
+				{
+					_fullscreen = !_fullscreen;
+					device()->_window->set_fullscreen(_fullscreen);
 				}
 				ImGui::EndMenu();
 			}
