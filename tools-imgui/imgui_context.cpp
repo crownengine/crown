@@ -174,15 +174,20 @@ struct ImGuiContext
 
 		setupStyle(true);
 
+		// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
 		io.KeyMap[ImGuiKey_Tab]        = crown::KeyboardButton::TAB;
 		io.KeyMap[ImGuiKey_LeftArrow]  = crown::KeyboardButton::LEFT;
 		io.KeyMap[ImGuiKey_RightArrow] = crown::KeyboardButton::RIGHT;
 		io.KeyMap[ImGuiKey_UpArrow]    = crown::KeyboardButton::UP;
 		io.KeyMap[ImGuiKey_DownArrow]  = crown::KeyboardButton::DOWN;
+		io.KeyMap[ImGuiKey_PageUp]     = crown::KeyboardButton::PAGE_UP;
+		io.KeyMap[ImGuiKey_PageDown]   = crown::KeyboardButton::PAGE_DOWN;
 		io.KeyMap[ImGuiKey_Home]       = crown::KeyboardButton::HOME;
 		io.KeyMap[ImGuiKey_End]        = crown::KeyboardButton::END;
+		io.KeyMap[ImGuiKey_Insert]     = crown::KeyboardButton::INS;
 		io.KeyMap[ImGuiKey_Delete]     = crown::KeyboardButton::DEL;
 		io.KeyMap[ImGuiKey_Backspace]  = crown::KeyboardButton::BACKSPACE;
+		io.KeyMap[ImGuiKey_Space]      = crown::KeyboardButton::SPACE;
 		io.KeyMap[ImGuiKey_Enter]      = crown::KeyboardButton::ENTER;
 		io.KeyMap[ImGuiKey_Escape]     = crown::KeyboardButton::ESCAPE;
 		io.KeyMap[ImGuiKey_A]          = crown::KeyboardButton::A;
