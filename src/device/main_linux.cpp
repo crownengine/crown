@@ -464,10 +464,10 @@ struct LinuxDevice
 						MouseButton::Enum mb;
 						switch (event.xbutton.button)
 						{
-							case Button1: mb = MouseButton::LEFT; break;
-							case Button2: mb = MouseButton::MIDDLE; break;
-							case Button3: mb = MouseButton::RIGHT; break;
-							default: mb = MouseButton::COUNT; break;
+						case Button1: mb = MouseButton::LEFT; break;
+						case Button2: mb = MouseButton::MIDDLE; break;
+						case Button3: mb = MouseButton::RIGHT; break;
+						default: mb = MouseButton::COUNT; break;
 						}
 
 						if (mb != MouseButton::COUNT)
@@ -496,25 +496,6 @@ struct LinuxDevice
 					{
 						KeySym keysym = XLookupKeysym(&event.xkey, 0);
 
-						if (event.type == KeyPress)
-						{
-							Status status = 0;
-							u8 utf8[4] = { 0 };
-							int len = Xutf8LookupString(ic
-								, &event.xkey
-								, (char*)utf8
-								, sizeof(utf8)
-								, &keysym
-								, &status
-								);
-
-							if (status == XLookupChars || status == XLookupBoth)
-							{
-								if (len)
-									_queue.push_text_event(len, utf8);
-							}
-						}
-
 						KeyboardButton::Enum kb = x11_translate_key(keysym);
 						if (kb != KeyboardButton::COUNT)
 						{
@@ -523,6 +504,25 @@ struct LinuxDevice
 								, kb
 								, event.type == KeyPress
 								);
+						}
+
+						if (event.type == KeyPress)
+						{
+							Status status = 0;
+							u8 utf8[4] = { 0 };
+							int len = Xutf8LookupString(ic
+								, &event.xkey
+								, (char*)utf8
+								, sizeof(utf8)
+								, NULL
+								, &status
+								);
+
+							if (status == XLookupChars || status == XLookupBoth)
+							{
+								if (len)
+									_queue.push_text_event(len, utf8);
+							}
 						}
 					}
 					break;
