@@ -608,14 +608,28 @@ struct WindowWin : public Window
 	{
 		_width = width;
 		_height = height;
-		MoveWindow(_hwnd, _x, _y, width, height, FALSE);
+
+		RECT rect;
+		rect.left   = 0;
+		rect.top    = 0;
+		rect.right  = _width;
+		rect.bottom = _height;
+		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+
+		MoveWindow(_hwnd
+			, _x
+			, _y
+			, rect.right - rect.left
+			, rect.bottom - rect.top
+			, FALSE
+			);
 	}
 
 	void move(u16 x, u16 y)
 	{
 		_x = x;
 		_y = y;
-		MoveWindow(_hwnd, x, y, _width, _height, FALSE);
+		resize(_width, _height);
 	}
 
 	void minimize()
