@@ -576,10 +576,8 @@ struct WindowWin : public Window
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 /*parent*/)
 	{
-		_x = x;
-		_y = y;
-		_width = width;
-		_height = height;
+		move(x, y);
+		resize(width, height);
 	}
 
 	void close()
