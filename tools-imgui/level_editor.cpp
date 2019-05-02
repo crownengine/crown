@@ -77,6 +77,19 @@ static void stop_game()
 	}
 }
 
+// FIXME: duplicated from compile_options.h
+#if CROWN_PLATFORM_LINUX
+	#define EXE_PREFIX "./"
+	#define EXE_SUFFIX ""
+#elif CROWN_PLATFORM_WINDOWS
+	#define EXE_PREFIX ""
+	#define EXE_SUFFIX ".exe"
+#else
+	#error "Unknown platform"
+#endif // CROWN_PLATFORM_LINUX
+
+#define EXE_PATH(exe) EXE_PREFIX exe EXE_SUFFIX
+
 static void start_game(StartGame::Enum sg, const char* data_dir)
 {
 	// Stop any previously launched game
@@ -84,7 +97,7 @@ static void start_game(StartGame::Enum sg, const char* data_dir)
 
 	const char* argv[] =
 	{
-		"./crown-debug",
+		EXE_PATH("crown-debug"),
 		"--data-dir", data_dir,
 		"--console-port", "12345",
 		// "--wait-console",
