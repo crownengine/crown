@@ -5,6 +5,8 @@
 
 #if CROWN_TOOLS
 
+#include "core/memory/temp_allocator.h"
+#include "core/strings/string_stream.h"
 #include "core/containers/vector.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_disk.h"
