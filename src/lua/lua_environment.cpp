@@ -70,11 +70,11 @@ void LuaEnvironment::load_libs()
 	// Open default libraries
 	luaL_openlibs(L);
 
-	// Register crown libraries
-	load_api(*this);
-
 	// Override print to redirect output to logging system
 	add_module_function("_G", "print", luaB_print);
+
+	// Register crown libraries
+	load_api(*this);
 
 	// Register custom loader
 	lua_getfield(L, LUA_GLOBALSINDEX, "package");
