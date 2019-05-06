@@ -25,7 +25,6 @@ struct MaterialResource;
 struct MeshResource;
 struct PackageResource;
 struct PhysicsConfigResource;
-struct PhysicsResource;
 struct ShaderResource;
 struct ShapeResource;
 struct SoundResource;
@@ -46,7 +45,6 @@ struct UnitResource;
 #define RESOURCE_TYPE_MESH             StringId64(0x48ff313713a997a1)
 #define RESOURCE_TYPE_PACKAGE          StringId64(0xad9c6d9ed1e5e77a)
 #define RESOURCE_TYPE_PHYSICS_CONFIG   StringId64(0x72e3cc03787a11a1)
-#define RESOURCE_TYPE_PHYSICS          StringId64(0x5f7203c8f280dab8)
 #define RESOURCE_TYPE_SCRIPT           StringId64(0xa14e8dfa2cd117e2)
 #define RESOURCE_TYPE_SHADER           StringId64(0xcce8d5b5f5ae333f)
 #define RESOURCE_TYPE_SOUND            StringId64(0x90641b51c98b7aac)
@@ -63,7 +61,6 @@ struct UnitResource;
 #define RESOURCE_VERSION_MESH             u32(1)
 #define RESOURCE_VERSION_PACKAGE          u32(1)
 #define RESOURCE_VERSION_PHYSICS_CONFIG   u32(1)
-#define RESOURCE_VERSION_PHYSICS          u32(1)
 #define RESOURCE_VERSION_SCRIPT           u32(1)
 #define RESOURCE_VERSION_SHADER           u32(1)
 #define RESOURCE_VERSION_SOUND            u32(1)

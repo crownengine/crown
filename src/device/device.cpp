@@ -324,7 +324,6 @@ void Device::run()
 	namespace mhr = mesh_resource_internal;
 	namespace mtr = material_resource_internal;
 	namespace pcr = physics_config_resource_internal;
-	namespace phr = physics_resource_internal;
 	namespace pkr = package_resource_internal;
 	namespace sar = sprite_animation_resource_internal;
 	namespace sdr = sound_resource_internal;
@@ -345,7 +344,6 @@ void Device::run()
 	_resource_manager->register_type(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::load, mtr::unload, mtr::online, mtr::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::load, mhr::unload, mhr::online, mhr::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::load, pkr::unload, NULL,        NULL        );
-	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS,          RESOURCE_VERSION_PHYSICS,          NULL,      NULL,        NULL,        NULL        );
 	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   NULL,      NULL,        NULL,        NULL        );
 	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           NULL,      NULL,        NULL,        NULL        );
 	_resource_manager->register_type(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::load, shr::unload, shr::online, shr::offline);
