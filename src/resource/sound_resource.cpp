@@ -33,7 +33,7 @@ namespace sound_resource_internal
 		s32 data_size;       // Data dimension
 	};
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
@@ -69,6 +69,8 @@ namespace sound_resource_internal
 		opts.write(sr.sound_type);
 
 		opts.write(wavdata, wav->data_size);
+
+		return 0;
 	}
 
 } // namespace sound_resource_internal

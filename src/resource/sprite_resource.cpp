@@ -39,7 +39,7 @@ namespace sprite_resource_internal
 		frame.pivot  = sjson::parse_vector2(obj["pivot"]);
 	}
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
@@ -132,6 +132,8 @@ namespace sprite_resource_internal
 		opts.write(sr.num_verts);
 		for (u32 i = 0; i < array::size(vertices); i++)
 			opts.write(vertices[i]);
+
+		return 0;
 	}
 
 } // namespace sprite_resource_internal
@@ -147,7 +149,7 @@ namespace sprite_resource
 
 namespace sprite_animation_resource_internal
 {
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
@@ -179,6 +181,8 @@ namespace sprite_animation_resource_internal
 
 		for (u32 i = 0; i < array::size(frames); i++)
 			opts.write(frames[i]);
+
+		return 0;
 	}
 
 } // namespace sprite_animation_resource_internal

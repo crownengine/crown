@@ -19,7 +19,7 @@ namespace crown
 {
 namespace package_resource_internal
 {
-	void compile_resources(const char* type, const JsonArray& names, Array<PackageResource::Resource>& output, CompileOptions& opts)
+	s32 compile_resources(const char* type, const JsonArray& names, Array<PackageResource::Resource>& output, CompileOptions& opts)
 	{
 		const StringId64 typeh = StringId64(type);
 
@@ -34,9 +34,11 @@ namespace package_resource_internal
 			const StringId64 nameh = sjson::parse_resource_id(names[i]);
 			array::push_back(output, PackageResource::Resource(typeh, nameh));
 		}
+
+		return 0;
 	}
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
@@ -72,18 +74,18 @@ namespace package_resource_internal
 
 		Array<PackageResource::Resource> resources(default_allocator());
 
-		compile_resources("texture", texture, resources, opts);
-		compile_resources("lua", script, resources, opts);
-		compile_resources("sound", sound, resources, opts);
-		compile_resources("mesh", mesh, resources, opts);
-		compile_resources("unit", unit, resources, opts);
-		compile_resources("sprite", sprite, resources, opts);
-		compile_resources("material", material, resources, opts);
-		compile_resources("font", font, resources, opts);
-		compile_resources("level", level, resources, opts);
-		compile_resources("physics_config", phyconf, resources, opts);
-		compile_resources("shader", shader, resources, opts);
-		compile_resources("sprite_animation", sprite_animation, resources, opts);
+		if (compile_resources("texture", texture, resources, opts) != 0) return -1;
+		if (compile_resources("lua", script, resources, opts) != 0) return -1;
+		if (compile_resources("sound", sound, resources, opts) != 0) return -1;
+		if (compile_resources("mesh", mesh, resources, opts) != 0) return -1;
+		if (compile_resources("unit", unit, resources, opts) != 0) return -1;
+		if (compile_resources("sprite", sprite, resources, opts) != 0) return -1;
+		if (compile_resources("material", material, resources, opts) != 0) return -1;
+		if (compile_resources("font", font, resources, opts) != 0) return -1;
+		if (compile_resources("level", level, resources, opts) != 0) return -1;
+		if (compile_resources("physics_config", phyconf, resources, opts) != 0) return -1;
+		if (compile_resources("shader", shader, resources, opts) != 0) return -1;
+		if (compile_resources("sprite_animation", sprite_animation, resources, opts) != 0) return -1;
 
 		// Write
 		opts.write(RESOURCE_VERSION_PACKAGE);
@@ -94,6 +96,8 @@ namespace package_resource_internal
 			opts.write(resources[i].type);
 			opts.write(resources[i].name);
 		}
+
+		return 0;
 	}
 
 	void* load(File& file, Allocator& a)

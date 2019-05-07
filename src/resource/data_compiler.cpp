@@ -391,22 +391,19 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		Buffer output(default_allocator());
 		array::reserve(output, 4*1024*1024);
 
-		if (!setjmp(_jmpbuf))
 		{
 			CompileOptions opts(*this, data_filesystem, src_path, output, platform);
 
-			hash_map::get(_compilers, _type, ResourceTypeData()).compiler(opts);
+			success = hash_map::get(_compilers, _type, ResourceTypeData()).compiler(opts) == 0;
 
-			File* outf = data_filesystem.open(path.c_str(), FileOpenMode::WRITE);
-			u32 size = array::size(output);
-			u32 written = outf->write(array::begin(output), size);
-			data_filesystem.close(*outf);
-
-			success = size == written;
-		}
-		else
-		{
-			success = false;
+			if (success)
+			{
+				File* outf = data_filesystem.open(path.c_str(), FileOpenMode::WRITE);
+				u32 size = array::size(output);
+				u32 written = outf->write(array::begin(output), size);
+				data_filesystem.close(*outf);
+				success = size == written;
+			}
 		}
 
 		if (success)
@@ -478,7 +475,6 @@ bool DataCompiler::can_compile(StringId64 type)
 void DataCompiler::error(const char* msg, va_list args)
 {
 	vloge(DATA_COMPILER, msg, args);
-	longjmp(_jmpbuf, 1);
 }
 
 void DataCompiler::filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed)

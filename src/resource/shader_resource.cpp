@@ -653,12 +653,12 @@ namespace shader_resource_internal
 			_opts.get_temporary_path("fs_compiled.bin", _fs_compiled_path);
 		}
 
-		void parse(const char* path)
+		s32 parse(const char* path)
 		{
-			parse(_opts.read(path));
+			return parse(_opts.read(path));
 		}
 
-		void parse(Buffer b)
+		s32 parse(Buffer b)
 		{
 			TempAllocator4096 ta;
 			JsonObject object(ta);
@@ -678,22 +678,39 @@ namespace shader_resource_internal
 			}
 
 			if (json_object::has(object, "render_states"))
-				parse_render_states(object["render_states"]);
+			{
+				if (parse_render_states(object["render_states"]) != 0)
+					return -1;
+			}
 
 			if (json_object::has(object, "sampler_states"))
-				parse_sampler_states(object["sampler_states"]);
+			{
+				if (parse_sampler_states(object["sampler_states"]) != 0)
+					return -1;
+			}
 
 			if (json_object::has(object, "bgfx_shaders"))
-				parse_bgfx_shaders(object["bgfx_shaders"]);
+			{
+				if (parse_bgfx_shaders(object["bgfx_shaders"]) != 0)
+					return -1;
+			}
 
 			if (json_object::has(object, "shaders"))
-				parse_shaders(object["shaders"]);
+			{
+				if (parse_shaders(object["shaders"]) != 0)
+					return -1;
+			}
 
 			if (json_object::has(object, "static_compile"))
-				parse_static_compile(object["static_compile"]);
+			{
+				if (parse_static_compile(object["static_compile"]) != 0)
+					return -1;
+			}
+
+			return 0;
 		}
 
-		void parse_render_states(const char* json)
+		s32 parse_render_states(const char* json)
 		{
 			TempAllocator4096 ta;
 			JsonObject render_states(ta);
@@ -813,9 +830,11 @@ namespace shader_resource_internal
 					);
 				hash_map::set(_render_states, key, rs);
 			}
+
+			return 0;
 		}
 
-		void parse_sampler_states(const char* json)
+		s32 parse_sampler_states(const char* json)
 		{
 			TempAllocator4096 ta;
 			JsonObject sampler_states(ta);
@@ -911,9 +930,11 @@ namespace shader_resource_internal
 					);
 				hash_map::set(_sampler_states, key, ss);
 			}
+
+			return 0;
 		}
 
-		void parse_bgfx_shaders(const char* json)
+		s32 parse_bgfx_shaders(const char* json)
 		{
 			TempAllocator4096 ta;
 			JsonObject bgfx_shaders(ta);
@@ -957,9 +978,11 @@ namespace shader_resource_internal
 					);
 				hash_map::set(_bgfx_shaders, key, bgfxshader);
 			}
+
+			return 0;
 		}
 
-		void parse_bgfx_samplers(const char* json, BgfxShader& bgfxshader)
+		s32 parse_bgfx_samplers(const char* json, BgfxShader& bgfxshader)
 		{
 			TempAllocator4096 ta;
 			JsonObject bgfx_samplers(ta);
@@ -994,9 +1017,11 @@ namespace shader_resource_internal
 					);
 				hash_map::set(bgfxshader._samplers, key, sampler_state);
 			}
+
+			return 0;
 		}
 
-		void parse_shaders(const char* json)
+		s32 parse_shaders(const char* json)
 		{
 			TempAllocator4096 ta;
 			JsonObject shaders(ta);
@@ -1026,9 +1051,11 @@ namespace shader_resource_internal
 					);
 				hash_map::set(_shaders, key, shader);
 			}
+
+			return 0;
 		}
 
-		void parse_static_compile(const char* json)
+		s32 parse_static_compile(const char* json)
 		{
 			TempAllocator4096 ta;
 			JsonArray static_compile(ta);
@@ -1053,6 +1080,8 @@ namespace shader_resource_internal
 
 				vector::push_back(_static_compile, sc);
 			}
+
+			return 0;
 		}
 
 		void delete_temp_files()
@@ -1064,7 +1093,7 @@ namespace shader_resource_internal
 			_opts.delete_file(_fs_compiled_path.c_str());
 		}
 
-		void compile()
+		s32 compile()
 		{
 			_opts.write(RESOURCE_VERSION_SHADER);
 			_opts.write(vector::size(_static_compile));
@@ -1109,11 +1138,14 @@ namespace shader_resource_internal
 				const RenderState rs_default;
 				const RenderState& rs = hash_map::get(_render_states, render_state, rs_default);
 
-				_opts.write(shader_name._id);                      // Shader name
-				_opts.write(rs.encode());                          // Render state
-				compile_sampler_states(bgfx_shader.c_str());       // Sampler states
-				compile_bgfx_shader(bgfx_shader.c_str(), defines); // Shader code
+				_opts.write(shader_name._id);                               // Shader name
+				_opts.write(rs.encode());                                   // Render state
+				compile_sampler_states(bgfx_shader.c_str());                // Sampler states
+				if (compile_bgfx_shader(bgfx_shader.c_str(), defines) != 0) // Shader code
+					return -1;
 			}
+
+			return 0;
 		}
 
 		void compile_sampler_states(const char* bgfx_shader)
@@ -1143,7 +1175,7 @@ namespace shader_resource_internal
 			}
 		}
 
-		void compile_bgfx_shader(const char* bgfx_shader, const Vector<DynamicString>& defines)
+		s32 compile_bgfx_shader(const char* bgfx_shader, const Vector<DynamicString>& defines)
 		{
 			TempAllocator512 taa;
 			DynamicString key(taa);
@@ -1279,14 +1311,18 @@ namespace shader_resource_internal
 			_opts.write(tmpvs);
 			_opts.write(array::size(tmpfs));
 			_opts.write(tmpfs);
+
+			return 0;
 		}
 	};
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		ShaderCompiler sc(opts);
-		sc.parse(opts.source_path());
-		sc.compile();
+		if (sc.parse(opts.source_path()) != 0)
+			return -1;
+
+		return sc.compile();
 	}
 
 	void* load(File& file, Allocator& a)

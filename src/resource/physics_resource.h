@@ -17,9 +17,9 @@ namespace crown
 {
 namespace physics_resource_internal
 {
-	Buffer compile_collider(const char* json, CompileOptions& opts);
-	Buffer compile_actor(const char* json, CompileOptions& opts);
-	Buffer compile_joint(const char* json, CompileOptions& opts);
+	s32 compile_collider(Buffer& output, const char* json, CompileOptions& opts);
+	s32 compile_actor(Buffer& output, const char* json, CompileOptions& opts);
+	s32 compile_joint(Buffer& output, const char* json, CompileOptions& opts);
 
 } // namespace physics_resource_internal
 
@@ -67,7 +67,7 @@ struct PhysicsActor
 
 namespace physics_config_resource_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 
 } // namespace physics_config_resource_internal
 

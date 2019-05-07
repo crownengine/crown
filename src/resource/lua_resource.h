@@ -21,7 +21,7 @@ struct LuaResource
 
 namespace lua_resource_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 
 } // namespace lua_resource_internal
 

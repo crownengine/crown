@@ -22,7 +22,7 @@ struct TextureResource
 
 namespace texture_resource_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void offline(StringId64 id, ResourceManager& rm);
 	void online(StringId64 id, ResourceManager& rm);

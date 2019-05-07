@@ -11,7 +11,6 @@
 #include "device/console_server.h"
 #include "device/device_options.h"
 #include "resource/types.h"
-#include <setjmp.h>
 
 namespace crown
 {
@@ -20,7 +19,7 @@ namespace crown
 /// @ingroup Resource
 struct DataCompiler
 {
-	typedef void (*CompileFunction)(CompileOptions& opts);
+	typedef s32 (*CompileFunction)(CompileOptions& opts);
 
 	struct ResourceTypeData
 	{
@@ -36,7 +35,6 @@ struct DataCompiler
 	Vector<DynamicString> _globs;
 	HashMap<DynamicString, DynamicString> _data_index;
 	FileMonitor _file_monitor;
-	jmp_buf _jmpbuf;
 
 	void add_file(const char* path);
 	void add_tree(const char* path);

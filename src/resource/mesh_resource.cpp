@@ -253,7 +253,7 @@ namespace mesh_resource_internal
 		}
 	};
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
@@ -289,6 +289,8 @@ namespace mesh_resource_internal
 			mc.parse(geometry, node);
 			mc.write();
 		}
+
+		return 0;
 	}
 
 	void* load(File& file, Allocator& a)

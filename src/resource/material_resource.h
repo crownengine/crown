@@ -69,7 +69,7 @@ struct UniformHandle
 
 namespace material_resource_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 	void* load(File& file, Allocator& a);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);

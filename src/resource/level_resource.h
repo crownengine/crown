@@ -34,7 +34,7 @@ struct LevelSound
 
 namespace level_resource_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 
 } // namespace level_resource_internal
 

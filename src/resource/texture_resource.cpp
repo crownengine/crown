@@ -31,7 +31,7 @@ static const char* texturec_paths[] =
 
 namespace texture_resource_internal
 {
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
@@ -96,6 +96,8 @@ namespace texture_resource_internal
 		opts.write(RESOURCE_VERSION_TEXTURE);
 		opts.write(array::size(blob));
 		opts.write(blob);
+
+		return 0;
 	}
 
 	void* load(File& file, Allocator& a)

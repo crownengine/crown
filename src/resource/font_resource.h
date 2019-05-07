@@ -35,7 +35,7 @@ typedef u32 CodePoint;
 
 namespace font_resource_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 
 } // namespace font_resource_internal
 

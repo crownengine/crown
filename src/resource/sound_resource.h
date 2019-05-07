@@ -37,7 +37,7 @@ struct SoundResource
 
 namespace sound_resource_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 
 } // namespace	sound_resource_internal
 

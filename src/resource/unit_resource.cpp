@@ -15,14 +15,16 @@ namespace crown
 {
 namespace unit_resource_internal
 {
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer unit_data(default_allocator());
 
 		UnitCompiler uc(opts);
-		uc.compile_unit(opts.source_path());
+		if (uc.compile_unit(opts.source_path()) != 0)
+			return -1;
 
 		opts.write(uc.blob());
+		return 0;
 	}
 
 } // namespace unit_resource_internal

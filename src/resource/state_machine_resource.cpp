@@ -166,7 +166,7 @@ namespace state_machine_internal
 		{
 		}
 
-		void parse(Buffer& buf)
+		s32 parse(Buffer& buf)
 		{
 			TempAllocator4096 ta;
 			JsonObject object(ta);
@@ -349,9 +349,11 @@ namespace state_machine_internal
 
 				default_allocator().deallocate(variables);
 			}
+
+			return 0;
 		}
 
-		void write()
+		s32 write()
 		{
 			StateMachineResource smr;
 			smr.version = RESOURCE_VERSION_STATE_MACHINE;
@@ -425,16 +427,20 @@ namespace state_machine_internal
 			// Write bytecode
 			for (u32 i = 0; i < array::size(_byte_code); ++i)
 				_opts.write(_byte_code[i]);
+
+			return 0;
 		}
 	};
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
 		StateMachineCompiler smc(opts);
-		smc.parse(buf);
-		smc.write();
+		if (smc.parse(buf) != 0)
+			return -1;
+
+		return smc.write();
 	}
 
 } // namespace state_machine_internal

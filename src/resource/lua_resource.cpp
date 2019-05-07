@@ -23,7 +23,7 @@ namespace crown
 {
 namespace lua_resource_internal
 {
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		TempAllocator1024 ta;
 		DynamicString luasrc(ta);
@@ -70,6 +70,8 @@ namespace lua_resource_internal
 		opts.write(lr.version);
 		opts.write(lr.size);
 		opts.write(blob);
+
+		return 0;
 	}
 
 } // namespace lua_resource_internal

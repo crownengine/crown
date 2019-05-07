@@ -71,7 +71,7 @@ namespace material_resource_internal
 		return offt;
 	}
 
-	static void parse_textures(const char* json, Array<TextureData>& textures, Array<char>& names, Array<char>& dynamic, CompileOptions& opts)
+	static s32 parse_textures(const char* json, Array<TextureData>& textures, Array<char>& names, Array<char>& dynamic, CompileOptions& opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
@@ -108,9 +108,11 @@ namespace material_resource_internal
 
 			array::push_back(textures, td);
 		}
+
+		return 0;
 	}
 
-	static void parse_uniforms(const char* json, Array<UniformData>& uniforms, Array<char>& names, Array<char>& dynamic, CompileOptions& opts)
+	static s32 parse_uniforms(const char* json, Array<UniformData>& uniforms, Array<char>& names, Array<char>& dynamic, CompileOptions& opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
@@ -177,9 +179,11 @@ namespace material_resource_internal
 
 			array::push_back(uniforms, ud);
 		}
+
+		return 0;
 	}
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
@@ -194,8 +198,10 @@ namespace material_resource_internal
 		DynamicString shader(ta);
 		sjson::parse_string(object["shader"], shader);
 
-		parse_textures(object["textures"], texdata, names, dynblob, opts);
-		parse_uniforms(object["uniforms"], unidata, names, dynblob, opts);
+		if (parse_textures(object["textures"], texdata, names, dynblob, opts) != 0)
+			return -1;
+		if (parse_uniforms(object["uniforms"], unidata, names, dynblob, opts) != 0)
+			return -1;
 
 		MaterialResource mr;
 		mr.version             = RESOURCE_VERSION_MATERIAL;
@@ -236,6 +242,8 @@ namespace material_resource_internal
 
 		opts.write(dynblob);
 		opts.write(names);
+
+		return 0;
 	}
 
 	void* load(File& file, Allocator& a)

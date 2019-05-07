@@ -19,7 +19,7 @@ namespace crown
 {
 namespace level_resource_internal
 {
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
@@ -83,6 +83,8 @@ namespace level_resource_internal
 			opts.write(sounds[i]._pad[1]);
 			opts.write(sounds[i]._pad[2]);
 		}
+
+		return 0;
 	}
 
 } // namespace level_resource_internal

@@ -14,7 +14,7 @@ namespace crown
 {
 struct UnitCompiler
 {
-	typedef Buffer (*CompileFunction)(const char* json, CompileOptions& opts);
+	typedef s32 (*CompileFunction)(Buffer& output, const char* json, CompileOptions& opts);
 
 	struct ComponentTypeData
 	{
@@ -55,16 +55,16 @@ struct UnitCompiler
 
 	void register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order);
 	void register_component_compiler(StringId32 type, CompileFunction fn, f32 spawn_order);
-	Buffer compile_component(StringId32 type, const char* json);
+	s32 compile_component(Buffer& output, StringId32 type, const char* json);
 	void add_component_data(StringId32 type, const Buffer& data, u32 unit_index);
 
 	///
 	UnitCompiler(CompileOptions& opts);
 
 	Buffer read_unit(const char* name);
-	void compile_unit(const char* path);
-	void compile_unit_from_json(const char* json);
-	void compile_multiple_units(const char* json);
+	s32 compile_unit(const char* path);
+	s32 compile_unit_from_json(const char* json);
+	s32 compile_multiple_units(const char* json);
 
 	Buffer blob();
 };

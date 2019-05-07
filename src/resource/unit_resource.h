@@ -30,7 +30,7 @@ struct ComponentData
 
 namespace unit_resource_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 
 } // namespace unit_resource_internal
 

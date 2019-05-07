@@ -68,7 +68,7 @@ static LightType::Enum light_name_to_enum(const char* name)
 	return LightType::COUNT;
 }
 
-static Buffer compile_transform(const char* json, CompileOptions& /*opts*/)
+static s32 compile_transform(Buffer& output, const char* json, CompileOptions& /*opts*/)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -79,12 +79,12 @@ static Buffer compile_transform(const char* json, CompileOptions& /*opts*/)
 	td.rotation = sjson::parse_quaternion(obj["rotation"]);
 	td.scale    = sjson::parse_vector3   (obj["scale"]);
 
-	Buffer buf(default_allocator());
-	array::push(buf, (char*)&td, sizeof(td));
-	return buf;
+	array::push(output, (char*)&td, sizeof(td));
+
+	return 0;
 }
 
-static Buffer compile_camera(const char* json, CompileOptions& opts)
+static s32 compile_camera(Buffer& output, const char* json, CompileOptions& opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -106,12 +106,12 @@ static Buffer compile_camera(const char* json, CompileOptions& opts)
 	cd.near_range = sjson::parse_float(obj["near_range"]);
 	cd.far_range  = sjson::parse_float(obj["far_range"]);
 
-	Buffer buf(default_allocator());
-	array::push(buf, (char*)&cd, sizeof(cd));
-	return buf;
+	array::push(output, (char*)&cd, sizeof(cd));
+
+	return 0;
 }
 
-static Buffer compile_mesh_renderer(const char* json, CompileOptions& opts)
+static s32 compile_mesh_renderer(Buffer& output, const char* json, CompileOptions& opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -140,12 +140,12 @@ static Buffer compile_mesh_renderer(const char* json, CompileOptions& opts)
 	mrd._pad0[1]          = 0;
 	mrd._pad0[2]          = 0;
 
-	Buffer buf(default_allocator());
-	array::push(buf, (char*)&mrd, sizeof(mrd));
-	return buf;
+	array::push(output, (char*)&mrd, sizeof(mrd));
+
+	return 0;
 }
 
-static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
+static s32 compile_sprite_renderer(Buffer& output, const char* json, CompileOptions& opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -179,12 +179,12 @@ static Buffer compile_sprite_renderer(const char* json, CompileOptions& opts)
 	srd._pad1[2]          = 0;
 	srd._pad1[3]          = 0;
 
-	Buffer buf(default_allocator());
-	array::push(buf, (char*)&srd, sizeof(srd));
-	return buf;
+	array::push(output, (char*)&srd, sizeof(srd));
+
+	return 0;
 }
 
-static Buffer compile_light(const char* json, CompileOptions& opts)
+static s32 compile_light(Buffer& output, const char* json, CompileOptions& opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -207,12 +207,12 @@ static Buffer compile_light(const char* json, CompileOptions& opts)
 	ld.spot_angle = sjson::parse_float  (obj["spot_angle"]);
 	ld.color      = sjson::parse_vector3(obj["color"]);
 
-	Buffer buf(default_allocator());
-	array::push(buf, (char*)&ld, sizeof(ld));
-	return buf;
+	array::push(output, (char*)&ld, sizeof(ld));
+
+	return 0;
 }
 
-static Buffer compile_script(const char* json, CompileOptions& opts)
+static s32 compile_script(Buffer& output, const char* json, CompileOptions& opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -228,12 +228,12 @@ static Buffer compile_script(const char* json, CompileOptions& opts)
 	ScriptDesc sd;
 	sd.script_resource = sjson::parse_resource_id(obj["script_resource"]);
 
-	Buffer buf(default_allocator());
-	array::push(buf, (char*)&sd, sizeof(sd));
-	return buf;
+	array::push(output, (char*)&sd, sizeof(sd));
+
+	return 0;
 }
 
-static Buffer compile_animation_state_machine(const char* json, CompileOptions& opts)
+static s32 compile_animation_state_machine(Buffer& output, const char* json, CompileOptions& opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -249,9 +249,9 @@ static Buffer compile_animation_state_machine(const char* json, CompileOptions& 
 	AnimationStateMachineDesc asmd;
 	asmd.state_machine_resource = sjson::parse_resource_id(obj["state_machine_resource"]);
 
-	Buffer buf(default_allocator());
-	array::push(buf, (char*)&asmd, sizeof(asmd));
-	return buf;
+	array::push(output, (char*)&asmd, sizeof(asmd));
+
+	return 0;
 }
 
 UnitCompiler::UnitCompiler(CompileOptions& opts)
@@ -279,9 +279,9 @@ Buffer UnitCompiler::read_unit(const char* path)
 	return buf;
 }
 
-void UnitCompiler::compile_unit(const char* path)
+s32 UnitCompiler::compile_unit(const char* path)
 {
-	compile_unit_from_json(array::begin(read_unit(path)));
+	return compile_unit_from_json(array::begin(read_unit(path)));
 }
 
 u32 component_index(const JsonArray& components, const FixedString& id)
@@ -303,7 +303,7 @@ u32 component_index(const JsonArray& components, const FixedString& id)
 	return UINT32_MAX;
 }
 
-void UnitCompiler::compile_unit_from_json(const char* json)
+s32 UnitCompiler::compile_unit_from_json(const char* json)
 {
 	Buffer data(default_allocator());
 	array::reserve(data, 1024*1024);
@@ -385,22 +385,32 @@ void UnitCompiler::compile_unit_from_json(const char* json)
 
 			const StringId32 type = sjson::parse_string_id(component["type"]);
 
-			Buffer buf = compile_component(type, component["data"]);
-			add_component_data(type, buf, _num_units);
+			Buffer output(default_allocator());
+			if (compile_component(output, type, component["data"]) != 0)
+				return -1;
+
+			add_component_data(type, output, _num_units);
 		}
 	}
 
 	++_num_units;
+
+	return 0;
 }
 
-void UnitCompiler::compile_multiple_units(const char* json)
+s32 UnitCompiler::compile_multiple_units(const char* json)
 {
 	TempAllocator4096 ta;
 	JsonArray units(ta);
 	sjson::parse_array(json, units);
 
 	for (u32 i = 0; i < array::size(units); ++i)
-		compile_unit_from_json(units[i]);
+	{
+		if (compile_unit_from_json(units[i]) != 0)
+			return -1;
+	}
+
+	return 0;
 }
 
 Buffer UnitCompiler::blob()
@@ -487,11 +497,11 @@ void UnitCompiler::register_component_compiler(StringId32 type, CompileFunction 
 	std::sort(array::begin(_component_info), array::end(_component_info));
 }
 
-Buffer UnitCompiler::compile_component(StringId32 type, const char* json)
+s32 UnitCompiler::compile_component(Buffer& output, StringId32 type, const char* json)
 {
 	DATA_COMPILER_ASSERT(hash_map::has(_component_data, type), _opts, "Unknown component");
 
-	return hash_map::get(_component_data, type, ComponentTypeData(default_allocator()))._compiler(json, _opts);
+	return hash_map::get(_component_data, type, ComponentTypeData(default_allocator()))._compiler(output, json, _opts);
 }
 
 } // namespace crown

@@ -31,7 +31,7 @@ namespace font_resource_internal
 		}
 	};
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
@@ -88,6 +88,8 @@ namespace font_resource_internal
 			opts.write(glyphs[i].gd.y_offset);
 			opts.write(glyphs[i].gd.x_advance);
 		}
+
+		return 0;
 	}
 
 } // namespace font_resource_internal

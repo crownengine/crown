@@ -105,7 +105,7 @@ namespace physics_resource_internal
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
-	Buffer compile_collider(const char* json, CompileOptions& opts)
+	s32 compile_collider(Buffer& output, const char* json, CompileOptions& opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -208,24 +208,23 @@ namespace physics_resource_internal
 		cd.size += (needs_points ? sizeof(u32) + sizeof(Vector3)*array::size(points) : 0);
 		cd.size += (cd.type == ColliderType::MESH ? sizeof(u32) + sizeof(u16)*array::size(point_indices) : 0);
 
-		Buffer buf(default_allocator());
-		array::push(buf, (char*)&cd, sizeof(cd));
+		array::push(output, (char*)&cd, sizeof(cd));
 
 		if (needs_points)
 		{
-			array::push(buf, (char*)&num_points, sizeof(num_points));
-			array::push(buf, (char*)array::begin(points), sizeof(Vector3)*array::size(points));
+			array::push(output, (char*)&num_points, sizeof(num_points));
+			array::push(output, (char*)array::begin(points), sizeof(Vector3)*array::size(points));
 		}
 		if (cd.type == ColliderType::MESH)
 		{
-			array::push(buf, (char*)&num_indices, sizeof(num_indices));
-			array::push(buf, (char*)array::begin(point_indices), sizeof(u16)*array::size(point_indices));
+			array::push(output, (char*)&num_indices, sizeof(num_indices));
+			array::push(output, (char*)array::begin(point_indices), sizeof(u16)*array::size(point_indices));
 		}
 
-		return buf;
+		return 0;
 	}
 
-	Buffer compile_actor(const char* json, CompileOptions& /*opts*/)
+	s32 compile_actor(Buffer& output, const char* json, CompileOptions& /*opts*/)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -252,12 +251,12 @@ namespace physics_resource_internal
 		if (json_object::has(obj, "lock_rotation_z") && sjson::parse_bool(obj["lock_rotation_z"]))
 			ar.flags |= ActorFlags::LOCK_ROTATION_Z;
 
-		Buffer buf(default_allocator());
-		array::push(buf, (char*)&ar, sizeof(ar));
-		return buf;
+		array::push(output, (char*)&ar, sizeof(ar));
+
+		return 0;
 	}
 
-	Buffer compile_joint(const char* json, CompileOptions& opts)
+	s32 compile_joint(Buffer& output, const char* json, CompileOptions& opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -290,9 +289,9 @@ namespace physics_resource_internal
 			break;
 		}
 
-		Buffer buf(default_allocator());
-		array::push(buf, (char*)&jd, sizeof(jd));
-		return buf;
+		array::push(output, (char*)&jd, sizeof(jd));
+
+		return 0;
 	}
 
 } // namespace physics_resource_internal
@@ -489,7 +488,7 @@ namespace physics_config_resource_internal
 		}
 	};
 
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
@@ -559,6 +558,8 @@ namespace physics_config_resource_internal
 			opts.write(cfc._filters[i].me);
 			opts.write(cfc._filters[i].mask);
 		}
+
+		return 0;
 	}
 
 } // namespace physics_config_resource_internal

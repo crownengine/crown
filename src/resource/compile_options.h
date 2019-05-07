@@ -16,7 +16,10 @@
 	do                                                  \
 	{                                                   \
 		if (!(condition))                               \
+		{                                               \
 			opts.error(msg, ## __VA_ARGS__);            \
+			return -1;                                  \
+		}                                               \
 	} while(0)
 
 #define DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts) \

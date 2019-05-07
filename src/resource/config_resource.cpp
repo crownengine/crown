@@ -17,7 +17,7 @@ namespace crown
 {
 namespace config_resource_internal
 {
-	void compile(CompileOptions& opts)
+	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
 
@@ -38,6 +38,8 @@ namespace config_resource_internal
 		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("package", boot_package.c_str(), opts);
 
 		opts.write(buf);
+
+		return 0;
 	}
 
 	void* load(File& file, Allocator& a)

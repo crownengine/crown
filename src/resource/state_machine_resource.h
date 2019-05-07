@@ -74,7 +74,7 @@ struct TransitionMode
 
 namespace state_machine_internal
 {
-	void compile(CompileOptions& opts);
+	s32 compile(CompileOptions& opts);
 
 } // namespace state_machine_internal
 
