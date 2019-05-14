@@ -50,7 +50,7 @@ namespace sound_resource_internal
 
 		// Write
 		SoundResource sr;
-		sr.version      = RESOURCE_VERSION_SOUND;
+		sr.version      = RESOURCE_HEADER(RESOURCE_VERSION_SOUND);
 		sr.size         = wav->data_size;
 		sr.sample_rate  = wav->fmt_sample_rate;
 		sr.avg_bytes_ps = wav->fmt_avarage;

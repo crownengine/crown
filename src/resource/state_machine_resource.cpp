@@ -356,7 +356,7 @@ namespace state_machine_internal
 		s32 write()
 		{
 			StateMachineResource smr;
-			smr.version = RESOURCE_VERSION_STATE_MACHINE;
+			smr.version = RESOURCE_HEADER(RESOURCE_VERSION_STATE_MACHINE);
 			smr.initial_state_offset = hash_map::get(_offsets, _initial_state, UINT32_MAX);
 			smr.num_variables = vector::size(_variables);
 			smr.variables_offset = _offset_accumulator._offset; // Offset of last state + 1

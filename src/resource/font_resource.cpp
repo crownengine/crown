@@ -70,7 +70,7 @@ namespace font_resource_internal
 		}
 		std::sort(array::begin(glyphs), array::end(glyphs));
 
-		opts.write(RESOURCE_VERSION_FONT);
+		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_FONT));
 		opts.write(texture_size);
 		opts.write(font_size);
 		opts.write(num_glyphs);

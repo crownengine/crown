@@ -68,4 +68,7 @@ struct UnitResource;
 #define RESOURCE_VERSION_SPRITE           u32(1)
 #define RESOURCE_VERSION_TEXTURE          u32(1)
 #define RESOURCE_VERSION_UNIT             u32(1)
+
+#define RESOURCE_MAGIC                    u32(0x9B) //!< Non-UTF8 to early out on file type detection
+#define RESOURCE_HEADER(version)          u32((version & 0x00ffffff) << 8 | RESOURCE_MAGIC)
 /// @}

@@ -64,7 +64,7 @@ namespace lua_resource_internal
 		opts.delete_file(luabin.c_str());
 
 		LuaResource lr;
-		lr.version = RESOURCE_VERSION_SCRIPT;
+		lr.version = RESOURCE_HEADER(RESOURCE_VERSION_SCRIPT);
 		lr.size = array::size(blob);
 
 		opts.write(lr.version);

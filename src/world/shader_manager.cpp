@@ -23,7 +23,7 @@ void* ShaderManager::load(File& file, Allocator& a)
 	BinaryReader br(file);
 	u32 version;
 	br.read(version);
-	CE_ASSERT(version == RESOURCE_VERSION_SHADER, "Wrong version");
+	CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_SHADER), "Wrong version");
 
 	u32 num;
 	br.read(num);

@@ -1095,7 +1095,7 @@ namespace shader_resource_internal
 
 		s32 compile()
 		{
-			_opts.write(RESOURCE_VERSION_SHADER);
+			_opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
 			_opts.write(vector::size(_static_compile));
 
 			for (u32 i = 0; i < vector::size(_static_compile); ++i)

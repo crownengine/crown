@@ -266,7 +266,7 @@ namespace mesh_resource_internal
 		JsonObject nodes(ta);
 		sjson::parse(object["nodes"], nodes);
 
-		opts.write(RESOURCE_VERSION_MESH);
+		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
 		opts.write(json_object::size(geometries));
 
 		MeshCompiler mc(opts);
@@ -299,7 +299,7 @@ namespace mesh_resource_internal
 
 		u32 version;
 		br.read(version);
-		CE_ASSERT(version == RESOURCE_VERSION_MESH, "Wrong version");
+		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_MESH), "Wrong version");
 
 		u32 num_geoms;
 		br.read(num_geoms);

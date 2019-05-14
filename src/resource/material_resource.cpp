@@ -204,7 +204,7 @@ namespace material_resource_internal
 			return -1;
 
 		MaterialResource mr;
-		mr.version             = RESOURCE_VERSION_MATERIAL;
+		mr.version             = RESOURCE_HEADER(RESOURCE_VERSION_MATERIAL);
 		mr.shader              = shader.to_string_id();
 		mr.num_textures        = array::size(texdata);
 		mr.texture_data_offset = sizeof(mr);

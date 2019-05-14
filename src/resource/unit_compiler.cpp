@@ -416,7 +416,7 @@ s32 UnitCompiler::compile_multiple_units(const char* json)
 Buffer UnitCompiler::blob()
 {
 	UnitResource ur;
-	ur.version = RESOURCE_VERSION_UNIT;
+	ur.version = RESOURCE_HEADER(RESOURCE_VERSION_UNIT);
 	ur.num_units = _num_units;
 	ur.num_component_types = 0;
 

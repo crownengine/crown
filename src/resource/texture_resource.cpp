@@ -93,7 +93,7 @@ namespace texture_resource_internal
 		opts.delete_file(texout.c_str());
 
 		// Write DDS
-		opts.write(RESOURCE_VERSION_TEXTURE);
+		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_TEXTURE));
 		opts.write(array::size(blob));
 		opts.write(blob);
 
@@ -106,7 +106,7 @@ namespace texture_resource_internal
 
 		u32 version;
 		br.read(version);
-		CE_ASSERT(version == RESOURCE_VERSION_TEXTURE, "Wrong version");
+		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_TEXTURE), "Wrong version");
 
 		u32 size;
 		br.read(size);

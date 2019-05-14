@@ -122,7 +122,7 @@ namespace sprite_resource_internal
 
 		// Write
 		SpriteResource sr;
-		sr.version = RESOURCE_VERSION_SPRITE;
+		sr.version = RESOURCE_HEADER(RESOURCE_VERSION_SPRITE);
 		sr.obb = obb;
 		sr.num_verts = num_vertices;
 
@@ -171,7 +171,7 @@ namespace sprite_animation_resource_internal
 
 		// Write
 		SpriteAnimationResource sar;
-		sar.version = RESOURCE_VERSION_SPRITE_ANIMATION;
+		sar.version = RESOURCE_HEADER(RESOURCE_VERSION_SPRITE_ANIMATION);
 		sar.num_frames = array::size(frames);
 		sar.total_time = total_time;
 

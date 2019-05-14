@@ -60,7 +60,7 @@ namespace level_resource_internal
 
 		// Write
 		LevelResource lr;
-		lr.version       = RESOURCE_VERSION_LEVEL;
+		lr.version       = RESOURCE_HEADER(RESOURCE_VERSION_LEVEL);
 		lr.num_sounds    = array::size(sounds);
 		lr.units_offset  = sizeof(LevelResource);
 		lr.sounds_offset = lr.units_offset + array::size(unit_blob);

@@ -16,6 +16,7 @@
 #include "core/thread/scoped_mutex.h"
 #include "device/log.h"
 #include "resource/resource_loader.h"
+#include "resource/types.h"
 
 LOG_SYSTEM(RESOURCE_LOADER, "resource_loader")
 
@@ -137,7 +138,7 @@ s32 ResourceLoader::run()
 			const u32 size = file->size();
 			rr.data = rr.allocator->allocate(size);
 			file->read(rr.data, size);
-			CE_ASSERT(*(u32*)rr.data == rr.version, "Wrong version");
+			CE_ASSERT(*(u32*)rr.data == RESOURCE_HEADER(rr.version), "Wrong version");
 		}
 
 		_data_filesystem.close(*file);

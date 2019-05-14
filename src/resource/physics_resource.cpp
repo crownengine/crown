@@ -509,7 +509,7 @@ namespace physics_config_resource_internal
 
 		// Setup struct for writing
 		PhysicsConfigResource pcr;
-		pcr.version       = RESOURCE_VERSION_PHYSICS_CONFIG;
+		pcr.version       = RESOURCE_HEADER(RESOURCE_VERSION_PHYSICS_CONFIG);
 		pcr.num_materials = array::size(materials);
 		pcr.num_actors    = array::size(actors);
 		pcr.num_filters   = array::size(cfc._filters);
