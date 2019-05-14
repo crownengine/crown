@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "core/containers/hash_map.h"
+#include "core/containers/hash_set.h"
 #include "core/containers/vector.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_disk.h"
@@ -40,6 +41,11 @@
 #include <algorithm>
 
 LOG_SYSTEM(DATA_COMPILER, "data_compiler")
+
+#define CROWN_DATA_VERSIONS "data_versions.sjson"
+#define CROWN_DATA_INDEX "data_index.sjson"
+#define CROWN_DATA_MTIMES "data_mtimes.sjson"
+#define CROWN_DATA_DEPENDENCIES "data_dependencies.sjson"
 
 namespace crown
 {
@@ -100,6 +106,253 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	}
 }
 
+static Buffer read(FilesystemDisk& data_fs, const char* filename)
+{
+	Buffer buffer(default_allocator());
+
+	// FIXME: better return NULL in Filesystem::open().
+	if (data_fs.exists(filename))
+	{
+		File* file = data_fs.open(filename, FileOpenMode::READ);
+		if (file)
+		{
+			u32 size = file->size();
+			if (size == 0)
+			{
+				data_fs.close(*file);
+				return buffer;
+			}
+
+			array::resize(buffer, size);
+			file->read(array::begin(buffer), size);
+			data_fs.close(*file);
+		}
+	}
+
+	return buffer;
+}
+
+static void read_data_versions(HashMap<DynamicString, u32>& versions, FilesystemDisk& data_fs, const char* filename)
+{
+	Buffer json = read(data_fs, filename);
+
+	TempAllocator512 ta;
+	JsonObject object(ta);
+	sjson::parse(json, object);
+
+	auto cur = json_object::begin(object);
+	auto end = json_object::end(object);
+	for (; cur != end; ++cur)
+	{
+		if (json_object::is_hole(object, cur))
+			continue;
+
+		TempAllocator256 ta;
+		DynamicString type(ta);
+		type.set(cur->first.data(), cur->first.length());
+
+		hash_map::set(versions, type, (u32)sjson::parse_int(cur->second));
+	}
+}
+
+static void read_data_index(HashMap<StringId64, DynamicString>& index, FilesystemDisk& data_fs, const char* filename)
+{
+	Buffer json = read(data_fs, filename);
+
+	TempAllocator512 ta;
+	JsonObject object(ta);
+	sjson::parse(json, object);
+
+	auto cur = json_object::begin(object);
+	auto end = json_object::end(object);
+	for (; cur != end; ++cur)
+	{
+		if (json_object::is_hole(object, cur))
+			continue;
+
+		TempAllocator256 ta;
+		StringId64 dst_name;
+		DynamicString src_path(ta);
+
+		dst_name.parse(cur->first.data());
+		sjson::parse_string(cur->second, src_path);
+
+		hash_map::set(index, dst_name, src_path);
+	}
+}
+
+static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& data_fs, const char* filename)
+{
+	Buffer json = read(data_fs, filename);
+
+	TempAllocator128 ta;
+	JsonObject object(ta);
+	sjson::parse(json, object);
+
+	auto cur = json_object::begin(object);
+	auto end = json_object::end(object);
+	for (; cur != end; ++cur)
+	{
+		if (json_object::is_hole(object, cur))
+			continue;
+
+		TempAllocator64 ta;
+		StringId64 dst_name;
+		DynamicString mtime_json(ta);
+
+		dst_name.parse(cur->first.data());
+		sjson::parse_string(cur->second, mtime_json);
+
+		u64 mtime;
+		sscanf(mtime_json.c_str(), "%lu", &mtime);
+		hash_map::set(mtimes, dst_name, mtime);
+	}
+}
+
+static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, const char* filename)
+{
+	Buffer json = read(data_fs, filename);
+
+	TempAllocator1024 ta;
+	JsonObject object(ta);
+	sjson::parse(json, object);
+
+	auto cur = json_object::begin(object);
+	auto end = json_object::end(object);
+	for (; cur != end; ++cur)
+	{
+		if (json_object::is_hole(object, cur))
+			continue;
+
+		StringId64 dst_name;
+		dst_name.parse(cur->first.data());
+
+		JsonArray dependency_array(ta);
+		sjson::parse_array(cur->second, dependency_array);
+		for (u32 i = 0; i < array::size(dependency_array); ++i)
+		{
+			DynamicString src_path(ta);
+			sjson::parse_string(dependency_array[i], src_path);
+			dc.add_dependency(dst_name, src_path.c_str());
+		}
+	}
+}
+
+static void write_data_index(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& index)
+{
+	StringStream ss(default_allocator());
+
+	File* file = data_fs.open(filename, FileOpenMode::WRITE);
+	if (file)
+	{
+		auto cur = hash_map::begin(index);
+		auto end = hash_map::end(index);
+		for (; cur != end; ++cur)
+		{
+			if (hash_map::is_hole(index, cur))
+				continue;
+
+			TempAllocator256 ta;
+			DynamicString str(ta);
+			str.from_string_id(cur->first);
+			ss << "\"" << str.c_str() << "\" = \"" << cur->second.c_str() << "\"\n";
+		}
+
+		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		data_fs.close(*file);
+	}
+}
+
+static void write_data_versions(FilesystemDisk& data_fs, const char* filename, const HashMap<DynamicString, u32>& versions)
+{
+	StringStream ss(default_allocator());
+
+	File* file = data_fs.open(filename, FileOpenMode::WRITE);
+	if (file)
+	{
+
+		auto cur = hash_map::begin(versions);
+		auto end = hash_map::end(versions);
+		for (; cur != end; ++cur)
+		{
+			if (hash_map::is_hole(versions, cur))
+				continue;
+
+			ss << cur->first.c_str() << " = " << cur->second << "\n";
+		}
+
+		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		data_fs.close(*file);
+	}
+}
+
+
+static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, u64>& mtimes)
+{
+	StringStream ss(default_allocator());
+
+	File* file = data_fs.open(filename, FileOpenMode::WRITE);
+	if (file)
+	{
+
+		auto cur = hash_map::begin(mtimes);
+		auto end = hash_map::end(mtimes);
+		for (; cur != end; ++cur)
+		{
+			if (hash_map::is_hole(mtimes, cur))
+				continue;
+
+			TempAllocator64 ta;
+			DynamicString key(ta);
+			key.from_string_id(cur->first);
+			ss << "\"" << key.c_str() << "\" = \"" << cur->second << "\"\n";
+		}
+
+		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		data_fs.close(*file);
+	}
+}
+
+static void write_source_files(StringStream& ss, HashMap<DynamicString, u32> sources)
+{
+	auto cur = hash_map::begin(sources);
+	auto end = hash_map::end(sources);
+	for (; cur != end; ++cur)
+	{
+		if (hash_map::is_hole(sources, cur))
+			continue;
+
+		ss << "    \"" << cur->first.c_str() << "\"\n";
+	}
+}
+
+static void write_data_dependencies(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies)
+{
+	StringStream ss(default_allocator());
+
+	File* file = data_fs.open(filename, FileOpenMode::WRITE);
+	if (file)
+	{
+		auto cur = hash_map::begin(dependencies);
+		auto end = hash_map::end(dependencies);
+		for (; cur != end; ++cur)
+		{
+			if (hash_map::is_hole(dependencies, cur))
+				continue;
+
+			TempAllocator64 ta;
+			DynamicString key(ta);
+			key.from_string_id(cur->first);
+			ss << "\"" << key.c_str() << "\" = [\n";
+			write_source_files(ss, cur->second);
+			ss << "]\n";
+		}
+
+		file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+		data_fs.close(*file);
+	}
+}
+
 DataCompiler::DataCompiler(ConsoleServer& cs)
 	: _console_server(&cs)
 	, _source_fs(default_allocator())
@@ -108,6 +361,9 @@ DataCompiler::DataCompiler(ConsoleServer& cs)
 	, _files(default_allocator())
 	, _globs(default_allocator())
 	, _data_index(default_allocator())
+	, _data_mtimes(default_allocator())
+	, _data_dependencies(default_allocator())
+	, _data_versions(default_allocator())
 	, _file_monitor(default_allocator())
 {
 	cs.register_command("compile", console_command_compile, this);
@@ -266,11 +522,11 @@ void DataCompiler::add_ignore_glob(const char* glob)
 	vector::push_back(_globs, str);
 }
 
-void DataCompiler::scan()
+void DataCompiler::scan_and_restore(const char* data_dir)
 {
-	const s64 time_start = time::now();
-
 	// Scan all source directories
+	s64 time_start = time::now();
+
 	auto cur = hash_map::begin(_source_dirs);
 	auto end = hash_map::end(_source_dirs);
 	for (; cur != end; ++cur)
@@ -312,26 +568,179 @@ void DataCompiler::scan()
 
 		scan_source_dir(cur->first.c_str(), "");
 	}
-
 	logi(DATA_COMPILER, "Scanned data in %.2fs", time::seconds(time::now() - time_start));
+
+	// Restore state from previous run
+	time_start = time::now();
+
+	FilesystemDisk data_fs(default_allocator());
+	data_fs.set_prefix(data_dir);
+
+	read_data_versions(_data_versions, data_fs, CROWN_DATA_VERSIONS);
+	read_data_index(_data_index, data_fs, CROWN_DATA_INDEX);
+	read_data_mtimes(_data_mtimes, data_fs, CROWN_DATA_MTIMES);
+	read_data_dependencies(*this, data_fs, CROWN_DATA_DEPENDENCIES);
+	logi(DATA_COMPILER, "Restored state in %.2fs", time::seconds(time::now() - time_start));
+
 	_file_monitor.start(hash_map::begin(_source_dirs)->second.c_str(), true, filemonitor_callback, this);
+}
+
+void DataCompiler::save(const char* data_dir)
+{
+	s64 time_start = time::now();
+
+	FilesystemDisk data_fs(default_allocator());
+	data_fs.set_prefix(data_dir);
+
+	write_data_index(data_fs, CROWN_DATA_INDEX, _data_index);
+	write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
+	write_data_mtimes(data_fs, CROWN_DATA_MTIMES, _data_mtimes);
+	write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_dependencies);
+	logi(DATA_COMPILER, "Saved state in %.2fs", time::seconds(time::now() - time_start));
+}
+
+/// Returns the resource id from @a type and @a name.
+ResourceId resource_id(const char* type, u32 type_len, const char* name, u32 name_len)
+{
+	ResourceId id;
+	id._id = StringId64(type, type_len)._id ^ StringId64(name, name_len)._id;
+	return id;
+}
+
+/// Returns the resource id from @a filename.
+ResourceId resource_id(const char* filename)
+{
+	const char* type = path::extension(filename);
+	const u32 len = u32(type - filename - 1);
+	return resource_id(type, strlen32(type), filename, len);
+}
+
+void destination_path(DynamicString& path, ResourceId id)
+{
+	TempAllocator128 ta;
+	DynamicString id_hex(ta);
+	id_hex.from_string_id(id);
+	path::join(path, CROWN_DATA_DIRECTORY, id_hex.c_str());
+}
+
+bool DataCompiler::dependency_changed(const DynamicString& src_path, ResourceId id, u64 dst_mtime)
+{
+	TempAllocator1024 ta;
+	DynamicString path(ta);
+	destination_path(path, id);
+
+	// Look up source path
+#if 0
+	DynamicString src_path_deffault(ta);
+	DynamicString& src_path = hash_map::get(_data_index, id, src_path_deffault);
+	CE_ENSURE(!src_path.empty());
+#endif
+
+	DynamicString source_dir(ta);
+	this->source_dir(src_path.c_str(), source_dir);
+
+	FilesystemDisk source_fs(ta);
+	source_fs.set_prefix(source_dir.c_str());
+
+	u64 src_mtime = source_fs.last_modified_time(src_path.c_str());
+	if (src_mtime > dst_mtime)
+	{
+		// printf("changed: %s. src_mtime = %lu, dst_mtime = %lu\n", src_path.c_str(), src_mtime, dst_mtime);
+		return true;
+	}
+
+	HashMap<DynamicString, u32> deffault(default_allocator());
+	HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
+	auto cur = hash_map::begin(deps);
+	auto end = hash_map::end(deps);
+	for (; cur != end; ++cur)
+	{
+		if (hash_map::is_hole(deps, cur))
+			continue;
+
+		if (src_path == cur->first)
+			continue;
+
+		if (dependency_changed(cur->first, resource_id(cur->first.c_str()), dst_mtime))
+			return true;
+	}
+
+	return false;
+}
+
+bool DataCompiler::version_changed(const DynamicString& src_path, ResourceId id)
+{
+	const char* type = path::extension(src_path.c_str());
+
+	if (data_version_stored(type) != data_version(type))
+		return true;
+
+	HashMap<DynamicString, u32> deffault(default_allocator());
+	HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
+	auto cur = hash_map::begin(deps);
+	auto end = hash_map::end(deps);
+	for (; cur != end; ++cur)
+	{
+		if (hash_map::is_hole(deps, cur))
+			continue;
+
+		if (src_path == cur->first)
+			continue;
+
+		if (version_changed(cur->first, resource_id(cur->first.c_str())))
+			return true;
+	}
+
+	return false;
 }
 
 bool DataCompiler::compile(const char* data_dir, const char* platform)
 {
 	const s64 time_start = time::now();
 
-	FilesystemDisk data_filesystem(default_allocator());
-	data_filesystem.set_prefix(data_dir);
-	data_filesystem.create_directory("");
+	FilesystemDisk data_fs(default_allocator());
+	data_fs.set_prefix(data_dir);
+	data_fs.create_directory("");
 
-	if (!data_filesystem.exists(CROWN_DATA_DIRECTORY))
-		data_filesystem.create_directory(CROWN_DATA_DIRECTORY);
+	if (!data_fs.exists(CROWN_DATA_DIRECTORY))
+		data_fs.create_directory(CROWN_DATA_DIRECTORY);
 
-	if (!data_filesystem.exists(CROWN_TEMP_DIRECTORY))
-		data_filesystem.create_directory(CROWN_TEMP_DIRECTORY);
+	if (!data_fs.exists(CROWN_TEMP_DIRECTORY))
+		data_fs.create_directory(CROWN_TEMP_DIRECTORY);
 
-	std::sort(vector::begin(_files), vector::end(_files), [](const DynamicString& resource_a, const DynamicString& resource_b)
+	// Find the set of resources to be compiled
+	Vector<DynamicString> to_compile(default_allocator());
+	for (u32 i = 0; i < vector::size(_files); ++i)
+	{
+		const DynamicString& src_path = _files[i];
+		const char* filename = src_path.c_str();
+
+		const char* type = path::extension(filename);
+		ResourceId id = resource_id(filename);
+		TempAllocator256 ta;
+		DynamicString path(ta);
+		destination_path(path, id);
+
+		u64 dst_mtime = 0;
+		dst_mtime = hash_map::get(_data_mtimes, id, dst_mtime);
+
+		DynamicString source_dir(ta);
+		this->source_dir(filename, source_dir);
+		FilesystemDisk source_fs(ta);
+		source_fs.set_prefix(source_dir.c_str());
+
+		if (data_fs.exists(path.c_str()) == false
+			|| source_fs.last_modified_time(filename) > dst_mtime
+			|| dependency_changed(src_path, id, dst_mtime)
+			|| data_version_stored(type) != data_version(type)
+			|| version_changed(src_path, id)
+			)
+		{
+			vector::push_back(to_compile, _files[i]);
+		}
+	}
+
+	std::sort(vector::begin(to_compile), vector::end(to_compile), [](const DynamicString& resource_a, const DynamicString& resource_b)
 		{
 #define PACKAGE ".package"
 			if ( resource_a.has_suffix(PACKAGE) && !resource_b.has_suffix(PACKAGE))
@@ -345,42 +754,25 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	bool success = false;
 
 	// Compile all changed resources
-	for (u32 i = 0; i < vector::size(_files); ++i)
+	for (u32 i = 0; i < vector::size(to_compile); ++i)
 	{
-		const char* filename = _files[i].c_str();
+		const DynamicString& src_path = to_compile[i];
+		const char* filename = src_path.c_str();
 		const char* type = path::extension(filename);
 
 		if (type == NULL)
 			continue;
 
-		char name[256];
-		const u32 size = u32(type - filename - 1);
-		strncpy(name, filename, size);
-		name[size] = '\0';
-
 		TempAllocator1024 ta;
 		DynamicString path(ta);
-		DynamicString src_path(ta);
-		DynamicString dst_path(ta);
-
-		StringId64 _type(type);
-		StringId64 _name(name);
-
-		// Build source file path
-		src_path += name;
-		src_path += '.';
-		src_path += type;
 
 		// Build destination file path
-		StringId64 mix;
-		mix._id = _type._id ^ _name._id;
-		dst_path.from_string_id(mix);
-
-		path::join(path, CROWN_DATA_DIRECTORY, dst_path.c_str());
+		ResourceId id = resource_id(filename);
+		destination_path(path, id);
 
 		logi(DATA_COMPILER, "%s", src_path.c_str());
 
-		if (!can_compile(_type))
+		if (!can_compile(type))
 		{
 			loge(DATA_COMPILER, "Unknown resource type: '%s'", type);
 			loge(DATA_COMPILER, "Append extension to " CROWN_DATAIGNORE " to ignore the type");
@@ -388,28 +780,37 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			break;
 		}
 
-		Buffer output(default_allocator());
-		array::reserve(output, 4*1024*1024);
+		// Compile data
+		ResourceTypeData rtd;
+		rtd.version = 0;
+		rtd.compiler = NULL;
 
+		DynamicString type_str(ta);
+		type_str = type;
+
+		rtd = hash_map::get(_compilers, type_str, rtd);
 		{
-			CompileOptions opts(*this, data_filesystem, src_path, output, platform);
+			Buffer output(default_allocator());
+			array::reserve(output, 4*1024*1024);
 
-			success = hash_map::get(_compilers, _type, ResourceTypeData()).compiler(opts) == 0;
+			CompileOptions opts(*this, data_fs, id, src_path, output, platform);
+			success = rtd.compiler(opts) == 0;
 
 			if (success)
 			{
-				File* outf = data_filesystem.open(path.c_str(), FileOpenMode::WRITE);
+				File* outf = data_fs.open(path.c_str(), FileOpenMode::WRITE);
 				u32 size = array::size(output);
 				u32 written = outf->write(array::begin(output), size);
-				data_filesystem.close(*outf);
+				data_fs.close(*outf);
 				success = size == written;
 			}
 		}
 
 		if (success)
 		{
-			if (!hash_map::has(_data_index, dst_path))
-				hash_map::set(_data_index, dst_path, src_path);
+			hash_map::set(_data_index, id, src_path);
+			hash_map::set(_data_versions, type_str, rtd.version);
+			hash_map::set(_data_mtimes, id, data_fs.last_modified_time(path.c_str()));
 		}
 		else
 		{
@@ -418,58 +819,85 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		}
 	}
 
-	// Write data index
+	if (success && vector::size(to_compile))
 	{
-		File* file = data_filesystem.open("data_index.sjson", FileOpenMode::WRITE);
-		if (file)
-		{
-			StringStream ss(default_allocator());
-
-			auto cur = hash_map::begin(_data_index);
-			auto end = hash_map::end(_data_index);
-			for (; cur != end; ++cur)
-			{
-				if (hash_map::is_hole(_data_index, cur))
-					continue;
-
-				ss << "\"" << cur->first.c_str() << "\" = \"" << cur->second.c_str() << "\"\n";
-			}
-
-			file->write(string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
-			data_filesystem.close(*file);
-		}
-	}
-
-	if (success)
 		logi(DATA_COMPILER, "Compiled data in %.2fs", time::seconds(time::now() - time_start));
+	}
+	else
+	{
+		logi(DATA_COMPILER, "Data is up to date");
+		success = true;
+	}
 
 	return success;
 }
 
-void DataCompiler::register_compiler(StringId64 type, u32 version, CompileFunction compiler)
+void DataCompiler::register_compiler(const char* type, u32 version, CompileFunction compiler)
 {
-	CE_ASSERT(!hash_map::has(_compilers, type), "Type already registered");
+	TempAllocator64 ta;
+	DynamicString type_str(ta);
+	type_str = type;
+
+	CE_ASSERT(!hash_map::has(_compilers, type_str), "Type already registered");
 	CE_ENSURE(NULL != compiler);
 
 	ResourceTypeData rtd;
 	rtd.version = version;
 	rtd.compiler = compiler;
 
-	hash_map::set(_compilers, type, rtd);
+	hash_map::set(_compilers, type_str, rtd);
 }
 
-u32 DataCompiler::version(StringId64 type)
+u32 DataCompiler::data_version(const char* type)
 {
+	TempAllocator64 ta;
+	DynamicString type_str(ta);
+	type_str = type;
+
 	ResourceTypeData rtd;
 	rtd.version = COMPILER_NOT_FOUND;
 	rtd.compiler = NULL;
-
-	return hash_map::get(_compilers, type, rtd).version;
+	return hash_map::get(_compilers, type_str, rtd).version;
 }
 
-bool DataCompiler::can_compile(StringId64 type)
+u32 DataCompiler::data_version_stored(const char* type)
 {
-	return hash_map::has(_compilers, type);
+	TempAllocator256 ta;
+	DynamicString ds(ta);
+	ds = type;
+
+	u32 version = UINT32_MAX;
+	return hash_map::get(_data_versions, ds, version);
+}
+
+void DataCompiler::add_dependency(ResourceId id, const char* dependency)
+{
+	HashMap<DynamicString, u32> deps_deffault(default_allocator());
+	if (hash_map::has(_data_dependencies, id))
+	{
+		HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deps_deffault);
+		TempAllocator256 ta;
+		DynamicString dependency_ds(ta);
+		dependency_ds = dependency;
+		hash_map::set(deps, dependency_ds, 0u);
+	}
+	else
+	{
+		TempAllocator256 ta;
+		DynamicString dependency_ds(ta);
+		dependency_ds = dependency;
+		hash_map::set(deps_deffault, dependency_ds, 0u);
+		hash_map::set(_data_dependencies, id, deps_deffault);
+	}
+}
+
+bool DataCompiler::can_compile(const char* type)
+{
+	TempAllocator64 ta;
+	DynamicString type_str(ta);
+	type_str = type;
+
+	return hash_map::has(_compilers, type_str);
 }
 
 void DataCompiler::error(const char* msg, va_list args)
@@ -567,21 +995,21 @@ int main_data_compiler(const DeviceOptions& opts)
 	namespace utr = unit_resource_internal;
 
 	DataCompiler* dc = CE_NEW(default_allocator(), DataCompiler)(*console_server());
-	dc->register_compiler(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::compile);
-	dc->register_compiler(RESOURCE_TYPE_FONT,             RESOURCE_VERSION_FONT,             ftr::compile);
-	dc->register_compiler(RESOURCE_TYPE_LEVEL,            RESOURCE_VERSION_LEVEL,            lvr::compile);
-	dc->register_compiler(RESOURCE_TYPE_MATERIAL,         RESOURCE_VERSION_MATERIAL,         mtr::compile);
-	dc->register_compiler(RESOURCE_TYPE_MESH,             RESOURCE_VERSION_MESH,             mhr::compile);
-	dc->register_compiler(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          pkr::compile);
-	dc->register_compiler(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
-	dc->register_compiler(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           lur::compile);
-	dc->register_compiler(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shr::compile);
-	dc->register_compiler(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            sdr::compile);
-	dc->register_compiler(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           spr::compile);
-	dc->register_compiler(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
-	dc->register_compiler(RESOURCE_TYPE_STATE_MACHINE,    RESOURCE_VERSION_STATE_MACHINE,    smr::compile);
-	dc->register_compiler(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          txr::compile);
-	dc->register_compiler(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             utr::compile);
+	dc->register_compiler("config",           RESOURCE_VERSION_CONFIG,           cor::compile);
+	dc->register_compiler("font",             RESOURCE_VERSION_FONT,             ftr::compile);
+	dc->register_compiler("level",            RESOURCE_VERSION_LEVEL,            lvr::compile);
+	dc->register_compiler("material",         RESOURCE_VERSION_MATERIAL,         mtr::compile);
+	dc->register_compiler("mesh",             RESOURCE_VERSION_MESH,             mhr::compile);
+	dc->register_compiler("package",          RESOURCE_VERSION_PACKAGE,          pkr::compile);
+	dc->register_compiler("physics_config",   RESOURCE_VERSION_PHYSICS_CONFIG,   pcr::compile);
+	dc->register_compiler("lua",              RESOURCE_VERSION_SCRIPT,           lur::compile);
+	dc->register_compiler("shader",           RESOURCE_VERSION_SHADER,           shr::compile);
+	dc->register_compiler("sound",            RESOURCE_VERSION_SOUND,            sdr::compile);
+	dc->register_compiler("sprite",           RESOURCE_VERSION_SPRITE,           spr::compile);
+	dc->register_compiler("sprite_animation", RESOURCE_VERSION_SPRITE_ANIMATION, sar::compile);
+	dc->register_compiler("state_machine",    RESOURCE_VERSION_STATE_MACHINE,    smr::compile);
+	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          txr::compile);
+	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             utr::compile);
 
 	// Add ignore globs
 	dc->add_ignore_glob("*.bak");
@@ -609,7 +1037,7 @@ int main_data_compiler(const DeviceOptions& opts)
 			);
 	}
 
-	dc->scan();
+	dc->scan_and_restore(opts._data_dir.c_str());
 
 	bool success = true;
 
@@ -625,6 +1053,8 @@ int main_data_compiler(const DeviceOptions& opts)
 	{
 		success = dc->compile(opts._data_dir.c_str(), opts._platform);
 	}
+
+	dc->save(opts._data_dir.c_str());
 
 	CE_DELETE(default_allocator(), dc);
 	console_server_globals::shutdown();

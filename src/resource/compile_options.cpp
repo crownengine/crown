@@ -21,13 +21,13 @@
 
 namespace crown
 {
-CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, DynamicString& source_path, Buffer& output, const char* platform)
+CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, StringId64 resource_id, const DynamicString& source_path, Buffer& output, const char* platform)
 	: _data_compiler(dc)
 	, _data_filesystem(data_filesystem)
 	, _source_path(source_path)
 	, _output(output)
 	, _platform(platform)
-	, _dependencies(default_allocator())
+	, _resource_id(resource_id)
 {
 }
 
@@ -102,7 +102,7 @@ Buffer CompileOptions::read()
 
 Buffer CompileOptions::read(const char* path)
 {
-	add_dependency(path);
+	_data_compiler.add_dependency(_resource_id, path);
 
 	TempAllocator256 ta;
 	DynamicString source_dir(ta);
@@ -122,7 +122,7 @@ Buffer CompileOptions::read(const char* path)
 
 void CompileOptions::fake_read(const char* path)
 {
-	add_dependency(path);
+	_data_compiler.add_dependency(_resource_id, path);
 }
 
 void CompileOptions::get_absolute_path(const char* path, DynamicString& abs)
@@ -169,19 +169,6 @@ void CompileOptions::write(const Buffer& data)
 const char* CompileOptions::platform() const
 {
 	return _platform;
-}
-
-const Vector<DynamicString>& CompileOptions::dependencies() const
-{
-	return _dependencies;
-}
-
-void CompileOptions::add_dependency(const char* path)
-{
-	TempAllocator256 ta;
-	DynamicString dep(ta);
-	dep += path;
-	vector::push_back(_dependencies, dep);
 }
 
 const char* CompileOptions::exe_path(const char* const* paths, u32 num)

@@ -58,10 +58,10 @@ struct CompileOptions
 	DynamicString _source_path;
 	Buffer& _output;
 	const char* _platform;
-	Vector<DynamicString> _dependencies;
+	StringId64 _resource_id;
 
 	///
-	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, DynamicString& source_path, Buffer& output, const char* platform);
+	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, StringId64 resource_id, const DynamicString& source_path, Buffer& output, const char* platform);
 
 	///
 	CompileOptions(const CompileOptions&) = delete;
@@ -126,12 +126,6 @@ struct CompileOptions
 
 	///
 	const char* platform() const;
-
-	///
-	const Vector<DynamicString>& dependencies() const;
-
-	///
-	void add_dependency(const char* path);
 
 	/// Returns the first path with executable permissions or NULL if none found.
 	const char* exe_path(const char* const* paths, u32 num);

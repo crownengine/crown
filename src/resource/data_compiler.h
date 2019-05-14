@@ -30,10 +30,13 @@ struct DataCompiler
 	ConsoleServer* _console_server;
 	FilesystemDisk _source_fs;
 	HashMap<DynamicString, DynamicString> _source_dirs;
-	HashMap<StringId64, ResourceTypeData> _compilers;
+	HashMap<DynamicString, ResourceTypeData> _compilers;
 	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
-	HashMap<DynamicString, DynamicString> _data_index;
+	HashMap<StringId64, DynamicString> _data_index;
+	HashMap<StringId64, u64> _data_mtimes;
+	HashMap<StringId64, HashMap<DynamicString, u32> > _data_dependencies;
+	HashMap<DynamicString, u32> _data_versions;
 	FileMonitor _file_monitor;
 
 	void add_file(const char* path);
@@ -60,22 +63,38 @@ struct DataCompiler
 	/// Adds a @a glob pattern to ignore when scanning the source directory.
 	void add_ignore_glob(const char* glob);
 
-	/// Scans source directory for resources.
-	void scan();
+	/// Scans the source directory for resources and restores the state of the compiler from
+	/// the previous run (if any).
+	void scan_and_restore(const char* data_dir);
+
+	/// Saves to disk the state of the compiler.
+	void save(const char* data_dir);
 
 	/// Compiles all the resources found in the source directory and puts them in @a data_dir.
 	/// Returns true on success, false otherwise.
 	bool compile(const char* data_dir, const char* platform);
 
 	/// Registers the resource @a compiler for the given resource @a type and @a version.
-	void register_compiler(StringId64 type, u32 version, CompileFunction compiler);
+	void register_compiler(const char* type, u32 version, CompileFunction compiler);
 
 	/// Returns whether there is a compiler for the resource @a type.
-	bool can_compile(StringId64 type);
+	bool can_compile(const char* type);
 
 	/// Returns the version of the compiler for @a type or COMPILER_NOT_FOUND if no compiler
 	/// is found.
-	u32 version(StringId64 type);
+	u32 data_version(const char* type);
+
+	///
+	u32 data_version_stored(const char* type);
+
+	///
+	void add_dependency(ResourceId id, const char* dependency);
+
+	///
+	bool dependency_changed(const DynamicString& src_path, ResourceId id, u64 mtime);
+
+	///
+	bool version_changed(const DynamicString& src_path, ResourceId id);
 
 	///
 	void error(const char* msg, va_list args);
