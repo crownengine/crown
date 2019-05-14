@@ -31,7 +31,7 @@ void StringId32::parse(const char* str)
 {
 	CE_ENSURE(NULL != str);
 	int num = sscanf(str, "%8x", &_id);
-	CE_ENSURE(num == 2);
+	CE_ENSURE(num == 1);
 	CE_UNUSED(num);
 }
 
