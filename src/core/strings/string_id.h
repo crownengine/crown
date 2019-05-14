@@ -24,6 +24,9 @@ struct StringId32
 
 	void hash(const char* str, u32 len);
 
+	/// Parses the id from @a str.
+	void parse(const char* str);
+
 	/// Fills @a buf with the string representation of this id.
 	void to_string(char* buf, u32 len) const;
 };
@@ -41,6 +44,9 @@ struct StringId64
 	explicit StringId64(const char* str, u32 len);
 
 	void hash(const char* str, u32 len);
+
+	/// Parses the id from @a str.
+	void parse(const char* str);
 
 	/// Fills @a buf with the string representation of this id.
 	void to_string(char* buf, u32 len) const;

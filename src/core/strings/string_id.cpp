@@ -27,6 +27,14 @@ void StringId32::hash(const char* str, u32 len)
 	_id = murmur32(str, len, 0);
 }
 
+void StringId32::parse(const char* str)
+{
+	CE_ENSURE(NULL != str);
+	int num = sscanf(str, "%8x", &_id);
+	CE_ENSURE(num == 2);
+	CE_UNUSED(num);
+}
+
 void StringId32::to_string(char* buf, u32 len) const
 {
 	snprintf(buf, len, "%.8x", _id);
@@ -46,6 +54,18 @@ void StringId64::hash(const char* str, u32 len)
 {
 	CE_ENSURE(NULL != str);
 	_id = murmur64(str, len, 0);
+}
+
+void StringId64::parse(const char* str)
+{
+	u32 id[2];
+	CE_ENSURE(NULL != str);
+	int num = sscanf(str, "%8x%8x", &id[0], &id[1]);
+	_id = 0;
+	_id |= u64(id[0]) << 32;
+	_id |= u64(id[1]) <<  0;
+	CE_ENSURE(num == 2);
+	CE_UNUSED(num);
 }
 
 void StringId64::to_string(char* buf, u32 len) const

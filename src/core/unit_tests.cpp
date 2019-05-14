@@ -892,6 +892,22 @@ static void test_string_id()
 		a.to_string(str, sizeof(str));
 		ENSURE(strcmp(str, "90631502d1a3432b") == 0);
 	}
+	{
+		StringId32 id(0x2dd65fa6u);
+		char str[9];
+		id.to_string(str, sizeof(str));
+		StringId32 parsed;
+		parsed.parse(str);
+		ENSURE(id == parsed);
+	}
+	{
+		StringId64 id(0xa73491922dd65fa6u);
+		char str[17];
+		id.to_string(str, sizeof(str));
+		StringId64 parsed;
+		parsed.parse(str);
+		ENSURE(id == parsed);
+	}
 	memory_globals::shutdown();
 }
 
