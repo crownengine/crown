@@ -99,6 +99,9 @@ struct CompileOptions
 	///
 	Buffer read(const char* path);
 
+	/// Registers @a path as dependency. Reads nothing.
+	void fake_read(const char* path);
+
 	///
 	void get_absolute_path(const char* path, DynamicString& abs);
 

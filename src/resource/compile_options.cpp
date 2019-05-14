@@ -120,6 +120,11 @@ Buffer CompileOptions::read(const char* path)
 	return buf;
 }
 
+void CompileOptions::fake_read(const char* path)
+{
+	add_dependency(path);
+}
+
 void CompileOptions::get_absolute_path(const char* path, DynamicString& abs)
 {
 	TempAllocator256 ta;
