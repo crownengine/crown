@@ -38,7 +38,7 @@ void* MaterialManager::load(File& file, Allocator& a)
 	const u32 file_size = file.size();
 	void* res = a.allocate(file_size);
 	file.read(res, file_size);
-	CE_ASSERT(*(u32*)res == RESOURCE_VERSION_MATERIAL, "Wrong version");
+	CE_ASSERT(*(u32*)res == RESOURCE_HEADER(RESOURCE_VERSION_MATERIAL), "Wrong version");
 	return res;
 }
 
