@@ -44,6 +44,18 @@ void console_send_script(TCPSocket& client, const char* lua)
 	console_send(client, string_stream::c_str(json));
 }
 
+void console_send_repl(TCPSocket& client, const char* lua)
+{
+	TempAllocator1024 ta;
+	StringStream json(ta);
+
+	json << "{\"type\":\"repl\",\"repl\":\"";
+	console_sanitize_json_string(json, lua);
+	json << "\"}";
+
+	console_send(client, string_stream::c_str(json));
+}
+
 void console_send_command(TCPSocket& client, char* cmd)
 {
 	TempAllocator1024 ta;
@@ -257,7 +269,7 @@ void console_execute_command(Console& console, TCPSocket& client, const char* co
 	}
 	else
 	{
-		console_send_script(client, command);
+		console_send_repl(client, command);
 	}
 
 	console._scroll_to_bottom = true;
