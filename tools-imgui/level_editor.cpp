@@ -1580,7 +1580,8 @@ bool tool_process_events()
 			break;
 
 		case OsEventType::TEXT:
-			io.AddInputCharactersUTF8((const char*) event.text.utf8);
+			if (event.text.utf8[0] < 0x7f)
+				io.AddInputCharactersUTF8((const char*)event.text.utf8);
 			break;
 
 		case OsEventType::RESOLUTION:
