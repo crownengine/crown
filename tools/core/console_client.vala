@@ -87,7 +87,7 @@ namespace Crown
 		// Sends the lua script to the target
 		public void send_script(string lua)
 		{
-			send("{\"type\":\"script\",\"script\":\"" + lua.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
+			send("{\"type\":\"repl\",\"repl\":\"" + lua.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
 		}
 
 		public void receive_async()
