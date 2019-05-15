@@ -292,7 +292,6 @@ bool Device::process_events(bool vsync)
 void Device::run()
 {
 	_console_server->register_command("command", console_command, this);
-	_console_server->register_command("script",  console_command_script, this);
 
 	_console_server->listen(_device_options._console_port, _device_options._wait_console);
 
@@ -408,6 +407,7 @@ void Device::run()
 	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
 	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
 	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
+	_lua_environment->register_console_commands(*_console_server);
 
 	audio_globals::init();
 	physics_globals::init(_allocator);
@@ -417,8 +417,9 @@ void Device::run()
 	boot_package->flush();
 
 	_lua_environment->load_libs();
+	LuaStack stack = _lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
+	stack.pop(1); // FIXME: pop result
 	_lua_environment->execute_string(_device_options._lua_string.c_str());
-	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
 
 	_pipeline = CE_NEW(_allocator, Pipeline)();
 	_pipeline->create(_width, _height);
@@ -429,7 +430,7 @@ void Device::run()
 
 	logi(DEVICE, "Initialized");
 
-	_lua_environment->call_global("init", 0);
+	_lua_environment->call_global("init");
 
 	u16 old_width = _width;
 	u16 old_height = _height;
@@ -460,12 +461,16 @@ void Device::run()
 
 			{
 				const s64 t0 = time::now();
-				_lua_environment->call_global("update", 1, ARGUMENT_FLOAT, dt);
+				LuaStack stack(_lua_environment->L);
+				stack.push_float(dt);
+				_lua_environment->call_global("update", 1);
 				RECORD_FLOAT("lua.update", f32(time::seconds(time::now() - t0)));
 			}
 			{
 				const s64 t0 = time::now();
-				_lua_environment->call_global("render", 1, ARGUMENT_FLOAT, dt);
+				LuaStack stack(_lua_environment->L);
+				stack.push_float(dt);
+				_lua_environment->call_global("render", 1);
 				RECORD_FLOAT("lua.render", f32(time::seconds(time::now() - t0)));
 			}
 		}
@@ -490,7 +495,7 @@ void Device::run()
 	tool_shutdown();
 #endif
 
-	_lua_environment->call_global("shutdown", 0);
+	_lua_environment->call_global("shutdown");
 
 	boot_package->unload();
 	destroy_resource_package(*boot_package);

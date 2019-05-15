@@ -8,16 +8,14 @@
 #include "config.h"
 #include "core/math/types.h"
 #include "core/types.h"
+#include "device/types.h"
 #include "lua/lua_stack.h"
 #include "resource/types.h"
-#include <lua.hpp>
+struct lua_State;
 
 namespace crown
 {
-enum LuaArgumentType
-{
-	ARGUMENT_FLOAT
-};
+int report (lua_State *L, int status);
 
 /// Wraps a subset of Lua functions and provides utilities for extending Lua.
 ///
@@ -42,9 +40,16 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	u32 _num_mat4;
 	Matrix4x4 _mat4[LUA_MAX_MATRIX4X4];
 
+	///
 	LuaEnvironment();
+
+	///
 	~LuaEnvironment();
+
+	///
 	LuaEnvironment(const LuaEnvironment&) = delete;
+
+	///
 	LuaEnvironment& operator=(const LuaEnvironment&) = delete;
 
 	/// Loads lua libraries.
@@ -64,12 +69,11 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 
 	void add_module_metafunction(const char* module, const char* name, const lua_CFunction func);
 
-	/// Calls the global function @a func with @a argc argument number.
-	/// Each argument is a pair (type, value).
-	/// Example call:
-	/// call_global("myfunc", 1, ARGUMENT_FLOAT, 3.14f)
-	/// Returns true if success, false otherwise
-	void call_global(const char* func, u8 argc, ...);
+	/// Interface to lua_pcall/lua_call.
+	int call(int narg, int nres);
+
+	/// Calls the global function @a func.
+	void call_global(const char* func, int narg = 0, int nres = 0);
 
 	LuaStack get_global(const char* global);
 
@@ -100,8 +104,8 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	/// Returns whether @a p is a temporary Matrix4x4.
 	bool is_matrix4x4(const Matrix4x4* p) const;
 
-	static int error(lua_State* L);
-	static int require(lua_State* L);
+	///
+	void register_console_commands(ConsoleServer& cs);
 };
 
 } // namespace crown

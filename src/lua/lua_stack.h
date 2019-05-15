@@ -13,6 +13,10 @@
 #include "world/types.h"
 #include <lua.hpp>
 
+#ifndef LUA_OK
+	#define LUA_OK 0
+#endif
+
 #if CROWN_DEBUG
 	#define LUA_ASSERT(condition, stack, msg, ...)                       \
 		do                                                               \

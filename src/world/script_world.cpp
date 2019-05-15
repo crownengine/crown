@@ -5,6 +5,7 @@
 
 #include "core/containers/array.h"
 #include "core/containers/hash_map.h"
+#include "device/device.h"
 #include "lua/lua_environment.h"
 #include "lua/lua_stack.h"
 #include "resource/resource_manager.h"
@@ -78,7 +79,6 @@ namespace script_world
 		hash_map::set(sw._map, unit, instance_i);
 
 		LuaStack stack(sw._lua_environment->L);
-		stack.push_function(LuaEnvironment::error);
 		lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sd.module_ref);
 		lua_getfield(stack.L, -1, "spawned");
 		stack.push_world(sw._world);
@@ -86,8 +86,13 @@ namespace script_world
 		stack.push_key_begin(1);
 		stack.push_unit(unit);
 		stack.push_key_end();
-		lua_pcall(stack.L, 2, 0, -5);
-		stack.pop(2);
+		int status = sw._lua_environment->call(2, 0);
+		if (status != LUA_OK)
+		{
+			report(stack.L, status);
+			device()->pause();
+		}
+		stack.pop(1);
 
 		return script_world_internal::make_instance(instance_i);
 	}
@@ -102,7 +107,6 @@ namespace script_world
 		const u32 script_i  = sw._data[unit_i].script_i;
 
 		LuaStack stack(sw._lua_environment->L);
-		stack.push_function(LuaEnvironment::error);
 		lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[script_i].module_ref);
 		lua_getfield(stack.L, -1, "unspawned");
 		stack.push_world(sw._world);
@@ -110,8 +114,13 @@ namespace script_world
 		stack.push_key_begin(1);
 		stack.push_unit(unit);
 		stack.push_key_end();
-		lua_pcall(stack.L, 2, 0, -5);
-		stack.pop(2);
+		int status = sw._lua_environment->call(2, 0);
+		if (status != LUA_OK)
+		{
+			report(stack.L, status);
+			device()->pause();
+		}
+		stack.pop(1);
 
 		sw._data[unit_i] = sw._data[last_i];
 		hash_map::set(sw._map, last_u, unit_i);
@@ -126,7 +135,6 @@ namespace script_world
 	void update(ScriptWorld& sw, f32 dt)
 	{
 		LuaStack stack(sw._lua_environment->L);
-		stack.push_function(LuaEnvironment::error);
 
 		for (u32 i = 0; i < array::size(sw._script); ++i)
 		{
@@ -134,11 +142,14 @@ namespace script_world
 			lua_getfield(stack.L, -1, "update");
 			stack.push_world(sw._world);
 			stack.push_float(dt);
-			lua_pcall(stack.L, 2, 0, -5);
+			int status = sw._lua_environment->call(2, 0);
+			if (status != LUA_OK)
+			{
+				report(stack.L, status);
+				device()->pause();
+			}
 			stack.pop(1);
 		}
-
-		stack.pop(1);
 	}
 
 	void collision(ScriptWorld& sw, const PhysicsCollisionEvent& ev)
@@ -150,7 +161,6 @@ namespace script_world
 				int unit_index = sw._data[i].unit == ev.units[0] ? 0 : 1;
 
 				LuaStack stack(sw._lua_environment->L);
-				stack.push_function(LuaEnvironment::error);
 				lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[sw._data[i].script_i].module_ref);
 				switch (ev.type)
 				{
@@ -164,8 +174,13 @@ namespace script_world
 						stack.push_vector3(ev.position);
 						stack.push_vector3(ev.normal);
 						stack.push_float(ev.distance);
-						lua_pcall(stack.L, 6, 0, -5);
-						stack.pop(2);
+						int status = sw._lua_environment->call(6, 0);
+						if (status != LUA_OK)
+						{
+							report(stack.L, status);
+							device()->pause();
+						}
+						stack.pop(1);
 					}
 					break;
 
@@ -179,8 +194,13 @@ namespace script_world
 						stack.push_vector3(ev.position);
 						stack.push_vector3(ev.normal);
 						stack.push_float(ev.distance);
-						lua_pcall(stack.L, 6, 0, -5);
-						stack.pop(2);
+						int status = sw._lua_environment->call(6, 0);
+						if (status != LUA_OK)
+						{
+							report(stack.L, status);
+							device()->pause();
+						}
+						stack.pop(1);
 					}
 					break;
 
