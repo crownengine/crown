@@ -1600,7 +1600,8 @@ bool tool_process_events()
 
 	}
 
-	_editor->send_command(ss);
+	if (array::size(ss) > 0)
+		_editor->send_command(ss);
 
 	bool vsync = true;
 	if (reset)
