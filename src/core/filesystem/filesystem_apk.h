@@ -32,6 +32,9 @@ struct FilesystemApk : public Filesystem
 	/// @copydoc Filesystem::close()
 	void close(File& file);
 
+	/// @copydoc Filesystem::stat()
+	Stat stat(const char* path);
+
 	/// @copydoc Filesystem::exists()
 	bool exists(const char* path);
 

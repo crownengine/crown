@@ -133,6 +133,15 @@ void FilesystemApk::close(File& file)
 	CE_DELETE(*_allocator, &file);
 }
 
+Stat FilesystemApk::stat(const char* /*path*/)
+{
+	Stat info;
+	info.file_type = Stat::REGULAR;
+	info.size = 0;
+	info.mtime = UINT64_MAX;
+	return info;
+}
+
 bool FilesystemApk::exists(const char* /*path*/)
 {
 	return true;

@@ -261,7 +261,7 @@ void FilesystemDisk::close(File& file)
 	CE_DELETE(*_allocator, &file);
 }
 
-bool FilesystemDisk::exists(const char* path)
+Stat FilesystemDisk::stat(const char* path)
 {
 	CE_ENSURE(NULL != path);
 
@@ -271,46 +271,27 @@ bool FilesystemDisk::exists(const char* path)
 
 	Stat info;
 	os::stat(info, abs_path.c_str());
-	return info.file_type != Stat::NO_ENTRY;
+	return info;
+}
+
+bool FilesystemDisk::exists(const char* path)
+{
+	return stat(path).file_type != Stat::NO_ENTRY;
 }
 
 bool FilesystemDisk::is_directory(const char* path)
 {
-	CE_ENSURE(NULL != path);
-
-	TempAllocator256 ta;
-	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
-
-	Stat info;
-	os::stat(info, abs_path.c_str());
-	return info.file_type == Stat::DIRECTORY;
+	return stat(path).file_type == Stat::DIRECTORY;
 }
 
 bool FilesystemDisk::is_file(const char* path)
 {
-	CE_ENSURE(NULL != path);
-
-	TempAllocator256 ta;
-	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
-
-	Stat info;
-	os::stat(info, abs_path.c_str());
-	return info.file_type == Stat::REGULAR;
+	return stat(path).file_type == Stat::REGULAR;
 }
 
 u64 FilesystemDisk::last_modified_time(const char* path)
 {
-	CE_ENSURE(NULL != path);
-
-	TempAllocator256 ta;
-	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
-
-	Stat info;
-	os::stat(info, abs_path.c_str());
-	return info.mtime;
+	return stat(path).mtime;
 }
 
 void FilesystemDisk::create_directory(const char* path)

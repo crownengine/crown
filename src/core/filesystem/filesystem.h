@@ -7,6 +7,7 @@
 
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
+#include "core/os.h"
 #include "core/strings/types.h"
 
 namespace crown
@@ -27,6 +28,9 @@ struct Filesystem
 
 	/// Closes the given @a file.
 	virtual void close(File& file) = 0;
+
+	/// Returns informations about @a path.
+	virtual Stat stat(const char* path) = 0;
 
 	/// Returns whether @a path exists.
 	virtual bool exists(const char* path) = 0;
