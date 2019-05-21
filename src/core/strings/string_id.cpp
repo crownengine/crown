@@ -61,8 +61,7 @@ void StringId64::parse(const char* str)
 	u32 id[2];
 	CE_ENSURE(NULL != str);
 	int num = sscanf(str, "%8x%8x", &id[0], &id[1]);
-	_id = 0;
-	_id |= u64(id[0]) << 32;
+	_id =  u64(id[0]) << 32;
 	_id |= u64(id[1]) <<  0;
 	CE_ENSURE(num == 2);
 	CE_UNUSED(num);

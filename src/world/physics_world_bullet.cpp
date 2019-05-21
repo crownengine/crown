@@ -473,9 +473,9 @@ struct PhysicsWorldImpl
 		btRigidBody* actor = CE_NEW(*_allocator, btRigidBody)(rbinfo);
 
 		int cflags = actor->getCollisionFlags();
-		cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT : 0;
-		cflags |= is_static ? btCollisionObject::CF_STATIC_OBJECT : 0;
-		cflags |= is_trigger ? btCollisionObject::CF_NO_CONTACT_RESPONSE : 0;
+		cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT    : 0;
+		cflags |= is_static    ? btCollisionObject::CF_STATIC_OBJECT       : 0;
+		cflags |= is_trigger   ? btCollisionObject::CF_NO_CONTACT_RESPONSE : 0;
 		actor->setCollisionFlags(cflags);
 
 		actor->setLinearFactor(btVector3(

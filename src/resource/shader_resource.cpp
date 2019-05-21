@@ -495,31 +495,31 @@ namespace shader_resource_internal
 
 		u64 encode() const
 		{
-			const u64 depth_func = (_depth_enable
+			const u64 depth_func = _depth_enable
 				? _bgfx_depth_func_map[_depth_func]
 				: 0
-				);
-			const u64 blend_func = (_blend_enable
+				;
+			const u64 blend_func = _blend_enable
 				? BGFX_STATE_BLEND_FUNC(_bgfx_blend_func_map[_blend_src], _bgfx_blend_func_map[_blend_dst])
 				: 0
-				);
-			const u64 blend_eq = (_blend_enable
+				;
+			const u64 blend_eq = _blend_enable
 				? BGFX_STATE_BLEND_EQUATION(_bgfx_blend_equation_map[_blend_equation])
 				: 0
-				);
-			const u64 cull_mode = (_cull_mode != CullMode::COUNT
+				;
+			const u64 cull_mode = _cull_mode != CullMode::COUNT
 				? _bgfx_cull_mode_map[_cull_mode]
 				: 0
-				);
-			const u64 primitive_type = (_primitive_type != PrimitiveType::COUNT
+				;
+			const u64 primitive_type = _primitive_type != PrimitiveType::COUNT
 				? _bgfx_primitive_type_map[_primitive_type]
 				: 0
-				);
+				;
 
 			u64 state = 0;
-			state |= (_rgb_write_enable   ? BGFX_STATE_WRITE_RGB : 0);
-			state |= (_alpha_write_enable ? BGFX_STATE_WRITE_A   : 0);
-			state |= (_depth_write_enable ? BGFX_STATE_WRITE_Z   : 0);
+			state |= _rgb_write_enable   ? BGFX_STATE_WRITE_RGB : 0;
+			state |= _alpha_write_enable ? BGFX_STATE_WRITE_A   : 0;
+			state |= _depth_write_enable ? BGFX_STATE_WRITE_Z   : 0;
 			state |= depth_func;
 			state |= blend_func;
 			state |= blend_eq;
@@ -555,11 +555,11 @@ namespace shader_resource_internal
 		u32 encode() const
 		{
 			u32 state = 0;
-			state |= _filter_min == SamplerFilter::COUNT ? 0 : _bgfx_sampler_filter_min_map[_filter_min];
-			state |= _filter_mag == SamplerFilter::COUNT ? 0 : _bgfx_sampler_filter_mag_map[_filter_mag];
-			state |= _wrap_u == SamplerWrap::COUNT ? 0 : _bgfx_sampler_wrap_u_map[_wrap_u];
-			state |= _wrap_v == SamplerWrap::COUNT ? 0 : _bgfx_sampler_wrap_v_map[_wrap_v];
-			state |= _wrap_w == SamplerWrap::COUNT ? 0 : _bgfx_sampler_wrap_w_map[_wrap_w];
+			state |= _filter_min != SamplerFilter::COUNT ? _bgfx_sampler_filter_min_map[_filter_min] : 0;
+			state |= _filter_mag != SamplerFilter::COUNT ? _bgfx_sampler_filter_mag_map[_filter_mag] : 0;
+			state |= _wrap_u != SamplerWrap::COUNT ? _bgfx_sampler_wrap_u_map[_wrap_u] : 0;
+			state |= _wrap_v != SamplerWrap::COUNT ? _bgfx_sampler_wrap_v_map[_wrap_v] : 0;
+			state |= _wrap_w != SamplerWrap::COUNT ? _bgfx_sampler_wrap_w_map[_wrap_w] : 0;
 			return state;
 		}
 	};
