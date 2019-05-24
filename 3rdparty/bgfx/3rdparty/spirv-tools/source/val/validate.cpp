@@ -14,10 +14,9 @@
 
 #include "source/val/validate.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
-
-#include <algorithm>
 #include <functional>
 #include <iterator>
 #include <memory>
@@ -51,21 +50,6 @@ static uint32_t kDefaultMaxNumOfWarnings = 1;
 namespace spvtools {
 namespace val {
 namespace {
-
-// TODO(umar): Validate header
-// TODO(umar): The binary parser validates the magic word, and the length of the
-// header, but nothing else.
-spv_result_t setHeader(void* user_data, spv_endianness_t, uint32_t,
-                       uint32_t version, uint32_t generator, uint32_t id_bound,
-                       uint32_t) {
-  // Record the ID bound so that the validator can ensure no ID is out of bound.
-  ValidationState_t& _ = *(reinterpret_cast<ValidationState_t*>(user_data));
-  _.setIdBound(id_bound);
-  _.setGenerator(generator);
-  _.setVersion(version);
-
-  return SPV_SUCCESS;
-}
 
 // Parses OpExtension instruction and registers extension.
 void RegisterExtension(ValidationState_t& _,
@@ -108,48 +92,6 @@ spv_result_t ProcessInstruction(void* user_data,
   _.RegisterDebugInstruction(instruction);
 
   return SPV_SUCCESS;
-}
-
-void printDot(const ValidationState_t& _, const BasicBlock& other) {
-  std::string block_string;
-  if (other.successors()->empty()) {
-    block_string += "end ";
-  } else {
-    for (auto block : *other.successors()) {
-      block_string += _.getIdName(block->id()) + " ";
-    }
-  }
-  printf("%10s -> {%s\b}\n", _.getIdName(other.id()).c_str(),
-         block_string.c_str());
-}
-
-void PrintBlocks(ValidationState_t& _, Function func) {
-  assert(func.first_block());
-
-  printf("%10s -> %s\n", _.getIdName(func.id()).c_str(),
-         _.getIdName(func.first_block()->id()).c_str());
-  for (const auto& block : func.ordered_blocks()) {
-    printDot(_, *block);
-  }
-}
-
-#ifdef __clang__
-#define UNUSED(func) [[gnu::unused]] func
-#elif defined(__GNUC__)
-#define UNUSED(func)            \
-  func __attribute__((unused)); \
-  func
-#elif defined(_MSC_VER)
-#define UNUSED(func) func
-#endif
-
-UNUSED(void PrintDotGraph(ValidationState_t& _, Function func)) {
-  if (func.first_block()) {
-    std::string func_name(_.getIdName(func.id()));
-    printf("digraph %s {\n", func_name.c_str());
-    PrintBlocks(_, func);
-    printf("}\n");
-  }
 }
 
 spv_result_t ValidateForwardDecls(ValidationState_t& _) {
@@ -281,6 +223,12 @@ spv_result_t ValidateBinaryUsingContextAndValidationState(
            << "Invalid SPIR-V magic number.";
   }
 
+  if (spvIsWebGPUEnv(context.target_env) && endian != SPV_ENDIANNESS_LITTLE) {
+    return DiagnosticStream(position, context.consumer, "",
+                            SPV_ERROR_INVALID_BINARY)
+           << "WebGPU requires SPIR-V to be little endian.";
+  }
+
   spv_header_t header;
   if (spvBinaryHeaderGet(binary.get(), endian, &header)) {
     return DiagnosticStream(position, context.consumer, "",
@@ -318,7 +266,8 @@ spv_result_t ValidateBinaryUsingContextAndValidationState(
 
   // Parse the module and perform inline validation checks. These checks do
   // not require the the knowledge of the whole module.
-  if (auto error = spvBinaryParse(&context, vstate, words, num_words, setHeader,
+  if (auto error = spvBinaryParse(&context, vstate, words, num_words,
+                                  /*parsed_header =*/nullptr,
                                   ProcessInstruction, pDiagnostic)) {
     return error;
   }

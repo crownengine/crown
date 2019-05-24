@@ -59,6 +59,7 @@ static bool is_valid_spirv_version(uint32_t version)
 	case 0x10100: // SPIR-V 1.1
 	case 0x10200: // SPIR-V 1.2
 	case 0x10300: // SPIR-V 1.3
+	case 0x10400: // SPIR-V 1.4
 		return true;
 
 	default:
@@ -158,7 +159,6 @@ void Parser::parse(const Instruction &instruction)
 
 	switch (op)
 	{
-	case OpMemoryModel:
 	case OpSourceContinued:
 	case OpSourceExtension:
 	case OpNop:
@@ -166,6 +166,11 @@ void Parser::parse(const Instruction &instruction)
 	case OpNoLine:
 	case OpString:
 	case OpModuleProcessed:
+		break;
+
+	case OpMemoryModel:
+		ir.addressing_model = static_cast<AddressingModel>(ops[0]);
+		ir.memory_model = static_cast<MemoryModel>(ops[1]);
 		break;
 
 	case OpSource:
@@ -595,6 +600,20 @@ void Parser::parse(const Instruction &instruction)
 		ptrbase.parent_type = ops[2];
 
 		// Do NOT set ptrbase.self!
+		break;
+	}
+
+	case OpTypeForwardPointer:
+	{
+		uint32_t id = ops[0];
+		auto &ptrbase = set<SPIRType>(id);
+		ptrbase.pointer = true;
+		ptrbase.pointer_depth++;
+		ptrbase.storage = static_cast<StorageClass>(ops[1]);
+
+		if (ptrbase.storage == StorageClassAtomicCounter)
+			ptrbase.basetype = SPIRType::AtomicCounter;
+
 		break;
 	}
 

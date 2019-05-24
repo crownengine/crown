@@ -117,24 +117,6 @@ project ("texturev")
 			"GLESv2",
 		}
 
-	configuration { "nacl*" }
-		kind "ConsoleApp"
-		targetextension ".nexe"
-		links {
-			"ppapi",
-			"ppapi_gles2",
-			"pthread",
-		}
-
-	configuration { "pnacl" }
-		kind "ConsoleApp"
-		targetextension ".pexe"
-		links {
-			"ppapi",
-			"ppapi_gles2",
-			"pthread",
-		}
-
 	configuration { "asmjs" }
 		kind "ConsoleApp"
 		targetextension ".bc"
@@ -175,7 +157,7 @@ project ("texturev")
 			"-framework QuartzCore",
 		}
 
-	configuration { "xcode4", "ios" }
+	configuration { "xcode*", "ios" }
 		kind "WindowedApp"
 
 	configuration { "qnx*" }

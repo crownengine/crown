@@ -31,6 +31,7 @@ set(SPIRV_TOOLS_OPT_SOURCES
   dead_branch_elim_pass.h
   dead_insert_elim_pass.h
   dead_variable_elimination.h
+  decompose_initialized_variables_pass.h
   decoration_manager.h
   def_use_manager.h
   dominator_analysis.h
@@ -96,6 +97,7 @@ set(SPIRV_TOOLS_OPT_SOURCES
   scalar_replacement_pass.h
   set_spec_constant_default_value_pass.h
   simplification_pass.h
+  split_invalid_unreachable_pass.h
   ssa_rewrite_pass.h
   strength_reduction_pass.h
   strip_atomic_counter_memory_pass.h
@@ -130,6 +132,7 @@ set(SPIRV_TOOLS_OPT_SOURCES
   dead_branch_elim_pass.cpp
   dead_insert_elim_pass.cpp
   dead_variable_elimination.cpp
+  decompose_initialized_variables_pass.cpp
   decoration_manager.cpp
   def_use_manager.cpp
   dominator_analysis.cpp
@@ -193,6 +196,7 @@ set(SPIRV_TOOLS_OPT_SOURCES
   scalar_replacement_pass.cpp
   set_spec_constant_default_value_pass.cpp
   simplification_pass.cpp
+  split_invalid_unreachable_pass.cpp
   ssa_rewrite_pass.cpp
   strength_reduction_pass.cpp
   strip_atomic_counter_memory_pass.cpp

@@ -64,6 +64,7 @@ newaction {
 
 		generate("temp.bgfx.h" ,      "../include/bgfx/c99/bgfx.h", "    ")
 		generate("temp.bgfx.idl.inl", "../src/bgfx.idl.inl",        "\t")
+		generate("temp.defines.h",    "../include/bgfx/defines.h",  "\t")
 
 		os.exit()
 	end
@@ -75,7 +76,7 @@ solution "bgfx"
 		"Release",
 	}
 
-	if _ACTION == "xcode4" then
+	if _ACTION:match "xcode*" then
 		platforms {
 			"Universal",
 		}
@@ -343,13 +344,13 @@ function exampleProjectDefaults()
 			"-weak_framework Metal",
 		}
 
-	configuration { "xcode4", "ios" }
+	configuration { "xcode*", "ios" }
 		kind "WindowedApp"
 		files {
 			path.join(BGFX_DIR, "examples/runtime/iOS-Info.plist"),
 		}
 
-	configuration { "xcode4", "tvos" }
+	configuration { "xcode*", "tvos" }
 		kind "WindowedApp"
 		files {
 			path.join(BGFX_DIR, "examples/runtime/tvOS-Info.plist"),

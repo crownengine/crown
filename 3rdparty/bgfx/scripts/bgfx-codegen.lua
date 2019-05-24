@@ -6,25 +6,28 @@ local codegen = require "codegen"
 local doxygen = require "doxygen"
 
 local func_actions = {
-	c99 = "\n",
-	c99decl = "\n",
-	cppdecl = "\n",
+
+	c99              = "\n",
+	c99decl          = "\n",
+	cppdecl          = "\n",
 	interface_struct = "\n\t",
 	interface_import = ",\n\t\t\t",
-	c99_interface = "\n",
-	cpp_interface = "\n",
-	c99_functionid = "\n\t",
-	cpp_functionid = "\n\t\t",
+	c99_interface    = "\n",
+	cpp_interface    = "\n",
+	c99_functionid   = "\n\t",
+	cpp_functionid   = "\n\t\t",
 }
 
 local type_actions = {
-	enums = "\n",
-	cenums = "\n",
-	structs = "\n",
-	cstructs = "\n",
-	handles = "\n",
-	chandles = "\n",
-	funcptrs = "\n",
+
+	cflags    = "\n",
+	enums     = "\n",
+	cenums    = "\n",
+	structs   = "\n",
+	cstructs  = "\n",
+	handles   = "\n",
+	chandles  = "\n",
+	funcptrs  = "\n",
 	cfuncptrs = "\n",
 }
 
@@ -171,6 +174,12 @@ function typegen.cenums(typedef)
 	end
 end
 
+function typegen.cflags(typedef)
+	if typedef.flag then
+		return add_doxygen(typedef, codegen.gen_flag_cdefine(typedef), true)
+	end
+end
+
 function typegen.structs(typedef)
 	if typedef.struct and not typedef.namespace then
 		local methods = typedef.methods
@@ -252,6 +261,8 @@ local function codes()
 	for k, indent in pairs(type_actions) do
 		temp[k] = table.concat(temp[k], indent)
 	end
+
+	temp.version = string.format("#define BGFX_API_VERSION UINT32_C(%d)", idl._version or 0)
 
 	return temp
 end

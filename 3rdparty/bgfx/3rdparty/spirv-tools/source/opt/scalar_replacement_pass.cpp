@@ -72,7 +72,9 @@ Pass::Status ScalarReplacementPass::ProcessFunction(Function* function) {
 bool ScalarReplacementPass::ReplaceVariable(
     Instruction* inst, std::queue<Instruction*>* worklist) {
   std::vector<Instruction*> replacements;
-  CreateReplacementVariables(inst, &replacements);
+  if (!CreateReplacementVariables(inst, &replacements)) {
+    return false;
+  }
 
   std::vector<Instruction*> dead;
   dead.push_back(inst);
@@ -225,12 +227,12 @@ bool ScalarReplacementPass::ReplaceAccessChain(
   // indexes) or a direct use of the replacement variable.
   uint32_t indexId = chain->GetSingleWordInOperand(1u);
   const Instruction* index = get_def_use_mgr()->GetDef(indexId);
-  size_t indexValue = GetConstantInteger(index);
+  uint64_t indexValue = GetConstantInteger(index);
   if (indexValue > replacements.size()) {
     // Out of bounds access, this is illegal IR.
     return false;
   } else {
-    const Instruction* var = replacements[indexValue];
+    const Instruction* var = replacements[static_cast<size_t>(indexValue)];
     if (chain->NumInOperands() > 2) {
       // Replace input access chain with another access chain.
       BasicBlock::iterator chainIter(chain);
@@ -257,7 +259,7 @@ bool ScalarReplacementPass::ReplaceAccessChain(
   return true;
 }
 
-void ScalarReplacementPass::CreateReplacementVariables(
+bool ScalarReplacementPass::CreateReplacementVariables(
     Instruction* inst, std::vector<Instruction*>* replacements) {
   Instruction* type = GetStorageType(inst);
 
@@ -302,6 +304,8 @@ void ScalarReplacementPass::CreateReplacementVariables(
   }
 
   TransferAnnotations(inst, replacements);
+  return std::find(replacements->begin(), replacements->end(), nullptr) ==
+         replacements->end();
 }
 
 void ScalarReplacementPass::TransferAnnotations(
@@ -457,16 +461,16 @@ void ScalarReplacementPass::GetOrCreateInitialValue(Instruction* source,
   }
 }
 
-size_t ScalarReplacementPass::GetIntegerLiteral(const Operand& op) const {
+uint64_t ScalarReplacementPass::GetIntegerLiteral(const Operand& op) const {
   assert(op.words.size() <= 2);
-  size_t len = 0;
+  uint64_t len = 0;
   for (uint32_t i = 0; i != op.words.size(); ++i) {
     len |= (op.words[i] << (32 * i));
   }
   return len;
 }
 
-size_t ScalarReplacementPass::GetConstantInteger(
+uint64_t ScalarReplacementPass::GetConstantInteger(
     const Instruction* constant) const {
   assert(get_def_use_mgr()->GetDef(constant->type_id())->opcode() ==
          SpvOpTypeInt);
@@ -480,7 +484,7 @@ size_t ScalarReplacementPass::GetConstantInteger(
   return GetIntegerLiteral(op);
 }
 
-size_t ScalarReplacementPass::GetArrayLength(
+uint64_t ScalarReplacementPass::GetArrayLength(
     const Instruction* arrayType) const {
   assert(arrayType->opcode() == SpvOpTypeArray);
   const Instruction* length =
@@ -488,14 +492,14 @@ size_t ScalarReplacementPass::GetArrayLength(
   return GetConstantInteger(length);
 }
 
-size_t ScalarReplacementPass::GetNumElements(const Instruction* type) const {
+uint64_t ScalarReplacementPass::GetNumElements(const Instruction* type) const {
   assert(type->opcode() == SpvOpTypeVector ||
          type->opcode() == SpvOpTypeMatrix);
   const Operand& op = type->GetInOperand(1u);
   assert(op.words.size() <= 2);
-  size_t len = 0;
-  for (uint32_t i = 0; i != op.words.size(); ++i) {
-    len |= (op.words[i] << (32 * i));
+  uint64_t len = 0;
+  for (size_t i = 0; i != op.words.size(); ++i) {
+    len |= (static_cast<uint64_t>(op.words[i]) << (32ull * i));
   }
   return len;
 }
@@ -717,7 +721,7 @@ bool ScalarReplacementPass::CheckStore(const Instruction* inst,
     return false;
   return true;
 }
-bool ScalarReplacementPass::IsLargerThanSizeLimit(size_t length) const {
+bool ScalarReplacementPass::IsLargerThanSizeLimit(uint64_t length) const {
   if (max_num_elements_ == 0) {
     return false;
   }
@@ -801,7 +805,9 @@ Instruction* ScalarReplacementPass::CreateNullConstant(uint32_t type_id) {
   const analysis::Constant* null_const = const_mgr->GetConstant(type, {});
   Instruction* null_inst =
       const_mgr->GetDefiningInstruction(null_const, type_id);
-  context()->UpdateDefUse(null_inst);
+  if (null_inst != nullptr) {
+    context()->UpdateDefUse(null_inst);
+  }
   return null_inst;
 }
 

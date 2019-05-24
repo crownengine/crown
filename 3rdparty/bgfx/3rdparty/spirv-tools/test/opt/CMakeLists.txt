@@ -21,6 +21,7 @@ add_spvtools_unittest(TARGET opt
        block_merge_test.cpp
        ccp_test.cpp
        cfg_cleanup_test.cpp
+       cfg_test.cpp
        code_sink_test.cpp
        combine_access_chains_test.cpp
        common_uniform_elim_test.cpp
@@ -30,6 +31,7 @@ add_spvtools_unittest(TARGET opt
        dead_branch_elim_test.cpp
        dead_insert_elim_test.cpp
        dead_variable_elim_test.cpp
+       decompose_initialized_variables_test.cpp
        decoration_manager_test.cpp
        def_use_test.cpp
        eliminate_dead_const_test.cpp
@@ -79,6 +81,7 @@ add_spvtools_unittest(TARGET opt
        scalar_replacement_test.cpp
        set_spec_const_default_value_test.cpp
        simplification_test.cpp
+       split_invalid_unreachable_test.cpp
        strength_reduction_test.cpp
        strip_atomic_counter_memory_test.cpp
        strip_debug_info_test.cpp
