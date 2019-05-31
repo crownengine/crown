@@ -33,7 +33,7 @@ Index of this file:
 
 #include <stdio.h>      // vsnprintf, sscanf, printf
 #if !defined(alloca)
-#if defined(__GLIBC__) || defined(__sun) || defined(__CYGWIN__) || defined(__APPLE__)
+#if defined(__GLIBC__) || defined(__sun) || defined(__CYGWIN__) || defined(__APPLE__) || defined(__SWITCH__)
 #include <alloca.h>     // alloca (glibc uses <alloca.h>. Note that Cygwin may have _WIN32 defined, so the order matters here)
 #elif defined(_WIN32)
 #include <malloc.h>     // alloca
@@ -348,6 +348,7 @@ ImDrawListSharedData::ImDrawListSharedData()
     FontSize = 0.0f;
     CurveTessellationTol = 0.0f;
     ClipRectFullscreen = ImVec4(-8192.0f, -8192.0f, +8192.0f, +8192.0f);
+    InitialFlags = ImDrawListFlags_None;
 
     // Const data
     for (int i = 0; i < IM_ARRAYSIZE(CircleVtx12); i++)
@@ -362,7 +363,8 @@ void ImDrawList::Clear()
     CmdBuffer.resize(0);
     IdxBuffer.resize(0);
     VtxBuffer.resize(0);
-    Flags = ImDrawListFlags_AntiAliasedLines | ImDrawListFlags_AntiAliasedFill;
+    Flags = _Data->InitialFlags;
+    _VtxCurrentOffset = 0;
     _VtxCurrentIdx = 0;
     _VtxWritePtr = NULL;
     _IdxWritePtr = NULL;
@@ -415,6 +417,8 @@ void ImDrawList::AddDrawCmd()
     ImDrawCmd draw_cmd;
     draw_cmd.ClipRect = GetCurrentClipRect();
     draw_cmd.TextureId = GetCurrentTextureId();
+    draw_cmd.VtxOffset = _VtxCurrentOffset;
+    draw_cmd.IdxOffset = IdxBuffer.Size;
 
     IM_ASSERT(draw_cmd.ClipRect.x <= draw_cmd.ClipRect.z && draw_cmd.ClipRect.y <= draw_cmd.ClipRect.w);
     CmdBuffer.push_back(draw_cmd);
@@ -564,7 +568,10 @@ void ImDrawList::ChannelsMerge()
     if (CmdBuffer.Size && CmdBuffer.back().ElemCount == 0)
         CmdBuffer.pop_back();
 
-    int new_cmd_buffer_count = 0, new_idx_buffer_count = 0;
+    // Calculate our final buffer sizes. Also fix the incorrect IdxOffset values in each command.
+    int new_cmd_buffer_count = 0;
+    int new_idx_buffer_count = 0;
+    int idx_offset = CmdBuffer.back().IdxOffset + CmdBuffer.back().ElemCount;
     for (int i = 1; i < _ChannelsCount; i++)
     {
         ImDrawChannel& ch = _Channels[i];
@@ -572,10 +579,16 @@ void ImDrawList::ChannelsMerge()
             ch.CmdBuffer.pop_back();
         new_cmd_buffer_count += ch.CmdBuffer.Size;
         new_idx_buffer_count += ch.IdxBuffer.Size;
+        for (int cmd_n = 0; cmd_n < ch.CmdBuffer.Size; cmd_n++)
+        {
+            ch.CmdBuffer.Data[cmd_n].IdxOffset = idx_offset;
+            idx_offset += ch.CmdBuffer.Data[cmd_n].ElemCount;
+        }
     }
     CmdBuffer.resize(CmdBuffer.Size + new_cmd_buffer_count);
     IdxBuffer.resize(IdxBuffer.Size + new_idx_buffer_count);
 
+    // Flatten our N channels at the end of the first one.
     ImDrawCmd* cmd_write = CmdBuffer.Data + CmdBuffer.Size - new_cmd_buffer_count;
     _IdxWritePtr = IdxBuffer.Data + IdxBuffer.Size - new_idx_buffer_count;
     for (int i = 1; i < _ChannelsCount; i++)
@@ -603,6 +616,14 @@ void ImDrawList::ChannelsSetCurrent(int idx)
 // NB: this can be called with negative count for removing primitives (as long as the result does not underflow)
 void ImDrawList::PrimReserve(int idx_count, int vtx_count)
 {
+    // Large mesh support (when enabled)
+    if (sizeof(ImDrawIdx) == 2 && (_VtxCurrentIdx + vtx_count >= (1 << 16)) && (Flags & ImDrawListFlags_AllowVtxOffset))
+    {
+        _VtxCurrentOffset = VtxBuffer.Size;
+        _VtxCurrentIdx = 0;
+        AddDrawCmd();
+    }
+
     ImDrawCmd& draw_cmd = CmdBuffer.Data[CmdBuffer.Size-1];
     draw_cmd.ElemCount += idx_count;
 
@@ -2949,7 +2970,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
     draw_list->CmdBuffer[draw_list->CmdBuffer.Size-1].ElemCount -= (idx_expected_size - draw_list->IdxBuffer.Size);
     draw_list->_VtxWritePtr = vtx_write;
     draw_list->_IdxWritePtr = idx_write;
-    draw_list->_VtxCurrentIdx = (unsigned int)draw_list->VtxBuffer.Size;
+    draw_list->_VtxCurrentIdx = vtx_current_idx;
 }
 
 //-----------------------------------------------------------------------------
