@@ -16,6 +16,15 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
   * [C++ API](http://dbartolini.github.io/crown/doxygen/modules)
   * [Discord](https://discord.gg/CeXVWCT): [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
 
+## Sponsors
+**Register sponsors**  
+
+**L1$ sponsors**  
+
+**L2$ supporters**  
+
+**L3$ supporters**  
+
 ## Screenshots
 
 ### [Level Editor](https://github.com/dbartolini/crown/tree/master/tools/level_editor)
