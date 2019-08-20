@@ -17,6 +17,7 @@
 *.java eol=lf
 *.vala eol=lf
 *.rst  eol=lf
+*.yml  eol=lf
 .gitattributes eol=lf
 makefile eol=lf
 
