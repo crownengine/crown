@@ -56,7 +56,7 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	void load_libs();
 
 	/// Executes the lua resource @a lr.
-	LuaStack execute(const LuaResource* lr);
+	LuaStack execute(const LuaResource* lr, int nres);
 
 	/// Executes the @a lua string.
 	LuaStack execute_string(const char* lua);

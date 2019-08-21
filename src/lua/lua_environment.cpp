@@ -199,21 +199,20 @@ void LuaEnvironment::load_libs()
 	lua_gc(L, LUA_GCRESTART, 0);
 }
 
-LuaStack LuaEnvironment::execute(const LuaResource* lr)
+LuaStack LuaEnvironment::execute(const LuaResource* lr, int nres)
 {
 	LuaStack stack(L);
 	int status;
 
 	status = luaL_loadbuffer(L, lua_resource::program(lr), lr->size, "<unknown>");
 	if (status == LUA_OK)
-		status = this->call(0, 1);
+		status = this->call(0, nres);
 	if (status != LUA_OK)
 	{
 		report(L, status);
 		device()->pause();
 	}
 
-	// CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
 	return stack;
 }
 

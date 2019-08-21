@@ -417,8 +417,7 @@ void Device::run()
 	boot_package->flush();
 
 	_lua_environment->load_libs();
-	LuaStack stack = _lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name));
-	stack.pop(1); // FIXME: pop result
+	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name), 0);
 	_lua_environment->execute_string(_device_options._lua_string.c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)();
@@ -685,7 +684,7 @@ void Device::reload(StringId64 type, StringId64 name)
 
 	if (type == RESOURCE_TYPE_SCRIPT)
 	{
-		_lua_environment->execute((const LuaResource*)new_resource);
+		_lua_environment->execute((const LuaResource*)new_resource, 0);
 	}
 
 	logi(DEVICE, "Reloaded #ID(%s)", path.c_str());
