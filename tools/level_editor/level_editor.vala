@@ -1544,6 +1544,9 @@ namespace Crown
 
 		bool create_initial_files = false;
 		string source_dir = "";
+		string level_resource = "";
+		string toolchain_dir = "";
+
 		if (args.length > 1)
 		{
 			if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR))
@@ -1584,16 +1587,21 @@ namespace Crown
 			create_initial_files = true;
 		}
 
-		string toolchain_dir = "";
 		if (args.length > 2)
 		{
-			if (!GLib.FileUtils.test(args[2], FileTest.EXISTS) || !GLib.FileUtils.test(args[2], FileTest.IS_DIR))
+			// Validation is done below after the Project object instantiation
+			level_resource = args[2];
+		}
+
+		if (args.length > 3)
+		{
+			if (!GLib.FileUtils.test(args[3], FileTest.EXISTS) || !GLib.FileUtils.test(args[3], FileTest.IS_DIR))
 			{
 				stdout.printf("Toolchain directory does not exist or it is not a directory\n");
 				return -1;
 			}
 
-			toolchain_dir = args[2];
+			toolchain_dir = args[3];
 		}
 		else
 		{
@@ -1637,10 +1645,23 @@ namespace Crown
 		ConsoleClient game = new ConsoleClient();
 
 		Level level = new Level(database, engine, project);
+		if (level_resource != "")
+		{
+			string level_path = project.source_dir() + "/" + level_resource + ".level";
+			if (!GLib.FileUtils.test(level_path, FileTest.EXISTS) || !GLib.FileUtils.test(level_path, FileTest.IS_REGULAR))
+			{
+				stdout.printf("Level resource '%s' does not exist.\n", level_resource);
+				return -1;
+			}
+
+			level.load(level_path);
+		}
+		else
+		{
+			level.load_empty_level();
+		}
+
 		LevelEditor editor = new LevelEditor(project, database, level, compiler, engine, game);
-
-		level.load_empty_level();
-
 		editor.show_all();
 
 		Gtk.main();
