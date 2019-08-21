@@ -1645,6 +1645,8 @@ namespace Crown
 		ConsoleClient game = new ConsoleClient();
 
 		Level level = new Level(database, engine, project);
+		LevelEditor editor = new LevelEditor(project, database, level, compiler, engine, game);
+
 		if (level_resource != "")
 		{
 			string level_path = project.source_dir() + "/" + level_resource + ".level";
@@ -1661,7 +1663,6 @@ namespace Crown
 			level.load_empty_level();
 		}
 
-		LevelEditor editor = new LevelEditor(project, database, level, compiler, engine, game);
 		editor.show_all();
 
 		Gtk.main();
