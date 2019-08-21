@@ -9,12 +9,13 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
   * [Crown v0.35.0 for Linux 64-bits](https://github.com/dbartolini/crown/releases/download/v0.35.0/crown-0.35.0-linux-x64.tar.gz)
 
-## Support
+## Support & Development
 
   * [Manual](http://dbartolini.github.io/crown/html/latest)
   * [Lua API](http://dbartolini.github.io/crown/html/latest/lua_api.html)
   * [C++ API](http://dbartolini.github.io/crown/doxygen/modules)
   * [Discord](https://discord.gg/CeXVWCT): [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
+  * [Trello Roadmap](https://trello.com/b/h88kbJNm/crown-game-engine)
 
 ## Sponsors
 **Register sponsors**  
