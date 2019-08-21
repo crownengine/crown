@@ -135,7 +135,7 @@ namespace Crown
 			{ "resource-browser",     null,  "Resource Browser",   "<ctrl>P",        null,         on_resource_browser        },
 			{ "fullscreen",           null,  "Fullscreen",         "F11",            null,         on_fullscreen              },
 			{ "restart",              null,  "_Restart",           null,             null,         on_engine_restart          },
-			{ "reload-lua",           null,  "Reload Lua",         "F7",             null,         on_reload_lua              },
+			{ "reload-lua",           null,  "Reload Level Editor","F7",             null,         on_reload_lua              },
 			{ "menu-run",             null,  "_Run",               null,             null,         null                       },
 			{ "test-level",           "run", "Test Level",         "F5",             "Test Level", on_test_level              },
 			{ "run-game",             null,  "Run Game",           null,             null,         on_run_game                },
