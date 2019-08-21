@@ -582,7 +582,7 @@ namespace Crown
 			for (int tries = 0; !_compiler.is_connected() && tries < 5; ++tries)
 			{
 				_compiler.connect("127.0.0.1", CROWN_DEFAULT_SERVER_PORT);
-				GLib.Thread.usleep(100*1000);
+				GLib.Thread.usleep(250*1000);
 			}
 
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
@@ -647,10 +647,10 @@ namespace Crown
 				_console_view.loge("editor", e.message);
 			}
 
-			for (int tries = 0; !_engine.is_connected() && tries < 5; ++tries)
+			for (int tries = 0; !_engine.is_connected() && tries < 10; ++tries)
 			{
 				_engine.connect("127.0.0.1", 10001);
-				GLib.Thread.usleep(100*1000);
+				GLib.Thread.usleep(500*1000);
 			}
 
 			_level.send_level();
@@ -710,10 +710,10 @@ namespace Crown
 						_console_view.loge("editor", e.message);
 					}
 
-					for (int tries = 0; !_game.is_connected() && tries < 5; ++tries)
+					for (int tries = 0; !_game.is_connected() && tries < 10; ++tries)
 					{
 						_game.connect("127.0.0.1", 12345);
-						GLib.Thread.usleep(100*1000);
+						GLib.Thread.usleep(500*1000);
 					}
 				}
 			});
