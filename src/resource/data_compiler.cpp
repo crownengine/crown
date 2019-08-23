@@ -106,6 +106,13 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	}
 }
 
+static bool _quit = false;
+
+static void console_command_quit(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/, void* /*user_data*/)
+{
+	_quit = true;
+}
+
 static Buffer read(FilesystemDisk& data_fs, const char* filename)
 {
 	Buffer buffer(default_allocator());
@@ -367,6 +374,7 @@ DataCompiler::DataCompiler(ConsoleServer& cs)
 	, _file_monitor(default_allocator())
 {
 	cs.register_command("compile", console_command_compile, this);
+	cs.register_command("quit", console_command_quit, this);
 }
 
 DataCompiler::~DataCompiler()
@@ -1043,7 +1051,7 @@ int main_data_compiler(const DeviceOptions& opts)
 
 	if (opts._server)
 	{
-		while (true)
+		while (!_quit)
 		{
 			console_server()->update();
 			os::sleep(60);

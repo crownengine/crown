@@ -40,6 +40,11 @@ namespace Crown
 				);
 		}
 
+		public string quit()
+		{
+			return "{\"type\":\"quit\"}";
+		}
+
 	}
 
 	namespace DeviceApi

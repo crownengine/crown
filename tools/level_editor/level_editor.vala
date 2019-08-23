@@ -562,6 +562,7 @@ namespace Crown
 			{
 				ENGINE_EXE,
 				"--source-dir", _project.source_dir(),
+				"--data-dir", _project.data_dir(),
 				"--map-source-dir", "core", _project.toolchain_dir(),
 				"--server",
 				"--wait-console",
@@ -605,11 +606,11 @@ namespace Crown
 
 		private void stop_compiler()
 		{
+			_compiler.send(DataCompilerApi.quit());
 			_compiler.close();
 
 			if (_compiler_process != null)
 			{
-				_compiler_process.force_exit();
 				try
 				{
 					_compiler_process.wait();
