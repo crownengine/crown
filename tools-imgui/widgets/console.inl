@@ -65,6 +65,9 @@ void console_send_command(TCPSocket& client, char* cmd)
 	const char* delim = " ";
 	const char* token = strtok_r(cmd, delim, &saveptr);
 
+	if (token == NULL)
+		return;
+
 	json << "{\"type\":\"command\",\"args\":[";
 	while (token != NULL)
 	{

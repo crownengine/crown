@@ -112,7 +112,8 @@ namespace Crown
 				if (text[0] == ':')
 				{
 					string[] args = text[1:text.length].split(" ");
-					_console_client.send(DeviceApi.command(args));
+					if (args.length > 0)
+						_console_client.send(DeviceApi.command(args));
 				}
 				else
 				{
