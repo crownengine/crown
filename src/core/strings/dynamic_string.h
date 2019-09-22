@@ -27,7 +27,6 @@ struct DynamicString
 
 	DynamicString(Allocator& a);
 
-	DynamicString& operator=(const DynamicString& ds);
 	DynamicString& operator=(const char* str);
 	DynamicString& operator=(const char c);
 	DynamicString& operator=(const FixedString& fs);
@@ -113,12 +112,6 @@ inline DynamicString& operator+=(DynamicString& a, const FixedString& fs)
 {
 	array::push(a._data, fs.data(), fs.length());
 	return a;
-}
-
-inline DynamicString& DynamicString::operator=(const DynamicString& ds)
-{
-	_data = ds._data;
-	return *this;
 }
 
 inline DynamicString& DynamicString::operator=(const char* str)
