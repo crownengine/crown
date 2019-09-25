@@ -96,6 +96,7 @@ void RenderWorld::mesh_instances(UnitId id, Array<MeshInstance>& instances)
 void RenderWorld::mesh_set_material(MeshInstance i, StringId64 id)
 {
 	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
+	_material_manager->create_material(id);
 	_mesh_manager._data.material[i.i] = id;
 }
 
@@ -162,6 +163,7 @@ void RenderWorld::sprite_set_material(UnitId unit, StringId64 id)
 {
 	SpriteInstance i = _sprite_manager.sprite(unit);
 	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	_material_manager->create_material(id);
 	_sprite_manager._data.material[i.i] = id;
 }
 
