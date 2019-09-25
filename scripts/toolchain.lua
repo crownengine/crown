@@ -75,6 +75,11 @@ function toolchain(build_dir, lib_dir)
 			print("Action not valid in current OS.")
 		end
 
+		local windowsPlatform = string.gsub(os.getenv("WindowsSDKVersion") or "8.1", "\\", "")
+		local action = premake.action.current()
+		action.vstudio.windowsTargetPlatformVersion    = windowsPlatform
+		action.vstudio.windowsTargetPlatformMinVersion = windowsPlatform
+
 		location(build_dir .. "projects/" .. _ACTION)
 	end
 
