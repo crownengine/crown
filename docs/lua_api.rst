@@ -629,6 +629,9 @@ Sprite
 **sprite_instances** (rw, unit) : Id
 	Returns the IDs for all the sprites of the *unit*.
 
+**sprite_set_material** (rw, unit, material)
+	Sets the *material* of the sprite.
+
 **sprite_set_frame** (rw, unit, index)
 	Sets the frame *index* of the sprite.
 
