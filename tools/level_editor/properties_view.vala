@@ -85,23 +85,18 @@ namespace Crown
 
 		private void on_value_changed()
 		{
-			Vector3 pos    = _position.value;
-			Quaternion rot = _rotation.value;
-			Vector3 scl    = _scale.value;
-
-			_level.move_selected_objects(pos, rot, scl);
+			_level.move_selected_objects(_position.value
+				, _rotation.value
+				, _scale.value
+				);
 		}
 
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			Vector3 pos    = unit.get_component_property_vector3   (_component_id, "data.position");
-			Quaternion rot = unit.get_component_property_quaternion(_component_id, "data.rotation");
-			Vector3 scl    = unit.get_component_property_vector3   (_component_id, "data.scale");
-
-			_position.value = pos;
-			_rotation.value = rot;
-			_scale.value    = scl;
+			_position.value = unit.get_component_property_vector3   (_component_id, "data.position");
+			_rotation.value = unit.get_component_property_quaternion(_component_id, "data.rotation");
+			_scale.value    = unit.get_component_property_vector3   (_component_id, "data.scale");
 		}
 	}
 
