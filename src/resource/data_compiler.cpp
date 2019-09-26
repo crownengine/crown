@@ -748,6 +748,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		}
 	}
 
+	// Sort to_compile so that ".package" resources get compiled last
 	std::sort(vector::begin(to_compile), vector::end(to_compile), [](const DynamicString& resource_a, const DynamicString& resource_b)
 		{
 #define PACKAGE ".package"
