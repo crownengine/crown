@@ -368,7 +368,8 @@ function UnitBox:set_light(type, range, intensity, angle, color)
 	RenderWorld.light_set_spot_angle(LevelEditor._rw, self._unit_id, angle)
 end
 
-function UnitBox:set_sprite(layer, depth, visible)
+function UnitBox:set_sprite(material, layer, depth, visible)
+	RenderWorld.sprite_set_material(LevelEditor._rw, self._unit_id, material)
 	RenderWorld.sprite_set_layer(LevelEditor._rw, self._unit_id, layer)
 	RenderWorld.sprite_set_depth(LevelEditor._rw, self._unit_id, depth)
 	RenderWorld.sprite_set_visible(LevelEditor._rw, self._unit_id, visible)

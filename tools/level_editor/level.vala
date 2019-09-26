@@ -311,7 +311,7 @@ namespace Crown
 			unit.set_component_property_bool  (component_id, "data.visible", visible);
 			unit.set_component_property_string(component_id, "type", "sprite_renderer");
 
-			_client.send_script(LevelEditorApi.set_sprite(unit_id, layer, depth, visible));
+			_client.send_script(LevelEditorApi.set_sprite(unit_id, material, layer, depth, visible));
 		}
 
 		public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
@@ -662,6 +662,7 @@ namespace Crown
 					unit.has_component("sprite_renderer", ref component_id);
 
 					_client.send_script(LevelEditorApi.set_sprite(unit_id
+						, unit.get_component_property_string(component_id, "data.material")
 						, unit.get_component_property_double(component_id, "data.layer")
 						, unit.get_component_property_double(component_id, "data.depth")
 						, unit.get_component_property_bool  (component_id, "data.visible")

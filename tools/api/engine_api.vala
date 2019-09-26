@@ -288,9 +288,10 @@ namespace Crown
 				);
 		}
 
-		public string set_sprite(Guid id, double layer, double depth, bool visible)
+		public string set_sprite(Guid id, string material, double layer, double depth, bool visible)
 		{
-			return @"LevelEditor._objects[\"%s\"]:set_sprite(%f, %f, %s)".printf(id.to_string()
+			return @"LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", %f, %f, %s)".printf(id.to_string()
+				, material
 				, layer
 				, depth
 				, Lua.bool(visible)
