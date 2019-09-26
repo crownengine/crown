@@ -1966,6 +1966,12 @@ void load_api(LuaEnvironment& env)
 			stack.push_sprite_instance(inst);
 			return 1;
 		});
+	env.add_module_function("RenderWorld", "sprite_set_material", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			stack.get_render_world(1)->sprite_set_material(stack.get_unit(2), stack.get_string_id_64(3));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "sprite_set_frame", [](lua_State* L)
 		{
 			LuaStack stack(L);
