@@ -211,7 +211,8 @@ public class Unit
 				if (!type_or_name.has_prefix("type"))
 					continue;
 
-				if ((string)db.get_property(unit_id, m) == component_type)
+				Value? type = db.get_property(unit_id, m);
+				if (type != null && (string)type == component_type)
 				{
 					ref_component_id = Guid.parse(id);
 					return true;
