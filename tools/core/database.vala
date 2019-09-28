@@ -1163,20 +1163,20 @@ namespace Crown
 					Guid id = undo.read_guid();
 					string key = undo.read_string();
 
-					if (get_data(id).has_key(key))
+					if (has_property(id, key))
 					{
 						if (get_data(id)[key].holds(typeof(bool)))
-							redo.write_set_property_bool_action(id, key, (bool)get_data(id)[key]);
+							redo.write_set_property_bool_action(id, key, get_property_bool(id, key));
 						if (get_data(id)[key].holds(typeof(double)))
-							redo.write_set_property_double_action(id, key, (double)get_data(id)[key]);
+							redo.write_set_property_double_action(id, key, get_property_double(id, key));
 						if (get_data(id)[key].holds(typeof(string)))
-							redo.write_set_property_string_action(id, key, (string)get_data(id)[key]);
+							redo.write_set_property_string_action(id, key, get_property_string(id, key));
 						if (get_data(id)[key].holds(typeof(Guid)))
-							redo.write_set_property_guid_action(id, key, (Guid)get_data(id)[key]);
+							redo.write_set_property_guid_action(id, key, get_property_guid(id, key));
 						if (get_data(id)[key].holds(typeof(Vector3)))
-							redo.write_set_property_vector3_action(id, key, (Vector3)get_data(id)[key]);
+							redo.write_set_property_vector3_action(id, key, get_property_vector3(id, key));
 						if (get_data(id)[key].holds(typeof(Quaternion)))
-							redo.write_set_property_quaternion_action(id, key, (Quaternion)get_data(id)[key]);
+							redo.write_set_property_quaternion_action(id, key, get_property_quaternion(id, key));
 					}
 					else
 					{
@@ -1193,8 +1193,8 @@ namespace Crown
 					string key = undo.read_string();
 					bool val = undo.read_bool();
 
-					if (get_data(id).has_key(key))
-						redo.write_set_property_bool_action(id, key, (bool)get_data(id)[key]);
+					if (has_property(id, key))
+						redo.write_set_property_bool_action(id, key, get_property_bool(id, key));
 					else
 						redo.write_set_property_null_action(id, key);
 					set_property_internal(id, key, val);
@@ -1208,8 +1208,8 @@ namespace Crown
 					string key = undo.read_string();
 					double val = undo.read_double();
 
-					if (get_data(id).has_key(key))
-						redo.write_set_property_double_action(id, key, (double)get_data(id)[key]);
+					if (has_property(id, key))
+						redo.write_set_property_double_action(id, key, get_property_double(id, key));
 					else
 						redo.write_set_property_null_action(id, key);
 					set_property_internal(id, key, val);
@@ -1223,8 +1223,8 @@ namespace Crown
 					string key = undo.read_string();
 					string val = undo.read_string();
 
-					if (get_data(id).has_key(key))
-						redo.write_set_property_string_action(id, key, (string)get_data(id)[key]);
+					if (has_property(id, key))
+						redo.write_set_property_string_action(id, key, get_property_string(id, key));
 					else
 						redo.write_set_property_null_action(id, key);
 					set_property_internal(id, key, val);
@@ -1238,8 +1238,8 @@ namespace Crown
 					string key = undo.read_string();
 					Guid val = undo.read_guid();
 
-					if (get_data(id).has_key(key))
-						redo.write_set_property_guid_action(id, key, (Guid)get_data(id)[key]);
+					if (has_property(id, key))
+						redo.write_set_property_guid_action(id, key, get_property_guid(id, key));
 					else
 						redo.write_set_property_null_action(id, key);
 					set_property_internal(id, key, val);
@@ -1253,8 +1253,8 @@ namespace Crown
 					string key = undo.read_string();
 					Vector3 val = undo.read_vector3();
 
-					if (get_data(id).has_key(key))
-						redo.write_set_property_vector3_action(id, key, (Vector3)get_data(id)[key]);
+					if (has_property(id, key))
+						redo.write_set_property_vector3_action(id, key, get_property_vector3(id, key));
 					else
 						redo.write_set_property_null_action(id, key);
 					set_property_internal(id, key, val);
@@ -1268,8 +1268,8 @@ namespace Crown
 					string key = undo.read_string();
 					Quaternion val = undo.read_quaternion();
 
-					if (get_data(id).has_key(key))
-						redo.write_set_property_quaternion_action(id, key, (Quaternion)get_data(id)[key]);
+					if (has_property(id, key))
+						redo.write_set_property_quaternion_action(id, key, get_property_quaternion(id, key));
 					else
 						redo.write_set_property_null_action(id, key);
 					set_property_internal(id, key, val);
