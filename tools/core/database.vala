@@ -911,10 +911,7 @@ namespace Crown
 
 		public bool has_property(Guid id, string key)
 		{
-			assert(has_object(id));
-			assert(is_valid_key(key));
-
-			return get_data(id).has_key(key);
+			return get_property(id, key) != null;
 		}
 
 		public Value? get_property(Guid id, string key)
