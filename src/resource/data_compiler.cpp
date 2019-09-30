@@ -39,6 +39,7 @@
 #include "resource/types.h"
 #include "resource/unit_resource.h"
 #include <algorithm>
+#include <inttypes.h>
 
 LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
@@ -211,7 +212,7 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 		sjson::parse_string(cur->second, mtime_json);
 
 		u64 mtime;
-		sscanf(mtime_json.c_str(), "%lu", &mtime);
+		sscanf(mtime_json.c_str(), "%" SCNu64, &mtime);
 		hash_map::set(mtimes, dst_name, mtime);
 	}
 }
