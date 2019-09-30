@@ -107,7 +107,7 @@ int DeviceOptions::parse(bool* quit)
 		_platform = cl.get_parameter(0, "platform");
 
 		// Compile for platform the executable is built for.
-		if (!_platform)
+		if (_platform == NULL)
 			_platform = CROWN_PLATFORM_NAME;
 
 		if (true
@@ -172,6 +172,14 @@ int DeviceOptions::parse(bool* quit)
 	}
 
 	_do_continue = cl.has_option("continue");
+	if (_do_continue)
+	{
+		if (strcmp(_platform, CROWN_PLATFORM_NAME) != 0)
+		{
+			help("Host platform can not run from the compiled data. Consider removing --continue option.");
+			return EXIT_FAILURE;
+		}
+	}
 
 	_boot_dir = cl.get_parameter(0, "boot-dir");
 	if (_boot_dir)
