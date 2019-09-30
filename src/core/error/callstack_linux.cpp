@@ -5,7 +5,7 @@
 
 #include "core/platform.h"
 
-#if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
+#if CROWN_PLATFORM_LINUX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
 
 #include "core/strings/string.h"
 #include "core/strings/string_stream.h"
@@ -93,4 +93,4 @@ namespace error
 
 } // namespace crown
 
-#endif // CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
+#endif // CROWN_PLATFORM_LINUX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)

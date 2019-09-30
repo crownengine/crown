@@ -19,7 +19,7 @@ AtomicInt::AtomicInt(s32 val)
 
 s32 AtomicInt::load()
 {
-#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+#if CROWN_PLATFORM_POSIX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
 	__sync_fetch_and_add(&_val, 0);
 	return _val;
 #elif CROWN_PLATFORM_WINDOWS
@@ -30,7 +30,7 @@ s32 AtomicInt::load()
 
 void AtomicInt::store(s32 val)
 {
-#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+#if CROWN_PLATFORM_POSIX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
 	__sync_lock_test_and_set(&_val, val);
 #elif CROWN_PLATFORM_WINDOWS
 	InterlockedExchange((LONG*)&_val, val);
