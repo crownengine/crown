@@ -25,6 +25,9 @@ struct DisplayMode
 /// @ingroup Device
 struct Display
 {
+	///
+	virtual ~Display() {};
+
 	/// Fills @a modes with all available display modes.
 	virtual void modes(Array<DisplayMode>& modes) = 0;
 

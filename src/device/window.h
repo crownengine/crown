@@ -37,6 +37,9 @@ struct MouseCursor
 /// @ingroup Device
 struct Window
 {
+	///
+	virtual ~Window() {};
+
 	/// Opens the window.
 	virtual void open(u16 x, u16 y, u16 width, u16 height, u32 parent) = 0;
 
