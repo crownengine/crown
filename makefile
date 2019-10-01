@@ -47,11 +47,11 @@ build/mingw64/bin/luajit.exe:
 	make -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/win32/bin/luajit.exe:
-	mkdir build\win32\bin
-	cp -r 3rdparty\luajit\src\jit 3rdparty\luajit\pre\win_x32\luajit.exe 3rdparty\luajit\pre\win_x32\lua51.dll build/win32/bin
+	mkdir build/win32/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/pre/win_x32/luajit.exe 3rdparty/luajit/pre/win_x32/lua51.dll build/win32/bin
 build/win64/bin/luajit.exe:
-	mkdir build\win64\bin
-	cp -r 3rdparty\luajit\src\jit 3rdparty\luajit\pre\win_x64\luajit.exe 3rdparty\luajit\pre\win_x64\lua51.dll build/win64/bin
+	mkdir build/win64/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/pre/win_x64/luajit.exe 3rdparty/luajit/pre/win_x64/lua51.dll build/win64/bin
 
 build/projects/android:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --compiler=android-arm gmake
@@ -63,19 +63,27 @@ android-arm-release: build/projects/android build/android-arm/bin/libluajit.a
 	make -j$(MAKE_JOBS) -R -C build/projects/android config=release
 android-arm: android-arm-debug android-arm-development android-arm-release
 
+build/linux64/bin/texturec:
+	make -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-linux config=release64 texturec
+	cp -r 3rdparty/bgfx/.build/linux64_gcc/bin/texturecRelease $@
+build/linux64/bin/shaderc:
+	make -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-linux config=release64 shaderc
+	cp -r 3rdparty/bgfx/.build/linux64_gcc/bin/shadercRelease $@
+
 build/projects/linux:
-	$(GENIE) --file=scripts/genie.lua --with-luajit --with-tools --compiler=linux-gcc gmake
+	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
+	$(GENIE) --with-luajit --with-tools --compiler=linux-gcc gmake
 linux-debug32: build/projects/linux build/linux32/bin/luajit
 	make -j$(MAKE_JOBS) -R -C build/projects/linux config=debug32
 linux-development32: build/projects/linux build/linux32/bin/luajit
 	make -j$(MAKE_JOBS) -R -C build/projects/linux config=development32
 linux-release32: build/projects/linux build/linux32/bin/luajit
 	make -j$(MAKE_JOBS) -R -C build/projects/linux config=release32
-linux-debug64: build/projects/linux build/linux64/bin/luajit
+linux-debug64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
 	make -j$(MAKE_JOBS) -R -C build/projects/linux config=debug64
-linux-development64: build/projects/linux build/linux64/bin/luajit
+linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
 	make -j$(MAKE_JOBS) -R -C build/projects/linux config=development64
-linux-release64: build/projects/linux build/linux64/bin/luajit
+linux-release64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
 	make -j$(MAKE_JOBS) -R -C build/projects/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
@@ -95,19 +103,27 @@ mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 	make -j$(MAKE_JOBS) -R -C build/projects/mingw config=release64
 mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
 
+build/win64/bin/texturec.exe:
+	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project shaderc.vcxproj
+	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/shadercRelease.exe $@
+build/win64/bin/shaderc.exe:
+	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project texturec.vcxproj
+	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/texturecRelease.exe $@
+
 build/projects/vs2017:
-	$(GENIE) --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
+	$(GENIE) --file=3rdparty\\bgfx\\scripts\\genie.lua --with-tools vs2017
+	$(GENIE) --with-luajit --with-tools --no-level-editor vs2017
 windows-debug32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|Win32"
 windows-development32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|Win32"
 windows-release32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|Win32"
-windows-debug64: build/projects/vs2017 build/win64/bin/luajit.exe
+windows-debug64: build/projects/vs2017 build/win64/bin/luajit.exe build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|x64"
-windows-development64: build/projects/vs2017 build/win64/bin/luajit.exe
+windows-development64: build/projects/vs2017 build/win64/bin/luajit.exe build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|x64"
-windows-release64: build/projects/vs2017 build/win64/bin/luajit.exe
+windows-release64: build/projects/vs2017 build/win64/bin/luajit.exe build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|x64"
 
 .PHONY: rebuild-glib-resources
@@ -134,3 +150,4 @@ clean:
 	@echo Cleaning...
 	-@rm -rf build
 	-@make -R -C 3rdparty/luajit/src clean -s
+	-@rm -rf 3rdparty/bgfx/.build

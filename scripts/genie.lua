@@ -68,8 +68,6 @@ dofile ("bullet.lua")
 
 if _OPTIONS["with-tools"] then
 	group "tools"
-	dofile (BGFX_DIR .. "scripts/shaderc.lua")
-	dofile (BGFX_DIR .. "scripts/texturec.lua")
 
 	if not _OPTIONS["no-level-editor"] then
 		dofile ("level-editor.lua")
