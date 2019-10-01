@@ -12,9 +12,10 @@ function toolchain(build_dir, lib_dir)
 		description = "Choose compiler",
 		allowed =
 		{
-			{ "android-arm", "Android - ARM"        },
-			{ "linux-gcc",   "Linux (GCC compiler)" },
-			{ "mingw-gcc",   "MinGW (GCC compiler)" },
+			{ "android-arm", "Android - ARM"          },
+			{ "linux-gcc",   "Linux (GCC compiler)"   },
+			{ "linux-clang", "Linux (Clang compiler)" },
+			{ "mingw-gcc",   "MinGW (GCC compiler)"   },
 		}
 	}
 
@@ -54,6 +55,17 @@ function toolchain(build_dir, lib_dir)
 			end
 
 			location(build_dir .. "projects/" .. "linux")
+
+		elseif "linux-clang" == _OPTIONS["compiler"] then
+
+			if not os.is("linux") then
+				print("Action not valid in current OS.")
+			end
+
+			premake.gcc.cc  = "clang"
+			premake.gcc.cxx = "clang++"
+			premake.gcc.ar  = "ar"
+			location(build_dir .. "projects/" .. "linux-clang")
 
 		elseif "mingw-gcc" == _OPTIONS["compiler"] then
 
@@ -122,21 +134,28 @@ function toolchain(build_dir, lib_dir)
 			"-Werror=return-type",
 		}
 
-	configuration { "x32", "linux-*" }
+	configuration { "x32", "linux-gcc" }
 		targetdir (build_dir .. "linux32" .. "/bin")
 		objdir (build_dir .. "linux32" .. "/obj")
 		libdirs {
 			lib_dir .. "../build/linux32/bin",
 		}
 
-	configuration { "x64", "linux-*" }
+	configuration { "x64", "linux-gcc" }
 		targetdir (build_dir .. "linux64" .. "/bin")
 		objdir (build_dir .. "linux64" .. "/obj")
 		libdirs {
 			lib_dir .. "../build/linux64/bin",
 		}
 
-	configuration { "linux-gcc*" }
+	configuration { "x64", "linux-clang" }
+		targetdir (build_dir .. "linux64_clang" .. "/bin")
+		objdir (build_dir .. "linux64_clang" .. "/obj")
+		libdirs {
+			lib_dir .. "../build/linux64_clang/bin",
+		}
+
+	configuration { "linux-gcc* or linux-clang" }
 		buildoptions {
 			"-Wall",
 			"-Wextra",
