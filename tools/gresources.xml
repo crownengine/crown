@@ -20,7 +20,8 @@
 		<file>ui/icons/theme/16x16/actions/level-tree.png</file>
 		<file>ui/icons/theme/16x16/actions/reference-local.png</file>
 		<file>ui/icons/theme/16x16/actions/reference-world.png</file>
-		<file>ui/icons/theme/16x16/actions/run.png</file>
+		<file>ui/icons/theme/16x16/actions/game-run.png</file>
+		<file>ui/icons/theme/16x16/actions/game-stop.png</file>
 		<file>ui/icons/theme/16x16/actions/snap-to-grid.png</file>
 		<file>ui/icons/theme/16x16/actions/tool-move.png</file>
 		<file>ui/icons/theme/16x16/actions/tool-place.png</file>

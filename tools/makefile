@@ -18,7 +18,8 @@ OBJS = \
 	ui/icons/theme/16x16/actions/level-tree.png      \
 	ui/icons/theme/16x16/actions/reference-local.png \
 	ui/icons/theme/16x16/actions/reference-world.png \
-	ui/icons/theme/16x16/actions/run.png             \
+	ui/icons/theme/16x16/actions/game-run.png        \
+	ui/icons/theme/16x16/actions/game-stop.png       \
 	ui/icons/theme/16x16/actions/snap-to-grid.png    \
 	ui/icons/theme/16x16/actions/tool-move.png       \
 	ui/icons/theme/16x16/actions/tool-place.png      \
