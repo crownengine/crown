@@ -50,6 +50,9 @@ namespace Crown
 			_toolchain_dir     = File.new_for_path(toolchain_dir);
 			_data_dir          = File.new_for_path(_source_dir.get_path() + "_" + _platform);
 			_level_editor_test = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.level");
+
+			// Cleanup source directory from previous runs' garbage
+			delete_level_editor_test_level();
 		}
 
 		public void create_initial_files()
@@ -220,7 +223,7 @@ end
 			}
 			catch (GLib.Error e)
 			{
-				stderr.printf("%s\n", e.message);
+				// Ignored
 			}
 		}
 
