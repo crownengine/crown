@@ -71,11 +71,11 @@ namespace Crown
 			_component_id = GUID_ZERO;
 
 			// Widgets
-			_position = new SpinButtonVector3(Vector3(0, 0, 0), Vector3(-9999.9, -9999.9, -9999.9), Vector3(9999.9, 9999.9, 9999.9));
+			_position = new SpinButtonVector3(VECTOR3_ZERO, Vector3(-double.MAX, -double.MAX, -double.MAX), Vector3(double.MAX, double.MAX, double.MAX));
 			_position.value_changed.connect(on_value_changed);
-			_rotation = new SpinButtonRotation(Vector3(0, 0, 0));
+			_rotation = new SpinButtonRotation(VECTOR3_ZERO);
 			_rotation.value_changed.connect(on_value_changed);
-			_scale = new SpinButtonVector3(Vector3(0, 0, 0), Vector3(0.1, 0.1, 0.1), Vector3(10.0, 10.0, 10.0));
+			_scale = new SpinButtonVector3(VECTOR3_ZERO, Vector3(double.MIN, double.MIN, double.MIN), Vector3(double.MAX, double.MAX, double.MAX));
 			_scale.value_changed.connect(on_value_changed);
 
 			add_row("Position", _position);
@@ -163,7 +163,7 @@ namespace Crown
 			_material = new Gtk.Entry();
 			_layer = new SpinButtonDouble(0.0, 0.0, 7.0);
 			_layer.value_changed.connect(on_value_changed);
-			_depth = new SpinButtonDouble(0.0, 0.0, 9999.0);
+			_depth = new SpinButtonDouble(0.0, 0.0, (double)uint32.MAX);
 			_depth.value_changed.connect(on_value_changed);
 			_visible = new CheckBox();
 			_visible.value_changed.connect(on_value_changed);
@@ -223,9 +223,9 @@ namespace Crown
 			_type.append("directional", "Directional");
 			_type.append("omni", "Omni");
 			_type.append("spot", "Spot");
-			_range = new SpinButtonDouble(0.0, 0.0, 999.0);
+			_range = new SpinButtonDouble(0.0, 0.0, double.MAX);
 			_range.value_changed.connect(on_value_changed);
-			_intensity = new SpinButtonDouble(0.0, 0.0,  10.0);
+			_intensity = new SpinButtonDouble(0.0, 0.0,  double.MAX);
 			_intensity.value_changed.connect(on_value_changed);
 			_spot_angle = new SpinButtonDouble(0.0, 0.0,  90.0);
 			_spot_angle.value_changed.connect(on_value_changed);
@@ -291,9 +291,9 @@ namespace Crown
 			_projection.value_changed.connect(on_value_changed);
 			_fov = new SpinButtonDouble(0.0, 1.0,   90.0);
 			_fov.value_changed.connect(on_value_changed);
-			_near_range = new SpinButtonDouble(0.0, 0.001, 9999.0);
+			_near_range = new SpinButtonDouble(0.001, double.MIN, double.MAX);
 			_near_range.value_changed.connect(on_value_changed);
-			_far_range  = new SpinButtonDouble(0.0, 0.001, 9999.0);
+			_far_range  = new SpinButtonDouble(1000.000, double.MIN, double.MAX);
 			_far_range.value_changed.connect(on_value_changed);
 
 			add_row("Projection", _projection);
@@ -389,7 +389,7 @@ namespace Crown
 			_class = new Gtk.Entry();
 			_collision_filter = new Gtk.Entry();
 			_material = new Gtk.Entry();
-			_mass = new SpinButtonDouble(1.0, 0.0, 9999.0);
+			_mass = new SpinButtonDouble(1.0, 0.0, double.MAX);
 			_mass.value_changed.connect(on_value_changed);
 			_class.sensitive = false;
 			_collision_filter.sensitive = false;
@@ -520,8 +520,8 @@ namespace Crown
 			_id = GUID_ZERO;
 
 			// Widgets
-			_position = new SpinButtonVector3(Vector3(0, 0, 0), Vector3(-9999.9, -9999.9, -9999.9), Vector3(9999.9, 9999.9, 9999.9));
-			_rotation = new SpinButtonRotation(Vector3(0, 0, 0));
+			_position = new SpinButtonVector3(VECTOR3_ZERO, Vector3(-double.MAX, -double.MAX, -double.MAX), Vector3(double.MAX, double.MAX, double.MAX));
+			_rotation = new SpinButtonRotation(VECTOR3_ZERO);
 
 			_position.value_changed.connect(on_value_changed);
 			_rotation.value_changed.connect(on_value_changed);
@@ -566,8 +566,8 @@ namespace Crown
 
 			// Widgets
 			_name   = new Gtk.Entry();
-			_range  = new SpinButtonDouble(0.0, 0.0, 9999.0);
-			_volume = new SpinButtonDouble(0.0, 0.0,    1.0);
+			_range  = new SpinButtonDouble(1.0, 0.0, double.MAX);
+			_volume = new SpinButtonDouble(1.0, 0.0, 1.0);
 			_loop   = new CheckBox();
 			_name.sensitive = false;
 
