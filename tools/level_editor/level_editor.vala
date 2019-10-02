@@ -425,7 +425,7 @@ namespace Crown
 			}
 			else if (msg_type == "compile")
 			{
-				Guid id = Guid.parse((string)msg["id"]);
+				// Guid id = Guid.parse((string)msg["id"]);
 
 				if (msg.has_key("start"))
 				{
