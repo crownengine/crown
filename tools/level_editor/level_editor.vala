@@ -1234,15 +1234,20 @@ namespace Crown
 
 		private void on_custom_grid()
 		{
-			MessageDialog dg = new MessageDialog(this
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Grid size"
+				, this
 				, DialogFlags.MODAL
-				, MessageType.OTHER
-				, ButtonsType.OK_CANCEL
-				, "Grid size in meters:"
+				, "Cancel"
+				, ResponseType.CANCEL
+				, "Ok"
+				, ResponseType.OK
+				, null
 				);
 
 			SpinButtonDouble sb = new SpinButtonDouble(_grid_size, 0.1, 1000);
-			(dg.message_area as Gtk.Box).add(sb);
+			sb._x.activate.connect(() => { dg.response(ResponseType.OK); });
+			dg.get_content_area().add(sb);
+			dg.skip_taskbar_hint = true;
 			dg.show_all();
 
 			if (dg.run() == (int)ResponseType.OK)
@@ -1256,15 +1261,20 @@ namespace Crown
 
 		private void on_rotation_snap(Gtk.Action action)
 		{
-			MessageDialog dg = new MessageDialog(this
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Rotation snap"
+				, this
 				, DialogFlags.MODAL
-				, MessageType.OTHER
-				, ButtonsType.OK_CANCEL
-				, "Rotation snap in degrees:"
+				, "Cancel"
+				, ResponseType.CANCEL
+				, "Ok"
+				, ResponseType.OK
+				, null
 				);
 
 			SpinButtonDouble sb = new SpinButtonDouble(_rotation_snap, 1.0, 180.0);
-			(dg.message_area as Gtk.Box).add(sb);
+			sb._x.activate.connect(() => { dg.response(ResponseType.OK); });
+			dg.get_content_area().add(sb);
+			dg.skip_taskbar_hint = true;
 			dg.show_all();
 
 			if (dg.run() == (int)ResponseType.OK)
