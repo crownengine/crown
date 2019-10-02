@@ -581,7 +581,7 @@ namespace Crown
 		{
 			assert(has_object(id));
 
-			return (HashMap<string, Value?>)(id == GUID_ZERO ? _data : (_data["_objects"] as HashMap<string, Value?>)[id.to_string()]);
+			return (HashMap<string, Value?>)(id == GUID_ZERO ? _data : ((HashMap<string, Value?>)_data["_objects"])[id.to_string()]);
 		}
 
 		private void create_internal(Guid id)
@@ -590,7 +590,7 @@ namespace Crown
 #if 0
 			stdout.printf("create %s\n", id.to_string());
 #endif // CROWN_DEBUG
-			(_data["_objects"] as HashMap<string, Value?>).set(id.to_string(), new HashMap<string, Value?>());
+			((HashMap<string, Value?>)_data["_objects"]).set(id.to_string(), new HashMap<string, Value?>());
 
 			_changed = true;
 			key_changed(id, "_objects");
@@ -603,7 +603,7 @@ namespace Crown
 #if 0
 			stdout.printf("destroy %s\n", id.to_string());
 #endif // CROWN_DEBUG
-			(_data["_objects"] as HashMap<string, Value?>).unset(id.to_string());
+			((HashMap<string, Value?>)_data["_objects"]).unset(id.to_string());
 
 			_changed = true;
 			key_changed(id, "_objects");
@@ -662,7 +662,7 @@ namespace Crown
 			}
 			else
 			{
-				(ob[key] as HashSet<Guid?>).add(item_id);
+				((HashSet<Guid?>)ob[key]).add(item_id);
 			}
 
 			_changed = true;
@@ -682,7 +682,7 @@ namespace Crown
 				);
 #endif // CROWN_DEBUG
 			HashMap<string, Value?> ob = get_data(id);
-			(ob[key] as HashSet<Guid?>).remove(item_id);
+			((HashSet<Guid?>)ob[key]).remove(item_id);
 
 			_changed = true;
 			key_changed(id, key);
@@ -905,8 +905,7 @@ namespace Crown
 
 		public bool has_object(Guid id)
 		{
-			bool contains = (_data["_objects"] as HashMap<string, Value?>).has_key(id.to_string());
-			return id == GUID_ZERO || contains;
+			return id == GUID_ZERO || ((HashMap<string, Value?>)_data["_objects"]).has_key(id.to_string());
 		}
 
 		public bool has_property(Guid id, string key)
