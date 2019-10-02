@@ -13,10 +13,10 @@ namespace Crown
 	public class ComboBoxMap : Gtk.Bin
 	{
 		// Data
-		private bool _stop_emit;
+		public bool _stop_emit;
 
 		// Widgets
-		private Gtk.ComboBoxText _combo_box;
+		public Gtk.ComboBoxText _combo_box;
 
 		// Signals
 		public signal void value_changed();

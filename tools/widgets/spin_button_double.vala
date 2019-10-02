@@ -14,10 +14,10 @@ namespace Crown
 	public class SpinButtonDouble : Gtk.Bin
 	{
 		// Data
-		private bool _stop_emit;
+		public bool _stop_emit;
 
 		// Widgets
-		private Gtk.SpinButton _x;
+		public Gtk.SpinButton _x;
 
 		public double value
 		{

@@ -13,10 +13,10 @@ namespace Crown
 	public class ColorButtonVector3 : Gtk.Bin
 	{
 		// Data
-		private bool _stop_emit;
+		public bool _stop_emit;
 
 		// Widgets
-		private Gtk.ColorButton _color_button;
+		public Gtk.ColorButton _color_button;
 
 		// Signals
 		public signal void value_changed();

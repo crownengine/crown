@@ -13,13 +13,13 @@ namespace Crown
 	public class SpinButtonVector4 : Gtk.Box
 	{
 		// Data
-		private bool _stop_emit;
+		public bool _stop_emit;
 
 		// Widgets
-		private SpinButtonDouble _x;
-		private SpinButtonDouble _y;
-		private SpinButtonDouble _z;
-		private SpinButtonDouble _w;
+		public SpinButtonDouble _x;
+		public SpinButtonDouble _y;
+		public SpinButtonDouble _z;
+		public SpinButtonDouble _w;
 
 		public Vector4 value
 		{

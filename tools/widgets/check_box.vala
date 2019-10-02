@@ -14,10 +14,10 @@ namespace Crown
 	public class CheckBox : Gtk.Bin
 	{
 		// Data
-		private bool _stop_emit;
+		public bool _stop_emit;
 
 		// Widgets
-		private Gtk.CheckButton _check_button;
+		public Gtk.CheckButton _check_button;
 
 		public bool value
 		{
