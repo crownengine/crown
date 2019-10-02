@@ -429,14 +429,17 @@ namespace Crown
 
 			Database prefab_db = new Database();
 
+			// Try to load from toolchain directory first
 			File file = File.new_for_path(_project.toolchain_dir() + "/" + name + ".unit");
 			if (file.query_exists())
 				prefab_db.load(file.get_path());
 			else
 				prefab_db.load(_project.source_dir() + "/" + name + ".unit");
 
-			if (prefab_db.has_property(GUID_ZERO, "prefab"))
-				load_prefab((prefab_db.get_property_string(GUID_ZERO, "prefab")));
+			// Recursively load all sub-prefabs
+			Value? prefab = prefab_db.get_property(GUID_ZERO, "prefab");
+			if (prefab != null)
+				load_prefab((string)prefab);
 
 			prefab_db.copy_to(_prefabs, name);
 			_loaded_prefabs.add(name);
