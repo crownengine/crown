@@ -198,10 +198,16 @@ namespace material_resource_internal
 		DynamicString shader(ta);
 		sjson::parse_string(object["shader"], shader);
 
-		if (parse_textures(object["textures"], texdata, names, dynblob, opts) != 0)
-			return -1;
-		if (parse_uniforms(object["uniforms"], unidata, names, dynblob, opts) != 0)
-			return -1;
+		if (json_object::has(object, "textures"))
+		{
+			if (parse_textures(object["textures"], texdata, names, dynblob, opts) != 0)
+				return -1;
+		}
+		if (json_object::has(object, "uniforms"))
+		{
+			if (parse_uniforms(object["uniforms"], unidata, names, dynblob, opts) != 0)
+				return -1;
+		}
 
 		MaterialResource mr;
 		mr.version             = RESOURCE_HEADER(RESOURCE_VERSION_MATERIAL);
