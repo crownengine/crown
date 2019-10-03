@@ -84,6 +84,29 @@ namespace os
 #endif
 	}
 
+#if CROWN_PLATFORM_POSIX
+	void stat(Stat& info, int fd)
+	{
+		info.file_type = Stat::NO_ENTRY;
+		info.size = 0;
+		info.mtime = 0;
+
+		struct stat buf;
+		memset(&buf, 0, sizeof(buf));
+		int err = ::fstat(fd, &buf);
+		if (err != 0)
+			return;
+
+		if (S_ISREG(buf.st_mode) == 1)
+			info.file_type = Stat::REGULAR;
+		else if (S_ISDIR(buf.st_mode) == 1)
+			info.file_type = Stat::DIRECTORY;
+
+		info.size = buf.st_size;
+		info.mtime = buf.st_mtime;
+	}
+#endif
+
 	void stat(Stat& info, const char* path)
 	{
 		info.file_type = Stat::NO_ENTRY;

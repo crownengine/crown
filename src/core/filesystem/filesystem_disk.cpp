@@ -89,16 +89,9 @@ struct FileDisk : public File
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_POSIX
-		long pos = ftell(_file);
-		CE_ASSERT(pos != -1, "ftell: errno = %d", errno);
-		int err = fseek(_file, 0, SEEK_END);
-		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
-		long size = ftell(_file);
-		CE_ASSERT(size != -1, "ftell: errno = %d", errno);
-		err = fseek(_file, (long)pos, SEEK_SET);
-		CE_ASSERT(err == 0, "fseek: errno = %d", errno);
-		CE_UNUSED(err);
-		return (u32)size;
+		Stat stat;
+		os::stat(stat, fileno(_file));
+		return (u32)stat.size;
 #elif CROWN_PLATFORM_WINDOWS
 		return GetFileSize(_file, NULL);
 #endif

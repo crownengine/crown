@@ -62,6 +62,11 @@ namespace os
 	/// Logs the message @a msg.
 	void log(const char* msg);
 
+#if CROWN_PLATFORM_POSIX
+	/// Returns information about @a fd.
+	void stat(Stat& info, int fd);
+#endif
+
 	/// Returns information about @a path.
 	void stat(Stat& info, const char* path);
 
