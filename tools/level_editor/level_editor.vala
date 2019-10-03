@@ -114,22 +114,22 @@ namespace Crown
 			{ "rotation-snap-custom",    null,       "Custom",              "<ctrl>H",        null,         on_rotation_snap           },
 			{ "menu-create",             null,       "Create",              null,             null,         null                       },
 			{ "menu-primitives",         null,       "Primitives",          null,             null,         null                       },
-			{ "primitive-cube",          null,       "Cube",                null,             null,         on_create_cube             },
-			{ "primitive-sphere",        null,       "Sphere",              null,             null,         on_create_sphere           },
-			{ "primitive-cone",          null,       "Cone",                null,             null,         on_create_cone             },
-			{ "primitive-cylinder",      null,       "Cylinder",            null,             null,         on_create_cylinder         },
-			{ "primitive-plane",         null,       "Plane",               null,             null,         on_create_plane            },
-			{ "camera",                  null,       "Camera",              null,             null,         on_create_camera           },
-			{ "light",                   null,       "Light",               null,             null,         on_create_light            },
-			{ "sound-source",            null,       "Sound Source",        null,             null,         on_create_sound_source     },
+			{ "primitive-cube",          null,       "Cube",                null,             null,         on_create_primitive        },
+			{ "primitive-sphere",        null,       "Sphere",              null,             null,         on_create_primitive        },
+			{ "primitive-cone",          null,       "Cone",                null,             null,         on_create_primitive        },
+			{ "primitive-cylinder",      null,       "Cylinder",            null,             null,         on_create_primitive        },
+			{ "primitive-plane",         null,       "Plane",               null,             null,         on_create_primitive        },
+			{ "camera",                  null,       "Camera",              null,             null,         on_create_primitive        },
+			{ "light",                   null,       "Light",               null,             null,         on_create_primitive        },
+			{ "sound-source",            null,       "Sound Source",        null,             null,         on_create_primitive        },
 			{ "menu-camera",             null,       "Camera",              null,             null,         null                       },
-			{ "camera-view-perspective", null,       "Perspective",         "KP_5",           null,         on_camera_view_perspective },
-			{ "camera-view-front",       null,       "View Front",          "KP_1",           null,         on_camera_view_front       },
-			{ "camera-view-back",        null,       "View Back",           "<ctrl>KP_1",     null,         on_camera_view_back        },
-			{ "camera-view-right",       null,       "View Right",          "KP_3",           null,         on_camera_view_right       },
-			{ "camera-view-left",        null,       "View Left",           "<ctrl>KP_3",     null,         on_camera_view_left        },
-			{ "camera-view-top",         null,       "View Top",            "KP_7",           null,         on_camera_view_top         },
-			{ "camera-view-bottom",      null,       "View Bottom",         "<ctrl>KP_7",     null,         on_camera_view_bottom      },
+			{ "camera-view-perspective", null,       "Perspective",         "KP_5",           null,         on_camera_view             },
+			{ "camera-view-front",       null,       "View Front",          "KP_1",           null,         on_camera_view             },
+			{ "camera-view-back",        null,       "View Back",           "<ctrl>KP_1",     null,         on_camera_view             },
+			{ "camera-view-right",       null,       "View Right",          "KP_3",           null,         on_camera_view             },
+			{ "camera-view-left",        null,       "View Left",           "<ctrl>KP_3",     null,         on_camera_view             },
+			{ "camera-view-top",         null,       "View Top",            "KP_7",           null,         on_camera_view             },
+			{ "camera-view-bottom",      null,       "View Bottom",         "<ctrl>KP_7",     null,         on_camera_view             },
 			{ "menu-engine",             null,       "En_gine",             null,             null,         null                       },
 			{ "menu-view",               null,       "View",                null,             null,         null                       },
 			{ "resource-browser",        null,       "Resource Browser",    "<ctrl>P",        null,         on_resource_browser        },
@@ -1286,87 +1286,44 @@ namespace Crown
 			dg.destroy();
 		}
 
-		private void on_create_cube(Gtk.Action action)
+		private void on_create_primitive(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cube"));
+			if (action.name == "primitive-cube")
+				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cube"));
+			else if (action.name == "primitive-sphere")
+				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/sphere"));
+			else if (action.name == "primitive-cone")
+				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cone"));
+			else if (action.name == "primitive-cylinder")
+				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cylinder"));
+			else if (action.name == "primitive-plane")
+				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/plane"));
+			else if (action.name == "camera")
+				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/camera"));
+			else if (action.name == "light")
+				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/light"));
+			else if (action.name == "sound-source")
+				_engine.send_script(LevelEditorApi.set_placeable("sound", ""));
+
 			_action_group.get_action("place").activate();
 		}
 
-		private void on_create_sphere(Gtk.Action action)
+		private void on_camera_view(Gtk.Action action)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/sphere"));
-			_action_group.get_action("place").activate();
-		}
-
-		private void on_create_cone(Gtk.Action action)
-		{
-			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cone"));
-			_action_group.get_action("place").activate();
-		}
-
-		private void on_create_cylinder(Gtk.Action action)
-		{
-			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cylinder"));
-			_action_group.get_action("place").activate();
-		}
-
-		private void on_create_plane(Gtk.Action action)
-		{
-			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/plane"));
-			_action_group.get_action("place").activate();
-		}
-
-		private void on_create_camera(Gtk.Action action)
-		{
-			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/camera"));
-			_action_group.get_action("place").activate();
-		}
-
-		private void on_create_light(Gtk.Action action)
-		{
-			_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/light"));
-			_action_group.get_action("place").activate();
-		}
-
-		private void on_create_sound_source(Gtk.Action action)
-		{
-			_engine.send_script(LevelEditorApi.set_placeable("sound", ""));
-			_action_group.get_action("place").activate();
-		}
-
-		private void on_camera_view_perspective(Gtk.Action action)
-		{
-			_engine.send_script("LevelEditor:camera_view_perspective()");
-		}
-
-		private void on_camera_view_front(Gtk.Action action)
-		{
-			_engine.send_script("LevelEditor:camera_view_front()");
-		}
-
-		private void on_camera_view_back(Gtk.Action action)
-		{
-			_engine.send_script("LevelEditor:camera_view_back()");
-		}
-
-		private void on_camera_view_right(Gtk.Action action)
-		{
-			_engine.send_script("LevelEditor:camera_view_right()");
-		}
-
-		private void on_camera_view_left(Gtk.Action action)
-		{
-			_engine.send_script("LevelEditor:camera_view_left()");
-		}
-
-		private void on_camera_view_top(Gtk.Action action)
-		{
-			_engine.send_script("LevelEditor:camera_view_top()");
-		}
-
-		private void on_camera_view_bottom(Gtk.Action action)
-		{
-			_engine.send_script("LevelEditor:camera_view_bottom()");
+			if (action.name == "camera-view-perspective")
+				_engine.send_script("LevelEditor:camera_view_perspective()");
+			else if (action.name == "camera-view-front")
+				_engine.send_script("LevelEditor:camera_view_front()");
+			else if (action.name == "camera-view-back")
+				_engine.send_script("LevelEditor:camera_view_back()");
+			else if (action.name == "camera-view-right")
+				_engine.send_script("LevelEditor:camera_view_right()");
+			else if (action.name == "camera-view-left")
+				_engine.send_script("LevelEditor:camera_view_left()");
+			else if (action.name == "camera-view-top")
+				_engine.send_script("LevelEditor:camera_view_top()");
+			else if (action.name == "camera-view-bottom")
+				_engine.send_script("LevelEditor:camera_view_bottom()");
 		}
 
 		private void on_resource_browser(Gtk.Action action)
