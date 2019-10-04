@@ -299,6 +299,20 @@ namespace Crown
 			_client.send_script(LevelEditorApi.set_light(unit_id, type, range, intensity, spot_angle, color));
 		}
 
+		public void set_mesh(Guid unit_id, Guid component_id, string mesh_resource, string geometry, string material, bool visible)
+		{
+			_db.add_restore_point((int)ActionType.SET_MESH, new Guid[] { unit_id });
+
+			Unit unit = new Unit(_db, unit_id, _prefabs);
+			unit.set_component_property_string(component_id, "data.mesh_resource", mesh_resource);
+			unit.set_component_property_string(component_id, "data.geometry_name", geometry);
+			unit.set_component_property_string(component_id, "data.material", material);
+			unit.set_component_property_bool  (component_id, "data.visible", visible);
+			unit.set_component_property_string(component_id, "type", "mesh_renderer");
+
+			_client.send_script(LevelEditorApi.set_mesh(unit_id, 0 /*instance_id*/, material, visible));
+		}
+
 		public void set_sprite(Guid unit_id, Guid component_id, double layer, double depth, string material, string sprite_resource, bool visible)
 		{
 			_db.add_restore_point((int)ActionType.SET_SPRITE, new Guid[] { unit_id });
@@ -650,6 +664,24 @@ namespace Crown
 						, unit.get_component_property_double (component_id, "data.intensity")
 						, unit.get_component_property_double (component_id, "data.spot_angle")
 						, unit.get_component_property_vector3(component_id, "data.color")
+						));
+					// FIXME: Hack to force update the properties view
+					selection_changed(_selection);
+				}
+				break;
+
+			case (int)ActionType.SET_MESH:
+				{
+					Guid unit_id = data[0];
+					Guid component_id = GUID_ZERO;
+
+					Unit unit = new Unit(_db, unit_id, _prefabs);
+					unit.has_component("mesh_renderer", ref component_id);
+
+					_client.send_script(LevelEditorApi.set_mesh(unit_id
+						, 0/*instance_id*/
+						, unit.get_component_property_string(component_id, "data.material")
+						, unit.get_component_property_bool  (component_id, "data.visible")
 						));
 					// FIXME: Hack to force update the properties view
 					selection_changed(_selection);

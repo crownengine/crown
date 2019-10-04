@@ -368,6 +368,12 @@ function UnitBox:set_light(type, range, intensity, angle, color)
 	RenderWorld.light_set_spot_angle(LevelEditor._rw, self._unit_id, angle)
 end
 
+function UnitBox:set_mesh(instance_id, material, visible)
+	local mesh_component = RenderWorld.mesh_instances(LevelEditor._rw, self._unit_id)
+	RenderWorld.mesh_set_material(LevelEditor._rw, mesh_component, material)
+	RenderWorld.mesh_set_visible(LevelEditor._rw, mesh_component, visible)
+end
+
 function UnitBox:set_sprite(material, layer, depth, visible)
 	RenderWorld.sprite_set_material(LevelEditor._rw, self._unit_id, material)
 	RenderWorld.sprite_set_layer(LevelEditor._rw, self._unit_id, layer)
