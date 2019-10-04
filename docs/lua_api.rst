@@ -611,6 +611,12 @@ Mesh
 **mesh_instances** (rw, unit) : Id
 	Returns the IDs for all the meshes of the *unit*.
 
+**mesh_set_material** (rw, id, material)
+	Sets the *material* of the mesh *id*.
+
+**mesh_set_visible** (rw, id, visible)
+	Sets whether the mesh *id* is *visible*.
+
 **mesh_obb** (rw, id) : Matrix4x4, Vector3
 	Returns the OBB of the mesh *id* as (pose, half_extents).
 
