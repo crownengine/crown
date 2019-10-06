@@ -65,7 +65,7 @@ struct UnitResource;
 #define RESOURCE_VERSION_SHADER           u32(1)
 #define RESOURCE_VERSION_SOUND            u32(1)
 #define RESOURCE_VERSION_SPRITE_ANIMATION u32(1)
-#define RESOURCE_VERSION_SPRITE           u32(1)
+#define RESOURCE_VERSION_SPRITE           u32(2)
 #define RESOURCE_VERSION_TEXTURE          u32(1)
 #define RESOURCE_VERSION_UNIT             u32(1)
 

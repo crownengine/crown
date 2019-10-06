@@ -19,6 +19,7 @@ struct SpriteResource
 {
 	u32 version;
 	OBB obb;
+	u32 num_frames;
 	u32 num_verts;
 	// verts[num_verts]
 };

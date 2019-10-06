@@ -429,7 +429,7 @@ void RenderWorld::render(const Matrix4x4& view)
 		// Render sprites
 		for (u32 i = 0; i < sid.first_hidden; ++i)
 		{
-			const f32* frame = sprite_resource::frame_data(sid.resource[i], sid.frame[i]);
+			const f32* frame = sprite_resource::frame_data(sid.resource[i], sid.frame[i] % sid.resource[i]->num_frames);
 
 			f32 u0 = frame[ 3]; // u
 			f32 v0 = frame[ 4]; // v

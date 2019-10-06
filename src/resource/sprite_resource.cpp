@@ -124,10 +124,12 @@ namespace sprite_resource_internal
 		SpriteResource sr;
 		sr.version = RESOURCE_HEADER(RESOURCE_VERSION_SPRITE);
 		sr.obb = obb;
+		sr.num_frames = num_frames;
 		sr.num_verts = num_vertices;
 
 		opts.write(sr.version);
 		opts.write(sr.obb);
+		opts.write(sr.num_frames);
 
 		opts.write(sr.num_verts);
 		for (u32 i = 0; i < array::size(vertices); i++)
@@ -142,6 +144,7 @@ namespace sprite_resource
 {
 	const f32* frame_data(const SpriteResource* sr, u32 i)
 	{
+		CE_ENSURE(i < sr->num_frames);
 		return ((f32*)&sr[1]) + 20*i;
 	}
 

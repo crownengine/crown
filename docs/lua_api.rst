@@ -640,6 +640,8 @@ Sprite
 
 **sprite_set_frame** (rw, unit, index)
 	Sets the frame *index* of the sprite.
+	The *index* automatically wraps if it greater than
+	the total number of frames in the sprite.
 
 **sprite_set_visible** (rw, unit, visible)
 	Sets whether the sprite is *visible*.

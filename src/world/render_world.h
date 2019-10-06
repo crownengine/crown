@@ -61,6 +61,8 @@ struct RenderWorld
 	void sprite_set_material(UnitId unit, StringId64 id);
 
 	/// Sets the frame @a index of the sprite.
+	/// The @a index automatically wraps if it greater than
+	/// the total number of frames in the sprite.
 	void sprite_set_frame(UnitId unit, u32 index);
 
 	/// Sets whether the sprite is @a visible.
