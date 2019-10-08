@@ -1216,14 +1216,6 @@ static void test_path()
 		ENSURE(b == false);
 	}
 	{
-		TempAllocator128 ta;
-		DynamicString path(ta);
-		path::join(path, "/home", "foo");
-		ENSURE(path == "/home/foo");
-		path::join(path, "/home", "bar");
-		ENSURE(path == "/home/bar");
-	}
-	{
 		ENSURE(path::has_trailing_separator("/home/foo/"));
 		ENSURE(!path::has_trailing_separator("/home/foo"));
 	}
@@ -1257,14 +1249,6 @@ static void test_path()
 		ENSURE(a == true);
 		const bool b = path::is_root("E:\\Users");
 		ENSURE(b == false);
-	}
-	{
-		TempAllocator128 ta;
-		DynamicString path(ta);
-		path::join(path, "C:\\Users", "foo");
-		ENSURE(path == "C:\\Users\\foo");
-		path::join(path, "C:\\Users", "bar");
-		ENSURE(path == "C:\\Users\\bar");
 	}
 	{
 		ENSURE(path::has_trailing_separator("C:\\Users\\foo\\"));
@@ -1303,6 +1287,39 @@ static void test_path()
 		const char* r = path::extension("boot.bar.config");
 		ENSURE(strcmp(r, "config") == 0);
 	}
+	{
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		path::join(path, "", "");
+		ENSURE(path == "");
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		path::join(path, "foo", "");
+		ENSURE(path == "foo");
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		path::join(path, "", "bar");
+		ENSURE(path == "bar");
+	}
+#if CROWN_PLATFORM_POSIX
+	{
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		path::join(path, "foo", "bar");
+		ENSURE(path == "foo/bar");
+	}
+#else
+	{
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		path::join(path, "C:\\foo", "bar");
+		ENSURE(path == "C:\\foo\\bar");
+	}
+#endif // CROWN_PLATFORM_POSIX
 }
 
 static void test_command_line()

@@ -59,7 +59,8 @@ namespace path
 		const u32 lb = strlen32(path_b);
 		path.reserve(la + lb + 1);
 		path  = path_a;
-		path += PATH_SEPARATOR;
+		if (la != 0 && lb != 0)
+			path += PATH_SEPARATOR;
 		path += path_b;
 	}
 
