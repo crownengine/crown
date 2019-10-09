@@ -155,7 +155,7 @@ namespace Crown
 				mi.activate.connect(on_popup_delete);
 				menu.add(mi);
 				menu.show_all();
-				menu.popup(null, null, null, button, ev.time);
+				menu.popup_at_pointer();
 				return true;
 			}
 
