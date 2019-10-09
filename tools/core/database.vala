@@ -507,6 +507,10 @@ namespace Crown
 				if (key == "_objects")
 					continue;
 
+				// Since null-key is equivalent to non-existent key, skip serialization.
+				if (db[key] == null)
+					continue;
+
 				string[] foo = key.split(".");
 				Hashtable x = obj;
 				if (foo.length > 1)
