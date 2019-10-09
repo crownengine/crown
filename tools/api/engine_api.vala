@@ -15,17 +15,17 @@ namespace Crown
 
 		public string vector2(Vector2 v)
 		{
-			return "Vector2(%f, %f)".printf(v.x, v.y);
+			return "Vector2(%.17g, %.17g)".printf(v.x, v.y);
 		}
 
 		public string vector3(Vector3 v)
 		{
-			return "Vector3(%f, %f, %f)".printf(v.x, v.y, v.z);
+			return "Vector3(%.17g, %.17g, %.17g)".printf(v.x, v.y, v.z);
 		}
 
 		public string quaternion(Quaternion q)
 		{
-			return "Quaternion.from_elements(%f, %f, %f, %f)".printf(q.x, q.y, q.z, q.w);
+			return "Quaternion.from_elements(%.17g, %.17g, %.17g, %.17g)".printf(q.x, q.y, q.z, q.w);
 		}
 
 	}
@@ -102,7 +102,7 @@ namespace Crown
 
 		public string mouse_wheel(double delta)
 		{
-			return "LevelEditor:mouse_wheel(%f)".printf(delta);
+			return "LevelEditor:mouse_wheel(%.17g)".printf(delta);
 		}
 
 		public string mouse_down(int x, int y)
@@ -170,12 +170,12 @@ namespace Crown
 
 		public string set_grid_size(double size)
 		{
-			return "LevelEditor:set_grid_size(%f)".printf(size);
+			return "LevelEditor:set_grid_size(%.17g)".printf(size);
 		}
 
 		public string set_rotation_snap(double deg)
 		{
-			return "LevelEditor:set_rotation_snap(%f)".printf(MathUtils.rad(deg));
+			return "LevelEditor:set_rotation_snap(%.17g)".printf(MathUtils.rad(deg));
 		}
 
 		public string spawn_unit(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
@@ -195,7 +195,7 @@ namespace Crown
 
 		public string spawn_sound(Guid id, string name, Vector3 pos, Quaternion rot, double range, double volume, bool loop)
 		{
-			return "LevelEditor:spawn_sound(\"%s\", \"%s\", %s, %s, %f, %f, %s)".printf(id.to_string()
+			return "LevelEditor:spawn_sound(\"%s\", \"%s\", %s, %s, %.17g, %.17g, %s)".printf(id.to_string()
 				, name
 				, Lua.vector3(pos)
 				, Lua.quaternion(rot)
@@ -228,7 +228,7 @@ namespace Crown
 
 		public string add_sprite_component(Guid id, Guid component_id, string sprite_resource, string material_resource, double layer, double depth, bool visible)
 		{
-			return "LevelEditor:add_sprite_component(\"%s\", \"%s\", \"%s\", \"%s\", %f, %f, %s)".printf(id.to_string()
+			return "LevelEditor:add_sprite_component(\"%s\", \"%s\", \"%s\", \"%s\", %.17g, %.17g, %s)".printf(id.to_string()
 				, component_id.to_string()
 				, sprite_resource
 				, material_resource
@@ -240,7 +240,7 @@ namespace Crown
 
 		public string add_camera_component(Guid id, Guid component_id, string projection, double fov, double far_range, double near_range)
 		{
-			return "LevelEditor:add_camera_component(\"%s\", \"%s\", \"%s\", %f, %f, %f)".printf(id.to_string()
+			return "LevelEditor:add_camera_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g)".printf(id.to_string()
 				, component_id.to_string()
 				, projection
 				, fov
@@ -251,7 +251,7 @@ namespace Crown
 
 		public string add_light_component(Guid id, Guid component_id, string type, double range, double intensity, double spot_angle, Vector3 color)
 		{
-			return "LevelEditor:add_light_component(\"%s\", \"%s\", \"%s\", %f, %f, %f, %s)".printf(id.to_string()
+			return "LevelEditor:add_light_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g, %s)".printf(id.to_string()
 				, component_id.to_string()
 				, type
 				, range
@@ -272,7 +272,7 @@ namespace Crown
 
 		public string set_light(Guid id, string type, double range, double intensity, double spot_angle, Vector3 color)
 		{
-			return @"LevelEditor._objects[\"%s\"]:set_light(\"%s\", %f, %f, %f, %s)".printf(id.to_string()
+			return @"LevelEditor._objects[\"%s\"]:set_light(\"%s\", %.17g, %.17g, %.17g, %s)".printf(id.to_string()
 				, type
 				, range
 				, intensity
@@ -283,14 +283,14 @@ namespace Crown
 
 		public string set_sound_range(Guid id, double range)
 		{
-			return @"LevelEditor._objects[\"%s\"]:set_range(%f)".printf(id.to_string()
+			return @"LevelEditor._objects[\"%s\"]:set_range(%.17g)".printf(id.to_string()
 				, range
 				);
 		}
 
 		public string set_mesh(Guid id, double instance_id, string material, bool visible)
 		{
-			return @"LevelEditor._objects[\"%s\"]:set_mesh(%f, \"%s\", %s)".printf(id.to_string()
+			return @"LevelEditor._objects[\"%s\"]:set_mesh(%.17g, \"%s\", %s)".printf(id.to_string()
 				, instance_id
 				, material
 				, Lua.bool(visible)
@@ -299,7 +299,7 @@ namespace Crown
 
 		public string set_sprite(Guid id, string material, double layer, double depth, bool visible)
 		{
-			return @"LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", %f, %f, %s)".printf(id.to_string()
+			return @"LevelEditor._objects[\"%s\"]:set_sprite(\"%s\", %.17g, %.17g, %s)".printf(id.to_string()
 				, material
 				, layer
 				, depth
