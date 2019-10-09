@@ -764,11 +764,18 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		const DynamicString& src_path = cur->first;
 		const char* filename = src_path.c_str();
+		const char* type = path::extension(filename);
 
 		if (should_ignore(filename))
 			continue;
 
-		const char* type = path::extension(filename);
+		if (type == NULL || !can_compile(type))
+		{
+			loge(DATA_COMPILER, "Unknown resource file: '%s'", filename);
+			loge(DATA_COMPILER, "Append matching pattern to " CROWN_DATAIGNORE " to ignore it");
+			continue;
+		}
+
 		ResourceId id = resource_id(filename);
 		TempAllocator256 ta;
 		DynamicString path(ta);
@@ -828,14 +835,6 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		destination_path(path, id);
 
 		logi(DATA_COMPILER, "%s", src_path.c_str());
-
-		if (!can_compile(type))
-		{
-			loge(DATA_COMPILER, "Unknown resource type: '%s'", type);
-			loge(DATA_COMPILER, "Append extension to " CROWN_DATAIGNORE " to ignore the type");
-			success = false;
-			break;
-		}
 
 		// Compile data
 		ResourceTypeData rtd;
@@ -1024,19 +1023,6 @@ void DataCompiler::filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, 
 {
 	((DataCompiler*)thiz)->filemonitor_callback(fme, is_dir, path_original, path_modified);
 }
-
-struct InitMemoryGlobals
-{
-	InitMemoryGlobals()
-	{
-		crown::memory_globals::init();
-	}
-
-	~InitMemoryGlobals()
-	{
-		crown::memory_globals::shutdown();
-	}
-};
 
 int main_data_compiler(const DeviceOptions& opts)
 {
