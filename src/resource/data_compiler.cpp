@@ -50,6 +50,100 @@ LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
 namespace crown
 {
+static void notify_add_file(const char* path)
+{
+	TempAllocator512 ta;
+	StringStream ss(ta);
+	ss << "{\"type\":\"add_file\",\"path\":\"" << path << "\"}";
+	console_server()->send(string_stream::c_str(ss));
+}
+
+static void notify_remove_file(const char* path)
+{
+	TempAllocator512 ta;
+	StringStream ss(ta);
+	ss << "{\"type\":\"remove_file\",\"path\":\"" << path << "\"}";
+	console_server()->send(string_stream::c_str(ss));
+}
+
+static void notify_add_tree(const char* path)
+{
+	TempAllocator512 ta;
+	StringStream ss(ta);
+	ss << "{\"type\":\"add_tree\",\"path\":\"" << path << "\"}";
+	console_server()->send(string_stream::c_str(ss));
+}
+
+static void notify_remove_tree(const char* path)
+{
+	TempAllocator512 ta;
+	StringStream ss(ta);
+	ss << "{\"type\":\"remove_tree\",\"path\":\"" << path << "\"}";
+	console_server()->send(string_stream::c_str(ss));
+}
+
+SourceIndex::SourceIndex()
+	: _paths(default_allocator())
+{
+}
+
+void SourceIndex::scan_directory(FilesystemDisk& fs, const char* prefix, const char* directory)
+{
+	Vector<DynamicString> files(default_allocator());
+	fs.list_files(directory != NULL ? directory : "", files);
+
+	for (u32 i = 0; i < vector::size(files); ++i)
+	{
+		TempAllocator512 ta;
+		DynamicString file_i(ta);
+
+		if (directory != NULL)
+		{
+			file_i += directory;
+			file_i += '/';
+		}
+		file_i += files[i];
+
+		if (fs.is_directory(file_i.c_str()))
+		{
+			scan_directory(fs, prefix, file_i.c_str());
+		}
+		else // Assume a regular file
+		{
+			DynamicString resource_name(ta);
+			if (strcmp(prefix, "") != 0)
+			{
+				resource_name += prefix;
+				resource_name += '/';
+			}
+			resource_name += file_i;
+
+			Stat stat;
+			stat = fs.stat(file_i.c_str());
+			hash_map::set(_paths, resource_name, stat);
+
+			notify_add_file(resource_name.c_str());
+		}
+	}
+}
+
+void SourceIndex::scan(const HashMap<DynamicString, DynamicString>& source_dirs)
+{
+	auto cur = hash_map::begin(source_dirs);
+	auto end = hash_map::end(source_dirs);
+	for (; cur != end; ++cur)
+	{
+		if (hash_map::is_hole(source_dirs, cur))
+			continue;
+
+		DynamicString prefix(default_allocator());
+		path::join(prefix, cur->second.c_str(), cur->first.c_str());
+		FilesystemDisk fs(default_allocator());
+		fs.set_prefix(prefix.c_str());
+		scan_directory(fs, cur->first.c_str(), NULL);
+	}
+}
+
 struct LineReader
 {
 	const char* _str;
@@ -366,7 +460,6 @@ DataCompiler::DataCompiler(ConsoleServer& cs)
 	, _source_fs(default_allocator())
 	, _source_dirs(default_allocator())
 	, _compilers(default_allocator())
-	, _files(default_allocator())
 	, _globs(default_allocator())
 	, _data_index(default_allocator())
 	, _data_mtimes(default_allocator())
@@ -385,112 +478,57 @@ DataCompiler::~DataCompiler()
 
 void DataCompiler::add_file(const char* path)
 {
-	for (u32 gg = 0; gg < vector::size(_globs); ++gg)
-	{
-		if (wildcmp(_globs[gg].c_str(), path))
-			return;
-	}
-
-	TempAllocator512 ta;
-	DynamicString str(ta);
-	str.set(path, strlen32(path));
-	vector::push_back(_files, str);
-
-	StringStream ss(ta);
-	ss << "{\"type\":\"add_file\",\"path\":\"" << str.c_str() << "\"}";
-	_console_server->send(string_stream::c_str(ss));
-}
-
-void DataCompiler::add_tree(const char* path)
-{
+	// Get source directory prefix
 	TempAllocator512 ta;
 	DynamicString source_dir(ta);
 	source_dir = hash_map::get(_source_dirs, source_dir, source_dir);
 
-	_source_fs.set_prefix(source_dir.c_str());
-	DataCompiler::scan_source_dir(source_dir.c_str(), path);
+	// Convert to DynamicString
+	DynamicString str(ta);
+	str.set(path, strlen32(path));
 
-	StringStream ss(ta);
-	ss << "{\"type\":\"add_tree\",\"path\":\"" << path << "\"}";
-	_console_server->send(string_stream::c_str(ss));
+	// Get file status
+	FilesystemDisk fs(default_allocator());
+	fs.set_prefix(source_dir.c_str());
+	Stat stat;
+	stat = fs.stat(path);
+	hash_map::set(_source_index._paths, str, stat);
+
+	notify_add_file(path);
 }
 
 void DataCompiler::remove_file(const char* path)
 {
-	for (u32 i = 0; i < vector::size(_files); ++i)
-	{
-		if (_files[i] == path)
-		{
-			_files[i] = _files[vector::size(_files) - 1];
-			vector::pop_back(_files);
+	// Convert to DynamicString
+	TempAllocator512 ta;
+	DynamicString str(ta);
+	str.set(path, strlen32(path));
 
-			TempAllocator512 ta;
-			StringStream ss(ta);
-			ss << "{\"type\":\"remove_file\",\"path\":\"" << path << "\"}";
-			_console_server->send(string_stream::c_str(ss));
-			return;
-		}
-	}
+	hash_map::remove(_source_index._paths, str);
+
+	notify_remove_file(path);
+}
+
+void DataCompiler::add_tree(const char* path)
+{
+#if CROWN_PLATFORM_LINUX
+	// Get source directory prefix
+	TempAllocator512 ta;
+	DynamicString source_dir(ta);
+	source_dir = hash_map::get(_source_dirs, source_dir, source_dir);
+	// Scan the directory tree.
+	// See file_monitor_linux.cpp:180.
+	FilesystemDisk fs(default_allocator());
+	fs.set_prefix(source_dir.c_str());
+	_source_index.scan_directory(fs, "", path);
+#endif // CROWN_PLATFORM_LINUX
+
+	notify_add_tree(path);
 }
 
 void DataCompiler::remove_tree(const char* path)
 {
-	TempAllocator512 ta;
-	StringStream ss(ta);
-	ss << "{\"type\":\"remove_tree\",\"path\":\"" << path << "\"}";
-	_console_server->send(string_stream::c_str(ss));
-
-	for (u32 i = 0; i < vector::size(_files);)
-	{
-		if (_files[i].has_prefix(path))
-		{
-			TempAllocator512 ta;
-			StringStream ss(ta);
-			ss << "{\"type\":\"remove_file\",\"path\":\"" << _files[i].c_str() << "\"}";
-			_console_server->send(string_stream::c_str(ss));
-
-			_files[i] = _files[vector::size(_files) - 1];
-			vector::pop_back(_files);
-			continue;
-		}
-
-		++i;
-	}
-}
-
-void DataCompiler::scan_source_dir(const char* prefix, const char* cur_dir)
-{
-	Vector<DynamicString> my_files(default_allocator());
-	_source_fs.list_files(cur_dir, my_files);
-
-	for (u32 i = 0; i < vector::size(my_files); ++i)
-	{
-		TempAllocator512 ta;
-		DynamicString file_i(ta);
-
-		if (strcmp(cur_dir, "") != 0)
-		{
-			file_i += cur_dir;
-			file_i += '/';
-		}
-		file_i += my_files[i];
-
-		if (_source_fs.is_directory(file_i.c_str()))
-		{
-			DataCompiler::scan_source_dir(prefix, file_i.c_str());
-		}
-		else // Assume a regular file
-		{
-			DynamicString resource_name(ta);
-			if (strcmp(prefix, "") != 0)
-			{
-				resource_name += prefix;
-				resource_name += '/';
-			}
-			resource_name += file_i;
-			add_file(resource_name.c_str());
-		}
-	}
+	notify_remove_tree(path);
 }
 
 void DataCompiler::map_source_dir(const char* name, const char* source_dir)
@@ -574,9 +612,10 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 			default_allocator().deallocate(data);
 		}
-
-		scan_source_dir(cur->first.c_str(), "");
 	}
+
+	_source_index.scan(_source_dirs);
+
 	logi(DATA_COMPILER, "Scanned data in %.2fs", time::seconds(time::now() - time_start));
 
 	// Restore state from previous run
@@ -638,25 +677,10 @@ bool DataCompiler::dependency_changed(const DynamicString& src_path, ResourceId 
 	DynamicString path(ta);
 	destination_path(path, id);
 
-	// Look up source path
-#if 0
-	DynamicString src_path_deffault(ta);
-	DynamicString& src_path = hash_map::get(_data_index, id, src_path_deffault);
-	CE_ENSURE(!src_path.empty());
-#endif
-
-	DynamicString source_dir(ta);
-	this->source_dir(src_path.c_str(), source_dir);
-
-	FilesystemDisk source_fs(ta);
-	source_fs.set_prefix(source_dir.c_str());
-
-	u64 src_mtime = source_fs.last_modified_time(src_path.c_str());
-	if (src_mtime > dst_mtime)
-	{
-		// printf("changed: %s. src_mtime = %lu, dst_mtime = %lu\n", src_path.c_str(), src_mtime, dst_mtime);
+	Stat src_stat;
+	src_stat = hash_map::get(_source_index._paths, src_path, src_stat);
+	if (src_stat.mtime > dst_mtime)
 		return true;
-	}
 
 	HashMap<DynamicString, u32> deffault(default_allocator());
 	HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
@@ -703,6 +727,17 @@ bool DataCompiler::version_changed(const DynamicString& src_path, ResourceId id)
 	return false;
 }
 
+bool DataCompiler::should_ignore(const char* path)
+{
+	for (u32 ii = 0, nn = vector::size(_globs); ii < nn; ++ii)
+	{
+		if (wildcmp(_globs[ii].c_str(), path))
+			return true;
+	}
+
+	return false;
+}
+
 bool DataCompiler::compile(const char* data_dir, const char* platform)
 {
 	const s64 time_start = time::now();
@@ -719,10 +754,19 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 	// Find the set of resources to be compiled
 	Vector<DynamicString> to_compile(default_allocator());
-	for (u32 i = 0; i < vector::size(_files); ++i)
+
+	auto cur = hash_map::begin(_source_index._paths);
+	auto end = hash_map::end(_source_index._paths);
+	for (; cur != end; ++cur)
 	{
-		const DynamicString& src_path = _files[i];
+		if (hash_map::is_hole(_source_index._paths, cur))
+			continue;
+
+		const DynamicString& src_path = cur->first;
 		const char* filename = src_path.c_str();
+
+		if (should_ignore(filename))
+			continue;
 
 		const char* type = path::extension(filename);
 		ResourceId id = resource_id(filename);
@@ -732,20 +776,23 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		u64 dst_mtime = 0;
 		dst_mtime = hash_map::get(_data_mtimes, id, dst_mtime);
+		Stat src_stat;
+		src_stat = hash_map::get(_source_index._paths, src_path, src_stat);
 
-		DynamicString source_dir(ta);
-		this->source_dir(filename, source_dir);
-		FilesystemDisk source_fs(ta);
-		source_fs.set_prefix(source_dir.c_str());
+		bool source_never_compiled_before    = hash_map::has(_data_index, id) == false;
+		bool source_has_been_changed         = src_stat.mtime > dst_mtime;
+		bool source_dependency_changed       = dependency_changed(src_path, id, dst_mtime);
+		bool data_version_changed            = data_version_stored(type) != data_version(type);
+		bool data_version_dependency_changed = version_changed(src_path, id);
 
-		if (data_fs.exists(path.c_str()) == false
-			|| source_fs.last_modified_time(filename) > dst_mtime
-			|| dependency_changed(src_path, id, dst_mtime)
-			|| data_version_stored(type) != data_version(type)
-			|| version_changed(src_path, id)
+		if (source_never_compiled_before
+			|| source_has_been_changed
+			|| source_dependency_changed
+			|| data_version_changed
+			|| data_version_dependency_changed
 			)
 		{
-			vector::push_back(to_compile, _files[i]);
+			vector::push_back(to_compile, src_path);
 		}
 	}
 
@@ -956,6 +1003,15 @@ void DataCompiler::filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir,
 		break;
 
 	case FileMonitorEvent::CHANGED:
+		if (!is_dir)
+		{
+			FilesystemDisk fs(default_allocator());
+			fs.set_prefix(source_dir.c_str());
+
+			Stat stat;
+			stat = fs.stat(resource_name.c_str());
+			hash_map::set(_source_index._paths, resource_name, stat);
+		}
 		break;
 
 	default:

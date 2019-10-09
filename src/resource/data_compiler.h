@@ -14,6 +14,24 @@
 
 namespace crown
 {
+/// Source data index.
+/// Associates a path on disk with its metadata.
+///
+/// @ingroup Resource
+struct SourceIndex
+{
+	HashMap<DynamicString, Stat> _paths;
+
+	///
+	SourceIndex();
+
+	///
+	void scan_directory(FilesystemDisk& fs, const char* prefix, const char* directory);
+
+	///
+	void scan(const HashMap<DynamicString, DynamicString>& source_dirs);
+};
+
 /// Compiles source data into binary.
 ///
 /// @ingroup Resource
@@ -31,19 +49,18 @@ struct DataCompiler
 	FilesystemDisk _source_fs;
 	HashMap<DynamicString, DynamicString> _source_dirs;
 	HashMap<DynamicString, ResourceTypeData> _compilers;
-	Vector<DynamicString> _files;
 	Vector<DynamicString> _globs;
 	HashMap<StringId64, DynamicString> _data_index;
 	HashMap<StringId64, u64> _data_mtimes;
 	HashMap<StringId64, HashMap<DynamicString, u32> > _data_dependencies;
 	HashMap<DynamicString, u32> _data_versions;
 	FileMonitor _file_monitor;
+	SourceIndex _source_index;
 
 	void add_file(const char* path);
-	void add_tree(const char* path);
 	void remove_file(const char* path);
+	void add_tree(const char* path);
 	void remove_tree(const char* path);
-	void scan_source_dir(const char* prefix, const char* path);
 
 	void filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed);
 	static void filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified);
@@ -95,6 +112,11 @@ struct DataCompiler
 
 	///
 	bool version_changed(const DynamicString& src_path, ResourceId id);
+
+	/// Returns whether the @a path should be ignored because
+	/// it matches a pattern from the CROWN_DATAIGNORE file or
+	/// by other means.
+	bool should_ignore(const char* path);
 
 	///
 	void error(const char* msg, va_list args);

@@ -177,6 +177,15 @@ struct FileMonitorImpl
 						, NULL
 						);
 
+					// From INOTIFY(7), Limitations and caveats:
+					// If monitoring an entire directory subtree, and a new subdirectory
+					// is created in that tree or an existing directory is renamed into
+					// that tree, be aware that by the time you create a watch for the
+					// new subdirectory, new files (and subdirectories) may already exist
+					// inside the subdirectory.  Therefore, you may want to scan the
+					// contents of the subdirectory immediately after adding the watch
+					// (and, if desired, recursively add watches for any subdirectories
+					// that it contains).
 					if (ev->mask & IN_ISDIR)
 						add_watch(path.c_str(), _recursive);
 				}
