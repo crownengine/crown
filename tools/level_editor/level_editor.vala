@@ -58,6 +58,7 @@ namespace Crown
 
 		// Level data
 		private Project _project;
+		private ProjectStore _project_store;
 		private Database _database;
 		private Level _level;
 		private string _level_filename;
@@ -71,6 +72,8 @@ namespace Crown
 		private PropertiesView _properties_view;
 		private PreferencesDialog _preferences_dialog;
 		private ResourceBrowser _resource_browser;
+		private ResourceBrowser _resource_selection;
+		private Gtk.Popover _resource_popover;
 
 		private Slide _engine_view_slide;
 		private Slide _level_tree_view_slide;
@@ -238,10 +241,17 @@ namespace Crown
 			_data_compiler = new DataCompiler(_compiler);
 
 			// Widgets
+			_project_store = new ProjectStore(_project);
+
+			_resource_browser = new ResourceBrowser(_project, _project_store, true);
+			_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
+
+			_resource_selection = new ResourceBrowser(_project, _project_store, false);
+
 			_console_view = new ConsoleView(_engine, _project);
 			_level_treeview = new LevelTreeView(_database, _level);
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
-			_properties_view = new PropertiesView(_level);
+			_properties_view = new PropertiesView(_level, _project_store);
 
 			_engine_view_slide = new Slide();
 			_level_tree_view_slide = new Slide();
@@ -276,6 +286,12 @@ namespace Crown
 			_toolbar.set_icon_size(Gtk.IconSize.SMALL_TOOLBAR);
 			_toolbar.set_style(Gtk.ToolbarStyle.ICONS);
 
+			_resource_popover = new Gtk.Popover(_toolbar);
+			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
+			_resource_popover.modal = true;
+			_resource_browser.resource_selected.connect(() => { _resource_popover.hide(); });
+			_resource_popover.add(_resource_browser);
+
 			_pane_left = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 			_pane_left.pack1(_engine_view_slide, true, true);
 			_pane_left.pack2(_console_view, true, true);
@@ -306,12 +322,6 @@ namespace Crown
 			_file_filter = new FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
 			_file_filter.add_pattern("*.level");
-
-			_resource_browser = new ResourceBrowser(_project);
-			_resource_browser.relative_to = _toolbar;
-			_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
-			_resource_browser.delete_event.connect(() => { _resource_browser.hide(); return true; });
-			_resource_browser.modal = true;
 
 			// Save level once every 5 minutes.
 			GLib.Timeout.add_seconds(5*3600, save_timeout);
@@ -1328,7 +1338,7 @@ namespace Crown
 
 		private void on_resource_browser(Gtk.Action action)
 		{
-			_resource_browser.show_all();
+			_resource_popover.show_all();
 		}
 
 		private void on_fullscreen(Gtk.Action action)

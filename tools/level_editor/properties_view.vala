@@ -106,23 +106,23 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private Gtk.Entry _mesh_resource;
+		private ReferenceChooser _mesh_resource;
 		private Gtk.Entry _geometry;
-		private Gtk.Entry _material;
+		private ReferenceChooser _material;
 		private CheckBox _visible;
 
-		public MeshRendererComponentView(Level level)
+		public MeshRendererComponentView(Level level, ProjectStore store)
 		{
 			// Data
 			_level = level;
 
 			// Widgets
-			_mesh_resource = new Gtk.Entry();
-			_mesh_resource.sensitive = false;
+			_mesh_resource = new ReferenceChooser(store, "mesh");
+			_mesh_resource.value_changed.connect(on_value_changed);
 			_geometry = new Gtk.Entry();
 			_geometry.sensitive = false;
-			_material = new Gtk.Entry();
-			_material.sensitive = false;
+			_material = new ReferenceChooser(store, "material");
+			_material.value_changed.connect(on_value_changed);
 			_visible = new CheckBox();
 
 			add_row("Mesh", _mesh_resource);
@@ -131,13 +131,24 @@ namespace Crown
 			add_row("Visible", _visible);
 		}
 
+		private void on_value_changed()
+		{
+			_level.set_mesh(_id
+				, _component_id
+				, _mesh_resource.value
+				, _geometry.text
+				, _material.value
+				, _visible.value
+				);
+		}
+
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			_mesh_resource.text = unit.get_component_property_string(_component_id, "data.mesh_resource");
-			_geometry.text      = unit.get_component_property_string(_component_id, "data.geometry_name");
-			_material.text      = unit.get_component_property_string(_component_id, "data.material");
-			_visible.value      = unit.get_component_property_bool  (_component_id, "data.visible");
+			_mesh_resource.value = unit.get_component_property_string(_component_id, "data.mesh_resource");
+			_geometry.text       = unit.get_component_property_string(_component_id, "data.geometry_name");
+			_material.value      = unit.get_component_property_string(_component_id, "data.material");
+			_visible.value       = unit.get_component_property_bool  (_component_id, "data.visible");
 		}
 	}
 
@@ -147,28 +158,28 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private Gtk.Entry _sprite_resource;
-		private Gtk.Entry _material;
+		private ReferenceChooser _sprite_resource;
+		private ReferenceChooser _material;
 		private SpinButtonDouble _layer;
 		private SpinButtonDouble _depth;
 		private CheckBox _visible;
 
-		public SpriteRendererComponentView(Level level)
+		public SpriteRendererComponentView(Level level, ProjectStore store)
 		{
 			// Data
 			_level = level;
 
 			// Widgets
-			_sprite_resource = new Gtk.Entry();
-			_material = new Gtk.Entry();
+			_sprite_resource = new ReferenceChooser(store, "sprite");
+			_sprite_resource.value_changed.connect(on_value_changed);
+			_material = new ReferenceChooser(store, "material");
+			_material.value_changed.connect(on_value_changed);
 			_layer = new SpinButtonDouble(0.0, 0.0, 7.0);
 			_layer.value_changed.connect(on_value_changed);
 			_depth = new SpinButtonDouble(0.0, 0.0, (double)uint32.MAX);
 			_depth.value_changed.connect(on_value_changed);
 			_visible = new CheckBox();
 			_visible.value_changed.connect(on_value_changed);
-			_sprite_resource.sensitive = false;
-			_material.sensitive = false;
 
 			add_row("Sprite", _sprite_resource);
 			add_row("Material", _material);
@@ -183,8 +194,8 @@ namespace Crown
 				, _component_id
 				, _layer.value
 				, _depth.value
-				, _material.text
-				, _sprite_resource.text
+				, _material.value
+				, _sprite_resource.value
 				, _visible.value
 				);
 		}
@@ -192,11 +203,11 @@ namespace Crown
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			_sprite_resource.text = unit.get_component_property_string(_component_id, "data.sprite_resource");
-			_material.text        = unit.get_component_property_string(_component_id, "data.material");
-			_layer.value          = unit.get_component_property_double(_component_id, "data.layer");
-			_depth.value          = unit.get_component_property_double(_component_id, "data.depth");
-			_visible.value        = unit.get_component_property_bool  (_component_id, "data.visible");
+			_sprite_resource.value = unit.get_component_property_string(_component_id, "data.sprite_resource");
+			_material.value        = unit.get_component_property_string(_component_id, "data.material");
+			_layer.value           = unit.get_component_property_double(_component_id, "data.layer");
+			_depth.value           = unit.get_component_property_double(_component_id, "data.depth");
+			_visible.value         = unit.get_component_property_bool  (_component_id, "data.visible");
 		}
 	}
 
@@ -309,7 +320,7 @@ namespace Crown
 			unit.set_component_property_double(_component_id, "data.fov",        _fov.value*(Math.PI/180.0));
 			unit.set_component_property_double(_component_id, "data.near_range", _near_range.value);
 			unit.set_component_property_double(_component_id, "data.far_range",  _far_range.value);
-			unit.set_component_property_string(_component_id, "type", "camera");
+			unit.set_component_property_string(_component_id, "type",            "camera");
 		}
 
 		public override void update()
@@ -334,11 +345,11 @@ namespace Crown
 
 		// Widgets
 		private Gtk.Entry _shape;
-		private Gtk.Entry _scene;
+		private ReferenceChooser _scene;
 		private Gtk.Entry _name;
 		private Gtk.Entry _material;
 
-		public ColliderComponentView(Level level)
+		public ColliderComponentView(Level level, ProjectStore store)
 		{
 			// Data
 			_level = level;
@@ -346,8 +357,8 @@ namespace Crown
 			// Widgets
 			_shape = new Gtk.Entry();
 			_shape.sensitive = false;
-			_scene = new Gtk.Entry();
-			_scene.sensitive = false;
+			_scene = new ReferenceChooser(store, "mesh");
+			_scene.value_changed.connect(on_value_changed);
 			_name = new Gtk.Entry();
 			_name.sensitive = false;
 			_material = new Gtk.Entry();
@@ -359,11 +370,21 @@ namespace Crown
 			add_row("Material", _material);
 		}
 
+		private void on_value_changed()
+		{
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			unit.set_component_property_string(_component_id, "data.shape",    _shape.text);
+			unit.set_component_property_string(_component_id, "data.scene",    _scene.value);
+			unit.set_component_property_string(_component_id, "data.name",     _name.text);
+			unit.set_component_property_string(_component_id, "data.material", _material.text);
+			unit.set_component_property_string(_component_id, "type",          "collider");
+		}
+
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
 			_shape.text    = unit.get_component_property_string(_component_id, "data.shape");
-			_scene.text    = unit.get_component_property_string(_component_id, "data.scene");
+			_scene.value   = unit.get_component_property_string(_component_id, "data.scene");
 			_name.text     = unit.get_component_property_string(_component_id, "data.name");
 			_material.text = unit.get_component_property_string(_component_id, "data.material");
 		}
@@ -404,11 +425,11 @@ namespace Crown
 		private void on_value_changed()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			unit.set_component_property_string(_component_id, "data.class", _class.text);
+			unit.set_component_property_string(_component_id, "data.class",            _class.text);
 			unit.set_component_property_string(_component_id, "data.collision_filter", _collision_filter.text);
-			unit.set_component_property_string(_component_id, "data.material", _material.text);
-			unit.set_component_property_double(_component_id, "data.mass", _mass.value);
-			unit.set_component_property_string(_component_id, "type", "actor");
+			unit.set_component_property_string(_component_id, "data.material",         _material.text);
+			unit.set_component_property_double(_component_id, "data.mass",             _mass.value);
+			unit.set_component_property_string(_component_id, "type",                  "actor");
 		}
 
 		public override void update()
@@ -427,24 +448,31 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private Gtk.Entry _script_resource;
+		private ReferenceChooser _script_resource;
 
-		public ScriptComponentView(Level level)
+		public ScriptComponentView(Level level, ProjectStore store)
 		{
 			// Data
 			_level = level;
 
 			// Widgets
-			_script_resource = new Gtk.Entry();
-			_script_resource.sensitive = false;
+			_script_resource = new ReferenceChooser(store, "lua");
+			_script_resource.value_changed.connect(on_value_changed);
 
 			add_row("Script", _script_resource);
+		}
+
+		private void on_value_changed()
+		{
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			unit.set_component_property_string(_component_id, "data.script_resource", _script_resource.value);
+			unit.set_component_property_string(_component_id, "type",                 "script");
 		}
 
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			_script_resource.text = unit.get_component_property_string(_component_id, "data.script_resource");
+			_script_resource.value = unit.get_component_property_string(_component_id, "data.script_resource");
 		}
 	}
 
@@ -454,24 +482,31 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private Gtk.Entry _state_machine_resource;
+		private ReferenceChooser _state_machine_resource;
 
-		public AnimationStateMachine(Level level)
+		public AnimationStateMachine(Level level, ProjectStore store)
 		{
 			// Data
 			_level = level;
 
 			// Widgets
-			_state_machine_resource = new Gtk.Entry();
-			_state_machine_resource.sensitive = false;
+			_state_machine_resource = new ReferenceChooser(store, "state_machine");
+			_state_machine_resource.value_changed.connect(on_value_changed);
 
 			add_row("State Machine", _state_machine_resource);
+		}
+
+		private void on_value_changed()
+		{
+			Unit unit = new Unit(_level._db, _id, _level._prefabs);
+			unit.set_component_property_string(_component_id, "data.state_machine_resource", _state_machine_resource.value);
+			unit.set_component_property_string(_component_id, "type",                        "animation_state_machine");
 		}
 
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			_state_machine_resource.text = unit.get_component_property_string(_component_id, "data.state_machine_resource");
+			_state_machine_resource.value = unit.get_component_property_string(_component_id, "data.state_machine_resource");
 		}
 	}
 
@@ -621,7 +656,7 @@ namespace Crown
 		private Gtk.Box _components_vbox;
 		private Gtk.Widget _current_widget;
 
-		public PropertiesView(Level level)
+		public PropertiesView(Level level, ProjectStore store)
 		{
 			// Data
 			_level = level;
@@ -640,12 +675,12 @@ namespace Crown
 			add_component_view("Transform",               "transform",               0, new TransformComponentView(_level));
 			add_component_view("Light",                   "light",                   1, new LightComponentView(_level));
 			add_component_view("Camera",                  "camera",                  2, new CameraComponentView(_level));
-			add_component_view("Mesh Renderer",           "mesh_renderer",           3, new MeshRendererComponentView(_level));
-			add_component_view("Sprite Renderer",         "sprite_renderer",         3, new SpriteRendererComponentView(_level));
-			add_component_view("Collider",                "collider",                3, new ColliderComponentView(_level));
+			add_component_view("Mesh Renderer",           "mesh_renderer",           3, new MeshRendererComponentView(_level, store));
+			add_component_view("Sprite Renderer",         "sprite_renderer",         3, new SpriteRendererComponentView(_level, store));
+			add_component_view("Collider",                "collider",                3, new ColliderComponentView(_level, store));
 			add_component_view("Actor",                   "actor",                   3, new ActorComponentView(_level));
-			add_component_view("Script",                  "script",                  3, new ScriptComponentView(_level));
-			add_component_view("Animation State Machine", "animation_state_machine", 3, new AnimationStateMachine(_level));
+			add_component_view("Script",                  "script",                  3, new ScriptComponentView(_level, store));
+			add_component_view("Animation State Machine", "animation_state_machine", 3, new AnimationStateMachine(_level, store));
 
 			// Sound
 			add_component_view("Transform", "sound_transform",  0, new SoundTransformView(_level));

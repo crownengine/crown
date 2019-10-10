@@ -8,51 +8,49 @@ using Gee;
 
 namespace Crown
 {
-	const string resource_types[] =
+	// Returns true if the item should be filtered out
+	private bool user_filter(string type, string name)
 	{
-		"unit",
-		"sound"
-	};
-
-	public bool is_type(string type)
-	{
-		for (int i = 0; i < resource_types.length; ++i)
-		{
-			if (resource_types[i] == type)
-				return true;
-		}
-		return false;
+		return (type == "unit" || type == "sound") && !name.has_prefix("core/");
 	}
 
-	public class ResourceBrowser : Gtk.Popover
+	public delegate bool UserFilter(string type, string name);
+
+	public class ResourceBrowser : Gtk.Box
 	{
 		// Data
-		private Project _project;
-		private GLib.Subprocess _engine_process;
-		private ConsoleClient _console_client;
+		public Project _project;
+		public GLib.Subprocess _engine_process;
+		public ConsoleClient _console_client;
+		public Gtk.TreeStore _tree_store;
+		public bool _preview;
+		public unowned UserFilter _user_filter;
+		public string _name;
 
 		// Widgets
-		private Gtk.Entry _filter_entry;
-		private Gtk.TreeStore _tree_store;
-		private Gtk.TreeModelFilter _tree_filter;
-		private Gtk.TreeModelSort _tree_sort;
-		private Gtk.TreeView _tree_view;
-		private Gtk.TreeSelection _tree_selection;
-		private Gtk.ScrolledWindow _scrolled_window;
-		private Gtk.Box _box;
+		public Gtk.Entry _filter_entry;
+		public Gtk.TreeModelFilter _tree_filter;
+		public Gtk.TreeModelSort _tree_sort;
+		public Gtk.TreeView _tree_view;
+		public Gtk.TreeSelection _tree_selection;
+		public Gtk.ScrolledWindow _scrolled_window;
 
-		private EngineView _engine_view;
+		public EngineView _engine_view;
 
 		// Signals
 		public signal void resource_selected(string type, string name);
 
-		public ResourceBrowser(Project project)
+		public ResourceBrowser(Project? project, ProjectStore project_store, bool preview)
 		{
+			Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
+
 			// Data
 			_project = project;
-			_project.changed.connect(on_project_changed);
 
 			_console_client = new ConsoleClient();
+			_tree_store = project_store._tree_store;
+			_preview = preview;
+			_user_filter = user_filter;
 
 			// Widgets
 			this.destroy.connect(on_destroy);
@@ -61,8 +59,6 @@ namespace Crown
 			_filter_entry.set_placeholder_text("Search...");
 			_filter_entry.changed.connect(on_filter_entry_text_changed);
 			_filter_entry.key_press_event.connect(on_filter_entry_key_pressed);
-
-			_tree_store = new Gtk.TreeStore(2, typeof(string), typeof(string));
 
 			_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
 			_tree_filter.set_visible_func(filter_tree);
@@ -83,7 +79,6 @@ namespace Crown
 			_tree_view.headers_visible = false;
 			_tree_view.can_focus = false;
 			_tree_view.row_activated.connect(on_row_activated);
-			_tree_view.button_press_event.connect(on_button_pressed);
 			_tree_view.button_release_event.connect(on_button_released);
 
 			_tree_selection = _tree_view.get_selection();
@@ -94,18 +89,19 @@ namespace Crown
 			_scrolled_window.add(_tree_view);
 			_scrolled_window.set_size_request(300, 400);
 
-			read_project();
+			if (_preview)
+			{
+				_engine_view = new EngineView(_console_client, false);
+				_engine_view.realized.connect(on_engine_view_realized);
+				_engine_view.set_size_request(300, 300);
+			}
 
-			_engine_view = new EngineView(_console_client, false);
-			_engine_view.realized.connect(on_engine_view_realized);
-			_engine_view.set_size_request(300, 300);
-
-			_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-			_box.pack_start(_filter_entry, false, false, 0);
-			_box.pack_start(_engine_view, true, true, 0);
-			_box.pack_start(_scrolled_window, false, false, 0);
-
-			this.add(_box);
+			this.pack_start(_filter_entry, false, false, 0);
+			if (_preview)
+			{
+				this.pack_start(_engine_view, true, true, 0);
+			}
+			this.pack_start(_scrolled_window, false, false, 0);
 		}
 
 		private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
@@ -119,35 +115,9 @@ namespace Crown
 				Value type;
 				_tree_store.get_value(iter, 0, out name);
 				_tree_store.get_value(iter, 1, out type);
+				_name = (string)name;
 				resource_selected((string)type, (string)name);
-				this.hide();
 			}
-		}
-
-		private bool on_button_pressed(Gdk.EventButton ev)
-		{
-			if (ev.button == 1)
-			{
-				Gtk.TreePath path;
-				int cell_x;
-				int cell_y;
-				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
-				{
-					Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
-					Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
-					Gtk.TreeIter iter;
-					if (_tree_store.get_iter(out iter, child_path))
-					{
-						Value name;
-						Value type;
-						_tree_store.get_value(iter, 0, out name);
-						_tree_store.get_value(iter, 1, out type);
-						resource_selected((string)type, (string)name);
-					}
-				}
-			}
-
-			return false;
 		}
 
 		private bool on_button_released(Gdk.EventButton ev)
@@ -160,7 +130,20 @@ namespace Crown
 				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
 				{
 					if (_tree_view.get_selection().path_is_selected(path))
-						this.hide();
+					{
+						Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
+						Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
+						Gtk.TreeIter iter;
+						if (_tree_store.get_iter(out iter, child_path))
+						{
+							Value name;
+							Value type;
+							_tree_store.get_value(iter, 0, out name);
+							_tree_store.get_value(iter, 1, out type);
+							_name = (string)name;
+							resource_selected((string)type, (string)name);
+						}
+					}
 				}
 			}
 
@@ -247,17 +230,17 @@ namespace Crown
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
 		{
-			Value name;
 			Value type;
-			model.get_value(iter, 0, out name);
+			Value name;
 			model.get_value(iter, 1, out type);
+			model.get_value(iter, 0, out name);
 
-			string name_str = (string)name;
 			string type_str = (string)type;
+			string name_str = (string)name;
 
-			return name_str != null
-				&& type_str != null
-				&& is_type(type_str)
+			return type_str != null
+				&& name_str != null
+				&& _user_filter(type_str, name_str)
 				&& (_filter_entry.text.length == 0 || name_str.index_of(_filter_entry.text) > -1)
 				;
 		}
@@ -292,9 +275,9 @@ namespace Crown
 					Value type;
 					model.get_value(iter, 0, out name);
 					model.get_value(iter, 1, out type);
+					_name = (string)name;
 					resource_selected((string)type, (string)name);
 				}
-				this.hide();
 			}
 			else
 				return false;
@@ -304,41 +287,25 @@ namespace Crown
 
 		private void on_tree_selection_changed()
 		{
-			Gtk.TreeModel model;
-			Gtk.TreeIter iter;
-			if (_tree_selection.get_selected(out model, out iter))
+			if (_preview)
 			{
-				Value name;
-				Value type;
-				model.get_value(iter, 0, out name);
-				model.get_value(iter, 1, out type);
-				_console_client.send_script(UnitPreviewApi.set_preview_resource((string)type, (string)name));
+				Gtk.TreeModel model;
+				Gtk.TreeIter iter;
+				if (_tree_selection.get_selected(out model, out iter))
+				{
+					Value name;
+					Value type;
+					model.get_value(iter, 0, out name);
+					model.get_value(iter, 1, out type);
+					_console_client.send_script(UnitPreviewApi.set_preview_resource((string)type, (string)name));
+				}
 			}
 		}
 
-		private void read_project()
+		public void set_type_filter(owned UserFilter filter)
 		{
-			_tree_store.clear();
-
-			Database db = _project.files();
-			HashSet<Guid?> files = db.get_property_set(GUID_ZERO, "data", new Gee.HashSet<Guid?>());
-			files.foreach((id) => {
-				Gtk.TreeIter resource_iter;
-				_tree_store.append(out resource_iter, null);
-				string name = db.get_property_string(id, "name");
-				if (name.has_prefix("core/"))
-					return true;
-
-				string type = db.get_property_string(id, "type");
-				_tree_store.set(resource_iter, 0, name, 1, type, -1);
-				return true;
-			});
+			_user_filter = filter;
 			_tree_filter.refilter();
-		}
-
-		private void on_project_changed()
-		{
-			read_project();
 		}
 	}
 }
