@@ -56,7 +56,7 @@ struct UnitResource;
 #define RESOURCE_VERSION_STATE_MACHINE    u32(1)
 #define RESOURCE_VERSION_CONFIG           u32(1)
 #define RESOURCE_VERSION_FONT             u32(1)
-#define RESOURCE_VERSION_LEVEL            u32(1)
+#define RESOURCE_VERSION_LEVEL            u32(2)
 #define RESOURCE_VERSION_MATERIAL         u32(1)
 #define RESOURCE_VERSION_MESH             u32(1)
 #define RESOURCE_VERSION_PACKAGE          u32(1)

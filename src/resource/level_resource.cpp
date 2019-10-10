@@ -79,9 +79,6 @@ namespace level_resource_internal
 			opts.write(sounds[i].volume);
 			opts.write(sounds[i].range);
 			opts.write(sounds[i].loop);
-			opts.write(sounds[i]._pad[0]);
-			opts.write(sounds[i]._pad[1]);
-			opts.write(sounds[i]._pad[2]);
 		}
 
 		return 0;

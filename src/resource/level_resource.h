@@ -28,8 +28,7 @@ struct LevelSound
 	Vector3 position;
 	f32 volume;
 	f32 range;
-	bool loop;
-	char _pad[3];
+	u32 loop;
 };
 
 namespace level_resource_internal
