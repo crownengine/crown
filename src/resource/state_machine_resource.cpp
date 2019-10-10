@@ -305,8 +305,7 @@ namespace state_machine_internal
 				auto end = hash_map::end(_states);
 				for (; cur != end; ++cur)
 				{
-					if (hash_map::is_hole(_states, cur))
-						continue;
+					HASH_MAP_SKIP_HOLE(_states, cur);
 
 					const Guid& guid    = cur->first;
 					const StateInfo& si = cur->second;
@@ -374,8 +373,7 @@ namespace state_machine_internal
 			auto end = hash_map::end(_states);
 			for (; cur != end; ++cur)
 			{
-				if (hash_map::is_hole(_states, cur))
-					continue;
+				HASH_MAP_SKIP_HOLE(_states, cur);
 
 				const StateInfo& si = cur->second;
 				const u32 num_animations  = vector::size(si.animations);

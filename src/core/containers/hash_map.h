@@ -397,4 +397,8 @@ HashMap<TKey, TValue, Hash, KeyEqual>& HashMap<TKey, TValue, Hash, KeyEqual>::op
 	return *this;
 }
 
+#define HASH_MAP_SKIP_HOLE(m, cur) \
+	if (hash_map::is_hole(m, cur)) \
+		continue
+
 } // namespace crown

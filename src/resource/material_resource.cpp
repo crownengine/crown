@@ -81,8 +81,7 @@ namespace material_resource_internal
 		auto end = json_object::end(object);
 		for (; cur != end; ++cur)
 		{
-			if (json_object::is_hole(object, cur))
-				continue;
+			JSON_OBJECT_SKIP_HOLE(object, cur);
 
 			const FixedString key = cur->first;
 			const char* value     = cur->second;
@@ -122,8 +121,7 @@ namespace material_resource_internal
 		auto end = json_object::end(object);
 		for (; cur != end; ++cur)
 		{
-			if (json_object::is_hole(object, cur))
-				continue;
+			JSON_OBJECT_SKIP_HOLE(object, cur);
 
 			const FixedString key = cur->first;
 			const char* value     = cur->second;

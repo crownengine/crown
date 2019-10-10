@@ -301,8 +301,7 @@ namespace physics_config_resource_internal
 		auto end = json_object::end(object);
 		for (; cur != end; ++cur)
 		{
-			if (json_object::is_hole(object, cur))
-				continue;
+			JSON_OBJECT_SKIP_HOLE(object, cur);
 
 			const FixedString key = cur->first;
 			const char* value     = cur->second;
@@ -330,8 +329,7 @@ namespace physics_config_resource_internal
 		auto end = json_object::end(object);
 		for (; cur != end; ++cur)
 		{
-			if (json_object::is_hole(object, cur))
-				continue;
+			JSON_OBJECT_SKIP_HOLE(object, cur);
 
 			const FixedString key = cur->first;
 			const char* value     = cur->second;
@@ -384,8 +382,7 @@ namespace physics_config_resource_internal
 			auto end = json_object::end(object);
 			for (; cur != end; ++cur)
 			{
-				if (json_object::is_hole(object, cur))
-					continue;
+				JSON_OBJECT_SKIP_HOLE(object, cur);
 
 				const FixedString key = cur->first;
 				const StringId32 id   = StringId32(key.data(), key.length());
@@ -397,8 +394,7 @@ namespace physics_config_resource_internal
 			end = json_object::end(object);
 			for (; cur != end; ++cur)
 			{
-				if (json_object::is_hole(object, cur))
-					continue;
+				JSON_OBJECT_SKIP_HOLE(object, cur);
 
 				const FixedString key = cur->first;
 				const char* value     = cur->second;

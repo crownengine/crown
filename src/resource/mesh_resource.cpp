@@ -275,8 +275,7 @@ namespace mesh_resource_internal
 		auto end = json_object::end(geometries);
 		for (; cur != end; ++cur)
 		{
-			if (json_object::is_hole(geometries, cur))
-				continue;
+			JSON_OBJECT_SKIP_HOLE(geometries, cur);
 
 			const FixedString key = cur->first;
 			const char* geometry = cur->second;

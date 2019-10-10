@@ -38,8 +38,7 @@ ResourceManager::~ResourceManager()
 	auto end = hash_map::end(_rm);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(_rm, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(_rm, cur);
 
 		const StringId64 type = cur->first.type;
 		const StringId64 name = cur->first.name;

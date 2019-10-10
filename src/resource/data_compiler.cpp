@@ -133,8 +133,7 @@ void SourceIndex::scan(const HashMap<DynamicString, DynamicString>& source_dirs)
 	auto end = hash_map::end(source_dirs);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(source_dirs, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(source_dirs, cur);
 
 		DynamicString prefix(default_allocator());
 		path::join(prefix, cur->second.c_str(), cur->first.c_str());
@@ -246,8 +245,7 @@ static void read_data_versions(HashMap<DynamicString, u32>& versions, Filesystem
 	auto end = json_object::end(object);
 	for (; cur != end; ++cur)
 	{
-		if (json_object::is_hole(object, cur))
-			continue;
+		JSON_OBJECT_SKIP_HOLE(object, cur);
 
 		TempAllocator256 ta;
 		DynamicString type(ta);
@@ -269,8 +267,7 @@ static void read_data_index(HashMap<StringId64, DynamicString>& index, Filesyste
 	auto end = json_object::end(object);
 	for (; cur != end; ++cur)
 	{
-		if (json_object::is_hole(object, cur))
-			continue;
+		JSON_OBJECT_SKIP_HOLE(object, cur);
 
 		TempAllocator256 ta;
 		StringId64 dst_name;
@@ -295,8 +292,7 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 	auto end = json_object::end(object);
 	for (; cur != end; ++cur)
 	{
-		if (json_object::is_hole(object, cur))
-			continue;
+		JSON_OBJECT_SKIP_HOLE(object, cur);
 
 		TempAllocator64 ta;
 		StringId64 dst_name;
@@ -323,8 +319,7 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 	auto end = json_object::end(object);
 	for (; cur != end; ++cur)
 	{
-		if (json_object::is_hole(object, cur))
-			continue;
+		JSON_OBJECT_SKIP_HOLE(object, cur);
 
 		StringId64 dst_name;
 		dst_name.parse(cur->first.data());
@@ -351,8 +346,7 @@ static void write_data_index(FilesystemDisk& data_fs, const char* filename, cons
 		auto end = hash_map::end(index);
 		for (; cur != end; ++cur)
 		{
-			if (hash_map::is_hole(index, cur))
-				continue;
+			HASH_MAP_SKIP_HOLE(index, cur);
 
 			TempAllocator256 ta;
 			DynamicString str(ta);
@@ -377,8 +371,7 @@ static void write_data_versions(FilesystemDisk& data_fs, const char* filename, c
 		auto end = hash_map::end(versions);
 		for (; cur != end; ++cur)
 		{
-			if (hash_map::is_hole(versions, cur))
-				continue;
+			HASH_MAP_SKIP_HOLE(versions, cur);
 
 			ss << cur->first.c_str() << " = " << cur->second << "\n";
 		}
@@ -401,8 +394,7 @@ static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, con
 		auto end = hash_map::end(mtimes);
 		for (; cur != end; ++cur)
 		{
-			if (hash_map::is_hole(mtimes, cur))
-				continue;
+			HASH_MAP_SKIP_HOLE(mtimes, cur);
 
 			TempAllocator64 ta;
 			DynamicString key(ta);
@@ -421,8 +413,7 @@ static void write_source_files(StringStream& ss, HashMap<DynamicString, u32> sou
 	auto end = hash_map::end(sources);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(sources, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(sources, cur);
 
 		ss << "    \"" << cur->first.c_str() << "\"\n";
 	}
@@ -439,8 +430,7 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 		auto end = hash_map::end(dependencies);
 		for (; cur != end; ++cur)
 		{
-			if (hash_map::is_hole(dependencies, cur))
-				continue;
+			HASH_MAP_SKIP_HOLE(dependencies, cur);
 
 			TempAllocator64 ta;
 			DynamicString key(ta);
@@ -578,8 +568,7 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 	auto end = hash_map::end(_source_dirs);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(_source_dirs, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(_source_dirs, cur);
 
 		DynamicString prefix(default_allocator());
 		path::join(prefix, cur->second.c_str(), cur->first.c_str());
@@ -688,8 +677,7 @@ bool DataCompiler::dependency_changed(const DynamicString& src_path, ResourceId 
 	auto end = hash_map::end(deps);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(deps, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(deps, cur);
 
 		if (src_path == cur->first)
 			continue;
@@ -714,8 +702,7 @@ bool DataCompiler::version_changed(const DynamicString& src_path, ResourceId id)
 	auto end = hash_map::end(deps);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(deps, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(deps, cur);
 
 		if (src_path == cur->first)
 			continue;
@@ -759,8 +746,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	auto end = hash_map::end(_source_index._paths);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(_source_index._paths, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
 
 		const DynamicString& src_path = cur->first;
 		const char* filename = src_path.c_str();

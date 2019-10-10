@@ -720,8 +720,7 @@ namespace shader_resource_internal
 			auto end = json_object::end(render_states);
 			for (; cur != end; ++cur)
 			{
-				if (json_object::is_hole(render_states, cur))
-					continue;
+				JSON_OBJECT_SKIP_HOLE(render_states, cur);
 
 				JsonObject obj(ta);
 				sjson::parse_object(cur->second, obj);
@@ -844,8 +843,7 @@ namespace shader_resource_internal
 			auto end = json_object::end(sampler_states);
 			for (; cur != end; ++cur)
 			{
-				if (json_object::is_hole(sampler_states, cur))
-					continue;
+				JSON_OBJECT_SKIP_HOLE(sampler_states, cur);
 
 				JsonObject obj(ta);
 				sjson::parse_object(cur->second, obj);
@@ -944,8 +942,7 @@ namespace shader_resource_internal
 			auto end = json_object::end(bgfx_shaders);
 			for (; cur != end; ++cur)
 			{
-				if (json_object::is_hole(bgfx_shaders, cur))
-					continue;
+				JSON_OBJECT_SKIP_HOLE(bgfx_shaders, cur);
 
 				JsonObject shader(ta);
 				sjson::parse_object(cur->second, shader);
@@ -992,8 +989,7 @@ namespace shader_resource_internal
 			auto end = json_object::end(bgfx_samplers);
 			for (; cur != end; ++cur)
 			{
-				if (json_object::is_hole(bgfx_samplers, cur))
-					continue;
+				JSON_OBJECT_SKIP_HOLE(bgfx_samplers, cur);
 
 				JsonObject sampler(ta);
 				sjson::parse_object(cur->second, sampler);
@@ -1031,8 +1027,7 @@ namespace shader_resource_internal
 			auto end = json_object::end(shaders);
 			for (; cur != end; ++cur)
 			{
-				if (json_object::is_hole(shaders, cur))
-					continue;
+				JSON_OBJECT_SKIP_HOLE(shaders, cur);
 
 				JsonObject obj(ta);
 				sjson::parse_object(cur->second, obj);
@@ -1162,8 +1157,7 @@ namespace shader_resource_internal
 			auto end = hash_map::end(shader._samplers);
 			for (; cur != end; ++cur)
 			{
-				if (hash_map::is_hole(shader._samplers, cur))
-					continue;
+				HASH_MAP_SKIP_HOLE(shader._samplers, cur);
 
 				const DynamicString& name = cur->first;
 				const DynamicString& sampler_state = cur->second;

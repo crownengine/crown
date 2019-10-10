@@ -359,8 +359,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 			auto end = json_object::end(modified_components);
 			for (; cur != end; ++cur)
 			{
-				if (json_object::is_hole(modified_components, cur))
-					continue;
+				JSON_OBJECT_SKIP_HOLE(modified_components, cur);
 
 				const FixedString key = cur->first;
 				const FixedString id(&key.data()[1], key.length()-1);
@@ -424,8 +423,7 @@ Buffer UnitCompiler::blob()
 	auto end = hash_map::end(_component_data);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(_component_data, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(_component_data, cur);
 
 		const u32 num = cur->second._num;
 

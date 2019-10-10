@@ -26,8 +26,7 @@ MaterialManager::~MaterialManager()
 	auto end = hash_map::end(_materials);
 	for (; cur != end; ++cur)
 	{
-		if (hash_map::is_hole(_materials, cur))
-			continue;
+		HASH_MAP_SKIP_HOLE(_materials, cur);
 
 		_allocator->deallocate(cur->second);
 	}
