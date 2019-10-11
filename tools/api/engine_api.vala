@@ -302,6 +302,16 @@ namespace Crown
 				);
 		}
 
+		public string set_camera(Guid id, string projection, double fov, double near_range, double far_range)
+		{
+			return @"LevelEditor._objects[\"%s\"]:set_camera(\"%s\", %.17g, %.17g, %.17g)".printf(id.to_string()
+				, projection
+				, fov
+				, near_range
+				, far_range
+				);
+		}
+
 		public string set_placeable(string type, string name)
 		{
 			return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf(type, name);

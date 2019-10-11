@@ -381,6 +381,13 @@ function UnitBox:set_sprite(material, layer, depth, visible)
 	RenderWorld.sprite_set_visible(LevelEditor._rw, self._unit_id, visible)
 end
 
+function UnitBox:set_camera(projection, fov, near_range, far_range)
+	World.camera_set_projection_type(LevelEditor._world, self._unit_id, projection)
+	World.camera_set_fov(LevelEditor._world, self._unit_id, fov)
+	World.camera_set_near_clip_distance(LevelEditor._world, self._unit_id, near_range)
+	World.camera_set_far_clip_distance(LevelEditor._world, self._unit_id, far_range)
+end
+
 SoundObject = class(SoundObject)
 
 function SoundObject:init(world, id, name, range, volume, loop)

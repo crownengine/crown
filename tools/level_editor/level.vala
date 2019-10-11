@@ -328,6 +328,48 @@ namespace Crown
 			_client.send_script(LevelEditorApi.set_sprite(unit_id, material, layer, depth, visible));
 		}
 
+		public void set_camera(Guid unit_id, Guid component_id, string projection, double fov, double near_range, double far_range)
+		{
+			_db.add_restore_point((int)ActionType.SET_CAMERA, new Guid[] { unit_id });
+
+			Unit unit = new Unit(_db, unit_id, _prefabs);
+			unit.set_component_property_string(component_id, "data.projection", projection);
+			unit.set_component_property_double(component_id, "data.fov", fov);
+			unit.set_component_property_double(component_id, "data.near_range", near_range);
+			unit.set_component_property_double(component_id, "data.far_range", far_range);
+			unit.set_component_property_string(component_id, "type", "camera");
+
+			_client.send_script(LevelEditorApi.set_camera(unit_id, projection, fov, near_range, far_range));
+		}
+
+		public void set_collider(Guid unit_id, Guid component_id, string shape, string scene, string name, string material)
+		{
+			_db.add_restore_point((int)ActionType.SET_COLLIDER, new Guid[] { unit_id });
+
+			Unit unit = new Unit(_db, unit_id, _prefabs);
+			unit.set_component_property_string(component_id, "data.shape", shape);
+			unit.set_component_property_string(component_id, "data.scene", scene);
+			unit.set_component_property_string(component_id, "data.name", name);
+			unit.set_component_property_string(component_id, "data.material", material);
+			unit.set_component_property_string(component_id, "type", "collider");
+
+			// No synchronization
+		}
+
+		public void set_actor(Guid unit_id, Guid component_id, string class, string collision_filter, string material, double mass)
+		{
+			_db.add_restore_point((int)ActionType.SET_ACTOR, new Guid[] { unit_id });
+
+			Unit unit = new Unit(_db, unit_id, _prefabs);
+			unit.set_component_property_string(component_id, "data.class", class);
+			unit.set_component_property_string(component_id, "data.collision_filter", collision_filter);
+			unit.set_component_property_string(component_id, "data.material", material);
+			unit.set_component_property_double(component_id, "data.mass", mass);
+			unit.set_component_property_string(component_id, "type", "actor");
+
+			// No synchronization
+		}
+
 		public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
 		{
 			_db.add_restore_point((int)ActionType.SET_SOUND, new Guid[] { sound_id });
@@ -707,6 +749,39 @@ namespace Crown
 				}
 				break;
 
+			case (int)ActionType.SET_CAMERA:
+				{
+					Guid unit_id = data[0];
+					Guid component_id = GUID_ZERO;
+
+					Unit unit = new Unit(_db, unit_id, _prefabs);
+					unit.has_component("camera", ref component_id);
+
+					_client.send_script(LevelEditorApi.set_camera(unit_id
+						, unit.get_component_property_string(component_id, "data.projection")
+						, unit.get_component_property_double(component_id, "data.fov")
+						, unit.get_component_property_double(component_id, "data.near_range")
+						, unit.get_component_property_double(component_id, "data.far_range")
+						));
+					// FIXME: Hack to force update the properties view
+					selection_changed(_selection);
+				}
+				break;
+
+			case (int)ActionType.SET_COLLIDER:
+				{
+					// FIXME: Hack to force update the properties view
+					selection_changed(_selection);
+				}
+				break;
+
+			case (int)ActionType.SET_ACTOR:
+				{
+					// FIXME: Hack to force update the properties view
+					selection_changed(_selection);
+				}
+				break;
+
 			case (int)ActionType.SET_SOUND:
 				{
 					Guid sound_id = data[0];
@@ -720,6 +795,7 @@ namespace Crown
 				break;
 
 			default:
+				stdout.printf("Unknown undo/redo action: %d\n", id);
 				assert(false);
 				break;
 			}

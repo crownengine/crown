@@ -315,26 +315,23 @@ namespace Crown
 
 		private void on_value_changed()
 		{
-			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			unit.set_component_property_string(_component_id, "data.projection", _projection.value);
-			unit.set_component_property_double(_component_id, "data.fov",        _fov.value*(Math.PI/180.0));
-			unit.set_component_property_double(_component_id, "data.near_range", _near_range.value);
-			unit.set_component_property_double(_component_id, "data.far_range",  _far_range.value);
-			unit.set_component_property_string(_component_id, "type",            "camera");
+			_level.set_camera(_id
+				, _component_id
+				, _projection.value
+				, _fov.value*(Math.PI/180.0)
+				, _near_range.value
+				, _far_range.value
+				);
 		}
 
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			string type       = unit.get_component_property_string(_component_id, "data.projection");
-			double fov        = unit.get_component_property_double(_component_id, "data.fov");
-			double near_range = unit.get_component_property_double(_component_id, "data.near_range");
-			double far_range  = unit.get_component_property_double(_component_id, "data.far_range");
 
-			_projection.value = type;
-			_fov.value        = fov*(180.0/Math.PI);
-			_near_range.value = near_range;
-			_far_range.value  = far_range;
+			_projection.value = unit.get_component_property_string(_component_id, "data.projection");
+			_fov.value        = unit.get_component_property_double(_component_id, "data.fov") * (180.0/Math.PI);
+			_near_range.value = unit.get_component_property_double(_component_id, "data.near_range");
+			_far_range.value  = unit.get_component_property_double(_component_id, "data.far_range");
 		}
 	}
 
@@ -372,12 +369,13 @@ namespace Crown
 
 		private void on_value_changed()
 		{
-			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			unit.set_component_property_string(_component_id, "data.shape",    _shape.text);
-			unit.set_component_property_string(_component_id, "data.scene",    _scene.value);
-			unit.set_component_property_string(_component_id, "data.name",     _name.text);
-			unit.set_component_property_string(_component_id, "data.material", _material.text);
-			unit.set_component_property_string(_component_id, "type",          "collider");
+			_level.set_collider(_id
+				, _component_id
+				, _shape.text
+				, _scene.value
+				, _name.text
+				, _material.text
+				);
 		}
 
 		public override void update()
@@ -424,12 +422,13 @@ namespace Crown
 
 		private void on_value_changed()
 		{
-			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			unit.set_component_property_string(_component_id, "data.class",            _class.text);
-			unit.set_component_property_string(_component_id, "data.collision_filter", _collision_filter.text);
-			unit.set_component_property_string(_component_id, "data.material",         _material.text);
-			unit.set_component_property_double(_component_id, "data.mass",             _mass.value);
-			unit.set_component_property_string(_component_id, "type",                  "actor");
+			_level.set_actor(_id
+				, _component_id
+				, _class.text
+				, _collision_filter.text
+				, _material.text
+				, _mass.value
+				);
 		}
 
 		public override void update()

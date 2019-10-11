@@ -17,6 +17,9 @@ namespace Crown
 		SET_LIGHT,
 		SET_MESH,
 		SET_SPRITE,
+		SET_CAMERA,
+		SET_COLLIDER,
+		SET_ACTOR,
 		SET_SOUND
 	}
 }
