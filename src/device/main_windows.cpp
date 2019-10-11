@@ -8,6 +8,7 @@
 #if CROWN_PLATFORM_WINDOWS
 
 #include "core/command_line.h"
+#include "core/guid.h"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
