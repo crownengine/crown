@@ -1561,11 +1561,16 @@ bool tool_process_events()
 					if (!io.WantCaptureMouse)
 					{
 						ImVec2& cursor = _editor->_scene_view._cursor;
-
 						cursor.x = io.MousePos.x - _editor->_scene_view._origin.x;
 						cursor.y = io.MousePos.y - _editor->_scene_view._origin.y;
 
-						tool::mouse_move(ss, cursor.x, cursor.y);
+						tool::set_mouse_state(ss
+							, cursor.x
+							, cursor.y
+							, io.MouseDown[MouseButton::LEFT]
+							, io.MouseDown[MouseButton::MIDDLE]
+							, io.MouseDown[MouseButton::RIGHT]
+							);
 					}
 					break;
 

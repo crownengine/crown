@@ -63,8 +63,6 @@ void mouse_up(StringStream& out, f32 x, f32 y);
 
 void mouse_wheel(StringStream& out, f32 delta);
 
-void mouse_move(StringStream& out, f32 x, f32 y);
-
 void key_down(StringStream& out, const char* key);
 
 void key_up(StringStream& out, const char* key);

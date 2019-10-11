@@ -79,13 +79,6 @@ void mouse_wheel(StringStream& out, f32 delta)
 	out << delta << ")";
 }
 
-void mouse_move(StringStream& out, f32 x, f32 y)
-{
-	out << "LevelEditor:mouse_move(";
-	out << x << ",";
-	out << y << ")";
-}
-
 void key_down(StringStream& out, const char* key)
 {
 	out << "LevelEditor:key_down(";

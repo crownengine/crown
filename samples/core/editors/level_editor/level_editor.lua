@@ -1361,6 +1361,7 @@ function LevelEditor:update(dt)
 	self._camera:mouse_wheel(self._mouse.wheel.delta)
 	self._camera:update(dt, self._mouse.dx, self._mouse.dy, self._keyboard, self._mouse)
 
+	self.tool:mouse_move(self._mouse.x, self._mouse.y)
 	self.tool:update(dt, self._mouse.x, self._mouse.y)
 
 	self._mouse.dx = 0
@@ -1401,13 +1402,6 @@ function LevelEditor:set_mouse_state(x, y, left, middle, right)
 	self._mouse.left = left
 	self._mouse.middle = middle
 	self._mouse.right = right
-end
-
-function LevelEditor:mouse_move(x, y)
-	self._mouse.x = x
-	self._mouse.y = y
-
-	self.tool:mouse_move(x, y)
 end
 
 function LevelEditor:mouse_wheel(delta)
