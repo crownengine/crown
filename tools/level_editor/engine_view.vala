@@ -188,7 +188,12 @@ namespace Crown
 			_mouse_curr_x = (int)ev.x;
 			_mouse_curr_y = (int)ev.y;
 
-			_client.send_script(LevelEditorApi.mouse_move(_mouse_curr_x, _mouse_curr_y));
+			_client.send_script(LevelEditorApi.set_mouse_state(_mouse_curr_x
+				, _mouse_curr_y
+				, _mouse_left
+				, _mouse_middle
+				, _mouse_right
+				));
 
 			return false;
 		}
