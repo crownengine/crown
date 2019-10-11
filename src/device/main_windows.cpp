@@ -731,12 +731,12 @@ struct InitGlobals
 	InitGlobals()
 	{
 		crown::memory_globals::init();
-		crown::guid::init();
+		crown::guid_globals::init();
 	}
 
 	~InitGlobals()
 	{
-		crown::guid::shutdown();
+		crown::guid_globals::shutdown();
 		crown::memory_globals::shutdown();
 	}
 };
