@@ -21,12 +21,23 @@ struct Guid
 	u64 data4;
 };
 
+namespace guid_globals
+{
+	///
+	void init();
+
+	///
+	void shutdown();
+
+} // namespace guid_globals
+
 /// Functions to manipulate Guid.
 ///
 /// @ingroup Core
 namespace guid
 {
 	/// Returns a new randomly generated Guid.
+	/// @note User must call guid_globals::init() first.
 	Guid new_guid();
 
 	/// Parses the guid from @a str.

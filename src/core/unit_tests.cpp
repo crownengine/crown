@@ -997,6 +997,7 @@ static void test_dynamic_string()
 static void test_guid()
 {
 	memory_globals::init();
+	guid_globals::init();
 	{
 		Guid guid = guid::new_guid();
 		char str[37];
@@ -1009,6 +1010,7 @@ static void test_guid()
 		ENSURE(guid::try_parse(guid, "961f8005-6a7e-4371-9272-8454dd786884"));
 		ENSURE(!guid::try_parse(guid, "961f80056a7e-4371-9272-8454dd786884"));
 	}
+	guid_globals::shutdown();
 	memory_globals::shutdown();
 }
 

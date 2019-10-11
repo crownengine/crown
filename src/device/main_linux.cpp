@@ -9,6 +9,7 @@
 
 #include "core/command_line.h"
 #include "core/containers/array.h"
+#include "core/guid.h"
 #include "core/os.h"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
@@ -830,15 +831,17 @@ bool next_event(OsEvent& ev)
 
 } // namespace crown
 
-struct InitMemoryGlobals
+struct InitGlobals
 {
-	InitMemoryGlobals()
+	InitGlobals()
 	{
 		crown::memory_globals::init();
+		crown::guid_globals::init();
 	}
 
-	~InitMemoryGlobals()
+	~InitGlobals()
 	{
+		crown::guid_globals::shutdown();
 		crown::memory_globals::shutdown();
 	}
 };
@@ -854,7 +857,7 @@ int main(int argc, char** argv)
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
 
-	InitMemoryGlobals m;
+	InitGlobals m;
 	CE_UNUSED(m);
 
 	DeviceOptions opts(default_allocator(), argc, (const char**)argv);

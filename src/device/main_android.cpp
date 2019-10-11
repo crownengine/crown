@@ -7,6 +7,7 @@
 
 #if CROWN_PLATFORM_ANDROID
 
+#include "core/guid.h"
 #include "core/thread/thread.h"
 #include "device/device.h"
 #include "device/device_event_queue.h"
@@ -337,11 +338,13 @@ void android_main(struct android_app* app)
 	app_dummy();
 
 	memory_globals::init();
+	guid_globals::init();
 
 	DeviceOptions opts(default_allocator(), 0, NULL);
 	opts._asset_manager = app->activity->assetManager;
 
 	crown::s_advc.run(app, opts);
+	guid_globals::shutdown();
 	memory_globals::shutdown();
 }
 

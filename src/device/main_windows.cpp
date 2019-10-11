@@ -726,15 +726,17 @@ bool next_event(OsEvent& ev)
 
 } // namespace crown
 
-struct InitMemoryGlobals
+struct InitGlobals
 {
-	InitMemoryGlobals()
+	InitGlobals()
 	{
 		crown::memory_globals::init();
+		crown::guid::init();
 	}
 
-	~InitMemoryGlobals()
+	~InitGlobals()
 	{
+		crown::guid::shutdown();
 		crown::memory_globals::shutdown();
 	}
 };
@@ -757,7 +759,7 @@ int main(int argc, char** argv)
 	}
 #endif // CROWN_BUILD_UNIT_TESTS
 
-	InitMemoryGlobals m;
+	InitGlobals m;
 	CE_UNUSED(m);
 
 	DeviceOptions opts(default_allocator(), argc, (const char**)argv);

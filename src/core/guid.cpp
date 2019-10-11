@@ -18,18 +18,39 @@
 
 namespace crown
 {
+namespace guid_globals
+{
+#if CROWN_PLATFORM_POSIX
+	static int _fd = -1;
+#endif
+
+	void init()
+	{
+#if CROWN_PLATFORM_POSIX
+		_fd = ::open("/dev/urandom", O_RDONLY);
+		CE_ASSERT(_fd != -1, "open: errno = %d", errno);
+#endif // CROWN_PLATFORM_POSIX
+	}
+
+	void shutdown()
+	{
+#if CROWN_PLATFORM_POSIX
+		::close(_fd);
+#endif // CROWN_PLATFORM_POSIX
+	}
+
+} // namespace guid_globals
+
 namespace guid
 {
 	Guid new_guid()
 	{
 		Guid guid;
 #if CROWN_PLATFORM_POSIX
-		int fd = open("/dev/urandom", O_RDONLY);
-		CE_ASSERT(fd != -1, "open: errno = %d", errno);
-		ssize_t rb = read(fd, &guid, sizeof(guid));
+		CE_ASSERT(guid_globals::_fd != -1, "new_guid: library uninitialized");
+		ssize_t rb = read(guid_globals::_fd, &guid, sizeof(guid));
 		CE_ENSURE(rb == sizeof(guid));
 		CE_UNUSED(rb);
-		close(fd);
 		guid.data3 = (guid.data3 & 0x4fffu) | 0x4000u;
 		guid.data4 = (guid.data4 & 0x3fffffffffffffffu) | 0x8000000000000000u;
 #elif CROWN_PLATFORM_WINDOWS
