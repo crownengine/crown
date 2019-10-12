@@ -801,7 +801,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 #undef PACKAGE
 		});
 
-	bool success = false;
+	bool success = true;
 
 	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(to_compile); ++i)
@@ -861,14 +861,12 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		}
 	}
 
-	if (success && vector::size(to_compile))
+	if (success)
 	{
-		logi(DATA_COMPILER, "Compiled data in %.2fs", time::seconds(time::now() - time_start));
-	}
-	else
-	{
-		logi(DATA_COMPILER, "Data is up to date");
-		success = true;
+		if (vector::size(to_compile))
+			logi(DATA_COMPILER, "Compiled data in %.2fs", time::seconds(time::now() - time_start));
+		else
+			logi(DATA_COMPILER, "Data is up to date");
 	}
 
 	return success;
