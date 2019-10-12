@@ -968,7 +968,7 @@ void load_api(LuaEnvironment& env)
 			LuaStack stack(L);
 
 			if (stack.num_args() == 0 + 1)
-				stack.push_matrix4x4(MATRIX4X4_IDENTITY);
+				stack.push_matrix4x4box(MATRIX4X4_IDENTITY);
 			else
 				stack.push_matrix4x4box(stack.get_matrix4x4(1 + 1));
 
