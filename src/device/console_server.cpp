@@ -126,7 +126,7 @@ void ConsoleServer::update()
 			Array<char> msg(ta);
 			array::resize(msg, msg_len + 1);
 			rr = _clients[i].read(array::begin(msg), msg_len);
-			array::push_back(msg, '\0');
+			msg[msg_len] = '\0';
 
 			if (rr.error != ReadResult::SUCCESS)
 			{
