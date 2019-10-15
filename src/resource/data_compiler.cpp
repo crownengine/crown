@@ -205,8 +205,6 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	}
 }
 
-static bool _quit = false;
-
 static void console_command_quit(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/, void* /*user_data*/)
 {
 	_quit = true;
