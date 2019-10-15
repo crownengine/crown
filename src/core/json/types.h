@@ -6,7 +6,7 @@
 #pragma once
 
 #include "core/containers/types.h"
-#include "core/strings/fixed_string.h"
+#include "core/strings/string_view.h"
 
 /// @defgroup JSON
 /// @ingroup Core
@@ -38,12 +38,12 @@ typedef Array<const char*> JsonArray;
 /// @ingroup JSON
 struct JsonObject
 {
-	HashMap<FixedString, const char*> _map;
+	HashMap<StringView, const char*> _map;
 
 	JsonObject(Allocator& a);
 
 	const char* operator[](const char* key) const;
-	const char* operator[](const FixedString& key) const;
+	const char* operator[](const StringView& key) const;
 };
 
 } // namespace crown

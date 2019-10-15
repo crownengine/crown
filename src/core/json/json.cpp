@@ -258,7 +258,7 @@ namespace json
 				DynamicString key(ta);
 				parse_string(json, key);
 
-				FixedString fs_key(key_begin, key.length());
+				StringView fs_key(key_begin, key.length());
 
 				json = skip_string(json);
 				json = skip_spaces(json);

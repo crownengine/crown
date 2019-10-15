@@ -12,7 +12,7 @@
 namespace crown
 {
 struct DynamicString;
-struct FixedString;
+struct StringView;
 struct StringId32;
 struct StringId64;
 struct Guid;

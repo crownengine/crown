@@ -303,8 +303,8 @@ namespace physics_config_resource_internal
 		{
 			JSON_OBJECT_SKIP_HOLE(object, cur);
 
-			const FixedString key = cur->first;
-			const char* value     = cur->second;
+			const StringView key = cur->first;
+			const char* value    = cur->second;
 
 			JsonObject material(ta);
 			sjson::parse_object(value, material);
@@ -331,8 +331,8 @@ namespace physics_config_resource_internal
 		{
 			JSON_OBJECT_SKIP_HOLE(object, cur);
 
-			const FixedString key = cur->first;
-			const char* value     = cur->second;
+			const StringView key = cur->first;
+			const char* value    = cur->second;
 
 			JsonObject actor(ta);
 			sjson::parse_object(value, actor);
@@ -384,8 +384,8 @@ namespace physics_config_resource_internal
 			{
 				JSON_OBJECT_SKIP_HOLE(object, cur);
 
-				const FixedString key = cur->first;
-				const StringId32 id   = StringId32(key.data(), key.length());
+				const StringView key = cur->first;
+				const StringId32 id  = StringId32(key.data(), key.length());
 
 				hash_map::set(_filter_map, id, new_filter_mask());
 			}
@@ -396,9 +396,9 @@ namespace physics_config_resource_internal
 			{
 				JSON_OBJECT_SKIP_HOLE(object, cur);
 
-				const FixedString key = cur->first;
-				const char* value     = cur->second;
-				const StringId32 id   = StringId32(key.data(), key.length());
+				const StringView key = cur->first;
+				const char* value    = cur->second;
+				const StringId32 id  = StringId32(key.data(), key.length());
 
 				TempAllocator4096 ta;
 				JsonObject filter(ta);

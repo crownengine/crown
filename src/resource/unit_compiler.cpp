@@ -284,7 +284,7 @@ s32 UnitCompiler::compile_unit(const char* path)
 	return compile_unit_from_json(array::begin(read_unit(path)));
 }
 
-u32 component_index(const JsonArray& components, const FixedString& id)
+u32 component_index(const JsonArray& components, const StringView& id)
 {
 	char guid[37];
 	strncpy(guid, id.data(), sizeof(guid) - 1);
@@ -361,8 +361,8 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 			{
 				JSON_OBJECT_SKIP_HOLE(modified_components, cur);
 
-				const FixedString key = cur->first;
-				const FixedString id(&key.data()[1], key.length()-1);
+				const StringView key = cur->first;
+				const StringView id(&key.data()[1], key.length()-1);
 				const char* value = cur->second;
 
 				u32 comp_index = component_index(prefab_root_components_original, id);

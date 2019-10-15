@@ -83,8 +83,8 @@ namespace material_resource_internal
 		{
 			JSON_OBJECT_SKIP_HOLE(object, cur);
 
-			const FixedString key = cur->first;
-			const char* value     = cur->second;
+			const StringView key = cur->first;
+			const char* value    = cur->second;
 
 			DynamicString texture(ta);
 			sjson::parse_string(value, texture);
@@ -123,8 +123,8 @@ namespace material_resource_internal
 		{
 			JSON_OBJECT_SKIP_HOLE(object, cur);
 
-			const FixedString key = cur->first;
-			const char* value     = cur->second;
+			const StringView key = cur->first;
+			const char* value    = cur->second;
 
 			UniformHandle uh;
 			uh.uniform_handle = 0;

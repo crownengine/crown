@@ -8,9 +8,9 @@
 #include "core/containers/array.h"
 #include "core/error/error.h"
 #include "core/memory/memory.h"
-#include "core/strings/fixed_string.h"
 #include "core/strings/string.h"
 #include "core/strings/string_id.h"
+#include "core/strings/string_view.h"
 #include "core/strings/types.h"
 #include <string.h> // memmove
 
@@ -29,7 +29,7 @@ struct DynamicString
 
 	DynamicString& operator=(const char* str);
 	DynamicString& operator=(const char c);
-	DynamicString& operator=(const FixedString& fs);
+	DynamicString& operator=(const StringView& fs);
 
 	/// Sets the string to @a str.
 	void set(const char* str, u32 len);
@@ -108,7 +108,7 @@ inline DynamicString& operator+=(DynamicString& a, const char c)
 }
 
 /// Appends the string @a s to @a a.
-inline DynamicString& operator+=(DynamicString& a, const FixedString& fs)
+inline DynamicString& operator+=(DynamicString& a, const StringView& fs)
 {
 	array::push(a._data, fs.data(), fs.length());
 	return a;
@@ -129,7 +129,7 @@ inline DynamicString& DynamicString::operator=(const char c)
 	return *this;
 }
 
-inline DynamicString& DynamicString::operator=(const FixedString& fs)
+inline DynamicString& DynamicString::operator=(const StringView& fs)
 {
 	array::clear(_data);
 	array::push(_data, fs.data(), fs.length());

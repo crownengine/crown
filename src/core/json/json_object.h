@@ -11,9 +11,9 @@
 namespace crown
 {
 template<>
-struct hash<FixedString>
+struct hash<StringView>
 {
-	u32 operator()(const FixedString& val) const
+	u32 operator()(const StringView& val) const
 	{
 		return (u32)murmur32(val._data, val._length, 0);
 	}
@@ -33,22 +33,22 @@ namespace json_object
 	/// Returns whether the object @a jo has the @a key.
 	inline bool has(const JsonObject& jo, const char* key)
 	{
-		return hash_map::has(jo._map, FixedString(key));
+		return hash_map::has(jo._map, StringView(key));
 	}
 
-	inline bool is_hole(const JsonObject& jo, const HashMap<FixedString, const char*>::Entry* entry)
+	inline bool is_hole(const JsonObject& jo, const HashMap<StringView, const char*>::Entry* entry)
 	{
 		return hash_map::is_hole(jo._map, entry);
 	}
 
 	/// Returns a pointer to the first item in the object @a jo.
-	inline const HashMap<FixedString, const char*>::Entry* begin(const JsonObject& jo)
+	inline const HashMap<StringView, const char*>::Entry* begin(const JsonObject& jo)
 	{
 		return hash_map::begin(jo._map);
 	}
 
 	/// Returns a pointer to the item following the last item in the object @a jo.
-	inline const HashMap<FixedString, const char*>::Entry* end(const JsonObject& jo)
+	inline const HashMap<StringView, const char*>::Entry* end(const JsonObject& jo)
 	{
 		return hash_map::end(jo._map);
 	}
@@ -63,11 +63,11 @@ inline JsonObject::JsonObject(Allocator& a)
 /// Returns the value of the @a key or NULL.
 inline const char* JsonObject::operator[](const char* key) const
 {
-	return hash_map::get(_map, FixedString(key), (const char*)NULL);
+	return hash_map::get(_map, StringView(key), (const char*)NULL);
 }
 
 /// Returns the value of the @a key or NULL.
-inline const char* JsonObject::operator[](const FixedString& key) const
+inline const char* JsonObject::operator[](const StringView& key) const
 {
 	return hash_map::get(_map, key, (const char*)NULL);
 }

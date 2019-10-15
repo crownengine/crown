@@ -277,7 +277,7 @@ namespace mesh_resource_internal
 		{
 			JSON_OBJECT_SKIP_HOLE(geometries, cur);
 
-			const FixedString key = cur->first;
+			const StringView key = cur->first;
 			const char* geometry = cur->second;
 			const char* node = nodes[key];
 

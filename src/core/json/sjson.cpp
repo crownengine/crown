@@ -321,7 +321,7 @@ namespace sjson
 			DynamicString key(ta);
 			json = parse_key(json, key);
 
-			FixedString fs_key(key_begin, key.length());
+			StringView fs_key(key_begin, key.length());
 
 			json = skip_spaces(json);
 			json = next(json, (*json == '=') ? '=' : ':');
@@ -353,7 +353,7 @@ namespace sjson
 				DynamicString key(ta);
 				json = parse_key(json, key);
 
-				FixedString fs_key(key_begin, key.length());
+				StringView fs_key(key_begin, key.length());
 
 				json = skip_spaces(json);
 				json = next(json, (*json == '=') ? '=' : ':');
