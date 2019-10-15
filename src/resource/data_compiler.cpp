@@ -40,6 +40,9 @@
 #include "resource/unit_resource.h"
 #include <algorithm>
 #include <inttypes.h>
+#if CROWN_PLATFORM_POSIX
+#include <signal.h>
+#endif
 
 LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
@@ -50,6 +53,8 @@ LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
 namespace crown
 {
+static volatile bool _quit = false;
+
 static void notify_add_file(const char* path)
 {
 	TempAllocator512 ta;
@@ -1010,6 +1015,14 @@ void DataCompiler::filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, 
 
 int main_data_compiler(const DeviceOptions& opts)
 {
+#if CROWN_PLATFORM_POSIX
+	struct sigaction act;
+	act.sa_handler = [](int /*signum*/) { _quit = true; };
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	sigaction(SIGINT, &act, NULL);
+#endif // CROWN_PLATFORM_POSIX
+
 	console_server_globals::init();
 	console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
 
