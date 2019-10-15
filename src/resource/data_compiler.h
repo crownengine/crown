@@ -62,8 +62,8 @@ struct DataCompiler
 	void add_tree(const char* path);
 	void remove_tree(const char* path);
 
-	void filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed);
-	static void filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified);
+	void file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed);
+	static void file_monitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified);
 
 	///
 	DataCompiler(ConsoleServer& cs);

@@ -43,8 +43,8 @@ struct FileMonitor
 	///
 	~FileMonitor();
 
-	/// Starts monitoring the @a path.
-	void start(const char* path, bool recursive, FileMonitorFunction fmf, void* user_data);
+	/// Starts monitoring the @a paths.
+	void start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data);
 
 	/// Stops monitoring.
 	void stop();

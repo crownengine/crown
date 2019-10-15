@@ -98,9 +98,8 @@ struct FileMonitorImpl
 		closedir(dir);
 	}
 
-	void start(const char* path, bool recursive, FileMonitorFunction fmf, void* user_data)
+	void start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data)
 	{
-		CE_ENSURE(NULL != path);
 		CE_ENSURE(NULL != fmf);
 
 		_recursive = recursive;
@@ -110,7 +109,8 @@ struct FileMonitorImpl
 		_fd = inotify_init();
 		CE_ASSERT(_fd != -1, "inotify_init: errno: %d", errno);
 
-		add_watch(path, recursive);
+		for (u32 i = 0; i < num; ++i)
+			add_watch(paths[i], recursive);
 
 		_thread.start(run, this);
 	}
@@ -339,9 +339,9 @@ FileMonitor::~FileMonitor()
 	CE_DELETE(*_impl->_allocator, _impl);
 }
 
-void FileMonitor::start(const char* path, bool recursive, FileMonitorFunction fmf, void* user_data)
+void FileMonitor::start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data)
 {
-	_impl->start(path, recursive, fmf, user_data);
+	_impl->start(num, paths, recursive, fmf, user_data);
 }
 
 void FileMonitor::stop()

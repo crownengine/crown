@@ -567,6 +567,9 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 	// Scan all source directories
 	s64 time_start = time::now();
 
+	// FIXME: refactor this whole garbage
+	Array<const char*> directories(default_allocator());
+
 	auto cur = hash_map::begin(_source_dirs);
 	auto end = hash_map::end(_source_dirs);
 	for (; cur != end; ++cur)
@@ -575,6 +578,11 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 
 		DynamicString prefix(default_allocator());
 		path::join(prefix, cur->second.c_str(), cur->first.c_str());
+
+		char* str = (char*)default_allocator().allocate(prefix.length() + 1);
+		strcpy(str, prefix.c_str());
+		array::push_back(directories, (const char*)str);
+
 		_source_fs.set_prefix(prefix.c_str());
 
 		if (_source_fs.exists(CROWN_DATAIGNORE))
@@ -622,7 +630,19 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 	read_data_dependencies(*this, data_fs, CROWN_DATA_DEPENDENCIES);
 	logi(DATA_COMPILER, "Restored state in %.2fs", time::seconds(time::now() - time_start));
 
-	_file_monitor.start(hash_map::begin(_source_dirs)->second.c_str(), true, filemonitor_callback, this);
+	// Start file monitor
+	time_start = time::now();
+	_file_monitor.start(array::size(directories)
+		, array::begin(directories)
+		, true
+		, file_monitor_callback
+		, this
+		);
+	logi(DATA_COMPILER, "Started file monitor in %.2fs", time::seconds(time::now() - time_start));
+
+	// Cleanup
+	for (u32 i = 0, n = array::size(directories); i < n; ++i)
+		default_allocator().deallocate((void*)directories[n-1-i]);
 }
 
 void DataCompiler::save(const char* data_dir)
@@ -948,67 +968,94 @@ void DataCompiler::error(const char* msg, va_list args)
 	vloge(DATA_COMPILER, msg, args);
 }
 
-void DataCompiler::filemonitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed)
+void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed)
 {
 	TempAllocator512 ta;
-	DynamicString resource_name(ta);
-	DynamicString resource_name_renamed(ta);
 	DynamicString source_dir(ta);
+	DynamicString resource_name(ta);
 
-	source_dir            = hash_map::get(_source_dirs, source_dir, source_dir);
-	resource_name         = &path[source_dir.length()+1]; // FIXME: add path::relative()
-	resource_name_renamed = path_renamed ? &path_renamed[source_dir.length()+1] : "";
-
-	switch (fme)
+	// Find source directory by matching mapped
+	// directory prefix with `path`.
+	auto cur = hash_map::begin(_source_dirs);
+	auto end = hash_map::end(_source_dirs);
+	for (; cur != end; ++cur)
 	{
-	case FileMonitorEvent::CREATED:
-		if (!is_dir)
-			add_file(resource_name.c_str());
-		else
-			add_tree(resource_name.c_str());
-		break;
+		HASH_MAP_SKIP_HOLE(_source_dirs, cur);
 
-	case FileMonitorEvent::DELETED:
-		if (!is_dir)
-			remove_file(resource_name.c_str());
-		else
-			remove_tree(resource_name.c_str());
-		break;
+		path::join(source_dir, cur->second.c_str(), cur->first.c_str());
+		if (str_has_prefix(path, source_dir.c_str()))
+			break;
+	}
 
-	case FileMonitorEvent::RENAMED:
-		if (!is_dir)
+	if (cur != end)
+	{
+		// All events received must refer to directories
+		// mapped with map_source_dir().
+		const char* filename = &path[source_dir.length()+1];
+		path::join(resource_name, cur->first.c_str(), filename);
+
+#if 0
+		logi(DATA_COMPILER, "path         : %s", path);
+		logi(DATA_COMPILER, "source_dir   : %s", source_dir.c_str());
+		logi(DATA_COMPILER, "resource_name: %s", resource_name.c_str());
+#endif
+
+		switch (fme)
 		{
-			remove_file(resource_name.c_str());
-			add_file(resource_name_renamed.c_str());
-		}
-		else
-		{
-			remove_tree(resource_name.c_str());
-			add_tree(resource_name_renamed.c_str());
-		}
-		break;
+		case FileMonitorEvent::CREATED:
+			if (!is_dir)
+				add_file(resource_name.c_str());
+			else
+				add_tree(resource_name.c_str());
+			break;
 
-	case FileMonitorEvent::CHANGED:
-		if (!is_dir)
-		{
-			FilesystemDisk fs(default_allocator());
-			fs.set_prefix(source_dir.c_str());
+		case FileMonitorEvent::DELETED:
+			if (!is_dir)
+				remove_file(resource_name.c_str());
+			else
+				remove_tree(resource_name.c_str());
+			break;
 
-			Stat stat;
-			stat = fs.stat(resource_name.c_str());
-			hash_map::set(_source_index._paths, resource_name, stat);
+		case FileMonitorEvent::RENAMED:
+			{
+				DynamicString resource_name_renamed(ta);
+				path::join(resource_name_renamed, cur->first.c_str(), &path_renamed[source_dir.length()+1]);
+
+				if (!is_dir)
+				{
+					remove_file(resource_name.c_str());
+					add_file(resource_name_renamed.c_str());
+				}
+				else
+				{
+					remove_tree(resource_name.c_str());
+					add_tree(resource_name_renamed.c_str());
+				}
+			}
+			break;
+
+		case FileMonitorEvent::CHANGED:
+			if (!is_dir)
+			{
+				FilesystemDisk fs(default_allocator());
+				fs.set_prefix(source_dir.c_str());
+
+				Stat stat;
+				stat = fs.stat(filename);
+				hash_map::set(_source_index._paths, resource_name, stat);
+			}
+			break;
+
+		default:
+			CE_ASSERT(false, "Unknown FileMonitorEvent: %d", fme);
+			break;
 		}
-		break;
-
-	default:
-		CE_ASSERT(false, "Unknown FileMonitorEvent: %d", fme);
-		break;
 	}
 }
 
-void DataCompiler::filemonitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified)
+void DataCompiler::file_monitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified)
 {
-	((DataCompiler*)thiz)->filemonitor_callback(fme, is_dir, path_original, path_modified);
+	((DataCompiler*)thiz)->file_monitor_callback(fme, is_dir, path_original, path_modified);
 }
 
 int main_data_compiler(const DeviceOptions& opts)
