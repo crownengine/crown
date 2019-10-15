@@ -61,11 +61,11 @@ struct DynamicString
 	/// Removes leading and trailing white-space characters from the string.
 	void trim();
 
-	/// Returns whether the string starts with @a str.
-	bool has_prefix(const char* str) const;
+	/// Returns whether the string starts with @a prefix.
+	bool has_prefix(const char* prefix) const;
 
-	/// Returns wheterh the string ends with @a str.
-	bool has_suffix(const char* str) const;
+	/// Returns wheterh the string ends with @a suffix.
+	bool has_suffix(const char* suffix) const;
 
 	/// Returns the StringId32 of the string.
 	StringId32 to_string_id() const;
@@ -194,20 +194,14 @@ inline void DynamicString::trim()
 	rtrim();
 }
 
-inline bool DynamicString::has_prefix(const char* str) const
+inline bool DynamicString::has_prefix(const char* prefix) const
 {
-	CE_ENSURE(NULL != str);
-	const u32 ml = strlen32(c_str());
-	const u32 sl = strlen32(str);
-	return sl <= ml && strncmp(&_data[0], str, sl) == 0;
+	return str_has_prefix(c_str(), prefix);
 }
 
-inline bool DynamicString::has_suffix(const char* str) const
+inline bool DynamicString::has_suffix(const char* suffix) const
 {
-	CE_ENSURE(NULL != str);
-	const u32 ml = strlen32(c_str());
-	const u32 sl = strlen32(str);
-	return sl <= ml && strncmp(&_data[ml-sl], str, sl) == 0;
+	return str_has_suffix(c_str(), suffix);
 }
 
 inline StringId32 DynamicString::to_string_id() const

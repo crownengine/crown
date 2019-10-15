@@ -957,10 +957,13 @@ static void test_dynamic_string()
 		TempAllocator1024 ta;
 		DynamicString str(ta);
 		str.set("Hello everyone!", 15);
-		ENSURE(str.has_prefix("Hello"));
-		ENSURE(!str.has_prefix("hello"));
-		ENSURE(str.has_suffix("one!"));
+
+		ENSURE( str.has_prefix("Hello"));
+		ENSURE(!str.has_prefix("Helloo"));
+
+		ENSURE( str.has_suffix("one!"));
 		ENSURE(!str.has_suffix("one"));
+
 		ENSURE(!str.has_prefix("Hello everyone!!!"));
 		ENSURE(!str.has_suffix("Hello everyone!!!"));
 	}

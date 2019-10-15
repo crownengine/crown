@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/error/error.h"
 #include "core/platform.h"
 #include "core/types.h"
 #include <ctype.h> // isspace
@@ -108,6 +109,22 @@ inline int wildcmp(const char *wild, const char *str)
 		++wild;
 
 	return !*wild;
+}
+
+inline bool str_has_prefix(const char* str, const char* prefix)
+{
+	CE_ENSURE(NULL != str);
+	CE_ENSURE(NULL != prefix);
+	return strncmp(&str[0], prefix, strlen32(prefix)) == 0;
+}
+
+inline bool str_has_suffix(const char* str, const char* suffix)
+{
+	CE_ENSURE(NULL != str);
+	CE_ENSURE(NULL != suffix);
+	const u32 ml = strlen32(str);
+	const u32 sl = strlen32(suffix);
+	return sl <= ml && strncmp(&str[ml-sl], suffix, sl) == 0;
 }
 
 } // namespace crown
