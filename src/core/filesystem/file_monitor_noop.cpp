@@ -20,7 +20,7 @@ FileMonitor::~FileMonitor()
 {
 }
 
-void FileMonitor::start(const char* /*path*/, bool /*recursive*/, FileMonitorFunction /*fmf*/, void* /*user_data*/)
+void FileMonitor::start(u32 /*num*/, const char** /*path*/, bool /*recursive*/, FileMonitorFunction /*fmf*/, void* /*user_data*/)
 {
 }
 
