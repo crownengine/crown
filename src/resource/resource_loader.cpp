@@ -36,7 +36,6 @@ ResourceLoader::~ResourceLoader()
 {
 	_exit = true;
 	_requests_condition.signal(); // Spurious wake to exit thread
-	_thread.stop();
 }
 
 void ResourceLoader::add_request(const ResourceRequest& rr)
