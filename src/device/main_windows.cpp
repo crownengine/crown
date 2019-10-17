@@ -283,20 +283,6 @@ struct Joypad
 };
 
 static bool s_exit = false;
-
-struct MainThreadArgs
-{
-	DeviceOptions* opts;
-};
-
-s32 func(void* data)
-{
-	MainThreadArgs* args = (MainThreadArgs*)data;
-	crown::run(*args->opts);
-	s_exit = true;
-	return EXIT_SUCCESS;
-}
-
 static HCURSOR _win_cursors[MouseCursor::COUNT];
 
 struct WindowsDevice
@@ -314,9 +300,6 @@ struct WindowsDevice
 
 	int	run(DeviceOptions* opts)
 	{
-		MainThreadArgs mta;
-		mta.opts = opts;
-
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 		WNDCLASSEX wnd;
 		memset(&wnd, 0, sizeof(wnd));
@@ -367,7 +350,13 @@ struct WindowsDevice
 		_win_cursors[MouseCursor::WAIT]                = LoadCursorA(NULL, IDC_WAIT);
 
 		Thread main_thread;
-		main_thread.start(func, &mta);
+		main_thread.start([](void* user_data) {
+				crown::run(*((DeviceOptions*)user_data));
+				s_exit = true;
+				return EXIT_SUCCESS;
+			}
+			, opts
+			);
 
 		MSG msg;
 		msg.message = WM_NULL;

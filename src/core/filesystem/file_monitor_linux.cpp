@@ -112,7 +112,7 @@ struct FileMonitorImpl
 		for (u32 i = 0; i < num; ++i)
 			add_watch(paths[i], recursive);
 
-		_thread.start(run, this);
+		_thread.start([](void* thiz) { return ((FileMonitorImpl*)thiz)->watch(); }, this);
 	}
 
 	void stop()
@@ -323,10 +323,6 @@ struct FileMonitorImpl
 		path::join(path, path_base.c_str(), name);
 	}
 
-	static int run(void* thiz)
-	{
-		return ((FileMonitorImpl*)thiz)->watch();
-	}
 };
 
 FileMonitor::FileMonitor(Allocator& a)

@@ -25,30 +25,15 @@ extern "C"
 
 namespace crown
 {
-static bool s_exit = false;
-
-struct MainThreadArgs
-{
-	DeviceOptions* opts;
-};
-
-s32 func(void* data)
-{
-	MainThreadArgs* args = (MainThreadArgs*)data;
-	crown::run(*args->opts);
-	s_exit = true;
-	return EXIT_SUCCESS;
-}
-
 struct AndroidDevice
 {
 	DeviceEventQueue _queue;
 	Thread _main_thread;
-	MainThreadArgs _margs;
+	DeviceOptions* _opts;
 
 	void run(struct android_app* app, DeviceOptions& opts)
 	{
-		_margs.opts = &opts;
+		_opts = &opts;
 
 		app->userData = this;
 		app->onAppCmd = crown::AndroidDevice::on_app_cmd;
@@ -96,7 +81,14 @@ struct AndroidDevice
 				_queue.push_resolution_event(width, height);
 
 				if (!_main_thread.is_running())
-					_main_thread.start(func, &_margs);
+				{
+					_main_thread.start([](void* user_data) {
+							crown::run(*((DeviceOptions*)user_data));
+							return EXIT_SUCCESS;
+						}
+						, _opts
+						);
+				}
 			}
 			break;
 

@@ -295,20 +295,6 @@ struct Joypad
 };
 
 static bool s_exit = false;
-
-struct MainThreadArgs
-{
-	DeviceOptions* opts;
-};
-
-s32 func(void* data)
-{
-	MainThreadArgs* args = (MainThreadArgs*)data;
-	crown::run(*args->opts);
-	s_exit = true;
-	return EXIT_SUCCESS;
-}
-
 static Cursor _x11_cursors[MouseCursor::COUNT];
 
 struct LinuxDevice
@@ -402,11 +388,14 @@ struct LinuxDevice
 		_x11_cursors[MouseCursor::WAIT]                = XCreateFontCursor(_x11_display, XC_watch);
 
 		// Start main thread
-		MainThreadArgs mta;
-		mta.opts = opts;
-
 		Thread main_thread;
-		main_thread.start(func, &mta);
+		main_thread.start([](void* user_data) {
+				crown::run(*((DeviceOptions*)user_data));
+				s_exit = true;
+				return EXIT_SUCCESS;
+			}
+			, opts
+			);
 
 		_joypad.init();
 

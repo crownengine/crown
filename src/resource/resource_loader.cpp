@@ -22,11 +22,6 @@ LOG_SYSTEM(RESOURCE_LOADER, "resource_loader")
 
 namespace crown
 {
-static s32 thread_proc(void* thiz)
-{
-	return ((ResourceLoader*)thiz)->run();
-}
-
 ResourceLoader::ResourceLoader(Filesystem& data_filesystem)
 	: _data_filesystem(data_filesystem)
 	, _requests(default_allocator())
@@ -34,7 +29,7 @@ ResourceLoader::ResourceLoader(Filesystem& data_filesystem)
 	, _fallback(default_allocator())
 	, _exit(false)
 {
-	_thread.start(thread_proc, this);
+	_thread.start([](void* thiz) { return ((ResourceLoader*)thiz)->run(); }, this);
 }
 
 ResourceLoader::~ResourceLoader()
