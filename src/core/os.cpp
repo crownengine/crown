@@ -170,14 +170,14 @@ namespace os
 		if (::mkdir(path, 0755) == 0)
 			cr.error = CreateResult::SUCCESS;
 		else if (errno == EEXIST)
-			cr.error = CreateResult::EXISTS;
+			cr.error = CreateResult::ALREADY_EXISTS;
 		else
 			cr.error = CreateResult::UNKNOWN;
 #elif CROWN_PLATFORM_WINDOWS
 		if (CreateDirectory(path, NULL) != 0)
 			cr.error = CreateResult::SUCCESS;
 		else if (GetLastError() == ERROR_ALREADY_EXISTS)
-			cr.error = CreateResult::EXISTS;
+			cr.error = CreateResult::ALREADY_EXISTS;
 		else
 			cr.error = CreateResult::UNKNOWN;
 #endif
