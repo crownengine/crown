@@ -1394,7 +1394,7 @@ static void test_filesystem()
 		CreateResult cr = os::create_directory("/tmp/crown");
 		ENSURE(cr.error == CreateResult::SUCCESS);
 		             cr = os::create_directory("/tmp/crown");
-		ENSURE(cr.error == CreateResult::EXISTS);
+		ENSURE(cr.error == CreateResult::ALREADY_EXISTS);
 		DeleteResult dr = os::delete_directory("/tmp/crown");
 		ENSURE(dr.error == DeleteResult::SUCCESS);
 	}
