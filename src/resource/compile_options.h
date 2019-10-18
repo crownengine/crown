@@ -7,6 +7,7 @@
 
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
+#include "core/os.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/types.h"
 #include "resource/types.h"
@@ -109,7 +110,7 @@ struct CompileOptions
 	void get_temporary_path(const char* suffix, DynamicString& abs);
 
 	///
-	void delete_file(const char* path);
+	DeleteResult delete_file(const char* path);
 
 	///
 	void write(const void* data, u32 size);

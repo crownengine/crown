@@ -755,12 +755,8 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	FilesystemDisk data_fs(default_allocator());
 	data_fs.set_prefix(data_dir);
 	data_fs.create_directory("");
-
-	if (!data_fs.exists(CROWN_DATA_DIRECTORY))
-		data_fs.create_directory(CROWN_DATA_DIRECTORY);
-
-	if (!data_fs.exists(CROWN_TEMP_DIRECTORY))
-		data_fs.create_directory(CROWN_TEMP_DIRECTORY);
+	data_fs.create_directory(CROWN_DATA_DIRECTORY);
+	data_fs.create_directory(CROWN_TEMP_DIRECTORY);
 
 	// Find the set of resources to be compiled
 	Vector<DynamicString> to_compile(default_allocator());
