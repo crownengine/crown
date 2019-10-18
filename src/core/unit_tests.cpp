@@ -29,6 +29,7 @@
 #include "core/memory/memory.h"
 #include "core/memory/temp_allocator.h"
 #include "core/murmur.h"
+#include "core/os.h"
 #include "core/process.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string.h"
@@ -1381,6 +1382,25 @@ static void test_process()
 #endif
 }
 
+static void test_filesystem()
+{
+#if CROWN_PLATFORM_POSIX
+	{
+		DeleteResult dr = os::delete_directory("/tmp/none");
+		ENSURE(dr.error == DeleteResult::NO_ENTRY);
+	}
+	{
+		os::delete_directory("/tmp/crown");
+		CreateResult cr = os::create_directory("/tmp/crown");
+		ENSURE(cr.error == CreateResult::SUCCESS);
+		             cr = os::create_directory("/tmp/crown");
+		ENSURE(cr.error == CreateResult::EXISTS);
+		DeleteResult dr = os::delete_directory("/tmp/crown");
+		ENSURE(dr.error == DeleteResult::SUCCESS);
+	}
+#endif // CROWN_PLATFORM_POSIX
+}
+
 #define RUN_TEST(name)      \
 	do {                    \
 		printf(#name "\n"); \
@@ -1413,6 +1433,7 @@ int main_unit_tests()
 	RUN_TEST(test_command_line);
 	RUN_TEST(test_thread);
 	RUN_TEST(test_process);
+	RUN_TEST(test_filesystem);
 
 	return EXIT_SUCCESS;
 }

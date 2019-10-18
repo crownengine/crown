@@ -45,13 +45,13 @@ struct Filesystem
 	virtual u64 last_modified_time(const char* path) = 0;
 
 	/// Creates the directory at the given @a path.
-	virtual void create_directory(const char* path) = 0;
+	virtual CreateResult create_directory(const char* path) = 0;
 
 	/// Deletes the directory at the given @a path.
-	virtual void delete_directory(const char* path) = 0;
+	virtual DeleteResult delete_directory(const char* path) = 0;
 
 	/// Deletes the file at the given @a path.
-	virtual void delete_file(const char* path) = 0;
+	virtual DeleteResult delete_file(const char* path) = 0;
 
 	/// Returns the relative file names in the given @a path.
 	virtual void list_files(const char* path, Vector<DynamicString>& files) = 0;

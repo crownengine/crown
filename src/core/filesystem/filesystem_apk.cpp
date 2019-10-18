@@ -162,19 +162,25 @@ u64 FilesystemApk::last_modified_time(const char* path)
 	return 0;
 }
 
-void FilesystemApk::create_directory(const char* /*path*/)
+CreateResult FilesystemApk::create_directory(const char* /*path*/)
 {
 	CE_FATAL("Cannot create directory in Android assets folder");
+	CreateResult cr.error = CreateResult::UNKNOWN;
+	return cr;
 }
 
-void FilesystemApk::delete_directory(const char* /*path*/)
+DeleteResult FilesystemApk::delete_directory(const char* /*path*/)
 {
 	CE_FATAL("Cannot delete directory in Android assets folder");
+	DeleteResult dr.error = DeleteResult::UNKNOWN;
+	return dr;
 }
 
-void FilesystemApk::delete_file(const char* /*path*/)
+DeleteResult FilesystemApk::delete_file(const char* /*path*/)
 {
 	CE_FATAL("Cannot delete file in Android assets folder");
+	DeleteResult dr.error = DeleteResult::UNKNOWN;
+	return dr;
 }
 
 void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)

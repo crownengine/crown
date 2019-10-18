@@ -140,43 +140,71 @@ namespace os
 		info.mtime = buf.st_mtime;
 	}
 
-	void delete_file(const char* path)
+	DeleteResult delete_file(const char* path)
 	{
+		DeleteResult dr;
 #if CROWN_PLATFORM_POSIX
-		int err = ::unlink(path);
-		CE_ASSERT(err == 0, "unlink: errno = %d", errno);
-		CE_UNUSED(err);
+		if (::unlink(path) == 0)
+			dr.error = DeleteResult::SUCCESS;
+		else if (errno == ENOENT)
+			dr.error = DeleteResult::NO_ENTRY;
+		else
+			dr.error = DeleteResult::UNKNOWN;
 #elif CROWN_PLATFORM_WINDOWS
-		BOOL err = DeleteFile(path);
-		CE_ASSERT(err != 0, "DeleteFile: GetLastError = %d", GetLastError());
-		CE_UNUSED(err);
+		if (DeleteFile(path) != 0)
+			dr.error = DeleteResult::SUCCESS;
+		else if (GetLastError() == ERROR_FILE_NOT_FOUND)
+			dr.error = DeleteResult::NO_ENTRY;
+		// else if (GetLastError() == ERROR_ACCESS_DENIED)
+		// 	dr.error = DeleteResult::NOT_FILE;
+		else
+			dr.error = DeleteResult::UNKNOWN;
 #endif
+		return dr;
 	}
 
-	void create_directory(const char* path)
+	CreateResult create_directory(const char* path)
 	{
+		CreateResult cr;
 #if CROWN_PLATFORM_POSIX
-		int err = ::mkdir(path, 0755);
-		CE_ASSERT(err == 0, "mkdir: errno = %d", errno);
-		CE_UNUSED(err);
+		if (::mkdir(path, 0755) == 0)
+			cr.error = CreateResult::SUCCESS;
+		else if (errno == EEXIST)
+			cr.error = CreateResult::EXISTS;
+		else
+			cr.error = CreateResult::UNKNOWN;
 #elif CROWN_PLATFORM_WINDOWS
-		BOOL err = CreateDirectory(path, NULL);
-		CE_ASSERT(err != 0, "CreateDirectory: GetLastError = %d", GetLastError());
-		CE_UNUSED(err);
+		if (CreateDirectory(path, NULL) != 0)
+			cr.error = CreateResult::SUCCESS;
+		else if (GetLastError() == ERROR_ALREADY_EXISTS)
+			cr.error = CreateResult::EXISTS;
+		else
+			cr.error = CreateResult::UNKNOWN;
 #endif
+		return cr;
 	}
 
-	void delete_directory(const char* path)
+	DeleteResult delete_directory(const char* path)
 	{
+		DeleteResult dr;
 #if CROWN_PLATFORM_POSIX
-		int err = ::rmdir(path);
-		CE_ASSERT(err == 0, "rmdir: errno = %d", errno);
-		CE_UNUSED(err);
+		if (::rmdir(path) == 0)
+			dr.error = DeleteResult::SUCCESS;
+		else if (errno == ENOENT)
+			dr.error = DeleteResult::NO_ENTRY;
+		else
+			dr.error = DeleteResult::UNKNOWN;
 #elif CROWN_PLATFORM_WINDOWS
-		BOOL err = RemoveDirectory(path);
-		CE_ASSERT(err != 0, "RemoveDirectory: GetLastError = %d", GetLastError());
-		CE_UNUSED(err);
+		if (RemoveDirectory(path) != 0)
+			dr.error = DeleteResult::SUCCESS;
+		else if (GetLastError() == ERROR_FILE_NOT_FOUND)
+			dr.error = DeleteResult::NO_ENTRY;
+		// else if (GetLastError() == ERROR_DIRECTORY
+		// 	dr.error = DeleteResult::NOT_DIRECTORY;
+		else
+			dr.error = DeleteResult::UNKNOWN;
 #endif
+		return dr;
 	}
 
 	const char* getcwd(char* buf, u32 size)

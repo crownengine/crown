@@ -287,7 +287,7 @@ u64 FilesystemDisk::last_modified_time(const char* path)
 	return stat(path).mtime;
 }
 
-void FilesystemDisk::create_directory(const char* path)
+CreateResult FilesystemDisk::create_directory(const char* path)
 {
 	CE_ENSURE(NULL != path);
 
@@ -295,15 +295,10 @@ void FilesystemDisk::create_directory(const char* path)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	Stat info;
-	os::stat(info, abs_path.c_str());
-	if (info.file_type != Stat::NO_ENTRY)
-		return;
-
-	os::create_directory(abs_path.c_str());
+	return os::create_directory(abs_path.c_str());
 }
 
-void FilesystemDisk::delete_directory(const char* path)
+DeleteResult FilesystemDisk::delete_directory(const char* path)
 {
 	CE_ENSURE(NULL != path);
 
@@ -311,10 +306,10 @@ void FilesystemDisk::delete_directory(const char* path)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	os::delete_directory(abs_path.c_str());
+	return os::delete_directory(abs_path.c_str());
 }
 
-void FilesystemDisk::delete_file(const char* path)
+DeleteResult FilesystemDisk::delete_file(const char* path)
 {
 	CE_ENSURE(NULL != path);
 
@@ -322,7 +317,7 @@ void FilesystemDisk::delete_file(const char* path)
 	DynamicString abs_path(ta);
 	get_absolute_path(path, abs_path);
 
-	os::delete_file(abs_path.c_str());
+	return os::delete_file(abs_path.c_str());
 }
 
 void FilesystemDisk::list_files(const char* path, Vector<DynamicString>& files)

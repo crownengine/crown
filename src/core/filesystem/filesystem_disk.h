@@ -52,13 +52,13 @@ struct FilesystemDisk : public Filesystem
 	u64 last_modified_time(const char* path);
 
 	/// @copydoc Filesystem::create_directory()
-	void create_directory(const char* path);
+	CreateResult create_directory(const char* path);
 
 	/// @copydoc Filesystem::delete_directory()
-	void delete_directory(const char* path);
+	DeleteResult delete_directory(const char* path);
 
 	/// @copydoc Filesystem::delete_file()
-	void delete_file(const char* path);
+	DeleteResult delete_file(const char* path);
 
 	/// @copydoc Filesystem::list_files()
 	void list_files(const char* path, Vector<DynamicString>& files);

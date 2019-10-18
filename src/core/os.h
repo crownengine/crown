@@ -28,6 +28,32 @@ struct Stat
 	u64 mtime; ///< Last modified time.
 };
 
+/// Result from os::delete_file() or os::delete_directory().
+///
+/// @a ingroup OS
+struct DeleteResult
+{
+	enum
+	{
+		SUCCESS,  ///<
+		NO_ENTRY, ///< Entry does not exist.
+		UNKNOWN   ///< Unknown error.
+	} error;
+};
+
+/// Result from os::create_directory().
+///
+/// @a ingroup OS
+struct CreateResult
+{
+	enum
+	{
+		SUCCESS,        ///<
+		ALREADY_EXISTS, ///< The entry already exists.
+		UNKNOWN         ///< Unknown error.
+	} error;
+};
+
 /// File access flags to be used with os::access().
 ///
 /// @ingroup OS
@@ -71,13 +97,14 @@ namespace os
 	void stat(Stat& info, const char* path);
 
 	/// Deletes the file at @a path.
-	void delete_file(const char* path);
+	DeleteResult delete_file(const char* path);
 
-	/// Creates a directory named @a path.
-	void create_directory(const char* path);
+	/// Creates a directory @a path.
+	CreateResult create_directory(const char* path);
 
-	/// Deletes the directory at @a path.
-	void delete_directory(const char* path);
+	/// Deletes the directory @a path.
+	/// The directory must be empty.
+	DeleteResult delete_directory(const char* path);
 
 	/// Returns the list of @a files at the given @a path.
 	void list_files(const char* path, Vector<DynamicString>& files);
