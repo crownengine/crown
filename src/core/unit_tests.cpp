@@ -1349,13 +1349,9 @@ static void test_thread()
 	Thread thread;
 	ENSURE(!thread.is_running());
 
-	thread.start([](void*) { return 0; }, NULL);
+	thread.start([](void*) { return 0xbadc0d3; }, NULL);
 	thread.stop();
-	ENSURE(thread.exit_code() == 0);
-
-	thread.start([](void*) { return -1; }, NULL);
-	thread.stop();
-	ENSURE(thread.exit_code() == -1);
+	ENSURE(thread.exit_code() == 0xbadc0d3);
 }
 
 static void test_process()
