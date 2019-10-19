@@ -47,11 +47,27 @@ build/mingw64/bin/luajit.exe:
 	make -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/win32/bin/luajit.exe:
-	mkdir build/win32/bin
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/pre/win_x32/luajit.exe 3rdparty/luajit/pre/win_x32/lua51.dll build/win32/bin
+	-mkdir "build/win32/bin"
+	cd "3rdparty/luajit/src" && msvcbuild.bat
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win32/bin
+	-@rm -f 3rdparty/luajit/src/buildvm.*
+	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
+	-@rm -f 3rdparty/luajit/src/lua51.*
+	-@rm -f 3rdparty/luajit/src/luajit.exe
+	-@rm -f 3rdparty/luajit/src/luajit.exp
+	-@rm -f 3rdparty/luajit/src/luajit.lib
+	-@rm -f 3rdparty/luajit/src/minilua.*
 build/win64/bin/luajit.exe:
-	mkdir build/win64/bin
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/pre/win_x64/luajit.exe 3rdparty/luajit/pre/win_x64/lua51.dll build/win64/bin
+	-mkdir "build/win64/bin"
+	cd "3rdparty/luajit/src" && msvcbuild.bat
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win64/bin
+	-@rm -f 3rdparty/luajit/src/buildvm.*
+	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
+	-@rm -f 3rdparty/luajit/src/lua51.*
+	-@rm -f 3rdparty/luajit/src/luajit.exe
+	-@rm -f 3rdparty/luajit/src/luajit.exp
+	-@rm -f 3rdparty/luajit/src/luajit.lib
+	-@rm -f 3rdparty/luajit/src/minilua.*
 
 build/projects/android:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --compiler=android-arm gmake

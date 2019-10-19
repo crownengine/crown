@@ -155,6 +155,20 @@ function toolchain(build_dir, lib_dir)
 			lib_dir .. "../build/linux64_clang/bin",
 		}
 
+	configuration { "x32", "vs*" }
+		targetdir (build_dir .. "win32" .. "/bin")
+		objdir (build_dir .. "win32" .. "/obj")
+		libdirs {
+			lib_dir .. "../build/win32/bin",
+		}
+
+	configuration { "x64", "vs*" }
+		targetdir (build_dir .. "win64" .. "/bin")
+		objdir (build_dir .. "win64" .. "/obj")
+		libdirs {
+			lib_dir .. "../build/win64/bin",
+		}
+
 	configuration { "linux-gcc* or linux-clang" }
 		buildoptions {
 			"-Wall",
