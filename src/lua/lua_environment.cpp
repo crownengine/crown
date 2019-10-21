@@ -173,19 +173,15 @@ void LuaEnvironment::load_libs()
 	// Register custom loader
 	lua_getfield(L, LUA_GLOBALSINDEX, "package");
 	lua_getfield(L, -1, "loaders");
-	lua_remove(L, -2);
-
-	int num_loaders = 0;
-	lua_pushnil(L);
-	while (lua_next(L, -2) != 0)
-	{
-		lua_pop(L, 1);
-		num_loaders++;
-	}
-	lua_pushinteger(L, num_loaders + 1);
 	lua_pushcfunction(L, require);
-	lua_rawset(L, -3);
-	lua_pop(L, 1);
+	lua_rawseti(L, -2, 1); // package.loaders[1] = require
+	lua_pushnil(L);
+	lua_rawseti(L, -2, 2); // package.loaders[2] = nil
+	lua_pushnil(L);
+	lua_rawseti(L, -2, 3); // package.loaders[3] = nil
+	lua_pushnil(L);
+	lua_rawseti(L, -2, 4); // package.loaders[4] = nil
+	lua_pop(L, 2);         // pop package.loaders and package
 
 	// Create metatable for lightuserdata
 	lua_pushlightuserdata(L, 0);
