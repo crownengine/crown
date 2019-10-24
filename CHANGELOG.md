@@ -7,6 +7,7 @@ Changelog
 
 * runtime: added RenderWorld.mesh_set_material()
 * runtime: fixed an issue where a regular Matrix4x4 was returned if Matrix4x4Box is called without arguments
+* runtime: removed "io" and "os" libraries from Lua API
 * runtime: small fixes and performance improvements
 * runtime: sprite's frame number now wraps if it is greater than the total number of frames in the sprite
 * tools: fixed a crash when entering empty commands in the console

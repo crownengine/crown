@@ -162,7 +162,30 @@ void LuaEnvironment::load_libs()
 	lua_gc(L, LUA_GCSTOP, 0);
 
 	// Open default libraries
-	luaL_openlibs(L);
+	lua_pushcfunction(L, luaopen_base);
+	lua_pushstring(L, "");
+	lua_call(L, 1, 0);
+	lua_pushcfunction(L, luaopen_package);
+	lua_pushstring(L, LUA_LOADLIBNAME);
+	lua_call(L, 1, 0);
+	lua_pushcfunction(L, luaopen_table);
+	lua_pushstring(L, LUA_TABLIBNAME);
+	lua_call(L, 1, 0);
+	lua_pushcfunction(L, luaopen_string);
+	lua_pushstring(L, LUA_STRLIBNAME);
+	lua_call(L, 1, 0);
+	lua_pushcfunction(L, luaopen_math);
+	lua_pushstring(L, LUA_MATHLIBNAME);
+	lua_call(L, 1, 0);
+	lua_pushcfunction(L, luaopen_debug);
+	lua_pushstring(L, LUA_DBLIBNAME);
+	lua_call(L, 1, 0);
+	lua_pushcfunction(L, luaopen_bit);
+	lua_pushstring(L, LUA_BITLIBNAME);
+	lua_call(L, 1, 0);
+	lua_pushcfunction(L, luaopen_jit);
+	lua_pushstring(L, LUA_JITLIBNAME);
+	lua_call(L, 1, 0);
 
 	// Override print to redirect output to logging system
 	add_module_function("_G", "print", luaB_print);
