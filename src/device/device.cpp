@@ -502,6 +502,7 @@ void Device::run()
 	physics_globals::shutdown(_allocator);
 	audio_globals::shutdown();
 
+	_pipeline->destroy();
 	CE_DELETE(_allocator, _pipeline);
 	CE_DELETE(_allocator, _lua_environment);
 	CE_DELETE(_allocator, _unit_manager);
@@ -510,8 +511,6 @@ void Device::run()
 	CE_DELETE(_allocator, _shader_manager);
 	CE_DELETE(_allocator, _resource_manager);
 	CE_DELETE(_allocator, _resource_loader);
-
-	_pipeline->destroy();
 
 	bgfx::shutdown();
 	_window->close();
