@@ -208,7 +208,7 @@ static void console_command(ConsoleServer& cs, TCPSocket client, const char* jso
 
 Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
-	, _device_options(opts)
+	, _options(opts)
 	, _boot_config(default_allocator())
 	, _console_server(&cs)
 	, _data_filesystem(NULL)
@@ -293,16 +293,16 @@ void Device::run()
 {
 	_console_server->register_command("command", console_command, this);
 
-	_console_server->listen(_device_options._console_port, _device_options._wait_console);
+	_console_server->listen(_options._console_port, _options._wait_console);
 
 #if CROWN_PLATFORM_ANDROID
-	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_device_options._asset_manager));
+	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager*>((AAssetManager*)_options._asset_manager));
 #else
 	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
 	{
 		char cwd[1024];
-		const char* data_dir = !_device_options._data_dir.empty()
-			? _device_options._data_dir.c_str()
+		const char* data_dir = !_options._data_dir.empty()
+			? _options._data_dir.c_str()
 			: os::getcwd(cwd, sizeof(cwd))
 			;
 		((FilesystemDisk*)_data_filesystem)->set_prefix(data_dir);
@@ -358,7 +358,7 @@ void Device::run()
 		TempAllocator512 ta;
 		DynamicString boot_dir(ta);
 		path::join(boot_dir
-			, (_device_options._boot_dir != NULL) ? _device_options._boot_dir : ""
+			, (_options._boot_dir != NULL) ? _options._boot_dir : ""
 			, CROWN_BOOT_CONFIG
 			);
 
@@ -379,11 +379,11 @@ void Device::run()
 	_height = _boot_config.window_h;
 
 	_window = window::create(_allocator);
-	_window->open(_device_options._window_x
-		, _device_options._window_y
+	_window->open(_options._window_x
+		, _options._window_y
 		, _width
 		, _height
-		, _device_options._parent_window
+		, _options._parent_window
 		);
 	_window->set_title(_boot_config.window_title.c_str());
 	_window->set_fullscreen(_boot_config.fullscreen);
@@ -415,7 +415,7 @@ void Device::run()
 
 	_lua_environment->load_libs();
 	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name), 0);
-	_lua_environment->execute_string(_device_options._lua_string.c_str());
+	_lua_environment->execute_string(_options._lua_string.c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)();
 	_pipeline->create(_width, _height);

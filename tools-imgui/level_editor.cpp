@@ -1429,7 +1429,7 @@ struct LevelEditor
 
 void tool_init()
 {
-	const DeviceOptions& opt = device()->_device_options;
+	const DeviceOptions& opt = device()->_options;
 	_project = CE_NEW(default_allocator(), Project)(default_allocator());
 	_project->_data_dir = opt._data_dir;
 	_editor = CE_NEW(default_allocator(), LevelEditor)(opt._source_dir);

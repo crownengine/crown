@@ -38,7 +38,7 @@ struct Device
 {
 	LinearAllocator _allocator;
 
-	const DeviceOptions& _device_options;
+	const DeviceOptions& _options;
 	BootConfig _boot_config;
 	ConsoleServer* _console_server;
 	Filesystem* _data_filesystem;
@@ -74,10 +74,10 @@ struct Device
 	void run();
 
 	/// Returns the number of command line parameters.
-	int argc() const { return _device_options._argc; }
+	int argc() const { return _options._argc; }
 
 	/// Returns command line parameters.
-	const char** argv() const { return (const char**)_device_options._argv; }
+	const char** argv() const { return (const char**)_options._argv; }
 
 	/// Quits the application.
 	void quit();
