@@ -628,7 +628,7 @@ namespace Crown
 				}
 				catch (Error e)
 				{
-					stderr.printf("Error: %s\n", e.message);
+					_console_view.loge("editor", e.message);
 				}
 			}
 		}
@@ -671,18 +671,18 @@ namespace Crown
 
 		private void stop_engine()
 		{
+			_engine.send_script("Device.quit()");
 			_engine.close();
 
 			if (_engine_process != null)
 			{
-				_engine_process.force_exit();
 				try
 				{
 					_engine_process.wait();
 				}
 				catch (Error e)
 				{
-					stderr.printf("Error: %s\n", e.message);
+					_console_view.loge("editor", e.message);
 				}
 			}
 		}
@@ -733,18 +733,18 @@ namespace Crown
 
 		private void stop_game()
 		{
+			_game.send_script("Device.quit()");
 			_game.close();
 
 			if (_game_process != null)
 			{
-				_game_process.force_exit();
 				try
 				{
 					_game_process.wait();
 				}
 				catch (Error e)
 				{
-					stderr.printf("Error: %s\n", e.message);
+					_console_view.loge("editor", e.message);
 				}
 			}
 		}
@@ -1471,7 +1471,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				stderr.printf("%s\n", e.message);
+				_console_view.loge("editor", e.message);
 			}
 
 			dlg.program_name = "Crown Game Engine";
