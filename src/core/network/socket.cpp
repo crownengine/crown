@@ -24,6 +24,7 @@
 	#define WSAEWOULDBLOCK EWOULDBLOCK
 #elif CROWN_PLATFORM_WINDOWS
 	#include <winsock2.h>
+	#define MSG_NOSIGNAL 0
 #endif // CROWN_PLATFORM_POSIX
 
 namespace crown
@@ -130,7 +131,7 @@ namespace socket_internal
 			int bytes_wrote = ::send(socket
 				, (char*)data + wr.bytes_wrote
 				, to_write
-				, 0
+				, MSG_NOSIGNAL // Don't generate SIGPIPE, return EPIPE instead.
 				);
 
 			if (bytes_wrote == SOCKET_ERROR)
@@ -139,6 +140,8 @@ namespace socket_internal
 					wr.error = WriteResult::WOULDBLOCK;
 				else if (last_error() == WSAETIMEDOUT)
 					wr.error = WriteResult::TIMEOUT;
+				else if (last_error() == EPIPE)
+					wr.error = WriteResult::PIPE;
 				else
 					wr.error = WriteResult::UNKNOWN;
 				return wr;

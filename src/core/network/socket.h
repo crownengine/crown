@@ -62,6 +62,7 @@ struct WriteResult
 		WOULDBLOCK,
 		REMOTE_CLOSED,
 		TIMEOUT,
+		PIPE,
 		UNKNOWN
 	} error;
 	u32 bytes_wrote;
