@@ -55,6 +55,9 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	/// Loads lua libraries.
 	void load_libs();
 
+	/// Equivalent to calling `require "name"` from Lua.
+	void require(const char* name);
+
 	/// Executes the lua resource @a lr.
 	LuaStack execute(const LuaResource* lr, int nres);
 
@@ -67,6 +70,7 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	/// Adds the function with the given @a name and @a func to the table @a module.
 	void add_module_function(const char* module, const char* name, const char* func);
 
+	///
 	void add_module_metafunction(const char* module, const char* name, const lua_CFunction func);
 
 	/// Interface to lua_pcall/lua_call.
@@ -75,6 +79,7 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	/// Calls the global function @a func.
 	void call_global(const char* func, int narg = 0, int nres = 0);
 
+	///
 	LuaStack get_global(const char* global);
 
 	/// Returns the number of temporary objects in use.

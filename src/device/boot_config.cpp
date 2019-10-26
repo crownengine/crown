@@ -14,7 +14,7 @@
 namespace crown
 {
 BootConfig::BootConfig(Allocator& a)
-	: boot_script_name(u64(0))
+	: boot_script_name(a)
 	, boot_package_name(u64(0))
 	, window_title(a)
 	, window_w(CROWN_DEFAULT_WINDOW_WIDTH)
@@ -32,7 +32,7 @@ bool BootConfig::parse(const char* json)
 	sjson::parse(json, cfg);
 
 	// General configs
-	boot_script_name  = sjson::parse_resource_id(cfg["boot_script"]);
+	sjson::parse_string(cfg["boot_script"], boot_script_name);
 	boot_package_name = sjson::parse_resource_id(cfg["boot_package"]);
 
 	if (json_object::has(cfg, "window_title"))

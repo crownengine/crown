@@ -218,6 +218,13 @@ void LuaEnvironment::load_libs()
 	lua_gc(L, LUA_GCRESTART, 0);
 }
 
+void LuaEnvironment::require(const char* name)
+{
+	lua_getglobal(L, "require");
+	lua_pushstring(L, name);
+	this->call(1, 0);
+}
+
 LuaStack LuaEnvironment::execute(const LuaResource* lr, int nres)
 {
 	LuaStack stack(L);

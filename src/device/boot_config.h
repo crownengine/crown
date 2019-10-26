@@ -16,7 +16,7 @@ namespace crown
 /// @ingroup Device
 struct BootConfig
 {
-	StringId64 boot_script_name;
+	DynamicString boot_script_name;
 	StringId64 boot_package_name;
 	DynamicString window_title;
 	u16 window_w;

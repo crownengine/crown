@@ -414,7 +414,7 @@ void Device::run()
 	boot_package->flush();
 
 	_lua_environment->load_libs();
-	_lua_environment->execute((LuaResource*)_resource_manager->get(RESOURCE_TYPE_SCRIPT, _boot_config.boot_script_name), 0);
+	_lua_environment->require(_boot_config.boot_script_name.c_str());
 	_lua_environment->execute_string(_options._lua_string.c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)();
