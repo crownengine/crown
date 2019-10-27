@@ -127,7 +127,7 @@ int report (lua_State *L, int status) {
 	return status;
 }
 
-static int require(lua_State* L)
+static int loader(lua_State* L)
 {
 	LuaStack stack(L);
 	int status;
@@ -194,10 +194,10 @@ void LuaEnvironment::load_libs()
 	load_api(*this);
 
 	// Register custom loader
-	lua_getfield(L, LUA_GLOBALSINDEX, "package");
+	lua_getglobal(L, "package");
 	lua_getfield(L, -1, "loaders");
-	lua_pushcfunction(L, require);
-	lua_rawseti(L, -2, 1); // package.loaders[1] = require
+	lua_pushcfunction(L, loader);
+	lua_rawseti(L, -2, 1); // package.loaders[1] = loader
 	lua_pushnil(L);
 	lua_rawseti(L, -2, 2); // package.loaders[2] = nil
 	lua_pushnil(L);
