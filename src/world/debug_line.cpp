@@ -26,7 +26,7 @@ DebugLine::DebugLine(ShaderManager& sm, bool depth_test)
 	, _shader(depth_test ? "debug_line" : "debug_line_noz")
 	, _num(0)
 {
-	_vertex_decl.begin()
+	_vertex_layout.begin()
 		.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
 		.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true)
 		.end();
@@ -263,11 +263,11 @@ void DebugLine::submit(u8 view_id)
 	if (!_num)
 		return;
 
-	if (!bgfx::getAvailTransientVertexBuffer(_num * 2, _vertex_decl))
+	if (!bgfx::getAvailTransientVertexBuffer(_num * 2, _vertex_layout))
 		return;
 
 	bgfx::TransientVertexBuffer tvb;
-	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, _vertex_decl);
+	bgfx::allocTransientVertexBuffer(&tvb, _num * 2, _vertex_layout);
 	memcpy(tvb.data, _lines, sizeof(Line) * _num);
 
 	bgfx::setVertexBuffer(0, &tvb, 0, _num * 2);

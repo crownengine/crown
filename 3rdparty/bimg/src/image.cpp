@@ -252,6 +252,11 @@ namespace bimg
 
 	const char* getName(TextureFormat::Enum _format)
 	{
+		if (_format >= TextureFormat::Count)
+		{
+			return "Unknown?!";
+		}
+
 		return s_textureFormatName[_format];
 	}
 
@@ -341,7 +346,7 @@ namespace bimg
 		return size;
 	}
 
-	void imageSolid(void* _dst, uint32_t _width, uint32_t _height, uint32_t _solid)
+	BX_NO_INLINE void imageSolid(void* _dst, uint32_t _width, uint32_t _height, uint32_t _solid)
 	{
 		uint32_t* dst = (uint32_t*)_dst;
 		for (uint32_t ii = 0, num = _width*_height; ii < num; ++ii)
@@ -350,7 +355,7 @@ namespace bimg
 		}
 	}
 
-	void imageCheckerboard(void* _dst, uint32_t _width, uint32_t _height, uint32_t _step, uint32_t _0, uint32_t _1)
+	BX_NO_INLINE void imageCheckerboard(void* _dst, uint32_t _width, uint32_t _height, uint32_t _step, uint32_t _0, uint32_t _1)
 	{
 		uint32_t* dst = (uint32_t*)_dst;
 		for (uint32_t yy = 0; yy < _height; ++yy)
@@ -1014,7 +1019,7 @@ namespace bimg
 
 		for (uint32_t zz = 0; zz < _depth; ++zz, src += _srcPitch*_height, dst += _dstPitch*_height)
 		{
-			bx::memCopy(dst, src, pitch, _height, _srcPitch, _dstPitch);
+			bx::memCopy(dst, _dstPitch, src, _srcPitch, pitch, _height);
 		}
 	}
 
@@ -1320,7 +1325,7 @@ namespace bimg
 		return output;
 	}
 
-	uint8_t bitRangeConvert(uint32_t _in, uint32_t _from, uint32_t _to)
+	static uint8_t bitRangeConvert(uint32_t _in, uint32_t _from, uint32_t _to)
 	{
 		using namespace bx;
 		uint32_t tmp0   = uint32_sll(1, _to);
@@ -1336,8 +1341,13 @@ namespace bimg
 		return uint8_t(result);
 	}
 
-	void decodeBlockDxt(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockDxt(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
+		if (!BX_ENABLED(BIMG_DECODE_BC2 || BIMG_DECODE_BC3) )
+		{
+			return;
+		}
+
 		uint8_t colors[4*3];
 
 		uint32_t c0 = _src[0] | (_src[1] << 8);
@@ -1367,8 +1377,13 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockDxt1(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockDxt1(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
+		if (!BX_ENABLED(BIMG_DECODE_BC1 || BIMG_DECODE_BC2 || BIMG_DECODE_BC3) )
+		{
+			return;
+		}
+
 		uint8_t colors[4*4];
 
 		uint32_t c0 = _src[0] | (_src[1] << 8);
@@ -1418,8 +1433,13 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockDxt23A(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockDxt23A(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
+		if (!BX_ENABLED(BIMG_DECODE_BC2) )
+		{
+			return;
+		}
+
 		for (uint32_t ii = 0, next = 0; ii < 16*4; ii += 4, next += 4)
 		{
 			uint32_t c0 = (_src[next>>3] >> (next&7) ) & 0xf;
@@ -1427,8 +1447,13 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockDxt45A(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockDxt45A(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
+		if (!BX_ENABLED(BIMG_DECODE_BC3 || BIMG_DECODE_BC4 || BIMG_DECODE_BC5) )
+		{
+			return;
+		}
+
 		uint8_t alpha[8];
 		alpha[0] = _src[0];
 		alpha[1] = _src[1];
@@ -1544,69 +1569,69 @@ namespace bimg
 	static const uint32_t s_bptcP3[] =
 	{ //  76543210     0000   1111   2222   3333   4444   5555   6666   7777
 		0xaa685050, // 0, 0,  1, 1,  0, 0,  1, 1,  0, 2,  2, 1,  2, 2,  2, 2
-		0x6a5a5040,	// 0, 0,  0, 1,  0, 0,  1, 1,  2, 2,  1, 1,  2, 2,  2, 1
-		0x5a5a4200,	// 0, 0,  0, 0,  2, 0,  0, 1,  2, 2,  1, 1,  2, 2,  1, 1
-		0x5450a0a8,	// 0, 2,  2, 2,  0, 0,  2, 2,  0, 0,  1, 1,  0, 1,  1, 1
-		0xa5a50000,	// 0, 0,  0, 0,  0, 0,  0, 0,  1, 1,  2, 2,  1, 1,  2, 2
-		0xa0a05050,	// 0, 0,  1, 1,  0, 0,  1, 1,  0, 0,  2, 2,  0, 0,  2, 2
-		0x5555a0a0,	// 0, 0,  2, 2,  0, 0,  2, 2,  1, 1,  1, 1,  1, 1,  1, 1
-		0x5a5a5050,	// 0, 0,  1, 1,  0, 0,  1, 1,  2, 2,  1, 1,  2, 2,  1, 1
-		0xaa550000,	// 0, 0,  0, 0,  0, 0,  0, 0,  1, 1,  1, 1,  2, 2,  2, 2
-		0xaa555500,	// 0, 0,  0, 0,  1, 1,  1, 1,  1, 1,  1, 1,  2, 2,  2, 2
-		0xaaaa5500,	// 0, 0,  0, 0,  1, 1,  1, 1,  2, 2,  2, 2,  2, 2,  2, 2
-		0x90909090,	// 0, 0,  1, 2,  0, 0,  1, 2,  0, 0,  1, 2,  0, 0,  1, 2
-		0x94949494,	// 0, 1,  1, 2,  0, 1,  1, 2,  0, 1,  1, 2,  0, 1,  1, 2
-		0xa4a4a4a4,	// 0, 1,  2, 2,  0, 1,  2, 2,  0, 1,  2, 2,  0, 1,  2, 2
-		0xa9a59450,	// 0, 0,  1, 1,  0, 1,  1, 2,  1, 1,  2, 2,  1, 2,  2, 2
-		0x2a0a4250,	// 0, 0,  1, 1,  2, 0,  0, 1,  2, 2,  0, 0,  2, 2,  2, 0
-		0xa5945040,	// 0, 0,  0, 1,  0, 0,  1, 1,  0, 1,  1, 2,  1, 1,  2, 2
-		0x0a425054,	// 0, 1,  1, 1,  0, 0,  1, 1,  2, 0,  0, 1,  2, 2,  0, 0
-		0xa5a5a500,	// 0, 0,  0, 0,  1, 1,  2, 2,  1, 1,  2, 2,  1, 1,  2, 2
-		0x55a0a0a0,	// 0, 0,  2, 2,  0, 0,  2, 2,  0, 0,  2, 2,  1, 1,  1, 1
-		0xa8a85454,	// 0, 1,  1, 1,  0, 1,  1, 1,  0, 2,  2, 2,  0, 2,  2, 2
-		0x6a6a4040,	// 0, 0,  0, 1,  0, 0,  0, 1,  2, 2,  2, 1,  2, 2,  2, 1
-		0xa4a45000,	// 0, 0,  0, 0,  0, 0,  1, 1,  0, 1,  2, 2,  0, 1,  2, 2
-		0x1a1a0500,	// 0, 0,  0, 0,  1, 1,  0, 0,  2, 2,  1, 0,  2, 2,  1, 0
-		0x0050a4a4,	// 0, 1,  2, 2,  0, 1,  2, 2,  0, 0,  1, 1,  0, 0,  0, 0
-		0xaaa59090,	// 0, 0,  1, 2,  0, 0,  1, 2,  1, 1,  2, 2,  2, 2,  2, 2
-		0x14696914,	// 0, 1,  1, 0,  1, 2,  2, 1,  1, 2,  2, 1,  0, 1,  1, 0
-		0x69691400,	// 0, 0,  0, 0,  0, 1,  1, 0,  1, 2,  2, 1,  1, 2,  2, 1
-		0xa08585a0,	// 0, 0,  2, 2,  1, 1,  0, 2,  1, 1,  0, 2,  0, 0,  2, 2
-		0xaa821414,	// 0, 1,  1, 0,  0, 1,  1, 0,  2, 0,  0, 2,  2, 2,  2, 2
-		0x50a4a450,	// 0, 0,  1, 1,  0, 1,  2, 2,  0, 1,  2, 2,  0, 0,  1, 1
-		0x6a5a0200,	// 0, 0,  0, 0,  2, 0,  0, 0,  2, 2,  1, 1,  2, 2,  2, 1
-		0xa9a58000,	// 0, 0,  0, 0,  0, 0,  0, 2,  1, 1,  2, 2,  1, 2,  2, 2
-		0x5090a0a8,	// 0, 2,  2, 2,  0, 0,  2, 2,  0, 0,  1, 2,  0, 0,  1, 1
-		0xa8a09050,	// 0, 0,  1, 1,  0, 0,  1, 2,  0, 0,  2, 2,  0, 2,  2, 2
-		0x24242424,	// 0, 1,  2, 0,  0, 1,  2, 0,  0, 1,  2, 0,  0, 1,  2, 0
-		0x00aa5500,	// 0, 0,  0, 0,  1, 1,  1, 1,  2, 2,  2, 2,  0, 0,  0, 0
-		0x24924924,	// 0, 1,  2, 0,  1, 2,  0, 1,  2, 0,  1, 2,  0, 1,  2, 0
-		0x24499224,	// 0, 1,  2, 0,  2, 0,  1, 2,  1, 2,  0, 1,  0, 1,  2, 0
-		0x50a50a50,	// 0, 0,  1, 1,  2, 2,  0, 0,  1, 1,  2, 2,  0, 0,  1, 1
-		0x500aa550,	// 0, 0,  1, 1,  1, 1,  2, 2,  2, 2,  0, 0,  0, 0,  1, 1
-		0xaaaa4444,	// 0, 1,  0, 1,  0, 1,  0, 1,  2, 2,  2, 2,  2, 2,  2, 2
-		0x66660000,	// 0, 0,  0, 0,  0, 0,  0, 0,  2, 1,  2, 1,  2, 1,  2, 1
-		0xa5a0a5a0,	// 0, 0,  2, 2,  1, 1,  2, 2,  0, 0,  2, 2,  1, 1,  2, 2
-		0x50a050a0,	// 0, 0,  2, 2,  0, 0,  1, 1,  0, 0,  2, 2,  0, 0,  1, 1
-		0x69286928,	// 0, 2,  2, 0,  1, 2,  2, 1,  0, 2,  2, 0,  1, 2,  2, 1
-		0x44aaaa44,	// 0, 1,  0, 1,  2, 2,  2, 2,  2, 2,  2, 2,  0, 1,  0, 1
-		0x66666600,	// 0, 0,  0, 0,  2, 1,  2, 1,  2, 1,  2, 1,  2, 1,  2, 1
-		0xaa444444,	// 0, 1,  0, 1,  0, 1,  0, 1,  0, 1,  0, 1,  2, 2,  2, 2
-		0x54a854a8,	// 0, 2,  2, 2,  0, 1,  1, 1,  0, 2,  2, 2,  0, 1,  1, 1
-		0x95809580,	// 0, 0,  0, 2,  1, 1,  1, 2,  0, 0,  0, 2,  1, 1,  1, 2
-		0x96969600,	// 0, 0,  0, 0,  2, 1,  1, 2,  2, 1,  1, 2,  2, 1,  1, 2
-		0xa85454a8,	// 0, 2,  2, 2,  0, 1,  1, 1,  0, 1,  1, 1,  0, 2,  2, 2
-		0x80959580,	// 0, 0,  0, 2,  1, 1,  1, 2,  1, 1,  1, 2,  0, 0,  0, 2
-		0xaa141414,	// 0, 1,  1, 0,  0, 1,  1, 0,  0, 1,  1, 0,  2, 2,  2, 2
-		0x96960000,	// 0, 0,  0, 0,  0, 0,  0, 0,  2, 1,  1, 2,  2, 1,  1, 2
-		0xaaaa1414,	// 0, 1,  1, 0,  0, 1,  1, 0,  2, 2,  2, 2,  2, 2,  2, 2
-		0xa05050a0,	// 0, 0,  2, 2,  0, 0,  1, 1,  0, 0,  1, 1,  0, 0,  2, 2
-		0xa0a5a5a0,	// 0, 0,  2, 2,  1, 1,  2, 2,  1, 1,  2, 2,  0, 0,  2, 2
-		0x96000000,	// 0, 0,  0, 0,  0, 0,  0, 0,  0, 0,  0, 0,  2, 1,  1, 2
-		0x40804080,	// 0, 0,  0, 2,  0, 0,  0, 1,  0, 0,  0, 2,  0, 0,  0, 1
-		0xa9a8a9a8,	// 0, 2,  2, 2,  1, 2,  2, 2,  0, 2,  2, 2,  1, 2,  2, 2
-		0xaaaaaa44,	// 0, 1,  0, 1,  2, 2,  2, 2,  2, 2,  2, 2,  2, 2,  2, 2
-		0x2a4a5254,	// 0, 1,  1, 1,  2, 0,  1, 1,  2, 2,  0, 1,  2, 2,  2, 0
+		0x6a5a5040, // 0, 0,  0, 1,  0, 0,  1, 1,  2, 2,  1, 1,  2, 2,  2, 1
+		0x5a5a4200, // 0, 0,  0, 0,  2, 0,  0, 1,  2, 2,  1, 1,  2, 2,  1, 1
+		0x5450a0a8, // 0, 2,  2, 2,  0, 0,  2, 2,  0, 0,  1, 1,  0, 1,  1, 1
+		0xa5a50000, // 0, 0,  0, 0,  0, 0,  0, 0,  1, 1,  2, 2,  1, 1,  2, 2
+		0xa0a05050, // 0, 0,  1, 1,  0, 0,  1, 1,  0, 0,  2, 2,  0, 0,  2, 2
+		0x5555a0a0, // 0, 0,  2, 2,  0, 0,  2, 2,  1, 1,  1, 1,  1, 1,  1, 1
+		0x5a5a5050, // 0, 0,  1, 1,  0, 0,  1, 1,  2, 2,  1, 1,  2, 2,  1, 1
+		0xaa550000, // 0, 0,  0, 0,  0, 0,  0, 0,  1, 1,  1, 1,  2, 2,  2, 2
+		0xaa555500, // 0, 0,  0, 0,  1, 1,  1, 1,  1, 1,  1, 1,  2, 2,  2, 2
+		0xaaaa5500, // 0, 0,  0, 0,  1, 1,  1, 1,  2, 2,  2, 2,  2, 2,  2, 2
+		0x90909090, // 0, 0,  1, 2,  0, 0,  1, 2,  0, 0,  1, 2,  0, 0,  1, 2
+		0x94949494, // 0, 1,  1, 2,  0, 1,  1, 2,  0, 1,  1, 2,  0, 1,  1, 2
+		0xa4a4a4a4, // 0, 1,  2, 2,  0, 1,  2, 2,  0, 1,  2, 2,  0, 1,  2, 2
+		0xa9a59450, // 0, 0,  1, 1,  0, 1,  1, 2,  1, 1,  2, 2,  1, 2,  2, 2
+		0x2a0a4250, // 0, 0,  1, 1,  2, 0,  0, 1,  2, 2,  0, 0,  2, 2,  2, 0
+		0xa5945040, // 0, 0,  0, 1,  0, 0,  1, 1,  0, 1,  1, 2,  1, 1,  2, 2
+		0x0a425054, // 0, 1,  1, 1,  0, 0,  1, 1,  2, 0,  0, 1,  2, 2,  0, 0
+		0xa5a5a500, // 0, 0,  0, 0,  1, 1,  2, 2,  1, 1,  2, 2,  1, 1,  2, 2
+		0x55a0a0a0, // 0, 0,  2, 2,  0, 0,  2, 2,  0, 0,  2, 2,  1, 1,  1, 1
+		0xa8a85454, // 0, 1,  1, 1,  0, 1,  1, 1,  0, 2,  2, 2,  0, 2,  2, 2
+		0x6a6a4040, // 0, 0,  0, 1,  0, 0,  0, 1,  2, 2,  2, 1,  2, 2,  2, 1
+		0xa4a45000, // 0, 0,  0, 0,  0, 0,  1, 1,  0, 1,  2, 2,  0, 1,  2, 2
+		0x1a1a0500, // 0, 0,  0, 0,  1, 1,  0, 0,  2, 2,  1, 0,  2, 2,  1, 0
+		0x0050a4a4, // 0, 1,  2, 2,  0, 1,  2, 2,  0, 0,  1, 1,  0, 0,  0, 0
+		0xaaa59090, // 0, 0,  1, 2,  0, 0,  1, 2,  1, 1,  2, 2,  2, 2,  2, 2
+		0x14696914, // 0, 1,  1, 0,  1, 2,  2, 1,  1, 2,  2, 1,  0, 1,  1, 0
+		0x69691400, // 0, 0,  0, 0,  0, 1,  1, 0,  1, 2,  2, 1,  1, 2,  2, 1
+		0xa08585a0, // 0, 0,  2, 2,  1, 1,  0, 2,  1, 1,  0, 2,  0, 0,  2, 2
+		0xaa821414, // 0, 1,  1, 0,  0, 1,  1, 0,  2, 0,  0, 2,  2, 2,  2, 2
+		0x50a4a450, // 0, 0,  1, 1,  0, 1,  2, 2,  0, 1,  2, 2,  0, 0,  1, 1
+		0x6a5a0200, // 0, 0,  0, 0,  2, 0,  0, 0,  2, 2,  1, 1,  2, 2,  2, 1
+		0xa9a58000, // 0, 0,  0, 0,  0, 0,  0, 2,  1, 1,  2, 2,  1, 2,  2, 2
+		0x5090a0a8, // 0, 2,  2, 2,  0, 0,  2, 2,  0, 0,  1, 2,  0, 0,  1, 1
+		0xa8a09050, // 0, 0,  1, 1,  0, 0,  1, 2,  0, 0,  2, 2,  0, 2,  2, 2
+		0x24242424, // 0, 1,  2, 0,  0, 1,  2, 0,  0, 1,  2, 0,  0, 1,  2, 0
+		0x00aa5500, // 0, 0,  0, 0,  1, 1,  1, 1,  2, 2,  2, 2,  0, 0,  0, 0
+		0x24924924, // 0, 1,  2, 0,  1, 2,  0, 1,  2, 0,  1, 2,  0, 1,  2, 0
+		0x24499224, // 0, 1,  2, 0,  2, 0,  1, 2,  1, 2,  0, 1,  0, 1,  2, 0
+		0x50a50a50, // 0, 0,  1, 1,  2, 2,  0, 0,  1, 1,  2, 2,  0, 0,  1, 1
+		0x500aa550, // 0, 0,  1, 1,  1, 1,  2, 2,  2, 2,  0, 0,  0, 0,  1, 1
+		0xaaaa4444, // 0, 1,  0, 1,  0, 1,  0, 1,  2, 2,  2, 2,  2, 2,  2, 2
+		0x66660000, // 0, 0,  0, 0,  0, 0,  0, 0,  2, 1,  2, 1,  2, 1,  2, 1
+		0xa5a0a5a0, // 0, 0,  2, 2,  1, 1,  2, 2,  0, 0,  2, 2,  1, 1,  2, 2
+		0x50a050a0, // 0, 0,  2, 2,  0, 0,  1, 1,  0, 0,  2, 2,  0, 0,  1, 1
+		0x69286928, // 0, 2,  2, 0,  1, 2,  2, 1,  0, 2,  2, 0,  1, 2,  2, 1
+		0x44aaaa44, // 0, 1,  0, 1,  2, 2,  2, 2,  2, 2,  2, 2,  0, 1,  0, 1
+		0x66666600, // 0, 0,  0, 0,  2, 1,  2, 1,  2, 1,  2, 1,  2, 1,  2, 1
+		0xaa444444, // 0, 1,  0, 1,  0, 1,  0, 1,  0, 1,  0, 1,  2, 2,  2, 2
+		0x54a854a8, // 0, 2,  2, 2,  0, 1,  1, 1,  0, 2,  2, 2,  0, 1,  1, 1
+		0x95809580, // 0, 0,  0, 2,  1, 1,  1, 2,  0, 0,  0, 2,  1, 1,  1, 2
+		0x96969600, // 0, 0,  0, 0,  2, 1,  1, 2,  2, 1,  1, 2,  2, 1,  1, 2
+		0xa85454a8, // 0, 2,  2, 2,  0, 1,  1, 1,  0, 1,  1, 1,  0, 2,  2, 2
+		0x80959580, // 0, 0,  0, 2,  1, 1,  1, 2,  1, 1,  1, 2,  0, 0,  0, 2
+		0xaa141414, // 0, 1,  1, 0,  0, 1,  1, 0,  0, 1,  1, 0,  2, 2,  2, 2
+		0x96960000, // 0, 0,  0, 0,  0, 0,  0, 0,  2, 1,  1, 2,  2, 1,  1, 2
+		0xaaaa1414, // 0, 1,  1, 0,  0, 1,  1, 0,  2, 2,  2, 2,  2, 2,  2, 2
+		0xa05050a0, // 0, 0,  2, 2,  0, 0,  1, 1,  0, 0,  1, 1,  0, 0,  2, 2
+		0xa0a5a5a0, // 0, 0,  2, 2,  1, 1,  2, 2,  1, 1,  2, 2,  0, 0,  2, 2
+		0x96000000, // 0, 0,  0, 0,  0, 0,  0, 0,  0, 0,  0, 0,  2, 1,  1, 2
+		0x40804080, // 0, 0,  0, 2,  0, 0,  0, 1,  0, 0,  0, 2,  0, 0,  0, 1
+		0xa9a8a9a8, // 0, 2,  2, 2,  1, 2,  2, 2,  0, 2,  2, 2,  1, 2,  2, 2
+		0xaaaaaa44, // 0, 1,  0, 1,  2, 2,  2, 2,  2, 2,  2, 2,  2, 2,  2, 2
+		0x2a4a5254, // 0, 1,  1, 1,  2, 0,  1, 1,  2, 2,  0, 1,  2, 2,  2, 0
 	};
 
 	static const uint8_t s_bptcA2[] =
@@ -1684,7 +1709,7 @@ namespace bimg
 		uint16_t m_bitPos;
 	};
 
-	uint16_t bc6hUnquantize(uint16_t _value, bool _signed, uint8_t _endpointBits)
+	static uint16_t bc6hUnquantize(uint16_t _value, bool _signed, uint8_t _endpointBits)
 	{
 		const uint16_t maxValue = 1<<(_endpointBits-1);
 
@@ -1734,7 +1759,7 @@ namespace bimg
 		return ( (_value<<15) + 0x4000) >> (_endpointBits-1);
 	}
 
-	uint16_t bc6hUnquantizeFinal(uint16_t _value, bool _signed)
+	static uint16_t bc6hUnquantizeFinal(uint16_t _value, bool _signed)
 	{
 		if (_signed)
 		{
@@ -1747,7 +1772,7 @@ namespace bimg
 		return (_value * 31) >> 6;
 	}
 
-	uint16_t signExtend(uint16_t _value, uint8_t _numBits)
+	static uint16_t signExtend(uint16_t _value, uint8_t _numBits)
 	{
 		const uint16_t mask   = 1 << (_numBits - 1);
 		const uint16_t result = (_value ^ mask) - mask;
@@ -1802,8 +1827,13 @@ namespace bimg
 		{ 0, 0,  0, {  0,  0,  0 } }, // -
 	};
 
-	void decodeBlockBc6h(uint16_t _dst[16*3], const uint8_t _src[16], bool _signed)
+	static void decodeBlockBc6h(uint16_t _dst[16*3], const uint8_t _src[16], bool _signed)
 	{
+		if (!BX_ENABLED(BIMG_DECODE_BC6) )
+		{
+			return;
+		}
+
 		BitReader bit(_src);
 
 		uint8_t mode = uint8_t(bit.read(2) );
@@ -2209,8 +2239,13 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockBc6h(float _dst[16*4], const uint8_t _src[16])
+	static void decodeBlockBc6h(float _dst[16*4], const uint8_t _src[16])
 	{
+		if (!BX_ENABLED(BIMG_DECODE_BC6) )
+		{
+			return;
+		}
+
 		uint16_t tmp[16*3];
 
 		decodeBlockBc6h(tmp, _src, true);
@@ -2257,8 +2292,13 @@ namespace bimg
 		{ 2, 6, 0, 0, 5, 5, 1, 0, { 2, 0 } }, // 7
 	};
 
-	void decodeBlockBc7(uint8_t _dst[16*4], const uint8_t _src[16])
+	static void decodeBlockBc7(uint8_t _dst[16*4], const uint8_t _src[16])
 	{
+		if (!BX_ENABLED(BIMG_DECODE_BC7) )
+		{
+			return;
+		}
+
 		BitReader bit(_src);
 
 		uint8_t mode = 0;
@@ -2446,8 +2486,13 @@ namespace bimg
 
 	// ATC
 	//
-	void decodeBlockATC(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockATC(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
+		if (!BX_ENABLED(BIMG_DECODE_ATC) )
+		{
+			return;
+		}
+
 		uint8_t colors[4*4];
 
 		uint32_t c0 = _src[0] | (_src[1] << 8);
@@ -2514,7 +2559,7 @@ namespace bimg
 
 	static const uint8_t s_etc2Mod[] = { 3, 6, 11, 16, 23, 32, 41, 64 };
 
-	uint8_t uint8_sat(int32_t _a)
+	static uint8_t uint8_sat(int32_t _a)
 	{
 		using namespace bx;
 		const uint32_t min    = uint32_imin(_a, 255);
@@ -2522,13 +2567,13 @@ namespace bimg
 		return (uint8_t)result;
 	}
 
-	uint8_t uint8_satadd(int32_t _a, int32_t _b)
+	static uint8_t uint8_satadd(int32_t _a, int32_t _b)
 	{
 		const int32_t add = _a + _b;
 		return uint8_sat(add);
 	}
 
-	void decodeBlockEtc2ModeT(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockEtc2ModeT(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
 		uint8_t rgb[16];
 
@@ -2587,7 +2632,7 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockEtc2ModeH(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockEtc2ModeH(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
 		uint8_t rgb[16];
 
@@ -2661,7 +2706,7 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockEtc2ModePlanar(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockEtc2ModePlanar(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
 		// 0       1       2       3       4       5       6       7
 		// 7654321076543210765432107654321076543210765432107654321076543210
@@ -2753,8 +2798,13 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockEtc12(uint8_t _dst[16*4], const uint8_t _src[8])
+	static void decodeBlockEtc12(uint8_t _dst[16*4], const uint8_t _src[8])
 	{
+		if (!BX_ENABLED(BIMG_DECODE_ETC1 || BIMG_DECODE_ETC2) )
+		{
+			return;
+		}
+
 		bool flipBit = 0 != (_src[3] & 0x1);
 		bool diffBit = 0 != (_src[3] & 0x2);
 
@@ -2923,7 +2973,7 @@ namespace bimg
 			;
 	}
 
-	void decodeBlockPtc14RgbAddA(uint32_t _block, uint32_t* _r, uint32_t* _g, uint32_t* _b, uint8_t _factor)
+	static void decodeBlockPtc14RgbAddA(uint32_t _block, uint32_t* _r, uint32_t* _g, uint32_t* _b, uint8_t _factor)
 	{
 		if (0 != (_block & (1<<15) ) )
 		{
@@ -2939,7 +2989,7 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockPtc14RgbAddB(uint32_t _block, uint32_t* _r, uint32_t* _g, uint32_t* _b, uint8_t _factor)
+	static void decodeBlockPtc14RgbAddB(uint32_t _block, uint32_t* _r, uint32_t* _g, uint32_t* _b, uint8_t _factor)
 	{
 		if (0 != (_block & (1<<31) ) )
 		{
@@ -2955,7 +3005,7 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockPtc14(uint8_t _dst[16*4], const uint8_t* _src, uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height)
+	static void decodeBlockPtc14(uint8_t _dst[16*4], const uint8_t* _src, uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height)
 	{
 		// 0       1       2       3       4       5       6       7
 		// 7654321076543210765432107654321076543210765432107654321076543210
@@ -3027,7 +3077,7 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockPtc14ARgbaAddA(uint32_t _block, uint32_t* _r, uint32_t* _g, uint32_t* _b, uint32_t* _a, uint8_t _factor)
+	static void decodeBlockPtc14ARgbaAddA(uint32_t _block, uint32_t* _r, uint32_t* _g, uint32_t* _b, uint32_t* _a, uint8_t _factor)
 	{
 		if (0 != (_block & (1<<15) ) )
 		{
@@ -3045,7 +3095,7 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockPtc14ARgbaAddB(uint32_t _block, uint32_t* _r, uint32_t* _g, uint32_t* _b, uint32_t* _a, uint8_t _factor)
+	static void decodeBlockPtc14ARgbaAddB(uint32_t _block, uint32_t* _r, uint32_t* _g, uint32_t* _b, uint32_t* _a, uint8_t _factor)
 	{
 		if (0 != (_block & (1<<31) ) )
 		{
@@ -3063,7 +3113,7 @@ namespace bimg
 		}
 	}
 
-	void decodeBlockPtc14A(uint8_t _dst[16*4], const uint8_t* _src, uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height)
+	static void decodeBlockPtc14A(uint8_t _dst[16*4], const uint8_t* _src, uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height)
 	{
 		// 0       1       2       3       4       5       6       7
 		// 7654321076543210765432107654321076543210765432107654321076543210
@@ -3178,6 +3228,7 @@ namespace bimg
 		}
 
 		return imageContainer;
+
 	}
 
 	void imageFree(ImageContainer* _imageContainer)
@@ -3369,6 +3420,7 @@ namespace bimg
 		{ DDS_A1R5G5B5,              TextureFormat::RGB5A1,   false },
 		{ DDS_A2B10G10R10,           TextureFormat::RGB10A2,  false },
 	};
+
 
 	static const TranslateDdsFormat s_translateDxgiFormat[] =
 	{
@@ -4250,106 +4302,147 @@ namespace bimg
 		switch (_srcFormat)
 		{
 		case TextureFormat::BC1:
-			for (uint32_t yy = 0; yy < height; ++yy)
+			if (BX_ENABLED(BIMG_DECODE_BC1) )
 			{
-				for (uint32_t xx = 0; xx < width; ++xx)
+				for (uint32_t yy = 0; yy < height; ++yy)
 				{
-					decodeBlockDxt1(temp, src);
-					src += 8;
+					for (uint32_t xx = 0; xx < width; ++xx)
+					{
+						decodeBlockDxt1(temp, src);
+						src += 8;
 
-					uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
-					bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
-					bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
-					bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
-					bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
+						bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
+						bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
+						bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
+						bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+					}
 				}
+			}
+			else
+			{
+				BX_WARN(false, "BC1 decoder is disabled (BIMG_DECODE_BC1).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
 			}
 			break;
 
 		case TextureFormat::BC2:
-			for (uint32_t yy = 0; yy < height; ++yy)
+			if (BX_ENABLED(BIMG_DECODE_BC2) )
 			{
-				for (uint32_t xx = 0; xx < width; ++xx)
+				for (uint32_t yy = 0; yy < height; ++yy)
 				{
-					decodeBlockDxt23A(temp+3, src);
-					src += 8;
-					decodeBlockDxt(temp, src);
-					src += 8;
+					for (uint32_t xx = 0; xx < width; ++xx)
+					{
+						decodeBlockDxt23A(temp+3, src);
+						src += 8;
+						decodeBlockDxt(temp, src);
+						src += 8;
 
-					uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
-					bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
-					bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
-					bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
-					bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
+						bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
+						bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
+						bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
+						bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+					}
 				}
+			}
+			else
+			{
+				BX_WARN(false, "BC2 decoder is disabled (BIMG_DECODE_BC2).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
 			}
 			break;
 
 		case TextureFormat::BC3:
-			for (uint32_t yy = 0; yy < height; ++yy)
+			if (BX_ENABLED(BIMG_DECODE_BC3) )
 			{
-				for (uint32_t xx = 0; xx < width; ++xx)
+				for (uint32_t yy = 0; yy < height; ++yy)
 				{
-					decodeBlockDxt45A(temp+3, src);
-					src += 8;
-					decodeBlockDxt(temp, src);
-					src += 8;
+					for (uint32_t xx = 0; xx < width; ++xx)
+					{
+						decodeBlockDxt45A(temp+3, src);
+						src += 8;
+						decodeBlockDxt(temp, src);
+						src += 8;
 
-					uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
-					bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
-					bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
-					bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
-					bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
+						bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
+						bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
+						bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
+						bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+					}
 				}
+			}
+			else
+			{
+				BX_WARN(false, "BC3 decoder is disabled (BIMG_DECODE_BC3).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
 			}
 			break;
 
 		case TextureFormat::BC4:
-			for (uint32_t yy = 0; yy < height; ++yy)
+			if (BX_ENABLED(BIMG_DECODE_BC4) )
 			{
-				for (uint32_t xx = 0; xx < width; ++xx)
+				for (uint32_t yy = 0; yy < height; ++yy)
 				{
-					decodeBlockDxt45A(temp, src);
-					src += 8;
+					for (uint32_t xx = 0; xx < width; ++xx)
+					{
+						decodeBlockDxt45A(temp, src);
+						src += 8;
 
-					uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
-					bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
-					bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
-					bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
-					bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
+						bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
+						bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
+						bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
+						bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+					}
 				}
+			}
+			else
+			{
+				BX_WARN(false, "BC4 decoder is disabled (BIMG_DECODE_BC4).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
 			}
 			break;
 
 		case TextureFormat::BC5:
-			for (uint32_t yy = 0; yy < height; ++yy)
+			if (BX_ENABLED(BIMG_DECODE_BC5) )
 			{
-				for (uint32_t xx = 0; xx < width; ++xx)
+				for (uint32_t yy = 0; yy < height; ++yy)
 				{
-					decodeBlockDxt45A(temp+2, src);
-					src += 8;
-					decodeBlockDxt45A(temp+1, src);
-					src += 8;
-
-					for (uint32_t ii = 0; ii < 16; ++ii)
+					for (uint32_t xx = 0; xx < width; ++xx)
 					{
-						float nx = temp[ii*4+2]*2.0f/255.0f - 1.0f;
-						float ny = temp[ii*4+1]*2.0f/255.0f - 1.0f;
-						float nz = bx::sqrt(1.0f - nx*nx - ny*ny);
-						temp[ii*4+0] = uint8_t( (nz + 1.0f)*255.0f/2.0f);
-						temp[ii*4+3] = 0;
-					}
+						decodeBlockDxt45A(temp+2, src);
+						src += 8;
+						decodeBlockDxt45A(temp+1, src);
+						src += 8;
 
-					uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
-					bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
-					bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
-					bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
-					bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+						for (uint32_t ii = 0; ii < 16; ++ii)
+						{
+							float nx = temp[ii*4+2]*2.0f/255.0f - 1.0f;
+							float ny = temp[ii*4+1]*2.0f/255.0f - 1.0f;
+							float nz = bx::sqrt(1.0f - nx*nx - ny*ny);
+							temp[ii*4+0] = uint8_t( (nz + 1.0f)*255.0f/2.0f);
+							temp[ii*4+3] = 0;
+						}
+
+						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
+						bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
+						bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
+						bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
+						bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+					}
 				}
+			}
+			else
+			{
+				BX_WARN(false, "BC5 decoder is disabled (BIMG_DECODE_BC5).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
 			}
 			break;
 
 		case TextureFormat::BC6H:
+			if (BX_ENABLED(BIMG_DECODE_BC6) )
 			{
 				ImageContainer* rgba32f = imageAlloc(_allocator
 					, TextureFormat::RGBA32F
@@ -4364,40 +4457,61 @@ namespace bimg
 				imageConvert(_allocator, _dst, TextureFormat::BGRA8, rgba32f->m_data, TextureFormat::RGBA32F, _width, _height, 1, _width*16, _dstPitch);
 				imageFree(rgba32f);
 			}
+			else
+			{
+				BX_WARN(false, "BC6 decoder is disabled (BIMG_DECODE_BC6).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
+			}
 			break;
 
 		case TextureFormat::BC7:
-			for (uint32_t yy = 0; yy < height; ++yy)
+			if (BX_ENABLED(BIMG_DECODE_BC7) )
 			{
-				for (uint32_t xx = 0; xx < width; ++xx)
+				for (uint32_t yy = 0; yy < height; ++yy)
 				{
-					decodeBlockBc7(temp, src);
-					src += 16;
+					for (uint32_t xx = 0; xx < width; ++xx)
+					{
+						decodeBlockBc7(temp, src);
+						src += 16;
 
-					uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
-					bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
-					bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
-					bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
-					bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
+						bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
+						bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
+						bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
+						bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+					}
 				}
+			}
+			else
+			{
+				BX_WARN(false, "BC7 decoder is disabled (BIMG_DECODE_BC7).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
 			}
 			break;
 
 		case TextureFormat::ETC1:
 		case TextureFormat::ETC2:
-			for (uint32_t yy = 0; yy < height; ++yy)
+			if (BX_ENABLED(BIMG_DECODE_ETC1 || BIMG_DECODE_ETC2) )
 			{
-				for (uint32_t xx = 0; xx < width; ++xx)
+				for (uint32_t yy = 0; yy < height; ++yy)
 				{
-					decodeBlockEtc12(temp, src);
-					src += 8;
+					for (uint32_t xx = 0; xx < width; ++xx)
+					{
+						decodeBlockEtc12(temp, src);
+						src += 8;
 
-					uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
-					bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
-					bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
-					bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
-					bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
+						bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
+						bx::memCopy(&block[1*_dstPitch], &temp[16], 16);
+						bx::memCopy(&block[2*_dstPitch], &temp[32], 16);
+						bx::memCopy(&block[3*_dstPitch], &temp[48], 16);
+					}
 				}
+			}
+			else
+			{
+				BX_WARN(false, "ETC1/ETC2 decoder is disabled (BIMG_DECODE_ETC1/ETC2).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
 			}
 			break;
 
@@ -4539,7 +4653,7 @@ namespace bimg
 			{
 				const uint32_t srcPitch = _width * 4;
 				const uint32_t size = bx::uint32_min(srcPitch, _dstPitch);
-				bx::memCopy(_dst, _src, size, _height, srcPitch, _dstPitch);
+				bx::memCopy(_dst, _dstPitch, _src, srcPitch, size, _height);
 			}
 			break;
 
@@ -4565,7 +4679,7 @@ namespace bimg
 			{
 				const uint32_t srcPitch = _width * 4;
 				const uint32_t size = bx::uint32_min(srcPitch, _dstPitch);
-				bx::memCopy(_dst, _src, size, _height, srcPitch, _dstPitch);
+				bx::memCopy(_dst, _dstPitch, _src, srcPitch, size, _height);
 			}
 			break;
 
@@ -5250,7 +5364,7 @@ namespace bimg
 
 		uint32_t ddspf        = UINT32_MAX;
 		uint32_t dxgiFormat   = UINT32_MAX;
-        uint32_t fourccFormat = UINT32_MAX;
+		uint32_t fourccFormat = UINT32_MAX;
 
 		for (uint32_t ii = 0; ii < BX_COUNTOF(s_translateDdsPixelFormat); ++ii)
 		{
@@ -5339,13 +5453,17 @@ namespace bimg
 			total += bx::write(_writer, uint32_t(8*sizeof(uint32_t) ), _err); // pixelFormatSize
 			total += bx::write(_writer, uint32_t(DDPF_FOURCC), _err);
 
-            if (UINT32_MAX != fourccFormat)
-                total += bx::write(_writer, fourccFormat, _err);
-            else
-                total += bx::write(_writer, uint32_t(DDS_DX10), _err);
+			if (UINT32_MAX != fourccFormat)
+			{
+				total += bx::write(_writer, fourccFormat, _err);
+			}
+			else
+			{
+				total += bx::write(_writer, uint32_t(DDS_DX10), _err);
+			}
 
-            total += bx::write(_writer, uint32_t(0), _err); // bitCount
-            total += bx::writeRep(_writer, 0, 4*sizeof(uint32_t), _err); // bitmask
+			total += bx::write(_writer, uint32_t(0), _err); // bitCount
+			total += bx::writeRep(_writer, 0, 4*sizeof(uint32_t), _err); // bitmask
 		}
 
 		uint32_t caps[4] =

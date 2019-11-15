@@ -61,7 +61,8 @@ public:
 private:
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	// MSVC 2013 workarounds, sigh ...
-	union {
+	union
+	{
 		char aligned_char[sizeof(T) * N];
 		double dummy_aligner;
 	} u;
@@ -445,6 +446,11 @@ public:
 
 			this->buffer_size += count;
 		}
+	}
+
+	void insert(T *itr, const T &value)
+	{
+		insert(itr, &value, &value + 1);
 	}
 
 	T *erase(T *itr)

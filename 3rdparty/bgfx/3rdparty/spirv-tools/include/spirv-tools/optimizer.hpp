@@ -68,6 +68,11 @@ class Optimizer {
   // The constructed instance will have an empty message consumer, which just
   // ignores all messages from the library. Use SetMessageConsumer() to supply
   // one if messages are of concern.
+  //
+  // For collections of passes that are meant to transform the input into
+  // another execution environment, then the source environment should be
+  // supplied. e.g. for VulkanToWebGPUPasses the environment should be
+  // SPV_ENV_VULKAN_1_1 not SPV_ENV_WEBGPU_0.
   explicit Optimizer(spv_target_env env);
 
   // Disables copy/move constructor/assignment operations.
@@ -492,20 +497,6 @@ Optimizer::PassToken CreateInsertExtractElimPass();
 // inserts created by that pass.
 Optimizer::PassToken CreateDeadInsertElimPass();
 
-// Creates a pass to consolidate uniform references.
-// For each entry point function in the module, first change all constant index
-// access chain loads into equivalent composite extracts. Then consolidate
-// identical uniform loads into one uniform load. Finally, consolidate
-// identical uniform extracts into one uniform extract. This may require
-// moving a load or extract to a point which dominates all uses.
-//
-// This pass requires a module to have structured control flow ie shader
-// capability. It also requires logical addressing ie Addresses capability
-// is not enabled. It also currently does not support any extensions.
-//
-// This pass currently only optimizes loads with a single index.
-Optimizer::PassToken CreateCommonUniformElimPass();
-
 // Create aggressive dead code elimination pass
 // This pass eliminates unused code from the module. In addition,
 // it detects and eliminates code which may have spurious uses but which do
@@ -688,6 +679,22 @@ Optimizer::PassToken CreateLoopUnrollPass(bool fully_unroll, int factor = 0);
 // processed (see IsSSATargetVar for details).
 Optimizer::PassToken CreateSSARewritePass();
 
+// Create pass to convert relaxed precision instructions to half precision.
+// This pass converts as many relaxed float32 arithmetic operations to half as
+// possible. It converts any float32 operands to half if needed. It converts
+// any resulting half precision values back to float32 as needed. No variables
+// are changed. No image operations are changed.
+//
+// Best if run late since it will generate better code with unneeded function
+// scope loads and stores and composite inserts and extracts removed. Also best
+// if followed by instruction simplification, redundancy elimination and DCE.
+Optimizer::PassToken CreateConvertRelaxedToHalfPass();
+
+// Create relax float ops pass.
+// This pass decorates all float32 result instructions with RelaxedPrecision
+// if not already so decorated.
+Optimizer::PassToken CreateRelaxFloatOpsPass();
+
 // Create copy propagate arrays pass.
 // This pass looks to copy propagate memory references for arrays.  It looks
 // for specific code patterns to recognize array copies.
@@ -738,9 +745,34 @@ Optimizer::PassToken CreateCombineAccessChainsPass();
 // |input_length_enable| controls instrumentation of runtime descriptor array
 // references, and |input_init_enable| controls instrumentation of descriptor
 // initialization checking, both of which require input buffer support.
+// |version| specifies the buffer record format.
 Optimizer::PassToken CreateInstBindlessCheckPass(
     uint32_t desc_set, uint32_t shader_id, bool input_length_enable = false,
-    bool input_init_enable = false);
+    bool input_init_enable = false, uint32_t version = 1);
+
+// Create a pass to instrument physical buffer address checking
+// This pass instruments all physical buffer address references to check that
+// all referenced bytes fall in a valid buffer. If the reference is
+// invalid, a record is written to the debug output buffer (if space allows)
+// and a null value is returned. This pass is designed to support buffer
+// address validation in the Vulkan validation layers.
+//
+// Dead code elimination should be run after this pass as the original,
+// potentially invalid code is not removed and could cause undefined behavior,
+// including crashes. Instruction simplification would likely also be
+// beneficial. It is also generally recommended that this pass (and all
+// instrumentation passes) be run after any legalization and optimization
+// passes. This will give better analysis for the instrumentation and avoid
+// potentially de-optimizing the instrument code, for example, inlining
+// the debug record output function throughout the module.
+//
+// The instrumentation will read and write buffers in debug
+// descriptor set |desc_set|. It will write |shader_id| in each output record
+// to identify the shader module which generated the record.
+// |version| specifies the output buffer record format.
+Optimizer::PassToken CreateInstBuffAddrCheckPass(uint32_t desc_set,
+                                                 uint32_t shader_id,
+                                                 uint32_t version = 2);
 
 // Create a pass to upgrade to the VulkanKHR memory model.
 // This pass upgrades the Logical GLSL450 memory model to Logical VulkanKHR.
@@ -775,6 +807,47 @@ Optimizer::PassToken CreateDecomposeInitializedVariablesPass();
 // Create a pass to attempt to split up invalid unreachable merge-blocks and
 // continue-targets to legalize for WebGPU.
 Optimizer::PassToken CreateSplitInvalidUnreachablePass();
+
+// Creates a graphics robust access pass.
+//
+// This pass injects code to clamp indexed accesses to buffers and internal
+// arrays, providing guarantees satisfying Vulkan's robustBufferAccess rules.
+//
+// TODO(dneto): Clamps coordinates and sample index for pointer calculations
+// into storage images (OpImageTexelPointer).  For an cube array image, it
+// assumes the maximum layer count times 6 is at most 0xffffffff.
+//
+// NOTE: This pass will fail with a message if:
+// - The module is not a Shader module.
+// - The module declares VariablePointers, VariablePointersStorageBuffer, or
+//   RuntimeDescriptorArrayEXT capabilities.
+// - The module uses an addressing model other than Logical
+// - Access chain indices are wider than 64 bits.
+// - Access chain index for a struct is not an OpConstant integer or is out
+//   of range. (The module is already invalid if that is the case.)
+// - TODO(dneto): The OpImageTexelPointer coordinate component is not 32-bits
+// wide.
+Optimizer::PassToken CreateGraphicsRobustAccessPass();
+
+// Create descriptor scalar replacement pass.
+// This pass replaces every array variable |desc| that has a DescriptorSet and
+// Binding decorations with a new variable for each element of the array.
+// Suppose |desc| was bound at binding |b|.  Then the variable corresponding to
+// |desc[i]| will have binding |b+i|.  The descriptor set will be the same.  It
+// is assumed that no other variable already has a binding that will used by one
+// of the new variables.  If not, the pass will generate invalid Spir-V.  All
+// accesses to |desc| must be OpAccessChain instructions with a literal index
+// for the first index.
+Optimizer::PassToken CreateDescriptorScalarReplacementPass();
+
+// Create a pass to replace all OpKill instruction with a function call to a
+// function that has a single OpKill.  This allows more code to be inlined.
+Optimizer::PassToken CreateWrapOpKillPass();
+
+// Replaces the extensions VK_AMD_shader_ballot,VK_AMD_gcn_shader, and
+// VK_AMD_shader_trinary_minmax with equivalent code using core instructions and
+// capabilities.
+Optimizer::PassToken CreateAmdExtToKhrPass();
 
 }  // namespace spvtools
 

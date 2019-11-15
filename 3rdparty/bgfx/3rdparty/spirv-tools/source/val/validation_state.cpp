@@ -212,14 +212,6 @@ ValidationState_t::ValidationState_t(const spv_const_context ctx,
     }
   }
 
-  switch (env) {
-    case SPV_ENV_WEBGPU_0:
-      features_.bans_op_undef = true;
-      break;
-    default:
-      break;
-  }
-
   // Only attempt to count if we have words, otherwise let the other validation
   // fail and generate an error.
   if (num_words > 0) {
@@ -689,6 +681,12 @@ uint32_t ValidationState_t::GetBitWidth(uint32_t id) const {
 
   assert(0);
   return 0;
+}
+
+bool ValidationState_t::IsVoidType(uint32_t id) const {
+  const Instruction* inst = FindDef(id);
+  assert(inst);
+  return inst->opcode() == SpvOpTypeVoid;
 }
 
 bool ValidationState_t::IsFloatScalarType(uint32_t id) const {
@@ -1205,6 +1203,117 @@ bool ValidationState_t::LogicallyMatch(const Instruction* lhs,
   // caught above and if they're elements are not arrays or structs they are
   // required to match exactly.
   return false;
+}
+
+const Instruction* ValidationState_t::TracePointer(
+    const Instruction* inst) const {
+  auto base_ptr = inst;
+  while (base_ptr->opcode() == SpvOpAccessChain ||
+         base_ptr->opcode() == SpvOpInBoundsAccessChain ||
+         base_ptr->opcode() == SpvOpPtrAccessChain ||
+         base_ptr->opcode() == SpvOpInBoundsPtrAccessChain ||
+         base_ptr->opcode() == SpvOpCopyObject) {
+    base_ptr = FindDef(base_ptr->GetOperandAs<uint32_t>(2u));
+  }
+  return base_ptr;
+}
+
+bool ValidationState_t::ContainsSizedIntOrFloatType(uint32_t id, SpvOp type,
+                                                    uint32_t width) const {
+  if (type != SpvOpTypeInt && type != SpvOpTypeFloat) return false;
+
+  const auto inst = FindDef(id);
+  if (!inst) return false;
+
+  if (inst->opcode() == type) {
+    return inst->GetOperandAs<uint32_t>(1u) == width;
+  }
+
+  switch (inst->opcode()) {
+    case SpvOpTypeArray:
+    case SpvOpTypeRuntimeArray:
+    case SpvOpTypeVector:
+    case SpvOpTypeMatrix:
+    case SpvOpTypeImage:
+    case SpvOpTypeSampledImage:
+    case SpvOpTypeCooperativeMatrixNV:
+      return ContainsSizedIntOrFloatType(inst->GetOperandAs<uint32_t>(1u), type,
+                                         width);
+    case SpvOpTypePointer:
+      if (IsForwardPointer(id)) return false;
+      return ContainsSizedIntOrFloatType(inst->GetOperandAs<uint32_t>(2u), type,
+                                         width);
+    case SpvOpTypeFunction:
+    case SpvOpTypeStruct: {
+      for (uint32_t i = 1; i < inst->operands().size(); ++i) {
+        if (ContainsSizedIntOrFloatType(inst->GetOperandAs<uint32_t>(i), type,
+                                        width))
+          return true;
+      }
+      return false;
+    }
+    default:
+      return false;
+  }
+}
+
+bool ValidationState_t::ContainsLimitedUseIntOrFloatType(uint32_t id) const {
+  if ((!HasCapability(SpvCapabilityInt16) &&
+       ContainsSizedIntOrFloatType(id, SpvOpTypeInt, 16)) ||
+      (!HasCapability(SpvCapabilityInt8) &&
+       ContainsSizedIntOrFloatType(id, SpvOpTypeInt, 8)) ||
+      (!HasCapability(SpvCapabilityFloat16) &&
+       ContainsSizedIntOrFloatType(id, SpvOpTypeFloat, 16))) {
+    return true;
+  }
+  return false;
+}
+
+bool ValidationState_t::IsValidStorageClass(
+    SpvStorageClass storage_class) const {
+  if (spvIsWebGPUEnv(context()->target_env)) {
+    switch (storage_class) {
+      case SpvStorageClassUniformConstant:
+      case SpvStorageClassUniform:
+      case SpvStorageClassStorageBuffer:
+      case SpvStorageClassInput:
+      case SpvStorageClassOutput:
+      case SpvStorageClassImage:
+      case SpvStorageClassWorkgroup:
+      case SpvStorageClassPrivate:
+      case SpvStorageClassFunction:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  if (spvIsVulkanEnv(context()->target_env)) {
+    switch (storage_class) {
+      case SpvStorageClassUniformConstant:
+      case SpvStorageClassUniform:
+      case SpvStorageClassStorageBuffer:
+      case SpvStorageClassInput:
+      case SpvStorageClassOutput:
+      case SpvStorageClassImage:
+      case SpvStorageClassWorkgroup:
+      case SpvStorageClassPrivate:
+      case SpvStorageClassFunction:
+      case SpvStorageClassPushConstant:
+      case SpvStorageClassPhysicalStorageBuffer:
+      case SpvStorageClassRayPayloadNV:
+      case SpvStorageClassIncomingRayPayloadNV:
+      case SpvStorageClassHitAttributeNV:
+      case SpvStorageClassCallableDataNV:
+      case SpvStorageClassIncomingCallableDataNV:
+      case SpvStorageClassShaderRecordBufferNV:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace val

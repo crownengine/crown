@@ -31,6 +31,10 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#ifdef HAVE_SPIRV_CROSS_GIT_VERSION
+#include "gitversion.h"
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(disable : 4996)
 #endif
@@ -242,7 +246,7 @@ static void print_resources(const Compiler &compiler, const char *tag, const Sma
 		                compiler.get_decoration_bitset(type.self).get(DecorationBufferBlock);
 		bool is_sized_block = is_block && (compiler.get_storage_class(res.id) == StorageClassUniform ||
 		                                   compiler.get_storage_class(res.id) == StorageClassUniformConstant);
-		uint32_t fallback_id = !is_push_constant && is_block ? res.base_type_id : res.id;
+		ID fallback_id = !is_push_constant && is_block ? ID(res.base_type_id) : ID(res.id);
 
 		uint32_t block_size = 0;
 		uint32_t runtime_array_stride = 0;
@@ -264,7 +268,7 @@ static void print_resources(const Compiler &compiler, const char *tag, const Sma
 		for (auto arr : type.array)
 			array = join("[", arr ? convert_to_string(arr) : "", "]") + array;
 
-		fprintf(stderr, " ID %03u : %s%s", res.id,
+		fprintf(stderr, " ID %03u : %s%s", uint32_t(res.id),
 		        !res.name.empty() ? res.name.c_str() : compiler.get_fallback_name(fallback_id).c_str(), array.c_str());
 
 		if (mask.get(DecorationLocation))
@@ -438,7 +442,7 @@ static void print_spec_constants(const Compiler &compiler)
 	fprintf(stderr, "Specialization constants\n");
 	fprintf(stderr, "==================\n\n");
 	for (auto &c : spec_constants)
-		fprintf(stderr, "ID: %u, Spec ID: %u\n", c.id, c.constant_id);
+		fprintf(stderr, "ID: %u, Spec ID: %u\n", uint32_t(c.id), c.constant_id);
 	fprintf(stderr, "==================\n\n");
 }
 
@@ -510,9 +514,19 @@ struct CLIArguments
 	bool msl_domain_lower_left = false;
 	bool msl_argument_buffers = false;
 	bool msl_texture_buffer_native = false;
+	bool msl_framebuffer_fetch = false;
+	bool msl_invariant_float_math = false;
+	bool msl_emulate_cube_array = false;
+	bool msl_multiview = false;
+	bool msl_view_index_from_device_index = false;
+	bool msl_dispatch_base = false;
 	bool glsl_emit_push_constant_as_ubo = false;
 	bool glsl_emit_ubo_as_plain_uniforms = false;
+	bool vulkan_glsl_disable_ext_samplerless_texture_functions = false;
+	bool emit_line_directives = false;
 	SmallVector<uint32_t> msl_discrete_descriptor_sets;
+	SmallVector<uint32_t> msl_device_argument_buffers;
+	SmallVector<pair<uint32_t, uint32_t>> msl_dynamic_buffers;
 	SmallVector<PLSArg> pls_in;
 	SmallVector<PLSArg> pls_out;
 	SmallVector<Remap> remaps;
@@ -545,8 +559,19 @@ struct CLIArguments
 	bool combined_samplers_inherit_bindings = false;
 };
 
+static void print_version()
+{
+#ifdef HAVE_SPIRV_CROSS_GIT_VERSION
+	fprintf(stderr, "%s\n", SPIRV_CROSS_GIT_REVISION);
+#else
+	fprintf(stderr, "Git revision unknown. Build with CMake to create timestamp and revision info.\n");
+#endif
+}
+
 static void print_help()
 {
+	print_version();
+
 	fprintf(stderr, "Usage: spirv-cross\n"
 	                "\t[--output <output path>]\n"
 	                "\t[SPIR-V file]\n"
@@ -555,6 +580,7 @@ static void print_help()
 	                "\t[--version <GLSL version>]\n"
 	                "\t[--dump-resources]\n"
 	                "\t[--help]\n"
+	                "\t[--revision]\n"
 	                "\t[--force-temporary]\n"
 	                "\t[--vulkan-semantics]\n"
 	                "\t[--flatten-ubo]\n"
@@ -565,6 +591,7 @@ static void print_help()
 	                "\t[--cpp-interface-name <name>]\n"
 	                "\t[--glsl-emit-push-constant-as-ubo]\n"
 	                "\t[--glsl-emit-ubo-as-plain-uniforms]\n"
+	                "\t[--vulkan-glsl-disable-ext-samplerless-texture-functions]\n"
 	                "\t[--msl]\n"
 	                "\t[--msl-version <MMmmpp>]\n"
 	                "\t[--msl-capture-output]\n"
@@ -574,7 +601,14 @@ static void print_help()
 	                "\t[--msl-domain-lower-left]\n"
 	                "\t[--msl-argument-buffers]\n"
 	                "\t[--msl-texture-buffer-native]\n"
+	                "\t[--msl-framebuffer-fetch]\n"
+	                "\t[--msl-emulate-cube-array]\n"
 	                "\t[--msl-discrete-descriptor-set <index>]\n"
+	                "\t[--msl-device-argument-buffer <index>]\n"
+	                "\t[--msl-multiview]\n"
+	                "\t[--msl-view-index-from-device-index]\n"
+	                "\t[--msl-dispatch-base]\n"
+	                "\t[--msl-dynamic-buffer <set index> <binding>]\n"
 	                "\t[--hlsl]\n"
 	                "\t[--reflect]\n"
 	                "\t[--shader-model]\n"
@@ -596,6 +630,7 @@ static void print_help()
 	                "\t[--rename-entry-point <old> <new> <stage>]\n"
 	                "\t[--combined-samplers-inherit-bindings]\n"
 	                "\t[--no-support-nonzero-baseinstance]\n"
+	                "\t[--emit-line-directives]\n"
 	                "\n");
 }
 
@@ -726,22 +761,35 @@ static string compile_iteration(const CLIArguments &args, std::vector<uint32_t> 
 			msl_opts.msl_version = args.msl_version;
 		msl_opts.capture_output_to_buffer = args.msl_capture_output_to_buffer;
 		msl_opts.swizzle_texture_samples = args.msl_swizzle_texture_samples;
+		msl_opts.invariant_float_math = args.msl_invariant_float_math;
 		if (args.msl_ios)
+		{
 			msl_opts.platform = CompilerMSL::Options::iOS;
+			msl_opts.ios_use_framebuffer_fetch_subpasses = args.msl_framebuffer_fetch;
+			msl_opts.emulate_cube_array = args.msl_emulate_cube_array;
+		}
 		msl_opts.pad_fragment_output_components = args.msl_pad_fragment_output;
 		msl_opts.tess_domain_origin_lower_left = args.msl_domain_lower_left;
 		msl_opts.argument_buffers = args.msl_argument_buffers;
 		msl_opts.texture_buffer_native = args.msl_texture_buffer_native;
+		msl_opts.multiview = args.msl_multiview;
+		msl_opts.view_index_from_device_index = args.msl_view_index_from_device_index;
+		msl_opts.dispatch_base = args.msl_dispatch_base;
 		msl_comp->set_msl_options(msl_opts);
 		for (auto &v : args.msl_discrete_descriptor_sets)
 			msl_comp->add_discrete_descriptor_set(v);
+		for (auto &v : args.msl_device_argument_buffers)
+			msl_comp->set_argument_buffer_device_address_space(v, true);
+		uint32_t i = 0;
+		for (auto &v : args.msl_dynamic_buffers)
+			msl_comp->add_dynamic_buffer(v.first, v.second, i++);
 	}
 	else if (args.hlsl)
 		compiler.reset(new CompilerHLSL(move(spirv_parser.get_parsed_ir())));
 	else
 	{
 		combined_image_samplers = !args.vulkan_semantics;
-		if (!args.vulkan_semantics)
+		if (!args.vulkan_semantics || args.vulkan_glsl_disable_ext_samplerless_texture_functions)
 			build_dummy_sampler = true;
 		compiler.reset(new CompilerGLSL(move(spirv_parser.get_parsed_ir())));
 	}
@@ -857,6 +905,7 @@ static string compile_iteration(const CLIArguments &args, std::vector<uint32_t> 
 	opts.vertex.support_nonzero_base_instance = args.support_nonzero_baseinstance;
 	opts.emit_push_constant_as_uniform_buffer = args.glsl_emit_push_constant_as_ubo;
 	opts.emit_uniform_buffer_as_plain_uniforms = args.glsl_emit_ubo_as_plain_uniforms;
+	opts.emit_line_directives = args.emit_line_directives;
 	compiler->set_common_options(opts);
 
 	// Set HLSL specific options.
@@ -1004,6 +1053,10 @@ static int main_inner(int argc, char *argv[])
 		print_help();
 		parser.end();
 	});
+	cbs.add("--revision", [](CLIParser &parser) {
+		print_version();
+		parser.end();
+	});
 	cbs.add("--output", [&args](CLIParser &parser) { args.output = parser.next_string(); });
 	cbs.add("--es", [&args](CLIParser &) {
 		args.es = true;
@@ -1029,6 +1082,8 @@ static int main_inner(int argc, char *argv[])
 	cbs.add("--metal", [&args](CLIParser &) { args.msl = true; }); // Legacy compatibility
 	cbs.add("--glsl-emit-push-constant-as-ubo", [&args](CLIParser &) { args.glsl_emit_push_constant_as_ubo = true; });
 	cbs.add("--glsl-emit-ubo-as-plain-uniforms", [&args](CLIParser &) { args.glsl_emit_ubo_as_plain_uniforms = true; });
+	cbs.add("--vulkan-glsl-disable-ext-samplerless-texture-functions",
+	        [&args](CLIParser &) { args.vulkan_glsl_disable_ext_samplerless_texture_functions = true; });
 	cbs.add("--msl", [&args](CLIParser &) { args.msl = true; });
 	cbs.add("--hlsl", [&args](CLIParser &) { args.hlsl = true; });
 	cbs.add("--hlsl-enable-compat", [&args](CLIParser &) { args.hlsl_compat = true; });
@@ -1045,7 +1100,23 @@ static int main_inner(int argc, char *argv[])
 	cbs.add("--msl-argument-buffers", [&args](CLIParser &) { args.msl_argument_buffers = true; });
 	cbs.add("--msl-discrete-descriptor-set",
 	        [&args](CLIParser &parser) { args.msl_discrete_descriptor_sets.push_back(parser.next_uint()); });
+	cbs.add("--msl-device-argument-buffer",
+	        [&args](CLIParser &parser) { args.msl_device_argument_buffers.push_back(parser.next_uint()); });
 	cbs.add("--msl-texture-buffer-native", [&args](CLIParser &) { args.msl_texture_buffer_native = true; });
+	cbs.add("--msl-framebuffer-fetch", [&args](CLIParser &) { args.msl_framebuffer_fetch = true; });
+	cbs.add("--msl-invariant-float-math", [&args](CLIParser &) { args.msl_invariant_float_math = true; });
+	cbs.add("--msl-emulate-cube-array", [&args](CLIParser &) { args.msl_emulate_cube_array = true; });
+	cbs.add("--msl-multiview", [&args](CLIParser &) { args.msl_multiview = true; });
+	cbs.add("--msl-view-index-from-device-index",
+	        [&args](CLIParser &) { args.msl_view_index_from_device_index = true; });
+	cbs.add("--msl-dispatch-base", [&args](CLIParser &) { args.msl_dispatch_base = true; });
+	cbs.add("--msl-dynamic-buffer", [&args](CLIParser &parser) {
+		args.msl_argument_buffers = true;
+		// Make sure next_uint() is called in-order.
+		uint32_t desc_set = parser.next_uint();
+		uint32_t binding = parser.next_uint();
+		args.msl_dynamic_buffers.push_back(make_pair(desc_set, binding));
+	});
 	cbs.add("--extension", [&args](CLIParser &parser) { args.extensions.push_back(parser.next_string()); });
 	cbs.add("--rename-entry-point", [&args](CLIParser &parser) {
 		auto old_name = parser.next_string();
@@ -1113,6 +1184,7 @@ static int main_inner(int argc, char *argv[])
 	        [&args](CLIParser &) { args.combined_samplers_inherit_bindings = true; });
 
 	cbs.add("--no-support-nonzero-baseinstance", [&](CLIParser &) { args.support_nonzero_baseinstance = false; });
+	cbs.add("--emit-line-directives", [&args](CLIParser &) { args.emit_line_directives = true; });
 
 	cbs.default_handler = [&args](const char *value) { args.input = value; };
 	cbs.error_handler = [] { print_help(); };

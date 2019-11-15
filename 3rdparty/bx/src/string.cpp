@@ -375,7 +375,7 @@ namespace bx
 
 	inline const char* strRFindUnsafe(const char* _str, int32_t _len, char _ch)
 	{
-		for (int32_t ii = _len; 0 <= ii; --ii)
+		for (int32_t ii = _len-1; 0 <= ii; --ii)
 		{
 			if (_str[ii] == _ch)
 			{

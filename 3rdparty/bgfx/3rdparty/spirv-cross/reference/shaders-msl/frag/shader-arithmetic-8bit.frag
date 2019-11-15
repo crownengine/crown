@@ -34,9 +34,10 @@ struct main0_in
     int4 vColor [[user(locn0)]];
 };
 
+static inline __attribute__((always_inline))
 void packing_int8(device SSBO& ssbo)
 {
-    short i16 = 10;
+    short i16 = short(10);
     int i32 = 20;
     char2 i8_2 = as_type<char2>(i16);
     char4 i8_4 = as_type<char4>(i32);
@@ -48,9 +49,10 @@ void packing_int8(device SSBO& ssbo)
     ssbo.i8[3] = i8_4.w;
 }
 
+static inline __attribute__((always_inline))
 void packing_uint8(device SSBO& ssbo)
 {
-    ushort u16 = 10u;
+    ushort u16 = ushort(10);
     uint u32 = 20u;
     uchar2 u8_2 = as_type<uchar2>(u16);
     uchar4 u8_4 = as_type<uchar4>(u32);
@@ -62,6 +64,7 @@ void packing_uint8(device SSBO& ssbo)
     ssbo.u8[3] = u8_4.w;
 }
 
+static inline __attribute__((always_inline))
 void compute_int8(device SSBO& ssbo, thread int4& vColor, constant Push& registers, constant UBO& ubo, thread int4& FragColorInt)
 {
     char4 tmp = char4(vColor);
@@ -74,6 +77,7 @@ void compute_int8(device SSBO& ssbo, thread int4& vColor, constant Push& registe
     FragColorInt = int4(tmp);
 }
 
+static inline __attribute__((always_inline))
 void compute_uint8(device SSBO& ssbo, thread int4& vColor, constant Push& registers, constant UBO& ubo, thread uint4& FragColorUint)
 {
     uchar4 tmp = uchar4(char4(vColor));
@@ -86,7 +90,7 @@ void compute_uint8(device SSBO& ssbo, thread int4& vColor, constant Push& regist
     FragColorUint = uint4(tmp);
 }
 
-fragment main0_out main0(main0_in in [[stage_in]], constant Push& registers [[buffer(0)]], constant UBO& ubo [[buffer(1)]], device SSBO& ssbo [[buffer(2)]])
+fragment main0_out main0(main0_in in [[stage_in]], device SSBO& ssbo [[buffer(0)]], constant Push& registers [[buffer(1)]], constant UBO& ubo [[buffer(2)]])
 {
     main0_out out = {};
     packing_int8(ssbo);

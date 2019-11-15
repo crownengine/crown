@@ -188,6 +188,7 @@ TEST_CASE("strRFind", "")
 	REQUIRE(bx::strRFind(bx::StringView(test, 0), 's').isEmpty() );
 	REQUIRE(bx::strRFind(bx::StringView(test, 1), 's').isEmpty() );
 	REQUIRE(&test[2] == bx::strRFind(test, 's').getPtr() );
+	REQUIRE(&test[3] == bx::strRFind(test, 't').getPtr() );
 }
 
 TEST_CASE("strFindI", "")

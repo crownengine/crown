@@ -25,7 +25,7 @@ struct InstanceData_1
 
 struct gInstanceData
 {
-    InstanceData _data[1];
+    InstanceData_1 _data[1];
 };
 
 struct main0_out
@@ -39,9 +39,10 @@ struct main0_in
     float3 PosL [[attribute(0)]];
 };
 
+static inline __attribute__((always_inline))
 V2F _VS(thread const float3& PosL, thread const uint& instanceID, const device gInstanceData& gInstanceData_1)
 {
-    InstanceData_1 instData;
+    InstanceData instData;
     instData.MATRIX_MVP = transpose(gInstanceData_1._data[instanceID].MATRIX_MVP);
     instData.Color = gInstanceData_1._data[instanceID].Color;
     V2F v2f;

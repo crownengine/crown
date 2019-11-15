@@ -412,14 +412,14 @@ void RenderWorld::render(const Matrix4x4& view)
 	// Render sprites
 	if (sid.first_hidden)
 	{
-		bgfx::VertexDecl decl;
-		decl.begin()
+		bgfx::VertexLayout layout;
+		layout.begin()
 			.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
 			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false)
 			.end()
 			;
 		bgfx::TransientVertexBuffer tvb;
-		bgfx::allocTransientVertexBuffer(&tvb, 4*sid.first_hidden, decl);
+		bgfx::allocTransientVertexBuffer(&tvb, 4*sid.first_hidden, layout);
 		bgfx::TransientIndexBuffer tib;
 		bgfx::allocTransientIndexBuffer(&tib, 6*sid.first_hidden);
 

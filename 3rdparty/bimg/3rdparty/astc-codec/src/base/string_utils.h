@@ -17,6 +17,7 @@
 
 #include <limits>
 #include <string>
+#include <stdlib.h>
 
 namespace astc_codec {
 namespace base {

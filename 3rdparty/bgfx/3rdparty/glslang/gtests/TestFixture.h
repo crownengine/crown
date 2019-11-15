@@ -113,7 +113,7 @@ public:
           forceVersionProfile(false),
           isForwardCompatible(false) {
         // Perform validation by default.
-        validatorOptions.validate = true;
+        spirvOptions.validate = true;
     }
 
     // Tries to load the contents from the file at the given |path|. On success,
@@ -212,6 +212,7 @@ public:
             const std::string& shaderName, const std::string& code,
             const std::string& entryPointName, EShMessages controls,
             glslang::EShTargetClientVersion clientTargetVersion,
+            glslang::EShTargetLanguageVersion targetLanguageVersion,
             bool flattenUniformArrays = false,
             EShTextureSamplerTransformMode texSampTransMode = EShTexSampTransKeep,
             bool enableOptimizer = false,
@@ -226,7 +227,9 @@ public:
             shader.setAutoMapBindings(true);
         }
         shader.setTextureSamplerTransformMode(texSampTransMode);
+#ifdef ENABLE_HLSL
         shader.setFlattenUniformArrays(flattenUniformArrays);
+#endif
 
         if (controls & EShMsgSpvRules) {
             if (controls & EShMsgVulkanRules) {
@@ -234,9 +237,7 @@ public:
                                                                : glslang::EShSourceGlsl,
                                     stage, glslang::EShClientVulkan, 100);
                 shader.setEnvClient(glslang::EShClientVulkan, clientTargetVersion);
-                shader.setEnvTarget(glslang::EShTargetSpv,
-                        clientTargetVersion == glslang::EShTargetVulkan_1_1 ? glslang::EShTargetSpv_1_3
-                                                                            : glslang::EShTargetSpv_1_0);
+                shader.setEnvTarget(glslang::EShTargetSpv, targetLanguageVersion);
             } else {
                 shader.setEnvInput((controls & EShMsgReadHlsl) ? glslang::EShSourceHlsl
                                                                : glslang::EShSourceGlsl,
@@ -301,7 +302,9 @@ public:
         shader.setShiftSsboBinding(baseSsboBinding);
         shader.setAutoMapBindings(autoMapBindings);
         shader.setAutoMapLocations(true);
+#ifdef ENABLE_HLSL
         shader.setFlattenUniformArrays(flattenUniformArrays);
+#endif
 
         bool success = compile(&shader, code, entryPointName, controls);
 
@@ -309,7 +312,9 @@ public:
         program.addShader(&shader);
         
         success &= program.link(controls);
+#ifndef GLSLANG_WEB
         success &= program.mapIO();
+#endif
 
         spv::SpvBuildLogger logger;
 
@@ -429,6 +434,7 @@ public:
                                  Source source,
                                  Semantics semantics,
                                  glslang::EShTargetClientVersion clientTargetVersion,
+                                 glslang::EShTargetLanguageVersion targetLanguageVersion,
                                  Target target,
                                  bool automap = true,
                                  const std::string& entryPointName="",
@@ -449,8 +455,8 @@ public:
             controls = static_cast<EShMessages>(controls & ~EShMsgHlslLegalization);
         if (enableDebug)
             controls = static_cast<EShMessages>(controls | EShMsgDebugInfo);
-        GlslangResult result = compileAndLink(testName, input, entryPointName, controls, clientTargetVersion, false,
-                                              EShTexSampTransKeep, enableOptimizer, enableDebug, automap);
+        GlslangResult result = compileAndLink(testName, input, entryPointName, controls, clientTargetVersion,
+            targetLanguageVersion, false, EShTexSampTransKeep, enableOptimizer, enableDebug, automap);
 
         // Generate the hybrid output in the way of glslangValidator.
         std::ostringstream stream;
@@ -460,11 +466,12 @@ public:
                                     expectedOutputFname, result.spirvWarningsErrors);
     }
 
-	void loadFileCompileAndCheckWithOptions(const std::string &testDir, 
-											const std::string &testName, 
-											Source source,
-											Semantics semantics, 
-											glslang::EShTargetClientVersion clientTargetVersion,
+    void loadFileCompileAndCheckWithOptions(const std::string &testDir,
+                                            const std::string &testName,
+                                            Source source,
+                                            Semantics semantics,
+                                            glslang::EShTargetClientVersion clientTargetVersion,
+                                            glslang::EShTargetLanguageVersion targetLanguageVersion,
                                             Target target, bool automap = true, const std::string &entryPointName = "",
                                             const std::string &baseDir = "/baseResults/",
                                             const EShMessages additionalOptions = EShMessages::EShMsgDefault)
@@ -478,15 +485,15 @@ public:
 
         EShMessages controls = DeriveOptions(source, semantics, target);
         controls = static_cast<EShMessages>(controls | additionalOptions);
-        GlslangResult result = compileAndLink(testName, input, entryPointName, controls, clientTargetVersion, false,
-                                              EShTexSampTransKeep, false, automap);
+        GlslangResult result = compileAndLink(testName, input, entryPointName, controls, clientTargetVersion,
+            targetLanguageVersion, false, EShTexSampTransKeep, false, automap);
 
         // Generate the hybrid output in the way of glslangValidator.
         std::ostringstream stream;
         outputResultToStream(&stream, result, controls);
 
         checkEqAndUpdateIfRequested(expectedOutput, stream.str(), expectedOutputFname);
-	}
+    }
 
     void loadFileCompileFlattenUniformsAndCheck(const std::string& testDir,
                                                 const std::string& testName,
@@ -505,7 +512,7 @@ public:
 
         const EShMessages controls = DeriveOptions(source, semantics, target);
         GlslangResult result = compileAndLink(testName, input, entryPointName, controls,
-                                              glslang::EShTargetVulkan_1_0, true);
+                                              glslang::EShTargetVulkan_1_0, glslang::EShTargetSpv_1_0, true);
 
         // Generate the hybrid output in the way of glslangValidator.
         std::ostringstream stream;
@@ -675,7 +682,7 @@ public:
 
         const EShMessages controls = DeriveOptions(source, semantics, target);
         GlslangResult result = compileAndLink(testName, input, entryPointName, controls,
-                                              glslang::EShTargetVulkan_1_0, false,
+                                              glslang::EShTargetVulkan_1_0, glslang::EShTargetSpv_1_0, false,
                                               EShTexSampTransUpgradeTextureRemoveSampler);
 
         // Generate the hybrid output in the way of glslangValidator.
@@ -686,14 +693,14 @@ public:
                                     expectedOutputFname, result.spirvWarningsErrors);
     }
 
-    glslang::SpvOptions& options() { return validatorOptions; }
+    glslang::SpvOptions& options() { return spirvOptions; }
 
 private:
     const int defaultVersion;
     const EProfile defaultProfile;
     const bool forceVersionProfile;
     const bool isForwardCompatible;
-    glslang::SpvOptions validatorOptions;
+    glslang::SpvOptions spirvOptions;
 };
 
 }  // namespace glslangtest

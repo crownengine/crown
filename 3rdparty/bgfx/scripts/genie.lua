@@ -66,6 +66,15 @@ newaction {
 		generate("temp.bgfx.idl.inl", "../src/bgfx.idl.inl",        "\t")
 		generate("temp.defines.h",    "../include/bgfx/defines.h",  "\t")
 
+		do
+			local csgen = require "bindings-cs"
+			csgen.write(csgen.gen(), "../bindings/cs/bgfx.cs")
+			
+			local dgen = require "bindings-d"
+			dgen.write(dgen.gen_types(), "../bindings/d/types.d")
+			dgen.write(dgen.gen_funcs(), "../bindings/d/funcs.d")
+		end
+
 		os.exit()
 	end
 }
@@ -165,8 +174,8 @@ function exampleProjectDefaults()
 	}
 
 	links {
-		"example-common",
 		"example-glue",
+		"example-common",
 		"bgfx",
 		"bimg_decode",
 		"bimg",
@@ -489,6 +498,7 @@ or _OPTIONS["with-combined-examples"] then
 		, "38-bloom"
 		, "39-assao"
 		, "40-svt"
+		, "41-tess"
 		)
 
 	-- C99 source doesn't compile under WinRT settings
@@ -508,4 +518,5 @@ if _OPTIONS["with-tools"] then
 	dofile "texturec.lua"
 	dofile "texturev.lua"
 	dofile "geometryc.lua"
+	dofile "geometryv.lua"
 end

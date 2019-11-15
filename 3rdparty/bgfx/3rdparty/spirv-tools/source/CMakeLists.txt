@@ -196,9 +196,9 @@ set_source_files_properties(
   ${CMAKE_CURRENT_SOURCE_DIR}/pch_source.cpp
   PROPERTIES OBJECT_DEPENDS "${PCH_DEPENDS}")
 
-add_subdirectory(comp)
 add_subdirectory(opt)
 add_subdirectory(reduce)
+add_subdirectory(fuzz)
 add_subdirectory(link)
 
 set(SPIRV_SOURCES
@@ -221,7 +221,6 @@ set(SPIRV_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/enum_string_mapping.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ext_inst.h
   ${CMAKE_CURRENT_SOURCE_DIR}/extensions.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/id_descriptor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/instruction.h
   ${CMAKE_CURRENT_SOURCE_DIR}/latest_version_glsl_std_450_header.h
   ${CMAKE_CURRENT_SOURCE_DIR}/latest_version_opencl_std_header.h
@@ -235,6 +234,7 @@ set(SPIRV_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_constant.h
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_definition.h
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_endian.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv_fuzzer_options.h
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_optimizer_options.h
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_reducer_options.h
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_target_env.h
@@ -254,7 +254,6 @@ set(SPIRV_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/enum_string_mapping.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ext_inst.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/extensions.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/id_descriptor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/libspirv.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/name_mapper.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/opcode.cpp
@@ -263,6 +262,7 @@ set(SPIRV_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/print.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/software_version.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_endian.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv_fuzzer_options.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_optimizer_options.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_reducer_options.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_target_env.cpp
@@ -283,7 +283,6 @@ set(SPIRV_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_composites.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_constants.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_conversion.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_datarules.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_decorations.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_derivatives.cpp
@@ -299,10 +298,12 @@ set(SPIRV_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_logicals.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_memory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_memory_semantics.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_misc.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_mode_setting.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_non_uniform.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_primitives.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_scopes.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_small_type_uses.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/validate_type.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/val/decoration.h
   ${CMAKE_CURRENT_SOURCE_DIR}/val/basic_block.cpp
@@ -337,7 +338,9 @@ spvtools_pch(SPIRV_SOURCES pch_source)
 add_library(${SPIRV_TOOLS} ${SPIRV_SOURCES})
 spvtools_default_compile_options(${SPIRV_TOOLS})
 target_include_directories(${SPIRV_TOOLS}
-  PUBLIC ${spirv-tools_SOURCE_DIR}/include
+  PUBLIC
+    $<BUILD_INTERFACE:${spirv-tools_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE ${spirv-tools_BINARY_DIR}
   PRIVATE ${SPIRV_HEADER_INCLUDE_DIR}
   )
@@ -348,7 +351,9 @@ add_dependencies( ${SPIRV_TOOLS} core_tables enum_string_mapping extinst_tables 
 add_library(${SPIRV_TOOLS}-shared SHARED ${SPIRV_SOURCES})
 spvtools_default_compile_options(${SPIRV_TOOLS}-shared)
 target_include_directories(${SPIRV_TOOLS}-shared
-  PUBLIC ${spirv-tools_SOURCE_DIR}/include
+  PUBLIC
+    $<BUILD_INTERFACE:${spirv-tools_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE ${spirv-tools_BINARY_DIR}
   PRIVATE ${SPIRV_HEADER_INCLUDE_DIR}
   )
@@ -370,10 +375,21 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 endif()
 
 if(ENABLE_SPIRV_TOOLS_INSTALL)
-  install(TARGETS ${SPIRV_TOOLS} ${SPIRV_TOOLS}-shared
+  install(TARGETS ${SPIRV_TOOLS} ${SPIRV_TOOLS}-shared EXPORT ${SPIRV_TOOLS}Targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  export(EXPORT ${SPIRV_TOOLS}Targets FILE ${SPIRV_TOOLS}Target.cmake)
+
+  spvtools_config_package_dir(${SPIRV_TOOLS} PACKAGE_DIR)
+  install(EXPORT ${SPIRV_TOOLS}Targets FILE ${SPIRV_TOOLS}Target.cmake DESTINATION ${PACKAGE_DIR})
+
+  # Special config file for root library compared to other libs.
+  file(WRITE ${CMAKE_BINARY_DIR}/${SPIRV_TOOLS}Config.cmake
+    "include(\${CMAKE_CURRENT_LIST_DIR}/${SPIRV_TOOLS}Target.cmake)\n"
+    "set(${SPIRV_TOOLS}_LIBRARIES ${SPIRV_TOOLS})\n"
+    "get_target_property(${SPIRV_TOOLS}_INCLUDE_DIRS ${SPIRV_TOOLS} INTERFACE_INCLUDE_DIRECTORIES)\n")
+  install(FILES ${CMAKE_BINARY_DIR}/${SPIRV_TOOLS}Config.cmake DESTINATION ${PACKAGE_DIR})
 endif(ENABLE_SPIRV_TOOLS_INSTALL)
 
 if(MSVC)

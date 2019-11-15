@@ -32,7 +32,7 @@ struct IndexData
 
 struct MeshGeometry
 {
-	bgfx::VertexDecl decl;
+	bgfx::VertexLayout layout;
 	bgfx::VertexBufferHandle vertex_buffer;
 	bgfx::IndexBufferHandle index_buffer;
 	OBB obb;

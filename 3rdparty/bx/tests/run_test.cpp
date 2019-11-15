@@ -15,6 +15,7 @@ int runAllTests(int _argc, const char* _argv[])
 		", CRT: " BX_CRT_NAME
 		", Date: " __DATE__
 		", Time: " __TIME__
+		", C++: " BX_CPP_NAME
 		);
 	return Catch::Session().run(_argc, _argv);
 }

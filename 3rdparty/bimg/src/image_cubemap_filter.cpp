@@ -363,7 +363,7 @@ namespace bimg
 			ImageMip dstMip;
 			imageGetRawData(*output, side, 0, output->m_data, output->m_size, dstMip);
 
-			bx::memCopy(const_cast<uint8_t*>(dstMip.m_data), srcData, dstPitch, dstWidth, srcPitch, dstPitch);
+			bx::memCopy(const_cast<uint8_t*>(dstMip.m_data), dstPitch, srcData, srcPitch, dstPitch, dstWidth);
 		}
 
 		return output;

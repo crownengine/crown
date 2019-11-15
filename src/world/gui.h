@@ -23,7 +23,7 @@ struct GuiBuffer
 	ShaderManager* _shader_manager;
 	u32 _num_vertices;
 	u32 _num_indices;
-	bgfx::VertexDecl _pos_tex_col;
+	bgfx::VertexLayout _pos_tex_col;
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
 

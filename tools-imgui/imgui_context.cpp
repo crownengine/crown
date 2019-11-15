@@ -25,9 +25,9 @@
 #include "world/shader_manager.h"
 
 // From bgfx_utils.h
-inline bool checkAvailTransientBuffers(uint32_t _numVertices, const bgfx::VertexDecl& _decl, uint32_t _numIndices)
+inline bool checkAvailTransientBuffers(uint32_t _numVertices, const bgfx::VertexLayout& _layout, uint32_t _numIndices)
 {
-	return _numVertices == bgfx::getAvailTransientVertexBuffer(_numVertices, _decl)
+	return _numVertices == bgfx::getAvailTransientVertexBuffer(_numVertices, _layout)
 		&& _numIndices  == bgfx::getAvailTransientIndexBuffer(_numIndices)
 		;
 }
@@ -78,13 +78,13 @@ struct ImGuiContext
 			uint32_t numVertices = (uint32_t)drawList->VtxBuffer.size();
 			uint32_t numIndices  = (uint32_t)drawList->IdxBuffer.size();
 
-			if (!checkAvailTransientBuffers(numVertices, m_decl, numIndices) )
+			if (!checkAvailTransientBuffers(numVertices, m_layout, numIndices) )
 			{
 				// not enough space in transient buffer just quit drawing the rest...
 				break;
 			}
 
-			bgfx::allocTransientVertexBuffer(&tvb, numVertices, m_decl);
+			bgfx::allocTransientVertexBuffer(&tvb, numVertices, m_layout);
 			bgfx::allocTransientIndexBuffer(&tib, numIndices);
 
 			ImDrawVert* verts = (ImDrawVert*)tvb.data;
@@ -202,7 +202,7 @@ struct ImGuiContext
 
 		u_imageLodEnabled = bgfx::createUniform("u_imageLodEnabled", bgfx::UniformType::Vec4);
 
-		m_decl
+		m_layout
 			.begin()
 			.add(bgfx::Attrib::Position,  2, bgfx::AttribType::Float)
 			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
@@ -340,7 +340,7 @@ struct ImGuiContext
 
 	ImGuiContext*       m_imgui;
 	bx::AllocatorI*     m_allocator;
-	bgfx::VertexDecl    m_decl;
+	bgfx::VertexLayout  m_layout;
 	bgfx::TextureHandle m_texture;
 	bgfx::UniformHandle s_tex;
 	bgfx::UniformHandle u_imageLodEnabled;

@@ -5,12 +5,12 @@
 
 #include "test.h"
 
-static const char* s_argv[] = { "bx.test" };
-
 int runAllTests(int _argc, const char* _argv[]);
 
 #if BX_PLATFORM_ANDROID
 #	include <android/native_activity.h>
+
+static const char* s_argv[] = { "bx.test" };
 
 void ANativeActivity_onCreate(ANativeActivity*, void*, size_t)
 {

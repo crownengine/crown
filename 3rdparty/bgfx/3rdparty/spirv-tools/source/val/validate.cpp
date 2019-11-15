@@ -272,6 +272,7 @@ spv_result_t ValidateBinaryUsingContextAndValidationState(
     return error;
   }
 
+  std::vector<Instruction*> visited_entry_points;
   for (auto& instruction : vstate->ordered_instructions()) {
     {
       // In order to do this work outside of Process Instruction we need to be
@@ -293,6 +294,24 @@ spv_result_t ValidateBinaryUsingContextAndValidationState(
 
         vstate->RegisterEntryPoint(entry_point, execution_model,
                                    std::move(desc));
+
+        if (visited_entry_points.size() > 0) {
+          for (const Instruction* check_inst : visited_entry_points) {
+            const auto check_execution_model =
+                check_inst->GetOperandAs<SpvExecutionModel>(0);
+            const char* check_str = reinterpret_cast<const char*>(
+                check_inst->words().data() + inst->operand(2).offset);
+            const std::string check_name(check_str);
+
+            if (desc.name == check_name &&
+                execution_model == check_execution_model) {
+              return vstate->diag(SPV_ERROR_INVALID_DATA, inst)
+                     << "2 Entry points cannot share the same name and "
+                        "ExecutionMode.";
+            }
+          }
+        }
+        visited_entry_points.push_back(inst);
       }
       if (inst->opcode() == SpvOpFunctionCall) {
         if (!vstate->in_function_body()) {
@@ -324,7 +343,6 @@ spv_result_t ValidateBinaryUsingContextAndValidationState(
     }
 
     if (auto error = CapabilityPass(*vstate, &instruction)) return error;
-    if (auto error = DataRulesPass(*vstate, &instruction)) return error;
     if (auto error = ModuleLayoutPass(*vstate, &instruction)) return error;
     if (auto error = CfgPass(*vstate, &instruction)) return error;
     if (auto error = InstructionPass(*vstate, &instruction)) return error;
@@ -333,6 +351,9 @@ spv_result_t ValidateBinaryUsingContextAndValidationState(
     {
       Instruction* inst = const_cast<Instruction*>(&instruction);
       vstate->RegisterInstruction(inst);
+      if (inst->opcode() == SpvOpTypeForwardPointer) {
+        vstate->RegisterForwardPointer(inst->GetOperandAs<uint32_t>(0));
+      }
     }
   }
 
@@ -366,7 +387,7 @@ spv_result_t ValidateBinaryUsingContextAndValidationState(
 
     // Keep these passes in the order they appear in the SPIR-V specification
     // sections to maintain test consistency.
-    // Miscellaneous
+    if (auto error = MiscPass(*vstate, &instruction)) return error;
     if (auto error = DebugPass(*vstate, &instruction)) return error;
     if (auto error = AnnotationPass(*vstate, &instruction)) return error;
     if (auto error = ExtensionPass(*vstate, &instruction)) return error;
@@ -412,6 +433,7 @@ spv_result_t ValidateBinaryUsingContextAndValidationState(
   // those checks register the limitation checked here.
   for (const auto inst : vstate->ordered_instructions()) {
     if (auto error = ValidateExecutionLimitations(*vstate, &inst)) return error;
+    if (auto error = ValidateSmallTypeUses(*vstate, &inst)) return error;
   }
 
   return SPV_SUCCESS;

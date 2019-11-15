@@ -48,7 +48,7 @@ namespace mesh_resource_internal
 		AABB _aabb;
 		OBB _obb;
 
-		bgfx::VertexDecl _decl;
+		bgfx::VertexLayout _layout;
 
 		bool _has_normal;
 		bool _has_uv;
@@ -94,7 +94,7 @@ namespace mesh_resource_internal
 
 			aabb::reset(_aabb);
 			memset(&_obb, 0, sizeof(_obb));
-			memset((void*)&_decl, 0, sizeof(_decl));
+			memset((void*)&_layout, 0, sizeof(_layout));
 
 			_has_normal = false;
 			_has_uv = false;
@@ -213,20 +213,20 @@ namespace mesh_resource_internal
 				}
 			}
 
-			// Vertex decl
-			_decl.begin();
-			_decl.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
+			// Vertex layout
+			_layout.begin();
+			_layout.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float);
 
 			if (_has_normal)
 			{
-				_decl.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true);
+				_layout.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true);
 			}
 			if (_has_uv)
 			{
-				_decl.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
+				_layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
 			}
 
-			_decl.end();
+			_layout.end();
 
 			// Bounds
 			aabb::from_points(_aabb
@@ -241,7 +241,7 @@ namespace mesh_resource_internal
 
 		void write()
 		{
-			_opts.write(_decl);
+			_opts.write(_layout);
 			_opts.write(_obb);
 
 			_opts.write(array::size(_vertex_buffer) / _vertex_stride);
@@ -312,8 +312,8 @@ namespace mesh_resource_internal
 			StringId32 name;
 			br.read(name);
 
-			bgfx::VertexDecl decl;
-			br.read(decl);
+			bgfx::VertexLayout layout;
+			br.read(layout);
 
 			OBB obb;
 			br.read(obb);
@@ -334,7 +334,7 @@ namespace mesh_resource_internal
 
 			MeshGeometry* mg = (MeshGeometry*)a.allocate(size);
 			mg->obb             = obb;
-			mg->decl            = decl;
+			mg->layout          = layout;
 			mg->vertex_buffer   = BGFX_INVALID_HANDLE;
 			mg->index_buffer    = BGFX_INVALID_HANDLE;
 			mg->vertices.num    = num_verts;
@@ -367,7 +367,7 @@ namespace mesh_resource_internal
 			const bgfx::Memory* vmem = bgfx::makeRef(mg.vertices.data, vsize);
 			const bgfx::Memory* imem = bgfx::makeRef(mg.indices.data, isize);
 
-			bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(vmem, mg.decl);
+			bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(vmem, mg.layout);
 			bgfx::IndexBufferHandle ibh  = bgfx::createIndexBuffer(imem);
 			CE_ASSERT(bgfx::isValid(vbh), "Invalid vertex buffer");
 			CE_ASSERT(bgfx::isValid(ibh), "Invalid index buffer");
