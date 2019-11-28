@@ -852,7 +852,6 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		rtd = hash_map::get(_compilers, type_str, rtd);
 		{
 			Buffer output(default_allocator());
-			array::reserve(output, 4*1024*1024);
 
 			CompileOptions opts(*this, data_fs, id, src_path, output, platform);
 			success = rtd.compiler(opts) == 0;
