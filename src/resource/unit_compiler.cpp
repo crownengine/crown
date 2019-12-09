@@ -259,17 +259,18 @@ UnitCompiler::UnitCompiler(CompileOptions& opts)
 	, _num_units(0)
 	, _component_data(default_allocator())
 	, _component_info(default_allocator())
+	, _unit_names(default_allocator())
 {
-	register_component_compiler("transform",               &compile_transform,                             0.0f);
-	register_component_compiler("camera",                  &compile_camera,                                1.0f);
-	register_component_compiler("mesh_renderer",           &compile_mesh_renderer,                         1.0f);
-	register_component_compiler("sprite_renderer",         &compile_sprite_renderer,                       1.0f);
-	register_component_compiler("light",                   &compile_light,                                 1.0f);
-	register_component_compiler("script",                  &compile_script,                                1.0f);
-	register_component_compiler("collider",                &physics_resource_internal::compile_collider,   1.0f);
-	register_component_compiler("actor",                   &physics_resource_internal::compile_actor,      2.0f);
-	register_component_compiler("joint",                   &physics_resource_internal::compile_joint,      3.0f);
-	register_component_compiler("animation_state_machine", &compile_animation_state_machine,               1.0f);
+	register_component_compiler("transform",               &compile_transform,                           0.0f);
+	register_component_compiler("camera",                  &compile_camera,                              1.0f);
+	register_component_compiler("mesh_renderer",           &compile_mesh_renderer,                       1.0f);
+	register_component_compiler("sprite_renderer",         &compile_sprite_renderer,                     1.0f);
+	register_component_compiler("light",                   &compile_light,                               1.0f);
+	register_component_compiler("script",                  &compile_script,                              1.0f);
+	register_component_compiler("collider",                &physics_resource_internal::compile_collider, 1.0f);
+	register_component_compiler("actor",                   &physics_resource_internal::compile_actor,    2.0f);
+	register_component_compiler("joint",                   &physics_resource_internal::compile_joint,    3.0f);
+	register_component_compiler("animation_state_machine", &compile_animation_state_machine,             1.0f);
 }
 
 Buffer UnitCompiler::read_unit(const char* path)
@@ -392,6 +393,20 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 		}
 	}
 
+	// Unnamed objects have all-zero hash
+	StringId32 name_hash;
+
+	// Parse Level Editor data
+	if (json_object::has(prefabs[0], "editor"))
+	{
+		JsonObject editor(ta);
+		sjson::parse(prefabs[0]["editor"], editor);
+
+		if (json_object::has(editor, "name"))
+			name_hash = sjson::parse_string_id(editor["name"]);
+	}
+
+	array::push_back(_unit_names, name_hash);
 	++_num_units;
 
 	return 0;
@@ -468,7 +483,8 @@ Buffer UnitCompiler::blob()
 
 void UnitCompiler::add_component_data(StringId32 type, const Buffer& data, u32 unit_index)
 {
-	ComponentTypeData& ctd = const_cast<ComponentTypeData&>(hash_map::get(_component_data, type, ComponentTypeData(default_allocator())));
+	ComponentTypeData component_types_deffault(default_allocator());
+	ComponentTypeData& ctd = const_cast<ComponentTypeData&>(hash_map::get(_component_data, type, component_types_deffault));
 
 	array::push(ctd._data, array::begin(data), array::size(data));
 	array::push_back(ctd._unit_index, unit_index);

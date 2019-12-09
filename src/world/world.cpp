@@ -132,6 +132,21 @@ void World::units(Array<UnitId>& units) const
 	array::push(units, array::begin(_units), array::size(_units));
 }
 
+UnitId World::unit_by_name(StringId32 name)
+{
+	ListNode* cur;
+	list_for_each(cur, &_levels)
+	{
+		Level* level = (Level*)container_of(cur, Level, _node);
+		UnitId unit = level->unit_by_name(name);
+
+		if (unit != UNIT_INVALID)
+			return unit;
+	}
+
+	return UNIT_INVALID;
+}
+
 void World::update_animations(f32 dt)
 {
 	_animation_state_machine->update(dt);

@@ -93,6 +93,10 @@ struct World
 	/// Returns all the the units in the world.
 	void units(Array<UnitId>& units) const;
 
+	/// Returns the unit with the given Level Editor @a name or UNIT_INVALID if no such unit exists.
+	/// If there are multiple units with the same name, a random one will be returned.
+	UnitId unit_by_name(StringId32 name);
+
 	/// Creates a new camera.
 	CameraInstance camera_create(UnitId id, const CameraDesc& cd, const Matrix4x4& tr);
 

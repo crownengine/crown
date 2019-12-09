@@ -241,6 +241,11 @@ inline bool operator==(const UnitId& a, const UnitId& b)
 	return a._idx == b._idx;
 }
 
+inline bool operator!=(const UnitId& a, const UnitId& b)
+{
+	return a._idx != b._idx;
+}
+
 const UnitId UNIT_INVALID = { UINT32_MAX };
 
 template <>

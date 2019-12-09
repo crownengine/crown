@@ -6,6 +6,7 @@ Changelog
 *DD MMM YYYY*
 
 * runtime: added RenderWorld.mesh_set_material()
+* runtime: added World.unit_by_name()
 * runtime: fixed an issue where a regular Matrix4x4 was returned if Matrix4x4Box is called without arguments
 * runtime: removed "io" and "os" libraries from Lua API
 * runtime: small fixes and performance improvements

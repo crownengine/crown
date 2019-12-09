@@ -52,6 +52,7 @@ struct UnitCompiler
 	u32 _num_units;
 	ComponentTypeMap _component_data;
 	ComponentTypeArray _component_info;
+	Array<StringId32> _unit_names;
 
 	void register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order);
 	void register_component_compiler(StringId32 type, CompileFunction fn, f32 spawn_order);

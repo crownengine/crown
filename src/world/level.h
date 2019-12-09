@@ -35,6 +35,9 @@ struct Level
 
 	///
 	void load(const Vector3& pos, const Quaternion& rot);
+
+	///
+	UnitId unit_by_name(StringId32 name);
 };
 
 } // namespace crown

@@ -60,18 +60,29 @@ namespace level_resource_internal
 
 		// Write
 		LevelResource lr;
-		lr.version       = RESOURCE_HEADER(RESOURCE_VERSION_LEVEL);
-		lr.num_sounds    = array::size(sounds);
-		lr.units_offset  = sizeof(LevelResource);
-		lr.sounds_offset = lr.units_offset + array::size(unit_blob);
+		lr.version           = RESOURCE_HEADER(RESOURCE_VERSION_LEVEL);
+		lr.num_units         = uc._num_units;
+		lr.unit_names_offset = sizeof(lr);
+		lr.units_offset      = lr.unit_names_offset + (lr.num_units * sizeof(StringId32));
+		lr.num_sounds        = array::size(sounds);
+		lr.sounds_offset     = lr.units_offset + array::size(unit_blob);
 
 		opts.write(lr.version);
+		opts.write(lr.num_units);
+		opts.write(lr.unit_names_offset);
 		opts.write(lr.units_offset);
 		opts.write(lr.num_sounds);
 		opts.write(lr.sounds_offset);
 
-		opts.write(unit_blob);
+		// Write unit names
+		for (u32 i = 0; i < array::size(uc._unit_names); ++i)
+			opts.write(uc._unit_names[i]._id);
 
+		// Write units
+		opts.write(unit_blob);
+		// Alignment to sizeof(ComponentData) ensured by UnitCompiler
+
+		// Write level sounds
 		for (u32 i = 0; i < array::size(sounds); ++i)
 		{
 			opts.write(sounds[i].name);
@@ -88,6 +99,11 @@ namespace level_resource_internal
 
 namespace level_resource
 {
+	const StringId32* unit_names(const LevelResource* lr)
+	{
+		return (const StringId32*)((char*)lr + lr->unit_names_offset);
+	}
+
 	const UnitResource* unit_resource(const LevelResource* lr)
 	{
 		return (const UnitResource*)((char*)lr + lr->units_offset);

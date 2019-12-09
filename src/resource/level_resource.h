@@ -17,9 +17,14 @@ namespace crown
 struct LevelResource
 {
 	u32 version;
+	u32 num_units;
+	u32 unit_names_offset;
 	u32 units_offset;
 	u32 num_sounds;
 	u32 sounds_offset;
+	// StringId32[num_units]  <-- unit_names_offset
+	// UnitResource           <-- units_offset
+	// LevelSound[num_sounds] <-- sounds_offset
 };
 
 struct LevelSound
@@ -39,6 +44,9 @@ namespace level_resource_internal
 
 namespace level_resource
 {
+	/// Returns the unit names in the level.
+	const StringId32* unit_names(const LevelResource* lr);
+
 	/// Returns the unit resource in the level.
 	const UnitResource* unit_resource(const LevelResource* lr);
 

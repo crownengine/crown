@@ -417,6 +417,10 @@ World
 **units** (world) : table
 	Returns all the the units in the world in a table.
 
+**unit_by_name** (world, name) : UnitId
+	Returns the unit with the given Level Editor *name* or ``nil`` if no such unit is found.
+	If there are multiple units with the same name, a random one will be returned.
+
 **update_animations** (world, dt)
 	Update all animations with *dt*.
 

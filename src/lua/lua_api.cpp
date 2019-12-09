@@ -1447,6 +1447,18 @@ void load_api(LuaEnvironment& env)
 
 			return 1;
 		});
+	env.add_module_function("World", "unit_by_name", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			UnitId unit = stack.get_world(1)->unit_by_name(stack.get_string_id_32(2));
+
+			if (unit == UNIT_INVALID)
+				stack.push_nil();
+			else
+				stack.push_unit(unit);
+
+			return 1;
+		});
 	env.add_module_function("World", "camera_create", [](lua_State* L)
 		{
 			LuaStack stack(L);
