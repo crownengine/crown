@@ -1282,7 +1282,7 @@ namespace shader_resource_internal
 			{
 				char err[512];
 				while (pr_frag.fgets(err, sizeof(err)) != NULL)
-					output_vert << err;
+					output_frag << err;
 			}
 			ec = pr_frag.wait();
 			if (ec != 0)
