@@ -105,7 +105,7 @@ s32 ResourceLoader::run()
 		File* file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
 		if (!file->is_open())
 		{
-			logw(RESOURCE_LOADER, "Can't load resource " RESOURCE_ID ". Falling back...", res_id);
+			logw(RESOURCE_LOADER, "Can't load resource: " RESOURCE_ID ". Falling back...", res_id._id);
 
 			StringId64 fallback_name;
 			fallback_name = hash_map::get(_fallback, rr.type, fallback_name);
@@ -117,7 +117,7 @@ s32 ResourceLoader::run()
 			_data_filesystem.close(*file);
 			file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
 		}
-		CE_ASSERT(file->is_open(), "Can't load resource " RESOURCE_ID, res_id);
+		CE_ASSERT(file->is_open(), "Can't load resource: " RESOURCE_ID, res_id._id);
 
 		if (rr.load_function)
 		{
