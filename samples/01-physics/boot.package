@@ -12,3 +12,10 @@ shader = [
 physics_config = [
 	"global"
 ]
+unit = [
+	"core/units/camera"
+	"sphere"
+]
+level = [
+	"test"
+]

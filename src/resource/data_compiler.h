@@ -53,6 +53,7 @@ struct DataCompiler
 	HashMap<StringId64, DynamicString> _data_index;
 	HashMap<StringId64, u64> _data_mtimes;
 	HashMap<StringId64, HashMap<DynamicString, u32> > _data_dependencies;
+	HashMap<StringId64, HashMap<DynamicString, u32> > _data_requirements;
 	HashMap<DynamicString, u32> _data_versions;
 	FileMonitor _file_monitor;
 	SourceIndex _source_index;
@@ -105,7 +106,13 @@ struct DataCompiler
 	u32 data_version_stored(const char* type);
 
 	///
+	void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const char* dependency);
+
+	///
 	void add_dependency(ResourceId id, const char* dependency);
+
+	///
+	void add_requirement(ResourceId id, const char* requirement);
 
 	///
 	bool dependency_changed(const DynamicString& src_path, ResourceId id, u64 mtime);

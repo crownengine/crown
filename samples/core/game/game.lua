@@ -13,7 +13,9 @@ GameBase.data = {
 }
 
 function GameBase.init()
-	Device.enable_resource_autoload(true)
+	if TEST then
+		Device.enable_resource_autoload(true)
+	end
 
 	-- Create world
 	GameBase.world = Device.create_world()

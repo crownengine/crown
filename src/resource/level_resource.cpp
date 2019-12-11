@@ -42,13 +42,14 @@ namespace level_resource_internal
 					, sound_name.c_str()
 					, opts
 					);
+				opts.add_requirement("sound", sound_name.c_str());
 
 				LevelSound ls;
-				ls.name     = sjson::parse_resource_id(sound["name"]);
-				ls.position = sjson::parse_vector3    (sound["position"]);
-				ls.volume   = sjson::parse_float      (sound["volume"]);
-				ls.range    = sjson::parse_float      (sound["range"]);
-				ls.loop     = sjson::parse_bool       (sound["loop"]);
+				ls.name     = sjson::parse_resource_name(sound["name"]);
+				ls.position = sjson::parse_vector3      (sound["position"]);
+				ls.volume   = sjson::parse_float        (sound["volume"]);
+				ls.range    = sjson::parse_float        (sound["range"]);
+				ls.loop     = sjson::parse_bool         (sound["loop"]);
 
 				array::push_back(sounds, ls);
 			}

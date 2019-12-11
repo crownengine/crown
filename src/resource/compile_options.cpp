@@ -21,13 +21,13 @@
 
 namespace crown
 {
-CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, StringId64 resource_id, const DynamicString& source_path, Buffer& output, const char* platform)
+CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, ResourceId res_id, const DynamicString& source_path, Buffer& output, const char* platform)
 	: _data_compiler(dc)
 	, _data_filesystem(data_filesystem)
 	, _source_path(source_path)
 	, _output(output)
 	, _platform(platform)
-	, _resource_id(resource_id)
+	, _resource_id(res_id)
 {
 }
 
@@ -123,6 +123,17 @@ Buffer CompileOptions::read(const char* path)
 void CompileOptions::fake_read(const char* path)
 {
 	_data_compiler.add_dependency(_resource_id, path);
+}
+
+void CompileOptions::add_requirement(const char* type, const char* name)
+{
+	TempAllocator256 ta;
+	DynamicString path(ta);
+	path  = name;
+	path += ".";
+	path += type;
+
+	_data_compiler.add_requirement(_resource_id, path.c_str());
 }
 
 void CompileOptions::get_absolute_path(const char* path, DynamicString& abs)

@@ -89,6 +89,7 @@ namespace material_resource_internal
 			DynamicString texture(ta);
 			sjson::parse_string(value, texture);
 			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("texture", texture.c_str(), opts);
+			opts.add_requirement("texture", texture.c_str());
 
 			TextureHandle th;
 			th.sampler_handle = 0;
@@ -101,7 +102,7 @@ namespace material_resource_internal
 			TextureData td;
 			td.sampler_name_offset = sampler_name_offset;
 			td.name                = StringId32(key.data(), key.length());
-			td.id                  = sjson::parse_resource_id(value);
+			td.id                  = sjson::parse_resource_name(value);
 			td.data_offset         = reserve_dynamic_data(th, dynamic);
 			td._pad1               = 0;
 

@@ -59,10 +59,10 @@ struct CompileOptions
 	DynamicString _source_path;
 	Buffer& _output;
 	const char* _platform;
-	StringId64 _resource_id;
+	ResourceId _resource_id;
 
 	///
-	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, StringId64 resource_id, const DynamicString& source_path, Buffer& output, const char* platform);
+	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, ResourceId res_id, const DynamicString& source_path, Buffer& output, const char* platform);
 
 	///
 	CompileOptions(const CompileOptions&) = delete;
@@ -102,6 +102,9 @@ struct CompileOptions
 
 	/// Registers @a path as dependency. Reads nothing.
 	void fake_read(const char* path);
+
+	///
+	void add_requirement(const char* type, const char* name);
 
 	///
 	void get_absolute_path(const char* path, DynamicString& abs);

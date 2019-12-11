@@ -123,6 +123,7 @@ static s32 compile_mesh_renderer(Buffer& output, const char* json, CompileOption
 		, mesh_resource.c_str()
 		, opts
 		);
+	opts.add_requirement("mesh", mesh_resource.c_str());
 
 	DynamicString material(ta);
 	sjson::parse_string(obj["material"], material);
@@ -130,12 +131,13 @@ static s32 compile_mesh_renderer(Buffer& output, const char* json, CompileOption
 		, material.c_str()
 		, opts
 		);
+	opts.add_requirement("material", material.c_str());
 
 	MeshRendererDesc mrd;
-	mrd.mesh_resource     = sjson::parse_resource_id(obj["mesh_resource"]);
-	mrd.geometry_name     = sjson::parse_string_id  (obj["geometry_name"]);
-	mrd.material_resource = sjson::parse_resource_id(obj["material"]);
-	mrd.visible           = sjson::parse_bool       (obj["visible"]);
+	mrd.mesh_resource     = sjson::parse_resource_name(obj["mesh_resource"]);
+	mrd.geometry_name     = sjson::parse_string_id    (obj["geometry_name"]);
+	mrd.material_resource = sjson::parse_resource_name(obj["material"]);
+	mrd.visible           = sjson::parse_bool         (obj["visible"]);
 	mrd._pad0[0]          = 0;
 	mrd._pad0[1]          = 0;
 	mrd._pad0[2]          = 0;
@@ -157,6 +159,7 @@ static s32 compile_sprite_renderer(Buffer& output, const char* json, CompileOpti
 		, sprite_resource.c_str()
 		, opts
 		);
+	opts.add_requirement("sprite", sprite_resource.c_str());
 
 	DynamicString material(ta);
 	sjson::parse_string(obj["material"], material);
@@ -164,13 +167,14 @@ static s32 compile_sprite_renderer(Buffer& output, const char* json, CompileOpti
 		, material.c_str()
 		, opts
 		);
+	opts.add_requirement("material", material.c_str());
 
 	SpriteRendererDesc srd;
-	srd.sprite_resource   = sjson::parse_resource_id(obj["sprite_resource"]);
-	srd.material_resource = sjson::parse_resource_id(obj["material"]);
-	srd.layer             = sjson::parse_int        (obj["layer"]);
-	srd.depth             = sjson::parse_int        (obj["depth"]);
-	srd.visible           = sjson::parse_bool       (obj["visible"]);
+	srd.sprite_resource   = sjson::parse_resource_name(obj["sprite_resource"]);
+	srd.material_resource = sjson::parse_resource_name(obj["material"]);
+	srd.layer             = sjson::parse_int          (obj["layer"]);
+	srd.depth             = sjson::parse_int          (obj["depth"]);
+	srd.visible           = sjson::parse_bool         (obj["visible"]);
 	srd._pad0[0]          = 0;
 	srd._pad0[1]          = 0;
 	srd._pad0[2]          = 0;
@@ -224,9 +228,10 @@ static s32 compile_script(Buffer& output, const char* json, CompileOptions& opts
 		, script_resource.c_str()
 		, opts
 		);
+	opts.add_requirement("lua", script_resource.c_str());
 
 	ScriptDesc sd;
-	sd.script_resource = sjson::parse_resource_id(obj["script_resource"]);
+	sd.script_resource = sjson::parse_resource_name(obj["script_resource"]);
 
 	array::push(output, (char*)&sd, sizeof(sd));
 
@@ -245,9 +250,10 @@ static s32 compile_animation_state_machine(Buffer& output, const char* json, Com
 		, state_machine_resource.c_str()
 		, opts
 		);
+	opts.add_requirement("state_machine", state_machine_resource.c_str());
 
 	AnimationStateMachineDesc asmd;
-	asmd.state_machine_resource = sjson::parse_resource_id(obj["state_machine_resource"]);
+	asmd.state_machine_resource = sjson::parse_resource_name(obj["state_machine_resource"]);
 
 	array::push(output, (char*)&asmd, sizeof(asmd));
 

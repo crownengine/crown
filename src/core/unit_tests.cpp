@@ -1183,7 +1183,7 @@ static void test_sjson()
 		ENSURE(a._id == 0x7c2365dbu);
 	}
 	{
-		const ResourceId a = sjson::parse_resource_id("\"murmur64\"");
+		const StringId64 a = sjson::parse_resource_name("\"murmur64\"");
 		ENSURE(a._id == 0x90631502d1a3432bu);
 	}
 	{

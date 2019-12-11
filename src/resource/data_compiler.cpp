@@ -31,6 +31,7 @@
 #include "resource/mesh_resource.h"
 #include "resource/package_resource.h"
 #include "resource/physics_resource.h"
+#include "resource/resource_id.h"
 #include "resource/shader_resource.h"
 #include "resource/sound_resource.h"
 #include "resource/sprite_resource.h"
@@ -333,7 +334,18 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 		{
 			DynamicString src_path(ta);
 			sjson::parse_string(dependency_array[i], src_path);
-			dc.add_dependency(dst_name, src_path.c_str());
+			if (src_path.has_prefix("//r "))
+			{
+				dc.add_requirement(dst_name, src_path.c_str() + 4);
+			}
+			else if (src_path.has_prefix("//- "))
+			{
+				dc.add_dependency(dst_name, src_path.c_str() + 4);
+			}
+			else // Assume regular dependency
+			{
+				dc.add_dependency(dst_name, src_path.c_str());
+			}
 		}
 	}
 }
@@ -410,36 +422,53 @@ static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, con
 	}
 }
 
-static void write_source_files(StringStream& ss, HashMap<DynamicString, u32> sources)
-{
-	auto cur = hash_map::begin(sources);
-	auto end = hash_map::end(sources);
-	for (; cur != end; ++cur)
-	{
-		HASH_MAP_SKIP_HOLE(sources, cur);
-
-		ss << "    \"" << cur->first.c_str() << "\"\n";
-	}
-}
-
-static void write_data_dependencies(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies)
+static void write_data_dependencies(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& index, const HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, const HashMap<StringId64, HashMap<DynamicString, u32> >& requirements)
 {
 	StringStream ss(default_allocator());
 
 	File* file = data_fs.open(filename, FileOpenMode::WRITE);
 	if (file)
 	{
-		auto cur = hash_map::begin(dependencies);
-		auto end = hash_map::end(dependencies);
+		auto cur = hash_map::begin(index);
+		auto end = hash_map::end(index);
 		for (; cur != end; ++cur)
 		{
-			HASH_MAP_SKIP_HOLE(dependencies, cur);
+			HASH_MAP_SKIP_HOLE(index, cur);
+
+			HashMap<DynamicString, u32> deps_deffault(default_allocator());
+			const HashMap<DynamicString, u32>& deps = hash_map::get(dependencies, cur->first, deps_deffault);
+			HashMap<DynamicString, u32> reqs_deffault(default_allocator());
+			const HashMap<DynamicString, u32>& reqs = hash_map::get(requirements, cur->first, reqs_deffault);
+
+			// Skip if data has no dependencies
+			if (&deps == &deps_deffault && &reqs == &reqs_deffault)
+				continue;
 
 			TempAllocator64 ta;
 			DynamicString key(ta);
 			key.from_string_id(cur->first);
 			ss << "\"" << key.c_str() << "\" = [\n";
-			write_source_files(ss, cur->second);
+
+			// Write all dependencies
+			auto deps_cur = hash_map::begin(deps);
+			auto deps_end = hash_map::end(deps);
+			for (; deps_cur != deps_end; ++deps_cur)
+			{
+				HASH_MAP_SKIP_HOLE(deps, deps_cur);
+
+				ss << "    \"//- " << deps_cur->first.c_str() << "\"\n";
+			}
+
+			// Write all requirements
+			auto reqs_cur = hash_map::begin(reqs);
+			auto reqs_end = hash_map::end(reqs);
+			for (; reqs_cur != reqs_end; ++reqs_cur)
+			{
+				HASH_MAP_SKIP_HOLE(reqs, reqs_cur);
+
+				ss << "    \"//r " << reqs_cur->first.c_str() << "\"\n";
+			}
+
 			ss << "]\n";
 		}
 
@@ -457,6 +486,7 @@ DataCompiler::DataCompiler(ConsoleServer& cs)
 	, _data_index(default_allocator())
 	, _data_mtimes(default_allocator())
 	, _data_dependencies(default_allocator())
+	, _data_requirements(default_allocator())
 	, _data_versions(default_allocator())
 	, _file_monitor(default_allocator())
 {
@@ -655,32 +685,8 @@ void DataCompiler::save(const char* data_dir)
 	write_data_index(data_fs, CROWN_DATA_INDEX, _data_index);
 	write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
 	write_data_mtimes(data_fs, CROWN_DATA_MTIMES, _data_mtimes);
-	write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_dependencies);
+	write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_index, _data_dependencies, _data_requirements);
 	logi(DATA_COMPILER, "Saved state in %.2fs", time::seconds(time::now() - time_start));
-}
-
-/// Returns the resource id from @a type and @a name.
-ResourceId resource_id(const char* type, u32 type_len, const char* name, u32 name_len)
-{
-	ResourceId id;
-	id._id = StringId64(type, type_len)._id ^ StringId64(name, name_len)._id;
-	return id;
-}
-
-/// Returns the resource id from @a filename.
-ResourceId resource_id(const char* filename)
-{
-	const char* type = path::extension(filename);
-	const u32 len = u32(type - filename - 1);
-	return resource_id(type, strlen32(type), filename, len);
-}
-
-void destination_path(DynamicString& path, ResourceId id)
-{
-	TempAllocator128 ta;
-	DynamicString id_hex(ta);
-	id_hex.from_string_id(id);
-	path::join(path, CROWN_DATA_DIRECTORY, id_hex.c_str());
 }
 
 bool DataCompiler::dependency_changed(const DynamicString& src_path, ResourceId id, u64 dst_mtime)
@@ -928,12 +934,12 @@ u32 DataCompiler::data_version_stored(const char* type)
 	return hash_map::get(_data_versions, ds, version);
 }
 
-void DataCompiler::add_dependency(ResourceId id, const char* dependency)
+void DataCompiler::add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const char* dependency)
 {
 	HashMap<DynamicString, u32> deps_deffault(default_allocator());
-	if (hash_map::has(_data_dependencies, id))
+	if (hash_map::has(dependencies, id))
 	{
-		HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deps_deffault);
+		HashMap<DynamicString, u32>& deps = hash_map::get(dependencies, id, deps_deffault);
 		TempAllocator256 ta;
 		DynamicString dependency_ds(ta);
 		dependency_ds = dependency;
@@ -945,8 +951,18 @@ void DataCompiler::add_dependency(ResourceId id, const char* dependency)
 		DynamicString dependency_ds(ta);
 		dependency_ds = dependency;
 		hash_map::set(deps_deffault, dependency_ds, 0u);
-		hash_map::set(_data_dependencies, id, deps_deffault);
+		hash_map::set(dependencies, id, deps_deffault);
 	}
+}
+
+void DataCompiler::add_dependency(ResourceId id, const char* dependency)
+{
+	add_dependency_internal(_data_dependencies, id, dependency);
+}
+
+void DataCompiler::add_requirement(ResourceId id, const char* requirement)
+{
+	add_dependency_internal(_data_requirements, id, requirement);
 }
 
 bool DataCompiler::can_compile(const char* type)

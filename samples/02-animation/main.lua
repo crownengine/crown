@@ -18,8 +18,6 @@ GameBase.game = Game
 GameBase.game_level = "game"
 
 function Game.level_loaded()
-	Device.enable_resource_autoload(true)
-
 	Game.pw = World.physics_world(GameBase.world)
 	Game.rw = World.render_world(GameBase.world)
 	Game.sg = World.scene_graph(GameBase.world)

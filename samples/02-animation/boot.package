@@ -12,3 +12,11 @@ shader = [
 physics_config = [
 	"global"
 ]
+unit = [
+	"core/units/camera"
+	"units/princess"
+	"units/soldier"
+]
+level = [
+	"game"
+]

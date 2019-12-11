@@ -73,8 +73,8 @@ namespace sjson
 	/// Returns the string @a json as StringId32.
 	StringId32 parse_string_id(const char* json);
 
-	/// Returns the string @a json as ResourceId.
-	ResourceId parse_resource_id(const char* json);
+	/// Returns the string @a json as StringId64.
+	StringId64 parse_resource_name(const char* json);
 
 	/// Returns the string @a json as Guid.
 	Guid parse_guid(const char* json);

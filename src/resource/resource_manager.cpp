@@ -7,6 +7,7 @@
 #include "core/containers/hash_map.h"
 #include "core/memory/temp_allocator.h"
 #include "core/strings/dynamic_string.h"
+#include "resource/resource_id.h"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
 
@@ -19,7 +20,7 @@ struct hash<ResourceManager::ResourcePair>
 {
 	u32 operator()(const ResourceManager::ResourcePair& val) const
 	{
-		return u32(val.type._id ^ val.name._id);
+		return u32(resource_id(val.type, val.name)._id);
 	}
 };
 
@@ -117,14 +118,9 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 {
 	const ResourcePair id = { type, name };
 
-	StringId64 mix;
-	mix._id = type._id ^ name._id;
+	const ResourceId res_id = resource_id(type, name);
 
-	TempAllocator64 ta;
-	DynamicString path(ta);
-	path.from_string_id(mix);
-
-	CE_ASSERT(can_get(type, name), "Resource not loaded #ID(%s)", path.c_str());
+	CE_ASSERT(can_get(type, name), "Resource not loaded " RESOURCE_ID, res_id);
 
 	if (_autoload && !hash_map::has(_rm, id))
 	{

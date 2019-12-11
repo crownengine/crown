@@ -17,3 +17,4 @@ Changelog
 * tools: the game will now be started or stopped according to its running state when launched from the Level Editor
 * tools: the Properties Panel now accepts more sensible numeric ranges
 * tools: the Properties Panel now allows the user to modify most Unit's component properties
+* tools: the Data Compiler will now track data "requirements" and automatically include them in packages when it's needed

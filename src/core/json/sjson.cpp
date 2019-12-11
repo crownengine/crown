@@ -487,12 +487,12 @@ namespace sjson
 		return str.to_string_id();
 	}
 
-	ResourceId parse_resource_id(const char* json)
+	StringId64 parse_resource_name(const char* json)
 	{
 		TempAllocator256 ta;
 		DynamicString str(ta);
 		sjson::parse_string(json, str);
-		return ResourceId(str.c_str());
+		return StringId64(str.c_str());
 	}
 
 	Guid parse_guid(const char* json)

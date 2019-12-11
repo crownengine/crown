@@ -33,7 +33,7 @@ bool BootConfig::parse(const char* json)
 
 	// General configs
 	sjson::parse_string(cfg["boot_script"], boot_script_name);
-	boot_package_name = sjson::parse_resource_id(cfg["boot_package"]);
+	boot_package_name = sjson::parse_resource_name(cfg["boot_package"]);
 
 	if (json_object::has(cfg, "window_title"))
 		sjson::parse_string(cfg["window_title"], window_title);

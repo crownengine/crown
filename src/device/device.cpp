@@ -39,6 +39,7 @@
 #include "resource/mesh_resource.h"
 #include "resource/package_resource.h"
 #include "resource/physics_resource.h"
+#include "resource/resource_id.h"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
 #include "resource/resource_package.h"
@@ -666,14 +667,9 @@ void Device::destroy_resource_package(ResourcePackage& rp)
 
 void Device::reload(StringId64 type, StringId64 name)
 {
-	StringId64 mix;
-	mix._id = type._id ^ name._id;
+	ResourceId res_id = resource_id(type, name);
 
-	TempAllocator128 ta;
-	DynamicString path(ta);
-	path.from_string_id(mix);
-
-	logi(DEVICE, "Reloading #ID(%s)", path.c_str());
+	logi(DEVICE, "Reloading " RESOURCE_ID, res_id._id);
 
 	_resource_manager->reload(type, name);
 	const void* new_resource = _resource_manager->get(type, name);
@@ -683,7 +679,7 @@ void Device::reload(StringId64 type, StringId64 name)
 		_lua_environment->execute((const LuaResource*)new_resource, 0);
 	}
 
-	logi(DEVICE, "Reloaded #ID(%s)", path.c_str());
+	logi(DEVICE, "Reloaded " RESOURCE_ID, res_id._id);
 }
 
 void Device::log(const char* msg)

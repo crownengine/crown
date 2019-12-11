@@ -15,6 +15,7 @@
 #include "core/strings/dynamic_string.h"
 #include "core/thread/scoped_mutex.h"
 #include "device/log.h"
+#include "resource/resource_id.h"
 #include "resource/resource_loader.h"
 #include "resource/types.h"
 
@@ -95,33 +96,28 @@ s32 ResourceLoader::run()
 		ResourceRequest rr = queue::front(_requests);
 		_mutex.unlock();
 
-		StringId64 mix;
-		mix._id = rr.type._id ^ rr.name._id;
+		ResourceId res_id = resource_id(rr.type, rr.name);
 
 		TempAllocator128 ta;
-		DynamicString res_path(ta);
-		res_path.from_string_id(mix);
-
 		DynamicString path(ta);
-		path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
+		destination_path(path, res_id);
 
 		File* file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
 		if (!file->is_open())
 		{
-			logw(RESOURCE_LOADER, "Can't load resource #ID(%s). Falling back...", res_path.c_str());
+			logw(RESOURCE_LOADER, "Can't load resource " RESOURCE_ID ". Falling back...", res_id);
 
 			StringId64 fallback_name;
 			fallback_name = hash_map::get(_fallback, rr.type, fallback_name);
 			CE_ENSURE(fallback_name._id != 0);
 
-			mix._id = rr.type._id ^ fallback_name._id;
-			res_path.from_string_id(mix);
-			path::join(path, CROWN_DATA_DIRECTORY, res_path.c_str());
+			res_id = resource_id(rr.type, fallback_name);
+			destination_path(path, res_id);
 
 			_data_filesystem.close(*file);
 			file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
 		}
-		CE_ASSERT(file->is_open(), "Can't load resource #ID(%s)", res_path.c_str());
+		CE_ASSERT(file->is_open(), "Can't load resource " RESOURCE_ID, res_id);
 
 		if (rr.load_function)
 		{

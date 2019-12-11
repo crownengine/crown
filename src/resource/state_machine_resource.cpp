@@ -232,9 +232,10 @@ namespace state_machine_internal
 							, animation_resource.c_str()
 							, _opts
 							);
+						_opts.add_requirement("sprite_animation", animation_resource.c_str());
 
 						AnimationInfo ai(ta);
-						ai.name = sjson::parse_resource_id(animation["name"]);
+						ai.name = sjson::parse_resource_name(animation["name"]);
 						sjson::parse_string(animation["weight"], ai.weight);
 
 						vector::push_back(si.animations, ai);

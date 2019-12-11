@@ -4,8 +4,11 @@
  */
 
 #include "core/containers/array.h"
+#include "core/containers/hash_map.h"
+#include "core/containers/hash_set.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
+#include "core/filesystem/path.h"
 #include "core/filesystem/reader_writer.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
@@ -13,26 +16,61 @@
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string_id.h"
 #include "resource/compile_options.h"
+#include "resource/data_compiler.h"
 #include "resource/package_resource.h"
+#include "resource/resource_id.h"
 
 namespace crown
 {
 namespace package_resource_internal
 {
+	s32 bring_in_requirements(Array<PackageResource::Resource>& output, CompileOptions& opts, ResourceId res_id)
+	{
+		HashMap<DynamicString, u32> reqs_deffault(default_allocator());
+		HashMap<DynamicString, u32>& reqs = hash_map::get(opts._data_compiler._data_requirements, res_id, reqs_deffault);
+
+		auto cur = hash_map::begin(reqs);
+		auto end = hash_map::end(reqs);
+		for (; cur != end; ++cur)
+		{
+			HASH_MAP_SKIP_HOLE(reqs, cur);
+
+			const char* req_filename = cur->first.c_str();
+			const char* req_type = path::extension(req_filename);
+			const u32 req_name_len = u32(req_type - req_filename - 1);
+
+			const StringId64 req_type_hash(req_type);
+			const StringId64 req_name_hash(req_filename, req_name_len);
+			array::push_back(output, PackageResource::Resource(req_type_hash, req_name_hash));
+
+			bring_in_requirements(output
+				, opts
+				, resource_id(req_type_hash, req_name_hash)
+				);
+		}
+
+		return 0;
+	}
+
 	s32 compile_resources(const char* type, const JsonArray& names, Array<PackageResource::Resource>& output, CompileOptions& opts)
 	{
-		const StringId64 typeh = StringId64(type);
+		const StringId64 type_hash = StringId64(type);
 
 		for (u32 i = 0; i < array::size(names); ++i)
 		{
-			TempAllocator1024 ta;
+			TempAllocator256 ta;
 			DynamicString name(ta);
 			sjson::parse_string(names[i], name);
-
 			DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name.c_str(), opts);
 
-			const StringId64 nameh = sjson::parse_resource_id(names[i]);
-			array::push_back(output, PackageResource::Resource(typeh, nameh));
+			const StringId64 name_hash = sjson::parse_resource_name(names[i]);
+			array::push_back(output, PackageResource::Resource(type_hash, name_hash));
+
+			// Bring in requirements
+			bring_in_requirements(output
+				, opts
+				, resource_id(type_hash, name_hash)
+				);
 		}
 
 		return 0;
@@ -86,6 +124,23 @@ namespace package_resource_internal
 		if (compile_resources("physics_config", phyconf, resources, opts) != 0) return -1;
 		if (compile_resources("shader", shader, resources, opts) != 0) return -1;
 		if (compile_resources("sprite_animation", sprite_animation, resources, opts) != 0) return -1;
+
+		// Remove duplicated entries
+		HashSet<ResourceId> duplicates(default_allocator());
+		for (u32 i = 0; i < array::size(resources); ++i)
+		{
+			ResourceId res_id = resource_id(resources[i].type, resources[i].name);
+
+			if (hash_set::has(duplicates, res_id))
+			{
+				resources[i] = resources[array::size(resources) - 1];
+				array::pop_back(resources);
+			}
+			else
+			{
+				hash_set::insert(duplicates, res_id);
+			}
+		}
 
 		// Write
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE));
