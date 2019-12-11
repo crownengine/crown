@@ -189,9 +189,9 @@ struct LuaStack
 		return StringId64(get_string(i));
 	}
 
-	StringId64 get_resource_id(int i)
+	StringId64 get_resource_name(int i)
 	{
-		return StringId64(get_string(i));
+		return get_string_id_64(i);
 	}
 
 	Gui* get_gui(int i)

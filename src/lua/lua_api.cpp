@@ -23,6 +23,7 @@
 #include "device/profiler.h"
 #include "lua/lua_environment.h"
 #include "lua/lua_stack.h"
+#include "resource/resource_id.h"
 #include "resource/resource_manager.h"
 #include "resource/resource_package.h"
 #include "world/animation_state_machine.h"
@@ -1400,13 +1401,18 @@ void load_api(LuaEnvironment& env)
 			LuaStack stack(L);
 			const int nargs = stack.num_args();
 
-			const StringId64 name = stack.get_resource_id(2);
+			World* world          = stack.get_world(1);
+			const StringId64 name = stack.get_resource_name(2);
 			const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
 			const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
 
-			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_UNIT, name), stack, "Unit not found");
+			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_UNIT, name)
+				, stack
+				, "Unit not found: " RESOURCE_ID
+				, resource_id(RESOURCE_TYPE_UNIT, name)
+				);
 
-			stack.push_unit(stack.get_world(1)->spawn_unit(name, pos, rot));
+			stack.push_unit(world->spawn_unit(name, pos, rot));
 			return 1;
 		});
 	env.add_module_function("World", "spawn_empty_unit", [](lua_State* L)
@@ -1580,15 +1586,19 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("World", "play_sound", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			const s32 nargs = stack.num_args();
-			World* world = stack.get_world(1);
-			const StringId64 name = stack.get_resource_id(2);
-			const bool loop    = nargs > 2 ? stack.get_bool(3)    : false;
-			const f32 volume = nargs > 3 ? stack.get_float(4)   : 1.0f;
-			const Vector3& pos = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
-			const f32 range  = nargs > 5 ? stack.get_float(6)   : 1000.0f;
+			const s32 nargs       = stack.num_args();
+			World* world          = stack.get_world(1);
+			const StringId64 name = stack.get_resource_name(2);
+			const bool loop       = nargs > 2 ? stack.get_bool(3)    : false;
+			const f32 volume      = nargs > 3 ? stack.get_float(4)   : 1.0f;
+			const Vector3& pos    = nargs > 4 ? stack.get_vector3(5) : VECTOR3_ZERO;
+			const f32 range       = nargs > 5 ? stack.get_float(6)   : 1000.0f;
 
-			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_SOUND, name), stack, "Sound not found");
+			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_SOUND, name)
+				, stack
+				, "Sound not found: " RESOURCE_ID
+				, name
+				);
 
 			stack.push_sound_instance_id(world->play_sound(name, loop, volume, pos, range));
 			return 1;
@@ -1661,11 +1671,18 @@ void load_api(LuaEnvironment& env)
 			LuaStack stack(L);
 			const int nargs = stack.num_args();
 
-			const StringId64 name = stack.get_resource_id(2);
+			World* world          = stack.get_world(1);
+			const StringId64 name = stack.get_resource_name(2);
 			const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
 			const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
-			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_LEVEL, name), stack, "Level not found");
-			stack.push_level(stack.get_world(1)->load_level(name, pos, rot));
+
+			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_LEVEL, name)
+				, stack
+				, "Level not found: " RESOURCE_ID
+				, name
+				);
+
+			stack.push_level(world->load_level(name, pos, rot));
 			return 1;
 		});
 	env.add_module_function("World", "scene_graph", [](lua_State* L)
@@ -1886,9 +1903,9 @@ void load_api(LuaEnvironment& env)
 			UnitId unit = stack.get_unit(2);
 
 			MeshRendererDesc desc;
-			desc.mesh_resource     = stack.get_resource_id(3);
+			desc.mesh_resource     = stack.get_resource_name(3);
 			desc.geometry_name     = stack.get_string_id_32(4);
-			desc.material_resource = stack.get_resource_id(5);
+			desc.material_resource = stack.get_resource_name(5);
 			desc.visible           = stack.get_bool(6);
 
 			Matrix4x4 pose = stack.get_matrix4x4(7);
@@ -1956,8 +1973,8 @@ void load_api(LuaEnvironment& env)
 			UnitId unit = stack.get_unit(2);
 
 			SpriteRendererDesc desc;
-			desc.sprite_resource = stack.get_resource_id(3);
-			desc.material_resource = stack.get_resource_id(4);
+			desc.sprite_resource = stack.get_resource_name(3);
+			desc.material_resource = stack.get_resource_name(4);
 			desc.layer = stack.get_int(5);
 			desc.depth = stack.get_int(6);
 			desc.visible = stack.get_bool(7);
@@ -2666,7 +2683,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Device", "create_resource_package", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_resource_package(device()->create_resource_package(stack.get_resource_id(1)));
+			stack.push_resource_package(device()->create_resource_package(stack.get_resource_name(1)));
 			return 1;
 		});
 	env.add_module_function("Device", "destroy_resource_package", [](lua_State* L)
@@ -2691,7 +2708,7 @@ void load_api(LuaEnvironment& env)
 		{
 			LuaStack stack(L);
 			const StringId64 type(stack.get_string(1));
-			stack.push_bool(device()->_resource_manager->can_get(type, stack.get_resource_id(2)));
+			stack.push_bool(device()->_resource_manager->can_get(type, stack.get_resource_name(2)));
 			return 1;
 		});
 	env.add_module_function("Device", "enable_resource_autoload", [](lua_State* L)
@@ -2856,7 +2873,7 @@ void load_api(LuaEnvironment& env)
 			LuaStack stack(L);
 			stack.get_debug_line(1)->add_unit(*device()->_resource_manager
 				, stack.get_matrix4x4(2)
-				, stack.get_resource_id(3)
+				, stack.get_resource_name(3)
 				, stack.get_color4(4)
 				);
 			return 0;
@@ -2961,7 +2978,7 @@ void load_api(LuaEnvironment& env)
 			LuaStack stack(L);
 			stack.get_gui(1)->image(stack.get_vector2(2)
 				, stack.get_vector2(3)
-				, stack.get_resource_id(4)
+				, stack.get_resource_name(4)
 				, stack.get_color4(5)
 				);
 			return 0;
@@ -2973,7 +2990,7 @@ void load_api(LuaEnvironment& env)
 				, stack.get_vector2(3)
 				, stack.get_vector2(4)
 				, stack.get_vector2(5)
-				, stack.get_resource_id(6)
+				, stack.get_resource_name(6)
 				, stack.get_color4(7)
 				);
 			return 0;
@@ -2984,8 +3001,8 @@ void load_api(LuaEnvironment& env)
 			stack.get_gui(1)->text(stack.get_vector2(2)
 				, stack.get_int(3)
 				, stack.get_string(4)
-				, stack.get_resource_id(5)
-				, stack.get_resource_id(6)
+				, stack.get_resource_name(5)
+				, stack.get_resource_name(6)
 				, stack.get_color4(7)
 				);
 			return 0;

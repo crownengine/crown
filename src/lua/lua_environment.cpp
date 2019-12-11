@@ -132,7 +132,7 @@ static int loader(lua_State* L)
 	LuaStack stack(L);
 	int status;
 
-	const LuaResource* lr = (LuaResource*)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, stack.get_resource_id(1));
+	const LuaResource* lr = (LuaResource*)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, stack.get_resource_name(1));
 	status = luaL_loadbuffer(L, lua_resource::program(lr), lr->size, "");
 	if (status != LUA_OK)
 	{
