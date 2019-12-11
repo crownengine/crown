@@ -12,6 +12,8 @@
 namespace crown
 {
 #define RESOURCE_ID "#ID(%.16" PRIx64 ")"
+#define RESOURCE_ID_STRING "#ID(%s)"
+#define RESOURCE_ID_STRING_LENGTH 17
 
 /// Returns the resource id from @a type and @a name.
 inline ResourceId resource_id(StringId64 type, StringId64 name)

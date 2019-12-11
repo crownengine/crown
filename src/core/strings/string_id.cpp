@@ -35,9 +35,10 @@ void StringId32::parse(const char* str)
 	CE_UNUSED(num);
 }
 
-void StringId32::to_string(char* buf, u32 len) const
+const char* StringId32::to_string(char* buf, u32 len) const
 {
 	snprintf(buf, len, "%.8x", _id);
+	return buf;
 }
 
 StringId64::StringId64(const char* str)
@@ -67,9 +68,10 @@ void StringId64::parse(const char* str)
 	CE_UNUSED(num);
 }
 
-void StringId64::to_string(char* buf, u32 len) const
+const char* StringId64::to_string(char* buf, u32 len) const
 {
 	snprintf(buf, len, "%.16" PRIx64, _id);
+	return buf;
 }
 
 } // namespace crown

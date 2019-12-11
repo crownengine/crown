@@ -28,7 +28,7 @@ struct StringId32
 	void parse(const char* str);
 
 	/// Fills @a buf with the string representation of this id.
-	void to_string(char* buf, u32 len) const;
+	const char* to_string(char* buf, u32 len) const;
 };
 
 /// Hashed string.
@@ -49,7 +49,7 @@ struct StringId64
 	void parse(const char* str);
 
 	/// Fills @a buf with the string representation of this id.
-	void to_string(char* buf, u32 len) const;
+	const char* to_string(char* buf, u32 len) const;
 };
 
 /// @addtogroup String
