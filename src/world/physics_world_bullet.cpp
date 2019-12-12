@@ -477,6 +477,8 @@ struct PhysicsWorldImpl
 		cflags |= is_static    ? btCollisionObject::CF_STATIC_OBJECT       : 0;
 		cflags |= is_trigger   ? btCollisionObject::CF_NO_CONTACT_RESPONSE : 0;
 		actor->setCollisionFlags(cflags);
+		if (is_kinematic)
+			actor->setActivationState(DISABLE_DEACTIVATION);
 
 		actor->setLinearFactor(btVector3(
 			(ar->flags & ActorFlags::LOCK_TRANSLATION_X) ? 0.0f : 1.0f,
@@ -618,8 +620,18 @@ struct PhysicsWorldImpl
 
 	void actor_set_kinematic(ActorInstance i, bool kinematic)
 	{
+		int flags = _actor[i.i].actor->getCollisionFlags();
+
 		if (kinematic)
-			_actor[i.i].actor->setCollisionFlags(_actor[i.i].actor->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+		{
+			_actor[i.i].actor->setCollisionFlags(flags | btCollisionObject::CF_KINEMATIC_OBJECT);
+			_actor[i.i].actor->setActivationState(DISABLE_DEACTIVATION);
+		}
+		else
+		{
+			_actor[i.i].actor->setCollisionFlags(flags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+			_actor[i.i].actor->setActivationState(ACTIVE_TAG);
+		}
 	}
 
 	bool actor_is_static(ActorInstance i) const
