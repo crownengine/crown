@@ -290,26 +290,26 @@ public class SpriteImportDialog : Gtk.Dialog
 		cells_v.value = 4;
 		cell_wh_auto = new Gtk.CheckButton();
 		cell_wh_auto.active = true;
-		cell_w = new Gtk.SpinButton.with_range(1.0, 4096.0, 1.0);
+		cell_w = new Gtk.SpinButton.with_range(1.0, double.MAX, 1.0);
 		cell_w.value = _pixbuf.width / cells_h.value;
 		cell_w.sensitive = !cell_wh_auto.active;
-		cell_h = new Gtk.SpinButton.with_range(1.0, 4096.0, 1.0);
+		cell_h = new Gtk.SpinButton.with_range(1.0, double.MAX, 1.0);
 		cell_h.value = _pixbuf.height / cells_v.value;
 		cell_h.sensitive = !cell_wh_auto.active;
-		offset_x = new Gtk.SpinButton.with_range(0, 128.0, 1.0);
-		offset_y = new Gtk.SpinButton.with_range(0, 128.0, 1.0);
-		spacing_x = new Gtk.SpinButton.with_range(0, 128.0, 1.0);
-		spacing_y = new Gtk.SpinButton.with_range(0, 128.0, 1.0);
+		offset_x = new Gtk.SpinButton.with_range(0, double.MAX, 1.0);
+		offset_y = new Gtk.SpinButton.with_range(0, double.MAX, 1.0);
+		spacing_x = new Gtk.SpinButton.with_range(0, double.MAX, 1.0);
+		spacing_y = new Gtk.SpinButton.with_range(0, double.MAX, 1.0);
 
 		collision_enabled = new Gtk.CheckButton();
 		collision_enabled.active = true;
-		collision_x = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
+		collision_x = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
 		collision_x.value = 0;
-		collision_y = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
+		collision_y = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
 		collision_y.value = 0;
-		collision_w = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
+		collision_w = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
 		collision_w.value = 32;
-		collision_h = new Gtk.SpinButton.with_range(0.0, 256.0, 1.0);
+		collision_h = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
 		collision_h.value = 32;
 
 		cells_h.value_changed.connect (() => {
