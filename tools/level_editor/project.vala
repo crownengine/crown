@@ -565,7 +565,6 @@ end
 							db.set_property_string(id, "data.shape", "box");
 							db.set_property_string(id, "data.scene", resource_name);
 							db.set_property_string(id, "data.name", "collider");
-							db.set_property_string(id, "data.material", "default");
 							db.set_property_string(id, "type", "collider");
 
 							db.add_to_set(GUID_ZERO, "components", id);
@@ -575,7 +574,6 @@ end
 							unit.set_component_property_string(id, "data.shape", "box");
 							unit.set_component_property_string(id, "data.scene", resource_name);
 							unit.set_component_property_string(id, "data.name", "collider");
-							unit.set_component_property_string(id, "data.material", "default");
 							unit.set_component_property_string(id, "type", "collider");
 						}
 					}
@@ -746,7 +744,6 @@ end
 						db.set_property_string(id, "data.shape", "mesh");
 						db.set_property_string(id, "data.scene", resource_name);
 						db.set_property_string(id, "data.name", mesh_nodes.entries.to_array()[0].key);
-						db.set_property_string(id, "data.material", "default");
 						db.set_property_string(id, "type", "collider");
 
 						db.add_to_set(GUID_ZERO, "components", id);
@@ -756,7 +753,6 @@ end
 						unit.set_component_property_string(id, "data.shape", "mesh");
 						unit.set_component_property_string(id, "data.scene", resource_name);
 						unit.set_component_property_string(id, "data.name", mesh_nodes.entries.to_array()[0].key);
-						unit.set_component_property_string(id, "data.material", "default");
 						unit.set_component_property_string(id, "type", "collider");
 					}
 				}

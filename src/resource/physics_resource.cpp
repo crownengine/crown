@@ -123,10 +123,9 @@ namespace physics_resource_internal
 
 		ColliderDesc cd;
 		memset((void*)&cd, 0, sizeof(cd));
-		cd.type        = st;
-		cd.material    = sjson::parse_string_id(obj["material"]);
-		cd.local_tm    = MATRIX4X4_IDENTITY;
-		cd.size        = 0;
+		cd.type     = st;
+		cd.local_tm = MATRIX4X4_IDENTITY;
+		cd.size     = 0;
 
 		// Parse .mesh
 		DynamicString scene(ta);

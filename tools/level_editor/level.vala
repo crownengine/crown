@@ -342,7 +342,7 @@ namespace Crown
 			_client.send_script(LevelEditorApi.set_camera(unit_id, projection, fov, near_range, far_range));
 		}
 
-		public void set_collider(Guid unit_id, Guid component_id, string shape, string scene, string name, string material)
+		public void set_collider(Guid unit_id, Guid component_id, string shape, string scene, string name)
 		{
 			_db.add_restore_point((int)ActionType.SET_COLLIDER, new Guid[] { unit_id });
 
@@ -350,7 +350,6 @@ namespace Crown
 			unit.set_component_property_string(component_id, "data.shape", shape);
 			unit.set_component_property_string(component_id, "data.scene", scene);
 			unit.set_component_property_string(component_id, "data.name", name);
-			unit.set_component_property_string(component_id, "data.material", material);
 			unit.set_component_property_string(component_id, "type", "collider");
 
 			// No synchronization

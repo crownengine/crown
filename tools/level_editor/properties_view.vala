@@ -344,7 +344,6 @@ namespace Crown
 		private Gtk.Entry _shape;
 		private ReferenceChooser _scene;
 		private Gtk.Entry _name;
-		private Gtk.Entry _material;
 
 		public ColliderComponentView(Level level, ProjectStore store)
 		{
@@ -358,13 +357,10 @@ namespace Crown
 			_scene.value_changed.connect(on_value_changed);
 			_name = new Gtk.Entry();
 			_name.sensitive = false;
-			_material = new Gtk.Entry();
-			_material.sensitive = false;
 
 			add_row("Shape", _shape);
 			add_row("Scene", _scene);
 			add_row("Name", _name);
-			add_row("Material", _material);
 		}
 
 		private void on_value_changed()
@@ -374,7 +370,6 @@ namespace Crown
 				, _shape.text
 				, _scene.value
 				, _name.text
-				, _material.text
 				);
 		}
 
@@ -384,7 +379,6 @@ namespace Crown
 			_shape.text    = unit.get_component_property_string(_component_id, "data.shape");
 			_scene.value   = unit.get_component_property_string(_component_id, "data.scene");
 			_name.text     = unit.get_component_property_string(_component_id, "data.name");
-			_material.text = unit.get_component_property_string(_component_id, "data.material");
 		}
 	}
 
