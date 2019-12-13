@@ -22,6 +22,10 @@ struct PackageResource
 		StringId64 type;
 		StringId64 name;
 
+		Resource()
+		{
+		}
+
 		Resource(StringId64 t, StringId64 n)
 			: type(t)
 			, name(n)

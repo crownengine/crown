@@ -22,9 +22,18 @@
 
 namespace crown
 {
+template<>
+struct hash<PackageResource::Resource>
+{
+	u32 operator()(const PackageResource::Resource& val) const
+	{
+		return (u32)resource_id(val.type, val.name)._id;
+	}
+};
+
 namespace package_resource_internal
 {
-	s32 bring_in_requirements(Array<PackageResource::Resource>& output, CompileOptions& opts, ResourceId res_id)
+	s32 bring_in_requirements(HashSet<PackageResource::Resource>& output, CompileOptions& opts, ResourceId res_id)
 	{
 		HashMap<DynamicString, u32> reqs_deffault(default_allocator());
 		HashMap<DynamicString, u32>& reqs = hash_map::get(opts._data_compiler._data_requirements, res_id, reqs_deffault);
@@ -41,18 +50,15 @@ namespace package_resource_internal
 
 			const StringId64 req_type_hash(req_type);
 			const StringId64 req_name_hash(req_filename, req_name_len);
-			array::push_back(output, PackageResource::Resource(req_type_hash, req_name_hash));
+			hash_set::insert(output, PackageResource::Resource(req_type_hash, req_name_hash));
 
-			bring_in_requirements(output
-				, opts
-				, resource_id(req_type_hash, req_name_hash)
-				);
+			bring_in_requirements(output, opts, resource_id(req_type_hash, req_name_hash));
 		}
 
 		return 0;
 	}
 
-	s32 compile_resources(const char* type, const JsonArray& names, Array<PackageResource::Resource>& output, CompileOptions& opts)
+	s32 compile_resources(HashSet<PackageResource::Resource>& output, CompileOptions& opts, const char* type, const JsonArray& names)
 	{
 		const StringId64 type_hash = StringId64(type);
 
@@ -64,13 +70,10 @@ namespace package_resource_internal
 			DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name.c_str(), opts);
 
 			const StringId64 name_hash = sjson::parse_resource_name(names[i]);
-			array::push_back(output, PackageResource::Resource(type_hash, name_hash));
+			hash_set::insert(output, PackageResource::Resource(type_hash, name_hash));
 
 			// Bring in requirements
-			bring_in_requirements(output
-				, opts
-				, resource_id(type_hash, name_hash)
-				);
+			bring_in_requirements(output, opts, resource_id(type_hash, name_hash));
 		}
 
 		return 0;
@@ -78,12 +81,8 @@ namespace package_resource_internal
 
 	s32 compile(CompileOptions& opts)
 	{
-		Buffer buf = opts.read();
-
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(buf, object);
-
 		JsonArray texture(ta);
 		JsonArray script(ta);
 		JsonArray sound(ta);
@@ -96,6 +95,12 @@ namespace package_resource_internal
 		JsonArray phyconf(ta);
 		JsonArray shader(ta);
 		JsonArray sprite_animation(ta);
+
+		Array<PackageResource::Resource> resources(default_allocator());
+		HashSet<PackageResource::Resource> resources_set(default_allocator());
+
+		Buffer buf = opts.read();
+		sjson::parse(buf, object);
 
 		if (json_object::has(object, "texture"))          sjson::parse_array(object["texture"], texture);
 		if (json_object::has(object, "lua"))              sjson::parse_array(object["lua"], script);
@@ -110,36 +115,27 @@ namespace package_resource_internal
 		if (json_object::has(object, "shader"))           sjson::parse_array(object["shader"], shader);
 		if (json_object::has(object, "sprite_animation")) sjson::parse_array(object["sprite_animation"], sprite_animation);
 
-		Array<PackageResource::Resource> resources(default_allocator());
+		if (compile_resources(resources_set, opts, "texture", texture) != 0) return -1;
+		if (compile_resources(resources_set, opts, "lua", script) != 0) return -1;
+		if (compile_resources(resources_set, opts, "sound", sound) != 0) return -1;
+		if (compile_resources(resources_set, opts, "mesh", mesh) != 0) return -1;
+		if (compile_resources(resources_set, opts, "unit", unit) != 0) return -1;
+		if (compile_resources(resources_set, opts, "sprite", sprite) != 0) return -1;
+		if (compile_resources(resources_set, opts, "material", material) != 0) return -1;
+		if (compile_resources(resources_set, opts, "font", font) != 0) return -1;
+		if (compile_resources(resources_set, opts, "level", level) != 0) return -1;
+		if (compile_resources(resources_set, opts, "physics_config", phyconf) != 0) return -1;
+		if (compile_resources(resources_set, opts, "shader", shader) != 0) return -1;
+		if (compile_resources(resources_set, opts, "sprite_animation", sprite_animation) != 0) return -1;
 
-		if (compile_resources("texture", texture, resources, opts) != 0) return -1;
-		if (compile_resources("lua", script, resources, opts) != 0) return -1;
-		if (compile_resources("sound", sound, resources, opts) != 0) return -1;
-		if (compile_resources("mesh", mesh, resources, opts) != 0) return -1;
-		if (compile_resources("unit", unit, resources, opts) != 0) return -1;
-		if (compile_resources("sprite", sprite, resources, opts) != 0) return -1;
-		if (compile_resources("material", material, resources, opts) != 0) return -1;
-		if (compile_resources("font", font, resources, opts) != 0) return -1;
-		if (compile_resources("level", level, resources, opts) != 0) return -1;
-		if (compile_resources("physics_config", phyconf, resources, opts) != 0) return -1;
-		if (compile_resources("shader", shader, resources, opts) != 0) return -1;
-		if (compile_resources("sprite_animation", sprite_animation, resources, opts) != 0) return -1;
-
-		// Remove duplicated entries
-		HashSet<ResourceId> duplicates(default_allocator());
-		for (u32 i = 0; i < array::size(resources); ++i)
+		// Generate resource list
+		auto cur = hash_set::begin(resources_set);
+		auto end = hash_set::end(resources_set);
+		for (; cur != end; ++cur)
 		{
-			ResourceId res_id = resource_id(resources[i].type, resources[i].name);
+			HASH_SET_SKIP_HOLE(resources_set, cur);
 
-			if (hash_set::has(duplicates, res_id))
-			{
-				resources[i] = resources[array::size(resources) - 1];
-				array::pop_back(resources);
-			}
-			else
-			{
-				hash_set::insert(duplicates, res_id);
-			}
+			array::push_back(resources, *cur);
 		}
 
 		// Write

@@ -36,6 +36,17 @@ namespace hash_set
 	/// Calls destructor on the items.
 	template <typename TKey, typename Hash, typename KeyEqual> void clear(HashSet<TKey, Hash, KeyEqual>& m);
 
+	/// Returns whether the @a entry in the set @a m contains data or is a hole.
+	/// If the entry is a hole you should not touch data in the entry.
+	template <typename TKey, typename Hash, typename KeyEqual> bool is_hole(const HashSet<TKey, Hash, KeyEqual>& m, const TKey* entry);
+
+	/// Returns a pointer to the first item in the set, can be used to
+	/// efficiently iterate over the elements (in random order).
+	/// @note
+	/// You should skip invalid items with HASH_SET_SKIP_HOLE().
+	template <typename TKey, typename Hash, typename KeyEqual> const TKey* begin(const HashSet<TKey, Hash, KeyEqual>& m);
+	template <typename TKey, typename Hash, typename KeyEqual> const TKey* end(const HashSet<TKey, Hash, KeyEqual>& m);
+
 } // namespace hash_set
 
 namespace hash_set_internal
@@ -259,6 +270,27 @@ namespace hash_set
 		m._size = 0;
 	}
 
+	template <typename TKey, typename Hash, typename KeyEqual>
+	bool is_hole(const HashSet<TKey, Hash, KeyEqual>& m, const TKey* entry)
+	{
+		const u32 ii = u32(entry - m._data);
+		const u32 index = m._index[ii].index;
+
+		return index == hash_set_internal::FREE || hash_set_internal::is_deleted(index);
+	}
+
+	template <typename TKey, typename Hash, typename KeyEqual>
+	inline const TKey* begin(const HashSet<TKey, Hash, KeyEqual>& m)
+	{
+		return m._data;
+	}
+
+	template <typename TKey, typename Hash, typename KeyEqual>
+	inline const TKey* end(const HashSet<TKey, Hash, KeyEqual>& m)
+	{
+		return m._data + m._capacity;
+	}
+
 } // namespace hash_set
 
 template <typename TKey, typename Hash, typename KeyEqual>
@@ -342,5 +374,9 @@ HashSet<TKey, Hash, KeyEqual>& HashSet<TKey, Hash, KeyEqual>::operator=(const Ha
 	}
 	return *this;
 }
+
+#define HASH_SET_SKIP_HOLE(m, cur) \
+	if (hash_set::is_hole(m, cur)) \
+		continue
 
 } // namespace crown

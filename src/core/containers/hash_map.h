@@ -53,7 +53,7 @@ namespace hash_map
 	/// Returns a pointer to the first item in the map, can be used to
 	/// efficiently iterate over the elements (in random order).
 	/// @note
-	/// You should check whether the item is valid with hash_map::is_hole().
+	/// You should skip invalid items with HASH_MAP_SKIP_HOLE().
 	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* begin(const HashMap<TKey, TValue, Hash, KeyEqual>& m);
 	template <typename TKey, typename TValue, typename Hash, typename KeyEqual> const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* end(const HashMap<TKey, TValue, Hash, KeyEqual>& m);
 
@@ -302,13 +302,13 @@ namespace hash_map
 	}
 
 	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
-	const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* begin(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
+	inline const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* begin(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
 	{
 		return m._data;
 	}
 
 	template <typename TKey, typename TValue, typename Hash, typename KeyEqual>
-	const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* end(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
+	inline const typename HashMap<TKey, TValue, Hash, KeyEqual>::Entry* end(const HashMap<TKey, TValue, Hash, KeyEqual>& m)
 	{
 		return m._data + m._capacity;
 	}
