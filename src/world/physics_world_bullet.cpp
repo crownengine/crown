@@ -633,17 +633,18 @@ struct PhysicsWorldImpl
 
 	void actor_set_kinematic(ActorInstance i, bool kinematic)
 	{
-		int flags = _actor[i.i].actor->getCollisionFlags();
+		btRigidBody* body = _actor[i.i].actor;
+		int flags = body->getCollisionFlags();
 
 		if (kinematic)
 		{
-			_actor[i.i].actor->setCollisionFlags(flags | btCollisionObject::CF_KINEMATIC_OBJECT);
-			_actor[i.i].actor->setActivationState(DISABLE_DEACTIVATION);
+			body->setCollisionFlags(flags | btCollisionObject::CF_KINEMATIC_OBJECT);
+			body->setActivationState(DISABLE_DEACTIVATION);
 		}
 		else
 		{
-			_actor[i.i].actor->setCollisionFlags(flags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
-			_actor[i.i].actor->setActivationState(ACTIVE_TAG);
+			body->setCollisionFlags(flags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+			body->setActivationState(ACTIVE_TAG);
 		}
 	}
 
