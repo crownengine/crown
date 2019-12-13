@@ -604,12 +604,16 @@ struct PhysicsWorldImpl
 
 	void actor_enable_gravity(ActorInstance i)
 	{
-		_actor[i.i].actor->setGravity(_dynamics_world->getGravity());
+		btRigidBody* body = _actor[i.i].actor;
+		body->setFlags(body->getFlags() & ~BT_DISABLE_WORLD_GRAVITY);
+		body->setGravity(_dynamics_world->getGravity());
 	}
 
 	void actor_disable_gravity(ActorInstance i)
 	{
-		_actor[i.i].actor->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+		btRigidBody* body = _actor[i.i].actor;
+		body->setFlags(body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+		body->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	}
 
 	void actor_enable_collision(ActorInstance /*i*/)
