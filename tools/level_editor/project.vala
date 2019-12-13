@@ -317,6 +317,10 @@ end
 			Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, sid.pivot.active);
 
 			bool collision_enabled = sid.collision_enabled.active;
+            string circle_square_active_name = (string)sid.circle_square.visible_child_name;
+            int circle_collision_center_x = (int)sid.circle_collision_center_x.value;
+            int circle_collision_center_y = (int)sid.circle_collision_center_y.value;
+            int circle_collision_radius = (int)sid.circle_collision_radius.value;
 			int collision_x = (int)sid.collision_x.value;
 			int collision_y = (int)sid.collision_y.value;
 			int collision_w = (int)sid.collision_w.value;
@@ -466,6 +470,7 @@ end
 				if (collision_enabled)
 				{
 					// Create collider (geometry)
+                    if (circle_square_active_name == "square_collider")
 					{
 						// d-----a
 						// |     |
@@ -553,6 +558,90 @@ end
 						mesh["nodes"] = nodes;
 
 						SJSON.save(mesh, Path.build_filename(_source_dir.get_path(), resource_name) + ".mesh");
+					} else {
+						// d-----a
+						// |     |
+						// |     |
+						// c-----b
+                        int radius = circle_collision_radius;
+
+						double PIXELS_PER_METER = 32.0;
+                        int rings = 2;
+                        int radial_segments = 20;
+                        Vector3 center = {};
+                        // dont used, because compile_sphere doesnt need it
+                        center.x = circle_collision_center_x / PIXELS_PER_METER;
+                        center.y = circle_collision_center_y / PIXELS_PER_METER;
+
+
+						ArrayList<Value?> position = new ArrayList<Value?>();
+						ArrayList<Value?> indices_data = new ArrayList<Value?>();
+                        int prevrow = 0;
+                        int thisrow = 0;
+                        int point = 0;
+                        for (int i = 0; i < rings; ++i) {
+                            double theta = 2*Math.PI*i/radial_segments;
+                            double phi = Math.PI*i/rings;
+                            for (int j = 0; j < radial_segments; ++j) {
+                                position.add(radius*Math.cos(theta)*Math.sin(phi)/PIXELS_PER_METER);
+                                position.add(radius*Math.cos(phi)/PIXELS_PER_METER);
+                                position.add(radius*Math.sin(theta)*Math.cos(phi)/PIXELS_PER_METER);
+                                // Create triangles in ring using indices.
+                                if (i > 0 && j > 0) {
+                                    indices_data.add(prevrow + j - 1);
+                                    indices_data.add(prevrow + j);
+                                    indices_data.add(thisrow + j - 1);
+
+                                    indices_data.add(prevrow + j);
+                                    indices_data.add(thisrow + j);
+                                    indices_data.add(thisrow + j - 1);
+                                }
+                                point++;
+                            }
+                            if (i > 0) {
+                                indices_data.add(prevrow + radial_segments - 1);
+                                indices_data.add(prevrow);
+                                indices_data.add(thisrow + radial_segments - 1);
+
+                                indices_data.add(prevrow);
+                                indices_data.add(prevrow + radial_segments);
+                                indices_data.add(thisrow + radial_segments - 1);
+                            }
+                            prevrow = thisrow;
+                            thisrow = point;
+                        }
+
+						ArrayList<Value?> data = new ArrayList<Value?>();
+						data.add(indices_data);
+
+						Hashtable indices = new Hashtable();
+						indices["size"] = indices_data.size;
+						indices["data"] = data;
+
+						Hashtable geometries_collider = new Hashtable();
+						geometries_collider["position"] = position;
+						geometries_collider["indices"] = indices;
+
+						Hashtable geometries = new Hashtable();
+						geometries["collider"] = geometries_collider;
+
+						ArrayList<Value?> matrix_local = new ArrayList<Value?>();
+						matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0);
+						matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0);
+						matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0);
+						matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0);
+
+						Hashtable nodes_collider = new Hashtable();
+						nodes_collider["matrix_local"] = matrix_local;
+
+						Hashtable nodes = new Hashtable();
+						nodes["collider"] = nodes_collider;
+
+						Hashtable mesh = new Hashtable();
+						mesh["geometries"] = geometries;
+						mesh["nodes"] = nodes;
+
+						SJSON.save(mesh, Path.build_filename(_source_dir.get_path(), resource_name) + ".mesh");
 					}
 
 					// Create collider
@@ -562,7 +651,10 @@ end
 						if (!unit.has_component("collider", ref id))
 						{
 							db.create(id);
-							db.set_property_string(id, "data.shape", "box");
+                            if (circle_square_active_name == "square_collider")
+                                db.set_property_string(id, "data.shape", "box");
+                            else
+                                db.set_property_string(id, "data.shape", "sphere");
 							db.set_property_string(id, "data.scene", resource_name);
 							db.set_property_string(id, "data.name", "collider");
 							db.set_property_string(id, "type", "collider");
@@ -571,7 +663,10 @@ end
 						}
 						else
 						{
-							unit.set_component_property_string(id, "data.shape", "box");
+                            if (circle_square_active_name == "square_collider")
+                                unit.set_component_property_string(id, "data.shape", "box");
+                            else
+                                unit.set_component_property_string(id, "data.shape", "sphere");
 							unit.set_component_property_string(id, "data.scene", resource_name);
 							unit.set_component_property_string(id, "data.name", "collider");
 							unit.set_component_property_string(id, "type", "collider");
