@@ -1072,10 +1072,12 @@ void DataCompiler::file_monitor_callback(void* thiz, FileMonitorEvent::Enum fme,
 int main_data_compiler(const DeviceOptions& opts)
 {
 #if CROWN_PLATFORM_POSIX
+	struct sigaction old_SIGINT;
 	struct sigaction act;
 	act.sa_handler = [](int /*signum*/) { _quit = true; };
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = 0;
+	sigaction(SIGINT, NULL, &old_SIGINT);
 	sigaction(SIGINT, &act, NULL);
 #endif // CROWN_PLATFORM_POSIX
 
@@ -1163,6 +1165,11 @@ int main_data_compiler(const DeviceOptions& opts)
 
 	CE_DELETE(default_allocator(), dc);
 	console_server_globals::shutdown();
+
+#if CROWN_PLATFORM_POSIX
+	// Restore original handler
+	sigaction(SIGINT, &old_SIGINT, NULL);
+#endif // CROWN_PLATFORM_POSIX
 
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
