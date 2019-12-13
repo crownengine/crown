@@ -110,19 +110,28 @@ static inline Matrix4x4 to_matrix4x4(const btTransform& t)
 	const btVector3 x = t.getBasis().getRow(0);
 	const btVector3 y = t.getBasis().getRow(1);
 	const btVector3 z = t.getBasis().getRow(2);
+	const btVector3 o = t.getOrigin();
 
 	Matrix4x4 m;
 	m.x.x = x.x();
 	m.x.y = y.x();
 	m.x.z = z.x();
+	m.x.w = 0.0f;
 
 	m.y.x = x.y();
 	m.y.y = y.y();
 	m.y.z = z.y();
+	m.y.w = 0.0f;
 
 	m.z.x = x.z();
 	m.z.y = y.z();
 	m.z.z = z.z();
+	m.z.w = 0.0f;
+
+	m.t.x = o.x();
+	m.t.y = o.y();
+	m.t.z = o.z();
+	m.t.w = 1.0f;
 
 	return m;
 }
@@ -274,7 +283,7 @@ struct PhysicsWorldImpl
 		CE_DELETE(*_allocator, _dynamics_world);
 	}
 
-	ColliderInstance collider_create(UnitId id, const ColliderDesc* sd)
+	ColliderInstance collider_create(UnitId id, const ColliderDesc* sd, const Vector3& scale)
 	{
 		btTriangleIndexVertexArray* vertex_array = NULL;
 		btCollisionShape* child_shape = NULL;
@@ -337,6 +346,8 @@ struct PhysicsWorldImpl
 			CE_FATAL("Unknown shape type");
 			break;
 		}
+
+		child_shape->setLocalScaling(to_btVector3(scale));
 
 		const u32 last = array::size(_collider);
 
@@ -979,8 +990,7 @@ struct PhysicsWorldImpl
 				{
 					PhysicsTransformEvent ev;
 					ev.unit_id = unit_id;
-					ev.position = to_vector3(tr.getOrigin());
-					ev.rotation = to_quaternion(tr.getRotation());
+					ev.world = to_matrix4x4(tr);
 					event_stream::write(_events, EventType::PHYSICS_TRANSFORM, ev);
 				}
 			}
@@ -1106,9 +1116,9 @@ PhysicsWorld::~PhysicsWorld()
 	_marker = 0;
 }
 
-ColliderInstance PhysicsWorld::collider_create(UnitId id, const ColliderDesc* sd)
+ColliderInstance PhysicsWorld::collider_create(UnitId id, const ColliderDesc* sd, const Vector3& scl)
 {
-	return _impl->collider_create(id, sd);
+	return _impl->collider_create(id, sd, scl);
 }
 
 void PhysicsWorld::collider_destroy(ColliderInstance i)

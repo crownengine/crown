@@ -482,8 +482,7 @@ struct PhysicsTriggerEvent
 struct PhysicsTransformEvent
 {
 	UnitId unit_id;
-	Vector3 position;    ///< In world-space.
-	Quaternion rotation; ///< In world-space.
+	Matrix4x4 world;
 };
 
 } // namespace crown

@@ -119,7 +119,11 @@ struct SceneGraph
 	/// @copydoc SceneGraph::world_position()
 	Matrix4x4 world_pose(UnitId unit);
 
+	///
 	void set_world_pose(TransformInstance i, const Matrix4x4& pose);
+
+	///
+	void set_world_pose_and_rescale(TransformInstance i, const Matrix4x4& pose);
 
 	/// Returns the number of nodes in the graph.
 	u32 num_nodes() const;

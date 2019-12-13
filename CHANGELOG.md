@@ -6,12 +6,13 @@ Changelog
 *DD MMM YYYY*
 
 * runtime: added RenderWorld.mesh_set_material()
+* runtime: added the ability to scale the shape of colliders at Unit spawn time
 * runtime: added World.unit_by_name()
-* runtime: fixed an issue that prevented kinematic actors to be controlled via the SceneGraph
-* runtime: fixed an issue where a regular Matrix4x4 was returned if Matrix4x4Box is called without arguments
-* runtime: fixed an issue that prevented PhysicsWorld.actor_world_{position,rotation,pose}() to be called for static actors
-* runtime: fixed an issue that prevented PhysicsWorld.actor_center_of_mass() to be called for static actors
 * runtime: fixed an issue that caused PhysicsWorld.set_gravity() to re-enable gravity to actors that previously disabled it with PhysicsWorld.actor_disable_gravity()
+* runtime: fixed an issue that prevented kinematic actors to be controlled via the SceneGraph
+* runtime: fixed an issue that prevented PhysicsWorld.actor_center_of_mass() to be called for static actors
+* runtime: fixed an issue that prevented PhysicsWorld.actor_world_{position,rotation,pose}() to be called for static actors
+* runtime: fixed an issue where a regular Matrix4x4 was returned if Matrix4x4Box is called without arguments
 * runtime: removed "io" and "os" libraries from Lua API
 * runtime: small fixes and performance improvements
 * runtime: sprite's frame number now wraps if it is greater than the total number of frames in the sprite

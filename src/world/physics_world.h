@@ -30,7 +30,7 @@ struct PhysicsWorld
 	~PhysicsWorld();
 
 	///
-	ColliderInstance collider_create(UnitId id, const ColliderDesc* sd);
+	ColliderInstance collider_create(UnitId id, const ColliderDesc* sd, const Vector3& scl);
 
 	///
 	void collider_destroy(ColliderInstance i);
@@ -178,6 +178,7 @@ struct PhysicsWorld
 	/// Sets the gravity.
 	void set_gravity(const Vector3& g);
 
+	///
 	void update_actor_world_poses(const UnitId* begin, const UnitId* end, const Matrix4x4* begin_world);
 
 	/// Updates the physics simulation.

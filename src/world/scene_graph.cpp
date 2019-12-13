@@ -268,6 +268,14 @@ void SceneGraph::set_world_pose(TransformInstance i, const Matrix4x4& pose)
 	_data.changed[i.i] = true;
 }
 
+void SceneGraph::set_world_pose_and_rescale(TransformInstance i, const Matrix4x4& pose)
+{
+	CE_ASSERT(i.i < _data.size, "Index out of bounds");
+	_data.world[i.i] = pose;
+	set_scale(_data.world[i.i], _data.local[i.i].scale);
+	_data.changed[i.i] = true;
+}
+
 u32 SceneGraph::num_nodes() const
 {
 	return _data.size;

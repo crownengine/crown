@@ -402,8 +402,8 @@ UnitManager
 World
 =====
 
-**spawn_unit** (world, name, [position, rotation]) : UnitId
-	Spawns a new instance of the unit *name* at the given *position* and *rotation*.
+**spawn_unit** (world, name, [position, rotation, scale]) : UnitId
+	Spawns a new instance of the unit *name* at the given *position*, *rotation* and *scale*.
 
 **spawn_empty_unit** (world) : UnitId
 	Spawns a new empty unit and returns its id.

@@ -78,8 +78,8 @@ struct World
 	///
 	~World();
 
-	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
-	UnitId spawn_unit(StringId64 name, const Vector3& pos = VECTOR3_ZERO, const Quaternion& rot = QUATERNION_IDENTITY);
+	/// Spawns a new instance of the unit @a name at the given @a position, @a rotation and @a scale.
+	UnitId spawn_unit(StringId64 name, const Vector3& pos = VECTOR3_ZERO, const Quaternion& rot = QUATERNION_IDENTITY, const Vector3& scl = VECTOR3_ONE);
 
 	/// Spawns a new empty unit and returns its id.
 	UnitId spawn_empty_unit();
@@ -210,6 +210,6 @@ struct World
 	void post_level_loaded_event();
 };
 
-void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const UnitId* unit_lookup);
+void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup);
 
 } // namespace crown

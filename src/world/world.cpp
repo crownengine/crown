@@ -90,11 +90,11 @@ World::~World()
 	_marker = 0;
 }
 
-UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot)
+UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot, const Vector3& scl)
 {
 	const UnitResource* ur = (const UnitResource*)_resource_manager->get(RESOURCE_TYPE_UNIT, name);
 	UnitId id = _unit_manager->create();
-	spawn_units(*this, *ur, pos, rot, &id);
+	spawn_units(*this, *ur, pos, rot, scl, &id);
 	return id;
 }
 
@@ -214,8 +214,7 @@ void World::update_scene(f32 dt)
 				{
 					const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
 					const TransformInstance ti = _scene_graph->instances(ptev.unit_id);
-					const Matrix4x4 pose = matrix4x4(ptev.rotation, ptev.position);
-					_scene_graph->set_world_pose(ti, pose);
+					_scene_graph->set_world_pose_and_rescale(ti, ptev.world);
 				}
 				break;
 
@@ -574,7 +573,7 @@ void World::post_level_loaded_event()
 	event_stream::write(_events, EventType::LEVEL_LOADED, ev);
 }
 
-void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const UnitId* unit_lookup)
+void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Quaternion& rot, const Vector3& scl, const UnitId* unit_lookup)
 {
 	SceneGraph* scene_graph = w._scene_graph;
 	RenderWorld* render_world = w._render_world;
@@ -595,6 +594,11 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			{
 				Matrix4x4 matrix = matrix4x4(rot, pos);
 				Matrix4x4 matrix_res = matrix4x4(td->rotation, td->position);
+				Vector3 scale;
+				scale.x = td->scale.x * scl.x;
+				scale.y = td->scale.y * scl.y;
+				scale.z = td->scale.z * scl.z;
+				set_scale(matrix_res, scale);
 				scene_graph->create(unit_lookup[unit_index[i]], matrix_res*matrix);
 			}
 		}
@@ -611,7 +615,9 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const ColliderDesc* cd = (const ColliderDesc*)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i)
 			{
-				physics_world->collider_create(unit_lookup[unit_index[i]], cd);
+				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
+				Vector3 scl = scale(tm);
+				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scl);
 				cd = (ColliderDesc*)((char*)(cd + 1) + cd->size);
 			}
 		}
@@ -621,7 +627,9 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
-				physics_world->actor_create(unit_lookup[unit_index[i]], ar, tm);
+				Vector3 pos = translation(tm);
+				Quaternion rot = rotation(tm);
+				physics_world->actor_create(unit_lookup[unit_index[i]], ar, matrix4x4(rot, pos));
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_MESH_RENDERER)

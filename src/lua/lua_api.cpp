@@ -1405,6 +1405,7 @@ void load_api(LuaEnvironment& env)
 			const StringId64 name = stack.get_resource_name(2);
 			const Vector3& pos    = nargs > 2 ? stack.get_vector3(3)    : VECTOR3_ZERO;
 			const Quaternion& rot = nargs > 3 ? stack.get_quaternion(4) : QUATERNION_IDENTITY;
+			const Vector3& scl    = nargs > 4 ? stack.get_vector3(5)    : VECTOR3_ONE;
 
 			char name_str[RESOURCE_ID_STRING_LENGTH];
 			LUA_ASSERT(device()->_resource_manager->can_get(RESOURCE_TYPE_UNIT, name)
@@ -1414,7 +1415,7 @@ void load_api(LuaEnvironment& env)
 				);
 			CE_UNUSED(name_str);
 
-			stack.push_unit(world->spawn_unit(name, pos, rot));
+			stack.push_unit(world->spawn_unit(name, pos, rot, scl));
 			return 1;
 		});
 	env.add_module_function("World", "spawn_empty_unit", [](lua_State* L)

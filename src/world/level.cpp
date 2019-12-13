@@ -38,7 +38,7 @@ void Level::load(const Vector3& pos, const Quaternion& rot)
 	for (u32 i = 0; i < ur->num_units; ++i)
 		_unit_lookup[i] = _unit_manager->create();
 
-	spawn_units(*_world, *ur, pos, rot, array::begin(_unit_lookup));
+	spawn_units(*_world, *ur, pos, rot, VECTOR3_ONE, array::begin(_unit_lookup));
 
 	// Play sounds
 	const u32 num_sounds = level_resource::num_sounds(_resource);

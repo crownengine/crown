@@ -36,7 +36,7 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	ColliderInstance collider_create(UnitId /*id*/, const ColliderDesc* /*sd*/)
+	ColliderInstance collider_create(UnitId /*id*/, const ColliderDesc* /*sd*/, const Vector3& /*scl*/)
 	{
 		return make_collider_instance(UINT32_MAX);
 	}
@@ -288,9 +288,9 @@ PhysicsWorld::~PhysicsWorld()
 	_marker = 0;
 }
 
-ColliderInstance PhysicsWorld::collider_create(UnitId id, const ColliderDesc* sd)
+ColliderInstance PhysicsWorld::collider_create(UnitId id, const ColliderDesc* sd, const Vector3& scl)
 {
-	return _impl->collider_create(id, sd);
+	return _impl->collider_create(id, sd, scl);
 }
 
 void PhysicsWorld::collider_destroy(ColliderInstance i)
