@@ -399,14 +399,18 @@ namespace Crown
 			_level = level;
 
 			// Widgets
-			_class = new Gtk.Entry();
+			_class = new ComboBoxMap();
+			_class.append("static", "static");
+			_class.append("dynamic", "dynamic");
+			_class.append("keyframed", "keyframed");
+			_class.append("trigger", "trigger");
+			_class.value_changed.connect(on_value_changed);
 			_collision_filter = new Gtk.Entry();
+			_collision_filter.sensitive = false;
 			_material = new Gtk.Entry();
+			_material.sensitive = false;
 			_mass = new SpinButtonDouble(1.0, 0.0, double.MAX);
 			_mass.value_changed.connect(on_value_changed);
-			_class.sensitive = false;
-			_collision_filter.sensitive = false;
-			_material.sensitive = false;
 
 			add_row("Class", _class);
 			add_row("Collision Filter", _collision_filter);
@@ -418,7 +422,7 @@ namespace Crown
 		{
 			_level.set_actor(_id
 				, _component_id
-				, _class.text
+				, _class.value
 				, _collision_filter.text
 				, _material.text
 				, _mass.value
@@ -428,7 +432,7 @@ namespace Crown
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			_class.text            = unit.get_component_property_string(_component_id, "data.class");
+			_class.value           = unit.get_component_property_string(_component_id, "data.class");
 			_collision_filter.text = unit.get_component_property_string(_component_id, "data.collision_filter");
 			_material.text         = unit.get_component_property_string(_component_id, "data.material");
 			_mass.value            = unit.get_component_property_double(_component_id, "data.mass");
