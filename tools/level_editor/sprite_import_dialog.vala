@@ -563,10 +563,12 @@ public class SpriteImportDialog : Gtk.Dialog
 		collision_y.value                       = (double)importer_settings["collision_y"];
 		collision_w.value                       = (double)importer_settings["collision_w"];
 		collision_h.value                       = (double)importer_settings["collision_h"];
-		circle_collision_center_x.value         = (double)importer_settings["circle_collision_center_x"];
-		circle_collision_center_y.value         = (double)importer_settings["circle_collision_center_y"];
+        circle_collision_center_x.value         = importer_settings.has_key("circle_collision_center_x") ? (double)importer_settings["circle_collision_center_x"] : cell_w.value;
+        circle_collision_center_y.value         = importer_settings.has_key("circle_collision_center_y") ? (double)importer_settings["circle_collision_center_y"] : cell_h.value;
 		circle_collision_radius.value           = (double)importer_settings["circle_collision_radius"];
+        circle_collision_radius.value           = importer_settings.has_key("circle_collision_radius") ? (double)importer_settings["circle_collision_radius"] : 32;
 		circle_square.visible_child_name        = (string)importer_settings["circle_square_active_name"];
+        circle_square.visible_child_name        = importer_settings.has_key("circle_square_active_name") ? (string)importer_settings["circle_square_active_name"] : "square_collider";
 	}
 
 	public void save(Hashtable importer_settings)
