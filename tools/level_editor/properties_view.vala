@@ -388,7 +388,7 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private Gtk.Entry _class;
+		private ComboBoxMap _class;
 		private Gtk.Entry _collision_filter;
 		private SpinButtonDouble _mass;
 		private Gtk.Entry _material;

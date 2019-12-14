@@ -119,18 +119,19 @@ public class SpriteImportDialog : Gtk.Dialog
 	public SpinButtonDouble depth;
 
 	public Gtk.CheckButton collision_enabled;
-    public string circle_square_active_name;
-    public Gtk.StackSwitcher circle_square_switcher;
-    public Gtk.Stack circle_square;
+	public string circle_square_active_name;
+	public Gtk.StackSwitcher circle_square_switcher;
+	public Gtk.Stack circle_square;
 
-    public Gtk.SpinButton circle_collision_center_x;
-    public Gtk.SpinButton circle_collision_center_y;
-    public Gtk.SpinButton circle_collision_radius;
+	public Gtk.SpinButton circle_collision_center_x;
+	public Gtk.SpinButton circle_collision_center_y;
+	public Gtk.SpinButton circle_collision_radius;
 
 	public Gtk.SpinButton collision_x;
 	public Gtk.SpinButton collision_y;
 	public Gtk.SpinButton collision_w;
 	public Gtk.SpinButton collision_h;
+	public ComboBoxMap actor_class;
 
 	// Widgets
 	public SpriteImportDialog(string png)
@@ -286,7 +287,7 @@ public class SpriteImportDialog : Gtk.Dialog
 				cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
 				cr.fill();
 
-                cr.arc(circle_collision_center_x.value, circle_collision_center_y.value, circle_collision_radius.value, 0, 2*Math.PI);
+				cr.arc(circle_collision_center_x.value, circle_collision_center_y.value, circle_collision_radius.value, 0, 2*Math.PI);
 				cr.set_source_rgba(0.3, 0.3, 0.3, 0.6);
 				cr.fill();
 
@@ -323,13 +324,19 @@ public class SpriteImportDialog : Gtk.Dialog
 		collision_w.value = 32;
 		collision_h = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
 		collision_h.value = 32;
+		actor_class = new ComboBoxMap();
+		actor_class.append("static", "static");
+		actor_class.append("dynamic", "dynamic");
+		actor_class.append("keyframed", "keyframed");
+		actor_class.append("trigger", "trigger");
+		actor_class.value = "static";
 
-        circle_collision_center_x = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
-        circle_collision_center_x.value = cell_w.value/2.0;
-        circle_collision_center_y = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
-        circle_collision_center_y.value = cell_h.value/2.0;;
-        circle_collision_radius = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
-        circle_collision_radius.value = 32;
+		circle_collision_center_x = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
+		circle_collision_center_x.value = cell_w.value/2.0;
+		circle_collision_center_y = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
+		circle_collision_center_y.value = cell_h.value/2.0;;
+		circle_collision_radius = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
+		circle_collision_radius.value = 32;
 
 		cells_h.value_changed.connect (() => {
 			if (cell_wh_auto.active)
@@ -361,13 +368,13 @@ public class SpriteImportDialog : Gtk.Dialog
 		});
 
 		cell_w.value_changed.connect (() => {
-            circle_collision_center_x.value = cell_w.value/2.0;
+			circle_collision_center_x.value = cell_w.value/2.0;
 			_drawing_area.queue_draw();
 			_preview.queue_draw();
 		});
 
 		cell_h.value_changed.connect(() => {
-            circle_collision_center_y.value = cell_h.value/2.0;
+			circle_collision_center_y.value = cell_h.value/2.0;
 			_drawing_area.queue_draw();
 			_preview.queue_draw();
 		});
@@ -397,9 +404,11 @@ public class SpriteImportDialog : Gtk.Dialog
 			collision_y.sensitive = !collision_y.sensitive;
 			collision_w.sensitive = !collision_w.sensitive;
 			collision_h.sensitive = !collision_h.sensitive;
-            circle_collision_center_x.sensitive = !circle_collision_center_x.sensitive;
-            circle_collision_center_y.sensitive = !circle_collision_center_y.sensitive;
-            circle_collision_radius.sensitive = !circle_collision_radius.sensitive;
+			circle_square_switcher.sensitive = !circle_square_switcher.sensitive;
+			circle_collision_center_x.sensitive = !circle_collision_center_x.sensitive;
+			circle_collision_center_y.sensitive = !circle_collision_center_y.sensitive;
+			circle_collision_radius.sensitive = !circle_collision_radius.sensitive;
+			actor_class.sensitive = !actor_class.sensitive;
 		});
 
 		collision_x.value_changed.connect(() => {
@@ -482,8 +491,9 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.attach(depth,        1, 12, 1, 1);
 
 		grid.attach(collision_enabled, 1, 13, 1, 1);
-        circle_square = new Gtk.Stack();
-        Gtk.Grid square_grid = new Gtk.Grid();
+		grid.attach(actor_class,       1, 14, 1, 1);
+		circle_square = new Gtk.Stack();
+		Gtk.Grid square_grid = new Gtk.Grid();
 		square_grid.attach(label_with_alignment("Collision X", Gtk.Align.END),  0, 0, 1, 1);
 		square_grid.attach(label_with_alignment("Collision Y", Gtk.Align.END),  0, 1, 1, 1);
 		square_grid.attach(label_with_alignment("Collision W", Gtk.Align.END),  0, 2, 1, 1);
@@ -495,23 +505,22 @@ public class SpriteImportDialog : Gtk.Dialog
 		square_grid.row_spacing = 6;
 		square_grid.column_spacing = 12;
 
-        Gtk.Grid circle_grid = new Gtk.Grid();
+		Gtk.Grid circle_grid = new Gtk.Grid();
 		circle_grid.attach(label_with_alignment("Collision X", Gtk.Align.END),  0, 0, 1, 1);
 		circle_grid.attach(label_with_alignment("Collision Y", Gtk.Align.END),  0, 1, 1, 1);
 		circle_grid.attach(label_with_alignment("Radius", Gtk.Align.END),  0, 2, 1, 1);
-        circle_grid.attach(circle_collision_center_x, 1, 0, 1, 1);
-        circle_grid.attach(circle_collision_center_y, 1, 1, 1, 1);
-        circle_grid.attach(circle_collision_radius, 1, 2, 1, 1);
+		circle_grid.attach(circle_collision_center_x, 1, 0, 1, 1);
+		circle_grid.attach(circle_collision_center_y, 1, 1, 1, 1);
+		circle_grid.attach(circle_collision_radius, 1, 2, 1, 1);
 		circle_grid.row_spacing = 6;
 		circle_grid.column_spacing = 12;
 
-        circle_square.add_titled(square_grid, "square_collider", "Square Collider");
-        circle_square.add_titled(circle_grid, "circle_collider", "Circle Collider");
-        circle_square_switcher = new Gtk.StackSwitcher();
-        circle_square_switcher.set_stack(circle_square);
-        grid.attach(circle_square_switcher, 0, 14, 2, 1);
-        grid.attach(circle_square, 0, 15, 2, 5);
-        
+		circle_square.add_titled(square_grid, "square_collider", "Square Collider");
+		circle_square.add_titled(circle_grid, "circle_collider", "Circle Collider");
+		circle_square_switcher = new Gtk.StackSwitcher();
+		circle_square_switcher.set_stack(circle_square);
+		grid.attach(circle_square_switcher, 1, 15, 1, 1);
+		grid.attach(circle_square, 1, 16, 1, 5);
 
 		grid.row_spacing = 6;
 		grid.column_spacing = 12;
@@ -547,52 +556,52 @@ public class SpriteImportDialog : Gtk.Dialog
 	public void load(Hashtable importer_settings)
 	{
 		// Load settings
-		cells_h.value                           = (double)importer_settings["num_h"];
-		cells_v.value                           = (double)importer_settings["num_v"];
-		cell_w.value                            = (double)importer_settings["cell_w"];
-		cell_h.value                            = (double)importer_settings["cell_h"];
-		offset_x.value                          = (double)importer_settings["offset_x"];
-		offset_y.value                          = (double)importer_settings["offset_y"];
-		spacing_x.value                         = (double)importer_settings["spacing_x"];
-		spacing_y.value                         = (double)importer_settings["spacing_y"];
-		layer.value                             = (double)importer_settings["layer"];
-		depth.value                             = (double)importer_settings["depth"];
-		pivot.active                            = (int)(double)importer_settings["pivot"];
-		collision_enabled.active                = (bool)importer_settings["collision_enabled"];
-		collision_x.value                       = (double)importer_settings["collision_x"];
-		collision_y.value                       = (double)importer_settings["collision_y"];
-		collision_w.value                       = (double)importer_settings["collision_w"];
-		collision_h.value                       = (double)importer_settings["collision_h"];
-        circle_collision_center_x.value         = importer_settings.has_key("circle_collision_center_x") ? (double)importer_settings["circle_collision_center_x"] : cell_w.value;
-        circle_collision_center_y.value         = importer_settings.has_key("circle_collision_center_y") ? (double)importer_settings["circle_collision_center_y"] : cell_h.value;
-		circle_collision_radius.value           = (double)importer_settings["circle_collision_radius"];
-        circle_collision_radius.value           = importer_settings.has_key("circle_collision_radius") ? (double)importer_settings["circle_collision_radius"] : 32;
-		circle_square.visible_child_name        = (string)importer_settings["circle_square_active_name"];
-        circle_square.visible_child_name        = importer_settings.has_key("circle_square_active_name") ? (string)importer_settings["circle_square_active_name"] : "square_collider";
+		cells_h.value                    = (double)importer_settings["num_h"];
+		cells_v.value                    = (double)importer_settings["num_v"];
+		cell_w.value                     = (double)importer_settings["cell_w"];
+		cell_h.value                     = (double)importer_settings["cell_h"];
+		offset_x.value                   = (double)importer_settings["offset_x"];
+		offset_y.value                   = (double)importer_settings["offset_y"];
+		spacing_x.value                  = (double)importer_settings["spacing_x"];
+		spacing_y.value                  = (double)importer_settings["spacing_y"];
+		layer.value                      = (double)importer_settings["layer"];
+		depth.value                      = (double)importer_settings["depth"];
+		pivot.active                     = (int)(double)importer_settings["pivot"];
+		collision_enabled.active         = (bool)importer_settings["collision_enabled"];
+		collision_x.value                = (double)importer_settings["collision_x"];
+		collision_y.value                = (double)importer_settings["collision_y"];
+		collision_w.value                = (double)importer_settings["collision_w"];
+		collision_h.value                = (double)importer_settings["collision_h"];
+		circle_collision_center_x.value  = importer_settings.has_key("circle_collision_center_x") ? (double)importer_settings["circle_collision_center_x"] : cell_w.value;
+		circle_collision_center_y.value  = importer_settings.has_key("circle_collision_center_y") ? (double)importer_settings["circle_collision_center_y"] : cell_h.value;
+		circle_collision_radius.value    = importer_settings.has_key("circle_collision_radius") ? (double)importer_settings["circle_collision_radius"] : 32;
+		circle_square.visible_child_name = importer_settings.has_key("circle_square_active_name") ? (string)importer_settings["circle_square_active_name"] : "square_collider";
+		actor_class.value                = importer_settings.has_key("actor_class") ? (string)importer_settings["actor_class"] : "static";
 	}
 
 	public void save(Hashtable importer_settings)
 	{
-		importer_settings["num_h"]                      = cells_h.value;
-		importer_settings["num_v"]                      = cells_v.value;
-		importer_settings["cell_w"]                     = cell_w.value;
-		importer_settings["cell_h"]                     = cell_h.value;
-		importer_settings["offset_x"]                   = offset_x.value;
-		importer_settings["offset_y"]                   = offset_y.value;
-		importer_settings["spacing_x"]                  = spacing_x.value;
-		importer_settings["spacing_y"]                  = spacing_y.value;
-		importer_settings["layer"]                      = layer.value;
-		importer_settings["depth"]                      = depth.value;
-		importer_settings["pivot"]                      = pivot.active;
-		importer_settings["collision_enabled"]          = collision_enabled.active;
-		importer_settings["collision_x"]                = collision_x.value;
-		importer_settings["collision_y"]                = collision_y.value;
-		importer_settings["collision_w"]                = collision_w.value;
-		importer_settings["collision_h"]                = collision_h.value;
-        importer_settings["circle_collision_center_x"]  = circle_collision_center_x.value;
-        importer_settings["circle_collision_center_y"]  = circle_collision_center_y.value;
-        importer_settings["circle_collision_radius"]    = circle_collision_radius.value;
-        importer_settings["circle_square_active_name"]  = circle_square.visible_child_name;
+		importer_settings["num_h"]                     = cells_h.value;
+		importer_settings["num_v"]                     = cells_v.value;
+		importer_settings["cell_w"]                    = cell_w.value;
+		importer_settings["cell_h"]                    = cell_h.value;
+		importer_settings["offset_x"]                  = offset_x.value;
+		importer_settings["offset_y"]                  = offset_y.value;
+		importer_settings["spacing_x"]                 = spacing_x.value;
+		importer_settings["spacing_y"]                 = spacing_y.value;
+		importer_settings["layer"]                     = layer.value;
+		importer_settings["depth"]                     = depth.value;
+		importer_settings["pivot"]                     = pivot.active;
+		importer_settings["collision_enabled"]         = collision_enabled.active;
+		importer_settings["collision_x"]               = collision_x.value;
+		importer_settings["collision_y"]               = collision_y.value;
+		importer_settings["collision_w"]               = collision_w.value;
+		importer_settings["collision_h"]               = collision_h.value;
+		importer_settings["circle_collision_center_x"] = circle_collision_center_x.value;
+		importer_settings["circle_collision_center_y"] = circle_collision_center_y.value;
+		importer_settings["circle_collision_radius"]   = circle_collision_radius.value;
+		importer_settings["circle_square_active_name"] = circle_square.visible_child_name;
+		importer_settings["actor_class"]               = actor_class.value;
 	}
 }
 

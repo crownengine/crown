@@ -317,14 +317,15 @@ end
 			Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, sid.pivot.active);
 
 			bool collision_enabled = sid.collision_enabled.active;
-            string circle_square_active_name = (string)sid.circle_square.visible_child_name;
-            int circle_collision_center_x = (int)sid.circle_collision_center_x.value;
-            int circle_collision_center_y = (int)sid.circle_collision_center_y.value;
-            int circle_collision_radius = (int)sid.circle_collision_radius.value;
+			string circle_square_active_name = (string)sid.circle_square.visible_child_name;
+			int circle_collision_center_x = (int)sid.circle_collision_center_x.value;
+			int circle_collision_center_y = (int)sid.circle_collision_center_y.value;
+			int circle_collision_radius = (int)sid.circle_collision_radius.value;
 			int collision_x = (int)sid.collision_x.value;
 			int collision_y = (int)sid.collision_y.value;
 			int collision_w = (int)sid.collision_w.value;
 			int collision_h = (int)sid.collision_h.value;
+			string actor_class = (string)sid.actor_class.value;
 
 			sid.destroy();
 
@@ -470,7 +471,7 @@ end
 				if (collision_enabled)
 				{
 					// Create collider (geometry)
-                    if (circle_square_active_name == "square_collider")
+					if (circle_square_active_name == "square_collider")
 					{
 						// d-----a
 						// |     |
@@ -558,58 +559,60 @@ end
 						mesh["nodes"] = nodes;
 
 						SJSON.save(mesh, Path.build_filename(_source_dir.get_path(), resource_name) + ".mesh");
-					} else {
+					}
+					else
+					{
 						// d-----a
 						// |     |
 						// |     |
 						// c-----b
-                        int radius = circle_collision_radius;
+						int radius = circle_collision_radius;
 
 						double PIXELS_PER_METER = 32.0;
-                        int rings = 2;
-                        int radial_segments = 20;
-                        Vector3 center = {};
-                        // dont used, because compile_sphere doesnt need it
-                        center.x = circle_collision_center_x / PIXELS_PER_METER;
-                        center.y = circle_collision_center_y / PIXELS_PER_METER;
+						int rings = 2;
+						int radial_segments = 20;
+						Vector3 center = {};
+						// dont used, because compile_sphere doesnt need it
+						center.x = circle_collision_center_x / PIXELS_PER_METER;
+						center.y = circle_collision_center_y / PIXELS_PER_METER;
 
 
 						ArrayList<Value?> position = new ArrayList<Value?>();
 						ArrayList<Value?> indices_data = new ArrayList<Value?>();
-                        int prevrow = 0;
-                        int thisrow = 0;
-                        int point = 0;
-                        for (int i = 0; i < rings; ++i) {
-                            double theta = 2*Math.PI*i/radial_segments;
-                            double phi = Math.PI*i/rings;
-                            for (int j = 0; j < radial_segments; ++j) {
-                                position.add(radius*Math.cos(theta)*Math.sin(phi)/PIXELS_PER_METER);
-                                position.add(radius*Math.cos(phi)/PIXELS_PER_METER);
-                                position.add(radius*Math.sin(theta)*Math.cos(phi)/PIXELS_PER_METER);
-                                // Create triangles in ring using indices.
-                                if (i > 0 && j > 0) {
-                                    indices_data.add(prevrow + j - 1);
-                                    indices_data.add(prevrow + j);
-                                    indices_data.add(thisrow + j - 1);
+						int prevrow = 0;
+						int thisrow = 0;
+						int point = 0;
+						for (int i = 0; i < rings; ++i) {
+							double theta = 2*Math.PI*i/radial_segments;
+							double phi = Math.PI*i/rings;
+							for (int j = 0; j < radial_segments; ++j) {
+								position.add(radius*Math.cos(theta)*Math.sin(phi)/PIXELS_PER_METER);
+								position.add(radius*Math.cos(phi)/PIXELS_PER_METER);
+								position.add(radius*Math.sin(theta)*Math.cos(phi)/PIXELS_PER_METER);
+								// Create triangles in ring using indices.
+								if (i > 0 && j > 0) {
+									indices_data.add(prevrow + j - 1);
+									indices_data.add(prevrow + j);
+									indices_data.add(thisrow + j - 1);
 
-                                    indices_data.add(prevrow + j);
-                                    indices_data.add(thisrow + j);
-                                    indices_data.add(thisrow + j - 1);
-                                }
-                                point++;
-                            }
-                            if (i > 0) {
-                                indices_data.add(prevrow + radial_segments - 1);
-                                indices_data.add(prevrow);
-                                indices_data.add(thisrow + radial_segments - 1);
+									indices_data.add(prevrow + j);
+									indices_data.add(thisrow + j);
+									indices_data.add(thisrow + j - 1);
+								}
+								point++;
+							}
+							if (i > 0) {
+								indices_data.add(prevrow + radial_segments - 1);
+								indices_data.add(prevrow);
+								indices_data.add(thisrow + radial_segments - 1);
 
-                                indices_data.add(prevrow);
-                                indices_data.add(prevrow + radial_segments);
-                                indices_data.add(thisrow + radial_segments - 1);
-                            }
-                            prevrow = thisrow;
-                            thisrow = point;
-                        }
+								indices_data.add(prevrow);
+								indices_data.add(prevrow + radial_segments);
+								indices_data.add(thisrow + radial_segments - 1);
+							}
+							prevrow = thisrow;
+							thisrow = point;
+						}
 
 						ArrayList<Value?> data = new ArrayList<Value?>();
 						data.add(indices_data);
@@ -651,10 +654,10 @@ end
 						if (!unit.has_component("collider", ref id))
 						{
 							db.create(id);
-                            if (circle_square_active_name == "square_collider")
-                                db.set_property_string(id, "data.shape", "box");
-                            else
-                                db.set_property_string(id, "data.shape", "sphere");
+							if (circle_square_active_name == "square_collider")
+								db.set_property_string(id, "data.shape", "box");
+							else
+								db.set_property_string(id, "data.shape", "sphere");
 							db.set_property_string(id, "data.scene", resource_name);
 							db.set_property_string(id, "data.name", "collider");
 							db.set_property_string(id, "type", "collider");
@@ -663,10 +666,10 @@ end
 						}
 						else
 						{
-                            if (circle_square_active_name == "square_collider")
-                                unit.set_component_property_string(id, "data.shape", "box");
-                            else
-                                unit.set_component_property_string(id, "data.shape", "sphere");
+							if (circle_square_active_name == "square_collider")
+								unit.set_component_property_string(id, "data.shape", "box");
+							else
+								unit.set_component_property_string(id, "data.shape", "sphere");
 							unit.set_component_property_string(id, "data.scene", resource_name);
 							unit.set_component_property_string(id, "data.name", "collider");
 							unit.set_component_property_string(id, "type", "collider");
@@ -680,7 +683,7 @@ end
 						if (!unit.has_component("actor", ref id))
 						{
 							db.create(id);
-							db.set_property_string(id, "data.class", "static");
+							db.set_property_string(id, "data.class", actor_class);
 							db.set_property_string(id, "data.collision_filter", "default");
 							db.set_property_bool  (id, "data.lock_rotation_x", true);
 							db.set_property_bool  (id, "data.lock_rotation_y", true);
@@ -696,7 +699,7 @@ end
 						}
 						else
 						{
-							unit.set_component_property_string(id, "data.class", "static");
+							unit.set_component_property_string(id, "data.class", actor_class);
 							unit.set_component_property_string(id, "data.collision_filter", "default");
 							unit.set_component_property_bool  (id, "data.lock_rotation_x", true);
 							unit.set_component_property_bool  (id, "data.lock_rotation_y", true);
