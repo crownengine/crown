@@ -9104,9 +9104,7 @@ void CompilerGLSL::emit_instruction(const Instruction &instruction)
 		auto &arg_type = expression_type(ops[2]);
 		auto func = type_to_glsl_constructor(type);
 
-		// If we're sign-extending or zero-extending, we need to make sure we cast from the correct type.
-		// For truncation, it does not matter, so don't emit useless casts.
-		if (arg_type.width < type.width)
+		if (arg_type.width < type.width || type_is_floating_point(type))
 			emit_unary_func_op_cast(result_type, id, ops[2], func.c_str(), input_type, type.basetype);
 		else
 			emit_unary_func_op(result_type, id, ops[2], func.c_str());
@@ -9894,7 +9892,12 @@ void CompilerGLSL::emit_instruction(const Instruction &instruction)
 		if (memory == ScopeWorkgroup) // Only need to consider memory within a group
 		{
 			if (semantics == MemorySemanticsWorkgroupMemoryMask)
-				statement("memoryBarrierShared();");
+			{
+				// OpControlBarrier implies a memory barrier for shared memory as well.
+				bool implies_shared_barrier = opcode == OpControlBarrier && execution_scope == ScopeWorkgroup;
+				if (!implies_shared_barrier)
+					statement("memoryBarrierShared();");
+			}
 			else if (semantics != 0)
 				statement("groupMemoryBarrier();");
 		}
@@ -9928,7 +9931,7 @@ void CompilerGLSL::emit_instruction(const Instruction &instruction)
 		else
 		{
 			const uint32_t all_barriers = MemorySemanticsWorkgroupMemoryMask | MemorySemanticsUniformMemoryMask |
-			                              MemorySemanticsImageMemoryMask | MemorySemanticsAtomicCounterMemoryMask;
+			                              MemorySemanticsImageMemoryMask;
 
 			if (semantics & (MemorySemanticsCrossWorkgroupMemoryMask | MemorySemanticsSubgroupMemoryMask))
 			{
@@ -9950,8 +9953,6 @@ void CompilerGLSL::emit_instruction(const Instruction &instruction)
 					statement("memoryBarrierBuffer();");
 				if (semantics & MemorySemanticsImageMemoryMask)
 					statement("memoryBarrierImage();");
-				if (semantics & MemorySemanticsAtomicCounterMemoryMask)
-					statement("memoryBarrierAtomicCounter();");
 			}
 		}
 
@@ -12119,7 +12120,12 @@ void CompilerGLSL::emit_block_chain(SPIRBlock &block)
 
 	SPIRBlock::ContinueBlockType continue_type = SPIRBlock::ContinueNone;
 	if (block.continue_block)
+	{
 		continue_type = continue_block_type(get<SPIRBlock>(block.continue_block));
+		// If we know we cannot emit a loop, mark the block early as a complex loop so we don't force unnecessary recompiles.
+		if (continue_type == SPIRBlock::ComplexLoop)
+			block.complex_continue = true;
+	}
 
 	// If we have loop variables, stop masking out access to the variable now.
 	for (auto var_id : block.loop_variables)

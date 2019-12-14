@@ -1,4 +1,4 @@
-// dear imgui, v1.74 WIP
+// dear imgui, v1.75 WIP
 // (drawing and font code)
 
 /*
@@ -516,10 +516,13 @@ void ImDrawList::PopTextureID()
     UpdateTextureID();
 }
 
-// NB: this can be called with negative count for removing primitives (as long as the result does not underflow)
+// Reserve space for a number of vertices and indices.
+// You must finish filling your reserved data before calling PrimReserve() again, as it may reallocate or 
+// submit the intermediate results. PrimUnreserve() can be used to release unused allocations.
 void ImDrawList::PrimReserve(int idx_count, int vtx_count)
 {
     // Large mesh support (when enabled)
+    IM_ASSERT_PARANOID(idx_count >= 0 && vtx_count >= 0);
     if (sizeof(ImDrawIdx) == 2 && (_VtxCurrentIdx + vtx_count >= (1 << 16)) && (Flags & ImDrawListFlags_AllowVtxOffset))
     {
         _VtxCurrentOffset = VtxBuffer.Size;
@@ -527,7 +530,7 @@ void ImDrawList::PrimReserve(int idx_count, int vtx_count)
         AddDrawCmd();
     }
 
-    ImDrawCmd& draw_cmd = CmdBuffer.Data[CmdBuffer.Size-1];
+    ImDrawCmd& draw_cmd = CmdBuffer.Data[CmdBuffer.Size - 1];
     draw_cmd.ElemCount += idx_count;
 
     int vtx_buffer_old_size = VtxBuffer.Size;
@@ -537,6 +540,17 @@ void ImDrawList::PrimReserve(int idx_count, int vtx_count)
     int idx_buffer_old_size = IdxBuffer.Size;
     IdxBuffer.resize(idx_buffer_old_size + idx_count);
     _IdxWritePtr = IdxBuffer.Data + idx_buffer_old_size;
+}
+
+// Release the a number of reserved vertices/indices from the end of the last reservation made with PrimReserve().
+void ImDrawList::PrimUnreserve(int idx_count, int vtx_count)
+{
+    IM_ASSERT_PARANOID(idx_count >= 0 && vtx_count >= 0);
+
+    ImDrawCmd& draw_cmd = CmdBuffer.Data[CmdBuffer.Size - 1];
+    draw_cmd.ElemCount -= idx_count;
+    VtxBuffer.shrink(VtxBuffer.Size - vtx_count);
+    IdxBuffer.shrink(IdxBuffer.Size - idx_count);
 }
 
 // Fully unrolled with inline call to keep our debug builds decently fast.
@@ -1080,6 +1094,30 @@ void ImDrawList::AddCircle(const ImVec2& center, float radius, ImU32 col, int nu
 }
 
 void ImDrawList::AddCircleFilled(const ImVec2& center, float radius, ImU32 col, int num_segments)
+{
+    if ((col & IM_COL32_A_MASK) == 0 || num_segments <= 2)
+        return;
+
+    // Because we are filling a closed shape we remove 1 from the count of segments/points
+    const float a_max = (IM_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
+    PathArcTo(center, radius, 0.0f, a_max, num_segments - 1);
+    PathFillConvex(col);
+}
+
+// Guaranteed to honor 'num_segments'
+void ImDrawList::AddNgon(const ImVec2& center, float radius, ImU32 col, int num_segments, float thickness)
+{
+    if ((col & IM_COL32_A_MASK) == 0 || num_segments <= 2)
+        return;
+
+    // Because we are filling a closed shape we remove 1 from the count of segments/points
+    const float a_max = (IM_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
+    PathArcTo(center, radius - 0.5f, 0.0f, a_max, num_segments - 1);
+    PathStroke(col, true, thickness);
+}
+
+// Guaranteed to honor 'num_segments'
+void ImDrawList::AddNgonFilled(const ImVec2& center, float radius, ImU32 col, int num_segments)
 {
     if ((col & IM_COL32_A_MASK) == 0 || num_segments <= 2)
         return;
@@ -1673,7 +1711,7 @@ ImFont* ImFontAtlas::AddFontFromFileTTF(const char* filename, float size_pixels,
     void* data = ImFileLoadToMemory(filename, "rb", &data_size, 0);
     if (!data)
     {
-        IM_ASSERT(0); // Could not load file.
+        IM_ASSERT_USER_ERROR(0, "Could not load font file!");
         return NULL;
     }
     ImFontConfig font_cfg = font_cfg_template ? *font_cfg_template : ImFontConfig();
@@ -1725,7 +1763,8 @@ ImFont* ImFontAtlas::AddFontFromMemoryCompressedBase85TTF(const char* compressed
 
 int ImFontAtlas::AddCustomRectRegular(unsigned int id, int width, int height)
 {
-    IM_ASSERT(id >= 0x10000);
+    // Breaking change on 2019/11/21 (1.74): ImFontAtlas::AddCustomRectRegular() now requires an ID >= 0x110000 (instead of >= 0x10000)
+    IM_ASSERT(id >= 0x110000);
     IM_ASSERT(width > 0 && width <= 0xFFFF);
     IM_ASSERT(height > 0 && height <= 0xFFFF);
     ImFontAtlasCustomRect r;
@@ -1905,7 +1944,7 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
             dst_tmp.GlyphsSet.Resize(dst_tmp.GlyphsHighest + 1);
 
         for (const ImWchar* src_range = src_tmp.SrcRanges; src_range[0] && src_range[1]; src_range += 2)
-            for (int codepoint = src_range[0]; codepoint <= src_range[1]; codepoint++)
+            for (unsigned int codepoint = src_range[0]; codepoint <= src_range[1]; codepoint++)
             {
                 if (dst_tmp.GlyphsSet.GetBit(codepoint))    // Don't overwrite existing glyphs. We could make this an option for MergeMode (e.g. MergeOverwrite==true)
                     continue;
@@ -2189,7 +2228,7 @@ void ImFontAtlasBuildFinish(ImFontAtlas* atlas)
     for (int i = 0; i < atlas->CustomRects.Size; i++)
     {
         const ImFontAtlasCustomRect& r = atlas->CustomRects[i];
-        if (r.Font == NULL || r.ID > 0x10000)
+        if (r.Font == NULL || r.ID >= 0x110000)
             continue;
 
         IM_ASSERT(r.Font->ContainerAtlas == atlas);
@@ -2453,7 +2492,7 @@ void ImFontGlyphRangesBuilder::AddText(const char* text, const char* text_end)
         text += c_len;
         if (c_len == 0)
             break;
-        if (c < 0x10000)
+        if (c <= IM_UNICODE_CODEPOINT_MAX)
             AddChar((ImWchar)c);
     }
 }
@@ -2467,12 +2506,12 @@ void ImFontGlyphRangesBuilder::AddRanges(const ImWchar* ranges)
 
 void ImFontGlyphRangesBuilder::BuildRanges(ImVector<ImWchar>* out_ranges)
 {
-    int max_codepoint = 0x10000;
-    for (int n = 0; n < max_codepoint; n++)
+    const int max_codepoint = IM_UNICODE_CODEPOINT_MAX;
+    for (int n = 0; n <= max_codepoint; n++)
         if (GetBit(n))
         {
             out_ranges->push_back((ImWchar)n);
-            while (n < max_codepoint - 1 && GetBit(n + 1))
+            while (n < max_codepoint && GetBit(n + 1))
                 n++;
             out_ranges->push_back((ImWchar)n);
         }
@@ -2601,7 +2640,7 @@ void ImFont::AddGlyph(ImWchar codepoint, float x0, float y0, float x1, float y1,
 void ImFont::AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst)
 {
     IM_ASSERT(IndexLookup.Size > 0);    // Currently this can only be called AFTER the font has been built, aka after calling ImFontAtlas::GetTexDataAs*() function.
-    int index_size = IndexLookup.Size;
+    unsigned int index_size = (unsigned int)IndexLookup.Size;
 
     if (dst < index_size && IndexLookup.Data[dst] == (ImWchar)-1 && !overwrite_dst) // 'dst' already exists
         return;
@@ -3020,9 +3059,9 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
         x += char_width;
     }
 
-    // Give back unused vertices
-    draw_list->VtxBuffer.resize((int)(vtx_write - draw_list->VtxBuffer.Data));
-    draw_list->IdxBuffer.resize((int)(idx_write - draw_list->IdxBuffer.Data));
+    // Give back unused vertices (clipped ones, blanks) ~ this is essentially a PrimUnreserve() action.
+    draw_list->VtxBuffer.Size = (int)(vtx_write - draw_list->VtxBuffer.Data); // Same as calling shrink()
+    draw_list->IdxBuffer.Size = (int)(idx_write - draw_list->IdxBuffer.Data);
     draw_list->CmdBuffer[draw_list->CmdBuffer.Size-1].ElemCount -= (idx_expected_size - draw_list->IdxBuffer.Size);
     draw_list->_VtxWritePtr = vtx_write;
     draw_list->_IdxWritePtr = idx_write;
