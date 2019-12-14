@@ -160,10 +160,8 @@ static int matrix4x4box_unbox(lua_State* L)
 static int quaternion_to_string(lua_State* L)
 {
 	LuaStack stack(L);
-	const Quaternion q = stack.get_quaternion(1);
 	char buf[256];
-	snprintf(buf, sizeof(buf), "%.4f %.4f %.4f %.4f", q.x, q.y, q.z, q.w);
-	stack.push_string(buf);
+	stack.push_string(to_string(stack.get_quaternion(1), buf, sizeof(buf)));
 	return 1;
 }
 
@@ -715,10 +713,8 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Vector3", "to_string", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			const Vector3 v = stack.get_vector3(1);
 			char buf[256];
-			snprintf(buf, sizeof(buf), "%.4f %.4f %.4f", v.x, v.y, v.z);
-			stack.push_string(buf);
+			stack.push_string(to_string(stack.get_vector3(1), buf, sizeof(buf)));
 			return 1;
 		});
 	env.add_module_metafunction("Vector3", "__call", [](lua_State* L)
@@ -913,19 +909,8 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Matrix4x4", "to_string", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			Matrix4x4& a = stack.get_matrix4x4(1);
 			char buf[1024];
-			snprintf(buf, sizeof(buf),
-				"%.4f, %.4f, %.4f, %.4f\n"
-				"%.4f, %.4f, %.4f, %.4f\n"
-				"%.4f, %.4f, %.4f, %.4f\n"
-				"%.4f, %.4f, %.4f, %.4f"
-				, a.x.x, a.x.y, a.x.z, a.y.w
-				, a.y.x, a.y.y, a.y.z, a.y.w
-				, a.z.x, a.z.y, a.z.z, a.z.w
-				, a.t.x, a.t.y, a.t.z, a.t.w
-				);
-			stack.push_string(buf);
+			stack.push_string(to_string(stack.get_matrix4x4(1), buf, sizeof(buf)));
 			return 1;
 		});
 	env.add_module_metafunction("Matrix4x4", "__call", [](lua_State* L)

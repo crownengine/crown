@@ -4,8 +4,10 @@
  */
 
 #include "core/math/math.h"
+#include "core/math/types.h"
 #include "core/types.h"
 #include <math.h>
+#include <stdio.h> // snprintf
 
 namespace crown
 {
@@ -109,6 +111,33 @@ f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t)
 		+ (-p0 + (3.0f * p1) + (-3.0f * p2) + p3) * ttt;
 
 	return tmp * 0.5f;
+}
+
+const char* to_string(const Vector3& v, char* buf, u32 buf_len)
+{
+	snprintf(buf, buf_len, "%.4f %.4f %.4f", v.x, v.y, v.z);
+	return buf;
+}
+
+const char* to_string(const Quaternion& q, char* buf, u32 buf_len)
+{
+	snprintf(buf, buf_len, "%.4f %.4f %.4f %.4f", q.x, q.y, q.z, q.w);
+	return buf;
+}
+
+const char* to_string(const Matrix4x4& m, char* buf, u32 buf_len)
+{
+	snprintf(buf, buf_len,
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f\n"
+		"%.4f, %.4f, %.4f, %.4f"
+		, m.x.x, m.x.y, m.x.z, m.y.w
+		, m.y.x, m.y.y, m.y.z, m.y.w
+		, m.z.x, m.z.y, m.z.z, m.z.w
+		, m.t.x, m.t.y, m.t.z, m.t.w
+		);
+	return buf;
 }
 
 } // namespace crown
