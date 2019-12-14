@@ -208,7 +208,7 @@ function Selection:world_poses()
 	local objs = self:objects()
 	local poses = {}
 	for k, v in pairs(objs) do
-		poses[#poses + 1] = Matrix4x4Box(v:local_pose())
+		poses[#poses + 1] = Matrix4x4Box(v:world_pose())
 	end
 	return poses
 end
@@ -302,7 +302,9 @@ function UnitBox:world_scale()
 end
 
 function UnitBox:world_pose()
-	return SceneGraph.instances(self._sg, self._unit_id) and SceneGraph.world_pose(self._sg, self._unit_id) or Matrix4x4.identity()
+	local position = self:world_position()
+	local rotation = self:local_rotation() -- FIXME: this sould compute world rotation from local rotations
+	return Matrix4x4.from_quaternion_translation(rotation, position)
 end
 
 function UnitBox:set_local_position(pos)
@@ -400,8 +402,6 @@ function SoundObject:init(world, id, name, range, volume, loop)
 	self._unit_id = World.spawn_unit(world, "core/units/sound")
 	self._sg = World.scene_graph(world)
 	self._selected = false
-
-	local pw = World.physics_world(world)
 end
 
 function SoundObject:id()
