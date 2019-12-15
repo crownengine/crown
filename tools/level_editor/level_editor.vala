@@ -74,7 +74,7 @@ namespace Crown
 		private ResourceBrowser _resource_browser;
 		private ResourceBrowser _resource_selection;
 		private Gtk.Popover _resource_popover;
-
+		private Gtk.Overlay _engine_view_overlay;
 		private Slide _engine_view_slide;
 		private Slide _level_tree_view_slide;
 		private Slide _properties_view_slide;
@@ -285,6 +285,11 @@ namespace Crown
 			_toolbar = _ui_manager.get_widget("/toolbar") as Toolbar;
 			_toolbar.set_icon_size(Gtk.IconSize.SMALL_TOOLBAR);
 			_toolbar.set_style(Gtk.ToolbarStyle.ICONS);
+			_toolbar.halign = Gtk.Align.START;
+			_toolbar.valign = Gtk.Align.START;
+			_toolbar.orientation = Gtk.Orientation.VERTICAL;
+			_toolbar.margin_start = 6;
+			_toolbar.margin_top = 6;
 
 			_resource_popover = new Gtk.Popover(_toolbar);
 			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
@@ -292,12 +297,13 @@ namespace Crown
 			_resource_browser.resource_selected.connect(() => { _resource_popover.hide(); });
 			_resource_popover.add(_resource_browser);
 
+			_engine_view_overlay = new Gtk.Overlay();
+
 			_pane_left = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 			_pane_left.pack1(_engine_view_slide, true, true);
 			_pane_left.pack2(_console_view, true, true);
 
 			Gtk.Box vb = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-			vb.pack_start(_toolbar, false, false, 0);
 			vb.pack_start(_pane_left, true, true, 0);
 
 			_notebook_right = new Notebook();
@@ -312,7 +318,6 @@ namespace Crown
 			_pane_right = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_pane_right.pack1(vb, true, false);
 			_pane_right.pack2(rb, true, false);
-			_pane_right.set_position(1000);
 
 			MenuBar menu = (MenuBar)_ui_manager.get_widget("/menubar");
 			_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -339,6 +344,12 @@ namespace Crown
 			this.show_all();
 
 			start_compiler();
+
+			// This is supposed to work in pixel units but it doesn't for
+			// a reason I couldn't find. The values passed, though, seem
+			// to move pane handles to the correct-ish position.
+			_pane_left.set_position(72);
+			_pane_right.set_position(300);
 		}
 
 		private bool on_key_press(Gdk.EventKey ev)
@@ -608,7 +619,10 @@ namespace Crown
 					_engine_view.button_press_event.connect(on_button_press);
 					_engine_view.button_release_event.connect(on_button_release);
 
-					_engine_view_slide.show_widget(_engine_view);
+					_engine_view_overlay.add(_engine_view);
+					_engine_view_overlay.add_overlay(_toolbar);
+
+					_engine_view_slide.show_widget(_engine_view_overlay);
 					_level_tree_view_slide.show_widget(_notebook_right);
 					_properties_view_slide.show_widget(_properties_view);
 				}
