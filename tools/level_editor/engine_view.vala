@@ -75,7 +75,7 @@ namespace Crown
 
 			// Widgets
 			_socket = new Gtk.Socket();
-			_socket.set_visual(Gdk.Visual.get_best_with_type(VisualType.TRUE_COLOR));
+			_socket.set_visual(Gdk.Screen.get_default().get_system_visual());
 			_socket.realize.connect(on_socket_realized);
 			_socket.plug_removed.connect(on_socket_plug_removed);
 			_socket.set_size_request(128, 128);
