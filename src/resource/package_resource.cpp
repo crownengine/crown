@@ -68,6 +68,9 @@ namespace package_resource_internal
 			DynamicString name(ta);
 			sjson::parse_string(names[i], name);
 			DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name.c_str(), opts);
+			name += ".";
+			name += type;
+			opts.fake_read(name.c_str());
 
 			const StringId64 name_hash = sjson::parse_resource_name(names[i]);
 			hash_set::insert(output, PackageResource::Resource(type_hash, name_hash));
