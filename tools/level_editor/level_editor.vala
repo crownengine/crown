@@ -61,7 +61,6 @@ namespace Crown
 		private ProjectStore _project_store;
 		private Database _database;
 		private Level _level;
-		private string _level_filename;
 		private DataCompiler _data_compiler;
 
 		// Widgets
@@ -237,7 +236,6 @@ namespace Crown
 			_project = project;
 			_database = database;
 			_level = level;
-			_level_filename = null;
 			_data_compiler = new DataCompiler(_compiler);
 
 			// Widgets
@@ -855,7 +853,6 @@ namespace Crown
 
 		private void new_level()
 		{
-			_level_filename = null;
 			_level.load_empty_level();
 			_level.send_level();
 		}
@@ -878,10 +875,9 @@ namespace Crown
 				string filename = fcd.get_filename();
 				if (filename.has_prefix(_project.source_dir()))
 				{
-					if (filename.has_suffix(".level") && filename != _level_filename)
+					if (filename.has_suffix(".level") && filename != _level._filename)
 					{
-						_level_filename = filename;
-						_level.load(_level_filename);
+						_level.load(filename);
 						_level.send_level();
 						send_state();
 					}
@@ -912,7 +908,6 @@ namespace Crown
 				_console_view.logi("editor", "Loading project `%s`...".printf(filename));
 				_project.load(filename, _project.toolchain_dir());
 
-				_level_filename = null;
 				_level.load_empty_level();
 				stop_compiler();
 				start_compiler();
@@ -943,10 +938,7 @@ namespace Crown
 				string filename = fcd.get_filename();
 				if (filename.has_prefix(_project.source_dir()))
 				{
-					_level_filename = filename;
-					if (!_level_filename.has_suffix(".level"))
-						_level_filename += ".level";
-					_level.save(_level_filename);
+					_level.save(filename.has_suffix(".level") ? filename : filename + ".level");
 					saved = true;
 				}
 				else
@@ -963,13 +955,13 @@ namespace Crown
 		{
 			bool saved = false;
 
-			if (_level_filename == null)
+			if (_level._filename == null)
 			{
 				saved = save_as();
 			}
 			else
 			{
-				_level.save(_level_filename);
+				_level.save(_level._filename);
 				saved = true;
 			}
 
@@ -978,7 +970,7 @@ namespace Crown
 
 		private bool save_timeout()
 		{
-			if (_level_filename != null)
+			if (_level._filename != null)
 				save();
 
 			return true;

@@ -25,6 +25,8 @@ namespace Crown
 		public uint _num_units;
 		public uint _num_sounds;
 
+		public string _filename;
+
 		// Signals
 		public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 		public signal void object_editor_name_changed(Guid object_id, string name);
@@ -59,6 +61,8 @@ namespace Crown
 
 			_num_units = 0;
 			_num_sounds = 0;
+
+			_filename = null;
 		}
 
 		/// Loads the level from @a path.
@@ -66,18 +70,24 @@ namespace Crown
 		{
 			reset();
 			_db.load(path);
+
+			_filename = path;
 		}
 
 		/// Saves the level to @a path.
 		public void save(string path)
 		{
 			_db.save(path);
+
+			_filename = path;
 		}
 
 		/// Loads the empty level template.
 		public void load_empty_level()
 		{
 			load(_project.toolchain_dir() + "/" + "core/editors/levels/empty.level");
+
+			_filename = null;
 		}
 
 		public void spawn_unit(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)

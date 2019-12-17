@@ -25,3 +25,4 @@ Changelog
 * tools: the game will now be started or stopped according to its running state when launched from the Level Editor
 * tools: the Properties Panel now accepts more sensible numeric ranges
 * tools: the Properties Panel now allows the user to modify most Unit's component properties
+* tools: fixed an issue that caused the Level Editor to not correctly save a level specified from command line
