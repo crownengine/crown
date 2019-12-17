@@ -126,98 +126,130 @@ namespace physics_resource_internal
 		cd.type     = st;
 		cd.local_tm = MATRIX4X4_IDENTITY;
 		cd.size     = 0;
+		DynamicString source(ta);
+		sjson::parse_string(obj["source"], source);
+		bool explicit_collider = source == "mesh" || json_object::has(obj, "scene");
 
-		// Parse .mesh
-		DynamicString scene(ta);
-		DynamicString name(ta);
-		sjson::parse_string(obj["scene"], scene);
-		sjson::parse_string(obj["name"], name);
-		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("mesh", scene.c_str(), opts);
-		scene += ".mesh";
+		if (explicit_collider) {
+			// Parse .mesh
+			DynamicString scene(ta);
+			DynamicString name(ta);
+			sjson::parse_string(obj["scene"], scene);
+			sjson::parse_string(obj["name"], name);
+			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("mesh", scene.c_str(), opts);
+			scene += ".mesh";
 
-		Buffer file = opts.read(scene.c_str());
-		JsonObject json_mesh(ta);
-		JsonObject geometries(ta);
-		JsonObject geometry(ta);
-		JsonObject nodes(ta);
-		JsonObject node(ta);
-		sjson::parse(file, json_mesh);
-		sjson::parse(json_mesh["geometries"], geometries);
-		DATA_COMPILER_ASSERT(json_object::has(geometries, name.c_str())
-			, opts
-			, "Geometry '%s' does not exist"
-			, name.c_str()
-			);
-		sjson::parse(geometries[name.c_str()], geometry);
-		sjson::parse(json_mesh["nodes"], nodes);
-		DATA_COMPILER_ASSERT(json_object::has(nodes, name.c_str())
-			, opts
-			, "Node '%s' does not exist"
-			, name.c_str()
-			);
-		sjson::parse(nodes[name.c_str()], node);
+			Buffer file = opts.read(scene.c_str());
+			JsonObject json_mesh(ta);
+			JsonObject geometries(ta);
+			JsonObject geometry(ta);
+			JsonObject nodes(ta);
+			JsonObject node(ta);
+			sjson::parse(file, json_mesh);
+			sjson::parse(json_mesh["geometries"], geometries);
+			DATA_COMPILER_ASSERT(json_object::has(geometries, name.c_str())
+				, opts
+				, "Geometry '%s' does not exist"
+				, name.c_str()
+				);
+			sjson::parse(geometries[name.c_str()], geometry);
+			sjson::parse(json_mesh["nodes"], nodes);
+			DATA_COMPILER_ASSERT(json_object::has(nodes, name.c_str())
+				, opts
+				, "Node '%s' does not exist"
+				, name.c_str()
+				);
+			sjson::parse(nodes[name.c_str()], node);
 
-		Matrix4x4 matrix_local = sjson::parse_matrix4x4(node["matrix_local"]);
-		cd.local_tm = matrix_local;
+			Matrix4x4 matrix_local = sjson::parse_matrix4x4(node["matrix_local"]);
+			cd.local_tm = matrix_local;
 
-		JsonArray positions(ta);
-		sjson::parse_array(geometry["position"], positions);
+			JsonArray positions(ta);
+			sjson::parse_array(geometry["position"], positions);
 
-		JsonObject indices(ta);
-		JsonArray indices_data(ta);
-		JsonArray position_indices(ta);
-		sjson::parse_object(geometry["indices"], indices);
-		sjson::parse_array(indices["data"], indices_data);
-		sjson::parse_array(indices_data[0], position_indices);
+			JsonObject indices(ta);
+			JsonArray indices_data(ta);
+			JsonArray position_indices(ta);
+			sjson::parse_object(geometry["indices"], indices);
+			sjson::parse_array(indices["data"], indices_data);
+			sjson::parse_array(indices_data[0], position_indices);
 
-		Array<Vector3> points(default_allocator());
-		for (u32 i = 0; i < array::size(positions); i += 3)
-		{
-			Vector3 p;
-			p.x = sjson::parse_float(positions[i + 0]);
-			p.y = sjson::parse_float(positions[i + 1]);
-			p.z = sjson::parse_float(positions[i + 2]);
-			array::push_back(points, p);
-		}
+			Array<Vector3> points(default_allocator());
+			for (u32 i = 0; i < array::size(positions); i += 3)
+			{
+				Vector3 p;
+				p.x = sjson::parse_float(positions[i + 0]);
+				p.y = sjson::parse_float(positions[i + 1]);
+				p.z = sjson::parse_float(positions[i + 2]);
+				array::push_back(points, p);
+			}
 
-		Array<u16> point_indices(default_allocator());
-		for (u32 i = 0; i < array::size(position_indices); ++i)
-		{
-			array::push_back(point_indices, (u16)sjson::parse_int(position_indices[i]));
-		}
+			Array<u16> point_indices(default_allocator());
+			for (u32 i = 0; i < array::size(position_indices); ++i)
+			{
+				array::push_back(point_indices, (u16)sjson::parse_int(position_indices[i]));
+			}
 
-		switch (cd.type)
-		{
-		case ColliderType::SPHERE:      compile_sphere(points, cd); break;
-		case ColliderType::CAPSULE:     compile_capsule(points, cd); break;
-		case ColliderType::BOX:         compile_box(points, cd); break;
-		case ColliderType::CONVEX_HULL: break;
-		case ColliderType::MESH:        break;
-		case ColliderType::HEIGHTFIELD:
-			DATA_COMPILER_ASSERT(false, opts, "Not implemented yet");
-			break;
-		}
+			switch (cd.type)
+			{
+			case ColliderType::SPHERE:      compile_sphere(points, cd); break;
+			case ColliderType::CAPSULE:     compile_capsule(points, cd); break;
+			case ColliderType::BOX:         compile_box(points, cd); break;
+			case ColliderType::CONVEX_HULL: break;
+			case ColliderType::MESH:        break;
+			case ColliderType::HEIGHTFIELD:
+				DATA_COMPILER_ASSERT(false, opts, "Not implemented yet");
+				break;
+			}
 
-		const u32 num_points  = array::size(points);
-		const u32 num_indices = array::size(point_indices);
+			const u32 num_points  = array::size(points);
+			const u32 num_indices = array::size(point_indices);
 
-		const bool needs_points = cd.type == ColliderType::CONVEX_HULL
-			|| cd.type == ColliderType::MESH;
+			const bool needs_points = cd.type == ColliderType::CONVEX_HULL
+				|| cd.type == ColliderType::MESH;
 
-		cd.size += (needs_points ? sizeof(u32) + sizeof(Vector3)*array::size(points) : 0);
-		cd.size += (cd.type == ColliderType::MESH ? sizeof(u32) + sizeof(u16)*array::size(point_indices) : 0);
+			cd.size += (needs_points ? sizeof(u32) + sizeof(Vector3)*array::size(points) : 0);
+			cd.size += (cd.type == ColliderType::MESH ? sizeof(u32) + sizeof(u16)*array::size(point_indices) : 0);
 
-		array::push(output, (char*)&cd, sizeof(cd));
+			array::push(output, (char*)&cd, sizeof(cd));
 
-		if (needs_points)
-		{
-			array::push(output, (char*)&num_points, sizeof(num_points));
-			array::push(output, (char*)array::begin(points), sizeof(Vector3)*array::size(points));
-		}
-		if (cd.type == ColliderType::MESH)
-		{
-			array::push(output, (char*)&num_indices, sizeof(num_indices));
-			array::push(output, (char*)array::begin(point_indices), sizeof(u16)*array::size(point_indices));
+			if (needs_points)
+			{
+				array::push(output, (char*)&num_points, sizeof(num_points));
+				array::push(output, (char*)array::begin(points), sizeof(Vector3)*array::size(points));
+			}
+			if (cd.type == ColliderType::MESH)
+			{
+				array::push(output, (char*)&num_indices, sizeof(num_indices));
+				array::push(output, (char*)array::begin(point_indices), sizeof(u16)*array::size(point_indices));
+			}
+
+		} else {
+			JsonObject collider_data(ta);
+			JsonArray org(ta);
+			DATA_COMPILER_ASSERT(json_object::has(obj, "collider_data")
+				, opts
+				, "No collider_data found"
+				);
+			sjson::parse_object(obj["collider_data"], collider_data);
+			Quaternion rotation = sjson::parse_quaternion(collider_data["rotation"]);
+			Vector3 position = sjson::parse_vector3(collider_data["position"]);
+			Matrix4x4 matrix_local = matrix4x4(rotation, position);
+			matrix_local.t = vector4(position.x, position.y, position.z, 1.0f);
+			cd.local_tm = matrix_local;
+
+			if (cd.type == ColliderType::SPHERE) {
+				cd.sphere.radius = sjson::parse_float(collider_data["radius"]);
+			} else if (cd.type == ColliderType::BOX) {
+				JsonArray ext(ta);
+				sjson::parse_array(collider_data["half_extents"], ext);
+				cd.box.half_size = sjson::parse_vector3(collider_data["half_extents"]);;
+			} else if (cd.type == ColliderType::CAPSULE) {
+				cd.capsule.radius = sjson::parse_float(collider_data["radius"]);
+				cd.capsule.height = sjson::parse_float(collider_data["height"]);
+			}
+
+			array::push(output, (char*)&cd, sizeof(cd));
 		}
 
 		return 0;
