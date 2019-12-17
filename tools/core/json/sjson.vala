@@ -226,6 +226,7 @@ namespace Crown
 				s.add(c);
 				++index;
 			}
+			s.add('\0');
 			return (string)s.to_array();
 		}
 
