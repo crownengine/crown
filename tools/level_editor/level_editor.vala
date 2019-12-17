@@ -37,58 +37,7 @@ namespace Crown
 
 	public class LevelEditor : Gtk.Window
 	{
-		// Editor state
-		private double _grid_size;
-		private double _rotation_snap;
-		private bool _show_grid;
-		private bool _snap_to_grid;
-		private bool _debug_render_world;
-		private bool _debug_physics_world;
-		private ToolType _tool_type;
-		private SnapMode _snap_mode;
-		private ReferenceSystem _reference_system;
-
-		// Engine connections
-		private GLib.Subprocess _compiler_process;
-		private GLib.Subprocess _engine_process;
-		private GLib.Subprocess _game_process;
-		private ConsoleClient _compiler;
-		private ConsoleClient _engine;
-		private ConsoleClient _game;
-
-		// Level data
-		private Project _project;
-		private ProjectStore _project_store;
-		private Database _database;
-		private Level _level;
-		private DataCompiler _data_compiler;
-
-		// Widgets
-		private ConsoleView _console_view;
-		private EngineView _engine_view;
-		private LevelTreeView _level_treeview;
-		private LevelLayersTreeView _level_layers_treeview;
-		private PropertiesView _properties_view;
-		private PreferencesDialog _preferences_dialog;
-		private ResourceBrowser _resource_browser;
-		private ResourceBrowser _resource_selection;
-		private Gtk.Popover _resource_popover;
-		private Gtk.Overlay _engine_view_overlay;
-		private Slide _engine_view_slide;
-		private Slide _level_tree_view_slide;
-		private Slide _properties_view_slide;
-
-		private Gtk.ActionGroup _action_group;
-		private Gtk.UIManager _ui_manager;
-		private Gtk.Toolbar _toolbar;
-		private Gtk.Paned _pane_left;
-		private Gtk.Paned _pane_right;
-		private Gtk.Notebook _notebook_right;
-		private Gtk.Box _vbox;
-		private Gtk.FileFilter _file_filter;
-
-		private bool _fullscreen;
-
+		// Constants
 		const Gtk.ActionEntry[] action_entries =
 		{
 			{ "menu-file",               null,       "_File",               null,             null,         null                       },
@@ -158,7 +107,7 @@ namespace Crown
 			{ "grid-5",   null, "5m",   null, null, 500 }
 		};
 
-		const RadioActionEntry[] rotation_snap_entries =
+		const Gtk.RadioActionEntry[] rotation_snap_entries =
 		{
 			{ "rotation-snap-1",   null, "1°",   null, null,   1 },
 			{ "rotation-snap-15",  null, "15°",  null, null,  15 },
@@ -168,7 +117,7 @@ namespace Crown
 			{ "rotation-snap-180", null, "180°", null, null, 180 }
 		};
 
-		const RadioActionEntry[] tool_entries =
+		const Gtk.RadioActionEntry[] tool_entries =
 		{
 			{ "place",  "tool-place",  "Place",  null, "Place",  (int)ToolType.PLACE  },
 			{ "move",   "tool-move",   "Move",   null, "Move",   (int)ToolType.MOVE   },
@@ -176,31 +125,84 @@ namespace Crown
 			{ "scale",  "tool-scale",  "Scale",  null, "Scale",  (int)ToolType.SCALE  }
 		};
 
-		const RadioActionEntry[] snap_mode_entries =
+		const Gtk.RadioActionEntry[] snap_mode_entries =
 		{
 			{ "snap-relative", "reference-local", "Relative Snap", null, "Relative Snap", (int)SnapMode.RELATIVE },
 			{ "snap-absolute", "reference-world", "Absolute Snap", null, "Absolute Snap", (int)SnapMode.ABSOLUTE }
 		};
 
-		const RadioActionEntry[] reference_system_entries =
+		const Gtk.RadioActionEntry[] reference_system_entries =
 		{
 			{ "reference-system-local", "axis-local", "Local Axis", null, "Local Axis", (int)ReferenceSystem.LOCAL },
 			{ "reference-system-world", "axis-world", "World Axis", null, "World Axis", (int)ReferenceSystem.WORLD }
 		};
 
-		const ToggleActionEntry[] snap_to_entries =
+		const Gtk.ToggleActionEntry[] snap_to_entries =
 		{
 			{ "snap-to-grid", "snap-to-grid", "Snap To Grid", "<ctrl>U", "Snap To Grid", on_snap_to_grid, true },
 			{ "grid-show",     null,          "Show Grid",    null,      "Show Grid",    on_show_grid,    true }
 		};
 
-		const ToggleActionEntry[] view_entries =
+		const Gtk.ToggleActionEntry[] view_entries =
 		{
 			{ "debug-render-world",  null, "Debug Render World",  null, null, on_debug_render_world,  false },
 			{ "debug-physics-world", null, "Debug Physics World", null, null, on_debug_physics_world, false }
 		};
 
-		public LevelEditor(Project project, Database database, Level level, ConsoleClient compiler, ConsoleClient engine, ConsoleClient game)
+		// Editor state
+		private double _grid_size;
+		private double _rotation_snap;
+		private bool _show_grid;
+		private bool _snap_to_grid;
+		private bool _debug_render_world;
+		private bool _debug_physics_world;
+		private ToolType _tool_type;
+		private SnapMode _snap_mode;
+		private ReferenceSystem _reference_system;
+
+		// Engine connections
+		private GLib.Subprocess _compiler_process;
+		private GLib.Subprocess _engine_process;
+		private GLib.Subprocess _game_process;
+		private ConsoleClient _compiler;
+		private ConsoleClient _engine;
+		private ConsoleClient _game;
+
+		// Level data
+		private Database _database;
+		private Project _project;
+		private ProjectStore _project_store;
+		private Level _level;
+		private DataCompiler _data_compiler;
+
+		// Widgets
+		private ConsoleView _console_view;
+		private EngineView _engine_view;
+		private LevelTreeView _level_treeview;
+		private LevelLayersTreeView _level_layers_treeview;
+		private PropertiesView _properties_view;
+		private PreferencesDialog _preferences_dialog;
+		private ResourceBrowser _resource_browser;
+		private ResourceBrowser _resource_selection;
+		private Gtk.Popover _resource_popover;
+		private Gtk.Overlay _engine_view_overlay;
+		private Slide _engine_slide;
+		private Slide _inspector_slide;
+
+		private Gtk.ActionGroup _action_group;
+		private Gtk.UIManager _ui_manager;
+		private Gtk.MenuBar _menubar;
+		private Gtk.Toolbar _toolbar;
+		private Gtk.Paned _engine_pane;
+		private Gtk.Notebook _level_tree_view_notebook;
+		private Gtk.Paned _inspector_pane;
+		private Gtk.Paned _main_pane;
+		private Gtk.Box _main_vbox;
+		private Gtk.FileFilter _file_filter;
+
+		private bool _fullscreen;
+
+		public LevelEditor(Database database, Project project, Level level, ConsoleClient compiler, ConsoleClient engine, ConsoleClient game)
 		{
 			this.title = "Level Editor";
 
@@ -232,15 +234,13 @@ namespace Crown
 			_game.disconnected.connect(on_game_disconnected);
 			_game.message_received.connect(on_message_received);
 
-			// Level data
-			_project = project;
-			_database = database;
-			_level = level;
 			_data_compiler = new DataCompiler(_compiler);
+			_database = database;
+			_project = project;
+			_project_store = new ProjectStore(_project);
+			_level = level;
 
 			// Widgets
-			_project_store = new ProjectStore(_project);
-
 			_resource_browser = new ResourceBrowser(_project, _project_store, true);
 			_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
 
@@ -251,12 +251,10 @@ namespace Crown
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 			_properties_view = new PropertiesView(_level, _project_store);
 
-			_engine_view_slide = new Slide();
-			_level_tree_view_slide = new Slide();
-			_properties_view_slide = new Slide();
-			_engine_view_slide.show_widget(new StartingCompiler());
-			_level_tree_view_slide.show_widget(new StartingCompiler());
-			_properties_view_slide.show_widget(new StartingCompiler());
+			_engine_slide = new Slide();
+			_engine_slide.show_widget(new StartingCompiler());
+			_inspector_slide = new Slide();
+			_inspector_slide.show_widget(new StartingCompiler());
 
 			_action_group = new Gtk.ActionGroup("group");
 			_action_group.add_actions(action_entries, this);
@@ -280,7 +278,8 @@ namespace Crown
 				error(e.message);
 			}
 
-			_toolbar = _ui_manager.get_widget("/toolbar") as Toolbar;
+			_menubar = _ui_manager.get_widget("/menubar") as Gtk.MenuBar;
+			_toolbar = _ui_manager.get_widget("/toolbar") as Gtk.Toolbar;
 			_toolbar.set_icon_size(Gtk.IconSize.SMALL_TOOLBAR);
 			_toolbar.set_style(Gtk.ToolbarStyle.ICONS);
 			_toolbar.halign = Gtk.Align.START;
@@ -295,32 +294,28 @@ namespace Crown
 			_resource_browser.resource_selected.connect(() => { _resource_popover.hide(); });
 			_resource_popover.add(_resource_browser);
 
+			_level_tree_view_notebook = new Notebook();
+			_level_tree_view_notebook.show_border = false;
+			_level_tree_view_notebook.append_page(_level_treeview, new Gtk.Image.from_icon_name("level-tree", IconSize.SMALL_TOOLBAR));
+			_level_tree_view_notebook.append_page(_level_layers_treeview, new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
+
 			_engine_view_overlay = new Gtk.Overlay();
 
-			_pane_left = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			_pane_left.pack1(_engine_view_slide, true, true);
-			_pane_left.pack2(_console_view, true, true);
+			_engine_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
+			_engine_pane.pack1(_engine_slide, true, true);
+			_engine_pane.pack2(_console_view, true, true);
 
-			Gtk.Box vb = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-			vb.pack_start(_pane_left, true, true, 0);
+			_inspector_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
+			_inspector_pane.pack1(_level_tree_view_notebook, true, true);
+			_inspector_pane.pack2(_properties_view, true, true);
 
-			_notebook_right = new Notebook();
-			_notebook_right.show_border = false;
-			_notebook_right.append_page(_level_treeview, new Gtk.Image.from_icon_name("level-tree", IconSize.SMALL_TOOLBAR));
-			_notebook_right.append_page(_level_layers_treeview, new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
+			_main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+			_main_pane.pack1(_engine_pane, true, false);
+			_main_pane.pack2(_inspector_slide, true, false);
 
-			Gtk.Paned rb = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			rb.pack1(_level_tree_view_slide, true, true);
-			rb.pack2(_properties_view_slide, true, true);
-
-			_pane_right = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
-			_pane_right.pack1(vb, true, false);
-			_pane_right.pack2(rb, true, false);
-
-			MenuBar menu = (MenuBar)_ui_manager.get_widget("/menubar");
-			_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-			_vbox.pack_start(menu, false, false, 0);
-			_vbox.pack_start(_pane_right, true, true, 0);
+			_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+			_main_vbox.pack_start(_menubar, false, false, 0);
+			_main_vbox.pack_start(_main_pane, true, true, 0);
 
 			_file_filter = new FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
@@ -337,7 +332,7 @@ namespace Crown
 			this.key_release_event.connect(this.on_key_release);
 			this.window_state_event.connect(this.on_window_state_event);
 
-			this.add(_vbox);
+			this.add(_main_vbox);
 			this.maximize();
 			this.show_all();
 
@@ -346,8 +341,9 @@ namespace Crown
 			// This is supposed to work in pixel units but it doesn't for
 			// a reason I couldn't find. The values passed, though, seem
 			// to move pane handles to the correct-ish position.
-			_pane_left.set_position(72);
-			_pane_right.set_position(300);
+			_main_pane.set_position(300);
+			_engine_pane.set_position(72);
+			_inspector_pane.set_position(300);
 		}
 
 		private bool on_key_press(Gdk.EventKey ev)
@@ -620,9 +616,8 @@ namespace Crown
 					_engine_view_overlay.add(_engine_view);
 					_engine_view_overlay.add_overlay(_toolbar);
 
-					_engine_view_slide.show_widget(_engine_view_overlay);
-					_level_tree_view_slide.show_widget(_notebook_right);
-					_properties_view_slide.show_widget(_properties_view);
+					_engine_slide.show_widget(_engine_view_overlay);
+					_inspector_slide.show_widget(_inspector_pane);
 				}
 			});
 		}
@@ -1634,7 +1629,7 @@ namespace Crown
 		ConsoleClient game = new ConsoleClient();
 
 		Level level = new Level(database, engine, project);
-		LevelEditor editor = new LevelEditor(project, database, level, compiler, engine, game);
+		LevelEditor editor = new LevelEditor(database, project, level, compiler, engine, game);
 
 		if (level_resource != "")
 		{
