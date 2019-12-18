@@ -58,6 +58,10 @@ project "bullet"
 	removefiles {
 		BULLET_DIR .. "src/BulletCollision/Gimpact/**.h",
 		BULLET_DIR .. "src/BulletCollision/Gimpact/**.cpp",
+		BULLET_DIR .. "src/BulletDynamics/Vehicle/**.h",
+		BULLET_DIR .. "src/BulletDynamics/Vehicle/**.cpp",
+		BULLET_DIR .. "src/BulletSoftBody/**.h",
+		BULLET_DIR .. "src/BulletSoftBody/**.cpp",
 	}
 
 	configuration {}
