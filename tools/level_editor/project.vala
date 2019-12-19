@@ -316,16 +316,20 @@ end
 
 			Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, sid.pivot.active);
 
-			bool collision_enabled = sid.collision_enabled.active;
-			string circle_square_active_name = (string)sid.circle_square.visible_child_name;
-			int circle_collision_center_x = (int)sid.circle_collision_center_x.value;
-			int circle_collision_center_y = (int)sid.circle_collision_center_y.value;
-			int circle_collision_radius = (int)sid.circle_collision_radius.value;
-			int collision_x = (int)sid.collision_x.value;
-			int collision_y = (int)sid.collision_y.value;
-			int collision_w = (int)sid.collision_w.value;
-			int collision_h = (int)sid.collision_h.value;
-			string actor_class = (string)sid.actor_class.value;
+			bool collision_enabled         = sid.collision_enabled.active;
+			string shape_active_name       = (string)sid.shape.visible_child_name;
+			int circle_collision_center_x  = (int)sid.circle_collision_center_x.value;
+			int circle_collision_center_y  = (int)sid.circle_collision_center_y.value;
+			int circle_collision_radius    = (int)sid.circle_collision_radius.value;
+			int capsule_collision_center_x = (int)sid.capsule_collision_center_x.value;
+			int capsule_collision_center_y = (int)sid.capsule_collision_center_y.value;
+			int capsule_collision_radius   = (int)sid.capsule_collision_radius.value;
+			int capsule_collision_height   = (int)sid.capsule_collision_height.value;
+			int collision_x                = (int)sid.collision_x.value;
+			int collision_y                = (int)sid.collision_y.value;
+			int collision_w                = (int)sid.collision_w.value;
+			int collision_h                = (int)sid.collision_h.value;
+			string actor_class             = (string)sid.actor_class.value;
 
 			sid.destroy();
 
@@ -470,208 +474,95 @@ end
 
 				if (collision_enabled)
 				{
-					// Create collider (geometry)
-					if (circle_square_active_name == "square_collider")
-					{
-						// d-----a
-						// |     |
-						// |     |
-						// c-----b
-						Vector2 a = {};
-						Vector2 b = {};
-						Vector2 c = {};
-						Vector2 d = {};
-
-						double PIXELS_PER_METER = 32.0;
-
-						a.x = (collision_w + collision_x - pivot_xy.x) / PIXELS_PER_METER;
-						a.y = (              collision_y - pivot_xy.y) / PIXELS_PER_METER;
-
-						b.x = (collision_w + collision_x - pivot_xy.x) / PIXELS_PER_METER;
-						b.y = (collision_h + collision_y - pivot_xy.y) / PIXELS_PER_METER;
-
-						c.x = (              collision_x - pivot_xy.x) / PIXELS_PER_METER;
-						c.y = (collision_h + collision_y - pivot_xy.y) / PIXELS_PER_METER;
-
-						d.x = (              collision_x - pivot_xy.x) / PIXELS_PER_METER;
-						d.y = (              collision_y - pivot_xy.y) / PIXELS_PER_METER;
-
-						// Invert Y axis
-						a.y = a.y == 0.0f ? a.y : -a.y;
-						b.y = b.y == 0.0f ? b.y : -b.y;
-						c.y = c.y == 0.0f ? c.y : -c.y;
-						d.y = d.y == 0.0f ? d.y : -d.y;
-
-						ArrayList<Value?> position = new ArrayList<Value?>();
-						// Up face
-						position.add(a.x); position.add( 0.25); position.add(a.y);
-						position.add(b.x); position.add( 0.25); position.add(b.y);
-						position.add(c.x); position.add( 0.25); position.add(c.y);
-						position.add(d.x); position.add( 0.25); position.add(d.y);
-						// Bottom face
-						position.add(a.x); position.add(-0.25); position.add(a.y);
-						position.add(b.x); position.add(-0.25); position.add(b.y);
-						position.add(c.x); position.add(-0.25); position.add(c.y);
-						position.add(d.x); position.add(-0.25); position.add(d.y);
-
-						ArrayList<Value?> indices_data = new ArrayList<Value?>();
-						indices_data.add(0); indices_data.add(2); indices_data.add(3);
-						indices_data.add(7); indices_data.add(5); indices_data.add(4);
-						indices_data.add(4); indices_data.add(1); indices_data.add(0);
-						indices_data.add(5); indices_data.add(2); indices_data.add(1);
-						indices_data.add(6); indices_data.add(3); indices_data.add(2);
-						indices_data.add(0); indices_data.add(7); indices_data.add(4);
-						indices_data.add(0); indices_data.add(1); indices_data.add(2);
-						indices_data.add(7); indices_data.add(6); indices_data.add(5);
-						indices_data.add(4); indices_data.add(5); indices_data.add(1);
-						indices_data.add(5); indices_data.add(6); indices_data.add(2);
-						indices_data.add(6); indices_data.add(7); indices_data.add(3);
-						indices_data.add(0); indices_data.add(3); indices_data.add(7);
-
-						ArrayList<Value?> data = new ArrayList<Value?>();
-						data.add(indices_data);
-
-						Hashtable indices = new Hashtable();
-						indices["size"] = indices_data.size;
-						indices["data"] = data;
-
-						Hashtable geometries_collider = new Hashtable();
-						geometries_collider["position"] = position;
-						geometries_collider["indices"] = indices;
-
-						Hashtable geometries = new Hashtable();
-						geometries["collider"] = geometries_collider;
-
-						ArrayList<Value?> matrix_local = new ArrayList<Value?>();
-						matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0);
-						matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0);
-						matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0);
-						matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0);
-
-						Hashtable nodes_collider = new Hashtable();
-						nodes_collider["matrix_local"] = matrix_local;
-
-						Hashtable nodes = new Hashtable();
-						nodes["collider"] = nodes_collider;
-
-						Hashtable mesh = new Hashtable();
-						mesh["geometries"] = geometries;
-						mesh["nodes"] = nodes;
-
-						SJSON.save(mesh, Path.build_filename(_source_dir.get_path(), resource_name) + ".mesh");
-					}
-					else
-					{
-						// d-----a
-						// |     |
-						// |     |
-						// c-----b
-						int radius = circle_collision_radius;
-
-						double PIXELS_PER_METER = 32.0;
-						int rings = 2;
-						int radial_segments = 20;
-						Vector3 center = {};
-						// dont used, because compile_sphere doesnt need it
-						center.x = circle_collision_center_x / PIXELS_PER_METER;
-						center.y = circle_collision_center_y / PIXELS_PER_METER;
-
-
-						ArrayList<Value?> position = new ArrayList<Value?>();
-						ArrayList<Value?> indices_data = new ArrayList<Value?>();
-						int prevrow = 0;
-						int thisrow = 0;
-						int point = 0;
-						for (int i = 0; i < rings; ++i) {
-							double theta = 2*Math.PI*i/radial_segments;
-							double phi = Math.PI*i/rings;
-							for (int j = 0; j < radial_segments; ++j) {
-								position.add(radius*Math.cos(theta)*Math.sin(phi)/PIXELS_PER_METER);
-								position.add(radius*Math.cos(phi)/PIXELS_PER_METER);
-								position.add(radius*Math.sin(theta)*Math.cos(phi)/PIXELS_PER_METER);
-								// Create triangles in ring using indices.
-								if (i > 0 && j > 0) {
-									indices_data.add(prevrow + j - 1);
-									indices_data.add(prevrow + j);
-									indices_data.add(thisrow + j - 1);
-
-									indices_data.add(prevrow + j);
-									indices_data.add(thisrow + j);
-									indices_data.add(thisrow + j - 1);
-								}
-								point++;
-							}
-							if (i > 0) {
-								indices_data.add(prevrow + radial_segments - 1);
-								indices_data.add(prevrow);
-								indices_data.add(thisrow + radial_segments - 1);
-
-								indices_data.add(prevrow);
-								indices_data.add(prevrow + radial_segments);
-								indices_data.add(thisrow + radial_segments - 1);
-							}
-							prevrow = thisrow;
-							thisrow = point;
-						}
-
-						ArrayList<Value?> data = new ArrayList<Value?>();
-						data.add(indices_data);
-
-						Hashtable indices = new Hashtable();
-						indices["size"] = indices_data.size;
-						indices["data"] = data;
-
-						Hashtable geometries_collider = new Hashtable();
-						geometries_collider["position"] = position;
-						geometries_collider["indices"] = indices;
-
-						Hashtable geometries = new Hashtable();
-						geometries["collider"] = geometries_collider;
-
-						ArrayList<Value?> matrix_local = new ArrayList<Value?>();
-						matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0);
-						matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0); matrix_local.add(0.0);
-						matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0); matrix_local.add(0.0);
-						matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(0.0); matrix_local.add(1.0);
-
-						Hashtable nodes_collider = new Hashtable();
-						nodes_collider["matrix_local"] = matrix_local;
-
-						Hashtable nodes = new Hashtable();
-						nodes["collider"] = nodes_collider;
-
-						Hashtable mesh = new Hashtable();
-						mesh["geometries"] = geometries;
-						mesh["nodes"] = nodes;
-
-						SJSON.save(mesh, Path.build_filename(_source_dir.get_path(), resource_name) + ".mesh");
-					}
-
 					// Create collider
+					double PIXELS_PER_METER = 32.0;
 					{
 						Guid id = Guid.new_guid();
+						Quaternion rotation = QUATERNION_IDENTITY;
 
 						if (!unit.has_component("collider", ref id))
 						{
 							db.create(id);
-							if (circle_square_active_name == "square_collider")
+							db.set_property_string(id, "data.source", "inline");
+							if (shape_active_name == "square_collider") {
+								double pos_x = (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
+								double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
+								Vector3 position = Vector3(pos_x, 0, pos_y);
+								db.set_property_vector3(id, "data.collider_data.position", position);
 								db.set_property_string(id, "data.shape", "box");
-							else
+								db.set_property_quaternion(id, "data.collider_data.rotation", rotation);
+								db.set_property_vector3(id, "data.collider_data.half_extents",
+														Vector3(collision_w/2/PIXELS_PER_METER,
+																0.5/PIXELS_PER_METER,
+																collision_h/2/PIXELS_PER_METER));
+							} else if (shape_active_name == "circle_collider") {
+								double pos_x = (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+								double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
+								Vector3 position = Vector3(pos_x, 0, pos_y);
+								db.set_property_vector3(id, "data.collider_data.position", position);
 								db.set_property_string(id, "data.shape", "sphere");
-							db.set_property_string(id, "data.scene", resource_name);
-							db.set_property_string(id, "data.name", "collider");
+								db.set_property_quaternion(id, "data.collider_data.rotation", rotation);
+								db.set_property_double(id, "data.collider_data.radius",
+													   circle_collision_radius / PIXELS_PER_METER);
+							} else if (shape_active_name == "capsule_collider") {
+								double pos_x = (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+								double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
+								Vector3 position = Vector3(pos_x, 0, pos_y);
+								db.set_property_vector3(id, "data.collider_data.position", position);
+								db.set_property_string(id, "data.shape", "capsule");
+								db.set_property_quaternion(id, "data.collider_data.rotation",
+													   Quaternion.from_axis_angle(Vector3(0, 0, 1),
+													   (float)Math.PI/2));
+								db.set_property_double(id, "data.collider_data.radius",
+													   capsule_collision_radius / PIXELS_PER_METER);
+								db.set_property_double(id, "data.collider_data.height",
+													   (capsule_collision_height -
+														2*capsule_collision_radius) / PIXELS_PER_METER);
+							}
 							db.set_property_string(id, "type", "collider");
 
 							db.add_to_set(GUID_ZERO, "components", id);
 						}
 						else
 						{
-							if (circle_square_active_name == "square_collider")
+							unit.set_component_property_string(id, "data.source", "inline");
+							if (shape_active_name == "square_collider") {
+								double pos_x = (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
+								double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
+								Vector3 position = Vector3(pos_x, 0, pos_y);
+								unit.set_component_property_vector3(id, "data.collider_data.position", position);
+								unit.set_component_property_quaternion(id,"data.collider_data.rotation",
+											   rotation);
 								unit.set_component_property_string(id, "data.shape", "box");
-							else
+								unit.set_component_property_vector3(id, "data.collider_data.half_extents",
+														Vector3(collision_w/2/PIXELS_PER_METER,
+																0.5/PIXELS_PER_METER,
+																collision_h/2/PIXELS_PER_METER));
+							} else if (shape_active_name == "circle_collider") {
+								double pos_x = (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+								double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
+								Vector3 position = Vector3(pos_x, 0, pos_y);
+								unit.set_component_property_vector3(id, "data.collider_data.position", position);
+								unit.set_component_property_quaternion(id,"data.collider_data.rotation",
+											   rotation);
 								unit.set_component_property_string(id, "data.shape", "sphere");
-							unit.set_component_property_string(id, "data.scene", resource_name);
-							unit.set_component_property_string(id, "data.name", "collider");
+								unit.set_component_property_double(id, "data.collider_data.radius",
+													   circle_collision_radius / PIXELS_PER_METER);
+							} else if (shape_active_name == "capsule_collider") {
+								double pos_x = (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+								double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
+								Vector3 position = Vector3(pos_x, 0, pos_y);
+								unit.set_component_property_vector3(id, "data.collider_data.position", position);
+								unit.set_component_property_quaternion(id,"data.collider_data.rotation",
+											   Quaternion.from_axis_angle(Vector3(0, 0, 1),
+											   (float)Math.PI/2));
+								unit.set_component_property_string(id, "data.shape", "capsule");
+								unit.set_component_property_double(id, "data.collider_data.radius",
+													   capsule_collision_radius / PIXELS_PER_METER);
+								unit.set_component_property_double(id, "data.collider_data.height",
+													   (capsule_collision_height -
+														2*capsule_collision_radius) / PIXELS_PER_METER);
+							}
 							unit.set_component_property_string(id, "type", "collider");
 						}
 					}
