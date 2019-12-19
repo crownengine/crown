@@ -477,8 +477,9 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 	}
 }
 
-DataCompiler::DataCompiler(ConsoleServer& cs)
-	: _console_server(&cs)
+DataCompiler::DataCompiler(const DeviceOptions& opts, ConsoleServer& cs)
+	: _options(&opts)
+	, _console_server(&cs)
 	, _source_fs(default_allocator())
 	, _source_dirs(default_allocator())
 	, _compilers(default_allocator())
@@ -496,7 +497,8 @@ DataCompiler::DataCompiler(ConsoleServer& cs)
 
 DataCompiler::~DataCompiler()
 {
-	_file_monitor.stop();
+	if (_options->_server)
+		_file_monitor.stop();
 }
 
 void DataCompiler::add_file(const char* path)
@@ -660,15 +662,18 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 	read_data_dependencies(*this, data_fs, CROWN_DATA_DEPENDENCIES);
 	logi(DATA_COMPILER, "Restored state in %.2fs", time::seconds(time::now() - time_start));
 
-	// Start file monitor
-	time_start = time::now();
-	_file_monitor.start(array::size(directories)
-		, array::begin(directories)
-		, true
-		, file_monitor_callback
-		, this
-		);
-	logi(DATA_COMPILER, "Started file monitor in %.2fs", time::seconds(time::now() - time_start));
+	if (_options->_server)
+	{
+		// Start file monitor
+		time_start = time::now();
+		_file_monitor.start(array::size(directories)
+			, array::begin(directories)
+			, true
+			, file_monitor_callback
+			, this
+			);
+		logi(DATA_COMPILER, "Started file monitor in %.2fs", time::seconds(time::now() - time_start));
+	}
 
 	// Cleanup
 	for (u32 i = 0, n = array::size(directories); i < n; ++i)
@@ -1108,7 +1113,7 @@ int main_data_compiler(const DeviceOptions& opts)
 	namespace txr = texture_resource_internal;
 	namespace utr = unit_resource_internal;
 
-	DataCompiler* dc = CE_NEW(default_allocator(), DataCompiler)(*console_server());
+	DataCompiler* dc = CE_NEW(default_allocator(), DataCompiler)(opts, *console_server());
 	dc->register_compiler("config",           RESOURCE_VERSION_CONFIG,           cor::compile);
 	dc->register_compiler("font",             RESOURCE_VERSION_FONT,             ftr::compile);
 	dc->register_compiler("level",            RESOURCE_VERSION_LEVEL,            lvr::compile);

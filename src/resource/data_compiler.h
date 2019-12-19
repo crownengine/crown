@@ -45,6 +45,7 @@ struct DataCompiler
 		CompileFunction compiler;
 	};
 
+	const DeviceOptions* _options;
 	ConsoleServer* _console_server;
 	FilesystemDisk _source_fs;
 	HashMap<DynamicString, DynamicString> _source_dirs;
@@ -67,7 +68,7 @@ struct DataCompiler
 	static void file_monitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified);
 
 	///
-	DataCompiler(ConsoleServer& cs);
+	DataCompiler(const DeviceOptions& opts, ConsoleServer& cs);
 
 	///
 	~DataCompiler();
