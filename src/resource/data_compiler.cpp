@@ -857,8 +857,15 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		rtd = hash_map::get(_compilers, type_str, rtd);
 		{
-			Buffer output(default_allocator());
+			// Reset dependencies and references since data could not depend
+			// anymore on any of those.
+			HashMap<DynamicString, u32> dependencies_deffault(default_allocator());
+			hash_map::clear(hash_map::get(_data_dependencies, id, dependencies_deffault));
+			HashMap<DynamicString, u32> requirements_deffault(default_allocator());
+			hash_map::clear(hash_map::get(_data_requirements, id, requirements_deffault));
 
+			// Compile data
+			Buffer output(default_allocator());
 			CompileOptions opts(*this, data_fs, id, src_path, output, platform);
 			success = rtd.compiler(opts) == 0;
 
