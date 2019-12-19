@@ -1,0 +1,4 @@
+
+generate_mips = false
+normal_map = false
+source = "units/environment/tree.png"

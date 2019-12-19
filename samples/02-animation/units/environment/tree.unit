@@ -1,0 +1,85 @@
+
+components = [
+	{
+		data = {
+			depth = 0
+			layer = 1
+			material = "units/environment/tree"
+			sprite_resource = "units/environment/tree"
+			visible = true
+		}
+		id = "33fc5855-a18a-4d20-9eb8-844ef2ef4c18"
+		type = "sprite_renderer"
+	}
+	{
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		id = "525553d1-d333-4757-8608-9040ff265ebd"
+		type = "transform"
+	}
+	{
+		data = {
+			collider_data = {
+				half_extents = [
+					0.5
+					0.015625
+					0.5
+				]
+				position = [
+					0
+					0
+					0.5
+				]
+				rotation = [
+					0
+					0
+					0
+					1
+				]
+			}
+			shape = "box"
+			source = "inline"
+		}
+		id = "72a814e8-9a63-4034-98bc-71459c5f519d"
+		type = "collider"
+	}
+	{
+		data = {
+			class = "static"
+			collision_filter = "default"
+			lock_rotation_x = true
+			lock_rotation_y = true
+			lock_rotation_z = true
+			lock_translation_x = false
+			lock_translation_y = true
+			lock_translation_z = false
+			mass = 10
+			material = "default"
+		}
+		id = "0b6cba8a-a2e1-48bc-ae20-03bc3845444b"
+		type = "actor"
+	}
+	{
+		data = {
+			script_resource = "units/environment/tree"
+		}
+		id = "9723f277-414b-4a25-956f-992e7f0acb51"
+		type = "script"
+	}
+]
