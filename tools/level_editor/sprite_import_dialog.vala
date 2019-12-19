@@ -137,6 +137,8 @@ public class SpriteImportDialog : Gtk.Dialog
 	public Gtk.SpinButton collision_w;
 	public Gtk.SpinButton collision_h;
 	public ComboBoxMap actor_class;
+	public Gtk.SpinButton mass;
+	public Gtk.CheckButton lock_rotation_y;
 
 	// Widgets
 	public SpriteImportDialog(string png)
@@ -347,6 +349,11 @@ public class SpriteImportDialog : Gtk.Dialog
 		actor_class.append("keyframed", "keyframed");
 		actor_class.append("trigger", "trigger");
 		actor_class.value = "static";
+		lock_rotation_y = new Gtk.CheckButton();
+		lock_rotation_y.active = true;
+		mass = new Gtk.SpinButton.with_range(0, double.MAX, 1.0);
+		mass.value = 10;
+
 
 		circle_collision_center_x = new Gtk.SpinButton.with_range(-double.MAX, double.MAX, 1.0);
 		circle_collision_center_x.value = cell_w.value/2.0;
@@ -523,6 +530,9 @@ public class SpriteImportDialog : Gtk.Dialog
 		grid.attach(label_with_alignment("Depth", Gtk.Align.END),        0, 12, 1, 1);
 
 		grid.attach(label_with_alignment("Collision", Gtk.Align.END),    0, 13, 1, 1);
+		grid.attach(label_with_alignment("Class", Gtk.Align.END),    0, 14, 1, 1);
+		grid.attach(label_with_alignment("Mass", Gtk.Align.END),    0, 15, 1, 1);
+		grid.attach(label_with_alignment("Lock Rotation", Gtk.Align.END),    0, 16, 1, 1);
 
 		grid.attach(resolution,   1,  0, 1, 1);
 		grid.attach(cells_h,      1,  1, 1, 1);
@@ -540,6 +550,8 @@ public class SpriteImportDialog : Gtk.Dialog
 
 		grid.attach(collision_enabled, 1, 13, 1, 1);
 		grid.attach(actor_class,       1, 14, 1, 1);
+		grid.attach(mass,              1, 15, 1, 1);
+		grid.attach(lock_rotation_y,   1, 16, 1, 1);
 		shape = new Gtk.Stack();
 		Gtk.Grid square_grid = new Gtk.Grid();
 		square_grid.attach(label_with_alignment("Collision X", Gtk.Align.END),  0, 0, 1, 1);
@@ -580,8 +592,8 @@ public class SpriteImportDialog : Gtk.Dialog
 		shape.add_titled(capsule_grid, "capsule_collider", "Capsule Collider");
 		shape_switcher = new Gtk.StackSwitcher();
 		shape_switcher.set_stack(shape);
-		grid.attach(shape_switcher, 1, 15, 1, 1);
-		grid.attach(shape, 1, 16, 1, 5);
+		grid.attach(shape_switcher, 1, 17, 1, 1);
+		grid.attach(shape, 1, 18, 1, 5);
 
 		grid.row_spacing = 6;
 		grid.column_spacing = 12;
@@ -645,6 +657,8 @@ public class SpriteImportDialog : Gtk.Dialog
 
 		shape.visible_child_name         = importer_settings.has_key("shape_active_name") ? (string)importer_settings["shape_active_name"] : "square_collider";
 		actor_class.value                = importer_settings.has_key("actor_class") ? (string)importer_settings["actor_class"] : "static";
+		lock_rotation_y.active			 = importer_settings.has_key("lock_rotation_y") ? (bool)importer_settings["lock_rotation_y"] : true;
+		mass.value						 = importer_settings.has_key("mass") ? (double)importer_settings["mass"] : 10.0;
 	}
 
 	public void save(Hashtable importer_settings)
@@ -674,6 +688,8 @@ public class SpriteImportDialog : Gtk.Dialog
 		importer_settings["capsule_collision_height"]   = capsule_collision_height.value;
 		importer_settings["shape_active_name"]          = shape.visible_child_name;
 		importer_settings["actor_class"]                = actor_class.value;
+		importer_settings["lock_rotation_y"]            = lock_rotation_y.active;
+		importer_settings["mass"]						= mass.value;
 	}
 }
 

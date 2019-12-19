@@ -330,6 +330,8 @@ end
 			int collision_w                = (int)sid.collision_w.value;
 			int collision_h                = (int)sid.collision_h.value;
 			string actor_class             = (string)sid.actor_class.value;
+			bool lock_rotation_y           = sid.lock_rotation_y.active;
+			double mass					   = (double)sid.mass.value;
 
 			sid.destroy();
 
@@ -577,12 +579,12 @@ end
 							db.set_property_string(id, "data.class", actor_class);
 							db.set_property_string(id, "data.collision_filter", "default");
 							db.set_property_bool  (id, "data.lock_rotation_x", true);
-							db.set_property_bool  (id, "data.lock_rotation_y", true);
+							db.set_property_bool  (id, "data.lock_rotation_y", lock_rotation_y);
 							db.set_property_bool  (id, "data.lock_rotation_z", true);
 							db.set_property_bool  (id, "data.lock_translation_x", false);
 							db.set_property_bool  (id, "data.lock_translation_y", true);
 							db.set_property_bool  (id, "data.lock_translation_z", false);
-							db.set_property_double(id, "data.mass", 10);
+							db.set_property_double(id, "data.mass", mass);
 							db.set_property_string(id, "data.material", "default");
 							db.set_property_string(id, "type", "actor");
 
@@ -593,12 +595,12 @@ end
 							unit.set_component_property_string(id, "data.class", actor_class);
 							unit.set_component_property_string(id, "data.collision_filter", "default");
 							unit.set_component_property_bool  (id, "data.lock_rotation_x", true);
-							unit.set_component_property_bool  (id, "data.lock_rotation_y", true);
+							unit.set_component_property_bool  (id, "data.lock_rotation_y", lock_rotation_y);
 							unit.set_component_property_bool  (id, "data.lock_rotation_z", true);
 							unit.set_component_property_bool  (id, "data.lock_translation_x", false);
 							unit.set_component_property_bool  (id, "data.lock_translation_y", true);
 							unit.set_component_property_bool  (id, "data.lock_translation_z", false);
-							unit.set_component_property_double(id, "data.mass", 10);
+							unit.set_component_property_double(id, "data.mass", mass);
 							unit.set_component_property_string(id, "data.material", "default");
 							unit.set_component_property_string(id, "type", "actor");
 						}
