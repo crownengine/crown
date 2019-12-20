@@ -214,7 +214,8 @@ void World::update_scene(f32 dt)
 				{
 					const PhysicsTransformEvent& ptev = *(PhysicsTransformEvent*)data;
 					const TransformInstance ti = _scene_graph->instances(ptev.unit_id);
-					_scene_graph->set_world_pose_and_rescale(ti, ptev.world);
+					if (is_valid(ti)) // User code may have destroyed the actor
+						_scene_graph->set_world_pose_and_rescale(ti, ptev.world);
 				}
 				break;
 
