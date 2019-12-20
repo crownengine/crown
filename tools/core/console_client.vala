@@ -92,7 +92,7 @@ namespace Crown
 
 		public void receive_async()
 		{
-			_connection.input_stream.read_bytes_async.begin(4, GLib.Priority.HIGH, null, on_read);
+			_connection.input_stream.read_bytes_async.begin(4, GLib.Priority.DEFAULT, null, on_read);
 		}
 
 		private void on_read(Object? obj, AsyncResult ar)
@@ -117,8 +117,9 @@ namespace Crown
 				size |= header[0] << 0;
 
 				uint8[] data = new uint8[size];
-				input_stream.read(data);
-				message_received(this, data);
+				size_t bytes_read = 0;
+				if (input_stream.read_all(data, out bytes_read))
+					message_received(this, data);
 			}
 			catch (Error e)
 			{

@@ -20,6 +20,7 @@ Changelog
 * tools: added the ability to specify the actor class in the Sprite Importer
 * tools: fixed a crash when entering empty commands in the console
 * tools: fixed an issue that caused the Level Editor to not correctly save a level specified from command line
+* tools: fixed an issue that could cause the Level Editor to crash when large number of TCP/IP packets were sent to it
 * tools: fixed an issue that could cause the Level Editor to incorreclty parse identifiers in SJSON files
 * tools: fixed an issue that prevented some operations in the Level Editor from being (un/re)done
 * tools: fixed an issue that prevented the data compiler from restoring and saving its state when launched by the Level Editor
