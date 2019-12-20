@@ -40,6 +40,7 @@ struct UnitResource;
 #define RESOURCE_TYPE_STATE_MACHINE    StringId64(0xa486d4045106165c)
 #define RESOURCE_TYPE_CONFIG           StringId64(0x82645835e6b73232)
 #define RESOURCE_TYPE_FONT             StringId64(0x9efe0a916aae7880)
+#define RESOURCE_TYPE_UNIT             StringId64(0xe0a48d0be9a7453f)
 #define RESOURCE_TYPE_LEVEL            StringId64(0x2a690fd348fe9ac5)
 #define RESOURCE_TYPE_MATERIAL         StringId64(0xeac0b497876adedf)
 #define RESOURCE_TYPE_MESH             StringId64(0x48ff313713a997a1)
@@ -51,14 +52,14 @@ struct UnitResource;
 #define RESOURCE_TYPE_SPRITE_ANIMATION StringId64(0x487e78e3f87f238d)
 #define RESOURCE_TYPE_SPRITE           StringId64(0x8d5871f9ebdb651c)
 #define RESOURCE_TYPE_TEXTURE          StringId64(0xcd4238c6a0c69e32)
-#define RESOURCE_TYPE_UNIT             StringId64(0xe0a48d0be9a7453f)
 
 #define RESOURCE_FULL_REBUILD_COUNT       u32(0) //!< How many times we required a full asset rebuild?
 #define RESOURCE_VERSION(ver)             (RESOURCE_FULL_REBUILD_COUNT + ver)
 #define RESOURCE_VERSION_STATE_MACHINE    RESOURCE_VERSION(2)
 #define RESOURCE_VERSION_CONFIG           RESOURCE_VERSION(1)
 #define RESOURCE_VERSION_FONT             RESOURCE_VERSION(1)
-#define RESOURCE_VERSION_LEVEL            RESOURCE_VERSION(5)
+#define RESOURCE_VERSION_UNIT             RESOURCE_VERSION(3)
+#define RESOURCE_VERSION_LEVEL            (RESOURCE_VERSION_UNIT + 2) //!< Level embeds UnitResource
 #define RESOURCE_VERSION_MATERIAL         RESOURCE_VERSION(2)
 #define RESOURCE_VERSION_MESH             RESOURCE_VERSION(1)
 #define RESOURCE_VERSION_PACKAGE          RESOURCE_VERSION(4)
@@ -69,7 +70,6 @@ struct UnitResource;
 #define RESOURCE_VERSION_SPRITE_ANIMATION RESOURCE_VERSION(1)
 #define RESOURCE_VERSION_SPRITE           RESOURCE_VERSION(2)
 #define RESOURCE_VERSION_TEXTURE          RESOURCE_VERSION(1)
-#define RESOURCE_VERSION_UNIT             RESOURCE_VERSION(3)
 
 #define RESOURCE_MAGIC                    u32(0x9B) //!< Non-UTF8 to early out on file type detection
 #define RESOURCE_HEADER(version)          u32((version & 0x00ffffff) << 8 | RESOURCE_MAGIC)
