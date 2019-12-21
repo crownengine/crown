@@ -146,7 +146,7 @@ windows-release64: build/projects/vs2017 build/win64/bin/luajit.exe build/win64/
 rebuild-glib-resources:
 	$(MAKE) -j$(MAKE_JOBS) -R -C tools rebuild
 
-tools-linux-debug64: linux-development64
+tools-linux-debug64: linux-debug64
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug
 tools-linux-release64: linux-development64
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release

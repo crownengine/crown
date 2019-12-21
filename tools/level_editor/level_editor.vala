@@ -585,7 +585,7 @@ namespace Crown
 				null
 			};
 
-			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE);
+			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 			sl.set_cwd(ENGINE_DIR);
 			try
 			{
@@ -655,7 +655,7 @@ namespace Crown
 				null
 			};
 
-			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE);
+			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 			sl.set_cwd(ENGINE_DIR);
 			try
 			{
@@ -717,7 +717,7 @@ namespace Crown
 						null
 					};
 
-					GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE);
+					GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 					sl.set_cwd(ENGINE_DIR);
 
 					try
@@ -781,7 +781,7 @@ namespace Crown
 					null
 				};
 
-				GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE);
+				GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 				sl.set_cwd(ENGINE_DIR);
 				try
 				{
@@ -1510,6 +1510,15 @@ namespace Crown
 			quit();
 			return true;
 		}
+	}
+
+	public static GLib.SubprocessFlags subprocess_flags()
+	{
+		GLib.SubprocessFlags flags = SubprocessFlags.NONE;
+#if !CROWN_DEBUG
+		flags |= SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE;
+#endif
+		return flags;
 	}
 
 	public static int main (string[] args)
