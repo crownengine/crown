@@ -118,6 +118,8 @@ struct FileMonitorImpl
 	void stop()
 	{
 		_exit = true;
+		_thread.stop();
+
 		close(_fd);
 	}
 
