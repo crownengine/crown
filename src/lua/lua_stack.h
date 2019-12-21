@@ -161,14 +161,15 @@ struct LuaStack
 
 	void* get_pointer(int i)
 	{
-		if (!lua_isuserdata(L, i))
+#if CROWN_DEBUG
+		if (CE_UNLIKELY(lua_isuserdata(L, i) == 0))
 		{
-			luaL_typerror(L, i, "lightuserdata");
+			luaL_typerror(L, i, "userdata");
 			CE_UNREACHABLE();
 		}
-
+#endif
 		void* p = lua_touserdata(L, i);
-		CE_ENSURE(NULL != p);
+		CE_ENSURE(p != NULL); // NULL iff object is not userdata
 		return p;
 	}
 
@@ -690,7 +691,7 @@ struct LuaStack
 
 	void check_type(int i, const Gui* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != DEBUG_GUI_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != DEBUG_GUI_MARKER))
 		{
 			luaL_typerror(L, i, "Gui");
 			CE_UNREACHABLE();
@@ -699,7 +700,7 @@ struct LuaStack
 
 	void check_type(int i, const DebugLine* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != DEBUG_LINE_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != DEBUG_LINE_MARKER))
 		{
 			luaL_typerror(L, i, "DebugLine");
 			CE_UNREACHABLE();
@@ -708,7 +709,7 @@ struct LuaStack
 
 	void check_type(int i, const ResourcePackage* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != RESOURCE_PACKAGE_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != RESOURCE_PACKAGE_MARKER))
 		{
 			luaL_typerror(L, i, "ResourcePackage");
 			CE_UNREACHABLE();
@@ -717,7 +718,7 @@ struct LuaStack
 
 	void check_type(int i, const World* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != WORLD_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != WORLD_MARKER))
 		{
 			luaL_typerror(L, i, "World");
 			CE_UNREACHABLE();
@@ -726,7 +727,7 @@ struct LuaStack
 
 	void check_type(int i, const SceneGraph* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != SCENE_GRAPH_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != SCENE_GRAPH_MARKER))
 		{
 			luaL_typerror(L, i, "SceneGraph");
 			CE_UNREACHABLE();
@@ -735,7 +736,7 @@ struct LuaStack
 
 	void check_type(int i, const RenderWorld* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != RENDER_WORLD_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != RENDER_WORLD_MARKER))
 		{
 			luaL_typerror(L, i, "RenderWorld");
 			CE_UNREACHABLE();
@@ -744,7 +745,7 @@ struct LuaStack
 
 	void check_type(int i, const PhysicsWorld* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != PHYSICS_WORLD_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != PHYSICS_WORLD_MARKER))
 		{
 			luaL_typerror(L, i, "PhysicsWorld");
 			CE_UNREACHABLE();
@@ -753,7 +754,7 @@ struct LuaStack
 
 	void check_type(int i, const SoundWorld* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != SOUND_WORLD_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != SOUND_WORLD_MARKER))
 		{
 			luaL_typerror(L, i, "SoundWorld");
 			CE_UNREACHABLE();
@@ -762,7 +763,7 @@ struct LuaStack
 
 	void check_type(int i, const Level* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != LEVEL_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != LEVEL_MARKER))
 		{
 			luaL_typerror(L, i, "Level");
 			CE_UNREACHABLE();
@@ -771,7 +772,7 @@ struct LuaStack
 
 	void check_type(int i, const ScriptWorld* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != SCRIPT_WORLD_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != SCRIPT_WORLD_MARKER))
 		{
 			luaL_typerror(L, i, "ScriptWorld");
 			CE_UNREACHABLE();
@@ -780,7 +781,7 @@ struct LuaStack
 
 	void check_type(int i, const AnimationStateMachine* p)
 	{
-		if (!is_pointer(i) || *(u32*)p != ANIMATION_STATE_MACHINE_MARKER)
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != ANIMATION_STATE_MACHINE_MARKER))
 		{
 			luaL_typerror(L, i, "AnimationStateMachine");
 			CE_UNREACHABLE();
