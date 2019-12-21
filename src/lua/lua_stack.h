@@ -36,12 +36,14 @@
 	#define LUA_ASSERT(...) CE_NOOP()
 #endif // CROWN_DEBUG
 
-#define LIGHTDATA_TYPE_BITS  2
-#define LIGHTDATA_TYPE_MASK  0x3
-#define LIGHTDATA_TYPE_SHIFT 0
+#define LIGHTDATA_TYPE_MASK      uintptr_t(0x3)
+#define LIGHTDATA_TYPE_SHIFT     uintptr_t(0)
 
-#define POINTER_MARKER       0x0
-#define UNIT_MARKER          0x1
+#define LIGHTDATA_POINTER_MARKER uintptr_t(0)
+
+#define LIGHTDATA_UNIT_MARKER    uintptr_t(1)
+#define LIGHTDATA_UNIT_ID_MASK   uintptr_t(0xfffffffc)
+#define LIGHTDATA_UNIT_ID_SHIFT  uintptr_t(2)
 
 namespace crown
 {
@@ -102,7 +104,7 @@ struct LuaStack
 	bool is_pointer(int i)
 	{
 		return lua_islightuserdata(L, i) == 1
-			&& ((uintptr_t)lua_touserdata(L, i) & 0x3) == 0;
+			&& ((uintptr_t)lua_touserdata(L, i) & LIGHTDATA_TYPE_MASK) == LIGHTDATA_POINTER_MARKER;
 	}
 
 	bool is_function(int i)
@@ -295,16 +297,16 @@ struct LuaStack
 
 	UnitId get_unit(int i)
 	{
-		u32 enc = (u32)(uintptr_t)get_pointer(i);
+		uintptr_t enc = (uintptr_t)get_pointer(i);
 #if CROWN_DEBUG
-		if ((enc & LIGHTDATA_TYPE_MASK) != UNIT_MARKER)
+		if ((enc & LIGHTDATA_TYPE_MASK) != LIGHTDATA_UNIT_MARKER)
 		{
 			luaL_typerror(L, i, "UnitId");
 			CE_UNREACHABLE();
 		}
 #endif // CROWN_DEBUG
 		UnitId id;
-		id._idx = enc >> 2;
+		id._idx = u32((enc & LIGHTDATA_UNIT_ID_MASK) >> LIGHTDATA_UNIT_ID_SHIFT);
 		return id;
 	}
 
@@ -584,8 +586,8 @@ struct LuaStack
 
 	void push_unit(UnitId id)
 	{
-		u32 encoded = (id._idx << 2) | UNIT_MARKER;
-		push_pointer((void*)(uintptr_t)encoded);
+		uintptr_t enc = (uintptr_t(id._idx) << LIGHTDATA_UNIT_ID_SHIFT) | LIGHTDATA_UNIT_MARKER;
+		push_pointer((void*)enc);
 	}
 
 	void push_camera(CameraInstance i)
