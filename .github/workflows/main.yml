@@ -34,18 +34,16 @@ jobs:
         runs-on: windows-latest
         steps:
         - uses: actions/checkout@v1
-        - name: prepare
-          shell: cmd
-          run: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         - name: luajit
           shell: cmd
           run: |
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
             cd "3rdparty\luajit\src"
             .\msvcbuild.bat
         - name: windows-make-debug64
           shell: cmd
           run: |
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
             md "build\win64\bin"
             cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win64/bin
             3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
