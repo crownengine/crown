@@ -40,7 +40,7 @@ jobs:
         - name: windows-make-debug64
           run: |
             cd "3rdparty\luajit\src"
-            msvcbuild.bat
+            .\msvcbuild.bat
             # New-Item -path "build\win64\bin" -type directory
             # cd ../../../
             # cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win64/bin
