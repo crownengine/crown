@@ -147,7 +147,19 @@ LuaEnvironment::LuaEnvironment()
 	, _num_vec3(0)
 	, _num_quat(0)
 	, _num_mat4(0)
+#if CROWN_DEBUG
+	, _vec3_marker(0)
+	, _quat_marker(0)
+	, _mat4_marker(0)
+	, _random(0)
+#endif
 {
+#if CROWN_DEBUG
+	// Initialize temporaries markers with random values.
+	_random._seed = (s32)guid::new_guid().data1;
+	reset_temporaries();
+#endif
+
 	L = luaL_newstate();
 	CE_ASSERT(L, "Unable to create lua state");
 }
@@ -356,38 +368,91 @@ LuaStack LuaEnvironment::get_global(const char* global)
 Vector3* LuaEnvironment::next_vector3(const Vector3& v)
 {
 	CE_ASSERT(_num_vec3 < LUA_MAX_VECTOR3, "Maximum number of Vector3 reached");
-	return &(_vec3[_num_vec3++] = v);
+
+	Vector3* vec3 = &(_vec3[_num_vec3++] = v);
+	uintptr_t ptr = (uintptr_t)(void*)vec3;
+#if CROWN_DEBUG
+	ptr |= _vec3_marker;
+#endif
+	return (Vector3*)ptr;
 }
 
 Quaternion* LuaEnvironment::next_quaternion(const Quaternion& q)
 {
 	CE_ASSERT(_num_quat < LUA_MAX_QUATERNION, "Maximum number of Quaternion reached");
-	return &(_quat[_num_quat++] = q);
+
+	Quaternion* quat = &(_quat[_num_quat++] = q);
+	uintptr_t ptr = (uintptr_t)(void*)quat;
+#if CROWN_DEBUG
+	ptr |= _quat_marker;
+#endif
+	return (Quaternion*)ptr;
 }
 
 Matrix4x4* LuaEnvironment::next_matrix4x4(const Matrix4x4& m)
 {
 	CE_ASSERT(_num_mat4 < LUA_MAX_MATRIX4X4, "Maximum number of Matrix4x4 reached");
-	return &(_mat4[_num_mat4++] = m);
+
+	Matrix4x4* mat4 = &(_mat4[_num_mat4++] = m);
+	uintptr_t ptr = (uintptr_t)(void*)mat4;
+#if CROWN_DEBUG
+	ptr |= _mat4_marker;
+#endif
+	return (Matrix4x4*)ptr;
 }
 
-bool LuaEnvironment::is_vector3(const Vector3* p) const
+bool LuaEnvironment::is_vector3(const void* ptr)
 {
-	return p >= &_vec3[0]
-		&& p <= &_vec3[LUA_MAX_VECTOR3 - 1];
+	return ptr >= &_vec3[0]
+		&& ptr <= &_vec3[LUA_MAX_VECTOR3 - 1];
 }
 
-bool LuaEnvironment::is_quaternion(const Quaternion* p) const
+bool LuaEnvironment::is_quaternion(const void* ptr)
 {
-	return p >= &_quat[0]
-		&& p <= &_quat[LUA_MAX_QUATERNION - 1];
+	return ptr >= &_quat[0]
+		&& ptr <= &_quat[LUA_MAX_QUATERNION - 1];
 }
 
-bool LuaEnvironment::is_matrix4x4(const Matrix4x4* p) const
+bool LuaEnvironment::is_matrix4x4(const void* ptr)
 {
-	return p >= &_mat4[0]
-		&& p <= &_mat4[LUA_MAX_MATRIX4X4 - 1];
+	return ptr >= &_mat4[0]
+		&& ptr <= &_mat4[LUA_MAX_MATRIX4X4 - 1];
 }
+
+#if CROWN_DEBUG
+Vector3* LuaEnvironment::check_valid(const Vector3* ptr)
+{
+	LUA_ASSERT(((uintptr_t)ptr & LUA_VECTOR3_MARKER_MASK) >> LUA_VECTOR3_MARKER_SHIFT == _vec3_marker
+		, LuaStack(L)
+		, "Stale Vector3 ptr: %p, expected marker: %p"
+		, ptr
+		, _vec3_marker
+		);
+	return (Vector3*)(uintptr_t(ptr) & ~LUA_VECTOR3_MARKER_MASK);
+}
+
+Quaternion* LuaEnvironment::check_valid(const Quaternion* ptr)
+{
+	LUA_ASSERT(((uintptr_t)ptr & LUA_QUATERNION_MARKER_MASK) >> LUA_QUATERNION_MARKER_SHIFT == _quat_marker
+		, LuaStack(L)
+		, "Stale Quaternion ptr: %p, expected marker: %p"
+		, ptr
+		, _quat_marker
+		);
+	return (Quaternion*)(uintptr_t(ptr) & ~LUA_QUATERNION_MARKER_MASK);
+}
+
+Matrix4x4* LuaEnvironment::check_valid(const Matrix4x4* ptr)
+{
+	LUA_ASSERT(((uintptr_t)ptr & LUA_MATRIX4X4_MARKER_MASK) >> LUA_MATRIX4X4_MARKER_SHIFT == _mat4_marker
+		, LuaStack(L)
+		, "Stale Matrix4x4 ptr: %p, expected marker: %p"
+		, ptr
+		, _mat4_marker
+		);
+	return (Matrix4x4*)(uintptr_t(ptr) & ~LUA_MATRIX4X4_MARKER_MASK);
+}
+#endif // CROWN_DEBUG
 
 void LuaEnvironment::temp_count(u32& num_vec3, u32& num_quat, u32& num_mat4)
 {
@@ -408,6 +473,12 @@ void LuaEnvironment::reset_temporaries()
 	_num_vec3 = 0;
 	_num_quat = 0;
 	_num_mat4 = 0;
+
+#if CROWN_DEBUG
+	_vec3_marker = (uintptr_t)_random.integer(1 + LUA_VECTOR3_MARKER_MASK);
+	_quat_marker = (uintptr_t)_random.integer(1 + LUA_QUATERNION_MARKER_MASK);
+	_mat4_marker = (uintptr_t)_random.integer(1 + LUA_MATRIX4X4_MARKER_MASK);
+#endif
 }
 
 static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* user_data)

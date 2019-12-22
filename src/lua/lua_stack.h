@@ -45,6 +45,13 @@
 #define LIGHTDATA_UNIT_ID_MASK   uintptr_t(0xfffffffc)
 #define LIGHTDATA_UNIT_ID_SHIFT  uintptr_t(2)
 
+#define LUA_VECTOR3_MARKER_MASK     uintptr_t(0x03)
+#define LUA_VECTOR3_MARKER_SHIFT    uintptr_t(0)
+#define LUA_QUATERNION_MARKER_MASK  uintptr_t(0x0f)
+#define LUA_QUATERNION_MARKER_SHIFT uintptr_t(0)
+#define LUA_MATRIX4X4_MARKER_MASK   uintptr_t(0x3f)
+#define LUA_MATRIX4X4_MARKER_SHIFT  uintptr_t(0)
+
 namespace crown
 {
 /// Wrapper to manipulate Lua stack.
@@ -374,29 +381,29 @@ struct LuaStack
 
 	Vector3& get_vector3(int i)
 	{
-		Vector3* v = (Vector3*)get_pointer(i);
 #if CROWN_DEBUG
-		check_temporary(i, v);
-#endif // CROWN_DEBUG
-		return *v;
+		return *check_temporary(i, (Vector3*)get_pointer(i));
+#else
+		return *(Vector3*)get_pointer(i);
+#endif
 	}
 
 	Quaternion& get_quaternion(int i)
 	{
-		Quaternion* q = (Quaternion*)get_pointer(i);
 #if CROWN_DEBUG
-		check_temporary(i, q);
-#endif // CROWN_DEBUG
-		return *q;
+		return *check_temporary(i, (Quaternion*)get_pointer(i));
+#else
+		return *(Quaternion*)get_pointer(i);
+#endif
 	}
 
 	Matrix4x4& get_matrix4x4(int i)
 	{
-		Matrix4x4* m = (Matrix4x4*)get_pointer(i);
 #if CROWN_DEBUG
-		check_temporary(i, m);
-#endif // CROWN_DEBUG
-		return *m;
+		return *check_temporary(i, (Matrix4x4*)get_pointer(i));
+#else
+		return *(Matrix4x4*)get_pointer(i);
+#endif
 	}
 
 	Color4 get_color4(int i)
@@ -685,9 +692,9 @@ struct LuaStack
 	}
 
 #if CROWN_DEBUG
-	void check_temporary(int i, const Vector3* p);
-	void check_temporary(int i, const Quaternion* p);
-	void check_temporary(int i, const Matrix4x4* p);
+	Vector3* check_temporary(int i, const Vector3* p);
+	Quaternion* check_temporary(int i, const Quaternion* p);
+	Matrix4x4* check_temporary(int i, const Matrix4x4* p);
 
 	void check_type(int i, const Gui* p)
 	{

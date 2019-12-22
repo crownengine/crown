@@ -6,6 +6,7 @@
 #pragma once
 
 #include "config.h"
+#include "core/math/random.h"
 #include "core/math/types.h"
 #include "core/types.h"
 #include "device/types.h"
@@ -34,11 +35,20 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_QUATERNION_SIZE % sizeof(Quaternion) == 0);
 CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 
 	u32 _num_vec3;
-	Vector3 _vec3[LUA_MAX_VECTOR3];
+	CE_ALIGN_DECL(4, Vector3 _vec3[LUA_MAX_VECTOR3]);
+	CE_STATIC_ASSERT( 4 == 1 + LUA_VECTOR3_MARKER_MASK);
 	u32 _num_quat;
-	Quaternion _quat[LUA_MAX_QUATERNION];
+	CE_ALIGN_DECL(16, Quaternion _quat[LUA_MAX_QUATERNION]);
+	CE_STATIC_ASSERT(16 == 1 + LUA_QUATERNION_MARKER_MASK);
 	u32 _num_mat4;
-	Matrix4x4 _mat4[LUA_MAX_MATRIX4X4];
+	CE_ALIGN_DECL(64, Matrix4x4 _mat4[LUA_MAX_MATRIX4X4]);
+	CE_STATIC_ASSERT(64 == 1 + LUA_MATRIX4X4_MARKER_MASK);
+#if CROWN_DEBUG
+	uintptr_t _vec3_marker;
+	uintptr_t _quat_marker;
+	uintptr_t _mat4_marker;
+	Random _random;
+#endif
 
 	///
 	LuaEnvironment();
@@ -100,14 +110,28 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	/// Returns a new temporary Matrix4x4.
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m);
 
-	/// Returns whether @a p is a temporary Vector3.
-	bool is_vector3(const Vector3* p) const;
+	/// Returns whether @a ptr is a temporary Vector3.
+	bool is_vector3(const void* ptr);
 
-	/// Returns whether @a p is a temporary Quaternion.
-	bool is_quaternion(const Quaternion* p) const;
+	/// Returns whether @a ptr is a temporary Quaternion.
+	bool is_quaternion(const void* ptr);
 
-	/// Returns whether @a p is a temporary Matrix4x4.
-	bool is_matrix4x4(const Matrix4x4* p) const;
+	/// Returns whether @a ptr is a temporary Matrix4x4.
+	bool is_matrix4x4(const void* ptr);
+
+#if CROWN_DEBUG
+	/// Returns the actual address of @a ptr if it is not stale,
+	/// otherwise it generates a Lua error.
+	Vector3* check_valid(const Vector3* ptr);
+
+	/// Returns the actual address of @a ptr if it is not stale,
+	/// otherwise it generates a Lua error.
+	Quaternion* check_valid(const Quaternion* ptr);
+
+	/// Returns the actual address of @a ptr if it is not stale,
+	/// otherwise it generates a Lua error.
+	Matrix4x4* check_valid(const Matrix4x4* ptr);
+#endif
 
 	///
 	void register_console_commands(ConsoleServer& cs);
