@@ -40,16 +40,16 @@ jobs:
         - name: windows-make-debug64
           run: |
             cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
-            .\vcvarsall.bat
+            .\vcvarsall.bat x64
             cd "D:\a\crown\crown"
             cd "3rdparty\luajit\src"
             .\msvcbuild.bat
-            # New-Item -path "build\win64\bin" -type directory
-            # cd ../../../
-            # cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win64/bin
+            cd "D:\a\crown\crown"
+            New-Item -path "build\win64\bin" -type directory
+            cd "D:\a\crown\crown"
+            cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win64/bin
             3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
-            # devenv build/projects/vs2017/crown.sln /Build "debug|x64"
+            devenv build/projects/vs2017/crown.sln /Build "debug|x64"
         - name: windows-test-debug64
           run: |
-            # cd git/crown
-            # ./build/win64/bin/crown-debug --run-unit-tests
+            ./build/win64/bin/crown-debug --run-unit-tests
