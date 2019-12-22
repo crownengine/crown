@@ -357,6 +357,7 @@ namespace Crown
 			_shape = new Gtk.Entry();
 			_shape.sensitive = false;
 			_scene = new ReferenceChooser(store, "mesh");
+			_scene.sensitive = false;
 			_scene.value_changed.connect(on_value_changed);
 			_scene.sensitive = false;
 			_name = new Gtk.Entry();
@@ -390,25 +391,25 @@ namespace Crown
 			{
 				if ((string)source == "inline")
 				{
-					_source.text     = "inline";
-					_shape.text      = "";
-					_scene.value     = "";
-					_name.text       = "";
+					_source.text = "inline";
+					_shape.text  = "";
+					_scene.value = "";
+					_name.text   = "";
 				}
 				else
 				{
-					_source.text     = "mesh";
-					_shape.text      = unit.get_component_property_string(_component_id, "data.shape");
-					_scene.value     = unit.get_component_property_string(_component_id, "data.scene");
-					_name.text       = unit.get_component_property_string(_component_id, "data.name");
+					_source.text = "mesh";
+					_shape.text  = unit.get_component_property_string(_component_id, "data.shape");
+					_scene.value = unit.get_component_property_string(_component_id, "data.scene");
+					_name.text   = unit.get_component_property_string(_component_id, "data.name");
 				}
 			}
 			else
 			{
-				_source.text     = "mesh";
-				_shape.text      = unit.get_component_property_string(_component_id, "data.shape");
-				_scene.value     = unit.get_component_property_string(_component_id, "data.scene");
-				_name.text       = unit.get_component_property_string(_component_id, "data.name");
+				_source.text = "mesh";
+				_shape.text  = unit.get_component_property_string(_component_id, "data.shape");
+				_scene.value = unit.get_component_property_string(_component_id, "data.scene");
+				_name.text   = unit.get_component_property_string(_component_id, "data.name");
 			}
 		}
 	}
