@@ -95,11 +95,11 @@ linux-development32: build/projects/linux build/linux32/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=development32
 linux-release32: build/projects/linux build/linux32/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=release32
-linux-debug64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
+linux-debug64: build/projects/linux build/linux64/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=debug64
-linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
+linux-development64: build/projects/linux build/linux64/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=development64
-linux-release64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
+linux-release64: build/projects/linux build/linux64/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
@@ -135,21 +135,26 @@ windows-development32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|Win32"
 windows-release32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|Win32"
-windows-debug64: build/projects/vs2017 build/win64/bin/luajit.exe build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
+windows-debug64: build/projects/vs2017 build/win64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|x64"
-windows-development64: build/projects/vs2017 build/win64/bin/luajit.exe build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
+windows-development64: build/projects/vs2017 build/win64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|x64"
-windows-release64: build/projects/vs2017 build/win64/bin/luajit.exe build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
+windows-release64: build/projects/vs2017 build/win64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|x64"
 
 .PHONY: rebuild-glib-resources
 rebuild-glib-resources:
 	$(MAKE) -j$(MAKE_JOBS) -R -C tools rebuild
 
-tools-linux-debug64: linux-debug64
+tools-linux-debug64: linux-debug64 build/linux64/bin/texturec build/linux64/bin/shaderc
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug
-tools-linux-release64: linux-development64
+tools-linux-release64: linux-development64 build/linux64/bin/texturec build/linux64/bin/shaderc
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release
+
+tools-windows-debug64: windows-debug64 build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
+	# Do nothing
+tools-windows-release64: windows-development64 build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
+	# Do nothing
 
 tools-mingw-debug64: mingw-development64
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug
