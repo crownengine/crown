@@ -1,0 +1,30 @@
+name: build_and_test
+
+on: [push, pull_request]
+
+jobs:
+    linux:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v1
+        - name: prepare
+          run: |
+            sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev
+            mkdir git
+            cd git
+            git clone https://github.com/dbartolini/crown
+        - name: linux-make-debug64
+          run: |
+            cd git/crown
+            make linux-debug64
+            ./build/linux64/bin/crown-debug --run-unit-tests
+        - name: linux-make-development64
+          run: |
+            cd git/crown
+            make linux-development64
+            ./build/linux64/bin/crown-development --run-unit-tests
+        - name: linux-make-release64
+          run: |
+            cd git/crown
+            make linux-release64
+            ./build/linux64/bin/crown-release --run-unit-tests
