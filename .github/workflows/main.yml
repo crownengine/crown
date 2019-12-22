@@ -37,7 +37,7 @@ jobs:
         - name: windows-make-debug64
           shell: cmd
           run: |
-            "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
+            cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
             .\vcvarsall.bat x64
             cd "D:\a\crown\crown"
             cd "3rdparty\luajit\src"
