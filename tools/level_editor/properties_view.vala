@@ -341,6 +341,7 @@ namespace Crown
 		Level _level;
 
 		// Widgets
+		private Gtk.Entry _source;
 		private Gtk.Entry _shape;
 		private ReferenceChooser _scene;
 		private Gtk.Entry _name;
@@ -351,13 +352,17 @@ namespace Crown
 			_level = level;
 
 			// Widgets
+			_source = new Gtk.Entry();
+			_source.sensitive = false;
 			_shape = new Gtk.Entry();
 			_shape.sensitive = false;
 			_scene = new ReferenceChooser(store, "mesh");
 			_scene.value_changed.connect(on_value_changed);
+			_scene.sensitive = false;
 			_name = new Gtk.Entry();
 			_name.sensitive = false;
 
+			add_row("Source", _source);
 			add_row("Shape", _shape);
 			add_row("Scene", _scene);
 			add_row("Name", _name);
@@ -365,20 +370,46 @@ namespace Crown
 
 		private void on_value_changed()
 		{
-			_level.set_collider(_id
-				, _component_id
-				, _shape.text
-				, _scene.value
-				, _name.text
-				);
+			if (_source.text == "mesh")
+			{
+				_level.set_collider(_id
+					, _component_id
+					, _shape.text
+					, _scene.value
+					, _name.text
+					);
+			}
 		}
 
 		public override void update()
 		{
 			Unit unit = new Unit(_level._db, _id, _level._prefabs);
-			_shape.text    = unit.get_component_property_string(_component_id, "data.shape");
-			_scene.value   = unit.get_component_property_string(_component_id, "data.scene");
-			_name.text     = unit.get_component_property_string(_component_id, "data.name");
+
+			Value? source = unit.get_component_property(_component_id, "data.source");
+			if (source != null)
+			{
+				if ((string)source == "inline")
+				{
+					_source.text     = "inline";
+					_shape.text      = "";
+					_scene.value     = "";
+					_name.text       = "";
+				}
+				else
+				{
+					_source.text     = "mesh";
+					_shape.text      = unit.get_component_property_string(_component_id, "data.shape");
+					_scene.value     = unit.get_component_property_string(_component_id, "data.scene");
+					_name.text       = unit.get_component_property_string(_component_id, "data.name");
+				}
+			}
+			else
+			{
+				_source.text     = "mesh";
+				_shape.text      = unit.get_component_property_string(_component_id, "data.shape");
+				_scene.value     = unit.get_component_property_string(_component_id, "data.scene");
+				_name.text       = unit.get_component_property_string(_component_id, "data.name");
+			}
 		}
 	}
 

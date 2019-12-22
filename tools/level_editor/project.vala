@@ -331,7 +331,7 @@ end
 			int collision_h                = (int)sid.collision_h.value;
 			string actor_class             = (string)sid.actor_class.value;
 			bool lock_rotation_y           = sid.lock_rotation_y.active;
-			double mass					   = (double)sid.mass.value;
+			double mass                    = (double)sid.mass.value;
 
 			sid.destroy();
 
@@ -486,40 +486,40 @@ end
 						{
 							db.create(id);
 							db.set_property_string(id, "data.source", "inline");
-							if (shape_active_name == "square_collider") {
-								double pos_x = (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
+							if (shape_active_name == "square_collider")
+							{
+								double pos_x =  (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
 								double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
 								Vector3 position = Vector3(pos_x, 0, pos_y);
-								db.set_property_vector3(id, "data.collider_data.position", position);
-								db.set_property_string(id, "data.shape", "box");
+								Vector3 half_extents = Vector3(collision_w/2/PIXELS_PER_METER, 0.5/PIXELS_PER_METER, collision_h/2/PIXELS_PER_METER);
+								db.set_property_vector3   (id, "data.collider_data.position", position);
+								db.set_property_string    (id, "data.shape", "box");
 								db.set_property_quaternion(id, "data.collider_data.rotation", rotation);
-								db.set_property_vector3(id, "data.collider_data.half_extents",
-														Vector3(collision_w/2/PIXELS_PER_METER,
-																0.5/PIXELS_PER_METER,
-																collision_h/2/PIXELS_PER_METER));
-							} else if (shape_active_name == "circle_collider") {
-								double pos_x = (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+								db.set_property_vector3   (id, "data.collider_data.half_extents", half_extents);
+							}
+							else if (shape_active_name == "circle_collider")
+							{
+								double pos_x =  (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 								double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
 								Vector3 position = Vector3(pos_x, 0, pos_y);
-								db.set_property_vector3(id, "data.collider_data.position", position);
-								db.set_property_string(id, "data.shape", "sphere");
+								double radius = circle_collision_radius / PIXELS_PER_METER;
+								db.set_property_vector3   (id, "data.collider_data.position", position);
+								db.set_property_string    (id, "data.shape", "sphere");
 								db.set_property_quaternion(id, "data.collider_data.rotation", rotation);
-								db.set_property_double(id, "data.collider_data.radius",
-													   circle_collision_radius / PIXELS_PER_METER);
-							} else if (shape_active_name == "capsule_collider") {
-								double pos_x = (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+								db.set_property_double    (id, "data.collider_data.radius", radius);
+							}
+							else if (shape_active_name == "capsule_collider")
+							{
+								double pos_x =  (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 								double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
 								Vector3 position = Vector3(pos_x, 0, pos_y);
-								db.set_property_vector3(id, "data.collider_data.position", position);
-								db.set_property_string(id, "data.shape", "capsule");
-								db.set_property_quaternion(id, "data.collider_data.rotation",
-													   Quaternion.from_axis_angle(Vector3(0, 0, 1),
-													   (float)Math.PI/2));
-								db.set_property_double(id, "data.collider_data.radius",
-													   capsule_collision_radius / PIXELS_PER_METER);
-								db.set_property_double(id, "data.collider_data.height",
-													   (capsule_collision_height -
-														2*capsule_collision_radius) / PIXELS_PER_METER);
+								double radius = capsule_collision_radius / PIXELS_PER_METER;
+								double capsule_height = (capsule_collision_height - 2*capsule_collision_radius) / PIXELS_PER_METER;
+								db.set_property_vector3   (id, "data.collider_data.position", position);
+								db.set_property_string    (id, "data.shape", "capsule");
+								db.set_property_quaternion(id, "data.collider_data.rotation", Quaternion.from_axis_angle(Vector3(0, 0, 1), (float)Math.PI/2));
+								db.set_property_double    (id, "data.collider_data.radius", radius);
+								db.set_property_double    (id, "data.collider_data.height", capsule_height);
 							}
 							db.set_property_string(id, "type", "collider");
 
@@ -528,42 +528,40 @@ end
 						else
 						{
 							unit.set_component_property_string(id, "data.source", "inline");
-							if (shape_active_name == "square_collider") {
-								double pos_x = (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
+							if (shape_active_name == "square_collider")
+							{
+								double pos_x =  (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
 								double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
 								Vector3 position = Vector3(pos_x, 0, pos_y);
-								unit.set_component_property_vector3(id, "data.collider_data.position", position);
-								unit.set_component_property_quaternion(id,"data.collider_data.rotation",
-											   rotation);
-								unit.set_component_property_string(id, "data.shape", "box");
-								unit.set_component_property_vector3(id, "data.collider_data.half_extents",
-														Vector3(collision_w/2/PIXELS_PER_METER,
-																0.5/PIXELS_PER_METER,
-																collision_h/2/PIXELS_PER_METER));
-							} else if (shape_active_name == "circle_collider") {
-								double pos_x = (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+								Vector3 half_extents = Vector3(collision_w/2/PIXELS_PER_METER, 0.5/PIXELS_PER_METER, collision_h/2/PIXELS_PER_METER);
+								unit.set_component_property_vector3   (id, "data.collider_data.position", position);
+								unit.set_component_property_quaternion(id, "data.collider_data.rotation", rotation);
+								unit.set_component_property_string    (id, "data.shape", "box");
+								unit.set_component_property_vector3   (id, "data.collider_data.half_extents", half_extents);
+							}
+							else if (shape_active_name == "circle_collider")
+							{
+								double pos_x =  (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 								double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
 								Vector3 position = Vector3(pos_x, 0, pos_y);
-								unit.set_component_property_vector3(id, "data.collider_data.position", position);
-								unit.set_component_property_quaternion(id,"data.collider_data.rotation",
-											   rotation);
-								unit.set_component_property_string(id, "data.shape", "sphere");
-								unit.set_component_property_double(id, "data.collider_data.radius",
-													   circle_collision_radius / PIXELS_PER_METER);
-							} else if (shape_active_name == "capsule_collider") {
-								double pos_x = (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
+								double radius = circle_collision_radius / PIXELS_PER_METER;
+								unit.set_component_property_vector3   (id, "data.collider_data.position", position);
+								unit.set_component_property_quaternion(id, "data.collider_data.rotation", rotation);
+								unit.set_component_property_string    (id, "data.shape", "sphere");
+								unit.set_component_property_double    (id, "data.collider_data.radius", radius);
+							}
+							else if (shape_active_name == "capsule_collider")
+							{
+								double pos_x =  (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 								double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
 								Vector3 position = Vector3(pos_x, 0, pos_y);
-								unit.set_component_property_vector3(id, "data.collider_data.position", position);
-								unit.set_component_property_quaternion(id,"data.collider_data.rotation",
-											   Quaternion.from_axis_angle(Vector3(0, 0, 1),
-											   (float)Math.PI/2));
-								unit.set_component_property_string(id, "data.shape", "capsule");
-								unit.set_component_property_double(id, "data.collider_data.radius",
-													   capsule_collision_radius / PIXELS_PER_METER);
-								unit.set_component_property_double(id, "data.collider_data.height",
-													   (capsule_collision_height -
-														2*capsule_collision_radius) / PIXELS_PER_METER);
+								double radius = capsule_collision_radius / PIXELS_PER_METER;
+								double capsule_height = (capsule_collision_height - 2*capsule_collision_radius) / PIXELS_PER_METER;
+								unit.set_component_property_vector3   (id, "data.collider_data.position", position);
+								unit.set_component_property_quaternion(id, "data.collider_data.rotation", Quaternion.from_axis_angle(Vector3(0, 0, 1), (float)Math.PI/2));
+								unit.set_component_property_string    (id, "data.shape", "capsule");
+								unit.set_component_property_double    (id, "data.collider_data.radius", radius);
+								unit.set_component_property_double    (id, "data.collider_data.height", capsule_height);
 							}
 							unit.set_component_property_string(id, "type", "collider");
 						}

@@ -20,7 +20,7 @@ public class Unit
 		_prefabs = prefabs != null ? prefabs : new Database();
 	}
 
-	private Value? get_component_property(Guid component_id, string key)
+	public Value? get_component_property(Guid component_id, string key)
 	{
 		// Search in components
 		{
