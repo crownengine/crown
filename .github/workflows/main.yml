@@ -19,14 +19,46 @@ jobs:
           run: |
             cd git/crown
             make linux-debug64 MAKE_JOBS=2
+        - name: linux-test-debug64
+          run: |
+            cd git/crown
             ./build/linux64/bin/crown-debug --run-unit-tests
         - name: linux-make-development64
           run: |
             cd git/crown
             make linux-development64 MAKE_JOBS=2
+        - name: linux-test-development64
+          run: |
+            cd git/crown
             ./build/linux64/bin/crown-development --run-unit-tests
         - name: linux-make-release64
           run: |
             cd git/crown
             make linux-release64 MAKE_JOBS=2
+        - name: linux-test-release64
+          run: |
+            cd git/crown
             ./build/linux64/bin/crown-release --run-unit-tests
+    windows:
+        runs-on: windows-latest
+        steps:
+        - uses: actions/checkout@v1
+        - name: prepare
+          run: |
+            mkdir git
+            cd git
+            git clone https://github.com/dbartolini/crown
+        - name: windows-make-debug64
+          run: |
+            cd git/crown
+            -mkdir "build/win64/bin"
+            cd 3rdparty/luajit/src
+            msvcbuild.bat
+            cd ../../../
+            cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win64/bin
+            3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
+            devenv build/projects/vs2017/crown.sln /Build "debug|x64"
+        - name: windows-test-debug64
+          run: |
+            cd git/crown
+            ./build/win64/bin/crown-debug --run-unit-tests

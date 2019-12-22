@@ -1,4 +1,4 @@
-The flexible game engine. [![Build Status](https://travis-ci.org/dbartolini/crown.svg?branch=master)](https://travis-ci.org/dbartolini/crown) [![Build status](https://ci.appveyor.com/api/projects/status/tt8et3tbj6tx8c31?svg=true)](https://ci.appveyor.com/project/dbartolini/crown)
+The flexible game engine. [![Build Status](https://github.com/dbartolini/crown/workflows/build_and_test/badge.svg)](https://github.com/dbartolini/crown/actions)
 =====================================
 
 Crown is a general purpose data-driven game engine, written from scratch in [orthodox C++](https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b) with a minimalistic and data-oriented design philosophy in mind.
