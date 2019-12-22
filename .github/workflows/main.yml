@@ -48,6 +48,7 @@ jobs:
         - name: windows-generate-projects
           shell: cmd
           run: |
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
             3rdparty\bx\tools\bin\windows\genie --file=scripts\genie.lua --with-luajit --with-tools --no-level-editor vs2017
         - name: windows-make-debug64
           shell: cmd
