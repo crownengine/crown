@@ -9,6 +9,7 @@
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
 #include "core/math/aabb.h"
+#include "core/math/constants.h"
 #include "core/math/quaternion.h"
 #include "core/math/sphere.h"
 #include "core/memory/temp_allocator.h"

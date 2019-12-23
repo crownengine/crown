@@ -4,6 +4,7 @@
  */
 
 #include "core/math/color4.h"
+#include "core/math/constants.h"
 #include "core/math/frustum.h"
 #include "core/math/intersection.h"
 #include "core/math/math.h"

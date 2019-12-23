@@ -12,6 +12,7 @@
 #include "core/filesystem/path.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
+#include "core/math/constants.h"
 #include "core/math/matrix4x4.h"
 #include "core/math/vector3.h"
 #include "core/memory/memory.h"

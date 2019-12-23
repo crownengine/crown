@@ -4,6 +4,7 @@
  */
 
 #include "core/math/color4.h"
+#include "core/math/constants.h"
 #include "core/math/matrix4x4.h"
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"

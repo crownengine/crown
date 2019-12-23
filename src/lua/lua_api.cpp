@@ -5,6 +5,7 @@
 
 #include "core/guid.h"
 #include "core/math/color4.h"
+#include "core/math/constants.h"
 #include "core/math/intersection.h"
 #include "core/math/math.h"
 #include "core/math/matrix4x4.h"

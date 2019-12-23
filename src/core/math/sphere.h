@@ -38,12 +38,6 @@ namespace sphere
 
 namespace sphere
 {
-	inline void reset(Sphere& s)
-	{
-		s.c = VECTOR3_ZERO;
-		s.r = 0.0f;
-	}
-
 	inline f32 volume(const Sphere& s)
 	{
 		return (4.0f/3.0f*PI) * (s.r*s.r*s.r);

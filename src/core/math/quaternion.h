@@ -149,7 +149,7 @@ inline Quaternion power(const Quaternion& q, f32 exp)
 }
 
 /// Returns the quaternion describing the rotation needed to face towards @a dir.
-inline Quaternion look(const Vector3& dir, const Vector3& up = VECTOR3_YAXIS)
+inline Quaternion look(const Vector3& dir, const Vector3& up)
 {
 	const Vector3 right = cross(dir, up);
 	const Vector3 nup = cross(right, dir);

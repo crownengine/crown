@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "core/math/constants.h"
 #include "resource/level_resource.h"
 #include "resource/unit_resource.h"
 #include "world/level.h"

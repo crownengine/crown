@@ -10,6 +10,7 @@
 #include "core/containers/array.h"
 #include "core/containers/hash_map.h"
 #include "core/math/color4.h"
+#include "core/math/constants.h"
 #include "core/math/matrix4x4.h"
 #include "core/math/quaternion.h"
 #include "core/math/vector3.h"

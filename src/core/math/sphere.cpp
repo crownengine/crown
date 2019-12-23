@@ -3,12 +3,19 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "core/math/constants.h"
 #include "core/math/sphere.h"
 
 namespace crown
 {
 namespace sphere
 {
+	void reset(Sphere& s)
+	{
+		s.c = VECTOR3_ZERO;
+		s.r = 0.0f;
+	}
+
 	void add_points(Sphere& s, u32 num, u32 stride, const void* points)
 	{
 		float rr = s.r*s.r;

@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/containers/event_stream.h"
+#include "core/math/constants.h"
 #include "core/math/types.h"
 #include "core/strings/string_id.h"
 #include "core/types.h"

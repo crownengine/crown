@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "core/error/error.h"
 #include "core/math/matrix4x4.h"
 #include "core/math/types.h"
 #include "core/math/vector3.h"
@@ -57,12 +56,6 @@ namespace aabb
 
 namespace aabb
 {
-	inline void reset(AABB& b)
-	{
-		b.min = VECTOR3_ZERO;
-		b.max = VECTOR3_ZERO;
-	}
-
 	inline void from_points(AABB& b, u32 num, const Vector3* points)
 	{
 		aabb::from_points(b, num, sizeof(Vector3), points);
@@ -92,24 +85,6 @@ namespace aabb
 			&& p.y < b.max.y
 			&& p.z < b.max.z
 			;
-	}
-
-	inline Vector3 vertex(const AABB& b, u32 index)
-	{
-		CE_ASSERT(index < 8, "Index out of bounds");
-
-		switch (index)
-		{
-		case 0: return vector3(b.min.x, b.min.y, b.min.z);
-		case 1: return vector3(b.max.x, b.min.y, b.min.z);
-		case 2: return vector3(b.max.x, b.min.y, b.max.z);
-		case 3: return vector3(b.min.x, b.min.y, b.max.z);
-		case 4: return vector3(b.min.x, b.max.y, b.min.z);
-		case 5: return vector3(b.max.x, b.max.y, b.min.z);
-		case 6: return vector3(b.max.x, b.max.y, b.max.z);
-		case 7: return vector3(b.min.x, b.max.y, b.max.z);
-		default: return VECTOR3_ZERO;
-		}
 	}
 
 	inline AABB transformed(const AABB& b, const Matrix4x4& m)

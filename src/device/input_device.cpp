@@ -4,6 +4,7 @@
  */
 
 #include "core/error/error.h"
+#include "core/math/constants.h"
 #include "core/math/math.h"
 #include "core/math/vector3.h"
 #include "core/memory/allocator.h"

@@ -18,6 +18,7 @@
 #include "core/json/sjson.h"
 #include "core/math/aabb.h"
 #include "core/math/color4.h"
+#include "core/math/constants.h"
 #include "core/math/math.h"
 #include "core/math/matrix3x3.h"
 #include "core/math/matrix4x4.h"

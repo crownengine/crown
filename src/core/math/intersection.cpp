@@ -4,6 +4,7 @@
  */
 
 #include "core/math/aabb.h"
+#include "core/math/constants.h"
 #include "core/math/intersection.h"
 #include "core/math/plane3.h"
 #include "core/math/sphere.h"
