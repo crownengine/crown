@@ -31,6 +31,7 @@
 #include "world/debug_line.h"
 #include "world/gui.h"
 #include "world/material.h"
+#include "world/material_manager.h"
 #include "world/physics_world.h"
 #include "world/render_world.h"
 #include "world/scene_graph.h"
@@ -2922,6 +2923,12 @@ void load_api(LuaEnvironment& env)
 			return 1;
 		});
 
+	env.add_module_function("Material", "get_material", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			stack.push_material(device()->_material_manager->get(stack.get_string_id_64(1)));
+			return 1;
+		});
 	env.add_module_function("Material", "set_float", [](lua_State* L)
 		{
 			LuaStack stack(L);
