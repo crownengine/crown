@@ -12,6 +12,7 @@ Changelog
 * runtime: fixed an issue that prevented kinematic actors to be controlled via the SceneGraph
 * runtime: fixed an issue that prevented PhysicsWorld.actor_center_of_mass() to be called for static actors
 * runtime: fixed an issue that prevented PhysicsWorld.actor_world_{position,rotation,pose}() to be called for static actors
+* runtime: fixed an issue that reset the sprite animation to the beginning even when loop was set to false
 * runtime: fixed an issue where a regular Matrix4x4 was returned if Matrix4x4Box is called without arguments
 * runtime: removed "io" and "os" libraries from Lua API
 * runtime: small fixes and performance improvements
