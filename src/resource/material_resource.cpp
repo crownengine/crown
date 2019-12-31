@@ -30,10 +30,11 @@ namespace material_resource_internal
 
 	static const UniformTypeInfo s_uniform_type_info[] =
 	{
-		{ "float",   UniformType::FLOAT,    4 },
-		{ "vector2", UniformType::VECTOR2,  8 },
-		{ "vector3", UniformType::VECTOR3, 12 },
-		{ "vector4", UniformType::VECTOR4, 16 }
+		{ "float",     UniformType::FLOAT,      4 },
+		{ "vector2",   UniformType::VECTOR2,    8 },
+		{ "vector3",   UniformType::VECTOR3,   12 },
+		{ "vector4",   UniformType::VECTOR4,   16 },
+		{ "matrix4x4", UniformType::MATRIX4X4, 64 }
 	};
 	CE_STATIC_ASSERT(countof(s_uniform_type_info) == UniformType::COUNT);
 
@@ -64,7 +65,7 @@ namespace material_resource_internal
 
 	// Returns offset to start of data
 	template <typename T>
-	static u32 reserve_dynamic_data(T data, Array<char>& dynamic)
+	static u32 reserve_dynamic_data(Array<char>& dynamic, T data)
 	{
 		u32 offt = array::size(dynamic);
 		array::push(dynamic, (char*) &data, sizeof(data));
@@ -103,7 +104,7 @@ namespace material_resource_internal
 			td.sampler_name_offset = sampler_name_offset;
 			td.name                = StringId32(key.data(), key.length());
 			td.id                  = sjson::parse_resource_name(value);
-			td.data_offset         = reserve_dynamic_data(th, dynamic);
+			td.data_offset         = reserve_dynamic_data(dynamic, th);
 			td._pad1               = 0;
 
 			array::push_back(textures, td);
@@ -151,24 +152,28 @@ namespace material_resource_internal
 			ud.type        = ut;
 			ud.name        = StringId32(key.data(), key.length());
 			ud.name_offset = name_offset;
-			ud.data_offset = reserve_dynamic_data(uh, dynamic);
+			ud.data_offset = reserve_dynamic_data(dynamic, uh);
 
 			switch (ud.type)
 			{
 			case UniformType::FLOAT:
-				reserve_dynamic_data(sjson::parse_float(uniform["value"]), dynamic);
+				reserve_dynamic_data(dynamic, sjson::parse_float(uniform["value"]));
 				break;
 
 			case UniformType::VECTOR2:
-				reserve_dynamic_data(sjson::parse_vector2(uniform["value"]), dynamic);
+				reserve_dynamic_data(dynamic, sjson::parse_vector2(uniform["value"]));
 				break;
 
 			case UniformType::VECTOR3:
-				reserve_dynamic_data(sjson::parse_vector3(uniform["value"]), dynamic);
+				reserve_dynamic_data(dynamic, sjson::parse_vector3(uniform["value"]));
 				break;
 
 			case UniformType::VECTOR4:
-				reserve_dynamic_data(sjson::parse_vector4(uniform["value"]), dynamic);
+				reserve_dynamic_data(dynamic, sjson::parse_vector4(uniform["value"]));
+				break;
+
+			case UniformType::MATRIX4X4:
+				reserve_dynamic_data(dynamic, sjson::parse_matrix4x4(uniform["value"]));
 				break;
 
 			default:
@@ -275,17 +280,17 @@ namespace material_resource_internal
 
 namespace material_resource
 {
-	UniformData* get_uniform_data(const MaterialResource* mr, u32 i)
+	UniformData* uniform_data(const MaterialResource* mr, u32 i)
 	{
-		UniformData* base = (UniformData*) ((char*)mr + mr->uniform_data_offset);
+		UniformData* base = (UniformData*)((char*)mr + mr->uniform_data_offset);
 		return &base[i];
 	}
 
-	UniformData* get_uniform_data_by_name(const MaterialResource* mr, StringId32 name)
+	UniformData* uniform_data_by_name(const MaterialResource* mr, StringId32 name)
 	{
 		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i)
 		{
-			UniformData* data = get_uniform_data(mr, i);
+			UniformData* data = uniform_data(mr, i);
 			if (data->name == name)
 				return data;
 		}
@@ -294,38 +299,38 @@ namespace material_resource
 		return NULL;
 	}
 
-	const char* get_uniform_name(const MaterialResource* mr, const UniformData* ud)
+	const char* uniform_name(const MaterialResource* mr, const UniformData* ud)
 	{
 		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud->name_offset;
 	}
 
-	TextureData* get_texture_data(const MaterialResource* mr, u32 i)
+	TextureData* texture_data(const MaterialResource* mr, u32 i)
 	{
-		TextureData* base = (TextureData*) ((char*)mr + mr->texture_data_offset);
+		TextureData* base = (TextureData*)((char*)mr + mr->texture_data_offset);
 		return &base[i];
 	}
 
-	const char* get_texture_name(const MaterialResource* mr, const TextureData* td)
+	const char* texture_name(const MaterialResource* mr, const TextureData* td)
 	{
 		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td->sampler_name_offset;
 	}
 
-	UniformHandle* get_uniform_handle(const MaterialResource* mr, u32 i, char* dynamic)
+	UniformHandle* uniform_handle(const MaterialResource* mr, u32 i, char* dynamic)
 	{
-		UniformData* ud = get_uniform_data(mr, i);
-		return (UniformHandle*) (dynamic + ud->data_offset);
+		UniformData* ud = uniform_data(mr, i);
+		return (UniformHandle*)(dynamic + ud->data_offset);
 	}
 
-	UniformHandle* get_uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic)
+	UniformHandle* uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic)
 	{
-		UniformData* ud = get_uniform_data_by_name(mr, name);
-		return (UniformHandle*) (dynamic + ud->data_offset);
+		UniformData* ud = uniform_data_by_name(mr, name);
+		return (UniformHandle*)(dynamic + ud->data_offset);
 	}
 
-	TextureHandle* get_texture_handle(const MaterialResource* mr, u32 i, char* dynamic)
+	TextureHandle* texture_handle(const MaterialResource* mr, u32 i, char* dynamic)
 	{
-		TextureData* td = get_texture_data(mr, i);
-		return (TextureHandle*) (dynamic + td->data_offset);
+		TextureData* td = texture_data(mr, i);
+		return (TextureHandle*)(dynamic + td->data_offset);
 	}
 
 } // namespace material_resource

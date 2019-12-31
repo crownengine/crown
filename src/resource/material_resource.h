@@ -10,7 +10,6 @@
 #include "core/memory/types.h"
 #include "core/strings/string_id.h"
 #include "resource/types.h"
-#include "resource/types.h"
 
 namespace crown
 {
@@ -49,6 +48,8 @@ struct UniformType
 		VECTOR2,
 		VECTOR3,
 		VECTOR4,
+		MATRIX4X4,
+
 		COUNT
 	};
 };
@@ -79,14 +80,29 @@ namespace material_resource_internal
 
 namespace material_resource
 {
-	UniformData* get_uniform_data(const MaterialResource* mr, u32 i);
-	UniformData* get_uniform_data_by_name(const MaterialResource* mr, StringId32 name);
-	const char* get_uniform_name(const MaterialResource* mr, const UniformData* ud);
-	TextureData* get_texture_data(const MaterialResource* mr, u32 i);
-	const char* get_texture_name(const MaterialResource* mr, const TextureData* td);
-	UniformHandle* get_uniform_handle(const MaterialResource* mr, u32 i, char* dynamic);
-	UniformHandle* get_uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic);
-	TextureHandle* get_texture_handle(const MaterialResource* mr, u32 i, char* dynamic);
+	///
+	UniformData* uniform_data(const MaterialResource* mr, u32 i);
+
+	///
+	UniformData* uniform_data_by_name(const MaterialResource* mr, StringId32 name);
+
+	///
+	const char* uniform_name(const MaterialResource* mr, const UniformData* ud);
+
+	///
+	TextureData* texture_data(const MaterialResource* mr, u32 i);
+
+	///
+	const char* texture_name(const MaterialResource* mr, const TextureData* td);
+
+	///
+	UniformHandle* uniform_handle(const MaterialResource* mr, u32 i, char* dynamic);
+
+	///
+	UniformHandle* uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic);
+
+	///
+	TextureHandle* texture_handle(const MaterialResource* mr, u32 i, char* dynamic);
 
 } // namespace material_resource
 

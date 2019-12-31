@@ -597,6 +597,12 @@ Material
 **set_vector3** (material, name, value)
 	Sets the *value* of the variable *name*.
 
+**set_vector4** (material, name, value)
+	Sets the *value* of the variable *name*.
+
+**set_matrix4x4** (material, name, value)
+	Sets the *value* of the variable *name*.
+
 RenderWorld
 ===========
 

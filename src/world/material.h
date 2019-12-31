@@ -30,6 +30,12 @@ struct Material
 
 	/// Sets the @a value of the variable @a name.
 	void set_vector3(StringId32 name, const Vector3& value);
+
+	/// Sets the @a value of the variable @a name.
+	void set_vector4(StringId32 name, const Vector4& value);
+
+	/// Sets the @a value of the variable @a name.
+	void set_matrix4x4(StringId32 name, const Matrix4x4& value);
 };
 
 } // namespace crown

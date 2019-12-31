@@ -388,6 +388,17 @@ struct LuaStack
 #endif
 	}
 
+	Vector4 get_vector4(int i)
+	{
+		Quaternion q = get_quaternion(i);
+		Vector4 a;
+		a.x = q.x;
+		a.y = q.y;
+		a.z = q.z;
+		a.w = q.w;
+		return a;
+	}
+
 	Quaternion& get_quaternion(int i)
 	{
 #if CROWN_DEBUG

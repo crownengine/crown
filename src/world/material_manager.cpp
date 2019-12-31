@@ -51,16 +51,16 @@ void MaterialManager::online(StringId64 id, ResourceManager& rm)
 
 	for (u32 i = 0; i < mr->num_textures; ++i)
 	{
-		TextureData* td    = get_texture_data(mr, i);
-		TextureHandle* th  = get_texture_handle(mr, i, base);
-		th->sampler_handle = bgfx::createUniform(get_texture_name(mr, td), bgfx::UniformType::Sampler).idx;
+		TextureData* td    = texture_data(mr, i);
+		TextureHandle* th  = texture_handle(mr, i, base);
+		th->sampler_handle = bgfx::createUniform(texture_name(mr, td), bgfx::UniformType::Sampler).idx;
 	}
 
 	for (u32 i = 0; i < mr->num_uniforms; ++i)
 	{
-		UniformData* ud    = get_uniform_data(mr, i);
-		UniformHandle* uh  = get_uniform_handle(mr, i, base);
-		uh->uniform_handle = bgfx::createUniform(get_uniform_name(mr, ud), bgfx::UniformType::Vec4).idx;
+		UniformData* ud    = uniform_data(mr, i);
+		UniformHandle* uh  = uniform_handle(mr, i, base);
+		uh->uniform_handle = bgfx::createUniform(uniform_name(mr, ud), bgfx::UniformType::Vec4).idx;
 	}
 }
 
@@ -74,7 +74,7 @@ void MaterialManager::offline(StringId64 id, ResourceManager& rm)
 
 	for (u32 i = 0; i < mr->num_textures; ++i)
 	{
-		TextureHandle* th = get_texture_handle(mr, i, base);
+		TextureHandle* th = texture_handle(mr, i, base);
 		bgfx::UniformHandle sh;
 		sh.idx = th->sampler_handle;
 		bgfx::destroy(sh);
@@ -82,7 +82,7 @@ void MaterialManager::offline(StringId64 id, ResourceManager& rm)
 
 	for (u32 i = 0; i < mr->num_uniforms; ++i)
 	{
-		UniformHandle* uh = get_uniform_handle(mr, i, base);
+		UniformHandle* uh = uniform_handle(mr, i, base);
 		bgfx::UniformHandle bgfx_uh;
 		bgfx_uh.idx = uh->uniform_handle;
 		bgfx::destroy(bgfx_uh);
