@@ -1947,6 +1947,13 @@ void load_api(LuaEnvironment& env)
 			stack.push_float(t);
 			return 1;
 		});
+	env.add_module_function("RenderWorld", "mesh_material", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			Material* material = stack.get_render_world(1)->mesh_material(stack.get_mesh_instance(2));
+			stack.push_pointer(material);
+			return 1;
+		});
 	env.add_module_function("RenderWorld", "mesh_set_material", [](lua_State* L)
 		{
 			LuaStack stack(L);
@@ -1992,6 +1999,13 @@ void load_api(LuaEnvironment& env)
 				return 0;
 
 			stack.push_sprite_instance(inst);
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "sprite_material", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			Material* material = stack.get_render_world(1)->sprite_material(stack.get_unit(2));
+			stack.push_pointer(material);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "sprite_set_material", [](lua_State* L)

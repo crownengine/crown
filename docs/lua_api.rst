@@ -621,6 +621,9 @@ Mesh
 **mesh_instances** (rw, unit) : Id
 	Returns the IDs for all the meshes of the *unit*.
 
+**mesh_material** (rw, id) : Material
+	Returns the material of the mesh *id*.
+
 **mesh_set_material** (rw, id, material)
 	Sets the *material* of the mesh *id*.
 
@@ -644,6 +647,9 @@ Sprite
 
 **sprite_instances** (rw, unit) : Id
 	Returns the IDs for all the sprites of the *unit*.
+
+**sprite_material** (rw, unit) : Material
+	Returns the material of the sprite.
 
 **sprite_set_material** (rw, unit, material)
 	Sets the *material* of the sprite.

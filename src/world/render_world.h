@@ -35,6 +35,9 @@ struct RenderWorld
 	/// Returns the mesh instances of the unit @a id.
 	void mesh_instances(UnitId id, Array<MeshInstance>& instances);
 
+	/// Returns the material of the mesh @a i.
+	Material* mesh_material(MeshInstance i);
+
 	/// Sets the material @a id of the mesh @a i.
 	void mesh_set_material(MeshInstance i, StringId64 id);
 
@@ -56,6 +59,9 @@ struct RenderWorld
 
 	/// Returns the sprite instances of the @a unit.
 	SpriteInstance sprite_instances(UnitId unit);
+
+	/// Returns the material of the sprite.
+	Material* sprite_material(UnitId unit);
 
 	/// Sets the material @a id of the sprite.
 	void sprite_set_material(UnitId unit, StringId64 id);

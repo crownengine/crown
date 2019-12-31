@@ -94,6 +94,12 @@ void RenderWorld::mesh_instances(UnitId id, Array<MeshInstance>& instances)
 	}
 }
 
+Material* RenderWorld::mesh_material(MeshInstance i)
+{
+	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
+	return _material_manager->get(_mesh_manager._data.material[i.i]);
+}
+
 void RenderWorld::mesh_set_material(MeshInstance i, StringId64 id)
 {
 	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
@@ -158,6 +164,13 @@ void RenderWorld::sprite_destroy(UnitId unit, SpriteInstance /*i*/)
 SpriteInstance RenderWorld::sprite_instances(UnitId unit)
 {
 	return _sprite_manager.sprite(unit);
+}
+
+Material* RenderWorld::sprite_material(UnitId unit)
+{
+	SpriteInstance i = _sprite_manager.sprite(unit);
+	CE_ASSERT(i.i < _sprite_manager._data.size, "Index out of bounds");
+	return _material_manager->get(_sprite_manager._data.material[i.i]);
 }
 
 void RenderWorld::sprite_set_material(UnitId unit, StringId64 id)
