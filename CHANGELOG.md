@@ -7,7 +7,7 @@ Changelog
 
 * runtime: added RenderWorld.mesh_set_material()
 * runtime: added the ability to scale the shape of colliders at Unit spawn time
-* runtime: added World.unit_by_name()
+* runtime: added World.unit_by_name() to retrieve unit by its name in the Level Editor
 * runtime: fixed an issue that caused PhysicsWorld.set_gravity() to re-enable gravity to actors that previously disabled it with PhysicsWorld.actor_disable_gravity()
 * runtime: fixed an issue that prevented kinematic actors to be controlled via the SceneGraph
 * runtime: fixed an issue that prevented PhysicsWorld.actor_center_of_mass() to be called for static actors
