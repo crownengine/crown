@@ -2204,6 +2204,12 @@ void load_api(LuaEnvironment& env)
 			stack.push_actor(inst);
 			return 1;
 		});
+	env.add_module_function("PhysicsWorld", "actor_destroy", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			stack.get_physics_world(1)->actor_destroy(stack.get_actor(2));
+			return 0;
+		});
 	env.add_module_function("PhysicsWorld", "actor_world_position", [](lua_State* L)
 		{
 			LuaStack stack(L);
