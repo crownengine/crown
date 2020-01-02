@@ -776,6 +776,9 @@ RaycastHit is a lua table with 5 fields:
 Actor
 -----
 
+**actor_destroy** (pw, actor)
+	Destroys the *actor* of the *unit*.
+
 **actor_instances** (pw, unit) : Id
 	Returns the IDs for all the actors of the *unit*.
 
