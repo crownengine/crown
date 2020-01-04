@@ -7,34 +7,6 @@
 
 namespace crown
 {
-void look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
-{
-	Vector3 zaxis = pos - target;
-	normalize(zaxis);
-	const Vector3 xaxis = cross(up, zaxis);
-	const Vector3 yaxis = cross(zaxis, xaxis);
-
-	m.x.x = xaxis.x;
-	m.x.y = yaxis.x;
-	m.x.z = zaxis.x;
-	m.x.w = 0.0f;
-
-	m.y.x = xaxis.y;
-	m.y.y = yaxis.y;
-	m.y.z = zaxis.y;
-	m.y.w = 0.0f;
-
-	m.z.x = xaxis.z;
-	m.z.y = yaxis.z;
-	m.z.z = zaxis.z;
-	m.z.w = 0.0f;
-
-	m.t.x = -dot(pos, xaxis);
-	m.t.y = -dot(pos, yaxis);
-	m.t.z = -dot(pos, zaxis);
-	m.t.w = 1.0f;
-}
-
 Matrix4x4& invert(Matrix4x4& m)
 {
 	const f32 xx = m.x.x;

@@ -330,9 +330,6 @@ inline Matrix4x4 get_transposed(Matrix4x4 m)
 	return m;
 }
 
-/// Sets the matrix @a m to look.
-void look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up);
-
 /// Inverts the matrix @a m and returns the result.
 Matrix4x4& invert(Matrix4x4& m);
 
