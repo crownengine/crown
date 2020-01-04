@@ -291,12 +291,6 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 	return a;
 }
 
-/// Sets the matrix @a m to perspective.
-void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 nnear, f32 ffar);
-
-/// Sets the matrix @a m to orthographic.
-void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top, f32 nnear, f32 ffar);
-
 /// Transposes the matrix @a m and returns the result.
 inline Matrix4x4& transpose(Matrix4x4& m)
 {

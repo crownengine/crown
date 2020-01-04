@@ -23,6 +23,8 @@
 #include "world/sound_world.h"
 #include "world/unit_manager.h"
 #include "world/world.h"
+#include <bgfx/bgfx.h>
+#include <bx/math.h>
 
 namespace crown
 {
@@ -324,27 +326,31 @@ Matrix4x4 World::camera_projection_matrix(UnitId unit)
 {
 	CameraInstance i = camera_instances(unit);
 	Camera& cam = _camera[i.i];
-	Matrix4x4 projection;
 
+	const bgfx::Caps* caps = bgfx::getCaps();
+	f32 bx_proj[16];
 	switch (cam.projection_type)
 	{
 	case ProjectionType::ORTHOGRAPHIC:
-		orthographic(projection
+		bx::mtxOrtho(bx_proj
 			, -cam.half_size * cam.aspect
 			, cam.half_size * cam.aspect
 			, -cam.half_size
 			, cam.half_size
 			, cam.near_range
 			, cam.far_range
+			, 0.0f
+			, caps->homogeneousDepth
 			);
 		break;
 
 	case ProjectionType::PERSPECTIVE:
-		perspective(projection
-			, cam.fov
+		bx::mtxProj(bx_proj
+			, fdeg(cam.fov)
 			, cam.aspect
 			, cam.near_range
 			, cam.far_range
+			, caps->homogeneousDepth
 			);
 		break;
 
@@ -353,7 +359,7 @@ Matrix4x4 World::camera_projection_matrix(UnitId unit)
 		break;
 	}
 
-	return projection;
+	return matrix4x4(bx_proj);
 }
 
 Matrix4x4 World::camera_view_matrix(UnitId unit)

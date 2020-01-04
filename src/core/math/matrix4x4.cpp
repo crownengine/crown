@@ -7,57 +7,6 @@
 
 namespace crown
 {
-void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 nnear, f32 ffar)
-{
-	const f32 height = 1.0f / ftan(fovy * 0.5f);
-	const f32 width = height * 1.0f / aspect;
-	const f32 aa = ffar / (ffar - nnear);
-	const f32 bb = -nnear * aa;
-
-	m.x.x = width;
-	m.x.y = 0.0f;
-	m.x.z = 0.0f;
-	m.x.w = 0.0f;
-
-	m.y.x = 0.0f;
-	m.y.y = height;
-	m.y.z = 0.0f;
-	m.y.w = 0.0f;
-
-	m.z.x = 0.0f;
-	m.z.y = 0.0f;
-	m.z.z = aa;
-	m.z.w = 1.0f;
-
-	m.t.x = 0.0f;
-	m.t.y = 0.0f;
-	m.t.z = bb;
-	m.t.w = 0.0f;
-}
-
-void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top, f32 nnear, f32 ffar)
-{
-	m.x.x = 2.0f / (right - left);
-	m.x.y = 0.0f;
-	m.x.z = 0.0f;
-	m.x.w = 0.0f;
-
-	m.y.x = 0.0f;
-	m.y.y = 2.0f / (top - bottom);
-	m.y.z = 0.0f;
-	m.y.w = 0.0f;
-
-	m.z.x = 0.0f;
-	m.z.y = 0.0f;
-	m.z.z = 1.0f / (ffar - nnear);
-	m.z.w = 0.0f;
-
-	m.t.x = (left + right) / (left - right);
-	m.t.y = (top + bottom) / (bottom - top);
-	m.t.z = nnear / (nnear - ffar);
-	m.t.w = 1.0f;
-}
-
 void look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
 {
 	Vector3 zaxis = pos - target;

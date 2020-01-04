@@ -58,6 +58,7 @@
 #include "world/world.h"
 #include <bgfx/bgfx.h>
 #include <bx/allocator.h>
+#include <bx/math.h>
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
@@ -563,8 +564,10 @@ void Device::render(World& world, UnitId camera_unit)
 	const Matrix4x4 view = world.camera_view_matrix(camera_unit);
 	const Matrix4x4 proj = world.camera_projection_matrix(camera_unit);
 
-	Matrix4x4 ortho_proj;
-	orthographic(ortho_proj, 0, _width, 0, _height, 0.01f, 1.0f);
+	const bgfx::Caps* caps = bgfx::getCaps();
+	f32 bx_ortho[16];
+	bx::mtxOrtho(bx_ortho, 0, _width, 0, _height, 0.01f, 1.0f, 0.0f, caps->homogeneousDepth);
+	Matrix4x4 ortho_proj = matrix4x4(bx_ortho);
 
 	bgfx::setViewClear(VIEW_SPRITE_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x353839ff, 1.0f, 0);
 
