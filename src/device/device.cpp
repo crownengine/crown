@@ -360,10 +360,12 @@ void Device::run()
 	{
 		TempAllocator512 ta;
 		DynamicString boot_dir(ta);
-		path::join(boot_dir
-			, (_options._boot_dir != NULL) ? _options._boot_dir : ""
-			, CROWN_BOOT_CONFIG
-			);
+		if (_options._boot_dir != NULL)
+		{
+			boot_dir += _options._boot_dir;
+			boot_dir += '/';
+		}
+		boot_dir += CROWN_BOOT_CONFIG;
 
 		const StringId64 config_name(boot_dir.c_str());
 		_resource_manager->load(RESOURCE_TYPE_CONFIG, config_name);
