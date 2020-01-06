@@ -188,7 +188,7 @@ void AnimationStateMachine::update(float dt)
 			continue;
 
 		const f32 frame_ratio     = anim_i.time / anim_i.time_total;
-		const u32 frame_unclamped = frame_ratio * f32(anim_i.num_frames);
+		const u32 frame_unclamped = u32(frame_ratio * f32(anim_i.num_frames));
 		const u32 frame_index     = min(frame_unclamped, anim_i.num_frames-1);
 
 		anim_i.time += dt*speed;
