@@ -120,10 +120,10 @@ mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
 
 build/win64/bin/texturec.exe:
-	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project shaderc.vcxproj
+	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project texturec.vcxproj
 	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/texturecRelease.exe $@
 build/win64/bin/shaderc.exe:
-	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project texturec.vcxproj
+	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project shaderc.vcxproj
 	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/shadercRelease.exe $@
 
 build/projects/vs2017:
