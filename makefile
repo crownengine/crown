@@ -152,9 +152,7 @@ tools-linux-release64: linux-development64 build/linux64/bin/texturec build/linu
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release
 
 tools-windows-debug64: windows-debug64 build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
-	# Do nothing
 tools-windows-release64: windows-development64 build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
-	# Do nothing
 
 tools-mingw-debug64: mingw-development64
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug
