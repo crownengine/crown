@@ -4,7 +4,7 @@ camera_unit = camera_unit or nil
 function init()
 	-- Create world and camera
 	world = Device.create_world()
-	camera_unit = World.spawn_unit(world, "camera")
+	camera_unit = World.spawn_unit(world, "core/units/camera")
 end
 
 function update(dt)

@@ -2,7 +2,7 @@ lua = [
 	"boot"
 ]
 unit = [
-	"camera"
+	"core/units/camera"
 ]
 shader = [
 	"core/shaders/common"
