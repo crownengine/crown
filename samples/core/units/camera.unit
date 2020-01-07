@@ -26,7 +26,7 @@ components = [
 		data = {
 			far_range = 1000
 			fov = 0.78539800000000004
-			near_range = 0
+			near_range = 0.1
 			projection = "perspective"
 		}
 		id = "2c75ed10-6fe9-4f4c-b28d-80ebca2ef66f"
