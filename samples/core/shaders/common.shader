@@ -36,7 +36,7 @@ bgfx_shaders = {
 	common = {
 		code = """
 			/*
-			 * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+			 * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
 			 * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 			 */
 
@@ -66,14 +66,17 @@ bgfx_shaders = {
 			#endif // BGFX_SHADER_LANGUAGE_HLSL > 3 && BGFX_SHADER_TYPE_FRAGMENT
 
 			#if BGFX_SHADER_LANGUAGE_GLSL
-			#   define ARRAY_BEGIN(_type, _name, _count) _type _name[_count] = _type[](
-			#   define ARRAY_END() )
+			#	define ARRAY_BEGIN(_type, _name, _count) _type _name[_count] = _type[](
+			#	define ARRAY_END() )
 			#else
-			#   define ARRAY_BEGIN(_type, _name, _count) _type _name[_count] = {
-			#   define ARRAY_END() }
+			#	define ARRAY_BEGIN(_type, _name, _count) _type _name[_count] = {
+			#	define ARRAY_END() }
 			#endif // BGFX_SHADER_LANGUAGE_GLSL
 
-			#if BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV
+			#if BGFX_SHADER_LANGUAGE_HLSL \
+			 || BGFX_SHADER_LANGUAGE_PSSL \
+			 || BGFX_SHADER_LANGUAGE_SPIRV \
+			 || BGFX_SHADER_LANGUAGE_METAL
 			#	define CONST(_x) static const _x
 			#	define dFdx(_x) ddx(_x)
 			#	define dFdy(_y) ddy(-_y)
@@ -84,26 +87,27 @@ bgfx_shaders = {
 			#	define bvec3 bool3
 			#	define bvec4 bool4
 
+
 			#	if BGFX_SHADER_LANGUAGE_HLSL > 4
 			#		define REGISTER(_type, _reg) register(_type[_reg])
 			#	else
 			#		define REGISTER(_type, _reg) register(_type ## _reg)
 			#	endif // BGFX_SHADER_LANGUAGE_HLSL
 
-			#	if BGFX_SHADER_LANGUAGE_HLSL > 3 || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV
-			#		if BGFX_SHADER_LANGUAGE_HLSL > 4 || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV
+			#	if BGFX_SHADER_LANGUAGE_HLSL > 3 || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
+			#		if BGFX_SHADER_LANGUAGE_HLSL > 4 || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
 			#			define dFdxCoarse(_x) ddx_coarse(_x)
 			#			define dFdxFine(_x)   ddx_fine(_x)
 			#			define dFdyCoarse(_y) ddy_coarse(-_y)
 			#			define dFdyFine(_y)   ddy_fine(-_y)
 			#		endif // BGFX_SHADER_LANGUAGE_HLSL > 4
 
-			#		if BGFX_SHADER_LANGUAGE_HLSL
+			#		if BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
 			float intBitsToFloat(int   _x) { return asfloat(_x); }
 			vec2  intBitsToFloat(uint2 _x) { return asfloat(_x); }
 			vec3  intBitsToFloat(uint3 _x) { return asfloat(_x); }
 			vec4  intBitsToFloat(uint4 _x) { return asfloat(_x); }
-			#		endif // BGFX_SHADER_LANGUAGE_HLSL
+			#		endif // BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
 
 			float uintBitsToFloat(uint  _x) { return asfloat(_x); }
 			vec2  uintBitsToFloat(uint2 _x) { return asfloat(_x); }
@@ -165,6 +169,12 @@ bgfx_shaders = {
 				Texture2D m_texture;
 			};
 
+			struct BgfxSampler2DArrayShadow
+			{
+				SamplerComparisonState m_sampler;
+				Texture2DArray m_texture;
+			};
+
 			struct BgfxSampler3D
 			{
 				SamplerState m_sampler;
@@ -187,6 +197,12 @@ bgfx_shaders = {
 				TextureCube m_texture;
 			};
 
+			struct BgfxSamplerCubeShadow
+			{
+				SamplerComparisonState m_sampler;
+				TextureCube m_texture;
+			};
+
 			struct BgfxSampler2DMS
 			{
 				Texture2DMS<vec4> m_texture;
@@ -197,9 +213,19 @@ bgfx_shaders = {
 				return _sampler.m_texture.Sample(_sampler.m_sampler, _coord);
 			}
 
+			vec4 bgfxTexture2DBias(BgfxSampler2D _sampler, vec2 _coord, float _bias)
+			{
+				return _sampler.m_texture.SampleBias(_sampler.m_sampler, _coord, _bias);
+			}
+
 			vec4 bgfxTexture2DLod(BgfxSampler2D _sampler, vec2 _coord, float _level)
 			{
 				return _sampler.m_texture.SampleLevel(_sampler.m_sampler, _coord, _level);
+			}
+
+			vec4 bgfxTexture2DLodOffset(BgfxSampler2D _sampler, vec2 _coord, float _level, ivec2 _offset)
+			{
+				return _sampler.m_texture.SampleLevel(_sampler.m_sampler, _coord, _level, _offset);
 			}
 
 			vec4 bgfxTexture2DProj(BgfxSampler2D _sampler, vec3 _coord)
@@ -229,6 +255,11 @@ bgfx_shaders = {
 				return _sampler.m_texture.SampleLevel(_sampler.m_sampler, _coord, _lod);
 			}
 
+			vec4 bgfxTexture2DArrayLodOffset(BgfxSampler2DArray _sampler, vec3 _coord, float _level, ivec2 _offset)
+			{
+				return _sampler.m_texture.SampleLevel(_sampler.m_sampler, _coord, _level, _offset);
+			}
+
 			float bgfxShadow2D(BgfxSampler2DShadow _sampler, vec3 _coord)
 			{
 				return _sampler.m_texture.SampleCmpLevelZero(_sampler.m_sampler, _coord.xy, _coord.z);
@@ -238,6 +269,11 @@ bgfx_shaders = {
 			{
 				vec3 coord = _coord.xyz * rcp(_coord.w);
 				return _sampler.m_texture.SampleCmpLevelZero(_sampler.m_sampler, coord.xy, coord.z);
+			}
+
+			vec4 bgfxShadow2DArray(BgfxSampler2DArrayShadow _sampler, vec4 _coord)
+			{
+				return _sampler.m_texture.SampleCmpLevelZero(_sampler.m_sampler, _coord.xyz, _coord.w);
 			}
 
 			vec4 bgfxTexture3D(BgfxSampler3D _sampler, vec3 _coord)
@@ -269,9 +305,19 @@ bgfx_shaders = {
 				return _sampler.m_texture.Sample(_sampler.m_sampler, _coord);
 			}
 
+			vec4 bgfxTextureCubeBias(BgfxSamplerCube _sampler, vec3 _coord, float _bias)
+			{
+				return _sampler.m_texture.SampleBias(_sampler.m_sampler, _coord, _bias);
+			}
+
 			vec4 bgfxTextureCubeLod(BgfxSamplerCube _sampler, vec3 _coord, float _level)
 			{
 				return _sampler.m_texture.SampleLevel(_sampler.m_sampler, _coord, _level);
+			}
+
+			float bgfxShadowCube(BgfxSamplerCubeShadow _sampler, vec4 _coord)
+			{
+				return _sampler.m_texture.SampleCmpLevelZero(_sampler.m_sampler, _coord.xyz, _coord.w);
 			}
 
 			vec4 bgfxTexelFetch(BgfxSampler2D _sampler, ivec2 _coord, int _lod)
@@ -279,11 +325,29 @@ bgfx_shaders = {
 				return _sampler.m_texture.Load(ivec3(_coord, _lod) );
 			}
 
+			vec4 bgfxTexelFetchOffset(BgfxSampler2D _sampler, ivec2 _coord, int _lod, ivec2 _offset)
+			{
+				return _sampler.m_texture.Load(ivec3(_coord, _lod), _offset );
+			}
+
 			vec2 bgfxTextureSize(BgfxSampler2D _sampler, int _lod)
 			{
 				vec2 result;
 				_sampler.m_texture.GetDimensions(result.x, result.y);
 				return result;
+			}
+
+			vec4 bgfxTextureGather(BgfxSampler2D _sampler, vec2 _coord)
+			{
+				return _sampler.m_texture.GatherRed(_sampler.m_sampler, _coord );
+			}
+			vec4 bgfxTextureGatherOffset(BgfxSampler2D _sampler, vec2 _coord, ivec2 _offset)
+			{
+				return _sampler.m_texture.GatherRed(_sampler.m_sampler, _coord, _offset );
+			}
+			vec4 bgfxTextureGather(BgfxSampler2DArray _sampler, vec3 _coord)
+			{
+				return _sampler.m_texture.GatherRed(_sampler.m_sampler, _coord );
 			}
 
 			ivec4 bgfxTexelFetch(BgfxISampler2D _sampler, ivec2 _coord, int _lod)
@@ -299,6 +363,11 @@ bgfx_shaders = {
 			vec4 bgfxTexelFetch(BgfxSampler2DMS _sampler, ivec2 _coord, int _sampleIdx)
 			{
 				return _sampler.m_texture.Load(_coord, _sampleIdx);
+			}
+
+			vec4 bgfxTexelFetch(BgfxSampler2DArray _sampler, ivec3 _coord, int _lod)
+			{
+				return _sampler.m_texture.Load(ivec4(_coord, _lod) );
 			}
 
 			vec4 bgfxTexelFetch(BgfxSampler3D _sampler, ivec3 _coord, int _lod)
@@ -325,7 +394,9 @@ bgfx_shaders = {
 						static BgfxUSampler2D _name = { _name ## Texture }
 			#		define sampler2D BgfxSampler2D
 			#		define texture2D(_sampler, _coord) bgfxTexture2D(_sampler, _coord)
+			#		define texture2DBias(_sampler, _coord, _bias) bgfxTexture2DBias(_sampler, _coord, _bias)
 			#		define texture2DLod(_sampler, _coord, _level) bgfxTexture2DLod(_sampler, _coord, _level)
+			#		define texture2DLodOffset(_sampler, _coord, _level, _offset) bgfxTexture2DLodOffset(_sampler, _coord, _level, _offset)
 			#		define texture2DProj(_sampler, _coord) bgfxTexture2DProj(_sampler, _coord)
 			#		define texture2DGrad(_sampler, _coord, _dPdx, _dPdy) bgfxTexture2DGrad(_sampler, _coord, _dPdx, _dPdy)
 
@@ -336,6 +407,7 @@ bgfx_shaders = {
 			#		define sampler2DArray BgfxSampler2DArray
 			#		define texture2DArray(_sampler, _coord) bgfxTexture2DArray(_sampler, _coord)
 			#		define texture2DArrayLod(_sampler, _coord, _lod) bgfxTexture2DArrayLod(_sampler, _coord, _lod)
+			#		define texture2DArrayLodOffset(_sampler, _coord, _level, _offset) bgfxTexture2DArrayLodOffset(_sampler, _coord, _level, _offset)
 
 			#		define SAMPLER2DMS(_name, _reg) \
 						uniform Texture2DMS<vec4> _name ## Texture : REGISTER(t, _reg); \
@@ -349,6 +421,13 @@ bgfx_shaders = {
 			#		define sampler2DShadow BgfxSampler2DShadow
 			#		define shadow2D(_sampler, _coord) bgfxShadow2D(_sampler, _coord)
 			#		define shadow2DProj(_sampler, _coord) bgfxShadow2DProj(_sampler, _coord)
+
+			#		define SAMPLER2DARRAYSHADOW(_name, _reg) \
+						uniform SamplerComparisonState _name ## SamplerComparison : REGISTER(s, _reg); \
+						uniform Texture2DArray _name ## Texture : REGISTER(t, _reg); \
+						static BgfxSampler2DArrayShadow _name = { _name ## SamplerComparison, _name ## Texture }
+			#		define sampler2DArrayShadow BgfxSampler2DArrayShadow
+			#		define shadow2DArray(_sampler, _coord) bgfxShadow2DArray(_sampler, _coord)
 
 			#		define SAMPLER3D(_name, _reg) \
 						uniform SamplerState _name ## Sampler : REGISTER(s, _reg); \
@@ -370,10 +449,21 @@ bgfx_shaders = {
 						static BgfxSamplerCube _name = { _name ## Sampler, _name ## Texture }
 			#		define samplerCube BgfxSamplerCube
 			#		define textureCube(_sampler, _coord) bgfxTextureCube(_sampler, _coord)
+			#		define textureCubeBias(_sampler, _coord, _bias) bgfxTextureCubeBias(_sampler, _coord, _bias)
 			#		define textureCubeLod(_sampler, _coord, _level) bgfxTextureCubeLod(_sampler, _coord, _level)
 
+			#		define SAMPLERCUBESHADOW(_name, _reg) \
+						uniform SamplerComparisonState _name ## SamplerComparison : REGISTER(s, _reg); \
+						uniform TextureCube _name ## Texture : REGISTER(t, _reg); \
+						static BgfxSamplerCubeShadow _name = { _name ## SamplerComparison, _name ## Texture }
+			#		define samplerCubeShadow BgfxSamplerCubeShadow
+			#		define shadowCube(_sampler, _coord) bgfxShadowCube(_sampler, _coord)
+
 			#		define texelFetch(_sampler, _coord, _lod) bgfxTexelFetch(_sampler, _coord, _lod)
+			#		define texelFetchOffset(_sampler, _coord, _lod, _offset) bgfxTexelFetchOffset(_sampler, _coord, _lod, _offset)
 			#		define textureSize(_sampler, _lod) bgfxTextureSize(_sampler, _lod)
+			#		define textureGather(_sampler, _coord) bgfxTextureGather(_sampler, _coord)
+			#		define textureGatherOffset(_sampler, _coord, _offset) bgfxTextureGatherOffset(_sampler, _coord, _offset)
 			#	else
 
 			#		define sampler2DShadow sampler2D
@@ -502,6 +592,9 @@ bgfx_shaders = {
 			#	define ISAMPLER3D(_name, _reg) uniform isampler3D _name
 			#	define USAMPLER3D(_name, _reg) uniform usampler3D _name
 
+			#	define texture2DBias(_sampler, _coord, _bias)      texture2D(_sampler, _coord, _bias)
+			#	define textureCubeBias(_sampler, _coord, _bias)    textureCube(_sampler, _coord, _bias)
+
 			#	if BGFX_SHADER_LANGUAGE_GLSL >= 130
 			#		define texture2D(_sampler, _coord)      texture(_sampler, _coord)
 			#		define texture2DArray(_sampler, _coord) texture(_sampler, _coord)
@@ -523,29 +616,56 @@ bgfx_shaders = {
 			vec3 vec3_splat(float _x) { return vec3(_x, _x, _x); }
 			vec4 vec4_splat(float _x) { return vec4(_x, _x, _x, _x); }
 
-			#if BGFX_SHADER_LANGUAGE_GLSL >= 130 || BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV
+			#if BGFX_SHADER_LANGUAGE_GLSL >= 130 || BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
 			uvec2 uvec2_splat(uint _x) { return uvec2(_x, _x); }
 			uvec3 uvec3_splat(uint _x) { return uvec3(_x, _x, _x); }
 			uvec4 uvec4_splat(uint _x) { return uvec4(_x, _x, _x, _x); }
-			#endif // BGFX_SHADER_LANGUAGE_GLSL >= 130 || BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV
+			#endif // BGFX_SHADER_LANGUAGE_GLSL >= 130 || BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_SPIRV || BGFX_SHADER_LANGUAGE_METAL
 
 			mat4 mtxFromRows(vec4 _0, vec4 _1, vec4 _2, vec4 _3)
 			{
 			#if BGFX_SHADER_LANGUAGE_GLSL
-			    return transpose(mat4(_0, _1, _2, _3) );
+				return transpose(mat4(_0, _1, _2, _3) );
 			#else
-			    return mat4(_0, _1, _2, _3);
+				return mat4(_0, _1, _2, _3);
 			#endif // BGFX_SHADER_LANGUAGE_GLSL
 			}
-
 			mat4 mtxFromCols(vec4 _0, vec4 _1, vec4 _2, vec4 _3)
 			{
 			#if BGFX_SHADER_LANGUAGE_GLSL
-			    return mat4(_0, _1, _2, _3);
+				return mat4(_0, _1, _2, _3);
 			#else
-			    return transpose(mat4(_0, _1, _2, _3) );
+				return transpose(mat4(_0, _1, _2, _3) );
 			#endif // BGFX_SHADER_LANGUAGE_GLSL
 			}
+			mat3 mtxFromRows(vec3 _0, vec3 _1, vec3 _2)
+			{
+			#if BGFX_SHADER_LANGUAGE_GLSL
+				return transpose(mat3(_0, _1, _2) );
+			#else
+				return mat3(_0, _1, _2);
+			#endif // BGFX_SHADER_LANGUAGE_GLSL
+			}
+			mat3 mtxFromCols(vec3 _0, vec3 _1, vec3 _2)
+			{
+			#if BGFX_SHADER_LANGUAGE_GLSL
+				return mat3(_0, _1, _2);
+			#else
+				return transpose(mat3(_0, _1, _2) );
+			#endif // BGFX_SHADER_LANGUAGE_GLSL
+			}
+
+			#if BGFX_SHADER_LANGUAGE_GLSL
+			#define mtxFromRows3(_0, _1, _2)     transpose(mat3(_0, _1, _2) )
+			#define mtxFromRows4(_0, _1, _2, _3) transpose(mat4(_0, _1, _2, _3) )
+			#define mtxFromCols3(_0, _1, _2)               mat3(_0, _1, _2)
+			#define mtxFromCols4(_0, _1, _2, _3)           mat4(_0, _1, _2, _3)
+			#else
+			#define mtxFromRows3(_0, _1, _2)               mat3(_0, _1, _2)
+			#define mtxFromRows4(_0, _1, _2, _3)           mat4(_0, _1, _2, _3)
+			#define mtxFromCols3(_0, _1, _2)     transpose(mat3(_0, _1, _2) )
+			#define mtxFromCols4(_0, _1, _2, _3) transpose(mat4(_0, _1, _2, _3) )
+			#endif // BGFX_SHADER_LANGUAGE_GLSL
 
 			uniform vec4  u_viewRect;
 			uniform vec4  u_viewTexel;
@@ -566,7 +686,7 @@ bgfx_shaders = {
 			#endif // BGFX_SHADER_H_HEADER_GUARD
 
 			/*
-			 * Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+			 * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
 			 * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 			 */
 
@@ -577,10 +697,10 @@ bgfx_shaders = {
 			{
 				float exponent = ceil(log2(_r) );
 				return vec4(_r / exp2(exponent)
-						, 0.0
-						, 0.0
-						, (exponent + 128.0) / 255.0
-						);
+					, 0.0
+					, 0.0
+					, (exponent + 128.0) / 255.0
+					);
 			}
 
 			float decodeRE8(vec4 _re8)
@@ -629,9 +749,9 @@ bgfx_shaders = {
 
 			vec2 octahedronWrap(vec2 _val)
 			{
-				// Reference:
-				// Octahedron normal vector encoding
-				// http://kriscg.blogspot.com/2014/04/octahedron-normal-vector-encoding.html
+				// Reference(s):
+				// - Octahedron normal vector encoding
+				//   https://web.archive.org/web/20191027010600/https://knarkowicz.wordpress.com/2014/04/16/octahedron-normal-vector-encoding/comment-page-1/
 				return (1.0 - abs(_val.yx) )
 					 * mix(vec2_splat(-1.0), vec2_splat(1.0), vec2(greaterThanEqual(_val.xy, vec2_splat(0.0) ) ) );
 			}
@@ -656,9 +776,9 @@ bgfx_shaders = {
 
 			vec3 convertRGB2XYZ(vec3 _rgb)
 			{
-				// Reference:
-				// RGB/XYZ Matrices
-				// http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+				// Reference(s):
+				// - RGB/XYZ Matrices
+				//   https://web.archive.org/web/20191027010220/http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 				vec3 xyz;
 				xyz.x = dot(vec3(0.4124564, 0.3575761, 0.1804375), _rgb);
 				xyz.y = dot(vec3(0.2126729, 0.7151522, 0.0721750), _rgb);
@@ -677,16 +797,18 @@ bgfx_shaders = {
 
 			vec3 convertXYZ2Yxy(vec3 _xyz)
 			{
-				// Reference:
-				// http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html
+				// Reference(s):
+				// - XYZ to xyY
+				//   https://web.archive.org/web/20191027010144/http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html
 				float inv = 1.0/dot(_xyz, vec3(1.0, 1.0, 1.0) );
 				return vec3(_xyz.y, _xyz.x*inv, _xyz.y*inv);
 			}
 
 			vec3 convertYxy2XYZ(vec3 _Yxy)
 			{
-				// Reference:
-				// http://www.brucelindbloom.com/index.html?Eqn_xyY_to_XYZ.html
+				// Reference(s):
+				// - xyY to XYZ
+				//   https://web.archive.org/web/20191027010036/http://www.brucelindbloom.com/index.html?Eqn_xyY_to_XYZ.html
 				vec3 xyz;
 				xyz.x = _Yxy.x*_Yxy.y/_Yxy.z;
 				xyz.y = _Yxy.x;
@@ -815,9 +937,9 @@ bgfx_shaders = {
 
 			vec3 toAcesFilmic(vec3 _rgb)
 			{
-				// Reference:
-				// ACES Filmic Tone Mapping Curve
-				// https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+				// Reference(s):
+				// - ACES Filmic Tone Mapping Curve
+				//   https://web.archive.org/web/20191027010704/https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
 				float aa = 2.51f;
 				float bb = 0.03f;
 				float cc = 2.43f;
@@ -936,9 +1058,9 @@ bgfx_shaders = {
 
 			vec3 fixCubeLookup(vec3 _v, float _lod, float _topLevelCubeSize)
 			{
-				// Reference:
-				// Seamless cube-map filtering
-				// http://the-witness.net/news/2012/02/seamless-cube-map-filtering/
+				// Reference(s):
+				// - Seamless cube-map filtering
+				//   https://web.archive.org/web/20190411181934/http://the-witness.net/news/2012/02/seamless-cube-map-filtering/
 				float ax = abs(_v.x);
 				float ay = abs(_v.y);
 				float az = abs(_v.z);
@@ -957,6 +1079,25 @@ bgfx_shaders = {
 			#else
 				return texture2D(_sampler, _uv).xy;
 			#endif
+			}
+
+			mat3 cofactor(mat4 _m)
+			{
+				// Reference:
+				// Cofactor of matrix. Use to transform normals. The code assumes the last column of _m is [0,0,0,1].
+				// https://www.shadertoy.com/view/3s33zj
+				// https://github.com/graphitemaster/normals_revisited
+				return mat3(
+					_m[1][1]*_m[2][2]-_m[1][2]*_m[2][1],
+					_m[1][2]*_m[2][0]-_m[1][0]*_m[2][2],
+					_m[1][0]*_m[2][1]-_m[1][1]*_m[2][0],
+					_m[0][2]*_m[2][1]-_m[0][1]*_m[2][2],
+					_m[0][0]*_m[2][2]-_m[0][2]*_m[2][0],
+					_m[0][1]*_m[2][0]-_m[0][0]*_m[2][1],
+					_m[0][1]*_m[1][2]-_m[0][2]*_m[1][1],
+					_m[0][2]*_m[1][0]-_m[0][0]*_m[1][2],
+					_m[0][0]*_m[1][1]-_m[0][1]*_m[1][0]
+					);
 			}
 
 			#endif // __SHADERLIB_SH__
