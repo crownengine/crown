@@ -29,15 +29,15 @@ namespace sprite_resource_internal
 		Vector2 pivot;  // [x, y]
 	};
 
-	void parse_frame(const char* json, SpriteFrame& frame)
+	void parse_frame(SpriteFrame& sf, const char* json)
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
 		sjson::parse(json, obj);
 
-		frame.name   = sjson::parse_string_id(obj["name"]);
-		frame.region = sjson::parse_vector4(obj["region"]);
-		frame.pivot  = sjson::parse_vector2(obj["pivot"]);
+		sf.name   = sjson::parse_string_id(obj["name"]);
+		sf.region = sjson::parse_vector4(obj["region"]);
+		sf.pivot  = sjson::parse_vector2(obj["pivot"]);
 	}
 
 	s32 compile(CompileOptions& opts)
@@ -52,57 +52,61 @@ namespace sprite_resource_internal
 		sjson::parse_array(object["frames"], frames);
 
 		// Read width/height
-		const f32 width      = sjson::parse_float(object["width" ]);
+		const f32 width      = sjson::parse_float(object["width"]);
 		const f32 height     = sjson::parse_float(object["height"]);
 		const u32 num_frames = array::size(frames);
 
 		Array<f32> vertices(default_allocator());
 		for (u32 i = 0; i < num_frames; ++i)
 		{
-			SpriteFrame frame;
-			parse_frame(frames[i], frame);
+			SpriteFrame sf;
+			parse_frame(sf, frames[i]);
 
-			const SpriteFrame& fd = frame;
+			// Generate UV coords
+			const f32 u0 = (              sf.region.x) / width;
+			const f32 v0 = (sf.region.w + sf.region.y) / height;
+			const f32 u1 = (sf.region.z + sf.region.x) / width;
+			const f32 v1 = (              sf.region.y) / height;
 
-			// Compute uv coords
-			const f32 u0 = (              fd.region.x) / width;
-			const f32 v0 = (fd.region.w + fd.region.y) / height;
-			const f32 u1 = (fd.region.z + fd.region.x) / width;
-			const f32 v1 = (              fd.region.y) / height;
-
-			// Compute positions
-			f32 x0 = (              fd.region.x - fd.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
-			f32 y0 = (fd.region.w + fd.region.y - fd.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
-			f32 x1 = (fd.region.z + fd.region.x - fd.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
-			f32 y1 = (              fd.region.y - fd.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
+			// Generate positions
+			f32 x0 = (              sf.region.x - sf.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 y0 = (sf.region.w + sf.region.y - sf.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 x1 = (sf.region.z + sf.region.x - sf.pivot.x) / CROWN_DEFAULT_PIXELS_PER_METER;
+			f32 y1 = (              sf.region.y - sf.pivot.y) / CROWN_DEFAULT_PIXELS_PER_METER;
 
 			// Invert Y axis
 			y0 = y0 == 0.0f ? y0 : -y0;
 			y1 = y1 == 0.0f ? y1 : -y1;
 
-			array::push_back(vertices, x0);
-			array::push_back(vertices, 0.0f);
-			array::push_back(vertices, y0);
-			array::push_back(vertices, u0);
-			array::push_back(vertices, v0);
+			// Output vertex data
+			//
+			// D -- C
+			// |    |
+			// A -- B
+			//
+			array::push_back(vertices, x0);   // A.x
+			array::push_back(vertices, 0.0f); // A.y
+			array::push_back(vertices, y0);   // A.z
+			array::push_back(vertices, u0);   // A.u
+			array::push_back(vertices, v0);   // A.v
 
-			array::push_back(vertices, x1);
-			array::push_back(vertices, 0.0f);
-			array::push_back(vertices, y0);
-			array::push_back(vertices, u1);
-			array::push_back(vertices, v0);
+			array::push_back(vertices, x1);   // B.x
+			array::push_back(vertices, 0.0f); // B.y
+			array::push_back(vertices, y0);   // B.z
+			array::push_back(vertices, u1);   // B.u
+			array::push_back(vertices, v0);   // B.v
 
-			array::push_back(vertices, x1);
-			array::push_back(vertices, 0.0f);
-			array::push_back(vertices, y1);
-			array::push_back(vertices, u1);
-			array::push_back(vertices, v1);
+			array::push_back(vertices, x1);   // C.x
+			array::push_back(vertices, 0.0f); // C.y
+			array::push_back(vertices, y1);   // C.z
+			array::push_back(vertices, u1);   // C.u
+			array::push_back(vertices, v1);   // C.v
 
-			array::push_back(vertices, x0);
-			array::push_back(vertices, 0.0f);
-			array::push_back(vertices, y1);
-			array::push_back(vertices, u0);
-			array::push_back(vertices, v1);
+			array::push_back(vertices, x0);   // D.x
+			array::push_back(vertices, 0.0f); // D.y
+			array::push_back(vertices, y1);   // D.z
+			array::push_back(vertices, u0);   // D.u
+			array::push_back(vertices, v1);   // D.v
 		}
 
 		const u32 num_vertices = array::size(vertices) / 5; // 5 components per vertex
