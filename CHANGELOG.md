@@ -25,6 +25,7 @@ Changelog
 * tools: fixed an issue that caused the Level Editor to not correctly save a level specified from command line
 * tools: fixed an issue that could cause the Level Editor to crash when large number of TCP/IP packets were sent to it
 * tools: fixed an issue that could cause the Level Editor to incorreclty parse identifiers in SJSON files
+* tools: fixed an issue that generated wrong render states when blending is enabled while no blend funtion/equation is specified
 * tools: fixed an issue that prevented some operations in the Level Editor from being (un/re)done
 * tools: fixed an issue that prevented the data compiler from restoring and saving its state when launched by the Level Editor
 * tools: the Data Compiler will now track data "requirements" and automatically include them in packages when it's needed

@@ -103,6 +103,7 @@ namespace shader_resource_internal
 	{
 		enum Enum
 		{
+			PT_TRIANGLES,
 			PT_TRISTRIP,
 			PT_LINES,
 			PT_LINESTRIP,
@@ -216,6 +217,7 @@ namespace shader_resource_internal
 
 	static const PrimitiveTypeInfo _primitive_type_map[] =
 	{
+		{ "pt_triangles", PrimitiveType::PT_TRIANGLES },
 		{ "pt_tristrip",  PrimitiveType::PT_TRISTRIP  },
 		{ "pt_lines",     PrimitiveType::PT_LINES     },
 		{ "pt_linestrip", PrimitiveType::PT_LINESTRIP },
@@ -301,6 +303,7 @@ namespace shader_resource_internal
 
 	static const u64 _bgfx_primitive_type_map[] =
 	{
+		0,                       // PrimitiveType::PT_TRIANGLES
 		BGFX_STATE_PT_TRISTRIP,  // PrimitiveType::PT_TRISTRIP
 		BGFX_STATE_PT_LINES,     // PrimitiveType::PT_LINES
 		BGFX_STATE_PT_LINESTRIP, // PrimitiveType::PT_LINESTRIP
@@ -485,12 +488,12 @@ namespace shader_resource_internal
 			_depth_write_enable = false;
 			_depth_enable = false;
 			_blend_enable = false;
-			_depth_func = DepthFunction::COUNT;
-			_blend_src = BlendFunction::COUNT;
-			_blend_dst = BlendFunction::COUNT;
-			_blend_equation = BlendEquation::COUNT;
-			_cull_mode = CullMode::COUNT;
-			_primitive_type = PrimitiveType::COUNT;
+			_depth_func = DepthFunction::LEQUAL;
+			_blend_src = BlendFunction::SRC_ALPHA;
+			_blend_dst = BlendFunction::INV_SRC_ALPHA;
+			_blend_equation = BlendEquation::ADD;
+			_cull_mode = CullMode::CW;
+			_primitive_type = PrimitiveType::PT_TRIANGLES;
 		}
 
 		u64 encode() const
@@ -499,11 +502,11 @@ namespace shader_resource_internal
 				? _bgfx_depth_func_map[_depth_func]
 				: 0
 				;
-			const u64 blend_func = _blend_enable
+			const u64 blend_func = _blend_enable && _blend_src != BlendFunction::COUNT && _blend_dst != BlendFunction::COUNT
 				? BGFX_STATE_BLEND_FUNC(_bgfx_blend_func_map[_blend_src], _bgfx_blend_func_map[_blend_dst])
 				: 0
 				;
-			const u64 blend_eq = _blend_enable
+			const u64 blend_eq = _blend_enable && _blend_equation != BlendEquation::COUNT
 				? BGFX_STATE_BLEND_EQUATION(_bgfx_blend_equation_map[_blend_equation])
 				: 0
 				;
