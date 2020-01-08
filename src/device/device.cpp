@@ -375,9 +375,6 @@ void Device::run()
 	}
 
 	// Init all remaining subsystems
-	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
-	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
-
 	_display = display::create(_allocator);
 
 	_width  = _boot_config.window_w;
@@ -393,6 +390,9 @@ void Device::run()
 	_window->set_title(_boot_config.window_title.c_str());
 	_window->set_fullscreen(_boot_config.fullscreen);
 	_window->bgfx_setup();
+
+	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
+	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
 
 	bgfx::Init init;
 	init.type     = bgfx::RendererType::Count;
@@ -515,11 +515,12 @@ void Device::run()
 	CE_DELETE(_allocator, _resource_loader);
 
 	bgfx::shutdown();
+	CE_DELETE(_allocator, _bgfx_callback);
+	CE_DELETE(_allocator, _bgfx_allocator);
+
 	_window->close();
 	window::destroy(_allocator, *_window);
 	display::destroy(_allocator, *_display);
-	CE_DELETE(_allocator, _bgfx_callback);
-	CE_DELETE(_allocator, _bgfx_allocator);
 
 	if (_last_log)
 		_data_filesystem->close(*_last_log);
