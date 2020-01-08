@@ -236,7 +236,7 @@ namespace physics_resource_internal
 			sjson::parse_object(obj["collider_data"], collider_data);
 			Quaternion rotation = sjson::parse_quaternion(collider_data["rotation"]);
 			Vector3 position = sjson::parse_vector3(collider_data["position"]);
-			Matrix4x4 matrix_local = matrix4x4(rotation, position);
+			Matrix4x4 matrix_local = from_quaternion_translation(rotation, position);
 			cd.local_tm = matrix_local;
 
 			if (cd.type == ColliderType::SPHERE) {

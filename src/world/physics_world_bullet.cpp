@@ -103,7 +103,7 @@ static inline Vector3 to_vector3(const btVector3& v)
 
 static inline Quaternion to_quaternion(const btQuaternion& q)
 {
-	return quaternion(q.x(), q.y(), q.z(), q.w());
+	return from_elements(q.x(), q.y(), q.z(), q.w());
 }
 
 static inline Matrix4x4 to_matrix4x4(const btTransform& t)

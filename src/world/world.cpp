@@ -359,7 +359,7 @@ Matrix4x4 World::camera_projection_matrix(UnitId unit)
 		break;
 	}
 
-	return matrix4x4(bx_proj);
+	return from_array(bx_proj);
 }
 
 Matrix4x4 World::camera_view_matrix(UnitId unit)
@@ -599,8 +599,8 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			const TransformDesc* td = (const TransformDesc*)data;
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++td)
 			{
-				Matrix4x4 matrix = matrix4x4(rot, pos);
-				Matrix4x4 matrix_res = matrix4x4(td->rotation, td->position);
+				Matrix4x4 matrix = from_quaternion_translation(rot, pos);
+				Matrix4x4 matrix_res = from_quaternion_translation(td->rotation, td->position);
 				Vector3 scale;
 				scale.x = td->scale.x * scl.x;
 				scale.y = td->scale.y * scl.y;
@@ -636,7 +636,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
 				Vector3 pos = translation(tm);
 				Quaternion rot = rotation(tm);
-				physics_world->actor_create(unit_lookup[unit_index[i]], ar, matrix4x4(rot, pos));
+				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rot, pos));
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_MESH_RENDERER)

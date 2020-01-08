@@ -15,7 +15,7 @@ namespace crown
 /// @{
 
 /// Returns a new quaternion from individual elements.
-inline Quaternion quaternion(f32 x, f32 y, f32 z, f32 w)
+inline Quaternion from_elements(f32 x, f32 y, f32 z, f32 w)
 {
 	Quaternion q;
 	q.x = x;
@@ -26,7 +26,7 @@ inline Quaternion quaternion(f32 x, f32 y, f32 z, f32 w)
 }
 
 /// Returns a new quaternion from @a axis and @a angle.
-inline Quaternion quaternion(const Vector3& axis, f32 angle)
+inline Quaternion from_axis_angle(const Vector3& axis, f32 angle)
 {
 	const f32 ha = angle * 0.5f;
 	const f32 sa = fsin(ha);
@@ -164,21 +164,21 @@ inline Quaternion look(const Vector3& dir, const Vector3& up)
 /// Returns the right axis of the rotation represented by @a q.
 inline Vector3 right(const Quaternion& q)
 {
-	const Matrix3x3 m = matrix3x3(q);
+	const Matrix3x3 m = from_quaternion(q);
 	return m.x;
 }
 
 /// Returns the up axis of the rotation represented by @a q.
 inline Vector3 up(const Quaternion& q)
 {
-	const Matrix3x3 m = matrix3x3(q);
+	const Matrix3x3 m = from_quaternion(q);
 	return m.y;
 }
 
 /// Returns the forward axis of the rotation represented by @a q.
 inline Vector3 forward(const Quaternion& q)
 {
-	const Matrix3x3 m = matrix3x3(q);
+	const Matrix3x3 m = from_quaternion(q);
 	return m.z;
 }
 

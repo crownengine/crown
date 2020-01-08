@@ -191,7 +191,7 @@ void SceneGraph::set_local_rotation(UnitId unit, const Quaternion& rot)
 {
 	TransformInstance i = make_instance(hash_map::get(_map, unit, UINT32_MAX));
 	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-	_data.local[i.i].rotation = matrix3x3(rot);
+	_data.local[i.i].rotation = from_quaternion(rot);
 	set_local(i);
 }
 
@@ -236,7 +236,7 @@ Matrix4x4 SceneGraph::local_pose(UnitId unit)
 {
 	TransformInstance i = make_instance(hash_map::get(_map, unit, UINT32_MAX));
 	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-	Matrix4x4 tr = matrix4x4(quaternion(_data.local[i.i].rotation), _data.local[i.i].position);
+	Matrix4x4 tr = from_quaternion_translation(quaternion(_data.local[i.i].rotation), _data.local[i.i].position);
 	set_scale(tr, _data.local[i.i].scale);
 	return tr;
 }

@@ -420,7 +420,7 @@ static void test_vector4()
 static void test_quaternion()
 {
 	{
-		const Quaternion a = quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+		const Quaternion a = from_elements(0.0f, 0.0f, 0.0f, 1.0f);
 		ENSURE(fequal(a.x, 0.0f, 0.00001f));
 		ENSURE(fequal(a.y, 0.0f, 0.00001f));
 		ENSURE(fequal(a.z, 0.0f, 0.00001f));
@@ -478,11 +478,11 @@ static void test_color4()
 static void test_matrix3x3()
 {
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
-		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
 			, -1.6f, -7.1f, -2.4f
 			, -3.1f, -2.2f,  8.9f
 			);
@@ -498,11 +498,11 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z,   5.1f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
-		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
 			, -1.6f, -7.1f, -2.4f
 			, -3.1f, -2.2f,  8.9f
 			);
@@ -518,11 +518,11 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z, -12.7f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
-		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
 			, -1.6f, -7.1f, -2.4f
 			, -3.1f, -2.2f,  8.9f
 			);
@@ -538,7 +538,7 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z, -22.54f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
@@ -554,7 +554,7 @@ static void test_matrix3x3()
 		ENSURE(fequal(b.z.z, -0.009478f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
@@ -574,12 +574,12 @@ static void test_matrix3x3()
 static void test_matrix4x4()
 {
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
 			);
-		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
 			, -1.6f, -7.1f, -2.4f, -6.2f
 			, -3.1f, -2.2f,  8.9f,  8.3f
 			,  3.8f,  9.1f, -3.1f, -7.1f
@@ -603,12 +603,12 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w,  -2.2f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
 			);
-		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
 			, -1.6f, -7.1f, -2.4f, -6.2f
 			, -3.1f, -2.2f,  8.9f,  8.3f
 			,  3.8f,  9.1f, -3.1f, -7.1f
@@ -632,12 +632,12 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w,  12.0f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
 			);
-		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
 			, -1.6f, -7.1f, -2.4f, -6.2f
 			, -3.1f, -2.2f,  8.9f,  8.3f
 			,  3.8f,  9.1f, -3.1f, -7.1f
@@ -661,7 +661,7 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w, -44.55f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
@@ -685,7 +685,7 @@ static void test_matrix4x4()
 		ENSURE(fequal(b.t.w, -0.08108f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f

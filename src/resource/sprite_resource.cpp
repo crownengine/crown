@@ -122,7 +122,7 @@ namespace sprite_resource_internal
 		aabb.max.y =  0.25f;
 
 		OBB obb;
-		obb.tm = matrix4x4(QUATERNION_IDENTITY, aabb::center(aabb));
+		obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(aabb));
 		obb.half_extents = (aabb.max - aabb.min) * 0.5f;
 
 		// Write

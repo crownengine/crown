@@ -175,10 +175,11 @@ static int quaternionbox_store(lua_State* L)
 	if (stack.num_args() == 2)
 		q = stack.get_quaternion(2);
 	else
-		q = quaternion(stack.get_float(2)
+		q = from_elements(stack.get_float(2)
 			, stack.get_float(3)
 			, stack.get_float(4)
-			, stack.get_float(5));
+			, stack.get_float(5)
+			);
 
 	return 0;
 }
@@ -778,25 +779,25 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Matrix4x4", "from_quaternion", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_matrix4x4(matrix4x4(stack.get_quaternion(1), VECTOR3_ZERO));
+			stack.push_matrix4x4(from_quaternion_translation(stack.get_quaternion(1), VECTOR3_ZERO));
 			return 1;
 		});
 	env.add_module_function("Matrix4x4", "from_translation", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_matrix4x4(matrix4x4(stack.get_vector3(1)));
+			stack.push_matrix4x4(from_translation(stack.get_vector3(1)));
 			return 1;
 		});
 	env.add_module_function("Matrix4x4", "from_quaternion_translation", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_matrix4x4(matrix4x4(stack.get_quaternion(1), stack.get_vector3(2)));
+			stack.push_matrix4x4(from_quaternion_translation(stack.get_quaternion(1), stack.get_vector3(2)));
 			return 1;
 		});
 	env.add_module_function("Matrix4x4", "from_axes", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_matrix4x4(matrix4x4(stack.get_vector3(1), stack.get_vector3(2), stack.get_vector3(3), stack.get_vector3(4)));
+			stack.push_matrix4x4(from_axes(stack.get_vector3(1), stack.get_vector3(2), stack.get_vector3(3), stack.get_vector3(4)));
 			return 1;
 		});
 	env.add_module_function("Matrix4x4", "copy", [](lua_State* L)
@@ -965,13 +966,13 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("Quaternion", "from_axis_angle", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_quaternion(quaternion(stack.get_vector3(1), stack.get_float(2)));
+			stack.push_quaternion(from_axis_angle(stack.get_vector3(1), stack.get_float(2)));
 			return 1;
 		});
 	env.add_module_function("Quaternion", "from_elements", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_quaternion(quaternion(stack.get_float(1), stack.get_float(2), stack.get_float(3), stack.get_float(4)));
+			stack.push_quaternion(from_elements(stack.get_float(1), stack.get_float(2), stack.get_float(3), stack.get_float(4)));
 			return 1;
 		});
 	env.add_module_function("Quaternion", "negate", [](lua_State* L)
@@ -1079,7 +1080,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_metafunction("Quaternion", "__call", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_quaternion(quaternion(stack.get_vector3(1 + 1), stack.get_float(2 + 1)));
+			stack.push_quaternion(from_axis_angle(stack.get_vector3(1 + 1), stack.get_float(2 + 1)));
 			return 1;
 		});
 
@@ -1109,7 +1110,7 @@ void load_api(LuaEnvironment& env)
 			}
 			else
 			{
-				Quaternion q = quaternion(stack.get_float(1 + 1)
+				Quaternion q = from_elements(stack.get_float(1 + 1)
 					, stack.get_float(2 + 1)
 					, stack.get_float(3 + 1)
 					, stack.get_float(4 + 1)
