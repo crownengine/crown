@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -1478,9 +1478,9 @@ namespace Crown
 			dlg.program_name = "Crown Game Engine";
 			dlg.version = CROWN_VERSION;
 			dlg.website = "https://github.com/dbartolini/crown";
-			dlg.copyright = "Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.";
+			dlg.copyright = "Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.";
 			dlg.license = "Crown Game Engine.\n"
-				+ "Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.\n"
+				+ "Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.\n"
 				+ "\n"
 				+ "This program is free software; you can redistribute it and/or\n"
 				+ "modify it under the terms of the GNU General Public License\n"
