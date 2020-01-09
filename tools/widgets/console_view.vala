@@ -93,6 +93,8 @@ namespace Crown
 			_entry.key_press_event.connect(on_entry_key_pressed);
 			_entry.activate.connect(on_entry_activated);
 
+			this.show.connect(on_show);
+
 			this.pack_start(_scrolled_window, true, true, 0);
 			this.pack_start(_entry, false, true, 0);
 
@@ -136,6 +138,11 @@ namespace Crown
 			_entry.set_position(_entry.text.length);
 
 			return true;
+		}
+
+		private void on_show()
+		{
+			_entry.grab_focus_without_selecting();
 		}
 
 		public void logi(string system, string text)

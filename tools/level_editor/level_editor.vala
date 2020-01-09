@@ -84,6 +84,7 @@ namespace Crown
 			{ "menu-engine",             null,       "En_gine",             null,             null,         null                       },
 			{ "menu-view",               null,       "View",                null,             null,         null                       },
 			{ "resource-browser",        null,       "Resource Browser",    "<ctrl>P",        null,         on_resource_browser        },
+			{ "console",                 null,       "Show/Hide Console",   "<ctrl>quoteleft",null,         on_console                 },
 			{ "fullscreen",              null,       "Fullscreen",          "F11",            null,         on_fullscreen              },
 			{ "restart",                 null,       "_Restart",            null,             null,         on_engine_restart          },
 			{ "reload-lua",              null,       "Reload Level Editor", "F7",             null,         on_reload_lua              },
@@ -177,6 +178,7 @@ namespace Crown
 
 		// Widgets
 		private ConsoleView _console_view;
+		private bool _console_view_hidden;
 		private EngineView _engine_view;
 		private LevelTreeView _level_treeview;
 		private LevelLayersTreeView _level_layers_treeview;
@@ -247,6 +249,7 @@ namespace Crown
 			_resource_selection = new ResourceBrowser(_project, _project_store, false);
 
 			_console_view = new ConsoleView(_engine, _project);
+			_console_view_hidden = false;
 			_level_treeview = new LevelTreeView(_database, _level);
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 			_properties_view = new PropertiesView(_level, _project_store);
@@ -1348,6 +1351,20 @@ namespace Crown
 				this.unfullscreen();
 			else
 				this.fullscreen();
+		}
+
+		private void on_console(Gtk.Action action)
+		{
+			if (_console_view_hidden)
+			{
+				_console_view_hidden = false;
+				_console_view.show_all();
+			}
+			else
+			{
+				_console_view.hide();
+				_console_view_hidden = true;
+			}
 		}
 
 		private void on_engine_restart(Gtk.Action action)
