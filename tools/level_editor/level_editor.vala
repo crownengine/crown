@@ -93,7 +93,7 @@ namespace Crown
 			{ "run-game",                null,       "Run Game",            null,             null,         on_run_game                },
 			{ "menu-help",               null,       "Help",                null,             null,         null                       },
 			{ "manual",                  null,       "Manual",              "F1",             null,         on_manual                  },
-			{ "report-issue",            null,       "Report an Issue",     null,             null,         on_report_issue            },
+			{ "report-issue",            null,       "Report an Issue...",  null,             null,         on_report_issue            },
 			{ "open-last-log",           null,       "Open last.log",       null,             null,         on_open_last_log           },
 			{ "about",                   null,       "About",               null,             null,         on_about                   }
 		};
