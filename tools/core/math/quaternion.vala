@@ -109,5 +109,5 @@ namespace Crown
 		}
 	}
 
-	const Quaternion QUATERNION_IDENTITY = { 0.0, 0.0, 0.0, 1.0 };
+	public const Quaternion QUATERNION_IDENTITY = { 0.0, 0.0, 0.0, 1.0 };
 }
