@@ -7,32 +7,27 @@ using Gtk;
 
 namespace Crown
 {
-	/// <summary>
-	/// Vector3 spin button.
-	/// </summary>
-	public class SpinButtonVector3 : Gtk.Box
+	public class EntryVector2 : Gtk.Box
 	{
 		// Data
 		public bool _stop_emit;
 
 		// Widgets
-		public SpinButtonDouble _x;
-		public SpinButtonDouble _y;
-		public SpinButtonDouble _z;
+		public EntryDouble _x;
+		public EntryDouble _y;
 
-		public Vector3 value
+		public Vector2 value
 		{
 			get
 			{
-				return Vector3(_x.value, _y.value, _z.value);
+				return Vector2(_x.value, _y.value);
 			}
 			set
 			{
 				_stop_emit = true;
-				Vector3 val = (Vector3)value;
+				Vector2 val = (Vector2)value;
 				_x.value = val.x;
 				_y.value = val.y;
-				_z.value = val.z;
 				_stop_emit = false;
 			}
 		}
@@ -40,7 +35,7 @@ namespace Crown
 		// Signals
 		public signal void value_changed();
 
-		public SpinButtonVector3(Vector3 xyz, Vector3 min, Vector3 max)
+		public EntryVector2(Vector2 xyz, Vector2 min, Vector2 max)
 		{
 			Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
 
@@ -48,17 +43,14 @@ namespace Crown
 			_stop_emit = false;
 
 			// Widgets
-			_x = new SpinButtonDouble(xyz.x, min.x, max.x);
-			_y = new SpinButtonDouble(xyz.y, min.y, max.y);
-			_z = new SpinButtonDouble(xyz.z, min.z, max.z);
+			_x = new EntryDouble(xyz.x, min.x, max.x);
+			_y = new EntryDouble(xyz.y, min.y, max.y);
 
 			_x.value_changed.connect(on_value_changed);
 			_y.value_changed.connect(on_value_changed);
-			_z.value_changed.connect(on_value_changed);
 
 			add(_x);
 			add(_y);
-			add(_z);
 		}
 
 		private void on_value_changed()

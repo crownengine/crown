@@ -7,9 +7,6 @@ using Gtk;
 
 namespace Crown
 {
-	/// <summary>
-	/// Vector2 spin button.
-	/// </summary>
 	public class ReferenceChooser : Gtk.Box
 	{
 		// Data

@@ -115,8 +115,8 @@ public class SpriteImportDialog : Gtk.Dialog
 	public Gtk.SpinButton spacing_x;
 	public Gtk.SpinButton spacing_y;
 	public Gtk.ComboBoxText pivot;
-	public SpinButtonDouble layer;
-	public SpinButtonDouble depth;
+	public EntryDouble layer;
+	public EntryDouble depth;
 
 	public Gtk.CheckButton collision_enabled;
 	public string shape_active_name;
@@ -511,8 +511,8 @@ public class SpriteImportDialog : Gtk.Dialog
 			_preview.queue_draw();
 		});
 
-		layer = new SpinButtonDouble(0.0, 0.0, 7.0);
-		depth = new SpinButtonDouble(0.0, 0.0, 9999.0);
+		layer = new EntryDouble(0.0, 0.0, 7.0);
+		depth = new EntryDouble(0.0, 0.0, 9999.0);
 
 		Gtk.Grid grid = new Gtk.Grid();
 		grid.attach(label_with_alignment("Resolution", Gtk.Align.END),   0,  0, 1, 1);

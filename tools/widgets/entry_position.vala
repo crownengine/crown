@@ -7,14 +7,11 @@ using Gtk;
 
 namespace Crown
 {
-	public class Slide : Gtk.Bin
+	public class EntryPosition : EntryVector3
 	{
-		public void show_widget(Gtk.Widget slide)
+		public EntryPosition(Vector3 xyz = VECTOR3_ZERO, Vector3 min = VECTOR3_MIN, Vector3 max = VECTOR3_MAX)
 		{
-			if (this.get_child() != null)
-				this.remove(this.get_child());
-			this.add(slide);
-			this.show_all();
+			base(xyz, min, max, "%.5g");
 		}
 	}
 }

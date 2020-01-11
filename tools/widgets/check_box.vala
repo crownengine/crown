@@ -8,9 +8,6 @@ using Gdk;
 
 namespace Crown
 {
-	/// <summary>
-	/// Check box.
-	/// </summary>
 	public class CheckBox : Gtk.Bin
 	{
 		// Data

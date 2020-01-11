@@ -7,9 +7,6 @@ using Gtk;
 
 namespace Crown
 {
-	/// <summary>
-	/// Map combo box.
-	/// </summary>
 	public class ComboBoxMap : Gtk.Bin
 	{
 		// Data

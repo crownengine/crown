@@ -7,9 +7,6 @@ using Gtk;
 
 namespace Crown
 {
-	/// <summary>
-	/// Vector3 ColorButton
-	/// </summary>
 	public class ColorButtonVector3 : Gtk.Bin
 	{
 		// Data

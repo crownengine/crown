@@ -344,7 +344,7 @@ namespace Crown
 			// This is supposed to work in pixel units but it doesn't for
 			// a reason I couldn't find. The values passed, though, seem
 			// to move pane handles to the correct-ish position.
-			_main_pane.set_position(300);
+			_main_pane.set_position(400);
 			_engine_pane.set_position(72);
 			_inspector_pane.set_position(300);
 		}
@@ -1258,8 +1258,8 @@ namespace Crown
 				, null
 				);
 
-			SpinButtonDouble sb = new SpinButtonDouble(_grid_size, 0.1, 1000);
-			sb._x.activate.connect(() => { dg.response(ResponseType.OK); });
+			EntryDouble sb = new EntryDouble(_grid_size, 0.1, 1000);
+			sb.activate.connect(() => { dg.response(ResponseType.OK); });
 			dg.get_content_area().add(sb);
 			dg.skip_taskbar_hint = true;
 			dg.show_all();
@@ -1285,8 +1285,8 @@ namespace Crown
 				, null
 				);
 
-			SpinButtonDouble sb = new SpinButtonDouble(_rotation_snap, 1.0, 180.0);
-			sb._x.activate.connect(() => { dg.response(ResponseType.OK); });
+			EntryDouble sb = new EntryDouble(_rotation_snap, 1.0, 180.0);
+			sb.activate.connect(() => { dg.response(ResponseType.OK); });
 			dg.get_content_area().add(sb);
 			dg.skip_taskbar_hint = true;
 			dg.show_all();

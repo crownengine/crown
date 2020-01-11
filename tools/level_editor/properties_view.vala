@@ -59,9 +59,9 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private SpinButtonVector3 _position;
-		private SpinButtonRotation _rotation;
-		private SpinButtonVector3 _scale;
+		private EntryPosition _position;
+		private EntryRotation _rotation;
+		private EntryScale _scale;
 
 		public TransformComponentView(Level level)
 		{
@@ -71,11 +71,11 @@ namespace Crown
 			_component_id = GUID_ZERO;
 
 			// Widgets
-			_position = new SpinButtonVector3(VECTOR3_ZERO, Vector3(-double.MAX, -double.MAX, -double.MAX), Vector3(double.MAX, double.MAX, double.MAX));
+			_position = new EntryPosition();
 			_position.value_changed.connect(on_value_changed);
-			_rotation = new SpinButtonRotation(VECTOR3_ZERO);
+			_rotation = new EntryRotation();
 			_rotation.value_changed.connect(on_value_changed);
-			_scale = new SpinButtonVector3(VECTOR3_ZERO, Vector3(double.MIN, double.MIN, double.MIN), Vector3(double.MAX, double.MAX, double.MAX));
+			_scale = new EntryScale();
 			_scale.value_changed.connect(on_value_changed);
 
 			add_row("Position", _position);
@@ -160,8 +160,8 @@ namespace Crown
 		// Widgets
 		private ReferenceChooser _sprite_resource;
 		private ReferenceChooser _material;
-		private SpinButtonDouble _layer;
-		private SpinButtonDouble _depth;
+		private EntryDouble _layer;
+		private EntryDouble _depth;
 		private CheckBox _visible;
 
 		public SpriteRendererComponentView(Level level, ProjectStore store)
@@ -174,9 +174,9 @@ namespace Crown
 			_sprite_resource.value_changed.connect(on_value_changed);
 			_material = new ReferenceChooser(store, "material");
 			_material.value_changed.connect(on_value_changed);
-			_layer = new SpinButtonDouble(0.0, 0.0, 7.0);
+			_layer = new EntryDouble(0.0, 0.0, 7.0);
 			_layer.value_changed.connect(on_value_changed);
-			_depth = new SpinButtonDouble(0.0, 0.0, (double)uint32.MAX);
+			_depth = new EntryDouble(0.0, 0.0, (double)uint32.MAX);
 			_depth.value_changed.connect(on_value_changed);
 			_visible = new CheckBox();
 			_visible.value_changed.connect(on_value_changed);
@@ -218,9 +218,9 @@ namespace Crown
 
 		// Widgets
 		private ComboBoxMap _type;
-		private SpinButtonDouble _range;
-		private SpinButtonDouble _intensity;
-		private SpinButtonDouble _spot_angle;
+		private EntryDouble _range;
+		private EntryDouble _intensity;
+		private EntryDouble _spot_angle;
 		private ColorButtonVector3 _color;
 
 		public LightComponentView(Level level)
@@ -234,11 +234,11 @@ namespace Crown
 			_type.append("directional", "Directional");
 			_type.append("omni", "Omni");
 			_type.append("spot", "Spot");
-			_range = new SpinButtonDouble(0.0, 0.0, double.MAX);
+			_range = new EntryDouble(0.0, 0.0, double.MAX);
 			_range.value_changed.connect(on_value_changed);
-			_intensity = new SpinButtonDouble(0.0, 0.0,  double.MAX);
+			_intensity = new EntryDouble(0.0, 0.0,  double.MAX);
 			_intensity.value_changed.connect(on_value_changed);
-			_spot_angle = new SpinButtonDouble(0.0, 0.0,  90.0);
+			_spot_angle = new EntryDouble(0.0, 0.0,  90.0);
 			_spot_angle.value_changed.connect(on_value_changed);
 			_color = new ColorButtonVector3();
 			_color.value_changed.connect(on_value_changed);
@@ -286,9 +286,9 @@ namespace Crown
 
 		// Widgets
 		private ComboBoxMap _projection;
-		private SpinButtonDouble _fov;
-		private SpinButtonDouble _near_range;
-		private SpinButtonDouble _far_range;
+		private EntryDouble _fov;
+		private EntryDouble _near_range;
+		private EntryDouble _far_range;
 
 		public CameraComponentView(Level level)
 		{
@@ -300,11 +300,11 @@ namespace Crown
 			_projection.append("orthographic", "Orthographic");
 			_projection.append("perspective", "Perspective");
 			_projection.value_changed.connect(on_value_changed);
-			_fov = new SpinButtonDouble(0.0, 1.0,   90.0);
+			_fov = new EntryDouble(0.0, 1.0,   90.0);
 			_fov.value_changed.connect(on_value_changed);
-			_near_range = new SpinButtonDouble(0.001, double.MIN, double.MAX);
+			_near_range = new EntryDouble(0.001, double.MIN, double.MAX);
 			_near_range.value_changed.connect(on_value_changed);
-			_far_range  = new SpinButtonDouble(1000.000, double.MIN, double.MAX);
+			_far_range  = new EntryDouble(1000.000, double.MIN, double.MAX);
 			_far_range.value_changed.connect(on_value_changed);
 
 			add_row("Projection", _projection);
@@ -422,7 +422,7 @@ namespace Crown
 		// Widgets
 		private ComboBoxMap _class;
 		private Gtk.Entry _collision_filter;
-		private SpinButtonDouble _mass;
+		private EntryDouble _mass;
 		private Gtk.Entry _material;
 
 		public ActorComponentView(Level level)
@@ -441,7 +441,7 @@ namespace Crown
 			_collision_filter.sensitive = false;
 			_material = new Gtk.Entry();
 			_material.sensitive = false;
-			_mass = new SpinButtonDouble(1.0, 0.0, double.MAX);
+			_mass = new EntryDouble(1.0, 0.0, double.MAX);
 			_mass.value_changed.connect(on_value_changed);
 
 			add_row("Class", _class);
@@ -574,8 +574,8 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private SpinButtonVector3 _position;
-		private SpinButtonRotation _rotation;
+		private EntryVector3 _position;
+		private EntryRotation _rotation;
 
 		public SoundTransformView(Level level)
 		{
@@ -584,8 +584,8 @@ namespace Crown
 			_id = GUID_ZERO;
 
 			// Widgets
-			_position = new SpinButtonVector3(VECTOR3_ZERO, Vector3(-double.MAX, -double.MAX, -double.MAX), Vector3(double.MAX, double.MAX, double.MAX));
-			_rotation = new SpinButtonRotation(VECTOR3_ZERO);
+			_position = new EntryPosition();
+			_rotation = new EntryRotation();
 
 			_position.value_changed.connect(on_value_changed);
 			_rotation.value_changed.connect(on_value_changed);
@@ -619,8 +619,8 @@ namespace Crown
 
 		// Widgets
 		private Gtk.Entry _name;
-		private SpinButtonDouble _range;
-		private SpinButtonDouble _volume;
+		private EntryDouble _range;
+		private EntryDouble _volume;
 		private CheckBox _loop;
 
 		public SoundView(Level level)
@@ -630,8 +630,8 @@ namespace Crown
 
 			// Widgets
 			_name   = new Gtk.Entry();
-			_range  = new SpinButtonDouble(1.0, 0.0, double.MAX);
-			_volume = new SpinButtonDouble(1.0, 0.0, 1.0);
+			_range  = new EntryDouble(1.0, 0.0, double.MAX);
+			_volume = new EntryDouble(1.0, 0.0, 1.0);
 			_loop   = new CheckBox();
 			_name.sensitive = false;
 

@@ -44,4 +44,6 @@ namespace Crown
 
 	const Vector3 VECTOR3_ZERO = { 0.0, 0.0, 0.0 };
 	const Vector3 VECTOR3_ONE  = { 1.0, 1.0, 1.0 };
+	const Vector3 VECTOR3_MIN  = {-double.MAX, -double.MAX, -double.MAX };
+	const Vector3 VECTOR3_MAX  = { double.MAX,  double.MAX,  double.MAX };
 }

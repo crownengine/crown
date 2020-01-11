@@ -28,6 +28,7 @@ Changelog
 * tools: fixed an issue that generated wrong render states when blending is enabled while no blend funtion/equation is specified
 * tools: fixed an issue that prevented some operations in the Level Editor from being (un/re)done
 * tools: fixed an issue that prevented the data compiler from restoring and saving its state when launched by the Level Editor
+* tools: improved the numeric entry widget which now takes less space and provides more convenient input workflows
 * tools: the Data Compiler will now track data "requirements" and automatically include them in packages when it's needed
 * tools: the game will now be started or stopped according to its running state when launched from the Level Editor
 * tools: the Properties Panel now accepts more sensible numeric ranges
