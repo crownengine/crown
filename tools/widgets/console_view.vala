@@ -50,14 +50,14 @@ namespace Crown
 	public class ConsoleView : Gtk.Box
 	{
 		// Data
-		private EntryHistory _entry_history;
-		private ConsoleClient _console_client;
-		private Project _project;
+		public EntryHistory _entry_history;
+		public ConsoleClient _console_client;
+		public Project _project;
 
 		// Widgets
-		private Gtk.ScrolledWindow _scrolled_window;
-		private Gtk.TextView _text_view;
-		private Gtk.Entry _entry;
+		public Gtk.ScrolledWindow _scrolled_window;
+		public Gtk.TextView _text_view;
+		public Gtk.Entry _entry;
 
 		public ConsoleView(ConsoleClient client, Project project)
 		{

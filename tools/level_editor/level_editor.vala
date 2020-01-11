@@ -178,7 +178,6 @@ namespace Crown
 
 		// Widgets
 		private ConsoleView _console_view;
-		private bool _console_view_hidden;
 		private EngineView _engine_view;
 		private LevelTreeView _level_treeview;
 		private LevelLayersTreeView _level_layers_treeview;
@@ -249,7 +248,6 @@ namespace Crown
 			_resource_selection = new ResourceBrowser(_project, _project_store, false);
 
 			_console_view = new ConsoleView(_engine, _project);
-			_console_view_hidden = false;
 			_level_treeview = new LevelTreeView(_database, _level);
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 			_properties_view = new PropertiesView(_level, _project_store);
@@ -1355,15 +1353,16 @@ namespace Crown
 
 		private void on_console(Gtk.Action action)
 		{
-			if (_console_view_hidden)
+			if (_console_view.is_visible())
 			{
-				_console_view_hidden = false;
-				_console_view.show_all();
+				if (_console_view._entry.has_focus)
+					_console_view.hide();
+				else
+					_console_view._entry.grab_focus();
 			}
 			else
 			{
-				_console_view.hide();
-				_console_view_hidden = true;
+				_console_view.show_all();
 			}
 		}
 
