@@ -95,6 +95,7 @@ namespace Crown
 			{ "manual",                  null,       "Manual",              "F1",             null,         on_manual                  },
 			{ "report-issue",            null,       "Report an Issue...",  null,             null,         on_report_issue            },
 			{ "open-last-log",           null,       "Open last.log",       null,             null,         on_open_last_log           },
+			{ "changelog",               null,       "Changelog...",        null,             null,         on_changelog               },
 			{ "about",                   null,       "About",               null,             null,         on_about                   }
 		};
 
@@ -1468,6 +1469,18 @@ namespace Crown
 			try
 			{
 				AppInfo.launch_default_for_uri(file.get_uri(), null);
+			}
+			catch (Error e)
+			{
+				_console_view.loge("editor", e.message);
+			}
+		}
+
+		private void on_changelog(Gtk.Action action)
+		{
+			try
+			{
+				AppInfo.launch_default_for_uri("https://dbartolini.github.io/crown/html/v" + CROWN_VERSION + "/changelog.html", null);
 			}
 			catch (Error e)
 			{

@@ -110,6 +110,7 @@
 			<separator></separator>
 			<menuitem action="open-last-log"></menuitem>
 			<separator></separator>
+			<menuitem action="changelog"></menuitem>
 			<menuitem action="about"></menuitem>
 		</menu>
 	</menubar>
