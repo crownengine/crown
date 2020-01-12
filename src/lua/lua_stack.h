@@ -207,99 +207,77 @@ struct LuaStack
 	Gui* get_gui(int i)
 	{
 		Gui* p = (Gui*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, DEBUG_GUI_MARKER, "Gui");
 		return p;
 	}
 
 	DebugLine* get_debug_line(int i)
 	{
 		DebugLine* p = (DebugLine*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, DEBUG_LINE_MARKER, "DebugLine");
 		return p;
 	}
 
 	ResourcePackage* get_resource_package(int i)
 	{
 		ResourcePackage* p = (ResourcePackage*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, RESOURCE_PACKAGE_MARKER, "ResourcePackage");
 		return p;
 	}
 
 	World* get_world(int i)
 	{
 		World* p = (World*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, WORLD_MARKER, "World");
 		return p;
 	}
 
 	SceneGraph* get_scene_graph(int i)
 	{
 		SceneGraph* p = (SceneGraph*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, SCENE_GRAPH_MARKER, "SceneGraph");
 		return p;
 	}
 
 	Level* get_level(int i)
 	{
 		Level* p = (Level*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, LEVEL_MARKER, "Level");
 		return p;
 	}
 
 	RenderWorld* get_render_world(int i)
 	{
 		RenderWorld* p = (RenderWorld*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, RENDER_WORLD_MARKER, "RenderWorld");
 		return p;
 	}
 
 	PhysicsWorld* get_physics_world(int i)
 	{
 		PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, PHYSICS_WORLD_MARKER, "PhysicsWorld");
 		return p;
 	}
 
 	SoundWorld* get_sound_world(int i)
 	{
 		SoundWorld* p = (SoundWorld*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, SOUND_WORLD_MARKER, "SoundWorld");
 		return p;
 	}
 
 	ScriptWorld* get_script_world(int i)
 	{
 		ScriptWorld* p = (ScriptWorld*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, SCRIPT_WORLD_MARKER, "ScriptWorld");
 		return p;
 	}
 
 	AnimationStateMachine* get_animation_state_machine(int i)
 	{
 		AnimationStateMachine* p = (AnimationStateMachine*)get_pointer(i);
-#if CROWN_DEBUG
-		check_type(i, p);
-#endif // CROWN_DEBUG
+		check_marker(i, p, ANIMATION_STATE_MACHINE_MARKER, "AnimationStateMachine");
 		return p;
 	}
 
@@ -707,103 +685,17 @@ struct LuaStack
 	Quaternion* check_temporary(int i, const Quaternion* p);
 	Matrix4x4* check_temporary(int i, const Matrix4x4* p);
 
-	void check_type(int i, const Gui* p)
+	void check_marker(int i, const void* p, u32 type_marker, const char* type_name)
 	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != DEBUG_GUI_MARKER))
+		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != type_marker))
 		{
-			luaL_typerror(L, i, "Gui");
+			luaL_typerror(L, i, type_name);
 			CE_UNREACHABLE();
 		}
 	}
-
-	void check_type(int i, const DebugLine* p)
+#else
+	void check_marker(int /*i*/, const void* /*p*/, u32 /*type_marker*/, const char* /*type_name*/)
 	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != DEBUG_LINE_MARKER))
-		{
-			luaL_typerror(L, i, "DebugLine");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const ResourcePackage* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != RESOURCE_PACKAGE_MARKER))
-		{
-			luaL_typerror(L, i, "ResourcePackage");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const World* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != WORLD_MARKER))
-		{
-			luaL_typerror(L, i, "World");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const SceneGraph* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != SCENE_GRAPH_MARKER))
-		{
-			luaL_typerror(L, i, "SceneGraph");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const RenderWorld* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != RENDER_WORLD_MARKER))
-		{
-			luaL_typerror(L, i, "RenderWorld");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const PhysicsWorld* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != PHYSICS_WORLD_MARKER))
-		{
-			luaL_typerror(L, i, "PhysicsWorld");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const SoundWorld* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != SOUND_WORLD_MARKER))
-		{
-			luaL_typerror(L, i, "SoundWorld");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const Level* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != LEVEL_MARKER))
-		{
-			luaL_typerror(L, i, "Level");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const ScriptWorld* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != SCRIPT_WORLD_MARKER))
-		{
-			luaL_typerror(L, i, "ScriptWorld");
-			CE_UNREACHABLE();
-		}
-	}
-
-	void check_type(int i, const AnimationStateMachine* p)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != ANIMATION_STATE_MACHINE_MARKER))
-		{
-			luaL_typerror(L, i, "AnimationStateMachine");
-			CE_UNREACHABLE();
-		}
 	}
 #endif // CROWN_DEBUG
 };
