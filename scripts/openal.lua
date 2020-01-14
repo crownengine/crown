@@ -45,10 +45,10 @@ function openal_project(_kind)
 				"_XOPEN_SOURCE=700",
 			}
 			buildoptions {
-				"-std=c99",
 				"-fPIC",
 				"-Winline",
 				"-fvisibility=hidden",
+				"-fexceptions" -- :(
 			}
 
 		configuration { "linux-* or android-*" }
@@ -63,13 +63,13 @@ function openal_project(_kind)
 				"HAVE_SSE2",
 			}
 			files {
-				AL_DIR .. "Alc/mixer_sse2.c",
-				AL_DIR .. "Alc/mixer_sse.c",
+				AL_DIR .. "alc/mixer/mixer_sse2.cpp",
+				AL_DIR .. "alc/mixer/mixer_sse.cpp",
 			}
 
 		configuration { "android-*" }
 			files {
-				AL_DIR .. "Alc/backends/opensl.c"
+				AL_DIR .. "alc/backends/opensl.cpp"
 			}
 			links {
 				"OpenSLES",
@@ -83,7 +83,7 @@ function openal_project(_kind)
 				"HAVE_PULSEAUDIO",
 			}
 			files {
-				AL_DIR .. "Alc/backends/pulseaudio.c",
+				AL_DIR .. "alc/backends/pulseaudio.cpp",
 			}
 
 		configuration { "vs* or mingw-*"}
@@ -103,9 +103,9 @@ function openal_project(_kind)
 				"HAVE_WINMM",
 			}
 			files {
-				AL_DIR .. "Alc/backends/mmdevapi.c",
-				AL_DIR .. "Alc/backends/dsound.c",
-				AL_DIR .. "Alc/backends/winmm.c",
+				AL_DIR .. "alc/backends/mmdevapi.cpp",
+				AL_DIR .. "alc/backends/dsound.cpp",
+				AL_DIR .. "alc/backends/winmm.cpp",
 			}
 			links {
 				"winmm",
@@ -126,36 +126,30 @@ function openal_project(_kind)
 				"/wd4098",
 				"/wd4267",
 				"/wd4244",
+				"/EHs", -- :(
 			}
 
 		configuration {}
 
 		includedirs {
-			AL_DIR,
+			AL_DIR .. "al/include",
+			AL_DIR .. "alc",
+			AL_DIR .. "common",
 			AL_DIR .. "include",
-			AL_DIR .. "Alc",
-			AL_DIR .. "OpenAL32/Include",
+			AL_DIR,
 		}
 
 		files {
-			AL_DIR .. "common/*.c",
-			AL_DIR .. "Alc/ALc.c",
-			AL_DIR .. "Alc/ALu.c",
-			AL_DIR .. "Alc/bsinc.c",
-			AL_DIR .. "Alc/alcConfig.c",
-			AL_DIR .. "Alc/alcRing.c",
-			AL_DIR .. "Alc/bs2b.c",
-			AL_DIR .. "Alc/helpers.c",
-			AL_DIR .. "Alc/hrtf.c",
-			AL_DIR .. "Alc/panning.c",
-			AL_DIR .. "Alc/mixer.c",
-			AL_DIR .. "Alc/mixer_c.c",
-			AL_DIR .. "Alc/effects/*.c",
-			AL_DIR .. "Alc/midi/*.c",
-			AL_DIR .. "Alc/backends/base.c",
-			AL_DIR .. "Alc/backends/loopback.c",
-			AL_DIR .. "Alc/backends/null.c",
-			AL_DIR .. "OpenAL32/*.c",
+			AL_DIR .. "al/*.cpp",
+			AL_DIR .. "alc/*.cpp",
+			AL_DIR .. "alc/backends/base.cpp",
+			AL_DIR .. "alc/backends/loopback.cpp",
+			AL_DIR .. "alc/backends/null.cpp",
+			AL_DIR .. "alc/effects/*.cpp",
+			AL_DIR .. "alc/filters/*.cpp",
+			AL_DIR .. "alc/midi/*.cpp",
+			AL_DIR .. "alc/mixer/mixer_c.cpp",
+			AL_DIR .. "common/*.cpp",
 		}
 
 		configuration {}
