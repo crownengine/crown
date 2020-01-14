@@ -268,6 +268,10 @@ struct WindowAndroid : public Window
 	{
 	}
 
+	void set_cursor(MouseCursor::Enum /*cursor*/)
+	{
+	}
+
 	void* handle()
 	{
 		return NULL;
@@ -325,9 +329,6 @@ bool next_event(OsEvent& ev)
 void android_main(struct android_app* app)
 {
 	using namespace crown;
-
-	// Make sure glue isn't stripped.
-	app_dummy();
 
 	memory_globals::init();
 	guid_globals::init();

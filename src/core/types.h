@@ -102,7 +102,7 @@ inline T clamp(T val, T mmin, T mmax)
 	#error "Compiler not supported"
 #endif
 
-#if CROWN_PLATFORM_LINUX
+#if CROWN_PLATFORM_POSIX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
 	#define CE_ALIGN_DECL(align, decl) decl __attribute__ ((aligned (align)))
 #elif CROWN_PLATFORM_WINDOWS
 	#define CE_ALIGN_DECL(align_, decl) __declspec (align(align_)) decl

@@ -13,13 +13,14 @@ endif
 GENIE=3rdparty/bx/tools/bin/$(OS)/genie
 MAKE_JOBS=1
 
-NDKABI=14
-NDKCC=$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-
-NDKFLAGS=--sysroot $(ANDROID_NDK_ROOT)/platforms/android-$(NDKABI)/arch-arm
-NDKARCH=-march=armv7-a -mfloat-abi=softfp -mfpu=neon -mthumb -Wl,--fix-cortex-a8
+NDKABI=$(ANDROID_NDK_ABI)
+NDKDIR=$(ANDROID_NDK_ROOT)
+NDKBIN=$(NDKDIR)/toolchains/llvm/prebuilt/linux-x86_64/bin
+NDKCROSS=$(NDKBIN)/arm-linux-androideabi-
+NDKCC=$(NDKBIN)/armv7a-linux-androideabi$(NDKABI)-clang
 
 build/android-arm/bin/libluajit.a:
-	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CROSS=$(NDKCC) TARGET_FLAGS="$(NDKFLAGS) $(NDKARCH)"
+	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src HOST_CC="gcc -m32" CROSS=$(NDKCROSS) STATIC_CC=$(NDKCC) DYNAMIC_CC="$(NDKCC) -fPIC" TARGET_LD=$(NDKCC)
 	mkdir -p build/android-arm/bin
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/libluajit.a build/android-arm/bin
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
@@ -69,14 +70,14 @@ build/win64/bin/luajit.exe:
 	-@rm -f 3rdparty/luajit/src/luajit.lib
 	-@rm -f 3rdparty/luajit/src/minilua.*
 
-build/projects/android:
+build/projects/android-arm:
 	$(GENIE) --file=scripts/genie.lua --with-luajit --compiler=android-arm gmake
-android-arm-debug: build/projects/android build/android-arm/bin/libluajit.a
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android config=debug
-android-arm-development: build/projects/android build/android-arm/bin/libluajit.a
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android config=development
-android-arm-release: build/projects/android build/android-arm/bin/libluajit.a
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android config=release
+android-arm-debug: build/projects/android-arm build/android-arm/bin/libluajit.a
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android-arm config=debug
+android-arm-development: build/projects/android-arm build/android-arm/bin/libluajit.a
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android-arm config=development
+android-arm-release: build/projects/android-arm build/android-arm/bin/libluajit.a
+	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android-arm config=release
 android-arm: android-arm-debug android-arm-development android-arm-release
 
 build/linux64/bin/texturec:

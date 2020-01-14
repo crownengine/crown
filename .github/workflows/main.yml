@@ -3,6 +3,25 @@ name: build_and_test
 on: [push, pull_request]
 
 jobs:
+    android-arm:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v1
+        - name: android-arm-make-debug
+          run: |
+            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+            export ANDROID_NDK_ABI=23
+            make android-arm-debug MAKE_JOBS=2
+        - name: android-arm-make-development
+          run: |
+            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+            export ANDROID_NDK_ABI=23
+            make android-arm-development MAKE_JOBS=2
+        - name: android-arm-make-release
+          run: |
+            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+            export ANDROID_NDK_ABI=23
+            make android-arm-release MAKE_JOBS=2
     linux:
         runs-on: ubuntu-latest
         steps:

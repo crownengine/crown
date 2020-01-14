@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-			package="crown.android"
-			android:versionCode="1"
-			android:versionName="1.0">
-		<uses-sdk android:minSdkVersion="9"/>
+    package="com.example.myapplication">
 
-		<uses-permission android:name="android.permission.INTERNET"/>
-		<uses-permission android:name="android.permission.SET_DEBUG_APP"/>
+    <!-- For ConsoleServer -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
-		<application android:label="Crown" android:hasCode="true">
-				<activity android:name=".CrownActivity"
-									android:label="Crown"
-									android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-									android:screenOrientation="landscape"
-									android:configChanges="orientation|keyboardHidden">
-						<!-- Tell NativeActivity the name of our .so -->
-						<meta-data android:name="android.app.lib_name"
-												android:value="crown" />
-						<intent-filter>
-								<action android:name="android.intent.action.MAIN" />
-								<category android:name="android.intent.category.LAUNCHER" />
-						</intent-filter>
-				</activity>
-		</application>
+    <application
+        android:hasCode="true"
+        android:label="My Application">
+        <activity
+            android:name="com.example.myapplication.CrownActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/title_activity_crown"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+
+            <!-- Tell NativeActivity the name of our .so -->
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="crown" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
 </manifest>
