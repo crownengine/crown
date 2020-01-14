@@ -7,19 +7,23 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v1
+        - name: prepare
+          run: |
+            sudo apt-get update
+            sudo apt-get install libc6-dev-i386
         - name: android-arm-make-debug
           run: |
-            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/20.1.5948944
+            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
             export ANDROID_NDK_ABI=23
             make android-arm-debug MAKE_JOBS=2
         - name: android-arm-make-development
           run: |
-            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/20.1.5948944
+            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
             export ANDROID_NDK_ABI=23
             make android-arm-development MAKE_JOBS=2
         - name: android-arm-make-release
           run: |
-            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/20.1.5948944
+            export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
             export ANDROID_NDK_ABI=23
             make android-arm-release MAKE_JOBS=2
     linux:
