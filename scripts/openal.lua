@@ -98,13 +98,13 @@ function openal_project(_kind)
 				"HAVE_GUIDDEF_H",
 				"HAVE_INTRIN_H",
 				"HAVE_IO_H",
-				"HAVE_MMDEVAPI",
+				"HAVE_WASAPI",
 				"HAVE_WINDOWS_H",
 				"HAVE_WINMM",
 			}
 			files {
-				AL_DIR .. "alc/backends/mmdevapi.cpp",
 				AL_DIR .. "alc/backends/dsound.cpp",
+				AL_DIR .. "alc/backends/wasapi.cpp",
 				AL_DIR .. "alc/backends/winmm.cpp",
 			}
 			links {
@@ -115,7 +115,6 @@ function openal_project(_kind)
 		configuration { "vs*" }
 			defines {
 				"_CRT_NONSTDC_NO_DEPRECATE",
-				"inline=__inline",
 				"restrict=",
 				"SIZEOF_LONG=4",
 				"SIZEOF_LONG_LONG=8",
