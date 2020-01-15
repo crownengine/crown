@@ -5,6 +5,10 @@
 
 #pragma once
 
+#include "config.h"
+
+#if CROWN_CAN_COMPILE
+
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
 #include "core/os.h"
@@ -136,3 +140,5 @@ struct CompileOptions
 };
 
 } // namespace crown
+
+#endif // CROWN_CAN_COMPILE
