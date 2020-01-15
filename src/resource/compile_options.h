@@ -111,10 +111,10 @@ struct CompileOptions
 	void add_requirement(const char* type, const char* name);
 
 	///
-	void absolute_path(const char* path, DynamicString& abs);
+	void absolute_path(DynamicString& abs, const char* path);
 
 	///
-	void get_temporary_path(const char* suffix, DynamicString& abs);
+	void temporary_path(DynamicString& abs, const char* suffix);
 
 	///
 	DeleteResult delete_file(const char* path);

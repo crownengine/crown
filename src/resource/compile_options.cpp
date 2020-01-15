@@ -139,7 +139,7 @@ void CompileOptions::add_requirement(const char* type, const char* name)
 	_data_compiler.add_requirement(_resource_id, path.c_str());
 }
 
-void CompileOptions::absolute_path(const char* path, DynamicString& abs)
+void CompileOptions::absolute_path(DynamicString& abs, const char* path)
 {
 	TempAllocator256 ta;
 	DynamicString source_dir(ta);
@@ -150,7 +150,7 @@ void CompileOptions::absolute_path(const char* path, DynamicString& abs)
 	source_filesystem.absolute_path(abs, path);
 }
 
-void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
+void CompileOptions::temporary_path(DynamicString& abs, const char* suffix)
 {
 	TempAllocator1024 ta;
 	DynamicString str(ta);

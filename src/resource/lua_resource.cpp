@@ -36,17 +36,17 @@ namespace lua_resource_internal
 	s32 compile(CompileOptions& opts)
 	{
 		TempAllocator1024 ta;
-		DynamicString luasrc(ta);
-		DynamicString luabin(ta);
-		opts.absolute_path(opts.source_path(), luasrc);
-		opts.get_temporary_path("lua", luabin);
+		DynamicString lua_src(ta);
+		DynamicString lua_out(ta);
+		opts.absolute_path(lua_src, opts.source_path());
+		opts.temporary_path(lua_out, "lua");
 
 		const char* argv[] =
 		{
 			EXE_PATH("luajit"),
 			LUAJIT_FLAGS,
-			luasrc.c_str(),
-			luabin.c_str(),
+			lua_src.c_str(),
+			lua_out.c_str(),
 			NULL
 		};
 		Process pr;
@@ -70,8 +70,8 @@ namespace lua_resource_internal
 			, string_stream::c_str(output)
 			);
 
-		Buffer blob = opts.read_temporary(luabin.c_str());
-		opts.delete_file(luabin.c_str());
+		Buffer blob = opts.read_temporary(lua_out.c_str());
+		opts.delete_file(lua_out.c_str());
 
 		LuaResource lr;
 		lr.version = RESOURCE_HEADER(RESOURCE_VERSION_SCRIPT);

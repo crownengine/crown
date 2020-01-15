@@ -91,10 +91,10 @@ namespace texture_resource_internal
 		const bool generate_mips = sjson::parse_bool(obj["generate_mips"]);
 		const bool normal_map    = sjson::parse_bool(obj["normal_map"]);
 
-		DynamicString texsrc(ta);
-		DynamicString texout(ta);
-		opts.absolute_path(name.c_str(), texsrc);
-		opts.get_temporary_path("ktx", texout);
+		DynamicString tex_src(ta);
+		DynamicString tex_out(ta);
+		opts.absolute_path(tex_src, name.c_str());
+		opts.temporary_path(tex_out, "ktx");
 
 		const char* texturec = opts.exe_path(texturec_paths, countof(texturec_paths));
 		DATA_COMPILER_ASSERT(texturec != NULL
@@ -106,9 +106,9 @@ namespace texture_resource_internal
 		{
 			texturec,
 			"-f",
-			texsrc.c_str(),
+			tex_src.c_str(),
 			"-o",
-			texout.c_str(),
+			tex_out.c_str(),
 			(generate_mips ? "-m" : ""),
 			(normal_map    ? "-n" : ""),
 			NULL
@@ -134,8 +134,8 @@ namespace texture_resource_internal
 			, string_stream::c_str(output)
 			);
 
-		Buffer blob = opts.read_temporary(texout.c_str());
-		opts.delete_file(texout.c_str());
+		Buffer blob = opts.read_temporary(tex_out.c_str());
+		opts.delete_file(tex_out.c_str());
 
 		// Write DDS
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_TEXTURE));
