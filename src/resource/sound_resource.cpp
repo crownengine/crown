@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/filesystem/file.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
@@ -14,6 +15,16 @@
 
 namespace crown
 {
+namespace sound_resource
+{
+	const char* data(const SoundResource* sr)
+	{
+		return (char*)&sr[1];
+	}
+
+} // namespace sound_resource
+
+#if CROWN_CAN_COMPILE
 namespace sound_resource_internal
 {
 	struct WAVHeader
@@ -74,14 +85,6 @@ namespace sound_resource_internal
 	}
 
 } // namespace sound_resource_internal
-
-namespace sound_resource
-{
-	const char* data(const SoundResource* sr)
-	{
-		return (char*)&sr[1];
-	}
-
-} // namespace sound_resource
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

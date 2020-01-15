@@ -20,20 +20,45 @@
 
 namespace crown
 {
-static const char* shaderc_paths[] =
-{
-	EXE_PATH("shaderc"),
-#if CROWN_DEBUG
-	EXE_PATH("shaderc-debug")
-#elif CROWN_DEVELOPMENT
-	EXE_PATH("shaderc-development")
-#else
-	EXE_PATH("shaderc-release")
-#endif
-};
-
 namespace shader_resource_internal
 {
+	void* load(File& file, Allocator& a)
+	{
+		return device()->_shader_manager->load(file, a);
+	}
+
+	void online(StringId64 id, ResourceManager& rm)
+	{
+		device()->_shader_manager->online(id, rm);
+	}
+
+	void offline(StringId64 id, ResourceManager& rm)
+	{
+		device()->_shader_manager->offline(id, rm);
+	}
+
+	void unload(Allocator& a, void* res)
+	{
+		device()->_shader_manager->unload(a, res);
+	}
+
+} // namespace shader_resource_internal
+
+#if CROWN_CAN_COMPILE
+namespace shader_resource_internal
+{
+	static const char* shaderc_paths[] =
+	{
+		EXE_PATH("shaderc"),
+	#if CROWN_DEBUG
+		EXE_PATH("shaderc-debug")
+	#elif CROWN_DEVELOPMENT
+		EXE_PATH("shaderc-development")
+	#else
+		EXE_PATH("shaderc-release")
+	#endif
+	};
+
 	struct DepthFunction
 	{
 		enum Enum
@@ -1322,26 +1347,7 @@ namespace shader_resource_internal
 		return sc.compile();
 	}
 
-	void* load(File& file, Allocator& a)
-	{
-		return device()->_shader_manager->load(file, a);
-	}
-
-	void online(StringId64 id, ResourceManager& rm)
-	{
-		device()->_shader_manager->online(id, rm);
-	}
-
-	void offline(StringId64 id, ResourceManager& rm)
-	{
-		device()->_shader_manager->offline(id, rm);
-	}
-
-	void unload(Allocator& a, void* res)
-	{
-		device()->_shader_manager->unload(a, res);
-	}
-
 } // namespace shader_resource_internal
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

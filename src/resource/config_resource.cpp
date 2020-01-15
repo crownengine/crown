@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/filesystem/file.h"
 #include "core/json/json_object.h"
 #include "core/json/sjson.h"
@@ -15,6 +16,25 @@
 
 namespace crown
 {
+namespace config_resource_internal
+{
+	void* load(File& file, Allocator& a)
+	{
+		const u32 size = file.size();
+		char* res = (char*)a.allocate(size + 1);
+		file.read(res, size);
+		res[size] = '\0';
+		return res;
+	}
+
+	void unload(Allocator& a, void* resource)
+	{
+		a.deallocate(resource);
+	}
+
+} // namespace config_resource_internal
+
+#if CROWN_CAN_COMPILE
 namespace config_resource_internal
 {
 	s32 compile(CompileOptions& opts)
@@ -42,20 +62,7 @@ namespace config_resource_internal
 		return 0;
 	}
 
-	void* load(File& file, Allocator& a)
-	{
-		const u32 size = file.size();
-		char* res = (char*)a.allocate(size + 1);
-		file.read(res, size);
-		res[size] = '\0';
-		return res;
-	}
-
-	void unload(Allocator& a, void* resource)
-	{
-		a.deallocate(resource);
-	}
-
 } // namespace config_resource_internal
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

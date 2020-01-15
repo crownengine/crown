@@ -17,20 +17,64 @@
 
 namespace crown
 {
-static const char* texturec_paths[] =
-{
-	EXE_PATH("texturec"),
-#if CROWN_DEBUG
-	EXE_PATH("texturec-debug")
-#elif CROWN_DEVELOPMENT
-	EXE_PATH("texturec-development")
-#else
-	EXE_PATH("texturec-release")
-#endif
-};
-
 namespace texture_resource_internal
 {
+	void* load(File& file, Allocator& a)
+	{
+		BinaryReader br(file);
+
+		u32 version;
+		br.read(version);
+		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_TEXTURE), "Wrong version");
+
+		u32 size;
+		br.read(size);
+
+		TextureResource* tr = (TextureResource*)a.allocate(sizeof(TextureResource) + size);
+
+		void* data = &tr[1];
+		br.read(data, size);
+
+		tr->mem        = bgfx::makeRef(data, size);
+		tr->handle.idx = BGFX_INVALID_HANDLE;
+
+		return tr;
+	}
+
+	void online(StringId64 id, ResourceManager& rm)
+	{
+		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
+		tr->handle = bgfx::createTexture(tr->mem);
+	}
+
+	void offline(StringId64 id, ResourceManager& rm)
+	{
+		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
+		bgfx::destroy(tr->handle);
+	}
+
+	void unload(Allocator& a, void* resource)
+	{
+		a.deallocate(resource);
+	}
+
+} // namespace texture_resource_internal
+
+#if CROWN_CAN_COMPILE
+namespace texture_resource_internal
+{
+	static const char* texturec_paths[] =
+	{
+		EXE_PATH("texturec"),
+	#if CROWN_DEBUG
+		EXE_PATH("texturec-debug")
+	#elif CROWN_DEVELOPMENT
+		EXE_PATH("texturec-development")
+	#else
+		EXE_PATH("texturec-release")
+	#endif
+	};
+
 	s32 compile(CompileOptions& opts)
 	{
 		Buffer buf = opts.read();
@@ -101,45 +145,7 @@ namespace texture_resource_internal
 		return 0;
 	}
 
-	void* load(File& file, Allocator& a)
-	{
-		BinaryReader br(file);
-
-		u32 version;
-		br.read(version);
-		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_TEXTURE), "Wrong version");
-
-		u32 size;
-		br.read(size);
-
-		TextureResource* tr = (TextureResource*)a.allocate(sizeof(TextureResource) + size);
-
-		void* data = &tr[1];
-		br.read(data, size);
-
-		tr->mem        = bgfx::makeRef(data, size);
-		tr->handle.idx = BGFX_INVALID_HANDLE;
-
-		return tr;
-	}
-
-	void online(StringId64 id, ResourceManager& rm)
-	{
-		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
-		tr->handle = bgfx::createTexture(tr->mem);
-	}
-
-	void offline(StringId64 id, ResourceManager& rm)
-	{
-		TextureResource* tr = (TextureResource*)rm.get(RESOURCE_TYPE_TEXTURE, id);
-		bgfx::destroy(tr->handle);
-	}
-
-	void unload(Allocator& a, void* resource)
-	{
-		a.deallocate(resource);
-	}
-
 } // namespace texture_resource_internal
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

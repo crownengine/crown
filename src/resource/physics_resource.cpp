@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/containers/hash_map.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
@@ -21,6 +22,50 @@
 
 namespace crown
 {
+namespace physics_config_resource
+{
+	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
+	{
+		const PhysicsMaterial* begin = (PhysicsMaterial*)((const char*)pcr + pcr->materials_offset);
+		for (u32 i = 0; i < pcr->num_materials; ++i)
+		{
+			if (begin[i].name == name)
+				return &begin[i];
+		}
+
+		CE_FATAL("Material not found");
+		return NULL;
+	}
+
+	const PhysicsActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
+	{
+		const PhysicsActor* begin = (PhysicsActor*)((const char*)pcr + pcr->actors_offset);
+		for (u32 i = 0; i < pcr->num_actors; ++i)
+		{
+			if (begin[i].name == name)
+				return &begin[i];
+		}
+
+		CE_FATAL("Actor not found");
+		return NULL;
+	}
+
+	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name)
+	{
+		const PhysicsCollisionFilter* begin = (PhysicsCollisionFilter*)((const char*)pcr + pcr->filters_offset);
+		for (u32 i = 0; i < pcr->num_filters; ++i)
+		{
+			if (begin[i].name == name)
+				return &begin[i];
+		}
+
+		CE_FATAL("Filter not found");
+		return NULL;
+	}
+
+} // namespace physics_config_resource
+
+#if CROWN_CAN_COMPILE
 namespace physics_resource_internal
 {
 	struct ColliderInfo
@@ -554,48 +599,6 @@ namespace physics_config_resource_internal
 	}
 
 } // namespace physics_config_resource_internal
-
-namespace physics_config_resource
-{
-	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name)
-	{
-		const PhysicsMaterial* begin = (PhysicsMaterial*)((const char*)pcr + pcr->materials_offset);
-		for (u32 i = 0; i < pcr->num_materials; ++i)
-		{
-			if (begin[i].name == name)
-				return &begin[i];
-		}
-
-		CE_FATAL("Material not found");
-		return NULL;
-	}
-
-	const PhysicsActor* actor(const PhysicsConfigResource* pcr, StringId32 name)
-	{
-		const PhysicsActor* begin = (PhysicsActor*)((const char*)pcr + pcr->actors_offset);
-		for (u32 i = 0; i < pcr->num_actors; ++i)
-		{
-			if (begin[i].name == name)
-				return &begin[i];
-		}
-
-		CE_FATAL("Actor not found");
-		return NULL;
-	}
-
-	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name)
-	{
-		const PhysicsCollisionFilter* begin = (PhysicsCollisionFilter*)((const char*)pcr + pcr->filters_offset);
-		for (u32 i = 0; i < pcr->num_filters; ++i)
-		{
-			if (begin[i].name == name)
-				return &begin[i];
-		}
-
-		CE_FATAL("Filter not found");
-		return NULL;
-	}
-
-} // namespace physics_config_resource
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

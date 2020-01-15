@@ -19,6 +19,88 @@
 
 namespace crown
 {
+namespace material_resource
+{
+	UniformData* uniform_data(const MaterialResource* mr, u32 i)
+	{
+		UniformData* base = (UniformData*)((char*)mr + mr->uniform_data_offset);
+		return &base[i];
+	}
+
+	UniformData* uniform_data_by_name(const MaterialResource* mr, StringId32 name)
+	{
+		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i)
+		{
+			UniformData* data = uniform_data(mr, i);
+			if (data->name == name)
+				return data;
+		}
+
+		CE_FATAL("Unknown uniform");
+		return NULL;
+	}
+
+	const char* uniform_name(const MaterialResource* mr, const UniformData* ud)
+	{
+		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud->name_offset;
+	}
+
+	TextureData* texture_data(const MaterialResource* mr, u32 i)
+	{
+		TextureData* base = (TextureData*)((char*)mr + mr->texture_data_offset);
+		return &base[i];
+	}
+
+	const char* texture_name(const MaterialResource* mr, const TextureData* td)
+	{
+		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td->sampler_name_offset;
+	}
+
+	UniformHandle* uniform_handle(const MaterialResource* mr, u32 i, char* dynamic)
+	{
+		UniformData* ud = uniform_data(mr, i);
+		return (UniformHandle*)(dynamic + ud->data_offset);
+	}
+
+	UniformHandle* uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic)
+	{
+		UniformData* ud = uniform_data_by_name(mr, name);
+		return (UniformHandle*)(dynamic + ud->data_offset);
+	}
+
+	TextureHandle* texture_handle(const MaterialResource* mr, u32 i, char* dynamic)
+	{
+		TextureData* td = texture_data(mr, i);
+		return (TextureHandle*)(dynamic + td->data_offset);
+	}
+
+} // namespace material_resource
+
+namespace material_resource_internal
+{
+	void* load(File& file, Allocator& a)
+	{
+		return device()->_material_manager->load(file, a);
+	}
+
+	void online(StringId64 id, ResourceManager& rm)
+	{
+		device()->_material_manager->online(id, rm);
+	}
+
+	void offline(StringId64 id, ResourceManager& rm)
+	{
+		device()->_material_manager->offline(id, rm);
+	}
+
+	void unload(Allocator& a, void* res)
+	{
+		device()->_material_manager->unload(a, res);
+	}
+
+} // namespace material_resource_internal
+
+#if CROWN_CAN_COMPILE
 namespace material_resource_internal
 {
 	struct UniformTypeInfo
@@ -256,83 +338,7 @@ namespace material_resource_internal
 		return 0;
 	}
 
-	void* load(File& file, Allocator& a)
-	{
-		return device()->_material_manager->load(file, a);
-	}
-
-	void online(StringId64 id, ResourceManager& rm)
-	{
-		device()->_material_manager->online(id, rm);
-	}
-
-	void offline(StringId64 id, ResourceManager& rm)
-	{
-		device()->_material_manager->offline(id, rm);
-	}
-
-	void unload(Allocator& a, void* res)
-	{
-		device()->_material_manager->unload(a, res);
-	}
-
 } // namespace material_resource_internal
-
-namespace material_resource
-{
-	UniformData* uniform_data(const MaterialResource* mr, u32 i)
-	{
-		UniformData* base = (UniformData*)((char*)mr + mr->uniform_data_offset);
-		return &base[i];
-	}
-
-	UniformData* uniform_data_by_name(const MaterialResource* mr, StringId32 name)
-	{
-		for (u32 i = 0, n = mr->num_uniforms; i < n; ++i)
-		{
-			UniformData* data = uniform_data(mr, i);
-			if (data->name == name)
-				return data;
-		}
-
-		CE_FATAL("Unknown uniform");
-		return NULL;
-	}
-
-	const char* uniform_name(const MaterialResource* mr, const UniformData* ud)
-	{
-		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + ud->name_offset;
-	}
-
-	TextureData* texture_data(const MaterialResource* mr, u32 i)
-	{
-		TextureData* base = (TextureData*)((char*)mr + mr->texture_data_offset);
-		return &base[i];
-	}
-
-	const char* texture_name(const MaterialResource* mr, const TextureData* td)
-	{
-		return (const char*)mr + mr->dynamic_data_offset + mr->dynamic_data_size + td->sampler_name_offset;
-	}
-
-	UniformHandle* uniform_handle(const MaterialResource* mr, u32 i, char* dynamic)
-	{
-		UniformData* ud = uniform_data(mr, i);
-		return (UniformHandle*)(dynamic + ud->data_offset);
-	}
-
-	UniformHandle* uniform_handle_by_name(const MaterialResource* mr, StringId32 name, char* dynamic)
-	{
-		UniformData* ud = uniform_data_by_name(mr, name);
-		return (UniformHandle*)(dynamic + ud->data_offset);
-	}
-
-	TextureHandle* texture_handle(const MaterialResource* mr, u32 i, char* dynamic)
-	{
-		TextureData* td = texture_data(mr, i);
-		return (TextureHandle*)(dynamic + td->data_offset);
-	}
-
-} // namespace material_resource
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

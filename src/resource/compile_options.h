@@ -38,7 +38,7 @@
 		, name                                       \
 		)
 
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID
+#if CROWN_PLATFORM_LINUX
 	#define EXE_PREFIX "./"
 	#define EXE_SUFFIX ""
 #elif CROWN_PLATFORM_WINDOWS

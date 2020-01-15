@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/containers/array.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
@@ -18,6 +19,29 @@
 
 namespace crown
 {
+namespace font_resource
+{
+	const GlyphData* glyph(const FontResource* fr, CodePoint cp)
+	{
+		CE_ASSERT(cp < fr->num_glyphs, "Index out of bounds");
+
+		const CodePoint* pts  = (CodePoint*)&fr[1];
+		const GlyphData* data = (GlyphData*)(pts + fr->num_glyphs);
+
+		// FIXME: Can do binary search
+		for (u32 i = 0; i < fr->num_glyphs; ++i)
+		{
+			if (pts[i] == cp)
+				return &data[i];
+		}
+
+		CE_FATAL("Glyph not found");
+		return NULL;
+	}
+
+} // namespace font_resource
+
+#if CROWN_CAN_COMPILE
 namespace font_resource_internal
 {
 	struct GlyphInfo
@@ -93,27 +117,6 @@ namespace font_resource_internal
 	}
 
 } // namespace font_resource_internal
-
-namespace font_resource
-{
-	const GlyphData* glyph(const FontResource* fr, CodePoint cp)
-	{
-		CE_ASSERT(cp < fr->num_glyphs, "Index out of bounds");
-
-		const CodePoint* pts  = (CodePoint*)&fr[1];
-		const GlyphData* data = (GlyphData*)(pts + fr->num_glyphs);
-
-		// FIXME: Can do binary search
-		for (u32 i = 0; i < fr->num_glyphs; ++i)
-		{
-			if (pts[i] == cp)
-				return &data[i];
-		}
-
-		CE_FATAL("Glyph not found");
-		return NULL;
-	}
-
-} // namespace font_resource
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

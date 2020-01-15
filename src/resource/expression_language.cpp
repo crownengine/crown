@@ -105,8 +105,37 @@ namespace expression_language
 
 	static inline float unsigned_to_float(unsigned u)	{FloatAndUnsigned fu; fu.u = u; return fu.f;}
 
-	#ifdef CAN_COMPILE
+	bool run(const unsigned *byte_code, const float *variables, Stack &stack)
+	{
+		const unsigned *p = byte_code;
+		while (true) {
+			unsigned bc = *p++;
+			unsigned op = bc_mask(bc);
+			unsigned id = id_mask(bc);
+			switch (op) {
+				case BC_PUSH_VAR:
+					if (stack.size == stack.capacity) return false;
+					stack.data[stack.size++] = variables[id];
+					break;
+				case BC_FUNCTION:
+					compute_function((OpCode)id, stack);
+					break;
+				case BC_END:
+					return true;
+				default: // BC_PUSH_FLOAT
+					if (stack.size == stack.capacity) return false;
+					stack.data[stack.size++] = unsigned_to_float(bc);
+					break;
 
+			}
+		}
+	}
+
+} // namespace expression_language
+
+#if CROWN_CAN_COMPILE
+namespace expression_language
+{
 	static inline unsigned float_to_unsigned(float f)	{FloatAndUnsigned fu; fu.f = f; return fu.u;}
 
 	#ifdef WIN32
@@ -452,35 +481,8 @@ namespace expression_language
 		return generate_bytecode(rpl, num_rpl, env, byte_code, capacity);
 	}
 
-	#endif // CAN_COMPILE
-
-	bool run(const unsigned *byte_code, const float *variables, Stack &stack)
-	{
-		const unsigned *p = byte_code;
-		while (true) {
-			unsigned bc = *p++;
-			unsigned op = bc_mask(bc);
-			unsigned id = id_mask(bc);
-			switch (op) {
-				case BC_PUSH_VAR:
-					if (stack.size == stack.capacity) return false;
-					stack.data[stack.size++] = variables[id];
-					break;
-				case BC_FUNCTION:
-					compute_function((OpCode)id, stack);
-					break;
-				case BC_END:
-					return true;
-				default: // BC_PUSH_FLOAT
-					if (stack.size == stack.capacity) return false;
-					stack.data[stack.size++] = unsigned_to_float(bc);
-					break;
-
-			}
-		}
-	}
-
 } // namespace expression_language
+#endif // CROWN_CAN_COMPILE
 
 } // namespace skinny
 

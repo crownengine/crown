@@ -4,6 +4,9 @@
  */
 
 #include "config.h"
+
+#if CROWN_CAN_COMPILE
+
 #include "core/containers/array.h"
 #include "core/containers/vector.h"
 #include "core/filesystem/file.h"
@@ -193,3 +196,5 @@ const char* CompileOptions::exe_path(const char* const* paths, u32 num)
 }
 
 } // namespace crown
+
+#endif // CROWN_CAN_COMPILE

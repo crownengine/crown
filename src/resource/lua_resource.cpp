@@ -21,6 +21,16 @@
 
 namespace crown
 {
+namespace lua_resource
+{
+	const char* program(const LuaResource* lr)
+	{
+		return (char*)&lr[1];
+	}
+
+} // namespace lua_resource
+
+#if CROWN_CAN_COMPILE
 namespace lua_resource_internal
 {
 	s32 compile(CompileOptions& opts)
@@ -75,14 +85,6 @@ namespace lua_resource_internal
 	}
 
 } // namespace lua_resource_internal
-
-namespace lua_resource
-{
-	const char* program(const LuaResource* lr)
-	{
-		return (char*)&lr[1];
-	}
-
-} // namespace lua_resource
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

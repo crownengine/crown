@@ -3,6 +3,10 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
+
+#if CROWN_CAN_COMPILE
+
 #include "core/containers/array.h"
 #include "core/containers/hash_map.h"
 #include "core/json/json_object.h"
@@ -525,3 +529,5 @@ s32 UnitCompiler::compile_component(Buffer& output, StringId32 type, const char*
 }
 
 } // namespace crown
+
+#endif // CROWN_CAN_COMPILE

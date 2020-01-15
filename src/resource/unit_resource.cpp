@@ -3,16 +3,12 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
-#include "core/filesystem/file.h"
-#include "core/filesystem/filesystem.h"
-#include "core/memory/allocator.h"
-#include "resource/types.h"
+#include "config.h"
 #include "resource/unit_compiler.h"
 
 namespace crown
 {
+#if CROWN_CAN_COMPILE
 namespace unit_resource_internal
 {
 	s32 compile(CompileOptions& opts)
@@ -28,5 +24,6 @@ namespace unit_resource_internal
 	}
 
 } // namespace unit_resource_internal
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

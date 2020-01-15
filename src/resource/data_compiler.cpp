@@ -4,6 +4,9 @@
  */
 
 #include "config.h"
+
+#if CROWN_CAN_COMPILE
+
 #include "core/containers/hash_map.h"
 #include "core/containers/hash_set.h"
 #include "core/containers/vector.h"
@@ -1187,3 +1190,5 @@ int main_data_compiler(const DeviceOptions& opts)
 }
 
 } // namespace crown
+
+#endif // CROWN_CAN_COMPILE

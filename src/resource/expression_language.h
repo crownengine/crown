@@ -24,9 +24,7 @@
 /// NAN_MARKER (9) BC_END (3)	    zero (20)	Marks the end of the byte code.
 /// float (32)									Pushes the float.
 
-/// Flag used to include the parts of the code needed to compile to bytecode.
-/// If you compile offline you can exclude this code in the runtime version.
-#define CAN_COMPILE
+#include "config.h"
 
 namespace crown
 {
@@ -34,30 +32,6 @@ namespace skinny
 {
 namespace expression_language
 {
-#ifdef CAN_COMPILE
-		/// Compiles the @a source and stores the result in the @a byte_code.
-		/// @a variables is a list of variable names. The position of the variable in
-		/// the list should match the position when @a variables is sent to the run
-		/// function.
-		///
-		/// @a constants and @a constant_values specifies a list of runtime constants
-		/// and corresponding values. Constants are expanded to numbers at compile
-		/// time.
-		///
-		/// Returns the number of compiled unsigned words. If the returned number is
-		/// greater than @a byte_code_capacity, only the first @a byte_code_capacity
-		/// words of the byte code are written to @a byte_code.
-		unsigned compile(const char *source
-			, unsigned num_variables
-			, const char **variables
-			, unsigned num_constants
-			, const char **constants
-			, const float *constant_values
-			, unsigned *byte_code
-			, unsigned byte_code_capacity
-			);
-#endif
-
 	/// Represents the working stack.
 	struct Stack
 	{
@@ -79,6 +53,33 @@ namespace expression_language
 	bool run(const unsigned *byte_code, const float *variables, Stack &stack);
 
 } // namespace expression_language
+
+#if CROWN_CAN_COMPILE
+namespace expression_language
+{
+	/// Compiles the @a source and stores the result in the @a byte_code.
+	/// @a variables is a list of variable names. The position of the variable in
+	/// the list should match the position when @a variables is sent to the run
+	/// function.
+	///
+	/// @a constants and @a constant_values specifies a list of runtime constants
+	/// and corresponding values. Constants are expanded to numbers at compile
+	/// time.
+	///
+	/// Returns the number of compiled unsigned words. If the returned number is
+	/// greater than @a byte_code_capacity, only the first @a byte_code_capacity
+	/// words of the byte code are written to @a byte_code.
+	unsigned compile(const char *source
+		, unsigned num_variables
+		, const char **variables
+		, unsigned num_constants
+		, const char **constants
+		, const float *constant_values
+		, unsigned *byte_code
+		, unsigned byte_code_capacity
+		);
+} // namespace expression_language
+#endif
 
 } // namespace skinny
 

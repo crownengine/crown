@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/containers/array.h"
 #include "core/containers/hash_map.h"
 #include "core/containers/hash_set.h"
@@ -31,6 +32,34 @@ struct hash<PackageResource::Resource>
 	}
 };
 
+namespace package_resource_internal
+{
+	void* load(File& file, Allocator& a)
+	{
+		BinaryReader br(file);
+
+		u32 version;
+		br.read(version);
+		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE), "Wrong version");
+
+		u32 num_resources;
+		br.read(num_resources);
+
+		PackageResource* pr = CE_NEW(a, PackageResource)(a);
+		array::resize(pr->resources, num_resources);
+		br.read(array::begin(pr->resources), sizeof(PackageResource::Resource)*num_resources);
+
+		return pr;
+	}
+
+	void unload(Allocator& a, void* resource)
+	{
+		CE_DELETE(a, (PackageResource*)resource);
+	}
+
+} // namespace package_resource_internal
+
+#if CROWN_CAN_COMPILE
 namespace package_resource_internal
 {
 	s32 bring_in_requirements(HashSet<PackageResource::Resource>& output, CompileOptions& opts, ResourceId res_id)
@@ -154,29 +183,7 @@ namespace package_resource_internal
 		return 0;
 	}
 
-	void* load(File& file, Allocator& a)
-	{
-		BinaryReader br(file);
-
-		u32 version;
-		br.read(version);
-		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_PACKAGE), "Wrong version");
-
-		u32 num_resources;
-		br.read(num_resources);
-
-		PackageResource* pr = CE_NEW(a, PackageResource)(a);
-		array::resize(pr->resources, num_resources);
-		br.read(array::begin(pr->resources), sizeof(PackageResource::Resource)*num_resources);
-
-		return pr;
-	}
-
-	void unload(Allocator& a, void* resource)
-	{
-		CE_DELETE(a, (PackageResource*)resource);
-	}
-
 } // namespace package_resource_internal
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

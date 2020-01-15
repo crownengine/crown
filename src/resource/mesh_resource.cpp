@@ -3,6 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "config.h"
 #include "core/containers/vector.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/reader_writer.h"
@@ -22,6 +23,119 @@
 
 namespace crown
 {
+namespace mesh_resource_internal
+{
+	void* load(File& file, Allocator& a)
+	{
+		BinaryReader br(file);
+
+		u32 version;
+		br.read(version);
+		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_MESH), "Wrong version");
+
+		u32 num_geoms;
+		br.read(num_geoms);
+
+		MeshResource* mr = CE_NEW(a, MeshResource)(a);
+		array::resize(mr->geometry_names, num_geoms);
+		array::resize(mr->geometries, num_geoms);
+
+		for (u32 i = 0; i < num_geoms; ++i)
+		{
+			StringId32 name;
+			br.read(name);
+
+			bgfx::VertexLayout layout;
+			br.read(layout);
+
+			OBB obb;
+			br.read(obb);
+
+			u32 num_verts;
+			br.read(num_verts);
+
+			u32 stride;
+			br.read(stride);
+
+			u32 num_inds;
+			br.read(num_inds);
+
+			const u32 vsize = num_verts*stride;
+			const u32 isize = num_inds*sizeof(u16);
+
+			const u32 size = sizeof(MeshGeometry) + vsize + isize;
+
+			MeshGeometry* mg = (MeshGeometry*)a.allocate(size);
+			mg->obb             = obb;
+			mg->layout          = layout;
+			mg->vertex_buffer   = BGFX_INVALID_HANDLE;
+			mg->index_buffer    = BGFX_INVALID_HANDLE;
+			mg->vertices.num    = num_verts;
+			mg->vertices.stride = stride;
+			mg->vertices.data   = (char*)&mg[1];
+			mg->indices.num     = num_inds;
+			mg->indices.data    = mg->vertices.data + vsize;
+
+			br.read(mg->vertices.data, vsize);
+			br.read(mg->indices.data, isize);
+
+			mr->geometry_names[i] = name;
+			mr->geometries[i] = mg;
+		}
+
+		return mr;
+	}
+
+	void online(StringId64 id, ResourceManager& rm)
+	{
+		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
+
+		for (u32 i = 0; i < array::size(mr->geometries); ++i)
+		{
+			MeshGeometry& mg = *mr->geometries[i];
+
+			const u32 vsize = mg.vertices.num * mg.vertices.stride;
+			const u32 isize = mg.indices.num * sizeof(u16);
+
+			const bgfx::Memory* vmem = bgfx::makeRef(mg.vertices.data, vsize);
+			const bgfx::Memory* imem = bgfx::makeRef(mg.indices.data, isize);
+
+			bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(vmem, mg.layout);
+			bgfx::IndexBufferHandle ibh  = bgfx::createIndexBuffer(imem);
+			CE_ASSERT(bgfx::isValid(vbh), "Invalid vertex buffer");
+			CE_ASSERT(bgfx::isValid(ibh), "Invalid index buffer");
+
+			mg.vertex_buffer = vbh;
+			mg.index_buffer  = ibh;
+		}
+	}
+
+	void offline(StringId64 id, ResourceManager& rm)
+	{
+		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
+
+		for (u32 i = 0; i < array::size(mr->geometries); ++i)
+		{
+			MeshGeometry& mg = *mr->geometries[i];
+			bgfx::destroy(mg.vertex_buffer);
+			bgfx::destroy(mg.index_buffer);
+		}
+	}
+
+	void unload(Allocator& a, void* res)
+	{
+		MeshResource* mr = (MeshResource*)res;
+
+		for (u32 i = 0; i < array::size(mr->geometries); ++i)
+		{
+			a.deallocate(mr->geometries[i]);
+		}
+		CE_DELETE(a, (MeshResource*)res);
+	}
+
+} // namespace mesh_resource_internal
+
+#if CROWN_CAN_COMPILE
 namespace mesh_resource_internal
 {
 	struct MeshCompiler
@@ -293,114 +407,7 @@ namespace mesh_resource_internal
 		return 0;
 	}
 
-	void* load(File& file, Allocator& a)
-	{
-		BinaryReader br(file);
-
-		u32 version;
-		br.read(version);
-		CE_ASSERT(version == RESOURCE_HEADER(RESOURCE_VERSION_MESH), "Wrong version");
-
-		u32 num_geoms;
-		br.read(num_geoms);
-
-		MeshResource* mr = CE_NEW(a, MeshResource)(a);
-		array::resize(mr->geometry_names, num_geoms);
-		array::resize(mr->geometries, num_geoms);
-
-		for (u32 i = 0; i < num_geoms; ++i)
-		{
-			StringId32 name;
-			br.read(name);
-
-			bgfx::VertexLayout layout;
-			br.read(layout);
-
-			OBB obb;
-			br.read(obb);
-
-			u32 num_verts;
-			br.read(num_verts);
-
-			u32 stride;
-			br.read(stride);
-
-			u32 num_inds;
-			br.read(num_inds);
-
-			const u32 vsize = num_verts*stride;
-			const u32 isize = num_inds*sizeof(u16);
-
-			const u32 size = sizeof(MeshGeometry) + vsize + isize;
-
-			MeshGeometry* mg = (MeshGeometry*)a.allocate(size);
-			mg->obb             = obb;
-			mg->layout          = layout;
-			mg->vertex_buffer   = BGFX_INVALID_HANDLE;
-			mg->index_buffer    = BGFX_INVALID_HANDLE;
-			mg->vertices.num    = num_verts;
-			mg->vertices.stride = stride;
-			mg->vertices.data   = (char*)&mg[1];
-			mg->indices.num     = num_inds;
-			mg->indices.data    = mg->vertices.data + vsize;
-
-			br.read(mg->vertices.data, vsize);
-			br.read(mg->indices.data, isize);
-
-			mr->geometry_names[i] = name;
-			mr->geometries[i] = mg;
-		}
-
-		return mr;
-	}
-
-	void online(StringId64 id, ResourceManager& rm)
-	{
-		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
-
-		for (u32 i = 0; i < array::size(mr->geometries); ++i)
-		{
-			MeshGeometry& mg = *mr->geometries[i];
-
-			const u32 vsize = mg.vertices.num * mg.vertices.stride;
-			const u32 isize = mg.indices.num * sizeof(u16);
-
-			const bgfx::Memory* vmem = bgfx::makeRef(mg.vertices.data, vsize);
-			const bgfx::Memory* imem = bgfx::makeRef(mg.indices.data, isize);
-
-			bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(vmem, mg.layout);
-			bgfx::IndexBufferHandle ibh  = bgfx::createIndexBuffer(imem);
-			CE_ASSERT(bgfx::isValid(vbh), "Invalid vertex buffer");
-			CE_ASSERT(bgfx::isValid(ibh), "Invalid index buffer");
-
-			mg.vertex_buffer = vbh;
-			mg.index_buffer  = ibh;
-		}
-	}
-
-	void offline(StringId64 id, ResourceManager& rm)
-	{
-		MeshResource* mr = (MeshResource*)rm.get(RESOURCE_TYPE_MESH, id);
-
-		for (u32 i = 0; i < array::size(mr->geometries); ++i)
-		{
-			MeshGeometry& mg = *mr->geometries[i];
-			bgfx::destroy(mg.vertex_buffer);
-			bgfx::destroy(mg.index_buffer);
-		}
-	}
-
-	void unload(Allocator& a, void* res)
-	{
-		MeshResource* mr = (MeshResource*)res;
-
-		for (u32 i = 0; i < array::size(mr->geometries); ++i)
-		{
-			a.deallocate(mr->geometries[i]);
-		}
-		CE_DELETE(a, (MeshResource*)res);
-	}
-
 } // namespace mesh_resource_internal
+#endif // CROWN_CAN_COMPILE
 
 } // namespace crown

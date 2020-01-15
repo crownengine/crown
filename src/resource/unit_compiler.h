@@ -5,7 +5,11 @@
 
 #pragma once
 
-#include "core/containers/types.h"
+#include "config.h"
+
+#if CROWN_CAN_COMPILE
+
+#include "core/containers/hash_map.h"
 #include "core/json/types.h"
 #include "core/strings/string_id.h"
 #include "resource/compile_options.h"
@@ -71,3 +75,5 @@ struct UnitCompiler
 };
 
 } // namespace crown
+
+#endif // CROWN_CAN_COMPILE
