@@ -155,10 +155,10 @@ namespace physics_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(json, obj);
+		sjson::parse(obj, json);
 
 		DynamicString type(ta);
-		sjson::parse_string(obj["shape"], type);
+		sjson::parse_string(type, obj["shape"]);
 
 		ColliderType::Enum st = shape_type_to_enum(type.c_str());
 		DATA_COMPILER_ASSERT(st != ColliderType::COUNT
@@ -174,15 +174,15 @@ namespace physics_resource_internal
 		cd.size     = 0;
 		DynamicString source(ta);
 		if (json_object::has(obj, "source"))
-			sjson::parse_string(obj["source"], source);
+			sjson::parse_string(source, obj["source"]);
 		bool explicit_collider = source == "mesh" || json_object::has(obj, "scene");
 
 		if (explicit_collider) {
 			// Parse .mesh
 			DynamicString scene(ta);
 			DynamicString name(ta);
-			sjson::parse_string(obj["scene"], scene);
-			sjson::parse_string(obj["name"], name);
+			sjson::parse_string(scene, obj["scene"]);
+			sjson::parse_string(name, obj["name"]);
 			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("mesh", scene.c_str(), opts);
 			scene += ".mesh";
 
@@ -192,34 +192,34 @@ namespace physics_resource_internal
 			JsonObject geometry(ta);
 			JsonObject nodes(ta);
 			JsonObject node(ta);
-			sjson::parse(file, json_mesh);
-			sjson::parse(json_mesh["geometries"], geometries);
+			sjson::parse(json_mesh, file);
+			sjson::parse(geometries, json_mesh["geometries"]);
 			DATA_COMPILER_ASSERT(json_object::has(geometries, name.c_str())
 				, opts
 				, "Geometry '%s' does not exist"
 				, name.c_str()
 				);
-			sjson::parse(geometries[name.c_str()], geometry);
-			sjson::parse(json_mesh["nodes"], nodes);
+			sjson::parse(geometry, geometries[name.c_str()]);
+			sjson::parse(nodes, json_mesh["nodes"]);
 			DATA_COMPILER_ASSERT(json_object::has(nodes, name.c_str())
 				, opts
 				, "Node '%s' does not exist"
 				, name.c_str()
 				);
-			sjson::parse(nodes[name.c_str()], node);
+			sjson::parse(node, nodes[name.c_str()]);
 
 			Matrix4x4 matrix_local = sjson::parse_matrix4x4(node["matrix_local"]);
 			cd.local_tm = matrix_local;
 
 			JsonArray positions(ta);
-			sjson::parse_array(geometry["position"], positions);
+			sjson::parse_array(positions, geometry["position"]);
 
 			JsonObject indices(ta);
 			JsonArray indices_data(ta);
 			JsonArray position_indices(ta);
-			sjson::parse_object(geometry["indices"], indices);
-			sjson::parse_array(indices["data"], indices_data);
-			sjson::parse_array(indices_data[0], position_indices);
+			sjson::parse_object(indices, geometry["indices"]);
+			sjson::parse_array(indices_data, indices["data"]);
+			sjson::parse_array(position_indices, indices_data[0]);
 
 			Array<Vector3> points(default_allocator());
 			for (u32 i = 0; i < array::size(positions); i += 3)
@@ -278,7 +278,7 @@ namespace physics_resource_internal
 				, opts
 				, "No collider_data found"
 				);
-			sjson::parse_object(obj["collider_data"], collider_data);
+			sjson::parse_object(collider_data, obj["collider_data"]);
 			Quaternion rotation = sjson::parse_quaternion(collider_data["rotation"]);
 			Vector3 position = sjson::parse_vector3(collider_data["position"]);
 			Matrix4x4 matrix_local = from_quaternion_translation(rotation, position);
@@ -288,7 +288,7 @@ namespace physics_resource_internal
 				cd.sphere.radius = sjson::parse_float(collider_data["radius"]);
 			} else if (cd.type == ColliderType::BOX) {
 				JsonArray ext(ta);
-				sjson::parse_array(collider_data["half_extents"], ext);
+				sjson::parse_array(ext, collider_data["half_extents"]);
 				cd.box.half_size = sjson::parse_vector3(collider_data["half_extents"]);;
 			} else if (cd.type == ColliderType::CAPSULE) {
 				cd.capsule.radius = sjson::parse_float(collider_data["radius"]);
@@ -305,7 +305,7 @@ namespace physics_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(json, obj);
+		sjson::parse(obj, json);
 
 		ActorResource ar;
 		ar.actor_class      = sjson::parse_string_id(obj["class"]);
@@ -330,10 +330,10 @@ namespace physics_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
-		sjson::parse(json, obj);
+		sjson::parse(obj, json);
 
 		DynamicString type(ta);
-		sjson::parse_string(obj["type"], type);
+		sjson::parse_string(type, obj["type"]);
 
 		JointType::Enum jt = joint_type_to_enum(type.c_str());
 		DATA_COMPILER_ASSERT(jt != JointType::COUNT
@@ -372,7 +372,7 @@ namespace physics_config_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(json, object);
+		sjson::parse(object, json);
 
 		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
@@ -384,7 +384,7 @@ namespace physics_config_resource_internal
 			const char* value    = cur->second;
 
 			JsonObject material(ta);
-			sjson::parse_object(value, material);
+			sjson::parse_object(material, value);
 
 			PhysicsMaterial mat;
 			mat.name             = StringId32(key.data(), key.length());
@@ -400,7 +400,7 @@ namespace physics_config_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(json, object);
+		sjson::parse(object, json);
 
 		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
@@ -412,7 +412,7 @@ namespace physics_config_resource_internal
 			const char* value    = cur->second;
 
 			JsonObject actor(ta);
-			sjson::parse_object(value, actor);
+			sjson::parse_object(actor, value);
 
 			PhysicsActor pa;
 			pa.name = StringId32(key.data(), key.length());
@@ -453,7 +453,7 @@ namespace physics_config_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonObject object(ta);
-			sjson::parse(json, object);
+			sjson::parse(object, json);
 
 			auto cur = json_object::begin(object);
 			auto end = json_object::end(object);
@@ -479,10 +479,10 @@ namespace physics_config_resource_internal
 
 				TempAllocator4096 ta;
 				JsonObject filter(ta);
-				sjson::parse_object(value, filter);
+				sjson::parse_object(filter, value);
 
 				JsonArray collides_with(ta);
-				sjson::parse_array(filter["collides_with"], collides_with);
+				sjson::parse_array(collides_with, filter["collides_with"]);
 
 				u32 mask = 0;
 				for (u32 i = 0; i < array::size(collides_with); ++i)
@@ -529,7 +529,7 @@ namespace physics_config_resource_internal
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(buf, object);
+		sjson::parse(object, buf);
 
 		Array<PhysicsMaterial> materials(default_allocator());
 		Array<PhysicsActor> actors(default_allocator());

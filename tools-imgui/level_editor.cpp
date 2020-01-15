@@ -743,8 +743,8 @@ struct SpriteAnimator
 
 			JsonObject obj(default_allocator());
 			JsonArray list(default_allocator());
-			sjson::parse(buf, obj);
-			sjson::parse_array(obj["frames"], list);
+			sjson::parse(obj, buf);
+			sjson::parse_array(list, obj["frames"]);
 			_texture_width = sjson::parse_int(obj["width"]);
 			_texture_height = sjson::parse_int(obj["height"]);
 			for (u32 i = 0; i < array::size(list); i++)
@@ -753,12 +753,12 @@ struct SpriteAnimator
 				DynamicString name(default_allocator());
 				JsonArray pivot(default_allocator());
 				JsonArray region(default_allocator());
-				sjson::parse_object(list[i], frame);
-				sjson::parse_array(frame["pivot"], pivot);
-				sjson::parse_array(frame["region"], region);
+				sjson::parse_object(frame, list[i]);
+				sjson::parse_array(pivot, frame["pivot"]);
+				sjson::parse_array(region, frame["region"]);
 
 				Frame f;
-				sjson::parse_string(frame["name"], name);
+				sjson::parse_string(name, frame["name"]);
 				strncpy(f.name, name.c_str(), name.length());
 				f.name[name.length()] = '\0';
 				f.pivot.x = sjson::parse_float(pivot[0]);
@@ -979,15 +979,15 @@ struct LevelEditor
 					TempAllocator4096 ta;
 					JsonObject obj(ta);
 					DynamicString type(ta);
-					json::parse(msg, obj);
-					json::parse_string(obj["type"], type);
+					json::parse(obj, msg);
+					json::parse_string(type, obj["type"]);
 
 					if (type == "message")
 					{
 						DynamicString severity(ta);
 						DynamicString message(ta);
-						json::parse_string(obj["severity"], severity);
-						json::parse_string(obj["message"], message);
+						json::parse_string(severity, obj["severity"]);
+						json::parse_string(message, obj["message"]);
 
 						LogSeverity::Enum ls = LogSeverity::COUNT;
 						if (strcmp("info", severity.c_str()) == 0)
@@ -1004,7 +1004,7 @@ struct LevelEditor
 					else if (type == "error")
 					{
 						DynamicString message(ta);
-						json::parse_string(obj["message"], message);
+						json::parse_string(message, obj["message"]);
 
 						_console.add_log(LogSeverity::LOG_ERROR, message.c_str());
 					}

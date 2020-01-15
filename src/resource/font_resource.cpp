@@ -63,8 +63,8 @@ namespace font_resource_internal
 		JsonObject object(ta);
 		JsonArray glyphs_json(ta);
 
-		sjson::parse(buf, object);
-		sjson::parse_array(object["glyphs"], glyphs_json);
+		sjson::parse(object, buf);
+		sjson::parse_array(glyphs_json, object["glyphs"]);
 
 		const u32 texture_size = sjson::parse_int(object["size"]);
 		const u32 font_size    = sjson::parse_int(object["font_size"]);
@@ -81,7 +81,7 @@ namespace font_resource_internal
 		{
 			TempAllocator512 ta;
 			JsonObject obj(ta);
-			sjson::parse(glyphs_json[i], obj);
+			sjson::parse(obj, glyphs_json[i]);
 
 			glyphs[i].cp           = sjson::parse_int  (obj["id"]);
 			glyphs[i].gd.x         = sjson::parse_float(obj["x"]);

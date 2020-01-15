@@ -1069,7 +1069,7 @@ static void test_json()
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		json::parse_string("\"This is JSON\"", str);
+		json::parse_string(str, "\"This is JSON\"");
 		ENSURE(strcmp(str.c_str(), "This is JSON") == 0);
 	}
 	memory_globals::shutdown();
@@ -1125,7 +1125,7 @@ static void test_sjson()
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		sjson::parse_string("\"This is JSON\"", str);
+		sjson::parse_string(str, "\"This is JSON\"");
 		ENSURE(strcmp(str.c_str(), "This is JSON") == 0);
 	}
 	{
@@ -1195,7 +1195,7 @@ static void test_sjson()
 	{
 		TempAllocator128 ta;
 		DynamicString str(ta);
-		sjson::parse_verbatim("\"\"\"verbatim\"\"\"", str);
+		sjson::parse_verbatim(str, "\"\"\"verbatim\"\"\"");
 		ENSURE(strcmp(str.c_str(), "verbatim") == 0);
 	}
 	memory_globals::shutdown();

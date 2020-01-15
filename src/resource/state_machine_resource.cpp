@@ -262,9 +262,9 @@ namespace state_machine_internal
 			JsonArray states(ta);
 			JsonArray variables(ta);
 
-			sjson::parse(buf, object);
-			sjson::parse_array(object["states"], states);
-			sjson::parse_array(object["variables"], variables);
+			sjson::parse(object, buf);
+			sjson::parse_array(states, object["states"]);
+			sjson::parse_array(variables, object["variables"]);
 
 			// Parse states
 			for (u32 i = 0; i < array::size(states); ++i)
@@ -273,13 +273,13 @@ namespace state_machine_internal
 				JsonObject state(ta);
 				JsonArray animations(ta);
 				JsonArray transitions(ta);
-				sjson::parse_object(states[i], state);
-				sjson::parse_array(state["animations"], animations);
-				sjson::parse_array(state["transitions"], transitions);
+				sjson::parse_object(state, states[i]);
+				sjson::parse_array(animations, state["animations"]);
+				sjson::parse_array(transitions, state["transitions"]);
 
 				StateInfo si;
 
-				sjson::parse_string(state["speed"], si.speed);
+				sjson::parse_string(si.speed, state["speed"]);
 				si.loop = sjson::parse_bool(state["loop"]);
 
 				// Parse transitions
@@ -287,10 +287,10 @@ namespace state_machine_internal
 					for (u32 i = 0; i < array::size(transitions); ++i)
 					{
 						JsonObject transition(ta);
-						sjson::parse_object(transitions[i], transition);
+						sjson::parse_object(transition, transitions[i]);
 
 						DynamicString mode_str(ta);
-						sjson::parse_string(transition["mode"], mode_str);
+						sjson::parse_string(mode_str, transition["mode"]);
 						const u32 mode = name_to_transition_mode(mode_str.c_str());
 						DATA_COMPILER_ASSERT(mode != TransitionMode::COUNT
 							, _opts
@@ -313,10 +313,10 @@ namespace state_machine_internal
 					for (u32 i = 0; i < array::size(animations); ++i)
 					{
 						JsonObject animation(ta);
-						sjson::parse_object(animations[i], animation);
+						sjson::parse_object(animation, animations[i]);
 
 						DynamicString animation_resource(ta);
-						sjson::parse_string(animation["name"], animation_resource);
+						sjson::parse_string(animation_resource, animation["name"]);
 						DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sprite_animation"
 							, animation_resource.c_str()
 							, _opts
@@ -325,7 +325,7 @@ namespace state_machine_internal
 
 						AnimationInfo ai(ta);
 						ai.name = sjson::parse_resource_name(animation["name"]);
-						sjson::parse_string(animation["weight"], ai.weight);
+						sjson::parse_string(ai.weight, animation["weight"]);
 
 						vector::push_back(si.animations, ai);
 					}
@@ -358,12 +358,12 @@ namespace state_machine_internal
 				for (u32 i = 0; i < array::size(variables); ++i)
 				{
 					JsonObject variable(ta);
-					sjson::parse_object(variables[i], variable);
+					sjson::parse_object(variable, variables[i]);
 
 					VariableInfo vi;
 					vi.name  = sjson::parse_string_id(variable["name"]);
 					vi.value = sjson::parse_float(variable["value"]);
-					sjson::parse_string(variable["name"], vi.name_string);
+					sjson::parse_string(vi.name_string, variable["name"]);
 
 					vector::push_back(_variables, vi);
 				}

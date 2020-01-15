@@ -44,7 +44,7 @@ namespace sprite_resource_internal
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
-		sjson::parse(json, obj);
+		sjson::parse(obj, json);
 
 		sf.name   = sjson::parse_string_id(obj["name"]);
 		sf.region = sjson::parse_vector4(obj["region"]);
@@ -57,10 +57,10 @@ namespace sprite_resource_internal
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(buf, object);
+		sjson::parse(object, buf);
 
 		JsonArray frames(ta);
-		sjson::parse_array(object["frames"], frames);
+		sjson::parse_array(frames, object["frames"]);
 
 		// Read width/height
 		const f32 width      = sjson::parse_float(object["width"]);
@@ -180,8 +180,8 @@ namespace sprite_animation_resource_internal
 		Array<u32> frames(default_allocator());
 		float total_time = 0.0f;
 
-		sjson::parse(buf, object);
-		sjson::parse_array(object["frames"], object_frames);
+		sjson::parse(object, buf);
+		sjson::parse_array(object_frames, object["frames"]);
 
 		array::resize(frames, array::size(object_frames));
 		for (u32 i = 0; i < array::size(object_frames); ++i)

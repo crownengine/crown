@@ -170,8 +170,8 @@ static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	JsonObject obj(ta);
 	DynamicString script(ta);
 
-	sjson::parse(json, obj);
-	sjson::parse_string(obj["script"], script);
+	sjson::parse(obj, json);
+	sjson::parse_string(script, obj["script"]);
 
 	((Device*)user_data)->_lua_environment->execute_string(script.c_str());
 }
@@ -182,11 +182,11 @@ static void console_command(ConsoleServer& cs, TCPSocket client, const char* jso
 	JsonObject obj(ta);
 	JsonArray args(ta);
 
-	sjson::parse(json, obj);
-	sjson::parse_array(obj["args"], args);
+	sjson::parse(obj, json);
+	sjson::parse_array(args, obj["args"]);
 
 	DynamicString cmd(ta);
-	sjson::parse_string(args[0], cmd);
+	sjson::parse_string(cmd, args[0]);
 
 	if (cmd == "pause")
 		device()->pause();
@@ -202,8 +202,8 @@ static void console_command(ConsoleServer& cs, TCPSocket client, const char* jso
 
 		DynamicString type(ta);
 		DynamicString name(ta);
-		sjson::parse_string(args[1], type);
-		sjson::parse_string(args[2], name);
+		sjson::parse_string(type, args[1]);
+		sjson::parse_string(name, args[2]);
 
 		((Device*)user_data)->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
 	}

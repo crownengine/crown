@@ -76,7 +76,7 @@ static s32 compile_transform(Buffer& output, const char* json, CompileOptions& /
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	sjson::parse(obj, json);
 
 	TransformDesc td;
 	td.position = sjson::parse_vector3   (obj["position"]);
@@ -92,10 +92,10 @@ static s32 compile_camera(Buffer& output, const char* json, CompileOptions& opts
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	sjson::parse(obj, json);
 
 	DynamicString type(ta);
-	sjson::parse_string(obj["projection"], type);
+	sjson::parse_string(type, obj["projection"]);
 
 	ProjectionType::Enum pt = projection_name_to_enum(type.c_str());
 	DATA_COMPILER_ASSERT(pt != ProjectionType::COUNT
@@ -119,10 +119,10 @@ static s32 compile_mesh_renderer(Buffer& output, const char* json, CompileOption
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	sjson::parse(obj, json);
 
 	DynamicString mesh_resource(ta);
-	sjson::parse_string(obj["mesh_resource"], mesh_resource);
+	sjson::parse_string(mesh_resource, obj["mesh_resource"]);
 	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("mesh"
 		, mesh_resource.c_str()
 		, opts
@@ -130,7 +130,7 @@ static s32 compile_mesh_renderer(Buffer& output, const char* json, CompileOption
 	opts.add_requirement("mesh", mesh_resource.c_str());
 
 	DynamicString material(ta);
-	sjson::parse_string(obj["material"], material);
+	sjson::parse_string(material, obj["material"]);
 	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("material"
 		, material.c_str()
 		, opts
@@ -155,10 +155,10 @@ static s32 compile_sprite_renderer(Buffer& output, const char* json, CompileOpti
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	sjson::parse(obj, json);
 
 	DynamicString sprite_resource(ta);
-	sjson::parse_string(obj["sprite_resource"], sprite_resource);
+	sjson::parse_string(sprite_resource, obj["sprite_resource"]);
 	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sprite"
 		, sprite_resource.c_str()
 		, opts
@@ -166,7 +166,7 @@ static s32 compile_sprite_renderer(Buffer& output, const char* json, CompileOpti
 	opts.add_requirement("sprite", sprite_resource.c_str());
 
 	DynamicString material(ta);
-	sjson::parse_string(obj["material"], material);
+	sjson::parse_string(material, obj["material"]);
 	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("material"
 		, material.c_str()
 		, opts
@@ -196,10 +196,10 @@ static s32 compile_light(Buffer& output, const char* json, CompileOptions& opts)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	sjson::parse(obj, json);
 
 	DynamicString type(ta);
-	sjson::parse_string(obj["type"], type);
+	sjson::parse_string(type, obj["type"]);
 
 	LightType::Enum lt = light_name_to_enum(type.c_str());
 	DATA_COMPILER_ASSERT(lt != LightType::COUNT
@@ -224,10 +224,10 @@ static s32 compile_script(Buffer& output, const char* json, CompileOptions& opts
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	sjson::parse(obj, json);
 
 	DynamicString script_resource(ta);
-	sjson::parse_string(obj["script_resource"], script_resource);
+	sjson::parse_string(script_resource, obj["script_resource"]);
 	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("lua"
 		, script_resource.c_str()
 		, opts
@@ -246,10 +246,10 @@ static s32 compile_animation_state_machine(Buffer& output, const char* json, Com
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
-	sjson::parse(json, obj);
+	sjson::parse(obj, json);
 
 	DynamicString state_machine_resource(ta);
-	sjson::parse_string(obj["state_machine_resource"], state_machine_resource);
+	sjson::parse_string(state_machine_resource, obj["state_machine_resource"]);
 	DATA_COMPILER_ASSERT_RESOURCE_EXISTS("state_machine"
 		, state_machine_resource.c_str()
 		, opts
@@ -306,7 +306,7 @@ u32 component_index(const JsonArray& components, const StringView& id)
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
-		sjson::parse(components[i], obj);
+		sjson::parse(obj, components[i]);
 		if (sjson::parse_guid(obj["id"]) == idd)
 			return i;
 	}
@@ -323,7 +323,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 
 	TempAllocator4096 ta;
 	JsonObject prefabs[4] = { JsonObject(ta), JsonObject(ta), JsonObject(ta), JsonObject(ta) };
-	sjson::parse(json, prefabs[0]);
+	sjson::parse(prefabs[0], json);
 
 	for (u32 i = 0; i < countof(prefabs); ++i, ++num_prefabs)
 	{
@@ -334,7 +334,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 
 		TempAllocator512 ta;
 		DynamicString path(ta);
-		sjson::parse_string(prefab["prefab"], path);
+		sjson::parse_string(path, prefab["prefab"]);
 		DATA_COMPILER_ASSERT_RESOURCE_EXISTS("unit"
 			, path.c_str()
 			, _opts
@@ -342,16 +342,16 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 		path += ".unit";
 
 		Buffer buf = read_unit(path.c_str());
-		const char* d = array::end(data);
+		const char* data_end = array::end(data);
 		array::push(data, array::begin(buf), array::size(buf));
-		sjson::parse(d, prefabs[i + 1]);
+		sjson::parse(prefabs[i + 1], data_end);
 	}
 
 	JsonObject& prefab_root = prefabs[num_prefabs - 1];
 	JsonArray prefab_root_components_original(ta);
-	sjson::parse_array(prefab_root["components"], prefab_root_components_original);
+	sjson::parse_array(prefab_root_components_original, prefab_root["components"]);
 	JsonArray prefab_root_components(ta);
-	sjson::parse_array(prefab_root["components"], prefab_root_components);
+	sjson::parse_array(prefab_root_components, prefab_root["components"]);
 
 	if (num_prefabs > 1)
 	{
@@ -364,7 +364,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 				continue;
 
 			JsonObject modified_components(ta);
-			sjson::parse(prefab["modified_components"], modified_components);
+			sjson::parse(modified_components, prefab["modified_components"]);
 
 			auto cur = json_object::begin(modified_components);
 			auto end = json_object::end(modified_components);
@@ -391,7 +391,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 
 			TempAllocator512 ta;
 			JsonObject component(ta);
-			sjson::parse(value, component);
+			sjson::parse(component, value);
 
 			const StringId32 type = sjson::parse_string_id(component["type"]);
 
@@ -410,7 +410,7 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 	if (json_object::has(prefabs[0], "editor"))
 	{
 		JsonObject editor(ta);
-		sjson::parse(prefabs[0]["editor"], editor);
+		sjson::parse(editor, prefabs[0]["editor"]);
 
 		if (json_object::has(editor, "name"))
 			name_hash = sjson::parse_string_id(editor["name"]);
@@ -426,7 +426,7 @@ s32 UnitCompiler::compile_multiple_units(const char* json)
 {
 	TempAllocator4096 ta;
 	JsonArray units(ta);
-	sjson::parse_array(json, units);
+	sjson::parse_array(units, json);
 
 	for (u32 i = 0; i < array::size(units); ++i)
 	{

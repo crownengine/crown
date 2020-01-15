@@ -187,10 +187,10 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	DynamicString data_dir(ta);
 	DynamicString platform(ta);
 
-	sjson::parse(json, obj);
-	sjson::parse_string(obj["id"], id);
-	sjson::parse_string(obj["data_dir"], data_dir);
-	sjson::parse_string(obj["platform"], platform);
+	sjson::parse(obj, json);
+	sjson::parse_string(id, obj["id"]);
+	sjson::parse_string(data_dir, obj["data_dir"]);
+	sjson::parse_string(platform, obj["platform"]);
 
 	{
 		TempAllocator512 ta;
@@ -246,7 +246,7 @@ static void read_data_versions(HashMap<DynamicString, u32>& versions, Filesystem
 
 	TempAllocator512 ta;
 	JsonObject object(ta);
-	sjson::parse(json, object);
+	sjson::parse(object, json);
 
 	auto cur = json_object::begin(object);
 	auto end = json_object::end(object);
@@ -268,7 +268,7 @@ static void read_data_index(HashMap<StringId64, DynamicString>& index, Filesyste
 
 	TempAllocator512 ta;
 	JsonObject object(ta);
-	sjson::parse(json, object);
+	sjson::parse(object, json);
 
 	auto cur = json_object::begin(object);
 	auto end = json_object::end(object);
@@ -281,7 +281,7 @@ static void read_data_index(HashMap<StringId64, DynamicString>& index, Filesyste
 		DynamicString src_path(ta);
 
 		dst_name.parse(cur->first.data());
-		sjson::parse_string(cur->second, src_path);
+		sjson::parse_string(src_path, cur->second);
 
 		hash_map::set(index, dst_name, src_path);
 	}
@@ -293,7 +293,7 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 
 	TempAllocator128 ta;
 	JsonObject object(ta);
-	sjson::parse(json, object);
+	sjson::parse(object, json);
 
 	auto cur = json_object::begin(object);
 	auto end = json_object::end(object);
@@ -306,7 +306,7 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 		DynamicString mtime_json(ta);
 
 		dst_name.parse(cur->first.data());
-		sjson::parse_string(cur->second, mtime_json);
+		sjson::parse_string(mtime_json, cur->second);
 
 		u64 mtime;
 		sscanf(mtime_json.c_str(), "%" SCNu64, &mtime);
@@ -320,7 +320,7 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 
 	TempAllocator1024 ta;
 	JsonObject object(ta);
-	sjson::parse(json, object);
+	sjson::parse(object, json);
 
 	auto cur = json_object::begin(object);
 	auto end = json_object::end(object);
@@ -332,11 +332,11 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 		dst_name.parse(cur->first.data());
 
 		JsonArray dependency_array(ta);
-		sjson::parse_array(cur->second, dependency_array);
+		sjson::parse_array(dependency_array, cur->second);
 		for (u32 i = 0; i < array::size(dependency_array); ++i)
 		{
 			DynamicString src_path(ta);
-			sjson::parse_string(dependency_array[i], src_path);
+			sjson::parse_string(src_path, dependency_array[i]);
 			if (src_path.has_prefix("//r "))
 			{
 				dc.add_requirement(dst_name, src_path.c_str() + 4);

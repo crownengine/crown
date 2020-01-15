@@ -81,10 +81,10 @@ namespace texture_resource_internal
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(buf, object);
+		sjson::parse(object, buf);
 
 		DynamicString name(ta);
-		sjson::parse_string(object["source"], name);
+		sjson::parse_string(name, object["source"]);
 		DATA_COMPILER_ASSERT_FILE_EXISTS(name.c_str(), opts);
 		opts.fake_read(name.c_str());
 

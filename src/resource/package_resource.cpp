@@ -95,7 +95,7 @@ namespace package_resource_internal
 		{
 			TempAllocator256 ta;
 			DynamicString name(ta);
-			sjson::parse_string(names[i], name);
+			sjson::parse_string(name, names[i]);
 			DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name.c_str(), opts);
 			name += ".";
 			name += type;
@@ -132,20 +132,20 @@ namespace package_resource_internal
 		HashSet<PackageResource::Resource> resources_set(default_allocator());
 
 		Buffer buf = opts.read();
-		sjson::parse(buf, object);
+		sjson::parse(object, buf);
 
-		if (json_object::has(object, "texture"))          sjson::parse_array(object["texture"], texture);
-		if (json_object::has(object, "lua"))              sjson::parse_array(object["lua"], script);
-		if (json_object::has(object, "sound"))            sjson::parse_array(object["sound"], sound);
-		if (json_object::has(object, "mesh"))             sjson::parse_array(object["mesh"], mesh);
-		if (json_object::has(object, "unit"))             sjson::parse_array(object["unit"], unit);
-		if (json_object::has(object, "sprite"))           sjson::parse_array(object["sprite"], sprite);
-		if (json_object::has(object, "material"))         sjson::parse_array(object["material"], material);
-		if (json_object::has(object, "font"))             sjson::parse_array(object["font"], font);
-		if (json_object::has(object, "level"))            sjson::parse_array(object["level"], level);
-		if (json_object::has(object, "physics_config"))   sjson::parse_array(object["physics_config"], phyconf);
-		if (json_object::has(object, "shader"))           sjson::parse_array(object["shader"], shader);
-		if (json_object::has(object, "sprite_animation")) sjson::parse_array(object["sprite_animation"], sprite_animation);
+		if (json_object::has(object, "texture"))          sjson::parse_array(texture, object["texture"]);
+		if (json_object::has(object, "lua"))              sjson::parse_array(script, object["lua"]);
+		if (json_object::has(object, "sound"))            sjson::parse_array(sound, object["sound"]);
+		if (json_object::has(object, "mesh"))             sjson::parse_array(mesh, object["mesh"]);
+		if (json_object::has(object, "unit"))             sjson::parse_array(unit, object["unit"]);
+		if (json_object::has(object, "sprite"))           sjson::parse_array(sprite, object["sprite"]);
+		if (json_object::has(object, "material"))         sjson::parse_array(material, object["material"]);
+		if (json_object::has(object, "font"))             sjson::parse_array(font, object["font"]);
+		if (json_object::has(object, "level"))            sjson::parse_array(level, object["level"]);
+		if (json_object::has(object, "physics_config"))   sjson::parse_array(phyconf, object["physics_config"]);
+		if (json_object::has(object, "shader"))           sjson::parse_array(shader, object["shader"]);
+		if (json_object::has(object, "sprite_animation")) sjson::parse_array(sprite_animation, object["sprite_animation"]);
 
 		if (compile_resources(resources_set, opts, "texture", texture) != 0) return -1;
 		if (compile_resources(resources_set, opts, "lua", script) != 0) return -1;

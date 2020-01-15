@@ -686,21 +686,21 @@ namespace shader_resource_internal
 			return parse(_opts.read(path));
 		}
 
-		s32 parse(Buffer b)
+		s32 parse(Buffer buf)
 		{
 			TempAllocator4096 ta;
 			JsonObject object(ta);
-			sjson::parse(b, object);
+			sjson::parse(object, buf);
 
 			if (json_object::has(object, "include"))
 			{
 				JsonArray arr(ta);
-				sjson::parse_array(object["include"], arr);
+				sjson::parse_array(arr, object["include"]);
 
 				for (u32 i = 0; i < array::size(arr); ++i)
 				{
 					DynamicString path(ta);
-					sjson::parse_string(arr[i], path);
+					sjson::parse_string(path, arr[i]);
 					parse(path.c_str());
 				}
 			}
@@ -742,7 +742,7 @@ namespace shader_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonObject render_states(ta);
-			sjson::parse_object(json, render_states);
+			sjson::parse_object(render_states, json);
 
 			auto cur = json_object::begin(render_states);
 			auto end = json_object::end(render_states);
@@ -751,7 +751,7 @@ namespace shader_resource_internal
 				JSON_OBJECT_SKIP_HOLE(render_states, cur);
 
 				JsonObject obj(ta);
-				sjson::parse_object(cur->second, obj);
+				sjson::parse_object(obj, cur->second);
 
 				const bool rgb_write_enable   = sjson::parse_bool(obj["rgb_write_enable"]);
 				const bool alpha_write_enable = sjson::parse_bool(obj["alpha_write_enable"]);
@@ -783,7 +783,7 @@ namespace shader_resource_internal
 
 				if (has_depth_func)
 				{
-					sjson::parse_string(obj["depth_func"], depth_func);
+					sjson::parse_string(depth_func, obj["depth_func"]);
 					rs._depth_func = name_to_depth_func(depth_func.c_str());
 					DATA_COMPILER_ASSERT(rs._depth_func != DepthFunction::COUNT
 						, _opts
@@ -794,7 +794,7 @@ namespace shader_resource_internal
 
 				if (has_blend_src)
 				{
-					sjson::parse_string(obj["blend_src"], blend_src);
+					sjson::parse_string(blend_src, obj["blend_src"]);
 					rs._blend_src = name_to_blend_function(blend_src.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_src != BlendFunction::COUNT
 						, _opts
@@ -805,7 +805,7 @@ namespace shader_resource_internal
 
 				if (has_blend_dst)
 				{
-					sjson::parse_string(obj["blend_dst"], blend_dst);
+					sjson::parse_string(blend_dst, obj["blend_dst"]);
 					rs._blend_dst = name_to_blend_function(blend_dst.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_dst != BlendFunction::COUNT
 						, _opts
@@ -816,7 +816,7 @@ namespace shader_resource_internal
 
 				if (has_blend_equation)
 				{
-					sjson::parse_string(obj["blend_equation"], blend_equation);
+					sjson::parse_string(blend_equation, obj["blend_equation"]);
 					rs._blend_equation = name_to_blend_equation(blend_equation.c_str());
 					DATA_COMPILER_ASSERT(rs._blend_equation != BlendEquation::COUNT
 						, _opts
@@ -827,7 +827,7 @@ namespace shader_resource_internal
 
 				if (has_cull_mode)
 				{
-					sjson::parse_string(obj["cull_mode"], cull_mode);
+					sjson::parse_string(cull_mode, obj["cull_mode"]);
 					rs._cull_mode = name_to_cull_mode(cull_mode.c_str());
 					DATA_COMPILER_ASSERT(rs._cull_mode != CullMode::COUNT
 						, _opts
@@ -838,7 +838,7 @@ namespace shader_resource_internal
 
 				if (has_primitive_type)
 				{
-					sjson::parse_string(obj["primitive_type"], primitive_type);
+					sjson::parse_string(primitive_type, obj["primitive_type"]);
 					rs._primitive_type = name_to_primitive_type(primitive_type.c_str());
 					DATA_COMPILER_ASSERT(rs._primitive_type != PrimitiveType::COUNT
 						, _opts
@@ -865,7 +865,7 @@ namespace shader_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonObject sampler_states(ta);
-			sjson::parse_object(json, sampler_states);
+			sjson::parse_object(sampler_states, json);
 
 			auto cur = json_object::begin(sampler_states);
 			auto end = json_object::end(sampler_states);
@@ -874,7 +874,7 @@ namespace shader_resource_internal
 				JSON_OBJECT_SKIP_HOLE(sampler_states, cur);
 
 				JsonObject obj(ta);
-				sjson::parse_object(cur->second, obj);
+				sjson::parse_object(obj, cur->second);
 
 				const bool has_filter_min = json_object::has(obj, "filter_min");
 				const bool has_filter_mag = json_object::has(obj, "filter_mag");
@@ -893,7 +893,7 @@ namespace shader_resource_internal
 
 				if (has_filter_min)
 				{
-					sjson::parse_string(obj["filter_min"], filter_min);
+					sjson::parse_string(filter_min, obj["filter_min"]);
 					ss._filter_min = name_to_sampler_filter(filter_min.c_str());
 					DATA_COMPILER_ASSERT(ss._filter_min != SamplerFilter::COUNT
 						, _opts
@@ -904,7 +904,7 @@ namespace shader_resource_internal
 
 				if (has_filter_mag)
 				{
-					sjson::parse_string(obj["filter_mag"], filter_mag);
+					sjson::parse_string(filter_mag, obj["filter_mag"]);
 					ss._filter_mag = name_to_sampler_filter(filter_mag.c_str());
 					DATA_COMPILER_ASSERT(ss._filter_mag != SamplerFilter::COUNT
 						, _opts
@@ -915,7 +915,7 @@ namespace shader_resource_internal
 
 				if (has_wrap_u)
 				{
-					sjson::parse_string(obj["wrap_u"], wrap_u);
+					sjson::parse_string(wrap_u, obj["wrap_u"]);
 					ss._wrap_u = name_to_sampler_wrap(wrap_u.c_str());
 					DATA_COMPILER_ASSERT(ss._wrap_u != SamplerWrap::COUNT
 						, _opts
@@ -926,7 +926,7 @@ namespace shader_resource_internal
 
 				if (has_wrap_v)
 				{
-					sjson::parse_string(obj["wrap_v"], wrap_v);
+					sjson::parse_string(wrap_v, obj["wrap_v"]);
 					ss._wrap_v = name_to_sampler_wrap(wrap_v.c_str());
 					DATA_COMPILER_ASSERT(ss._wrap_v != SamplerWrap::COUNT
 						, _opts
@@ -937,7 +937,7 @@ namespace shader_resource_internal
 
 				if (has_wrap_w)
 				{
-					sjson::parse_string(obj["wrap_w"], wrap_w);
+					sjson::parse_string(wrap_w, obj["wrap_w"]);
 					ss._wrap_w = name_to_sampler_wrap(wrap_w.c_str());
 					DATA_COMPILER_ASSERT(ss._wrap_w != SamplerWrap::COUNT
 						, _opts
@@ -964,7 +964,7 @@ namespace shader_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonObject bgfx_shaders(ta);
-			sjson::parse_object(json, bgfx_shaders);
+			sjson::parse_object(bgfx_shaders, json);
 
 			auto cur = json_object::begin(bgfx_shaders);
 			auto end = json_object::end(bgfx_shaders);
@@ -973,25 +973,25 @@ namespace shader_resource_internal
 				JSON_OBJECT_SKIP_HOLE(bgfx_shaders, cur);
 
 				JsonObject shader(ta);
-				sjson::parse_object(cur->second, shader);
+				sjson::parse_object(shader, cur->second);
 
 				BgfxShader bgfxshader(default_allocator());
 				if (json_object::has(shader, "includes"))
-					sjson::parse_string(shader["includes"], bgfxshader._includes);
+					sjson::parse_string(bgfxshader._includes, shader["includes"]);
 				if (json_object::has(shader, "code"))
-					sjson::parse_verbatim(shader["code"], bgfxshader._code);
+					sjson::parse_verbatim(bgfxshader._code, shader["code"]);
 				if (json_object::has(shader, "vs_code"))
-					sjson::parse_verbatim(shader["vs_code"], bgfxshader._vs_code);
+					sjson::parse_verbatim(bgfxshader._vs_code, shader["vs_code"]);
 				if (json_object::has(shader, "fs_code"))
-					sjson::parse_verbatim(shader["fs_code"], bgfxshader._fs_code);
+					sjson::parse_verbatim(bgfxshader._fs_code, shader["fs_code"]);
 				if (json_object::has(shader, "varying"))
-					sjson::parse_verbatim(shader["varying"], bgfxshader._varying);
+					sjson::parse_verbatim(bgfxshader._varying, shader["varying"]);
 				if (json_object::has(shader, "vs_input_output"))
-					sjson::parse_verbatim(shader["vs_input_output"], bgfxshader._vs_input_output);
+					sjson::parse_verbatim(bgfxshader._vs_input_output, shader["vs_input_output"]);
 				if (json_object::has(shader, "fs_input_output"))
-					sjson::parse_verbatim(shader["fs_input_output"], bgfxshader._fs_input_output);
+					sjson::parse_verbatim(bgfxshader._fs_input_output, shader["fs_input_output"]);
 				if (json_object::has(shader, "samplers"))
-					parse_bgfx_samplers(shader["samplers"], bgfxshader);
+					parse_bgfx_samplers(bgfxshader, shader["samplers"]);
 
 				DynamicString key(ta);
 				key = cur->first;
@@ -1007,11 +1007,11 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 parse_bgfx_samplers(const char* json, BgfxShader& bgfxshader)
+		s32 parse_bgfx_samplers(BgfxShader& bgfxshader, const char* json)
 		{
 			TempAllocator4096 ta;
 			JsonObject bgfx_samplers(ta);
-			sjson::parse_object(json, bgfx_samplers);
+			sjson::parse_object(bgfx_samplers, json);
 
 			auto cur = json_object::begin(bgfx_samplers);
 			auto end = json_object::end(bgfx_samplers);
@@ -1020,10 +1020,10 @@ namespace shader_resource_internal
 				JSON_OBJECT_SKIP_HOLE(bgfx_samplers, cur);
 
 				JsonObject sampler(ta);
-				sjson::parse_object(cur->second, sampler);
+				sjson::parse_object(sampler, cur->second);
 
 				DynamicString sampler_state(ta);
-				sjson::parse_string(sampler["sampler_state"], sampler_state);
+				sjson::parse_string(sampler_state, sampler["sampler_state"]);
 
 				DATA_COMPILER_ASSERT(hash_map::has(_sampler_states, sampler_state)
 					, _opts
@@ -1049,7 +1049,7 @@ namespace shader_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonObject shaders(ta);
-			sjson::parse_object(json, shaders);
+			sjson::parse_object(shaders, json);
 
 			auto cur = json_object::begin(shaders);
 			auto end = json_object::end(shaders);
@@ -1058,11 +1058,11 @@ namespace shader_resource_internal
 				JSON_OBJECT_SKIP_HOLE(shaders, cur);
 
 				JsonObject obj(ta);
-				sjson::parse_object(cur->second, obj);
+				sjson::parse_object(obj, cur->second);
 
 				ShaderPermutation shader(default_allocator());
-				sjson::parse_string(obj["bgfx_shader"], shader._bgfx_shader);
-				sjson::parse_string(obj["render_state"], shader._render_state);
+				sjson::parse_string(shader._bgfx_shader, obj["bgfx_shader"]);
+				sjson::parse_string(shader._render_state, obj["render_state"]);
 
 				DynamicString key(ta);
 				key = cur->first;
@@ -1082,22 +1082,22 @@ namespace shader_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonArray static_compile(ta);
-			sjson::parse_array(json, static_compile);
+			sjson::parse_array(static_compile, json);
 
 			for (u32 i = 0; i < array::size(static_compile); ++i)
 			{
 				JsonObject obj(ta);
-				sjson::parse_object(static_compile[i], obj);
+				sjson::parse_object(obj, static_compile[i]);
 
 				StaticCompile sc(default_allocator());
-				sjson::parse_string(obj["shader"], sc._shader);
+				sjson::parse_string(sc._shader, obj["shader"]);
 
 				JsonArray defines(ta);
-				sjson::parse_array(obj["defines"], defines);
+				sjson::parse_array(defines, obj["defines"]);
 				for (u32 i = 0; i < array::size(defines); ++i)
 				{
 					DynamicString def(ta);
-					sjson::parse_string(defines[i], def);
+					sjson::parse_string(def, defines[i]);
 					vector::push_back(sc._defines, def);
 				}
 

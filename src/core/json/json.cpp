@@ -165,7 +165,7 @@ namespace json
 		}
 	}
 
-	void parse_string(const char* json, DynamicString& string)
+	void parse_string(DynamicString& string, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -210,7 +210,7 @@ namespace json
 		CE_FATAL("Bad string");
 	}
 
-	void parse_array(const char* json, JsonArray& array)
+	void parse_array(JsonArray& array, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -239,7 +239,7 @@ namespace json
 		CE_FATAL("Bad array");
 	}
 
-	void parse_object(const char* json, JsonObject& object)
+	void parse_object(JsonObject& object, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -256,7 +256,7 @@ namespace json
 
 				TempAllocator256 ta;
 				DynamicString key(ta);
-				parse_string(json, key);
+				parse_string(key, json);
 
 				StringView fs_key(key_begin, key.length());
 
@@ -281,17 +281,17 @@ namespace json
 		CE_FATAL("Bad object");
 	}
 
-	void parse(const char* json, JsonObject& object)
+	void parse(JsonObject& object, const char* json)
 	{
 		CE_ENSURE(NULL != json);
-		parse_object(json, object);
+		parse_object(object, json);
 	}
 
-	void parse(Buffer& json, JsonObject& object)
+	void parse(JsonObject& object, Buffer& json)
 	{
 		array::push_back(json, '\0');
 		array::pop_back(json);
-		parse(array::begin(json), object);
+		parse(object, array::begin(json));
 	}
 
 } // namespace json

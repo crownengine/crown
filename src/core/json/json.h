@@ -28,21 +28,21 @@ namespace json
 	bool parse_bool(const char* json);
 
 	/// Parses the JSON string @a json ad puts it into @a string.
-	void parse_string(const char* json, DynamicString& string);
+	void parse_string(DynamicString& string, const char* json);
 
 	/// Parses the JSON array @a json and puts it into @a array as pointers to
 	/// the corresponding items into the original @a json string.
-	void parse_array(const char* json, JsonArray& array);
+	void parse_array(JsonArray& array, const char* json);
 
 	/// Parses the JSON object @a json and puts it into @a object as map from
 	/// key to pointer to the corresponding value into the original string @a json.
-	void parse_object(const char* json, JsonObject& object);
+	void parse_object(JsonObject& object, const char* json);
 
 	/// Parses the JSON-encoded @a json.
-	void parse(const char* json, JsonObject& object);
+	void parse(JsonObject& object, const char* json);
 
 	/// Parses the JSON-encoded @a json.
-	void parse(Buffer& json, JsonObject& object);
+	void parse(JsonObject& object, Buffer& json);
 
 } // namespace json
 

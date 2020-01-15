@@ -158,7 +158,7 @@ namespace material_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(json, object);
+		sjson::parse(object, json);
 
 		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
@@ -170,7 +170,7 @@ namespace material_resource_internal
 			const char* value    = cur->second;
 
 			DynamicString texture(ta);
-			sjson::parse_string(value, texture);
+			sjson::parse_string(texture, value);
 			DATA_COMPILER_ASSERT_RESOURCE_EXISTS("texture", texture.c_str(), opts);
 			opts.add_requirement("texture", texture.c_str());
 
@@ -199,7 +199,7 @@ namespace material_resource_internal
 	{
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(json, object);
+		sjson::parse(object, json);
 
 		auto cur = json_object::begin(object);
 		auto end = json_object::end(object);
@@ -214,10 +214,10 @@ namespace material_resource_internal
 			uh.uniform_handle = 0;
 
 			JsonObject uniform(ta);
-			sjson::parse_object(value, uniform);
+			sjson::parse_object(uniform, value);
 
 			DynamicString type(ta);
-			sjson::parse_string(uniform["type"], type);
+			sjson::parse_string(type, uniform["type"]);
 
 			const UniformType::Enum ut = name_to_uniform_type(type.c_str());
 			DATA_COMPILER_ASSERT(ut != UniformType::COUNT
@@ -274,7 +274,7 @@ namespace material_resource_internal
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(buf, object);
+		sjson::parse(object, buf);
 
 		Array<TextureData> texdata(default_allocator());
 		Array<UniformData> unidata(default_allocator());
@@ -282,7 +282,7 @@ namespace material_resource_internal
 		Array<char> dynblob(default_allocator());
 
 		DynamicString shader(ta);
-		sjson::parse_string(object["shader"], shader);
+		sjson::parse_string(shader, object["shader"]);
 
 		if (json_object::has(object, "textures"))
 		{

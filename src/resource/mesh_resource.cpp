@@ -219,7 +219,7 @@ namespace mesh_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonArray array(ta);
-			sjson::parse_array(array_json, array);
+			sjson::parse_array(array, array_json);
 
 			array::resize(output, array::size(array));
 			for (u32 i = 0; i < array::size(array); ++i)
@@ -232,7 +232,7 @@ namespace mesh_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonArray array(ta);
-			sjson::parse_array(array_json, array);
+			sjson::parse_array(array, array_json);
 
 			array::resize(output, array::size(array));
 			for (u32 i = 0; i < array::size(array); ++i)
@@ -245,10 +245,10 @@ namespace mesh_resource_internal
 		{
 			TempAllocator4096 ta;
 			JsonObject object(ta);
-			sjson::parse(json, object);
+			sjson::parse(object, json);
 
 			JsonArray data_json(ta);
-			sjson::parse_array(object["data"], data_json);
+			sjson::parse_array(data_json, object["data"]);
 
 			parse_index_array(data_json[0], _position_indices);
 
@@ -267,8 +267,8 @@ namespace mesh_resource_internal
 			TempAllocator4096 ta;
 			JsonObject object(ta);
 			JsonObject object_node(ta);
-			sjson::parse(geometry, object);
-			sjson::parse(node, object_node);
+			sjson::parse(object, geometry);
+			sjson::parse(object_node, node);
 
 			_has_normal = json_object::has(object, "normal");
 			_has_uv     = json_object::has(object, "texcoord");
@@ -374,12 +374,12 @@ namespace mesh_resource_internal
 
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(buf, object);
+		sjson::parse(object, buf);
 
 		JsonObject geometries(ta);
-		sjson::parse(object["geometries"], geometries);
+		sjson::parse(geometries, object["geometries"]);
 		JsonObject nodes(ta);
-		sjson::parse(object["nodes"], nodes);
+		sjson::parse(nodes, object["nodes"]);
 
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
 		opts.write(json_object::size(geometries));

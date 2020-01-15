@@ -487,8 +487,8 @@ static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	JsonObject obj(ta);
 	DynamicString script(ta);
 
-	sjson::parse(json, obj);
-	sjson::parse_string(obj["script"], script);
+	sjson::parse(obj, json);
+	sjson::parse_string(script, obj["script"]);
 
 	((LuaEnvironment*)user_data)->execute_string(script.c_str());
 }
@@ -521,8 +521,8 @@ static void console_command_REPL(ConsoleServer& /*cs*/, TCPSocket /*client*/, co
 	JsonObject obj(ta);
 	DynamicString script(ta);
 
-	sjson::parse(json, obj);
-	sjson::parse_string(obj["repl"], script);
+	sjson::parse(obj, json);
+	sjson::parse_string(script, obj["repl"]);
 
 	do_REPL((LuaEnvironment*)user_data, script.c_str());
 }

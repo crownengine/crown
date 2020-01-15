@@ -51,20 +51,20 @@ namespace level_resource_internal
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
 		JsonObject object(ta);
-		sjson::parse(buf, object);
+		sjson::parse(object, buf);
 
 		Array<LevelSound> sounds(default_allocator());
 		{
 			JsonArray sounds_json(ta);
-			sjson::parse_array(object["sounds"], sounds_json);
+			sjson::parse_array(sounds_json, object["sounds"]);
 
 			for (u32 i = 0; i < array::size(sounds_json); ++i)
 			{
 				JsonObject sound(ta);
-				sjson::parse_object(sounds_json[i], sound);
+				sjson::parse_object(sound, sounds_json[i]);
 
 				DynamicString sound_name(ta);
-				sjson::parse_string(sound["name"], sound_name);
+				sjson::parse_string(sound_name, sound["name"]);
 				DATA_COMPILER_ASSERT_RESOURCE_EXISTS("sound"
 					, sound_name.c_str()
 					, opts

@@ -136,7 +136,7 @@ void ConsoleServer::update()
 
 			// Process message
 			JsonObject obj(ta);
-			sjson::parse(array::begin(msg), obj);
+			sjson::parse(obj, array::begin(msg));
 
 			Command cmd;
 			cmd.function = NULL;

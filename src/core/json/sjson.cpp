@@ -134,7 +134,7 @@ namespace sjson
 		CE_ENSURE(NULL != json);
 		if (*json == '"')
 		{
-			parse_string(json, key);
+			parse_string(key, json);
 			return skip_string(json);
 		}
 
@@ -240,7 +240,7 @@ namespace sjson
 		}
 	}
 
-	void parse_string(const char* json, DynamicString& string)
+	void parse_string(DynamicString& string, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -281,7 +281,7 @@ namespace sjson
 		CE_FATAL("Bad string");
 	}
 
-	void parse_array(const char* json, JsonArray& array)
+	void parse_array(JsonArray& array, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -309,7 +309,7 @@ namespace sjson
 		CE_FATAL("Bad array");
 	}
 
-	static void parse_root_object(const char* json, JsonObject& object)
+	static void parse_root_object(JsonObject& object, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -334,7 +334,7 @@ namespace sjson
 		}
 	}
 
-	void parse_object(const char* json, JsonObject& object)
+	void parse_object(JsonObject& object, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -374,23 +374,23 @@ namespace sjson
 		CE_FATAL("Bad object");
 	}
 
-	void parse(const char* json, JsonObject& object)
+	void parse(JsonObject& object, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
 		json = skip_spaces(json);
 
 		if (*json == '{')
-			parse_object(json, object);
+			parse_object(object, json);
 		else
-			parse_root_object(json, object);
+			parse_root_object(object, json);
 	}
 
-	void parse(Buffer& json, JsonObject& object)
+	void parse(JsonObject& object, Buffer& json)
 	{
 		array::push_back(json, '\0');
 		array::pop_back(json);
-		parse(array::begin(json), object);
+		parse(object, array::begin(json));
 	}
 
 } // namespace sjson
@@ -401,7 +401,7 @@ namespace sjson
 	{
 		TempAllocator64 ta;
 		JsonArray array(ta);
-		sjson::parse_array(json, array);
+		sjson::parse_array(array, json);
 
 		Vector2 v;
 		v.x = sjson::parse_float(array[0]);
@@ -413,7 +413,7 @@ namespace sjson
 	{
 		TempAllocator64 ta;
 		JsonArray array(ta);
-		sjson::parse_array(json, array);
+		sjson::parse_array(array, json);
 
 		Vector3 v;
 		v.x = sjson::parse_float(array[0]);
@@ -426,7 +426,7 @@ namespace sjson
 	{
 		TempAllocator64 ta;
 		JsonArray array(ta);
-		sjson::parse_array(json, array);
+		sjson::parse_array(array, json);
 
 		Vector4 v;
 		v.x = sjson::parse_float(array[0]);
@@ -440,7 +440,7 @@ namespace sjson
 	{
 		TempAllocator64 ta;
 		JsonArray array(ta);
-		sjson::parse_array(json, array);
+		sjson::parse_array(array, json);
 
 		Quaternion q;
 		q.x = sjson::parse_float(array[0]);
@@ -454,7 +454,7 @@ namespace sjson
 	{
 		TempAllocator256 ta;
 		JsonArray array(ta);
-		sjson::parse_array(json, array);
+		sjson::parse_array(array, json);
 
 		Matrix4x4 m;
 		m.x.x = sjson::parse_float(array[ 0]);
@@ -483,7 +483,7 @@ namespace sjson
 	{
 		TempAllocator256 ta;
 		DynamicString str(ta);
-		sjson::parse_string(json, str);
+		sjson::parse_string(str, json);
 		return str.to_string_id();
 	}
 
@@ -491,7 +491,7 @@ namespace sjson
 	{
 		TempAllocator256 ta;
 		DynamicString str(ta);
-		sjson::parse_string(json, str);
+		sjson::parse_string(str, json);
 		return StringId64(str.c_str());
 	}
 
@@ -499,11 +499,11 @@ namespace sjson
 	{
 		TempAllocator64 ta;
 		DynamicString str(ta);
-		sjson::parse_string(json, str);
+		sjson::parse_string(str, json);
 		return guid::parse(str.c_str());
 	}
 
-	void parse_verbatim(const char* json, DynamicString& string)
+	void parse_verbatim(DynamicString& string, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
