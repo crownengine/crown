@@ -294,6 +294,8 @@ bool Device::process_events(bool vsync)
 
 void Device::run()
 {
+	s64 run_t0 = time::now();
+
 	_console_server->register_command("command", console_command, this);
 
 	_console_server->listen(_options._console_port, _options._wait_console);
@@ -314,7 +316,7 @@ void Device::run()
 	_last_log = _data_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
-	logi(DEVICE, "Initializing Crown Engine %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
+	logi(DEVICE, "Crown %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
 
 	profiler_globals::init();
 
@@ -429,7 +431,7 @@ void Device::run()
 	tool_init();
 #endif
 
-	logi(DEVICE, "Initialized");
+	logi(DEVICE, "Initialized in %.2fs", time::seconds(time::now() - run_t0));
 
 	_lua_environment->call_global("init");
 

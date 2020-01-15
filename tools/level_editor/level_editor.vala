@@ -384,38 +384,38 @@ namespace Crown
 			_action_group.get_action("place").activate();
 		}
 
-		private void on_compiler_connected()
+		private void on_compiler_connected(string address, int port)
 		{
-			_console_view.logi("editor", "Compiler connected");
+			_console_view.logi("editor", "Connected to data_compiler@%s:%d".printf(address, port));
 			_compiler.receive_async();
 		}
 
 		private void on_compiler_disconnected()
 		{
-			_console_view.logi("editor", "Compiler disconnected");
+			_console_view.logi("editor", "Disconnected from data_compiler");
 		}
 
-		private void on_engine_connected()
+		private void on_engine_connected(string address, int port)
 		{
-			_console_view.logi("editor", "Engine connected");
+			_console_view.logi("editor", "Connected to level_editor@%s:%d".printf(address, port));
 			_engine.receive_async();
 		}
 
 		private void on_engine_disconnected()
 		{
-			_console_view.logi("editor", "Engine disconnected");
+			_console_view.logi("editor", "Disconnected from level_editor");
 		}
 
-		private void on_game_connected()
+		private void on_game_connected(string address, int port)
 		{
-			_console_view.logi("editor", "Game connected");
+			_console_view.logi("editor", "Connected to game@%s:%d".printf(address, port));
 			_game.receive_async();
 		}
 
 		private void on_game_disconnected()
 		{
+			_console_view.logi("editor", "Disconnected from game");
 			_action_group.get_action("test-level").icon_name = "game-run";
-			_console_view.logi("editor", "Game disconnected");
 			_project.delete_level_editor_test_level();
 		}
 

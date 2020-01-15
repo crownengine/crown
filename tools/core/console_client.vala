@@ -14,7 +14,7 @@ namespace Crown
 		private SocketConnection _connection;
 
 		// Signals
-		public signal void connected();
+		public signal void connected(string address, int port);
 		public signal void disconnected();
 		public signal void message_received(ConsoleClient client, uint8[] json);
 
@@ -30,7 +30,7 @@ namespace Crown
 			{
 				_connection = _socket.connect(new InetSocketAddress.from_string(address, port), null);
 				if (_connection != null)
-					connected();
+					connected(address, port);
 			}
 			catch (Error e)
 			{

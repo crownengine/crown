@@ -66,9 +66,11 @@ namespace audio_globals
 
 		AL_CHECK(alcMakeContextCurrent(s_al_context));
 
+#if CROWN_DEBUG && !CROWN_DEVELOPMENT
 		logi(SOUND, "OpenAL Vendor   : %s", alGetString(AL_VENDOR));
 		logi(SOUND, "OpenAL Version  : %s", alGetString(AL_VERSION));
 		logi(SOUND, "OpenAL Renderer : %s", alGetString(AL_RENDERER));
+#endif
 
 		AL_CHECK(alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED));
 		AL_CHECK(alDopplerFactor(1.0f));
