@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Crown Engine documentation build configuration file, created by
+# Crown documentation build configuration file, created by
 # sphinx-quickstart on Tue Feb 21 19:58:15 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -47,8 +47,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Crown Engine'
-copyright = '2012-2017, Daniele Bartolini and individual contributors'
+project = 'Crown'
+copyright = '2012-2020 Daniele Bartolini and individual contributors'
 author = 'Daniele Bartolini'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -129,7 +129,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Crown Engine.tex', 'Crown Engine Documentation',
+    (master_doc, 'Crown.tex', 'Crown Documentation',
      'Daniele Bartolini', 'manual'),
 ]
 
@@ -139,7 +139,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'Crown Engine', 'Crown Engine Documentation',
+    (master_doc, 'Crown', 'Crown Documentation',
      [author], 1)
 ]
 
@@ -150,8 +150,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Crown Engine', 'Crown Engine Documentation',
-     author, 'Crown Engine', 'One line description of project.',
+    (master_doc, 'Crown', 'Crown Documentation',
+     author, 'Crown', 'One line description of project.',
      'Miscellaneous'),
 ]
 

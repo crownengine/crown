@@ -30,7 +30,7 @@ directory.
 
 The ``boot.config`` is the first file read by Crown; it specifies the package to load and the lua
 script to execute on boot and various other boot-time settings.
-See `boot.config file reference`_ for more details.
+See boot.config reference for details.
 
 Normally there is a single ``boot.config`` file, placed at the top of the source directory. This is
 the file which Crown looks at by default.
