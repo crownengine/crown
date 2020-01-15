@@ -659,7 +659,7 @@ namespace shader_resource_internal
 		DynamicString _fs_src_path;
 		DynamicString _varying_path;
 		DynamicString _vs_out_path;
-		DynamicString _vs_out_path;
+		DynamicString _fs_out_path;
 
 		ShaderCompiler(CompileOptions& opts)
 			: _opts(opts)
@@ -672,13 +672,13 @@ namespace shader_resource_internal
 			, _fs_src_path(default_allocator())
 			, _varying_path(default_allocator())
 			, _vs_out_path(default_allocator())
-			, _vs_out_path(default_allocator())
+			, _fs_out_path(default_allocator())
 		{
 			_opts.temporary_path(_vs_src_path, "vs_src.sc");
 			_opts.temporary_path(_fs_src_path, "fs_src.sc");
 			_opts.temporary_path(_varying_path, "varying.sc");
 			_opts.temporary_path(_vs_out_path, "vs_out.bin");
-			_opts.temporary_path(_vs_out_path, "fs_out.bin");
+			_opts.temporary_path(_fs_out_path, "fs_out.bin");
 		}
 
 		s32 parse(const char* path)
@@ -1113,7 +1113,7 @@ namespace shader_resource_internal
 			_opts.delete_file(_fs_src_path.c_str());
 			_opts.delete_file(_varying_path.c_str());
 			_opts.delete_file(_vs_out_path.c_str());
-			_opts.delete_file(_vs_out_path.c_str());
+			_opts.delete_file(_fs_out_path.c_str());
 		}
 
 		s32 compile()
@@ -1268,7 +1268,7 @@ namespace shader_resource_internal
 			sc = run_external_compiler(pr_frag
 				, shaderc
 				, _fs_src_path.c_str()
-				, _vs_out_path.c_str()
+				, _fs_out_path.c_str()
 				, _varying_path.c_str()
 				, "fragment"
 				, _opts.platform()
@@ -1323,16 +1323,15 @@ namespace shader_resource_internal
 					);
 			}
 
-			Buffer tmpvs = _opts.read_temporary(_vs_out_path.c_str());
-			Buffer tmpfs = _opts.read_temporary(_vs_out_path.c_str());
-
+			Buffer vs_data = _opts.read_temporary(_vs_out_path.c_str());
+			Buffer fs_data = _opts.read_temporary(_fs_out_path.c_str());
 			delete_temp_files();
 
 			// Write
-			_opts.write(array::size(tmpvs));
-			_opts.write(tmpvs);
-			_opts.write(array::size(tmpfs));
-			_opts.write(tmpfs);
+			_opts.write(array::size(vs_data));
+			_opts.write(vs_data);
+			_opts.write(array::size(fs_data));
+			_opts.write(fs_data);
 
 			return 0;
 		}
