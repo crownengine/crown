@@ -165,7 +165,7 @@ namespace json
 		}
 	}
 
-	void parse_string(DynamicString& string, const char* json)
+	void parse_string(DynamicString& str, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -185,14 +185,14 @@ namespace json
 
 					switch (*json)
 					{
-					case '"': string += '"'; break;
-					case '\\': string += '\\'; break;
-					case '/': string += '/'; break;
-					case 'b': string += '\b'; break;
-					case 'f': string += '\f'; break;
-					case 'n': string += '\n'; break;
-					case 'r': string += '\r'; break;
-					case 't': string += '\t'; break;
+					case '"': str += '"'; break;
+					case '\\': str += '\\'; break;
+					case '/': str += '/'; break;
+					case 'b': str += '\b'; break;
+					case 'f': str += '\f'; break;
+					case 'n': str += '\n'; break;
+					case 'r': str += '\r'; break;
+					case 't': str += '\t'; break;
 					default:
 					{
 						CE_FATAL("Bad escape character");
@@ -202,7 +202,7 @@ namespace json
 				}
 				else
 				{
-					string += *json;
+					str += *json;
 				}
 			}
 		}
@@ -210,7 +210,7 @@ namespace json
 		CE_FATAL("Bad string");
 	}
 
-	void parse_array(JsonArray& array, const char* json)
+	void parse_array(JsonArray& arr, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -223,7 +223,7 @@ namespace json
 
 			while (*json)
 			{
-				array::push_back(array, json);
+				array::push_back(arr, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);
@@ -239,7 +239,7 @@ namespace json
 		CE_FATAL("Bad array");
 	}
 
-	void parse_object(JsonObject& object, const char* json)
+	void parse_object(JsonObject& obj, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -265,7 +265,7 @@ namespace json
 				json = next(json, ':');
 				json = skip_spaces(json);
 
-				hash_map::set(object._map, fs_key, json);
+				hash_map::set(obj._map, fs_key, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);
@@ -281,17 +281,17 @@ namespace json
 		CE_FATAL("Bad object");
 	}
 
-	void parse(JsonObject& object, const char* json)
+	void parse(JsonObject& obj, const char* json)
 	{
 		CE_ENSURE(NULL != json);
-		parse_object(object, json);
+		parse_object(obj, json);
 	}
 
-	void parse(JsonObject& object, Buffer& json)
+	void parse(JsonObject& obj, Buffer& json)
 	{
 		array::push_back(json, '\0');
 		array::pop_back(json);
-		parse(object, array::begin(json));
+		parse(obj, array::begin(json));
 	}
 
 } // namespace json

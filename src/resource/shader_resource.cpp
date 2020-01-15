@@ -689,13 +689,13 @@ namespace shader_resource_internal
 		s32 parse(Buffer buf)
 		{
 			TempAllocator4096 ta;
-			JsonObject object(ta);
-			sjson::parse(object, buf);
+			JsonObject obj(ta);
+			sjson::parse(obj, buf);
 
-			if (json_object::has(object, "include"))
+			if (json_object::has(obj, "include"))
 			{
 				JsonArray arr(ta);
-				sjson::parse_array(arr, object["include"]);
+				sjson::parse_array(arr, obj["include"]);
 
 				for (u32 i = 0; i < array::size(arr); ++i)
 				{
@@ -705,33 +705,33 @@ namespace shader_resource_internal
 				}
 			}
 
-			if (json_object::has(object, "render_states"))
+			if (json_object::has(obj, "render_states"))
 			{
-				if (parse_render_states(object["render_states"]) != 0)
+				if (parse_render_states(obj["render_states"]) != 0)
 					return -1;
 			}
 
-			if (json_object::has(object, "sampler_states"))
+			if (json_object::has(obj, "sampler_states"))
 			{
-				if (parse_sampler_states(object["sampler_states"]) != 0)
+				if (parse_sampler_states(obj["sampler_states"]) != 0)
 					return -1;
 			}
 
-			if (json_object::has(object, "bgfx_shaders"))
+			if (json_object::has(obj, "bgfx_shaders"))
 			{
-				if (parse_bgfx_shaders(object["bgfx_shaders"]) != 0)
+				if (parse_bgfx_shaders(obj["bgfx_shaders"]) != 0)
 					return -1;
 			}
 
-			if (json_object::has(object, "shaders"))
+			if (json_object::has(obj, "shaders"))
 			{
-				if (parse_shaders(object["shaders"]) != 0)
+				if (parse_shaders(obj["shaders"]) != 0)
 					return -1;
 			}
 
-			if (json_object::has(object, "static_compile"))
+			if (json_object::has(obj, "static_compile"))
 			{
-				if (parse_static_compile(object["static_compile"]) != 0)
+				if (parse_static_compile(obj["static_compile"]) != 0)
 					return -1;
 			}
 

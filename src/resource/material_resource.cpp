@@ -157,14 +157,14 @@ namespace material_resource_internal
 	static s32 parse_textures(const char* json, Array<TextureData>& textures, Array<char>& names, Array<char>& dynamic, CompileOptions& opts)
 	{
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, json);
+		JsonObject obj(ta);
+		sjson::parse(obj, json);
 
-		auto cur = json_object::begin(object);
-		auto end = json_object::end(object);
+		auto cur = json_object::begin(obj);
+		auto end = json_object::end(obj);
 		for (; cur != end; ++cur)
 		{
-			JSON_OBJECT_SKIP_HOLE(object, cur);
+			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
 			const char* value    = cur->second;
@@ -198,14 +198,14 @@ namespace material_resource_internal
 	static s32 parse_uniforms(const char* json, Array<UniformData>& uniforms, Array<char>& names, Array<char>& dynamic, CompileOptions& opts)
 	{
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, json);
+		JsonObject obj(ta);
+		sjson::parse(obj, json);
 
-		auto cur = json_object::begin(object);
-		auto end = json_object::end(object);
+		auto cur = json_object::begin(obj);
+		auto end = json_object::end(obj);
 		for (; cur != end; ++cur)
 		{
-			JSON_OBJECT_SKIP_HOLE(object, cur);
+			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
 			const char* value    = cur->second;
@@ -273,8 +273,8 @@ namespace material_resource_internal
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, buf);
+		JsonObject obj(ta);
+		sjson::parse(obj, buf);
 
 		Array<TextureData> texdata(default_allocator());
 		Array<UniformData> unidata(default_allocator());
@@ -282,16 +282,16 @@ namespace material_resource_internal
 		Array<char> dynblob(default_allocator());
 
 		DynamicString shader(ta);
-		sjson::parse_string(shader, object["shader"]);
+		sjson::parse_string(shader, obj["shader"]);
 
-		if (json_object::has(object, "textures"))
+		if (json_object::has(obj, "textures"))
 		{
-			if (parse_textures(object["textures"], texdata, names, dynblob, opts) != 0)
+			if (parse_textures(obj["textures"], texdata, names, dynblob, opts) != 0)
 				return -1;
 		}
-		if (json_object::has(object, "uniforms"))
+		if (json_object::has(obj, "uniforms"))
 		{
-			if (parse_uniforms(object["uniforms"], unidata, names, dynblob, opts) != 0)
+			if (parse_uniforms(obj["uniforms"], unidata, names, dynblob, opts) != 0)
 				return -1;
 		}
 

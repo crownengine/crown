@@ -245,14 +245,14 @@ static void read_data_versions(HashMap<DynamicString, u32>& versions, Filesystem
 	Buffer json = read(data_fs, filename);
 
 	TempAllocator512 ta;
-	JsonObject object(ta);
-	sjson::parse(object, json);
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
 
-	auto cur = json_object::begin(object);
-	auto end = json_object::end(object);
+	auto cur = json_object::begin(obj);
+	auto end = json_object::end(obj);
 	for (; cur != end; ++cur)
 	{
-		JSON_OBJECT_SKIP_HOLE(object, cur);
+		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		TempAllocator256 ta;
 		DynamicString type(ta);
@@ -267,14 +267,14 @@ static void read_data_index(HashMap<StringId64, DynamicString>& index, Filesyste
 	Buffer json = read(data_fs, filename);
 
 	TempAllocator512 ta;
-	JsonObject object(ta);
-	sjson::parse(object, json);
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
 
-	auto cur = json_object::begin(object);
-	auto end = json_object::end(object);
+	auto cur = json_object::begin(obj);
+	auto end = json_object::end(obj);
 	for (; cur != end; ++cur)
 	{
-		JSON_OBJECT_SKIP_HOLE(object, cur);
+		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		TempAllocator256 ta;
 		StringId64 dst_name;
@@ -292,14 +292,14 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 	Buffer json = read(data_fs, filename);
 
 	TempAllocator128 ta;
-	JsonObject object(ta);
-	sjson::parse(object, json);
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
 
-	auto cur = json_object::begin(object);
-	auto end = json_object::end(object);
+	auto cur = json_object::begin(obj);
+	auto end = json_object::end(obj);
 	for (; cur != end; ++cur)
 	{
-		JSON_OBJECT_SKIP_HOLE(object, cur);
+		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		TempAllocator64 ta;
 		StringId64 dst_name;
@@ -319,14 +319,14 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 	Buffer json = read(data_fs, filename);
 
 	TempAllocator1024 ta;
-	JsonObject object(ta);
-	sjson::parse(object, json);
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
 
-	auto cur = json_object::begin(object);
-	auto end = json_object::end(object);
+	auto cur = json_object::begin(obj);
+	auto end = json_object::end(obj);
 	for (; cur != end; ++cur)
 	{
-		JSON_OBJECT_SKIP_HOLE(object, cur);
+		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		StringId64 dst_name;
 		dst_name.parse(cur->first.data());

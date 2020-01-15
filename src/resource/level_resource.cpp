@@ -50,13 +50,13 @@ namespace level_resource_internal
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, buf);
+		JsonObject obj(ta);
+		sjson::parse(obj, buf);
 
 		Array<LevelSound> sounds(default_allocator());
 		{
 			JsonArray sounds_json(ta);
-			sjson::parse_array(sounds_json, object["sounds"]);
+			sjson::parse_array(sounds_json, obj["sounds"]);
 
 			for (u32 i = 0; i < array::size(sounds_json); ++i)
 			{
@@ -83,7 +83,7 @@ namespace level_resource_internal
 		}
 
 		UnitCompiler uc(opts);
-		uc.compile_multiple_units(object["units"]);
+		uc.compile_multiple_units(obj["units"]);
 		Buffer unit_blob = uc.blob();
 
 		// Write

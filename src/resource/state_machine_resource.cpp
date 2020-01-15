@@ -258,13 +258,13 @@ namespace state_machine_internal
 		s32 parse(Buffer& buf)
 		{
 			TempAllocator4096 ta;
-			JsonObject object(ta);
+			JsonObject obj(ta);
 			JsonArray states(ta);
 			JsonArray variables(ta);
 
-			sjson::parse(object, buf);
-			sjson::parse_array(states, object["states"]);
-			sjson::parse_array(variables, object["variables"]);
+			sjson::parse(obj, buf);
+			sjson::parse_array(states, obj["states"]);
+			sjson::parse_array(variables, obj["variables"]);
 
 			// Parse states
 			for (u32 i = 0; i < array::size(states); ++i)
@@ -347,7 +347,7 @@ namespace state_machine_internal
 				, "State machine must contain one state at least"
 				);
 
-			_initial_state = sjson::parse_guid(object["initial_state"]);
+			_initial_state = sjson::parse_guid(obj["initial_state"]);
 			DATA_COMPILER_ASSERT(hash_map::has(_states, _initial_state)
 				, _opts
 				, "Initial state references non-existing state"

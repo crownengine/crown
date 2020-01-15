@@ -218,37 +218,37 @@ namespace mesh_resource_internal
 		void parse_float_array(const char* array_json, Array<f32>& output)
 		{
 			TempAllocator4096 ta;
-			JsonArray array(ta);
-			sjson::parse_array(array, array_json);
+			JsonArray arr(ta);
+			sjson::parse_array(arr, array_json);
 
-			array::resize(output, array::size(array));
-			for (u32 i = 0; i < array::size(array); ++i)
+			array::resize(output, array::size(arr));
+			for (u32 i = 0; i < array::size(arr); ++i)
 			{
-				output[i] = sjson::parse_float(array[i]);
+				output[i] = sjson::parse_float(arr[i]);
 			}
 		}
 
 		void parse_index_array(const char* array_json, Array<u16>& output)
 		{
 			TempAllocator4096 ta;
-			JsonArray array(ta);
-			sjson::parse_array(array, array_json);
+			JsonArray arr(ta);
+			sjson::parse_array(arr, array_json);
 
-			array::resize(output, array::size(array));
-			for (u32 i = 0; i < array::size(array); ++i)
+			array::resize(output, array::size(arr));
+			for (u32 i = 0; i < array::size(arr); ++i)
 			{
-				output[i] = (u16)sjson::parse_int(array[i]);
+				output[i] = (u16)sjson::parse_int(arr[i]);
 			}
 		}
 
 		void parse_indices(const char* json)
 		{
 			TempAllocator4096 ta;
-			JsonObject object(ta);
-			sjson::parse(object, json);
+			JsonObject obj(ta);
+			sjson::parse(obj, json);
 
 			JsonArray data_json(ta);
-			sjson::parse_array(data_json, object["data"]);
+			sjson::parse_array(data_json, obj["data"]);
 
 			parse_index_array(data_json[0], _position_indices);
 
@@ -265,28 +265,28 @@ namespace mesh_resource_internal
 		void parse(const char* geometry, const char* node)
 		{
 			TempAllocator4096 ta;
-			JsonObject object(ta);
-			JsonObject object_node(ta);
-			sjson::parse(object, geometry);
-			sjson::parse(object_node, node);
+			JsonObject obj(ta);
+			JsonObject obj_node(ta);
+			sjson::parse(obj, geometry);
+			sjson::parse(obj_node, node);
 
-			_has_normal = json_object::has(object, "normal");
-			_has_uv     = json_object::has(object, "texcoord");
+			_has_normal = json_object::has(obj, "normal");
+			_has_uv     = json_object::has(obj, "texcoord");
 
-			parse_float_array(object["position"], _positions);
+			parse_float_array(obj["position"], _positions);
 
 			if (_has_normal)
 			{
-				parse_float_array(object["normal"], _normals);
+				parse_float_array(obj["normal"], _normals);
 			}
 			if (_has_uv)
 			{
-				parse_float_array(object["texcoord"], _uvs);
+				parse_float_array(obj["texcoord"], _uvs);
 			}
 
-			parse_indices(object["indices"]);
+			parse_indices(obj["indices"]);
 
-			_matrix_local = sjson::parse_matrix4x4(object_node["matrix_local"]);
+			_matrix_local = sjson::parse_matrix4x4(obj_node["matrix_local"]);
 
 			_vertex_stride = 0;
 			_vertex_stride += 3 * sizeof(f32);
@@ -373,13 +373,13 @@ namespace mesh_resource_internal
 		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, buf);
+		JsonObject obj(ta);
+		sjson::parse(obj, buf);
 
 		JsonObject geometries(ta);
-		sjson::parse(geometries, object["geometries"]);
+		sjson::parse(geometries, obj["geometries"]);
 		JsonObject nodes(ta);
-		sjson::parse(nodes, object["nodes"]);
+		sjson::parse(nodes, obj["nodes"]);
 
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
 		opts.write(json_object::size(geometries));

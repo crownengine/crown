@@ -80,16 +80,16 @@ namespace texture_resource_internal
 		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, buf);
+		JsonObject obj(ta);
+		sjson::parse(obj, buf);
 
 		DynamicString name(ta);
-		sjson::parse_string(name, object["source"]);
+		sjson::parse_string(name, obj["source"]);
 		DATA_COMPILER_ASSERT_FILE_EXISTS(name.c_str(), opts);
 		opts.fake_read(name.c_str());
 
-		const bool generate_mips = sjson::parse_bool(object["generate_mips"]);
-		const bool normal_map    = sjson::parse_bool(object["normal_map"]);
+		const bool generate_mips = sjson::parse_bool(obj["generate_mips"]);
+		const bool normal_map    = sjson::parse_bool(obj["normal_map"]);
 
 		DynamicString texsrc(ta);
 		DynamicString texout(ta);

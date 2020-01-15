@@ -240,7 +240,7 @@ namespace sjson
 		}
 	}
 
-	void parse_string(DynamicString& string, const char* json)
+	void parse_string(DynamicString& str, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -260,20 +260,20 @@ namespace sjson
 
 					switch (*json)
 					{
-					case '"': string += '"'; break;
-					case '\\': string += '\\'; break;
-					case '/': string += '/'; break;
-					case 'b': string += '\b'; break;
-					case 'f': string += '\f'; break;
-					case 'n': string += '\n'; break;
-					case 'r': string += '\r'; break;
-					case 't': string += '\t'; break;
+					case '"': str += '"'; break;
+					case '\\': str += '\\'; break;
+					case '/': str += '/'; break;
+					case 'b': str += '\b'; break;
+					case 'f': str += '\f'; break;
+					case 'n': str += '\n'; break;
+					case 'r': str += '\r'; break;
+					case 't': str += '\t'; break;
 					default: CE_FATAL("Bad escape character"); break;
 					}
 				}
 				else
 				{
-					string += *json;
+					str += *json;
 				}
 			}
 		}
@@ -281,7 +281,7 @@ namespace sjson
 		CE_FATAL("Bad string");
 	}
 
-	void parse_array(JsonArray& array, const char* json)
+	void parse_array(JsonArray& arr, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -294,7 +294,7 @@ namespace sjson
 
 			while (*json)
 			{
-				array::push_back(array, json);
+				array::push_back(arr, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);
@@ -309,7 +309,7 @@ namespace sjson
 		CE_FATAL("Bad array");
 	}
 
-	static void parse_root_object(JsonObject& object, const char* json)
+	static void parse_root_object(JsonObject& obj, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -327,14 +327,14 @@ namespace sjson
 			json = next(json, (*json == '=') ? '=' : ':');
 			json = skip_spaces(json);
 
-			hash_map::set(object._map, fs_key, json);
+			hash_map::set(obj._map, fs_key, json);
 
 			json = skip_value(json);
 			json = skip_spaces(json);
 		}
 	}
 
-	void parse_object(JsonObject& object, const char* json)
+	void parse_object(JsonObject& obj, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -359,7 +359,7 @@ namespace sjson
 				json = next(json, (*json == '=') ? '=' : ':');
 				json = skip_spaces(json);
 
-				hash_map::set(object._map, fs_key, json);
+				hash_map::set(obj._map, fs_key, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);
@@ -374,23 +374,23 @@ namespace sjson
 		CE_FATAL("Bad object");
 	}
 
-	void parse(JsonObject& object, const char* json)
+	void parse(JsonObject& obj, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
 		json = skip_spaces(json);
 
 		if (*json == '{')
-			parse_object(object, json);
+			parse_object(obj, json);
 		else
-			parse_root_object(object, json);
+			parse_root_object(obj, json);
 	}
 
-	void parse(JsonObject& object, Buffer& json)
+	void parse(JsonObject& obj, Buffer& json)
 	{
 		array::push_back(json, '\0');
 		array::pop_back(json);
-		parse(object, array::begin(json));
+		parse(obj, array::begin(json));
 	}
 
 } // namespace sjson
@@ -400,82 +400,82 @@ namespace sjson
 	Vector2 parse_vector2(const char* json)
 	{
 		TempAllocator64 ta;
-		JsonArray array(ta);
-		sjson::parse_array(array, json);
+		JsonArray arr(ta);
+		sjson::parse_array(arr, json);
 
 		Vector2 v;
-		v.x = sjson::parse_float(array[0]);
-		v.y = sjson::parse_float(array[1]);
+		v.x = sjson::parse_float(arr[0]);
+		v.y = sjson::parse_float(arr[1]);
 		return v;
 	}
 
 	Vector3 parse_vector3(const char* json)
 	{
 		TempAllocator64 ta;
-		JsonArray array(ta);
-		sjson::parse_array(array, json);
+		JsonArray arr(ta);
+		sjson::parse_array(arr, json);
 
 		Vector3 v;
-		v.x = sjson::parse_float(array[0]);
-		v.y = sjson::parse_float(array[1]);
-		v.z = sjson::parse_float(array[2]);
+		v.x = sjson::parse_float(arr[0]);
+		v.y = sjson::parse_float(arr[1]);
+		v.z = sjson::parse_float(arr[2]);
 		return v;
 	}
 
 	Vector4 parse_vector4(const char* json)
 	{
 		TempAllocator64 ta;
-		JsonArray array(ta);
-		sjson::parse_array(array, json);
+		JsonArray arr(ta);
+		sjson::parse_array(arr, json);
 
 		Vector4 v;
-		v.x = sjson::parse_float(array[0]);
-		v.y = sjson::parse_float(array[1]);
-		v.z = sjson::parse_float(array[2]);
-		v.w = sjson::parse_float(array[3]);
+		v.x = sjson::parse_float(arr[0]);
+		v.y = sjson::parse_float(arr[1]);
+		v.z = sjson::parse_float(arr[2]);
+		v.w = sjson::parse_float(arr[3]);
 		return v;
 	}
 
 	Quaternion parse_quaternion(const char* json)
 	{
 		TempAllocator64 ta;
-		JsonArray array(ta);
-		sjson::parse_array(array, json);
+		JsonArray arr(ta);
+		sjson::parse_array(arr, json);
 
 		Quaternion q;
-		q.x = sjson::parse_float(array[0]);
-		q.y = sjson::parse_float(array[1]);
-		q.z = sjson::parse_float(array[2]);
-		q.w = sjson::parse_float(array[3]);
+		q.x = sjson::parse_float(arr[0]);
+		q.y = sjson::parse_float(arr[1]);
+		q.z = sjson::parse_float(arr[2]);
+		q.w = sjson::parse_float(arr[3]);
 		return q;
 	}
 
 	Matrix4x4 parse_matrix4x4(const char* json)
 	{
 		TempAllocator256 ta;
-		JsonArray array(ta);
-		sjson::parse_array(array, json);
+		JsonArray arr(ta);
+		sjson::parse_array(arr, json);
 
 		Matrix4x4 m;
-		m.x.x = sjson::parse_float(array[ 0]);
-		m.x.y = sjson::parse_float(array[ 1]);
-		m.x.z = sjson::parse_float(array[ 2]);
-		m.x.w = sjson::parse_float(array[ 3]);
+		m.x.x = sjson::parse_float(arr[ 0]);
+		m.x.y = sjson::parse_float(arr[ 1]);
+		m.x.z = sjson::parse_float(arr[ 2]);
+		m.x.w = sjson::parse_float(arr[ 3]);
 
-		m.y.x = sjson::parse_float(array[ 4]);
-		m.y.y = sjson::parse_float(array[ 5]);
-		m.y.z = sjson::parse_float(array[ 6]);
-		m.y.w = sjson::parse_float(array[ 7]);
+		m.y.x = sjson::parse_float(arr[ 4]);
+		m.y.y = sjson::parse_float(arr[ 5]);
+		m.y.z = sjson::parse_float(arr[ 6]);
+		m.y.w = sjson::parse_float(arr[ 7]);
 
-		m.z.x = sjson::parse_float(array[ 8]);
-		m.z.y = sjson::parse_float(array[ 9]);
-		m.z.z = sjson::parse_float(array[10]);
-		m.z.w = sjson::parse_float(array[11]);
+		m.z.x = sjson::parse_float(arr[ 8]);
+		m.z.y = sjson::parse_float(arr[ 9]);
+		m.z.z = sjson::parse_float(arr[10]);
+		m.z.w = sjson::parse_float(arr[11]);
 
-		m.t.x = sjson::parse_float(array[12]);
-		m.t.y = sjson::parse_float(array[13]);
-		m.t.z = sjson::parse_float(array[14]);
-		m.t.w = sjson::parse_float(array[15]);
+		m.t.x = sjson::parse_float(arr[12]);
+		m.t.y = sjson::parse_float(arr[13]);
+		m.t.z = sjson::parse_float(arr[14]);
+		m.t.w = sjson::parse_float(arr[15]);
 		return m;
 	}
 
@@ -503,7 +503,7 @@ namespace sjson
 		return guid::parse(str.c_str());
 	}
 
-	void parse_verbatim(DynamicString& string, const char* json)
+	void parse_verbatim(DynamicString& str, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -514,7 +514,7 @@ namespace sjson
 		const char* end = strstr(json, "\"\"\"");
 		CE_ASSERT(end, "Bad verbatim string");
 
-		string.set(json, u32(end - json));
+		str.set(json, u32(end - json));
 	}
 
 } // namespace json

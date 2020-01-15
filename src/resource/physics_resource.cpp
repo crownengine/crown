@@ -371,14 +371,14 @@ namespace physics_config_resource_internal
 	void parse_materials(const char* json, Array<PhysicsMaterial>& objects)
 	{
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, json);
+		JsonObject obj(ta);
+		sjson::parse(obj, json);
 
-		auto cur = json_object::begin(object);
-		auto end = json_object::end(object);
+		auto cur = json_object::begin(obj);
+		auto end = json_object::end(obj);
 		for (; cur != end; ++cur)
 		{
-			JSON_OBJECT_SKIP_HOLE(object, cur);
+			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
 			const char* value    = cur->second;
@@ -399,14 +399,14 @@ namespace physics_config_resource_internal
 	void parse_actors(const char* json, Array<PhysicsActor>& objects)
 	{
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, json);
+		JsonObject obj(ta);
+		sjson::parse(obj, json);
 
-		auto cur = json_object::begin(object);
-		auto end = json_object::end(object);
+		auto cur = json_object::begin(obj);
+		auto end = json_object::end(obj);
 		for (; cur != end; ++cur)
 		{
-			JSON_OBJECT_SKIP_HOLE(object, cur);
+			JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 			const StringView key = cur->first;
 			const char* value    = cur->second;
@@ -452,14 +452,14 @@ namespace physics_config_resource_internal
 		void parse(const char* json)
 		{
 			TempAllocator4096 ta;
-			JsonObject object(ta);
-			sjson::parse(object, json);
+			JsonObject obj(ta);
+			sjson::parse(obj, json);
 
-			auto cur = json_object::begin(object);
-			auto end = json_object::end(object);
+			auto cur = json_object::begin(obj);
+			auto end = json_object::end(obj);
 			for (; cur != end; ++cur)
 			{
-				JSON_OBJECT_SKIP_HOLE(object, cur);
+				JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 				const StringView key = cur->first;
 				const StringId32 id  = StringId32(key.data(), key.length());
@@ -467,11 +467,11 @@ namespace physics_config_resource_internal
 				hash_map::set(_filter_map, id, new_filter_mask());
 			}
 
-			cur = json_object::begin(object);
-			end = json_object::end(object);
+			cur = json_object::begin(obj);
+			end = json_object::end(obj);
 			for (; cur != end; ++cur)
 			{
-				JSON_OBJECT_SKIP_HOLE(object, cur);
+				JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 				const StringView key = cur->first;
 				const char* value    = cur->second;
@@ -528,20 +528,20 @@ namespace physics_config_resource_internal
 	{
 		Buffer buf = opts.read();
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, buf);
+		JsonObject obj(ta);
+		sjson::parse(obj, buf);
 
 		Array<PhysicsMaterial> materials(default_allocator());
 		Array<PhysicsActor> actors(default_allocator());
 		CollisionFilterCompiler cfc(opts);
 
 		// Parse materials
-		if (json_object::has(object, "collision_filters"))
-			cfc.parse(object["collision_filters"]);
-		if (json_object::has(object, "materials"))
-			parse_materials(object["materials"], materials);
-		if (json_object::has(object, "actors"))
-			parse_actors(object["actors"], actors);
+		if (json_object::has(obj, "collision_filters"))
+			cfc.parse(obj["collision_filters"]);
+		if (json_object::has(obj, "materials"))
+			parse_materials(obj["materials"], materials);
+		if (json_object::has(obj, "actors"))
+			parse_actors(obj["actors"], actors);
 
 		// Setup struct for writing
 		PhysicsConfigResource pcr;

@@ -60,14 +60,14 @@ namespace font_resource_internal
 		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
-		JsonObject object(ta);
+		JsonObject obj(ta);
 		JsonArray glyphs_json(ta);
 
-		sjson::parse(object, buf);
-		sjson::parse_array(glyphs_json, object["glyphs"]);
+		sjson::parse(obj, buf);
+		sjson::parse_array(glyphs_json, obj["glyphs"]);
 
-		const u32 texture_size = sjson::parse_int(object["size"]);
-		const u32 font_size    = sjson::parse_int(object["font_size"]);
+		const u32 texture_size = sjson::parse_int(obj["size"]);
+		const u32 font_size    = sjson::parse_int(obj["font_size"]);
 		const u32 num_glyphs   = array::size(glyphs_json);
 
 		DATA_COMPILER_ASSERT(font_size > 0

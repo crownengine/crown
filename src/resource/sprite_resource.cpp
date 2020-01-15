@@ -56,15 +56,15 @@ namespace sprite_resource_internal
 		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
-		JsonObject object(ta);
-		sjson::parse(object, buf);
+		JsonObject obj(ta);
+		sjson::parse(obj, buf);
 
 		JsonArray frames(ta);
-		sjson::parse_array(frames, object["frames"]);
+		sjson::parse_array(frames, obj["frames"]);
 
 		// Read width/height
-		const f32 width      = sjson::parse_float(object["width"]);
-		const f32 height     = sjson::parse_float(object["height"]);
+		const f32 width      = sjson::parse_float(obj["width"]);
+		const f32 height     = sjson::parse_float(obj["height"]);
 		const u32 num_frames = array::size(frames);
 
 		Array<f32> vertices(default_allocator());
@@ -174,20 +174,20 @@ namespace sprite_animation_resource_internal
 		Buffer buf = opts.read();
 
 		TempAllocator4096 ta;
-		JsonObject object(ta);
+		JsonObject obj(ta);
 		JsonArray  object_frames(ta);
 
 		Array<u32> frames(default_allocator());
 		float total_time = 0.0f;
 
-		sjson::parse(object, buf);
-		sjson::parse_array(object_frames, object["frames"]);
+		sjson::parse(obj, buf);
+		sjson::parse_array(object_frames, obj["frames"]);
 
 		array::resize(frames, array::size(object_frames));
 		for (u32 i = 0; i < array::size(object_frames); ++i)
 			frames[i] = (u32)sjson::parse_float(object_frames[i]);
 
-		total_time = sjson::parse_float(object["total_time"]);
+		total_time = sjson::parse_float(obj["total_time"]);
 
 		// Write
 		SpriteAnimationResource sar;
