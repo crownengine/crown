@@ -242,7 +242,7 @@ File* FilesystemDisk::open(const char* path, FileOpenMode::Enum mode)
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
+	absolute_path(abs_path, path);
 
 	FileDisk* file = CE_NEW(*_allocator, FileDisk)();
 	file->open(abs_path.c_str(), mode);
@@ -260,7 +260,7 @@ Stat FilesystemDisk::stat(const char* path)
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
+	absolute_path(abs_path, path);
 
 	Stat info;
 	os::stat(info, abs_path.c_str());
@@ -293,7 +293,7 @@ CreateResult FilesystemDisk::create_directory(const char* path)
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
+	absolute_path(abs_path, path);
 
 	return os::create_directory(abs_path.c_str());
 }
@@ -304,7 +304,7 @@ DeleteResult FilesystemDisk::delete_directory(const char* path)
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
+	absolute_path(abs_path, path);
 
 	return os::delete_directory(abs_path.c_str());
 }
@@ -315,7 +315,7 @@ DeleteResult FilesystemDisk::delete_file(const char* path)
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
+	absolute_path(abs_path, path);
 
 	return os::delete_file(abs_path.c_str());
 }
@@ -326,12 +326,12 @@ void FilesystemDisk::list_files(const char* path, Vector<DynamicString>& files)
 
 	TempAllocator256 ta;
 	DynamicString abs_path(ta);
-	get_absolute_path(path, abs_path);
+	absolute_path(abs_path, path);
 
 	os::list_files(abs_path.c_str(), files);
 }
 
-void FilesystemDisk::get_absolute_path(const char* path, DynamicString& os_path)
+void FilesystemDisk::absolute_path(DynamicString& os_path, const char* path)
 {
 	if (path::is_absolute(path))
 	{

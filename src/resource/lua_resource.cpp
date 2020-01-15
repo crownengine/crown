@@ -38,7 +38,7 @@ namespace lua_resource_internal
 		TempAllocator1024 ta;
 		DynamicString luasrc(ta);
 		DynamicString luabin(ta);
-		opts.get_absolute_path(opts.source_path(), luasrc);
+		opts.absolute_path(opts.source_path(), luasrc);
 		opts.get_temporary_path("lua", luabin);
 
 		const char* argv[] =

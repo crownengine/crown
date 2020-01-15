@@ -139,7 +139,7 @@ void CompileOptions::add_requirement(const char* type, const char* name)
 	_data_compiler.add_requirement(_resource_id, path.c_str());
 }
 
-void CompileOptions::get_absolute_path(const char* path, DynamicString& abs)
+void CompileOptions::absolute_path(const char* path, DynamicString& abs)
 {
 	TempAllocator256 ta;
 	DynamicString source_dir(ta);
@@ -147,7 +147,7 @@ void CompileOptions::get_absolute_path(const char* path, DynamicString& abs)
 
 	FilesystemDisk source_filesystem(ta);
 	source_filesystem.set_prefix(source_dir.c_str());
-	source_filesystem.get_absolute_path(path, abs);
+	source_filesystem.absolute_path(abs, path);
 }
 
 void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
@@ -157,7 +157,7 @@ void CompileOptions::get_temporary_path(const char* suffix, DynamicString& abs)
 	DynamicString prefix(ta);
 	prefix.from_guid(guid::new_guid());
 
-	_data_filesystem.get_absolute_path(CROWN_TEMP_DIRECTORY, str);
+	_data_filesystem.absolute_path(str, CROWN_TEMP_DIRECTORY);
 
 	path::join(abs, str.c_str(), prefix.c_str());
 	abs += '.';

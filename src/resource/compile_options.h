@@ -111,7 +111,7 @@ struct CompileOptions
 	void add_requirement(const char* type, const char* name);
 
 	///
-	void get_absolute_path(const char* path, DynamicString& abs);
+	void absolute_path(const char* path, DynamicString& abs);
 
 	///
 	void get_temporary_path(const char* suffix, DynamicString& abs);

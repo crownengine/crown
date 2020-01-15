@@ -205,7 +205,7 @@ void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)
 	AAssetDir_close(root_dir);
 }
 
-void FilesystemApk::get_absolute_path(const char* path, DynamicString& os_path)
+void FilesystemApk::absolute_path(DynamicString& os_path, const char* path)
 {
 	os_path = path;
 }

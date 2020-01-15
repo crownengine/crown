@@ -18,9 +18,16 @@ namespace crown
 /// @ingroup Filesystem
 struct Filesystem
 {
+	///
 	Filesystem() {};
+
+	///
 	virtual ~Filesystem() {};
+
+	///
 	Filesystem(const Filesystem&) = delete;
+
+	///
 	Filesystem& operator=(const Filesystem&) = delete;
 
 	/// Opens the file at the given @a path with the given @a mode.
@@ -59,7 +66,7 @@ struct Filesystem
 	/// Returns the absolute path of the given @a path based on
 	/// the root path of the file source. If @a path is absolute,
 	/// the given path is returned.
-	virtual void get_absolute_path(const char* path, DynamicString& os_path) = 0;
+	virtual void absolute_path(DynamicString& os_path, const char* path) = 0;
 };
 
 } // namespace crown
