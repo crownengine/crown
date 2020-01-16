@@ -397,13 +397,21 @@ void Device::run()
 	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)();
 
 	bgfx::Init init;
-	init.type     = bgfx::RendererType::Count;
-	init.vendorId = BGFX_PCI_ID_NONE;
 	init.resolution.width  = _width;
 	init.resolution.height = _height;
 	init.resolution.reset  = _boot_config.vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;
 	init.callback  = _bgfx_callback;
 	init.allocator = _bgfx_allocator;
+	init.vendorId = BGFX_PCI_ID_NONE;
+#if CROWN_PLATFORM_ANDROID
+	init.type = bgfx::RendererType::OpenGLES;
+#elif CROWN_PLATFORM_LINUX
+	init.type = bgfx::RendererType::OpenGL;
+#elif CROWN_PLATFORM_WINDOWS
+	init.type = bgfx::RendererType::Direct3D11;
+#else
+	#error "Unknown platform"
+#endif
 	bgfx::init(init);
 
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
