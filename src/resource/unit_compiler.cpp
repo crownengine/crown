@@ -317,8 +317,6 @@ u32 component_index(const JsonArray& components, const StringView& id)
 s32 UnitCompiler::compile_unit_from_json(const char* json)
 {
 	Buffer data(default_allocator());
-	array::reserve(data, 1024*1024);
-
 	u32 num_prefabs = 1;
 
 	TempAllocator4096 ta;
@@ -342,9 +340,10 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 		path += ".unit";
 
 		Buffer buf = read_unit(path.c_str());
-		const char* data_end = array::end(data);
+		u32 offset = array::size(data);
 		array::push(data, array::begin(buf), array::size(buf));
-		sjson::parse(prefabs[i + 1], data_end);
+		array::push_back(data, '\0');
+		sjson::parse(prefabs[i + 1], array::begin(data) + offset);
 	}
 
 	JsonObject& prefab_root = prefabs[num_prefabs - 1];
