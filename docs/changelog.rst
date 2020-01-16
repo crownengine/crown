@@ -12,6 +12,8 @@ Changelog
 * added RenderWorld.mesh_material(), RenderWorld.mesh_set_material() and RenderWorld.sprite_material()
 * added the ability to scale the shape of colliders at Unit spawn time
 * added World.unit_by_name() to retrieve unit by its name in the Level Editor
+* bumped minimum Android version to 7.0+
+* bumped minimum OpenGL version to 3.2+ for Linux
 * fixed an issue that caused PhysicsWorld.set_gravity() to re-enable gravity to actors that previously disabled it with PhysicsWorld.actor_disable_gravity()
 * fixed an issue that prevented kinematic actors to be controlled via the SceneGraph
 * fixed an issue that prevented PhysicsWorld.actor_center_of_mass() to be called for static actors

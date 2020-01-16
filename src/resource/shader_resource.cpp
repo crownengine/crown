@@ -478,10 +478,24 @@ namespace shader_resource_internal
 			NULL,
 		};
 
-		if (strcmp("windows", platform) == 0)
+		if (strcmp(platform, "android") == 0)
+		{
+			argv[11] = "--profile";
+			argv[12] = "1"; // GLES2
+		}
+		else if (strcmp(platform, "linux") == 0)
+		{
+			argv[11] = "--profile";
+			argv[12] = "150"; // OpenGL 3.2+
+		}
+		else if (strcmp(platform, "windows") == 0)
 		{
 			argv[11] = "--profile";
 			argv[12] = ((strcmp(type, "vertex") == 0) ? "vs_4_0" : "ps_4_0");
+		}
+		else
+		{
+			return -1;
 		}
 
 		return pr.spawn(argv, ProcessFlags::STDOUT_PIPE | ProcessFlags::STDERR_MERGE);

@@ -71,7 +71,7 @@ build/win64/bin/luajit.exe:
 	-@rm -f 3rdparty/luajit/src/minilua.*
 
 build/projects/android-arm:
-	$(GENIE) --file=scripts/genie.lua --with-luajit --compiler=android-arm gmake
+	$(GENIE) --gfxapi=gles2 --with-luajit --compiler=android-arm gmake
 android-arm-debug: build/projects/android-arm build/android-arm/bin/libluajit.a
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/android-arm config=debug
 android-arm-development: build/projects/android-arm build/android-arm/bin/libluajit.a
@@ -89,7 +89,7 @@ build/linux64/bin/shaderc:
 
 build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
-	$(GENIE) --with-luajit --with-tools --compiler=linux-gcc gmake
+	$(GENIE) --gfxapi=gl32 --with-luajit --with-tools --compiler=linux-gcc gmake
 linux-debug32: build/projects/linux build/linux32/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=debug32
 linux-development32: build/projects/linux build/linux32/bin/luajit
@@ -105,7 +105,7 @@ linux-release64: build/projects/linux build/linux64/bin/luajit
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
 build/projects/mingw:
-	$(GENIE) --file=scripts/genie.lua --with-luajit --with-tools --compiler=mingw-gcc gmake
+	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --compiler=mingw-gcc gmake
 mingw-debug32: build/projects/mingw build/mingw32/bin/luajit.exe
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw config=debug32
 mingw-development32: build/projects/mingw build/mingw32/bin/luajit.exe
@@ -129,7 +129,7 @@ build/win64/bin/shaderc.exe:
 
 build/projects/vs2017:
 	$(GENIE) --file=3rdparty\\bgfx\\scripts\\genie.lua --with-tools vs2017
-	$(GENIE) --with-luajit --with-tools --no-level-editor vs2017
+	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2017
 windows-debug32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|Win32"
 windows-development32: build/projects/vs2017 build/win32/bin/luajit.exe

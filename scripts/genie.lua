@@ -28,6 +28,11 @@ newoption {
 	description = "Do not build Level Editor."
 }
 
+newoption {
+	trigger = "gfxapi",
+	description = "BGFX renderer (gl32, gles2, d3d11)."
+}
+
 solution "crown"
 	configurations {
 		"debug",
@@ -54,7 +59,16 @@ crown_project("", "WindowedApp", {})
 
 group "libs"
 dofile (BGFX_DIR .. "scripts/bgfx.lua")
-bgfxProject("", "StaticLib")
+
+if _OPTIONS["gfxapi"] == "gl32" then
+	bgfxProject("", "StaticLib", "BGFX_CONFIG_RENDERER_OPENGL=32")
+elseif _OPTIONS["gfxapi"] == "gles2" then
+	bgfxProject("", "StaticLib", "BGFX_CONFIG_RENDERER_OPENGLES=20")
+elseif _OPTIONS["gfxapi"] == "d3d11" then
+	bgfxProject("", "StaticLib", "BGFX_CONFIG_RENDERER_DIRECT3D11=1")
+else
+	bgfxProject("", "StaticLib")
+end
 
 dofile (BX_DIR .. "scripts/bx.lua")
 dofile (BIMG_DIR .. "scripts/bimg.lua")
