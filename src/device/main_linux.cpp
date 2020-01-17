@@ -856,12 +856,14 @@ int main(int argc, char** argv)
 	if (quit)
 		return ec;
 
+#if CROWN_CAN_COMPILE
 	if (ec == EXIT_SUCCESS && (opts._do_compile || opts._server))
 	{
 		ec = main_data_compiler(opts);
 		if (!opts._do_continue)
 			return ec;
 	}
+#endif
 
 	if (ec == EXIT_SUCCESS)
 		ec = s_ldvc.run(&opts);
