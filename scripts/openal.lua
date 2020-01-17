@@ -101,6 +101,8 @@ function openal_project(_kind)
 				"HAVE_WASAPI",
 				"HAVE_WINDOWS_H",
 				"HAVE_WINMM",
+				"strcasecmp=_stricmp",
+				"strncasecmp=_strnicmp",
 			}
 			files {
 				AL_DIR .. "alc/backends/dsound.cpp",
