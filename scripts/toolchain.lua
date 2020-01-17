@@ -102,6 +102,7 @@ function toolchain(build_dir, lib_dir)
 		"NoRTTI",
 		"NoExceptions",
 		"NoEditAndContinue",
+		"NoFramePointer",
 		"Symbols",
 	}
 
@@ -313,7 +314,6 @@ function toolchain(build_dir, lib_dir)
 			"NOMINMAX",
 		}
 		buildoptions {
-			"/Oy-", -- Suppresses creation of frame pointers on the call stack.
 			"/Ob2", -- The Inline Function Expansion
 		}
 		linkoptions {
