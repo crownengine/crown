@@ -6,7 +6,6 @@
 #pragma once
 
 #include "core/types.h"
-#include <string.h> // memcmp
 
 namespace crown
 {
@@ -52,16 +51,10 @@ namespace guid
 } // namespace guid
 
 /// Returns whether Guid @a and @b are equal.
-inline bool operator==(const Guid& a, const Guid& b)
-{
-	return memcmp(&a, &b, sizeof(a)) == 0;
-}
+bool operator==(const Guid& a, const Guid& b);
 
 /// Returns whether Guid @a is lesser than @b.
-inline bool operator<(const Guid& a, const Guid& b)
-{
-	return memcmp(&a, &b, sizeof(a)) < 0;
-}
+bool operator<(const Guid& a, const Guid& b);
 
 static const Guid GUID_ZERO = { 0u, 0u, 0u, 0u };
 

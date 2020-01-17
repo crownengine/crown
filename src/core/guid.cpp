@@ -6,7 +6,8 @@
 #include "core/error/error.h"
 #include "core/guid.h"
 #include "core/platform.h"
-#include <stdio.h> // sscanf
+#include <stdio.h>  // sscanf
+#include <string.h> // memcmp
 
 #if CROWN_PLATFORM_POSIX
 	#include <fcntl.h>
@@ -93,5 +94,15 @@ namespace guid
 	}
 
 } // namespace guid
+
+bool operator==(const Guid& a, const Guid& b)
+{
+	return memcmp(&a, &b, sizeof(a)) == 0;
+}
+
+bool operator<(const Guid& a, const Guid& b)
+{
+	return memcmp(&a, &b, sizeof(a)) < 0;
+}
 
 } // namespace crown
