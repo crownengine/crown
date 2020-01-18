@@ -168,6 +168,8 @@ docs:
 .PHONY: clean
 clean:
 	@echo Cleaning...
-	-@rm -rf build
+ifeq ($(OS), linux)
 	-@$(MAKE) -R -C 3rdparty/luajit/src clean -s
+endif
 	-@rm -rf 3rdparty/bgfx/.build
+	-@rm -rf build
