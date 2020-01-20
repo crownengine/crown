@@ -85,25 +85,18 @@ inline T clamp(T val, T mmin, T mmax)
 #define CE_UNUSED(x) do { (void)(x); } while (0)
 #define CE_STATIC_ASSERT(condition, ...) static_assert(condition, "" # __VA_ARGS__)
 
-#if defined(__GNUC__)
+#if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG
 	#define CE_LIKELY(x) __builtin_expect((x), 1)
 	#define CE_UNLIKELY(x) __builtin_expect((x), 0)
 	#define CE_UNREACHABLE() __builtin_unreachable()
-#else
+	#define CE_ALIGN_DECL(align, decl) decl __attribute__ ((aligned (align)))
+	#define CE_THREAD __thread
+#elif CROWN_COMPILER_MSVC
 	#define CE_LIKELY(x) (x)
 	#define CE_UNLIKELY(x) (x)
 	#define CE_UNREACHABLE()
-#endif
-#if defined(__GNUC__)
-	#define CE_THREAD __thread
-#elif defined(_MSC_VER)
+	#define CE_ALIGN_DECL(align_, decl) __declspec (align(align_)) decl
 	#define CE_THREAD __declspec(thread)
 #else
-	#error "Compiler not supported"
-#endif
-
-#if CROWN_PLATFORM_POSIX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
-	#define CE_ALIGN_DECL(align, decl) decl __attribute__ ((aligned (align)))
-#elif CROWN_PLATFORM_WINDOWS
-	#define CE_ALIGN_DECL(align_, decl) __declspec (align(align_)) decl
+	#error "Unknown compiler"
 #endif
