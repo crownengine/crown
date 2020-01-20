@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2019 Branimir Karadzic. All rights reserved.
+-- Copyright 2010-2020 Branimir Karadzic. All rights reserved.
 -- License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 --
 
@@ -306,7 +306,19 @@ function exampleProjectDefaults()
 
 	configuration { "asmjs" }
 		kind "ConsoleApp"
-		targetextension ".bc"
+
+		linkoptions {
+			"-s TOTAL_MEMORY=256MB",
+			"--memory-init-file 1",
+		}
+
+		removeflags {
+			"OptimizeSpeed",
+		}
+
+		flags {
+			"Optimize"
+		}
 
 	configuration { "linux-* or freebsd", "not linux-steamlink" }
 		links {
