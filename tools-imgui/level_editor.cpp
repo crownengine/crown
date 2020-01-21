@@ -1537,12 +1537,38 @@ bool tool_process_events()
 						, io.MouseDown[MouseButton::RIGHT]
 						);
 
-					if (event.button.button_num == crown::MouseButton::LEFT)
+					if (event.button.pressed)
 					{
-						if (event.button.pressed)
-							tool::mouse_down(ss, cursor.x, cursor.y);
+						if (io.KeysDown[crown::KeyboardButton::ALT_LEFT])
+						{
+							if (event.button.button_num == crown::MouseButton::LEFT)
+								ss << "LevelEditor:camera_drag_start('tumble')";
+							if (event.button.button_num == crown::MouseButton::MIDDLE)
+								ss << "LevelEditor:camera_drag_start('track')";
+							if (event.button.button_num == crown::MouseButton::RIGHT)
+								ss << "LevelEditor:camera_drag_start('dolly')";
+						}
 						else
+						{
+							tool::mouse_down(ss, cursor.x, cursor.y);
+						}
+					}
+					else
+					{
+						if (io.KeysDown[crown::KeyboardButton::ALT_LEFT])
+						{
+							if (event.button.button_num != crown::MouseButton::LEFT
+								|| event.button.button_num != crown::MouseButton::MIDDLE
+								|| event.button.button_num != crown::MouseButton::RIGHT
+								)
+							{
+								ss << "LevelEditor:camera_drag_start('idle')";
+							}
+						}
+						else
+						{
 							tool::mouse_up(ss, cursor.x, cursor.y);
+						}
 					}
 				}
 				break;

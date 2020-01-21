@@ -49,6 +49,11 @@ namespace Crown
 			}
 		}
 
+		private bool camera_modifier_pressed()
+		{
+			return _keys[Gdk.Key.Alt_L] || _keys[Gdk.Key.Alt_R];
+		}
+
 		public EngineView(ConsoleClient client, bool input_enabled = true)
 		{
 			this.xalign = 0;
@@ -72,6 +77,8 @@ namespace Crown
 			_keys[Gdk.Key.a] = false;
 			_keys[Gdk.Key.s] = false;
 			_keys[Gdk.Key.d] = false;
+			_keys[Gdk.Key.Alt_L] = false;
+			_keys[Gdk.Key.Alt_R] = false;
 
 			// Widgets
 			_socket = new Gtk.Socket();
@@ -118,8 +125,16 @@ namespace Crown
 				, _mouse_right
 				);
 
-			if (ev.button == 1)
-				s += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
+			if (camera_modifier_pressed())
+			{
+				if (!_mouse_left || !_mouse_middle || !_mouse_right)
+					s += "LevelEditor:camera_drag_start('idle')";
+			}
+			else
+			{
+				if (ev.button == 1)
+					s += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
+			}
 
 			_client.send_script(s);
 			return false;
@@ -141,8 +156,20 @@ namespace Crown
 				, _mouse_right
 				);
 
-			if (ev.button == 1)
-				s += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
+			if (camera_modifier_pressed())
+			{
+				if (_mouse_left)
+					s += "LevelEditor:camera_drag_start('tumble')";
+				if (_mouse_middle)
+					s += "LevelEditor:camera_drag_start('track')";
+				if (_mouse_right)
+					s += "LevelEditor:camera_drag_start('dolly')";
+			}
+			else
+			{
+				if (ev.button == 1)
+					s += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
+			}
 
 			_client.send_script(s);
 			return false;
@@ -172,6 +199,9 @@ namespace Crown
 
 		private bool on_key_release(Gdk.EventKey ev)
 		{
+			if ((ev.keyval == Gdk.Key.Alt_L || ev.keyval == Gdk.Key.Alt_R))
+				_client.send_script("LevelEditor:camera_drag_start('idle')");
+
 			if (!_keys.has_key(ev.keyval))
 				return false;
 

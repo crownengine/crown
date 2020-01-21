@@ -1345,7 +1345,10 @@ function LevelEditor:init()
 
 	-- Spawn camera
 	local pos = Vector3(20, 20, -20)
-	local dir = Vector3.normalize(Vector3.zero() - pos)
+	local zero_pos = Vector3.zero() - pos
+	local len = math.abs(Vector3.length(zero_pos))
+	local dir = Vector3.normalize(zero_pos)
+	self._camera._target_distance = len
 	SceneGraph.set_local_rotation(self._sg, self._camera:unit(), Quaternion.look(dir))
 	SceneGraph.set_local_position(self._sg, self._camera:unit(), pos)
 end
@@ -1368,7 +1371,9 @@ function LevelEditor:update(dt)
 	self._camera:mouse_wheel(self._mouse.wheel.delta)
 	self._camera:update(dt, self._mouse.dx, self._mouse.dy, self._keyboard, self._mouse)
 
-	self.tool:mouse_move(self._mouse.x, self._mouse.y)
+	if self._camera:is_idle() then
+		self.tool:mouse_move(self._mouse.x, self._mouse.y)
+	end
 	self.tool:update(dt, self._mouse.x, self._mouse.y)
 
 	self._mouse.dx = 0
@@ -1623,4 +1628,8 @@ end
 
 function LevelEditor:camera_view_bottom()
 	self._camera:set_orthographic(Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 1))
+end
+
+function LevelEditor:camera_drag_start(mode)
+	self._camera:set_mode(mode, self._mouse.x, self._mouse.y)
 end

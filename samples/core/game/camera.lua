@@ -11,7 +11,7 @@ function FPSCamera:init(world, unit)
 	self._world = world
 	self._unit = unit
 	self._sg = World.scene_graph(world)
-	self._translation_speed = 20
+	self._movement_speed = 20
 	self._rotation_speed = 0.14
 end
 
@@ -57,7 +57,7 @@ function FPSCamera:update(dt, dx, dy)
 	end
 
 	-- Translation
-	local translation_speed = self._translation_speed * dt
+	local translation_speed = self._movement_speed * dt
 	if wkey then camera_position = camera_position + view_dir * translation_speed end
 	if skey then camera_position = camera_position - view_dir * translation_speed end
 	if akey then camera_position = camera_position - camera_right_vector * translation_speed end

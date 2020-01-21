@@ -1,13 +1,106 @@
 require "core/lua/class"
 
+local function camera_tumble(self, x, y)
+	if self:is_orthographic() then
+		return
+	end
+
+	local drag_delta = Vector3(x, y, 0) - self._drag_start_cursor_xy:unbox()
+
+	local camera_pose     = self._drag_start_camera_pose:unbox()
+	local camera_position = Matrix4x4.translation(camera_pose)
+	local camera_rotation = Matrix4x4.rotation(camera_pose)
+	local camera_right    = Matrix4x4.x(camera_pose)
+	local camera_forward  = Matrix4x4.z(camera_pose)
+
+	local rotation_up    = Quaternion.from_axis_angle(Vector3.up(), drag_delta.x * self._rotation_speed)
+	local rotation_right = Quaternion.from_axis_angle(camera_right, drag_delta.y * self._rotation_speed)
+	local rotate_delta   = Matrix4x4.from_quaternion(Quaternion.multiply(rotation_up, rotation_right))
+
+	local target_position = camera_position + (camera_forward * self._target_distance)
+
+	local rotate_original = Matrix4x4.from_quaternion(camera_rotation)
+	local move_to_target  = Matrix4x4.from_translation(target_position)
+	local move_to_origin  = Matrix4x4.from_translation(Vector3(0, 0, -self._target_distance));
+
+	local pose = Matrix4x4.identity()
+	pose = Matrix4x4.multiply(pose, move_to_origin)
+	pose = Matrix4x4.multiply(pose, rotate_original)
+	pose = Matrix4x4.multiply(pose, rotate_delta)
+	pose = Matrix4x4.multiply(pose, move_to_target)
+	SceneGraph.set_local_pose(self._sg, self._unit, pose)
+end
+
+local function camera_track(self, x, y)
+	local drag_delta = Vector3(x, y, 0) - self._drag_start_cursor_xy:unbox()
+
+	local camera_pose     = self._drag_start_camera_pose:unbox()
+	local camera_position = Matrix4x4.translation(camera_pose)
+	local camera_right    = Matrix4x4.x(camera_pose)
+	local camera_up       = Matrix4x4.y(camera_pose)
+
+	local pan_speed = 0
+
+	if self:is_orthographic() then
+		-- Measure how many pixels is 1 unit
+		local a = World.camera_world_to_screen(self._world, self._unit, Vector3.zero())
+		local b = World.camera_world_to_screen(self._world, self._unit, camera_right)
+		local pixels_per_unit = Vector3.length(a - b)
+		pan_speed = 1 / pixels_per_unit
+	else
+		-- Speed is proportional to initial distance from target
+		pan_speed = self._drag_start_target_distance / 800 * self._movement_speed
+	end
+
+	local delta = (drag_delta.y * pan_speed) * camera_up
+				- (drag_delta.x * pan_speed) * camera_right
+	SceneGraph.set_local_position(self._sg, self._unit, camera_position + delta)
+end
+
+local function camera_dolly(self, x, y)
+	local drag_delta = Vector3(x, y, 0) - self._drag_start_cursor_xy:unbox()
+	local moving_closer = drag_delta.y < 0 -- To the target
+
+	if self:is_orthographic() then
+		-- Zoom speed is proportional to initial orthographic size
+		local zoom_speed = self._drag_start_orthographic_size / 400
+		local zoom_delta = drag_delta.y * zoom_speed
+		self._orthographic_size = math.max(1, self._drag_start_orthographic_size + zoom_delta)
+
+		World.camera_set_orthographic_size(self._world, self._unit, self._orthographic_size)
+	else
+		-- Speed is proportional to initial distance from target
+		local move_speed  = self._drag_start_target_distance / 400
+		local mouse_delta = drag_delta.y * move_speed
+
+		self._target_distance = math.max(1, self._drag_start_target_distance + mouse_delta)
+		local move_delta = self._target_distance - self._drag_start_target_distance
+
+		local camera_pose     = self._drag_start_camera_pose:unbox()
+		local camera_position = Matrix4x4.translation(camera_pose)
+		local camera_forward  = Matrix4x4.z(camera_pose);
+		SceneGraph.set_local_position(self._sg, self._unit, camera_position - camera_forward*move_delta)
+	end
+end
+
 Camera = class(Camera)
 
 function Camera:init(world, unit)
 	self._world = world
 	self._unit = unit
-	self._translation_speed = 20
-	self._rotation_speed = 0.14
-	self._perspective_local_pose = Matrix4x4Box(Matrix4x4.identity())
+	self._sg = World.scene_graph(world)
+	self._movement_speed = 1
+	self._rotation_speed = 0.002
+	self._perspective_local_pose = Matrix4x4Box()
+	self._orthographic_size = 10
+	self._target_distance = 10
+
+	self._move_callback = nil
+
+	self._drag_start_cursor_xy = Vector3Box()
+	self._drag_start_camera_pose = Matrix4x4Box()
+	self._drag_start_orthographic_size = self._orthographic_size
+	self._drag_start_target_distance = self._target_distance
 end
 
 function Camera:unit()
@@ -19,8 +112,7 @@ function Camera:camera()
 end
 
 function Camera:local_pose()
-	local sg = World.scene_graph(self._world)
-	return SceneGraph.local_pose(sg, self._unit)
+	return SceneGraph.local_pose(self._sg, self._unit)
 end
 
 function Camera:is_orthographic()
@@ -28,7 +120,7 @@ function Camera:is_orthographic()
 end
 
 function Camera:mouse_wheel(delta)
-	self._translation_speed = math.max(0.001, self._translation_speed + delta * 0.2)
+	self._movement_speed = math.max(0.001, self._movement_speed + delta * 0.005)
 end
 
 function Camera:camera_ray(x, y)
@@ -45,8 +137,7 @@ function Camera:set_perspective()
 		return
 	end
 
-	local sg = World.scene_graph(self._world)
-	SceneGraph.set_local_pose(sg, self._unit, self._perspective_local_pose:unbox())
+	SceneGraph.set_local_pose(self._sg, self._unit, self._perspective_local_pose:unbox())
 	World.camera_set_projection_type(self._world, self._unit, "perspective")
 end
 
@@ -55,10 +146,9 @@ function Camera:set_orthographic(world_center, world_radius, dir, up)
 		self._perspective_local_pose:store(self:local_pose())
 	end
 
-	local sg = World.scene_graph(self._world)
-	SceneGraph.set_local_rotation(sg, self._unit, Quaternion.look(dir, up))
-	SceneGraph.set_local_position(sg, self._unit, world_center - dir * math.abs(Vector3.dot(dir, world_radius)))
-	World.camera_set_orthographic_size(self._world, self._unit, 10)
+	SceneGraph.set_local_rotation(self._sg, self._unit, Quaternion.look(dir, up))
+	SceneGraph.set_local_position(self._sg, self._unit, world_center - dir * math.abs(Vector3.dot(dir, world_radius)) * 100) -- FIXME
+	World.camera_set_orthographic_size(self._world, self._unit, self._orthographic_size)
 	World.camera_set_projection_type(self._world, self._unit, "orthographic")
 end
 
@@ -70,46 +160,26 @@ function Camera:screen_length_to_world_length(position, length)
 end
 
 function Camera:update(dt, dx, dy, keyboard, mouse)
-	local sg = World.scene_graph(self._world)
-
-	local camera_local_pose = SceneGraph.local_pose(sg, self._unit)
-	local camera_right_vector = Matrix4x4.x(camera_local_pose)
-	local camera_up_vector = Matrix4x4.y(camera_local_pose)
-	local camera_view_vector = Matrix4x4.z(camera_local_pose)
-	local camera_position = Matrix4x4.translation(camera_local_pose)
-	local camera_rotation = Matrix4x4.rotation(camera_local_pose)
-
-	-- Rotation
 	if dx ~= 0 or dy ~= 0 then
-		if not self:is_orthographic() and mouse.right then
-			local rotation_speed = self._rotation_speed * dt
-			local rotation_around_world_up = Quaternion(Vector3(0, 1, 0), dx * rotation_speed)
-			local rotation_around_camera_right = Quaternion(camera_right_vector, dy * rotation_speed)
-			local rotation = Quaternion.multiply(rotation_around_world_up, rotation_around_camera_right)
-
-			local old_rotation = Matrix4x4.from_quaternion(camera_rotation)
-			local delta_rotation = Matrix4x4.from_quaternion(rotation)
-			local new_rotation = Matrix4x4.multiply(old_rotation, delta_rotation)
-			Matrix4x4.set_translation(new_rotation, camera_position)
-
-			-- Fixme
-			SceneGraph.set_local_pose(sg, self._unit, new_rotation)
+		if self._move_callback ~= nil then
+			self._move_callback(self, mouse.x, mouse.y)
 		end
 	end
+end
 
-	-- Translation
-	local translation_speed = self._translation_speed * dt
+function Camera:set_mode(mode, x, y)
+	self._drag_start_cursor_xy:store(x, y, 0)
+	self._drag_start_camera_pose:store(self:local_pose())
+	self._drag_start_orthographic_size = self._orthographic_size
+	self._drag_start_target_distance = self._target_distance
 
-	if self:is_orthographic() then
-		if keyboard.wkey then camera_position = camera_position + camera_up_vector * translation_speed end
-		if keyboard.skey then camera_position = camera_position + camera_up_vector * -translation_speed end
-		if keyboard.akey then camera_position = camera_position + camera_right_vector * -translation_speed end
-		if keyboard.dkey then camera_position = camera_position + camera_right_vector * translation_speed end
-	else
-		if keyboard.wkey then camera_position = camera_position + camera_view_vector * translation_speed end
-		if keyboard.skey then camera_position = camera_position - camera_view_vector * translation_speed end
-		if keyboard.akey then camera_position = camera_position - camera_right_vector * translation_speed end
-		if keyboard.dkey then camera_position = camera_position + camera_right_vector * translation_speed end
+	if mode == "tumble" then self._move_callback = camera_tumble
+	elseif mode == "track" then self._move_callback = camera_track
+	elseif mode == "dolly" then self._move_callback = camera_dolly
+	elseif mode == "idle" then self._move_callback = nil
 	end
-	SceneGraph.set_local_position(sg, self._unit, camera_position)
+end
+
+function Camera:is_idle()
+	return self._move_callback == nil
 end
