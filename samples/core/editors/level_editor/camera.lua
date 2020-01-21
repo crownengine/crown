@@ -59,7 +59,6 @@ end
 
 local function camera_dolly(self, x, y)
 	local drag_delta = Vector3(x, y, 0) - self._drag_start_cursor_xy:unbox()
-	local moving_closer = drag_delta.y < 0 -- To the target
 
 	if self:is_orthographic() then
 		-- Zoom speed is proportional to initial orthographic size
