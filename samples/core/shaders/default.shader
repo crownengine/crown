@@ -189,9 +189,6 @@ bgfx_shaders = {
 			void main()
 			{
 				vec4 color = texture2D(u_albedo, v_texcoord0);
-				if (color.a <= 0.0)
-					discard;
-
 				gl_FragColor = color * u_color;
 			}
 		"""
