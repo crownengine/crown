@@ -198,8 +198,6 @@ function toolchain(build_dir, lib_dir)
 			"NoImportLib"
 		}
 		includedirs {
-			"$(ANDROID_NDK_ROOT)/sources/cxx-stl/llvm-libc++/include",
-			"${ANDROID_NDK_ROOT}/sysroot/usr/include",
 			"$(ANDROID_NDK_ROOT)/sources/android/native_app_glue",
 		}
 		linkoptions {
@@ -239,12 +237,12 @@ function toolchain(build_dir, lib_dir)
 			"$(ANDROID_NDK_ROOT)/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
 		}
 		includedirs {
-			"$(ANDROID_NDK_ROOT)/sysroot/usr/include/arm-linux-androideabi",
+			"$(ANDROID_NDK_ROOT)/sysroot/usr/include/arm-linux-androideabi", -- <asm/...>
 		}
 		buildoptions {
-			"-gcc-toolchain $(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
-			"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm",
-			"-target armv7-none-linux-androideabi",
+			"--target=armv7-none-linux-androideabi$(ANDROID_NDK_ABI)",
+			"--gcc-toolchain=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
+			"--sysroot=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot",
 			"-mthumb",
 			"-march=armv7-a",
 			"-mfloat-abi=softfp",
@@ -253,11 +251,11 @@ function toolchain(build_dir, lib_dir)
 			"-Wundef",
 		}
 		linkoptions {
-			"-gcc-toolchain $(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
-			"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm",
+			"--target=armv7-none-linux-androideabi$(ANDROID_NDK_ABI)",
+			"--gcc-toolchain=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64",
+			"--sysroot=$(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot",
 			"$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm/usr/lib/crtbegin_so.o",
 			"$(ANDROID_NDK_ROOT)/platforms/android-$(ANDROID_NDK_ABI)/arch-arm/usr/lib/crtend_so.o",
-			"-target armv7-none-linux-androideabi",
 			"-march=armv7-a",
 			"-Wl,--fix-cortex-a8",
 		}

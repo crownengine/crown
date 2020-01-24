@@ -13,7 +13,6 @@
 #include "device/device_event_queue.h"
 #include <android/sensor.h>
 #include <android/window.h>
-#include <android_native_app_glue.h>
 #include <bgfx/platform.h>
 #include <jni.h>
 #include <stdlib.h>

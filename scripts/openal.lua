@@ -52,11 +52,13 @@ function openal_project(_kind)
 			}
 
 		configuration { "android-*" }
-			files {
-				AL_DIR .. "alc/backends/opensl.cpp"
+			defines {
+				"HAVE_NEON",
+				"HAVE_OPENSL",
 			}
-			links {
-				"OpenSLES",
+			files {
+				AL_DIR .. "alc/mixer/mixer_neon.cpp",
+				AL_DIR .. "alc/backends/opensl.cpp",
 			}
 
 		configuration { "linux-*" }
@@ -110,11 +112,10 @@ function openal_project(_kind)
 		configuration {}
 
 		includedirs {
-			AL_DIR .. "al/include",
-			AL_DIR .. "alc",
-			AL_DIR .. "common",
 			AL_DIR .. "include",
 			AL_DIR,
+			AL_DIR .. "alc",
+			AL_DIR .. "common",
 		}
 
 		files {

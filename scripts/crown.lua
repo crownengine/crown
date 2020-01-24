@@ -67,6 +67,7 @@ function crown_project(_name, _kind, _defines)
 				"gcc",
 				"EGL",
 				"GLESv2",
+				"OpenSLES",
 			}
 
 		configuration { "linux-*" }
