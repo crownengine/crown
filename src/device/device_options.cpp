@@ -6,6 +6,7 @@
 #include "config.h"
 #include "core/command_line.h"
 #include "core/filesystem/path.h"
+#include "core/strings/dynamic_string.inl"
 #include "device/device_options.h"
 #include <stdlib.h>
 
@@ -66,6 +67,10 @@ DeviceOptions::DeviceOptions(Allocator& a, int argc, const char** argv)
 	, _window_y(0)
 	, _window_width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _window_height(CROWN_DEFAULT_WINDOW_HEIGHT)
+{
+}
+
+DeviceOptions::~DeviceOptions()
 {
 }
 

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "core/math/math.h"
-#include "core/math/matrix3x3.h"
+#include "core/math/matrix3x3.inl"
 #include "core/math/types.h"
 
 namespace crown

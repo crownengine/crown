@@ -3,11 +3,12 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
+#include "core/strings/string_id.inl"
 #include "device/device.h"
 #include "lua/lua_environment.h"
-#include "lua/lua_stack.h"
+#include "lua/lua_stack.inl"
 #include "resource/resource_manager.h"
 #include "world/script_world.h"
 #include "world/unit_manager.h"

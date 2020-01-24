@@ -30,27 +30,12 @@ struct ResourceManager
 	{
 		StringId64 type;
 		StringId64 name;
-
-		bool operator<(const ResourcePair& a) const
-		{
-			return type < a.type || (type == a.type && name < a.name);
-		}
-
-		bool operator==(const ResourcePair& a) const
-		{
-			return type == a.type && name == a.name;
-		}
 	};
 
 	struct ResourceEntry
 	{
 		u32 references;
 		void* data;
-
-		bool operator==(const ResourceEntry& e)
-		{
-			return references == e.references && data == e.data;
-		}
 
 		static const ResourceEntry NOT_FOUND;
 	};

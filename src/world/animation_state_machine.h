@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "core/containers/event_stream.h"
 #include "core/containers/types.h"
 #include "resource/state_machine_resource.h"
 #include "resource/types.h"
+#include "world/event_stream.h"
 #include "world/types.h"
 
 namespace crown

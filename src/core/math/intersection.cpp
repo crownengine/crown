@@ -3,12 +3,12 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/math/aabb.h"
+#include "core/math/aabb.inl"
 #include "core/math/constants.h"
 #include "core/math/intersection.h"
-#include "core/math/plane3.h"
-#include "core/math/sphere.h"
-#include "core/math/vector3.h"
+#include "core/math/plane3.inl"
+#include "core/math/sphere.inl"
+#include "core/math/vector3.inl"
 
 namespace crown
 {

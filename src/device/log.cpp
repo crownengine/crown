@@ -3,10 +3,10 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/os.h"
 #include "core/platform.h"
-#include "core/strings/string.h"
+#include "core/strings/string.inl"
 #include "core/strings/string_stream.h"
 #include "core/thread/scoped_mutex.h"
 #include "device/console_server.h"

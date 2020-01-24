@@ -5,8 +5,7 @@
 
 #pragma once
 
-#include "core/memory/memory.h"
-#include <string.h> // memcpy
+#include "core/memory/types.h"
 
 namespace crown
 {
@@ -23,17 +22,11 @@ struct Pair<T1, T2, 0, 0>
 	T1 first;
 	T2 second;
 
-	Pair(T1& f, T2& s)
-		: first(f)
-		, second(s)
-	{
-	}
+	///
+	Pair(T1& f, T2& s);
 
-	Pair(Allocator& /*a*/)
-		: first()
-		, second()
-	{
-	}
+	///
+	Pair(Allocator& /*a*/);
 };
 
 template <typename T1, typename T2>
@@ -44,17 +37,11 @@ struct Pair<T1, T2, 1, 0>
 	T1 first;
 	T2 second;
 
-	Pair(T1& f, T2& s)
-		: first(f)
-		, second(s)
-	{
-	}
+	///
+	Pair(T1& f, T2& s);
 
-	Pair(Allocator& a)
-		: first(a)
-		, second()
-	{
-	}
+	///
+	Pair(Allocator& a);
 };
 
 template <typename T1, typename T2>
@@ -65,17 +52,11 @@ struct Pair<T1, T2, 0, 1>
 	T1 first;
 	T2 second;
 
-	Pair(T1& f, T2& s)
-		: first(f)
-		, second(s)
-	{
-	}
+	///
+	Pair(T1& f, T2& s);
 
-	Pair(Allocator& a)
-		: first()
-		, second(a)
-	{
-	}
+	///
+	Pair(Allocator& a);
 };
 
 template <typename T1, typename T2>
@@ -86,55 +67,13 @@ struct Pair<T1, T2, 1, 1>
 	T1 first;
 	T2 second;
 
-	Pair(T1& f, T2& s)
-		: first(f)
-		, second(s)
-	{
-	}
+	///
+	Pair(T1& f, T2& s);
 
-	Pair(Allocator& a)
-		: first(a)
-		, second(a)
-	{
-	}
+	///
+	Pair(Allocator& a);
 };
 
 #define PAIR(first, second) Pair<first, second, IS_ALLOCATOR_AWARE(first), IS_ALLOCATOR_AWARE(second)>
-
-template <typename T1, typename T2>
-inline void swap(Pair<T1, T2, 0, 0>& a, Pair<T1, T2, 0, 0>& b)
-{
-	char c[sizeof(a)];
-	memcpy((void*)&c, (void*)&a, sizeof(a));
-	memcpy((void*)&a, (void*)&b, sizeof(a));
-	memcpy((void*)&b, (void*)&c, sizeof(a));
-}
-
-template <typename T1, typename T2>
-inline void swap(Pair<T1, T2, 0, 1>& a, Pair<T1, T2, 0, 1>& b)
-{
-	char c[sizeof(a)];
-	memcpy((void*)&c, (void*)&a, sizeof(a));
-	memcpy((void*)&a, (void*)&b, sizeof(a));
-	memcpy((void*)&b, (void*)&c, sizeof(a));
-}
-
-template <typename T1, typename T2>
-inline void swap(Pair<T1, T2, 1, 0>& a, Pair<T1, T2, 1, 0>& b)
-{
-	char c[sizeof(a)];
-	memcpy((void*)&c, (void*)&a, sizeof(a));
-	memcpy((void*)&a, (void*)&b, sizeof(a));
-	memcpy((void*)&b, (void*)&c, sizeof(a));
-}
-
-template <typename T1, typename T2>
-inline void swap(Pair<T1, T2, 1, 1>& a, Pair<T1, T2, 1, 1>& b)
-{
-	char c[sizeof(a)];
-	memcpy((void*)&c, (void*)&a, sizeof(a));
-	memcpy((void*)&a, (void*)&b, sizeof(a));
-	memcpy((void*)&b, (void*)&c, sizeof(a));
-}
 
 } // namespace crown

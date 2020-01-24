@@ -1,6 +1,6 @@
 #include "core/error/error.h"
 #include "core/math/math.h"
-#include "core/strings/string.h"
+#include "core/strings/string.inl"
 #include "resource/expression_language.h"
 #include <alloca.h>
 #include <limits.h> // UINT_MAX

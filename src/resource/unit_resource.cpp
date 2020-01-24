@@ -4,6 +4,8 @@
  */
 
 #include "config.h"
+#include "core/containers/array.inl"
+#include "core/memory/globals.h"
 #include "resource/unit_compiler.h"
 
 namespace crown

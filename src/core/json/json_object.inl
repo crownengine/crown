@@ -5,8 +5,10 @@
 
 #pragma once
 
-#include "core/containers/hash_map.h"
+#include "core/containers/hash_map.inl"
 #include "core/json/types.h"
+#include "core/murmur.h"
+#include "core/strings/string_view.inl"
 
 namespace crown
 {

@@ -40,7 +40,11 @@ struct DeviceOptions
 	void* _asset_manager;
 #endif // CROWN_PLATFORM_ANDROID
 
+	///
 	DeviceOptions(Allocator& a, int argc, const char** argv);
+
+	///
+	~DeviceOptions();
 
 	/// Parses the command line and returns
 	/// EXIT_SUCCESS if no error is found.

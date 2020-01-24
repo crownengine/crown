@@ -4,11 +4,11 @@
  */
 
 #include "config.h"
-#include "core/json/json_object.h"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/platform.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 #include "device/boot_config.h"
 
 namespace crown

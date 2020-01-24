@@ -3,8 +3,8 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/error/error.h"
-#include "core/network/ip_address.h"
+#include "core/error/error.inl"
+#include "core/network/ip_address.inl"
 #include "core/network/socket.h"
 #include "core/platform.h"
 

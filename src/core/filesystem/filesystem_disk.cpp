@@ -3,13 +3,13 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/vector.h"
+#include "core/containers/vector.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/os.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 
 #if CROWN_PLATFORM_POSIX
 	#include <stdio.h>

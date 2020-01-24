@@ -3,7 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/error/error.h"
+#include "core/error/error.inl"
 #include "core/memory/pool_allocator.h"
 
 namespace crown

@@ -8,8 +8,8 @@
 #include "config.h"
 #include "core/memory/types.h"
 #include "core/types.h"
-#include "device/device_event_queue.h"
 #include "device/input_types.h"
+#include "device/types.h"
 
 namespace crown
 {

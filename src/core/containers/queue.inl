@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/containers/types.h"
 #include "core/error/error.h"
 #include <string.h> // memcpy

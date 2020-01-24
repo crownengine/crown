@@ -4,7 +4,7 @@
  */
 
 #include "core/command_line.h"
-#include "core/strings/string.h"
+#include "core/strings/string.inl"
 
 namespace crown
 {

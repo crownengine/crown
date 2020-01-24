@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "core/filesystem/file.h"
+#include "core/filesystem/types.h"
 #include "core/types.h"
 
 namespace crown
@@ -17,26 +17,18 @@ struct BinaryWriter
 {
 	File& _file;
 
-	BinaryWriter(File& file)
-		: _file(file)
-	{
-	}
+	///
+	BinaryWriter(File& file);
 
-	void write(const void* data, u32 size)
-	{
-		_file.write(data, size);
-	}
+	///
+	void write(const void* data, u32 size);
 
+	///
 	template <typename T>
-	void write(const T& data)
-	{
-		_file.write(&data, sizeof(T));
-	}
+	void write(const T& data);
 
-	void skip(u32 bytes)
-	{
-		_file.skip(bytes);
-	}
+	///
+	void skip(u32 bytes);
 };
 
 /// A reader that offers a convenient way to read from a File
@@ -46,26 +38,18 @@ struct BinaryReader
 {
 	File& _file;
 
-	BinaryReader(File& file)
-		: _file(file)
-	{
-	}
+	///
+	BinaryReader(File& file);
 
-	void read(void* data, u32 size)
-	{
-		_file.read(data, size);
-	}
+	///
+	void read(void* data, u32 size);
 
+	///
 	template <typename T>
-	void read(T& data)
-	{
-		_file.read(&data, sizeof(T));
-	}
+	void read(T& data);
 
-	void skip(u32 bytes)
-	{
-		_file.skip(bytes);
-	}
+	///
+	void skip(u32 bytes);
 };
 
 } // namespace crown

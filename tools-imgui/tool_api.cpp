@@ -6,9 +6,9 @@
 #include "tool_api.h"
 #include "core/guid.h"
 #include "core/math/math.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/string_stream.h"
-#include "core/strings/dynamic_string.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/string_stream.inl"
+#include "core/strings/dynamic_string.inl"
 #include "world/types.h"
 
 namespace crown

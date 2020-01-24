@@ -3,8 +3,9 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "core/containers/array.inl"
 #include "core/guid.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 
 namespace crown
 {

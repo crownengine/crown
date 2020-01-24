@@ -7,12 +7,12 @@
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "core/containers/vector.h"
+#include "core/containers/vector.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_apk.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/os.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 
 namespace crown
 {

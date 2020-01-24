@@ -6,10 +6,10 @@
 #pragma once
 
 #include "core/math/math.h"
-#include "core/math/matrix3x3.h"
-#include "core/math/quaternion.h"
+#include "core/math/matrix3x3.inl"
+#include "core/math/quaternion.inl"
 #include "core/math/types.h"
-#include "core/math/vector4.h"
+#include "core/math/vector4.inl"
 
 namespace crown
 {

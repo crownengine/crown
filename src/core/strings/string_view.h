@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "core/strings/string.h"
+#include "core/types.h"
 
 namespace crown
 {
@@ -17,61 +17,23 @@ struct StringView
 	u32 _length;
 	const char* _data;
 
-	StringView()
-		: _length(0)
-		, _data(NULL)
-	{
-	}
+	///
+	StringView();
 
-	StringView(const char* str)
-		: _length(strlen32(str))
-		, _data(str)
-	{
-	}
+	///
+	StringView(const char* str);
 
-	StringView(const char* str, u32 len)
-		: _length(len)
-		, _data(str)
-	{
-	}
+	///
+	StringView(const char* str, u32 len);
 
-	StringView& operator=(const char* str)
-	{
-		_length = strlen32(str);
-		_data = str;
-		return *this;
-	}
+	///
+	StringView& operator=(const char* str);
 
-	u32 length() const
-	{
-		return _length;
-	}
+	///
+	u32 length() const;
 
-	const char* data() const
-	{
-		return _data;
-	}
+	///
+	const char* data() const;
 };
-
-inline bool operator==(const StringView& a, const char* str)
-{
-	const u32 len = strlen32(str);
-	return a._length == len
-		&& strncmp(a._data, str, len) == 0
-		;
-}
-
-inline bool operator==(const StringView& a, const StringView& b)
-{
-	return a._length == b._length
-		&& strncmp(a._data, b._data, a._length) == 0
-		;
-}
-
-inline bool operator<(const StringView& a, const StringView& b)
-{
-	const u32 len = max(a._length, b._length);
-	return strncmp(a._data, b._data, len) < 0;
-}
 
 } // namespace crown

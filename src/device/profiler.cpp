@@ -3,12 +3,13 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
-#include "core/math/vector3.h"
-#include "core/memory/memory.h"
+#include "core/containers/array.inl"
+#include "core/math/vector3.inl"
+#include "core/memory/globals.h"
 #include "core/thread/scoped_mutex.h"
 #include "core/time.h"
 #include "device/profiler.h"
+#include <new>
 
 namespace crown
 {

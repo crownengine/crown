@@ -3,7 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/math/matrix4x4.h"
+#include "core/math/matrix4x4.inl"
 
 namespace crown
 {

@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "core/containers/array.h"
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
 #include "core/math/types.h"
@@ -45,23 +44,11 @@ struct MeshResource
 	Array<StringId32> geometry_names;
 	Array<MeshGeometry*> geometries;
 
-	MeshResource(Allocator& a)
-		: geometry_names(a)
-		, geometries(a)
-	{
-	}
+	///
+	MeshResource(Allocator& a);
 
-	const MeshGeometry* geometry(StringId32 name) const
-	{
-		for (u32 i = 0; i < array::size(geometry_names); ++i)
-		{
-			if (geometry_names[i] == name)
-				return geometries[i];
-		}
-
-		CE_FATAL("Mesh name not found");
-		return NULL;
-	}
+	///
+	const MeshGeometry* geometry(StringId32 name) const;
 };
 
 namespace mesh_resource_internal

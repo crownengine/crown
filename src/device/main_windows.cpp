@@ -8,11 +8,14 @@
 #if CROWN_PLATFORM_WINDOWS
 
 #include "core/command_line.h"
+#include "core/containers/array.inl"
 #include "core/guid.h"
+#include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
-#include "device/device_event_queue.h"
+#include "device/device_event_queue.inl"
 #include "resource/data_compiler.h"
 #include <bgfx/platform.h>
 #include <winsock2.h>

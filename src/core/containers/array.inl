@@ -6,7 +6,7 @@
 #pragma once
 
 #include "core/containers/types.h"
-#include "core/error/error.h"
+#include "core/error/error.inl"
 #include "core/memory/allocator.h"
 #include <string.h> // memcpy
 

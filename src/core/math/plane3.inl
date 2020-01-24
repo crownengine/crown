@@ -5,28 +5,10 @@
 
 #pragma once
 
-#include "core/math/math.h"
-#include "core/math/types.h"
-#include "core/math/vector3.h"
+#include "core/math/vector3.inl"
 
 namespace crown
 {
-/// Functions to manipulate Plane3.
-///
-/// @ingroup Math
-namespace plane3
-{
-	/// Returns the plane defined by @a point and @a normal.
-	Plane3 from_point_and_normal(const Vector3& point, const Vector3& normal);
-
-	/// Normalizes the plane @a p and returns its result.
-	Plane3& normalize(Plane3& p);
-
-	/// Returns the signed distance between plane @a p and point @a point.
-	f32 distance_to_point(const Plane3& p, const Vector3& point);
-
-} // namespace plane3
-
 namespace plane3
 {
 	inline Plane3 from_point_and_normal(const Vector3& point, const Vector3& normal)

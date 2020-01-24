@@ -5,8 +5,8 @@
 
 #include "core/error/callstack.h"
 #include "core/error/error.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/string_stream.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/string_stream.inl"
 #include "device/log.h"
 #include <stdarg.h>
 #include <stdlib.h> // exit

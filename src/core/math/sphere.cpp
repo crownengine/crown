@@ -4,7 +4,7 @@
  */
 
 #include "core/math/constants.h"
-#include "core/math/sphere.h"
+#include "core/math/sphere.inl"
 
 namespace crown
 {

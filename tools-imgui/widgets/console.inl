@@ -3,10 +3,11 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/network/ip_address.h"
 #include "core/network/socket.h"
-#include "core/strings/string_stream.h"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_stream.inl"
 #include <string.h> // strtok_r
 #if CROWN_COMPILER_MSVC
 	#define strtok_r strtok_s

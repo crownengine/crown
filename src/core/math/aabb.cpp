@@ -3,8 +3,8 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/error/error.h"
-#include "core/math/aabb.h"
+#include "core/error/error.inl"
+#include "core/math/aabb.inl"
 #include "core/math/constants.h"
 
 namespace crown

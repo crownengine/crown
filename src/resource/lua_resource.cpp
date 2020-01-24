@@ -4,12 +4,12 @@
  */
 
 #include "config.h"
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/filesystem/file.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/process.h"
-#include "core/strings/dynamic_string.h"
-#include "core/strings/string_stream.h"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_stream.inl"
 #include "resource/compile_options.h"
 #include "resource/lua_resource.h"
 

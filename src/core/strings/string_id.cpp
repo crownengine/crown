@@ -5,7 +5,7 @@
 
 #include "core/error/error.h"
 #include "core/murmur.h"
-#include "core/strings/string.h"
+#include "core/strings/string.inl"
 #include "core/strings/string_id.h"
 #include <inttypes.h> // PRIx64
 

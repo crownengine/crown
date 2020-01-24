@@ -7,14 +7,12 @@
 
 #include "core/list.h"
 #include "core/math/types.h"
+#include "device/pipeline.h"
 #include "resource/types.h"
+#include "world/material.h"
+#include "world/shader_manager.h"
 #include "world/types.h"
 #include <bgfx/bgfx.h>
-
-#include "world/shader_manager.h"
-#include "core/math/matrix4x4.h"
-#include "world/material.h"
-#include "device/pipeline.h"
 
 namespace crown
 {
@@ -27,65 +25,26 @@ struct GuiBuffer
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
 
-	GuiBuffer(ShaderManager& sm)
-		: _shader_manager(&sm)
-		, _num_vertices(0)
-		, _num_indices(0)
-	{
-	}
+	///
+	GuiBuffer(ShaderManager& sm);
 
-	void* vertex_buffer_end()
-	{
-		return tvb.data + _num_vertices*24;
-	}
+	///
+	void* vertex_buffer_end();
 
-	void* index_buffer_end()
-	{
-		return tib.data + _num_indices*2;
-	}
+	///
+	void* index_buffer_end();
 
-	void create()
-	{
-		_pos_tex_col.begin()
-			.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
-			.add(bgfx::Attrib::Color0,    4, bgfx::AttribType::Uint8, true)
-			.end()
-			;
-	}
+	///
+	void create();
 
-	void reset()
-	{
-		_num_vertices = 0;
-		_num_indices = 0;
+	///
+	void reset();
 
-		bgfx::allocTransientVertexBuffer(&tvb, 4096, _pos_tex_col);
-		bgfx::allocTransientIndexBuffer(&tib, 6144);
-	}
+	///
+	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4& world);
 
-	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4& world)
-	{
-		bgfx::setVertexBuffer(0, &tvb, _num_vertices, num_vertices);
-		bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
-		bgfx::setTransform(to_float_ptr(world));
-
-		_shader_manager->submit(StringId32("gui"), VIEW_GUI);
-
-		_num_vertices += num_vertices;
-		_num_indices += num_indices;
-	}
-
-	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4& world, ResourceManager& rm, Material* material)
-	{
-		bgfx::setVertexBuffer(0, &tvb, _num_vertices, num_vertices);
-		bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
-		bgfx::setTransform(to_float_ptr(world));
-
-		material->bind(rm, *_shader_manager, VIEW_GUI);
-
-		_num_vertices += num_vertices;
-		_num_indices += num_indices;
-	}
+	///
+	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4& world, ResourceManager& rm, Material* material);
 };
 
 /// Immediate mode Gui.

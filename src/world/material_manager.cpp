@@ -3,8 +3,9 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/hash_map.h"
+#include "core/containers/hash_map.inl"
 #include "core/filesystem/file.h"
+#include "core/strings/string_id.inl"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
 #include "world/material_manager.h"

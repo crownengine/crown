@@ -5,7 +5,7 @@
 
 #include "device/device.h"
 #include "lua/lua_environment.h"
-#include "lua/lua_stack.h"
+#include "lua/lua_stack.inl"
 
 namespace crown
 {
@@ -62,15 +62,6 @@ Matrix4x4* LuaStack::check_temporary(int i, const Matrix4x4* ptr)
 }
 #endif // CROWN_DEBUG
 
-void LuaStack::push_vector2(const Vector2& v)
-{
-	Vector3 a;
-	a.x = v.x;
-	a.y = v.y;
-	a.z = 0.0f;
-	push_vector3(a);
-}
-
 void LuaStack::push_vector3(const Vector3& v)
 {
 	lua_pushlightuserdata(L, device()->_lua_environment->next_vector3(v));
@@ -84,17 +75,6 @@ void LuaStack::push_quaternion(const Quaternion& q)
 void LuaStack::push_matrix4x4(const Matrix4x4& m)
 {
 	lua_pushlightuserdata(L, device()->_lua_environment->next_matrix4x4(m));
-}
-
-void LuaStack::push_color4(const Color4& c)
-{
-	// Color4 represented as Quaternion
-	Quaternion q;
-	q.x = c.x;
-	q.y = c.y;
-	q.z = c.z;
-	q.w = c.w;
-	push_quaternion(q);
 }
 
 } // namespace crown

@@ -7,7 +7,7 @@
 
 #if CROWN_PLATFORM_WINDOWS
 
-#include "core/strings/string_stream.h"
+#include "core/strings/string_stream.inl"
 #include <windows.h>
 #pragma warning(push)
 #pragma warning(disable:4091) // 'keyword' : ignored on left of 'type' when no variable is declared

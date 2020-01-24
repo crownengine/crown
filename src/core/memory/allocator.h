@@ -14,9 +14,20 @@ namespace crown
 /// @ingroup Memory
 struct Allocator
 {
-	Allocator() {}
-	virtual	~Allocator() {}
+	///
+	Allocator()
+	{
+	}
+
+	///
+	virtual	~Allocator()
+	{
+	}
+
+	///
 	Allocator(const Allocator&) = delete;
+
+	///
 	Allocator& operator=(const Allocator&) = delete;
 
 	/// Allocates @a size bytes of memory aligned to the specified

@@ -7,13 +7,14 @@
 
 #if CROWN_CAN_COMPILE
 
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
-#include "core/json/json_object.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/math.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "resource/compile_options.h"
 #include "resource/physics_resource.h"
 #include "resource/unit_compiler.h"

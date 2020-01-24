@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "core/containers/event_stream.h"
 #include "core/math/types.h"
 #include "resource/types.h"
+#include "world/event_stream.h"
 #include "world/types.h"
 
 namespace crown

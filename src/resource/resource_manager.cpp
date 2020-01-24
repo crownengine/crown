@@ -3,16 +3,38 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "resource/resource_id.h"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
 
 namespace crown
 {
+bool operator<(const ResourceManager::ResourcePair& a, const ResourceManager::ResourcePair& b)
+{
+	return a.type < b.type
+		|| (a.type == b.type && a.name < b.name)
+		;
+}
+
+bool operator==(const ResourceManager::ResourcePair& a, const ResourceManager::ResourcePair& b)
+{
+	return a.type == b.type
+		&& a.name == b.name
+		;
+}
+
+bool operator==(const ResourceManager::ResourceEntry& a, const ResourceManager::ResourceEntry& b)
+{
+	return a.references == b.references
+		&& a.data == b.data
+		;
+}
+
 const ResourceManager::ResourceEntry ResourceManager::ResourceEntry::NOT_FOUND = { 0xffffffffu, NULL };
 
 template<>

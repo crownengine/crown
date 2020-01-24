@@ -7,11 +7,11 @@
 
 #if CROWN_PLATFORM_LINUX
 
-#include "core/containers/hash_map.h"
+#include "core/containers/hash_map.inl"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/path.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
 #include "core/thread/thread.h"
 #include <dirent.h> // opendir, readdir
 #include <errno.h>

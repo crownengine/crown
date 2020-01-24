@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "core/containers/array.h"
-#include "core/error/error.h"
+#include "core/containers/array.inl"
+#include "world/event_stream.h"
 
 namespace crown
 {
@@ -15,11 +15,6 @@ struct EventHeader
 	u32 type;
 	u32 size;
 };
-
-/// Array of generic event structs.
-///
-/// @ingroup Containers
-typedef Array<char> EventStream;
 
 /// Functions to manipulate EventStream.
 ///

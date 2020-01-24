@@ -14,6 +14,7 @@
 #include "core/os.h"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/types.h"
+#include "resource/resource_id.h"
 #include "resource/types.h"
 #include <stdarg.h>
 

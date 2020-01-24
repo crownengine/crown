@@ -3,9 +3,9 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/process.h"
-#include "core/strings/string_stream.h"
+#include "core/strings/string_stream.inl"
 
 #if CROWN_PLATFORM_POSIX
 	#include <unistd.h>   // fork, execvp

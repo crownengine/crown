@@ -5,10 +5,8 @@
 
 #include "config.h"
 #include "core/filesystem/path.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
-#include "core/strings/string.h"
-#include "core/strings/string_id.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
 #include "resource/resource_id.h"
 
 namespace crown

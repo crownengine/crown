@@ -3,7 +3,7 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/error/error.h"
+#include "core/error/error.inl"
 #include "core/platform.h"
 #include "core/thread/mutex.h"
 

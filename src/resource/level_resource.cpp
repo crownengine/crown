@@ -3,14 +3,14 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
-#include "core/json/json_object.h"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
-#include "core/memory/memory.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
+#include "core/memory/globals.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
 #include "resource/compile_options.h"
 #include "resource/level_resource.h"
 #include "resource/unit_compiler.h"

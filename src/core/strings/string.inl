@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "core/error/error.h"
+#include "core/error/error.inl"
 #include "core/platform.h"
 #include "core/types.h"
 #include <ctype.h> // isspace

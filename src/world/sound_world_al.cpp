@@ -7,11 +7,11 @@
 
 #if CROWN_SOUND_OPENAL
 
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/math/constants.h"
-#include "core/math/matrix4x4.h"
-#include "core/math/vector3.h"
-#include "core/memory/temp_allocator.h"
+#include "core/math/matrix4x4.inl"
+#include "core/math/vector3.inl"
+#include "core/memory/temp_allocator.inl"
 #include "device/log.h"
 #include "resource/sound_resource.h"
 #include "world/audio.h"

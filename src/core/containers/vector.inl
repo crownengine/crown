@@ -8,6 +8,7 @@
 #include "core/containers/types.h"
 #include "core/error/error.h"
 #include "core/memory/allocator.h"
+#include "core/memory/memory.inl"
 
 namespace crown
 {

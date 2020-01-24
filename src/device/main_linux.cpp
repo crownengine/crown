@@ -8,13 +8,15 @@
 #if CROWN_PLATFORM_LINUX
 
 #include "core/command_line.h"
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/guid.h"
+#include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 #include "core/os.h"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
-#include "device/device_event_queue.h"
+#include "device/device_event_queue.inl"
 #include "device/display.h"
 #include "device/window.h"
 #include "resource/data_compiler.h"

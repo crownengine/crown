@@ -17,12 +17,9 @@ struct IPAddress
 	u8 a, b, c, d;
 
 	/// Returns the IP address as packed 32-bit integer.
-	u32 address() const
-	{
-		return (u32(a) << 24) | (u32(b) << 16) | (u32(c) << 8) | u32(d);
-	}
+	u32 address() const;
 };
 
-const IPAddress IP_ADDRESS_LOOPBACK = { 127, 0, 0, 1 };
+static const IPAddress IP_ADDRESS_LOOPBACK = { 127, 0, 0, 1 };
 
 } // namespace crown

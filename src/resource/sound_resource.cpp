@@ -4,12 +4,13 @@
  */
 
 #include "config.h"
+#include "core/containers/array.inl"
 #include "core/filesystem/file.h"
-#include "core/json/json_object.h"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/memory/allocator.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
 #include "resource/compile_options.h"
 #include "resource/sound_resource.h"
 

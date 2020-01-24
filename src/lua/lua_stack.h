@@ -17,25 +17,6 @@
 	#define LUA_OK 0
 #endif
 
-#if CROWN_DEBUG
-	#define LUA_ASSERT(condition, stack, msg, ...)                       \
-		do                                                               \
-		{                                                                \
-			if (CE_UNLIKELY(!(condition)))                               \
-			{                                                            \
-				stack.push_fstring("Assertion failed: %s\n    " msg "\n" \
-					, # condition                                        \
-					, ## __VA_ARGS__                                     \
-					);                                                   \
-				lua_error(stack.L);                                      \
-				CE_UNREACHABLE();                                        \
-			}                                                            \
-		}                                                                \
-		while (0)
-#else
-	#define LUA_ASSERT(...) CE_NOOP()
-#endif // CROWN_DEBUG
-
 #define LIGHTDATA_TYPE_MASK      uintptr_t(0x3)
 #define LIGHTDATA_TYPE_SHIFT     uintptr_t(0)
 
@@ -61,433 +42,207 @@ struct LuaStack
 {
 	lua_State* L;
 
-	LuaStack(lua_State* L)
-		: L(L)
-	{
-	}
+	///
+	LuaStack(lua_State* L);
 
 	/// Returns the number of elements in the stack.
 	/// When called inside a function, it can be used to count
 	/// the number of arguments passed to the function itself.
-	int num_args()
-	{
-		return lua_gettop(L);
-	}
+	int num_args();
 
 	/// Removes the element at the given valid index, shifting down the elements
 	/// above this index to fill the gap. Cannot be called with a pseudo-index,
 	/// because a pseudo-index is not an actual stack position.
-	void remove(int i)
-	{
-		lua_remove(L, i);
-	}
+	void remove(int i);
 
 	/// Pops @a n elements from the stack.
-	void pop(int n)
-	{
-		lua_pop(L, n);
-	}
+	void pop(int n);
 
-	bool is_nil(int i)
-	{
-		return lua_isnil(L, i) == 1;
-	}
+	///
+	bool is_nil(int i);
 
-	bool is_bool(int i)
-	{
-		return lua_isboolean(L, i) == 1;
-	}
+	///
+	bool is_bool(int i);
 
-	bool is_number(int i)
-	{
-		return lua_isnumber(L, i) == 1;
-	}
+	///
+	bool is_number(int i);
 
-	bool is_string(int i)
-	{
-		return lua_isstring(L, i) == 1;
-	}
+	///
+	bool is_string(int i);
 
-	bool is_pointer(int i)
-	{
-		return lua_islightuserdata(L, i) == 1
-			&& ((uintptr_t)lua_touserdata(L, i) & LIGHTDATA_TYPE_MASK) == LIGHTDATA_POINTER_MARKER;
-	}
+	///
+	bool is_pointer(int i);
 
-	bool is_function(int i)
-	{
-		return lua_isfunction(L, i) == 1;
-	}
+	///
+	bool is_function(int i);
 
-	bool is_table(int i)
-	{
-		return lua_istable(L, i) == 1;
-	}
+	///
+	bool is_table(int i);
 
+	///
 	bool is_vector3(int i);
+
+	///
 	bool is_quaternion(int i);
+
+	///
 	bool is_matrix4x4(int i);
 
 	/// Wraps lua_type.
-	int value_type(int i)
-	{
-		return lua_type(L, i);
-	}
+	int value_type(int i);
 
-	bool get_bool(int i)
-	{
-		return lua_toboolean(L, i) == 1;
-	}
+	///
+	bool get_bool(int i);
 
-	int get_int(int i)
-	{
-#if CROWN_DEBUG
-		return (int)luaL_checknumber(L, i);
-#else
-		return (int)lua_tonumber(L, i);
-#endif
-	}
+	///
+	int get_int(int i);
 
-	f32 get_float(int i)
-	{
-#if CROWN_DEBUG
-		return (f32)luaL_checknumber(L, i);
-#else
-		return (f32)lua_tonumber(L, i);
-#endif
-	}
+	///
+	f32 get_float(int i);
 
-	const char* get_string(int i)
-	{
-#if CROWN_DEBUG
-		return luaL_checkstring(L, i);
-#else
-		return lua_tostring(L, i);
-#endif
-	}
+	///
+	const char* get_string(int i);
 
-	void* get_pointer(int i)
-	{
-#if CROWN_DEBUG
-		if (CE_UNLIKELY(lua_isuserdata(L, i) == 0))
-		{
-			luaL_typerror(L, i, "userdata");
-			CE_UNREACHABLE();
-		}
-#endif
-		void* p = lua_touserdata(L, i);
-		CE_ENSURE(p != NULL); // NULL iff object is not userdata
-		return p;
-	}
+	///
+	void* get_pointer(int i);
 
-	u32 get_id(int i)
-	{
-#if CROWN_DEBUG
-		return (u32)luaL_checknumber(L, i);
-#else
-		return (u32)lua_tonumber(L, i);
-#endif
-	}
+	///
+	u32 get_id(int i);
 
-	StringId32 get_string_id_32(int i)
-	{
-		return StringId32(get_string(i));
-	}
+	///
+	StringId32 get_string_id_32(int i);
 
-	StringId64 get_string_id_64(int i)
-	{
-		return StringId64(get_string(i));
-	}
+	///
+	StringId64 get_string_id_64(int i);
 
-	StringId64 get_resource_name(int i)
-	{
-		return get_string_id_64(i);
-	}
+	///
+	StringId64 get_resource_name(int i);
 
-	Gui* get_gui(int i)
-	{
-		Gui* p = (Gui*)get_pointer(i);
-		check_marker(i, p, DEBUG_GUI_MARKER, "Gui");
-		return p;
-	}
+	///
+	Gui* get_gui(int i);
 
-	DebugLine* get_debug_line(int i)
-	{
-		DebugLine* p = (DebugLine*)get_pointer(i);
-		check_marker(i, p, DEBUG_LINE_MARKER, "DebugLine");
-		return p;
-	}
+	///
+	DebugLine* get_debug_line(int i);
 
-	ResourcePackage* get_resource_package(int i)
-	{
-		ResourcePackage* p = (ResourcePackage*)get_pointer(i);
-		check_marker(i, p, RESOURCE_PACKAGE_MARKER, "ResourcePackage");
-		return p;
-	}
+	///
+	ResourcePackage* get_resource_package(int i);
 
-	World* get_world(int i)
-	{
-		World* p = (World*)get_pointer(i);
-		check_marker(i, p, WORLD_MARKER, "World");
-		return p;
-	}
+	///
+	World* get_world(int i);
 
-	SceneGraph* get_scene_graph(int i)
-	{
-		SceneGraph* p = (SceneGraph*)get_pointer(i);
-		check_marker(i, p, SCENE_GRAPH_MARKER, "SceneGraph");
-		return p;
-	}
+	///
+	SceneGraph* get_scene_graph(int i);
 
-	Level* get_level(int i)
-	{
-		Level* p = (Level*)get_pointer(i);
-		check_marker(i, p, LEVEL_MARKER, "Level");
-		return p;
-	}
+	///
+	Level* get_level(int i);
 
-	RenderWorld* get_render_world(int i)
-	{
-		RenderWorld* p = (RenderWorld*)get_pointer(i);
-		check_marker(i, p, RENDER_WORLD_MARKER, "RenderWorld");
-		return p;
-	}
+	///
+	RenderWorld* get_render_world(int i);
 
-	PhysicsWorld* get_physics_world(int i)
-	{
-		PhysicsWorld* p = (PhysicsWorld*)get_pointer(i);
-		check_marker(i, p, PHYSICS_WORLD_MARKER, "PhysicsWorld");
-		return p;
-	}
+	///
+	PhysicsWorld* get_physics_world(int i);
 
-	SoundWorld* get_sound_world(int i)
-	{
-		SoundWorld* p = (SoundWorld*)get_pointer(i);
-		check_marker(i, p, SOUND_WORLD_MARKER, "SoundWorld");
-		return p;
-	}
+	///
+	SoundWorld* get_sound_world(int i);
 
-	ScriptWorld* get_script_world(int i)
-	{
-		ScriptWorld* p = (ScriptWorld*)get_pointer(i);
-		check_marker(i, p, SCRIPT_WORLD_MARKER, "ScriptWorld");
-		return p;
-	}
+	///
+	ScriptWorld* get_script_world(int i);
 
-	AnimationStateMachine* get_animation_state_machine(int i)
-	{
-		AnimationStateMachine* p = (AnimationStateMachine*)get_pointer(i);
-		check_marker(i, p, ANIMATION_STATE_MACHINE_MARKER, "AnimationStateMachine");
-		return p;
-	}
+	///
+	AnimationStateMachine* get_animation_state_machine(int i);
 
-	UnitId get_unit(int i)
-	{
-		uintptr_t enc = (uintptr_t)get_pointer(i);
-#if CROWN_DEBUG
-		if ((enc & LIGHTDATA_TYPE_MASK) != LIGHTDATA_UNIT_MARKER)
-		{
-			luaL_typerror(L, i, "UnitId");
-			CE_UNREACHABLE();
-		}
-#endif // CROWN_DEBUG
-		UnitId id;
-		id._idx = u32((enc & LIGHTDATA_UNIT_ID_MASK) >> LIGHTDATA_UNIT_ID_SHIFT);
-		return id;
-	}
+	///
+	UnitId get_unit(int i);
 
-	CameraInstance get_camera(int i)
-	{
-		CameraInstance inst = { get_id(i) };
-		return inst;
-	}
+	///
+	CameraInstance get_camera(int i);
 
-	TransformInstance get_transform(int i)
-	{
-		TransformInstance inst = { get_id(i) };
-		return inst;
-	}
+	///
+	TransformInstance get_transform(int i);
 
-	MeshInstance get_mesh_instance(int i)
-	{
-		MeshInstance inst = { get_id(i) };
-		return inst;
-	}
+	///
+	MeshInstance get_mesh_instance(int i);
 
-	SpriteInstance get_sprite_instance(int i)
-	{
-		SpriteInstance inst = { get_id(i) };
-		return inst;
-	}
+	///
+	SpriteInstance get_sprite_instance(int i);
 
-	LightInstance get_light_instance(int i)
-	{
-		LightInstance inst = { get_id(i) };
-		return inst;
-	}
+	///
+	LightInstance get_light_instance(int i);
 
-	Material* get_material(int i)
-	{
-		return (Material*)get_pointer(i);
-	}
+	///
+	Material* get_material(int i);
 
-	ActorInstance get_actor(int i)
-	{
-		ActorInstance inst = { get_id(i) };
-		return inst;
-	}
+	///
+	ActorInstance get_actor(int i);
 
-	SoundInstanceId get_sound_instance_id(int i)
-	{
-		return get_id(i);
-	}
+	///
+	SoundInstanceId get_sound_instance_id(int i);
 
-	ScriptInstance get_script_instance(int i)
-	{
-		ScriptInstance inst = { get_id(i) };
-		return inst;
-	}
+	///
+	ScriptInstance get_script_instance(int i);
 
-	Vector2 get_vector2(int i)
-	{
-		Vector3 v = get_vector3(i);
-		Vector2 a;
-		a.x = v.x;
-		a.y = v.y;
-		return a;
-	}
+	///
+	Vector2 get_vector2(int i);
 
-	Vector3& get_vector3(int i)
-	{
-#if CROWN_DEBUG
-		return *check_temporary(i, (Vector3*)get_pointer(i));
-#else
-		return *(Vector3*)get_pointer(i);
-#endif
-	}
+	///
+	Vector3& get_vector3(int i);
 
-	Vector4 get_vector4(int i)
-	{
-		Quaternion q = get_quaternion(i);
-		Vector4 a;
-		a.x = q.x;
-		a.y = q.y;
-		a.z = q.z;
-		a.w = q.w;
-		return a;
-	}
+	///
+	Vector4 get_vector4(int i);
 
-	Quaternion& get_quaternion(int i)
-	{
-#if CROWN_DEBUG
-		return *check_temporary(i, (Quaternion*)get_pointer(i));
-#else
-		return *(Quaternion*)get_pointer(i);
-#endif
-	}
+	///
+	Quaternion& get_quaternion(int i);
 
-	Matrix4x4& get_matrix4x4(int i)
-	{
-#if CROWN_DEBUG
-		return *check_temporary(i, (Matrix4x4*)get_pointer(i));
-#else
-		return *(Matrix4x4*)get_pointer(i);
-#endif
-	}
+	///
+	Matrix4x4& get_matrix4x4(int i);
 
-	Color4 get_color4(int i)
-	{
-		Quaternion q = get_quaternion(i);
-		Color4 c;
-		c.x = q.x;
-		c.y = q.y;
-		c.z = q.z;
-		c.w = q.w;
-		return c;
-	}
+	///
+	Color4 get_color4(int i);
 
-	Vector2& get_vector2box(int i)
-	{
-		Vector2* v = (Vector2*)luaL_checkudata(L, i, "Vector2Box");
-		return *v;
-	}
+	///
+	Vector2& get_vector2box(int i);
 
-	Vector3& get_vector3box(int i)
-	{
-		Vector3* v = (Vector3*)luaL_checkudata(L, i, "Vector3Box");
-		return *v;
-	}
+	///
+	Vector3& get_vector3box(int i);
 
-	Quaternion& get_quaternionbox(int i)
-	{
-		Quaternion* q = (Quaternion*)luaL_checkudata(L, i, "QuaternionBox");
-		return *q;
-	}
+	///
+	Quaternion& get_quaternionbox(int i);
 
-	Matrix4x4& get_matrix4x4box(int i)
-	{
-		Matrix4x4* m = (Matrix4x4*)luaL_checkudata(L, i, "Matrix4x4Box");
-		return *m;
-	}
+	///
+	Matrix4x4& get_matrix4x4box(int i);
 
-	void push_nil()
-	{
-		lua_pushnil(L);
-	}
+	///
+	void push_nil();
 
-	void push_bool(bool value)
-	{
-		lua_pushboolean(L, value);
-	}
+	///
+	void push_bool(bool value);
 
-	void push_int(int value)
-	{
-		lua_pushnumber(L, value);
-	}
+	///
+	void push_int(int value);
 
-	void push_float(f32 value)
-	{
-		lua_pushnumber(L, value);
-	}
+	///
+	void push_float(f32 value);
 
-	void push_string(const char* s)
-	{
-		lua_pushstring(L, s);
-	}
+	///
+	void push_string(const char* s);
 
-	void push_fstring(const char* fmt, ...)
-	{
-		va_list vl;
-		va_start(vl, fmt);
-		lua_pushvfstring(L, fmt, vl);
-		va_end(vl);
-	}
+	///
+	void push_fstring(const char* fmt, ...);
 
-	void push_lstring(const char* s, u32 len)
-	{
-		lua_pushlstring(L, s, len);
-	}
+	///
+	void push_lstring(const char* s, u32 len);
 
-	void push_string_id(StringId32 value)
-	{
-		lua_pushnumber(L, value._id);
-	}
+	///
+	void push_string_id(StringId32 value);
 
-	void push_pointer(void* p)
-	{
-		CE_ENSURE(NULL != p);
-		lua_pushlightuserdata(L, p);
-	}
+	///
+	void push_pointer(void* p);
 
-	void push_function(lua_CFunction f)
-	{
-		lua_pushcfunction(L, f);
-	}
+	///
+	void push_function(lua_CFunction f);
 
-	void push_id(u32 value)
-	{
-		lua_pushnumber(L, value);
-	}
+	///
+	void push_id(u32 value);
 
 	/// Pushes an empty table onto the stack.
 	/// When you want to set keys on the table, you have to use LuaStack::push_key_begin()
@@ -498,206 +253,127 @@ struct LuaStack
 	/// stack.push_key_begin("foo"); stack.push_foo(); stack.push_key_end()
 	/// stack.push_key_begin("bar"); stack.push_bar(); stack.push_key_end()
 	/// return 1;
-	void push_table(int narr = 0, int nrec = 0)
-	{
-		lua_createtable(L, narr, nrec);
-	}
+	void push_table(int narr = 0, int nrec = 0);
 
 	/// See Stack::push_table()
-	void push_key_begin(const char* key)
-	{
-		lua_pushstring(L, key);
-	}
+	void push_key_begin(const char* key);
 
 	/// See Stack::push_table()
-	void push_key_begin(int i)
-	{
-		lua_pushnumber(L, i);
-	}
+	void push_key_begin(int i);
 
 	/// See Stack::push_table()
-	void push_key_end()
-	{
-		lua_settable(L, -3);
-	}
+	void push_key_end();
 
-	int next(int i)
-	{
-		return lua_next(L, i);
-	}
+	///
+	int next(int i);
 
-	void push_gui(Gui* dg)
-	{
-		push_pointer(dg);
-	}
+	///
+	void push_gui(Gui* dg);
 
-	void push_debug_line(DebugLine* line)
-	{
-		push_pointer(line);
-	}
+	///
+	void push_debug_line(DebugLine* line);
 
-	void push_resource_package(ResourcePackage* package)
-	{
-		push_pointer(package);
-	}
+	///
+	void push_resource_package(ResourcePackage* package);
 
-	void push_world(World* world)
-	{
-		push_pointer(world);
-	};
+	///
+	void push_world(World* world);
 
-	void push_scene_graph(SceneGraph* sg)
-	{
-		push_pointer(sg);
-	}
+	///
+	void push_scene_graph(SceneGraph* sg);
 
-	void push_level(Level* level)
-	{
-		push_pointer(level);
-	}
+	///
+	void push_level(Level* level);
 
-	void push_render_world(RenderWorld* world)
-	{
-		push_pointer(world);
-	}
+	///
+	void push_render_world(RenderWorld* world);
 
-	void push_physics_world(PhysicsWorld* world)
-	{
-		push_pointer(world);
-	}
+	///
+	void push_physics_world(PhysicsWorld* world);
 
-	void push_sound_world(SoundWorld* world)
-	{
-		push_pointer(world);
-	}
+	///
+	void push_sound_world(SoundWorld* world);
 
-	void push_script_world(ScriptWorld* world)
-	{
-		push_pointer(world);
-	}
+	///
+	void push_script_world(ScriptWorld* world);
 
-	void push_animation_state_machine(AnimationStateMachine* sm)
-	{
-		push_pointer(sm);
-	}
+	///
+	void push_animation_state_machine(AnimationStateMachine* sm);
 
-	void push_unit(UnitId id)
-	{
-		uintptr_t enc = (uintptr_t(id._idx) << LIGHTDATA_UNIT_ID_SHIFT) | LIGHTDATA_UNIT_MARKER;
-		push_pointer((void*)enc);
-	}
+	///
+	void push_unit(UnitId id);
 
-	void push_camera(CameraInstance i)
-	{
-		push_id(i.i);
-	}
+	///
+	void push_camera(CameraInstance i);
 
-	void push_transform(TransformInstance i)
-	{
-		push_id(i.i);
-	}
+	///
+	void push_transform(TransformInstance i);
 
-	void push_mesh_instance(MeshInstance i)
-	{
-		push_id(i.i);
-	}
+	///
+	void push_mesh_instance(MeshInstance i);
 
-	void push_sprite_instance(SpriteInstance i)
-	{
-		push_id(i.i);
-	}
+	///
+	void push_sprite_instance(SpriteInstance i);
 
-	void push_light_instance(LightInstance i)
-	{
-		push_id(i.i);
-	}
+	///
+	void push_light_instance(LightInstance i);
 
-	void push_material(Material* material)
-	{
-		push_pointer(material);
-	}
+	///
+	void push_material(Material* material);
 
-	void push_actor(ActorInstance i)
-	{
-		push_id(i.i);
-	}
+	///
+	void push_actor(ActorInstance i);
 
-	void push_sound_instance_id(SoundInstanceId id)
-	{
-		push_id(id);
-	}
+	///
+	void push_sound_instance_id(SoundInstanceId id);
 
-	void push_script_instance(ScriptInstance i)
-	{
-		push_id(i.i);
-	}
+	///
+	void push_script_instance(ScriptInstance i);
 
+	///
 	void push_vector2(const Vector2& v);
+
+	///
 	void push_vector3(const Vector3& v);
+
+	///
 	void push_matrix4x4(const Matrix4x4& m);
+
+	///
 	void push_quaternion(const Quaternion& q);
-	void push_color4(const Color4& c);
 
-	void push_vector2box(const Vector2& v)
-	{
-		Vector2* vec = (Vector2*)lua_newuserdata(L, sizeof(Vector2));
-		luaL_getmetatable(L, "Vector2Box");
-		lua_setmetatable(L, -2);
-		*vec = v;
-	}
+	///
+	void push_color4(const Color4& c);;
 
-	void push_vector3box(const Vector3& v)
-	{
-		Vector3* vec = (Vector3*)lua_newuserdata(L, sizeof(Vector3));
-		luaL_getmetatable(L, "Vector3Box");
-		lua_setmetatable(L, -2);
-		*vec = v;
-	}
+	///
+	void push_vector2box(const Vector2& v);
 
-	void push_quaternionbox(const Quaternion& q)
-	{
-		Quaternion* quat = (Quaternion*)lua_newuserdata(L, sizeof(Quaternion));
-		luaL_getmetatable(L, "QuaternionBox");
-		lua_setmetatable(L, -2);
-		*quat = q;
-	}
+	///
+	void push_vector3box(const Vector3& v);
 
-	void push_matrix4x4box(const Matrix4x4& m)
-	{
-		Matrix4x4* mat = (Matrix4x4*)lua_newuserdata(L, sizeof(Matrix4x4));
-		luaL_getmetatable(L, "Matrix4x4Box");
-		lua_setmetatable(L, -2);
-		*mat = m;
-	}
+	///
+	void push_quaternionbox(const Quaternion& q);
 
-	void push_value(int i)
-	{
-		lua_pushvalue(L, i);
-	}
+	///
+	void push_matrix4x4box(const Matrix4x4& m);
 
-	void call(int nresults)
-	{
-		lua_pcall(L, 2, nresults, 0);
-	}
+	///
+	void push_value(int i);
 
-#if CROWN_DEBUG
+	///
+	void call(int nresults);
+
+	///
 	Vector3* check_temporary(int i, const Vector3* p);
+
+	///
 	Quaternion* check_temporary(int i, const Quaternion* p);
+
+	///
 	Matrix4x4* check_temporary(int i, const Matrix4x4* p);
 
-	void check_marker(int i, const void* p, u32 type_marker, const char* type_name)
-	{
-		if (CE_UNLIKELY(!is_pointer(i) || *(u32*)p != type_marker))
-		{
-			luaL_typerror(L, i, type_name);
-			CE_UNREACHABLE();
-		}
-	}
-#else
-	void check_marker(int /*i*/, const void* /*p*/, u32 /*type_marker*/, const char* /*type_name*/)
-	{
-	}
-#endif // CROWN_DEBUG
+	///
+	void check_marker(int i, const void* p, u32 type_marker, const char* type_name);
 };
 
 } // namespace crown

@@ -3,12 +3,12 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/math/color4.h"
+#include "core/math/color4.inl"
 #include "core/math/constants.h"
-#include "core/math/matrix4x4.h"
-#include "core/math/vector2.h"
-#include "core/math/vector3.h"
-#include "core/strings/string.h"
+#include "core/math/matrix4x4.inl"
+#include "core/math/vector2.inl"
+#include "core/math/vector3.inl"
+#include "core/strings/string.inl"
 #include "core/strings/utf8.h"
 #include "resource/font_resource.h"
 #include "resource/material_resource.h"
@@ -20,6 +20,66 @@
 
 namespace crown
 {
+GuiBuffer::GuiBuffer(ShaderManager& sm)
+	: _shader_manager(&sm)
+	, _num_vertices(0)
+	, _num_indices(0)
+{
+}
+
+void* GuiBuffer::vertex_buffer_end()
+{
+	return tvb.data + _num_vertices*24;
+}
+
+void* GuiBuffer::index_buffer_end()
+{
+	return tib.data + _num_indices*2;
+}
+
+void GuiBuffer::create()
+{
+	_pos_tex_col.begin()
+		.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
+		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
+		.add(bgfx::Attrib::Color0,    4, bgfx::AttribType::Uint8, true)
+		.end()
+		;
+}
+
+void GuiBuffer::reset()
+{
+	_num_vertices = 0;
+	_num_indices = 0;
+
+	bgfx::allocTransientVertexBuffer(&tvb, 4096, _pos_tex_col);
+	bgfx::allocTransientIndexBuffer(&tib, 6144);
+}
+
+void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4& world)
+{
+	bgfx::setVertexBuffer(0, &tvb, _num_vertices, num_vertices);
+	bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
+	bgfx::setTransform(to_float_ptr(world));
+
+	_shader_manager->submit(StringId32("gui"), VIEW_GUI);
+
+	_num_vertices += num_vertices;
+	_num_indices += num_indices;
+}
+
+void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4& world, ResourceManager& rm, Material* material)
+{
+	bgfx::setVertexBuffer(0, &tvb, _num_vertices, num_vertices);
+	bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
+	bgfx::setTransform(to_float_ptr(world));
+
+	material->bind(rm, *_shader_manager, VIEW_GUI);
+
+	_num_vertices += num_vertices;
+	_num_indices += num_indices;
+}
+
 Gui::Gui(GuiBuffer& gb, ResourceManager& rm, ShaderManager& sm, MaterialManager& mm)
 	: _marker(DEBUG_GUI_MARKER)
 	, _buffer(&gb)

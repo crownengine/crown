@@ -3,7 +3,9 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "core/containers/array.inl"
 #include "core/math/constants.h"
+#include "core/strings/string_id.inl"
 #include "resource/level_resource.h"
 #include "resource/unit_resource.h"
 #include "world/level.h"

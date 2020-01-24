@@ -3,13 +3,13 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
 #include "core/math/constants.h"
-#include "core/math/matrix3x3.h"
-#include "core/math/matrix4x4.h"
-#include "core/math/quaternion.h"
-#include "core/math/vector3.h"
+#include "core/math/matrix3x3.inl"
+#include "core/math/matrix4x4.inl"
+#include "core/math/quaternion.inl"
+#include "core/math/vector3.inl"
 #include "core/memory/allocator.h"
 #include "world/scene_graph.h"
 #include "world/unit_manager.h"

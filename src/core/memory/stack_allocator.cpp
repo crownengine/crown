@@ -3,7 +3,8 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/memory/memory.h"
+#include "core/memory/allocator.h"
+#include "core/memory/memory.inl"
 #include "core/memory/stack_allocator.h"
 
 namespace crown

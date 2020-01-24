@@ -4,13 +4,13 @@
  */
 
 #include "config.h"
-#include "core/filesystem/reader_writer.h"
-#include "core/json/json_object.h"
+#include "core/filesystem/reader_writer.inl"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/process.h"
-#include "core/strings/dynamic_string.h"
-#include "core/strings/string_stream.h"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_stream.inl"
 #include "resource/compile_options.h"
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"

@@ -7,7 +7,8 @@
 
 #if CROWN_SOUND_NOOP
 
-#include "core/memory/memory.h"
+#include "core/memory/allocator.h"
+#include "core/memory/memory.inl"
 #include "world/audio.h"
 #include "world/sound_world.h"
 

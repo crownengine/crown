@@ -3,8 +3,8 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/math/vector3.h"
-#include "core/memory/memory.h"
+#include "core/error/error.inl"
+#include "core/math/vector3.inl"
 #include "device/input_device.h"
 #include "device/input_manager.h"
 

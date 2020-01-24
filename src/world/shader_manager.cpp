@@ -3,10 +3,11 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
-#include "core/filesystem/reader_writer.h"
-#include "core/strings/string.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
+#include "core/filesystem/reader_writer.inl"
+#include "core/strings/string.inl"
+#include "core/strings/string_id.inl"
 #include "resource/resource_manager.h"
 #include "resource/shader_resource.h"
 #include "world/shader_manager.h"

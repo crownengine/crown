@@ -10,6 +10,7 @@
 #include "core/filesystem/filesystem_disk.h"
 #include "device/console_server.h"
 #include "device/device_options.h"
+#include "resource/resource_id.h"
 #include "resource/types.h"
 
 namespace crown

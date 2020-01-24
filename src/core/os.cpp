@@ -3,12 +3,12 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/vector.h"
+#include "core/containers/vector.inl"
 #include "core/error/error.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/os.h"
 #include "core/platform.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.h"
 #include <string.h>   // strcmp
 #include <sys/stat.h> // stat, mkdir

@@ -3,8 +3,9 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
-#include "core/containers/queue.h"
+#include "core/containers/array.inl"
+#include "core/containers/queue.inl"
+#include "core/list.inl"
 #include "world/unit_manager.h"
 #include "world/world.h"
 

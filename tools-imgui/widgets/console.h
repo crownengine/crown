@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "core/containers/vector.h"
+#include "core/containers/vector.inl"
 #include "core/network/types.h"
 #include "core/strings/dynamic_string.h"
 #include "device/log.h"

@@ -7,10 +7,13 @@
 
 #if CROWN_PLATFORM_ANDROID
 
+#include "core/error/error.inl"
 #include "core/guid.h"
+#include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 #include "core/thread/thread.h"
 #include "device/device.h"
-#include "device/device_event_queue.h"
+#include "device/device_event_queue.inl"
 #include <android/sensor.h>
 #include <android/window.h>
 #include <bgfx/platform.h>

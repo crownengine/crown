@@ -22,33 +22,17 @@ struct PackageResource
 		StringId64 type;
 		StringId64 name;
 
-		Resource()
-		{
-		}
+		///
+		Resource();
 
-		Resource(StringId64 t, StringId64 n)
-			: type(t)
-			, name(n)
-		{
-		}
-
-		bool operator<(const Resource& r) const
-		{
-			return type < r.type;
-		}
-
-		bool operator==(const Resource& r) const
-		{
-			return type == r.type && name == r.name;
-		}
+		///
+		Resource(StringId64 t, StringId64 n);
 	};
 
-	PackageResource(Allocator& a)
-		: resources(a)
-	{
-	}
-
 	Array<Resource> resources;
+
+	///
+	PackageResource(Allocator& a);
 };
 
 namespace package_resource_internal

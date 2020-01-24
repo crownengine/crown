@@ -11,7 +11,8 @@
 #pragma once
 
 #include "core/memory/allocator.h"
-#include "core/memory/memory.h"
+#include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 
 namespace crown
 {

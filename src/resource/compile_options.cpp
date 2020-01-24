@@ -7,16 +7,16 @@
 
 #if CROWN_CAN_COMPILE
 
-#include "core/containers/array.h"
-#include "core/containers/vector.h"
+#include "core/containers/array.inl"
+#include "core/containers/vector.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/path.h"
 #include "core/guid.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/os.h"
 #include "core/process.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.h"
 #include "device/log.h"
 #include "resource/compile_options.h"

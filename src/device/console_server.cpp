@@ -3,12 +3,13 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/hash_map.h"
-#include "core/json/json_object.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/string_id.h"
-#include "core/strings/string_stream.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/string_id.inl"
+#include "core/strings/string_stream.inl"
 #include "device/console_server.h"
 
 namespace crown

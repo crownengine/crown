@@ -3,7 +3,8 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/strings/types.h"
+#include "core/guid.h"
+#include "core/strings/string_stream.h"
 #include "core/types.h"
 #include "world/types.h"
 

@@ -8,7 +8,10 @@
 #pragma once
 
 #include "core/containers/types.h"
-#include <string.h>  // memcpy
+#include "core/functional.inl"
+#include "core/memory/memory.inl"
+#include "core/pair.inl"
+#include <string.h> // memcpy
 
 namespace crown
 {

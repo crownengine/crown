@@ -9,7 +9,8 @@
 
 #if CROWN_CAN_COMPILE
 
-#include "core/containers/hash_map.h"
+#include "core/containers/hash_map.inl"
+#include "core/containers/types.h"
 #include "core/json/types.h"
 #include "core/strings/string_id.h"
 #include "resource/compile_options.h"
@@ -49,13 +50,10 @@ struct UnitCompiler
 		}
 	};
 
-	typedef HashMap<StringId32, ComponentTypeData> ComponentTypeMap;
-	typedef Array<ComponentTypeInfo> ComponentTypeArray;
-
 	CompileOptions& _opts;
 	u32 _num_units;
-	ComponentTypeMap _component_data;
-	ComponentTypeArray _component_info;
+	HashMap<StringId32, ComponentTypeData> _component_data;
+	Array<ComponentTypeInfo> _component_info;
 	Array<StringId32> _unit_names;
 
 	void register_component_compiler(const char* type, CompileFunction fn, f32 spawn_order);

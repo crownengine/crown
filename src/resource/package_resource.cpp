@@ -4,18 +4,18 @@
  */
 
 #include "config.h"
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
-#include "core/containers/hash_set.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
+#include "core/containers/hash_set.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/path.h"
-#include "core/filesystem/reader_writer.h"
-#include "core/json/json_object.h"
+#include "core/filesystem/reader_writer.inl"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
-#include "core/strings/string_id.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "resource/compile_options.h"
 #include "resource/data_compiler.h"
 #include "resource/package_resource.h"
@@ -31,6 +31,33 @@ struct hash<PackageResource::Resource>
 		return (u32)resource_id(val.type, val.name)._id;
 	}
 };
+
+PackageResource::Resource::Resource()
+{
+}
+
+PackageResource::Resource::Resource(StringId64 t, StringId64 n)
+	: type(t)
+	, name(n)
+{
+}
+
+bool operator<(const PackageResource::Resource& a, const PackageResource::Resource& b)
+{
+	return a.type < b.type;
+}
+
+bool operator==(const PackageResource::Resource& a, const PackageResource::Resource& b)
+{
+	return a.type == b.type
+		&& a.name == b.name
+		;
+}
+
+PackageResource::PackageResource(Allocator& a)
+	: resources(a)
+{
+}
 
 namespace package_resource_internal
 {

@@ -4,18 +4,20 @@
  */
 
 #include "config.h"
-#include "core/containers/vector.h"
+#include "core/containers/array.inl"
+#include "core/containers/vector.inl"
 #include "core/filesystem/filesystem.h"
-#include "core/filesystem/reader_writer.h"
-#include "core/json/json_object.h"
+#include "core/filesystem/reader_writer.inl"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
-#include "core/math/aabb.h"
+#include "core/math/aabb.inl"
 #include "core/math/constants.h"
-#include "core/math/matrix4x4.h"
-#include "core/math/vector2.h"
-#include "core/math/vector3.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
+#include "core/math/matrix4x4.inl"
+#include "core/math/vector2.inl"
+#include "core/math/vector3.inl"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "device/log.h"
 #include "resource/compile_options.h"
 #include "resource/mesh_resource.h"
@@ -23,6 +25,24 @@
 
 namespace crown
 {
+MeshResource::MeshResource(Allocator& a)
+	: geometry_names(a)
+	, geometries(a)
+{
+}
+
+const MeshGeometry* MeshResource::geometry(StringId32 name) const
+{
+	for (u32 i = 0; i < array::size(geometry_names); ++i)
+	{
+		if (geometry_names[i] == name)
+			return geometries[i];
+	}
+
+	CE_FATAL("Mesh name not found");
+	return NULL;
+}
+
 namespace mesh_resource_internal
 {
 	void* load(File& file, Allocator& a)

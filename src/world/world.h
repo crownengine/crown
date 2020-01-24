@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "core/containers/event_stream.h"
 #include "core/math/constants.h"
 #include "core/math/types.h"
 #include "core/strings/string_id.h"
 #include "core/types.h"
 #include "lua/types.h"
 #include "resource/types.h"
+#include "world/event_stream.h"
 #include "world/gui.h"
 #include "world/types.h"
 

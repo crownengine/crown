@@ -3,14 +3,16 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
 #include "core/containers/types.h"
+#include "core/memory/globals.h"
 #include "resource/expression_language.h"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.h"
 #include "resource/state_machine_resource.h"
 #include "world/animation_state_machine.h"
+#include "world/event_stream.inl"
 #include "world/types.h"
 #include "world/unit_manager.h"
 
