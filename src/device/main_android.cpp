@@ -271,6 +271,10 @@ struct WindowAndroid : public Window
 	{
 	}
 
+	void set_cursor_mode(CursorMode::Enum /*mode*/)
+	{
+	}
+
 	void* handle()
 	{
 		return NULL;

@@ -13,6 +13,8 @@ Game = {
 
 GameBase.game = Game
 GameBase.game_level = "test"
+local cursor_modes = {"normal", "disabled"}
+local cursor_mode_nxt_idx = 2
 
 function Game.level_loaded()
 	Game.pw = World.physics_world(GameBase.world)
@@ -68,11 +70,14 @@ function Game.update(dt)
 		end
 	end
 
-	-- Update camera
-	local delta = Vector3.zero()
-	if Mouse.button(Mouse.button_id("right")) > 0 then
-		delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
+	-- Toggle mouse cursor modes
+	if Keyboard.released(Keyboard.button_id("space")) then
+		Window.set_cursor_mode(cursor_modes[cursor_mode_nxt_idx])
+		cursor_mode_nxt_idx = 1 + cursor_mode_nxt_idx % 2
 	end
+
+	-- Update camera
+	local delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
 	Game.camera:update(dt, delta.x, delta.y)
 end
 
