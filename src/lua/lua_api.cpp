@@ -88,6 +88,19 @@ static const MouseCursorInfo s_cursor[] =
 };
 CE_STATIC_ASSERT(countof(s_cursor) == MouseCursor::COUNT);
 
+struct CursorModeInfo
+{
+	const char*name;
+	CursorMode::Enum type;
+};
+
+static const CursorModeInfo s_mode[] =
+{
+	{ "disabled", CursorMode::DISABLED },
+	{ "normal", CursorMode::NORMAL }
+};
+CE_STATIC_ASSERT(countof(s_mode) == CursorMode::COUNT);
+
 static LightType::Enum name_to_light_type(const char* name)
 {
 	for (u32 i = 0; i < countof(s_light); ++i)
@@ -119,6 +132,17 @@ static MouseCursor::Enum name_to_mouse_cursor(const char* name)
 	}
 
 	return MouseCursor::COUNT;
+}
+
+static CursorMode::Enum name_to_cursor_mode(const char* name)
+{
+	for (u32 i = 0; i < countof(s_mode); ++i)
+	{
+		if (strcmp(s_mode[i].name, name) == 0)
+			return s_mode[i].type;
+	}
+
+	return CursorMode::COUNT;
 }
 
 static int vector3box_store(lua_State* L)
@@ -3141,6 +3165,15 @@ void load_api(LuaEnvironment& env)
 			device()->_window->set_cursor(mc);
 			return 0;
 		});
+	env.add_module_function("Window", "set_cursor_mode", [](lua_State* L)
+			{
+				LuaStack stack(L);
+				const char* name = stack.get_string(1);
+				const CursorMode::Enum cm = name_to_cursor_mode(name);
+				LUA_ASSERT(cm != CursorMode::COUNT, stack, "Unknown cursor mode: '%s'", name);
+				device()->_window->set_cursor_mode(cm);
+				return 0;
+			});
 }
 
 } // namespace crown

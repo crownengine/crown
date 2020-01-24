@@ -1237,6 +1237,10 @@ Window
 **set_cursor** (cursor)
 	Sets the mouse *cursor* on this window.
 
+**set_cursor_mode** (cursor, mode)
+	Sets the mouse cursor *mode* on this window.
+	Mode can be either ``normal`` or ``disabled``.
+
 World
 =====
 

@@ -32,6 +32,20 @@ struct MouseCursor
 	};
 };
 
+/// Cursor Mode
+///
+/// @ingroup Device
+struct CursorMode
+{
+	enum Enum
+	{
+		NORMAL,
+		DISABLED,
+
+		COUNT
+	};
+};
+
 /// Window interface.
 ///
 /// @ingroup Device
@@ -84,6 +98,9 @@ struct Window
 
 	/// Sets the mouse @a cursor on this window.
 	virtual void set_cursor(MouseCursor::Enum cursor) = 0;
+
+	/// Sets the mouse cursor @a mode on this window
+	virtual void set_cursor_mode(CursorMode::Enum mode) = 0;
 
 	virtual void bgfx_setup() = 0;
 };

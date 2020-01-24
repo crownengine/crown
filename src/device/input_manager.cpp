@@ -176,6 +176,7 @@ InputManager::InputManager(Allocator& a)
 	, _touch(NULL)
 	, _mouse_last_x(INT16_MAX)
 	, _mouse_last_y(INT16_MAX)
+	, _has_delta_axis_event(false)
 {
 	_keyboard = input_device::create(*_allocator
 		, "Keyboard"
@@ -289,7 +290,19 @@ void InputManager::read(const OsEvent& event)
 			switch (ev.device_id)
 			{
 			case InputDeviceType::MOUSE:
-				_mouse->set_axis(ev.axis_num, ev.axis_x, ev.axis_y, ev.axis_z);
+				if (ev.axis_num == MouseAxis::CURSOR_DELTA)
+				{
+					const Vector3 delta = _has_delta_axis_event ? _mouse->axis(MouseAxis::CURSOR_DELTA) : vector3(0, 0, 0);
+					_mouse->set_axis(MouseAxis::CURSOR_DELTA
+						, delta.x + ev.axis_x
+						, delta.y + ev.axis_y
+						, 0
+						);
+					_has_delta_axis_event = true;
+				}
+				else
+					_mouse->set_axis(ev.axis_num, ev.axis_x, ev.axis_y, ev.axis_z);
+
 				break;
 
 			case InputDeviceType::JOYPAD:
@@ -325,14 +338,15 @@ void InputManager::update()
 {
 	_keyboard->update();
 
-	const Vector3 cursor = _mouse->axis(MouseAxis::CURSOR);
-	_mouse->set_axis(MouseAxis::CURSOR_DELTA
-		, cursor.x - (_mouse_last_x == INT16_MAX ? cursor.x : _mouse_last_x)
-		, cursor.y - (_mouse_last_y == INT16_MAX ? cursor.y : _mouse_last_y)
-		, 0
-		);
-	_mouse_last_x = (s16)cursor.x;
-	_mouse_last_y = (s16)cursor.y;
+	if (!_has_delta_axis_event)
+	{
+		_mouse->set_axis(MouseAxis::CURSOR_DELTA
+			, 0
+			, 0
+			, 0
+			);
+	}
+	_has_delta_axis_event = false;
 	_mouse->update();
 
 	_touch->update();

@@ -25,6 +25,7 @@ struct InputManager
 	InputDevice* _joypad[CROWN_MAX_JOYPADS];
 	s16 _mouse_last_x;
 	s16 _mouse_last_y;
+	bool _has_delta_axis_event;
 
 	/// Constructor.
 	InputManager(Allocator& a);
