@@ -142,7 +142,7 @@ const void* ResourceManager::get(StringId64 type, StringId64 name)
 
 	const ResourceId res_id = resource_id(type, name);
 
-	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID, res_id._id);
+	CE_ASSERT(can_get(type, name), "Resource not loaded: " RESOURCE_ID_FMT, res_id._id);
 
 	if (_autoload && !hash_map::has(_rm, id))
 	{

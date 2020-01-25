@@ -7,6 +7,9 @@
 
 #include "core/types.h"
 
+#define STRING_ID32_BUF_LEN 9
+#define STRING_ID64_BUF_LEN 17
+
 namespace crown
 {
 /// Hashed string.
@@ -26,7 +29,9 @@ struct StringId32
 	/// Parses the id from @a str.
 	void parse(const char* str);
 
-	/// Fills @a buf with the string representation of this id.
+	/// Returns this string converted to ASCIIZ.
+	/// @a buf size must be greater than or equal to STRING_ID32_BUF_LEN or the
+	/// returned string will be truncated.
 	const char* to_string(char* buf, u32 len) const;
 };
 
@@ -47,7 +52,9 @@ struct StringId64
 	/// Parses the id from @a str.
 	void parse(const char* str);
 
-	/// Fills @a buf with the string representation of this id.
+	/// Returns this string converted to ASCIIZ.
+	/// @a buf size must be greater than or equal to STRING_ID64_BUF_LEN or the
+	/// returned string will be truncated.
 	const char* to_string(char* buf, u32 len) const;
 };
 

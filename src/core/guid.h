@@ -7,6 +7,8 @@
 
 #include "core/types.h"
 
+#define GUID_BUF_LEN 37
+
 namespace crown
 {
 /// Holds a globally unique identifier.
@@ -45,8 +47,10 @@ namespace guid
 	/// Parses the @a guid from @a str and returns true if success.
 	bool try_parse(Guid& guid, const char* str);
 
-	/// Fills @a buf with the string representation of the @a guid.
-	void to_string(char* buf, u32 len, const Guid& guid);
+	/// Returns @a guid converted to ASCIIZ.
+	/// @a buf size must be greater than or equal to GUID_BUF_LEN or the
+	/// returned string will be truncated.
+	const char* to_string(char* buf, u32 len, const Guid& guid);
 
 } // namespace guid
 
@@ -55,6 +59,15 @@ bool operator==(const Guid& a, const Guid& b);
 
 /// Returns whether Guid @a is lesser than @b.
 bool operator<(const Guid& a, const Guid& b);
+
+template <typename T>
+struct hash;
+
+template<>
+struct hash<Guid>
+{
+	u32 operator()(const Guid& id) const;
+};
 
 static const Guid GUID_ZERO = { 0u, 0u, 0u, 0u };
 

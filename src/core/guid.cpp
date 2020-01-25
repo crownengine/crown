@@ -81,7 +81,7 @@ namespace guid
 		return num == 6;
 	}
 
-	void to_string(char* buf, u32 len, const Guid& guid)
+	const char* to_string(char* buf, u32 len, const Guid& guid)
 	{
 		snprintf(buf, len, "%.8x-%.4x-%.4x-%.4x-%.4x%.8x"
 			, guid.data1
@@ -91,6 +91,7 @@ namespace guid
 			, (u16)((guid.data4 & 0x0000ffff00000000u) >> 32)
 			, (u32)((guid.data4 & 0x00000000ffffffffu) >>  0)
 			);
+		return buf;
 	}
 
 } // namespace guid
@@ -103,6 +104,11 @@ bool operator==(const Guid& a, const Guid& b)
 bool operator<(const Guid& a, const Guid& b)
 {
 	return memcmp(&a, &b, sizeof(a)) < 0;
+}
+
+u32 hash<Guid>::operator()(const Guid& id) const
+{
+	return id.data1;
 }
 
 } // namespace crown

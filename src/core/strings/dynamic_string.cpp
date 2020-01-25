@@ -5,28 +5,29 @@
 
 #include "core/containers/array.inl"
 #include "core/guid.h"
-#include "core/strings/dynamic_string.inl"
+#include "core/strings/dynamic_string.h"
+#include "core/strings/string_id.h"
 
 namespace crown
 {
 void DynamicString::from_guid(const Guid& guid)
 {
-	array::resize(_data, 37);
-	guid::to_string(array::begin(_data), 37, guid);
+	array::resize(_data, GUID_BUF_LEN);
+	guid::to_string(array::begin(_data), GUID_BUF_LEN, guid);
 	array::pop_back(_data);
 }
 
 void DynamicString::from_string_id(const StringId32& id)
 {
-	array::resize(_data, 9);
-	id.to_string(array::begin(_data), 9);
+	array::resize(_data, STRING_ID32_BUF_LEN);
+	id.to_string(array::begin(_data), STRING_ID32_BUF_LEN);
 	array::pop_back(_data);
 }
 
 void DynamicString::from_string_id(const StringId64& id)
 {
-	array::resize(_data, 17);
-	id.to_string(array::begin(_data), 17);
+	array::resize(_data, STRING_ID64_BUF_LEN);
+	id.to_string(array::begin(_data), STRING_ID64_BUF_LEN);
 	array::pop_back(_data);
 }
 

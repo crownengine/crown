@@ -689,7 +689,7 @@ void Device::reload(StringId64 type, StringId64 name)
 {
 	ResourceId res_id = resource_id(type, name);
 
-	logi(DEVICE, "Reloading: " RESOURCE_ID, res_id._id);
+	logi(DEVICE, "Reloading: " RESOURCE_ID_FMT, res_id._id);
 
 	_resource_manager->reload(type, name);
 	const void* new_resource = _resource_manager->get(type, name);
@@ -699,7 +699,7 @@ void Device::reload(StringId64 type, StringId64 name)
 		_lua_environment->execute((const LuaResource*)new_resource, 0);
 	}
 
-	logi(DEVICE, "Reloaded: " RESOURCE_ID, res_id._id);
+	logi(DEVICE, "Reloaded: " RESOURCE_ID_FMT, res_id._id);
 }
 
 void Device::log(const char* msg)

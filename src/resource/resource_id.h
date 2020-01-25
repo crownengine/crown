@@ -8,9 +8,9 @@
 #include "core/strings/string_id.h"
 #include <inttypes.h> // PRIx64
 
-#define RESOURCE_ID "#ID(%.16" PRIx64 ")"
-#define RESOURCE_ID_STRING "#ID(%s)"
-#define RESOURCE_ID_STRING_LENGTH 17
+#define RESOURCE_ID_FMT "#ID(%.16" PRIx64 ")"
+#define RESOURCE_ID_FMT_STR "#ID(%s)"
+#define RESOURCE_ID_BUF_LEN 17
 
 namespace crown
 {

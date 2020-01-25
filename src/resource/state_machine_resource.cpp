@@ -111,15 +111,6 @@ namespace state_machine
 } // namespace state_machine
 
 #if CROWN_CAN_COMPILE
-template <>
-struct hash<Guid>
-{
-	u32 operator()(const Guid& id) const
-	{
-		return id.data1;
-	}
-};
-
 namespace state_machine_internal
 {
 	struct TransitionModeInfo
