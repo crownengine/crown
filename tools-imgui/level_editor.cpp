@@ -99,7 +99,11 @@ static void start_game(StartGame::Enum sg, const char* data_dir)
 
 	const char* argv[] =
 	{
+#if CROWN_DEBUG && !CROWN_DEVELOPMENT
 		EXE_PATH("crown-debug"),
+#else
+		EXE_PATH("crown-development"),
+#endif
 		"--data-dir", data_dir,
 		"--console-port", "12345",
 		// "--wait-console",
