@@ -284,6 +284,10 @@ UnitCompiler::UnitCompiler(CompileOptions& opts)
 	register_component_compiler("animation_state_machine", &compile_animation_state_machine,             1.0f);
 }
 
+UnitCompiler::~UnitCompiler()
+{
+}
+
 Buffer UnitCompiler::read_unit(const char* path)
 {
 	Buffer buf = _opts.read(path);

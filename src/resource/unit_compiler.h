@@ -9,7 +9,6 @@
 
 #if CROWN_CAN_COMPILE
 
-#include "core/containers/hash_map.inl"
 #include "core/containers/types.h"
 #include "core/json/types.h"
 #include "core/strings/string_id.h"
@@ -63,6 +62,9 @@ struct UnitCompiler
 
 	///
 	UnitCompiler(CompileOptions& opts);
+
+	///
+	~UnitCompiler();
 
 	Buffer read_unit(const char* name);
 	s32 compile_unit(const char* path);
