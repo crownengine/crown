@@ -168,7 +168,7 @@ namespace array
 		if (a._capacity == a._size)
 			grow(a, 0);
 
-		a._data[a._size] = item;
+		memcpy(&a._data[a._size], &item, sizeof(T));
 
 		return a._size++;
 	}
