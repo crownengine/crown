@@ -27,6 +27,7 @@ struct ProcessFlags
 /// @ingroup Core
 struct Process
 {
+	struct Private* _priv;
 	CE_ALIGN_DECL(16, u8 _data[32]);
 
 	///

@@ -167,7 +167,7 @@ struct BgfxAllocator : public bx::AllocatorI
 	}
 };
 
-static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* user_data)
+static void console_command_script(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* json, void* user_data)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -179,7 +179,7 @@ static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, 
 	((Device*)user_data)->_lua_environment->execute_string(script.c_str());
 }
 
-static void console_command(ConsoleServer& cs, TCPSocket client, const char* json, void* user_data)
+static void console_command(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);

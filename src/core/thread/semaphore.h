@@ -14,6 +14,7 @@ namespace crown
 /// @ingroup Thread.
 struct Semaphore
 {
+	struct Private* _priv;
 	CE_ALIGN_DECL(16, u8 _data[128]);
 
 	///

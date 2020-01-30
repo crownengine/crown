@@ -5,6 +5,7 @@
 
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/containers/vector.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.inl"
@@ -35,26 +36,26 @@ void ConsoleServer::listen(u16 port, bool wait)
 		}
 		while (ar.error != AcceptResult::SUCCESS);
 
-		array::push_back(_clients, client);
+		vector::push_back(_clients, client);
 	}
 }
 
 void ConsoleServer::shutdown()
 {
-	for (u32 i = 0; i < array::size(_clients); ++i)
+	for (u32 i = 0; i < vector::size(_clients); ++i)
 		_clients[i].close();
 
 	_server.close();
 }
 
-void ConsoleServer::send(TCPSocket client, const char* json)
+void ConsoleServer::send(TCPSocket& client, const char* json)
 {
 	u32 len = strlen32(json);
 	client.write(&len, 4);
 	client.write(json, len);
 }
 
-void ConsoleServer::error(TCPSocket client, const char* msg)
+void ConsoleServer::error(TCPSocket& client, const char* msg)
 {
 	TempAllocator4096 ta;
 	StringStream ss(ta);
@@ -91,7 +92,7 @@ void ConsoleServer::log(LogSeverity::Enum sev, const char* system, const char* m
 
 void ConsoleServer::send(const char* json)
 {
-	for (u32 i = 0; i < array::size(_clients); ++i)
+	for (u32 i = 0; i < vector::size(_clients); ++i)
 		send(_clients[i], json);
 }
 
@@ -100,13 +101,13 @@ void ConsoleServer::update()
 	TCPSocket client;
 	AcceptResult ar = _server.accept_nonblock(client);
 	if (ar.error == AcceptResult::SUCCESS)
-		array::push_back(_clients, client);
+		vector::push_back(_clients, client);
 
 	TempAllocator256 alloc;
 	Array<u32> to_remove(alloc);
 
 	// Update all clients
-	for (u32 i = 0; i < array::size(_clients); ++i)
+	for (u32 i = 0; i < vector::size(_clients); ++i)
 	{
 		for (;;)
 		{
@@ -157,12 +158,12 @@ void ConsoleServer::update()
 	// Remove clients
 	for (u32 i = 0; i < array::size(to_remove); ++i)
 	{
-		const u32 last = array::size(_clients) - 1;
+		const u32 last = vector::size(_clients) - 1;
 		const u32 c = to_remove[i];
 
 		_clients[c].close();
 		_clients[c] = _clients[last];
-		array::pop_back(_clients);
+		vector::pop_back(_clients);
 	}
 }
 

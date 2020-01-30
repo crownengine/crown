@@ -180,7 +180,7 @@ struct LineReader
 	}
 };
 
-static void console_command_compile(ConsoleServer& cs, TCPSocket client, const char* json, void* user_data)
+static void console_command_compile(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -210,7 +210,7 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket client, const c
 	}
 }
 
-static void console_command_quit(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* /*json*/, void* /*user_data*/)
+static void console_command_quit(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* /*json*/, void* /*user_data*/)
 {
 	_quit = true;
 }

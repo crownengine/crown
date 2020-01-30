@@ -41,26 +41,25 @@ namespace process_internal
 
 Process::Process()
 {
-	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(Private));
-	Private* priv = (Private*)_data;
+	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(*_priv));
+	_priv = new (_data) Private();
 
 #if CROWN_PLATFORM_POSIX
-	priv->pid = -1;
+	_priv->pid = -1;
 #elif CROWN_PLATFORM_WINDOWS
-	memset(&priv->process, 0, sizeof(priv->process));
+	memset(&_priv->process, 0, sizeof(_priv->process));
 #endif
 }
 
 Process::~Process()
 {
-	Private* priv = (Private*)_data;
-	CE_ENSURE(process_internal::is_open(priv) == false);
+	CE_ENSURE(process_internal::is_open(_priv) == false);
+	_priv->~Private();
 }
 
 s32 Process::spawn(const char* const* argv, u32 flags)
 {
-	Private* priv = (Private*)_data;
-	CE_ENSURE(process_internal::is_open(priv) == false);
+	CE_ENSURE(process_internal::is_open(_priv) == false);
 
 #if CROWN_PLATFORM_POSIX
 	// https://opensource.apple.com/source/Libc/Libc-167/gen.subproj/popen.c.auto.html
@@ -116,20 +115,20 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 	// Parent
 	if (flags & ProcessFlags::STDOUT_PIPE)
 	{
-		priv->file = fdopen(fildes[0], "r");
+		_priv->file = fdopen(fildes[0], "r");
 		close(fildes[1]);
 	}
 	else if (flags & ProcessFlags::STDIN_PIPE)
 	{
-		priv->file = fdopen(fildes[1], "w");
+		_priv->file = fdopen(fildes[1], "w");
 		close(fildes[0]);
 	}
 	else
 	{
-		priv->file = NULL;
+		_priv->file = NULL;
 	}
 
-	priv->pid = pid;
+	_priv->pid = pid;
 	return 0;
 #elif CROWN_PLATFORM_WINDOWS
 	TempAllocator512 ta;
@@ -160,7 +159,7 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 		, NULL
 		, NULL
 		, &info
-		, &priv->process
+		, &_priv->process
 		);
 	return (s32)(err != 0 ? 0 : -err);
 #endif
@@ -168,65 +167,61 @@ s32 Process::spawn(const char* const* argv, u32 flags)
 
 bool Process::spawned()
 {
-	Private* priv = (Private*)_data;
 #if CROWN_PLATFORM_POSIX
-	return priv->pid != -1;
+	return _priv->pid != -1;
 #elif CROWN_PLATFORM_WINDOWS
-	return priv->process.hProcess != 0;
+	return _priv->process.hProcess != 0;
 #endif
 }
 
 void Process::force_exit()
 {
-	Private* priv = (Private*)_data;
-	CE_ENSURE(process_internal::is_open(priv) == true);
+	CE_ENSURE(process_internal::is_open(_priv) == true);
 #if CROWN_PLATFORM_POSIX
-	kill(priv->pid, SIGKILL);
+	kill(_priv->pid, SIGKILL);
 #elif CROWN_PLATFORM_WINDOWS
 #endif
 }
 
 s32 Process::wait()
 {
-	Private* priv = (Private*)_data;
-	CE_ENSURE(process_internal::is_open(priv) == true);
+	CE_ENSURE(process_internal::is_open(_priv) == true);
 
 #if CROWN_PLATFORM_POSIX
 	pid_t pid;
 	int wstatus;
 
-	if (priv->file != NULL)
+	if (_priv->file != NULL)
 	{
-		fclose(priv->file);
-		priv->file = NULL;
+		fclose(_priv->file);
+		_priv->file = NULL;
 	}
 
 	do
 	{
-		pid = waitpid(priv->pid, &wstatus, 0);
+		pid = waitpid(_priv->pid, &wstatus, 0);
 	}
 	while (pid == -1 && errno == EINTR);
 
-	priv->pid = -1;
+	_priv->pid = -1;
 	return WIFEXITED(wstatus) ? (s32)WEXITSTATUS(wstatus) : -1;
 #elif CROWN_PLATFORM_WINDOWS
 	DWORD exitcode = 1;
-	::WaitForSingleObject(priv->process.hProcess, INFINITE);
-	GetExitCodeProcess(priv->process.hProcess, &exitcode);
-	CloseHandle(priv->process.hProcess);
-	CloseHandle(priv->process.hThread);
-	memset(&priv->process, 0, sizeof(priv->process));
+	::WaitForSingleObject(_priv->process.hProcess, INFINITE);
+	GetExitCodeProcess(_priv->process.hProcess, &exitcode);
+	CloseHandle(_priv->process.hProcess);
+	CloseHandle(_priv->process.hThread);
+	memset(&_priv->process, 0, sizeof(_priv->process));
 	return (s32)exitcode;
 #endif
 }
 
 char* Process::fgets(char* data, u32 len)
 {
-	Private* priv = (Private*)_data;
-	CE_ENSURE(process_internal::is_open(priv) == true);
+	CE_ENSURE(process_internal::is_open(_priv) == true);
 #if CROWN_PLATFORM_POSIX
-	CE_ENSURE(priv->file != NULL);
-	char* ret = ::fgets(data, len, priv->file);
+	CE_ENSURE(_priv->file != NULL);
+	char* ret = ::fgets(data, len, _priv->file);
 	return ret;
 #elif CROWN_PLATFORM_WINDOWS
 	return NULL;

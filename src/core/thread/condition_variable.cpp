@@ -7,6 +7,7 @@
 #include "core/platform.h"
 #include "core/thread/condition_variable.h"
 #include "core/thread/mutex.h"
+#include <new>
 
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>
@@ -27,54 +28,49 @@ struct Private
 
 ConditionVariable::ConditionVariable()
 {
-	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(Private));
-	Private* priv = (Private*)_data;
+	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(*_priv));
+	_priv = new (_data) Private();
 
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_init(&priv->cond, NULL);
+	int err = pthread_cond_init(&_priv->cond, NULL);
 	CE_ASSERT(err == 0, "pthread_cond_init: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	InitializeConditionVariable(&priv->cv);
+	InitializeConditionVariable(&_priv->cv);
 #endif
 }
 
 ConditionVariable::~ConditionVariable()
 {
-	Private* priv = (Private*)_data;
-
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_destroy(&priv->cond);
+	int err = pthread_cond_destroy(&_priv->cond);
 	CE_ASSERT(err == 0, "pthread_cond_destroy: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
 	// Do nothing
 #endif
+	_priv->~Private();
 }
 
 void ConditionVariable::wait(Mutex& mutex)
 {
-	Private* priv = (Private*)_data;
-
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_wait(&priv->cond, (pthread_mutex_t*)mutex.native_handle());
+	int err = pthread_cond_wait(&_priv->cond, (pthread_mutex_t*)mutex.native_handle());
 	CE_ASSERT(err == 0, "pthread_cond_wait: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	SleepConditionVariableCS(&priv->cv, (CRITICAL_SECTION*)mutex.native_handle(), INFINITE);
+	SleepConditionVariableCS(&_priv->cv, (CRITICAL_SECTION*)mutex.native_handle(), INFINITE);
 #endif
 }
 
 void ConditionVariable::signal()
 {
-	Private* priv = (Private*)_data;
-
 #if CROWN_PLATFORM_POSIX
-	int err = pthread_cond_signal(&priv->cond);
+	int err = pthread_cond_signal(&_priv->cond);
 	CE_ASSERT(err == 0, "pthread_cond_signal: errno = %d", err);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	WakeConditionVariable(&priv->cv);
+	WakeConditionVariable(&_priv->cv);
 #endif
 }
 

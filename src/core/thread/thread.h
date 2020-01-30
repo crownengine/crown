@@ -5,26 +5,21 @@
 
 #pragma once
 
-#include "core/thread/semaphore.h"
 #include "core/types.h"
 
 /// @defgroup Thread Thread
 /// @ingroup Core
 namespace crown
 {
+typedef s32 (*ThreadFunction)(void* data);
+
 /// Thread.
 ///
 /// @ingroup Thread.
 struct Thread
 {
-	typedef s32 (*ThreadFunction)(void* data);
-
-	ThreadFunction _function;
-	void* _user_data;
-	Semaphore _sem;
-	bool _is_running;
-	s32 _exit_code;
-	CE_ALIGN_DECL(16, u8 _data[32]);
+	struct Private* _priv;
+	CE_ALIGN_DECL(16, u8 _data[256]);
 
 	///
 	Thread();

@@ -17,7 +17,7 @@ namespace crown
 /// @ingroup Device
 struct ConsoleServer
 {
-	typedef void (*CommandFunction)(ConsoleServer& cs, TCPSocket client, const char* json, void* user_data);
+	typedef void (*CommandFunction)(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data);
 
 	struct Command
 	{
@@ -26,7 +26,7 @@ struct ConsoleServer
 	};
 
 	TCPSocket _server;
-	Array<TCPSocket> _clients;
+	Vector<TCPSocket> _clients;
 	HashMap<StringId32, Command> _commands;
 
 	/// Constructor.
@@ -46,10 +46,10 @@ struct ConsoleServer
 	void send(const char* json);
 
 	/// Sends the given JSON-encoded string to @a client.
-	void send(TCPSocket client, const char* json);
+	void send(TCPSocket& client, const char* json);
 
 	/// Sends an error message to @a client.
-	void error(TCPSocket client, const char* msg);
+	void error(TCPSocket& client, const char* msg);
 
 	/// Sends a log message to all clients.
 	void log(LogSeverity::Enum sev, const char* system, const char* msg);

@@ -482,7 +482,7 @@ void LuaEnvironment::reset_temporaries()
 #endif
 }
 
-static void console_command_script(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* user_data)
+static void console_command_script(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* json, void* user_data)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -516,7 +516,7 @@ static void do_REPL(LuaEnvironment* env, const char* lua)
 	return;
 }
 
-static void console_command_REPL(ConsoleServer& /*cs*/, TCPSocket /*client*/, const char* json, void* user_data)
+static void console_command_REPL(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* json, void* user_data)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);

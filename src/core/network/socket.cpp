@@ -7,6 +7,8 @@
 #include "core/network/ip_address.inl"
 #include "core/network/socket.h"
 #include "core/platform.h"
+#include <new>
+#include <string.h> // memcpy
 
 #if CROWN_PLATFORM_POSIX
 	#include <errno.h>
@@ -72,8 +74,7 @@ namespace socket_internal
 		}
 		else
 		{
-			Private* priv = (Private*)c._data;
-			priv->socket = (SOCKET)err;
+			c._priv->socket = (SOCKET)err;
 		}
 
 		return ar;
@@ -196,35 +197,49 @@ namespace socket_internal
 
 TCPSocket::TCPSocket()
 {
-	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(SOCKET));
-	Private* priv = (Private*)_data;
-	priv->socket = INVALID_SOCKET;
+	CE_STATIC_ASSERT(sizeof(_data) >= sizeof(*_priv));
+	_priv = new (_data) Private();
+	_priv->socket = INVALID_SOCKET;
+}
+
+TCPSocket::TCPSocket(const TCPSocket& other)
+{
+	_priv = new (_data) Private();
+	memcpy(_data, other._data, sizeof(_data));
+}
+
+TCPSocket& TCPSocket::operator=(const TCPSocket& other)
+{
+	_priv = new (_data) Private();
+	memcpy(_data, other._data, sizeof(_data));
+	return *this;
+}
+
+TCPSocket::~TCPSocket()
+{
+	_priv->~Private();
 }
 
 void TCPSocket::close()
 {
-	Private* priv = (Private*)_data;
-
-	if (priv->socket != INVALID_SOCKET)
+	if (_priv->socket != INVALID_SOCKET)
 	{
-		::closesocket(priv->socket);
-		priv->socket = INVALID_SOCKET;
+		::closesocket(_priv->socket);
+		_priv->socket = INVALID_SOCKET;
 	}
 }
 
 ConnectResult TCPSocket::connect(const IPAddress& ip, u16 port)
 {
-	Private* priv = (Private*)_data;
-
 	close();
-	priv->socket = socket_internal::open();
+	_priv->socket = socket_internal::open();
 
 	sockaddr_in addr_in;
 	addr_in.sin_family = AF_INET;
 	addr_in.sin_addr.s_addr = htonl(ip.address());
 	addr_in.sin_port = htons(port);
 
-	int err = ::connect(priv->socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
+	int err = ::connect(_priv->socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
 
 	ConnectResult cr;
 	cr.error = ConnectResult::SUCCESS;
@@ -244,18 +259,16 @@ ConnectResult TCPSocket::connect(const IPAddress& ip, u16 port)
 
 BindResult TCPSocket::bind(u16 port)
 {
-	Private* priv = (Private*)_data;
-
 	close();
-	priv->socket = socket_internal::open();
-	socket_internal::set_reuse_address(priv->socket, true);
+	_priv->socket = socket_internal::open();
+	socket_internal::set_reuse_address(_priv->socket, true);
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(port);
 
-	int err = ::bind(priv->socket, (const sockaddr*)&address, sizeof(sockaddr_in));
+	int err = ::bind(_priv->socket, (const sockaddr*)&address, sizeof(sockaddr_in));
 
 	BindResult br;
 	br.error = BindResult::SUCCESS;
@@ -273,59 +286,45 @@ BindResult TCPSocket::bind(u16 port)
 
 void TCPSocket::listen(u32 max)
 {
-	Private* priv = (Private*)_data;
-
-	int err = ::listen(priv->socket, max);
+	int err = ::listen(_priv->socket, max);
 	CE_ASSERT(err == 0, "listen: last_error() = %d", last_error());
 	CE_UNUSED(err);
 }
 
 AcceptResult TCPSocket::accept(TCPSocket& c)
 {
-	Private* priv = (Private*)_data;
-
-	socket_internal::set_blocking(priv->socket, true);
-	return socket_internal::accept(priv->socket, c);
+	socket_internal::set_blocking(_priv->socket, true);
+	return socket_internal::accept(_priv->socket, c);
 }
 
 AcceptResult TCPSocket::accept_nonblock(TCPSocket& c)
 {
-	Private* priv = (Private*)_data;
-
-	socket_internal::set_blocking(priv->socket, false);
-	return socket_internal::accept(priv->socket, c);
+	socket_internal::set_blocking(_priv->socket, false);
+	return socket_internal::accept(_priv->socket, c);
 }
 
 ReadResult TCPSocket::read(void* data, u32 size)
 {
-	Private* priv = (Private*)_data;
-
-	socket_internal::set_blocking(priv->socket, true);
-	return socket_internal::read(priv->socket, data, size);
+	socket_internal::set_blocking(_priv->socket, true);
+	return socket_internal::read(_priv->socket, data, size);
 }
 
 ReadResult TCPSocket::read_nonblock(void* data, u32 size)
 {
-	Private* priv = (Private*)_data;
-
-	socket_internal::set_blocking(priv->socket, false);
-	return socket_internal::read(priv->socket, data, size);
+	socket_internal::set_blocking(_priv->socket, false);
+	return socket_internal::read(_priv->socket, data, size);
 }
 
 WriteResult TCPSocket::write(const void* data, u32 size)
 {
-	Private* priv = (Private*)_data;
-
-	socket_internal::set_blocking(priv->socket, true);
-	return socket_internal::write(priv->socket, data, size);
+	socket_internal::set_blocking(_priv->socket, true);
+	return socket_internal::write(_priv->socket, data, size);
 }
 
 WriteResult TCPSocket::write_nonblock(const void* data, u32 size)
 {
-	Private* priv = (Private*)_data;
-
-	socket_internal::set_blocking(priv->socket, false);
-	return socket_internal::write(priv->socket, data, size);
+	socket_internal::set_blocking(_priv->socket, false);
+	return socket_internal::write(_priv->socket, data, size);
 }
 
 } // namespace crown
