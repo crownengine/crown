@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "core/thread/atomic_int.h"
 #include "device/types.h"
+#include <atomic>
 #include <string.h> // memcpy
 
 namespace crown
@@ -17,8 +17,8 @@ namespace crown
 /// @ingroup Device
 struct DeviceEventQueue
 {
-	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, AtomicInt _tail);
-	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, AtomicInt _head);
+	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, std::atomic_int _tail);
+	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, std::atomic_int _head);
 #define MAX_OS_EVENTS 128
 	OsEvent _queue[MAX_OS_EVENTS];
 
