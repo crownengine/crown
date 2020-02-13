@@ -23,8 +23,7 @@ struct OsEventType
 		EXIT,
 		PAUSE,
 		RESUME,
-		TEXT,
-		NONE
+		TEXT
 	};
 };
 

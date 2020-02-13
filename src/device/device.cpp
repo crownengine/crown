@@ -251,9 +251,6 @@ bool Device::process_events(bool vsync)
 	OsEvent event;
 	while (next_event(event))
 	{
-		if (event.type == OsEventType::NONE)
-			continue;
-
 		switch (event.type)
 		{
 		case OsEventType::BUTTON:

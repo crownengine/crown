@@ -94,14 +94,6 @@ struct DeviceEventQueue
 		push_event(ev);
 	}
 
-	void push_none_event()
-	{
-		OsEvent ev;
-		ev.type = OsEventType::NONE;
-
-		push_event(ev);
-	}
-
 	bool push_event(const OsEvent& ev)
 	{
 		const int tail = _tail.load(std::memory_order_relaxed);
