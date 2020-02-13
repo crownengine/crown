@@ -13,6 +13,7 @@ namespace crown
 {
 /// Single Producer Single Consumer event queue.
 /// Used only to pass events from os thread to main thread.
+/// https://www.irif.fr/~guatto/papers/sbac13.pdf
 ///
 /// @ingroup Device
 struct DeviceEventQueue
@@ -103,27 +104,29 @@ struct DeviceEventQueue
 
 	bool push_event(const OsEvent& ev)
 	{
-		const int tail = _tail.load();
+		const int tail = _tail.load(std::memory_order_relaxed);
+		const int head = _head.load(std::memory_order_acquire);
 		const int tail_next = (tail + 1) % MAX_OS_EVENTS;
 
-		if (CE_UNLIKELY(tail_next == _head.load()))
+		if (CE_UNLIKELY(tail_next == head))
 			return false;
 
 		_queue[tail] = ev;
-		_tail.store(tail_next);
+		_tail.store(tail_next, std::memory_order_release);
 		return true;
 	}
 
 	bool pop_event(OsEvent& ev)
 	{
-		const int head = _head.load();
+		const int head = _head.load(std::memory_order_relaxed);
+		const int tail = _tail.load(std::memory_order_acquire);
+		const int head_next = (head + 1) % MAX_OS_EVENTS;
 
-		if (CE_UNLIKELY(head == _tail.load()))
+		if (CE_UNLIKELY(head == tail))
 			return false;
 
 		ev = _queue[head];
-		_head.store((head + 1) % MAX_OS_EVENTS);
-
+		_head.store(head_next, std::memory_order_release);
 		return true;
 	}
 };
