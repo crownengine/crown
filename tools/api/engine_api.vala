@@ -66,6 +66,11 @@ namespace Crown
 			return command({ "reload", type, name });
 		}
 
+		public string refresh()
+		{
+			return command({ "refresh" });
+		}
+
 		public string pause()
 		{
 			return command({ "pause" });

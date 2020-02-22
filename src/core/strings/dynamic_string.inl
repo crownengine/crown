@@ -85,10 +85,21 @@ inline bool operator==(const DynamicString& a, const DynamicString& b)
 	return strcmp(a.c_str(), b.c_str()) == 0;
 }
 
+inline bool operator!=(const DynamicString& a, const DynamicString& b)
+{
+	return strcmp(a.c_str(), b.c_str()) != 0;
+}
+
 inline bool operator==(const DynamicString& a, const char* str)
 {
 	CE_ENSURE(NULL != str);
 	return strcmp(a.c_str(), str) == 0;
+}
+
+inline bool operator!=(const DynamicString& a, const char* str)
+{
+	CE_ENSURE(NULL != str);
+	return strcmp(a.c_str(), str) != 0;
 }
 
 inline void DynamicString::reserve(u32 n)

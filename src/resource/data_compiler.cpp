@@ -215,6 +215,42 @@ static void console_command_quit(ConsoleServer& /*cs*/, TCPSocket& /*client*/, c
 	_quit = true;
 }
 
+static void console_command_refresh_list(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data)
+{
+	DataCompiler* dc = (DataCompiler*)user_data;
+
+	TempAllocator4096 ta;
+	StringStream ss(ta);
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
+	Guid client_id = sjson::parse_guid(obj["client_id"]);
+
+	ss << "{\"type\":\"refresh_list\",\"list\":[";
+	auto cur = hash_map::begin(dc->_data_revisions);
+	auto end = hash_map::end(dc->_data_revisions);
+	for (; cur != end; ++cur)
+	{
+		HASH_MAP_SKIP_HOLE(dc->_data_revisions, cur);
+
+		printf("rev: %u\n", cur->second);
+		DynamicString deffault(ta);
+		if (cur->second > hash_map::get(dc->_client_revisions, client_id, u32(0)))
+			ss << "\"" << hash_map::get(dc->_data_index, cur->first, deffault).c_str() << "\",";
+	}
+	ss << "]}";
+
+	cs.send(client, string_stream::c_str(ss));
+	printf("%s\n", string_stream::c_str(ss));
+
+	char buf[GUID_BUF_LEN];
+	logi(DATA_COMPILER, "client %s was at rev: %u"
+		, guid::to_string(buf, sizeof(buf), client_id)
+		, hash_map::get(dc->_client_revisions, client_id, u32(0))
+		);
+
+	hash_map::set(dc->_client_revisions, client_id, dc->_revision);
+}
+
 static Buffer read(FilesystemDisk& data_fs, const char* filename)
 {
 	Buffer buffer(default_allocator());
@@ -494,9 +530,13 @@ DataCompiler::DataCompiler(const DeviceOptions& opts, ConsoleServer& cs)
 	, _data_requirements(default_allocator())
 	, _data_versions(default_allocator())
 	, _file_monitor(default_allocator())
+	, _data_revisions(default_allocator())
+	, _client_revisions(default_allocator())
+	, _revision(0)
 {
 	cs.register_command("compile", console_command_compile, this);
 	cs.register_command("quit", console_command_quit, this);
+	cs.register_command("refresh_list", console_command_refresh_list, this);
 }
 
 DataCompiler::~DataCompiler()
@@ -752,7 +792,7 @@ bool DataCompiler::version_changed(const DynamicString& src_path, ResourceId id)
 	return false;
 }
 
-bool DataCompiler::should_ignore(const char* path)
+bool DataCompiler::path_matches_ignore_glob(const char* path)
 {
 	for (u32 ii = 0, nn = vector::size(_globs); ii < nn; ++ii)
 	{
@@ -761,6 +801,13 @@ bool DataCompiler::should_ignore(const char* path)
 	}
 
 	return false;
+}
+
+bool DataCompiler::path_is_special(const char* path)
+{
+	return strcmp(path, "_level_editor_test.level") == 0
+		|| strcmp(path, "_level_editor_test.package") == 0
+		;
 }
 
 bool DataCompiler::compile(const char* data_dir, const char* platform)
@@ -786,7 +833,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		const char* filename = src_path.c_str();
 		const char* type = path::extension(filename);
 
-		if (should_ignore(filename))
+		if (path_matches_ignore_glob(filename))
 			continue;
 
 		if (type == NULL || !can_compile(type))
@@ -847,7 +894,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		if (type == NULL)
 			continue;
 
-		TempAllocator1024 ta;
+		TempAllocator256 ta;
 		DynamicString path(ta);
 
 		// Build destination file path
@@ -873,7 +920,7 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			HashMap<DynamicString, u32> requirements_deffault(default_allocator());
 			hash_map::clear(hash_map::get(_data_requirements, id, requirements_deffault));
 
-			// Compile data
+			// Invoke compiler
 			Buffer output(default_allocator());
 			CompileOptions opts(*this, data_fs, id, src_path, output, platform);
 			success = rtd.compiler(opts) == 0;
@@ -890,9 +937,14 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		if (success)
 		{
-			hash_map::set(_data_index, id, src_path);
-			hash_map::set(_data_versions, type_str, rtd.version);
-			hash_map::set(_data_mtimes, id, data_fs.last_modified_time(path.c_str()));
+			// Do not include special paths in content tracking structures.
+			if (!path_is_special(src_path.c_str()))
+			{
+				hash_map::set(_data_index, id, src_path);
+				hash_map::set(_data_versions, type_str, rtd.version);
+				hash_map::set(_data_mtimes, id, data_fs.last_modified_time(path.c_str()));
+				hash_map::set(_data_revisions, id, _revision + 1);
+			}
 		}
 		else
 		{
@@ -904,9 +956,14 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	if (success)
 	{
 		if (vector::size(to_compile))
-			logi(DATA_COMPILER, "Compiled data in %.2fs", time::seconds(time::now() - time_start));
+		{
+			_revision++;
+			logi(DATA_COMPILER, "Compiled data (rev %u) in %.2fs", _revision, time::seconds(time::now() - time_start));
+		}
 		else
+		{
 			logi(DATA_COMPILER, "Data is up to date");
+		}
 	}
 
 	return success;

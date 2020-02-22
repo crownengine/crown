@@ -143,6 +143,38 @@ static int loader(lua_State* L)
 	return 1;
 }
 
+#if CROWN_DEBUG
+static int require_internal(lua_State* L)
+{
+	const char* module_name = lua_tostring(L, 1);
+	bool already_loaded = false;
+
+	lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
+	lua_getfield(L, -1, module_name);
+	already_loaded = lua_toboolean(L, -1);
+	lua_pop(L, 2);
+
+	lua_getglobal(L, "original_require");
+	lua_pushvalue(L, -2);
+	lua_remove(L, -3);
+	lua_call(L, 1, 1);
+
+	lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
+	lua_getfield(L, 2, module_name);
+	if (lua_toboolean(L, -1) && !already_loaded)
+	{
+		lua_pop(L, 2);
+		lua_getglobal(L, "package");
+		lua_getfield(L, -1, "load_order");
+		lua_pushstring(L, module_name);
+		lua_rawseti(L, -2, int(lua_objlen(L, -2) + 1));
+		lua_pop(L, 2); // Pop "package.load_order" and "pacakge"
+	}
+
+	return 1;
+}
+#endif
+
 LuaEnvironment::LuaEnvironment()
 	: L(NULL)
 	, _num_vec3(0)
@@ -217,7 +249,19 @@ void LuaEnvironment::load_libs()
 	lua_rawseti(L, -2, 3); // package.loaders[3] = nil
 	lua_pushnil(L);
 	lua_rawseti(L, -2, 4); // package.loaders[4] = nil
-	lua_pop(L, 2);         // pop package.loaders and package
+	lua_pop(L, 1);         // pop "package.loaders"
+#if CROWN_DEBUG
+	// Create new empty table to store package load order
+	lua_newtable(L);
+	lua_setfield(L, -2, "load_order"); // package.load_order = {}
+
+	// Override require() to keep track of libraries' load order
+	lua_getglobal(L, "require");
+	lua_setglobal(L, "original_require");
+	lua_pushcclosure(L, require_internal, 0); // pass original require() to new require as upvalue
+	lua_setglobal(L, "require");
+#endif
+	lua_pop(L, 1);         // pop "package"
 
 	// Create metatable for lightuserdata
 	lua_pushlightuserdata(L, 0);
@@ -229,6 +273,13 @@ void LuaEnvironment::load_libs()
 	CE_ASSERT(lua_gettop(L) == 0, "Stack not clean");
 
 	lua_gc(L, LUA_GCRESTART, 0);
+}
+
+void LuaEnvironment::do_file(const char* name)
+{
+	lua_getglobal(L, "dofile");
+	lua_pushstring(L, name);
+	this->call(1, 0);
 }
 
 void LuaEnvironment::require(const char* name)
@@ -454,6 +505,24 @@ Matrix4x4* LuaEnvironment::check_valid(const Matrix4x4* ptr)
 	return (Matrix4x4*)(uintptr_t(ptr) & ~LUA_MATRIX4X4_MARKER_MASK);
 }
 #endif // CROWN_DEBUG
+
+void LuaEnvironment::reload()
+{
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "load_order");
+	for (size_t i = 1, n = lua_objlen(L, -1); i < n+1; ++i)
+	{
+		lua_rawgeti(L, -1, i);
+		logi(LUA, "reloading: %s", lua_tostring(L, -1));
+
+		LuaStack stack(L);
+		StringId64 name = stack.get_resource_name(-1);
+		this->execute((const LuaResource*)device()->_resource_manager->get(RESOURCE_TYPE_SCRIPT, name), 0);
+
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 2);
+}
 
 void LuaEnvironment::temp_count(u32& num_vec3, u32& num_quat, u32& num_mat4)
 {

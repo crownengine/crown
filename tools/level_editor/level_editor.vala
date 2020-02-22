@@ -87,7 +87,7 @@ namespace Crown
 			{ "console",                 null,       "Show/Hide Console",   "<ctrl>quoteleft",null,         on_console                 },
 			{ "fullscreen",              null,       "Fullscreen",          "F11",            null,         on_fullscreen              },
 			{ "restart",                 null,       "_Restart",            null,             null,         on_engine_restart          },
-			{ "reload-lua",              null,       "Reload Level Editor", "F7",             null,         on_reload_lua              },
+			{ "reload-lua",              null,       "Refresh Lua",         "F7",             null,         on_refresh_lua             },
 			{ "menu-run",                null,       "_Run",                null,             null,         null                       },
 			{ "test-level",              "game-run", "Test Level",          "F5",             "Test Level", on_run_game                },
 			{ "run-game",                null,       "Run Game",            null,             null,         on_run_game                },
@@ -1372,14 +1372,12 @@ namespace Crown
 			restart_engine();
 		}
 
-		private void on_reload_lua(Gtk.Action action)
+		private void on_refresh_lua(Gtk.Action action)
 		{
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res))
 				{
-					_engine.send(DeviceApi.pause());
-					_engine.send(DeviceApi.reload("lua", "core/editors/level_editor/level_editor"));
-					_engine.send(DeviceApi.unpause());
+					_engine.send(DeviceApi.refresh());
 				}
 			});
 		}

@@ -8,6 +8,7 @@
 #include "core/containers/types.h"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/filesystem_disk.h"
+#include "core/guid.h"
 #include "device/console_server.h"
 #include "device/device_options.h"
 #include "resource/resource_id.h"
@@ -59,6 +60,9 @@ struct DataCompiler
 	HashMap<DynamicString, u32> _data_versions;
 	FileMonitor _file_monitor;
 	SourceIndex _source_index;
+	HashMap<StringId64, u32> _data_revisions;
+	HashMap<Guid, u32> _client_revisions;
+	u32 _revision;
 
 	void add_file(const char* path);
 	void remove_file(const char* path);
@@ -125,7 +129,11 @@ struct DataCompiler
 	/// Returns whether the @a path should be ignored because
 	/// it matches a pattern from the CROWN_DATAIGNORE file or
 	/// by other means.
-	bool should_ignore(const char* path);
+	bool path_matches_ignore_glob(const char* path);
+
+	/// Returns whether the @a path is special, hence it must
+	/// be treated differently by some code somewhere. Sigh.
+	bool path_is_special(const char* path);
 
 	///
 	void error(const char* msg, va_list args);

@@ -67,7 +67,11 @@ struct Device
 
 	///
 	Device(const DeviceOptions& opts, ConsoleServer& cs);
+
+	///
 	Device(const Device&) = delete;
+
+	///
 	Device& operator=(const Device&) = delete;
 
 	/// Runs the engine.
@@ -109,8 +113,9 @@ struct Device
 	/// You have to call ResourcePackage::unload() before destroying a package.
 	void destroy_resource_package(ResourcePackage& rp);
 
-	/// Reloads the resource @a type @a name.
-	void reload(StringId64 type, StringId64 name);
+	/// Reloads all the resources that have changed since the
+	/// last call to this function.
+	void refresh();
 
 	/// Logs @a msg to log file and console.
 	void log(const char* msg);

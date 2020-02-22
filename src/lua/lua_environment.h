@@ -65,6 +65,9 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	/// Loads lua libraries.
 	void load_libs();
 
+	/// Equivalent to calling `dofile "name"` from Lua.
+	void do_file(const char* name);
+
 	/// Equivalent to calling `require "name"` from Lua.
 	void require(const char* name);
 
@@ -119,7 +122,6 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	/// Returns whether @a ptr is a temporary Matrix4x4.
 	bool is_matrix4x4(const void* ptr);
 
-#if CROWN_DEBUG
 	/// Returns the actual address of @a ptr if it is not stale,
 	/// otherwise it generates a Lua error.
 	Vector3* check_valid(const Vector3* ptr);
@@ -131,7 +133,10 @@ CE_STATIC_ASSERT(CROWN_LUA_MAX_MATRIX4X4_SIZE % sizeof(Matrix4x4) == 0);
 	/// Returns the actual address of @a ptr if it is not stale,
 	/// otherwise it generates a Lua error.
 	Matrix4x4* check_valid(const Matrix4x4* ptr);
-#endif
+
+	/// Reloads (executes) all lua files that has been loaded since the program
+	/// started.
+	void reload();
 
 	///
 	void register_console_commands(ConsoleServer& cs);

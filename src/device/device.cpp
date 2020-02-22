@@ -19,6 +19,8 @@
 #include "core/memory/globals.h"
 #include "core/memory/proxy_allocator.h"
 #include "core/memory/temp_allocator.inl"
+#include "core/network/ip_address.h"
+#include "core/network/socket.h"
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
@@ -167,19 +169,7 @@ struct BgfxAllocator : public bx::AllocatorI
 	}
 };
 
-static void console_command_script(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* json, void* user_data)
-{
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	DynamicString script(ta);
-
-	sjson::parse(obj, json);
-	sjson::parse_string(script, obj["script"]);
-
-	((Device*)user_data)->_lua_environment->execute_string(script.c_str());
-}
-
-static void console_command(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data)
+static void console_command(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* json, void* /*user_data*/)
 {
 	TempAllocator4096 ta;
 	JsonObject obj(ta);
@@ -195,21 +185,8 @@ static void console_command(ConsoleServer& cs, TCPSocket& client, const char* js
 		device()->pause();
 	else if (cmd == "unpause")
 		device()->unpause();
-	else if (cmd == "reload")
-	{
-		if (array::size(args) != 3)
-		{
-			cs.error(client, "Usage: reload type name");
-			return;
-		}
-
-		DynamicString type(ta);
-		DynamicString name(ta);
-		sjson::parse_string(type, args[1]);
-		sjson::parse_string(name, args[2]);
-
-		((Device*)user_data)->reload(ResourceId(type.c_str()), ResourceId(name.c_str()));
-	}
+	else if (cmd == "refresh")
+		device()->refresh();
 }
 
 Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
@@ -682,22 +659,99 @@ void Device::destroy_resource_package(ResourcePackage& rp)
 	CE_DELETE(default_allocator(), &rp);
 }
 
-void Device::reload(StringId64 type, StringId64 name)
+#if CROWN_DEBUG
+void Device::refresh()
 {
-	ResourceId res_id = resource_id(type, name);
+	TempAllocator4096 ta;
+	Array<char> msg(ta);
+	StringStream ss(ta);
 
-	logi(DEVICE, "Reloading: " RESOURCE_ID_FMT, res_id._id);
-
-	_resource_manager->reload(type, name);
-	const void* new_resource = _resource_manager->get(type, name);
-
-	if (type == RESOURCE_TYPE_SCRIPT)
+	TCPSocket dc;
+	ConnectResult cr = dc.connect(IP_ADDRESS_LOOPBACK, CROWN_DEFAULT_COMPILER_PORT);
+	if (cr.error == ConnectResult::SUCCESS)
 	{
-		_lua_environment->execute((const LuaResource*)new_resource, 0);
-	}
+		WriteResult wr;
+		static Guid client_id = guid::new_guid();
+		char buf[GUID_BUF_LEN];
+		ss << "{\"type\":\"refresh_list\",";
+		ss << "\"client_id\":\"";
+		ss << guid::to_string(buf, sizeof(buf), client_id);
+		ss << "\"}";
+		const char* refresh_list = string_stream::c_str(ss);
+		u32 msg_len = strlen(refresh_list);
+		wr = dc.write(&msg_len, sizeof(msg_len));
+		if (wr.error == WriteResult::SUCCESS)
+			wr = dc.write(refresh_list, msg_len);
 
-	logi(DEVICE, "Reloaded: " RESOURCE_ID_FMT, res_id._id);
+		ReadResult rr;
+		rr.error = ReadResult::UNKNOWN;
+		if (wr.error == WriteResult::SUCCESS)
+		{
+			rr = dc.read(&msg_len, 4);
+			if (rr.error == ReadResult::SUCCESS)
+			{
+				array::resize(msg, msg_len + 1);
+				rr = dc.read(array::begin(msg), msg_len);
+				msg[msg_len] = '\0';
+				dc.close();
+			}
+		}
+
+		if (rr.error == ReadResult::SUCCESS)
+		{
+			JsonObject obj(ta);
+			JsonArray list(ta);
+			DynamicString type(ta);
+			sjson::parse(obj, array::begin(msg));
+			sjson::parse_string(type, obj["type"]);
+			if (type != "refresh_list")
+			{
+				loge(DEVICE, "Unexpected response type: '%s'", type.c_str());
+				return;
+			}
+
+			bool refresh_lua = false;
+			sjson::parse_array(list, obj["list"]);
+			for (u32 i = 0; i < array::size(list); ++i)
+			{
+				DynamicString resource(ta);
+				sjson::parse_string(resource, list[i]);
+				logi(DEVICE, "%s", resource.c_str());
+
+				const char* type = path::extension(resource.c_str());
+				const u32 len = u32(type - resource.c_str() - 1);
+
+				StringId64 resource_type(type);
+				StringId64 resource_name(resource.c_str(), len);
+
+				if (resource_type == RESOURCE_TYPE_SCRIPT)
+				{
+					refresh_lua = true;
+					_resource_manager->reload(resource_type, resource_name);
+				}
+			}
+
+			if (!array::size(list))
+			{
+				logi(DEVICE, "Nothing to refresh");
+			}
+			else
+			{
+				if (refresh_lua)
+					_lua_environment->reload();
+			}
+		}
+
+		if (_paused)
+			unpause();
+	}
 }
+#else
+void Device::refresh()
+{
+	// Do nothing
+}
+#endif
 
 void Device::log(const char* msg)
 {
