@@ -678,7 +678,7 @@ void Device::refresh()
 		ss << guid::to_string(buf, sizeof(buf), client_id);
 		ss << "\"}";
 		const char* refresh_list = string_stream::c_str(ss);
-		u32 msg_len = strlen(refresh_list);
+		u32 msg_len = strlen32(refresh_list);
 		wr = dc.write(&msg_len, sizeof(msg_len));
 		if (wr.error == WriteResult::SUCCESS)
 			wr = dc.write(refresh_list, msg_len);
