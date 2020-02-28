@@ -814,6 +814,17 @@ int main(int argc, char** argv)
 {
 	using namespace crown;
 
+	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0)
+	{
+		FILE* fpstdin = stdin;
+		FILE* fpstdout = stdout;
+		FILE* fpstderr = stderr;
+
+		freopen_s(&fpstdin, "CONIN$", "r", stdin);
+		freopen_s(&fpstdout, "CONOUT$", "w", stdout);
+		freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+	}
+
 	WSADATA wsdata;
 	int err = WSAStartup(MAKEWORD(2, 2), &wsdata);
 	CE_ASSERT(err == 0, "WSAStartup: error = %d", err);
@@ -850,6 +861,7 @@ int main(int argc, char** argv)
 	if (ec == EXIT_SUCCESS)
 		ec = s_wdvc.run(&opts);
 
+	FreeConsole();
 	WSACleanup();
 	return ec;
 }
