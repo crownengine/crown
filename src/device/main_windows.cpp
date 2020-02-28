@@ -18,6 +18,7 @@
 #include "device/device_event_queue.inl"
 #include "resource/data_compiler.h"
 #include <bgfx/platform.h>
+#include <stdio.h>    // FILE, freopen_s, stdio etc.
 #include <winsock2.h>
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 #include <xinput.h>
