@@ -159,7 +159,7 @@ struct LineReader
 	const u32 _len;
 	u32 _pos;
 
-	LineReader(const char* str)
+	explicit LineReader(const char* str)
 		: _str(str)
 		, _len(strlen32(str))
 		, _pos(0)
@@ -194,7 +194,6 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket& client, const 
 	sjson::parse_string(platform, obj["platform"]);
 
 	{
-		TempAllocator512 ta;
 		StringStream ss(ta);
 		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"start\":true}";
 		cs.send(client, string_stream::c_str(ss));
@@ -203,7 +202,6 @@ static void console_command_compile(ConsoleServer& cs, TCPSocket& client, const 
 	bool succ = ((DataCompiler*)user_data)->compile(data_dir.c_str(), platform.c_str());
 
 	{
-		TempAllocator512 ta;
 		StringStream ss(ta);
 		ss << "{\"type\":\"compile\",\"id\":\"" << id.c_str() << "\",\"success\":" << (succ ? "true" : "false") << "}";
 		cs.send(client, string_stream::c_str(ss));

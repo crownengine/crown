@@ -174,13 +174,10 @@ namespace json
 		{
 			while (*++json)
 			{
-				// Empty string
 				if (*json == '"')
-				{
-					++json;
 					return;
-				}
-				else if (*json == '\\')
+
+				if (*json == '\\')
 				{
 					++json;
 
@@ -194,12 +191,8 @@ namespace json
 					case 'n': str += '\n'; break;
 					case 'r': str += '\r'; break;
 					case 't': str += '\t'; break;
-					default:
-					{
-						CE_FATAL("Bad escape character");
-						break;
+					default: CE_FATAL("Bad escape character"); break;
 					}
-				}
 				}
 				else
 				{

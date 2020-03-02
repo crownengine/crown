@@ -142,8 +142,8 @@ namespace state_machine_internal
 		u32 _offset;
 
 		OffsetAccumulator()
+			: _offset(sizeof(StateMachineResource))
 		{
-			_offset = sizeof(StateMachineResource);
 		}
 
 		// Returns the offset of
@@ -166,7 +166,7 @@ namespace state_machine_internal
 		DynamicString weight;
 		u32 bytecode_entry;
 
-		AnimationInfo(Allocator& a)
+		explicit AnimationInfo(Allocator& a)
 			: weight(a)
 		{
 		}
@@ -197,7 +197,7 @@ namespace state_machine_internal
 		{
 		}
 
-		StateInfo(Allocator& a)
+		explicit StateInfo(Allocator& a)
 			: animations(a)
 			, transitions(a)
 			, speed(a)
@@ -221,7 +221,7 @@ namespace state_machine_internal
 		{
 		}
 
-		VariableInfo(Allocator& a)
+		explicit VariableInfo(Allocator& a)
 			: name_string(a)
 			, value(0.0f)
 		{
@@ -238,7 +238,7 @@ namespace state_machine_internal
 		Vector<VariableInfo> _variables;
 		Array<u32> _byte_code;
 
-		StateMachineCompiler(CompileOptions& opts)
+		explicit StateMachineCompiler(CompileOptions& opts)
 			: _opts(opts)
 			, _states(default_allocator())
 			, _offsets(default_allocator())

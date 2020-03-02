@@ -198,12 +198,12 @@ struct AndroidDevice
 
 	static s32 on_input_event(struct android_app* app, AInputEvent* event)
 	{
-		return ((AndroidDevice*) app->userData)->process_input(app, event);
+		return static_cast<AndroidDevice*>(app->userData)->process_input(app, event);
 	}
 
 	static void on_app_cmd(struct android_app* app, s32 cmd)
 	{
-		((AndroidDevice*) app->userData)->process_command(app, cmd);
+		static_cast<AndroidDevice*>(app->userData)->process_command(app, cmd);
 	}
 };
 

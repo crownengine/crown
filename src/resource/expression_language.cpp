@@ -150,7 +150,7 @@ namespace expression_language
 		enum TokenType {EMPTY, NUMBER, FUNCTION, VARIABLE, LEFT_PARENTHESIS, RIGHT_PARENTHESIS};
 
 		Token() : type(EMPTY), id(0) {}
-		Token(TokenType type) : type(type) {}
+		explicit Token(TokenType type) : type(type) {}
 		Token(TokenType type, unsigned id) : type(type), id(id) {}
 		Token(TokenType type, float value) : type(type), value(value) {}
 

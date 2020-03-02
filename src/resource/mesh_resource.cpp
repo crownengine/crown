@@ -188,7 +188,7 @@ namespace mesh_resource_internal
 		bool _has_normal;
 		bool _has_uv;
 
-		MeshCompiler(CompileOptions& opts)
+		explicit MeshCompiler(CompileOptions& opts)
 			: _opts(opts)
 			, _positions(default_allocator())
 			, _normals(default_allocator())
@@ -235,7 +235,7 @@ namespace mesh_resource_internal
 			_has_uv = false;
 		}
 
-		void parse_float_array(const char* array_json, Array<f32>& output)
+		void parse_float_array(Array<f32>& output, const char* array_json)
 		{
 			TempAllocator4096 ta;
 			JsonArray arr(ta);
@@ -248,7 +248,7 @@ namespace mesh_resource_internal
 			}
 		}
 
-		void parse_index_array(const char* array_json, Array<u16>& output)
+		void parse_index_array(Array<u16>& output, const char* array_json)
 		{
 			TempAllocator4096 ta;
 			JsonArray arr(ta);
@@ -270,15 +270,15 @@ namespace mesh_resource_internal
 			JsonArray data_json(ta);
 			sjson::parse_array(data_json, obj["data"]);
 
-			parse_index_array(data_json[0], _position_indices);
+			parse_index_array(_position_indices, data_json[0]);
 
 			if (_has_normal)
 			{
-				parse_index_array(data_json[1], _normal_indices);
+				parse_index_array(_normal_indices, data_json[1]);
 			}
 			if (_has_uv)
 			{
-				parse_index_array(data_json[2], _uv_indices);
+				parse_index_array(_uv_indices, data_json[2]);
 			}
 		}
 
@@ -293,15 +293,15 @@ namespace mesh_resource_internal
 			_has_normal = json_object::has(obj, "normal");
 			_has_uv     = json_object::has(obj, "texcoord");
 
-			parse_float_array(obj["position"], _positions);
+			parse_float_array(_positions, obj["position"]);
 
 			if (_has_normal)
 			{
-				parse_float_array(obj["normal"], _normals);
+				parse_float_array(_normals, obj["normal"]);
 			}
 			if (_has_uv)
 			{
-				parse_float_array(obj["texcoord"], _uvs);
+				parse_float_array(_uvs, obj["texcoord"]);
 			}
 
 			parse_indices(obj["indices"]);

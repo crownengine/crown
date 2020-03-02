@@ -443,7 +443,7 @@ namespace physics_config_resource_internal
 		Array<PhysicsCollisionFilter> _filters;
 		u32 _filter;
 
-		CollisionFilterCompiler(CompileOptions& opts)
+		explicit CollisionFilterCompiler(CompileOptions& opts)
 			: _opts(opts)
 			, _filter_map(default_allocator())
 			, _filters(default_allocator())
@@ -560,7 +560,6 @@ namespace physics_config_resource_internal
 		offt += sizeof(PhysicsActor) * pcr.num_actors;
 
 		pcr.filters_offset = offt;
-		offt += sizeof(PhysicsCollisionFilter) * pcr.num_filters;
 
 		// Write all
 		opts.write(pcr.version);

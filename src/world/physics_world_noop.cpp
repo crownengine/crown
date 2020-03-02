@@ -30,7 +30,7 @@ struct PhysicsWorldImpl
 {
 	EventStream _events;
 
-	PhysicsWorldImpl(Allocator& a)
+	explicit PhysicsWorldImpl(Allocator& a)
 		: _events(a)
 	{
 	}

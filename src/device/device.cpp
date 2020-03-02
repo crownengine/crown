@@ -146,7 +146,7 @@ struct BgfxAllocator : public bx::AllocatorI
 {
 	ProxyAllocator _allocator;
 
-	BgfxAllocator(Allocator& a)
+	explicit BgfxAllocator(Allocator& a)
 		: _allocator(a, "bgfx")
 	{
 	}

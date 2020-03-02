@@ -13,6 +13,7 @@
 #pragma warning(disable:4091) // 'keyword' : ignored on left of 'type' when no variable is declared
 #include <dbghelp.h>
 #pragma warning(pop)
+#include <new>
 
 namespace crown
 {
@@ -53,8 +54,8 @@ namespace error
 		ZeroMemory(&line, sizeof(IMAGEHLP_LINE64));
 		line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
-		char buf[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
-		PSYMBOL_INFO sym = (PSYMBOL_INFO)buf;
+		char buf[sizeof(SYMBOL_INFO) + (MAX_SYM_NAME - 1) * sizeof(TCHAR)];
+		SYMBOL_INFO* sym = new (buf) SYMBOL_INFO();
 		sym->SizeOfStruct = sizeof(SYMBOL_INFO);
 		sym->MaxNameLen = MAX_SYM_NAME;
 
@@ -82,12 +83,12 @@ namespace error
 						);
 			res = res && SymFromAddr(GetCurrentProcess(), stack.AddrPC.Offset, 0, sym);
 
-			char buf[512];
+			char str[512];
 
 			if (res == TRUE)
 			{
-				snprintf(buf
-					, sizeof(buf)
+				snprintf(str
+					, sizeof(str)
 					, "    [%2i] %s in %s:%d\n"
 					, num
 					, sym->Name
@@ -97,15 +98,15 @@ namespace error
 			}
 			else
 			{
-				snprintf(buf
-					, sizeof(buf)
+				snprintf(str
+					, sizeof(str)
 					, "    [%2i] 0x%p\n"
 					, num
 					, stack.AddrPC.Offset
 					);
 			}
 
-			ss << buf;
+			ss << str;
 		}
 
 		SymCleanup(GetCurrentProcess());

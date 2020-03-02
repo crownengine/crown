@@ -1360,12 +1360,12 @@ static void test_process()
 {
 #if CROWN_PLATFORM_POSIX
 	{
-		char buf[128] = {0};
 		const char* argv[] = {"printf", "Hello,\\nworld.\\n", NULL};
 
 		Process pr;
 		if (pr.spawn(argv, ProcessFlags::STDOUT_PIPE) == 0)
 		{
+			char buf[128] = {0};
 			pr.fgets(buf, sizeof(buf));
 			ENSURE(strcmp(buf, "Hello,\n") == 0);
 			pr.fgets(buf, sizeof(buf));

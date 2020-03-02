@@ -249,13 +249,10 @@ namespace sjson
 		{
 			while (*++json)
 			{
-				// Empty string
 				if (*json == '"')
-				{
-					++json;
 					return;
-				}
-				else if (*json == '\\')
+
+				if (*json == '\\')
 				{
 					++json;
 

@@ -142,7 +142,7 @@ struct MyDebugDrawer : public btIDebugDraw
 {
 	DebugLine* _lines;
 
-	MyDebugDrawer(DebugLine& dl)
+	explicit MyDebugDrawer(DebugLine& dl)
 		: _lines(&dl)
 	{
 	}
@@ -208,7 +208,7 @@ struct PhysicsWorldImpl
 	struct ActorInstanceData
 	{
 		UnitId unit;
-		btRigidBody* actor;
+		btRigidBody* body;
 	};
 
 	Allocator* _allocator;
@@ -268,12 +268,12 @@ struct PhysicsWorldImpl
 
 		for (u32 i = 0; i < array::size(_actor); ++i)
 		{
-			btRigidBody* rb = _actor[i].actor;
+			btRigidBody* body = _actor[i].body;
 
-			_dynamics_world->removeRigidBody(rb);
-			CE_DELETE(*_allocator, rb->getMotionState());
-			CE_DELETE(*_allocator, rb->getCollisionShape());
-			CE_DELETE(*_allocator, rb);
+			_dynamics_world->removeRigidBody(body);
+			CE_DELETE(*_allocator, body->getMotionState());
+			CE_DELETE(*_allocator, body->getCollisionShape());
+			CE_DELETE(*_allocator, body);
 		}
 
 		for (u32 i = 0; i < array::size(_collider); ++i)
@@ -505,39 +505,39 @@ struct PhysicsWorldImpl
 		rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
 
 		// Create rigid body
-		btRigidBody* actor = CE_NEW(*_allocator, btRigidBody)(rbinfo);
+		btRigidBody* body = CE_NEW(*_allocator, btRigidBody)(rbinfo);
 
-		int cflags = actor->getCollisionFlags();
+		int cflags = body->getCollisionFlags();
 		cflags |= is_kinematic ? btCollisionObject::CF_KINEMATIC_OBJECT    : 0;
 		cflags |= is_static    ? btCollisionObject::CF_STATIC_OBJECT       : 0;
 		cflags |= is_trigger   ? btCollisionObject::CF_NO_CONTACT_RESPONSE : 0;
-		actor->setCollisionFlags(cflags);
+		body->setCollisionFlags(cflags);
 		if (is_kinematic)
-			actor->setActivationState(DISABLE_DEACTIVATION);
+			body->setActivationState(DISABLE_DEACTIVATION);
 
-		actor->setLinearFactor(btVector3(
+		body->setLinearFactor(btVector3(
 			(ar->flags & ActorFlags::LOCK_TRANSLATION_X) ? 0.0f : 1.0f,
 			(ar->flags & ActorFlags::LOCK_TRANSLATION_Y) ? 0.0f : 1.0f,
 			(ar->flags & ActorFlags::LOCK_TRANSLATION_Z) ? 0.0f : 1.0f)
 		);
-		actor->setAngularFactor(btVector3(
+		body->setAngularFactor(btVector3(
 			(ar->flags & ActorFlags::LOCK_ROTATION_X) ? 0.0f : 1.0f,
 			(ar->flags & ActorFlags::LOCK_ROTATION_Y) ? 0.0f : 1.0f,
 			(ar->flags & ActorFlags::LOCK_ROTATION_Z) ? 0.0f : 1.0f)
 		);
 
 		const u32 last = array::size(_actor);
-		actor->setUserPointer((void*)(uintptr_t)last);
+		body->setUserPointer((void*)(uintptr_t)last);
 
 		// Set collision filters
 		const u32 me   = physics_config_resource::filter(_config_resource, ar->collision_filter)->me;
 		const u32 mask = physics_config_resource::filter(_config_resource, ar->collision_filter)->mask;
 
-		_dynamics_world->addRigidBody(actor, me, mask);
+		_dynamics_world->addRigidBody(body, me, mask);
 
 		ActorInstanceData aid;
-		aid.unit  = id;
-		aid.actor = actor;
+		aid.unit = id;
+		aid.body = body;
 
 		array::push_back(_actor, aid);
 		hash_map::set(_actor_map, id, last);
@@ -551,13 +551,13 @@ struct PhysicsWorldImpl
 		const UnitId u      = _actor[i.i].unit;
 		const UnitId last_u = _actor[last].unit;
 
-		_dynamics_world->removeRigidBody(_actor[i.i].actor);
-		CE_DELETE(*_allocator, _actor[i.i].actor->getMotionState());
-		CE_DELETE(*_allocator, _actor[i.i].actor->getCollisionShape());
-		CE_DELETE(*_allocator, _actor[i.i].actor);
+		_dynamics_world->removeRigidBody(_actor[i.i].body);
+		CE_DELETE(*_allocator, _actor[i.i].body->getMotionState());
+		CE_DELETE(*_allocator, _actor[i.i].body->getCollisionShape());
+		CE_DELETE(*_allocator, _actor[i.i].body);
 
 		_actor[i.i] = _actor[last];
-		_actor[i.i].actor->setUserPointer((void*)(uintptr_t)i.i);
+		_actor[i.i].body->setUserPointer((void*)(uintptr_t)i.i);
 
 		array::pop_back(_actor);
 
@@ -572,31 +572,31 @@ struct PhysicsWorldImpl
 
 	Vector3 actor_world_position(ActorInstance i) const
 	{
-		return to_vector3(_actor[i.i].actor->getCenterOfMassPosition());
+		return to_vector3(_actor[i.i].body->getCenterOfMassPosition());
 	}
 
 	Quaternion actor_world_rotation(ActorInstance i) const
 	{
-		return to_quaternion(_actor[i.i].actor->getOrientation());
+		return to_quaternion(_actor[i.i].body->getOrientation());
 	}
 
 	Matrix4x4 actor_world_pose(ActorInstance i) const
 	{
-		return to_matrix4x4(_actor[i.i].actor->getCenterOfMassTransform());
+		return to_matrix4x4(_actor[i.i].body->getCenterOfMassTransform());
 	}
 
 	void actor_teleport_world_position(ActorInstance i, const Vector3& p)
 	{
-		btTransform pose = _actor[i.i].actor->getCenterOfMassTransform();
+		btTransform pose = _actor[i.i].body->getCenterOfMassTransform();
 		pose.setOrigin(to_btVector3(p));
-		_actor[i.i].actor->setCenterOfMassTransform(pose);
+		_actor[i.i].body->setCenterOfMassTransform(pose);
 	}
 
 	void actor_teleport_world_rotation(ActorInstance i, const Quaternion& r)
 	{
-		btTransform pose = _actor[i.i].actor->getCenterOfMassTransform();
+		btTransform pose = _actor[i.i].body->getCenterOfMassTransform();
 		pose.setRotation(to_btQuaternion(r));
-		_actor[i.i].actor->setCenterOfMassTransform(pose);
+		_actor[i.i].body->setCenterOfMassTransform(pose);
 	}
 
 	void actor_teleport_world_pose(ActorInstance i, const Matrix4x4& m)
@@ -604,27 +604,27 @@ struct PhysicsWorldImpl
 		const Quaternion rot = rotation(m);
 		const Vector3 pos = translation(m);
 
-		btTransform pose = _actor[i.i].actor->getCenterOfMassTransform();
+		btTransform pose = _actor[i.i].body->getCenterOfMassTransform();
 		pose.setRotation(to_btQuaternion(rot));
 		pose.setOrigin(to_btVector3(pos));
-		_actor[i.i].actor->setCenterOfMassTransform(pose);
+		_actor[i.i].body->setCenterOfMassTransform(pose);
 	}
 
 	Vector3 actor_center_of_mass(ActorInstance i) const
 	{
-		return to_vector3(_actor[i.i].actor->getCenterOfMassTransform().getOrigin());
+		return to_vector3(_actor[i.i].body->getCenterOfMassTransform().getOrigin());
 	}
 
 	void actor_enable_gravity(ActorInstance i)
 	{
-		btRigidBody* body = _actor[i.i].actor;
+		btRigidBody* body = _actor[i.i].body;
 		body->setFlags(body->getFlags() & ~BT_DISABLE_WORLD_GRAVITY);
 		body->setGravity(_dynamics_world->getGravity());
 	}
 
 	void actor_disable_gravity(ActorInstance i)
 	{
-		btRigidBody* body = _actor[i.i].actor;
+		btRigidBody* body = _actor[i.i].body;
 		body->setFlags(body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
 		body->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	}
@@ -646,7 +646,7 @@ struct PhysicsWorldImpl
 
 	void actor_set_kinematic(ActorInstance i, bool kinematic)
 	{
-		btRigidBody* body = _actor[i.i].actor;
+		btRigidBody* body = _actor[i.i].body;
 		int flags = body->getCollisionFlags();
 
 		if (kinematic)
@@ -663,12 +663,12 @@ struct PhysicsWorldImpl
 
 	bool actor_is_static(ActorInstance i) const
 	{
-		return _actor[i.i].actor->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT;
+		return _actor[i.i].body->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT;
 	}
 
 	bool actor_is_dynamic(ActorInstance i) const
 	{
-		const int flags = _actor[i.i].actor->getCollisionFlags();
+		const int flags = _actor[i.i].body->getCollisionFlags();
 		return !(flags & btCollisionObject::CF_STATIC_OBJECT)
 			&& !(flags & btCollisionObject::CF_KINEMATIC_OBJECT)
 			;
@@ -676,7 +676,7 @@ struct PhysicsWorldImpl
 
 	bool actor_is_kinematic(ActorInstance i) const
 	{
-		const int flags = _actor[i.i].actor->getCollisionFlags();
+		const int flags = _actor[i.i].body->getCollisionFlags();
 		return (flags & btCollisionObject::CF_KINEMATIC_OBJECT) != 0;
 	}
 
@@ -687,93 +687,93 @@ struct PhysicsWorldImpl
 
 	f32 actor_linear_damping(ActorInstance i) const
 	{
-		return _actor[i.i].actor->getLinearDamping();
+		return _actor[i.i].body->getLinearDamping();
 	}
 
 	void actor_set_linear_damping(ActorInstance i, f32 rate)
 	{
-		_actor[i.i].actor->setDamping(rate, _actor[i.i].actor->getAngularDamping());
+		_actor[i.i].body->setDamping(rate, _actor[i.i].body->getAngularDamping());
 	}
 
 	f32 actor_angular_damping(ActorInstance i) const
 	{
-		return _actor[i.i].actor->getAngularDamping();
+		return _actor[i.i].body->getAngularDamping();
 	}
 
 	void actor_set_angular_damping(ActorInstance i, f32 rate)
 	{
-		_actor[i.i].actor->setDamping(_actor[i.i].actor->getLinearDamping(), rate);
+		_actor[i.i].body->setDamping(_actor[i.i].body->getLinearDamping(), rate);
 	}
 
 	Vector3 actor_linear_velocity(ActorInstance i) const
 	{
-		btVector3 v = _actor[i.i].actor->getLinearVelocity();
+		btVector3 v = _actor[i.i].body->getLinearVelocity();
 		return to_vector3(v);
 	}
 
 	void actor_set_linear_velocity(ActorInstance i, const Vector3& vel)
 	{
-		_actor[i.i].actor->activate();
-		_actor[i.i].actor->setLinearVelocity(to_btVector3(vel));
+		_actor[i.i].body->activate();
+		_actor[i.i].body->setLinearVelocity(to_btVector3(vel));
 	}
 
 	Vector3 actor_angular_velocity(ActorInstance i) const
 	{
-		btVector3 v = _actor[i.i].actor->getAngularVelocity();
+		btVector3 v = _actor[i.i].body->getAngularVelocity();
 		return to_vector3(v);
 	}
 
 	void actor_set_angular_velocity(ActorInstance i, const Vector3& vel)
 	{
-		_actor[i.i].actor->activate();
-		_actor[i.i].actor->setAngularVelocity(to_btVector3(vel));
+		_actor[i.i].body->activate();
+		_actor[i.i].body->setAngularVelocity(to_btVector3(vel));
 	}
 
 	void actor_add_impulse(ActorInstance i, const Vector3& impulse)
 	{
-		_actor[i.i].actor->activate();
-		_actor[i.i].actor->applyCentralImpulse(to_btVector3(impulse));
+		_actor[i.i].body->activate();
+		_actor[i.i].body->applyCentralImpulse(to_btVector3(impulse));
 	}
 
 	void actor_add_impulse_at(ActorInstance i, const Vector3& impulse, const Vector3& pos)
 	{
-		_actor[i.i].actor->activate();
-		_actor[i.i].actor->applyImpulse(to_btVector3(impulse), to_btVector3(pos));
+		_actor[i.i].body->activate();
+		_actor[i.i].body->applyImpulse(to_btVector3(impulse), to_btVector3(pos));
 	}
 
 	void actor_add_torque_impulse(ActorInstance i, const Vector3& imp)
 	{
-		_actor[i.i].actor->applyTorqueImpulse(to_btVector3(imp));
+		_actor[i.i].body->applyTorqueImpulse(to_btVector3(imp));
 	}
 
 	void actor_push(ActorInstance i, const Vector3& vel, f32 mass)
 	{
 		const Vector3 f = vel * mass;
-		_actor[i.i].actor->applyCentralForce(to_btVector3(f));
+		_actor[i.i].body->applyCentralForce(to_btVector3(f));
 	}
 
 	void actor_push_at(ActorInstance i, const Vector3& vel, f32 mass, const Vector3& pos)
 	{
 		const Vector3 f = vel * mass;
-		_actor[i.i].actor->applyForce(to_btVector3(f), to_btVector3(pos));
+		_actor[i.i].body->applyForce(to_btVector3(f), to_btVector3(pos));
 	}
 
 	bool actor_is_sleeping(ActorInstance i)
 	{
-		return !_actor[i.i].actor->isActive();
+		return !_actor[i.i].body->isActive();
 	}
 
 	void actor_wake_up(ActorInstance i)
 	{
-		_actor[i.i].actor->activate(true);
+		_actor[i.i].body->activate(true);
 	}
 
 	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc& jd)
 	{
 		const btVector3 anchor_0 = to_btVector3(jd.anchor_0);
 		const btVector3 anchor_1 = to_btVector3(jd.anchor_1);
-		btRigidBody* actor_0 = _actor[a0.i].actor;
-		btRigidBody* actor_1 = is_valid(a1) ? _actor[a1.i].actor : NULL;
+		btRigidBody* body_0 = _actor[a0.i].body;
+		btRigidBody* body_1 = is_valid(a1) ? _actor[a1.i].body : NULL;
 
 		btTypedConstraint* joint = NULL;
 		switch(jd.type)
@@ -782,17 +782,17 @@ struct PhysicsWorldImpl
 			{
 				const btTransform frame_0 = btTransform(btQuaternion::getIdentity(), anchor_0);
 				const btTransform frame_1 = btTransform(btQuaternion::getIdentity(), anchor_1);
-	 			joint = CE_NEW(*_allocator, btFixedConstraint)(*actor_0
-	 				, *actor_1
-	 				, frame_0
-	 				, frame_1
-	 				);
+				joint = CE_NEW(*_allocator, btFixedConstraint)(*body_0
+					, *body_1
+					, frame_0
+					, frame_1
+					);
 			}
 			break;
 
 		case JointType::SPRING:
-			joint = CE_NEW(*_allocator, btPoint2PointConstraint)(*actor_0
-				, *actor_1
+			joint = CE_NEW(*_allocator, btPoint2PointConstraint)(*body_0
+				, *body_1
 				, anchor_0
 				, anchor_1
 				);
@@ -800,8 +800,8 @@ struct PhysicsWorldImpl
 
 		case JointType::HINGE:
 			{
-				btHingeConstraint* hinge = CE_NEW(*_allocator, btHingeConstraint)(*actor_0
-					, *actor_1
+				btHingeConstraint* hinge = CE_NEW(*_allocator, btHingeConstraint)(*body_0
+					, *body_1
 					, anchor_0
 					, anchor_1
 					, to_btVector3(jd.hinge.axis)
@@ -852,13 +852,13 @@ struct PhysicsWorldImpl
 
 		if (cb.hasHit())
 		{
-			const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
+			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->getUserPointer();
 
 			hit.position = to_vector3(cb.m_hitPointWorld);
 			hit.normal   = to_vector3(cb.m_hitNormalWorld);
 			hit.time     = (f32)cb.m_closestHitFraction;
-			hit.unit     = _actor[actor].unit;
-			hit.actor.i  = actor;
+			hit.unit     = _actor[actor_i].unit;
+			hit.actor.i  = actor_i;
 			return true;
 		}
 
@@ -884,13 +884,13 @@ struct PhysicsWorldImpl
 
 			for (int i = 0; i < num; ++i)
 			{
-				const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
+				const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->getUserPointer();
 
 				hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
 				hits[i].normal   = to_vector3(cb.m_hitNormalWorld[i]);
 				hits[i].time     = (f32)cb.m_closestHitFraction;
-				hits[i].unit     = _actor[actor].unit;
-				hits[i].actor.i  = actor;
+				hits[i].unit     = _actor[actor_i].unit;
+				hits[i].actor.i  = actor_i;
 			}
 
 			return true;
@@ -912,13 +912,13 @@ struct PhysicsWorldImpl
 
 		if (cb.hasHit())
 		{
-			const u32 actor = (u32)(uintptr_t)btRigidBody::upcast(cb.m_hitCollisionObject)->getUserPointer();
+			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_hitCollisionObject)->getUserPointer();
 
 			hit.position = to_vector3(cb.m_hitPointWorld);
 			hit.normal   = to_vector3(cb.m_hitNormalWorld);
 			hit.time     = (f32)cb.m_closestHitFraction;
-			hit.unit     = _actor[actor].unit;
-			hit.actor.i  = actor;
+			hit.unit     = _actor[actor_i].unit;
+			hit.actor.i  = actor_i;
 			return true;
 		}
 
@@ -958,7 +958,7 @@ struct PhysicsWorldImpl
 			const Quaternion rot = rotation(*begin_world);
 			const Vector3 pos = translation(*begin_world);
 			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/MotionStates
-			btMotionState* ms = _actor[ai].actor->getMotionState();
+			btMotionState* ms = _actor[ai].body->getMotionState();
 			if (ms)
 				ms->setWorldTransform(btTransform(to_btQuaternion(rot), to_btVector3(pos)));
 		}
@@ -971,7 +971,7 @@ struct PhysicsWorldImpl
 
 		const int num = _dynamics_world->getNumCollisionObjects();
 		const btCollisionObjectArray& collision_array = _dynamics_world->getCollisionObjectArray();
-	    // Update actors
+		// Update actors
 		for (int i = 0; i < num; ++i)
 		{
 			if ((uintptr_t)collision_array[i]->getUserPointer() == (uintptr_t)UINT32_MAX)
@@ -1024,12 +1024,12 @@ struct PhysicsWorldImpl
 		// Limit bodies velocity
 		for (u32 i = 0; i < array::size(_actor); ++i)
 		{
-			CE_ENSURE(NULL != _actor[i].actor);
-			const btVector3 velocity = _actor[i].actor->getLinearVelocity();
+			CE_ENSURE(NULL != _actor[i].body);
+			const btVector3 velocity = _actor[i].body->getLinearVelocity();
 			const btScalar speed = velocity.length();
 
 			if (speed > 100.0f)
-				_actor[i].actor->setLinearVelocity(velocity * 100.0f / speed);
+				_actor[i].body->setLinearVelocity(velocity * 100.0f / speed);
 		}
 
 		// Check collisions
@@ -1096,7 +1096,7 @@ struct PhysicsWorldImpl
 
 	static void unit_destroyed_callback(UnitId id, void* user_ptr)
 	{
-		((PhysicsWorldImpl*)user_ptr)->unit_destroyed_callback(id);
+		static_cast<PhysicsWorldImpl*>(user_ptr)->unit_destroyed_callback(id);
 	}
 
 	static ColliderInstance make_collider_instance(u32 i) { ColliderInstance inst = { i }; return inst; }

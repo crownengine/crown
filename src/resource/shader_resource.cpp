@@ -620,7 +620,7 @@ namespace shader_resource_internal
 		DynamicString _fs_input_output;
 		HashMap<DynamicString, DynamicString> _samplers;
 
-		BgfxShader(Allocator& a)
+		explicit BgfxShader(Allocator& a)
 			: _includes(a)
 			, _code(a)
 			, _vs_code(a)
@@ -640,7 +640,7 @@ namespace shader_resource_internal
 		DynamicString _bgfx_shader;
 		DynamicString _render_state;
 
-		ShaderPermutation(Allocator& a)
+		explicit ShaderPermutation(Allocator& a)
 			: _bgfx_shader(a)
 			, _render_state(a)
 		{
@@ -654,7 +654,7 @@ namespace shader_resource_internal
 		DynamicString _shader;
 		Vector<DynamicString> _defines;
 
-		StaticCompile(Allocator& a)
+		explicit StaticCompile(Allocator& a)
 			: _shader(a)
 			, _defines(a)
 		{
@@ -676,7 +676,7 @@ namespace shader_resource_internal
 		DynamicString _vs_out_path;
 		DynamicString _fs_out_path;
 
-		ShaderCompiler(CompileOptions& opts)
+		explicit ShaderCompiler(CompileOptions& opts)
 			: _opts(opts)
 			, _render_states(default_allocator())
 			, _sampler_states(default_allocator())

@@ -626,8 +626,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0, n = component->num_instances; i < n; ++i)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
-				Vector3 scl = scale(tm);
-				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scl);
+				physics_world->collider_create(unit_lookup[unit_index[i]], cd, scale(tm));
 				cd = (ColliderDesc*)((char*)(cd + 1) + cd->size);
 			}
 		}
@@ -637,9 +636,7 @@ void spawn_units(World& w, const UnitResource& ur, const Vector3& pos, const Qua
 			for (u32 i = 0, n = component->num_instances; i < n; ++i, ++ar)
 			{
 				Matrix4x4 tm = scene_graph->world_pose(unit_lookup[unit_index[i]]);
-				Vector3 pos = translation(tm);
-				Quaternion rot = rotation(tm);
-				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rot, pos));
+				physics_world->actor_create(unit_lookup[unit_index[i]], ar, from_quaternion_translation(rotation(tm), translation(tm)));
 			}
 		}
 		else if (component->type == COMPONENT_TYPE_MESH_RENDERER)

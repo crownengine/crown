@@ -21,7 +21,7 @@ struct FileApk : public File
 	AAssetManager* _asset_manager;
 	AAsset* _asset;
 
-	FileApk(AAssetManager* asset_manager)
+	explicit FileApk(AAssetManager* asset_manager)
 		: _asset_manager(asset_manager)
 		, _asset(NULL)
 	{
