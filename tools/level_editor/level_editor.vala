@@ -86,7 +86,7 @@ namespace Crown
 			{ "resource-browser",        null,       "Resource Browser",    "<ctrl>P",        null,         on_resource_browser        },
 			{ "console",                 null,       "Show/Hide Console",   "<ctrl>quoteleft",null,         on_console                 },
 			{ "fullscreen",              null,       "Fullscreen",          "F11",            null,         on_fullscreen              },
-			{ "restart",                 null,       "_Restart",            null,             null,         on_engine_restart          },
+			{ "restart",                 null,       "_Restart",            null,             null,         on_editor_restart          },
 			{ "reload-lua",              null,       "Refresh Lua",         "F7",             null,         on_refresh_lua             },
 			{ "menu-run",                null,       "_Run",                null,             null,         null                       },
 			{ "test-level",              "game-run", "Test Level",          "F5",             "Test Level", on_run_game                },
@@ -164,10 +164,10 @@ namespace Crown
 
 		// Engine connections
 		private GLib.Subprocess _compiler_process;
-		private GLib.Subprocess _engine_process;
+		private GLib.Subprocess _editor_process;
 		private GLib.Subprocess _game_process;
 		private ConsoleClient _compiler;
-		private ConsoleClient _engine;
+		private ConsoleClient _editor;
 		private ConsoleClient _game;
 
 		// Level data
@@ -179,7 +179,7 @@ namespace Crown
 
 		// Widgets
 		private ConsoleView _console_view;
-		private EngineView _engine_view;
+		private EditorView _editor_view;
 		private LevelTreeView _level_treeview;
 		private LevelLayersTreeView _level_layers_treeview;
 		private PropertiesView _properties_view;
@@ -187,15 +187,15 @@ namespace Crown
 		private ResourceBrowser _resource_browser;
 		private ResourceBrowser _resource_selection;
 		private Gtk.Popover _resource_popover;
-		private Gtk.Overlay _engine_view_overlay;
-		private Slide _engine_slide;
+		private Gtk.Overlay _editor_view_overlay;
+		private Slide _editor_slide;
 		private Slide _inspector_slide;
 
 		private Gtk.ActionGroup _action_group;
 		private Gtk.UIManager _ui_manager;
 		private Gtk.MenuBar _menubar;
 		private Gtk.Toolbar _toolbar;
-		private Gtk.Paned _engine_pane;
+		private Gtk.Paned _editor_pane;
 		private Gtk.Notebook _level_tree_view_notebook;
 		private Gtk.Paned _inspector_pane;
 		private Gtk.Paned _main_pane;
@@ -221,16 +221,16 @@ namespace Crown
 
 			// Engine connections
 			_compiler_process = null;
-			_engine_process = null;
+			_editor_process = null;
 			_game_process = null;
 			_compiler = compiler;
 			_compiler.connected.connect(on_compiler_connected);
 			_compiler.disconnected.connect(on_compiler_disconnected);
 			_compiler.message_received.connect(on_message_received);
-			_engine = engine;
-			_engine.connected.connect(on_engine_connected);
-			_engine.disconnected.connect(on_engine_disconnected);
-			_engine.message_received.connect(on_message_received);
+			_editor = engine;
+			_editor.connected.connect(on_editor_connected);
+			_editor.disconnected.connect(on_editor_disconnected);
+			_editor.message_received.connect(on_message_received);
 			_game = game;
 			_game.connected.connect(on_game_connected);
 			_game.disconnected.connect(on_game_disconnected);
@@ -248,13 +248,13 @@ namespace Crown
 
 			_resource_selection = new ResourceBrowser(_project, _project_store, false);
 
-			_console_view = new ConsoleView(_engine, _project);
+			_console_view = new ConsoleView(_editor, _project);
 			_level_treeview = new LevelTreeView(_database, _level);
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 			_properties_view = new PropertiesView(_level, _project_store);
 
-			_engine_slide = new Slide();
-			_engine_slide.show_widget(new StartingCompiler());
+			_editor_slide = new Slide();
+			_editor_slide.show_widget(new StartingCompiler());
 			_inspector_slide = new Slide();
 			_inspector_slide.show_widget(new StartingCompiler());
 
@@ -301,18 +301,18 @@ namespace Crown
 			_level_tree_view_notebook.append_page(_level_treeview, new Gtk.Image.from_icon_name("level-tree", IconSize.SMALL_TOOLBAR));
 			_level_tree_view_notebook.append_page(_level_layers_treeview, new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
 
-			_engine_view_overlay = new Gtk.Overlay();
+			_editor_view_overlay = new Gtk.Overlay();
 
-			_engine_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			_engine_pane.pack1(_engine_slide, true, true);
-			_engine_pane.pack2(_console_view, true, true);
+			_editor_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
+			_editor_pane.pack1(_editor_slide, true, true);
+			_editor_pane.pack2(_console_view, true, true);
 
 			_inspector_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 			_inspector_pane.pack1(_level_tree_view_notebook, true, true);
 			_inspector_pane.pack2(_properties_view, true, true);
 
 			_main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
-			_main_pane.pack1(_engine_pane, true, false);
+			_main_pane.pack1(_editor_pane, true, false);
 			_main_pane.pack2(_inspector_slide, true, false);
 
 			_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -344,18 +344,18 @@ namespace Crown
 			// a reason I couldn't find. The values passed, though, seem
 			// to move pane handles to the correct-ish position.
 			_main_pane.set_position(400);
-			_engine_pane.set_position(72);
+			_editor_pane.set_position(72);
 			_inspector_pane.set_position(300);
 		}
 
 		private bool on_key_press(Gdk.EventKey ev)
 		{
 			if (ev.keyval == Gdk.Key.Control_L)
-				_engine.send_script(LevelEditorApi.key_down("ctrl_left"));
+				_editor.send_script(LevelEditorApi.key_down("ctrl_left"));
 			else if (ev.keyval == Gdk.Key.Shift_L)
-				_engine.send_script(LevelEditorApi.key_down("shift_left"));
+				_editor.send_script(LevelEditorApi.key_down("shift_left"));
 			else if (ev.keyval == Gdk.Key.Alt_L)
-				_engine.send_script(LevelEditorApi.key_down("alt_left"));
+				_editor.send_script(LevelEditorApi.key_down("alt_left"));
 
 			return false;
 		}
@@ -363,11 +363,11 @@ namespace Crown
 		private bool on_key_release(Gdk.EventKey ev)
 		{
 			if (ev.keyval == Gdk.Key.Control_L)
-				_engine.send_script(LevelEditorApi.key_up("ctrl_left"));
+				_editor.send_script(LevelEditorApi.key_up("ctrl_left"));
 			else if (ev.keyval == Gdk.Key.Shift_L)
-				_engine.send_script(LevelEditorApi.key_up("shift_left"));
+				_editor.send_script(LevelEditorApi.key_up("shift_left"));
 			else if (ev.keyval == Gdk.Key.Alt_L)
-				_engine.send_script(LevelEditorApi.key_up("alt_left"));
+				_editor.send_script(LevelEditorApi.key_up("alt_left"));
 
 			return false;
 		}
@@ -380,7 +380,7 @@ namespace Crown
 
 		private void on_resource_browser_resource_selected(string type, string name)
 		{
-			_engine.send_script(LevelEditorApi.set_placeable(type, name));
+			_editor.send_script(LevelEditorApi.set_placeable(type, name));
 			_action_group.get_action("place").activate();
 		}
 
@@ -395,13 +395,13 @@ namespace Crown
 			_console_view.logi("editor", "Disconnected from data_compiler");
 		}
 
-		private void on_engine_connected(string address, int port)
+		private void on_editor_connected(string address, int port)
 		{
 			_console_view.logi("editor", "Connected to level_editor@%s:%d".printf(address, port));
-			_engine.receive_async();
+			_editor.receive_async();
 		}
 
-		private void on_engine_disconnected()
+		private void on_editor_disconnected()
 		{
 			_console_view.logi("editor", "Disconnected from level_editor");
 		}
@@ -558,7 +558,7 @@ namespace Crown
 			sb.append(LevelEditorApi.set_tool_type(_tool_type));
 			sb.append(LevelEditorApi.set_snap_mode(_snap_mode));
 			sb.append(LevelEditorApi.set_reference_system(_reference_system));
-			_engine.send_script(sb.str);
+			_editor.send_script(sb.str);
 		}
 
 		private bool on_button_press(EventButton ev)
@@ -607,18 +607,18 @@ namespace Crown
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res))
 				{
-					if (_engine_view != null)
+					if (_editor_view != null)
 						return;
 
-					_engine_view = new EngineView(_engine);
-					_engine_view.realized.connect(on_engine_view_realized);
-					_engine_view.button_press_event.connect(on_button_press);
-					_engine_view.button_release_event.connect(on_button_release);
+					_editor_view = new EditorView(_editor);
+					_editor_view.realized.connect(on_editor_view_realized);
+					_editor_view.button_press_event.connect(on_button_press);
+					_editor_view.button_release_event.connect(on_button_release);
 
-					_engine_view_overlay.add(_engine_view);
-					_engine_view_overlay.add_overlay(_toolbar);
+					_editor_view_overlay.add(_editor_view);
+					_editor_view_overlay.add_overlay(_toolbar);
 
-					_engine_slide.show_widget(_engine_view_overlay);
+					_editor_slide.show_widget(_editor_view_overlay);
 					_inspector_slide.show_widget(_inspector_pane);
 				}
 			});
@@ -642,7 +642,7 @@ namespace Crown
 			}
 		}
 
-		private void start_engine(uint window_xid)
+		private void start_editor(uint window_xid)
 		{
 			if (window_xid == 0)
 				return;
@@ -661,16 +661,16 @@ namespace Crown
 			sl.set_cwd(ENGINE_DIR);
 			try
 			{
-				_engine_process = sl.spawnv(args);
+				_editor_process = sl.spawnv(args);
 			}
 			catch (Error e)
 			{
 				_console_view.loge("editor", e.message);
 			}
 
-			for (int tries = 0; !_engine.is_connected() && tries < 10; ++tries)
+			for (int tries = 0; !_editor.is_connected() && tries < 10; ++tries)
 			{
-				_engine.connect("127.0.0.1", 10001);
+				_editor.connect("127.0.0.1", 10001);
 				GLib.Thread.usleep(500*1000);
 			}
 
@@ -678,16 +678,16 @@ namespace Crown
 			send_state();
 		}
 
-		private void stop_engine()
+		private void stop_editor()
 		{
-			_engine.send_script("Device.quit()");
-			_engine.close();
+			_editor.send_script("Device.quit()");
+			_editor.close();
 
-			if (_engine_process != null)
+			if (_editor_process != null)
 			{
 				try
 				{
-					_engine_process.wait();
+					_editor_process.wait();
 				}
 				catch (Error e)
 				{
@@ -696,10 +696,10 @@ namespace Crown
 			}
 		}
 
-		private void restart_engine()
+		private void restart_editor()
 		{
-			stop_engine();
-			start_engine(_engine_view.window_id);
+			stop_editor();
+			start_editor(_editor_view.window_id);
 		}
 
 		private void start_game(StartGame sg)
@@ -808,9 +808,9 @@ namespace Crown
 			fcd.destroy();
 		}
 
-		private void on_engine_view_realized()
+		private void on_editor_view_realized()
 		{
-			start_engine(_engine_view.window_id);
+			start_editor(_editor_view.window_id);
 		}
 
 		private void on_tool_changed(Gtk.Action action)
@@ -908,8 +908,8 @@ namespace Crown
 				_level.load_empty_level();
 				stop_compiler();
 				start_compiler();
-				restart_engine();
-				_resource_browser.restart_engine();
+				restart_editor();
+				_resource_browser.restart_editor();
 			}
 
 			fcd.destroy();
@@ -982,7 +982,7 @@ namespace Crown
 				_preferences_dialog.destroy();
 
 			stop_game();
-			stop_engine();
+			stop_editor();
 			stop_compiler();
 			Gtk.main_quit();
 		}
@@ -1220,7 +1220,7 @@ namespace Crown
 		{
 			if (_preferences_dialog == null)
 			{
-				_preferences_dialog = new PreferencesDialog(_engine);
+				_preferences_dialog = new PreferencesDialog(_editor);
 				_preferences_dialog.set_transient_for(this);
 				_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return true; });
 			}
@@ -1302,21 +1302,21 @@ namespace Crown
 		private void on_create_primitive(Gtk.Action action)
 		{
 			if (action.name == "primitive-cube")
-				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cube"));
+				_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cube"));
 			else if (action.name == "primitive-sphere")
-				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/sphere"));
+				_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/sphere"));
 			else if (action.name == "primitive-cone")
-				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cone"));
+				_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cone"));
 			else if (action.name == "primitive-cylinder")
-				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cylinder"));
+				_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cylinder"));
 			else if (action.name == "primitive-plane")
-				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/plane"));
+				_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/plane"));
 			else if (action.name == "camera")
-				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/camera"));
+				_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/camera"));
 			else if (action.name == "light")
-				_engine.send_script(LevelEditorApi.set_placeable("unit", "core/units/light"));
+				_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/light"));
 			else if (action.name == "sound-source")
-				_engine.send_script(LevelEditorApi.set_placeable("sound", ""));
+				_editor.send_script(LevelEditorApi.set_placeable("sound", ""));
 
 			_action_group.get_action("place").activate();
 		}
@@ -1324,19 +1324,19 @@ namespace Crown
 		private void on_camera_view(Gtk.Action action)
 		{
 			if (action.name == "camera-view-perspective")
-				_engine.send_script("LevelEditor:camera_view_perspective()");
+				_editor.send_script("LevelEditor:camera_view_perspective()");
 			else if (action.name == "camera-view-front")
-				_engine.send_script("LevelEditor:camera_view_front()");
+				_editor.send_script("LevelEditor:camera_view_front()");
 			else if (action.name == "camera-view-back")
-				_engine.send_script("LevelEditor:camera_view_back()");
+				_editor.send_script("LevelEditor:camera_view_back()");
 			else if (action.name == "camera-view-right")
-				_engine.send_script("LevelEditor:camera_view_right()");
+				_editor.send_script("LevelEditor:camera_view_right()");
 			else if (action.name == "camera-view-left")
-				_engine.send_script("LevelEditor:camera_view_left()");
+				_editor.send_script("LevelEditor:camera_view_left()");
 			else if (action.name == "camera-view-top")
-				_engine.send_script("LevelEditor:camera_view_top()");
+				_editor.send_script("LevelEditor:camera_view_top()");
 			else if (action.name == "camera-view-bottom")
-				_engine.send_script("LevelEditor:camera_view_bottom()");
+				_editor.send_script("LevelEditor:camera_view_bottom()");
 		}
 
 		private void on_resource_browser(Gtk.Action action)
@@ -1367,9 +1367,9 @@ namespace Crown
 			}
 		}
 
-		private void on_engine_restart(Gtk.Action action)
+		private void on_editor_restart(Gtk.Action action)
 		{
-			restart_engine();
+			restart_editor();
 		}
 
 		private void on_refresh_lua(Gtk.Action action)
@@ -1377,7 +1377,7 @@ namespace Crown
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res))
 				{
-					_engine.send(DeviceApi.refresh());
+					_editor.send(DeviceApi.refresh());
 				}
 			});
 		}

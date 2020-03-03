@@ -20,7 +20,7 @@ namespace Crown
 	{
 		// Data
 		public Project _project;
-		public GLib.Subprocess _engine_process;
+		public GLib.Subprocess _editor_process;
 		public ConsoleClient _console_client;
 		public Gtk.TreeStore _tree_store;
 		public bool _preview;
@@ -35,7 +35,7 @@ namespace Crown
 		public Gtk.TreeSelection _tree_selection;
 		public Gtk.ScrolledWindow _scrolled_window;
 
-		public EngineView _engine_view;
+		public EditorView _editor_view;
 
 		// Signals
 		public signal void resource_selected(string type, string name);
@@ -91,15 +91,15 @@ namespace Crown
 
 			if (_preview)
 			{
-				_engine_view = new EngineView(_console_client, false);
-				_engine_view.realized.connect(on_engine_view_realized);
-				_engine_view.set_size_request(300, 300);
+				_editor_view = new EditorView(_console_client, false);
+				_editor_view.realized.connect(on_editor_view_realized);
+				_editor_view.set_size_request(300, 300);
 			}
 
 			this.pack_start(_filter_entry, false, false, 0);
 			if (_preview)
 			{
-				this.pack_start(_engine_view, true, true, 0);
+				this.pack_start(_editor_view, true, true, 0);
 			}
 			this.pack_start(_scrolled_window, false, false, 0);
 		}
@@ -152,10 +152,10 @@ namespace Crown
 
 		private void on_destroy()
 		{
-			stop_engine();
+			stop_editor();
 		}
 
-		private void start_engine(uint window_xid)
+		private void start_editor(uint window_xid)
 		{
 			if (window_xid == 0)
 				return;
@@ -175,7 +175,7 @@ namespace Crown
 			sl.set_cwd(ENGINE_DIR);
 			try
 			{
-				_engine_process = sl.spawnv(args);
+				_editor_process = sl.spawnv(args);
 			}
 			catch (Error e)
 			{
@@ -191,16 +191,16 @@ namespace Crown
 			_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
 		}
 
-		private void stop_engine()
+		private void stop_editor()
 		{
 			_console_client.close();
 
-			if (_engine_process != null)
+			if (_editor_process != null)
 			{
-				_engine_process.force_exit();
+				_editor_process.force_exit();
 				try
 				{
-					_engine_process.wait();
+					_editor_process.wait();
 				}
 				catch (Error e)
 				{
@@ -209,15 +209,15 @@ namespace Crown
 			}
 		}
 
-		public void restart_engine()
+		public void restart_editor()
 		{
-			stop_engine();
-			start_engine(_engine_view.window_id);
+			stop_editor();
+			start_editor(_editor_view.window_id);
 		}
 
-		private void on_engine_view_realized()
+		private void on_editor_view_realized()
 		{
-			start_engine(_engine_view.window_id);
+			start_editor(_editor_view.window_id);
 		}
 
 		private void on_filter_entry_text_changed()

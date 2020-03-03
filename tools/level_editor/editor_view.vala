@@ -9,7 +9,7 @@ using Gtk;
 
 namespace Crown
 {
-	public class EngineView : Gtk.Alignment
+	public class EditorView : Gtk.Alignment
 	{
 		// Data
 		private ConsoleClient _client;
@@ -54,7 +54,7 @@ namespace Crown
 			return _keys[Gdk.Key.Alt_L] || _keys[Gdk.Key.Alt_R];
 		}
 
-		public EngineView(ConsoleClient client, bool input_enabled = true)
+		public EditorView(ConsoleClient client, bool input_enabled = true)
 		{
 			this.xalign = 0;
 			this.yalign = 0;
