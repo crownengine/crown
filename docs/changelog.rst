@@ -10,6 +10,7 @@ Changelog
 * Added Material.set_vector4() and Material.set_matrix4x4()
 * Added PhysicsWorld.actor_destroy()
 * Added RenderWorld.mesh_material(), RenderWorld.mesh_set_material() and RenderWorld.sprite_material()
+* Added the ability to hot-reload Lua files
 * Added the ability to scale the shape of colliders at Unit spawn time
 * Added Window.set_cursor_mode()
 * Added World.unit_by_name() to retrieve unit by its name in the Level Editor
@@ -37,6 +38,7 @@ Changelog
 * Fixed an issue that prevented some operations in the Level Editor from being (un/re)done
 * Fixed an issue that prevented the data compiler from restoring and saving its state when launched by the Level Editor
 * Improved the numeric entry widget which now takes less space and provides more convenient input workflows
+* Resources autoload is disabled when testing levels from Level Editor
 * The Data Compiler will now track data "requirements" and automatically include them in packages when it's needed
 * The game will now be started or stopped according to its running state when launched from the Level Editor
 * The Properties Panel now accepts more sensible numeric ranges

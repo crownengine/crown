@@ -10,25 +10,30 @@ GameBase.data = {
 	game        = nil, -- User Game
 	game_camera = nil,
 	game_level  = nil,
+
+	_test_package = nil,
 }
 
 function GameBase.init()
-	if TEST then
-		Device.enable_resource_autoload(true)
-	end
-
 	-- Create world
 	GameBase.world = Device.create_world()
 
-	-- Craete default camera
+	-- Create default camera
 	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
 	local scene_graph = World.scene_graph(GameBase.world)
 	SceneGraph.set_local_position(scene_graph, camera_unit, Vector3(0, 6.5, -30))
 	GameBase.camera = FPSCamera(GameBase.world, camera_unit)
 
-	local level = TEST and "_level_editor_test" or GameBase.game_level
-	if level then
-		World.load_level(GameBase.world, level)
+	-- Load test level if launched from Level Editor.
+	if TEST then
+		GameBase._test_package = Device.create_resource_package("_level_editor_test")
+		ResourcePackage.load(GameBase._test_package)
+		ResourcePackage.flush(GameBase._test_package)
+		World.load_level(GameBase.world, "_level_editor_test")
+	else
+		if GameBase.game_level then
+			World.load_level(GameBase.world, GameBase.game_level)
+		end
 	end
 
 	if GameBase.game and GameBase.game.level_loaded then
@@ -74,4 +79,8 @@ function GameBase.shutdown()
 	end
 
 	Device.destroy_world(GameBase.world)
+
+	if GameBase._test_package then
+		Device.destroy_resource_package(GameBase._test_package)
+	end
 end

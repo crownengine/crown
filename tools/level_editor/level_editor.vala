@@ -416,7 +416,7 @@ namespace Crown
 		{
 			_console_view.logi("editor", "Disconnected from game");
 			_action_group.get_action("test-level").icon_name = "game-run";
-			_project.delete_level_editor_test_level();
+			_project.delete_garbage();
 		}
 
 		private void on_message_received(ConsoleClient client, uint8[] json)
@@ -704,7 +704,7 @@ namespace Crown
 
 		private void start_game(StartGame sg)
 		{
-			_database.dump(_project.level_editor_test_level());
+			_project.dump_test_level(_database);
 
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res))

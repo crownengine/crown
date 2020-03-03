@@ -14,7 +14,8 @@ namespace Crown
 		private File _source_dir;
 		private File _toolchain_dir;
 		private File _data_dir;
-		private File _level_editor_test;
+		private File _level_editor_test_level;
+		private File _level_editor_test_package;
 		private string _platform;
 
 		private Database _files;
@@ -27,7 +28,8 @@ namespace Crown
 			_source_dir = null;
 			_toolchain_dir = null;
 			_data_dir = null;
-			_level_editor_test = null;
+			_level_editor_test_level = null;
+			_level_editor_test_package = null;
 #if CROWN_PLATFORM_LINUX
 			_platform = "linux";
 #elif CROWN_PLATFORM_WINDOWS
@@ -46,13 +48,15 @@ namespace Crown
 		public void load(string source_dir, string toolchain_dir)
 		{
 			reset();
-			_source_dir        = File.new_for_path(source_dir);
-			_toolchain_dir     = File.new_for_path(toolchain_dir);
-			_data_dir          = File.new_for_path(_source_dir.get_path() + "_" + _platform);
-			_level_editor_test = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.level");
+			_source_dir    = File.new_for_path(source_dir);
+			_toolchain_dir = File.new_for_path(toolchain_dir);
+			_data_dir      = File.new_for_path(_source_dir.get_path() + "_" + _platform);
+
+			_level_editor_test_level = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.level");
+			_level_editor_test_package = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.package");
 
 			// Cleanup source directory from previous runs' garbage
-			delete_level_editor_test_level();
+			delete_garbage();
 		}
 
 		public void create_initial_files()
@@ -210,16 +214,25 @@ end
 			return _platform;
 		}
 
-		public string level_editor_test_level()
+		public void dump_test_level(Database db)
 		{
-			return _level_editor_test.get_path();
+			// Save test level to file
+			db.dump(_level_editor_test_level.get_path());
+
+			// Save temporary package to reference test level
+			ArrayList<Value?> level = new ArrayList<Value?>();
+			level.add("_level_editor_test");
+			Hashtable package = new Hashtable();
+			package["level"] = level;
+			SJSON.save(package, _level_editor_test_package.get_path());
 		}
 
-		public void delete_level_editor_test_level()
+		public void delete_garbage()
 		{
 			try
 			{
-				_level_editor_test.delete();
+				_level_editor_test_level.delete();
+				_level_editor_test_package.delete();
 			}
 			catch (GLib.Error e)
 			{
