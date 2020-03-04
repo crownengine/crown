@@ -53,10 +53,17 @@ namespace Crown
 
 			// Get file size
 			fs.seek(0, FileSeek.END);
-			long size = fs.tell();
+			size_t size = fs.tell();
 			fs.rewind();
+			if (size == 0)
+				return new Hashtable();
+
+			// Read whole file
 			uint8[] bytes = new uint8[size];
-			fs.read(bytes);
+			size_t bytes_read = fs.read(bytes);
+			if (bytes_read != size)
+				return new Hashtable();
+
 			return decode(bytes) as Hashtable;
 		}
 
@@ -65,11 +72,11 @@ namespace Crown
 		/// </summary>
 		public static void save(Hashtable h, string path)
 		{
-			string s = encode(h);
 			FileStream fs = FileStream.open(path, "w");
-			assert(fs != null);
-			uint8[] bytes = s.data;
-			fs.write(bytes);
+			if (fs == null)
+				return;
+
+			fs.write(encode(h).data);
 		}
 
 		static void write_new_line(StringBuilder builder, int indentation)

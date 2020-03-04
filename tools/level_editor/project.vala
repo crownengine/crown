@@ -87,8 +87,8 @@ windows = {
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "boot.config");
 				FileStream fs = FileStream.open(path, "w");
-				GLib.assert(fs != null);
-				fs.write(text.data);
+				if (fs != null)
+					fs.write(text.data);
 			}
 
 			// Write boot.package
@@ -110,8 +110,8 @@ physics_config = [
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "boot.package");
 				FileStream fs = FileStream.open(path, "w");
-				GLib.assert(fs != null);
-				fs.write(text.data);
+				if (fs != null)
+					fs.write(text.data);
 			}
 
 			// Write global.physics_config
@@ -133,8 +133,8 @@ actors = {
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "global.physics_config");
 				FileStream fs = FileStream.open(path, "w");
-				GLib.assert(fs != null);
-				fs.write(text.data);
+				if (fs != null)
+					fs.write(text.data);
 			}
 
 			// Write main.lua
@@ -189,8 +189,8 @@ end
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "main.lua");
 				FileStream fs = FileStream.open(path, "w");
-				GLib.assert(fs != null);
-				fs.write(text.data);
+				if (fs != null)
+					fs.write(text.data);
 			}
 		}
 
