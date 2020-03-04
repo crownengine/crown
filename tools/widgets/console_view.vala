@@ -51,7 +51,7 @@ namespace Crown
 	{
 		// Data
 		public EntryHistory _entry_history;
-		public ConsoleClient _console_client;
+		public LevelEditor _editor;
 		public Project _project;
 
 		// Widgets
@@ -59,13 +59,13 @@ namespace Crown
 		public Gtk.TextView _text_view;
 		public Gtk.Entry _entry;
 
-		public ConsoleView(ConsoleClient client, Project project)
+		public ConsoleView(LevelEditor editor, Project project, Gtk.ComboBoxText combo)
 		{
 			Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 			// Data
 			_entry_history = new EntryHistory(256);
-			_console_client = client;
+			_editor = editor;
 			_project = project;
 
 			// Widgets
@@ -96,7 +96,10 @@ namespace Crown
 			this.show.connect(on_show);
 
 			this.pack_start(_scrolled_window, true, true, 0);
-			this.pack_start(_entry, false, true, 0);
+			Gtk.Box hb = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+			hb.pack_start(_entry);
+			hb.pack_end(combo, false, false);
+			this.pack_start(hb, false, true, 0);
 
 			this.get_style_context().add_class("console-view");
 			this.show_all();
@@ -111,15 +114,21 @@ namespace Crown
 			{
 				_entry_history.push(text);
 
+				ConsoleClient? client = _editor.current_selected_client();
+
 				if (text[0] == ':')
 				{
 					string[] args = text[1:text.length].split(" ");
 					if (args.length > 0)
-						_console_client.send(DeviceApi.command(args));
+					{
+						if (client != null)
+							client.send(DeviceApi.command(args));
+					}
 				}
 				else
 				{
-					_console_client.send_script(text);
+					if (client != null)
+						client.send_script(text);
 				}
 			}
 

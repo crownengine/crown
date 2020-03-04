@@ -201,6 +201,7 @@ namespace Crown
 		private Gtk.Paned _main_pane;
 		private Gtk.Box _main_vbox;
 		private Gtk.FileFilter _file_filter;
+		private Gtk.ComboBoxText _combo;
 
 		private bool _fullscreen;
 
@@ -248,7 +249,12 @@ namespace Crown
 
 			_resource_selection = new ResourceBrowser(_project, _project_store, false);
 
-			_console_view = new ConsoleView(_editor, _project);
+			_combo = new Gtk.ComboBoxText();
+			_combo.append("editor", "Editor");
+			_combo.append("game", "Game");
+			_combo.set_active_id("editor");
+
+			_console_view = new ConsoleView(this, _project, _combo);
 			_level_treeview = new LevelTreeView(_database, _level);
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 			_properties_view = new PropertiesView(_level, _project_store);
@@ -348,6 +354,16 @@ namespace Crown
 			_inspector_pane.set_position(300);
 		}
 
+		public ConsoleClient? current_selected_client()
+		{
+			if (_combo.get_active_id() == "editor")
+				return _editor;
+			else if (_combo.get_active_id() == "game")
+				return _game;
+			else
+				return null;
+		}
+
 		private bool on_key_press(Gdk.EventKey ev)
 		{
 			if (ev.keyval == Gdk.Key.Control_L)
@@ -417,6 +433,7 @@ namespace Crown
 			_console_view.logi("editor", "Disconnected from game");
 			_action_group.get_action("test-level").icon_name = "game-run";
 			_project.delete_garbage();
+			_combo.set_active_id("editor");
 		}
 
 		private void on_message_received(ConsoleClient client, uint8[] json)
@@ -736,6 +753,8 @@ namespace Crown
 						_game.connect("127.0.0.1", 12345);
 						GLib.Thread.usleep(500*1000);
 					}
+
+					_combo.set_active_id("game");
 				}
 			});
 		}
@@ -1382,7 +1401,7 @@ namespace Crown
 			});
 		}
 
-		public void on_snap_to_grid(Gtk.Action action)
+		private void on_snap_to_grid(Gtk.Action action)
 		{
 			ToggleAction ta = (ToggleAction)action;
 			_snap_to_grid = ta.active;

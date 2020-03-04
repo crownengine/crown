@@ -30,6 +30,7 @@ Changelog
 
 * Added the ability to specify a circle collider in the Sprite Importer
 * Added the ability to specify the actor class in the Sprite Importer
+* Added the ability to specify the destination of the console commands between Game and Editor
 * Fixed a crash when entering empty commands in the console
 * Fixed an issue that caused the Level Editor to not correctly save a level specified from command line
 * Fixed an issue that could cause the Level Editor to crash when large number of TCP/IP packets were sent to it
