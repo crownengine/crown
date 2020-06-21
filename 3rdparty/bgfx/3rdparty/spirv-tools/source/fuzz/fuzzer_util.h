@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "source/fuzz/protobufs/spirvfuzz_protobufs.h"
+#include "source/fuzz/transformation_context.h"
 #include "source/opt/basic_block.h"
 #include "source/opt/instruction.h"
 #include "source/opt/ir_context.h"
@@ -25,8 +26,11 @@
 namespace spvtools {
 namespace fuzz {
 
-// Provides global utility methods for use by the fuzzer
+// Provides types and global utility methods for use by the fuzzer
 namespace fuzzerutil {
+
+// Function type that produces a SPIR-V module.
+using ModuleSupplier = std::function<std::unique_ptr<opt::IRContext>()>;
 
 // Returns true if and only if the module does not define the given id.
 bool IsFreshId(opt::IRContext* context, uint32_t id);
@@ -49,8 +53,13 @@ bool PhiIdsOkForNewEdge(
     opt::IRContext* context, opt::BasicBlock* bb_from, opt::BasicBlock* bb_to,
     const google::protobuf::RepeatedField<google::protobuf::uint32>& phi_ids);
 
-// Requires that PhiIdsOkForNewEdge(context, bb_from, bb_to, phi_ids) holds,
-// and that bb_from ends with "OpBranch %some_block".  Turns OpBranch into
+// Returns the id of a boolean constant with value |value| if it exists in the
+// module, or 0 otherwise.
+uint32_t MaybeGetBoolConstantId(opt::IRContext* context, bool value);
+
+// Requires that a boolean constant with value |condition_value| is available,
+// that PhiIdsOkForNewEdge(context, bb_from, bb_to, phi_ids) holds, and that
+// bb_from ends with "OpBranch %some_block".  Turns OpBranch into
 // "OpBranchConditional |condition_value| ...", such that control will branch
 // to %some_block, with |bb_to| being the unreachable alternative.  Updates
 // OpPhi instructions in |bb_to| using |phi_ids| so that the new edge is valid.
@@ -90,6 +99,21 @@ bool IsCompositeType(const opt::analysis::Type* type);
 std::vector<uint32_t> RepeatedFieldToVector(
     const google::protobuf::RepeatedField<uint32_t>& repeated_field);
 
+// Given a type id, |base_object_type_id|, returns 0 if the type is not a
+// composite type or if |index| is too large to be used as an index into the
+// composite.  Otherwise returns the type id of the type associated with the
+// composite's index.
+//
+// Example: if |base_object_type_id| is 10, and we have:
+//
+// %10 = OpTypeStruct %3 %4 %5
+//
+// then 3 will be returned if |index| is 0, 5 if |index| is 2, and 0 if index
+// is 3 or larger.
+uint32_t WalkOneCompositeTypeIndex(opt::IRContext* context,
+                                   uint32_t base_object_type_id,
+                                   uint32_t index);
+
 // Given a type id, |base_object_type_id|, checks that the given sequence of
 // |indices| is suitable for indexing into this type.  Returns the id of the
 // type of the final sub-object reached via the indices if they are valid, and
@@ -109,12 +133,98 @@ uint32_t GetNumberOfStructMembers(
 uint32_t GetArraySize(const opt::Instruction& array_type_instruction,
                       opt::IRContext* context);
 
-// Returns true if and only if |context| is valid, according to the validator.
-bool IsValid(opt::IRContext* context);
+// Returns true if and only if |context| is valid, according to the validator
+// instantiated with |validator_options|.
+bool IsValid(opt::IRContext* context, spv_validator_options validator_options);
 
 // Returns a clone of |context|, by writing |context| to a binary and then
 // parsing it again.
 std::unique_ptr<opt::IRContext> CloneIRContext(opt::IRContext* context);
+
+// Returns true if and only if |id| is the id of a type that is not a function
+// type.
+bool IsNonFunctionTypeId(opt::IRContext* ir_context, uint32_t id);
+
+// Returns true if and only if |block_id| is a merge block or continue target
+bool IsMergeOrContinue(opt::IRContext* ir_context, uint32_t block_id);
+
+// Returns the result id of an instruction of the form:
+//  %id = OpTypeFunction |type_ids|
+// or 0 if no such instruction exists.
+uint32_t FindFunctionType(opt::IRContext* ir_context,
+                          const std::vector<uint32_t>& type_ids);
+
+// Returns a type instruction (OpTypeFunction) for |function|.
+// Returns |nullptr| if type is not found.
+opt::Instruction* GetFunctionType(opt::IRContext* context,
+                                  const opt::Function* function);
+
+// Returns the function with result id |function_id|, or |nullptr| if no such
+// function exists.
+opt::Function* FindFunction(opt::IRContext* ir_context, uint32_t function_id);
+
+// Returns |true| if one of entry points has function id |function_id|.
+bool FunctionIsEntryPoint(opt::IRContext* context, uint32_t function_id);
+
+// Checks whether |id| is available (according to dominance rules) at the use
+// point defined by input operand |use_input_operand_index| of
+// |use_instruction|.
+bool IdIsAvailableAtUse(opt::IRContext* context,
+                        opt::Instruction* use_instruction,
+                        uint32_t use_input_operand_index, uint32_t id);
+
+// Checks whether |id| is available (according to dominance rules) at the
+// program point directly before |instruction|.
+bool IdIsAvailableBeforeInstruction(opt::IRContext* context,
+                                    opt::Instruction* instruction, uint32_t id);
+
+// Returns true if and only if |instruction| is an OpFunctionParameter
+// associated with |function|.
+bool InstructionIsFunctionParameter(opt::Instruction* instruction,
+                                    opt::Function* function);
+
+// Returns the type id of the instruction defined by |result_id|, or 0 if there
+// is no such result id.
+uint32_t GetTypeId(opt::IRContext* context, uint32_t result_id);
+
+// Given |pointer_type_inst|, which must be an OpTypePointer instruction,
+// returns the id of the associated pointee type.
+uint32_t GetPointeeTypeIdFromPointerType(opt::Instruction* pointer_type_inst);
+
+// Given |pointer_type_id|, which must be the id of a pointer type, returns the
+// id of the associated pointee type.
+uint32_t GetPointeeTypeIdFromPointerType(opt::IRContext* context,
+                                         uint32_t pointer_type_id);
+
+// Given |pointer_type_inst|, which must be an OpTypePointer instruction,
+// returns the associated storage class.
+SpvStorageClass GetStorageClassFromPointerType(
+    opt::Instruction* pointer_type_inst);
+
+// Given |pointer_type_id|, which must be the id of a pointer type, returns the
+// associated storage class.
+SpvStorageClass GetStorageClassFromPointerType(opt::IRContext* context,
+                                               uint32_t pointer_type_id);
+
+// Returns the id of a pointer with pointee type |pointee_type_id| and storage
+// class |storage_class|, if it exists, and 0 otherwise.
+uint32_t MaybeGetPointerType(opt::IRContext* context, uint32_t pointee_type_id,
+                             SpvStorageClass storage_class);
+
+// Returns true if and only if |type| is one of the types for which it is legal
+// to have an OpConstantNull value.
+bool IsNullConstantSupported(const opt::analysis::Type& type);
+
+// Returns true if and only if the SPIR-V version being used requires that
+// global variables accessed in the static call graph of an entry point need
+// to be listed in that entry point's interface.
+bool GlobalVariablesMustBeDeclaredInEntryPointInterfaces(
+    const opt::IRContext* context);
+
+// Adds |id| into the interface of every entry point of the shader.
+// Does nothing if SPIR-V doesn't require global variables, that are accessed
+// from an entry point function, to be listed in that function's interface.
+void AddVariableIdToEntryPointInterfaces(opt::IRContext* context, uint32_t id);
 
 }  // namespace fuzzerutil
 

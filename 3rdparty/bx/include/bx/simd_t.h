@@ -197,6 +197,9 @@ BX_SIMD128_IMPLEMENT_TEST(xyzw);
 	Ty simd_cmpeq(Ty _a, Ty _b);
 
 	template<typename Ty>
+	Ty simd_cmpneq(Ty _a, Ty _b);
+
+	template<typename Ty>
 	Ty simd_cmplt(Ty _a, Ty _b);
 
 	template<typename Ty>
@@ -369,6 +372,9 @@ BX_SIMD128_IMPLEMENT_TEST(xyzw);
 
 	template<typename Ty>
 	Ty simd_not_ni(Ty _a);
+
+	template<typename Ty>
+	Ty simd_cmpneq_ni(Ty _a, Ty _b);
 
 	template<typename Ty>
 	Ty simd_min_ni(Ty _a, Ty _b);

@@ -597,6 +597,7 @@ project "shaderc"
 		path.join(BIMG_DIR, "include"),
 		path.join(BGFX_DIR, "include"),
 
+		path.join(BGFX_DIR, "3rdparty/webgpu/include"),
 		path.join(BGFX_DIR, "3rdparty/dxsdk/include"),
 
 		FCPP_DIR,
@@ -625,7 +626,7 @@ project "shaderc"
 	files {
 		path.join(BGFX_DIR, "tools/shaderc/**.cpp"),
 		path.join(BGFX_DIR, "tools/shaderc/**.h"),
-		path.join(BGFX_DIR, "src/vertexdecl.**"),
+		path.join(BGFX_DIR, "src/vertexlayout.**"),
 		path.join(BGFX_DIR, "src/shader_spirv.**"),
 	}
 

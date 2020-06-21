@@ -36,7 +36,7 @@ bgfx_shaders = {
 	common = {
 		code = """
 			/*
-			 * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
+			 * Copyright 2011-2020 Branimir Karadzic. All rights reserved.
 			 * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 			 */
 
@@ -684,9 +684,8 @@ bgfx_shaders = {
 			#endif // __cplusplus
 
 			#endif // BGFX_SHADER_H_HEADER_GUARD
-
 			/*
-			 * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
+			 * Copyright 2011-2020 Branimir Karadzic. All rights reserved.
 			 * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
 			 */
 

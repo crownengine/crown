@@ -931,7 +931,7 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "  -q <quality>             Encoding quality (default, fastest, highest).\n"
 		  "  -m, --mips               Generate mip-maps.\n"
 		  "      --mipskip <N>        Skip <N> number of mips.\n"
-		  "  -n, --normalmap          Input texture is normal map.\n"
+		  "  -n, --normalmap          Input texture is normal map. (Implies --linear)\n"
 		  "      --equirect           Input texture is equirectangular projection of cubemap.\n"
 		  "      --strip              Input texture is horizontal strip of cubemap.\n"
 		  "      --sdf                Compute SDF texture.\n"
@@ -940,7 +940,7 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		  "      --pma                Premultiply alpha into RGB channel.\n"
 		  "      --linear             Input and output texture is linear color space (gamma correction won't be applied).\n"
 		  "      --max <max size>     Maximum width/height (image will be scaled down and\n"
-		  "                           aspect ratio will be preserved.\n"
+		  "                           aspect ratio will be preserved)\n"
 		  "      --radiance <model>   Radiance cubemap filter. (Lighting model: Phong, PhongBrdf, Blinn, BlinnBrdf, GGX)\n"
 		  "      --as <extension>     Save as.\n"
 		  "      --formats            List all supported formats.\n"
@@ -951,17 +951,19 @@ void help(const char* _error = NULL, bool _showHelp = true)
 		);
 }
 
-void help(const char* _str, const bx::Error& _err)
+void help(const bx::StringView _str, const bx::Error& _err)
 {
 	std::string str;
-	if (_str != NULL)
+	if (!_str.isEmpty() )
 	{
-		str.append(_str);
-		str.append(" ");
+		str.append(_str.getPtr(), _str.getTerm() - _str.getPtr() );
+		str.append(": ");
 	}
 
 	const bx::StringView& sv = _err.getMessage();
+	str.append("'");
 	str.append(sv.getPtr(), sv.getTerm() - sv.getPtr() );
+	str.append("'");
 
 	help(str.c_str(), false);
 }
@@ -1089,6 +1091,12 @@ int main(int _argc, const char* _argv[])
 		return bx::kExitFailure;
 	}
 
+	// Normal maps are always linear
+	if (options.normalMap)
+	{
+		options.linear = true;
+	}
+
 	const char* maxSize = cmdLine.findOption("max");
 	if (NULL != maxSize)
 	{
@@ -1213,6 +1221,8 @@ int main(int _argc, const char* _argv[])
 
 	if (NULL != output)
 	{
+		output->m_srgb = !options.linear;
+
 		bx::FileWriter writer;
 		if (bx::open(&writer, outputFileName, false, &err) )
 		{
@@ -1277,7 +1287,7 @@ int main(int _argc, const char* _argv[])
 
 			if (!err.isOk() )
 			{
-				help(NULL, err);
+				help("", err);
 				return bx::kExitFailure;
 			}
 		}

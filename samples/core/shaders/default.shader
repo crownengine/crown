@@ -392,11 +392,12 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
+			uniform vec4 u_invGamma;
 			SAMPLER2D(s_texColor, 0);
 
 			void main()
 			{
-				gl_FragColor = texture2D(s_texColor, v_texcoord0);
+				gl_FragColor.rgb = pow(texture2D(s_texColor, v_texcoord0).rgb, vec3(u_invGamma.x));
 			}
 		"""
 	}

@@ -1264,7 +1264,7 @@ namespace bimg
 						, mip.m_height
 						, mip.m_depth
 						);
-					BX_CHECK(ok, "Conversion from %s to %s failed!"
+					BX_ASSERT(ok, "Conversion from %s to %s failed!"
 							, getName(_input.m_format)
 							, getName(output->m_format)
 							);
@@ -1287,8 +1287,12 @@ namespace bimg
 		bx::read(&reader, magic);
 
 		ImageContainer imageContainer;
-		if (magicT != magic
-		|| !parseFnT(imageContainer, &reader, _err) )
+		if (magicT != magic)
+		{
+			return NULL;
+		}
+
+		if (!parseFnT(imageContainer, &reader, _err) )
 		{
 			return NULL;
 		}
@@ -3216,7 +3220,7 @@ namespace bimg
 		const uint8_t numMips = _hasMips ? imageGetNumMips(_format, _width, _height, _depth) : 1;
 		uint32_t size = imageGetSize(NULL, _width, _height, _depth, _cubeMap, _hasMips, _numLayers, _format);
 
-		ImageContainer* imageContainer = (ImageContainer*)BX_ALIGNED_ALLOC(_allocator, size + BX_ALIGN_16(sizeof(ImageContainer) ), 16);
+		ImageContainer* imageContainer = (ImageContainer*)BX_ALIGNED_ALLOC(_allocator, size + bx::alignUp(sizeof(ImageContainer), 16), 16);
 
 		imageContainer->m_allocator   = _allocator;
 		imageContainer->m_data        = bx::alignPtr(imageContainer + 1, 0, 16);
@@ -3516,6 +3520,7 @@ namespace bimg
 		if (!_err->isOk()
 		||  headerSize < DDS_HEADER_SIZE)
 		{
+			BX_ERROR_SET(_err, BIMG_ERROR, "DDS: Invalid header size.");
 			return false;
 		}
 
@@ -3946,6 +3951,7 @@ namespace bimg
 		if (identifier[1] != '1'
 		&&  identifier[2] != '1')
 		{
+			BX_ERROR_SET(_err, BIMG_ERROR, "KTX: Unrecognized version.");
 			return false;
 		}
 
@@ -3995,12 +4001,21 @@ namespace bimg
 
 		TextureFormat::Enum format = TextureFormat::Unknown;
 		bool hasAlpha = false;
+		bool srgb = false;
 
 		for (uint32_t ii = 0; ii < BX_COUNTOF(s_translateKtxFormat); ++ii)
 		{
 			if (s_translateKtxFormat[ii].m_internalFmt == glInternalFormat)
 			{
 				format = TextureFormat::Enum(ii);
+				break;
+			}
+
+			if (s_translateKtxFormat[ii].m_internalFmtSrgb == glInternalFormat
+			&&  s_translateKtxFormat[ii].m_fmt == glBaseInternalFormat)
+                        {
+				format = TextureFormat::Enum(ii);
+				srgb = true;
 				break;
 			}
 		}
@@ -4032,11 +4047,11 @@ namespace bimg
 		_imageContainer.m_cubeMap     = numFaces > 1;
 		_imageContainer.m_ktx         = true;
 		_imageContainer.m_ktxLE       = fromLittleEndian;
-		_imageContainer.m_srgb        = false;
+		_imageContainer.m_srgb        = srgb;
 
 		if (TextureFormat::Unknown == format)
 		{
-			BX_ERROR_SET(_err, BIMG_ERROR, "Unrecognized image format.");
+			BX_ERROR_SET(_err, BIMG_ERROR, "KTX: Unrecognized image format.");
 			return false;
 		}
 
@@ -4709,23 +4724,31 @@ namespace bimg
 		case TextureFormat::ASTC8x5:
 		case TextureFormat::ASTC8x6:
 		case TextureFormat::ASTC10x5:
-			if (!astc_codec::ASTCDecompressToRGBA(
-				  (const uint8_t*)_src
-				, imageGetSize(NULL, uint16_t(_width), uint16_t(_height), 0, false, false, 1, _srcFormat)
-				, _width
-				, _height
-				, TextureFormat::ASTC4x4  == _srcFormat ? astc_codec::FootprintType::k4x4
-				: TextureFormat::ASTC5x5  == _srcFormat ? astc_codec::FootprintType::k5x5
-				: TextureFormat::ASTC6x6  == _srcFormat ? astc_codec::FootprintType::k6x6
-				: TextureFormat::ASTC8x5  == _srcFormat ? astc_codec::FootprintType::k8x5
-				: TextureFormat::ASTC8x6  == _srcFormat ? astc_codec::FootprintType::k8x6
-				:                                         astc_codec::FootprintType::k10x5
-				, (uint8_t*)_dst
-				, _width*_height*4
-				, _dstPitch
-				) )
+			if (BX_ENABLED(BIMG_DECODE_ASTC) )
 			{
-				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xffffff00) );
+				if (!astc_codec::ASTCDecompressToRGBA(
+					  (const uint8_t*)_src
+					, imageGetSize(NULL, uint16_t(_width), uint16_t(_height), 0, false, false, 1, _srcFormat)
+					, _width
+					, _height
+					, TextureFormat::ASTC4x4  == _srcFormat ? astc_codec::FootprintType::k4x4
+					: TextureFormat::ASTC5x5  == _srcFormat ? astc_codec::FootprintType::k5x5
+					: TextureFormat::ASTC6x6  == _srcFormat ? astc_codec::FootprintType::k6x6
+					: TextureFormat::ASTC8x5  == _srcFormat ? astc_codec::FootprintType::k8x5
+					: TextureFormat::ASTC8x6  == _srcFormat ? astc_codec::FootprintType::k8x6
+					:										  astc_codec::FootprintType::k10x5
+					, (uint8_t*)_dst
+					, _width*_height*4
+					, _dstPitch
+					) )
+				{
+					imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xffffff00) );
+				}
+			}
+			else
+			{
+				BX_WARN(false, "ASTC decoder is disabled (BIMG_DECODE_ASTC).");
+				imageCheckerboard(_dst, _width, _height, 16, UINT32_C(0xff000000), UINT32_C(0xff00ff00) );
 			}
 			break;
 
@@ -4942,14 +4965,14 @@ namespace bimg
 				const uint32_t mipSize = width/blockWidth * height/blockHeight * depth * blockSize;
 				const uint32_t size    = mipSize*numSides;
 				uint32_t imageSize = bx::toHostEndian(*(const uint32_t*)&data[offset], _imageContainer.m_ktxLE);
-				BX_CHECK(size == imageSize, "KTX: Image size mismatch %d (expected %d).", size, imageSize);
+				BX_ASSERT(size == imageSize, "KTX: Image size mismatch %d (expected %d).", size, imageSize);
 				BX_UNUSED(size, imageSize);
 
 				offset += sizeof(uint32_t);
 
 				for (uint16_t side = 0; side < numSides; ++side)
 				{
-					BX_CHECK(offset <= _size, "Reading past size of data buffer! (offset %d, size %d)", offset, _size);
+					BX_ASSERT(offset <= _size, "Reading past size of data buffer! (offset %d, size %d)", offset, _size);
 
 					if (side == _side
 					&&  lod  == _lod)
@@ -4986,7 +5009,7 @@ namespace bimg
 
 				for (uint8_t lod = 0, num = _imageContainer.m_numMips; lod < num; ++lod)
 				{
-					BX_CHECK(offset <= _size, "Reading past size of data buffer! (offset %d, size %d)", offset, _size);
+					BX_ASSERT(offset <= _size, "Reading past size of data buffer! (offset %d, size %d)", offset, _size);
 
 					width  = bx::max<uint32_t>(blockWidth  * minBlockX, ( (width  + blockWidth  - 1) / blockWidth )*blockWidth);
 					height = bx::max<uint32_t>(blockHeight * minBlockY, ( (height + blockHeight - 1) / blockHeight)*blockHeight);
@@ -5550,11 +5573,16 @@ namespace bimg
 		return total;
 	}
 
-	static int32_t imageWriteKtxHeader(bx::WriterI* _writer, TextureFormat::Enum _format, bool _cubeMap, uint32_t _width, uint32_t _height, uint32_t _depth, uint8_t _numMips, uint32_t _numLayers, bx::Error* _err)
+	static int32_t imageWriteKtxHeader(bx::WriterI* _writer, TextureFormat::Enum _format, bool _cubeMap, uint32_t _width, uint32_t _height, uint32_t _depth, uint8_t _numMips, uint32_t _numLayers, bool _srgb, bx::Error* _err)
 	{
 		BX_ERROR_SCOPE(_err);
 
 		const KtxFormatInfo& tfi = s_translateKtxFormat[_format];
+
+		uint32_t internalFmt = tfi.m_internalFmt;
+		if (_srgb && tfi.m_internalFmtSrgb != KTX_ZERO) {
+			internalFmt = tfi.m_internalFmtSrgb;
+		}
 
 		int32_t total = 0;
 		total += bx::write(_writer, "\xabKTX 11\xbb\r\n\x1a\n", 12, _err);
@@ -5562,7 +5590,7 @@ namespace bimg
 		total += bx::write(_writer, uint32_t(0), _err); // glType
 		total += bx::write(_writer, uint32_t(1), _err); // glTypeSize
 		total += bx::write(_writer, uint32_t(0), _err); // glFormat
-		total += bx::write(_writer, tfi.m_internalFmt, _err); // glInternalFormat
+		total += bx::write(_writer, internalFmt, _err); // glInternalFormat
 		total += bx::write(_writer, tfi.m_fmt, _err); // glBaseInternalFormat
 		total += bx::write(_writer, _width, _err);
 		total += bx::write(_writer, _height, _err);
@@ -5576,12 +5604,12 @@ namespace bimg
 		return total;
 	}
 
-	int32_t imageWriteKtx(bx::WriterI* _writer, TextureFormat::Enum _format, bool _cubeMap, uint32_t _width, uint32_t _height, uint32_t _depth, uint8_t _numMips, uint32_t _numLayers, const void* _src, bx::Error* _err)
+	int32_t imageWriteKtx(bx::WriterI* _writer, TextureFormat::Enum _format, bool _cubeMap, uint32_t _width, uint32_t _height, uint32_t _depth, uint8_t _numMips, uint32_t _numLayers, bool _srgb, const void* _src, bx::Error* _err)
 	{
 		BX_ERROR_SCOPE(_err);
 
 		int32_t total = 0;
-		total += imageWriteKtxHeader(_writer, _format, _cubeMap, _width, _height, _depth, _numMips, _numLayers, _err);
+		total += imageWriteKtxHeader(_writer, _format, _cubeMap, _width, _height, _depth, _numMips, _numLayers, _srgb, _err);
 
 		if (!_err->isOk() )
 		{
@@ -5644,6 +5672,7 @@ namespace bimg
 			, _imageContainer.m_depth
 			, _imageContainer.m_numMips
 			, _imageContainer.m_numLayers
+			, _imageContainer.m_srgb
 			, _err
 			);
 

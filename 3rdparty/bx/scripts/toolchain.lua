@@ -52,7 +52,8 @@ function toolchain(_buildDir, _libDir)
 			{ "android-arm",     "Android - ARM"              },
 			{ "android-arm64",   "Android - ARM64"            },
 			{ "android-x86",     "Android - x86"              },
-			{ "asmjs",           "Emscripten/asm.js"          },
+			{ "wasm2js",         "Emscripten/Wasm2JS"         },
+			{ "wasm",            "Emscripten/Wasm"            },
 			{ "freebsd",         "FreeBSD"                    },
 			{ "linux-gcc",       "Linux (GCC compiler)"       },
 			{ "linux-gcc-afl",   "Linux (GCC + AFL fuzzer)"   },
@@ -251,10 +252,10 @@ function toolchain(_buildDir, _libDir)
 			premake.gcc.llvm = true
 			location (path.join(_buildDir, "projects", _ACTION .. "-android-x86"))
 
-		elseif "asmjs" == _OPTIONS["gcc"] then
+		elseif "wasm2js" == _OPTIONS["gcc"] or "wasm" == _OPTIONS["gcc"] then
 
 			if not os.getenv("EMSCRIPTEN") then
-				print("Set EMSCRIPTEN environment variable.")
+				print("Set EMSCRIPTEN environment variable to root directory of your Emscripten installation. (e.g. by entering the EMSDK command prompt)")
 			end
 
 			premake.gcc.cc   = "\"$(EMSCRIPTEN)/emcc\""
@@ -262,7 +263,7 @@ function toolchain(_buildDir, _libDir)
 			premake.gcc.ar   = "\"$(EMSCRIPTEN)/emar\""
 			premake.gcc.llvm = true
 			premake.gcc.namestyle = "Emscripten"
-			location (path.join(_buildDir, "projects", _ACTION .. "-asmjs"))
+			location (path.join(_buildDir, "projects", _ACTION .. "-" .. _OPTIONS["gcc"]))
 
 		elseif "freebsd" == _OPTIONS["gcc"] then
 			location (path.join(_buildDir, "projects", _ACTION .. "-freebsd"))
@@ -330,16 +331,6 @@ function toolchain(_buildDir, _libDir)
 
 		elseif "linux-arm-gcc" == _OPTIONS["gcc"] then
 			location (path.join(_buildDir, "projects", _ACTION .. "-linux-arm-gcc"))
-
-		elseif "linux-steamlink" == _OPTIONS["gcc"] then
-			if not os.getenv("MARVELL_SDK_PATH") then
-				print("Set MARVELL_SDK_PATH environment variable.")
-			end
-
-			premake.gcc.cc  = "$(MARVELL_SDK_PATH)/toolchain/bin/armv7a-cros-linux-gnueabi-gcc"
-			premake.gcc.cxx = "$(MARVELL_SDK_PATH)/toolchain/bin/armv7a-cros-linux-gnueabi-g++"
-			premake.gcc.ar  = "$(MARVELL_SDK_PATH)/toolchain/bin/armv7a-cros-linux-gnueabi-ar"
-			location (path.join(_buildDir, "projects", _ACTION .. "-linux-steamlink"))
 
 		elseif "mingw-gcc" == _OPTIONS["gcc"] then
 			if not os.getenv("MINGW") then
@@ -856,29 +847,6 @@ function toolchain(_buildDir, _libDir)
 			"-Wl,-z,now",
 		}
 
-	configuration { "linux-steamlink" }
-		targetdir (path.join(_buildDir, "steamlink/bin"))
-		objdir (path.join(_buildDir, "steamlink/obj"))
-		libdirs { path.join(_libDir, "lib/steamlink") }
-		includedirs { path.join(bxDir, "include/compat/linux") }
-		defines {
-			"__STEAMLINK__=1", -- There is no special prefedined compiler symbol to detect SteamLink, faking it.
-		}
-		buildoptions {
-			"-Wfatal-errors",
-			"-Wunused-value",
-			"-Wundef",
-			"-pthread",
-			"-marm",
-			"-mfloat-abi=hard",
-			"--sysroot=$(MARVELL_SDK_PATH)/rootfs",
-		}
-		linkoptions {
-			"-static-libgcc",
-			"-static-libstdc++",
-			"--sysroot=$(MARVELL_SDK_PATH)/rootfs",
-		}
-
 	configuration { "android-arm" }
 		targetdir (path.join(_buildDir, "android-arm/bin"))
 		objdir (path.join(_buildDir, "android-arm/obj"))
@@ -906,7 +874,6 @@ function toolchain(_buildDir, _libDir)
 			path.join("$(ANDROID_NDK_ROOT)/platforms", androidPlatform, "arch-arm/usr/lib/crtend_so.o"),
 			"-target armv7-none-linux-androideabi",
 			"-march=armv7-a",
-			"-Wl,--fix-cortex-a8",
 		}
 
 	configuration { "android-arm64" }
@@ -933,7 +900,6 @@ function toolchain(_buildDir, _libDir)
 			path.join("$(ANDROID_NDK_ROOT)/platforms", androidPlatform, "arch-arm64/usr/lib/crtend_so.o"),
 			"-target aarch64-none-linux-androideabi",
 			"-march=armv8-a",
-			"-Wl,--fix-cortex-a8",
 		}
 
 	configuration { "android-x86" }
@@ -965,21 +931,28 @@ function toolchain(_buildDir, _libDir)
 			"-target i686-none-linux-android",
 		}
 
-	configuration { "asmjs" }
-		targetdir (path.join(_buildDir, "asmjs/bin"))
-		objdir (path.join(_buildDir, "asmjs/obj"))
-		libdirs { path.join(_libDir, "lib/asmjs") }
+	configuration { "wasm*" }
 		buildoptions {
 			"-Wunused-value",
 			"-Wundef",
 		}
 
 		linkoptions {
---			"-s ASSERTIONS=2",
---			"-s EMTERPRETIFY=1",
---			"-s EMTERPRETIFY_ASYNC=1",
-			"-s PRECISE_F32=1",
+			"-s MAX_WEBGL_VERSION=2"
 		}
+
+	configuration { "wasm2js" }
+		targetdir (path.join(_buildDir, "wasm2js/bin"))
+		objdir (path.join(_buildDir, "wasm2js/obj"))
+		libdirs { path.join(_libDir, "lib/wasm2js") }
+		linkoptions {
+			"-s WASM=0"
+		}
+
+	configuration { "wasm" }
+		targetdir (path.join(_buildDir, "wasm/bin"))
+		objdir (path.join(_buildDir, "wasm/obj"))
+		libdirs { path.join(_libDir, "lib/wasm") }
 
 	configuration { "freebsd" }
 		targetdir (path.join(_buildDir, "freebsd/bin"))
@@ -1264,13 +1237,7 @@ function strip()
 			"$(SILENT) $(ANDROID_NDK_X86)/bin/i686-linux-android-strip -s \"$(TARGET)\""
 		}
 
-	configuration { "linux-steamlink", "Release" }
-		postbuildcommands {
-			"$(SILENT) echo Stripping symbols.",
-			"$(SILENT) $(MARVELL_SDK_PATH)/toolchain/bin/armv7a-cros-linux-gnueabi-strip -s \"$(TARGET)\""
-		}
-
-	configuration { "linux-* or rpi", "not linux-steamlink", "Release" }
+	configuration { "linux-* or rpi", "Release" }
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols.",
 			"$(SILENT) strip -s \"$(TARGET)\""

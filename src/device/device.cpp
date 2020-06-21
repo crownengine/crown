@@ -559,7 +559,7 @@ void Device::render(World& world, UnitId camera_unit)
 	bx::mtxOrtho(bx_ortho, 0, _width, 0, _height, 0.0f, 1.0f, 0.0f, caps->homogeneousDepth);
 	Matrix4x4 ortho_proj = from_array(bx_ortho);
 
-	bgfx::setViewClear(VIEW_SPRITE_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x353839ff, 1.0f, 0);
+	bgfx::setViewClear(VIEW_SPRITE_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
 
 	bgfx::setViewTransform(VIEW_SPRITE_0, to_float_ptr(view), to_float_ptr(proj));
 	bgfx::setViewTransform(VIEW_SPRITE_1, to_float_ptr(view), to_float_ptr(proj));
