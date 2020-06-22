@@ -34,6 +34,7 @@ Changelog
 * Fixed a crash when entering empty commands in the console
 * Fixed an issue that caused the Level Editor to not correctly save a level specified from command line
 * Fixed an issue that could cause the Level Editor to crash when large number of TCP/IP packets were sent to it
+* Fixed an issue that could cause the Level Editor to crash when scrolling through the console history
 * Fixed an issue that could cause the Level Editor to incorreclty parse identifiers in SJSON files
 * Fixed an issue that generated wrong render states when blending is enabled while no blend funtion/equation is specified
 * Fixed an issue that prevented some operations in the Level Editor from being (un/re)done

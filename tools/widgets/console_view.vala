@@ -9,41 +9,48 @@ namespace Crown
 {
 	public class EntryHistory
 	{
-		private uint _max_records;
-		private uint _size;
-		private uint _current;
-		private string[] _history;
+		public uint _capacity;
+		public uint _size;
+		public uint _index;
+		public string[] _data;
 
-		// Creates a new hisory with room for max_records records.
-		public EntryHistory(uint max_records)
+		// Creates a new hisory with room for capacity records.
+		public EntryHistory(uint capacity)
 		{
-			_max_records = max_records;
+			_capacity = capacity;
 			_size = 0;
-			_current = 0;
-			_history = new string[max_records];
+			_index = 0;
+			_data = new string[capacity];
 		}
 
 		// Push a new string into the history.
 		public void push(string text)
 		{
 			// Add command to history
-			_history[_size] = text;
-			_size = (uint)Math.fmin((double)_size + 1, (double)_max_records - 1);
-			_current = _size;
+			_data[_index] = text;
+			_index = (_index + 1) % _capacity;
+
+			if (_size < _capacity)
+				++_size;
 		}
 
-		// Returns the previous entry in the history.
-		public string previous()
+		public void clear()
 		{
-			_current = _current > 0 ? _current -1 : 0;
-			return _history[_current];
+			_size = 0;
+			_index = 0;
 		}
 
-		// Returns the next entry in the history.
-		public string next()
+		// Returns the element at @a distance slots from the current index.
+		// Distance must be in the [1; _size] range.
+		public string element(uint distance)
 		{
-			_current = (uint)Math.fmin((double)_current + 1, (double)_size - 1);
-			return _history[_current];
+			if (distance < 1 || distance > _size)
+				return "ERROR";
+
+			if (_index >= distance)
+				return _data[_index - distance];
+			else
+				return _data[_capacity - (distance - _index)];
 		}
 	}
 
@@ -51,6 +58,7 @@ namespace Crown
 	{
 		// Data
 		public EntryHistory _entry_history;
+		public uint _distance;
 		public LevelEditor _editor;
 		public Project _project;
 
@@ -65,6 +73,7 @@ namespace Crown
 
 			// Data
 			_entry_history = new EntryHistory(256);
+			_distance = 0;
 			_editor = editor;
 			_project = project;
 
@@ -113,6 +122,7 @@ namespace Crown
 			if (text.length > 0)
 			{
 				_entry_history.push(text);
+				_distance = 0;
 
 				ConsoleClient? client = _editor.current_selected_client();
 
@@ -138,9 +148,25 @@ namespace Crown
 		private bool on_entry_key_pressed(Gdk.EventKey ev)
 		{
 			if (ev.keyval == Gdk.Key.Down)
-				_entry.text = _entry_history.next();
+			{
+				if (_distance > 1)
+				{
+					--_distance;
+					_entry.text = _entry_history.element(_distance);
+				}
+				else
+				{
+					_entry.text = "";
+				}
+			}
 			else if (ev.keyval == Gdk.Key.Up)
-				_entry.text = _entry_history.previous();
+			{
+				if (_distance < _entry_history._size)
+				{
+					++_distance;
+					_entry.text = _entry_history.element(_distance);
+				}
+			}
 			else
 				return false;
 
