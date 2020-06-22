@@ -448,6 +448,8 @@ public class SpriteImportDialog : Gtk.Dialog
 			capsule_collision_radius.sensitive = !capsule_collision_radius.sensitive;
 			capsule_collision_height.sensitive = !capsule_collision_height.sensitive;
 			actor_class.sensitive = !actor_class.sensitive;
+			mass.sensitive = !mass.sensitive;
+			lock_rotation_y.sensitive = !lock_rotation_y.sensitive;
 		});
 
 		collision_x.value_changed.connect(() => {
