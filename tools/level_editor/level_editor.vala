@@ -184,8 +184,7 @@ namespace Crown
 		private LevelLayersTreeView _level_layers_treeview;
 		private PropertiesView _properties_view;
 		private PreferencesDialog _preferences_dialog;
-		private ResourceBrowser _resource_browser;
-		private ResourceBrowser _resource_selection;
+		private ResourceChooser _resource_chooser;
 		private Gtk.Popover _resource_popover;
 		private Gtk.Overlay _editor_view_overlay;
 		private Slide _editor_slide;
@@ -244,10 +243,8 @@ namespace Crown
 			_level = level;
 
 			// Widgets
-			_resource_browser = new ResourceBrowser(_project, _project_store, true);
-			_resource_browser.resource_selected.connect(on_resource_browser_resource_selected);
-
-			_resource_selection = new ResourceBrowser(_project, _project_store, false);
+			_resource_chooser = new ResourceChooser(_project, _project_store, true);
+			_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);
 
 			_combo = new Gtk.ComboBoxText();
 			_combo.append("editor", "Editor");
@@ -299,8 +296,8 @@ namespace Crown
 			_resource_popover = new Gtk.Popover(_toolbar);
 			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
 			_resource_popover.modal = true;
-			_resource_browser.resource_selected.connect(() => { _resource_popover.hide(); });
-			_resource_popover.add(_resource_browser);
+			_resource_chooser.resource_selected.connect(() => { _resource_popover.hide(); });
+			_resource_popover.add(_resource_chooser);
 
 			_level_tree_view_notebook = new Notebook();
 			_level_tree_view_notebook.show_border = false;
@@ -923,12 +920,13 @@ namespace Crown
 				string filename = fcd.get_filename();
 				_console_view.logi("editor", "Loading project `%s`...".printf(filename));
 				_project.load(filename, _project.toolchain_dir());
+				_project_store.reset();
 
 				_level.load_empty_level();
 				stop_compiler();
 				start_compiler();
 				restart_editor();
-				_resource_browser.restart_editor();
+				_resource_chooser.restart_editor();
 			}
 
 			fcd.destroy();
@@ -994,8 +992,8 @@ namespace Crown
 
 		private void shutdown()
 		{
-			if (_resource_browser != null)
-				_resource_browser.destroy();
+			if (_resource_chooser != null)
+				_resource_chooser.destroy();
 
 			if (_preferences_dialog != null)
 				_preferences_dialog.destroy();

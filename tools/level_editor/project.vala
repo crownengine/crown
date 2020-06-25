@@ -21,7 +21,8 @@ namespace Crown
 		private Database _files;
 		private HashMap<string, Guid?> _map;
 
-		public signal void changed();
+		public signal void file_added(string type, string name);
+		public signal void file_removed(string type, string name);
 
 		public Project()
 		{
@@ -266,18 +267,18 @@ end
 
 			_map[path] = id;
 
-			changed();
+			file_added(type, name);
 		}
 
 		public void remove_file(string path)
 		{
 			Guid id = _map[path];
+			file_removed(_files.get_property_string(id, "type"), _files.get_property_string(id, "name"));
+
 			_files.remove_from_set(GUID_ZERO, "data", id);
 			_files.destroy(id);
 
 			_map.unset(path);
-
-			changed();
 		}
 
 		public void import_sprites(SList<string> filenames, string destination_dir)

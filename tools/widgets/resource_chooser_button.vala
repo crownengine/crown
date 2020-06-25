@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Crown
 {
-	public class ReferenceChooser : Gtk.Box
+	public class ResourceChooserButton : Gtk.Box
 	{
 		// Data
 		private bool _stop_emit;
@@ -35,7 +35,7 @@ namespace Crown
 		// Signals
 		public signal void value_changed();
 
-		public ReferenceChooser(ProjectStore store, string type)
+		public ResourceChooserButton(ProjectStore store, string type)
 		{
 			Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
 
@@ -70,7 +70,7 @@ namespace Crown
 				, null
 				);
 
-			var rb = new ResourceBrowser(null, _project_store, false);
+			var rb = new ResourceChooser(null, _project_store, false);
 			rb.set_type_filter(type_filter);
 			rb.resource_selected.connect(() => { _name.text = rb._name; dg.response(ResponseType.OK); });
 

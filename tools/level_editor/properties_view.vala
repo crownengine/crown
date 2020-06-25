@@ -106,9 +106,9 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private ReferenceChooser _mesh_resource;
+		private ResourceChooserButton _mesh_resource;
 		private Gtk.Entry _geometry;
-		private ReferenceChooser _material;
+		private ResourceChooserButton _material;
 		private CheckBox _visible;
 
 		public MeshRendererComponentView(Level level, ProjectStore store)
@@ -117,11 +117,11 @@ namespace Crown
 			_level = level;
 
 			// Widgets
-			_mesh_resource = new ReferenceChooser(store, "mesh");
+			_mesh_resource = new ResourceChooserButton(store, "mesh");
 			_mesh_resource.value_changed.connect(on_value_changed);
 			_geometry = new Gtk.Entry();
 			_geometry.sensitive = false;
-			_material = new ReferenceChooser(store, "material");
+			_material = new ResourceChooserButton(store, "material");
 			_material.value_changed.connect(on_value_changed);
 			_visible = new CheckBox();
 
@@ -158,8 +158,8 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private ReferenceChooser _sprite_resource;
-		private ReferenceChooser _material;
+		private ResourceChooserButton _sprite_resource;
+		private ResourceChooserButton _material;
 		private EntryDouble _layer;
 		private EntryDouble _depth;
 		private CheckBox _visible;
@@ -170,9 +170,9 @@ namespace Crown
 			_level = level;
 
 			// Widgets
-			_sprite_resource = new ReferenceChooser(store, "sprite");
+			_sprite_resource = new ResourceChooserButton(store, "sprite");
 			_sprite_resource.value_changed.connect(on_value_changed);
-			_material = new ReferenceChooser(store, "material");
+			_material = new ResourceChooserButton(store, "material");
 			_material.value_changed.connect(on_value_changed);
 			_layer = new EntryDouble(0.0, 0.0, 7.0);
 			_layer.value_changed.connect(on_value_changed);
@@ -343,7 +343,7 @@ namespace Crown
 		// Widgets
 		private Gtk.Entry _source;
 		private Gtk.Entry _shape;
-		private ReferenceChooser _scene;
+		private ResourceChooserButton _scene;
 		private Gtk.Entry _name;
 
 		public ColliderComponentView(Level level, ProjectStore store)
@@ -356,7 +356,7 @@ namespace Crown
 			_source.sensitive = false;
 			_shape = new Gtk.Entry();
 			_shape.sensitive = false;
-			_scene = new ReferenceChooser(store, "mesh");
+			_scene = new ResourceChooserButton(store, "mesh");
 			_scene.sensitive = false;
 			_scene.value_changed.connect(on_value_changed);
 			_scene.sensitive = false;
@@ -477,7 +477,7 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private ReferenceChooser _script_resource;
+		private ResourceChooserButton _script_resource;
 
 		public ScriptComponentView(Level level, ProjectStore store)
 		{
@@ -485,7 +485,7 @@ namespace Crown
 			_level = level;
 
 			// Widgets
-			_script_resource = new ReferenceChooser(store, "lua");
+			_script_resource = new ResourceChooserButton(store, "lua");
 			_script_resource.value_changed.connect(on_value_changed);
 
 			add_row("Script", _script_resource);
@@ -511,7 +511,7 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private ReferenceChooser _state_machine_resource;
+		private ResourceChooserButton _state_machine_resource;
 
 		public AnimationStateMachine(Level level, ProjectStore store)
 		{
@@ -519,7 +519,7 @@ namespace Crown
 			_level = level;
 
 			// Widgets
-			_state_machine_resource = new ReferenceChooser(store, "state_machine");
+			_state_machine_resource = new ResourceChooserButton(store, "state_machine");
 			_state_machine_resource.value_changed.connect(on_value_changed);
 
 			add_row("State Machine", _state_machine_resource);

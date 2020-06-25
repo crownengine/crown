@@ -16,13 +16,13 @@ namespace Crown
 
 	public delegate bool UserFilter(string type, string name);
 
-	public class ResourceBrowser : Gtk.Box
+	public class ResourceChooser : Gtk.Box
 	{
 		// Data
 		public Project _project;
 		public GLib.Subprocess _editor_process;
 		public ConsoleClient _console_client;
-		public Gtk.TreeStore _tree_store;
+		public Gtk.ListStore _list_store;
 		public bool _preview;
 		public unowned UserFilter _user_filter;
 		public string _name;
@@ -40,7 +40,7 @@ namespace Crown
 		// Signals
 		public signal void resource_selected(string type, string name);
 
-		public ResourceBrowser(Project? project, ProjectStore project_store, bool preview)
+		public ResourceChooser(Project? project, ProjectStore project_store, bool preview)
 		{
 			Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
@@ -48,7 +48,7 @@ namespace Crown
 			_project = project;
 
 			_console_client = new ConsoleClient();
-			_tree_store = project_store._tree_store;
+			_list_store = project_store._list_store;
 			_preview = preview;
 			_user_filter = user_filter;
 
@@ -60,7 +60,7 @@ namespace Crown
 			_filter_entry.changed.connect(on_filter_entry_text_changed);
 			_filter_entry.key_press_event.connect(on_filter_entry_key_pressed);
 
-			_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
+			_tree_filter = new Gtk.TreeModelFilter(_list_store, null);
 			_tree_filter.set_visible_func(filter_tree);
 
 			_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
@@ -74,7 +74,9 @@ namespace Crown
 
 			_tree_view = new Gtk.TreeView();
 			_tree_view.insert_column_with_attributes(-1, "Name", new Gtk.CellRendererText(), "text", 0, null);
+/*
 			_tree_view.insert_column_with_attributes(-1, "Type", new Gtk.CellRendererText(), "text", 1, null); // Debug
+*/
 			_tree_view.model = _tree_sort;
 			_tree_view.headers_visible = false;
 			_tree_view.can_focus = false;
@@ -96,12 +98,12 @@ namespace Crown
 				_editor_view.set_size_request(300, 300);
 			}
 
-			this.pack_start(_filter_entry, false, false, 0);
+			this.pack_start(_filter_entry, false, true, 0);
 			if (_preview)
 			{
 				this.pack_start(_editor_view, true, true, 0);
 			}
-			this.pack_start(_scrolled_window, false, false, 0);
+			this.pack_start(_scrolled_window, true, true, 0);
 		}
 
 		private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
@@ -109,12 +111,12 @@ namespace Crown
 			Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 			Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
 			Gtk.TreeIter iter;
-			if (_tree_store.get_iter(out iter, child_path))
+			if (_list_store.get_iter(out iter, child_path))
 			{
 				Value name;
 				Value type;
-				_tree_store.get_value(iter, 0, out name);
-				_tree_store.get_value(iter, 1, out type);
+				_list_store.get_value(iter, 0, out name);
+				_list_store.get_value(iter, 1, out type);
 				_name = (string)name;
 				resource_selected((string)type, (string)name);
 			}
@@ -134,12 +136,12 @@ namespace Crown
 						Gtk.TreePath filter_path = _tree_sort.convert_path_to_child_path(path);
 						Gtk.TreePath child_path = _tree_filter.convert_path_to_child_path(filter_path);
 						Gtk.TreeIter iter;
-						if (_tree_store.get_iter(out iter, child_path))
+						if (_list_store.get_iter(out iter, child_path))
 						{
 							Value name;
 							Value type;
-							_tree_store.get_value(iter, 0, out name);
-							_tree_store.get_value(iter, 1, out type);
+							_list_store.get_value(iter, 0, out name);
+							_list_store.get_value(iter, 1, out type);
 							_name = (string)name;
 							resource_selected((string)type, (string)name);
 						}
