@@ -75,7 +75,7 @@ namespace Crown
 			rb.resource_selected.connect(() => { _name.text = rb._name; dg.response(ResponseType.OK); });
 
 			dg.skip_taskbar_hint = true;
-			dg.get_content_area().add(rb);
+			dg.get_content_area().pack_start(rb, true, true, 0);
 			dg.show_all();
 			dg.run();
 			dg.destroy();
