@@ -294,10 +294,9 @@ namespace Crown
 			Gtk.TreeIter unit_iter;
 			Gtk.TreeIter light_iter;
 			Gtk.TreeIter sound_iter;
-			_tree_store.append(out unit_iter, null);
-			_tree_store.append(out light_iter, null);
-			_tree_store.append(out sound_iter, null);
-			_tree_store.set(unit_iter
+			_tree_store.insert_with_values(out unit_iter
+				, null
+				, -1
 				, Column.TYPE
 				, ItemType.FOLDER
 				, Column.GUID
@@ -306,7 +305,9 @@ namespace Crown
 				, "Units"
 				, -1
 				);
-			_tree_store.set(light_iter
+			_tree_store.insert_with_values(out light_iter
+				, null
+				, -1
 				, Column.TYPE
 				, ItemType.FOLDER
 				, Column.GUID
@@ -315,7 +316,9 @@ namespace Crown
 				, "Lights"
 				, -1
 				);
-			_tree_store.set(sound_iter
+			_tree_store.insert_with_values(out sound_iter
+				, null
+				, -1
 				, Column.TYPE
 				, ItemType.FOLDER
 				, Column.GUID
@@ -332,8 +335,9 @@ namespace Crown
 			{
 				Unit u = new Unit(_level._db, unit, _level._prefabs);
 				Gtk.TreeIter iter;
-				_tree_store.append(out iter, u.is_light() ? light_iter : unit_iter);
-				_tree_store.set(iter
+				_tree_store.insert_with_values(out iter
+					, u.is_light() ? light_iter : unit_iter
+					, -1
 					, Column.TYPE
 					, ItemType.UNIT
 					, Column.GUID
@@ -346,8 +350,9 @@ namespace Crown
 			foreach (Guid sound in sounds)
 			{
 				Gtk.TreeIter iter;
-				_tree_store.append(out iter, sound_iter);
-				_tree_store.set(iter
+				_tree_store.insert_with_values(out iter
+					, sound_iter
+					, -1
 					, Column.TYPE
 					, ItemType.SOUND
 					, Column.GUID
