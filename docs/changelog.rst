@@ -3,7 +3,7 @@ Changelog
 
 0.37.0
 ------
-*DD MMM YYYY*
+*26 Jun 2020*
 
 **Runtime**
 
