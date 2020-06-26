@@ -223,7 +223,7 @@ namespace Crown
 					_list_store.get_value(child, Column.TYPE, out iter_type);
 					if ((string)iter_name == name && (string)iter_type == type)
 					{
-						_list_store.remove(ref child);
+						_list_store.remove(child);
 						return;
 					}
 
