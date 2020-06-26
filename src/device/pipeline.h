@@ -29,8 +29,8 @@ struct Pipeline
 	bgfx::TextureHandle _buffers[2];
 	bgfx::FrameBufferHandle _frame_buffer;
 	bgfx::UniformHandle _tex_color;
-	bgfx::UniformHandle _inv_gamma;
 
+	///
 	Pipeline();
 
 	///

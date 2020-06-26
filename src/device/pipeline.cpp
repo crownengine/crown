@@ -106,7 +106,6 @@ void Pipeline::create(uint16_t width, uint16_t height)
 {
 	PosTexCoord0Vertex::init();
 	_tex_color = bgfx::createUniform("s_texColor", bgfx::UniformType::Sampler);
-	_inv_gamma = bgfx::createUniform("u_invGamma", bgfx::UniformType::Vec4);
 
 	reset(width, height);
 }
@@ -116,7 +115,6 @@ void Pipeline::destroy()
 	bgfx::destroy(_frame_buffer);
 	bgfx::destroy(_buffers[1]);
 	bgfx::destroy(_buffers[0]);
-	bgfx::destroy(_inv_gamma);
 	bgfx::destroy(_tex_color);
 }
 
@@ -176,8 +174,6 @@ void Pipeline::render(ShaderManager& sm, StringId32 program, uint8_t view, uint1
 		;
 	bgfx::setTexture(0, _tex_color, _buffers[0], samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	f32 gamma[] = { 1.0f/2.2f, 0.0f, 0.0f, 0.0f };
-	bgfx::setUniform(_inv_gamma, gamma);
 	sm.submit(program, view, 0, BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
 }
 
