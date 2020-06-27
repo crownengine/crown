@@ -108,6 +108,9 @@ shader = [
 physics_config = [
 	"global"
 ]
+unit = [
+	"core/units/camera"
+]
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "boot.package");
 				FileStream fs = FileStream.open(path, "w");
