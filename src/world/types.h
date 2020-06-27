@@ -31,17 +31,17 @@ struct World;
 
 typedef u32 SoundInstanceId;
 
-#define DEBUG_LINE_MARKER              0xd7c17715
-#define DEBUG_GUI_MARKER               0xf081a80a
-#define LEVEL_MARKER                   0x1f2b43fe
-#define RENDER_WORLD_MARKER            0xc82277de
-#define RESOURCE_PACKAGE_MARKER        0x9a1ac68c
-#define SCENE_GRAPH_MARKER             0x63a44dbf
-#define WORLD_MARKER                   0xfb6ce2d3
-#define SCRIPT_WORLD_MARKER            0x78486cdc
-#define SOUND_WORLD_MARKER             0x44052b07
-#define PHYSICS_WORLD_MARKER           0x1cf49bae
-#define ANIMATION_STATE_MACHINE_MARKER 0x59a1c462
+#define DEBUG_LINE_MARKER              u32(0xd7c17715)
+#define DEBUG_GUI_MARKER               u32(0xf081a80a)
+#define LEVEL_MARKER                   u32(0x1f2b43fe)
+#define RENDER_WORLD_MARKER            u32(0xc82277de)
+#define RESOURCE_PACKAGE_MARKER        u32(0x9a1ac68c)
+#define SCENE_GRAPH_MARKER             u32(0x63a44dbf)
+#define WORLD_MARKER                   u32(0xfb6ce2d3)
+#define SCRIPT_WORLD_MARKER            u32(0x78486cdc)
+#define SOUND_WORLD_MARKER             u32(0x44052b07)
+#define PHYSICS_WORLD_MARKER           u32(0x1cf49bae)
+#define ANIMATION_STATE_MACHINE_MARKER u32(0x59a1c462)
 
 static const StringId32 COMPONENT_TYPE_ACTOR                   = StringId32("actor");
 static const StringId32 COMPONENT_TYPE_CAMERA                  = StringId32("camera");
