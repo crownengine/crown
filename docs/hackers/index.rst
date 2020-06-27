@@ -7,4 +7,5 @@ the low-level engine structure in order to modify/extend it.
 .. toctree::
 	:maxdepth: 2
 
+	building
 	console_api

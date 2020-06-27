@@ -43,7 +43,7 @@ and run the Lua script ``lua/game``.
 
 .. code::
 
-	$ cat boot.config
+	cat boot.config
 	boot_package = "boot"      // Package to load on boot
 	boot_script  = "lua/game"  // Lua script to execute on boot
 
@@ -80,7 +80,7 @@ Example:
 
 .. code::
 
-	$ cat .dataignore
+	cat .dataignore
 	# This is a comment.
 
 	# Blank lines are ignored.

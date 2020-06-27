@@ -8,13 +8,13 @@ Compile source data from ``/home/user/demo`` using a mapped ``core`` folder.
 
 .. code::
 
-	$ crown-development64 --source-dir /home/user/demo --map-source-dir core /home/user --compile
+	crown-development64 --source-dir /home/user/demo --map-source-dir core /home/user --compile
 
 Run the engine using compiled data from ``/home/user/demo_linux``:
 
 .. code::
 
-	$ crown-development64 --data-dir /home/user/demo_linux
+	crown-development64 --data-dir /home/user/demo_linux
 
 Options
 -------
