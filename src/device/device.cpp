@@ -314,9 +314,9 @@ void Device::run()
 	namespace utr = unit_resource_internal;
 
 	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem);
-	_resource_loader->register_fallback(RESOURCE_TYPE_TEXTURE,  StringId64("core/fallback/fallback"));
-	_resource_loader->register_fallback(RESOURCE_TYPE_MATERIAL, StringId64("core/fallback/fallback"));
-	_resource_loader->register_fallback(RESOURCE_TYPE_UNIT,     StringId64("core/fallback/fallback"));
+	_resource_loader->register_fallback(RESOURCE_TYPE_TEXTURE,  STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_MATERIAL, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_UNIT,     STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 	_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           cor::load, cor::unload, NULL,        NULL        );
@@ -625,7 +625,7 @@ void Device::render(World& world, UnitId camera_unit)
 	world.render(view);
 
 #if !CROWN_TOOLS
-	_pipeline->render(*_shader_manager, StringId32("blit"), 0, _width, _height);
+	_pipeline->render(*_shader_manager, STRING_ID_32("blit", 0xc04ce9f7), 0, _width, _height);
 #endif // CROWN_TOOLS
 }
 

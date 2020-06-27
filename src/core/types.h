@@ -61,6 +61,13 @@ inline T clamp(T val, T mmin, T mmax)
 	return min(max(mmin, val), mmax);
 }
 
+#if CROWN_DEBUG && !CROWN_DEVELOPMENT
+	u32 STRING_ID_32(const char* str, const u32 id);
+	u64 STRING_ID_64(const char* str, const u64 id);
+#else
+	#define STRING_ID_32(str, id) u32(id)
+	#define STRING_ID_64(str, id) u64(id)
+#endif
 } // namespace crown
 
 #if defined(_MSC_VER)

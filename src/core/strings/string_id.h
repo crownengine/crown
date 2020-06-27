@@ -20,7 +20,7 @@ struct StringId32
 	u32 _id;
 
 	StringId32() : _id(0) {}
-	explicit StringId32(u32 idx) : _id(idx) {}
+	StringId32(u32 idx) : _id(idx) {}
 	explicit StringId32(const char* str);
 	explicit StringId32(const char* str, u32 len);
 
@@ -43,7 +43,7 @@ struct StringId64
 	u64 _id;
 
 	StringId64() : _id(0) {}
-	explicit StringId64(u64 idx) : _id(idx) {}
+	StringId64(u64 idx) : _id(idx) {}
 	explicit StringId64(const char* str);
 	explicit StringId64(const char* str, u32 len);
 

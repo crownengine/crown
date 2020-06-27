@@ -43,15 +43,15 @@ typedef u32 SoundInstanceId;
 #define PHYSICS_WORLD_MARKER           u32(0x1cf49bae)
 #define ANIMATION_STATE_MACHINE_MARKER u32(0x59a1c462)
 
-static const StringId32 COMPONENT_TYPE_ACTOR                   = StringId32("actor");
-static const StringId32 COMPONENT_TYPE_CAMERA                  = StringId32("camera");
-static const StringId32 COMPONENT_TYPE_COLLIDER                = StringId32("collider");
-static const StringId32 COMPONENT_TYPE_LIGHT                   = StringId32("light");
-static const StringId32 COMPONENT_TYPE_MESH_RENDERER           = StringId32("mesh_renderer");
-static const StringId32 COMPONENT_TYPE_SPRITE_RENDERER         = StringId32("sprite_renderer");
-static const StringId32 COMPONENT_TYPE_TRANSFORM               = StringId32("transform");
-static const StringId32 COMPONENT_TYPE_SCRIPT                  = StringId32("script");
-static const StringId32 COMPONENT_TYPE_ANIMATION_STATE_MACHINE = StringId32("animation_state_machine");
+#define COMPONENT_TYPE_ACTOR                   STRING_ID_32("actor", 0x13958a55)
+#define COMPONENT_TYPE_CAMERA                  STRING_ID_32("camera", 0x5005ac7a)
+#define COMPONENT_TYPE_COLLIDER                STRING_ID_32("collider", 0x3b9259cb)
+#define COMPONENT_TYPE_LIGHT                   STRING_ID_32("light", 0x4cf76c7b)
+#define COMPONENT_TYPE_MESH_RENDERER           STRING_ID_32("mesh_renderer", 0x2554ca17)
+#define COMPONENT_TYPE_SPRITE_RENDERER         STRING_ID_32("sprite_renderer", 0x7b4af6de)
+#define COMPONENT_TYPE_TRANSFORM               STRING_ID_32("transform", 0xb4363995)
+#define COMPONENT_TYPE_SCRIPT                  STRING_ID_32("script", 0x2cf63026)
+#define COMPONENT_TYPE_ANIMATION_STATE_MACHINE STRING_ID_32("animation_state_machine", 0xe3970e6b)
 
 /// Enumerates camera projection types.
 ///

@@ -18,6 +18,7 @@
 #include "core/network/socket.h"
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "device/device.h"
 #include "device/device_options.h"
@@ -928,15 +929,15 @@ struct LevelEditor
 		, _fullscreen(false)
 	{
 		ResourceManager* resman = device()->_resource_manager;
-		tool_move_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-move"));
-		tool_place_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-place"));
-		tool_rotate_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-rotate"));
-		tool_scale_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/tool-scale"));
-		reference_world_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/reference-world"));
-		reference_local_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/reference-local"));
-		axis_local_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/axis-local"));
-		axis_world_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/axis-world"));
-		snap_to_grid_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, StringId64("core/editors/gui/snap-to-grid"));
+		tool_move_texture       = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/tool-move", 0x57f16b5c703944e8));
+		tool_place_texture      = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/tool-place", 0xf33a70241fe20ffd));
+		tool_rotate_texture     = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/tool-rotate", 0x59bfc47bde2b2072));
+		tool_scale_texture      = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/tool-scale", 0x73d5bcd35a65d39c));
+		reference_world_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/reference-world", 0xe072b9ad48895d31));
+		reference_local_texture = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/reference-local", 0x22153239997ae30a));
+		axis_local_texture      = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/axis-local", 0xb3b5b50a9cecce48));
+		axis_world_texture      = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/axis-world", 0xd10f6f1a9a680032));
+		snap_to_grid_texture    = (TextureResource*)resman->get(RESOURCE_TYPE_TEXTURE, STRING_ID_64("core/editors/gui/snap-to-grid", 0xf8831d3758d30394));
 
 		imgui_create();
 	}

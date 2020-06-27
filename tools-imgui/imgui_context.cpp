@@ -16,6 +16,7 @@
 #include "data/icons_font_awesome.ttf.h"
 
 #include "core/strings/string_id.h"
+#include "core/strings/string_id.inl"
 #include "device/device.h"
 #include "device/input_device.h"
 #include "device/input_types.h"
@@ -23,6 +24,8 @@
 #include "device/window.h"
 #include "imgui_context.h"
 #include "world/shader_manager.h"
+
+using namespace crown;
 
 // From bgfx_utils.h
 inline bool checkAvailTransientBuffers(uint32_t _numVertices, const bgfx::VertexLayout& _layout, uint32_t _numIndices)
@@ -45,7 +48,7 @@ static FontRangeMerge s_fontRangeMerge[] =
 	{ s_iconsFontAwesomeTtf, sizeof(s_iconsFontAwesomeTtf), { ICON_MIN_FA, ICON_MAX_FA, 0 } },
 };
 
-static int g_MouseCursors[ImGuiMouseCursor_COUNT] = { crown::MouseCursor::ARROW /* Which is == 0 */ };
+static int g_MouseCursors[ImGuiMouseCursor_COUNT] = { MouseCursor::ARROW /* Which is == 0 */ };
 
 static void* memAlloc(size_t _size, void* _userData);
 static void memFree(void* _ptr, void* _userData);
@@ -109,7 +112,7 @@ struct ImGuiContext
 						;
 
 					bgfx::TextureHandle th = m_texture;
-					crown::StringId32 program = crown::StringId32("ocornut_imgui");
+					StringId32 program = STRING_ID_32("ocornut_imgui", 0xde1bd0ed);
 
 					if (NULL != cmd->TextureId)
 					{
@@ -123,7 +126,7 @@ struct ImGuiContext
 						{
 							const float lodEnabled[4] = { float(texture.s.mip), 1.0f, 0.0f, 0.0f };
 							bgfx::setUniform(u_imageLodEnabled, lodEnabled);
-							program = crown::StringId32("imgui_image");
+							program = STRING_ID_32("imgui_image", 0xe2ec5960);
 						}
 					}
 					else
@@ -142,7 +145,7 @@ struct ImGuiContext
 					bgfx::setTexture(0, s_tex, th);
 					bgfx::setVertexBuffer(0, &tvb, 0, numVertices);
 					bgfx::setIndexBuffer(&tib, offset, cmd->ElemCount);
-					crown::device()->_shader_manager->submit(program, VIEW_IMGUI, 0, state);
+					device()->_shader_manager->submit(program, VIEW_IMGUI, 0, state);
 				}
 
 				offset += cmd->ElemCount;
@@ -175,27 +178,27 @@ struct ImGuiContext
 		setupStyle(true);
 
 		// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
-		io.KeyMap[ImGuiKey_Tab]        = crown::KeyboardButton::TAB;
-		io.KeyMap[ImGuiKey_LeftArrow]  = crown::KeyboardButton::LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = crown::KeyboardButton::RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow]    = crown::KeyboardButton::UP;
-		io.KeyMap[ImGuiKey_DownArrow]  = crown::KeyboardButton::DOWN;
-		io.KeyMap[ImGuiKey_PageUp]     = crown::KeyboardButton::PAGE_UP;
-		io.KeyMap[ImGuiKey_PageDown]   = crown::KeyboardButton::PAGE_DOWN;
-		io.KeyMap[ImGuiKey_Home]       = crown::KeyboardButton::HOME;
-		io.KeyMap[ImGuiKey_End]        = crown::KeyboardButton::END;
-		io.KeyMap[ImGuiKey_Insert]     = crown::KeyboardButton::INS;
-		io.KeyMap[ImGuiKey_Delete]     = crown::KeyboardButton::DEL;
-		io.KeyMap[ImGuiKey_Backspace]  = crown::KeyboardButton::BACKSPACE;
-		io.KeyMap[ImGuiKey_Space]      = crown::KeyboardButton::SPACE;
-		io.KeyMap[ImGuiKey_Enter]      = crown::KeyboardButton::ENTER;
-		io.KeyMap[ImGuiKey_Escape]     = crown::KeyboardButton::ESCAPE;
-		io.KeyMap[ImGuiKey_A]          = crown::KeyboardButton::A;
-		io.KeyMap[ImGuiKey_C]          = crown::KeyboardButton::C;
-		io.KeyMap[ImGuiKey_V]          = crown::KeyboardButton::V;
-		io.KeyMap[ImGuiKey_X]          = crown::KeyboardButton::X;
-		io.KeyMap[ImGuiKey_Y]          = crown::KeyboardButton::Y;
-		io.KeyMap[ImGuiKey_Z]          = crown::KeyboardButton::Z;
+		io.KeyMap[ImGuiKey_Tab]        = KeyboardButton::TAB;
+		io.KeyMap[ImGuiKey_LeftArrow]  = KeyboardButton::LEFT;
+		io.KeyMap[ImGuiKey_RightArrow] = KeyboardButton::RIGHT;
+		io.KeyMap[ImGuiKey_UpArrow]    = KeyboardButton::UP;
+		io.KeyMap[ImGuiKey_DownArrow]  = KeyboardButton::DOWN;
+		io.KeyMap[ImGuiKey_PageUp]     = KeyboardButton::PAGE_UP;
+		io.KeyMap[ImGuiKey_PageDown]   = KeyboardButton::PAGE_DOWN;
+		io.KeyMap[ImGuiKey_Home]       = KeyboardButton::HOME;
+		io.KeyMap[ImGuiKey_End]        = KeyboardButton::END;
+		io.KeyMap[ImGuiKey_Insert]     = KeyboardButton::INS;
+		io.KeyMap[ImGuiKey_Delete]     = KeyboardButton::DEL;
+		io.KeyMap[ImGuiKey_Backspace]  = KeyboardButton::BACKSPACE;
+		io.KeyMap[ImGuiKey_Space]      = KeyboardButton::SPACE;
+		io.KeyMap[ImGuiKey_Enter]      = KeyboardButton::ENTER;
+		io.KeyMap[ImGuiKey_Escape]     = KeyboardButton::ESCAPE;
+		io.KeyMap[ImGuiKey_A]          = KeyboardButton::A;
+		io.KeyMap[ImGuiKey_C]          = KeyboardButton::C;
+		io.KeyMap[ImGuiKey_V]          = KeyboardButton::V;
+		io.KeyMap[ImGuiKey_X]          = KeyboardButton::X;
+		io.KeyMap[ImGuiKey_Y]          = KeyboardButton::Y;
+		io.KeyMap[ImGuiKey_Z]          = KeyboardButton::Z;
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.IniFilename = "imgui.ini";
@@ -287,14 +290,14 @@ struct ImGuiContext
 		style.WindowRounding = 2.0f;
 		style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
 
-		g_MouseCursors[ImGuiMouseCursor_Arrow] = crown::MouseCursor::ARROW;
-		g_MouseCursors[ImGuiMouseCursor_TextInput] = crown::MouseCursor::TEXT_INPUT;
-		g_MouseCursors[ImGuiMouseCursor_ResizeAll] = crown::MouseCursor::ARROW;
-		g_MouseCursors[ImGuiMouseCursor_ResizeNS] = crown::MouseCursor::SIZE_VERTICAL;
-		g_MouseCursors[ImGuiMouseCursor_ResizeEW] = crown::MouseCursor::SIZE_HORIZONTAL;
-		g_MouseCursors[ImGuiMouseCursor_ResizeNESW] = crown::MouseCursor::CORNER_TOP_RIGHT;
-		g_MouseCursors[ImGuiMouseCursor_ResizeNWSE] = crown::MouseCursor::CORNER_TOP_LEFT;
-		g_MouseCursors[ImGuiMouseCursor_Hand] = crown::MouseCursor::HAND;
+		g_MouseCursors[ImGuiMouseCursor_Arrow] = MouseCursor::ARROW;
+		g_MouseCursors[ImGuiMouseCursor_TextInput] = MouseCursor::TEXT_INPUT;
+		g_MouseCursors[ImGuiMouseCursor_ResizeAll] = MouseCursor::ARROW;
+		g_MouseCursors[ImGuiMouseCursor_ResizeNS] = MouseCursor::SIZE_VERTICAL;
+		g_MouseCursors[ImGuiMouseCursor_ResizeEW] = MouseCursor::SIZE_HORIZONTAL;
+		g_MouseCursors[ImGuiMouseCursor_ResizeNESW] = MouseCursor::CORNER_TOP_RIGHT;
+		g_MouseCursors[ImGuiMouseCursor_ResizeNWSE] = MouseCursor::CORNER_TOP_LEFT;
+		g_MouseCursors[ImGuiMouseCursor_Hand] = MouseCursor::HAND;
 	}
 
 	void updateMouseCursor()
@@ -310,12 +313,12 @@ struct ImGuiContext
 			if (imgui_cursor == ImGuiMouseCursor_None || io.MouseDrawCursor)
 			{
 				// Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
-				crown::device()->_window->show_cursor(false);
+				device()->_window->show_cursor(false);
 			}
 			else
 			{
 				// Show OS mouse cursor
-				crown::device()->_window->set_cursor((crown::MouseCursor::Enum)g_MouseCursors[imgui_cursor]);
+				device()->_window->set_cursor((MouseCursor::Enum)g_MouseCursors[imgui_cursor]);
 			}
 		}
 	}

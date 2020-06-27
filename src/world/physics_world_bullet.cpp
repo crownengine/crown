@@ -253,7 +253,7 @@ struct PhysicsWorldImpl
 		_dynamics_world->setInternalTickCallback(tick_cb, this);
 		_dynamics_world->getPairCache()->setOverlapFilterCallback(&_filter_callback);
 
-		_config_resource = (const PhysicsConfigResource*)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, StringId64("global"));
+		_config_resource = (PhysicsConfigResource*)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, STRING_ID_64("global", 0x0b2f08fe66e395c0));
 
 		_unit_destroy_callback.destroy = PhysicsWorldImpl::unit_destroyed_callback;
 		_unit_destroy_callback.user_data = this;

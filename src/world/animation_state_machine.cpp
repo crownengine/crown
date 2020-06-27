@@ -7,6 +7,7 @@
 #include "core/containers/hash_map.inl"
 #include "core/containers/types.h"
 #include "core/memory/globals.h"
+#include "core/strings/string_id.inl"
 #include "resource/expression_language.h"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.h"
@@ -215,7 +216,7 @@ void AnimationStateMachine::update(float dt)
 					const Transition* dummy;
 					const State* s = state_machine::trigger(anim_i.state_machine
 						, anim_i.state
-						, StringId32("animation_end")
+						, STRING_ID_32("animation_end", 0xfe14d50b)
 						, &dummy
 						);
 					anim_i.time = anim_i.state != s ? 0.0f : anim_i.time_total;

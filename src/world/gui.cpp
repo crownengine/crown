@@ -9,6 +9,7 @@
 #include "core/math/vector2.inl"
 #include "core/math/vector3.inl"
 #include "core/strings/string.inl"
+#include "core/strings/string_id.inl"
 #include "core/strings/utf8.h"
 #include "resource/font_resource.h"
 #include "resource/material_resource.h"
@@ -62,7 +63,7 @@ void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4& world
 	bgfx::setIndexBuffer(&tib, _num_indices, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
-	_shader_manager->submit(StringId32("gui"), VIEW_GUI);
+	_shader_manager->submit(STRING_ID_32("gui", 0x2c56149a), VIEW_GUI);
 
 	_num_vertices += num_vertices;
 	_num_indices += num_indices;
