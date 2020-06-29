@@ -57,7 +57,7 @@ namespace Crown
 				, null
 				, -1
 				, Column.NAME
-				, _project.source_dir()
+				, ""
 				, Column.TYPE
 				, "<folder>"
 				, Column.SEGMENT
