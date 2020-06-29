@@ -146,37 +146,32 @@ namespace Crown
 
 		private bool on_button_pressed(Gdk.EventButton ev)
 		{
-			uint button = ev.button;
-
-			if (button == 3) // Right
+			if (ev.button == 3) // Right
 			{
-				Gtk.Menu menu = new Gtk.Menu();
 				Gtk.MenuItem mi = new Gtk.MenuItem.with_label("Delete");
-				mi.activate.connect(on_popup_delete);
+				mi.activate.connect(() => {
+					Guid[] ids = {};
+					_tree_selection.selected_foreach((model, path, iter) => {
+						Value type;
+						model.get_value(iter, Column.TYPE, out type);
+						if ((int)type == ItemType.FOLDER)
+							return;
+
+						Value id;
+						model.get_value(iter, Column.GUID, out id);
+						ids += (Guid)id;
+					});
+
+					_level.destroy_objects(ids);
+				});
+
+				Gtk.Menu menu = new Gtk.Menu();
 				menu.add(mi);
 				menu.show_all();
-				menu.popup(null, null, null, button, ev.time);
-				return true;
+				menu.popup(null, null, null, ev.button, ev.time);
 			}
 
 			return false;
-		}
-
-		private void on_popup_delete()
-		{
-			Guid[] ids = {};
-			_tree_selection.selected_foreach((model, path, iter) => {
-				Value type;
-				model.get_value(iter, Column.TYPE, out type);
-				if ((int)type == ItemType.FOLDER)
-					return;
-
-				Value id;
-				model.get_value(iter, Column.GUID, out id);
-				ids += (Guid)id;
-			});
-
-			_level.destroy_objects(ids);
 		}
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
