@@ -116,6 +116,15 @@ void SourceIndex::scan_directory(FilesystemDisk& fs, const char* prefix, const c
 
 		if (fs.is_directory(file_i.c_str()))
 		{
+			DynamicString directory_name(ta);
+			if (strcmp(prefix, "") != 0)
+			{
+				directory_name += prefix;
+				directory_name += '/';
+			}
+			directory_name += file_i;
+			notify_add_tree(directory_name.c_str());
+
 			scan_directory(fs, prefix, file_i.c_str());
 		}
 		else // Assume a regular file
