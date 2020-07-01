@@ -87,7 +87,7 @@
 			<menuitem action="camera-view-bottom"></menuitem>
 		</menu>
 		<menu action="menu-view">
-			<menuitem action="resource-browser"></menuitem>
+			<menuitem action="resource-chooser"></menuitem>
 			<menuitem action="project-browser"></menuitem>
 			<menuitem action="console"></menuitem>
 			<separator></separator>

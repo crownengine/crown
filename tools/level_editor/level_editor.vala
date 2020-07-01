@@ -83,7 +83,7 @@ namespace Crown
 			{ "camera-view-bottom",      null,       "View Bottom",         "<ctrl>KP_7",     null,         on_camera_view             },
 			{ "menu-engine",             null,       "En_gine",             null,             null,         null                       },
 			{ "menu-view",               null,       "View",                null,             null,         null                       },
-			{ "resource-browser",        null,       "Resource Browser",    "<ctrl>P",        null,         on_resource_browser        },
+			{ "resource-chooser",        null,       "Resource Chooser",    "<ctrl>P",        null,         on_resource_chooser        },
 			{ "project-browser",         null,       "Show/Hide Project",   null,             null,         on_project_browser         },
 			{ "console",                 null,       "Show/Hide Console",   "<ctrl>quoteleft",null,         on_console                 },
 			{ "fullscreen",              null,       "Fullscreen",          "F11",            null,         on_fullscreen              },
@@ -1373,7 +1373,7 @@ namespace Crown
 				_editor.send_script("LevelEditor:camera_view_bottom()");
 		}
 
-		private void on_resource_browser(Gtk.Action action)
+		private void on_resource_chooser(Gtk.Action action)
 		{
 			_resource_popover.show_all();
 		}
