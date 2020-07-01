@@ -23,6 +23,8 @@ namespace Crown
 
 		public signal void file_added(string type, string name);
 		public signal void file_removed(string type, string name);
+		public signal void tree_added(string name);
+		public signal void tree_removed(string name);
 
 		public Project()
 		{
@@ -282,6 +284,16 @@ end
 			_files.destroy(id);
 
 			_map.unset(path);
+		}
+
+		public void add_tree(string path)
+		{
+			tree_added(path);
+		}
+
+		public void remove_tree(string path)
+		{
+			tree_removed(path);
 		}
 
 		public void import_sprites(SList<string> filenames, string destination_dir)

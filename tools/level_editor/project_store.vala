@@ -31,6 +31,8 @@ namespace Crown
 			_project = project;
 			_project.file_added.connect(on_project_file_added);
 			_project.file_removed.connect(on_project_file_removed);
+			_project.tree_added.connect(on_project_tree_added);
+			_project.tree_removed.connect(on_project_tree_removed);
 
 			_tree_store = new Gtk.TreeStore(Column.COUNT
 				, typeof(string) // resource name
@@ -231,6 +233,15 @@ namespace Crown
 						break;
 				}
 			}
+		}
+
+		private void on_project_tree_added(string name)
+		{
+			make_tree(name);
+		}
+
+		private void on_project_tree_removed(string name)
+		{
 		}
 
 	}

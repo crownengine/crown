@@ -84,6 +84,7 @@ namespace Crown
 			{ "menu-engine",             null,       "En_gine",             null,             null,         null                       },
 			{ "menu-view",               null,       "View",                null,             null,         null                       },
 			{ "resource-browser",        null,       "Resource Browser",    "<ctrl>P",        null,         on_resource_browser        },
+			{ "project-browser",         null,       "Show/Hide Project",   null,             null,         on_project_browser         },
 			{ "console",                 null,       "Show/Hide Console",   "<ctrl>quoteleft",null,         on_console                 },
 			{ "fullscreen",              null,       "Fullscreen",          "F11",            null,         on_fullscreen              },
 			{ "restart",                 null,       "_Restart",            null,             null,         on_editor_restart          },
@@ -179,6 +180,7 @@ namespace Crown
 
 		// Widgets
 		private ConsoleView _console_view;
+		private ProjectBrowser _project_browser;
 		private EditorView _editor_view;
 		private LevelTreeView _level_treeview;
 		private LevelLayersTreeView _level_layers_treeview;
@@ -187,6 +189,7 @@ namespace Crown
 		private ResourceChooser _resource_chooser;
 		private Gtk.Popover _resource_popover;
 		private Gtk.Overlay _editor_view_overlay;
+		private Slide _project_slide;
 		private Slide _editor_slide;
 		private Slide _inspector_slide;
 
@@ -194,8 +197,9 @@ namespace Crown
 		private Gtk.UIManager _ui_manager;
 		private Gtk.MenuBar _menubar;
 		private Gtk.Toolbar _toolbar;
-		private Gtk.Paned _editor_pane;
 		private Gtk.Notebook _level_tree_view_notebook;
+		private Gtk.Paned _editor_pane;
+		private Gtk.Paned _content_pane;
 		private Gtk.Paned _inspector_pane;
 		private Gtk.Paned _main_pane;
 		private Gtk.Box _main_vbox;
@@ -252,10 +256,13 @@ namespace Crown
 			_combo.set_active_id("editor");
 
 			_console_view = new ConsoleView(this, _project, _combo);
+			_project_browser = new ProjectBrowser(_project, _project_store);
 			_level_treeview = new LevelTreeView(_database, _level);
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);
 			_properties_view = new PropertiesView(_level, _project_store);
 
+			_project_slide = new Slide();
+			_project_slide.show_widget(new StartingCompiler());
 			_editor_slide = new Slide();
 			_editor_slide.show_widget(new StartingCompiler());
 			_inspector_slide = new Slide();
@@ -306,16 +313,20 @@ namespace Crown
 
 			_editor_view_overlay = new Gtk.Overlay();
 
-			_editor_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			_editor_pane.pack1(_editor_slide, true, true);
-			_editor_pane.pack2(_console_view, true, true);
+			_editor_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+			_editor_pane.pack1(_project_slide, false, false);
+			_editor_pane.pack2(_editor_slide, true, true);
+
+			_content_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
+			_content_pane.pack1(_editor_pane, true, true);
+			_content_pane.pack2(_console_view, true, true);
 
 			_inspector_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 			_inspector_pane.pack1(_level_tree_view_notebook, true, true);
 			_inspector_pane.pack2(_properties_view, true, true);
 
 			_main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
-			_main_pane.pack1(_editor_pane, true, false);
+			_main_pane.pack1(_content_pane, true, false);
 			_main_pane.pack2(_inspector_slide, true, false);
 
 			_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -342,13 +353,6 @@ namespace Crown
 			this.show_all();
 
 			start_compiler();
-
-			// This is supposed to work in pixel units but it doesn't for
-			// a reason I couldn't find. The values passed, though, seem
-			// to move pane handles to the correct-ish position.
-			_main_pane.set_position(400);
-			_editor_pane.set_position(72);
-			_inspector_pane.set_position(300);
 		}
 
 		public ConsoleClient? current_selected_client()
@@ -453,6 +457,18 @@ namespace Crown
 				string path = (string)msg["path"];
 
 				_project.remove_file(path);
+			}
+			else if (msg_type == "add_tree")
+			{
+				string path = (string)msg["path"];
+
+				_project.add_tree(path);
+			}
+			else if (msg_type == "remove_tree")
+			{
+				string path = (string)msg["path"];
+
+				_project.remove_tree(path);
 			}
 			else if (msg_type == "compile")
 			{
@@ -632,6 +648,7 @@ namespace Crown
 					_editor_view_overlay.add(_editor_view);
 					_editor_view_overlay.add_overlay(_toolbar);
 
+					_project_slide.show_widget(_project_browser);
 					_editor_slide.show_widget(_editor_view_overlay);
 					_inspector_slide.show_widget(_inspector_pane);
 				}
@@ -1367,6 +1384,18 @@ namespace Crown
 				this.unfullscreen();
 			else
 				this.fullscreen();
+		}
+
+		private void on_project_browser(Gtk.Action action)
+		{
+			if (_project_slide.is_visible())
+			{
+				_project_slide.hide();
+			}
+			else
+			{
+				_project_slide.show_all();
+			}
 		}
 
 		private void on_console(Gtk.Action action)
