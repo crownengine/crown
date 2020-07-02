@@ -8,12 +8,7 @@
 			<menuitem action="save"></menuitem>
 			<menuitem action="save-as"></menuitem>
 			<separator></separator>
-			<menu action="import">
-				<menuitem action="import-sprites"></menuitem>
-				<menuitem action="import-meshes"></menuitem>
-				<menuitem action="import-sounds"></menuitem>
-				<menuitem action="import-textures"></menuitem>
-			</menu>
+			<menuitem action="import"></menuitem>
 			<separator></separator>
 			<menuitem action="preferences"></menuitem>
 			<separator></separator>

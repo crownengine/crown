@@ -11,22 +11,22 @@ namespace Crown
 	public class Project
 	{
 		// Data
-		private File _source_dir;
-		private File _toolchain_dir;
-		private File _data_dir;
-		private File _level_editor_test_level;
-		private File _level_editor_test_package;
-		private string _platform;
-
-		private Database _files;
-		private HashMap<string, Guid?> _map;
+		public File _source_dir;
+		public File _toolchain_dir;
+		public File _data_dir;
+		public File _level_editor_test_level;
+		public File _level_editor_test_package;
+		public string _platform;
+		public Database _files;
+		public HashMap<string, Guid?> _map;
+		public DataCompiler _data_compiler;
 
 		public signal void file_added(string type, string name);
 		public signal void file_removed(string type, string name);
 		public signal void tree_added(string name);
 		public signal void tree_removed(string name);
 
-		public Project()
+		public Project(DataCompiler dc)
 		{
 			_source_dir = null;
 			_toolchain_dir = null;
@@ -40,6 +40,7 @@ namespace Crown
 #endif // CROWN_PLATFORM_LINUX
 			_files = new Database();
 			_map = new HashMap<string, Guid?>();
+			_data_compiler = dc;
 		}
 
 		public void reset()
@@ -862,6 +863,98 @@ end
 
 				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_name) + ".texture");
 			}
+		}
+
+		public void import(string? destination_dir, Gtk.Window? parent_window = null)
+		{
+			Gtk.FileFilter sprite_filter = new Gtk.FileFilter();
+			sprite_filter.set_filter_name("Sprite (*.png)");
+			sprite_filter.add_pattern("*.png");
+
+			Gtk.FileFilter mesh_filter = new Gtk.FileFilter();
+			mesh_filter.set_filter_name("Mesh (*.mesh)");
+			mesh_filter.add_pattern("*.mesh");
+
+			Gtk.FileFilter sound_filter = new Gtk.FileFilter();
+			sound_filter.set_filter_name("Sound (*.wav)");
+			sound_filter.add_pattern("*.wav");
+
+			Gtk.FileFilter texture_filter = new Gtk.FileFilter();
+			texture_filter.set_filter_name("Texture (*.png, *.tga, *.dds, *.ktx, *.pvr)");
+			texture_filter.add_pattern("*.png");
+			texture_filter.add_pattern("*.tga");
+			texture_filter.add_pattern("*.dds");
+			texture_filter.add_pattern("*.ktx");
+			texture_filter.add_pattern("*.pvr");
+
+			Gtk.FileChooserDialog src = new Gtk.FileChooserDialog("Import..."
+				, parent_window
+				, FileChooserAction.OPEN
+				, "Cancel"
+				, ResponseType.CANCEL
+				, "Open"
+				, ResponseType.ACCEPT
+				);
+			src.select_multiple = true;
+			src.add_filter(sprite_filter);
+			src.add_filter(mesh_filter);
+			src.add_filter(sound_filter);
+			src.add_filter(texture_filter);
+
+			if (src.run() != (int)ResponseType.ACCEPT)
+			{
+				src.destroy();
+				return;
+			}
+
+			string out_dir = "";
+			if (destination_dir == null)
+			{
+				Gtk.FileChooserDialog dst = new Gtk.FileChooserDialog("Select destination folder..."
+					, parent_window
+					, FileChooserAction.SELECT_FOLDER
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Select"
+					, ResponseType.ACCEPT
+					);
+				dst.set_current_folder(this.source_dir());
+
+				if (dst.run() != (int)ResponseType.ACCEPT)
+				{
+					dst.destroy();
+					src.destroy();
+					return;
+				}
+
+				out_dir = dst.get_filename();
+				dst.destroy();
+			}
+			else
+			{
+				out_dir = destination_dir;
+			}
+
+			Gtk.FileFilter? current_filter = src.get_filter();
+			GLib.SList<string> filenames = src.get_filenames();
+
+			if (current_filter != null)
+			{
+				if (current_filter == sprite_filter)
+					this.import_sprites(filenames, out_dir);
+				else if (current_filter == mesh_filter)
+					this.import_meshes(filenames, out_dir);
+				else if (current_filter == sound_filter)
+					this.import_sounds(filenames, out_dir);
+				else if (current_filter == texture_filter)
+					this.import_textures(filenames, out_dir);
+			}
+
+			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
+			});
+
+			src.destroy();
 		}
 	}
 }

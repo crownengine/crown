@@ -46,11 +46,7 @@ namespace Crown
 			{ "open-project",            null,       "Open Project...",     null,             null,         on_open_project            },
 			{ "save",                    null,       "Save",                "<ctrl>S",        null,         on_save                    },
 			{ "save-as",                 null,       "Save As...",          "<shift><ctrl>S", null,         on_save_as                 },
-			{ "import",                  null,       "Import",              null,             null,         null                       },
-			{ "import-sprites",          null,       "Sprites...",          null,             null,         on_import_sprites          },
-			{ "import-meshes",           null,       "Meshes...",           null,             null,         on_import_meshes           },
-			{ "import-sounds",           null,       "Sounds...",           null,             null,         on_import_sounds           },
-			{ "import-textures",         null,       "Textures...",         null,             null,         on_import_textures         },
+			{ "import",                  null,       "Import...",           "<ctrl>I",        null,         on_import                  },
 			{ "preferences",             null,       "Preferences",         null,             null,         on_preferences             },
 			{ "deploy",                  null,       "Deploy...",           null,             null,         on_deploy                  },
 			{ "quit",                    null,       "Quit",                "<ctrl>Q",        null,         on_quit                    },
@@ -240,7 +236,7 @@ namespace Crown
 			_game.disconnected.connect(on_game_disconnected);
 			_game.message_received.connect(on_message_received);
 
-			_data_compiler = new DataCompiler(_compiler);
+			_data_compiler = project._data_compiler;
 			_database = database;
 			_project = project;
 			_project_store = new ProjectStore(_project);
@@ -333,7 +329,7 @@ namespace Crown
 			_main_vbox.pack_start(_menubar, false, false, 0);
 			_main_vbox.pack_start(_main_pane, true, true, 0);
 
-			_file_filter = new FileFilter();
+			_file_filter = new Gtk.FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
 			_file_filter.add_pattern("*.level");
 
@@ -793,7 +789,7 @@ namespace Crown
 
 		private void deploy_game()
 		{
-			FileChooserDialog fcd = new FileChooserDialog("Select destination directory..."
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select destination directory..."
 				, null
 				, FileChooserAction.SELECT_FOLDER
 				, "Cancel"
@@ -889,7 +885,7 @@ namespace Crown
 
 		private void load_level()
 		{
-			FileChooserDialog fcd = new FileChooserDialog("Open Level..."
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Level..."
 				, this
 				, FileChooserAction.OPEN
 				, "Cancel"
@@ -923,7 +919,7 @@ namespace Crown
 
 		private void load_project()
 		{
-			FileChooserDialog fcd = new FileChooserDialog("Open Project..."
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Project..."
 				, this
 				, FileChooserAction.SELECT_FOLDER
 				, "Cancel"
@@ -953,7 +949,7 @@ namespace Crown
 		{
 			bool saved = false;
 
-			FileChooserDialog fcd = new FileChooserDialog("Save As..."
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Save As..."
 				, this
 				, FileChooserAction.SAVE
 				, "Cancel"
@@ -1135,119 +1131,9 @@ namespace Crown
 			save_as();
 		}
 
-		// If it returns true then filenames and out_dir are valid.
-		private bool on_import_begin(Gtk.FileFilter ff, ref SList<string> filenames, ref string out_dir)
+		private void on_import(Gtk.Action action)
 		{
-			FileChooserDialog fcd = new FileChooserDialog("Import..."
-				, this
-				, FileChooserAction.OPEN
-				, "Cancel"
-				, ResponseType.CANCEL
-				, "Open"
-				, ResponseType.ACCEPT
-				);
-			fcd.select_multiple = true;
-			fcd.add_filter(ff);
-
-			if (fcd.run() != (int)ResponseType.ACCEPT)
-			{
-				fcd.destroy();
-				return false;
-			}
-
-			filenames = fcd.get_filenames();
-			fcd.destroy();
-
-			FileChooserDialog dst = new FileChooserDialog("Select destination folder..."
-				, this
-				, FileChooserAction.SELECT_FOLDER
-				, "Cancel"
-				, ResponseType.CANCEL
-				, "Select"
-				, ResponseType.ACCEPT
-				);
-			dst.set_current_folder(_project.source_dir());
-
-			if (dst.run() != (int)ResponseType.ACCEPT)
-			{
-				dst.destroy();
-				return false;
-			}
-
-			out_dir = dst.get_filename();
-			dst.destroy();
-			return true;
-		}
-
-		private void on_import_end()
-		{
-			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
-		}
-
-		private void on_import_sprites(Gtk.Action action)
-		{
-			Gtk.FileFilter ff = new FileFilter();
-			ff.set_filter_name("Sprite (*.png)");
-			ff.add_pattern("*.png");
-
-			SList<string> filenames = new SList<string>();
-			string out_dir = "";
-			if (on_import_begin(ff, ref filenames, ref out_dir))
-			{
-				_project.import_sprites(filenames, out_dir);
-				on_import_end();
-			}
-		}
-
-		private void on_import_meshes(Gtk.Action action)
-		{
-			Gtk.FileFilter ff = new FileFilter();
-			ff.set_filter_name("Mesh (*.mesh)");
-			ff.add_pattern("*.mesh");
-
-			SList<string> filenames = new SList<string>();
-			string out_dir = "";
-			if (on_import_begin(ff, ref filenames, ref out_dir))
-			{
-				_project.import_meshes(filenames, out_dir);
-				on_import_end();
-			}
-		}
-
-		private void on_import_sounds(Gtk.Action action)
-		{
-			Gtk.FileFilter ff = new FileFilter();
-			ff.set_filter_name("Sound (*.wav)");
-			ff.add_pattern("*.wav");
-
-			SList<string> filenames = new SList<string>();
-			string out_dir = "";
-			if (on_import_begin(ff, ref filenames, ref out_dir))
-			{
-				_project.import_sounds(filenames, out_dir);
-				on_import_end();
-			}
-		}
-
-		private void on_import_textures(Gtk.Action action)
-		{
-			Gtk.FileFilter ff = new FileFilter();
-			ff.set_filter_name("Texture (*.png, *.tga, *.dds, *.ktx, *.pvr)");
-			ff.add_pattern("*.png");
-			ff.add_pattern("*.tga");
-			ff.add_pattern("*.dds");
-			ff.add_pattern("*.ktx");
-			ff.add_pattern("*.pvr");
-
-			SList<string> filenames = new SList<string>();
-			string out_dir = "";
-			if (on_import_begin(ff, ref filenames, ref out_dir))
-			{
-				_project.import_textures(filenames, out_dir);
-				on_import_end();
-			}
+			_project.import(null, this);
 		}
 
 		private void on_preferences(Gtk.Action action)
@@ -1625,7 +1511,7 @@ namespace Crown
 		}
 		else
 		{
-			FileChooserDialog fcd = new FileChooserDialog("Select folder where to create new project..."
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select folder where to create new project..."
 				, null
 				, FileChooserAction.SELECT_FOLDER
 				, "Cancel"
@@ -1700,13 +1586,14 @@ namespace Crown
 			}
 		}
 
-		Project project = new Project();
+		ConsoleClient compiler = new ConsoleClient();
+		DataCompiler data_compiler = new DataCompiler(compiler);
+		Project project = new Project(data_compiler);
 		project.load(source_dir, toolchain_dir);
 		if (create_initial_files)
 			project.create_initial_files();
 
 		Database database = new Database();
-		ConsoleClient compiler = new ConsoleClient();
 		ConsoleClient engine = new ConsoleClient();
 		ConsoleClient game = new ConsoleClient();
 
