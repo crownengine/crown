@@ -251,7 +251,7 @@ namespace Crown
 								try
 								{
 									GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)parent_name);
-									AppInfo.launch_default_for_uri("file://" + file.get_path(), null);
+									GLib.AppInfo.launch_default_for_uri("file://" + file.get_path(), null);
 								}
 								catch (Error e)
 								{
@@ -283,12 +283,15 @@ namespace Crown
 						_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 						_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 
-						if (type == "lua")
+						GLib.AppInfo? app = GLib.AppInfo.get_default_for_type("text/plain", false);
+						if (app != null)
 						{
+							GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name + "." + (string)type);
+							GLib.List<GLib.File> files = new GLib.List<GLib.File>();
+							files.append(file);
 							try
 							{
-								GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name);
-								AppInfo.launch_default_for_uri("file://" + file.get_path() + "." + (string)type, null);
+								app.launch(files, null);
 							}
 							catch (Error e)
 							{
