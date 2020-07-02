@@ -278,10 +278,13 @@ namespace Crown
 						Gtk.TreeIter iter;
 						_tree_view.model.get_iter(out iter, path);
 
-						Value name;
 						Value type;
-						_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 						_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
+						if ((string)type == "<folder>")
+							return false;
+
+						Value name;
+						_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 						GLib.AppInfo? app = GLib.AppInfo.get_default_for_type("text/plain", false);
 						if (app != null)
