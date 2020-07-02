@@ -9,6 +9,7 @@ Changelog
 
 * Added the Project Browser
 * Fixed an issue that caused the Level Editor to not include "core/units/camera" in the boot.package of a newly created project
+* Unified the asset import dialogs
 
 0.37.0
 ------
