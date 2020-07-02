@@ -193,8 +193,9 @@ namespace Crown
 					if (type == "<folder>")
 					{
 						Gtk.Menu menu = new Gtk.Menu();
+						Gtk.MenuItem mi;
 
-						Gtk.MenuItem mi = new Gtk.MenuItem.with_label("New Folder...");
+						mi = new Gtk.MenuItem.with_label("New Folder...");
 						mi.activate.connect(() => {
 							Value name;
 							_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
@@ -229,6 +230,16 @@ namespace Crown
 							}
 
 							dg.destroy();
+						});
+						menu.add(mi);
+
+						mi = new Gtk.MenuItem.with_label("Import...");
+						mi.activate.connect(() => {
+							Value name;
+							_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
+
+							GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name);
+							_project.import(file.get_path(), (Gtk.Window)this.get_toplevel());
 						});
 						menu.add(mi);
 
