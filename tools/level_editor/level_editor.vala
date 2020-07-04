@@ -37,6 +37,9 @@ namespace Crown
 
 	public class LevelEditor : Gtk.Window
 	{
+		const int DEFAULT_WIDTH = 1280;
+		const int DEFAULT_HEIGHT = 720;
+
 		// Constants
 		const Gtk.ActionEntry[] action_entries =
 		{
@@ -311,19 +314,23 @@ namespace Crown
 
 			_editor_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_editor_pane.pack1(_project_slide, false, false);
-			_editor_pane.pack2(_editor_slide, true, true);
+			_editor_pane.pack2(_editor_slide, true, false);
+			_editor_pane.set_position(210);
 
 			_content_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			_content_pane.pack1(_editor_pane, true, true);
-			_content_pane.pack2(_console_view, true, true);
+			_content_pane.pack1(_editor_pane, true, false);
+			_content_pane.pack2(_console_view, false, false);
+			_content_pane.set_position(500);
 
 			_inspector_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
-			_inspector_pane.pack1(_level_tree_view_notebook, true, true);
-			_inspector_pane.pack2(_properties_view, true, true);
+			_inspector_pane.pack1(_level_tree_view_notebook, true, false);
+			_inspector_pane.pack2(_properties_view, false, false);
+			_inspector_pane.set_position(250);
 
 			_main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_main_pane.pack1(_content_pane, true, false);
-			_main_pane.pack2(_inspector_slide, true, false);
+			_main_pane.pack2(_inspector_slide, false, false);
+			_main_pane.set_position(DEFAULT_WIDTH - 375);
 
 			_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_main_vbox.pack_start(_menubar, false, false, 0);
@@ -343,9 +350,11 @@ namespace Crown
 			this.key_press_event.connect(this.on_key_press);
 			this.key_release_event.connect(this.on_key_release);
 			this.window_state_event.connect(this.on_window_state_event);
+			this.show.connect(this.on_show);
 
 			this.add(_main_vbox);
-			this.maximize();
+
+			this.set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 			this.show_all();
 
 			start_compiler();
@@ -389,6 +398,11 @@ namespace Crown
 		{
 			_fullscreen = (ev.new_window_state & WindowState.FULLSCREEN) != 0;
 			return true;
+		}
+
+		private void on_show()
+		{
+			this.maximize();
 		}
 
 		private void on_resource_browser_resource_selected(string type, string name)
