@@ -62,18 +62,16 @@ namespace Crown
 				{
 					return -1;
 				}
-				else if ((string)type_a != "<folder>" && (string)type_b == "<folder>")
+				else if ((string)type_b == "<folder>")
 				{
 					return 1;
 				}
-				else
-				{
-					Value id_a;
-					Value id_b;
-					model.get_value(iter_a, ProjectStore.Column.NAME, out id_a);
-					model.get_value(iter_b, ProjectStore.Column.NAME, out id_b);
-					return strcmp((string)id_a, (string)id_b);
-				}
+
+				Value id_a;
+				Value id_b;
+				model.get_value(iter_a, ProjectStore.Column.NAME, out id_a);
+				model.get_value(iter_b, ProjectStore.Column.NAME, out id_b);
+				return strcmp((string)id_a, (string)id_b);
 			});
 
 			_tree_view = new Gtk.TreeView();
