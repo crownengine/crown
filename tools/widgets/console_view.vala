@@ -66,6 +66,7 @@ namespace Crown
 		public Gtk.ScrolledWindow _scrolled_window;
 		public Gtk.TextView _text_view;
 		public Gtk.Entry _entry;
+		public Gtk.Box _entry_hbox;
 
 		public ConsoleView(LevelEditor editor, Project project, Gtk.ComboBoxText combo)
 		{
@@ -102,13 +103,14 @@ namespace Crown
 			_entry.key_press_event.connect(on_entry_key_pressed);
 			_entry.activate.connect(on_entry_activated);
 
-			this.show.connect(on_show);
+			_entry_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+			_entry_hbox.pack_start(_entry, true, true);
+			_entry_hbox.pack_end(combo, false, false);
 
 			this.pack_start(_scrolled_window, true, true, 0);
-			Gtk.Box hb = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-			hb.pack_start(_entry);
-			hb.pack_end(combo, false, false);
-			this.pack_start(hb, false, true, 0);
+			this.pack_start(_entry_hbox, false, true, 0);
+
+			this.show.connect(on_show);
 
 			this.get_style_context().add_class("console-view");
 			this.show_all();
