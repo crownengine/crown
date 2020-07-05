@@ -47,7 +47,9 @@
 #include <inttypes.h>
 #if CROWN_PLATFORM_POSIX
 #include <signal.h>
-#endif
+#elif CROWN_PLATFORM_WINDOWS
+#include <windows.h>
+#endif // CROWN_PLATFORM_LINUX
 
 LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
@@ -1159,6 +1161,19 @@ int main_data_compiler(const DeviceOptions& opts)
 	act.sa_flags = 0;
 	sigaction(SIGINT, NULL, &old_SIGINT);
 	sigaction(SIGINT, &act, NULL);
+#elif CROWN_PLATFORM_WINDOWS
+	PHANDLER_ROUTINE signal_handler = [](DWORD dwCtrlType) {
+		switch (dwCtrlType)
+		{
+		case CTRL_C_EVENT:
+			_quit = true;
+			return TRUE;
+
+		default:
+			return FALSE;
+		}
+	};
+	SetConsoleCtrlHandler(signal_handler, TRUE);
 #endif // CROWN_PLATFORM_POSIX
 
 	console_server_globals::init();
@@ -1249,6 +1264,9 @@ int main_data_compiler(const DeviceOptions& opts)
 #if CROWN_PLATFORM_POSIX
 	// Restore original handler
 	sigaction(SIGINT, &old_SIGINT, NULL);
+#elif CROWN_PLATFORM_WINDOWS
+	// Restore original handler
+	SetConsoleCtrlHandler(signal_handler, FALSE);
 #endif // CROWN_PLATFORM_POSIX
 
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
