@@ -14,6 +14,7 @@ namespace Crown
 		return type == "<folder>" && name == "core"
 			|| type == "wav"
 			|| type == "png"
+			|| type == "importer_settings"
 			;
 	}
 
