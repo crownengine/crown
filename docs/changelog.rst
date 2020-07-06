@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Runtime**
+
+* Fixed an issue that caused levels to be compiled successfully even when the units they depended on contained errors
+
 **Tools**
 
 * Added the Project Browser

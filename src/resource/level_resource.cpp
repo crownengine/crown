@@ -83,7 +83,9 @@ namespace level_resource_internal
 		}
 
 		UnitCompiler uc(opts);
-		uc.compile_multiple_units(obj["units"]);
+		if (uc.compile_multiple_units(obj["units"]) != 0)
+			return -1;
+
 		Buffer unit_blob = uc.blob();
 
 		// Write
