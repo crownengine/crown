@@ -156,8 +156,10 @@ void SourceIndex::scan(const HashMap<DynamicString, DynamicString>& source_dirs)
 	{
 		HASH_MAP_SKIP_HOLE(source_dirs, cur);
 
-		DynamicString prefix(default_allocator());
+		TempAllocator512 ta;
+		DynamicString prefix(ta);
 		path::join(prefix, cur->second.c_str(), cur->first.c_str());
+
 		FilesystemDisk fs(default_allocator());
 		fs.set_prefix(prefix.c_str());
 		scan_directory(fs, cur->first.c_str(), NULL);
@@ -241,7 +243,6 @@ static void console_command_refresh_list(ConsoleServer& cs, TCPSocket& client, c
 	{
 		HASH_MAP_SKIP_HOLE(dc->_data_revisions, cur);
 
-		printf("rev: %u\n", cur->second);
 		DynamicString deffault(ta);
 		if (cur->second > hash_map::get(dc->_client_revisions, client_id, u32(0)))
 			ss << "\"" << hash_map::get(dc->_data_index, cur->first, deffault).c_str() << "\",";
@@ -249,7 +250,6 @@ static void console_command_refresh_list(ConsoleServer& cs, TCPSocket& client, c
 	ss << "]}";
 
 	cs.send(client, string_stream::c_str(ss));
-	printf("%s\n", string_stream::c_str(ss));
 
 	char buf[GUID_BUF_LEN];
 	logi(DATA_COMPILER, "client %s was at rev: %u"
@@ -308,7 +308,7 @@ static void read_data_versions(HashMap<DynamicString, u32>& versions, Filesystem
 	}
 }
 
-static void read_data_index(HashMap<StringId64, DynamicString>& index, FilesystemDisk& data_fs, const char* filename)
+static void read_data_index(HashMap<StringId64, DynamicString>& index, FilesystemDisk& data_fs, const char* filename, const SourceIndex& sources)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -323,17 +323,21 @@ static void read_data_index(HashMap<StringId64, DynamicString>& index, Filesyste
 		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
 		TempAllocator256 ta;
-		StringId64 dst_name;
-		DynamicString src_path(ta);
+		DynamicString path(ta);
+		sjson::parse_string(path, cur->second);
 
-		dst_name.parse(cur->first.data());
-		sjson::parse_string(src_path, cur->second);
+		// Skip reading data that belongs to non-existent source file.
+		if (!hash_map::has(sources._paths, path))
+			continue;
 
-		hash_map::set(index, dst_name, src_path);
+		StringId64 id;
+		id.parse(cur->first.data());
+
+		hash_map::set(index, id, path);
 	}
 }
 
-static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& data_fs, const char* filename)
+static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& data_index)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -347,20 +351,44 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 	{
 		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
-		TempAllocator64 ta;
-		StringId64 dst_name;
-		DynamicString mtime_json(ta);
+		StringId64 id;
+		id.parse(cur->first.data());
 
-		dst_name.parse(cur->first.data());
+		// Skip reading data that belongs to non-existent source file.
+		if (!hash_map::has(data_index, id))
+			continue;
+
+		TempAllocator64 ta;
+		DynamicString mtime_json(ta);
 		sjson::parse_string(mtime_json, cur->second);
 
 		u64 mtime;
 		sscanf(mtime_json.c_str(), "%" SCNu64, &mtime);
-		hash_map::set(mtimes, dst_name, mtime);
+		hash_map::set(mtimes, id, mtime);
 	}
 }
 
-static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, const char* filename)
+static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const DynamicString& dependency)
+{
+	HashMap<DynamicString, u32> deps_deffault(default_allocator());
+	HashMap<DynamicString, u32>& deps = hash_map::get(dependencies, id, deps_deffault);
+
+	hash_map::set(deps, dependency, 0u);
+
+	if (&deps == &deps_deffault)
+		hash_map::set(dependencies, id, deps);
+}
+
+static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const char* dependency)
+{
+	TempAllocator512 ta;
+	DynamicString dependency_str(ta);
+	dependency_str = dependency;
+
+	add_dependency_internal(dependencies, id, dependency_str);
+}
+
+static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& data_index)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -374,26 +402,30 @@ static void read_data_dependencies(DataCompiler& dc, FilesystemDisk& data_fs, co
 	{
 		JSON_OBJECT_SKIP_HOLE(obj, cur);
 
-		StringId64 dst_name;
-		dst_name.parse(cur->first.data());
+		StringId64 id;
+		id.parse(cur->first.data());
+
+		// Skip reading data that belongs to non-existent source file.
+		if (!hash_map::has(data_index, id))
+			continue;
 
 		JsonArray dependency_array(ta);
 		sjson::parse_array(dependency_array, cur->second);
 		for (u32 i = 0; i < array::size(dependency_array); ++i)
 		{
-			DynamicString src_path(ta);
-			sjson::parse_string(src_path, dependency_array[i]);
-			if (src_path.has_prefix("//r "))
+			DynamicString path(ta);
+			sjson::parse_string(path, dependency_array[i]);
+			if (path.has_prefix("//r "))
 			{
-				dc.add_requirement(dst_name, src_path.c_str() + 4);
+				add_dependency_internal(dc._data_requirements, id, path.c_str() + 4);
 			}
-			else if (src_path.has_prefix("//- "))
+			else if (path.has_prefix("//- "))
 			{
-				dc.add_dependency(dst_name, src_path.c_str() + 4);
+				add_dependency_internal(dc._data_dependencies, id, path.c_str() + 4);
 			}
 			else // Assume regular dependency
 			{
-				dc.add_dependency(dst_name, src_path.c_str());
+				add_dependency_internal(dc._data_dependencies, id, path.c_str());
 			}
 		}
 	}
@@ -444,7 +476,6 @@ static void write_data_versions(FilesystemDisk& data_fs, const char* filename, c
 		data_fs.close(*file);
 	}
 }
-
 
 static void write_data_mtimes(FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, u64>& mtimes)
 {
@@ -577,12 +608,16 @@ void DataCompiler::add_file(const char* path)
 
 void DataCompiler::remove_file(const char* path)
 {
-	// Convert to DynamicString
 	TempAllocator512 ta;
-	DynamicString str(ta);
-	str.set(path, strlen32(path));
+	DynamicString path_str(ta);
+	path_str.set(path, strlen32(path));
+	hash_map::remove(_source_index._paths, path_str);
 
-	hash_map::remove(_source_index._paths, str);
+	ResourceId id = resource_id(path);
+	hash_map::remove(_data_index, id);
+	hash_map::remove(_data_mtimes, id);
+	hash_map::remove(_data_dependencies, id);
+	hash_map::remove(_data_requirements, id);
 
 	notify_remove_file(path);
 }
@@ -709,10 +744,10 @@ void DataCompiler::scan_and_restore(const char* data_dir)
 	FilesystemDisk data_fs(default_allocator());
 	data_fs.set_prefix(data_dir);
 
+	read_data_index(_data_index, data_fs, CROWN_DATA_INDEX, _source_index);
+	read_data_mtimes(_data_mtimes, data_fs, CROWN_DATA_MTIMES, _data_index);
+	read_data_dependencies(*this, data_fs, CROWN_DATA_DEPENDENCIES, _data_index);
 	read_data_versions(_data_versions, data_fs, CROWN_DATA_VERSIONS);
-	read_data_index(_data_index, data_fs, CROWN_DATA_INDEX);
-	read_data_mtimes(_data_mtimes, data_fs, CROWN_DATA_MTIMES);
-	read_data_dependencies(*this, data_fs, CROWN_DATA_DEPENDENCIES);
 	logi(DATA_COMPILER, "Restored state in %.2fs", time::seconds(time::now() - time_start));
 
 	if (_options->_server)
@@ -741,32 +776,31 @@ void DataCompiler::save(const char* data_dir)
 	data_fs.set_prefix(data_dir);
 
 	write_data_index(data_fs, CROWN_DATA_INDEX, _data_index);
-	write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
 	write_data_mtimes(data_fs, CROWN_DATA_MTIMES, _data_mtimes);
 	write_data_dependencies(data_fs, CROWN_DATA_DEPENDENCIES, _data_index, _data_dependencies, _data_requirements);
+	write_data_versions(data_fs, CROWN_DATA_VERSIONS, _data_versions);
 	logi(DATA_COMPILER, "Saved state in %.2fs", time::seconds(time::now() - time_start));
 }
 
-bool DataCompiler::dependency_changed(const DynamicString& src_path, ResourceId id, u64 dst_mtime)
+bool DataCompiler::dependency_changed(const DynamicString& path, ResourceId id, u64 dst_mtime)
 {
-	TempAllocator1024 ta;
-	DynamicString path(ta);
-	destination_path(path, id);
-
-	Stat src_stat;
-	src_stat = hash_map::get(_source_index._paths, src_path, src_stat);
-	if (src_stat.mtime > dst_mtime)
+	Stat stat;
+	stat.file_type = Stat::FileType::NO_ENTRY;
+	stat.size = 0;
+	stat.mtime = 0;
+	stat = hash_map::get(_source_index._paths, path, stat);
+	if (stat.file_type == Stat::FileType::NO_ENTRY || stat.mtime > dst_mtime)
 		return true;
 
-	HashMap<DynamicString, u32> deffault(default_allocator());
-	HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
+	const HashMap<DynamicString, u32> deffault(default_allocator());
+	const HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
 	auto cur = hash_map::begin(deps);
 	auto end = hash_map::end(deps);
 	for (; cur != end; ++cur)
 	{
 		HASH_MAP_SKIP_HOLE(deps, cur);
 
-		if (src_path == cur->first)
+		if (path == cur->first)
 			continue;
 
 		if (dependency_changed(cur->first, resource_id(cur->first.c_str()), dst_mtime))
@@ -776,22 +810,21 @@ bool DataCompiler::dependency_changed(const DynamicString& src_path, ResourceId 
 	return false;
 }
 
-bool DataCompiler::version_changed(const DynamicString& src_path, ResourceId id)
+bool DataCompiler::version_changed(const DynamicString& path, ResourceId id)
 {
-	const char* type = path::extension(src_path.c_str());
-
+	const char* type = path::extension(path.c_str());
 	if (data_version_stored(type) != data_version(type))
 		return true;
 
-	HashMap<DynamicString, u32> deffault(default_allocator());
-	HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
+	const HashMap<DynamicString, u32> deffault(default_allocator());
+	const HashMap<DynamicString, u32>& deps = hash_map::get(_data_dependencies, id, deffault);
 	auto cur = hash_map::begin(deps);
 	auto end = hash_map::end(deps);
 	for (; cur != end; ++cur)
 	{
 		HASH_MAP_SKIP_HOLE(deps, cur);
 
-		if (src_path == cur->first)
+		if (path == cur->first)
 			continue;
 
 		if (version_changed(cur->first, resource_id(cur->first.c_str())))
@@ -838,44 +871,33 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	{
 		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
 
-		const DynamicString& src_path = cur->first;
-		const char* filename = src_path.c_str();
-		const char* type = path::extension(filename);
+		const DynamicString& path = cur->first;
+		const char* type = path::extension(path.c_str());
 
-		if (path_matches_ignore_glob(filename))
+		if (path_matches_ignore_glob(path.c_str()))
 			continue;
 
 		if (type == NULL || !can_compile(type))
 		{
-			loge(DATA_COMPILER, "Unknown resource file: '%s'", filename);
+			loge(DATA_COMPILER, "Unknown resource file: '%s'", path.c_str());
 			loge(DATA_COMPILER, "Append matching pattern to " CROWN_DATAIGNORE " to ignore it");
 			continue;
 		}
 
-		ResourceId id = resource_id(filename);
-		TempAllocator256 ta;
-		DynamicString path(ta);
-		destination_path(path, id);
-
-		u64 dst_mtime = 0;
-		dst_mtime = hash_map::get(_data_mtimes, id, dst_mtime);
-		Stat src_stat;
-		src_stat = hash_map::get(_source_index._paths, src_path, src_stat);
+		const ResourceId id = resource_id(path.c_str());
+		const u64 mtime_epoch = 0u;
+		const u64 mtime = hash_map::get(_data_mtimes, id, mtime_epoch);
 
 		bool source_never_compiled_before    = hash_map::has(_data_index, id) == false;
-		bool source_has_been_changed         = src_stat.mtime > dst_mtime;
-		bool source_dependency_changed       = dependency_changed(src_path, id, dst_mtime);
-		bool data_version_changed            = data_version_stored(type) != data_version(type);
-		bool data_version_dependency_changed = version_changed(src_path, id);
+		bool source_dependency_changed       = dependency_changed(path, id, mtime);
+		bool data_version_dependency_changed = version_changed(path, id);
 
 		if (source_never_compiled_before
-			|| source_has_been_changed
 			|| source_dependency_changed
-			|| data_version_changed
 			|| data_version_dependency_changed
 			)
 		{
-			vector::push_back(to_compile, src_path);
+			vector::push_back(to_compile, path);
 		}
 	}
 
@@ -896,21 +918,19 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	// Compile all changed resources
 	for (u32 i = 0; i < vector::size(to_compile); ++i)
 	{
-		const DynamicString& src_path = to_compile[i];
-		const char* filename = src_path.c_str();
-		const char* type = path::extension(filename);
+		const DynamicString& path = to_compile[i];
+		const char* type = path::extension(path.c_str());
 
 		if (type == NULL)
 			continue;
 
-		TempAllocator256 ta;
-		DynamicString path(ta);
+		logi(DATA_COMPILER, "%s", path.c_str());
 
 		// Build destination file path
-		ResourceId id = resource_id(filename);
-		destination_path(path, id);
-
-		logi(DATA_COMPILER, "%s", src_path.c_str());
+		ResourceId id = resource_id(path.c_str());
+		TempAllocator256 ta;
+		DynamicString dest(ta);
+		destination_path(dest, id);
 
 		// Compile data
 		ResourceTypeData rtd;
@@ -922,24 +942,47 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		rtd = hash_map::get(_compilers, type_str, rtd);
 		{
-			// Reset dependencies and references since data could not depend
-			// anymore on any of those.
-			HashMap<DynamicString, u32> dependencies_deffault(default_allocator());
-			hash_map::clear(hash_map::get(_data_dependencies, id, dependencies_deffault));
-			HashMap<DynamicString, u32> requirements_deffault(default_allocator());
-			hash_map::clear(hash_map::get(_data_requirements, id, requirements_deffault));
+			// Dependencies and requirements lists must be regenerated each time
+			// the resource is being compiled. For example, if you delete
+			// "foo.unit" from a package, you do not want the list of
+			// requirements to include "foo.unit" again the next time that
+			// package is compiled.
+			Buffer output(default_allocator());
+			HashMap<DynamicString, u32> new_dependencies(default_allocator());
+			HashMap<DynamicString, u32> new_requirements(default_allocator());
 
 			// Invoke compiler
-			Buffer output(default_allocator());
-			CompileOptions opts(*this, data_fs, id, src_path, output, platform);
+			CompileOptions opts(output
+				, new_dependencies
+				, new_requirements
+				, *this
+				, data_fs
+				, id
+				, path
+				, platform
+				);
 			success = rtd.compiler(opts) == 0;
 
 			if (success)
 			{
-				File* outf = data_fs.open(path.c_str(), FileOpenMode::WRITE);
+				// Update dependencies and requirements only if compiler(opts)
+				// succeeded. If the compilation fails due to a missing
+				// dependency and you update the dependency database with new
+				// partial data, the next call to compile() would not trigger a
+				// recompilation.
+				HashMap<DynamicString, u32> dependencies_deffault(default_allocator());
+				hash_map::clear(hash_map::get(_data_dependencies, id, dependencies_deffault));
+				HashMap<DynamicString, u32> requirements_deffault(default_allocator());
+				hash_map::clear(hash_map::get(_data_requirements, id, requirements_deffault));
+				hash_map::set(_data_dependencies, id, new_dependencies);
+				hash_map::set(_data_requirements, id, new_requirements);
+
+				// Write output to disk
+				File* outf = data_fs.open(dest.c_str(), FileOpenMode::WRITE);
 				u32 size = array::size(output);
 				u32 written = outf->write(array::begin(output), size);
 				data_fs.close(*outf);
+
 				success = size == written;
 			}
 		}
@@ -947,11 +990,11 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		if (success)
 		{
 			// Do not include special paths in content tracking structures.
-			if (!path_is_special(src_path.c_str()))
+			if (!path_is_special(path.c_str()))
 			{
-				hash_map::set(_data_index, id, src_path);
+				hash_map::set(_data_index, id, path);
 				hash_map::set(_data_versions, type_str, rtd.version);
-				hash_map::set(_data_mtimes, id, data_fs.last_modified_time(path.c_str()));
+				hash_map::set(_data_mtimes, id, data_fs.last_modified_time(dest.c_str()));
 				hash_map::set(_data_revisions, id, _revision + 1);
 			}
 		}
@@ -1014,37 +1057,6 @@ u32 DataCompiler::data_version_stored(const char* type)
 
 	u32 version = UINT32_MAX;
 	return hash_map::get(_data_versions, ds, version);
-}
-
-void DataCompiler::add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const char* dependency)
-{
-	HashMap<DynamicString, u32> deps_deffault(default_allocator());
-	if (hash_map::has(dependencies, id))
-	{
-		HashMap<DynamicString, u32>& deps = hash_map::get(dependencies, id, deps_deffault);
-		TempAllocator256 ta;
-		DynamicString dependency_ds(ta);
-		dependency_ds = dependency;
-		hash_map::set(deps, dependency_ds, 0u);
-	}
-	else
-	{
-		TempAllocator256 ta;
-		DynamicString dependency_ds(ta);
-		dependency_ds = dependency;
-		hash_map::set(deps_deffault, dependency_ds, 0u);
-		hash_map::set(dependencies, id, deps_deffault);
-	}
-}
-
-void DataCompiler::add_dependency(ResourceId id, const char* dependency)
-{
-	add_dependency_internal(_data_dependencies, id, dependency);
-}
-
-void DataCompiler::add_requirement(ResourceId id, const char* requirement)
-{
-	add_dependency_internal(_data_requirements, id, requirement);
 }
 
 bool DataCompiler::can_compile(const char* type)

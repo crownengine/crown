@@ -59,15 +59,25 @@ namespace crown
 {
 struct CompileOptions
 {
+	Buffer& _output;
+	HashMap<DynamicString, u32>& _new_dependencies;
+	HashMap<DynamicString, u32>& _new_requirements;
 	DataCompiler& _data_compiler;
 	Filesystem& _data_filesystem;
 	DynamicString _source_path;
-	Buffer& _output;
 	const char* _platform;
 	ResourceId _resource_id;
 
 	///
-	CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, ResourceId res_id, const DynamicString& source_path, Buffer& output, const char* platform);
+	CompileOptions(Buffer& output
+		, HashMap<DynamicString, u32>& new_dependencies
+		, HashMap<DynamicString, u32>& new_requirements
+		, DataCompiler& dc
+		, Filesystem& data_filesystem
+		, ResourceId res_id
+		, const DynamicString& source_path
+		, const char* platform
+		);
 
 	///
 	CompileOptions(const CompileOptions&) = delete;
@@ -99,13 +109,15 @@ struct CompileOptions
 	///
 	void write_temporary(const char* path, const Buffer& data);
 
-	///
+	/// Reads the source data and returns it.
+	/// It also registers the source path as a dependency.
 	Buffer read();
 
-	///
+	/// Reads the data at @a path and returns it.
+	/// It also registers @a path as a dependency.
 	Buffer read(const char* path);
 
-	/// Registers @a path as dependency. Reads nothing.
+	/// Registers @a path as dependency without reading anything.
 	void fake_read(const char* path);
 
 	///

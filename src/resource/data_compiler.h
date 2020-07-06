@@ -30,7 +30,9 @@ struct SourceIndex
 	///
 	void scan_directory(FilesystemDisk& fs, const char* prefix, const char* directory);
 
-	///
+	/// Scans all directories defined by @a source_dirs.
+	/// @a source_dirs maps a relative directory name to its absolute parent
+	/// directory.
 	void scan(const HashMap<DynamicString, DynamicString>& source_dirs);
 };
 
@@ -111,20 +113,13 @@ struct DataCompiler
 	///
 	u32 data_version_stored(const char* type);
 
-	///
-	void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const char* dependency);
+	/// Returns whether any dependency of @a path, including itself, has changed
+	/// since last call to compile().
+	bool dependency_changed(const DynamicString& path, ResourceId id, u64 mtime);
 
-	///
-	void add_dependency(ResourceId id, const char* dependency);
-
-	///
-	void add_requirement(ResourceId id, const char* requirement);
-
-	///
-	bool dependency_changed(const DynamicString& src_path, ResourceId id, u64 mtime);
-
-	///
-	bool version_changed(const DynamicString& src_path, ResourceId id);
+	/// Returns whether the data version for @a path or any of its dependencies
+	/// has changed since last call to compile().
+	bool version_changed(const DynamicString& path, ResourceId id);
 
 	/// Returns whether the @a path should be ignored because
 	/// it matches a pattern from the CROWN_DATAIGNORE file or

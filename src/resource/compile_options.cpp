@@ -8,6 +8,7 @@
 #if CROWN_CAN_COMPILE
 
 #include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
 #include "core/containers/vector.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
@@ -24,11 +25,21 @@
 
 namespace crown
 {
-CompileOptions::CompileOptions(DataCompiler& dc, Filesystem& data_filesystem, ResourceId res_id, const DynamicString& source_path, Buffer& output, const char* platform)
-	: _data_compiler(dc)
+CompileOptions::CompileOptions(Buffer& output
+	, HashMap<DynamicString, u32>& new_dependencies
+	, HashMap<DynamicString, u32>& new_requirements
+	, DataCompiler& dc
+	, Filesystem& data_filesystem
+	, ResourceId res_id
+	, const DynamicString& source_path
+	, const char* platform
+	)
+	: _output(output)
+	, _new_dependencies(new_dependencies)
+	, _new_requirements(new_requirements)
+	, _data_compiler(dc)
 	, _data_filesystem(data_filesystem)
 	, _source_path(source_path)
-	, _output(output)
 	, _platform(platform)
 	, _resource_id(res_id)
 {
@@ -105,7 +116,7 @@ Buffer CompileOptions::read()
 
 Buffer CompileOptions::read(const char* path)
 {
-	_data_compiler.add_dependency(_resource_id, path);
+	fake_read(path);
 
 	TempAllocator256 ta;
 	DynamicString source_dir(ta);
@@ -125,7 +136,11 @@ Buffer CompileOptions::read(const char* path)
 
 void CompileOptions::fake_read(const char* path)
 {
-	_data_compiler.add_dependency(_resource_id, path);
+	TempAllocator256 ta;
+	DynamicString path_str(ta);
+	path_str = path;
+
+	hash_map::set(_new_dependencies, path_str, 0u);
 }
 
 void CompileOptions::add_requirement(const char* type, const char* name)
@@ -136,7 +151,7 @@ void CompileOptions::add_requirement(const char* type, const char* name)
 	path += ".";
 	path += type;
 
-	_data_compiler.add_requirement(_resource_id, path.c_str());
+	hash_map::set(_new_requirements, path, 0u);
 }
 
 void CompileOptions::absolute_path(DynamicString& abs, const char* path)
