@@ -956,5 +956,25 @@ end
 
 			src.destroy();
 		}
+
+		public void delete_tree(GLib.File file) throws Error
+		{
+			GLib.FileEnumerator fe = file.enumerate_children("standard::*"
+				, GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS
+				);
+
+			GLib.FileInfo info = null;
+			while ((info = fe.next_file()) != null)
+			{
+				GLib.File subfile = file.resolve_relative_path(info.get_name());
+
+				if (info.get_file_type() == GLib.FileType.DIRECTORY)
+					delete_tree(subfile);
+				else
+					subfile.delete();
+			}
+
+			file.delete();
+		}
 	}
 }

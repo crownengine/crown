@@ -187,18 +187,27 @@ namespace Crown
 					_tree_view.model.get_iter(out iter, path);
 
 					Value type;
+					Value name;
 					_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
+					_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 					if (type == "<folder>")
 					{
 						Gtk.Menu menu = new Gtk.Menu();
 						Gtk.MenuItem mi;
 
+						mi = new Gtk.MenuItem.with_label("Import...");
+						mi.activate.connect(() => {
+							GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name);
+							_project.import(file.get_path(), (Gtk.Window)this.get_toplevel());
+						});
+						menu.add(mi);
+
+						mi = new Gtk.SeparatorMenuItem();
+						menu.add(mi);
+
 						mi = new Gtk.MenuItem.with_label("New Folder...");
 						mi.activate.connect(() => {
-							Value name;
-							_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
-
 							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
 								, null
 								, DialogFlags.MODAL
@@ -217,9 +226,9 @@ namespace Crown
 
 							if (dg.run() == (int)ResponseType.OK)
 							{
+								GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name, sb.text);
 								try
 								{
-									GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name, sb.text);
 									file.make_directory();
 								}
 								catch (Error e)
@@ -232,23 +241,59 @@ namespace Crown
 						});
 						menu.add(mi);
 
-						mi = new Gtk.MenuItem.with_label("Import...");
-						mi.activate.connect(() => {
-							Value name;
-							_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
+						if ((string)name != ProjectStore.ROOT_FOLDER)
+						{
+							mi = new Gtk.MenuItem.with_label("Delete Folder");
+							mi.activate.connect(() => {
+								Gtk.MessageDialog md = new Gtk.MessageDialog((Gtk.Window)this.get_toplevel()
+									, Gtk.DialogFlags.MODAL
+									, Gtk.MessageType.WARNING
+									, Gtk.ButtonsType.NONE
+									, "Delete Folder " + (string)name + "?"
+									);
+								md.add_button("_Cancel", ResponseType.CANCEL);
+								md.add_button("_Delete", ResponseType.YES);
+								md.set_default_response(ResponseType.CANCEL);
+								int rt = md.run();
+								md.destroy();
 
-							GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name);
-							_project.import(file.get_path(), (Gtk.Window)this.get_toplevel());
-						});
-						menu.add(mi);
+								if (rt == (int)ResponseType.CANCEL)
+									return;
+
+								GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name);
+								try
+								{
+									_project.delete_tree(file);
+								}
+								catch (Error e)
+								{
+									// _console_view.loge("editor", e.message);
+								}
+							});
+							menu.add(mi);
+						}
 
 						menu.show_all();
 						menu.popup(null, null, null, ev.button, ev.time);
 					}
-					else
+					else // If file
 					{
 						Gtk.Menu menu = new Gtk.Menu();
 						Gtk.MenuItem mi;
+
+						mi = new Gtk.MenuItem.with_label("Delete File");
+						mi.activate.connect(() => {
+							GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name + "." + (string)type);
+							try
+							{
+								file.delete();
+							}
+							catch (Error e)
+							{
+								// _console_view.loge("editor", e.message);
+							}
+						});
+						menu.add(mi);
 
 						mi = new Gtk.MenuItem.with_label("Open Containing Folder...");
 						mi.activate.connect(() => {
@@ -258,9 +303,9 @@ namespace Crown
 								Value parent_name;
 								_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
 
+								GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)parent_name);
 								try
 								{
-									GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)parent_name);
 									GLib.AppInfo.launch_default_for_uri("file://" + file.get_path(), null);
 								}
 								catch (Error e)

@@ -10,6 +10,8 @@ namespace Crown
 {
 	public class ProjectStore
 	{
+		public const string ROOT_FOLDER = "";
+
 		public enum Column
 		{
 			NAME,
@@ -59,7 +61,7 @@ namespace Crown
 				, null
 				, -1
 				, Column.NAME
-				, ""
+				, ROOT_FOLDER
 				, Column.TYPE
 				, "<folder>"
 				, Column.SEGMENT
@@ -67,14 +69,14 @@ namespace Crown
 				, -1
 				);
 
-			_folders[""] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+			_folders[ROOT_FOLDER] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 		}
 
 		private string folder(string name)
 		{
 			int last_slash = name.last_index_of_char('/');
 			if (last_slash == -1)
-				return "";
+				return ROOT_FOLDER;
 			return name.substring(0, last_slash);
 		}
 
@@ -148,12 +150,12 @@ namespace Crown
 		{
 			if (_folders.has_key(folder))
 			{
-				Gtk.TreeIter parent_iter;
-				_tree_store.get_iter(out parent_iter, _folders[folder].get_path());
-				return parent_iter;
+				Gtk.TreeIter iter;
+				_tree_store.get_iter(out iter, _folders[folder].get_path());
+				return iter;
 			}
 
-			return make_tree_internal(folder, 0, _folders[""]);
+			return make_tree_internal(folder, 0, _folders[ROOT_FOLDER]);
 		}
 
 		private void on_project_file_added(string type, string name)
@@ -242,6 +244,17 @@ namespace Crown
 
 		private void on_project_tree_removed(string name)
 		{
+			if (name == ROOT_FOLDER)
+				return;
+
+			if (!_folders.has_key(name))
+				return;
+
+			Gtk.TreeIter iter;
+			_tree_store.get_iter(out iter, _folders[name].get_path());
+			_tree_store.remove(ref iter);
+
+			_folders.unset(name);
 		}
 
 	}
