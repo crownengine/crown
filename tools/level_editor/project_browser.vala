@@ -41,18 +41,24 @@ namespace Crown
 			// Data
 			_project = project;
 			_tree_store = project_store._tree_store;
-			_tree_store.row_inserted.connect((path, iter) => {
-					Value name;
-					_tree_store.get_value(iter, ProjectStore.Column.NAME, out name);
-					// _tree_view.expand_row(new Gtk.TreePath.first(), false);
-				});
 
 			// Widgets
 			_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
-			_tree_filter.set_visible_func(filter_tree);
+			_tree_filter.set_visible_func((model, iter) => {
+				_tree_view.expand_row(new Gtk.TreePath.first(), false);
+
+				Value type;
+				Value name;
+				model.get_value(iter, ProjectStore.Column.TYPE, out type);
+				model.get_value(iter, ProjectStore.Column.NAME, out name);
+
+				return (string)type != null
+					&& (string)name != null
+					&& !row_should_be_hidden((string)type, (string)name)
+					;
+			});
 
 			_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
-
 			_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
 				Value type_a;
 				Value type_b;
@@ -76,8 +82,6 @@ namespace Crown
 				model.get_value(iter_b, ProjectStore.Column.SEGMENT, out id_b);
 				return strcmp((string)id_a, (string)id_b);
 			});
-
-			_tree_view = new Gtk.TreeView();
 
 			Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 			Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
@@ -135,8 +139,8 @@ namespace Crown
 				else
 					cell.set_property("text", (string)segment + "." + (string)type);
 			});
+			_tree_view = new Gtk.TreeView();
 			_tree_view.append_column(column);
-
 /*
 			// This is for debugging only
 			_tree_view.insert_column_with_attributes(-1
@@ -161,7 +165,6 @@ namespace Crown
 				, null
 				);
 */
-
 			_tree_view.model = _tree_sort;
 			_tree_view.headers_visible = false;
 			_tree_view.can_focus = false;
@@ -363,19 +366,6 @@ namespace Crown
 			}
 
 			return false;
-		}
-
-		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
-		{
-			Value type;
-			Value name;
-			model.get_value(iter, ProjectStore.Column.TYPE, out type);
-			model.get_value(iter, ProjectStore.Column.NAME, out name);
-
-			return (string)type != null
-				&& (string)name != null
-				&& !row_should_be_hidden((string)type, (string)name)
-				;
 		}
 	}
 }
