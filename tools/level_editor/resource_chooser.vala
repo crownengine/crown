@@ -64,8 +64,8 @@ namespace Crown
 			_tree_filter.set_visible_func((model, iter) => {
 				Value type;
 				Value name;
-				model.get_value(iter, 1, out type);
-				model.get_value(iter, 0, out name);
+				model.get_value(iter, ProjectStore.Column.TYPE, out type);
+				model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 				string type_str = (string)type;
 				string name_str = (string)name;
@@ -81,15 +81,28 @@ namespace Crown
 			_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
 				Value id_a;
 				Value id_b;
-				model.get_value(iter_a, 0, out id_a);
-				model.get_value(iter_b, 0, out id_b);
+				model.get_value(iter_a, ProjectStore.Column.NAME, out id_a);
+				model.get_value(iter_b, ProjectStore.Column.NAME, out id_b);
 				return strcmp((string)id_a, (string)id_b);
 			});
 
 			_tree_view = new Gtk.TreeView();
-			_tree_view.insert_column_with_attributes(-1, "Name", new Gtk.CellRendererText(), "text", 0, null);
+			_tree_view.insert_column_with_attributes(-1
+				, "Name"
+				, new Gtk.CellRendererText()
+				, "text"
+				, ProjectStore.Column.NAME
+				, null
+				);
 /*
-			_tree_view.insert_column_with_attributes(-1, "Type", new Gtk.CellRendererText(), "text", 1, null); // Debug
+			// Debug
+			_tree_view.insert_column_with_attributes(-1
+				, "Type"
+				, new Gtk.CellRendererText()
+				, "text"
+				, ProjectStore.Column.TYPE
+				, null
+				);
 */
 			_tree_view.model = _tree_sort;
 			_tree_view.headers_visible = false;
@@ -129,8 +142,8 @@ namespace Crown
 			{
 				Value name;
 				Value type;
-				_list_store.get_value(iter, 0, out name);
-				_list_store.get_value(iter, 1, out type);
+				_list_store.get_value(iter, ProjectStore.Column.NAME, out name);
+				_list_store.get_value(iter, ProjectStore.Column.TYPE, out type);
 				_name = (string)name;
 				resource_selected((string)type, (string)name);
 			}
@@ -154,8 +167,8 @@ namespace Crown
 						{
 							Value name;
 							Value type;
-							_list_store.get_value(iter, 0, out name);
-							_list_store.get_value(iter, 1, out type);
+							_list_store.get_value(iter, ProjectStore.Column.NAME, out name);
+							_list_store.get_value(iter, ProjectStore.Column.TYPE, out type);
 							_name = (string)name;
 							resource_selected((string)type, (string)name);
 						}
@@ -272,8 +285,8 @@ namespace Crown
 				{
 					Value name;
 					Value type;
-					model.get_value(iter, 0, out name);
-					model.get_value(iter, 1, out type);
+					model.get_value(iter, ProjectStore.Column.NAME, out name);
+					model.get_value(iter, ProjectStore.Column.TYPE, out type);
 					_name = (string)name;
 					resource_selected((string)type, (string)name);
 				}
@@ -294,8 +307,8 @@ namespace Crown
 				{
 					Value name;
 					Value type;
-					model.get_value(iter, 0, out name);
-					model.get_value(iter, 1, out type);
+					model.get_value(iter, ProjectStore.Column.NAME, out name);
+					model.get_value(iter, ProjectStore.Column.TYPE, out type);
 					_console_client.send_script(UnitPreviewApi.set_preview_resource((string)type, (string)name));
 				}
 			}
