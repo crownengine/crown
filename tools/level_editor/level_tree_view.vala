@@ -63,7 +63,24 @@ namespace Crown
 				);
 
 			_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
-			_tree_filter.set_visible_func(filter_tree);
+			_tree_filter.set_visible_func((model, iter) => {
+				_tree_view.expand_all();
+
+				Value type;
+				Value name;
+				model.get_value(iter, Column.TYPE, out type);
+				model.get_value(iter, Column.NAME, out name);
+
+				if ((int)type == ItemType.FOLDER)
+					return true;
+
+				string name_str = (string)name;
+				string filter_text = _filter_entry.text.down();
+
+				return name_str != null
+					&& (filter_text == "" || name_str.down().index_of(filter_text) > -1)
+					;
+			});
 
 			_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 			_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
@@ -172,25 +189,6 @@ namespace Crown
 			}
 
 			return false;
-		}
-
-		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
-		{
-			Value type, name;
-			model.get_value(iter, Column.TYPE, out type);
-			model.get_value(iter, Column.NAME, out name);
-
-			_tree_view.expand_all();
-
-			if ((int)type == ItemType.FOLDER)
-				return true;
-
-			string name_str = (string)name;
-			string filter_text = _filter_entry.text.down();
-
-			return name_str != null
-				&& (filter_text == "" || name_str.down().index_of(filter_text) > -1)
-				;
 		}
 
 		private void on_tree_selection_changed()

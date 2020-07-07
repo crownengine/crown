@@ -61,7 +61,21 @@ namespace Crown
 			_filter_entry.key_press_event.connect(on_filter_entry_key_pressed);
 
 			_tree_filter = new Gtk.TreeModelFilter(_list_store, null);
-			_tree_filter.set_visible_func(filter_tree);
+			_tree_filter.set_visible_func((model, iter) => {
+				Value type;
+				Value name;
+				model.get_value(iter, 1, out type);
+				model.get_value(iter, 0, out name);
+
+				string type_str = (string)type;
+				string name_str = (string)name;
+
+				return type_str != null
+					&& name_str != null
+					&& _user_filter(type_str, name_str)
+					&& (_filter_entry.text.length == 0 || name_str.index_of(_filter_entry.text) > -1)
+					;
+			});
 
 			_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 			_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
@@ -228,23 +242,6 @@ namespace Crown
 			_tree_filter.refilter();
 			_tree_selection.changed.connect(on_tree_selection_changed);
 			_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
-		}
-
-		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)
-		{
-			Value type;
-			Value name;
-			model.get_value(iter, 1, out type);
-			model.get_value(iter, 0, out name);
-
-			string type_str = (string)type;
-			string name_str = (string)name;
-
-			return type_str != null
-				&& name_str != null
-				&& _user_filter(type_str, name_str)
-				&& (_filter_entry.text.length == 0 || name_str.index_of(_filter_entry.text) > -1)
-				;
 		}
 
 		private bool on_filter_entry_key_pressed(Gdk.EventKey ev)
