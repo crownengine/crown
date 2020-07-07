@@ -9,7 +9,7 @@ using Gtk;
 
 namespace Crown
 {
-	public class LevelTreeView : Gtk.Bin
+	public class LevelTreeView : Gtk.Box
 	{
 		private enum ItemType
 		{
@@ -39,10 +39,11 @@ namespace Crown
 		private Gtk.TreeView _tree_view;
 		private Gtk.TreeSelection _tree_selection;
 		private Gtk.ScrolledWindow _scrolled_window;
-		private Gtk.Box _vbox;
 
 		public LevelTreeView(Database db, Level level)
 		{
+			Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
+
 			// Data
 			_level = level;
 			_level.selection_changed.connect(on_level_selection_changed);
@@ -130,11 +131,8 @@ namespace Crown
 			_scrolled_window = new Gtk.ScrolledWindow(null, null);
 			_scrolled_window.add(_tree_view);
 
-			_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-			_vbox.pack_start(_filter_entry, false, true, 0);
-			_vbox.pack_start(_scrolled_window, true, true, 0);
-
-			this.add(_vbox);
+			this.pack_start(_filter_entry, false, true, 0);
+			this.pack_start(_scrolled_window, true, true, 0);
 
 			this.get_style_context().add_class("level-tree-view");
 			this.show_all();
