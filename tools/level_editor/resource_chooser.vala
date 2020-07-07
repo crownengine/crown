@@ -35,7 +35,7 @@ namespace Crown
 		public Gtk.TreeSelection _tree_selection;
 		public Gtk.ScrolledWindow _scrolled_window;
 
-		public EditorView _editor_view;
+		public Gtk.Widget _editor_view;
 
 		// Signals
 		public signal void resource_selected(string type, string name);
@@ -53,8 +53,6 @@ namespace Crown
 			_user_filter = user_filter;
 
 			// Widgets
-			this.destroy.connect(on_destroy);
-
 			_filter_entry = new Gtk.SearchEntry();
 			_filter_entry.set_placeholder_text("Search...");
 			_filter_entry.changed.connect(on_filter_entry_text_changed);
@@ -120,16 +118,21 @@ namespace Crown
 
 			if (_preview)
 			{
-				_editor_view = new EditorView(_console_client, false);
-				_editor_view.realized.connect(on_editor_view_realized);
+				EditorView ev = new EditorView(_console_client, false);
+				ev.set_size_request(300, 300);
+				ev.realized.connect(on_editor_view_realized);
+				_editor_view = ev;
+
+				this.destroy.connect(on_destroy);
+			}
+			else
+			{
+				_editor_view = new Gtk.Label("No Preview");
 				_editor_view.set_size_request(300, 300);
 			}
 
 			this.pack_start(_filter_entry, false, true, 0);
-			if (_preview)
-			{
-				this.pack_start(_editor_view, true, true, 0);
-			}
+			this.pack_start(_editor_view, true, true, 0);
 			this.pack_start(_scrolled_window, true, true, 0);
 		}
 
@@ -222,6 +225,9 @@ namespace Crown
 
 		private void stop_editor()
 		{
+			if (_preview)
+				return;
+
 			_console_client.close();
 
 			if (_editor_process != null)
@@ -240,13 +246,16 @@ namespace Crown
 
 		public void restart_editor()
 		{
+			if (!_preview)
+				return;
+
 			stop_editor();
-			start_editor(_editor_view.window_id);
+			start_editor(((EditorView)_editor_view).window_id);
 		}
 
 		private void on_editor_view_realized()
 		{
-			start_editor(_editor_view.window_id);
+			start_editor(((EditorView)_editor_view).window_id);
 		}
 
 		private void on_filter_entry_text_changed()
