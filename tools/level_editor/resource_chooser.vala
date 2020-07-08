@@ -225,7 +225,7 @@ namespace Crown
 
 		private void stop_editor()
 		{
-			if (_preview)
+			if (!_preview)
 				return;
 
 			_console_client.close();
