@@ -100,7 +100,15 @@ namespace Crown
 			});
 
 			_tree_view = new Gtk.TreeView();
-			/*
+			_tree_view.insert_column_with_attributes(-1
+				, "Names"
+				, new Gtk.CellRendererText()
+				, "text"
+				, Column.NAME
+				, null
+				);
+/*
+			// Debug
 			_tree_view.insert_column_with_attributes(-1
 				, "Guids"
 				, new gtk.CellRendererText()
@@ -108,17 +116,7 @@ namespace Crown
 				, Column.GUID
 				, null
 				);
-			*/
-			Gtk.CellRendererText cell = new Gtk.CellRendererText();
-			cell.editable = true;
-			cell.edited.connect(on_object_name_edited);
-			_tree_view.insert_column_with_attributes(-1
-				, "Names"
-				, cell
-				, "text"
-				, Column.NAME
-				, null
-				);
+*/
 			_tree_view.headers_clickable = false;
 			_tree_view.headers_visible = false;
 			_tree_view.model = _tree_sort;
@@ -138,32 +136,57 @@ namespace Crown
 			this.show_all();
 		}
 
-		private void on_object_name_edited(string path, string new_text)
-		{
-			Gtk.TreeIter iter;
-			_tree_sort.get_iter_from_string(out iter, path);
-
-			Value type;
-			_tree_sort.get_value(iter, Column.TYPE, out type);
-			if ((int)type == ItemType.FOLDER)
-				return;
-
-			Value name;
-			_tree_sort.get_value(iter, Column.NAME, out name);
-			if ((string)name == new_text)
-				return;
-
-			Value guid;
-			_tree_sort.get_value(iter, Column.GUID, out guid);
-
-			_level.object_set_editor_name((Guid)guid, new_text);
-		}
-
 		private bool on_button_pressed(Gdk.EventButton ev)
 		{
 			if (ev.button == 3) // Right
 			{
-				Gtk.MenuItem mi = new Gtk.MenuItem.with_label("Delete");
+				Gtk.Menu menu = new Gtk.Menu();
+				Gtk.MenuItem mi;
+
+				mi = new Gtk.MenuItem.with_label("Rename...");
+				mi.activate.connect(() => {
+					Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
+						, null
+						, DialogFlags.MODAL
+						, "Cancel"
+						, ResponseType.CANCEL
+						, "Ok"
+						, ResponseType.OK
+						, null
+						);
+
+					Gtk.Entry sb = new Gtk.Entry();
+					sb.activate.connect(() => { dg.response(ResponseType.OK); });
+					dg.get_content_area().add(sb);
+					dg.skip_taskbar_hint = true;
+					dg.show_all();
+
+					if (dg.run() == (int)ResponseType.OK)
+					{
+						_tree_selection.selected_foreach((model, path, iter) => {
+							Value type;
+							model.get_value(iter, Column.TYPE, out type);
+							if ((int)type == ItemType.FOLDER)
+								return;
+
+							string new_name = sb.text.strip();
+
+							Value name;
+							model.get_value(iter, Column.NAME, out name);
+							if (new_name == "" || new_name == (string)name)
+								return;
+
+							Value guid;
+							model.get_value(iter, Column.GUID, out guid);
+							_level.object_set_editor_name((Guid)guid, new_name);
+						});
+					}
+
+					dg.destroy();
+				});
+				menu.add(mi);
+
+				mi = new Gtk.MenuItem.with_label("Delete");
 				mi.activate.connect(() => {
 					Guid[] ids = {};
 					_tree_selection.selected_foreach((model, path, iter) => {
@@ -179,9 +202,8 @@ namespace Crown
 
 					_level.destroy_objects(ids);
 				});
-
-				Gtk.Menu menu = new Gtk.Menu();
 				menu.add(mi);
+
 				menu.show_all();
 				menu.popup(null, null, null, ev.button, ev.time);
 			}
