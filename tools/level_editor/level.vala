@@ -3,7 +3,6 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-using GLib;
 using Gee;
 
 namespace Crown

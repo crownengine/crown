@@ -3,8 +3,6 @@
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-using GLib;
-
 namespace Crown
 {
 	/// Manages communication with engine executable.

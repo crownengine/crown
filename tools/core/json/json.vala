@@ -9,7 +9,6 @@
  */
 
 using Gee;
-using GLib;
 
 namespace Crown
 {
