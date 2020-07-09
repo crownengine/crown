@@ -59,7 +59,7 @@ namespace Crown
 		// Data
 		public EntryHistory _entry_history;
 		public uint _distance;
-		public LevelEditor _editor;
+		public LevelEditorApplication _editor;
 		public Project _project;
 
 		// Widgets
@@ -68,7 +68,7 @@ namespace Crown
 		public Gtk.Entry _entry;
 		public Gtk.Box _entry_hbox;
 
-		public ConsoleView(LevelEditor editor, Project project, Gtk.ComboBoxText combo)
+		public ConsoleView(LevelEditorApplication editor, Project project, Gtk.ComboBoxText combo)
 		{
 			Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 

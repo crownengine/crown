@@ -9,6 +9,75 @@ using Gtk;
 
 namespace Crown
 {
+	const int WINDOW_DEFAULT_WIDTH = 1280;
+	const int WINDOW_DEFAULT_HEIGHT = 720;
+
+	public class LevelEditorWindow : Gtk.ApplicationWindow
+	{
+		public bool _fullscreen;
+
+		public LevelEditorWindow(Gtk.Application app)
+		{
+			Object(application: app);
+
+			this.title = "Level Editor";
+			this.key_press_event.connect(this.on_key_press);
+			this.key_release_event.connect(this.on_key_release);
+			this.window_state_event.connect(this.on_window_state_event);
+			this.show.connect(this.on_show);
+			this.delete_event.connect(this.on_delete_event);
+			this.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+
+			_fullscreen = false;
+		}
+
+		private bool on_key_press(Gdk.EventKey ev)
+		{
+			LevelEditorApplication app = (LevelEditorApplication)application;
+
+			if (ev.keyval == Gdk.Key.Control_L)
+				app._editor.send_script(LevelEditorApi.key_down("ctrl_left"));
+			else if (ev.keyval == Gdk.Key.Shift_L)
+				app._editor.send_script(LevelEditorApi.key_down("shift_left"));
+			else if (ev.keyval == Gdk.Key.Alt_L)
+				app._editor.send_script(LevelEditorApi.key_down("alt_left"));
+
+			return false;
+		}
+
+		private bool on_key_release(Gdk.EventKey ev)
+		{
+			LevelEditorApplication app = (LevelEditorApplication)application;
+
+			if (ev.keyval == Gdk.Key.Control_L)
+				app._editor.send_script(LevelEditorApi.key_up("ctrl_left"));
+			else if (ev.keyval == Gdk.Key.Shift_L)
+				app._editor.send_script(LevelEditorApi.key_up("shift_left"));
+			else if (ev.keyval == Gdk.Key.Alt_L)
+				app._editor.send_script(LevelEditorApi.key_up("alt_left"));
+
+			return false;
+		}
+
+		private bool on_window_state_event(EventWindowState ev)
+		{
+			_fullscreen = (ev.new_window_state & WindowState.FULLSCREEN) != 0;
+			return true;
+		}
+
+		private void on_show()
+		{
+			this.maximize();
+		}
+
+		private bool on_delete_event()
+		{
+			LevelEditorApplication app = (LevelEditorApplication)application;
+			app.save_and_quit();
+			return true; // Do not propagate
+		}
+	}
+
 	public enum ToolType
 	{
 		PLACE,
@@ -35,11 +104,8 @@ namespace Crown
 		TEST
 	}
 
-	public class LevelEditor : Gtk.Window
+	public class LevelEditorApplication : Gtk.Application
 	{
-		const int DEFAULT_WIDTH = 1280;
-		const int DEFAULT_HEIGHT = 720;
-
 		// Constants
 		const Gtk.ActionEntry[] action_entries =
 		{
@@ -151,6 +217,12 @@ namespace Crown
 			{ "debug-physics-world", null, "Debug Physics World", null, null, on_debug_physics_world, false }
 		};
 
+		// Command line options
+		private string _source_dir = "";
+		private string _toolchain_dir = "";
+		private string _level_resource = "";
+		private bool _create_initial_files = false;
+
 		// Editor state
 		private double _grid_size;
 		private double _rotation_snap;
@@ -167,7 +239,7 @@ namespace Crown
 		private GLib.Subprocess _editor_process;
 		private GLib.Subprocess _game_process;
 		private ConsoleClient _compiler;
-		private ConsoleClient _editor;
+		public ConsoleClient _editor;
 		private ConsoleClient _game;
 
 		// Level data
@@ -205,11 +277,86 @@ namespace Crown
 		private Gtk.FileFilter _file_filter;
 		private Gtk.ComboBoxText _combo;
 
-		private bool _fullscreen;
-
-		public LevelEditor(Database database, Project project, Level level, ConsoleClient compiler, ConsoleClient engine, ConsoleClient game)
+		public LevelEditorApplication()
 		{
-			this.title = "Level Editor";
+			Object(application_id: "org.crown.level_editor"
+				, flags: GLib.ApplicationFlags.FLAGS_NONE
+				);
+		}
+
+		protected override void startup()
+		{
+			base.startup();
+
+			Intl.setlocale(LocaleCategory.ALL, "C");
+			Gtk.Settings.get_default().gtk_theme_name = "Adwaita";
+			Gtk.Settings.get_default().gtk_application_prefer_dark_theme = true;
+
+			Gtk.CssProvider provider = new Gtk.CssProvider();
+			Gdk.Screen screen = Gdk.Display.get_default().get_default_screen();
+			Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
+			provider.load_from_resource("/org/crown/ui/theme/style.css");
+
+			Gtk.IconTheme.get_default().add_resource_path("/org/crown/ui/icons/theme");
+		}
+
+		protected override void activate()
+		{
+			if (_source_dir == "")
+			{
+				Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select folder where to create new project..."
+					, null
+					, FileChooserAction.SELECT_FOLDER
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Select"
+					, ResponseType.ACCEPT
+					);
+
+				if (fcd.run() != (int)ResponseType.ACCEPT)
+				{
+					fcd.destroy();
+					return;
+				}
+
+				string dir = fcd.get_filename();
+				fcd.destroy();
+
+				if (GLib.FileUtils.test(dir, FileTest.IS_REGULAR))
+				{
+					stdout.printf("Source directory can't be a regular file\n");
+					return;
+				}
+
+				_source_dir = dir;
+				_create_initial_files = true;
+			}
+
+			_compiler = new ConsoleClient();
+			_compiler.connected.connect(on_compiler_connected);
+			_compiler.disconnected.connect(on_compiler_disconnected);
+			_compiler.message_received.connect(on_message_received);
+
+			_data_compiler = new DataCompiler(_compiler);
+
+			_project = new Project(_data_compiler);
+			_project.load(_source_dir, _toolchain_dir);
+			if (_create_initial_files)
+				_project.create_initial_files();
+
+			_database = new Database();
+
+			_editor = new ConsoleClient();
+			_editor.connected.connect(on_editor_connected);
+			_editor.disconnected.connect(on_editor_disconnected);
+			_editor.message_received.connect(on_message_received);
+
+			_game = new ConsoleClient();
+			_game.connected.connect(on_game_connected);
+			_game.disconnected.connect(on_game_disconnected);
+			_game.message_received.connect(on_message_received);
+
+			_level = new Level(_database, _editor, _project);
 
 			// Editor state
 			_grid_size = 1.0;
@@ -226,29 +373,10 @@ namespace Crown
 			_compiler_process = null;
 			_editor_process = null;
 			_game_process = null;
-			_compiler = compiler;
-			_compiler.connected.connect(on_compiler_connected);
-			_compiler.disconnected.connect(on_compiler_disconnected);
-			_compiler.message_received.connect(on_message_received);
-			_editor = engine;
-			_editor.connected.connect(on_editor_connected);
-			_editor.disconnected.connect(on_editor_disconnected);
-			_editor.message_received.connect(on_message_received);
-			_game = game;
-			_game.connected.connect(on_game_connected);
-			_game.disconnected.connect(on_game_disconnected);
-			_game.message_received.connect(on_message_received);
 
-			_data_compiler = project._data_compiler;
-			_database = database;
-			_project = project;
 			_project_store = new ProjectStore(_project);
-			_level = level;
 
 			// Widgets
-			_resource_chooser = new ResourceChooser(_project, _project_store, true);
-			_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);
-
 			_combo = new Gtk.ComboBoxText();
 			_combo.append("editor", "Editor");
 			_combo.append("game", "Game");
@@ -282,7 +410,6 @@ namespace Crown
 			{
 				_ui_manager.add_ui_from_resource("/org/crown/level_editor/level_editor.xml");
 				_ui_manager.insert_action_group(_action_group, 0);
-				add_accel_group(_ui_manager.get_accel_group());
 			}
 			catch (Error e)
 			{
@@ -302,6 +429,9 @@ namespace Crown
 			_resource_popover = new Gtk.Popover(_toolbar);
 			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
 			_resource_popover.modal = true;
+
+			_resource_chooser = new ResourceChooser(_project, _project_store, true);
+			_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);
 			_resource_chooser.resource_selected.connect(() => { _resource_popover.hide(); });
 			_resource_popover.add(_resource_chooser);
 
@@ -330,7 +460,7 @@ namespace Crown
 			_main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_main_pane.pack1(_content_pane, true, false);
 			_main_pane.pack2(_inspector_slide, false, false);
-			_main_pane.set_position(DEFAULT_WIDTH - 375);
+			_main_pane.set_position(WINDOW_DEFAULT_WIDTH - 375);
 
 			_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_main_vbox.pack_start(_menubar, false, false, 0);
@@ -343,21 +473,101 @@ namespace Crown
 			// Save level once every 5 minutes.
 			GLib.Timeout.add_seconds(5*3600, save_timeout);
 
-			_fullscreen = false;
+			if (_level_resource != "")
+			{
+				string level_path = _project.source_dir() + "/" + _level_resource + ".level";
+				if (!GLib.FileUtils.test(level_path, FileTest.EXISTS) || !GLib.FileUtils.test(level_path, FileTest.IS_REGULAR))
+				{
+					stdout.printf("Level resource '%s' does not exist.\n", _level_resource);
+					return;
+				}
 
-			this.destroy.connect(this.on_destroy);
-			this.delete_event.connect(this.on_delete_event);
-			this.key_press_event.connect(this.on_key_press);
-			this.key_release_event.connect(this.on_key_release);
-			this.window_state_event.connect(this.on_window_state_event);
-			this.show.connect(this.on_show);
-
-			this.add(_main_vbox);
-
-			this.set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-			this.show_all();
+				_level.load(level_path);
+			}
+			else
+			{
+				_level.load_empty_level();
+			}
 
 			start_compiler();
+
+			LevelEditorWindow win = new LevelEditorWindow(this);
+			win.add_accel_group(_ui_manager.get_accel_group());
+			win.add(_main_vbox);
+			win.show_all();
+		}
+
+		protected override bool local_command_line(ref unowned string[] args, out int exit_status)
+		{
+			if (args.length > 1)
+			{
+				if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR))
+				{
+					stdout.printf("Source directory does not exist or it is not a directory\n");
+					exit_status = 1;
+					return true;
+				}
+
+				_source_dir = args[1];
+			}
+
+			if (args.length > 2)
+			{
+				// Validation is done below after the Project object instantiation
+				_level_resource = args[2];
+			}
+
+			if (args.length > 3)
+			{
+				if (!GLib.FileUtils.test(args[3], FileTest.EXISTS) || !GLib.FileUtils.test(args[3], FileTest.IS_DIR))
+				{
+					stdout.printf("Toolchain directory does not exist or it is not a directory\n");
+					exit_status = 1;
+					return true;
+				}
+
+				_toolchain_dir = args[3];
+			}
+			else
+			{
+				bool found = false;
+
+				/// More desirable paths come first
+				string toolchain_paths[] =
+				{
+					"../..",
+					"../../../samples"
+				};
+
+				for (int i = 0; i < toolchain_paths.length; ++i)
+				{
+					string path = Path.build_filename(toolchain_paths[i], "core");
+
+					// Try to locate the toolchain directory
+					if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
+					{
+						_toolchain_dir = toolchain_paths[i];
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					stdout.printf("Unable to find the toolchain directory\n");
+					exit_status = 1;
+					return true;
+				}
+			}
+
+			exit_status = 0;
+			return false;
+		}
+
+		protected override int command_line(ApplicationCommandLine command_line)
+		{
+			this.activate();
+			return 0;
 		}
 
 		public ConsoleClient? current_selected_client()
@@ -368,41 +578,6 @@ namespace Crown
 				return _game;
 			else
 				return null;
-		}
-
-		private bool on_key_press(Gdk.EventKey ev)
-		{
-			if (ev.keyval == Gdk.Key.Control_L)
-				_editor.send_script(LevelEditorApi.key_down("ctrl_left"));
-			else if (ev.keyval == Gdk.Key.Shift_L)
-				_editor.send_script(LevelEditorApi.key_down("shift_left"));
-			else if (ev.keyval == Gdk.Key.Alt_L)
-				_editor.send_script(LevelEditorApi.key_down("alt_left"));
-
-			return false;
-		}
-
-		private bool on_key_release(Gdk.EventKey ev)
-		{
-			if (ev.keyval == Gdk.Key.Control_L)
-				_editor.send_script(LevelEditorApi.key_up("ctrl_left"));
-			else if (ev.keyval == Gdk.Key.Shift_L)
-				_editor.send_script(LevelEditorApi.key_up("shift_left"));
-			else if (ev.keyval == Gdk.Key.Alt_L)
-				_editor.send_script(LevelEditorApi.key_up("alt_left"));
-
-			return false;
-		}
-
-		private bool on_window_state_event(EventWindowState ev)
-		{
-			_fullscreen = (ev.new_window_state & WindowState.FULLSCREEN) != 0;
-			return true;
-		}
-
-		private void on_show()
-		{
-			this.maximize();
 		}
 
 		private void on_resource_browser_resource_selected(string type, string name)
@@ -604,13 +779,13 @@ namespace Crown
 		private bool on_button_press(EventButton ev)
 		{
 			// Prevent accelerators to step on camera's toes
-			remove_accel_group(_ui_manager.get_accel_group());
+			this.active_window.remove_accel_group(_ui_manager.get_accel_group());
 			return true;
 		}
 
 		private bool on_button_release(EventButton ev)
 		{
-			add_accel_group(_ui_manager.get_accel_group());
+			this.active_window.add_accel_group(_ui_manager.get_accel_group());
 			return true;
 		}
 
@@ -667,8 +842,11 @@ namespace Crown
 
 		private void stop_compiler()
 		{
-			_compiler.send(DataCompilerApi.quit());
-			_compiler.close();
+			if (_compiler != null)
+			{
+				_compiler.send(DataCompilerApi.quit());
+				_compiler.close();
+			}
 
 			if (_compiler_process != null)
 			{
@@ -721,8 +899,11 @@ namespace Crown
 
 		private void stop_editor()
 		{
-			_editor.send_script("Device.quit()");
-			_editor.close();
+			if (_editor != null)
+			{
+				_editor.send_script("Device.quit()");
+				_editor.close();
+			}
 
 			if (_editor_process != null)
 			{
@@ -785,8 +966,11 @@ namespace Crown
 
 		private void stop_game()
 		{
-			_game.send_script("Device.quit()");
-			_game.close();
+			if (_game != null)
+			{
+				_game.send_script("Device.quit()");
+				_game.close();
+			}
 
 			if (_game_process != null)
 			{
@@ -900,7 +1084,7 @@ namespace Crown
 		private void load_level()
 		{
 			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Level..."
-				, this
+				, this.active_window
 				, FileChooserAction.OPEN
 				, "Cancel"
 				, ResponseType.CANCEL
@@ -934,7 +1118,7 @@ namespace Crown
 		private void load_project()
 		{
 			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Project..."
-				, this
+				, this.active_window
 				, FileChooserAction.SELECT_FOLDER
 				, "Cancel"
 				, ResponseType.CANCEL
@@ -964,7 +1148,7 @@ namespace Crown
 			bool saved = false;
 
 			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Save As..."
-				, this
+				, this.active_window
 				, FileChooserAction.SAVE
 				, "Cancel"
 				, ResponseType.CANCEL
@@ -1017,8 +1201,10 @@ namespace Crown
 			return true;
 		}
 
-		private void shutdown()
+		protected override void shutdown()
 		{
+			base.shutdown();
+
 			if (_resource_chooser != null)
 				_resource_chooser.destroy();
 
@@ -1028,18 +1214,17 @@ namespace Crown
 			stop_game();
 			stop_editor();
 			stop_compiler();
-			Gtk.main_quit();
 		}
 
-		private void quit()
+		public void save_and_quit()
 		{
 			if (!_database.changed())
 			{
-				shutdown();
+				this.quit();
 				return;
 			}
 
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
 				, Gtk.DialogFlags.MODAL
 				, Gtk.MessageType.WARNING
 				, Gtk.ButtonsType.NONE
@@ -1053,7 +1238,7 @@ namespace Crown
 			md.destroy();
 
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
-				shutdown();
+				this.quit();
 		}
 
 		private void on_new_level()
@@ -1065,7 +1250,7 @@ namespace Crown
 				return;
 			}
 
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
 				, Gtk.DialogFlags.MODAL
 				, Gtk.MessageType.WARNING
 				, Gtk.ButtonsType.NONE
@@ -1093,7 +1278,7 @@ namespace Crown
 				return;
 			}
 
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
 				, Gtk.DialogFlags.MODAL
 				, Gtk.MessageType.WARNING
 				, Gtk.ButtonsType.NONE
@@ -1118,7 +1303,7 @@ namespace Crown
 				return;
 			}
 
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
 				, Gtk.DialogFlags.MODAL
 				, Gtk.MessageType.WARNING
 				, Gtk.ButtonsType.NONE
@@ -1147,7 +1332,7 @@ namespace Crown
 
 		private void on_import(Gtk.Action action)
 		{
-			_project.import(null, this);
+			_project.import(null, this.active_window);
 		}
 
 		private void on_preferences(Gtk.Action action)
@@ -1155,7 +1340,7 @@ namespace Crown
 			if (_preferences_dialog == null)
 			{
 				_preferences_dialog = new PreferencesDialog(_editor);
-				_preferences_dialog.set_transient_for(this);
+				_preferences_dialog.set_transient_for(this.active_window);
 				_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return true; });
 			}
 
@@ -1169,7 +1354,7 @@ namespace Crown
 
 		private void on_quit(Gtk.Action action)
 		{
-			quit();
+			save_and_quit();
 		}
 
 		private void on_show_grid(Gtk.Action action)
@@ -1182,7 +1367,7 @@ namespace Crown
 		private void on_custom_grid()
 		{
 			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Grid size"
-				, this
+				, this.active_window
 				, DialogFlags.MODAL
 				, "Cancel"
 				, ResponseType.CANCEL
@@ -1209,7 +1394,7 @@ namespace Crown
 		private void on_rotation_snap(Gtk.Action action)
 		{
 			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Rotation snap"
-				, this
+				, this.active_window
 				, DialogFlags.MODAL
 				, "Cancel"
 				, ResponseType.CANCEL
@@ -1280,10 +1465,11 @@ namespace Crown
 
 		private void on_fullscreen(Gtk.Action action)
 		{
-			if (_fullscreen)
-				this.unfullscreen();
+			LevelEditorWindow win = (LevelEditorWindow)this.active_window;
+			if (win._fullscreen)
+				win.unfullscreen();
 			else
-				this.fullscreen();
+				win.fullscreen();
 		}
 
 		private void on_project_browser(Gtk.Action action)
@@ -1436,7 +1622,7 @@ namespace Crown
 		{
 			Gtk.AboutDialog dlg = new Gtk.AboutDialog();
 			dlg.set_destroy_with_parent(true);
-			dlg.set_transient_for(this);
+			dlg.set_transient_for(this.active_window);
 			dlg.set_modal(true);
 
 			try
@@ -1472,17 +1658,6 @@ namespace Crown
 			dlg.run();
 			dlg.destroy();
 		}
-
-		private void on_destroy()
-		{
-			Gtk.main_quit();
-		}
-
-		private bool on_delete_event()
-		{
-			quit();
-			return true;
-		}
 	}
 
 	public static GLib.SubprocessFlags subprocess_flags()
@@ -1494,145 +1669,9 @@ namespace Crown
 		return flags;
 	}
 
-	public static int main (string[] args)
+	public static int main(string[] args)
 	{
-		Gtk.init(ref args);
-		Intl.setlocale(LocaleCategory.ALL, "C");
-		Gtk.Settings.get_default().gtk_theme_name = "Adwaita";
-		Gtk.Settings.get_default().gtk_application_prefer_dark_theme = true;
-
-		Gtk.CssProvider provider = new Gtk.CssProvider();
-		Gdk.Screen screen = Gdk.Display.get_default().get_default_screen();
-		Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
-		provider.load_from_resource("/org/crown/ui/theme/style.css");
-
-		Gtk.IconTheme.get_default().add_resource_path("/org/crown/ui/icons/theme");
-
-		bool create_initial_files = false;
-		string source_dir = "";
-		string level_resource = "";
-		string toolchain_dir = "";
-
-		if (args.length > 1)
-		{
-			if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR))
-			{
-				stdout.printf("Source directory does not exist or it is not a directory\n");
-				return -1;
-			}
-
-			source_dir = args[1];
-		}
-		else
-		{
-			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select folder where to create new project..."
-				, null
-				, FileChooserAction.SELECT_FOLDER
-				, "Cancel"
-				, ResponseType.CANCEL
-				, "Select"
-				, ResponseType.ACCEPT
-				);
-
-			if (fcd.run() != (int)ResponseType.ACCEPT)
-			{
-				fcd.destroy();
-				return -1;
-			}
-
-			string dir = fcd.get_filename();
-			fcd.destroy();
-
-			if (GLib.FileUtils.test(dir, FileTest.IS_REGULAR))
-			{
-				stdout.printf("Source directory can't be a regular file\n");
-				return -1;
-			}
-
-			source_dir = dir;
-			create_initial_files = true;
-		}
-
-		if (args.length > 2)
-		{
-			// Validation is done below after the Project object instantiation
-			level_resource = args[2];
-		}
-
-		if (args.length > 3)
-		{
-			if (!GLib.FileUtils.test(args[3], FileTest.EXISTS) || !GLib.FileUtils.test(args[3], FileTest.IS_DIR))
-			{
-				stdout.printf("Toolchain directory does not exist or it is not a directory\n");
-				return -1;
-			}
-
-			toolchain_dir = args[3];
-		}
-		else
-		{
-			bool found = false;
-
-			/// More desirable paths come first
-			string toolchain_paths[] =
-			{
-				"../..",
-				"../../../samples"
-			};
-
-			for (int i = 0; i < toolchain_paths.length; ++i)
-			{
-				string path = Path.build_filename(toolchain_paths[i], "core");
-
-				// Try to locate the toolchain directory
-				if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
-				{
-					toolchain_dir = toolchain_paths[i];
-					found = true;
-					break;
-				}
-			}
-
-			if (!found)
-			{
-				stdout.printf("Unable to find the toolchain directory\n");
-				return -1;
-			}
-		}
-
-		ConsoleClient compiler = new ConsoleClient();
-		DataCompiler data_compiler = new DataCompiler(compiler);
-		Project project = new Project(data_compiler);
-		project.load(source_dir, toolchain_dir);
-		if (create_initial_files)
-			project.create_initial_files();
-
-		Database database = new Database();
-		ConsoleClient engine = new ConsoleClient();
-		ConsoleClient game = new ConsoleClient();
-
-		Level level = new Level(database, engine, project);
-		LevelEditor editor = new LevelEditor(database, project, level, compiler, engine, game);
-
-		if (level_resource != "")
-		{
-			string level_path = project.source_dir() + "/" + level_resource + ".level";
-			if (!GLib.FileUtils.test(level_path, FileTest.EXISTS) || !GLib.FileUtils.test(level_path, FileTest.IS_REGULAR))
-			{
-				stdout.printf("Level resource '%s' does not exist.\n", level_resource);
-				return -1;
-			}
-
-			level.load(level_path);
-		}
-		else
-		{
-			level.load_empty_level();
-		}
-
-		editor.show_all();
-
-		Gtk.main();
-		return 0;
+		LevelEditorApplication app = new LevelEditorApplication();
+		return app.run(args);
 	}
 }
