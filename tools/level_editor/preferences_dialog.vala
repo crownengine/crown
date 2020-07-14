@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Crown
 {
-	[GtkTemplate (ui = "/org/crown/level_editor/preferences_dialog.ui")]
+	[GtkTemplate (ui = "/org/crown/level_editor/ui/preferences_dialog.ui")]
 	public class PreferencesDialog : Gtk.Dialog
 	{
 		// Data

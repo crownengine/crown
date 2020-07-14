@@ -14,11 +14,18 @@ namespace Crown
 
 	public class LevelEditorWindow : Gtk.ApplicationWindow
 	{
+		private const GLib.ActionEntry[] action_entries =
+		{
+			{ "fullscreen", on_fullscreen, null, null }
+		};
+
 		public bool _fullscreen;
 
 		public LevelEditorWindow(Gtk.Application app)
 		{
 			Object(application: app);
+
+			this.add_action_entries(action_entries, this);
 
 			this.title = "Level Editor";
 			this.key_press_event.connect(this.on_key_press);
@@ -29,6 +36,14 @@ namespace Crown
 			this.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
 
 			_fullscreen = false;
+		}
+
+		private void on_fullscreen(GLib.SimpleAction action, GLib.Variant? param)
+		{
+			if (_fullscreen)
+				unfullscreen();
+			else
+				fullscreen();
 		}
 
 		private bool on_key_press(Gdk.EventKey ev)
@@ -107,114 +122,67 @@ namespace Crown
 	public class LevelEditorApplication : Gtk.Application
 	{
 		// Constants
-		const Gtk.ActionEntry[] action_entries =
+		private const GLib.ActionEntry[] action_entries =
 		{
-			{ "menu-file",               null,       "_File",               null,             null,         null                       },
-			{ "new-level",               null,       "New Level",           "<ctrl>N",        null,         on_new_level               },
-			{ "open-level",              null,       "Open Level...",       "<ctrl>O",        null,         on_open_level              },
-			{ "open-project",            null,       "Open Project...",     null,             null,         on_open_project            },
-			{ "save",                    null,       "Save",                "<ctrl>S",        null,         on_save                    },
-			{ "save-as",                 null,       "Save As...",          "<shift><ctrl>S", null,         on_save_as                 },
-			{ "import",                  null,       "Import...",           "<ctrl>I",        null,         on_import                  },
-			{ "preferences",             null,       "Preferences",         null,             null,         on_preferences             },
-			{ "deploy",                  null,       "Deploy...",           null,             null,         on_deploy                  },
-			{ "quit",                    null,       "Quit",                "<ctrl>Q",        null,         on_quit                    },
-			{ "menu-edit",               null,       "_Edit",               null,             null,         null                       },
-			{ "undo",                    null,       "Undo",                "<ctrl>Z",        null,         on_undo                    },
-			{ "redo",                    null,       "Redo",                "<shift><ctrl>Z", null,         on_redo                    },
-			{ "duplicate",               null,       "Duplicate",           "<ctrl>D",        null,         on_duplicate               },
-			{ "delete",                  null,       "Delete",              "<ctrl>K",        null,         on_delete                  },
-			{ "menu-grid",               null,       "Grid",                null,             null,         null                       },
-			{ "grid-custom",             null,       "Custom",              "<ctrl>G",        null,         on_custom_grid             },
-			{ "menu-rotation-snap",      null,       "Rotation Snap",       null,             null,         null                       },
-			{ "rotation-snap-custom",    null,       "Custom",              "<ctrl>H",        null,         on_rotation_snap           },
-			{ "menu-create",             null,       "Create",              null,             null,         null                       },
-			{ "menu-primitives",         null,       "Primitives",          null,             null,         null                       },
-			{ "primitive-cube",          null,       "Cube",                null,             null,         on_create_primitive        },
-			{ "primitive-sphere",        null,       "Sphere",              null,             null,         on_create_primitive        },
-			{ "primitive-cone",          null,       "Cone",                null,             null,         on_create_primitive        },
-			{ "primitive-cylinder",      null,       "Cylinder",            null,             null,         on_create_primitive        },
-			{ "primitive-plane",         null,       "Plane",               null,             null,         on_create_primitive        },
-			{ "camera",                  null,       "Camera",              null,             null,         on_create_primitive        },
-			{ "light",                   null,       "Light",               null,             null,         on_create_primitive        },
-			{ "sound-source",            null,       "Sound Source",        null,             null,         on_create_primitive        },
-			{ "menu-camera",             null,       "Camera",              null,             null,         null                       },
-			{ "camera-view-perspective", null,       "Perspective",         "KP_5",           null,         on_camera_view             },
-			{ "camera-view-front",       null,       "View Front",          "KP_1",           null,         on_camera_view             },
-			{ "camera-view-back",        null,       "View Back",           "<ctrl>KP_1",     null,         on_camera_view             },
-			{ "camera-view-right",       null,       "View Right",          "KP_3",           null,         on_camera_view             },
-			{ "camera-view-left",        null,       "View Left",           "<ctrl>KP_3",     null,         on_camera_view             },
-			{ "camera-view-top",         null,       "View Top",            "KP_7",           null,         on_camera_view             },
-			{ "camera-view-bottom",      null,       "View Bottom",         "<ctrl>KP_7",     null,         on_camera_view             },
-			{ "menu-engine",             null,       "En_gine",             null,             null,         null                       },
-			{ "menu-view",               null,       "View",                null,             null,         null                       },
-			{ "resource-chooser",        null,       "Resource Chooser",    "<ctrl>P",        null,         on_resource_chooser        },
-			{ "project-browser",         null,       "Show/Hide Project",   null,             null,         on_project_browser         },
-			{ "console",                 null,       "Show/Hide Console",   "<ctrl>quoteleft",null,         on_console                 },
-			{ "fullscreen",              null,       "Fullscreen",          "F11",            null,         on_fullscreen              },
-			{ "restart",                 null,       "_Restart",            null,             null,         on_editor_restart          },
-			{ "reload-lua",              null,       "Refresh Lua",         "F7",             null,         on_refresh_lua             },
-			{ "menu-run",                null,       "_Run",                null,             null,         null                       },
-			{ "test-level",              "game-run", "Test Level",          "F5",             "Test Level", on_run_game                },
-			{ "run-game",                null,       "Run Game",            null,             null,         on_run_game                },
-			{ "menu-help",               null,       "Help",                null,             null,         null                       },
-			{ "manual",                  null,       "Manual",              "F1",             null,         on_manual                  },
-			{ "report-issue",            null,       "Report an Issue...",  null,             null,         on_report_issue            },
-			{ "open-last-log",           null,       "Open last.log",       null,             null,         on_open_last_log           },
-			{ "changelog",               null,       "Changelog...",        null,             null,         on_changelog               },
-			{ "about",                   null,       "About",               null,             null,         on_about                   }
-		};
-
-		const Gtk.RadioActionEntry[] grid_entries =
-		{
-			{ "grid-0.1", null, "0.1m", null, null, 10  },
-			{ "grid-0.2", null, "0.2m", null, null, 20  },
-			{ "grid-0.5", null, "0.5m", null, null, 50  },
-			{ "grid-1",   null, "1m",   null, null, 100 },
-			{ "grid-2",   null, "2m",   null, null, 200 },
-			{ "grid-5",   null, "5m",   null, null, 500 }
-		};
-
-		const Gtk.RadioActionEntry[] rotation_snap_entries =
-		{
-			{ "rotation-snap-1",   null, "1°",   null, null,   1 },
-			{ "rotation-snap-15",  null, "15°",  null, null,  15 },
-			{ "rotation-snap-30",  null, "30°",  null, null,  30 },
-			{ "rotation-snap-45",  null, "45°",  null, null,  45 },
-			{ "rotation-snap-90",  null, "90°",  null, null,  90 },
-			{ "rotation-snap-180", null, "180°", null, null, 180 }
-		};
-
-		const Gtk.RadioActionEntry[] tool_entries =
-		{
-			{ "place",  "tool-place",  "Place",  null, "Place",  (int)ToolType.PLACE  },
-			{ "move",   "tool-move",   "Move",   null, "Move",   (int)ToolType.MOVE   },
-			{ "rotate", "tool-rotate", "Rotate", null, "Rotate", (int)ToolType.ROTATE },
-			{ "scale",  "tool-scale",  "Scale",  null, "Scale",  (int)ToolType.SCALE  }
-		};
-
-		const Gtk.RadioActionEntry[] snap_mode_entries =
-		{
-			{ "snap-relative", "reference-local", "Relative Snap", null, "Relative Snap", (int)SnapMode.RELATIVE },
-			{ "snap-absolute", "reference-world", "Absolute Snap", null, "Absolute Snap", (int)SnapMode.ABSOLUTE }
-		};
-
-		const Gtk.RadioActionEntry[] reference_system_entries =
-		{
-			{ "reference-system-local", "axis-local", "Local Axis", null, "Local Axis", (int)ReferenceSystem.LOCAL },
-			{ "reference-system-world", "axis-world", "World Axis", null, "World Axis", (int)ReferenceSystem.WORLD }
-		};
-
-		const Gtk.ToggleActionEntry[] snap_to_entries =
-		{
-			{ "snap-to-grid", "snap-to-grid", "Snap To Grid", "<ctrl>U", "Snap To Grid", on_snap_to_grid, true },
-			{ "grid-show",     null,          "Show Grid",    null,      "Show Grid",    on_show_grid,    true }
-		};
-
-		const Gtk.ToggleActionEntry[] view_entries =
-		{
-			{ "debug-render-world",  null, "Debug Render World",  null, null, on_debug_render_world,  false },
-			{ "debug-physics-world", null, "Debug Physics World", null, null, on_debug_physics_world, false }
+			//                                                     parameter type
+			// name                   activate()                   |     state
+			// |                      |                            |     |
+			{ "menu-file",            null,                        null, null            },
+			{ "new-level",            on_new_level,                null, null            },
+			{ "open-level",           on_open_level,               null, null            },
+			{ "open-project",         on_open_project,             null, null            },
+			{ "save",                 on_save,                     null, null            },
+			{ "save-as",              on_save_as,                  null, null            },
+			{ "import",               on_import,                   null, null            },
+			{ "preferences",          on_preferences,              null, null            },
+			{ "deploy",               on_deploy,                   null, null            },
+			{ "quit",                 on_quit,                     null, null            },
+			{ "menu-edit",            null,                        null, null            },
+			{ "undo",                 on_undo,                     null, null            },
+			{ "redo",                 on_redo,                     null, null            },
+			{ "duplicate",            on_duplicate,                null, null            },
+			{ "delete",               on_delete,                   null, null            },
+			{ "tool",                 on_tool_changed,             "s",  "'move'"        },
+			{ "snap",                 on_snap_mode_changed,        "s",  "'relative'"    },
+			{ "reference-system",     on_reference_system_changed, "s",  "'local'"       },
+			{ "snap-to-grid",         on_snap_to_grid,             null, "true"          },
+			{ "menu-grid",            null,                        null, null            },
+			{ "grid-show",            on_show_grid,                null, "true"          },
+			{ "grid-custom",          on_custom_grid,              null, null            },
+			{ "grid-preset",          on_grid_changed,             "s",  "'1'"           },
+			{ "menu-rotation-snap",   null,                        null, null            },
+			{ "rotation-snap-custom", on_rotation_snap,            null, null            },
+			{ "rotation-snap-preset", on_rotation_snap_changed,    "s",  "'15'"          },
+			{ "menu-create",          null,                        null, null            },
+			{ "menu-primitives",      null,                        null, null            },
+			{ "primitive-cube",       on_create_primitive,         null, null            },
+			{ "primitive-sphere",     on_create_primitive,         null, null            },
+			{ "primitive-cone",       on_create_primitive,         null, null            },
+			{ "primitive-cylinder",   on_create_primitive,         null, null            },
+			{ "primitive-plane",      on_create_primitive,         null, null            },
+			{ "camera",               on_create_primitive,         null, null            },
+			{ "light",                on_create_primitive,         null, null            },
+			{ "sound-source",         on_create_primitive,         null, null            },
+			{ "menu-camera",          null,                        null, null            },
+			{ "camera-view",          on_camera_view,              "s",  "'perspective'" },
+			{ "menu-engine",          null,                        null, null            },
+			{ "restart",              on_editor_restart,           null, null            },
+			{ "reload-lua",           on_refresh_lua,              null, null            },
+			{ "menu-view",            null,                        null, null            },
+			{ "resource-chooser",     on_resource_chooser,         null, null            },
+			{ "project-browser",      on_project_browser,          null, null            },
+			{ "console",              on_console,                  null, null            },
+			{ "menu-run",             null,                        null, null            },
+			{ "test-level",           on_run_game,                 null, null            },
+			{ "run-game",             on_run_game,                 null, null            },
+			{ "menu-help",            null,                        null, null            },
+			{ "manual",               on_manual,                   null, null            },
+			{ "report-issue",         on_report_issue,             null, null            },
+			{ "open-last-log",        on_open_last_log,            null, null            },
+			{ "changelog",            on_changelog,                null, null            },
+			{ "about",                on_about,                    null, null            },
+			{ "debug-render-world",   on_debug_render_world,       null, "false"         },
+			{ "debug-physics-world",  on_debug_physics_world,      null, "false"         }
 		};
 
 		// Command line options
@@ -264,9 +232,6 @@ namespace Crown
 		private Slide _editor_slide;
 		private Slide _inspector_slide;
 
-		private Gtk.ActionGroup _action_group;
-		private Gtk.UIManager _ui_manager;
-		private Gtk.MenuBar _menubar;
 		private Gtk.Toolbar _toolbar;
 		private Gtk.Notebook _level_tree_view_notebook;
 		private Gtk.Paned _editor_pane;
@@ -295,13 +260,10 @@ namespace Crown
 			Gtk.CssProvider provider = new Gtk.CssProvider();
 			Gdk.Screen screen = Gdk.Display.get_default().get_default_screen();
 			Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
-			provider.load_from_resource("/org/crown/ui/theme/style.css");
+			provider.load_from_resource("/org/crown/level_editor/css/style.css");
 
-			Gtk.IconTheme.get_default().add_resource_path("/org/crown/ui/icons/theme");
-		}
+			this.add_action_entries(action_entries, this);
 
-		protected override void activate()
-		{
 			if (_source_dir == "")
 			{
 				Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select folder where to create new project..."
@@ -395,36 +357,8 @@ namespace Crown
 			_inspector_slide = new Slide();
 			_inspector_slide.show_widget(new StartingCompiler());
 
-			_action_group = new Gtk.ActionGroup("group");
-			_action_group.add_actions(action_entries, this);
-			_action_group.add_radio_actions(grid_entries, (int)(_grid_size*100.0), this.on_grid_changed);
-			_action_group.add_radio_actions(rotation_snap_entries, (int)_rotation_snap, this.on_rotation_snap_changed);
-			_action_group.add_radio_actions(tool_entries, (int)_tool_type, on_tool_changed);
-			_action_group.add_radio_actions(snap_mode_entries, (int)_snap_mode, on_snap_mode_changed);
-			_action_group.add_radio_actions(reference_system_entries, (int)_reference_system, on_reference_system_changed);
-			_action_group.add_toggle_actions(snap_to_entries, this);
-			_action_group.add_toggle_actions(view_entries, this);
-
-			_ui_manager = new UIManager();
-			try
-			{
-				_ui_manager.add_ui_from_resource("/org/crown/level_editor/level_editor.xml");
-				_ui_manager.insert_action_group(_action_group, 0);
-			}
-			catch (Error e)
-			{
-				error(e.message);
-			}
-
-			_menubar = _ui_manager.get_widget("/menubar") as Gtk.MenuBar;
-			_toolbar = _ui_manager.get_widget("/toolbar") as Gtk.Toolbar;
-			_toolbar.set_icon_size(Gtk.IconSize.SMALL_TOOLBAR);
-			_toolbar.set_style(Gtk.ToolbarStyle.ICONS);
-			_toolbar.halign = Gtk.Align.START;
-			_toolbar.valign = Gtk.Align.START;
-			_toolbar.orientation = Gtk.Orientation.VERTICAL;
-			_toolbar.margin_start = 6;
-			_toolbar.margin_top = 6;
+			Gtk.Builder builder = new Gtk.Builder.from_resource("/org/crown/level_editor/ui/toolbar.ui");
+			_toolbar = builder.get_object("toolbar") as Gtk.Toolbar;
 
 			_resource_popover = new Gtk.Popover(_toolbar);
 			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
@@ -463,7 +397,6 @@ namespace Crown
 			_main_pane.set_position(WINDOW_DEFAULT_WIDTH - 375);
 
 			_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-			_main_vbox.pack_start(_menubar, false, false, 0);
 			_main_vbox.pack_start(_main_pane, true, true, 0);
 
 			_file_filter = new Gtk.FileFilter();
@@ -490,11 +423,20 @@ namespace Crown
 			}
 
 			start_compiler();
+		}
 
-			LevelEditorWindow win = new LevelEditorWindow(this);
-			win.add_accel_group(_ui_manager.get_accel_group());
-			win.add(_main_vbox);
-			win.show_all();
+		protected override void activate()
+		{
+			if (_source_dir == "")
+				return;
+
+			if (this.active_window == null)
+			{
+				LevelEditorWindow win = new LevelEditorWindow(this);
+				win.add(_main_vbox);
+			}
+
+			this.active_window.show_all();
 		}
 
 		protected override bool local_command_line(ref unowned string[] args, out int exit_status)
@@ -583,7 +525,7 @@ namespace Crown
 		private void on_resource_browser_resource_selected(string type, string name)
 		{
 			_editor.send_script(LevelEditorApi.set_placeable(type, name));
-			_action_group.get_action("place").activate();
+			activate_action("tool", new GLib.Variant.string("place"));
 		}
 
 		private void on_compiler_connected(string address, int port)
@@ -617,7 +559,7 @@ namespace Crown
 		private void on_game_disconnected()
 		{
 			_console_view.logi("editor", "Disconnected from game");
-			_action_group.get_action("test-level").icon_name = "game-run";
+			// _action_group.get_action("test-level").icon_name = "game-run";
 			_project.delete_garbage();
 			_combo.set_active_id("editor");
 		}
@@ -778,14 +720,11 @@ namespace Crown
 
 		private bool on_button_press(EventButton ev)
 		{
-			// Prevent accelerators to step on camera's toes
-			this.active_window.remove_accel_group(_ui_manager.get_accel_group());
 			return true;
 		}
 
 		private bool on_button_release(EventButton ev)
 		{
-			this.active_window.add_accel_group(_ui_manager.get_accel_group());
 			return true;
 		}
 
@@ -1040,39 +979,58 @@ namespace Crown
 			start_editor(_editor_view.window_id);
 		}
 
-		private void on_tool_changed(Gtk.Action action)
+		private void on_tool_changed(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			RadioAction ra = (RadioAction)action;
-			_tool_type = (ToolType)ra.current_value;
+			string name = param.get_string();
+			if (name == "place")
+				_tool_type = ToolType.PLACE;
+			else if (name == "move")
+				_tool_type = ToolType.MOVE;
+			else if (name == "rotate")
+				_tool_type = ToolType.ROTATE;
+			else if (name == "scale")
+				_tool_type = ToolType.SCALE;
+
 			send_state();
+			action.set_state(param);
 		}
 
-		private void on_snap_mode_changed(Gtk.Action action)
+		private void on_snap_mode_changed(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			RadioAction ra = (RadioAction)action;
-			_snap_mode = (SnapMode)ra.current_value;
+			string name = param.get_string();
+			if (name == "relative")
+				_snap_mode = SnapMode.RELATIVE;
+			else if (name == "absolute")
+				_snap_mode = SnapMode.ABSOLUTE;
+
 			send_state();
+			action.set_state(param);
 		}
 
-		private void on_reference_system_changed(Gtk.Action action)
+		private void on_reference_system_changed(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			RadioAction ra = (RadioAction)action;
-			_reference_system = (ReferenceSystem)ra.current_value;
+			string name = param.get_string();
+			if (name == "local")
+				_reference_system = ReferenceSystem.LOCAL;
+			else if (name == "world")
+				_reference_system = ReferenceSystem.WORLD;
+
 			send_state();
+			action.set_state(param);
 		}
 
-		private void on_grid_changed(Gtk.Action action)
+		private void on_grid_changed(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			RadioAction ra = (RadioAction)action;
-			_grid_size = (float)ra.current_value/100.0;
+			_grid_size = float.parse(param.get_string());
 			send_state();
+			action.set_state(param);
 		}
 
-		private void on_rotation_snap_changed(Gtk.Action action)
+		private void on_rotation_snap_changed(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			RadioAction ra = (RadioAction)action;
-			_rotation_snap = (float)ra.current_value;
+			_rotation_snap = float.parse(param.get_string());
 			send_state();
+			action.set_state(param);
 		}
 
 		private void new_level()
@@ -1241,7 +1199,7 @@ namespace Crown
 				this.quit();
 		}
 
-		private void on_new_level()
+		private void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			if (!_database.changed())
 			{
@@ -1270,7 +1228,7 @@ namespace Crown
 			}
 		}
 
-		private void on_open_level(Gtk.Action action)
+		private void on_open_level(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			if (!_database.changed())
 			{
@@ -1295,7 +1253,7 @@ namespace Crown
 				load_level();
 		}
 
-		private void on_open_project(Gtk.Action action)
+		private void on_open_project(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			if (!_database.changed())
 			{
@@ -1320,22 +1278,22 @@ namespace Crown
 				load_project();
 		}
 
-		private void on_save(Gtk.Action action)
+		private void on_save(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			save();
 		}
 
-		private void on_save_as(Gtk.Action action)
+		private void on_save_as(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			save_as();
 		}
 
-		private void on_import(Gtk.Action action)
+		private void on_import(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			_project.import(null, this.active_window);
 		}
 
-		private void on_preferences(Gtk.Action action)
+		private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			if (_preferences_dialog == null)
 			{
@@ -1347,21 +1305,21 @@ namespace Crown
 			_preferences_dialog.show_all();
 		}
 
-		private void on_deploy(Gtk.Action action)
+		private void on_deploy(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			deploy_game();
 		}
 
-		private void on_quit(Gtk.Action action)
+		private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			save_and_quit();
 		}
 
-		private void on_show_grid(Gtk.Action action)
+		private void on_show_grid(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			ToggleAction ta = (ToggleAction)action;
-			_show_grid = ta.active;
+			_show_grid = !action.get_state().get_boolean();
 			send_state();
+			action.set_state(new GLib.Variant.boolean(_show_grid));
 		}
 
 		private void on_custom_grid()
@@ -1391,7 +1349,7 @@ namespace Crown
 			dg.destroy();
 		}
 
-		private void on_rotation_snap(Gtk.Action action)
+		private void on_rotation_snap(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Rotation snap"
 				, this.active_window
@@ -1418,7 +1376,7 @@ namespace Crown
 			dg.destroy();
 		}
 
-		private void on_create_primitive(Gtk.Action action)
+		private void on_create_primitive(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			if (action.name == "primitive-cube")
 				_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cube"));
@@ -1437,42 +1395,37 @@ namespace Crown
 			else if (action.name == "sound-source")
 				_editor.send_script(LevelEditorApi.set_placeable("sound", ""));
 
-			_action_group.get_action("place").activate();
+			activate_action("tool", new GLib.Variant.string("place"));
 		}
 
-		private void on_camera_view(Gtk.Action action)
+		private void on_camera_view(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			if (action.name == "camera-view-perspective")
+			string name = param.get_string();
+
+			if (name == "perspective")
 				_editor.send_script("LevelEditor:camera_view_perspective()");
-			else if (action.name == "camera-view-front")
+			else if (name == "front")
 				_editor.send_script("LevelEditor:camera_view_front()");
-			else if (action.name == "camera-view-back")
+			else if (name == "back")
 				_editor.send_script("LevelEditor:camera_view_back()");
-			else if (action.name == "camera-view-right")
+			else if (name == "right")
 				_editor.send_script("LevelEditor:camera_view_right()");
-			else if (action.name == "camera-view-left")
+			else if (name == "left")
 				_editor.send_script("LevelEditor:camera_view_left()");
-			else if (action.name == "camera-view-top")
+			else if (name == "top")
 				_editor.send_script("LevelEditor:camera_view_top()");
-			else if (action.name == "camera-view-bottom")
+			else if (name == "bottom")
 				_editor.send_script("LevelEditor:camera_view_bottom()");
+
+			action.set_state(param);
 		}
 
-		private void on_resource_chooser(Gtk.Action action)
+		private void on_resource_chooser(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			_resource_popover.show_all();
 		}
 
-		private void on_fullscreen(Gtk.Action action)
-		{
-			LevelEditorWindow win = (LevelEditorWindow)this.active_window;
-			if (win._fullscreen)
-				win.unfullscreen();
-			else
-				win.fullscreen();
-		}
-
-		private void on_project_browser(Gtk.Action action)
+		private void on_project_browser(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			if (_project_slide.is_visible())
 			{
@@ -1484,7 +1437,7 @@ namespace Crown
 			}
 		}
 
-		private void on_console(Gtk.Action action)
+		private void on_console(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			if (_console_view.is_visible())
 			{
@@ -1499,12 +1452,12 @@ namespace Crown
 			}
 		}
 
-		private void on_editor_restart(Gtk.Action action)
+		private void on_editor_restart(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			restart_editor();
 		}
 
-		private void on_refresh_lua(Gtk.Action action)
+		private void on_refresh_lua(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res))
@@ -1514,62 +1467,62 @@ namespace Crown
 			});
 		}
 
-		private void on_snap_to_grid(Gtk.Action action)
+		private void on_snap_to_grid(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			ToggleAction ta = (ToggleAction)action;
-			_snap_to_grid = ta.active;
+			_snap_to_grid = !action.get_state().get_boolean();
 			send_state();
+			action.set_state(new GLib.Variant.boolean(_snap_to_grid));
 		}
 
-		private void on_debug_render_world(Gtk.Action action)
+		private void on_debug_render_world(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			ToggleAction ta = (ToggleAction)action;
-			_debug_render_world = ta.active;
+			_debug_render_world = !action.get_state().get_boolean();
 			send_state();
+			action.set_state(new GLib.Variant.boolean(_debug_render_world));
 		}
 
-		private void on_debug_physics_world(Gtk.Action action)
+		private void on_debug_physics_world(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			ToggleAction ta = (ToggleAction)action;
-			_debug_physics_world = ta.active;
+			_debug_physics_world = !action.get_state().get_boolean();
 			send_state();
+			action.set_state(new GLib.Variant.boolean(_debug_physics_world));
 		}
 
-		private void on_run_game(Gtk.Action action)
+		private void on_run_game(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			if (_game.is_connected())
 			{
 				stop_game();
-				action.icon_name = "game-run";
+				// action.icon_name = "game-run";
 			}
 			else
 			{
 				start_game(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
-				action.icon_name = "game-stop";
+				// action.icon_name = "game-stop";
 			}
 		}
 
-		private void on_undo(Gtk.Action action)
+		private void on_undo(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			_database.undo();
 		}
 
-		private void on_redo(Gtk.Action action)
+		private void on_redo(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			_database.redo();
 		}
 
-		private void on_duplicate(Gtk.Action action)
+		private void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			_level.duplicate_selected_objects();
 		}
 
-		private void on_delete(Gtk.Action action)
+		private void on_delete(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			_level.destroy_selected_objects();
 		}
 
-		private void on_manual(Gtk.Action action)
+		private void on_manual(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			try
 			{
@@ -1581,7 +1534,7 @@ namespace Crown
 			}
 		}
 
-		private void on_report_issue(Gtk.Action action)
+		private void on_report_issue(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			try
 			{
@@ -1593,7 +1546,7 @@ namespace Crown
 			}
 		}
 
-		private void on_open_last_log(Gtk.Action action)
+		private void on_open_last_log(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			File file = File.new_for_path(_project.data_dir() + "/last.log");
 			try
@@ -1606,7 +1559,7 @@ namespace Crown
 			}
 		}
 
-		private void on_changelog(Gtk.Action action)
+		private void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			try
 			{
@@ -1618,7 +1571,7 @@ namespace Crown
 			}
 		}
 
-		private void on_about(Gtk.Action action)
+		private void on_about(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			Gtk.AboutDialog dlg = new Gtk.AboutDialog();
 			dlg.set_destroy_with_parent(true);
@@ -1627,7 +1580,7 @@ namespace Crown
 
 			try
 			{
-				dlg.set_logo(new Pixbuf.from_resource("/org/crown/ui/icons/128x128/pepper.png"));
+				dlg.set_logo(new Pixbuf.from_resource("/org/crown/level_editor/icons/128x128/pepper.png"));
 			}
 			catch (Error e)
 			{

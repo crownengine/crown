@@ -58,17 +58,17 @@ project "level-editor"
 		"-Wno-unused-parameter",
 		"-Wno-unused-but-set-variable",
 		"-Wno-cast-function-type",
+		"-Wno-missing-field-initializers",
 	}
 
 	buildoptions_vala {
-		"--gresources=" .. CROWN_DIR .. "tools/gresources.xml",
+		"--gresources=" .. CROWN_DIR .. "tools/level_editor/resources/gresources.xml",
 		"--target-glib=2.38",
 	}
 
 	files {
 		CROWN_DIR .. "tools/**.vala",
-		CROWN_DIR .. "tools/gresources.c",
+		CROWN_DIR .. "tools/level_editor/resources/gresources.c",
 	}
 
 	configuration {}
-
