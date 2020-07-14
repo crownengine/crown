@@ -13,6 +13,7 @@
       <item>
         <attribute name="label" translatable="yes">Open Level...</attribute>
         <attribute name="action">app.open-level</attribute>
+        <attribute name="target"></attribute>
         <attribute name="accel">&lt;Primary&gt;O</attribute>
       </item>
       <item>

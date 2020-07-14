@@ -129,7 +129,7 @@ namespace Crown
 			// |                      |                            |     |
 			{ "menu-file",            null,                        null, null            },
 			{ "new-level",            on_new_level,                null, null            },
-			{ "open-level",           on_open_level,               null, null            },
+			{ "open-level",           on_open_level,               "s",  null            },
 			{ "open-project",         on_open_project,             null, null            },
 			{ "save",                 on_save,                     null, null            },
 			{ "save-as",              on_save_as,                  null, null            },
@@ -1039,38 +1039,45 @@ namespace Crown
 			_level.send_level();
 		}
 
-		private void load_level()
+		private void load_level(string level)
 		{
-			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Level..."
-				, this.active_window
-				, FileChooserAction.OPEN
-				, "Cancel"
-				, ResponseType.CANCEL
-				, "Open"
-				, ResponseType.ACCEPT
-				);
-			fcd.add_filter(_file_filter);
-			fcd.set_current_folder(_project.source_dir());
+			string filename = level;
 
-			if (fcd.run() == (int)ResponseType.ACCEPT)
+			if (filename == "")
 			{
-				string filename = fcd.get_filename();
-				if (filename.has_prefix(_project.source_dir()))
-				{
-					if (filename.has_suffix(".level") && filename != _level._filename)
-					{
-						_level.load(filename);
-						_level.send_level();
-						send_state();
-					}
-				}
-				else
-				{
-					_console_view.loge("editor", "Level not loaded: file must be within `%s`".printf(_project.source_dir()));
-				}
+				Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Level..."
+					, this.active_window
+					, FileChooserAction.OPEN
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Open"
+					, ResponseType.ACCEPT
+					);
+				fcd.add_filter(_file_filter);
+				fcd.set_current_folder(_project.source_dir());
+
+				if (fcd.run() == (int)ResponseType.ACCEPT)
+					filename = fcd.get_filename();
+
+				fcd.destroy();
 			}
 
-			fcd.destroy();
+			if (filename == "")
+				return;
+
+			if (filename.has_prefix(_project.source_dir()))
+			{
+				if (filename.has_suffix(".level") && filename != _level._filename)
+				{
+					_level.load(filename);
+					_level.send_level();
+					send_state();
+				}
+			}
+			else
+			{
+				_console_view.loge("editor", "Level not loaded: file must be within `%s`".printf(_project.source_dir()));
+			}
 		}
 
 		private void load_project()
@@ -1232,7 +1239,7 @@ namespace Crown
 		{
 			if (!_database.changed())
 			{
-				load_level();
+				load_level(param.get_string());
 				return;
 			}
 
@@ -1250,7 +1257,7 @@ namespace Crown
 			md.destroy();
 
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
-				load_level();
+				load_level(param.get_string());
 		}
 
 		private void on_open_project(GLib.SimpleAction action, GLib.Variant? param)

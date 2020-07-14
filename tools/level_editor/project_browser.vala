@@ -346,19 +346,28 @@ namespace Crown
 						Value name;
 						_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-						GLib.AppInfo? app = GLib.AppInfo.get_default_for_type("text/plain", false);
-						if (app != null)
+						GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name + "." + (string)type);
+
+						if (type == "level")
 						{
-							GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name + "." + (string)type);
-							GLib.List<GLib.File> files = new GLib.List<GLib.File>();
-							files.append(file);
-							try
+							Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+							app.activate_action("open-level", file.get_path());
+						}
+						else
+						{
+							GLib.AppInfo? app = GLib.AppInfo.get_default_for_type("text/plain", false);
+							if (app != null)
 							{
-								app.launch(files, null);
-							}
-							catch (Error e)
-							{
-								// _console_view.loge("editor", e.message);
+								GLib.List<GLib.File> files = new GLib.List<GLib.File>();
+								files.append(file);
+								try
+								{
+									app.launch(files, null);
+								}
+								catch (Error e)
+								{
+									// _console_view.loge("editor", e.message);
+								}
 							}
 						}
 					}
