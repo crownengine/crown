@@ -7,6 +7,7 @@ Changelog
 
 **Runtime**
 
+* Core primitives now include UV, tangent and bitangent data
 * Fixed an issue that caused levels to be compiled successfully even when the units they depended on contained errors
 * The Data Compiler now detects when files are deleted
 
