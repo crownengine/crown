@@ -1080,7 +1080,7 @@ namespace Crown
 			}
 			else
 			{
-				_console_view.loge("editor", "Level not loaded: file must be within `%s`".printf(_project.source_dir()));
+				_console_view.loge("editor", "File must be within `%s`".printf(_project.source_dir()));
 			}
 		}
 
@@ -1098,7 +1098,7 @@ namespace Crown
 			if (fcd.run() == (int)ResponseType.ACCEPT)
 			{
 				string filename = fcd.get_filename();
-				_console_view.logi("editor", "Loading project `%s`...".printf(filename));
+				_console_view.logi("editor", "Loading `%s`...".printf(filename));
 				_project.load(filename, _project.toolchain_dir());
 				_project_store.reset();
 
@@ -1146,7 +1146,7 @@ namespace Crown
 
 			if (!path.has_prefix(_project.source_dir()))
 			{
-				_console_view.loge("editor", "Level not saved: file must be within `%s`".printf(_project.source_dir()));
+				_console_view.loge("editor", "File must be within `%s`".printf(_project.source_dir()));
 				return false;
 			}
 
