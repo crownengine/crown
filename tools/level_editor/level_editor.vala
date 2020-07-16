@@ -345,7 +345,7 @@ namespace Crown
 			_combo.append("game", "Game");
 			_combo.set_active_id("editor");
 
-			_console_view = new ConsoleView(this, _project, _combo);
+			_console_view = new ConsoleView(_project, _combo);
 			_project_browser = new ProjectBrowser(_project, _project_store);
 			_level_treeview = new LevelTreeView(_database, _level);
 			_level_layers_treeview = new LevelLayersTreeView(_database, _level);

@@ -59,7 +59,6 @@ namespace Crown
 		// Data
 		public EntryHistory _entry_history;
 		public uint _distance;
-		public LevelEditorApplication _editor;
 		public Project _project;
 
 		// Widgets
@@ -68,14 +67,13 @@ namespace Crown
 		public Gtk.Entry _entry;
 		public Gtk.Box _entry_hbox;
 
-		public ConsoleView(LevelEditorApplication editor, Project project, Gtk.ComboBoxText combo)
+		public ConsoleView(Project project, Gtk.ComboBoxText combo)
 		{
 			Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 			// Data
 			_entry_history = new EntryHistory(256);
 			_distance = 0;
-			_editor = editor;
 			_project = project;
 
 			// Widgets
@@ -126,7 +124,8 @@ namespace Crown
 				_entry_history.push(text);
 				_distance = 0;
 
-				ConsoleClient? client = _editor.current_selected_client();
+				Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+				ConsoleClient? client = ((LevelEditorApplication)app).current_selected_client();
 
 				if (text[0] == ':')
 				{
