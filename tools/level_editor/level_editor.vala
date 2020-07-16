@@ -1110,54 +1110,51 @@ namespace Crown
 			fcd.destroy();
 		}
 
-		private bool save_as()
+		private bool save_as(string? filename)
 		{
-			bool saved = false;
+			string path;
 
-			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Save As..."
-				, this.active_window
-				, FileChooserAction.SAVE
-				, "Cancel"
-				, ResponseType.CANCEL
-				, "Save"
-				, ResponseType.ACCEPT
-				);
-			fcd.add_filter(_file_filter);
-			fcd.set_current_folder(_project.source_dir());
-
-			if (fcd.run() == (int)ResponseType.ACCEPT)
+			if (filename != null)
 			{
-				string filename = fcd.get_filename();
-				if (filename.has_prefix(_project.source_dir()))
+				path = filename;
+			}
+			else
+			{
+				Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Save As..."
+					, this.active_window
+					, FileChooserAction.SAVE
+					, "Cancel"
+					, ResponseType.CANCEL
+					, "Save"
+					, ResponseType.ACCEPT
+					);
+				fcd.add_filter(_file_filter);
+				fcd.set_current_folder(_project.source_dir());
+				int rt = fcd.run();
+
+				if (rt != (int)ResponseType.ACCEPT)
 				{
-					_level.save(filename.has_suffix(".level") ? filename : filename + ".level");
-					saved = true;
+					fcd.destroy();
+					return false;
 				}
-				else
-				{
-					_console_view.loge("editor", "Level not saved: file must be within `%s`".printf(_project.source_dir()));
-				}
+
+				path = fcd.get_filename();
+				fcd.destroy();
 			}
 
-			fcd.destroy();
-			return saved;
+			if (!path.has_prefix(_project.source_dir()))
+			{
+				_console_view.loge("editor", "Level not saved: file must be within `%s`".printf(_project.source_dir()));
+				return false;
+			}
+
+			_level.save(path.has_suffix(".level") ? path : path + ".level");
+			return true;
 		}
 
 		private bool save()
 		{
-			bool saved = false;
-
-			if (_level._filename == null)
-			{
-				saved = save_as();
-			}
-			else
-			{
-				_level.save(_level._filename);
-				saved = true;
-			}
-
-			return saved;
+			return save_as(_level._filename);
 		}
 
 		private bool save_timeout()
@@ -1294,7 +1291,7 @@ namespace Crown
 
 		private void on_save_as(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			save_as();
+			save_as(null);
 		}
 
 		private void on_import(GLib.SimpleAction action, GLib.Variant? param)
