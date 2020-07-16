@@ -22,4 +22,22 @@ namespace Crown
 		SET_ACTOR,
 		SET_SOUND
 	}
+
+	public const string ActionNames[] =
+	{
+		"Spawn Unit",
+		"Destroy Unit",
+		"Spawn Sound",
+		"Destroy Sound",
+		"Move Objects",
+		"Duplicate Objects",
+		"Set Object Name",
+		"Set Light Parameter",
+		"Set Mesh Parameter",
+		"Set Sprite Parameter",
+		"Set Camera Parameter",
+		"Set Collider Parameter",
+		"Set Actor Parameter",
+		"Set Sound Parameter"
+	};
 }

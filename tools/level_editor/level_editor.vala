@@ -174,6 +174,7 @@ namespace Crown
 			{ "resource-chooser",     on_resource_chooser,         null, null            },
 			{ "project-browser",      on_project_browser,          null, null            },
 			{ "console",              on_console,                  null, null            },
+			{ "statusbar",            on_statusbar,                null, null            },
 			{ "menu-run",             null,                        null, null            },
 			{ "test-level",           on_run_game,                 null, null            },
 			{ "run-game",             on_run_game,                 null, null            },
@@ -241,6 +242,7 @@ namespace Crown
 		private Gtk.Paned _content_pane;
 		private Gtk.Paned _inspector_pane;
 		private Gtk.Paned _main_pane;
+		private Statusbar _statusbar;
 		private Gtk.Box _main_vbox;
 		private Gtk.FileFilter _file_filter;
 		private Gtk.ComboBoxText _combo;
@@ -402,8 +404,11 @@ namespace Crown
 			_main_pane.pack2(_inspector_slide, false, false);
 			_main_pane.set_position(WINDOW_DEFAULT_WIDTH - 375);
 
+			_statusbar = new Statusbar();
+
 			_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_main_vbox.pack_start(_main_pane, true, true, 0);
+			_main_vbox.pack_start(_statusbar, false, false, 0);
 
 			_file_filter = new Gtk.FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
@@ -1153,6 +1158,7 @@ namespace Crown
 			}
 
 			_level.save(path.has_suffix(".level") ? path : path + ".level");
+			_statusbar.set_temporary_message("Saved %s".printf(_level._filename));
 			return true;
 		}
 
@@ -1466,6 +1472,18 @@ namespace Crown
 			}
 		}
 
+		private void on_statusbar(GLib.SimpleAction action, GLib.Variant? param)
+		{
+			if (_statusbar.is_visible())
+			{
+				_statusbar.hide();
+			}
+			else
+			{
+				_statusbar.show_all();
+			}
+		}
+
 		private void on_editor_restart(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			restart_editor();
@@ -1518,12 +1536,16 @@ namespace Crown
 
 		private void on_undo(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			_database.undo();
+			int id = _database.undo();
+			if (id != -1)
+				_statusbar.set_temporary_message("Undo: " + ActionNames[id]);
 		}
 
 		private void on_redo(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			_database.redo();
+			int id = _database.redo();
+			if (id != -1)
+				_statusbar.set_temporary_message("Redo: " + ActionNames[id]);
 		}
 
 		private void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)

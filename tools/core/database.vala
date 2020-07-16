@@ -1101,26 +1101,32 @@ namespace Crown
 			}
 		}
 
-		public void undo()
+		// Un-does the last action and returns its ID, or -1 if there is no
+		// action to undo.
+		public int undo()
 		{
 			if (_undo_points.size() == 0)
-				return;
+				return -1;
 
 			RestorePoint rp = _undo_points.read_restore_point();
 			_redo_points.write_restore_point(rp.id, _redo.size(), rp.data);
 			undo_until(rp.size);
 			undo_redo(true, rp.id, rp.data);
+			return rp.id;
 		}
 
-		public void redo()
+		// Re-does the last action and returns its ID, or -1 if there is no
+		// action to redo.
+		public int redo()
 		{
 			if (_redo_points.size() == 0)
-				return;
+				return -1;
 
 			RestorePoint rp = _redo_points.read_restore_point();
 			_undo_points.write_restore_point(rp.id, _undo.size(), rp.data);
 			redo_until(rp.size);
 			undo_redo(false, rp.id, rp.data);
+			return rp.id;
 		}
 
 		private void undo_until(uint32 size)

@@ -340,6 +340,10 @@
           <attribute name="action">app.console</attribute>
           <attribute name="accel">&lt;Primary&gt;grave</attribute>
         </item>
+        <item>
+          <attribute name="label" translatable="yes">Show/Hide Statusbar</attribute>
+          <attribute name="action">app.statusbar</attribute>
+        </item>
       </section>
       <section>
         <item>
