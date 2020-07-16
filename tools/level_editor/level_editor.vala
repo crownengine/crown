@@ -233,6 +233,7 @@ namespace Crown
 		private Slide _inspector_slide;
 
 		private Gtk.Toolbar _toolbar;
+		private Gtk.ToolButton _toolbar_run;
 		private Gtk.Notebook _level_tree_view_notebook;
 		private Gtk.Paned _editor_pane;
 		private Gtk.Paned _content_pane;
@@ -359,6 +360,7 @@ namespace Crown
 
 			Gtk.Builder builder = new Gtk.Builder.from_resource("/org/crown/level_editor/ui/toolbar.ui");
 			_toolbar = builder.get_object("toolbar") as Gtk.Toolbar;
+			_toolbar_run = builder.get_object("run") as Gtk.ToolButton;
 
 			_resource_popover = new Gtk.Popover(_toolbar);
 			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
@@ -559,7 +561,7 @@ namespace Crown
 		private void on_game_disconnected()
 		{
 			_console_view.logi("editor", "Disconnected from game");
-			// _action_group.get_action("test-level").icon_name = "game-run";
+			_toolbar_run.icon_name = "game-run";
 			_project.delete_garbage();
 			_combo.set_active_id("editor");
 		}
@@ -1500,12 +1502,12 @@ namespace Crown
 			if (_game.is_connected())
 			{
 				stop_game();
-				// action.icon_name = "game-run";
+				_toolbar_run.icon_name = "game-run";
 			}
 			else
 			{
 				start_game(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
-				// action.icon_name = "game-stop";
+				_toolbar_run.icon_name = "game-stop";
 			}
 		}
 

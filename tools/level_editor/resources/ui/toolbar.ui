@@ -186,7 +186,7 @@
       </packing>
     </child>
     <child>
-      <object class="GtkToolButton">
+      <object class="GtkToolButton" id="run">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="action_name">app.test-level</property>
