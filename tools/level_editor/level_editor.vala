@@ -245,6 +245,8 @@ namespace Crown
 		private Gtk.FileFilter _file_filter;
 		private Gtk.ComboBoxText _combo;
 
+		private uint _save_timer_id;
+
 		public LevelEditorApplication()
 		{
 			Object(application_id: "org.crown.level_editor"
@@ -408,7 +410,7 @@ namespace Crown
 			_file_filter.add_pattern("*.level");
 
 			// Save level once every 5 minutes.
-			GLib.Timeout.add_seconds(5*60, save_timeout);
+			_save_timer_id = GLib.Timeout.add_seconds(5*60, save_timeout);
 
 			if (_level_resource != "")
 			{
@@ -1170,6 +1172,9 @@ namespace Crown
 		protected override void shutdown()
 		{
 			base.shutdown();
+
+			if (_save_timer_id > 0)
+				GLib.Source.remove(_save_timer_id);
 
 			if (_resource_chooser != null)
 				_resource_chooser.destroy();
