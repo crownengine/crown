@@ -88,8 +88,10 @@ namespace Crown
 		private bool on_delete_event()
 		{
 			LevelEditorApplication app = (LevelEditorApplication)application;
-			app.save_and_quit();
-			return true; // Do not propagate
+			if (app.should_quit())
+				return false; // Quit application
+
+			return true; // Keep alive
 		}
 	}
 
@@ -1180,13 +1182,12 @@ namespace Crown
 			stop_compiler();
 		}
 
-		public void save_and_quit()
+		// Returns true if the level has been saved or the user decided it
+		// should be discarded.
+		public bool should_quit()
 		{
 			if (!_database.changed())
-			{
-				this.quit();
-				return;
-			}
+				return true;
 
 			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
 				, Gtk.DialogFlags.MODAL
@@ -1202,7 +1203,9 @@ namespace Crown
 			md.destroy();
 
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
-				this.quit();
+				return true;
+
+			return false;
 		}
 
 		private void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
@@ -1318,7 +1321,7 @@ namespace Crown
 
 		private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			save_and_quit();
+			this.active_window.close();
 		}
 
 		private void on_show_grid(GLib.SimpleAction action, GLib.Variant? param)
