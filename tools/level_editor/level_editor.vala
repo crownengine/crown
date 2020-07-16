@@ -406,7 +406,7 @@ namespace Crown
 			_file_filter.add_pattern("*.level");
 
 			// Save level once every 5 minutes.
-			GLib.Timeout.add_seconds(5*3600, save_timeout);
+			GLib.Timeout.add_seconds(5*60, save_timeout);
 
 			if (_level_resource != "")
 			{
