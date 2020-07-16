@@ -1076,18 +1076,17 @@ namespace Crown
 			if (filename == "")
 				return;
 
-			if (filename.has_prefix(_project.source_dir()))
-			{
-				if (filename.has_suffix(".level") && filename != _level._filename)
-				{
-					_level.load(filename);
-					_level.send_level();
-					send_state();
-				}
-			}
-			else
+			if (!_project.path_is_within_dir(filename, _project.source_dir()))
 			{
 				_console_view.loge("editor", "File must be within `%s`".printf(_project.source_dir()));
+				return;
+			}
+
+			if (filename.has_suffix(".level") && filename != _level._filename)
+			{
+				_level.load(filename);
+				_level.send_level();
+				send_state();
 			}
 		}
 
@@ -1151,7 +1150,7 @@ namespace Crown
 				fcd.destroy();
 			}
 
-			if (!path.has_prefix(_project.source_dir()))
+			if (!_project.path_is_within_dir(path, _project.source_dir()))
 			{
 				_console_view.loge("editor", "File must be within `%s`".printf(_project.source_dir()));
 				return false;

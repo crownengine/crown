@@ -14,9 +14,11 @@ Changelog
 **Tools**
 
 * Added the Project Browser
+* Added the Statusbar
+* Fixed an issue that allowed the Level Editor to load or save levels outside the source directory
 * Fixed an issue that allowed the user to enter blank names when renaming objects in the Level Tree
-* Fixed an issue that caused the Level Editor to not include "core/units/camera" in the boot.package of a newly created project
 * Fixed an issue that caused level auto-saving in Level Editor not triggering at the intended interval
+* Fixed an issue that caused the Level Editor to not include "core/units/camera" in the boot.package of a newly created project
 * Renaming of objects in the Level Tree is now handled with a modal dialog
 * Unified the asset import dialogs
 

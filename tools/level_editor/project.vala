@@ -52,6 +52,7 @@ namespace Crown
 		public void load(string source_dir, string toolchain_dir)
 		{
 			reset();
+
 			_source_dir    = File.new_for_path(source_dir);
 			_toolchain_dir = File.new_for_path(toolchain_dir);
 			_data_dir      = File.new_for_path(_source_dir.get_path() + "_" + _platform);
@@ -219,6 +220,12 @@ end
 		public string platform()
 		{
 			return _platform;
+		}
+
+		public bool path_is_within_dir(string path, string dir)
+		{
+			GLib.File file = GLib.File.new_for_path(path);
+			return file.has_prefix(_source_dir);
 		}
 
 		public void dump_test_level(Database db)
