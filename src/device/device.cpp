@@ -169,24 +169,19 @@ struct BgfxAllocator : public bx::AllocatorI
 	}
 };
 
-static void console_command(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* json, void* /*user_data*/)
+static void command_device_pause(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
 {
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	JsonArray args(ta);
+	device()->pause();
+}
 
-	sjson::parse(obj, json);
-	sjson::parse_array(args, obj["args"]);
+static void command_device_unpause(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
+{
+	device()->unpause();
+}
 
-	DynamicString cmd(ta);
-	sjson::parse_string(cmd, args[0]);
-
-	if (cmd == "pause")
-		device()->pause();
-	else if (cmd == "unpause")
-		device()->unpause();
-	else if (cmd == "refresh")
-		device()->refresh();
+static void command_device_refresh(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
+{
+	device()->refresh();
 }
 
 Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
@@ -273,7 +268,9 @@ void Device::run()
 {
 	s64 run_t0 = time::now();
 
-	_console_server->register_command("command", console_command, this);
+	_console_server->register_command_type("pause", command_device_pause, this);
+	_console_server->register_command_type("unpause", command_device_unpause, this);
+	_console_server->register_command_type("refresh", command_device_refresh, this);
 
 	_console_server->listen(_options._console_port, _options._wait_console);
 

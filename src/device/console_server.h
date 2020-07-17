@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/containers/types.h"
+#include "core/json/types.h"
 #include "core/network/socket.h"
 #include "core/strings/types.h"
 #include "device/log.h"
@@ -17,17 +18,23 @@ namespace crown
 /// @ingroup Device
 struct ConsoleServer
 {
-	typedef void (*CommandFunction)(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data);
+	typedef void (*CommandTypeFunction)(ConsoleServer& cs, TCPSocket& client, JsonArray& args, void* user_data);
+	typedef void (*MessageTypeFunction)(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data);
 
-	struct Command
+	struct CommandData
 	{
-		CommandFunction function;
+		union
+		{
+			CommandTypeFunction command_function;
+			MessageTypeFunction message_function;
+		};
 		void* user_data;
 	};
 
 	TCPSocket _server;
 	Vector<TCPSocket> _clients;
-	HashMap<StringId32, Command> _commands;
+	HashMap<StringId32, CommandData> _messages;
+	HashMap<StringId32, CommandData> _commands;
 
 	/// Constructor.
 	ConsoleServer(Allocator& a);
@@ -54,8 +61,11 @@ struct ConsoleServer
 	/// Sends a log message to all clients.
 	void log(LogSeverity::Enum sev, const char* system, const char* msg);
 
-	/// Registers the command @a type.
-	void register_command(const char* type, CommandFunction cmd, void* user_data);
+	// Registers the command @a type.
+	void register_command_type(const char* type, CommandTypeFunction cmd, void* user_data);
+
+	/// Registers the message @a type.
+	void register_message_type(const char* type, MessageTypeFunction cmd, void* user_data);
 };
 
 namespace console_server_globals

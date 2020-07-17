@@ -574,9 +574,9 @@ DataCompiler::DataCompiler(const DeviceOptions& opts, ConsoleServer& cs)
 	, _client_revisions(default_allocator())
 	, _revision(0)
 {
-	cs.register_command("compile", console_command_compile, this);
-	cs.register_command("quit", console_command_quit, this);
-	cs.register_command("refresh_list", console_command_refresh_list, this);
+	cs.register_message_type("compile", console_command_compile, this);
+	cs.register_message_type("quit", console_command_quit, this);
+	cs.register_message_type("refresh_list", console_command_refresh_list, this);
 }
 
 DataCompiler::~DataCompiler()

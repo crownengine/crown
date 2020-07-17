@@ -599,8 +599,8 @@ static void console_command_REPL(ConsoleServer& /*cs*/, TCPSocket& /*client*/, c
 
 void LuaEnvironment::register_console_commands(ConsoleServer& cs)
 {
-	cs.register_command("script", console_command_script, this);
-	cs.register_command("repl", console_command_REPL, this);
+	cs.register_message_type("script", console_command_script, this);
+	cs.register_message_type("repl", console_command_REPL, this);
 }
 
 } // namespace crown

@@ -9,16 +9,40 @@
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "device/console_server.h"
 
 namespace crown
 {
+static void console_server_command(ConsoleServer& cs, TCPSocket& client, const char* json, void* /*user_data*/)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	JsonArray args(ta);
+
+	sjson::parse(obj, json);
+	sjson::parse_array(args, obj["args"]);
+
+	DynamicString command_name(ta);
+	sjson::parse_string(command_name, args[0]);
+
+	ConsoleServer::CommandData cmd;
+	cmd.command_function = NULL;
+	cmd.user_data = NULL;
+	cmd = hash_map::get(cs._commands, command_name.to_string_id(), cmd);
+
+	if (cmd.command_function != NULL)
+		cmd.command_function(cs, client, args, cmd.user_data);
+}
+
 ConsoleServer::ConsoleServer(Allocator& a)
 	: _clients(a)
+	, _messages(a)
 	, _commands(a)
 {
+	this->register_message_type("command", console_server_command, this);
 }
 
 void ConsoleServer::listen(u16 port, bool wait)
@@ -140,16 +164,16 @@ void ConsoleServer::update()
 			JsonObject obj(ta);
 			sjson::parse(obj, array::begin(msg));
 
-			Command cmd;
-			cmd.function = NULL;
+			CommandData cmd;
+			cmd.message_function = NULL;
 			cmd.user_data = NULL;
-			cmd = hash_map::get(_commands
+			cmd = hash_map::get(_messages
 				, sjson::parse_string_id(obj["type"])
 				, cmd
 				);
 
-			if (cmd.function)
-				cmd.function(*this, _clients[i], array::begin(msg), cmd.user_data);
+			if (cmd.message_function)
+				cmd.message_function(*this, _clients[i], array::begin(msg), cmd.user_data);
 			else
 				error(_clients[i], "Unknown command");
 		}
@@ -167,16 +191,26 @@ void ConsoleServer::update()
 	}
 }
 
-void ConsoleServer::register_command(const char* type, CommandFunction function, void* user_data)
+void ConsoleServer::register_command_type(const char* type, CommandTypeFunction function, void* user_data)
 {
 	CE_ENSURE(NULL != type);
 	CE_ENSURE(NULL != function);
 
-	Command cmd;
-	cmd.function = function;
+	CommandData cmd;
+	cmd.command_function = function;
 	cmd.user_data = user_data;
-
 	hash_map::set(_commands, StringId32(type), cmd);
+}
+
+void ConsoleServer::register_message_type(const char* type, MessageTypeFunction function, void* user_data)
+{
+	CE_ENSURE(NULL != type);
+	CE_ENSURE(NULL != function);
+
+	CommandData cmd;
+	cmd.message_function = function;
+	cmd.user_data = user_data;
+	hash_map::set(_messages, StringId32(type), cmd);
 }
 
 namespace console_server_globals
