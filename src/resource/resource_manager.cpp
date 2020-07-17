@@ -122,6 +122,9 @@ void ResourceManager::reload(StringId64 type, StringId64 name)
 	const ResourceEntry& entry = hash_map::get(_rm, id, ResourceEntry::NOT_FOUND);
 	const u32 old_refs = entry.references;
 
+	if (entry == ResourceEntry::NOT_FOUND)
+		return;
+
 	unload(type, name);
 	load(type, name);
 	flush();
