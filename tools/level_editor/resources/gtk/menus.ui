@@ -344,6 +344,10 @@
           <attribute name="label" translatable="yes">Show/Hide Statusbar</attribute>
           <attribute name="action">app.statusbar</attribute>
         </item>
+        <item>
+          <attribute name="label" translatable="yes">Show/Hide Inspector</attribute>
+          <attribute name="action">app.inspector</attribute>
+        </item>
       </section>
       <section>
         <item>

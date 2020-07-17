@@ -175,6 +175,7 @@ namespace Crown
 			{ "project-browser",      on_project_browser,          null, null            },
 			{ "console",              on_console,                  null, null            },
 			{ "statusbar",            on_statusbar,                null, null            },
+			{ "inspector",            on_inspector,                null, null            },
 			{ "menu-run",             null,                        null, null            },
 			{ "test-level",           on_run_game,                 null, null            },
 			{ "run-game",             on_run_game,                 null, null            },
@@ -1480,6 +1481,18 @@ namespace Crown
 			else
 			{
 				_statusbar.show_all();
+			}
+		}
+
+		private void on_inspector(GLib.SimpleAction action, GLib.Variant? param)
+		{
+			if (_inspector_slide.is_visible())
+			{
+				_inspector_slide.hide();
+			}
+			else
+			{
+				_inspector_slide.show_all();
 			}
 		}
 

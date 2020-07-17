@@ -13,6 +13,7 @@ Changelog
 
 **Tools**
 
+* Added the ability to toggle visibility of the Inspector inside the Level Editor
 * Added the Project Browser
 * Added the Statusbar
 * Fixed an issue that allowed the Level Editor to load or save levels outside the source directory
