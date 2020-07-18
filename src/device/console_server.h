@@ -31,8 +31,15 @@ struct ConsoleServer
 		void* user_data;
 	};
 
+	struct Client
+	{
+		TCPSocket socket;
+		u32 id;
+	};
+
 	TCPSocket _server;
-	Vector<TCPSocket> _clients;
+	u32 _next_client_id;
+	Vector<Client> _clients;
 	HashMap<StringId32, CommandData> _messages;
 	HashMap<StringId32, CommandData> _commands;
 

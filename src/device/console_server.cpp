@@ -37,8 +37,41 @@ static void console_server_command(ConsoleServer& cs, TCPSocket& client, const c
 		cmd.command_function(cs, client, args, cmd.user_data);
 }
 
+namespace console_server_internal
+{
+	u32 add_client(ConsoleServer& cs, TCPSocket& socket)
+	{
+		const u32 id = cs._next_client_id++;
+
+		ConsoleServer::Client client;
+		client.socket = socket;
+		client.id = id;
+		vector::push_back(cs._clients, client);
+
+		return id;
+	}
+
+	void remove_client(ConsoleServer& cs, u32 id)
+	{
+		const u32 last = vector::size(cs._clients) - 1;
+
+		for (u32 cc = 0; cc < vector::size(cs._clients); ++cc)
+		{
+			if (cs._clients[cc].id == id)
+			{
+				cs._clients[cc].socket.close();
+				cs._clients[cc] = cs._clients[last];
+				vector::pop_back(cs._clients);
+				return;
+			}
+		}
+	}
+
+} // namespace console_server_internal
+
 ConsoleServer::ConsoleServer(Allocator& a)
-	: _clients(a)
+	: _next_client_id(0)
+	, _clients(a)
 	, _messages(a)
 	, _commands(a)
 {
@@ -60,14 +93,14 @@ void ConsoleServer::listen(u16 port, bool wait)
 		}
 		while (ar.error != AcceptResult::SUCCESS);
 
-		vector::push_back(_clients, client);
+		console_server_internal::add_client(*this, client);
 	}
 }
 
 void ConsoleServer::shutdown()
 {
 	for (u32 i = 0; i < vector::size(_clients); ++i)
-		_clients[i].close();
+		_clients[i].socket.close();
 
 	_server.close();
 }
@@ -117,7 +150,7 @@ void ConsoleServer::log(LogSeverity::Enum sev, const char* system, const char* m
 void ConsoleServer::send(const char* json)
 {
 	for (u32 i = 0; i < vector::size(_clients); ++i)
-		send(_clients[i], json);
+		send(_clients[i].socket, json);
 }
 
 void ConsoleServer::update()
@@ -125,7 +158,7 @@ void ConsoleServer::update()
 	TCPSocket client;
 	AcceptResult ar = _server.accept_nonblock(client);
 	if (ar.error == AcceptResult::SUCCESS)
-		vector::push_back(_clients, client);
+		console_server_internal::add_client(*this, client);
 
 	TempAllocator256 alloc;
 	Array<u32> to_remove(alloc);
@@ -136,14 +169,14 @@ void ConsoleServer::update()
 		for (;;)
 		{
 			u32 msg_len = 0;
-			ReadResult rr = _clients[i].read_nonblock(&msg_len, 4);
+			ReadResult rr = _clients[i].socket.read_nonblock(&msg_len, 4);
 
 			if (rr.error == ReadResult::WOULDBLOCK)
 				break;
 
 			if (rr.error != ReadResult::SUCCESS)
 			{
-				array::push_back(to_remove, i);
+				array::push_back(to_remove, _clients[i].id);
 				break;
 			}
 
@@ -151,12 +184,12 @@ void ConsoleServer::update()
 			TempAllocator4096 ta;
 			Array<char> msg(ta);
 			array::resize(msg, msg_len + 1);
-			rr = _clients[i].read(array::begin(msg), msg_len);
+			rr = _clients[i].socket.read(array::begin(msg), msg_len);
 			msg[msg_len] = '\0';
 
 			if (rr.error != ReadResult::SUCCESS)
 			{
-				array::push_back(to_remove, i);
+				array::push_back(to_remove, _clients[i].id);
 				break;
 			}
 
@@ -173,22 +206,15 @@ void ConsoleServer::update()
 				);
 
 			if (cmd.message_function)
-				cmd.message_function(*this, _clients[i], array::begin(msg), cmd.user_data);
+				cmd.message_function(*this, _clients[i].socket, array::begin(msg), cmd.user_data);
 			else
-				error(_clients[i], "Unknown command");
+				error(_clients[i].socket, "Unknown command");
 		}
 	}
 
 	// Remove clients
-	for (u32 i = 0; i < array::size(to_remove); ++i)
-	{
-		const u32 last = vector::size(_clients) - 1;
-		const u32 c = to_remove[i];
-
-		_clients[c].close();
-		_clients[c] = _clients[last];
-		vector::pop_back(_clients);
-	}
+	for (u32 ii = 0; ii < array::size(to_remove); ++ii)
+		console_server_internal::remove_client(*this, to_remove[ii]);
 }
 
 void ConsoleServer::register_command_type(const char* type, CommandTypeFunction function, void* user_data)
