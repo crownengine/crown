@@ -1,8 +1,6 @@
 require "core/game/camera"
 
-Game = Game or {}
-
-Game = {
+Game = Game or {
 	pw = nil,
 	rw = nil,
 	sg = nil,

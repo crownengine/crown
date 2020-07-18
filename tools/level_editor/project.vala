@@ -149,9 +149,7 @@ actors = {
 			{
 				string text = """require "core/game/camera"
 
-Game = Game or {}
-
-Game = {
+Game = Game or {
 	sg = nil,
 	pw = nil,
 	rw = nil,
