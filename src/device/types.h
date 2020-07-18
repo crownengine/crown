@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "core/types.h"
+
 namespace crown
 {
 struct ConsoleServer;
