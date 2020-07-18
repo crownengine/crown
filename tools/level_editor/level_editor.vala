@@ -561,6 +561,14 @@ namespace Crown
 		private void on_editor_disconnected()
 		{
 			_console_view.logi("editor", "Disconnected from level_editor");
+
+			Gtk.Label label = new Gtk.Label(null);
+			label.set_markup("Something went wrong.\rTry to <a href=\"restart\">Restart</a> this view.");
+			label.activate_link.connect(() => {
+				activate_action("restart", null);
+				return true;
+			});
+			_editor_slide.show_widget(label);
 		}
 
 		private void on_game_connected(string address, int port)

@@ -21,7 +21,9 @@ Changelog
 * Fixed an issue that allowed the user to enter blank names when renaming objects in the Level Tree
 * Fixed an issue that caused level auto-saving in Level Editor not triggering at the intended interval
 * Fixed an issue that caused the Level Editor to not include "core/units/camera" in the boot.package of a newly created project
+* Fixed an issue that caused the Level Editor to start the Editor View before data compilation was done in some circumstances
 * Renaming of objects in the Level Tree is now handled with a modal dialog
+* The Editor View will now show a message explaining how to recover the session after a crash or unintended disconnection
 * Unified the asset import dialogs
 
 0.37.0
