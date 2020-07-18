@@ -14,31 +14,68 @@
 #include "core/strings/string_stream.inl"
 #include "device/console_server.h"
 
+LOG_SYSTEM(CONSOLE_SERVER, "console_server")
+
 namespace crown
 {
-static void console_server_command(ConsoleServer& cs, TCPSocket& client, const char* json, void* /*user_data*/)
-{
-	TempAllocator4096 ta;
-	JsonObject obj(ta);
-	JsonArray args(ta);
-
-	sjson::parse(obj, json);
-	sjson::parse_array(args, obj["args"]);
-
-	DynamicString command_name(ta);
-	sjson::parse_string(command_name, args[0]);
-
-	ConsoleServer::CommandData cmd;
-	cmd.command_function = NULL;
-	cmd.user_data = NULL;
-	cmd = hash_map::get(cs._commands, command_name.to_string_id(), cmd);
-
-	if (cmd.command_function != NULL)
-		cmd.command_function(cs, client, args, cmd.user_data);
-}
-
 namespace console_server_internal
 {
+	static void message_command(ConsoleServer& cs, TCPSocket& client, const char* json, void* /*user_data*/)
+	{
+		TempAllocator4096 ta;
+		JsonObject obj(ta);
+		JsonArray args(ta);
+
+		sjson::parse(obj, json);
+		sjson::parse_array(args, obj["args"]);
+
+		DynamicString command_name(ta);
+		sjson::parse_string(command_name, args[0]);
+
+		ConsoleServer::CommandData cmd;
+		cmd.command_function = NULL;
+		cmd.user_data = NULL;
+		cmd = hash_map::get(cs._commands, command_name.to_string_id(), cmd);
+
+		if (cmd.command_function != NULL)
+			cmd.command_function(cs, client, args, cmd.user_data);
+	}
+
+	static void command_help(ConsoleServer& cs, TCPSocket& client, JsonArray& args, void* /*user_data*/)
+	{
+		if (array::size(args) != 1)
+		{
+			cs.error(client, "Usage: help");
+			return;
+		}
+
+		u32 longest = 0;
+
+		auto cur = hash_map::begin(cs._commands);
+		auto end = hash_map::end(cs._commands);
+		for (; cur != end; ++cur)
+		{
+			HASH_MAP_SKIP_HOLE(cs._commands, cur);
+
+			if (longest < strlen32(cur->second.name))
+				longest = strlen32(cur->second.name);
+		}
+
+		cur = hash_map::begin(cs._commands);
+		end = hash_map::end(cs._commands);
+		for (; cur != end; ++cur)
+		{
+			HASH_MAP_SKIP_HOLE(cs._commands, cur);
+
+			logi(CONSOLE_SERVER, "%s%*s%s"
+				, cur->second.name
+				, longest - strlen32(cur->second.name) + 2
+				, " "
+				, cur->second.brief
+				);
+		}
+	}
+
 	static u32 add_client(ConsoleServer& cs, TCPSocket& socket)
 	{
 		const u32 id = cs._next_client_id++;
@@ -75,7 +112,8 @@ ConsoleServer::ConsoleServer(Allocator& a)
 	, _messages(a)
 	, _commands(a)
 {
-	this->register_message_type("command", console_server_command, this);
+	this->register_message_type("command", console_server_internal::message_command, this);
+	this->register_command_name("help", "List all commands", console_server_internal::command_help, this);
 }
 
 void ConsoleServer::listen(u16 port, bool wait)
@@ -217,15 +255,18 @@ void ConsoleServer::update()
 		console_server_internal::remove_client(*this, to_remove[ii]);
 }
 
-void ConsoleServer::register_command_type(const char* type, CommandTypeFunction function, void* user_data)
+void ConsoleServer::register_command_name(const char* name, const char* brief, CommandTypeFunction function, void* user_data)
 {
-	CE_ENSURE(NULL != type);
+	CE_ENSURE(NULL != name);
+	CE_ENSURE(NULL != brief);
 	CE_ENSURE(NULL != function);
 
 	CommandData cmd;
 	cmd.command_function = function;
 	cmd.user_data = user_data;
-	hash_map::set(_commands, StringId32(type), cmd);
+	strncpy(cmd.name, name, sizeof(cmd.name)-1);
+	strncpy(cmd.brief, brief, sizeof(cmd.brief)-1);
+	hash_map::set(_commands, StringId32(name), cmd);
 }
 
 void ConsoleServer::register_message_type(const char* type, MessageTypeFunction function, void* user_data)

@@ -7,6 +7,7 @@ Changelog
 
 **Runtime**
 
+* Added "help" command
 * Core primitives now include UV, tangent and bitangent data
 * Fixed a crash when multiple clients were connected to the Console Server
 * Fixed a crash when reloading lua scripts that haden't been loaded previously

@@ -28,7 +28,10 @@ struct ConsoleServer
 			CommandTypeFunction command_function;
 			MessageTypeFunction message_function;
 		};
+
 		void* user_data;
+		char name[32];
+		char brief[128];
 	};
 
 	struct Client
@@ -69,7 +72,7 @@ struct ConsoleServer
 	void log(LogSeverity::Enum sev, const char* system, const char* msg);
 
 	// Registers the command @a type.
-	void register_command_type(const char* type, CommandTypeFunction cmd, void* user_data);
+	void register_command_name(const char* name, const char* brief, CommandTypeFunction cmd, void* user_data);
 
 	/// Registers the message @a type.
 	void register_message_type(const char* type, MessageTypeFunction cmd, void* user_data);

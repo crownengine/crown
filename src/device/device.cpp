@@ -169,17 +169,17 @@ struct BgfxAllocator : public bx::AllocatorI
 	}
 };
 
-static void command_device_pause(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_pause(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
 {
 	device()->pause();
 }
 
-static void command_device_unpause(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_unpause(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
 {
 	device()->unpause();
 }
 
-static void command_device_refresh(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
+static void device_command_refresh(ConsoleServer& /*cs*/, TCPSocket& /*client*/, JsonArray& /*args*/, void* /*user_data*/)
 {
 	device()->refresh();
 }
@@ -268,9 +268,9 @@ void Device::run()
 {
 	s64 run_t0 = time::now();
 
-	_console_server->register_command_type("pause", command_device_pause, this);
-	_console_server->register_command_type("unpause", command_device_unpause, this);
-	_console_server->register_command_type("refresh", command_device_refresh, this);
+	_console_server->register_command_name("pause", "Pause the engine", device_command_pause, this);
+	_console_server->register_command_name("unpause", "Resume the engine", device_command_unpause, this);
+	_console_server->register_command_name("refresh", "Reload all changed resources", device_command_refresh, this);
 
 	_console_server->listen(_options._console_port, _options._wait_console);
 
