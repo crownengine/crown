@@ -39,7 +39,7 @@ static void console_server_command(ConsoleServer& cs, TCPSocket& client, const c
 
 namespace console_server_internal
 {
-	u32 add_client(ConsoleServer& cs, TCPSocket& socket)
+	static u32 add_client(ConsoleServer& cs, TCPSocket& socket)
 	{
 		const u32 id = cs._next_client_id++;
 
@@ -51,7 +51,7 @@ namespace console_server_internal
 		return id;
 	}
 
-	void remove_client(ConsoleServer& cs, u32 id)
+	static void remove_client(ConsoleServer& cs, u32 id)
 	{
 		const u32 last = vector::size(cs._clients) - 1;
 
