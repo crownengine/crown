@@ -35,7 +35,8 @@ namespace Crown
 		public Gtk.TreeSelection _tree_selection;
 		public Gtk.ScrolledWindow _scrolled_window;
 
-		public Gtk.Widget _editor_view;
+		public Slide _editor_slide;
+		public EditorView _editor_view;
 
 		// Signals
 		public signal void resource_selected(string type, string name);
@@ -116,24 +117,19 @@ namespace Crown
 			_scrolled_window.add(_tree_view);
 			_scrolled_window.set_size_request(300, 400);
 
-			if (_preview)
-			{
-				EditorView ev = new EditorView(_console_client, false);
-				ev.set_size_request(300, 300);
-				ev.realized.connect(on_editor_view_realized);
-				_editor_view = ev;
-
-				this.destroy.connect(on_destroy);
-			}
-			else
-			{
-				_editor_view = new Gtk.Label("No Preview");
-				_editor_view.set_size_request(300, 300);
-			}
+			_editor_slide = new Slide();
 
 			this.pack_start(_filter_entry, false, true, 0);
-			this.pack_start(_editor_view, true, true, 0);
+			this.pack_start(_editor_slide, true, true, 0);
 			this.pack_start(_scrolled_window, true, true, 0);
+
+			Gtk.Label label = new Gtk.Label("No Preview");
+			label.set_size_request(300, 300);
+			_editor_slide.show_widget(label);
+
+			this.destroy.connect(on_destroy);
+
+			restart_editor();
 		}
 
 		private void on_row_activated(Gtk.TreePath path, TreeViewColumn column)
@@ -228,11 +224,14 @@ namespace Crown
 			if (!_preview)
 				return;
 
-			_console_client.close();
+			if (_console_client != null)
+			{
+				_console_client.send_script("Device.quit()");
+				_console_client.close();
+			}
 
 			if (_editor_process != null)
 			{
-				_editor_process.force_exit();
 				try
 				{
 					_editor_process.wait();
@@ -250,7 +249,17 @@ namespace Crown
 				return;
 
 			stop_editor();
-			start_editor(((EditorView)_editor_view).window_id);
+
+			if (_editor_view != null)
+			{
+				_editor_view = null;
+			}
+
+			_editor_view = new EditorView(_console_client, false);
+			_editor_view.set_size_request(300, 300);
+			_editor_view.realized.connect(on_editor_view_realized);
+
+			_editor_slide.show_widget(_editor_view);
 		}
 
 		private void on_editor_view_realized()

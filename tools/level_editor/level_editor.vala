@@ -369,6 +369,9 @@ namespace Crown
 			_toolbar = builder.get_object("toolbar") as Gtk.Toolbar;
 			_toolbar_run = builder.get_object("run") as Gtk.ToolButton;
 
+			_editor_view_overlay = new Gtk.Overlay();
+			_editor_view_overlay.add_overlay(_toolbar);
+
 			_resource_popover = new Gtk.Popover(_toolbar);
 			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
 			_resource_popover.modal = true;
@@ -382,8 +385,6 @@ namespace Crown
 			_level_tree_view_notebook.show_border = false;
 			_level_tree_view_notebook.append_page(_level_treeview, new Gtk.Image.from_icon_name("level-tree", IconSize.SMALL_TOOLBAR));
 			_level_tree_view_notebook.append_page(_level_layers_treeview, new Gtk.Image.from_icon_name("level-layers", IconSize.SMALL_TOOLBAR));
-
-			_editor_view_overlay = new Gtk.Overlay();
 
 			_editor_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_editor_pane.pack1(_project_slide, false, false);
@@ -773,19 +774,9 @@ namespace Crown
 			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 				if (_data_compiler.compile.end(res))
 				{
-					if (_editor_view != null)
-						return;
-
-					_editor_view = new EditorView(_editor);
-					_editor_view.realized.connect(on_editor_view_realized);
-					_editor_view.button_press_event.connect(on_button_press);
-					_editor_view.button_release_event.connect(on_button_release);
-
-					_editor_view_overlay.add(_editor_view);
-					_editor_view_overlay.add_overlay(_toolbar);
+					restart_editor();
 
 					_project_slide.show_widget(_project_browser);
-					_editor_slide.show_widget(_editor_view_overlay);
 					_inspector_slide.show_widget(_inspector_pane);
 				}
 			});
@@ -872,7 +863,22 @@ namespace Crown
 		private void restart_editor()
 		{
 			stop_editor();
-			start_editor(_editor_view.window_id);
+
+			if (_editor_view != null)
+			{
+				_editor_view_overlay.remove(_editor_view);
+				_editor_view = null;
+			}
+
+			_editor_view = new EditorView(_editor);
+			_editor_view.realized.connect(on_editor_view_realized);
+			_editor_view.button_press_event.connect(on_button_press);
+			_editor_view.button_release_event.connect(on_button_release);
+
+			_editor_view_overlay.add(_editor_view);
+			_editor_slide.show_widget(_editor_view_overlay);
+
+			_resource_chooser.restart_editor();
 		}
 
 		private void start_game(StartGame sg)
@@ -1112,8 +1118,6 @@ namespace Crown
 				_level.load_empty_level();
 				stop_compiler();
 				start_compiler();
-				restart_editor();
-				_resource_chooser.restart_editor();
 			}
 
 			fcd.destroy();
