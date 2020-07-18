@@ -447,6 +447,15 @@ namespace Crown
 			{
 				LevelEditorWindow win = new LevelEditorWindow(this);
 				win.add(_main_vbox);
+
+				try
+				{
+					win.icon = IconTheme.get_default().load_icon("pepper", 48, 0);
+				}
+				catch (Error e)
+				{
+					_console_view.loge("editor", e.message);
+				}
 			}
 
 			this.active_window.show_all();
@@ -1637,15 +1646,7 @@ namespace Crown
 			dlg.set_destroy_with_parent(true);
 			dlg.set_transient_for(this.active_window);
 			dlg.set_modal(true);
-
-			try
-			{
-				dlg.set_logo(new Pixbuf.from_resource("/org/crown/level_editor/icons/128x128/pepper.png"));
-			}
-			catch (Error e)
-			{
-				_console_view.loge("editor", e.message);
-			}
+			dlg.set_logo_icon_name("pepper");
 
 			dlg.program_name = "Crown Game Engine";
 			dlg.version = CROWN_VERSION;
