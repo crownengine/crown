@@ -7,7 +7,7 @@
 #include "core/filesystem/path.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
-#include "resource/resource_id.h"
+#include "resource/resource_id.inl"
 
 namespace crown
 {

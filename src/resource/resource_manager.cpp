@@ -8,7 +8,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
-#include "resource/resource_id.h"
+#include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
 

@@ -17,17 +17,10 @@ namespace crown
 typedef StringId64 ResourceId;
 
 /// Returns the resource id from @a type and @a name.
-inline ResourceId resource_id(StringId64 type, StringId64 name)
-{
-	ResourceId id { type._id ^ name._id };
-	return id;
-}
+inline ResourceId resource_id(StringId64 type, StringId64 name);
 
 /// Returns the resource id from @a type and @a name.
-inline ResourceId resource_id(const char* type, u32 type_len, const char* name, u32 name_len)
-{
-	return resource_id(StringId64(type, type_len), StringId64(name, name_len));
-}
+inline ResourceId resource_id(const char* type, u32 type_len, const char* name, u32 name_len);
 
 /// Returns the resource id from @a path.
 ResourceId resource_id(const char* path);

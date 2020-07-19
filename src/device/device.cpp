@@ -45,7 +45,7 @@
 #include "resource/mesh_resource.h"
 #include "resource/package_resource.h"
 #include "resource/physics_resource.h"
-#include "resource/resource_id.h"
+#include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
 #include "resource/resource_package.h"

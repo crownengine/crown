@@ -19,7 +19,7 @@
 #include "resource/compile_options.h"
 #include "resource/data_compiler.h"
 #include "resource/package_resource.h"
-#include "resource/resource_id.h"
+#include "resource/resource_id.inl"
 
 namespace crown
 {
