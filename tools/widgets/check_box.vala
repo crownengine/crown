@@ -4,28 +4,24 @@
  */
 
 using Gtk;
-using Gdk;
 
 namespace Crown
 {
-	public class CheckBox : Gtk.Bin
+	public class CheckBox : Gtk.CheckButton
 	{
 		// Data
 		public bool _stop_emit;
-
-		// Widgets
-		public Gtk.CheckButton _check_button;
 
 		public bool value
 		{
 			get
 			{
-				return _check_button.active;
+				return this.active;
 			}
 			set
 			{
 				_stop_emit = true;
-				_check_button.active = value;
+				this.active = value;
 				_stop_emit = false;
 			}
 		}
@@ -35,17 +31,10 @@ namespace Crown
 
 		public CheckBox()
 		{
-			this.hexpand = true;
-
 			// Data
 			_stop_emit = false;
 
-			// Widgets
-			_check_button = new CheckButton();
-
-			_check_button.toggled.connect(on_value_changed);
-
-			add(_check_button);
+			this.toggled.connect(on_value_changed);
 		}
 
 		private void on_value_changed()

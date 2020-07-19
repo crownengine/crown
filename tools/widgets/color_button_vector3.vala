@@ -7,13 +7,10 @@ using Gtk;
 
 namespace Crown
 {
-	public class ColorButtonVector3 : Gtk.Bin
+	public class ColorButtonVector3 : Gtk.ColorButton
 	{
 		// Data
 		public bool _stop_emit;
-
-		// Widgets
-		public Gtk.ColorButton _color_button;
 
 		// Signals
 		public signal void value_changed();
@@ -22,7 +19,7 @@ namespace Crown
 		{
 			get
 			{
-				Gdk.RGBA rgba = _color_button.get_rgba();
+				Gdk.RGBA rgba = this.get_rgba();
 				double r = rgba.red;
 				double g = rgba.green;
 				double b = rgba.blue;
@@ -36,7 +33,7 @@ namespace Crown
 				double g = val.y;
 				double b = val.z;
 				double a = 1.0;
-				_color_button.set_rgba({ r, g, b, a });
+				this.set_rgba({ r, g, b, a });
 				_stop_emit = false;
 			}
 		}
@@ -45,10 +42,7 @@ namespace Crown
 		{
 			_stop_emit = false;
 
-			_color_button = new Gtk.ColorButton();
-			_color_button.color_set.connect(on_color_set);
-
-			add(_color_button);
+			this.color_set.connect(on_color_set);
 		}
 
 		private void on_color_set()

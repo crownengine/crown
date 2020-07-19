@@ -35,7 +35,6 @@ namespace Crown
 
 		public EntryDouble(double val, double min, double max, string fmt = "%.6g")
 		{
-			this.hexpand = true;
 			this.input_purpose = Gtk.InputPurpose.DIGITS;
 			this.set_width_chars(1);
 

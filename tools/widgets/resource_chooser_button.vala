@@ -52,8 +52,8 @@ namespace Crown
 			_selector.clicked.connect(on_selector_clicked);
 			_project_store = store;
 
-			add(_name);
-			add(_selector);
+			this.pack_start(_name, true, true);
+			this.pack_end(_selector, false);
 		}
 
 		private void on_value_changed()

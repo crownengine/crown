@@ -49,8 +49,8 @@ namespace Crown
 			_x.value_changed.connect(on_value_changed);
 			_y.value_changed.connect(on_value_changed);
 
-			add(_x);
-			add(_y);
+			this.pack_start(_x, true, true);
+			this.pack_start(_y, true, true);
 		}
 
 		private void on_value_changed()
