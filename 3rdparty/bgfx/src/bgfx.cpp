@@ -1869,7 +1869,7 @@ namespace bgfx
 		frameNoRenderWait();
 
 		m_encoderHandle = bx::createHandleAlloc(g_allocator, _init.limits.maxEncoders);
-		m_encoder       = (EncoderImpl*)BX_ALLOC(g_allocator, sizeof(EncoderImpl)*_init.limits.maxEncoders);
+		m_encoder       = (EncoderImpl*)BX_ALIGNED_ALLOC(g_allocator, sizeof(EncoderImpl)*_init.limits.maxEncoders, 16);
 		m_encoderStats  = (EncoderStats*)BX_ALLOC(g_allocator, sizeof(EncoderStats)*_init.limits.maxEncoders);
 		for (uint32_t ii = 0, num = _init.limits.maxEncoders; ii < num; ++ii)
 		{
@@ -1975,7 +1975,7 @@ namespace bgfx
 		{
 			m_encoder[ii].~EncoderImpl();
 		}
-		BX_FREE(g_allocator, m_encoder);
+		BX_ALIGNED_FREE(g_allocator, m_encoder, 16);
 		BX_FREE(g_allocator, m_encoderStats);
 
 		m_dynVertexBufferAllocator.compact();
@@ -5078,7 +5078,7 @@ namespace bgfx
 	}
 } // namespace bgfx
 
-#if BX_PLATFORM_WINDOWS
+#if BGFX_CONFIG_PREFER_DISCRETE_GPU
 extern "C"
 {
 	// When laptop setup has integrated and discrete GPU, following driver workarounds will
@@ -5094,7 +5094,7 @@ extern "C"
 	//
 	__declspec(dllexport) uint32_t AmdPowerXpressRequestHighPerformance = UINT32_C(1);
 }
-#endif // BX_PLATFORM_WINDOWS
+#endif // BGFX_CONFIG_PREFER_DISCRETE_GPU
 
 #define BGFX_TEXTURE_FORMAT_BIMG(_fmt) \
 	BX_STATIC_ASSERT(uint32_t(bgfx::TextureFormat::_fmt) == uint32_t(bimg::TextureFormat::_fmt) )

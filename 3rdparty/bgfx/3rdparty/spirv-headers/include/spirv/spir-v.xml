@@ -72,7 +72,8 @@
         <id value="20"  vendor="W3C WebGPU Group" tool="WHLSL Shader Translator" comment="https://github.com/gpuweb/WHLSL"/>
         <id value="21"  vendor="Google" tool="Clspv" comment="Contact David Neto, dneto@google.com"/>
         <id value="22"  vendor="Google" tool="MLIR SPIR-V Serializer" comment="Contact Lei Zhang, antiagainst@google.com"/>
-        <unused start="23" end="0xFFFF" comment="Tool ID range reservable for future use by vendors"/>
+        <id value="23"  vendor="Google" tool="Tint Compiler" comment="Contact David Neto, dneto@google.com"/>
+        <unused start="24" end="0xFFFF" comment="Tool ID range reservable for future use by vendors"/>
     </ids>
 
     <!-- SECTION: SPIR-V Opcodes and Enumerants -->
@@ -145,7 +146,7 @@
 
 
     <!-- SECTION: SPIR-V FP Fast Math Mode Bit Reservations -->
-    <!-- Reserve ranges of bits in the “FP Fast Math Mode” bitfield.
+    <!-- Reserve ranges of bits in the "FP Fast Math Mode" bitfield.
          Each vendor determines the use of values in their own ranges.
          Vendors are not required to disclose those uses.  If the use of a
          value is included in an extension that is adopted by a Khronos

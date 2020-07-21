@@ -122,9 +122,9 @@ solution "bgfx"
 		"Release",
 	}
 
-	if _ACTION ~= nil and _ACTION:match "xcode*" then
+	if _ACTION ~= nil and _ACTION:match "^xcode" then
 		platforms {
-			"Universal",
+			"Native", -- let xcode decide based on the target output
 		}
 	else
 		platforms {
@@ -598,8 +598,4 @@ end
 if _OPTIONS["with-tools"] then
 	group "tools"
 	dofile "shaderc.lua"
-	dofile "texturec.lua"
-	dofile "texturev.lua"
-	dofile "geometryc.lua"
-	dofile "geometryv.lua"
 end

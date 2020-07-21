@@ -56,15 +56,6 @@ void CompilerMSL::add_msl_shader_input(const MSLShaderInput &si)
 		inputs_by_builtin[si.builtin] = si;
 }
 
-void CompilerMSL::add_msl_vertex_attribute(const MSLVertexAttr &va)
-{
-	MSLShaderInput si;
-	si.location = va.location;
-	si.format = va.format;
-	si.builtin = va.builtin;
-	add_msl_shader_input(si);
-}
-
 void CompilerMSL::add_msl_resource_binding(const MSLResourceBinding &binding)
 {
 	StageSetBinding tuple = { binding.stage, binding.desc_set, binding.binding };
@@ -98,11 +89,6 @@ void CompilerMSL::set_argument_buffer_device_address_space(uint32_t desc_set, bo
 		else
 			argument_buffer_device_storage_mask &= ~(1u << desc_set);
 	}
-}
-
-bool CompilerMSL::is_msl_vertex_attribute_used(uint32_t location)
-{
-	return is_msl_shader_input_used(location);
 }
 
 bool CompilerMSL::is_msl_shader_input_used(uint32_t location)
@@ -1292,6 +1278,11 @@ void CompilerMSL::extract_global_variables_from_function(uint32_t func_id, std::
 				uint32_t base_id = ops[0];
 				if (global_var_ids.find(base_id) != global_var_ids.end())
 					added_arg_ids.insert(base_id);
+				
+                		uint32_t rvalue_id = ops[1];
+                		if (global_var_ids.find(rvalue_id) != global_var_ids.end())
+                    			added_arg_ids.insert(rvalue_id);
+				
 				break;
 			}
 
@@ -3349,15 +3340,10 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 
 		auto &physical_type = get<SPIRType>(physical_type_id);
 
-		static const char *swizzle_lut[] = {
-			".x",
-			".xy",
-			".xyz",
-			"",
-		};
-
 		if (is_matrix(type))
 		{
+			const char *packed_pfx = lhs_packed_type ? "packed_" : "";
+
 			// Packed matrices are stored as arrays of packed vectors, so we need
 			// to assign the vectors one at a time.
 			// For row-major matrices, we need to transpose the *right-hand* side,
@@ -3366,6 +3352,8 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 			// Lots of cases to cover here ...
 
 			bool rhs_transpose = rhs_e && rhs_e->need_transpose;
+			SPIRType write_type = type;
+			string cast_expr;
 
 			// We're dealing with transpose manually.
 			if (rhs_transpose)
@@ -3375,17 +3363,18 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 			{
 				// We're dealing with transpose manually.
 				lhs_e->need_transpose = false;
+				write_type.vecsize = type.columns;
+				write_type.columns = 1;
 
-				const char *store_swiz = "";
 				if (physical_type.columns != type.columns)
-					store_swiz = swizzle_lut[type.columns - 1];
+					cast_expr = join("(device ", packed_pfx, type_to_glsl(write_type), "&)");
 
 				if (rhs_transpose)
 				{
 					// If RHS is also transposed, we can just copy row by row.
 					for (uint32_t i = 0; i < type.vecsize; i++)
 					{
-						statement(to_enclosed_expression(lhs_expression), "[", i, "]", store_swiz, " = ",
+						statement(cast_expr, to_enclosed_expression(lhs_expression), "[", i, "]", " = ",
 						          to_unpacked_row_major_matrix_expression(rhs_expression), "[", i, "];");
 					}
 				}
@@ -3408,7 +3397,7 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 						}
 						rhs_row += ")";
 
-						statement(to_enclosed_expression(lhs_expression), "[", i, "]", store_swiz, " = ", rhs_row, ";");
+						statement(cast_expr, to_enclosed_expression(lhs_expression), "[", i, "]", " = ", rhs_row, ";");
 					}
 				}
 
@@ -3417,9 +3406,10 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 			}
 			else
 			{
-				const char *store_swiz = "";
+				write_type.columns = 1;
+
 				if (physical_type.vecsize != type.vecsize)
-					store_swiz = swizzle_lut[type.vecsize - 1];
+					cast_expr = join("(device ", packed_pfx, type_to_glsl(write_type), "&)");
 
 				if (rhs_transpose)
 				{
@@ -3441,7 +3431,7 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 						}
 						rhs_row += ")";
 
-						statement(to_enclosed_expression(lhs_expression), "[", i, "]", store_swiz, " = ", rhs_row, ";");
+						statement(cast_expr, to_enclosed_expression(lhs_expression), "[", i, "]", " = ", rhs_row, ";");
 					}
 				}
 				else
@@ -3449,7 +3439,7 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 					// Copy column-by-column.
 					for (uint32_t i = 0; i < type.columns; i++)
 					{
-						statement(to_enclosed_expression(lhs_expression), "[", i, "]", store_swiz, " = ",
+						statement(cast_expr, to_enclosed_expression(lhs_expression), "[", i, "]", " = ",
 						          to_enclosed_unpacked_expression(rhs_expression), "[", i, "];");
 					}
 				}
@@ -3463,6 +3453,10 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 		{
 			lhs_e->need_transpose = false;
 
+			SPIRType write_type = type;
+			write_type.vecsize = 1;
+			write_type.columns = 1;
+
 			// Storing a column to a row-major matrix. Unroll the write.
 			for (uint32_t c = 0; c < type.vecsize; c++)
 			{
@@ -3470,7 +3464,8 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 				auto column_index = lhs_expr.find_last_of('[');
 				if (column_index != string::npos)
 				{
-					statement(lhs_expr.insert(column_index, join('[', c, ']')), " = ",
+					statement("((device ", type_to_glsl(write_type), "*)&",
+					          lhs_expr.insert(column_index, join('[', c, ']', ")")), " = ",
 					          to_extract_component_expression(rhs_expression, c), ";");
 				}
 			}
@@ -3492,7 +3487,7 @@ void CompilerMSL::emit_store_statement(uint32_t lhs_expression, uint32_t rhs_exp
 
 			// Unpack the expression so we can store to it with a float or float2.
 			// It's still an l-value, so it's fine. Most other unpacking of expressions turn them into r-values instead.
-			lhs = enclose_expression(lhs) + swizzle_lut[type.vecsize - 1];
+			lhs = join("(device ", type_to_glsl(type), "&)", enclose_expression(lhs));
 			if (!optimize_read_modify_write(expression_type(rhs_expression), lhs, rhs))
 				statement(lhs, " = ", rhs, ";");
 		}
@@ -3820,20 +3815,21 @@ void CompilerMSL::emit_custom_functions()
 		{
 			// Unfortunately we cannot template on the address space, so combinatorial explosion it is.
 			static const char *function_name_tags[] = {
-				"FromConstantToStack",    "FromConstantToThreadGroup", "FromStackToStack",
-				"FromStackToThreadGroup", "FromThreadGroupToStack",    "FromThreadGroupToThreadGroup",
-				"FromDeviceToDevice", "FromConstantToDevice", "FromStackToDevice",
-				"FromThreadGroupToDevice", "FromDeviceToStack", "FromDeviceToThreadGroup",
+				"FromConstantToStack",     "FromConstantToThreadGroup", "FromStackToStack",
+				"FromStackToThreadGroup",  "FromThreadGroupToStack",    "FromThreadGroupToThreadGroup",
+				"FromDeviceToDevice",      "FromConstantToDevice",      "FromStackToDevice",
+				"FromThreadGroupToDevice", "FromDeviceToStack",         "FromDeviceToThreadGroup",
 			};
 
 			static const char *src_address_space[] = {
-				"constant", "constant", "thread const", "thread const", "threadgroup const", "threadgroup const",
-				"device const", "constant", "thread const", "threadgroup const", "device const", "device const",
+				"constant",          "constant",          "thread const", "thread const",
+				"threadgroup const", "threadgroup const", "device const", "constant",
+				"thread const",      "threadgroup const", "device const", "device const",
 			};
 
 			static const char *dst_address_space[] = {
 				"thread", "threadgroup", "thread", "threadgroup", "thread", "threadgroup",
-				"device", "device", "device", "device", "thread", "threadgroup",
+				"device", "device",      "device", "device",      "thread", "threadgroup",
 			};
 
 			for (uint32_t variant = 0; variant < 12; variant++)
@@ -5872,6 +5868,23 @@ bool CompilerMSL::is_out_of_bounds_tessellation_level(uint32_t id_lhs)
 	       (builtin == BuiltInTessLevelOuter && c->scalar() == 3);
 }
 
+void CompilerMSL::prepare_access_chain_for_scalar_access(std::string &expr, const SPIRType &type,
+                                                         spv::StorageClass storage, bool &is_packed)
+{
+	// If there is any risk of writes happening with the access chain in question,
+	// and there is a risk of concurrent write access to other components,
+	// we must cast the access chain to a plain pointer to ensure we only access the exact scalars we expect.
+	// The MSL compiler refuses to allow component-level access for any non-packed vector types.
+	if (!is_packed && (storage == StorageClassStorageBuffer || storage == StorageClassWorkgroup))
+	{
+		const char *addr_space = storage == StorageClassWorkgroup ? "threadgroup" : "device";
+		expr = join("((", addr_space, " ", type_to_glsl(type), "*)&", enclose_expression(expr), ")");
+
+		// Further indexing should happen with packed rules (array index, not swizzle).
+		is_packed = true;
+	}
+}
+
 // Override for MSL-specific syntax instructions
 void CompilerMSL::emit_instruction(const Instruction &instruction)
 {
@@ -6295,8 +6308,7 @@ void CompilerMSL::emit_instruction(const Instruction &instruction)
 		args.lod = lod;
 		statement(join(to_expression(img_id), ".write(",
 		               remap_swizzle(store_type, texel_type.vecsize, to_expression(texel_id)), ", ",
-		               CompilerMSL::to_function_args(args, &forward),
-		               ");"));
+		               CompilerMSL::to_function_args(args, &forward), ");"));
 
 		if (p_var && variable_storage_is_aliased(*p_var))
 			flush_all_aliased_variables();
@@ -7880,9 +7892,10 @@ string CompilerMSL::to_function_args(const TextureFunctionArguments &args, bool 
 		if (is_cube_fetch)
 			farg_str += ", uint(" + to_extract_component_expression(args.coord, 2) + ")";
 		else
-			farg_str += ", uint(spvCubemapTo2DArrayFace(" + tex_coords + ").z) + (uint(" +
-			            round_fp_tex_coords(to_extract_component_expression(args.coord, alt_coord_component), coord_is_fp) +
-			            ") * 6u)";
+			farg_str +=
+			    ", uint(spvCubemapTo2DArrayFace(" + tex_coords + ").z) + (uint(" +
+			    round_fp_tex_coords(to_extract_component_expression(args.coord, alt_coord_component), coord_is_fp) +
+			    ") * 6u)";
 
 		add_spv_func_and_recompile(SPVFuncImplCubemapTo2DArrayFace);
 	}
@@ -7910,7 +7923,8 @@ string CompilerMSL::to_function_args(const TextureFunctionArguments &args, bool 
 			else
 				farg_str +=
 				    ", uint(" +
-				    round_fp_tex_coords(to_extract_component_expression(args.coord, alt_coord_component), coord_is_fp) + ")";
+				    round_fp_tex_coords(to_extract_component_expression(args.coord, alt_coord_component), coord_is_fp) +
+				    ")";
 		}
 	}
 
@@ -7924,8 +7938,8 @@ string CompilerMSL::to_function_args(const TextureFunctionArguments &args, bool 
 
 		string dref_expr;
 		if (args.base.is_proj)
-			dref_expr =
-			    join(to_enclosed_expression(args.dref), " / ", to_extract_component_expression(args.coord, alt_coord_component));
+			dref_expr = join(to_enclosed_expression(args.dref), " / ",
+			                 to_extract_component_expression(args.coord, alt_coord_component));
 		else
 			dref_expr = to_expression(args.dref);
 
@@ -8144,7 +8158,8 @@ void CompilerMSL::emit_sampled_image_op(uint32_t result_type, uint32_t result_id
 	set<SPIRCombinedImageSampler>(result_id, result_type, image_id, samp_id);
 }
 
-string CompilerMSL::to_texture_op(const Instruction &i, bool sparse, bool *forward, SmallVector<uint32_t> &inherited_expressions)
+string CompilerMSL::to_texture_op(const Instruction &i, bool sparse, bool *forward,
+                                  SmallVector<uint32_t> &inherited_expressions)
 {
 	auto *ops = stream(i);
 	uint32_t result_type_id = ops[0];
@@ -10127,7 +10142,13 @@ uint32_t CompilerMSL::get_metal_resource_index(SPIRVariable &var, SPIRType::Base
 	// If a binding has not been specified, revert to incrementing resource indices.
 	uint32_t resource_index;
 
-	if (allocate_argument_buffer_ids)
+	if (type_is_msl_framebuffer_fetch(type))
+	{
+		// Frame-buffer fetch gets its fallback resource index from the input attachment index,
+		// which is then treated as color index.
+		resource_index = get_decoration(var.self, DecorationInputAttachmentIndex);
+	}
+	else if (allocate_argument_buffer_ids)
 	{
 		// Allocate from a flat ID binding space.
 		resource_index = next_metal_resource_ids[var_desc_set];
@@ -10159,8 +10180,8 @@ uint32_t CompilerMSL::get_metal_resource_index(SPIRVariable &var, SPIRType::Base
 
 bool CompilerMSL::type_is_msl_framebuffer_fetch(const SPIRType &type) const
 {
-	return type.basetype == SPIRType::Image && type.image.dim == DimSubpassData &&
-	       msl_options.is_ios() && msl_options.ios_use_framebuffer_fetch_subpasses;
+	return type.basetype == SPIRType::Image && type.image.dim == DimSubpassData && msl_options.is_ios() &&
+	       msl_options.ios_use_framebuffer_fetch_subpasses;
 }
 
 string CompilerMSL::argument_decl(const SPIRFunction::Parameter &arg)

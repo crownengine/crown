@@ -103,6 +103,20 @@ class FuzzerPass {
     *GetTransformations()->add_transformation() = transformation.ToMessage();
   }
 
+  // A generic helper for applying a transformation only if it is applicable.
+  // If it is applicable, the transformation is applied and then added to the
+  // sequence of applied transformations and the function returns true.
+  // Otherwise, the function returns false.
+  bool MaybeApplyTransformation(const Transformation& transformation) {
+    if (transformation.IsApplicable(GetIRContext(),
+                                    *GetTransformationContext())) {
+      transformation.Apply(GetIRContext(), GetTransformationContext());
+      *GetTransformations()->add_transformation() = transformation.ToMessage();
+      return true;
+    }
+    return false;
+  }
+
   // Returns the id of an OpTypeBool instruction.  If such an instruction does
   // not exist, a transformation is applied to add it.
   uint32_t FindOrCreateBoolType();
@@ -135,6 +149,13 @@ class FuzzerPass {
   // float and vector types required to build this matrix type or the matrix
   // type itself do not exist, transformations are applied to add them.
   uint32_t FindOrCreateMatrixType(uint32_t column_count, uint32_t row_count);
+
+  // Returns the id of an OpTypeStruct instruction with |component_type_ids| as
+  // type ids for struct's components. If no such a struct type exists,
+  // transformations are applied to add it. |component_type_ids| may not contain
+  // a result id of an OpTypeFunction.
+  uint32_t FindOrCreateStructType(
+      const std::vector<uint32_t>& component_type_ids);
 
   // Returns the id of a pointer type with base type |base_type_id| (which must
   // already exist) and storage class |storage_class|.  A transformation is
@@ -176,10 +197,20 @@ class FuzzerPass {
   uint32_t FindOrCreateConstant(const std::vector<uint32_t>& words,
                                 uint32_t type_id);
 
+  // Returns the id of an OpConstantComposite
+  uint32_t FindOrCreateCompositeConstant(
+      const std::vector<uint32_t>& component_ids, uint32_t type_id);
+
   // Returns the result id of an instruction of the form:
   //   %id = OpUndef %|type_id|
   // If no such instruction exists, a transformation is applied to add it.
   uint32_t FindOrCreateGlobalUndef(uint32_t type_id);
+
+  // Returns the id of an OpNullConstant instruction of type |type_id|. If
+  // that instruction doesn't exist, it is added through a transformation.
+  // |type_id| must be a valid result id of an OpType* instruction that exists
+  // in the module.
+  uint32_t FindOrCreateNullConstant(uint32_t type_id);
 
   // Define a *basic type* to be an integer, boolean or floating-point type,
   // or a matrix, vector, struct or fixed-size array built from basic types.  In

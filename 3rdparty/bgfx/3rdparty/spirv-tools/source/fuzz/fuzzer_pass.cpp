@@ -20,6 +20,7 @@
 #include "source/fuzz/instruction_descriptor.h"
 #include "source/fuzz/transformation_add_constant_boolean.h"
 #include "source/fuzz/transformation_add_constant_composite.h"
+#include "source/fuzz/transformation_add_constant_null.h"
 #include "source/fuzz/transformation_add_constant_scalar.h"
 #include "source/fuzz/transformation_add_global_undef.h"
 #include "source/fuzz/transformation_add_type_boolean.h"
@@ -28,6 +29,7 @@
 #include "source/fuzz/transformation_add_type_int.h"
 #include "source/fuzz/transformation_add_type_matrix.h"
 #include "source/fuzz/transformation_add_type_pointer.h"
+#include "source/fuzz/transformation_add_type_struct.h"
 #include "source/fuzz/transformation_add_type_vector.h"
 
 namespace spvtools {
@@ -242,6 +244,17 @@ uint32_t FuzzerPass::FindOrCreateMatrixType(uint32_t column_count,
   return result;
 }
 
+uint32_t FuzzerPass::FindOrCreateStructType(
+    const std::vector<uint32_t>& component_type_ids) {
+  if (auto existing_id =
+          fuzzerutil::MaybeGetStructType(GetIRContext(), component_type_ids)) {
+    return existing_id;
+  }
+  auto new_id = GetFuzzerContext()->GetFreshId();
+  ApplyTransformation(TransformationAddTypeStruct(new_id, component_type_ids));
+  return new_id;
+}
+
 uint32_t FuzzerPass::FindOrCreatePointerType(uint32_t base_type_id,
                                              SpvStorageClass storage_class) {
   // We do not use the type manager here, due to problems related to isomorphic
@@ -341,6 +354,24 @@ uint32_t FuzzerPass::FindOrCreateConstant(const std::vector<uint32_t>& words,
   return 0;
 }
 
+uint32_t FuzzerPass::FindOrCreateCompositeConstant(
+    const std::vector<uint32_t>& component_ids, uint32_t type_id) {
+  assert(type_id && "|type_id| can't be 0");
+  const auto* type_inst = GetIRContext()->get_def_use_mgr()->GetDef(type_id);
+  assert(type_inst && "|type_id| is invalid");
+
+  std::vector<const opt::analysis::Constant*> constants;
+  for (auto id : component_ids) {
+    assert(id && "Component's id can't be 0");
+    const auto* constant =
+        GetIRContext()->get_constant_mgr()->FindDeclaredConstant(id);
+    assert(constant && "Component's id is invalid");
+    constants.push_back(constant);
+  }
+
+  return FindOrCreateCompositeConstant(*type_inst, constants, component_ids);
+}
+
 uint32_t FuzzerPass::FindOrCreateGlobalUndef(uint32_t type_id) {
   for (auto& inst : GetIRContext()->types_values()) {
     if (inst.opcode() == SpvOpUndef && inst.type_id() == type_id) {
@@ -349,6 +380,27 @@ uint32_t FuzzerPass::FindOrCreateGlobalUndef(uint32_t type_id) {
   }
   auto result = GetFuzzerContext()->GetFreshId();
   ApplyTransformation(TransformationAddGlobalUndef(result, type_id));
+  return result;
+}
+
+uint32_t FuzzerPass::FindOrCreateNullConstant(uint32_t type_id) {
+  // Find existing declaration
+  opt::analysis::NullConstant null_constant(
+      GetIRContext()->get_type_mgr()->GetType(type_id));
+  auto existing_constant =
+      GetIRContext()->get_constant_mgr()->FindConstant(&null_constant);
+
+  // Return if found
+  if (existing_constant) {
+    return GetIRContext()
+        ->get_constant_mgr()
+        ->GetDefiningInstruction(existing_constant)
+        ->result_id();
+  }
+
+  // Create new if not found
+  auto result = GetFuzzerContext()->GetFreshId();
+  ApplyTransformation(TransformationAddConstantNull(result, type_id));
   return result;
 }
 

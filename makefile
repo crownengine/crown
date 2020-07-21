@@ -81,14 +81,15 @@ android-arm-release: build/projects/android-arm build/android-arm/bin/libluajit.
 android-arm: android-arm-debug android-arm-development android-arm-release
 
 build/linux64/bin/texturec:
-	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-linux config=release64 texturec
-	cp -r 3rdparty/bgfx/.build/linux64_gcc/bin/texturecRelease $@
+	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/bimg/.build/projects/gmake-linux config=release64 texturec
+	cp -r 3rdparty/bimg/.build/linux64_gcc/bin/texturecRelease $@
 build/linux64/bin/shaderc:
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/bgfx/.build/projects/gmake-linux config=release64 shaderc
 	cp -r 3rdparty/bgfx/.build/linux64_gcc/bin/shadercRelease $@
 
 build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
+	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --gfxapi=gl32 --with-luajit --with-tools --compiler=linux-gcc gmake
 linux-debug32: build/projects/linux build/linux32/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=debug32
@@ -121,14 +122,15 @@ mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
 
 build/win64/bin/texturec.exe:
-	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project texturec.vcxproj
-	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/texturecRelease.exe $@
+	devenv 3rdparty/bimg/.build/projects/vs2017/bimg.sln /Build "Release|x64" /Project texturec.vcxproj
+	cp -r 3rdparty/bimg/.build/win64_vs2017/bin/texturecRelease.exe $@
 build/win64/bin/shaderc.exe:
 	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project shaderc.vcxproj
 	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/shadercRelease.exe $@
 
 build/projects/vs2017:
 	$(GENIE) --file=3rdparty\\bgfx\\scripts\\genie.lua --with-tools vs2017
+	$(GENIE) --file=3rdparty\\bimg\\scripts\\genie.lua --with-tools vs2017
 	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2017
 windows-debug32: build/projects/vs2017 build/win32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|Win32"
@@ -172,4 +174,5 @@ ifeq ($(OS), linux)
 	-@$(MAKE) -R -C 3rdparty/luajit/src clean -s
 endif
 	-@rm -rf 3rdparty/bgfx/.build
+	-@rm -rf 3rdparty/bimg/.build
 	-@rm -rf build

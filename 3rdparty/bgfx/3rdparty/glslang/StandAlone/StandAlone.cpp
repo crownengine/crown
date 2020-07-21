@@ -44,7 +44,6 @@
 #include "Worklist.h"
 #include "DirStackFileIncluder.h"
 #include "./../glslang/Include/ShHandle.h"
-#include "./../glslang/Include/revision.h"
 #include "./../glslang/Public/ShaderLang.h"
 #include "../SPIRV/GlslangToSpv.h"
 #include "../SPIRV/GLSL.std.450.h"
@@ -62,8 +61,11 @@
 
 #include "../glslang/OSDependent/osinclude.h"
 
+// Build-time generated includes
+#include "glslang/build_info.h"
+
 extern "C" {
-    SH_IMPORT_EXPORT void ShOutputHtml();
+    GLSLANG_EXPORT void ShOutputHtml();
 }
 
 // Command-line options
@@ -106,6 +108,8 @@ bool targetHlslFunctionality1 = false;
 bool SpvToolsDisassembler = false;
 bool SpvToolsValidate = false;
 bool NaNClamp = false;
+bool stripDebugInfo = false;
+bool beQuiet = false;
 
 //
 // Return codes from main/exit().
@@ -660,6 +664,8 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
                         variableName = argv[1];
                         bumpArg();
                         break;
+                    } else if (lowerword == "quiet") {
+                        beQuiet = true;
                     } else if (lowerword == "version") {
                         Options |= EOptionDumpVersions;
                     } else if (lowerword == "help") {
@@ -750,7 +756,13 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
                     Error("-f: expected hlsl_functionality1");
                 break;
             case 'g':
-                Options |= EOptionDebug;
+                // Override previous -g or -g0 argument
+                stripDebugInfo = false;
+                Options &= ~EOptionDebug;
+                if (argv[0][2] == '0')
+                    stripDebugInfo = true;
+                else
+                    Options |= EOptionDebug;
                 break;
             case 'h':
                 usage();
@@ -1101,7 +1113,8 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
 
         if (! (Options & EOptionSuppressInfolog) &&
             ! (Options & EOptionMemoryLeakMode)) {
-            PutsIfNonEmpty(compUnit.fileName[0].c_str());
+            if (!beQuiet)
+                PutsIfNonEmpty(compUnit.fileName[0].c_str());
             PutsIfNonEmpty(shader->getInfoLog());
             PutsIfNonEmpty(shader->getInfoDebugLog());
         }
@@ -1150,6 +1163,8 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
                     glslang::SpvOptions spvOptions;
                     if (Options & EOptionDebug)
                         spvOptions.generateDebugInfo = true;
+                    else if (stripDebugInfo)
+                        spvOptions.stripDebugInfo = true;
                     spvOptions.disableOptimizer = (Options & EOptionOptimizeDisable) != 0;
                     spvOptions.optimizeSize = (Options & EOptionOptimizeSize) != 0;
                     spvOptions.disassemble = SpvToolsDisassembler;
@@ -1265,13 +1280,13 @@ int singleMain()
 #endif
 
     if (Options & EOptionDumpBareVersion) {
-        printf("%d.%d.%d\n",
-            glslang::GetSpirvGeneratorVersion(), GLSLANG_MINOR_VERSION, GLSLANG_PATCH_LEVEL);
+        printf("%d:%d.%d.%d%s\n", glslang::GetSpirvGeneratorVersion(), GLSLANG_VERSION_MAJOR, GLSLANG_VERSION_MINOR,
+                GLSLANG_VERSION_PATCH, GLSLANG_VERSION_FLAVOR);
         if (workList.empty())
             return ESuccess;
     } else if (Options & EOptionDumpVersions) {
-        printf("Glslang Version: %d.%d.%d\n",
-            glslang::GetSpirvGeneratorVersion(), GLSLANG_MINOR_VERSION, GLSLANG_PATCH_LEVEL);
+        printf("Glslang Version: %d:%d.%d.%d%s\n", glslang::GetSpirvGeneratorVersion(), GLSLANG_VERSION_MAJOR,
+                GLSLANG_VERSION_MINOR, GLSLANG_VERSION_PATCH, GLSLANG_VERSION_FLAVOR);
         printf("ESSL Version: %s\n", glslang::GetEsslVersionString());
         printf("GLSL Version: %s\n", glslang::GetGlslVersionString());
         std::string spirvVersion;
@@ -1568,6 +1583,7 @@ void usage()
            "              'hlsl_functionality1' enables use of the\n"
            "              SPV_GOOGLE_hlsl_functionality1 extension\n"
            "  -g          generate debug information\n"
+           "  -g0         strip debug information\n"
            "  -h          print this usage message\n"
            "  -i          intermediate tree (glslang AST) is printed out\n"
            "  -l          link all input files together to form a single module\n"
@@ -1605,6 +1621,8 @@ void usage()
            "  --keep-uncalled | --ku            don't eliminate uncalled functions\n"
            "  --nan-clamp                       favor non-NaN operand in min, max, and clamp\n"
            "  --no-storage-format | --nsf       use Unknown image format\n"
+           "  --quiet                           do not print anything to stdout, unless\n"
+           "                                    requested by another option\n"
            "  --reflect-strict-array-suffix     use strict array suffix rules when\n"
            "                                    reflecting\n"
            "  --reflect-basic-array-suffix      arrays of basic types will have trailing [0]\n"

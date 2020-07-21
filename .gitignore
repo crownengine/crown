@@ -8,5 +8,6 @@ __pycache__
 /samples/*_linux
 /samples/*_windows
 
-# Ignore BGFX build directory
+# Ignore BGFX build directories
 3rdparty/bgfx/.build
+3rdparty/bimg/.build
