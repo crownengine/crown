@@ -55,6 +55,7 @@ namespace Crown
 		{
 			_folders.clear();
 			_tree_store.clear();
+			_list_store.clear();
 
 			Gtk.TreeIter iter;
 			_tree_store.insert_with_values(out iter
