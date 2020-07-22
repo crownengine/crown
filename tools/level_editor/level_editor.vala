@@ -417,7 +417,7 @@ namespace Crown
 			_file_filter.add_pattern("*.level");
 
 			// Save level once every 5 minutes.
-			_save_timer_id = GLib.Timeout.add_seconds(5*60, save_timeout);
+			set_autosave_timer(5);
 
 			if (_level_resource != "")
 			{
@@ -1671,6 +1671,14 @@ namespace Crown
 				;
 			dlg.run();
 			dlg.destroy();
+		}
+
+		public void set_autosave_timer(uint minutes)
+		{
+			if (_save_timer_id > 0)
+				GLib.Source.remove(_save_timer_id);
+
+			_save_timer_id = GLib.Timeout.add_seconds(minutes*60, save_timeout);
 		}
 	}
 
