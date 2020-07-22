@@ -15,22 +15,22 @@ namespace Crown
 
 		// Widgets
 		[GtkChild]
-		Gtk.ColorButton _grid_color_button;
+		ColorButtonVector3 _grid_color_button;
 
 		[GtkChild]
-		Gtk.ColorButton _grid_disabled_color_button;
+		ColorButtonVector3 _grid_disabled_color_button;
 
 		[GtkChild]
-		Gtk.ColorButton _axis_x_color_button;
+		ColorButtonVector3 _axis_x_color_button;
 
 		[GtkChild]
-		Gtk.ColorButton _axis_y_color_button;
+		ColorButtonVector3 _axis_y_color_button;
 
 		[GtkChild]
-		Gtk.ColorButton _axis_z_color_button;
+		ColorButtonVector3 _axis_z_color_button;
 
 		[GtkChild]
-		Gtk.ColorButton _axis_selected_color_button;
+		ColorButtonVector3 _axis_selected_color_button;
 
 		[GtkChild]
 		Gtk.SpinButton _gizmo_size_spin_button;
@@ -46,23 +46,15 @@ namespace Crown
 			this.title = "Preferences";
 		}
 
-		private static Vector3 rgba_to_vector3(Gdk.RGBA rgba)
-		{
-			double r = rgba.red;
-			double g = rgba.green;
-			double b = rgba.blue;
-			return Vector3(r, g, b);
-		}
-
 		[GtkCallback]
 		private void on_color_set()
 		{
-			_application._editor.send_script(LevelEditorApi.set_color("grid", rgba_to_vector3(_grid_color_button.get_rgba())));
-			_application._editor.send_script(LevelEditorApi.set_color("grid_disabled", rgba_to_vector3(_grid_disabled_color_button.get_rgba())));
-			_application._editor.send_script(LevelEditorApi.set_color("axis_x", rgba_to_vector3(_axis_x_color_button.get_rgba())));
-			_application._editor.send_script(LevelEditorApi.set_color("axis_y", rgba_to_vector3(_axis_y_color_button.get_rgba())));
-			_application._editor.send_script(LevelEditorApi.set_color("axis_z", rgba_to_vector3(_axis_z_color_button.get_rgba())));
-			_application._editor.send_script(LevelEditorApi.set_color("axis_selected", rgba_to_vector3(_axis_selected_color_button.get_rgba())));
+			_application._editor.send_script(LevelEditorApi.set_color("grid", _grid_color_button.value));
+			_application._editor.send_script(LevelEditorApi.set_color("grid_disabled", _grid_disabled_color_button.value));
+			_application._editor.send_script(LevelEditorApi.set_color("axis_x", _axis_x_color_button.value));
+			_application._editor.send_script(LevelEditorApi.set_color("axis_y", _axis_y_color_button.value));
+			_application._editor.send_script(LevelEditorApi.set_color("axis_z", _axis_z_color_button.value));
+			_application._editor.send_script(LevelEditorApi.set_color("axis_selected", _axis_selected_color_button.value));
 		}
 
 		[GtkCallback]
