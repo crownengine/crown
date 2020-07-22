@@ -4,6 +4,7 @@
  */
 
 using Gtk;
+using Gee;
 
 namespace Crown
 {
@@ -67,6 +68,37 @@ namespace Crown
 		private void on_level_autosave_value_changed()
 		{
 			_application.set_autosave_timer((uint)_level_autosave_spin_button.value);
+		}
+
+		public void load(Hashtable preferences)
+		{
+			_grid_color_button.value          = Vector3.from_array(preferences.has_key("grid") ? (Gee.ArrayList<GLib.Value?>)preferences["grid"] : _grid_color_button.value.to_array());
+			_grid_disabled_color_button.value = Vector3.from_array(preferences.has_key("grid_disabled") ? (Gee.ArrayList<GLib.Value?>)preferences["grid_disabled"] : _grid_disabled_color_button.value.to_array());
+			_axis_x_color_button.value        = Vector3.from_array(preferences.has_key("axis_x") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_x"] : _axis_x_color_button.value.to_array());
+			_axis_y_color_button.value        = Vector3.from_array(preferences.has_key("axis_y") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_y"] : _axis_y_color_button.value.to_array());
+			_axis_z_color_button.value        = Vector3.from_array(preferences.has_key("axis_z") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_z"] : _axis_z_color_button.value.to_array());
+			_axis_selected_color_button.value = Vector3.from_array(preferences.has_key("axis_selected") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_selected"] : _axis_selected_color_button.value.to_array());
+			_gizmo_size_spin_button.value     = preferences.has_key("gizmo_size") ? (double)preferences["gizmo_size"] : _gizmo_size_spin_button.value;
+			_level_autosave_spin_button.value = preferences.has_key("autosave_timer") ? (double)preferences["autosave_timer"] : _level_autosave_spin_button.value;
+		}
+
+		public void save(Hashtable preferences)
+		{
+			preferences["grid"]           = _grid_color_button.value.to_array();
+			preferences["grid_disabled"]  = _grid_disabled_color_button.value.to_array();
+			preferences["axis_x"]         = _axis_x_color_button.value.to_array();
+			preferences["axis_y"]         = _axis_y_color_button.value.to_array();
+			preferences["axis_z"]         = _axis_z_color_button.value.to_array();
+			preferences["axis_selected"]  = _axis_selected_color_button.value.to_array();
+			preferences["gizmo_size"]     = _gizmo_size_spin_button.value;
+			preferences["autosave_timer"] = _level_autosave_spin_button.value;
+		}
+
+		public void apply()
+		{
+			GLib.Signal.emit_by_name(_grid_color_button, "color-set");
+			GLib.Signal.emit_by_name(_gizmo_size_spin_button, "value-changed");
+			GLib.Signal.emit_by_name(_level_autosave_spin_button, "value-changed");
 		}
 	}
 }

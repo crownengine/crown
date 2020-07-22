@@ -195,6 +195,10 @@ namespace Crown
 		private string _level_resource = "";
 		private bool _create_initial_files = false;
 
+		// Global paths
+		private GLib.File _config_dir;
+		private GLib.File _settings_file;
+
 		// Editor state
 		private double _grid_size;
 		private double _rotation_snap;
@@ -328,6 +332,10 @@ namespace Crown
 
 			_level = new Level(_database, _editor, _project);
 
+			// Global paths
+			_config_dir = GLib.File.new_build_filename(GLib.Environment.get_user_config_dir(), "crown");
+			_settings_file = GLib.File.new_build_filename(_config_dir.get_path(), "settings.sjson");
+
 			// Editor state
 			_grid_size = 1.0;
 			_rotation_snap = 15.0;
@@ -376,6 +384,10 @@ namespace Crown
 			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
 			_resource_popover.modal = true;
 
+			_preferences_dialog = new PreferencesDialog(this);
+			_preferences_dialog.set_transient_for(this.active_window);
+			_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return true; });
+
 			_resource_chooser = new ResourceChooser(_project, _project_store, true);
 			_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);
 			_resource_chooser.resource_selected.connect(() => { _resource_popover.hide(); });
@@ -416,9 +428,6 @@ namespace Crown
 			_file_filter.set_filter_name("Level (*.level)");
 			_file_filter.add_pattern("*.level");
 
-			// Save level once every 5 minutes.
-			set_autosave_timer(5);
-
 			if (_level_resource != "")
 			{
 				string level_path = _project.source_dir() + "/" + _level_resource + ".level";
@@ -435,7 +444,36 @@ namespace Crown
 				_level.load_empty_level();
 			}
 
+			try
+			{
+				_config_dir.make_directory();
+			}
+			catch (Error e)
+			{
+				// Nobody cares
+			}
+
+			load_settings();
+
 			start_compiler();
+		}
+
+		public void load_settings()
+		{
+			Hashtable settings = SJSON.load(_settings_file.get_path());
+
+			_preferences_dialog.load(settings.has_key("preferences") ? (Hashtable)settings["preferences"] : new Hashtable());
+		}
+
+		public void save_settings()
+		{
+			Hashtable preferences = new Hashtable();
+			_preferences_dialog.save(preferences);
+
+			Hashtable settings = new Hashtable();
+			settings["preferences"] = preferences;
+
+			SJSON.save(settings, _settings_file.get_path());
 		}
 
 		protected override void activate()
@@ -854,6 +892,7 @@ namespace Crown
 
 			_level.send_level();
 			send_state();
+			_preferences_dialog.apply();
 		}
 
 		private void stop_editor()
@@ -1200,6 +1239,8 @@ namespace Crown
 		{
 			base.shutdown();
 
+			save_settings();
+
 			if (_save_timer_id > 0)
 				GLib.Source.remove(_save_timer_id);
 
@@ -1336,13 +1377,6 @@ namespace Crown
 
 		private void on_preferences(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			if (_preferences_dialog == null)
-			{
-				_preferences_dialog = new PreferencesDialog(this);
-				_preferences_dialog.set_transient_for(this.active_window);
-				_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return true; });
-			}
-
 			_preferences_dialog.show_all();
 		}
 
