@@ -1164,19 +1164,26 @@ namespace Crown
 				, ResponseType.ACCEPT
 				);
 
-			if (fcd.run() == (int)ResponseType.ACCEPT)
+			int rt = fcd.run();
+			if (rt != (int)ResponseType.ACCEPT)
 			{
-				string filename = fcd.get_filename();
-				_console_view.logi("editor", "Loading `%s`...".printf(filename));
-				_project.load(filename, _project.toolchain_dir());
-				_project_store.reset();
-
-				_level.load_empty_level();
-				stop_compiler();
-				start_compiler();
+				fcd.destroy();
+				return;
 			}
 
+			string filename = fcd.get_filename();
 			fcd.destroy();
+
+			if (filename == _project.source_dir())
+				return;
+
+			_console_view.logi("editor", "Loading `%s`...".printf(filename));
+			_project.load(filename, _project.toolchain_dir());
+			_project_store.reset();
+
+			_level.load_empty_level();
+			stop_compiler();
+			start_compiler();
 		}
 
 		private bool save_as(string? filename)
