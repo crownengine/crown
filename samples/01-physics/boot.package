@@ -14,8 +14,8 @@ physics_config = [
 ]
 unit = [
 	"core/units/camera"
-	"sphere"
+	"units/sphere"
 ]
 level = [
-	"test"
+	"levels/test"
 ]

@@ -18,5 +18,5 @@ unit = [
 	"units/soldier"
 ]
 level = [
-	"game"
+	"levels/game"
 ]

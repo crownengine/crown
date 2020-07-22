@@ -10,7 +10,7 @@ Game = Game or {
 }
 
 GameBase.game = Game
-GameBase.game_level = "test"
+GameBase.game_level = "levels/test"
 local cursor_modes = {"normal", "disabled"}
 local cursor_mode_nxt_idx = 2
 
@@ -52,7 +52,7 @@ function Game.update(dt)
 	if Mouse.pressed(Mouse.button_id("left")) then
 		local pos = SceneGraph.local_position(Game.sg, Game.camera:unit())
 		local dir = Matrix4x4.z(SceneGraph.local_pose(Game.sg, Game.camera:unit()))
-		local u1 = World.spawn_unit(GameBase.world, "sphere", pos)
+		local u1 = World.spawn_unit(GameBase.world, "units/sphere", pos)
 		local a1 = PhysicsWorld.actor_instances(Game.pw, u1)
 		Vector3.normalize(dir)
 		PhysicsWorld.actor_add_impulse(Game.pw, a1, dir * 500.0)

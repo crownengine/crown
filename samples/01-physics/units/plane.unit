@@ -26,7 +26,7 @@ components = [
 		data = {
 			material = "default"
 			name = "Plane"
-			scene = "plane"
+			scene = "units/plane"
 			shape = "convex_hull"
 		}
 		id = "114ece38-a553-4a49-8fa7-07b49e061a66"
@@ -35,8 +35,8 @@ components = [
 	{
 		data = {
 			geometry_name = "Plane"
-			material = "grid"
-			mesh_resource = "plane"
+			material = "units/grid"
+			mesh_resource = "units/plane"
 			visible = true
 		}
 		id = "445eb72e-e80d-4549-95db-2438f3401168"

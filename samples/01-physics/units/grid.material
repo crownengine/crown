@@ -1,7 +1,7 @@
 shader = "mesh+DIFFUSE_MAP"
 
 textures = {
-	u_albedo = "grid"
+	u_albedo = "units/grid"
 }
 
 uniforms = {

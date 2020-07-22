@@ -3,8 +3,8 @@ components = [
 	{
 		data = {
 			geometry_name = "Cube"
-			material = "grid"
-			mesh_resource = "ramp"
+			material = "units/grid"
+			mesh_resource = "units/ramp"
 			visible = true
 		}
 		id = "e8d9961f-d868-4b26-a4d7-7d2891cead99"
@@ -46,7 +46,7 @@ components = [
 		data = {
 			material = "default"
 			name = "Cube"
-			scene = "ramp"
+			scene = "units/ramp"
 			shape = "convex_hull"
 		}
 		id = "d79ef8c9-b2c1-4a67-adc9-07154f7352d7"

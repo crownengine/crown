@@ -4,7 +4,7 @@ components = [
 		data = {
 			material = "default"
 			name = "Cube"
-			scene = "cube"
+			scene = "units/cube"
 			shape = "box"
 		}
 		id = "a122f56c-be01-46da-9459-c84bc7381221"
@@ -13,8 +13,8 @@ components = [
 	{
 		data = {
 			geometry_name = "Cube"
-			material = "grid"
-			mesh_resource = "cube"
+			material = "units/grid"
+			mesh_resource = "units/cube"
 			visible = true
 		}
 		id = "49576e7e-2eed-42a7-8ce1-785f519d9655"

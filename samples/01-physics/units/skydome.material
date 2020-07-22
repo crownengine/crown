@@ -1,7 +1,7 @@
 shader = "mesh+DIFFUSE_MAP+NO_LIGHT"
 
 textures = {
-	u_albedo = "skydome"
+	u_albedo = "units/skydome"
 }
 
 uniforms = {

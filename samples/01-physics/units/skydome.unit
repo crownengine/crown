@@ -3,8 +3,8 @@ components = [
 	{
 		data = {
 			geometry_name = "Sphere"
-			material = "skydome"
-			mesh_resource = "skydome"
+			material = "units/skydome"
+			mesh_resource = "units/skydome"
 			visible = true
 		}
 		id = "cc39f446-7e04-40f1-9770-2b44c3f41b0f"

@@ -3,8 +3,8 @@ components = [
 	{
 		data = {
 			geometry_name = "Sphere"
-			material = "grid"
-			mesh_resource = "sphere"
+			material = "units/grid"
+			mesh_resource = "units/sphere"
 			visible = true
 		}
 		id = "7b9da2e3-47ca-40fd-a31b-cb6cbe8fba57"
@@ -14,7 +14,7 @@ components = [
 		data = {
 			material = "default"
 			name = "Sphere"
-			scene = "sphere"
+			scene = "units/sphere"
 			shape = "sphere"
 		}
 		id = "9e94f3a3-4113-4af8-bc64-c78c2e82bcd4"
