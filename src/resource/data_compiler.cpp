@@ -251,11 +251,13 @@ static void console_command_refresh_list(ConsoleServer& cs, TCPSocket& client, c
 
 	cs.send(client, string_stream::c_str(ss));
 
+#if CROWN_DEBUG && !CROWN_DEVELOPMENT
 	char buf[GUID_BUF_LEN];
 	logi(DATA_COMPILER, "client %s was at rev: %u"
 		, guid::to_string(buf, sizeof(buf), client_id)
 		, hash_map::get(dc->_client_revisions, client_id, u32(0))
 		);
+#endif
 
 	hash_map::set(dc->_client_revisions, client_id, dc->_revision);
 }
