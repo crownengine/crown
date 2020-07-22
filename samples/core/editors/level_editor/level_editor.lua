@@ -1,13 +1,17 @@
 require "core/editors/level_editor/camera"
 require "core/lua/class"
 
-Colors = {
+Colors = Colors or {
 	grid          = function() return Color4(102, 102, 102, 255) end,
 	grid_disabled = function() return Color4(102, 102, 102, 102) end,
 	axis_x        = function() return Color4(217,   0,   0, 255) end,
 	axis_y        = function() return Color4(  0, 217,   0, 255) end,
 	axis_z        = function() return Color4(  0,   0, 217, 255) end,
 	axis_selected = function() return Color4(217, 217,   0, 255) end,
+}
+
+Gizmo = Gizmo or {
+	size = 85,
 }
 
 -- From Bitsquid's grid_plane.lua
@@ -757,7 +761,7 @@ function MoveTool:update(dt, x, y)
 
 	local tm = self:pose()
 	local p  = self:position()
-	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), 85)
+	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
 
 	local function transform(tm, offset)
 		local m = Matrix4x4.copy(tm)
@@ -984,7 +988,7 @@ function RotateTool:update(dt, x, y)
 
 	local tm = self:pose()
 	local p  = self:position()
-	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), 85)
+	local l  = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
 
 	-- Select axis
 	if self:is_idle() and selected then
@@ -1204,7 +1208,7 @@ function ScaleTool:update(dt, x, y)
 
 	self:set_pose(selected:world_pose())
 
-	local l = LevelEditor:camera():screen_length_to_world_length(self:position(), 85)
+	local l = LevelEditor:camera():screen_length_to_world_length(self:position(), Gizmo.size)
 
 	-- Select axis
 	if self:is_idle() then
