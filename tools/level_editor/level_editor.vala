@@ -1528,6 +1528,7 @@ namespace Crown
 				if (_data_compiler.compile.end(res))
 				{
 					_editor.send(DeviceApi.refresh());
+					_game.send(DeviceApi.refresh());
 				}
 			});
 		}
