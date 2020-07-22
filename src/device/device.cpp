@@ -684,14 +684,22 @@ void Device::refresh()
 		rr.error = ReadResult::UNKNOWN;
 		if (wr.error == WriteResult::SUCCESS)
 		{
-			rr = dc.read(&msg_len, 4);
-			if (rr.error == ReadResult::SUCCESS)
+			do
 			{
-				array::resize(msg, msg_len + 1);
-				rr = dc.read(array::begin(msg), msg_len);
-				msg[msg_len] = '\0';
-				dc.close();
+				rr = dc.read(&msg_len, 4);
+				if (rr.error == ReadResult::SUCCESS)
+				{
+					array::resize(msg, msg_len + 1);
+					rr = dc.read(array::begin(msg), msg_len);
+					msg[msg_len] = '\0';
+				}
+
+				if (rr.error != ReadResult::SUCCESS)
+					break;
 			}
+			while (strstr(array::begin(msg), "refresh_list") == NULL);
+
+			dc.close();
 		}
 
 		if (rr.error == ReadResult::SUCCESS)
