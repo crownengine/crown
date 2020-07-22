@@ -322,7 +322,7 @@ namespace Crown
 
 			_editor = new ConsoleClient();
 			_editor.connected.connect(on_editor_connected);
-			_editor.disconnected.connect(on_editor_disconnected);
+			_editor.disconnected.connect(on_editor_disconnected_unexpected);
 			_editor.message_received.connect(on_message_received);
 
 			_game = new ConsoleClient();
@@ -367,11 +367,8 @@ namespace Crown
 			_properties_view = new PropertiesView(_level, _project_store);
 
 			_project_slide = new Slide();
-			_project_slide.show_widget(new StartingCompiler());
 			_editor_slide = new Slide();
-			_editor_slide.show_widget(new StartingCompiler());
 			_inspector_slide = new Slide();
-			_inspector_slide.show_widget(new StartingCompiler());
 
 			Gtk.Builder builder = new Gtk.Builder.from_resource("/org/crown/level_editor/ui/toolbar.ui");
 			_toolbar = builder.get_object("toolbar") as Gtk.Toolbar;
@@ -455,7 +452,7 @@ namespace Crown
 
 			load_settings();
 
-			start_compiler();
+			restart_compiler();
 		}
 
 		public void load_settings()
@@ -609,6 +606,10 @@ namespace Crown
 		{
 			_console_view.logi("editor", "Disconnected from editor");
 		}
+
+		private void on_editor_disconnected_unexpected()
+		{
+			on_editor_disconnected();
 
 			Gtk.Label label = new Gtk.Label(null);
 			label.set_markup("Something went wrong.\rTry to <a href=\"restart\">Restart</a> this view.");
@@ -797,8 +798,19 @@ namespace Crown
 			return true;
 		}
 
-		private void start_compiler()
+		Gtk.Widget starting_compiler_label()
 		{
+			return new Gtk.Label("Compiling resources, please wait...");
+		}
+
+		private void restart_compiler()
+		{
+			stop_compiler();
+
+			_project_slide.show_widget(starting_compiler_label());
+			_editor_slide.show_widget(starting_compiler_label());
+			_inspector_slide.show_widget(starting_compiler_label());
+
 			string args[] =
 			{
 				ENGINE_EXE,
@@ -840,6 +852,9 @@ namespace Crown
 
 		private void stop_compiler()
 		{
+			stop_game();
+			stop_editor();
+
 			if (_compiler != null)
 			{
 				_compiler.send(DataCompilerApi.quit());
@@ -898,8 +913,14 @@ namespace Crown
 
 		private void stop_editor()
 		{
+			_resource_chooser.stop_editor();
+
 			if (_editor != null)
 			{
+				// Explicit call to this function should not produce error messages.
+				_editor.disconnected.disconnect(on_editor_disconnected_unexpected);
+				_editor.disconnected.connect(on_editor_disconnected);
+
 				_editor.send_script("Device.quit()");
 				_editor.close();
 			}
@@ -915,11 +936,17 @@ namespace Crown
 					_console_view.loge("editor", e.message);
 				}
 			}
+
+			_editor_slide.show_widget(new Gtk.Label("Disconnected."));
 		}
 
 		private void restart_editor()
 		{
 			stop_editor();
+
+			// It is an error if editor disconnects after here.
+			_editor.disconnected.disconnect(on_editor_disconnected);
+			_editor.disconnected.connect(on_editor_disconnected_unexpected);
 
 			if (_editor_view != null)
 			{
@@ -1183,8 +1210,8 @@ namespace Crown
 			_project_store.reset();
 
 			_level.load_empty_level();
-			stop_compiler();
-			start_compiler();
+
+			restart_compiler();
 		}
 
 		private bool save_as(string? filename)
@@ -1258,8 +1285,6 @@ namespace Crown
 			if (_preferences_dialog != null)
 				_preferences_dialog.destroy();
 
-			stop_game();
-			stop_editor();
 			stop_compiler();
 		}
 

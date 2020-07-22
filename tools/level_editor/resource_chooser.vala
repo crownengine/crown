@@ -219,7 +219,7 @@ namespace Crown
 			_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);
 		}
 
-		private void stop_editor()
+		public void stop_editor()
 		{
 			if (!_preview)
 				return;
