@@ -1338,7 +1338,7 @@ namespace Crown
 		{
 			if (_preferences_dialog == null)
 			{
-				_preferences_dialog = new PreferencesDialog(_editor);
+				_preferences_dialog = new PreferencesDialog(this);
 				_preferences_dialog.set_transient_for(this.active_window);
 				_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return true; });
 			}

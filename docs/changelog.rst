@@ -17,6 +17,7 @@ Changelog
 
 **Tools**
 
+* Added Gizmo size and Autosave timer options to Preferences dialog
 * Added the ability to toggle visibility of the Inspector inside the Level Editor
 * Added the Project Browser
 * Added the Statusbar
@@ -29,6 +30,10 @@ Changelog
 * Renaming of objects in the Level Tree is now handled with a modal dialog
 * The Editor View will now show a message explaining how to recover the session after a crash or unintended disconnection
 * Unified the asset import dialogs
+
+** Samples **
+
+* Unified projects directory structure
 
 0.37.0
 ------

@@ -11,7 +11,7 @@ namespace Crown
 	public class PreferencesDialog : Gtk.Dialog
 	{
 		// Data
-		ConsoleClient _engine;
+		LevelEditorApplication _application;
 
 		// Widgets
 		[GtkChild]
@@ -32,10 +32,16 @@ namespace Crown
 		[GtkChild]
 		Gtk.ColorButton _axis_selected_color_button;
 
-		public PreferencesDialog(ConsoleClient engine)
+		[GtkChild]
+		Gtk.SpinButton _gizmo_size_spin_button;
+
+		[GtkChild]
+		Gtk.SpinButton _level_autosave_spin_button;
+
+		public PreferencesDialog(LevelEditorApplication app)
 		{
 			// Data
-			_engine = engine;
+			_application = app;
 
 			this.title = "Preferences";
 		}
@@ -51,12 +57,24 @@ namespace Crown
 		[GtkCallback]
 		private void on_color_set()
 		{
-			_engine.send_script(LevelEditorApi.set_color("grid", rgba_to_vector3(_grid_color_button.get_rgba())));
-			_engine.send_script(LevelEditorApi.set_color("grid_disabled", rgba_to_vector3(_grid_disabled_color_button.get_rgba())));
-			_engine.send_script(LevelEditorApi.set_color("axis_x", rgba_to_vector3(_axis_x_color_button.get_rgba())));
-			_engine.send_script(LevelEditorApi.set_color("axis_y", rgba_to_vector3(_axis_y_color_button.get_rgba())));
-			_engine.send_script(LevelEditorApi.set_color("axis_z", rgba_to_vector3(_axis_z_color_button.get_rgba())));
-			_engine.send_script(LevelEditorApi.set_color("axis_selected", rgba_to_vector3(_axis_selected_color_button.get_rgba())));
+			_application._editor.send_script(LevelEditorApi.set_color("grid", rgba_to_vector3(_grid_color_button.get_rgba())));
+			_application._editor.send_script(LevelEditorApi.set_color("grid_disabled", rgba_to_vector3(_grid_disabled_color_button.get_rgba())));
+			_application._editor.send_script(LevelEditorApi.set_color("axis_x", rgba_to_vector3(_axis_x_color_button.get_rgba())));
+			_application._editor.send_script(LevelEditorApi.set_color("axis_y", rgba_to_vector3(_axis_y_color_button.get_rgba())));
+			_application._editor.send_script(LevelEditorApi.set_color("axis_z", rgba_to_vector3(_axis_z_color_button.get_rgba())));
+			_application._editor.send_script(LevelEditorApi.set_color("axis_selected", rgba_to_vector3(_axis_selected_color_button.get_rgba())));
+		}
+
+		[GtkCallback]
+		private void on_gizmo_size_value_changed()
+		{
+			_application._editor.send_script("Gizmo.size = %f".printf(_gizmo_size_spin_button.value));
+		}
+
+		[GtkCallback]
+		private void on_level_autosave_value_changed()
+		{
+			_application.set_autosave_timer((uint)_level_autosave_spin_button.value);
 		}
 	}
 }
