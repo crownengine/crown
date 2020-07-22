@@ -607,7 +607,8 @@ namespace Crown
 
 		private void on_editor_disconnected()
 		{
-			_console_view.logi("editor", "Disconnected from level_editor");
+			_console_view.logi("editor", "Disconnected from editor");
+		}
 
 			Gtk.Label label = new Gtk.Label(null);
 			label.set_markup("Something went wrong.\rTry to <a href=\"restart\">Restart</a> this view.");
