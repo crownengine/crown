@@ -124,6 +124,7 @@ namespace Crown
 			_material = new ResourceChooserButton(store, "material");
 			_material.value_changed.connect(on_value_changed);
 			_visible = new CheckBox();
+			_visible.value_changed.connect(on_value_changed);
 
 			add_row("Mesh", _mesh_resource);
 			add_row("Geometry", _geometry);
