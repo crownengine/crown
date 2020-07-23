@@ -619,25 +619,24 @@ namespace Crown
 		Level _level;
 
 		// Widgets
-		private Gtk.Entry _name;
+		private ResourceChooserButton _name;
 		private EntryDouble _range;
 		private EntryDouble _volume;
 		private CheckBox _loop;
 
-		public SoundView(Level level)
+		public SoundView(Level level, ProjectStore store)
 		{
 			// Data
 			_level = level;
 
 			// Widgets
-			_name   = new Gtk.Entry();
+			_name   = new ResourceChooserButton(store, "sound");
+			_name.value_changed.connect(on_value_changed);
 			_range  = new EntryDouble(1.0, 0.0, double.MAX);
-			_volume = new EntryDouble(1.0, 0.0, 1.0);
-			_loop   = new CheckBox();
-			_name.sensitive = false;
-
 			_range.value_changed.connect(on_value_changed);
+			_volume = new EntryDouble(1.0, 0.0, 1.0);
 			_volume.value_changed.connect(on_value_changed);
+			_loop   = new CheckBox();
 			_loop.value_changed.connect(on_value_changed);
 
 			add_row("Name", _name);
@@ -649,7 +648,7 @@ namespace Crown
 		private void on_value_changed()
 		{
 			_level.set_sound(_id
-				, _name.text
+				, _name.value
 				, _range.value
 				, _volume.value
 				, _loop.value
@@ -658,7 +657,7 @@ namespace Crown
 
 		public override void update()
 		{
-			_name.text    = _level._db.get_property_string(_id, "name");
+			_name.value   = _level._db.get_property_string(_id, "name");
 			_range.value  = _level._db.get_property_double(_id, "range");
 			_volume.value = _level._db.get_property_double(_id, "volume");
 			_loop.value   = _level._db.get_property_bool  (_id, "loop");
@@ -714,7 +713,7 @@ namespace Crown
 
 			// Sound
 			add_component_view("Transform", "sound_transform",  0, new SoundTransformView(_level));
-			add_component_view("Sound",     "sound_properties", 1, new SoundView(_level));
+			add_component_view("Sound",     "sound_properties", 1, new SoundView(_level, store));
 
 			_entries.sort((a, b) => { return (a.position < b.position ? -1 : 1); });
 			foreach (var entry in _entries)
