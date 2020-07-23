@@ -181,7 +181,7 @@ namespace Crown
 
 		private bool on_button_pressed(Gdk.EventButton ev)
 		{
-			if (ev.button == 3) // Right
+			if (ev.button == Gdk.BUTTON_SECONDARY)
 			{
 				Gtk.TreePath path;
 				int cell_x;
@@ -326,7 +326,7 @@ namespace Crown
 					}
 				}
 			}
-			else if (ev.button == 1) // Left
+			else if (ev.button == Gdk.BUTTON_PRIMARY)
 			{
 				if (ev.type == Gdk.EventType.2BUTTON_PRESS)
 				{

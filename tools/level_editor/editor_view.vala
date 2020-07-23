@@ -114,9 +114,9 @@ namespace Crown
 
 		private bool on_button_release(Gdk.EventButton ev)
 		{
-			_mouse_left   = ev.button == 1 ? false : _mouse_left;
-			_mouse_middle = ev.button == 2 ? false : _mouse_middle;
-			_mouse_right  = ev.button == 3 ? false : _mouse_right;
+			_mouse_left   = ev.button == Gdk.BUTTON_PRIMARY   ? false : _mouse_left;
+			_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? false : _mouse_middle;
+			_mouse_right  = ev.button == Gdk.BUTTON_SECONDARY ? false : _mouse_right;
 
 			string s = LevelEditorApi.set_mouse_state(_mouse_curr_x
 				, _mouse_curr_y
@@ -132,7 +132,7 @@ namespace Crown
 			}
 			else
 			{
-				if (ev.button == 1)
+				if (ev.button == Gdk.BUTTON_PRIMARY)
 					s += LevelEditorApi.mouse_up((int)ev.x, (int)ev.y);
 			}
 
@@ -145,9 +145,9 @@ namespace Crown
 			// Grab keyboard focus
 			_event_box.grab_focus();
 
-			_mouse_left   = ev.button == 1 ? true : _mouse_left;
-			_mouse_middle = ev.button == 2 ? true : _mouse_middle;
-			_mouse_right  = ev.button == 3 ? true : _mouse_right;
+			_mouse_left   = ev.button == Gdk.BUTTON_PRIMARY   ? true : _mouse_left;
+			_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? true : _mouse_middle;
+			_mouse_right  = ev.button == Gdk.BUTTON_SECONDARY ? true : _mouse_right;
 
 			string s = LevelEditorApi.set_mouse_state(_mouse_curr_x
 				, _mouse_curr_y
@@ -167,7 +167,7 @@ namespace Crown
 			}
 			else
 			{
-				if (ev.button == 1)
+				if (ev.button == Gdk.BUTTON_PRIMARY)
 					s += LevelEditorApi.mouse_down((int)ev.x, (int)ev.y);
 			}
 

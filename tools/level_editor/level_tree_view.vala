@@ -137,7 +137,7 @@ namespace Crown
 
 		private bool on_button_pressed(Gdk.EventButton ev)
 		{
-			if (ev.button == 3) // Right
+			if (ev.button == Gdk.BUTTON_SECONDARY)
 			{
 				Gtk.Menu menu = new Gtk.Menu();
 				Gtk.MenuItem mi;

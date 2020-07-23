@@ -150,7 +150,7 @@ namespace Crown
 
 		private bool on_button_released(Gdk.EventButton ev)
 		{
-			if (ev.button == 1)
+			if (ev.button == Gdk.BUTTON_PRIMARY)
 			{
 				Gtk.TreePath path;
 				int cell_x;

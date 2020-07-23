@@ -60,7 +60,7 @@ namespace Crown
 
 		private bool on_button_release(Gdk.EventButton ev)
 		{
-			if (ev.button == 1 && this.has_focus) // Left button
+			if (ev.button == Gdk.BUTTON_PRIMARY && this.has_focus)
 			{
 				this.text = "%.6g".printf(_value);
 				this.set_position(-1);
