@@ -120,6 +120,7 @@ namespace Crown
 			_tree_view.headers_visible = false;
 			_tree_view.model = _tree_sort;
 			_tree_view.button_press_event.connect(on_button_pressed);
+			_tree_view.button_release_event.connect(on_button_released);
 
 			_tree_selection = _tree_view.get_selection();
 			_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
@@ -205,6 +206,35 @@ namespace Crown
 
 				menu.show_all();
 				menu.popup(null, null, null, ev.button, ev.time);
+			}
+
+			return false;
+		}
+
+		private bool on_button_released(Gdk.EventButton ev)
+		{
+			if (ev.button == Gdk.BUTTON_PRIMARY)
+			{
+				Gtk.TreePath path;
+				int cell_x;
+				int cell_y;
+				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
+				{
+					Gtk.TreeIter iter;
+					_tree_view.model.get_iter(out iter, path);
+
+					Value type;
+					_tree_view.model.get_value(iter, Column.TYPE, out type);
+					if ((int)type != ItemType.FOLDER)
+						return false;
+
+					if (_tree_view.is_row_expanded(path))
+						_tree_view.collapse_row(path);
+					else
+						_tree_view.expand_row(path, /*open_all = */false);
+
+					return true;
+				}
 			}
 
 			return false;
