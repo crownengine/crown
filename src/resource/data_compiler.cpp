@@ -523,7 +523,7 @@ static void write_data_dependencies(FilesystemDisk& data_fs, const char* filenam
 			const HashMap<DynamicString, u32>& reqs = hash_map::get(requirements, cur->first, reqs_deffault);
 
 			// Skip if data has no dependencies
-			if (&deps == &deps_deffault && &reqs == &reqs_deffault)
+			if (hash_map::size(deps) == 0 && hash_map::size(reqs) == 0)
 				continue;
 
 			TempAllocator64 ta;
