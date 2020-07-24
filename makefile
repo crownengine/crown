@@ -6,8 +6,12 @@
 UNAME := $(shell uname)
 ifeq ($(UNAME), $(filter $(UNAME), Linux))
 	OS=linux
+	EXE_PREFIX=./
+	EXE_SUFFIX=
 else
 	OS=windows
+	EXE_PREFIX=
+	EXE_SUFFIX=.exe
 endif
 
 GENIE=3rdparty/bx/tools/bin/$(OS)/genie
@@ -167,8 +171,24 @@ docs:
 	$(MAKE) -C docs/ html
 	doxygen docs/doxygen/Doxyfile.doxygen
 
+.PHONY: 00-empty
+00-empty: $(OS)-development64
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --continue
+.PHONY: 01-physics
+01-physics: $(OS)-development64
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --continue
+.PHONY: 02-animation
+02-animation: $(OS)-development64
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --continue
+
+.PHONY: clean-samples
+clean-samples:
+	-@rm -rf samples/00-empty_$(OS)
+	-@rm -rf samples/01-physics_$(OS)
+	-@rm -rf samples/02-animation_$(OS)
+
 .PHONY: clean
-clean:
+clean: clean-samples
 	@echo Cleaning...
 ifeq ($(OS), linux)
 	-@$(MAKE) -R -C 3rdparty/luajit/src clean -s
