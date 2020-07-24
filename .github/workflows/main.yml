@@ -66,8 +66,8 @@ jobs:
         - name: luajit-copy-libs
           shell: cmd
           run: |
-            md "build\win64\bin"
-            cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win64/bin
+            md "build\windows64\bin"
+            cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows64/bin
         - name: windows-generate-projects
           shell: cmd
           run: |
@@ -80,7 +80,7 @@ jobs:
             devenv build/projects/vs2017/crown.sln /Build "debug|x64"
         - name: windows-test-debug64
           run: |
-            ./build/win64/bin/crown-debug --run-unit-tests
+            ./build/windows64/bin/crown-debug --run-unit-tests
         - name: windows-make-development64
           shell: cmd
           run: |
@@ -88,7 +88,7 @@ jobs:
             devenv build/projects/vs2017/crown.sln /Build "development|x64"
         - name: windows-test-development64
           run: |
-            ./build/win64/bin/crown-development --run-unit-tests
+            ./build/windows64/bin/crown-development --run-unit-tests
         - name: windows-make-release64
           shell: cmd
           run: |
@@ -96,4 +96,4 @@ jobs:
             devenv build/projects/vs2017/crown.sln /Build "release|x64"
         - name: windows-test-release64
           run: |
-            ./build/win64/bin/crown-release --run-unit-tests
+            ./build/windows64/bin/crown-release --run-unit-tests

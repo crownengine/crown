@@ -160,17 +160,17 @@ function toolchain(build_dir, lib_dir)
 		}
 
 	configuration { "x32", "vs*" }
-		targetdir (build_dir .. "win32" .. "/bin")
-		objdir (build_dir .. "win32" .. "/obj")
+		targetdir (build_dir .. "windows32" .. "/bin")
+		objdir (build_dir .. "windows32" .. "/obj")
 		libdirs {
-			lib_dir .. "../build/win32/bin",
+			lib_dir .. "../build/windows32/bin",
 		}
 
 	configuration { "x64", "vs*" }
-		targetdir (build_dir .. "win64" .. "/bin")
-		objdir (build_dir .. "win64" .. "/obj")
+		targetdir (build_dir .. "windows64" .. "/bin")
+		objdir (build_dir .. "windows64" .. "/obj")
 		libdirs {
-			lib_dir .. "../build/win64/bin",
+			lib_dir .. "../build/windows64/bin",
 		}
 
 	configuration { "linux-gcc* or linux-clang" }
@@ -323,15 +323,15 @@ function toolchain(build_dir, lib_dir)
 		}
 
 	configuration { "x32", "vs*" }
-		targetdir (build_dir .. "win32" .. "/bin")
-		objdir (build_dir .. "win32" .. "/obj")
+		targetdir (build_dir .. "windows32" .. "/bin")
+		objdir (build_dir .. "windows32" .. "/obj")
 
 	configuration { "x64", "vs*" }
 		defines {
 			"_WIN64",
 		}
-		targetdir (build_dir .. "win64" .. "/bin")
-		objdir (build_dir .. "win64" .. "/obj")
+		targetdir (build_dir .. "windows64" .. "/bin")
+		objdir (build_dir .. "windows64" .. "/obj")
 
 	configuration {} -- reset configuration
 end

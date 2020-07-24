@@ -47,10 +47,10 @@ build/mingw64/bin/luajit.exe:
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/mingw64/bin
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
-build/win32/bin/luajit.exe:
-	-mkdir "build/win32/bin"
+build/windows32/bin/luajit.exe:
+	-mkdir "build/windows32/bin"
 	cd "3rdparty/luajit/src" && msvcbuild.bat
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win32/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows32/bin
 	-@rm -f 3rdparty/luajit/src/buildvm.*
 	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
 	-@rm -f 3rdparty/luajit/src/lua51.*
@@ -58,10 +58,10 @@ build/win32/bin/luajit.exe:
 	-@rm -f 3rdparty/luajit/src/luajit.exp
 	-@rm -f 3rdparty/luajit/src/luajit.lib
 	-@rm -f 3rdparty/luajit/src/minilua.*
-build/win64/bin/luajit.exe:
-	-mkdir "build/win64/bin"
+build/windows64/bin/luajit.exe:
+	-mkdir "build/windows64/bin"
 	cd "3rdparty/luajit/src" && msvcbuild.bat
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/win64/bin
+	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows64/bin
 	-@rm -f 3rdparty/luajit/src/buildvm.*
 	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
 	-@rm -f 3rdparty/luajit/src/lua51.*
@@ -121,10 +121,10 @@ mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw config=release64
 mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
 
-build/win64/bin/texturec.exe:
+build/windows64/bin/texturec.exe:
 	devenv 3rdparty/bimg/.build/projects/vs2017/bimg.sln /Build "Release|x64" /Project texturec.vcxproj
 	cp -r 3rdparty/bimg/.build/win64_vs2017/bin/texturecRelease.exe $@
-build/win64/bin/shaderc.exe:
+build/windows64/bin/shaderc.exe:
 	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project shaderc.vcxproj
 	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/shadercRelease.exe $@
 
@@ -132,17 +132,17 @@ build/projects/vs2017:
 	$(GENIE) --file=3rdparty\\bgfx\\scripts\\genie.lua --with-tools vs2017
 	$(GENIE) --file=3rdparty\\bimg\\scripts\\genie.lua --with-tools vs2017
 	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2017
-windows-debug32: build/projects/vs2017 build/win32/bin/luajit.exe
+windows-debug32: build/projects/vs2017 build/windows32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|Win32"
-windows-development32: build/projects/vs2017 build/win32/bin/luajit.exe
+windows-development32: build/projects/vs2017 build/windows32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|Win32"
-windows-release32: build/projects/vs2017 build/win32/bin/luajit.exe
+windows-release32: build/projects/vs2017 build/windows32/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|Win32"
-windows-debug64: build/projects/vs2017 build/win64/bin/luajit.exe
+windows-debug64: build/projects/vs2017 build/windows64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|x64"
-windows-development64: build/projects/vs2017 build/win64/bin/luajit.exe
+windows-development64: build/projects/vs2017 build/windows64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|x64"
-windows-release64: build/projects/vs2017 build/win64/bin/luajit.exe
+windows-release64: build/projects/vs2017 build/windows64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|x64"
 
 .PHONY: rebuild-glib-resources
@@ -154,8 +154,8 @@ tools-linux-debug64: linux-debug64 build/linux64/bin/texturec build/linux64/bin/
 tools-linux-release64: linux-development64 build/linux64/bin/texturec build/linux64/bin/shaderc
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release
 
-tools-windows-debug64: windows-debug64 build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
-tools-windows-release64: windows-development64 build/win64/bin/texturec.exe build/win64/bin/shaderc.exe
+tools-windows-debug64: windows-debug64 build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
+tools-windows-release64: windows-development64 build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
 
 tools-mingw-debug64: mingw-development64
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug
