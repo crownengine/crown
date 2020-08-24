@@ -25,6 +25,7 @@ namespace Crown
 		public signal void file_removed(string type, string name);
 		public signal void tree_added(string name);
 		public signal void tree_removed(string name);
+		public signal void project_reset();
 
 		public Project(DataCompiler dc)
 		{
@@ -47,6 +48,8 @@ namespace Crown
 		{
 			_files.reset();
 			_map.clear();
+
+			project_reset();
 		}
 
 		public void load(string source_dir, string toolchain_dir)

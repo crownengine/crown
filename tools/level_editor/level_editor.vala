@@ -308,7 +308,7 @@ namespace Crown
 
 			_compiler = new ConsoleClient();
 			_compiler.connected.connect(on_compiler_connected);
-			_compiler.disconnected.connect(on_compiler_disconnected);
+			_compiler.disconnected.connect(on_compiler_disconnected_unexpected);
 			_compiler.message_received.connect(on_message_received);
 
 			_data_compiler = new DataCompiler(_compiler);
@@ -596,6 +596,21 @@ namespace Crown
 			_console_view.logi("editor", "Disconnected from data_compiler");
 		}
 
+		private void on_compiler_disconnected_unexpected()
+		{
+			on_compiler_disconnected();
+
+			stop_game();
+			stop_editor();
+
+			// Reset the callback
+			_data_compiler.finished(false);
+
+			_project_slide.show_widget(compiler_crashed_label());
+			_editor_slide.show_widget(compiler_crashed_label());
+			_inspector_slide.show_widget(compiler_crashed_label());
+		}
+
 		private void on_editor_connected(string address, int port)
 		{
 			_console_view.logi("editor", "Connected to level_editor@%s:%d".printf(address, port));
@@ -612,7 +627,7 @@ namespace Crown
 			on_editor_disconnected();
 
 			Gtk.Label label = new Gtk.Label(null);
-			label.set_markup("Something went wrong.\rTry to <a href=\"restart\">Restart</a> this view.");
+			label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
 			label.activate_link.connect(() => {
 				activate_action("restart", null);
 				return true;
@@ -803,9 +818,35 @@ namespace Crown
 			return new Gtk.Label("Compiling resources, please wait...");
 		}
 
+		Gtk.Widget compiler_crashed_label()
+		{
+			Gtk.Label label = new Gtk.Label(null);
+			label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
+			label.activate_link.connect(() => {
+				restart_compiler();
+				return true;
+			});
+
+			return label;
+		}
+
+		Gtk.Widget compiler_failed_compilation_label()
+		{
+			Gtk.Label label = new Gtk.Label(null);
+			label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
+			label.activate_link.connect(() => {
+				restart_compiler();
+				return true;
+			});
+
+			return label;
+		}
+
 		private void restart_compiler()
 		{
 			stop_compiler();
+
+			_project.reset();
 
 			_project_slide.show_widget(starting_compiler_label());
 			_editor_slide.show_widget(starting_compiler_label());
@@ -833,6 +874,10 @@ namespace Crown
 				_console_view.loge("editor", e.message);
 			}
 
+			// It is an error if compiler disconnects after here.
+			_compiler.disconnected.disconnect(on_compiler_disconnected);
+			_compiler.disconnected.connect(on_compiler_disconnected_unexpected);
+
 			for (int tries = 0; !_compiler.is_connected() && tries < 5; ++tries)
 			{
 				_compiler.connect("127.0.0.1", CROWN_DEFAULT_SERVER_PORT);
@@ -847,6 +892,12 @@ namespace Crown
 					_project_slide.show_widget(_project_browser);
 					_inspector_slide.show_widget(_inspector_pane);
 				}
+				else
+				{
+					_project_slide.show_widget(compiler_failed_compilation_label());
+					_editor_slide.show_widget(compiler_failed_compilation_label());
+					_inspector_slide.show_widget(compiler_failed_compilation_label());
+				}
 			});
 		}
 
@@ -857,6 +908,10 @@ namespace Crown
 
 			if (_compiler != null)
 			{
+				// Explicit call to this function should not produce error messages.
+				_compiler.disconnected.disconnect(on_compiler_disconnected_unexpected);
+				_compiler.disconnected.connect(on_compiler_disconnected);
+
 				_compiler.send(DataCompilerApi.quit());
 				_compiler.close();
 			}
@@ -899,6 +954,10 @@ namespace Crown
 			{
 				_console_view.loge("editor", e.message);
 			}
+
+			// It is an error if editor disconnects after here.
+			_editor.disconnected.disconnect(on_editor_disconnected);
+			_editor.disconnected.connect(on_editor_disconnected_unexpected);
 
 			for (int tries = 0; !_editor.is_connected() && tries < 10; ++tries)
 			{
@@ -943,10 +1002,6 @@ namespace Crown
 		private void restart_editor()
 		{
 			stop_editor();
-
-			// It is an error if editor disconnects after here.
-			_editor.disconnected.disconnect(on_editor_disconnected);
-			_editor.disconnected.connect(on_editor_disconnected_unexpected);
 
 			if (_editor_view != null)
 			{
@@ -1207,7 +1262,6 @@ namespace Crown
 
 			_console_view.logi("editor", "Loading `%s`...".printf(filename));
 			_project.load(filename, _project.toolchain_dir());
-			_project_store.reset();
 
 			_level.load_empty_level();
 

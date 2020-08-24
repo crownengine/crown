@@ -35,6 +35,7 @@ namespace Crown
 			_project.file_removed.connect(on_project_file_removed);
 			_project.tree_added.connect(on_project_tree_added);
 			_project.tree_removed.connect(on_project_tree_removed);
+			_project.project_reset.connect(on_project_reset);
 
 			_tree_store = new Gtk.TreeStore(Column.COUNT
 				, typeof(string) // resource name
@@ -258,5 +259,9 @@ namespace Crown
 			_folders.unset(name);
 		}
 
+		private void on_project_reset()
+		{
+			reset();
+		}
 	}
 }
