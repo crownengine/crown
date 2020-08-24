@@ -3,7 +3,7 @@ Changelog
 
 0.38.0
 ------
-*DD MMM YYYY*
+*24 Aug 2020*
 
 **Runtime**
 
