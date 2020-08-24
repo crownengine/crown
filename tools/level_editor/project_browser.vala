@@ -204,7 +204,7 @@ namespace Crown
 
 						mi = new Gtk.MenuItem.with_label("Import...");
 						mi.activate.connect(() => {
-							GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name);
+							GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));
 							_project.import(file.get_path(), (Gtk.Window)this.get_toplevel());
 						});
 						menu.add(mi);
@@ -232,7 +232,7 @@ namespace Crown
 
 							if (dg.run() == (int)ResponseType.OK)
 							{
-								GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name, sb.text);
+								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name, sb.text));
 								try
 								{
 									file.make_directory();
@@ -266,7 +266,7 @@ namespace Crown
 								if (rt == (int)ResponseType.CANCEL)
 									return;
 
-								GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name);
+								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name));
 								try
 								{
 									_project.delete_tree(file);
@@ -289,7 +289,7 @@ namespace Crown
 
 						mi = new Gtk.MenuItem.with_label("Delete File");
 						mi.activate.connect(() => {
-							GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name + "." + (string)type);
+							GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name + "." + (string)type));
 							try
 							{
 								file.delete();
@@ -309,7 +309,7 @@ namespace Crown
 								Value parent_name;
 								_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
 
-								GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)parent_name);
+								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)parent_name));
 								try
 								{
 									GLib.AppInfo.launch_default_for_uri("file://" + file.get_path(), null);
@@ -347,7 +347,7 @@ namespace Crown
 						Value name;
 						_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-						GLib.File file = GLib.File.new_build_filename(_project.source_dir(), (string)name + "." + (string)type);
+						GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name + "." + (string)type));
 
 						if (type == "level")
 						{

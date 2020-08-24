@@ -333,8 +333,8 @@ namespace Crown
 			_level = new Level(_database, _editor, _project);
 
 			// Global paths
-			_config_dir = GLib.File.new_build_filename(GLib.Environment.get_user_config_dir(), "crown");
-			_settings_file = GLib.File.new_build_filename(_config_dir.get_path(), "settings.sjson");
+			_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
+			_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
 
 			// Editor state
 			_grid_size = 1.0;
