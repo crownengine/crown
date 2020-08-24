@@ -14,7 +14,7 @@ namespace Crown
 		public uint _index;
 		public string[] _data;
 
-		// Creates a new hisory with room for capacity records.
+		// Creates a new history with room for capacity records.
 		public EntryHistory(uint capacity)
 		{
 			_capacity = capacity;

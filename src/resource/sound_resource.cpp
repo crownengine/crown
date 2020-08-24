@@ -38,7 +38,7 @@ namespace sound_resource_internal
 		s16 fmt_tag;         // Identifies way data is stored, 1 means no compression
 		s16 fmt_channels;    // Channel, 1 means mono, 2 means stereo
 		s32 fmt_sample_rate; // Samples per second
-		s32 fmt_avarage;     // Avarage bytes per sample
+		s32 fmt_avarage;     // Average bytes per sample
 		s16 fmt_block_align; // Block alignment
 		s16 fmt_bits_ps;     // Number of bits per sample
 		char data[4];        // Should contain 'data'

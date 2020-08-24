@@ -261,7 +261,7 @@ public class Unit
 		return _db.has_property(_unit, "prefab");
 	}
 
-	/// Returns wheter the unit is a light unit.
+	/// Returns whether the unit is a light unit.
 	public bool is_light()
 	{
 		return has_prefab()

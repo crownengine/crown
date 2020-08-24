@@ -168,7 +168,7 @@ static int require_internal(lua_State* L)
 		lua_getfield(L, -1, "load_order");
 		lua_pushstring(L, module_name);
 		lua_rawseti(L, -2, int(lua_objlen(L, -2) + 1));
-		lua_pop(L, 2); // Pop "package.load_order" and "pacakge"
+		lua_pop(L, 2); // Pop "package.load_order" and "package"
 	}
 
 	return 1;

@@ -77,7 +77,7 @@ boot_script = "core/game/boot"
 // Package to load on boot
 boot_package = "boot"
 
-window_title = "New Poject"
+window_title = "New Project"
 
 // Linux-only configs
 linux = {

@@ -307,7 +307,7 @@ end
 
 function UnitBox:world_pose()
 	local position = self:world_position()
-	local rotation = self:local_rotation() -- FIXME: this sould compute world rotation from local rotations
+	local rotation = self:local_rotation() -- FIXME: this should compute world rotation from local rotations
 	return Matrix4x4.from_quaternion_translation(rotation, position)
 end
 

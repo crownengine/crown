@@ -36,7 +36,7 @@ struct Filesystem
 	/// Closes the given @a file.
 	virtual void close(File& file) = 0;
 
-	/// Returns informations about @a path.
+	/// Returns information about @a path.
 	virtual Stat stat(const char* path) = 0;
 
 	/// Returns whether @a path exists.
@@ -48,7 +48,7 @@ struct Filesystem
 	/// Returns true if @a path is a regular file.
 	virtual bool is_file(const char* path) = 0;
 
-	/// Returns the time of last modify operaton to @a path.
+	/// Returns the time of last modify operation to @a path.
 	virtual u64 last_modified_time(const char* path) = 0;
 
 	/// Creates the directory at the given @a path.
