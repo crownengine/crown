@@ -14,7 +14,7 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 
   * [Manual](https://dbartolini.github.io/crown/html/latest)
   * [Lua API](https://dbartolini.github.io/crown/html/latest/lua_api.html)
-  * [Building](https://github.com/dbartolini/crown/blob/master/docs/hackers/building.rst)
+  * [Building](https://dbartolini.github.io/crown/html/latest/hackers/building.html)
   * [Discord](https://discord.gg/CeXVWCT): [![Discord Chat](https://img.shields.io/discord/572468149358690314.svg)](https://discord.gg/CeXVWCT)
   * [Trello Roadmap](https://trello.com/b/h88kbJNm/crown-game-engine)
 
