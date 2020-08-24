@@ -16,6 +16,9 @@ namespace Crown
 		public EntryDouble _x;
 		public EntryDouble _y;
 		public EntryDouble _z;
+		public Gtk.Label _x_label;
+		public Gtk.Label _y_label;
+		public Gtk.Label _z_label;
 
 		public Vector3 value
 		{
@@ -53,8 +56,21 @@ namespace Crown
 			_y.value_changed.connect(on_value_changed);
 			_z.value_changed.connect(on_value_changed);
 
+			_x_label = new Gtk.Label("X");
+			_x_label.get_style_context().add_class("axis");
+			_x_label.get_style_context().add_class("x");
+			_y_label = new Gtk.Label("Y");
+			_y_label.get_style_context().add_class("axis");
+			_y_label.get_style_context().add_class("y");
+			_z_label = new Gtk.Label("Z");
+			_z_label.get_style_context().add_class("axis");
+			_z_label.get_style_context().add_class("z");
+
+			this.pack_start(_x_label, false);
 			this.pack_start(_x, true, true);
+			this.pack_start(_y_label, false);
 			this.pack_start(_y, true, true);
+			this.pack_start(_z_label, false);
 			this.pack_start(_z, true, true);
 		}
 
