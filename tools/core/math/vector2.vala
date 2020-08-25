@@ -7,6 +7,7 @@ using Gee;
 
 namespace Crown
 {
+	[Compact]
 	public struct Vector2
 	{
 		public double x;

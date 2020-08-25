@@ -5,6 +5,7 @@
 
 namespace Crown
 {
+	[Compact]
 	public struct Matrix4x4
 	{
 		public Vector4 x;

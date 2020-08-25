@@ -17,6 +17,7 @@ namespace Crown
 	/// <summary>
 	/// Provides functions for encoding and decoding files in the JSON format.
 	/// </summary>
+	[Compact]
 	public class JSON
 	{
 		/// <summary>

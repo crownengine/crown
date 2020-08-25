@@ -5,6 +5,7 @@
 
 namespace Crown
 {
+	[Compact]
 	public struct Guid
 	{
 		uint32 data1;
