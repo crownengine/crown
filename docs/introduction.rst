@@ -13,8 +13,8 @@ Supported platforms
 -------------------
 
 * Android 7.0+ (ARMv7+)
-* Ubuntu 12.04+ (x86 and x86_64)
-* Windows 7, 8, 10 (x86 and x86_64)
+* Ubuntu 12.04+ (x86_64)
+* Windows 7, 8, 10 (x86_64)
 
 System requirements
 -------------------

@@ -5,6 +5,10 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Runtime**
+
+* Remove support for 32-bit x86 architectures
+
 0.38.0
 ------
 *24 Aug 2020*

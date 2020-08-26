@@ -29,39 +29,18 @@ build/android-arm/bin/libluajit.a:
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/libluajit.a build/android-arm/bin
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
-build/linux32/bin/luajit:
-	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
-	mkdir -p build/linux32/bin
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit 3rdparty/luajit/src/libluajit.a build/linux32/bin
-	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 build/linux64/bin/luajit:
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
 	mkdir -p build/linux64/bin
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit 3rdparty/luajit/src/libluajit.a build/linux64/bin
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
-build/mingw32/bin/luajit.exe:
-	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Windows BUILDMODE=static
-	mkdir -p build/mingw32/bin
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/mingw32/bin
-	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 build/mingw64/bin/luajit.exe:
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Windows BUILDMODE=static
 	mkdir -p build/mingw64/bin
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/libluajit.a build/mingw64/bin
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
-build/windows32/bin/luajit.exe:
-	-mkdir "build/windows32/bin"
-	cd "3rdparty/luajit/src" && msvcbuild.bat
-	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows32/bin
-	-@rm -f 3rdparty/luajit/src/buildvm.*
-	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
-	-@rm -f 3rdparty/luajit/src/lua51.*
-	-@rm -f 3rdparty/luajit/src/luajit.exe
-	-@rm -f 3rdparty/luajit/src/luajit.exp
-	-@rm -f 3rdparty/luajit/src/luajit.lib
-	-@rm -f 3rdparty/luajit/src/minilua.*
 build/windows64/bin/luajit.exe:
 	-mkdir "build/windows64/bin"
 	cd "3rdparty/luajit/src" && msvcbuild.bat
@@ -95,35 +74,23 @@ build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --gfxapi=gl32 --with-luajit --with-tools --compiler=linux-gcc gmake
-linux-debug32: build/projects/linux build/linux32/bin/luajit
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=debug32
-linux-development32: build/projects/linux build/linux32/bin/luajit
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=development32
-linux-release32: build/projects/linux build/linux32/bin/luajit
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=release32
 linux-debug64: build/projects/linux build/linux64/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=debug64
 linux-development64: build/projects/linux build/linux64/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=development64
 linux-release64: build/projects/linux build/linux64/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=release64
-linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
+linux: linux-debug64 linux-development64 linux-release64
 
 build/projects/mingw:
 	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --compiler=mingw-gcc gmake
-mingw-debug32: build/projects/mingw build/mingw32/bin/luajit.exe
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw config=debug32
-mingw-development32: build/projects/mingw build/mingw32/bin/luajit.exe
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw config=development32
-mingw-release32: build/projects/mingw build/mingw32/bin/luajit.exe
-	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw config=release32
 mingw-debug64: build/projects/mingw build/mingw64/bin/luajit.exe
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw config=debug64
 mingw-development64: build/projects/mingw build/mingw64/bin/luajit.exe
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw config=development64
 mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw config=release64
-mingw: mingw-debug32 mingw-development32 mingw-release32 mingw-debug64 mingw-development64 mingw-release64
+mingw: mingw-debug64 mingw-development64 mingw-release64
 
 build/windows64/bin/texturec.exe:
 	devenv 3rdparty/bimg/.build/projects/vs2017/bimg.sln /Build "Release|x64" /Project texturec.vcxproj
@@ -136,12 +103,6 @@ build/projects/vs2017:
 	$(GENIE) --file=3rdparty\\bgfx\\scripts\\genie.lua --with-tools vs2017
 	$(GENIE) --file=3rdparty\\bimg\\scripts\\genie.lua --with-tools vs2017
 	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2017
-windows-debug32: build/projects/vs2017 build/windows32/bin/luajit.exe
-	devenv build/projects/vs2017/crown.sln /Build "debug|Win32"
-windows-development32: build/projects/vs2017 build/windows32/bin/luajit.exe
-	devenv build/projects/vs2017/crown.sln /Build "development|Win32"
-windows-release32: build/projects/vs2017 build/windows32/bin/luajit.exe
-	devenv build/projects/vs2017/crown.sln /Build "release|Win32"
 windows-debug64: build/projects/vs2017 build/windows64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|x64"
 windows-development64: build/projects/vs2017 build/windows64/bin/luajit.exe
