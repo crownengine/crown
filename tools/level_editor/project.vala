@@ -60,8 +60,8 @@ namespace Crown
 			_toolchain_dir = File.new_for_path(toolchain_dir);
 			_data_dir      = File.new_for_path(_source_dir.get_path() + "_" + _platform);
 
-			_level_editor_test_level = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.level");
-			_level_editor_test_package = File.new_for_path(_source_dir.get_path() + "/" + "_level_editor_test.package");
+			_level_editor_test_level = File.new_for_path(Path.build_filename(_source_dir.get_path(), "_level_editor_test.level"));
+			_level_editor_test_package = File.new_for_path(Path.build_filename(_source_dir.get_path(), "_level_editor_test.package"));
 
 			// Cleanup source directory from previous runs' garbage
 			delete_garbage();
@@ -311,7 +311,7 @@ end
 			string importer_settings_path = null;
 			{
 				GLib.File file_src = File.new_for_path(filenames.nth_data(0));
-				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
+				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
 				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
@@ -379,7 +379,7 @@ end
 					continue;
 
 				GLib.File file_src = File.new_for_path(filename_i);
-				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
+				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
 				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
@@ -655,7 +655,7 @@ end
 					continue;
 
 				GLib.File file_src = File.new_for_path(filename_i);
-				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
+				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
 				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
@@ -821,7 +821,7 @@ end
 					continue;
 
 				GLib.File file_src = File.new_for_path(filename_i);
-				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
+				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
 				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
@@ -850,7 +850,7 @@ end
 					continue;
 
 				GLib.File file_src = File.new_for_path(filename_i);
-				GLib.File file_dst = File.new_for_path(destination_dir + "/" + file_src.get_basename());
+				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
 				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));

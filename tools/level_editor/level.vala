@@ -84,7 +84,7 @@ namespace Crown
 		/// Loads the empty level template.
 		public void load_empty_level()
 		{
-			load(_project.toolchain_dir() + "/" + "core/editors/levels/empty.level");
+			load(Path.build_filename(_project.toolchain_dir(), "core/editors/levels/empty.level"));
 
 			_filename = null;
 		}
@@ -500,11 +500,11 @@ namespace Crown
 			Database prefab_db = new Database();
 
 			// Try to load from toolchain directory first
-			File file = File.new_for_path(_project.toolchain_dir() + "/" + name + ".unit");
+			File file = File.new_for_path(Path.build_filename(_project.toolchain_dir(), name + ".unit"));
 			if (file.query_exists())
 				prefab_db.load(file.get_path());
 			else
-				prefab_db.load(_project.source_dir() + "/" + name + ".unit");
+				prefab_db.load(Path.build_filename(_project.source_dir(), name + ".unit"));
 
 			// Recursively load all sub-prefabs
 			Value? prefab = prefab_db.get_property(GUID_ZERO, "prefab");

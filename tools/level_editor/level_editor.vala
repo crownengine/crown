@@ -427,7 +427,7 @@ namespace Crown
 
 			if (_level_resource != "")
 			{
-				string level_path = _project.source_dir() + "/" + _level_resource + ".level";
+				string level_path = Path.build_filename(_project.source_dir(), _level_resource + ".level");
 				if (!GLib.FileUtils.test(level_path, FileTest.EXISTS) || !GLib.FileUtils.test(level_path, FileTest.IS_REGULAR))
 				{
 					stdout.printf("Level resource '%s' does not exist.\n", _level_resource);
@@ -1115,7 +1115,7 @@ namespace Crown
 					if (compiler.get_exit_status() == 0)
 					{
 						GLib.File engine_exe = File.new_for_path(ENGINE_EXE);
-						GLib.File engine_exe_dest = File.new_for_path(data_dir.get_path() + "/" + ENGINE_EXE);
+						GLib.File engine_exe_dest = File.new_for_path(Path.build_filename(data_dir.get_path(), ENGINE_EXE));
 						engine_exe.copy(engine_exe_dest, FileCopyFlags.OVERWRITE);
 
 						_console_view.logi("editor", "Project deployed to `%s`".printf(data_dir.get_path()));
