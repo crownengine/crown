@@ -74,9 +74,9 @@ build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --gfxapi=gl32 --with-luajit --with-tools --compiler=linux-gcc gmake
-linux-debug64: build/projects/linux build/linux64/bin/luajit
+linux-debug64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=debug64
-linux-development64: build/projects/linux build/linux64/bin/luajit
+linux-development64: build/projects/linux build/linux64/bin/luajit build/linux64/bin/texturec build/linux64/bin/shaderc
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=development64
 linux-release64: build/projects/linux build/linux64/bin/luajit
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux config=release64
@@ -103,9 +103,9 @@ build/projects/vs2017:
 	$(GENIE) --file=3rdparty\\bgfx\\scripts\\genie.lua --with-tools vs2017
 	$(GENIE) --file=3rdparty\\bimg\\scripts\\genie.lua --with-tools vs2017
 	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2017
-windows-debug64: build/projects/vs2017 build/windows64/bin/luajit.exe
+windows-debug64: build/projects/vs2017 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
 	devenv build/projects/vs2017/crown.sln /Build "debug|x64"
-windows-development64: build/projects/vs2017 build/windows64/bin/luajit.exe
+windows-development64: build/projects/vs2017 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
 	devenv build/projects/vs2017/crown.sln /Build "development|x64"
 windows-release64: build/projects/vs2017 build/windows64/bin/luajit.exe
 	devenv build/projects/vs2017/crown.sln /Build "release|x64"
@@ -114,13 +114,13 @@ windows-release64: build/projects/vs2017 build/windows64/bin/luajit.exe
 rebuild-glib-resources:
 	$(MAKE) -j$(MAKE_JOBS) -R -C tools/level_editor/resources rebuild
 
-tools-linux-debug64: linux-debug64 build/linux64/bin/texturec build/linux64/bin/shaderc
+tools-linux-debug64: linux-debug64
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=debug
-tools-linux-release64: linux-development64 build/linux64/bin/texturec build/linux64/bin/shaderc
+tools-linux-release64: linux-development64
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/linux level-editor config=release
 
-tools-windows-debug64: windows-debug64 build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-tools-windows-release64: windows-development64 build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
+tools-windows-debug64: windows-debug64
+tools-windows-release64: windows-development64
 
 tools-mingw-debug64: mingw-development64
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug
