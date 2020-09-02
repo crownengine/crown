@@ -122,9 +122,9 @@ tools-linux-release64: linux-development64
 tools-windows-debug64: windows-debug64
 tools-windows-release64: windows-development64
 
-tools-mingw-debug64: mingw-development64
+tools-mingw-debug64: build/projects/mingw
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=debug
-tools-mingw-release64: mingw-development64
+tools-mingw-release64: build/projects/mingw
 	$(MAKE) -j$(MAKE_JOBS) -R -C build/projects/mingw level-editor config=release
 
 .PHONY: docs
