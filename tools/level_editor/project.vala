@@ -94,7 +94,7 @@ windows = {
 }
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "boot.config");
-				FileStream fs = FileStream.open(path, "w");
+				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
 					fs.write(text.data);
 			}
@@ -120,7 +120,7 @@ unit = [
 ]
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "boot.package");
-				FileStream fs = FileStream.open(path, "w");
+				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
 					fs.write(text.data);
 			}
@@ -143,7 +143,7 @@ actors = {
 }
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "global.physics_config");
-				FileStream fs = FileStream.open(path, "w");
+				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
 					fs.write(text.data);
 			}
@@ -197,7 +197,7 @@ function Game.shutdown()
 end
 """;
 				string path = Path.build_filename(_source_dir.get_path(), "main.lua");
-				FileStream fs = FileStream.open(path, "w");
+				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
 					fs.write(text.data);
 			}

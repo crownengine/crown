@@ -47,7 +47,7 @@ namespace Crown
 		/// </summary>
 		public static Hashtable load(string path)
 		{
-			FileStream fs = FileStream.open(path, "r");
+			FileStream fs = FileStream.open(path, "rb");
 			if (fs == null)
 				return new Hashtable();
 
@@ -72,7 +72,7 @@ namespace Crown
 		/// </summary>
 		public static void save(Hashtable h, string path)
 		{
-			FileStream fs = FileStream.open(path, "w");
+			FileStream fs = FileStream.open(path, "wb");
 			if (fs == null)
 				return;
 
