@@ -114,7 +114,7 @@ namespace Crown
 				else if ((string)type == "physics_config")
 					cell.set_property("icon-name", "text-x-generic-symbolic");
 				else if ((string)type == "lua")
-					cell.set_property("icon-name", "text-x-script-symbolic");
+					cell.set_property("icon-name", "x-office-document-symbolic");
 				else if ((string)type == "shader")
 					cell.set_property("icon-name", "text-x-script-symbolic");
 				else if ((string)type == "sound")
