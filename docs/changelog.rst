@@ -9,6 +9,10 @@ Changelog
 
 * Remove support for 32-bit x86 architectures
 
+**Tools**
+
+* Fixed a number of dialog boxes that were not centered to the Level Editor's main window
+
 0.38.0
 ------
 *24 Aug 2020*

@@ -1084,7 +1084,7 @@ namespace Crown
 		private void deploy_game()
 		{
 			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select destination directory..."
-				, null
+				, this.active_window
 				, FileChooserAction.SELECT_FOLDER
 				, "Cancel"
 				, ResponseType.CANCEL

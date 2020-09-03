@@ -215,7 +215,7 @@ namespace Crown
 						mi = new Gtk.MenuItem.with_label("New Folder...");
 						mi.activate.connect(() => {
 							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
-								, null
+								, (Gtk.Window)this.get_toplevel()
 								, DialogFlags.MODAL
 								, "Cancel"
 								, ResponseType.CANCEL

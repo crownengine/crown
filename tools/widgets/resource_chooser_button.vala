@@ -64,8 +64,8 @@ namespace Crown
 
 		private void on_selector_clicked()
 		{
-			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Select resource"
-				, null
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Select Resource"
+				, (Gtk.Window)this.get_toplevel()
 				, DialogFlags.MODAL
 				, null
 				);
