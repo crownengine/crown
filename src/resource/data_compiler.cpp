@@ -1075,10 +1075,25 @@ void DataCompiler::error(const char* msg, va_list args)
 	vloge(DATA_COMPILER, msg, args);
 }
 
+/// Converts @a path to the corresponding resource name.
+/// On Linux, no transformation is needed. On Windows,
+/// backslashes are converted to slashes.
+static void resource_path_to_resource_name(DynamicString& resource_name, const DynamicString& path)
+{
+	for (u32 i = 0, n = path.length(); i < n; ++i)
+	{
+		if (path._data[i] == '\\')
+			resource_name += '/';
+		else
+			resource_name += path._data[i];
+	}
+}
+
 void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed)
 {
 	TempAllocator512 ta;
 	DynamicString source_dir(ta);
+	DynamicString resource_path(ta); // Same as resource_name but with OS-dependent directory separators
 	DynamicString resource_name(ta);
 
 	// Find source directory by matching mapped
@@ -1099,7 +1114,8 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 		// All events received must refer to directories
 		// mapped with map_source_dir().
 		const char* filename = &path[source_dir.length()+1];
-		path::join(resource_name, cur->first.c_str(), filename);
+		path::join(resource_path, cur->first.c_str(), filename);
+		resource_path_to_resource_name(resource_name, resource_path);
 
 #if 0
 		logi(DATA_COMPILER, "path         : %s", path);

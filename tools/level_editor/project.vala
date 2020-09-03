@@ -305,6 +305,14 @@ end
 			tree_removed(path);
 		}
 
+		/// Converts @a path to the corresponding resource name.
+		/// On Linux, no transformation is needed. On Windows,
+		/// backslashes are converted to slashes.
+		public string resource_path_to_resource_name(string path)
+		{
+			return path.replace("\\", "/");
+		}
+
 		public void import_sprites(SList<string> filenames, string destination_dir)
 		{
 			Hashtable importer_settings = null;
@@ -314,9 +322,9 @@ end
 				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
-				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+				string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
-				importer_settings_path = Path.build_filename(_source_dir.get_path(), resource_name) + ".importer_settings";
+				importer_settings_path = Path.build_filename(_source_dir.get_path(), resource_path) + ".importer_settings";
 			}
 
 			SpriteImportDialog sid = new SpriteImportDialog(filenames.nth_data(0));
@@ -382,9 +390,10 @@ end
 				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
-				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+				string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+				string resource_name     = resource_path_to_resource_name(resource_path);
 
-				SJSON.save(importer_settings, Path.build_filename(_source_dir.get_path(), resource_name) + ".importer_settings");
+				SJSON.save(importer_settings, Path.build_filename(_source_dir.get_path(), resource_path) + ".importer_settings");
 
 				Hashtable textures = new Hashtable();
 				textures["u_albedo"] = resource_name;
@@ -400,7 +409,7 @@ end
 				material["shader"]   = "sprite";
 				material["textures"] = textures;
 				material["uniforms"] = uniforms;
-				SJSON.save(material, Path.build_filename(_source_dir.get_path(), resource_name) + ".material");
+				SJSON.save(material, Path.build_filename(_source_dir.get_path(), resource_path) + ".material");
 
 				try
 				{
@@ -412,10 +421,10 @@ end
 				}
 
 				Hashtable texture = new Hashtable();
-				texture["source"]        = resource_filename;
+				texture["source"]        = resource_path_to_resource_name(resource_filename);
 				texture["generate_mips"] = false;
 				texture["normal_map"]    = false;
-				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_name) + ".texture");
+				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_path) + ".texture");
 
 				Hashtable sprite = new Hashtable();
 				sprite["width"]  = width;
@@ -449,14 +458,14 @@ end
 				}
 				sprite["frames"] = frames;
 
-				SJSON.save(sprite, Path.build_filename(_source_dir.get_path(), resource_name) + ".sprite");
+				SJSON.save(sprite, Path.build_filename(_source_dir.get_path(), resource_path) + ".sprite");
 
 
 				// Generate .unit
 				Database db = new Database();
 
 				// Do not overwrite existing .unit
-				string unit_name = Path.build_filename(_source_dir.get_path(), resource_name) + ".unit";
+				string unit_name = Path.build_filename(_source_dir.get_path(), resource_path) + ".unit";
 				if (File.new_for_path(unit_name).query_exists())
 					db.load(unit_name);
 
@@ -658,7 +667,8 @@ end
 				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
-				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+				string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+				string resource_name     = resource_path_to_resource_name(resource_path);
 
 				// Choose material or create new one
 				FileChooserDialog mtl = new FileChooserDialog("Select material... (Cancel to create a new one)"
@@ -676,11 +686,11 @@ end
 				fltr.add_pattern("*.material");
 				mtl.add_filter(fltr);
 
-				string material_name = resource_name;
+				string material_path = resource_path;
 				if (mtl.run() == (int)ResponseType.ACCEPT)
 				{
-					material_name = _source_dir.get_relative_path(File.new_for_path(mtl.get_filename()));
-					material_name = material_name.substring(0, material_name.last_index_of_char('.'));
+					material_path = _source_dir.get_relative_path(File.new_for_path(mtl.get_filename()));
+					material_path = material_path.substring(0, material_path.last_index_of_char('.'));
 				}
 				else
 				{
@@ -688,9 +698,10 @@ end
 					material["shader"]   = "mesh+DIFFUSE_MAP";
 					material["textures"] = new Hashtable();
 					material["uniforms"] = new Hashtable();
-					SJSON.save(material, Path.build_filename(_source_dir.get_path(), resource_name) + ".material");
+					SJSON.save(material, Path.build_filename(_source_dir.get_path(), material_path) + ".material");
 				}
 				mtl.destroy();
+				string material_name = resource_path_to_resource_name(material_path);
 
 				try
 				{
@@ -824,7 +835,7 @@ end
 				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
-				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+				string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
 				try
 				{
@@ -836,9 +847,9 @@ end
 				}
 
 				Hashtable sound = new Hashtable();
-				sound["source"] = resource_filename;
+				sound["source"] = resource_path_to_resource_name(resource_filename);
 
-				SJSON.save(sound, Path.build_filename(_source_dir.get_path(), resource_name) + ".sound");
+				SJSON.save(sound, Path.build_filename(_source_dir.get_path(), resource_path) + ".sound");
 			}
 		}
 
@@ -853,7 +864,7 @@ end
 				GLib.File file_dst = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
 
 				string resource_filename = _source_dir.get_relative_path(file_dst);
-				string resource_name     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
+				string resource_path     = resource_filename.substring(0, resource_filename.last_index_of_char('.'));
 
 				try
 				{
@@ -865,11 +876,11 @@ end
 				}
 
 				Hashtable texture = new Hashtable();
-				texture["source"]        = resource_filename;
+				texture["source"]        = resource_path_to_resource_name(resource_filename);
 				texture["generate_mips"] = true;
 				texture["normal_map"]    = false;
 
-				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_name) + ".texture");
+				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_path) + ".texture");
 			}
 		}
 
