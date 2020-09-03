@@ -323,7 +323,18 @@ struct WindowsDevice
 		wnd.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 		RegisterClassExA(&wnd);
 
-		DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+		DWORD style = WS_VISIBLE;
+		DWORD exstyle = 0;
+		if (opts->_parent_window == 0)
+		{
+			style |= WS_OVERLAPPEDWINDOW;
+		}
+		else
+		{
+			style |= WS_POPUP | WS_SYSMENU;
+			exstyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED;
+		}
+
 		RECT rect;
 		rect.left   = 0;
 		rect.top    = 0;
@@ -331,7 +342,8 @@ struct WindowsDevice
 		rect.bottom = opts->_window_height;
 		AdjustWindowRect(&rect, style, FALSE);
 
-		_hwnd = CreateWindowA("crown"
+		_hwnd = CreateWindowExA(exstyle
+			, "crown"
 			, "Crown"
 			, style
 			, opts->_window_x
@@ -341,9 +353,12 @@ struct WindowsDevice
 			, 0
 			, NULL
 			, instance
-			, 0
+			, NULL
 			);
 		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
+
+		if (opts->_parent_window != 0)
+			SetParent(_hwnd, (HWND)opts->_parent_window);
 
 		_hcursor = LoadCursorA(NULL, IDC_ARROW);
 

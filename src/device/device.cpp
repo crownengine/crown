@@ -184,6 +184,20 @@ static void device_command_refresh(ConsoleServer& /*cs*/, TCPSocket& /*client*/,
 	device()->refresh();
 }
 
+static void device_message_resize(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data)
+{
+	TempAllocator256 ta;
+	JsonObject obj(ta);
+	s32 width;
+	s32 height;
+
+	sjson::parse(obj, json);
+	width = sjson::parse_int(obj["width"]);
+	height = sjson::parse_int(obj["height"]);
+
+	device()->_window->resize((u16)width, (u16)height);
+}
+
 Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _options(opts)
@@ -271,6 +285,7 @@ void Device::run()
 	_console_server->register_command_name("pause", "Pause the engine", device_command_pause, this);
 	_console_server->register_command_name("unpause", "Resume the engine", device_command_unpause, this);
 	_console_server->register_command_name("refresh", "Reload all changed resources", device_command_refresh, this);
+	_console_server->register_message_type("resize", device_message_resize, this);
 
 	_console_server->listen(_options._console_port, _options._wait_console);
 

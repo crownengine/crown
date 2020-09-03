@@ -81,6 +81,11 @@ namespace Crown
 			return command({ "unpause" });
 		}
 
+		public string resize(int width, int height)
+		{
+			return "{\"type\":\"resize\",\"width\":%d,\"height\":%d}".printf(width, height);
+		}
+
 	}
 
 	namespace LevelEditorApi

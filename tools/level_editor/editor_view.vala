@@ -7,6 +7,10 @@ using Gdk;
 using Gee;
 using Gtk;
 
+#if CROWN_PLATFORM_WINDOWS
+extern uint gdk_win32_window_get_handle (Gdk.Window window);
+#endif
+
 namespace Crown
 {
 	public class EditorView : Gtk.Alignment
@@ -21,7 +25,7 @@ namespace Crown
 		private bool _mouse_middle;
 		private bool _mouse_right;
 
-		private X.Window _window_id;
+		private uint _window_id;
 
 		public uint window_id
 		{
@@ -31,7 +35,9 @@ namespace Crown
 		private HashMap<uint, bool> _keys;
 
 		// Widgets
+#if CROWN_PLATFORM_LINUX
 		private Gtk.Socket _socket;
+#endif
 		public Gtk.EventBox _event_box;
 
 		// Signals
@@ -81,12 +87,13 @@ namespace Crown
 			_keys[Gdk.Key.Alt_R] = false;
 
 			// Widgets
+#if CROWN_PLATFORM_LINUX
 			_socket = new Gtk.Socket();
 			_socket.set_visual(Gdk.Screen.get_default().get_system_visual());
 			_socket.realize.connect(on_socket_realized);
 			_socket.plug_removed.connect(on_socket_plug_removed);
 			_socket.set_size_request(128, 128);
-
+#endif
 			_event_box = new Gtk.EventBox();
 			_event_box.can_focus = true;
 			_event_box.events |= Gdk.EventMask.POINTER_MOTION_MASK
@@ -95,6 +102,10 @@ namespace Crown
 				| Gdk.EventMask.FOCUS_CHANGE_MASK
 				| Gdk.EventMask.SCROLL_MASK
 				;
+#if CROWN_PLATFORM_WINDOWS
+			_event_box.realize.connect(on_event_box_realized);
+			_event_box.size_allocate.connect(on_size_allocate);
+#endif
 
 			if (input_enabled)
 			{
@@ -106,8 +117,9 @@ namespace Crown
 				_event_box.scroll_event.connect(on_scroll);
 			}
 
+#if CROWN_PLATFORM_LINUX
 			_event_box.add(_socket);
-
+#endif
 			add(_event_box);
 			show_all();
 		}
@@ -234,11 +246,11 @@ namespace Crown
 			return false;
 		}
 
+#if CROWN_PLATFORM_LINUX
 		private void on_socket_realized()
 		{
 			// We do not have window XID until socket is realized...
-			_window_id = _socket.get_id();
-
+			_window_id = (uint)_socket.get_id();
 			realized();
 		}
 
@@ -247,5 +259,19 @@ namespace Crown
 			// Prevent the default handler from destroying the Socket.
 			return true;
 		}
+
+#elif CROWN_PLATFORM_WINDOWS
+		private void on_event_box_realized()
+		{
+			_event_box.get_window().ensure_native();
+			_window_id = gdk_win32_window_get_handle(_event_box.get_window());
+			realized();
+		}
+
+		private void on_size_allocate(Gtk.Allocation ev)
+		{
+			_client.send(DeviceApi.resize(ev.width, ev.height));
+		}
+#endif
 	}
 }
