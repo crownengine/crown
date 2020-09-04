@@ -184,7 +184,7 @@ static void device_command_refresh(ConsoleServer& /*cs*/, TCPSocket& /*client*/,
 	device()->refresh();
 }
 
-static void device_message_resize(ConsoleServer& cs, TCPSocket& client, const char* json, void* user_data)
+static void device_message_resize(ConsoleServer& /*cs*/, TCPSocket& /*client*/, const char* json, void* /*user_data*/)
 {
 	TempAllocator256 ta;
 	JsonObject obj(ta);
