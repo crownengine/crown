@@ -1163,8 +1163,10 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 
 		case FileMonitorEvent::RENAMED:
 			{
+				DynamicString resource_path_renamed(ta); // See resource_path
 				DynamicString resource_name_renamed(ta);
-				path::join(resource_name_renamed, cur->first.c_str(), &path_renamed[source_dir.length()+1]);
+				path::join(resource_path_renamed, cur->first.c_str(), &path_renamed[source_dir.length()+1]);
+				resource_path_to_resource_name(resource_name_renamed, resource_path_renamed);
 
 				if (!is_dir)
 				{
