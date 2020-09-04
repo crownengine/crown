@@ -18,7 +18,7 @@
 #include "device/device_event_queue.inl"
 #include "resource/data_compiler.h"
 #include <bgfx/platform.h>
-#include <stdio.h>    // FILE, freopen_s, stdio etc.
+#include <stdio.h>    // FILE, freopen, stdio etc.
 #include <winsock2.h>
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 #include <xinput.h>
@@ -832,13 +832,9 @@ int main(int argc, char** argv)
 
 	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0)
 	{
-		FILE* fpstdin = stdin;
-		FILE* fpstdout = stdout;
-		FILE* fpstderr = stderr;
-
-		freopen_s(&fpstdin, "CONIN$", "r", stdin);
-		freopen_s(&fpstdout, "CONOUT$", "w", stdout);
-		freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+		freopen("CONIN$", "r", stdin);
+		freopen("CONOUT$", "w", stdout);
+		freopen("CONOUT$", "w", stderr);
 	}
 
 	WSADATA wsdata;
