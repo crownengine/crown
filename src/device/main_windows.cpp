@@ -358,7 +358,7 @@ struct WindowsDevice
 		CE_ASSERT(_hwnd != NULL, "CreateWindowA: GetLastError = %d", GetLastError());
 
 		if (opts->_parent_window != 0)
-			SetParent(_hwnd, (HWND)opts->_parent_window);
+			SetParent(_hwnd, (HWND)(UINT_PTR)opts->_parent_window);
 
 		_hcursor = LoadCursorA(NULL, IDC_ARROW);
 
