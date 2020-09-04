@@ -643,6 +643,28 @@ void DataCompiler::add_tree(const char* path)
 
 void DataCompiler::remove_tree(const char* path)
 {
+	TempAllocator512 ta;
+	DynamicString tree_path(ta);
+	tree_path = path;
+	tree_path += '/';
+
+	Vector<DynamicString> dangling_paths(default_allocator());
+
+	auto cur = hash_map::begin(_source_index._paths);
+	auto end = hash_map::end(_source_index._paths);
+	for (; cur != end; ++cur)
+	{
+		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
+
+		if (!cur->first.has_prefix(tree_path.c_str()))
+			continue;
+
+		vector::push_back(dangling_paths, cur->first);
+	}
+
+	for (u32 ii = 0; ii < vector::size(dangling_paths); ++ii)
+		remove_file(dangling_paths[ii].c_str());
+
 	notify_remove_tree(path);
 }
 
