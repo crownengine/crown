@@ -70,7 +70,7 @@ namespace Crown
 				uint8* ptr = (uint8*)(&len);
 				var array = new uint8[4];
 				for (var i = 0; i < 4; ++i)
-				    array[i] = ptr[i];
+					array[i] = ptr[i];
 
 				_connection.output_stream.write(array);
 				_connection.output_stream.write(json.data);
@@ -99,12 +99,13 @@ namespace Crown
 				InputStream input_stream = (InputStream)obj;
 				uint8[] header = input_stream.read_bytes_async.end(ar).get_data();
 
-				// Connection closed
+				// Connection closed gracefully
 				if (header.length == 0)
 				{
 					close();
 					return;
 				}
+				assert(header.length > 0);
 
 				// FIXME: Add bit conversion utils
 				uint32 size = 0;
@@ -121,6 +122,8 @@ namespace Crown
 			catch (Error e)
 			{
 				stderr.printf("%s\n", e.message);
+				if (e.code == 44) // An existing connection was forcibly closed by the remote host.
+					disconnected();
 			}
 		}
 	}
