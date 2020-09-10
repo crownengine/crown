@@ -8,7 +8,6 @@ namespace Crown
 	/// Manages communication with engine executable.
 	public class ConsoleClient : GLib.Object
 	{
-		private SocketClient _socket;
 		private SocketConnection _connection;
 
 		// Signals
@@ -18,7 +17,6 @@ namespace Crown
 
 		public ConsoleClient()
 		{
-			_socket = new SocketClient();
 			_connection = null;
 		}
 
@@ -26,7 +24,8 @@ namespace Crown
 		{
 			try
 			{
-				_connection = _socket.connect(new InetSocketAddress.from_string(address, port), null);
+				GLib.SocketClient client = new GLib.SocketClient();
+				_connection = client.connect(new InetSocketAddress.from_string(address, port), null);
 				if (_connection != null)
 					connected(address, port);
 			}
