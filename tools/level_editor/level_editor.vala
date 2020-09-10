@@ -34,6 +34,7 @@ namespace Crown
 			this.show.connect(this.on_show);
 			this.delete_event.connect(this.on_delete_event);
 			this.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+			this.focus_out_event.connect(this.on_focus_out);
 
 			_fullscreen = false;
 		}
@@ -92,6 +93,16 @@ namespace Crown
 				return false; // Quit application
 
 			return true; // Keep alive
+		}
+
+		private bool on_focus_out(Gdk.EventFocus ev)
+		{
+			LevelEditorApplication app = (LevelEditorApplication)application;
+
+			app._editor.send_script(LevelEditorApi.key_up("ctrl_left"));
+			app._editor.send_script(LevelEditorApi.key_up("shift_left"));
+			app._editor.send_script(LevelEditorApi.key_up("alt_left"));
+			return true;
 		}
 	}
 
