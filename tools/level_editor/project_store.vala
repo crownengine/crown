@@ -67,7 +67,7 @@ namespace Crown
 				, Column.TYPE
 				, "<folder>"
 				, Column.SEGMENT
-				, segment(_project.source_dir())
+				, _project.name()
 				, -1
 				);
 

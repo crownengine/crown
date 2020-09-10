@@ -223,6 +223,12 @@ end
 			return _platform;
 		}
 
+		public string name()
+		{
+			string sd = source_dir();
+			return sd.substring(sd.last_index_of_char(GLib.Path.DIR_SEPARATOR) + 1);
+		}
+
 		public bool path_is_within_dir(string path, string dir)
 		{
 			GLib.File file = GLib.File.new_for_path(path);
