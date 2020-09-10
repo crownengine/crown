@@ -252,10 +252,19 @@ namespace Crown
 			if (!_folders.has_key(name))
 				return;
 
+			// Remove the tree
 			Gtk.TreeIter iter;
 			_tree_store.get_iter(out iter, _folders[name].get_path());
 			_tree_store.remove(ref iter);
 
+			// Remove any stale TreeRowRerefence
+			var it = _folders.map_iterator();
+			for (var has_next = it.next(); has_next; has_next = it.next())
+			{
+			    string ff = it.get_key();
+				if (ff.has_prefix(name + "/"))
+					it.unset();
+			}
 			_folders.unset(name);
 		}
 
