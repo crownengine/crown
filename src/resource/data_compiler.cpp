@@ -626,17 +626,14 @@ void DataCompiler::remove_file(const char* path)
 
 void DataCompiler::add_tree(const char* path)
 {
-#if CROWN_PLATFORM_LINUX
 	// Get source directory prefix
 	TempAllocator512 ta;
 	DynamicString source_dir(ta);
 	source_dir = hash_map::get(_source_dirs, source_dir, source_dir);
 	// Scan the directory tree.
-	// See file_monitor_linux.cpp:180.
 	FilesystemDisk fs(default_allocator());
 	fs.set_prefix(source_dir.c_str());
 	_source_index.scan_directory(fs, "", path);
-#endif // CROWN_PLATFORM_LINUX
 
 	notify_add_tree(path);
 }
