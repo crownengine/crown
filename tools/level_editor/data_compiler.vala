@@ -38,7 +38,8 @@ namespace Crown
 		public void finished(bool success)
 		{
 			_success = success;
-			_callback();
+			if (_callback != null)
+				_callback();
 			_callback = null;
 		}
 	}
