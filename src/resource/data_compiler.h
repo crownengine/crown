@@ -70,6 +70,7 @@ struct DataCompiler
 	void remove_file(const char* path);
 	void add_tree(const char* path);
 	void remove_tree(const char* path);
+	void remove_file_or_tree(const char* path);
 
 	void file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char* path, const char* path_renamed);
 	static void file_monitor_callback(void* thiz, FileMonitorEvent::Enum fme, bool is_dir, const char* path_original, const char* path_modified);

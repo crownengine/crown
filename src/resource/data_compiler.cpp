@@ -665,6 +665,18 @@ void DataCompiler::remove_tree(const char* path)
 	notify_remove_tree(path);
 }
 
+void DataCompiler::remove_file_or_tree(const char* path)
+{
+	TempAllocator512 ta;
+	DynamicString path_str(ta);
+	path_str = path;
+
+	if (hash_map::has(_source_index._paths, path_str))
+		remove_file(path);
+	else
+		remove_tree(path);
+}
+
 void DataCompiler::map_source_dir(const char* name, const char* source_dir)
 {
 	TempAllocator256 ta;
@@ -1152,10 +1164,7 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 			break;
 
 		case FileMonitorEvent::DELETED:
-			if (!is_dir)
-				remove_file(resource_name.c_str());
-			else
-				remove_tree(resource_name.c_str());
+			remove_file_or_tree(resource_name.c_str());
 			break;
 
 		case FileMonitorEvent::RENAMED:
