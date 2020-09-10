@@ -5,7 +5,7 @@
 
 #include "core/platform.h"
 
-#if !CROWN_PLATFORM_LINUX
+#if !CROWN_PLATFORM_LINUX && !CROWN_PLATFORM_WINDOWS
 
 #include "core/filesystem/file_monitor.h"
 
@@ -30,5 +30,4 @@ void FileMonitor::stop()
 
 } // namespace crown
 
-#endif // !CROWN_PLATFORM_LINUX
-
+#endif // !CROWN_PLATFORM_LINUX && !CROWN_PLATFORM_WINDOWS
