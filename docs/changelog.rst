@@ -7,11 +7,14 @@ Changelog
 
 **Runtime**
 
+* Improved file modification detection and source index caching in Data Compiler
 * Remove support for 32-bit x86 architectures
 
 **Tools**
 
 * Fixed a number of dialog boxes that were not centered to the Level Editor's main window
+* Fixed an issue that caused Project Browser to show inconsistent folder structured in some circumnstances
+* Fixed modifier keys getting stuck in the wrong state in some circumnstances
 
 0.38.0
 ------
