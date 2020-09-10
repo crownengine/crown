@@ -90,7 +90,10 @@ namespace Crown
 		{
 			LevelEditorApplication app = (LevelEditorApplication)application;
 			if (app.should_quit())
+			{
+				app.close_all();
 				return false; // Quit application
+			}
 
 			return true; // Keep alive
 		}
@@ -1335,10 +1338,8 @@ namespace Crown
 			return true;
 		}
 
-		protected override void shutdown()
+		public void close_all()
 		{
-			base.shutdown();
-
 			save_settings();
 
 			if (_save_timer_id > 0)
@@ -1351,6 +1352,11 @@ namespace Crown
 				_preferences_dialog.destroy();
 
 			stop_compiler();
+		}
+
+		protected override void shutdown()
+		{
+			base.shutdown();
 		}
 
 		// Returns true if the level has been saved or the user decided it
