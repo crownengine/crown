@@ -23,6 +23,8 @@ namespace Crown
 		+ "crown-development"
 #endif
 		+ EXE_SUFFIX;
+	const string DEPLOY_DEFAULT_NAME = "crown-release";
+	const string DEPLOY_EXE = EXE_PREFIX + DEPLOY_DEFAULT_NAME + EXE_SUFFIX;
 
 	const uint16 CROWN_DEFAULT_SERVER_PORT = 10618;
 

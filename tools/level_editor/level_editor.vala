@@ -1128,9 +1128,22 @@ namespace Crown
 					compiler.wait();
 					if (compiler.get_exit_status() == 0)
 					{
-						GLib.File engine_exe = File.new_for_path(ENGINE_EXE);
-						GLib.File engine_exe_dest = File.new_for_path(Path.build_filename(data_dir.get_path(), ENGINE_EXE));
-						engine_exe.copy(engine_exe_dest, FileCopyFlags.OVERWRITE);
+						string game_name = DEPLOY_DEFAULT_NAME;
+						GLib.File engine_exe_src = File.new_for_path(DEPLOY_EXE);
+						GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), game_name + EXE_SUFFIX));
+						engine_exe_src.copy(engine_exe_dst, FileCopyFlags.OVERWRITE);
+
+#if CROWN_PLATFORM_WINDOWS
+						string lua51_name = "lua51.dll";
+						GLib.File lua51_dll_src = File.new_for_path(lua51_name);
+						GLib.File lua51_dll_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), lua51_name));
+						lua51_dll_src.copy(lua51_dll_dst, FileCopyFlags.OVERWRITE);
+
+						string openal_name = "openal-release.dll";
+						GLib.File openal_dll_src = File.new_for_path(openal_name);
+						GLib.File openal_dll_dst = File.new_for_path(Path.build_filename(data_dir.get_path(), openal_name));
+						openal_dll_src.copy(openal_dll_dst, FileCopyFlags.OVERWRITE);
+#endif // CROWN_PLATFORM_WINDOWS
 
 						_console_view.logi("editor", "Project deployed to `%s`".printf(data_dir.get_path()));
 					}
