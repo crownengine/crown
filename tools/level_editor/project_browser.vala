@@ -356,19 +356,17 @@ namespace Crown
 						}
 						else
 						{
-							GLib.AppInfo? app = GLib.AppInfo.get_default_for_type("text/plain", false);
-							if (app != null)
+							try
 							{
+								GLib.AppInfo? app = file.query_default_handler();
 								GLib.List<GLib.File> files = new GLib.List<GLib.File>();
 								files.append(file);
-								try
-								{
-									app.launch(files, null);
-								}
-								catch (Error e)
-								{
-									// _console_view.loge("editor", e.message);
-								}
+								app.launch(files, null);
+							}
+							catch (Error e)
+							{
+								Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+								((LevelEditorApplication)app)._console_view.loge("editor", e.message);
 							}
 						}
 					}
