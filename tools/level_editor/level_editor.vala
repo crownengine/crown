@@ -240,7 +240,7 @@ namespace Crown
 		private DataCompiler _data_compiler;
 
 		// Widgets
-		private ConsoleView _console_view;
+		public ConsoleView _console_view;
 		private ProjectBrowser _project_browser;
 		private EditorView _editor_view;
 		private LevelTreeView _level_treeview;
