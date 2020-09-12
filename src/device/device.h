@@ -42,7 +42,6 @@ struct Device
 	BootConfig _boot_config;
 	ConsoleServer* _console_server;
 	Filesystem* _data_filesystem;
-	File* _last_log;
 	ResourceLoader* _resource_loader;
 	ResourceManager* _resource_manager;
 	BgfxAllocator* _bgfx_allocator;
@@ -116,9 +115,6 @@ struct Device
 	/// Reloads all the resources that have changed since the
 	/// last call to this function.
 	void refresh();
-
-	/// Logs @a msg to log file and console.
-	void log(const char* msg);
 };
 
 /// Runs the engine.

@@ -204,7 +204,6 @@ Device::Device(const DeviceOptions& opts, ConsoleServer& cs)
 	, _boot_config(default_allocator())
 	, _console_server(&cs)
 	, _data_filesystem(NULL)
-	, _last_log(NULL)
 	, _resource_loader(NULL)
 	, _resource_manager(NULL)
 	, _bgfx_allocator(NULL)
@@ -301,8 +300,6 @@ void Device::run()
 			;
 		((FilesystemDisk*)_data_filesystem)->set_prefix(data_dir);
 	}
-
-	_last_log = _data_filesystem->open(CROWN_LAST_LOG, FileOpenMode::WRITE);
 #endif // CROWN_PLATFORM_ANDROID
 
 	logi(DEVICE, "Crown %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
@@ -520,9 +517,6 @@ void Device::run()
 	_window->close();
 	window::destroy(_allocator, *_window);
 	display::destroy(_allocator, *_display);
-
-	if (_last_log)
-		_data_filesystem->close(*_last_log);
 
 	CE_DELETE(_allocator, _data_filesystem);
 
@@ -772,16 +766,6 @@ void Device::refresh()
 	// Do nothing
 }
 #endif
-
-void Device::log(const char* msg)
-{
-	if (_last_log)
-	{
-		_last_log->write(msg, strlen32(msg));
-		_last_log->write("\n", 1);
-		_last_log->flush();
-	}
-}
 
 char _buffer[sizeof(Device)];
 Device* _device = NULL;

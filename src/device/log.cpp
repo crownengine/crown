@@ -10,7 +10,6 @@
 #include "core/strings/string_stream.h"
 #include "core/thread/scoped_mutex.h"
 #include "device/console_server.h"
-#include "device/device.h"
 #include "device/log.h"
 
 namespace crown
@@ -46,9 +45,6 @@ namespace log_internal
 		buf[len] = '\0';
 
 		stdout_log(sev, system, buf);
-
-		if (device())
-			device()->log(buf);
 
 		if (console_server())
 			console_server()->log(sev, system.name, buf);
