@@ -240,7 +240,7 @@ namespace Crown
 								catch (Error e)
 								{
 									Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-									((LevelEditorApplication)app)._console_view.loge("editor", e.message);
+									((LevelEditorApplication)app).loge(e.message);
 								}
 							}
 
@@ -275,7 +275,7 @@ namespace Crown
 								catch (Error e)
 								{
 									Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-									((LevelEditorApplication)app)._console_view.loge("editor", e.message);
+									((LevelEditorApplication)app).loge(e.message);
 								}
 							});
 							menu.add(mi);
@@ -299,7 +299,7 @@ namespace Crown
 							catch (Error e)
 							{
 								Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-								((LevelEditorApplication)app)._console_view.loge("editor", e.message);
+								((LevelEditorApplication)app).loge(e.message);
 							}
 						});
 						menu.add(mi);
@@ -320,7 +320,7 @@ namespace Crown
 								catch (Error e)
 								{
 									Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-									((LevelEditorApplication)app)._console_view.loge("editor", e.message);
+									((LevelEditorApplication)app).loge(e.message);
 								}
 							}
 						});
@@ -370,7 +370,7 @@ namespace Crown
 							catch (Error e)
 							{
 								Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-								((LevelEditorApplication)app)._console_view.loge("editor", e.message);
+								((LevelEditorApplication)app).loge(e.message);
 							}
 						}
 					}

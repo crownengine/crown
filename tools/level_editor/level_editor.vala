@@ -211,6 +211,9 @@ namespace Crown
 
 		// Global paths
 		private GLib.File _config_dir;
+		private GLib.File _logs_dir;
+		private GLib.File _log_file;
+		private GLib.FileStream _log_stream;
 		private GLib.File _settings_file;
 
 		// Editor state
@@ -273,13 +276,23 @@ namespace Crown
 			Object(application_id: "org.crown.level_editor"
 				, flags: GLib.ApplicationFlags.FLAGS_NONE
 				);
+
+			// Global paths
+			_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
+			try { _config_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
+			_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "logs"));
+			try { _logs_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
+
+			_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_utc().format("%Y-%m-%d") + ".log"));
+			_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
+
+			_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
 		}
 
 		protected override void startup()
 		{
 			base.startup();
 
-			Intl.setlocale(LocaleCategory.ALL, "C");
 			Gtk.Settings.get_default().gtk_theme_name = "Adwaita";
 			Gtk.Settings.get_default().gtk_application_prefer_dark_theme = true;
 
@@ -345,10 +358,6 @@ namespace Crown
 			_game.message_received.connect(on_message_received);
 
 			_level = new Level(_database, _editor, _project);
-
-			// Global paths
-			_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
-			_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
 
 			// Editor state
 			_grid_size = 1.0;
@@ -444,7 +453,7 @@ namespace Crown
 				string level_path = Path.build_filename(_project.source_dir(), _level_resource + ".level");
 				if (!GLib.FileUtils.test(level_path, FileTest.EXISTS) || !GLib.FileUtils.test(level_path, FileTest.IS_REGULAR))
 				{
-					stdout.printf("Level resource '%s' does not exist.\n", _level_resource);
+					loge("Level resource '%s' does not exist.".printf(_level_resource));
 					return;
 				}
 
@@ -453,15 +462,6 @@ namespace Crown
 			else
 			{
 				_level.load_empty_level();
-			}
-
-			try
-			{
-				_config_dir.make_directory();
-			}
-			catch (Error e)
-			{
-				// Nobody cares
 			}
 
 			load_settings();
@@ -503,7 +503,7 @@ namespace Crown
 				}
 				catch (Error e)
 				{
-					_console_view.loge("editor", e.message);
+					loge(e.message);
 				}
 			}
 
@@ -516,7 +516,7 @@ namespace Crown
 			{
 				if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR))
 				{
-					stdout.printf("Source directory does not exist or it is not a directory\n");
+					loge("Source directory does not exist or it is not a directory\n");
 					exit_status = 1;
 					return true;
 				}
@@ -534,7 +534,7 @@ namespace Crown
 			{
 				if (!GLib.FileUtils.test(args[3], FileTest.EXISTS) || !GLib.FileUtils.test(args[3], FileTest.IS_DIR))
 				{
-					stdout.printf("Toolchain directory does not exist or it is not a directory\n");
+					loge("Toolchain directory does not exist or it is not a directory\n");
 					exit_status = 1;
 					return true;
 				}
@@ -567,7 +567,7 @@ namespace Crown
 
 				if (!found)
 				{
-					stdout.printf("Unable to find the toolchain directory\n");
+					loge("Unable to find the toolchain directory\n");
 					exit_status = 1;
 					return true;
 				}
@@ -601,13 +601,13 @@ namespace Crown
 
 		private void on_compiler_connected(string address, int port)
 		{
-			_console_view.logi("editor", "Connected to data_compiler@%s:%d".printf(address, port));
+			logi("Connected to data_compiler@%s:%d".printf(address, port));
 			_compiler.receive_async();
 		}
 
 		private void on_compiler_disconnected()
 		{
-			_console_view.logi("editor", "Disconnected from data_compiler");
+			logi("Disconnected from data_compiler");
 		}
 
 		private void on_compiler_disconnected_unexpected()
@@ -627,13 +627,13 @@ namespace Crown
 
 		private void on_editor_connected(string address, int port)
 		{
-			_console_view.logi("editor", "Connected to level_editor@%s:%d".printf(address, port));
+			logi("Connected to level_editor@%s:%d".printf(address, port));
 			_editor.receive_async();
 		}
 
 		private void on_editor_disconnected()
 		{
-			_console_view.logi("editor", "Disconnected from editor");
+			logi("Disconnected from editor");
 		}
 
 		private void on_editor_disconnected_unexpected()
@@ -651,13 +651,13 @@ namespace Crown
 
 		private void on_game_connected(string address, int port)
 		{
-			_console_view.logi("editor", "Connected to game@%s:%d".printf(address, port));
+			logi("Connected to game@%s:%d".printf(address, port));
 			_game.receive_async();
 		}
 
 		private void on_game_disconnected()
 		{
-			_console_view.logi("editor", "Disconnected from game");
+			logi("Disconnected from game");
 			_toolbar_run.icon_name = "game-run";
 			_project.delete_garbage();
 			_combo.set_active_id("editor");
@@ -670,7 +670,7 @@ namespace Crown
 
 			if (msg_type == "message")
 			{
-				_console_view.log((string)msg["system"], (string)msg["message"], (string)msg["severity"]);
+				log((string)msg["system"], (string)msg["severity"], (string)msg["message"]);
 			}
 			else if (msg_type == "add_file")
 			{
@@ -791,15 +791,50 @@ namespace Crown
 			}
 			else if (msg_type == "error")
 			{
-				_console_view.loge("editor", "Error: " + (string)msg["message"]);
+				loge((string)msg["message"]);
 			}
 			else
 			{
-				_console_view.loge("editor", "Unknown message type: " + msg_type);
+				loge("Unknown message type: " + msg_type);
 			}
 
 			// Receive next message
 			client.receive_async();
+		}
+
+		public void log(string system, string severity, string message)
+		{
+			GLib.DateTime now = new GLib.DateTime.now_utc();
+			string line = "%s.%06d  %.4s %s: %s\n".printf(now.format("%H:%M:%S")
+				, now.get_microsecond()
+				, severity.ascii_up()
+				, system
+				, message
+				);
+
+			if (_log_stream != null)
+			{
+				_log_stream.puts(line);
+				_log_stream.flush();
+			}
+
+			if (_console_view != null)
+				_console_view.log(severity, line);
+		}
+
+		public void logi(string message)
+		{
+			log("editor", "info", message);
+		}
+
+		public void logw(string message)
+		{
+			log("editor", "warn", message);
+		}
+
+		public void loge(string message)
+		{
+			log("editor", "erro", message);
 		}
 
 		private void send_state()
@@ -885,7 +920,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("editor", e.message);
+				loge(e.message);
 			}
 
 			// It is an error if compiler disconnects after here.
@@ -938,7 +973,7 @@ namespace Crown
 				}
 				catch (Error e)
 				{
-					_console_view.loge("editor", e.message);
+					loge(e.message);
 				}
 			}
 		}
@@ -966,7 +1001,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("editor", e.message);
+				loge(e.message);
 			}
 
 			// It is an error if editor disconnects after here.
@@ -1006,7 +1041,7 @@ namespace Crown
 				}
 				catch (Error e)
 				{
-					_console_view.loge("editor", e.message);
+					loge(e.message);
 				}
 			}
 
@@ -1060,7 +1095,7 @@ namespace Crown
 					}
 					catch (Error e)
 					{
-						_console_view.loge("editor", e.message);
+						loge(e.message);
 					}
 
 					for (int tries = 0; !_game.is_connected() && tries < 10; ++tries)
@@ -1090,7 +1125,7 @@ namespace Crown
 				}
 				catch (Error e)
 				{
-					_console_view.loge("editor", e.message);
+					loge(e.message);
 				}
 			}
 		}
@@ -1145,13 +1180,13 @@ namespace Crown
 						openal_dll_src.copy(openal_dll_dst, FileCopyFlags.OVERWRITE);
 #endif // CROWN_PLATFORM_WINDOWS
 
-						_console_view.logi("editor", "Project deployed to `%s`".printf(data_dir.get_path()));
+						logi("Project deployed to `%s`".printf(data_dir.get_path()));
 					}
 				}
 				catch (Error e)
 				{
-					_console_view.logi("editor", "%s".printf(e.message));
-					_console_view.logi("editor", "Failed to deploy project");
+					logi("%s".printf(e.message));
+					logi("Failed to deploy project");
 				}
 			}
 
@@ -1251,7 +1286,7 @@ namespace Crown
 
 			if (!_project.path_is_within_dir(filename, _project.source_dir()))
 			{
-				_console_view.loge("editor", "File must be within `%s`".printf(_project.source_dir()));
+				loge("File must be within `%s`".printf(_project.source_dir()));
 				return;
 			}
 
@@ -1287,7 +1322,7 @@ namespace Crown
 			if (filename == _project.source_dir())
 				return;
 
-			_console_view.logi("editor", "Loading `%s`...".printf(filename));
+			logi("Loading `%s`...".printf(filename));
 			_project.load(filename, _project.toolchain_dir());
 
 			_level.load_empty_level();
@@ -1329,7 +1364,7 @@ namespace Crown
 
 			if (!_project.path_is_within_dir(path, _project.source_dir()))
 			{
-				_console_view.loge("editor", "File must be within `%s`".printf(_project.source_dir()));
+				loge("File must be within `%s`".printf(_project.source_dir()));
 				return false;
 			}
 
@@ -1751,7 +1786,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("editor", e.message);
+				loge(e.message);
 			}
 		}
 
@@ -1763,7 +1798,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("editor", e.message);
+				loge(e.message);
 			}
 		}
 
@@ -1776,7 +1811,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("editor", e.message);
+				loge(e.message);
 			}
 		}
 
@@ -1788,7 +1823,7 @@ namespace Crown
 			}
 			catch (Error e)
 			{
-				_console_view.loge("editor", e.message);
+				loge(e.message);
 			}
 		}
 
@@ -1845,6 +1880,8 @@ namespace Crown
 
 	public static int main(string[] args)
 	{
+		Intl.setlocale(LocaleCategory.ALL, "C");
+
 		LevelEditorApplication app = new LevelEditorApplication();
 		return app.run(args);
 	}

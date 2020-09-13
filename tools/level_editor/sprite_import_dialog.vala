@@ -149,7 +149,8 @@ public class SpriteImportDialog : Gtk.Dialog
 		try {
 			_pixbuf = new Gdk.Pixbuf.from_file(png);
 		} catch(GLib.Error err) {
-			stdout.printf("Pixbuf.from_file: error");
+			Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+			((LevelEditorApplication)app).loge("Pixbuf.from_file: error");
 		}
 
 		// Create checkered pattern

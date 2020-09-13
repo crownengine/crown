@@ -181,35 +181,19 @@ namespace Crown
 			_entry.grab_focus_without_selecting();
 		}
 
-		public void logi(string system, string text)
+		public void log(string severity, string message)
 		{
-			log(system, text, "info");
-		}
-
-		public void logw(string system, string text)
-		{
-			log(system, text, "warning");
-		}
-
-		public void loge(string system, string text)
-		{
-			log(system, text, "error");
-		}
-
-		public void log(string system, string text, string severity)
-		{
-			string msg = text;
+			string line = message;
 
 			// Replace IDs with human-readable names
-			int id_index = text.index_of("#ID(");
+			int id_index = message.index_of("#ID(");
 			if (id_index != -1)
 			{
-				string id = text.substring(id_index + 4, 16);
+				string id = message.substring(id_index + 4, 16);
 				string name = _project.id_to_name(id);
-				msg = text.replace("#ID(%s)".printf(id), "'%s'".printf(name));
+				line = message.replace("#ID(%s)".printf(id), "'%s'".printf(name));
 			}
 
-			string line = system + ": " + msg + "\n";
 			Gtk.TextBuffer buffer = _text_view.buffer;
 			Gtk.TextIter end_iter;
 			buffer.get_end_iter(out end_iter);
