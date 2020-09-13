@@ -313,15 +313,8 @@ namespace Crown
 								_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
 
 								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)parent_name));
-								try
-								{
-									GLib.AppInfo.launch_default_for_uri("file://" + file.get_path(), null);
-								}
-								catch (Error e)
-								{
-									Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-									((LevelEditorApplication)app).loge(e.message);
-								}
+								Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+								((LevelEditorApplication)app).open_directory(file.get_path());
 							}
 						});
 						menu.add(mi);

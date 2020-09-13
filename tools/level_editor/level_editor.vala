@@ -1804,14 +1804,7 @@ namespace Crown
 
 		private void on_browse_logs(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			try
-			{
-				AppInfo.launch_default_for_uri(_logs_dir.get_uri(), null);
-			}
-			catch (Error e)
-			{
-				loge(e.message);
-			}
+			open_directory(_logs_dir.get_uri());
 		}
 
 		private void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
@@ -1865,6 +1858,30 @@ namespace Crown
 				GLib.Source.remove(_save_timer_id);
 
 			_save_timer_id = GLib.Timeout.add_seconds(minutes*60, save_timeout);
+		}
+
+		public void open_directory(string directory)
+		{
+#if CROWN_PLATFORM_LINUX
+			try
+			{
+				GLib.AppInfo.launch_default_for_uri("file://" + directory, null);
+			}
+			catch (Error e)
+			{
+				loge(e.message);
+			}
+#else
+			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
+			try
+			{
+				sl.spawnv({ "explorer.exe", directory, null });
+			}
+			catch (Error e)
+			{
+				loge(e.message);
+			}
+#endif
 		}
 	}
 
