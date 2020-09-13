@@ -415,8 +415,8 @@
       </section>
       <section>
         <item>
-          <attribute name="label" translatable="yes">Open last.log</attribute>
-          <attribute name="action">app.open-last-log</attribute>
+          <attribute name="label" translatable="yes">Browse Logs...</attribute>
+          <attribute name="action">app.browse-logs</attribute>
         </item>
       </section>
       <section>

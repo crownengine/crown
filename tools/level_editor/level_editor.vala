@@ -196,7 +196,7 @@ namespace Crown
 			{ "menu-help",            null,                        null, null            },
 			{ "manual",               on_manual,                   null, null            },
 			{ "report-issue",         on_report_issue,             null, null            },
-			{ "open-last-log",        on_open_last_log,            null, null            },
+			{ "browse-logs",          on_browse_logs,              null, null            },
 			{ "changelog",            on_changelog,                null, null            },
 			{ "about",                on_about,                    null, null            },
 			{ "debug-render-world",   on_debug_render_world,       null, "false"         },
@@ -1802,12 +1802,11 @@ namespace Crown
 			}
 		}
 
-		private void on_open_last_log(GLib.SimpleAction action, GLib.Variant? param)
+		private void on_browse_logs(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			File file = File.new_for_path(_project.data_dir() + "/last.log");
 			try
 			{
-				AppInfo.launch_default_for_uri(file.get_uri(), null);
+				AppInfo.launch_default_for_uri(_logs_dir.get_uri(), null);
 			}
 			catch (Error e)
 			{
