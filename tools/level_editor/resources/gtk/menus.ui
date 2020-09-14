@@ -368,24 +368,7 @@
       </section>
     </submenu>
     <submenu>
-      <attribute name="label" translatable="yes">En_gine</attribute>
-      <attribute name="action">app.menu-engine</attribute>
-      <section>
-        <item>
-          <attribute name="label" translatable="yes">_Restart</attribute>
-          <attribute name="action">app.restart</attribute>
-        </item>
-      </section>
-      <section>
-        <item>
-          <attribute name="label" translatable="yes">Refresh Lua</attribute>
-          <attribute name="action">app.reload-lua</attribute>
-          <attribute name="accel">F7</attribute>
-        </item>
-      </section>
-    </submenu>
-    <submenu>
-      <attribute name="label" translatable="yes">_Run</attribute>
+      <attribute name="label" translatable="yes">_Debug</attribute>
       <attribute name="action">app.menu-run</attribute>
       <section>
         <item>
@@ -396,6 +379,17 @@
         <item>
           <attribute name="label" translatable="yes">Run Game</attribute>
           <attribute name="action">app.run-game</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Refresh Lua</attribute>
+          <attribute name="action">app.reload-lua</attribute>
+          <attribute name="accel">F7</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Restart Editor View</attribute>
+          <attribute name="action">app.restart</attribute>
         </item>
       </section>
     </submenu>
