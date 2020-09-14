@@ -146,11 +146,13 @@ public class SpriteImportDialog : Gtk.Dialog
 		this.border_width = 18;
 		this.title = "Import Sprite...";
 
-		try {
+		try
+		{
 			_pixbuf = new Gdk.Pixbuf.from_file(png);
-		} catch(GLib.Error err) {
-			Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-			((LevelEditorApplication)app).loge("Pixbuf.from_file: error");
+		}
+		catch (GLib.Error e)
+		{
+			loge(e.message);
 		}
 
 		// Create checkered pattern

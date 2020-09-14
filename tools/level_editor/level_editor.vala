@@ -209,13 +209,6 @@ namespace Crown
 		private string _level_resource = "";
 		private bool _create_initial_files = false;
 
-		// Global paths
-		private GLib.File _config_dir;
-		private GLib.File _logs_dir;
-		private GLib.File _log_file;
-		private GLib.FileStream _log_stream;
-		private GLib.File _settings_file;
-
 		// Editor state
 		private double _grid_size;
 		private double _rotation_snap;
@@ -243,7 +236,6 @@ namespace Crown
 		private DataCompiler _data_compiler;
 
 		// Widgets
-		public ConsoleView _console_view;
 		private ProjectBrowser _project_browser;
 		private EditorView _editor_view;
 		private LevelTreeView _level_treeview;
@@ -276,17 +268,6 @@ namespace Crown
 			Object(application_id: "org.crown.level_editor"
 				, flags: GLib.ApplicationFlags.FLAGS_NONE
 				);
-
-			// Global paths
-			_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
-			try { _config_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
-			_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "logs"));
-			try { _logs_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
-
-			_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_utc().format("%Y-%m-%d") + ".log"));
-			_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
-
-			_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
 		}
 
 		protected override void startup()
@@ -800,41 +781,6 @@ namespace Crown
 
 			// Receive next message
 			client.receive_async();
-		}
-
-		public void log(string system, string severity, string message)
-		{
-			GLib.DateTime now = new GLib.DateTime.now_utc();
-			string line = "%s.%06d  %.4s %s: %s\n".printf(now.format("%H:%M:%S")
-				, now.get_microsecond()
-				, severity.ascii_up()
-				, system
-				, message
-				);
-
-			if (_log_stream != null)
-			{
-				_log_stream.puts(line);
-				_log_stream.flush();
-			}
-
-			if (_console_view != null)
-				_console_view.log(severity, line);
-		}
-
-		public void logi(string message)
-		{
-			log("editor", "info", message);
-		}
-
-		public void logw(string message)
-		{
-			log("editor", "warn", message);
-		}
-
-		public void loge(string message)
-		{
-			log("editor", "erro", message);
 		}
 
 		private void send_state()
@@ -1859,30 +1805,74 @@ namespace Crown
 
 			_save_timer_id = GLib.Timeout.add_seconds(minutes*60, save_timeout);
 		}
+	}
 
-		public void open_directory(string directory)
+	// Global paths
+	public static GLib.File _config_dir;
+	public static GLib.File _logs_dir;
+	public static GLib.File _log_file;
+	public static GLib.File _settings_file;
+
+	public static GLib.FileStream _log_stream;
+	public static ConsoleView _console_view;
+
+	public static void log(string system, string severity, string message)
+	{
+		GLib.DateTime now = new GLib.DateTime.now_utc();
+		string line = "%s.%06d  %.4s %s: %s\n".printf(now.format("%H:%M:%S")
+			, now.get_microsecond()
+			, severity.ascii_up()
+			, system
+			, message
+			);
+
+		if (_log_stream != null)
 		{
-#if CROWN_PLATFORM_LINUX
-			try
-			{
-				GLib.AppInfo.launch_default_for_uri("file://" + directory, null);
-			}
-			catch (Error e)
-			{
-				loge(e.message);
-			}
-#else
-			GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
-			try
-			{
-				sl.spawnv({ "explorer.exe", directory, null });
-			}
-			catch (Error e)
-			{
-				loge(e.message);
-			}
-#endif
+			_log_stream.puts(line);
+			_log_stream.flush();
 		}
+
+		if (_console_view != null)
+			_console_view.log(severity, line);
+	}
+
+	public static void logi(string message)
+	{
+		log("editor", "info", message);
+	}
+
+	public static void logw(string message)
+	{
+		log("editor", "warn", message);
+	}
+
+	public static void loge(string message)
+	{
+		log("editor", "erro", message);
+	}
+
+	public void open_directory(string directory)
+	{
+#if CROWN_PLATFORM_LINUX
+		try
+		{
+			GLib.AppInfo.launch_default_for_uri("file://" + directory, null);
+		}
+		catch (Error e)
+		{
+			loge(e.message);
+		}
+#else
+		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
+		try
+		{
+			sl.spawnv({ "explorer.exe", directory, null });
+		}
+		catch (Error e)
+		{
+			loge(e.message);
+		}
+#endif
 	}
 
 	public static GLib.SubprocessFlags subprocess_flags()
@@ -1897,6 +1887,17 @@ namespace Crown
 	public static int main(string[] args)
 	{
 		Intl.setlocale(LocaleCategory.ALL, "C");
+
+		// Global paths
+		_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
+		try { _config_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
+		_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "logs"));
+		try { _logs_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
+
+		_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_utc().format("%Y-%m-%d") + ".log"));
+		_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
+
+		_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
 
 		LevelEditorApplication app = new LevelEditorApplication();
 		return app.run(args);

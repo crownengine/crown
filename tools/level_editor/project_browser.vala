@@ -239,8 +239,7 @@ namespace Crown
 								}
 								catch (Error e)
 								{
-									Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-									((LevelEditorApplication)app).loge(e.message);
+									loge(e.message);
 								}
 							}
 
@@ -274,8 +273,7 @@ namespace Crown
 								}
 								catch (Error e)
 								{
-									Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-									((LevelEditorApplication)app).loge(e.message);
+									loge(e.message);
 								}
 							});
 							menu.add(mi);
@@ -298,8 +296,7 @@ namespace Crown
 							}
 							catch (Error e)
 							{
-								Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-								((LevelEditorApplication)app).loge(e.message);
+								loge(e.message);
 							}
 						});
 						menu.add(mi);
@@ -313,8 +310,7 @@ namespace Crown
 								_tree_view.model.get_value(parent, ProjectStore.Column.NAME, out parent_name);
 
 								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)parent_name));
-								Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-								((LevelEditorApplication)app).open_directory(file.get_path());
+								open_directory(file.get_path());
 							}
 						});
 						menu.add(mi);
@@ -362,8 +358,7 @@ namespace Crown
 							}
 							catch (Error e)
 							{
-								Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
-								((LevelEditorApplication)app).loge(e.message);
+								loge(e.message);
 							}
 						}
 					}
