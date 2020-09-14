@@ -634,14 +634,15 @@ namespace Crown
 		{
 			logi("Connected to game@%s:%d".printf(address, port));
 			_game.receive_async();
+			_combo.set_active_id("game");
 		}
 
 		private void on_game_disconnected()
 		{
 			logi("Disconnected from game");
-			_toolbar_run.icon_name = "game-run";
 			_project.delete_garbage();
 			_combo.set_active_id("editor");
+			_toolbar_run.icon_name = "game-run";
 		}
 
 		private void on_message_received(ConsoleClient client, uint8[] json)
@@ -1049,8 +1050,10 @@ namespace Crown
 						_game.connect("127.0.0.1", 12345);
 						GLib.Thread.usleep(500*1000);
 					}
-
-					_combo.set_active_id("game");
+				}
+				else
+				{
+					_toolbar_run.icon_name = "game-run";
 				}
 			});
 		}
@@ -1691,12 +1694,12 @@ namespace Crown
 			if (_game.is_connected())
 			{
 				stop_game();
-				_toolbar_run.icon_name = "game-run";
 			}
 			else
 			{
-				start_game(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
+				// Always change icon state regardless of failures
 				_toolbar_run.icon_name = "game-stop";
+				start_game(action.name == "test-level" ? StartGame.TEST : StartGame.NORMAL);
 			}
 		}
 
