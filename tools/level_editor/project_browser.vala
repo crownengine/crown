@@ -15,6 +15,7 @@ namespace Crown
 			|| type == "wav"
 			|| type == "png"
 			|| type == "importer_settings"
+			|| name == Project.LEVEL_EDITOR_TEST_NAME
 			;
 	}
 

@@ -10,6 +10,8 @@ namespace Crown
 {
 	public class Project
 	{
+		public const string LEVEL_EDITOR_TEST_NAME = "_level_editor_test";
+
 		// Data
 		public File _source_dir;
 		public File _toolchain_dir;
@@ -60,8 +62,8 @@ namespace Crown
 			_toolchain_dir = File.new_for_path(toolchain_dir);
 			_data_dir      = File.new_for_path(_source_dir.get_path() + "_" + _platform);
 
-			_level_editor_test_level = File.new_for_path(Path.build_filename(_source_dir.get_path(), "_level_editor_test.level"));
-			_level_editor_test_package = File.new_for_path(Path.build_filename(_source_dir.get_path(), "_level_editor_test.package"));
+			_level_editor_test_level = File.new_for_path(Path.build_filename(_source_dir.get_path(), LEVEL_EDITOR_TEST_NAME + ".level"));
+			_level_editor_test_package = File.new_for_path(Path.build_filename(_source_dir.get_path(), LEVEL_EDITOR_TEST_NAME + ".package"));
 
 			// Cleanup source directory from previous runs' garbage
 			delete_garbage();
