@@ -1846,12 +1846,12 @@ namespace Crown
 
 	public static void logw(string message)
 	{
-		log("editor", "warn", message);
+		log("editor", "warning", message);
 	}
 
 	public static void loge(string message)
 	{
-		log("editor", "erro", message);
+		log("editor", "error", message);
 	}
 
 	public void open_directory(string directory)
