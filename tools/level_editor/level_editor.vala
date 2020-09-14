@@ -1804,7 +1804,7 @@ namespace Crown
 
 		private void on_browse_logs(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			open_directory(_logs_dir.get_uri());
+			open_directory(_logs_dir.get_path());
 		}
 
 		private void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
