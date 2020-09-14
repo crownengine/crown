@@ -17,6 +17,7 @@ Changelog
 * Fixed modifier keys getting stuck in the wrong state in some circumnstances
 * Improved Test Level/Start Game button behavior when game failed to launch
 * Level Editor now saves aggregate logs to disk. User can browse logs folder from Help > Browse Logs...
+* Unified Engine and Run menubar items into a single Debug menubar item
 
 0.38.0
 ------
