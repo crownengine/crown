@@ -9,9 +9,19 @@ ifeq ($(UNAME), $(filter $(UNAME), Linux))
 	EXE_PREFIX=./
 	EXE_SUFFIX=
 else
+ifeq ($(UNAME), $(filter $(UNAME), windows32))
 	OS=windows
 	EXE_PREFIX=
 	EXE_SUFFIX=.exe
+	ARG_PREFIX=/
+	MKDIR=mkdir
+else
+	OS=windows
+	EXE_PREFIX=
+	EXE_SUFFIX=.exe
+	ARG_PREFIX=//
+	MKDIR=mkdir -p
+endif
 endif
 
 GENIE=3rdparty/bx/tools/bin/$(OS)/genie
@@ -42,8 +52,8 @@ build/mingw64/bin/luajit.exe:
 	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/windows64/bin/luajit.exe:
-	-mkdir "build/windows64/bin"
-	cd "3rdparty/luajit/src" && msvcbuild.bat
+	-$(MKDIR) "build/windows64/bin"
+	cd "3rdparty/luajit/src" && .\\msvcbuild.bat
 	cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows64/bin
 	-@rm -f 3rdparty/luajit/src/buildvm.*
 	-@rm -f 3rdparty/luajit/src/jit/vmdef.lua
@@ -93,22 +103,22 @@ mingw-release64: build/projects/mingw build/mingw64/bin/luajit.exe
 mingw: mingw-debug64 mingw-development64 mingw-release64
 
 build/windows64/bin/texturec.exe:
-	devenv 3rdparty/bimg/.build/projects/vs2017/bimg.sln /Build "Release|x64" /Project texturec.vcxproj
+	devenv.com 3rdparty/bimg/.build/projects/vs2017/bimg.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project texturec.vcxproj
 	cp -r 3rdparty/bimg/.build/win64_vs2017/bin/texturecRelease.exe $@
 build/windows64/bin/shaderc.exe:
-	devenv 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln /Build "Release|x64" /Project shaderc.vcxproj
+	devenv.com 3rdparty/bgfx/.build/projects/vs2017/bgfx.sln $(ARG_PREFIX)Build "Release|x64" $(ARG_PREFIX)Project shaderc.vcxproj
 	cp -r 3rdparty/bgfx/.build/win64_vs2017/bin/shadercRelease.exe $@
 
 build/projects/vs2017:
-	$(GENIE) --file=3rdparty\\bgfx\\scripts\\genie.lua --with-tools vs2017
-	$(GENIE) --file=3rdparty\\bimg\\scripts\\genie.lua --with-tools vs2017
+	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2017
+	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2017
 	$(GENIE) --gfxapi=d3d11 --with-luajit --with-tools --no-level-editor vs2017
 windows-debug64: build/projects/vs2017 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-	devenv build/projects/vs2017/crown.sln /Build "debug|x64"
+	devenv.com build/projects/vs2017/crown.sln $(ARG_PREFIX)Build "debug|x64"
 windows-development64: build/projects/vs2017 build/windows64/bin/luajit.exe build/windows64/bin/texturec.exe build/windows64/bin/shaderc.exe
-	devenv build/projects/vs2017/crown.sln /Build "development|x64"
+	devenv.com build/projects/vs2017/crown.sln $(ARG_PREFIX)Build "development|x64"
 windows-release64: build/projects/vs2017 build/windows64/bin/luajit.exe
-	devenv build/projects/vs2017/crown.sln /Build "release|x64"
+	devenv.com build/projects/vs2017/crown.sln $(ARG_PREFIX)Build "release|x64"
 
 .PHONY: rebuild-glib-resources
 rebuild-glib-resources:
