@@ -29,6 +29,11 @@ newoption {
 }
 
 newoption {
+	trigger = "with-level-editor-imgui",
+	description = "Build with Level Editor (IMGUI)."
+}
+
+newoption {
 	trigger = "gfxapi",
 	description = "BGFX renderer (gl32, gles2, d3d11)."
 }
@@ -87,5 +92,7 @@ if _OPTIONS["with-tools"] then
 		dofile ("level-editor.lua")
 	end
 
-	dofile ("level-editor-imgui.lua")
+	if _OPTIONS["with-level-editor-imgui"] then
+		dofile ("level-editor-imgui.lua")
+	end
 end
