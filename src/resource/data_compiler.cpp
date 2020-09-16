@@ -614,11 +614,21 @@ void DataCompiler::remove_file(const char* path)
 	DynamicString path_str(ta);
 	path_str.set(path, strlen32(path));
 
+	// Mark the entry as deleted but do not remove it from the map. We still
+	// need to know which resource has been deleted in order to remove its
+	// associated BLOB in the data directory at the next compile() call.
 	Stat stat;
 	stat.file_type = Stat::NO_ENTRY;
 	stat.size = 0;
 	stat.mtime = 0;
 	hash_map::set(_source_index._paths, path_str, stat);
+
+	// Remove from tracking structures
+	ResourceId id = resource_id(path);
+	hash_map::remove(_data_index, id);
+	hash_map::remove(_data_mtimes, id);
+	hash_map::remove(_data_dependencies, id);
+	hash_map::remove(_data_requirements, id);
 
 	notify_remove_file(path);
 }
@@ -951,16 +961,10 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	{
 		hash_map::remove(_source_index._paths, to_remove[i]);
 
-		// Remove from tracking structures
-		ResourceId id = resource_id(to_remove[i].c_str());
-		hash_map::remove(_data_index, id);
-		hash_map::remove(_data_mtimes, id);
-		hash_map::remove(_data_dependencies, id);
-		hash_map::remove(_data_requirements, id);
-
 		// If present, remove from data folder because we do not want the
 		// runtime to accidentally load stale data compiled from resources that
 		// do not exist anymore in the source index.
+		ResourceId id = resource_id(to_remove[i].c_str());
 		TempAllocator256 ta;
 		DynamicString dest(ta);
 		destination_path(dest, id);
