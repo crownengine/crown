@@ -7,6 +7,7 @@ Changelog
 
 **Runtime**
 
+* Improved file deletion detection and data directory coherence in Data Compiler
 * Improved file modification detection and source index caching in Data Compiler
 * Remove support for 32-bit x86 architectures
 

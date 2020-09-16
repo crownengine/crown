@@ -613,13 +613,12 @@ void DataCompiler::remove_file(const char* path)
 	TempAllocator512 ta;
 	DynamicString path_str(ta);
 	path_str.set(path, strlen32(path));
-	hash_map::remove(_source_index._paths, path_str);
 
-	ResourceId id = resource_id(path);
-	hash_map::remove(_data_index, id);
-	hash_map::remove(_data_mtimes, id);
-	hash_map::remove(_data_dependencies, id);
-	hash_map::remove(_data_requirements, id);
+	Stat stat;
+	stat.file_type = Stat::NO_ENTRY;
+	stat.size = 0;
+	stat.mtime = 0;
+	hash_map::set(_source_index._paths, path_str, stat);
 
 	notify_remove_file(path);
 }
@@ -653,7 +652,12 @@ void DataCompiler::remove_tree(const char* path)
 	{
 		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
 
+		// Skip if it is not a sub-path
 		if (!cur->first.has_prefix(tree_path.c_str()))
+			continue;
+
+		// Skip if is has been deleted previously
+		if (cur->second.file_type == Stat::NO_ENTRY)
 			continue;
 
 		vector::push_back(dangling_paths, cur->first);
@@ -895,8 +899,9 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	data_fs.create_directory(CROWN_DATA_DIRECTORY);
 	data_fs.create_directory(CROWN_TEMP_DIRECTORY);
 
-	// Find the set of resources to be compiled
+	// Find the set of resources to be compiled, removed etc.
 	Vector<DynamicString> to_compile(default_allocator());
+	Vector<DynamicString> to_remove(default_allocator());
 
 	auto cur = hash_map::begin(_source_index._paths);
 	auto end = hash_map::end(_source_index._paths);
@@ -917,7 +922,14 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			continue;
 		}
 
+		if (cur->second.file_type == Stat::NO_ENTRY)
+		{
+			vector::push_back(to_remove, path);
+			continue;
+		}
+
 		const ResourceId id = resource_id(path.c_str());
+
 		const u64 mtime_epoch = 0u;
 		const u64 mtime = hash_map::get(_data_mtimes, id, mtime_epoch);
 
@@ -932,6 +944,27 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		{
 			vector::push_back(to_compile, path);
 		}
+	}
+
+	// Remove all deleted resources
+	for (u32 i = 0; i < vector::size(to_remove); ++i)
+	{
+		hash_map::remove(_source_index._paths, to_remove[i]);
+
+		// Remove from tracking structures
+		ResourceId id = resource_id(to_remove[i].c_str());
+		hash_map::remove(_data_index, id);
+		hash_map::remove(_data_mtimes, id);
+		hash_map::remove(_data_dependencies, id);
+		hash_map::remove(_data_requirements, id);
+
+		// If present, remove from data folder because we do not want the
+		// runtime to accidentally load stale data compiled from resources that
+		// do not exist anymore in the source index.
+		TempAllocator256 ta;
+		DynamicString dest(ta);
+		destination_path(dest, id);
+		data_fs.delete_file(dest.c_str());
 	}
 
 	// Sort to_compile so that ".package" resources get compiled last
