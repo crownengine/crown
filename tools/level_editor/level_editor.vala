@@ -183,6 +183,7 @@ namespace Crown
 			{ "camera-view",          on_camera_view,              "s",  "'perspective'" },
 			{ "menu-engine",          null,                        null, null            },
 			{ "restart",              on_editor_restart,           null, null            },
+			{ "build-data",           on_build_data,               null, null            },
 			{ "reload-lua",           on_refresh_lua,              null, null            },
 			{ "menu-view",            null,                        null, null            },
 			{ "resource-chooser",     on_resource_chooser,         null, null            },
@@ -1655,6 +1656,13 @@ namespace Crown
 		private void on_editor_restart(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			restart_editor();
+		}
+
+		private void on_build_data(GLib.SimpleAction action, GLib.Variant? param)
+		{
+			_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
+				_data_compiler.compile.end(res);
+			});
 		}
 
 		private void on_refresh_lua(GLib.SimpleAction action, GLib.Variant? param)

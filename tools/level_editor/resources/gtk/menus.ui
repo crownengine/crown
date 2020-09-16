@@ -381,6 +381,11 @@
           <attribute name="action">app.run-game</attribute>
         </item>
         <item>
+          <attribute name="label" translatable="yes">Build Data</attribute>
+          <attribute name="action">app.build-data</attribute>
+          <attribute name="accel">&lt;Primary&gt;B</attribute>
+        </item>
+        <item>
           <attribute name="label" translatable="yes">Refresh Lua</attribute>
           <attribute name="action">app.reload-lua</attribute>
           <attribute name="accel">F7</attribute>

@@ -12,6 +12,7 @@ Changelog
 
 **Tools**
 
+* Added Debug > Build Data
 * Fixed a number of dialog boxes that were not centered to the Level Editor's main window
 * Fixed an issue that caused Project Browser to show inconsistent folder structured in some circumnstances
 * Fixed modifier keys getting stuck in the wrong state in some circumnstances
