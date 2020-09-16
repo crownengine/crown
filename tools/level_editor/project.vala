@@ -321,7 +321,7 @@ end
 			return path.replace("\\", "/");
 		}
 
-		public void import_sprites(SList<string> filenames, string destination_dir)
+		public int import_sprites(SList<string> filenames, string destination_dir)
 		{
 			Hashtable importer_settings = null;
 			string importer_settings_path = null;
@@ -350,7 +350,7 @@ end
 			if (sid.run() != Gtk.ResponseType.OK)
 			{
 				sid.destroy();
-				return;
+				return 1;
 			}
 
 			sid.save(importer_settings);
@@ -662,9 +662,11 @@ end
 
 				db.save(unit_name);
 			}
+
+			return 0;
 		}
 
-		public void import_meshes(SList<string> filenames, string destination_dir)
+		public int import_meshes(SList<string> filenames, string destination_dir)
 		{
 			foreach (unowned string filename_i in filenames)
 			{
@@ -830,9 +832,11 @@ end
 
 				db.save(unit_name);
 			}
+
+			return 0;
 		}
 
-		public void import_sounds(SList<string> filenames, string destination_dir)
+		public int import_sounds(SList<string> filenames, string destination_dir)
 		{
 			foreach (unowned string filename_i in filenames)
 			{
@@ -859,9 +863,11 @@ end
 
 				SJSON.save(sound, Path.build_filename(_source_dir.get_path(), resource_path) + ".sound");
 			}
+
+			return 0;
 		}
 
-		public void import_textures(SList<string> filenames, string destination_dir)
+		public int import_textures(SList<string> filenames, string destination_dir)
 		{
 			foreach (unowned string filename_i in filenames)
 			{
@@ -890,6 +896,8 @@ end
 
 				SJSON.save(texture, Path.build_filename(_source_dir.get_path(), resource_path) + ".texture");
 			}
+
+			return 0;
 		}
 
 		public void import(string? destination_dir, Gtk.Window? parent_window = null)
@@ -965,21 +973,25 @@ end
 			Gtk.FileFilter? current_filter = src.get_filter();
 			GLib.SList<string> filenames = src.get_filenames();
 
+			int success = 1;
 			if (current_filter != null)
 			{
 				if (current_filter == sprite_filter)
-					this.import_sprites(filenames, out_dir);
+					success = this.import_sprites(filenames, out_dir);
 				else if (current_filter == mesh_filter)
-					this.import_meshes(filenames, out_dir);
+					success = this.import_meshes(filenames, out_dir);
 				else if (current_filter == sound_filter)
-					this.import_sounds(filenames, out_dir);
+					success = this.import_sounds(filenames, out_dir);
 				else if (current_filter == texture_filter)
-					this.import_textures(filenames, out_dir);
+					success = this.import_textures(filenames, out_dir);
 			}
 
-			_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
-				_data_compiler.compile.end(res);
-			});
+			if (success == 0)
+			{
+				_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
+					_data_compiler.compile.end(res);
+				});
+			}
 
 			src.destroy();
 		}
