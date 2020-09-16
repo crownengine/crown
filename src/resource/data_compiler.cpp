@@ -1311,6 +1311,7 @@ int main_data_compiler(const DeviceOptions& opts)
 	// Add ignore globs
 	dc->add_ignore_glob("*.bak");
 	dc->add_ignore_glob("*.dds");
+	dc->add_ignore_glob("*.goutputstream-*"); // https://askubuntu.com/questions/151101/why-are-goutputstream-xxxxx-files-created-in-home-folder
 	dc->add_ignore_glob("*.importer_settings");
 	dc->add_ignore_glob("*.ktx");
 	dc->add_ignore_glob("*.ogg");
