@@ -73,28 +73,30 @@ namespace Crown
 		{
 			// Write boot.config
 			{
-				string text = """// Lua script to launch on boot
-boot_script = "core/game/boot"
+				string text = "// Lua script to launch on boot"
+					+ "\nboot_script = \"core/game/boot\""
+					+ "\n"
+					+ "\n// Package to load on boot"
+					+ "\nboot_package = \"boot\""
+					+ "\n"
+					+ "\nwindow_title = \"New Project\""
+					+ "\n"
+					+ "\n// Linux-only configs"
+					+ "\nlinux = {"
+					+ "\n	renderer = {"
+					+ "\n		resolution = [ 1280 720 ]"
+					+ "\n	}"
+					+ "\n}"
+					+ "\n"
+					+ "\n// Windows-only configs"
+					+ "\nwindows = {"
+					+ "\n	renderer = {"
+					+ "\n		resolution = [ 1280 720 ]"
+					+ "\n	}"
+					+ "\n}"
+					+ "\n"
+					;
 
-// Package to load on boot
-boot_package = "boot"
-
-window_title = "New Project"
-
-// Linux-only configs
-linux = {
-	renderer = {
-		resolution = [ 1280 720 ]
-	}
-}
-
-// Windows-only configs
-windows = {
-	renderer = {
-		resolution = [ 1280 720 ]
-	}
-}
-""";
 				string path = Path.build_filename(_source_dir.get_path(), "boot.config");
 				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
@@ -103,24 +105,26 @@ windows = {
 
 			// Write boot.package
 			{
-				string text = """lua = [
-	"core/game/boot"
-	"core/game/camera"
-	"core/game/game"
-	"core/lua/class"
-	"main"
-]
-shader = [
-	"core/shaders/common"
-	"core/shaders/default"
-]
-physics_config = [
-	"global"
-]
-unit = [
-	"core/units/camera"
-]
-""";
+				string text = "lua = ["
+					+ "\n	\"core/game/boot\""
+					+ "\n	\"core/game/camera\""
+					+ "\n	\"core/game/game\""
+					+ "\n	\"core/lua/class\""
+					+ "\n	\"main\""
+					+ "\n]"
+					+ "\nshader = ["
+					+ "\n	\"core/shaders/common\""
+					+ "\n	\"core/shaders/default\""
+					+ "\n]"
+					+ "\nphysics_config = ["
+					+ "\n	\"global\""
+					+ "\n]"
+					+ "\nunit = ["
+					+ "\n	\"core/units/camera\""
+					+ "\n]"
+					+ "\n"
+					;
+
 				string path = Path.build_filename(_source_dir.get_path(), "boot.package");
 				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
@@ -129,21 +133,23 @@ unit = [
 
 			// Write global.physics_config
 			{
-				string text = """materials = {
-	default = { friction = 0.8 rolling_friction = 0.5 restitution = 0.81 }
-}
+				string text = "materials = {"
+					+ "\n	default = { friction = 0.8 rolling_friction = 0.5 restitution = 0.81 }"
+					+ "\n}"
+					+ "\n"
+					+ "\ncollision_filters = {"
+					+ "\n	no_collision = { collides_with = [] }"
+					+ "\n	default = { collides_with = [ \"default\" ] }"
+					+ "\n}"
+					+ "\n"
+					+ "\nactors = {"
+					+ "\n	static = { dynamic = false }"
+					+ "\n	dynamic = { dynamic = true }"
+					+ "\n	keyframed = { dynamic = true kinematic = true disable_gravity = true }"
+					+ "\n}"
+					+ "\n"
+					;
 
-collision_filters = {
-	no_collision = { collides_with = [] }
-	default = { collides_with = [ "default" ] }
-}
-
-actors = {
-	static = { dynamic = false }
-	dynamic = { dynamic = true }
-	keyframed = { dynamic = true kinematic = true disable_gravity = true }
-}
-""";
 				string path = Path.build_filename(_source_dir.get_path(), "global.physics_config");
 				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
@@ -152,52 +158,54 @@ actors = {
 
 			// Write main.lua
 			{
-				string text = """require "core/game/camera"
+				string text = "require \"core/game/camera\""
+					+ "\n"
+					+ "\nGame = Game or {"
+					+ "\n	sg = nil,"
+					+ "\n	pw = nil,"
+					+ "\n	rw = nil,"
+					+ "\n	camera = nil,"
+					+ "\n}"
+					+ "\n"
+					+ "\nGameBase.game = Game"
+					+ "\nGameBase.game_level = nil"
+					+ "\n"
+					+ "\nfunction Game.level_loaded()"
+					+ "\n	Device.enable_resource_autoload(true)"
+					+ "\n"
+					+ "\n	Game.sg = World.scene_graph(GameBase.world)"
+					+ "\n	Game.pw = World.physics_world(GameBase.world)"
+					+ "\n	Game.rw = World.render_world(GameBase.world)"
+					+ "\n"
+					+ "\n	-- Spawn camera"
+					+ "\n	local camera_unit = World.spawn_unit(GameBase.world, \"core/units/camera\")"
+					+ "\n	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 6.5, -30))"
+					+ "\n	GameBase.game_camera = camera_unit"
+					+ "\n	Game.camera = FPSCamera(GameBase.world, camera_unit)"
+					+ "\nend"
+					+ "\n"
+					+ "\nfunction Game.update(dt)"
+					+ "\n	-- Stop the engine when the 'ESC' key is released"
+					+ "\n	if Keyboard.released(Keyboard.button_id(\"escape\")) then"
+					+ "\n		Device.quit()"
+					+ "\n	end"
+					+ "\n"
+					+ "\n	-- Update camera"
+					+ "\n	local delta = Vector3.zero()"
+					+ "\n	if Mouse.pressed(Mouse.button_id(\"right\")) then move = true end"
+					+ "\n	if Mouse.released(Mouse.button_id(\"right\")) then move = false end"
+					+ "\n	if move then delta = Mouse.axis(Mouse.axis_id(\"cursor_delta\")) end"
+					+ "\n	Game.camera:update(dt, delta.x, delta.y)"
+					+ "\nend"
+					+ "\n"
+					+ "\nfunction Game.render(dt)"
+					+ "\nend"
+					+ "\n"
+					+ "\nfunction Game.shutdown()"
+					+ "\nend"
+					+ "\n"
+					;
 
-Game = Game or {
-	sg = nil,
-	pw = nil,
-	rw = nil,
-	camera = nil,
-}
-
-GameBase.game = Game
-GameBase.game_level = nil
-
-function Game.level_loaded()
-	Device.enable_resource_autoload(true)
-
-	Game.sg = World.scene_graph(GameBase.world)
-	Game.pw = World.physics_world(GameBase.world)
-	Game.rw = World.render_world(GameBase.world)
-
-	-- Spawn camera
-	local camera_unit = World.spawn_unit(GameBase.world, "core/units/camera")
-	SceneGraph.set_local_position(Game.sg, camera_unit, Vector3(0, 6.5, -30))
-	GameBase.game_camera = camera_unit
-	Game.camera = FPSCamera(GameBase.world, camera_unit)
-end
-
-function Game.update(dt)
-	-- Stop the engine when the 'ESC' key is released
-	if Keyboard.released(Keyboard.button_id("escape")) then
-		Device.quit()
-	end
-
-	-- Update camera
-	local delta = Vector3.zero()
-	if Mouse.pressed(Mouse.button_id("right")) then move = true end
-	if Mouse.released(Mouse.button_id("right")) then move = false end
-	if move then delta = Mouse.axis(Mouse.axis_id("cursor_delta")) end
-	Game.camera:update(dt, delta.x, delta.y)
-end
-
-function Game.render(dt)
-end
-
-function Game.shutdown()
-end
-""";
 				string path = Path.build_filename(_source_dir.get_path(), "main.lua");
 				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
