@@ -275,6 +275,7 @@ namespace Crown
 		{
 			base.startup();
 
+			Intl.setlocale(LocaleCategory.ALL, "C");
 			Gtk.Settings.get_default().gtk_theme_name = "Adwaita";
 			Gtk.Settings.get_default().gtk_application_prefer_dark_theme = true;
 
@@ -1897,8 +1898,6 @@ namespace Crown
 
 	public static int main(string[] args)
 	{
-		Intl.setlocale(LocaleCategory.ALL, "C");
-
 		// Global paths
 		_config_dir = GLib.File.new_for_path(GLib.Path.build_filename(GLib.Environment.get_user_config_dir(), "crown"));
 		try { _config_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
