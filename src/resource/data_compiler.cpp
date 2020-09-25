@@ -920,39 +920,32 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
 
 		const DynamicString& path = cur->first;
-		const char* type = path::extension(path.c_str());
 
 		if (path_matches_ignore_glob(path.c_str()))
 			continue;
 
-		if (type == NULL || !can_compile(type))
-		{
-			loge(DATA_COMPILER, "Unknown resource file: '%s'", path.c_str());
-			loge(DATA_COMPILER, "Append matching pattern to " CROWN_DATAIGNORE " to ignore it");
-			continue;
-		}
-
 		if (cur->second.file_type == Stat::NO_ENTRY)
 		{
 			vector::push_back(to_remove, path);
-			continue;
 		}
-
-		const ResourceId id = resource_id(path.c_str());
-
-		const u64 mtime_epoch = 0u;
-		const u64 mtime = hash_map::get(_data_mtimes, id, mtime_epoch);
-
-		bool source_never_compiled_before    = hash_map::has(_data_index, id) == false;
-		bool source_dependency_changed       = dependency_changed(path, id, mtime);
-		bool data_version_dependency_changed = version_changed(path, id);
-
-		if (source_never_compiled_before
-			|| source_dependency_changed
-			|| data_version_dependency_changed
-			)
+		else
 		{
-			vector::push_back(to_compile, path);
+			const ResourceId id = resource_id(path.c_str());
+
+			const u64 mtime_epoch = 0u;
+			const u64 mtime = hash_map::get(_data_mtimes, id, mtime_epoch);
+
+			bool source_never_compiled_before    = hash_map::has(_data_index, id) == false;
+			bool source_dependency_changed       = dependency_changed(path, id, mtime);
+			bool data_version_dependency_changed = version_changed(path, id);
+
+			if (source_never_compiled_before
+				|| source_dependency_changed
+				|| data_version_dependency_changed
+				)
+			{
+				vector::push_back(to_compile, path);
+			}
 		}
 	}
 
@@ -989,12 +982,15 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 	for (u32 i = 0; i < vector::size(to_compile); ++i)
 	{
 		const DynamicString& path = to_compile[i];
-		const char* type = path::extension(path.c_str());
-
-		if (type == NULL)
-			continue;
-
 		logi(DATA_COMPILER, "%s", path.c_str());
+
+		const char* type = path::extension(path.c_str());
+		if (type == NULL || !can_compile(type))
+		{
+			loge(DATA_COMPILER, "Unknown resource file: '%s'", path.c_str());
+			loge(DATA_COMPILER, "Append matching pattern to " CROWN_DATAIGNORE " to ignore it");
+			continue;
+		}
 
 		// Build destination file path
 		ResourceId id = resource_id(path.c_str());
@@ -1312,7 +1308,6 @@ int main_data_compiler(const DeviceOptions& opts)
 	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          txr::compile);
 	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             utr::compile);
 
-	// Add ignore globs
 	dc->add_ignore_glob("*.bak");
 	dc->add_ignore_glob("*.dds");
 	dc->add_ignore_glob("*.goutputstream-*"); // https://askubuntu.com/questions/151101/why-are-goutputstream-xxxxx-files-created-in-home-folder
