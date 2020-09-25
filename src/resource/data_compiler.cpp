@@ -921,15 +921,15 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 
 		const DynamicString& path = cur->first;
 
-		if (path_matches_ignore_glob(path.c_str()))
-			continue;
-
 		if (cur->second.file_type == Stat::NO_ENTRY)
 		{
 			vector::push_back(to_remove, path);
 		}
 		else
 		{
+			if (path_matches_ignore_glob(path.c_str()))
+				continue;
+
 			const ResourceId id = resource_id(path.c_str());
 
 			const u64 mtime_epoch = 0u;
