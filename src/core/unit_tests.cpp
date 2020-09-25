@@ -1277,22 +1277,42 @@ static void test_path()
 	{
 		const char* p = path::basename("");
 		ENSURE(strcmp(p, "") == 0);
+	}
+	{
 		const char* q = path::basename("/");
 		ENSURE(strcmp(q, "") == 0);
-		const char* r = path::basename("boot.config");
-		ENSURE(strcmp(r, "boot.config") == 0);
-		const char* s = path::basename("foo/boot.config");
-		ENSURE(strcmp(s, "boot.config") == 0);
-		const char* t = path::basename("/foo/boot.config");
-		ENSURE(strcmp(t, "boot.config") == 0);
+	}
+	{
+		const char* p = path::basename("boot.config");
+		ENSURE(strcmp(p, "boot.config") == 0);
+	}
+	{
+		const char* p = path::basename("foo/boot.config");
+		ENSURE(strcmp(p, "boot.config") == 0);
+	}
+	{
+		const char* p = path::basename("/foo/boot.config");
+		ENSURE(strcmp(p, "boot.config") == 0);
 	}
 	{
 		const char* p = path::extension("");
 		ENSURE(p == NULL);
-		const char* q = path::extension("boot");
-		ENSURE(q == NULL);
-		const char* r = path::extension("boot.bar.config");
-		ENSURE(strcmp(r, "config") == 0);
+	}
+	{
+		const char* p = path::extension("boot");
+		ENSURE(p == NULL);
+	}
+	{
+		const char* p = path::extension("boot.bar.config");
+		ENSURE(strcmp(p, "config") == 0);
+	}
+	{
+		const char* p = path::extension(".bar");
+		ENSURE(p == NULL);
+	}
+	{
+		const char* p = path::extension("foo/.bar");
+		ENSURE(p == NULL);
 	}
 	{
 		TempAllocator128 ta;

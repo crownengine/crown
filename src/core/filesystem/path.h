@@ -35,8 +35,9 @@ namespace path
 
 	/// Returns the extension of the @a path or NULL.
 	/// @note
-	/// "/home/texture.tga" -> "tga"
-	/// "/home/texture" -> NULL
+	/// /home/texture.tga -> "tga"
+	/// /home/texture -> NULL
+	/// /home/.tga -> NULL
 	const char* extension(const char* path);
 
 	/// Returns whether the @a path has a trailing separator.

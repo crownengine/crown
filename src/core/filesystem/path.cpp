@@ -75,8 +75,9 @@ namespace path
 	const char* extension(const char* path)
 	{
 		CE_ENSURE(NULL != path);
-		const char* ld = strrchr(path, '.');
-		return ld == NULL ? NULL : ld + 1;
+		const char* bn = basename(path);
+		const char* ld = strrchr(bn, '.');
+		return (ld == NULL || ld == bn) ? NULL : ld + 1;
 	}
 
 	bool has_trailing_separator(const char* path)
