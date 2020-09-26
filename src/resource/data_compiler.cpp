@@ -623,13 +623,6 @@ void DataCompiler::remove_file(const char* path)
 	stat.mtime = 0;
 	hash_map::set(_source_index._paths, path_str, stat);
 
-	// Remove from tracking structures
-	ResourceId id = resource_id(path);
-	hash_map::remove(_data_index, id);
-	hash_map::remove(_data_mtimes, id);
-	hash_map::remove(_data_dependencies, id);
-	hash_map::remove(_data_requirements, id);
-
 	notify_remove_file(path);
 }
 
@@ -930,6 +923,9 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 			if (path_matches_ignore_glob(path.c_str()))
 				continue;
 
+			if (path::extension(path.c_str()) == NULL)
+				continue;
+
 			const ResourceId id = resource_id(path.c_str());
 
 			const u64 mtime_epoch = 0u;
@@ -949,15 +945,32 @@ bool DataCompiler::compile(const char* data_dir, const char* platform)
 		}
 	}
 
+#if 0
+	for (u32 i = 0; i < vector::size(to_remove); ++i)
+		logi(DATA_COMPILER, "gc %s", to_remove[i].c_str());
+#endif
+
 	// Remove all deleted resources
 	for (u32 i = 0; i < vector::size(to_remove); ++i)
 	{
+		// Remove from source index
 		hash_map::remove(_source_index._paths, to_remove[i]);
+
+		// If it does not have extension it cannot be a resource so it cannot be
+		// in tracking structures nor in the data folder.
+		if (path::extension(to_remove[i].c_str()) == NULL)
+			continue;
+
+		// Remove from tracking structures
+		ResourceId id = resource_id(to_remove[i].c_str());
+		hash_map::remove(_data_index, id);
+		hash_map::remove(_data_mtimes, id);
+		hash_map::remove(_data_dependencies, id);
+		hash_map::remove(_data_requirements, id);
 
 		// If present, remove from data folder because we do not want the
 		// runtime to accidentally load stale data compiled from resources that
 		// do not exist anymore in the source index.
-		ResourceId id = resource_id(to_remove[i].c_str());
 		TempAllocator256 ta;
 		DynamicString dest(ta);
 		destination_path(dest, id);
