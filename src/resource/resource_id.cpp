@@ -13,7 +13,7 @@ namespace crown
 {
 ResourceId resource_id(const char* path)
 {
-	CE_ASSERT(path::extension(path) != NULL);
+	CE_ENSURE(path::extension(path) != NULL);
 	const char* type = path::extension(path);
 	const u32 len = u32(type - path - 1);
 	return resource_id(type, strlen32(type), path, len);
