@@ -39,6 +39,17 @@ namespace Crown
 		// Signals
 		public signal void resource_selected(string type, string name);
 
+		public static string basename(string type, string name)
+		{
+			return type == "" ? name : name + "." + type;
+		}
+
+		public static string filename(Project project, string type, string name)
+		{
+			string bn = ProjectBrowser.basename(type, name);
+			return Path.build_filename(project.source_dir(), bn);
+		}
+
 		public ProjectBrowser(Project? project, ProjectStore project_store)
 		{
 			Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
@@ -142,7 +153,7 @@ namespace Crown
 				if ((string)type == "<folder>")
 					cell.set_property("text", (string)segment);
 				else
-					cell.set_property("text", (string)segment + (type == "" ? "" : "." + (string)type));
+					cell.set_property("text", ProjectBrowser.basename((string)type, (string)segment));
 			});
 			_tree_view = new Gtk.TreeView();
 			_tree_view.append_column(column);
@@ -294,7 +305,7 @@ namespace Crown
 
 						mi = new Gtk.MenuItem.with_label("Delete File");
 						mi.activate.connect(() => {
-							GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name + "." + (string)type));
+							GLib.File file = GLib.File.new_for_path(ProjectBrowser.filename(_project, (string)type, (string)name));
 							try
 							{
 								file.delete();
@@ -345,7 +356,7 @@ namespace Crown
 						Value name;
 						_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
-						GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name + "." + (string)type));
+						GLib.File file = GLib.File.new_for_path(ProjectBrowser.filename(_project, (string)type, (string)name));
 
 						if (type == "level")
 						{
