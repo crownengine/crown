@@ -283,10 +283,23 @@ namespace Crown
 			return _files;
 		}
 
+		public string basename(string path)
+		{
+			int ls = path.last_index_of("/");
+			return ls == -1 ? path : path.substring(ls + 1);
+		}
+
+		public string extension(string path)
+		{
+			string bn = basename(path);
+			int ld = bn.last_index_of(".");
+			return (ld == -1 || ld == 0) ? "" : bn.substring(ld + 1);
+		}
+
 		public void add_file(string path)
 		{
-			string name = path.substring(0, path.last_index_of("."));
-			string type = path.substring(path.last_index_of(".") + 1);
+			string type = extension(path);
+			string name = type == "" ? path : path.substring(0, path.last_index_of("."));
 
 			Guid id = Guid.new_guid();
 			_files.create(id);
