@@ -142,7 +142,7 @@ namespace Crown
 				if ((string)type == "<folder>")
 					cell.set_property("text", (string)segment);
 				else
-					cell.set_property("text", (string)segment + "." + (string)type);
+					cell.set_property("text", (string)segment + (type == "" ? "" : "." + (string)type));
 			});
 			_tree_view = new Gtk.TreeView();
 			_tree_view.append_column(column);
