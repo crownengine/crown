@@ -5,10 +5,15 @@ Changelog
 ------
 *DD MMM YYYY*
 
+**Data Compiler**
+
+* Fixed detection on new sub-directories and sub-directory renames
+* Fixed handling of paths without type extension
+* Improved file deletion detection and data directory coherence
+* Improved file modification detection and source index caching
+
 **Runtime**
 
-* Improved file deletion detection and data directory coherence in Data Compiler
-* Improved file modification detection and source index caching in Data Compiler
 * Remove support for 32-bit x86 architectures
 
 **Tools**
