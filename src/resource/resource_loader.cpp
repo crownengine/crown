@@ -14,7 +14,7 @@
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
-#include "core/thread/scoped_mutex.h"
+#include "core/thread/scoped_mutex.inl"
 #include "device/log.h"
 #include "resource/resource_id.inl"
 #include "resource/resource_loader.h"

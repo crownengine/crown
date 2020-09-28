@@ -7,7 +7,7 @@
 #include "core/memory/allocator.h"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
-#include "core/thread/scoped_mutex.h"
+#include "core/thread/scoped_mutex.inl"
 #include <stdlib.h> // malloc
 
 // void* operator new(size_t) throw (std::bad_alloc)

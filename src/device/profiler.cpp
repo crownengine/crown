@@ -6,7 +6,7 @@
 #include "core/containers/array.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/globals.h"
-#include "core/thread/scoped_mutex.h"
+#include "core/thread/scoped_mutex.inl"
 #include "core/time.h"
 #include "device/profiler.h"
 #include <new>
