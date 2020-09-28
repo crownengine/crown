@@ -1195,7 +1195,9 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 		resource_path_to_resource_name(resource_name, resource_path);
 
 #if 0
-		logi(DATA_COMPILER, "file_monitor_callback: event: %d", fme);
+		static const char* fme_to_name[] = { "CREATED", "DELETED", "RENAMED", "CHANGED" };
+		CE_STATIC_ASSERT(countof(fme_to_name) == FileMonitorEvent::COUNT);
+		logi(DATA_COMPILER, "file_monitor_callback: event: %s %s", fme_to_name[fme], is_dir ? "dir" : "file");
 		logi(DATA_COMPILER, "  path         : %s", path);
 		logi(DATA_COMPILER, "  source_dir   : %s", source_dir.c_str());
 		logi(DATA_COMPILER, "  resource_path: %s", resource_path.c_str());
