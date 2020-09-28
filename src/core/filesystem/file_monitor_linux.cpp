@@ -46,7 +46,7 @@ struct FileMonitorImpl
 	{
 	}
 
-	void add_watch(const char* path, bool recursive)
+	void add_watch(const char* path, bool recursive, bool generate_create_event = false)
 	{
 		CE_ENSURE(path != NULL);
 		CE_ASSERT(!path::has_trailing_separator(path), "Malformed path");
@@ -72,10 +72,10 @@ struct FileMonitorImpl
 
 		// Add all sub-dirs recursively
 		if (recursive)
-			add_subdirectories(path);
+			add_subdirectories(path, generate_create_event);
 	}
 
-	void add_subdirectories(const char* path)
+	void add_subdirectories(const char* path, bool generate_create_event)
 	{
 		struct dirent *entry;
 
@@ -89,15 +89,22 @@ struct FileMonitorImpl
 				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
 					continue;
 
-				// FIXME: some filesystems do not support DT_DIR.
-				if (entry->d_type != DT_DIR)
-					continue;
-
 				TempAllocator512 ta;
 				DynamicString str(ta);
 				path::join(str, path, dname);
 
-				add_watch(str.c_str(), true);
+				if (generate_create_event)
+				{
+					_function(_user_data
+						, FileMonitorEvent::CREATED
+						, entry->d_type == DT_DIR // FIXME: some filesystems do not support DT_DIR.
+						, str.c_str()
+						, NULL
+						);
+				}
+
+				if (entry->d_type == DT_DIR)
+					add_watch(str.c_str(), _recursive, generate_create_event);
 			}
 
 			closedir(dir);
@@ -193,7 +200,7 @@ struct FileMonitorImpl
 					// (and, if desired, recursively add watches for any subdirectories
 					// that it contains).
 					if (ev->mask & IN_ISDIR)
-						add_watch(path.c_str(), _recursive);
+						add_watch(path.c_str(), _recursive, true);
 				}
 				if (ev->mask & IN_DELETE)
 				{
@@ -272,7 +279,7 @@ struct FileMonitorImpl
 							hash_map::remove(_watches_reverse, cookie_path);
 							inotify_rm_watch(_fd, wd);
 
-							add_watch(path.c_str(), _recursive);
+							add_watch(path.c_str(), _recursive, true);
 						}
 					}
 					else
@@ -292,7 +299,7 @@ struct FileMonitorImpl
 						cookie_mask = 0;
 
 						if (ev->mask & IN_ISDIR)
-							add_watch(path.c_str(), _recursive);
+							add_watch(path.c_str(), _recursive, true);
 					}
 				}
 

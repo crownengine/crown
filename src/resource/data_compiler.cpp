@@ -598,12 +598,22 @@ void DataCompiler::add_file(const char* path)
 	DynamicString str(ta);
 	str.set(path, strlen32(path));
 
+	// Due to limitations in the OS-level file monitor APIs, we may receive
+	// more than a single add_file() for the same path. Check if the path
+	// is already tracked and, if so, ignore it.
+	Stat deff_st;
+	deff_st.file_type = Stat::NO_ENTRY;
+	deff_st.size = 0;
+	deff_st.mtime = 0;
+	if (hash_map::get(_source_index._paths, str, deff_st).file_type != Stat::NO_ENTRY)
+		return;
+
 	// Get file status
 	FilesystemDisk fs(default_allocator());
 	fs.set_prefix(source_dir.c_str());
-	Stat stat;
-	stat = fs.stat(path);
-	hash_map::set(_source_index._paths, str, stat);
+	Stat st;
+	st = fs.stat(path);
+	hash_map::set(_source_index._paths, str, st);
 
 	notify_add_file(path);
 }
@@ -628,15 +638,6 @@ void DataCompiler::remove_file(const char* path)
 
 void DataCompiler::add_tree(const char* path)
 {
-	// Get source directory prefix
-	TempAllocator512 ta;
-	DynamicString source_dir(ta);
-	source_dir = hash_map::get(_source_dirs, source_dir, source_dir);
-	// Scan the directory tree.
-	FilesystemDisk fs(default_allocator());
-	fs.set_prefix(source_dir.c_str());
-	_source_index.scan_directory(fs, "", path);
-
 	notify_add_tree(path);
 }
 

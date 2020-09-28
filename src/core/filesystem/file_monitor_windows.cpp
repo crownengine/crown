@@ -107,6 +107,42 @@ struct FileMonitorImpl
 		++_key;
 	}
 
+	void scan_subdirectories(const char* path)
+	{
+		TempAllocator256 ta;
+		DynamicString dir(ta);
+		dir += path;
+		dir += "\\*";
+
+		WIN32_FIND_DATA ffd;
+		HANDLE file = FindFirstFile(dir.c_str(), &ffd);
+		if (file != INVALID_HANDLE_VALUE)
+		{
+			do
+			{
+				if (!strcmp(ffd.cFileName, ".") || !strcmp(ffd.cFileName, ".."))
+					continue;
+
+				TempAllocator512 ta;
+				DynamicString str(ta);
+				path::join(str, path, ffd.cFileName);
+
+				_function(_user_data
+					, FileMonitorEvent::CREATED
+					, ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY
+					, str.c_str()
+					, NULL
+					);
+
+				if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+					scan_subdirectories(str.c_str());
+			}
+			while (FindNextFile(file, &ffd) != 0);
+
+			FindClose(file);
+		}
+	}
+
 	void start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data)
 	{
 		CE_ENSURE(NULL != fmf);
@@ -186,6 +222,9 @@ struct FileMonitorImpl
 						, path.c_str()
 						, NULL
 					);
+
+					if (st.file_type == Stat::FileType::DIRECTORY)
+						scan_subdirectories(path.c_str());
 				}
 				else if (fni->Action == FILE_ACTION_REMOVED)
 				{
@@ -217,6 +256,8 @@ struct FileMonitorImpl
 				{
 					if (last_action == FILE_ACTION_RENAMED_OLD_NAME)
 					{
+						last_action = -1;
+
 						Stat st;
 						os::stat(st, path.c_str());
 
@@ -226,9 +267,10 @@ struct FileMonitorImpl
 							, path_old_name.c_str()
 							, path.c_str()
 							);
-					}
 
-					last_action = -1;
+						if (st.file_type == Stat::FileType::DIRECTORY)
+							scan_subdirectories(path.c_str());
+					}
 				}
 
 				// advance to next entry in buffer (variable length)
