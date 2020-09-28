@@ -315,6 +315,12 @@ namespace Crown
 
 		public void remove_file(string path)
 		{
+			if (!_map.has_key(path))
+			{
+				logw("remove_file: map does not contain path: %s".printf(path));
+				return;
+			}
+
 			Guid id = _map[path];
 			file_removed(_files.get_property_string(id, "type"), _files.get_property_string(id, "name"));
 
