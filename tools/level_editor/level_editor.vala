@@ -308,7 +308,7 @@ namespace Crown
 
 				if (GLib.FileUtils.test(dir, FileTest.IS_REGULAR))
 				{
-					stdout.printf("Source directory can't be a regular file\n");
+					loge("Source directory can't be a regular file");
 					return;
 				}
 
@@ -499,7 +499,7 @@ namespace Crown
 			{
 				if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR))
 				{
-					loge("Source directory does not exist or it is not a directory\n");
+					loge("Source directory does not exist or it is not a directory");
 					exit_status = 1;
 					return true;
 				}
@@ -517,7 +517,7 @@ namespace Crown
 			{
 				if (!GLib.FileUtils.test(args[3], FileTest.EXISTS) || !GLib.FileUtils.test(args[3], FileTest.IS_DIR))
 				{
-					loge("Toolchain directory does not exist or it is not a directory\n");
+					loge("Toolchain directory does not exist or it is not a directory");
 					exit_status = 1;
 					return true;
 				}
@@ -550,7 +550,7 @@ namespace Crown
 
 				if (!found)
 				{
-					loge("Unable to find the toolchain directory\n");
+					loge("Unable to find the toolchain directory");
 					exit_status = 1;
 					return true;
 				}
@@ -1371,7 +1371,7 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("Quit _without Saving", ResponseType.NO);
+			md.add_button("Close _without Saving", ResponseType.NO);
 			md.add_button("_Cancel", ResponseType.CANCEL);
 			md.add_button("_Save", ResponseType.YES);
 			md.set_default_response(ResponseType.YES);
@@ -1399,7 +1399,7 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("New _without Saving", ResponseType.NO);
+			md.add_button("Close _without Saving", ResponseType.NO);
 			md.add_button("_Cancel", ResponseType.CANCEL);
 			md.add_button("_Save", ResponseType.YES);
 			md.set_default_response(ResponseType.YES);
@@ -1427,7 +1427,7 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("Open _without Saving", ResponseType.NO);
+			md.add_button("Close _without Saving", ResponseType.NO);
 			md.add_button("_Cancel", ResponseType.CANCEL);
 			md.add_button("_Save", ResponseType.YES);
 			md.set_default_response(ResponseType.YES);
@@ -1452,7 +1452,7 @@ namespace Crown
 				, Gtk.ButtonsType.NONE
 				, "File changed, save?"
 				);
-			md.add_button("Open _without Saving", ResponseType.NO);
+			md.add_button("Close _without Saving", ResponseType.NO);
 			md.add_button("_Cancel", ResponseType.CANCEL);
 			md.add_button("_Save", ResponseType.YES);
 			md.set_default_response(ResponseType.YES);
