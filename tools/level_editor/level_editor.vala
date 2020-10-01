@@ -288,7 +288,7 @@ namespace Crown
 
 			if (_source_dir == "")
 			{
-				Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select folder where to create new project..."
+				Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select folder where to create New Project..."
 					, null
 					, FileChooserAction.SELECT_FOLDER
 					, "Cancel"
@@ -303,16 +303,22 @@ namespace Crown
 					return;
 				}
 
-				string dir = fcd.get_filename();
+				string sd = fcd.get_filename();
 				fcd.destroy();
 
-				if (GLib.FileUtils.test(dir, FileTest.IS_REGULAR))
+				if (GLib.FileUtils.test(sd, FileTest.IS_REGULAR))
 				{
 					loge("Source directory can't be a regular file");
 					return;
 				}
 
-				_source_dir = dir;
+				if (!is_directory_empty(sd))
+				{
+					loge("Source directory must be empty");
+					return;
+				}
+
+				_source_dir = sd;
 				_create_initial_files = true;
 			}
 
@@ -1894,6 +1900,24 @@ namespace Crown
 		flags |= SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE;
 #endif
 		return flags;
+	}
+
+	public static bool is_directory_empty(string path)
+	{
+		GLib.File file = GLib.File.new_for_path(path);
+		try
+		{
+			FileEnumerator enumerator = file.enumerate_children("standard::*"
+				, FileQueryInfoFlags.NOFOLLOW_SYMLINKS
+				);
+			return enumerator.next_file() == null;
+		}
+		catch (GLib.Error e)
+		{
+			loge(e.message);
+		}
+
+		return false;
 	}
 
 	public static int main(string[] args)
