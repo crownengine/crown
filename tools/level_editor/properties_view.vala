@@ -743,6 +743,7 @@ namespace Crown
 			expander.label_widget = lb;
 			expander.child = cv;
 			expander.expanded = true;
+			expander.margin_end = 12;
 
 			_components[component_type] = cv;
 			_expanders[component_type] = expander;
