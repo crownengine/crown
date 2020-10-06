@@ -1079,7 +1079,7 @@ namespace Crown
 				, ResponseType.ACCEPT
 				);
 
-			if (fcd.run() == (int)ResponseType.ACCEPT)
+			if (fcd.run() == ResponseType.ACCEPT)
 			{
 				GLib.File data_dir = File.new_for_path(fcd.get_filename());
 
@@ -1213,7 +1213,7 @@ namespace Crown
 				fcd.add_filter(_file_filter);
 				fcd.set_current_folder(_project.source_dir());
 
-				if (fcd.run() == (int)ResponseType.ACCEPT)
+				if (fcd.run() == ResponseType.ACCEPT)
 					filename = fcd.get_filename();
 
 				fcd.destroy();
@@ -1234,38 +1234,6 @@ namespace Crown
 				_level.send_level();
 				send_state();
 			}
-		}
-
-		private void load_project()
-		{
-			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Project..."
-				, this.active_window
-				, FileChooserAction.SELECT_FOLDER
-				, "Cancel"
-				, ResponseType.CANCEL
-				, "Open"
-				, ResponseType.ACCEPT
-				);
-
-			int rt = fcd.run();
-			if (rt != (int)ResponseType.ACCEPT)
-			{
-				fcd.destroy();
-				return;
-			}
-
-			string filename = fcd.get_filename();
-			fcd.destroy();
-
-			if (filename == _project.source_dir())
-				return;
-
-			logi("Loading `%s`...".printf(filename));
-			_project.load(filename, _project.toolchain_dir());
-
-			_level.load_empty_level();
-
-			restart_compiler();
 		}
 
 		private bool save_as(string? filename)
@@ -1290,7 +1258,7 @@ namespace Crown
 				fcd.set_current_folder(_project.source_dir());
 				int rt = fcd.run();
 
-				if (rt != (int)ResponseType.ACCEPT)
+				if (rt != ResponseType.ACCEPT)
 				{
 					fcd.destroy();
 					return false;
@@ -1349,23 +1317,25 @@ namespace Crown
 		// should be discarded.
 		public bool should_quit()
 		{
-			if (!_database.changed())
-				return true;
+			int rt = ResponseType.YES;
 
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-				, Gtk.DialogFlags.MODAL
-				, Gtk.MessageType.WARNING
-				, Gtk.ButtonsType.NONE
-				, "File changed, save?"
-				);
-			md.add_button("Close _without Saving", ResponseType.NO);
-			md.add_button("_Cancel", ResponseType.CANCEL);
-			md.add_button("_Save", ResponseType.YES);
-			md.set_default_response(ResponseType.YES);
-			int rt = md.run();
-			md.destroy();
+			if (_database.changed())
+			{
+				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+					, Gtk.DialogFlags.MODAL
+					, Gtk.MessageType.WARNING
+					, Gtk.ButtonsType.NONE
+					, "File changed, save?"
+					);
+				md.add_button("Close _without Saving", ResponseType.NO);
+				md.add_button("_Cancel", ResponseType.CANCEL);
+				md.add_button("_Save", ResponseType.YES);
+				md.set_default_response(ResponseType.YES);
+				rt = md.run();
+				md.destroy();
+			}
 
-			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
+			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 				return true;
 
 			return false;
@@ -1373,27 +1343,25 @@ namespace Crown
 
 		private void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			if (!_database.changed())
+			int rt = ResponseType.YES;
+
+			if (_database.changed())
 			{
-				new_level();
-				send_state();
-				return;
+				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+					, Gtk.DialogFlags.MODAL
+					, Gtk.MessageType.WARNING
+					, Gtk.ButtonsType.NONE
+					, "File changed, save?"
+					);
+				md.add_button("Close _without Saving", ResponseType.NO);
+				md.add_button("_Cancel", ResponseType.CANCEL);
+				md.add_button("_Save", ResponseType.YES);
+				md.set_default_response(ResponseType.YES);
+				rt = md.run();
+				md.destroy();
 			}
 
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-				, Gtk.DialogFlags.MODAL
-				, Gtk.MessageType.WARNING
-				, Gtk.ButtonsType.NONE
-				, "File changed, save?"
-				);
-			md.add_button("Close _without Saving", ResponseType.NO);
-			md.add_button("_Cancel", ResponseType.CANCEL);
-			md.add_button("_Save", ResponseType.YES);
-			md.set_default_response(ResponseType.YES);
-			int rt = md.run();
-			md.destroy();
-
-			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
+			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 			{
 				new_level();
 				send_state();
@@ -1402,49 +1370,67 @@ namespace Crown
 
 		private void on_open_level(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			if (!_database.changed())
+			int rt = ResponseType.YES;
+
+			if (_database.changed())
 			{
-				load_level(param.get_string());
-				return;
+				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+					, Gtk.DialogFlags.MODAL
+					, Gtk.MessageType.WARNING
+					, Gtk.ButtonsType.NONE
+					, "File changed, save?"
+					);
+				md.add_button("Close _without Saving", ResponseType.NO);
+				md.add_button("_Cancel", ResponseType.CANCEL);
+				md.add_button("_Save", ResponseType.YES);
+				md.set_default_response(ResponseType.YES);
+				rt = md.run();
+				md.destroy();
 			}
 
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-				, Gtk.DialogFlags.MODAL
-				, Gtk.MessageType.WARNING
-				, Gtk.ButtonsType.NONE
-				, "File changed, save?"
-				);
-			md.add_button("Close _without Saving", ResponseType.NO);
-			md.add_button("_Cancel", ResponseType.CANCEL);
-			md.add_button("_Save", ResponseType.YES);
-			md.set_default_response(ResponseType.YES);
-			int rt = md.run();
-			md.destroy();
-
-			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
+			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 				load_level(param.get_string());
 		}
 
 		private void on_open_project(GLib.SimpleAction action, GLib.Variant? param)
 		{
-			if (!_database.changed())
+			int rt = ResponseType.YES;
+
+			if (_database.changed())
 			{
-				load_project();
-				return;
+				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+					, Gtk.DialogFlags.MODAL
+					, Gtk.MessageType.WARNING
+					, Gtk.ButtonsType.NONE
+					, "File changed, save?"
+					);
+				md.add_button("Close _without Saving", ResponseType.NO);
+				md.add_button("_Cancel", ResponseType.CANCEL);
+				md.add_button("_Save", ResponseType.YES);
+				md.set_default_response(ResponseType.YES);
+				rt = md.run();
+				md.destroy();
 			}
 
-			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-				, Gtk.DialogFlags.MODAL
-				, Gtk.MessageType.WARNING
-				, Gtk.ButtonsType.NONE
-				, "File changed, save?"
-				);
-			md.add_button("Close _without Saving", ResponseType.NO);
-			md.add_button("_Cancel", ResponseType.CANCEL);
-			md.add_button("_Save", ResponseType.YES);
-			md.set_default_response(ResponseType.YES);
-			int rt = md.run();
-			md.destroy();
+			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
+			{
+				DialogOpenProject op = new DialogOpenProject(this.active_window);
+				rt = op.run();
+				if (rt != ResponseType.ACCEPT)
+				{
+					op.destroy();
+					return;
+				}
+
+				string source_dir = op.get_filename();
+				op.destroy();
+
+				logi("Loading project: `%s`...".printf(source_dir));
+				_project.load(source_dir);
+				_level.load_empty_level();
+				restart_compiler();
+			}
+		}
 
 			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
 				load_project();
@@ -1505,7 +1491,7 @@ namespace Crown
 			dg.skip_taskbar_hint = true;
 			dg.show_all();
 
-			if (dg.run() == (int)ResponseType.OK)
+			if (dg.run() == ResponseType.OK)
 			{
 				_grid_size = sb.value;
 				send_state();
@@ -1532,7 +1518,7 @@ namespace Crown
 			dg.skip_taskbar_hint = true;
 			dg.show_all();
 
-			if (dg.run() == (int)ResponseType.OK)
+			if (dg.run() == ResponseType.OK)
 			{
 				_rotation_snap = sb.value;
 				send_state();
