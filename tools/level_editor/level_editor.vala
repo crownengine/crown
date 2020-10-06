@@ -517,6 +517,7 @@ namespace Crown
 				/// More desirable paths come first
 				string toolchain_paths[] =
 				{
+					".",
 					"../..",
 					"../../../samples"
 				};
