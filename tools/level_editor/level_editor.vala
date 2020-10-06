@@ -109,26 +109,6 @@ namespace Crown
 		}
 	}
 
-	public enum ToolType
-	{
-		PLACE,
-		MOVE,
-		ROTATE,
-		SCALE
-	}
-
-	public enum SnapMode
-	{
-		RELATIVE,
-		ABSOLUTE
-	}
-
-	public enum ReferenceSystem
-	{
-		LOCAL,
-		WORLD
-	}
-
 	public enum StartGame
 	{
 		NORMAL,
@@ -217,9 +197,9 @@ namespace Crown
 		private bool _snap_to_grid;
 		private bool _debug_render_world;
 		private bool _debug_physics_world;
-		private ToolType _tool_type;
-		private SnapMode _snap_mode;
-		private ReferenceSystem _reference_system;
+		private LevelEditorApi.ToolType _tool_type;
+		private LevelEditorApi.SnapMode _snap_mode;
+		private LevelEditorApi.ReferenceSystem _reference_system;
 
 		// Engine connections
 		private GLib.Subprocess _compiler_process;
@@ -355,9 +335,9 @@ namespace Crown
 			_snap_to_grid = true;
 			_debug_render_world = false;
 			_debug_physics_world = false;
-			_tool_type = ToolType.MOVE;
-			_snap_mode = SnapMode.RELATIVE;
-			_reference_system = ReferenceSystem.LOCAL;
+			_tool_type = LevelEditorApi.ToolType.MOVE;
+			_snap_mode = LevelEditorApi.SnapMode.RELATIVE;
+			_reference_system = LevelEditorApi.ReferenceSystem.LOCAL;
 
 			// Engine connections
 			_compiler_process = null;
@@ -1159,13 +1139,13 @@ namespace Crown
 		{
 			string name = param.get_string();
 			if (name == "place")
-				_tool_type = ToolType.PLACE;
+				_tool_type = LevelEditorApi.ToolType.PLACE;
 			else if (name == "move")
-				_tool_type = ToolType.MOVE;
+				_tool_type = LevelEditorApi.ToolType.MOVE;
 			else if (name == "rotate")
-				_tool_type = ToolType.ROTATE;
+				_tool_type = LevelEditorApi.ToolType.ROTATE;
 			else if (name == "scale")
-				_tool_type = ToolType.SCALE;
+				_tool_type = LevelEditorApi.ToolType.SCALE;
 
 			send_state();
 			action.set_state(param);
@@ -1175,9 +1155,9 @@ namespace Crown
 		{
 			string name = param.get_string();
 			if (name == "relative")
-				_snap_mode = SnapMode.RELATIVE;
+				_snap_mode = LevelEditorApi.SnapMode.RELATIVE;
 			else if (name == "absolute")
-				_snap_mode = SnapMode.ABSOLUTE;
+				_snap_mode = LevelEditorApi.SnapMode.ABSOLUTE;
 
 			send_state();
 			action.set_state(param);
@@ -1187,9 +1167,9 @@ namespace Crown
 		{
 			string name = param.get_string();
 			if (name == "local")
-				_reference_system = ReferenceSystem.LOCAL;
+				_reference_system = LevelEditorApi.ReferenceSystem.LOCAL;
 			else if (name == "world")
-				_reference_system = ReferenceSystem.WORLD;
+				_reference_system = LevelEditorApi.ReferenceSystem.WORLD;
 
 			send_state();
 			action.set_state(param);

@@ -130,6 +130,14 @@ namespace Crown
 			return "LevelEditor:key_up(\"%s\")".printf(key);
 		}
 
+		public enum ToolType
+		{
+			PLACE,
+			MOVE,
+			ROTATE,
+			SCALE
+		}
+
 		private const string[] _tools =
 		{
 			"place_tool",
@@ -143,9 +151,21 @@ namespace Crown
 			return "LevelEditor:set_tool(LevelEditor.%s)".printf(_tools[(int)type]);
 		}
 
+		public enum SnapMode
+		{
+			RELATIVE,
+			ABSOLUTE
+		}
+
 		public string set_snap_mode(SnapMode sm)
 		{
 			return """LevelEditor:set_snap_mode("%s")""".printf(sm == SnapMode.RELATIVE ? "relative" : "absolute");
+		}
+
+		public enum ReferenceSystem
+		{
+			LOCAL,
+			WORLD
 		}
 
 		public string set_reference_system(ReferenceSystem rs)
