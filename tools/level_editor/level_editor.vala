@@ -1321,18 +1321,9 @@ namespace Crown
 
 			if (_database.changed())
 			{
-				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-					, Gtk.DialogFlags.MODAL
-					, Gtk.MessageType.WARNING
-					, Gtk.ButtonsType.NONE
-					, "File changed, save?"
-					);
-				md.add_button("Close _without Saving", ResponseType.NO);
-				md.add_button("_Cancel", ResponseType.CANCEL);
-				md.add_button("_Save", ResponseType.YES);
-				md.set_default_response(ResponseType.YES);
-				rt = md.run();
-				md.destroy();
+				DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
+				rt = lc.run();
+				lc.destroy();
 			}
 
 			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
@@ -1347,18 +1338,9 @@ namespace Crown
 
 			if (_database.changed())
 			{
-				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-					, Gtk.DialogFlags.MODAL
-					, Gtk.MessageType.WARNING
-					, Gtk.ButtonsType.NONE
-					, "File changed, save?"
-					);
-				md.add_button("Close _without Saving", ResponseType.NO);
-				md.add_button("_Cancel", ResponseType.CANCEL);
-				md.add_button("_Save", ResponseType.YES);
-				md.set_default_response(ResponseType.YES);
-				rt = md.run();
-				md.destroy();
+				DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
+				rt = lc.run();
+				lc.destroy();
 			}
 
 			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
@@ -1374,18 +1356,9 @@ namespace Crown
 
 			if (_database.changed())
 			{
-				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-					, Gtk.DialogFlags.MODAL
-					, Gtk.MessageType.WARNING
-					, Gtk.ButtonsType.NONE
-					, "File changed, save?"
-					);
-				md.add_button("Close _without Saving", ResponseType.NO);
-				md.add_button("_Cancel", ResponseType.CANCEL);
-				md.add_button("_Save", ResponseType.YES);
-				md.set_default_response(ResponseType.YES);
-				rt = md.run();
-				md.destroy();
+				DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
+				rt = lc.run();
+				lc.destroy();
 			}
 
 			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
@@ -1398,18 +1371,9 @@ namespace Crown
 
 			if (_database.changed())
 			{
-				Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-					, Gtk.DialogFlags.MODAL
-					, Gtk.MessageType.WARNING
-					, Gtk.ButtonsType.NONE
-					, "File changed, save?"
-					);
-				md.add_button("Close _without Saving", ResponseType.NO);
-				md.add_button("_Cancel", ResponseType.CANCEL);
-				md.add_button("_Save", ResponseType.YES);
-				md.set_default_response(ResponseType.YES);
-				rt = md.run();
-				md.destroy();
+				DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
+				rt = lc.run();
+				lc.destroy();
 			}
 
 			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
