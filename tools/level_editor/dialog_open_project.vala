@@ -12,7 +12,7 @@ namespace Crown
 		public DialogOpenProject(Gtk.Window? parent)
 		{
 			Object(title: "Open Project..."
-				, parent: parent
+				, modal: true
 				, action: FileChooserAction.SELECT_FOLDER
 				);
 
@@ -21,6 +21,9 @@ namespace Crown
 				, "Open"
 				, ResponseType.ACCEPT
 				);
+
+			if (parent != null)
+				this.set_transient_for(parent);
 		}
 	}
 }
