@@ -398,6 +398,7 @@ namespace Crown
 			_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 			_main_vbox.pack_start(_main_pane, true, true, 0);
 			_main_vbox.pack_start(_statusbar, false, false, 0);
+			_main_vbox.set_visible(true);
 
 			_file_filter = new Gtk.FileFilter();
 			_file_filter.set_filter_name("Level (*.level)");
@@ -425,15 +426,6 @@ namespace Crown
 			}
 			else
 			{
-				if (_level_resource != null)
-				{
-					string level_path = Path.build_filename(_project.source_dir(), _level_resource + ".level");
-					if (!GLib.FileUtils.test(level_path, FileTest.EXISTS) || !GLib.FileUtils.test(level_path, FileTest.IS_REGULAR))
-					{
-						loge("Level resource '%s' does not exist.".printf(_level_resource));
-					}
-				}
-
 				show_panel("main_vbox");
 				restart_compiler(_source_dir, _level_resource);
 			}
@@ -808,7 +800,7 @@ namespace Crown
 			Gtk.Label label = new Gtk.Label(null);
 			label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
 			label.activate_link.connect(() => {
-				restart_compiler(_project.source_dir(), _level_resource);
+				restart_compiler(_project.source_dir(), _level._filename);
 				return true;
 			});
 
@@ -820,7 +812,7 @@ namespace Crown
 			Gtk.Label label = new Gtk.Label(null);
 			label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
 			label.activate_link.connect(() => {
-				restart_compiler(_project.source_dir(), _level_resource);
+				restart_compiler(_project.source_dir(), _level._filename);
 				return true;
 			});
 
@@ -833,7 +825,7 @@ namespace Crown
 
 			_project.load(source_dir);
 			if (level_resource != null)
-				_level.load(level_resource);
+				_level.load(Path.build_filename(_project.source_dir(), level_resource + ".level"));
 			else
 				_level.load_empty_level();
 
