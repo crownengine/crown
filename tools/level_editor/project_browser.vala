@@ -248,6 +248,12 @@ namespace Crown
 
 							if (dg.run() == (int)ResponseType.OK)
 							{
+								if (sb.text.strip() == "")
+								{
+									dg.destroy();
+									return;
+								}
+
 								GLib.File file = GLib.File.new_for_path(GLib.Path.build_filename(_project.source_dir(), (string)name, sb.text));
 								try
 								{

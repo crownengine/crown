@@ -21,6 +21,7 @@ Changelog
 * Added Debug > Build Data
 * Added Welcome panel with a list of recent projects and the ability to create new projects or import existing ones
 * Fixed a number of dialog boxes that were not centered to the Level Editor's main window
+* Fixed an issue that allowed the user to enter blank names when creating new folders in the Project Browser
 * Fixed an issue that caused Project Browser to show inconsistent folder structured in some circumnstances
 * Fixed modifier keys getting stuck in the wrong state in some circumnstances
 * Improved Project Browser to not show irrelevant items
