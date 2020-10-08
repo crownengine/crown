@@ -18,6 +18,7 @@ Changelog
 
 **Tools**
 
+* Added ability to crate new scripts from Project Browser
 * Added Debug > Build Data
 * Added Welcome panel with a list of recent projects and the ability to create new projects or import existing ones
 * Fixed a number of dialog boxes that were not centered to the Level Editor's main window

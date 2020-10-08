@@ -213,6 +213,59 @@ namespace Crown
 			}
 		}
 
+		public void create_script(string directory, string name, bool empty)
+		{
+			string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".lua");
+			FileStream fs = FileStream.open(path, "wb");
+			if (fs != null)
+			{
+				if (empty)
+				{
+					fs.puts("\n");
+				}
+				else
+				{
+					string text = "local Behavior = Behavior or {}"
+						+ "\nlocal Data = Data or {}"
+						+ "\n"
+						+ "\nfunction Behavior.spawned(world, units)"
+						+ "\n	if Data[world] == nil then"
+						+ "\n		Data[world] = {}"
+						+ "\n	end"
+						+ "\n"
+						+ "\n	for uu = 1, #units do"
+						+ "\n		local unit = units[uu]"
+						+ "\n"
+						+ "\n		-- Store instance-specific data"
+						+ "\n		if Data[world][unit] == nil then"
+						+ "\n			-- Data[world][unit] = {}"
+						+ "\n		end"
+						+ "\n"
+						+ "\n		-- Do something with the unit"
+						+ "\n	end"
+						+ "\nend"
+						+ "\n"
+						+ "\nfunction Behavior.update(world, dt)"
+						+ "\n	-- Update all units"
+						+ "\nend"
+						+ "\n"
+						+ "\nfunction Behavior.unspawned(world, units)"
+						+ "\n	-- Cleanup"
+						+ "\n	for uu = 1, #units do"
+						+ "\n		if Data[world][units] then"
+						+ "\n			Data[world][units] = nil"
+						+ "\n		end"
+						+ "\n	end"
+						+ "\nend"
+						+ "\n"
+						+ "\nreturn Behavior"
+						+ "\n"
+						;
+					fs.puts(text);
+				}
+			}
+		}
+
 		public string source_dir()
 		{
 			return _source_dir.get_path();
