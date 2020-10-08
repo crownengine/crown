@@ -36,6 +36,7 @@ namespace Crown
 			_project.tree_added.connect(on_project_tree_added);
 			_project.tree_removed.connect(on_project_tree_removed);
 			_project.project_reset.connect(on_project_reset);
+			_project.project_loaded.connect(on_project_loaded);
 
 			_tree_store = new Gtk.TreeStore(Column.COUNT
 				, typeof(string) // resource name
@@ -57,21 +58,6 @@ namespace Crown
 			_folders.clear();
 			_tree_store.clear();
 			_list_store.clear();
-
-			Gtk.TreeIter iter;
-			_tree_store.insert_with_values(out iter
-				, null
-				, -1
-				, Column.NAME
-				, ROOT_FOLDER
-				, Column.TYPE
-				, "<folder>"
-				, Column.SEGMENT
-				, _project.name()
-				, -1
-				);
-
-			_folders[ROOT_FOLDER] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 		}
 
 		private string folder(string name)
@@ -271,6 +257,24 @@ namespace Crown
 		private void on_project_reset()
 		{
 			reset();
+		}
+
+		private void on_project_loaded()
+		{
+			Gtk.TreeIter iter;
+			_tree_store.insert_with_values(out iter
+				, null
+				, -1
+				, Column.NAME
+				, ROOT_FOLDER
+				, Column.TYPE
+				, "<folder>"
+				, Column.SEGMENT
+				, _project.name()
+				, -1
+				);
+
+			_folders[ROOT_FOLDER] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 		}
 	}
 }

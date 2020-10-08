@@ -2,6 +2,8 @@
 <gresources>
 	<gresource prefix="/org/crown/level_editor">
 		<file compressed="true" preprocess="xml-stripblanks">gtk/menus.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/panel_new_project.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/panel_projects_list.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/preferences_dialog.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/toolbar.ui</file>
 		<file compressed="true">css/style.css</file>

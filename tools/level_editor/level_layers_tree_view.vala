@@ -80,7 +80,6 @@ namespace Crown
 			this.add(_vbox);
 
 			this.get_style_context().add_class("level-layers-view");
-			this.show_all();
 		}
 
 		private bool on_button_pressed(Gdk.EventButton ev)

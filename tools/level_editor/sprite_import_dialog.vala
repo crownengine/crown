@@ -610,7 +610,6 @@ public class SpriteImportDialog : Gtk.Dialog
 		box.margin_bottom = 18;
 
 		get_content_area().pack_start(box);
-		get_content_area().show_all();
 
 		add_button("Cancel", Gtk.ResponseType.CANCEL);
 		add_button("OK", Gtk.ResponseType.OK);

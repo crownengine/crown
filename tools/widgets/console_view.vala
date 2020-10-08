@@ -111,7 +111,6 @@ namespace Crown
 			this.show.connect(on_show);
 
 			this.get_style_context().add_class("console-view");
-			this.show_all();
 		}
 
 		private void on_entry_activated()

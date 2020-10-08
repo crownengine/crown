@@ -17,6 +17,10 @@
         <attribute name="accel">&lt;Primary&gt;O</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">New Project...</attribute>
+        <attribute name="action">app.new-project</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Open Project...</attribute>
         <attribute name="action">app.open-project</attribute>
       </item>
@@ -51,6 +55,11 @@
         </item>
       </section>
       <section>
+        <item>
+          <attribute name="label" translatable="yes">Close</attribute>
+          <attribute name="action">app.close</attribute>
+          <attribute name="accel">&lt;Primary&gt;W</attribute>
+        </item>
         <item>
           <attribute name="label" translatable="yes">Quit</attribute>
           <attribute name="action">app.quit</attribute>
@@ -369,7 +378,7 @@
     </submenu>
     <submenu>
       <attribute name="label" translatable="yes">_Debug</attribute>
-      <attribute name="action">app.menu-run</attribute>
+      <attribute name="action">app.menu-debug</attribute>
       <section>
         <item>
           <attribute name="label" translatable="yes">Test Level</attribute>

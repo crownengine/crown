@@ -43,6 +43,7 @@ project "level-editor"
 		"gio-2.0",
 		"glib-2.0",
 		"gtk+-3.0",
+		"libhandy-1",
 		"posix",
 	}
 

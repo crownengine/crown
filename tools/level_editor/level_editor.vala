@@ -31,9 +31,7 @@ namespace Crown
 			this.key_press_event.connect(this.on_key_press);
 			this.key_release_event.connect(this.on_key_release);
 			this.window_state_event.connect(this.on_window_state_event);
-			this.show.connect(this.on_show);
 			this.delete_event.connect(this.on_delete_event);
-			this.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
 			this.focus_out_event.connect(this.on_focus_out);
 
 			_fullscreen = false;
@@ -81,11 +79,6 @@ namespace Crown
 			return true;
 		}
 
-		private void on_show()
-		{
-			this.maximize();
-		}
-
 		private bool on_delete_event()
 		{
 			LevelEditorApplication app = (LevelEditorApplication)application;
@@ -118,77 +111,102 @@ namespace Crown
 	public class LevelEditorApplication : Gtk.Application
 	{
 		// Constants
-		private const GLib.ActionEntry[] action_entries =
+		private const GLib.ActionEntry[] action_entries_file =
 		{
-			//                                                     parameter type
-			// name                   activate()                   |     state
-			// |                      |                            |     |
-			{ "menu-file",            null,                        null, null            },
-			{ "new-level",            on_new_level,                null, null            },
-			{ "open-level",           on_open_level,               "s",  null            },
-			{ "open-project",         on_open_project,             null, null            },
-			{ "save",                 on_save,                     null, null            },
-			{ "save-as",              on_save_as,                  null, null            },
-			{ "import",               on_import,                   null, null            },
-			{ "preferences",          on_preferences,              null, null            },
-			{ "deploy",               on_deploy,                   null, null            },
-			{ "quit",                 on_quit,                     null, null            },
-			{ "menu-edit",            null,                        null, null            },
-			{ "undo",                 on_undo,                     null, null            },
-			{ "redo",                 on_redo,                     null, null            },
-			{ "duplicate",            on_duplicate,                null, null            },
-			{ "delete",               on_delete,                   null, null            },
-			{ "tool",                 on_tool_changed,             "s",  "'move'"        },
-			{ "snap",                 on_snap_mode_changed,        "s",  "'relative'"    },
-			{ "reference-system",     on_reference_system_changed, "s",  "'local'"       },
-			{ "snap-to-grid",         on_snap_to_grid,             null, "true"          },
-			{ "menu-grid",            null,                        null, null            },
-			{ "grid-show",            on_show_grid,                null, "true"          },
-			{ "grid-custom",          on_custom_grid,              null, null            },
-			{ "grid-preset",          on_grid_changed,             "s",  "'1'"           },
-			{ "menu-rotation-snap",   null,                        null, null            },
-			{ "rotation-snap-custom", on_rotation_snap,            null, null            },
-			{ "rotation-snap-preset", on_rotation_snap_changed,    "s",  "'15'"          },
-			{ "menu-create",          null,                        null, null            },
-			{ "menu-primitives",      null,                        null, null            },
-			{ "primitive-cube",       on_create_primitive,         null, null            },
-			{ "primitive-sphere",     on_create_primitive,         null, null            },
-			{ "primitive-cone",       on_create_primitive,         null, null            },
-			{ "primitive-cylinder",   on_create_primitive,         null, null            },
-			{ "primitive-plane",      on_create_primitive,         null, null            },
-			{ "camera",               on_create_primitive,         null, null            },
-			{ "light",                on_create_primitive,         null, null            },
-			{ "sound-source",         on_create_primitive,         null, null            },
-			{ "menu-camera",          null,                        null, null            },
-			{ "camera-view",          on_camera_view,              "s",  "'perspective'" },
-			{ "menu-engine",          null,                        null, null            },
-			{ "restart",              on_editor_restart,           null, null            },
-			{ "build-data",           on_build_data,               null, null            },
-			{ "reload-lua",           on_refresh_lua,              null, null            },
-			{ "menu-view",            null,                        null, null            },
-			{ "resource-chooser",     on_resource_chooser,         null, null            },
-			{ "project-browser",      on_project_browser,          null, null            },
-			{ "console",              on_console,                  null, null            },
-			{ "statusbar",            on_statusbar,                null, null            },
-			{ "inspector",            on_inspector,                null, null            },
-			{ "menu-run",             null,                        null, null            },
-			{ "test-level",           on_run_game,                 null, null            },
-			{ "run-game",             on_run_game,                 null, null            },
-			{ "menu-help",            null,                        null, null            },
-			{ "manual",               on_manual,                   null, null            },
-			{ "report-issue",         on_report_issue,             null, null            },
-			{ "browse-logs",          on_browse_logs,              null, null            },
-			{ "changelog",            on_changelog,                null, null            },
-			{ "about",                on_about,                    null, null            },
-			{ "debug-render-world",   on_debug_render_world,       null, "false"         },
-			{ "debug-physics-world",  on_debug_physics_world,      null, "false"         }
+			//                                 parameter type
+			// name           activate()       |     state
+			// |              |                |     |
+			{ "menu-file",    null,            null, null },
+			{ "new-level",    on_new_level,    null, null },
+			{ "open-level",   on_open_level,   "s",  null },
+			{ "new-project",  on_new_project,  null, null },
+			{ "open-project", on_open_project, null, null },
+			{ "save",         on_save,         null, null },
+			{ "save-as",      on_save_as,      null, null },
+			{ "import",       on_import,       null, null },
+			{ "preferences",  on_preferences,  null, null },
+			{ "deploy",       on_deploy,       null, null },
+			{ "close",        on_close,        null, null },
+			{ "quit",         on_quit,         null, null }
+		};
+
+		private const GLib.ActionEntry[] action_entries_edit =
+		{
+			{ "menu-edit",            null,                        null, null         },
+			{ "undo",                 on_undo,                     null, null         },
+			{ "redo",                 on_redo,                     null, null         },
+			{ "duplicate",            on_duplicate,                null, null         },
+			{ "delete",               on_delete,                   null, null         },
+			{ "tool",                 on_tool_changed,             "s",  "'move'"     },
+			{ "snap",                 on_snap_mode_changed,        "s",  "'relative'" },
+			{ "reference-system",     on_reference_system_changed, "s",  "'local'"    },
+			{ "snap-to-grid",         on_snap_to_grid,             null, "true"       },
+			{ "menu-grid",            null,                        null, null         },
+			{ "grid-show",            on_show_grid,                null, "true"       },
+			{ "grid-custom",          on_custom_grid,              null, null         },
+			{ "grid-preset",          on_grid_changed,             "s",  "'1'"        },
+			{ "menu-rotation-snap",   null,                        null, null         },
+			{ "rotation-snap-custom", on_rotation_snap,            null, null         },
+			{ "rotation-snap-preset", on_rotation_snap_changed,    "s",  "'15'"       }
+		};
+
+		private const GLib.ActionEntry[] action_entries_create =
+		{
+			{ "menu-create",        null,                null, null },
+			{ "menu-primitives",    null,                null, null },
+			{ "primitive-cube",     on_create_primitive, null, null },
+			{ "primitive-sphere",   on_create_primitive, null, null },
+			{ "primitive-cone",     on_create_primitive, null, null },
+			{ "primitive-cylinder", on_create_primitive, null, null },
+			{ "primitive-plane",    on_create_primitive, null, null },
+			{ "camera",             on_create_primitive, null, null },
+			{ "light",              on_create_primitive, null, null },
+			{ "sound-source",       on_create_primitive, null, null }
+		};
+
+		private const GLib.ActionEntry[] action_entries_camera =
+		{
+			{ "menu-camera", null,           null, null            },
+			{ "camera-view", on_camera_view, "s",  "'perspective'" }
+		};
+
+		private const GLib.ActionEntry[] action_entries_view =
+		{
+			{ "menu-view",           null,                   null, null    },
+			{ "resource-chooser",    on_resource_chooser,    null, null    },
+			{ "project-browser",     on_project_browser,     null, null    },
+			{ "console",             on_console,             null, null    },
+			{ "statusbar",           on_statusbar,           null, null    },
+			{ "inspector",           on_inspector,           null, null    },
+			{ "debug-render-world",  on_debug_render_world,  null, "false" },
+			{ "debug-physics-world", on_debug_physics_world, null, "false" }
+		};
+
+		private const GLib.ActionEntry[] action_entries_debug =
+		{
+			{ "menu-debug", null,              null, null },
+			{ "test-level", on_run_game,       null, null },
+			{ "run-game",   on_run_game,       null, null },
+			{ "build-data", on_build_data,     null, null },
+			{ "reload-lua", on_refresh_lua,    null, null },
+			{ "restart",    on_editor_restart, null, null }
+		};
+
+		private const GLib.ActionEntry[] action_entries_help =
+		{
+			{ "menu-help",    null,            null, null },
+			{ "manual",       on_manual,       null, null },
+			{ "report-issue", on_report_issue, null, null },
+			{ "browse-logs",  on_browse_logs,  null, null },
+			{ "changelog",    on_changelog,    null, null },
+			{ "about",        on_about,        null, null }
 		};
 
 		// Command line options
-		private string _source_dir = "";
+		private string? _source_dir = null;
 		private string _toolchain_dir = "";
-		private string _level_resource = "";
-		private bool _create_initial_files = false;
+		private string? _level_resource = null;
+		private User _user;
 
 		// Editor state
 		private double _grid_size;
@@ -241,6 +259,10 @@ namespace Crown
 		private Gtk.Box _main_vbox;
 		private Gtk.FileFilter _file_filter;
 		private Gtk.ComboBoxText _combo;
+		private PanelNewProject _panel_new_project;
+		private PanelProjectsList _panel_projects_list;
+		private PanelWelcome _panel_welcome;
+		private Gtk.Stack _main_stack;
 
 		private uint _save_timer_id;
 
@@ -264,43 +286,13 @@ namespace Crown
 			Gtk.StyleContext.add_provider_for_screen(screen, provider, STYLE_PROVIDER_PRIORITY_APPLICATION);
 			provider.load_from_resource("/org/crown/level_editor/css/style.css");
 
-			this.add_action_entries(action_entries, this);
-
-			if (_source_dir == "")
-			{
-				Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select folder where to create New Project..."
-					, null
-					, FileChooserAction.SELECT_FOLDER
-					, "Cancel"
-					, ResponseType.CANCEL
-					, "Select"
-					, ResponseType.ACCEPT
-					);
-
-				if (fcd.run() != (int)ResponseType.ACCEPT)
-				{
-					fcd.destroy();
-					return;
-				}
-
-				string sd = fcd.get_filename();
-				fcd.destroy();
-
-				if (GLib.FileUtils.test(sd, FileTest.IS_REGULAR))
-				{
-					loge("Source directory can't be a regular file");
-					return;
-				}
-
-				if (!is_directory_empty(sd))
-				{
-					loge("Source directory must be empty");
-					return;
-				}
-
-				_source_dir = sd;
-				_create_initial_files = true;
-			}
+			this.add_action_entries(action_entries_file, this);
+			this.add_action_entries(action_entries_edit, this);
+			this.add_action_entries(action_entries_create, this);
+			this.add_action_entries(action_entries_camera, this);
+			this.add_action_entries(action_entries_view, this);
+			this.add_action_entries(action_entries_debug, this);
+			this.add_action_entries(action_entries_help, this);
 
 			_compiler = new ConsoleClient();
 			_compiler.connected.connect(on_compiler_connected);
@@ -310,9 +302,7 @@ namespace Crown
 			_data_compiler = new DataCompiler(_compiler);
 
 			_project = new Project(_data_compiler);
-			_project.load(_source_dir, _toolchain_dir);
-			if (_create_initial_files)
-				_project.create_initial_files();
+			_project.set_toolchain_dir(_toolchain_dir);
 
 			_database = new Database();
 
@@ -390,22 +380,18 @@ namespace Crown
 			_editor_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_editor_pane.pack1(_project_slide, false, false);
 			_editor_pane.pack2(_editor_slide, true, false);
-			_editor_pane.set_position(210);
 
 			_content_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 			_content_pane.pack1(_editor_pane, true, false);
 			_content_pane.pack2(_console_view, false, false);
-			_content_pane.set_position(500);
 
 			_inspector_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 			_inspector_pane.pack1(_level_tree_view_notebook, true, false);
 			_inspector_pane.pack2(_properties_view, false, false);
-			_inspector_pane.set_position(250);
 
 			_main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 			_main_pane.pack1(_content_pane, true, false);
 			_main_pane.pack2(_inspector_slide, false, false);
-			_main_pane.set_position(WINDOW_DEFAULT_WIDTH - 375);
 
 			_statusbar = new Statusbar();
 
@@ -417,25 +403,40 @@ namespace Crown
 			_file_filter.set_filter_name("Level (*.level)");
 			_file_filter.add_pattern("*.level");
 
-			if (_level_resource != "")
-			{
-				string level_path = Path.build_filename(_project.source_dir(), _level_resource + ".level");
-				if (!GLib.FileUtils.test(level_path, FileTest.EXISTS) || !GLib.FileUtils.test(level_path, FileTest.IS_REGULAR))
-				{
-					loge("Level resource '%s' does not exist.".printf(_level_resource));
-					return;
-				}
+			_user = new User();
+			_panel_new_project = new PanelNewProject(this, _user, _project);
 
-				_level.load(level_path);
+			_panel_welcome = new PanelWelcome();
+			_panel_projects_list = new PanelProjectsList(this, _user);
+			_panel_welcome.pack_start(_panel_projects_list);
+			_panel_welcome.set_visible(true); // To make Gtk.Stack work...
+
+			_main_stack = new Gtk.Stack();
+			_main_stack.add_named(_panel_welcome, "panel_welcome");
+			_main_stack.add_named(_panel_new_project, "panel_new_project");
+			_main_stack.add_named(_main_vbox, "main_vbox");
+
+			load_settings();
+			_user.load(_user_file.get_path());
+
+			if (_source_dir == null)
+			{
+				show_panel("panel_welcome");
 			}
 			else
 			{
-				_level.load_empty_level();
+				if (_level_resource != null)
+				{
+					string level_path = Path.build_filename(_project.source_dir(), _level_resource + ".level");
+					if (!GLib.FileUtils.test(level_path, FileTest.EXISTS) || !GLib.FileUtils.test(level_path, FileTest.IS_REGULAR))
+					{
+						loge("Level resource '%s' does not exist.".printf(_level_resource));
+					}
+				}
+
+				show_panel("main_vbox");
+				restart_compiler(_source_dir, _level_resource);
 			}
-
-			load_settings();
-
-			restart_compiler();
 		}
 
 		public void load_settings()
@@ -458,13 +459,11 @@ namespace Crown
 
 		protected override void activate()
 		{
-			if (_source_dir == "")
-				return;
-
 			if (this.active_window == null)
 			{
 				LevelEditorWindow win = new LevelEditorWindow(this);
-				win.add(_main_vbox);
+				win.set_default_size(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+				win.add(_main_stack);
 
 				try
 				{
@@ -477,6 +476,7 @@ namespace Crown
 			}
 
 			this.active_window.show_all();
+			this.active_window.maximize();
 		}
 
 		protected override bool local_command_line(ref unowned string[] args, out int exit_status)
@@ -808,7 +808,7 @@ namespace Crown
 			Gtk.Label label = new Gtk.Label(null);
 			label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
 			label.activate_link.connect(() => {
-				restart_compiler();
+				restart_compiler(_project.source_dir(), _level_resource);
 				return true;
 			});
 
@@ -820,18 +820,22 @@ namespace Crown
 			Gtk.Label label = new Gtk.Label(null);
 			label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
 			label.activate_link.connect(() => {
-				restart_compiler();
+				restart_compiler(_project.source_dir(), _level_resource);
 				return true;
 			});
 
 			return label;
 		}
 
-		private void restart_compiler()
+		public void restart_compiler(string source_dir, string? level_resource)
 		{
 			stop_compiler();
 
-			_project.reset();
+			_project.load(source_dir);
+			if (level_resource != null)
+				_level.load(level_resource);
+			else
+				_level.load_empty_level();
 
 			_project_slide.show_widget(starting_compiler_label());
 			_editor_slide.show_widget(starting_compiler_label());
@@ -888,6 +892,9 @@ namespace Crown
 
 		private void stop_compiler()
 		{
+			_level.reset();
+			_project.reset();
+
 			stop_game();
 			stop_editor();
 
@@ -1294,6 +1301,7 @@ namespace Crown
 
 		public void close_all()
 		{
+			_user.save(_user_file.get_path());
 			save_settings();
 
 			if (_save_timer_id > 0)
@@ -1390,14 +1398,26 @@ namespace Crown
 				op.destroy();
 
 				logi("Loading project: `%s`...".printf(source_dir));
-				_project.load(source_dir);
-				_level.load_empty_level();
-				restart_compiler();
+				restart_compiler(source_dir, null);
 			}
 		}
 
-			if (rt == (int)ResponseType.YES && save() || rt == (int)ResponseType.NO)
-				load_project();
+		private void on_new_project(GLib.SimpleAction action, GLib.Variant? param)
+		{
+			int rt = ResponseType.YES;
+
+			if (_database.changed())
+			{
+				DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
+				rt = lc.run();
+				lc.destroy();
+			}
+
+			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
+			{
+				stop_compiler();
+				show_panel("panel_new_project");
+			}
 		}
 
 		private void on_save(GLib.SimpleAction action, GLib.Variant? param)
@@ -1423,6 +1443,24 @@ namespace Crown
 		private void on_deploy(GLib.SimpleAction action, GLib.Variant? param)
 		{
 			deploy_game();
+		}
+
+		private void on_close(GLib.SimpleAction action, GLib.Variant? param)
+		{
+			int rt = ResponseType.YES;
+
+			if (_database.changed())
+			{
+				DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
+				rt = lc.run();
+				lc.destroy();
+			}
+
+			if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
+			{
+				stop_compiler();
+				show_panel("panel_welcome");
+			}
 		}
 
 		private void on_quit(GLib.SimpleAction action, GLib.Variant? param)
@@ -1754,13 +1792,76 @@ namespace Crown
 
 			_save_timer_id = GLib.Timeout.add_seconds(minutes*60, save_timeout);
 		}
+
+		public void menu_set_enabled(bool enabled, GLib.ActionEntry[] entries, string[]? whitelist = null)
+		{
+			for (int ii = 0; ii < entries.length; ++ii)
+			{
+				string action_name = entries[ii].name;
+				int jj = 0;
+				if (whitelist != null)
+				{
+					for (; jj < whitelist.length; ++jj)
+					{
+						if (action_name == whitelist[jj])
+							break;
+					}
+				}
+				if (whitelist == null || whitelist != null && jj == whitelist.length)
+				{
+					GLib.SimpleAction sa = this.lookup_action(action_name) as GLib.SimpleAction;
+					if (sa != null)
+						sa.set_enabled(enabled);
+				}
+			}
+		}
+
+		public void show_panel(string name, Gtk.StackTransitionType stt = Gtk.StackTransitionType.NONE)
+		{
+			_main_stack.set_visible_child_full(name, stt);
+
+			if (name == "main_vbox")
+			{
+				// FIXME: save/restore last known window state
+				int win_w;
+				int win_h;
+				this.active_window.get_size(out win_w, out win_h);
+				_editor_pane.set_position(210);
+				_content_pane.set_position(win_h - 250);
+				_inspector_pane.set_position(win_h - 600);
+				_main_pane.set_position(win_w - 375);
+
+				menu_set_enabled(true, action_entries_file);
+				menu_set_enabled(true, action_entries_edit);
+				menu_set_enabled(true, action_entries_create);
+				menu_set_enabled(true, action_entries_camera);
+				menu_set_enabled(true, action_entries_view);
+				menu_set_enabled(true, action_entries_debug);
+				menu_set_enabled(true, action_entries_help);
+			}
+			else if (name == "panel_welcome"
+				|| name == "panel_new_project"
+				|| name == "panel_projects_list"
+				)
+			{
+				menu_set_enabled(false, action_entries_file, {"new-project", "open-project", "quit"});
+				menu_set_enabled(false, action_entries_edit);
+				menu_set_enabled(false, action_entries_create);
+				menu_set_enabled(false, action_entries_camera);
+				menu_set_enabled(false, action_entries_view);
+				menu_set_enabled(false, action_entries_debug);
+				menu_set_enabled( true, action_entries_help);
+			}
+		}
 	}
 
 	// Global paths
 	public static GLib.File _config_dir;
 	public static GLib.File _logs_dir;
+	public static GLib.File _documents_dir;
 	public static GLib.File _log_file;
 	public static GLib.File _settings_file;
+	public static GLib.File _user_file;
 
 	public static GLib.FileStream _log_stream;
 	public static ConsoleView _console_view;
@@ -1858,9 +1959,11 @@ namespace Crown
 		try { _config_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
 		_logs_dir = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "logs"));
 		try { _logs_dir.make_directory(); } catch (Error e) { /* Nobody cares */ }
+		_documents_dir = GLib.File.new_for_path(GLib.Environment.get_user_special_dir(GLib.UserDirectory.DOCUMENTS));
 
 		_log_file = GLib.File.new_for_path(GLib.Path.build_filename(_logs_dir.get_path(), new GLib.DateTime.now_utc().format("%Y-%m-%d") + ".log"));
 		_settings_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "settings.sjson"));
+		_user_file = GLib.File.new_for_path(GLib.Path.build_filename(_config_dir.get_path(), "user.sjson"));
 
 		_log_stream = GLib.FileStream.open(_log_file.get_path(), "a");
 

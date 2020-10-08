@@ -121,7 +121,6 @@ namespace Crown
 			_event_box.add(_socket);
 #endif
 			add(_event_box);
-			show_all();
 		}
 
 		private bool on_button_release(Gdk.EventButton ev)

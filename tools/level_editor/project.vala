@@ -28,14 +28,10 @@ namespace Crown
 		public signal void tree_added(string name);
 		public signal void tree_removed(string name);
 		public signal void project_reset();
+		public signal void project_loaded();
 
 		public Project(DataCompiler dc)
 		{
-			_source_dir = null;
-			_toolchain_dir = null;
-			_data_dir = null;
-			_level_editor_test_level = null;
-			_level_editor_test_package = null;
 #if CROWN_PLATFORM_LINUX
 			_platform = "linux";
 #elif CROWN_PLATFORM_WINDOWS
@@ -54,22 +50,26 @@ namespace Crown
 			project_reset();
 		}
 
-		public void load(string source_dir, string toolchain_dir)
+		public void load(string source_dir)
 		{
-			reset();
-
-			_source_dir    = File.new_for_path(source_dir);
-			_toolchain_dir = File.new_for_path(toolchain_dir);
-			_data_dir      = File.new_for_path(_source_dir.get_path() + "_" + _platform);
+			_source_dir = File.new_for_path(source_dir);
+			_data_dir   = File.new_for_path(_source_dir.get_path() + "_" + _platform);
 
 			_level_editor_test_level = File.new_for_path(Path.build_filename(_source_dir.get_path(), LEVEL_EDITOR_TEST_NAME + ".level"));
 			_level_editor_test_package = File.new_for_path(Path.build_filename(_source_dir.get_path(), LEVEL_EDITOR_TEST_NAME + ".package"));
 
 			// Cleanup source directory from previous runs' garbage
 			delete_garbage();
+
+			project_loaded();
 		}
 
-		public void create_initial_files()
+		public void set_toolchain_dir(string toolchain_dir)
+		{
+			_toolchain_dir = File.new_for_path(toolchain_dir);
+		}
+
+		public void create_initial_files(string source_dir)
 		{
 			// Write boot.config
 			{
@@ -97,7 +97,7 @@ namespace Crown
 					+ "\n"
 					;
 
-				string path = Path.build_filename(_source_dir.get_path(), "boot.config");
+				string path = Path.build_filename(source_dir, "boot.config");
 				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
 					fs.write(text.data);
@@ -125,7 +125,7 @@ namespace Crown
 					+ "\n"
 					;
 
-				string path = Path.build_filename(_source_dir.get_path(), "boot.package");
+				string path = Path.build_filename(source_dir, "boot.package");
 				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
 					fs.write(text.data);
@@ -150,7 +150,7 @@ namespace Crown
 					+ "\n"
 					;
 
-				string path = Path.build_filename(_source_dir.get_path(), "global.physics_config");
+				string path = Path.build_filename(source_dir, "global.physics_config");
 				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
 					fs.write(text.data);
@@ -206,7 +206,7 @@ namespace Crown
 					+ "\n"
 					;
 
-				string path = Path.build_filename(_source_dir.get_path(), "main.lua");
+				string path = Path.build_filename(source_dir, "main.lua");
 				FileStream fs = FileStream.open(path, "wb");
 				if (fs != null)
 					fs.write(text.data);
@@ -363,6 +363,7 @@ namespace Crown
 			}
 
 			SpriteImportDialog sid = new SpriteImportDialog(filenames.nth_data(0));
+			sid.show_all();
 
 			if (File.new_for_path(importer_settings_path).query_exists())
 			{
