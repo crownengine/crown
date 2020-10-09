@@ -73,9 +73,9 @@ namespace Crown
 			return Gdk.EVENT_PROPAGATE;
 		}
 
-		private bool on_window_state_event(EventWindowState ev)
+		private bool on_window_state_event(Gdk.EventWindowState ev)
 		{
-			_fullscreen = (ev.new_window_state & WindowState.FULLSCREEN) != 0;
+			_fullscreen = (ev.new_window_state & Gdk.WindowState.FULLSCREEN) != 0;
 			return Gdk.EVENT_STOP;
 		}
 
@@ -780,12 +780,12 @@ namespace Crown
 			_editor.send_script(sb.str);
 		}
 
-		private bool on_button_press(EventButton ev)
+		private bool on_button_press(Gdk.EventButton ev)
 		{
 			return Gdk.EVENT_STOP;
 		}
 
-		private bool on_button_release(EventButton ev)
+		private bool on_button_release(Gdk.EventButton ev)
 		{
 			return Gdk.EVENT_STOP;
 		}
