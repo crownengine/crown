@@ -263,6 +263,16 @@ namespace Crown
 						;
 					fs.puts(text);
 				}
+
+		public void create_unit(string directory, string name)
+		{
+			string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".unit");
+			FileStream fs = FileStream.open(path, "wb");
+			if (fs != null)
+			{
+				fs.puts("\ncomponents = [");
+				fs.puts("\n]");
+				fs.puts("\n");
 			}
 		}
 

@@ -19,6 +19,7 @@ Changelog
 **Tools**
 
 * Added ability to crate new scripts from Project Browser
+* Added ability to crate new units from Project Browser
 * Added Debug > Build Data
 * Added Welcome panel with a list of recent projects and the ability to create new projects or import existing ones
 * Fix an issue that caused the Editor View camera not returning to idle in some circumnstances

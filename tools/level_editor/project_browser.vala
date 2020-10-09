@@ -297,6 +297,42 @@ namespace Crown
 						mi = new Gtk.SeparatorMenuItem();
 						menu.add(mi);
 
+						mi = new Gtk.MenuItem.with_label("New Unit...");
+						mi.activate.connect(() => {
+							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
+								, (Gtk.Window)this.get_toplevel()
+								, DialogFlags.MODAL
+								, "Cancel"
+								, ResponseType.CANCEL
+								, "Ok"
+								, ResponseType.OK
+								, null
+								);
+
+							Gtk.Entry sb = new Gtk.Entry();
+							sb.activate.connect(() => { dg.response(ResponseType.OK); });
+							dg.get_content_area().add(sb);
+							dg.skip_taskbar_hint = true;
+							dg.show_all();
+
+							if (dg.run() == (int)ResponseType.OK)
+							{
+								if (sb.text.strip() == "")
+								{
+									dg.destroy();
+									return;
+								}
+
+								_project.create_unit((string)name, sb.text);
+							}
+
+							dg.destroy();
+						});
+						menu.add(mi);
+
+						mi = new Gtk.SeparatorMenuItem();
+						menu.add(mi);
+
 						mi = new Gtk.MenuItem.with_label("New Folder...");
 						mi.activate.connect(() => {
 							Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
