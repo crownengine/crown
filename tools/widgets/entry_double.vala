@@ -73,6 +73,8 @@ namespace Crown
 
 		private void on_activate()
 		{
+			this.select_region(0, 0);
+			this.set_position(-1);
 			set_value_safe(string_to_double(this.text, _value));
 		}
 
