@@ -84,7 +84,7 @@ namespace Crown
 
 		private bool on_button_pressed(Gdk.EventButton ev)
 		{
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool filter_tree(Gtk.TreeModel model, Gtk.TreeIter iter)

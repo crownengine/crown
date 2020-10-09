@@ -56,7 +56,7 @@ namespace Crown
 			else if (ev.keyval == Gdk.Key.Alt_L)
 				app._editor.send_script(LevelEditorApi.key_down("alt_left"));
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_key_release(Gdk.EventKey ev)
@@ -70,13 +70,13 @@ namespace Crown
 			else if (ev.keyval == Gdk.Key.Alt_L)
 				app._editor.send_script(LevelEditorApi.key_up("alt_left"));
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_window_state_event(EventWindowState ev)
 		{
 			_fullscreen = (ev.new_window_state & WindowState.FULLSCREEN) != 0;
-			return true;
+			return Gdk.EVENT_STOP;
 		}
 
 		private bool on_delete_event()
@@ -85,10 +85,10 @@ namespace Crown
 			if (app.should_quit())
 			{
 				app.close_all();
-				return false; // Quit application
+				return Gdk.EVENT_PROPAGATE; // Quit application
 			}
 
-			return true; // Keep alive
+			return Gdk.EVENT_STOP; // Keep alive
 		}
 
 		private bool on_focus_out(Gdk.EventFocus ev)
@@ -360,12 +360,12 @@ namespace Crown
 			_editor_view_overlay.add_overlay(_toolbar);
 
 			_resource_popover = new Gtk.Popover(_toolbar);
-			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return true; });
+			_resource_popover.delete_event.connect(() => { _resource_popover.hide(); return Gdk.EVENT_STOP; });
 			_resource_popover.modal = true;
 
 			_preferences_dialog = new PreferencesDialog(this);
 			_preferences_dialog.set_transient_for(this.active_window);
-			_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return true; });
+			_preferences_dialog.delete_event.connect(() => { _preferences_dialog.hide(); return Gdk.EVENT_STOP; });
 
 			_resource_chooser = new ResourceChooser(_project, _project_store, true);
 			_resource_chooser.resource_selected.connect(on_resource_browser_resource_selected);
@@ -782,12 +782,12 @@ namespace Crown
 
 		private bool on_button_press(EventButton ev)
 		{
-			return true;
+			return Gdk.EVENT_STOP;
 		}
 
 		private bool on_button_release(EventButton ev)
 		{
-			return true;
+			return Gdk.EVENT_STOP;
 		}
 
 		Gtk.Widget starting_compiler_label()

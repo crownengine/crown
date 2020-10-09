@@ -157,7 +157,7 @@ namespace Crown
 			}
 
 			_client.send_script(s);
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_button_press(Gdk.EventButton ev)
@@ -192,7 +192,7 @@ namespace Crown
 			}
 
 			_client.send_script(s);
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_key_press(Gdk.EventKey ev)
@@ -207,14 +207,14 @@ namespace Crown
 				_client.send_script("LevelEditor:key_down(\"move_left\")");
 
 			if (!_keys.has_key(ev.keyval))
-				return true;
+				return Gdk.EVENT_STOP;
 
 			if (!_keys[ev.keyval])
 				_client.send_script(LevelEditorApi.key_down(key_to_string(ev.keyval)));
 
 			_keys[ev.keyval] = true;
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_key_release(Gdk.EventKey ev)
@@ -223,14 +223,14 @@ namespace Crown
 				_client.send_script("LevelEditor:camera_drag_start('idle')");
 
 			if (!_keys.has_key(ev.keyval))
-				return false;
+				return Gdk.EVENT_PROPAGATE;
 
 			if (_keys[ev.keyval])
 				_client.send_script(LevelEditorApi.key_up(key_to_string(ev.keyval)));
 
 			_keys[ev.keyval] = false;
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_motion_notify(Gdk.EventMotion ev)
@@ -245,13 +245,13 @@ namespace Crown
 				, _mouse_right
 				));
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_scroll(Gdk.EventScroll ev)
 		{
 			_client.send_script(LevelEditorApi.mouse_wheel(ev.direction == Gdk.ScrollDirection.UP ? 1.0 : -1.0));
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_event_box_focus_out_event(Gdk.EventFocus ev)
@@ -271,7 +271,7 @@ namespace Crown
 		private bool on_socket_plug_removed()
 		{
 			// Prevent the default handler from destroying the Socket.
-			return true;
+			return Gdk.EVENT_STOP;
 		}
 
 #elif CROWN_PLATFORM_WINDOWS

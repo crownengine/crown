@@ -241,7 +241,7 @@ public class SpriteImportDialog : Gtk.Dialog
 					}
 				}
 
-				return true;
+				return Gdk.EVENT_STOP;
 			});
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
@@ -313,7 +313,7 @@ public class SpriteImportDialog : Gtk.Dialog
 					cr.fill();
 				}
 
-				return true;
+				return Gdk.EVENT_STOP;
 			});
 
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());

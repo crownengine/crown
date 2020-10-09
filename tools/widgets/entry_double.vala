@@ -55,7 +55,7 @@ namespace Crown
 		private bool on_scroll(Gdk.EventScroll ev)
 		{
 			GLib.Signal.stop_emission_by_name(this, "scroll-event");
-			return false; // Propagate the event
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_button_release(Gdk.EventButton ev)
@@ -65,10 +65,10 @@ namespace Crown
 				this.text = "%.6g".printf(_value);
 				this.set_position(-1);
 				this.select_region(0, -1);
-				return true; // Do not propagate
+				return Gdk.EVENT_STOP;
 			}
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private void on_activate()

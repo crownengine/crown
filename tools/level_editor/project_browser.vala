@@ -426,7 +426,7 @@ namespace Crown
 						Value type;
 						_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 						if ((string)type == "<folder>")
-							return false;
+							return Gdk.EVENT_PROPAGATE;
 
 						Value name;
 						_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
@@ -456,7 +456,7 @@ namespace Crown
 				}
 			}
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_button_released(Gdk.EventButton ev)
@@ -474,18 +474,18 @@ namespace Crown
 					Value type;
 					_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 					if ((string)type != "<folder>")
-						return false;
+						return Gdk.EVENT_PROPAGATE;
 
 					if (_tree_view.is_row_expanded(path))
 						_tree_view.collapse_row(path);
 					else
 						_tree_view.expand_row(path, /*open_all = */false);
 
-					return true;
+					return Gdk.EVENT_STOP;
 				}
 			}
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 	}
 }

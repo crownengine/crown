@@ -175,7 +175,7 @@ namespace Crown
 				}
 			}
 
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private void on_destroy()
@@ -310,9 +310,9 @@ namespace Crown
 				}
 			}
 			else
-				return false;
+				return Gdk.EVENT_PROPAGATE;
 
-			return true;
+			return Gdk.EVENT_STOP;
 		}
 
 		private void on_tree_selection_changed()

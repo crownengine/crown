@@ -168,11 +168,11 @@ namespace Crown
 				}
 			}
 			else
-				return false;
+				return Gdk.EVENT_PROPAGATE;
 
 			_entry.set_position(_entry.text.length);
 
-			return true;
+			return Gdk.EVENT_STOP;
 		}
 
 		private void on_show()

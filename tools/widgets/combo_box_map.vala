@@ -48,7 +48,7 @@ namespace Crown
 		private bool on_scroll(Gdk.EventScroll ev)
 		{
 			GLib.Signal.stop_emission_by_name(this, "scroll-event");
-			return false;
+			return Gdk.EVENT_PROPAGATE;
 		}
 	}
 }
