@@ -1392,6 +1392,9 @@ namespace Crown
 				string source_dir = op.get_filename();
 				op.destroy();
 
+				if (_project.source_dir() == source_dir)
+					return;
+
 				logi("Loading project: `%s`...".printf(source_dir));
 				restart_compiler(source_dir, null);
 			}
