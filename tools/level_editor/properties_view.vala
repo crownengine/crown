@@ -784,7 +784,6 @@ namespace Crown
 				foreach (var entry in _entries)
 				{
 					Gtk.Expander expander = _expanders[entry.type];
-					expander.hide();
 
 					Guid component_id = GUID_ZERO;
 					Unit unit = new Unit(_level._db, id, _level._prefabs);
@@ -796,6 +795,10 @@ namespace Crown
 						cv.update();
 						expander.show_all();
 					}
+					else
+					{
+						expander.hide();
+					}
 				}
 			}
 			else if (_level.is_sound(id))
@@ -805,7 +808,6 @@ namespace Crown
 				foreach (var entry in _entries)
 				{
 					Gtk.Expander expander = _expanders[entry.type];
-					expander.hide();
 
 					if (entry.type == "sound_transform" || entry.type == "sound_properties")
 					{
@@ -813,6 +815,10 @@ namespace Crown
 						cv._id = id;
 						cv.update();
 						expander.show_all();
+					}
+					else
+					{
+						expander.hide();
 					}
 				}
 			}
