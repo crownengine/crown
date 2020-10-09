@@ -79,7 +79,7 @@ namespace Crown
 		private bool on_focus_out(Gdk.EventFocus ef)
 		{
 			set_value_safe(string_to_double(this.text, _value));
-			return true; // Do not propagate
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private void set_value_safe(double val)

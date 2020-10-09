@@ -98,7 +98,7 @@ namespace Crown
 			app._editor.send_script(LevelEditorApi.key_up("ctrl_left"));
 			app._editor.send_script(LevelEditorApi.key_up("shift_left"));
 			app._editor.send_script(LevelEditorApi.key_up("alt_left"));
-			return true;
+			return Gdk.EVENT_PROPAGATE;
 		}
 	}
 
