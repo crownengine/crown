@@ -753,6 +753,9 @@ namespace Crown
 
 		private void set_current_widget(Gtk.Widget w)
 		{
+			if (_current_widget == w)
+				return;
+
 			if (_current_widget != null)
 			{
 				_current_widget.hide();
