@@ -1354,6 +1354,9 @@ namespace Crown
 		{
 			int rt = ResponseType.YES;
 
+			if (_level._filename == param.get_string())
+				return;
+
 			if (_database.changed())
 			{
 				DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
