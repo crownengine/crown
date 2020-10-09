@@ -158,6 +158,9 @@ namespace Crown
 				{
 					_entry.text = "";
 				}
+
+				_entry.set_position(_entry.text.length);
+				return Gdk.EVENT_STOP;
 			}
 			else if (ev.keyval == Gdk.Key.Up)
 			{
@@ -166,13 +169,12 @@ namespace Crown
 					++_distance;
 					_entry.text = _entry_history.element(_distance);
 				}
+
+				_entry.set_position(_entry.text.length);
+				return Gdk.EVENT_STOP;
 			}
-			else
-				return Gdk.EVENT_PROPAGATE;
 
-			_entry.set_position(_entry.text.length);
-
-			return Gdk.EVENT_STOP;
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private void on_show()

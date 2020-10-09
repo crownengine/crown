@@ -288,6 +288,8 @@ namespace Crown
 					_tree_selection.select_iter(iter);
 					_tree_view.scroll_to_cell(model.get_path(iter), null, true, 1.0f, 0.0f);
 				}
+
+				return Gdk.EVENT_STOP;
 			}
 			else if (ev.keyval == Gdk.Key.Up)
 			{
@@ -296,6 +298,8 @@ namespace Crown
 					_tree_selection.select_iter(iter);
 					_tree_view.scroll_to_cell(model.get_path(iter), null, true, 1.0f, 0.0f);
 				}
+
+				return Gdk.EVENT_STOP;
 			}
 			else if (ev.keyval == 65293) // Enter
 			{
@@ -308,11 +312,11 @@ namespace Crown
 					_name = (string)name;
 					resource_selected((string)type, (string)name);
 				}
-			}
-			else
-				return Gdk.EVENT_PROPAGATE;
 
-			return Gdk.EVENT_STOP;
+				return Gdk.EVENT_STOP;
+			}
+
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private void on_tree_selection_changed()
