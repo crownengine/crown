@@ -57,7 +57,15 @@ namespace Crown
 
 		private bool camera_modifier_pressed()
 		{
-			return _keys[Gdk.Key.Alt_L] || _keys[Gdk.Key.Alt_R];
+			return _keys[Gdk.Key.Alt_L]
+				|| _keys[Gdk.Key.Alt_R]
+				;
+		}
+
+		private void camera_modifier_reset()
+		{
+			_keys[Gdk.Key.Alt_L] = false;
+			_keys[Gdk.Key.Alt_R] = false;
 		}
 
 		public EditorView(ConsoleClient client, bool input_enabled = true)
@@ -102,6 +110,7 @@ namespace Crown
 				| Gdk.EventMask.FOCUS_CHANGE_MASK
 				| Gdk.EventMask.SCROLL_MASK
 				;
+			_event_box.focus_out_event.connect(on_event_box_focus_out_event);
 #if CROWN_PLATFORM_WINDOWS
 			_event_box.realize.connect(on_event_box_realized);
 			_event_box.size_allocate.connect(on_size_allocate);
@@ -243,6 +252,12 @@ namespace Crown
 		{
 			_client.send_script(LevelEditorApi.mouse_wheel(ev.direction == Gdk.ScrollDirection.UP ? 1.0 : -1.0));
 			return false;
+		}
+
+		private bool on_event_box_focus_out_event(Gdk.EventFocus ev)
+		{
+			camera_modifier_reset();
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 #if CROWN_PLATFORM_LINUX
