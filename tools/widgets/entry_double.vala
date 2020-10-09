@@ -86,14 +86,18 @@ namespace Crown
 
 		private void set_value_safe(double val)
 		{
-			_value = val.clamp(_min, _max);
+			double clamped = val.clamp(_min, _max);
 
 			// Convert to text for displaying
-			this.text = _format.printf(_value);
+			this.text = _format.printf(clamped);
 
 			// Notify value changed
-			if (!_stop_emit)
-				value_changed();
+			if (_value != clamped)
+			{
+				_value = clamped;
+				if (!_stop_emit)
+					value_changed();
+			}
 		}
 
 		/// Returns @a str as double or @a deffault if conversion fails.
