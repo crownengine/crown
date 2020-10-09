@@ -264,6 +264,12 @@ namespace Crown
 					fs.puts(text);
 				}
 
+				_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
+					_data_compiler.compile.end(res);
+				});
+			}
+		}
+
 		public void create_unit(string directory, string name)
 		{
 			string path = Path.build_filename(_source_dir.get_path(), directory + "/" + name + ".unit");
@@ -273,6 +279,10 @@ namespace Crown
 				fs.puts("\ncomponents = [");
 				fs.puts("\n]");
 				fs.puts("\n");
+
+				_data_compiler.compile.begin(this.data_dir(), this.platform(), (obj, res) => {
+					_data_compiler.compile.end(res);
+				});
 			}
 		}
 
