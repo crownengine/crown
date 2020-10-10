@@ -41,6 +41,7 @@ namespace Crown
 			this.scroll_event.connect(on_scroll);
 			this.button_release_event.connect(on_button_release);
 			this.activate.connect(on_activate);
+			this.focus_in_event.connect(on_focus_in);
 			this.focus_out_event.connect(on_focus_out);
 
 			this._min = min;
@@ -76,6 +77,14 @@ namespace Crown
 			this.select_region(0, 0);
 			this.set_position(-1);
 			set_value_safe(string_to_double(this.text, _value));
+		}
+
+		private bool on_focus_in(Gdk.EventFocus ev)
+		{
+			this.text = _format.printf(_value);
+			this.set_position(-1);
+			this.select_region(0, -1);
+			return Gdk.EVENT_PROPAGATE;
 		}
 
 		private bool on_focus_out(Gdk.EventFocus ef)
