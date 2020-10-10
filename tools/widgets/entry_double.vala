@@ -14,7 +14,8 @@ namespace Crown
 		public double _max;
 		public double _value;
 		public bool _stop_emit;
-		public string _format;
+		public string _preview_fmt;
+		public string _edit_fmt;
 
 		public double value
 		{
@@ -33,7 +34,7 @@ namespace Crown
 		// Signals
 		public signal void value_changed();
 
-		public EntryDouble(double val, double min, double max, string fmt = "%.6g")
+		public EntryDouble(double val, double min, double max, string preview_fmt = "%.6g", string edit_fmt = "%.17g")
 		{
 			this.input_purpose = Gtk.InputPurpose.DIGITS;
 			this.set_width_chars(1);
@@ -46,7 +47,8 @@ namespace Crown
 
 			this._min = min;
 			this._max = max;
-			this._format = fmt;
+			this._preview_fmt = preview_fmt;
+			this._edit_fmt = edit_fmt;
 
 			_stop_emit = true;
 			set_value_safe(val);
@@ -63,7 +65,7 @@ namespace Crown
 		{
 			if (ev.button == Gdk.BUTTON_PRIMARY && this.has_focus)
 			{
-				this.text = "%.6g".printf(_value);
+				this.text = _edit_fmt.printf(_value);
 				this.set_position(-1);
 				this.select_region(0, -1);
 				return Gdk.EVENT_STOP;
@@ -81,7 +83,7 @@ namespace Crown
 
 		private bool on_focus_in(Gdk.EventFocus ev)
 		{
-			this.text = _format.printf(_value);
+			this.text = _edit_fmt.printf(_value);
 			this.set_position(-1);
 			this.select_region(0, -1);
 			return Gdk.EVENT_PROPAGATE;
@@ -98,7 +100,7 @@ namespace Crown
 			double clamped = val.clamp(_min, _max);
 
 			// Convert to text for displaying
-			this.text = _format.printf(clamped);
+			this.text = _preview_fmt.printf(clamped);
 
 			// Notify value changed
 			if (_value != clamped)
