@@ -31,7 +31,7 @@ namespace Crown
 
 		public EntryRotation(Vector3 xyz = VECTOR3_ZERO)
 		{
-			base(xyz, Vector3(-180.0, -180.0, -180.0), Vector3(180.0, 180.0, 180.0), "%.3g");
+			base(xyz, Vector3(-180.0, -180.0, -180.0), Vector3(180.0, 180.0, 180.0), "%.4g");
 		}
 	}
 }
