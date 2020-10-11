@@ -70,7 +70,7 @@ struct UnitCompiler
 	s32 compile_unit(const char* path);
 	s32 compile_unit_from_json(const char* json);
 	s32 compile_multiple_units(const char* json);
-
+	s32 collect_units(Buffer& data, Array<u32>& prefabs, const char* json);
 	Buffer blob();
 };
 

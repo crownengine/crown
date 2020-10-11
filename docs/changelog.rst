@@ -11,6 +11,7 @@ Changelog
 * Fixed handling of paths without type extension
 * Improved file deletion detection and data directory coherence
 * Improved file modification detection and source index caching
+* Improved the unit compiler by fixing a number of bugs and adding support to "deleted_components"
 
 **Runtime**
 

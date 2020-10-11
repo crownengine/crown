@@ -300,41 +300,32 @@ s32 UnitCompiler::compile_unit(const char* path)
 	return compile_unit_from_json(array::begin(read_unit(path)));
 }
 
-u32 component_index(const JsonArray& components, const StringView& id)
+u32 component_index(const JsonArray& components, const Guid& id)
 {
-	char guid[37];
-	strncpy(guid, id.data(), sizeof(guid) - 1);
-	guid[36] = '\0';
-	Guid idd = guid::parse(guid);
-
 	for (u32 i = 0; i < array::size(components); ++i)
 	{
 		TempAllocator512 ta;
 		JsonObject obj(ta);
 		sjson::parse(obj, components[i]);
-		if (sjson::parse_guid(obj["id"]) == idd)
+		if (sjson::parse_guid(obj["id"]) == id)
 			return i;
 	}
 
 	return UINT32_MAX;
 }
 
-s32 UnitCompiler::compile_unit_from_json(const char* json)
+s32 UnitCompiler::collect_units(Buffer& data, Array<u32>& prefabs, const char* json)
 {
-	Buffer data(default_allocator());
-	u32 num_prefabs = 1;
+	u32 prefab_offt = array::size(data);
+	array::push(data, json, strlen32(json));
+	array::push_back(prefabs, prefab_offt);
 
 	TempAllocator4096 ta;
-	JsonObject prefabs[4] = { JsonObject(ta), JsonObject(ta), JsonObject(ta), JsonObject(ta) };
-	sjson::parse(prefabs[0], json);
+	JsonObject prefab(ta);
+	sjson::parse(prefab, json);
 
-	for (u32 i = 0; i < countof(prefabs); ++i, ++num_prefabs)
+	if (json_object::has(prefab, "prefab"))
 	{
-		const JsonObject& prefab = prefabs[i];
-
-		if (!json_object::has(prefab, "prefab"))
-			break;
-
 		TempAllocator512 ta;
 		DynamicString path(ta);
 		sjson::parse_string(path, prefab["prefab"]);
@@ -345,84 +336,176 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 		path += ".unit";
 
 		Buffer buf = read_unit(path.c_str());
-		u32 offset = array::size(data);
-		array::push(data, array::begin(buf), array::size(buf));
-		array::push_back(data, '\0');
-		sjson::parse(prefabs[i + 1], array::begin(data) + offset);
+		return 1 + collect_units(data, prefabs, array::begin(buf));
 	}
 
-	JsonObject& prefab_root = prefabs[num_prefabs - 1];
-	JsonArray prefab_root_components_original(ta);
-	sjson::parse_array(prefab_root_components_original, prefab_root["components"]);
-	JsonArray prefab_root_components(ta);
-	sjson::parse_array(prefab_root_components, prefab_root["components"]);
+	return 1;
+}
 
-	if (num_prefabs > 1)
+s32 UnitCompiler::compile_unit_from_json(const char* json)
+{
+	Buffer data(default_allocator());
+	Array<u32> offsets(default_allocator()); // Offsets to JSON objects into data
+
+	// offsets[  0] = { prefab = ..., comps = .., mods = ... } <- Original unit
+	// offsets[  1] = { prefab = ..., ... }                    <- Prefab of the original unit
+	// offsets[  2] = { prefab = ..., ... }                    <- Prefab of the prefab of the original unit
+	// offsets[n-1] = { prefab = nil, ... }                    <- Root unit
+	if (collect_units(data, offsets, json) < 0)
+		return -1;
+	array::push_back(data, '\0');
+
+	TempAllocator4096 ta;
+	JsonArray merged_components(ta);
+	JsonArray merged_components_data(ta);
+	u32 num_prefabs = array::size(offsets);
+
+	// Merge components of all prefabs from the root unit up to the unit that
+	// started the compilation.
+	for (u32 ii = 0; ii < num_prefabs; ++ii)
 	{
-		// Merge prefabs' components
-		for (u32 i = 0; i < num_prefabs; ++i)
+		JsonObject prefab(ta);
+		sjson::parse(prefab, array::begin(data) + offsets[num_prefabs-1 - ii]);
+
+		if (json_object::has(prefab, "components"))
 		{
-			const JsonObject& prefab = prefabs[num_prefabs - i - 1];
+			JsonArray components(ta);
+			sjson::parse_array(components, prefab["components"]);
 
-			if (!json_object::has(prefab, "modified_components"))
-				continue;
+			// Add components
+			for (u32 cc = 0; cc < array::size(components); ++cc)
+			{
+				JsonObject component(ta);
+				sjson::parse_object(component, components[cc]);
 
+				array::push_back(merged_components, components[cc]);
+				array::push_back(merged_components_data, component["data"]);
+			}
+		}
+
+		if (json_object::has(prefab, "deleted_components"))
+		{
+			JsonObject deleted_components(ta);
+			sjson::parse_object(deleted_components, prefab["deleted_components"]);
+
+			// Delete components
+			auto cur = json_object::begin(deleted_components);
+			auto end = json_object::end(deleted_components);
+			for (; cur != end; ++cur)
+			{
+				JSON_OBJECT_SKIP_HOLE(deleted_components, cur);
+
+				auto key = cur->first;
+
+				// Extract GUID from key #xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+				char guid[37];
+				strncpy(guid, key.data() + 1, sizeof(guid) - 1);
+				guid[36] = '\0';
+				Guid component_id = guid::parse(guid);
+
+				u32 comp_idx = component_index(merged_components, component_id);
+				if (comp_idx != UINT32_MAX)
+				{
+					u32 comp_last = array::size(merged_components) - 1;
+					merged_components[comp_idx] = merged_components[comp_last];
+					array::pop_back(merged_components);
+					merged_components_data[comp_idx] = merged_components_data[comp_last];
+					array::pop_back(merged_components_data);
+				}
+				else
+				{
+					char buf[GUID_BUF_LEN];
+					DATA_COMPILER_ASSERT(false
+						, _opts
+						, "Deletion of unexisting component ID: %s\n"
+						, guid::to_string(buf, sizeof(buf), component_id)
+						);
+				}
+			}
+		}
+
+		if (json_object::has(prefab, "modified_components"))
+		{
 			JsonObject modified_components(ta);
 			sjson::parse(modified_components, prefab["modified_components"]);
 
+			// Modify components
 			auto cur = json_object::begin(modified_components);
 			auto end = json_object::end(modified_components);
 			for (; cur != end; ++cur)
 			{
 				JSON_OBJECT_SKIP_HOLE(modified_components, cur);
 
-				const StringView key = cur->first;
-				const StringView id(&key.data()[1], key.length()-1);
-				const char* value = cur->second;
+				auto key = cur->first;
+				auto val = cur->second;
 
-				u32 comp_index = component_index(prefab_root_components_original, id);
-				if (comp_index != UINT32_MAX)
-					prefab_root_components[comp_index] = value;
+				// Extract GUID from key #xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+				char guid[37];
+				strncpy(guid, key.data() + 1, sizeof(guid) - 1);
+				guid[36] = '\0';
+				Guid component_id = guid::parse(guid);
+
+				// Patch component "data" key
+				u32 comp_idx = component_index(merged_components, component_id);
+				if (comp_idx != UINT32_MAX)
+				{
+					JsonObject modified_component(ta);
+					sjson::parse_object(modified_component, val);
+
+					merged_components_data[comp_idx] = modified_component["data"];
+				}
+				else
+				{
+					char buf[GUID_BUF_LEN];
+					DATA_COMPILER_ASSERT(false
+						, _opts
+						, "Modification of unexisting component ID: %s\n"
+						, guid::to_string(buf, sizeof(buf), component_id)
+						);
+				}
 			}
+		}
+
+		if (ii == 0)
+		{
+			// Unnamed object hash == 0
+			StringId32 name_hash;
+
+			// Parse Level Editor data
+			if (json_object::has(prefab, "editor"))
+			{
+				JsonObject editor(ta);
+				sjson::parse(editor, prefab["editor"]);
+
+				if (json_object::has(editor, "name"))
+					name_hash = sjson::parse_string_id(editor["name"]);
+			}
+
+			array::push_back(_unit_names, name_hash);
 		}
 	}
 
-	if (array::size(prefab_root_components) > 0)
+	if (array::size(merged_components) > 0)
 	{
-		for (u32 i = 0; i < array::size(prefab_root_components); ++i)
+		for (u32 cc = 0; cc < array::size(merged_components); ++cc)
 		{
-			const char* value = prefab_root_components[i];
+			const char* val = merged_components[cc];
 
 			TempAllocator512 ta;
 			JsonObject component(ta);
-			sjson::parse(component, value);
+			sjson::parse(component, val);
 
 			const StringId32 type = sjson::parse_string_id(component["type"]);
 
 			Buffer output(default_allocator());
-			if (compile_component(output, type, component["data"]) != 0)
+			if (compile_component(output, type, merged_components_data[cc]) != 0)
 				return -1;
 
 			add_component_data(type, output, _num_units);
 		}
 	}
 
-	// Unnamed objects have all-zero hash
-	StringId32 name_hash;
-
-	// Parse Level Editor data
-	if (json_object::has(prefabs[0], "editor"))
-	{
-		JsonObject editor(ta);
-		sjson::parse(editor, prefabs[0]["editor"]);
-
-		if (json_object::has(editor, "name"))
-			name_hash = sjson::parse_string_id(editor["name"]);
-	}
-
-	array::push_back(_unit_names, name_hash);
 	++_num_units;
-
 	return 0;
 }
 
@@ -486,7 +569,7 @@ Buffer UnitCompiler::blob()
 			array::push(buf, (char*)array::begin(unit_index), sizeof(u32)*array::size(unit_index));
 			array::push(buf, array::begin(data), array::size(data));
 
-			// Insert proper padding
+			// Insert padding
 			for (u32 i = 0; i < pad; ++i)
 				array::push_back(buf, (char)0);
 		}
