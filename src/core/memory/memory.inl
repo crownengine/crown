@@ -55,7 +55,7 @@ inline T &construct(void *p, Allocator& a, Int2Type<true>)
 template <typename T>
 inline T &construct(void *p, Allocator& /*a*/, Int2Type<false>)
 {
-	return *(T*)new (p) T;
+	return *(T*)new (p) T();
 }
 
 template <typename T>
