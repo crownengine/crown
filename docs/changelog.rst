@@ -23,6 +23,7 @@ Changelog
 * Added ability to crate new units from Project Browser
 * Added Debug > Build Data
 * Added Welcome panel with a list of recent projects and the ability to create new projects or import existing ones
+* Bumped minimum GTK+ version to 3.16 (Ubuntu 16.04.2+)
 * Fix an issue that caused the Editor View camera not returning to idle in some circumnstances
 * Fixed a number of dialog boxes that were not centered to the Level Editor's main window
 * Fixed an issue that allowed the user to enter blank names when creating new folders in the Project Browser

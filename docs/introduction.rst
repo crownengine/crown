@@ -19,7 +19,7 @@ Supported platforms
 System requirements
 -------------------
 
-* Any 64-bit Linux distribution with GTK+ 3.14 or newer, 64-bit Ubuntu 16.04+ recommended
+* Any 64-bit Linux distribution with GTK+ 3.16 or newer, 64-bit Ubuntu 16.04.2+ recommended
 * 64-bit dual-core CPU or higher
 * OpenGL 3.2+ graphics card with 512 MB of RAM, 1 GB recommended
 * 4 GB of RAM minimum, 8 GB recommended
