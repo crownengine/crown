@@ -144,13 +144,26 @@ docs:
 
 .PHONY: 00-empty
 00-empty: $(OS)-development64
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --continue
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile
 .PHONY: 01-physics
 01-physics: $(OS)-development64
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --continue
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile
 .PHONY: 02-animation
 02-animation: $(OS)-development64
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --continue
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile
+
+.PHONY: samples
+samples: 00-empty 01-physics 02-animation
+
+.PHONY: run-00-empty
+run-00-empty: 00-empty
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
+.PHONY: run-01-physics
+run-01-physics: 01-physics
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
+.PHONY: run-02-animation
+run-02-animation: 02-animation
+	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
 
 .PHONY: clean-samples
 clean-samples:
