@@ -49,15 +49,13 @@ struct Int2Type { enum {value=v}; };
 template <typename T>
 inline T &construct(void *p, Allocator& a, Int2Type<true>)
 {
-	new (p) T(a);
-	return *(T *)p;
+	return *(T*)new (p) T(a);
 }
 
 template <typename T>
 inline T &construct(void *p, Allocator& /*a*/, Int2Type<false>)
 {
-	new (p) T;
-	return *(T *)p;
+	return *(T*)new (p) T;
 }
 
 template <typename T>
