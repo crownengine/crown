@@ -7,14 +7,15 @@ using Gtk;
 
 namespace Crown
 {
-	public class Slide : Gtk.Bin
+public class Slide : Gtk.Bin
+{
+	public void show_widget(Gtk.Widget slide)
 	{
-		public void show_widget(Gtk.Widget slide)
-		{
-			if (this.get_child() != null)
-				this.remove(this.get_child());
-			this.add(slide);
-			this.show_all();
-		}
+		if (this.get_child() != null)
+			this.remove(this.get_child());
+		this.add(slide);
+		this.show_all();
 	}
+}
+
 }

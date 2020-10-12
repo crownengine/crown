@@ -5,23 +5,24 @@
 
 namespace Crown
 {
-	namespace MathUtils
+namespace MathUtils
+{
+	public bool equal(double a, double b, double epsilon = 0.00001f)
 	{
-		public bool equal(double a, double b, double epsilon = 0.00001f)
-		{
-			return b <= (a + epsilon)
-				&& b >= (a - epsilon)
-				;
-		}
-
-		public double rad(double deg)
-		{
-			return deg * Math.PI / 180.0;
-		}
-
-		public double deg(double rad)
-		{
-			return rad * 180.0 / Math.PI;
-		}
+		return b <= (a + epsilon)
+			&& b >= (a - epsilon)
+			;
 	}
+
+	public double rad(double deg)
+	{
+		return deg * Math.PI / 180.0;
+	}
+
+	public double deg(double rad)
+	{
+		return rad * 180.0 / Math.PI;
+	}
+}
+
 }

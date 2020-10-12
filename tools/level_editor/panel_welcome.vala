@@ -7,11 +7,12 @@ using Gtk;
 
 namespace Crown
 {
-	public class PanelWelcome : Gtk.Box
+public class PanelWelcome : Gtk.Box
+{
+	public PanelWelcome()
 	{
-		public PanelWelcome()
-		{
-			Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
-		}
+		Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
 	}
+}
+
 }

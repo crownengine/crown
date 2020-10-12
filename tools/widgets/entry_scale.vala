@@ -7,11 +7,12 @@ using Gtk;
 
 namespace Crown
 {
-	public class EntryScale : EntryVector3
+public class EntryScale : EntryVector3
+{
+	public EntryScale(Vector3 xyz = VECTOR3_ONE, Vector3 min = VECTOR3_ZERO, Vector3 max = VECTOR3_MAX)
 	{
-		public EntryScale(Vector3 xyz = VECTOR3_ONE, Vector3 min = VECTOR3_ZERO, Vector3 max = VECTOR3_MAX)
-		{
-			base(xyz, min, max, "%.4g");
-		}
+		base(xyz, min, max, "%.4g");
 	}
+}
+
 }

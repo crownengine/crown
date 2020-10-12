@@ -7,48 +7,49 @@ using Gtk;
 
 namespace Crown
 {
-	public class ComboBoxMap : Gtk.ComboBoxText
+public class ComboBoxMap : Gtk.ComboBoxText
+{
+	// Data
+	public bool _stop_emit;
+
+	// Signals
+	public signal void value_changed();
+
+	public string value
 	{
-		// Data
-		public bool _stop_emit;
-
-		// Signals
-		public signal void value_changed();
-
-		public string value
+		get
 		{
-			get
-			{
-				return this.get_active_id();
-			}
-			set
-			{
-				_stop_emit = true;
-				this.set_active_id((string)value);
-				_stop_emit = false;
-			}
+			return this.get_active_id();
 		}
-
-		public ComboBoxMap()
+		set
 		{
-			// Data
 			_stop_emit = true;
-
-			// Widgets
-			this.changed.connect(on_changed);
-			this.scroll_event.connect(on_scroll);
-		}
-
-		private void on_changed()
-		{
-			if (!_stop_emit)
-				value_changed();
-		}
-
-		private bool on_scroll(Gdk.EventScroll ev)
-		{
-			GLib.Signal.stop_emission_by_name(this, "scroll-event");
-			return Gdk.EVENT_PROPAGATE;
+			this.set_active_id((string)value);
+			_stop_emit = false;
 		}
 	}
+
+	public ComboBoxMap()
+	{
+		// Data
+		_stop_emit = true;
+
+		// Widgets
+		this.changed.connect(on_changed);
+		this.scroll_event.connect(on_scroll);
+	}
+
+	private void on_changed()
+	{
+		if (!_stop_emit)
+			value_changed();
+	}
+
+	private bool on_scroll(Gdk.EventScroll ev)
+	{
+		GLib.Signal.stop_emission_by_name(this, "scroll-event");
+		return Gdk.EVENT_PROPAGATE;
+	}
+}
+
 }

@@ -7,40 +7,41 @@ using Gtk;
 
 namespace Crown
 {
-	public class CheckBox : Gtk.CheckButton
+public class CheckBox : Gtk.CheckButton
+{
+	// Data
+	public bool _stop_emit;
+
+	public bool value
 	{
-		// Data
-		public bool _stop_emit;
-
-		public bool value
+		get
 		{
-			get
-			{
-				return this.active;
-			}
-			set
-			{
-				_stop_emit = true;
-				this.active = value;
-				_stop_emit = false;
-			}
+			return this.active;
 		}
-
-		// Signals
-		public signal void value_changed();
-
-		public CheckBox()
+		set
 		{
-			// Data
+			_stop_emit = true;
+			this.active = value;
 			_stop_emit = false;
-
-			this.toggled.connect(on_value_changed);
-		}
-
-		private void on_value_changed()
-		{
-			if (!_stop_emit)
-				value_changed();
 		}
 	}
+
+	// Signals
+	public signal void value_changed();
+
+	public CheckBox()
+	{
+		// Data
+		_stop_emit = false;
+
+		this.toggled.connect(on_value_changed);
+	}
+
+	private void on_value_changed()
+	{
+		if (!_stop_emit)
+			value_changed();
+	}
+}
+
 }
