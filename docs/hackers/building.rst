@@ -49,7 +49,7 @@ Windows (VS 2017)
 
 Visual Studio 2017:
 
-	* https://visualstudio.microsoft.com/it/downloads)
+	* https://visualstudio.microsoft.com/downloads
 
 GnuWin32 utilities:
 
