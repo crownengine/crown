@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-	<gresource prefix="/org/crown/level_editor">
-		<file compressed="true" preprocess="xml-stripblanks">gtk/menus.ui</file>
-		<file compressed="true" preprocess="xml-stripblanks">ui/panel_new_project.ui</file>
-		<file compressed="true" preprocess="xml-stripblanks">ui/panel_projects_list.ui</file>
-		<file compressed="true" preprocess="xml-stripblanks">ui/preferences_dialog.ui</file>
-		<file compressed="true" preprocess="xml-stripblanks">ui/toolbar.ui</file>
-		<file compressed="true">css/style.css</file>
+  <gresource prefix="/org/crown/level_editor">
+    <file compressed="true" preprocess="xml-stripblanks">gtk/menus.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/panel_new_project.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/panel_projects_list.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/preferences_dialog.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/toolbar.ui</file>
+    <file compressed="true">css/style.css</file>
 
-		<file>icons/128x128/apps/pepper.png</file>
+    <file>icons/128x128/apps/pepper.png</file>
 
-		<file>icons/16x16/actions/axis-local.png</file>
-		<file>icons/16x16/actions/axis-world.png</file>
-		<file>icons/16x16/actions/game-run.png</file>
-		<file>icons/16x16/actions/game-stop.png</file>
-		<file>icons/16x16/actions/layer-locked.png</file>
-		<file>icons/16x16/actions/layer-visible.png</file>
-		<file>icons/16x16/actions/level-layers.png</file>
-		<file>icons/16x16/actions/level-tree.png</file>
-		<file>icons/16x16/actions/reference-local.png</file>
-		<file>icons/16x16/actions/reference-world.png</file>
-		<file>icons/16x16/actions/snap-to-grid.png</file>
-		<file>icons/16x16/actions/tool-move.png</file>
-		<file>icons/16x16/actions/tool-place.png</file>
-		<file>icons/16x16/actions/tool-rotate.png</file>
-		<file>icons/16x16/actions/tool-scale.png</file>
-		<file>icons/16x16/apps/pepper.png</file>
+    <file>icons/16x16/actions/axis-local.png</file>
+    <file>icons/16x16/actions/axis-world.png</file>
+    <file>icons/16x16/actions/game-run.png</file>
+    <file>icons/16x16/actions/game-stop.png</file>
+    <file>icons/16x16/actions/layer-locked.png</file>
+    <file>icons/16x16/actions/layer-visible.png</file>
+    <file>icons/16x16/actions/level-layers.png</file>
+    <file>icons/16x16/actions/level-tree.png</file>
+    <file>icons/16x16/actions/reference-local.png</file>
+    <file>icons/16x16/actions/reference-world.png</file>
+    <file>icons/16x16/actions/snap-to-grid.png</file>
+    <file>icons/16x16/actions/tool-move.png</file>
+    <file>icons/16x16/actions/tool-place.png</file>
+    <file>icons/16x16/actions/tool-rotate.png</file>
+    <file>icons/16x16/actions/tool-scale.png</file>
+    <file>icons/16x16/apps/pepper.png</file>
 
-		<file>icons/24x24/apps/pepper.png</file>
+    <file>icons/24x24/apps/pepper.png</file>
 
-		<file>icons/256x256/apps/pepper.png</file>
+    <file>icons/256x256/apps/pepper.png</file>
 
-		<file>icons/32x32/apps/pepper.png</file>
+    <file>icons/32x32/apps/pepper.png</file>
 
-		<file>icons/64x64/apps/pepper.png</file>
+    <file>icons/64x64/apps/pepper.png</file>
 
-	</gresource>
+  </gresource>
 </gresources>
