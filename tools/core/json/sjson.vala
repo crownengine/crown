@@ -151,8 +151,23 @@ public class SJSON
 
 	static void write_array(ArrayList<Value?> a, StringBuilder builder, int indentation)
 	{
+		ArrayList<Value?> a_sorted = a;
+		a_sorted.sort((a, b) => {
+			if (!a.holds(typeof(Hashtable)) || !b.holds(typeof(Hashtable)))
+				return 0;
+
+			Hashtable obj_a = a as Hashtable;
+			Hashtable obj_b = b as Hashtable;
+			if (!obj_a.has_key("id") || !obj_b.has_key("id"))
+				return 0;
+
+			Guid guid_a = Guid.parse(obj_a["id"] as string);
+			Guid guid_b = Guid.parse(obj_b["id"] as string);
+			return Guid.compare_func(guid_a, guid_b);
+		});
+
 		builder.append_c('[');
-		foreach (Value? item in a) {
+		foreach (Value? item in a_sorted) {
 			write_new_line(builder, indentation+1);
 			write(item, builder, indentation+1);
 		}

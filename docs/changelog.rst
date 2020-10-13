@@ -35,6 +35,7 @@ Changelog
 * Improved Test Level/Start Game button behavior when game failed to launch
 * Level Editor now saves aggregate logs to disk. User can browse logs folder from Help > Browse Logs...
 * New Project dialog no longer allows selecting non-empty folders for new projects
+* Objects inside .level files are now ordered by their ID before serialization
 * Unified Engine and Run menubar items into a single Debug menubar item
 
 0.38.0

@@ -85,6 +85,20 @@ public struct Guid
 			&& a.data4 == b.data4
 			;
 	}
+
+	public static int compare_func(Guid a, Guid b)
+	{
+		if (a.data1 != b.data1)
+			return a.data1 < b.data1 ? -1 : 1;
+		if (a.data2 != b.data2)
+			return a.data2 < b.data2 ? -1 : 1;
+		if (a.data3 != b.data3)
+			return a.data3 < b.data3 ? -1 : 1;
+		if (a.data4 != b.data4)
+			return a.data4 < b.data4 ? -1 : 1;
+
+		return 0;
+	}
 }
 
 const Guid GUID_ZERO = { 0, 0, 0, 0 };
