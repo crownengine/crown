@@ -343,7 +343,7 @@ struct LuaStack
 	void push_quaternion(const Quaternion& q);
 
 	///
-	void push_color4(const Color4& c);;
+	void push_color4(const Color4& c);
 
 	///
 	void push_vector2box(const Vector2& v);

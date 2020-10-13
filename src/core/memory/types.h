@@ -25,7 +25,7 @@ struct is_allocator_aware {
 	};
 };
 
-}; // namespace crown
+} // namespace crown
 
 #define ALLOCATOR_AWARE typedef int allocator_aware
 #define IS_ALLOCATOR_AWARE(T) is_allocator_aware<T>::value

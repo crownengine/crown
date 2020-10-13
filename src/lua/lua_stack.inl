@@ -488,7 +488,7 @@ inline void LuaStack::push_resource_package(ResourcePackage* package)
 inline void LuaStack::push_world(World* world)
 {
 	push_pointer(world);
-};
+}
 
 inline void LuaStack::push_scene_graph(SceneGraph* sg)
 {

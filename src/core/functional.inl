@@ -14,37 +14,37 @@ template<typename T>
 inline bool equal_to<T>::operator()(const T& a, const T& b) const
 {
 	return a == b;
-};
+}
 
 template<typename T>
 inline bool not_equal_to<T>::operator()(const T& a, const T& b) const
 {
 	return a != b;
-};
+}
 
 template<typename T>
 inline bool greater<T>::operator()(const T& a, const T& b) const
 {
 	return a > b;
-};
+}
 
 template<typename T>
 inline bool less<T>::operator()(const T& a, const T& b) const
 {
 	return a < b;
-};
+}
 
 template<typename T>
 inline bool greater_equal<T>::operator()(const T& a, const T& b) const
 {
 	return a >= b;
-};
+}
 
 template<typename T>
 inline bool less_equal<T>::operator()(const T& a, const T& b) const
 {
 	return a <= b;
-};
+}
 
 inline u32 hash<bool>::operator()(const bool val) const
 {

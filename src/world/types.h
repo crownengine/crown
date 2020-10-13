@@ -276,15 +276,15 @@ struct UnitDestroyCallback
 		return inst.i != UINT32_MAX; \
 	}
 
-INSTANCE_ID(TransformInstance);
-INSTANCE_ID(CameraInstance);
-INSTANCE_ID(MeshInstance);
-INSTANCE_ID(SpriteInstance);
-INSTANCE_ID(LightInstance);
-INSTANCE_ID(ColliderInstance);
-INSTANCE_ID(ActorInstance);
-INSTANCE_ID(JointInstance);
-INSTANCE_ID(ScriptInstance);
+INSTANCE_ID(TransformInstance)
+INSTANCE_ID(CameraInstance)
+INSTANCE_ID(MeshInstance)
+INSTANCE_ID(SpriteInstance)
+INSTANCE_ID(LightInstance)
+INSTANCE_ID(ColliderInstance)
+INSTANCE_ID(ActorInstance)
+INSTANCE_ID(JointInstance)
+INSTANCE_ID(ScriptInstance)
 
 #undef INSTANCE_ID
 
