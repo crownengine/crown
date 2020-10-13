@@ -1406,19 +1406,29 @@ static void test_process()
 static void test_filesystem()
 {
 #if CROWN_PLATFORM_POSIX
+	guid_globals::init();
 	{
-		DeleteResult dr = os::delete_directory("/tmp/none");
+		Guid id = guid::new_guid();
+		char dir[5 + GUID_BUF_LEN] = "/tmp/";
+		guid::to_string(dir + 5, sizeof(dir) - 5, id);
+
+		DeleteResult dr = os::delete_directory(dir);
 		ENSURE(dr.error == DeleteResult::NO_ENTRY);
 	}
 	{
-		os::delete_directory("/tmp/crown");
-		CreateResult cr = os::create_directory("/tmp/crown");
+		Guid id = guid::new_guid();
+		char dir[5 + GUID_BUF_LEN] = "/tmp/";
+		guid::to_string(dir + 5, sizeof(dir) - 5, id);
+
+		os::delete_directory(dir);
+		CreateResult cr = os::create_directory(dir);
 		ENSURE(cr.error == CreateResult::SUCCESS);
-		             cr = os::create_directory("/tmp/crown");
+		             cr = os::create_directory(dir);
 		ENSURE(cr.error == CreateResult::ALREADY_EXISTS);
-		DeleteResult dr = os::delete_directory("/tmp/crown");
+		DeleteResult dr = os::delete_directory(dir);
 		ENSURE(dr.error == DeleteResult::SUCCESS);
 	}
+	guid_globals::shutdown();
 #endif // CROWN_PLATFORM_POSIX
 }
 

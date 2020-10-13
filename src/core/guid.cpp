@@ -37,6 +37,7 @@ namespace guid_globals
 	{
 #if CROWN_PLATFORM_POSIX
 		::close(_fd);
+		_fd = -1;
 #endif // CROWN_PLATFORM_POSIX
 	}
 
