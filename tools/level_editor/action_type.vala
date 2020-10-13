@@ -20,6 +20,8 @@ public enum ActionType
 	SET_CAMERA,
 	SET_COLLIDER,
 	SET_ACTOR,
+	SET_SCRIPT,
+	SET_ANIMATION_STATE_MACHINE,
 	SET_SOUND
 }
 
@@ -38,6 +40,8 @@ public const string ActionNames[] =
 	"Set Camera Parameter",
 	"Set Collider Parameter",
 	"Set Actor Parameter",
+	"Set Script Parameter",
+	"Set Animation State Machine Parameter",
 	"Set Sound Parameter"
 };
 

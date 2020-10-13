@@ -494,9 +494,10 @@ public class ScriptComponentView : ComponentView
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
-		unit.set_component_property_string(_component_id, "data.script_resource", _script_resource.value);
-		unit.set_component_property_string(_component_id, "type",                 "script");
+		_level.set_script(_id
+			, _component_id
+			, _script_resource.value
+			);
 	}
 
 	public override void update()
@@ -528,9 +529,10 @@ public class AnimationStateMachine : ComponentView
 
 	private void on_value_changed()
 	{
-		Unit unit = new Unit(_level._db, _id, _level._prefabs);
-		unit.set_component_property_string(_component_id, "data.state_machine_resource", _state_machine_resource.value);
-		unit.set_component_property_string(_component_id, "type",                        "animation_state_machine");
+		_level.set_animation_state_machine(_id
+			, _component_id
+			, _state_machine_resource.value
+			);
 	}
 
 	public override void update()

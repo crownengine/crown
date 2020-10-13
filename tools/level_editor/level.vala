@@ -384,6 +384,24 @@ public class Level
 		// No synchronization
 	}
 
+	public void set_script(Guid unit_id, Guid component_id, string script_resource)
+	{
+		_db.add_restore_point((int)ActionType.SET_SCRIPT, new Guid[] { unit_id });
+
+		Unit unit = new Unit(_db, unit_id, _prefabs);
+		unit.set_component_property_string(component_id, "data.script_resource", script_resource);
+		unit.set_component_property_string(component_id, "type", "script");
+	}
+
+	public void set_animation_state_machine(Guid unit_id, Guid component_id, string state_machine_resource)
+	{
+		_db.add_restore_point((int)ActionType.SET_ANIMATION_STATE_MACHINE, new Guid[] { unit_id });
+
+		Unit unit = new Unit(_db, unit_id, _prefabs);
+		unit.set_component_property_string(component_id, "data.state_machine_resource", state_machine_resource);
+		unit.set_component_property_string(component_id, "type", "animation_state_machine");
+	}
+
 	public void set_sound(Guid sound_id, string name, double range, double volume, bool loop)
 	{
 		_db.add_restore_point((int)ActionType.SET_SOUND, new Guid[] { sound_id });
@@ -783,17 +801,11 @@ public class Level
 			break;
 
 		case (int)ActionType.SET_COLLIDER:
-			{
-				// FIXME: Hack to force update the properties view
-				selection_changed(_selection);
-			}
-			break;
-
 		case (int)ActionType.SET_ACTOR:
-			{
-				// FIXME: Hack to force update the properties view
-				selection_changed(_selection);
-			}
+		case (int)ActionType.SET_SCRIPT:
+		case (int)ActionType.SET_ANIMATION_STATE_MACHINE:
+			// FIXME: Hack to force update the properties view
+			selection_changed(_selection);
 			break;
 
 		case (int)ActionType.SET_SOUND:

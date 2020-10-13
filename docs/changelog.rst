@@ -30,6 +30,7 @@ Changelog
 * Fixed an issue that caused Project Browser to show inconsistent folder structured in some circumnstances
 * Fixed and issue that caused generation of spurious "set-actions" when editing properties in the Properties panel
 * Fixed modifier keys getting stuck in the wrong state in some circumnstances
+* Fixed undo/redo when setting properties of some unit components
 * Improved Project Browser to not show irrelevant items
 * Improved Test Level/Start Game button behavior when game failed to launch
 * Level Editor now saves aggregate logs to disk. User can browse logs folder from Help > Browse Logs...
