@@ -28,6 +28,7 @@ Changelog
 * Fixed a number of dialog boxes that were not centered to the Level Editor's main window
 * Fixed an issue that allowed the user to enter blank names when creating new folders in the Project Browser
 * Fixed an issue that caused Project Browser to show inconsistent folder structured in some circumnstances
+* Fixed an issue that prevented some components from being removed when reimporting sprites
 * Fixed and issue that caused generation of spurious "set-actions" when editing properties in the Properties panel
 * Fixed modifier keys getting stuck in the wrong state in some circumnstances
 * Fixed undo/redo when setting properties of some unit components

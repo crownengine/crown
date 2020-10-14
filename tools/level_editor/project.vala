@@ -569,7 +569,6 @@ public class Project
 
 			SJSON.save(sprite, Path.build_filename(_source_dir.get_path(), resource_path) + ".sprite");
 
-
 			// Generate .unit
 			Database db = new Database();
 
@@ -758,6 +757,21 @@ public class Project
 						unit.set_component_property_string(id, "data.material", "default");
 						unit.set_component_property_string(id, "type", "actor");
 					}
+				}
+			}
+			else /* if (collision_enabled) */
+			{
+				// Destroy collider and actor if any
+				Guid component_id = Guid.new_guid();
+				if (unit.has_component("collider", ref component_id))
+				{
+					db.remove_from_set(GUID_ZERO, "components", component_id);
+					db.destroy(component_id);
+				}
+				if (unit.has_component("actor", ref component_id))
+				{
+					db.remove_from_set(GUID_ZERO, "components", component_id);
+					db.destroy(component_id);
 				}
 			}
 
