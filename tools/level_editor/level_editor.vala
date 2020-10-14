@@ -1243,13 +1243,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	private bool save_as(string? filename)
 	{
-		string path;
+		string path = filename;
 
-		if (filename != null)
-		{
-			path = filename;
-		}
-		else
+		if (path == null)
 		{
 			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Save As..."
 				, this.active_window
@@ -1261,22 +1257,55 @@ public class LevelEditorApplication : Gtk.Application
 				);
 			fcd.add_filter(_file_filter);
 			fcd.set_current_folder(_project.source_dir());
-			int rt = fcd.run();
 
-			if (rt != ResponseType.ACCEPT)
+			int rt = ResponseType.CANCEL;
+			do
 			{
-				fcd.destroy();
-				return false;
+				// Select the file
+				rt = fcd.run();
+				if (rt != ResponseType.ACCEPT)
+				{
+					fcd.destroy();
+					return false;
+				}
+				path = fcd.get_filename();
+
+				// Check if the file is within the source directory
+				if (!_project.path_is_within_dir(path, _project.source_dir()))
+				{
+					Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
+						, DialogFlags.MODAL
+						, MessageType.WARNING
+						, Gtk.ButtonsType.OK
+						, "The file must be within the source directory."
+						);
+					md.set_default_response(ResponseType.OK);
+
+					md.run();
+					md.destroy();
+					fcd.set_current_folder(_project.source_dir());
+					continue;
+				}
+
+				// Check if the file already exists
+				rt = ResponseType.YES;
+				if (GLib.FileUtils.test(path, FileTest.EXISTS))
+				{
+					Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
+						, DialogFlags.MODAL
+						, MessageType.QUESTION
+						, Gtk.ButtonsType.YES_NO
+						, "A file named `%s` already exists.\nOverwrite?".printf(_project.basename(path))
+						);
+					md.set_default_response(ResponseType.NO);
+
+					rt = md.run();
+					md.destroy();
+				}
 			}
+			while (rt != ResponseType.YES);
 
-			path = fcd.get_filename();
 			fcd.destroy();
-		}
-
-		if (!_project.path_is_within_dir(path, _project.source_dir()))
-		{
-			loge("File must be within `%s`".printf(_project.source_dir()));
-			return false;
 		}
 
 		_level.save(path.has_suffix(".level") ? path : path + ".level");
