@@ -1400,16 +1400,10 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
-			DialogOpenProject op = new DialogOpenProject(this.active_window);
-			rt = op.run();
+			string source_dir;
+			rt = run_open_project_dialog(out source_dir, this.active_window);
 			if (rt != ResponseType.ACCEPT)
-			{
-				op.destroy();
 				return;
-			}
-
-			string source_dir = op.get_filename();
-			op.destroy();
 
 			if (_project.source_dir() == source_dir)
 				return;
@@ -1472,6 +1466,21 @@ public class LevelEditorApplication : Gtk.Application
 		md.set_default_response(ResponseType.YES);
 		int rt = md.run();
 		md.destroy();
+		return rt;
+	}
+
+	public int run_open_project_dialog(out string source_dir, Gtk.Window? parent)
+	{
+		Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Project..."
+			, parent
+			, FileChooserAction.SELECT_FOLDER
+			, "Cancel"
+			, ResponseType.CANCEL
+			, "Open"
+			, ResponseType.ACCEPT
+			);
+		int rt = fcd.run();
+		fcd.destroy();
 		return rt;
 	}
 

@@ -42,15 +42,10 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 		});
 
 		_button_import_project.clicked.connect(() => {
-			DialogOpenProject op = new DialogOpenProject((Gtk.Window)this.get_toplevel());
-			if (op.run() != ResponseType.ACCEPT)
-			{
-				op.destroy();
+			string source_dir;
+			int rt = _application.run_open_project_dialog(out source_dir, (Gtk.Window)this.get_toplevel());
+			if (rt != ResponseType.ACCEPT)
 				return;
-			}
-
-			string source_dir = op.get_filename();
-			op.destroy();
 
 			_user.add_recent_project(source_dir, source_dir);
 		});
