@@ -1355,11 +1355,7 @@ public class LevelEditorApplication : Gtk.Application
 		int rt = ResponseType.YES;
 
 		if (_database.changed())
-		{
-			DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
-			rt = lc.run();
-			lc.destroy();
-		}
+			rt = run_level_changed_dialog(this.active_window);
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 			return true;
@@ -1372,11 +1368,7 @@ public class LevelEditorApplication : Gtk.Application
 		int rt = ResponseType.YES;
 
 		if (_database.changed())
-		{
-			DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
-			rt = lc.run();
-			lc.destroy();
-		}
+			rt = run_level_changed_dialog(this.active_window);
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
@@ -1393,11 +1385,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 
 		if (_database.changed())
-		{
-			DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
-			rt = lc.run();
-			lc.destroy();
-		}
+			rt = run_level_changed_dialog(this.active_window);
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 			load_level(param.get_string());
@@ -1408,11 +1396,7 @@ public class LevelEditorApplication : Gtk.Application
 		int rt = ResponseType.YES;
 
 		if (_database.changed())
-		{
-			DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
-			rt = lc.run();
-			lc.destroy();
-		}
+			rt = run_level_changed_dialog(this.active_window);
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
@@ -1440,11 +1424,7 @@ public class LevelEditorApplication : Gtk.Application
 		int rt = ResponseType.YES;
 
 		if (_database.changed())
-		{
-			DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
-			rt = lc.run();
-			lc.destroy();
-		}
+			rt = run_level_changed_dialog(this.active_window);
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
@@ -1478,16 +1458,29 @@ public class LevelEditorApplication : Gtk.Application
 		deploy_game();
 	}
 
+	private int run_level_changed_dialog(Gtk.Window? parent)
+	{
+		Gtk.MessageDialog md = new Gtk.MessageDialog(parent
+			, Gtk.DialogFlags.MODAL
+			, Gtk.MessageType.WARNING
+			, Gtk.ButtonsType.NONE
+			, "Save changes to Level before closing?"
+			);
+		md.add_button("Close _without Saving", ResponseType.NO);
+		md.add_button("_Cancel", ResponseType.CANCEL);
+		md.add_button("_Save", ResponseType.YES);
+		md.set_default_response(ResponseType.YES);
+		int rt = md.run();
+		md.destroy();
+		return rt;
+	}
+
 	private void on_close(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int rt = ResponseType.YES;
 
 		if (_database.changed())
-		{
-			DialogLevelChanged lc = new DialogLevelChanged(this.active_window);
-			rt = lc.run();
-			lc.destroy();
-		}
+			rt = run_level_changed_dialog(this.active_window);
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
