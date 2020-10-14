@@ -1480,6 +1480,7 @@ public class LevelEditorApplication : Gtk.Application
 			, ResponseType.ACCEPT
 			);
 		int rt = fcd.run();
+		source_dir = fcd.get_filename();
 		fcd.destroy();
 		return rt;
 	}
