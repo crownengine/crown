@@ -176,7 +176,7 @@ public class Unit
 		_db.set_property_quaternion(_unit, "modified_components.#" + component_id.to_string() + "." + key, val);
 	}
 
-	public static bool has_component_static(Database db, Database prefabs_db, Guid unit_id, string component_type, ref Guid ref_component_id)
+	public static bool has_component_static(out Guid component_id, string component_type, Database db, Database prefabs_db, Guid unit_id)
 	{
 		// Search in components
 		{
@@ -184,11 +184,11 @@ public class Unit
 			if (value != null)
 			{
 				HashSet<Guid?> components = (HashSet<Guid?>)value;
-				foreach (Guid component_id in components)
+				foreach (Guid id in components)
 				{
-					if((string)db.get_property(component_id, "type") == component_type)
+					if((string)db.get_property(id, "type") == component_type)
 					{
-						ref_component_id = component_id;
+						component_id = id;
 						return true;
 					}
 				}
@@ -214,7 +214,7 @@ public class Unit
 				Value? type = db.get_property(unit_id, m);
 				if (type != null && (string)type == component_type)
 				{
-					ref_component_id = Guid.parse(id);
+					component_id = Guid.parse(id);
 					return true;
 				}
 			}
@@ -229,11 +229,11 @@ public class Unit
 				if (pcvalue != null)
 				{
 					HashSet<Guid?> prefab_components = (HashSet<Guid?>)pcvalue;
-					foreach (Guid component_id in prefab_components)
+					foreach (Guid id in prefab_components)
 					{
-						if((string)prefabs_db.get_property(component_id, "type") == component_type)
+						if((string)prefabs_db.get_property(id, "type") == component_type)
 						{
-							ref_component_id = component_id;
+							component_id = id;
 							return true;
 						}
 					}
@@ -241,13 +241,14 @@ public class Unit
 			}
 		}
 
+		component_id = GUID_ZERO;
 		return false;
 	}
 
 	/// Returns whether the unit has the component_type.
-	public bool has_component(string component_type, ref Guid ref_component_id)
+	public bool has_component(out Guid component_id, string component_type)
 	{
-		return Unit.has_component_static(_db, _prefabs, _unit, component_type, ref ref_component_id);
+		return Unit.has_component_static(out component_id, component_type, _db, _prefabs, _unit);
 	}
 
 	public void remove_component(Guid component_id)

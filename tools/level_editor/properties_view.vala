@@ -787,9 +787,9 @@ public class PropertiesView : Gtk.Bin
 			{
 				Gtk.Expander expander = _expanders[entry.type];
 
-				Guid component_id = GUID_ZERO;
 				Unit unit = new Unit(_level._db, id, _level._prefabs);
-				if (unit.has_component(entry.type, ref component_id) || entry.type == "name")
+				Guid component_id;
+				if (unit.has_component(out component_id, entry.type) || entry.type == "name")
 				{
 					ComponentView cv = _components[entry.type];
 					cv._id = id;

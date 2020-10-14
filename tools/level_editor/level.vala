@@ -203,14 +203,14 @@ public class Level
 		_db.set_property_string(id, "editor.name", "unit_%04u".printf(_num_units++));
 		_db.set_property_string(id, "prefab", name);
 
-		Guid transform_id = GUID_ZERO;
 		Unit unit = new Unit(_db, id, _prefabs);
-		if (unit.has_component("transform", ref transform_id))
+		Guid component_id;
+		if (unit.has_component(out component_id, "transform"))
 		{
-			unit.set_component_property_vector3   (transform_id, "data.position", pos);
-			unit.set_component_property_quaternion(transform_id, "data.rotation", rot);
-			unit.set_component_property_vector3   (transform_id, "data.scale", scl);
-			unit.set_component_property_string    (transform_id, "type", "transform");
+			unit.set_component_property_vector3   (component_id, "data.position", pos);
+			unit.set_component_property_quaternion(component_id, "data.rotation", rot);
+			unit.set_component_property_vector3   (component_id, "data.scale", scl);
+			unit.set_component_property_string    (component_id, "type", "transform");
 		}
 		else
 		{
@@ -248,14 +248,13 @@ public class Level
 
 			if (is_unit(id))
 			{
-				Guid transform_id = GUID_ZERO;
 				Unit unit = new Unit(_db, id, _prefabs);
-
-				if (unit.has_component("transform", ref transform_id))
+				Guid component_id;
+				if (unit.has_component(out component_id, "transform"))
 				{
-					unit.set_component_property_vector3   (transform_id, "data.position", pos);
-					unit.set_component_property_quaternion(transform_id, "data.rotation", rot);
-					unit.set_component_property_vector3   (transform_id, "data.scale", scl);
+					unit.set_component_property_vector3   (component_id, "data.position", pos);
+					unit.set_component_property_quaternion(component_id, "data.rotation", rot);
+					unit.set_component_property_vector3   (component_id, "data.scale", scl);
 				}
 				else
 				{
@@ -544,9 +543,8 @@ public class Level
 
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
-			Guid component_id = GUID_ZERO;
-
-			if (unit.has_component("transform", ref component_id))
+			Guid component_id;
+			if (unit.has_component(out component_id, "transform"))
 			{
 				string s = LevelEditorApi.add_tranform_component(unit_id
 					, component_id
@@ -556,7 +554,7 @@ public class Level
 					);
 				sb.append(s);
 			}
-			if (unit.has_component("mesh_renderer", ref component_id))
+			if (unit.has_component(out component_id, "mesh_renderer"))
 			{
 				string s = LevelEditorApi.add_mesh_component(unit_id
 					, component_id
@@ -567,7 +565,7 @@ public class Level
 					);
 				sb.append(s);
 			}
-			if (unit.has_component("sprite_renderer", ref component_id))
+			if (unit.has_component(out component_id, "sprite_renderer"))
 			{
 				string s = LevelEditorApi.add_sprite_component(unit_id
 					, component_id
@@ -579,7 +577,7 @@ public class Level
 					);
 				sb.append(s);
 			}
-			if (unit.has_component("light", ref component_id))
+			if (unit.has_component(out component_id, "light"))
 			{
 				string s = LevelEditorApi.add_light_component(unit_id
 					, component_id
@@ -591,7 +589,7 @@ public class Level
 					);
 				sb.append(s);
 			}
-			if (unit.has_component("camera", ref component_id))
+			if (unit.has_component(out component_id, "camera"))
 			{
 				string s = LevelEditorApi.add_camera_component(unit_id
 					, component_id
@@ -674,15 +672,14 @@ public class Level
 					if (is_unit(ids[i]))
 					{
 						Guid unit_id = ids[i];
-						Guid transform_id = GUID_ZERO;
 
 						Unit unit = new Unit(_db, unit_id, _prefabs);
-
-						if (unit.has_component("transform", ref transform_id))
+						Guid component_id;
+						if (unit.has_component(out component_id, "transform"))
 						{
-							positions[i] = unit.get_component_property_vector3   (transform_id, "data.position");
-							rotations[i] = unit.get_component_property_quaternion(transform_id, "data.rotation");
-							scales[i]    = unit.get_component_property_vector3   (transform_id, "data.scale");
+							positions[i] = unit.get_component_property_vector3   (component_id, "data.position");
+							rotations[i] = unit.get_component_property_quaternion(component_id, "data.rotation");
+							scales[i]    = unit.get_component_property_vector3   (component_id, "data.scale");
 						}
 						else
 						{
@@ -727,10 +724,10 @@ public class Level
 		case (int)ActionType.SET_LIGHT:
 			{
 				Guid unit_id = data[0];
-				Guid component_id = GUID_ZERO;
 
 				Unit unit = new Unit(_db, unit_id, _prefabs);
-				unit.has_component("light", ref component_id);
+				Guid component_id;
+				unit.has_component(out component_id, "light");
 
 				_client.send_script(LevelEditorApi.set_light(unit_id
 					, unit.get_component_property_string (component_id, "data.type")
@@ -747,10 +744,10 @@ public class Level
 		case (int)ActionType.SET_MESH:
 			{
 				Guid unit_id = data[0];
-				Guid component_id = GUID_ZERO;
 
 				Unit unit = new Unit(_db, unit_id, _prefabs);
-				unit.has_component("mesh_renderer", ref component_id);
+				Guid component_id;
+				unit.has_component(out component_id, "mesh_renderer");
 
 				_client.send_script(LevelEditorApi.set_mesh(unit_id
 					, 0/*instance_id*/
@@ -765,10 +762,10 @@ public class Level
 		case (int)ActionType.SET_SPRITE:
 			{
 				Guid unit_id = data[0];
-				Guid component_id = GUID_ZERO;
 
 				Unit unit = new Unit(_db, unit_id, _prefabs);
-				unit.has_component("sprite_renderer", ref component_id);
+				Guid component_id;
+				unit.has_component(out component_id, "sprite_renderer");
 
 				_client.send_script(LevelEditorApi.set_sprite(unit_id
 					, unit.get_component_property_string(component_id, "data.material")
@@ -784,10 +781,10 @@ public class Level
 		case (int)ActionType.SET_CAMERA:
 			{
 				Guid unit_id = data[0];
-				Guid component_id = GUID_ZERO;
 
 				Unit unit = new Unit(_db, unit_id, _prefabs);
-				unit.has_component("camera", ref component_id);
+				Guid component_id;
+				unit.has_component(out component_id, "camera");
 
 				_client.send_script(LevelEditorApi.set_camera(unit_id
 					, unit.get_component_property_string(component_id, "data.projection")
