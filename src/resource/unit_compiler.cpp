@@ -318,6 +318,7 @@ s32 UnitCompiler::collect_units(Buffer& data, Array<u32>& prefabs, const char* j
 {
 	u32 prefab_offt = array::size(data);
 	array::push(data, json, strlen32(json));
+	array::push_back(data, '\0');
 	array::push_back(prefabs, prefab_offt);
 
 	TempAllocator4096 ta;
@@ -353,7 +354,6 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 	// offsets[n-1] = { prefab = nil, ... }                    <- Root unit
 	if (collect_units(data, offsets, json) < 0)
 		return -1;
-	array::push_back(data, '\0');
 
 	TempAllocator4096 ta;
 	JsonArray merged_components(ta);
