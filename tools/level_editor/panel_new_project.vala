@@ -77,7 +77,7 @@ public class PanelNewProject : Gtk.Viewport
 			_user.add_recent_project(source_dir, _entry_name.text);
 			_application.show_panel("main_vbox");
 			_project.create_initial_files(source_dir);
-			_application.restart_compiler(source_dir, null);
+			_application.restart_backend(source_dir, null);
 		});
 	}
 }

@@ -122,7 +122,7 @@ public class PanelProjectsList : Gtk.ScrolledWindow
 			_list_projects.invalidate_sort();
 			_user.touch_recent_project(row.get_data("source_dir"), mtime);
 			_application.show_panel("main_vbox", Gtk.StackTransitionType.NONE);
-			_application.restart_compiler(source_dir, null);
+			_application.restart_backend(source_dir, null);
 		});
 		hbox.pack_end(button_open, false, false, 0);
 

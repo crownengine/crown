@@ -433,7 +433,7 @@ public class LevelEditorApplication : Gtk.Application
 		else
 		{
 			show_panel("main_vbox");
-			restart_compiler(_source_dir, _level_resource);
+			restart_backend(_source_dir, _level_resource);
 		}
 	}
 
@@ -806,7 +806,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_compiler(_project.source_dir(), _level._filename);
+			restart_backend(_project.source_dir(), _level._filename);
 			return true;
 		});
 
@@ -818,16 +818,16 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_compiler(_project.source_dir(), _level._filename);
+			restart_backend(_project.source_dir(), _level._filename);
 			return true;
 		});
 
 		return label;
 	}
 
-	public void restart_compiler(string source_dir, string? level_resource)
+	public void restart_backend(string source_dir, string? level_resource)
 	{
-		stop_compiler();
+		stop_backend();
 
 		_project.load(source_dir);
 		if (level_resource != null)
@@ -888,7 +888,7 @@ public class LevelEditorApplication : Gtk.Application
 		});
 	}
 
-	private void stop_compiler()
+	private void stop_backend()
 	{
 		_level.reset();
 		_project.reset();
@@ -1340,7 +1340,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (_preferences_dialog != null)
 			_preferences_dialog.destroy();
 
-		stop_compiler();
+		stop_backend();
 	}
 
 	protected override void shutdown()
@@ -1409,7 +1409,7 @@ public class LevelEditorApplication : Gtk.Application
 				return;
 
 			logi("Loading project: `%s`...".printf(source_dir));
-			restart_compiler(source_dir, null);
+			restart_backend(source_dir, null);
 		}
 	}
 
@@ -1422,7 +1422,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
-			stop_compiler();
+			stop_backend();
 			show_panel("panel_new_project");
 		}
 	}
@@ -1494,7 +1494,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
 		{
-			stop_compiler();
+			stop_backend();
 			show_panel("panel_welcome");
 		}
 	}
