@@ -1270,6 +1270,10 @@ public class LevelEditorApplication : Gtk.Application
 				}
 				path = fcd.get_filename();
 
+				// Append file extension
+				if (!path.has_suffix(".level"))
+					path += ".level";
+
 				// Check if the file is within the source directory
 				if (!_project.path_is_within_dir(path, _project.source_dir()))
 				{
@@ -1308,7 +1312,7 @@ public class LevelEditorApplication : Gtk.Application
 			fcd.destroy();
 		}
 
-		_level.save(path.has_suffix(".level") ? path : path + ".level");
+		_level.save(path);
 		_statusbar.set_temporary_message("Saved %s".printf(_level._path));
 		return true;
 	}
