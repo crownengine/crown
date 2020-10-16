@@ -806,7 +806,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend(_project.source_dir(), _level._filename);
+			restart_backend(_project.source_dir(), _level._path);
 			return true;
 		});
 
@@ -818,7 +818,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend(_project.source_dir(), _level._filename);
+			restart_backend(_project.source_dir(), _level._path);
 			return true;
 		});
 
@@ -1233,7 +1233,7 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		if (filename.has_suffix(".level") && filename != _level._filename)
+		if (filename.has_suffix(".level") && filename != _level._path)
 		{
 			_level.load(filename);
 			_level.send_level();
@@ -1309,18 +1309,18 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		_level.save(path.has_suffix(".level") ? path : path + ".level");
-		_statusbar.set_temporary_message("Saved %s".printf(_level._filename));
+		_statusbar.set_temporary_message("Saved %s".printf(_level._path));
 		return true;
 	}
 
 	private bool save()
 	{
-		return save_as(_level._filename);
+		return save_as(_level._path);
 	}
 
 	private bool save_timeout()
 	{
-		if (_level._filename != null)
+		if (_level._path != null)
 			save();
 
 		return true;
@@ -1381,7 +1381,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		int rt = ResponseType.YES;
 
-		if (_level._filename == param.get_string())
+		if (_level._path == param.get_string())
 			return;
 
 		if (_database.changed())

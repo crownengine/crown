@@ -24,7 +24,7 @@ public class Level
 	public uint _num_units;
 	public uint _num_sounds;
 
-	public string _filename;
+	public string _path;
 
 	// Signals
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
@@ -61,7 +61,7 @@ public class Level
 		_num_units = 0;
 		_num_sounds = 0;
 
-		_filename = null;
+		_path = null;
 	}
 
 	/// Loads the level from @a path.
@@ -70,7 +70,7 @@ public class Level
 		reset();
 		_db.load(path);
 
-		_filename = path;
+		_path = path;
 	}
 
 	/// Saves the level to @a path.
@@ -78,7 +78,7 @@ public class Level
 	{
 		_db.save(path);
 
-		_filename = path;
+		_path = path;
 	}
 
 	/// Loads the empty level template.
@@ -86,7 +86,7 @@ public class Level
 	{
 		load(Path.build_filename(_project.toolchain_dir(), "core/editors/levels/empty.level"));
 
-		_filename = null;
+		_path = null;
 	}
 
 	public void spawn_unit(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
