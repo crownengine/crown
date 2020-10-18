@@ -30,5 +30,6 @@ const uint16 CROWN_DEFAULT_SERVER_PORT = 10618;
 
 const string LEVEL_EDITOR_BOOT_DIR = "core/editors/level_editor";
 const string UNIT_PREVIEW_BOOT_DIR = "core/editors/unit_preview";
+const string LEVEL_NONE = "";
 
 }

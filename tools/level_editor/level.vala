@@ -24,6 +24,7 @@ public class Level
 	public uint _num_units;
 	public uint _num_sounds;
 
+	public string _name;
 	public string _path;
 
 	// Signals
@@ -61,32 +62,40 @@ public class Level
 		_num_units = 0;
 		_num_sounds = 0;
 
+		_name = null;
 		_path = null;
 	}
 
-	/// Loads the level from @a path.
-	public void load(string path)
+	public void load(string name)
 	{
 		reset();
+
+		string path = Path.build_filename(_project.source_dir(), name + ".level");
+
 		_db.load(path);
-
+		_name = name;
 		_path = path;
 	}
 
-	/// Saves the level to @a path.
-	public void save(string path)
-	{
-		_db.save(path);
-
-		_path = path;
-	}
-
-	/// Loads the empty level template.
 	public void load_empty_level()
 	{
-		load(Path.build_filename(_project.toolchain_dir(), "core/editors/levels/empty.level"));
+		reset();
 
+		string name = "core/editors/levels/empty";
+		string path = Path.build_filename(_project.toolchain_dir(), name + ".level");
+
+		_db.load(path);
+		_name = name;
 		_path = null;
+	}
+
+	public void save(string name)
+	{
+		string path = Path.build_filename(_project.source_dir(), name + ".level");
+
+		_db.save(path);
+		_path = path;
+		_name = name;
 	}
 
 	public void spawn_unit(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)

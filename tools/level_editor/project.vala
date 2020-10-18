@@ -52,6 +52,8 @@ public class Project
 
 	public void load(string source_dir)
 	{
+		reset();
+
 		_source_dir = File.new_for_path(source_dir);
 		_data_dir   = File.new_for_path(_source_dir.get_path() + "_" + _platform);
 
@@ -419,6 +421,17 @@ public class Project
 	public string resource_path_to_resource_name(string path)
 	{
 		return path.replace("\\", "/");
+	}
+
+	public string resource_filename_to_resource_path(string filename)
+	{
+		return filename.substring(0, filename.last_index_of_char('.'));
+	}
+
+	public string absolute_path_to_resource_filename(string path)
+	{
+		assert(path.has_prefix(_source_dir.get_path()));
+		return _source_dir.get_relative_path(File.new_for_path(path));
 	}
 
 	public int import_sprites(SList<string> filenames, string destination_dir)

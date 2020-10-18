@@ -205,7 +205,7 @@ public class LevelEditorApplication : Gtk.Application
 	// Command line options
 	private string? _source_dir = null;
 	private string _toolchain_dir = "";
-	private string? _level_resource = null;
+	private string _level_resource = "";
 	private User _user;
 
 	// Editor state
@@ -806,7 +806,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data Compiler disconnected.\rTry to <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend(_project.source_dir(), _level._path);
+			restart_backend(_project.source_dir(), _level._name);
 			return true;
 		});
 
@@ -818,20 +818,22 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Data compilation failed.\rFix errors and <a href=\"restart\">restart</a> compiler to continue.");
 		label.activate_link.connect(() => {
-			restart_backend(_project.source_dir(), _level._path);
+			restart_backend(_project.source_dir(), _level._name);
 			return true;
 		});
 
 		return label;
 	}
 
-	public void restart_backend(string source_dir, string? level_resource)
+	public void restart_backend(string source_dir, string level_name)
 	{
 		stop_backend();
 
-		_project.load(source_dir);
-		if (level_resource != null)
-			_level.load(Path.build_filename(_project.source_dir(), level_resource + ".level"));
+		string sd = source_dir;
+		string ln = level_name;
+		_project.load(sd);
+		if (ln != "")
+			_level.load(ln);
 		else
 			_level.load_empty_level();
 
@@ -890,12 +892,13 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void stop_backend()
 	{
-		_level.reset();
-		_project.reset();
-
 		stop_game();
 		stop_editor();
+		stop_data_compiler();
+	}
 
+	private void stop_data_compiler()
+	{
 		if (_compiler != null)
 		{
 			// Explicit call to this function should not produce error messages.
@@ -1201,44 +1204,14 @@ public class LevelEditorApplication : Gtk.Application
 		_level.send_level();
 	}
 
-	private void load_level(string level)
+	private void load_level(string name)
 	{
-		string filename = level;
-
-		if (filename == "")
-		{
-			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Level..."
-				, this.active_window
-				, FileChooserAction.OPEN
-				, "Cancel"
-				, ResponseType.CANCEL
-				, "Open"
-				, ResponseType.ACCEPT
-				);
-			fcd.add_filter(_file_filter);
-			fcd.set_current_folder(_project.source_dir());
-
-			if (fcd.run() == ResponseType.ACCEPT)
-				filename = fcd.get_filename();
-
-			fcd.destroy();
-		}
-
-		if (filename == "")
+		if (name == _level._name)
 			return;
 
-		if (!_project.path_is_within_dir(filename, _project.source_dir()))
-		{
-			loge("File must be within `%s`".printf(_project.source_dir()));
-			return;
-		}
-
-		if (filename.has_suffix(".level") && filename != _level._path)
-		{
-			_level.load(filename);
-			_level.send_level();
-			send_state();
-		}
+		_level.load(name);
+		_level.send_level();
+		send_state();
 	}
 
 	private bool save_as(string? filename)
@@ -1312,7 +1285,12 @@ public class LevelEditorApplication : Gtk.Application
 			fcd.destroy();
 		}
 
-		_level.save(path);
+		// Save level
+		string resource_filename = _project.absolute_path_to_resource_filename(path);
+		string resource_path     = _project.resource_filename_to_resource_path(resource_filename);
+		string resource_name     = _project.resource_path_to_resource_name(resource_path);
+
+		_level.save(resource_name);
 		_statusbar.set_temporary_message("Saved %s".printf(_level._path));
 		return true;
 	}
@@ -1381,18 +1359,88 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	private void on_open_level_from_menubar(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string path = "";
+
+		Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Open Level..."
+			, this.active_window
+			, FileChooserAction.OPEN
+			, "Cancel"
+			, ResponseType.CANCEL
+			, "Open"
+			, ResponseType.ACCEPT
+			);
+		fcd.add_filter(_file_filter);
+		fcd.set_current_folder(_project.source_dir());
+
+		int err = 1;
+		int rt = ResponseType.CANCEL;
+		do
+		{
+			// Select the file
+			rt = fcd.run();
+			if (rt != ResponseType.ACCEPT)
+			{
+				fcd.destroy();
+				return;
+			}
+			path = fcd.get_filename();
+			err = 0;
+
+			// Append file extension
+			if (!path.has_suffix(".level"))
+				path += ".level";
+
+			if (!_project.path_is_within_dir(path, _project.source_dir()))
+			{
+				Gtk.MessageDialog md = new Gtk.MessageDialog(fcd
+					, DialogFlags.MODAL
+					, MessageType.WARNING
+					, Gtk.ButtonsType.OK
+					, "The file must be within the source directory."
+					);
+				md.set_default_response(ResponseType.OK);
+
+				md.run();
+				md.destroy();
+				fcd.set_current_folder(_project.source_dir());
+				err = 1;
+				continue;
+			}
+		}
+		while (err != 0);
+
+		fcd.destroy();
+
+		assert(path != "");
+
+		// Load level
+		string resource_filename = _project.absolute_path_to_resource_filename(path);
+		string resource_path     = _project.resource_filename_to_resource_path(resource_filename);
+		string resource_name     = _project.resource_path_to_resource_name(resource_path);
+
+		load_level(resource_name);
+	}
+
 	private void on_open_level(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		int rt = ResponseType.YES;
 
-		if (_level._path == param.get_string())
+		string level_name = param.get_string();
+		if (level_name != "" && level_name == _level._name)
 			return;
 
 		if (_database.changed())
 			rt = run_level_changed_dialog(this.active_window);
 
 		if (!_database.changed() || rt == ResponseType.YES && save() || rt == ResponseType.NO)
-			load_level(param.get_string());
+		{
+			if (level_name != "")
+				load_level(level_name);
+			else // Action invoked from menubar File > Open Level...
+				on_open_level_from_menubar(action, param);
+		}
 	}
 
 	private void on_open_project(GLib.SimpleAction action, GLib.Variant? param)
@@ -1413,7 +1461,7 @@ public class LevelEditorApplication : Gtk.Application
 				return;
 
 			logi("Loading project: `%s`...".printf(source_dir));
-			restart_backend(source_dir, null);
+			restart_backend(source_dir, LEVEL_NONE);
 		}
 	}
 
