@@ -471,14 +471,14 @@ public class Project
 
 		int width     = (int)sid._pixbuf.width;
 		int height    = (int)sid._pixbuf.height;
-		int num_h     = (int)sid.cells_hv.value.x;
-		int num_v     = (int)sid.cells_hv.value.y;
-		int cell_w    = (int)sid.cell_wh.value.x;
-		int cell_h    = (int)sid.cell_wh.value.y;
-		int offset_x  = (int)sid.offset_xy.value.x;
-		int offset_y  = (int)sid.offset_xy.value.y;
-		int spacing_x = (int)sid.spacing_xy.value.x;
-		int spacing_y = (int)sid.spacing_xy.value.y;
+		int num_h     = (int)sid.cells.value.x;
+		int num_v     = (int)sid.cells.value.y;
+		int cell_w    = (int)sid.cell.value.x;
+		int cell_h    = (int)sid.cell.value.y;
+		int offset_x  = (int)sid.offset.value.x;
+		int offset_y  = (int)sid.offset.value.y;
+		int spacing_x = (int)sid.spacing.value.x;
+		int spacing_y = (int)sid.spacing.value.y;
 		double layer  = sid.layer.value;
 		double depth  = sid.depth.value;
 
@@ -486,11 +486,11 @@ public class Project
 
 		bool collision_enabled         = sid.collision_enabled.active;
 		string shape_active_name       = (string)sid.shape.visible_child_name;
-		int circle_collision_center_x  = (int)sid.circle_collision_center_xy.value.x;
-		int circle_collision_center_y  = (int)sid.circle_collision_center_xy.value.y;
+		int circle_collision_center_x  = (int)sid.circle_collision_center.value.x;
+		int circle_collision_center_y  = (int)sid.circle_collision_center.value.y;
 		int circle_collision_radius    = (int)sid.circle_collision_radius.value;
-		int capsule_collision_center_x = (int)sid.capsule_collision_center_xy.value.x;
-		int capsule_collision_center_y = (int)sid.capsule_collision_center_xy.value.y;
+		int capsule_collision_center_x = (int)sid.capsule_collision_center.value.x;
+		int capsule_collision_center_y = (int)sid.capsule_collision_center.value.y;
 		int capsule_collision_radius   = (int)sid.capsule_collision_radius.value;
 		int capsule_collision_height   = (int)sid.capsule_collision_height.value;
 		int collision_x                = (int)sid.collision_xy.value.x;
