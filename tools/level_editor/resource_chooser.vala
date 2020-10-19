@@ -301,7 +301,7 @@ public class ResourceChooser : Gtk.Box
 
 			return Gdk.EVENT_STOP;
 		}
-		else if (ev.keyval == 65293) // Enter
+		else if (ev.keyval == Gdk.Key.Return)
 		{
 			if (selected)
 			{
