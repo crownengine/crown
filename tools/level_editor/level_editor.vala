@@ -1082,7 +1082,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void stop_game()
 	{
-		if (_game != null && _editor.is_connected())
+		if (_game != null && _game.is_connected())
 		{
 			_game.send_script("Device.quit()");
 			_game.close();
