@@ -539,7 +539,7 @@ public class Project
 			}
 			catch (Error e)
 			{
-				stderr.printf("Error: %s\n", e.message);
+				loge(e.message);
 			}
 
 			Hashtable texture = new Hashtable();
@@ -848,7 +848,7 @@ public class Project
 			}
 			catch (Error e)
 			{
-				stderr.printf("Error: %s\n", e.message);
+				loge(e.message);
 			}
 
 			// Generate .unit
@@ -982,7 +982,7 @@ public class Project
 			}
 			catch (Error e)
 			{
-				stderr.printf("Error: %s\n", e.message);
+				loge(e.message);
 			}
 
 			Hashtable sound = new Hashtable();
@@ -1013,7 +1013,7 @@ public class Project
 			}
 			catch (Error e)
 			{
-				stderr.printf("Error: %s\n", e.message);
+				loge(e.message);
 			}
 
 			Hashtable texture = new Hashtable();

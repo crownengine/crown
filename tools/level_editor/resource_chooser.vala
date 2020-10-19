@@ -207,7 +207,7 @@ public class ResourceChooser : Gtk.Box
 		}
 		catch (Error e)
 		{
-			GLib.stderr.printf("%s\n", e.message);
+			loge(e.message);
 		}
 
 		while (!_console_client.is_connected())
@@ -238,7 +238,7 @@ public class ResourceChooser : Gtk.Box
 			}
 			catch (Error e)
 			{
-				stderr.printf("Error: %s\n", e.message);
+				loge(e.message);
 			}
 		}
 	}

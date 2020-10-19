@@ -31,7 +31,7 @@ public class ConsoleClient : GLib.Object
 		}
 		catch (Error e)
 		{
-			stderr.printf("%s\n", e.message);
+			loge(e.message);
 		}
 	}
 
@@ -48,7 +48,7 @@ public class ConsoleClient : GLib.Object
 		}
 		catch (Error e)
 		{
-			stderr.printf("%s\n", e.message);
+			loge(e.message);
 		}
 	}
 
@@ -74,10 +74,12 @@ public class ConsoleClient : GLib.Object
 
 			_connection.output_stream.write(array);
 			_connection.output_stream.write(json.data);
+			stdout.printf("sent: %.*s\n", len, json.data);
+			stdout.flush();
 		}
 		catch (Error e)
 		{
-			stderr.printf("%s\n", e.message);
+			loge(e.message);
 		}
 	}
 
@@ -121,7 +123,7 @@ public class ConsoleClient : GLib.Object
 		}
 		catch (Error e)
 		{
-			stderr.printf("%s\n", e.message);
+			loge(e.message);
 			if (e.code == 44) // An existing connection was forcibly closed by the remote host.
 				disconnected();
 		}

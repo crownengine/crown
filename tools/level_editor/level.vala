@@ -827,8 +827,7 @@ public class Level
 			break;
 
 		default:
-			stdout.printf("Unknown undo/redo action: %d\n", id);
-			assert(false);
+			loge("Unknown undo/redo action: %d".printf(id));
 			break;
 		}
 	}
