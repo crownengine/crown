@@ -224,7 +224,7 @@ public class ResourceChooser : Gtk.Box
 		if (!_preview)
 			return;
 
-		if (_console_client != null)
+		if (_console_client != null && _console_client.is_connected())
 		{
 			_console_client.send_script("Device.quit()");
 			_console_client.close();

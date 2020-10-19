@@ -924,7 +924,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void stop_data_compiler()
 	{
-		if (_compiler != null)
+		if (_compiler != null && _compiler.is_connected())
 		{
 			// Explicit call to this function should not produce error messages.
 			_compiler.disconnected.disconnect(on_compiler_disconnected_unexpected);
@@ -992,7 +992,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		_resource_chooser.stop_editor();
 
-		if (_editor != null)
+		if (_editor != null && _editor.is_connected())
 		{
 			// Explicit call to this function should not produce error messages.
 			_editor.disconnected.disconnect(on_editor_disconnected_unexpected);
@@ -1082,7 +1082,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void stop_game()
 	{
-		if (_game != null)
+		if (_game != null && _editor.is_connected())
 		{
 			_game.send_script("Device.quit()");
 			_game.close();
