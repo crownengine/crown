@@ -24,7 +24,7 @@ public class PanelNewProject : Gtk.Viewport
 	Gtk.Button _button_create;
 
 	[GtkChild]
-	Gtk.Entry _entry_name;
+	EntryText _entry_name;
 
 	[GtkChild]
 	Gtk.FileChooserButton _file_chooser_button_location;

@@ -240,7 +240,7 @@ public class ProjectBrowser : Gtk.Box
 							, null
 							);
 
-						Gtk.Entry sb = new Gtk.Entry();
+						EntryText sb = new EntryText();
 						sb.activate.connect(() => { dg.response(ResponseType.OK); });
 						dg.get_content_area().add(sb);
 						dg.skip_taskbar_hint = true;
@@ -273,7 +273,7 @@ public class ProjectBrowser : Gtk.Box
 							, null
 							);
 
-						Gtk.Entry sb = new Gtk.Entry();
+						EntryText sb = new EntryText();
 						sb.activate.connect(() => { dg.response(ResponseType.OK); });
 						dg.get_content_area().add(sb);
 						dg.skip_taskbar_hint = true;
@@ -309,7 +309,7 @@ public class ProjectBrowser : Gtk.Box
 							, null
 							);
 
-						Gtk.Entry sb = new Gtk.Entry();
+						EntryText sb = new EntryText();
 						sb.activate.connect(() => { dg.response(ResponseType.OK); });
 						dg.get_content_area().add(sb);
 						dg.skip_taskbar_hint = true;
@@ -345,7 +345,7 @@ public class ProjectBrowser : Gtk.Box
 							, null
 							);
 
-						Gtk.Entry sb = new Gtk.Entry();
+						EntryText sb = new EntryText();
 						sb.activate.connect(() => { dg.response(ResponseType.OK); });
 						dg.get_content_area().add(sb);
 						dg.skip_taskbar_hint = true;

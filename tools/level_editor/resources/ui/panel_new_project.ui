@@ -58,7 +58,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="_entry_name">
+                  <object class="CrownEntryText" id="_entry_name">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="hexpand">True</property>

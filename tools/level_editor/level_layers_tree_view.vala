@@ -21,7 +21,7 @@ public class LevelLayersTreeView : Gtk.Bin
 	private Database _db;
 
 	// Widgets
-	private Gtk.Entry _filter_entry;
+	private EntrySearch _filter_entry;
 	private Gtk.ListStore _list_store;
 	private Gtk.TreeModelFilter _tree_filter;
 	private Gtk.TreeView _tree_view;
@@ -36,7 +36,7 @@ public class LevelLayersTreeView : Gtk.Bin
 		_db = db;
 
 		// Widgets
-		_filter_entry = new Gtk.SearchEntry();
+		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
 		_filter_entry.changed.connect(on_filter_entry_text_changed);
 

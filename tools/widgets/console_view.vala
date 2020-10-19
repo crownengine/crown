@@ -64,7 +64,7 @@ public class ConsoleView : Gtk.Box
 	// Widgets
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.TextView _text_view;
-	public Gtk.Entry _entry;
+	public EntryText _entry;
 	public Gtk.Box _entry_hbox;
 
 	public ConsoleView(Project project, Gtk.ComboBoxText combo)
@@ -97,7 +97,7 @@ public class ConsoleView : Gtk.Box
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_text_view);
 
-		_entry = new Gtk.Entry();
+		_entry = new EntryText();
 		_entry.key_press_event.connect(on_entry_key_pressed);
 		_entry.activate.connect(on_entry_activated);
 

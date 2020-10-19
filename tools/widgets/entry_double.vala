@@ -83,6 +83,11 @@ public class EntryDouble : Gtk.Entry
 
 	private bool on_focus_in(Gdk.EventFocus ev)
 	{
+		Gtk.Window win = this.get_toplevel() as Gtk.Window;
+		LevelEditorApplication app = (LevelEditorApplication)win.application;
+		if (app != null)
+			app.entry_any_focus_in(this);
+
 		this.text = _edit_fmt.printf(_value);
 		this.set_position(-1);
 		this.select_region(0, -1);
@@ -91,6 +96,11 @@ public class EntryDouble : Gtk.Entry
 
 	private bool on_focus_out(Gdk.EventFocus ef)
 	{
+		Gtk.Window win = this.get_toplevel() as Gtk.Window;
+		LevelEditorApplication app = (LevelEditorApplication)win.application;
+		if (app != null)
+			app.entry_any_focus_out(this);
+
 		set_value_safe(string_to_double(this.text, _value));
 		return Gdk.EVENT_PROPAGATE;
 	}

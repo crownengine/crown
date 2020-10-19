@@ -31,7 +31,7 @@ public class LevelTreeView : Gtk.Box
 	private Database _db;
 
 	// Widgets
-	private Gtk.Entry _filter_entry;
+	private EntrySearch _filter_entry;
 	private Gtk.TreeStore _tree_store;
 	private Gtk.TreeModelFilter _tree_filter;
 	private Gtk.TreeModelSort _tree_sort;
@@ -52,7 +52,7 @@ public class LevelTreeView : Gtk.Box
 		_db.key_changed.connect(on_database_key_changed);
 
 		// Widgets
-		_filter_entry = new Gtk.SearchEntry();
+		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
 		_filter_entry.changed.connect(on_filter_entry_text_changed);
 
@@ -154,7 +154,7 @@ public class LevelTreeView : Gtk.Box
 					, null
 					);
 
-				Gtk.Entry sb = new Gtk.Entry();
+				EntryText sb = new EntryText();
 				sb.activate.connect(() => { dg.response(ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;

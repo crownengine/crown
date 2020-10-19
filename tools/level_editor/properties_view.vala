@@ -107,7 +107,7 @@ public class MeshRendererComponentView : ComponentView
 
 	// Widgets
 	private ResourceChooserButton _mesh_resource;
-	private Gtk.Entry _geometry;
+	private EntryText _geometry;
 	private ResourceChooserButton _material;
 	private CheckBox _visible;
 
@@ -119,7 +119,7 @@ public class MeshRendererComponentView : ComponentView
 		// Widgets
 		_mesh_resource = new ResourceChooserButton(store, "mesh");
 		_mesh_resource.value_changed.connect(on_value_changed);
-		_geometry = new Gtk.Entry();
+		_geometry = new EntryText();
 		_geometry.sensitive = false;
 		_material = new ResourceChooserButton(store, "material");
 		_material.value_changed.connect(on_value_changed);
@@ -342,10 +342,10 @@ public class ColliderComponentView : ComponentView
 	Level _level;
 
 	// Widgets
-	private Gtk.Entry _source;
-	private Gtk.Entry _shape;
+	private EntryText _source;
+	private EntryText _shape;
 	private ResourceChooserButton _scene;
-	private Gtk.Entry _name;
+	private EntryText _name;
 
 	public ColliderComponentView(Level level, ProjectStore store)
 	{
@@ -353,15 +353,15 @@ public class ColliderComponentView : ComponentView
 		_level = level;
 
 		// Widgets
-		_source = new Gtk.Entry();
+		_source = new EntryText();
 		_source.sensitive = false;
-		_shape = new Gtk.Entry();
+		_shape = new EntryText();
 		_shape.sensitive = false;
 		_scene = new ResourceChooserButton(store, "mesh");
 		_scene.sensitive = false;
 		_scene.value_changed.connect(on_value_changed);
 		_scene.sensitive = false;
-		_name = new Gtk.Entry();
+		_name = new EntryText();
 		_name.sensitive = false;
 
 		add_row("Source", _source);
@@ -422,9 +422,9 @@ public class ActorComponentView : ComponentView
 
 	// Widgets
 	private ComboBoxMap _class;
-	private Gtk.Entry _collision_filter;
+	private EntryText _collision_filter;
 	private EntryDouble _mass;
-	private Gtk.Entry _material;
+	private EntryText _material;
 
 	public ActorComponentView(Level level)
 	{
@@ -438,9 +438,9 @@ public class ActorComponentView : ComponentView
 		_class.append("keyframed", "keyframed");
 		_class.append("trigger", "trigger");
 		_class.value_changed.connect(on_value_changed);
-		_collision_filter = new Gtk.Entry();
+		_collision_filter = new EntryText();
 		_collision_filter.sensitive = false;
-		_material = new Gtk.Entry();
+		_material = new EntryText();
 		_material.sensitive = false;
 		_mass = new EntryDouble(1.0, 0.0, double.MAX);
 		_mass.value_changed.connect(on_value_changed);
@@ -548,7 +548,7 @@ public class UnitView : ComponentView
 	Level _level;
 
 	// Widgets
-	private Gtk.Entry _unit_name;
+	private EntryText _unit_name;
 
 	public UnitView(Level level)
 	{
@@ -556,7 +556,7 @@ public class UnitView : ComponentView
 		_level = level;
 
 		// Widgets
-		_unit_name = new Gtk.Entry();
+		_unit_name = new EntryText();
 		_unit_name.sensitive = false;
 
 		add_row("Name", _unit_name);

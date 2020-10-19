@@ -14,7 +14,7 @@ public class ResourceChooserButton : Gtk.Box
 	private string _type;
 
 	// Widgets
-	private Gtk.Entry _name;
+	private EntryText _name;
 	private Gtk.Button _selector;
 	private ProjectStore _project_store;
 
@@ -44,7 +44,7 @@ public class ResourceChooserButton : Gtk.Box
 		_type = type;
 
 		// Widgets
-		_name = new Gtk.Entry();
+		_name = new EntryText();
 		_name.sensitive = false;
 		_name.hexpand = true;
 		_name.changed.connect(on_value_changed);

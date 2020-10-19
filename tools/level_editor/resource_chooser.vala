@@ -28,7 +28,7 @@ public class ResourceChooser : Gtk.Box
 	public string _name;
 
 	// Widgets
-	public Gtk.Entry _filter_entry;
+	public EntrySearch _filter_entry;
 	public Gtk.TreeModelFilter _tree_filter;
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
@@ -54,7 +54,7 @@ public class ResourceChooser : Gtk.Box
 		_user_filter = user_filter;
 
 		// Widgets
-		_filter_entry = new Gtk.SearchEntry();
+		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
 		_filter_entry.changed.connect(on_filter_entry_text_changed);
 		_filter_entry.key_press_event.connect(on_filter_entry_key_pressed);

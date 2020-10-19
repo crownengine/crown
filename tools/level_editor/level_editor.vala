@@ -219,6 +219,19 @@ public class LevelEditorApplication : Gtk.Application
 	private LevelEditorApi.SnapMode _snap_mode;
 	private LevelEditorApi.ReferenceSystem _reference_system;
 
+	// Accelerators
+	private string[] _tool_place_accels;
+	private string[] _tool_move_accels;
+	private string[] _tool_rotate_accels;
+	private string[] _tool_scale_accels;
+	private string[] _camera_view_perspective_accels;
+	private string[] _camera_view_front_accels;
+	private string[] _camera_view_back_accels;
+	private string[] _camera_view_right_accels;
+	private string[] _camera_view_left_accels;
+	private string[] _camera_view_top_accels;
+	private string[] _camera_view_bottom_accels;
+
 	// Engine connections
 	private GLib.Subprocess _compiler_process;
 	private GLib.Subprocess _editor_process;
@@ -299,6 +312,18 @@ public class LevelEditorApplication : Gtk.Application
 		this.add_action_entries(action_entries_view, this);
 		this.add_action_entries(action_entries_debug, this);
 		this.add_action_entries(action_entries_help, this);
+
+		_tool_place_accels = this.get_accels_for_action("app.tool::place");
+		_tool_move_accels = this.get_accels_for_action("app.tool::move");
+		_tool_rotate_accels = this.get_accels_for_action("app.tool::rotate");
+		_tool_scale_accels = this.get_accels_for_action("app.tool::scale");
+		_camera_view_perspective_accels = this.get_accels_for_action("app.camera-view::perspective");
+		_camera_view_front_accels = this.get_accels_for_action("app.camera-view::front");
+		_camera_view_back_accels = this.get_accels_for_action("app.camera-view::back");
+		_camera_view_right_accels = this.get_accels_for_action("app.camera-view::right");
+		_camera_view_left_accels = this.get_accels_for_action("app.camera-view::left");
+		_camera_view_top_accels = this.get_accels_for_action("app.camera-view::top");
+		_camera_view_bottom_accels = this.get_accels_for_action("app.camera-view::bottom");
 
 		_compiler = new ConsoleClient();
 		_compiler.connected.connect(on_compiler_connected);
@@ -1902,6 +1927,48 @@ public class LevelEditorApplication : Gtk.Application
 					sa.set_enabled(enabled);
 			}
 		}
+	}
+
+	private void set_conflicting_accels(bool on)
+	{
+		if (on)
+		{
+			this.set_accels_for_action("app.tool::place", _tool_place_accels);
+			this.set_accels_for_action("app.tool::move", _tool_move_accels);
+			this.set_accels_for_action("app.tool::rotate", _tool_rotate_accels);
+			this.set_accels_for_action("app.tool::scale", _tool_scale_accels);
+			this.set_accels_for_action("app.camera-view::perspective", _camera_view_perspective_accels);
+			this.set_accels_for_action("app.camera-view::front", _camera_view_front_accels);
+			this.set_accels_for_action("app.camera-view::back", _camera_view_back_accels);
+			this.set_accels_for_action("app.camera-view::right", _camera_view_right_accels);
+			this.set_accels_for_action("app.camera-view::left", _camera_view_left_accels);
+			this.set_accels_for_action("app.camera-view::top", _camera_view_top_accels);
+			this.set_accels_for_action("app.camera-view::bottom", _camera_view_bottom_accels);
+		}
+		else
+		{
+			this.set_accels_for_action("app.tool::place", {});
+			this.set_accels_for_action("app.tool::move", {});
+			this.set_accels_for_action("app.tool::rotate", {});
+			this.set_accels_for_action("app.tool::scale", {});
+			this.set_accels_for_action("app.camera-view::perspective", {});
+			this.set_accels_for_action("app.camera-view::front", {});
+			this.set_accels_for_action("app.camera-view::back", {});
+			this.set_accels_for_action("app.camera-view::right", {});
+			this.set_accels_for_action("app.camera-view::left", {});
+			this.set_accels_for_action("app.camera-view::top", {});
+			this.set_accels_for_action("app.camera-view::bottom", {});
+		}
+	}
+
+	public void entry_any_focus_in(Gtk.Widget widget)
+	{
+		set_conflicting_accels(false);
+	}
+
+	public void entry_any_focus_out(Gtk.Widget widget)
+	{
+		set_conflicting_accels(true);
 	}
 
 	public void show_panel(string name, Gtk.StackTransitionType stt = Gtk.StackTransitionType.NONE)
