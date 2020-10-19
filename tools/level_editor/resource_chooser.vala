@@ -56,7 +56,7 @@ public class ResourceChooser : Gtk.Box
 		// Widgets
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
-		_filter_entry.changed.connect(on_filter_entry_text_changed);
+		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 		_filter_entry.key_press_event.connect(on_filter_entry_key_pressed);
 
 		_tree_filter = new Gtk.TreeModelFilter(_list_store, null);

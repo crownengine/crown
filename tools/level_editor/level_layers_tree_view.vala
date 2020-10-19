@@ -38,7 +38,7 @@ public class LevelLayersTreeView : Gtk.Bin
 		// Widgets
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
-		_filter_entry.changed.connect(on_filter_entry_text_changed);
+		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 
 		_list_store = new Gtk.ListStore(3, typeof(string), typeof(string), typeof(string));
 		_list_store.insert_with_values(null, -1

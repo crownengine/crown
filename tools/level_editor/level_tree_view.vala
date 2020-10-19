@@ -54,7 +54,7 @@ public class LevelTreeView : Gtk.Box
 		// Widgets
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
-		_filter_entry.changed.connect(on_filter_entry_text_changed);
+		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 
 		_tree_store = new Gtk.TreeStore(Column.COUNT
 			, typeof(int)    // Column.TYPE
