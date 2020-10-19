@@ -99,21 +99,25 @@
           <attribute name="label" translatable="yes">Place</attribute>
           <attribute name="action">app.tool</attribute>
           <attribute name="target">place</attribute>
+          <attribute name="accel">Q</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">Move</attribute>
           <attribute name="action">app.tool</attribute>
           <attribute name="target">move</attribute>
+          <attribute name="accel">W</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">Rotate</attribute>
           <attribute name="action">app.tool</attribute>
           <attribute name="target">rotate</attribute>
+          <attribute name="accel">E</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">Scale</attribute>
           <attribute name="action">app.tool</attribute>
           <attribute name="target">scale</attribute>
+          <attribute name="accel">R</attribute>
         </item>
       </section>
       <section>
