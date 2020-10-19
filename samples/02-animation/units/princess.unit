@@ -2,13 +2,6 @@
 components = [
 	{
 		data = {
-			state_machine_resource = "units/humanoid"
-		}
-		id = "ff3f598d-0f34-467b-bf98-14feb0997bfe"
-		type = "animation_state_machine"
-	}
-	{
-		data = {
 			position = [
 				0
 				0
@@ -39,5 +32,12 @@ components = [
 		}
 		id = "4e0ca7f6-f789-44d8-bf6b-9fcb62e1abd9"
 		type = "sprite_renderer"
+	}
+	{
+		data = {
+			state_machine_resource = "units/humanoid"
+		}
+		id = "ff3f598d-0f34-467b-bf98-14feb0997bfe"
+		type = "animation_state_machine"
 	}
 ]

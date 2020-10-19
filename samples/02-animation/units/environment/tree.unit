@@ -2,6 +2,22 @@
 components = [
 	{
 		data = {
+			class = "static"
+			collision_filter = "default"
+			lock_rotation_x = true
+			lock_rotation_y = true
+			lock_rotation_z = true
+			lock_translation_x = false
+			lock_translation_y = true
+			lock_translation_z = false
+			mass = 10
+			material = "default"
+		}
+		id = "0b6cba8a-a2e1-48bc-ae20-03bc3845444b"
+		type = "actor"
+	}
+	{
+		data = {
 			depth = 0
 			layer = 1
 			material = "units/environment/tree"
@@ -58,22 +74,6 @@ components = [
 		}
 		id = "72a814e8-9a63-4034-98bc-71459c5f519d"
 		type = "collider"
-	}
-	{
-		data = {
-			class = "static"
-			collision_filter = "default"
-			lock_rotation_x = true
-			lock_rotation_y = true
-			lock_rotation_z = true
-			lock_translation_x = false
-			lock_translation_y = true
-			lock_translation_z = false
-			mass = 10
-			material = "default"
-		}
-		id = "0b6cba8a-a2e1-48bc-ae20-03bc3845444b"
-		type = "actor"
 	}
 	{
 		data = {

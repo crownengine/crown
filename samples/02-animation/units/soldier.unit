@@ -2,6 +2,13 @@
 components = [
 	{
 		data = {
+			state_machine_resource = "units/humanoid"
+		}
+		id = "1ae2bba5-d24a-4c6e-8af7-a8b97340d221"
+		type = "animation_state_machine"
+	}
+	{
+		data = {
 			depth = 0
 			layer = 1
 			material = "units/soldier"
@@ -10,13 +17,6 @@ components = [
 		}
 		id = "6340ce8f-6380-4718-b827-83ebddb60e42"
 		type = "sprite_renderer"
-	}
-	{
-		data = {
-			state_machine_resource = "units/humanoid"
-		}
-		id = "1ae2bba5-d24a-4c6e-8af7-a8b97340d221"
-		type = "animation_state_machine"
 	}
 	{
 		data = {

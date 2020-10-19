@@ -1,148 +1,473 @@
 
-frames = [ {
+frames = [
+	{
 		name = "sprite_0"
-		pivot = [ 32 64 ]
-		region = [ 0 0 64 64 ]
-	} {
+		pivot = [
+			32
+			64
+		]
+		region = [
+			0
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_1"
-		pivot = [ 96 64 ]
-		region = [ 64 0 64 64 ]
-	} {
+		pivot = [
+			96
+			64
+		]
+		region = [
+			64
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_2"
-		pivot = [ 160 64 ]
-		region = [ 128 0 64 64 ]
-	} {
+		pivot = [
+			160
+			64
+		]
+		region = [
+			128
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_3"
-		pivot = [ 224 64 ]
-		region = [ 192 0 64 64 ]
-	} {
+		pivot = [
+			224
+			64
+		]
+		region = [
+			192
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_4"
-		pivot = [ 288 64 ]
-		region = [ 256 0 64 64 ]
-	} {
+		pivot = [
+			288
+			64
+		]
+		region = [
+			256
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_5"
-		pivot = [ 352 64 ]
-		region = [ 320 0 64 64 ]
-	} {
+		pivot = [
+			352
+			64
+		]
+		region = [
+			320
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_6"
-		pivot = [ 416 64 ]
-		region = [ 384 0 64 64 ]
-	} {
+		pivot = [
+			416
+			64
+		]
+		region = [
+			384
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_7"
-		pivot = [ 480 64 ]
-		region = [ 448 0 64 64 ]
-	} {
+		pivot = [
+			480
+			64
+		]
+		region = [
+			448
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_8"
-		pivot = [ 544 64 ]
-		region = [ 512 0 64 64 ]
-	} {
+		pivot = [
+			544
+			64
+		]
+		region = [
+			512
+			0
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_9"
-		pivot = [ 32 128 ]
-		region = [ 0 64 64 64 ]
-	} {
+		pivot = [
+			32
+			128
+		]
+		region = [
+			0
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_10"
-		pivot = [ 96 128 ]
-		region = [ 64 64 64 64 ]
-	} {
+		pivot = [
+			96
+			128
+		]
+		region = [
+			64
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_11"
-		pivot = [ 160 128 ]
-		region = [ 128 64 64 64 ]
-	} {
+		pivot = [
+			160
+			128
+		]
+		region = [
+			128
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_12"
-		pivot = [ 224 128 ]
-		region = [ 192 64 64 64 ]
-	} {
+		pivot = [
+			224
+			128
+		]
+		region = [
+			192
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_13"
-		pivot = [ 288 128 ]
-		region = [ 256 64 64 64 ]
-	} {
+		pivot = [
+			288
+			128
+		]
+		region = [
+			256
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_14"
-		pivot = [ 352 128 ]
-		region = [ 320 64 64 64 ]
-	} {
+		pivot = [
+			352
+			128
+		]
+		region = [
+			320
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_15"
-		pivot = [ 416 128 ]
-		region = [ 384 64 64 64 ]
-	} {
+		pivot = [
+			416
+			128
+		]
+		region = [
+			384
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_16"
-		pivot = [ 480 128 ]
-		region = [ 448 64 64 64 ]
-	} {
+		pivot = [
+			480
+			128
+		]
+		region = [
+			448
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_17"
-		pivot = [ 544 128 ]
-		region = [ 512 64 64 64 ]
-	} {
+		pivot = [
+			544
+			128
+		]
+		region = [
+			512
+			64
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_18"
-		pivot = [ 32 192 ]
-		region = [ 0 128 64 64 ]
-	} {
+		pivot = [
+			32
+			192
+		]
+		region = [
+			0
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_19"
-		pivot = [ 96 192 ]
-		region = [ 64 128 64 64 ]
-	} {
+		pivot = [
+			96
+			192
+		]
+		region = [
+			64
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_20"
-		pivot = [ 160 192 ]
-		region = [ 128 128 64 64 ]
-	} {
+		pivot = [
+			160
+			192
+		]
+		region = [
+			128
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_21"
-		pivot = [ 224 192 ]
-		region = [ 192 128 64 64 ]
-	} {
+		pivot = [
+			224
+			192
+		]
+		region = [
+			192
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_22"
-		pivot = [ 288 192 ]
-		region = [ 256 128 64 64 ]
-	} {
+		pivot = [
+			288
+			192
+		]
+		region = [
+			256
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_23"
-		pivot = [ 352 192 ]
-		region = [ 320 128 64 64 ]
-	} {
+		pivot = [
+			352
+			192
+		]
+		region = [
+			320
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_24"
-		pivot = [ 416 192 ]
-		region = [ 384 128 64 64 ]
-	} {
+		pivot = [
+			416
+			192
+		]
+		region = [
+			384
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_25"
-		pivot = [ 480 192 ]
-		region = [ 448 128 64 64 ]
-	} {
+		pivot = [
+			480
+			192
+		]
+		region = [
+			448
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_26"
-		pivot = [ 544 192 ]
-		region = [ 512 128 64 64 ]
-	} {
+		pivot = [
+			544
+			192
+		]
+		region = [
+			512
+			128
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_27"
-		pivot = [ 32 256 ]
-		region = [ 0 192 64 64 ]
-	} {
+		pivot = [
+			32
+			256
+		]
+		region = [
+			0
+			192
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_28"
-		pivot = [ 96 256 ]
-		region = [ 64 192 64 64 ]
-	} {
+		pivot = [
+			96
+			256
+		]
+		region = [
+			64
+			192
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_29"
-		pivot = [ 160 256 ]
-		region = [ 128 192 64 64 ]
-	} {
+		pivot = [
+			160
+			256
+		]
+		region = [
+			128
+			192
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_30"
-		pivot = [ 224 256 ]
-		region = [ 192 192 64 64 ]
-	} {
+		pivot = [
+			224
+			256
+		]
+		region = [
+			192
+			192
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_31"
-		pivot = [ 288 256 ]
-		region = [ 256 192 64 64 ]
-	} {
+		pivot = [
+			288
+			256
+		]
+		region = [
+			256
+			192
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_32"
-		pivot = [ 352 256 ]
-		region = [ 320 192 64 64 ]
-	} {
+		pivot = [
+			352
+			256
+		]
+		region = [
+			320
+			192
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_33"
-		pivot = [ 416 256 ]
-		region = [ 384 192 64 64 ]
-	} {
+		pivot = [
+			416
+			256
+		]
+		region = [
+			384
+			192
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_34"
-		pivot = [ 480 256 ]
-		region = [ 448 192 64 64 ]
-	} {
+		pivot = [
+			480
+			256
+		]
+		region = [
+			448
+			192
+			64
+			64
+		]
+	}
+	{
 		name = "sprite_35"
-		pivot = [ 544 256 ]
-		region = [ 512 192 64 64 ]
-	} ]
+		pivot = [
+			544
+			256
+		]
+		region = [
+			512
+			192
+			64
+			64
+		]
+	}
+]
 height = 256
 width = 576
