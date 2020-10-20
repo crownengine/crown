@@ -68,11 +68,11 @@ public class ConsoleClient : GLib.Object
 			// FIXME: Add bit conversion utils
 			uint32 len = json.length;
 			uint8* ptr = (uint8*)(&len);
-			var array = new uint8[4];
+			uint8 header[4];
 			for (var i = 0; i < 4; ++i)
-				array[i] = ptr[i];
+				header[i] = ptr[i];
 
-			_connection.output_stream.write(array);
+			_connection.output_stream.write(header);
 			_connection.output_stream.write(json.data);
 		}
 		catch (Error e)
