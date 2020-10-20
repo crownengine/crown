@@ -47,11 +47,13 @@ public class EditorView : Gtk.Alignment
 	{
 		switch (k)
 		{
-		case Gdk.Key.w: return "w";
-		case Gdk.Key.a: return "a";
-		case Gdk.Key.s: return "s";
-		case Gdk.Key.d: return "d";
-		default:        return "<unknown>";
+		case Gdk.Key.w:     return "w";
+		case Gdk.Key.a:     return "a";
+		case Gdk.Key.s:     return "s";
+		case Gdk.Key.d:     return "d";
+		case Gdk.Key.Alt_L: return "alt_left";
+		case Gdk.Key.Alt_R: return "alt_right";
+		default:            return "<unknown>";
 		}
 	}
 
@@ -206,13 +208,13 @@ public class EditorView : Gtk.Alignment
 		if (ev.keyval == Gdk.Key.Left)
 			_client.send_script("LevelEditor:key_down(\"move_left\")");
 
-		if (!_keys.has_key(ev.keyval))
-			return Gdk.EVENT_STOP;
+		if (_keys.has_key(ev.keyval))
+		{
+			if (!_keys[ev.keyval])
+				_client.send_script(LevelEditorApi.key_down(key_to_string(ev.keyval)));
 
-		if (!_keys[ev.keyval])
-			_client.send_script(LevelEditorApi.key_down(key_to_string(ev.keyval)));
-
-		_keys[ev.keyval] = true;
+			_keys[ev.keyval] = true;
+		}
 
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -222,13 +224,13 @@ public class EditorView : Gtk.Alignment
 		if ((ev.keyval == Gdk.Key.Alt_L || ev.keyval == Gdk.Key.Alt_R))
 			_client.send_script("LevelEditor:camera_drag_start('idle')");
 
-		if (!_keys.has_key(ev.keyval))
-			return Gdk.EVENT_PROPAGATE;
+		if (_keys.has_key(ev.keyval))
+		{
+			if (_keys[ev.keyval])
+				_client.send_script(LevelEditorApi.key_up(key_to_string(ev.keyval)));
 
-		if (_keys[ev.keyval])
-			_client.send_script(LevelEditorApi.key_up(key_to_string(ev.keyval)));
-
-		_keys[ev.keyval] = false;
+			_keys[ev.keyval] = false;
+		}
 
 		return Gdk.EVENT_PROPAGATE;
 	}
