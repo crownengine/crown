@@ -74,8 +74,6 @@ public class ConsoleClient : GLib.Object
 
 			_connection.output_stream.write(array);
 			_connection.output_stream.write(json.data);
-			stdout.printf("sent: %.*s\n", len, json.data);
-			stdout.flush();
 		}
 		catch (Error e)
 		{
