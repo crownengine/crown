@@ -331,8 +331,8 @@ struct WindowsDevice
 		}
 		else
 		{
-			style |= WS_POPUP | WS_SYSMENU;
-			exstyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED;
+			style |= WS_POPUP;
+			exstyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_NOACTIVATE;
 		}
 
 		RECT rect;
