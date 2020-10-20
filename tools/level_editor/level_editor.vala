@@ -1380,14 +1380,17 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void close_all()
 	{
-		_user.save(_user_file.get_path());
-		save_settings();
-
+		// Disable auto-save.
 		if (_save_timer_id > 0)
 			GLib.Source.remove(_save_timer_id);
 
 		stop_backend();
 
+		// Save editor settings.
+		_user.save(_user_file.get_path());
+		save_settings();
+
+		// Destroy widgets.
 		if (_resource_chooser != null)
 			_resource_chooser.destroy();
 
