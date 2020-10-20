@@ -1386,13 +1386,13 @@ public class LevelEditorApplication : Gtk.Application
 		if (_save_timer_id > 0)
 			GLib.Source.remove(_save_timer_id);
 
+		stop_backend();
+
 		if (_resource_chooser != null)
 			_resource_chooser.destroy();
 
 		if (_preferences_dialog != null)
 			_preferences_dialog.destroy();
-
-		stop_backend();
 	}
 
 	protected override void shutdown()
