@@ -31,7 +31,7 @@ public class ConsoleClient : GLib.Object
 		}
 		catch (Error e)
 		{
-			loge(e.message);
+			// Ignore
 		}
 	}
 

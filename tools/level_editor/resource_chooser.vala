@@ -188,17 +188,21 @@ public class ResourceChooser : Gtk.Box
 		if (window_xid == 0)
 			return;
 
+		// Spawn unit_preview.
 		string args[] =
 		{
-			ENGINE_EXE,
-			"--data-dir", _project.data_dir(),
-			"--boot-dir", UNIT_PREVIEW_BOOT_DIR,
-			"--parent-window", window_xid.to_string(),
-			"--console-port", "10002",
-			"--wait-console",
-			null
+			ENGINE_EXE
+			, "--data-dir"
+			, _project.data_dir()
+			, "--boot-dir"
+			, UNIT_PREVIEW_BOOT_DIR
+			, "--parent-window"
+			, window_xid.to_string()
+			, "--console-port"
+			, UNIT_PREVIEW_TCP_PORT.to_string()
+			, "--wait-console"
+			, null
 		};
-
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(SubprocessFlags.NONE);
 		sl.set_cwd(ENGINE_DIR);
 		try
@@ -210,10 +214,21 @@ public class ResourceChooser : Gtk.Box
 			loge(e.message);
 		}
 
-		while (!_console_client.is_connected())
+		// Try to connect to unit_preview.
+		int tries;
+		for (tries = 0; tries < EDITOR_CONNECTION_TRIES; ++tries)
 		{
-			_console_client.connect("127.0.0.1", 10002);
-			GLib.Thread.usleep(100*1000);
+			_console_client.connect("127.0.0.1", UNIT_PREVIEW_TCP_PORT);
+
+			if (_console_client.is_connected())
+				break;
+
+			GLib.Thread.usleep(EDITOR_CONNECTION_INTERVAL*1000);
+		}
+		if (tries == EDITOR_CONNECTION_TRIES)
+		{
+			loge("Cannot connect to unit_preview.");
+			return;
 		}
 
 		_tree_view.set_cursor(new Gtk.TreePath.first(), null, false);

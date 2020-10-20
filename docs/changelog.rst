@@ -36,6 +36,7 @@ Changelog
 * Fixed undo/redo when setting properties of some unit components
 * Improved Project Browser to not show irrelevant items
 * Improved Test Level/Start Game button behavior when game failed to launch
+* Level Editor connection to the Data Compiler, Editor View(s) and Game is now faster and more robust
 * Level Editor now saves aggregate logs to disk. User can browse logs folder from Help > Browse Logs...
 * New Project dialog no longer allows selecting non-empty folders for new projects
 * Objects inside .level files are now ordered by their ID before serialization

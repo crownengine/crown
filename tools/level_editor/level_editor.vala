@@ -866,17 +866,21 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_slide.show_widget(starting_compiler_label());
 		_inspector_slide.show_widget(starting_compiler_label());
 
+		// Spawn the data compiler.
 		string args[] =
 		{
-			ENGINE_EXE,
-			"--source-dir", _project.source_dir(),
-			"--data-dir", _project.data_dir(),
-			"--map-source-dir", "core", _project.toolchain_dir(),
-			"--server",
-			"--wait-console",
-			null
+			ENGINE_EXE
+			, "--source-dir"
+			, _project.source_dir()
+			, "--data-dir"
+			, _project.data_dir()
+			, "--map-source-dir"
+			, "core"
+			, _project.toolchain_dir()
+			, "--server"
+			, "--wait-console"
+			, null
 		};
-
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 		sl.set_cwd(ENGINE_DIR);
 		try
@@ -888,19 +892,32 @@ public class LevelEditorApplication : Gtk.Application
 			loge(e.message);
 		}
 
-		// It is an error if compiler disconnects after here.
+		// It is an error if the data compiler. disconnects after here.
 		_compiler.disconnected.disconnect(on_compiler_disconnected);
 		_compiler.disconnected.connect(on_compiler_disconnected_unexpected);
 
-		for (int tries = 0; !_compiler.is_connected() && tries < 5; ++tries)
+		// Try to connect to data compiler.
+		int tries;
+		for (tries = 0; tries < DATA_COMPILER_CONNECTION_TRIES; ++tries)
 		{
-			_compiler.connect("127.0.0.1", CROWN_DEFAULT_SERVER_PORT);
-			GLib.Thread.usleep(250*1000);
+			_compiler.connect("127.0.0.1", DATA_COMPILER_TCP_PORT);
+
+			if (_compiler.is_connected())
+				break;
+
+			GLib.Thread.usleep(DATA_COMPILER_CONNECTION_INTERVAL*1000);
+		}
+		if (tries == DATA_COMPILER_CONNECTION_TRIES)
+		{
+			loge("Cannot connect to data_compiler");
+			return;
 		}
 
+		// Compile data.
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 			if (_data_compiler.compile.end(res))
 			{
+				// If successful, start the level editor.
 				restart_editor();
 
 				_project_slide.show_widget(_project_browser);
@@ -952,16 +969,19 @@ public class LevelEditorApplication : Gtk.Application
 		if (window_xid == 0)
 			return;
 
+		// Spawn the level editor.
 		string args[] =
 		{
-			ENGINE_EXE,
-			"--data-dir", _project.data_dir(),
-			"--boot-dir", LEVEL_EDITOR_BOOT_DIR,
-			"--parent-window", window_xid.to_string(),
-			"--wait-console",
-			null
+			ENGINE_EXE
+			, "--data-dir"
+			, _project.data_dir()
+			, "--boot-dir"
+			, LEVEL_EDITOR_BOOT_DIR
+			, "--parent-window"
+			, window_xid.to_string()
+			, "--wait-console"
+			, null
 		};
-
 		GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 		sl.set_cwd(ENGINE_DIR);
 		try
@@ -973,16 +993,28 @@ public class LevelEditorApplication : Gtk.Application
 			loge(e.message);
 		}
 
-		// It is an error if editor disconnects after here.
+		// It is an error if the level editor disconnects after here.
 		_editor.disconnected.disconnect(on_editor_disconnected);
 		_editor.disconnected.connect(on_editor_disconnected_unexpected);
 
-		for (int tries = 0; !_editor.is_connected() && tries < 10; ++tries)
+		// Try to connect to the level editor.
+		int tries;
+		for (tries = 0; tries < EDITOR_CONNECTION_TRIES; ++tries)
 		{
-			_editor.connect("127.0.0.1", 10001);
-			GLib.Thread.usleep(500*1000);
+			_editor.connect("127.0.0.1", EDITOR_TCP_PORT);
+
+			if (_editor.is_connected())
+				break;
+
+			GLib.Thread.usleep(EDITOR_CONNECTION_INTERVAL*1000);
+		}
+		if (tries == EDITOR_CONNECTION_TRIES)
+		{
+			loge("Cannot connect to level_editor");
+			return;
 		}
 
+		// Update the editor state.
 		_level.send_level();
 		send_state();
 		_preferences_dialog.apply();
@@ -1045,19 +1077,21 @@ public class LevelEditorApplication : Gtk.Application
 		_data_compiler.compile.begin(_project.data_dir(), _project.platform(), (obj, res) => {
 			if (_data_compiler.compile.end(res))
 			{
+				// Spawn the game.
 				string args[] =
 				{
-					ENGINE_EXE,
-					"--data-dir", _project.data_dir(),
-					"--console-port", "12345",
-					"--wait-console",
-					"--lua-string", sg == StartGame.TEST ? "TEST=true" : "",
-					null
+					ENGINE_EXE
+					, "--data-dir"
+					, _project.data_dir()
+					, "--console-port"
+					, GAME_TCP_PORT.to_string()
+					, "--wait-console"
+					, "--lua-string"
+					, sg == StartGame.TEST ? "TEST=true" : ""
+					, null
 				};
-
 				GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
 				sl.set_cwd(ENGINE_DIR);
-
 				try
 				{
 					_game_process = sl.spawnv(args);
@@ -1067,10 +1101,21 @@ public class LevelEditorApplication : Gtk.Application
 					loge(e.message);
 				}
 
-				for (int tries = 0; !_game.is_connected() && tries < 10; ++tries)
+				// Try to connect to the game.
+				int tries;
+				for (tries = 0; tries < GAME_CONNECTION_TRIES; ++tries)
 				{
-					_game.connect("127.0.0.1", 12345);
-					GLib.Thread.usleep(500*1000);
+					_game.connect("127.0.0.1", GAME_TCP_PORT);
+
+					if (_game.is_connected())
+						break;
+
+					GLib.Thread.usleep(GAME_CONNECTION_INTERVAL*1000);
+				}
+				if (tries == GAME_CONNECTION_TRIES)
+				{
+					loge("Cannot connect to game");
+					return;
 				}
 			}
 			else
