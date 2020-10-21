@@ -1072,6 +1072,11 @@ static void test_guid()
 		ENSURE(guid::try_parse(guid, "961f8005-6a7e-4371-9272-8454dd786884"));
 		ENSURE(!guid::try_parse(guid, "961f80056a7e-4371-9272-8454dd786884"));
 	}
+	{
+		Guid guid1 = guid::parse("8ec79062-c8fd-41b5-b044-cb545afc9976");
+		Guid guid2 = guid::parse("8f879a4e-e9dd-4981-8b9e-344bb917d7dc");
+		CE_ENSURE(guid1 < guid2);
+	}
 	guid_globals::shutdown();
 	memory_globals::shutdown();
 }

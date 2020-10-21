@@ -104,7 +104,16 @@ bool operator==(const Guid& a, const Guid& b)
 
 bool operator<(const Guid& a, const Guid& b)
 {
-	return memcmp(&a, &b, sizeof(a)) < 0;
+	if (a.data1 != b.data1)
+		return a.data1 < b.data1;
+	if (a.data2 != b.data2)
+		return a.data2 < b.data2;
+	if (a.data3 != b.data3)
+		return a.data3 < b.data3;
+	if (a.data4 != b.data4)
+		return a.data4 < b.data4;
+
+	return false;
 }
 
 u32 hash<Guid>::operator()(const Guid& id) const
