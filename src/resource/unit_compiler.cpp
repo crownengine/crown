@@ -9,6 +9,7 @@
 
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/guid.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/math.h"

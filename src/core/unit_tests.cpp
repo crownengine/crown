@@ -13,7 +13,7 @@
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
 #include "core/filesystem/path.h"
-#include "core/guid.h"
+#include "core/guid.inl"
 #include "core/json/json.h"
 #include "core/json/sjson.h"
 #include "core/math/aabb.inl"

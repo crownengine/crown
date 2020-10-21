@@ -13,6 +13,7 @@
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
+#include "core/guid.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/memory/allocator.h"

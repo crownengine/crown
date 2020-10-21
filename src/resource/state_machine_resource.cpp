@@ -9,7 +9,7 @@
 #include "core/containers/vector.inl"
 #include "core/error/error.h"
 #include "core/filesystem/file.h"
-#include "core/guid.h"
+#include "core/guid.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/math.h"
