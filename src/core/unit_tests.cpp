@@ -35,6 +35,7 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
+#include "core/strings/string_view.inl"
 #include "core/thread/thread.h"
 #include "core/time.h"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
@@ -996,6 +997,36 @@ static void test_dynamic_string()
 		ENSURE(str.length() == 16);
 		ENSURE(strcmp(str.c_str(), "2f4a8724618f4c63") == 0);
 	}
+
+static void test_string_view()
+{
+	memory_globals::init();
+	{
+		const char* str = "foo";
+		StringView sv(str);
+		ENSURE(sv._length == 3);
+		ENSURE(sv._data == &str[0]);
+	}
+	{
+		StringView sv1("foo");
+		StringView sv2("foo");
+		ENSURE(sv1 == sv2);
+	}
+	{
+		StringView sv1("foo");
+		StringView sv2("bar");
+		ENSURE(sv1 != sv2);
+	}
+	{
+		StringView sv1("bar");
+		StringView sv2("foo");
+		ENSURE(sv1 < sv2);
+	}
+	{
+		StringView sv1("foo");
+		StringView sv2("fooo");
+		ENSURE(sv1 < sv2);
+	}
 	memory_globals::shutdown();
 }
 
@@ -1457,6 +1488,7 @@ int main_unit_tests()
 	RUN_TEST(test_murmur);
 	RUN_TEST(test_string_id);
 	RUN_TEST(test_dynamic_string);
+	RUN_TEST(test_string_view);
 	RUN_TEST(test_guid);
 	RUN_TEST(test_json);
 	RUN_TEST(test_sjson);

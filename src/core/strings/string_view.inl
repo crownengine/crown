@@ -60,10 +60,18 @@ inline bool operator==(const StringView& a, const StringView& b)
 		;
 }
 
+inline bool operator!=(const StringView& a, const StringView& b)
+{
+	return a._length != b._length
+		|| strncmp(a._data, b._data, a._length) != 0
+		;
+}
+
 inline bool operator<(const StringView& a, const StringView& b)
 {
-	const u32 len = max(a._length, b._length);
-	return strncmp(a._data, b._data, len) < 0;
+	const u32 len = min(a._length, b._length);
+	const int cmp = strncmp(a._data, b._data, len);
+	return cmp < 0 || (cmp == 0 && a._length < b._length);
 }
 
 } // namespace crown
