@@ -49,6 +49,10 @@ public class ResourceChooser : Gtk.Box
 		_project = project;
 
 		_console_client = new ConsoleClient();
+		_console_client.connected.connect(on_client_connected);
+		_console_client.disconnected.connect(on_client_disconnected);
+		_console_client.message_received.connect(on_client_message_received);
+
 		_list_store = project_store._list_store;
 		_preview = preview;
 		_user_filter = user_filter;
@@ -275,6 +279,22 @@ public class ResourceChooser : Gtk.Box
 		_editor_view.realized.connect(on_editor_view_realized);
 
 		_editor_slide.show_widget(_editor_view);
+	}
+
+	private void on_client_connected(string address, int port)
+	{
+		_console_client.receive_async();
+	}
+
+	private void on_client_disconnected()
+	{
+		// Do nothing.
+	}
+
+	private void on_client_message_received(ConsoleClient client, uint8[] json)
+	{
+		// Ignore the message content.
+		_console_client.receive_async();
 	}
 
 	private void on_editor_view_realized()
