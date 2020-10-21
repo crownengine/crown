@@ -17,6 +17,10 @@ public class EntryVector4 : Gtk.Box
 	public EntryDouble _y;
 	public EntryDouble _z;
 	public EntryDouble _w;
+	public Gtk.Label _x_label;
+	public Gtk.Label _y_label;
+	public Gtk.Label _z_label;
+	public Gtk.Label _w_label;
 
 	public Vector4 value
 	{
@@ -57,9 +61,26 @@ public class EntryVector4 : Gtk.Box
 		_z.value_changed.connect(on_value_changed);
 		_w.value_changed.connect(on_value_changed);
 
+		_x_label = new Gtk.Label("X");
+		_x_label.get_style_context().add_class("axis");
+		_x_label.get_style_context().add_class("x");
+		_y_label = new Gtk.Label("Y");
+		_y_label.get_style_context().add_class("axis");
+		_y_label.get_style_context().add_class("y");
+		_z_label = new Gtk.Label("Z");
+		_z_label.get_style_context().add_class("axis");
+		_z_label.get_style_context().add_class("z");
+		_w_label = new Gtk.Label("Z");
+		_w_label.get_style_context().add_class("axis");
+		_w_label.get_style_context().add_class("w");
+
+		this.pack_start(_x_label, false);
 		this.pack_start(_x, true, true);
+		this.pack_start(_y_label, false);
 		this.pack_start(_y, true, true);
+		this.pack_start(_z_label, false);
 		this.pack_start(_z, true, true);
+		this.pack_start(_w_label, false);
 		this.pack_start(_w, true, true);
 	}
 

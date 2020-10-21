@@ -40,3 +40,7 @@
 .axis.z {
 	background: rgba(0, 0, 120, 0.8);
 }
+
+.axis.w {
+	background: rgba(120, 120, 120, 0.8);
+}

@@ -15,6 +15,8 @@ public class EntryVector2 : Gtk.Box
 	// Widgets
 	public EntryDouble _x;
 	public EntryDouble _y;
+	public Gtk.Label _x_label;
+	public Gtk.Label _y_label;
 
 	public Vector2 value
 	{
@@ -49,7 +51,16 @@ public class EntryVector2 : Gtk.Box
 		_x.value_changed.connect(on_value_changed);
 		_y.value_changed.connect(on_value_changed);
 
+		_x_label = new Gtk.Label("X");
+		_x_label.get_style_context().add_class("axis");
+		_x_label.get_style_context().add_class("x");
+		_y_label = new Gtk.Label("Y");
+		_y_label.get_style_context().add_class("axis");
+		_y_label.get_style_context().add_class("y");
+
+		this.pack_start(_x_label, false);
 		this.pack_start(_x, true, true);
+		this.pack_start(_y_label, false);
 		this.pack_start(_y, true, true);
 	}
 
