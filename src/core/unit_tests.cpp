@@ -997,6 +997,32 @@ static void test_dynamic_string()
 		ENSURE(str.length() == 16);
 		ENSURE(strcmp(str.c_str(), "2f4a8724618f4c63") == 0);
 	}
+	{
+		TempAllocator128 ta;
+		DynamicString ds1(ta);
+		DynamicString ds2(ta);
+		ds1.set("foo", 3);
+		ds2.set("foo", 3);
+		ENSURE(ds1 == ds2);
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString ds1(ta);
+		DynamicString ds2(ta);
+		ds1.set("foo", 3);
+		ds2.set("bar", 3);
+		ENSURE(ds1 != ds2);
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString ds1(ta);
+		DynamicString ds2(ta);
+		ds1.set("bar", 3);
+		ds2.set("foo", 3);
+		ENSURE(ds1 < ds2);
+	}
+	memory_globals::shutdown();
+}
 
 static void test_string_view()
 {
