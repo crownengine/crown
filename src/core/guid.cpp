@@ -7,7 +7,6 @@
 #include "core/guid.h"
 #include "core/platform.h"
 #include <stdio.h>  // sscanf
-#include <string.h> // memcmp
 
 #if CROWN_PLATFORM_POSIX
 	#include <fcntl.h>
@@ -99,7 +98,11 @@ namespace guid
 
 bool operator==(const Guid& a, const Guid& b)
 {
-	return memcmp(&a, &b, sizeof(a)) == 0;
+	return a.data1 == b.data1
+		&& a.data2 == b.data2
+		&& a.data3 == b.data3
+		&& a.data4 == b.data4
+		;
 }
 
 bool operator<(const Guid& a, const Guid& b)
