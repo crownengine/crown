@@ -184,12 +184,12 @@ public class LevelEditorApplication : Gtk.Application
 
 	private const GLib.ActionEntry[] action_entries_debug =
 	{
-		{ "menu-debug", null,              null, null },
-		{ "test-level", on_run_game,       null, null },
-		{ "run-game",   on_run_game,       null, null },
-		{ "build-data", on_build_data,     null, null },
-		{ "reload-lua", on_refresh_lua,    null, null },
-		{ "restart",    on_editor_restart, null, null }
+		{ "menu-debug",          null,                   null, null },
+		{ "test-level",          on_run_game,            null, null },
+		{ "run-game",            on_run_game,            null, null },
+		{ "build-data",          on_build_data,          null, null },
+		{ "reload-lua",          on_refresh_lua,         null, null },
+		{ "restart-editor-view", on_restart_editor_view, null, null }
 	};
 
 	private const GLib.ActionEntry[] action_entries_help =
@@ -1790,7 +1790,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	private void on_editor_restart(GLib.SimpleAction action, GLib.Variant? param)
+	private void on_restart_editor_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		restart_editor();
 	}

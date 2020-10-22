@@ -407,7 +407,7 @@
       <section>
         <item>
           <attribute name="label" translatable="yes">_Restart Editor View</attribute>
-          <attribute name="action">app.restart</attribute>
+          <attribute name="action">app.restart-editor-view</attribute>
         </item>
       </section>
     </submenu>
