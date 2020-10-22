@@ -43,6 +43,10 @@ Changelog
 * Save Level dialog now warns before overwriting a file that already exists
 * Unified Engine and Run menubar items into a single Debug menubar item
 
+**Lua API**
+
+* Added Matrix4x4.equal()
+
 0.38.0
 ------
 *24 Aug 2020*

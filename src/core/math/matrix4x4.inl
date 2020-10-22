@@ -153,6 +153,16 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 	return a;
 }
 
+/// Returns true whether the matrices @a a and @a b are equal.
+inline bool operator==(const Matrix4x4& a, const Matrix4x4& b)
+{
+	return a.x == b.x
+		&& a.y == b.y
+		&& a.z == b.z
+		&& a.t == b.t
+		;
+}
+
 /// Transposes the matrix @a m and returns the result.
 inline Matrix4x4& transpose(Matrix4x4& m)
 {

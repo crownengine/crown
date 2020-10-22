@@ -848,6 +848,12 @@ void load_api(LuaEnvironment& env)
 			stack.push_matrix4x4(stack.get_matrix4x4(1) * stack.get_matrix4x4(2));
 			return 1;
 		});
+	env.add_module_function("Matrix4x4", "equal", [](lua_State* L)
+		{
+			LuaStack stack(L);
+			stack.push_bool(stack.get_matrix4x4(1) == stack.get_matrix4x4(2));
+			return 1;
+		});
 	env.add_module_function("Matrix4x4", "transpose", [](lua_State* L)
 		{
 			LuaStack stack(L);

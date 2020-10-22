@@ -674,6 +674,9 @@ Functions
 **multiply** (a, b) : Matrix4x4
 	Multiplies the matrix *a* by *b* and returns the result. (i.e. transforms first by *a* then by *b*)
 
+**equal** (a, b) : bool
+	Returns true whether the matrices *a* and *b* are equal.
+
 **transpose** (m) : Matrix4x4
 	Transposes the matrix *m* and returns the result.
 
