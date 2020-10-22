@@ -219,6 +219,10 @@ public class LevelEditorApplication : Gtk.Application
 	private LevelEditorApi.SnapMode _snap_mode;
 	private LevelEditorApi.ReferenceSystem _reference_system;
 
+	// Project state
+	private string _placeable_type;
+	private string _placeable_name;
+
 	// Accelerators
 	private string[] _tool_place_accels;
 	private string[] _tool_move_accels;
@@ -359,6 +363,10 @@ public class LevelEditorApplication : Gtk.Application
 		_tool_type = LevelEditorApi.ToolType.MOVE;
 		_snap_mode = LevelEditorApi.SnapMode.RELATIVE;
 		_reference_system = LevelEditorApi.ReferenceSystem.LOCAL;
+
+		// Project state
+		_placeable_type = "";
+		_placeable_name = "";
 
 		// Engine connections
 		_compiler_process = null;
@@ -588,7 +596,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	private void on_resource_browser_resource_selected(string type, string name)
 	{
-		_editor.send_script(LevelEditorApi.set_placeable(type, name));
+		set_placeable(type, name);
 		activate_action("tool", new GLib.Variant.string("place"));
 	}
 
@@ -796,9 +804,9 @@ public class LevelEditorApplication : Gtk.Application
 		client.receive_async();
 	}
 
-	private void send_state()
+	private void append_editor_state(StringBuilder sb)
 	{
-		StringBuilder sb = new StringBuilder();
+		// This state is common to any project.
 		sb.append(LevelEditorApi.set_grid_size(_grid_size));
 		sb.append(LevelEditorApi.set_rotation_snap(_rotation_snap));
 		sb.append(LevelEditorApi.enable_show_grid(_show_grid));
@@ -808,6 +816,20 @@ public class LevelEditorApplication : Gtk.Application
 		sb.append(LevelEditorApi.set_tool_type(_tool_type));
 		sb.append(LevelEditorApi.set_snap_mode(_snap_mode));
 		sb.append(LevelEditorApi.set_reference_system(_reference_system));
+	}
+
+	private void append_project_state(StringBuilder sb)
+	{
+		// This state is not guaranteed to be applicable to any project.
+		if (_placeable_type != "")
+			sb.append(LevelEditorApi.set_placeable(_placeable_type, _placeable_name));
+	}
+
+	private void send_state()
+	{
+		StringBuilder sb = new StringBuilder();
+		append_editor_state(sb);
+		append_project_state(sb);
 		_editor.send_script(sb.str);
 	}
 
@@ -856,6 +878,12 @@ public class LevelEditorApplication : Gtk.Application
 
 		string sd = source_dir;
 		string ln = level_name;
+
+		// Reset project state.
+		_placeable_type = "";
+		_placeable_name = "";
+
+		// Load project and level if any.
 		_project.load(sd);
 		if (ln != "")
 			_level.load(ln);
@@ -1693,21 +1721,21 @@ public class LevelEditorApplication : Gtk.Application
 	private void on_create_primitive(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (action.name == "primitive-cube")
-			_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cube"));
+			set_placeable("unit", "core/units/primitives/cube");
 		else if (action.name == "primitive-sphere")
-			_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/sphere"));
+			set_placeable("unit", "core/units/primitives/sphere");
 		else if (action.name == "primitive-cone")
-			_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cone"));
+			set_placeable("unit", "core/units/primitives/cone");
 		else if (action.name == "primitive-cylinder")
-			_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/cylinder"));
+			set_placeable("unit", "core/units/primitives/cylinder");
 		else if (action.name == "primitive-plane")
-			_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/primitives/plane"));
+			set_placeable("unit", "core/units/primitives/plane");
 		else if (action.name == "camera")
-			_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/camera"));
+			set_placeable("unit", "core/units/camera");
 		else if (action.name == "light")
-			_editor.send_script(LevelEditorApi.set_placeable("unit", "core/units/light"));
+			set_placeable("unit", "core/units/light");
 		else if (action.name == "sound-source")
-			_editor.send_script(LevelEditorApi.set_placeable("sound", ""));
+			set_placeable("sound", "");
 
 		activate_action("tool", new GLib.Variant.string("place"));
 	}
@@ -2055,6 +2083,13 @@ public class LevelEditorApplication : Gtk.Application
 			menu_set_enabled(false, action_entries_debug);
 			menu_set_enabled( true, action_entries_help);
 		}
+	}
+
+	public void set_placeable(string type, string name)
+	{
+		_placeable_type = type;
+		_placeable_name = name;
+		_editor.send_script(LevelEditorApi.set_placeable(type, name));
 	}
 }
 
