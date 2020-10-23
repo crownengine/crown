@@ -600,7 +600,6 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		set_placeable(type, name);
 		activate_action("tool", new GLib.Variant.string("place"));
-		_editor_view.grab_focus();
 	}
 
 	private void on_compiler_connected(string address, int port)
@@ -1263,6 +1262,7 @@ public class LevelEditorApplication : Gtk.Application
 		else if (name == "scale")
 			_tool_type = LevelEditorApi.ToolType.SCALE;
 
+		_editor_view.grab_focus();
 		send_state();
 		action.set_state(param);
 	}
