@@ -598,6 +598,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		set_placeable(type, name);
 		activate_action("tool", new GLib.Variant.string("place"));
+		_editor_view.grab_focus();
 	}
 
 	private void on_compiler_connected(string address, int port)
