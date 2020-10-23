@@ -13,7 +13,7 @@ extern uint gdk_win32_window_get_handle (Gdk.Window window);
 
 namespace Crown
 {
-public class EditorView : Gtk.Alignment
+public class EditorView : Gtk.EventBox
 {
 	// Data
 	private ConsoleClient _client;
@@ -38,7 +38,6 @@ public class EditorView : Gtk.Alignment
 #if CROWN_PLATFORM_LINUX
 	private Gtk.Socket _socket;
 #endif
-	public Gtk.EventBox _event_box;
 
 	// Signals
 	public signal void realized();
@@ -72,11 +71,6 @@ public class EditorView : Gtk.Alignment
 
 	public EditorView(ConsoleClient client, bool input_enabled = true)
 	{
-		this.xalign = 0;
-		this.yalign = 0;
-		this.xscale = 1;
-		this.yscale = 1;
-
 		_client = client;
 
 		_mouse_curr_x = 0;
@@ -104,34 +98,32 @@ public class EditorView : Gtk.Alignment
 		_socket.plug_removed.connect(on_socket_plug_removed);
 		_socket.set_size_request(128, 128);
 #endif
-		_event_box = new Gtk.EventBox();
-		_event_box.can_focus = true;
-		_event_box.events |= Gdk.EventMask.POINTER_MOTION_MASK
+		this.can_focus = true;
+		this.events |= Gdk.EventMask.POINTER_MOTION_MASK
 			| Gdk.EventMask.KEY_PRESS_MASK
 			| Gdk.EventMask.KEY_RELEASE_MASK
 			| Gdk.EventMask.FOCUS_CHANGE_MASK
 			| Gdk.EventMask.SCROLL_MASK
 			;
-		_event_box.focus_out_event.connect(on_event_box_focus_out_event);
+		this.focus_out_event.connect(on_event_box_focus_out_event);
 #if CROWN_PLATFORM_WINDOWS
-		_event_box.realize.connect(on_event_box_realized);
-		_event_box.size_allocate.connect(on_size_allocate);
+		this.realize.connect(on_event_box_realized);
+		this.size_allocate.connect(on_size_allocate);
 #endif
 
 		if (input_enabled)
 		{
-			_event_box.button_release_event.connect(on_button_release);
-			_event_box.button_press_event.connect(on_button_press);
-			_event_box.key_press_event.connect(on_key_press);
-			_event_box.key_release_event.connect(on_key_release);
-			_event_box.motion_notify_event.connect(on_motion_notify);
-			_event_box.scroll_event.connect(on_scroll);
+			this.button_release_event.connect(on_button_release);
+			this.button_press_event.connect(on_button_press);
+			this.key_press_event.connect(on_key_press);
+			this.key_release_event.connect(on_key_release);
+			this.motion_notify_event.connect(on_motion_notify);
+			this.scroll_event.connect(on_scroll);
 		}
 
 #if CROWN_PLATFORM_LINUX
-		_event_box.add(_socket);
+		this.add(_socket);
 #endif
-		add(_event_box);
 	}
 
 	private bool on_button_release(Gdk.EventButton ev)
@@ -165,7 +157,7 @@ public class EditorView : Gtk.Alignment
 	private bool on_button_press(Gdk.EventButton ev)
 	{
 		// Grab keyboard focus
-		_event_box.grab_focus();
+		this.grab_focus();
 
 		_mouse_left   = ev.button == Gdk.BUTTON_PRIMARY   ? true : _mouse_left;
 		_mouse_middle = ev.button == Gdk.BUTTON_MIDDLE    ? true : _mouse_middle;
@@ -279,8 +271,8 @@ public class EditorView : Gtk.Alignment
 #elif CROWN_PLATFORM_WINDOWS
 	private void on_event_box_realized()
 	{
-		_event_box.get_window().ensure_native();
-		_window_id = gdk_win32_window_get_handle(_event_box.get_window());
+		this.get_window().ensure_native();
+		_window_id = gdk_win32_window_get_handle(this.get_window());
 		realized();
 	}
 
