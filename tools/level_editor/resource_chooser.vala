@@ -132,6 +132,7 @@ public class ResourceChooser : Gtk.Box
 		_editor_slide.show_widget(label);
 
 		this.destroy.connect(on_destroy);
+		this.unmap.connect(on_unmap);
 
 		restart_editor();
 	}
@@ -185,6 +186,11 @@ public class ResourceChooser : Gtk.Box
 	private void on_destroy()
 	{
 		stop_editor();
+	}
+
+	private void on_unmap()
+	{
+		_filter_entry.text = "";
 	}
 
 	private void start_editor(uint window_xid)
