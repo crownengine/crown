@@ -191,6 +191,12 @@ public class EditorView : Gtk.EventBox
 
 	private bool on_key_press(Gdk.EventKey ev)
 	{
+		if (ev.keyval == Gdk.Key.Escape)
+		{
+			LevelEditorApplication app = (LevelEditorApplication)((Gtk.Window)this.get_toplevel()).application;
+			app.activate_last_tool_before_place();
+		}
+
 		if (ev.keyval == Gdk.Key.Up)
 			_client.send_script("LevelEditor:key_down(\"move_up\")");
 		if (ev.keyval == Gdk.Key.Down)

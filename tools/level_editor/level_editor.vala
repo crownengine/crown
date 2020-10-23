@@ -216,6 +216,7 @@ public class LevelEditorApplication : Gtk.Application
 	private bool _debug_render_world;
 	private bool _debug_physics_world;
 	private LevelEditorApi.ToolType _tool_type;
+	private LevelEditorApi.ToolType _tool_type_prev;
 	private LevelEditorApi.SnapMode _snap_mode;
 	private LevelEditorApi.ReferenceSystem _reference_system;
 
@@ -361,6 +362,7 @@ public class LevelEditorApplication : Gtk.Application
 		_debug_render_world = false;
 		_debug_physics_world = false;
 		_tool_type = LevelEditorApi.ToolType.MOVE;
+		_tool_type_prev = _tool_type;
 		_snap_mode = LevelEditorApi.SnapMode.RELATIVE;
 		_reference_system = LevelEditorApi.ReferenceSystem.LOCAL;
 
@@ -1247,7 +1249,13 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string name = param.get_string();
 		if (name == "place")
+		{
+			// Store previous tool for it to be restored later.
+			if (_tool_type != LevelEditorApi.ToolType.PLACE)
+				_tool_type_prev = _tool_type;
+
 			_tool_type = LevelEditorApi.ToolType.PLACE;
+		}
 		else if (name == "move")
 			_tool_type = LevelEditorApi.ToolType.MOVE;
 		else if (name == "rotate")
@@ -2091,6 +2099,23 @@ public class LevelEditorApplication : Gtk.Application
 		_placeable_type = type;
 		_placeable_name = name;
 		_editor.send_script(LevelEditorApi.set_placeable(type, name));
+	}
+
+	public void activate_last_tool_before_place()
+	{
+		const string type_to_name[] =
+		{
+			"place",
+			"move",
+			"rotate",
+			"scale"
+		};
+		GLib.static_assert(type_to_name.length == LevelEditorApi.ToolType.COUNT);
+
+		if (_tool_type != LevelEditorApi.ToolType.PLACE)
+			return;
+
+		activate_action("tool", new GLib.Variant.string(type_to_name[_tool_type_prev]));
 	}
 }
 

@@ -135,19 +135,22 @@ namespace LevelEditorApi
 		PLACE,
 		MOVE,
 		ROTATE,
-		SCALE
-	}
+		SCALE,
 
-	private const string[] _tools =
-	{
-		"place_tool",
-		"move_tool",
-		"rotate_tool",
-		"scale_tool"
-	};
+		COUNT
+	}
 
 	public string set_tool_type(ToolType type)
 	{
+		const string _tools[] =
+		{
+			"place_tool",
+			"move_tool",
+			"rotate_tool",
+			"scale_tool"
+		};
+		GLib.static_assert(_tools.length == LevelEditorApi.ToolType.COUNT);
+
 		return "LevelEditor:set_tool(LevelEditor.%s)".printf(_tools[(int)type]);
 	}
 
