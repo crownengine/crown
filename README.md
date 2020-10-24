@@ -8,6 +8,7 @@ It is loosely inspired by Bitsquid (now Stingray) engine and its design principl
 ## Download
 
   * [Crown v0.39.0 for Linux 64-bits](https://github.com/dbartolini/crown/releases/download/v0.39.0/crown-0.39.0-linux-x64.tar.gz)
+  * [Crown v0.39.0 for Windows 64-bits](https://github.com/dbartolini/crown/releases/download/v0.39.0/crown-0.39.0-windows-x64.tar.gz)
   * [Changelog](https://dbartolini.github.io/crown/html/latest/changelog.html)
   
 ## Support & Development
