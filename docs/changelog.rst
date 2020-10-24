@@ -3,7 +3,7 @@ Changelog
 
 0.39.0
 ------
-*DD MMM YYYY*
+*24 Oct 2020*
 
 **Data Compiler**
 
