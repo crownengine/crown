@@ -200,19 +200,8 @@ public class LevelTreeView : Gtk.Box
 
 			mi = new Gtk.MenuItem.with_label("Delete");
 			mi.activate.connect(() => {
-				Guid[] ids = {};
-				_tree_selection.selected_foreach((model, path, iter) => {
-					Value type;
-					model.get_value(iter, Column.TYPE, out type);
-					if ((int)type == ItemType.FOLDER)
-						return;
-
-					Value id;
-					model.get_value(iter, Column.GUID, out id);
-					ids += (Guid)id;
-				});
-
-				_level.destroy_objects(ids);
+				Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+				app.activate_action("delete", null);
 			});
 			menu.add(mi);
 
