@@ -139,6 +139,21 @@ public class LevelTreeView : Gtk.Box
 	{
 		if (ev.button == Gdk.BUTTON_SECONDARY)
 		{
+			Gtk.TreePath path;
+			Gtk.TreeViewColumn column;
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, out column, null, null))
+			{
+				if (!_tree_selection.path_is_selected(path))
+				{
+					_tree_selection.unselect_all();
+					_tree_selection.select_path(path);
+				}
+			}
+			else // Clicked on empty space.
+			{
+				return Gdk.EVENT_PROPAGATE;
+			}
+
 			Gtk.Menu menu = new Gtk.Menu();
 			Gtk.MenuItem mi;
 
