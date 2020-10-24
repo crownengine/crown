@@ -168,23 +168,29 @@ public class LevelTreeView : Gtk.Box
 
 				if (dg.run() == (int)ResponseType.OK)
 				{
+					string cur_name = "";
+					string new_name = "";
+					Guid object_id = GUID_ZERO;
+
 					_tree_selection.selected_foreach((model, path, iter) => {
 						Value type;
 						model.get_value(iter, Column.TYPE, out type);
 						if ((int)type == ItemType.FOLDER)
 							return;
 
-						string new_name = sb.text.strip();
-
 						Value name;
 						model.get_value(iter, Column.NAME, out name);
-						if (new_name == "" || new_name == (string)name)
-							return;
+						cur_name = (string)name;
 
 						Value guid;
 						model.get_value(iter, Column.GUID, out guid);
-						_level.object_set_editor_name((Guid)guid, new_name);
+						object_id = (Guid)guid;
+
+						new_name = sb.text.strip();
 					});
+
+					if (new_name != "" && new_name != cur_name)
+						_level.object_set_editor_name(object_id, new_name);
 				}
 
 				dg.destroy();
