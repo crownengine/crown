@@ -155,6 +155,12 @@ public class LevelTreeView : Gtk.Box
 					);
 
 				EntryText sb = new EntryText();
+				_tree_selection.selected_foreach((model, path, iter) => {
+					Value name;
+					model.get_value(iter, Column.NAME, out name);
+					sb.text = (string)name;
+					return;
+				});
 				sb.activate.connect(() => { dg.response(ResponseType.OK); });
 				dg.get_content_area().add(sb);
 				dg.skip_taskbar_hint = true;
