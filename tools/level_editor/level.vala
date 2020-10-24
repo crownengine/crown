@@ -201,6 +201,7 @@ public class Level
 			}
 		}
 		send_spawn_objects(new_ids);
+		selection_set(ids);
 	}
 
 	public void on_unit_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
