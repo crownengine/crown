@@ -183,7 +183,8 @@ public class LevelTreeView : Gtk.Box
 
 				dg.destroy();
 			});
-			menu.add(mi);
+			if (_tree_selection.count_selected_rows() == 1)
+				menu.add(mi);
 
 			mi = new Gtk.MenuItem.with_label("Delete");
 			mi.activate.connect(() => {
