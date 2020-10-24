@@ -15,7 +15,7 @@ Changelog
 
 **Runtime**
 
-* Remove support for 32-bit x86 architectures
+* Removed support for 32-bit x86 architectures
 
 **Tools**
 
@@ -23,6 +23,7 @@ Changelog
 * Added ability to crate new units from Project Browser
 * Added Debug > Build Data
 * Added QWER accelerators to place, move, rotate and scale object actions
+* Added the ability to duplicate objects from Level Tree
 * Added Welcome panel with a list of recent projects and the ability to create new projects or import existing ones
 * Bumped minimum GTK+ version to 3.16 (Ubuntu 16.04.2+)
 * Fix an issue that caused the Editor View camera not returning to idle in some circumnstances
@@ -33,6 +34,7 @@ Changelog
 * Fixed an issue that prevented some components from being removed when reimporting sprites
 * Fixed and issue that caused generation of spurious "set-actions" when editing properties in the Properties panel
 * Fixed modifier keys getting stuck in the wrong state in some circumnstances
+* Fixed multiple selection in Level Tree
 * Fixed undo/redo when setting properties of some unit components
 * Improved Project Browser to not show irrelevant items
 * Improved Test Level/Start Game button behavior when game failed to launch
