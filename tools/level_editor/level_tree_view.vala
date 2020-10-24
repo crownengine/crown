@@ -198,6 +198,13 @@ public class LevelTreeView : Gtk.Box
 			if (_tree_selection.count_selected_rows() == 1)
 				menu.add(mi);
 
+			mi = new Gtk.MenuItem.with_label("Duplicate");
+			mi.activate.connect(() => {
+				Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
+				app.activate_action("duplicate", null);
+			});
+			menu.add(mi);
+
 			mi = new Gtk.MenuItem.with_label("Delete");
 			mi.activate.connect(() => {
 				Gtk.Application app = ((Gtk.Window)this.get_toplevel()).application;
