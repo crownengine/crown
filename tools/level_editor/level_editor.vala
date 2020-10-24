@@ -646,7 +646,7 @@ public class LevelEditorApplication : Gtk.Application
 		Gtk.Label label = new Gtk.Label(null);
 		label.set_markup("Something went wrong.\rTry to <a href=\"restart\">restart</a> this view.");
 		label.activate_link.connect(() => {
-			activate_action("restart", null);
+			activate_action("restart-editor-view", null);
 			return true;
 		});
 		_editor_slide.show_widget(label);
