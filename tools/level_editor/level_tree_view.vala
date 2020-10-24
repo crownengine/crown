@@ -218,6 +218,7 @@ public class LevelTreeView : Gtk.Box
 
 			menu.show_all();
 			menu.popup(null, null, null, ev.button, ev.time);
+			return Gdk.EVENT_STOP;
 		}
 
 		return Gdk.EVENT_PROPAGATE;
