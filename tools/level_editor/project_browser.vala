@@ -201,9 +201,7 @@ public class ProjectBrowser : Gtk.Box
 		if (ev.button == Gdk.BUTTON_SECONDARY)
 		{
 			Gtk.TreePath path;
-			int cell_x;
-			int cell_y;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
 			{
 				Gtk.TreeIter iter;
 				_tree_view.model.get_iter(out iter, path);
@@ -452,9 +450,7 @@ public class ProjectBrowser : Gtk.Box
 			if (ev.type == Gdk.EventType.2BUTTON_PRESS)
 			{
 				Gtk.TreePath path;
-				int cell_x;
-				int cell_y;
-				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
+				if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
 				{
 					Gtk.TreeIter iter;
 					_tree_view.model.get_iter(out iter, path);
@@ -499,9 +495,7 @@ public class ProjectBrowser : Gtk.Box
 		if (ev.button == Gdk.BUTTON_PRIMARY)
 		{
 			Gtk.TreePath path;
-			int cell_x;
-			int cell_y;
-			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, out cell_x, out cell_y))
+			if (_tree_view.get_path_at_pos((int)ev.x, (int)ev.y, out path, null, null, null))
 			{
 				Gtk.TreeIter iter;
 				_tree_view.model.get_iter(out iter, path);
