@@ -6,10 +6,14 @@ Crown is a general purpose data-driven game engine, written from scratch in [ort
 It is loosely inspired by Bitsquid (now Stingray) engine and its design principles; the current Lua API is similar to that of Bitsquid but this engine is *not* meant to be its clone *nor* to be API compatible with it.
 
 ## Download
+### Binaries
 
+  * [Changelog](https://dbartolini.github.io/crown/html/latest/changelog.html)
   * [Crown v0.39.0 for Linux 64-bits](https://github.com/dbartolini/crown/releases/download/v0.39.0/crown-0.39.0-linux-x64.tar.gz)
   * [Crown v0.39.0 for Windows 64-bits](https://github.com/dbartolini/crown/releases/download/v0.39.0/crown-0.39.0-windows-x64.zip)
-  * [Changelog](https://dbartolini.github.io/crown/html/latest/changelog.html)
+  
+### Arch Linux (AUR)
+    yay -S crown
   
 ## Support & Development
 
