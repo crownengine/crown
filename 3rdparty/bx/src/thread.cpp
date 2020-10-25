@@ -4,6 +4,7 @@
  */
 
 #include "bx_p.h"
+#include <bx/os.h>
 #include <bx/thread.h>
 
 #if BX_CONFIG_SUPPORTS_THREADING
@@ -279,8 +280,9 @@ namespace bx
 #elif BX_PLATFORM_WINDOWS
 		// Try to use the new thread naming API from Win10 Creators update onwards if we have it
 		typedef HRESULT (WINAPI *SetThreadDescriptionProc)(HANDLE, PCWSTR);
-		SetThreadDescriptionProc SetThreadDescription = (SetThreadDescriptionProc)(GetProcAddress(GetModuleHandleA("Kernel32.dll"), "SetThreadDescription"));
-		if (SetThreadDescription)
+		SetThreadDescriptionProc SetThreadDescription = dlsym<SetThreadDescriptionProc>((void*)GetModuleHandleA("Kernel32.dll"), "SetThreadDescription");
+
+		if (NULL != SetThreadDescription)
 		{
 			uint32_t length = (uint32_t)bx::strLen(_name)+1;
 			uint32_t size = length*sizeof(wchar_t);
