@@ -158,6 +158,28 @@ namespace mesh_resource_internal
 #if CROWN_CAN_COMPILE
 namespace mesh_resource_internal
 {
+	static void parse_float_array(Array<f32>& output, const char* json)
+	{
+		TempAllocator4096 ta;
+		JsonArray floats(ta);
+		sjson::parse_array(floats, json);
+
+		array::resize(output, array::size(floats));
+		for (u32 i = 0; i < array::size(floats); ++i)
+			output[i] = sjson::parse_float(floats[i]);
+	}
+
+	static void parse_index_array(Array<u16>& output, const char* json)
+	{
+		TempAllocator4096 ta;
+		JsonArray indices(ta);
+		sjson::parse_array(indices, json);
+
+		array::resize(output, array::size(indices));
+		for (u32 i = 0; i < array::size(indices); ++i)
+			output[i] = (u16)sjson::parse_int(indices[i]);
+	}
+
 	struct MeshCompiler
 	{
 		CompileOptions& _opts;
