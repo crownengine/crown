@@ -315,7 +315,10 @@ inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 	vector::resize(*this, size);
 
 	for (u32 i = 0; i < size; ++i)
-		new (&_data[i]) T(other._data[i]);
+	{
+		construct<T>(_data + i, *_allocator, IS_ALLOCATOR_AWARE_TYPE(T)());
+		_data[i] = other._data[i];
+	}
 
 	return *this;
 }
