@@ -353,8 +353,9 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 	// offsets[  1] = { prefab = ..., ... }                    <- Prefab of the original unit
 	// offsets[  2] = { prefab = ..., ... }                    <- Prefab of the prefab of the original unit
 	// offsets[n-1] = { prefab = nil, ... }                    <- Root unit
-	if (collect_units(data, offsets, json) < 0)
-		return -1;
+	s32 err = 0;
+	err = collect_units(data, offsets, json);
+	DATA_COMPILER_ENSURE(err >= 0, _opts);
 
 	TempAllocator4096 ta;
 	JsonArray merged_components(ta);
@@ -499,8 +500,8 @@ s32 UnitCompiler::compile_unit_from_json(const char* json)
 			const StringId32 type = sjson::parse_string_id(component["type"]);
 
 			Buffer output(default_allocator());
-			if (compile_component(output, type, merged_components_data[cc]) != 0)
-				return -1;
+			err = compile_component(output, type, merged_components_data[cc]);
+			DATA_COMPILER_ENSURE(err == 0, _opts);
 
 			add_component_data(type, output, _num_units);
 		}
@@ -518,8 +519,8 @@ s32 UnitCompiler::compile_multiple_units(const char* json)
 
 	for (u32 i = 0; i < array::size(units); ++i)
 	{
-		if (compile_unit_from_json(units[i]) != 0)
-			return -1;
+		s32 err = compile_unit_from_json(units[i]);
+		DATA_COMPILER_ENSURE(err == 0, _opts);
 	}
 
 	return 0;

@@ -83,8 +83,9 @@ namespace level_resource_internal
 		}
 
 		UnitCompiler uc(opts);
-		if (uc.compile_multiple_units(obj["units"]) != 0)
-			return -1;
+		s32 err = 0;
+		err = uc.compile_multiple_units(obj["units"]);
+		DATA_COMPILER_ENSURE(err == 0, opts);
 
 		Buffer unit_blob = uc.blob();
 

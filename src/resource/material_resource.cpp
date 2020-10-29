@@ -289,13 +289,13 @@ namespace material_resource_internal
 
 		if (json_object::has(obj, "textures"))
 		{
-			if (parse_textures(obj["textures"], texdata, names, dynblob, opts) != 0)
-				return -1;
+			s32 err = parse_textures(obj["textures"], texdata, names, dynblob, opts);
+			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
 		if (json_object::has(obj, "uniforms"))
 		{
-			if (parse_uniforms(obj["uniforms"], unidata, names, dynblob, opts) != 0)
-				return -1;
+			s32 err = parse_uniforms(obj["uniforms"], unidata, names, dynblob, opts);
+			DATA_COMPILER_ENSURE(err == 0, opts);
 		}
 
 		MaterialResource mr;

@@ -174,18 +174,31 @@ namespace package_resource_internal
 		if (json_object::has(obj, "shader"))           sjson::parse_array(shader, obj["shader"]);
 		if (json_object::has(obj, "sprite_animation")) sjson::parse_array(sprite_animation, obj["sprite_animation"]);
 
-		if (compile_resources(resources_set, opts, "texture", texture) != 0) return -1;
-		if (compile_resources(resources_set, opts, "lua", script) != 0) return -1;
-		if (compile_resources(resources_set, opts, "sound", sound) != 0) return -1;
-		if (compile_resources(resources_set, opts, "mesh", mesh) != 0) return -1;
-		if (compile_resources(resources_set, opts, "unit", unit) != 0) return -1;
-		if (compile_resources(resources_set, opts, "sprite", sprite) != 0) return -1;
-		if (compile_resources(resources_set, opts, "material", material) != 0) return -1;
-		if (compile_resources(resources_set, opts, "font", font) != 0) return -1;
-		if (compile_resources(resources_set, opts, "level", level) != 0) return -1;
-		if (compile_resources(resources_set, opts, "physics_config", phyconf) != 0) return -1;
-		if (compile_resources(resources_set, opts, "shader", shader) != 0) return -1;
-		if (compile_resources(resources_set, opts, "sprite_animation", sprite_animation) != 0) return -1;
+		s32 err = 0;
+		err = compile_resources(resources_set, opts, "texture", texture);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "lua", script);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "sound", sound);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "mesh", mesh);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "unit", unit);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "sprite", sprite);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "material", material);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "font", font);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "level", level);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "physics_config", phyconf);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "shader", shader);
+		DATA_COMPILER_ENSURE(err == 0, opts);
+		err = compile_resources(resources_set, opts, "sprite_animation", sprite_animation);
+		DATA_COMPILER_ENSURE(err == 0, opts);
 
 		// Generate resource list
 		auto cur = hash_set::begin(resources_set);

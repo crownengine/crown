@@ -18,8 +18,8 @@ namespace unit_resource_internal
 		Buffer unit_data(default_allocator());
 
 		UnitCompiler uc(opts);
-		if (uc.compile_unit(opts.source_path()) != 0)
-			return -1;
+		s32 err = uc.compile_unit(opts.source_path());
+		DATA_COMPILER_ENSURE(err == 0, opts);
 
 		opts.write(uc.blob());
 		return 0;
