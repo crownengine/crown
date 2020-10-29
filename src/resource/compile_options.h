@@ -28,6 +28,8 @@
 		}                                               \
 	} while(0)
 
+#define DATA_COMPILER_ENSURE(condition, opts) DATA_COMPILER_ASSERT(condition, opts, "")
+
 #define DATA_COMPILER_ASSERT_RESOURCE_EXISTS(type, name, opts) \
 	DATA_COMPILER_ASSERT(opts.resource_exists(type, name)      \
 		, opts                                                 \
