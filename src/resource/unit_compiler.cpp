@@ -548,9 +548,9 @@ Buffer UnitCompiler::blob()
 	Buffer buf(default_allocator());
 	array::push(buf, (char*)&ur, sizeof(ur));
 
-	for (u32 i = 0; i < array::size(_component_info); ++i)
+	for (u32 ii = 0; ii < array::size(_component_info); ++ii)
 	{
-		const StringId32 type        = _component_info[i]._type;
+		const StringId32 type        = _component_info[ii]._type;
 		const ComponentTypeData& ctd = hash_map::get(_component_data, type, ComponentTypeData(default_allocator()));
 
 		const Buffer& data           = ctd._data;
@@ -572,7 +572,7 @@ Buffer UnitCompiler::blob()
 			array::push(buf, array::begin(data), array::size(data));
 
 			// Insert padding
-			for (u32 i = 0; i < pad; ++i)
+			for (u32 jj = 0; jj < pad; ++jj)
 				array::push_back(buf, (char)0);
 		}
 	}

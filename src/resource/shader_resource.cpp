@@ -1099,20 +1099,20 @@ namespace shader_resource_internal
 			JsonArray static_compile(ta);
 			sjson::parse_array(static_compile, json);
 
-			for (u32 i = 0; i < array::size(static_compile); ++i)
+			for (u32 ii = 0; ii < array::size(static_compile); ++ii)
 			{
 				JsonObject obj(ta);
-				sjson::parse_object(obj, static_compile[i]);
+				sjson::parse_object(obj, static_compile[ii]);
 
 				StaticCompile sc(default_allocator());
 				sjson::parse_string(sc._shader, obj["shader"]);
 
 				JsonArray defines(ta);
 				sjson::parse_array(defines, obj["defines"]);
-				for (u32 i = 0; i < array::size(defines); ++i)
+				for (u32 jj = 0; jj < array::size(defines); ++jj)
 				{
 					DynamicString def(ta);
-					sjson::parse_string(def, defines[i]);
+					sjson::parse_string(def, defines[jj]);
 					vector::push_back(sc._defines, def);
 				}
 
@@ -1136,19 +1136,19 @@ namespace shader_resource_internal
 			_opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
 			_opts.write(vector::size(_static_compile));
 
-			for (u32 i = 0; i < vector::size(_static_compile); ++i)
+			for (u32 ii = 0; ii < vector::size(_static_compile); ++ii)
 			{
-				const StaticCompile& sc              = _static_compile[i];
+				const StaticCompile& sc              = _static_compile[ii];
 				const DynamicString& shader          = sc._shader;
 				const Vector<DynamicString>& defines = sc._defines;
 
 				TempAllocator1024 ta;
 				DynamicString str(ta);
 				str = shader;
-				for (u32 i = 0; i < vector::size(defines); ++i)
+				for (u32 jj = 0; jj < vector::size(defines); ++jj)
 				{
 					str += "+";
-					str += defines[i];
+					str += defines[jj];
 				}
 				const StringId32 shader_name(str.c_str());
 
