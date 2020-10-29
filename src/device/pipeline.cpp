@@ -44,9 +44,9 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 {
 	if (3 == bgfx::getAvailTransientVertexBuffer(3, PosTexCoord0Vertex::ms_layout) )
 	{
-		bgfx::TransientVertexBuffer vb;
-		bgfx::allocTransientVertexBuffer(&vb, 3, PosTexCoord0Vertex::ms_layout);
-		PosTexCoord0Vertex* vertex = (PosTexCoord0Vertex*)vb.data;
+		bgfx::TransientVertexBuffer tvb;
+		bgfx::allocTransientVertexBuffer(&tvb, 3, PosTexCoord0Vertex::ms_layout);
+		PosTexCoord0Vertex* vertex = (PosTexCoord0Vertex*)tvb.data;
 
 		const float minx = -_width;
 		const float maxx =  _width;
@@ -91,7 +91,7 @@ void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf
 		vertex[2].m_u = maxu;
 		vertex[2].m_v = maxv;
 
-		bgfx::setVertexBuffer(0, &vb);
+		bgfx::setVertexBuffer(0, &tvb);
 	}
 }
 
