@@ -188,7 +188,7 @@ struct LineReader
 		line.set(s, u32(nl - s));
 	}
 
-	bool eof()
+	bool eof() const
 	{
 		return _str[_pos] == '\0';
 	}
@@ -289,14 +289,8 @@ static Buffer read(FilesystemDisk& data_fs, const char* filename)
 	return buffer;
 }
 
-static void read_data_versions(HashMap<DynamicString, u32>& versions, FilesystemDisk& data_fs, const char* filename)
+static void parse_data_versions(HashMap<DynamicString, u32>& versions, const JsonObject& obj)
 {
-	Buffer json = read(data_fs, filename);
-
-	TempAllocator512 ta;
-	JsonObject obj(ta);
-	sjson::parse(obj, json);
-
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
 	for (; cur != end; ++cur)
@@ -311,7 +305,7 @@ static void read_data_versions(HashMap<DynamicString, u32>& versions, Filesystem
 	}
 }
 
-static void read_data_index(HashMap<StringId64, DynamicString>& index, FilesystemDisk& data_fs, const char* filename, const SourceIndex& sources)
+static void read_data_versions(HashMap<DynamicString, u32>& versions, FilesystemDisk& data_fs, const char* filename)
 {
 	Buffer json = read(data_fs, filename);
 
@@ -319,6 +313,11 @@ static void read_data_index(HashMap<StringId64, DynamicString>& index, Filesyste
 	JsonObject obj(ta);
 	sjson::parse(obj, json);
 
+	parse_data_versions(versions, obj);
+}
+
+static void parse_data_index(HashMap<StringId64, DynamicString>& index, const JsonObject& obj, const SourceIndex& sources)
+{
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
 	for (; cur != end; ++cur)
@@ -340,14 +339,19 @@ static void read_data_index(HashMap<StringId64, DynamicString>& index, Filesyste
 	}
 }
 
-static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& data_index)
+static void read_data_index(HashMap<StringId64, DynamicString>& index, FilesystemDisk& data_fs, const char* filename, const SourceIndex& sources)
 {
 	Buffer json = read(data_fs, filename);
 
-	TempAllocator128 ta;
+	TempAllocator512 ta;
 	JsonObject obj(ta);
 	sjson::parse(obj, json);
 
+	parse_data_index(index, obj, sources);
+}
+
+static void parse_data_mtimes(HashMap<StringId64, u64>& mtimes, const JsonObject& obj, const HashMap<StringId64, DynamicString>& data_index)
+{
 	auto cur = json_object::begin(obj);
 	auto end = json_object::end(obj);
 	for (; cur != end; ++cur)
@@ -369,6 +373,17 @@ static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& d
 		sscanf(mtime_json.c_str(), "%" SCNu64, &mtime);
 		hash_map::set(mtimes, id, mtime);
 	}
+}
+
+static void read_data_mtimes(HashMap<StringId64, u64>& mtimes, FilesystemDisk& data_fs, const char* filename, const HashMap<StringId64, DynamicString>& data_index)
+{
+	Buffer json = read(data_fs, filename);
+
+	TempAllocator128 ta;
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
+
+	parse_data_mtimes(mtimes, obj, data_index);
 }
 
 static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32> >& dependencies, ResourceId id, const DynamicString& dependency)

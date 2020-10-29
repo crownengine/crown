@@ -32,6 +32,7 @@ struct FileMonitorImpl
 		explicit Watch(Allocator& a)
 			: _path(a)
 		{
+			memset(&_buffer, 0, sizeof(_buffer));
 			memset(&_overlapped, 0, sizeof(_overlapped));
 		}
 
@@ -85,32 +86,32 @@ struct FileMonitorImpl
 		_iocp = CreateIoCompletionPort(fh, _iocp, _key, 0);
 		CE_ASSERT(_iocp != NULL, "CreateIoCompletionPort: GetLastError: %d", GetLastError());
 
-		Watch* watch = CE_NEW(*_allocator, Watch)(*_allocator);
-		watch->_path = path;
-		watch->_handle = fh;
+		Watch* wh = CE_NEW(*_allocator, Watch)(*_allocator);
+		wh->_path = path;
+		wh->_handle = fh;
 
 		BOOL rdc = ReadDirectoryChangesW(fh
-			, &watch->_buffer
-			, sizeof(watch->_buffer)
+			, &wh->_buffer
+			, sizeof(wh->_buffer)
 			, _recursive
 			, FILE_NOTIFY_CHANGE_FILE_NAME
 			| FILE_NOTIFY_CHANGE_DIR_NAME
 			| FILE_NOTIFY_CHANGE_ATTRIBUTES
 			| FILE_NOTIFY_CHANGE_SIZE
 			, NULL
-			, &watch->_overlapped
+			, &wh->_overlapped
 			, NULL
 			);
 		CE_ASSERT(rdc != 0, "ReadDirectoryChangesW: GetLastError: %d", GetLastError());
 
-		hash_map::set(_watches, _key, watch);
+		hash_map::set(_watches, _key, wh);
 		++_key;
 	}
 
 	void scan_subdirectories(const char* path)
 	{
-		TempAllocator256 ta;
-		DynamicString dir(ta);
+		TempAllocator256 dir_ta;
+		DynamicString dir(dir_ta);
 		dir += path;
 		dir += "\\*";
 
@@ -197,12 +198,12 @@ struct FileMonitorImpl
 			if (bytes_transferred == 0)
 				continue;
 
-			Watch* watch = hash_map::get(_watches, (u32)(uintptr_t)key, (Watch*)NULL);
+			Watch* wh = hash_map::get(_watches, (u32)(uintptr_t)key, (Watch*)NULL);
 
 			// Read packets
 			DWORD last_action = -1;
 			DynamicString path_old_name(default_allocator());
-			char* cur = (char*)watch->_buffer;
+			char* cur = (char*)wh->_buffer;
 			for(;;)
 			{
 				const FILE_NOTIFY_INFORMATION* fni = (const FILE_NOTIFY_INFORMATION*)cur;
@@ -279,16 +280,16 @@ struct FileMonitorImpl
 				cur += fni->NextEntryOffset;
 			}
 
-			BOOL rdc = ReadDirectoryChangesW(watch->_handle
-				, &watch->_buffer
-				, sizeof(watch->_buffer)
+			BOOL rdc = ReadDirectoryChangesW(wh->_handle
+				, &wh->_buffer
+				, sizeof(wh->_buffer)
 				, _recursive
 				, FILE_NOTIFY_CHANGE_FILE_NAME
 				| FILE_NOTIFY_CHANGE_DIR_NAME
 				| FILE_NOTIFY_CHANGE_ATTRIBUTES
 				| FILE_NOTIFY_CHANGE_SIZE
 				, NULL
-				, &watch->_overlapped
+				, &wh->_overlapped
 				, NULL
 				);
 			CE_ASSERT(rdc != 0, "ReadDirectoryChangesW: GetLastError: %d", GetLastError());
@@ -299,11 +300,11 @@ struct FileMonitorImpl
 
 	void full_path(DynamicString& path, u32 key, const WCHAR* name, u32 name_len)
 	{
-		Watch* watch = hash_map::get(_watches, key, (Watch*)NULL);
+		Watch* wh = hash_map::get(_watches, key, (Watch*)NULL);
 
 		TempAllocator512 ta;
 		DynamicString path_base(ta);
-		path_base = watch->_path;
+		path_base = wh->_path;
 		DynamicString filename(ta);
 		for (u32 ii = 0; ii < name_len/2; ++ii)
 			filename += (char)name[ii];

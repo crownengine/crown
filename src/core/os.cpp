@@ -252,8 +252,8 @@ namespace os
 			closedir(dir);
 		}
 #elif CROWN_PLATFORM_WINDOWS
-		TempAllocator256 ta;
-		DynamicString cur_path(ta);
+		TempAllocator256 ta_path;
+		DynamicString cur_path(ta_path);
 		cur_path += path;
 		cur_path += "\\*";
 

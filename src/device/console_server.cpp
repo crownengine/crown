@@ -76,7 +76,7 @@ namespace console_server_internal
 		}
 	}
 
-	static u32 add_client(ConsoleServer& cs, TCPSocket& socket)
+	static u32 add_client(ConsoleServer& cs, const TCPSocket& socket)
 	{
 		const u32 id = cs._next_client_id++;
 

@@ -143,9 +143,9 @@ void AnimationStateMachine::update(float dt)
 	f32 stack_data[32];
 	skinny::expression_language::Stack stack(stack_data, countof(stack_data));
 
-	for (u32 i = 0; i < array::size(_animations); ++i)
+	for (u32 ii = 0; ii < array::size(_animations); ++ii)
 	{
-		Animation& anim_i = _animations[i];
+		Animation& anim_i = _animations[ii];
 
 		const f32* variables = anim_i.variables;
 		const u32* byte_code = state_machine::byte_code(anim_i.state_machine);
@@ -156,9 +156,9 @@ void AnimationStateMachine::update(float dt)
 		StringId64 name;
 
 		const AnimationArray* aa = state_machine::state_animations(anim_i.state);
-		for (u32 i = 0; i < aa->num; ++i)
+		for (u32 jj = 0; jj < aa->num; ++jj)
 		{
-			const crown::Animation* animation = state_machine::animation(aa, i);
+			const crown::Animation* animation = state_machine::animation(aa, jj);
 
 			stack.size = 0;
 			skinny::expression_language::run(&byte_code[animation->bytecode_entry], variables, stack);
@@ -166,7 +166,7 @@ void AnimationStateMachine::update(float dt)
 			if (cur > max_v || max_i == UINT32_MAX)
 			{
 				max_v = cur;
-				max_i = i;
+				max_i = jj;
 				name = animation->name;
 			}
 		}

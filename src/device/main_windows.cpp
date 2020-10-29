@@ -158,7 +158,7 @@ struct Joypad
 	Axis _axis[CROWN_MAX_JOYPADS];
 	bool _connected[CROWN_MAX_JOYPADS];
 
-	void init()
+	Joypad()
 	{
 		memset(&_state, 0, sizeof(_state));
 		memset(&_axis, 0, sizeof(_axis));

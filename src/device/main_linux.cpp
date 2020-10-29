@@ -174,18 +174,24 @@ struct JoypadEvent
 
 struct Joypad
 {
-	int _fd[CROWN_MAX_JOYPADS];
-	bool _connected[CROWN_MAX_JOYPADS];
-
 	struct AxisData
 	{
 		s16 left[3];
 		s16 right[3];
 	};
 
+	int _fd[CROWN_MAX_JOYPADS];
+	bool _connected[CROWN_MAX_JOYPADS];
 	AxisData _axis[CROWN_MAX_JOYPADS];
 
-	void init()
+	Joypad()
+	{
+		memset(&_fd, 0, sizeof(_fd));
+		memset(&_connected, 0, sizeof(_connected));
+		memset(&_axis, 0, sizeof(_axis));
+	}
+
+	void open()
 	{
 		char jspath[] = "/dev/input/jsX";
 		char* num = strchr(jspath, 'X');
@@ -193,19 +199,19 @@ struct Joypad
 		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		{
 			*num = '0' + i;
-			_fd[i] = open(jspath, O_RDONLY | O_NONBLOCK);
+			_fd[i] = ::open(jspath, O_RDONLY | O_NONBLOCK);
 		}
 
 		memset(_connected, 0, sizeof(_connected));
 		memset(_axis, 0, sizeof(_axis));
 	}
 
-	void shutdown()
+	void close()
 	{
 		for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		{
 			if (_fd[i] != -1)
-				close(_fd[i]);
+				::close(_fd[i]);
 		}
 	}
 
@@ -407,7 +413,7 @@ struct LinuxDevice
 			, opts
 			);
 
-		_joypad.init();
+		_joypad.open();
 
 		while (!s_exit)
 		{
@@ -584,7 +590,7 @@ struct LinuxDevice
 			}
 		}
 
-		_joypad.shutdown();
+		_joypad.close();
 
 		main_thread.stop();
 
