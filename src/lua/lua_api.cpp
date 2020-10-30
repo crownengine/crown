@@ -1946,18 +1946,13 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("RenderWorld", "mesh_instances", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			RenderWorld* rw = stack.get_render_world(1);
-			UnitId unit = stack.get_unit(2);
+			MeshInstance inst = stack.get_render_world(1)->mesh_instances(stack.get_unit(2));
 
-			TempAllocator512 ta;
-			Array<MeshInstance> inst(ta);
-			rw->mesh_instances(unit, inst);
+			if (inst.i == UINT32_MAX)
+				return 0;
 
-			const u32 n = array::size(inst);
-			for (u32 i = 0; i < n; ++i)
-				stack.push_mesh_instance(inst[i]);
-
-			return (s32)n;
+			stack.push_mesh_instance(inst);
+			return 1;
 		});
 	env.add_module_function("RenderWorld", "mesh_obb", [](lua_State* L)
 		{

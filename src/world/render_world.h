@@ -33,7 +33,7 @@ struct RenderWorld
 	void mesh_destroy(MeshInstance i);
 
 	/// Returns the mesh instances of the unit @a id.
-	void mesh_instances(UnitId id, Array<MeshInstance>& instances);
+	MeshInstance mesh_instances(UnitId id);
 
 	/// Returns the material of the mesh @a i.
 	Material* mesh_material(MeshInstance i);
@@ -170,7 +170,6 @@ struct RenderWorld
 			StringId64* material;
 			Matrix4x4* world;
 			OBB* obb;
-			MeshInstance* next_instance;
 		};
 
 		Allocator* _allocator;
@@ -189,12 +188,7 @@ struct RenderWorld
 		MeshInstance create(UnitId id, const MeshResource* mr, const MeshGeometry* mg, StringId64 material, const Matrix4x4& tr);
 		void destroy(MeshInstance i);
 		bool has(UnitId id);
-		MeshInstance first(UnitId id);
-		MeshInstance next(MeshInstance i);
-		MeshInstance previous(MeshInstance i);
-		void add_node(MeshInstance first, MeshInstance i);
-		void remove_node(MeshInstance first, MeshInstance i);
-		void swap_node(MeshInstance a, MeshInstance b);
+		MeshInstance mesh(UnitId id);
 		void destroy();
 
 		MeshInstance make_instance(u32 i) { MeshInstance inst = { i }; return inst; }

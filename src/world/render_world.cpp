@@ -82,18 +82,13 @@ MeshInstance RenderWorld::mesh_create(UnitId id, const MeshRendererDesc& mrd, co
 
 void RenderWorld::mesh_destroy(MeshInstance i)
 {
+	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
 	_mesh_manager.destroy(i);
 }
 
-void RenderWorld::mesh_instances(UnitId id, Array<MeshInstance>& instances)
+MeshInstance RenderWorld::mesh_instances(UnitId unit)
 {
-	MeshInstance inst = _mesh_manager.first(id);
-
-	while (is_valid(inst))
-	{
-		array::push_back(instances, inst);
-		inst = _mesh_manager.next(inst);
-	}
+	return _mesh_manager.mesh(unit);
 }
 
 Material* RenderWorld::mesh_material(MeshInstance i)
@@ -379,7 +374,7 @@ void RenderWorld::update_transforms(const UnitId* begin, const UnitId* end, cons
 	{
 		if (_mesh_manager.has(*begin))
 		{
-			MeshInstance inst = _mesh_manager.first(*begin);
+			MeshInstance inst = _mesh_manager.mesh(*begin);
 			mid.world[inst.i] = *world;
 		}
 
@@ -544,15 +539,10 @@ void RenderWorld::enable_debug_drawing(bool enable)
 void RenderWorld::unit_destroyed_callback(UnitId id)
 {
 	{
-		MeshInstance curr = _mesh_manager.first(id);
-		MeshInstance next;
+		MeshInstance first = mesh_instances(id);
 
-		while (is_valid(curr))
-		{
-			next = _mesh_manager.next(curr);
-			mesh_destroy(curr);
-			curr = next;
-		}
+		if (is_valid(first))
+			mesh_destroy(first);
 	}
 
 	{
@@ -582,7 +572,6 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(StringId64) + alignof(StringId64)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(OBB) + alignof(OBB)
-		+ num*sizeof(MeshInstance) + alignof(MeshInstance)
 		;
 
 	MeshInstanceData new_data;
@@ -598,7 +587,6 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.material      = (StringId64*         )memory::align_top(new_data.mesh + num,     alignof(StringId64   ));
 	new_data.world         = (Matrix4x4*          )memory::align_top(new_data.material + num, alignof(Matrix4x4    ));
 	new_data.obb           = (OBB*                )memory::align_top(new_data.world + num,    alignof(OBB          ));
-	new_data.next_instance = (MeshInstance*       )memory::align_top(new_data.obb + num,      alignof(MeshInstance ));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource*));
@@ -607,7 +595,6 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.material, _data.material, _data.size * sizeof(StringId64));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
-	memcpy(new_data.next_instance, _data.next_instance, _data.size * sizeof(MeshInstance));
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -618,14 +605,16 @@ void RenderWorld::MeshManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-MeshInstance RenderWorld::MeshManager::create(UnitId id, const MeshResource* mr, const MeshGeometry* mg, StringId64 mat, const Matrix4x4& tr)
+MeshInstance RenderWorld::MeshManager::create(UnitId unit, const MeshResource* mr, const MeshGeometry* mg, StringId64 mat, const Matrix4x4& tr)
 {
+	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a mesh component");
+
 	if (_data.size == _data.capacity)
 		grow();
 
 	const u32 last = _data.size;
 
-	_data.unit[last]          = id;
+	_data.unit[last]          = unit;
 	_data.resource[last]      = mr;
 	_data.geometry[last]      = mg;
 	_data.mesh[last].vbh      = mg->vertex_buffer;
@@ -633,21 +622,11 @@ MeshInstance RenderWorld::MeshManager::create(UnitId id, const MeshResource* mr,
 	_data.material[last]      = mat;
 	_data.world[last]         = tr;
 	_data.obb[last]           = mg->obb;
-	_data.next_instance[last] = make_instance(UINT32_MAX);
 
 	++_data.size;
 	++_data.first_hidden;
 
-	MeshInstance curr = first(id);
-	if (!is_valid(curr))
-	{
-		hash_map::set(_map, id, last);
-	}
-	else
-	{
-		add_node(curr, make_instance(last));
-	}
-
+	hash_map::set(_map, unit, last);
 	return make_instance(last);
 }
 
@@ -655,113 +634,34 @@ void RenderWorld::MeshManager::destroy(MeshInstance i)
 {
 	CE_ASSERT(i.i < _data.size, "Index out of bounds");
 
-	const u32 last             = _data.size - 1;
-	const UnitId u             = _data.unit[i.i];
-	const MeshInstance first_i = first(u);
-	const MeshInstance last_i  = make_instance(last);
+	const u32 last      = _data.size - 1;
+	const UnitId u      = _data.unit[i.i];
+	const UnitId last_u = _data.unit[last];
 
-	swap_node(last_i, i);
-	remove_node(first_i, i);
-
-	_data.unit[i.i]          = _data.unit[last];
-	_data.resource[i.i]      = _data.resource[last];
-	_data.geometry[i.i]      = _data.geometry[last];
-	_data.mesh[i.i].vbh      = _data.mesh[last].vbh;
-	_data.mesh[i.i].ibh      = _data.mesh[last].ibh;
-	_data.material[i.i]      = _data.material[last];
-	_data.world[i.i]         = _data.world[last];
-	_data.obb[i.i]           = _data.obb[last];
-	_data.next_instance[i.i] = _data.next_instance[last];
+	_data.unit[i.i]     = _data.unit[last];
+	_data.resource[i.i] = _data.resource[last];
+	_data.geometry[i.i] = _data.geometry[last];
+	_data.mesh[i.i].vbh = _data.mesh[last].vbh;
+	_data.mesh[i.i].ibh = _data.mesh[last].ibh;
+	_data.material[i.i] = _data.material[last];
+	_data.world[i.i]    = _data.world[last];
+	_data.obb[i.i]      = _data.obb[last];
 
 	--_data.size;
 	--_data.first_hidden;
+
+	hash_map::set(_map, last_u, i.i);
+	hash_map::remove(_map, u);
 }
 
 bool RenderWorld::MeshManager::has(UnitId id)
 {
-	return is_valid(first(id));
+	return is_valid(mesh(id));
 }
 
-MeshInstance RenderWorld::MeshManager::first(UnitId id)
+MeshInstance RenderWorld::MeshManager::mesh(UnitId id)
 {
 	return make_instance(hash_map::get(_map, id, UINT32_MAX));
-}
-
-MeshInstance RenderWorld::MeshManager::next(MeshInstance i)
-{
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-	return _data.next_instance[i.i];
-}
-
-MeshInstance RenderWorld::MeshManager::previous(MeshInstance i)
-{
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-
-	const UnitId u = _data.unit[i.i];
-
-	MeshInstance curr = first(u);
-	MeshInstance prev = { UINT32_MAX };
-
-	while (curr.i != i.i)
-	{
-		prev = curr;
-		curr = next(curr);
-	}
-
-	return prev;
-}
-
-void RenderWorld::MeshManager::add_node(MeshInstance first, MeshInstance i)
-{
-	CE_ASSERT(first.i < _data.size, "Index out of bounds");
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-
-	MeshInstance curr = first;
-	while (is_valid(next(curr)))
-		curr = next(curr);
-
-	_data.next_instance[curr.i] = i;
-}
-
-void RenderWorld::MeshManager::remove_node(MeshInstance first, MeshInstance i)
-{
-	CE_ASSERT(first.i < _data.size, "Index out of bounds");
-	CE_ASSERT(i.i < _data.size, "Index out of bounds");
-
-	const UnitId u = _data.unit[first.i];
-
-	if (i.i == first.i)
-	{
-		if (!is_valid(next(i)))
-			hash_map::remove(_map, u);
-		else
-			hash_map::set(_map, u, next(i).i);
-	}
-	else
-	{
-		MeshInstance prev = previous(i);
-		_data.next_instance[prev.i] = next(i);
-	}
-}
-
-void RenderWorld::MeshManager::swap_node(MeshInstance a, MeshInstance b)
-{
-	CE_ASSERT(a.i < _data.size, "Index out of bounds");
-	CE_ASSERT(b.i < _data.size, "Index out of bounds");
-
-	const UnitId u = _data.unit[a.i];
-	const MeshInstance first_i = first(u);
-
-	if (a.i == first_i.i)
-	{
-		hash_map::set(_map, u, b.i);
-	}
-	else
-	{
-		const MeshInstance prev_a = previous(a);
-		CE_ENSURE(prev_a.i != a.i);
-		_data.next_instance[prev_a.i] = b;
-	}
 }
 
 void RenderWorld::MeshManager::destroy()
