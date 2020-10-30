@@ -39,8 +39,7 @@ namespace script_world
 {
 	ScriptInstance create(ScriptWorld& sw, UnitId unit, const ScriptDesc& desc)
 	{
-
-		CE_ASSERT(!hash_map::has(sw._map, unit), "Unit already has script component");
+		CE_ASSERT(!hash_map::has(sw._map, unit), "Unit already has a script component");
 
 		u32 script_i = hash_map::get(sw._cache
 			, desc.script_resource

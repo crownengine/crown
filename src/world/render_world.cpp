@@ -823,14 +823,16 @@ void RenderWorld::SpriteManager::grow()
 	allocate(_data.capacity * 2 + 1);
 }
 
-SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResource* sr, StringId64 mat, u32 layer, u32 depth, const Matrix4x4& tr)
+SpriteInstance RenderWorld::SpriteManager::create(UnitId unit, const SpriteResource* sr, StringId64 mat, u32 layer, u32 depth, const Matrix4x4& tr)
 {
+	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a sprite component");
+
 	if (_data.size == _data.capacity)
 		grow();
 
 	const u32 last = _data.size;
 
-	_data.unit[last]     = id;
+	_data.unit[last]     = unit;
 	_data.resource[last] = sr;
 	_data.material[last] = mat;
 	_data.frame[last]    = 0;
@@ -844,7 +846,7 @@ SpriteInstance RenderWorld::SpriteManager::create(UnitId id, const SpriteResourc
 	++_data.size;
 	++_data.first_hidden;
 
-	hash_map::set(_map, id, last);
+	hash_map::set(_map, unit, last);
 	return make_instance(last);
 }
 
@@ -974,7 +976,7 @@ void RenderWorld::LightManager::grow()
 
 LightInstance RenderWorld::LightManager::create(UnitId id, const LightDesc& ld, const Matrix4x4& tr)
 {
-	CE_ASSERT(!hash_map::has(_map, id), "Unit already has light");
+	CE_ASSERT(!hash_map::has(_map, id), "Unit already has a light component");
 
 	if (_data.size == _data.capacity)
 		grow();

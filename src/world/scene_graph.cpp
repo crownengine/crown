@@ -122,7 +122,7 @@ TransformInstance SceneGraph::create(UnitId unit, const Vector3& pos, const Quat
 
 TransformInstance SceneGraph::create(UnitId unit, const Matrix4x4& pose)
 {
-	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has transform");
+	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a transform component");
 
 	if (_data.capacity == _data.size)
 		grow();

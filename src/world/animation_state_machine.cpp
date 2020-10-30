@@ -47,7 +47,7 @@ AnimationStateMachine::~AnimationStateMachine()
 
 u32 AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc& desc)
 {
-	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has this component");
+	CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a state machine component");
 
 	const StateMachineResource* smr = (StateMachineResource*)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, desc.state_machine_resource);
 
