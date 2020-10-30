@@ -545,8 +545,6 @@ public class LevelEditorApplication : Gtk.Application
 		}
 		else
 		{
-			bool found = false;
-
 			/// More desirable paths come first
 			string toolchain_paths[] =
 			{
@@ -555,25 +553,24 @@ public class LevelEditorApplication : Gtk.Application
 				"../../../samples"
 			};
 
-			for (int i = 0; i < toolchain_paths.length; ++i)
+			int ii = 0;
+			for (ii = 0; ii < toolchain_paths.length; ++ii)
 			{
-				string path = Path.build_filename(toolchain_paths[i], "core");
+				string path = Path.build_filename(toolchain_paths[ii], "core");
 
 				// Try to locate the toolchain directory
 				if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR))
-				{
-					_toolchain_dir = toolchain_paths[i];
-					found = true;
 					break;
-				}
 			}
 
-			if (!found)
+			if (ii == toolchain_paths.length)
 			{
 				loge("Unable to find the toolchain directory");
 				exit_status = 1;
 				return true;
 			}
+
+			_toolchain_dir = toolchain_paths[ii];
 		}
 
 		exit_status = 0;
