@@ -107,6 +107,7 @@ void RenderWorld::mesh_set_material(MeshInstance i, StringId64 id)
 void RenderWorld::mesh_set_visible(MeshInstance i, bool visible)
 {
 	CE_ASSERT(i.i < _mesh_manager._data.size, "Index out of bounds");
+	_mesh_manager.set_visible(i, visible);
 }
 
 OBB RenderWorld::mesh_obb(MeshInstance i)
@@ -657,6 +658,42 @@ void RenderWorld::MeshManager::destroy(MeshInstance i)
 bool RenderWorld::MeshManager::has(UnitId id)
 {
 	return is_valid(mesh(id));
+}
+
+void RenderWorld::MeshManager::set_visible(MeshInstance i, bool visible)
+{
+	u32 swap_index = UINT32_MAX;
+	const UnitId unit = _data.unit[i.i];
+
+	if (visible && i.i >= _data.first_hidden)
+	{
+		const u32 first_hidden = _data.first_hidden;
+		const UnitId first_hidden_unit = _data.unit[first_hidden];
+		hash_map::set(_map, unit, first_hidden);
+		hash_map::set(_map, first_hidden_unit, i.i);
+		swap_index = first_hidden;
+		++_data.first_hidden;
+	}
+	else if (!visible && i.i < _data.first_hidden)
+	{
+		const u32 last_visible = _data.first_hidden - 1;
+		const UnitId last_visible_unit = _data.unit[last_visible];
+		hash_map::set(_map, unit, last_visible);
+		hash_map::set(_map, last_visible_unit, i.i);
+		swap_index = last_visible;
+		--_data.first_hidden;
+	}
+
+	if (swap_index != UINT32_MAX)
+	{
+		exchange(_data.unit[i.i], _data.unit[swap_index]);
+		exchange(_data.resource[i.i], _data.resource[swap_index]);
+		exchange(_data.geometry[i.i], _data.geometry[swap_index]);
+		exchange(_data.mesh[i.i], _data.mesh[swap_index]);
+		exchange(_data.material[i.i], _data.material[swap_index]);
+		exchange(_data.world[i.i], _data.world[swap_index]);
+		exchange(_data.obb[i.i], _data.obb[swap_index]);
+	}
 }
 
 MeshInstance RenderWorld::MeshManager::mesh(UnitId id)

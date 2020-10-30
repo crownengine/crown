@@ -188,6 +188,7 @@ struct RenderWorld
 		MeshInstance create(UnitId id, const MeshResource* mr, const MeshGeometry* mg, StringId64 material, const Matrix4x4& tr);
 		void destroy(MeshInstance i);
 		bool has(UnitId id);
+		void set_visible(MeshInstance i, bool visible);
 		MeshInstance mesh(UnitId id);
 		void destroy();
 
