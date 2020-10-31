@@ -252,13 +252,13 @@ inline UnitId LuaStack::get_unit(int i)
 	return unit;
 }
 
-inline CameraInstance LuaStack::get_camera(int i)
+inline CameraInstance LuaStack::get_camera_instance(int i)
 {
 	CameraInstance inst = { get_id(i) };
 	return inst;
 }
 
-inline TransformInstance LuaStack::get_transform(int i)
+inline TransformInstance LuaStack::get_transform_instance(int i)
 {
 	TransformInstance inst = { get_id(i) };
 	return inst;
@@ -293,7 +293,7 @@ inline Material* LuaStack::get_material(int i)
 	return (Material*)get_pointer(i);
 }
 
-inline ActorInstance LuaStack::get_actor(int i)
+inline ActorInstance LuaStack::get_actor_instance(int i)
 {
 	ActorInstance inst = { get_id(i) };
 	return inst;

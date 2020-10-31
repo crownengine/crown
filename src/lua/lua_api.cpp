@@ -1520,68 +1520,68 @@ void load_api(LuaEnvironment& env)
 			const ProjectionType::Enum pt = name_to_projection_type(name);
 			LUA_ASSERT(pt != ProjectionType::COUNT, stack, "Unknown projection type: '%s'", name);
 
-			stack.get_world(1)->camera_set_projection_type(stack.get_camera(2), pt);
+			stack.get_world(1)->camera_set_projection_type(stack.get_camera_instance(2), pt);
 			return 0;
 		});
 	env.add_module_function("World", "camera_projection_type", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			ProjectionType::Enum type = stack.get_world(1)->camera_projection_type(stack.get_camera(2));
+			ProjectionType::Enum type = stack.get_world(1)->camera_projection_type(stack.get_camera_instance(2));
 			stack.push_string(s_projection[type].name);
 			return 1;
 		});
 	env.add_module_function("World", "camera_fov", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_float(stack.get_world(1)->camera_fov(stack.get_camera(2)));
+			stack.push_float(stack.get_world(1)->camera_fov(stack.get_camera_instance(2)));
 			return 1;
 		});
 	env.add_module_function("World", "camera_set_fov", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_world(1)->camera_set_fov(stack.get_camera(2), stack.get_float(3));
+			stack.get_world(1)->camera_set_fov(stack.get_camera_instance(2), stack.get_float(3));
 			return 0;
 		});
 	env.add_module_function("World", "camera_near_clip_distance", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_float(stack.get_world(1)->camera_near_clip_distance(stack.get_camera(2)));
+			stack.push_float(stack.get_world(1)->camera_near_clip_distance(stack.get_camera_instance(2)));
 			return 1;
 		});
 	env.add_module_function("World", "camera_set_near_clip_distance", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_world(1)->camera_set_near_clip_distance(stack.get_camera(2), stack.get_float(3));
+			stack.get_world(1)->camera_set_near_clip_distance(stack.get_camera_instance(2), stack.get_float(3));
 			return 0;
 		});
 	env.add_module_function("World", "camera_far_clip_distance", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_float(stack.get_world(1)->camera_far_clip_distance(stack.get_camera(2)));
+			stack.push_float(stack.get_world(1)->camera_far_clip_distance(stack.get_camera_instance(2)));
 			return 1;
 		});
 	env.add_module_function("World", "camera_set_far_clip_distance", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_world(1)->camera_set_far_clip_distance(stack.get_camera(2), stack.get_float(3));
+			stack.get_world(1)->camera_set_far_clip_distance(stack.get_camera_instance(2), stack.get_float(3));
 			return 0;
 		});
 	env.add_module_function("World", "camera_set_orthographic_size", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_world(1)->camera_set_orthographic_size(stack.get_camera(2), stack.get_float(3));
+			stack.get_world(1)->camera_set_orthographic_size(stack.get_camera_instance(2), stack.get_float(3));
 			return 0;
 		});
 	env.add_module_function("World", "camera_screen_to_world", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_world(1)->camera_screen_to_world(stack.get_camera(2), stack.get_vector3(3)));
+			stack.push_vector3(stack.get_world(1)->camera_screen_to_world(stack.get_camera_instance(2), stack.get_vector3(3)));
 			return 1;
 		});
 	env.add_module_function("World", "camera_world_to_screen", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_world(1)->camera_world_to_screen(stack.get_camera(2), stack.get_vector3(3)));
+			stack.push_vector3(stack.get_world(1)->camera_world_to_screen(stack.get_camera_instance(2), stack.get_vector3(3)));
 			return 1;
 		});
 	env.add_module_function("World", "update_animations", [](lua_State* L)
@@ -1763,7 +1763,7 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("SceneGraph", "destroy", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_scene_graph(1)->destroy(stack.get_transform(2));
+			stack.get_scene_graph(1)->destroy(stack.get_transform_instance(2));
 			return 0;
 		});
 	env.add_module_function("SceneGraph", "instance", [](lua_State* L)
@@ -1779,79 +1779,79 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("SceneGraph", "local_position", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_scene_graph(1)->local_position(stack.get_transform(2)));
+			stack.push_vector3(stack.get_scene_graph(1)->local_position(stack.get_transform_instance(2)));
 			return 1;
 		});
 	env.add_module_function("SceneGraph", "local_rotation", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_quaternion(stack.get_scene_graph(1)->local_rotation(stack.get_transform(2)));
+			stack.push_quaternion(stack.get_scene_graph(1)->local_rotation(stack.get_transform_instance(2)));
 			return 1;
 		});
 	env.add_module_function("SceneGraph", "local_scale", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_scene_graph(1)->local_scale(stack.get_transform(2)));
+			stack.push_vector3(stack.get_scene_graph(1)->local_scale(stack.get_transform_instance(2)));
 			return 1;
 		});
 	env.add_module_function("SceneGraph", "local_pose", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_matrix4x4(stack.get_scene_graph(1)->local_pose(stack.get_transform(2)));
+			stack.push_matrix4x4(stack.get_scene_graph(1)->local_pose(stack.get_transform_instance(2)));
 			return 1;
 		});
 	env.add_module_function("SceneGraph", "world_position", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_scene_graph(1)->world_position(stack.get_transform(2)));
+			stack.push_vector3(stack.get_scene_graph(1)->world_position(stack.get_transform_instance(2)));
 			return 1;
 		});
 	env.add_module_function("SceneGraph", "world_rotation", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_quaternion(stack.get_scene_graph(1)->world_rotation(stack.get_transform(2)));
+			stack.push_quaternion(stack.get_scene_graph(1)->world_rotation(stack.get_transform_instance(2)));
 			return 1;
 		});
 	env.add_module_function("SceneGraph", "world_pose", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_matrix4x4(stack.get_scene_graph(1)->world_pose(stack.get_transform(2)));
+			stack.push_matrix4x4(stack.get_scene_graph(1)->world_pose(stack.get_transform_instance(2)));
 			return 1;
 		});
 	env.add_module_function("SceneGraph", "set_local_position", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_scene_graph(1)->set_local_position(stack.get_transform(2), stack.get_vector3(3));
+			stack.get_scene_graph(1)->set_local_position(stack.get_transform_instance(2), stack.get_vector3(3));
 			return 0;
 		});
 	env.add_module_function("SceneGraph", "set_local_rotation", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_scene_graph(1)->set_local_rotation(stack.get_transform(2), stack.get_quaternion(3));
+			stack.get_scene_graph(1)->set_local_rotation(stack.get_transform_instance(2), stack.get_quaternion(3));
 			return 0;
 		});
 	env.add_module_function("SceneGraph", "set_local_scale", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_scene_graph(1)->set_local_scale(stack.get_transform(2), stack.get_vector3(3));
+			stack.get_scene_graph(1)->set_local_scale(stack.get_transform_instance(2), stack.get_vector3(3));
 			return 0;
 		});
 	env.add_module_function("SceneGraph", "set_local_pose", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_scene_graph(1)->set_local_pose(stack.get_transform(2), stack.get_matrix4x4(3));
+			stack.get_scene_graph(1)->set_local_pose(stack.get_transform_instance(2), stack.get_matrix4x4(3));
 			return 0;
 		});
 	env.add_module_function("SceneGraph", "link", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_scene_graph(1)->link(stack.get_transform(2), stack.get_transform(3));
+			stack.get_scene_graph(1)->link(stack.get_transform_instance(2), stack.get_transform_instance(3));
 			return 0;
 		});
 	env.add_module_function("SceneGraph", "unlink", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_scene_graph(1)->unlink(stack.get_transform(2));
+			stack.get_scene_graph(1)->unlink(stack.get_transform_instance(2));
 			return 0;
 		});
 
@@ -2181,199 +2181,199 @@ void load_api(LuaEnvironment& env)
 	env.add_module_function("PhysicsWorld", "actor_destroy", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_destroy(stack.get_actor(2));
+			stack.get_physics_world(1)->actor_destroy(stack.get_actor_instance(2));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_world_position", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_physics_world(1)->actor_world_position(stack.get_actor(2)));
+			stack.push_vector3(stack.get_physics_world(1)->actor_world_position(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_world_rotation", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_quaternion(stack.get_physics_world(1)->actor_world_rotation(stack.get_actor(2)));
+			stack.push_quaternion(stack.get_physics_world(1)->actor_world_rotation(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_world_pose", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_matrix4x4(stack.get_physics_world(1)->actor_world_pose(stack.get_actor(2)));
+			stack.push_matrix4x4(stack.get_physics_world(1)->actor_world_pose(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_teleport_world_position", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_teleport_world_position(stack.get_actor(2), stack.get_vector3(3));
+			stack.get_physics_world(1)->actor_teleport_world_position(stack.get_actor_instance(2), stack.get_vector3(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_teleport_world_rotation", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_teleport_world_rotation(stack.get_actor(2), stack.get_quaternion(3));
+			stack.get_physics_world(1)->actor_teleport_world_rotation(stack.get_actor_instance(2), stack.get_quaternion(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_teleport_world_pose", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_teleport_world_pose(stack.get_actor(2), stack.get_matrix4x4(3));
+			stack.get_physics_world(1)->actor_teleport_world_pose(stack.get_actor_instance(2), stack.get_matrix4x4(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_center_of_mass", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_physics_world(1)->actor_center_of_mass(stack.get_actor(2)));
+			stack.push_vector3(stack.get_physics_world(1)->actor_center_of_mass(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_enable_gravity", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_enable_gravity(stack.get_actor(2));
+			stack.get_physics_world(1)->actor_enable_gravity(stack.get_actor_instance(2));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_disable_gravity", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_disable_gravity(stack.get_actor(2));
+			stack.get_physics_world(1)->actor_disable_gravity(stack.get_actor_instance(2));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_enable_collision", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_enable_collision(stack.get_actor(2));
+			stack.get_physics_world(1)->actor_enable_collision(stack.get_actor_instance(2));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_disable_collision", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_disable_collision(stack.get_actor(2));
+			stack.get_physics_world(1)->actor_disable_collision(stack.get_actor_instance(2));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_set_collision_filter", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_set_collision_filter(stack.get_actor(2), stack.get_string_id_32(3));
+			stack.get_physics_world(1)->actor_set_collision_filter(stack.get_actor_instance(2), stack.get_string_id_32(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_set_kinematic", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_set_kinematic(stack.get_actor(2), stack.get_bool(3));
+			stack.get_physics_world(1)->actor_set_kinematic(stack.get_actor_instance(2), stack.get_bool(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_is_static", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_bool(stack.get_physics_world(1)->actor_is_static(stack.get_actor(2)));
+			stack.push_bool(stack.get_physics_world(1)->actor_is_static(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_is_dynamic", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_bool(stack.get_physics_world(1)->actor_is_dynamic(stack.get_actor(2)));
+			stack.push_bool(stack.get_physics_world(1)->actor_is_dynamic(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_is_kinematic", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_bool(stack.get_physics_world(1)->actor_is_kinematic(stack.get_actor(2)));
+			stack.push_bool(stack.get_physics_world(1)->actor_is_kinematic(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_is_nonkinematic", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_bool(stack.get_physics_world(1)->actor_is_nonkinematic(stack.get_actor(2)));
+			stack.push_bool(stack.get_physics_world(1)->actor_is_nonkinematic(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_linear_damping", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_float(stack.get_physics_world(1)->actor_linear_damping(stack.get_actor(2)));
+			stack.push_float(stack.get_physics_world(1)->actor_linear_damping(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_set_linear_damping", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_set_linear_damping(stack.get_actor(2), stack.get_float(3));
+			stack.get_physics_world(1)->actor_set_linear_damping(stack.get_actor_instance(2), stack.get_float(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_angular_damping", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_float(stack.get_physics_world(1)->actor_angular_damping(stack.get_actor(2)));
+			stack.push_float(stack.get_physics_world(1)->actor_angular_damping(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_set_angular_damping", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_set_angular_damping(stack.get_actor(2), stack.get_float(3));
+			stack.get_physics_world(1)->actor_set_angular_damping(stack.get_actor_instance(2), stack.get_float(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_linear_velocity", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_physics_world(1)->actor_linear_velocity(stack.get_actor(2)));
+			stack.push_vector3(stack.get_physics_world(1)->actor_linear_velocity(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_set_linear_velocity", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_set_linear_velocity(stack.get_actor(2), stack.get_vector3(3));
+			stack.get_physics_world(1)->actor_set_linear_velocity(stack.get_actor_instance(2), stack.get_vector3(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_angular_velocity", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_vector3(stack.get_physics_world(1)->actor_angular_velocity(stack.get_actor(2)));
+			stack.push_vector3(stack.get_physics_world(1)->actor_angular_velocity(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_set_angular_velocity", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_set_angular_velocity(stack.get_actor(2), stack.get_vector3(3));
+			stack.get_physics_world(1)->actor_set_angular_velocity(stack.get_actor_instance(2), stack.get_vector3(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_add_impulse", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_add_impulse(stack.get_actor(2), stack.get_vector3(3));
+			stack.get_physics_world(1)->actor_add_impulse(stack.get_actor_instance(2), stack.get_vector3(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_add_impulse_at", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_add_impulse_at(stack.get_actor(2), stack.get_vector3(3), stack.get_vector3(4));
+			stack.get_physics_world(1)->actor_add_impulse_at(stack.get_actor_instance(2), stack.get_vector3(3), stack.get_vector3(4));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_add_actor_torque_impulse", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_add_torque_impulse(stack.get_actor(2), stack.get_vector3(3));
+			stack.get_physics_world(1)->actor_add_torque_impulse(stack.get_actor_instance(2), stack.get_vector3(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_push", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_push(stack.get_actor(2), stack.get_vector3(3), stack.get_float(4));
+			stack.get_physics_world(1)->actor_push(stack.get_actor_instance(2), stack.get_vector3(3), stack.get_float(4));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_push_at", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_push_at(stack.get_actor(2), stack.get_vector3(3), stack.get_float(4), stack.get_vector3(5));
+			stack.get_physics_world(1)->actor_push_at(stack.get_actor_instance(2), stack.get_vector3(3), stack.get_float(4), stack.get_vector3(5));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "actor_is_sleeping", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.push_bool(stack.get_physics_world(1)->actor_is_sleeping(stack.get_actor(2)));
+			stack.push_bool(stack.get_physics_world(1)->actor_is_sleeping(stack.get_actor_instance(2)));
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "actor_wake_up", [](lua_State* L)
 		{
 			LuaStack stack(L);
-			stack.get_physics_world(1)->actor_wake_up(stack.get_actor(2));
+			stack.get_physics_world(1)->actor_wake_up(stack.get_actor_instance(2));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "joint_create", [](lua_State* L)
@@ -2388,7 +2388,7 @@ void load_api(LuaEnvironment& env)
 			jd.hinge.lower_limit = -3.14f / 4.0f;
 			jd.hinge.upper_limit = 3.14f / 4.0f;
 			jd.hinge.bounciness = 12.0f;
-			stack.get_physics_world(1)->joint_create(stack.get_actor(2), stack.get_actor(3), jd);
+			stack.get_physics_world(1)->joint_create(stack.get_actor_instance(2), stack.get_actor_instance(3), jd);
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "gravity", [](lua_State* L)

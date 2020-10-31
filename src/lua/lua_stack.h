@@ -155,10 +155,10 @@ struct LuaStack
 	UnitId get_unit(int i);
 
 	///
-	CameraInstance get_camera(int i);
+	CameraInstance get_camera_instance(int i);
 
 	///
-	TransformInstance get_transform(int i);
+	TransformInstance get_transform_instance(int i);
 
 	///
 	MeshInstance get_mesh_instance(int i);
@@ -176,7 +176,7 @@ struct LuaStack
 	Material* get_material(int i);
 
 	///
-	ActorInstance get_actor(int i);
+	ActorInstance get_actor_instance(int i);
 
 	///
 	SoundInstanceId get_sound_instance_id(int i);
